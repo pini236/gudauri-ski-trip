@@ -1,0 +1,42 @@
+{
+  "date": "2026-09-30",
+  "findings": [
+    "Cross-check with the ChatGPT package: the raw OSM data is identical. Differences are interpretive only: Tatra 2 extent, confidence levels, Shino, Baby and Bombora.",
+    "Tatra 2 (high): extended to the Shino lower station, OSM ways 668794706 + 1018641392 joined (2282 m), after cross-check and user confirmation. The lower trunk is shared with Tatra 1 and already drawn on the site; branch 668794711 kept as an alternative.",
+    "Soliko 2 (medium, partial): only the upper 372 m (deleted way 158744056, ref 2B). Its first node is shared with Soliko 1 and it crosses the Shino lift about halfway up, as on the official map. No separate GPS corridor exists for the rest, so it was not extended.",
+    "Shino: the official map legend shows a dashed line as a Ski Way (connecting road), not a run, so the doc has kind ski-way. Best match is unnamed way 1259783832 (low), which was carved out of Tatra 1 in the 2024-03-10 cleanup. The western part toward Alpina has no OSM way.",
+    "Firni: OSM has one hybrid way 668794719 (named Kobi 1 in 2023, Frini since 2024, a misspelling of Firni). It was split where it crosses the gondola: nodes 0-9 (east side) as Firni 1, nodes 9-22 (west side) as Firni 2. Both are partial and low confidence. Kobi on the map is the name of the upper lift section, and the piste Kobi (668794718) already exists on the site above the Firni gondola.",
+    "Baby and Bombora (medium): centerlines of unnamed OSM ways 472374254 and 158817286, proposed by ChatGPT and confirmed by the user against the official map. They are centerlines, not area boundaries; the J-bar positions are not in OSM. Bombora's way is 50-110 m lower than the J-bar elevation listed by skiresort (unresolved).",
+    "GPS shows no unmapped run outside current and historical OSM lines. Only 4 recordings skied the Firni corridor at all.",
+    "The 2024-03-10 OSM cleanup (changeset 148478421) deleted Tatra 2, Soliko 2 and other pieces, probably why these runs are missing today.",
+    "Extra fields beyond the requested schema: historical (geometry from deleted OSM ways), alternatives (JSON string of candidate geometries), and kind value ski-way for Shino."
+  ],
+  "gpsStats": "84 pages, 412114 points, 183 recordings, winter points 205414, skiing-downhill points 20611 inside the analysed box",
+  "openQuestions": [
+    "Soliko 2 beyond its first 372 m, Firni 1 below its upper part, Firni 2 above its lower part, and the western part of the Shino ski way have no real-position source.",
+    "Baby and Bombora have centerlines only: no boundaries and no J-bar lines. Bombora's elevation does not match the skiresort J-bar figures.",
+    "Confirming the ChatGPT claim about the YouTube video title needs a working fetch of youtube.com."
+  ],
+  "sourcesBlocked": [
+    "status.mta.ski: HTTP 500 from the server on 3 attempts (/en/gudauri/gudauri, /en/gudauri, root); /en/gudauri returned 404; no API or JSON could be inspected",
+    "gudauri.com map image (map-gudauri-ski-resort.jpg): could not be opened, the fetch tool does not support images",
+    "youtube.com video page: HTTP 429 (retried during the cross-check), the title claim in the ChatGPT package is unverified",
+    "pvd-club.com trail map: robots.txt fetch failed (timeout)",
+    "No domain was blocked by the egress proxy policy."
+  ],
+  "sourcesChecked": [
+    "overpass-api.de: works with GET only; POST and some large queries end in connection reset; attic (historical) snapshots work partially",
+    "overpass.kumi.systems: fallback, returned aerialway, area, name and around queries; timed out (504) on piste ways and relations",
+    "api.openstreetmap.org: way and node history, changeset comments, relation 6946649 (Gudauri site), public trackpoints (84 pages, 412,114 points, 183 recordings, 205,414 winter points)",
+    "skiresort.com / skiresort.info (redirects): lift list with Baby, Bombora and Alpina as J-bar lifts (Tatralift, 2016)",
+    "vagabondadventures.ge: third-party run list with lengths (Tatra 2 = 2250 m, Soliko 2 = 1180 m, Bombora = 300 m)",
+    "gudauri.com/about-gudauri/ski-lifts.html and gudauri.travel: lift table and a map image only, no per-run data",
+    "snow-forecast.com and weski.com: map image only, no run names",
+    "openskimap.org: JavaScript app built on OSM, no extra data",
+    "GPS analysis: elevation model from the site's terrain script, winter-only downhill points, per-candidate track support, residual clusters",
+    "Official MTA trail map image supplied by the user in chat (used only to identify names, colours, starts and ends; no lines were traced or copied)",
+    "ChatGPT research package (ZIP supplied by the user): SHA-256 manifest verified; all 10 way histories are identical to the ones pulled independently here; geometry compared numerically with the saved docs; the claim that way 1259783832 was carved out of Tatra 1 (28 of 29 nodes) verified from node lists; the claim about a YouTube title could not be verified (HTTP 429)",
+    "Official MTA map legend: the dashed line is 'Ski Way' (connecting road)"
+  ],
+  "task": "missing run geometry research for the Gudauri map (research only, page untouched); revised after cross-checking the ChatGPT research package and the user's decisions"
+}

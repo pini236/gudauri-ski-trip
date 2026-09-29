@@ -1,0 +1,21 @@
+{
+  "color": "green",
+  "confidence": "medium",
+  "geojson": "{\"type\":\"Feature\",\"properties\":{\"name\":\"Baby (centerline only, not an area boundary)\",\"source\":\"OSM way 472374254 (unnamed)\"},\"geometry\":{\"type\":\"LineString\",\"coordinates\":[[44.494115,42.49278],[44.493874,42.492819],[44.49335,42.492631],[44.492912,42.492318],[44.492491,42.492067]]}}",
+  "gpsTracks": 12,
+  "kind": "beginner-area",
+  "name": "Baby",
+  "notes": "המועמד הוצע על ידי ChatGPT ואושר על ידי המשתמש מול המפה הרשמית. קו מרכז בלבד (162 מ', ירידה של 17 מ', 2709 אל 2692), לא גבול של אזור. הוא נמצא 78 מ' מערבית-צפונית לתחנת Goodaura העליונה ו-129 מ' מצפון-מערב לתחתית Snow Park, כמו האזור הירוק במפה. ב-OSM אין לו שם והוא מסומן easy ולא novice. ה-GPS סביבו הוא בעיקר תנועה איטית באזור תחנות (חציון 0.6 מ'/ש'), ולכן אינו ראיה לשם. אין מקור למיקום ה-J-bar עצמו או לגבול האזור. הקו כבר מוצג באתר כמסלול ללא שם. ביטחון בינוני בזכות אישור המשתמש והמיקום.",
+  "osmIds": [
+    472374254
+  ],
+  "sources": [
+    "overpass-api.de (way 472374254, piste:type=downhill, piste:difficulty=easy, unnamed)",
+    "api.openstreetmap.org way history 472374254 (v1 2017, v2 2024-03-11)",
+    "api.openstreetmap.org public GPS traces (12 recordings move along it at 20 m, only 6 of them skiing downhill; station-area traffic)",
+    "המפה הרשמית של MTA (התמונה שצורפה בשיחה), שימוש לזיהוי שם, צבע, התחלה, סיום ומקרא בלבד",
+    "חבילת המחקר של ChatGPT (ZIP שצורף בשיחה): נתוני OSM הגולמיים זהים לשלי, נבדקה בהשוואה מספרית",
+    "אישור המשתמש: המועמד של ChatGPT נכון, לפי המפה"
+  ],
+  "status": "osm-unnamed-match"
+}

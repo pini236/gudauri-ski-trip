@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>כיוון C, דף בית</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playpen+Sans+Hebrew:wght@400;600;800&amp;family=Rubik:wght@400;500;700&amp;display=swap">
+<style>
+body{margin:0;background:#2446D8}
+a{color:#FFD84D}a:hover{color:#FFE88F}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; box-sizing: border-box; overflow: hidden; background: #2446D8; color: #FFFFFF; font-family: Rubik, 'Segoe UI', system-ui, sans-serif; direction: rtl; padding: 28px 22px; display: flex; flex-direction: column; gap: 22px">
+<div style="display: flex; flex-direction: column; gap: 4px">
+<span style="font-size: 15px; font-weight: 500; color: #C9D5FF">חופשת הסקי שלנו</span>
+<span style="font-family: 'Playpen Sans Hebrew', 'Comic Sans MS', sans-serif; font-weight: 800; font-size: 50px; line-height: 1.05">גודאורי 2027</span>
+</div>
+<div style="display: flex; background: #FFFFFF; color: #18214A; border-radius: 16px; overflow: hidden; transform: rotate(-1.5deg)">
+<div style="flex-grow: 1; padding: 16px 18px; display: flex; flex-direction: column; gap: 10px">
+<span style="font-size: 12px; font-weight: 700; color: #4A5378">כרטיס עלייה למטוס</span>
+<div style="display: flex; align-items: center; gap: 10px; font-size: 20px; font-weight: 700"><span>[מוצא]</span><span aria-hidden="true" style="color: #2759D6"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5"></path><path d="M11 6l-6 6 6 6"></path></svg></span><span>[יעד]</span></div>
+<div style="display: flex; gap: 20px; font-size: 13px"><span style="display: flex; flex-direction: column; gap: 0"><span style="color: #4A5378">תאריך</span><span style="font-weight: 700; font-size: 16px">10.1.2027</span></span><span style="display: flex; flex-direction: column; gap: 0"><span style="color: #4A5378">טיסה</span><span style="font-weight: 700; font-size: 16px">[מספר טיסה]</span></span></div>
+</div>
+<div style="width: 104px; border-right: 2px dashed #B8C2DE; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0; background: #FFD84D">
+<span style="font-family: 'Playpen Sans Hebrew', 'Comic Sans MS', sans-serif; font-weight: 800; font-size: 44px; line-height: 1">{{days}}</span>
+<span style="font-size: 13px; font-weight: 700">ימים</span>
+</div>
+</div>
+<a href="C-Map.dc.html" style="display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 96px; padding: 16px 20px; border-radius: 16px; background: #FFFFFF; color: #18214A; text-decoration: none; transform: rotate(1deg)">
+<span style="display: flex; flex-direction: column; gap: 2px"><span style="font-family: 'Playpen Sans Hebrew', 'Comic Sans MS', sans-serif; font-weight: 800; font-size: 26px; line-height: 1.1">מפת מסלולים</span><span style="font-size: 14px; color: #4A5378">27 מסלולים, פרטים וסרטונים</span></span>
+<span style="display: flex; align-items: center; justify-content: center; width: 48px; height: 48px; border-radius: 24px; background: #2446D8; color: #FFFFFF"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5"></path><path d="M11 6l-6 6 6 6"></path></svg></span>
+</a>
+<div style="display: flex; align-items: center; justify-content: center; min-height: 72px; border-radius: 16px; border: 2px dashed #C9D5FF; color: #C9D5FF; font-size: 15px; font-weight: 500">מקום לחלק הבא</div>
+<div style="margin-top: auto; display: flex; flex-direction: column; gap: 12px">
+<span style="font-size: 14px; font-weight: 500; color: #C9D5FF">מסלולים במפה הרשמית</span>
+<div style="display: flex; justify-content: space-between; padding: 0 6px"><div style="width: 70px; height: 70px; border-radius: 35px; background: #16934F; color: #FFFFFF; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0; transform: rotate(-8deg); box-shadow: 0 0 0 3px #FFFFFF">
+<span style="font-family: 'Playpen Sans Hebrew', 'Comic Sans MS', sans-serif; font-weight: 800; font-size: 24px; line-height: 1">5</span><span style="font-size: 11px; font-weight: 500">ירוק</span></div><div style="width: 70px; height: 70px; border-radius: 35px; background: #2759D6; color: #FFFFFF; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0; transform: rotate(5deg); box-shadow: 0 0 0 3px #FFFFFF">
+<span style="font-family: 'Playpen Sans Hebrew', 'Comic Sans MS', sans-serif; font-weight: 800; font-size: 24px; line-height: 1">16</span><span style="font-size: 11px; font-weight: 500">כחול</span></div><div style="width: 70px; height: 70px; border-radius: 35px; background: #E03A2F; color: #FFFFFF; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0; transform: rotate(-3deg); box-shadow: 0 0 0 3px #FFFFFF">
+<span style="font-family: 'Playpen Sans Hebrew', 'Comic Sans MS', sans-serif; font-weight: 800; font-size: 24px; line-height: 1">4</span><span style="font-size: 11px; font-weight: 500">אדום</span></div><div style="width: 70px; height: 70px; border-radius: 35px; background: #18214A; color: #FFFFFF; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0; transform: rotate(9deg); box-shadow: 0 0 0 3px #FFFFFF">
+<span style="font-family: 'Playpen Sans Hebrew', 'Comic Sans MS', sans-serif; font-weight: 800; font-size: 24px; line-height: 1">2</span><span style="font-size: 11px; font-weight: 500">שחור</span></div></div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+renderVals() {
+const d = Math.ceil((new Date('2027-01-10T00:00:00+02:00') - new Date()) / 864e5);
+return { days: d > 0 ? d : 0 };
+}
+}
+</script>
+</body>
+</html>

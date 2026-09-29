@@ -1,0 +1,22 @@
+{
+  "color": "green",
+  "confidence": "medium",
+  "geojson": "{\"type\":\"Feature\",\"properties\":{\"name\":\"Bombora (centerline only, not an area boundary)\",\"source\":\"OSM way 158817286 (unnamed)\"},\"geometry\":{\"type\":\"LineString\",\"coordinates\":[[44.499824,42.489497],[44.499542,42.489606],[44.499424,42.489649],[44.49936,42.48965],[44.499101,42.489533],[44.498947,42.489486],[44.498499,42.489541],[44.497598,42.489572],[44.49689,42.489509],[44.496202,42.489336]]}}",
+  "gpsTracks": 8,
+  "kind": "beginner-area",
+  "name": "Bombora",
+  "notes": "המועמד הוצע על ידי ChatGPT ואושר על ידי המשתמש מול המפה הרשמית. קו מרכז בלבד (310 מ', ירידה של 24 מ', 2691 אל 2667), לא גבול של אזור. הוא מתחיל 6 מ' מתחנת Khada התחתונה ומסתיים 43 מ' מתחנת Kudebi התחתונה, כמו האזור הירוק במפה. אי-התאמה שלא הוכרעה: לפי skiresort ה-J-bar בגובה 2740 עד 2780 מ', והדרך נמצאת 50 עד 110 מ' נמוך מזה. ב-OSM אין לו שם והוא מסומן easy ולא novice. ה-GPS סביבו כולל תנועה איטית של תור לרכבלים. אין מקור למיקום ה-J-bar עצמו או לגבול האזור. הקו כבר מוצג באתר כמסלול ללא שם. ביטחון בינוני בזכות אישור המשתמש והמיקום.",
+  "osmIds": [
+    158817286
+  ],
+  "sources": [
+    "overpass-api.de (way 158817286, piste:type=downhill, piste:difficulty=easy, unnamed)",
+    "api.openstreetmap.org way history 158817286 (v1 2012, v2 2024-03-10)",
+    "api.openstreetmap.org public GPS traces (8 recordings move along it at 20 m; 19 recordings show slow uphill movement near it: lift queue)",
+    "skiresort.com lift list (Bombora: J-bar 260 m, base 2740 m, top 2780 m)",
+    "המפה הרשמית של MTA (התמונה שצורפה בשיחה), שימוש לזיהוי שם, צבע, התחלה, סיום ומקרא בלבד",
+    "חבילת המחקר של ChatGPT (ZIP שצורף בשיחה): נתוני OSM הגולמיים זהים לשלי, נבדקה בהשוואה מספרית",
+    "אישור המשתמש: המועמד של ChatGPT נכון, לפי המפה"
+  ],
+  "status": "osm-unnamed-match"
+}

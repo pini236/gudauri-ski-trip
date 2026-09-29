@@ -1,0 +1,156 @@
+{
+  "v": 3,
+  "attachments": {},
+  "boards": {
+    "A-Map.dc.html": {
+      "h": 844,
+      "page": "directions",
+      "title": "A: מפת מסלולים",
+      "w": 390,
+      "x": 470,
+      "y": 0
+    },
+    "B-Home.dc.html": {
+      "h": 844,
+      "page": "directions",
+      "title": "B: דף בית",
+      "w": 390,
+      "x": 0,
+      "y": 1264
+    },
+    "B-Map.dc.html": {
+      "h": 844,
+      "page": "directions",
+      "title": "B: מפת מסלולים",
+      "w": 390,
+      "x": 470,
+      "y": 1264
+    },
+    "C-Home.dc.html": {
+      "h": 844,
+      "page": "directions",
+      "title": "C: דף בית",
+      "w": 390,
+      "x": 0,
+      "y": 2528
+    },
+    "C-Map.dc.html": {
+      "h": 844,
+      "page": "directions",
+      "title": "C: מפת מסלולים",
+      "w": 390,
+      "x": 470,
+      "y": 2528
+    },
+    "Main.dc.html": {
+      "h": 844,
+      "page": "directions",
+      "title": "A: דף בית",
+      "w": 390,
+      "x": 0,
+      "y": 0
+    },
+    "U-Desktop.dc.html": {
+      "h": 800,
+      "page": "unified",
+      "title": "מפה במחשב",
+      "w": 1280,
+      "x": 0,
+      "y": 964
+    },
+    "U-Home.dc.html": {
+      "h": 844,
+      "page": "unified",
+      "title": "דף בית",
+      "w": 390,
+      "x": 0,
+      "y": 0
+    },
+    "U-Map.dc.html": {
+      "h": 844,
+      "page": "unified",
+      "title": "מפה: פנורמה",
+      "w": 390,
+      "x": 470,
+      "y": 0
+    },
+    "U-MapTop.dc.html": {
+      "h": 844,
+      "page": "unified",
+      "title": "מפה: מבט על",
+      "w": 390,
+      "x": 940,
+      "y": 0
+    }
+  },
+  "createdOnFiles": {
+    "at": "2026-09-29T12:14:00Z",
+    "v": 1
+  },
+  "designSystems": [],
+  "launch": {
+    "page": "unified",
+    "view": "canvas"
+  },
+  "notes": {
+    "rowA": {
+      "kind": "title1",
+      "maxW": 860,
+      "page": "directions",
+      "text": "A · שלט מסלול",
+      "w": 240,
+      "x": 0,
+      "y": -300
+    },
+    "rowB": {
+      "kind": "title1",
+      "maxW": 860,
+      "page": "directions",
+      "text": "B · לילה בהר",
+      "w": 240,
+      "x": 0,
+      "y": 964
+    },
+    "rowC": {
+      "kind": "title1",
+      "maxW": 860,
+      "page": "directions",
+      "text": "C · פוסטר של החבר׳ה",
+      "w": 240,
+      "x": 0,
+      "y": 2228
+    },
+    "unifiedTitle": {
+      "kind": "title1",
+      "maxW": 1330,
+      "page": "unified",
+      "text": "שפה מאוחדת: טלפון",
+      "w": 240,
+      "x": 0,
+      "y": -300
+    }
+  },
+  "order": [
+    "Main.dc.html",
+    "A-Map.dc.html",
+    "B-Home.dc.html",
+    "B-Map.dc.html",
+    "C-Home.dc.html",
+    "C-Map.dc.html",
+    "U-Home.dc.html",
+    "U-Map.dc.html",
+    "U-MapTop.dc.html",
+    "U-Desktop.dc.html"
+  ],
+  "pages": [
+    {
+      "id": "unified",
+      "name": "שפה מאוחדת"
+    },
+    {
+      "id": "directions",
+      "name": "כיוונים ראשונים"
+    }
+  ],
+  "title": "אתר ההיערכות לגודאורי"
+}

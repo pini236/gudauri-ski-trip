@@ -1,0 +1,21 @@
+{
+  "color": "blue",
+  "confidence": "medium",
+  "geojson": "{\"type\":\"Feature\",\"properties\":{\"name\":\"Soliko 2\",\"ref\":\"2B\",\"source\":\"OSM history way 158744056 v6 (deleted 2024-03-10), partial\"},\"geometry\":{\"type\":\"LineString\",\"coordinates\":[[44.487074,42.484848],[44.487813,42.483433],[44.488145,42.482471],[44.488954,42.481865]]}}",
+  "gpsTracks": 2,
+  "historical": true,
+  "kind": "run",
+  "name": "Soliko 2",
+  "notes": "קטע חלקי בלבד: 372 מ' מתוך כ-1,180 מ' (מדריך צד שלישי). הזיהוי של הקטע נתמך משלושה כיוונים: ב-OSM שמו Soliko 2 עם ref 2B (בין 2A=Soliko 1 ל-2C=Sportuli 1); ה-node הראשון שלו משותף עם Soliko 1, ובמפה Soliko 2 מתפצל מ-Soliko 1; והוא חוצה את רכבל Shino בגובה 2,424 מ', בערך באמצע הרכבל, בדיוק כמו במפה. ההמשך עד תחתית ההר לא נמצא באף מקור: מבין 11 הקלטות GPS שגלשו בתחילת הקו, רובן המשיכו לאורך Soliko 1 או Sportuli 1 ולא לאורך מסלול נפרד, ולכן לא נוצרה הארכה. ChatGPT סימן אותה גיאומטריה בדיוק ב-high; אצלי medium כי היא חלקית. הדרך 1259783832 אינה Soliko 2 (ראו Shino).",
+  "osmIds": [
+    158744056
+  ],
+  "sources": [
+    "api.openstreetmap.org way history 158744056 (ref 2B since 2012; named Soliko 2 on 2023-03-01; deleted 2024-03-10)",
+    "api.openstreetmap.org public GPS traces (2 winter recordings from Jan 2016, 75-83%)",
+    "vagabondadventures.ge (third-party guide: Soliko 2 = 1180 m)",
+    "המפה הרשמית של MTA (התמונה שצורפה בשיחה), שימוש לזיהוי שם, צבע, התחלה, סיום ומקרא בלבד",
+    "חבילת המחקר של ChatGPT (ZIP שצורף בשיחה): נתוני OSM הגולמיים זהים לשלי, נבדקה בהשוואה מספרית"
+  ],
+  "status": "osm-named"
+}
