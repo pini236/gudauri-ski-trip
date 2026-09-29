@@ -1,0 +1,68 @@
+# גודאורי 2027: אתר ההיערכות
+
+אתר היערכות לחופשת סקי בגודאורי, גאורגיה, לפיני ולחברים. טיסה ב-10.1.2027.
+הממשק בעברית, RTL, קודם כל לטלפון.
+
+תוכנית העבודה המלאה, ומה נשאר לעשות: @docs/HANDOFF.md
+
+## מצב נוכחי (30.9.2026)
+
+- האתר נבנה ב-claude.ai כארטיפקט, והועבר לריפו הזה. **מעכשיו הריפו הוא מקור האמת.**
+- `site/index.html`: קובץ אחד (~1MB) שמכיל הכל:
+  - `<script id="terrain" type="application/json">`: מודל גובה, תבליט, קווי גובה, סביבה, פסגות. זהה ל-`data/terrain.json`.
+  - `<script id="data" type="application/json">`: מסלולים ורכבלים. זהה ל-`data/runs-and-lifts.json`.
+  - סקריפט `GudRelief`: טעינת המודל, `stats()` לגבהים ושיפועים, `View3D` (three.js r128 מ-cdnjs).
+  - סקריפט ראשי: ניווט `#home` / `#map`, מפה דו-ממדית (SVG), פאנל פרטים, סינון, כרטיס טיסה, סרטונים.
+- **נתונים משותפים** (סרטונים וכרטיס טיסה) עובדים כרגע רק בתוך claude.ai, דרך `window.claude.use('db')` ו-`use('user')`. מחוץ ל-claude.ai האתר עובר לקריאה בלבד (`db=false`). ב-Vercel צריך backend משלנו (ראו HANDOFF, שלב 3).
+- הארטיפקט החי: https://claude.ai/artifact/1uDUdt45A2c77zooPZBGYK (אין לך גישה אליו; הוא מראה בלבד).
+- קנבס העיצוב: https://claude.ai/artifact/TVdeDbFBhvFDZdhCKjcys4 (עותק ב-`design/canvas/`, תצוגות ב-`design/previews/`).
+
+## פונקציות וסכמות בקוד הקיים
+
+- `initDb()`: מאתחל `db`, `userCap`, `canWrite` (`user.can('data.write')`), `canDel` (`user.canEdit()`).
+- סרטונים: collection `videos`. מסמך: `{piste, url, title, by, at}` (`piste` = מפתח המסלול, `at` = epoch ms).
+  פונקציות: `bindForm()` (הוספה), `delVid(id)`, `renderVids()`, `vidBlock(key,label)`.
+- כרטיס טיסה: מסמך `trip/flight`: `{from, to, flight, at}`. פונקציות: `watchTrip()`, `renderTicket()`, ה-submit של `#tForm`.
+- שגיאת הרשאה ב-db של claude.ai מגיעה כ-`code: 'invalid_argument'`.
+- מצב ה-db ב-claude.ai ב-30.9.2026: **אין סרטונים, אין מסמך טיסה.** אין מה להעביר. collection `missingRuns` הוא מחקר בלבד, והעותק שלו ב-`research/missing-runs/`.
+
+## פורמט נתוני המסלולים (`data/runs-and-lifts.json`)
+
+- קואורדינטות **`[lat, lon]`**. ב-GeoJSON הסדר הפוך: `[lon, lat]`.
+- `pistes[]`: `key, name, color (green|blue|red|black), named, len (מ׳, אופקי), osmDiff[], refs[], groom[], lit[], segs[{id, area, g}], fromLifts[], toLifts[], joins[], fromPistes[]`.
+  - אופציונלי: `kind` (`run` | `ski-way` | `beginner-area`), `research {conf, status, notes, sources[], gps, osmIds[], historical, partial}`.
+- `lifts[]`: `id, name, kind, len, g, cap, dur, occ, year, rise, status...`
+- חיבורים מחושבים מקרבת קצוות: עד 200 מ׳ לתחנת רכבל, עד 60 מ׳ למסלול. נקודת ההתחלה והסוף לפי גובה ממודל הגובה.
+
+## כללי דיוק (הכי חשוב בפרויקט)
+
+1. **לא ממציאים גאומטריה.** קו נכנס למפה רק ממקור אמיתי: OSM (כולל היסטוריה), הקלטות GPS, או מדידה. אם אין מקור, מסמנים כחסר ולא מציירים.
+2. **המפה הרשמית של MTA היא איור מוגן.** מותר להשתמש בה רק כדי לזהות שם, צבע, התחלה וסוף של מסלול. לא עוקבים אחריה, לא מעתיקים אותה, ולא שומרים אותה בריפו.
+3. **צבעים לפי המפה הרשמית**, גם כשמקור אחר אומר אחרת. למשל Kudebi 1 אדום. Shino הוא דרך מקשרת (Ski Way), לא מסלול.
+4. **כל קו חדש עובר בדיקה** מול מודל הגובה (`data/terrain.json`) ומיקומי הרכבלים:
+   - יורד ברציפות (עלייה נגדית מצטברת של עד כ-10 מ׳).
+   - מתחיל ונגמר ליד הרכבלים או המסלולים הנכונים.
+5. **לכל השלמה:** רמת ודאות (`high` / `medium` / `low`), מקור ונימוק. זה מוצג למשתמש בפאנל.
+
+## עיצוב
+
+פירוט ב-`design/README.md`. בקצרה:
+
+- גופנים: Karantina (כותרות, 700) ו-IBM Plex Sans Hebrew (טקסט).
+- טוקנים ב-`:root`. מצב כהה מוגדר גם ב-`@media (prefers-color-scheme: dark)` וגם ב-`:root[data-theme="dark"]`.
+- רכיבים: שלט (clip-path עם חץ שמאלה), עמוד שלט, צ'יפים (44px, פינות ישרות), בורר תצוגה, כרטיס טיסה עקום ב-2 מעלות.
+- פני השטח בתלת-ממד תמיד מושלגים, ולכן לתוויות התלת-ממד יש פלטה בהירה קבועה (`.r3-labels`).
+- יעדי מגע של לפחות 44px. בלי גלילה הצידה בטלפון.
+
+## בדיקות
+
+- Playwright, ארבעה מצבים: מחשב 1280×800 וטלפון 390×844, בהיר וכהה.
+- לעבור על: דף בית, `#map`, תלת-ממד, מבט על, בחירת מסלול, סינון, מעבר חזרה לבית.
+- אפס שגיאות בקונסול. אם three.js לא נטען, האתר צריך לעבור למבט על ולהסתיר את בורר התצוגה.
+- להשוות לצילומי המסך ב-`design/screenshots/` אחרי כל שינוי שנוגע במראה.
+
+## עבודה
+
+- commit נפרד לכל שלב, עם הודעה ברורה. לעצור לאישור של פיני בסוף כל שלב ב-HANDOFF.
+- לא לשמור בריפו סודות או כתובות מייל של חברים. מפתח ה-anon של Supabase הוא ציבורי מעצם הגדרתו ומותר.
+- לעדכן את `README.md` ואת קבצי ה-README הרלוונטיים כשהמבנה משתנה.
