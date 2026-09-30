@@ -2,7 +2,7 @@
 """Day and night designs: R7 (sun and moon swap on a toggle) and R8 (sky clock by the real hour).
 
 The skyline is the real horizon as seen from the village (Zuma lower station), computed from the
-site's terrain model. The moon age is computed for 12.1.2027. Run from the repo root:
+site's terrain model. The moon is drawn as a full disc. Run from the repo root:
 python3 design/round2/daynight.py  (needs numpy)"""
 import json, math, base64, datetime, pathlib
 import numpy as np
@@ -51,7 +51,7 @@ DISPLAY = "font-family: Karantina, 'Arial Narrow', sans-serif; font-weight: 700;
 STARS = [(38, 30), (92, 64), (140, 22), (200, 48), (262, 26), (318, 70), (352, 34), (64, 110), (176, 96), (300, 116), (240, 84), (120, 140), (30, 168), (346, 150)]
 stars = ''.join(f'<span style="position: absolute; left: {x}px; top: {y}px; width: {2 + (i % 2)}px; height: {2 + (i % 2)}px; border-radius: 2px; background: #EAF0F7; opacity: {{{{ starOp }}}}" class="anim"></span>' for i, (x, y) in enumerate(STARS))
 SUN_SVG = '<svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true"><circle cx="15" cy="15" r="14" fill="#F4B942" fill-opacity="0.28"></circle><circle cx="15" cy="15" r="9.5" fill="#F4B942" stroke="#13233A" stroke-width="1.5"></circle></svg>'
-MOON_SVG = '<svg width="30" height="30" viewBox="0 0 32 32" aria-hidden="true"><path d="M16 2 A14 14 0 1 1 16 30 A10 10 0 1 0 16 2 Z" fill="#EAF0F7" stroke="#A3B3C8" stroke-width="1"></path></svg>'
+MOON_SVG = '<svg width="34" height="34" viewBox="0 0 34 34" aria-hidden="true"><circle cx="17" cy="17" r="16" fill="#EAF0F7" fill-opacity="0.22"></circle><circle cx="17" cy="17" r="12" fill="#EAF0F7" stroke="#A3B3C8" stroke-width="1"></circle><circle cx="13" cy="13" r="2.6" fill="#C9D4E2"></circle><circle cx="21.5" cy="19.5" r="3.4" fill="#C9D4E2"></circle><circle cx="14.5" cy="22" r="1.7" fill="#C9D4E2"></circle></svg>'
 ICON_SUN = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4.2"></circle><path d="M12 2.5v2.4M12 19.1v2.4M2.5 12h2.4M19.1 12h2.4M5.3 5.3l1.7 1.7M17 17l1.7 1.7M5.3 18.7L7 17M17 7l1.7-1.7"></path></svg>'
 ICON_MOON = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a6.8 6.8 0 0 0 10.5 10.5z"></path></svg>'
 
@@ -112,7 +112,7 @@ const NIGHT = { bg: '#0D1522', paper: '#16223A', ink: '#EAF0F7', muted: '#A3B3C8
 # ---------------------------------------------------------------- R7: toggle with swapping sun and moon
 bodies7 = f'''<div class="anim" style="position: absolute; left: 195px; top: 330px; width: 0; height: 0; transform: rotate({{{{ rot }}}}deg); transition: transform 1.3s cubic-bezier(0.55, 0, 0.35, 1)">
 <div style="position: absolute; left: -15px; top: -{{{{ radius }}}}px; width: 30px; height: 30px">{SUN_SVG}</div>
-<div style="position: absolute; left: -15px; top: {{{{ radiusMoon }}}}px; width: 30px; height: 30px; transform: rotate({{{{ counter }}}}deg)" class="anim">{MOON_SVG}</div>
+<div style="position: absolute; left: -17px; top: {{{{ radiusMoon }}}}px; width: 34px; height: 34px; transform: rotate({{{{ counter }}}}deg)" class="anim">{MOON_SVG}</div>
 </div>'''
 toggle7 = f'''<button type="button" aria-label="{{{{ toggleLabel }}}}" onClick="{{{{ flip }}}}" class="anim" style="position: relative; width: 48px; height: 48px; border: 1.5px solid {{{{ ink }}}}; background: {{{{ paper }}}}; color: {{{{ ink }}}}; display: flex; align-items: center; justify-content: center; transition: background-color 0.9s, color 0.9s, border-color 0.9s">
 <span class="anim" style="position: absolute; display: flex; opacity: {{{{ sunIconOp }}}}; transform: rotate({{{{ sunIconRot }}}}deg) scale({{{{ sunIconScale }}}}); transition: opacity 0.5s, transform 0.7s">{ICON_SUN}</span>
@@ -135,7 +135,7 @@ class Component extends DCLogic {{
     const labels = {{ auto: 'אוטומטי', day: 'יום', night: 'לילה' }};
     const modes = ['auto', 'day', 'night'].map((k) => ({{ label: labels[k], on: k === this.state.mode, bg: k === this.state.mode ? t.ink : t.paper, fg: k === this.state.mode ? t.paper : t.ink, pick: () => this.setState({{ mode: k }}) }}));
     return {{ ...t, rot: isDay ? -28 : 152, counter: isDay ? 28 : -152, radius: 230, radiusMoon: 200,
-      starOp: isDay ? 0 : 0.9, phaseLabel: isDay ? 'שמש · 12.1.2027' : 'ירח · בן {age:.0f} ימים',
+      starOp: isDay ? 0 : 0.9, phaseLabel: isDay ? 'שמש · 12.1.2027' : 'ירח',
       toggleLabel: isDay ? 'מעבר למצב לילה' : 'מעבר למצב יום',
       flip: () => this.setState({{ mode: isDay ? 'night' : 'day' }}),
       sunIconOp: isDay ? 1 : 0, sunIconRot: isDay ? 0 : 90, sunIconScale: isDay ? 1 : 0.4,
@@ -147,13 +147,13 @@ R7 = page('יום ולילה', scene(bodies7, controls7, toggle7), script7)
 
 # ---------------------------------------------------------------- R8: sky clock by the real hour in Gudauri
 bodies8 = f'''<div class="anim" style="position: absolute; left: {{{{ sunX }}}}px; top: {{{{ sunY }}}}px; width: 30px; height: 30px; opacity: {{{{ sunOp }}}}">{SUN_SVG}</div>
-<div class="anim" style="position: absolute; left: {{{{ moonX }}}}px; top: {{{{ moonY }}}}px; width: 30px; height: 30px; opacity: {{{{ moonOp }}}}">{MOON_SVG}</div>'''
+<div class="anim" style="position: absolute; left: {{{{ moonX }}}}px; top: {{{{ moonY }}}}px; width: 34px; height: 34px; opacity: {{{{ moonOp }}}}">{MOON_SVG}</div>'''
 controls8 = '''<div style="display: flex; flex-direction: column; gap: 6px">
 <div style="display: flex; align-items: baseline; justify-content: space-between"><label for="hour" style="font-size: 12.5px; font-weight: 700; color: {{ muted }}">השעה בגודאורי</label><span style="font-family: Karantina, 'Arial Narrow', sans-serif; font-weight: 700; font-size: 34px; line-height: 1" dir="ltr">{{ clock }}</span></div>
 <input id="hour" type="range" min="0" max="23.75" step="0.25" value="{{ hour }}" onInput="{{ onHour }}" style="width: 100%; height: 44px; accent-color: {{ board }}">
 <div style="display: flex; justify-content: space-between; font-size: 12.5px; color: {{ muted }}"><span>זריחה <b dir="ltr">RISE</b></span><span>שקיעה <b dir="ltr">SET</b></span></div>
-<span style="font-size: 12.5px; color: {{ muted }}; line-height: 1.35">השמש והירח עוברים בקשת לפי הזריחה והשקיעה של 12.1.2027. הירח בן AGE ימים, מגל דק. מיקומו בשמיים משוער. המצב הכהה נדלק עם השקיעה.</span>
-</div>'''.replace('RISE', rise).replace('SET', sset).replace('AGE', f'{age:.0f}')
+<span style="font-size: 12.5px; color: {{ muted }}; line-height: 1.35">השמש והירח עוברים בקשת לפי הזריחה והשקיעה של 12.1.2027. הירח עולה אחרי השקיעה, ומיקומו בשמיים משוער. המצב הכהה נדלק עם השקיעה.</span>
+</div>'''.replace('RISE', rise).replace('SET', sset)
 script8 = f'''{THEMES_JS}
 const RISE = {RISE}, SET = {SET};
 const lerp = (a, b, t) => Math.round(a + (b - a) * t);
