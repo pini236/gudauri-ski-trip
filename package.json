@@ -1,0 +1,13 @@
+{
+  "name": "gudauri-ski-trip",
+  "private": true,
+  "description": "אתר היערכות לחופשת סקי בגודאורי",
+  "scripts": {
+    "start": "http-server site -p 4173 -c-1",
+    "test": "playwright test"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.56.1",
+    "http-server": "^14.1.1"
+  }
+}

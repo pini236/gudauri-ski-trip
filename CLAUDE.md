@@ -20,11 +20,14 @@
 ## מצב נוכחי (30.9.2026)
 
 - האתר נבנה ב-claude.ai כארטיפקט, והועבר לריפו הזה. **מעכשיו הריפו הוא מקור האמת.**
-- `site/index.html`: קובץ אחד (~1MB) שמכיל הכל:
-  - `<script id="terrain" type="application/json">`: מודל גובה, תבליט, קווי גובה, סביבה, פסגות. זהה ל-`data/terrain.json`.
-  - `<script id="data" type="application/json">`: מסלולים ורכבלים. זהה ל-`data/runs-and-lifts.json`.
-  - סקריפט `GudRelief`: טעינת המודל, `stats()` לגבהים ושיפועים, `View3D` (three.js r128 מ-cdnjs).
-  - סקריפט ראשי: ניווט `#home` / `#map`, מפה דו-ממדית (SVG), פאנל פרטים, סינון, כרטיס טיסה, סרטונים.
+- מבנה האתר (מאז שלב 1):
+  - `site/index.html`: תבנית בלבד, בלי קוד ובלי נתונים.
+  - `site/css/site.css`: כל העיצוב והטוקנים.
+  - `site/js/relief.js`: הספרייה `GudRelief`: טעינת המודל, `stats()` לגבהים ושיפועים, `View3D` (three.js r128 מ-cdnjs).
+  - `site/js/app.js`: הסקריפט הראשי. הפונקציה `main()` טוענת את שני קבצי הנתונים ב-`fetch` ואז בונה הכל: ניווט `#home` / `#map`, מפה דו-ממדית (SVG), פאנל פרטים, סינון, כרטיס טיסה, סרטונים.
+  - `site/data/terrain.json`: מודל גובה, תבליט, קווי גובה, סביבה, פסגות.
+  - `site/data/runs-and-lifts.json`: מסלולים ורכבלים.
+  - **הרצה מקומית דורשת שרת** (הפקודה `npm start`), כי הנתונים נטענים ב-`fetch` ולא עובדים מקובץ שנפתח ישירות.
 - **נתונים משותפים** (סרטונים וכרטיס טיסה) עובדים כרגע רק בתוך claude.ai, דרך `window.claude.use('db')` ו-`use('user')`. מחוץ ל-claude.ai האתר עובר לקריאה בלבד (`db=false`). ב-Vercel צריך backend משלנו (ראו HANDOFF, שלב 3).
 - הארטיפקט החי: https://claude.ai/artifact/1uDUdt45A2c77zooPZBGYK (אין לך גישה אליו; הוא מראה בלבד).
 - קנבס העיצוב: https://claude.ai/artifact/TVdeDbFBhvFDZdhCKjcys4 (עותק ב-`design/canvas/`, תצוגות ב-`design/previews/`).
@@ -38,7 +41,7 @@
 - שגיאת הרשאה ב-db של claude.ai מגיעה כ-`code: 'invalid_argument'`.
 - מצב ה-db ב-claude.ai ב-30.9.2026: **אין סרטונים, אין מסמך טיסה.** אין מה להעביר. collection `missingRuns` הוא מחקר בלבד, והעותק שלו ב-`research/missing-runs/`.
 
-## פורמט נתוני המסלולים (`data/runs-and-lifts.json`)
+## פורמט נתוני המסלולים (`site/data/runs-and-lifts.json`)
 
 - קואורדינטות **`[lat, lon]`**. ב-GeoJSON הסדר הפוך: `[lon, lat]`.
 - `pistes[]`: `key, name, color (green|blue|red|black), named, len (מ׳, אופקי), osmDiff[], refs[], groom[], lit[], segs[{id, area, g}], fromLifts[], toLifts[], joins[], fromPistes[]`.
@@ -51,7 +54,7 @@
 1. **לא ממציאים גאומטריה.** קו נכנס למפה רק ממקור אמיתי: OSM (כולל היסטוריה), הקלטות GPS, או מדידה. אם אין מקור, מסמנים כחסר ולא מציירים.
 2. **המפה הרשמית של MTA היא איור מוגן.** מותר להשתמש בה רק כדי לזהות שם, צבע, התחלה וסוף של מסלול. לא עוקבים אחריה, לא מעתיקים אותה, ולא שומרים אותה בריפו.
 3. **צבעים לפי המפה הרשמית**, גם כשמקור אחר אומר אחרת. למשל Kudebi 1 אדום. Shino הוא דרך מקשרת (Ski Way), לא מסלול.
-4. **כל קו חדש עובר בדיקה** מול מודל הגובה (`data/terrain.json`) ומיקומי הרכבלים:
+4. **כל קו חדש עובר בדיקה** מול מודל הגובה (`site/data/terrain.json`) ומיקומי הרכבלים:
    - יורד ברציפות (עלייה נגדית מצטברת של עד כ-10 מ׳).
    - מתחיל ונגמר ליד הרכבלים או המסלולים הנכונים.
 5. **לכל השלמה:** רמת ודאות (`high` / `medium` / `low`), מקור ונימוק. זה מוצג למשתמש בפאנל.
