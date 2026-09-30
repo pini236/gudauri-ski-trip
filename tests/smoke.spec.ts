@@ -225,3 +225,34 @@ test('תצוגת מסלול: קישור ישיר, צביעה לפי שיפוע, 
   await expect(page.locator('#map .runpaint line')).toHaveCount(0);
   expect(errors).toEqual([]);
 });
+
+test('נקודת מפגש: בוחרים תחנה ושעה, כרטיס, איך מגיעים וקישור לשיתוף', async ({ page }) => {
+  const errors = watchErrors(page);
+  await page.goto('/#meet');
+  await loaded(page);
+  await expect(page.locator('#meetPage')).toBeVisible();
+  await expect(page.locator('#meetMap .mm-pin').first()).toBeAttached();
+  // נקודה קבועה של הקבוצה
+  await page.locator('[data-pre="am"]').click();
+  await expect(page.locator('[data-pre="am"]')).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.locator('#meetCard [data-f="name"]')).toHaveText('Goodaura');
+  await expect(page.locator('#meetCard [data-f="time"]')).toHaveText('09:30');
+  await expect(page.locator('#meetRoutes li').first()).toBeVisible();
+  // יום ושעה
+  await page.locator('[data-day="2027-01-13"]').click();
+  await page.locator('[data-time="15:00"]').click();
+  await expect(page.locator('#meetCard [data-f="time"]')).toHaveText('15:00');
+  await expect(page.locator('#meetCard [data-f="day"]')).toContainText('13.1');
+  // הקישור והוואטסאפ מכילים את הבחירה
+  await expect(page).toHaveURL(/#meet\/\d+[bt]\/1500\/20270113$/);
+  const wa = await page.locator('#meetWa').getAttribute('href');
+  expect(decodeURIComponent(wa || '')).toContain('בשעה 15:00');
+  // קישור ששותף נפתח על אותה נקודה
+  const url = page.url();
+  await page.goto('/');
+  await page.goto(url);
+  await loaded(page);
+  await expect(page.locator('#meetCard [data-f="time"]')).toHaveText('15:00');
+  await expect(page.locator('#meetCard [data-f="name"]')).toHaveText('Goodaura');
+  expect(errors).toEqual([]);
+});

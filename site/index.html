@@ -32,7 +32,7 @@
   <nav class="signs" aria-label="חלקי האתר">
     <a href="#home" data-nav="home">בית</a>
     <a href="#map" data-nav="map">מפת מסלולים</a>
-    <span class="next">חלקים נוספים בקרוב</span>
+    <a href="#meet" data-nav="meet">נקודת מפגש</a>
   </nav>
   <span class="tb-count" id="tbCount"><b class="num" id="tbDays"></b> <span data-days-word>ימים</span> לטיסה</span>
   <div class="dn"><span class="dn-clock">השעה בגודאורי<b class="num" data-dn-clock>--:--</b></span><button type="button" class="dn-btn" data-dn aria-label="מצב תצוגה"><svg class="i-auto" width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 3a9 9 0 0 1 0 18z" fill="currentColor"/></svg><svg class="i-day" width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="5" fill="#F4B942"/><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8" stroke="#F4B942" stroke-width="2" stroke-linecap="round"/></svg><svg class="i-night" width="24" height="24" viewBox="0 0 34 34" aria-hidden="true"><path d="M17 3A14 14 0 0 1 17 31A7.5 14 0 0 0 17 3Z" fill="currentColor"/></svg><span class="dn-lbl" data-dn-lbl>אוטומטי</span></button></div>
@@ -63,6 +63,7 @@
     </section>
     <nav class="post" aria-label="חלקי האתר">
       <a class="board" href="#map"><b>מפת מסלולים</b><span>27 מסלולים, פרטים וסרטונים</span></a>
+      <a class="board board-meet" href="#meet"><b>נקודת מפגש</b><span>בוחרים תחנה ושעה ושולחים לקבוצה</span></a>
       <a class="board board-app" id="appBoard" href="downloads/gudauri-2027.apk" download hidden><b>אפליקציה לאנדרואיד</b><span id="appMeta">להורדה</span></a>
       <details class="app-how" id="appHow" hidden>
         <summary>איך מתקינים?</summary>
@@ -116,6 +117,52 @@
         <button type="button" class="inset-toggle" id="insetOpen" aria-expanded="false" aria-controls="insetCard"><span class="sw blue"></span>צד Kobi</button>
       </div>
     </div>
+    </div>
+  </div>
+</main>
+
+<main class="page page-meet" id="meetPage" hidden>
+  <div class="mhead"><h1>נקודת מפגש</h1><a href="#home"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg>בית</a></div>
+  <div class="meet">
+    <div class="meet-map">
+      <svg id="meetMap" role="img" aria-label="מפת תחנות הרכבלים. לחיצה על סיכה בוחרת נקודת מפגש"></svg>
+      <div class="meet-callout" id="meetCallout" aria-live="polite"><span class="mc-top"><b dir="ltr"></b><span class="mc-alt num" dir="ltr"></span></span><span class="mc-where"></span></div>
+      <button type="button" class="meet-all" id="meetAll">כל ההר</button>
+      <span class="meet-hint">לחצו על סיכה, או בכל מקום במפה</span>
+    </div>
+    <div class="meet-side" id="meetUI">
+      <section class="meet-q" aria-label="מתי">
+        <h2>מתי</h2>
+        <div class="meet-days" role="group" aria-label="יום" data-days></div>
+        <div class="meet-times" role="group" aria-label="שעה" data-times></div>
+        <label class="meet-own">שעה אחרת <input type="time" id="meetTime" step="300"></label>
+      </section>
+      <section aria-label="הנקודות של הקבוצה">
+        <h2>או בלחיצה אחת</h2>
+        <div class="meet-post" data-pre></div>
+      </section>
+      <section class="mcard-wrap" aria-label="כרטיס מפגש">
+        <div class="mcard" id="meetCard">
+          <div class="mc-head"><span>כרטיס מפגש</span><span>החבר׳ה · גודאורי 2027</span></div>
+          <div class="mc-main">
+            <div class="mc-row"><span class="mc-col"><small>נפגשים ב</small><b class="mc-sign" dir="ltr" data-f="name"></b></span><span class="mc-col mc-end"><small>שעה</small><b class="mc-time num" data-f="time"></b></span></div>
+            <div class="mc-meta"><span><small>שער</small><b data-f="where"></b></span><span><small>גובה</small><b class="num" data-f="alt"></b></span><span><small>יום</small><b data-f="day"></b></span></div>
+          </div>
+          <div class="mc-stub"><span data-f="c1"></span><b class="num" data-f="c2"></b><span data-f="c3"></span></div>
+        </div>
+      </section>
+      <section aria-label="איך מגיעים">
+        <h2>איך מגיעים</h2>
+        <ul class="meet-routes" id="meetRoutes"></ul>
+        <p class="hint">לפי החיבורים בנתוני המסלולים. בלי זמנים ובלי תורים.</p>
+      </section>
+      <div class="meet-share">
+        <a class="btn mshare-wa" id="meetWa" href="#" target="_blank" rel="noopener">שליחה בוואטסאפ</a>
+        <button type="button" class="btn" id="meetShare">שיתוף עם תמונה</button>
+        <button type="button" class="btn ghost" id="meetCopy">העתקת הקישור</button>
+        <button type="button" class="btn ghost" id="meetOnMap">לראות במפת המסלולים</button>
+      </div>
+      <p class="hint">בלי מסד נתונים ובלי הרשמה: המקום, היום והשעה נמצאים בתוך הקישור עצמו.</p>
     </div>
   </div>
 </main>

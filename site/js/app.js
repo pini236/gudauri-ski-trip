@@ -454,12 +454,13 @@ function activateMap(){
   else if(view==='3d'&&v3)v3.resize();else apply();
 }
 // pages: #map shows the map, anything else the home page
-const pgHome=document.getElementById('home'),pgMap=document.getElementById('mapPage');
+const pgHome=document.getElementById('home'),pgMap=document.getElementById('mapPage'),pgMeet=document.getElementById('meetPage');
 function route(){
-  const h=location.hash,m=h.startsWith('#map'),run=h.startsWith('#map/run/')?decodeURIComponent(h.slice(9)):null,wasMap=!pgMap.hidden;
-  pgHome.hidden=m;pgMap.hidden=!m;
-  document.querySelectorAll('[data-nav]').forEach(a=>{if((a.dataset.nav==='map')===m)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current');});
-  requestAnimationFrame(()=>{if(!m){DN.layout();return;}activateMap();
+  const h=location.hash,m=h.startsWith('#map'),mt=h.startsWith('#meet'),run=h.startsWith('#map/run/')?decodeURIComponent(h.slice(9)):null,wasMap=!pgMap.hidden;
+  pgHome.hidden=m||mt;pgMap.hidden=!m;pgMeet.hidden=!mt;
+  const cur=m?'map':mt?'meet':'home';
+  document.querySelectorAll('[data-nav]').forEach(a=>{if(a.dataset.nav===cur)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current');});
+  requestAnimationFrame(()=>{if(mt){if(MEET)MEET.open(h.slice(6));return;}if(!m){DN.layout();return;}activateMap();
     if(run&&run!==current&&(byKey[run]||D.missing.some(x=>x.name===run)))select(run,{push:false});
     else if(!run&&current)overview();});
   if(!wasMap||!m){window.scrollTo(0,0);pgHome.scrollTop=0;}
@@ -564,6 +565,145 @@ const DN=(function(){
   setInterval(()=>paint(true),60000);
   paint(false);
   return {layout,paint,mode:()=>mode};
+})();
+
+// ---- meeting point (design round 3, M1 to M3): pick a lift station and a time, share it. No database: all of it is in the link. ----
+const MEET=(function(){
+  const host=document.getElementById('meetMap');if(!host)return null;
+  // stations: both ends of every named lift on the main side, merged when closer than 70 m (shared top stations)
+  const st=[];
+  mainLifts.filter(l=>l.name&&l.status!=='inactive').forEach(l=>{
+    const a=P(l.g[0]),b=P(l.g[l.g.length-1]);let lo=a,hi=b;
+    if(TM&&TM.elev(a[0],a[1])>TM.elev(b[0],b[1])){lo=b;hi=a;}
+    [[lo,'b'],[hi,'t']].forEach(([q,end])=>{
+      const near=st.find(s=>Math.hypot(s.x-q[0],s.y-q[1])<70);
+      if(near){near.ends.push({l,end});return;}
+      st.push({id:l.id+end,x:q[0],y:q[1],h:TM?Math.round(TM.elev(q[0],q[1])):null,ends:[{l,end}]});});
+  });
+  st.forEach(s=>{const b=s.ends.filter(e=>e.end==='b'),t=s.ends.filter(e=>e.end==='t'),n=a=>a.map(e=>e.l.name).join(' ו-');
+    s.name=(b[0]||t[0]).l.name;
+    s.where=[b.length?`התחנה התחתונה של ${n(b)}`:'',t.length?`התחנה העליונה של ${n(t)}`:''].filter(Boolean).join(', ');});
+  const byId=Object.fromEntries(st.map(s=>[s.id,s]));
+  const find=name=>(end)=>st.find(s=>s.ends.some(e=>e.l.name===name&&e.end===end));
+  // ski days of the trip (11 to 14 January), and suggested fixed spots for the group
+  const DAYS=[['2027-01-11','ב׳ 11.1'],['2027-01-12','ג׳ 12.1'],['2027-01-13','ד׳ 13.1'],['2027-01-14','ה׳ 14.1']];
+  const TIMES=['09:30','11:00','12:30','13:30','15:00','16:30'];
+  const PRE=[['am','רכבל הבוקר',find('Goodaura')('b'),'09:30'],['noon','צהריים',find('Goodaura')('t'),'13:00'],['pm','סוף יום',find('New Goodaura')('b'),'16:30']].filter(p=>p[2]);
+  const S={sid:(find('Goodaura')('b')||st[0]).id,time:'12:30',day:DAYS[0][0],preset:''};
+  // map
+  const svgM=host;const m=(t,a,p)=>{const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);(p||svgM).appendChild(e);return e;};
+  const gLines=m('g',{class:'mm-lines'}),gPins=m('g',{class:'mm-pins'});
+  if(TM)GudRelief.svgRelief(TM,svgM,gLines);
+  mainPistes.filter(p=>p.named).forEach(p=>p.segs.filter(s=>!s.area).forEach(s=>m('path',{d:pathD(s.g),class:'mm-run','vector-effect':'non-scaling-stroke',stroke:`var(--p-${p.color})`},gLines)));
+  mainLifts.filter(l=>l.name).forEach(l=>m('path',{d:pathD(l.g),class:'mm-lift','vector-effect':'non-scaling-stroke'},gLines));
+  const pins={};
+  st.forEach(s=>{const g=m('g',{class:'mm-pin','data-sid':s.id},gPins);
+    m('ellipse',{class:'mm-ring',cx:0,cy:0,rx:11,ry:5},g);
+    m('path',{d:'M0 0C0 0-14-17-14-28A14 14 0 0 1 14-28C14-17 0 0 0 0Z',class:'mm-body'},g);
+    m('circle',{cx:0,cy:-28,r:5.5,class:'mm-dot'},g);pins[s.id]=g;});
+  let vb={x:0,y:0,w:1,h:1},tween=0;
+  const size=()=>{const r=svgM.getBoundingClientRect();return [r.width||1,r.height||1];};
+  function applyVB(){const[w,h]=size();vb.h=vb.w*h/w;svgM.setAttribute('viewBox',`${vb.x} ${vb.y} ${vb.w} ${vb.h}`);const u=vb.w/w;
+    st.forEach(s=>{const on=s.id===S.sid;pins[s.id].setAttribute('transform',`translate(${s.x} ${s.y}) scale(${u*(on?1.2:.8)})`);pins[s.id].classList.toggle('on',on);});
+    const s=byId[S.sid],c=document.getElementById('meetCallout');
+    if(s&&c){const x=(s.x-vb.x)/vb.w*w,y=(s.y-vb.y)/vb.h*h;c.style.left=Math.max(8,Math.min(w-208,x-100))+'px';c.style.top=Math.max(6,y-128)+'px';c.style.setProperty('--tip',Math.max(12,Math.min(184,x-Math.max(8,Math.min(w-208,x-100))-8))+'px');}}
+  function goTo(x,y,span,ms){const[w,h]=size();const to={w:span,x:x-span/2,y:y-span*h/w*0.55};const from={...vb};
+    cancelAnimationFrame(tween);if(reduceMotion()||!ms||from.w===1){Object.assign(vb,to);applyVB();return;}
+    const t0=performance.now(),step=()=>{const t=Math.min(1,(performance.now()-t0)/ms),e=t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;
+      vb.x=from.x+(to.x-from.x)*e;vb.y=from.y+(to.y-from.y)*e;vb.w=from.w+(to.w-from.w)*e;applyVB();if(t<1)tween=requestAnimationFrame(step);};tween=requestAnimationFrame(step);}
+  svgM.addEventListener('click',e=>{const r=svgM.getBoundingClientRect(),x=vb.x+(e.clientX-r.left)/r.width*vb.w,y=vb.y+(e.clientY-r.top)/r.height*vb.h;
+    const best=st.map(s=>[s,Math.hypot(s.x-x,s.y-y)]).sort((a,b)=>a[1]-b[1])[0];if(best)pick(best[0].id,'',true);});
+  document.getElementById('meetAll').onclick=()=>{let a=1e9,b=1e9,c=-1e9,d=-1e9;st.forEach(s=>{a=Math.min(a,s.x);c=Math.max(c,s.x);b=Math.min(b,s.y);d=Math.max(d,s.y);});
+    const[w,h]=size();const span=Math.max(c-a,(d-b)*w/h)*1.15;goTo((a+c)/2,(b+d)/2+ (d-b)*0.05,span,700);};
+  new ResizeObserver(()=>{if(!document.getElementById('meetPage').hidden)applyVB();}).observe(svgM);
+  // controls
+  const ui=document.getElementById('meetUI');
+  ui.querySelector('[data-days]').innerHTML=DAYS.map(([v,l])=>`<button type="button" data-day="${v}">${l}</button>`).join('');
+  ui.querySelector('[data-times]').innerHTML=TIMES.map(t=>`<button type="button" class="num" data-time="${t}">${t}</button>`).join('');
+  ui.querySelector('[data-pre]').innerHTML=PRE.map(([k,l,s,t],i)=>`<button type="button" class="mp-sign mp-${k}" data-pre="${k}"><b>${l}</b><span dir="ltr">${esc(s.name)} ${t}</span></button>`).join('');
+  ui.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;
+    if(b.dataset.day){S.day=b.dataset.day;S.preset='';render();}
+    else if(b.dataset.time){S.time=b.dataset.time;S.preset='';ui.querySelector('#meetTime').value=S.time;render();}
+    else if(b.dataset.pre){const p=PRE.find(x=>x[0]===b.dataset.pre);S.time=p[3];ui.querySelector('#meetTime').value=S.time;pick(p[2].id,p[0],true);}});
+  ui.querySelector('#meetTime').addEventListener('input',e=>{if(/^\d\d:\d\d$/.test(e.target.value)){S.time=e.target.value;S.preset='';render();}});
+  function pick(id,preset,fly){S.sid=id;S.preset=preset||'';const s=byId[id];if(fly&&s)goTo(s.x,s.y,Math.max(1400,vb.w<1500?vb.w:1800),650);render();}
+  // how to get there, from the connections in the data only
+  const chip=p=>`<span class="rt-run c-${p.color}" dir="ltr">${esc(dispName(p))}</span>`,liftChip=n=>`<span class="rt-lift" dir="ltr">⇡ ${esc(n)}</span>`,dot='<span class="rt-dot" aria-hidden="true"></span>',sep='<span class="rt-sep" aria-hidden="true"></span>';
+  function routes(s){const out=[];
+    s.ends.forEach(({l,end})=>{
+      if(end==='b')D.pistes.filter(p=>p.named&&p.toLifts.includes(l.name)).forEach(p=>{const pr=p.fromPistes.map(k=>byKey[k]).find(x=>x&&x.named&&x.key!==p.key);
+        out.push({from:pr?`מ-${pr.key}`:`מראש ${p.key}`,html:[pr?chip(pr):'',chip(p),dot].filter(Boolean).join(sep)});});
+      else out.push({from:`מהתחנה התחתונה של ${l.name}`,html:[liftChip(l.name),dot].join(sep)});});
+    return out.filter((r,i)=>out.findIndex(q=>q.html===r.html)===i).slice(0,4);}
+  const pad=n=>String(n).padStart(2,'0');
+  function link(){return location.origin+location.pathname+`#meet/${S.sid}/${S.time.replace(':','')}/${S.day.replace(/-/g,'')}`;}
+  function dayLbl(){return (DAYS.find(d=>d[0]===S.day)||[0,S.day.split('-').reverse().join('.')])[1];}
+  function message(){const s=byId[S.sid];return `נפגשים ב-${s.name} ביום ${dayLbl()} בשעה ${S.time}.\n${s.where}${s.h?`, ${s.h.toLocaleString('en-US')} מ׳`:''}.\nעל המפה: ${link()}`;}
+  function countdown(){ // in Gudauri time (UTC+4)
+    const [y,mo,d]=S.day.split('-').map(Number),[hh,mm]=S.time.split(':').map(Number);
+    const t=Date.UTC(y,mo-1,d,hh-4,mm),diff=(t-Date.now())/6e4;
+    if(diff<0)return ['','כבר עבר',''];if(diff<24*60)return diff<60?['עוד',Math.round(diff),'דקות למפגש']:['עוד',Math.floor(diff/60)+':'+pad(Math.round(diff%60)),'שעות למפגש'];
+    return ['עוד',Math.ceil(diff/1440),'ימים למפגש'];}
+  function render(){
+    const s=byId[S.sid];if(!s)return;applyVB();
+    const c=document.getElementById('meetCallout');c.querySelector('b').textContent=s.name;c.querySelector('.mc-alt').textContent=s.h?s.h.toLocaleString('en-US')+' מ׳':'';c.querySelector('.mc-where').textContent=s.where;
+    ui.querySelectorAll('[data-day]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.day===S.day)));
+    ui.querySelectorAll('[data-time]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.time===S.time)));
+    ui.querySelectorAll('[data-pre]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.pre===S.preset)));
+    const card=document.getElementById('meetCard'),[c1,c2,c3]=countdown();
+    card.querySelector('[data-f="name"]').textContent=s.name;card.querySelector('[data-f="time"]').textContent=S.time;
+    card.querySelector('[data-f="where"]').textContent=s.where;card.querySelector('[data-f="alt"]').textContent=s.h?s.h.toLocaleString('en-US')+' מ׳':'—';
+    card.querySelector('[data-f="day"]').textContent=dayLbl();
+    card.querySelector('[data-f="c1"]').textContent=c1;card.querySelector('[data-f="c2"]').textContent=c2;card.querySelector('[data-f="c3"]').textContent=c3;
+    const R=routes(s);document.getElementById('meetRoutes').innerHTML=R.length?R.map(r=>`<li><small>${esc(r.from)}</small><div class="rt">${r.html}</div></li>`).join(''):'<li class="hint">אין בנתונים מסלול שמגיע לכאן.</li>';
+    document.getElementById('meetWa').href='https://wa.me/?text='+encodeURIComponent(message());
+    const want=`#meet/${S.sid}/${S.time.replace(':','')}/${S.day.replace(/-/g,'')}`;if(location.hash.startsWith('#meet')&&location.hash!==want)history.replaceState(null,'',want);
+  }
+  // the image for sharing: the mountain around the spot, the pin, the name and the time
+  async function image(){
+    const s=byId[S.sid],W=1080,H=1080,cv=document.createElement('canvas');cv.width=W;cv.height=H;const x=cv.getContext('2d');
+    const span=2200,k=W/span,ox=s.x-span/2,oy=s.y-span*0.55,X=v=>(v-ox)*k,Y=v=>(v-oy)*k;
+    x.fillStyle='#EEF2F5';x.fillRect(0,0,W,H);
+    if(TM){const img=new Image();img.src=TM.hill.src;await img.decode().catch(()=>{});const d=TM.dem;x.globalAlpha=.55;x.drawImage(img,X(d.x0),Y(d.y0),TM.W*k,TM.Hm*k);x.globalAlpha=1;}
+    x.lineCap=x.lineJoin='round';
+    const line=(g,c,w)=>{x.strokeStyle=c;x.lineWidth=w;x.beginPath();g.forEach((q,i)=>{const[a,b]=P(q);i?x.lineTo(X(a),Y(b)):x.moveTo(X(a),Y(b));});x.stroke();};
+    const COLS={green:'#1B8A4C',blue:'#1F5FC4',red:'#D1342B',black:'#13233A'};
+    mainPistes.filter(p=>p.named).forEach(p=>p.segs.filter(z=>!z.area).forEach(z=>{line(z.g,'#fff',11);line(z.g,COLS[p.color],6);}));
+    mainLifts.filter(l=>l.name).forEach(l=>{line(l.g,'#fff',6);line(l.g,'#3A4556',3);});
+    const px=X(s.x),py=Y(s.y);x.fillStyle='#F4B942';x.strokeStyle='#13233A';x.lineWidth=6;
+    x.beginPath();x.ellipse(px,py,46,18,0,0,7);x.stroke();
+    x.beginPath();x.moveTo(px,py);x.bezierCurveTo(px,py,px-50,py-60,px-50,py-100);x.arc(px,py-100,50,Math.PI,0);x.bezierCurveTo(px+50,py-60,px,py,px,py);x.fill();x.stroke();
+    x.fillStyle='#fff';x.beginPath();x.arc(px,py-100,19,0,7);x.fill();x.stroke();
+    const g=x.createLinearGradient(0,H-420,0,H);g.addColorStop(0,'rgba(19,35,58,0)');g.addColorStop(.45,'rgba(19,35,58,.85)');g.addColorStop(1,'rgba(19,35,58,.95)');x.fillStyle=g;x.fillRect(0,H-420,W,420);
+    await document.fonts.ready.catch(()=>{});
+    const DISP='"Karantina","Arial Narrow",sans-serif',BODY='"IBM Plex Sans Hebrew",sans-serif';
+    const fit=(t,max,px)=>{x.font=`700 ${px}px ${DISP}`;while(px>60&&x.measureText(t).width>max){px-=6;x.font=`700 ${px}px ${DISP}`;}return px;};
+    x.direction='ltr';x.textAlign='left';
+    const tw=Math.min(300,(fit(S.time,300,150),x.measureText(S.time).width)+50);
+    const fs=fit(s.name,W-60-tw-30-110-40,150),nw=x.measureText(s.name).width+110;
+    x.fillStyle='#1F5FC4';x.beginPath();x.moveTo(60,H-170);x.lineTo(110,H-270);x.lineTo(60+nw,H-270);x.lineTo(60+nw,H-70);x.lineTo(110,H-70);x.closePath();x.fill();
+    x.fillStyle='#fff';x.font=`700 ${fs}px ${DISP}`;x.fillText(s.name,130,H-112);
+    x.fillStyle='#F4B942';x.fillRect(W-60-tw,H-270,tw,200);fit(S.time,tw-40,150);x.fillStyle='#13233A';x.textAlign='center';x.fillText(S.time,W-60-tw/2,H-112);
+    x.direction='rtl';x.textAlign='right';x.fillStyle='#fff';x.font=`600 40px ${BODY}`;x.fillText('כרטיס מפגש · '+dayLbl(),W-60,H-330);
+    x.fillStyle='#13233A';x.fillRect(W-420,40,360,70);x.fillStyle='#fff';x.font=`700 34px ${BODY}`;x.fillText('גודאורי 2027',W-90,88);
+    return new Promise(r=>cv.toBlob(r,'image/png'));
+  }
+  document.getElementById('meetShare').addEventListener('click',async e=>{const b=e.currentTarget,s=byId[S.sid];
+    try{const blob=await image(),file=new File([blob],'meet.png',{type:'image/png'});
+      if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],text:message(),title:'נקודת מפגש: '+s.name});return;}
+      if(navigator.share){await navigator.share({text:message(),title:'נקודת מפגש: '+s.name});return;}
+      const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='meet-'+s.name.replace(/\W+/g,'-')+'.png';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),4000);
+    }catch(err){}});
+  document.getElementById('meetCopy').addEventListener('click',e=>{const b=e.currentTarget;if(!navigator.clipboard)return;navigator.clipboard.writeText(link()).then(()=>{b.textContent='הקישור הועתק';setTimeout(()=>{b.textContent='העתקת הקישור';},2200);}).catch(()=>{});});
+  document.getElementById('meetOnMap').addEventListener('click',()=>{const s=byId[S.sid];location.hash='#map';requestAnimationFrame(()=>requestAnimationFrame(()=>{showLift(s.ends[0].l.id);if(view==='3d'&&v3)v3.focusLift(s.ends[0].l.id);else focusOn([s.ends[0].l.g]);}));});
+  let shown=false;
+  function open(arg){ // arg: "<station>/<HHMM>/<YYYYMMDD>" from a shared link, or empty
+    if(arg){const [sid,t,d]=arg.split('/');if(byId[sid])S.sid=sid;if(/^\d{4}$/.test(t||''))S.time=t.slice(0,2)+':'+t.slice(2);if(/^\d{8}$/.test(d||''))S.day=`${d.slice(0,4)}-${d.slice(4,6)}-${d.slice(6)}`;
+      ui.querySelector('#meetTime').value=S.time;}
+    const s=byId[S.sid];requestAnimationFrame(()=>{if(!shown||arg){shown=true;goTo(s.x,s.y,1800,0);}render();if(arg)document.getElementById('meetCard').scrollIntoView({block:'center'});});
+  }
+  ui.querySelector('#meetTime').value=S.time;
+  return {open};
 })();
 
 // flight ticket: one shared doc (trip/flight), editable by Contributors
