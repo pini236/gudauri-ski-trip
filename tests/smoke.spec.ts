@@ -106,13 +106,19 @@ test('סרטונים מקובץ ההתחלה מוצגים בפרטי המסלו�
   await loaded(page);
   const key = await page.locator('#panel .index button').first().getAttribute('data-goto');
   await page.unroute('**/videos-seed.json').catch(() => {});
-  await page.route('**/videos-seed.json', r => r.fulfill({ json: [{ piste: key, url: 'https://www.youtube.com/watch?v=abc', title: 'סרטון בדיקה', by: 'מחקר', at: 1790000000000 }] }));
+  await page.route('**/videos-seed.json', r => r.fulfill({ json: [{ piste: key, url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ', title: 'סרטון בדיקה', by: 'מחקר', at: 1790000000000 }] }));
   await page.reload();
   await loaded(page);
   await page.goto('/#map');
   await page.locator(`#panel .index button[data-goto="${key}"]`).click();
   await expect(page.locator('#panel .vids a')).toHaveText('סרטון בדיקה');
   await expect(page.locator('#addform')).toHaveCount(0);
+  // הסרטון מוצג באתר עצמו: תמונה ממוזערת, ובלחיצה נגן מוטמע
+  await expect(page.locator('#panel .vthumb')).toBeVisible();
+  await page.locator('#panel .vthumb').click();
+  const frame = page.locator('#panel .vframe iframe');
+  await expect(frame).toBeVisible();
+  await expect(frame).toHaveAttribute('src', /youtube-nocookie\.com\/embed\/dQw4w9WgXcQ/);
 });
 
 test('בלי קבצי טיסה וסרטונים האתר ממשיך לעבוד', async ({ page }) => {
@@ -124,4 +130,14 @@ test('בלי קבצי טיסה וסרטונים האתר ממשיך לעבוד',
   await expect(page.locator('#tFrom')).toHaveText('מוצא');
   await expect(page.locator('.crew')).toBeHidden();
   expect(errors).toEqual([]);
+});
+
+test('בתלת-ממד יש תוויות לרכבלים', async ({ page }) => {
+  await page.goto('/#map');
+  await loaded(page);
+  if (!(await page.locator('#viewsw').isVisible())) test.skip();
+  await page.click('#viewsw [data-view="3d"]');
+  await expect(page.locator('.r3-lbl.lift').first()).toBeAttached();
+  const names = await page.locator('.r3-lbl.lift').allInnerTexts();
+  expect(names.join(' ')).toContain('Goodaura');
 });

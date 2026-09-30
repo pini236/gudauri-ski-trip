@@ -184,9 +184,11 @@ function notesFor(p){
   return n;
 }
 function hostOf(u){try{return new URL(u).hostname.replace(/^www\./,'')}catch{return u}}
+const ytId=u=>{try{const x=new URL(u);if(/(^|\.)youtube\.com$/.test(x.hostname))return(x.searchParams.get('v')||'').match(/^[\w-]{11}$/)?x.searchParams.get('v'):null;if(x.hostname==='youtu.be'){const i=x.pathname.slice(1);return/^[\w-]{11}$/.test(i)?i:null;}}catch{}return null;};
 function vidList(key){
   const list=vids.filter(v=>v.piste===key).sort((a,b)=>(b.at||0)-(a.at||0));
-  return list.length?`<ul class="vids">${list.map(v=>`<li><a href="${esc(v.url)}" target="_blank" rel="noopener">${esc(v.title||hostOf(v.url))}</a><small>${esc(v.channel?[v.channel,v.length].filter(Boolean).join(' · '):[v.by||'',v.at?new Date(v.at).toLocaleDateString('he-IL'):''].filter(Boolean).join(' · '))}</small></li>`).join('')}</ul>`:'<p class="hint">עוד אין סרטונים למסלול הזה.</p>';
+  return list.length?`<ul class="vids">${list.map(v=>{const id=ytId(v.url);const thumb=id?`<button type="button" class="vthumb" data-vid="${id}" data-title="${esc(v.title||'')}" aria-label="הפעלת הסרטון${v.title?': '+esc(v.title):''}"><img src="https://i.ytimg.com/vi/${id}/hqdefault.jpg" alt="" loading="lazy"><span class="play"></span></button>`:'';
+    return `<li>${thumb}<a href="${esc(v.url)}" target="_blank" rel="noopener">${esc(v.title||hostOf(v.url))}</a><small>${esc(v.channel?[v.channel,v.length].filter(Boolean).join(' · '):[v.by||'',v.at?new Date(v.at).toLocaleDateString('he-IL'):''].filter(Boolean).join(' · '))}</small></li>`;}).join('')}</ul>`:'<p class="hint">עוד אין סרטונים למסלול הזה.</p>';
 }
 function vidBlock(key,label){
   return `<h3>סרטונים</h3>${vidList(key)}
@@ -286,6 +288,9 @@ panel.addEventListener('click',e=>{
   const b=e.target.closest('button');if(!b)return;
   if(b.dataset.back!==undefined){overview();return;}
   if(b.dataset.filter){const k=b.dataset.filter;hidden.has(k)?hidden.delete(k):hidden.add(k);b.setAttribute('aria-pressed',!hidden.has(k));applyFilters();return;}
+  if(b.dataset.vid){const w=document.createElement('div');w.className='vframe';const f=document.createElement('iframe');
+    f.src='https://www.youtube-nocookie.com/embed/'+b.dataset.vid+'?autoplay=1&rel=0';f.title=b.dataset.title||'סרטון';f.allow='autoplay; encrypted-media; picture-in-picture; fullscreen';f.allowFullscreen=true;f.referrerPolicy='strict-origin-when-cross-origin';
+    w.appendChild(f);b.replaceWith(w);return;}
   if(b.dataset.goto){select(b.dataset.goto,{zoom:true});panel.scrollTop=0;return;}
   if(b.dataset.lift){const l=D.lifts.find(x=>x.id===+b.dataset.lift);showLift(+b.dataset.lift);if(l){if(view==='3d')v3.focusLift(l.id);else if(isKobiL(l))openInset();else focusOn([l.g]);}return;}
 });

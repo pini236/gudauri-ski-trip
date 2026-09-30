@@ -44,7 +44,7 @@ npm test
 קבצי נתונים בריפו, בלי מסד נתונים ובלי התחברות. האתר מציג אותם לקריאה בלבד.
 
 - `data/trip.json`: הטיסה של הקבוצה ורשימת החברים.
-- `data/videos-seed.json`: סרטונים לפי מסלול. נוצר אוטומטית מ-`../tools/videos-curated.json` (ראו `research/videos.md`).
+- `data/videos-seed.json`: סרטונים לפי מסלול, מוצגים כנגן מוטמע (תמונה ממוזערת שנטענת מיוטיוב). נוצר אוטומטית מ-`../tools/videos-curated.json` (ראו `research/videos.md`).
 
 לעדכון פרטי הטיסה עורכים את `trip.json` ועושים commit. לסרטונים עורכים את `tools/videos-curated.json` ומריצים `python3 tools/build-videos.py`.
 

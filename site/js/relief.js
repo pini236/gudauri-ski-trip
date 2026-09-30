@@ -211,6 +211,9 @@ R.View3D=function(opts){
   Object.values(pisteObjs).forEach(o=>{if(!o.p.named)return;const L=o.lines.slice().sort((a,b)=>b.length-a.length)[0];const q=L[Math.floor(L.length*0.45)];
     o.label=addLabel(esc(opts.dispName(o.p)),'piste c-'+o.p.color,[q[0],q[1]+8,q[2]],40,{key:o.p.key});});
 
+  liftObjs.forEach(o=>{if(!o.l.name)return;const L=o.L,q=L[Math.floor(L.length/2)];
+    addLabel(`<span class="lift-ico">⇡</span> ${esc(o.l.name)}`,'lift',[q[0],q[1]+12,q[2]],45,{lift:o.l.id});});
+
   /* camera rig */
   const cx0=opts.center[0],cz0=opts.center[1];
   const home={tx:cx0,tz:cz0,dist:opts.homeDist||11500,az:opts.homeAz||0,pol:opts.homePol||0.52};
