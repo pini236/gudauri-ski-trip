@@ -10,6 +10,7 @@
 | תיקייה | מה בה |
 |---|---|
 | [`site/`](site/) | האתר עצמו: `index.html`, `css/`, `js/` ו-`data/` (הנתונים כקבצי JSON) |
+| [`android-native/`](android-native/) | אפליקציית אנדרואיד מקורית ונפרדת: ממשק בעברית, מפת הר מואצת, בדיקות וחומרי הגשה לחנות. משתמשת בנתוני האתר לקריאה בלבד |
 | [`tools/`](tools/) | כלים: `build-videos.py` בונה את קובץ הסרטונים ואת `research/videos.md` מ-`videos-curated.json` |
 | [`tests/`](tests/) | בדיקות Playwright |
 | [`research/`](research/) | כל המידע שנאסף: מסלולים, רכבלים, המסלולים החסרים, מקורות, ציוד ופרומפטים |
