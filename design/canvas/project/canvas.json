@@ -196,6 +196,24 @@
       "title": "דרכון המסלולים",
       "page": "round2",
       "is_interactive": true
+    },
+    "R7-DayNight.dc.html": {
+      "x": 1410,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "title": "יום ולילה: כפתור",
+      "page": "round2",
+      "is_interactive": true
+    },
+    "R8-SkyClock.dc.html": {
+      "x": 1410,
+      "y": 1264,
+      "w": 390,
+      "h": 844,
+      "title": "שמיים לפי השעה",
+      "page": "round2",
+      "is_interactive": true
     }
   },
   "createdOnFiles": {
@@ -264,18 +282,18 @@
     },
     "r2row1": {
       "kind": "title1",
-      "maxW": 1330,
+      "maxW": 1800,
       "page": "round2",
-      "text": "שמש, בוקר, מסלול",
+      "text": "שמש, בוקר, מסלול, יום ולילה",
       "w": 240,
       "x": 0,
       "y": -300
     },
     "r2row2": {
       "kind": "title1",
-      "maxW": 1330,
+      "maxW": 1800,
       "page": "round2",
-      "text": "מפגש, עזרה, דרכון",
+      "text": "מפגש, עזרה, דרכון, שמיים",
       "w": 240,
       "x": 0,
       "y": 964
@@ -305,7 +323,9 @@
     "R3-DayRoute.dc.html",
     "R4-MeetingPoint.dc.html",
     "R5-HelpCard.dc.html",
-    "R6-Passport.dc.html"
+    "R6-Passport.dc.html",
+    "R7-DayNight.dc.html",
+    "R8-SkyClock.dc.html"
   ],
   "pages": [
     {
