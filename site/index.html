@@ -46,16 +46,11 @@
         <div class="t-main">
           <span class="t-label">כרטיס עלייה למטוס</span>
           <div class="t-route"><span id="tFrom" class="ph">מוצא</span><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5"/><path d="M11 6l-6 6 6 6"/></svg><span id="tTo" class="ph">יעד</span></div>
-          <div class="t-meta"><span><small>תאריך</small><b class="num">10.1.2027</b></span><span><small>טיסה</small><b id="tFlight" class="ph" dir="ltr">—</b></span></div>
+          <div class="t-meta"><span><small>תאריך</small><b class="num" id="tDate">—</b></span><span><small>טיסה</small><b id="tFlight" class="ph" dir="ltr">—</b></span><span><small>המראה</small><b class="num" id="tDeparts">—</b></span><span><small>נחיתה</small><b class="num" id="tArrives">—</b></span></div>
+          <p class="t-back" id="tBack" hidden></p>
         </div>
         <div class="t-stub"><b class="num" id="tDays"></b><span id="tDaysLbl">ימים לטיסה</span></div>
       </div>
-      <button type="button" class="linkbtn" id="tEdit" hidden>עריכת פרטי הטיסה</button>
-      <form class="t-form" id="tForm" hidden>
-        <div class="t-row"><label>מוצא<input name="from" maxlength="40" autocomplete="off"></label><label>יעד<input name="to" maxlength="40" autocomplete="off"></label></div>
-        <label>מספר טיסה<input name="flight" maxlength="20" autocomplete="off" dir="ltr"></label>
-        <div class="t-btns"><button type="submit" class="btn">שמירה</button><button type="button" class="btn ghost" id="tCancel">ביטול</button><span class="err" id="tErr" role="alert"></span></div>
-      </form>
     </section>
     <nav class="post" aria-label="חלקי האתר">
       <a class="board" href="#map"><b>מפת מסלולים</b><span>27 מסלולים, פרטים וסרטונים</span></a>
@@ -64,6 +59,10 @@
     <section class="tally" aria-label="מסלולים במפה הרשמית">
       <h2>מסלולים במפה הרשמית</h2>
       <ul><li class="t-green"><b class="num">5</b><span>ירוק</span></li><li class="t-blue"><b class="num">16</b><span>כחול</span></li><li class="t-red"><b class="num">4</b><span>אדום</span></li><li class="t-black"><b class="num">2</b><span>שחור</span></li></ul>
+    </section>
+    <section class="crew" aria-label="מי טס">
+      <h2>החבר׳ה <span class="num" id="crewCount"></span></h2>
+      <ul id="crewList"></ul>
     </section>
   </div>
 </main>

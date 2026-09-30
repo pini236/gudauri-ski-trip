@@ -1,7 +1,10 @@
 (async function main(){
-const [D,TERR]=await Promise.all([
+const soft=(url,fallback)=>fetch(url).then(r=>r.ok?r.json():fallback).catch(()=>fallback);
+const [D,TERR,TRIP,vids]=await Promise.all([
   fetch('data/runs-and-lifts.json').then(r=>{if(!r.ok)throw new Error('runs-and-lifts '+r.status);return r.json();}),
-  fetch('data/terrain.json').then(r=>r.ok?r.json():null).catch(()=>null)
+  soft('data/terrain.json',null),
+  soft('data/trip.json',null),
+  soft('data/videos-seed.json',[])
 ]);
 const HEB={green:'ירוק',blue:'כחול',red:'אדום',black:'שחור'};
 const RATE={green:[1,'מתחילים'],blue:[2,'קל'],red:[3,'בינוני'],black:[4,'קשה']};
@@ -21,7 +24,7 @@ const kobiRun=byKey['Kobi'];const PASS=kobiRun?kobiRun.segs[0].g[0]:[42.5111,44.
 const dispName=p=>p.named?(p.key==='Firni ?'?'Firni (1/2?)':p.key):'קטע ללא שם';
 
 // countdown (top bar + ticket stub)
-(function(){const t=new Date('2027-01-10T00:00:00+02:00');const d=Math.ceil((t-new Date())/864e5);
+(function(){const t=new Date((TRIP&&TRIP.outbound?TRIP.outbound.date:'2027-01-10')+'T00:00:00+02:00');const d=Math.ceil((t-new Date())/864e5);
  const tb=document.getElementById('tbDays'),stub=document.getElementById('tDays'),lbl=document.getElementById('tDaysLbl');
  if(d>0){tb.textContent=d;stub.textContent=d;}else{document.getElementById('tbCount').textContent='בדרך לגודאורי';stub.textContent='0';lbl.textContent='יוצאים לדרך';}})();
 
@@ -180,16 +183,14 @@ function notesFor(p){
   if(!p.named)n.push('קטע בנתוני OSM בלי שם. לא שויך למסלול רשמי. הצבע לפי דירוג OSM.');
   return n;
 }
+function hostOf(u){try{return new URL(u).hostname.replace(/^www\./,'')}catch{return u}}
+function vidList(key){
+  const list=vids.filter(v=>v.piste===key).sort((a,b)=>(b.at||0)-(a.at||0));
+  return list.length?`<ul class="vids">${list.map(v=>`<li><a href="${esc(v.url)}" target="_blank" rel="noopener">${esc(v.title||hostOf(v.url))}</a><small>${esc(v.by||'')} ${v.at?'· '+new Date(v.at).toLocaleDateString('he-IL'):''}</small></li>`).join('')}</ul>`:'<p class="hint">עוד אין סרטונים למסלול הזה.</p>';
+}
 function vidBlock(key,label){
-  return `<h3>סרטונים</h3><div id="vidlist"></div>
-  <p class="hint"><a href="https://www.youtube.com/results?search_query=${encodeURIComponent('Gudauri '+label+' ski')}" target="_blank" rel="noopener">חיפוש "Gudauri ${esc(label)}" ביוטיוב ↗</a></p>
-  <form class="add" id="addform" data-key="${esc(key)}" ${canWrite===false?'hidden':''}>
-    <input type="url" id="v-url" required placeholder="https://youtube.com/…" aria-label="קישור לסרטון">
-    <input type="text" id="v-title" maxlength="80" placeholder="תיאור קצר (לא חובה)" aria-label="תיאור">
-    <input type="text" id="v-by" maxlength="30" placeholder="השם שלך" aria-label="השם שלך">
-    <button class="btn" type="submit">הוספת סרטון</button><span class="err" id="v-err" role="alert"></span>
-  </form>
-  <p class="hint" id="v-ro" ${canWrite===false?'':'hidden'}>כדי להוסיף סרטונים צריך הרשאת Contributor לדף. בקשו מפיני.</p>`;
+  return `<h3>סרטונים</h3>${vidList(key)}
+  <p class="hint"><a href="https://www.youtube.com/results?search_query=${encodeURIComponent('Gudauri '+label+' ski')}" target="_blank" rel="noopener">חיפוש "Gudauri ${esc(label)}" ביוטיוב ↗</a></p>`;
 }
 function elevRows(p){
   if(!TM)return'';const lines=p.segs.filter(s=>!s.area).map(s=>s.g.map(P));if(!lines.length)return'';
@@ -214,7 +215,7 @@ function renderPiste(key){
     panel.innerHTML=`<button class="back" data-back>→ כל המסלולים</button><h2 class="c-${m.color}">${esc(m.name)}</h2>
     <dl class="kv"><dt>צבע רשמי</dt><dd>${pips(m.color)}${HEB[m.color]} · ${RATE[m.color][1]}</dd><dt>אורך</dt><dd>—</dd></dl>
     <h3>הערות</h3><div class="notice">מסלול זה מופיע במפה הרשמית אבל אין לו קו בנתוני OpenStreetMap. לא ציירנו אותו כדי לא לנחש את התוואי.</div>${vidBlock(key,m.name)}`;
-    bindForm();renderVids();return;}
+    return;}
   const c=p.color,label=p.named?(p.key==='Firni ?'?'Firni':p.key):'';
   panel.innerHTML=`<button class="back" data-back>→ כל המסלולים</button>
   <h2 class="c-${c}">${esc(dispName(p))}</h2>
@@ -240,7 +241,6 @@ function renderPiste(key){
   ${p.research?researchBlock(p):''}
   <p class="hint">OSM: ${[...new Set(p.research&&p.research.osmIds.length?p.research.osmIds:p.segs.map(s=>s.id))].map(id=>`<a href="https://www.openstreetmap.org/way/${id}" target="_blank" rel="noopener">${id}</a>`).join(' · ')}</p>
   ${p.named?vidBlock(key,label):''}`;
-  bindForm();renderVids();
 }
 function liftElev(l){
   if(!TM){return l.rise?`<dt>הפרש גובה</dt><dd class="num">${esc(l.rise)} מ׳</dd>`:'';}
@@ -288,46 +288,8 @@ panel.addEventListener('click',e=>{
   if(b.dataset.filter){const k=b.dataset.filter;hidden.has(k)?hidden.delete(k):hidden.add(k);b.setAttribute('aria-pressed',!hidden.has(k));applyFilters();return;}
   if(b.dataset.goto){select(b.dataset.goto,{zoom:true});panel.scrollTop=0;return;}
   if(b.dataset.lift){const l=D.lifts.find(x=>x.id===+b.dataset.lift);showLift(+b.dataset.lift);if(l){if(view==='3d')v3.focusLift(l.id);else if(isKobiL(l))openInset();else focusOn([l.g]);}return;}
-  if(b.dataset.del){delVid(b.dataset.del);}
 });
 
-// shared video links (db)
-let db=null,userCap=null,canWrite=null,canDel=false,vids=[];
-function renderVids(){
-  const box=document.getElementById('vidlist');if(!box||!current&&!document.getElementById('addform'))return;
-  const key=document.getElementById('addform')?.dataset.key;if(!key){return;}
-  const list=vids.filter(v=>v.piste===key).sort((a,b)=>(b.at||0)-(a.at||0));
-  box.innerHTML=db===null?'<p class="hint">טוען סרטונים…</p>':list.length?`<ul class="vids">${list.map(v=>`<li>${canDel?`<button class="del" data-del="${esc(v.id)}" aria-label="מחיקה">✕</button>`:''}<a href="${esc(v.url)}" target="_blank" rel="noopener">${esc(v.title||hostOf(v.url))}</a><small>${esc(v.by||'')} ${v.at?'· '+new Date(v.at).toLocaleDateString('he-IL'):''}</small></li>`).join('')}</ul>`:'<p class="hint">עוד אין סרטונים למסלול הזה. הוסיפו את הראשון.</p>';
-}
-function hostOf(u){try{return new URL(u).hostname.replace(/^www\./,'')}catch{return u}}
-function bindForm(){
-  const f=document.getElementById('addform');if(!f)return;
-  try{const n=localStorage.getItem('gud-by');if(n)f.querySelector('#v-by').value=n;}catch{}
-  f.addEventListener('submit',async e=>{
-    e.preventDefault();const err=f.querySelector('#v-err');err.textContent='';
-    const url=f.querySelector('#v-url').value.trim(),title=f.querySelector('#v-title').value.trim(),by=f.querySelector('#v-by').value.trim();
-    let ok=false;try{const u=new URL(url);ok=u.protocol==='https:'||u.protocol==='http:';}catch{}
-    if(!ok){err.textContent='הקישור צריך להתחיל ב-https://';return;}
-    if(!db){err.textContent='שמירת סרטונים לא זמינה בתצוגה הזו.';return;}
-    try{localStorage.setItem('gud-by',by);}catch{}
-    const btn=f.querySelector('button');btn.disabled=true;
-    try{await db.collection('videos').add({piste:f.dataset.key,url,title,by,at:Date.now()});f.querySelector('#v-url').value='';f.querySelector('#v-title').value='';}
-    catch(x){err.textContent=x&&x.code==='invalid_argument'?'אין לך הרשאה להוסיף. בקשו מפיני הרשאת Contributor.':x&&x.code==='quota_exceeded'?'המאגר מלא.':'השמירה נכשלה. נסו שוב.';}
-    btn.disabled=false;
-  });
-}
-async function delVid(id){if(!db)return;try{await db.doc('videos/'+id).delete();}catch{}}
-async function initDb(){
-  if(!window.claude||!claude.use){db=false;renderVids();return;}
-  const [d,u]=await Promise.all([claude.use('db'),claude.use('user')]);
-  userCap=u;
-  if(u){try{canWrite=await u.can('data.write');}catch{} try{canDel=!!(await u.canEdit());}catch{}}
-  if(!d){db=false;canWrite=false;if(current)renderPiste(current);return;}
-  db=d;
-  watchTrip();
-  db.collection('videos').onSnapshot(s=>{vids=s.docs.map(x=>({id:x.id,...x.data()}));renderVids();},()=>{});
-  if(current)renderPiste(current);
-}
 // ---- 3D view ----
 let v3=null,view='2d';
 const wrap=document.querySelector('.mapwrap'),m3=document.getElementById('map3d'),sw=document.getElementById('viewsw');
@@ -418,32 +380,21 @@ function drawRidge(){
 new ResizeObserver(()=>{if(!pgHome.hidden)drawRidge();}).observe(document.getElementById('homeSky'));
 
 // flight ticket: one shared doc (trip/flight), editable by Contributors
-let trip={};
-const tFrom=document.getElementById('tFrom'),tTo=document.getElementById('tTo'),tFlight=document.getElementById('tFlight');
-const tEdit=document.getElementById('tEdit'),tForm=document.getElementById('tForm'),tErr=document.getElementById('tErr');
+const fmtDate=iso=>{const[y,m,d]=iso.split('-');return +d+'.'+ +m+'.'+y;};
 function renderTicket(){
-  const put=(el,v,ph)=>{el.textContent=v||ph;el.classList.toggle('ph',!v);};
-  put(tFrom,trip.from,'מוצא');put(tTo,trip.to,'יעד');put(tFlight,trip.flight,'—');
+  const put=(id,v,ph)=>{const el=document.getElementById(id);el.textContent=v||ph;el.classList.toggle('ph',!v);};
+  const o=TRIP&&TRIP.outbound||{};
+  put('tFrom',o.from,'מוצא');put('tTo',o.to,'יעד');put('tFlight',o.flight,'—');
+  put('tDate',o.date&&fmtDate(o.date),'—');put('tDeparts',o.departs,'—');put('tArrives',o.arrives,'—');
+  const r=TRIP&&TRIP.return,back=document.getElementById('tBack');
+  if(r){back.innerHTML=`חזרה: <b class="num">${esc(fmtDate(r.date))}</b>, טיסה <b dir="ltr">${esc(r.flight)}</b>, המראה <b class="num">${esc(r.departs)}</b>${r.note?`<span class="t-note">${esc(r.note)}</span>`:''}`;back.hidden=false;}
+  const members=TRIP&&TRIP.members||[];
+  document.getElementById('crewCount').textContent=members.length?'· '+members.length:'';
+  document.getElementById('crewList').innerHTML=members.map(n=>`<li>${esc(n)}</li>`).join('');
+  document.querySelector('.crew').hidden=!members.length;
 }
-function watchTrip(){
-  db.doc('trip/flight').onSnapshot(sn=>{trip=sn.exists?(sn.data()||{}):{};renderTicket();},()=>{});
-  tEdit.hidden=canWrite===false||!tForm.hidden;
-}
-tEdit.addEventListener('click',()=>{tErr.textContent='';['from','to','flight'].forEach(k=>tForm.elements[k].value=trip[k]||'');tForm.hidden=false;tEdit.hidden=true;tForm.elements.from.focus();});
-document.getElementById('tCancel').addEventListener('click',()=>{tForm.hidden=true;tEdit.hidden=false;tErr.textContent='';tEdit.focus();});
-tForm.addEventListener('submit',async e=>{
-  e.preventDefault();tErr.textContent='';
-  const v=k=>tForm.elements[k].value.trim(),next={from:v('from'),to:v('to'),flight:v('flight')};
-  if(['from','to','flight'].every(k=>(trip[k]||'')===next[k])){tForm.hidden=true;tEdit.hidden=false;return;}
-  if(!db){tErr.textContent='שמירה לא זמינה בתצוגה הזו.';return;}
-  const btn=tForm.querySelector('button[type=submit]');btn.disabled=true;
-  try{await db.doc('trip/flight').set({...next,at:Date.now()});tForm.hidden=true;tEdit.hidden=false;tEdit.focus();}
-  catch(x){if(x&&x.code==='invalid_argument'){canWrite=false;tErr.textContent='אין לך הרשאה לערוך. בקשו מפיני הרשאת Contributor.';}else tErr.textContent='השמירה נכשלה. נסו שוב.';}
-  btn.disabled=false;
-});
 renderTicket();
 route();
 overview();applyFilters();
 document.getElementById('loading').hidden=true;
-setTimeout(initDb,0);
 })().catch(e=>{console.error(e);const l=document.getElementById('loading');l.hidden=false;l.textContent='שגיאה בטעינת האתר. נסו לרענן את הדף.';});

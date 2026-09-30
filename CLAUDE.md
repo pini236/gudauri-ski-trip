@@ -30,18 +30,17 @@
   - `site/data/terrain.json`: מודל גובה, תבליט, קווי גובה, סביבה, פסגות.
   - `site/data/runs-and-lifts.json`: מסלולים ורכבלים.
   - **הרצה מקומית דורשת שרת** (הפקודה `npm start`), כי הנתונים נטענים ב-`fetch` ולא עובדים מקובץ שנפתח ישירות.
-- **נתונים משותפים** (סרטונים וכרטיס טיסה) עובדים כרגע רק בתוך claude.ai, דרך `window.claude.use('db')` ו-`use('user')`. מחוץ ל-claude.ai האתר עובר לקריאה בלבד (`db=false`). ב-Vercel צריך backend משלנו (ראו HANDOFF, שלב 3).
 - הארטיפקט החי: https://claude.ai/artifact/1uDUdt45A2c77zooPZBGYK (אין לך גישה אליו; הוא מראה בלבד).
 - קנבס העיצוב: https://claude.ai/artifact/TVdeDbFBhvFDZdhCKjcys4 (עותק ב-`design/canvas/`, תצוגות ב-`design/previews/`).
 
-## פונקציות וסכמות בקוד הקיים
+## טיסה וסרטונים (מאז שלב 3)
 
-- `initDb()`: מאתחל `db`, `userCap`, `canWrite` (`user.can('data.write')`), `canDel` (`user.canEdit()`).
-- סרטונים: collection `videos`. מסמך: `{piste, url, title, by, at}` (`piste` = מפתח המסלול, `at` = epoch ms).
-  פונקציות: `bindForm()` (הוספה), `delVid(id)`, `renderVids()`, `vidBlock(key,label)`.
-- כרטיס טיסה: מסמך `trip/flight`: `{from, to, flight, at}`. פונקציות: `watchTrip()`, `renderTicket()`, ה-submit של `#tForm`.
-- שגיאת הרשאה ב-db של claude.ai מגיעה כ-`code: 'invalid_argument'`.
-- מצב ה-db ב-claude.ai ב-30.9.2026: **אין סרטונים, אין מסמך טיסה.** אין מה להעביר. collection `missingRuns` הוא מחקר בלבד, והעותק שלו ב-`research/missing-runs/`.
+אין יותר תלות ב-claude.ai ואין מסד נתונים. הכל קבצי נתונים בריפו, לקריאה בלבד:
+
+- `site/data/trip.json`: הטיסה של הקבוצה (`outbound`, `return`, `airline`) ורשימת החברים (`members`, שמות מלאים). מוצג בכרטיס הטיסה ובקטע "החבר׳ה" בדף הבית (`renderTicket()`). **בלי מספרי דרכון, תאריכי לידה, טלפונים או מיילים.**
+- `site/data/videos-seed.json`: מערך סרטונים `{piste, url, title, by, at}` (`piste` = מפתח המסלול, `at` = epoch ms). מוצג בפרטי המסלול (`vidList()` ו-`vidBlock()`). ריק עד שלב 4.
+- שני הקבצים נטענים במצב רך: אם הטעינה נכשלת, האתר ממשיך לעבוד בלי הכרטיס ובלי הסרטונים.
+- לשלב ההתאמה האישית העתידי (התחברות ומסד נתונים) ראו `docs/ROADMAP.md`.
 
 ## פורמט נתוני המסלולים (`site/data/runs-and-lifts.json`)
 

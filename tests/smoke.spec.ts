@@ -70,7 +70,7 @@ test('נתונים נטענים מקבצים נפרדים', async ({ page }) => 
   page.on('response', r => { if (/\/data\/.*\.json$/.test(r.url())) seen.push(r.url().split('/').pop()!); });
   await page.goto('/');
   await loaded(page);
-  expect(seen.sort()).toEqual(['runs-and-lifts.json', 'terrain.json']);
+  expect(seen.sort()).toEqual(['runs-and-lifts.json', 'terrain.json', 'trip.json', 'videos-seed.json']);
 });
 
 test('תגיות ה-head: שפה, noindex, וקישור לשיתוף', async ({ page }) => {
@@ -84,4 +84,44 @@ test('תגיות ה-head: שפה, noindex, וקישור לשיתוף', async ({ 
   expect(res.ok()).toBeTruthy();
   const icon = await page.locator('link[rel="icon"]').getAttribute('href');
   expect((await page.request.get('/' + icon)).ok()).toBeTruthy();
+});
+
+test('כרטיס הטיסה והחבר׳ה מוצגים מקובץ הנתונים, בלי עריכה', async ({ page }) => {
+  await page.goto('/');
+  await loaded(page);
+  await expect(page.locator('#tFrom')).toHaveText('תל אביב');
+  await expect(page.locator('#tTo')).toHaveText('טביליסי');
+  await expect(page.locator('#tFlight')).toHaveText('6H 897');
+  await expect(page.locator('#tDate')).toHaveText('10.1.2027');
+  await expect(page.locator('#tDeparts')).toHaveText('16:00');
+  await expect(page.locator('#tArrives')).toHaveText('20:35');
+  await expect(page.locator('#tBack')).toContainText('15.1.2027');
+  await expect(page.locator('#crewList li')).toHaveCount(6);
+  await expect(page.locator('#crewList')).toContainText('פיני זולברג');
+  await expect(page.locator('#tEdit, #tForm, #addform')).toHaveCount(0);
+});
+
+test('סרטונים מקובץ ההתחלה מוצגים בפרטי המסלול, בלי טופס הוספה', async ({ page }) => {
+  await page.goto('/#map');
+  await loaded(page);
+  const key = await page.locator('#panel .index button').first().getAttribute('data-goto');
+  await page.unroute('**/videos-seed.json').catch(() => {});
+  await page.route('**/videos-seed.json', r => r.fulfill({ json: [{ piste: key, url: 'https://www.youtube.com/watch?v=abc', title: 'סרטון בדיקה', by: 'מחקר', at: 1790000000000 }] }));
+  await page.reload();
+  await loaded(page);
+  await page.goto('/#map');
+  await page.locator(`#panel .index button[data-goto="${key}"]`).click();
+  await expect(page.locator('#panel .vids a')).toHaveText('סרטון בדיקה');
+  await expect(page.locator('#addform')).toHaveCount(0);
+});
+
+test('בלי קבצי טיסה וסרטונים האתר ממשיך לעבוד', async ({ page }) => {
+  const errors = watchErrors(page);
+  await page.route('**/trip.json', r => r.abort());
+  await page.route('**/videos-seed.json', r => r.abort());
+  await page.goto('/');
+  await loaded(page);
+  await expect(page.locator('#tFrom')).toHaveText('מוצא');
+  await expect(page.locator('.crew')).toBeHidden();
+  expect(errors).toEqual([]);
 });
