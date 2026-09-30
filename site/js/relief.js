@@ -397,6 +397,8 @@ R.View3D=function(opts){
         anim.raf=requestAnimationFrame(step);anim.onStop=onEnd;},1250);
       flyWait=wait;},
     stopFly(){stopAnim();},
+    // lift status: {liftId: true|false|null}; closed lifts turn grey. null clears it.
+    liftState(m){liftObjs.forEach(o=>{const v=m?m[o.l.id]:null;o.c2.material.uniforms.color.value.set(v===false?'#9aa5b3':(opts.liftColor||'#2a2f38'));});request();},
     home(){flyTo(home,900);},
     north(){flyTo({az:0},600);},
     zoom(f){zoomAt(f);},

@@ -256,3 +256,32 @@ test('נקודת מפגש: בוחרים תחנה ושעה, כרטיס, איך מ
   await expect(page.locator('#meetCard [data-f="name"]')).toHaveText('Goodaura');
   expect(errors).toEqual([]);
 });
+
+test('מצב רכבלים: בלי מידע שלטים מושלגים, עם מידע לוח רכבלים וסיכום', async ({ page }) => {
+  const errors = watchErrors(page);
+  await page.goto('/#map');
+  await loaded(page);
+  await expect(page.locator('#mstat')).toHaveAttribute('data-state', 'none');
+  await expect(page.locator('.lstat .lsign').first()).toBeVisible();
+  await expect(page.locator('.lstat .snowcap').first()).toBeAttached();
+  // נתון עדכני מהפונקציה
+  await page.route('**/api/status', r => r.fulfill({ contentType: 'application/json', body: JSON.stringify({
+    updated: new Date(Date.now() - 5 * 60000).toISOString(),
+    lifts: { Goodaura: { open: true }, Kudebi: { open: false, reason: 'wind' }, Sadzele: { open: true } }, pistes: {} }) }));
+  await page.reload();
+  await loaded(page);
+  await expect(page.locator('#mstat')).toHaveAttribute('data-state', 'live');
+  await expect(page.locator('#mstat')).toContainText('רכבלים פתוחים');
+  await expect(page.locator('.board-dep .bd-closed')).toContainText('סגור');
+  await expect(page.locator('#map .lg.closed')).toHaveCount(1);
+  await page.locator('[data-forme]').click();
+  await expect(page.locator('[data-forme]')).toHaveAttribute('aria-pressed', 'true');
+  // נתון ישן מחצי שעה: לא מציגים אותו
+  await page.route('**/api/status', r => r.fulfill({ contentType: 'application/json', body: JSON.stringify({
+    updated: new Date(Date.now() - 45 * 60000).toISOString(), lifts: { Goodaura: { open: false } }, pistes: {} }) }));
+  await page.reload();
+  await loaded(page);
+  await expect(page.locator('#mstat')).toHaveAttribute('data-state', 'none');
+  await expect(page.locator('#map .lg.closed')).toHaveCount(0);
+  expect(errors).toEqual([]);
+});

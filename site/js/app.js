@@ -70,7 +70,7 @@ function draw(root,pistes,lifts,store){
     }
   });
   lifts.forEach(l=>{
-    const g=mk('g',{class:'lg'},gL);const d=pathD(l.g);
+    const g=mk('g',{class:'lg','data-lid':l.id},gL);const d=pathD(l.g);
     mk('path',{d,...vs,stroke:'var(--casing)','stroke-width':4.5},g);
     mk('path',{d,...vs,stroke:'var(--lift)','stroke-width':l.kind==='gondola'?2.4:1.6,...(l.status==='inactive'?{'stroke-dasharray':'2 3'}:{})},g);
     [l.g[0],l.g[l.g.length-1]].forEach(q=>{const[x,y]=P(q);store.stations.push(mk('circle',{cx:x,cy:y,r:10,fill:'var(--lift)',stroke:'var(--casing)','stroke-width':1.5,'vector-effect':'non-scaling-stroke'},g));});
@@ -109,7 +109,7 @@ function apply(){
   const[cw,ch]=sz();vb.h=vb.w*ch/cw;
   svg.setAttribute('viewBox',`${vb.x} ${vb.y} ${vb.w} ${vb.h}`);
   const u=vb.w/cw; // meters per px
-  layoutLabels(labels,stations,u,marks);svg.classList.toggle('far',u>9);runMark.setAttribute('r',7*u);
+  layoutLabels(labels,stations,u,marks);svg.classList.toggle('far',u>9);svg.querySelectorAll('.chair').forEach(c=>c.setAttribute('r',3.6*u));runMark.setAttribute('r',7*u);
   const nice=[50,100,200,250,500,1000,2000];let m=nice.find(n=>n/u>=70)||2000;
   const sc=document.getElementById('scale');sc.querySelector('i').style.width=(m/u)+'px';sc.querySelector('span').textContent=m>=1000?m/1000+' km':m+' m';
 }
@@ -371,6 +371,7 @@ function overview(){
   const f=[...order.map(c=>[c,HEB[c]]),['unnamed','ללא שם'],['lifts','רכבלים']];
   panel.innerHTML=`
   <h2 class="ov">כל המסלולים</h2>
+  ${LSTAT.block()}
   <p class="lead">לחצו על מסלול במפה או ברשימה לפרטים וסרטונים. קו מקווקו דק הוא קטע בלי שם בנתונים, וקו מקווקו כחול הוא דרך מקשרת. הצד הצפוני של Kobi נפתח מהכפתור בפינת המפה.</p>
   <h3>מסלולים במפה · ${named.length}</h3>
   <div class="index">${named.map(p=>`<button data-goto="${esc(p.key)}" data-zoom="1"><span class="sw ${p.color}"></span>${esc(dispName(p))}<span class="len">${fmtLen(p.len)}</span></button>`).join('')}</div>
@@ -705,6 +706,71 @@ const MEET=(function(){
   ui.querySelector('#meetTime').value=S.time;
   return {open};
 })();
+
+// ---- lift status (design round 3, S1 to S3). Source: /api/status, a Vercel function that reads the MTA status page
+// (to be written when the page works again, in December). Format:
+// {updated:"ISO time", lifts:{"<lift name>":{open:true|false, reason?:"wind"}}, pistes:{"<run key>":{open:true|false}}}
+// No data, or data older than 30 minutes: "no current information", and the map stays as it is. We never guess.
+const LSTAT=(function(){
+  let data=null,forMe=false;const STALE=30*6e4;
+  const names=mainLifts.filter(l=>l.name&&l.status!=='inactive').map(l=>l.name);
+  const fresh=()=>data&&data.updated&&Date.now()-Date.parse(data.updated)<STALE;
+  const isOpen=n=>fresh()&&data.lifts&&data.lifts[n]?!!data.lifts[n].open:null;
+  const runOpen=p=>{if(!fresh())return null;const r=data.pistes&&data.pistes[p.key];if(r&&!r.open)return false;
+    const up=p.fromLifts.filter(n=>data.lifts&&data.lifts[n]);return up.length?up.some(n=>data.lifts[n].open):(r?!!r.open:null);}; // open for me: the run and a lift up to it
+  const REASON={wind:'רוח',weather:'מזג אוויר',maintenance:'תחזוקה',season:'מחוץ לעונה'};
+  const ago=t=>{const m=Math.round((Date.now()-Date.parse(t))/6e4);return m<1?'עכשיו':m<60?`לפני ${m} דק׳`:`לפני ${Math.round(m/60)} שע׳`;};
+  // snow on the signs: soft mounds and a few rounded drips (seeded, so every sign keeps its own pile)
+  function snow(i,w){let r=(i+1)*9301%233280;const rnd=(a,b)=>{r=(r*9301+49297)%233280;return a+(b-a)*r/233280;};
+    const top=26,x0=16,x1=w+6,up=[[x0-4,top+6],[x0+4,top-2]];let x=x0+14,pk=true;
+    while(x<x1-20){const mid=1-Math.abs((x-x0)/(x1-x0)-.5)*1.1;up.push(pk?[x,top-8-mid*rnd(10,20)]:[x,top-rnd(1,6)]);x+=pk?rnd(30,48):rnd(22,34);pk=!pk;}
+    up.push([x1-6,top-3],[x1+2,top+5]);const lo=[];x=x1-2;while(x>x0+8){lo.push([x,top+rnd(8,13)]);x-=rnd(26,44);}lo.push([x0+2,top+10]);
+    const pts=[...up,...lo,up[0]];let d=`M${pts[0][0].toFixed(1)},${pts[0][1].toFixed(1)}`;
+    for(let k=0;k<pts.length-1;k++){const p0=pts[Math.max(k-1,0)],p1=pts[k],p2=pts[k+1],p3=pts[Math.min(k+2,pts.length-1)];
+      d+=` C${(p1[0]+(p2[0]-p0[0])/6).toFixed(1)},${(p1[1]+(p2[1]-p0[1])/6).toFixed(1)} ${(p2[0]-(p3[0]-p1[0])/6).toFixed(1)},${(p2[1]-(p3[1]-p1[1])/6).toFixed(1)} ${p2[0].toFixed(1)},${p2[1].toFixed(1)}`;}
+    let drips='';for(let k=0;k<2;k++){const dx=rnd(x0+40,x1-40),dl=rnd(7,13),dw=rnd(4,6),y0=top+8;drips+=`<path d="M${dx-dw},${y0}C${dx-dw},${y0+dl*.6} ${dx-dw/2},${y0+dl} ${dx},${y0+dl}C${dx+dw/2},${y0+dl} ${dx+dw},${y0+dl*.6} ${dx+dw},${y0}Z"/>`;}
+    return `<svg class="snowcap" viewBox="0 0 ${w+16} 56" preserveAspectRatio="none" aria-hidden="true"><g class="sc-sh"><path d="${d}Z"/>${drips}</g><g class="sc"><path d="${d}Z"/>${drips}</g></svg>`;}
+  function block(){
+    if(!fresh()){const season=[11,0,1,2,3].includes(new Date().getMonth());
+      return `<section class="lstat" aria-label="מצב הרכבלים"><h3>${season?'אין מידע עדכני':'ההר עוד ישן'}</h3>
+      <p class="lead">${season?'כרגע אין דיווח עדכני מ-MTA על הרכבלים. המפה מוצגת כרגיל.':'עוד אין דיווח על רכבלים. העונה בגודאורי נפתחת בדרך כלל בדצמבר, ואז השלטים יתנקו מהשלג.'}</p>
+      <div class="lstat-post">${names.slice(0,6).map((n,i)=>`<div class="lsign s${i%2}"><div class="ls-face"><b dir="ltr">${esc(n)}</b><span>?</span></div>${snow(i,300)}</div>`).join('')}</div>
+      <p class="hint"><b>לא מנחשים מצב:</b> כשאין דיווח עדכני, כתוב כאן שאין.</p></section>`;}
+    const open=names.filter(n=>isOpen(n)).length;
+    let prev=null;try{prev=JSON.parse(localStorage.getItem('gud-lstat')||'null');}catch(e){}
+    const changes=prev?names.filter(n=>prev[n]!==undefined&&prev[n]!==isOpen(n)).map(n=>`${n} ${isOpen(n)?'נפתח':'נסגר'} מאז שבדקת`):[];
+    try{localStorage.setItem('gud-lstat',JSON.stringify(Object.fromEntries(names.map(n=>[n,isOpen(n)]))));}catch(e){}
+    return `<section class="lstat" aria-label="מצב הרכבלים"><h3>מצב הרכבלים</h3>
+      ${changes.length?`<ul class="lstat-changes">${changes.map(c=>`<li>${esc(c)}</li>`).join('')}</ul>`:''}
+      <div class="board-dep" role="table" aria-label="רכבלים"><div class="bd-row bd-head" role="row"><span role="columnheader">רכבל</span><span role="columnheader">מצב</span><span role="columnheader">הערה</span></div>
+      ${names.map((n,i)=>{const o=isOpen(n),r=data.lifts[n]&&data.lifts[n].reason;return `<div class="bd-row" role="row" style="--i:${i}"><span role="cell" dir="ltr">${esc(n)}</span><span role="cell" class="${o?'bd-open':o===false?'bd-closed':''}">${o?'פתוח':o===false?'סגור':'—'}</span><span role="cell">${r?esc(REASON[r]||r):''}</span></div>`;}).join('')}</div>
+      <button type="button" class="fchip lstat-me" data-forme aria-pressed="${forMe}">רק מה שפתוח בשבילי</button>
+      <p class="hint">מקור: דף הסטטוס של MTA. מסלול מסומן פתוח רק אם גם רכבל שמגיע לראשו פתוח. ${open} מתוך ${names.length} רכבלים פתוחים.</p></section>`;
+  }
+  // the map: closed lifts grey and dashed, chairs moving on open ones, and "only what's open for me"
+  const gChairs=mk('g',{class:'chairs','aria-hidden':'true'});svg.insertBefore(gChairs,mainLbl);
+  function applyMap(){
+    const bar=document.getElementById('mstat');
+    gChairs.innerHTML='';svg.classList.toggle('forme',forMe&&fresh());
+    svg.querySelectorAll('g.lg[data-lid]').forEach(g=>g.classList.remove('closed'));
+    if(!fresh()){bar.innerHTML=`<span class="ms-dot"></span>${data?'אין מידע עדכני על הרכבלים':'עוד אין מידע על הרכבלים'}`;bar.dataset.state='none';
+      D.pistes.forEach(p=>(pisteEls[p.key]||[]).forEach(e=>e.classList.remove('shut')));if(v3&&v3.liftState)v3.liftState(null);return;}
+    const open=names.filter(n=>isOpen(n)).length;
+    bar.dataset.state='live';bar.innerHTML=`<span class="ms-dot"></span><b class="num">${open}</b> מתוך <b class="num">${names.length}</b> רכבלים פתוחים · עודכן ${ago(data.updated)}`;
+    mainLifts.forEach(l=>{const g=svg.querySelector(`g.lg[data-lid="${l.id}"]`);const o=l.name?isOpen(l.name):null;if(g)g.classList.toggle('closed',o===false);
+      if(o&&!reduceMotion()){const d=pathD(l.g),len=l.len||1000,dur=Math.max(8,len/60);
+        for(let k=0;k<3;k++){const c=mk('circle',{r:12,class:'chair'},gChairs);const am=mk('animateMotion',{dur:dur+'s',begin:`-${(dur*k/3).toFixed(1)}s`,repeatCount:'indefinite',path:d},c);}}});
+    D.pistes.forEach(p=>{const o=runOpen(p);(pisteEls[p.key]||[]).forEach(e=>e.classList.toggle('shut',o===false));});
+    if(v3&&v3.liftState)v3.liftState(Object.fromEntries(mainLifts.filter(l=>l.name).map(l=>[l.id,isOpen(l.name)])));
+    if(mapReady)apply();
+  }
+  panel.addEventListener('click',e=>{const b=e.target.closest('[data-forme]');if(!b)return;forMe=!forMe;b.setAttribute('aria-pressed',String(forMe));applyMap();});
+  function load(){return fetch('api/status',{cache:'no-store'}).then(r=>r.ok&&/json/.test(r.headers.get('content-type')||'')?r.json():null).catch(()=>null)
+    .then(j=>{data=j&&j.updated&&j.lifts?j:null;applyMap();if(!current&&!panel.querySelector('.back'))overview();});}
+  setInterval(load,5*6e4);
+  return {block,load,applyMap};
+})();
+LSTAT.load();
 
 // flight ticket: one shared doc (trip/flight), editable by Contributors
 const fmtDate=iso=>{const[y,m,d]=iso.split('-');return +d+'.'+ +m+'.'+y;};
