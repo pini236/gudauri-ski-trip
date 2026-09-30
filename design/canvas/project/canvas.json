@@ -316,6 +316,63 @@
       "h": 844,
       "title": "מ3 מ4 · שיתוף לקבוצה (גרסה 2)",
       "page": "round3"
+    },
+    "G1-PickFriend.dc.html": {
+      "x": 0,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "title": "בוחרים חבר · שש דמויות",
+      "page": "round4",
+      "is_interactive": true
+    },
+    "G2-Descent.dc.html": {
+      "x": 470,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "title": "הירידה · מאחורי הגולש, Tatra 2 האמיתי",
+      "page": "round4"
+    },
+    "G3-GhostChallenge.dc.html": {
+      "x": 940,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "title": "רוח רפאים בוואטסאפ",
+      "page": "round4"
+    },
+    "G4-PhotoFinish.dc.html": {
+      "x": 1410,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "title": "צילום סיום ונקמה",
+      "page": "round4"
+    },
+    "G5-HotelTournament.dc.html": {
+      "x": 0,
+      "y": 1264,
+      "w": 390,
+      "h": 844,
+      "title": "טורניר ערב במלון · טלפון אחד",
+      "page": "round4"
+    },
+    "G6-LastLift.dc.html": {
+      "x": 470,
+      "y": 1264,
+      "w": 390,
+      "h": 844,
+      "title": "הרכבל האחרון · שקיעה",
+      "page": "round4"
+    },
+    "G7-Caravan.dc.html": {
+      "x": 940,
+      "y": 1264,
+      "w": 390,
+      "h": 844,
+      "title": "השיירה · כולם יחד למפגש",
+      "page": "round4"
     }
   },
   "createdOnFiles": {
@@ -325,7 +382,7 @@
   "designSystems": [],
   "launch": {
     "view": "canvas",
-    "page": "round3"
+    "page": "round4"
   },
   "notes": {
     "featRow1": {
@@ -435,6 +492,24 @@
       "w": 240,
       "x": 0,
       "y": 3492
+    },
+    "r4row0": {
+      "kind": "title1",
+      "maxW": 1800,
+      "page": "round4",
+      "text": "הירידה: המשחק של החבר׳ה",
+      "w": 240,
+      "x": 0,
+      "y": -300
+    },
+    "r4row1": {
+      "kind": "title1",
+      "maxW": 1800,
+      "page": "round4",
+      "text": "ערבי החופשה ומצבים",
+      "w": 240,
+      "x": 0,
+      "y": 964
     }
   },
   "order": [
@@ -475,9 +550,20 @@
     "N2-MountainLight.dc.html",
     "M1-MeetPick.dc.html",
     "M2-MeetCard.dc.html",
-    "M3-MeetShare.dc.html"
+    "M3-MeetShare.dc.html",
+    "G1-PickFriend.dc.html",
+    "G2-Descent.dc.html",
+    "G3-GhostChallenge.dc.html",
+    "G4-PhotoFinish.dc.html",
+    "G5-HotelTournament.dc.html",
+    "G6-LastLift.dc.html",
+    "G7-Caravan.dc.html"
   ],
   "pages": [
+    {
+      "id": "round4",
+      "name": "סבב 4: משחק הגלישה"
+    },
     {
       "id": "round3",
       "name": "סבב 3: חוויה"
