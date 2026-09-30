@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>בחירת נקודת מפגש</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Karantina:wght@700&amp;family=IBM+Plex+Sans+Hebrew:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0;background:#EEF2F5}
+a{color:#1F5FC4}
+
+@media (prefers-reduced-motion: reduce){ .anim, .anim *{ animation: none !important; transition: none !important } }
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; box-sizing: border-box; overflow: hidden; position: relative; background: #EEF2F5; color: #13233A; font-family: 'IBM Plex Sans Hebrew', 'Segoe UI', system-ui, sans-serif; direction: rtl; display: flex; flex-direction: column"><div style="display: flex; align-items: center; justify-content: space-between; padding: 8px 16px 8px 8px; background: #FFFFFF; border-bottom: 1px solid #CBD5DF; color: #13233A"><span style="font-family: Karantina, 'Arial Narrow', sans-serif; font-weight: 700; font-size: 30px; line-height: 1">נקודת מפגש</span><a href="#" style="display: flex; align-items: center; gap: 6px; min-height: 44px; padding: 0 8px; font-size: 15px; font-weight: 600; text-decoration: none; color: #1F5FC4"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"></path><path d="M13 6l6 6-6 6"></path></svg>בית</a></div><div style="position: relative; height: 400px; flex: none; overflow: hidden; background: #DCE8F1"><img src="/_blob/27f863a8b3c3734d1b91b58cf1ba14d5" alt="הכפר והתחנות התחתונות" style="position: absolute; left: -5.0px; top: -810.0px; width: 624.0px; height: 1255.2px; max-width: none; display: block"><sc-for list="{{ pins }}" as="p" hint-placeholder-count="5"><button type="button" onClick="{{ p.pick }}" aria-label="{{ p.k }}" style="position: absolute; left: {{ p.bx }}px; top: {{ p.by }}px; width: 44px; height: 56px; border: 0; background: transparent; padding: 0"><svg width="44" height="56" viewBox="0 0 44 56" aria-hidden="true"><path d="M22 54 C22 54 6 34 6 21 A16 16 0 0 1 38 21 C38 34 22 54 22 54 Z" fill="{{ p.fill }}" stroke="#13233A" stroke-width="2"></path><circle cx="22" cy="21" r="6" fill="#FFFFFF"></circle></svg></button><span style="position: absolute; left: {{ p.lx }}px; top: {{ p.ly }}px; padding: 2px 7px; background: {{ p.lbg }}; color: {{ p.lfg }}; border: 1.5px solid #13233A; font-size: 12.5px; font-weight: 700; white-space: nowrap" dir="ltr">{{ p.k }}</span></sc-for><span style="position: absolute; bottom: 10px; right: 10px; padding: 4px 10px; background: rgba(255,255,255,0.94); border: 1px solid #CBD5DF; font-size: 12.5px; font-weight: 600">לוחצים על סיכה, או בכל מקום במפה</span></div><div style="flex-grow: 1; background: #FFFFFF; padding: 12px 16px 0; display: flex; flex-direction: column; gap: 8px"><span style="font-size: 12.5px; font-weight: 700; color: #4B5A6F">מהיר: הנקודות של הקבוצה</span><div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px"><sc-for list="{{ presets }}" as="q" hint-placeholder-count="3"><button type="button" aria-pressed="{{ q.on }}" onClick="{{ q.pick }}" style="min-height: 56px; border: 1.5px solid #13233A; background: {{ q.bg }}; color: {{ q.fg }}; font: inherit; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px"><b style="font-size: 14px">{{ q.lbl }}</b><span style="font-size: 12px" dir="ltr">{{ q.sub }}</span></button></sc-for></div><a href="M2-MeetCard.dc.html" style="margin-top: 4px; height: 52px; background: #13233A; color: #FFFFFF; text-decoration: none; font-size: 16px; font-weight: 700; display: flex; align-items: center; justify-content: center">יצירת כרטיס מפגש: <span dir="ltr" style="margin-right: 6px">{{ place }} · {{ time }}</span></a></div></div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+const PINS = [{"k": "Goodaura", "x": 271, "y": 167}, {"k": "Zuma", "x": 227, "y": 190}, {"k": "Soliko", "x": 197, "y": 168}, {"k": "Shino", "x": 117, "y": 113}, {"k": "Pirveli", "x": 155, "y": 368}];
+const PRESETS = [ { id: 'am', lbl: 'רכבל הבוקר', place: 'Goodaura', time: '09:30' }, { id: 'noon', lbl: 'צהריים', place: 'Zuma', time: '13:00' }, { id: 'pm', lbl: 'סוף יום', place: 'Soliko', time: '16:30' } ];
+class Component extends DCLogic {
+  state = { place: 'Goodaura', time: '12:30', preset: '' };
+  renderVals() {
+    const s = this.state;
+    const pins = PINS.map((p) => { const on = p.k === s.place; return { ...p, bx: p.x - 22, by: p.y - 54, lx: p.x + (p.x > 200 ? -80 : 16), ly: p.y - 44, fill: on ? '#F4B942' : '#FFFFFF', lbg: on ? '#13233A' : '#FFFFFF', lfg: on ? '#FFFFFF' : '#13233A', pick: () => this.setState({ place: p.k, preset: '' }) }; });
+    const presets = PRESETS.map((q) => { const on = q.id === s.preset; return { ...q, sub: q.place + ' · ' + q.time, on, bg: on ? '#13233A' : '#FFFFFF', fg: on ? '#FFFFFF' : '#13233A', pick: () => this.setState({ place: q.place, time: q.time, preset: q.id }) }; });
+    return { pins, presets, place: s.place, time: s.time };
+  }
+}
+</script>
+</body>
+</html>

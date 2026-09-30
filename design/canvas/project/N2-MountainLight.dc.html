@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>האור על ההר</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Karantina:wght@700&amp;family=IBM+Plex+Sans+Hebrew:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0;background:#EEF2F5}
+a{color:#1F5FC4}
+
+@media (prefers-reduced-motion: reduce){ .anim, .anim *{ animation: none !important; transition: none !important } }
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; box-sizing: border-box; overflow: hidden; position: relative; background: #EEF2F5; color: #13233A; font-family: 'IBM Plex Sans Hebrew', 'Segoe UI', system-ui, sans-serif; direction: rtl; display: flex; flex-direction: column"><div style="display: flex; align-items: center; justify-content: space-between; padding: 8px 16px 8px 8px; background: #FFFFFF; border-bottom: 1px solid #CBD5DF; color: #13233A"><span style="font-family: Karantina, 'Arial Narrow', sans-serif; font-weight: 700; font-size: 30px; line-height: 1">האור על ההר</span><a href="#" style="display: flex; align-items: center; gap: 6px; min-height: 44px; padding: 0 8px; font-size: 15px; font-weight: 600; text-decoration: none; color: #1F5FC4"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"></path><path d="M13 6l6 6-6 6"></path></svg>לכל המפה</a></div><div style="position: relative; height: 520px; flex: none; overflow: hidden; background: #DCE8F1"><img src="{{ src }}" alt="ההר לפי השעה, עם שמש וצל" style="position: absolute; left: 0; top: -260px; width: 390px; height: 784px; max-width: none"><div class="anim" style="position: absolute; inset: 0; background: {{ tint }}; mix-blend-mode: multiply; transition: background-color 1s"></div><span style="position: absolute; top: 10px; right: 10px; padding: 4px 10px; background: rgba(255,255,255,0.94); border: 1px solid #CBD5DF; font-size: 12.5px; font-weight: 600">{{ note }}</span></div><div style="flex-grow: 1; background: #FFFFFF; padding: 14px 20px 0; display: flex; flex-direction: column; gap: 10px"><h2 style="margin: 0; font-family: Karantina, 'Arial Narrow', sans-serif; font-weight: 700; font-size: 30px; line-height: 1">{{ head }}</h2><div role="group" aria-label="שעה" style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px"><sc-for list="{{ hours }}" as="h" hint-placeholder-count="3"><button type="button" aria-pressed="{{ h.on }}" onClick="{{ h.pick }}" style="height: 44px; border: 1.5px solid #13233A; background: {{ h.bg }}; color: {{ h.fg }}; font: inherit; font-size: 15px; font-weight: 700"><span dir="ltr">{{ h.lbl }}</span></button></sc-for></div><p style="margin: 0; font-size: 12.5px; color: #4B5A6F; line-height: 1.4">הצל והאור מחושבים ממודל הגובה ל-12.1.2027, כולל צל של הרים אחרים. בתלת-ממד זה יהיה צבע האור על ההר. כבד יותר לטלפון.</p></div></div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+const H = { '0900': ['/_blob/918c78a6d85918a5dcbb7d31388ab657', 'rgba(170,190,230,0.25)', 'בוקר קר: הכפר עוד בצל', 'אור כחלחל'],
+  '1200': ['/_blob/27f863a8b3c3734d1b91b58cf1ba14d5', 'rgba(255,255,255,0)', 'צהריים: כל ההר בשמש', 'אור לבן'],
+  '1630': ['/_blob/aa98fe0850d854afdd550f90185650cd', 'rgba(250,190,140,0.3)', 'אחר הצהריים: אור חם ונמוך', 'אור כתום'] };
+const L = { '0900': '09:00', '1200': '12:00', '1630': '16:30' };
+class Component extends DCLogic {
+  state = { t: '1630' };
+  renderVals() {
+    const t = this.state.t, h = H[t];
+    return { src: h[0], tint: h[1], head: h[2], note: h[3], hours: Object.keys(L).map((k) => ({ lbl: L[k], on: k === t, bg: k === t ? '#13233A' : '#FFFFFF', fg: k === t ? '#FFFFFF' : '#13233A', pick: () => this.setState({ t: k }) })) };
+  }
+}
+</script>
+</body>
+</html>

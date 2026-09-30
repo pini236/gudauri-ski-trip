@@ -214,6 +214,107 @@
       "title": "שמיים לפי השעה",
       "page": "round2",
       "is_interactive": true
+    },
+    "T1-RunEntry.dc.html": {
+      "x": 0,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "title": "ת1 · כניסה קולנועית",
+      "page": "round3"
+    },
+    "T2-RunProfile.dc.html": {
+      "x": 470,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "title": "ת2 · הפרופיל מזיז את ההר",
+      "page": "round3",
+      "is_interactive": true
+    },
+    "T3-RunBriefing.dc.html": {
+      "x": 940,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "title": "ת3 ת5 ת6 · טיסה ותדריך",
+      "page": "round3"
+    },
+    "T4-RunSign.dc.html": {
+      "x": 1410,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "title": "ת4 ת7 ת8 · שלט, דפדוף ושיתוף",
+      "page": "round3",
+      "is_interactive": true
+    },
+    "S1-LiveMountain.dc.html": {
+      "x": 0,
+      "y": 1264,
+      "w": 390,
+      "h": 844,
+      "title": "ר1 ר4 · ההר חי",
+      "page": "round3"
+    },
+    "S2-DepartureBoard.dc.html": {
+      "x": 470,
+      "y": 1264,
+      "w": 390,
+      "h": 844,
+      "title": "ר2 ר3 ר5 · לוח רכבלים",
+      "page": "round3"
+    },
+    "S3-NoData.dc.html": {
+      "x": 940,
+      "y": 1264,
+      "w": 390,
+      "h": 844,
+      "title": "ר6 · אין עדיין מידע",
+      "page": "round3"
+    },
+    "N1-SunsetTheatre.dc.html": {
+      "x": 0,
+      "y": 2528,
+      "w": 390,
+      "h": 844,
+      "title": "י1 י2 י4 י5 י6 י7 · שקיעה בדף הבית",
+      "page": "round3",
+      "is_interactive": true
+    },
+    "N2-MountainLight.dc.html": {
+      "x": 470,
+      "y": 2528,
+      "w": 390,
+      "h": 844,
+      "title": "י3 · האור על ההר",
+      "page": "round3",
+      "is_interactive": true
+    },
+    "M1-MeetPick.dc.html": {
+      "x": 0,
+      "y": 3792,
+      "w": 390,
+      "h": 844,
+      "title": "מ1 מ6 · בוחרים על ההר",
+      "page": "round3",
+      "is_interactive": true
+    },
+    "M2-MeetCard.dc.html": {
+      "x": 470,
+      "y": 3792,
+      "w": 390,
+      "h": 844,
+      "title": "מ2 מ5 · כרטיס מפגש",
+      "page": "round3"
+    },
+    "M3-MeetShare.dc.html": {
+      "x": 940,
+      "y": 3792,
+      "w": 390,
+      "h": 844,
+      "title": "מ3 מ4 · שיתוף לקבוצה",
+      "page": "round3"
     }
   },
   "createdOnFiles": {
@@ -223,7 +324,7 @@
   "designSystems": [],
   "launch": {
     "view": "canvas",
-    "page": "round2"
+    "page": "round3"
   },
   "notes": {
     "featRow1": {
@@ -297,6 +398,42 @@
       "w": 240,
       "x": 0,
       "y": 964
+    },
+    "r3row0": {
+      "kind": "title1",
+      "maxW": 1800,
+      "page": "round3",
+      "text": "תצוגת מסלול",
+      "w": 240,
+      "x": 0,
+      "y": -300
+    },
+    "r3row1": {
+      "kind": "title1",
+      "maxW": 1800,
+      "page": "round3",
+      "text": "מצב רכבלים",
+      "w": 240,
+      "x": 0,
+      "y": 964
+    },
+    "r3row2": {
+      "kind": "title1",
+      "maxW": 1800,
+      "page": "round3",
+      "text": "יום ולילה",
+      "w": 240,
+      "x": 0,
+      "y": 2228
+    },
+    "r3row3": {
+      "kind": "title1",
+      "maxW": 1800,
+      "page": "round3",
+      "text": "נקודת מפגש",
+      "w": 240,
+      "x": 0,
+      "y": 3492
     }
   },
   "order": [
@@ -325,9 +462,25 @@
     "R5-HelpCard.dc.html",
     "R6-Passport.dc.html",
     "R7-DayNight.dc.html",
-    "R8-SkyClock.dc.html"
+    "R8-SkyClock.dc.html",
+    "T1-RunEntry.dc.html",
+    "T2-RunProfile.dc.html",
+    "T3-RunBriefing.dc.html",
+    "T4-RunSign.dc.html",
+    "S1-LiveMountain.dc.html",
+    "S2-DepartureBoard.dc.html",
+    "S3-NoData.dc.html",
+    "N1-SunsetTheatre.dc.html",
+    "N2-MountainLight.dc.html",
+    "M1-MeetPick.dc.html",
+    "M2-MeetCard.dc.html",
+    "M3-MeetShare.dc.html"
   ],
   "pages": [
+    {
+      "id": "round3",
+      "name": "סבב 3: חוויה"
+    },
     {
       "id": "round2",
       "name": "סבב 2: רעיונות חדשים"
