@@ -87,6 +87,13 @@ input{font:inherit;font-size:15px;color:var(--ink);background:var(--snow);border
 .board:hover{filter:brightness(1.07)}
 .board b{font-family:var(--f-display);font-weight:700;font-size:34px;line-height:1}
 .board span{font-size:13px;opacity:.92}
+.board-app{background:var(--ink);color:var(--paper);width:92%;box-sizing:border-box}
+.board-app b{font-size:30px}
+.app-how{font-size:14px;color:var(--muted);width:92%;box-sizing:border-box}
+.app-how summary{min-height:44px;display:flex;align-items:center;cursor:pointer;font-weight:600;color:var(--glacier)}
+.app-how summary:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.app-how ol{margin:0 0 8px;padding-inline-start:22px;display:flex;flex-direction:column;gap:4px}
+.app-how p{margin:0 0 6px}
 .board-next{display:flex;align-items:center;min-height:56px;padding:8px 18px 8px 34px;border:2px dashed var(--dash);color:var(--muted);font-size:15px;width:84%;box-sizing:border-box}
 .tally{margin-top:72px}
 .tally h2{margin:0 0 10px;font:400 13px var(--f-body);color:var(--muted)}

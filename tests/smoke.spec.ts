@@ -141,3 +141,22 @@ test('בתלת-ממד יש תוויות לרכבלים', async ({ page }) => {
   const names = await page.locator('.r3-lbl.lift').allInnerTexts();
   expect(names.join(' ')).toContain('Goodaura');
 });
+
+test('קישור להורדת האפליקציה מופיע רק כשהקובץ קיים', async ({ page }) => {
+  await page.route('**/downloads/gudauri-2027.apk', r => r.fulfill({ status: 404, body: 'no' }));
+  await page.goto('/');
+  await loaded(page);
+  await expect(page.locator('#appBoard')).toBeHidden();
+  await expect(page.locator('#boardNext')).toBeVisible();
+});
+
+test('כשהקובץ קיים מוצג שלט הורדה עם גודל והסבר התקנה', async ({ page }) => {
+  await page.route('**/downloads/gudauri-2027.apk', r => r.fulfill({ status: 200, contentType: 'application/vnd.android.package-archive', headers: { 'content-length': String(12 * 1048576) }, body: 'x' }));
+  await page.goto('/');
+  await loaded(page);
+  await expect(page.locator('#appBoard')).toBeVisible();
+  await expect(page.locator('#appBoard')).toHaveAttribute('href', 'downloads/gudauri-2027.apk');
+  await expect(page.locator('#boardNext')).toBeHidden();
+  await page.locator('#appHow summary').click();
+  await expect(page.locator('#appHow li')).toHaveCount(3);
+});

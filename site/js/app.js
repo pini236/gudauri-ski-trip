@@ -401,5 +401,12 @@ function renderTicket(){
 renderTicket();
 route();
 overview();applyFilters();
+// קישור להורדת האפליקציה: מופיע רק אם הקובץ באמת קיים בשרת
+fetch('downloads/gudauri-2027.apk',{method:'HEAD'}).then(r=>{
+  if(!r.ok||/text\/html/.test(r.headers.get('content-type')||''))return;
+  const mb=+r.headers.get('content-length')/1048576;
+  document.getElementById('appMeta').textContent='להורדה'+(mb>0?' · '+mb.toFixed(mb<10?1:0)+' MB':'');
+  document.getElementById('appBoard').hidden=false;document.getElementById('appHow').hidden=false;document.getElementById('boardNext').hidden=true;
+}).catch(()=>{});
 document.getElementById('loading').hidden=true;
 })().catch(e=>{console.error(e);const l=document.getElementById('loading');l.hidden=false;l.textContent='שגיאה בטעינת האתר. נסו לרענן את הדף.';});
