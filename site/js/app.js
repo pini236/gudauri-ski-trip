@@ -187,7 +187,9 @@ const runMark=mk('circle',{class:'runmark',r:10,cx:0,cy:0,'vector-effect':'non-s
 function paint2d(key){
   gPaint.classList.remove('on');gPaint.innerHTML='';
   const p=key&&byKey[key];if(!p||!TM||isKobiP(p))return;
-  runLines(p).forEach(L=>{const S=sampleLine(L,12),tot=S[S.length-1].d||1,dur=1.3;
+  const Ls=runLines(p),sc=GudRelief.slopeCanvas(TM,Ls);
+  mk('image',{href:sc.canvas.toDataURL(),x:sc.x0,y:sc.y0,width:sc.x1-sc.x0,height:sc.y1-sc.y0,preserveAspectRatio:'none',class:'rp-ground'},gPaint);
+  Ls.forEach(L=>{const S=sampleLine(L,12),tot=S[S.length-1].d||1,dur=1.3;
     mk('path',{d:'M'+S.map(q=>q.x.toFixed(1)+' '+q.y.toFixed(1)).join('L'),...vs,stroke:'#FFFFFF','stroke-width':10,class:'rp-cas'},gPaint);
     for(let i=0;i<S.length-1;i++)mk('line',{x1:S[i].x.toFixed(1),y1:S[i].y.toFixed(1),x2:S[i+1].x.toFixed(1),y2:S[i+1].y.toFixed(1),stroke:GudRelief.slopeColor(S[i].a),'stroke-width':6,'stroke-linecap':'round','vector-effect':'non-scaling-stroke',style:`transition-delay:${(S[i].d/tot*dur).toFixed(2)}s`},gPaint);});
   requestAnimationFrame(()=>requestAnimationFrame(()=>gPaint.classList.add('on')));
@@ -296,7 +298,7 @@ function runViewBlock(key){
     <li><b>הסוף · <span class="num">${Math.round(S[n-1].h)}</span> מ׳</b><span>אחרי <span class="num">${Math.round(dmax)}</span> מ׳. ${endTxt}</span></li>
   </ol>
   ${cmpHtml}
-  <p class="hint">הגבהים והשיפועים ממודל הגובה (כ-30 מ׳), לאורך הקו הארוך ביותר של המסלול. בקירות קצרים השיפוע האמיתי יכול להיות גבוה יותר.</p>`;
+  <p class="hint">פני השטח עד 150 מ׳ מהמסלול צבועים לפי אותו מקרא. הגבהים והשיפועים ממודל הגובה (כ-30 מ׳), לאורך הקו הארוך ביותר של המסלול. בקירות קצרים השיפוע האמיתי יכול להיות גבוה יותר.</p>`;
 }
 function profAt(i){
   const k=document.getElementById('profRange');if(!k)return;const pr=runProfile(k.dataset.key);if(!pr)return;const S=pr.S,q=S[Math.max(0,Math.min(S.length-1,i))];
@@ -423,7 +425,7 @@ function ensure3d(){
       onFly:f=>{const k=document.getElementById('profRange');if(k){const i=Math.round(f*(+k.max));k.value=i;profAt(i);}},
       onHeading:az=>{compassSvg.style.transform=`rotate(${(az*180/Math.PI).toFixed(1)}deg)`;}});
     v3.kobi=()=>v3.view({tx:kc[0],tz:kc[1],dist:6800,az:Math.PI*0.9,pol:0.6});
-    v3.setTheme(isDark());matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>v3.setTheme(isDark()));
+    v3.setTheme(isDark());DN.paint(false); // the 3D light follows the time in Gudauri, like the home page
     v3.filter(hidden);if(current&&byKey[current]){v3.select(current);v3.paint(current,0);}
     return true;
   }catch(e){console.warn('3D unavailable',e);v3=null;return false;}
@@ -528,7 +530,7 @@ const DN=(function(){
     const a=K[i],b=K[i+1],f=Math.min(1,Math.max(0,(h-a.h)/((b.h-a.h)||1)));
     const dark=mode==='night'||(mode==='auto'&&(h<t.rise-.3||h>t.set+.3));
     const phase=dark?(h>t.set&&h<t.set+1.3?'דמדומים':'לילה'):h<t.rise+.8?'זריחה':h<t.set-2?'יום':h<t.set-.6?'שעת זהב':'שקיעה';
-    return {a,b,f,dark,now,h,phase,morning:h<t.noon};
+    return {a,b,f,dark,now,h,g,phase,morning:h<t.noon};
   }
   function paint(anim){
     const s=state(),{a,b,f}=s,num=k=>lerp(a[k],b[k],f);
@@ -539,7 +541,7 @@ const DN=(function(){
       bt.setAttribute('aria-label',`מצב תצוגה: ${LBL[mode]}. לחיצה עוברת ל${LBL[nx]}`);bt.title=bt.getAttribute('aria-label');});
     document.querySelectorAll('[data-dn-lbl]').forEach(e=>e.textContent=LBL[mode]);
     document.querySelectorAll('[data-days-word]').forEach(e=>e.textContent=s.dark?'לילות':'ימים');
-    if(typeof v3!=='undefined'&&v3)v3.setTheme(s.dark);
+    if(typeof v3!=='undefined'&&v3){v3.setTheme(s.dark);const p=GudRelief.sun(s.g,s.h);v3.setLight({alt:p.alt,az:p.az,dark:s.dark,sky:[mix(a.sky[0],b.sky[0],f),mix(a.sky[1],b.sky[1],f)]});}
     if(!variant)return;
     sky.style.setProperty('--sky-top',mix(a.sky[0],b.sky[0],f));sky.style.setProperty('--sky-bot',mix(a.sky[1],b.sky[1],f));
     root.style.setProperty('--sky-ink',s.dark?'#EAF0F7':'#13233A');root.style.setProperty('--sky-halo',s.dark?'rgba(13,21,34,.6)':'rgba(255,255,255,.6)');

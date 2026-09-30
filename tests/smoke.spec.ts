@@ -207,6 +207,8 @@ test('תצוגת מסלול: קישור ישיר, צביעה לפי שיפוע, 
   // המסלול נצבע בצבעי השיפוע
   await expect(page.locator('#map .runpaint line').first()).toBeAttached();
   await expect(page.locator('#map .runpaint')).toHaveClass(/on/);
+  // פני השטח סביב המסלול צבועים לפי שיפוע
+  await expect(page.locator('#map .runpaint image.rp-ground')).toHaveCount(1);
   // הפרופיל מזיז נקודה על המפה
   const range = page.locator('#profRange');
   await range.evaluate((e: HTMLInputElement) => { e.value = String(Math.round(+e.max / 2)); e.dispatchEvent(new Event('input', { bubbles: true })); });

@@ -307,6 +307,8 @@ ul.notes li{margin-bottom:4px}
 .runpaint{pointer-events:none}
 .runpaint line,.runpaint path{opacity:0;transition:opacity .16s linear}
 .runpaint path{transition-duration:.35s}
+.runpaint .rp-ground{opacity:0;transition:opacity .9s ease-out;image-rendering:auto}
+.runpaint.on .rp-ground{opacity:1}
 .runpaint.on line,.runpaint.on path{opacity:1}
 .runmark{fill:var(--ink);stroke:#fff;stroke-width:3;pointer-events:none}
 #map .relief{transition:opacity .5s}
