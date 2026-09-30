@@ -2,7 +2,7 @@
 """Day and night designs: R7 (sun and moon swap on a toggle) and R8 (sky clock by the real hour).
 
 The skyline is the real horizon as seen from the village (Zuma lower station), computed from the
-site's terrain model. The moon is drawn as a full disc. Run from the repo root:
+site's terrain model. The moon is a thick crescent with a faint dark side. Run from the repo root:
 python3 design/round2/daynight.py  (needs numpy)"""
 import json, math, base64, datetime, pathlib
 import numpy as np
@@ -51,7 +51,7 @@ DISPLAY = "font-family: Karantina, 'Arial Narrow', sans-serif; font-weight: 700;
 STARS = [(38, 30), (92, 64), (140, 22), (200, 48), (262, 26), (318, 70), (352, 34), (64, 110), (176, 96), (300, 116), (240, 84), (120, 140), (30, 168), (346, 150)]
 stars = ''.join(f'<span style="position: absolute; left: {x}px; top: {y}px; width: {2 + (i % 2)}px; height: {2 + (i % 2)}px; border-radius: 2px; background: #EAF0F7; opacity: {{{{ starOp }}}}" class="anim"></span>' for i, (x, y) in enumerate(STARS))
 SUN_SVG = '<svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true"><circle cx="15" cy="15" r="14" fill="#F4B942" fill-opacity="0.28"></circle><circle cx="15" cy="15" r="9.5" fill="#F4B942" stroke="#13233A" stroke-width="1.5"></circle></svg>'
-MOON_SVG = '<svg width="34" height="34" viewBox="0 0 34 34" aria-hidden="true"><circle cx="17" cy="17" r="16" fill="#EAF0F7" fill-opacity="0.22"></circle><circle cx="17" cy="17" r="12" fill="#EAF0F7" stroke="#A3B3C8" stroke-width="1"></circle><circle cx="13" cy="13" r="2.6" fill="#C9D4E2"></circle><circle cx="21.5" cy="19.5" r="3.4" fill="#C9D4E2"></circle><circle cx="14.5" cy="22" r="1.7" fill="#C9D4E2"></circle></svg>'
+MOON_SVG = '<svg width="34" height="34" viewBox="0 0 34 34" aria-hidden="true"><circle cx="17" cy="17" r="16" fill="#EAF0F7" fill-opacity="0.18"></circle><circle cx="17" cy="17" r="13" fill="#3A4C6B"></circle><path d="M17 4 A13 13 0 0 1 17 30 A6.5 13 0 0 0 17 4 Z" fill="#F4F7FB" stroke="#F4F7FB" stroke-width="0.6"></path></svg>'
 ICON_SUN = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4.2"></circle><path d="M12 2.5v2.4M12 19.1v2.4M2.5 12h2.4M19.1 12h2.4M5.3 5.3l1.7 1.7M17 17l1.7 1.7M5.3 18.7L7 17M17 7l1.7-1.7"></path></svg>'
 ICON_MOON = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a6.8 6.8 0 0 0 10.5 10.5z"></path></svg>'
 
