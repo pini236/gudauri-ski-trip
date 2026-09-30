@@ -72,3 +72,16 @@ test('נתונים נטענים מקבצים נפרדים', async ({ page }) => 
   await loaded(page);
   expect(seen.sort()).toEqual(['runs-and-lifts.json', 'terrain.json']);
 });
+
+test('תגיות ה-head: שפה, noindex, וקישור לשיתוף', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.locator('html')).toHaveAttribute('lang', 'he');
+  await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', 'noindex');
+  await expect(page.locator('meta[name="viewport"]')).toHaveAttribute('content', /viewport-fit=cover/);
+  await expect(page.locator('meta[property="og:title"]')).toHaveCount(1);
+  const img = await page.locator('meta[property="og:image"]').getAttribute('content');
+  const res = await page.request.get('/' + img!.split('/').pop());
+  expect(res.ok()).toBeTruthy();
+  const icon = await page.locator('link[rel="icon"]').getAttribute('href');
+  expect((await page.request.get('/' + icon)).ok()).toBeTruthy();
+});
