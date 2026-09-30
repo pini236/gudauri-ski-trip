@@ -34,13 +34,22 @@
     <a href="#map" data-nav="map">מפת מסלולים</a>
     <span class="next">חלקים נוספים בקרוב</span>
   </nav>
-  <span class="tb-count" id="tbCount"><b class="num" id="tbDays"></b> ימים לטיסה</span>
+  <span class="tb-count" id="tbCount"><b class="num" id="tbDays"></b> <span data-days-word>ימים</span> לטיסה</span>
+  <div class="dn"><span class="dn-clock">השעה בגודאורי<b class="num" data-dn-clock>--:--</b></span><button type="button" class="dn-btn" data-dn aria-label="מצב תצוגה"><svg class="i-auto" width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 3a9 9 0 0 1 0 18z" fill="currentColor"/></svg><svg class="i-day" width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="5" fill="#F4B942"/><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8" stroke="#F4B942" stroke-width="2" stroke-linecap="round"/></svg><svg class="i-night" width="24" height="24" viewBox="0 0 34 34" aria-hidden="true"><path d="M17 3A14 14 0 0 1 17 31A7.5 14 0 0 0 17 3Z" fill="currentColor"/></svg><span class="dn-lbl" data-dn-lbl>אוטומטי</span></button></div>
 </header>
 
 <main class="page page-home" id="home">
-  <div class="home-sky" id="homeSky" aria-hidden="true"><svg id="ridgeSvg" preserveAspectRatio="none"></svg></div>
+  <div class="home-sky" id="homeSky" aria-hidden="true">
+    <div class="sky-glow" id="skyGlow"></div>
+    <div class="sky-stars" id="skyStars"></div>
+    <svg class="sky-moon" id="skyMoon" width="36" height="36" viewBox="0 0 34 34"><path d="M17 3A14 14 0 0 1 17 31A7.5 14 0 0 0 17 3Z" fill="#F4F7FB"/></svg>
+    <div class="pano" id="pano"></div>
+    <div class="sky-snow" id="skySnow"></div>
+    <div class="sky-fade"></div>
+    <span class="sky-phase" id="skyPhase"></span>
+  </div>
   <div class="home-inner">
-    <div class="home-top"><h1 class="loc">גודאורי, גאורגיה</h1><span class="when">חופשת סקי, ינואר 2027</span></div>
+    <div class="home-top"><h1 class="loc">גודאורי, גאורגיה</h1><span class="when">חופשת סקי, ינואר 2027</span><div class="dn dn-home"><span class="dn-clock">השעה בגודאורי<b class="num" data-dn-clock>--:--</b></span><button type="button" class="dn-btn" data-dn aria-label="מצב תצוגה"><svg class="i-auto" width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 3a9 9 0 0 1 0 18z" fill="currentColor"/></svg><svg class="i-day" width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="5" fill="#F4B942"/><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8" stroke="#F4B942" stroke-width="2" stroke-linecap="round"/></svg><svg class="i-night" width="24" height="24" viewBox="0 0 34 34" aria-hidden="true"><path d="M17 3A14 14 0 0 1 17 31A7.5 14 0 0 0 17 3Z" fill="currentColor"/></svg><span class="dn-lbl" data-dn-lbl>אוטומטי</span></button></div></div>
     <section class="ticket-wrap" aria-label="פרטי הטיסה">
       <div class="ticket">
         <div class="t-main">
@@ -49,7 +58,7 @@
           <div class="t-meta"><span><small>תאריך</small><b class="num" id="tDate">—</b></span><span><small>טיסה</small><b id="tFlight" class="ph" dir="ltr">—</b></span><span><small>המראה</small><b class="num" id="tDeparts">—</b></span><span><small>נחיתה</small><b class="num" id="tArrives">—</b></span></div>
           <p class="t-back" id="tBack" hidden></p>
         </div>
-        <div class="t-stub"><b class="num" id="tDays"></b><span id="tDaysLbl">ימים לטיסה</span></div>
+        <div class="t-stub"><b class="num" id="tDays"></b><span id="tDaysLbl"><span data-days-word>ימים</span> לטיסה</span></div>
       </div>
     </section>
     <nav class="post" aria-label="חלקי האתר">

@@ -31,6 +31,7 @@
   - `site/js/app.js`: הסקריפט הראשי. הפונקציה `main()` טוענת את שני קבצי הנתונים ב-`fetch` ואז בונה הכל: ניווט `#home` / `#map`, מפה דו-ממדית (SVG), פאנל פרטים, סינון, כרטיס טיסה, סרטונים.
   - `site/data/terrain.json`: מודל גובה, תבליט, קווי גובה, סביבה, פסגות.
   - `site/data/runs-and-lifts.json`: מסלולים ורכבלים.
+  - `site/img/pano/`: הנוף מהכפר לדף הבית, שבע שעות ביום, לטלפון ולמחשב. נוצר ב-`design/round3/panorama.py`.
   - **הרצה מקומית דורשת שרת** (הפקודה `npm start`), כי הנתונים נטענים ב-`fetch` ולא עובדים מקובץ שנפתח ישירות.
 - הארטיפקט החי: https://claude.ai/artifact/1uDUdt45A2c77zooPZBGYK (אין לך גישה אליו; הוא מראה בלבד).
 - קנבס העיצוב: https://claude.ai/artifact/TVdeDbFBhvFDZdhCKjcys4 (עותק ב-`design/canvas/`, תצוגות ב-`design/previews/`). כולל עמוד "פיצ'רים חדשים" (`F1` עד `F7`).

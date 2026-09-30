@@ -160,3 +160,39 @@ test('כשהקובץ קיים מוצג שלט הורדה עם גודל והסב�
   await page.locator('#appHow summary').click();
   await expect(page.locator('#appHow li')).toHaveCount(3);
 });
+
+test('יום ולילה: שלושה מצבים, שעון גודאורי והנוף מתחלף', async ({ page }) => {
+  const errors = watchErrors(page);
+  await page.clock.setFixedTime(new Date('2026-12-12T09:00:00Z')); // 13:00 בגודאורי
+  await page.goto('/');
+  await loaded(page);
+  const btn = page.locator('[data-dn]:visible').first();
+  await expect(btn).toHaveAttribute('data-mode', 'auto');
+  await expect(page.locator('[data-dn-clock]:visible').first()).toHaveText('13:00');
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
+  // התמונות של ההר נטענות
+  const img = page.locator('#pano .pl img').first();
+  await expect(img).toHaveAttribute('src', /img\/pano\/pano-(wide-)?\w+\.webp/);
+  await expect.poll(() => img.evaluate((i: HTMLImageElement) => i.naturalWidth)).toBeGreaterThan(0);
+  await btn.click();
+  await expect(btn).toHaveAttribute('data-mode', 'day');
+  await btn.click();
+  await expect(btn).toHaveAttribute('data-mode', 'night');
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+  await expect(page.locator('#tDaysLbl')).toContainText('לילות');
+  // הבחירה נשמרת
+  await page.reload();
+  await loaded(page);
+  await expect(page.locator('[data-dn]:visible').first()).toHaveAttribute('data-mode', 'night');
+  await page.locator('[data-dn]:visible').first().click();
+  await expect(page.locator('[data-dn]:visible').first()).toHaveAttribute('data-mode', 'auto');
+  expect(errors).toEqual([]);
+});
+
+test('יום ולילה: במצב אוטומטי בלילה בגודאורי האתר כהה', async ({ page }) => {
+  await page.clock.setFixedTime(new Date('2026-12-12T19:00:00Z')); // 23:00 בגודאורי
+  await page.goto('/');
+  await loaded(page);
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+  await expect(page.locator('#skyPhase')).toHaveText('לילה');
+});

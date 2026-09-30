@@ -7,7 +7,7 @@
   --grid:#DCE4EC; --lift:#3A4556; --casing:#FFFFFF;
   --p-green:#1B8A4C; --p-blue:#1F5FC4; --p-red:#D1342B; --p-black:#13233A; --on-board:#FFFFFF;
   --accent:#1F5FC4; --on-accent:#FFFFFF; --dash:#8E9CAD;
-  --sky1:#DCE8F1; --sky2:#EEF2F5; --r-far:#C4D3E0; --r-mid:#DDE6EE; --r-edge:#AFC0D0;
+  --sky1:#DCE8F1; --sky2:#EEF2F5;
   --water:#8db6d8; --water-edge:#5f8fbb; --road:#a49a91; --road-main:#8a7c70; --vill:#e3d8cb; --contour:#8193a8; --contour-i:#62758c; --peak:#3d4a5c;
   --shadow:rgba(19,35,58,.18);
   --f-display:"Karantina","Arial Narrow",sans-serif;
@@ -19,7 +19,7 @@
   --grid:#18263A; --lift:#C9D3E0; --casing:#0D1522;
   --p-green:#3CC47C; --p-blue:#5B9BFF; --p-red:#FF6A5F; --p-black:#EAF0F7; --on-board:#0D1522;
   --accent:#F4B942; --on-accent:#0D1522; --dash:#51627D;
-  --sky1:#0B1320; --sky2:#16223A; --r-far:#1B2B49; --r-mid:#15223C; --r-edge:#2E4570;
+  --sky1:#0B1320; --sky2:#16223A;
   --water:#2c5a82; --water-edge:#4d82b3; --road:#6d6760; --road-main:#8f857b; --vill:#3a352f; --contour:#5a6d85; --contour-i:#7a90aa; --peak:#c9d3e0;
   --shadow:rgba(0,0,0,.45); color-scheme:dark}}
 :root[data-theme="dark"]{
@@ -27,7 +27,7 @@
   --grid:#18263A; --lift:#C9D3E0; --casing:#0D1522;
   --p-green:#3CC47C; --p-blue:#5B9BFF; --p-red:#FF6A5F; --p-black:#EAF0F7; --on-board:#0D1522;
   --accent:#F4B942; --on-accent:#0D1522; --dash:#51627D;
-  --sky1:#0B1320; --sky2:#16223A; --r-far:#1B2B49; --r-mid:#15223C; --r-edge:#2E4570;
+  --sky1:#0B1320; --sky2:#16223A;
   --water:#2c5a82; --water-edge:#4d82b3; --road:#6d6760; --road-main:#8f857b; --vill:#3a352f; --contour:#5a6d85; --contour-i:#7a90aa; --peak:#c9d3e0;
   --shadow:rgba(0,0,0,.45); color-scheme:dark}
 html,body{height:100%}
@@ -51,12 +51,38 @@ button:focus-visible,a:focus-visible,input:focus-visible,.fchip:focus-visible{ou
 
 /* home */
 .page-home{position:relative;overflow:auto}
-.home-sky{position:absolute;inset-inline:0;top:0;height:330px;overflow:hidden;background:var(--sky1)}
-.home-sky svg{display:block;width:100%;height:100%}
-.rsky{fill:var(--sky1)} .rfar{fill:var(--r-far)} .rmid{fill:var(--r-mid);stroke:var(--r-edge);stroke-width:1;stroke-linejoin:round} .rnear{fill:var(--snow);stroke:var(--r-edge);stroke-width:1.2;stroke-linejoin:round}
-.rk{stroke:var(--muted);stroke-width:1.2} .rl{font:600 12px var(--f-body);fill:var(--ink);paint-order:stroke;stroke:var(--sky1);stroke-width:3px;stroke-linejoin:round} .rl .re{font-weight:400;fill:var(--muted)}
+.home-sky{position:absolute;inset-inline:0;top:0;height:330px;overflow:hidden;background:linear-gradient(var(--sky-top,#4F90D2),var(--sky-bot,#D2E4F3) 75%);transition:background .9s}
+/* day and night: the real view above New Gudauri, rendered from the elevation model (design/round3/panorama.py) */
+.sky-glow{position:absolute;top:40%;width:560px;height:420px;margin:-210px 0 0 -280px;background:radial-gradient(closest-side,var(--glow-c,#fff),transparent);opacity:0;transition:opacity .9s}
+.sky-stars,.sky-snow{position:absolute;inset:0;opacity:0;transition:opacity .9s;pointer-events:none}
+.sky-stars i{position:absolute;width:2px;height:2px;border-radius:2px;background:#fff;animation:tw 3.2s ease-in-out infinite}
+.sky-stars i:nth-child(3n){width:3px;height:3px}
+@keyframes tw{50%{opacity:.35}}
+.sky-moon{position:absolute;left:30%;top:19%;opacity:0;filter:drop-shadow(0 0 10px rgba(244,247,251,.6));transition:opacity .9s}
+.pano{position:absolute}
+.pano .pl{position:absolute;inset:0;transition:opacity .9s}
+.pano img{position:absolute;inset:0;width:100%;height:100%;display:block;max-width:none}
+.pano .lights{position:absolute;inset:0;opacity:0;transition:opacity .9s}
+.pano .lights i{position:absolute;width:2px;height:2px;background:#FFD890;box-shadow:0 0 4px 1px rgba(255,196,110,.5)}
+.pk-lbl{position:absolute;transform:translate(-50%,-100%);display:flex;flex-direction:column;align-items:center;font:700 11.5px var(--f-body);color:var(--sky-ink,#13233A);opacity:.85;white-space:nowrap;direction:ltr}
+.pk-lbl .e{font-weight:400}
+.pk-lbl::after{content:"";width:1px;height:9px;margin-top:2px;background:currentColor}
+.sky-snow i{position:absolute;top:-10px;width:3px;height:3px;border-radius:50%;background:#fff;opacity:.85;animation:fall linear infinite}
+@keyframes fall{to{transform:translate(-18px,420px)}}
+.sky-fade{position:absolute;inset-inline:0;bottom:0;height:70px;background:linear-gradient(transparent,var(--snow))}
+.sky-phase{position:absolute;top:12px;inset-inline-start:16px;padding:3px 10px;font-size:12.5px;font-weight:600;color:var(--sky-ink,#13233A);background:var(--sky-chip,rgba(255,255,255,.55))}
+.dn{display:flex;align-items:center;gap:10px;flex:none}
+.dn-clock{display:flex;flex-direction:column;align-items:flex-end;font-size:11px;line-height:1.2;color:var(--muted)}
+.dn-clock b{font-family:var(--f-display);font-size:22px;line-height:1;color:var(--ink)}
+.dn-btn{position:relative;display:flex;align-items:center;gap:8px;height:44px;padding:0 12px 0 8px;border:1.5px solid var(--ink);border-radius:22px;background:var(--paper);color:var(--ink);font:inherit;font-size:13px;font-weight:700;cursor:pointer}
+.dn-btn svg{flex:none;display:none}
+.dn-btn[data-mode="auto"] .i-auto,.dn-btn[data-mode="day"] .i-day,.dn-btn[data-mode="night"] .i-night{display:block;animation:dnin .5s cubic-bezier(.3,1.4,.5,1)}
+@keyframes dnin{from{transform:rotate(-90deg) scale(.4);opacity:0}}
+.dn-home{display:none}
+@media (prefers-reduced-motion:reduce){.sky-stars i,.sky-snow i,.dn-btn svg{animation:none!important}.sky-snow{display:none}}
 .home-inner{position:relative;max-width:980px;margin:0 auto;padding:26px 24px 36px;display:grid;grid-template-columns:minmax(0,1fr)}
 .home-top{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+.home-top .loc,.home-top .when{color:var(--sky-ink,var(--ink));text-shadow:0 0 8px var(--sky-halo,transparent)}
 .home-top .loc{margin:0;font:600 15px var(--f-body)}
 .home-top .when{font-size:14px;color:var(--muted)}
 .ticket-wrap{margin-top:190px;display:flex;flex-direction:column;align-items:flex-start;gap:6px}
@@ -252,6 +278,12 @@ ul.notes li{margin-bottom:4px}
 @media (max-width:760px){
   .site{height:auto;display:block}
   .topbar{display:none}
+  .dn-home{display:flex;margin-inline-start:auto;align-self:center}
+  .home-top{flex-wrap:wrap;align-items:center}
+  .home-top .when{display:none}
+  .dn-home .dn-lbl{display:none}
+  .dn-home .dn-btn{width:44px;padding:0;justify-content:center}
+  .sky-phase{top:auto;bottom:78px}
   .home-sky{height:300px}
   .page-home{overflow:visible;overflow-x:clip}
   .ticket-wrap{margin-top:176px}

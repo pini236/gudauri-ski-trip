@@ -347,42 +347,110 @@ const pgHome=document.getElementById('home'),pgMap=document.getElementById('mapP
 function route(){
   const m=location.hash==='#map';pgHome.hidden=m;pgMap.hidden=!m;
   document.querySelectorAll('[data-nav]').forEach(a=>{if((a.dataset.nav==='map')===m)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current');});
-  requestAnimationFrame(m?activateMap:drawRidge);
+  requestAnimationFrame(m?activateMap:DN.layout);
   window.scrollTo(0,0);pgHome.scrollTop=0;
 }
 addEventListener('hashchange',route);
 
-// home: the skyline as seen from Gudauri village, traced from the elevation model
-const SKY=(function(){
-  if(!TM)return null;
-  const pl=TM.env.places.find(p=>p.n==='Gudauri');
-  const ex=pl?pl.x:(minX+maxX)/2,ey=pl?pl.y:maxY,eh=TM.elev(ex,ey)+30,dm=TM.dem;
-  const tx=(minX+maxX)/2,ty=minY+(maxY-minY)*0.2;
-  const az0=Math.atan2(tx-ex,-(ty-ey)),FOV=1.9,N=260,far=[],mid=[],near=[];
-  for(let i=0;i<=N;i++){const az=az0-FOV/2+FOV*i/N,dx=Math.sin(az),dy=-Math.cos(az);let a=-1,b=-1,c=-1;
-    for(let dd=80;dd<16000;dd+=dd<2500?30:70){const x=ex+dx*dd,y=ey+dy*dd;if(x<dm.x0||x>dm.x1||y<dm.y0||y>dm.y1)break;
-      const t=(TM.elev(x,y)-eh)/dd;if(t>a)a=t;if(dd<3500&&t>b)b=t;if(dd<800&&t>c)c=t;}
-    far.push(Math.atan(a));mid.push(Math.atan(b));near.push(Math.atan(c));}
-  const pk=TM.peaks.filter(p=>!p.pass).map(p=>{let r=Math.atan2(p.x-ex,-(p.y-ey))-az0;r=Math.atan2(Math.sin(r),Math.cos(r));
-    const dd=Math.hypot(p.x-ex,p.y-ey);return {p,u:(r+FOV/2)/FOV,ang:Math.atan((TM.elev(p.x,p.y)-eh)/dd)};}).filter(o=>o.u>0&&o.u<1);
-  return {far,mid,near,N,pk};
+// home: day and night. Three modes (auto, day, night). Auto follows the clock in Gudauri (UTC+4) and the
+// sunrise and sunset there on today's date. The mountains are the real view above New Gudauri, rendered
+// from the elevation model in seven moments of the day (design/round3/panorama.py), and cross-faded.
+const DN=(function(){
+  const LAT=42.51,LON=44.495,TZ=4,rad=Math.PI/180;
+  // positions in the images, as fractions (design/round3/pano.json)
+  const PJ={phone:{w:390,pk:[['Sadzele',.6215,.3989],['Bidara',.3796,.4325]],vil:[.4525,.6926]},
+            wide:{w:1440,pk:[['Sadzele',.5659,.3989],['Bidara',.4347,.4325]],vil:[.4742,.6926]}};
+  const ELE=Object.fromEntries((TM?TM.peaks:[]).map(p=>[p.n,p.ele]));
+  const gud=()=>{const g=new Date(Date.now()+TZ*36e5);return {h:g.getUTCHours()+g.getUTCMinutes()/60,g};};
+  function sunTimes(g){
+    const start=Date.UTC(g.getUTCFullYear(),0,1),n=Math.floor((g-start)/864e5)+1;
+    const dec=-23.44*Math.cos(2*Math.PI/365*(n+10))*rad,b=2*Math.PI/364*(n-81);
+    const eot=9.87*Math.sin(2*b)-7.53*Math.cos(b)-1.5*Math.sin(b);
+    const half=Math.acos(-Math.tan(LAT*rad)*Math.tan(dec))/rad/15,noon=12-(LON-TZ*15)/15-eot/60;
+    return {rise:noon-half,set:noon+half,noon};
+  }
+  const NIGHT={img:'night',sky:['#050A15','#1A2645'],glow:0,star:1,moon:1,win:1,snow:1};
+  function keys(t){return [
+    {h:0,...NIGHT},{h:t.rise-1.2,...NIGHT},
+    {h:t.rise-.3,img:'dawn',sky:['#2C3B66','#E8A987'],glow:.7,glowC:'#FFB38A',star:.2,moon:.3,win:.8,snow:0},
+    {h:t.rise+1.2,img:'morning',sky:['#6FA6DC','#DCEAF4'],glow:.35,glowC:'#FFF2D6',star:0,moon:0,win:0,snow:0},
+    {h:t.noon,img:'noon',sky:['#4F90D2','#D2E4F3'],glow:.2,glowC:'#FFFFFF',star:0,moon:0,win:0,snow:0},
+    {h:t.set-1.8,img:'gold',sky:['#6F9CCB','#F1DDC2'],glow:.6,glowC:'#FFD29A',star:0,moon:0,win:0,snow:0},
+    {h:t.set-.35,img:'sunset',sky:['#3A4677','#F09A6A'],glow:1,glowC:'#FF9A6A',star:.1,moon:.2,win:.6,snow:0},
+    {h:t.set+.45,img:'dusk',sky:['#1B2448','#6E5D86'],glow:.35,glowC:'#C98AA0',star:.6,moon:.8,win:1,snow:.3},
+    {h:t.set+1.3,...NIGHT},{h:24,...NIGHT}];}
+  const hex=c=>[1,3,5].map(i=>parseInt(c.slice(i,i+2),16));
+  const mix=(a,b,t)=>'#'+hex(a).map((v,i)=>Math.round(v+(hex(b)[i]-v)*t).toString(16).padStart(2,'0')).join('');
+  const lerp=(a,b,t)=>a+(b-a)*t;
+  const MODES=['auto','day','night'],LBL={auto:'אוטומטי',day:'יום',night:'לילה'};
+  let mode='auto';try{const m=localStorage.getItem('gud-daynight');if(MODES.includes(m))mode=m;}catch(e){}
+  const sky=document.getElementById('homeSky'),pano=document.getElementById('pano'),root=document.documentElement;
+  // stars and snowflakes: fixed positions, so the sky looks the same on every visit
+  document.getElementById('skyStars').innerHTML=[[4,8],[11,19],[18,5],[25,14],[33,7],[40,21],[47,4],[55,16],[61,9],[68,24],[74,6],[81,15],[88,10],[94,22],[7,30],[29,28],[51,31],[72,33],[90,29],[15,40],[38,38],[63,41],[84,37],[97,4]].map(([x,y])=>`<i style="left:${x}%;top:${y}%;animation-delay:-${(x*y%37)/10}s"></i>`).join('');
+  document.getElementById('skySnow').innerHTML=Array.from({length:14},(_,i)=>`<i style="left:${3+i*7}%;animation-duration:${7+i%4}s;animation-delay:-${(i*0.7).toFixed(1)}s"></i>`).join('');
+  let variant=null,layer=null,shown='';
+  function build(v){
+    variant=v;shown='';pano.innerHTML='';layer=null;
+    const P=PJ[v],vx=P.vil[0]*100,vy=P.vil[1]*100;
+    const lights=[[-44,6],[-35,2],[-28,9],[-19,4],[-12,11],[-5,1],[3,7],[9,13],[16,3],[24,10],[31,5],[39,12],[-23,15],[0,16],[20,17],[46,8]]
+      .map(([dx,dy])=>`<i style="left:calc(${vx}% + ${dx}px);top:calc(${vy}% + ${dy}px)"></i>`).join('');
+    const lbl=P.pk.map(([n,x,y])=>`<span class="pk-lbl" style="left:${x*100}%;top:calc(${y*100}% - 6px)">${esc(n)}${ELE[n]?` <span class="e">${ELE[n]}</span>`:''}</span>`).join('');
+    pano.insertAdjacentHTML('beforeend',`<div class="lights">${lights}</div>${lbl}`);
+  }
+  const src=k=>`img/pano/pano-${variant==='wide'?'wide-':''}${k}.webp`;
+  function layout(){
+    const W=sky.clientWidth,H=sky.clientHeight;if(!W||!H)return;
+    const v=W>560?'wide':'phone';if(v!==variant)build(v);
+    const iw=PJ[v].w,s=Math.max(W/iw,H/400),w=iw*s,h=400*s;
+    Object.assign(pano.style,{width:w+'px',height:h+'px',left:((W-w)/2)+'px',top:Math.min(0,H*.9-.75*h)+'px'});
+    paint(false);
+  }
+  function state(){
+    const {h:now,g}=gud(),t=sunTimes(g);
+    const h=mode==='day'?t.noon:mode==='night'?22:now;
+    const K=keys(t);let i=0;while(i<K.length-2&&K[i+1].h<h)i++;
+    const a=K[i],b=K[i+1],f=Math.min(1,Math.max(0,(h-a.h)/((b.h-a.h)||1)));
+    const dark=mode==='night'||(mode==='auto'&&(h<t.rise-.3||h>t.set+.3));
+    const phase=dark?(h>t.set&&h<t.set+1.3?'דמדומים':'לילה'):h<t.rise+.8?'זריחה':h<t.set-2?'יום':h<t.set-.6?'שעת זהב':'שקיעה';
+    return {a,b,f,dark,now,h,phase,morning:h<t.noon};
+  }
+  function paint(anim){
+    const s=state(),{a,b,f}=s,num=k=>lerp(a[k],b[k],f);
+    root.dataset.theme=s.dark?'dark':'light';
+    const hh=Math.floor(s.now),mm=Math.floor((s.now-hh)*60);
+    document.querySelectorAll('[data-dn-clock]').forEach(e=>e.textContent=String(hh).padStart(2,'0')+':'+String(mm).padStart(2,'0'));
+    document.querySelectorAll('[data-dn]').forEach(bt=>{bt.dataset.mode=mode;const nx=MODES[(MODES.indexOf(mode)+1)%3];
+      bt.setAttribute('aria-label',`מצב תצוגה: ${LBL[mode]}. לחיצה עוברת ל${LBL[nx]}`);bt.title=bt.getAttribute('aria-label');});
+    document.querySelectorAll('[data-dn-lbl]').forEach(e=>e.textContent=LBL[mode]);
+    document.querySelectorAll('[data-days-word]').forEach(e=>e.textContent=s.dark?'לילות':'ימים');
+    if(typeof v3!=='undefined'&&v3)v3.setTheme(s.dark);
+    if(!variant)return;
+    sky.style.setProperty('--sky-top',mix(a.sky[0],b.sky[0],f));sky.style.setProperty('--sky-bot',mix(a.sky[1],b.sky[1],f));
+    root.style.setProperty('--sky-ink',s.dark?'#EAF0F7':'#13233A');root.style.setProperty('--sky-halo',s.dark?'rgba(13,21,34,.6)':'rgba(255,255,255,.6)');
+    sky.style.setProperty('--sky-chip',s.dark?'rgba(13,21,34,.45)':'rgba(255,255,255,.55)');
+    const g=document.getElementById('skyGlow');g.style.opacity=num('glow');g.style.left=s.morning?'96%':'4%';g.style.setProperty('--glow-c',(f<.5?a:b).glowC||'#fff');
+    document.getElementById('skyStars').style.opacity=num('star');document.getElementById('skySnow').style.opacity=num('snow');
+    const mo=document.getElementById('skyMoon');mo.style.opacity=num('moon');
+    pano.querySelector('.lights').style.opacity=num('win');
+    document.getElementById('skyPhase').textContent=s.phase;
+    // the mountains: layer a, with b on top at opacity f. A new pair fades in over the old one.
+    const want=a.img+'|'+b.img;
+    if(want!==shown){
+      const el=document.createElement('div');el.className='pl';
+      el.innerHTML=`<img alt="" src="${src(a.img)}"><img alt="" class="b" src="${src(b.img)}">`;
+      const old=layer;layer=el;shown=want;pano.insertBefore(el,pano.querySelector('.lights'));
+      if(old&&anim){el.style.opacity=0;requestAnimationFrame(()=>requestAnimationFrame(()=>{el.style.opacity=1;}));setTimeout(()=>old.remove(),1000);}
+      else if(old)old.remove();
+    }
+    layer.querySelector('.b').style.opacity=a.img===b.img?0:f;
+  }
+  document.querySelectorAll('[data-dn]').forEach(bt=>bt.addEventListener('click',()=>{
+    mode=MODES[(MODES.indexOf(mode)+1)%3];try{localStorage.setItem('gud-daynight',mode);}catch(e){}paint(true);}));
+  new ResizeObserver(()=>{if(!pgHome.hidden)layout();}).observe(sky);
+  setInterval(()=>paint(true),60000);
+  paint(false);
+  return {layout,paint,mode:()=>mode};
 })();
-function drawRidge(){
-  const host=document.getElementById('homeSky'),rs=document.getElementById('ridgeSvg');
-  const W=host.clientWidth,H=host.clientHeight;if(!W||!H)return;
-  rs.setAttribute('viewBox',`0 0 ${W} ${H}`);
-  if(!SKY){rs.innerHTML=`<rect width="${W}" height="${H}" class="rsky"/>`;return;}
-  const i0=W<600?Math.round(SKY.N*0.14):0,i1=W<600?Math.round(SKY.N*0.86):SKY.N,n=i1-i0;
-  let lo=1e9,hi=-1e9;for(let i=i0;i<=i1;i++){hi=Math.max(hi,SKY.far[i]);lo=Math.min(lo,SKY.mid[i]);}
-  const top=H*0.3,bot=H*0.97,Y=a=>bot-(a-lo)/(hi-lo||1)*(bot-top),X=i=>(i-i0)/n*W;
-  const poly=arr=>{let t='';for(let i=i0;i<=i1;i++)t+=`${X(i).toFixed(1)},${Y(arr[i]).toFixed(1)} `;return t+`${W},${H} 0,${H}`;};
-  let lbl='';const kept=[];
-  SKY.pk.slice().sort((a,b)=>b.p.ele-a.p.ele).forEach(o=>{const fi=o.u*SKY.N;if(fi<i0||fi>i1)return;const i=Math.round(fi);
-    if(o.ang<SKY.far[i]-0.012)return;const x=X(fi),y=Y(SKY.far[i]);if(x<44||x>W-44||kept.some(k=>Math.abs(k-x)<96))return;kept.push(x);
-    lbl+=`<path class="rk" d="M${x.toFixed(1)} ${(y-5).toFixed(1)}v-9"/><text class="rl" x="${x.toFixed(1)}" y="${(y-19).toFixed(1)}" text-anchor="middle" direction="ltr">${esc(o.p.n)} <tspan class="re">${o.p.ele}</tspan></text>`;});
-  rs.innerHTML=`<rect width="${W}" height="${H}" class="rsky"/><polygon class="rfar" points="${poly(SKY.far)}"/><polygon class="rmid" points="${poly(SKY.mid)}"/><polygon class="rnear" points="${poly(SKY.near)}"/>${lbl}`;
-}
-new ResizeObserver(()=>{if(!pgHome.hidden)drawRidge();}).observe(document.getElementById('homeSky'));
 
 // flight ticket: one shared doc (trip/flight), editable by Contributors
 const fmtDate=iso=>{const[y,m,d]=iso.split('-');return +d+'.'+ +m+'.'+y;};

@@ -3,8 +3,9 @@
 
 A small ray caster over the site's own elevation model (site/data/terrain.json): lit by the real
 January sun (with shadows cast by other mountains), rock on steep slopes, and haze by distance.
-Vertical scale is exaggerated 3x so the ridge reads on a phone. One image per moment of the day:
-design/round3/assets/pano-<key>.webp (780x800, transparent sky). Run from the repo root:
+Vertical scale is exaggerated (2.6x on the phone, about 1.3x wide) so the ridge reads. One image per moment of the day,
+in two widths, pano-<key>.webp (phone, 780x800) and pano-wide-<key>.webp (2880x800), transparent sky,
+in design/round3/assets/ and copied to site/img/pano/ for the home page. Run from the repo root:
 python3 design/round3/panorama.py"""
 import json, base64, math, datetime, pathlib
 import numpy as np
@@ -52,11 +53,21 @@ import sys
 VX, VY = -700.0, 7300.0           # above the valley south of New Gudauri, looking north up the ski area
 LIFT = 260.0                      # camera height above the ground there, in metres
 AZC = 8.0                         # centre of view, degrees from north
-FOV = 64.0
-W, HH = 1560, 1600                # rendered at 2x the 780x800 output, then downsampled (4x css px)
-FOV0, FOV1 = AZC - FOV / 2, AZC + FOV / 2
-V = (W / FOV) * 2.6               # px per degree vertically: 2.6x exaggeration
-HZ = 300 * 4                      # the eye-level row, in css px x4
+VCSS = 15.84                      # css px per degree vertically, the same in every variant
+HZC = 300                         # eye-level row in css px (image is 400 css px tall)
+VARIANTS = {                      # name: (output width px, field of view in degrees). Output is 2x css.
+    'phone': (780, 64.0),         # 2.6x vertical exaggeration
+    'wide': (2880, 118.0),        # about 1.3x
+}
+KEYS = {   # key: (hour for the sun or None, sun colour, sun strength, ambient colour, ambient strength, haze colour, haze km)
+    'night':   (None, '#8FA6D6', 0.28, '#2B3A60', 0.50, '#141E36', 9),
+    'dawn':    (None, '#FFFFFF', 0.00, '#9A96BC', 0.72, '#D8A592', 12),
+    'morning': (9.6,  '#FFEBD2', 0.72, '#7F9CC8', 0.50, '#CFDFEE', 11),
+    'noon':    (12.5, '#FFFFFF', 0.88, '#86A6D0', 0.40, '#D3E3F2', 14),
+    'gold':    (15.9, '#FFDDB0', 0.90, '#7888B8', 0.42, '#E6D2C0', 12),
+    'sunset':  (17.35, '#FF8F78', 1.35, '#6C6896', 0.48, '#B98597', 10),
+    'dusk':    (None, '#FFFFFF', 0.00, '#4C5584', 0.55, '#4F517E', 9),
+}
 
 def bil(A, x, y):
     c = np.clip((x - d['x0']) / CX, 0, d['nx'] - 1.001); r = np.clip((y - d['y0']) / CY, 0, d['ny'] - 1.001)
@@ -67,60 +78,59 @@ E0 = float(bil(H, np.array([VX]), np.array([VY]))[0]) + LIFT
 dist = [40.0]
 while dist[-1] < 16000: dist.append(dist[-1] + max(8.0, dist[-1] * 0.006))
 dist = np.array(dist)
-az = np.radians(FOV0 + (np.arange(W) + 0.5) / W * (FOV1 - FOV0))
-PX = VX + np.outer(np.sin(az), dist); PY = VY - np.outer(np.cos(az), dist)     # (W, n)
-inside = (PX > d['x0']) & (PX < d['x1']) & (PY > d['y0']) & (PY < d['y1'])
-PH = bil(H, PX, PY) - dist**2 / (2 * 6371000) * 0.87
-ang = np.degrees(np.arctan2(PH - E0, dist))
-YS = np.where(inside, HZ - ang * V, np.inf)
-RUN = np.minimum.accumulate(YS, axis=1)
-rows = np.arange(HH) + 0.5
-IDX = np.empty((W, HH), dtype=int)
-for c in range(W):
-    IDX[c] = np.searchsorted(-RUN[c], -rows, side='left')      # first sample whose running top is at or above the row
-SKY = IDX >= len(dist)
-IDXc = np.minimum(IDX, len(dist) - 1)
-colsI = np.arange(W)[:, None]
-SX, SY, SD = PX[colsI, IDXc], PY[colsI, IDXc], dist[IDXc]
-slope = bil(SLOPE, SX, SY); lap = bil(LAP, SX, SY); nz = bil(1 / NRM, SX, SY)
-rock = np.clip((slope - 38) / 10, 0, 1) * 0.8 + np.clip(-lap / 80 - 0.3, 0, 0.2)
-rock = np.clip(rock, 0, 1)[..., None]
 SNOW, ROCK = rgb('#F7FAFD'), rgb('#5F5B5A')
-ALB = SNOW * (1 - rock) + ROCK * rock
+LIGHTS = {}
+for key, (hr, *_rest) in KEYS.items():
+    if hr is not None: alt, azs = sun(hr); LIGHTS[key] = light(max(alt, 0.6), azs)
+    elif key == 'night': LIGHTS[key] = light(38, 150)      # moonlight from the south-east
+    else: LIGHTS[key] = np.zeros_like(H)
 
-def project(x, y):
-    dx, dy = x - VX, y - VY; dd = math.hypot(dx, dy); a = math.degrees(math.atan2(dx, -dy))
-    h = float(bil(H, np.array([x]), np.array([y]))[0]) - dd**2 / (2 * 6371000) * 0.87
-    return round((a - FOV0) / (FOV1 - FOV0) * 390, 1), round((HZ - math.degrees(math.atan2(h - E0, dd)) * V) / 4, 1)
-PROJ = {p['n']: project(p['x'], p['y']) for p in T['peaks'] if not p['pass']}
-PROJ['New Gudauri'] = project(-452.0, 4441.0)
-json.dump({'peaks': PROJ, 'camera': [VX, VY, round(E0)]}, open(root / 'design/round3/pano.json', 'w'), ensure_ascii=False)
-print(PROJ)
-if 'proj' in sys.argv: sys.exit()
-KEYS = {   # key: (hour for the sun or None, sun colour, sun strength, ambient colour, ambient strength, haze colour, haze km)
-    'night':   (None, '#8FA6D6', 0.28, '#2B3A60', 0.50, '#141E36', 9),
-    'dawn':    (None, '#FFFFFF', 0.00, '#9A96BC', 0.72, '#D8A592', 12),
-    'morning': (9.6,  '#FFEBD2', 0.72, '#7F9CC8', 0.50, '#CFDFEE', 11),
-    'noon':    (12.5, '#FFFFFF', 0.88, '#86A6D0', 0.40, '#D3E3F2', 14),
-    'gold':    (15.9, '#FFDDB0', 0.90, '#7888B8', 0.42, '#E6D2C0', 12),
-    'sunset':  (17.35, '#FF8F78', 1.35, '#6C6896', 0.48, '#B98597', 10),
-    'dusk':    (None, '#FFFFFF', 0.00, '#4C5584', 0.55, '#4F517E', 9),
-}
-out = root / 'design/round3/assets'; out.mkdir(parents=True, exist_ok=True)
-for key, (hr, sc, sk, ac, ak, fc, fk) in KEYS.items():
-    if hr is not None:
-        alt, azs = sun(hr); L = light(max(alt, 0.6), azs)
-    elif key == 'night':
-        alt, azs = 38, 150; L = light(alt, azs)     # moonlight from the south-east
-    else:
-        L = np.zeros_like(H); alt = azs = None
-    lam = bil(L, SX, SY)[..., None]
-    amb = rgb(ac) * ak * (0.55 + 0.45 * nz[..., None])
-    col = ALB * (amb + rgb(sc) * sk * lam)
-    haze = (1 - np.exp(-SD / (fk * 1000)))[..., None] * 0.85
-    col = col * (1 - haze) + rgb(fc) * haze
-    img = np.clip(col, 0, 1) ** 1.08
-    rgba = np.concatenate([img, (~SKY)[..., None].astype(float)], axis=2)
-    im = Image.fromarray((rgba.transpose(1, 0, 2) * 255).astype(np.uint8), 'RGBA').resize((780, 800), Image.LANCZOS)
-    im.save(out / f'pano-{key}.webp', quality=84, method=6)
-    print(key, 'sun', None if alt is None else round(alt, 1), None if azs is None else round(azs), (out / f'pano-{key}.webp').stat().st_size)
+def render(name, OW, FOV):
+    """Render one variant at 2x and downsample to OW x 800. Columns are done in chunks to keep memory low."""
+    W, HH = OW * 2, 1600
+    FOV0 = AZC - FOV / 2
+    V = VCSS * 4; HZ = HZC * 4
+    out = {k: np.zeros((W, HH, 4), dtype=np.float32) for k in KEYS}
+    rows = np.arange(HH) + 0.5
+    for c0 in range(0, W, 256):
+        cs = np.arange(c0, min(W, c0 + 256))
+        az = np.radians(FOV0 + (cs + 0.5) / W * FOV)
+        PX = VX + np.outer(np.sin(az), dist); PY = VY - np.outer(np.cos(az), dist)
+        inside = (PX > d['x0']) & (PX < d['x1']) & (PY > d['y0']) & (PY < d['y1'])
+        PH = bil(H, PX, PY) - dist**2 / (2 * 6371000) * 0.87
+        YS = np.where(inside, HZ - np.degrees(np.arctan2(PH - E0, dist)) * V, np.inf)
+        RUN = np.minimum.accumulate(YS, axis=1)
+        IDX = np.stack([np.searchsorted(-RUN[i], -rows, side='left') for i in range(len(cs))])
+        SKY = IDX >= len(dist); IDXc = np.minimum(IDX, len(dist) - 1)
+        ci = np.arange(len(cs))[:, None]
+        SX, SY, SD = PX[ci, IDXc], PY[ci, IDXc], dist[IDXc]
+        slope = bil(SLOPE, SX, SY); lap = bil(LAP, SX, SY); nz = bil(1 / NRM, SX, SY)[..., None]
+        rock = np.clip(np.clip((slope - 38) / 10, 0, 1) * 0.8 + np.clip(-lap / 80 - 0.3, 0, 0.2), 0, 1)[..., None]
+        ALB = SNOW * (1 - rock) + ROCK * rock
+        for key, (hr, sc, sk, ac, ak, fc, fk) in KEYS.items():
+            lam = bil(LIGHTS[key], SX, SY)[..., None]
+            col = ALB * (rgb(ac) * ak * (0.55 + 0.45 * nz) + rgb(sc) * sk * lam)
+            haze = (1 - np.exp(-SD / (fk * 1000)))[..., None] * 0.85
+            col = np.clip(col * (1 - haze) + rgb(fc) * haze, 0, 1) ** 1.08
+            out[key][cs] = np.concatenate([col, (~SKY)[..., None]], axis=2)
+    dst = root / 'design/round3/assets'; dst.mkdir(parents=True, exist_ok=True)
+    for key, arr in out.items():
+        im = Image.fromarray((arr.transpose(1, 0, 2) * 255).astype(np.uint8), 'RGBA').resize((OW, 800), Image.LANCZOS)
+        fn = dst / (f'pano-{key}.webp' if name == 'phone' else f'pano-{name}-{key}.webp')
+        im.save(fn, quality=84 if name == 'phone' else 78, method=6)
+        print(name, key, fn.stat().st_size)
+    def project(x, y):
+        dx, dy = x - VX, y - VY; dd = math.hypot(dx, dy); a = math.degrees(math.atan2(dx, -dy))
+        h = float(bil(H, np.array([x]), np.array([y]))[0]) - dd**2 / (2 * 6371000) * 0.87
+        return round((a - FOV0) / FOV, 4), round((HZC - math.degrees(math.atan2(h - E0, dd)) * VCSS) / 400, 4)
+    pj = {p['n']: project(p['x'], p['y']) for p in T['peaks'] if not p['pass']}
+    pj['New Gudauri'] = project(-452.0, 4441.0)
+    return pj
+
+PJ = {}
+for name, (ow, fov) in VARIANTS.items():
+    if len(sys.argv) > 1 and name not in sys.argv[1:]: continue
+    PJ[name] = render(name, ow, fov)
+# positions as fractions of the image: [x from the left, y from the top]
+json.dump({'camera': [VX, VY, round(E0)], 'horizon': HZC / 400, **PJ}, open(root / 'design/round3/pano.json', 'w'), ensure_ascii=False, indent=1)
+print(PJ)
