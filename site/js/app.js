@@ -13,6 +13,7 @@ const LK={chair_lift:'רכבל כיסאות',gondola:'גונדולה',platter:'�
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const fmtLen=m=>m>=1000?(m/1000).toFixed(2)+' ק״מ':m+' מ׳';
 const byKey=Object.fromEntries(D.pistes.map(p=>[p.key,p]));
+const reduceMotion=()=>matchMedia('(prefers-reduced-motion: reduce)').matches;
 // Kobi side = everything north of Kobi Pass (the top of Firni). Shown in its own inset.
 const KOBI_LAT=42.5115;
 const meanLat=gs=>{let t=0,n=0;gs.forEach(g=>g.forEach(q=>{t+=q[0];n++;}));return n?t/n:0;};
@@ -108,7 +109,7 @@ function apply(){
   const[cw,ch]=sz();vb.h=vb.w*ch/cw;
   svg.setAttribute('viewBox',`${vb.x} ${vb.y} ${vb.w} ${vb.h}`);
   const u=vb.w/cw; // meters per px
-  layoutLabels(labels,stations,u,marks);svg.classList.toggle('far',u>9);
+  layoutLabels(labels,stations,u,marks);svg.classList.toggle('far',u>9);runMark.setAttribute('r',7*u);
   const nice=[50,100,200,250,500,1000,2000];let m=nice.find(n=>n/u>=70)||2000;
   const sc=document.getElementById('scale');sc.querySelector('i').style.width=(m/u)+'px';sc.querySelector('span').textContent=m>=1000?m/1000+' km':m+' m';
 }
@@ -155,14 +156,54 @@ const st=document.createElement('style');st.textContent='.hide-green .pg.green,.
 // selection + panel
 const panel=document.getElementById('panel');
 let current=null;
-function clearSel(){if(v3)v3.select(null);[svg,kSvg].forEach(m=>{m.classList.remove('has-sel');m.querySelectorAll('.pg.on').forEach(e=>e.classList.remove('on'));});}
+function clearSel(){stopFly();paint2d(null);setMarker(null);if(v3){v3.select(null);v3.paint(null);}[svg,kSvg].forEach(m=>{m.classList.remove('has-sel');m.querySelectorAll('.pg.on').forEach(e=>e.classList.remove('on'));});}
+// ---- run view: a run painted in slope colours, elevation profile, briefing (design round 3, T1 to T4) ----
+// Lines of a run, each ordered from its top to its bottom, sampled every ~10 m along the line:
+// {x,y} projected metres, d metres from the top, h metres, a slope in degrees (over about 40 m).
+const topDown=L=>TM&&TM.elev(L[0][0],L[0][1])<TM.elev(L[L.length-1][0],L[L.length-1][1])?L.slice().reverse():L;
+function sampleLine(L,step){
+  const o=[];let d=0;
+  for(let i=0;i<L.length;i++){
+    if(i){const a=L[i-1],b=L[i],l=Math.hypot(b[0]-a[0],b[1]-a[1]),n=Math.max(1,Math.round(l/step));
+      for(let k=1;k<=n;k++){const t=k/n;o.push({x:a[0]+(b[0]-a[0])*t,y:a[1]+(b[1]-a[1])*t,d:d+l*t});}d+=l;}
+    else o.push({x:L[0][0],y:L[0][1],d:0});}
+  o.forEach(q=>q.h=TM.elev(q.x,q.y));
+  o.forEach((q,i)=>{let a=i,b=i;while(a>0&&q.d-o[a].d<20)a--;while(b<o.length-1&&o[b].d-q.d<20)b++;const dd=o[b].d-o[a].d;q.a=dd?Math.atan(Math.abs(o[b].h-o[a].h)/dd)*180/Math.PI:0;});
+  return o;
+}
+const runLines=p=>p.segs.filter(s=>!s.area).map(s=>topDown(s.g.map(P)));
+const profCache={};
+function runProfile(key){ // the longest line of the run, top to bottom
+  if(profCache[key])return profCache[key];const p=byKey[key];if(!p||!TM)return null;
+  const Ls=runLines(p);if(!Ls.length)return null;
+  const S=Ls.map(L=>sampleLine(L,10)).sort((a,b)=>b[b.length-1].d-a[a.length-1].d)[0];
+  // the steepest 100 m, as a grade
+  let best={g:0,d:0};for(let i=0;i<S.length;i++){let j=i;while(j<S.length-1&&S[j].d-S[i].d<100)j++;const dd=S[j].d-S[i].d;if(dd>=60){const g=(S[i].h-S[j].h)/dd;if(g>best.g)best={g,d:S[i].d,i,j};}}
+  return profCache[key]={S,steep:best};
+}
+// 2D: the selected run, painted from the top down in slope colours
+const gPaint=mk('g',{class:'runpaint','aria-hidden':'true'});svg.insertBefore(gPaint,mainLbl);
+const runMark=mk('circle',{class:'runmark',r:10,cx:0,cy:0,'vector-effect':'non-scaling-stroke'});runMark.style.display='none';
+function paint2d(key){
+  gPaint.classList.remove('on');gPaint.innerHTML='';
+  const p=key&&byKey[key];if(!p||!TM||isKobiP(p))return;
+  runLines(p).forEach(L=>{const S=sampleLine(L,12),tot=S[S.length-1].d||1,dur=1.3;
+    mk('path',{d:'M'+S.map(q=>q.x.toFixed(1)+' '+q.y.toFixed(1)).join('L'),...vs,stroke:'#FFFFFF','stroke-width':10,class:'rp-cas'},gPaint);
+    for(let i=0;i<S.length-1;i++)mk('line',{x1:S[i].x.toFixed(1),y1:S[i].y.toFixed(1),x2:S[i+1].x.toFixed(1),y2:S[i+1].y.toFixed(1),stroke:GudRelief.slopeColor(S[i].a),'stroke-width':6,'stroke-linecap':'round','vector-effect':'non-scaling-stroke',style:`transition-delay:${(S[i].d/tot*dur).toFixed(2)}s`},gPaint);});
+  requestAnimationFrame(()=>requestAnimationFrame(()=>gPaint.classList.add('on')));
+}
+function setMarker(q){
+  if(!q){runMark.style.display='none';if(v3)v3.marker(null);return;}
+  runMark.style.display='';runMark.setAttribute('cx',q.x);runMark.setAttribute('cy',q.y);if(v3)v3.marker(q.x,q.y);
+}
 function focusOn(els){let a=1e9,b=1e9,c=-1e9,d=-1e9;els.forEach(g=>g.forEach(q=>{const[x,y]=P(q);a=Math.min(a,x);c=Math.max(c,x);b=Math.min(b,y);d=Math.max(d,y);}));
   const[cw,ch]=sz();const w=Math.max(c-a,(d-b)*cw/ch,900)*1.5;vb.w=w;vb.h=w*ch/cw;vb.x=(a+c)/2-w/2;vb.y=(b+d)/2-vb.h/2;apply();}
-function select(key,{zoom=false}={}){
+function select(key,{zoom=true,push=true}={}){
   const p=byKey[key];clearSel();
-  if(p){[svg,kSvg].forEach(m=>m.classList.add('has-sel'));(pisteEls[key]||[]).forEach(e=>e.classList.add('on'));if(v3)v3.select(key);
+  if(p){[svg,kSvg].forEach(m=>m.classList.add('has-sel'));(pisteEls[key]||[]).forEach(e=>e.classList.add('on'));if(v3){v3.select(key);v3.paint(key,1300);}paint2d(key);
     if(zoom){if(view==='3d')v3.focus(key);else if(isKobiP(p))openInset();else focusOn(p.segs.map(s=>s.g));}}
   current=key;renderPiste(key);
+  const want='#map/run/'+encodeURIComponent(key);if(push&&location.hash!==want)history.pushState(null,'',want);
   if(matchMedia('(max-width:760px)').matches&&!zoom)panel.scrollIntoView({behavior:'smooth',block:'start'});
 }
 function pips(c){const n=RATE[c][0];return `<span class="pips c-${c}">${[1,2,3,4].map(i=>`<i class="${i<=n?'on':''}"></i>`).join('')}</span>`;}
@@ -211,6 +252,62 @@ function researchBlock(p){const r=p.research;
   ${r.partial?`<dt>היקף</dt><dd>${esc(r.partial)}</dd>`:''}</dl>
   <p class="hint">${esc(r.notes)}</p>
   <ul class="notes">${r.sources.map(x=>`<li class="hint">${esc(x)}</li>`).join('')}</ul>`;}
+const navList=()=>{const order=['green','blue','red','black'];return D.pistes.filter(p=>p.named).sort((a,b)=>order.indexOf(a.color)-order.indexOf(b.color)||a.key.localeCompare(b.key,undefined,{numeric:true})).map(p=>p.key);};
+function runNav(key){
+  const L=navList(),i=L.indexOf(key);if(i<0)return `<div class="run-nav"><button type="button" class="rn-share" data-share="${esc(key)}">שיתוף</button></div>`;
+  const prev=L[(i-1+L.length)%L.length],next=L[(i+1)%L.length];
+  return `<div class="run-nav" role="group" aria-label="מעבר בין מסלולים"><button type="button" data-goto="${esc(prev)}" aria-label="המסלול הקודם: ${esc(prev)}">→ <span dir="ltr">${esc(prev)}</span></button><button type="button" class="rn-share" data-share="${esc(key)}">שיתוף</button><button type="button" data-goto="${esc(next)}" aria-label="המסלול הבא: ${esc(next)}"><span dir="ltr">${esc(next)}</span> ←</button></div>`;
+}
+let cmpStats=null;
+function comparable(){ // steepness and length of every named run, once
+  if(cmpStats)return cmpStats;cmpStats=[];
+  D.pistes.forEach(p=>{if(!p.named||(p.kind&&p.kind!=='run')||!TM)return;const Ls=runLines(p);if(!Ls.length)return;const s=GudRelief.stats(TM,Ls);cmpStats.push({key:p.key,g:s.maxG,len:p.len});});
+  return cmpStats;
+}
+function runViewBlock(key){
+  const pr=runProfile(key),p=byKey[key];if(!pr||pr.S.length<4)return '';
+  const S=pr.S,W=340,Hc=118,n=S.length,dmax=S[n-1].d,hs=S.map(q=>q.h),hmax=Math.max(...hs),hmin=Math.min(...hs);
+  const X=d=>(8+d/dmax*(W-16)).toFixed(1),Y=h=>(8+(hmax-h)/((hmax-hmin)||1)*(Hc-30)).toFixed(1);
+  const line=S.map(q=>X(q.d)+','+Y(q.h)).join(' ');
+  let band='';for(let i=0,j=0;i<n-1;i=j){const c=GudRelief.slopeColor(S[i].a);j=i+1;while(j<n-1&&GudRelief.slopeColor(S[j].a)===c)j++;band+=`<rect x="${X(S[i].d)}" y="${Hc-14}" width="${(X(S[j].d)-X(S[i].d)+.6).toFixed(1)}" height="7" fill="${c}"/>`;}
+  const st=pr.steep,deg=g=>Math.round(Math.atan(g)*180/Math.PI),maxG=GudRelief.stats(TM,runLines(p)).maxG; // the same number as in the details above
+  const first=S.find(q=>q.d>=150)||S[n-1],g0=(S[0].h-first.h)/(first.d||1);
+  const cmp=comparable(),me=cmp.find(x=>x.key===key);
+  let cmpHtml='';if(me&&cmp.length>2){const others=cmp.filter(x=>x.key!==key);
+    const bg=others.slice().sort((a,b)=>Math.abs(a.g-me.g)-Math.abs(b.g-me.g))[0],bl=others.slice().sort((a,b)=>Math.abs(a.len-me.len)-Math.abs(b.len-me.len))[0];
+    cmpHtml=`<p class="run-cmp">תלול בערך כמו ${pisteBtn(bg.key)} ארוך בערך כמו ${pisteBtn(bl.key)}</p>`;}
+  const endTxt=p.toLifts.length?`מגיעים לרכבל ${p.toLifts.map(liftBtn).join('')}`:p.joins.length?`ממשיכים אל ${p.joins.map(pisteBtn).join('')}`:'';
+  const startTxt=p.fromLifts.length?`יורדים מרכבל ${p.fromLifts.map(liftBtn).join('')}`:'';
+  const fly=can3d&&!reduceMotion()?`<button type="button" class="btn run-fly" data-fly="${esc(key)}">טיסה במורד המסלול</button>`:'';
+  return `<h3>פרופיל הגובה</h3>
+  <div class="prof"><svg viewBox="0 0 ${W} ${Hc}" preserveAspectRatio="none" aria-hidden="true">
+    <polygon points="8,${Hc-16} ${line} ${W-8},${Hc-16}" class="pf-fill"/><polyline points="${line}" class="pf-line"/>${band}
+    ${st.g?`<rect x="${X(st.d)}" y="0" width="${(X(S[st.j].d)-X(st.d)).toFixed(1)}" height="${Hc-16}" class="pf-steep"/>`:''}
+    <line id="pfX" x1="8" x2="8" y1="0" y2="${Hc-8}" class="pf-x"/></svg><span class="pf-dot" id="pfDot" style="left:${(8/W*100).toFixed(2)}%;top:${Y(S[0].h)}px"></span>
+    <input type="range" id="profRange" min="0" max="${n-1}" value="0" aria-label="מיקום לאורך המסלול, מלמעלה למטה" dir="ltr" data-key="${esc(key)}">
+    <span class="pf-top num">${Math.round(hmax)}</span><span class="pf-bot num">${Math.round(hmin)}</span></div>
+  <div class="prof-read"><span><small>מההתחלה</small><b class="num" id="pfD">0 מ׳</b></span><span><small>גובה</small><b class="num" id="pfH">${Math.round(S[0].h).toLocaleString('en-US')} מ׳</b></span><span><small>שיפוע כאן</small><b class="num" id="pfA">${Math.round(S[0].a)}°</b></span></div>
+  <ul class="slope-key">${GudRelief.SLOPE.map(([,c,t])=>`<li><i style="background:${c}"></i>${t}</li>`).join('')}</ul>
+  ${fly}
+  <h3>מה מחכה לך</h3>
+  <ol class="brief">
+    <li><b>התחלה · <span class="num">${Math.round(S[0].h)}</span> מ׳</b><span>${deg(g0)}° ב-150 המטרים הראשונים. ${startTxt}</span></li>
+    ${st.g?`<li class="b-steep"><b>הקטע התלול · אחרי <span class="num">${Math.round(st.d)}</span> מ׳</b><span>${deg(maxG)}° (<span class="num">${Math.round(maxG*100)}%</span>) לאורך 100 מ׳</span></li>`:''}
+    <li><b>הסוף · <span class="num">${Math.round(S[n-1].h)}</span> מ׳</b><span>אחרי <span class="num">${Math.round(dmax)}</span> מ׳. ${endTxt}</span></li>
+  </ol>
+  ${cmpHtml}
+  <p class="hint">הגבהים והשיפועים ממודל הגובה (כ-30 מ׳), לאורך הקו הארוך ביותר של המסלול. בקירות קצרים השיפוע האמיתי יכול להיות גבוה יותר.</p>`;
+}
+function profAt(i){
+  const k=document.getElementById('profRange');if(!k)return;const pr=runProfile(k.dataset.key);if(!pr)return;const S=pr.S,q=S[Math.max(0,Math.min(S.length-1,i))];
+  const svgp=panel.querySelector('.prof svg'),vb_=svgp.viewBox.baseVal,W=vb_.width,Hc=vb_.height,dmax=S[S.length-1].d,hs=S.map(z=>z.h),hmax=Math.max(...hs),hmin=Math.min(...hs);
+  const x=8+q.d/dmax*(W-16),y=8+(hmax-q.h)/((hmax-hmin)||1)*(Hc-30);
+  const X=document.getElementById('pfX');X.setAttribute('x1',x);X.setAttribute('x2',x);const dot=document.getElementById('pfDot');dot.style.left=(x/W*100)+'%';dot.style.top=y+'px';
+  document.getElementById('pfD').textContent=Math.round(q.d).toLocaleString('en-US')+' מ׳';document.getElementById('pfH').textContent=Math.round(q.h).toLocaleString('en-US')+' מ׳';document.getElementById('pfA').textContent=Math.round(q.a)+'°';
+  setMarker(q);
+}
+let flying=false;
+function stopFly(){if(flying&&v3)v3.stopFly();flying=false;}
 function renderPiste(key){
   const p=byKey[key];
   if(!p){const m=D.missing.find(x=>x.name===key);if(!m)return overview();
@@ -220,7 +317,8 @@ function renderPiste(key){
     return;}
   const c=p.color,label=p.named?(p.key==='Firni ?'?'Firni':p.key):'';
   panel.innerHTML=`<button class="back" data-back>→ כל המסלולים</button>
-  <h2 class="c-${c}">${esc(dispName(p))}</h2>
+  <div class="run-sign"><h2 class="c-${c}">${esc(dispName(p))}</h2>${p.refs.length?`<span class="run-ref num" title="סימון המסלול">${esc(p.refs[0])}</span>`:''}</div>
+  ${runNav(key)}
   <dl class="kv">
     <dt>אורך</dt><dd class="num">${fmtLen(p.len)}</dd>
     ${elevRows(p)}
@@ -230,6 +328,7 @@ function renderPiste(key){
     ${p.refs.length?`<dt>סימון</dt><dd class="num">${esc(p.refs.join(', '))}</dd>`:''}
     ${p.groom.length?`<dt>הכשרה</dt><dd>${p.groom.includes('classic')?'מוכשר (ratrak)':esc(p.groom.join(', '))}</dd>`:''}
   </dl>
+  ${runViewBlock(key)}
   <h3>חיבורים</h3>
   <dl class="kv">
     <dt>רכבל בראש</dt><dd>${p.fromLifts.map(liftBtn).join('')||'—'}</dd>
@@ -250,7 +349,7 @@ function liftElev(l){
   return `<dt>תחנות</dt><dd><span class="num">${Math.min(ea,eb)}</span> מ׳ למטה, <span class="num">${Math.max(ea,eb)}</span> מ׳ למעלה</dd><dt>הפרש גובה</dt><dd><span class="num">${Math.abs(eb-ea)}</span> מ׳ (מהמודל)${l.rise?` · ב-OSM: <span class="num">${esc(l.rise)}</span> מ׳`:''}</dd>`;
 }
 function showLift(id){
-  const l=D.lifts.find(x=>x.id===id);if(!l)return;clearSel();current=null;
+  const l=D.lifts.find(x=>x.id===id);if(!l)return;clearSel();current=null;if(location.hash.startsWith('#map/run/'))history.pushState(null,'','#map');
   const top=D.pistes.filter(p=>p.fromLifts.includes(l.name)).map(p=>pisteBtn(p.key)).join('');
   const bot=D.pistes.filter(p=>p.toLifts.includes(l.name)).map(p=>pisteBtn(p.key)).join('');
   panel.innerHTML=`<button class="back" data-back>→ כל המסלולים</button><h2>⇡ ${esc(l.name||'ללא שם')}</h2>
@@ -284,17 +383,28 @@ function overview(){
   <p class="hint">קווים: OpenStreetMap דרך Overpass, נמשך ${D.fetched}. שמות וצבעים לפי המפה הרשמית של Gudauri (MTA). אורכים אופקיים מהקואורדינטות. תבליט וגבהים: אריחי גובה Terrarium (AWS Open Data, בעיקר SRTM). פסגות: שמות וגבהים לפי המפה הרשמית, מיקום לפי OSM. הכפר, הכבישים והאגם: OSM. השלמת המסלולים החסרים: היסטוריית העריכה של OSM והקלטות GPS ציבוריות (api.openstreetmap.org), ${esc(D.research?D.research.date:'')}. © OpenStreetMap contributors, ODbL.</p>
   <p class="hint">במבט התלת-ממדי: גרירה מסובבת, גלגלת או צביטה מזיזות זום, מקש ימני או שתי אצבעות מזיזים את המפה.</p>`;
 }
+panel.addEventListener('input',e=>{if(e.target.id==='profRange')profAt(+e.target.value);});
 panel.addEventListener('click',e=>{
   const b=e.target.closest('button');if(!b)return;
-  if(b.dataset.back!==undefined){overview();return;}
+  if(b.dataset.share!==undefined){const k=b.dataset.share,url=location.origin+location.pathname+'#map/run/'+encodeURIComponent(k);
+    if(navigator.share)navigator.share({title:'גודאורי 2027: '+k,url}).catch(()=>{});
+    else if(navigator.clipboard)navigator.clipboard.writeText(url).then(()=>{b.textContent='הקישור הועתק';setTimeout(()=>{b.textContent='שיתוף';},2200);}).catch(()=>{});return;}
+  if(b.dataset.fly){if(flying){stopFly();return;}const pr=runProfile(b.dataset.fly);if(!pr)return;if(view!=='3d')setView('3d',false);if(!v3)return;
+    flying=true;b.textContent='עצירה';b.setAttribute('aria-pressed','true');
+    v3.flyAlong(pr.S.map(q=>[q.x,q.y]),()=>{flying=false;const bb=panel.querySelector('[data-fly]');if(bb){bb.textContent='טיסה במורד המסלול';bb.setAttribute('aria-pressed','false');}});return;}
+  if(b.dataset.back!==undefined){overview();if(location.hash!=='#map')history.pushState(null,'','#map');return;}
   if(b.dataset.filter){const k=b.dataset.filter;hidden.has(k)?hidden.delete(k):hidden.add(k);b.setAttribute('aria-pressed',!hidden.has(k));applyFilters();return;}
   if(b.dataset.vid){const w=document.createElement('div');w.className='vframe';const f=document.createElement('iframe');
     f.src='https://www.youtube-nocookie.com/embed/'+b.dataset.vid+'?autoplay=1&rel=0';f.title=b.dataset.title||'סרטון';f.allow='autoplay; encrypted-media; picture-in-picture; fullscreen';f.allowFullscreen=true;f.referrerPolicy='strict-origin-when-cross-origin';
     w.appendChild(f);b.replaceWith(w);return;}
-  if(b.dataset.goto){select(b.dataset.goto,{zoom:true});panel.scrollTop=0;return;}
+  if(b.dataset.goto){select(b.dataset.goto,{zoom:true});panel.scrollTop=0;if(matchMedia('(max-width:760px)').matches)panel.scrollIntoView({block:'start'});return;}
   if(b.dataset.lift){const l=D.lifts.find(x=>x.id===+b.dataset.lift);showLift(+b.dataset.lift);if(l){if(view==='3d')v3.focusLift(l.id);else if(isKobiL(l))openInset();else focusOn([l.g]);}return;}
 });
 
+{let sx=0,sy=0,ok=false;
+  panel.addEventListener('touchstart',e=>{const t=e.touches[0];ok=e.touches.length===1&&!e.target.closest('input,.prof');sx=t.clientX;sy=t.clientY;},{passive:true});
+  panel.addEventListener('touchend',e=>{if(!ok||!current)return;const t=e.changedTouches[0],dx=t.clientX-sx,dy=t.clientY-sy;if(Math.abs(dx)<70||Math.abs(dy)>45)return;
+    const L=navList(),i=L.indexOf(current);if(i<0)return;select(L[(i+(dx<0?1:-1)+L.length)%L.length]);},{passive:true});}
 // ---- 3D view ----
 let v3=null,view='2d';
 const wrap=document.querySelector('.mapwrap'),m3=document.getElementById('map3d'),sw=document.getElementById('viewsw');
@@ -309,10 +419,11 @@ function ensure3d(){
     v3=GudRelief.View3D({model:TM,host:m3,pistes:D.pistes,lifts:D.lifts,P,dispName,colors:{green:'#1B8A4C',blue:'#1F5FC4',red:'#D1342B',black:'#13233A'},liftColor:'#3A4556',
       center:[(minX+maxX)/2,(minY+maxY)/2+250],homeDist:7000,homeAz:0,homePol:0.44,
       onPick:k=>select(k),onLift:id=>showLift(id),
+      onFly:f=>{const k=document.getElementById('profRange');if(k){const i=Math.round(f*(+k.max));k.value=i;profAt(i);}},
       onHeading:az=>{compassSvg.style.transform=`rotate(${(az*180/Math.PI).toFixed(1)}deg)`;}});
     v3.kobi=()=>v3.view({tx:kc[0],tz:kc[1],dist:6800,az:Math.PI*0.9,pol:0.6});
     v3.setTheme(isDark());matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>v3.setTheme(isDark()));
-    v3.filter(hidden);if(current&&byKey[current])v3.select(current);
+    v3.filter(hidden);if(current&&byKey[current]){v3.select(current);v3.paint(current,0);}
     return true;
   }catch(e){console.warn('3D unavailable',e);v3=null;return false;}
 }
@@ -345,10 +456,13 @@ function activateMap(){
 // pages: #map shows the map, anything else the home page
 const pgHome=document.getElementById('home'),pgMap=document.getElementById('mapPage');
 function route(){
-  const m=location.hash==='#map';pgHome.hidden=m;pgMap.hidden=!m;
+  const h=location.hash,m=h.startsWith('#map'),run=h.startsWith('#map/run/')?decodeURIComponent(h.slice(9)):null,wasMap=!pgMap.hidden;
+  pgHome.hidden=m;pgMap.hidden=!m;
   document.querySelectorAll('[data-nav]').forEach(a=>{if((a.dataset.nav==='map')===m)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current');});
-  requestAnimationFrame(m?activateMap:DN.layout);
-  window.scrollTo(0,0);pgHome.scrollTop=0;
+  requestAnimationFrame(()=>{if(!m){DN.layout();return;}activateMap();
+    if(run&&run!==current&&(byKey[run]||D.missing.some(x=>x.name===run)))select(run,{push:false});
+    else if(!run&&current)overview();});
+  if(!wasMap||!m){window.scrollTo(0,0);pgHome.scrollTop=0;}
 }
 addEventListener('hashchange',route);
 

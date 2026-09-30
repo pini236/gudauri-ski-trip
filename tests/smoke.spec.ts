@@ -196,3 +196,32 @@ test('יום ולילה: במצב אוטומטי בלילה בגודאורי ה�
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
   await expect(page.locator('#skyPhase')).toHaveText('לילה');
 });
+
+test('תצוגת מסלול: קישור ישיר, צביעה לפי שיפוע, פרופיל, מעבר בין מסלולים וחזרה', async ({ page }) => {
+  const errors = watchErrors(page);
+  await page.addInitScript(() => { try { localStorage.setItem('gud-view', '2d'); } catch (e) {} });
+  await page.goto('/#map/run/Tatra%202');
+  await loaded(page);
+  await expect(page.locator('#panel h2')).toHaveText('Tatra 2');
+  await expect(page.locator('.run-ref')).toHaveText('7A');
+  // המסלול נצבע בצבעי השיפוע
+  await expect(page.locator('#map .runpaint line').first()).toBeAttached();
+  await expect(page.locator('#map .runpaint')).toHaveClass(/on/);
+  // הפרופיל מזיז נקודה על המפה
+  const range = page.locator('#profRange');
+  await range.evaluate((e: HTMLInputElement) => { e.value = String(Math.round(+e.max / 2)); e.dispatchEvent(new Event('input', { bubbles: true })); });
+  await expect(page.locator('#pfD')).not.toHaveText('0 מ׳');
+  await expect(page.locator('#map .runmark')).toBeVisible();
+  await expect(page.locator('.brief li')).toHaveCount(3);
+  await expect(page.locator('.run-cmp .tag')).toHaveCount(2);
+  // המסלול הבא, וכפתור חזרה בדפדפן
+  await page.locator('.run-nav button').last().click();
+  await expect(page.locator('#panel h2')).not.toHaveText('Tatra 2');
+  expect(decodeURIComponent(new URL(page.url()).hash)).toMatch(/^#map\/run\//);
+  await page.goBack();
+  await expect(page.locator('#panel h2')).toHaveText('Tatra 2');
+  await page.locator('#panel [data-back]').click();
+  await expect(page.locator('#panel h2.ov')).toBeVisible();
+  await expect(page.locator('#map .runpaint line')).toHaveCount(0);
+  expect(errors).toEqual([]);
+});

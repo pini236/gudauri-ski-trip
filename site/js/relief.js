@@ -25,6 +25,10 @@ R.load=function(T){
 };
 
 /* ---------- profile stats for a polyline set ---------- */
+/* slope colours (approved thresholds: 15°, 25°, 30°) */
+R.SLOPE=[[15,'#3FA85F','עד 15°'],[25,'#F2C13D','15°–25°'],[30,'#F08A3C','25°–30°'],[91,'#DC3B33','מעל 30°']];
+R.slopeColor=deg=>R.SLOPE.find(x=>deg<x[0])[1];
+
 R.stats=function(M,lines){ // lines: [[x,y],...][]
   let top=-1e9,bot=1e9,maxG=0;
   lines.forEach(L=>{
@@ -163,6 +167,18 @@ R.View3D=function(opts){
       base+=n*2;});
     const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(P,3));g.setAttribute('prev',new THREE.Float32BufferAttribute(Pr,3));
     g.setAttribute('next',new THREE.Float32BufferAttribute(Nx,3));g.setAttribute('side',new THREE.Float32BufferAttribute(Sd,1));g.setIndex(I);return g;
+  }
+  // painted run: slope colour per vertex, revealed from the top down (reveal 0..1 against each vertex's share of the way)
+  const vshP=vsh.replace('attribute float side;','attribute float side;attribute vec3 acol;attribute float prog;varying vec3 vCol;varying float vProg;').replace('gl_Position=c;','gl_Position=c;vCol=acol;vProg=prog;');
+  const fshP=`uniform float opacity;uniform float reveal;varying vec3 vCol;varying float vProg;
+  #include <fog_pars_fragment>
+  void main(){if(vProg>reveal)discard;gl_FragColor=vec4(vCol,opacity);
+  #include <fog_fragment>
+  }`;
+  function paintGeo(lines,cols,progs){
+    const g=lineGeo(lines),C=[],Pg=[];
+    lines.forEach((L,j)=>{if(L.length<2)return;for(let i=0;i<L.length;i++){const c=cols[j][i];for(let s=0;s<2;s++){C.push(c.r,c.g,c.b);Pg.push(progs[j][i]);}}});
+    g.setAttribute('acol',new THREE.Float32BufferAttribute(C,3));g.setAttribute('prog',new THREE.Float32BufferAttribute(Pg,1));return g;
   }
   function drape(pts,lift){ // pts [[x,y]] → [[x,h,z]] densified
     const o=[];
@@ -313,7 +329,7 @@ R.View3D=function(opts){
 
   /* animation */
   let anim=null;
-  function stopAnim(){if(anim){cancelAnimationFrame(anim.raf);anim=null;}}
+  function stopAnim(){clearTimeout(flyWait);if(anim){cancelAnimationFrame(anim.raf);const cb=anim.onStop;anim=null;if(cb)cb();}}
   function flyTo(to,ms){stopAnim();const from={...st};
     let daz=((to.az??st.az)-from.az)%(2*Math.PI);if(daz>Math.PI)daz-=2*Math.PI;if(daz<-Math.PI)daz+=2*Math.PI;
     const tgt={tx:to.tx??st.tx,tz:to.tz??st.tz,dist:to.dist??st.dist,pol:to.pol??st.pol,az:from.az+daz};
@@ -323,11 +339,11 @@ R.View3D=function(opts){
       for(const k in tgt)st[k]=from[k]+(tgt[k]-from[k])*e;place();renderer.render(scene,camera);layoutLabels();
       if(t<1&&anim)anim.raf=requestAnimationFrame(step);else anim=null;};
     anim.raf=requestAnimationFrame(step);}
-  function focusLines(lines,extra){let a=1e9,b=1e9,c=-1e9,e=-1e9;lines.forEach(L=>L.forEach(q=>{a=Math.min(a,q[0]);c=Math.max(c,q[0]);b=Math.min(b,q[2]);e=Math.max(e,q[2]);}));
-    const ext=Math.max(c-a,e-b,500);flyTo(Object.assign({tx:(a+c)/2,tz:(b+e)/2,dist:Math.max(1600,ext*2.3),pol:0.62},extra||{}),800);}
+  function focusLines(lines,extra,k){let a=1e9,b=1e9,c=-1e9,e=-1e9;lines.forEach(L=>L.forEach(q=>{a=Math.min(a,q[0]);c=Math.max(c,q[0]);b=Math.min(b,q[2]);e=Math.max(e,q[2]);}));
+    const ext=Math.max(c-a,e-b,500);flyTo(Object.assign({tx:(a+c)/2,tz:(b+e)/2,dist:Math.max(k?1300:1600,ext*(k||2.3)),pol:0.62},extra||{}),k?1100:800);}
 
   /* selection/filter API */
-  let selLabel=null;
+  let selLabel=null,paintObj=null,markObj=null,flyWait=0;
   const R3={sel:null};
   const api={
     select(key){R3.sel=key||null;selLabel=key&&pisteObjs[key]?pisteObjs[key].label:null;
@@ -336,10 +352,51 @@ R.View3D=function(opts){
         o.cas.material.uniforms.color.value.set(o.p.key===key?'#ffe38a':'#ffffff');});
       liftObjs.forEach(o=>{o.c2.material.uniforms.opacity.value=key?.45:1;});
       request();},
-    focus(key){const o=pisteObjs[key];if(o)focusLines(o.lines);},
+    focus(key){const o=pisteObjs[key];if(o)focusLines(o.lines,{pol:0.5},1.75);}, // the camera settles low over the run
     focusLift(id){const o=liftObjs.find(x=>x.l.id===id);if(o)focusLines([o.L]);},
     filter(hidden){Object.values(pisteObjs).forEach(o=>{const h=hidden.has(o.p.color)||(!o.p.named&&hidden.has('unnamed'));o.core.visible=o.cas.visible=!h;if(o.label)o.label.hiddenByFilter=h;const pk=pickables.find(k=>k.key===o.p.key);if(pk)pk.hidden=h;});
       liftObjs.forEach(o=>{o.c1.visible=o.c2.visible=!hidden.has('lifts');const pk=pickables.find(k=>k.id===o.l.id);if(pk)pk.hidden=hidden.has('lifts');});request();},
+    // paint the selected run in slope colours, from its top to its bottom
+    paint(key,ms){
+      if(paintObj){scene.remove(paintObj.mesh);paintObj.mesh.geometry.dispose();paintObj.mesh.material.dispose();cancelAnimationFrame(paintObj.raf);paintObj=null;}
+      const o=key&&pisteObjs[key];if(!o){request();return;}
+      const lines=o.lines.map(L=>L[0][1]<L[L.length-1][1]?L.slice().reverse():L);
+      const cols=[],progs=[];
+      lines.forEach(L=>{let tot=0;const cum=[0];for(let i=1;i<L.length;i++){tot+=Math.hypot(L[i][0]-L[i-1][0],L[i][2]-L[i-1][2]);cum.push(tot);}
+        progs.push(cum.map(c=>tot?c/tot:0));
+        cols.push(L.map((q,i)=>{let a=i,b=i;while(a>0&&cum[i]-cum[a]<25)a--;while(b<L.length-1&&cum[b]-cum[i]<25)b++;
+          const dd=cum[b]-cum[a],dh=Math.abs(L[b][1]-L[a][1]);return new THREE.Color(R.slopeColor(dd?Math.atan(dh/dd)*180/Math.PI:0));}));});
+      const mat=new THREE.ShaderMaterial({uniforms:THREE.UniformsUtils.merge([THREE.UniformsLib.fog,{opacity:{value:1},reveal:{value:0},width:{value:o.w+2.4},res:{value:new THREE.Vector2(W/2,Hh/2)}}]),
+        vertexShader:vshP,fragmentShader:fshP,transparent:true,fog:true,side:THREE.DoubleSide,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-6,polygonOffsetUnits:-6});
+      const mesh=new THREE.Mesh(paintGeo(lines,cols,progs),mat);mesh.renderOrder=7;scene.add(mesh);
+      paintObj={mesh,raf:0};
+      if(matchMedia('(prefers-reduced-motion: reduce)').matches||!ms){mat.uniforms.reveal.value=1.01;request();return;}
+      const t0=performance.now(),step=()=>{const t=Math.min(1,(performance.now()-t0)/ms);mat.uniforms.reveal.value=t<1?(t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2):1.01;
+        renderer.render(scene,camera);if(t<1&&paintObj)paintObj.raf=requestAnimationFrame(step);};
+      paintObj.raf=requestAnimationFrame(step);
+    },
+    // a dot on the terrain, e.g. the point chosen on the elevation profile
+    marker(x,y){if(!markObj){const c=document.createElement('canvas');c.width=c.height=48;const k=c.getContext('2d');k.fillStyle='#13233A';k.strokeStyle='#fff';k.lineWidth=7;k.beginPath();k.arc(24,24,16,0,7);k.fill();k.stroke();
+        const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute([0,0,0],3));
+        markObj=new THREE.Points(g,new THREE.PointsMaterial({size:18,sizeAttenuation:false,map:new THREE.CanvasTexture(c),transparent:true,depthTest:false,depthWrite:false}));markObj.renderOrder=9;scene.add(markObj);}
+      if(x==null){markObj.visible=false;request();return;}
+      markObj.visible=true;markObj.geometry.attributes.position.setXYZ(0,x,M.elev(x,y)+8,y);markObj.geometry.attributes.position.needsUpdate=true;request();},
+    // camera flies down a line (projected metres, from the top), behind and above it. Any touch on the map stops it.
+    flyAlong(pts,onEnd){stopAnim();
+      let tot=0;const cum=[0];for(let i=1;i<pts.length;i++){tot+=Math.hypot(pts[i][0]-pts[i-1][0],pts[i][1]-pts[i-1][1]);cum.push(tot);}
+      const at=d=>{d=Math.max(0,Math.min(tot,d));let i=1;while(i<pts.length-1&&cum[i]<d)i++;const f=(d-cum[i-1])/((cum[i]-cum[i-1])||1);return [pts[i-1][0]+(pts[i][0]-pts[i-1][0])*f,pts[i-1][1]+(pts[i][1]-pts[i-1][1])*f];};
+      const azAt=d=>{const a=at(d-60),b=at(d+180);return Math.atan2(-(b[0]-a[0]),-(b[1]-a[1]));};
+      const ms=Math.max(15000,Math.min(40000,tot*14)),s0=at(0);
+      flyTo({tx:s0[0],tz:s0[1],dist:650,pol:.42,az:azAt(0)},1200);if(anim)anim.onStop=onEnd;
+      const wait=setTimeout(()=>{const t0=performance.now();anim={};let az=st.az;
+        const step=()=>{const t=Math.min(1,(performance.now()-t0)/ms),e=t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2,d=e*tot,p=at(d);
+          let da=azAt(d)-az;da=Math.atan2(Math.sin(da),Math.cos(da));az+=da*0.04;
+          Object.assign(st,{tx:p[0],tz:p[1],dist:650,pol:.42,az});place();renderer.render(scene,camera);layoutLabels();
+          if(opts.onFly)opts.onFly(d/tot);
+          if(t<1&&anim)anim.raf=requestAnimationFrame(step);else if(anim){anim=null;if(onEnd)onEnd();}};
+        anim.raf=requestAnimationFrame(step);anim.onStop=onEnd;},1250);
+      flyWait=wait;},
+    stopFly(){stopAnim();},
     home(){flyTo(home,900);},
     north(){flyTo({az:0},600);},
     zoom(f){zoomAt(f);},
