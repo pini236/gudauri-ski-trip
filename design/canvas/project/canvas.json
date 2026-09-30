@@ -42,6 +42,70 @@
       "x": 470,
       "y": 2528
     },
+    "F1-RunView.dc.html": {
+      "h": 844,
+      "page": "features",
+      "title": "תצוגת מסלול",
+      "w": 390,
+      "x": 0,
+      "y": 0
+    },
+    "F2-Weather.dc.html": {
+      "h": 844,
+      "page": "features",
+      "title": "שכבת מזג אוויר",
+      "w": 390,
+      "x": 470,
+      "y": 0
+    },
+    "F3-Today.dc.html": {
+      "h": 844,
+      "page": "features",
+      "title": "היום על ההר (בחופשה)",
+      "w": 390,
+      "x": 940,
+      "y": 0
+    },
+    "F4-Location.dc.html": {
+      "h": 844,
+      "page": "features",
+      "title": "מיקום עצמי וקח אותי למטה",
+      "w": 390,
+      "x": 1410,
+      "y": 0
+    },
+    "F5-Status.dc.html": {
+      "h": 844,
+      "page": "features",
+      "title": "מצב רכבלים",
+      "w": 390,
+      "x": 0,
+      "y": 1264
+    },
+    "F6-Village.dc.html": {
+      "h": 844,
+      "page": "features",
+      "title": "New Gudauri",
+      "w": 390,
+      "x": 470,
+      "y": 1264
+    },
+    "F7-Story1.dc.html": {
+      "h": 844,
+      "page": "features",
+      "title": "סיפור ההר: פרק 1",
+      "w": 390,
+      "x": 940,
+      "y": 1264
+    },
+    "F7-Story5.dc.html": {
+      "h": 844,
+      "page": "features",
+      "title": "סיפור ההר: פרק 5",
+      "w": 390,
+      "x": 1410,
+      "y": 1264
+    },
     "Main.dc.html": {
       "h": 844,
       "page": "directions",
@@ -89,10 +153,28 @@
   },
   "designSystems": [],
   "launch": {
-    "page": "unified",
+    "page": "features",
     "view": "canvas"
   },
   "notes": {
+    "featRow1": {
+      "kind": "title1",
+      "maxW": 1800,
+      "page": "features",
+      "text": "מפה: מסלול, מזג אוויר, מיקום",
+      "w": 240,
+      "x": 0,
+      "y": -300
+    },
+    "featRow2": {
+      "kind": "title1",
+      "maxW": 1800,
+      "page": "features",
+      "text": "מצב, כפר, סיפור ההר",
+      "w": 240,
+      "x": 0,
+      "y": 964
+    },
     "rowA": {
       "kind": "title1",
       "maxW": 860,
@@ -140,9 +222,21 @@
     "U-Home.dc.html",
     "U-Map.dc.html",
     "U-MapTop.dc.html",
-    "U-Desktop.dc.html"
+    "U-Desktop.dc.html",
+    "F1-RunView.dc.html",
+    "F2-Weather.dc.html",
+    "F3-Today.dc.html",
+    "F4-Location.dc.html",
+    "F5-Status.dc.html",
+    "F6-Village.dc.html",
+    "F7-Story1.dc.html",
+    "F7-Story5.dc.html"
   ],
   "pages": [
+    {
+      "id": "features",
+      "name": "פיצ'רים חדשים"
+    },
     {
       "id": "unified",
       "name": "שפה מאוחדת"

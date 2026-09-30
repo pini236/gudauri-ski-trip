@@ -17,7 +17,9 @@
 
 - מה בוצע ומה נשאר: @docs/STATUS.md
 - הוראות מפורטות לכל שלב: @docs/HANDOFF.md
+- מפרט הפיצ'רים של שלב 6 (ותהליך העבודה עם עיצוב): @docs/FEATURES.md
 - רעיונות ותוכניות לעתיד: @docs/ROADMAP.md
+- **בלי כפילויות:** כל פריט חי במסמך אחד. מפרט ב-`FEATURES.md`, מעקב ב-`STATUS.md`, רעיונות ב-`ROADMAP.md`. בהוספת פריט לבדוק קודם שהוא לא קיים באחר.
 
 ## מצב נוכחי (30.9.2026)
 
@@ -31,7 +33,8 @@
   - `site/data/runs-and-lifts.json`: מסלולים ורכבלים.
   - **הרצה מקומית דורשת שרת** (הפקודה `npm start`), כי הנתונים נטענים ב-`fetch` ולא עובדים מקובץ שנפתח ישירות.
 - הארטיפקט החי: https://claude.ai/artifact/1uDUdt45A2c77zooPZBGYK (אין לך גישה אליו; הוא מראה בלבד).
-- קנבס העיצוב: https://claude.ai/artifact/TVdeDbFBhvFDZdhCKjcys4 (עותק ב-`design/canvas/`, תצוגות ב-`design/previews/`).
+- קנבס העיצוב: https://claude.ai/artifact/TVdeDbFBhvFDZdhCKjcys4 (עותק ב-`design/canvas/`, תצוגות ב-`design/previews/`). כולל עמוד "פיצ'רים חדשים" (`F1` עד `F7`).
+- מסמך הפיצ'רים המקורי: https://claude.ai/artifact/FeAJgxBa6ZkDHqjxppVMkV (תמונת מצב מ-30.9.2026; הריפו הוא מקור האמת).
 
 ## טיסה וסרטונים (מאז שלב 3)
 

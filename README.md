@@ -13,7 +13,7 @@
 | [`tools/`](tools/) | כלים: `build-videos.py` בונה את קובץ הסרטונים ואת `research/videos.md` מ-`videos-curated.json` |
 | [`tests/`](tests/) | בדיקות Playwright |
 | [`research/`](research/) | כל המידע שנאסף: מסלולים, רכבלים, המסלולים החסרים, מקורות, ציוד ופרומפטים |
-| [`docs/`](docs/) | סטטוס עבודה ([`STATUS.md`](docs/STATUS.md)), הוראות לכל שלב ([`HANDOFF.md`](docs/HANDOFF.md)) ורעיונות לעתיד ([`ROADMAP.md`](docs/ROADMAP.md)) |
+| [`docs/`](docs/) | סטטוס עבודה ([`STATUS.md`](docs/STATUS.md)), הוראות לכל שלב ([`HANDOFF.md`](docs/HANDOFF.md)) מפרט הפיצ'רים ([`FEATURES.md`](docs/FEATURES.md)) ורעיונות לעתיד ([`ROADMAP.md`](docs/ROADMAP.md)) |
 | [`design/`](design/) | העיצובים: הסקיצות הראשונות, השפה המאוחדת, קבצי הקנבס, תצוגות מקדימות וצילומי מסך |
 
 ## מה האתר עושה
