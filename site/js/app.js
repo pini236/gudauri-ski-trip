@@ -186,7 +186,7 @@ function notesFor(p){
 function hostOf(u){try{return new URL(u).hostname.replace(/^www\./,'')}catch{return u}}
 function vidList(key){
   const list=vids.filter(v=>v.piste===key).sort((a,b)=>(b.at||0)-(a.at||0));
-  return list.length?`<ul class="vids">${list.map(v=>`<li><a href="${esc(v.url)}" target="_blank" rel="noopener">${esc(v.title||hostOf(v.url))}</a><small>${esc(v.by||'')} ${v.at?'· '+new Date(v.at).toLocaleDateString('he-IL'):''}</small></li>`).join('')}</ul>`:'<p class="hint">עוד אין סרטונים למסלול הזה.</p>';
+  return list.length?`<ul class="vids">${list.map(v=>`<li><a href="${esc(v.url)}" target="_blank" rel="noopener">${esc(v.title||hostOf(v.url))}</a><small>${esc(v.channel?[v.channel,v.length].filter(Boolean).join(' · '):[v.by||'',v.at?new Date(v.at).toLocaleDateString('he-IL'):''].filter(Boolean).join(' · '))}</small></li>`).join('')}</ul>`:'<p class="hint">עוד אין סרטונים למסלול הזה.</p>';
 }
 function vidBlock(key,label){
   return `<h3>סרטונים</h3>${vidList(key)}

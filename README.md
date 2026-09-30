@@ -10,6 +10,7 @@
 | תיקייה | מה בה |
 |---|---|
 | [`site/`](site/) | האתר עצמו: `index.html`, `css/`, `js/` ו-`data/` (הנתונים כקבצי JSON) |
+| [`tools/`](tools/) | כלים: `build-videos.py` בונה את קובץ הסרטונים ואת `research/videos.md` מ-`videos-curated.json` |
 | [`tests/`](tests/) | בדיקות Playwright |
 | [`research/`](research/) | כל המידע שנאסף: מסלולים, רכבלים, המסלולים החסרים, מקורות, ציוד ופרומפטים |
 | [`docs/`](docs/) | סטטוס עבודה ([`STATUS.md`](docs/STATUS.md)), הוראות לכל שלב ([`HANDOFF.md`](docs/HANDOFF.md)) ורעיונות לעתיד ([`ROADMAP.md`](docs/ROADMAP.md)) |

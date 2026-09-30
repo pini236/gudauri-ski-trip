@@ -38,7 +38,7 @@
 אין יותר תלות ב-claude.ai ואין מסד נתונים. הכל קבצי נתונים בריפו, לקריאה בלבד:
 
 - `site/data/trip.json`: הטיסה של הקבוצה (`outbound`, `return`, `airline`) ורשימת החברים (`members`, שמות מלאים). מוצג בכרטיס הטיסה ובקטע "החבר׳ה" בדף הבית (`renderTicket()`). **בלי מספרי דרכון, תאריכי לידה, טלפונים או מיילים.**
-- `site/data/videos-seed.json`: מערך סרטונים `{piste, url, title, by, at}` (`piste` = מפתח המסלול, `at` = epoch ms). מוצג בפרטי המסלול (`vidList()` ו-`vidBlock()`). ריק עד שלב 4.
+- `site/data/videos-seed.json`: מערך סרטונים `{piste, url, title, by, at, channel, length, published, confidence, evidence}` (`piste` = מפתח המסלול, `at` = epoch ms). מוצג בפרטי המסלול (`vidList()` ו-`vidBlock()`). **הקובץ נוצר אוטומטית**: עורכים את `tools/videos-curated.json` ומריצים `python3 tools/build-videos.py`, שמייצר גם את `research/videos.md`. כלל: סרטון נכנס רק אם הכותרת או התיאור מציינים את המסלול עם המספר.
 - שני הקבצים נטענים במצב רך: אם הטעינה נכשלת, האתר ממשיך לעבוד בלי הכרטיס ובלי הסרטונים.
 - לשלב ההתאמה האישית העתידי (התחברות ומסד נתונים) ראו `docs/ROADMAP.md`.
 

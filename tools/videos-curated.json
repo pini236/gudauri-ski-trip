@@ -1,0 +1,577 @@
+{
+ "researched": "2026-09-30",
+ "videos": {
+  "Soliko 1": [
+   {
+    "id": "EdIGHcz4vYM",
+    "title": "Gudauri Top To Bottom",
+    "channel": "Zaza Jalalishvili",
+    "length": "6:24",
+    "published": "כ-2019",
+    "evidence": "desc",
+    "confidence": "medium"
+   }
+  ],
+  "Soliko 2": [
+   {
+    "id": "_eX6sfoLqG0",
+    "title": "Ski slopes: Firni 1 - Tatra 1 - Shino - Soliko 2 - Pirveli.  Gudauri ski resort Georgia",
+    "channel": "BonifaceART",
+    "length": "12:00",
+    "published": "כ-2026",
+    "evidence": "multi",
+    "confidence": "medium"
+   }
+  ],
+  "Kudebi 1": [
+   {
+    "id": "2gl9DUw-A3k",
+    "title": "Gudauri snowboard Kudebi 1",
+    "channel": "MotionLens",
+    "length": "2:12",
+    "published": "כ-2025",
+    "evidence": "title",
+    "confidence": "high"
+   },
+   {
+    "id": "i_FmPE_3Kys",
+    "title": "Kudebi 1 and Snow Park 1 Skiroutes 4K 360 VR Snowboard Gudauri, Georgia 2020",
+    "channel": "naszepodrozeeu",
+    "length": "2:36",
+    "published": "כ-2020",
+    "evidence": "multi",
+    "confidence": "medium"
+   },
+   {
+    "id": "OnbVfL6ubkI",
+    "title": "Ski slopes: Kudebi 1 - Tatra 2 - Tatra 1. Gudauri - Ski resort in Georgia Country Caucasus mountains",
+    "channel": "BonifaceART",
+    "length": "7:20",
+    "published": "כ-2026",
+    "evidence": "multi",
+    "confidence": "medium"
+   }
+  ],
+  "Kudebi 2": [
+   {
+    "id": "JEmT4jOHP9A",
+    "title": "Gudauri Kudebi 2",
+    "channel": "Paul Fryer",
+    "length": "5:29",
+    "published": "כ-2022",
+    "evidence": "title",
+    "confidence": "high"
+   },
+   {
+    "id": "h0Z8PDGzBSE",
+    "title": "Kudebi 2B ski run (top to bottom), Gudauri ski resort, Georgia",
+    "channel": "Every Run",
+    "length": "3:48",
+    "published": "כ-2025",
+    "evidence": "variant",
+    "confidence": "medium"
+   },
+   {
+    "id": "soKA261Q40k",
+    "title": "Kudebi 2 to Sadzele 4K 360 VR Snowboard Gudauri, Georgia 2020",
+    "channel": "naszepodrozeeu",
+    "length": "3:50",
+    "published": "כ-2020",
+    "evidence": "multi",
+    "confidence": "medium"
+   }
+  ],
+  "Kudebi 3": [
+   {
+    "id": "ySX5LVNn610",
+    "title": "Downhill ski, Kudebi 3, Gudauri January 2022",
+    "channel": "Ondřej Bureš",
+    "length": "1:51",
+    "published": "כ-2022",
+    "evidence": "title",
+    "confidence": "high"
+   },
+   {
+    "id": "xgqNsVYEzcw",
+    "title": "4K 360 VR Snowboard and Ski in Gudauri, Georgia 2020 - Kudebi 3",
+    "channel": "naszepodrozeeu",
+    "length": "1:51",
+    "published": "כ-2020",
+    "evidence": "title",
+    "confidence": "high"
+   }
+  ],
+  "Kikilo 1": [
+   {
+    "id": "VoCR-h_-VKg",
+    "title": "Ski slopes Kikilo 1 &  New Goodaura in Gudauri. Gudaur  Ski resort in Georgia",
+    "channel": "BonifaceART",
+    "length": "6:45",
+    "published": "כ-2026",
+    "evidence": "multi",
+    "confidence": "medium"
+   },
+   {
+    "id": "Y7yMSsYlmq4",
+    "title": "Skiing Gudauri new runs POV",
+    "channel": "Luka Silagadze",
+    "length": "8:07",
+    "published": "כ-2024",
+    "evidence": "desc",
+    "confidence": "medium"
+   }
+  ],
+  "Kikilo 2": [
+   {
+    "id": "srvX7rRhhuc",
+    "title": "skidding in Gudauri",
+    "channel": "Igor Nikolaev",
+    "length": "2:19",
+    "published": "כ-2025",
+    "evidence": "desc",
+    "confidence": "medium"
+   },
+   {
+    "id": "j7dpAFl0S94",
+    "title": "Ski slopes: Kudebi 1 - Kikilo 2 - New Goodaura. Gudauri Ski resort in Georgia",
+    "channel": "BonifaceART",
+    "length": "8:10",
+    "published": "כ-2026",
+    "evidence": "multi",
+    "confidence": "medium"
+   }
+  ],
+  "Snow Park": [
+   {
+    "id": "YVQAjQB9TiY",
+    "title": "Practicing jumps at Gudauri’s Snow Park - Georgia",
+    "channel": "Pearl Studs",
+    "length": "2:43",
+    "published": "כ-2025",
+    "evidence": "title",
+    "confidence": "medium"
+   },
+   {
+    "id": "5qAWauVYv4k",
+    "title": "Snow Park Snowboarding - Gudauri",
+    "channel": "David Bumbeishvili",
+    "length": "4:46",
+    "published": "כ-2022",
+    "evidence": "title",
+    "confidence": "medium"
+   },
+   {
+    "id": "TO-7_gj0STI",
+    "title": "Ski Gudauri Snow Park 2019",
+    "channel": "Chernobaevka_UA",
+    "length": "1:17",
+    "published": "כ-2019",
+    "evidence": "title",
+    "confidence": "medium"
+   }
+  ],
+  "Pirveli": [
+   {
+    "id": "bk4bKTI-fes",
+    "title": "Gudauri green ski slope Pirveli.",
+    "channel": "BonifaceART",
+    "length": "3:33",
+    "published": "כ-2026",
+    "evidence": "title",
+    "confidence": "high"
+   },
+   {
+    "id": "E6tOisTQbTY",
+    "title": "Gudauri: Soliko • Pirveli",
+    "channel": "Street View Georgia",
+    "length": "14:54",
+    "published": "כ-2023",
+    "evidence": "multi",
+    "confidence": "medium"
+   },
+   {
+    "id": "VJxGV1FpIAI",
+    "title": "Overview of the Piveli trail and slope in Gudauri",
+    "channel": "Андрей Брагин",
+    "length": "15:35",
+    "published": "כ-2019",
+    "evidence": "desc",
+    "confidence": "medium"
+   }
+  ],
+  "Goodaura 1": [
+   {
+    "id": "nA6jv-qRmz4",
+    "title": "Спуск по Goodaura 1, Гудаури, Грузия",
+    "channel": "Vlad Key",
+    "length": "4:32",
+    "published": "כ-2026",
+    "evidence": "title",
+    "confidence": "high"
+   }
+  ],
+  "Goodaura 2": [
+   {
+    "id": "Y16EYwAs4vw",
+    "title": "Gudauri Goodaura 2 03.01.26",
+    "channel": "Зеленцов Иван",
+    "length": "7:53",
+    "published": "כ-2026",
+    "evidence": "title",
+    "confidence": "high"
+   },
+   {
+    "id": "EdIGHcz4vYM",
+    "title": "Gudauri Top To Bottom",
+    "channel": "Zaza Jalalishvili",
+    "length": "6:24",
+    "published": "כ-2019",
+    "evidence": "desc",
+    "confidence": "medium"
+   }
+  ],
+  "Sadzele 2": [
+   {
+    "id": "TbG-C56Ry-Q",
+    "title": "Гудаури подъемник и трасса Sadzele 2",
+    "channel": "Андрей Брагин",
+    "length": "17:46",
+    "published": "כ-2019",
+    "evidence": "title",
+    "confidence": "high"
+   },
+   {
+    "id": "oRG186_-9P4",
+    "title": "Black Sadzele 2 4K 360 VR Snowboard Gudauri, Georgia 2020",
+    "channel": "naszepodrozeeu",
+    "length": "9:00",
+    "published": "כ-2020",
+    "evidence": "title",
+    "confidence": "high"
+   },
+   {
+    "id": "EdIGHcz4vYM",
+    "title": "Gudauri Top To Bottom",
+    "channel": "Zaza Jalalishvili",
+    "length": "6:24",
+    "published": "כ-2019",
+    "evidence": "desc",
+    "confidence": "medium"
+   }
+  ],
+  "Tatra 1": [
+   {
+    "id": "dFsyiZq_6_E",
+    "title": "Beginner Skiing on Tatra 1 Slope in Gudauri | January 2025 Adventure",
+    "channel": "Vansegena",
+    "length": "9:06",
+    "published": "כ-2025",
+    "evidence": "title",
+    "confidence": "high"
+   },
+   {
+    "id": "4Up9sBhgXoQ",
+    "title": "Gudauri 2018. Tatra 1 Slope. 4K.",
+    "channel": "Valeri Khomutov",
+    "length": "9:28",
+    "published": "כ-2018",
+    "evidence": "title",
+    "confidence": "high"
+   },
+   {
+    "id": "WD86crgZ8pE",
+    "title": "Gudauri Firni 1- Tatra 1. Ski resort in Georgia Country Caucasus mountains",
+    "channel": "BonifaceART",
+    "length": "8:50",
+    "published": "כ-2026",
+    "evidence": "multi",
+    "confidence": "medium"
+   }
+  ],
+  "Tatra 2": [
+   {
+    "id": "PVxmviwQswk",
+    "title": "Спуск по Tatra 2, Гудаури, Грузия",
+    "channel": "Vlad Key",
+    "length": "8:57",
+    "published": "כ-2026",
+    "evidence": "title",
+    "confidence": "high"
+   },
+   {
+    "id": "o8PaDr9Rxvg",
+    "title": "Gudauri 2018. Tatra 2 Slope. 4K.",
+    "channel": "Valeri Khomutov",
+    "length": "6:55",
+    "published": "כ-2018",
+    "evidence": "title",
+    "confidence": "high"
+   },
+   {
+    "id": "CUaGKUmmt74",
+    "title": "Gudauri 2020. Tatra2",
+    "channel": "Alex Cyclist",
+    "length": "3:20",
+    "published": "כ-2020",
+    "evidence": "title",
+    "confidence": "high"
+   }
+  ],
+  "Kobi": [
+   {
+    "id": "o5Zikdc2UU0",
+    "title": "Ski slopes Kobi in Gudauri. Ski resort in Georgia Country Caucasus mountains",
+    "channel": "BonifaceART",
+    "length": "3:26",
+    "published": "כ-2026",
+    "evidence": "title",
+    "confidence": "high"
+   },
+   {
+    "id": "QzhFYyd0EwU",
+    "title": "22 марта 2021 г. Kobi - The most beautiful slope in Gudauri",
+    "channel": "Nataly Go",
+    "length": "1:24",
+    "published": "כ-2021",
+    "evidence": "title",
+    "confidence": "high"
+   },
+   {
+    "id": "yNl-r5DbixU",
+    "title": "New ski slope Kobi at Gudauri",
+    "channel": "Alex Cyclist",
+    "length": "3:23",
+    "published": "כ-2019",
+    "evidence": "title",
+    "confidence": "high"
+   }
+  ],
+  "New Goodaura": [
+   {
+    "id": "48X2vxWPu1w",
+    "title": "Gudauri New Goodaura 04.01.26",
+    "channel": "Зеленцов Иван",
+    "length": "5:40",
+    "published": "כ-2026",
+    "evidence": "title",
+    "confidence": "high"
+   },
+   {
+    "id": "JXKvJb0vJLw",
+    "title": "🇬🇪 New Goodaura 1 | Gudauri, Georgia | 2.0 km Blue Run | Snowstorm Skiing | 4K POV",
+    "channel": "Slope Lines Ski",
+    "length": "11:47",
+    "published": "כ-2026",
+    "evidence": "title",
+    "confidence": "medium"
+   },
+   {
+    "id": "VoCR-h_-VKg",
+    "title": "Ski slopes Kikilo 1 &  New Goodaura in Gudauri. Gudaur  Ski resort in Georgia",
+    "channel": "BonifaceART",
+    "length": "6:45",
+    "published": "כ-2026",
+    "evidence": "multi",
+    "confidence": "medium"
+   }
+  ],
+  "Shino": [
+   {
+    "id": "_eX6sfoLqG0",
+    "title": "Ski slopes: Firni 1 - Tatra 1 - Shino - Soliko 2 - Pirveli.  Gudauri ski resort Georgia",
+    "channel": "BonifaceART",
+    "length": "12:00",
+    "published": "כ-2026",
+    "evidence": "multi",
+    "confidence": "medium"
+   },
+   {
+    "id": "qIdX32W64yk",
+    "title": "Gudauri Ski Mt. Kudebi - Soliko -Shino",
+    "channel": "Konrad S",
+    "length": "4:32",
+    "published": "כ-2024",
+    "evidence": "multi",
+    "confidence": "medium"
+   },
+   {
+    "id": "LdWjiDb0-4M",
+    "title": "Gudauri snowboard Kobi - Shino",
+    "channel": "MotionLens",
+    "length": "3:11",
+    "published": "כ-2025",
+    "evidence": "multi",
+    "confidence": "medium"
+   }
+  ],
+  "Firni 1": [
+   {
+    "id": "WD86crgZ8pE",
+    "title": "Gudauri Firni 1- Tatra 1. Ski resort in Georgia Country Caucasus mountains",
+    "channel": "BonifaceART",
+    "length": "8:50",
+    "published": "כ-2026",
+    "evidence": "multi",
+    "confidence": "medium"
+   },
+   {
+    "id": "_eX6sfoLqG0",
+    "title": "Ski slopes: Firni 1 - Tatra 1 - Shino - Soliko 2 - Pirveli.  Gudauri ski resort Georgia",
+    "channel": "BonifaceART",
+    "length": "12:00",
+    "published": "כ-2026",
+    "evidence": "multi",
+    "confidence": "medium"
+   }
+  ]
+ },
+ "candidates": [
+  {
+   "id": "8nYD_LWDelE",
+   "for": "Sportuli 1 / Sportuli 2",
+   "title": "Gudauri Sportuli 03.01.26",
+   "channel": "Зеленцов Иван",
+   "length": "6:31",
+   "why": "השם מופיע בלי מספר, ולא ברור איזה מסלול ממוספר מוצג"
+  },
+  {
+   "id": "DAYLPcuDK3w",
+   "for": "Sportuli 1 / Sportuli 2",
+   "title": "Гудаури трасса Sportuli",
+   "channel": "Андрей Брагин",
+   "length": "6:26",
+   "why": "השם מופיע בלי מספר, ולא ברור איזה מסלול ממוספר מוצג"
+  },
+  {
+   "id": "m_XJ4ZTy8CY",
+   "for": "Firni 1 / Firni 2",
+   "title": "Gudauri, Georgia. Slope Firni.",
+   "channel": "Vansegena",
+   "length": "5:41",
+   "why": "השם מופיע בלי מספר, ולא ברור איזה מסלול ממוספר מוצג"
+  },
+  {
+   "id": "uAExgNci9AE",
+   "for": "Firni 1 / Firni 2",
+   "title": "Gudauri Firni 04.01.26",
+   "channel": "Зеленцов Иван",
+   "length": "7:30",
+   "why": "השם מופיע בלי מספר, ולא ברור איזה מסלול ממוספר מוצג"
+  },
+  {
+   "id": "jEmUR9S7Di0",
+   "for": "Kudebi 3 / Firni",
+   "title": "from Mt Kudebi to Firni lift",
+   "channel": "Igor Nikolaev",
+   "length": "1:12",
+   "why": "התיאור מנחש את המסלול (\"i guess\") ומסתיים בירידה מחוץ למסלול"
+  },
+  {
+   "id": "AgwX1CxMaps",
+   "for": "Kudebi 3",
+   "title": "4K 360 VR Snowboard and Ski in Gudauri, Georgia 2020 - Kudebi chairlift",
+   "channel": "naszepodrozeeu",
+   "length": "8:19",
+   "why": "הכותרת מציינת את המעלית ולא את המסלול (הסרטון הקודם של אותו ערוץ כן נכנס)"
+  },
+  {
+   "id": "VW8pj4RnEl4",
+   "for": "Shino",
+   "title": "Gudauri Kudebi Skiing POV",
+   "channel": "Luka Silagadze",
+   "length": "9:52",
+   "why": "מ-Kudebi עד Shino, ולא ברור אם הכוונה לדרך או לתחנת המעלית"
+  },
+  {
+   "id": "GuV2x6WBtfw",
+   "for": "Soliko 1 / Soliko 2",
+   "title": "Gudauri, Georgia | Kudebi - Soliko",
+   "channel": "Vansegena",
+   "length": "5:16",
+   "why": "השם מופיע בלי מספר, ולא ברור איזה מסלול ממוספר מוצג"
+  },
+  {
+   "id": "A3Y0Kq2zx10",
+   "for": "Soliko 1 / Soliko 2",
+   "title": "High Speed Ski Run in Gudauri | Soliko",
+   "channel": "zzerroo__",
+   "length": "5:49",
+   "why": "השם מופיע בלי מספר, ולא ברור איזה מסלול ממוספר מוצג"
+  },
+  {
+   "id": "qTMA1tjaYJY",
+   "for": "Soliko 1 / Soliko 2",
+   "title": "4K VR 360 Gudauri Soliko SKI  Run pow day Georgia, Last day of season",
+   "channel": "B Gamtsemlidze",
+   "length": "8:12",
+   "why": "השם מופיע בלי מספר, ולא ברור איזה מסלול ממוספר מוצג"
+  },
+  {
+   "id": "eiy0St0WDUA",
+   "for": "Soliko 1 / Soliko 2",
+   "title": "Обзор подъемника и трассы Солико",
+   "channel": "Андрей Брагин",
+   "length": "14:59",
+   "why": "השם מופיע בלי מספר, ולא ברור איזה מסלול ממוספר מוצג (סקירת מעלית ומסלול)"
+  },
+  {
+   "id": "kMV2RVSAwS0",
+   "for": "Sadzele 1 / Sadzele 3",
+   "title": "POV Freeride descend from Sadzele down the valley to Kobi. Gudauri, January 2026.",
+   "channel": "Oleg D",
+   "length": "11:10",
+   "why": "ירידה חופשית (פרירייד) מ-Sadzele, לא מסלול מסומן"
+  },
+  {
+   "id": "KXrbk1Y6GiY",
+   "for": "Sadzele 1 / Sadzele 2 / Sadzele 3",
+   "title": "Gudauri-Sadzele-Ski In Georgia",
+   "channel": "VACHELSON",
+   "length": "4:36",
+   "why": "השם מופיע בלי מספר, ולא ברור איזה מסלול ממוספר מוצג"
+  },
+  {
+   "id": "qCmQCornYhw",
+   "for": "Sadzele 1 / Sadzele 2 / Sadzele 3",
+   "title": "Gudauri, Sadzele",
+   "channel": "AnotherBrick",
+   "length": "4:30",
+   "why": "השם מופיע בלי מספר, ולא ברור איזה מסלול ממוספר מוצג"
+  },
+  {
+   "id": "-QEGVMNrhis",
+   "for": "Kikilo / New Goodaura",
+   "title": "Gudauri Ski Adventure | Kudebi, Kikilo & New Goodaura Run",
+   "channel": "Vansegena",
+   "length": "5:23",
+   "why": "הכותרת מפרטת Kudebi ו-Kikilo בלי מספרים"
+  },
+  {
+   "id": "JZLlCsBRyCY",
+   "for": "Kudebi / Kikilo",
+   "title": "Skiing Down Gudauri Kudebi + Kikilo | Georgia",
+   "channel": "oleg gugunava",
+   "length": "5:26",
+   "why": "השם מופיע בלי מספר, ולא ברור איזה מסלול ממוספר מוצג"
+  },
+  {
+   "id": "-wWbuhPyucc",
+   "for": "Khada",
+   "title": "Новый Год 2015 в отеле Club-2100 Gudauri, \"Khada\" club-2100.com",
+   "channel": "Hotel Club-2100",
+   "length": "0:25",
+   "why": "סרטון של מלון בשם Khada, לא של מסלול"
+  }
+ ],
+ "notes": {
+  "Sportuli 1": "נמצאו רק סרטונים בלי מספר (ראו מועמדים).",
+  "Sportuli 2": "נמצאו רק סרטונים בלי מספר (ראו מועמדים).",
+  "Sadzele 1": "נמצאו רק סרטונים על ההר Sadzele וירידות חופשיות, בלי מספר מסלול.",
+  "Sadzele 3": "נמצאו רק סרטונים על ההר Sadzele וירידות חופשיות, בלי מספר מסלול.",
+  "Firni 2": "נמצאו רק סרטונים של Firni בלי מספר (ראו מועמדים).",
+  "Khada": "התוצאה היחידה היא סרטון של מלון בשם Khada.",
+  "Zuma": "לא נמצא אף סרטון עם השם.",
+  "Baby": "לא נמצא סרטון של אזור המתחילים.",
+  "Bombora": "לא נמצא אף סרטון עם השם."
+ }
+}
