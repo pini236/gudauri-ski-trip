@@ -145,6 +145,57 @@
       "w": 390,
       "x": 940,
       "y": 0
+    },
+    "R1-SunMap.dc.html": {
+      "x": 0,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "title": "מפת שמש",
+      "page": "round2",
+      "is_interactive": true
+    },
+    "R2-MorningCard.dc.html": {
+      "x": 470,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "title": "כרטיס הבוקר",
+      "page": "round2"
+    },
+    "R3-DayRoute.dc.html": {
+      "x": 940,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "title": "מסלול היום",
+      "page": "round2"
+    },
+    "R4-MeetingPoint.dc.html": {
+      "x": 0,
+      "y": 1264,
+      "w": 390,
+      "h": 844,
+      "title": "נקודת מפגש",
+      "page": "round2",
+      "is_interactive": true
+    },
+    "R5-HelpCard.dc.html": {
+      "x": 470,
+      "y": 1264,
+      "w": 390,
+      "h": 844,
+      "title": "כרטיס עזרה",
+      "page": "round2"
+    },
+    "R6-Passport.dc.html": {
+      "x": 940,
+      "y": 1264,
+      "w": 390,
+      "h": 844,
+      "title": "דרכון המסלולים",
+      "page": "round2",
+      "is_interactive": true
     }
   },
   "createdOnFiles": {
@@ -153,8 +204,8 @@
   },
   "designSystems": [],
   "launch": {
-    "page": "features",
-    "view": "canvas"
+    "view": "canvas",
+    "page": "round2"
   },
   "notes": {
     "featRow1": {
@@ -210,6 +261,24 @@
       "w": 240,
       "x": 0,
       "y": -300
+    },
+    "r2row1": {
+      "kind": "title1",
+      "maxW": 1330,
+      "page": "round2",
+      "text": "שמש, בוקר, מסלול",
+      "w": 240,
+      "x": 0,
+      "y": -300
+    },
+    "r2row2": {
+      "kind": "title1",
+      "maxW": 1330,
+      "page": "round2",
+      "text": "מפגש, עזרה, דרכון",
+      "w": 240,
+      "x": 0,
+      "y": 964
     }
   },
   "order": [
@@ -230,9 +299,19 @@
     "F5-Status.dc.html",
     "F6-Village.dc.html",
     "F7-Story1.dc.html",
-    "F7-Story5.dc.html"
+    "F7-Story5.dc.html",
+    "R1-SunMap.dc.html",
+    "R2-MorningCard.dc.html",
+    "R3-DayRoute.dc.html",
+    "R4-MeetingPoint.dc.html",
+    "R5-HelpCard.dc.html",
+    "R6-Passport.dc.html"
   ],
   "pages": [
+    {
+      "id": "round2",
+      "name": "סבב 2: רעיונות חדשים"
+    },
     {
       "id": "features",
       "name": "פיצ'רים חדשים"

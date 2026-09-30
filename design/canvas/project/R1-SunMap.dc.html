@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>מפת שמש</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Karantina:wght@700&amp;family=IBM+Plex+Sans+Hebrew:wght@400;500;600;700&amp;family=Noto+Sans+Georgian:wght@500;700&amp;display=swap">
+<style>
+body{margin:0;background:#EEF2F5}
+a{color:#1F5FC4}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; box-sizing: border-box; overflow: hidden; position: relative; background: #EEF2F5; color: #13233A; font-family: 'IBM Plex Sans Hebrew', 'Segoe UI', system-ui, sans-serif; direction: rtl;">
+<img src="{{ mapSrc }}" alt="מפת הר עם צל ושמש לפי השעה שנבחרה" style="position: absolute; top: 0; left: 0; width: 390px; height: 785px; object-fit: cover; display: block">
+<div style="position: absolute; top: 10px; right: 10px; left: 10px; display: flex; align-items: center; justify-content: space-between; gap: 8px">
+<div style="display: flex; flex-direction: column; gap: 6px; align-items: flex-start"><div style="display: inline-flex; align-items: center; padding: 5px 14px 5px 26px; background: #13233A; color: #FFFFFF; font-family: Karantina, 'Arial Narrow', sans-serif; font-weight: 700; font-size: 34px; line-height: 1; clip-path: polygon(0 50%, 14px 0, 100% 0, 100% 100%, 14px 100%)"><span dir="rtl">מפת שמש</span></div>
+<span style="padding: 4px 10px; background: rgba(255,255,255,0.94); border: 1px solid #CBD5DF; font-size: 12.5px; font-weight: 600">שלישי 12.1.2027 · זריחה 08:36 · שקיעה 17:44</span></div>
+<a href="#" style="display: flex; align-items: center; gap: 6px; min-height: 44px; padding: 0 12px; background: rgba(255,255,255,0.94); border: 1px solid #CBD5DF; color: #13233A; font-size: 15px; font-weight: 600; text-decoration: none"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"></path><path d="M13 6l6 6-6 6"></path></svg>לכל המפה</a>
+</div>
+<div style="position: absolute; right: 10px; top: 106px; display: flex; flex-direction: column; gap: 4px; padding: 8px 10px; background: rgba(255,255,255,0.94); border: 1px solid #CBD5DF; font-size: 12px; font-weight: 600"><span style="display: flex; align-items: center; gap: 6px"><span style="width: 14px; height: 14px; background: #FFF4DC; border: 1px solid #B4C3D2"></span>שמש</span><span style="display: flex; align-items: center; gap: 6px"><span style="width: 14px; height: 14px; background: #44567A"></span>צל</span></div>
+<div style="position: absolute; left: 0; right: 0; bottom: 0; height: 404px; box-sizing: border-box; background: #FFFFFF; border-top: 1px solid #CBD5DF; padding: 12px 16px 0; display: flex; flex-direction: column; gap: 8px">
+<div role="group" aria-label="שעה ביום" style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px">
+<sc-for list="{{ times }}" as="t" hint-placeholder-count="3"><button type="button" aria-pressed="{{ t.on }}" onClick="{{ t.pick }}" style="height: 44px; border: 1.5px solid #13233A; background: {{ t.bg }}; color: {{ t.fg }}; font: inherit; font-size: 16px; font-weight: 700"><span dir="ltr">{{ t.label }}</span></button></sc-for>
+</div>
+<h2 style="margin: 4px 0 0; font-family: Karantina, 'Arial Narrow', sans-serif; font-weight: 700; font-size: 30px; line-height: 1">{{ headline }}</h2>
+<p style="margin: 0; font-size: 13.5px; color: #4B5A6F; line-height: 1.4">{{ sub }}</p>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; flex-grow: 1; min-height: 0">
+<div style="display: flex; flex-direction: column; min-width: 0"><span style="font-size: 12px; font-weight: 700; color: #4B5A6F; padding-bottom: 2px; border-bottom: 2px solid #F4B942">בשמש, מהתלולים</span>
+<sc-for list="{{ sunny }}" as="r" hint-placeholder-count="4"><div style="display: flex; align-items: center; justify-content: space-between; gap: 6px; min-height: 34px; border-bottom: 1px solid #CBD5DF"><span style="display: flex; align-items: center; gap: 6px; min-width: 0"><span style="width: 10px; height: 10px; flex: none; background: {{ r.c }}"></span><span style="font-weight: 600; font-size: 14px" dir="ltr">{{ r.k }}</span></span><span style="font-size: 12.5px; color: #4B5A6F">{{ r.pct }}</span></div></sc-for></div>
+<div style="display: flex; flex-direction: column; min-width: 0"><span style="font-size: 12px; font-weight: 700; color: #4B5A6F; padding-bottom: 2px; border-bottom: 2px solid #44567A">בצל</span>
+<sc-if value="{{ hasShade }}" hint-placeholder-val="{{ true }}"><sc-for list="{{ shaded }}" as="r" hint-placeholder-count="4"><div style="display: flex; align-items: center; justify-content: space-between; gap: 6px; min-height: 34px; border-bottom: 1px solid #CBD5DF"><span style="display: flex; align-items: center; gap: 6px; min-width: 0"><span style="width: 10px; height: 10px; flex: none; background: {{ r.c }}"></span><span style="font-weight: 600; font-size: 14px" dir="ltr">{{ r.k }}</span></span><span style="font-size: 12.5px; color: #4B5A6F">{{ r.pct }}</span></div></sc-for></sc-if>
+<sc-if value="{{ noShade }}" hint-placeholder-val="{{ false }}"><span style="padding-top: 10px; font-size: 13px; color: #4B5A6F">אין מסלול בצל בשעה הזו.</span></sc-if></div>
+</div>
+<p style="margin: 0 0 14px; font-size: 11.5px; color: #4B5A6F; line-height: 1.35">מחושב ממודל הגובה של האתר ל-12.1.2027, כולל צל של הרים אחרים וכיוון המדרון. בלי עננים.</p>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+const ASSETS = { '0900': '/_blob/918c78a6d85918a5dcbb7d31388ab657', '1200': '/_blob/27f863a8b3c3734d1b91b58cf1ba14d5', '1630': '/_blob/aa98fe0850d854afdd550f90185650cd' };
+const RUNS = [{"k": "Soliko 1", "c": "#1F5FC4", "d": 541, "a": 0.9, "b": 1.0, "e": 1.0}, {"k": "Kudebi 3", "c": "#D1342B", "d": 173, "a": 0.23, "b": 1.0, "e": 1.0}, {"k": "Kudebi 1", "c": "#D1342B", "d": 325, "a": 0.18, "b": 0.95, "e": 0.95}, {"k": "Kikilo 1", "c": "#1F5FC4", "d": 420, "a": 0.72, "b": 1.0, "e": 1.0}, {"k": "Snow Park", "c": "#1B8A4C", "d": 128, "a": 0.37, "b": 1.0, "e": 1.0}, {"k": "Pirveli", "c": "#1B8A4C", "d": 165, "a": 0.65, "b": 1.0, "e": 1.0}, {"k": "Khada", "c": "#1F5FC4", "d": 117, "a": 0.93, "b": 1.0, "e": 1.0}, {"k": "Goodaura 2", "c": "#1F5FC4", "d": 451, "a": 0.22, "b": 1.0, "e": 1.0}, {"k": "Sportuli 1", "c": "#1F5FC4", "d": 418, "a": 0.93, "b": 1.0, "e": 1.0}, {"k": "Sadzele 2", "c": "#13233A", "d": 299, "a": 0.96, "b": 1.0, "e": 0.94}, {"k": "Sadzele 3", "c": "#D1342B", "d": 413, "a": 0.6, "b": 1.0, "e": 0.8}, {"k": "Kikilo 2", "c": "#1F5FC4", "d": 273, "a": 1.0, "b": 1.0, "e": 1.0}, {"k": "Tatra 1", "c": "#1F5FC4", "d": 536, "a": 0.44, "b": 1.0, "e": 1.0}, {"k": "Zuma", "c": "#1B8A4C", "d": 53, "a": 0.0, "b": 1.0, "e": 1.0}, {"k": "Goodaura 1", "c": "#1F5FC4", "d": 547, "a": 0.47, "b": 1.0, "e": 1.0}, {"k": "Kobi", "c": "#1F5FC4", "d": 437, "a": 0.0, "b": 0.99, "e": 0.01}, {"k": "New Goodaura", "c": "#1F5FC4", "d": 53, "a": 0.0, "b": 1.0, "e": 1.0}, {"k": "Kudebi 2", "c": "#D1342B", "d": 284, "a": 0.61, "b": 1.0, "e": 1.0}, {"k": "Sportuli 2", "c": "#1F5FC4", "d": 232, "a": 0.6, "b": 1.0, "e": 1.0}, {"k": "Sadzele 1", "c": "#13233A", "d": 460, "a": 0.0, "b": 0.99, "e": 1.0}, {"k": "Baby", "c": "#1B8A4C", "d": 15, "a": 0.14, "b": 1.0, "e": 1.0}, {"k": "Bombora", "c": "#1B8A4C", "d": 25, "a": 1.0, "b": 1.0, "e": 1.0}, {"k": "Firni 1", "c": "#1F5FC4", "d": 108, "a": 0.0, "b": 1.0, "e": 1.0}, {"k": "Firni 2", "c": "#1F5FC4", "d": 132, "a": 0.29, "b": 1.0, "e": 1.0}, {"k": "Tatra 2", "c": "#1F5FC4", "d": 494, "a": 0.9, "b": 1.0, "e": 1.0}, {"k": "Soliko 2", "c": "#1F5FC4", "d": 85, "a": 1.0, "b": 1.0, "e": 1.0}];
+const FIRST = {"Kudebi 1": "10:15", "Sadzele 1": "10:15", "Firni 1": "10:00", "Kobi": "11:30", "Zuma": "09:15"};
+class Component extends DCLogic {
+  state = { t: '0900' };
+  renderVals() {
+    const t = this.state.t, key = { '0900': 'a', '1200': 'b', '1630': 'e' }[t];
+    const label = { '0900': '09:00', '1200': '12:00', '1630': '16:30' };
+    const times = Object.keys(label).map((k) => ({ label: label[k], on: k === t, bg: k === t ? '#13233A' : '#FFFFFF', fg: k === t ? '#FFFFFF' : '#13233A', pick: () => this.setState({ t: k }) }));
+    const pct = (v) => Math.round(v[key] * 100) + '% שמש';
+    const sunny = RUNS.filter((r) => r[key] >= 0.9).sort((x, y) => y.d - x.d).slice(0, 4).map((r) => ({ ...r, pct: 'ירידה ' + r.d + ' מ׳' }));
+    const shadedAll = RUNS.filter((r) => r[key] < 0.5).sort((x, y) => x[key] - y[key]);
+    const shaded = shadedAll.slice(0, 4).map((r) => ({ ...r, pct: pct(r) }));
+    const heads = {
+      '0900': 'בבוקר הכפר עוד בצל',
+      '1200': 'בצהריים כל ההר בשמש',
+      '1630': 'אחר הצהריים: כמעט הכל בשמש',
+    };
+    const subs = {
+      '0900': 'Kudebi 1 ו-Sadzele 1 מגיעים לשמש רק ב-' + FIRST['Kudebi 1'] + ', Firni 1 ב-' + FIRST['Firni 1'] + ' ו-Kobi ב-' + FIRST['Kobi'] + '. Soliko 1 ו-Tatra 2 כבר בשמש.',
+      '1200': 'שמש נמוכה של ינואר, כ-24 מעלות מעל האופק. הכל מואר, גם המסלולים שפונים צפונה קצת פחות.',
+      '1630': 'רק Kobi כמעט כולו בצל. השקיעה ב-17:44.',
+    };
+    return { mapSrc: ASSETS[t], times, headline: heads[t], sub: subs[t], sunny, shaded, hasShade: shaded.length > 0, noShade: shaded.length === 0 };
+  }
+}
+</script>
+</body>
+</html>
