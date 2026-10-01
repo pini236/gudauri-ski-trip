@@ -1,5 +1,6 @@
-# Builds the Android app (app/android): unit tests, then the preview build signed with the test key,
-# published as one GitHub release that always holds the latest build (docs/APP-NATIVE.md, decision 31).
+# Builds the Android app (app/android): unit tests, then the preview build signed with the test key and, on main,
+# the store bundle signed with the upload key, each published as one GitHub release that always holds the latest
+# build (docs/APP-NATIVE.md, decision 31).
 name: android
 
 on:
@@ -69,3 +70,35 @@ jobs:
           gh release create android-preview "$RUNNER_TEMP/ski-preview.apk" --prerelease \
             --title "אנדרואיד: גרסת בדיקה ${APP_VERSION_NAME}" \
             --notes "גרסת בדיקה ${APP_VERSION_NAME}, נבנתה מ-${GITHUB_SHA::7}. מתקינים מהטלפון: פותחים את הקובץ ski-preview.apk ומאשרים התקנה. הקישור הקבוע: https://github.com/${GITHUB_REPOSITORY}/releases/download/android-preview/ski-preview.apk"
+      # The store bundle: signed with the upload key (Google holds the real signing key), only on main.
+      # After the preview is published, so a problem with this key never holds the preview back.
+      - name: Upload key
+        if: github.event_name == 'push'
+        env:
+          KEYSTORE_BASE64: ${{ secrets.ANDROID_UPLOAD_KEYSTORE_BASE64 }}
+        run: |
+          echo "$KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/upload.jks"
+          echo "ANDROID_UPLOAD_KEYSTORE_PATH=$RUNNER_TEMP/upload.jks" >> "$GITHUB_ENV"
+      - name: Build the store bundle
+        if: github.event_name == 'push'
+        env:
+          ANDROID_UPLOAD_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_UPLOAD_KEYSTORE_PASSWORD }}
+          ANDROID_UPLOAD_KEY_ALIAS: ${{ secrets.ANDROID_UPLOAD_KEY_ALIAS }}
+        run: ./gradlew --no-daemon :app:bundleStoreRelease
+      - name: Check the bundle is signed with the registered upload key
+        if: github.event_name == 'push'
+        run: |
+          cert=$(keytool -printcert -jarfile app/build/outputs/bundle/storeRelease/app-store-release.aab | grep "SHA256:" | head -1 | awk '{print toupper($NF)}' | tr -d ':')
+          want=$(echo "85:FB:FB:02:AE:0B:50:CC:53:92:55:4D:27:61:5E:A6:8E:2E:79:75:EB:8D:75:10:60:30:6D:A9:7D:D7:DD:31" | tr -d ':')
+          echo "signed with $cert"
+          test "$cert" = "$want"
+      - name: Publish the store bundle
+        if: github.event_name == 'push'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cp app/build/outputs/bundle/storeRelease/app-store-release.aab "$RUNNER_TEMP/ski-store.aab"
+          gh release delete android-store --yes --cleanup-tag 2>/dev/null || true
+          gh release create android-store "$RUNNER_TEMP/ski-store.aab" --prerelease \
+            --title "אנדרואיד: קובץ חנות ${APP_VERSION_NAME}" \
+            --notes "קובץ חנות (.aab) לגוגל פליי, גרסה ${APP_VERSION_NAME}, נבנה מ-${GITHUB_SHA::7}, חתום במפתח ההעלאה. לא מתקינים אותו בטלפון: מעלים אותו בקונסולה של גוגל פליי. הקישור הקבוע: https://github.com/${GITHUB_REPOSITORY}/releases/download/android-store/ski-store.aab"

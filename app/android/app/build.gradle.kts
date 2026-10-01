@@ -19,8 +19,10 @@ android {
         versionName = System.getenv("APP_VERSION_NAME") ?: "0.1-spike"
     }
 
-    // The test key lives only in GitHub's secret store (docs/APP-NATIVE.md); local builds fall back to the debug key.
+    // The keys live only in GitHub's secret store (docs/APP-NATIVE.md); local builds fall back to the debug key.
+    // "preview" is signed with the test key, "store" with the upload key (Google keeps the real signing key).
     val testKeystore = System.getenv("ANDROID_TEST_KEYSTORE_PATH")
+    val uploadKeystore = System.getenv("ANDROID_UPLOAD_KEYSTORE_PATH")
     signingConfigs {
         if (testKeystore != null) {
             create("test") {
@@ -28,6 +30,14 @@ android {
                 storePassword = System.getenv("ANDROID_TEST_KEYSTORE_PASSWORD")
                 keyAlias = System.getenv("ANDROID_TEST_KEY_ALIAS")
                 keyPassword = System.getenv("ANDROID_TEST_KEYSTORE_PASSWORD")
+            }
+        }
+        if (uploadKeystore != null) {
+            create("upload") {
+                storeFile = file(uploadKeystore)
+                storePassword = System.getenv("ANDROID_UPLOAD_KEYSTORE_PASSWORD")
+                keyAlias = System.getenv("ANDROID_UPLOAD_KEY_ALIAS")
+                keyPassword = System.getenv("ANDROID_UPLOAD_KEYSTORE_PASSWORD")
             }
         }
     }
@@ -39,10 +49,12 @@ android {
             dimension = "channel"
             applicationIdSuffix = ".test"
             resValue("string", "app_name", "סקי בדיקה")
+            signingConfig = signingConfigs.findByName("test") ?: signingConfigs.getByName("debug")
         }
         create("store") {
             dimension = "channel"
             resValue("string", "app_name", "סקי")
+            signingConfig = signingConfigs.findByName("upload") ?: signingConfigs.getByName("debug")
         }
     }
 
@@ -51,7 +63,6 @@ android {
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
-            signingConfig = if (testKeystore != null) signingConfigs.getByName("test") else signingConfigs.getByName("debug")
         }
     }
 
