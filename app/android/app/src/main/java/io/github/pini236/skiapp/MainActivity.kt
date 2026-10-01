@@ -180,7 +180,7 @@ class MainActivity : ComponentActivity() {
             sunNote = note
             scene = s; mapView.setScene(s); reportFullyDrawn()
             // back where the user was: the run chosen before the system closed the app
-            nav.find<Route.Map>()?.run?.let { key -> s.runs.pistes.firstOrNull { it.key == key }?.let { mapView.select(it) } }
+            nav.find<Route.Map>()?.run?.let { key -> s.runs.pistes.firstOrNull { it.key == key }?.let { mapView.select(it); Qa.log("restored run $key") } }
             Qa.log("scene ready")
         }
         castShadows(s)
