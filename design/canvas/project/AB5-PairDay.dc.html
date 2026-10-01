@@ -52,8 +52,34 @@ burst(ac, t, dur, f, q, g, f2) {
   s.start(t, Math.random() * 0.6, dur + 0.05);
 }
 buzz(p) { try { if (navigator.vibrate) navigator.vibrate(p); } catch (e) {} }
+componentDidMount() { this.loadSounds(); }
+loadSounds() {
+  /* real recordings: a ticket torn on its perforation (everythingsounds, Freesound, CC BY 4.0),
+     a card pushed and a card placed (Kenney, Casino Audio, CC0). Decoded once, before the first tap. */
+  if (this.snd) return; this.snd = {};
+  try {
+    const O = window.OfflineAudioContext || window.webkitOfflineAudioContext; if (!O) return;
+    const oc = new O(1, 1, 44100);
+    fetch('/_blob/a8bea5ea696cacb7052120cd482e450c').then((r) => r.json()).then((j) => {
+      Object.keys(j).forEach((k) => {
+        const bin = atob(j[k]), u = new Uint8Array(bin.length);
+        for (let i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i);
+        oc.decodeAudioData(u.buffer).then((b) => { this.snd[k] = b; }).catch(() => {});
+      });
+    }).catch(() => {});
+  } catch (e) {}
+}
+play(ac, k, t, g, lp) {
+  const b = this.snd && this.snd[k]; if (!b) return false;
+  const s = ac.createBufferSource(); s.buffer = b;
+  const f = ac.createBiquadFilter(); f.type = 'lowpass'; f.frequency.value = lp || 7000; f.Q.value = 0.5;
+  const v = ac.createGain(); v.gain.value = g;
+  s.connect(f); f.connect(v); v.connect(ac.destination); s.start(t);
+  return true;
+}
 tearSound() {
   const ac = this.ac(); if (!ac) return;
+  if (this.play(ac, 'tear', ac.currentTime + 0.005, 0.85, 7500)) return;
   const t0 = ac.currentTime + 0.01;
   /* the rip itself: a fibrous hiss that rises as the tear runs down */
   this.burst(ac, t0, 0.44, 1300, 0.9, 0.16, 3600);
@@ -68,6 +94,7 @@ tearSound() {
 }
 swishSound() {
   const ac = this.ac(); if (!ac) return;
+  if (this.play(ac, 'slide', ac.currentTime + 0.005, 0.7, 6000)) { this.play(ac, 'land', ac.currentTime + 0.42, 0.75, 5000); return; }
   const t0 = ac.currentTime + 0.01;
   /* card sliding over card */
   this.burst(ac, t0, 0.24, 700, 0.7, 0.22, 2600);
@@ -101,7 +128,7 @@ renderVals() {
   const po = pos('out'), pr = pos('ret');
   const stub = (k) => {
     if (front !== k || !torn) return { t: 'none', o: '1', clip: 'none', ease: 'transform .35s ease-out, opacity .3s' };
-    if (torn === 1) return { t: 'rotate(-9deg) translate(-4px, 2px)', o: '1', clip: 'polygon(0 0, 93% 0.00%, 100% 4.17%, 93% 8.33%, 100% 12.50%, 93% 16.67%, 100% 20.83%, 93% 25.00%, 100% 29.17%, 93% 33.33%, 100% 37.50%, 93% 41.67%, 100% 45.83%, 93% 50.00%, 100% 54.17%, 93% 58.33%, 100% 62.50%, 93% 66.67%, 100% 70.83%, 93% 75.00%, 100% 79.17%, 93% 83.33%, 100% 87.50%, 93% 91.67%, 100% 95.83%, 93% 100.00%, 0 100%)', ease: 'transform .38s cubic-bezier(.4,.1,.6,1)' };
+    if (torn === 1) return { t: 'rotate(-9deg) translate(-4px, 2px)', o: '1', clip: 'polygon(0 0, 93% 0.00%, 100% 4.17%, 93% 8.33%, 100% 12.50%, 93% 16.67%, 100% 20.83%, 93% 25.00%, 100% 29.17%, 93% 33.33%, 100% 37.50%, 93% 41.67%, 100% 45.83%, 93% 50.00%, 100% 54.17%, 93% 58.33%, 100% 62.50%, 93% 66.67%, 100% 70.83%, 93% 75.00%, 100% 79.17%, 93% 83.33%, 100% 87.50%, 93% 91.67%, 100% 95.83%, 93% 100.00%, 0 100%)', ease: 'transform .5s cubic-bezier(.4,.1,.6,1)' };
     return { t: 'translate(-58px, 210px) rotate(-34deg)', o: '0', clip: 'polygon(0 0, 93% 0.00%, 100% 4.17%, 93% 8.33%, 100% 12.50%, 93% 16.67%, 100% 20.83%, 93% 25.00%, 100% 29.17%, 93% 33.33%, 100% 37.50%, 93% 41.67%, 100% 45.83%, 93% 50.00%, 100% 54.17%, 93% 58.33%, 100% 62.50%, 93% 66.67%, 100% 70.83%, 93% 75.00%, 100% 79.17%, 93% 83.33%, 100% 87.50%, 93% 91.67%, 100% 95.83%, 93% 100.00%, 0 100%)', ease: 'transform .62s cubic-bezier(.45,0,.8,.6), opacity .5s ease-in .15s' };
   };
   const so = stub('out'), sr = stub('ret');
@@ -116,14 +143,14 @@ renderVals() {
       this.swishSound(); this.buzz(8);
       this.setState({ phase: 1, torn: 0 });
       setTimeout(() => this.setState({ front: (this.state || {}).front === 'ret' ? 'out' : 'ret', phase: 2 }), 250);
-      setTimeout(() => { this.buzz(12); }, 280);
+      setTimeout(() => { this.buzz(12); }, 460);
       setTimeout(() => { this.setState({ phase: 0 }); this.busy = false; }, 640);
     },
     tear: () => {
       if (this.busy) return; this.busy = true;
-      this.tearSound(); this.buzz([6, 24, 6, 24, 6, 24, 6, 24, 6, 24, 30]);
+      this.tearSound(); this.buzz([6, 30, 6, 30, 6, 30, 6, 30, 6, 30, 6, 90, 24]);
       this.setState({ torn: 1 });
-      setTimeout(() => this.setState({ torn: 2 }), 420);
+      setTimeout(() => this.setState({ torn: 2 }), 540);
       setTimeout(() => { this.setState({ torn: 0 }); this.busy = false; }, 2600);
     }
   };
