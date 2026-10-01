@@ -1,0 +1,259 @@
+<title>חתול השלג</title>
+<meta name="description" content="פאזל לילה: להחליק את כל המסלול בכמה שפחות דלק">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Karantina:wght@700&family=IBM+Plex+Sans+Hebrew:wght@400;600;700&display=swap">
+<style>
+/* One look: the mountain at night, lit by the snowcat. The same in both themes. */
+:root{ --night:#0D1522; --ink:#13233A; --snow:#E9F0F7; --muted:#8FA3BA; --rule:#2A3B55; --accent:#F4B942; --red:#D1342B;
+  --f-display:"Karantina","Arial Narrow",sans-serif; --f-body:"IBM Plex Sans Hebrew",system-ui,-apple-system,"Segoe UI",sans-serif; color-scheme:dark; }
+html,body{height:100%}
+[hidden]{display:none!important}
+body{margin:0;background:var(--night);color:var(--snow);font-family:var(--f-body);direction:rtl;overflow:hidden;-webkit-user-select:none;user-select:none;touch-action:none}
+#game{position:fixed;inset:0;width:100%;height:100%;display:block}
+.hud{position:fixed;left:0;right:0;top:0;padding:calc(env(safe-area-inset-top,0px) + 10px) 12px 0;display:flex;justify-content:space-between;align-items:flex-start;gap:8px;pointer-events:none}
+.sign{display:inline-flex;flex-direction:column;align-items:flex-start;padding:4px 14px 4px 26px;color:#fff;clip-path:polygon(0 50%,16px 0,100% 0,100% 100%,16px 100%)}
+.sign b{font-family:var(--f-display);font-size:26px;line-height:1}
+.sign small{font-size:11px;opacity:.9;font-variant-numeric:tabular-nums}
+.fuel{background:rgba(233,240,247,.08);border:1px solid rgba(233,240,247,.25);padding:6px 10px;display:flex;flex-direction:column;align-items:flex-start;min-width:120px}
+.fuel b{font-family:var(--f-display);font-size:34px;line-height:.9;font-variant-numeric:tabular-nums}
+.fuel small{font-size:11px;color:var(--accent);font-weight:700;font-variant-numeric:tabular-nums}
+.fuel .bar{position:relative;height:5px;width:100%;background:rgba(233,240,247,.15);margin-top:4px}
+.fuel .bar span{position:absolute;inset:0 0 0 auto;background:var(--accent)}
+.fuel .bar i{position:absolute;top:-3px;width:2px;height:11px;background:#fff}
+.pop{position:fixed;left:50%;top:30%;transform:translate(-50%,-50%);font-family:var(--f-display);font-size:clamp(34px,11vw,56px);line-height:1;color:#fff;text-shadow:0 3px 0 #000,0 0 18px rgba(0,0,0,.5);white-space:nowrap;pointer-events:none;opacity:0}
+.pop.go{animation:pop 1.1s cubic-bezier(.2,1.4,.4,1) forwards}
+@keyframes pop{0%{opacity:0;transform:translate(-50%,-30%) scale(.6)}20%{opacity:1;transform:translate(-50%,-50%) scale(1.08)}75%{opacity:1}100%{opacity:0;transform:translate(-50%,-80%) scale(1)}}
+.ctrl{position:fixed;left:12px;right:12px;bottom:calc(env(safe-area-inset-bottom,0px) + 10px);display:flex;justify-content:space-between;align-items:flex-end;gap:10px;direction:ltr;pointer-events:none}
+.tools{display:flex;flex-direction:column;gap:8px;pointer-events:auto}
+.tools button,.pad button{font:inherit;border:1px solid rgba(233,240,247,.35);background:rgba(233,240,247,.08);color:var(--snow);cursor:pointer;touch-action:manipulation}
+.tools button{min-height:44px;padding:0 12px;font-weight:700;font-size:13px}
+.pad{display:grid;grid-template-columns:repeat(3,56px);grid-template-rows:repeat(2,52px);gap:6px;pointer-events:auto}
+.pad button{font-size:22px;font-weight:700}
+.pad button:active,.pad button.on{background:var(--accent);color:var(--ink)}
+.pad .u{grid-column:2;grid-row:1}.pad .l{grid-column:1;grid-row:2}.pad .d{grid-column:2;grid-row:2}.pad .r{grid-column:3;grid-row:2}
+.msg{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 130px);transform:translateX(-50%);background:rgba(233,240,247,.95);color:var(--ink);font-weight:700;font-size:13.5px;padding:6px 12px;white-space:nowrap;pointer-events:none;transition:opacity .3s}
+.msg.off{opacity:0}
+.menu{position:fixed;inset:0;overflow:auto;padding:calc(env(safe-area-inset-top,0px) + 16px) 16px calc(env(safe-area-inset-bottom,0px) + 20px);background:linear-gradient(rgba(13,21,34,.35),rgba(13,21,34,.9) 45%);display:flex;flex-direction:column;gap:14px;touch-action:auto}
+.menu h1{margin:0;font-family:var(--f-display);font-size:58px;line-height:.9;color:#fff;text-wrap:balance}
+.menu h2{margin:0;font-family:var(--f-display);font-size:28px;line-height:1;color:#fff}
+.menu p{margin:0;font-size:14px;line-height:1.45;max-width:36em}
+.levels{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.lv{font:inherit;border:0;cursor:pointer;text-align:right;display:flex;flex-direction:column;gap:2px;color:#fff;padding:8px 12px 8px 26px;clip-path:polygon(0 50%,14px 0,100% 0,100% 100%,14px 100%);min-height:64px}
+.lv b{font-family:var(--f-display);font-size:24px;line-height:1;white-space:nowrap}
+.lv small{font-size:11.5px;opacity:.92;font-variant-numeric:tabular-nums}
+.lv .st{color:var(--accent);letter-spacing:1px}
+.lv[aria-pressed="true"]{box-shadow:inset 0 -5px 0 rgba(255,255,255,.75)}
+.lv:disabled{filter:grayscale(1);opacity:.45;cursor:not-allowed}
+.opts{display:flex;gap:8px;flex-wrap:wrap}
+.chip{font:inherit;min-height:44px;padding:0 14px;border:2px solid #fff;background:transparent;color:#fff;font-weight:700;cursor:pointer}
+.chip[aria-pressed="true"]{background:#fff;color:var(--ink)}
+.how{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.how div{background:rgba(233,240,247,.08);padding:8px;font-size:12.5px;line-height:1.3;border-top:3px solid var(--accent)}
+.how b{display:block;font-family:var(--f-display);font-size:22px;line-height:1}
+.go-btn{font:inherit;min-height:60px;border:0;background:var(--accent);color:var(--ink);font-family:var(--f-display);font-size:34px;cursor:pointer;box-shadow:0 5px 0 #000}
+.note{font-size:11.5px;color:var(--muted)}
+.res{background:#fff;color:var(--ink);padding:14px;display:flex;flex-direction:column;gap:8px;transform:rotate(-2deg)}
+.res .big{font-family:var(--f-display);font-size:58px;line-height:.9;font-variant-numeric:tabular-nums}
+.res .stars{font-size:30px;letter-spacing:4px;color:#CBD5DF}.res .stars i{font-style:normal}.res .stars i.on{color:var(--accent)}
+.res small{color:#4B5A6F;font-size:13px}
+.small-btns{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.small-btns button{font:inherit;min-height:48px;border:2px solid #fff;background:transparent;color:#fff;font-weight:700;cursor:pointer}
+button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){.pop.go{animation-duration:.01s}}
+</style>
+
+<canvas id="game" aria-label="המשחק: חתול שלג מחליק מסלול"></canvas>
+<div class="hud" id="hud" hidden>
+  <div class="sign" id="sign"><b id="lvName">Pirveli</b><small id="lvInfo"></small></div>
+  <div class="fuel" id="fuelBox"><b id="fuel">0</b><small id="fuelInfo"></small><div class="bar"><span id="fuelFill"></span><i id="fuelPar"></i></div></div>
+</div>
+<div class="pop" id="pop"></div>
+<div class="msg off" id="msg"></div>
+<div class="ctrl" id="ctrl" hidden>
+  <div class="tools"><button type="button" id="undo">↶ ביטול</button><button type="button" id="restart">מההתחלה</button><button type="button" id="snd" aria-pressed="false">🔇 צליל</button></div>
+  <div class="pad" id="pad"><button class="u" type="button" data-d="0" aria-label="למעלה">↑</button><button class="l" type="button" data-d="3" aria-label="שמאלה">←</button><button class="d" type="button" data-d="2" aria-label="למטה">↓</button><button class="r" type="button" data-d="1" aria-label="ימינה">→</button></div>
+</div>
+
+<section class="menu" id="menuStart" aria-label="התחלה">
+  <h1>חתול השלג</h1>
+  <p>לילה בגודאורי. הרכבלים נפתחים בבוקר, וכל המסלול צריך להיות מוחלק. כל צעד, סיבוב ועלייה עולים דלק. מי שמחליק בפחות דלק, מנצח.</p>
+  <h2>איזה מסלול?</h2>
+  <div class="levels" id="levels" role="group" aria-label="בחירת מסלול"></div>
+  <div class="opts"><button class="chip" id="zen" type="button" aria-pressed="false">מצב רגוע: בלי דלק, רק שלג</button></div>
+  <div class="how">
+    <div><b>צעד: 1</b>כל משבצת שעוברים בה מוחלקת. אפשר להחליק או לגרור על המסך.</div>
+    <div><b>סיבוב: +1</b>חתול שלג מסתובב לאט. ישר זה זול.</div>
+    <div><b>עלייה: +1 עד +2</b>לפי השיפוע האמיתי. מעל 20° רק יורדים, אז מסיימים קודם את מה שמעל.</div>
+  </div>
+  <button class="go-btn" id="go" type="button">להתניע</button>
+  <p class="note">צורת כל מסלול מפושטת מהקו האמיתי שלו (OpenStreetMap), והשיפוע בכל שורה נמדד במודל הגובה של האתר לאורך הקו, באותם צבעים של תצוגת המסלול באתר. הסלעים, העמודים והאבקה נוספו בשביל הפאזל. היעד לשלושה כוכבים הוא הדלק שהמחשב הצליח לבד.</p>
+</section>
+
+<section class="menu" id="menuEnd" aria-label="תוצאה" hidden>
+  <h2 id="endTitle">המסלול מוכן לבוקר</h2>
+  <div class="res"><small id="endWho"></small><div class="big" id="endFuel"></div><div class="stars" id="endStars"></div><small id="endInfo"></small></div>
+  <button class="go-btn" id="again" type="button">לנסות בפחות דלק</button>
+  <div class="small-btns"><button type="button" id="next">המסלול הבא</button><button type="button" id="toMenu">כל המסלולים</button></div>
+</section>
+
+<script>
+const LEVELS = [{"key":"Pirveli","color":"green","len":1168,"top":2152,"bot":1995,"rows":10,"width":4,"shift":[-1,-1,-1,0,0,0,1,1,1,0],"slope":[5.8,4.2,6.1,10.6,10.4,13.2,7.2,6.0,9.8,3.1]},{"key":"Tatra 1","color":"blue","len":2936,"top":2707,"bot":2173,"rows":11,"width":5,"shift":[-1,0,0,1,1,1,1,0,0,-1,-1],"slope":[5.2,6.3,10.0,12.2,13.9,15.1,11.3,10.5,11.0,11.3,6.3]},{"key":"Kikilo 1","color":"blue","len":1150,"top":2766,"bot":2450,"rows":12,"width":5,"shift":[1,2,1,0,0,0,-1,-1,-1,-2,-1,-1],"slope":[13.7,12.9,13.5,14.0,11.3,17.1,18.3,17.6,17.7,16.6,14.8,16.5]},{"key":"Tatra 2","color":"blue","len":2294,"top":2665,"bot":2173,"rows":13,"width":6,"shift":[-1,0,1,1,1,2,1,2,2,1,0,-1,-2],"slope":[5.4,10.0,9.1,18.7,19.3,16.3,14.4,14.6,10.8,11.3,11.6,9.0,5.8]},{"key":"Soliko 1","color":"blue","len":2826,"top":2691,"bot":2149,"rows":13,"width":6,"shift":[-2,-1,0,1,1,2,1,1,0,1,0,-1,-2],"slope":[6.8,9.1,10.1,10.2,11.6,16.8,15.0,13.9,13.2,14.7,7.6,8.0,3.6]},{"key":"Kudebi 1","color":"red","len":597,"top":2973,"bot":2879,"rows":14,"width":7,"shift":[-2,-1,-1,0,0,1,2,2,1,1,0,0,-1,-2],"slope":[5.8,7.0,11.5,19.7,14.7,6.5,9.2,-3.7,16.6,8.0,7.8,4.3,8.3,8.3]},{"key":"Sadzele 3","color":"red","len":1747,"top":3235,"bot":2900,"rows":15,"width":7,"shift":[2,1,1,0,-1,-2,-2,-2,-1,-1,0,0,0,1,2],"slope":[1.2,-0.0,1.5,23.9,8.0,19.6,28.6,13.9,13.8,14.9,16.3,7.7,6.2,5.0,-2.3]},{"key":"Sadzele 1","color":"black","len":2227,"top":3232,"bot":2817,"rows":16,"width":8,"shift":[-2,-1,0,1,1,2,2,2,2,1,1,1,0,0,-1,-2],"slope":[22.1,25.7,22.1,11.9,18.1,23.4,16.4,8.9,5.0,5.7,5.9,4.4,4.7,4.8,-3.7,-11.8]}];
+const RUNCOL = {green:'#1B8A4C', blue:'#1F5FC4', red:'#D1342B', black:'#13233A'};
+const SLOPE = [[15,'#3FA85F'],[25,'#F2C13D'],[30,'#F08A3C'],[99,'#DC3B33']]; // the site's slope colours (15°, 25°, 30°)
+const slopeCol = a=>SLOPE.find(s=>a<s[0])[1];
+const store={get(k,d){try{const v=localStorage.getItem('cat-'+k);return v==null?d:JSON.parse(v);}catch(e){return d;}},set(k,v){try{localStorage.setItem('cat-'+k,JSON.stringify(v));}catch(e){}}};
+const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const $=id=>document.getElementById(id);
+const DIRS=[[0,-1],[1,0],[0,1],[-1,0]]; // up (toward the top of the run), right, down, left
+function rng(seed){ return ()=>{ seed|=0; seed=seed+0x6D2B79F5|0; let t=Math.imul(seed^seed>>>15,1|seed); t=t+Math.imul(t^t>>>7,61|t)^t; return ((t^t>>>14)>>>0)/4294967296; }; }
+
+/* ---------- a level: cells along the run, rocks, lift pylons, deep powder ---------- */
+function build(i){
+  const L=LEVELS[i], r=rng(i*131+7), cells=new Map(), K=(x,y)=>x+','+y;
+  for(let y=0;y<L.rows;y++){ const w=L.width+(r()<.3?-1:0)+(r()<.25?1:0), x0=L.shift[y]-Math.floor(w/2); for(let x=x0;x<x0+w;x++) cells.set(K(x,y),{x,y,kind:'snow',g:-1}); }
+  const start={x:L.shift[0], y:0}; // the snowcat comes down from the top station
+  const band=[]; for(let y=0,b=0;y<L.rows;y++){ if(y>0 && L.slope[y-1]>=20) b++; band.push(b); } // a row too steep to climb splits the run into bands, one way only
+  const list=[...cells.values()];
+  // every band must hang together on its own, and each band must touch the next one down
+  const connected=()=>{ for(let b=0;b<=band[L.rows-1];b++){ const bc=list.filter(c=>c.kind!=='rock'&&band[c.y]===b); if(!bc.length) return false; const seen=new Set([K(bc[0].x,bc[0].y)]), q=[bc[0]];
+      while(q.length){ const c=q.pop(); for(const [dx,dy] of DIRS){ const n=cells.get(K(c.x+dx,c.y+dy)); if(n&&n.kind!=='rock'&&band[n.y]===b&&!seen.has(K(n.x,n.y))){ seen.add(K(n.x,n.y)); q.push(n); } } }
+      if(seen.size!==bc.length) return false;
+      if(b<band[L.rows-1] && !bc.some(c=>{ const n=cells.get(K(c.x,c.y+1)); return n&&n.kind!=='rock'&&band[n.y]===b+1; })) return false; } return true; };
+  const nRock=1+Math.floor(i*.9), nPow=2+i;
+  for(let k=0,tries=0;k<nRock&&tries<200;tries++){ const c=list[Math.floor(r()*list.length)]; if(c.kind!=='snow'||(c.x===start.x&&c.y===start.y)) continue; c.kind='rock'; if(!connected()){ c.kind='snow'; continue; } c.pylon = r()<.4; k++; }
+  for(let k=0,tries=0;k<nPow&&tries<200;tries++){ const c=list[Math.floor(r()*list.length)]; if(c.kind!=='snow'||(c.x===start.x&&c.y===start.y)) continue; c.kind='powder'; k++; }
+  const xs=list.map(c=>c.x); return {L, cells, start, band, minX:Math.min(...xs), maxX:Math.max(...xs), K};
+}
+// what a step costs, or null when it isn't possible
+function stepCost(lv, x, y, dir, nd){ const [dx,dy]=DIRS[nd], c=lv.cells.get(lv.K(x+dx,y+dy)); if(!c||c.kind==='rock') return null;
+  let cost=1; if(dir!==nd) cost+=1; if(nd===0){ const a=lv.L.slope[y+dy]; if(a>=20) return null; cost+= a>=12?2:1; } if(c.kind==='powder') cost+=1; return {c,cost}; }
+// the computer's own route: many tries of "drive to one of the cheapest ungroomed cells nearby", keeping the best. Its fuel is the three-star mark.
+function heapPush(h,v){ h.push(v); let i=h.length-1; while(i>0){ const p=(i-1)>>1; if(h[p][0]<=h[i][0]) break; [h[p],h[i]]=[h[i],h[p]]; i=p; } }
+function heapPop(h){ const top=h[0], last=h.pop(); if(h.length){ h[0]=last; let i=0; for(;;){ const l=2*i+1, r=l+1; let m=i; if(l<h.length&&h[l][0]<h[m][0]) m=l; if(r<h.length&&h[r][0]<h[m][0]) m=r; if(m===i) break; [h[m],h[i]]=[h[i],h[m]]; i=m; } } return top; }
+function solveOnce(lv, rnd){ const g=new Set(); const K=lv.K; let x=lv.start.x, y=lv.start.y, dir=2, fuel=0; g.add(K(x,y));
+  const total=[...lv.cells.values()].filter(c=>c.kind!=='rock').length;
+  for(let guard=0; g.size<total && guard<600; guard++){
+    let topBand=99; for(const c of lv.cells.values()) if(c.kind!=='rock'&&!g.has(K(c.x,c.y))) topBand=Math.min(topBand,lv.band[c.y]);
+    const dist=new Map(), prev=new Map(), h=[[0,x,y,dir]]; dist.set(K(x,y)+'|'+dir,0); const goals=[];
+    while(h.length && goals.length<4){ const [d,cx_,cy_,cd]=heapPop(h); const key=K(cx_,cy_)+'|'+cd; if(d>dist.get(key)) continue;
+      if(!g.has(K(cx_,cy_)) && lv.band[cy_]===topBand && !goals.some(q=>q[0]===cx_&&q[1]===cy_)){ goals.push([cx_,cy_,cd,d]); if(goals.length===1 && rnd()<.55) break; continue; }
+      for(let nd=0;nd<4;nd++){ const st=stepCost(lv,cx_,cy_,cd,nd); if(!st) continue; const nk=K(st.c.x,st.c.y)+'|'+nd, nd2=d+st.cost;
+        if(nd2<(dist.has(nk)?dist.get(nk):1e9)){ dist.set(nk,nd2); prev.set(nk,key); heapPush(h,[nd2,st.c.x,st.c.y,nd]); } } }
+    if(!goals.length) return 1e9;
+    const goal=goals[Math.min(goals.length-1, Math.floor(rnd()*rnd()*goals.length))];
+    let k=K(goal[0],goal[1])+'|'+goal[2]; const path=[]; while(k && k!==K(x,y)+'|'+dir){ path.push(k); k=prev.get(k); } path.reverse();
+    for(const pk of path){ const [pp,dd]=pk.split('|'); const [px,py]=pp.split(',').map(Number); fuel+=stepCost(lv,x,y,dir,+dd).cost; x=px; y=py; dir=+dd; g.add(K(x,y)); } }
+  return g.size>=total ? fuel : 1e9; }
+// sweeps: visit the cells band by band in a back-and-forth order, driving the cheapest way to each next one
+function pathTo(lv,x,y,dir,tx,ty){ const K=lv.K, dist=new Map(), prev=new Map(), h=[[0,x,y,dir]]; dist.set(K(x,y)+'|'+dir,0);
+  while(h.length){ const [d,cx_,cy_,cd]=heapPop(h); const key=K(cx_,cy_)+'|'+cd; if(d>dist.get(key)) continue; if(cx_===tx&&cy_===ty){ const path=[]; let k=key; while(k && k!==K(x,y)+'|'+dir){ path.push(k); k=prev.get(k); } return path.reverse(); }
+    for(let nd=0;nd<4;nd++){ const st=stepCost(lv,cx_,cy_,cd,nd); if(!st) continue; const nk=K(st.c.x,st.c.y)+'|'+nd, nd2=d+st.cost; if(nd2<(dist.has(nk)?dist.get(nk):1e9)){ dist.set(nk,nd2); prev.set(nk,key); heapPush(h,[nd2,st.c.x,st.c.y,nd]); } } } return null; }
+function sweep(lv, byRows, flip){ const K=lv.K, cells=[...lv.cells.values()].filter(c=>c.kind!=='rock'); const g=new Set(); let x=lv.start.x, y=lv.start.y, dir=2, fuel=0; g.add(K(x,y));
+  const order=[]; for(let b=0;b<=lv.band[lv.L.rows-1];b++){ const bc=cells.filter(c=>lv.band[c.y]===b);
+    if(byRows){ const ys=[...new Set(bc.map(c=>c.y))].sort((a,b)=>a-b); ys.forEach((yy,i)=>{ const row=bc.filter(c=>c.y===yy).sort((a,b)=>a.x-b.x); if((i%2===0)===flip) row.reverse(); order.push(...row); }); }
+    else { const xs=[...new Set(bc.map(c=>c.x))].sort((a,b)=>a-b); if(flip) xs.reverse(); xs.forEach((xx,i)=>{ const col=bc.filter(c=>c.x===xx).sort((a,b)=>a.y-b.y); if(i%2) col.reverse(); order.push(...col); }); } }
+  for(const c of order){ if(g.has(K(c.x,c.y))) continue; const path=pathTo(lv,x,y,dir,c.x,c.y); if(!path) return 1e9;
+    for(const pk of path){ const [pp,dd]=pk.split('|'); const [px,py]=pp.split(',').map(Number); fuel+=stepCost(lv,x,y,dir,+dd).cost; x=px; y=py; dir=+dd; g.add(K(x,y)); } }
+  return g.size>=cells.length ? fuel : 1e9; }
+function solve(lv){ const rnd=rng(lv.L.rows*977+lv.L.width); let best=1e9; for(const r of [true,false]) for(const f of [true,false]) best=Math.min(best, sweep(lv,r,f)); for(let i=0;i<80;i++) best=Math.min(best, solveOnce(lv, rnd)); return best; }
+
+/* ---------- menus ---------- */
+let li=store.get('lv',0), zen=false, lv, cat, fuel, hist, groomed, total, par, state='menu', anim=0, moveFrom=null;
+function stars(i){ return store.get('stars-'+i,0); }
+function drawMenu(){ $('levels').innerHTML=LEVELS.map((L,i)=>{ const st=stars(i), open=i===0||stars(i-1)>0||zen, best=store.get('best-'+i,0);
+  return `<button class="lv" type="button" data-i="${i}" style="background:${RUNCOL[L.color]}" aria-pressed="${i===li}" ${open?'':'disabled'}><b dir="ltr">${L.key}</b><small class="st">${open?'★'.repeat(st)+'☆'.repeat(3-st):'🔒'}</small><small>${L.rows*L.width} משבצות · עד ${Math.round(Math.max(...L.slope))}°${best?' · שיא '+best:''}</small></button>`; }).join('');
+  $('zen').setAttribute('aria-pressed',zen); }
+$('levels').onclick=e=>{ const b=e.target.closest('[data-i]'); if(!b||b.disabled) return; li=+b.dataset.i; store.set('lv',li); drawMenu(); };
+$('zen').onclick=()=>{ zen=!zen; drawMenu(); };
+$('go').onclick=()=>start(); $('again').onclick=()=>start();
+$('next').onclick=()=>{ if(li<LEVELS.length-1){ li++; store.set('lv',li); } start(); };
+$('toMenu').onclick=()=>{ $('menuEnd').hidden=true; $('menuStart').hidden=false; drawMenu(); state='menu'; };
+
+/* ---------- sound: the hum of the tiller ---------- */
+let AC=null, soundOn=false;
+$('snd').onclick=()=>{ soundOn=!soundOn; $('snd').textContent=(soundOn?'🔊':'🔇')+' צליל'; if(soundOn&&!AC){ try{ AC=new (window.AudioContext||window.webkitAudioContext)(); }catch(_){ AC=null; } } };
+function groomSound(extra){ if(!soundOn||!AC) return; const d=.16, n=AC.sampleRate*d, b=AC.createBuffer(1,n,AC.sampleRate), a=b.getChannelData(0); for(let i=0;i<n;i++) a[i]=(Math.random()*2-1)*Math.sin(Math.PI*i/n);
+  const s=AC.createBufferSource(); s.buffer=b; const f=AC.createBiquadFilter(); f.type='bandpass'; f.frequency.value=extra?260:420; f.Q.value=.8; const g=AC.createGain(); g.gain.value=.35; s.connect(f); f.connect(g); g.connect(AC.destination); s.start(); }
+function chime(){ if(!soundOn||!AC) return; [660,880,1320].forEach((f,i)=>{ const o=AC.createOscillator(), g=AC.createGain(); o.type='triangle'; o.frequency.value=f; g.gain.setValueAtTime(.18,AC.currentTime+i*.12); g.gain.exponentialRampToValueAtTime(.001,AC.currentTime+i*.12+.4); o.connect(g); g.connect(AC.destination); o.start(AC.currentTime+i*.12); o.stop(AC.currentTime+i*.12+.45); }); }
+
+/* ---------- play ---------- */
+function start(){ lv=build(li); cat={x:lv.start.x, y:lv.start.y, dir:2}; fuel=0; hist=[]; groomed=new Map(); total=[...lv.cells.values()].filter(c=>c.kind!=='rock').length;
+  groomed.set(lv.K(cat.x,cat.y),0); par=solve(lv);
+  $('menuStart').hidden=true; $('menuEnd').hidden=true; ['hud','ctrl'].forEach(id=>$(id).hidden=false);
+  $('sign').style.background=RUNCOL[lv.L.color]; $('lvName').textContent=lv.L.key; $('lvInfo').textContent=(lv.L.len/1000).toFixed(1)+' ק״מ · '+lv.L.top+' עד '+lv.L.bot+' מ׳';
+  $('fuelBox').hidden=zen; state='play'; moveFrom=null; hud(); say(zen?'מצב רגוע: רק להחליק':'יעד לשלושה כוכבים: '+par+' דלק'); }
+function hud(){ $('fuel').textContent=fuel; const pct=Math.round((groomed.size)/total*100); $('fuelInfo').textContent='דלק · '+pct+'% מוחלק · יעד '+par;
+  const max=Math.max(par*1.6,fuel+1); $('fuelFill').style.width=Math.min(100,fuel/max*100)+'%'; $('fuelPar').style.left=(100-par/max*100)+'%'; }
+let msgT=0; function say(s){ const m=$('msg'); m.textContent=s; m.classList.remove('off'); msgT=2.2; }
+function popText(s){ const p=$('pop'); p.textContent=s; p.classList.remove('go'); void p.offsetWidth; p.classList.add('go'); }
+function move(nd){ if(state!=='play'||anim>0) return; const s=stepCost(lv,cat.x,cat.y,cat.dir,nd);
+  if(!s){ const [dx,dy]=DIRS[nd], c=lv.cells.get(lv.K(cat.x+dx,cat.y+dy)); say(!c?'שם כבר יער':c.kind==='rock'?(c.pylon?'עמוד של רכבל':'סלע'):'תלול מדי לעלות. רק בירידה'); try{ navigator.vibrate&&navigator.vibrate(20);}catch(_){} return; }
+  hist.push({x:cat.x,y:cat.y,dir:cat.dir,fuel,g:new Map(groomed)});
+  moveFrom={x:cat.x,y:cat.y,dir:cat.dir}; anim=reduce?0.001:.16;
+  fuel+=s.cost; cat.x=s.c.x; cat.y=s.c.y; cat.dir=nd; const key=lv.K(cat.x,cat.y); const fresh=!groomed.has(key); groomed.set(key, nd); // the corduroy follows the last pass
+  groomSound(s.c.kind==='powder'); if(s.cost>=3) popText('+'+s.cost);
+  hud(); if(groomed.size>=total) setTimeout(done, 350);
+  else if([...lv.cells.values()].some(c=>c.kind!=='rock'&&!groomed.has(lv.K(c.x,c.y))&&lv.band[c.y]<lv.band[cat.y])) say('נשאר שלג למעלה, ואי אפשר לטפס לשם. ↶ ביטול'); }
+function undo(){ if(state!=='play'||!hist.length) return; const h=hist.pop(); cat={x:h.x,y:h.y,dir:h.dir}; fuel=h.fuel; groomed=h.g; anim=0; hud(); }
+function done(){ state='end'; chime(); ['hud','ctrl'].forEach(id=>$(id).hidden=true);
+  const n = zen?0 : fuel<=par?3 : fuel<=Math.ceil(par*1.15)?2 : 1; if(!zen){ if(n>stars(li)) store.set('stars-'+li,n); const best=store.get('best-'+li,0); if(!best||fuel<best) store.set('best-'+li,fuel); }
+  $('endTitle').textContent= zen?'המסלול מוחלק. אפשר לנשום.' : n===3?'מושלם! פחות דלק מהמחשב':'המסלול מוכן לבוקר';
+  $('endWho').textContent=lv.L.key+' · '+total+' משבצות'; $('endFuel').textContent= zen?'✓':fuel+' דלק'; $('endStars').hidden=zen; $('endStars').innerHTML=[0,1,2].map(i=>`<i class="${i<n?'on':''}">★</i>`).join('');
+  $('endInfo').textContent= zen?'' : 'יעד לשלושה כוכבים: '+par+' · לשניים: '+Math.ceil(par*1.15)+' · השיא שלך: '+store.get('best-'+li,fuel);
+  $('next').hidden=li>=LEVELS.length-1; $('menuEnd').hidden=false; }
+$('undo').onclick=undo; $('restart').onclick=()=>start();
+$('pad').addEventListener('pointerdown',e=>{ const b=e.target.closest('[data-d]'); if(!b) return; e.preventDefault(); move(+b.dataset.d); });
+addEventListener('keydown',e=>{ const m={ArrowUp:0,ArrowRight:1,ArrowDown:2,ArrowLeft:3}[e.code]; if(m!=null){ e.preventDefault(); move(m); } if((e.ctrlKey||e.metaKey)&&e.code==='KeyZ') undo(); });
+// swipe anywhere: one step per swipe, or keep the finger moving for several
+let sw=null; const cv=$('game'), cx=cv.getContext('2d');
+cv.addEventListener('pointerdown',e=>{ sw={x:e.clientX,y:e.clientY}; });
+cv.addEventListener('pointermove',e=>{ if(!sw) return; const dx=e.clientX-sw.x, dy=e.clientY-sw.y, need=Math.max(26,cell*.7); if(Math.hypot(dx,dy)<need) return; const nd=Math.abs(dx)>Math.abs(dy)?(dx>0?1:3):(dy>0?2:0); move(nd); sw={x:e.clientX,y:e.clientY}; });
+addEventListener('pointerup',()=>{ sw=null; });
+
+/* ---------- drawing ---------- */
+let W=0,H=0,cell=30; function resize(){ const dpr=Math.min(2,devicePixelRatio||1); W=innerWidth; H=innerHeight; cv.width=W*dpr; cv.height=H*dpr; cx.setTransform(dpr,0,0,dpr,0,0); } addEventListener('resize',resize); resize();
+const hash=(a,b)=>{ const v=Math.sin(a*127.1+b*311.7)*43758.5; return v-Math.floor(v); };
+let last=performance.now(), T=0;
+function frame(now){ const dt=Math.min(.05,(now-last)/1000); last=now; T+=dt; if(anim>0) anim=Math.max(0,anim-dt); if(msgT>0){ msgT-=dt; if(msgT<=0) $('msg').classList.add('off'); } draw(); requestAnimationFrame(frame); }
+function draw(){
+  cx.fillStyle='#0D1522'; cx.fillRect(0,0,W,H);
+  const L = lv ? lv.L : LEVELS[li]; const lvl = lv || build(li);
+  const cols=lvl.maxX-lvl.minX+1+2, top=110, bottom=state==='play'?150:60;
+  cell=Math.floor(Math.min((W-56)/cols, (H-top-bottom)/L.rows)); const gx=Math.round((W-(cols-2)*cell)/2 - (lvl.minX)*cell), gy=Math.round(top+((H-top-bottom)-L.rows*cell)/2);
+  const P=(x,y)=>[gx+x*cell, gy+y*cell];
+  // the forest around the run, dark under the stars
+  for(let i=0;i<70;i++){ const x=hash(i,1)*W, y=hash(i,2)*H; cx.fillStyle='rgba(255,255,255,'+(.25+hash(i,3)*.5)+')'; cx.fillRect(x,y,1.5,1.5); }
+  for(let y=-1;y<=L.rows;y++) for(let x=lvl.minX-3;x<=lvl.maxX+3;x++){ if(lvl.cells.has(lvl.K(x,y))) continue; const near=[-1,0,1].some(a=>[-1,0,1].some(b=>lvl.cells.has(lvl.K(x+a,y+b)))); if(!near) continue;
+    for(let k=0;k<2;k++){ if(hash(x*3+k,y*7)<.4) continue; const [px,py]=P(x+hash(x,y+k),y+hash(y,x+k)); const r=cell*(.28+hash(x+k,y)*.2); cx.fillStyle='#1E3B32'; cx.beginPath(); for(let q=0;q<12;q++){ const a=q/12*Math.PI*2, rr=q%2?r*.6:r; q?cx.lineTo(px+Math.cos(a)*rr,py+Math.sin(a)*rr):cx.moveTo(px+rr,py); } cx.closePath(); cx.fill(); cx.fillStyle='rgba(233,240,247,.35)'; cx.beginPath(); cx.arc(px-r*.15,py-r*.15,r*.3,0,7); cx.fill(); } }
+  // the cells
+  for(const c of lvl.cells.values()){ const [px,py]=P(c.x,c.y); const gd = lv&&groomed ? groomed.get(lvl.K(c.x,c.y)) : undefined;
+    if(c.kind==='rock'){ cx.fillStyle='#C9D5E1'; cx.fillRect(px,py,cell,cell); if(c.pylon){ cx.fillStyle='#3A4556'; cx.fillRect(px+cell*.35,py+cell*.35,cell*.3,cell*.3); cx.strokeStyle='#3A4556'; cx.lineWidth=2; cx.beginPath(); cx.moveTo(px+cell*.5,py-cell*.5); cx.lineTo(px+cell*.5,py+cell*1.5); cx.stroke(); }
+      else { cx.fillStyle='#5B6675'; cx.beginPath(); cx.moveTo(px+cell*.15,py+cell*.8); cx.lineTo(px+cell*.3,py+cell*.3); cx.lineTo(px+cell*.6,py+cell*.2); cx.lineTo(px+cell*.85,py+cell*.75); cx.closePath(); cx.fill(); cx.fillStyle='#fff'; cx.beginPath(); cx.moveTo(px+cell*.3,py+cell*.3); cx.lineTo(px+cell*.6,py+cell*.18); cx.lineTo(px+cell*.7,py+cell*.4); cx.lineTo(px+cell*.45,py+cell*.38); cx.closePath(); cx.fill(); } continue; }
+    if(gd!==undefined){ // corduroy, in the direction of the last pass
+      cx.fillStyle='#F4F8FC'; cx.fillRect(px,py,cell,cell); cx.strokeStyle='rgba(120,145,175,.45)'; cx.lineWidth=1; cx.beginPath(); const n=7;
+      for(let k=1;k<n;k++){ const o=k*cell/n; if(gd%2===0){ cx.moveTo(px+o,py); cx.lineTo(px+o,py+cell); } else { cx.moveTo(px,py+o); cx.lineTo(px+cell,py+o); } } cx.stroke(); }
+    else { cx.fillStyle = c.kind==='powder' ? '#DCE7F2' : '#B9C8D8'; cx.fillRect(px,py,cell,cell); // churned snow: ski tracks and moguls
+      cx.fillStyle = c.kind==='powder' ? 'rgba(255,255,255,.9)' : 'rgba(95,115,140,.35)'; for(let k=0;k<5;k++){ const hx=px+hash(c.x*5+k,c.y)*cell, hy=py+hash(c.y*5+k,c.x)*cell; cx.beginPath(); cx.ellipse(hx,hy,cell*(c.kind==='powder'?.16:.1),cell*.06,hash(k,c.x)*3,0,7); cx.fill(); }
+      if(c.kind==='powder'){ cx.fillStyle='rgba(19,35,58,.55)'; cx.font=`700 ${Math.round(cell*.32)}px "IBM Plex Sans Hebrew",sans-serif`; cx.textAlign='center'; cx.direction='ltr'; cx.fillText('+1',px+cell/2,py+cell*.62); cx.direction='inherit'; } }
+    cx.strokeStyle='rgba(13,21,34,.08)'; cx.strokeRect(px+.5,py+.5,cell-1,cell-1); }
+  // the real slope of each row, on the side, in the site's colours
+  for(let y=0;y<L.rows;y++){ const xs=[...lvl.cells.values()].filter(c=>c.y===y).map(c=>c.x); const x=Math.max(...xs)+1.15; const [px,py]=P(x,y); const a=L.slope[y];
+    cx.fillStyle=slopeCol(Math.max(0,a)); cx.fillRect(px,py+cell*.2,cell*.5,cell*.6); cx.fillStyle='#E9F0F7'; cx.font=`700 ${Math.max(9,Math.round(cell*.26))}px "IBM Plex Sans Hebrew",sans-serif`; cx.textAlign='left'; cx.fillText(Math.round(Math.max(0,a))+'°'+(a>=20?' ⛔':''),px+cell*.58,py+cell*.6); }
+  // top and bottom of the run
+  cx.fillStyle='#E9F0F7'; cx.font=`700 ${Math.max(11,Math.round(cell*.32))}px "IBM Plex Sans Hebrew",sans-serif`; cx.textAlign='center';
+  { const [px,py]=P(L.shift[0],0); cx.fillText('ראש המסלול · '+L.top+' מ׳ · כאן מתחילים',px+cell/2,py-8); const [bx,by]=P(L.shift[L.rows-1],L.rows); cx.fillText('תחתית · '+L.bot+' מ׳',bx+cell/2,by+16); }
+  if(!lv) return;
+  // the snowcat, sliding between cells, with its headlights
+  let x=cat.x, y=cat.y, ang=cat.dir*Math.PI/2; if(anim>0&&moveFrom){ const f=1-anim/.16, e=f*f*(3-2*f); x=moveFrom.x+(cat.x-moveFrom.x)*e; y=moveFrom.y+(cat.y-moveFrom.y)*e; let a0=moveFrom.dir*Math.PI/2, a1=ang; let d=a1-a0; while(d>Math.PI) d-=2*Math.PI; while(d<-Math.PI) d+=2*Math.PI; ang=a0+d*Math.min(1,e*1.6); }
+  const [px,py]=P(x+.5,y+.5);
+  cx.save(); cx.translate(px,py); cx.rotate(ang);
+  const lg=cx.createRadialGradient(0,-cell*.3,cell*.1,0,-cell*1.6,cell*1.8); lg.addColorStop(0,'rgba(255,240,180,.55)'); lg.addColorStop(1,'rgba(255,240,180,0)'); cx.fillStyle=lg; cx.beginPath(); cx.moveTo(-cell*.3,-cell*.35); cx.lineTo(-cell*1.1,-cell*2.6); cx.lineTo(cell*1.1,-cell*2.6); cx.lineTo(cell*.3,-cell*.35); cx.closePath(); cx.fill();
+  const s=cell*.86; cx.fillStyle='#2A2F38'; cx.fillRect(-s*.48,-s*.42,s*.2,s*.86); cx.fillRect(s*.28,-s*.42,s*.2,s*.86); // tracks
+  cx.fillStyle='#D1342B'; cx.fillRect(-s*.3,-s*.38,s*.6,s*.74); cx.fillStyle='#BFE3F5'; cx.fillRect(-s*.22,-s*.3,s*.44,s*.2); // body and cab glass
+  cx.fillStyle='#8F99A6'; cx.fillRect(-s*.55,-s*.56,s*1.1,s*.12); // the blade in front
+  cx.fillStyle='#5B6675'; cx.fillRect(-s*.42,s*.4,s*.84,s*.14); // the tiller behind
+  cx.fillStyle=(Math.sin(T*8)>0)?'#F4B942':'#7A5A12'; cx.beginPath(); cx.arc(0,0,s*.07,0,7); cx.fill();
+  cx.restore();
+}
+drawMenu(); requestAnimationFrame(frame);
+</script>
