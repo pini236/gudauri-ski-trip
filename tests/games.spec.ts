@@ -1,11 +1,10 @@
 import { test, expect, Page } from '@playwright/test';
 
-// אזור המשחקים (החלטה 17): עמוד המשחקים באתר, וששת המשחקים שאושרו, כל אחד בעמוד משלו.
+// אזור המשחקים (החלטה 17): עמוד המשחקים באתר, וחמשת המשחקים שבאתר, כל אחד בעמוד משלו.
 const GAMES = [
   { slug: 'descent', title: 'הירידה של החבר׳ה' },
   { slug: 'school', title: 'בית הספר לסקי' },
   { slug: 'fresh-snow', title: 'שלג טרי' },
-  { slug: 'blower', title: 'מפלסת השלג' },
   { slug: 'merge', title: 'איחוד כדורי שלג' },
   { slug: 'snowball', title: 'קרב כדורי שלג' },
 ];
