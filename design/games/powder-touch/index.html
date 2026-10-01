@@ -1,0 +1,140 @@
+<title>שלג טרי</title>
+<meta name="description" content="נוגעים בשלג טרי: אצבע, מגף או מגלשיים, עם הצליל של אבקה, קרום קפוא ושלג רטוב">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Karantina:wght@700&family=IBM+Plex+Sans+Hebrew:wght@400;600;700&display=swap">
+<style>
+/* One look: fresh snow in low morning sun. The same in both themes. */
+:root{ --ink:#13233A; --paper:#FFFFFF; --accent:#F4B942; --f-display:"Karantina","Arial Narrow",sans-serif; --f-body:"IBM Plex Sans Hebrew",system-ui,-apple-system,"Segoe UI",sans-serif; color-scheme:light; }
+html,body{height:100%}
+[hidden]{display:none!important}
+body{margin:0;background:#E8F0F8;color:var(--ink);font-family:var(--f-body);direction:rtl;overflow:hidden;-webkit-user-select:none;user-select:none;touch-action:none}
+#snow{position:fixed;inset:0;width:100%;height:100%;display:block;image-rendering:auto}
+.bar{position:fixed;left:0;right:0;bottom:0;padding:10px 12px calc(env(safe-area-inset-bottom,0px) + 12px);display:flex;flex-direction:column;gap:8px;pointer-events:none;background:linear-gradient(rgba(19,35,58,0),rgba(19,35,58,.35))}
+.row{display:flex;gap:6px;justify-content:center;pointer-events:auto}
+.row button{font:inherit;min-height:48px;min-width:56px;padding:0 10px;border:0;background:rgba(255,255,255,.88);color:var(--ink);font-weight:700;font-size:13.5px;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;box-shadow:0 2px 0 rgba(19,35,58,.2)}
+.row button .i{font-size:20px;line-height:1.1}
+.row button[aria-pressed="true"]{background:var(--ink);color:#fff}
+.row.kind button{min-height:40px;font-size:12.5px}
+.top{position:fixed;left:0;right:0;top:calc(env(safe-area-inset-top,0px) + 12px);display:flex;justify-content:space-between;align-items:flex-start;padding:0 12px;pointer-events:none}
+.title{font-family:var(--f-display);font-size:38px;line-height:.9;color:var(--ink);text-shadow:0 1px 0 #fff;opacity:.85}
+.title small{display:block;font-family:var(--f-body);font-size:12px;font-weight:600;opacity:.8}
+.stat{background:rgba(255,255,255,.85);padding:5px 10px;font-size:12.5px;font-weight:700;text-align:center;pointer-events:auto}
+.stat b{display:block;font-family:var(--f-display);font-size:26px;line-height:1;font-variant-numeric:tabular-nums}
+.tip{position:fixed;left:50%;top:46%;transform:translate(-50%,-50%);background:rgba(19,35,58,.82);color:#fff;padding:10px 16px;font-weight:700;font-size:15px;text-align:center;pointer-events:none;transition:opacity .6s;max-width:80%}
+button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+</style>
+<canvas id="snow" aria-label="שלג טרי, לגעת בו"></canvas>
+<div class="top"><div class="title">שלג טרי<small id="kindTxt">אבקה של בוקר, מינוס 8</small></div><div class="stat" id="statBox"><b id="area">0%</b>עקבות</div></div>
+<div class="tip" id="tip">נוגעים בשלג. הצליל עולה 🔊</div>
+<div class="bar">
+  <div class="row kind" id="kinds" role="group" aria-label="סוג השלג">
+    <button type="button" data-k="powder" aria-pressed="true">אבקה</button>
+    <button type="button" data-k="crust" aria-pressed="false">קרום קפוא</button>
+    <button type="button" data-k="wet" aria-pressed="false">שלג רטוב</button>
+  </div>
+  <div class="row" id="tools" role="group" aria-label="במה נוגעים">
+    <button type="button" data-t="hand" aria-pressed="true"><span class="i">☝️</span>אצבע</button>
+    <button type="button" data-t="boot" aria-pressed="false"><span class="i">🥾</span>מגף</button>
+    <button type="button" data-t="ski" aria-pressed="false"><span class="i">🎿</span>מגלשיים</button>
+    <button type="button" data-t="ball" aria-pressed="false"><span class="i">⚪</span>כדור</button>
+    <button type="button" id="fresh"><span class="i">❄️</span>שלג חדש</button>
+    <button type="button" id="snd" aria-pressed="true" aria-label="צליל"><span class="i">🔊</span>צליל</button>
+  </div>
+</div>
+<script>
+const $=id=>document.getElementById(id);
+const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const KINDS={
+  powder:{txt:'אבקה של בוקר, מינוס 8', depth:1.0, berm:.35, rough:.12, soft:1.0},
+  crust:{txt:'קרום קפוא אחרי לילה קר', depth:.75, berm:.15, rough:.5, soft:.25},
+  wet:{txt:'שלג רטוב של צהריים, אפס מעלות', depth:.6, berm:.55, rough:.03, soft:.5}};
+let kind='powder', tool='hand', soundOn=true;
+/* ---------- the snow: a height field, a cell every 3 px, lit by a low sun from the top left ---------- */
+const CELL=3, cv=$('snow'), cx=cv.getContext('2d');
+let GW, GH, h, base, img, off, offx, dirty=true, touched, crack;
+function build(){ const W=innerWidth, H=innerHeight; cv.width=W; cv.height=H;
+  GW=Math.ceil(W/CELL); GH=Math.ceil(H/CELL); h=new Float32Array(GW*GH); base=new Float32Array(GW*GH); touched=new Uint8Array(GW*GH); crack=new Uint8Array(GW*GH);
+  for(let y=0;y<GH;y++) for(let x=0;x<GW;x++){ const v=2+.12*Math.sin(x*.03+y*.012)+.09*Math.sin(y*.035-x*.01+1.3)+.015*Math.sin(x*.21+y*.17); base[y*GW+x]=v; h[y*GW+x]=v; }
+  off=document.createElement('canvas'); off.width=GW; off.height=GH; offx=off.getContext('2d'); img=offx.createImageData(GW,GH); dirty=true; }
+addEventListener('resize',build); build();
+// sparkles: tiny ice crystals that catch the sun
+const sparkle=new Float32Array(1<<16).map(()=>Math.random());
+function render(){ const d=img.data, k=KINDS[kind]; let n=0;
+  for(let y=0;y<GH;y++){ for(let x=0;x<GW;x++){ const i=y*GW+x;
+    const hx=(h[i+(x<GW-1?1:0)]-h[i-(x>0?1:0)]), hy=(h[i+(y<GH-1?GW:0)]-h[i-(y>0?GW:0)]);
+    // light from the top left, low: slopes facing it are bright, the far walls of a hole are in blue shadow
+    let l=.82 + (hx*.9+hy*1.2)*1.6; l=Math.max(.35,Math.min(1.12,l));
+    const depth=Math.max(0,base[i]-h[i]);
+    let r=226*l+20, g=236*l+14, b=248*l+8;
+    // shadow is blue on snow, and deep holes go a little bluer
+    r-=depth*22; g-=depth*12;
+    if(kind==='wet'){ r-=6; g-=3; }
+    if(crack[i]){ r-=40; g-=30; b-=18; }
+    if(l>.95 && sparkle[i&65535]>.985 && !touched[i]){ r=g=b=255; }
+    d[n++]=r; d[n++]=g; d[n++]=b; d[n++]=255; } }
+  offx.putImageData(img,0,0); cx.imageSmoothingEnabled=true; cx.drawImage(off,0,0,GW*CELL,GH*CELL); }
+/* ---------- tools ---------- */
+function press(cx0,cy0,rx,ry,ang,depth,profile){ // an oval stamp: push the snow down inside, and a little of it up around the rim
+  const k=KINDS[kind], ca=Math.cos(ang), sa=Math.sin(ang), R=Math.max(rx,ry)*1.7; let moved=0;
+  const x0=Math.max(1,Math.floor(cx0-R)), x1=Math.min(GW-2,Math.ceil(cx0+R)), y0=Math.max(1,Math.floor(cy0-R)), y1=Math.min(GH-2,Math.ceil(cy0+R));
+  for(let y=y0;y<=y1;y++) for(let x=x0;x<=x1;x++){ const dx=x-cx0, dy=y-cy0, u=(dx*ca+dy*sa)/rx, v=(-dx*sa+dy*ca)/ry, r=Math.hypot(u,v), i=y*GW+x;
+    if(r<1){ const pr=profile?profile(u,v):Math.cos(r*Math.PI/2)**(k.soft<.5?.4:.8); const jitter=1+(Math.random()-.5)*k.rough; const target=base[i]-depth*k.depth*pr*jitter;
+      if(h[i]>target){ moved+=h[i]-target; h[i]=target; touched[i]=1; }
+      if(kind==='crust' && r>.82 && r<1 && Math.random()<.35) crack[i]=1; }
+    else if(r<1.6){ const add=k.berm*depth*.25*Math.sin((r-1)/.6*Math.PI); if(add>0 && h[i]<base[i]+.6){ h[i]+=add*(.6+Math.random()*.4)*.25; } } }
+  // cracks run out from the stamp in the frozen crust
+  if(kind==='crust' && moved>.5){ for(let c=0;c<3;c++){ let a=Math.random()*Math.PI*2, x=cx0+Math.cos(a)*rx, y=cy0+Math.sin(a)*ry; for(let s=0;s<14;s++){ a+=(Math.random()-.5)*.8; x+=Math.cos(a); y+=Math.sin(a); const xi=x|0, yi=y|0; if(xi>0&&yi>0&&xi<GW&&yi<GH) crack[yi*GW+xi]=1; } } }
+  dirty=true; return moved; }
+// boot sole: a heel and a toe, with a tread
+function boot(u,v){ const toe=Math.hypot(u*1.05,(v+.38)/.62), heel=Math.hypot(u*1.25,(v-.55)/.45); const inS=Math.min(toe,heel)<1?1:0; const tread=(Math.sin(v*22)>.2?1:.9); return inS?tread:0; }
+let last=null, acc=0, stepSide=1, stepCount=0;
+function stroke(px,py){ const gx=px/CELL, gy=py/CELL;
+  if(!last){ last={x:gx,y:gy}; stamp(gx,gy,0,true); return; }
+  const dx=gx-last.x, dy=gy-last.y, dist=Math.hypot(dx,dy); if(dist<.5) return; const ang=Math.atan2(dy,dx);
+  if(tool==='boot'){ acc+=dist; if(acc>30){ acc=0; stepSide*=-1; const ox=-Math.sin(ang)*6*stepSide, oy=Math.cos(ang)*6*stepSide; stamp(gx+ox,gy+oy,ang+Math.PI/2,true); } }
+  else { const steps=Math.ceil(dist/1.2); for(let s=1;s<=steps;s++) stamp(last.x+dx*s/steps,last.y+dy*s/steps,ang,s===steps); }
+  last={x:gx,y:gy}; }
+function stamp(gx,gy,ang,sound){ let m=0;
+  if(tool==='hand') m=press(gx,gy,6,6,0,1.3);
+  else if(tool==='ball') m=press(gx,gy,13,13,0,1.7);
+  else if(tool==='boot'){ m=press(gx,gy,8,15,ang,1.5,boot); stepCount++; grains(10,1); }
+  else if(tool==='ski'){ for(const s of [-1,1]){ const ox=-Math.sin(ang)*7*s, oy=Math.cos(ang)*7*s; m+=press(gx+ox,gy+oy,2.2,2.2,0,1.0); } }
+  if(sound && tool!=='boot') grains(Math.min(4,1+m*.6),.5); }
+/* ---------- sound: grains of filtered noise, different for every kind of snow ---------- */
+let AC=null, lastG=0;
+function ac(){ if(!soundOn) return null; if(!AC){ try{ AC=new (window.AudioContext||window.webkitAudioContext)(); }catch(_){ return null; } } if(AC.state==='suspended') AC.resume(); return AC; }
+function grain(t0,dur,vol,type,freq,q){ const a=AC, n=Math.max(64,Math.floor(a.sampleRate*dur)), b=a.createBuffer(1,n,a.sampleRate), ch=b.getChannelData(0);
+  for(let i=0;i<n;i++){ const e=Math.pow(1-i/n,2)*(i<n*.05?i/(n*.05):1); ch[i]=(Math.random()*2-1)*e; }
+  const s=a.createBufferSource(); s.buffer=b; const f=a.createBiquadFilter(); f.type=type; f.frequency.value=freq; f.Q.value=q; const g=a.createGain(); g.gain.value=vol; s.connect(f); f.connect(g); g.connect(a.destination); s.start(t0); }
+function squeak(t0,vol){ const a=AC, o=a.createOscillator(), g=a.createGain(); o.type='sawtooth'; const f0=700+Math.random()*500; o.frequency.setValueAtTime(f0,t0); o.frequency.exponentialRampToValueAtTime(f0*1.4,t0+.05); const f=a.createBiquadFilter(); f.type='bandpass'; f.frequency.value=f0*1.6; f.Q.value=6; g.gain.setValueAtTime(vol,t0); g.gain.exponentialRampToValueAtTime(.001,t0+.07); o.connect(f); f.connect(g); g.connect(a.destination); o.start(t0); o.stop(t0+.08); }
+function grains(n,vol){ const a=ac(); const now=performance.now(); if(!a || now-lastG<28) return; lastG=now; const t=a.currentTime;
+  n=Math.round(n);
+  for(let i=0;i<n;i++){ const t0=t+i*(.012+Math.random()*.018);
+    if(kind==='powder'){ grain(t0,.05+Math.random()*.05,.25*vol,'lowpass',900+Math.random()*900,.7); grain(t0,.03,.08*vol,'bandpass',2600+Math.random()*1500,1.2); }
+    else if(kind==='crust'){ grain(t0,.012+Math.random()*.015,.55*vol,'highpass',2500+Math.random()*2500,.8); if(Math.random()<.4) grain(t0,.06,.3*vol,'lowpass',260,1); }
+    else { grain(t0,.04,.2*vol,'lowpass',600,1); if(Math.random()<.5) squeak(t0,.05*vol); } }
+  try{ if(navigator.vibrate && kind!=='powder') navigator.vibrate(kind==='crust'?8:4); }catch(_){} }
+/* ---------- input: several fingers at once ---------- */
+const fingers=new Map();
+cv.addEventListener('pointerdown',e=>{ e.preventDefault(); try{cv.setPointerCapture(e.pointerId);}catch(_){} $('tip').style.opacity=0; last=null; acc=99; fingers.set(e.pointerId,{last:null}); swap(e.pointerId); stroke(e.clientX,e.clientY); unswap(e.pointerId); });
+cv.addEventListener('pointermove',e=>{ if(!fingers.has(e.pointerId)) return; swap(e.pointerId); stroke(e.clientX,e.clientY); unswap(e.pointerId); });
+['pointerup','pointercancel'].forEach(ev=>cv.addEventListener(ev,e=>fingers.delete(e.pointerId)));
+function swap(id){ const f=fingers.get(id); last=f.last; acc=f.acc??99; }
+function unswap(id){ const f=fingers.get(id); if(f){ f.last=last; f.acc=acc; } }
+/* ---------- buttons ---------- */
+$('tools').addEventListener('click',e=>{ const b=e.target.closest('[data-t]'); if(!b) return; tool=b.dataset.t; document.querySelectorAll('[data-t]').forEach(x=>x.setAttribute('aria-pressed',x===b)); });
+$('kinds').addEventListener('click',e=>{ const b=e.target.closest('[data-k]'); if(!b) return; kind=b.dataset.k; document.querySelectorAll('[data-k]').forEach(x=>x.setAttribute('aria-pressed',x===b)); $('kindTxt').textContent=KINDS[kind].txt; freshSnow(true); });
+$('snd').onclick=()=>{ soundOn=!soundOn; $('snd').setAttribute('aria-pressed',soundOn); $('snd').querySelector('.i').textContent=soundOn?'🔊':'🔇'; };
+// fresh snow falls and slowly fills every track back in
+let falling=0, flakes=[];
+function freshSnow(now){ falling=now?0:2.4; if(now){ h.set(base); touched.fill(0); crack.fill(0); dirty=true; } else { for(let i=0;i<90;i++) flakes.push({x:Math.random()*innerWidth,y:-Math.random()*innerHeight,v:40+Math.random()*60,r:1+Math.random()*2.5,s:Math.random()*6}); } }
+$('fresh').onclick=()=>freshSnow(false);
+let lt=performance.now(), areaT=0;
+function frame(now){ const dt=Math.min(.05,(now-lt)/1000); lt=now;
+  if(falling>0){ falling-=dt; const k=1-Math.pow(.25,dt); for(let i=0;i<h.length;i++){ if(h[i]!==base[i]){ h[i]+= (base[i]-h[i])*k; if(Math.abs(h[i]-base[i])<.01){ h[i]=base[i]; touched[i]=0; crack[i]=0; } } } if(falling<=0){ h.set(base); touched.fill(0); crack.fill(0); } dirty=true; }
+  if(dirty){ render(); dirty=false; } else if(flakes.length){ render(); }
+  if(flakes.length){ cx.fillStyle='#fff'; for(const f of flakes){ f.y+=f.v*dt; f.s+=dt; f.x+=Math.sin(f.s)*.5; cx.globalAlpha=.9; cx.beginPath(); cx.arc(f.x,f.y,f.r,0,7); cx.fill(); } cx.globalAlpha=1; flakes=flakes.filter(f=>f.y<innerHeight+10); }
+  areaT+=dt; if(areaT>.4){ areaT=0; let c=0; for(let i=0;i<touched.length;i+=7) c+=touched[i]; $('area').textContent=Math.round(c*7/touched.length*100)+'%'; }
+  requestAnimationFrame(frame); }
+requestAnimationFrame(frame);
+</script>
