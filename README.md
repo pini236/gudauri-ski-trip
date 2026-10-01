@@ -10,7 +10,8 @@
 | תיקייה | מה בה |
 |---|---|
 | [`site/`](site/) | האתר עצמו: `index.html`, `css/`, `js/`, `data/` (הנתונים כקבצי JSON) ו-`img/pano/` (הנוף מהכפר, שבע שעות ביום בשני רוחבים). `audio/` הם צלילי כרטיס הטיסה. `games/` הם המשחקים, שנבנים מ-`design/` (ראו למטה) |
-| [`android-native/`](android-native/) | אפליקציית אנדרואיד מקורית ונפרדת: ממשק בעברית, מפת הר מואצת, בדיקות וחומרי הגשה לחנות. משתמשת בנתוני האתר לקריאה בלבד |
+| [`app/`](docs/APP-NATIVE.md) | **(מתוכנן)** האפליקציות המקוריות החדשות: `app/android/` (Kotlin עם Jetpack Compose) ו-`app/ios/` (Swift עם SwiftUI), כל אחת נייטיב מלא ונפרדת. משתמשות בנתוני האתר לקריאה בלבד. התכנון ב-[`docs/APP-NATIVE.md`](docs/APP-NATIVE.md) |
+| [`chatgpt/`](chatgpt/) | התיקייה שעליה עובד ChatGPT: אפליקציית האנדרואיד שלו (`chatgpt/android-native/`), להשוואה. Claude לא נוגע בה |
 | [`tools/`](tools/) | כלים: `build-videos.py` בונה את קובץ הסרטונים ואת `research/videos.md` מ-`videos-curated.json`. `build-games.py` מעתיק את המשחקים שאושרו לאתר |
 | [`tests/`](tests/) | בדיקות Playwright |
 | [`research/`](research/) | כל המידע שנאסף: מסלולים, רכבלים, המסלולים החסרים, מקורות, ציוד ופרומפטים |
