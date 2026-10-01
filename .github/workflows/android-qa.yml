@@ -10,7 +10,7 @@ on:
   workflow_dispatch:
     inputs:
       scenario:
-        description: 'map, descent, ticket or all'
+        description: 'map, descent, ticket, store or all'
         default: all
       api:
         description: 'Android version of the emulator (API level)'
@@ -84,5 +84,5 @@ jobs:
             echo
             cat "$OUT/summary.txt" 2>/dev/null || echo "(no summary: the run stopped before the app started)"
           } > "$RUNNER_TEMP/notes.md"
-          gh release create android-qa "$RUNNER_TEMP/qa.zip" "$OUT"/sheet-*.png --prerelease --target "$GITHUB_SHA" \
+          gh release create android-qa "$RUNNER_TEMP/qa.zip" "$OUT"/sheet-*.png $(ls "$OUT"/store/*.png 2>/dev/null) --prerelease --target "$GITHUB_SHA" \
             --title "אנדרואיד: בדיקה באמולטור" --notes-file "$RUNNER_TEMP/notes.md"

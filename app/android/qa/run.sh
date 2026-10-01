@@ -132,11 +132,44 @@ PY
   tap $((W / 2)) $(( top + $(dp 18) + $(dp 230) + $(dp 18) + $(dp 85) )); sleep 0.3; shot ticket-sign-wobble
 }
 
+# ---- the store screenshots (Google Play: portrait 9:16) ----
+# a 1080x1920 screen, a clean status bar (demo mode), no measuring bar; the files go to $OUT/store
+store() {
+  mkdir -p "$OUT/store"
+  local k=0
+  sshot() { k=$((k + 1)); adb exec-out screencap -p > "$(printf "%s/store/store-%d-%s.png" "$OUT" "$k" "$1")" || fail "store shot $1"; }
+  adb shell wm size 1080x1920
+  local W=1080 H=1920
+  adb shell settings put global sysui_demo_allowed 1
+  adb shell am broadcast -a com.android.systemui.demo -e command enter > /dev/null
+  adb shell am broadcast -a com.android.systemui.demo -e command clock -e hhmm 0930 > /dev/null
+  adb shell am broadcast -a com.android.systemui.demo -e command battery -e level 100 -e plugged false > /dev/null
+  adb shell am broadcast -a com.android.systemui.demo -e command network -e wifi show -e level 4 -e mobile hide > /dev/null
+  adb shell am broadcast -a com.android.systemui.demo -e command notifications -e visible false > /dev/null
+  adb shell am force-stop "$PKG"
+  mark
+  adb shell "am start -W -n $ACT --es qa.tab map --es qa.stats off --es qa.time 2027-01-12T11:00" > /dev/null
+  waitlog "scene ready" 120 && waitlog "shadow ready" 120
+  sleep 2; sshot map
+  qa "--es qa.run 'Tatra 2'"; waitlog "selected Tatra 2" 30; sleep 3; sshot run
+  qa "--ez qa.fly true"; waitlog "fly started" 30; sleep 7; sshot fly
+  qa "--es qa.run none"; sleep 1
+  qa "--es qa.time 2027-01-12T16:40 --es qa.cam '600,-500,11000,20,36' --es qa.face sun"; waitlog "shadow ready" 120; sleep 1.5; sshot sunset
+  qa "--es qa.time 2027-01-12T21:00 --es qa.cam '600,-500,11000,20,36' --es qa.face moon"; waitlog "shadow ready" 120; sleep 1.5; sshot night
+  qa "--es qa.time 2027-01-12T11:00"; waitlog "shadow ready" 120
+  qa "--es qa.tab descent"; sleep 3
+  sleep 2; hold $((W / 2)) $((H / 2)) 700; sleep 0.5; sshot descent
+  qa "--es qa.tab ticket"; sleep 2; sshot ticket
+  adb shell am broadcast -a com.android.systemui.demo -e command exit > /dev/null
+  adb shell wm size reset
+}
+
 case "$SCENARIO" in
   map) map ;;
   descent) descent ;;
   ticket) ticket ;;
-  *) map; descent; ticket ;;
+  store) store ;;
+  *) map; descent; ticket; store ;;
 esac
 
 # ---- what the run measured ----
