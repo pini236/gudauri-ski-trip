@@ -1,5 +1,6 @@
 package io.github.pini236.skiapp
 
+import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
@@ -48,9 +49,11 @@ import io.github.pini236.skiapp.game.DescentScreen
 import io.github.pini236.skiapp.map.MapScene
 import io.github.pini236.skiapp.map.MapScreen
 import io.github.pini236.skiapp.map.MapView
+import io.github.pini236.skiapp.map.OrbitCamera
 import io.github.pini236.skiapp.map.Sun
 import io.github.pini236.skiapp.perf.FrameStats
 import io.github.pini236.skiapp.perf.Startup
+import io.github.pini236.skiapp.qa.Qa
 import io.github.pini236.skiapp.ticket.TicketScreen
 import io.github.pini236.skiapp.ui.Karantina
 import io.github.pini236.skiapp.ui.Palette
@@ -75,9 +78,14 @@ class MainActivity : ComponentActivity() {
     private var scene by mutableStateOf<MapScene?>(null)
     private var profile by mutableStateOf<Profile?>(null)
     private var sunNote by mutableStateOf("")
+    private var tab by mutableIntStateOf(0)
+    private var showStats by mutableStateOf(true)
+    private var qaPending: Intent? = null
+    private var clockMs: Long? = null // the QA run pins the time of day; otherwise it is now
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        Qa.init(this)
         enableEdgeToEdge()
         preferTopRefreshRate()
         haptics = Haptics(this)
@@ -97,9 +105,12 @@ class MainActivity : ComponentActivity() {
                 return true
             }
         })
+        handleQa(intent)
         loadInBackground()
         setContent { App() }
     }
+
+    override fun onNewIntent(intent: Intent) { super.onNewIntent(intent); setIntent(intent); handleQa(intent) }
 
     private fun preferTopRefreshRate() {
         @Suppress("DEPRECATION")
@@ -122,19 +133,62 @@ class MainActivity : ComponentActivity() {
         val t1 = SystemClock.uptimeMillis()
         val s = MapScene(terrain, runs)
         Startup.meshMs = SystemClock.uptimeMillis() - t1
-        // light: the real sun over Gudauri now; at night, a low winter afternoon sun so the shading shows
-        val (az, alt) = Sun.position(System.currentTimeMillis())
+        val note = placeSun(s, clockMs ?: System.currentTimeMillis())
+        runOnUiThread {
+            sunNote = note
+            scene = s; mapView.setScene(s); reportFullyDrawn()
+            Qa.log("scene ready")
+        }
+        castShadows(s)
+        runOnUiThread { qaPending?.let { qaPending = null; applyQaMap(it, sunDone = true) } }
+    }
+
+    /** Light: the real sun over Gudauri at that time; at night, a low winter afternoon sun so the shading shows. */
+    private fun placeSun(s: MapScene, timeMs: Long): String {
+        val (az, alt) = Sun.position(timeMs)
         val real = alt > Math.toRadians(6.0)
         s.sunDir = if (real) Sun.direction(az, alt) else Sun.direction(Math.toRadians(215.0), Math.toRadians(20.0))
         s.sunIsReal = real
-        runOnUiThread {
-            sunNote = if (real) "שמש אמיתית עכשיו" else "לילה בגודאורי: שמש של אחר הצהריים"
-            scene = s; mapView.setScene(s); reportFullyDrawn()
-        }
+        return if (real) "שמש אמיתית עכשיו" else "לילה בגודאורי: שמש של אחר הצהריים"
+    }
+
+    private fun castShadows(s: MapScene) {
         val t2 = SystemClock.uptimeMillis()
-        s.shadow = Sun.shadows(terrain, s.sunDir)
+        s.shadow = Sun.shadows(s.terrain, s.sunDir)
         Startup.shadowMs = SystemClock.uptimeMillis() - t2
-        runOnUiThread { mapView.updateShadow() }
+        runOnUiThread {
+            mapView.updateShadow()
+            Qa.log("shadow ready · first frame ${Startup.firstFrameMs} · data ${Startup.dataMs} · mesh ${Startup.meshMs} · shadow ${Startup.shadowMs} ms")
+        }
+    }
+
+    // ---- test hooks, debug builds only (app/android/qa/README.md): the emulator run drives the app with "qa." extras ----
+    private fun handleQa(i: Intent?) {
+        if (i == null || !Qa.enabled) return
+        val keys = i.extras?.keySet()?.filter { it.startsWith("qa.") }.orEmpty()
+        if (keys.isEmpty()) return
+        i.getStringExtra("qa.tab")?.let { tab = when (it) { "descent" -> 1; "ticket" -> 2; else -> 0 } }
+        i.getStringExtra("qa.stats")?.let { showStats = it != "off" }
+        i.getStringExtra("qa.time")?.let { clockMs = Qa.gudauriTime(it) }
+        Qa.log("intent ${keys.sorted()}")
+        if (scene == null) qaPending = i else applyQaMap(i) // the rest needs the mountain
+    }
+
+    private fun applyQaMap(i: Intent, sunDone: Boolean = false) {
+        val s = scene ?: return
+        if (i.hasExtra("qa.time") && !sunDone) {
+            val ms = clockMs ?: return
+            loader.execute { val note = placeSun(s, ms); runOnUiThread { sunNote = note }; castShadows(s) }
+        }
+        i.getStringExtra("qa.cam")?.let { c ->
+            val v = Qa.parseCamera(c) ?: return@let Qa.log("bad camera $c")
+            mapView.look(OrbitCamera.State(v[0], s.terrain.elev(v[0], v[1]), v[1], v[2], Math.toRadians(v[3].toDouble()).toFloat(), Math.toRadians(v[4].toDouble()).toFloat()))
+        }
+        i.getStringExtra("qa.run")?.let { key ->
+            if (key == "none") mapView.select(null)
+            else s.runs.pistes.firstOrNull { it.key == key || it.name == key }?.let { mapView.select(it) } ?: Qa.log("no run $key")
+        }
+        if (i.getBooleanExtra("qa.fly", false)) mapView.postDelayed({ mapView.flyDown() }, 1500)
     }
 
     override fun onPause() { super.onPause(); mapView.onPause() }
@@ -144,7 +198,6 @@ class MainActivity : ComponentActivity() {
     @Composable
     private fun App() {
         CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
-            var tab by remember { mutableIntStateOf(0) }
             Column(Modifier.fillMaxSize().background(Palette.snow)) {
                 Box(Modifier.weight(1f).fillMaxWidth()) {
                     when (tab) {
@@ -152,7 +205,7 @@ class MainActivity : ComponentActivity() {
                         1 -> DescentScreen(profile, haptics, sounds)
                         else -> Box(Modifier.statusBarsPadding().padding(top = 28.dp)) { TicketScreen(haptics, sounds) }
                     }
-                    StatsBar(tab == 0, Modifier.align(Alignment.TopStart))
+                    if (showStats) StatsBar(tab == 0, Modifier.align(Alignment.TopStart))
                 }
                 Row(Modifier.fillMaxWidth().background(Palette.ink).navigationBarsPadding()) {
                     listOf("מפה", "ירידה", "כרטיס").forEachIndexed { i, label ->
@@ -171,12 +224,14 @@ class MainActivity : ComponentActivity() {
     private fun StatsBar(gl: Boolean, modifier: Modifier) {
         var line by remember { mutableStateOf("") }
         LaunchedEffect(gl) {
+            var n = 0
             while (true) {
                 val now = System.nanoTime()
                 val st = (if (gl) glStats else uiStats).snapshot(refreshHz, now)
                 val frames = if (st.active) "${st.fps.toInt()} פריימים · החמצות ${"%.1f".format(st.jankPct)}% · הגרוע ${st.worstMs.toInt()} מ״ש" else "במנוחה"
                 val extra = if (gl) " · ${if (mapView.msaa) "החלקה 4×" else "בלי החלקה"} · $sunNote" else ""
                 line = "${refreshHz.toInt()}Hz · $frames$extra\nפתיחה ${Startup.firstFrameMs} · נתונים ${Startup.dataMs} · רשת ${Startup.meshMs} · צל ${Startup.shadowMs} מ״ש · ${haptics.level}"
+                if (n++ % 4 == 0) Qa.log("stats ${if (gl) "map" else "ui"} · ${line.replace('\n', ' ')}")
                 delay(500)
             }
         }

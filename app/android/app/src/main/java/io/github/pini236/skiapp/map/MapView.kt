@@ -23,6 +23,7 @@ import androidx.core.content.res.ResourcesCompat
 import io.github.pini236.skiapp.R
 import io.github.pini236.skiapp.data.Piste
 import io.github.pini236.skiapp.perf.FrameStats
+import io.github.pini236.skiapp.qa.Qa
 import java.text.NumberFormat
 import java.util.Locale
 import java.util.concurrent.Executors
@@ -126,7 +127,7 @@ class MapView(context: Context, refreshHz: Float, val stats: FrameStats) : Frame
         surface.renderMode = GLSurfaceView.RENDERMODE_WHEN_DIRTY
         addView(surface, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT))
         addView(overlay, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT))
-        renderer.onFlyEnded = { post { onFlying?.invoke(false) } }
+        renderer.onFlyEnded = { post { onFlying?.invoke(false); Qa.log("fly ended") } }
     }
 
     fun setScene(s: MapScene) {
@@ -175,7 +176,7 @@ class MapView(context: Context, refreshHz: Float, val stats: FrameStats) : Frame
         val s = scene ?: return
         selected = p
         onSelect?.invoke(p)
-        if (p == null) { renderer.select(null); return }
+        if (p == null) { renderer.select(null); Qa.log("selected none"); return }
         worker.execute {
             val lines = s.topDown(p)
             if (lines.isEmpty()) return@execute
@@ -201,14 +202,18 @@ class MapView(context: Context, refreshHz: Float, val stats: FrameStats) : Frame
             val n = path.size / 3
             val yaw = atan2(-(path[(n - 1) * 3] - path[0]), -(path[(n - 1) * 3 + 2] - path[2]))
             renderer.animateCamera(OrbitCamera.State(cx, s.terrain.elev(cx, cz), cz, span * 1.35f, yaw, 0.55f))
+            Qa.log("selected ${p.key}")
         }
     }
+
+    /** Puts the camera at a given view (the QA run uses it for repeatable screenshots). */
+    fun look(st: OrbitCamera.State) = renderer.animateCamera(st, 0.05f)
 
     fun flyDown() {
         val s = scene ?: return; val p = selected ?: return
         val path = s.topDown(p).fold(FloatArray(0)) { acc, l -> acc + l }
         if (path.size < 6) return
-        renderer.startFly(path); onFlying?.invoke(true)
+        renderer.startFly(path); onFlying?.invoke(true); Qa.log("fly started")
     }
 
     fun stopFly() { renderer.stopFly() }

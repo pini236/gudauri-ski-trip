@@ -1,0 +1,88 @@
+# The Android emulator run (app/android/qa/README.md). GitHub's machines have hardware virtualisation and
+# Claude's cloud container does not, so the emulator runs here: build the debug app, boot an emulator, drive
+# the app through its screens (app/android/qa/run.sh) and publish the screenshots, logs and numbers as one
+# release, android-qa, that always holds the latest run. Claude starts it on any branch and reads the result.
+name: android-qa
+
+on:
+  push:
+    paths: ['app/android/**', 'site/data/**', 'site/audio/**', 'site/games/descent/**', 'tools/build-app-data.py', '.github/workflows/android-qa.yml']
+  workflow_dispatch:
+    inputs:
+      scenario:
+        description: 'map, descent, ticket or all'
+        default: all
+      api:
+        description: 'Android version of the emulator (API level)'
+        default: '35'
+
+# one emulator run at a time, so the release always matches one run
+concurrency:
+  group: android-qa
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  emulator:
+    runs-on: ubuntu-latest
+    timeout-minutes: 50
+    env:
+      OUT: ${{ github.workspace }}/qa-out
+      SCENARIO: ${{ inputs.scenario || 'all' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+      - uses: gradle/actions/setup-gradle@v4
+      - name: Android SDK
+        run: |
+          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses > /dev/null || true
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "platforms;android-37.2" "build-tools;36.0.0" > /dev/null
+      - name: Build the debug and release apps
+        working-directory: app/android
+        run: ./gradlew --no-daemon :app:assemblePreviewDebug :app:assemblePreviewRelease
+      - name: Hardware virtualisation for the emulator
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: Run on the emulator
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: ${{ inputs.api || '35' }}
+          target: google_apis
+          arch: x86_64
+          profile: pixel_6
+          disable-animations: false
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -no-snapshot-save -camera-back none
+          script: bash app/android/qa/run.sh
+      - name: Contact sheets
+        if: always()
+        run: |
+          pip install --quiet pillow
+          python3 app/android/qa/sheet.py "$OUT/shots" "$OUT"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: android-qa
+          path: qa-out
+          retention-days: 14
+      - name: Publish
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cd "$OUT" && zip -qr "$RUNNER_TEMP/qa.zip" . && cd -
+          gh release delete android-qa --yes --cleanup-tag 2>/dev/null || true
+          {
+            echo "בדיקה באמולטור, ענף ${GITHUB_REF_NAME}, קומיט ${GITHUB_SHA::7}."
+            echo "הריצה: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+            echo
+            cat "$OUT/summary.txt" 2>/dev/null || echo "(no summary: the run stopped before the app started)"
+          } > "$RUNNER_TEMP/notes.md"
+          gh release create android-qa "$RUNNER_TEMP/qa.zip" "$OUT"/sheet-*.png --prerelease --target "$GITHUB_SHA" \
+            --title "אנדרואיד: בדיקה באמולטור" --notes-file "$RUNNER_TEMP/notes.md"
