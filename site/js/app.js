@@ -592,7 +592,8 @@ const MEET=(function(){
   const DAYS=[['2027-01-11','ב׳ 11.1'],['2027-01-12','ג׳ 12.1'],['2027-01-13','ד׳ 13.1'],['2027-01-14','ה׳ 14.1']];
   const TIMES=['09:30','11:00','12:30','13:30','15:00','16:30'];
   const PRE=[['am','רכבל הבוקר',find('Goodaura')('b'),'09:30'],['noon','צהריים',find('Goodaura')('t'),'13:00'],['pm','סוף יום',find('New Goodaura')('b'),'16:30']].filter(p=>p[2]);
-  const S={sid:(find('Goodaura')('b')||st[0]).id,time:'12:30',day:DAYS[0][0],preset:''};
+  // nothing is picked at first (Pini, round 8): the map asks where to meet, and the card waits
+  const S={sid:'',time:'12:30',day:DAYS[0][0],preset:''};
   // map
   const svgM=host;const m=(t,a,p)=>{const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);(p||svgM).appendChild(e);return e;};
   const gLines=m('g',{class:'mm-lines'}),gPins=m('g',{class:'mm-pins'});
@@ -614,10 +615,21 @@ const MEET=(function(){
     cancelAnimationFrame(tween);if(reduceMotion()||!ms||from.w===1){Object.assign(vb,to);applyVB();return;}
     const t0=performance.now(),step=()=>{const t=Math.min(1,(performance.now()-t0)/ms),e=t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;
       vb.x=from.x+(to.x-from.x)*e;vb.y=from.y+(to.y-from.y)*e;vb.w=from.w+(to.w-from.w)*e;applyVB();if(t<1)tween=requestAnimationFrame(step);};tween=requestAnimationFrame(step);}
+  // a tap near a station picks it; a tap on the picked pin, or on empty map, clears the choice
   svgM.addEventListener('click',e=>{const r=svgM.getBoundingClientRect(),x=vb.x+(e.clientX-r.left)/r.width*vb.w,y=vb.y+(e.clientY-r.top)/r.height*vb.h;
-    const best=st.map(s=>[s,Math.hypot(s.x-x,s.y-y)]).sort((a,b)=>a[1]-b[1])[0];if(best)pick(best[0].id,'',true);});
-  document.getElementById('meetAll').onclick=()=>{let a=1e9,b=1e9,c=-1e9,d=-1e9;st.forEach(s=>{a=Math.min(a,s.x);c=Math.max(c,s.x);b=Math.min(b,s.y);d=Math.max(d,s.y);});
-    const[w,h]=size();const span=Math.max(c-a,(d-b)*w/h)*1.15;goTo((a+c)/2,(b+d)/2+ (d-b)*0.05,span,700);};
+    // distance to the whole pin (tip and head), so a tap on the head counts for that pin
+    const u=vb.w/r.width,dpin=s=>{const hy=s.y-26*u*(s.id===S.sid?1.2:.8);return Math.min(Math.hypot(s.x-x,s.y-y),Math.hypot(s.x-x,hy-y));};
+    const best=st.map(s=>[s,dpin(s)]).sort((a,b)=>a[1]-b[1])[0];if(!best)return;
+    const px=best[1]/u;
+    if(px<=44){if(best[0].id===S.sid)clear();else pick(best[0].id,'',true);}else if(S.sid)clear();});
+  function fitAll(ms){let a=1e9,b=1e9,c=-1e9,d=-1e9;st.forEach(s=>{a=Math.min(a,s.x);c=Math.max(c,s.x);b=Math.min(b,s.y);d=Math.max(d,s.y);});
+    const[w,h]=size();const span=Math.max(c-a,(d-b)*w/h)*1.15;goTo((a+c)/2,(b+d)/2+ (d-b)*0.05,span,ms);}
+  document.getElementById('meetAll').onclick=()=>fitAll(700);
+  let undoSid='',undoPre='',toastT=0;const toast=document.getElementById('meetToast');
+  function clear(){if(!S.sid)return;undoSid=S.sid;undoPre=S.preset;S.sid='';S.preset='';render();
+    toast.hidden=false;clearTimeout(toastT);toastT=setTimeout(()=>{toast.hidden=true;},4500);}
+  document.getElementById('meetClear').onclick=clear;document.getElementById('meetCardX').onclick=clear;
+  document.getElementById('meetUndo').onclick=()=>{toast.hidden=true;clearTimeout(toastT);if(undoSid)pick(undoSid,undoPre,true);};
   new ResizeObserver(()=>{if(!document.getElementById('meetPage').hidden)applyVB();}).observe(svgM);
   // controls
   const ui=document.getElementById('meetUI');
@@ -648,7 +660,17 @@ const MEET=(function(){
     if(diff<0)return ['','כבר עבר',''];if(diff<24*60)return diff<60?['עוד',Math.round(diff),'דקות למפגש']:['עוד',Math.floor(diff/60)+':'+pad(Math.round(diff%60)),'שעות למפגש'];
     return ['עוד',Math.ceil(diff/1440),'ימים למפגש'];}
   function render(){
-    const s=byId[S.sid];if(!s)return;applyVB();
+    const s=byId[S.sid],none=!s;applyVB();
+    // the empty state, and everything that only makes sense once a spot is picked
+    document.getElementById('meetCallout').hidden=none;document.getElementById('meetClear').hidden=none;
+    document.getElementById('meetEmpty').hidden=!none;document.getElementById('meetCard').hidden=none;document.getElementById('meetCardX').hidden=none;
+    document.getElementById('meetRoutesSec').hidden=none;document.getElementById('meetShareBox').hidden=none;
+    const hint=document.getElementById('meetHint');hint.classList.toggle('ask',none);
+    hint.textContent=none?`איפה נפגשים? לחצו על אחת מ-${st.length} התחנות`:'לחיצה על שטח ריק במפה, או שוב על הסיכה, מבטלת את הבחירה';
+    if(none){ui.querySelectorAll('[data-pre]').forEach(b=>b.setAttribute('aria-pressed','false'));
+      ui.querySelectorAll('[data-day]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.day===S.day)));
+      ui.querySelectorAll('[data-time]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.time===S.time)));
+      if(location.hash.startsWith('#meet')&&location.hash!=='#meet')history.replaceState(null,'','#meet');return;}
     const c=document.getElementById('meetCallout');c.querySelector('b').textContent=s.name;c.querySelector('.mc-alt').textContent=s.h?s.h.toLocaleString('en-US')+' מ׳':'';c.querySelector('.mc-where').textContent=s.where;
     ui.querySelectorAll('[data-day]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.day===S.day)));
     ui.querySelectorAll('[data-time]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.time===S.time)));
@@ -703,11 +725,24 @@ const MEET=(function(){
   function open(arg){ // arg: "<station>/<HHMM>/<YYYYMMDD>" from a shared link, or empty
     if(arg){const [sid,t,d]=arg.split('/');if(byId[sid])S.sid=sid;if(/^\d{4}$/.test(t||''))S.time=t.slice(0,2)+':'+t.slice(2);if(/^\d{8}$/.test(d||''))S.day=`${d.slice(0,4)}-${d.slice(4,6)}-${d.slice(6)}`;
       ui.querySelector('#meetTime').value=S.time;}
-    const s=byId[S.sid];requestAnimationFrame(()=>{if(!shown||arg){shown=true;goTo(s.x,s.y,1800,0);}render();if(arg)document.getElementById('meetCard').scrollIntoView({block:'center'});});
+    const s=byId[S.sid];requestAnimationFrame(()=>{if(!shown||arg){shown=true;if(s)goTo(s.x,s.y,1800,0);else fitAll(0);}render();if(arg&&s)document.getElementById('meetCard').scrollIntoView({block:'center'});});
   }
   ui.querySelector('#meetTime').value=S.time;
   return {open};
 })();
+
+  // snow on the signs: soft mounds and a few rounded drips (seeded, so every sign keeps its own pile)
+function snowCap(i,w){let r=(i+1)*9301%233280;const rnd=(a,b)=>{r=(r*9301+49297)%233280;return a+(b-a)*r/233280;};
+  const top=26,x0=16,x1=w+6,up=[[x0-4,top+6],[x0+4,top-2]];let x=x0+14,pk=true;
+  while(x<x1-20){const mid=1-Math.abs((x-x0)/(x1-x0)-.5)*1.1;up.push(pk?[x,top-8-mid*rnd(10,20)]:[x,top-rnd(1,6)]);x+=pk?rnd(30,48):rnd(22,34);pk=!pk;}
+  up.push([x1-6,top-3],[x1+2,top+5]);const lo=[];x=x1-2;while(x>x0+8){lo.push([x,top+rnd(8,13)]);x-=rnd(26,44);}lo.push([x0+2,top+10]);
+  const pts=[...up,...lo,up[0]];let d=`M${pts[0][0].toFixed(1)},${pts[0][1].toFixed(1)}`;
+  for(let k=0;k<pts.length-1;k++){const p0=pts[Math.max(k-1,0)],p1=pts[k],p2=pts[k+1],p3=pts[Math.min(k+2,pts.length-1)];
+    d+=` C${(p1[0]+(p2[0]-p0[0])/6).toFixed(1)},${(p1[1]+(p2[1]-p0[1])/6).toFixed(1)} ${(p2[0]-(p3[0]-p1[0])/6).toFixed(1)},${(p2[1]-(p3[1]-p1[1])/6).toFixed(1)} ${p2[0].toFixed(1)},${p2[1].toFixed(1)}`;}
+  let drips='';for(let k=0;k<2;k++){const dx=rnd(x0+40,x1-40),dl=rnd(7,13),dw=rnd(4,6),y0=top+8;drips+=`<path d="M${dx-dw},${y0}C${dx-dw},${y0+dl*.6} ${dx-dw/2},${y0+dl} ${dx},${y0+dl}C${dx+dw/2},${y0+dl} ${dx+dw},${y0+dl*.6} ${dx+dw},${y0}Z"/>`;}
+  return `<svg class="snowcap" viewBox="0 0 ${w+16} 56" preserveAspectRatio="none" aria-hidden="true"><g class="sc-sh"><path d="${d}Z"/>${drips}</g><g class="sc"><path d="${d}Z"/>${drips}</g></svg>`;}
+// the games page: fresh snow on top of every game sign (round 8)
+document.querySelectorAll('.games-list .game-card').forEach((a,i)=>a.insertAdjacentHTML('beforeend',snowCap(i+7,300)));
 
 // ---- lift status (design round 3, S1 to S3). Source: /api/status, a Vercel function that reads the MTA status page
 // (to be written when the page works again, in December). Format:
@@ -722,21 +757,11 @@ const LSTAT=(function(){
     const up=p.fromLifts.filter(n=>data.lifts&&data.lifts[n]);return up.length?up.some(n=>data.lifts[n].open):(r?!!r.open:null);}; // open for me: the run and a lift up to it
   const REASON={wind:'רוח',weather:'מזג אוויר',maintenance:'תחזוקה',season:'מחוץ לעונה'};
   const ago=t=>{const m=Math.round((Date.now()-Date.parse(t))/6e4);return m<1?'עכשיו':m<60?`לפני ${m} דק׳`:`לפני ${Math.round(m/60)} שע׳`;};
-  // snow on the signs: soft mounds and a few rounded drips (seeded, so every sign keeps its own pile)
-  function snow(i,w){let r=(i+1)*9301%233280;const rnd=(a,b)=>{r=(r*9301+49297)%233280;return a+(b-a)*r/233280;};
-    const top=26,x0=16,x1=w+6,up=[[x0-4,top+6],[x0+4,top-2]];let x=x0+14,pk=true;
-    while(x<x1-20){const mid=1-Math.abs((x-x0)/(x1-x0)-.5)*1.1;up.push(pk?[x,top-8-mid*rnd(10,20)]:[x,top-rnd(1,6)]);x+=pk?rnd(30,48):rnd(22,34);pk=!pk;}
-    up.push([x1-6,top-3],[x1+2,top+5]);const lo=[];x=x1-2;while(x>x0+8){lo.push([x,top+rnd(8,13)]);x-=rnd(26,44);}lo.push([x0+2,top+10]);
-    const pts=[...up,...lo,up[0]];let d=`M${pts[0][0].toFixed(1)},${pts[0][1].toFixed(1)}`;
-    for(let k=0;k<pts.length-1;k++){const p0=pts[Math.max(k-1,0)],p1=pts[k],p2=pts[k+1],p3=pts[Math.min(k+2,pts.length-1)];
-      d+=` C${(p1[0]+(p2[0]-p0[0])/6).toFixed(1)},${(p1[1]+(p2[1]-p0[1])/6).toFixed(1)} ${(p2[0]-(p3[0]-p1[0])/6).toFixed(1)},${(p2[1]-(p3[1]-p1[1])/6).toFixed(1)} ${p2[0].toFixed(1)},${p2[1].toFixed(1)}`;}
-    let drips='';for(let k=0;k<2;k++){const dx=rnd(x0+40,x1-40),dl=rnd(7,13),dw=rnd(4,6),y0=top+8;drips+=`<path d="M${dx-dw},${y0}C${dx-dw},${y0+dl*.6} ${dx-dw/2},${y0+dl} ${dx},${y0+dl}C${dx+dw/2},${y0+dl} ${dx+dw},${y0+dl*.6} ${dx+dw},${y0}Z"/>`;}
-    return `<svg class="snowcap" viewBox="0 0 ${w+16} 56" preserveAspectRatio="none" aria-hidden="true"><g class="sc-sh"><path d="${d}Z"/>${drips}</g><g class="sc"><path d="${d}Z"/>${drips}</g></svg>`;}
   function block(){
     if(!fresh()){const season=[11,0,1,2,3].includes(new Date().getMonth());
       return `<section class="lstat" aria-label="מצב הרכבלים"><h3>${season?'אין מידע עדכני':'ההר עוד ישן'}</h3>
       <p class="lead">${season?'כרגע אין דיווח עדכני מ-MTA על הרכבלים. המפה מוצגת כרגיל.':'עוד אין דיווח על רכבלים. העונה בגודאורי נפתחת בדרך כלל בדצמבר, ואז השלטים יתנקו מהשלג.'}</p>
-      <div class="lstat-post">${names.slice(0,6).map((n,i)=>`<div class="lsign s${i%2}"><div class="ls-face"><b dir="ltr">${esc(n)}</b><span>?</span></div>${snow(i,300)}</div>`).join('')}</div>
+      <div class="lstat-post">${names.slice(0,6).map((n,i)=>`<div class="lsign s${i%2}"><div class="ls-face"><b dir="ltr">${esc(n)}</b><span>?</span></div>${snowCap(i,300)}</div>`).join('')}</div>
       <p class="hint"><b>לא מנחשים מצב:</b> כשאין דיווח עדכני, כתוב כאן שאין.</p></section>`;}
     const open=names.filter(n=>isOpen(n)).length;
     let prev=null;try{prev=JSON.parse(localStorage.getItem('gud-lstat')||'null');}catch(e){}

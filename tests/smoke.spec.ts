@@ -310,3 +310,34 @@ test('כרטיס הטיסה: שני כרטיסים שמתחלפים, וספח ש
   expect(wide).toBeLessThanOrEqual(1);
   expect(errors).toEqual([]);
 });
+
+test('נקודת מפגש: מתחילים בלי בחירה, ומבטלים בכפתור, בשטח ריק, בסיכה וב-X, עם החזרה', async ({ page }) => {
+  const errors = watchErrors(page);
+  await page.goto('/#meet');
+  await loaded(page);
+  // בהתחלה שום נקודה לא נבחרה: הכרטיס מחכה, ואין דרכים ושיתוף
+  await expect(page.locator('#meetEmpty')).toBeVisible();
+  await expect(page.locator('#meetCard')).toBeHidden();
+  await expect(page.locator('#meetShareBox')).toBeHidden();
+  await expect(page.locator('#meetMap .mm-pin.on')).toHaveCount(0);
+  await expect(page).toHaveURL(/#meet$/);
+  // בוחרים, ומבטלים בכפתור, ואז מחזירים
+  await page.locator('[data-pre="am"]').click();
+  await expect(page.locator('#meetCard')).toBeVisible();
+  await page.locator('#meetClear').click();
+  await expect(page.locator('#meetEmpty')).toBeVisible();
+  await expect(page).toHaveURL(/#meet$/);
+  await page.locator('#meetUndo').click();
+  await expect(page.locator('#meetCard [data-f="name"]')).toHaveText('Goodaura');
+  // ה-X על הכרטיס
+  await page.locator('#meetCardX').click();
+  await expect(page.locator('#meetCard')).toBeHidden();
+  // לחיצה על הסיכה בוחרת, ולחיצה שנייה עליה מבטלת
+  await page.locator('[data-pre="am"]').click();
+  await page.evaluate(() => scrollTo(0, 0));
+  await page.waitForTimeout(800);
+  const pin = page.locator('#meetMap .mm-pin.on .mm-dot');
+  await pin.click({ force: true });
+  await expect(page.locator('#meetCard')).toBeHidden();
+  expect(errors).toEqual([]);
+});

@@ -6,8 +6,9 @@ Run from the repo root: python3 design/round7/build_live.py"""
 import pathlib
 root = pathlib.Path(__file__).resolve().parent.parent.parent
 SHOTS = [
-    ('L1-GamesPhone.dc.html', 'עמוד המשחקים בטלפון', '/_blob/06bcd8fa9951c999de02823b7825f800', 390, 895),
-    ('L2-GamesDesktop.dc.html', 'עמוד המשחקים במחשב', '/_blob/ad4660a4df1023fd69176e4debd8b7c6', 1280, 800),
+    ('L1-GamesPhone.dc.html', 'עמוד המשחקים בטלפון', '/_blob/345e208038a53bfc64b97c1d77666d9b', 390, 844),
+    ('L2-GamesDesktop.dc.html', 'עמוד המשחקים במחשב', '/_blob/ab99b957bdc16f5b0e9482a24e4ab133', 1280, 800),
+    ('L5-MeetPhone.dc.html', 'נקודת מפגש בלי בחירה', '/_blob/41ce55c8b5a3075a59128e4d8e91e4e4', 390, 844),
     ('L3-HomePhone.dc.html', 'דף הבית עם הכרטיס החדש', '/_blob/af57868db33584f20e781fc7ccfa4f1b', 390, 844),
     ('L4-HomePhoneNight.dc.html', 'דף הבית בלילה', '/_blob/16b9598bef2c564a43959a09b7c4514f', 390, 844),
 ]

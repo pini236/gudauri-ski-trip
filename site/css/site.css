@@ -397,6 +397,24 @@ ul.notes li{margin-bottom:4px}
 .meet-callout .mc-where{font-size:12px;color:#A3B3C8;position:relative;z-index:1}
 .meet-all{position:absolute;top:12px;left:12px;min-height:44px;padding:0 14px;border:1.5px solid var(--rule);background:var(--paper);color:var(--ink);font:inherit;font-size:14px;font-weight:600;cursor:pointer}
 .meet-hint{position:absolute;bottom:12px;left:12px;padding:4px 10px;background:color-mix(in srgb,var(--paper) 94%,transparent);border:1px solid var(--rule);font-size:12.5px;font-weight:600;pointer-events:none}
+.meet-hint.ask{left:12px;right:12px;padding:10px 14px;background:#13233A;color:#fff;border:0;font-size:14px;font-weight:600;display:flex;align-items:center;gap:10px}
+.meet-hint.ask::before{content:"";flex:none;width:10px;height:10px;border-radius:50%;background:#F4B942;box-shadow:0 0 0 6px rgba(244,185,66,.3);animation:mmask 1.6s ease-out infinite}
+@keyframes mmask{50%{box-shadow:0 0 0 10px rgba(244,185,66,0)}}
+.meet-callout[hidden]{display:none}
+.meet-clear{position:absolute;top:12px;right:12px;min-height:44px;padding:0 14px;border:1.5px solid var(--rule);background:var(--paper);color:var(--ink);font:inherit;font-size:14px;font-weight:700;display:inline-flex;align-items:center;gap:8px;cursor:pointer}
+.meet-toast{position:absolute;left:12px;right:12px;bottom:12px;z-index:3;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 8px 8px 14px;background:#13233A;color:#fff;font-size:14px;font-weight:600;animation:mtoast .25s ease-out}
+.meet-toast button{min-height:44px;padding:0 18px;border:0;background:#F4B942;color:#13233A;font:inherit;font-weight:700;cursor:pointer}
+@keyframes mtoast{from{transform:translateY(12px);opacity:0}}
+.mcard-wrap{position:relative}
+.mcard-empty{display:flex;align-items:center;gap:14px;padding:18px 16px;border:2px dashed var(--dash);color:var(--muted);transform:rotate(-1.5deg);animation:mempty .35s ease-out}
+.mcard-empty b{display:block;font-family:var(--f-display);font-size:30px;line-height:1;color:var(--ink)}
+.mcard-empty span span{display:block;font-size:13px;margin-top:4px}
+@keyframes mempty{from{transform:rotate(-1.5deg) scale(.96);opacity:0}}
+.mcard[hidden],.mcard-empty[hidden]{display:none}
+.mcard:not([hidden]){animation:mprint .4s cubic-bezier(.2,.9,.3,1.2)}
+@keyframes mprint{from{transform:rotate(-2deg) translateY(-14px);opacity:0}}
+.mcard-x{position:absolute;top:-8px;left:-6px;z-index:2;width:44px;height:44px;border-radius:50%;border:2px solid var(--ink);background:var(--paper);color:var(--ink);display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 4px 10px var(--shadow)}
+.meet-clear:focus-visible,.meet-toast button:focus-visible,.mcard-x:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 .meet-side{background:var(--paper);border-inline-end:1px solid var(--rule);overflow:auto;padding:18px 22px 28px;display:flex;flex-direction:column;gap:18px;min-width:0}
 .meet-side h2{margin:0 0 8px;font-family:var(--f-display);font-weight:700;font-size:26px;line-height:1}
 .meet-days,.meet-times{display:grid;gap:6px}
@@ -484,42 +502,45 @@ ul.notes li{margin-bottom:4px}
 .lstat-changes{margin:0 0 10px;padding:8px 12px;list-style:none;background:#F4B942;color:#13233A;font-size:14px;font-weight:700}
 @media (prefers-reduced-motion:reduce){.bd-row,.mstat .ms-dot{animation:none!important}}
 
-/* games (decision 17): small cards, the first one larger; every game is its own page under games/ */
+/* games (decision 17); every game is its own page under games/ */
 .page-games{overflow:auto}
 .games{max-width:1040px;margin:0 auto;padding:24px 16px 40px;box-sizing:border-box}
 .games-head{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:0 0 16px}
 .games-sign{display:inline-flex;align-items:center;min-height:36px;padding:2px 16px 2px 30px;background:var(--ink);color:var(--paper);font-family:var(--f-display);font-weight:700;font-size:26px;line-height:1;clip-path:polygon(0 50%,16px 0,100% 0,100% 100%,16px 100%)}
 .games-intro{margin:0;color:var(--muted);font-size:14px;max-width:40em;flex:1 1 220px;min-width:0}
-.games-list{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
-.gc-wide{grid-column:1/-1}
-.gc-wide .game-card{flex-direction:row;align-items:stretch}
-.gc-wide .gc-thumb{flex:0 0 calc(25% - 10px)}
-.gc-wide .gc-thumb img{height:100%}
-.gc-wide .gc-body{justify-content:center;padding-inline:20px}
-.games-list .gc-wide .gc-long{display:block}
-.gc-feature{grid-column:span 2;grid-row:span 2}
-.game-card{display:flex;flex-direction:column;height:100%;background:var(--paper);color:var(--ink);text-decoration:none;border-top:6px solid var(--gc);box-shadow:0 2px 0 var(--rule);transition:transform .15s,box-shadow .15s}
-.game-card:hover{transform:translateY(-2px);box-shadow:0 6px 14px var(--shadow)}
-.game-card:active{transform:translateY(1px)}
-.gc-thumb{position:relative;display:block;overflow:hidden;background:var(--grid)}
-.gc-thumb img{display:block;width:100%;height:auto;aspect-ratio:4/3;object-fit:cover}
-.gc-feature .gc-thumb img{aspect-ratio:3/2}
-.gc-play{position:absolute;inset-inline-start:8px;bottom:8px}
-.gc-meta{position:absolute;inset-inline-end:0;top:10px;background:var(--gc);color:#fff;font-size:12px;font-weight:700;padding:3px 10px 3px 14px;clip-path:polygon(8px 0,100% 0,100% 100%,8px 100%,0 50%);text-shadow:0 1px 0 rgba(0,0,0,.25)}
-.gc-body{display:flex;flex-direction:column;gap:3px;padding:10px 12px 12px;min-width:0}
-.gc-body b{font-family:var(--f-display);font-weight:700;font-size:26px;line-height:1}
-.gc-feature .gc-body b{font-size:36px}
-.gc-tag{font-size:13px;line-height:1.35;color:var(--muted)}
-.gc-long{display:none;font-size:14px;line-height:1.45}
-.gc-feature .gc-long{display:block}
-@media (max-width:900px){.games-list{grid-template-columns:repeat(2,minmax(0,1fr))}.gc-wide .gc-thumb{flex-basis:calc(50% - 7px)}}
-@media (max-width:760px){.games{padding:4px 16px 32px}.games-sign{display:none}.games-head{margin-bottom:12px}.games-list{gap:10px}
-  .gc-feature{grid-row:auto}
-  /* on a phone the first game is a short card across, the rest small cards two by two */
-  .gc-feature .game-card,.gc-wide .game-card{flex-direction:row;align-items:stretch}
-  .gc-feature .gc-thumb,.gc-wide .gc-thumb{flex:0 0 46%}.gc-feature .gc-thumb img,.gc-wide .gc-thumb img{aspect-ratio:auto;height:100%;min-height:128px;object-position:28% 70%}
-  .gc-wide .gc-body{justify-content:center;padding-inline:10px}.games-list .gc-wide .gc-long{display:none}
-  .gc-feature .gc-body{justify-content:center}.gc-feature .gc-long{display:none}
-  .gc-body{padding:8px 10px 10px}.gc-body b{font-size:22px}.gc-feature .gc-body b{font-size:26px}.gc-tag{font-size:12.5px}
-  .gc-thumb img{aspect-ratio:5/4}
-  .gc-play{width:28px;height:28px}.gc-meta{font-size:11px;top:8px}}
+/* round 8 (Pini chose GP2): every game is a trail sign on one post, with fresh snow on top of each sign */
+.page-games{background:radial-gradient(circle at 18px 26px,rgba(255,255,255,.9) 1.4px,transparent 2px) 0 0/97px 97px,radial-gradient(circle at 60px 70px,rgba(255,255,255,.75) 1px,transparent 1.6px) 0 0/131px 131px,linear-gradient(var(--sky1),var(--snow) 340px)}
+.games-list{position:relative;list-style:none;margin:0 auto;padding:30px 0 30px;padding-inline-start:40px;max-width:820px;display:flex;flex-direction:column;align-items:flex-start;gap:36px}
+.games-list::before{content:"";position:absolute;inset-inline-start:12px;top:6px;bottom:0;width:10px;background:var(--ink)}
+.games-list::after{content:"";position:absolute;inset-inline-start:7px;top:-2px;width:20px;height:14px;border-radius:10px 10px 4px 4px;background:#fff;box-shadow:0 2px 2px rgba(13,21,34,.25)}
+.games-list li{width:90%}
+.games-list li:nth-child(1){width:97%}.games-list li:nth-child(3){width:84%}.games-list li:nth-child(5){width:80%}
+.game-card{position:relative;display:block;height:104px;text-decoration:none;filter:drop-shadow(0 6px 8px var(--shadow));transform-origin:100% 50%;transition:transform .2s cubic-bezier(.3,1.6,.5,1)}
+.gc-feature .game-card{height:150px}
+.game-card:hover{transform:rotate(-1.2deg)}
+.game-card:active{transform:rotate(.6deg) scale(.99)}
+.game-card:focus-visible{outline:none}
+.game-card:focus-visible .gc-face{box-shadow:inset 0 0 0 4px var(--accent)}
+.gc-face{position:absolute;inset:0;display:flex;align-items:stretch;background:var(--gc);color:#fff;clip-path:polygon(0 50%,30px 0,100% 0,100% 100%,30px 100%)}
+.gc-ink .gc-face{color:#13233A}
+.gc-thumb{position:relative;flex:0 0 auto;width:118px;overflow:hidden;background:var(--grid);border-inline-end:4px solid rgba(255,255,255,.55)}
+.gc-feature .gc-thumb{width:180px}
+.gc-thumb img{display:block;width:100%;height:100%;object-fit:cover}
+.gc-play{position:absolute;inset-inline-start:6px;bottom:6px;width:28px;height:28px}
+.gc-meta{position:absolute;inset-inline-end:0;bottom:6px;background:rgba(19,35,58,.84);color:#fff;font-size:11px;font-weight:700;padding:2px 8px}
+.gc-body{flex:1;display:flex;flex-direction:column;justify-content:center;gap:3px;padding:0 14px;padding-inline-end:36px;min-width:0}
+.gc-body b{font-family:var(--f-display);font-weight:700;font-size:30px;line-height:.95}
+.gc-feature .gc-body b{font-size:38px}
+.gc-tag{font-size:12.5px;line-height:1.35;opacity:.92}
+.gc-long{display:none;font-size:13.5px;line-height:1.45;opacity:.92}
+.game-card .snowcap{z-index:1}
+@media (min-width:761px){.game-card{height:132px}.gc-feature .game-card{height:200px}.gc-thumb{width:200px}.gc-feature .gc-thumb{width:300px}
+  .gc-body b{font-size:38px}.gc-feature .gc-body b{font-size:50px}.gc-feature .gc-long{display:block}.gc-tag{font-size:14px}}
+@media (max-width:760px){.games{padding:4px 12px 32px}.games-sign{display:none}.games-head{margin-bottom:6px}.games-list{padding-inline-start:34px;gap:34px}
+  .games-list::before{inset-inline-start:10px}.games-list::after{inset-inline-start:5px}
+  .game-card{height:96px}.gc-feature .game-card{height:122px}.gc-thumb{width:96px}.gc-feature .gc-thumb{width:124px}
+  .gc-body{padding:8px 10px 0;padding-inline-end:32px}
+  .gc-body b{font-size:25px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}.gc-feature .gc-body b{font-size:29px}
+  .gc-tag{font-size:11.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}}
+@media (max-width:370px){.gc-thumb{width:84px}.gc-feature .gc-thumb{width:104px}.gc-body b{font-size:23px}}
+@media (prefers-reduced-motion:reduce){.game-card{transition:none}}
