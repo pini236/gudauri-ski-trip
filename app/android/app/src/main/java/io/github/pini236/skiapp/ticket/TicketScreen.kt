@@ -1,6 +1,8 @@
 package io.github.pini236.skiapp.ticket
 
 import androidx.compose.animation.core.Animatable
+import io.github.pini236.skiapp.R
+import androidx.compose.ui.res.stringResource
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.Canvas
@@ -57,6 +59,8 @@ private const val HOLES = 11
 @Composable
 fun TicketScreen(haptics: Haptics, sounds: Sounds) {
     val tm = rememberTextMeasurer()
+    val words = TicketWords(stringResource(R.string.ticket_title), stringResource(R.string.ticket_flight), stringResource(R.string.ticket_gate),
+        stringResource(R.string.ticket_stub), stringResource(R.string.ticket_sign))
     var tear by remember { mutableFloatStateOf(0f) } // 0..1 down the perforation
     var torn by remember { mutableIntStateOf(0) }
     var falling by remember { mutableStateOf(false) }
@@ -81,7 +85,7 @@ fun TicketScreen(haptics: Haptics, sounds: Sounds) {
     }
 
     Column(Modifier.fillMaxSize().padding(16.dp), verticalArrangement = Arrangement.spacedBy(18.dp)) {
-        Text("כרטיס לדוגמה: גוררים את הספח למטה כדי לתלוש", fontFamily = Plex, fontSize = 14.sp, color = Palette.muted)
+        Text(stringResource(R.string.ticket_hint), fontFamily = Plex, fontSize = 14.sp, color = Palette.muted)
         Canvas(
             Modifier.fillMaxWidth().height(230.dp)
                 .pointerInput(Unit) {
@@ -111,14 +115,14 @@ fun TicketScreen(haptics: Haptics, sounds: Sounds) {
                 },
         ) {
             frame
-            drawTicket(tm, tear, torn, falling, fall)
+            drawTicket(tm, words, tear, torn, falling, fall)
         }
         Canvas(
             Modifier.fillMaxWidth().height(170.dp).pointerInput(Unit) {
                 detectTapGestures { haptics.tick(0.6f); scope.launch { wobble.snapTo(6f); wobble.animateTo(0f, spring(dampingRatio = 0.25f, stiffness = Spring.StiffnessLow)) } }
             },
-        ) { drawSnowSign(tm, wobble.value) }
-        Text("צליל הקריעה: \"Perforated Tear\" מאת everythingsounds (Freesound), ברישיון CC BY 4.0. צלילי הכרטיס: Kenney (CC0).",
+        ) { drawSnowSign(tm, words, wobble.value) }
+        Text(stringResource(R.string.ticket_credits),
             fontFamily = Plex, fontSize = 11.sp, color = Palette.muted)
     }
 }
@@ -128,7 +132,10 @@ private fun DrawScope.text(tm: TextMeasurer, s: String, at: Offset, sizeSp: Floa
     drawText(tm, s, at, st)
 }
 
-private fun DrawScope.drawTicket(tm: TextMeasurer, tear: Float, torn: Int, falling: Boolean, fall: Triple<Float, Float, Float>) {
+/** The words drawn on the canvas, from the strings file. */
+private class TicketWords(val title: String, val flight: String, val gate: String, val stub: String, val sign: String)
+
+private fun DrawScope.drawTicket(tm: TextMeasurer, words: TicketWords, tear: Float, torn: Int, falling: Boolean, fall: Triple<Float, Float, Float>) {
     val w = size.width; val h = size.height
     val stubW = w * 0.30f
     val r = 6.dp.toPx()
@@ -138,12 +145,12 @@ private fun DrawScope.drawTicket(tm: TextMeasurer, tear: Float, torn: Int, falli
         drawRoundRect(Color(0x2213233A), Offset(stubW + 3, 6f), Size(w - stubW, h), CornerRadius(r))
         drawRoundRect(paper, Offset(stubW, 0f), Size(w - stubW, h), CornerRadius(r))
         drawRect(Palette.glacier, Offset(stubW, 0f), Size(w - stubW, 34.dp.toPx()))
-        text(tm, "כרטיס עלייה למטוס · דוגמה", Offset(stubW + 14.dp.toPx(), 7.dp.toPx()), 14f, Color.White, bold = true)
+        text(tm, words.title, Offset(stubW + 14.dp.toPx(), 7.dp.toPx()), 14f, Color.White, bold = true)
         text(tm, "TLV", Offset(stubW + 16.dp.toPx(), 48.dp.toPx()), 58f, Palette.ink, display = true)
         text(tm, "TBS", Offset(w - 100.dp.toPx(), 48.dp.toPx()), 58f, Palette.ink, display = true)
         drawLine(Palette.muted, Offset(stubW + 110.dp.toPx(), 86.dp.toPx()), Offset(w - 112.dp.toPx(), 86.dp.toPx()), strokeWidth = 2.dp.toPx())
-        text(tm, "טיסה GD 101 · 15.12 · 16:00", Offset(stubW + 16.dp.toPx(), 150.dp.toPx()), 15f, Palette.ink, bold = true)
-        text(tm, "שער — · מושב —", Offset(stubW + 16.dp.toPx(), 178.dp.toPx()), 13f, Palette.muted)
+        text(tm, words.flight, Offset(stubW + 16.dp.toPx(), 150.dp.toPx()), 15f, Palette.ink, bold = true)
+        text(tm, words.gate, Offset(stubW + 16.dp.toPx(), 178.dp.toPx()), 13f, Palette.muted)
         // perforation: punched holes, the torn ones open to the background
         val holeR = 3.5f.dp.toPx()
         for (i in 0 until HOLES) {
@@ -158,7 +165,7 @@ private fun DrawScope.drawTicket(tm: TextMeasurer, tear: Float, torn: Int, falli
                 val a = fall.third
                 drawRoundRect(paper.copy(alpha = a), Offset(0f, 0f), Size(stubW - 2, h), CornerRadius(r))
                 drawRect(Palette.glacier.copy(alpha = a), Offset(0f, 0f), Size(stubW - 2, 34.dp.toPx()))
-                text(tm, "ספח", Offset(12.dp.toPx(), 7.dp.toPx()), 14f, Color.White.copy(alpha = a), bold = true)
+                text(tm, words.stub, Offset(12.dp.toPx(), 7.dp.toPx()), 14f, Color.White.copy(alpha = a), bold = true)
                 text(tm, "TBS", Offset(12.dp.toPx(), 52.dp.toPx()), 46f, Palette.ink.copy(alpha = a), display = true)
                 text(tm, "15.12", Offset(12.dp.toPx(), 150.dp.toPx()), 16f, Palette.ink.copy(alpha = a), bold = true)
             }
@@ -167,7 +174,7 @@ private fun DrawScope.drawTicket(tm: TextMeasurer, tear: Float, torn: Int, falli
 }
 
 /** A trail sign on its post with fresh snow on top and a few drips, the arrow pointing on (left, in Hebrew). */
-private fun DrawScope.drawSnowSign(tm: TextMeasurer, wobble: Float) {
+private fun DrawScope.drawSnowSign(tm: TextMeasurer, words: TicketWords, wobble: Float) {
     val w = size.width; val h = size.height
     val bw = w * 0.78f; val bh = 64.dp.toPx(); val left = (w - bw) / 2; val top = 46.dp.toPx()
     drawRect(Color(0xFF3A4556), Offset(w / 2 - 5.dp.toPx(), top + bh - 4), Size(10.dp.toPx(), h - top - bh + 4))
@@ -177,7 +184,7 @@ private fun DrawScope.drawSnowSign(tm: TextMeasurer, wobble: Float) {
             moveTo(left + arrow, top); lineTo(left + bw, top); lineTo(left + bw, top + bh); lineTo(left + arrow, top + bh); lineTo(left, top + bh / 2); close()
         }
         drawPath(board, Palette.glacier)
-        text(tm, "מפת המסלולים", Offset(left + arrow + 14.dp.toPx(), top + 6.dp.toPx()), 40f, Color.White, display = true)
+        text(tm, words.sign, Offset(left + arrow + 14.dp.toPx(), top + 6.dp.toPx()), 40f, Color.White, display = true)
         // fresh snow: soft lumps along the top edge, a little shadow, and rounded drips
         val snow = Path().apply {
             moveTo(left + arrow - 6, top + 2)

@@ -25,7 +25,6 @@ import io.github.pini236.skiapp.data.Piste
 import io.github.pini236.skiapp.perf.FrameStats
 import io.github.pini236.skiapp.qa.Qa
 import java.text.NumberFormat
-import java.util.Locale
 import java.util.concurrent.Executors
 import javax.microedition.khronos.egl.EGL10
 import javax.microedition.khronos.egl.EGLConfig
@@ -120,6 +119,8 @@ class MapView(context: Context, refreshHz: Float, val stats: FrameStats) : Frame
     var scene: MapScene? = null; private set
     var selected: Piste? = null; private set
     var onSelect: ((Piste?) -> Unit)? = null
+    /** The activity's listener: the chosen run goes into the saved place (nav/Nav.kt). */
+    var onChosen: ((Piste?) -> Unit)? = null
     var onFlying: ((Boolean) -> Unit)? = null
     val msaa get() = surface.msaa
 
@@ -152,7 +153,7 @@ class MapView(context: Context, refreshHz: Float, val stats: FrameStats) : Frame
     private fun buildLabels(s: MapScene): List<MapLabel> {
         val display = ResourcesCompat.getFont(context, R.font.karantina_bold)
         val body = ResourcesCompat.getFont(context, R.font.plex_hebrew_bold)
-        val nf = NumberFormat.getIntegerInstance(Locale.US)
+        val nf = NumberFormat.getIntegerInstance(io.github.pini236.skiapp.i18n.Lang.current(resources).locale)
         fun layout(text: String, tf: android.graphics.Typeface?, sp: Float, color: Int): StaticLayout {
             val p = TextPaint(Paint.ANTI_ALIAS_FLAG).apply { typeface = tf; textSize = sp * resources.displayMetrics.scaledDensity; this.color = color }
             val w = kotlin.math.ceil(Layout.getDesiredWidth(text, p)).toInt()
@@ -161,13 +162,13 @@ class MapView(context: Context, refreshHz: Float, val stats: FrameStats) : Frame
         val out = ArrayList<MapLabel>()
         // peaks: a Latin name, a Hebrew unit and a number in one line, the bidi case
         for (p in s.terrain.peaks) out += MapLabel(p.x, s.terrain.elev(p.x, p.y) + 30, p.y,
-            layout("${p.name} · ${nf.format(p.ele)} מ׳", display, 19f, Color.argb(255, 19, 35, 58)), 3, false)
+            layout(context.getString(R.string.map_peak, p.name, nf.format(p.ele)), display, 19f, Color.argb(255, 19, 35, 58)), 3, false)
         // top stations of the named lifts
         s.runs.lifts.forEachIndexed { i, l ->
             if (l.name.isBlank()) return@forEachIndexed
             val line = s.liftLines[i]; val n = line.size / 3
             val top = if (line[1] > line[(n - 1) * 3 + 1]) 0 else n - 1
-            out += MapLabel(line[top * 3], line[top * 3 + 1] + 20, line[top * 3 + 2], layout("רכבל ${l.name}", body, 12f, Color.WHITE), 2, true)
+            out += MapLabel(line[top * 3], line[top * 3 + 1] + 20, line[top * 3 + 2], layout(context.getString(R.string.map_lift, l.name), body, 12f, Color.WHITE), 2, true)
         }
         return out.sortedByDescending { it.priority }
     }
@@ -177,6 +178,7 @@ class MapView(context: Context, refreshHz: Float, val stats: FrameStats) : Frame
         val s = scene ?: return
         selected = p
         onSelect?.invoke(p)
+        onChosen?.invoke(p)
         if (p == null) { renderer.select(null); Qa.log("selected none"); return }
         worker.execute {
             val lines = s.topDown(p)
