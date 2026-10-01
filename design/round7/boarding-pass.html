@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>כרטיס עלייה למטוס</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Karantina:wght@700&family=IBM+Plex+Sans+Hebrew:wght@400;600;700&display=swap">
+<style>
+/* סבב 7: שלוש הצעות לכרטיס הטיסה בדף הבית, שייראה כמו כרטיס עלייה למטוס אמיתי. הצעה בלבד, לא באתר. */
+:root{
+  --snow:#EEF2F5; --paper:#FFFFFF; --paper2:#F7F9FB; --ink:#13233A; --muted:#4B5A6F; --rule:#CBD5DF; --dash:#8E9CAD;
+  --accent:#1F5FC4; --on-accent:#FFFFFF; --red:#D1342B; --green:#1B8A4C; --gold:#F4B942; --shadow:rgba(19,35,58,.18);
+  --f-display:"Karantina","Arial Narrow",sans-serif; --f-body:"IBM Plex Sans Hebrew",system-ui,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --snow:#0D1522; --paper:#16223A; --paper2:#1B2944; --ink:#EAF0F7; --muted:#A3B3C8; --rule:#2A3B55; --dash:#51627D;
+  --accent:#F4B942; --on-accent:#0D1522; --shadow:rgba(0,0,0,.45); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --snow:#0D1522; --paper:#16223A; --paper2:#1B2944; --ink:#EAF0F7; --muted:#A3B3C8; --rule:#2A3B55; --dash:#51627D;
+  --accent:#F4B942; --on-accent:#0D1522; --shadow:rgba(0,0,0,.45); color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--snow);color:var(--ink);font:15px/1.5 var(--f-body);padding:24px 16px 60px;overflow-x:clip}
+.stage{overflow-x:clip}
+.wrap{max-width:980px;margin:0 auto;display:flex;flex-direction:column;gap:40px}
+h1{font:700 44px/1 var(--f-display);margin:0}
+.lead{margin:6px 0 0;color:var(--muted);max-width:62ch}
+.opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:48px 32px}
+.opt{display:flex;flex-direction:column;gap:14px;min-width:0}
+.opt h2{margin:0;font:700 30px/1 var(--f-display);display:flex;gap:10px;align-items:baseline}
+.opt h2 span{font:600 13px var(--f-body);color:var(--muted)}
+.opt ul{margin:0;padding-inline-start:18px;color:var(--muted);font-size:13.5px}
+.stage{padding:22px 6px}
+small,.lbl{display:block;font-size:11px;font-weight:600;letter-spacing:.06em;color:var(--muted)}
+.code{font:700 64px/.8 var(--f-display);letter-spacing:.02em;direction:ltr}
+.num{font-variant-numeric:tabular-nums}
+b{font-weight:700}
+
+/* ── א. קלאסי: שני חלקים, ניקוב עם חצאי עיגול, ספח לתלישה ── */
+.bp{display:flex;max-width:460px;transform:rotate(-2deg);filter:drop-shadow(0 10px 18px var(--shadow))}
+.bp-main{flex:1;min-width:0;background:var(--paper);display:flex;flex-direction:column;
+  -webkit-mask:radial-gradient(circle 11px at 0 0,#0000 98%,#000) 0 0/100% 100%,radial-gradient(circle 11px at 0 100%,#0000 98%,#000);
+  -webkit-mask-composite:source-in;mask-composite:intersect}
+.bp-strip{background:var(--accent);color:var(--on-accent);display:flex;justify-content:space-between;align-items:center;padding:7px 16px;font-size:12px;font-weight:700;letter-spacing:.04em}
+.bp-body{padding:12px 16px 14px;display:flex;flex-direction:column;gap:12px}
+.bp-route{display:grid;grid-template-columns:1fr auto 1fr;align-items:end;gap:8px}
+.bp-route .end:last-child{text-align:left}
+.bp-route .city{font-size:13px;font-weight:600}
+.plane{color:var(--accent);align-self:center;margin-top:-10px}
+.grid{display:grid;grid-template-columns:repeat(4,auto);justify-content:space-between;gap:8px 12px;border-top:1px solid var(--rule);padding-top:10px}
+.grid b{font-size:16px}
+.bp-ret{font-size:12px;color:var(--muted);margin:0}
+.bp-ret b{color:var(--ink);font-weight:600}
+.bp-stub{width:112px;flex:none;background:var(--paper2);border-inline-start:2px dashed var(--dash);display:flex;flex-direction:column;align-items:center;gap:6px;padding:10px 8px;text-align:center;
+  -webkit-mask:radial-gradient(circle 11px at 100% 0,#0000 98%,#000) 0 0/100% 100%,radial-gradient(circle 11px at 100% 100%,#0000 98%,#000);
+  -webkit-mask-composite:source-in;mask-composite:intersect}
+.bp-stub .days{font:700 64px/.8 var(--f-display);color:var(--accent);margin-top:4px}
+.bp-stub .mini{font:700 22px/1 var(--f-display);direction:ltr}
+.ridge{display:block;width:100%;height:34px;margin-top:auto}
+
+/* ── ב. ארנק בטלפון: כרטיס אנכי, וכרטיס החזור מציץ מאחוריו ── */
+.wallet{position:relative;max-width:360px;padding-top:26px}
+.wallet .back{position:absolute;inset:0 14px auto;height:60px;background:var(--paper2);border:1px solid var(--rule);display:flex;align-items:start;justify-content:space-between;padding:6px 12px;font-size:11.5px;color:var(--muted)}
+.wallet .back b{color:var(--ink)}
+.wc{position:relative;background:var(--paper);box-shadow:0 10px 24px var(--shadow);display:flex;flex-direction:column}
+.wc-head{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-bottom:1px solid var(--rule)}
+.wc-head .logo{display:flex;align-items:center;gap:8px;font-weight:700}
+.wc-head .logo i{width:22px;height:22px;background:var(--accent);clip-path:polygon(0 100%,38% 22%,55% 52%,72% 30%,100% 100%)}
+.wc-head .fl{text-align:left}
+.wc-head .fl b{font:700 26px/1 var(--f-display);direction:ltr;display:block}
+.wc-route{display:flex;justify-content:space-between;align-items:center;padding:16px}
+.wc-route .code{font-size:76px}
+.wc-route .end:last-child{text-align:left}
+.wc-route .path{flex:1;margin:0 10px;height:2px;background:repeating-linear-gradient(90deg,var(--dash) 0 6px,#0000 6px 11px);position:relative}
+.wc-route .path svg{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);background:var(--paper);padding:0 4px;color:var(--accent)}
+.wc-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:0 16px 14px}
+.wc-row b{font-size:17px}
+.wc-tear{height:22px;position:relative;margin:0}
+.wc-tear::before{content:"";position:absolute;inset:10px 14px auto;border-top:2px dashed var(--dash)}
+.wc-tear::after{content:"";position:absolute;inset:0;background:radial-gradient(circle 11px at 0 50%,var(--snow) 98%,#0000),radial-gradient(circle 11px at 100% 50%,var(--snow) 98%,#0000)}
+.wc-foot{display:flex;align-items:center;gap:14px;padding:6px 16px 16px}
+.wc-foot .count{font:700 58px/.8 var(--f-display);color:var(--accent)}
+.wc-foot .crew{font-size:12px;color:var(--muted);flex:1}
+.wc-foot .crew b{color:var(--ink);display:block;font-size:14px}
+.qr{width:74px;height:74px;flex:none}
+
+/* ── ג. כרטיס של חבר׳ה: מבט מלמעלה, שישה ספחים לתלישה ── */
+.crewpass{max-width:460px;background:var(--paper);box-shadow:0 10px 24px var(--shadow);transform:rotate(1.5deg)}
+.cp-top{display:grid;grid-template-columns:1fr auto;gap:12px;padding:14px 16px 10px;align-items:center}
+.cp-top .code{font-size:54px}
+.cp-top>*{min-width:0}
+.cp-top .route{display:flex;align-items:center;gap:10px}
+.cp-top .route svg{color:var(--accent)}
+.cp-top .when{text-align:left}
+.cp-top .when b{font:700 34px/.9 var(--f-display);direction:ltr;display:block}
+.cp-band{display:flex;height:8px}
+.cp-band i{flex:1}
+.cp-stubs{display:grid;grid-template-columns:repeat(auto-fit,minmax(118px,1fr));gap:1px;background:var(--rule);border-top:2px dashed var(--dash)}
+.cp-stubs div{padding:8px 10px;background:var(--paper);display:flex;flex-direction:column;gap:2px;min-width:0}
+.cp-stubs b{font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cp-stubs span{font-size:11px;color:var(--muted)}
+.cp-stubs .seat{font:700 20px/1 var(--f-display);color:var(--accent)}
+
+.note{border-inline-start:4px solid var(--gold);background:var(--paper);padding:12px 16px;font-size:13.5px;color:var(--muted)}
+.note b{color:var(--ink)}
+@media (max-width:420px){.code{font-size:46px}.wc-route .code{font-size:58px}.cp-top .code{font-size:40px}.cp-top .when b{font-size:26px}.bp-route{gap:4px}.bp-stub{width:96px}.grid{grid-template-columns:repeat(2,auto)}}
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>כרטיס עלייה למטוס: שלוש הצעות</h1>
+    <p class="lead">סבב 7, לבקשת פיני. הכרטיס בדף הבית היום הוא מלבן עם ספח. כאן שלושה כיוונים שנראים יותר כמו כרטיס עלייה אמיתי. כל הנתונים מהקובץ של הטיסה; אין מושב, שער או מספר הזמנה, ולכן הם לא מומצאים.</p>
+  </header>
+
+  <div class="opts">
+    <section class="opt">
+      <h2>א. הקלאסי <span>הכי קרוב למה שיש</span></h2>
+      <div class="stage">
+        <div class="bp">
+          <div class="bp-main">
+            <div class="bp-strip"><span>ישראייר · כרטיס עלייה למטוס</span><span class="num">10 JAN 27</span></div>
+            <div class="bp-body">
+              <div class="bp-route">
+                <div class="end"><small>מ</small><div class="code">TLV</div><div class="city">תל אביב</div></div>
+                <svg class="plane" width="30" height="30" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M2 13.5v-2l8-4.5V2.5a1.5 1.5 0 0 1 3 0V7l8 4.5v2l-8-2.5v5l2.5 2v1.5L12 18.5 8.5 19.5V18l2.5-2v-5z" transform="rotate(-90 12 12)"/></svg>
+                <div class="end"><small>אל</small><div class="code">TBS</div><div class="city">טביליסי</div></div>
+              </div>
+              <div class="grid">
+                <div><small>טיסה</small><b class="num" dir="ltr">6H 897</b></div>
+                <div><small>תאריך</small><b class="num">10.1</b></div>
+                <div><small>המראה</small><b class="num">16:00</b></div>
+                <div><small>נחיתה</small><b class="num">20:35</b></div>
+              </div>
+              <p class="bp-ret">חזרה: <b class="num">15.1</b>, טיסה <b class="num" dir="ltr">6H 892</b>, המראה <b class="num">01:35</b> בלילה</p>
+            </div>
+          </div>
+          <div class="bp-stub">
+            <small>עוד</small>
+            <div class="days num">101</div>
+            <small>ימים לטיסה</small>
+            <div class="mini">TLV › TBS</div>
+            <svg class="ridge" viewBox="0 0 96 34" preserveAspectRatio="none" aria-hidden="true"><g fill="currentColor" style="color:var(--ink)" id="ridgeA"></g></svg>
+          </div>
+        </div>
+      </div>
+      <ul>
+        <li>קודי שדות התעופה ענקיים, ושם העיר בעברית מתחתם.</li>
+        <li>פס עליון בצבע, עם חברת התעופה והתאריך כמו בכרטיס מודפס.</li>
+        <li>חצאי עיגול בפינות הספח, כמו ניקוב אמיתי.</li>
+        <li>הברקוד הוא קו הרכס של גודאורי, מחושב מהפסגות האמיתיות. הוא לא נראה כמו קוד שאפשר לסרוק.</li>
+      </ul>
+    </section>
+
+    <section class="opt">
+      <h2>ב. בארנק של הטלפון <span>מומלץ לטלפון</span></h2>
+      <div class="stage">
+        <div class="wallet">
+          <div class="back"><span>חזרה · <b class="num" dir="ltr">TBS › TLV</b></span><span class="num">15.1 · 01:35</span></div>
+          <div class="wc">
+            <div class="wc-head">
+              <div class="logo"><i></i>גודאורי 2027</div>
+              <div class="fl"><small>טיסה</small><b class="num">6H 897</b></div>
+            </div>
+            <div class="wc-route">
+              <div class="end"><small>תל אביב</small><div class="code">TLV</div></div>
+              <div class="path"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M2 13.5v-2l8-4.5V2.5a1.5 1.5 0 0 1 3 0V7l8 4.5v2l-8-2.5v5l2.5 2v1.5L12 18.5 8.5 19.5V18l2.5-2v-5z" transform="rotate(-90 12 12)"/></svg></div>
+              <div class="end"><small>טביליסי</small><div class="code">TBS</div></div>
+            </div>
+            <div class="wc-row">
+              <div><small>תאריך</small><b class="num">10.1.2027</b></div>
+              <div><small>המראה</small><b class="num">16:00</b></div>
+              <div><small>נחיתה</small><b class="num">20:35</b></div>
+            </div>
+            <div class="wc-row">
+              <div><small>נוסעים</small><b>6 החבר׳ה</b></div>
+              <div><small>כבודה</small><b>תיק יד</b></div>
+              <div><small>ימי סקי</small><b class="num">11–14.1</b></div>
+            </div>
+            <div class="wc-tear" aria-hidden="true"></div>
+            <div class="wc-foot">
+              <div class="count num">101</div>
+              <div class="crew"><b>ימים לטיסה</b>נגיעה בכרטיס החזור שמאחור מחליפה ביניהם</div>
+              <svg class="qr" viewBox="0 0 21 21" shape-rendering="crispEdges" aria-hidden="true"><g fill="currentColor" style="color:var(--ink)" id="qrB"></g></svg>
+            </div>
+          </div>
+        </div>
+      </div>
+      <ul>
+        <li>כרטיס אנכי ברוחב המסך, כמו כרטיס בארנק הדיגיטלי.</li>
+        <li>מספר הטיסה למעלה, לקריאה במבט אחד. הקודים במרכז, עם קו מקווקו ומטוס.</li>
+        <li>כרטיס החזור מציץ מאחור. נגיעה מחליפה ביניהם.</li>
+        <li>הריבוע הוא איור של פסגה בפיקסלים, לא קוד אמיתי.</li>
+      </ul>
+    </section>
+
+    <section class="opt">
+      <h2>ג. כרטיס של החבר׳ה <span>הכי אישי</span></h2>
+      <div class="stage">
+        <div class="crewpass">
+          <div class="cp-top">
+            <div class="route"><span class="code">TLV</span><svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M2 13.5v-2l8-4.5V2.5a1.5 1.5 0 0 1 3 0V7l8 4.5v2l-8-2.5v5l2.5 2v1.5L12 18.5 8.5 19.5V18l2.5-2v-5z" transform="rotate(-90 12 12)"/></svg><span class="code">TBS</span></div>
+            <div class="when"><small>10.1 · 6H 897</small><b class="num">16:00</b></div>
+          </div>
+          <div class="cp-band" aria-hidden="true"><i style="background:var(--green)"></i><i style="background:#1F5FC4"></i><i style="background:var(--red)"></i><i style="background:var(--ink)"></i></div>
+          <div class="cp-stubs">
+            <div><span>נוסע 1</span><b>יהודה וצלר</b></div>
+            <div><span>נוסע 2</span><b>דובי אלבום</b></div>
+            <div><span>נוסע 3</span><b>שרוליק לפקוביץ׳</b></div>
+            <div><span>נוסע 4</span><b>מוישי בוקצ׳ין</b></div>
+            <div><span>נוסע 5</span><b>יהודה הרש</b></div>
+            <div><span>נוסע 6</span><b>פיני זולברג</b></div>
+          </div>
+        </div>
+      </div>
+      <ul>
+        <li>כרטיס קבוצתי אחד, עם ספח לכל אחד מהחבר׳ה, במקום הקטע "החבר׳ה" הנפרד.</li>
+        <li>פס בצבעי המסלולים, ירוק עד שחור, כמו פס הקושי בכרטיס סקי.</li>
+        <li>אפשר להוסיף: נגיעה בספח תולשת אותו בתנועה קטנה.</li>
+        <li>השמות כבר מוצגים באתר היום, אז אין כאן חשיפה חדשה.</li>
+      </ul>
+    </section>
+  </div>
+
+  <p class="note"><b>תוספות שמתאימות לכל ההצעות:</b> תלישת הספח בתנועה (בלחיצה, עם רטט קצר), מרקם נייר עדין, ובלילה כרטיס כהה עם הדפס זוהר. <b>מה לא נכנס בכוונה:</b> שער, מושב, זמן עלייה ומספר הזמנה. אין לנו אותם, ומספר הזמנה אסור לשמור.</p>
+</div>
+
+<script>
+/* קו הרכס כברקוד: גבהים של קו הרכס מעל New Gudauri, מנורמלים. כל עמודה היא פס. */
+(function(){
+  var h=[.30,.42,.55,.48,.62,.80,.70,.58,.66,.92,1,.86,.74,.60,.68,.78,.64,.50,.44,.56,.70,.62,.48,.36,.42,.30,.24,.34,.28,.20,.26,.18];
+  var g=document.getElementById('ridgeA'),w=96/h.length,s='';
+  h.forEach(function(v,i){var bw=(i%3==0?2:i%2?1.2:.7);s+='<rect x="'+(i*w).toFixed(2)+'" y="'+(34-v*34).toFixed(2)+'" width="'+bw+'" height="'+(v*34).toFixed(2)+'"/>';});
+  g.innerHTML=s;
+  /* איור פסגה בפיקסלים, בשלוש פינות כמו בקוד דו-ממדי, אבל בלי מידע */
+  var q=document.getElementById('qrB'),t='';
+  function sq(x,y){t+='<rect x="'+x+'" y="'+y+'" width="7" height="7"/><rect x="'+(x+1)+'" y="'+(y+1)+'" width="5" height="5" fill="var(--paper)"/><rect x="'+(x+2)+'" y="'+(y+2)+'" width="3" height="3"/>';}
+  sq(0,0);sq(14,0);sq(0,14);
+  for(var y=8;y<21;y++)for(var x=0;x<21;x++){
+    if((x<8&&y<8)||(x>12&&y<8)||(x<8&&y>12))continue;
+    var peak=Math.abs(x-13)+ (20-y)*0.9 < 8.5, dots=((x*7+y*13)%5==0);
+    if(peak||dots)t+='<rect x="'+x+'" y="'+y+'" width="1" height="1"/>';
+  }
+  q.innerHTML=t;
+})();
+</script>
