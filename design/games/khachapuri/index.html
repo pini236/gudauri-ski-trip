@@ -1,0 +1,129 @@
+<title>החצ׳אפורי המושלם</title>
+<meta name="description" content="חמישה צעדים לחצ׳אפורי אג׳רי: לקפל, למלא גבינה, לאפות, לשבור ביצה ולערבב חמאה">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Karantina:wght@700&family=IBM+Plex+Sans+Hebrew:wght@400;600;700&display=swap">
+<style>
+/* One look: a warm wooden table in a Gudauri kitchen. The same in both themes. */
+:root{ --ink:#2A1A10; --wood:#7A4A2A; --accent:#F4B942; --f-display:"Karantina","Arial Narrow",sans-serif; --f-body:"IBM Plex Sans Hebrew",system-ui,-apple-system,"Segoe UI",sans-serif; color-scheme:dark; }
+html,body{height:100%}
+[hidden]{display:none!important}
+body{margin:0;background:#5A3420;color:#FFF6E8;font-family:var(--f-body);direction:rtl;overflow:hidden;-webkit-user-select:none;user-select:none;touch-action:none}
+#game{position:fixed;inset:0;width:100%;height:100%;display:block}
+.top{position:fixed;left:0;right:0;top:calc(env(safe-area-inset-top,0px) + 12px);display:flex;flex-direction:column;align-items:center;gap:6px;pointer-events:none;padding:0 16px;text-align:center}
+.steps{display:flex;gap:6px}
+.steps i{font-style:normal;width:34px;height:8px;background:rgba(255,246,232,.25)}
+.steps i.on{background:var(--accent)}.steps i.done{background:#F2E3C8}
+.top b{font-family:var(--f-display);font-size:40px;line-height:1}
+.top small{font-size:14px;font-weight:700;max-width:30em}
+.grade{position:fixed;left:50%;top:44%;transform:translate(-50%,-50%);font-family:var(--f-display);font-size:64px;line-height:1;color:#fff;text-shadow:0 3px 0 rgba(0,0,0,.5);pointer-events:none;opacity:0;white-space:nowrap}
+.grade.go{animation:gr 1.2s ease forwards}
+@keyframes gr{0%{opacity:0;transform:translate(-50%,-30%) scale(.7)}20%{opacity:1;transform:translate(-50%,-50%) scale(1.05)}80%{opacity:1}100%{opacity:0}}
+.btn{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 22px);transform:translateX(-50%);font:inherit;min-width:180px;min-height:64px;border:0;background:var(--accent);color:var(--ink);font-family:var(--f-display);font-size:32px;cursor:pointer;box-shadow:0 5px 0 rgba(0,0,0,.4);touch-action:none}
+.btn:active{transform:translateX(-50%) translateY(3px);box-shadow:0 2px 0 rgba(0,0,0,.4)}
+.menu{position:fixed;inset:0;overflow:auto;padding:calc(env(safe-area-inset-top,0px) + 16px) 16px calc(env(safe-area-inset-bottom,0px) + 20px);background:linear-gradient(rgba(90,52,32,.2),rgba(30,16,8,.85) 50%);display:flex;flex-direction:column;justify-content:flex-end;gap:14px;touch-action:auto}
+.menu h1{margin:0;font-family:var(--f-display);font-size:60px;line-height:.9}
+.menu p{margin:0;font-size:14px;line-height:1.45;max-width:36em}
+.card{background:#FFF6E8;color:var(--ink);padding:14px;display:flex;flex-direction:column;gap:6px;transform:rotate(-2deg)}
+.card .big{font-family:var(--f-display);font-size:60px;line-height:.85;font-variant-numeric:tabular-nums}
+.card .rows{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:4px;font-size:11px;color:#6B4A30}
+.card .rows span{display:flex;flex-direction:column}
+.card .rows b{font-family:var(--f-display);font-size:24px;color:var(--ink)}
+.card small{font-size:13px;color:#6B4A30}
+.go-btn{font:inherit;min-height:60px;border:0;background:var(--accent);color:var(--ink);font-family:var(--f-display);font-size:34px;cursor:pointer;box-shadow:0 5px 0 rgba(0,0,0,.4)}
+.note{font-size:11.5px;color:rgba(255,246,232,.75)}
+.snd{position:fixed;right:12px;bottom:calc(env(safe-area-inset-bottom,0px) + 14px);font:inherit;min-width:44px;min-height:44px;border:0;background:rgba(0,0,0,.35);color:#fff;cursor:pointer}
+button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){.grade.go{animation-duration:.01s}}
+</style>
+<canvas id="game" aria-label="השולחן והבצק"></canvas>
+<div class="top" id="top" hidden><div class="steps" id="steps"></div><b id="stepName"></b><small id="stepHint"></small></div>
+<div class="grade" id="grade"></div>
+<button class="btn" id="act" type="button" hidden></button>
+<button class="snd" id="snd" type="button" aria-pressed="false" aria-label="צליל">🔇</button>
+<section class="menu" id="menu">
+  <h1>החצ׳אפורי המושלם</h1>
+  <p>חצ׳אפורי אג׳רי: סירה של בצק עם גבינה, ביצה וחמאה. חמישה צעדים, ציון לכל אחד, והחבר׳ה מחכים.</p>
+  <div class="card" id="res" hidden><small id="resSmall"></small><div class="big" id="resBig"></div><div class="rows" id="resRows"></div><small id="resBest"></small></div>
+  <button class="go-btn" id="go" type="button">לאפות</button>
+  <p class="note">משחק, לא מתכון. הצעדים מפושטים.</p>
+</section>
+<script>
+const STEPS=[
+  {n:'לקפל את הסירה', h:'גוררים לאורך הקו המנוקד, מקצה לקצה, כדי לגלגל את השוליים'},
+  {n:'גבינה', h:'מחזיקים כדי לשפוך, ומשחררים בדיוק בקו'},
+  {n:'בתנור', h:'נוגעים כשהבצק זהוב. לא חיוור, לא שרוף'},
+  {n:'ביצה', h:'הביצה זזה. נוגעים כשהיא מעל המרכז'},
+  {n:'חמאה', h:'מסובבים את האצבע במעגלים כדי לערבב, בקצב קבוע'}];
+const store={get(k,d){try{const v=localStorage.getItem('kh-'+k);return v==null?d:JSON.parse(v);}catch(e){return d;}},set(k,v){try{localStorage.setItem('kh-'+k,JSON.stringify(v));}catch(e){}}};
+const $=id=>document.getElementById(id);
+const cv=$('game'), cx=cv.getContext('2d'); let W=0,H=0; function resize(){ const d=Math.min(2,devicePixelRatio||1); W=innerWidth; H=innerHeight; cv.width=W*d; cv.height=H*d; cx.setTransform(d,0,0,d,0,0); } addEventListener('resize',resize); resize();
+let AC=null, soundOn=false; $('snd').onclick=e=>{ e.stopPropagation(); soundOn=!soundOn; $('snd').textContent=soundOn?'🔊':'🔇'; if(soundOn&&!AC){ try{ AC=new (window.AudioContext||window.webkitAudioContext)(); }catch(_){ AC=null; } } };
+function chime(g){ if(!soundOn||!AC) return; const fs=g>=90?[660,880,1100]:g>=60?[520,660]:[300]; fs.forEach((f,i)=>{ const o=AC.createOscillator(), gn=AC.createGain(); o.type='triangle'; o.frequency.value=f; gn.gain.setValueAtTime(.16,AC.currentTime+i*.1); gn.gain.exponentialRampToValueAtTime(.001,AC.currentTime+i*.1+.35); o.connect(gn); gn.connect(AC.destination); o.start(AC.currentTime+i*.1); o.stop(AC.currentTime+i*.1+.4); }); }
+let step=-1, scores=[], st={}, t=0, busy=false, bakedAt=0, eggX=0;
+const C=()=>({x:W/2, y:step<0?H*.28:H*.52, L:Math.min(W*.42,190), Wd:Math.min(W*.2,90)}); // the boat's centre and half sizes
+function start(){ step=-1; scores=[]; $('menu').hidden=true; $('top').hidden=false; next(); }
+function next(){ step++; busy=false; if(step>=STEPS.length) return done(); t=0; st={};
+  $('steps').innerHTML=STEPS.map((s,i)=>`<i class="${i<step?'done':i===step?'on':''}"></i>`).join(''); $('stepName').textContent=(step+1)+'. '+STEPS[step].n; $('stepHint').textContent=STEPS[step].h;
+  const a=$('act'); a.hidden = !(step===1||step===2||step===3); a.textContent = step===1?'לשפוך':step===2?'להוציא':'לשבור';
+  if(step===0){ st.trace=[]; st.guide=edgeGuide(); }
+  if(step===1){ st.level=0; st.pour=false; st.mark=.55+Math.random()*.3; }
+  if(step===2){ st.bake=0; }
+  if(step===3){ st.ex=0; }
+  if(step===4){ st.angle=null; st.turns=0; st.times=[]; st.lastA=null; st.acc=0; } }
+function grade(g){ g=Math.max(0,Math.min(100,Math.round(g))); scores.push(g); busy=true; const el=$('grade'); el.textContent=(g>=90?'מושלם! ':g>=70?'טוב! ':g>=45?'בסדר ':'אופס ')+g; el.classList.remove('go'); void el.offsetWidth; el.classList.add('go'); chime(g); try{ navigator.vibrate&&navigator.vibrate(g>=90?[20,30,20]:15);}catch(_){} $('act').hidden=true; setTimeout(next,1300); }
+function edgeGuide(){ const c=C(), pts=[]; for(let i=0;i<=40;i++){ const top=i<=20, u=top?i/20:(i-20)/20; pts.push([c.x+c.L*.92*(top?2*u-1:1-2*u), c.y+(top?-1:1)*2*u*(1-u)*c.Wd*2.0]); } return pts; }
+// input
+let down=false;
+cv.addEventListener('pointerdown',e=>{ e.preventDefault(); down=true; try{ cv.setPointerCapture(e.pointerId);}catch(_){} if(step===0&&!busy) st.trace=[[e.clientX,e.clientY]]; if(step===4&&!busy) st.lastA=null; });
+cv.addEventListener('pointermove',e=>{ if(!down||busy) return; if(step===0){ st.trace.push([e.clientX,e.clientY]); }
+  if(step===4){ const c=C(), a=Math.atan2(e.clientY-c.y,e.clientX-c.x); if(st.lastA!=null){ let d=a-st.lastA; while(d>Math.PI) d-=2*Math.PI; while(d<-Math.PI) d+=2*Math.PI; st.acc+=Math.abs(d); if(st.acc>=Math.PI*2){ st.acc-=Math.PI*2; st.turns++; st.times.push(t); if(st.turns>=6){ const iv=st.times.slice(1).map((x,i)=>x-st.times[i]); const m=iv.reduce((p,q)=>p+q,0)/iv.length, sd=Math.sqrt(iv.reduce((p,q)=>p+(q-m)**2,0)/iv.length); grade(100-sd/m*220 - Math.max(0,(m-.9))*40); } } } st.lastA=a; } });
+cv.addEventListener('pointerup',()=>{ down=false; if(step===0&&!busy&&st.trace.length>10) gradeTrace(); });
+function gradeTrace(){ // how closely the finger followed the dotted edge, and how much of it
+  const g=st.guide; let err=0; for(const p of st.trace){ let m=1e9; for(const q of g) m=Math.min(m,Math.hypot(p[0]-q[0],p[1]-q[1])); err+=m; } err/=st.trace.length;
+  const covered=new Set(); for(const p of st.trace){ let bi=0,bm=1e9; g.forEach((q,i)=>{ const d=Math.hypot(p[0]-q[0],p[1]-q[1]); if(d<bm){bm=d;bi=i;} }); if(bm<40) covered.add(bi); }
+  grade(100 - err*2.2 - (1-covered.size/g.length)*90); }
+const act=$('act');
+act.addEventListener('pointerdown',e=>{ e.preventDefault(); if(busy) return; if(step===1) st.pour=true;
+  if(step===2){ const b=st.bake; bakedAt=b; grade(100-Math.abs(b-.62)*330); }
+  if(step===3){ const x=Math.sin(st.ex); eggX=x; grade(100-Math.abs(x)*140); } });
+['pointerup','pointercancel','pointerleave'].forEach(ev=>act.addEventListener(ev,()=>{ if(step===1&&st.pour&&!busy){ st.pour=false; grade(100-Math.abs(st.level-st.mark)*300); } }));
+function done(){ $('top').hidden=true; $('act').hidden=true; const total=Math.round(scores.reduce((a,b)=>a+b,0)/scores.length); const best=store.get('best',0); if(total>best) store.set('best',total);
+  $('res').hidden=false; $('resSmall').textContent= total>=90?'שף של גודאורי':total>=70?'החבר׳ה מרוצים':total>=45?'אכיל':'נזמין בפעם הבאה'; $('resBig').textContent=total;
+  $('resRows').innerHTML=STEPS.map((s,i)=>`<span>${s.n}<b>${scores[i]}</b></span>`).join(''); $('resBest').textContent= total>best?'שיא חדש!':'השיא: '+best; $('go').textContent='עוד אחד'; $('menu').hidden=false; step=-1; }
+$('go').onclick=()=>start();
+let last=performance.now();
+function frame(now){ const dt=Math.min(.05,(now-last)/1000); last=now; t+=dt;
+  if(step===1&&st.pour&&!busy){ st.level=Math.min(1,st.level+dt*.45); if(st.level>=1) { st.pour=false; grade(100-Math.abs(1-st.mark)*300); } }
+  if(step===2&&!busy){ st.bake=Math.min(1.2,st.bake+dt*.16); if(st.bake>=1.2){ bakedAt=1.2; grade(0); } }
+  if(step===3&&!busy){ st.ex+=dt*(2.2); }
+  draw(); requestAnimationFrame(frame); }
+function draw(){ // the table
+  cx.fillStyle='#6B3E24'; cx.fillRect(0,0,W,H); for(let i=0;i<14;i++){ cx.fillStyle=`rgba(0,0,0,${.05+(i%3)*.03})`; cx.fillRect(0,i*H/14,W,2); }
+  const c=C(); const bakeCol = (b)=>{ const k=Math.min(1,b/.62), k2=Math.max(0,(b-.62)/.58); const r=Math.round(242-(242-205)*k-80*k2), g=Math.round(222-(222-140)*k-90*k2), bl=Math.round(180-(180-60)*k-40*k2); return `rgb(${r},${g},${bl})`; };
+  const menuView = step<0; // the start and end screens show a finished one
+  // the boat of dough
+  const crust = menuView? bakeCol(.62) : step===2? bakeCol(st.bake) : step>2? bakeCol(bakedAt) : '#F2DEB4';
+  cx.save(); cx.translate(c.x,c.y);
+  cx.fillStyle='rgba(0,0,0,.25)'; cx.beginPath(); cx.ellipse(6,10,c.L,c.Wd*1.2,0,0,7); cx.fill();
+  cx.fillStyle=crust; cx.beginPath(); cx.moveTo(-c.L,0); cx.quadraticCurveTo(0,-c.Wd*2.2,c.L,0); cx.quadraticCurveTo(0,c.Wd*2.2,-c.L,0); cx.fill();
+  // the inside: cheese fills it up to the line
+  cx.fillStyle='rgba(0,0,0,.08)'; cx.beginPath(); cx.moveTo(-c.L*.8,0); cx.quadraticCurveTo(0,-c.Wd*1.5,c.L*.8,0); cx.quadraticCurveTo(0,c.Wd*1.5,-c.L*.8,0); cx.fill();
+  const lvl = menuView? 1 : step===1? st.level : step>1? 1 : 0;
+  if(lvl>0){ cx.save(); cx.beginPath(); cx.moveTo(-c.L*.8,0); cx.quadraticCurveTo(0,-c.Wd*1.5,c.L*.8,0); cx.quadraticCurveTo(0,c.Wd*1.5,-c.L*.8,0); cx.clip(); cx.fillStyle= (step>2||menuView) ? '#F7E08A' : '#FFF4C9'; cx.fillRect(-c.L,c.Wd*.75-lvl*c.Wd*1.5,c.L*2,c.Wd*3); cx.restore(); }
+  if(step===1){ const y=c.Wd*.75-st.mark*c.Wd*1.5; cx.strokeStyle='#D1342B'; cx.lineWidth=2; cx.setLineDash([6,5]); cx.beginPath(); cx.moveTo(-c.L*.7,y); cx.lineTo(c.L*.7,y); cx.stroke(); cx.setLineDash([]);
+    if(st.pour){ cx.fillStyle='#FFF4C9'; cx.fillRect(-6,-H,12,H+c.Wd*.75-st.level*c.Wd*1.5); } }
+  cx.restore();
+  // step 1: the dotted edge to trace, and your finger's trail
+  if(step===0){ cx.strokeStyle='rgba(255,246,232,.9)'; cx.lineWidth=3; cx.setLineDash([3,8]); cx.beginPath(); st.guide.forEach((p,i)=>i?cx.lineTo(p[0],p[1]):cx.moveTo(p[0],p[1])); cx.stroke(); cx.setLineDash([]);
+    if(st.trace&&st.trace.length>1){ cx.strokeStyle='#E8C27A'; cx.lineWidth=12; cx.lineCap='round'; cx.lineJoin='round'; cx.beginPath(); st.trace.forEach((p,i)=>i?cx.lineTo(p[0],p[1]):cx.moveTo(p[0],p[1])); cx.stroke(); } }
+  // step 3: the oven glow, and a bar from pale to burnt
+  if(step===2){ cx.fillStyle=`rgba(255,120,30,${.12+Math.sin(t*3)*.04})`; cx.fillRect(0,0,W,H); const bw=Math.min(W*.8,320), bx=(W-bw)/2, by=c.y+c.Wd*2.6; const g=cx.createLinearGradient(bx,0,bx+bw,0); g.addColorStop(0,'#F2DEB4'); g.addColorStop(.52,'#C98A3C'); g.addColorStop(1,'#3A2414'); cx.fillStyle=g; cx.fillRect(bx,by,bw,14); cx.fillStyle='#fff'; cx.fillRect(bx+bw*(st.bake/1.2)-2,by-6,4,26); cx.strokeStyle='#F4B942'; cx.lineWidth=2; cx.strokeRect(bx+bw*(.62/1.2)-14,by-3,28,20); }
+  // step 4: the egg swinging over the boat
+  if(step>=3||menuView){ const x = step===3 ? Math.sin(st.ex) : menuView? 0 : eggX; const ex=c.x+x*c.L*.6, ey=c.y;
+    if(step===3 && !busy){ cx.fillStyle='#FFF'; cx.beginPath(); cx.ellipse(ex,c.y-c.Wd*2.4,14,18,0,0,7); cx.fill(); cx.strokeStyle='rgba(255,246,232,.5)'; cx.setLineDash([3,5]); cx.beginPath(); cx.moveTo(ex,c.y-c.Wd*2.4+18); cx.lineTo(ex,c.y); cx.stroke(); cx.setLineDash([]); cx.strokeStyle='#F4B942'; cx.lineWidth=2; cx.beginPath(); cx.arc(c.x,c.y,10,0,7); cx.stroke(); }
+    else { cx.fillStyle='#FFFFFF'; cx.beginPath(); cx.ellipse(ex,ey,30,20,0,0,7); cx.fill(); cx.fillStyle= step===4? `hsl(42,95%,${55-Math.min(10,(st.turns||0)*1.5)}%)` : '#F4A11D'; cx.beginPath(); cx.arc(ex,ey,12,0,7); cx.fill(); } }
+  // step 5: butter melting as you stir
+  if(step===4){ const k=Math.min(1,(st.turns||0)/6); cx.fillStyle=`rgba(255,226,120,${1-k})`; cx.fillRect(c.x+18,c.y-8,22*(1-k*.6),14*(1-k*.6)); cx.strokeStyle='rgba(255,246,232,.6)'; cx.lineWidth=2; cx.setLineDash([4,6]); cx.beginPath(); cx.arc(c.x,c.y,60,0,7); cx.stroke(); cx.setLineDash([]);
+    cx.fillStyle='#FFF6E8'; cx.font='700 15px "IBM Plex Sans Hebrew",sans-serif'; cx.textAlign='center'; cx.fillText((st.turns||0)+' / 6 סיבובים',c.x,c.y+c.Wd*2.6); } }
+requestAnimationFrame(frame);
+</script>
