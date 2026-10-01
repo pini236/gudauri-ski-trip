@@ -35,7 +35,7 @@ The app supports Android 8.0+ and targets Android 16 / API 36.
   honors Android's disabled-animation setting. No assumption that native code
   is automatically fast: hardware frame/memory/battery measurements remain a
   release check.
-- **Data:** Gradle `copySiteData` reads `../site/data/*.json` into generated APK
+- **Data:** Gradle `copySiteData` reads `../../site/data/*.json` into generated APK
   assets. It never writes into the website. The existing JSON files are the
   shared data source. Partial geometries, confidence and OSM links are retained.
   Rebuild to receive new data; there is no live lift-status feed in this version.

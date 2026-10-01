@@ -44,7 +44,7 @@ android {
     }
     testOptions {
         unitTests.isReturnDefaultValues = true
-        unitTests.all { it.systemProperty("gudauri.dataDir",rootProject.file("../site/data").absolutePath) }
+        unitTests.all { it.systemProperty("gudauri.dataDir",rootProject.file("../../site/data").absolutePath) }
     }
     sourceSets["main"].assets.srcDir(layout.buildDirectory.dir("generated/siteAssets"))
     packaging { resources.excludes += "/META-INF/{AL2.0,LGPL2.1}" }
@@ -53,7 +53,7 @@ kotlin { compilerOptions { jvmTarget.set(JvmTarget.JVM_17) } }
 
 // Read-only copy: the web project remains the data source. Never write into site/.
 val copySiteData by tasks.registering(Sync::class) {
-    from("../../site/data") { include("*.json"); into("data") }
+    from("../../../site/data") { include("*.json"); into("data") }
     into(layout.buildDirectory.dir("generated/siteAssets"))
 }
 tasks.named("preBuild").configure { dependsOn(copySiteData) }
