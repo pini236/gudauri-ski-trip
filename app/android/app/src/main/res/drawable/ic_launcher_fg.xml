@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!-- Placeholder for the spike only: a trail sign with an arrow and a snow cap. The real icon goes through the canvas. -->
-<vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:width="108dp" android:height="108dp" android:viewportWidth="108" android:viewportHeight="108">
-    <path android:fillColor="#FFFFFF" android:pathData="M30,44 L78,44 L78,64 L30,64 L22,54 Z" />
-    <path android:fillColor="#13233A" android:pathData="M51,64 L57,64 L57,82 L51,82 Z" />
-    <path android:fillColor="#FFFFFF" android:pathData="M28,44 C30,38 36,37 40,40 C44,36 50,37 53,40 C57,36 64,36 67,40 C71,37 77,38 79,44 Z" />
-</vector>

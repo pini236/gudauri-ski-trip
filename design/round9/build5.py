@@ -139,8 +139,9 @@ def svg_wrap(body, defs=''):
             '<defs>%s</defs>%s</svg>' % (defs, body))
 
 
-# ---------------------------------------------------------------- H1: the sign in the mountains
-def h1():
+# ---------------------------------------------------------------- H1: the sign in the mountains (Pini's choice, 1.10.2026)
+def h1_parts():
+    """The chosen icon in two layers: (defs, scene, sign), all in the 512 frame. Pini: no run on the mountain."""
     defs = ['<linearGradient id="h1sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5588CB"></stop><stop offset=".5" stop-color="#A9CBEA"></stop><stop offset="1" stop-color="#FBE6CF"></stop></linearGradient>',
             '<linearGradient id="h1gnd" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFFFFF"></stop><stop offset="1" stop-color="#D5E2F0"></stop></linearGradient>',
             '<radialGradient id="h1sun" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#FFE9A8" stop-opacity=".95"></stop><stop offset="1" stop-color="#FFE9A8" stop-opacity="0"></stop></radialGradient>']
@@ -157,10 +158,6 @@ def h1():
     d1, s1, _ = peak((176, 56), -60, 372, 372, 216, seed=5, jag=10, steps=12, lit=lit, gid='h1a')
     defs += [d3, d2, d1]
     body += [s3, s2, s1]
-    # the run on the lit face of the big peak, red, with a dashed white centre
-    run = 'M176 100 C 158 124, 156 148, 178 168 C 196 184, 156 204, 146 224 C 140 244, 176 246, 172 264 C 166 282, 134 286, 138 306 C 140 318, 158 322, 158 332'
-    body.append('<path d="%s" fill="none" stroke="%s" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"></path>' % (run, RED))
-    body.append('<path d="%s" fill="none" stroke="#fff" stroke-width="2" stroke-dasharray="1 11" stroke-linecap="round" opacity=".9"></path>' % run)
     # the forest band the sign stands in front of, and the snow at the front
     body.append('<path d="M0 344 Q70 326 130 338 T260 334 T390 340 T512 328 V450 H0 Z" fill="#285684"></path>')
     for i, x in enumerate([14, 44, 76, 108, 142, 174, 206, 236, 300, 340, 374, 408, 440, 474, 502]):
@@ -168,13 +165,20 @@ def h1():
         body.append(spruce(x, 366 + (i * 7) % 18, h_, col='#1E4A78'))
     body.append('<path d="M0 438 Q120 414 256 428 T512 418 V512 H0 Z" fill="url(#h1gnd)"></path>')
     # the sign, smaller, standing in the snow
+    scene = body
+    body = []
     body.append('<ellipse cx="288" cy="488" rx="70" ry="8" fill="%s" opacity=".16"></ellipse>' % INK)
     body.append('<rect x="272" y="432" width="32" height="56" fill="%s"></rect>' % INK)
     body.append('<path d="M110 398 L158 352 H420 V442 H158 Z" fill="%s"></path>' % BLUE)
     body.append('<path d="M110 398 L158 352 H420 V360 H164 L120 402 Z" fill="#fff" opacity=".18"></path>')
     body.append('<path d="M176 398 L222 366 V382 H356 V414 H222 V430 Z" fill="#fff"></path>')
     body.append('<path d="%s" fill="#fff"></path>' % snow_cap(132, 428, 354, 30, rnd=1.4, drips=[(.12, 22), (.4, 10), (.64, 28), (.9, 12)]))
-    return svg_wrap(''.join(body), ''.join(defs))
+    return defs, scene, body
+
+
+def h1():
+    defs, scene, sign = h1_parts()
+    return svg_wrap(''.join(scene + sign), ''.join(defs))
 
 
 # ---------------------------------------------------------------- H2: the gondola
@@ -412,7 +416,7 @@ def h5():
     return svg_wrap(''.join(body), ''.join(defs))
 
 
-BUILDERS = [('h1', h1, 'השלט בהרים', 'שלט עם נוף הררי: הרכס האמיתי של גודאורי, פסגות עם צד מואר וצד בצל, מסלול אדום וצללית יער.'),
+BUILDERS = [('h1', h1, 'השלט בהרים', 'שלט עם נוף הררי: הרכס האמיתי של גודאורי, פסגות עם צד מואר וצד בצל, וצללית יער. נבחר (בלי השביל על ההר).'),
             ('h2', h2, 'הרכבל בשקיעה', 'תא גונדולה מוקדם, חלונות מוארים, עמוד ותא רחוק על הכבל, והרים באור שקיעה.'),
             ('h3', h3, 'המצפן עם הר', 'מצפן שפניו קווי גובה אמיתיים של ההר, והמחוג שלו פסגה מושלגת.'),
             ('h4', h4, 'סיכה עם חלון הרים', 'סיכה שבתוכה חלון על הר ומסלול אדום, עם עקבות סקי שמובילים אליה.'),
