@@ -264,7 +264,7 @@ function draw(){
   const sky=cx.createLinearGradient(0,0,0,Y0+80); sky.addColorStop(0,'#4F8FCF'); sky.addColorStop(1,'#D6E6F4'); cx.fillStyle=sky; cx.fillRect(-20,-20,W+40,H+40);
   // the real view from the village, far away on the horizon
   const hz=P(0,0,400)[1];
-  if(pano.complete&&pano.naturalWidth){ const ph=Math.min(H*.5,W*.95), pw=ph*pano.naturalWidth/pano.naturalHeight, px=W/2-pw/2-camX*20; cx.drawImage(pano,px,hz-ph*.9,pw,ph); if(px>0) cx.drawImage(pano,px-pw,hz-ph*.9,pw,ph); if(px+pw<W) cx.drawImage(pano,px+pw,hz-ph*.9,pw,ph); }
+  if(pano.complete&&pano.naturalWidth){ /* the wide view, once, always wider than the screen: no tiling, no seams */ const ar=pano.naturalWidth/pano.naturalHeight; let ph=Math.min(H*.5,W*.95), pw=ph*ar; if(pw<W*1.25){ pw=W*1.25; ph=pw/ar; } const px=Math.max(W-pw,Math.min(0,W/2-pw/2-camX*20)); cx.drawImage(pano,px,hz-ph*.9,pw,ph); }
   // the snowfield between the walls
   const g=cx.createLinearGradient(0,hz,0,H); g.addColorStop(0,'#E9F1F8'); g.addColorStop(1,'#FFFFFF'); cx.fillStyle=g; cx.fillRect(-20,hz-1,W+40,H);
   for(let z=3;z<ZF;z+=2.5){ const [,Y]=P(0,0,z); cx.strokeStyle='rgba(159,181,203,.25)'; cx.lineWidth=1; cx.beginPath(); cx.moveTo(0,Y); cx.lineTo(W,Y); cx.stroke(); } // drifts, for depth

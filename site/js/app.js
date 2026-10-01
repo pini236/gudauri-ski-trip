@@ -625,6 +625,27 @@ const MEET=(function(){
   function fitAll(ms){let a=1e9,b=1e9,c=-1e9,d=-1e9;st.forEach(s=>{a=Math.min(a,s.x);c=Math.max(c,s.x);b=Math.min(b,s.y);d=Math.max(d,s.y);});
     const[w,h]=size();const span=Math.max(c-a,(d-b)*w/h)*1.15;goTo((a+c)/2,(b+d)/2+ (d-b)*0.05,span,ms);}
   document.getElementById('meetAll').onclick=()=>fitAll(700);
+  // zoom: buttons, the wheel, two fingers; and dragging moves the map (a drag is not a tap)
+  const zoomAt=(f,cx_,cy_,ms)=>{const[w,h]=size();const nw=Math.max(300,Math.min(9000,vb.w*f));const px=cx_??vb.x+vb.w/2,py=cy_??vb.y+vb.h/2;
+    const fx=(px-vb.x)/vb.w,fy=(py-vb.y)/vb.h;cancelAnimationFrame(tween);
+    if(ms&&!reduceMotion()){const from={...vb},to={w:nw,x:px-fx*nw,y:py-fy*nw*h/w},t0=performance.now(),step=()=>{const t=Math.min(1,(performance.now()-t0)/ms),e=1-Math.pow(1-t,3);
+      vb.w=from.w+(to.w-from.w)*e;vb.x=from.x+(to.x-from.x)*e;vb.y=from.y+(to.y-from.y)*e;applyVB();if(t<1)tween=requestAnimationFrame(step);};tween=requestAnimationFrame(step);}
+    else{vb.x=px-fx*nw;vb.y=py-fy*nw*h/w;vb.w=nw;applyVB();}};
+  document.getElementById('meetZin').onclick=()=>{const s=byId[S.sid];zoomAt(.6,s&&s.x,s&&s.y,250);};
+  document.getElementById('meetZout').onclick=()=>zoomAt(1/.6,null,null,250);
+  const toMap=(e)=>{const r=svgM.getBoundingClientRect();return[vb.x+(e.clientX-r.left)/r.width*vb.w,vb.y+(e.clientY-r.top)/r.height*vb.h];};
+  svgM.addEventListener('wheel',e=>{e.preventDefault();const[x,y]=toMap(e);zoomAt(Math.exp(e.deltaY*.0015),x,y,0);},{passive:false});
+  const ptrs=new Map();let drag=null,moved=false,pinch=null;
+  svgM.addEventListener('pointerdown',e=>{ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY});moved=false;
+    if(ptrs.size===1)drag={x:e.clientX,y:e.clientY,vx:vb.x,vy:vb.y};
+    else if(ptrs.size===2){const[a,b]=[...ptrs.values()];pinch={d:Math.hypot(a.x-b.x,a.y-b.y),w:vb.w};drag=null;}});
+  svgM.addEventListener('pointermove',e=>{if(!ptrs.has(e.pointerId))return;ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY});const r=svgM.getBoundingClientRect();
+    if(pinch&&ptrs.size===2){const[a,b]=[...ptrs.values()],d=Math.hypot(a.x-b.x,a.y-b.y);moved=true;const[mx,my]=toMap({clientX:(a.x+b.x)/2,clientY:(a.y+b.y)/2});zoomAt(pinch.w*pinch.d/Math.max(20,d)/vb.w,mx,my,0);}
+    else if(drag){const dx=e.clientX-drag.x,dy=e.clientY-drag.y;if(Math.hypot(dx,dy)>6){moved=true;svgM.setPointerCapture(e.pointerId);}
+      if(moved){cancelAnimationFrame(tween);vb.x=drag.vx-dx/r.width*vb.w;vb.y=drag.vy-dy/r.height*vb.h;applyVB();}}});
+  const lift=e=>{ptrs.delete(e.pointerId);if(ptrs.size<2)pinch=null;if(!ptrs.size)drag=null;};
+  svgM.addEventListener('pointerup',lift);svgM.addEventListener('pointercancel',lift);
+  svgM.addEventListener('click',e=>{if(moved){e.stopImmediatePropagation();moved=false;}},true);
   let undoSid='',undoPre='',toastT=0;const toast=document.getElementById('meetToast');
   function clear(){if(!S.sid)return;undoSid=S.sid;undoPre=S.preset;S.sid='';S.preset='';render();
     toast.hidden=false;clearTimeout(toastT);toastT=setTimeout(()=>{toast.hidden=true;},4500);}

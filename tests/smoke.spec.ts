@@ -321,6 +321,11 @@ test('נקודת מפגש: מתחילים בלי בחירה, ומבטלים בכ
   await expect(page.locator('#meetShareBox')).toBeHidden();
   await expect(page.locator('#meetMap .mm-pin.on')).toHaveCount(0);
   await expect(page).toHaveURL(/#meet$/);
+  // זום: הכפתור מקרב את המפה
+  const vbw = async () => +((await page.locator('#meetMap').getAttribute('viewBox')) || '0 0 0 0').split(' ')[2];
+  const before = await vbw();
+  await page.locator('#meetZin').click();
+  await expect.poll(vbw).toBeLessThan(before * .8);
   // בוחרים, ומבטלים בכפתור, ואז מחזירים
   await page.locator('[data-pre="am"]').click();
   await expect(page.locator('#meetCard')).toBeVisible();
