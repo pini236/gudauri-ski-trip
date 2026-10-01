@@ -24,16 +24,29 @@ body{margin:0;background:var(--sky);color:var(--ink);font-family:var(--f-body);d
 .crew i{width:14px;height:14px;border:2px solid #fff;opacity:.35}
 .crew i.on{opacity:1}
 .crew em{font-style:normal;color:#fff;font-weight:700;font-size:13px;margin-inline-start:6px;text-shadow:0 1px 2px rgba(19,35,58,.6);font-variant-numeric:tabular-nums}
-.combo{position:fixed;bottom:calc(env(safe-area-inset-bottom,0px) + 86px);left:12px;background:var(--accent);color:var(--ink);font-family:var(--f-display);font-size:24px;line-height:1;padding:3px 10px;pointer-events:none;transition:transform .2s cubic-bezier(.3,1.8,.5,1)}
+.combo{position:fixed;top:calc(env(safe-area-inset-top,0px) + 128px);left:64px;background:var(--accent);color:var(--ink);font-family:var(--f-display);font-size:24px;line-height:1;padding:3px 10px;pointer-events:none;transition:transform .2s cubic-bezier(.3,1.8,.5,1)}
 .combo.bump{transform:scale(1.25)}
 .speed{position:fixed;left:12px;bottom:calc(env(safe-area-inset-bottom,0px) + 14px);pointer-events:none}
 .pop{position:fixed;left:50%;top:34%;transform:translate(-50%,-50%);font-family:var(--f-display);font-size:clamp(34px,11vw,56px);line-height:1;color:#fff;text-shadow:0 3px 0 var(--ink),0 0 18px rgba(19,35,58,.5);white-space:nowrap;pointer-events:none;opacity:0}
 .pop.go{animation:pop 1.1s cubic-bezier(.2,1.4,.4,1) forwards}
 @keyframes pop{0%{opacity:0;transform:translate(-50%,-30%) scale(.6)}20%{opacity:1;transform:translate(-50%,-50%) scale(1.08)}75%{opacity:1}100%{opacity:0;transform:translate(-50%,-80%) scale(1)}}
-.banner{position:fixed;right:12px;top:calc(env(safe-area-inset-top,0px) + 122px);display:flex;align-items:center;gap:8px;padding:6px 14px 6px 30px;background:var(--warn);color:var(--ink);font-weight:700;font-size:15px;clip-path:polygon(0 50%,18px 0,100% 0,100% 100%,18px 100%);pointer-events:none;transform:translateX(0);transition:transform .35s cubic-bezier(.3,1.4,.5,1),opacity .3s}
+.banner{position:fixed;right:12px;top:calc(env(safe-area-inset-top,0px) + 122px);display:flex;align-items:center;gap:8px;padding:6px 14px 6px 30px;background:var(--warn);color:var(--ink);font-weight:700;font-size:15px;clip-path:polygon(0 50%,18px 0,100% 0,100% 100%,18px 100%);pointer-events:none;max-width:calc(100% - 120px);box-sizing:border-box;transform:translateX(0);transition:transform .35s cubic-bezier(.3,1.4,.5,1),opacity .3s}
 .banner.off{transform:translateX(110%);opacity:0}
 .banner b{font-family:var(--f-display);font-size:24px;line-height:1;font-weight:700}
-.hint{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 70px);transform:translateX(-50%);background:rgba(255,255,255,.92);color:var(--ink);padding:8px 14px;font-size:14px;font-weight:700;white-space:nowrap;pointer-events:none;transition:opacity .6s}
+/* two thumb buttons: the right one jumps (and flips in the air), the left one tucks (and grabs in the air) */
+.pads{position:fixed;left:12px;right:12px;bottom:calc(env(safe-area-inset-bottom,0px) + 12px);display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px;pointer-events:none;direction:ltr} /* tuck under the left thumb, jump under the right */
+.pad{pointer-events:auto;position:relative;min-height:84px;min-width:0;direction:rtl;border:2px solid rgba(255,255,255,.75);background:rgba(19,35,58,.55);color:#fff;font:inherit;display:flex;align-items:center;gap:10px;padding:8px 12px;cursor:pointer;touch-action:none;-webkit-tap-highlight-color:transparent;transition:background .12s,transform .12s}
+.pad svg{flex:none}
+.pad span{display:flex;flex-direction:column;align-items:flex-start;text-align:right;min-width:0;overflow:hidden}
+.pad b{font-family:var(--f-display);font-size:clamp(20px,5.6vw,30px);line-height:1;white-space:nowrap}
+.pad small{font-size:12px;line-height:1.25;opacity:.85}
+.pad.on{background:var(--accent);color:var(--ink);border-color:var(--accent);transform:scale(.97)}
+.pad.on svg *{stroke:var(--ink)}
+.pad .tip{font-style:normal;position:absolute;bottom:calc(100% + 10px);inset-inline:0;margin:auto;width:max-content;max-width:100%;background:#fff;color:var(--ink);font-weight:700;font-size:14px;padding:6px 10px;box-shadow:0 4px 12px rgba(19,35,58,.3);opacity:0;transform:translateY(6px);transition:opacity .2s,transform .2s}
+.pad .tip::after{content:"";position:absolute;top:100%;inset-inline:0;margin:auto;width:0;border:8px solid transparent;border-top-color:#fff}
+.pad.coach .tip{opacity:1;transform:none}
+.pad.coach{animation:coach 1s ease-in-out infinite}
+@keyframes coach{50%{border-color:var(--accent);box-shadow:0 0 0 6px rgba(244,185,66,.45)}}
 .count{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;pointer-events:none;padding:0 16px}
 .count b{font-family:var(--f-display);font-size:140px;line-height:.8;color:#fff;text-shadow:0 5px 0 var(--ink)}
 .count .mis{background:rgba(19,35,58,.86);color:#fff;padding:10px 14px;display:flex;flex-direction:column;gap:4px;font-size:14px;max-width:22em}
@@ -60,7 +73,7 @@ body{margin:0;background:var(--sky);color:var(--ink);font-family:var(--f-body);d
 .chip[aria-pressed="true"]{background:#fff;color:var(--ink)}
 .go-btn{font:inherit;min-height:60px;border:0;background:var(--accent);color:var(--ink);font-family:var(--f-display);font-size:34px;cursor:pointer;box-shadow:0 5px 0 var(--ink)}
 .go-btn:active{transform:translateY(3px);box-shadow:0 2px 0 var(--ink)}
-.how{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.how{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
 .how div{background:rgba(255,255,255,.14);color:#fff;padding:8px;font-size:12.5px;line-height:1.3;border-top:3px solid var(--accent)}
 .how b{display:block;font-family:var(--f-display);font-size:22px;line-height:1}
 .legend{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px 12px;color:#fff;font-size:12.5px}
@@ -83,24 +96,27 @@ body{margin:0;background:var(--sky);color:var(--ink);font-family:var(--f-body);d
 .small-btns{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .small-btns button{font:inherit;min-height:48px;border:2px solid #fff;background:transparent;color:#fff;font-weight:700;cursor:pointer}
 button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
-.snd{position:fixed;bottom:calc(env(safe-area-inset-bottom,0px) + 14px);right:12px;font:inherit;min-width:44px;min-height:44px;border:0;background:rgba(19,35,58,.7);color:#fff;font-weight:700;cursor:pointer}
-@media (prefers-reduced-motion:reduce){.pop.go{animation-duration:.01s}.runs button,.banner,.combo{transition:none}}
+.snd{position:fixed;top:calc(env(safe-area-inset-top,0px) + 120px);left:12px;font:inherit;min-width:44px;min-height:44px;border:0;background:rgba(19,35,58,.7);color:#fff;font-weight:700;cursor:pointer}
+@media (prefers-reduced-motion:reduce){.pop.go{animation-duration:.01s}.runs button,.banner,.combo,.pad,.pad .tip{transition:none}.pad.coach{animation:none;outline:4px solid var(--accent)}}
 </style>
 
 <canvas id="game" aria-label="המשחק: גולש יורד במסלול"></canvas>
 
 <div class="hud" id="hud" hidden>
   <div class="sign" id="hudRun">Tatra 2</div>
-  <div class="box"><b id="hudTime">0:00.0</b><small id="hudGap"></small></div>
+  <div class="box"><b id="hudTime">0:00.0</b><small><span id="hudSpeed">0</span> קמ״ש · <span id="hudAlt"></span></small><small id="hudGap"></small></div>
 </div>
 <div class="crew" id="crew" hidden></div>
 <div class="combo" id="combo" hidden>רצף ×1</div>
 <div class="banner off" id="banner" aria-live="polite"><b id="bannerBig"></b><span id="bannerTxt"></span></div>
-<div class="speed box" id="speedBox" hidden><b id="hudSpeed">0</b><small><span style="color:#fff">קמ״ש</span> · <span id="hudAlt"></span></small></div>
+
 <div class="pop" id="pop"></div>
-<div class="hint" id="hint" hidden>נגיעה: קפיצה · החזקה באוויר: סלטה · החזקה על השלג: התכופפות</div>
+<div class="pads" id="pads" hidden>
+  <button class="pad" id="padTuck" type="button" aria-label="התכופפות"><svg width="26" height="26" viewBox="0 0 34 34" aria-hidden="true"><path d="M9 11 L17 19 L25 11 M9 19 L17 27 L25 19" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="square"/></svg><span><b id="tuckBig">התכופפות</b><small id="tuckSmall">החזיקו: מהר יותר ונגד הרוח</small></span><i class="tip" id="tuckTip"></i></button>
+  <button class="pad" id="padJump" type="button" aria-label="קפיצה"><svg width="26" height="26" viewBox="0 0 34 34" aria-hidden="true"><path d="M17 26 V8 M9 15 L17 7 L25 15" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="square"/></svg><span><b id="jumpBig">קפיצה</b><small id="jumpSmall">באוויר: החזיקו לסלטה</small></span><i class="tip" id="jumpTip"></i></button>
+</div>
 <div class="count" id="count" hidden><b id="countN">3</b><div class="mis" id="countMis"></div></div>
-<button class="snd" id="snd" type="button" aria-pressed="false" aria-label="צליל">🔇</button>
+<button class="snd" id="snd" hidden type="button" aria-pressed="false" aria-label="צליל">🔇</button>
 
 <section class="menu" id="menuStart" aria-label="התחלה">
   <h1>הירידה של החבר׳ה</h1>
@@ -111,10 +127,10 @@ button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
   <div class="runs" id="runs" role="group" aria-label="בחירת מסלול"></div>
   <div class="opts"><button class="chip" id="optAva" type="button" aria-pressed="true">עם מפולת</button><button class="chip" id="optGhost" type="button" aria-pressed="true">רוח רפאים של השיא</button></div>
   <div class="how">
-    <div><b>נגיעה</b>קפיצה מהשלג</div>
-    <div><b>החזקה באוויר</b>סלטה אחורה</div>
-    <div><b>החזקה על השלג</b>התכופפות: מהר יותר, ונגד הרוח</div>
+    <div><b>כפתור ימני: קפיצה</b>נגיעה קופצת. באוויר: להחזיק כדי לעשות סלטה אחורה, ולשחרר לפני הנחיתה.</div>
+    <div><b>כפתור שמאלי: התכופפות</b>על השלג: להחזיק כדי לנסוע מהר יותר ולעמוד מול הרוח. באוויר: תפיסת מגלשיים.</div>
   </div>
+  <p class="note" style="margin-top:-6px">במקלדת: רווח או חץ למעלה לקפיצה, חץ למטה להתכופפות.</p>
   <div class="legend" id="legend"></div>
   <button class="go-btn" id="go" type="button">לגלוש!</button>
   <p class="note">הפרופיל של כל מסלול נמדד ממודל הגובה לאורך הקו האמיתי שלו (OpenStreetMap), כל 5 מטרים, עם הגבהה פי 1.5, והגובה בפינה הוא הגובה האמיתי. רוח וערפל מופיעים רק מעל 2,900 מ׳, כמו ברכס. הקפיצות, הערוצים והמכשולים נוספו בשביל המשחק.</p>
@@ -251,18 +267,18 @@ function slope(x){ return Math.atan2(baseGround(x+1)-baseGround(x-1),2); } // an
 function zoneAt(x){ for(const z of zones) if(x>=z.x0&&x<=z.x1) return z; return null; }
 
 /* ---------- player ---------- */
-let P, t, state='menu', holding=false, flips=0, score=0, crew=[], hist=[], tracks=[], ghost=null, rec=[], particles=[], shake=0, slow=1, lastResultText='', hintT=0;
+let P, t, state='menu', holding=false, tucking=false, coached=store.get('coach',{}), coachT={jump:0,tuck:0}, flips=0, score=0, crew=[], hist=[], tracks=[], ghost=null, rec=[], particles=[], shake=0, slow=1, lastResultText='', hintT=0;
 let stats, combo=1, countT=0, finT=0, bannerT=0, windT=0;
 function start(){
-  buildRun(); $('menuStart').hidden=true; $('menuEnd').hidden=true; ['hud','crew','speedBox','combo'].forEach(id=>$(id).hidden=false);
+  buildRun(); $('menuStart').hidden=true; $('menuEnd').hidden=true; ['hud','crew','combo','pads','snd'].forEach(id=>$(id).hidden=false); padState=''; release(); tuck(false);
   $('hudRun').textContent=R.key; $('hudRun').style.background=RUNCOL[R.color];
   P={x:3,y:ground(3),s:0,vx:0,vy:0,air:false,ang:slope(3),airRot:0,crash:0,crouch:0,land:0,inv:0,airT:0};
   t=0; flips=0; score=0; crew=[]; hist=[]; tracks=[[3,3]]; rec=[]; particles=[]; shake=0; slow=1; combo=1; zoom=0;
-  stats={flips:0, coins:0, overCat:false, falls:0, maxFlip:0};
+  stats={flips:0, coins:0, overCat:false, falls:0, maxFlip:0, grabs:0};
   avalanche={x:-110, v:8, on:useAva};
   const g=store.get('ghost-'+R.key,null); ghost = useGhost && g ? g : null;
   drawCrewHud(); setCombo(1,false);
-  $('hint').hidden=true; hideBanner();
+  hideBanner();
   $('countMis').innerHTML = `<span>שלושה כוכבים ב-${R.key}</span>★ להגיע לרכבל<br>★ להביא את כל החבר׳ה<br>★ ${MISSION[R.key].t}`;
   $('count').hidden=false; countT=3; $('countN').textContent='3';
   state='count'; last=performance.now();
@@ -273,14 +289,25 @@ function popText(txt){ const p=$('pop'); p.textContent=txt; p.classList.remove('
 function banner(big, txt){ $('bannerBig').textContent=big; $('bannerTxt').textContent=txt; $('banner').classList.remove('off'); bannerT=2.6; }
 function hideBanner(){ $('banner').classList.add('off'); bannerT=0; }
 function setCombo(n, bump=true){ combo=Math.min(6,n); const el=$('combo'); el.textContent='רצף ×'+combo; el.style.opacity = combo>1?1:.45; if(bump&&!reduce){ el.classList.remove('bump'); void el.offsetWidth; el.classList.add('bump'); setTimeout(()=>el.classList.remove('bump'),200); } }
-function press(){ if(state!=='run') return; holding=true;
+function press(){ if(state!=='run') return; holding=true; $('padJump').classList.add('on');
   if(!P.air && P.crash<=0){ takeOff(P.s*Math.cos(P.ang), P.s*Math.sin(P.ang)+8.2); tone(220,.08,.15); } }
-function release(){ holding=false; }
-function takeOff(vx,vy){ P.air=true; P.vx=vx; P.vy=vy; P.airRot=0; P.airT=0; const tr=tracks[tracks.length-1]; if(tr) tr[1]=P.x; }
+function release(){ holding=false; $('padJump').classList.remove('on'); }
+function tuck(on){ tucking = on && state==='run'; $('padTuck').classList.toggle('on', tucking); }
+// first-time coaching: a tip above the right button at the right moment, once per device
+function coach(id, btn, txt, force){ if(coached[id] && !force) return; coached[id]=1; store.set('coach',coached); $(btn+'Tip').textContent=txt; $('pad'+btn[0].toUpperCase()+btn.slice(1)).classList.add('coach'); coachT[btn]=3; }
+let padState='';
+function padLabels(){ const k = P.air ? 'air' : 'snow'; if(k===padState) return; padState=k;
+  $('jumpBig').textContent = P.air ? 'סלטה' : 'קפיצה'; $('jumpSmall').textContent = P.air ? 'להחזיק כדי להסתובב' : 'באוויר: החזיקו לסלטה';
+  $('tuckBig').textContent = P.air ? 'תפיסה' : 'התכופפות'; $('tuckSmall').textContent = P.air ? 'להחזיק, ולשחרר לפני הנחיתה' : 'החזיקו: מהר יותר ונגד הרוח'; }
+function bindPad(el, down, up){ el.addEventListener('pointerdown', e=>{ e.preventDefault(); e.stopPropagation(); try{ el.setPointerCapture(e.pointerId); }catch(_){} down(); });
+  ['pointerup','pointercancel','lostpointercapture'].forEach(ev=>el.addEventListener(ev, e=>{ e.stopPropagation(); up(); })); el.addEventListener('contextmenu', e=>e.preventDefault()); }
+bindPad($('padJump'), press, release); bindPad($('padTuck'), ()=>tuck(true), ()=>tuck(false));
+function takeOff(vx,vy){ P.air=true; P.vx=vx; P.vy=vy; P.airRot=0; P.airT=0; P.grab=0; const tr=tracks[tracks.length-1]; if(tr) tr[1]=P.x; }
+// a tap anywhere else on the mountain also jumps
 cv.addEventListener('pointerdown', e=>{ e.preventDefault(); press(); });
-addEventListener('pointerup', release); addEventListener('pointercancel', release);
-addEventListener('keydown', e=>{ if(e.code==='Space'||e.code==='ArrowUp'){ e.preventDefault(); if(!holding) press(); } });
-addEventListener('keyup', e=>{ if(e.code==='Space'||e.code==='ArrowUp') release(); });
+cv.addEventListener('pointerup', release); cv.addEventListener('pointercancel', release);
+addEventListener('keydown', e=>{ if(e.code==='Space'||e.code==='ArrowUp'){ e.preventDefault(); if(!holding) press(); } if(e.code==='ArrowDown'||e.code==='ShiftLeft'||e.code==='ShiftRight'){ e.preventDefault(); if(!tucking) tuck(true); } });
+addEventListener('keyup', e=>{ if(e.code==='Space'||e.code==='ArrowUp') release(); if(e.code==='ArrowDown'||e.code==='ShiftLeft'||e.code==='ShiftRight') tuck(false); });
 
 function spray(x,y,n,spd,col='#fff',up=3){ for(let i=0;i<n;i++) particles.push({x,y,vx:-spd*(0.3+Math.random()*0.6),vy:1+Math.random()*up,life:.5+Math.random()*.5,r:.12+Math.random()*.2,col}); }
 function burst(x,y,cols,n){ for(let i=0;i<n;i++){ const a=Math.random()*Math.PI, v=4+Math.random()*7; particles.push({x,y,vx:Math.cos(a)*v,vy:Math.sin(a)*v+2,life:1+Math.random()*.8,r:.18,col:cols[i%cols.length],conf:true}); } }
@@ -304,23 +331,28 @@ function land(){
   if(Math.abs(rel)>0.75){ crashNow(); return; }
   const along=P.vx*Math.cos(a)+P.vy*Math.sin(a);
   P.s=Math.min(VMAX, Math.max(4, along)); P.ang=a; P.land=.3;
+  if(tucking && P.grab>0.05){ P.s*=0.6; setCombo(1,false); P.grab=0; popText('שחררו את התפיסה לפני הנחיתה'); tone(90,.2,.4); spray(P.x,P.y,30,P.s*.5); coach('grabLand','tuck','שחררו לפני הנחיתה',true); return; }
+  const grabbed = P.grab>=0.35; if(grabbed){ stats.grabs=(stats.grabs||0)+1; }
   const clean = Math.abs(rel)<0.14;
   if(n>0){ flips+=n; stats.flips+=n; stats.maxFlip=Math.max(stats.maxFlip,n); const mult=(1+crew.length)*combo; score+=n*100*mult; P.s=Math.min(VMAX+3,P.s+3*n); slow=reduce?1:.35; buzz(30);
-    popText((n>1?n+' סלטות!':'סלטה!')+(mult>1?' ×'+mult:'')); tone(140,.2,.5); spray(P.x,P.y,26,P.s*.6); setCombo(combo+1); }
+    if(grabbed){ score+=150*mult; } popText((n>1?n+' סלטות':'סלטה')+(grabbed?' עם תפיסה!':'!')+(mult>1?' ×'+mult:'')); tone(140,.2,.5); spray(P.x,P.y,26,P.s*.6); setCombo(combo+1); }
+  else if(grabbed){ const pts=Math.round(P.grab*2)*50*combo; score+=pts; popText('תפיסה! +'+pts); tone(300,.15,.35,'triangle',1.4); spray(P.x,P.y,18,P.s*.5); setCombo(combo+1); }
   else { spray(P.x,P.y,12,P.s*.4); tone(100,.12,.25); if(P.airT>0.5){ score+=20*combo; if(clean){ P.s+=1.5; score+=15; popText('נחיתה נקייה'); setCombo(combo+1); } } }
+  P.grab=0;
 }
 
 let last=performance.now();
 function step(now){
   let dt=Math.min(0.05,(now-last)/1000); last=now;
   if(state==='count'){ countT-=dt; const n=Math.ceil(countT); $('countN').textContent = n>0? n : 'סעו!';
-    if(countT<=-0.4){ $('count').hidden=true; state='run'; P.s=7; $('hint').hidden=false; $('hint').style.opacity=1; hintT=0; tone(660,.25,.3,'triangle',1); }
+    if(countT<=-0.4){ $('count').hidden=true; state='run'; P.s=7; padLabels(); tone(660,.25,.3,'triangle',1); }
     else if(Math.ceil(countT)!==Math.ceil(countT+dt)) tone(440,.12,.25,'triangle',1); }
   if(state==='run'||state==='fin'){ dt*=slow; slow=Math.min(1,slow+dt*1.8); update(dt); }
   draw(); requestAnimationFrame(step);
 }
 function update(dt){
-  t+=dt; if(state==='run'){ hintT+=dt; if(hintT>6) $('hint').style.opacity=0; }
+  t+=dt; padLabels();
+  for(const b of ['jump','tuck']) if(coachT[b]>0){ coachT[b]-=dt/Math.max(slow,.2); if(coachT[b]<=0) $('pad'+b[0].toUpperCase()+b.slice(1)).classList.remove('coach'); }
   if(bannerT>0){ bannerT-=dt; if(bannerT<=0) hideBanner(); }
   const a=slope(P.x), z=zoneAt(P.x);
   P.inv=Math.max(0,P.inv-dt);
@@ -330,11 +362,11 @@ function update(dt){
     if(finT>1.6) finish(true);
   } else if(P.crash>0){ P.crash-=dt; P.s=Math.max(0,P.s-6*dt); P.x+=P.s*Math.cos(a)*dt; P.y=ground(P.x); P.ang+=dt*9; if(P.crash<=0){ P.ang=a; P.s=Math.max(P.s,4); } }
   else if(!P.air){
-    P.crouch += ((holding?1:0)-P.crouch)*Math.min(1,dt*8);
-    let drag = holding?0.0022:0.0034, mu=0.035, push=0;
+    P.crouch += ((tucking?1:0)-P.crouch)*Math.min(1,dt*8); P.grab=0;
+    let drag = tucking?0.0022:0.0034, mu=0.035, push=0;
     if(z&&z.kind==='powder'){ drag*=4.5; mu=0.09; }
     if(z&&z.kind==='ice'){ drag*=0.8; mu=0.008; }
-    if(z&&z.kind==='wind'){ push = holding? 0.8 : 4.2; }
+    if(z&&z.kind==='wind'){ push = tucking? 0.8 : 4.2; }
     P.s += (-G*Math.sin(a) - drag*P.s*P.s - mu*G*Math.cos(a) - push)*dt;
     P.s = Math.min(VMAX, Math.max(P.s, 3.2));        // skating on the flats; a racer's top speed
     const nx=P.x+P.s*Math.cos(a)*dt, ty=P.y+P.s*Math.sin(a)*dt;
@@ -351,11 +383,12 @@ function update(dt){
     if(z&&z.kind==='wind') P.vx=Math.max(2,P.vx-3*dt);
     P.vy -= G*dt; P.x+=P.vx*dt; P.y+=P.vy*dt;
     const spin = holding? 7.6 : 0; P.ang += spin*dt; P.airRot += spin*dt;
-    if(!holding){ // let go and the skier settles toward the snow below (and finishes a nearly complete flip)
+    if(tucking) P.grab += dt; // grabbing the skis: points for every moment held, but you can't level out
+    if(!holding && !tucking){ // let go and the skier settles toward the snow below (and finishes a nearly complete flip)
       const tgt=slope(P.x), rel=Math.atan2(Math.sin(P.ang-tgt),Math.cos(P.ang-tgt)); const fwd = P.airRot>0.5 && rel>0 ? Math.min(2*Math.PI-((P.airRot%(2*Math.PI))||2*Math.PI), 9) : 0;
       const step = fwd>0 && fwd<1.6 ? Math.min(fwd, 4*dt) : -Math.sign(rel)*Math.min(Math.abs(rel), 2.6*dt);
       P.ang += step; if(step>0) P.airRot += step; }
-    P.crouch += ((holding?1:0)-P.crouch)*Math.min(1,dt*10);
+    P.crouch += ((holding||tucking?1:0)-P.crouch)*Math.min(1,dt*10);
     if(P.y<=ground(P.x)) land();
   }
   P.land=Math.max(0,P.land-dt);
@@ -369,16 +402,20 @@ function update(dt){
       if(Math.abs(P.x-c.x)<2.0){ if(hgt<2.1 && !c.over && P.inv<=0 && P.crash<=0 && !c.hit){ c.hit=true; crashNow('נתקעת ברטרק!'); }
         else if(hgt>=2.1 && !c.over){ c.over=true; stats.overCat=true; score+=300*combo; popText('מעל הרטרק!'); tone(520,.2,.35,'triangle',1.5); setCombo(combo+1); } }
     }
+    if(!P.air && P.crash<=0 && (kickers.some(k=>k.x-P.x>0&&k.x-P.x<P.s*1.1) || rocks.some(r=>r.x-P.x>0&&r.x-P.x<P.s*0.9))) coach('jump','jump','קפיצה!');
+    if(P.air && P.airT>0.25 && coached.jump) coach('flip','jump','החזיקו לסלטה');
+    if(P.air && P.airT>0.25 && stats.flips>=2) coach('grab','tuck','באוויר: תפיסה');
+    if(!P.air && stats.flips>=1 && t>20) coach('tuck','tuck','החזיקו להתכופף');
     for(const g of gaps) if(!g.warned && g.x0-P.x<60 && g.x0>P.x){ g.warned=true; banner('ערוץ!','קפצו רגע לפני הקצה'); }
     for(const zz of zones) if(!zz.warned && zz.x0-P.x<35 && zz.x1>P.x){ zz.warned=true;
-      if(zz.kind==='wind') banner('רוח ברכס','החזיקו על השלג כדי להתכופף'); else if(zz.kind==='powder') banner('שלג עמוק','מאט. אפשר לקפוץ מעליו'); else banner('קרח','מהיר! תחזיקו חזק'); }
+      if(zz.kind==='wind'){ banner('רוח ברכס','החזיקו את כפתור ההתכופפות'); coach('wind','tuck','החזיקו נגד הרוח',true); } else if(zz.kind==='powder') banner('שלג עמוק','מאט. אפשר לקפוץ מעליו'); else banner('קרח','מהיר! תחזיקו חזק'); }
     // khachapuri
     for(const c of coins){ if(c.got) continue; const cy=baseGround(c.x)+c.dy; if(Math.abs(P.x-c.x)<1.3 && Math.abs(P.y+0.9-cy)<1.5){ c.got=true; stats.coins++; score+=10*combo; tone(990+stats.coins%5*80,.07,.12,'triangle',1.2); particles.push({x:c.x,y:cy,vx:0,vy:3,life:.5,r:.25,col:'#F4B942'}); } }
     // friends: ski through one to pick them up
     for(const c of crewSpots){ if(c.got||c.lost) continue; if(Math.abs(P.x-c.x)<4 && hgt<8 && P.crash<=0){ c.got=true; c.joinT=0.7; crew.push({fi:c.fi, from:c.x}); score+=150; popText(FRIENDS[c.fi].n+' הצטרף!'); setCombo(combo+1); buzz(20); tone(330,.1,.2); } }
     // a Gudauri dog joins for a while near the bottom
     if(!dog.on && !dog.done && P.x>dog.x0){ dog.on=true; dog.t=0; banner('🐕','כלב של גודאורי רץ איתכם'); }
-    if(P.x>=R.len-8){ state='fin'; finT=0; hideBanner(); $('hint').hidden=true; popText(R.lift?'רכבל '+R.lift:'סיום!'); tone(520,.3,.4,'triangle',2); burst(P.x+3,P.y+3,FRIENDS.map(f=>f.c),60); }
+    if(P.x>=R.len-8){ state='fin'; finT=0; hideBanner(); release(); tuck(false); popText(R.lift?'רכבל '+R.lift:'סיום!'); tone(520,.3,.4,'triangle',2); burst(P.x+3,P.y+3,FRIENDS.map(f=>f.c),60); }
   }
   if(dog.on){ dog.t+=dt; if(dog.t>14 || state==='fin'){ dog.on=false; dog.done=true; } }
   // history of positions: the crew ride in your exact tracks, a fixed distance apart
@@ -408,7 +445,7 @@ function histAt(x){ // the rider's own path, at distance x along the run
 function ghostAt(tt){ if(!ghost) return null; let i=0; while(i<ghost.r.length-1&&ghost.r[i+1][0]<tt) i++; return ghost.r[i]; }
 function fmt(s){ const m=Math.floor(s/60), r=s-m*60; return m+':'+(r<10?'0':'')+r.toFixed(1); }
 function finish(ok){
-  state='end'; if(windGain) windGain.gain.value=0; ['hud','crew','speedBox','hint','combo'].forEach(id=>$(id).hidden=true); hideBanner();
+  state='end'; if(windGain) windGain.gain.value=0; ['hud','crew','combo','pads','snd'].forEach(id=>$(id).hidden=true); release(); tuck(false); hideBanner();
   const got=crew.length; score += ok? got*200 + Math.max(0,Math.round(600-t*3)) : 0;
   const goals=[ok, ok&&got===5, ok&&MISSION[R.key].ok(stats)], nStars=goals.filter(Boolean).length;
   const prev=store.get('stars-'+R.key,0); if(nStars>prev) store.set('stars-'+R.key,nStars);
@@ -421,7 +458,7 @@ function finish(ok){
   const key='best-'+R.key, best=store.get(key,null);
   if(ok && (!best||t<best.t)){ store.set(key,{t,who:me}); store.set('ghost-'+R.key,{t,who:me,r:rec}); $('endBest').textContent='שיא חדש במסלול! בפעם הבאה תגלוש מול רוח הרפאים שלו.'; }
   else $('endBest').textContent = best? 'השיא במסלול: '+fmt(best.t)+' ('+FRIENDS[best.who].n+')' : '';
-  lastResultText = ok ? `${FRIENDS[me].n} ירד ב-${R.key} ב-${fmt(t)} ${starStr(nStars)}: ${flips} סלטות, ${got} מתוך 5 חבר׳ה ו-${stats.coins} חצ׳אפורי. מי עוקף?` : `המפולת תפסה את ${FRIENDS[me].n} ב-${R.key} אחרי ${Math.round(P.x)} מ׳. מי מגיע רחוק יותר?`;
+  lastResultText = ok ? `${FRIENDS[me].n} ירד ב-${R.key} ב-${fmt(t)} ${starStr(nStars)}: ${flips} סלטות, ${stats.grabs} תפיסות, ${got} מתוך 5 חבר׳ה ו-${stats.coins} חצ׳אפורי. מי עוקף?` : `המפולת תפסה את ${FRIENDS[me].n} ב-${R.key} אחרי ${Math.round(P.x)} מ׳. מי מגיע רחוק יותר?`;
   $('copyNote').textContent='באתר עצמו הקישור יכיל את הירידה, והחברים יגלשו מול רוח הרפאים שלך.';
   $('menuEnd').hidden=false;
 }
@@ -446,10 +483,13 @@ function skier(x,y,skiAng,bodyAng,col,o={}){
   const wave = o.wave!=null ? Math.sin(o.wave*9)*.5 : null;
   cx.strokeStyle=col; cx.lineWidth=.17;
   if(wave!=null){ cx.beginPath(); cx.moveTo(.08,.6); cx.lineTo(.35,.95+wave*.2); cx.lineTo(.5+wave*.15,1.25); cx.stroke(); }
+  else if(o.grab){ /* the arm is drawn below, reaching for the ski */ }
   else { cx.beginPath(); cx.moveTo(.08,.58); cx.lineTo(.5,.3-.1*cr); cx.stroke(); cx.strokeStyle='#3A4556'; cx.lineWidth=.05; cx.beginPath(); cx.moveTo(.5,.3-.1*cr); cx.lineTo(-.25-.3*cr,-hipY+.08); cx.stroke(); } // arm and pole
   cx.fillStyle='#F4F7FB'; cx.strokeStyle='#13233A'; cx.lineWidth=.06; cx.beginPath(); cx.arc(.12,1.0,.25,0,7); cx.fill(); cx.stroke(); // helmet
   cx.fillStyle='#13233A'; cx.fillRect(.16,.93,.25,.1); cx.fillStyle=col; cx.fillRect(.18,.95,.2,.05); // goggles
-  cx.restore(); cx.restore();
+  cx.restore();
+  if(o.grab){ cx.strokeStyle=col; cx.lineWidth=.17; cx.lineCap='round'; cx.beginPath(); cx.moveTo(.2,hipY+.45); cx.lineTo(.55,.45); cx.lineTo(.78,.1); cx.stroke(); cx.fillStyle='#13233A'; cx.beginPath(); cx.arc(.78,.1,.09,0,7); cx.fill(); }
+  cx.restore();
   if(o.label){ cx.save(); cx.globalAlpha=al; cx.scale(1,-1); cx.font='700 0.8px "IBM Plex Sans Hebrew",sans-serif'; cx.textAlign='center';
     const w=cx.measureText(o.label).width+0.5; cx.fillStyle=o.labelBg||'#fff'; cx.fillRect(x-w/2,-(y+4.3),w,1.05); cx.fillStyle='#13233A'; cx.fillText(o.label,x,-(y+3.5)); cx.restore(); }
 }
@@ -546,7 +586,7 @@ function draw(){
     // you
     const a=slope(P.x); if(P.air) shadow(P.x,hNow);
     const onSnow=!P.air&&P.crash<=0, body = onSnow ? a*.4 : P.ang;
-    skier(P.x,P.y,onSnow?a:P.ang,body,FRIENDS[me].c,{crouch:P.crouch,scarf:t});
+    skier(P.x,P.y,onSnow?a:P.ang,body,FRIENDS[me].c,{crouch:P.crouch,scarf:t,grab:P.air&&tucking});
     for(const p of particles){ cx.globalAlpha=Math.max(0,Math.min(1,p.life)); cx.fillStyle=p.col; if(p.conf){ cx.fillRect(p.x-.12,p.y-.08,.24,.16); } else { cx.beginPath(); cx.arc(p.x,p.y,p.r,0,7); cx.fill(); } } cx.globalAlpha=1;
   });
   // the avalanche: a wall of powder behind you
