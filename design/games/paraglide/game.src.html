@@ -1,0 +1,274 @@
+<title>מצנח מעל גודאורי</title>
+<meta name="description" content="טיסות מצנח רחיפה על קווים אמיתיים מעל גודאורי, עם תרמיקות ונחיתה על המטרה">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Karantina:wght@700&family=IBM+Plex+Sans+Hebrew:wght@400;600;700&display=swap">
+<style>
+/* One look: a clear high-altitude sky. The same in both themes. */
+:root{ --ink:#13233A; --muted:#4B5A6F; --rule:#CBD5DF; --accent:#F4B942; --warn:#F08A3C; --red:#D1342B; --green:#1B8A4C;
+  --f-display:"Karantina","Arial Narrow",sans-serif; --f-body:"IBM Plex Sans Hebrew",system-ui,-apple-system,"Segoe UI",sans-serif; color-scheme:light; }
+html,body{height:100%}
+[hidden]{display:none!important}
+body{margin:0;background:#4F90D2;color:var(--ink);font-family:var(--f-body);direction:rtl;overflow:hidden;-webkit-user-select:none;user-select:none;touch-action:none}
+#game{position:fixed;inset:0;width:100%;height:100%;display:block}
+.hud{position:fixed;left:0;right:0;top:0;padding:calc(env(safe-area-inset-top,0px) + 10px) 12px 0;display:flex;justify-content:space-between;align-items:flex-start;gap:8px;pointer-events:none}
+.box{background:rgba(19,35,58,.86);color:#fff;padding:6px 10px;display:flex;flex-direction:column;align-items:flex-start}
+.box b{font-family:var(--f-display);font-size:34px;line-height:.9;font-variant-numeric:tabular-nums}
+.box small{font-size:11px;color:var(--accent);font-weight:700;font-variant-numeric:tabular-nums}
+.vario{position:fixed;left:12px;top:calc(env(safe-area-inset-top,0px) + 74px);width:58px;background:rgba(19,35,58,.86);color:#fff;display:flex;flex-direction:column;align-items:center;padding:6px 0;pointer-events:none}
+.vario b{font-family:var(--f-display);font-size:28px;line-height:1;font-variant-numeric:tabular-nums}
+.vario small{font-size:10px;opacity:.85}
+.vario.up b{color:#7CE39B}.vario.down b{color:#FF9C8E}
+.task{position:fixed;right:12px;top:calc(env(safe-area-inset-top,0px) + 74px);display:flex;flex-direction:column;gap:4px;pointer-events:none;align-items:flex-end}
+.task span{background:rgba(255,255,255,.9);font-size:12.5px;font-weight:700;padding:3px 8px}
+.task span.ok{background:var(--green);color:#fff}
+.pop{position:fixed;left:50%;top:30%;transform:translate(-50%,-50%);font-family:var(--f-display);font-size:clamp(34px,11vw,56px);line-height:1;color:#fff;text-shadow:0 3px 0 var(--ink),0 0 18px rgba(19,35,58,.5);white-space:nowrap;pointer-events:none;opacity:0}
+.pop.go{animation:pop 1.1s cubic-bezier(.2,1.4,.4,1) forwards}
+@keyframes pop{0%{opacity:0;transform:translate(-50%,-30%) scale(.6)}20%{opacity:1;transform:translate(-50%,-50%) scale(1.08)}75%{opacity:1}100%{opacity:0;transform:translate(-50%,-80%) scale(1)}}
+.flash{position:fixed;inset:0;background:#fff;opacity:0;pointer-events:none}
+.flash.go{animation:fl .5s ease-out}
+@keyframes fl{0%{opacity:.9}100%{opacity:0}}
+.pads{position:fixed;left:12px;right:12px;bottom:calc(env(safe-area-inset-bottom,0px) + 12px);display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px;direction:ltr;pointer-events:none}
+.pad{pointer-events:auto;min-height:80px;min-width:0;border:2px solid rgba(255,255,255,.85);background:rgba(19,35,58,.55);color:#fff;font:inherit;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer;touch-action:none;-webkit-tap-highlight-color:transparent;direction:rtl;transition:background .1s,transform .1s}
+.pad b{font-family:var(--f-display);font-size:28px;line-height:1}
+.pad small{font-size:11.5px;opacity:.9}
+.pad.on{background:var(--accent);color:var(--ink);border-color:var(--accent);transform:scale(.97)}
+.pad.glow{border-color:var(--accent);box-shadow:0 0 0 4px rgba(244,185,66,.45)}
+.menu{position:fixed;inset:0;overflow:auto;padding:calc(env(safe-area-inset-top,0px) + 16px) 16px calc(env(safe-area-inset-bottom,0px) + 20px);background:linear-gradient(rgba(79,144,210,.15),rgba(13,21,34,.8) 55%);display:flex;flex-direction:column;gap:14px;touch-action:auto}
+.menu h1{margin:0;font-family:var(--f-display);font-size:58px;line-height:.9;color:#fff;text-shadow:0 3px 0 var(--ink);text-wrap:balance}
+.menu h2{margin:0;font-family:var(--f-display);font-size:28px;line-height:1;color:#fff}
+.menu p{margin:0;color:#fff;font-size:14px;line-height:1.45;max-width:36em}
+.friends{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.friends button{font:inherit;border:0;cursor:pointer;min-height:52px;background:rgba(255,255,255,.9);border-top:8px solid var(--c);font-weight:700;font-size:15px;color:var(--ink)}
+.friends button[aria-pressed="true"]{background:#fff;outline:3px solid var(--accent);outline-offset:-3px}
+.flights{display:flex;flex-direction:column;gap:8px}
+.fl{font:inherit;border:0;cursor:pointer;text-align:right;display:grid;grid-template-columns:auto 1fr auto;gap:2px 12px;align-items:center;background:#fff;color:var(--ink);padding:8px 12px;border-inline-start:10px solid var(--accent);min-height:60px}
+.fl .n{grid-row:span 2;font-family:var(--f-display);font-size:34px;line-height:1;color:var(--muted)}
+.fl b{font-family:var(--f-display);font-size:24px;line-height:1}
+.fl small{font-size:12px;color:var(--muted);grid-column:2 / 4;font-variant-numeric:tabular-nums}
+.fl .st{color:var(--accent);letter-spacing:1px;white-space:nowrap}
+.fl[aria-pressed="true"]{outline:3px solid var(--accent);outline-offset:-3px}
+.fl:disabled{opacity:.55;cursor:not-allowed}
+.how{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.how div{background:rgba(255,255,255,.14);color:#fff;padding:8px;font-size:12.5px;line-height:1.3;border-top:3px solid var(--accent)}
+.how b{display:block;font-family:var(--f-display);font-size:22px;line-height:1}
+.go-btn{font:inherit;min-height:60px;border:0;background:var(--accent);color:var(--ink);font-family:var(--f-display);font-size:34px;cursor:pointer;box-shadow:0 5px 0 var(--ink)}
+.note{font-size:11.5px;color:rgba(255,255,255,.82)}
+.res{background:#fff;padding:14px;display:flex;flex-direction:column;gap:8px;transform:rotate(-2deg);box-shadow:0 10px 24px rgba(0,0,0,.3)}
+.res .big{font-family:var(--f-display);font-size:58px;line-height:.9;font-variant-numeric:tabular-nums}
+.res .stars{font-size:30px;letter-spacing:4px;color:var(--rule)}.res .stars i{font-style:normal}.res .stars i.on{color:var(--accent)}
+.rows{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;border-top:1px solid var(--rule);padding-top:8px}
+.rows span{display:flex;flex-direction:column;font-size:11.5px;color:var(--muted);min-width:0}
+.rows b{font-family:var(--f-display);font-size:clamp(22px,6.5vw,30px);line-height:1;color:var(--ink);font-variant-numeric:tabular-nums}
+.goals{display:flex;flex-direction:column;gap:3px;border-top:1px solid var(--rule);padding-top:8px;font-size:13px}
+.goals span{display:flex;gap:8px;color:var(--muted)}.goals span.ok{color:var(--ink);font-weight:700}
+.goals span::before{content:"☆";color:var(--rule)}.goals span.ok::before{content:"★";color:var(--accent)}
+.album{display:flex;gap:8px;flex-wrap:wrap}
+.album span{background:#F4F7FB;border:1px solid var(--rule);padding:4px 8px;font-size:12px}
+.small-btns{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.small-btns button{font:inherit;min-height:48px;border:2px solid #fff;background:transparent;color:#fff;font-weight:700;cursor:pointer}
+.snd{position:fixed;left:12px;top:calc(env(safe-area-inset-top,0px) + 160px);font:inherit;min-width:44px;min-height:44px;border:0;background:rgba(19,35,58,.7);color:#fff;cursor:pointer}
+button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){.pop.go,.flash.go{animation-duration:.01s}.pad{transition:none}}
+</style>
+
+<canvas id="game" aria-label="המשחק: מצנח רחיפה"></canvas>
+<div class="hud" id="hud" hidden>
+  <div class="box"><b id="alt">0</b><small>מ׳ מעל הים · <span id="agl">0</span> מעל הקרקע</small></div>
+  <div class="box"><b id="dist">0</b><small id="distInfo">עד הנחיתה</small></div>
+</div>
+<div class="vario" id="vario" hidden><b id="vz">0.0</b><small>מ׳/שנ׳</small></div>
+<div class="task" id="task" hidden></div>
+<div class="pop" id="pop"></div>
+<div class="flash" id="flash"></div>
+<button class="snd" id="snd" type="button" hidden aria-pressed="false" aria-label="צליל">🔇</button>
+<div class="pads" id="pads" hidden>
+  <button class="pad" id="padL" type="button"><b id="lBig">סיבוב</b><small id="lSmall">בתרמיקה: מטפסים</small></button>
+  <button class="pad" id="padR" type="button"><b>מאיץ</b><small>מהר יותר, יורד יותר</small></button>
+</div>
+
+<section class="menu" id="menuStart" aria-label="התחלה">
+  <h1>מצנח מעל גודאורי</h1>
+  <p>גודאורי היא אחד המקומות הידועים בגאורגיה לטיסות מצנח רחיפה. כאן טסים בקווים אמיתיים מעל ההר: מוצאים תרמיקות, עוברים נקודות ציון, ונוחתים בדיוק על המטרה.</p>
+  <h2>מי טס איתך?</h2>
+  <div class="friends" id="friends" role="group" aria-label="בחירת נוסע"></div>
+  <h2>הטיסות</h2>
+  <div class="flights" id="flights" role="group" aria-label="בחירת טיסה"></div>
+  <div class="how">
+    <div><b>סיבוב</b>מחזיקים כדי להסתובב במקום. בתוך תרמיקה (עמוד של אוויר חם מעל מדרון שמש) מטפסים, ומחוצה לה יורדים לאט, למשל מעל השדה.</div>
+    <div><b>מאיץ</b>עוברים מהר אזורי ירידה ורוח נגדית, אבל מאבדים גובה.</div>
+    <div><b>נחיתה</b>קרוב לקרקע אותו כפתור הופך לבלימה. במרכז המטרה: 100 נקודות.</div>
+  </div>
+  <button class="go-btn" id="go" type="button">להמריא</button>
+  <p class="note">הזמן במשחק רץ פי חמישה. כל טיסה היא קו אמיתי על המפה, בין פסגות ומקומות מנתוני האתר. פני הקרקע ממודל הגובה (מוגבהים בתצוגה), והתרמיקות ממוקמות על המדרונות שהכי פונים לשמש. עוצמת התרמיקות, הרוח והניקוד הם בשביל המשחק.</p>
+</section>
+
+<section class="menu" id="menuEnd" aria-label="תוצאה" hidden>
+  <h2 id="endTitle">נחיתה!</h2>
+  <div class="res">
+    <span style="font-size:12px;color:var(--muted);font-weight:700" id="endWho"></span>
+    <div class="big" id="endBig">0</div>
+    <div class="stars" id="endStars"></div>
+    <div class="rows"><span>זמן באוויר<b id="endTime">0</b></span><span>הכי גבוה<b id="endMax">0</b></span><span>מהמטרה<b id="endOff">0</b></span><span>טיפוס<b id="endClimb">0</b></span></div>
+    <div class="goals" id="endGoals"></div>
+    <div class="album" id="album"></div>
+    <span style="font-size:13px;color:var(--muted)" id="endBest"></span>
+  </div>
+  <button class="go-btn" id="again" type="button">עוד טיסה</button>
+  <div class="small-btns"><button type="button" id="next">הטיסה הבאה</button><button type="button" id="toMenu">כל הטיסות</button></div>
+</section>
+
+<script>
+const FLIGHTS = __FLIGHTS__;
+const FR=[{n:'יהודה ו׳',c:'#D1342B'},{n:'דובי',c:'#1F5FC4'},{n:'שרוליק',c:'#F4B942'},{n:'מוישי',c:'#1B8A4C'},{n:'יהודה ה׳',c:'#7B4FC4'},{n:'פיני',c:'#F07A2E'}];
+// the third star of each flight
+const GOALS=[{t:'שלוש דקות באוויר', ok:s=>s.time>=180},{t:'לטפס מעל 3,400 מ׳', ok:s=>s.max>=3400},{t:'לצלם את האנדרטה מקרוב', ok:s=>s.photos.includes('אנדרטת הידידות')},{t:'להגיע לקובי עם 300 מ׳ מעל הקרקע בתחילת הגישה', ok:s=>s.arriveAgl>=300},{t:'לעבור את כל שלוש נקודות הציון', ok:s=>s.turns>=3}];
+const store={get(k,d){try{const v=localStorage.getItem('pg-'+k);return v==null?d:JSON.parse(v);}catch(e){return d;}},set(k,v){try{localStorage.setItem('pg-'+k,JSON.stringify(v));}catch(e){}}};
+const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const $=id=>document.getElementById(id);
+const fmtN=v=>Math.round(v).toLocaleString('en-US');
+const fmtT=s=>{ const m=Math.floor(s/60), r=Math.floor(s%60); return m+':'+(r<10?'0':'')+r; };
+
+/* ---------- menus ---------- */
+let me=store.get('pax',1), fi=store.get('fl',0);
+function stars(i){ return store.get('stars-'+i,0); }
+function drawMenu(){
+  $('friends').innerHTML=FR.map((f,i)=>`<button type="button" style="--c:${f.c}" aria-pressed="${i===me}" data-f="${i}">${f.n}</button>`).join('');
+  $('flights').innerHTML=FLIGHTS.map((F,i)=>{ const st=stars(i), open=i===0||stars(i-1)>0, best=store.get('best-'+i,0);
+    return `<button class="fl" type="button" data-i="${i}" aria-pressed="${i===fi}" ${open?'':'disabled'}><span class="n">${i+1}</span><b>${F.n}</b><span class="st">${open?'★'.repeat(st)+'☆'.repeat(3-st):'🔒'}</span><small>${F.from} ← ${F.to} · ${(F.len/1000).toFixed(1)} ק״מ · ${fmtN(F.h[0])} עד ${fmtN(F.h[F.h.length-1])} מ׳${best?' · שיא '+best:''}</small><small>★ ${GOALS[i].t}</small></button>`; }).join(''); }
+$('friends').onclick=e=>{ const b=e.target.closest('[data-f]'); if(!b) return; me=+b.dataset.f; store.set('pax',me); drawMenu(); };
+$('flights').onclick=e=>{ const b=e.target.closest('[data-i]'); if(!b||b.disabled) return; fi=+b.dataset.i; store.set('fl',fi); drawMenu(); };
+$('go').onclick=()=>start(); $('again').onclick=()=>start();
+$('next').onclick=()=>{ if(fi<FLIGHTS.length-1){ fi++; store.set('fl',fi); } start(); };
+$('toMenu').onclick=()=>{ $('menuEnd').hidden=true; $('menuStart').hidden=false; drawMenu(); state='menu'; };
+
+/* ---------- sound: a real vario beeps faster and higher as you climb ---------- */
+let AC=null, soundOn=false, beepT=0;
+$('snd').onclick=e=>{ e.stopPropagation(); soundOn=!soundOn; $('snd').textContent=soundOn?'🔊':'🔇'; if(soundOn&&!AC){ try{ AC=new (window.AudioContext||window.webkitAudioContext)(); }catch(_){ AC=null; } } };
+function beep(f,d=.07,v=.12){ if(!soundOn||!AC) return; const o=AC.createOscillator(), g=AC.createGain(); o.type='sine'; o.frequency.value=f; g.gain.setValueAtTime(v,AC.currentTime); g.gain.exponentialRampToValueAtTime(.001,AC.currentTime+d); o.connect(g); g.connect(AC.destination); o.start(); o.stop(AC.currentTime+d); }
+
+/* ---------- input ---------- */
+let holdL=false, holdR=false;
+function bind(el,set){ el.addEventListener('pointerdown',e=>{ e.preventDefault(); try{ el.setPointerCapture(e.pointerId);}catch(_){} set(true); }); ['pointerup','pointercancel','lostpointercapture'].forEach(ev=>el.addEventListener(ev,()=>set(false))); el.addEventListener('contextmenu',e=>e.preventDefault()); }
+bind($('padL'),v=>{ holdL=v; $('padL').classList.toggle('on',v); }); bind($('padR'),v=>{ holdR=v; $('padR').classList.toggle('on',v); });
+addEventListener('keydown',e=>{ if(e.code==='ArrowLeft'||e.code==='Space'){ holdL=true; $('padL').classList.add('on'); e.preventDefault(); } if(e.code==='ArrowRight'){ holdR=true; $('padR').classList.add('on'); e.preventDefault(); } });
+addEventListener('keyup',e=>{ if(e.code==='ArrowLeft'||e.code==='Space'){ holdL=false; $('padL').classList.remove('on'); } if(e.code==='ArrowRight'){ holdR=false; $('padR').classList.remove('on'); } });
+
+/* ---------- a flight ---------- */
+const cv=$('game'), cx=cv.getContext('2d'); let W=0,H=0;
+function resize(){ const dpr=Math.min(2,devicePixelRatio||1); W=innerWidth; H=innerHeight; cv.width=W*dpr; cv.height=H*dpr; cx.setTransform(dpr,0,0,dpr,0,0); } addEventListener('resize',resize); resize();
+let F, g, state='menu', t=0, stats, parts=[], circleT=0, landed=null, landT=0, lastVz=0;
+const ground=s=>{ const f=Math.max(0,Math.min(F.h.length-1.001,s/10)), i=Math.floor(f); return F.h[i]+(F.h[i+1]-F.h[i])*(f-i); };
+const thermalAt=(s,z)=>{ let v=0; for(const th of F.therm){ const d=Math.abs(s-th.s); if(d<th.w){ const base=ground(th.s); const top=Math.max(base+700, 3650); if(z<top) v=Math.max(v, th.v*Math.cos(d/th.w*Math.PI/2)*(z>top-150?(top-z)/150:1)); } } return v; };
+// sink on the lee side: where the ground falls away downwind
+const leeAt=s=>{ if(!F.wind) return 0; const dir=Math.sign(F.wind), sl=(ground(s+dir*60)-ground(s))/60; return sl<-.25 ? Math.min(1.6, (-sl-.25)*3)*Math.min(1,Math.abs(F.wind)/2) : 0; };
+function start(){
+  F=FLIGHTS[fi]; const s0=40; g={s:s0, z:ground(s0)+80, vz:0, v:9, bank:0, flare:1.2}; t=0; parts=[]; circleT=0; landed=null; landT=0;
+  stats={time:0, max:g.z, climb:0, photos:[], turns:0, arriveAgl:0, nextTurn:0};
+  $('menuStart').hidden=true; $('menuEnd').hidden=true; ['hud','vario','task','pads','snd'].forEach(id=>$(id).hidden=false);
+  taskUI(); state='fly'; last=performance.now(); popText(F.from);
+}
+function taskUI(){ $('task').innerHTML = F.turns.map((tp,i)=>`<span class="${i<stats.turns?'ok':''}">${tp.photo?'📸 ':'⚑ '}${tp.n}</span>`).join('') + `<span>🎯 ${F.to}</span>`; }
+function popText(s){ const p=$('pop'); p.textContent=s; p.classList.remove('go'); void p.offsetWidth; p.classList.add('go'); }
+let last=performance.now();
+function frame(now){ const dt=Math.min(.05,(now-last)/1000); last=now; if(state==='fly') update(dt); else if(state==='landed'){ landT+=dt; if(landT>1.6) finish(); } draw(); requestAnimationFrame(frame); }
+const SPEED=5; // the flight runs five times faster than real time, so a 6 km task fits in a couple of minutes
+function update(rdt){ const dt=rdt*SPEED;
+  t+=dt; stats.time=t;
+  const agl=g.z-ground(g.s), th=thermalAt(g.s,g.z), lee=leeAt(g.s), near=agl<18;
+  const circling = holdL && !near, braking = holdL && near; // circling stays in place: up in a thermal, slowly down anywhere else
+  // the polar: best glide around 9 m/s, the speed bar pays in sink
+  const v = holdR ? 13.5 : braking ? 7 : 9;
+  g.v += (v-g.v)*Math.min(1,dt*2);
+  let sink = 1.05 + 0.055*(g.v-8.5)**2;
+  if(agl>25) g.flare=1.2; // a flare only works for a moment, right above the snow
+  if(braking){ if(g.flare>0){ g.flare-=rdt; sink=Math.max(.35, sink-0.9); } else sink+=0.8; }
+  const ground_v = circling ? F.wind*.6 : g.v + F.wind;
+  g.vz = (circling ? th*1.0 : th*0.35) - sink - lee;
+  g.s += ground_v*dt; g.z += g.vz*dt;
+  circleT = circling ? circleT+dt : Math.max(0,circleT-dt*2);
+  g.bank += ((circling?1:0)-g.bank)*Math.min(1,dt*3);
+  if(g.vz>0) stats.climb+=g.vz*dt; stats.max=Math.max(stats.max,g.z);
+  // vario
+  beepT-=rdt; if(g.vz>.3 && beepT<=0){ beep(520+g.vz*140); beepT=Math.max(.12,.55-g.vz*.1); }
+  const vb=$('vario'); $('vz').textContent=(g.vz>=0?'+':'')+g.vz.toFixed(1); vb.classList.toggle('up',g.vz>.2); vb.classList.toggle('down',g.vz<-1.6);
+  $('padL').classList.toggle('glow', th>0.4 && !holdL && !near);
+  $('lBig').textContent = near?'בלימה':'סיבוב'; $('lSmall').textContent = near?'רגע לפני הנחיתה':th>0.2?'בתרמיקה: מטפסים!':'במקום: מאבדים גובה';
+  // turnpoints and the photo
+  const tp=F.turns[stats.turns]; if(tp && g.s>=tp.s){ stats.turns++; taskUI(); if(tp.photo){ const close=agl<350; if(close){ stats.photos.push(tp.n); flash(); popText('📸 '+tp.n); } else popText('גבוה מדי לתמונה'); } else popText('⚑ '+tp.n); beep(880,.15,.2); }
+  if(!stats.arrived && g.s>F.len-600){ stats.arrived=true; stats.arriveAgl=agl; }
+  for(const p of parts){ p.life-=rdt; } parts=parts.filter(p=>p.life>0);
+  if(Math.random()<rdt*3) parts.push({s:g.s-8, z:g.z+2, life:1.2});
+  // touchdown
+  if(agl<=0){ g.z=ground(g.s); const off=Math.round(g.s-(F.len-60)); const soft=g.vz>-1.6; const inField = Math.abs(off)<=120;
+    landed={off, soft, inField}; state='landed'; landT=0; popText(inField ? (Math.abs(off)<=15?'בול!':'נחיתה') : 'נחיתה מחוץ לשדה'); beep(soft?660:220,.25,.25); }
+  if(g.s>F.len+200){ g.z=ground(g.s); landed={off:999,soft:true,inField:false}; state='landed'; landT=0; popText('עברת את השדה'); }
+  $('alt').textContent=fmtN(g.z); $('agl').textContent=fmtN(Math.max(0,agl)); const toGo=Math.max(0,F.len-60-g.s); $('dist').textContent=toGo>=1000?(toGo/1000).toFixed(1)+' ק״מ':Math.round(toGo)+' מ׳';
+  const need = toGo>0 ? (g.z-ground(F.len-60))/toGo : 9; $('distInfo').textContent='עד הנחיתה · '+(need>0.11?'מגיעים בגלישה':need>0.06?'על הגבול':'צריך תרמיקה');
+}
+function flash(){ const f=$('flash'); f.classList.remove('go'); void f.offsetWidth; f.classList.add('go'); }
+function finish(){
+  state='end'; ['hud','vario','task','pads','snd'].forEach(id=>$(id).hidden=true);
+  const L=landed, ring = !L.inField?0 : Math.abs(L.off)<=15?100 : Math.abs(L.off)<=40?50 : 10;
+  const score = ring + stats.turns*50 + stats.photos.length*80 + (L.soft&&L.inField?30:0) + Math.round(stats.climb/10);
+  const goals=[L.inField, L.inField&&Math.abs(L.off)<=15, GOALS[fi].ok(stats)], n=goals.filter(Boolean).length;
+  if(n>stars(fi)) store.set('stars-'+fi,n); const best=store.get('best-'+fi,0); if(score>best) store.set('best-'+fi,score);
+  const rec=store.get('rec',{max:0,time:0}); let recTxt=''; if(stats.max>rec.max){ rec.max=Math.round(stats.max); recTxt='שיא גובה חדש! '; } if(stats.time>rec.time){ rec.time=Math.round(stats.time); recTxt+='שיא זמן באוויר!'; } store.set('rec',rec);
+  const alb=store.get('album',[]); for(const p of stats.photos) if(!alb.includes(p)) alb.push(p); store.set('album',alb);
+  $('endTitle').textContent= !L.inField? 'נחתתם מחוץ לשדה' : ring===100? 'בול במטרה!' : 'נחתתם ב'+F.to;
+  $('endWho').textContent=(fi+1)+'. '+F.n+' · עם '+FR[me].n; $('endBig').textContent=score+' נק׳';
+  $('endStars').innerHTML=[0,1,2].map(i=>`<i class="${goals[i]?'on':''}">★</i>`).join('');
+  $('endTime').textContent=fmtT(stats.time); $('endMax').textContent=fmtN(stats.max); $('endOff').textContent=L.off===999?'—':Math.abs(L.off)+' מ׳'; $('endClimb').textContent=fmtN(stats.climb);
+  $('endGoals').innerHTML=[['לנחות בשדה',goals[0]],['בול במטרה (עד 15 מ׳)',goals[1]],[GOALS[fi].t,goals[2]]].map(([s,o])=>`<span class="${o?'ok':''}">${s}</span>`).join('');
+  $('album').innerHTML = alb.length? 'האלבום: '+alb.map(a=>`<span>📸 ${a}</span>`).join('') : '';
+  $('endBest').textContent = recTxt || ('השיאים שלך: '+fmtN(rec.max)+' מ׳ גובה · '+fmtT(rec.time)+' באוויר');
+  $('next').hidden=!(n>0 && fi<FLIGHTS.length-1); $('menuEnd').hidden=false;
+}
+
+/* ---------- drawing (side view, heights stretched so the mountains read on a phone) ---------- */
+function draw(){
+  const f=F||FLIGHTS[fi], gs=g||{s:40,z:f.h[4]+35,bank:0};
+  const sx = W/(W<700?1500:2600), sy = H/(W<700?820:900);
+  const camS = gs.s + (W*.18)/sx, camZ = gs.z - (H*.1)/sy;
+  const X=s=>W/2+(s-camS)*sx, Y=z=>H*.5-(z-camZ)*sy;
+  const sk=cx.createLinearGradient(0,0,0,H); sk.addColorStop(0,'#3F7FC4'); sk.addColorStop(.75,'#CFE2F3'); cx.fillStyle=sk; cx.fillRect(0,0,W,H);
+  // two far ridges for depth: the same line's shape, small and pale, drifting slower than the ground in front
+  { let lo=1e9, hi=-1e9; for(const v of f.h){ lo=Math.min(lo,v); hi=Math.max(hi,v); }
+    for(const [par,base,amp,col] of [[.25,.5,.2,'#C4D8EC'],[.45,.6,.16,'#D9E6F3']]){ const by=H*base + (gs.z-2600)*sy*.12; cx.fillStyle=col; cx.beginPath(); cx.moveTo(0,H);
+      for(let px=0;px<=W;px+=6){ const s=(gs.s*par + (px-W/2)/sx*1.6); const i=Math.floor(((s/10)%f.h.length+f.h.length)%f.h.length); cx.lineTo(px, by-(f.h[f.h.length-1-i]-lo)/(hi-lo||1)*H*amp); }
+      cx.lineTo(W,H); cx.closePath(); cx.fill(); } }
+  // clouds over the thermals (cloud base)
+  for(const th of f.therm){ const top=Math.max(f.h[Math.floor(th.s/10)]+700,3650); const cxp=X(th.s), cyp=Y(top+60); if(cxp<-200||cxp>W+200) continue; cx.fillStyle='rgba(255,255,255,.92)'; for(const [dx,dy,r] of [[0,0,1],[-.8,.2,.7],[.8,.25,.75],[-.3,-.35,.65],[.4,-.3,.6]]){ cx.beginPath(); cx.arc(cxp+dx*th.w*sx*1.4, cyp+dy*40, r*Math.max(26,th.w*sx*1.1),0,7); cx.fill(); } }
+  // the ground along the line
+  const s0=camS-W/2/sx-20, s1=camS+W/2/sx+20;
+  const gf=s=>{ const q=Math.max(0,Math.min(f.h.length-1.001,s/10)), i=Math.floor(q); return f.h[i]+(f.h[i+1]-f.h[i])*(q-i); };
+  cx.beginPath(); cx.moveTo(X(s0),H); for(let s=s0; s<=s1; s+=10) cx.lineTo(X(s),Y(gf(s))); cx.lineTo(X(s1),H); cx.closePath();
+  const gg=cx.createLinearGradient(0,Y(3300),0,Y(1900)); gg.addColorStop(0,'#FFFFFF'); gg.addColorStop(1,'#B9CADB'); cx.fillStyle=gg; cx.fill(); cx.strokeStyle='#8FA7C0'; cx.lineWidth=2; cx.stroke();
+  // rock bands on steep bits
+  cx.strokeStyle='rgba(91,102,117,.55)'; cx.lineWidth=3; cx.beginPath(); for(let s=Math.max(10,s0); s<=Math.min(f.len-10,s1); s+=10){ const sl=Math.abs(f.h[Math.floor(s/10)+1]-f.h[Math.floor(s/10)])/10; if(sl>.7){ cx.moveTo(X(s),Y(f.h[Math.floor(s/10)])+3); cx.lineTo(X(s+10),Y(f.h[Math.floor(s/10)+1])+3); } } cx.stroke();
+  // thermals: rising sparkles
+  for(const th of f.therm){ const base=f.h[Math.floor(th.s/10)], top=Math.max(base+700,3650); if(X(th.s)<-100||X(th.s)>W+100) continue; cx.fillStyle='rgba(255,236,170,.75)'; for(let k=0;k<26;k++){ const ph=(k*0.37+t*0.12*th.v)%1, z=base+40+(top-base-40)*ph, s=th.s+Math.sin(k*2.3+t*.8)*th.w*.7; cx.beginPath(); cx.arc(X(s),Y(z),2.2,0,7); cx.fill(); } }
+  // turnpoints and the monument
+  for(const tp of f.turns){ const x=X(tp.s), y=Y(f.h[Math.floor(tp.s/10)]); if(x<-80||x>W+80) continue; cx.strokeStyle='#13233A'; cx.lineWidth=2; cx.beginPath(); cx.moveTo(x,y); cx.lineTo(x,y-46); cx.stroke(); cx.fillStyle=tp.photo?'#F4B942':'#D1342B'; cx.fillRect(x,y-46,26,16);
+    cx.fillStyle='#13233A'; cx.font='700 12px "IBM Plex Sans Hebrew",sans-serif'; cx.textAlign='center'; cx.fillText((tp.photo?'📸 ':'')+tp.n,x,y-54);
+    if(tp.photo){ cx.strokeStyle='#B8A58A'; cx.lineWidth=6; cx.beginPath(); cx.arc(x-30,y-4,16,Math.PI,0); cx.stroke(); } }
+  // landing field: rings and a windsock
+  { const ts=f.len-60, x=X(ts), y=Y(f.h[Math.floor(ts/10)]); if(x>-200&&x<W+200){ for(const [r,c] of [[100,'rgba(27,138,76,.25)'],[40,'rgba(244,185,66,.6)'],[15,'#D1342B']]){ cx.fillStyle=c; cx.beginPath(); cx.ellipse(x,y+2,r*sx,Math.max(3,r*sx*.18),0,0,7); cx.fill(); }
+    cx.strokeStyle='#13233A'; cx.lineWidth=2; const wx=x+130*sx+20; cx.beginPath(); cx.moveTo(wx,Y(f.h[Math.min(f.h.length-1,Math.floor((ts+130)/10))])); cx.lineTo(wx,y-40); cx.stroke(); cx.fillStyle='#F08A3C'; const wl=f.wind?Math.sign(f.wind)*(10+Math.abs(f.wind)*6):3; cx.beginPath(); cx.moveTo(wx,y-40); cx.lineTo(wx+wl,y-36); cx.lineTo(wx,y-32); cx.fill();
+    cx.fillStyle='#13233A'; cx.font='700 13px "IBM Plex Sans Hebrew",sans-serif'; cx.textAlign='center'; cx.fillText('🎯 '+f.to,x,y+26); } }
+  // the wing and the two of you
+  if(state!=='menu'){ const x=X(gs.s), y=Y(gs.z); for(const p of parts){ cx.fillStyle=`rgba(255,255,255,${p.life*.4})`; cx.beginPath(); cx.arc(X(p.s),Y(p.z),2,0,7); cx.fill(); }
+    const sc = 1 - .35*Math.sin(circleT*3)*gs.bank; // circling: the wing turns away and back
+    cx.save(); cx.translate(x,y); cx.scale(sc,1); cx.rotate(-.12*gs.bank*Math.cos(circleT*3));
+    cx.fillStyle=FR[me].c; cx.beginPath(); cx.moveTo(-30,-34); cx.quadraticCurveTo(0,-52,30,-34); cx.quadraticCurveTo(0,-42,-30,-34); cx.fill(); // canopy
+    cx.fillStyle='rgba(255,255,255,.55)'; for(let k=-2;k<=2;k++){ cx.fillRect(k*11-1,-46+Math.abs(k)*3,2,8); }
+    cx.strokeStyle='rgba(19,35,58,.6)'; cx.lineWidth=.8; cx.beginPath(); for(const k of [-26,-12,0,12,26]){ cx.moveTo(k,-35); cx.lineTo(0,-4); } cx.stroke();
+    cx.fillStyle='#13233A'; cx.fillRect(-7,-6,14,8); cx.fillStyle=FR[me].c; cx.beginPath(); cx.arc(-3,-9,4,0,7); cx.fill(); cx.fillStyle='#F07A2E'; cx.beginPath(); cx.arc(4,-11,4,0,7); cx.fill(); // passenger in front, pilot behind
+    cx.restore();
+    // where you would touch down flying straight from here: a dotted glide line and a mark on the snow
+    if(state==='fly'){ let ps=g.s, pz=g.z; const vv=holdR?13.5:9, sk=1.05+0.055*(vv-8.5)**2, gv=vv+f.wind; let k=0; for(;k<900;k++){ ps+=gv*2; pz+=(thermalAt(ps,pz)*.35-sk-leeAt(ps))*2; if(pz<=ground(ps)||ps>f.len) break; }
+      const tx=X(ps), ty=Y(Math.max(pz,ground(Math.min(ps,f.len)))); cx.strokeStyle='rgba(19,35,58,.45)'; cx.lineWidth=1.5; cx.setLineDash([3,6]); cx.beginPath(); cx.moveTo(x,y); cx.lineTo(tx,ty); cx.stroke(); cx.setLineDash([]);
+      const onT=Math.abs(ps-(f.len-60))<=40; cx.strokeStyle=onT?'#1B8A4C':'#D1342B'; cx.lineWidth=3; cx.beginPath(); cx.moveTo(tx-7,ty-7); cx.lineTo(tx+7,ty+7); cx.moveTo(tx+7,ty-7); cx.lineTo(tx-7,ty+7); cx.stroke(); }
+    if(state==='fly' && g.z-ground(g.s)<120){ cx.strokeStyle='rgba(19,35,58,.35)'; cx.setLineDash([4,5]); cx.beginPath(); cx.moveTo(x,y); cx.lineTo(x,Y(ground(g.s))); cx.stroke(); cx.setLineDash([]); } }
+}
+drawMenu(); requestAnimationFrame(frame);
+</script>
