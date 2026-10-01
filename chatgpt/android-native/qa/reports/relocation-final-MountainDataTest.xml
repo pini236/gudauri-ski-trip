@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.pini.gudauri.data.MountainDataTest" tests="12" skipped="0" failures="0" errors="0" timestamp="2026-10-01T18:14:50.310Z" hostname="85cff48f29f2" time="0.477">
+  <properties/>
+  <testcase name="videos keep research fields associations and descending research order" classname="com.pini.gudauri.data.MountainDataTest" time="0.02"/>
+  <testcase name="missing and corrupt optional files do not disable the mountain" classname="com.pini.gudauri.data.MountainDataTest" time="0.065"/>
+  <testcase name="lift unknowns never become literal null and cover data survives" classname="com.pini.gudauri.data.MountainDataTest" time="0.025"/>
+  <testcase name="profile selects geometric length instead of vertex count and points downhill" classname="com.pini.gudauri.data.MountainDataTest" time="0.0"/>
+  <testcase name="projection agrees with web coordinate origin and northern orientation" classname="com.pini.gudauri.data.MountainDataTest" time="0.0"/>
+  <testcase name="decodes real data without dropping unnamed or partial runs" classname="com.pini.gudauri.data.MountainDataTest" time="0.023"/>
+  <testcase name="flight content includes new fields and inclusive ski days" classname="com.pini.gudauri.data.MountainDataTest" time="0.043"/>
+  <testcase name="terrain rejects mismatched dimensions truncated contours and odd sample bytes" classname="com.pini.gudauri.data.MountainDataTest" time="0.165"/>
+  <testcase name="terrain uses little endian and bilinear interpolation at boundaries" classname="com.pini.gudauri.data.MountainDataTest" time="0.043"/>
+  <testcase name="a flight without a return remains valid while invalid dates are rejected" classname="com.pini.gudauri.data.MountainDataTest" time="0.001"/>
+  <testcase name="all three audited profile regressions choose their longer line" classname="com.pini.gudauri.data.MountainDataTest" time="0.031"/>
+  <testcase name="all geometry and video keys retain the existing source relationships" classname="com.pini.gudauri.data.MountainDataTest" time="0.059"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

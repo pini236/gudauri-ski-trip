@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.pini.gudauri.data.RunProfileTest" tests="8" skipped="0" failures="0" errors="0" timestamp="2026-10-01T18:21:56.602Z" hostname="85cff48f29f2" time="0.062">
+  <properties/>
+  <testcase name="exclusive slope boundaries match the website including exactly 15 25 and 30" classname="com.pini.gudauri.data.RunProfileTest" time="0.001"/>
+  <testcase name="all real line profiles stay finite ordered and bounded by their original geometry" classname="com.pini.gudauri.data.RunProfileTest" time="0.034"/>
+  <testcase name="samples the longest real line downhill without bridging gaps" classname="com.pini.gudauri.data.RunProfileTest" time="0.001"/>
+  <testcase name="short and flat lines never produce division by zero or false steep stretches" classname="com.pini.gudauri.data.RunProfileTest" time="0.0"/>
+  <testcase name="duplicate vertices are harmless and do not create a zero distance selection" classname="com.pini.gudauri.data.RunProfileTest" time="0.0"/>
+  <testcase name="real profiles match independently evaluated website samples and steep indices" classname="com.pini.gudauri.data.RunProfileTest" time="0.024"/>
+  <testcase name="area empty and zero length geometry have no invented profile" classname="com.pini.gudauri.data.RunProfileTest" time="0.001"/>
+  <testcase name="distance selection clamps endpoints and follows metres not sample indices" classname="com.pini.gudauri.data.RunProfileTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

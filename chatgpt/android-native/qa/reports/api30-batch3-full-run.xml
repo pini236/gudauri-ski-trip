@@ -1,0 +1,16 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<testsuite name="com.pini.gudauri.NativeFlowTest" tests="8" failures="0" errors="0" skipped="0" time="430.379" timestamp="2026-10-01T16:46:09" hostname="localhost">
+  <properties>
+    <property name="device" value="gudauri-api30-aosp(AVD) - 11" />
+    <property name="flavor" value="" />
+    <property name="project" value=":app" />
+  </properties>
+  <testcase name="lightDarkAndNativeMapControls" classname="com.pini.gudauri.NativeFlowTest" time="94.82" />
+  <testcase name="profileSelectionReadsTheRealStartAndEndAndIsAccessible" classname="com.pini.gudauri.NativeFlowTest" time="58.626" />
+  <testcase name="importedMeetingRestoresWebsiteStationDayAndTime" classname="com.pini.gudauri.NativeFlowTest" time="40.241" />
+  <testcase name="meetingImageIsLocalSquareAndProviderDoesNotExposeOtherFiles" classname="com.pini.gudauri.NativeFlowTest" time="13.994" />
+  <testcase name="completeReturnPassAndStubRestoration" classname="com.pini.gudauri.NativeFlowTest" time="35.697" />
+  <testcase name="importWebsiteRunLinkOpensExactSelection" classname="com.pini.gudauri.NativeFlowTest" time="41.958" />
+  <testcase name="sourceFlightMapSelectionAndBack" classname="com.pini.gudauri.NativeFlowTest" time="59.993" />
+  <testcase name="meetingSelectionClearUndoAndMapRoundTrip" classname="com.pini.gudauri.NativeFlowTest" time="71.388" />
+</testsuite>

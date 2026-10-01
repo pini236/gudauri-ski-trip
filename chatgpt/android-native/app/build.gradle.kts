@@ -17,6 +17,7 @@ android {
         targetSdk = 36
         versionCode = 1
         versionName = "0.1.0"
+        resValue("string", "app_name", "גודאורי 2027")
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
     buildFeatures { compose = true }
@@ -35,6 +36,11 @@ android {
         }
     }
     buildTypes {
+        debug {
+            applicationIdSuffix = ".chatgpt.test"
+            versionNameSuffix = "-chatgpt-test.20261001.1"
+            resValue("string", "app_name", "גודאורי · בדיקת ChatGPT")
+        }
         release {
             signingConfig=signingConfigs.findByName("upload")
             isMinifyEnabled = true
@@ -54,6 +60,10 @@ kotlin { compilerOptions { jvmTarget.set(JvmTarget.JVM_17) } }
 // Read-only copy: the web project remains the data source. Never write into site/.
 val copySiteData by tasks.registering(Sync::class) {
     from("../../../site/data") { include("*.json"); into("data") }
+    from("../../../site/img/pano") { include("*.webp"); into("pano") }
+    from("../../../site/audio") { include("ticket-*.wav"); into("audio") }
+    from("../../../site/games/thumbs") { include("*.webp"); into("games/thumbs") }
+    from("../licenses") { into("licenses") }
     into(layout.buildDirectory.dir("generated/siteAssets"))
 }
 tasks.named("preBuild").configure { dependsOn(copySiteData) }

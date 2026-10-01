@@ -2,6 +2,11 @@
 
 Package: `com.pini.gudauri` · version `0.1.0` / code `1` · target API 36.
 
+This document describes production/store signing. Debug test builds use the
+separate package `com.pini.gudauri.chatgpt.test` and a distinct launcher label;
+see [`TESTING_HE.md`](TESTING_HE.md). They must not replace the installed app or
+be presented as a Google Play release.
+
 ## Required account-side information
 
 The repository has no authenticated Google Play Console publishing connection.

@@ -1,0 +1,22 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<testsuite name="com.pini.gudauri.NativeFlowTest" tests="7" failures="1" errors="0" skipped="0" time="487.064" timestamp="2026-10-01T15:45:32" hostname="localhost">
+  <properties>
+    <property name="device" value="gudauri-api30-aosp(AVD) - 11" />
+    <property name="flavor" value="" />
+    <property name="project" value=":app" />
+  </properties>
+  <testcase name="lightDarkAndNativeMapControls" classname="com.pini.gudauri.NativeFlowTest" time="119.076" />
+  <testcase name="importedMeetingRestoresWebsiteStationDayAndTime" classname="com.pini.gudauri.NativeFlowTest" time="61.442" />
+  <testcase name="meetingImageIsLocalSquareAndProviderDoesNotExposeOtherFiles" classname="com.pini.gudauri.NativeFlowTest" time="15.19" />
+  <testcase name="completeReturnPassAndStubRestoration" classname="com.pini.gudauri.NativeFlowTest" time="50.006" />
+  <testcase name="importWebsiteRunLinkOpensExactSelection" classname="com.pini.gudauri.NativeFlowTest" time="63.071" />
+  <testcase name="sourceFlightMapSelectionAndBack" classname="com.pini.gudauri.NativeFlowTest" time="90.466" />
+  <testcase name="meetingSelectionClearUndoAndMapRoundTrip" classname="com.pini.gudauri.NativeFlowTest" time="73.404">
+    <failure>java.lang.AssertionError: Failed to perform checkIsDisplayed check: Expected at most 1 node but found 3 nodes that satisfy (Text + InputText + EditableText contains 'Snow Park' (ignoreCase: false))
+at androidx.compose.ui.test.AndroidAssertions_androidKt.checkIsDisplayed(AndroidAssertions.android.kt:35)
+at androidx.compose.ui.test.AssertionsKt.isDisplayed(Assertions.kt:351)
+at androidx.compose.ui.test.AssertionsKt.assertIsDisplayed(Assertions.kt:33)
+at com.pini.gudauri.NativeFlowTest.meetingSelectionClearUndoAndMapRoundTrip(NativeFlowTest.kt:130)
+</failure>
+  </testcase>
+</testsuite>

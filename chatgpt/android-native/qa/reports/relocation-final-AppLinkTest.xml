@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.pini.gudauri.data.AppLinkTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-10-01T18:14:50.251Z" hostname="85cff48f29f2" time="0.031">
+  <properties/>
+  <testcase name="spaces unicode and literal plus signs survive encoding" classname="com.pini.gudauri.data.AppLinkTest" time="0.004"/>
+  <testcase name="malformed unsupported and untrusted URLs are not accepted" classname="com.pini.gudauri.data.AppLinkTest" time="0.001"/>
+  <testcase name="home and overview links work without a run" classname="com.pini.gudauri.data.AppLinkTest" time="0.0"/>
+  <testcase name="meeting links round trip with real calendar and clock validation" classname="com.pini.gudauri.data.AppLinkTest" time="0.024"/>
+  <testcase name="shared link selects exactly the named run" classname="com.pini.gudauri.data.AppLinkTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

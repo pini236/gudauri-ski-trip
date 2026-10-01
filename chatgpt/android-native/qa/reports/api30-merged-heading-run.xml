@@ -1,0 +1,29 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<testsuite name="com.pini.gudauri.NativeFlowTest" tests="7" failures="1" errors="0" skipped="0" time="392.276" timestamp="2026-10-01T15:57:10" hostname="localhost">
+  <properties>
+    <property name="device" value="gudauri-api30-aosp(AVD) - 11" />
+    <property name="flavor" value="" />
+    <property name="project" value=":app" />
+  </properties>
+  <testcase name="lightDarkAndNativeMapControls" classname="com.pini.gudauri.NativeFlowTest" time="96.463" />
+  <testcase name="importedMeetingRestoresWebsiteStationDayAndTime" classname="com.pini.gudauri.NativeFlowTest" time="49.428" />
+  <testcase name="meetingImageIsLocalSquareAndProviderDoesNotExposeOtherFiles" classname="com.pini.gudauri.NativeFlowTest" time="15.679" />
+  <testcase name="completeReturnPassAndStubRestoration" classname="com.pini.gudauri.NativeFlowTest" time="37.721" />
+  <testcase name="importWebsiteRunLinkOpensExactSelection" classname="com.pini.gudauri.NativeFlowTest" time="45.429" />
+  <testcase name="sourceFlightMapSelectionAndBack" classname="com.pini.gudauri.NativeFlowTest" time="67.466" />
+  <testcase name="meetingSelectionClearUndoAndMapRoundTrip" classname="com.pini.gudauri.NativeFlowTest" time="67.804">
+    <failure>java.lang.AssertionError: Failed to assert the following: (Text + EditableText = [Snow Park])
+Reason: Expected exactly '1' node but could not find any node that satisfies: (TestTag = 'selected-lift-158744055')
+However, the unmerged tree contains '1' node that matches. Are you missing `useUnmergedNode = true` in your finder?
+
+at androidx.compose.ui.test.SemanticsNodeInteraction.fetchOneOrThrow(SemanticsNodeInteraction.kt:178)
+at androidx.compose.ui.test.SemanticsNodeInteraction.fetchOneOrThrow$default(SemanticsNodeInteraction.kt:150)
+at androidx.compose.ui.test.SemanticsNodeInteraction.fetchSemanticsNode(SemanticsNodeInteraction.kt:84)
+at androidx.compose.ui.test.AssertionsKt.assert(Assertions.kt:262)
+at androidx.compose.ui.test.AssertionsKt.assert$default(Assertions.kt:254)
+at androidx.compose.ui.test.AssertionsKt.assertTextEquals(Assertions.kt:185)
+at androidx.compose.ui.test.AssertionsKt.assertTextEquals$default(Assertions.kt:181)
+at com.pini.gudauri.NativeFlowTest.meetingSelectionClearUndoAndMapRoundTrip(NativeFlowTest.kt:130)
+</failure>
+  </testcase>
+</testsuite>

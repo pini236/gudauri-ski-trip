@@ -1,7 +1,6 @@
 package com.pini.gudauri.ui
 
 import android.content.Intent
-import android.graphics.Paint
 import android.webkit.*
 import android.annotation.SuppressLint
 import androidx.compose.foundation.*
@@ -9,10 +8,13 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.*
 import androidx.compose.ui.graphics.*
 import androidx.compose.ui.graphics.drawscope.*
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.*
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.*
@@ -34,16 +36,17 @@ import kotlin.math.*
         item {
             Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(10.dp)) {
                 Metric("אורך",length(run.length),Modifier.weight(1f))
-                Metric("ירידה","${stats.drop} מ׳",Modifier.weight(1f))
-                Metric("קטע תלול","${(stats.maxGrade*100).roundToInt()}%",Modifier.weight(1f))
+                Metric("ירידה",if(stats.available) "${stats.drop} מ׳" else "—",Modifier.weight(1f))
+                Metric("קטע תלול",if(stats.available) "${(stats.maxGrade*100).roundToInt()}%" else "—",Modifier.weight(1f))
             }
         }
         item { ElevationChart(run,data.terrain) }
-        item { Hint("גבהים ממודל ברזולוציה של כ־30 מ׳, דיוק משוער ±15 מ׳. הקטע התלול מחושב לאורך כ־100 מ׳. האורך הוא אורך הקווים שנמצאו.") }
+        item { Hint("מקור הגובה ברזולוציה של כ־30 מ׳; מרווח הרשת הארוזה כ־${data.terrain.sx.roundToInt()}×${data.terrain.sz.roundToInt()} מ׳. הגבהים משוערים, לא מדידת שטח. הקטע התלול מחושב לאורך כ־100 מ׳. האורך הוא אורך הקווים שנמצאו.") }
         run.research?.partial?.let { note -> item { Surface(color=p.snow,border=BorderStroke(1.dp,p.rule)){Column(Modifier.padding(12.dp)){Text("מיפוי חלקי",fontWeight=FontWeight.SemiBold,color=p.piste(run.color));Text(note,fontSize=13.sp)}} } }
         item {
             Section("נתוני המסלול")
-            Info("גובה עליון","${stats.top} מ׳");Info("גובה תחתון","${stats.bottom} מ׳")
+            if(stats.available) { Info("גובה עליון","${stats.top} מ׳");Info("גובה תחתון","${stats.bottom} מ׳") }
+            else Hint("לרשומה הזו יש שטח בלבד, ללא קו שממנו אפשר לחשב פרופיל גובה.")
             Info("צבע וקושי","${when(run.color){"green"->"ירוק";"red"->"אדום";"black"->"שחור";else->"כחול"}} · ${difficulty(run.color)}")
             if(run.osmDifficulty.isNotEmpty())Info("דירוג ב־OSM",run.osmDifficulty.joinToString(" / "))
             if(run.refs.isNotEmpty())Info("סימון",run.refs.joinToString(", "))
@@ -79,7 +82,7 @@ import kotlin.math.*
         } }
         item {
             FlowRow(horizontalArrangement=Arrangement.spacedBy(6.dp)) { run.osmIds.forEach{id->AssistChip(onClick={openUrl(context,"https://www.openstreetmap.org/way/$id")},label={Text("OSM $id",fontSize=11.sp)})} }
-            OutlinedButton(onClick={ val intent=Intent(Intent.ACTION_SEND).apply{type="text/plain";putExtra(Intent.EXTRA_TEXT,"${run.key} · ${length(run.length)}\nhttps://gudauri-ski-trip.vercel.app/#map\n${run.research?.partial.orEmpty()}")};context.startActivity(Intent.createChooser(intent,"שיתוף מסלול")) },modifier=Modifier.fillMaxWidth()){Text("שיתוף מסלול")}
+            OutlinedButton(onClick={ val intent=Intent(Intent.ACTION_SEND).apply{type="text/plain";putExtra(Intent.EXTRA_TEXT,"${run.key} · ${length(run.length)}\n${AppLinks.run(run.key)}\n${run.research?.partial.orEmpty()}")};context.startActivity(Intent.createChooser(intent,"שיתוף מסלול")) },modifier=Modifier.fillMaxWidth()){Text("שיתוף מסלול")}
         }
         if(run.named) {
             item { Section("סרטונים") }
@@ -94,7 +97,7 @@ import kotlin.math.*
                     }
                 }
             }
-            if(videos.isEmpty())item { Hint("עוד אין סרטונים למסלול הזה.") }
+            if(videos.isEmpty())item { Hint(if(data.warnings.any { it.content == OptionalContent.VIDEOS }) "קובץ הסרטונים אינו זמין. המפה והחיפוש ממשיכים לפעול." else "עוד אין סרטונים למסלול הזה.") }
             item { TextButton(onClick={openUrl(context,"https://www.youtube.com/results?search_query="+URLEncoder.encode("Gudauri ${run.key} ski","UTF-8"))}){Text("חיפוש סרטונים ביוטיוב ↗")} }
         }
     }
@@ -108,20 +111,42 @@ import kotlin.math.*
 @Composable fun Hint(text:String) { Text(text,fontSize=12.sp,color=LocalPalette.current.muted) }
 @Composable fun Info(label:String,value:String) { Row(Modifier.fillMaxWidth().padding(vertical=4.dp),horizontalArrangement=Arrangement.spacedBy(14.dp)) { Text(label,color=LocalPalette.current.muted,fontSize=12.sp,modifier=Modifier.width(94.dp));Text(value,fontSize=14.sp,modifier=Modifier.weight(1f)) } }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable private fun ElevationChart(run:Piste,terrain:Terrain) {
     val p=LocalPalette.current
-    val profile=remember(run,terrain){terrain.profile(run.segments.filterNot{it.area}.maxByOrNull{it.points.size}?.points.orEmpty())}
-    if(profile.size<2)return
-    val paint=remember{Paint(Paint.ANTI_ALIAS_FLAG)}
+    val profile=remember(run,terrain){RunProfile.create(terrain,run.segments)} ?: return
+    var fraction by rememberSaveable(run.key){mutableFloatStateOf(0f)}
+    val selected=profile.sampleAtFraction(fraction)
+    fun slopeColor(band:SlopeBand)=Color(0xFF000000.toInt() or band.rgb)
     Column {
         Text("פרופיל גובה",color=p.muted,fontSize=12.sp)
-        Canvas(Modifier.fillMaxWidth().height(108.dp).padding(top=8.dp).semantics{contentDescription="פרופיל הגובה של הקטע הארוך ביותר במסלול"}) {
-            val lo=profile.minOf{it.second};val hi=profile.maxOf{it.second};val total=max(1f,profile.last().first)
-            val path=Path();profile.forEachIndexed { i,(d,h)->val x=d/total*size.width;val y=8+(hi-h)/max(1f,hi-lo)*(size.height-24);if(i==0)path.moveTo(x,y)else path.lineTo(x,y) }
+        Canvas(Modifier.fillMaxWidth().height(120.dp).padding(top=8.dp).testTag("run-profile").semantics{contentDescription="פרופיל הגובה של הקטע הארוך ביותר במסלול, מלמעלה למטה"}) {
+            fun x(sample:ProfileSample)=sample.distance/profile.length*size.width
+            fun y(sample:ProfileSample)=8+(profile.top-sample.height)/max(1f,profile.top-profile.bottom)*(size.height-24)
+            val path=Path();profile.samples.forEachIndexed { i,sample->if(i==0)path.moveTo(x(sample),y(sample))else path.lineTo(x(sample),y(sample)) }
             val area=Path().apply{addPath(path);lineTo(size.width,size.height);lineTo(0f,size.height);close()}
             drawPath(area,Brush.verticalGradient(listOf(p.piste(run.color).copy(alpha=.23f),p.piste(run.color).copy(alpha=.02f))))
-            drawPath(path,p.piste(run.color),style=Stroke(2.5f*density,cap=StrokeCap.Round))
+            profile.steepest?.let { steep ->
+                val start=x(profile.samples[steep.startIndex]);val end=x(profile.samples[steep.endIndex])
+                drawRect(p.ink.copy(alpha=.08f),topLeft=androidx.compose.ui.geometry.Offset(start,0f),size=androidx.compose.ui.geometry.Size(end-start,size.height))
+            }
+            profile.samples.zipWithNext().forEach { (a,b)->
+                drawLine(slopeColor(a.band),androidx.compose.ui.geometry.Offset(x(a),y(a)),androidx.compose.ui.geometry.Offset(x(b),y(b)),strokeWidth=2.5f*density,cap=StrokeCap.Round)
+            }
+            drawLine(p.ink.copy(alpha=.6f),androidx.compose.ui.geometry.Offset(x(selected),0f),androidx.compose.ui.geometry.Offset(x(selected),size.height),strokeWidth=density)
+            drawCircle(p.paper,radius=5*density,center=androidx.compose.ui.geometry.Offset(x(selected),y(selected)))
+            drawCircle(p.ink,radius=5*density,center=androidx.compose.ui.geometry.Offset(x(selected),y(selected)),style=Stroke(1.5f*density))
         }
+        CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
+            Slider(value=fraction,onValueChange={fraction=it},modifier=Modifier.fillMaxWidth().testTag("profile-position").semantics{contentDescription="מיקום לאורך המסלול, מלמעלה למטה"})
+        }
+        Text("מההתחלה ${selected.distance.roundToInt()} מ׳ · גובה ${selected.height.roundToInt()} מ׳ · שיפוע כאן ${selected.slopeDegrees.roundToInt()}°",
+            fontSize=13.sp,modifier=Modifier.testTag("profile-reading"))
+        FlowRow(horizontalArrangement=Arrangement.spacedBy(10.dp),verticalArrangement=Arrangement.spacedBy(4.dp)) {
+            SlopeBand.entries.forEach { band->Row(verticalAlignment=Alignment.CenterVertically){Box(Modifier.size(10.dp).background(slopeColor(band)));Text(band.label,fontSize=11.sp,modifier=Modifier.padding(start=4.dp))} }
+        }
+        profile.steepest?.let { steep->Hint("האזור המסומן הוא הקטע התלול בפרופיל, אחרי ${profile.samples[steep.startIndex].distance.roundToInt()} מ׳. השיפוע המקומי נמדד בחלון של כ־40 מ׳; הקטע התלול בחלון של כ־100 מ׳.") }
+        Hint("אורך הקו בפרופיל: ${profile.length.roundToInt()} מ׳. צבעי השיפוע אינם דירוג הקושי הרשמי. המדדים בראש המסך כוללים את כל קטעי המסלול.")
         if(run.segments.count{!it.area}>1)Hint("מוצג הקטע הארוך ביותר; הפערים בין הקווים לא חוברו.")
     }
 }
@@ -134,8 +159,10 @@ import kotlin.math.*
             if(lift.occupancy.isNotBlank())Info("מקומות",lift.occupancy)
             if(lift.capacity.isNotBlank())Info("קיבולת","${lift.capacity} לשעה")
             if(lift.year.isNotBlank())Info("נבנה",lift.year)
+            lift.bubble?.let { Info("כיפה",if(it) "יש כיסוי לכיסאות" else "ללא כיסוי לכיסאות") }
+            if(lift.sourceRise.isNotBlank())Info("הפרש גובה במקור","${lift.sourceRise} מ׳")
             if(lift.status=="inactive")Hint("לא פעיל לפי נתוני OSM. אין מידע על מצב פעילות בזמן אמת.")
-            Hint("הגבהים חושבו ממודל פני השטח, כ־30 מ׳.")
+            Hint("הגבהים חושבו ממודל פני השטח; מרווח הרשת הארוזה כ־${t.sx.roundToInt()} מ׳. נתון המקור עשוי להיות שונה.")
         }
         item { Section("מסלולים מהתחנה העליונה");FlowRow(horizontalArrangement=Arrangement.spacedBy(6.dp)) { data.pistes.filter{lift.name in it.fromLifts}.forEach{run->AssistChip(onClick={choose(run.key,true)},label={Text(run.key)})} } }
         item { Section("מסלולים שמסתיימים בתחתית");FlowRow(horizontalArrangement=Arrangement.spacedBy(6.dp)) { data.pistes.filter{lift.name in it.toLifts}.forEach{run->AssistChip(onClick={choose(run.key,true)},label={Text(run.key)})} } }

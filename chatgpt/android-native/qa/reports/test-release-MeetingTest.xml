@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.pini.gudauri.data.MeetingTest" tests="6" skipped="0" failures="0" errors="0" timestamp="2026-10-01T18:21:55.930Z" hostname="85cff48f29f2" time="0.328">
+  <properties/>
+  <testcase name="trip dates and common times are derived without selecting a meeting" classname="com.pini.gudauri.data.MeetingTest" time="0.139"/>
+  <testcase name="shared stations keep the first website ID and accept every endpoint alias" classname="com.pini.gudauri.data.MeetingTest" time="0.035"/>
+  <testcase name="countdown uses actual Gudauri time handles past midnight and minute carry" classname="com.pini.gudauri.data.MeetingTest" time="0.004"/>
+  <testcase name="all station identifiers endpoints coordinates and elevations match the website inventory" classname="com.pini.gudauri.data.MeetingTest" time="0.034"/>
+  <testcase name="routes use only source connections are unique and limited to four" classname="com.pini.gudauri.data.MeetingTest" time="0.045"/>
+  <testcase name="message is local and canonical without member names or invented navigation" classname="com.pini.gudauri.data.MeetingTest" time="0.068"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
