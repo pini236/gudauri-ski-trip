@@ -1,18 +1,16 @@
-# מדיניות פרטיות (טיוטה)
+# מדיניות פרטיות
 
-> **טיוטה לאישור של פיני (1.10.2026). לא פורסמה.** אחרי האישור: מוחקים את הבלוק הזה ואת ההערות בסוגריים המרובעים, ממלאים את השדות החסרים, ומפרסמים (ראו `docs/PLAY.md`, "מדיניות הפרטיות"). הטקסט מתאר את האפליקציה משלב השלד (מדידת שימוש ודיווח קריסות) ואת האתר כפי שהוא היום. **בשלב החשבונות והקבוצות (13.5) מוסיפים סעיף** (הנקודות ב-`docs/PLAY.md`). זו לא חוות דעת משפטית.
->
-> שדות למילוי: `[שם האפליקציה]` (פתוח; הגיבוי `Gudi: Gudauri Ski Map`), `[כתובת התמיכה]` (הג׳ימייל הנפרד), `[תאריך]` (יום הפרסום).
+המדיניות של האפליקציה והאתר, בעברית ובאנגלית. אושרה על ידי פיני ב-1.10.2026 (החלטה 33), ומתפרסמת כאן עד שיהיה דף באתר.
 
 ---
 
 ## עברית
 
-**מדיניות פרטיות: [שם האפליקציה]**
+**מדיניות פרטיות: Gudi: Gudauri Ski Map**
 
-בתוקף מ-[תאריך]
+בתוקף מ-1.10.2026
 
-[שם האפליקציה] היא אפליקציה לאנדרואיד (המזהה `io.github.pini236.skiapp`) ואתר (`gudauri-ski-trip.vercel.app`) עם מפת הסקי של גודאורי, גאורגיה. פיני זולברג, אדם פרטי מישראל, פיתח אותם ואחראי עליהם. לכל שאלה או בקשה: [כתובת התמיכה].
+Gudi: Gudauri Ski Map היא אפליקציה לאנדרואיד (המזהה `io.github.pini236.skiapp`) ואתר (`gudauri-ski-trip.vercel.app`) עם מפת הסקי של גודאורי, גאורגיה. פיני זולברג, אדם פרטי מישראל, פיתח אותם ואחראי עליהם. לכל שאלה או בקשה: pinisagent@gmail.com.
 
 **אפליקציה לא רשמית.** אין לה קשר ל-Mountain Trails Agency (MTA), לאתר הסקי גודאורי או לגוף רשמי אחר.
 
@@ -32,7 +30,7 @@
 1. **מדידת שימוש** (בשירות PostHog, בשרתים באירופה): באילו מסכים ופעולות משתמשים, גרסת האפליקציה, דגם הטלפון, גרסת מערכת ההפעלה ושפת הממשק, ומזהה אקראי שנוצר בהתקנה. המזהה לא קשור לשם, למייל או לטלפון, ומתחלף בהתקנה מחדש. כתובת ה-IP לא נשמרת.
 2. **דיווח קריסות** (בשירות Sentry, בשרתים באירופה): כשהאפליקציה קורסת או נתקלת בשגיאה, נשלח תיאור טכני של התקלה, עם דגם הטלפון, גרסת מערכת ההפעלה, גרסת האפליקציה והשעה. הדיווח לא כולל תוכן אישי. כתובת ה-IP לא נשמרת.
 
-את שניהם אפשר לכבות בכל רגע במסך ההגדרות, ואז לא נשלח דבר. המידע משמש רק כדי להבין מה עובד, מה לא ומה לתקן. נתוני השימוש נשמרים עד שנה, ודיווחי הקריסות עד 90 יום. [לאמת מול הגדרות השמירה בפועל של שני השירותים.]
+את שניהם אפשר לכבות בכל רגע במסך ההגדרות, ואז לא נשלח דבר. המידע משמש רק כדי להבין מה עובד, מה לא ומה לתקן. נתוני השימוש נשמרים עד שנה, ודיווחי הקריסות עד 90 יום.
 
 ### תוכן מהרשת
 
@@ -53,7 +51,7 @@
 
 ### הזכויות שלך
 
-אפשר לפנות אלינו ב-[כתובת התמיכה] כדי לשאול איזה מידע נשמר, ולבקש לתקן או למחוק אותו. מאחר שמדידת השימוש ודיווחי הקריסות לא קשורים לזהות שלך, הדרך הפשוטה ביותר היא לכבות אותם בהגדרות, או להתקין מחדש כדי לקבל מזהה חדש.
+אפשר לפנות אלינו ב-pinisagent@gmail.com כדי לשאול איזה מידע נשמר, ולבקש לתקן או למחוק אותו. מאחר שמדידת השימוש ודיווחי הקריסות לא קשורים לזהות שלך, הדרך הפשוטה ביותר היא לכבות אותם בהגדרות, או להתקין מחדש כדי לקבל מזהה חדש.
 
 ### אבטחה והעברה לחו״ל
 
@@ -67,11 +65,11 @@
 
 ## English
 
-**Privacy Policy: [App name]**
+**Privacy Policy: Gudi: Gudauri Ski Map**
 
-Effective [date]
+Effective October 1, 2026
 
-[App name] is an Android app (package `io.github.pini236.skiapp`) and a website (`gudauri-ski-trip.vercel.app`) with a ski map of Gudauri, Georgia. They are developed and run by Pini Zolberg, a private individual in Israel. For any question or request: [support email].
+Gudi: Gudauri Ski Map is an Android app (package `io.github.pini236.skiapp`) and a website (`gudauri-ski-trip.vercel.app`) with a ski map of Gudauri, Georgia. They are developed and run by Pini Zolberg, a private individual in Israel. For any question or request: pinisagent@gmail.com.
 
 **Unofficial app.** It is not affiliated with the Mountain Trails Agency (MTA), the Gudauri ski resort or any other official body.
 
@@ -112,7 +110,7 @@ The app is intended for ages 13 and up and is not directed at children. We do no
 
 ### Your rights
 
-You can contact us at [support email] to ask what data is stored, and to have it corrected or deleted. Since usage statistics and crash reports are not linked to your identity, the simplest way is to turn them off in Settings, or reinstall to get a new ID.
+You can contact us at pinisagent@gmail.com to ask what data is stored, and to have it corrected or deleted. Since usage statistics and crash reports are not linked to your identity, the simplest way is to turn them off in Settings, or reinstall to get a new ID.
 
 ### Security and international transfer
 
