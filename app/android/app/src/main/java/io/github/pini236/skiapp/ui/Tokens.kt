@@ -7,7 +7,11 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontFamily
+import io.github.pini236.skiapp.i18n.Lang
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
@@ -62,14 +66,17 @@ val NightColors = SkiColors(
 /** Type: Karantina for display (700, the trail-sign voice), IBM Plex Sans Hebrew for text. Sizes as on the site. */
 @Immutable
 data class SkiType(
-    val brand: TextStyle = TextStyle(fontFamily = Karantina, fontWeight = FontWeight.Bold, fontSize = 34.sp, lineHeight = 1.em),
-    val sign: TextStyle = TextStyle(fontFamily = Karantina, fontWeight = FontWeight.Bold, fontSize = 26.sp, lineHeight = 1.em),
-    val title: TextStyle = TextStyle(fontFamily = Karantina, fontWeight = FontWeight.Bold, fontSize = 44.sp, lineHeight = 1.em),
-    val number: TextStyle = TextStyle(fontFamily = Karantina, fontWeight = FontWeight.Bold, fontSize = 22.sp, lineHeight = 1.em),
-    val body: TextStyle = TextStyle(fontFamily = Plex, fontWeight = FontWeight.Normal, fontSize = 15.sp, lineHeight = 1.5.em),
-    val bodyBold: TextStyle = TextStyle(fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 15.sp, lineHeight = 1.5.em),
-    val small: TextStyle = TextStyle(fontFamily = Plex, fontWeight = FontWeight.Normal, fontSize = 13.sp, lineHeight = 1.4.em),
-    val label: TextStyle = TextStyle(fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 12.5.sp, lineHeight = 1.2.em),
+    /** per language (i18n/Lang.kt): Karantina and Plex have Hebrew and Latin only */
+    val display: FontFamily = Karantina,
+    val text: FontFamily = Plex,
+    val brand: TextStyle = TextStyle(fontFamily = display, fontWeight = FontWeight.Bold, fontSize = 34.sp, lineHeight = 1.em),
+    val sign: TextStyle = TextStyle(fontFamily = display, fontWeight = FontWeight.Bold, fontSize = 26.sp, lineHeight = 1.em),
+    val title: TextStyle = TextStyle(fontFamily = display, fontWeight = FontWeight.Bold, fontSize = 44.sp, lineHeight = 1.em),
+    val number: TextStyle = TextStyle(fontFamily = display, fontWeight = FontWeight.Bold, fontSize = 22.sp, lineHeight = 1.em),
+    val body: TextStyle = TextStyle(fontFamily = text, fontWeight = FontWeight.Normal, fontSize = 15.sp, lineHeight = 1.5.em),
+    val bodyBold: TextStyle = TextStyle(fontFamily = text, fontWeight = FontWeight.Bold, fontSize = 15.sp, lineHeight = 1.5.em),
+    val small: TextStyle = TextStyle(fontFamily = text, fontWeight = FontWeight.Normal, fontSize = 13.sp, lineHeight = 1.4.em),
+    val label: TextStyle = TextStyle(fontFamily = text, fontWeight = FontWeight.Bold, fontSize = 12.5.sp, lineHeight = 1.2.em),
 )
 
 /** Sizes the site's rules fix: touch targets of at least 44, square corners, the sign's arrow notch. */
@@ -84,10 +91,16 @@ object Dimens {
 private val LocalColors = staticCompositionLocalOf { DayColors }
 private val LocalType = staticCompositionLocalOf { SkiType() }
 
-/** The app's theme: day or night by the system setting, or forced by the user's choice (settings, later). */
+/** The app's theme: day or night by the system setting (or the user's choice, later), and the language's fonts and direction. */
 @Composable
 fun SkiTheme(dark: Boolean = isSystemInDarkTheme(), content: @Composable () -> Unit) {
-    CompositionLocalProvider(LocalColors provides if (dark) NightColors else DayColors, LocalType provides SkiType(), content = content)
+    val lang = Lang.current(LocalContext.current.resources)
+    CompositionLocalProvider(
+        LocalColors provides if (dark) NightColors else DayColors,
+        LocalType provides SkiType(display = Lang.display(lang), text = Lang.body(lang)),
+        LocalLayoutDirection provides lang.direction,
+        content = content,
+    )
 }
 
 object Ski {
