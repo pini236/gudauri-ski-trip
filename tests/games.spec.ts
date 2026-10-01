@@ -1,12 +1,13 @@
 import { test, expect, Page } from '@playwright/test';
 
-// אזור המשחקים (החלטה 17): עמוד המשחקים באתר, וחמשת המשחקים שאושרו, כל אחד בעמוד משלו.
+// אזור המשחקים (החלטה 17): עמוד המשחקים באתר, וששת המשחקים שאושרו, כל אחד בעמוד משלו.
 const GAMES = [
   { slug: 'descent', title: 'הירידה של החבר׳ה' },
   { slug: 'school', title: 'בית הספר לסקי' },
   { slug: 'fresh-snow', title: 'שלג טרי' },
   { slug: 'blower', title: 'מפלסת השלג' },
   { slug: 'merge', title: 'איחוד כדורי שלג' },
+  { slug: 'snowball', title: 'קרב כדורי שלג' },
 ];
 
 function watchErrors(page: Page) {
@@ -18,7 +19,7 @@ function watchErrors(page: Page) {
   return errors;
 }
 
-test('עמוד המשחקים: שלט בבית, חמישה כרטיסים, וחזרה מהמשחק', async ({ page }, info) => {
+test('עמוד המשחקים: שלט בבית, כרטיס לכל משחק, וחזרה מהמשחק', async ({ page }, info) => {
   const errors = watchErrors(page);
   await page.goto('/');
   await expect(page.locator('#loading')).toBeHidden({ timeout: 20_000 });

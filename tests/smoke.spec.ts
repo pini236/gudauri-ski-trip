@@ -95,7 +95,7 @@ test('כרטיס הטיסה והחבר׳ה מוצגים מקובץ הנתוני�
   await expect(page.locator('#tDate')).toHaveText('10.1.2027');
   await expect(page.locator('#tDeparts')).toHaveText('16:00');
   await expect(page.locator('#tArrives')).toHaveText('20:35');
-  await expect(page.locator('#tBack')).toContainText('15.1.2027');
+  await expect(page.locator('.bp[data-leg="ret"] [data-f="date"]')).toHaveText('15.1.2027');
   await expect(page.locator('#crewList li')).toHaveCount(6);
   await expect(page.locator('#crewList')).toContainText('פיני זולברג');
   await expect(page.locator('#tEdit, #tForm, #addform')).toHaveCount(0);
@@ -128,6 +128,7 @@ test('בלי קבצי טיסה וסרטונים האתר ממשיך לעבוד',
   await page.goto('/');
   await loaded(page);
   await expect(page.locator('#tFrom')).toHaveText('מוצא');
+  await expect(page.locator('.bp[data-leg="ret"]')).toBeHidden();
   await expect(page.locator('.crew')).toBeHidden();
   expect(errors).toEqual([]);
 });
@@ -285,5 +286,27 @@ test('מצב רכבלים: בלי מידע שלטים מושלגים, עם מי�
   await loaded(page);
   await expect(page.locator('#mstat')).toHaveAttribute('data-state', 'none');
   await expect(page.locator('#map .lg.closed')).toHaveCount(0);
+  expect(errors).toEqual([]);
+});
+
+test('כרטיס הטיסה: שני כרטיסים שמתחלפים, וספח שנתלש וחוזר', async ({ page }) => {
+  const errors = watchErrors(page);
+  await page.goto('/');
+  await loaded(page);
+  const front = page.locator('.bp.is-front');
+  await expect(front).toHaveAttribute('data-leg', 'out');
+  await expect(page.locator('.bp[data-leg="ret"] [data-f="flight"]')).toHaveText('6H 892');
+  await expect(page.locator('.bp[data-leg="out"] [data-f="fromCode"]')).toHaveText('TLV');
+  // הכרטיס שמאחור עולה קדימה
+  await page.locator('.bp.is-back .bp-swap').click({ position: { x: 150, y: 20 } });
+  await expect(front).toHaveAttribute('data-leg', 'ret');
+  await page.waitForTimeout(700);
+  // תלישת הספח של הכרטיס הקדמי, והוא חוזר אחרי כמה שניות
+  const stub = page.locator('.bp.is-front .bp-stub');
+  await stub.click();
+  await expect(stub).toHaveClass(/torn1/);
+  await expect(stub).not.toHaveClass(/torn/, { timeout: 5000 });
+  const wide = await page.evaluate(() => document.documentElement.scrollWidth - innerWidth);
+  expect(wide).toBeLessThanOrEqual(1);
   expect(errors).toEqual([]);
 });

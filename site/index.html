@@ -52,15 +52,45 @@
   <div class="home-inner">
     <div class="home-top"><h1 class="loc">גודאורי, גאורגיה</h1><span class="when">חופשת סקי, ינואר 2027</span><div class="dn dn-home"><span class="dn-clock">השעה בגודאורי<b class="num" data-dn-clock>--:--</b></span><button type="button" class="dn-btn" data-dn aria-label="מצב תצוגה"><svg class="i-auto" width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 3a9 9 0 0 1 0 18z" fill="currentColor"/></svg><svg class="i-day" width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="5" fill="#F4B942"/><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8" stroke="#F4B942" stroke-width="2" stroke-linecap="round"/></svg><svg class="i-night" width="24" height="24" viewBox="0 0 34 34" aria-hidden="true"><path d="M17 3A14 14 0 0 1 17 31A7.5 14 0 0 0 17 3Z" fill="currentColor"/></svg><span class="dn-lbl" data-dn-lbl>אוטומטי</span></button></div></div>
     <section class="ticket-wrap" aria-label="פרטי הטיסה">
-      <div class="ticket">
-        <div class="t-main">
-          <span class="t-label">כרטיס עלייה למטוס</span>
-          <div class="t-route"><span id="tFrom" class="ph">מוצא</span><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5"/><path d="M11 6l-6 6 6 6"/></svg><span id="tTo" class="ph">יעד</span></div>
-          <div class="t-meta"><span><small>תאריך</small><b class="num" id="tDate">—</b></span><span><small>טיסה</small><b id="tFlight" class="ph" dir="ltr">—</b></span><span><small>המראה</small><b class="num" id="tDeparts">—</b></span><span><small>נחיתה</small><b class="num" id="tArrives">—</b></span></div>
-          <p class="t-back" id="tBack" hidden></p>
+      <div class="bp-stack" id="bpStack">
+      <article class="bp is-back" data-leg="ret" hidden aria-label="כרטיס חזור">
+        <div class="bp-main">
+          <div class="bp-strip"><span><span data-f="airline">—</span> · כרטיס עלייה · חזור<span data-f="note"></span></span><span class="num" data-f="date">—</span></div>
+          <div class="bp-body">
+            <div class="bp-route">
+              <div><small>מ</small><b class="bp-code" dir="ltr" data-f="fromCode">—</b><span class="ph" data-f="from">מוצא</span></div>
+              <svg class="bp-plane" width="28" height="28" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M2 13.5v-2l8-4.5V2.5a1.5 1.5 0 0 1 3 0V7l8 4.5v2l-8-2.5v5l2.5 2v1.5L12 18.5 8.5 19.5V18l2.5-2v-5z" transform="rotate(-90 12 12)"/></svg>
+              <div class="bp-to"><small>אל</small><b class="bp-code" dir="ltr" data-f="toCode">—</b><span class="ph" data-f="to">יעד</span></div>
+            </div>
+            <div class="bp-grid"><span><small>טיסה</small><b dir="ltr" data-f="flight">—</b></span><span><small>המראה</small><b class="num" data-f="departs">—</b></span><span><small>נחיתה</small><b class="num" data-f="arrives">—</b></span></div>
+            <div class="bp-grid"><span><small>נוסעים</small><b data-f="pax">—</b></span><span><small>כבודה</small><b data-f="baggage">—</b></span><span><small>ימי סקי</small><b class="num" dir="ltr" data-f="skiRange">—</b></span></div>
+          </div>
         </div>
-        <div class="t-stub"><b class="num" id="tDays"></b><span id="tDaysLbl"><span data-days-word>ימים</span> לטיסה</span></div>
+        <div class="bp-slot"><span class="bp-gone">נתלש!<br>נתראה בשדה</span>
+          <button type="button" class="bp-stub" aria-label="לתלוש את הספח"><small>קודם</small><b class="num bp-big" data-f="skiCount">—</b><small>ימי סקי</small><span class="bp-mini" dir="ltr" data-f="pair">—</span><svg class="bp-ridge" viewBox="0 0 80 28" aria-hidden="true"></svg></button>
+        </div>
+        <button type="button" class="bp-swap" aria-label="להביא קדימה את כרטיס החזור"></button>
+      </article>
+      <article class="bp is-front" data-leg="out" aria-label="כרטיס הלוך">
+        <div class="bp-main">
+          <div class="bp-strip"><span><span data-f="airline">—</span> · כרטיס עלייה · הלוך<span data-f="note"></span></span><span class="num" data-f="date" id="tDate">—</span></div>
+          <div class="bp-body">
+            <div class="bp-route">
+              <div><small>מ</small><b class="bp-code" dir="ltr" data-f="fromCode">—</b><span id="tFrom" class="ph" data-f="from">מוצא</span></div>
+              <svg class="bp-plane" width="28" height="28" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M2 13.5v-2l8-4.5V2.5a1.5 1.5 0 0 1 3 0V7l8 4.5v2l-8-2.5v5l2.5 2v1.5L12 18.5 8.5 19.5V18l2.5-2v-5z" transform="rotate(-90 12 12)"/></svg>
+              <div class="bp-to"><small>אל</small><b class="bp-code" dir="ltr" data-f="toCode">—</b><span id="tTo" class="ph" data-f="to">יעד</span></div>
+            </div>
+            <div class="bp-grid"><span><small>טיסה</small><b id="tFlight" dir="ltr" data-f="flight">—</b></span><span><small>המראה</small><b class="num" id="tDeparts" data-f="departs">—</b></span><span><small>נחיתה</small><b class="num" id="tArrives" data-f="arrives">—</b></span></div>
+            <div class="bp-grid"><span><small>נוסעים</small><b data-f="pax">—</b></span><span><small>כבודה</small><b data-f="baggage">—</b></span><span><small>ימי סקי</small><b class="num" dir="ltr" data-f="skiRange">—</b></span></div>
+          </div>
+        </div>
+        <div class="bp-slot"><span class="bp-gone">נתלש!<br>נתראה בשדה</span>
+          <button type="button" class="bp-stub" aria-label="לתלוש את הספח"><small>עוד</small><b class="num bp-big" id="tDays"></b><small id="tDaysLbl"><span data-days-word>ימים</span> לטיסה</small><span class="bp-mini" dir="ltr" data-f="pair">—</span><svg class="bp-ridge" viewBox="0 0 80 28" aria-hidden="true"></svg></button>
+        </div>
+        <button type="button" class="bp-swap" aria-label="להביא קדימה את כרטיס ההלוך"></button>
+      </article>
       </div>
+      <p class="bp-hint" id="bpHint"><span id="bpHintSwap" hidden>נגיעה בכרטיס שמאחור מחליפה · </span>נגיעה בספח תולשת</p>
     </section>
     <nav class="post" aria-label="חלקי האתר">
       <a class="board" href="#map"><b>מפת מסלולים</b><span>27 מסלולים, פרטים וסרטונים</span></a>
@@ -86,6 +116,7 @@
       <h2>החבר׳ה <span class="num" id="crewCount"></span></h2>
       <ul id="crewList"></ul>
     </section>
+    <p class="credits">צלילי הכרטיס: קריעה לאורך ניקוב, <a href="https://freesound.org/people/everythingsounds/sounds/198233/" rel="noopener" target="_blank">everythingsounds ב-Freesound</a> (<a href="https://creativecommons.org/licenses/by/4.0/" rel="noopener" target="_blank">CC BY 4.0</a>), וקלפים, <a href="https://kenney.nl/assets/casino-audio" rel="noopener" target="_blank">Kenney</a> (CC0).</p>
   </div>
 </main>
 
@@ -127,13 +158,14 @@
 <main class="page page-games" id="gamesPage" hidden>
   <div class="mhead"><h1>משחקים</h1><a href="#home"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg>בית</a></div>
   <div class="games">
-    <div class="games-head"><span class="games-sign">5 משחקים</span><p class="games-intro">על השלג של גודאורי. השיאים נשמרים רק בטלפון שלכם, ומומלץ עם צליל.</p></div>
+    <div class="games-head"><span class="games-sign">6 משחקים</span><p class="games-intro">על השלג של גודאורי. השיאים נשמרים רק בטלפון שלכם, ומומלץ עם צליל.</p></div>
     <ul class="games-list">
       <li class="gc-feature"><a class="game-card" href="games/descent/" style="--gc:#1F5FC4"><span class="gc-thumb"><img src="games/thumbs/descent.webp" alt="" width="540" height="360" loading="lazy"><svg class="gc-play" width="34" height="34" viewBox="0 0 34 34" aria-hidden="true"><circle cx="17" cy="17" r="16" fill="#13233A" opacity=".82"/><path d="M21.5 11.5v11L12.5 17z" fill="#fff"/></svg><span class="gc-meta">5 מסלולים</span></span><span class="gc-body"><b>הירידה של החבר׳ה</b><span class="gc-tag">הירידה על המסלולים האמיתיים</span><span class="gc-long">גולשים על הפרופיל האמיתי של מסלולי גודאורי, אוספים את החבר׳ה ובורחים מהמפולת. מחזיקים כדי להתכופף, משחררים כדי לקפוץ.</span></span></a></li>
       <li><a class="game-card" href="games/school/" style="--gc:#1B8A4C"><span class="gc-thumb"><img src="games/thumbs/school.webp" alt="" width="540" height="360" loading="lazy"><svg class="gc-play" width="34" height="34" viewBox="0 0 34 34" aria-hidden="true"><circle cx="17" cy="17" r="16" fill="#13233A" opacity=".82"/><path d="M21.5 11.5v11L12.5 17z" fill="#fff"/></svg><span class="gc-meta">7 שיעורים</span></span><span class="gc-body"><b>בית הספר לסקי</b><span class="gc-tag">מעצירה בפיצה ועד קרווינג</span><span class="gc-long">שבעה שיעורים. בכל שיעור עיקרון אחד ותרגיל שבנוי בשבילו, עם מאמן שאומר מה קורה.</span></span></a></li>
       <li><a class="game-card" href="games/fresh-snow/" style="--gc:#5B9BFF"><span class="gc-thumb"><img src="games/thumbs/fresh-snow.webp" alt="" width="540" height="360" loading="lazy"><svg class="gc-play" width="34" height="34" viewBox="0 0 34 34" aria-hidden="true"><circle cx="17" cy="17" r="16" fill="#13233A" opacity=".82"/><path d="M21.5 11.5v11L12.5 17z" fill="#fff"/></svg><span class="gc-meta">בלי ניקוד</span></span><span class="gc-body"><b>שלג טרי</b><span class="gc-tag">לגעת בשלג ולרסק אגם קפוא</span><span class="gc-long">אצבע, מגף, מגלשיים או חתול שלג, עם הצליל של אבקה, קרום ושלג רטוב.</span></span></a></li>
       <li><a class="game-card" href="games/blower/" style="--gc:#D1342B"><span class="gc-thumb"><img src="games/thumbs/blower.webp" alt="" width="540" height="360" loading="lazy"><svg class="gc-play" width="34" height="34" viewBox="0 0 34 34" aria-hidden="true"><circle cx="17" cy="17" r="16" fill="#13233A" opacity=".82"/><path d="M21.5 11.5v11L12.5 17z" fill="#fff"/></svg><span class="gc-meta">5 שלבים</span></span><span class="gc-body"><b>מפלסת השלג</b><span class="gc-tag">לפנות דרך לפני שהאוטובוס יוצא</span><span class="gc-long">בוקר אחרי סופה: החבר׳ה הולכים רק על מה שניקית, ממלאים משאית ומוצאים מה שאבד בשלג.</span></span></a></li>
       <li><a class="game-card" href="games/merge/" style="--gc:#F4B942"><span class="gc-thumb"><img src="games/thumbs/merge.webp" alt="" width="540" height="360" loading="lazy"><svg class="gc-play" width="34" height="34" viewBox="0 0 34 34" aria-hidden="true"><circle cx="17" cy="17" r="16" fill="#13233A" opacity=".82"/><path d="M21.5 11.5v11L12.5 17z" fill="#fff"/></svg><span class="gc-meta">משחק קצר</span></span><span class="gc-body"><b>איחוד כדורי שלג</b><span class="gc-tag">מפתית ועד מלך קזבק</span><span class="gc-long">מחליקים, ושני כדורים זהים מתאחדים לגדול יותר.</span></span></a></li>
+      <li class="gc-wide"><a class="game-card" href="games/snowball/" style="--gc:#13233A"><span class="gc-thumb"><img src="games/thumbs/snowball.webp" alt="" width="540" height="360" loading="lazy"><svg class="gc-play" width="34" height="34" viewBox="0 0 34 34" aria-hidden="true"><circle cx="17" cy="17" r="16" fill="#13233A" opacity=".82"/><path d="M21.5 11.5v11L12.5 17z" fill="#fff"/></svg><span class="gc-meta">5 יריבים</span></span><span class="gc-body"><b>קרב כדורי שלג</b><span class="gc-tag">מאחורי החומה, מול החבר׳ה</span><span class="gc-long">מתכופפים מאחורי החומה, קמים, מכוונים וזורקים. כל הזירה תמיד מולכם.</span></span></a></li>
     </ul>
   </div>
 </main>

@@ -39,3 +39,7 @@
 הגרסה הראשונה, כעמוד אחד מחוץ לקנבס: `boarding-pass.html` (ארטיפקט פרטי https://claude.ai/artifact/DthvJrgub2AUABzB1an4JW).
 
 בנייה מחדש: `python3 design/round7/build.py` (כותב ל-`design/canvas/project/`).
+
+## באתר עכשיו (עמוד נפרד בקנבס)
+
+צילומי מסך של האתר האמיתי, בחזרה לקנבס ("סגירת מעגל", `docs/FEATURES.md`): עמוד המשחקים בטלפון ובמחשב (נכנס לפני החלטה 18, ולכן לאישור בדיעבד), ודף הבית עם הכרטיס החדש ביום ובלילה. נבנה ב-`python3 design/round7/build_live.py`; התמונות הועלו לקנבס.

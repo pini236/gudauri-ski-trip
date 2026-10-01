@@ -777,17 +777,59 @@ LSTAT.load();
 // flight ticket: one shared doc (trip/flight), editable by Contributors
 const fmtDate=iso=>{const[y,m,d]=iso.split('-');return +d+'.'+ +m+'.'+y;};
 function renderTicket(){
-  const put=(id,v,ph)=>{const el=document.getElementById(id);el.textContent=v||ph;el.classList.toggle('ph',!v);};
-  const o=TRIP&&TRIP.outbound||{};
-  put('tFrom',o.from,'מוצא');put('tTo',o.to,'יעד');put('tFlight',o.flight,'—');
-  put('tDate',o.date&&fmtDate(o.date),'—');put('tDeparts',o.departs,'—');put('tArrives',o.arrives,'—');
-  const r=TRIP&&TRIP.return,back=document.getElementById('tBack');
-  if(r){back.innerHTML=`חזרה: <b class="num">${esc(fmtDate(r.date))}</b>, טיסה <b dir="ltr">${esc(r.flight)}</b>, המראה <b class="num">${esc(r.departs)}</b>${r.note?`<span class="t-note">${esc(r.note)}</span>`:''}`;back.hidden=false;}
-  const members=TRIP&&TRIP.members||[];
+  const o=TRIP&&TRIP.outbound||{},r=TRIP&&TRIP.return,members=TRIP&&TRIP.members||[];
+  const short=iso=>{const[,m,d]=iso.split('-');return +d+'.'+ +m;};
+  const fill=(card,f)=>{
+    card.querySelectorAll('[data-f]').forEach(el=>{
+      const k=el.dataset.f,v={airline:TRIP&&TRIP.airline,dateShort:f.date&&short(f.date),date:f.date&&fmtDate(f.date),pax:members.length?members.length+' החבר׳ה':'',
+        baggage:TRIP&&TRIP.baggage,pair:f.fromCode&&f.toCode?f.fromCode+' › '+f.toCode:'',note:f.departs&&+f.departs.split(':')[0]<6?' · בלילה':'',skiCount:skiCount,skiRange:sd?short(sd.from).split('.')[0]+'–'+short(sd.to):''}[k]??f[k];
+      if(k==='note'){el.textContent=v||'';return;}
+      el.textContent=v||(k==='from'?'מוצא':k==='to'?'יעד':'—');
+      if(k==='from'||k==='to')el.classList.toggle('ph',!v);
+    });
+  };
+  const sd=TRIP&&TRIP.skiDays,skiCount=sd?String(Math.round((new Date(sd.to)-new Date(sd.from))/864e5)+1):'';
+  fill(document.querySelector('.bp[data-leg="out"]'),o);
+  const rc=document.querySelector('.bp[data-leg="ret"]');
+  if(r){fill(rc,r);rc.hidden=false;document.getElementById('bpHintSwap').hidden=false;}
+  document.querySelectorAll('.bp-ridge').forEach(svg=>{
+    /* the "barcode" is the ridge above New Gudauri drawn as bars: it is the mountain, not a code anyone could scan */
+    const h=[.30,.42,.55,.48,.62,.80,.70,.58,.66,.92,1,.86,.74,.60,.68,.78,.64,.50,.44,.56,.70,.62,.48,.36,.42,.30,.24,.34,.28,.20,.26,.18],w=80/h.length;
+    svg.innerHTML=h.map((v,i)=>`<rect x="${(i*w).toFixed(1)}" y="${(28-v*28).toFixed(1)}" width="${i%3===0?2:i%2?1.2:.7}" height="${(v*28).toFixed(1)}"/>`).join('');
+  });
   document.getElementById('crewCount').textContent=members.length?'· '+members.length:'';
   document.getElementById('crewList').innerHTML=members.map(n=>`<li>${esc(n)}</li>`).join('');
   document.querySelector('.crew').hidden=!members.length;
 }
+// the passes: tap the one behind to bring it forward, tap the stub to tear it off (it comes back)
+(function(){
+  const stack=document.getElementById('bpStack');let busy=false,ac=null;const snd={};
+  const buzz=p=>{try{navigator.vibrate&&navigator.vibrate(p);}catch(e){}};
+  const ctx=()=>{try{if(!ac){const A=window.AudioContext||window.webkitAudioContext;if(!A)return null;ac=new A();}if(ac.state==='suspended')ac.resume();return ac;}catch(e){return null;}};
+  /* recordings (credits at the bottom of the home page): fetched and decoded after the page is up, so the first tap already has sound */
+  try{const O=window.OfflineAudioContext||window.webkitOfflineAudioContext;if(O){const oc=new O(1,1,44100);
+    ['tear','slide','land'].forEach(k=>fetch('audio/ticket-'+k+'.wav').then(r=>r.ok?r.arrayBuffer():Promise.reject()).then(b=>new Promise((ok,no)=>oc.decodeAudioData(b,ok,no))).then(x=>{snd[k]=x;}).catch(()=>{}));}}catch(e){}
+  const play=(k,at,g,lp)=>{const c=ctx();if(!c)return;const b=snd[k];if(!b)return;
+    const s=c.createBufferSource(),f=c.createBiquadFilter(),v=c.createGain();s.buffer=b;f.type='lowpass';f.frequency.value=lp;f.Q.value=.5;v.gain.value=g;
+    s.connect(f);f.connect(v);v.connect(c.destination);s.start(c.currentTime+at);};
+  const front=()=>stack.querySelector('.bp.is-front');
+  stack.addEventListener('click',e=>{
+    const swap=e.target.closest('.bp-swap'),stub=e.target.closest('.bp-stub');
+    if(busy)return;
+    if(swap&&!document.querySelector('.bp[data-leg="ret"]').hidden){
+      busy=true;play('slide',0,.7,6000);play('land',.42,.75,5000);buzz(8);
+      stack.classList.add('shuffle');
+      setTimeout(()=>{stack.querySelectorAll('.bp').forEach(c=>{const f=c.classList.contains('is-front');c.classList.toggle('is-front',!f);c.classList.toggle('is-back',f);});stack.classList.remove('shuffle');},250);
+      setTimeout(()=>buzz(12),460);
+      setTimeout(()=>{busy=false;},640);
+    }else if(stub&&stub.closest('.bp')===front()){
+      busy=true;play('tear',0,.85,7500);buzz([6,30,6,30,6,30,6,30,6,30,6,90,24]);
+      stub.classList.add('torn1');
+      setTimeout(()=>{stub.classList.add('torn2');},540);
+      setTimeout(()=>{stub.classList.remove('torn1','torn2');busy=false;},2600);
+    }
+  });
+})();
 renderTicket();
 route();
 overview();applyFilters();

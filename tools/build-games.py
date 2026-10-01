@@ -17,6 +17,7 @@ GAMES = [
     ('school', 'design/games/school', ('<section class="menu" id="menu" aria-label="שיעורים">', 'after', '')),
     ('fresh-snow', 'design/games/powder-touch', ('<div class="row kind" id="scenes" role="group" aria-label="איפה">', 'after', 'min-height:40px')),
     ('blower', 'design/games/blower', ('<section class="menu" id="menu" aria-label="התחלה">', 'after', '')),
+    ('snowball', 'design/games/snowball', ('<section class="menu" id="menuStart" aria-label="התחלה">', 'after', '')),
     ('merge', 'design/games/merge', ('<div class="row"><button id="undo"', 'inside-row', '')),
 ]
 
