@@ -373,6 +373,395 @@
       "h": 844,
       "title": "השיירה · כולם יחד למפגש",
       "page": "round4"
+    },
+    "BP0-Today.dc.html": {
+      "x": 0,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "title": "היום · הכרטיס כמו שהוא באתר",
+      "page": "round7"
+    },
+    "BP1-Classic.dc.html": {
+      "x": 470,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "title": "א · הקלאסי: ניקוב וספח",
+      "page": "round7"
+    },
+    "BP2-Wallet.dc.html": {
+      "x": 940,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "title": "ב · בארנק של הטלפון (המלצה)",
+      "page": "round7"
+    },
+    "BP3-Crew.dc.html": {
+      "x": 1410,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "title": "ג · כרטיס של החבר׳ה",
+      "page": "round7"
+    },
+    "BP4-WalletNight.dc.html": {
+      "x": 1880,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "title": "ב · בלילה",
+      "page": "round7"
+    },
+    "AB1-ClassicPlus.dc.html": {
+      "x": 0,
+      "y": 1264,
+      "w": 390,
+      "h": 844,
+      "title": "א+ב · הקלאסי, עם החזור מאחור",
+      "page": "round7",
+      "is_interactive": true
+    },
+    "AB2-ClassicTall.dc.html": {
+      "x": 470,
+      "y": 1264,
+      "w": 390,
+      "h": 844,
+      "title": "א+ב · הקלאסי לגובה (המלצה)",
+      "page": "round7",
+      "is_interactive": true
+    },
+    "AB3-ClassicTallNight.dc.html": {
+      "x": 940,
+      "y": 1264,
+      "w": 390,
+      "h": 844,
+      "title": "א+ב · לגובה, בלילה עם הדפס זוהר",
+      "page": "round7",
+      "is_interactive": true
+    },
+    "AB4-TearSteps.dc.html": {
+      "x": 1410,
+      "y": 1264,
+      "w": 390,
+      "h": 844,
+      "title": "התלישה, שלב אחר שלב",
+      "page": "round7"
+    },
+    "AB5-PairDay.dc.html": {
+      "x": 0,
+      "y": 2528,
+      "w": 390,
+      "h": 844,
+      "title": "הלרוחב · שני כרטיסים, תלישה ודפדוף",
+      "page": "round7",
+      "is_interactive": true
+    },
+    "AB6-PairNight.dc.html": {
+      "x": 470,
+      "y": 2528,
+      "w": 390,
+      "h": 844,
+      "title": "הלרוחב · בלילה",
+      "page": "round7",
+      "is_interactive": true
+    },
+    "L1-GamesPhone.dc.html": {
+      "x": 0,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "title": "עמוד המשחקים: שלטים עם שלג (סבב 8)",
+      "page": "live"
+    },
+    "L2-GamesDesktop.dc.html": {
+      "x": 470,
+      "y": 0,
+      "w": 1280,
+      "h": 800,
+      "title": "עמוד המשחקים במחשב (סבב 8)",
+      "page": "live"
+    },
+    "L3-HomePhone.dc.html": {
+      "x": 0,
+      "y": 1315,
+      "w": 390,
+      "h": 844,
+      "title": "דף הבית עם הכרטיס החדש",
+      "page": "live"
+    },
+    "L4-HomePhoneNight.dc.html": {
+      "x": 470,
+      "y": 1315,
+      "w": 390,
+      "h": 844,
+      "title": "דף הבית בלילה",
+      "page": "live"
+    },
+    "GP1-SnowCaps.dc.html": {
+      "x": 0,
+      "y": 0,
+      "w": 390,
+      "h": 1010,
+      "title": "א · שלג טרי על כל כרטיס (הרעיון שלך)",
+      "page": "round8"
+    },
+    "GP2-TrailSigns.dc.html": {
+      "x": 470,
+      "y": 0,
+      "w": 390,
+      "h": 920,
+      "title": "ב · שלטי מסלול על עמוד",
+      "page": "round8"
+    },
+    "GP3-SkiPasses.dc.html": {
+      "x": 940,
+      "y": 0,
+      "w": 390,
+      "h": 1000,
+      "title": "ג · כרטיסי סקי־פס תלויים",
+      "page": "round8"
+    },
+    "GP4-SnowCapsDesktop.dc.html": {
+      "x": 1410,
+      "y": 0,
+      "w": 1280,
+      "h": 800,
+      "title": "א במחשב",
+      "page": "round8"
+    },
+    "MP1-MeetEmpty.dc.html": {
+      "x": 0,
+      "y": 1430,
+      "w": 390,
+      "h": 1000,
+      "title": "מפגש 1 · ברירת מחדל: שום נקודה",
+      "page": "round8"
+    },
+    "MP2-MeetPicked.dc.html": {
+      "x": 470,
+      "y": 1430,
+      "w": 390,
+      "h": 1000,
+      "title": "מפגש 2 · נבחרה תחנה, וארבע דרכים לבטל",
+      "page": "round8"
+    },
+    "MP3-MeetCleared.dc.html": {
+      "x": 940,
+      "y": 1430,
+      "w": 390,
+      "h": 1000,
+      "title": "מפגש 3 · רגע הביטול, עם \"החזרה\"",
+      "page": "round8"
+    },
+    "L5-MeetPhone.dc.html": {
+      "x": 940,
+      "y": 1315,
+      "w": 390,
+      "h": 844,
+      "title": "נקודת מפגש: בלי בחירה (סבב 8)",
+      "page": "live"
+    },
+    "H1-GuestHome.dc.html": {
+      "x": 0,
+      "y": 0,
+      "w": 390,
+      "h": 900,
+      "page": "round10",
+      "title": "דף הבית: אורח, בלי טיול"
+    },
+    "H2-TripForm.dc.html": {
+      "x": 470,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "page": "round10",
+      "title": "הוספת הטיול שלך"
+    },
+    "H3-TripHome.dc.html": {
+      "x": 940,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "page": "round10",
+      "title": "דף הבית: עם הטיול שלך"
+    },
+    "H4-TripHomeNight.dc.html": {
+      "x": 1410,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "page": "round10",
+      "title": "דף הבית: עם הטיול, בלילה"
+    },
+    "A1-GroupEntry.dc.html": {
+      "x": 0,
+      "y": 1320,
+      "w": 390,
+      "h": 844,
+      "page": "round10",
+      "title": "קבוצה: אורח"
+    },
+    "A2-SignInAndroid.dc.html": {
+      "x": 470,
+      "y": 1320,
+      "w": 390,
+      "h": 844,
+      "page": "round10",
+      "title": "כניסה באנדרואיד"
+    },
+    "A3-SignInIphone.dc.html": {
+      "x": 940,
+      "y": 1320,
+      "w": 390,
+      "h": 844,
+      "page": "round10",
+      "title": "כניסה באייפון"
+    },
+    "A4-Account.dc.html": {
+      "x": 1410,
+      "y": 1320,
+      "w": 390,
+      "h": 844,
+      "page": "round10",
+      "title": "חשבון"
+    },
+    "A5-SaveAccount.dc.html": {
+      "x": 1880,
+      "y": 1320,
+      "w": 390,
+      "h": 844,
+      "page": "round10",
+      "title": "הצעה לשמור חשבון"
+    },
+    "Q1-NewGroup.dc.html": {
+      "x": 0,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "page": "round10q",
+      "title": "קבוצה חדשה"
+    },
+    "Q2-Invite.dc.html": {
+      "x": 470,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "page": "round10q",
+      "title": "הזמנה: קישור וקוד"
+    },
+    "Q3-Invited.dc.html": {
+      "x": 940,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "page": "round10q",
+      "title": "מוזמן: רק שם ונכנסים"
+    },
+    "Q4-Code.dc.html": {
+      "x": 1410,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "page": "round10q",
+      "title": "הצטרפות בקוד"
+    },
+    "Q5-AlreadyIn.dc.html": {
+      "x": 1880,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "page": "round10q",
+      "title": "אני כבר בקבוצה"
+    },
+    "Q6-GroupFlights.dc.html": {
+      "x": 0,
+      "y": 1264,
+      "w": 390,
+      "h": 844,
+      "page": "round10q",
+      "title": "דף הקבוצה: טיסות"
+    },
+    "Q7-SameFlight.dc.html": {
+      "x": 470,
+      "y": 1264,
+      "w": 390,
+      "h": 844,
+      "page": "round10q",
+      "title": "אני על אותה טיסה"
+    },
+    "Q8-Meetups.dc.html": {
+      "x": 940,
+      "y": 1264,
+      "w": 390,
+      "h": 900,
+      "page": "round10q",
+      "title": "מפגשים ותזכורת"
+    },
+    "Q9-Scores.dc.html": {
+      "x": 1410,
+      "y": 1264,
+      "w": 390,
+      "h": 844,
+      "page": "round10q",
+      "title": "טבלת שיאים"
+    },
+    "Q10-Admin.dc.html": {
+      "x": 1880,
+      "y": 1264,
+      "w": 390,
+      "h": 1000,
+      "page": "round10q",
+      "title": "חברים וניהול"
+    },
+    "P1-PrivacyPhone.dc.html": {
+      "x": 0,
+      "y": 0,
+      "w": 390,
+      "h": 2760,
+      "page": "round10p",
+      "title": "מדיניות פרטיות: טלפון"
+    },
+    "P2-PrivacyDesktop.dc.html": {
+      "x": 470,
+      "y": 0,
+      "w": 1280,
+      "h": 2240,
+      "page": "round10p",
+      "title": "מדיניות פרטיות: מחשב"
+    },
+    "LT1-English.dc.html": {
+      "x": 0,
+      "y": 3180,
+      "w": 390,
+      "h": 900,
+      "page": "round10p",
+      "title": "משמאל לימין: אנגלית"
+    },
+    "LT2-Russian.dc.html": {
+      "x": 470,
+      "y": 3180,
+      "w": 390,
+      "h": 900,
+      "page": "round10p",
+      "title": "משמאל לימין: רוסית"
+    },
+    "LT3-Georgian.dc.html": {
+      "x": 940,
+      "y": 3180,
+      "w": 390,
+      "h": 900,
+      "page": "round10p",
+      "title": "משמאל לימין: גאורגית"
+    },
+    "FT1-Fonts.dc.html": {
+      "x": 0,
+      "y": 4500,
+      "w": 1440,
+      "h": 800,
+      "page": "round10p",
+      "title": "גופנים לרוסית ולגאורגית"
     }
   },
   "createdOnFiles": {
@@ -382,7 +771,7 @@
   "designSystems": [],
   "launch": {
     "view": "canvas",
-    "page": "round4"
+    "page": "round10"
   },
   "notes": {
     "featRow1": {
@@ -510,6 +899,132 @@
       "w": 240,
       "x": 0,
       "y": 964
+    },
+    "r7row0": {
+      "kind": "title1",
+      "maxW": 2270,
+      "page": "round7",
+      "text": "כרטיס הטיסה בדף הבית",
+      "w": 240,
+      "x": 0,
+      "y": -300
+    },
+    "r7row1": {
+      "kind": "title1",
+      "maxW": 1800,
+      "page": "round7",
+      "text": "שילוב: העיצוב של א, הרעיון של ב",
+      "w": 240,
+      "x": 0,
+      "y": 964
+    },
+    "r7row2": {
+      "kind": "title1",
+      "maxW": 860,
+      "page": "round7",
+      "text": "הלרוחב, גרסה 2",
+      "w": 240,
+      "x": 0,
+      "y": 2228
+    },
+    "liveRow0": {
+      "kind": "title1",
+      "maxW": 1750,
+      "page": "live",
+      "text": "משחקים: 5 משחקים",
+      "w": 240,
+      "x": 0,
+      "y": -300
+    },
+    "liveRow1": {
+      "kind": "title1",
+      "maxW": 1330,
+      "page": "live",
+      "text": "כרטיס הטיסה ונקודת המפגש",
+      "w": 240,
+      "x": 0,
+      "y": 1015
+    },
+    "r8row0": {
+      "kind": "title1",
+      "maxW": 2690,
+      "page": "round8",
+      "text": "עמוד המשחקים: שלוש הצעות",
+      "w": 240,
+      "x": 0,
+      "y": -300
+    },
+    "r8row1": {
+      "kind": "title1",
+      "maxW": 1330,
+      "page": "round8",
+      "text": "נקודת מפגש: מתחילים בלי בחירה, ומבטלים בקלות",
+      "w": 240,
+      "x": 0,
+      "y": 1130
+    },
+    "round10row0": {
+      "kind": "title1",
+      "maxW": 1800,
+      "page": "round10",
+      "text": "דף הבית של אורח והטיול שלך",
+      "w": 240,
+      "x": 0,
+      "y": -300
+    },
+    "round10row1": {
+      "kind": "title1",
+      "maxW": 2270,
+      "page": "round10",
+      "text": "כניסה: גוגל, אפל, או אורח",
+      "w": 240,
+      "x": 0,
+      "y": 1020
+    },
+    "round10qrow0": {
+      "kind": "title1",
+      "maxW": 2270,
+      "page": "round10q",
+      "text": "יצירה, הזמנה והצטרפות בלי הרשמה",
+      "w": 240,
+      "x": 0,
+      "y": -300
+    },
+    "round10qrow1": {
+      "kind": "title1",
+      "maxW": 2270,
+      "page": "round10q",
+      "text": "דף הקבוצה: טיסות, מפגשים, שיאים וניהול",
+      "w": 240,
+      "x": 0,
+      "y": 964
+    },
+    "round10prow0": {
+      "kind": "title1",
+      "maxW": 1750,
+      "page": "round10p",
+      "text": "דף מדיניות הפרטיות באתר",
+      "w": 240,
+      "x": 0,
+      "y": -300
+    },
+    "round10prow1": {
+      "kind": "title1",
+      "maxW": 1330,
+      "page": "round10p",
+      "text": "שלטים משמאל לימין",
+      "w": 240,
+      "x": 0,
+      "y": 2880
+    },
+    "round10prow2": {
+      "kind": "title1",
+      "maxW": 1440,
+      "page": "round10p",
+      "text": "גופנים לרוסית ולגאורגית",
+      "w": 240,
+      "x": 0,
+      "y": 4200
     }
   },
   "order": [
@@ -557,9 +1072,81 @@
     "G4-PhotoFinish.dc.html",
     "G5-HotelTournament.dc.html",
     "G6-LastLift.dc.html",
-    "G7-Caravan.dc.html"
+    "G7-Caravan.dc.html",
+    "BP0-Today.dc.html",
+    "BP1-Classic.dc.html",
+    "BP2-Wallet.dc.html",
+    "BP3-Crew.dc.html",
+    "BP4-WalletNight.dc.html",
+    "AB1-ClassicPlus.dc.html",
+    "AB2-ClassicTall.dc.html",
+    "AB3-ClassicTallNight.dc.html",
+    "AB4-TearSteps.dc.html",
+    "AB5-PairDay.dc.html",
+    "AB6-PairNight.dc.html",
+    "L1-GamesPhone.dc.html",
+    "L2-GamesDesktop.dc.html",
+    "L3-HomePhone.dc.html",
+    "L4-HomePhoneNight.dc.html",
+    "GP1-SnowCaps.dc.html",
+    "GP2-TrailSigns.dc.html",
+    "GP3-SkiPasses.dc.html",
+    "GP4-SnowCapsDesktop.dc.html",
+    "MP1-MeetEmpty.dc.html",
+    "MP2-MeetPicked.dc.html",
+    "MP3-MeetCleared.dc.html",
+    "L5-MeetPhone.dc.html",
+    "H1-GuestHome.dc.html",
+    "H2-TripForm.dc.html",
+    "H3-TripHome.dc.html",
+    "H4-TripHomeNight.dc.html",
+    "A1-GroupEntry.dc.html",
+    "A2-SignInAndroid.dc.html",
+    "A3-SignInIphone.dc.html",
+    "A4-Account.dc.html",
+    "A5-SaveAccount.dc.html",
+    "Q1-NewGroup.dc.html",
+    "Q2-Invite.dc.html",
+    "Q3-Invited.dc.html",
+    "Q4-Code.dc.html",
+    "Q5-AlreadyIn.dc.html",
+    "Q6-GroupFlights.dc.html",
+    "Q7-SameFlight.dc.html",
+    "Q8-Meetups.dc.html",
+    "Q9-Scores.dc.html",
+    "Q10-Admin.dc.html",
+    "P1-PrivacyPhone.dc.html",
+    "P2-PrivacyDesktop.dc.html",
+    "LT1-English.dc.html",
+    "LT2-Russian.dc.html",
+    "LT3-Georgian.dc.html",
+    "FT1-Fonts.dc.html"
   ],
   "pages": [
+    {
+      "id": "round10",
+      "name": "סבב 10: הטיול שלך וחשבון"
+    },
+    {
+      "id": "round10q",
+      "name": "סבב 10: קבוצה"
+    },
+    {
+      "id": "round10p",
+      "name": "סבב 10: פרטיות ושפות"
+    },
+    {
+      "id": "round8",
+      "name": "סבב 8: משחקים ונקודת מפגש"
+    },
+    {
+      "id": "live",
+      "name": "באתר עכשיו"
+    },
+    {
+      "id": "round7",
+      "name": "סבב 7: כרטיס עלייה למטוס"
+    },
     {
       "id": "round4",
       "name": "סבב 4: משחק הגלישה"
