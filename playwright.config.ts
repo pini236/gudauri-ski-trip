@@ -8,7 +8,8 @@ export default defineConfig({
   testDir: 'tests',
   timeout: 60_000,
   reporter: 'list',
-  use: { baseURL: 'http://127.0.0.1:4173', ignoreHTTPSErrors: true, launchOptions },
+  // Hebrew browser: the site picks its language from the browser (site/js/i18n.js); tests/i18n.spec.ts covers the others
+  use: { baseURL: 'http://127.0.0.1:4173', ignoreHTTPSErrors: true, launchOptions, locale: 'he-IL' },
   webServer: { command: 'npx http-server site -p 4173 -c-1 -s', url: 'http://127.0.0.1:4173', reuseExistingServer: true },
   projects: [
     { name: 'desktop-light', use: { ...desktop, colorScheme: 'light' } },
