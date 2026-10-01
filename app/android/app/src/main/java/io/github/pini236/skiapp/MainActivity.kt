@@ -53,6 +53,8 @@ import io.github.pini236.skiapp.map.MapView
 import io.github.pini236.skiapp.map.OrbitCamera
 import io.github.pini236.skiapp.map.Sky
 import io.github.pini236.skiapp.map.Sun
+import io.github.pini236.skiapp.i18n.Lang
+import androidx.compose.ui.res.stringResource
 import io.github.pini236.skiapp.nav.Nav
 import io.github.pini236.skiapp.nav.Route
 import io.github.pini236.skiapp.perf.FrameStats
@@ -123,6 +125,8 @@ class MainActivity : ComponentActivity() {
         loadInBackground()
         setContent { App() }
     }
+
+    override fun attachBaseContext(base: android.content.Context) = super.attachBaseContext(Lang.wrap(base))
 
     override fun onSaveInstanceState(out: Bundle) { super.onSaveInstanceState(out); out.putStringArrayList("nav", nav.save()) }
 
@@ -238,7 +242,8 @@ class MainActivity : ComponentActivity() {
     @Composable
     private fun App() {
         BackHandler(enabled = nav.canBack) { nav.back() }
-        CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
+        // the direction of the language on screen (i18n/Lang.kt): Hebrew today, so right to left
+        CompositionLocalProvider(LocalLayoutDirection provides Lang.current(resources).direction) {
             Column(Modifier.fillMaxSize().background(Palette.snow)) {
                 Box(Modifier.weight(1f).fillMaxWidth()) {
                     when (tab) {
@@ -249,7 +254,7 @@ class MainActivity : ComponentActivity() {
                     if (showStats) StatsBar(tab == 0, Modifier.align(Alignment.TopStart))
                 }
                 Row(Modifier.fillMaxWidth().background(Palette.ink).navigationBarsPadding()) {
-                    listOf("מפה", "ירידה", "כרטיס").forEachIndexed { i, label ->
+                    listOf(R.string.tab_map, R.string.tab_descent, R.string.tab_ticket).map { stringResource(it) }.forEachIndexed { i, label ->
                         Box(
                             Modifier.weight(1f).heightIn(min = 56.dp).background(if (i == tab) Palette.glacier else Palette.ink).clickable { if (i == 0) nav.toStart() else nav.switchTo(if (i == 1) Route.Game("descent") else Route.Ticket); haptics.tick(0.4f) },
                             contentAlignment = Alignment.Center,
