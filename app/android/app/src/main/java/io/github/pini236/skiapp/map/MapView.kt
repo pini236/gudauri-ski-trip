@@ -120,6 +120,8 @@ class MapView(context: Context, refreshHz: Float, val stats: FrameStats) : Frame
     var scene: MapScene? = null; private set
     var selected: Piste? = null; private set
     var onSelect: ((Piste?) -> Unit)? = null
+    /** The activity's listener: the chosen run goes into the saved place (nav/Nav.kt). */
+    var onChosen: ((Piste?) -> Unit)? = null
     var onFlying: ((Boolean) -> Unit)? = null
     val msaa get() = surface.msaa
 
@@ -177,6 +179,7 @@ class MapView(context: Context, refreshHz: Float, val stats: FrameStats) : Frame
         val s = scene ?: return
         selected = p
         onSelect?.invoke(p)
+        onChosen?.invoke(p)
         if (p == null) { renderer.select(null); Qa.log("selected none"); return }
         worker.execute {
             val lines = s.topDown(p)

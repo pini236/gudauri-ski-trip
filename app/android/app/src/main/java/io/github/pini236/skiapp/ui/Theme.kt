@@ -6,28 +6,23 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import io.github.pini236.skiapp.R
 
-/** The site's tokens (site/css/site.css, :root). */
+/** The spike's day-only colours, now read from the tokens (Tokens.kt). The skeleton's screens use [Ski.colors]. */
 object Palette {
-    val snow = Color(0xFFEEF2F5)
-    val paper = Color(0xFFFFFFFF)
-    val ink = Color(0xFF13233A)
-    val muted = Color(0xFF4B5A6F)
-    val rule = Color(0xFFCBD5DF)
-    val glacier = Color(0xFF1F5FC4)
-    val green = Color(0xFF1B8A4C)
-    val blue = Color(0xFF1F5FC4)
-    val red = Color(0xFFD1342B)
-    val black = Color(0xFF13233A)
-    val sky1 = Color(0xFFDCE8F1)
-    val sky2 = Color(0xFFEEF2F5)
+    val snow = DayColors.snow
+    val paper = DayColors.paper
+    val ink = DayColors.ink
+    val muted = DayColors.muted
+    val rule = DayColors.rule
+    val glacier = DayColors.glacier
+    val green = DayColors.green
+    val blue = DayColors.blue
+    val red = DayColors.red
+    val black = DayColors.black
+    val sky1 = DayColors.sky1
+    val sky2 = DayColors.sky2
     val ticketPaper = Color(0xFFFBF8F2)
 
-    fun run(color: String) = when (color) {
-        "green" -> green
-        "blue" -> blue
-        "red" -> red
-        else -> black
-    }
+    fun run(color: String) = DayColors.run(color)
 }
 
 val Karantina = FontFamily(Font(R.font.karantina_bold, FontWeight.Bold))
