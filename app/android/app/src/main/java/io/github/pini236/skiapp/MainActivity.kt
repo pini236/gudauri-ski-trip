@@ -42,6 +42,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.pini236.skiapp.data.Profile
 import io.github.pini236.skiapp.data.Runs
+import io.github.pini236.skiapp.data.SiteData
 import io.github.pini236.skiapp.data.Terrain
 import io.github.pini236.skiapp.fx.Haptics
 import io.github.pini236.skiapp.fx.Sounds
@@ -77,6 +78,7 @@ class MainActivity : ComponentActivity() {
     private lateinit var mapView: MapView
     private val metricsThread = HandlerThread("frame-metrics").apply { start() }
     private val loader = Executors.newSingleThreadExecutor()
+    private lateinit var siteData: SiteData
 
     private var scene by mutableStateOf<MapScene?>(null)
     private var profile by mutableStateOf<Profile?>(null)
@@ -94,6 +96,9 @@ class MainActivity : ComponentActivity() {
         haptics = Haptics(this)
         sounds = Sounds(this)
         mapView = MapView(this, refreshHz, glStats)
+        @Suppress("DEPRECATION")
+        val version = if (Build.VERSION.SDK_INT >= 28) packageManager.getPackageInfo(packageName, 0).longVersionCode else packageManager.getPackageInfo(packageName, 0).versionCode.toLong()
+        siteData = SiteData(java.io.File(filesDir, "site-data"), version, { name -> assets.open("data/$name").bufferedReader().use { it.readText() } })
 
         if (Build.VERSION.SDK_INT >= 26) {
             window.addOnFrameMetricsAvailableListener({ _, m, _ ->
@@ -129,7 +134,8 @@ class MainActivity : ComponentActivity() {
         val t0 = SystemClock.uptimeMillis()
         fun asset(name: String) = assets.open(name).bufferedReader().use { it.readText() }
         val terrain = Terrain.parse(asset("data/terrain.json"))
-        val runs = Runs.parse(asset("data/runs-and-lifts.json"))
+        val runs = Runs.parse(siteData.read("runs-and-lifts.json"))
+        Qa.log("data runs from ${siteData.source("runs-and-lifts.json")}")
         val profiles = Profile.parse(asset("data/profiles.json"))
         Startup.dataMs = SystemClock.uptimeMillis() - t0
         runOnUiThread { profile = profiles.firstOrNull { it.key == "Tatra 2" } ?: profiles.firstOrNull() }
@@ -144,6 +150,9 @@ class MainActivity : ComponentActivity() {
         }
         castShadows(s)
         runOnUiThread { qaPending?.let { qaPending = null; applyQaMap(it, sunDone = true) }; mapView.postDelayed(skyTick, SKY_EVERY_MS) }
+        // new runs, lifts and videos from the site, if there are any: read at the next launch (data/SiteData.kt)
+        val refreshed = siteData.refresh()
+        Qa.log("data refresh ${refreshed.entries.joinToString { "${it.key} ${it.value}" }}")
     }
 
     /** The sun moves: light and shadows again every few minutes (unless the QA run pinned the time). */
