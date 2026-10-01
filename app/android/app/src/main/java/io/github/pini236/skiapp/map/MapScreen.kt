@@ -1,6 +1,7 @@
 package io.github.pini236.skiapp.map
 
 import androidx.compose.foundation.background
+import io.github.pini236.skiapp.telemetry.Telemetry
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.contentDescription
 import io.github.pini236.skiapp.i18n.Lang
@@ -66,7 +67,7 @@ fun MapScreen(view: MapView, scene: MapScene?) {
                         Text(p.name, fontFamily = Karantina, fontWeight = FontWeight.Bold, fontSize = 30.sp, color = Color.White)
                     }
                     Spacer1()
-                    Button(stringResource(if (flying) R.string.map_stop else R.string.map_fly)) { if (flying) view.stopFly() else view.flyDown() }
+                    Button(stringResource(if (flying) R.string.map_stop else R.string.map_fly)) { if (flying) view.stopFly() else { view.flyDown(); Telemetry.event("run_fly", mapOf("run" to p.key)) } }
                     Button("✕", stringResource(R.string.map_close)) { view.select(null) }
                 }
             }

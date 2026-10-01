@@ -1,6 +1,7 @@
 package io.github.pini236.skiapp.game
 
 import androidx.compose.foundation.Canvas
+import io.github.pini236.skiapp.telemetry.Telemetry
 import io.github.pini236.skiapp.i18n.Lang
 import androidx.compose.ui.platform.LocalContext
 import io.github.pini236.skiapp.R
@@ -63,6 +64,12 @@ fun DescentScreen(profile: Profile?, haptics: Haptics, sounds: Sounds) {
     val res = LocalContext.current.resources
     val nf = remember { NumberFormat.getIntegerInstance(Lang.current(res).locale) }
 
+    LaunchedEffect(round) { Telemetry.event("game_start", mapOf("game" to "descent", "run" to profile.key)) }
+    val startedAt = remember(round) { System.currentTimeMillis() }
+    LaunchedEffect(done) {
+        if (done) Telemetry.event("game_end", mapOf("game" to "descent", "run" to profile.key, "flips" to game.flips, "landings" to game.landings,
+            "crashes" to game.crashes, "seconds" to (System.currentTimeMillis() - startedAt) / 1000))
+    }
     LaunchedEffect(round) {
         var last = 0L
         while (true) {

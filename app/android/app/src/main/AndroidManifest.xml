@@ -12,6 +12,8 @@
         android:localeConfig="@xml/locales_config"
         android:allowBackup="true"
         android:theme="@android:style/Theme.Material.Light.NoActionBar">
+        <!-- Sentry starts only from telemetry/Telemetry.kt, when there is a key and the user has not turned it off -->
+        <meta-data android:name="io.sentry.auto-init" android:value="false" />
         <activity
             android:name=".MainActivity"
             android:exported="true"

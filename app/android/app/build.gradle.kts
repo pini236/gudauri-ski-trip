@@ -17,6 +17,11 @@ android {
         targetSdk = 36
         versionCode = (System.getenv("APP_VERSION_CODE") ?: "1").toInt()
         versionName = System.getenv("APP_VERSION_NAME") ?: "0.1-spike"
+        // usage and crash reporting (telemetry/Telemetry.kt): the keys come only from GitHub's secret store when a
+        // build is made there; a build without them sends nothing
+        buildConfigField("String", "POSTHOG_KEY", "\"${System.getenv("POSTHOG_KEY") ?: ""}\"")
+        buildConfigField("String", "POSTHOG_HOST", "\"${System.getenv("POSTHOG_HOST") ?: "https://eu.i.posthog.com"}\"")
+        buildConfigField("String", "SENTRY_DSN", "\"${System.getenv("SENTRY_DSN") ?: ""}\"")
     }
 
     // The keys live only in GitHub's secret store (docs/APP-NATIVE.md); local builds fall back to the debug key.
@@ -66,7 +71,7 @@ android {
         }
     }
 
-    buildFeatures { compose = true; resValues = true }
+    buildFeatures { compose = true; resValues = true; buildConfig = true }
     testOptions { unitTests.all { it.systemProperty("site.data", File(repoRoot, "site/data").absolutePath) } }
     sourceSets["main"].assets.directories.add(layout.buildDirectory.dir("generated/siteAssets").get().asFile.path)
 }
@@ -91,6 +96,8 @@ dependencies {
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.foundation:foundation")
     implementation("androidx.compose.material3:material3")
+    implementation("com.posthog:posthog-android:3.71.4")
+    implementation("io.sentry:sentry-android-core:8.59.0")
     testImplementation("junit:junit:4.13.2")
     testImplementation("org.json:json:20260814")
 }

@@ -1,6 +1,7 @@
 package io.github.pini236.skiapp
 
 import android.content.Intent
+import io.github.pini236.skiapp.telemetry.Telemetry
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
@@ -98,12 +99,16 @@ class MainActivity : ComponentActivity() {
         // the spike opens on the map; the skeleton will open on the home page (nav/Nav.kt)
         nav = Nav(Route.Map(), savedInstanceState?.getStringArrayList("nav"))
         Qa.init(this)
+        Telemetry.start(this, BuildConfig.FLAVOR)
         enableEdgeToEdge()
         preferTopRefreshRate()
         haptics = Haptics(this)
         sounds = Sounds(this)
         mapView = MapView(this, refreshHz, glStats)
-        mapView.onChosen = { p -> if (nav.top is Route.Map) nav.replaceTop(Route.Map(p?.key)) }
+        mapView.onChosen = { p ->
+            if (nav.top is Route.Map) nav.replaceTop(Route.Map(p?.key))
+            if (p != null) Telemetry.event("run_open", mapOf("run" to p.key))
+        }
         @Suppress("DEPRECATION")
         val version = if (Build.VERSION.SDK_INT >= 28) packageManager.getPackageInfo(packageName, 0).longVersionCode else packageManager.getPackageInfo(packageName, 0).versionCode.toLong()
         siteData = SiteData(java.io.File(filesDir, "site-data"), version, { name -> assets.open("data/$name").bufferedReader().use { it.readText() } })
@@ -242,6 +247,9 @@ class MainActivity : ComponentActivity() {
     @Composable
     private fun App() {
         BackHandler(enabled = nav.canBack) { nav.back() }
+        // page_view with the site's page names (map, games/descent, ticket); a chosen run is run_open, not a page
+        val page = nav.top.let { if (it is Route.Map) "map" else it.path }
+        LaunchedEffect(page) { Telemetry.event("page_view", mapOf("page" to page)) }
         // the direction of the language on screen (i18n/Lang.kt): Hebrew today, so right to left
         CompositionLocalProvider(LocalLayoutDirection provides Lang.current(resources).direction) {
             Column(Modifier.fillMaxSize().background(Palette.snow)) {
