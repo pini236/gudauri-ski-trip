@@ -59,3 +59,20 @@ The parity plan is still open. Meetings/profile flows require the user's real
 phone checks; games, live lift status and profile-to-map selection remain open.
 The original browser regression is historical for `d0a2e88`, not a claim that
 the latest upstream website has been retested.
+
+## Confirmed publication
+
+GitHub prerelease `chatgpt-test-2026.10.01-1` was published at
+2026-10-01 18:55:35 UTC; release ID 401260230, `draft=false`, `prerelease=true`.
+[Release and download](https://github.com/pini236/gudauri-ski-trip/releases/tag/chatgpt-test-2026.10.01-1).
+
+The tag targets source commit `d1ad6d7ddd4566bab75978cf991f76f0cad10130`.
+Artifact commit: `6e6a07da9e91800850907ac104070f19954bcd27`, dedicated branch
+`chatgpt/android-test-apk-20261001-1`. GitHub's contents API confirmed the exact
+file, 13,807,983 bytes and blob `8e3e464b03d1b99fc35cb7ea35bc873003f72d83`.
+Downloading that blob through GitHub's supported raw media API reproduced the
+local APK byte count and SHA-256 exactly. The release notes link to the immutable
+artifact path, not the website or a local-workspace path.
+
+Only the source/artifact branches and prerelease were published. `main` was not
+changed or merged, and no installation or phone acceptance is inferred.

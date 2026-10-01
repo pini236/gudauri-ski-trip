@@ -5,6 +5,9 @@
 
 ## התקנה
 
+[קישור להורדת קובץ הבדיקה](https://github.com/pini236/gudauri-ski-trip/raw/6e6a07da9e91800850907ac104070f19954bcd27/chatgpt/android-native/distributions/gudauri-chatgpt-test-2026.10.01-1.apk).
+[עמוד הגרסה והמפרט](https://github.com/pini236/gudauri-ski-trip/releases/tag/chatgpt-test-2026.10.01-1).
+
 1. הורד את קובץ ההתקנה שמקושר בראש עמוד גרסת הבדיקה ב־GitHub. בחר בקובץ
    שמסתיים ב־`.apk`, ולא בארכיון קוד המקור.
 2. פתח אותו בטלפון ואשר התקנה ממקור זה, אם אנדרואיד מבקש זאת.
