@@ -1,0 +1,116 @@
+<title>מגרדים את האוטו</title>
+<meta name="description" content="בוקר בגודאורי: מנקים שלג וקרח מהשמשה עד שמתגלה הנוף">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Karantina:wght@700&family=IBM+Plex+Sans+Hebrew:wght@400;600;700&display=swap">
+<style>
+/* One look: inside a car on a frozen morning. The same in both themes. */
+:root{ --ink:#13233A; --accent:#F4B942; --f-display:"Karantina","Arial Narrow",sans-serif; --f-body:"IBM Plex Sans Hebrew",system-ui,-apple-system,"Segoe UI",sans-serif; color-scheme:dark; }
+html,body{height:100%}
+[hidden]{display:none!important}
+body{margin:0;background:#1A1F27;color:#fff;font-family:var(--f-body);direction:rtl;overflow:hidden;-webkit-user-select:none;user-select:none;touch-action:none}
+#game{position:fixed;inset:0;width:100%;height:100%;display:block;cursor:crosshair}
+.hud{position:fixed;left:0;right:0;top:calc(env(safe-area-inset-top,0px) + 12px);display:flex;justify-content:center;gap:10px;pointer-events:none}
+.pill{background:rgba(19,35,58,.82);padding:5px 12px;font-size:13px;font-weight:700;display:flex;align-items:baseline;gap:6px;font-variant-numeric:tabular-nums}
+.pill b{font-family:var(--f-display);font-size:28px;line-height:1}
+.tools{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 14px);transform:translateX(-50%);display:flex;gap:10px}
+.tools button{font:inherit;min-width:110px;min-height:56px;border:2px solid rgba(255,255,255,.6);background:rgba(19,35,58,.75);color:#fff;font-weight:700;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px}
+.tools button[aria-pressed="true"]{background:var(--accent);color:var(--ink);border-color:var(--accent)}
+.done{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:12px;padding:0 16px calc(env(safe-area-inset-bottom,0px) + 24px);pointer-events:none}
+.done .card{background:#fff;color:var(--ink);padding:14px 18px;text-align:center;transform:rotate(-2deg);pointer-events:auto;display:flex;flex-direction:column;gap:6px;max-width:340px}
+.done b{font-family:var(--f-display);font-size:42px;line-height:1}
+.done small{color:#4B5A6F;font-size:13px}
+.done button{font:inherit;min-height:52px;border:0;background:var(--accent);color:var(--ink);font-family:var(--f-display);font-size:28px;cursor:pointer}
+.snd{position:fixed;right:12px;top:calc(env(safe-area-inset-top,0px) + 10px);font:inherit;min-width:44px;min-height:44px;border:0;background:rgba(19,35,58,.7);color:#fff;cursor:pointer}
+button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+</style>
+<canvas id="game" aria-label="השמשה הקפואה. גוררים כדי לנקות"></canvas>
+<div class="hud"><span class="pill"><b id="pct">0%</b>נקי</span><span class="pill"><b id="time">0:00</b>זמן</span></div>
+<div class="tools" role="group" aria-label="כלי"><button type="button" id="toolBrush" aria-pressed="true">🧹 מברשת</button><button type="button" id="toolScraper" aria-pressed="false">🪟 מגרד</button></div>
+<button class="snd" id="snd" type="button" aria-pressed="false" aria-label="צליל">🔇</button>
+<div class="done" id="done" hidden><div class="card"><b id="doneBig">הכל נקי</b><small id="doneTxt"></small><button type="button" id="again">עוד בוקר</button></div></div>
+<script>
+// the view behind the glass: the real view from the village (rendered from the site's elevation model), at three times of morning
+const VIEWS = [{src:"__MORNING__", n:'בוקר', sky:['#5E9BD6','#CFE3F4']},{src:"__NOON__", n:'צהריים', sky:['#3F86D0','#BBD8F0']},{src:"__DAWN__", n:'זריחה', sky:['#3B4A7A','#F2B98A']}];
+const store={get(k,d){try{const v=localStorage.getItem('scr-'+k);return v==null?d:JSON.parse(v);}catch(e){return d;}},set(k,v){try{localStorage.setItem('scr-'+k,JSON.stringify(v));}catch(e){}}};
+const $=id=>document.getElementById(id); const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const cv=$('game'), cx=cv.getContext('2d'); let W=0,H=0,DPR=1;
+const views=VIEWS.map(v=>{ const i=new Image(); i.src=v.src; return i; });
+let snow, ice, sctx, ictx, MW, MH, glass, round=store.get('round',0), tool='brush', t=0, started=false, finished=false, chunks=[], shav=[], drops=[], pct=0, lastPt=null;
+function resize(){ DPR=Math.min(2,devicePixelRatio||1); W=innerWidth; H=innerHeight; cv.width=W*DPR; cv.height=H*DPR; cx.setTransform(DPR,0,0,DPR,0,0); glass={x:W*.04,y:H*.1,w:W*.92,h:H*.6}; }
+addEventListener('resize',()=>{ resize(); }); resize();
+function hash(a,b){ const v=Math.sin(a*127.1+b*311.7)*43758.5; return v-Math.floor(v); }
+function setup(){ MW=Math.round(glass.w/3); MH=Math.round(glass.h/3);
+  ice=document.createElement('canvas'); ice.width=MW; ice.height=MH; ictx=ice.getContext('2d',{willReadFrequently:true});
+  // frost: pale blue with feathered crystals
+  ictx.fillStyle='rgba(214,232,246,.93)'; ictx.fillRect(0,0,MW,MH); ictx.strokeStyle='rgba(255,255,255,.75)'; ictx.lineWidth=.6;
+  for(let k=0;k<70;k++){ const x=hash(k,1)*MW, y=hash(k,2)*MH; for(let b=0;b<6;b++){ const a=b/6*Math.PI*2+hash(k,3), L=4+hash(k,b)*12; ictx.beginPath(); ictx.moveTo(x,y); ictx.lineTo(x+Math.cos(a)*L,y+Math.sin(a)*L); for(let q=1;q<4;q++){ const mx=x+Math.cos(a)*L*q/4, my=y+Math.sin(a)*L*q/4; ictx.moveTo(mx,my); ictx.lineTo(mx+Math.cos(a+.6)*L*.25,my+Math.sin(a+.6)*L*.25); ictx.moveTo(mx,my); ictx.lineTo(mx+Math.cos(a-.6)*L*.25,my+Math.sin(a-.6)*L*.25); } ictx.stroke(); } }
+  snow=document.createElement('canvas'); snow.width=MW; snow.height=MH; sctx=snow.getContext('2d',{willReadFrequently:true});
+  // snow: a thick, lumpy layer, deeper at the bottom of the glass
+  const g=sctx.createLinearGradient(0,0,0,MH); g.addColorStop(0,'#F4F8FC'); g.addColorStop(1,'#FFFFFF'); sctx.fillStyle=g; sctx.fillRect(0,0,MW,MH);
+  for(let k=0;k<160;k++){ const x=hash(k,7)*MW, y=hash(k,8)*MH, r=3+hash(k,9)*9; sctx.fillStyle=`rgba(190,208,228,${.08+hash(k,4)*.12})`; sctx.beginPath(); sctx.ellipse(x,y,r*1.6,r,0,0,7); sctx.fill(); }
+  t=0; started=false; finished=false; chunks=[]; shav=[]; drops=[]; pct=0; $('done').hidden=true; measure(); }
+const toMask=(X,Y)=>[(X-glass.x)/glass.w*MW, (Y-glass.y)/glass.h*MH];
+function scrub(X,Y,pX,pY){ const [mx,my]=toMask(X,Y), [px,py]=toMask(pX,pY), len=Math.max(1,Math.hypot(mx-px,my-py)), steps=Math.ceil(len/2);
+  for(let s=0;s<=steps;s++){ const x=px+(mx-px)*s/steps, y=py+(my-py)*s/steps;
+    if(tool==='brush'){ // sweeps snow away in big soft strokes, leaves the ice
+      const d=sctx.getImageData(Math.max(0,Math.min(MW-1,Math.round(x))),Math.max(0,Math.min(MH-1,Math.round(y))),1,1).data[3];
+      sctx.globalCompositeOperation='destination-out'; sctx.beginPath(); sctx.arc(x,y,13,0,7); sctx.fill(); sctx.globalCompositeOperation='source-over';
+      if(d>40 && Math.random()<.35) chunks.push({x:glass.x+x/MW*glass.w, y:glass.y+y/MH*glass.h, vx:(X-pX)*3+(Math.random()-.5)*60, vy:-40-Math.random()*80, r:4+Math.random()*7, rot:Math.random()*6, life:1.6}); }
+    else { // the scraper only works where the snow is gone, a bit at a time
+      const d=sctx.getImageData(Math.max(0,Math.min(MW-1,Math.round(x))),Math.max(0,Math.min(MH-1,Math.round(y))),1,1).data[3]; if(d>60) continue;
+      ictx.globalCompositeOperation='destination-out'; ictx.globalAlpha=.22; ictx.beginPath(); ictx.arc(x,y,6,0,7); ictx.fill(); ictx.globalAlpha=1; ictx.globalCompositeOperation='source-over';
+      if(Math.random()<.4) shav.push({x:glass.x+x/MW*glass.w, y:glass.y+y/MH*glass.h, vx:(Math.random()-.5)*40, vy:20+Math.random()*30, life:.7}); } }
+  scrape(); }
+// pointer
+cv.addEventListener('pointerdown',e=>{ e.preventDefault(); if(finished) return; started=true; lastPt=[e.clientX,e.clientY]; try{ cv.setPointerCapture(e.pointerId);}catch(_){} scrub(e.clientX,e.clientY,e.clientX,e.clientY); });
+cv.addEventListener('pointermove',e=>{ if(!lastPt||finished) return; scrub(e.clientX,e.clientY,lastPt[0],lastPt[1]); lastPt=[e.clientX,e.clientY]; });
+['pointerup','pointercancel'].forEach(ev=>cv.addEventListener(ev,()=>{ lastPt=null; }));
+$('toolBrush').onclick=()=>{ tool='brush'; $('toolBrush').setAttribute('aria-pressed',true); $('toolScraper').setAttribute('aria-pressed',false); };
+$('toolScraper').onclick=()=>{ tool='scraper'; $('toolBrush').setAttribute('aria-pressed',false); $('toolScraper').setAttribute('aria-pressed',true); };
+$('again').onclick=()=>{ round++; store.set('round',round); setup(); };
+// sound: the swish of the brush and the rasp of the scraper
+let AC=null, soundOn=false, lastSnd=0; $('snd').onclick=e=>{ e.stopPropagation(); soundOn=!soundOn; $('snd').textContent=soundOn?'🔊':'🔇'; if(soundOn&&!AC){ try{ AC=new (window.AudioContext||window.webkitAudioContext)(); }catch(_){ AC=null; } } };
+function scrape(){ if(!soundOn||!AC||performance.now()-lastSnd<70) return; lastSnd=performance.now(); const d=.09, n=AC.sampleRate*d, b=AC.createBuffer(1,n,AC.sampleRate), a=b.getChannelData(0); for(let i=0;i<n;i++) a[i]=(Math.random()*2-1)*Math.sin(Math.PI*i/n);
+  const s=AC.createBufferSource(); s.buffer=b; const f=AC.createBiquadFilter(); f.type=tool==='brush'?'lowpass':'bandpass'; f.frequency.value=tool==='brush'?900:3200; f.Q.value=tool==='brush'?.7:4; const g=AC.createGain(); g.gain.value=tool==='brush'?.25:.18; s.connect(f); f.connect(g); g.connect(AC.destination); s.start(); }
+// how much glass is clear: both layers thin enough
+function measure(){ const sd=sctx.getImageData(0,0,MW,MH).data, id=ictx.getImageData(0,0,MW,MH).data; let clear=0, n=0, snowLeft=0;
+  for(let i=3;i<sd.length;i+=4*7){ n++; if(sd[i]<50 && id[i]<60) clear++; if(sd[i]>=50) snowLeft++; } pct=Math.round(clear/n*100);
+  if(snowLeft/n<.35 && tool==='brush' && !measure.hinted){ measure.hinted=true; $('toolScraper').animate([{transform:'scale(1)'},{transform:'scale(1.12)'},{transform:'scale(1)'}],{duration:600,iterations:3}); } }
+let last=performance.now(), mT=0;
+function frame(now){ const dt=Math.min(.05,(now-last)/1000); last=now; if(started&&!finished) t+=dt;
+  mT-=dt; if(mT<=0&&!finished){ mT=.25; measure(); $('pct').textContent=pct+'%'; if(pct>=97){ finished=true; done(); } }
+  $('time').textContent=Math.floor(t/60)+':'+String(Math.floor(t%60)).padStart(2,'0');
+  for(const c of chunks){ c.vy+=900*dt; c.x+=c.vx*dt; c.y+=c.vy*dt; c.rot+=dt*4; c.life-=dt; } chunks=chunks.filter(c=>c.life>0&&c.y<H+40);
+  for(const s of shav){ s.vy+=200*dt; s.x+=s.vx*dt; s.y+=s.vy*dt; s.life-=dt; } shav=shav.filter(s=>s.life>0);
+  if(finished && Math.random()<dt*6) drops.push({x:glass.x+Math.random()*glass.w, y:glass.y, v:30+Math.random()*60, life:3});
+  for(const d of drops){ d.y+=d.v*dt; d.life-=dt; } drops=drops.filter(d=>d.life>0&&d.y<glass.y+glass.h);
+  draw(); requestAnimationFrame(frame); }
+function done(){ const best=store.get('best',0); const tt=Math.round(t); if(!best||tt<best) store.set('best',tt);
+  $('doneBig').textContent='יאללה, לרכבל!'; $('doneTxt').textContent=VIEWS[round%VIEWS.length].n+' בגודאורי · נוקה ב-'+Math.floor(tt/60)+':'+String(tt%60).padStart(2,'0')+(!best||tt<best?' · שיא חדש':' · השיא: '+Math.floor(best/60)+':'+String(best%60).padStart(2,'0'));
+  setTimeout(()=>{ $('done').hidden=false; },500); }
+function draw(){ const v=views[round%views.length];
+  cx.fillStyle='#0E1218'; cx.fillRect(0,0,W,H);
+  // the view through the glass
+  cx.save(); cx.beginPath(); roundRectPath(glass.x,glass.y,glass.w,glass.h,26); cx.clip();
+  { const V=VIEWS[round%VIEWS.length], sg=cx.createLinearGradient(0,glass.y,0,glass.y+glass.h); sg.addColorStop(0,V.sky[0]); sg.addColorStop(.75,V.sky[1]); cx.fillStyle=sg; cx.fillRect(glass.x,glass.y,glass.w,glass.h); } // the view's sky is transparent
+  if(v.complete&&v.naturalWidth){ const r=Math.max(glass.w/v.naturalWidth, glass.h/v.naturalHeight)*1.05; const iw=v.naturalWidth*r, ih=v.naturalHeight*r; cx.drawImage(v,glass.x+(glass.w-iw)/2,glass.y+(glass.h-ih)*.7,iw,ih); }
+  else { cx.fillStyle='#9CC3E6'; cx.fillRect(glass.x,glass.y,glass.w,glass.h); }
+  if(ice) cx.drawImage(ice,glass.x,glass.y,glass.w,glass.h); if(snow) cx.drawImage(snow,glass.x,glass.y,glass.w,glass.h);
+  for(const d of drops){ cx.fillStyle='rgba(255,255,255,.35)'; cx.fillRect(d.x,d.y,1.5,8); }
+  // a soft reflection on the glass
+  const g=cx.createLinearGradient(glass.x,glass.y,glass.x+glass.w,glass.y+glass.h); g.addColorStop(0,'rgba(255,255,255,.12)'); g.addColorStop(.5,'rgba(255,255,255,0)'); cx.fillStyle=g; cx.fillRect(glass.x,glass.y,glass.w,glass.h);
+  cx.restore();
+  // the car: frame, mirror with a little ski pass hanging, dashboard
+  cx.strokeStyle='#2A303A'; cx.lineWidth=18; cx.beginPath(); roundRectPath(glass.x,glass.y,glass.w,glass.h,26); cx.stroke();
+  cx.fillStyle='#2A303A'; cx.fillRect(W/2-34,glass.y-4,68,22); cx.fillStyle='#4B5563'; cx.fillRect(W/2-30,glass.y+2,60,14);
+  cx.strokeStyle='#F4B942'; cx.lineWidth=1.5; cx.beginPath(); cx.moveTo(W/2,glass.y+18); cx.lineTo(W/2,glass.y+46); cx.stroke(); cx.fillStyle='#fff'; cx.fillRect(W/2-12,glass.y+46,24,16); cx.fillStyle='#1F5FC4'; cx.fillRect(W/2-12,glass.y+46,24,5); cx.fillStyle='#13233A'; cx.font='700 7px sans-serif'; cx.textAlign='center'; cx.fillText('SKI PASS',W/2,glass.y+59);
+  const dy=glass.y+glass.h+8; cx.fillStyle='#222831'; cx.beginPath(); cx.moveTo(0,dy+30); cx.quadraticCurveTo(W/2,dy-10,W,dy+30); cx.lineTo(W,H); cx.lineTo(0,H); cx.closePath(); cx.fill();
+  cx.fillStyle='#E9F0F7'; cx.font='700 13px "IBM Plex Sans Hebrew",sans-serif'; cx.fillText(finished?'מוכנים לרכבל':'גודאורי  ·  2,196 מ׳',W/2,dy+44);
+  // wipers, resting
+  cx.strokeStyle='#11151B'; cx.lineWidth=5; cx.lineCap='round'; cx.beginPath(); cx.moveTo(glass.x+glass.w*.22,glass.y+glass.h-4); cx.lineTo(glass.x+glass.w*.5,glass.y+glass.h-18); cx.moveTo(glass.x+glass.w*.62,glass.y+glass.h-4); cx.lineTo(glass.x+glass.w*.9,glass.y+glass.h-18); cx.stroke();
+  for(const c of chunks){ cx.save(); cx.translate(c.x,c.y); cx.rotate(c.rot); cx.fillStyle='#fff'; cx.beginPath(); cx.ellipse(0,0,c.r*1.3,c.r,0,0,7); cx.fill(); cx.fillStyle='rgba(190,208,228,.6)'; cx.beginPath(); cx.ellipse(c.r*.2,c.r*.3,c.r*.8,c.r*.4,0,0,7); cx.fill(); cx.restore(); }
+  for(const s of shav){ cx.fillStyle=`rgba(225,240,252,${s.life})`; cx.fillRect(s.x,s.y,3,2); }
+  if(!started){ cx.fillStyle='rgba(19,35,58,.82)'; const tw=Math.min(W-40,300); cx.fillRect(W/2-tw/2,glass.y+glass.h/2-30,tw,60); cx.fillStyle='#fff'; cx.font='700 15px "IBM Plex Sans Hebrew",sans-serif'; cx.textAlign='center'; cx.fillText('בוקר בגודאורי. האוטו קבור.',W/2,glass.y+glass.h/2-6); cx.font='13px "IBM Plex Sans Hebrew",sans-serif'; cx.fillText('גוררים: קודם מברשת לשלג, אחר כך מגרד לקרח',W/2,glass.y+glass.h/2+16); } }
+function roundRectPath(x,y,w,h,r){ cx.moveTo(x+r,y); cx.lineTo(x+w-r,y); cx.quadraticCurveTo(x+w,y,x+w,y+r); cx.lineTo(x+w,y+h-r); cx.quadraticCurveTo(x+w,y+h,x+w-r,y+h); cx.lineTo(x+r,y+h); cx.quadraticCurveTo(x,y+h,x,y+h-r); cx.lineTo(x,y+r); cx.quadraticCurveTo(x,y,x+r,y); cx.closePath(); }
+setup(); requestAnimationFrame(frame);
+</script>
