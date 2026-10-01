@@ -3,7 +3,7 @@
 name: tests
 
 on:
-  # only when the site or its tests change (decision 33: each project builds and tests on its own)
+  # only when the site or its tests change (decision 34: each project builds and tests on its own)
   push:
     paths: ['site/**', 'tests/**', 'package.json', 'package-lock.json', 'playwright.config.ts', '.github/workflows/tests.yml']
   pull_request:
