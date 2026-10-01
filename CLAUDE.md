@@ -37,6 +37,7 @@
   - `site/data/runs-and-lifts.json`: מסלולים ורכבלים.
   - `site/img/pano/`: הנוף מהכפר לדף הבית, שבע שעות ביום, לטלפון ולמחשב. נוצר ב-`design/round3/panorama.py`.
   - **הרצה מקומית דורשת שרת** (הפקודה `npm start`), כי הנתונים נטענים ב-`fetch` ולא עובדים מקובץ שנפתח ישירות.
+- **קובץ הוראות לכל פרויקט (החלטה 33):** לסשן שעובד על האנדרואיד יש הוראות נוספות ב-`app/android/CLAUDE.md`. הוראות שנוגעות רק לפרויקט אחד נכתבות בתיקייה שלו, לא כאן.
 - **אפליקציות (מאז 1.10.2026, החלטה 25):** `app/android/` (`Kotlin` עם `Jetpack Compose`) ו-`app/ios/` (`Swift` עם `SwiftUI`), נייטיב מלא, בלי קוד משותף ובלי שינוי ב-`site/` בשבילן. **`chatgpt/` שייכת ל-ChatGPT:** לא נוגעים בה ולא מייבאים ממנה.
 - הארטיפקט החי: https://claude.ai/artifact/1uDUdt45A2c77zooPZBGYK (אין לך גישה אליו; הוא מראה בלבד).
 - קנבס העיצוב: https://claude.ai/artifact/TVdeDbFBhvFDZdhCKjcys4 (עותק ב-`design/canvas/`, תצוגות ב-`design/previews/`). כולל עמוד "פיצ'רים חדשים" (`F1` עד `F7`).
