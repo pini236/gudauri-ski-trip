@@ -88,10 +88,13 @@ map() {
     fi
   done
   # the system closes the app in the background: it must come back to the same run (nav/Nav.kt)
-  adb shell input keyevent KEYCODE_HOME; sleep 1.5; adb shell am kill "$PKG"; sleep 1
+  # (am kill does not close it on Android 15; the debug app's own user can kill its process, as the system does)
+  adb shell input keyevent KEYCODE_HOME; sleep 2
+  local pid; pid=$(adb shell pidof "$PKG" | tr -d '\r')
+  [ -n "$pid" ] && adb shell run-as "$PKG" kill -9 "$pid"; sleep 1
   if adb shell pidof "$PKG" > /dev/null; then fail "the app was not closed in the background"; fi
   mark; adb shell "am start -W -n $ACT" > /dev/null
-  waitlog "scene ready" 120 && waitlog "selected Snow Park" 60 && note "restored after the system closed it: Snow Park"
+  waitlog "scene ready" 120 && waitlog "restored run Snow Park" 60 && note "restored after the system closed it: Snow Park"
   sleep 1.5; shot map-restored
   qa "--es qa.run none"; waitlog "selected none" 10; sleep 1.5; shot map-cleared
 
