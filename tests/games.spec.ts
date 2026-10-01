@@ -1,0 +1,57 @@
+import { test, expect, Page } from '@playwright/test';
+
+// אזור המשחקים (החלטה 17): עמוד המשחקים באתר, וחמשת המשחקים שאושרו, כל אחד בעמוד משלו.
+const GAMES = [
+  { slug: 'descent', title: 'הירידה של החבר׳ה' },
+  { slug: 'school', title: 'בית הספר לסקי' },
+  { slug: 'fresh-snow', title: 'שלג טרי' },
+  { slug: 'blower', title: 'מפלסת השלג' },
+  { slug: 'merge', title: 'איחוד כדורי שלג' },
+];
+
+function watchErrors(page: Page) {
+  const errors: string[] = [];
+  page.on('pageerror', e => errors.push('pageerror: ' + e.message));
+  page.on('console', m => {
+    if (m.type() === 'error' && !/Failed to load resource/.test(m.text())) errors.push(m.text());
+  });
+  return errors;
+}
+
+test('עמוד המשחקים: שלט בבית, חמישה כרטיסים, וחזרה מהמשחק', async ({ page }, info) => {
+  const errors = watchErrors(page);
+  await page.goto('/');
+  await expect(page.locator('#loading')).toBeHidden({ timeout: 20_000 });
+  await expect(page.locator('.board-games')).toBeVisible();
+  await page.click('.board-games');
+  await expect(page.locator('#gamesPage')).toBeVisible();
+  await expect(page.locator('#home')).toBeHidden();
+  const cards = page.locator('#gamesPage .game-card');
+  await expect(cards).toHaveCount(GAMES.length);
+  for (const g of GAMES) await expect(page.locator(`#gamesPage a[href="games/${g.slug}/"]`)).toContainText(g.title);
+  await page.screenshot({ path: `test-results/${info.project.name}-games.png`, fullPage: true });
+
+  // נכנסים למשחק אחד, וחוזרים לעמוד המשחקים בקישור שבתוכו
+  await page.click('#gamesPage a[href="games/school/"]');
+  await expect(page).toHaveTitle('בית הספר לסקי');
+  await page.click('.back-site');
+  await expect(page.locator('#gamesPage')).toBeVisible({ timeout: 20_000 });
+  expect(errors).toEqual([]);
+});
+
+for (const g of GAMES) {
+  test(`המשחק נטען בלי שגיאות: ${g.title}`, async ({ page }, info) => {
+    const errors = watchErrors(page);
+    await page.goto(`/games/${g.slug}/`);
+    await expect(page).toHaveTitle(g.title);
+    const back = page.locator('.back-site');
+    await expect(back).toBeVisible();
+    await expect(back).toHaveAttribute('href', '../../#games');
+    // בלי גלילה הצידה
+    const wide = await page.evaluate(() => document.documentElement.scrollWidth - innerWidth);
+    expect(wide).toBeLessThanOrEqual(1);
+    await page.waitForTimeout(400);
+    await page.screenshot({ path: `test-results/${info.project.name}-game-${g.slug}.png` });
+    expect(errors).toEqual([]);
+  });
+}

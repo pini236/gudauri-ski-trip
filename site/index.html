@@ -33,6 +33,7 @@
     <a href="#home" data-nav="home">בית</a>
     <a href="#map" data-nav="map">מפת מסלולים</a>
     <a href="#meet" data-nav="meet">נקודת מפגש</a>
+    <a href="#games" data-nav="games">משחקים</a>
   </nav>
   <span class="tb-count" id="tbCount"><b class="num" id="tbDays"></b> <span data-days-word>ימים</span> לטיסה</span>
   <div class="dn"><span class="dn-clock">השעה בגודאורי<b class="num" data-dn-clock>--:--</b></span><button type="button" class="dn-btn" data-dn aria-label="מצב תצוגה"><svg class="i-auto" width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 3a9 9 0 0 1 0 18z" fill="currentColor"/></svg><svg class="i-day" width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="5" fill="#F4B942"/><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8" stroke="#F4B942" stroke-width="2" stroke-linecap="round"/></svg><svg class="i-night" width="24" height="24" viewBox="0 0 34 34" aria-hidden="true"><path d="M17 3A14 14 0 0 1 17 31A7.5 14 0 0 0 17 3Z" fill="currentColor"/></svg><span class="dn-lbl" data-dn-lbl>אוטומטי</span></button></div>
@@ -64,6 +65,7 @@
     <nav class="post" aria-label="חלקי האתר">
       <a class="board" href="#map"><b>מפת מסלולים</b><span>27 מסלולים, פרטים וסרטונים</span></a>
       <a class="board board-meet" href="#meet"><b>נקודת מפגש</b><span>בוחרים תחנה ושעה ושולחים לקבוצה</span></a>
+      <a class="board board-games" href="#games"><b>משחקים</b><span>הירידה, בית הספר לסקי, שלג טרי ועוד</span></a>
       <a class="board board-app" id="appBoard" href="downloads/gudauri-2027.apk" download hidden><b>אפליקציה לאנדרואיד</b><span id="appMeta">להורדה</span></a>
       <details class="app-how" id="appHow" hidden>
         <summary>איך מתקינים?</summary>
@@ -119,6 +121,20 @@
       </div>
     </div>
     </div>
+  </div>
+</main>
+
+<main class="page page-games" id="gamesPage" hidden>
+  <div class="mhead"><h1>משחקים</h1><a href="#home"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg>בית</a></div>
+  <div class="games">
+    <p class="games-intro">חמישה משחקים קטנים על השלג של גודאורי. כל משחק עומד בפני עצמו, והשיאים נשמרים רק בטלפון שלכם. מומלץ עם צליל.</p>
+    <ul class="games-list">
+      <li><a class="game-card" href="games/descent/" style="--gc:#1F5FC4"><img src="games/thumbs/descent.webp" alt="" width="360" height="240" loading="lazy"><span class="gc-body"><b>הירידה של החבר׳ה</b><span>גולשים על הפרופיל האמיתי של מסלולי גודאורי, אוספים את החבר׳ה ובורחים מהמפולת. מחזיקים כדי להתכופף, משחררים כדי לקפוץ.</span><small>חמישה מסלולים אמיתיים</small></span></a></li>
+      <li><a class="game-card" href="games/school/" style="--gc:#1B8A4C"><img src="games/thumbs/school.webp" alt="" width="360" height="240" loading="lazy"><span class="gc-body"><b>בית הספר לסקי</b><span>שבעה שיעורים, מעצירה בפיצה ועד קרווינג. בכל שיעור עיקרון אחד ותרגיל שבנוי בשבילו, עם מאמן שאומר מה קורה.</span><small>שבעה שיעורים</small></span></a></li>
+      <li><a class="game-card" href="games/fresh-snow/" style="--gc:#5B9BFF"><img src="games/thumbs/fresh-snow.webp" alt="" width="360" height="240" loading="lazy"><span class="gc-body"><b>שלג טרי</b><span>נוגעים בשלג עם אצבע, מגף, מגלשיים או חתול שלג, ושומעים אבקה, קרום ושלג רטוב. ואגם קפוא לרסק.</span><small>בלי ניקוד, רק כיף</small></span></a></li>
+      <li><a class="game-card" href="games/blower/" style="--gc:#D1342B"><img src="games/thumbs/blower.webp" alt="" width="360" height="240" loading="lazy"><span class="gc-body"><b>מפלסת השלג</b><span>בוקר אחרי סופה. מפנים דרך לחבר׳ה לפני שהאוטובוס יוצא, ממלאים משאית, ומוצאים מה שאבד בשלג.</span><small>חמישה שלבים</small></span></a></li>
+      <li><a class="game-card" href="games/merge/" style="--gc:#F4B942"><img src="games/thumbs/merge.webp" alt="" width="360" height="240" loading="lazy"><span class="gc-body"><b>איחוד כדורי שלג</b><span>מחליקים, ושני כדורים זהים מתאחדים לגדול יותר, מפתית ועד מלך קזבק.</span><small>לשחק בכל רגע</small></span></a></li>
+    </ul>
   </div>
 </main>
 
