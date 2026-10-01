@@ -1,0 +1,103 @@
+<title>עקבות ראשונים</title>
+<meta name="description" content="שלג טרי ובתולי: מציירים פניות באבקה, ובסוף רואים מלמעלה את כל הקווים">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Karantina:wght@700&family=IBM+Plex+Sans+Hebrew:wght@400;600;700&display=swap">
+<style>
+/* One look: untouched powder on a blue-bird morning. The same in both themes. */
+:root{ --ink:#13233A; --accent:#F4B942; --f-display:"Karantina","Arial Narrow",sans-serif; --f-body:"IBM Plex Sans Hebrew",system-ui,-apple-system,"Segoe UI",sans-serif; color-scheme:light; }
+html,body{height:100%}
+[hidden]{display:none!important}
+body{margin:0;background:#F6F9FC;color:var(--ink);font-family:var(--f-body);direction:rtl;overflow:hidden;-webkit-user-select:none;user-select:none;touch-action:none}
+#game{position:fixed;inset:0;width:100%;height:100%;display:block}
+.hud{position:fixed;left:0;right:0;top:calc(env(safe-area-inset-top,0px) + 12px);display:flex;justify-content:center;gap:10px;pointer-events:none}
+.pill{background:rgba(19,35,58,.8);color:#fff;padding:5px 12px;font-size:13px;font-weight:700;display:flex;align-items:baseline;gap:6px;font-variant-numeric:tabular-nums}
+.pill b{font-family:var(--f-display);font-size:28px;line-height:1}
+.hint{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 24px);transform:translateX(-50%);background:rgba(19,35,58,.8);color:#fff;font-weight:700;font-size:14px;padding:8px 14px;white-space:nowrap;pointer-events:none;transition:opacity .6s}
+.end{position:fixed;left:16px;right:16px;bottom:calc(env(safe-area-inset-bottom,0px) + 20px);display:flex;flex-direction:column;align-items:center;gap:10px;pointer-events:none}
+.end .card{background:#fff;padding:12px 18px;text-align:center;box-shadow:0 10px 24px rgba(19,35,58,.25);transform:rotate(-2deg);pointer-events:auto;display:flex;flex-direction:column;gap:4px;min-width:260px}
+.end b{font-family:var(--f-display);font-size:48px;line-height:.9}
+.end small{color:#4B5A6F;font-size:13px}
+.end button{font:inherit;min-height:52px;border:0;background:var(--accent);color:var(--ink);font-family:var(--f-display);font-size:28px;cursor:pointer;margin-top:4px}
+.snd{position:fixed;right:12px;bottom:calc(env(safe-area-inset-bottom,0px) + 14px);font:inherit;min-width:44px;min-height:44px;border:0;background:rgba(19,35,58,.7);color:#fff;cursor:pointer}
+button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+</style>
+<canvas id="game" aria-label="מדרון של שלג טרי"></canvas>
+<div class="hud" id="hud"><span class="pill"><b id="flow">—</b>זרימה</span><span class="pill"><b id="turns">0</b>פניות</span><span class="pill"><b id="left">900</b>מ׳ לסוף</span></div>
+<div class="hint" id="hint">מחזיקים את האצבע ומזיזים לצדדים. הגולש מצייר את הפניות</div>
+<div class="end" id="end" hidden><div class="card"><small>הזרימה שלך</small><b id="endFlow">0</b><small id="endTxt"></small><button type="button" id="again">עוד ירידה, באותו מדרון</button></div></div>
+<button class="snd" id="snd" type="button" aria-pressed="false" aria-label="צליל">🔇</button>
+<script>
+const LEN=900, WID=90; // metres of untouched powder
+const COLS=['#1F5FC4','#D1342B','#1B8A4C','#7B4FC4','#F07A2E','#F4B942'];
+const store={get(k,d){try{const v=localStorage.getItem('pw-'+k);return v==null?d:JSON.parse(v);}catch(e){return d;}},set(k,v){try{localStorage.setItem('pw-'+k,JSON.stringify(v));}catch(e){}}};
+const $=id=>document.getElementById(id); const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const cv=$('game'), cx=cv.getContext('2d'); let W=0,H=0;
+function resize(){ const d=Math.min(2,devicePixelRatio||1); W=innerWidth; H=innerHeight; cv.width=W*d; cv.height=H*d; cx.setTransform(d,0,0,d,0,0); } addEventListener('resize',resize); resize();
+function hash(a,b){ const v=Math.sin(a*127.1+b*311.7)*43758.5; return v-Math.floor(v); }
+// the slope: a few trees and rocks, the same every time so your lines can pile up
+const OBST=[]; for(let i=0;i<46;i++){ const x=6+hash(i,1)*(WID-12), y=60+hash(i,2)*(LEN-120); OBST.push({x,y,r:hash(i,3)<.75?1.6+hash(i,4)*1.4:.9+hash(i,5)*.6,tree:hash(i,3)<.75}); }
+let old=store.get('lines',[]).slice(-5); // your last runs
+let S, pts, sprays, state='ride', target=null, t=0, flowV=0, turnsN=0, headings=[], lastTurnX=null, widths=[], fallT=0;
+function start(){ S={x:WID/2,y:4,ang:Math.PI/2,v:9}; pts=[[S.x,S.y]]; sprays=[]; state='ride'; t=0; turnsN=0; headings=[]; widths=[]; lastSide=0; lastTurnX=S.x; fallT=0; $('end').hidden=true; $('hint').style.opacity=1; }
+let lastSide=0;
+cv.addEventListener('pointerdown',e=>{ e.preventDefault(); target=e.clientX; try{ cv.setPointerCapture(e.pointerId);}catch(_){} });
+cv.addEventListener('pointermove',e=>{ if(target!=null) target=e.clientX; }); ['pointerup','pointercancel'].forEach(ev=>cv.addEventListener(ev,()=>{ target=null; }));
+const keys={}; addEventListener('keydown',e=>{ keys[e.code]=true; }); addEventListener('keyup',e=>{ keys[e.code]=false; });
+$('again').onclick=()=>start();
+let AC=null, soundOn=false, swoosh=null, swGain=null; $('snd').onclick=e=>{ e.stopPropagation(); soundOn=!soundOn; $('snd').textContent=soundOn?'🔊':'🔇';
+  if(soundOn&&!AC){ try{ AC=new (window.AudioContext||window.webkitAudioContext)(); const n=AC.sampleRate*2, b=AC.createBuffer(1,n,AC.sampleRate), a=b.getChannelData(0); for(let i=0;i<n;i++) a[i]=Math.random()*2-1; swoosh=AC.createBufferSource(); swoosh.buffer=b; swoosh.loop=true; const f=AC.createBiquadFilter(); f.type='bandpass'; f.frequency.value=1100; f.Q.value=.8; swGain=AC.createGain(); swGain.gain.value=0; swoosh.connect(f); f.connect(swGain); swGain.connect(AC.destination); swoosh.start(); }catch(_){ AC=null; } } if(swGain) swGain.gain.value=0; };
+let sc=10, camY=0;
+let last=performance.now();
+function frame(now){ const dt=Math.min(.05,(now-last)/1000); last=now; if(state==='ride') update(dt); else if(state==='zoom'){ zoomT=Math.min(1,zoomT+dt*.6); } draw(); requestAnimationFrame(frame); }
+let zoomT=0;
+function update(dt){ t+=dt; if(t>4) $('hint').style.opacity=0;
+  // steer toward the finger; with no finger, drift back to the fall line
+  let want=Math.PI/2; if(target!=null){ const tx=(target-W/2)/sc + WID/2; const dx=tx-S.x; want=Math.PI/2 - Math.max(-1.25,Math.min(1.25,dx*.12)); }
+  if(keys.ArrowLeft) want=Math.PI/2+1.1; if(keys.ArrowRight) want=Math.PI/2-1.1;
+  let d=want-S.ang; S.ang+=Math.max(-2.6*dt,Math.min(2.6*dt,d));
+  const down=Math.sin(S.ang); S.v+=(down*3.2 - (S.v-8)*.25)*dt; S.v=Math.max(5,Math.min(16,S.v));
+  if(fallT>0){ fallT-=dt; S.v*=.96; }
+  S.x+=Math.cos(S.ang)*S.v*dt; S.y+=Math.sin(S.ang)*S.v*dt; S.x=Math.max(2,Math.min(WID-2,S.x));
+  const lp=pts[pts.length-1]; if(Math.hypot(lp[0]-S.x,lp[1]-S.y)>.5) pts.push([+S.x.toFixed(2),+S.y.toFixed(2)]);
+  // turns: each change of side across the fall line is one; their widths make the rhythm
+  const side=Math.sign(Math.cos(S.ang)); if(side!==0 && side!==lastSide && Math.abs(Math.cos(S.ang))>.35){ if(lastSide!==0){ turnsN++; widths.push(Math.abs(S.x-lastTurnX)); lastTurnX=S.x; for(let k=0;k<26;k++) sprays.push({x:S.x,y:S.y,vx:-Math.cos(S.ang)*(3+Math.random()*6)+(Math.random()-.5)*3,vy:(Math.random()-.5)*3,life:.9+Math.random()*.6,r:.3+Math.random()*.5}); if(soundOn&&swGain){ swGain.gain.setTargetAtTime(.25,AC.currentTime,.02); swGain.gain.setTargetAtTime(.05,AC.currentTime+.15,.15); } } lastSide=side; }
+  if(Math.random()<dt*14) sprays.push({x:S.x-Math.cos(S.ang)*.4,y:S.y-Math.sin(S.ang)*.4,vx:(Math.random()-.5)*2,vy:-1,life:.6,r:.25});
+  for(const s of sprays){ s.x+=s.vx*dt; s.y+=s.vy*dt; s.vx*=.94; s.vy*=.94; s.life-=dt; } sprays=sprays.filter(s=>s.life>0);
+  for(const o of OBST){ if(fallT<=0 && Math.hypot(o.x-S.x,o.y-S.y)<o.r+.4){ fallT=1; S.ang=Math.PI/2; for(let k=0;k<30;k++) sprays.push({x:S.x,y:S.y,vx:(Math.random()-.5)*8,vy:(Math.random()-.5)*8,life:1,r:.5}); } }
+  flowV=flowScore(); $('flow').textContent=turnsN>=3?flowV:'—'; $('turns').textContent=turnsN; $('left').textContent=Math.max(0,Math.round(LEN-S.y));
+  if(S.y>=LEN){ finish(); } }
+// flow: steady, even turns score high; long traverses, wobbles and crashes score low
+function flowScore(){ if(widths.length<3) return 0; const m=widths.reduce((a,b)=>a+b,0)/widths.length, sd=Math.sqrt(widths.reduce((a,b)=>a+(b-m)**2,0)/widths.length);
+  const even=Math.max(0,1-sd/Math.max(1,m)), rate=Math.min(1,turnsN/(Math.max(1,S.y)/22)), size=m>4&&m<30?1:.7; return Math.round(100*(.55*even+.45*rate)*size); }
+function finish(){ state='zoom'; zoomT=0; if(swGain) swGain.gain.value=0; const f=flowScore(); const best=store.get('best',0); if(f>best) store.set('best',f);
+  const lines=store.get('lines',[]); const thin=pts.filter((p,i)=>i%3===0); lines.push(thin); store.set('lines',lines.slice(-5)); old=lines.slice(-6,-1);
+  $('endFlow').textContent=f; $('endTxt').textContent=turnsN+' פניות'+(f>best?' · שיא חדש':' · השיא: '+best)+' · הקווים שלך נשארים על המדרון';
+  setTimeout(()=>{ $('end').hidden=false; },1600); }
+function line(arr,col,w,alpha=1){ if(arr.length<2) return; cx.globalAlpha=alpha; cx.strokeStyle=col; cx.lineWidth=w; cx.lineJoin='round'; cx.lineCap='round'; cx.beginPath(); arr.forEach((p,i)=>{ const X=W/2+(p[0]-WID/2)*sc, Y=(p[1]-camY)*sc+H*.32; i?cx.lineTo(X,Y):cx.moveTo(X,Y); }); cx.stroke(); cx.globalAlpha=1; }
+function draw(){
+  const ride = state==='ride';
+  const scRide=Math.min(W/38, 22), scAll=Math.min(W/(WID+8), (H*.8)/LEN);
+  const z=state==='zoom'? (1-Math.cos(zoomT*Math.PI))/2 : 0; sc=scRide+(scAll-scRide)*z;
+  const camRide=(S?S.y:0), camAll=LEN/2 - (H*.18)/sc; camY=camRide+(camAll-camRide)*z;
+  if(state==='zoom') camY = LEN/2 - (H*.5-H*.32)/sc;
+  cx.fillStyle='#F6F9FC'; cx.fillRect(0,0,W,H);
+  const X=x=>W/2+(x-WID/2)*sc, Y=y=>(y-camY)*sc+H*.32;
+  // soft wind ripples in the powder
+  cx.strokeStyle='rgba(160,185,210,.18)'; cx.lineWidth=1.2; const y0=Math.floor((camY-H*.32/sc)/6)*6; for(let y=y0;y<camY+H/sc;y+=6){ cx.beginPath(); for(let x=-4;x<=WID+4;x+=4){ const yy=y+Math.sin(x*.21+y*.3)*1.2; x===-4?cx.moveTo(X(x),Y(yy)):cx.lineTo(X(x),Y(yy)); } cx.stroke(); }
+  // the edges: forest on both sides
+  cx.fillStyle='#E3EBF3'; cx.fillRect(0,0,X(0),H); cx.fillRect(X(WID),0,W-X(WID),H);
+  for(let i=0;i<LEN/5;i++){ for(const side of [0,1]){ const x=side? WID+2+hash(i,side)*6 : -2-hash(i,side)*6, y=i*5+hash(i,9)*4; const py=Y(y); if(py<-30||py>H+30) continue; tree(X(x),py,(1.6+hash(i,side+4))*sc); } }
+  // older runs, faded, then the ridges of untouched snow around obstacles
+  old.forEach((L,i)=>line(L,COLS[(i+1)%COLS.length],Math.max(1.5,.35*sc),.35));
+  for(const o of OBST){ const py=Y(o.y); if(py<-40||py>H+40) continue; if(o.tree) tree(X(o.x),py,o.r*sc); else { cx.fillStyle='#5B6675'; cx.beginPath(); cx.ellipse(X(o.x),py,o.r*sc,o.r*sc*.7,0,0,7); cx.fill(); cx.fillStyle='#fff'; cx.beginPath(); cx.ellipse(X(o.x)-o.r*sc*.2,py-o.r*sc*.2,o.r*sc*.7,o.r*sc*.4,0,0,7); cx.fill(); } }
+  // your line: a deep trench with blue shadow and two ski grooves
+  if(pts){ line(pts,'rgba(120,150,190,.35)',Math.max(4,1.1*sc)); line(pts,'rgba(255,255,255,.9)',Math.max(2,.55*sc)); if(sc>8){ const off=pts.map(p=>[p[0]+.12,p[1]]); line(off,'rgba(90,120,160,.5)',1); } }
+  if(sprays) for(const s of sprays){ cx.fillStyle=`rgba(255,255,255,${Math.min(1,s.life)})`; cx.beginPath(); cx.arc(X(s.x),Y(s.y),s.r*sc,0,7); cx.fill(); cx.strokeStyle=`rgba(170,195,220,${s.life*.3})`; cx.stroke(); }
+  // the skier, from above
+  if(S&&state==='ride'){ cx.save(); cx.translate(X(S.x),Y(S.y)); cx.rotate(S.ang-Math.PI/2+(fallT>0?fallT*6:0)); const k=sc;
+    cx.strokeStyle='#13233A'; cx.lineWidth=Math.max(2,.12*k); cx.beginPath(); cx.moveTo(-.18*k,-.9*k); cx.lineTo(-.18*k,.9*k); cx.moveTo(.18*k,-.9*k); cx.lineTo(.18*k,.9*k); cx.stroke();
+    cx.fillStyle='#F07A2E'; cx.beginPath(); cx.ellipse(0,0,.38*k,.3*k,0,0,7); cx.fill(); cx.fillStyle='#fff'; cx.beginPath(); cx.arc(0,.1*k,.17*k,0,7); cx.fill(); cx.restore(); }
+  if(state==='zoom'){ cx.fillStyle='rgba(19,35,58,.75)'; cx.font='700 14px "IBM Plex Sans Hebrew",sans-serif'; cx.textAlign='center'; cx.fillText('הקווים שלך על המדרון',W/2,Math.max(70,Y(0)-14)); } }
+function tree(x,y,r){ cx.fillStyle='rgba(19,35,58,.1)'; cx.beginPath(); cx.arc(x+r*.3,y+r*.3,r,0,7); cx.fill(); cx.fillStyle='#2F5A4A'; cx.beginPath(); for(let q=0;q<14;q++){ const a=q/14*Math.PI*2, rr=q%2?r*.6:r; q?cx.lineTo(x+Math.cos(a)*rr,y+Math.sin(a)*rr):cx.moveTo(x+rr,y); } cx.closePath(); cx.fill(); cx.fillStyle='rgba(255,255,255,.8)'; cx.beginPath(); cx.arc(x-r*.15,y-r*.15,r*.35,0,7); cx.fill(); }
+start(); requestAnimationFrame(frame);
+</script>
