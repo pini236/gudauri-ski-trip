@@ -1,0 +1,26 @@
+{
+  "file": "gudauri-chatgpt-test-2026.10.01-1.apk",
+  "sha256": "657e4997415bba98b9054abfd4d5a821d8ac6e54e16979e82dc76fdf25d30980",
+  "sourceCommit": "d1ad6d7ddd4566bab75978cf991f76f0cad10130",
+  "sourceBranch": "chatgpt/android-test-20261001",
+  "websiteDataCommit": "431f0318be59176412f8030795a25f20191d991f",
+  "package": "com.pini.gudauri.chatgpt.test",
+  "versionName": "0.1.0-chatgpt-test.20261001.1",
+  "versionCode": 1,
+  "launcherLabel": "גודאורי · בדיקת ChatGPT",
+  "minSdk": 26,
+  "targetSdk": 36,
+  "abis": ["arm64-v8a", "armeabi-v7a", "x86", "x86_64"],
+  "buildType": "debug",
+  "signerCertificateSha256": "bff33d4cf96c990c1cf1f0203d1ca1008e9164bd6c70e1f323e44c8a1a7a92b7",
+  "validation": {
+    "unitTests": {"passed": 37, "failed": 0, "errors": 0, "skipped": 0},
+    "debugBuild": "passed",
+    "debugLint": "passed",
+    "instrumentationCompilation": "passed",
+    "apkV2Signature": "passed",
+    "alignment16KiB": "passed",
+    "bundledAssetsAndLicenses": 29,
+    "healthyDeviceAcceptance": "pending"
+  }
+}
