@@ -12,7 +12,7 @@
 | [`site/`](site/) | האתר עצמו: `index.html`, `css/`, `js/`, `data/` (הנתונים כקבצי JSON) ו-`img/pano/` (הנוף מהכפר, שבע שעות ביום בשני רוחבים). `audio/` הם צלילי כרטיס הטיסה. `games/` הם המשחקים, שנבנים מ-`design/` (ראו למטה) |
 | [`android-native/`](android-native/) | אפליקציית אנדרואיד מקורית ונפרדת: ממשק בעברית, מפת הר מואצת, בדיקות וחומרי הגשה לחנות. משתמשת בנתוני האתר לקריאה בלבד |
 | [`tools/`](tools/) | כלים: `build-videos.py` בונה את קובץ הסרטונים ואת `research/videos.md` מ-`videos-curated.json`. `build-games.py` מעתיק את המשחקים שאושרו לאתר |
-| [`tests/`](tests/) | בדיקות Playwright |
+| [`tests/`](tests/) | בדיקות Playwright. רצות אוטומטית בגיטהאב בכל דחיפה, בארבעת המצבים (`.github/workflows/tests.yml`) |
 | [`research/`](research/) | כל המידע שנאסף: מסלולים, רכבלים, המסלולים החסרים, מקורות, ציוד ופרומפטים |
 | [`docs/`](docs/) | סטטוס עבודה ([`STATUS.md`](docs/STATUS.md)), הוראות לכל שלב ([`HANDOFF.md`](docs/HANDOFF.md)) מפרט הפיצ'רים ([`FEATURES.md`](docs/FEATURES.md)) ורעיונות לעתיד ([`ROADMAP.md`](docs/ROADMAP.md)). תכנון לסשנים נפרדים: האפליקציה המקורית החדשה ([`APP-NATIVE.md`](docs/APP-NATIVE.md)) משתמשים, חיבור וקבוצות ([`USERS.md`](docs/USERS.md)) והצמיחה ([`GROWTH.md`](docs/GROWTH.md)) |
 | [`design/`](design/) | העיצובים: הסקיצות הראשונות, השפה המאוחדת, קבצי הקנבס, תצוגות מקדימות וצילומי מסך |
