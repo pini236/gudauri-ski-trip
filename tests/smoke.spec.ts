@@ -143,6 +143,26 @@ test('בתלת-ממד יש תוויות לרכבלים', async ({ page }) => {
   expect(names.join(' ')).toContain('Goodaura');
 });
 
+test('טיסה במורד המסלול: המפה נגללת לתצוגה, פס מיקום עם עצירה', async ({ page }) => {
+  const errors = watchErrors(page);
+  await page.goto('/#map/run/Tatra%202');
+  await loaded(page);
+  if (!(await page.locator('#viewsw').isVisible())) test.skip();
+  const fly = page.locator('#panel [data-fly]');
+  await fly.scrollIntoViewIfNeeded();
+  await fly.click();
+  const hud = page.locator('#flyHud');
+  await expect(hud).toBeVisible();
+  await expect(hud.locator('.fh-name')).toHaveText('Tatra 2');
+  // המפה בתוך המסך, גם בטלפון שבו הכפתור מתחת למפה
+  await expect.poll(async () => page.locator('.mapwrap').evaluate(e => { const r = e.getBoundingClientRect(); return r.top > -10 && r.top < innerHeight / 2; })).toBe(true);
+  await expect(page.locator('#pfD')).not.toHaveText('0 מ׳', { timeout: 15000 });
+  await hud.locator('.fh-stop').click();
+  await expect(hud).toBeHidden();
+  await expect(fly).toHaveText('טיסה במורד המסלול');
+  expect(errors).toEqual([]);
+});
+
 test('קישור להורדת האפליקציה מופיע רק כשהקובץ קיים', async ({ page }) => {
   await page.route('**/downloads/gudauri-2027.apk', r => r.fulfill({ status: 404, body: 'no' }));
   await page.goto('/');
@@ -344,5 +364,28 @@ test('נקודת מפגש: מתחילים בלי בחירה, ומבטלים בכ
   const pin = page.locator('#meetMap .mm-pin.on .mm-dot');
   await pin.click({ force: true });
   await expect(page.locator('#meetCard')).toBeHidden();
+  expect(errors).toEqual([]);
+});
+
+test('אודות והגדרות: צליל ורטט נשמרים, קרדיטים, ומי בנה', async ({ page }) => {
+  const errors = watchErrors(page);
+  await page.goto('/#home');
+  await loaded(page);
+  await page.locator('.home-about').click();
+  await expect(page.locator('#aboutPage')).toBeVisible();
+  await expect(page.locator('main#home')).toBeHidden();
+  const snd = page.locator('[data-pref="sound"]');
+  await expect(snd).toHaveAttribute('aria-pressed', 'true');
+  await snd.click();
+  await expect(snd).toHaveAttribute('aria-pressed', 'false');
+  expect(await page.evaluate(() => JSON.parse(localStorage.getItem('gud-prefs') || '{}').sound)).toBe(false);
+  await page.reload();
+  await loaded(page);
+  await expect(page.locator('[data-pref="sound"]')).toHaveAttribute('aria-pressed', 'false');
+  await expect(page.locator('.ab-credits')).toContainText('OpenStreetMap');
+  await expect(page.locator('.ab-credits')).toContainText('CC BY 4.0');
+  await expect(page.locator('.ab-gh')).toHaveAttribute('href', /github\.com\/pini236/);
+  // הקרדיט כבר לא בדף הבית
+  await expect(page.locator('p.credits')).toHaveCount(0);
   expect(errors).toEqual([]);
 });

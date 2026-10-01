@@ -28,7 +28,8 @@ HEAD = ('<!doctype html>\n<html lang="he" dir="rtl">\n<meta charset="utf-8">\n'
         '<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">\n'
         '<meta name="robots" content="noindex">\n<meta name="theme-color" content="#13233A">\n'
         '<link rel="icon" href="../../favicon.svg" type="image/svg+xml">\n'
-        '<style>[hidden]{display:none!important}</style>\n')
+        '<style>[hidden]{display:none!important}</style>\n'
+        '<script src="../../js/prefs.js"></script>\n')
 LINK = '<a class="back-site" href="../../#games" style="{style}">→ לכל המשחקים</a>'
 
 

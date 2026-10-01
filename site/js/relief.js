@@ -439,9 +439,9 @@ R.View3D=function(opts){
       paintObj.raf=requestAnimationFrame(step);
     },
     // a dot on the terrain, e.g. the point chosen on the elevation profile
-    marker(x,y){if(!markObj){const c=document.createElement('canvas');c.width=c.height=48;const k=c.getContext('2d');k.fillStyle='#13233A';k.strokeStyle='#fff';k.lineWidth=7;k.beginPath();k.arc(24,24,16,0,7);k.fill();k.stroke();
+    marker(x,y){if(!markObj){const c=document.createElement('canvas');c.width=c.height=64;const k=c.getContext('2d');k.fillStyle='rgba(255,255,255,.45)';k.beginPath();k.arc(32,32,31,0,7);k.fill();k.fillStyle='#13233A';k.strokeStyle='#fff';k.lineWidth=7;k.beginPath();k.arc(32,32,17,0,7);k.fill();k.stroke();
         const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute([0,0,0],3));
-        markObj=new THREE.Points(g,new THREE.PointsMaterial({size:18,sizeAttenuation:false,map:new THREE.CanvasTexture(c),transparent:true,depthTest:false,depthWrite:false}));markObj.renderOrder=9;scene.add(markObj);}
+        markObj=new THREE.Points(g,new THREE.PointsMaterial({size:30,sizeAttenuation:false,map:new THREE.CanvasTexture(c),transparent:true,depthTest:false,depthWrite:false}));markObj.renderOrder=9;markObj.frustumCulled=false;scene.add(markObj);}
       if(x==null){markObj.visible=false;request();return;}
       markObj.visible=true;markObj.geometry.attributes.position.setXYZ(0,x,M.elev(x,y)+8,y);markObj.geometry.attributes.position.needsUpdate=true;request();},
     // camera flies down a line (projected metres, from the top), behind and above it. Any touch on the map stops it.

@@ -23,6 +23,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Karantina:wght@700&family=IBM+Plex+Sans+Hebrew:wght@400;500;600;700&display=swap">
 <link rel="stylesheet" href="css/site.css">
+<script src="js/prefs.js"></script>
 </head>
 <body>
 <div id="loading" role="status">טוען את האתר…</div>
@@ -34,6 +35,7 @@
     <a href="#map" data-nav="map">מפת מסלולים</a>
     <a href="#meet" data-nav="meet">נקודת מפגש</a>
     <a href="#games" data-nav="games">משחקים</a>
+    <a href="#about" data-nav="about" class="nav-about" aria-label="אודות והגדרות"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="3.2"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M5.3 18.7l2.1-2.1M16.6 7.4l2.1-2.1"/></svg></a>
   </nav>
   <span class="tb-count" id="tbCount"><b class="num" id="tbDays"></b> <span data-days-word>ימים</span> לטיסה</span>
   <div class="dn"><span class="dn-clock">השעה בגודאורי<b class="num" data-dn-clock>--:--</b></span><button type="button" class="dn-btn" data-dn aria-label="מצב תצוגה"><svg class="i-auto" width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 3a9 9 0 0 1 0 18z" fill="currentColor"/></svg><svg class="i-day" width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="5" fill="#F4B942"/><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8" stroke="#F4B942" stroke-width="2" stroke-linecap="round"/></svg><svg class="i-night" width="24" height="24" viewBox="0 0 34 34" aria-hidden="true"><path d="M17 3A14 14 0 0 1 17 31A7.5 14 0 0 0 17 3Z" fill="currentColor"/></svg><span class="dn-lbl" data-dn-lbl>אוטומטי</span></button></div>
@@ -116,7 +118,43 @@
       <h2>החבר׳ה <span class="num" id="crewCount"></span></h2>
       <ul id="crewList"></ul>
     </section>
-    <p class="credits">צלילי הכרטיס: קריעה לאורך ניקוב, <a href="https://freesound.org/people/everythingsounds/sounds/198233/" rel="noopener" target="_blank">everythingsounds ב-Freesound</a> (<a href="https://creativecommons.org/licenses/by/4.0/" rel="noopener" target="_blank">CC BY 4.0</a>), וקלפים, <a href="https://kenney.nl/assets/casino-audio" rel="noopener" target="_blank">Kenney</a> (CC0).</p>
+    <a class="home-about" href="#about">אודות, הגדרות וקרדיטים</a>
+  </div>
+</main>
+
+<main class="page page-about" id="aboutPage" hidden>
+  <div class="mhead"><h1>אודות והגדרות</h1><a href="#home"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg>בית</a></div>
+  <div class="about">
+    <section class="ab-set" aria-label="הגדרות">
+      <h2>הגדרות</h2>
+      <button type="button" class="ab-row" data-pref="sound" aria-pressed="true"><span><b>צליל</b><small>בכרטיס הטיסה ובמשחקים</small></span><i class="ab-sw" aria-hidden="true"></i></button>
+      <button type="button" class="ab-row" data-pref="haptics" aria-pressed="true"><span><b>רטט</b><small>בטלפונים שתומכים (לא באייפון)</small></span><i class="ab-sw" aria-hidden="true"></i></button>
+      <button type="button" class="ab-row" data-dn aria-label="מצב תצוגה"><span><b>תצוגה</b><small>אוטומטי לפי השעה בגודאורי, יום או לילה</small></span><span class="ab-val" data-dn-lbl>אוטומטי</span></button>
+      <button type="button" class="ab-row ab-reset" id="abReset"><span><b>איפוס השיאים במשחקים</b><small id="abResetTxt">השיאים נשמרים רק בטלפון הזה</small></span></button>
+    </section>
+    <section class="ab-who" aria-label="מי בנה">
+      <h2>מי בנה</h2>
+      <div class="ab-pass">
+        <div class="ab-pass-top"><span>SKI PASS · גודאורי 2027</span><span>בונה האתר</span></div>
+        <div class="ab-pass-body">
+          <img src="https://github.com/pini236.png?size=160" alt="" width="88" height="88" loading="lazy">
+          <div><b>פיני זולברג</b><span>תכנן ובנה את האתר לחופשת הסקי של החבר׳ה, ינואר 2027, יחד עם Claude.</span>
+            <a class="ab-gh" href="https://github.com/pini236" target="_blank" rel="noopener"><svg width="20" height="20" viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0016 8c0-4.42-3.58-8-8-8z"/></svg><span dir="ltr">pini236</span></a></div>
+        </div>
+      </div>
+    </section>
+    <section class="ab-credits" aria-label="קרדיטים">
+      <h2>קרדיטים</h2>
+      <ul>
+        <li><b>מסלולים, רכבלים וכבישים:</b> © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">התורמים של OpenStreetMap</a>, ברישיון ODbL.</li>
+        <li><b>גבהים ותבליט:</b> AWS Terrain Tiles, בעיקר SRTM.</li>
+        <li><b>צליל הקריעה בכרטיס:</b> <a href="https://freesound.org/people/everythingsounds/sounds/198233/" target="_blank" rel="noopener">everythingsounds ב-Freesound</a>, ברישיון <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a>.</li>
+        <li><b>צלילי הקלפים:</b> <a href="https://kenney.nl/assets/casino-audio" target="_blank" rel="noopener">Kenney</a>, ברישיון CC0.</li>
+        <li><b>גופנים:</b> Karantina ו-IBM Plex Sans Hebrew, ברישיון OFL. <b>תלת-ממד:</b> three.js, ברישיון MIT.</li>
+        <li><b>סרטונים:</b> שייכים ליוצרים שלהם ביוטיוב, ומוטמעים בלבד.</li>
+        <li>המפה הרשמית של MTA שימשה רק לזיהוי שמות וצבעים של מסלולים, ולא הועתקה.</li>
+      </ul>
+    </section>
   </div>
 </main>
 

@@ -306,10 +306,16 @@ function profAt(i){
   const x=8+q.d/dmax*(W-16),y=8+(hmax-q.h)/((hmax-hmin)||1)*(Hc-30);
   const X=document.getElementById('pfX');X.setAttribute('x1',x);X.setAttribute('x2',x);const dot=document.getElementById('pfDot');dot.style.left=(x/W*100)+'%';dot.style.top=y+'px';
   document.getElementById('pfD').textContent=Math.round(q.d).toLocaleString('en-US')+' מ׳';document.getElementById('pfH').textContent=Math.round(q.h).toLocaleString('en-US')+' מ׳';document.getElementById('pfA').textContent=Math.round(q.a)+'°';
-  setMarker(q);
+  setMarker(q);flyHudAt(q);
 }
 let flying=false;
 function stopFly(){if(flying&&v3)v3.stopFly();flying=false;}
+// while flying: a bar on the map with where we are, and a stop button (on the phone the profile is out of view)
+function flyHud(on,name){let h=document.getElementById('flyHud');
+  if(!h){h=document.createElement('div');h.className='fly-hud';h.id='flyHud';h.setAttribute('role','status');h.innerHTML='<span class="fh-txt"><b class="fh-name"></b><span class="num fh-d"></span></span><button type="button" class="fh-stop">עצירה</button>';
+    document.querySelector('.mapwrap').appendChild(h);h.querySelector('.fh-stop').addEventListener('click',()=>stopFly());}
+  h.hidden=!on;h.parentNode.classList.toggle('flying',on);if(name)h.querySelector('.fh-name').textContent=name;}
+function flyHudAt(q){const h=document.getElementById('flyHud');if(h&&!h.hidden)h.querySelector('.fh-d').textContent=`${Math.round(q.d).toLocaleString('en-US')} מ׳ · ${Math.round(q.h).toLocaleString('en-US')} מ׳ גובה · ${Math.round(q.a)}°`;}
 function renderPiste(key){
   const p=byKey[key];
   if(!p){const m=D.missing.find(x=>x.name===key);if(!m)return overview();
@@ -394,7 +400,10 @@ panel.addEventListener('click',e=>{
     else if(navigator.clipboard)navigator.clipboard.writeText(url).then(()=>{b.textContent='הקישור הועתק';setTimeout(()=>{b.textContent='שיתוף';},2200);}).catch(()=>{});return;}
   if(b.dataset.fly){if(flying){stopFly();return;}const pr=runProfile(b.dataset.fly);if(!pr)return;if(view!=='3d')setView('3d',false);if(!v3)return;
     flying=true;b.textContent='עצירה';b.setAttribute('aria-pressed','true');
-    v3.flyAlong(pr.S.map(q=>[q.x,q.y]),()=>{flying=false;const bb=panel.querySelector('[data-fly]');if(bb){bb.textContent='טיסה במורד המסלול';bb.setAttribute('aria-pressed','false');}});return;}
+    const p_=byKey[b.dataset.fly];flyHud(true,dispName(p_)||b.dataset.fly);flyHudAt(pr.S[0]);
+    // the map is above the panel on the phone: bring it into view so the flight is seen
+    const r=document.querySelector('.mapwrap').getBoundingClientRect();if(r.top<-4||r.bottom>innerHeight+4)scrollTo({top:Math.max(0,r.top+scrollY-8),behavior:'smooth'});
+    v3.flyAlong(pr.S.map(q=>[q.x,q.y]),()=>{flying=false;flyHud(false);const bb=panel.querySelector('[data-fly]');if(bb){bb.textContent='טיסה במורד המסלול';bb.setAttribute('aria-pressed','false');}});return;}
   if(b.dataset.back!==undefined){overview();if(location.hash!=='#map')history.pushState(null,'','#map');return;}
   if(b.dataset.filter){const k=b.dataset.filter;hidden.has(k)?hidden.delete(k):hidden.add(k);b.setAttribute('aria-pressed',!hidden.has(k));applyFilters();return;}
   if(b.dataset.vid){const w=document.createElement('div');w.className='vframe';const f=document.createElement('iframe');
@@ -457,13 +466,13 @@ function activateMap(){
   else if(view==='3d'&&v3)v3.resize();else apply();
 }
 // pages: #map shows the map, anything else the home page
-const pgHome=document.getElementById('home'),pgMap=document.getElementById('mapPage'),pgMeet=document.getElementById('meetPage'),pgGames=document.getElementById('gamesPage');
+const pgHome=document.getElementById('home'),pgMap=document.getElementById('mapPage'),pgMeet=document.getElementById('meetPage'),pgGames=document.getElementById('gamesPage'),pgAbout=document.getElementById('aboutPage');
 function route(){
-  const h=location.hash,m=h.startsWith('#map'),mt=h.startsWith('#meet'),gm=h.startsWith('#games'),run=h.startsWith('#map/run/')?decodeURIComponent(h.slice(9)):null,wasMap=!pgMap.hidden;
-  pgHome.hidden=m||mt||gm;pgMap.hidden=!m;pgMeet.hidden=!mt;pgGames.hidden=!gm;
-  const cur=m?'map':mt?'meet':gm?'games':'home';
+  const h=location.hash,m=h.startsWith('#map'),mt=h.startsWith('#meet'),gm=h.startsWith('#games'),ab=h.startsWith('#about'),run=h.startsWith('#map/run/')?decodeURIComponent(h.slice(9)):null,wasMap=!pgMap.hidden;
+  pgHome.hidden=m||mt||gm||ab;pgMap.hidden=!m;pgMeet.hidden=!mt;pgGames.hidden=!gm;pgAbout.hidden=!ab;
+  const cur=m?'map':mt?'meet':gm?'games':ab?'about':'home';
   document.querySelectorAll('[data-nav]').forEach(a=>{if(a.dataset.nav===cur)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current');});
-  requestAnimationFrame(()=>{if(gm)return;if(mt){if(MEET)MEET.open(h.slice(6));return;}if(!m){DN.layout();return;}activateMap();
+  requestAnimationFrame(()=>{if(gm||ab)return;if(mt){if(MEET)MEET.open(h.slice(6));return;}if(!m){DN.layout();return;}activateMap();
     if(run&&run!==current&&(byKey[run]||D.missing.some(x=>x.name===run)))select(run,{push:false});
     else if(!run&&current)overview();});
   if(!wasMap||!m){window.scrollTo(0,0);pgHome.scrollTop=0;}
@@ -847,6 +856,16 @@ function renderTicket(){
   document.getElementById('crewList').innerHTML=members.map(n=>`<li>${esc(n)}</li>`).join('');
   document.querySelector('.crew').hidden=!members.length;
 }
+// about and settings (#about): sound and vibration for the whole site and the games, and clearing the game records
+(function(){const P=window.GUD_PREFS||{sound:true,haptics:true};
+  const paint=()=>document.querySelectorAll('[data-pref]').forEach(b=>b.setAttribute('aria-pressed',String(!!P[b.dataset.pref])));paint();
+  document.querySelectorAll('[data-pref]').forEach(b=>b.addEventListener('click',()=>{const k=b.dataset.pref;window.setGudPref(k,!P[k]);paint();
+    if(k==='haptics'&&P.haptics)try{navigator.vibrate&&navigator.vibrate(20);}catch(e){}
+    if(k==='sound'||k==='haptics')document.getElementById('abResetTxt').textContent='ההגדרה נשמרה. במשחק פתוח היא תחול בכניסה הבאה';}));
+  let armed=false;const r=document.getElementById('abReset'),rt=document.getElementById('abResetTxt');
+  r.addEventListener('click',()=>{if(!armed){armed=true;r.classList.add('armed');rt.textContent='בטוח? לחיצה נוספת מוחקת את כל השיאים';setTimeout(()=>{armed=false;r.classList.remove('armed');},4000);return;}
+    try{Object.keys(localStorage).filter(k=>(window.GUD_GAME_KEYS||[]).some(p=>k.startsWith(p))).forEach(k=>localStorage.removeItem(k));}catch(e){}
+    armed=false;r.classList.remove('armed');rt.textContent='השיאים נמחקו';});})();
 // the passes: tap the one behind to bring it forward, tap the stub to tear it off (it comes back)
 (function(){
   const stack=document.getElementById('bpStack');let busy=false,ac=null;const snd={};
