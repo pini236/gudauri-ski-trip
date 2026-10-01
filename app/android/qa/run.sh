@@ -84,6 +84,12 @@ map() {
       sleep 1.5; shot "run-$slug-settled"
     fi
   done
+  # the system closes the app in the background: it must come back to the same run (nav/Nav.kt)
+  adb shell input keyevent KEYCODE_HOME; sleep 1.5; adb shell am kill "$PKG"; sleep 1
+  if adb shell pidof "$PKG" > /dev/null; then fail "the app was not closed in the background"; fi
+  mark; adb shell "am start -W -n $ACT" > /dev/null
+  waitlog "scene ready" 120 && waitlog "selected Snow Park" 60 && note "restored after the system closed it: Snow Park"
+  sleep 1.5; shot map-restored
   qa "--es qa.run none"; waitlog "selected none" 10; sleep 1.5; shot map-cleared
 
   # the fly-down: the skier's dot and the bar along the way, then the stop
