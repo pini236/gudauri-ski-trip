@@ -149,7 +149,11 @@ class MainActivity : ComponentActivity() {
 
     override fun attachBaseContext(base: android.content.Context) = super.attachBaseContext(Lang.wrap(base))
 
-    override fun onSaveInstanceState(out: Bundle) { super.onSaveInstanceState(out); out.putStringArrayList("nav", nav.save()) }
+    override fun onSaveInstanceState(out: Bundle) {
+        super.onSaveInstanceState(out)
+        out.putStringArrayList("nav", nav.save())
+        Qa.log("state saved ${nav.save()}")
+    }
 
     override fun onNewIntent(intent: Intent) { super.onNewIntent(intent); setIntent(intent); handleQa(intent) }
 
