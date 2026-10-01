@@ -81,7 +81,7 @@ object GesturePlayer {
     /** After the gesture: how the camera moved, and how many pixels the anchored ground ended up from the finger. */
     private fun report(map: MapView, name: String, before: io.github.pini236.skiapp.map.OrbitCamera.State, from: FloatArray?, to: FloatArray?, afterMs: Long) {
         val w = map.width.toFloat(); val h = map.height.toFloat()
-        val g = from?.let { Lens(before, w, h).ground(it[0], it[1]) }
+        val g = from?.let { Lens(before, w, h).hit(it[0], it[1], map.snow) } // the snow under the finger
         main.postDelayed({
             val a = map.camera.state()
             var drift = ""

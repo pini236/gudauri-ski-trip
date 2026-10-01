@@ -34,6 +34,30 @@ class Lens(val s: OrbitCamera.State, val w: Float, val h: Float, fovDeg: Float =
         return floatArrayOf(eye[0] + d[0] * t, y, eye[2] + d[2] * t)
     }
 
+    /**
+     * The snow under a screen point: march the ray over the terrain and refine where it meets it.
+     * Null when the ray misses the mountain within reach (the sky, or far beyond the map).
+     */
+    fun hit(px: Float, py: Float, terrain: (Float, Float) -> Float, maxDist: Float = s.dist * 6): FloatArray? {
+        val d = ray(px, py)
+        var prev = 0f
+        var t = 0f
+        var step = (s.dist * 0.01f).coerceAtLeast(8f)
+        while (t < maxDist) {
+            t += step; step *= 1.04f
+            if (eye[1] + d[1] * t <= terrain(eye[0] + d[0] * t, eye[2] + d[2] * t)) {
+                var lo = prev; var hi = t
+                repeat(24) {
+                    val m = (lo + hi) / 2
+                    if (eye[1] + d[1] * m <= terrain(eye[0] + d[0] * m, eye[2] + d[2] * m)) hi = m else lo = m
+                }
+                return floatArrayOf(eye[0] + d[0] * hi, eye[1] + d[1] * hi, eye[2] + d[2] * hi)
+            }
+            prev = t
+        }
+        return null
+    }
+
     /** Screen pixel of a world point, or null when it is behind the camera. */
     fun project(x: Float, y: Float, z: Float): FloatArray? {
         val vx = x - eye[0]; val vy = y - eye[1]; val vz = z - eye[2]
@@ -60,38 +84,52 @@ object Moves {
     const val MIN_DIST = 250f
     const val MAX_DIST = 32000f
 
-    /** One finger (or the middle of two) moved from (x0, y0) to (x1, y1). */
-    fun pan(s: OrbitCamera.State, w: Float, h: Float, x0: Float, y0: Float, x1: Float, y1: Float): OrbitCamera.State {
-        val lens = Lens(s, w, h)
-        val a = lens.ground(x0, y0, maxDist = s.dist * 3); val b = lens.ground(x1, y1, maxDist = s.dist * 3)
-        if (a != null && b != null) return s.copy(tx = s.tx + a[0] - b[0], tz = s.tz + a[2] - b[2])
-        // near the horizon the ground is too far to hold: move at the speed of the ground at the centre
+    /**
+     * Moves the camera sideways until the snow point [a] is under the screen point (px, py) again. The camera's
+     * centre sits on the snow ([ground]), so every sideways move also lifts or lowers it: a few rounds settle both.
+     */
+    private fun hold(s: OrbitCamera.State, w: Float, h: Float, a: FloatArray, px: Float, py: Float, ground: (Float, Float) -> Float): OrbitCamera.State {
+        var st = s.copy(ty = ground(s.tx, s.tz))
+        repeat(5) {
+            val b = Lens(st, w, h).ground(px, py, y = a[1], maxDist = st.dist * 40) ?: return st
+            val nx = st.tx + a[0] - b[0]; val nz = st.tz + a[2] - b[2]
+            st = st.copy(tx = nx, tz = nz, ty = ground(nx, nz))
+        }
+        return st
+    }
+
+    /** One finger (or the middle of two) moved from (x0, y0) to (x1, y1): the snow under it moves with it. */
+    fun pan(s: OrbitCamera.State, w: Float, h: Float, x0: Float, y0: Float, x1: Float, y1: Float, ground: (Float, Float) -> Float): OrbitCamera.State {
+        val a = Lens(s, w, h).hit(x0, y0, ground)
+        if (a != null && kotlin.math.hypot(a[0] - s.tx, a[2] - s.tz) < s.dist * 3)
+            return hold(s, w, h, a, x1, y1, ground)
+        // on the sky, or the snow too far away to hold: move at the speed of the ground at the centre
         val k = (2 * s.dist * tan(Math.toRadians(20.0)) / h).toFloat()
         val tiltK = 1f / sin(s.pitch).coerceAtLeast(0.35f)
         val dx = x1 - x0; val dy = y1 - y0
         val rx = cos(s.yaw); val rz = -sin(s.yaw); val fx = -sin(s.yaw); val fz = -cos(s.yaw)
-        return s.copy(tx = s.tx - rx * dx * k + fx * dy * k * tiltK, tz = s.tz - rz * dx * k + fz * dy * k * tiltK)
+        val nx = s.tx - rx * dx * k + fx * dy * k * tiltK; val nz = s.tz - rz * dx * k + fz * dy * k * tiltK
+        return s.copy(tx = nx, tz = nz, ty = ground(nx, nz))
     }
 
-    /** Zoom by [factor] (>1 closer) towards the point (fx, fy): it stays where it is on the screen. */
-    fun zoom(s: OrbitCamera.State, w: Float, h: Float, fx: Float, fy: Float, factor: Float): OrbitCamera.State {
+    /** Zoom by [factor] (>1 closer) towards the point (fx, fy): the snow there stays where it is on the screen. */
+    fun zoom(s: OrbitCamera.State, w: Float, h: Float, fx: Float, fy: Float, factor: Float, ground: (Float, Float) -> Float): OrbitCamera.State {
         val next = s.copy(dist = (s.dist / factor).coerceIn(MIN_DIST, MAX_DIST))
-        val a = Lens(s, w, h).ground(fx, fy, maxDist = s.dist * 3) ?: return next
-        val b = Lens(next, w, h).ground(fx, fy, maxDist = next.dist * 3) ?: return next
-        return next.copy(tx = next.tx + a[0] - b[0], tz = next.tz + a[2] - b[2])
+        val a = Lens(s, w, h).hit(fx, fy, ground) ?: return next.copy(ty = ground(next.tx, next.tz))
+        return hold(next, w, h, a, fx, fy, ground)
     }
 
     /**
      * Turn the map by [angle] radians on the screen (positive = clockwise, as the fingers turn, y down)
      * around the point (fx, fy), which stays put.
      */
-    fun rotate(s: OrbitCamera.State, w: Float, h: Float, fx: Float, fy: Float, angle: Float): OrbitCamera.State {
+    fun rotate(s: OrbitCamera.State, w: Float, h: Float, fx: Float, fy: Float, angle: Float, ground: (Float, Float) -> Float): OrbitCamera.State {
         // the world turns clockwise on the screen when the camera turns anticlockwise seen from above: yaw grows
-        val d = angle
-        val g = Lens(s, w, h).ground(fx, fy, maxDist = s.dist * 3) ?: floatArrayOf(s.tx, s.ty, s.tz)
+        val g = Lens(s, w, h).hit(fx, fy, ground) ?: floatArrayOf(s.tx, s.ty, s.tz)
         val ox = s.tx - g[0]; val oz = s.tz - g[2]
-        val c = cos(d); val sn = sin(d)
-        return s.copy(tx = g[0] + ox * c + oz * sn, tz = g[2] - ox * sn + oz * c, yaw = s.yaw + d)
+        val c = cos(angle); val sn = sin(angle)
+        val turned = s.copy(tx = g[0] + ox * c + oz * sn, tz = g[2] - ox * sn + oz * c, yaw = s.yaw + angle)
+        return hold(turned, w, h, g, fx, fy, ground)
     }
 
     /** Lowest tilt: almost level, so the low winter sun and the moon can come into view over the ridges. */
@@ -147,7 +185,7 @@ object Framing {
             val b = bounds(s, path, stride, w, h) ?: return s
             val bx = (b[0] + b[1]) / 2; val by = (b[2] + b[3]) / 2
             val mx = (box.left + box.right) / 2 * w; val my = (box.top + box.bottom) / 2 * h
-            s = Moves.pan(s, w, h, bx, by, mx, my).let { it.copy(ty = ground(it.tx, it.tz)) }
+            s = Moves.pan(s, w, h, bx, by, mx, my, ground)
         }
         return s
     }

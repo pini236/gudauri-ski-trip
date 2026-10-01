@@ -237,6 +237,9 @@ class MapView(context: Context, refreshHz: Float, val stats: FrameStats) : Frame
 
     private fun move(f: (OrbitCamera.State) -> OrbitCamera.State) { camera.update(f); surface.requestRender() }
 
+    /** The height of the snow, for the gestures; flat before the mountain has loaded. */
+    val snow: (Float, Float) -> Float = { x, z -> scene?.terrain?.elev(x, z) ?: 2300f }
+
     @SuppressLint("ClickableViewAccessibility")
     override fun onTouchEvent(e: MotionEvent): Boolean {
         val w = width.toFloat(); val h = height.toFloat()
@@ -255,7 +258,7 @@ class MapView(context: Context, refreshHz: Float, val stats: FrameStats) : Frame
                 if (e.pointerCount >= 2) twoFingers(e, w, h)
                 else {
                     if (!moved && hypot(e.x - downX, e.y - downY) > slop) { moved = true; lastX = downX; lastY = downY } // the ground catches up with the finger
-                    if (moved) { val x0 = lastX; val y0 = lastY; move { Moves.pan(it, w, h, x0, y0, e.x, e.y) } }
+                    if (moved) { val x0 = lastX; val y0 = lastY; move { Moves.pan(it, w, h, x0, y0, e.x, e.y, snow) } }
                     lastX = e.x; lastY = e.y
                 }
             }
@@ -263,7 +266,7 @@ class MapView(context: Context, refreshHz: Float, val stats: FrameStats) : Frame
                 if (e.pointerCount == 2 && two == Two.UNDECIDED && e.eventTime - twoDownT < 300) {
                     // a two-finger tap: zoom out around the middle of the fingers
                     val mx = (e.getX(0) + e.getX(1)) / 2; val my = (e.getY(0) + e.getY(1)) / 2
-                    renderer.animateCamera(Moves.zoom(camera.state(), w, h, mx, my, 0.5f), 0.35f)
+                    renderer.animateCamera(Moves.zoom(camera.state(), w, h, mx, my, 0.5f, snow), 0.35f)
                     Qa.log("gesture two-finger tap: zoom out")
                     two = Two.TRANSFORM // only once
                 }
@@ -314,9 +317,9 @@ class MapView(context: Context, refreshHz: Float, val stats: FrameStats) : Frame
             turned += da
             if (!turning && kotlin.math.abs(turned) > TURN_THRESHOLD) turning = true
             move {
-                var st = Moves.pan(it, w, h, px, py, midX, midY)
-                st = Moves.zoom(st, w, h, midX, midY, factor)
-                if (turning) Moves.rotate(st, w, h, midX, midY, da) else st
+                var st = Moves.pan(it, w, h, px, py, midX, midY, snow)
+                st = Moves.zoom(st, w, h, midX, midY, factor, snow)
+                if (turning) Moves.rotate(st, w, h, midX, midY, da, snow) else st
             }
         }
         lastMidX = midX; lastMidY = midY; lastGap = gap; lastAngle = angle
@@ -326,7 +329,7 @@ class MapView(context: Context, refreshHz: Float, val stats: FrameStats) : Frame
     private fun tap(x: Float, y: Float, t: Long, w: Float, h: Float) {
         if (t - lastTapT < doubleTapMs && hypot(x - lastTapX, y - lastTapY) < 48 * density) {
             removeCallbacks(pendingPick); lastTapT = 0L
-            renderer.animateCamera(Moves.zoom(camera.state(), w, h, x, y, 2.2f), 0.35f)
+            renderer.animateCamera(Moves.zoom(camera.state(), w, h, x, y, 2.2f, snow), 0.35f)
             Qa.log("gesture double tap: zoom in")
             return
         }

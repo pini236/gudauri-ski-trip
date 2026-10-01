@@ -145,7 +145,8 @@ grep "SkiQa" "$OUT/logcat.txt" > "$OUT/qa-log.txt"
 # crashes anywhere, and every error line the app itself wrote
 grep -E "FATAL EXCEPTION|ANR in $PKG" -A 30 "$OUT/logcat.txt" > "$OUT/errors.txt"
 PID=$(adb shell pidof "$PKG" | tr -d '\r')
-if [ -n "$PID" ]; then adb logcat -d --pid="$PID" '*:E' >> "$OUT/errors.txt"; else fail "the app is not running at the end"; fi
+# known noise: the system's note when the map's surface changes size (the bars appear), not an app error
+if [ -n "$PID" ]; then adb logcat -d --pid="$PID" '*:E' | grep -v -E "^-+ beginning of|BLASTBufferQueue.*rejecting buffer" >> "$OUT/errors.txt"; else fail "the app is not running at the end"; fi
 [ -s "$OUT/errors.txt" ] && fail "errors in the log (errors.txt)"
 
 # ---- the release build (R8): only that it starts and draws ----

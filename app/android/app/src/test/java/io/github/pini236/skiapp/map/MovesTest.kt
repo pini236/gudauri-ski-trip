@@ -9,58 +9,69 @@ import kotlin.math.hypot
 /** The map gestures keep the ground under the fingers (docs/APP-NATIVE.md, emulator findings 1.10.2026). */
 class MovesTest {
     private val w = 1080f; private val h = 2000f
-    private val start = OrbitCamera.State(600f, 2300f, -500f, 6000f, 0.35f, 0.62f)
+    /** Sloping, bumpy snow: the camera's centre rises and falls with it, which is what broke the first gestures. */
+    private val snow: (Float, Float) -> Float = { x, z -> 2300f + 0.18f * x - 0.12f * z + 120f * kotlin.math.sin(x / 600f) * kotlin.math.cos(z / 800f) }
+    private val start = OrbitCamera.State(600f, snow(600f, -500f), -500f, 6000f, 0.35f, 0.62f)
 
-    private fun under(s: OrbitCamera.State, x: Float, y: Float) = Lens(s, w, h).ground(x, y) ?: throw AssertionError("no ground under $x,$y")
+    private fun under(s: OrbitCamera.State, x: Float, y: Float) = Lens(s, w, h).hit(x, y, snow) ?: throw AssertionError("no snow under $x,$y")
     private fun screenOf(s: OrbitCamera.State, g: FloatArray) = Lens(s, w, h).project(g[0], g[1], g[2]) ?: throw AssertionError("behind the camera")
+    private fun onSnow(s: OrbitCamera.State) = assertEquals("the camera's centre sits on the snow", snow(s.tx, s.tz), s.ty, 0.5f)
 
-    @Test fun projectAndGroundAgree() {
+    @Test fun projectAndHitAgree() {
         val lens = Lens(start, w, h)
         for ((x, y) in listOf(540f to 1000f, 200f to 1500f, 900f to 700f)) {
             val g = under(start, x, y)
+            assertEquals(snow(g[0], g[2]), g[1], 1f)
             val p = lens.project(g[0], g[1], g[2])!!
             assertEquals(x, p[0], 0.5f); assertEquals(y, p[1], 0.5f)
         }
-        // the target is in the middle of the screen
         val c = lens.project(start.tx, start.ty, start.tz)!!
         assertEquals(w / 2, c[0], 0.5f); assertEquals(h / 2, c[1], 0.5f)
     }
 
-    @Test fun panKeepsTheGroundUnderTheFinger() {
-        val g = under(start, 400f, 1200f)
-        val next = Moves.pan(start, w, h, 400f, 1200f, 700f, 1500f)
-        val p = screenOf(next, g)
-        assertEquals(700f, p[0], 1f); assertEquals(1500f, p[1], 1f)
+    @Test fun panKeepsTheSnowUnderTheFinger() {
+        // a long drag in small steps, as the finger sends them
+        val g = under(start, 540f, 1200f)
+        var s = start
+        for (i in 1..24) {
+            val k0 = (i - 1) / 24f; val k1 = i / 24f
+            s = Moves.pan(s, w, h, 540f - 216f * k0, 1200f - 300f * k0, 540f - 216f * k1, 1200f - 300f * k1, snow)
+        }
+        onSnow(s)
+        val p = screenOf(s, g)
+        assertEquals(324f, p[0], 3f); assertEquals(900f, p[1], 3f)
     }
 
     @Test fun zoomKeepsThePointBetweenTheFingers() {
         val g = under(start, 300f, 1400f)
-        val next = Moves.zoom(start, w, h, 300f, 1400f, 2f)
-        assertEquals(start.dist / 2, next.dist, 1f)
-        val p = screenOf(next, g)
-        assertEquals(300f, p[0], 1f); assertEquals(1400f, p[1], 1f)
+        var s = start
+        repeat(20) { s = Moves.zoom(s, w, h, 300f, 1400f, 1.07f, snow) }
+        onSnow(s)
+        val p = screenOf(s, g)
+        assertEquals(300f, p[0], 3f); assertEquals(1400f, p[1], 3f)
     }
 
     @Test fun zoomStopsAtTheLimits() {
-        assertEquals(Moves.MIN_DIST, Moves.zoom(start, w, h, 540f, 1000f, 1000f).dist, 0.01f)
-        assertEquals(Moves.MAX_DIST, Moves.zoom(start, w, h, 540f, 1000f, 0.001f).dist, 0.01f)
+        assertEquals(Moves.MIN_DIST, Moves.zoom(start, w, h, 540f, 1000f, 1000f, snow).dist, 0.01f)
+        assertEquals(Moves.MAX_DIST, Moves.zoom(start, w, h, 540f, 1000f, 0.001f, snow).dist, 0.01f)
     }
 
     @Test fun theMapTurnsWithTheFingers() {
         // two fingers turn clockwise by 20° around the middle of the screen
         val a0 = floatArrayOf(390f, 1000f); val b0 = floatArrayOf(690f, 1000f)
-        val ga = under(start, a0[0], a0[1]); val gb = under(start, b0[0], b0[1])
+        val ga = under(start, a0[0], a0[1]); val gb = under(start, b0[0], b0[1]); val gm = under(start, 540f, 1000f)
         val turn = Math.toRadians(20.0).toFloat()
-        val next = Moves.rotate(start, w, h, 540f, 1000f, turn)
+        val next = Moves.rotate(start, w, h, 540f, 1000f, turn, snow)
+        onSnow(next)
         val pa = screenOf(next, ga); val pb = screenOf(next, gb)
         val ang = atan2(pb[1] - pa[1], pb[0] - pa[0]) - atan2(b0[1] - a0[1], b0[0] - a0[0])
         // clockwise on a y-down screen is a positive angle. Seen at a tilt, a turn of the ground looks smaller
         // across the screen (about sin(pitch) of it here), as on every phone map; the direction is what matters.
         // The spike turned the map against the fingers (found on the emulator, 1.10.2026).
         assertTrue("the ground turned ${Math.toDegrees(ang.toDouble())}°, not with the fingers", ang > turn * 0.45f && ang < turn * 1.6f)
-        // and the point between the fingers stayed put
-        val mid = screenOf(next, under(start, 540f, 1000f))
-        assertTrue(hypot(mid[0] - 540f, mid[1] - 1000f) < 2f)
+        // and the snow between the fingers stayed put
+        val mid = screenOf(next, gm)
+        assertTrue(hypot(mid[0] - 540f, mid[1] - 1000f) < 3f)
     }
 
     @Test fun twoFingersUpTogetherTilt() {
