@@ -5,7 +5,10 @@
 name: android-qa
 
 on:
+  # automatically only on main: several sessions push their own branches, and each run there would push the
+  # waiting run on main out of the single slot below. Another branch runs it by hand (workflow_dispatch).
   push:
+    branches: [main]
     paths: ['app/android/**', 'site/data/**', 'site/audio/**', 'site/games/descent/**', 'tools/build-app-data.py', 'tools/build-app-strings.py', 'i18n/strings.json', '.github/workflows/android-qa.yml']
   workflow_dispatch:
     inputs:
