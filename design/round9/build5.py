@@ -271,7 +271,7 @@ def contour_paths(cx, cy, half, step=60, size=300):
     for lvl, segs in zip(cs.levels, cs.allsegs):
         for seg in segs:
             if len(seg) < 6: continue
-            pts = [(p[0] * sc, p[1] * sc) for p in seg[::2]]
+            pts = [(p[0] * sc, p[1] * sc) for p in seg[::3]]
             out.append((lvl, path(pts, close=False)))
     plt.close(fig)
     return out, levels
@@ -441,7 +441,7 @@ def sizes_board(names):
             + cards + '</div>\n</x-dc>\n<script type="text/x-dc" data-dc-script data-props=\'{"$preview":{"width":2880,"height":340}}\'>\nclass Component extends DCLogic {\nrenderVals() {\n'
             "const spec = [[96, '50%'], [96, '30%'], [64, '50%'], [48, '50%'], [32, '50%']];\nreturn {\nsizes: spec.map(([box, radius]) => ({\n"
             "wrap: 'width: ' + box + 'px; height: ' + box + 'px; border-radius: ' + radius + '; overflow: hidden; position: relative; flex: none; border: 1px solid #CBD5DF',\n"
-            "inner: 'width: 512px; height: 512px; transform: scale(' + (box / 512) + '); transform-origin: 0 0'\n}))\n};\n}\n}\n</script>\n</body>\n</html>\n")
+            "inner: 'position: absolute; left: 0; top: 0; width: 512px; height: 512px; transform: scale(' + (box / 512) + '); transform-origin: 0 0'\n}))\n};\n}\n}\n</script>\n</body>\n</html>\n")
 
 
 if __name__ == '__main__':
