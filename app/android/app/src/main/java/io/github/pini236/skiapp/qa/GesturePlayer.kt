@@ -19,6 +19,7 @@ import kotlin.math.sin
 object GesturePlayer {
     private val main = Handler(Looper.getMainLooper())
     private const val STEPS = 24
+    private const val REST = 10
     private const val STEP_MS = 16L
 
     fun play(map: MapView, name: String) {
@@ -54,15 +55,17 @@ object GesturePlayer {
         fun pts(k: Float) = paths.map { it(k) }
         send(map, ev(down, down, MotionEvent.ACTION_DOWN, pts(0f).take(1)))
         if (paths.size == 2) send(map, ev(down, down, MotionEvent.ACTION_POINTER_DOWN or (1 shl MotionEvent.ACTION_POINTER_INDEX_SHIFT), pts(0f)))
-        for (i in 1..STEPS) main.postDelayed({
+        // the fingers move, then rest a moment before lifting, so a pan measures the pan and not the fling after it
+        val total = STEPS + REST
+        for (i in 1..total) main.postDelayed({
             val t = SystemClock.uptimeMillis()
-            send(map, ev(down, t, MotionEvent.ACTION_MOVE, pts(i / STEPS.toFloat())))
-            if (i == STEPS) {
+            send(map, ev(down, t, MotionEvent.ACTION_MOVE, pts((i / STEPS.toFloat()).coerceAtMost(1f))))
+            if (i == total) {
                 if (paths.size == 2) send(map, ev(down, t, MotionEvent.ACTION_POINTER_UP or (1 shl MotionEvent.ACTION_POINTER_INDEX_SHIFT), pts(1f)))
                 send(map, ev(down, t, MotionEvent.ACTION_UP, pts(1f).take(1)))
             }
         }, i * STEP_MS)
-        report(map, name, before, anchorFrom, anchorTo, STEPS * STEP_MS + 300)
+        report(map, name, before, anchorFrom, anchorTo, total * STEP_MS + 300)
     }
 
     private fun taps(map: MapView, points: List<FloatArray>, count: Int) {
