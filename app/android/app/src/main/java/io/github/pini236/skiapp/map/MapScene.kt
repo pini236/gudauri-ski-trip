@@ -100,8 +100,8 @@ class Ribbon(val vertices: FloatArray, val indices: IntArray) {
 class MapScene(val terrain: Terrain, val runs: Runs) {
     val mesh = TerrainMesh.build(terrain)
     var shadow: FloatArray = FloatArray(terrain.nx * terrain.ny)
-    var sunDir = floatArrayOf(-0.3f, 0.5f, 0.8f)
-    var sunIsReal = true
+    /** The sky and the light now (or at the QA run's pinned time); the shadows above are cast by its [Sky.Light.dir]. */
+    @Volatile var light: Sky.Light = Sky.at(System.currentTimeMillis())
 
     /** Draped lines (x, y, z triples) for each run, densified every 18 m and lifted above the snow. */
     val draped: Map<String, List<FloatArray>> = runs.pistes.associate { p -> p.key to p.lines.map { drape(it, 4f) } }

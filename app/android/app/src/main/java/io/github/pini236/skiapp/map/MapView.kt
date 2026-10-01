@@ -107,6 +107,7 @@ private class LabelOverlay(context: Context, private val camera: OrbitCamera) : 
  */
 @SuppressLint("ViewConstructor")
 class MapView(context: Context, refreshHz: Float, val stats: FrameStats) : FrameLayout(context) {
+    private companion object { const val TURN_THRESHOLD = 0.2f } // ~11° of finger turn before the map turns
     val camera = OrbitCamera()
     private val density = resources.displayMetrics.density
     private val surface = MountainSurface(context, refreshHz)
@@ -194,14 +195,8 @@ class MapView(context: Context, refreshHz: Float, val stats: FrameStats) : Frame
             val path = lines.fold(FloatArray(0)) { acc, l -> acc + l }
             val sel = Selection(p.key, s.highlight(lines), casing, paint, path)
             renderer.select(sel)
-            // land the camera low over the run, looking down its fall line
-            var minX = Float.MAX_VALUE; var maxX = -Float.MAX_VALUE; var minZ = Float.MAX_VALUE; var maxZ = -Float.MAX_VALUE
-            for (i in 0 until path.size / 3) { minX = minOf(minX, path[i * 3]); maxX = maxOf(maxX, path[i * 3]); minZ = minOf(minZ, path[i * 3 + 2]); maxZ = maxOf(maxZ, path[i * 3 + 2]) }
-            val cx = (minX + maxX) / 2; val cz = (minZ + maxZ) / 2
-            val span = maxOf(maxX - minX, maxZ - minZ, 600f)
-            val n = path.size / 3
-            val yaw = atan2(-(path[(n - 1) * 3] - path[0]), -(path[(n - 1) * 3 + 2] - path[2]))
-            renderer.animateCamera(OrbitCamera.State(cx, s.terrain.elev(cx, cz), cz, span * 1.35f, yaw, 0.55f))
+            // land the camera on the whole run, between the bars, looking uphill so its top is at the top
+            renderer.animateCamera(Framing.fit(path, width.toFloat(), height.toFloat(), { x, z -> s.terrain.elev(x, z) }))
             Qa.log("selected ${p.key}")
         }
     }
@@ -217,17 +212,34 @@ class MapView(context: Context, refreshHz: Float, val stats: FrameStats) : Frame
     }
 
     fun stopFly() { renderer.stopFly() }
+    /** Distance along, run length, height and slope where the skier is; null when not flying. */
+    fun flyInfo(): FloatArray? = renderer.flyInfo
 
-    // ---- gestures ----
-    private val slop = ViewConfiguration.get(context).scaledTouchSlop
+    // ---- gestures, as on phone maps: the ground under the fingers stays under the fingers ----
+    // One finger pans and flings. Two fingers pan, pinch to zoom towards them, and turn the map once the
+    // turn passes a threshold (so a pinch does not turn it by accident); two fingers up or down together
+    // tilt instead. A double tap zooms in on the spot, a two-finger tap zooms out. A tap picks a run.
+    private val slop = ViewConfiguration.get(context).scaledTouchSlop.toFloat()
+    private val doubleTapMs = ViewConfiguration.getDoubleTapTimeout().toLong()
     private var vt: VelocityTracker? = null
     private var lastX = 0f; private var lastY = 0f
     private var downX = 0f; private var downY = 0f; private var downT = 0L
-    private var twoDist = 0f; private var twoAngle = 0f; private var twoY = 0f
     private var moved = false; private var multi = false
+
+    private enum class Two { UNDECIDED, TRANSFORM, TILT }
+    private var two = Two.UNDECIDED
+    private val start0 = FloatArray(2); private val start1 = FloatArray(2); private var startGap = 0f
+    private var lastMidX = 0f; private var lastMidY = 0f; private var lastGap = 0f; private var lastAngle = 0f
+    private var turned = 0f; private var turning = false; private var twoDownT = 0L
+
+    private var lastTapT = 0L; private var lastTapX = 0f; private var lastTapY = 0f
+    private val pendingPick = Runnable { pick(lastTapX, lastTapY) }
+
+    private fun move(f: (OrbitCamera.State) -> OrbitCamera.State) { camera.update(f); surface.requestRender() }
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onTouchEvent(e: MotionEvent): Boolean {
+        val w = width.toFloat(); val h = height.toFloat()
         when (e.actionMasked) {
             MotionEvent.ACTION_DOWN -> {
                 renderer.stopFly(); renderer.cancelCameraAnimation(); camera.stopFling()
@@ -235,38 +247,33 @@ class MapView(context: Context, refreshHz: Float, val stats: FrameStats) : Frame
                 lastX = e.x; lastY = e.y; downX = e.x; downY = e.y; downT = e.eventTime; moved = false; multi = false
             }
             MotionEvent.ACTION_POINTER_DOWN -> if (e.pointerCount == 2) {
-                multi = true; moved = true
-                twoDist = hypot(e.getX(1) - e.getX(0), e.getY(1) - e.getY(0))
-                twoAngle = atan2(e.getY(1) - e.getY(0), e.getX(1) - e.getX(0))
-                twoY = (e.getY(0) + e.getY(1)) / 2
+                multi = true; moved = true; two = Two.UNDECIDED; turned = 0f; turning = false; twoDownT = e.eventTime
+                twoFrom(e.getX(0), e.getY(0), e.getX(1), e.getY(1))
             }
             MotionEvent.ACTION_MOVE -> {
                 vt?.addMovement(e)
-                if (e.pointerCount >= 2) {
-                    val d = hypot(e.getX(1) - e.getX(0), e.getY(1) - e.getY(0))
-                    val a = atan2(e.getY(1) - e.getY(0), e.getX(1) - e.getX(0))
-                    val y = (e.getY(0) + e.getY(1)) / 2
-                    if (twoDist > 0) camera.zoom(d / twoDist)
-                    var da = a - twoAngle
-                    while (da > Math.PI) da -= (2 * Math.PI).toFloat()
-                    while (da < -Math.PI) da += (2 * Math.PI).toFloat()
-                    camera.rotate(-da)
-                    camera.tilt((y - twoY) / height * 1.6f)
-                    twoDist = d; twoAngle = a; twoY = y
-                } else if (!multi) {
-                    if (!moved && hypot(e.x - downX, e.y - downY) > slop) moved = true
-                    if (moved) camera.pan(e.x - lastX, e.y - lastY, height)
+                if (e.pointerCount >= 2) twoFingers(e, w, h)
+                else {
+                    if (!moved && hypot(e.x - downX, e.y - downY) > slop) { moved = true; lastX = downX; lastY = downY } // the ground catches up with the finger
+                    if (moved) { val x0 = lastX; val y0 = lastY; move { Moves.pan(it, w, h, x0, y0, e.x, e.y) } }
                     lastX = e.x; lastY = e.y
                 }
-                surface.requestRender()
             }
             MotionEvent.ACTION_POINTER_UP -> {
-                // keep panning smoothly with the finger that stays
-                val keep = if (e.actionIndex == 0) 1 else 0
-                lastX = e.getX(keep); lastY = e.getY(keep)
+                if (e.pointerCount == 2 && two == Two.UNDECIDED && e.eventTime - twoDownT < 300) {
+                    // a two-finger tap: zoom out around the middle of the fingers
+                    val mx = (e.getX(0) + e.getX(1)) / 2; val my = (e.getY(0) + e.getY(1)) / 2
+                    renderer.animateCamera(Moves.zoom(camera.state(), w, h, mx, my, 0.5f), 0.35f)
+                    Qa.log("gesture two-finger tap: zoom out")
+                    two = Two.TRANSFORM // only once
+                }
+                // carry on smoothly with the fingers that stay: one pans, two start again from where they are
+                val rest = (0 until e.pointerCount).filter { it != e.actionIndex }
+                if (rest.size >= 2) twoFrom(e.getX(rest[0]), e.getY(rest[0]), e.getX(rest[1]), e.getY(rest[1]))
+                else { lastX = e.getX(rest[0]); lastY = e.getY(rest[0]) }
             }
             MotionEvent.ACTION_UP -> {
-                if (!moved && e.eventTime - downT < 300) pick(e.x, e.y)
+                if (!moved && !multi && e.eventTime - downT < 300) tap(e.x, e.y, e.eventTime, w, h)
                 else if (!multi) {
                     vt?.computeCurrentVelocity(1000)
                     val vx = vt?.xVelocity ?: 0f; val vy = vt?.yVelocity ?: 0f
@@ -278,6 +285,53 @@ class MapView(context: Context, refreshHz: Float, val stats: FrameStats) : Frame
             MotionEvent.ACTION_CANCEL -> { vt?.recycle(); vt = null }
         }
         return true
+    }
+
+    private fun twoFrom(x0: Float, y0: Float, x1: Float, y1: Float) {
+        start0[0] = x0; start0[1] = y0; start1[0] = x1; start1[1] = y1
+        startGap = Moves.gap(x0, y0, x1, y1)
+        lastMidX = (x0 + x1) / 2; lastMidY = (y0 + y1) / 2
+        lastGap = startGap; lastAngle = atan2(y1 - y0, x1 - x0)
+    }
+
+    private fun twoFingers(e: MotionEvent, w: Float, h: Float) {
+        val x0 = e.getX(0); val y0 = e.getY(0); val x1 = e.getX(1); val y1 = e.getY(1)
+        val midX = (x0 + x1) / 2; val midY = (y0 + y1) / 2
+        val gap = Moves.gap(x0, y0, x1, y1); val angle = atan2(y1 - y0, x1 - x0)
+        if (two == Two.UNDECIDED) {
+            val d0 = hypot(x0 - start0[0], y0 - start0[1]); val d1 = hypot(x1 - start1[0], y1 - start1[1])
+            if (d0 < slop && d1 < slop) return
+            two = if (Moves.isTilt(x0 - start0[0], y0 - start0[1], x1 - start1[0], y1 - start1[1], gap - startGap, slop)) Two.TILT else Two.TRANSFORM
+            Qa.log("gesture two fingers: ${two.name.lowercase()}")
+        }
+        if (two == Two.TILT) {
+            val dy = midY - lastMidY
+            move { Moves.tilt(it, h, dy) }
+        } else {
+            val px = lastMidX; val py = lastMidY
+            val factor = if (lastGap > 1f) gap / lastGap else 1f
+            val da = Moves.wrap(angle - lastAngle)
+            turned += da
+            if (!turning && kotlin.math.abs(turned) > TURN_THRESHOLD) turning = true
+            move {
+                var st = Moves.pan(it, w, h, px, py, midX, midY)
+                st = Moves.zoom(st, w, h, midX, midY, factor)
+                if (turning) Moves.rotate(st, w, h, midX, midY, da) else st
+            }
+        }
+        lastMidX = midX; lastMidY = midY; lastGap = gap; lastAngle = angle
+    }
+
+    /** A tap picks a run; it waits for a possible second tap, which zooms in on the spot instead. */
+    private fun tap(x: Float, y: Float, t: Long, w: Float, h: Float) {
+        if (t - lastTapT < doubleTapMs && hypot(x - lastTapX, y - lastTapY) < 48 * density) {
+            removeCallbacks(pendingPick); lastTapT = 0L
+            renderer.animateCamera(Moves.zoom(camera.state(), w, h, x, y, 2.2f), 0.35f)
+            Qa.log("gesture double tap: zoom in")
+            return
+        }
+        lastTapT = t; lastTapX = x; lastTapY = y
+        removeCallbacks(pendingPick); postDelayed(pendingPick, doubleTapMs)
     }
 
     /** The run whose line passes closest to the finger, within 28 dp. */

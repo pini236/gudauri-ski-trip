@@ -60,7 +60,7 @@ fun TicketScreen(haptics: Haptics, sounds: Sounds) {
     var tear by remember { mutableFloatStateOf(0f) } // 0..1 down the perforation
     var torn by remember { mutableIntStateOf(0) }
     var falling by remember { mutableStateOf(false) }
-    var fall by remember { mutableStateOf(Triple(0f, 0f, 0f)) } // dy, rotation, alpha
+    var fall by remember { mutableStateOf(Triple(0f, 0f, 1f)) } // dy, rotation, alpha: the stub starts in place and fully visible
     var frame by remember { mutableIntStateOf(0) }
     val scope = rememberCoroutineScope()
     val wobble = remember { Animatable(0f) }

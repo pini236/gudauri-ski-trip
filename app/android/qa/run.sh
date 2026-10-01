@@ -35,7 +35,8 @@ mark() { MARK=$(wc -l < "$OUT/logcat.txt"); }
 waitlog() { # waitlog <text> [seconds]
   local deadline=$((SECONDS + ${2:-60}))
   while (( SECONDS < deadline )); do
-    tail -n +"$((MARK + 1))" "$OUT/logcat.txt" | grep -q "SkiQa.*$1" && return 0
+    # grep reads to the end (no -q): with pipefail, an early exit would kill tail and fail the check
+    tail -n +"$((MARK + 1))" "$OUT/logcat.txt" | grep "SkiQa.*$1" > /dev/null && return 0
     sleep 0.5
   done
   fail "no '$1' in the log after ${2:-60}s"; return 1
@@ -64,11 +65,17 @@ map() {
   sleep 2; shot map-overview-11h
   grep "SkiQa.*shadow ready" "$OUT/logcat.txt" | tail -1 | sed 's/.*SkiQa[^:]*: /startup: /' | tee -a "$OUT/summary.txt"
 
-  # one finger pans, a fling, a tap on empty snow
-  drag $((W / 2)) $((H / 2)) $((W / 2 - W / 4)) $((H / 2 + H / 10)) 400; sleep 1.5; shot map-pan
-  qa "--es qa.cam '600,-500,11000,20,36'"; sleep 1.5; shot map-camera-reset
+  # gestures: the app plays them as real touches (the emulator's input has one finger) and logs the camera
+  RESET="--es qa.cam '600,-500,11000,20,36'"
+  for g in pan pinch-out pinch-in turn tilt-up tilt-down double-tap two-tap; do
+    qa "$RESET"; sleep 1
+    qa "--es qa.gesture $g"
+    waitlog "gesture $g done" 15 && grep "SkiQa.*gesture $g done" "$OUT/logcat.txt" | tail -1 | sed 's/.*SkiQa[^:]*: //' | tee -a "$OUT/summary.txt"
+    sleep 0.5; shot "map-gesture-$g"
+  done
+  qa "$RESET"; sleep 1.5; shot map-camera-reset
 
-  # runs: the reveal, the landing and the sign
+  # runs: the reveal, the landing on the whole run and the sign
   for run in "Tatra 2" "Kudebi 1" "Sadzele 2" "Goodaura 1" "Snow Park"; do
     local slug=${run// /-}
     qa "--es qa.run '$run'"
@@ -79,16 +86,19 @@ map() {
   done
   qa "--es qa.run none"; waitlog "selected none" 10; sleep 1.5; shot map-cleared
 
-  # the fly-down: frames along the way, then the stop
+  # the fly-down: the skier's dot and the bar along the way, then the stop
   qa "--es qa.run 'Tatra 2' --ez qa.fly true"
   waitlog "fly started" 30 && burst fly-tatra-2 6 3
   qa "--es qa.run none"; sleep 1
 
-  # light through the day: morning, low afternoon sun, night
-  for t in 08:30 15:30 21:00; do
-    qa "--es qa.time 2027-01-12T$t --es qa.cam '600,-500,11000,20,36'"
-    waitlog "shadow ready" 120; sleep 1.5; shot "map-light-${t/:/}"
+  # the light through a day in January: dawn, noon, the low afternoon sun, sunset, night with the moon
+  for t in 09:30/sun 12:30/- 16:30/sun 17:10/- 20:00/- 21:00/moon; do
+    local at=${t%/*} face=${t#*/} extra=""
+    [ "$face" != "-" ] && extra="--es qa.face $face"
+    qa "--es qa.time 2027-01-12T$at $RESET $extra"
+    waitlog "shadow ready" 120; sleep 1.5; shot "map-light-${at/:/}${extra:+-$face}"
   done
+  qa "--es qa.time 2027-01-12T12:30 $RESET"; waitlog "shadow ready" 120
 }
 
 # ---- the descent game ----

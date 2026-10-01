@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -29,6 +30,10 @@ import io.github.pini236.skiapp.data.Piste
 import io.github.pini236.skiapp.ui.Karantina
 import io.github.pini236.skiapp.ui.Palette
 import io.github.pini236.skiapp.ui.Plex
+import kotlinx.coroutines.delay
+import java.text.NumberFormat
+import java.util.Locale
+import kotlin.math.roundToInt
 
 /** The 3D map screen: the GL mountain with a run sign and the fly-down button on top. */
 @Composable
@@ -48,7 +53,8 @@ fun MapScreen(view: MapView, scene: MapScene?) {
         }
         val p = selected
         if (p != null) {
-            Column(Modifier.align(Alignment.BottomCenter).fillMaxWidth().padding(12.dp)) {
+            Column(Modifier.align(Alignment.BottomCenter).fillMaxWidth().padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                if (flying) FlyBar(view, p.name)
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     // the run's sign: its colour and its name, square corners like the trail signs
                     Box(Modifier.background(Palette.run(p.color)).padding(horizontal = 14.dp, vertical = 6.dp)) {
@@ -68,6 +74,23 @@ fun MapScreen(view: MapView, scene: MapScene?) {
 }
 
 @Composable private fun Spacer1() = Box(Modifier.size(0.dp))
+
+/** While flying down: where the skier is, as on the site (6.4.1): the run, distance, height and slope. */
+@Composable
+private fun FlyBar(view: MapView, name: String) {
+    var line by remember { mutableStateOf("") }
+    val nf = remember { NumberFormat.getIntegerInstance(Locale.US) }
+    LaunchedEffect(view) {
+        while (true) {
+            view.flyInfo()?.let { f -> line = "${nf.format(f[0].toInt())} מ׳ · ${nf.format(f[2].toInt())} מ׳ גובה · ${f[3].roundToInt()}°" }
+            delay(100)
+        }
+    }
+    Row(Modifier.background(Color(0xE613233A)).padding(horizontal = 12.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+        Text(name, fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = Color.White)
+        Text("  ·  $line", fontFamily = Plex, fontSize = 15.sp, color = Color.White)
+    }
+}
 
 @Composable
 fun Button(label: String, onClick: () -> Unit) {

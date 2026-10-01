@@ -50,9 +50,11 @@ import io.github.pini236.skiapp.map.MapScene
 import io.github.pini236.skiapp.map.MapScreen
 import io.github.pini236.skiapp.map.MapView
 import io.github.pini236.skiapp.map.OrbitCamera
+import io.github.pini236.skiapp.map.Sky
 import io.github.pini236.skiapp.map.Sun
 import io.github.pini236.skiapp.perf.FrameStats
 import io.github.pini236.skiapp.perf.Startup
+import io.github.pini236.skiapp.qa.GesturePlayer
 import io.github.pini236.skiapp.qa.Qa
 import io.github.pini236.skiapp.ticket.TicketScreen
 import io.github.pini236.skiapp.ui.Karantina
@@ -66,6 +68,7 @@ import java.util.concurrent.Executors
  * with a frame counter on top. Not the real app: just enough to measure what is risky.
  */
 class MainActivity : ComponentActivity() {
+    private companion object { const val SKY_EVERY_MS = 5 * 60_000L }
     private val uiStats = FrameStats()
     private val glStats = FrameStats()
     private var refreshHz = 60f
@@ -140,21 +143,27 @@ class MainActivity : ComponentActivity() {
             Qa.log("scene ready")
         }
         castShadows(s)
-        runOnUiThread { qaPending?.let { qaPending = null; applyQaMap(it, sunDone = true) } }
+        runOnUiThread { qaPending?.let { qaPending = null; applyQaMap(it, sunDone = true) }; mapView.postDelayed(skyTick, SKY_EVERY_MS) }
     }
 
-    /** Light: the real sun over Gudauri at that time; at night, a low winter afternoon sun so the shading shows. */
+    /** The sun moves: light and shadows again every few minutes (unless the QA run pinned the time). */
+    private val skyTick: Runnable = object : Runnable {
+        override fun run() {
+            val s = scene ?: return
+            if (clockMs == null) loader.execute { val note = placeSun(s, System.currentTimeMillis()); runOnUiThread { sunNote = note }; castShadows(s) }
+            mapView.postDelayed(this, SKY_EVERY_MS)
+        }
+    }
+
+    /** Light: the sky over Gudauri at that time, as on the site: the sun by day, the moon at night (map/Sky.kt). */
     private fun placeSun(s: MapScene, timeMs: Long): String {
-        val (az, alt) = Sun.position(timeMs)
-        val real = alt > Math.toRadians(6.0)
-        s.sunDir = if (real) Sun.direction(az, alt) else Sun.direction(Math.toRadians(215.0), Math.toRadians(20.0))
-        s.sunIsReal = real
-        return if (real) "שמש אמיתית עכשיו" else "לילה בגודאורי: שמש של אחר הצהריים"
+        s.light = Sky.at(timeMs)
+        return s.light.note
     }
 
     private fun castShadows(s: MapScene) {
         val t2 = SystemClock.uptimeMillis()
-        s.shadow = Sun.shadows(s.terrain, s.sunDir)
+        s.shadow = Sun.shadows(s.terrain, s.light.dir)
         Startup.shadowMs = SystemClock.uptimeMillis() - t2
         runOnUiThread {
             mapView.updateShadow()
@@ -180,6 +189,17 @@ class MainActivity : ComponentActivity() {
             val ms = clockMs ?: return
             loader.execute { val note = placeSun(s, ms); runOnUiThread { sunNote = note }; castShadows(s) }
         }
+        i.getStringExtra("qa.face")?.let { body ->
+            // turn to the sun or the moon, almost level, to see it over the ridges (after the new time's light is in)
+            loader.execute {
+                runOnUiThread {
+                    val d = if (body == "moon") s.light.moonDir else s.light.sunDir
+                    val st = mapView.camera.state()
+                    mapView.look(st.copy(yaw = -kotlin.math.atan2(d[0], -d[2]), pitch = io.github.pini236.skiapp.map.Moves.MIN_PITCH))
+                    Qa.log("facing $body")
+                }
+            }
+        }
         i.getStringExtra("qa.cam")?.let { c ->
             val v = Qa.parseCamera(c) ?: return@let Qa.log("bad camera $c")
             mapView.look(OrbitCamera.State(v[0], s.terrain.elev(v[0], v[1]), v[1], v[2], Math.toRadians(v[3].toDouble()).toFloat(), Math.toRadians(v[4].toDouble()).toFloat()))
@@ -189,11 +209,12 @@ class MainActivity : ComponentActivity() {
             else s.runs.pistes.firstOrNull { it.key == key || it.name == key }?.let { mapView.select(it) } ?: Qa.log("no run $key")
         }
         if (i.getBooleanExtra("qa.fly", false)) mapView.postDelayed({ mapView.flyDown() }, 1500)
+        i.getStringExtra("qa.gesture")?.let { GesturePlayer.play(mapView, it) }
     }
 
     override fun onPause() { super.onPause(); mapView.onPause() }
     override fun onResume() { super.onResume(); mapView.onResume() }
-    override fun onDestroy() { super.onDestroy(); sounds.release(); mapView.release(); metricsThread.quitSafely(); loader.shutdownNow() }
+    override fun onDestroy() { super.onDestroy(); mapView.removeCallbacks(skyTick); sounds.release(); mapView.release(); metricsThread.quitSafely(); loader.shutdownNow() }
 
     @Composable
     private fun App() {

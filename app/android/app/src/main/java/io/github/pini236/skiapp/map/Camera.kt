@@ -27,17 +27,11 @@ class OrbitCamera {
 
     @Synchronized fun set(s: State) { tx = s.tx; ty = s.ty; tz = s.tz; dist = s.dist; yaw = s.yaw; pitch = s.pitch }
 
+    /** Read, change and write back in one go (touch and the renderer both move the camera). */
+    @Synchronized fun update(f: (State) -> State) = set(f(state()))
+
     /** Metres on the ground per screen pixel at the target. */
     private fun metresPerPx(viewH: Int) = (2 * dist * tan(fovDeg * PI / 360) / viewH.coerceAtLeast(1)).toFloat()
-
-    @Synchronized fun pan(dxPx: Float, dyPx: Float, viewH: Int) {
-        val k = metresPerPx(viewH)
-        val rx = cos(yaw); val rz = -sin(yaw)
-        val fx = -sin(yaw); val fz = -cos(yaw)
-        val tiltK = 1f / sin(pitch).coerceAtLeast(0.35f)
-        tx += -rx * dxPx * k + fx * dyPx * k * tiltK
-        tz += -rz * dxPx * k + fz * dyPx * k * tiltK
-    }
 
     @Synchronized fun fling(vxPx: Float, vyPx: Float, viewH: Int) {
         val k = metresPerPx(viewH)
@@ -50,9 +44,6 @@ class OrbitCamera {
 
     @Synchronized fun stopFling() { vx = 0f; vz = 0f }
 
-    @Synchronized fun zoom(factor: Float) { dist = (dist / factor).coerceIn(250f, 32000f) }
-    @Synchronized fun rotate(d: Float) { yaw += d }
-    @Synchronized fun tilt(d: Float) { pitch = (pitch + d).coerceIn(0.12f, 1.5f) }
 
     /** Advances the fling; returns true while still moving. */
     @Synchronized fun step(dt: Float): Boolean {

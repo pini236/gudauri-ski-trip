@@ -126,12 +126,16 @@ fun DescentScreen(profile: Profile?, haptics: Haptics, sounds: Sounds) {
 
 private fun DrawScope.drawScene(g: Descent, flakes: List<Flake>, shake: Float) {
     val w = size.width; val h = size.height
-    val scale = w / 46f // metres across the screen
-    val camX = g.x + 9f
+    // a tall phone sees fewer metres across, so the skier is big enough to read (the site shows 46 m)
+    val metres = if (h > w * 1.3f) 26f else 46f
+    val scale = w / metres
+    val camX = g.x + metres * 0.2f // the skier left of centre, the run ahead in view
     val camY = g.groundAt(camX) + 4f
     val shX = if (shake > 0.05f) (Random.nextFloat() - 0.5f) * shake * 3 else 0f
     fun sx(x: Float) = (x - camX) * scale + w * 0.5f + shX
-    fun sy(y: Float) = h * 0.52f - (y - camY) * scale
+    fun sy(y: Float) = h * 0.56f - (y - camY) * scale
+    val px1 = w / 1080f // the ridges' waves were drawn for a 1080-pixel-wide screen
+    val horizon = sy(camY - 4f) - h * 0.12f
 
     drawRect(Brush.verticalGradient(listOf(Color(0xFF9FC3E6), Palette.sky1, Palette.sky2)))
     // far ridges, slower than the snow
@@ -140,7 +144,7 @@ private fun DrawScope.drawScene(g: Descent, flakes: List<Flake>, shake: Float) {
         var px = 0f
         while (px <= w + 20) {
             val wx = (px / scale + camX * k)
-            val ry = h * (0.42f - k * 0.3f) - (sin(wx * 0.045f) * 40 + sin(wx * 0.11f + 1) * 22 + sin(wx * 0.017f) * 70) * (1 + k)
+            val ry = horizon - h * k * 0.3f - (sin(wx * 0.045f) * 40 + sin(wx * 0.11f + 1) * 22 + sin(wx * 0.017f) * 70) * (1 + k) * px1
             p.lineTo(px, ry); px += 12f
         }
         p.lineTo(w, h); p.close(); drawPath(p, col)

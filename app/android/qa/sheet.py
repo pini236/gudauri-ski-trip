@@ -9,8 +9,9 @@ from PIL import Image, ImageDraw, ImageFont
 
 THUMB_W = 300
 COLS = 6
-PARTS = [("map", r"-(map|run)-"), ("fly", r"-fly-"), ("light", r"-map-light-"), ("descent", r"-descent-"),
-         ("ticket", r"-ticket-|-ticket\."), ("release", r"-release-")]
+# the specific parts first: a shot goes to the first part it matches
+PARTS = [("gesture", r"-map-gesture-"), ("light", r"-map-light-"), ("fly", r"-fly-"), ("descent", r"-descent-"),
+         ("ticket", r"-ticket-|-ticket\."), ("release", r"-release-"), ("map", r"-(map|run)-")]
 
 
 def sheet(files, out):
@@ -41,8 +42,6 @@ def main():
     used = set()
     for part, pattern in PARTS:
         picked = [f for f in files if re.search(pattern, "-" + f.name) and f not in used]
-        if part == "map":  # the light series has its own sheet
-            picked = [f for f in picked if "-map-light-" not in "-" + f.name]
         used.update(picked)
         if picked:
             sheet(picked, out / f"sheet-{part}.png")
