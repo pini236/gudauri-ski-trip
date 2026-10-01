@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  The app's words (stage 13.2, the language structure). This default file is Hebrew, the first language: a phone in
+  any language gets Hebrew until its own file exists. English, Russian and Georgian go in values-en, values-ru and
+  values-ka with the same names; the languages session (i18n/) writes them, and StringsTest checks that every file
+  has every name with the same placeholders. Each new language is also added to xml/locales_config.xml.
+  The app's name comes from the build (app_name, per flavour).
+-->
+<resources>
+    <!-- the language of this file: the layout direction and the fonts follow it (i18n/Lang.kt) -->
+    <string name="lang" translatable="false">he</string>
+
+    <string name="tab_map">מפה</string>
+    <string name="tab_descent">ירידה</string>
+    <string name="tab_ticket">כרטיס</string>
+
+    <string name="loading">טוען…</string>
+    <string name="map_loading">טוען את ההר…</string>
+    <string name="map_hint">נגיעה במסלול בוחרת אותו. אצבע אחת מזיזה, שתיים מקרבות, מסובבות ומטות.</string>
+    <string name="map_fly">טיסה במורד</string>
+    <string name="map_stop">עצירה</string>
+    <string name="map_close">סגירה</string>
+    <!-- the fly-down bar: distance, height and slope -->
+    <string name="map_fly_line">%1$s מ׳ · %2$s מ׳ גובה · %3$d°</string>
+    <!-- 3D labels: a peak with its height, a lift's top station -->
+    <string name="map_peak">%1$s · %2$s מ׳</string>
+    <string name="map_lift">רכבל %1$s</string>
+
+    <string name="descent_hud">%1$s · %2$s / %3$s מ׳ · %4$d קמ״ש · סלטות %5$d</string>
+    <string name="descent_done">הגעתם למטה!</string>
+    <string name="descent_score">סלטות %1$d · נחיתות %2$d · נפילות %3$d</string>
+    <string name="descent_again">שוב</string>
+    <string name="descent_hint_ground">מחזיקים ומתכופפים, משחררים לקפיצה</string>
+    <string name="descent_hint_air">באוויר: מחזיקים לסלטה</string>
+
+    <string name="ticket_hint">כרטיס לדוגמה: גוררים את הספח למטה כדי לתלוש</string>
+    <string name="ticket_title">כרטיס עלייה למטוס · דוגמה</string>
+    <string name="ticket_flight">טיסה GD 101 · 15.12 · 16:00</string>
+    <string name="ticket_gate">שער — · מושב —</string>
+    <string name="ticket_stub">ספח</string>
+    <string name="ticket_sign">מפת המסלולים</string>
+    <string name="ticket_credits">צליל הקריעה: \"Perforated Tear\" מאת everythingsounds (Freesound), ברישיון CC BY 4.0. צלילי הכרטיס: Kenney (CC0).</string>
+</resources>

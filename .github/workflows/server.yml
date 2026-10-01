@@ -1,0 +1,55 @@
+# Server tests (server/): the migrations and the row level security tests,
+# twice: on the real Supabase database (Supabase CLI, Docker) and on a plain
+# Postgres with a stand-in for Supabase (the way they run in a cloud session
+# without Docker). Runs only when the server changes (decision 34).
+name: server
+
+on:
+  push:
+    paths: ['server/**', '.github/workflows/server.yml']
+  pull_request:
+    paths: ['server/**', '.github/workflows/server.yml']
+  workflow_dispatch:
+
+concurrency:
+  group: server-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  supabase:
+    name: real Supabase
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      # Placeholders so the config loads; nobody signs in during the tests.
+      SUPABASE_AUTH_EXTERNAL_GOOGLE_CLIENT_ID: test
+      SUPABASE_AUTH_EXTERNAL_GOOGLE_SECRET: test
+      SUPABASE_AUTH_EXTERNAL_APPLE_CLIENT_ID: test
+      SUPABASE_AUTH_EXTERNAL_APPLE_SECRET: test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: supabase/setup-cli@v1
+        with:
+          version: 2.119.0
+      - name: Start the database and apply the migrations
+        working-directory: server
+        run: |
+          supabase db start
+          supabase migration up --local
+      - name: Tests
+        run: DB_URL=postgresql://postgres:postgres@127.0.0.1:54322/postgres server/test.sh
+
+  postgres:
+    name: plain Postgres
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Postgres 16 with pgTAP
+        run: |
+          sudo apt-get update -q
+          sudo apt-get install -y -q postgresql-16-pgtap
+          sudo systemctl start postgresql
+          sudo -u postgres psql -c "alter user postgres password 'postgres'"
+      - name: Tests
+        run: DB_URL=postgresql://postgres:postgres@127.0.0.1:5432/postgres server/test.sh --fresh

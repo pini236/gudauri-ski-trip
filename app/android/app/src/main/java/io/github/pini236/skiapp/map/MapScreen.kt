@@ -1,6 +1,13 @@
 package io.github.pini236.skiapp.map
 
 import androidx.compose.foundation.background
+import io.github.pini236.skiapp.telemetry.Telemetry
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.contentDescription
+import io.github.pini236.skiapp.i18n.Lang
+import androidx.compose.ui.platform.LocalContext
+import io.github.pini236.skiapp.R
+import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -32,7 +39,6 @@ import io.github.pini236.skiapp.ui.Palette
 import io.github.pini236.skiapp.ui.Plex
 import kotlinx.coroutines.delay
 import java.text.NumberFormat
-import java.util.Locale
 import kotlin.math.roundToInt
 
 /** The 3D map screen: the GL mountain with a run sign and the fly-down button on top. */
@@ -49,7 +55,7 @@ fun MapScreen(view: MapView, scene: MapScene?) {
     Box(Modifier.fillMaxSize()) {
         AndroidView(factory = { view.also { (it.parent as? android.view.ViewGroup)?.removeView(it) } }, modifier = Modifier.fillMaxSize())
         if (scene == null) {
-            Text("טוען את ההר…", Modifier.align(Alignment.Center), fontFamily = Plex, fontSize = 16.sp, color = Palette.ink)
+            Text(stringResource(R.string.map_loading), Modifier.align(Alignment.Center), fontFamily = Plex, fontSize = 16.sp, color = Palette.ink)
         }
         val p = selected
         if (p != null) {
@@ -61,12 +67,12 @@ fun MapScreen(view: MapView, scene: MapScene?) {
                         Text(p.name, fontFamily = Karantina, fontWeight = FontWeight.Bold, fontSize = 30.sp, color = Color.White)
                     }
                     Spacer1()
-                    Button(if (flying) "עצירה" else "טיסה במורד") { if (flying) view.stopFly() else view.flyDown() }
-                    Button("✕") { view.select(null) }
+                    Button(stringResource(if (flying) R.string.map_stop else R.string.map_fly)) { if (flying) view.stopFly() else { view.flyDown(); Telemetry.event("run_fly", mapOf("run" to p.key)) } }
+                    Button("✕", stringResource(R.string.map_close)) { view.select(null) }
                 }
             }
         } else if (scene != null) {
-            Text("נגיעה במסלול בוחרת אותו. אצבע אחת מזיזה, שתיים מקרבות, מסובבות ומטות.",
+            Text(stringResource(R.string.map_hint),
                 Modifier.align(Alignment.BottomCenter).padding(16.dp).background(Color(0xE6FFFFFF)).padding(10.dp),
                 fontFamily = Plex, fontSize = 13.sp, color = Palette.ink)
         }
@@ -79,10 +85,11 @@ fun MapScreen(view: MapView, scene: MapScene?) {
 @Composable
 private fun FlyBar(view: MapView, name: String) {
     var line by remember { mutableStateOf("") }
-    val nf = remember { NumberFormat.getIntegerInstance(Locale.US) }
+    val res = LocalContext.current.resources
+    val nf = remember { NumberFormat.getIntegerInstance(Lang.current(res).locale) }
     LaunchedEffect(view) {
         while (true) {
-            view.flyInfo()?.let { f -> line = "${nf.format(f[0].toInt())} מ׳ · ${nf.format(f[2].toInt())} מ׳ גובה · ${f[3].roundToInt()}°" }
+            view.flyInfo()?.let { f -> line = res.getString(R.string.map_fly_line, nf.format(f[0].toInt()), nf.format(f[2].toInt()), f[3].roundToInt()) }
             delay(100)
         }
     }
@@ -93,9 +100,9 @@ private fun FlyBar(view: MapView, name: String) {
 }
 
 @Composable
-fun Button(label: String, onClick: () -> Unit) {
+fun Button(label: String, description: String? = null, onClick: () -> Unit) {
     Box(
-        Modifier.heightIn(min = 44.dp).background(Palette.ink).clickable(onClick = onClick).padding(horizontal = 16.dp, vertical = 10.dp),
+        Modifier.heightIn(min = 44.dp).let { m -> if (description != null) m.semantics { contentDescription = description } else m }.background(Palette.ink).clickable(onClick = onClick).padding(horizontal = 16.dp, vertical = 10.dp),
         contentAlignment = Alignment.Center,
     ) { Text(label, fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = Color.White) }
 }

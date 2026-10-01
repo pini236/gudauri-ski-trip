@@ -1,6 +1,11 @@
 package io.github.pini236.skiapp.game
 
 import androidx.compose.foundation.Canvas
+import io.github.pini236.skiapp.telemetry.Telemetry
+import io.github.pini236.skiapp.i18n.Lang
+import androidx.compose.ui.platform.LocalContext
+import io.github.pini236.skiapp.R
+import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
@@ -41,7 +46,6 @@ import io.github.pini236.skiapp.ui.Palette
 import io.github.pini236.skiapp.ui.Plex
 import kotlinx.coroutines.delay
 import java.text.NumberFormat
-import java.util.Locale
 import kotlin.math.sin
 import kotlin.random.Random
 
@@ -49,7 +53,7 @@ private class Flake(var x: Float, var y: Float, var vx: Float, var vy: Float, va
 
 @Composable
 fun DescentScreen(profile: Profile?, haptics: Haptics, sounds: Sounds) {
-    if (profile == null) { Box(Modifier.fillMaxSize()) { Text("טוען…", Modifier.align(Alignment.Center), fontFamily = Plex) }; return }
+    if (profile == null) { Box(Modifier.fillMaxSize()) { Text(stringResource(R.string.loading), Modifier.align(Alignment.Center), fontFamily = Plex) }; return }
     var round by remember { mutableIntStateOf(0) }
     val game = remember(round) { Descent(profile.h, profile.step, profile.len) }
     val flakes = remember(round) { ArrayList<Flake>() }
@@ -57,8 +61,15 @@ fun DescentScreen(profile: Profile?, haptics: Haptics, sounds: Sounds) {
     var hud by remember { mutableStateOf("") }
     var done by remember(round) { mutableStateOf(false) }
     var shake by remember { mutableStateOf(0f) }
-    val nf = remember { NumberFormat.getIntegerInstance(Locale.US) }
+    val res = LocalContext.current.resources
+    val nf = remember { NumberFormat.getIntegerInstance(Lang.current(res).locale) }
 
+    LaunchedEffect(round) { Telemetry.event("game_start", mapOf("game" to "descent", "run" to profile.key)) }
+    val startedAt = remember(round) { System.currentTimeMillis() }
+    LaunchedEffect(done) {
+        if (done) Telemetry.event("game_end", mapOf("game" to "descent", "run" to profile.key, "flips" to game.flips, "landings" to game.landings,
+            "crashes" to game.crashes, "seconds" to (System.currentTimeMillis() - startedAt) / 1000))
+    }
     LaunchedEffect(round) {
         var last = 0L
         while (true) {
@@ -91,7 +102,7 @@ fun DescentScreen(profile: Profile?, haptics: Haptics, sounds: Sounds) {
     }
     LaunchedEffect(round) {
         while (true) {
-            hud = "${profile.key} · ${nf.format(game.distance.toInt())} / ${nf.format(profile.len.toInt())} מ׳ · ${game.speedKmh.toInt()} קמ״ש · סלטות ${game.flips}"
+            hud = res.getString(R.string.descent_hud, profile.key, nf.format(game.distance.toInt()), nf.format(profile.len.toInt()), game.speedKmh.toInt(), game.flips)
             delay(100)
         }
     }
@@ -112,12 +123,12 @@ fun DescentScreen(profile: Profile?, haptics: Haptics, sounds: Sounds) {
             fontFamily = Plex, fontSize = 14.sp, color = Color.White)
         if (done) {
             Column(Modifier.align(Alignment.Center).background(Color(0xF2FFFFFF)).padding(20.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                Text("הגעתם למטה!", fontFamily = Karantina, fontWeight = FontWeight.Bold, fontSize = 44.sp, color = Palette.ink)
-                Text("סלטות ${game.flips} · נחיתות ${game.landings} · נפילות ${game.crashes}", fontFamily = Plex, fontSize = 15.sp, color = Palette.ink)
-                Box(Modifier.padding(top = 12.dp)) { Button("שוב") { round++ } }
+                Text(stringResource(R.string.descent_done), fontFamily = Karantina, fontWeight = FontWeight.Bold, fontSize = 44.sp, color = Palette.ink)
+                Text(stringResource(R.string.descent_score, game.flips, game.landings, game.crashes), fontFamily = Plex, fontSize = 15.sp, color = Palette.ink)
+                Box(Modifier.padding(top = 12.dp)) { Button(stringResource(R.string.descent_again)) { round++ } }
             }
         } else {
-            Text(if (game.air) "באוויר: מחזיקים לסלטה" else "מחזיקים ומתכופפים, משחררים לקפיצה",
+            Text(stringResource(if (game.air) R.string.descent_hint_air else R.string.descent_hint_ground),
                 Modifier.align(Alignment.BottomCenter).fillMaxWidth().background(Color(0xE613233A)).padding(14.dp),
                 fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = Color.White)
         }

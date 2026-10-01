@@ -1,6 +1,7 @@
 package io.github.pini236.skiapp
 
 import android.content.Intent
+import io.github.pini236.skiapp.telemetry.Telemetry
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
@@ -10,6 +11,7 @@ import android.os.SystemClock
 import android.view.FrameMetrics
 import android.view.ViewTreeObserver
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.background
@@ -28,7 +30,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -42,6 +43,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.pini236.skiapp.data.Profile
 import io.github.pini236.skiapp.data.Runs
+import io.github.pini236.skiapp.data.SiteData
 import io.github.pini236.skiapp.data.Terrain
 import io.github.pini236.skiapp.fx.Haptics
 import io.github.pini236.skiapp.fx.Sounds
@@ -52,6 +54,10 @@ import io.github.pini236.skiapp.map.MapView
 import io.github.pini236.skiapp.map.OrbitCamera
 import io.github.pini236.skiapp.map.Sky
 import io.github.pini236.skiapp.map.Sun
+import io.github.pini236.skiapp.i18n.Lang
+import androidx.compose.ui.res.stringResource
+import io.github.pini236.skiapp.nav.Nav
+import io.github.pini236.skiapp.nav.Route
 import io.github.pini236.skiapp.perf.FrameStats
 import io.github.pini236.skiapp.perf.Startup
 import io.github.pini236.skiapp.qa.GesturePlayer
@@ -77,23 +83,35 @@ class MainActivity : ComponentActivity() {
     private lateinit var mapView: MapView
     private val metricsThread = HandlerThread("frame-metrics").apply { start() }
     private val loader = Executors.newSingleThreadExecutor()
+    private lateinit var siteData: SiteData
 
     private var scene by mutableStateOf<MapScene?>(null)
     private var profile by mutableStateOf<Profile?>(null)
     private var sunNote by mutableStateOf("")
-    private var tab by mutableIntStateOf(0)
+    private lateinit var nav: Nav
+    private val tab: Int get() = when (nav.top) { is Route.Game -> 1; Route.Ticket -> 2; else -> 0 }
     private var showStats by mutableStateOf(true)
     private var qaPending: Intent? = null
     private var clockMs: Long? = null // the QA run pins the time of day; otherwise it is now
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        // the spike opens on the map; the skeleton will open on the home page (nav/Nav.kt)
+        nav = Nav(Route.Map(), savedInstanceState?.getStringArrayList("nav"))
         Qa.init(this)
+        Telemetry.start(this, BuildConfig.FLAVOR)
         enableEdgeToEdge()
         preferTopRefreshRate()
         haptics = Haptics(this)
         sounds = Sounds(this)
         mapView = MapView(this, refreshHz, glStats)
+        mapView.onChosen = { p ->
+            if (nav.top is Route.Map) nav.replaceTop(Route.Map(p?.key))
+            if (p != null) Telemetry.event("run_open", mapOf("run" to p.key))
+        }
+        @Suppress("DEPRECATION")
+        val version = if (Build.VERSION.SDK_INT >= 28) packageManager.getPackageInfo(packageName, 0).longVersionCode else packageManager.getPackageInfo(packageName, 0).versionCode.toLong()
+        siteData = SiteData(java.io.File(filesDir, "site-data"), version, { name -> assets.open("data/$name").bufferedReader().use { it.readText() } })
 
         if (Build.VERSION.SDK_INT >= 26) {
             window.addOnFrameMetricsAvailableListener({ _, m, _ ->
@@ -113,6 +131,10 @@ class MainActivity : ComponentActivity() {
         setContent { App() }
     }
 
+    override fun attachBaseContext(base: android.content.Context) = super.attachBaseContext(Lang.wrap(base))
+
+    override fun onSaveInstanceState(out: Bundle) { super.onSaveInstanceState(out); out.putStringArrayList("nav", nav.save()) }
+
     override fun onNewIntent(intent: Intent) { super.onNewIntent(intent); setIntent(intent); handleQa(intent) }
 
     private fun preferTopRefreshRate() {
@@ -129,7 +151,8 @@ class MainActivity : ComponentActivity() {
         val t0 = SystemClock.uptimeMillis()
         fun asset(name: String) = assets.open(name).bufferedReader().use { it.readText() }
         val terrain = Terrain.parse(asset("data/terrain.json"))
-        val runs = Runs.parse(asset("data/runs-and-lifts.json"))
+        val runs = Runs.parse(siteData.read("runs-and-lifts.json"))
+        Qa.log("data runs from ${siteData.source("runs-and-lifts.json")}")
         val profiles = Profile.parse(asset("data/profiles.json"))
         Startup.dataMs = SystemClock.uptimeMillis() - t0
         runOnUiThread { profile = profiles.firstOrNull { it.key == "Tatra 2" } ?: profiles.firstOrNull() }
@@ -140,10 +163,15 @@ class MainActivity : ComponentActivity() {
         runOnUiThread {
             sunNote = note
             scene = s; mapView.setScene(s); reportFullyDrawn()
+            // back where the user was: the run chosen before the system closed the app
+            nav.find<Route.Map>()?.run?.let { key -> s.runs.pistes.firstOrNull { it.key == key }?.let { mapView.select(it) } }
             Qa.log("scene ready")
         }
         castShadows(s)
         runOnUiThread { qaPending?.let { qaPending = null; applyQaMap(it, sunDone = true) }; mapView.postDelayed(skyTick, SKY_EVERY_MS) }
+        // new runs, lifts and videos from the site, if there are any: read at the next launch (data/SiteData.kt)
+        val refreshed = siteData.refresh()
+        Qa.log("data refresh ${refreshed.entries.joinToString { "${it.key} ${it.value}" }}")
     }
 
     /** The sun moves: light and shadows again every few minutes (unless the QA run pinned the time). */
@@ -176,7 +204,7 @@ class MainActivity : ComponentActivity() {
         if (i == null || !Qa.enabled) return
         val keys = i.extras?.keySet()?.filter { it.startsWith("qa.") }.orEmpty()
         if (keys.isEmpty()) return
-        i.getStringExtra("qa.tab")?.let { tab = when (it) { "descent" -> 1; "ticket" -> 2; else -> 0 } }
+        i.getStringExtra("qa.tab")?.let { when (it) { "descent" -> nav.switchTo(Route.Game("descent")); "ticket" -> nav.switchTo(Route.Ticket); else -> nav.toStart() } }
         i.getStringExtra("qa.stats")?.let { showStats = it != "off" }
         i.getStringExtra("qa.time")?.let { clockMs = Qa.gudauriTime(it) }
         Qa.log("intent ${keys.sorted()}")
@@ -218,7 +246,12 @@ class MainActivity : ComponentActivity() {
 
     @Composable
     private fun App() {
-        CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
+        BackHandler(enabled = nav.canBack) { nav.back() }
+        // page_view with the site's page names (map, games/descent, ticket); a chosen run is run_open, not a page
+        val page = nav.top.let { if (it is Route.Map) "map" else it.path }
+        LaunchedEffect(page) { Telemetry.event("page_view", mapOf("page" to page)) }
+        // the direction of the language on screen (i18n/Lang.kt): Hebrew today, so right to left
+        CompositionLocalProvider(LocalLayoutDirection provides Lang.current(resources).direction) {
             Column(Modifier.fillMaxSize().background(Palette.snow)) {
                 Box(Modifier.weight(1f).fillMaxWidth()) {
                     when (tab) {
@@ -229,9 +262,9 @@ class MainActivity : ComponentActivity() {
                     if (showStats) StatsBar(tab == 0, Modifier.align(Alignment.TopStart))
                 }
                 Row(Modifier.fillMaxWidth().background(Palette.ink).navigationBarsPadding()) {
-                    listOf("מפה", "ירידה", "כרטיס").forEachIndexed { i, label ->
+                    listOf(R.string.tab_map, R.string.tab_descent, R.string.tab_ticket).map { stringResource(it) }.forEachIndexed { i, label ->
                         Box(
-                            Modifier.weight(1f).heightIn(min = 56.dp).background(if (i == tab) Palette.glacier else Palette.ink).clickable { tab = i; haptics.tick(0.4f) },
+                            Modifier.weight(1f).heightIn(min = 56.dp).background(if (i == tab) Palette.glacier else Palette.ink).clickable { if (i == 0) nav.toStart() else nav.switchTo(if (i == 1) Route.Game("descent") else Route.Ticket); haptics.tick(0.4f) },
                             contentAlignment = Alignment.Center,
                         ) { Text(label, fontFamily = Karantina, fontWeight = FontWeight.Bold, fontSize = 28.sp, color = Color.White) }
                     }
