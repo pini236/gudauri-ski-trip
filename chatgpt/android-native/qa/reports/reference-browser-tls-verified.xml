@@ -1,0 +1,226 @@
+<testsuites id="" name="" tests="100" failures="0" skipped="0" errors="0" time="146.461983">
+<testsuite name="config.spec.ts" timestamp="2026-10-01T16:25:57.132Z" hostname="desktop-light" tests="2" failures="0" skipped="0" time="0.12" errors="0">
+<testcase name="vercel.json תקין ומכיל את כותרות האבטחה" classname="config.spec.ts" time="0.007">
+</testcase>
+<testcase name="סרטונים: כל סרטון שייך למסלול קיים, בקישור תקין וללא כפילות" classname="config.spec.ts" time="0.113">
+</testcase>
+</testsuite>
+<testsuite name="games.spec.ts" timestamp="2026-10-01T16:25:57.132Z" hostname="desktop-light" tests="6" failures="0" skipped="0" time="6.528" errors="0">
+<testcase name="עמוד המשחקים: שלט בבית, כרטיס לכל משחק, וחזרה מהמשחק" classname="games.spec.ts" time="1.365">
+</testcase>
+<testcase name="המשחק נטען בלי שגיאות: הירידה של החבר׳ה" classname="games.spec.ts" time="1.069">
+</testcase>
+<testcase name="המשחק נטען בלי שגיאות: בית הספר לסקי" classname="games.spec.ts" time="0.931">
+</testcase>
+<testcase name="המשחק נטען בלי שגיאות: שלג טרי" classname="games.spec.ts" time="1.068">
+</testcase>
+<testcase name="המשחק נטען בלי שגיאות: איחוד כדורי שלג" classname="games.spec.ts" time="1.076">
+</testcase>
+<testcase name="המשחק נטען בלי שגיאות: קרב כדורי שלג" classname="games.spec.ts" time="1.019">
+</testcase>
+</testsuite>
+<testsuite name="smoke.spec.ts" timestamp="2026-10-01T16:25:57.132Z" hostname="desktop-light" tests="17" failures="0" skipped="0" time="31.67" errors="0">
+<testcase name="דף הבית, מפה, בחירת מסלול, סינון וחזרה" classname="smoke.spec.ts" time="4.84">
+</testcase>
+<testcase name="בלי three.js האתר עובר למבט על ומסתיר את בורר התצוגה" classname="smoke.spec.ts" time="0.735">
+</testcase>
+<testcase name="נתונים נטענים מקבצים נפרדים" classname="smoke.spec.ts" time="0.658">
+</testcase>
+<testcase name="תגיות ה-head: שפה, noindex, וקישור לשיתוף" classname="smoke.spec.ts" time="0.725">
+</testcase>
+<testcase name="כרטיס הטיסה והחבר׳ה מוצגים מקובץ הנתונים, בלי עריכה" classname="smoke.spec.ts" time="0.661">
+</testcase>
+<testcase name="סרטונים מקובץ ההתחלה מוצגים בפרטי המסלול, בלי טופס הוספה" classname="smoke.spec.ts" time="4.159">
+</testcase>
+<testcase name="בלי קבצי טיסה וסרטונים האתר ממשיך לעבוד" classname="smoke.spec.ts" time="0.646">
+</testcase>
+<testcase name="בתלת-ממד יש תוויות לרכבלים" classname="smoke.spec.ts" time="1.638">
+</testcase>
+<testcase name="קישור להורדת האפליקציה מופיע רק כשהקובץ קיים" classname="smoke.spec.ts" time="0.638">
+</testcase>
+<testcase name="כשהקובץ קיים מוצג שלט הורדה עם גודל והסבר התקנה" classname="smoke.spec.ts" time="0.741">
+</testcase>
+<testcase name="יום ולילה: שלושה מצבים, שעון גודאורי והנוף מתחלף" classname="smoke.spec.ts" time="1.121">
+</testcase>
+<testcase name="יום ולילה: במצב אוטומטי בלילה בגודאורי האתר כהה" classname="smoke.spec.ts" time="0.655">
+</testcase>
+<testcase name="תצוגת מסלול: קישור ישיר, צביעה לפי שיפוע, פרופיל, מעבר בין מסלולים וחזרה" classname="smoke.spec.ts" time="1.22">
+</testcase>
+<testcase name="נקודת מפגש: בוחרים תחנה ושעה, כרטיס, איך מגיעים וקישור לשיתוף" classname="smoke.spec.ts" time="1.473">
+</testcase>
+<testcase name="מצב רכבלים: בלי מידע שלטים מושלגים, עם מידע לוח רכבלים וסיכום" classname="smoke.spec.ts" time="4.196">
+</testcase>
+<testcase name="כרטיס הטיסה: שני כרטיסים שמתחלפים, וספח שנתלש וחוזר" classname="smoke.spec.ts" time="4.791">
+</testcase>
+<testcase name="נקודת מפגש: מתחילים בלי בחירה, ומבטלים בכפתור, בשטח ריק, בסיכה וב-X, עם החזרה" classname="smoke.spec.ts" time="2.773">
+</testcase>
+</testsuite>
+<testsuite name="config.spec.ts" timestamp="2026-10-01T16:25:57.132Z" hostname="desktop-dark" tests="2" failures="0" skipped="0" time="0.118" errors="0">
+<testcase name="vercel.json תקין ומכיל את כותרות האבטחה" classname="config.spec.ts" time="0.006">
+</testcase>
+<testcase name="סרטונים: כל סרטון שייך למסלול קיים, בקישור תקין וללא כפילות" classname="config.spec.ts" time="0.112">
+</testcase>
+</testsuite>
+<testsuite name="games.spec.ts" timestamp="2026-10-01T16:25:57.132Z" hostname="desktop-dark" tests="6" failures="0" skipped="0" time="6.266" errors="0">
+<testcase name="עמוד המשחקים: שלט בבית, כרטיס לכל משחק, וחזרה מהמשחק" classname="games.spec.ts" time="1.248">
+</testcase>
+<testcase name="המשחק נטען בלי שגיאות: הירידה של החבר׳ה" classname="games.spec.ts" time="1.075">
+</testcase>
+<testcase name="המשחק נטען בלי שגיאות: בית הספר לסקי" classname="games.spec.ts" time="0.981">
+</testcase>
+<testcase name="המשחק נטען בלי שגיאות: שלג טרי" classname="games.spec.ts" time="1.011">
+</testcase>
+<testcase name="המשחק נטען בלי שגיאות: איחוד כדורי שלג" classname="games.spec.ts" time="1.018">
+</testcase>
+<testcase name="המשחק נטען בלי שגיאות: קרב כדורי שלג" classname="games.spec.ts" time="0.933">
+</testcase>
+</testsuite>
+<testsuite name="smoke.spec.ts" timestamp="2026-10-01T16:25:57.132Z" hostname="desktop-dark" tests="17" failures="0" skipped="0" time="31.293" errors="0">
+<testcase name="דף הבית, מפה, בחירת מסלול, סינון וחזרה" classname="smoke.spec.ts" time="4.552">
+</testcase>
+<testcase name="בלי three.js האתר עובר למבט על ומסתיר את בורר התצוגה" classname="smoke.spec.ts" time="0.824">
+</testcase>
+<testcase name="נתונים נטענים מקבצים נפרדים" classname="smoke.spec.ts" time="0.659">
+</testcase>
+<testcase name="תגיות ה-head: שפה, noindex, וקישור לשיתוף" classname="smoke.spec.ts" time="0.691">
+</testcase>
+<testcase name="כרטיס הטיסה והחבר׳ה מוצגים מקובץ הנתונים, בלי עריכה" classname="smoke.spec.ts" time="0.681">
+</testcase>
+<testcase name="סרטונים מקובץ ההתחלה מוצגים בפרטי המסלול, בלי טופס הוספה" classname="smoke.spec.ts" time="4.251">
+</testcase>
+<testcase name="בלי קבצי טיסה וסרטונים האתר ממשיך לעבוד" classname="smoke.spec.ts" time="0.626">
+</testcase>
+<testcase name="בתלת-ממד יש תוויות לרכבלים" classname="smoke.spec.ts" time="1.634">
+</testcase>
+<testcase name="קישור להורדת האפליקציה מופיע רק כשהקובץ קיים" classname="smoke.spec.ts" time="0.667">
+</testcase>
+<testcase name="כשהקובץ קיים מוצג שלט הורדה עם גודל והסבר התקנה" classname="smoke.spec.ts" time="0.747">
+</testcase>
+<testcase name="יום ולילה: שלושה מצבים, שעון גודאורי והנוף מתחלף" classname="smoke.spec.ts" time="1.062">
+</testcase>
+<testcase name="יום ולילה: במצב אוטומטי בלילה בגודאורי האתר כהה" classname="smoke.spec.ts" time="0.644">
+</testcase>
+<testcase name="תצוגת מסלול: קישור ישיר, צביעה לפי שיפוע, פרופיל, מעבר בין מסלולים וחזרה" classname="smoke.spec.ts" time="1.201">
+</testcase>
+<testcase name="נקודת מפגש: בוחרים תחנה ושעה, כרטיס, איך מגיעים וקישור לשיתוף" classname="smoke.spec.ts" time="1.439">
+</testcase>
+<testcase name="מצב רכבלים: בלי מידע שלטים מושלגים, עם מידע לוח רכבלים וסיכום" classname="smoke.spec.ts" time="4.169">
+</testcase>
+<testcase name="כרטיס הטיסה: שני כרטיסים שמתחלפים, וספח שנתלש וחוזר" classname="smoke.spec.ts" time="4.701">
+</testcase>
+<testcase name="נקודת מפגש: מתחילים בלי בחירה, ומבטלים בכפתור, בשטח ריק, בסיכה וב-X, עם החזרה" classname="smoke.spec.ts" time="2.745">
+</testcase>
+</testsuite>
+<testsuite name="config.spec.ts" timestamp="2026-10-01T16:25:57.132Z" hostname="phone-light" tests="2" failures="0" skipped="0" time="0.129" errors="0">
+<testcase name="vercel.json תקין ומכיל את כותרות האבטחה" classname="config.spec.ts" time="0.005">
+</testcase>
+<testcase name="סרטונים: כל סרטון שייך למסלול קיים, בקישור תקין וללא כפילות" classname="config.spec.ts" time="0.124">
+</testcase>
+</testsuite>
+<testsuite name="games.spec.ts" timestamp="2026-10-01T16:25:57.132Z" hostname="phone-light" tests="6" failures="0" skipped="0" time="5.933" errors="0">
+<testcase name="עמוד המשחקים: שלט בבית, כרטיס לכל משחק, וחזרה מהמשחק" classname="games.spec.ts" time="1.252">
+</testcase>
+<testcase name="המשחק נטען בלי שגיאות: הירידה של החבר׳ה" classname="games.spec.ts" time="0.999">
+</testcase>
+<testcase name="המשחק נטען בלי שגיאות: בית הספר לסקי" classname="games.spec.ts" time="0.981">
+</testcase>
+<testcase name="המשחק נטען בלי שגיאות: שלג טרי" classname="games.spec.ts" time="0.892">
+</testcase>
+<testcase name="המשחק נטען בלי שגיאות: איחוד כדורי שלג" classname="games.spec.ts" time="0.884">
+</testcase>
+<testcase name="המשחק נטען בלי שגיאות: קרב כדורי שלג" classname="games.spec.ts" time="0.925">
+</testcase>
+</testsuite>
+<testsuite name="smoke.spec.ts" timestamp="2026-10-01T16:25:57.132Z" hostname="phone-light" tests="17" failures="0" skipped="0" time="27.579" errors="0">
+<testcase name="דף הבית, מפה, בחירת מסלול, סינון וחזרה" classname="smoke.spec.ts" time="3.769">
+</testcase>
+<testcase name="בלי three.js האתר עובר למבט על ומסתיר את בורר התצוגה" classname="smoke.spec.ts" time="0.744">
+</testcase>
+<testcase name="נתונים נטענים מקבצים נפרדים" classname="smoke.spec.ts" time="0.569">
+</testcase>
+<testcase name="תגיות ה-head: שפה, noindex, וקישור לשיתוף" classname="smoke.spec.ts" time="0.546">
+</testcase>
+<testcase name="כרטיס הטיסה והחבר׳ה מוצגים מקובץ הנתונים, בלי עריכה" classname="smoke.spec.ts" time="0.594">
+</testcase>
+<testcase name="סרטונים מקובץ ההתחלה מוצגים בפרטי המסלול, בלי טופס הוספה" classname="smoke.spec.ts" time="3.79">
+</testcase>
+<testcase name="בלי קבצי טיסה וסרטונים האתר ממשיך לעבוד" classname="smoke.spec.ts" time="0.578">
+</testcase>
+<testcase name="בתלת-ממד יש תוויות לרכבלים" classname="smoke.spec.ts" time="1.522">
+</testcase>
+<testcase name="קישור להורדת האפליקציה מופיע רק כשהקובץ קיים" classname="smoke.spec.ts" time="0.571">
+</testcase>
+<testcase name="כשהקובץ קיים מוצג שלט הורדה עם גודל והסבר התקנה" classname="smoke.spec.ts" time="0.61">
+</testcase>
+<testcase name="יום ולילה: שלושה מצבים, שעון גודאורי והנוף מתחלף" classname="smoke.spec.ts" time="0.97">
+</testcase>
+<testcase name="יום ולילה: במצב אוטומטי בלילה בגודאורי האתר כהה" classname="smoke.spec.ts" time="0.584">
+</testcase>
+<testcase name="תצוגת מסלול: קישור ישיר, צביעה לפי שיפוע, פרופיל, מעבר בין מסלולים וחזרה" classname="smoke.spec.ts" time="1.098">
+</testcase>
+<testcase name="נקודת מפגש: בוחרים תחנה ושעה, כרטיס, איך מגיעים וקישור לשיתוף" classname="smoke.spec.ts" time="1.105">
+</testcase>
+<testcase name="מצב רכבלים: בלי מידע שלטים מושלגים, עם מידע לוח רכבלים וסיכום" classname="smoke.spec.ts" time="3.51">
+</testcase>
+<testcase name="כרטיס הטיסה: שני כרטיסים שמתחלפים, וספח שנתלש וחוזר" classname="smoke.spec.ts" time="4.731">
+</testcase>
+<testcase name="נקודת מפגש: מתחילים בלי בחירה, ומבטלים בכפתור, בשטח ריק, בסיכה וב-X, עם החזרה" classname="smoke.spec.ts" time="2.288">
+</testcase>
+</testsuite>
+<testsuite name="config.spec.ts" timestamp="2026-10-01T16:25:57.132Z" hostname="phone-dark" tests="2" failures="0" skipped="0" time="0.133" errors="0">
+<testcase name="vercel.json תקין ומכיל את כותרות האבטחה" classname="config.spec.ts" time="0.006">
+</testcase>
+<testcase name="סרטונים: כל סרטון שייך למסלול קיים, בקישור תקין וללא כפילות" classname="config.spec.ts" time="0.127">
+</testcase>
+</testsuite>
+<testsuite name="games.spec.ts" timestamp="2026-10-01T16:25:57.132Z" hostname="phone-dark" tests="6" failures="0" skipped="0" time="5.441" errors="0">
+<testcase name="עמוד המשחקים: שלט בבית, כרטיס לכל משחק, וחזרה מהמשחק" classname="games.spec.ts" time="0.97">
+</testcase>
+<testcase name="המשחק נטען בלי שגיאות: הירידה של החבר׳ה" classname="games.spec.ts" time="0.879">
+</testcase>
+<testcase name="המשחק נטען בלי שגיאות: בית הספר לסקי" classname="games.spec.ts" time="0.904">
+</testcase>
+<testcase name="המשחק נטען בלי שגיאות: שלג טרי" classname="games.spec.ts" time="0.904">
+</testcase>
+<testcase name="המשחק נטען בלי שגיאות: איחוד כדורי שלג" classname="games.spec.ts" time="0.863">
+</testcase>
+<testcase name="המשחק נטען בלי שגיאות: קרב כדורי שלג" classname="games.spec.ts" time="0.921">
+</testcase>
+</testsuite>
+<testsuite name="smoke.spec.ts" timestamp="2026-10-01T16:25:57.132Z" hostname="phone-dark" tests="17" failures="0" skipped="0" time="26.757" errors="0">
+<testcase name="דף הבית, מפה, בחירת מסלול, סינון וחזרה" classname="smoke.spec.ts" time="3.638">
+</testcase>
+<testcase name="בלי three.js האתר עובר למבט על ומסתיר את בורר התצוגה" classname="smoke.spec.ts" time="0.704">
+</testcase>
+<testcase name="נתונים נטענים מקבצים נפרדים" classname="smoke.spec.ts" time="0.552">
+</testcase>
+<testcase name="תגיות ה-head: שפה, noindex, וקישור לשיתוף" classname="smoke.spec.ts" time="0.587">
+</testcase>
+<testcase name="כרטיס הטיסה והחבר׳ה מוצגים מקובץ הנתונים, בלי עריכה" classname="smoke.spec.ts" time="0.659">
+</testcase>
+<testcase name="סרטונים מקובץ ההתחלה מוצגים בפרטי המסלול, בלי טופס הוספה" classname="smoke.spec.ts" time="3.702">
+</testcase>
+<testcase name="בלי קבצי טיסה וסרטונים האתר ממשיך לעבוד" classname="smoke.spec.ts" time="0.528">
+</testcase>
+<testcase name="בתלת-ממד יש תוויות לרכבלים" classname="smoke.spec.ts" time="1.301">
+</testcase>
+<testcase name="קישור להורדת האפליקציה מופיע רק כשהקובץ קיים" classname="smoke.spec.ts" time="0.55">
+</testcase>
+<testcase name="כשהקובץ קיים מוצג שלט הורדה עם גודל והסבר התקנה" classname="smoke.spec.ts" time="0.629">
+</testcase>
+<testcase name="יום ולילה: שלושה מצבים, שעון גודאורי והנוף מתחלף" classname="smoke.spec.ts" time="0.949">
+</testcase>
+<testcase name="יום ולילה: במצב אוטומטי בלילה בגודאורי האתר כהה" classname="smoke.spec.ts" time="0.542">
+</testcase>
+<testcase name="תצוגת מסלול: קישור ישיר, צביעה לפי שיפוע, פרופיל, מעבר בין מסלולים וחזרה" classname="smoke.spec.ts" time="1.044">
+</testcase>
+<testcase name="נקודת מפגש: בוחרים תחנה ושעה, כרטיס, איך מגיעים וקישור לשיתוף" classname="smoke.spec.ts" time="1.128">
+</testcase>
+<testcase name="מצב רכבלים: בלי מידע שלטים מושלגים, עם מידע לוח רכבלים וסיכום" classname="smoke.spec.ts" time="3.372">
+</testcase>
+<testcase name="כרטיס הטיסה: שני כרטיסים שמתחלפים, וספח שנתלש וחוזר" classname="smoke.spec.ts" time="4.596">
+</testcase>
+<testcase name="נקודת מפגש: מתחילים בלי בחירה, ומבטלים בכפתור, בשטח ריק, בסיכה וב-X, עם החזרה" classname="smoke.spec.ts" time="2.276">
+</testcase>
+</testsuite>
+</testsuites>

@@ -1,0 +1,3807 @@
+{
+  "auditDate": "2026-10-01",
+  "scope": "Read-only website baseline and native Android source inventory; geometry and DEM payload remain in source files.",
+  "websiteCommit": "d0a2e88dbc7802a100fe997c8c3b350913ad80a1",
+  "androidSourceCommit": "261eb34",
+  "androidVersion": {
+    "name": "0.1.0",
+    "code": 1,
+    "package": "com.pini.gudauri",
+    "minSdk": 26,
+    "targetSdk": 36
+  },
+  "previousWebsiteBaseline": "27e8725def879515f98219b981c3097690842b46",
+  "installedApkIdentity": "Not verified: no APK or AAB is present in the checkout.",
+  "sourceFiles": [
+    {
+      "path": "site/index.html",
+      "bytes": 24621,
+      "sha256": "32006fb25843cff497e40ccd90cb53974a0a1698780ec64037d21b9c124fabbc"
+    },
+    {
+      "path": "site/css/site.css",
+      "bytes": 51389,
+      "sha256": "c0d5750b4752ad87354ed310d47bad2191e18e064e10e7c9c161bff11e0d7093"
+    },
+    {
+      "path": "site/js/app.js",
+      "bytes": 79728,
+      "sha256": "b08105ad71109062b6232dab6337cadbbe8e852f45a45cb36ebfccda2aac0d1f"
+    },
+    {
+      "path": "site/js/relief.js",
+      "bytes": 37336,
+      "sha256": "545beb4304f7ef6d63a04b90fdd22ee443acbf3f37b846b45f517ee79f64d2cb"
+    },
+    {
+      "path": "site/data/runs-and-lifts.json",
+      "bytes": 48305,
+      "sha256": "fc8d6953a319cbc039a6581d9bcafb9b99972c0d9b5ef25607217276f53a1bfe"
+    },
+    {
+      "path": "site/data/terrain.json",
+      "bytes": 881797,
+      "sha256": "4eb0933774b1b242ae6e3f10d96da6fe83de35f05f695fae88c2a7484657a3a6"
+    },
+    {
+      "path": "site/data/trip.json",
+      "bytes": 872,
+      "sha256": "aafe940269668838ecf149af1570ffe185bd77165fe09acda2ccbafaec8cb7de"
+    },
+    {
+      "path": "site/data/videos-seed.json",
+      "bytes": 13683,
+      "sha256": "9892661ba93a28d496e2c8e530d104f77fcb527c30bea7e1c4b7a4713f6db3d3"
+    },
+    {
+      "path": "site/games/descent/index.html",
+      "bytes": 110394,
+      "sha256": "460953f67260a1268395fb6031b3101bdf2f113d0916070e55eb73c5273d7355"
+    },
+    {
+      "path": "site/games/school/index.html",
+      "bytes": 46972,
+      "sha256": "0d567e5936064ef69cc4e5ff2131dfc0d8f648b1e2567060d3b31faeef7a420c"
+    },
+    {
+      "path": "site/games/fresh-snow/index.html",
+      "bytes": 29300,
+      "sha256": "fff2098ee58c9e450899f0d6f6dacb41a03cda17d5258b5224d555419376820e"
+    },
+    {
+      "path": "site/games/merge/index.html",
+      "bytes": 21479,
+      "sha256": "3ce392107ec09933d7e30d8161ca6bd5a72dfbd04257dffcd623166ec101d471"
+    },
+    {
+      "path": "site/games/snowball/index.html",
+      "bytes": 64607,
+      "sha256": "111fe7241639f41b636d80494920ec73090efc4b4a75774c4489e3146a7e93e9"
+    }
+  ],
+  "totals": {
+    "pisteEntries": 34,
+    "namedPistes": 27,
+    "unnamedEntries": 7,
+    "lifts": 16,
+    "mainNamedStatusLifts": 12,
+    "meetingStations": 20,
+    "videoAssociations": 43,
+    "uniqueVideoUrls": 37,
+    "pistesWithVideos": 18,
+    "partialPistes": 6,
+    "fullyMissingPistes": 0,
+    "games": 5
+  },
+  "trip": {
+    "destination": "גודאורי, גאורגיה",
+    "airline": "ישראייר",
+    "outbound": {
+      "date": "2027-01-10",
+      "flight": "6H 897",
+      "from": "תל אביב",
+      "to": "טביליסי",
+      "departs": "16:00",
+      "arrives": "20:35",
+      "fromCode": "TLV",
+      "toCode": "TBS"
+    },
+    "return": {
+      "date": "2027-01-15",
+      "flight": "6H 892",
+      "from": "טביליסי",
+      "to": "תל אביב",
+      "departs": "01:35",
+      "arrives": "02:15",
+      "note": "בלילה שבין 14 ל-15 בינואר",
+      "fromCode": "TBS",
+      "toCode": "TLV"
+    },
+    "members": [
+      "יהודה וצלר",
+      "דובי אלבום",
+      "שרוליק לפקוביץ׳",
+      "מוישי בוקצ׳ין",
+      "יהודה הרש",
+      "פיני זולברג"
+    ],
+    "baggage": "תיק יד",
+    "skiDays": {
+      "from": "2027-01-11",
+      "to": "2027-01-14"
+    }
+  },
+  "pistes": [
+    {
+      "key": "Soliko 1",
+      "name": "Soliko 1",
+      "osmNames": [
+        "Soliko 1"
+      ],
+      "color": "blue",
+      "named": true,
+      "len": 2826,
+      "osmDiff": [
+        "easy"
+      ],
+      "refs": [
+        "2A"
+      ],
+      "groom": [
+        "classic"
+      ],
+      "lit": [],
+      "segs": [
+        {
+          "id": 158744057,
+          "area": false,
+          "diff": "easy",
+          "pointCount": 43,
+          "geometrySource": {
+            "file": "site/data/runs-and-lifts.json",
+            "jsonPointer": "/pistes/0/segs/0/g"
+          }
+        }
+      ],
+      "fromLifts": [
+        "Soliko"
+      ],
+      "toLifts": [
+        "Soliko",
+        "Zuma"
+      ],
+      "joins": [
+        "Pirveli",
+        "Sportuli 1"
+      ],
+      "fromPistes": [
+        "Kudebi 2"
+      ]
+    },
+    {
+      "key": "Kudebi 3",
+      "name": "Kudebi 3",
+      "osmNames": [
+        "Kudebi 3"
+      ],
+      "color": "red",
+      "named": true,
+      "len": 527,
+      "osmDiff": [
+        "intermediate"
+      ],
+      "refs": [
+        "3C"
+      ],
+      "groom": [
+        "classic"
+      ],
+      "lit": [],
+      "segs": [
+        {
+          "id": 158744062,
+          "area": false,
+          "diff": "intermediate",
+          "pointCount": 15,
+          "geometrySource": {
+            "file": "site/data/runs-and-lifts.json",
+            "jsonPointer": "/pistes/1/segs/0/g"
+          }
+        }
+      ],
+      "fromLifts": [
+        "Kudebi"
+      ],
+      "toLifts": [],
+      "joins": [
+        "Kudebi 1",
+        "Kudebi 2"
+      ],
+      "fromPistes": [
+        "Kudebi 1",
+        "Kudebi 2"
+      ]
+    },
+    {
+      "key": "Kudebi 1",
+      "name": "Kudebi 1",
+      "osmNames": [
+        "Kudebi 1"
+      ],
+      "color": "red",
+      "named": true,
+      "len": 2515,
+      "osmDiff": [
+        "easy",
+        "intermediate"
+      ],
+      "refs": [
+        "3E"
+      ],
+      "groom": [
+        "classic"
+      ],
+      "lit": [],
+      "segs": [
+        {
+          "id": 158744065,
+          "area": false,
+          "diff": "intermediate",
+          "pointCount": 24,
+          "geometrySource": {
+            "file": "site/data/runs-and-lifts.json",
+            "jsonPointer": "/pistes/2/segs/0/g"
+          }
+        },
+        {
+          "id": 668794716,
+          "area": false,
+          "diff": "easy",
+          "pointCount": 10,
+          "geometrySource": {
+            "file": "site/data/runs-and-lifts.json",
+            "jsonPointer": "/pistes/2/segs/1/g"
+          }
+        },
+        {
+          "id": 1483001621,
+          "area": false,
+          "diff": "easy",
+          "pointCount": 10,
+          "geometrySource": {
+            "file": "site/data/runs-and-lifts.json",
+            "jsonPointer": "/pistes/2/segs/2/g"
+          }
+        },
+        {
+          "id": 1483001622,
+          "area": false,
+          "diff": "intermediate",
+          "pointCount": 13,
+          "geometrySource": {
+            "file": "site/data/runs-and-lifts.json",
+            "jsonPointer": "/pistes/2/segs/3/g"
+          }
+        }
+      ],
+      "fromLifts": [
+        "Kudebi"
+      ],
+      "toLifts": [
+        "Kudebi"
+      ],
+      "joins": [
+        "Goodaura 1",
+        "Soliko 1"
+      ],
+      "fromPistes": [
+        "Kudebi 2",
+        "Kudebi 3"
+      ]
+    },
+    {
+      "key": "Kikilo 1",
+      "name": "Kikilo 1",
+      "osmNames": [
+        "Kikilo 1"
+      ],
+      "color": "blue",
+      "named": true,
+      "len": 1759,
+      "osmDiff": [
+        "easy"
+      ],
+      "refs": [],
+      "groom": [
+        "classic"
+      ],
+      "lit": [
+        "no"
+      ],
+      "segs": [
+        {
+          "id": 158744069,
+          "area": false,
+          "diff": "easy",
+          "pointCount": 16,
+          "geometrySource": {
+            "file": "site/data/runs-and-lifts.json",
+            "jsonPointer": "/pistes/3/segs/0/g"
+          }
+        },
+        {
+          "id": 1259783840,
+          "area": false,
+          "diff": "easy",
+          "pointCount": 12,
+          "geometrySource": {
+            "file": "site/data/runs-and-lifts.json",
+            "jsonPointer": "/pistes/3/segs/1/g"
+          }
+        }
+      ],
+      "fromLifts": [
+        "Khada",
+        "Kikilo"
+      ],
+      "toLifts": [
+        "Kikilo"
+      ],
+      "joins": [
+        "New Goodaura"
+      ],
+      "fromPistes": [
+        "Khada"
+      ]
+    },
+    {
+      "key": "Snow Park",
+      "name": "Snow Park",
+      "osmNames": [
+        "Snow Park"
+      ],
+      "color": "green",
+      "named": true,
+      "len": 1188,
+      "osmDiff": [
+        "novice"
+      ],
+      "refs": [],
+      "groom": [
+        "classic"
+      ],
+      "lit": [],
+      "segs": [
+        {
+          "id": 158744071,
+          "area": false,
+          "diff": "novice",
+          "pointCount": 19,
+          "geometrySource": {
+            "file": "site/data/runs-and-lifts.json",
+            "jsonPointer": "/pistes/4/segs/0/g"
+          }
+        },
+        {
+          "id": 1259783830,
+          "area": false,
+          "diff": "novice",
+          "pointCount": 7,
+          "geometrySource": {
+            "file": "site/data/runs-and-lifts.json",
+            "jsonPointer": "/pistes/4/segs/1/g"
+          }
+        }
+      ],
+      "fromLifts": [
+        "Snow Park"
+      ],
+      "toLifts": [
+        "Firni",
+        "Sadzele",
+        "Snow Park"
+      ],
+      "joins": [
+        "Goodaura 1"
+      ],
+      "fromPistes": [
+        "Sadzele 3"
+      ]
+    },
+    {
+      "key": "Pirveli",
+      "name": "Pirveli",
+      "osmNames": [
+        "Pirveli"
+      ],
+      "color": "green",
+      "named": true,
+      "len": 1168,
+      "osmDiff": [
+        "novice"
+      ],
+      "refs": [
+        "1A"
+      ],
+      "groom": [
+        "classic",
+        "competition"
+      ],
+      "lit": [
+        "yes"
+      ],
+      "segs": [
+        {
+          "id": 158744076,
+          "area": false,
+          "diff": "novice",
+          "pointCount": 25,
+          "geometrySource": {
+            "file": "site/data/runs-and-lifts.json",
+            "jsonPointer": "/pistes/5/segs/0/g"
+          }
+        },
+        {
+          "id": 473280442,
+          "area": true,
+          "diff": "novice",
+          "pointCount": 30,
+          "geometrySource": {
+            "file": "site/data/runs-and-lifts.json",
+            "jsonPointer": "/pistes/5/segs/1/g"
+          }
+        }
+      ],
+      "fromLifts": [
+        "Pirveli"
+      ],
+      "toLifts": [
+        "Pirveli"
+      ],
+      "joins": [],
+      "fromPistes": [
+        "Soliko 1",
+        "Sportuli 1"
+      ]
+    },
+    {
+      "key": "Khada",
+      "name": "Khada",
+      "osmNames": [
+        "Khada"
+      ],
+      "color": "blue",
+      "named": true,
+      "len": 618,
+      "osmDiff": [
+        "easy"
+      ],
+      "refs": [
+        "3D"
+      ],
+      "groom": [
+        "classic"
+      ],
+      "lit": [],
+      "segs": [
+        {
+          "id": 158817289,
+          "area": false,
+          "diff": "easy",
+          "pointCount": 19,
+          "geometrySource": {
+            "file": "site/data/runs-and-lifts.json",
+            "jsonPointer": "/pistes/6/segs/0/g"
+          }
+        }
+      ],
+      "fromLifts": [
+        "Khada",
+        "Kikilo"
+      ],
+      "toLifts": [
+        "Khada"
+      ],
+      "joins": [],
+      "fromPistes": []
+    },
+    {
+      "key": "Goodaura 2",
+      "name": "Goodaura 2",
+      "osmNames": [
+        "Goodaura 2"
+      ],
+      "color": "blue",
+      "named": true,
+      "len": 2324,
+      "osmDiff": [
+        "easy"
+      ],
+      "refs": [],
+      "groom": [
+        "classic"
+      ],
+      "lit": [],
+      "segs": [
+        {
+          "id": 158820418,
+          "area": false,
+          "diff": "easy",
+          "pointCount": 34,
+          "geometrySource": {
+            "file": "site/data/runs-and-lifts.json",
+            "jsonPointer": "/pistes/7/segs/0/g"
+          }
+        },
+        {
+          "id": 668794725,
+          "area": false,
+          "diff": "easy",
+          "pointCount": 7,
+          "geometrySource": {
+            "file": "site/data/runs-and-lifts.json",
+            "jsonPointer": "/pistes/7/segs/1/g"
+          }
+        },
+        {
+          "id": 1259783831,
+          "area": false,
+          "diff": "easy",
+          "pointCount": 12,
+          "geometrySource": {
+            "file": "site/data/runs-and-lifts.json",
+            "jsonPointer": "/pistes/7/segs/2/g"
+          }
+        },
+        {
+          "id": 1483001623,
+          "area": false,
+          "diff": "easy",
+          "pointCount": 2,
+          "geometrySource": {
+            "file": "site/data/runs-and-lifts.json",
+            "jsonPointer": "/pistes/7/segs/3/g"
+          }
+        }
+      ],
+      "fromLifts": [],
+      "toLifts": [
+        "Goodaura",
+        "New Goodaura"
+      ],
+      "joins": [
+        "Goodaura 1"
+      ],
+      "fromPistes": [
+        "Goodaura 1"
+      ]
+    },
+    {
+      "key": "Sportuli 1",
+      "name": "Sportuli 1",
+      "osmNames": [
+        "Sportuli 1"
+      ],
+      "color": "blue",
+      "named": true,
+      "len": 1914,
+      "osmDiff": [
+        "easy"
+      ],
+      "refs": [
+        "2C"
+      ],
+      "groom": [
+        "classic"
+      ],
+      "lit": [],
+      "segs": [
+        {
+          "id": 158820480,
+          "area": false,
+          "diff": "easy",
+          "pointCount": 47,
+          "geometrySource": {
+            "file": "site/data/runs-and-lifts.json",
+            "jsonPointer": "/pistes/8/segs/0/g"
+          }
+        }
+      ],
+      "fromLifts": [],
+      "toLifts": [
+        "Soliko"
+      ],
+      "joins": [
+        "Pirveli",
+        "Soliko 1"
+      ],
+      "fromPistes": [
+        "Soliko 1"
+      ]
+    },
+    {
+      "key": "Sadzele 2",
+      "name": "Sadzele 2",
+      "osmNames": [
+        "Sadzele 2"
+      ],
+      "color": "black",
+      "named": true,
+      "len": 1631,
+      "osmDiff": [
+        "advanced",
+        "—"
+      ],
+      "refs": [],
+      "groom": [
+        "downhill"
+      ],
+      "lit": [],
+      "segs": [
+        {
+          "id": 170360734,
+          "area": false,
+          "diff": "advanced",
+          "pointCount": 38,
+          "geometrySource": {
+            "file": "site/data/runs-and-lifts.json",
+            "jsonPointer": "/pistes/9/segs/0/g"
+          }
+        },
+        {
+          "id": 170360737,
+          "area": false,
+          "diff": null,
+          "pointCount": 20,
+          "geometrySource": {
+            "file": "site/data/runs-and-lifts.json",
+            "jsonPointer": "/pistes/9/segs/1/g"
+          }
+        }
+      ],
+      "fromLifts": [
+        "Sadzele"
+      ],
+      "toLifts": [],
+      "joins": [
+        "Sadzele 3"
+      ],
+      "fromPistes": [
+        "Sadzele 3"
+      ]
+    },
+    {
+      "key": "Sadzele 3",
+      "name": "Sadzele 3",
+      "osmNames": [
+        "Sadzele 3"
+      ],
+      "color": "red",
+      "named": true,
+      "len": 2519,
+      "osmDiff": [
+        "—"
+      ],
+      "refs": [],
+      "groom": [],
+      "lit": [],
+      "segs": [
+        {
+          "id": 170360768,
+          "area": false,
+          "diff": null,
+          "pointCount": 21,
+          "geometrySource": {
+            "file": "site/data/runs-and-lifts.json",
+            "jsonPointer": "/pistes/10/segs/0/g"
+          }
+        },
+        {
+          "id": 1478541341,
+          "area": false,
+          "diff": null,
+          "pointCount": 5,
+          "geometrySource": {
+            "file": "site/data/runs-and-lifts.json",
+            "jsonPointer": "/pistes/10/segs/1/g"
+          }
+        },
+        {
+          "id": 1478541342,
+          "area": false,
+          "diff": null,
+          "pointCount": 35,
+          "geometrySource": {
+            "file": "site/data/runs-and-lifts.json",
+            "jsonPointer": "/pistes/10/segs/2/g"
+          }
+        }
+      ],
+      "fromLifts": [
+        "Sadzele"
+      ],
+      "toLifts": [],
+      "joins": [
+        "Sadzele 1",
+        "Snow Park"
+      ],
+      "fromPistes": [
+        "Sadzele 2"
+      ]
+    },
+    {
+      "key": "Kikilo 2",
+      "name": "Kikilo 2",
+      "osmNames": [
+        "Kikilo 2"
+      ],
+      "color": "blue",
+      "named": true,
+      "len": 1090,
+      "osmDiff": [
+        "easy"
+      ],
+      "refs": [],
+      "groom": [
+        "classic"
+      ],
+      "lit": [],
+      "segs": [
+        {
+          "id": 391906884,
+          "area": false,
+          "diff": "easy",
+          "pointCount": 21,
+          "geometrySource": {
+            "file": "site/data/runs-and-lifts.json",
+            "jsonPointer": "/pistes/11/segs/0/g"
+          }
+        }
+      ],
+      "fromLifts": [
+        "Kikilo"
+      ],
+      "toLifts": [],
+      "joins": [
+        "Kikilo 1"
+      ],
+      "fromPistes": [
+        "Khada"
+      ]
+    },
+    {
+      "key": "Tatra 1",
+      "name": "Tatra 1",
+      "osmNames": [
+        "Tatra 1"
+      ],
+      "color": "blue",
+      "named": true,
+      "len": 3159,
+      "osmDiff": [
+        "easy"
+      ],
+      "refs": [],
+      "groom": [
+        "classic"
+      ],
+      "lit": [
+        "no"
+      ],
+      "segs": [
+        {
+          "id": 472374255,
+          "area": false,
+          "diff": "easy",
+          "pointCount": 37,
+          "geometrySource": {
+            "file": "site/data/runs-and-lifts.json",
+            "jsonPointer": "/pistes/12/segs/0/g"
+          }
+        },
+        {
+          "id": 668794711,
+          "area": false,
+          "diff": "easy",
+          "pointCount": 6,
+          "geometrySource": {
+            "file": "site/data/runs-and-lifts.json",
+            "jsonPointer": "/pistes/12/segs/1/g"
+          }
+        }
+      ],
+      "fromLifts": [
+        "Goodaura",
+        "Shino"
+      ],
+      "toLifts": [
+        "Shino"
+      ],
+      "joins": [
+        "Tatra 2"
+      ],
+      "fromPistes": [
+        "Goodaura 1",
+        "Snow Park",
+        "Firni 2"
+      ]
+    },
+    {
+      "key": "u473280432",
+      "name": null,
+      "osmNames": [
+        ""
+      ],
+      "color": "green",
+      "named": false,
+      "len": 0,
+      "osmDiff": [
+        "novice"
+      ],
+      "refs": [],
+      "groom": [
+        "classic"
+      ],
+      "lit": [],
+      "segs": [
+        {
+          "id": 473280432,
+          "area": true,
+          "diff": "novice",
+          "pointCount": 5,
+          "geometrySource": {
+            "file": "site/data/runs-and-lifts.json",
+            "jsonPointer": "/pistes/13/segs/0/g"
+          }
+        }
+      ],
+      "fromLifts": [],
+      "toLifts": [],
+      "joins": [],
+      "fromPistes": []
+    },
+    {
+      "key": "Zuma",
+      "name": "Zuma",
+      "osmNames": [
+        "Zuma-1",
+        "Zuma-2"
+      ],
+      "color": "green",
+      "named": true,
+      "len": 696,
+      "osmDiff": [
+        "novice"
+      ],
+      "refs": [],
+      "groom": [],
+      "lit": [],
+      "segs": [
+        {
+          "id": 473280437,
+          "area": false,
+          "diff": "novice",
+          "pointCount": 10,
+          "geometrySource": {
+            "file": "site/data/runs-and-lifts.json",
+            "jsonPointer": "/pistes/14/segs/0/g"
+          }
+        },
+        {
+          "id": 473280438,
+          "area": false,
+          "diff": "novice",
+          "pointCount": 9,
+          "geometrySource": {
+            "file": "site/data/runs-and-lifts.json",
+            "jsonPointer": "/pistes/14/segs/1/g"
+          }
+        }
+      ],
+      "fromLifts": [
+        "Zuma"
+      ],
+      "toLifts": [
+        "Soliko",
+        "Zuma"
+      ],
+      "joins": [],
+      "fromPistes": [
+        "Goodaura 1"
+      ]
+    },
+    {
+      "key": "u668794712",
+      "name": null,
+      "osmNames": [
+        ""
+      ],
+      "color": "blue",
+      "named": false,
+      "len": 231,
+      "osmDiff": [
+        "easy"
+      ],
+      "refs": [],
+      "groom": [
+        "classic"
+      ],
+      "lit": [],
+      "segs": [
+        {
+          "id": 668794712,
+          "area": false,
+          "diff": "easy",
+          "pointCount": 5,
+          "geometrySource": {
+            "file": "site/data/runs-and-lifts.json",
+            "jsonPointer": "/pistes/15/segs/0/g"
+          }
+        }
+      ],
+      "fromLifts": [],
+      "toLifts": [
+        "Shino"
+      ],
+      "joins": [
+        "Tatra 1"
+      ],
+      "fromPistes": [
+        "Soliko 1"
+      ]
+    },
+    {
+      "key": "Goodaura 1",
+      "name": "Goodaura 1",
+      "osmNames": [
+        "Goodaura 1"
+      ],
+      "color": "blue",
+      "named": true,
+      "len": 2744,
+      "osmDiff": [
+        "easy"
+      ],
+      "refs": [],
+      "groom": [
+        "classic"
+      ],
+      "lit": [],
+      "segs": [
+        {
+          "id": 668794714,
+          "area": false,
+          "diff": "easy",
+          "pointCount": 68,
+          "geometrySource": {
+            "file": "site/data/runs-and-lifts.json",
+            "jsonPointer": "/pistes/16/segs/0/g"
+          }
+        }
+      ],
+      "fromLifts": [
+        "Goodaura",
+        "Shino"
+      ],
+      "toLifts": [
+        "Goodaura",
+        "New Goodaura"
+      ],
+      "joins": [
+        "Goodaura 2"
+      ],
+      "fromPistes": [
+        "Snow Park",
+        "Tatra 1"
+      ]
+    },
+    {
+      "key": "Kobi",
+      "name": "Kobi",
+      "osmNames": [
+        "Kobi"
+      ],
+      "color": "blue",
+      "named": true,
+      "len": 2902,
+      "osmDiff": [
+        "easy"
+      ],
+      "refs": [],
+      "groom": [
+        "classic"
+      ],
+      "lit": [],
+      "segs": [
+        {
+          "id": 668794718,
+          "area": false,
+          "diff": "easy",
+          "pointCount": 37,
+          "geometrySource": {
+            "file": "site/data/runs-and-lifts.json",
+            "jsonPointer": "/pistes/17/segs/0/g"
+          }
+        },
+        {
+          "id": 1259783835,
+          "area": false,
+          "diff": "easy",
+          "pointCount": 11,
+          "geometrySource": {
+            "file": "site/data/runs-and-lifts.json",
+            "jsonPointer": "/pistes/17/segs/1/g"
+          }
+        }
+      ],
+      "fromLifts": [
+        "Firni",
+        "Kobi 2"
+      ],
+      "toLifts": [
+        "Kobi 2"
+      ],
+      "joins": [],
+      "fromPistes": [
+        "Firni 1"
+      ]
+    },
+    {
+      "key": "New Goodaura",
+      "name": "New Goodaura",
+      "osmNames": [
+        "New Goodaura"
+      ],
+      "color": "blue",
+      "named": true,
+      "len": 700,
+      "osmDiff": [
+        "easy"
+      ],
+      "refs": [],
+      "groom": [
+        "classic"
+      ],
+      "lit": [
+        "no"
+      ],
+      "segs": [
+        {
+          "id": 1217683224,
+          "area": false,
+          "diff": "easy",
+          "pointCount": 26,
+          "geometrySource": {
+            "file": "site/data/runs-and-lifts.json",
+            "jsonPointer": "/pistes/18/segs/0/g"
+          }
+        }
+      ],
+      "fromLifts": [],
+      "toLifts": [],
+      "joins": [
+        "Goodaura 2"
+      ],
+      "fromPistes": [
+        "Kikilo 1"
+      ]
+    },
+    {
+      "key": "u1217683225",
+      "name": null,
+      "osmNames": [
+        ""
+      ],
+      "color": "blue",
+      "named": false,
+      "len": 371,
+      "osmDiff": [
+        "easy"
+      ],
+      "refs": [],
+      "groom": [],
+      "lit": [],
+      "segs": [
+        {
+          "id": 1217683225,
+          "area": false,
+          "diff": "easy",
+          "pointCount": 14,
+          "geometrySource": {
+            "file": "site/data/runs-and-lifts.json",
+            "jsonPointer": "/pistes/19/segs/0/g"
+          }
+        }
+      ],
+      "fromLifts": [
+        "New Goodaura"
+      ],
+      "toLifts": [
+        "Kikilo"
+      ],
+      "joins": [
+        "Kikilo 1",
+        "New Goodaura"
+      ],
+      "fromPistes": []
+    },
+    {
+      "key": "u1234557981",
+      "name": null,
+      "osmNames": [
+        ""
+      ],
+      "color": "blue",
+      "named": false,
+      "len": 501,
+      "osmDiff": [
+        "easy"
+      ],
+      "refs": [],
+      "groom": [
+        "classic"
+      ],
+      "lit": [],
+      "segs": [
+        {
+          "id": 1234557981,
+          "area": false,
+          "diff": "easy",
+          "pointCount": 12,
+          "geometrySource": {
+            "file": "site/data/runs-and-lifts.json",
+            "jsonPointer": "/pistes/20/segs/0/g"
+          }
+        }
+      ],
+      "fromLifts": [
+        "New Goodaura"
+      ],
+      "toLifts": [],
+      "joins": [
+        "Goodaura 2",
+        "New Goodaura"
+      ],
+      "fromPistes": []
+    },
+    {
+      "key": "Kudebi 2",
+      "name": "Kudebi 2",
+      "osmNames": [
+        "Kudebi 2"
+      ],
+      "color": "red",
+      "named": true,
+      "len": 1116,
+      "osmDiff": [
+        "easy",
+        "intermediate"
+      ],
+      "refs": [],
+      "groom": [
+        "classic"
+      ],
+      "lit": [],
+      "segs": [
+        {
+          "id": 1235084637,
+          "area": false,
+          "diff": "easy",
+          "pointCount": 12,
+          "geometrySource": {
+            "file": "site/data/runs-and-lifts.json",
+            "jsonPointer": "/pistes/21/segs/0/g"
+          }
+        },
+        {
+          "id": 1483001620,
+          "area": false,
+          "diff": "intermediate",
+          "pointCount": 11,
+          "geometrySource": {
+            "file": "site/data/runs-and-lifts.json",
+            "jsonPointer": "/pistes/21/segs/1/g"
+          }
+        }
+      ],
+      "fromLifts": [
+        "Kudebi"
+      ],
+      "toLifts": [
+        "Khada"
+      ],
+      "joins": [
+        "Soliko 1"
+      ],
+      "fromPistes": [
+        "Kudebi 1",
+        "Kudebi 3"
+      ]
+    },
+    {
+      "key": "u1259783829",
+      "name": null,
+      "osmNames": [
+        ""
+      ],
+      "color": "blue",
+      "named": false,
+      "len": 171,
+      "osmDiff": [
+        "easy"
+      ],
+      "refs": [],
+      "groom": [
+        "classic"
+      ],
+      "lit": [],
+      "segs": [
+        {
+          "id": 1259783829,
+          "area": false,
+          "diff": "easy",
+          "pointCount": 6,
+          "geometrySource": {
+            "file": "site/data/runs-and-lifts.json",
+            "jsonPointer": "/pistes/22/segs/0/g"
+          }
+        }
+      ],
+      "fromLifts": [
+        "Snow Park"
+      ],
+      "toLifts": [],
+      "joins": [
+        "Sadzele 1",
+        "Sadzele 3",
+        "Snow Park"
+      ],
+      "fromPistes": [
+        "Kudebi 1"
+      ]
+    },
+    {
+      "key": "Sportuli 2",
+      "name": "Sportuli 2",
+      "osmNames": [
+        "Sportuli 2"
+      ],
+      "color": "blue",
+      "named": true,
+      "len": 1283,
+      "osmDiff": [
+        "easy"
+      ],
+      "refs": [],
+      "groom": [
+        "classic"
+      ],
+      "lit": [],
+      "segs": [
+        {
+          "id": 1259783833,
+          "area": false,
+          "diff": "easy",
+          "pointCount": 21,
+          "geometrySource": {
+            "file": "site/data/runs-and-lifts.json",
+            "jsonPointer": "/pistes/23/segs/0/g"
+          }
+        },
+        {
+          "id": 1259783834,
+          "area": false,
+          "diff": "easy",
+          "pointCount": 11,
+          "geometrySource": {
+            "file": "site/data/runs-and-lifts.json",
+            "jsonPointer": "/pistes/23/segs/1/g"
+          }
+        },
+        {
+          "id": 1483001624,
+          "area": false,
+          "diff": "easy",
+          "pointCount": 5,
+          "geometrySource": {
+            "file": "site/data/runs-and-lifts.json",
+            "jsonPointer": "/pistes/23/segs/2/g"
+          }
+        }
+      ],
+      "fromLifts": [],
+      "toLifts": [],
+      "joins": [
+        "Sportuli 1"
+      ],
+      "fromPistes": [
+        "Goodaura 1"
+      ]
+    },
+    {
+      "key": "u1259783838",
+      "name": null,
+      "osmNames": [
+        ""
+      ],
+      "color": "blue",
+      "named": false,
+      "len": 107,
+      "osmDiff": [
+        "easy"
+      ],
+      "refs": [],
+      "groom": [
+        "classic"
+      ],
+      "lit": [],
+      "segs": [
+        {
+          "id": 1259783838,
+          "area": false,
+          "diff": "easy",
+          "pointCount": 7,
+          "geometrySource": {
+            "file": "site/data/runs-and-lifts.json",
+            "jsonPointer": "/pistes/24/segs/0/g"
+          }
+        }
+      ],
+      "fromLifts": [
+        "Khada",
+        "Kikilo"
+      ],
+      "toLifts": [],
+      "joins": [
+        "Khada",
+        "Kudebi 2"
+      ],
+      "fromPistes": [
+        "Khada"
+      ]
+    },
+    {
+      "key": "u1259783839",
+      "name": null,
+      "osmNames": [
+        ""
+      ],
+      "color": "blue",
+      "named": false,
+      "len": 96,
+      "osmDiff": [
+        "easy"
+      ],
+      "refs": [],
+      "groom": [
+        "classic"
+      ],
+      "lit": [],
+      "segs": [
+        {
+          "id": 1259783839,
+          "area": false,
+          "diff": "easy",
+          "pointCount": 2,
+          "geometrySource": {
+            "file": "site/data/runs-and-lifts.json",
+            "jsonPointer": "/pistes/25/segs/0/g"
+          }
+        }
+      ],
+      "fromLifts": [
+        "Khada",
+        "Kikilo"
+      ],
+      "toLifts": [],
+      "joins": [
+        "Khada",
+        "Kikilo 1"
+      ],
+      "fromPistes": [
+        "Khada",
+        "Kudebi 2"
+      ]
+    },
+    {
+      "key": "Sadzele 1",
+      "name": "Sadzele 1",
+      "osmNames": [
+        "Sadzele 1"
+      ],
+      "color": "black",
+      "named": true,
+      "len": 2388,
+      "osmDiff": [
+        "—"
+      ],
+      "refs": [],
+      "groom": [],
+      "lit": [],
+      "segs": [
+        {
+          "id": 1478541348,
+          "area": false,
+          "diff": null,
+          "pointCount": 41,
+          "geometrySource": {
+            "file": "site/data/runs-and-lifts.json",
+            "jsonPointer": "/pistes/26/segs/0/g"
+          }
+        },
+        {
+          "id": 1478541349,
+          "area": false,
+          "diff": null,
+          "pointCount": 10,
+          "geometrySource": {
+            "file": "site/data/runs-and-lifts.json",
+            "jsonPointer": "/pistes/26/segs/1/g"
+          }
+        }
+      ],
+      "fromLifts": [
+        "Sadzele"
+      ],
+      "toLifts": [
+        "Sadzele"
+      ],
+      "joins": [
+        "Sadzele 3",
+        "Snow Park"
+      ],
+      "fromPistes": [
+        "Sadzele 3"
+      ]
+    },
+    {
+      "key": "Baby",
+      "name": "Baby",
+      "osmNames": [
+        ""
+      ],
+      "color": "green",
+      "named": true,
+      "len": 162,
+      "osmDiff": [
+        "easy"
+      ],
+      "refs": [],
+      "groom": [
+        "classic"
+      ],
+      "lit": [],
+      "segs": [
+        {
+          "id": 472374254,
+          "area": false,
+          "diff": "easy",
+          "pointCount": 5,
+          "geometrySource": {
+            "file": "site/data/runs-and-lifts.json",
+            "jsonPointer": "/pistes/27/segs/0/g"
+          }
+        }
+      ],
+      "fromLifts": [
+        "Goodaura",
+        "Shino"
+      ],
+      "toLifts": [
+        "Firni",
+        "Snow Park"
+      ],
+      "joins": [
+        "Tatra 1"
+      ],
+      "fromPistes": [
+        "Firni 2",
+        "Goodaura 1",
+        "Tatra 1"
+      ],
+      "kind": "beginner-area",
+      "research": {
+        "conf": "medium",
+        "status": "osm-unnamed-match",
+        "notes": "המועמד הוצע על ידי ChatGPT ואושר על ידי המשתמש מול המפה הרשמית. קו מרכז בלבד (162 מ', ירידה של 17 מ', 2709 אל 2692), לא גבול של אזור. הוא נמצא 78 מ' מערבית-צפונית לתחנת Goodaura העליונה ו-129 מ' מצפון-מערב לתחתית Snow Park, כמו האזור הירוק במפה. ב-OSM אין לו שם והוא מסומן easy ולא novice. ה-GPS סביבו הוא בעיקר תנועה איטית באזור תחנות (חציון 0.6 מ'/ש'), ולכן אינו ראיה לשם. אין מקור למיקום ה-J-bar עצמו או לגבול האזור. הקו כבר מוצג באתר כמסלול ללא שם. ביטחון בינוני בזכות אישור המשתמש והמיקום.",
+        "sources": [
+          "overpass-api.de (way 472374254, piste:type=downhill, piste:difficulty=easy, unnamed)",
+          "api.openstreetmap.org way history 472374254 (v1 2017, v2 2024-03-11)",
+          "api.openstreetmap.org public GPS traces (12 recordings move along it at 20 m, only 6 of them skiing downhill; station-area traffic)",
+          "המפה הרשמית של MTA (התמונה שצורפה בשיחה), שימוש לזיהוי שם, צבע, התחלה, סיום ומקרא בלבד"
+        ],
+        "gps": 12,
+        "osmIds": [
+          472374254
+        ],
+        "historical": false,
+        "userConfirmed": true,
+        "crossChecked": true,
+        "partial": "קו המרכז של אזור המתחילים. גבולות האזור והמעלית עצמה לא נמצאו בנתונים."
+      }
+    },
+    {
+      "key": "Bombora",
+      "name": "Bombora",
+      "osmNames": [
+        ""
+      ],
+      "color": "green",
+      "named": true,
+      "len": 310,
+      "osmDiff": [
+        "easy"
+      ],
+      "refs": [],
+      "groom": [
+        "classic"
+      ],
+      "lit": [],
+      "segs": [
+        {
+          "id": 158817286,
+          "area": false,
+          "diff": "easy",
+          "pointCount": 10,
+          "geometrySource": {
+            "file": "site/data/runs-and-lifts.json",
+            "jsonPointer": "/pistes/28/segs/0/g"
+          }
+        }
+      ],
+      "fromLifts": [
+        "Soliko"
+      ],
+      "toLifts": [
+        "Kudebi"
+      ],
+      "joins": [
+        "Kudebi 1",
+        "Soliko 1"
+      ],
+      "fromPistes": [
+        "Khada"
+      ],
+      "kind": "beginner-area",
+      "research": {
+        "conf": "medium",
+        "status": "osm-unnamed-match",
+        "notes": "המועמד הוצע על ידי ChatGPT ואושר על ידי המשתמש מול המפה הרשמית. קו מרכז בלבד (310 מ', ירידה של 24 מ', 2691 אל 2667), לא גבול של אזור. הוא מתחיל 6 מ' מתחנת Khada התחתונה ומסתיים 43 מ' מתחנת Kudebi התחתונה, כמו האזור הירוק במפה. אי-התאמה שלא הוכרעה: לפי skiresort ה-J-bar בגובה 2740 עד 2780 מ', והדרך נמצאת 50 עד 110 מ' נמוך מזה. ב-OSM אין לו שם והוא מסומן easy ולא novice. ה-GPS סביבו כולל תנועה איטית של תור לרכבלים. אין מקור למיקום ה-J-bar עצמו או לגבול האזור. הקו כבר מוצג באתר כמסלול ללא שם. ביטחון בינוני בזכות אישור המשתמש והמיקום.",
+        "sources": [
+          "overpass-api.de (way 158817286, piste:type=downhill, piste:difficulty=easy, unnamed)",
+          "api.openstreetmap.org way history 158817286 (v1 2012, v2 2024-03-10)",
+          "api.openstreetmap.org public GPS traces (8 recordings move along it at 20 m; 19 recordings show slow uphill movement near it: lift queue)",
+          "skiresort.com lift list (Bombora: J-bar 260 m, base 2740 m, top 2780 m)",
+          "המפה הרשמית של MTA (התמונה שצורפה בשיחה), שימוש לזיהוי שם, צבע, התחלה, סיום ומקרא בלבד"
+        ],
+        "gps": 8,
+        "osmIds": [
+          158817286
+        ],
+        "historical": false,
+        "userConfirmed": true,
+        "crossChecked": true,
+        "partial": "קו המרכז של אזור המתחילים. גבולות האזור והמעלית עצמה לא נמצאו בנתונים."
+      }
+    },
+    {
+      "key": "Shino",
+      "name": "Shino",
+      "osmNames": [
+        ""
+      ],
+      "color": "blue",
+      "named": true,
+      "len": 1283,
+      "osmDiff": [
+        "easy"
+      ],
+      "refs": [],
+      "groom": [
+        "classic"
+      ],
+      "lit": [],
+      "segs": [
+        {
+          "id": 1259783832,
+          "area": false,
+          "diff": "easy",
+          "pointCount": 30,
+          "geometrySource": {
+            "file": "site/data/runs-and-lifts.json",
+            "jsonPointer": "/pistes/29/segs/0/g"
+          }
+        }
+      ],
+      "fromLifts": [],
+      "toLifts": [
+        "Goodaura",
+        "New Goodaura"
+      ],
+      "joins": [
+        "Goodaura 1",
+        "Zuma"
+      ],
+      "fromPistes": [
+        "Tatra 1",
+        "Tatra 2"
+      ],
+      "kind": "ski-way",
+      "research": {
+        "conf": "low",
+        "status": "osm-unnamed-match",
+        "notes": "לפי המקרא של המפה הרשמית קו מקווקו כחול כהה הוא Ski Way (דרך מקשרת), כלומר Shino הוא חיבור בין אזורים ולא מסלול סקי; לכן kind הוא ski-way ולא run. הקו במפה יוצא מהצומת של Tatra 1 ו-Tatra 2 ליד תחנת Shino התחתונה וממשיך מזרחה לכיוון Zuma. הדרך הלא ממופה 1259783832 (1283 מ', יורדת מ-2313 ל-2182 מ') תואמת את זה, אבל ב-OSM היא נוצרה ב-10.3.2024 מקטע שהיה קודם חלק מ-Tatra 1 ואין לה שם, ולכן ההתאמה נשענת על המפה בלבד וביטחון נמוך. הקטע המערבי של הקו המקווקו (שבו יושבת התווית Shino, לכיוון Alpina) אין לו דרך ב-OSM. ChatGPT סימן not-found. המועמד 668794712 (230 מ', מחבר לתחנת Shino התחתונה) נשאר כחלופה.",
+        "sources": [
+          "overpass-api.de (way 1259783832, piste:type=downhill, source=gps, never named)",
+          "api.openstreetmap.org public GPS traces (1 winter recording, 63%)",
+          "המפה הרשמית של MTA (התמונה שצורפה בשיחה), שימוש לזיהוי שם, צבע, התחלה, סיום ומקרא בלבד"
+        ],
+        "gps": 1,
+        "osmIds": [
+          1259783832
+        ],
+        "historical": false,
+        "userConfirmed": false,
+        "crossChecked": true,
+        "partial": "הקטע המערבי של הדרך המקשרת, לכיוון Alpina, לא נמצא בנתונים."
+      }
+    },
+    {
+      "key": "Firni 1",
+      "name": "Firni 1",
+      "osmNames": [
+        "Frini"
+      ],
+      "color": "blue",
+      "named": true,
+      "len": 692,
+      "osmDiff": [
+        "easy"
+      ],
+      "refs": [],
+      "groom": [],
+      "lit": [],
+      "segs": [
+        {
+          "id": 668794719,
+          "area": false,
+          "pointCount": 10,
+          "geometrySource": {
+            "file": "site/data/runs-and-lifts.json",
+            "jsonPointer": "/pistes/30/segs/0/g"
+          }
+        }
+      ],
+      "fromLifts": [
+        "Firni",
+        "Kobi 2"
+      ],
+      "toLifts": [],
+      "joins": [
+        "Firni 2"
+      ],
+      "fromPistes": [
+        "Kobi"
+      ],
+      "kind": "run",
+      "research": {
+        "conf": "low",
+        "status": "osm-unnamed-match",
+        "notes": "במפה הרשמית Firni 1 הוא הקו המזרחי של גונדולת Firni. הדרך היחידה ב-OSM, 668794719, נמצאת בצד המזרחי של הגונדולה רק בחמישית העליונה (nodes 0 עד 9, 692 מ'), ואחר כך חוצה לצד המערבי; לכן רק החלק העליון נשמר כאן, והמשך הקו המזרחי לא נמצא. לגבי Kobi: ב-OSM הדרך נקראה Kobi 1 במרץ 2023 ומאז מרץ 2024 Frini, שגיאת כתיב של Firni (בגופן של המפה Firni נראה כמו Fimi). Kobi במפה הוא שם קטע הרכבל העליון, ולמסלול Kobi (668794718) כבר יש קו נפרד באתר מעל תחנת Firni העליונה. אין GPS שעוקב אחרי הקו. ChatGPT שמר את כל הדרך כ-Firni 1 (medium); כאן היא מפוצלת לפי צד הגונדולה. הדרך המלאה מצורפת כחלופה.",
+        "sources": [
+          "overpass-api.de (way 668794719, name 'Frini')",
+          "api.openstreetmap.org way history 668794719 (2023-03-01 'Kobi 1', 2024-03-10 renamed 'Frini')",
+          "api.openstreetmap.org public GPS traces (only 4 recordings skied this corridor at all)",
+          "המפה הרשמית של MTA (התמונה שצורפה בשיחה), שימוש לזיהוי שם, צבע, התחלה, סיום ומקרא בלבד"
+        ],
+        "gps": 0,
+        "osmIds": [
+          668794719
+        ],
+        "historical": false,
+        "userConfirmed": false,
+        "crossChecked": true,
+        "partial": "נמצא רק החלק העליון, 692 מ׳ בצד המזרחי של הגונדולה. ההמשך לא נמצא בשום מקור."
+      }
+    },
+    {
+      "key": "Firni 2",
+      "name": "Firni 2",
+      "osmNames": [
+        "Frini"
+      ],
+      "color": "blue",
+      "named": true,
+      "len": 1612,
+      "osmDiff": [
+        "easy"
+      ],
+      "refs": [],
+      "groom": [],
+      "lit": [],
+      "segs": [
+        {
+          "id": 668794719,
+          "area": false,
+          "pointCount": 14,
+          "geometrySource": {
+            "file": "site/data/runs-and-lifts.json",
+            "jsonPointer": "/pistes/31/segs/0/g"
+          }
+        }
+      ],
+      "fromLifts": [],
+      "toLifts": [
+        "Snow Park",
+        "Firni"
+      ],
+      "joins": [
+        "Tatra 1",
+        "Baby"
+      ],
+      "fromPistes": [
+        "Firni 1"
+      ],
+      "kind": "run",
+      "research": {
+        "conf": "low",
+        "status": "osm-unnamed-match",
+        "notes": "במפה הרשמית Firni 2 הוא הקו המערבי של הגונדולה: יוצא מהחלק העליון, יורד בצד המערבי, מתפתל מזרחה ליד האגם ומתחבר לגונדולה בסוף. החלק התחתון של הדרך 668794719 (nodes 9 עד 22, 1612 מ') נמצא בצד המערבי ומסתיים בחזרה ליד הגונדולה, כמו Firni 2, ולכן נשמר כאן. ההתחלה של Firni 2 בחלק העליון לא נמצאה. אין ב-OSM שם עם מספר וגם אין GPS, לכן ההתאמה לפי מיקום במפה בלבד וביטחון נמוך. ChatGPT סימן not-found. הדרך המלאה מצורפת כחלופה.",
+        "sources": [
+          "overpass-api.de (way 668794719, name 'Frini')",
+          "api.openstreetmap.org way history 668794719",
+          "api.openstreetmap.org public GPS traces (only 4 recordings skied this corridor at all)",
+          "המפה הרשמית של MTA (התמונה שצורפה בשיחה), שימוש לזיהוי שם, צבע, התחלה, סיום ומקרא בלבד"
+        ],
+        "gps": 0,
+        "osmIds": [
+          668794719
+        ],
+        "historical": false,
+        "userConfirmed": true,
+        "crossChecked": false,
+        "partial": "נמצא רק החלק התחתון, 1.6 ק״מ בצד המערבי של הגונדולה. ההתחלה בחלק העליון לא נמצאה."
+      }
+    },
+    {
+      "key": "Tatra 2",
+      "name": "Tatra 2",
+      "osmNames": [],
+      "color": "blue",
+      "named": true,
+      "len": 2282,
+      "osmDiff": [],
+      "refs": [
+        "7A"
+      ],
+      "groom": [],
+      "lit": [],
+      "segs": [
+        {
+          "id": 668794706,
+          "area": false,
+          "pointCount": 27,
+          "geometrySource": {
+            "file": "site/data/runs-and-lifts.json",
+            "jsonPointer": "/pistes/32/segs/0/g"
+          }
+        }
+      ],
+      "fromLifts": [],
+      "toLifts": [
+        "Shino"
+      ],
+      "joins": [
+        "Tatra 1"
+      ],
+      "fromPistes": [
+        "Tatra 1"
+      ],
+      "kind": "run",
+      "research": {
+        "conf": "high",
+        "status": "osm-named",
+        "notes": "קו פנימי מאזור התחנה העליונה עד תחנת Shino התחתונה (2282 מ'), כולל הגזע התחתון המשותף עם Tatra 1. הגיאומטריה היא שתי דרכי OSM היסטוריות ששתיהן נקראו Tatra 2 (668794706 ו-1018641392), מחוברות בצומת (42.4799,44.4818). זו אותה גיאומטריה כמו בחבילה של ChatGPT; בגרסה הקודמת שלי הסתיימה הדרך בצומת בלבד (1476 מ'). כל 12 ה-nodes של 1018641392 נמצאים גם ב-Tatra 1 הנוכחי, ולכן הגזע התחתון כבר מצויר באתר תחת Tatra 1. הענף התחתון 668794711 (221 מ') נקרא Tatra 2 ב-OSM בין מרץ 2023 למרץ 2024 ומאז Tatra 1, והוא מצורף כחלופה. שמות OSM היו הפוכים ב-2019 (הדרך 668794706 נקראה אז Tatra 1), ולכן ההכרעה נשענת גם על המפה ועל אישור המשתמש.",
+        "sources": [
+          "api.openstreetmap.org way history 668794706 (named Tatra 2 from 2022-01-05, deleted 2024-03-10) and 1018641392 (named Tatra 2, ref 7A, from 2022-01-05, deleted 2024-03-10)",
+          "api.openstreetmap.org public GPS traces (3 winter recordings from Jan 2019 cover 78-92% of the full line)",
+          "המפה הרשמית של MTA (התמונה שצורפה בשיחה), שימוש לזיהוי שם, צבע, התחלה, סיום ומקרא בלבד"
+        ],
+        "gps": 3,
+        "osmIds": [
+          668794706,
+          1018641392
+        ],
+        "historical": true,
+        "userConfirmed": true,
+        "crossChecked": true,
+        "partial": null
+      }
+    },
+    {
+      "key": "Soliko 2",
+      "name": "Soliko 2",
+      "osmNames": [],
+      "color": "blue",
+      "named": true,
+      "len": 372,
+      "osmDiff": [],
+      "refs": [
+        "2B"
+      ],
+      "groom": [],
+      "lit": [],
+      "segs": [
+        {
+          "id": 158744056,
+          "area": false,
+          "pointCount": 4,
+          "geometrySource": {
+            "file": "site/data/runs-and-lifts.json",
+            "jsonPointer": "/pistes/33/segs/0/g"
+          }
+        }
+      ],
+      "fromLifts": [],
+      "toLifts": [],
+      "joins": [
+        "Sportuli 1"
+      ],
+      "fromPistes": [
+        "Soliko 1"
+      ],
+      "kind": "run",
+      "research": {
+        "conf": "medium",
+        "status": "osm-named",
+        "notes": "קטע חלקי בלבד: 372 מ' מתוך כ-1,180 מ' (מדריך צד שלישי). הזיהוי של הקטע נתמך משלושה כיוונים: ב-OSM שמו Soliko 2 עם ref 2B (בין 2A=Soliko 1 ל-2C=Sportuli 1); ה-node הראשון שלו משותף עם Soliko 1, ובמפה Soliko 2 מתפצל מ-Soliko 1; והוא חוצה את רכבל Shino בגובה 2,424 מ', בערך באמצע הרכבל, בדיוק כמו במפה. ההמשך עד תחתית ההר לא נמצא באף מקור: מבין 11 הקלטות GPS שגלשו בתחילת הקו, רובן המשיכו לאורך Soliko 1 או Sportuli 1 ולא לאורך מסלול נפרד, ולכן לא נוצרה הארכה. ChatGPT סימן אותה גיאומטריה בדיוק ב-high; אצלי medium כי היא חלקית. הדרך 1259783832 אינה Soliko 2 (ראו Shino).",
+        "sources": [
+          "api.openstreetmap.org way history 158744056 (ref 2B since 2012; named Soliko 2 on 2023-03-01; deleted 2024-03-10)",
+          "api.openstreetmap.org public GPS traces (2 winter recordings from Jan 2016, 75-83%)",
+          "vagabondadventures.ge (third-party guide: Soliko 2 = 1180 m)",
+          "המפה הרשמית של MTA (התמונה שצורפה בשיחה), שימוש לזיהוי שם, צבע, התחלה, סיום ומקרא בלבד"
+        ],
+        "gps": 2,
+        "osmIds": [
+          158744056
+        ],
+        "historical": true,
+        "userConfirmed": false,
+        "crossChecked": true,
+        "partial": "נמצאו רק 372 המטרים העליונים מתוך כ-1,180 מ׳. ההמשך עד תחתית ההר לא נמצא בשום מקור."
+      }
+    }
+  ],
+  "lifts": [
+    {
+      "id": 158744055,
+      "name": "Snow Park",
+      "kind": "chair_lift",
+      "len": 840,
+      "dur": "7",
+      "occ": "3",
+      "bubble": "no",
+      "cap": null,
+      "rise": null,
+      "year": null,
+      "status": null,
+      "pointCount": 2,
+      "geometrySource": {
+        "file": "site/data/runs-and-lifts.json",
+        "jsonPointer": "/lifts/0/g"
+      }
+    },
+    {
+      "id": 158744059,
+      "name": "Pirveli",
+      "kind": "chair_lift",
+      "len": 988,
+      "dur": "9",
+      "occ": "6",
+      "bubble": "no",
+      "cap": null,
+      "rise": null,
+      "year": null,
+      "status": null,
+      "pointCount": 14,
+      "geometrySource": {
+        "file": "site/data/runs-and-lifts.json",
+        "jsonPointer": "/lifts/1/g"
+      }
+    },
+    {
+      "id": 158744060,
+      "name": "Sadzele",
+      "kind": "chair_lift",
+      "len": 1419,
+      "dur": "13",
+      "occ": "4",
+      "bubble": "no",
+      "cap": null,
+      "rise": null,
+      "year": null,
+      "status": null,
+      "pointCount": 2,
+      "geometrySource": {
+        "file": "site/data/runs-and-lifts.json",
+        "jsonPointer": "/lifts/2/g"
+      }
+    },
+    {
+      "id": 158744063,
+      "name": "Khada",
+      "kind": "chair_lift",
+      "len": 565,
+      "dur": "9",
+      "occ": "3",
+      "bubble": "no",
+      "cap": null,
+      "rise": null,
+      "year": null,
+      "status": null,
+      "pointCount": 7,
+      "geometrySource": {
+        "file": "site/data/runs-and-lifts.json",
+        "jsonPointer": "/lifts/3/g"
+      }
+    },
+    {
+      "id": 158744075,
+      "name": "Goodaura",
+      "kind": "gondola",
+      "len": 2370,
+      "dur": "7",
+      "occ": "10",
+      "bubble": null,
+      "cap": "2800",
+      "rise": "547",
+      "year": "2011",
+      "status": null,
+      "pointCount": 19,
+      "geometrySource": {
+        "file": "site/data/runs-and-lifts.json",
+        "jsonPointer": "/lifts/4/g"
+      }
+    },
+    {
+      "id": 158744077,
+      "name": "Soliko",
+      "kind": "chair_lift",
+      "len": 2268,
+      "dur": "10",
+      "occ": "6",
+      "bubble": "no",
+      "cap": null,
+      "rise": null,
+      "year": null,
+      "status": null,
+      "pointCount": 20,
+      "geometrySource": {
+        "file": "site/data/runs-and-lifts.json",
+        "jsonPointer": "/lifts/5/g"
+      }
+    },
+    {
+      "id": 158817616,
+      "name": "Zuma",
+      "kind": "platter",
+      "len": 298,
+      "dur": null,
+      "occ": null,
+      "bubble": null,
+      "cap": null,
+      "rise": null,
+      "year": null,
+      "status": null,
+      "pointCount": 6,
+      "geometrySource": {
+        "file": "site/data/runs-and-lifts.json",
+        "jsonPointer": "/lifts/6/g"
+      }
+    },
+    {
+      "id": 205547600,
+      "name": null,
+      "kind": "magic_carpet",
+      "len": 37,
+      "dur": null,
+      "occ": null,
+      "bubble": null,
+      "cap": null,
+      "rise": null,
+      "year": null,
+      "status": null,
+      "pointCount": 2,
+      "geometrySource": {
+        "file": "site/data/runs-and-lifts.json",
+        "jsonPointer": "/lifts/7/g"
+      }
+    },
+    {
+      "id": 472374253,
+      "name": "Shino",
+      "kind": "chair_lift",
+      "len": 2329,
+      "dur": "8",
+      "occ": "6",
+      "bubble": "no",
+      "cap": null,
+      "rise": null,
+      "year": null,
+      "status": null,
+      "pointCount": 2,
+      "geometrySource": {
+        "file": "site/data/runs-and-lifts.json",
+        "jsonPointer": "/lifts/8/g"
+      }
+    },
+    {
+      "id": 473280434,
+      "name": null,
+      "kind": "magic_carpet",
+      "len": 29,
+      "dur": null,
+      "occ": null,
+      "bubble": null,
+      "cap": null,
+      "rise": null,
+      "year": null,
+      "status": "inactive",
+      "pointCount": 2,
+      "geometrySource": {
+        "file": "site/data/runs-and-lifts.json",
+        "jsonPointer": "/lifts/9/g"
+      }
+    },
+    {
+      "id": 663639361,
+      "name": "Kudebi",
+      "kind": "chair_lift",
+      "len": 1258,
+      "dur": "9",
+      "occ": "6",
+      "bubble": "no",
+      "cap": null,
+      "rise": null,
+      "year": null,
+      "status": null,
+      "pointCount": 2,
+      "geometrySource": {
+        "file": "site/data/runs-and-lifts.json",
+        "jsonPointer": "/lifts/10/g"
+      }
+    },
+    {
+      "id": 663643826,
+      "name": "Firni",
+      "kind": "gondola",
+      "len": 2009,
+      "dur": "7",
+      "occ": "10",
+      "bubble": null,
+      "cap": "2800",
+      "rise": "547",
+      "year": "2011",
+      "status": null,
+      "pointCount": 5,
+      "geometrySource": {
+        "file": "site/data/runs-and-lifts.json",
+        "jsonPointer": "/lifts/11/g"
+      }
+    },
+    {
+      "id": 665084640,
+      "name": "Kobi 2",
+      "kind": "gondola",
+      "len": 2285,
+      "dur": null,
+      "occ": "10",
+      "bubble": null,
+      "cap": null,
+      "rise": null,
+      "year": null,
+      "status": null,
+      "pointCount": 7,
+      "geometrySource": {
+        "file": "site/data/runs-and-lifts.json",
+        "jsonPointer": "/lifts/12/g"
+      }
+    },
+    {
+      "id": 665084641,
+      "name": "Kobi 1",
+      "kind": "gondola",
+      "len": 2790,
+      "dur": null,
+      "occ": null,
+      "bubble": null,
+      "cap": null,
+      "rise": null,
+      "year": null,
+      "status": null,
+      "pointCount": 11,
+      "geometrySource": {
+        "file": "site/data/runs-and-lifts.json",
+        "jsonPointer": "/lifts/13/g"
+      }
+    },
+    {
+      "id": 1196532543,
+      "name": "Kikilo",
+      "kind": "chair_lift",
+      "len": 1295,
+      "dur": null,
+      "occ": "6",
+      "bubble": "yes",
+      "cap": null,
+      "rise": null,
+      "year": null,
+      "status": null,
+      "pointCount": 2,
+      "geometrySource": {
+        "file": "site/data/runs-and-lifts.json",
+        "jsonPointer": "/lifts/14/g"
+      }
+    },
+    {
+      "id": 1196532544,
+      "name": "New Goodaura",
+      "kind": "chair_lift",
+      "len": 1235,
+      "dur": null,
+      "occ": "6",
+      "bubble": "yes",
+      "cap": null,
+      "rise": null,
+      "year": null,
+      "status": null,
+      "pointCount": 2,
+      "geometrySource": {
+        "file": "site/data/runs-and-lifts.json",
+        "jsonPointer": "/lifts/15/g"
+      }
+    }
+  ],
+  "missing": [],
+  "research": {
+    "date": "2026-09-30",
+    "summary": "השלמה מתוך היסטוריית OSM, הקלטות GPS ציבוריות והתאמה למפה הרשמית. נבדק מול מודל הגובה ומיקומי הרכבלים."
+  },
+  "fetched": "2026-09-29",
+  "bbox": [
+    42.44,
+    44.4,
+    42.58,
+    44.58
+  ],
+  "videos": [
+    {
+      "piste": "Soliko 1",
+      "url": "https://www.youtube.com/watch?v=EdIGHcz4vYM",
+      "title": "Gudauri Top To Bottom",
+      "by": "מחקר",
+      "at": 1790769600000,
+      "channel": "Zaza Jalalishvili",
+      "length": "6:24",
+      "published": "כ-2019",
+      "confidence": "medium",
+      "evidence": "desc"
+    },
+    {
+      "piste": "Kudebi 3",
+      "url": "https://www.youtube.com/watch?v=ySX5LVNn610",
+      "title": "Downhill ski, Kudebi 3, Gudauri January 2022",
+      "by": "מחקר",
+      "at": 1790769600000,
+      "channel": "Ondřej Bureš",
+      "length": "1:51",
+      "published": "כ-2022",
+      "confidence": "high",
+      "evidence": "title"
+    },
+    {
+      "piste": "Kudebi 3",
+      "url": "https://www.youtube.com/watch?v=xgqNsVYEzcw",
+      "title": "4K 360 VR Snowboard and Ski in Gudauri, Georgia 2020 - Kudebi 3",
+      "by": "מחקר",
+      "at": 1790769600000,
+      "channel": "naszepodrozeeu",
+      "length": "1:51",
+      "published": "כ-2020",
+      "confidence": "high",
+      "evidence": "title"
+    },
+    {
+      "piste": "Kudebi 1",
+      "url": "https://www.youtube.com/watch?v=2gl9DUw-A3k",
+      "title": "Gudauri snowboard Kudebi 1",
+      "by": "מחקר",
+      "at": 1790769600000,
+      "channel": "MotionLens",
+      "length": "2:12",
+      "published": "כ-2025",
+      "confidence": "high",
+      "evidence": "title"
+    },
+    {
+      "piste": "Kudebi 1",
+      "url": "https://www.youtube.com/watch?v=i_FmPE_3Kys",
+      "title": "Kudebi 1 and Snow Park 1 Skiroutes 4K 360 VR Snowboard Gudauri, Georgia 2020",
+      "by": "מחקר",
+      "at": 1790769600000,
+      "channel": "naszepodrozeeu",
+      "length": "2:36",
+      "published": "כ-2020",
+      "confidence": "medium",
+      "evidence": "multi"
+    },
+    {
+      "piste": "Kudebi 1",
+      "url": "https://www.youtube.com/watch?v=OnbVfL6ubkI",
+      "title": "Ski slopes: Kudebi 1 - Tatra 2 - Tatra 1. Gudauri - Ski resort in Georgia Country Caucasus mountains",
+      "by": "מחקר",
+      "at": 1790769600000,
+      "channel": "BonifaceART",
+      "length": "7:20",
+      "published": "כ-2026",
+      "confidence": "medium",
+      "evidence": "multi"
+    },
+    {
+      "piste": "Kikilo 1",
+      "url": "https://www.youtube.com/watch?v=VoCR-h_-VKg",
+      "title": "Ski slopes Kikilo 1 &  New Goodaura in Gudauri. Gudaur  Ski resort in Georgia",
+      "by": "מחקר",
+      "at": 1790769600000,
+      "channel": "BonifaceART",
+      "length": "6:45",
+      "published": "כ-2026",
+      "confidence": "medium",
+      "evidence": "multi"
+    },
+    {
+      "piste": "Kikilo 1",
+      "url": "https://www.youtube.com/watch?v=Y7yMSsYlmq4",
+      "title": "Skiing Gudauri new runs POV",
+      "by": "מחקר",
+      "at": 1790769600000,
+      "channel": "Luka Silagadze",
+      "length": "8:07",
+      "published": "כ-2024",
+      "confidence": "medium",
+      "evidence": "desc"
+    },
+    {
+      "piste": "Snow Park",
+      "url": "https://www.youtube.com/watch?v=YVQAjQB9TiY",
+      "title": "Practicing jumps at Gudauri’s Snow Park - Georgia",
+      "by": "מחקר",
+      "at": 1790769600000,
+      "channel": "Pearl Studs",
+      "length": "2:43",
+      "published": "כ-2025",
+      "confidence": "medium",
+      "evidence": "title"
+    },
+    {
+      "piste": "Snow Park",
+      "url": "https://www.youtube.com/watch?v=5qAWauVYv4k",
+      "title": "Snow Park Snowboarding - Gudauri",
+      "by": "מחקר",
+      "at": 1790769600000,
+      "channel": "David Bumbeishvili",
+      "length": "4:46",
+      "published": "כ-2022",
+      "confidence": "medium",
+      "evidence": "title"
+    },
+    {
+      "piste": "Snow Park",
+      "url": "https://www.youtube.com/watch?v=TO-7_gj0STI",
+      "title": "Ski Gudauri Snow Park 2019",
+      "by": "מחקר",
+      "at": 1790769600000,
+      "channel": "Chernobaevka_UA",
+      "length": "1:17",
+      "published": "כ-2019",
+      "confidence": "medium",
+      "evidence": "title"
+    },
+    {
+      "piste": "Pirveli",
+      "url": "https://www.youtube.com/watch?v=bk4bKTI-fes",
+      "title": "Gudauri green ski slope Pirveli.",
+      "by": "מחקר",
+      "at": 1790769600000,
+      "channel": "BonifaceART",
+      "length": "3:33",
+      "published": "כ-2026",
+      "confidence": "high",
+      "evidence": "title"
+    },
+    {
+      "piste": "Pirveli",
+      "url": "https://www.youtube.com/watch?v=E6tOisTQbTY",
+      "title": "Gudauri: Soliko • Pirveli",
+      "by": "מחקר",
+      "at": 1790769600000,
+      "channel": "Street View Georgia",
+      "length": "14:54",
+      "published": "כ-2023",
+      "confidence": "medium",
+      "evidence": "multi"
+    },
+    {
+      "piste": "Pirveli",
+      "url": "https://www.youtube.com/watch?v=VJxGV1FpIAI",
+      "title": "Overview of the Piveli trail and slope in Gudauri",
+      "by": "מחקר",
+      "at": 1790769600000,
+      "channel": "Андрей Брагин",
+      "length": "15:35",
+      "published": "כ-2019",
+      "confidence": "medium",
+      "evidence": "desc"
+    },
+    {
+      "piste": "Goodaura 2",
+      "url": "https://www.youtube.com/watch?v=Y16EYwAs4vw",
+      "title": "Gudauri Goodaura 2 03.01.26",
+      "by": "מחקר",
+      "at": 1790769600000,
+      "channel": "Зеленцов Иван",
+      "length": "7:53",
+      "published": "כ-2026",
+      "confidence": "high",
+      "evidence": "title"
+    },
+    {
+      "piste": "Goodaura 2",
+      "url": "https://www.youtube.com/watch?v=EdIGHcz4vYM",
+      "title": "Gudauri Top To Bottom",
+      "by": "מחקר",
+      "at": 1790769600000,
+      "channel": "Zaza Jalalishvili",
+      "length": "6:24",
+      "published": "כ-2019",
+      "confidence": "medium",
+      "evidence": "desc"
+    },
+    {
+      "piste": "Sadzele 2",
+      "url": "https://www.youtube.com/watch?v=TbG-C56Ry-Q",
+      "title": "Гудаури подъемник и трасса Sadzele 2",
+      "by": "מחקר",
+      "at": 1790769600000,
+      "channel": "Андрей Брагин",
+      "length": "17:46",
+      "published": "כ-2019",
+      "confidence": "high",
+      "evidence": "title"
+    },
+    {
+      "piste": "Sadzele 2",
+      "url": "https://www.youtube.com/watch?v=oRG186_-9P4",
+      "title": "Black Sadzele 2 4K 360 VR Snowboard Gudauri, Georgia 2020",
+      "by": "מחקר",
+      "at": 1790769600000,
+      "channel": "naszepodrozeeu",
+      "length": "9:00",
+      "published": "כ-2020",
+      "confidence": "high",
+      "evidence": "title"
+    },
+    {
+      "piste": "Sadzele 2",
+      "url": "https://www.youtube.com/watch?v=EdIGHcz4vYM",
+      "title": "Gudauri Top To Bottom",
+      "by": "מחקר",
+      "at": 1790769600000,
+      "channel": "Zaza Jalalishvili",
+      "length": "6:24",
+      "published": "כ-2019",
+      "confidence": "medium",
+      "evidence": "desc"
+    },
+    {
+      "piste": "Kikilo 2",
+      "url": "https://www.youtube.com/watch?v=srvX7rRhhuc",
+      "title": "skidding in Gudauri",
+      "by": "מחקר",
+      "at": 1790769600000,
+      "channel": "Igor Nikolaev",
+      "length": "2:19",
+      "published": "כ-2025",
+      "confidence": "medium",
+      "evidence": "desc"
+    },
+    {
+      "piste": "Kikilo 2",
+      "url": "https://www.youtube.com/watch?v=j7dpAFl0S94",
+      "title": "Ski slopes: Kudebi 1 - Kikilo 2 - New Goodaura. Gudauri Ski resort in Georgia",
+      "by": "מחקר",
+      "at": 1790769600000,
+      "channel": "BonifaceART",
+      "length": "8:10",
+      "published": "כ-2026",
+      "confidence": "medium",
+      "evidence": "multi"
+    },
+    {
+      "piste": "Tatra 1",
+      "url": "https://www.youtube.com/watch?v=dFsyiZq_6_E",
+      "title": "Beginner Skiing on Tatra 1 Slope in Gudauri | January 2025 Adventure",
+      "by": "מחקר",
+      "at": 1790769600000,
+      "channel": "Vansegena",
+      "length": "9:06",
+      "published": "כ-2025",
+      "confidence": "high",
+      "evidence": "title"
+    },
+    {
+      "piste": "Tatra 1",
+      "url": "https://www.youtube.com/watch?v=4Up9sBhgXoQ",
+      "title": "Gudauri 2018. Tatra 1 Slope. 4K.",
+      "by": "מחקר",
+      "at": 1790769600000,
+      "channel": "Valeri Khomutov",
+      "length": "9:28",
+      "published": "כ-2018",
+      "confidence": "high",
+      "evidence": "title"
+    },
+    {
+      "piste": "Tatra 1",
+      "url": "https://www.youtube.com/watch?v=WD86crgZ8pE",
+      "title": "Gudauri Firni 1- Tatra 1. Ski resort in Georgia Country Caucasus mountains",
+      "by": "מחקר",
+      "at": 1790769600000,
+      "channel": "BonifaceART",
+      "length": "8:50",
+      "published": "כ-2026",
+      "confidence": "medium",
+      "evidence": "multi"
+    },
+    {
+      "piste": "Goodaura 1",
+      "url": "https://www.youtube.com/watch?v=nA6jv-qRmz4",
+      "title": "Спуск по Goodaura 1, Гудаури, Грузия",
+      "by": "מחקר",
+      "at": 1790769600000,
+      "channel": "Vlad Key",
+      "length": "4:32",
+      "published": "כ-2026",
+      "confidence": "high",
+      "evidence": "title"
+    },
+    {
+      "piste": "Kobi",
+      "url": "https://www.youtube.com/watch?v=o5Zikdc2UU0",
+      "title": "Ski slopes Kobi in Gudauri. Ski resort in Georgia Country Caucasus mountains",
+      "by": "מחקר",
+      "at": 1790769600000,
+      "channel": "BonifaceART",
+      "length": "3:26",
+      "published": "כ-2026",
+      "confidence": "high",
+      "evidence": "title"
+    },
+    {
+      "piste": "Kobi",
+      "url": "https://www.youtube.com/watch?v=QzhFYyd0EwU",
+      "title": "22 марта 2021 г. Kobi - The most beautiful slope in Gudauri",
+      "by": "מחקר",
+      "at": 1790769600000,
+      "channel": "Nataly Go",
+      "length": "1:24",
+      "published": "כ-2021",
+      "confidence": "high",
+      "evidence": "title"
+    },
+    {
+      "piste": "Kobi",
+      "url": "https://www.youtube.com/watch?v=yNl-r5DbixU",
+      "title": "New ski slope Kobi at Gudauri",
+      "by": "מחקר",
+      "at": 1790769600000,
+      "channel": "Alex Cyclist",
+      "length": "3:23",
+      "published": "כ-2019",
+      "confidence": "high",
+      "evidence": "title"
+    },
+    {
+      "piste": "New Goodaura",
+      "url": "https://www.youtube.com/watch?v=48X2vxWPu1w",
+      "title": "Gudauri New Goodaura 04.01.26",
+      "by": "מחקר",
+      "at": 1790769600000,
+      "channel": "Зеленцов Иван",
+      "length": "5:40",
+      "published": "כ-2026",
+      "confidence": "high",
+      "evidence": "title"
+    },
+    {
+      "piste": "New Goodaura",
+      "url": "https://www.youtube.com/watch?v=JXKvJb0vJLw",
+      "title": "🇬🇪 New Goodaura 1 | Gudauri, Georgia | 2.0 km Blue Run | Snowstorm Skiing | 4K POV",
+      "by": "מחקר",
+      "at": 1790769600000,
+      "channel": "Slope Lines Ski",
+      "length": "11:47",
+      "published": "כ-2026",
+      "confidence": "medium",
+      "evidence": "title"
+    },
+    {
+      "piste": "New Goodaura",
+      "url": "https://www.youtube.com/watch?v=VoCR-h_-VKg",
+      "title": "Ski slopes Kikilo 1 &  New Goodaura in Gudauri. Gudaur  Ski resort in Georgia",
+      "by": "מחקר",
+      "at": 1790769600000,
+      "channel": "BonifaceART",
+      "length": "6:45",
+      "published": "כ-2026",
+      "confidence": "medium",
+      "evidence": "multi"
+    },
+    {
+      "piste": "Kudebi 2",
+      "url": "https://www.youtube.com/watch?v=JEmT4jOHP9A",
+      "title": "Gudauri Kudebi 2",
+      "by": "מחקר",
+      "at": 1790769600000,
+      "channel": "Paul Fryer",
+      "length": "5:29",
+      "published": "כ-2022",
+      "confidence": "high",
+      "evidence": "title"
+    },
+    {
+      "piste": "Kudebi 2",
+      "url": "https://www.youtube.com/watch?v=h0Z8PDGzBSE",
+      "title": "Kudebi 2B ski run (top to bottom), Gudauri ski resort, Georgia",
+      "by": "מחקר",
+      "at": 1790769600000,
+      "channel": "Every Run",
+      "length": "3:48",
+      "published": "כ-2025",
+      "confidence": "medium",
+      "evidence": "variant"
+    },
+    {
+      "piste": "Kudebi 2",
+      "url": "https://www.youtube.com/watch?v=soKA261Q40k",
+      "title": "Kudebi 2 to Sadzele 4K 360 VR Snowboard Gudauri, Georgia 2020",
+      "by": "מחקר",
+      "at": 1790769600000,
+      "channel": "naszepodrozeeu",
+      "length": "3:50",
+      "published": "כ-2020",
+      "confidence": "medium",
+      "evidence": "multi"
+    },
+    {
+      "piste": "Shino",
+      "url": "https://www.youtube.com/watch?v=_eX6sfoLqG0",
+      "title": "Ski slopes: Firni 1 - Tatra 1 - Shino - Soliko 2 - Pirveli.  Gudauri ski resort Georgia",
+      "by": "מחקר",
+      "at": 1790769600000,
+      "channel": "BonifaceART",
+      "length": "12:00",
+      "published": "כ-2026",
+      "confidence": "medium",
+      "evidence": "multi"
+    },
+    {
+      "piste": "Shino",
+      "url": "https://www.youtube.com/watch?v=qIdX32W64yk",
+      "title": "Gudauri Ski Mt. Kudebi - Soliko -Shino",
+      "by": "מחקר",
+      "at": 1790769600000,
+      "channel": "Konrad S",
+      "length": "4:32",
+      "published": "כ-2024",
+      "confidence": "medium",
+      "evidence": "multi"
+    },
+    {
+      "piste": "Shino",
+      "url": "https://www.youtube.com/watch?v=LdWjiDb0-4M",
+      "title": "Gudauri snowboard Kobi - Shino",
+      "by": "מחקר",
+      "at": 1790769600000,
+      "channel": "MotionLens",
+      "length": "3:11",
+      "published": "כ-2025",
+      "confidence": "medium",
+      "evidence": "multi"
+    },
+    {
+      "piste": "Firni 1",
+      "url": "https://www.youtube.com/watch?v=WD86crgZ8pE",
+      "title": "Gudauri Firni 1- Tatra 1. Ski resort in Georgia Country Caucasus mountains",
+      "by": "מחקר",
+      "at": 1790769600000,
+      "channel": "BonifaceART",
+      "length": "8:50",
+      "published": "כ-2026",
+      "confidence": "medium",
+      "evidence": "multi"
+    },
+    {
+      "piste": "Firni 1",
+      "url": "https://www.youtube.com/watch?v=_eX6sfoLqG0",
+      "title": "Ski slopes: Firni 1 - Tatra 1 - Shino - Soliko 2 - Pirveli.  Gudauri ski resort Georgia",
+      "by": "מחקר",
+      "at": 1790769600000,
+      "channel": "BonifaceART",
+      "length": "12:00",
+      "published": "כ-2026",
+      "confidence": "medium",
+      "evidence": "multi"
+    },
+    {
+      "piste": "Tatra 2",
+      "url": "https://www.youtube.com/watch?v=PVxmviwQswk",
+      "title": "Спуск по Tatra 2, Гудаури, Грузия",
+      "by": "מחקר",
+      "at": 1790769600000,
+      "channel": "Vlad Key",
+      "length": "8:57",
+      "published": "כ-2026",
+      "confidence": "high",
+      "evidence": "title"
+    },
+    {
+      "piste": "Tatra 2",
+      "url": "https://www.youtube.com/watch?v=o8PaDr9Rxvg",
+      "title": "Gudauri 2018. Tatra 2 Slope. 4K.",
+      "by": "מחקר",
+      "at": 1790769600000,
+      "channel": "Valeri Khomutov",
+      "length": "6:55",
+      "published": "כ-2018",
+      "confidence": "high",
+      "evidence": "title"
+    },
+    {
+      "piste": "Tatra 2",
+      "url": "https://www.youtube.com/watch?v=CUaGKUmmt74",
+      "title": "Gudauri 2020. Tatra2",
+      "by": "מחקר",
+      "at": 1790769600000,
+      "channel": "Alex Cyclist",
+      "length": "3:20",
+      "published": "כ-2020",
+      "confidence": "high",
+      "evidence": "title"
+    },
+    {
+      "piste": "Soliko 2",
+      "url": "https://www.youtube.com/watch?v=_eX6sfoLqG0",
+      "title": "Ski slopes: Firni 1 - Tatra 1 - Shino - Soliko 2 - Pirveli.  Gudauri ski resort Georgia",
+      "by": "מחקר",
+      "at": 1790769600000,
+      "channel": "BonifaceART",
+      "length": "12:00",
+      "published": "כ-2026",
+      "confidence": "medium",
+      "evidence": "multi"
+    }
+  ],
+  "terrain": {
+    "geometrySources": {
+      "file": "site/data/terrain.json",
+      "demPayloadPointer": "/dem/b64",
+      "contoursPointer": "/contours",
+      "roadsPointer": "/env/roads",
+      "waterPointer": "/env/water",
+      "villagePointer": "/env/village",
+      "riversPointer": "/env/rivers"
+    },
+    "projection": {
+      "lat0": 42.51,
+      "lon0": 44.495
+    },
+    "dem": {
+      "nx": 370,
+      "ny": 391,
+      "x0": -7795.76,
+      "y0": -7792.4,
+      "x1": 6975.15,
+      "y1": 7792.4,
+      "samples": 144670,
+      "resolutionX": 40.029566395663956,
+      "resolutionY": 39.96102564102564,
+      "minimum": 1343,
+      "maximum": 3725
+    },
+    "hill": {
+      "w": 1231,
+      "h": 1299,
+      "payloadSource": "site/data/terrain.json#/hill/src"
+    },
+    "contourCount": 319,
+    "environmentCounts": {
+      "roads": 281,
+      "water": 6,
+      "village": 21,
+      "rivers": 10,
+      "places": 11
+    },
+    "peaks": [
+      {
+        "n": "Sadzele",
+        "ele": 3307,
+        "x": 1440,
+        "y": -274,
+        "pass": false
+      },
+      {
+        "n": "Sadzele West",
+        "ele": 3276,
+        "x": 690,
+        "y": 39,
+        "pass": false
+      },
+      {
+        "n": "Bidara",
+        "ele": 3174,
+        "x": -661,
+        "y": -359,
+        "pass": false
+      },
+      {
+        "n": "Kudebi",
+        "ele": 3006,
+        "x": 1165,
+        "y": 1388,
+        "pass": false
+      },
+      {
+        "n": "Chrdili",
+        "ele": 2504,
+        "x": 1066,
+        "y": 3676,
+        "pass": false
+      },
+      {
+        "n": "Kobi Pass",
+        "ele": 2900,
+        "x": -138,
+        "y": -59,
+        "pass": true
+      }
+    ],
+    "places": [
+      {
+        "n": "Kobi",
+        "ka": "კობი",
+        "x": 1343,
+        "y": -5547,
+        "ele": "1970"
+      },
+      {
+        "n": "Almasiani",
+        "ka": "ალმასიანი",
+        "x": 447,
+        "y": -5367,
+        "ele": "1960"
+      },
+      {
+        "n": "Kaishaurni",
+        "ka": "კაიშაურნი",
+        "x": 1283,
+        "y": 7668,
+        "ele": "1790"
+      },
+      {
+        "n": "Zakatkari",
+        "ka": "ზაქათკარი",
+        "x": 2074,
+        "y": 7779,
+        "ele": "1640"
+      },
+      {
+        "n": "Seturni",
+        "ka": "სეთურნი",
+        "x": 56,
+        "y": 6440,
+        "ele": null
+      },
+      {
+        "n": "Kumlistsikhe",
+        "ka": "ქუმლისციხე",
+        "x": -685,
+        "y": 6199,
+        "ele": "1840"
+      },
+      {
+        "n": "Gudauri",
+        "ka": "გუდაური",
+        "x": -1475,
+        "y": 3723,
+        "ele": "2196"
+      },
+      {
+        "n": "Benianbegoni",
+        "ka": "ბენიან-ბეგონი",
+        "x": 3018,
+        "y": 4764,
+        "ele": "1680"
+      },
+      {
+        "n": "Iukho",
+        "ka": "იუხო",
+        "x": 3593,
+        "y": 5182,
+        "ele": "1240"
+      },
+      {
+        "n": "Zhozhoni",
+        "ka": "ჟოჟონი",
+        "x": 4924,
+        "y": 6405,
+        "ele": "1600"
+      },
+      {
+        "n": "Jaghmiani",
+        "ka": "ჯაღმიანი",
+        "x": 838,
+        "y": 7329,
+        "ele": null
+      }
+    ]
+  },
+  "meetingStations": [
+    {
+      "id": "158744055b",
+      "x": -31.83950730523546,
+      "y": 2022.461759999526,
+      "elevation": 2702,
+      "ends": [
+        {
+          "liftId": 158744055,
+          "name": "Snow Park",
+          "end": "b"
+        },
+        {
+          "liftId": 158744075,
+          "name": "Goodaura",
+          "end": "t"
+        }
+      ]
+    },
+    {
+      "id": "158744055t",
+      "x": 572.0443438769557,
+      "y": 1439.033639999743,
+      "elevation": 2828,
+      "ends": [
+        {
+          "liftId": 158744055,
+          "name": "Snow Park",
+          "end": "t"
+        }
+      ]
+    },
+    {
+      "id": "158744059b",
+      "x": -809.0353157770952,
+      "y": 5328.777079999845,
+      "elevation": 1995,
+      "ends": [
+        {
+          "liftId": 158744059,
+          "name": "Pirveli",
+          "end": "b"
+        }
+      ]
+    },
+    {
+      "id": "158744059t",
+      "x": -627.5993604889815,
+      "y": 4357.287439999804,
+      "elevation": 2149,
+      "ends": [
+        {
+          "liftId": 158744059,
+          "name": "Pirveli",
+          "end": "t"
+        },
+        {
+          "liftId": 158744077,
+          "name": "Soliko",
+          "end": "b"
+        }
+      ]
+    },
+    {
+      "id": "158744060b",
+      "x": 313.0611349723553,
+      "y": 1485.2314400001692,
+      "elevation": 2778,
+      "ends": [
+        {
+          "liftId": 158744060,
+          "name": "Sadzele",
+          "end": "b"
+        }
+      ]
+    },
+    {
+      "id": "158744060t",
+      "x": 673.6353491445052,
+      "y": 112.9897999994796,
+      "elevation": 3235,
+      "ends": [
+        {
+          "liftId": 158744060,
+          "name": "Sadzele",
+          "end": "t"
+        }
+      ]
+    },
+    {
+      "id": "158744063b",
+      "x": 399.9632953746653,
+      "y": 2277.4958799994815,
+      "elevation": 2690,
+      "ends": [
+        {
+          "liftId": 158744063,
+          "name": "Khada",
+          "end": "b"
+        }
+      ]
+    },
+    {
+      "id": "158744063t",
+      "x": 742.2379989050719,
+      "y": 1827.540439999668,
+      "elevation": 2801,
+      "ends": [
+        {
+          "liftId": 158744063,
+          "name": "Khada",
+          "end": "t"
+        }
+      ]
+    },
+    {
+      "id": "158744075b",
+      "x": -230.6723067902377,
+      "y": 4325.227280000068,
+      "elevation": 2161,
+      "ends": [
+        {
+          "liftId": 158744075,
+          "name": "Goodaura",
+          "end": "b"
+        },
+        {
+          "liftId": 1196532544,
+          "name": "New Goodaura",
+          "end": "b"
+        }
+      ]
+    },
+    {
+      "id": "158744077t",
+      "x": 326.10876812031324,
+      "y": 2258.682799999521,
+      "elevation": 2690,
+      "ends": [
+        {
+          "liftId": 158744077,
+          "name": "Soliko",
+          "end": "t"
+        }
+      ]
+    },
+    {
+      "id": "158817616b",
+      "x": -451.6614644521286,
+      "y": 4440.5547999999735,
+      "elevation": 2137,
+      "ends": [
+        {
+          "liftId": 158817616,
+          "name": "Zuma",
+          "end": "b"
+        }
+      ]
+    },
+    {
+      "id": "158817616t",
+      "x": -355.48645785020926,
+      "y": 4158.803879999447,
+      "elevation": 2189,
+      "ends": [
+        {
+          "liftId": 158817616,
+          "name": "Zuma",
+          "end": "t"
+        }
+      ]
+    },
+    {
+      "id": "472374253b",
+      "x": -996.1334514877317,
+      "y": 4054.6083599999115,
+      "elevation": 2173,
+      "ends": [
+        {
+          "liftId": 472374253,
+          "name": "Shino",
+          "end": "b"
+        }
+      ]
+    },
+    {
+      "id": "472374253t",
+      "x": -72.6236184663908,
+      "y": 1916.930399999408,
+      "elevation": 2709,
+      "ends": [
+        {
+          "liftId": 472374253,
+          "name": "Shino",
+          "end": "t"
+        },
+        {
+          "liftId": 663643826,
+          "name": "Firni",
+          "end": "b"
+        }
+      ]
+    },
+    {
+      "id": "663639361b",
+      "x": 72.8698002244495,
+      "y": 2265.6959600000073,
+      "elevation": 2669,
+      "ends": [
+        {
+          "liftId": 663639361,
+          "name": "Kudebi",
+          "end": "b"
+        }
+      ]
+    },
+    {
+      "id": "663639361t",
+      "x": 1024.5264141883083,
+      "y": 1443.0411599999074,
+      "elevation": 2983,
+      "ends": [
+        {
+          "liftId": 663639361,
+          "name": "Kudebi",
+          "end": "t"
+        }
+      ]
+    },
+    {
+      "id": "663643826t",
+      "x": -188.73934742733505,
+      "y": -129.3538400000861,
+      "elevation": 2952,
+      "ends": [
+        {
+          "liftId": 663643826,
+          "name": "Firni",
+          "end": "t"
+        }
+      ]
+    },
+    {
+      "id": "1196532543b",
+      "x": 592.4774297509318,
+      "y": 3254.328879999479,
+      "elevation": 2349,
+      "ends": [
+        {
+          "liftId": 1196532543,
+          "name": "Kikilo",
+          "end": "b"
+        }
+      ]
+    },
+    {
+      "id": "1196532543t",
+      "x": 691.0321933425598,
+      "y": 1963.4621599997822,
+      "elevation": 2764,
+      "ends": [
+        {
+          "liftId": 1196532543,
+          "name": "Kikilo",
+          "end": "t"
+        }
+      ]
+    },
+    {
+      "id": "1196532544t",
+      "x": 252.5004226240199,
+      "y": 3151.5805199994534,
+      "elevation": 2388,
+      "ends": [
+        {
+          "liftId": 1196532544,
+          "name": "New Goodaura",
+          "end": "t"
+        }
+      ]
+    }
+  ],
+  "assets": {
+    "panoramas": [
+      {
+        "path": "site/img/pano/pano-dawn.webp",
+        "bytes": 12978,
+        "sha256": "2eeaf413daba7b7f9867dd43fb868ce0c22f4426847fdf5f163ccfb64d020833"
+      },
+      {
+        "path": "site/img/pano/pano-dusk.webp",
+        "bytes": 10108,
+        "sha256": "1ccc43d523ddadfae4bac3cda4964401408656c1b265b209197dcddba8e34f73"
+      },
+      {
+        "path": "site/img/pano/pano-gold.webp",
+        "bytes": 23108,
+        "sha256": "fbe1e2809028b45fb5d10385379a0081f9c1126361abac57334345bbbaf8d4e7"
+      },
+      {
+        "path": "site/img/pano/pano-morning.webp",
+        "bytes": 20416,
+        "sha256": "f37feb5b7157501fbe63de7fd0a207d919feb095de41d1746a3e4298378760e8"
+      },
+      {
+        "path": "site/img/pano/pano-night.webp",
+        "bytes": 11716,
+        "sha256": "1922de9e813e3e58608f6e076e9620e4341fc0d0a0b8a6879eebbd8fca08f734"
+      },
+      {
+        "path": "site/img/pano/pano-noon.webp",
+        "bytes": 23766,
+        "sha256": "5fa44df0c4c9ce3d9535d542be4fc57d9a874310896c3363019bd5f849df9c7d"
+      },
+      {
+        "path": "site/img/pano/pano-sunset.webp",
+        "bytes": 19442,
+        "sha256": "2d4094b1ce950a52d03b62e89dd3aa45b663a9d3fb88fe1aacbf2e3288df0c1e"
+      },
+      {
+        "path": "site/img/pano/pano-wide-dawn.webp",
+        "bytes": 37764,
+        "sha256": "df5034ea7bfee043758f06ab6a9495b4aa4fb5dbc701192e82637d430e083d7e"
+      },
+      {
+        "path": "site/img/pano/pano-wide-dusk.webp",
+        "bytes": 28556,
+        "sha256": "677cc7d90a27b26d093bf331dfaf5a888c3aedeb98936ad6fb5786d7f043d07b"
+      },
+      {
+        "path": "site/img/pano/pano-wide-gold.webp",
+        "bytes": 55782,
+        "sha256": "7387b50f3262d405b9858fc7c4e7cb219c54be15911e2410fbb7f06216541489"
+      },
+      {
+        "path": "site/img/pano/pano-wide-morning.webp",
+        "bytes": 51784,
+        "sha256": "5fdf13d569c7345bfbbdd74d156210b33c72059070261456036bb2692c147633"
+      },
+      {
+        "path": "site/img/pano/pano-wide-night.webp",
+        "bytes": 31542,
+        "sha256": "49ff7b5baa68b37a6872a682668751690daa1d72d829608ad53a3db65afc5ace"
+      },
+      {
+        "path": "site/img/pano/pano-wide-noon.webp",
+        "bytes": 61948,
+        "sha256": "a4c87fc2761c0cafca8aca65e6d6aaf36185291a274f9b9c6c4ae8c17b0c18d2"
+      },
+      {
+        "path": "site/img/pano/pano-wide-sunset.webp",
+        "bytes": 49484,
+        "sha256": "82a8a2f81a878c87b1b76288faa8a6d91ebd615e30b624335fad5e87d09e16d7"
+      }
+    ],
+    "ticketAudio": [
+      {
+        "path": "site/audio/ticket-land.wav",
+        "bytes": 16362,
+        "sha256": "452667619faebb9d510074db4d4a01719863f981b5ef9708a48d5b83adfe5498"
+      },
+      {
+        "path": "site/audio/ticket-slide.wav",
+        "bytes": 27386,
+        "sha256": "4a580a4ddc16a985c752da75959b864b3b70226e340561c1926b309b2c4a283c"
+      },
+      {
+        "path": "site/audio/ticket-tear.wav",
+        "bytes": 30914,
+        "sha256": "f425feb8630dd0f04631fe0817fc33d80d9569caa5187c74fc1f07f631ec9cc8"
+      }
+    ],
+    "gameThumbnails": [
+      {
+        "path": "site/games/thumbs/descent.webp",
+        "bytes": 13780,
+        "sha256": "ca0171ddbc0e34a6d9b38e53b100dee9f4cd72c052572d79d86589771dac2dae"
+      },
+      {
+        "path": "site/games/thumbs/fresh-snow.webp",
+        "bytes": 5872,
+        "sha256": "7c1998decfc66d787df26edd65e6e4adaa804b41422ff7c1b62b66a1bb147c34"
+      },
+      {
+        "path": "site/games/thumbs/merge.webp",
+        "bytes": 7226,
+        "sha256": "65c75aad48e0f1b7b8716f59d8fa3db7e7cc8f4a5e2728b27a1f178dbf87e7cb"
+      },
+      {
+        "path": "site/games/thumbs/school.webp",
+        "bytes": 4156,
+        "sha256": "0913a7c615c26b386e95d85d7077e6acb154fd2248c7059903db47c85493d213"
+      },
+      {
+        "path": "site/games/thumbs/snowball.webp",
+        "bytes": 9182,
+        "sha256": "877ce8019713d0613e6e00bd49467be5d8544a94c20fe37d11074409f079c6e5"
+      }
+    ]
+  },
+  "gameCatalog": {
+    "heading": "משחקים",
+    "countLabel": "5 משחקים",
+    "intro": "על השלג של גודאורי. השיאים נשמרים רק בטלפון שלכם, ומומלץ עם צליל.",
+    "cards": [
+      {
+        "order": 1,
+        "slug": "descent",
+        "path": "site/games/descent/index.html",
+        "color": "#1F5FC4",
+        "featured": true,
+        "darkText": false,
+        "title": "הירידה של החבר׳ה",
+        "tagline": "הירידה על המסלולים האמיתיים",
+        "description": "גולשים על הפרופיל האמיתי של מסלולי גודאורי, אוספים את החבר׳ה ובורחים מהמפולת. מחזיקים כדי להתכופף, משחררים כדי לקפוץ.",
+        "badge": "5 מסלולים",
+        "thumbnail": "site/games/thumbs/descent.webp"
+      },
+      {
+        "order": 2,
+        "slug": "school",
+        "path": "site/games/school/index.html",
+        "color": "#1B8A4C",
+        "featured": false,
+        "darkText": false,
+        "title": "בית הספר לסקי",
+        "tagline": "מעצירה בפיצה ועד קרווינג",
+        "description": "שבעה שיעורים. בכל שיעור עיקרון אחד ותרגיל שבנוי בשבילו, עם מאמן שאומר מה קורה.",
+        "badge": "7 שיעורים",
+        "thumbnail": "site/games/thumbs/school.webp"
+      },
+      {
+        "order": 3,
+        "slug": "fresh-snow",
+        "path": "site/games/fresh-snow/index.html",
+        "color": "#5B9BFF",
+        "featured": false,
+        "darkText": false,
+        "title": "שלג טרי",
+        "tagline": "לגעת בשלג ולרסק אגם קפוא",
+        "description": "אצבע, מגף, מגלשיים או חתול שלג, עם הצליל של אבקה, קרום ושלג רטוב.",
+        "badge": "בלי ניקוד",
+        "thumbnail": "site/games/thumbs/fresh-snow.webp"
+      },
+      {
+        "order": 4,
+        "slug": "merge",
+        "path": "site/games/merge/index.html",
+        "color": "#F4B942",
+        "featured": false,
+        "darkText": true,
+        "title": "איחוד כדורי שלג",
+        "tagline": "מפתית ועד מלך קזבק",
+        "description": "מחליקים, ושני כדורים זהים מתאחדים לגדול יותר.",
+        "badge": "משחק קצר",
+        "thumbnail": "site/games/thumbs/merge.webp"
+      },
+      {
+        "order": 5,
+        "slug": "snowball",
+        "path": "site/games/snowball/index.html",
+        "color": "#13233A",
+        "featured": false,
+        "darkText": false,
+        "title": "קרב כדורי שלג",
+        "tagline": "מאחורי החומה, מול החבר׳ה",
+        "description": "מתכופפים מאחורי החומה, קמים, מכוונים וזורקים. כל הזירה תמיד מולכם.",
+        "badge": "5 יריבים",
+        "thumbnail": "site/games/thumbs/snowball.webp"
+      }
+    ]
+  },
+  "games": {
+    "descent": {
+      "profiles": [
+        {
+          "key": "Pirveli",
+          "color": "green",
+          "len": 1168,
+          "top": 2152,
+          "bot": 1995,
+          "step": 5,
+          "lift": "Pirveli",
+          "samples": 234,
+          "heightSource": "site/games/descent/index.html const PROFILES"
+        },
+        {
+          "key": "Kikilo 1",
+          "color": "blue",
+          "len": 1150,
+          "top": 2766,
+          "bot": 2450,
+          "step": 5,
+          "lift": "Kikilo",
+          "samples": 231,
+          "heightSource": "site/games/descent/index.html const PROFILES"
+        },
+        {
+          "key": "Tatra 2",
+          "color": "blue",
+          "len": 2294,
+          "top": 2665,
+          "bot": 2172,
+          "step": 5,
+          "lift": "Shino",
+          "samples": 459,
+          "heightSource": "site/games/descent/index.html const PROFILES"
+        },
+        {
+          "key": "Sadzele 3",
+          "color": "red",
+          "len": 1747,
+          "top": 3235,
+          "bot": 2900,
+          "step": 5,
+          "lift": "",
+          "samples": 350,
+          "heightSource": "site/games/descent/index.html const PROFILES"
+        },
+        {
+          "key": "Sadzele 1",
+          "color": "black",
+          "len": 2227,
+          "top": 3232,
+          "bot": 2817,
+          "step": 5,
+          "lift": "Sadzele",
+          "samples": 446,
+          "heightSource": "site/games/descent/index.html const PROFILES"
+        }
+      ],
+      "friends": [
+        "יהודה ו׳",
+        "דובי",
+        "שרוליק",
+        "מוישי",
+        "יהודה ה׳",
+        "פיני"
+      ],
+      "missions": {
+        "Pirveli": "3 flips in one run",
+        "Kikilo 1": "25 khachapuri",
+        "Tatra 2": "jump over snowcat",
+        "Sadzele 3": "no falls",
+        "Sadzele 1": "double flip"
+      }
+    },
+    "school": {
+      "lessons": [
+        {
+          "name": "עוצרים בפיצה",
+          "col": "green",
+          "mode": "wedge",
+          "slope": 9,
+          "len": 125,
+          "start": 4,
+          "rule": "בפיצה, קצות המגלשיים קרובים והזנבות רחוקים. דוחפים את הזנבות החוצה עם העקבים. ככל שהפיצה רחבה יותר, הבלימה חזקה יותר. פיצה צרה רק מאטה.",
+          "ctrl": "המגלשיים ישרים לבד. גוררים אצבע למעלה ולמטה, והסרגל בצד קובע את רוחב הפיצה: למטה רחבה, למעלה צרה.",
+          "drill": "שלושה קווי עצירה: לעצור לגמרי ממש לפניהם, ואז לצמצם את הפיצה ולהמשיך. בין קו 2 לקו 3, רצועה ירוקה: להחזיק בה מהירות של 6 עד 10 קמ״ש, בעזרת רוחב הפיצה.",
+          "goals": [
+            "לעצור לפני שלושת הקווים",
+            "להחזיק את המהירות ברצועה הירוקה",
+            "לעצור במרחק ממוצע של עד 1.5 מ׳"
+          ]
+        },
+        {
+          "name": "פונים בפיצה",
+          "col": "green",
+          "mode": "skis",
+          "slope": 10,
+          "len": 175,
+          "start": 3,
+          "gates": [
+            [
+              -5,
+              28,
+              6
+            ],
+            [
+              5,
+              52,
+              6
+            ],
+            [
+              -5,
+              76,
+              6
+            ],
+            [
+              5,
+              100,
+              6
+            ],
+            [
+              -5,
+              124,
+              6
+            ],
+            [
+              5,
+              148,
+              6
+            ]
+          ],
+          "rule": "כדי לפנות שמאלה, לוחצים על המגלש הימני, החיצוני. כדי לפנות ימינה, על השמאלי. זה הפוך ממה שנדמה בהתחלה, ולכן מתרגלים את זה.",
+          "ctrl": "שני כפתורים: מגלש שמאל ומגלש ימין. לוחצים על אחד מהם, וזה המגלש שעליו כל המשקל.",
+          "drill": "שישה שערים, פעם משמאל ופעם מימין. לפני כל שער המאמן שואל לאן פונים, ואתם בוחרים על איזה מגלש ללחוץ.",
+          "goals": [
+            "לעבור לפחות 4 שערים",
+            "לעבור את כל 6 השערים",
+            "כל השערים, ולכל היותר לחיצה הפוכה אחת"
+          ]
+        },
+        {
+          "name": "הסיבוב הוא הבלם",
+          "col": "blue",
+          "mode": "steer",
+          "slope": 15,
+          "len": 285,
+          "start": 3,
+          "demo": 3.5,
+          "traps": [
+            70,
+            130,
+            190,
+            250
+          ],
+          "trapLimit": 22,
+          "rule": "בלי פיצה, את המהירות שולטים בצורת הסיבוב. ישר במורד מאיץ. באלכסון מאיץ פחות. לרוחב המדרון מאט. כל סיבוב שמסתיים לרוחב הוא בלימה.",
+          "ctrl": "המגלשיים פונים לכיוון האצבע. בהתחלה רק צופים: כמה שניות ישר במורד, כדי להרגיש כמה מהר זה מאיץ.",
+          "drill": "ארבע מכמונות מהירות: לעבור כל אחת מתחת ל-22 קמ״ש, בלי פיצה. המאמן אומר כל רגע אם אתם מאיצים או מאטים.",
+          "goals": [
+            "לעבור 3 מכמונות",
+            "לעבור את כל 4 המכמונות",
+            "כל המכמונות, ואף פעם לא מעל 35 קמ״ש"
+          ]
+        },
+        {
+          "name": "מקבילי, בקצב",
+          "col": "blue",
+          "mode": "rhythm",
+          "slope": 14,
+          "len": 240,
+          "start": 5,
+          "beat": 1.15,
+          "rule": "גולש טוב מסובב בקצב קבוע: כל סיבוב מתחיל כשהקודם נגמר. מתחילים מוקדם, לא כשהעץ כבר מולך. המגלשיים מקבילים, ברוחב הירכיים.",
+          "ctrl": "נגיעה בכל מקום במסך מתחילה סיבוב לצד השני. אין צורך לכוון.",
+          "drill": "מטרונום מתקתק. נוגעים בדיוק על הפעימה. כל נגיעה מקבלת ציון: מושלם, טוב, מוקדם או מאוחר. פעימה שמפספסים, והמהירות עולה.",
+          "goals": [
+            "10 סיבובים בקצב (טוב או מושלם)",
+            "8 סיבובים מושלמים",
+            "רצף של 8 סיבובים בקצב"
+          ]
+        },
+        {
+          "name": "מבט קדימה",
+          "col": "red",
+          "mode": "steer",
+          "slope": 15,
+          "len": 260,
+          "start": 4,
+          "traffic": true,
+          "fade": true,
+          "gates": [
+            [
+              0,
+              35,
+              6
+            ],
+            [
+              -6,
+              70,
+              6
+            ],
+            [
+              5,
+              105,
+              6
+            ],
+            [
+              -4,
+              140,
+              6
+            ],
+            [
+              6,
+              175,
+              6
+            ],
+            [
+              -5,
+              210,
+              6
+            ],
+            [
+              3,
+              245,
+              6
+            ]
+          ],
+          "rule": "מסתכלים שלושה סיבובים קדימה, לא על קצות המגלשיים. מי שגולש לפניכם, נמוך מכם, תמיד קודם. עוקפים אותו במרחק.",
+          "ctrl": "המגלשיים פונים לכיוון האצבע.",
+          "drill": "הדגלים נעלמים כשמתקרבים אליהם, כמו שקורה כשמסתכלים על המגלשיים. רואים אותם רק מרחוק, ולכן מתכננים מרחוק. בדרך גולשים אחרים.",
+          "goals": [
+            "לעבור 5 שערים",
+            "לעבור 6 שערים, בלי התנגשות",
+            "כל 7 השערים, בלי התנגשות"
+          ]
+        },
+        {
+          "name": "קרווינג",
+          "col": "red",
+          "mode": "lean",
+          "slope": 16,
+          "len": 285,
+          "start": 6,
+          "rule": "בקרווינג לא מסובבים את המגלשיים. מטים אותם על הקנט, והצורה שלהם מסובבת אתכם. יותר הטיה, סיבוב הדוק יותר. מעבר חד מקנט לקנט שובר את האחיזה ומחליק.",
+          "ctrl": "הפעם האצבע לא מכוונת. היא קובעת כמה להטות: ימינה מהמרכז מטה ימינה, שמאלה מטה שמאלה. המד בתחתית מראה את ההטיה.",
+          "drill": "לצייר קשתות נקיות: כל סיבוב שלם בלי החלקה הוא \"קשת נקייה\". שני קווים דקים בשלג אומרים שזה עבד. מעבר חד ומהיר מורח את השלג.",
+          "goals": [
+            "4 קשתות נקיות",
+            "8 קשתות נקיות",
+            "8 קשתות, ופחות משנייה וחצי של החלקה"
+          ]
+        },
+        {
+          "name": "מבחן סיום",
+          "col": "blue",
+          "mode": "steer",
+          "slope": 16,
+          "len": 340,
+          "start": 4,
+          "wedgeBtn": true,
+          "traffic": true,
+          "limit": 40,
+          "gates": [
+            [
+              -5,
+              40,
+              7
+            ],
+            [
+              5,
+              85,
+              7
+            ],
+            [
+              -6,
+              130,
+              7
+            ],
+            [
+              4,
+              175,
+              7
+            ],
+            [
+              -5,
+              220,
+              7
+            ],
+            [
+              5,
+              265,
+              7
+            ],
+            [
+              0,
+              310,
+              8
+            ]
+          ],
+          "rule": "הכל ביחד: מבט קדימה, צורת סיבוב ששולטת במהירות, ופיצה רק כשבאמת צריך.",
+          "ctrl": "המגלשיים פונים לכיוון האצבע. כפתור \"פיצה\" לבלימה.",
+          "drill": "שערים, גולשים אחרים, ומהירות עד 40 קמ״ש.",
+          "goals": [
+            "לסיים, עם לפחות 5 שערים",
+            "כל השערים, בלי התנגשות",
+            "וגם מתחת ל-40 ב-90% מהזמן"
+          ]
+        }
+      ],
+      "diagramSource": "site/games/school/index.html const D"
+    },
+    "freshSnow": {
+      "surfaces": [
+        "powder",
+        "crust",
+        "wet"
+      ],
+      "tools": [
+        "hand",
+        "boot",
+        "ski",
+        "ball",
+        "cat"
+      ],
+      "scenes": [
+        "snow",
+        "lake"
+      ],
+      "persistentKey": "lake-best (written, not restored)"
+    },
+    "merge": {
+      "board": [
+        4,
+        4
+      ],
+      "undoLimit": 3,
+      "levels": [
+        "פתית",
+        "כדור קטן",
+        "כדור",
+        "כדור גדול",
+        "ראש",
+        "בטן",
+        "גוף",
+        "איש שלג",
+        "עם כובע",
+        "עם צעיף",
+        "איש שלג ענק",
+        "מלך קזבק"
+      ]
+    },
+    "snowball": {
+      "ladder": [
+        {
+          "name": "בחצר המלון",
+          "n": 1,
+          "hp": 3,
+          "wind": [
+            0,
+            1
+          ],
+          "err": 0.9,
+          "up": [
+            1.8,
+            2.4
+          ],
+          "wait": [
+            1.6,
+            2.6
+          ],
+          "goal": {
+            "text": "לנצח בלי לחטוף",
+            "condition": "s=>s.taken===0"
+          }
+        },
+        {
+          "name": "ליד הרכבל",
+          "n": 1,
+          "hp": 3,
+          "wind": [
+            -2,
+            2
+          ],
+          "err": 0.6,
+          "up": [
+            1.4,
+            1.9
+          ],
+          "wait": [
+            1.3,
+            2.2
+          ],
+          "goal": {
+            "text": "להעיף כובע",
+            "condition": "s=>s.hats>=1"
+          }
+        },
+        {
+          "name": "בשלג העמוק",
+          "n": 2,
+          "hp": 2,
+          "wind": [
+            -2,
+            2
+          ],
+          "err": 0.55,
+          "up": [
+            1.3,
+            1.8
+          ],
+          "wait": [
+            1.6,
+            2.8
+          ],
+          "goal": {
+            "text": "דיוק של 50%",
+            "condition": "s=>s.thrown>0&&s.hits/s.thrown>=.5"
+          }
+        },
+        {
+          "name": "על הרכס",
+          "n": 2,
+          "hp": 2,
+          "wind": [
+            -4,
+            4
+          ],
+          "err": 0.42,
+          "up": [
+            1.1,
+            1.6
+          ],
+          "wait": [
+            1.3,
+            2.4
+          ],
+          "goal": {
+            "text": "שני כובעים",
+            "condition": "s=>s.hats>=2"
+          }
+        },
+        {
+          "name": "בפסגה, ברוח",
+          "n": 3,
+          "hp": 2,
+          "wind": [
+            -5,
+            5
+          ],
+          "err": 0.36,
+          "up": [
+            1,
+            1.4
+          ],
+          "wait": [
+            1.5,
+            2.8
+          ],
+          "goal": {
+            "text": "לנצח בלי לחטוף",
+            "condition": "s=>s.taken===0"
+          }
+        }
+      ],
+      "rosterSize": 6,
+      "simultaneousOpponents": [
+        1,
+        1,
+        2,
+        2,
+        3
+      ],
+      "playerHp": 3
+    }
+  }
+}

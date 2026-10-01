@@ -1,0 +1,14 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<testsuite name="com.pini.gudauri.NativeFlowTest" tests="2" failures="1" errors="0" skipped="0" time="166.539" timestamp="2026-10-01T16:57:58" hostname="localhost">
+  <properties>
+    <property name="device" value="gudauri-api30-aosp(AVD) - 11" />
+    <property name="flavor" value="" />
+    <property name="project" value=":app" />
+  </properties>
+  <testcase name="lightDarkAndNativeMapControls" classname="com.pini.gudauri.NativeFlowTest" time="100.015" />
+  <testcase name="profileSelectionReadsTheRealStartAndEndAndIsAccessible" classname="com.pini.gudauri.NativeFlowTest" time="43.76">
+    <failure></failure>
+  </testcase>
+  <system-err>Test run failed to complete. Instrumentation run failed due to keyDispatchingTimedOut
+</system-err>
+</testsuite>

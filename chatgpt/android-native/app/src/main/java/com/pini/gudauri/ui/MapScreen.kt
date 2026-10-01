@@ -15,6 +15,7 @@ import androidx.compose.foundation.lazy.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.ui.*
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.*
@@ -36,7 +37,7 @@ import kotlinx.coroutines.launch
 import kotlin.math.*
 
 @OptIn(ExperimentalMaterial3Api::class)
-@Composable fun MapScreen(data:MountainData,favorites:Set<String>,onFavorite:(String)->Unit,onHome:()->Unit,onTheme:()->Unit) {
+@Composable fun MapScreen(data:MountainData,favorites:Set<String>,onFavorite:(String)->Unit,onHome:()->Unit,onTheme:()->Unit,requestedRun:String?=null,linkVersion:Int=0,requestedLift:Long?=null,onMeet:()->Unit={}) {
     val p=LocalPalette.current;val context=LocalContext.current
     val chipColors=FilterChipDefaults.filterChipColors(containerColor=p.snow,labelColor=p.muted,selectedContainerColor=p.paper,selectedLabelColor=p.ink)
     val keyboard=LocalSoftwareKeyboardController.current
@@ -44,14 +45,16 @@ import kotlin.math.*
     var selected by rememberSaveable { mutableStateOf<String?>(null) }
     var liftId by rememberSaveable { mutableStateOf<Long?>(null) }
     var top by rememberSaveable { mutableStateOf(false) }
-    var hidden by remember { mutableStateOf(emptySet<String>()) }
+    var hidden by rememberSaveable(stateSaver=listSaver<Set<String>,String>(save={it.toList()},restore={it.toSet()})) { mutableStateOf(emptySet<String>()) }
     var query by rememberSaveable { mutableStateOf("") }
     var onlyFavorites by rememberSaveable { mutableStateOf(false) }
     var surface by remember { mutableStateOf<MountainSurface?>(null) }
     var snapshot by remember { mutableStateOf(MapSnapshot(emptyList(),0f,10f,false)) }
     val supportsGL=remember { (context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager).deviceConfigurationInfo.reqGlEsVersion>=0x30000 }
     var fallback by remember { mutableStateOf(!supportsGL) }
-    var fallbackCamera by remember { mutableStateOf(CameraState(-1000f,1800f,7000f,topView=true)) }
+    val cameraSaver=remember { listSaver<CameraState,Float>(save={listOf(it.x,it.z,it.distance,it.azimuth,it.pitch,if(it.topView)1f else 0f)},restore={CameraState(it[0],it[1],it[2],it[3],it[4],it[5]==1f)}) }
+    var fallbackCamera by rememberSaveable(stateSaver=cameraSaver) { mutableStateOf(CameraState(-1000f,1800f,7000f,topView=true)) }
+    var savedCamera by rememberSaveable { mutableStateOf(floatArrayOf()) }
     val sheet=rememberBottomSheetScaffoldState();val scope=rememberCoroutineScope()
     val named=remember(data) { data.pistes.filter { it.named }.sortedWith(compareBy<Piste> { listOf("green","blue","red","black").indexOf(it.color) }.thenBy { it.key }) }
     val choose:(String,Boolean)->Unit={ key,focus ->
@@ -67,8 +70,24 @@ import kotlin.math.*
         }
         scope.launch { sheet.bottomSheetState.partialExpand() }
     }
-    val chooseLift:(Long)->Unit={ id -> selected=null;liftId=id;surface?.selection(null);surface?.focus(lift=data.lifts.find { it.id==id });scope.launch { sheet.bottomSheetState.partialExpand() } }
+    val chooseLift:(Long)->Unit={ id ->
+        selected=null;liftId=id;hidden=hidden-"lifts";surface?.filters(hidden);surface?.selection(null)
+        data.lifts.find { it.id==id }?.let { lift ->
+            surface?.focus(lift=lift)
+            if(fallback) fallbackCamera=fallbackCamera.copy(x=lift.points.map { it.x }.average().toFloat(),z=lift.points.map { it.z }.average().toFloat(),distance=max(1000f,lift.length*2f))
+        }
+        scope.launch { sheet.bottomSheetState.partialExpand() }
+    }
     val chooseLatest by rememberUpdatedState(choose);val chooseLiftLatest by rememberUpdatedState(chooseLift)
+    var handledLink by rememberSaveable { mutableIntStateOf(-1) }
+    LaunchedEffect(linkVersion, surface, fallback) {
+        if (handledLink != linkVersion && (surface != null || fallback)) {
+            if (requestedRun != null) chooseLatest(requestedRun, true)
+            else if(requestedLift!=null) chooseLiftLatest(requestedLift)
+            else { selected=null;liftId=null;surface?.selection(null) }
+            handledLink = linkVersion
+        }
+    }
     BackHandler(selected!=null || liftId!=null || sheet.bottomSheetState.currentValue==SheetValue.Expanded) {
         if(sheet.bottomSheetState.currentValue==SheetValue.Expanded)scope.launch { sheet.bottomSheetState.partialExpand() }
         else { selected=null;liftId=null;surface?.selection(null) }
@@ -90,7 +109,8 @@ import kotlin.math.*
             Column(Modifier.background(p.snow)) {
                 Row(Modifier.fillMaxWidth().padding(horizontal=12.dp),verticalAlignment=Alignment.CenterVertically) {
                     Text("מפת מסלולים",fontFamily=DisplayFont,fontSize=34.sp,modifier=Modifier.weight(1f))
-                    TextButton(onClick=onTheme){Text(if(p.dark)"☀" else "☾",fontSize=23.sp)}
+                    ThemeControl(onTheme)
+                    TextButton(onClick=onMeet){Text("מפגש")}
                     TextButton(onClick=onHome){Text("בית ←")}
                 }
                 Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).padding(horizontal=12.dp),horizontalArrangement=Arrangement.spacedBy(8.dp)) {
@@ -107,8 +127,9 @@ import kotlin.math.*
             Column(Modifier.fillMaxWidth().fillMaxHeight(.88f).imePadding()) {
                 Row(Modifier.fillMaxWidth().padding(horizontal=18.dp),verticalAlignment=Alignment.CenterVertically) {
                     Column(Modifier.weight(1f).clickable { scope.launch { if(sheet.bottomSheetState.currentValue==SheetValue.Expanded)sheet.bottomSheetState.partialExpand() else sheet.bottomSheetState.expand() } }.padding(vertical=4.dp)) {
-                        Text(run?.key ?: lift?.name ?: "כל המסלולים",fontFamily=DisplayFont,fontSize=34.sp,color=run?.let { p.piste(it.color) } ?: p.ink)
-                        Text(if(run!=null)"${length(run.length)} · ירידה ${data.stats.getValue(run.key).drop} מ׳ · ${difficulty(run.color)}" else if(lift!=null)"${length(lift.length)} · ${liftKind(lift.kind)}" else "27 מסלולים · משכו למעלה או לחצו לרשימה",fontSize=12.sp,color=p.muted)
+                        Text(run?.key ?: lift?.name ?: "כל המסלולים",fontFamily=DisplayFont,fontSize=34.sp,color=run?.let { p.piste(it.color) } ?: p.ink,
+                            modifier=Modifier.testTag(if(run!=null) "selected-run-${run.key}" else if(lift!=null) "selected-lift-${lift.id}" else "all-runs-heading"))
+                        Text(if(run!=null)"${length(run.length)} · ${if(data.stats.getValue(run.key).available) "ירידה ${data.stats.getValue(run.key).drop} מ׳" else "ללא פרופיל קווי"} · ${difficulty(run.color)}" else if(lift!=null)"${length(lift.length)} · ${liftKind(lift.kind)}" else "${named.size} מסלולים · משכו למעלה או לחצו לרשימה",fontSize=12.sp,color=p.muted)
                     }
                     if(run!=null)IconButton(onClick={onFavorite(run.key)}) { Text(if(run.key in favorites)"★" else "☆",fontSize=30.sp,color=p.accent,modifier=Modifier.semantics { contentDescription=if(run.key in favorites)"הסר ממועדפים" else "שמור במועדפים" }) }
                     if(run!=null || lift!=null)TextButton(onClick={selected=null;liftId=null;surface?.selection(null);scope.launch{sheet.bottomSheetState.expand()}}){Text("הכול")}
@@ -145,7 +166,14 @@ import kotlin.math.*
     ) { padding ->
         Box(Modifier.fillMaxSize().padding(padding)) {
             if(fallback)FallbackMap(data,hidden,selected,fallbackCamera,{fallbackCamera=it},chooseLatest)
-            else AndroidView(factory={ ctx -> MountainSurface(ctx,data,{snapshot=it},{pick->pick.piste?.let { chooseLatest(it,true) } ?: pick.lift?.let(chooseLiftLatest)},{fallback=true}).also { surface=it;it.selection(selected);it.filters(hidden);it.theme(p.dark) } },
+            else AndroidView(factory={ ctx -> MountainSurface(ctx,data,{value->
+                snapshot=value
+                surface?.mountain?.camera?.let { camera -> savedCamera=floatArrayOf(camera.x,camera.z,camera.distance,camera.azimuth,camera.pitch,if(camera.topView)1f else 0f) }
+            },{pick->pick.piste?.let { chooseLatest(it,true) } ?: pick.lift?.let(chooseLiftLatest)},{fallback=true}).also {
+                surface=it;it.selection(selected);it.filters(hidden);it.theme(p.dark)
+                if(savedCamera.size==6) { val c=savedCamera;it.mountain.camera=CameraState(c[0],c[1],c[2],c[3],c[4],c[5]==1f);it.requestRender() }
+                else if(top)it.mode(true)
+            } },
                 update={it.theme(p.dark);it.selection(selected);it.filters(hidden)},modifier=Modifier.fillMaxSize())
             if(!fallback)MapLabels(snapshot)
             Column(Modifier.align(Alignment.TopStart).padding(12.dp),verticalArrangement=Arrangement.spacedBy(6.dp)) {
