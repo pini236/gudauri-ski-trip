@@ -112,23 +112,23 @@ button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 
 <div class="pop" id="pop"></div>
 <div class="pads" id="pads" hidden>
-  <button class="pad" id="padTuck" type="button" aria-label="התכופפות"><svg width="26" height="26" viewBox="0 0 34 34" aria-hidden="true"><path d="M9 11 L17 19 L25 11 M9 19 L17 27 L25 19" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="square"/></svg><span><b id="tuckBig">התכופפות</b><small id="tuckSmall">החזיקו: מהר יותר ונגד הרוח</small></span><i class="tip" id="tuckTip"></i></button>
-  <button class="pad" id="padJump" type="button" aria-label="קפיצה"><svg width="26" height="26" viewBox="0 0 34 34" aria-hidden="true"><path d="M17 26 V8 M9 15 L17 7 L25 15" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="square"/></svg><span><b id="jumpBig">קפיצה</b><small id="jumpSmall">באוויר: החזיקו לסלטה</small></span><i class="tip" id="jumpTip"></i></button>
+  <button class="pad" id="padTuck" type="button" aria-label="התכופפות"><svg width="26" height="26" viewBox="0 0 34 34" aria-hidden="true"><path d="M9 11 L17 19 L25 11 M9 19 L17 27 L25 19" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="square"/></svg><span><b id="tuckBig">התכופפות</b><small id="tuckSmall">מהר יותר, ונגד הרוח</small></span><i class="tip" id="tuckTip"></i></button>
+  <button class="pad" id="padJump" type="button" aria-label="קפיצה"><svg width="26" height="26" viewBox="0 0 34 34" aria-hidden="true"><path d="M17 26 V8 M9 15 L17 7 L25 15" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="square"/></svg><span><b id="jumpBig">קפיצה</b><small id="jumpSmall">החזיקו לקפיצה גבוהה</small></span><i class="tip" id="jumpTip"></i></button>
 </div>
 <div class="count" id="count" hidden><b id="countN">3</b><div class="mis" id="countMis"></div></div>
 <button class="snd" id="snd" hidden type="button" aria-pressed="false" aria-label="צליל">🔇</button>
 
 <section class="menu" id="menuStart" aria-label="התחלה">
   <h1>הירידה של החבר׳ה</h1>
-  <p>המסלולים האמיתיים של גודאורי, בשיפועים האמיתיים שלהם. אספו את החבר׳ה בדרך, קפצו מעל ערוצים ורטרקים, עשו סלטות, ותברחו מהמפולת עד הרכבל.</p>
+  <p>המסלולים האמיתיים של גודאורי, בשיפועים האמיתיים שלהם. אספו את החבר׳ה בדרך, קפצו מעל ערוצים וחתולי שלג, עשו סלטות, ותברחו מהמפולת עד הרכבל.</p>
   <h2>מי גולש?</h2>
   <div class="friends" id="friends" role="group" aria-label="בחירת חבר"></div>
   <h2>איזה מסלול?</h2>
   <div class="runs" id="runs" role="group" aria-label="בחירת מסלול"></div>
   <div class="opts"><button class="chip" id="optAva" type="button" aria-pressed="true">עם מפולת</button><button class="chip" id="optGhost" type="button" aria-pressed="true">רוח רפאים של השיא</button></div>
   <div class="how">
-    <div><b>כפתור ימני: קפיצה</b>נגיעה קופצת. באוויר: להחזיק כדי לעשות סלטה אחורה, ולשחרר לפני הנחיתה.</div>
-    <div><b>כפתור שמאלי: התכופפות</b>על השלג: להחזיק כדי לנסוע מהר יותר ולעמוד מול הרוח. באוויר: תפיסת מגלשיים.</div>
+    <div><b>כפתור ימני: קפיצה</b>להחזיק לקפיצה גבוהה. קפיצה על הקו הצהוב שלפני קפיצה היא "פופ מושלם". באוויר, לחיצה נוספת: תפיסת מגלשיים.</div>
+    <div><b>כפתור שמאלי: התכופפות</b>על השלג: מהר יותר ונגד הרוח, וקפיצה מתוך התכופפות גבוהה יותר. באוויר: להחזיק לסלטה.</div>
   </div>
   <p class="note" style="margin-top:-6px">במקלדת: רווח או חץ למעלה לקפיצה, חץ למטה להתכופפות.</p>
   <div class="legend" id="legend"></div>
@@ -170,7 +170,7 @@ const RUNCOL = {green:'#1B8A4C', blue:'#1F5FC4', red:'#D1342B', black:'#13233A'}
 const MISSION = {
   'Pirveli':   {t:'3 סלטות בירידה אחת',        ok:s=>s.flips>=3},
   'Kikilo 1':  {t:'לאסוף 25 חצ׳אפורי',          ok:s=>s.coins>=25},
-  'Tatra 2':   {t:'לקפוץ מעל הרטרק',            ok:s=>s.overCat},
+  'Tatra 2':   {t:'לקפוץ מעל חתול השלג',            ok:s=>s.overCat},
   'Sadzele 3': {t:'ירידה בלי אף נפילה',          ok:s=>s.falls===0},
   'Sadzele 1': {t:'סלטה כפולה',                  ok:s=>s.maxFlip>=2}};
 const EXAG = 1.5, G = 9.81, VMAX = 30, SPACING = 4.2;
@@ -203,7 +203,7 @@ $('copy').onclick = ()=>{
 };
 
 /* ---------- sound (off until the player turns it on) ---------- */
-let zoom=0, AC=null, windGain=null, soundOn=false;
+let zoom=0, zoomKick=0, AC=null, windGain=null, soundOn=false;
 $('snd').onclick = e=>{ e.stopPropagation(); soundOn=!soundOn; $('snd').textContent = soundOn?'🔊':'🔇'; $('snd').setAttribute('aria-pressed',soundOn);
   if(soundOn && !AC){ try{ AC=new (window.AudioContext||window.webkitAudioContext)();
     const len=AC.sampleRate*2, buf=AC.createBuffer(1,len,AC.sampleRate), d=buf.getChannelData(0); for(let i=0;i<len;i++) d[i]=Math.random()*2-1;
@@ -258,7 +258,7 @@ function buildRun(){
   dog = {x0:L*0.72, on:false, done:false, x:0, y:0, t:0};
   // signs a little ahead of each surprise
   signs=[]; for(const g of gaps) signs.push({x:g.x0-45, t:'ערוץ! קפצו'}); for(const z of zones) if(z.kind!=='wind') signs.push({x:z.x0-30, t:z.kind==='powder'?'שלג עמוק':'קרח'});
-  signs.push({x:cats[0].x-60, t:'רטרק במסלול'});
+  signs.push({x:cats[0].x-60, t:'חתול שלג במסלול'});
 }
 function inGap(x){ for(const g of gaps) if(x>g.x0&&x<g.x1) return g; return null; }
 function baseGround(x){ const i=Math.max(0,Math.min(terrain.length-2, x/5)); const i0=Math.floor(i), f=i-i0; return terrain[i0]*(1-f)+terrain[i0+1]*f; }
@@ -290,19 +290,28 @@ function banner(big, txt){ $('bannerBig').textContent=big; $('bannerTxt').textCo
 function hideBanner(){ $('banner').classList.add('off'); bannerT=0; }
 function setCombo(n, bump=true){ combo=Math.min(6,n); const el=$('combo'); el.textContent='רצף ×'+combo; el.style.opacity = combo>1?1:.45; if(bump&&!reduce){ el.classList.remove('bump'); void el.offsetWidth; el.classList.add('bump'); setTimeout(()=>el.classList.remove('bump'),200); } }
 function press(){ if(state!=='run') return; holding=true; $('padJump').classList.add('on');
-  if(!P.air && P.crash<=0){ takeOff(P.s*Math.cos(P.ang), P.s*Math.sin(P.ang)+8.2); tone(220,.08,.15); } }
+  if(P.air){ P.grabArmed=true; return; } // a new press in the air is a grab
+  if(P.crash>0) return;
+  // a pop: stronger out of a tuck, and strongest right at the lip of a kicker
+  const lip = kickers.find(k=>k.x-P.x>-0.6 && k.x-P.x<3.2);
+  let vy = 7.2 + (P.crouch>0.6 ? 1.6 : 0);
+  if(lip){ vy*=1.38; popText('פופ מושלם!'); stats.pops=(stats.pops||0)+1; score+=40*combo; tone(520,.12,.3,'triangle',1.6); }
+  takeOff(P.s*Math.cos(P.ang), P.s*Math.sin(P.ang)+vy); P.boostT=0.28; P.squash=1;
+  if(!reduce) zoomKick=0.12;
+  const a=slope(P.x); for(let i=0;i<(lip?28:16);i++){ const d=Math.random()<.5?-1:1; particles.push({x:P.x+d*.4,y:P.y+.1,vx:d*(2+Math.random()*4)+P.vx*.3,vy:1.5+Math.random()*3.5,life:.45+Math.random()*.4,r:.14+Math.random()*.2,col:'#fff'}); }
+  tone(lip?330:240,.09,.22,'square',1.9); buzz(12); }
 function release(){ holding=false; $('padJump').classList.remove('on'); }
 function tuck(on){ tucking = on && state==='run'; $('padTuck').classList.toggle('on', tucking); }
 // first-time coaching: a tip above the right button at the right moment, once per device
 function coach(id, btn, txt, force){ if(coached[id] && !force) return; coached[id]=1; store.set('coach',coached); $(btn+'Tip').textContent=txt; $('pad'+btn[0].toUpperCase()+btn.slice(1)).classList.add('coach'); coachT[btn]=3; }
 let padState='';
 function padLabels(){ const k = P.air ? 'air' : 'snow'; if(k===padState) return; padState=k;
-  $('jumpBig').textContent = P.air ? 'סלטה' : 'קפיצה'; $('jumpSmall').textContent = P.air ? 'להחזיק כדי להסתובב' : 'באוויר: החזיקו לסלטה';
-  $('tuckBig').textContent = P.air ? 'תפיסה' : 'התכופפות'; $('tuckSmall').textContent = P.air ? 'להחזיק, ולשחרר לפני הנחיתה' : 'החזיקו: מהר יותר ונגד הרוח'; }
+  $('jumpBig').textContent = P.air ? 'תפיסה' : 'קפיצה'; $('jumpSmall').textContent = P.air ? 'לחיצה נוספת והחזקה' : 'החזיקו לקפיצה גבוהה';
+  $('tuckBig').textContent = P.air ? 'סלטה' : 'התכופפות'; $('tuckSmall').textContent = P.air ? 'להחזיק כדי להסתובב' : 'מהר יותר, ונגד הרוח'; }
 function bindPad(el, down, up){ el.addEventListener('pointerdown', e=>{ e.preventDefault(); e.stopPropagation(); try{ el.setPointerCapture(e.pointerId); }catch(_){} down(); });
   ['pointerup','pointercancel','lostpointercapture'].forEach(ev=>el.addEventListener(ev, e=>{ e.stopPropagation(); up(); })); el.addEventListener('contextmenu', e=>e.preventDefault()); }
 bindPad($('padJump'), press, release); bindPad($('padTuck'), ()=>tuck(true), ()=>tuck(false));
-function takeOff(vx,vy){ P.air=true; P.vx=vx; P.vy=vy; P.airRot=0; P.airT=0; P.grab=0; const tr=tracks[tracks.length-1]; if(tr) tr[1]=P.x; }
+function takeOff(vx,vy){ P.air=true; P.vx=vx; P.vy=vy; P.airRot=0; P.airT=0; P.grab=0; P.grabArmed=false; P.boostT=0; const tr=tracks[tracks.length-1]; if(tr) tr[1]=P.x; }
 // a tap anywhere else on the mountain also jumps
 cv.addEventListener('pointerdown', e=>{ e.preventDefault(); press(); });
 cv.addEventListener('pointerup', release); cv.addEventListener('pointercancel', release);
@@ -330,8 +339,8 @@ function land(){
   P.air=false; P.y=ground(P.x); tracks.push([P.x,P.x]);
   if(Math.abs(rel)>0.75){ crashNow(); return; }
   const along=P.vx*Math.cos(a)+P.vy*Math.sin(a);
-  P.s=Math.min(VMAX, Math.max(4, along)); P.ang=a; P.land=.3;
-  if(tucking && P.grab>0.05){ P.s*=0.6; setCombo(1,false); P.grab=0; popText('שחררו את התפיסה לפני הנחיתה'); tone(90,.2,.4); spray(P.x,P.y,30,P.s*.5); coach('grabLand','tuck','שחררו לפני הנחיתה',true); return; }
+  P.s=Math.min(VMAX, Math.max(4, along)); P.ang=a; P.land=.3; P.squash=-Math.min(1,P.airT*.9); if(!reduce&&P.airT>0.8) shake=Math.max(shake,3+P.airT*2);
+  if(holding && P.grabArmed && P.grab>0.05){ P.s*=0.6; setCombo(1,false); P.grab=0; popText('שחררו את התפיסה לפני הנחיתה'); tone(90,.2,.4); spray(P.x,P.y,30,P.s*.5); coach('grabLand','jump','שחררו לפני הנחיתה',true); return; }
   const grabbed = P.grab>=0.35; if(grabbed){ stats.grabs=(stats.grabs||0)+1; }
   const clean = Math.abs(rel)<0.14;
   if(n>0){ flips+=n; stats.flips+=n; stats.maxFlip=Math.max(stats.maxFlip,n); const mult=(1+crew.length)*combo; score+=n*100*mult; P.s=Math.min(VMAX+3,P.s+3*n); slow=reduce?1:.35; buzz(30);
@@ -381,30 +390,33 @@ function update(dt){
     P.airT+=dt;
     const v=Math.hypot(P.vx,P.vy), d=1-0.0034*v*dt; P.vx*=d; P.vy*=d; // the same air drag as on the snow
     if(z&&z.kind==='wind') P.vx=Math.max(2,P.vx-3*dt);
-    P.vy -= G*dt; P.x+=P.vx*dt; P.y+=P.vy*dt;
-    const spin = holding? 7.6 : 0; P.ang += spin*dt; P.airRot += spin*dt;
-    if(tucking) P.grab += dt; // grabbing the skis: points for every moment held, but you can't level out
-    if(!holding && !tucking){ // let go and the skier settles toward the snow below (and finishes a nearly complete flip)
+    // jump feel: holding the jump in the first moments carries you higher, a floaty top, and a firmer fall
+    P.boostT=Math.max(0,P.boostT-dt); let gk = (holding && P.boostT>0 && P.vy>0) ? 0.42 : (Math.abs(P.vy)<2.2 ? 0.7 : (P.vy<0 ? 1.12 : 1));
+    P.vy -= G*gk*dt; P.x+=P.vx*dt; P.y+=P.vy*dt;
+    const grabbing = holding && P.grabArmed;
+    const spin = tucking? 7.6 : 0; P.ang += spin*dt; P.airRot += spin*dt;
+    if(grabbing) P.grab += dt; // grabbing the skis: points for every moment held, but you can't level out
+    if(!grabbing && !tucking){ // let go and the skier settles toward the snow below (and finishes a nearly complete flip)
       const tgt=slope(P.x), rel=Math.atan2(Math.sin(P.ang-tgt),Math.cos(P.ang-tgt)); const fwd = P.airRot>0.5 && rel>0 ? Math.min(2*Math.PI-((P.airRot%(2*Math.PI))||2*Math.PI), 9) : 0;
       const step = fwd>0 && fwd<1.6 ? Math.min(fwd, 4*dt) : -Math.sign(rel)*Math.min(Math.abs(rel), 2.6*dt);
       P.ang += step; if(step>0) P.airRot += step; }
-    P.crouch += ((holding||tucking?1:0)-P.crouch)*Math.min(1,dt*10);
+    P.crouch += ((grabbing||tucking?1:0)-P.crouch)*Math.min(1,dt*10);
     if(P.y<=ground(P.x)) land();
   }
-  P.land=Math.max(0,P.land-dt);
+  P.land=Math.max(0,P.land-dt); if(P.squash){ P.squash*=Math.pow(0.0008,dt); if(Math.abs(P.squash)<0.02) P.squash=0; }
   const hgt = P.y-ground(P.x);
   if(state==='run'){
     // rocks and the snowcat: jump them or fall
     for(const r of rocks){ if(!r.hit && Math.abs(P.x-r.x)<0.8 && hgt<r.h && P.inv<=0 && P.crash<=0){ r.hit=true; crashNow('סלע!'); } }
     for(const c of cats){
       if(Math.abs(P.x-c.x)>3) { c.x -= c.v*dt*(inGap(c.x-2.5)?0:1); }
-      if(!c.warned && c.x-P.x<70 && c.x>P.x){ c.warned=true; banner('רטרק!','עולה במסלול. קפצו מעליו'); }
-      if(Math.abs(P.x-c.x)<2.0){ if(hgt<2.1 && !c.over && P.inv<=0 && P.crash<=0 && !c.hit){ c.hit=true; crashNow('נתקעת ברטרק!'); }
-        else if(hgt>=2.1 && !c.over){ c.over=true; stats.overCat=true; score+=300*combo; popText('מעל הרטרק!'); tone(520,.2,.35,'triangle',1.5); setCombo(combo+1); } }
+      if(!c.warned && c.x-P.x<70 && c.x>P.x){ c.warned=true; banner('חתול שלג!','עולה במסלול. קפצו מעליו'); }
+      if(Math.abs(P.x-c.x)<2.0){ if(hgt<2.1 && !c.over && P.inv<=0 && P.crash<=0 && !c.hit){ c.hit=true; crashNow('נתקעת בחתול השלג!'); }
+        else if(hgt>=2.1 && !c.over){ c.over=true; stats.overCat=true; score+=300*combo; popText('מעל חתול השלג!'); tone(520,.2,.35,'triangle',1.5); setCombo(combo+1); } }
     }
-    if(!P.air && P.crash<=0 && (kickers.some(k=>k.x-P.x>0&&k.x-P.x<P.s*1.1) || rocks.some(r=>r.x-P.x>0&&r.x-P.x<P.s*0.9))) coach('jump','jump','קפיצה!');
-    if(P.air && P.airT>0.25 && coached.jump) coach('flip','jump','החזיקו לסלטה');
-    if(P.air && P.airT>0.25 && stats.flips>=2) coach('grab','tuck','באוויר: תפיסה');
+    if(!P.air && P.crash<=0 && kickers.some(k=>k.x-P.x>0&&k.x-P.x<3.2)) coach('jump','jump','עכשיו! על הקו הצהוב');
+    if(P.air && P.airT>0.25 && coached.jump) coach('flip','tuck','החזיקו לסלטה');
+    if(P.air && P.airT>0.25 && stats.flips>=2) coach('grab','jump','לחצו שוב: תפיסה');
     if(!P.air && stats.flips>=1 && t>20) coach('tuck','tuck','החזיקו להתכופף');
     for(const g of gaps) if(!g.warned && g.x0-P.x<60 && g.x0>P.x){ g.warned=true; banner('ערוץ!','קפצו רגע לפני הקצה'); }
     for(const zz of zones) if(!zz.warned && zz.x0-P.x<35 && zz.x1>P.x){ zz.warned=true;
@@ -412,7 +424,7 @@ function update(dt){
     // khachapuri
     for(const c of coins){ if(c.got) continue; const cy=baseGround(c.x)+c.dy; if(Math.abs(P.x-c.x)<1.3 && Math.abs(P.y+0.9-cy)<1.5){ c.got=true; stats.coins++; score+=10*combo; tone(990+stats.coins%5*80,.07,.12,'triangle',1.2); particles.push({x:c.x,y:cy,vx:0,vy:3,life:.5,r:.25,col:'#F4B942'}); } }
     // friends: ski through one to pick them up
-    for(const c of crewSpots){ if(c.got||c.lost) continue; if(Math.abs(P.x-c.x)<4 && hgt<8 && P.crash<=0){ c.got=true; c.joinT=0.7; crew.push({fi:c.fi, from:c.x}); score+=150; popText(FRIENDS[c.fi].n+' הצטרף!'); setCombo(combo+1); buzz(20); tone(330,.1,.2); } }
+    for(const c of crewSpots){ if(c.got||c.lost) continue; if(Math.abs(P.x-c.x)<4 && hgt<12 && P.crash<=0){ c.got=true; c.joinT=0.7; crew.push({fi:c.fi, from:c.x}); score+=150; popText(FRIENDS[c.fi].n+' הצטרף!'); setCombo(combo+1); buzz(20); tone(330,.1,.2); } }
     // a Gudauri dog joins for a while near the bottom
     if(!dog.on && !dog.done && P.x>dog.x0){ dog.on=true; dog.t=0; banner('🐕','כלב של גודאורי רץ איתכם'); }
     if(P.x>=R.len-8){ state='fin'; finT=0; hideBanner(); release(); tuck(false); popText(R.lift?'רכבל '+R.lift:'סיום!'); tone(520,.3,.4,'triangle',2); burst(P.x+3,P.y+3,FRIENDS.map(f=>f.c),60); }
@@ -466,8 +478,8 @@ function finish(ok){
 /* ---------- drawing (world units are metres, y up) ---------- */
 // skis lie along the snow; the body stays upright over the boots and leans into the fall line; in the air everything turns together
 function skier(x,y,skiAng,bodyAng,col,o={}){
-  const cr=o.crouch||0, h=1-0.32*cr, al=o.alpha==null?1:o.alpha, k=1.6;
-  cx.save(); cx.translate(x,y); cx.globalAlpha=al;
+  const cr=o.crouch||0, h=1-0.32*cr, al=o.alpha==null?1:o.alpha, k=1.6, sq=o.squash||0;
+  cx.save(); cx.translate(x,y); cx.globalAlpha=al; if(sq){ cx.rotate(skiAng); cx.scale(1-sq*.18, 1+sq*.3); cx.rotate(-skiAng); }
   cx.save(); cx.rotate(skiAng); cx.scale(k,k);
   cx.strokeStyle='#13233A'; cx.lineCap='round'; cx.lineWidth=.13; cx.beginPath(); cx.moveTo(-.95,.04); cx.lineTo(1.0,.04); cx.quadraticCurveTo(1.22,.04,1.28,.2); cx.stroke();
   cx.restore();
@@ -500,7 +512,7 @@ const hash=i=>{ const v=Math.sin(i*127.1)*43758.5; return v-Math.floor(v); };
 function draw(){
   const hNow = P? Math.max(0,P.y-ground(P.x)) : 0;
   const want = Math.min(W,H*0.75) / (14 + (P? P.s*0.6 + Math.min(hNow,12)*1.0 : 0));
-  zoom = zoom ? zoom + (want-zoom)*0.06 : want; const sc = zoom;
+  zoom = zoom ? zoom + (want-zoom)*0.06 : want; zoomKick=Math.max(0,zoomKick-0.006); const sc = zoom*(1-zoomKick);
   const camX = P? P.x - W*0.27/sc : 0, camY = P? P.y + Math.min(hNow,12)*0.35 + H*0.1/sc : 0;
   const fog = R? Math.max(0,Math.min(.55,(realH(P?P.x:0)-2950)/400)) : 0;
   // sky and the real view from the village, drifting slowly
@@ -542,7 +554,8 @@ function draw(){
   treeRow(8,8,4.5,7.5,'#2F5A4A',1.15); treeRow(12,13,6,10,'#1F4436',1.3);
   // piste markers every 25 m in the run's colour, kicker flags, warning signs
   for(let m=Math.ceil(x0/25)*25;m<x1;m+=25){ if(inGap(m)) continue; const X=sx(m),Y=sy(ground(m)); cx.fillStyle=RUNCOL[R.color]; cx.fillRect(X-2,Y-sc*1.6,4,sc*1.6); cx.fillStyle='#fff'; cx.fillRect(X-2,Y-sc*1.6,4,sc*.35); }
-  for(const k of kickers){ if(k.x<x0||k.x>x1) continue; const X=sx(k.x),Y=sy(ground(k.x)); cx.fillStyle=k.gap?'#D1342B':'#F08A3C'; cx.beginPath(); cx.moveTo(X,Y-sc*2.4); cx.lineTo(X+sc*1,Y-sc*2.05); cx.lineTo(X,Y-sc*1.7); cx.fill(); cx.strokeStyle='#13233A'; cx.lineWidth=1.5; cx.beginPath(); cx.moveTo(X,Y); cx.lineTo(X,Y-sc*2.4); cx.stroke(); }
+  for(const k of kickers){ if(k.x<x0||k.x>x1) continue; const X=sx(k.x),Y=sy(ground(k.x));
+    cx.strokeStyle='rgba(244,185,66,.9)'; cx.lineWidth=Math.max(3,sc*.3); cx.beginPath(); cx.moveTo(sx(k.x-3.2),sy(ground(k.x-3.2))+1); cx.lineTo(X,Y+1); cx.stroke(); /* the pop zone */ cx.fillStyle=k.gap?'#D1342B':'#F08A3C'; cx.beginPath(); cx.moveTo(X,Y-sc*2.4); cx.lineTo(X+sc*1,Y-sc*2.05); cx.lineTo(X,Y-sc*1.7); cx.fill(); cx.strokeStyle='#13233A'; cx.lineWidth=1.5; cx.beginPath(); cx.moveTo(X,Y); cx.lineTo(X,Y-sc*2.4); cx.stroke(); }
   cx.textAlign='center'; cx.font=`700 ${Math.max(11,Math.round(sc*.75))}px "IBM Plex Sans Hebrew",sans-serif`;
   for(const s of [...signs, {x:6,t:'זינוק · '+fmtM(R.top)+' מ׳'}]){ if(s.x<x0-10||s.x>x1+10) continue; const X=sx(s.x),Y=sy(ground(s.x)); const w=cx.measureText(s.t).width+sc*1.2, hh=sc*1.1;
     cx.fillStyle='#13233A'; cx.fillRect(X-2,Y-sc*3.2,4,sc*3.2); cx.fillStyle=s.x<10?RUNCOL[R.color]:'#F08A3C';
@@ -586,7 +599,7 @@ function draw(){
     // you
     const a=slope(P.x); if(P.air) shadow(P.x,hNow);
     const onSnow=!P.air&&P.crash<=0, body = onSnow ? a*.4 : P.ang;
-    skier(P.x,P.y,onSnow?a:P.ang,body,FRIENDS[me].c,{crouch:P.crouch,scarf:t,grab:P.air&&tucking});
+    skier(P.x,P.y,onSnow?a:P.ang,body,FRIENDS[me].c,{crouch:P.crouch,scarf:t,grab:P.air&&holding&&P.grabArmed,squash:P.squash||0});
     for(const p of particles){ cx.globalAlpha=Math.max(0,Math.min(1,p.life)); cx.fillStyle=p.col; if(p.conf){ cx.fillRect(p.x-.12,p.y-.08,.24,.16); } else { cx.beginPath(); cx.arc(p.x,p.y,p.r,0,7); cx.fill(); } } cx.globalAlpha=1;
   });
   // the avalanche: a wall of powder behind you
@@ -616,7 +629,7 @@ $('legend').innerHTML = [
   ['<ellipse cx="12" cy="12" rx="10" ry="5" fill="#C9822E"/><ellipse cx="12" cy="11.5" rx="7" ry="3" fill="#F7E3A1"/><circle cx="12" cy="11.5" r="2" fill="#F4A11D"/>','חצ׳אפורי: נקודות, והרבה מעל הקפיצות'],
   ['<path d="M3,20 L6,9 L12,5 L18,8 L21,20Z" fill="#5B6675"/><path d="M6,9 L12,4 L18,8 L14,9 L9,9Z" fill="#fff"/>','סלע: לקפוץ מעליו'],
   ['<rect x="2" y="6" width="20" height="12" fill="#6F88A3"/><rect x="2" y="14" width="20" height="4" fill="#3E6E9C"/>','ערוץ: קופצים רגע לפני הקצה'],
-  ['<rect x="4" y="12" width="16" height="5" fill="#2A2F38"/><rect x="5" y="7" width="12" height="5" fill="#D1342B"/><rect x="11" y="3" width="5" height="4" fill="#D1342B"/>','רטרק: עולה במסלול, קפיצה גבוהה'],
+  ['<rect x="4" y="12" width="16" height="5" fill="#2A2F38"/><rect x="5" y="7" width="12" height="5" fill="#D1342B"/><rect x="11" y="3" width="5" height="4" fill="#D1342B"/>','חתול שלג: עולה במסלול, קפיצה גבוהה'],
   ['<circle cx="6" cy="16" r="5" fill="#fff" stroke="#8FA7C0"/><circle cx="13" cy="15" r="6" fill="#fff" stroke="#8FA7C0"/><circle cx="19" cy="16" r="4" fill="#fff" stroke="#8FA7C0"/>','שלג עמוק מאט, קרח מאיץ'],
   ['<path d="M2,8 H16 M5,13 H22 M2,18 H14" stroke="#fff" stroke-width="2.4"/>','רוח ברכס: להחזיק על השלג']
 ].map(([svg,txt])=>`<span><svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true">${svg}</svg>${txt}</span>`).join('');
