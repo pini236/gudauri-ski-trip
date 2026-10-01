@@ -1,0 +1,170 @@
+<title>מחבואים בשלג</title>
+<meta name="description" content="כלב הצלה ומכשיר איתור: מוצאים את החבר׳ה שהתחבאו בשלג">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Karantina:wght@700&family=IBM+Plex+Sans+Hebrew:wght@400;600;700&display=swap">
+<style>
+/* One look: a bright avalanche field seen from above. The same in both themes. */
+:root{ --ink:#13233A; --muted:#4B5A6F; --rule:#CBD5DF; --accent:#F4B942; --red:#D1342B; --green:#1B8A4C;
+  --f-display:"Karantina","Arial Narrow",sans-serif; --f-body:"IBM Plex Sans Hebrew",system-ui,-apple-system,"Segoe UI",sans-serif; color-scheme:light; }
+html,body{height:100%}
+[hidden]{display:none!important}
+body{margin:0;background:#E9F0F7;color:var(--ink);font-family:var(--f-body);direction:rtl;overflow:hidden;-webkit-user-select:none;user-select:none;touch-action:none}
+#game{position:fixed;inset:0;width:100%;height:100%;display:block}
+.hud{position:fixed;left:0;right:0;top:0;padding:calc(env(safe-area-inset-top,0px) + 10px) 12px 0;display:flex;justify-content:space-between;align-items:flex-start;gap:8px;pointer-events:none}
+.box{background:rgba(19,35,58,.86);color:#fff;padding:6px 10px;display:flex;flex-direction:column;align-items:flex-start}
+.box b{font-family:var(--f-display);font-size:34px;line-height:.9;font-variant-numeric:tabular-nums}
+.box small{font-size:11px;color:var(--accent);font-weight:700}
+.found{display:flex;gap:4px;margin-top:4px}
+.found i{width:14px;height:14px;border:2px solid #fff;opacity:.3}
+.found i.on{opacity:1}
+/* the transceiver: a yellow box with a big distance and an arrow, like the real ones */
+.beacon{position:fixed;left:50%;top:calc(env(safe-area-inset-top,0px) + 10px);transform:translateX(-50%);width:150px;background:#F4B942;border:3px solid #13233A;border-radius:14px;display:flex;flex-direction:column;align-items:center;padding:6px 0 8px;pointer-events:none}
+.beacon .scr{background:#C9D8A6;border:2px solid #13233A;border-radius:6px;width:122px;height:74px;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative}
+.beacon .scr b{font-family:var(--f-display);font-size:34px;line-height:1;font-variant-numeric:tabular-nums}
+.beacon .scr small{font-size:10.5px;font-weight:700}
+.beacon svg{position:absolute;top:50%;left:6px;margin-top:-11px;transition:transform .15s}
+.beacon .lbl{font-size:10px;font-weight:700;margin-top:3px}
+.pop{position:fixed;left:50%;top:34%;transform:translate(-50%,-50%);font-family:var(--f-display);font-size:clamp(34px,11vw,56px);line-height:1;color:#fff;text-shadow:0 3px 0 var(--ink),0 0 18px rgba(19,35,58,.5);white-space:nowrap;pointer-events:none;opacity:0}
+.pop.go{animation:pop 1.1s cubic-bezier(.2,1.4,.4,1) forwards}
+@keyframes pop{0%{opacity:0;transform:translate(-50%,-30%) scale(.6)}20%{opacity:1;transform:translate(-50%,-50%) scale(1.08)}75%{opacity:1}100%{opacity:0;transform:translate(-50%,-80%) scale(1)}}
+.dig{position:fixed;right:12px;bottom:calc(env(safe-area-inset-bottom,0px) + 14px);min-width:110px;min-height:84px;border:0;background:var(--ink);color:#fff;font:inherit;font-family:var(--f-display);font-size:30px;cursor:pointer;touch-action:none;box-shadow:0 5px 0 rgba(0,0,0,.35)}
+.dig.on{background:var(--accent);color:var(--ink)}
+.hint{position:fixed;left:16px;right:140px;bottom:calc(env(safe-area-inset-bottom,0px) + 18px);background:rgba(255,255,255,.92);font-size:13.5px;font-weight:700;line-height:1.35;padding:7px 12px;pointer-events:none;transition:opacity .5s}
+.menu{position:fixed;inset:0;overflow:auto;padding:calc(env(safe-area-inset-top,0px) + 16px) 16px calc(env(safe-area-inset-bottom,0px) + 20px);background:linear-gradient(rgba(233,240,247,.2),rgba(13,21,34,.8) 50%);display:flex;flex-direction:column;gap:14px;touch-action:auto}
+.menu h1{margin:0;font-family:var(--f-display);font-size:58px;line-height:.9;color:#fff;text-shadow:0 3px 0 var(--ink);text-wrap:balance}
+.menu h2{margin:0;font-family:var(--f-display);font-size:28px;line-height:1;color:#fff}
+.menu p{margin:0;color:#fff;font-size:14px;line-height:1.45;max-width:36em}
+.lvls{display:flex;flex-direction:column;gap:8px}
+.lv{font:inherit;border:0;cursor:pointer;text-align:right;display:grid;grid-template-columns:auto 1fr auto;gap:2px 12px;align-items:center;background:#fff;color:var(--ink);padding:8px 12px;border-inline-start:10px solid var(--accent);min-height:58px}
+.lv .n{grid-row:span 2;font-family:var(--f-display);font-size:34px;line-height:1;color:var(--muted)}
+.lv b{font-family:var(--f-display);font-size:24px;line-height:1}
+.lv small{font-size:12px;color:var(--muted);grid-column:2 / 4}
+.lv .st{color:var(--accent);letter-spacing:1px;white-space:nowrap}
+.lv[aria-pressed="true"]{outline:3px solid var(--accent);outline-offset:-3px}
+.lv:disabled{opacity:.55;cursor:not-allowed}
+.how{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.how div{background:rgba(255,255,255,.14);color:#fff;padding:8px;font-size:12.5px;line-height:1.3;border-top:3px solid var(--accent)}
+.how b{display:block;font-family:var(--f-display);font-size:22px;line-height:1}
+.go-btn{font:inherit;min-height:60px;border:0;background:var(--accent);color:var(--ink);font-family:var(--f-display);font-size:34px;cursor:pointer;box-shadow:0 5px 0 var(--ink)}
+.note{font-size:11.5px;color:rgba(255,255,255,.82)}
+.res{background:#fff;padding:14px;display:flex;flex-direction:column;gap:8px;transform:rotate(-2deg)}
+.res .big{font-family:var(--f-display);font-size:58px;line-height:.9;font-variant-numeric:tabular-nums}
+.res .stars{font-size:30px;letter-spacing:4px;color:var(--rule)}.res .stars i{font-style:normal}.res .stars i.on{color:var(--accent)}
+.goals{display:flex;flex-direction:column;gap:3px;border-top:1px solid var(--rule);padding-top:8px;font-size:13px}
+.goals span{display:flex;gap:8px;color:var(--muted)}.goals span.ok{color:var(--ink);font-weight:700}
+.goals span::before{content:"☆";color:var(--rule)}.goals span.ok::before{content:"★";color:var(--accent)}
+.small-btns{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.small-btns button{font:inherit;min-height:48px;border:2px solid #fff;background:transparent;color:#fff;font-weight:700;cursor:pointer}
+.snd{position:fixed;left:12px;top:calc(env(safe-area-inset-top,0px) + 120px);font:inherit;min-width:44px;min-height:44px;border:0;background:rgba(19,35,58,.7);color:#fff;cursor:pointer}
+button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){.pop.go{animation-duration:.01s}.beacon svg{transition:none}}
+</style>
+<canvas id="game" aria-label="המשחק: מחבואים בשלג"></canvas>
+<div class="hud" id="hud" hidden>
+  <div class="box"><b id="time">0:00</b><small>זמן</small></div>
+  <div class="box"><b id="left">0</b><small>עוד מתחבאים</small><span class="found" id="found"></span></div>
+</div>
+<div class="beacon" id="beacon" hidden><div class="scr"><svg id="arrow" width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><path d="M11 2 L19 14 H13 V20 H9 V14 H3 Z" fill="#13233A"/></svg><b id="bd">—</b><small id="bs">אין קליטה</small></div><span class="lbl">מכשיר איתור</span></div>
+<div class="pop" id="pop"></div>
+<div class="hint" id="hint" hidden>מחזיקים את האצבע על המסך, והכלב רץ אליה. כשהמספר קטן, חופרים.</div>
+<button class="dig" id="dig" type="button" hidden>חפירה</button>
+<button class="snd" id="snd" type="button" hidden aria-pressed="false" aria-label="צליל">🔇</button>
+<section class="menu" id="menuStart" aria-label="התחלה">
+  <h1>מחבואים בשלג</h1>
+  <p>החבר׳ה התחבאו בשלג, ולכל אחד מכשיר איתור. יש לך כלב ומכשיר שמראה מרחק וכיוון. מוצאים את כולם, מהר ובלי לחפור סתם.</p>
+  <h2>השלבים</h2>
+  <div class="lvls" id="lvls" role="group" aria-label="בחירת שלב"></div>
+  <div class="how">
+    <div><b>מחפשים</b>בלי קליטה, עוברים את השדה ברצועות. המכשיר קולט רק עד 20 מ׳.</div>
+    <div><b>מתקרבים</b>הולכים לפי החץ. המספר יורד, והצפצוף מאיץ.</div>
+    <div><b>חופרים</b>כשהמרחק קטן מ-2 מ׳. חפירה במקום ריק מבזבזת זמן.</div>
+  </div>
+  <button class="go-btn" id="go" type="button">לחפש</button>
+  <p class="note">משחק, לא הדרכה. חיפוש אמיתי במפולת לומדים בקורס עם מדריך. המכשיר במשחק מפושט: מרחק בקו ישר וחץ ישר אל המטרה.</p>
+</section>
+<section class="menu" id="menuEnd" aria-label="תוצאה" hidden>
+  <h2 id="endTitle">מצאת את כולם!</h2>
+  <div class="res"><small id="endWho" style="color:var(--muted);font-weight:700"></small><div class="big" id="endBig"></div><div class="stars" id="endStars"></div><div class="goals" id="endGoals"></div><small id="endBest" style="color:var(--muted)"></small></div>
+  <button class="go-btn" id="again" type="button">שוב</button>
+  <div class="small-btns"><button type="button" id="next">השלב הבא</button><button type="button" id="toMenu">כל השלבים</button></div>
+</section>
+<script>
+const RANGE=20; // how far the transceiver hears, in metres (kept short so the field needs a search)
+const FR=[{n:'יהודה ו׳',c:'#D1342B'},{n:'דובי',c:'#1F5FC4'},{n:'שרוליק',c:'#F4B942'},{n:'מוישי',c:'#1B8A4C'},{n:'יהודה ה׳',c:'#7B4FC4'},{n:'פיני',c:'#F07A2E'}];
+const LV=[{n:'מאחורי הבקתה',w:70,h:90,k:1,par:45,trees:4,fog:0},{n:'ליד הרכבל',w:90,h:120,k:2,par:90,trees:8,fog:0},{n:'בערפל',w:100,h:130,k:2,par:110,trees:10,fog:.6},{n:'ביער',w:120,h:150,k:3,par:160,trees:40,fog:0},{n:'השדה הגדול',w:150,h:190,k:5,par:260,trees:18,fog:.35}];
+const store={get(k,d){try{const v=localStorage.getItem('rs-'+k);return v==null?d:JSON.parse(v);}catch(e){return d;}},set(k,v){try{localStorage.setItem('rs-'+k,JSON.stringify(v));}catch(e){}}};
+const $=id=>document.getElementById(id); const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+function rng(seed){ return ()=>{ seed|=0; seed=seed+0x6D2B79F5|0; let t=Math.imul(seed^seed>>>15,1|seed); t=t+Math.imul(t^t>>>7,61|t)^t; return ((t^t>>>14)>>>0)/4294967296; }; }
+let li=store.get('lv',0);
+const stars=i=>store.get('stars-'+i,0);
+function drawMenu(){ $('lvls').innerHTML=LV.map((L,i)=>{ const st=stars(i), open=i===0||stars(i-1)>0, best=store.get('best-'+i,0); return `<button class="lv" type="button" data-i="${i}" aria-pressed="${i===li}" ${open?'':'disabled'}><span class="n">${i+1}</span><b>${L.n}</b><span class="st">${open?'★'.repeat(st)+'☆'.repeat(3-st):'🔒'}</span><small>${L.k} מתחבאים · ${L.w}×${L.h} מ׳${L.fog?' · ערפל':''} · יעד ${fmt(L.par)}${best?' · שיא '+fmt(best):''}</small></button>`; }).join(''); }
+$('lvls').onclick=e=>{ const b=e.target.closest('[data-i]'); if(!b||b.disabled) return; li=+b.dataset.i; store.set('lv',li); drawMenu(); };
+$('go').onclick=()=>start(); $('again').onclick=()=>start(); $('next').onclick=()=>{ if(li<LV.length-1){ li++; store.set('lv',li); } start(); };
+$('toMenu').onclick=()=>{ $('menuEnd').hidden=true; $('menuStart').hidden=false; drawMenu(); state='menu'; };
+const fmt=s=>{ const m=Math.floor(s/60), r=Math.floor(s%60); return m+':'+(r<10?'0':'')+r; };
+let AC=null, soundOn=false; $('snd').onclick=e=>{ e.stopPropagation(); soundOn=!soundOn; $('snd').textContent=soundOn?'🔊':'🔇'; if(soundOn&&!AC){ try{ AC=new (window.AudioContext||window.webkitAudioContext)(); }catch(_){ AC=null; } } };
+function beep(f,d=.06,v=.15){ if(!soundOn||!AC) return; const o=AC.createOscillator(), g=AC.createGain(); o.type='square'; o.frequency.value=f; g.gain.setValueAtTime(v,AC.currentTime); g.gain.exponentialRampToValueAtTime(.001,AC.currentTime+d); o.connect(g); g.connect(AC.destination); o.start(); o.stop(AC.currentTime+d); }
+const cv=$('game'), cx=cv.getContext('2d'); let W=0,H=0; function resize(){ const d=Math.min(2,devicePixelRatio||1); W=innerWidth; H=innerHeight; cv.width=W*d; cv.height=H*d; cx.setTransform(d,0,0,d,0,0); } addEventListener('resize',resize); resize();
+let L, dog, hid=[], trees=[], holes=[], parts=[], state='menu', t=0, target=null, digging=false, digT=0, wasted=0, beepT=0, trail=[];
+function start(){ L=LV[li]; const r=rng(li*911+Math.floor(Math.random()*1e6)); dog={x:L.w/2,y:L.h-6,ang:-Math.PI/2,moving:false};
+  const who=FR.map((f,i)=>i).sort(()=>r()-.5).slice(0,L.k); hid=who.map(fi=>({fi, x:8+r()*(L.w-16), y:8+r()*(L.h-30), found:false, depth:1+r()*1.2}));
+  trees=[]; for(let i=0;i<L.trees;i++){ const x=r()*L.w, y=r()*L.h; if(hid.some(h=>Math.hypot(h.x-x,h.y-y)<5)||Math.hypot(x-dog.x,y-dog.y)<8) continue; trees.push({x,y,r:1.4+r()*1.2}); }
+  holes=[]; parts=[]; trail=[]; t=0; wasted=0; target=null; digging=false;
+  $('menuStart').hidden=true; $('menuEnd').hidden=true; ['hud','beacon','dig','hint','snd'].forEach(id=>$(id).hidden=false); $('hint').style.opacity=1;
+  $('found').innerHTML=hid.map(h=>`<i style="background:${FR[h.fi].c}" data-fi="${h.fi}"></i>`).join(''); state='play'; }
+// steering: hold a finger on the snow and the dog runs toward it
+let sc=8, camX=0, camY=0; const toW=(X,Y)=>[(X-W/2)/sc+camX,(Y-H/2)/sc+camY];
+cv.addEventListener('pointerdown',e=>{ e.preventDefault(); target=toW(e.clientX,e.clientY); try{ cv.setPointerCapture(e.pointerId);}catch(_){} });
+cv.addEventListener('pointermove',e=>{ if(target) target=toW(e.clientX,e.clientY); }); cv.addEventListener('pointerup',()=>{ target=null; }); cv.addEventListener('pointercancel',()=>{ target=null; });
+const keys={}; addEventListener('keydown',e=>{ keys[e.code]=true; if(e.code==='Space'){ e.preventDefault(); setDig(true); } }); addEventListener('keyup',e=>{ keys[e.code]=false; if(e.code==='Space') setDig(false); });
+function setDig(v){ digging=v&&state==='play'; $('dig').classList.toggle('on',digging); if(!digging) digT=0; }
+$('dig').addEventListener('pointerdown',e=>{ e.preventDefault(); e.stopPropagation(); setDig(true); }); ['pointerup','pointercancel','pointerleave'].forEach(ev=>$('dig').addEventListener(ev,()=>setDig(false)));
+function popText(s){ const p=$('pop'); p.textContent=s; p.classList.remove('go'); void p.offsetWidth; p.classList.add('go'); }
+let last=performance.now();
+function frame(now){ const dt=Math.min(.05,(now-last)/1000); last=now; if(state==='play') update(dt); draw(); requestAnimationFrame(frame); }
+function update(dt){ t+=dt; if(t>7) $('hint').style.opacity=0;
+  let mx=0,my=0; if(target){ mx=target[0]-dog.x; my=target[1]-dog.y; } mx+=(keys.ArrowRight?1:0)-(keys.ArrowLeft?1:0); my+=(keys.ArrowDown?1:0)-(keys.ArrowUp?1:0);
+  const m=Math.hypot(mx,my); dog.moving=m>.5 && !digging; if(dog.moving){ const sp=Math.min(9,m*2.2); dog.ang=Math.atan2(my,mx); let nx=dog.x+mx/m*sp*dt, ny=dog.y+my/m*sp*dt; nx=Math.max(1,Math.min(L.w-1,nx)); ny=Math.max(1,Math.min(L.h-1,ny)); if(!trees.some(tr=>Math.hypot(tr.x-nx,tr.y-ny)<tr.r+.6)){ dog.x=nx; dog.y=ny; } if(!trail.length||Math.hypot(trail[trail.length-1][0]-dog.x,trail[trail.length-1][1]-dog.y)>1.2) trail.push([dog.x,dog.y]); if(trail.length>400) trail.shift(); }
+  // the transceiver
+  const left=hid.filter(h=>!h.found); let near=null, nd=1e9; for(const h of left){ const d=Math.hypot(h.x-dog.x,h.y-dog.y); if(d<nd){ nd=d; near=h; } }
+  if(near && nd<RANGE){ $('bd').textContent=nd<10?nd.toFixed(1):Math.round(nd); $('bs').textContent='מ׳'; const a=Math.atan2(near.y-dog.y,near.x-dog.x)+Math.PI/2; $('arrow').style.transform=`rotate(${a}rad)`; $('arrow').style.opacity=1;
+    beepT-=dt; if(beepT<=0){ beep(nd<3?1500:900,.05,.12); beepT=Math.max(.08,nd/30); } }
+  else { $('bd').textContent='—'; $('bs').textContent='אין קליטה'; $('arrow').style.opacity=.15; }
+  // digging: a few seconds at the spot, deeper ones take longer
+  if(digging){ digT+=dt; if(Math.random()<dt*20) parts.push({x:dog.x+Math.cos(dog.ang)*.6,y:dog.y+Math.sin(dog.ang)*.6,vx:(Math.random()-.5)*6,vy:(Math.random()-.5)*6,life:.5});
+    const h=left.find(h=>Math.hypot(h.x-dog.x,h.y-dog.y)<1.8);
+    if(h && digT>=h.depth*1.4){ h.found=true; digT=0; holes.push({x:h.x,y:h.y,r:1.4}); popText(FR[h.fi].n+' בחוץ!'); beep(660,.2,.2); setTimeout(()=>beep(990,.25,.2),180); try{ navigator.vibrate&&navigator.vibrate([30,40,30]);}catch(_){}
+      $('found').querySelectorAll('i').forEach(el=>{ if(+el.dataset.fi===h.fi) el.classList.add('on'); }); if(hid.every(q=>q.found)) setTimeout(finish,900); }
+    else if(!h && digT>=1.6){ digT=0; wasted++; holes.push({x:dog.x,y:dog.y,r:1}); popText('רק שלג'); } }
+  for(const p of parts){ p.x+=p.vx*dt; p.y+=p.vy*dt; p.life-=dt; } parts=parts.filter(p=>p.life>0);
+  $('time').textContent=fmt(t); $('left').textContent=left.length; }
+function finish(){ state='end'; ['hud','beacon','dig','hint','snd'].forEach(id=>$(id).hidden=true); setDig(false);
+  const goals=[true, t<=L.par, wasted<=1], n=goals.filter(Boolean).length; if(n>stars(li)) store.set('stars-'+li,n); const best=store.get('best-'+li,0); if(!best||t<best) store.set('best-'+li,Math.round(t));
+  $('endTitle').textContent='מצאת את כולם!'; $('endWho').textContent=(li+1)+'. '+L.n+' · '+hid.map(h=>FR[h.fi].n).join(', '); $('endBig').textContent=fmt(t);
+  $('endStars').innerHTML=[0,1,2].map(i=>`<i class="${goals[i]?'on':''}">★</i>`).join('');
+  $('endGoals').innerHTML=[['למצוא את כולם',goals[0]],['תוך '+fmt(L.par),goals[1]],['עד חפירה אחת במקום ריק ('+wasted+')',goals[2]]].map(([s,o])=>`<span class="${o?'ok':''}">${s}</span>`).join('');
+  $('endBest').textContent=(!best||t<best)?'שיא חדש!':'השיא: '+fmt(best); $('next').hidden=li>=LV.length-1; $('menuEnd').hidden=false; }
+const hash=(a,b)=>{ const v=Math.sin(a*127.1+b*311.7)*43758.5; return v-Math.floor(v); };
+function draw(){ const Lx=L||LV[li]; sc=Math.min(W,H)/24; const d=dog||{x:Lx.w/2,y:Lx.h-6,ang:-1.57,moving:false};
+  camX=Math.max(W/2/sc,Math.min(Lx.w-W/2/sc,d.x)); camY=Math.max(H/2/sc-4,Math.min(Lx.h-H/2/sc+4,d.y)); if(Lx.w<W/sc) camX=Lx.w/2;
+  const X=x=>W/2+(x-camX)*sc, Y=y=>H/2+(y-camY)*sc;
+  cx.fillStyle='#D3DEEA'; cx.fillRect(0,0,W,H); cx.fillStyle='#F2F6FA'; cx.fillRect(X(0),Y(0),Lx.w*sc,Lx.h*sc);
+  // avalanche debris: lumps of snow
+  for(let i=0;i<Lx.w/3;i++) for(let j=0;j<Lx.h/3;j++){ const x=i*3+hash(i,j)*3, y=j*3+hash(j,i)*3; const px=X(x), py=Y(y); if(px<-20||px>W+20||py<-20||py>H+20) continue; cx.fillStyle=`rgba(150,170,195,${.18+hash(i+3,j)*.2})`; cx.beginPath(); cx.ellipse(px,py,(.5+hash(i,j+5))*sc*.6,(.3+hash(i+7,j))*sc*.4,hash(i,j)*3,0,7); cx.fill(); }
+  // the dog's own paw prints
+  cx.fillStyle='rgba(95,115,140,.35)'; for(const [x,y] of trail){ cx.beginPath(); cx.arc(X(x),Y(y),sc*.12,0,7); cx.fill(); }
+  for(const h of holes){ cx.fillStyle='#9FB2C7'; cx.beginPath(); cx.ellipse(X(h.x),Y(h.y),h.r*sc,h.r*sc*.8,0,0,7); cx.fill(); cx.fillStyle='#7F95AD'; cx.beginPath(); cx.ellipse(X(h.x),Y(h.y)+2,h.r*sc*.6,h.r*sc*.45,0,0,7); cx.fill(); }
+  if(hid) for(const h of hid) if(h.found){ cx.fillStyle=FR[h.fi].c; cx.beginPath(); cx.arc(X(h.x),Y(h.y),sc*.55,0,7); cx.fill(); cx.fillStyle='#F2D2BE'; cx.beginPath(); cx.arc(X(h.x),Y(h.y)-sc*.6,sc*.35,0,7); cx.fill(); cx.fillStyle='#13233A'; cx.font=`700 ${Math.round(sc*.6)}px "IBM Plex Sans Hebrew",sans-serif`; cx.textAlign='center'; cx.fillText(FR[h.fi].n+' 👋',X(h.x),Y(h.y)-sc*1.3); }
+  if(trees) for(const tr of trees){ cx.fillStyle='rgba(19,35,58,.15)'; cx.beginPath(); cx.arc(X(tr.x)+4,Y(tr.y)+4,tr.r*sc,0,7); cx.fill(); cx.fillStyle='#2F5A4A'; cx.beginPath(); for(let q=0;q<14;q++){ const a=q/14*Math.PI*2, rr=q%2?tr.r*.6:tr.r; q?cx.lineTo(X(tr.x)+Math.cos(a)*rr*sc,Y(tr.y)+Math.sin(a)*rr*sc):cx.moveTo(X(tr.x)+rr*sc,Y(tr.y)); } cx.closePath(); cx.fill(); cx.fillStyle='rgba(255,255,255,.75)'; cx.beginPath(); cx.arc(X(tr.x)-sc*.2,Y(tr.y)-sc*.2,tr.r*sc*.32,0,7); cx.fill(); }
+  for(const p of parts){ cx.fillStyle=`rgba(255,255,255,${p.life*2})`; cx.beginPath(); cx.arc(X(p.x),Y(p.y),sc*.18,0,7); cx.fill(); }
+  // the dog
+  const wag=Math.sin(performance.now()/90)*(d.moving||digging?.5:.2); cx.save(); cx.translate(X(d.x),Y(d.y)); cx.rotate(d.ang+(digging?Math.sin(performance.now()/60)*.1:0)); const s=sc;
+  cx.fillStyle='rgba(19,35,58,.18)'; cx.beginPath(); cx.ellipse(.1*s,.15*s,.9*s,.45*s,0,0,7); cx.fill();
+  cx.strokeStyle='#C99A5B'; cx.lineWidth=.18*s; cx.lineCap='round'; cx.beginPath(); cx.moveTo(-.8*s,0); cx.lineTo(-1.2*s,wag*s); cx.stroke();
+  cx.fillStyle='#C99A5B'; cx.beginPath(); cx.ellipse(0,0,.85*s,.42*s,0,0,7); cx.fill(); cx.fillStyle='#D1342B'; cx.fillRect(.25*s,-.4*s,.5*s,.8*s); cx.fillStyle='#fff'; cx.fillRect(.4*s,-.08*s,.2*s,.16*s); // rescue vest with a cross
+  cx.fillStyle='#C99A5B'; cx.beginPath(); cx.ellipse(.95*s,0,.36*s,.3*s,0,0,7); cx.fill(); cx.fillStyle='#8C6434'; cx.beginPath(); cx.ellipse(.85*s,-.3*s,.15*s,.12*s,0,0,7); cx.ellipse(.85*s,.3*s,.15*s,.12*s,0,0,7); cx.fill(); cx.fillStyle='#13233A'; cx.beginPath(); cx.arc(1.28*s,0,.08*s,0,7); cx.fill();
+  cx.restore();
+  if(target&&state==='play'){ cx.strokeStyle='rgba(19,35,58,.35)'; cx.lineWidth=2; cx.beginPath(); cx.arc(X(target[0]),Y(target[1]),10,0,7); cx.stroke(); }
+  if(Lx.fog&&state==='play'){ const g=cx.createRadialGradient(X(d.x),Y(d.y),sc*3,X(d.x),Y(d.y),sc*(16-Lx.fog*8)); g.addColorStop(0,'rgba(233,240,247,0)'); g.addColorStop(1,`rgba(233,240,247,${.6+Lx.fog*.4})`); cx.fillStyle=g; cx.fillRect(0,0,W,H); } }
+drawMenu(); requestAnimationFrame(frame);
+</script>
