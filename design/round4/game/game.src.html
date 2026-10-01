@@ -33,13 +33,14 @@ body{margin:0;background:var(--sky);color:var(--ink);font-family:var(--f-body);d
 .banner{position:fixed;right:12px;top:calc(env(safe-area-inset-top,0px) + 122px);display:flex;align-items:center;gap:8px;padding:6px 14px 6px 30px;background:var(--warn);color:var(--ink);font-weight:700;font-size:15px;clip-path:polygon(0 50%,18px 0,100% 0,100% 100%,18px 100%);pointer-events:none;max-width:calc(100% - 120px);box-sizing:border-box;transform:translateX(0);transition:transform .35s cubic-bezier(.3,1.4,.5,1),opacity .3s}
 .banner.off{transform:translateX(110%);opacity:0}
 .banner b{font-family:var(--f-display);font-size:24px;line-height:1;font-weight:700}
-/* two thumb buttons: the right one jumps (and flips in the air), the left one tucks (and grabs in the air) */
-.pads{position:fixed;left:12px;right:12px;bottom:calc(env(safe-area-inset-bottom,0px) + 12px);display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px;pointer-events:none;direction:ltr} /* tuck under the left thumb, jump under the right */
+/* one big button, the way a skier jumps: hold to crouch and load, let go to pop; in the air, hold to flip */
+.pads{position:fixed;left:12px;right:12px;bottom:calc(env(safe-area-inset-bottom,0px) + 12px);display:grid;grid-template-columns:minmax(0,1fr);gap:12px;pointer-events:none;direction:ltr}
 .pad{pointer-events:auto;position:relative;min-height:84px;min-width:0;direction:rtl;border:2px solid rgba(255,255,255,.75);background:rgba(19,35,58,.55);color:#fff;font:inherit;display:flex;align-items:center;gap:10px;padding:8px 12px;cursor:pointer;touch-action:none;-webkit-tap-highlight-color:transparent;transition:background .12s,transform .12s}
 .pad svg{flex:none}
 .pad span{display:flex;flex-direction:column;align-items:flex-start;text-align:right;min-width:0;overflow:hidden}
 .pad b{font-family:var(--f-display);font-size:clamp(20px,5.6vw,30px);line-height:1;white-space:nowrap}
 .pad small{font-size:12px;line-height:1.25;opacity:.85}
+.pad::before{content:"";position:absolute;inset:0;background:rgba(255,255,255,.35);transform-origin:left;transform:scaleX(var(--load,0));pointer-events:none}
 .pad.on{background:var(--accent);color:var(--ink);border-color:var(--accent);transform:scale(.97)}
 .pad.on svg *{stroke:var(--ink)}
 .pad .tip{font-style:normal;position:absolute;bottom:calc(100% + 10px);inset-inline:0;margin:auto;width:max-content;max-width:100%;background:#fff;color:var(--ink);font-weight:700;font-size:14px;padding:6px 10px;box-shadow:0 4px 12px rgba(19,35,58,.3);opacity:0;transform:translateY(6px);transition:opacity .2s,transform .2s}
@@ -112,8 +113,7 @@ button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 
 <div class="pop" id="pop"></div>
 <div class="pads" id="pads" hidden>
-  <button class="pad" id="padTuck" type="button" aria-label="התכופפות"><svg width="26" height="26" viewBox="0 0 34 34" aria-hidden="true"><path d="M9 11 L17 19 L25 11 M9 19 L17 27 L25 19" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="square"/></svg><span><b id="tuckBig">התכופפות</b><small id="tuckSmall">מהר יותר, ונגד הרוח</small></span><i class="tip" id="tuckTip"></i></button>
-  <button class="pad" id="padJump" type="button" aria-label="קפיצה"><svg width="26" height="26" viewBox="0 0 34 34" aria-hidden="true"><path d="M17 26 V8 M9 15 L17 7 L25 15" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="square"/></svg><span><b id="jumpBig">קפיצה</b><small id="jumpSmall">החזיקו לקפיצה גבוהה</small></span><i class="tip" id="jumpTip"></i></button>
+  <button class="pad" id="padJump" type="button" aria-label="קפיצה"><svg width="26" height="26" viewBox="0 0 34 34" aria-hidden="true"><path d="M17 26 V8 M9 15 L17 7 L25 15" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="square"/></svg><span><b id="jumpBig">קפיצה</b><small id="jumpSmall">מתכופפים, ומשחררים לקפיצה</small></span><i class="tip" id="jumpTip"></i></button>
 </div>
 <div class="count" id="count" hidden><b id="countN">3</b><div class="mis" id="countMis"></div></div>
 <button class="snd" id="snd" hidden type="button" aria-pressed="false" aria-label="צליל">🔇</button>
@@ -127,10 +127,10 @@ button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
   <div class="runs" id="runs" role="group" aria-label="בחירת מסלול"></div>
   <div class="opts"><button class="chip" id="optAva" type="button" aria-pressed="true">עם מפולת</button><button class="chip" id="optGhost" type="button" aria-pressed="true">רוח רפאים של השיא</button></div>
   <div class="how">
-    <div><b>כפתור ימני: קפיצה</b>להחזיק לקפיצה גבוהה. קפיצה על הקו הצהוב שלפני קפיצה היא "פופ מושלם". באוויר, לחיצה נוספת: תפיסת מגלשיים.</div>
-    <div><b>כפתור שמאלי: התכופפות</b>על השלג: מהר יותר ונגד הרוח, וקפיצה מתוך התכופפות גבוהה יותר. באוויר: להחזיק לסלטה.</div>
+    <div><b>להחזיק: מתכופפים</b>כמו בגלישה אמיתית: מתכופפים לפני הקפיצה. ככה גם מהירים יותר ועומדים נגד הרוח.</div>
+    <div><b>לשחרר: קופצים</b>ככל שמתכופפים יותר, קופצים גבוה יותר. שחרור על הקו הצהוב שלפני קפיצה: "פופ מושלם". באוויר, להחזיק שוב: סלטה.</div>
   </div>
-  <p class="note" style="margin-top:-6px">במקלדת: רווח או חץ למעלה לקפיצה, חץ למטה להתכופפות.</p>
+  <p class="note" style="margin-top:-6px">כפתור אחד, או נגיעה בכל מקום במסך. במקלדת: רווח.</p>
   <div class="legend" id="legend"></div>
   <button class="go-btn" id="go" type="button">לגלוש!</button>
   <p class="note">הפרופיל של כל מסלול נמדד ממודל הגובה לאורך הקו האמיתי שלו (OpenStreetMap), כל 5 מטרים, עם הגבהה פי 1.5, והגובה בפינה הוא הגובה האמיתי. רוח וערפל מופיעים רק מעל 2,900 מ׳, כמו ברכס. הקפיצות, הערוצים והמכשולים נוספו בשביל המשחק.</p>
@@ -290,33 +290,39 @@ function banner(big, txt){ $('bannerBig').textContent=big; $('bannerTxt').textCo
 function hideBanner(){ $('banner').classList.add('off'); bannerT=0; }
 function setCombo(n, bump=true){ combo=Math.min(6,n); const el=$('combo'); el.textContent='רצף ×'+combo; el.style.opacity = combo>1?1:.45; if(bump&&!reduce){ el.classList.remove('bump'); void el.offsetWidth; el.classList.add('bump'); setTimeout(()=>el.classList.remove('bump'),200); } }
 function press(){ if(state!=='run') return; holding=true; $('padJump').classList.add('on');
-  if(P.air){ P.grabArmed=true; return; } // a new press in the air is a grab
-  if(P.crash>0) return;
-  // a pop: stronger out of a tuck, and strongest right at the lip of a kicker
-  const lip = kickers.find(k=>k.x-P.x>-0.6 && k.x-P.x<3.2);
-  let vy = 7.2 + (P.crouch>0.6 ? 1.6 : 0);
-  if(lip){ vy*=1.38; popText('פופ מושלם!'); stats.pops=(stats.pops||0)+1; score+=40*combo; tone(520,.12,.3,'triangle',1.6); }
-  takeOff(P.s*Math.cos(P.ang), P.s*Math.sin(P.ang)+vy); P.boostT=0.28; P.squash=1;
-  if(!reduce) zoomKick=0.12;
-  const a=slope(P.x); for(let i=0;i<(lip?28:16);i++){ const d=Math.random()<.5?-1:1; particles.push({x:P.x+d*.4,y:P.y+.1,vx:d*(2+Math.random()*4)+P.vx*.3,vy:1.5+Math.random()*3.5,life:.45+Math.random()*.4,r:.14+Math.random()*.2,col:'#fff'}); }
-  tone(lip?330:240,.09,.22,'square',1.9); buzz(12); }
-function release(){ holding=false; $('padJump').classList.remove('on'); }
-function tuck(on){ tucking = on && state==='run'; $('padTuck').classList.toggle('on', tucking); }
+  if(P.air){ P.flipArm=true; return; } // a fresh press in the air starts a flip
+  P.loading = P.crash<=0; P.loadT=0; }
+// letting go is the jump: the longer the crouch (up to a third of a second), the higher, and highest right at the lip
+function release(){ const was=holding; holding=false; $('padJump').classList.remove('on'); if(P) P.flipArm=false;
+  if(!was || !P || !P.loading) return; P.loading=false;
+  if(state!=='run' || P.air || P.crash>0) return;
+  const lip = kickers.find(k=>k.x-P.x>-0.6 && k.x-P.x<3.2), k=Math.min(1,P.loadT/0.32);
+  let pop = 5.4 + 3.8*k;
+  if(lip){ pop*=1.35; popText('פופ מושלם!'); stats.pops=(stats.pops||0)+1; score+=40*combo; tone(520,.12,.3,'triangle',1.6); }
+  const a=slope(P.x), n=[-Math.sin(a), Math.cos(a)]; // pop away from the snow, not straight up
+  takeOff(P.s*Math.cos(a)+pop*n[0]*.55, P.s*Math.sin(a)+pop*n[1]); P.squash=1;
+  if(!reduce) zoomKick=0.06+0.08*k;
+  for(let i=0;i<(lip?28:10+Math.round(10*k));i++){ const d=Math.random()<.5?-1:1; particles.push({x:P.x+d*.4,y:P.y+.1,vx:d*(2+Math.random()*4)+P.vx*.3,vy:1.5+Math.random()*3.5,life:.45+Math.random()*.4,r:.14+Math.random()*.2,col:'#fff'}); }
+  tone(lip?330:200+60*k,.09,.22,'square',1.9); buzz(12); }
+function tuck(on){ if(!on) tucking=false; } // tucking follows the one button now (see update)
 // first-time coaching: a tip above the right button at the right moment, once per device
 function coach(id, btn, txt, force){ if(coached[id] && !force) return; coached[id]=1; store.set('coach',coached); $(btn+'Tip').textContent=txt; $('pad'+btn[0].toUpperCase()+btn.slice(1)).classList.add('coach'); coachT[btn]=3; }
 let padState='';
-function padLabels(){ const k = P.air ? 'air' : 'snow'; if(k===padState) return; padState=k;
-  $('jumpBig').textContent = P.air ? 'תפיסה' : 'קפיצה'; $('jumpSmall').textContent = P.air ? 'לחיצה נוספת והחזקה' : 'החזיקו לקפיצה גבוהה';
-  $('tuckBig').textContent = P.air ? 'סלטה' : 'התכופפות'; $('tuckSmall').textContent = P.air ? 'להחזיק כדי להסתובב' : 'מהר יותר, ונגד הרוח'; }
+function padLabels(){ const k = P.air ? 'air' : (holding&&P.loading) ? 'load' : 'snow';
+  $('padJump').style.setProperty('--load', k==='load' ? Math.min(1,P.loadT/0.32) : 0);
+  if(k===padState) return; padState=k;
+  const L={air:['סלטה','להחזיק כדי להסתובב'], load:['לשחרר!','ככל שמחזיקים, קופצים גבוה יותר'], snow:['קפיצה','להחזיק ולשחרר']}[k];
+  $('jumpBig').textContent=L[0]; $('jumpSmall').textContent=L[1]; }
 function bindPad(el, down, up){ el.addEventListener('pointerdown', e=>{ e.preventDefault(); e.stopPropagation(); try{ el.setPointerCapture(e.pointerId); }catch(_){} down(); });
   ['pointerup','pointercancel','lostpointercapture'].forEach(ev=>el.addEventListener(ev, e=>{ e.stopPropagation(); up(); })); el.addEventListener('contextmenu', e=>e.preventDefault()); }
-bindPad($('padJump'), press, release); bindPad($('padTuck'), ()=>tuck(true), ()=>tuck(false));
-function takeOff(vx,vy){ P.air=true; P.vx=vx; P.vy=vy; P.airRot=0; P.airT=0; P.grab=0; P.grabArmed=false; P.boostT=0; const tr=tracks[tracks.length-1]; if(tr) tr[1]=P.x; }
+bindPad($('padJump'), press, release);
+function takeOff(vx,vy){ P.air=true; P.vx=vx; P.vy=vy; P.airRot=0; P.airT=0; P.grab=0; P.grabArmed=false; P.boostT=0; P.loading=false; P.flipArm=false; const tr=tracks[tracks.length-1]; if(tr) tr[1]=P.x; }
 // a tap anywhere else on the mountain also jumps
 cv.addEventListener('pointerdown', e=>{ e.preventDefault(); press(); });
 cv.addEventListener('pointerup', release); cv.addEventListener('pointercancel', release);
-addEventListener('keydown', e=>{ if(e.code==='Space'||e.code==='ArrowUp'){ e.preventDefault(); if(!holding) press(); } if(e.code==='ArrowDown'||e.code==='ShiftLeft'||e.code==='ShiftRight'){ e.preventDefault(); if(!tucking) tuck(true); } });
-addEventListener('keyup', e=>{ if(e.code==='Space'||e.code==='ArrowUp') release(); if(e.code==='ArrowDown'||e.code==='ShiftLeft'||e.code==='ShiftRight') tuck(false); });
+const KEYS=['Space','ArrowUp','ArrowDown'];
+addEventListener('keydown', e=>{ if(KEYS.includes(e.code)){ e.preventDefault(); if(!holding) press(); } });
+addEventListener('keyup', e=>{ if(KEYS.includes(e.code)) release(); });
 
 function spray(x,y,n,spd,col='#fff',up=3){ for(let i=0;i<n;i++) particles.push({x,y,vx:-spd*(0.3+Math.random()*0.6),vy:1+Math.random()*up,life:.5+Math.random()*.5,r:.12+Math.random()*.2,col}); }
 function burst(x,y,cols,n){ for(let i=0;i<n;i++){ const a=Math.random()*Math.PI, v=4+Math.random()*7; particles.push({x,y,vx:Math.cos(a)*v,vy:Math.sin(a)*v+2,life:1+Math.random()*.8,r:.18,col:cols[i%cols.length],conf:true}); } }
@@ -340,14 +346,13 @@ function land(){
   if(Math.abs(rel)>0.75){ crashNow(); return; }
   const along=P.vx*Math.cos(a)+P.vy*Math.sin(a);
   P.s=Math.min(VMAX, Math.max(4, along)); P.ang=a; P.land=.3; P.squash=-Math.min(1,P.airT*.9); if(!reduce&&P.airT>0.8) shake=Math.max(shake,3+P.airT*2);
-  if(holding && P.grabArmed && P.grab>0.05){ P.s*=0.6; setCombo(1,false); P.grab=0; popText('שחררו את התפיסה לפני הנחיתה'); tone(90,.2,.4); spray(P.x,P.y,30,P.s*.5); coach('grabLand','jump','שחררו לפני הנחיתה',true); return; }
   const grabbed = P.grab>=0.35; if(grabbed){ stats.grabs=(stats.grabs||0)+1; }
   const clean = Math.abs(rel)<0.14;
   if(n>0){ flips+=n; stats.flips+=n; stats.maxFlip=Math.max(stats.maxFlip,n); const mult=(1+crew.length)*combo; score+=n*100*mult; P.s=Math.min(VMAX+3,P.s+3*n); slow=reduce?1:.35; buzz(30);
     if(grabbed){ score+=150*mult; } popText((n>1?n+' סלטות':'סלטה')+(grabbed?' עם תפיסה!':'!')+(mult>1?' ×'+mult:'')); tone(140,.2,.5); spray(P.x,P.y,26,P.s*.6); setCombo(combo+1); }
   else if(grabbed){ const pts=Math.round(P.grab*2)*50*combo; score+=pts; popText('תפיסה! +'+pts); tone(300,.15,.35,'triangle',1.4); spray(P.x,P.y,18,P.s*.5); setCombo(combo+1); }
   else { spray(P.x,P.y,12,P.s*.4); tone(100,.12,.25); if(P.airT>0.5){ score+=20*combo; if(clean){ P.s+=1.5; score+=15; popText('נחיתה נקייה'); setCombo(combo+1); } } }
-  P.grab=0;
+  P.grab=0; if(holding){ P.loading=true; P.loadT=0; P.flipArm=false; }
 }
 
 let last=performance.now();
@@ -361,7 +366,8 @@ function step(now){
 }
 function update(dt){
   t+=dt; padLabels();
-  for(const b of ['jump','tuck']) if(coachT[b]>0){ coachT[b]-=dt/Math.max(slow,.2); if(coachT[b]<=0) $('pad'+b[0].toUpperCase()+b.slice(1)).classList.remove('coach'); }
+  tucking = state==='run' && holding && (P.air ? !!P.flipArm : P.crash<=0); if(P.loading) P.loadT+=dt;
+  for(const b of ['jump']) if(coachT[b]>0){ coachT[b]-=dt/Math.max(slow,.2); if(coachT[b]<=0) $('pad'+b[0].toUpperCase()+b.slice(1)).classList.remove('coach'); }
   if(bannerT>0){ bannerT-=dt; if(bannerT<=0) hideBanner(); }
   const a=slope(P.x), z=zoneAt(P.x);
   P.inv=Math.max(0,P.inv-dt);
@@ -391,9 +397,9 @@ function update(dt){
     const v=Math.hypot(P.vx,P.vy), d=1-0.0034*v*dt; P.vx*=d; P.vy*=d; // the same air drag as on the snow
     if(z&&z.kind==='wind') P.vx=Math.max(2,P.vx-3*dt);
     // jump feel: holding the jump in the first moments carries you higher, a floaty top, and a firmer fall
-    P.boostT=Math.max(0,P.boostT-dt); let gk = (holding && P.boostT>0 && P.vy>0) ? 0.42 : (Math.abs(P.vy)<2.2 ? 0.7 : (P.vy<0 ? 1.12 : 1));
+    P.boostT=Math.max(0,P.boostT-dt); let gk = Math.abs(P.vy)<2.2 ? 0.7 : (P.vy<0 ? 1.12 : 1); // a floaty top and a firmer fall
     P.vy -= G*gk*dt; P.x+=P.vx*dt; P.y+=P.vy*dt;
-    const grabbing = holding && P.grabArmed;
+    const grabbing = false;
     const spin = tucking? 7.6 : 0; P.ang += spin*dt; P.airRot += spin*dt;
     if(grabbing) P.grab += dt; // grabbing the skis: points for every moment held, but you can't level out
     if(!grabbing && !tucking){ // let go and the skier settles toward the snow below (and finishes a nearly complete flip)
@@ -414,13 +420,12 @@ function update(dt){
       if(Math.abs(P.x-c.x)<2.0){ if(hgt<2.1 && !c.over && P.inv<=0 && P.crash<=0 && !c.hit){ c.hit=true; crashNow('נתקעת בחתול השלג!'); }
         else if(hgt>=2.1 && !c.over){ c.over=true; stats.overCat=true; score+=300*combo; popText('מעל חתול השלג!'); tone(520,.2,.35,'triangle',1.5); setCombo(combo+1); } }
     }
-    if(!P.air && P.crash<=0 && kickers.some(k=>k.x-P.x>0&&k.x-P.x<3.2)) coach('jump','jump','עכשיו! על הקו הצהוב');
-    if(P.air && P.airT>0.25 && coached.jump) coach('flip','tuck','החזיקו לסלטה');
-    if(P.air && P.airT>0.25 && stats.flips>=2) coach('grab','jump','לחצו שוב: תפיסה');
-    if(!P.air && stats.flips>=1 && t>20) coach('tuck','tuck','החזיקו להתכופף');
+    if(!P.air && P.crash<=0 && kickers.some(k=>k.x-P.x>4&&k.x-P.x<14)) coach('load','jump','להחזיק עכשיו...');
+    if(!P.air && P.crash<=0 && holding && kickers.some(k=>k.x-P.x>0&&k.x-P.x<3.2)) coach('jump','jump','לשחרר על הקו הצהוב!');
+    if(P.air && P.airT>0.25 && !holding && coached.jump) coach('flip','jump','באוויר: להחזיק לסלטה');
     for(const g of gaps) if(!g.warned && g.x0-P.x<60 && g.x0>P.x){ g.warned=true; banner('ערוץ!','קפצו רגע לפני הקצה'); }
     for(const zz of zones) if(!zz.warned && zz.x0-P.x<35 && zz.x1>P.x){ zz.warned=true;
-      if(zz.kind==='wind'){ banner('רוח ברכס','החזיקו את כפתור ההתכופפות'); coach('wind','tuck','החזיקו נגד הרוח',true); } else if(zz.kind==='powder') banner('שלג עמוק','מאט. אפשר לקפוץ מעליו'); else banner('קרח','מהיר! תחזיקו חזק'); }
+      if(zz.kind==='wind'){ banner('רוח ברכס','להחזיק את הכפתור: מתכופפים נגד הרוח'); coach('wind','jump','להחזיק נגד הרוח',true); } else if(zz.kind==='powder') banner('שלג עמוק','מאט. אפשר לקפוץ מעליו'); else banner('קרח','מהיר! תחזיקו חזק'); }
     // khachapuri
     for(const c of coins){ if(c.got) continue; const cy=baseGround(c.x)+c.dy; if(Math.abs(P.x-c.x)<1.3 && Math.abs(P.y+0.9-cy)<1.5){ c.got=true; stats.coins++; score+=10*combo; tone(990+stats.coins%5*80,.07,.12,'triangle',1.2); particles.push({x:c.x,y:cy,vx:0,vy:3,life:.5,r:.25,col:'#F4B942'}); } }
     // friends: ski through one to pick them up
@@ -470,7 +475,7 @@ function finish(ok){
   const key='best-'+R.key, best=store.get(key,null);
   if(ok && (!best||t<best.t)){ store.set(key,{t,who:me}); store.set('ghost-'+R.key,{t,who:me,r:rec}); $('endBest').textContent='שיא חדש במסלול! בפעם הבאה תגלוש מול רוח הרפאים שלו.'; }
   else $('endBest').textContent = best? 'השיא במסלול: '+fmt(best.t)+' ('+FRIENDS[best.who].n+')' : '';
-  lastResultText = ok ? `${FRIENDS[me].n} ירד ב-${R.key} ב-${fmt(t)} ${starStr(nStars)}: ${flips} סלטות, ${stats.grabs} תפיסות, ${got} מתוך 5 חבר׳ה ו-${stats.coins} חצ׳אפורי. מי עוקף?` : `המפולת תפסה את ${FRIENDS[me].n} ב-${R.key} אחרי ${Math.round(P.x)} מ׳. מי מגיע רחוק יותר?`;
+  lastResultText = ok ? `${FRIENDS[me].n} ירד ב-${R.key} ב-${fmt(t)} ${starStr(nStars)}: ${flips} סלטות, ${stats.pops||0} פופים מושלמים, ${got} מתוך 5 חבר׳ה ו-${stats.coins} חצ׳אפורי. מי עוקף?` : `המפולת תפסה את ${FRIENDS[me].n} ב-${R.key} אחרי ${Math.round(P.x)} מ׳. מי מגיע רחוק יותר?`;
   $('copyNote').textContent='באתר עצמו הקישור יכיל את הירידה, והחברים יגלשו מול רוח הרפאים שלך.';
   $('menuEnd').hidden=false;
 }
@@ -599,7 +604,7 @@ function draw(){
     // you
     const a=slope(P.x); if(P.air) shadow(P.x,hNow);
     const onSnow=!P.air&&P.crash<=0, body = onSnow ? a*.4 : P.ang;
-    skier(P.x,P.y,onSnow?a:P.ang,body,FRIENDS[me].c,{crouch:P.crouch,scarf:t,grab:P.air&&holding&&P.grabArmed,squash:P.squash||0});
+    skier(P.x,P.y,onSnow?a:P.ang,body,FRIENDS[me].c,{crouch:P.crouch,scarf:t,grab:false,squash:P.squash||0});
     for(const p of particles){ cx.globalAlpha=Math.max(0,Math.min(1,p.life)); cx.fillStyle=p.col; if(p.conf){ cx.fillRect(p.x-.12,p.y-.08,.24,.16); } else { cx.beginPath(); cx.arc(p.x,p.y,p.r,0,7); cx.fill(); } } cx.globalAlpha=1;
   });
   // the avalanche: a wall of powder behind you

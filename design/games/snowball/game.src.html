@@ -71,25 +71,22 @@ button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 <div class="hud" id="hud" hidden>
   <div class="side" id="sideL"><span class="tag" id="nameL"></span><span class="hp" id="hpL"></span></div>
   <div class="mid"><span class="lvl" id="lvl">1</span><span class="wind" id="wind"></span></div>
-  <div class="side r" id="sideR"><span class="tag" id="nameR"></span><span class="hp" id="hpR"></span></div>
+  <div class="side r" id="sideR"></div>
 </div>
 <div class="pop" id="pop"></div>
-<div class="hint" id="hint" hidden>גוררים אחורה מהדמות שלך ומשחררים. בזמן הכיוון אתה חשוף</div>
-<div class="turn" id="turn" hidden><span id="turnWho"></span><b id="turnBig">התור של דובי</b><span>מעבירים את הטלפון, ונוגעים כדי להתחיל</span></div>
+<div class="hint" id="hint" hidden>גוררים למעלה כדי לקום ולכוון, ומשחררים כדי לזרוק. כשלא מכוונים, אתה מוגן מאחורי החומה</div>
 <button class="snd" id="snd" type="button" hidden aria-pressed="false" aria-label="צליל">🔇</button>
 
 <section class="menu" id="menuStart" aria-label="התחלה">
   <h1>קרב כדורי שלג</h1>
-  <p>חומה של שלג, ערימת כדורים, וחבר מהצד השני. כל פגיעה בחומה חופרת בה, וכל כובע שעף שווה נקודות.</p>
-  <div class="modes" role="group" aria-label="מצב"><button class="chip" id="modeAi" type="button" aria-pressed="true">נגד החבר׳ה (סולם)</button><button class="chip" id="modeDuo" type="button" aria-pressed="false">שניים בטלפון אחד</button></div>
-  <h2 id="meTitle">מי זורק?</h2>
+  <p>אתה מאחורי החומה שלך, והחבר׳ה מאחורי שלהם. קמים, מכוונים, זורקים, ומתכופפים לפני שהכדור שלהם מגיע.</p>
+  <h2>מי זורק?</h2>
   <div class="friends" id="friends" role="group" aria-label="בחירת חבר"></div>
-  <div id="aiBox"><h2 style="margin-bottom:10px">הסולם</h2><div class="ladder" id="ladder" role="group" aria-label="בחירת יריב"></div></div>
-  <div id="duoBox" hidden><h2 style="margin-bottom:10px">נגד מי?</h2><div class="friends" id="friends2" role="group" aria-label="בחירת יריב"></div></div>
+  <div><h2 style="margin-bottom:10px">הסולם</h2><div class="ladder" id="ladder" role="group" aria-label="בחירת שלב"></div></div>
   <div class="how">
-    <div><b>גוררים</b>אחורה מהדמות שלך, כמו קלע. ככל שגוררים יותר, הזריקה חזקה יותר.</div>
-    <div><b>משחררים</b>והכדור עף. הרוח מסיטה אותו, והחומות נשחקות.</div>
-    <div><b>מסתתרים</b>כשלא מכוונים, אתה מאחורי החומה. בזמן כיוון אתה חשוף.</div>
+    <div><b>גוררים</b>למעלה מכל מקום במסך. קמים מעל החומה, ועיגול מראה לאן הכדור יגיע בלי רוח.</div>
+    <div><b>משחררים</b>והכדור עף. הרוח מסיטה אותו, אז מכוונים קצת נגדה.</div>
+    <div><b>מתכופפים</b>כשמרימים את האצבע. כדור שמתקרב אליך? לא לקום עכשיו.</div>
   </div>
   <button class="go-btn" id="go" type="button">לקרב!</button>
   <p class="note">הדמויות הן החבר׳ה בצבעי המעילים מהמשחקים האחרים. הזירות, הרוח והיריבים הם בשביל המשחק.</p>
@@ -105,39 +102,35 @@ button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
     <div class="goals" id="endGoals"></div>
   </div>
   <button class="go-btn" id="again" type="button">עוד סיבוב</button>
-  <div class="small-btns"><button type="button" id="next">היריב הבא</button><button type="button" id="toMenu">לתפריט</button></div>
+  <div class="small-btns"><button type="button" id="next">השלב הבא</button><button type="button" id="toMenu">לתפריט</button></div>
 </section>
 
 <script>
 const FR = [{n:'יהודה ו׳',c:'#D1342B'},{n:'דובי',c:'#1F5FC4'},{n:'שרוליק',c:'#F4B942'},{n:'מוישי',c:'#1B8A4C'},{n:'יהודה ה׳',c:'#7B4FC4'},{n:'פיני',c:'#F07A2E'}];
 const PANO = "__PANO__";
-// five rungs: the opponent gets sharper, the walls lower, the wind stronger
+// five rungs: more friends behind the far wall, shorter peeks, stronger wind, better aim
 const RUNGS = [
-  {name:'בחצר המלון', dist:18, wall:1.35, wind:[0,1], aim:2.8, think:[2.2,3.4], goal:{t:'לנצח בלי לחטוף', ok:s=>s.taken===0}},
-  {name:'ליד הרכבל', dist:20, wall:1.3, wind:[-2,2], aim:2.0, think:[1.8,2.9], goal:{t:'להעיף כובע', ok:s=>s.hats>=1}},
-  {name:'בשלג העמוק', dist:22, wall:1.25, wind:[-3,3], aim:1.5, think:[1.5,2.5], goal:{t:'דיוק של 50%', ok:s=>s.thrown>0&&s.hits/s.thrown>=.5}},
-  {name:'על הרכס', dist:24, wall:1.2, wind:[-5,5], aim:1.1, think:[1.2,2.1], goal:{t:'שני כובעים', ok:s=>s.hats>=2}},
-  {name:'בפסגה, ברוח', dist:26, wall:1.1, wind:[-7,7], aim:.8, think:[1,1.8], goal:{t:'לנצח בלי לחטוף', ok:s=>s.taken===0}}];
-const store={get(k,d){try{const v=localStorage.getItem('snw-'+k);return v==null?d:JSON.parse(v);}catch(e){return d;}},set(k,v){try{localStorage.setItem('snw-'+k,JSON.stringify(v));}catch(e){}}};
+  {name:'בחצר המלון', n:1, hp:3, wind:[0,1],  err:.9,  up:[1.8,2.4], wait:[1.6,2.6], goal:{t:'לנצח בלי לחטוף', ok:s=>s.taken===0}},
+  {name:'ליד הרכבל',  n:1, hp:3, wind:[-2,2], err:.6,  up:[1.4,1.9], wait:[1.3,2.2], goal:{t:'להעיף כובע', ok:s=>s.hats>=1}},
+  {name:'בשלג העמוק', n:2, hp:2, wind:[-2,2], err:.55, up:[1.3,1.8], wait:[1.6,2.8], goal:{t:'דיוק של 50%', ok:s=>s.thrown>0&&s.hits/s.thrown>=.5}},
+  {name:'על הרכס',    n:2, hp:2, wind:[-4,4], err:.42, up:[1.1,1.6], wait:[1.3,2.4], goal:{t:'שני כובעים', ok:s=>s.hats>=2}},
+  {name:'בפסגה, ברוח',n:3, hp:2, wind:[-5,5], err:.36, up:[1.0,1.4], wait:[1.5,2.8], goal:{t:'לנצח בלי לחטוף', ok:s=>s.taken===0}}];
+const store={get(k,d){try{const v=localStorage.getItem('snw2-'+k);return v==null?d:JSON.parse(v);}catch(e){return d;}},set(k,v){try{localStorage.setItem('snw2-'+k,JSON.stringify(v));}catch(e){}}};
 const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
 const $=id=>document.getElementById(id);
+const rnd=(a,b)=>a+Math.random()*(b-a);
 
 /* ---------- menus ---------- */
-let me=store.get('me',5), foe=store.get('foe',1), rung=store.get('rung',0), mode='ai';
+let me=store.get('me',5), rung=store.get('rung',0);
 function stars(i){ return store.get('stars-'+i,0); }
-function opponentOf(i){ const o=FR.map((f,k)=>k).filter(k=>k!==me); return o[i%o.length]; }
+function foesOf(i){ const o=FR.map((f,k)=>k).filter(k=>k!==me); return Array.from({length:RUNGS[i].n},(_,j)=>o[(i+j*2)%o.length]); }
 function drawMenu(){
-  const btn=(f,i,sel,attr)=>`<button type="button" style="--c:${f.c}" aria-pressed="${i===sel}" ${attr}="${i}">${f.n}</button>`;
-  $('friends').innerHTML=FR.map((f,i)=>btn(f,i,me,'data-me')).join('');
-  $('friends2').innerHTML=FR.map((f,i)=>i===me?'':btn(f,i,foe,'data-foe')).join('');
-  $('ladder').innerHTML=RUNGS.map((r,i)=>{ const o=FR[opponentOf(i)], st=stars(i), open=i===0||stars(i-1)>0;
-    return `<button class="rung" type="button" style="--c:${o.c}" data-r="${i}" aria-pressed="${i===rung}" ${open?'':'disabled'}><span class="n">${i+1}</span><b>${o.n} · ${r.name}</b><span class="st">${open?'★'.repeat(st)+'☆'.repeat(3-st):'🔒'}</span><small>${r.dist} מ׳ · רוח עד ${Math.max(...r.wind.map(Math.abs))} · ★ ${r.goal.t}</small></button>`; }).join('');
-  $('modeAi').setAttribute('aria-pressed',mode==='ai'); $('modeDuo').setAttribute('aria-pressed',mode==='duo'); $('aiBox').hidden=mode!=='ai'; $('duoBox').hidden=mode!=='duo';
+  $('friends').innerHTML=FR.map((f,i)=>`<button type="button" style="--c:${f.c}" aria-pressed="${i===me}" data-me="${i}">${f.n}</button>`).join('');
+  $('ladder').innerHTML=RUNGS.map((r,i)=>{ const os=foesOf(i), st=stars(i), open=i===0||stars(i-1)>0;
+    return `<button class="rung" type="button" style="--c:${FR[os[0]].c}" data-r="${i}" aria-pressed="${i===rung}" ${open?'':'disabled'}><span class="n">${i+1}</span><b>${os.map(k=>FR[k].n).join(' + ')} · ${r.name}</b><span class="st">${open?'★'.repeat(st)+'☆'.repeat(3-st):'🔒'}</span><small>רוח עד ${Math.max(...r.wind.map(Math.abs))} · ★ ${r.goal.t}</small></button>`; }).join('');
 }
-$('friends').onclick=e=>{ const b=e.target.closest('[data-me]'); if(!b) return; me=+b.dataset.me; if(foe===me) foe=(me+1)%6; store.set('me',me); drawMenu(); };
-$('friends2').onclick=e=>{ const b=e.target.closest('[data-foe]'); if(!b) return; foe=+b.dataset.foe; store.set('foe',foe); drawMenu(); };
+$('friends').onclick=e=>{ const b=e.target.closest('[data-me]'); if(!b) return; me=+b.dataset.me; store.set('me',me); drawMenu(); };
 $('ladder').onclick=e=>{ const b=e.target.closest('[data-r]'); if(!b||b.disabled) return; rung=+b.dataset.r; store.set('rung',rung); drawMenu(); };
-$('modeAi').onclick=()=>{ mode='ai'; drawMenu(); }; $('modeDuo').onclick=()=>{ mode='duo'; drawMenu(); };
 $('go').onclick=()=>start(); $('again').onclick=()=>start();
 $('next').onclick=()=>{ if(rung<RUNGS.length-1){ rung++; store.set('rung',rung); } start(); };
 $('toMenu').onclick=()=>{ $('menuEnd').hidden=true; $('menuStart').hidden=false; drawMenu(); state='menu'; };
@@ -145,181 +138,193 @@ $('toMenu').onclick=()=>{ $('menuEnd').hidden=true; $('menuStart').hidden=false;
 /* ---------- sound ---------- */
 let AC=null, soundOn=false;
 $('snd').onclick=e=>{ e.stopPropagation(); soundOn=!soundOn; $('snd').textContent=soundOn?'🔊':'🔇'; if(soundOn&&!AC){ try{ AC=new (window.AudioContext||window.webkitAudioContext)(); }catch(_){ AC=null; } } };
-function noise(d=.15,v=.35,f=900){ if(!soundOn||!AC) return; const n=AC.sampleRate*d, b=AC.createBuffer(1,n,AC.sampleRate), a=b.getChannelData(0); for(let i=0;i<n;i++) a[i]=(Math.random()*2-1)*(1-i/n); const s=AC.createBufferSource(); s.buffer=b; const fl=AC.createBiquadFilter(); fl.type='lowpass'; fl.frequency.value=f; const g=AC.createGain(); g.gain.value=v; s.connect(fl); fl.connect(g); g.connect(AC.destination); s.start(); }
+function noise(d=.15,v=.35,f=900,type='lowpass'){ if(!soundOn||!AC) return; const n=AC.sampleRate*d, b=AC.createBuffer(1,n,AC.sampleRate), a=b.getChannelData(0); for(let i=0;i<n;i++) a[i]=(Math.random()*2-1)*(1-i/n)**2; const s=AC.createBufferSource(); s.buffer=b; const fl=AC.createBiquadFilter(); fl.type=type; fl.frequency.value=f; const g=AC.createGain(); g.gain.value=v; s.connect(fl); fl.connect(g); g.connect(AC.destination); s.start(); }
 function tone(f=300,d=.12,v=.25,e=1.4){ if(!soundOn||!AC) return; const o=AC.createOscillator(), g=AC.createGain(); o.type='triangle'; o.frequency.setValueAtTime(f,AC.currentTime); o.frequency.exponentialRampToValueAtTime(f*e,AC.currentTime+d); g.gain.setValueAtTime(v,AC.currentTime); g.gain.exponentialRampToValueAtTime(.001,AC.currentTime+d); o.connect(g); g.connect(AC.destination); o.start(); o.stop(AC.currentTime+d); }
 function buzz(ms){ try{ navigator.vibrate&&navigator.vibrate(ms); }catch(_){} }
 
-/* ---------- world ---------- */
-const cv=$('game'), cx=cv.getContext('2d'); let W=0,H=0;
-function resize(){ const dpr=Math.min(2,devicePixelRatio||1); W=innerWidth; H=innerHeight; cv.width=W*dpr; cv.height=H*dpr; cx.setTransform(dpr,0,0,dpr,0,0); }
+/* ---------- the world, seen from behind your own wall ---------- */
+// metres: x to the side, y up, z away from you. Your wall at z=1.4, theirs at z=10.
+const BASE=o=>FWALL-1.95+o.up*.95; // feet: hidden below the wall top when crouched, standing when up
+const G=9.81, ZW=1.4, ZF=10, ZO=10.6, WALL=1.0, FWALL=1.05, HAND_Z=.5, FLIGHT=.85;
+const cv=$('game'), cx=cv.getContext('2d'); let W=0,H=0,f=600,Y0=300;
+function resize(){ const dpr=Math.min(2,devicePixelRatio||1); W=innerWidth; H=innerHeight; cv.width=W*dpr; cv.height=H*dpr; cx.setTransform(dpr,0,0,dpr,0,0);
+  f=Math.min(W*1.75, H*1.15); Y0=H*.42; }
 addEventListener('resize',resize); resize();
 const pano=new Image(); pano.src=PANO;
-const G=9.81, RES=0.1; // snow height every 10 cm
-let snow, L, R2, balls=[], parts=[], hats=[], state='menu', wind=0, t=0, cfg, stats, turnOf=0, aiT=0, aiPlan=null, aim=null, shake=0, endT=0;
-function mkSide(fi, x, dir){ return {fi, x, dir, hp:5, up:0, reload:0, hat:true, hit:0, wobble:0}; }
-function buildArena(){
-  const n=Math.round(L/RES)+1; snow=new Float32Array(n);
-  for(let i=0;i<n;i++){ const x=i*RES; let h=0.25+0.08*Math.sin(x*1.3)+0.05*Math.sin(x*3.1);
-    for(const wx of [3.4, L-3.4]){ const d=Math.abs(x-wx); if(d<1.4) h=Math.max(h, cfg.wall*Math.cos(d/1.4*Math.PI/2)**.7); } // the two walls
-    const mid=L/2; if(Math.abs(x-mid)<2.5) h=Math.max(h,.55*Math.cos((x-mid)/2.5*Math.PI/2)); // a mound in the middle
-    snow[i]=h; }
-}
-function hAt(x){ const f=Math.max(0,Math.min(snow.length-1.001,x/RES)), i=Math.floor(f), t=f-i; return snow[i]*(1-t)+snow[i+1]*t; }
-function crater(x,r){ for(let i=Math.max(0,Math.floor((x-r)/RES));i<=Math.min(snow.length-1,Math.ceil((x+r)/RES));i++){ const d=Math.abs(i*RES-x); if(d<r) snow[i]=Math.max(.15, snow[i]-.22*Math.cos(d/r*Math.PI/2)); } }
+let camH=.98, camX=0, state='menu', t=0, cfg, stats, foes=[], balls=[], parts=[], hats=[], splats=[], wind=0, aim=null, reload=0, myHp=3, shake=0, endT=0, won=false, farWall=[];
+const P=(x,y,z)=>{ const s=f/Math.max(.05,z); return [W/2+(x-camX)*s, Y0-(y-camH)*s, s]; };
+function farWallTop(x){ const i=Math.round((x+6)/.25); return farWall[Math.max(0,Math.min(farWall.length-1,i))]; }
 function start(){
-  cfg = mode==='ai' ? RUNGS[rung] : {name:'קרב חבר׳ה', dist:22, wall:1.25, wind:[-3,3]};
-  L = cfg.dist+6; buildArena();
-  const oppFi = mode==='ai' ? opponentOf(rung) : foe;
-  sideL = mkSide(me, 1.8, 1); sideR = mkSide(oppFi, L-1.8, -1);
-  if(mode==='duo'){ sideL.hp=sideR.hp=3; } else { sideL.hp=3; sideR.hp=3; }
-  balls=[]; parts=[]; hats=[]; t=0; shake=0; aim=null; endT=0;
-  stats={thrown:0, hits:0, hats:0, taken:0};
-  newWind(); aiT=1.5+Math.random(); aiPlan=null; turnOf=0;
+  cfg=RUNGS[rung]; const ids=foesOf(rung), xs=cfg.n===1?[0]:cfg.n===2?[-1.5,1.5]:[-2,0,2];
+  foes=ids.map((fi,i)=>({fi, x:xs[i], home:xs[i], hp:cfg.hp, up:0, want:0, timer:rnd(1.2,2.4)+i*.9, phase:'hide', hat:true, hit:0, wob:0, throwT:0}));
+  farWall=Array.from({length:49},(_,i)=>FWALL+.06*Math.sin(i*1.7)); // the far wall wears down where it is hit
+  balls=[]; parts=[]; hats=[]; splats=[]; aim=null; reload=0; myHp=3; shake=0; endT=0; t=0; camH=.98; camX=0;
+  stats={thrown:0,hits:0,hats:0,taken:0};
+  newWind(); state='play';
   $('menuStart').hidden=true; $('menuEnd').hidden=true; ['hud','snd'].forEach(id=>$(id).hidden=false);
-  $('nameL').textContent=FR[sideL.fi].n; $('nameL').style.setProperty('--c',FR[sideL.fi].c); $('nameR').textContent=FR[sideR.fi].n; $('nameR').style.setProperty('--c',FR[sideR.fi].c);
-  $('lvl').textContent = mode==='ai' ? (rung+1)+' · '+cfg.name : 'שניים בטלפון אחד';
-  hpUI(); $('hint').hidden=false; $('hint').style.opacity=1;
-  if(mode==='duo'){ showTurn(); } else state='play';
+  $('nameL').textContent=FR[me].n; $('nameL').style.setProperty('--c',FR[me].c);
+  $('lvl').textContent=(rung+1)+' · '+cfg.name; hpUI(); $('hint').hidden=false; $('hint').style.opacity=1;
 }
-let sideL, sideR;
-function newWind(){ const [a,b]=cfg.wind; wind=Math.round((a+Math.random()*(b-a))*2)/2; const w=$('wind'); const s=Math.abs(wind)<.25?'אין רוח':(wind>0?'רוח ⟶ ':'⟵ רוח ')+Math.abs(wind); w.textContent=s; }
-function hpUI(){ const dots=(s)=>Array.from({length:3},(_,i)=>`<i class="${i<s.hp?'':'off'}"></i>`).join(''); $('hpL').innerHTML=dots(sideL); $('hpR').innerHTML=dots(sideR); }
+function newWind(){ const [a,b]=cfg.wind; wind=Math.round(rnd(a,b)*2)/2; windLabel(); }
+function windLabel(){ $('wind').textContent=Math.abs(wind)<.25?'אין רוח':'רוח '+Math.abs(wind)+' '+(wind>0?'⟶':'⟵'); }
+function hpUI(){ const dots=n=>Array.from({length:n.max},(_,i)=>`<i class="${i<n.hp?'':'off'}"></i>`).join('');
+  $('hpL').innerHTML=dots({hp:myHp,max:3});
+  $('sideR').innerHTML=foes.map(o=>`<span class="tag" style="--c:${FR[o.fi].c}">${FR[o.fi].n}</span><span class="hp">${dots({hp:o.hp,max:cfg.hp})}</span>`).join(''); }
 function popText(s){ const p=$('pop'); p.textContent=s; p.classList.remove('go'); void p.offsetWidth; p.classList.add('go'); }
-function showTurn(){ state='turn'; const s=turnOf? sideR: sideL; $('turnBig').textContent='התור של '+FR[s.fi].n; $('turnWho').textContent=Math.abs(wind)<.25?'אין רוח':'רוח '+Math.abs(wind)+(wind>0?' שמאלה לימין':' מימין לשמאל'); $('turn').hidden=false; }
-$('turn').addEventListener('pointerdown',e=>{ e.preventDefault(); $('turn').hidden=true; state='play'; });
 
-/* ---------- throwing: drag back from your character like a sling ---------- */
-let sc=1, ox=0, oy=0; // world → screen
-const toScreen=(x,y)=>[ox+x*sc, oy-y*sc], toWorld=(X,Y)=>[(X-ox)/sc, (oy-Y)/sc];
-function activeSide(){ return mode==='duo' ? (turnOf? sideR: sideL) : sideL; }
-cv.addEventListener('pointerdown',e=>{ if(state!=='play') return; const s=activeSide(); if(s.reload>0 || (mode==='duo' && balls.some(b=>b.live))) return; e.preventDefault(); try{ cv.setPointerCapture(e.pointerId);}catch(_){} aim={x0:e.clientX,y0:e.clientY,x:e.clientX,y:e.clientY,side:s}; s.up=1; });
+/* ---------- aiming: drag up from anywhere, a ring shows where the ball lands without wind ---------- */
+const OFF=70; // the ring sits above the finger, so the finger never hides it
+function ringTarget(a){ // the screen point → a point on the plane of the far friends, as seen when standing
+  const s=f/ZO, ch=1.75; return [ (a.x-W/2)/s, ch-((a.y-OFF)-Y0)/s ]; }
+cv.addEventListener('pointerdown',e=>{ if(state!=='play') return; e.preventDefault(); try{ cv.setPointerCapture(e.pointerId);}catch(_){} aim={x:e.clientX,y:e.clientY,y0:e.clientY}; });
 cv.addEventListener('pointermove',e=>{ if(aim){ aim.x=e.clientX; aim.y=e.clientY; } });
-cv.addEventListener('pointerup',e=>{ if(!aim) return; const v=aimVel(aim); const s=aim.side; aim=null; if(v){ throwBall(s,v[0],v[1]); if(mode==='duo'){ s.waitTurn=true; } } else { s.up=0; } });
-cv.addEventListener('pointercancel',()=>{ if(aim){ aim.side.up=0; aim=null; } });
-function aimVel(a){ const dx=(a.x0-a.x), dy=(a.y-a.y0); const len=Math.hypot(dx,dy); if(len<14) return null; const p=Math.min(1,len/Math.min(190,W*.42)); const sp=7+p*17; return [dx/len*sp*(a.side.dir>0?1:1), dy/len*sp]; }
-function hand(s){ return [s.x+s.dir*.35, hAt(s.x)+1.55]; }
-function throwBall(s,vx,vy){ const [x,y]=hand(s); balls.push({x,y,vx,vy,from:s,live:true,trail:[]}); s.reload=.9; s.throwT=.25; stats.thrown+= (s===sideL||mode==='duo'&&s===sideL)?1:0; if(mode==='duo'&&s===sideR) stats.thrownR=(stats.thrownR||0)+1; noise(.08,.15,2400); }
+function letGo(){ if(!aim) return; const a=aim; aim=null; if(state!=='play') return;
+  if(reload>0 || camH<1.5){ return; } // not up yet: you just duck back down
+  const [tx,ty]=ringTarget(a); throwMine(tx,ty); }
+cv.addEventListener('pointerup',letGo); cv.addEventListener('pointercancel',()=>{ aim=null; });
+function throwMine(tx,ty){ const x0=.32, y0=camH-.3, z0=HAND_Z, T=FLIGHT;
+  balls.push({x:x0,y:y0,z:z0,vx:(tx-x0)/T,vy:(ty-y0+.5*G*T*T)/T,vz:(ZO-z0)/T,mine:true,trail:[]}); reload=.45; stats.thrown++; noise(.1,.18,2600,'highpass'); tone(200,.08,.12,1.6); }
 
-/* ---------- the opponent ---------- */
-function aiStep(dt){
-  const s=sideR; aiT-=dt;
-  if(!aiPlan && aiT<=0 && s.reload<=0){ // stand up, take aim for a moment, then throw
-    const target=[sideL.x, hAt(sideL.x)+(sideL.up?1.45:1.0)];
-    let best=null; for(let ang=.25; ang<1.35; ang+=.04){ for(let sp=8; sp<=24; sp+=.5){ const r=sim(s,Math.cos(ang)*sp*s.dir, Math.sin(ang)*sp, target); if(r<(best?best.e:1e9)) best={e:r,vx:Math.cos(ang)*sp*s.dir,vy:Math.sin(ang)*sp}; } }
-    const err=cfg.aim*(0.6+Math.random()*.8); best.vx*=1+(Math.random()-.5)*err*.08; best.vy*=1+(Math.random()-.5)*err*.08;
-    aiPlan={vx:best.vx, vy:best.vy, t:.45+Math.random()*.4}; s.up=1; }
-  if(aiPlan){ aiPlan.t-=dt; if(aiPlan.t<=0){ throwBall(s,aiPlan.vx,aiPlan.vy); aiPlan=null; aiT=cfg.think[0]+Math.random()*(cfg.think[1]-cfg.think[0]); setTimeout(()=>{ if(!aiPlan) s.up=0; }, 350); } }
+/* ---------- the friends behind the far wall ---------- */
+function foeStep(o,dt){
+  o.hit=Math.max(0,o.hit-dt); o.wob*=Math.exp(-6*dt); o.throwT=Math.max(0,o.throwT-dt);
+  if(o.hp<=0){ o.want=0; o.up+=(0-o.up)*Math.min(1,dt*10); return; }
+  o.timer-=dt;
+  if(o.phase==='hide' && o.timer<=0){ // pop up somewhere along the wall (sometimes just a peek)
+    if(Math.random()<.25){ o.phase='peek'; o.timer=rnd(.35,.6); o.want=.45; }
+    else { o.phase='aim'; o.timer=rnd(...cfg.up)*.6; o.want=1; } }
+  else if(o.phase==='peek' && o.timer<=0){ o.phase='hide'; o.want=0; o.timer=rnd(.5,1.1); }
+  else if(o.phase==='aim' && o.timer<=0){ throwFoe(o); o.phase='after'; o.timer=rnd(...cfg.up)*.4; o.throwT=.25; }
+  else if(o.phase==='after' && o.timer<=0){ o.phase='hide'; o.want=0; o.timer=rnd(...cfg.wait); if(Math.random()<.5) o.goal=o.home+rnd(-.8,.8); }
+  if(o.phase==='hide' && o.goal!=null){ o.x+=(o.goal-o.x)*Math.min(1,dt*2.5); }
+  o.up+=(o.want-o.up)*Math.min(1,dt*9);
 }
-function sim(s,vx,vy,target){ let [x,y]=hand(s); let best=1e9; for(let k=0;k<200;k++){ const dt=.02; vx+=wind*.35*dt; vy-=G*dt; x+=vx*dt; y+=vy*dt; const d=Math.hypot(x-target[0],y-target[1]); if(d<best) best=d; if(y<hAt(x)&&k>5) break; if(x<0||x>L) break; } return best; }
+function throwFoe(o){ const x0=o.x-.3, y0=1.5, z0=ZO-.4, T=rnd(.85,1.1);
+  // aim at your head when standing, with an error that shrinks up the ladder; better players lean into the wind
+  const tx=rnd(-1,1)*cfg.err, ty=1.55+rnd(-1,1)*cfg.err*.6, tz=.3, k=1-cfg.err*.5;
+  balls.push({x:x0,y:y0,z:z0,vx:(tx-x0)/T - .5*wind*k*T,vy:(ty-y0+.5*G*T*T)/T,vz:(tz-z0)/T,mine:false,trail:[],from:o}); noise(.08,.1,2000,'highpass'); }
 
 /* ---------- step ---------- */
 let last=performance.now();
 function frame(now){ const dt=Math.min(.05,(now-last)/1000); last=now; if(state==='play'||state==='done') update(dt); draw(); requestAnimationFrame(frame); }
 function update(dt){
-  t+=dt; if(t>6) $('hint').style.opacity=0;
-  for(const s of [sideL,sideR]){ s.reload=Math.max(0,s.reload-dt); s.throwT=Math.max(0,(s.throwT||0)-dt); s.hit=Math.max(0,s.hit-dt); s.wobble*=Math.exp(-6*dt); if(!aim||aim.side!==s){ if(s.reload<=.5 && s.throwT<=0 && !(s===sideR&&aiPlan) && mode!=='duo') s.up=Math.max(0,s.up-dt*4); } }
-  if(mode==='ai' && state==='play') aiStep(dt);
-  for(const b of balls){ if(!b.live) continue; b.vx+=wind*.35*dt; b.vy-=G*dt; b.x+=b.vx*dt; b.y+=b.vy*dt; b.trail.push([b.x,b.y]); if(b.trail.length>10) b.trail.shift();
-    for(const s of [sideL,sideR]){ if(s===b.from) continue; const top=hAt(s.x)+(s.up>.5?1.75:1.05), headY=top-.22;
-      if(Math.hypot(b.x-s.x,b.y-headY)<.36){ hitSide(s,b,true); break; }
-      if(Math.abs(b.x-s.x)<.32 && b.y<top-.4 && b.y>hAt(s.x)){ hitSide(s,b,false); break; } }
-    if(!b.live) continue;
-    if(b.y<=hAt(b.x)){ b.live=false; crater(b.x,.42); splat(b.x,hAt(b.x),10); noise(.12,.25,700); }
-    if(b.x<-2||b.x>L+2||b.y<-2) b.live=false; }
-  balls=balls.filter(b=>b.live);
-  for(const p of parts){ p.vy-=G*.6*dt; p.x+=p.vx*dt; p.y+=p.vy*dt; p.life-=dt; } parts=parts.filter(p=>p.life>0);
-  for(const h of hats){ h.vy-=G*dt; h.x+=h.vx*dt; h.y+=h.vy*dt; h.r+=h.vr*dt; if(h.y<hAt(h.x)){ h.y=hAt(h.x); h.vx*=.5; h.vy=0; h.vr=0; } }
-  shake=Math.max(0,shake-dt*40);
-  if(mode==='duo' && state==='play'){ const s=turnOf?sideR:sideL; if(s.waitTurn && !balls.length){ s.waitTurn=false; s.up=0; turnOf=1-turnOf; newWind(); if(state==='play') setTimeout(()=>{ if(state==='play') showTurn(); },500); } }
-  if(state==='done'){ endT+=dt; if(endT>1.4) finish(); }
+  t+=dt; if(t>7) $('hint').style.opacity=0;
+  reload=Math.max(0,reload-dt);
+  const want = (aim && state==='play') ? 1.75 : .98; /* ducked, you still see their heads over your wall */ camH+=(want-camH)*Math.min(1,dt*11);
+  camX+=((aim?(aim.x-W/2)/W*.6:0)-camX)*Math.min(1,dt*4); // lean a little toward where you aim
+  for(const o of foes) foeStep(o,dt);
+  for(const b of balls){ if(b.dead) continue; const pz=b.z;
+    b.vx+=wind*.5*dt; b.vy-=G*dt; b.x+=b.vx*dt; b.y+=b.vy*dt; b.z+=b.vz*dt; b.trail.push([b.x,b.y,b.z]); if(b.trail.length>8) b.trail.shift();
+    if(b.mine){
+      if(pz<ZF && b.z>=ZF && b.y<farWallTop(b.x) && b.y>0){ b.dead=true; wallHit(b.x,b.y); continue; }
+      if(pz<ZO && b.z>=ZO){ for(const o of foes){ if(o.hp<=0) continue; const bs=BASE(o), head=bs+1.62, wt=farWallTop(o.x);
+          if(Math.abs(b.x-o.x)<.25 && Math.abs(b.y-head)<.25 && head>wt){ b.dead=true; hitFoe(o,b,true); break; }
+          if(Math.abs(b.x-o.x)<.33 && b.y<bs+1.32 && b.y>Math.max(wt,bs+.4)){ b.dead=true; hitFoe(o,b,false); break; } } }
+      if(!b.dead && b.y<0){ b.dead=true; splatAt(b.x,0,b.z,8); noise(.1,.15,600); if(b.z>ZO-2) popText(Math.abs(b.x)>0?'פספוס':''); }
+      if(b.z>ZO+6) b.dead=true;
+    } else {
+      if(pz>ZW && b.z<=ZW && b.y<WALL){ b.dead=true; splatAt(b.x,b.y,ZW,16); noise(.15,.35,900); shake=reduce?0:4; continue; }
+      if(pz>.3 && b.z<=.3){ b.dead=true;
+        const exposed = camH>1.3, dx=Math.abs(b.x-camX), dy=b.y-camH;
+        if(exposed && dx<.42 && dy>-.95 && dy<.3){ meHit(b); } else if(dx<1.2){ noise(.2,.25,3000,'bandpass'); popText('עבר מעליך'); } }
+      if(b.y<0){ b.dead=true; splatAt(b.x,0,b.z,8); } }
+  }
+  balls=balls.filter(b=>!b.dead);
+  for(const p of parts){ p.vy-=G*.7*dt; p.x+=p.vx*dt; p.y+=p.vy*dt; p.z+=p.vz*dt; p.life-=dt; } parts=parts.filter(p=>p.life>0);
+  for(const h of hats){ h.vy-=G*dt; h.x+=h.vx*dt; h.y+=h.vy*dt; h.z+=h.vz*dt; h.r+=h.vr*dt; if(h.y<0){ h.y=0; h.vx=h.vy=h.vz=h.vr=0; } }
+  for(const s of splats) s.life-=dt; splats=splats.filter(s=>s.life>0);
+  shake=Math.max(0,shake-dt*30);
+  if(state==='done'){ endT+=dt; if(endT>1.6) finish(); }
 }
-function splat(x,y,n,col='#fff'){ for(let i=0;i<n;i++){ const a=Math.random()*Math.PI, v=1+Math.random()*4; parts.push({x,y:y+.05,vx:Math.cos(a)*v,vy:Math.sin(a)*v,life:.4+Math.random()*.4,r:.05+Math.random()*.07,col}); } }
-function hitSide(s,b,head){ b.live=false; s.hp--; s.hit=.5; s.wobble=1; shake=reduce?0:(head?12:7); splat(b.x,b.y,22); buzz(head?40:20); noise(.18,.4,1200);
-  const shooterLeft = b.from===sideL;
-  if(shooterLeft||mode==='duo'){ if(shooterLeft) stats.hits++; else stats.hitsR=(stats.hitsR||0)+1; }
-  if(s===sideL && mode==='ai') stats.taken++;
-  if(head && s.hat){ s.hat=false; hats.push({x:s.x,y:hAt(s.x)+1.85,vx:b.vx*.25,vy:4,r:0,vr:b.vx>0?-8:8,col:FR[s.fi].c}); if(shooterLeft){ stats.hats++; } popText('הכובע עף!'); tone(520,.18,.3,1.6); }
+function splatAt(x,y,z,n){ for(let i=0;i<n;i++){ const a=rnd(0,Math.PI), v=rnd(.6,2.6); parts.push({x,y:y+.05,z,vx:Math.cos(a)*v,vy:Math.sin(a)*v,vz:rnd(-.6,.6),life:rnd(.35,.8),r:rnd(.04,.09)}); } }
+function wallHit(x,y){ splatAt(x,y,ZF,12); noise(.12,.22,800); const i=Math.round((x+6)/.25); for(let k=-2;k<=2;k++){ const j=i+k; if(farWall[j]!=null) farWall[j]=Math.max(.55,farWall[j]-.09*(1-Math.abs(k)/3)); } }
+function hitFoe(o,b,head){ o.hp--; o.hit=.5; o.wob=1; stats.hits++; splatAt(b.x,b.y,ZO,22); buzz(head?40:20); noise(.2,.4,1200); tone(head?520:380,.16,.3,1.5);
+  if(head && o.hat){ o.hat=false; stats.hats++; hats.push({x:o.x,y:BASE(o)+1.8,z:ZO,vx:b.vx*.15,vy:3.5,vz:2,r:0,vr:rnd(-9,9),col:FR[o.fi].c}); popText('הכובע עף!'); }
   else popText(head?'בראש!':'פגיעה!');
-  hpUI();
-  if(s.hp<=0){ state='done'; endT=0; winner = s===sideL? sideR: sideL; popText(FR[winner.fi].n+' ניצח!'); }
-}
-let winner=null;
+  if(o.hp<=0){ popText(FR[o.fi].n+' בחוץ!'); o.phase='out'; }
+  hpUI(); if(foes.every(f=>f.hp<=0)){ state='done'; won=true; endT=0; setTimeout(()=>popText('ניצחת!'),700); } }
+function meHit(b){ myHp--; stats.taken++; shake=reduce?0:16; buzz([40,30,40]); noise(.25,.5,1400); tone(140,.25,.35,.6);
+  // snow stuck on the screen, sliding down
+  for(let i=0;i<9;i++) splats.push({x:W/2+(b.x-camX)*W*.5+rnd(-W*.25,W*.25), y:rnd(H*.2,H*.65), r:rnd(28,70), life:rnd(1.6,2.4), max:2.4, seed:Math.random()*9});
+  popText('חטפת!'); hpUI(); if(myHp<=0){ state='done'; won=false; endT=0; } }
 function finish(){
   state='end'; ['hud','hint','snd'].forEach(id=>$(id).hidden=true);
-  const won = winner===sideL;
-  if(mode==='ai'){ const goals=[won, won&&RUNGS[rung].goal.ok(stats), won&&stats.taken===0]; const g=[won, won&&stats.taken===0, won&&RUNGS[rung].goal.ok(stats)]; const n=g.filter(Boolean).length; if(n>stars(rung)) store.set('stars-'+rung,n);
-    $('endTitle').textContent= won? 'ניצחת את '+FR[sideR.fi].n+'!' : FR[sideR.fi].n+' ניצח';
-    $('endWho').textContent=(rung+1)+'. '+RUNGS[rung].name; $('endBig').textContent=(3-sideR.hp)+' : '+(3-sideL.hp);
-    $('endStars').innerHTML=[0,1,2].map(i=>`<i class="${g[i]?'on':''}">★</i>`).join('');
-    $('endGoals').innerHTML=[['לנצח',g[0]],['בלי לחטוף אף כדור',g[1]],[RUNGS[rung].goal.t,g[2]]].map(([s,o])=>`<span class="${o?'ok':''}">${s}</span>`).join('');
-    $('next').hidden=!(won && rung<RUNGS.length-1); $('endGoals').hidden=false; $('endStars').hidden=false;
-  } else { $('endTitle').textContent=FR[winner.fi].n+' ניצח!'; $('endWho').textContent='שניים בטלפון אחד'; $('endBig').textContent=(3-sideR.hp)+' : '+(3-sideL.hp); $('endStars').hidden=true; $('endGoals').hidden=true; $('next').hidden=true; }
+  const g=[won, won&&stats.taken===0, won&&cfg.goal.ok(stats)], n=g.filter(Boolean).length; if(n>stars(rung)) store.set('stars-'+rung,n);
+  $('endTitle').textContent= won? 'ניצחת!' : 'הפעם הם ניצחו'; $('endWho').textContent=(rung+1)+'. '+cfg.name+' · '+foes.map(o=>FR[o.fi].n).join(' + ');
+  $('endBig').textContent=stats.hits+' : '+stats.taken;
+  $('endStars').innerHTML=[0,1,2].map(i=>`<i class="${g[i]?'on':''}">★</i>`).join('');
+  $('endGoals').innerHTML=[['לנצח',g[0]],['בלי לחטוף אף כדור',g[1]],[cfg.goal.t,g[2]]].map(([s,o])=>`<span class="${o?'ok':''}">${s}</span>`).join('');
+  $('next').hidden=!(won && rung<RUNGS.length-1);
   $('endHits').textContent=stats.hits; $('endHats').textContent=stats.hats; $('endAcc').textContent=(stats.thrown?Math.round(stats.hits/stats.thrown*100):0)+'%';
-  $('menuEnd').hidden=false;
-}
+  $('menuEnd').hidden=false; }
 
-/* ---------- drawing ---------- */
-// the camera: the whole arena when it fits; on a narrow phone it stays close to you, follows the ball, and a small window shows the other side
-let camX=null, holdT=0;
+/* ---------- drawing, far to near ---------- */
 function draw(){
-  const span=(L||28)+2, fits = W/span >= 22;
-  sc = fits ? Math.min(W/span, H/9.5) : Math.min(W/14, H/9.5);
-  const g=cx.createLinearGradient(0,0,0,H); g.addColorStop(0,'#5E9BD6'); g.addColorStop(.7,'#D9E8F5'); cx.fillStyle=g; cx.fillRect(0,0,W,H);
-  oy = fits ? H*0.8 : H*0.7;
-  if(fits || !snow){ ox=(W-(L||28)*sc)/2; }
-  else { const me=activeSide(); let want = me.x + me.dir*(W/sc*0.5-1.6);
-    const fly=balls.find(b=>b.live && b.from===me); if(aim){ holdT=0; } else if(fly){ want=fly.x; holdT=.7; } else if(holdT>0){ holdT-=1/60; want=camX; }
-    const half=W/sc/2; want=Math.max(half-1, Math.min(L+1-half, want)); camX = camX==null? want : camX+(want-camX)*.12; ox=W/2-camX*sc; }
-  if(pano.complete&&pano.naturalWidth){ const ph=H*.5, pw=ph*pano.naturalWidth/pano.naturalHeight; cx.globalAlpha=.9; const sh=ox*.3, k0=Math.floor(-sh/pw); for(let k=k0; k*pw+sh<W; k++){ const x=k*pw+sh; cx.save(); if(k%2){ cx.translate(x+pw,0); cx.scale(-1,1); cx.drawImage(pano,0,oy-ph*.92,pw,ph); } else cx.drawImage(pano,x,oy-ph*.92,pw,ph); cx.restore(); } /* mirrored tiles hide the seam */ cx.globalAlpha=1; }
-  if(!snow){ cx.fillStyle='#fff'; cx.fillRect(0,oy-20,W,H); return; }
-  scene(true);
-  if(!fits && state!=='menu'){ // the other side, in a window in the sky
-    const other = activeSide()===sideL? sideR: sideL; const bw=Math.min(W*.46,220), bh=bw*.72, bx= other.dir<0? W-bw-12 : 12, by=H*0.2;
-    const S={sc,ox,oy}; sc=bh/4.2; ox=bx+bw/2-other.x*sc; oy=by+bh*.86;
-    cx.save(); cx.beginPath(); cx.rect(bx,by,bw,bh); cx.clip(); const g2=cx.createLinearGradient(0,by,0,by+bh); g2.addColorStop(0,'#7FB0DD'); g2.addColorStop(1,'#E2EDF7'); cx.fillStyle=g2; cx.fillRect(bx,by,bw,bh); scene(false); cx.restore();
-    cx.strokeStyle='#fff'; cx.lineWidth=3; cx.strokeRect(bx,by,bw,bh); cx.fillStyle='rgba(19,35,58,.85)'; cx.fillRect(bx,by+bh,bw,22); cx.fillStyle='#fff'; cx.font='700 12px "IBM Plex Sans Hebrew",sans-serif'; cx.textAlign='center'; cx.fillText(FR[other.fi].n+' · '+Math.round(Math.abs(other.x-activeSide().x))+' מ׳', bx+bw/2, by+bh+15);
-    sc=S.sc; ox=S.ox; oy=S.oy; }
-}
-function scene(main){
-  cx.save(); if(shake&&main) cx.translate((Math.random()-.5)*shake,(Math.random()-.5)*shake);
-  // snow, with the walls and craters
-  cx.beginPath(); cx.moveTo(0,H); cx.lineTo(0,toScreen(0,hAt(0))[1]); for(let i=0;i<snow.length;i+=2){ const [X,Y]=toScreen(i*RES,snow[i]); cx.lineTo(X,Y); } cx.lineTo(W,toScreen(L,hAt(L))[1]); cx.lineTo(W,H); cx.closePath();
-  const sg=cx.createLinearGradient(0,oy-2*sc,0,H); sg.addColorStop(0,'#FFFFFF'); sg.addColorStop(1,'#C9D8E7'); cx.fillStyle=sg; cx.fill(); cx.strokeStyle='#9FB5CB'; cx.lineWidth=2; cx.stroke();
-  // a little stack of snowballs behind each wall
-  for(const s of [sideL,sideR]){ for(let k=0;k<5;k++){ const bx=s.x-s.dir*(.7+(k%3)*.22), by=hAt(s.x)+.12+(k>2?.2:0)+ (k>2?0:0); const [X,Y]=toScreen(bx+(k>2?.11*s.dir:0),by); cx.fillStyle='#fff'; cx.beginPath(); cx.arc(X,Y,.12*sc,0,7); cx.fill(); cx.strokeStyle='#B8CADB'; cx.lineWidth=1; cx.stroke(); } }
-  for(const s of [sideL,sideR]) person(s);
-  // flying hats
-  for(const h of hats){ const [X,Y]=toScreen(h.x,h.y); cx.save(); cx.translate(X,Y); cx.rotate(h.r); hat(0,0,h.col,sc); cx.restore(); }
-  // balls with a short trail
-  for(const b of balls){ cx.strokeStyle='rgba(255,255,255,.6)'; cx.lineWidth=.12*sc; cx.lineCap='round'; cx.beginPath(); b.trail.forEach((p,i)=>{ const [X,Y]=toScreen(p[0],p[1]); i?cx.lineTo(X,Y):cx.moveTo(X,Y); }); cx.stroke();
-    const [X,Y]=toScreen(b.x,b.y); cx.fillStyle='#fff'; cx.beginPath(); cx.arc(X,Y,.13*sc,0,7); cx.fill(); cx.strokeStyle='#9FB5CB'; cx.lineWidth=1.2; cx.stroke(); }
-  for(const p of parts){ const [X,Y]=toScreen(p.x,p.y); cx.globalAlpha=Math.min(1,p.life*2); cx.fillStyle=p.col; cx.beginPath(); cx.arc(X,Y,p.r*sc,0,7); cx.fill(); } cx.globalAlpha=1;
-  // the aim: an arrow and the first part of the path
-  if(aim&&main){ const v=aimVel(aim); const s=aim.side; const [hx,hy]=toScreen(...hand(s));
-    cx.strokeStyle='rgba(19,35,58,.5)'; cx.lineWidth=3; cx.setLineDash([6,6]); cx.beginPath(); cx.moveTo(aim.x0,aim.y0); cx.lineTo(aim.x,aim.y); cx.stroke(); cx.setLineDash([]);
-    if(v){ let x=hand(s)[0], y=hand(s)[1], vx=v[0], vy=v[1]; cx.fillStyle='rgba(19,35,58,.75)'; for(let k=0;k<14;k++){ for(let q=0;q<3;q++){ const dt=.012; vx+=wind*.35*dt; vy-=G*dt; x+=vx*dt; y+=vy*dt; } const [X,Y]=toScreen(x,y); cx.beginPath(); cx.arc(X,Y,Math.max(2,4-k*.2),0,7); cx.fill(); }
-      const p=Math.min(1,Math.hypot(aim.x0-aim.x,aim.y0-aim.y)/Math.min(190,W*.42)); cx.fillStyle='rgba(19,35,58,.7)'; cx.fillRect(hx-30,hy-sc*1.9,60,8); cx.fillStyle=p>.85?'#D1342B':'#F4B942'; cx.fillRect(hx-30,hy-sc*1.9,60*p,8); } }
+  cx.save(); if(shake) cx.translate(rnd(-1,1)*shake, rnd(-1,1)*shake);
+  const sky=cx.createLinearGradient(0,0,0,Y0+80); sky.addColorStop(0,'#4F8FCF'); sky.addColorStop(1,'#D6E6F4'); cx.fillStyle=sky; cx.fillRect(-20,-20,W+40,H+40);
+  // the real view from the village, far away on the horizon
+  const hz=P(0,0,400)[1];
+  if(pano.complete&&pano.naturalWidth){ const ph=Math.min(H*.5,W*.95), pw=ph*pano.naturalWidth/pano.naturalHeight, px=W/2-pw/2-camX*20; cx.drawImage(pano,px,hz-ph*.9,pw,ph); if(px>0) cx.drawImage(pano,px-pw,hz-ph*.9,pw,ph); if(px+pw<W) cx.drawImage(pano,px+pw,hz-ph*.9,pw,ph); }
+  // the snowfield between the walls
+  const g=cx.createLinearGradient(0,hz,0,H); g.addColorStop(0,'#E9F1F8'); g.addColorStop(1,'#FFFFFF'); cx.fillStyle=g; cx.fillRect(-20,hz-1,W+40,H);
+  for(let z=3;z<ZF;z+=2.5){ const [,Y]=P(0,0,z); cx.strokeStyle='rgba(159,181,203,.25)'; cx.lineWidth=1; cx.beginPath(); cx.moveTo(0,Y); cx.lineTo(W,Y); cx.stroke(); } // drifts, for depth
+  // ball shadows on the snow, so you can read how far a ball is
+  for(const b of balls){ const [X,Y,s]=P(b.x,0,b.z); if(b.z<1) continue; cx.fillStyle='rgba(19,35,58,.18)'; cx.beginPath(); cx.ellipse(X,Y,.14*s,.05*s,0,0,7); cx.fill(); }
+  const far=[], near=[];
+  // the friends, then their wall in front of them
+  cx.save(); cx.beginPath(); cx.rect(-20,-20,W+40,P(0,0,ZF)[1]+20); cx.clip(); foes.forEach(o=>foe(o)); cx.restore(); // nothing shows below the snow
+  farWallDraw();
+  for(const h of hats){ const [X,Y,s]=P(h.x,h.y,h.z); cx.save(); cx.translate(X,Y); cx.rotate(h.r); hat(0,0,h.col,s); cx.restore(); }
+  // balls and snow bits, sorted far to near
+  const items=[...balls.map(b=>({z:b.z,b})),...parts.map(p=>({z:p.z,p}))].sort((a,b)=>b.z-a.z);
+  for(const it of items){ if(it.z<.32) continue; if(it.b){ const b=it.b; cx.strokeStyle='rgba(255,255,255,.55)'; cx.lineCap='round'; for(let i=1;i<b.trail.length;i++){ const [X1,Y1,s1]=P(...b.trail[i-1]), [X2,Y2]=P(...b.trail[i]); cx.lineWidth=.12*s1; cx.beginPath(); cx.moveTo(X1,Y1); cx.lineTo(X2,Y2); cx.stroke(); }
+      const [X,Y,s]=P(b.x,b.y,b.z); if(b.z>ZW||b.mine){ ball(X,Y,.11*s); } }
+    else { const p=it.p, [X,Y,s]=P(p.x,p.y,p.z); cx.globalAlpha=Math.min(1,p.life*2); cx.fillStyle='#fff'; cx.beginPath(); cx.arc(X,Y,Math.max(1,p.r*s),0,7); cx.fill(); cx.globalAlpha=1; } }
+  // your wall, close in front of you
+  myWall();
+  // incoming balls that cleared your wall fly past your face
+  for(const b of balls){ if(!b.mine && b.z<=ZW && b.z>.3){ const [X,Y,s]=P(b.x,b.y,b.z); ball(X,Y,.11*s); } }
+  // your hand with the next ball, while you are up
+  if(camH>1.25){ const k=Math.min(1,(camH-1.25)/.45), hx=W-56, hy=H-(130*k)+(reload>0?60:0); cx.fillStyle=FR[me].c; cx.beginPath(); cx.moveTo(hx-22,hy+14); cx.lineTo(hx+16,hy+18); cx.lineTo(W+30,H+40); cx.lineTo(W-90,H+40); cx.closePath(); cx.fill(); cx.fillStyle='#13233A'; cx.beginPath(); cx.arc(hx-2,hy+10,20,0,7); cx.fill(); if(reload<=0) ball(hx-2,hy-6,20); }
+  // the aim: a ring where the ball lands without wind, and the arc on the way
+  if(aim && state==='play'){ const [tx,ty]=ringTarget(aim), up=camH>1.5&&reload<=0, [X,Y,s]=P(tx,ty,ZO);
+    cx.globalAlpha=up?1:.35; cx.strokeStyle='#D1342B'; cx.lineWidth=3; cx.beginPath(); cx.arc(X,Y,.3*s,0,7); cx.stroke(); cx.beginPath(); cx.moveTo(X-.42*s,Y); cx.lineTo(X+.42*s,Y); cx.moveTo(X,Y-.42*s); cx.lineTo(X,Y+.42*s); cx.stroke();
+    // where the wind will push it
+    if(Math.abs(wind)>.2){ const dx=.5*wind*.5*FLIGHT*FLIGHT; const [X2]=P(tx+dx,ty,ZO); cx.setLineDash([4,4]); cx.strokeStyle='rgba(19,35,58,.5)'; cx.beginPath(); cx.arc(X2,Y,.3*s,0,7); cx.stroke(); cx.setLineDash([]); }
+    const x0=.32,y0=camH-.3,z0=HAND_Z; cx.fillStyle='rgba(19,35,58,.5)'; for(let k=1;k<12;k++){ const tt=k/12*FLIGHT; const x=x0+(tx-x0)*tt/FLIGHT, z=z0+(ZO-z0)*tt/FLIGHT, y=y0+((ty-y0+.5*G*FLIGHT*FLIGHT)/FLIGHT)*tt-.5*G*tt*tt; const [Xa,Ya,sa]=P(x,y,z); if(z<ZW+.2) continue; cx.beginPath(); cx.arc(Xa,Ya,Math.max(1.5,.03*sa),0,7); cx.fill(); }
+    cx.globalAlpha=1; }
   cx.restore();
+  // snow on your face: white blobs that slide down and fade
+  for(const s of splats){ const a=Math.min(1,s.life/.6), slide=(s.max-s.life), yy=s.y+slide*22; cx.globalAlpha=a*.92; cx.fillStyle='#fff';
+    cx.beginPath(); cx.arc(s.x,yy,s.r*.62,0,7); cx.fill();
+    for(let i=0;i<7;i++){ const ang=s.seed+i*.9, d=s.r*(.45+.25*Math.sin(s.seed*3+i)); cx.beginPath(); cx.arc(s.x+Math.cos(ang)*d, yy+Math.sin(ang)*d, s.r*(.22+.12*Math.cos(i+s.seed)),0,7); cx.fill(); }
+    cx.beginPath(); cx.roundRect?cx.roundRect(s.x-s.r*.12,yy,s.r*.24,slide*36+s.r*.4,s.r*.12):cx.rect(s.x-s.r*.12,yy,s.r*.24,slide*36+s.r*.4); cx.fill();
+    cx.fillStyle='rgba(201,216,231,.7)'; cx.beginPath(); cx.arc(s.x+s.r*.15,yy+s.r*.18,s.r*.3,0,7); cx.fill(); } cx.globalAlpha=1;
   // wind streaks
-  if(main && Math.abs(wind)>2.5 && !reduce){ cx.strokeStyle='rgba(255,255,255,.6)'; cx.lineWidth=2; for(let i=0;i<10;i++){ const y=(i*71)%(oy-40)+30, x=((i*173 + t*wind*90)%(W+120)+W+120)%(W+120)-60; cx.beginPath(); cx.moveTo(x,y); cx.lineTo(x+Math.sign(wind)*40,y); cx.stroke(); } }
+  if(Math.abs(wind)>2.5 && !reduce && state==='play'){ cx.strokeStyle='rgba(255,255,255,.65)'; cx.lineWidth=2; for(let i=0;i<9;i++){ const y=(i*67)%(Y0+40)+20, x=((i*173 + t*wind*70)%(W+120)+W+120)%(W+120)-60; cx.beginPath(); cx.moveTo(x,y); cx.lineTo(x+Math.sign(wind)*36,y); cx.stroke(); } }
 }
-function hat(X,Y,col,s){ cx.fillStyle=col; cx.beginPath(); cx.ellipse(X,Y,.26*s,.2*s,0,Math.PI,0); cx.fill(); cx.fillStyle='#fff'; cx.fillRect(X-.27*s,Y-.02*s,.54*s,.09*s); cx.beginPath(); cx.arc(X,Y-.24*s,.08*s,0,7); cx.fill(); }
-function person(s){
-  const f=FR[s.fi], up=s.up, base=hAt(s.x), body=(up>.5?1.0:.55), wob=Math.sin(t*30)*s.wobble*.12;
-  const [X,Y]=toScreen(s.x, base); const k=sc;
-  cx.save(); cx.translate(X,Y); cx.rotate(wob); if(s.dir<0) cx.scale(-1,1);
-  // legs
-  cx.fillStyle='#2A3B55'; cx.fillRect(-.18*k,-.55*k*body,.14*k,.55*k*body); cx.fillRect(.04*k,-.55*k*body,.14*k,.55*k*body);
-  // jacket
-  cx.fillStyle=s.hit>0?'#fff':f.c; cx.beginPath(); cx.roundRect?cx.roundRect(-.26*k,-1.25*k*body-.1*k,.52*k,.75*k*body+.1*k,.12*k):cx.rect(-.26*k,-1.25*k*body,.52*k,.75*k*body); cx.fill();
-  // throwing arm
-  const ay=-1.05*k*body; const arm = (s.throwT>0) ? -1.2 : (aim&&aim.side===s ? .9 : .2);
-  cx.strokeStyle=f.c; cx.lineWidth=.13*k; cx.lineCap='round'; cx.beginPath(); cx.moveTo(.05*k,ay); cx.lineTo(.05*k+Math.cos(arm)*-.45*k, ay - Math.sin(arm)*.45*k); cx.stroke();
-  // head
-  const hy=-1.25*k*body-.32*k; cx.fillStyle='#F2D2BE'; cx.beginPath(); cx.arc(0,hy,.22*k,0,7); cx.fill();
-  cx.fillStyle='#13233A'; cx.fillRect(.06*k,hy-.04*k,.05*k,.05*k);
-  if(s.hat) hat(0,hy-.12*k,f.c,k);
-  cx.restore();
-}
+function ball(X,Y,r){ cx.fillStyle='#fff'; cx.beginPath(); cx.arc(X,Y,Math.max(1.5,r),0,7); cx.fill(); cx.strokeStyle='#9FB5CB'; cx.lineWidth=Math.max(1,r*.12); cx.stroke(); }
+function farWallDraw(){ cx.beginPath(); const [Xa,Ya]=P(-6,0,ZF); cx.moveTo(Xa,Ya); for(let i=0;i<farWall.length;i++){ const x=-6+i*.25, [X,Y]=P(x,farWall[i],ZF); cx.lineTo(X,Y); } const [Xb,Yb]=P(6,0,ZF); cx.lineTo(Xb,Yb); cx.closePath(); cx.fillStyle='#F7FAFD'; cx.fill(); cx.strokeStyle='#A9BED3'; cx.lineWidth=1.5; cx.stroke();
+  // a stack of balls and a little flag that shows the wind
+  const [FX,FY,s]=P(5.2,farWallTop(5.2),ZF); cx.strokeStyle='#4B5A6F'; cx.lineWidth=2; cx.beginPath(); cx.moveTo(FX,FY); cx.lineTo(FX,FY-1.3*s); cx.stroke(); const fl=Math.max(-1,Math.min(1,wind/4)); cx.fillStyle='#D1342B'; cx.beginPath(); cx.moveTo(FX,FY-1.3*s); cx.lineTo(FX+(.2+.5*Math.abs(fl))*s*Math.sign(fl||1),FY-(1.2+.04*Math.sin(t*12))*s); cx.lineTo(FX,FY-1.05*s); cx.fill(); }
+function myWall(){ const top=(x)=>WALL+.02*Math.sin(x*3.1)+.012*Math.sin(x*7.3); cx.beginPath(); let [X,Y]=P(-4,0,ZW); cx.moveTo(-20,H+20); cx.lineTo(-20,P(-4,top(-4),ZW)[1]); for(let x=-4;x<=4;x+=.1){ [X,Y]=P(x,top(x),ZW); cx.lineTo(X,Y); } cx.lineTo(W+20,Y); cx.lineTo(W+20,H+20); cx.closePath();
+  const g=cx.createLinearGradient(0,P(0,WALL,ZW)[1],0,H); g.addColorStop(0,'#FFFFFF'); g.addColorStop(1,'#C9D8E7'); cx.fillStyle=g; cx.fill(); cx.strokeStyle='#B8CADB'; cx.lineWidth=2; cx.stroke();
+  // packed-snow texture
+  cx.fillStyle='rgba(159,181,203,.18)'; for(let i=0;i<26;i++){ const x=-3.6+(i*1.37)%7.2, y=.2+(i*.53)%(WALL-.35); const [Xq,Yq,s]=P(x,y,ZW); cx.beginPath(); cx.ellipse(Xq,Yq,.12*s,.05*s,0,0,7); cx.fill(); } }
+function hat(X,Y,col,s){ cx.fillStyle=col; cx.beginPath(); cx.ellipse(X,Y,.2*s,.16*s,0,Math.PI,0); cx.fill(); cx.fillStyle='#fff'; cx.fillRect(X-.21*s,Y-.02*s,.42*s,.07*s); cx.beginPath(); cx.arc(X,Y-.19*s,.06*s,0,7); cx.fill(); }
+function foe(o){ // a friend facing you, rising from behind the far wall
+  if(o.hp<=0 && o.up<.05) return;
+  const fr=FR[o.fi], [X,Y,s]=P(o.x,BASE(o),ZO), wob=Math.sin(t*30)*o.wob*.12;
+  cx.save(); cx.translate(X,Y); cx.rotate(wob);
+  cx.fillStyle='#2A3B55'; cx.fillRect(-.2*s,-.55*s,.15*s,.55*s); cx.fillRect(.05*s,-.55*s,.15*s,.55*s);
+  cx.fillStyle=o.hit>0?'#fff':fr.c; cx.beginPath(); cx.rect(-.28*s,-1.3*s,.56*s,.8*s); cx.fill();
+  const arm=o.throwT>0?-1.1:(o.phase==='aim'?1.2:.3); cx.strokeStyle=fr.c; cx.lineWidth=.13*s; cx.lineCap='round';
+  cx.beginPath(); cx.moveTo(-.25*s,-1.15*s); cx.lineTo(-.25*s-Math.cos(arm)*.1*s,-1.15*s-Math.sin(arm)*.45*s); cx.stroke();
+  if(o.phase==='aim'){ ball(-.27*s,-1.15*s-.5*s,.11*s); }
+  const hy=-1.62*s; cx.fillStyle='#F2D2BE'; cx.beginPath(); cx.arc(0,hy,.22*s,0,7); cx.fill();
+  cx.fillStyle='#13233A'; cx.fillRect(-.09*s,hy-.03*s,.05*s,.05*s); cx.fillRect(.05*s,hy-.03*s,.05*s,.05*s);
+  if(o.hp<=0){ cx.strokeStyle='#13233A'; cx.lineWidth=.03*s; cx.beginPath(); cx.moveTo(-.1*s,hy+.1*s); cx.lineTo(.1*s,hy+.1*s); cx.stroke(); }
+  if(o.hat) hat(0,hy-.12*s,fr.c,s);
+  cx.restore(); }
 drawMenu(); requestAnimationFrame(frame);
 </script>
