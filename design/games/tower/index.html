@@ -1,0 +1,110 @@
+<title>מגדל השלג</title>
+<meta name="description" content="נגיעה אחת: בונים מגדל שלג מגודאורי עד הפסגות">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Karantina:wght@700&family=IBM+Plex+Sans+Hebrew:wght@400;600;700&display=swap">
+<style>
+/* One look: a sky that darkens as the tower climbs. The same in both themes. */
+:root{ --ink:#13233A; --accent:#F4B942; --f-display:"Karantina","Arial Narrow",sans-serif; --f-body:"IBM Plex Sans Hebrew",system-ui,-apple-system,"Segoe UI",sans-serif; color-scheme:light; }
+html,body{height:100%}
+[hidden]{display:none!important}
+body{margin:0;background:#9CC3E6;color:var(--ink);font-family:var(--f-body);direction:rtl;overflow:hidden;-webkit-user-select:none;user-select:none;touch-action:none}
+#game{position:fixed;inset:0;width:100%;height:100%;display:block}
+.hud{position:fixed;left:0;right:0;top:calc(env(safe-area-inset-top,0px) + 14px);display:flex;flex-direction:column;align-items:center;gap:2px;pointer-events:none;color:#fff;text-shadow:0 2px 0 rgba(19,35,58,.6)}
+.hud b{font-family:var(--f-display);font-size:76px;line-height:.85;font-variant-numeric:tabular-nums}
+.hud small{font-size:14px;font-weight:700}
+.streak{position:fixed;left:50%;top:calc(env(safe-area-inset-top,0px) + 118px);transform:translateX(-50%);background:var(--accent);color:var(--ink);font-family:var(--f-display);font-size:24px;padding:2px 12px;pointer-events:none;transition:opacity .2s}
+.peak{position:fixed;left:50%;top:40%;transform:translate(-50%,-50%);background:#fff;color:var(--ink);padding:10px 16px;text-align:center;box-shadow:0 8px 24px rgba(19,35,58,.3);pointer-events:none;opacity:0;clip-path:polygon(0 0,100% 0,100% 100%,0 100%)}
+.peak.go{animation:pk 2s ease forwards}
+.peak b{display:block;font-family:var(--f-display);font-size:38px;line-height:1}
+@keyframes pk{0%{opacity:0;transform:translate(-50%,-30%)}15%{opacity:1;transform:translate(-50%,-50%)}80%{opacity:1}100%{opacity:0;transform:translate(-50%,-70%)}}
+.menu{position:fixed;inset:0;overflow:auto;padding:calc(env(safe-area-inset-top,0px) + 16px) 16px calc(env(safe-area-inset-bottom,0px) + 20px);background:linear-gradient(rgba(156,195,230,.15),rgba(13,21,34,.78) 55%);display:flex;flex-direction:column;gap:14px;justify-content:flex-end;touch-action:auto}
+.menu h1{margin:0;font-family:var(--f-display);font-size:64px;line-height:.9;color:#fff;text-shadow:0 3px 0 var(--ink)}
+.menu p{margin:0;color:#fff;font-size:14px;line-height:1.45;max-width:36em}
+.badges{display:flex;flex-wrap:wrap;gap:6px}
+.badges span{background:rgba(255,255,255,.14);color:#fff;font-size:12.5px;padding:5px 9px;border-inline-start:4px solid rgba(255,255,255,.3)}
+.badges span.on{background:#fff;color:var(--ink);border-color:var(--accent);font-weight:700}
+.go-btn{font:inherit;min-height:60px;border:0;background:var(--accent);color:var(--ink);font-family:var(--f-display);font-size:34px;cursor:pointer;box-shadow:0 5px 0 var(--ink)}
+.res{background:#fff;padding:14px;display:flex;flex-direction:column;gap:6px;transform:rotate(-2deg)}
+.res .big{font-family:var(--f-display);font-size:64px;line-height:.85;font-variant-numeric:tabular-nums}
+.res small{color:#4B5A6F;font-size:13px}
+.snd{position:fixed;bottom:calc(env(safe-area-inset-bottom,0px) + 14px);right:12px;font:inherit;min-width:44px;min-height:44px;border:0;background:rgba(19,35,58,.7);color:#fff;cursor:pointer}
+button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){.peak.go{animation-duration:.01s}}
+</style>
+<canvas id="game" aria-label="המשחק: מגדל שלג"></canvas>
+<div class="hud" id="hud" hidden><b id="alt">2,196</b><small>מ׳ מעל הים · <span id="blocks">0</span> קוביות</small></div>
+<div class="streak" id="streak" hidden></div>
+<div class="peak" id="peak"><small id="peakSmall">הגעת לגובה של</small><b id="peakBig"></b></div>
+<button class="snd" id="snd" type="button" aria-pressed="false" aria-label="צליל">🔇</button>
+<section class="menu" id="menuStart" aria-label="התחלה">
+  <h1>מגדל השלג</h1>
+  <p>מתחילים בגודאורי, 2,196 מ׳. כל קוביית שלג מוסיפה עשרה מטרים. נוגעים כדי להפיל אותה: מה שבולט מהמגדל נחתך ונופל. נחיתה מושלמת שומרת על הרוחב, ושלוש ברצף מרחיבות אותו בחזרה.</p>
+  <div class="badges" id="badges"></div>
+  <div class="res" id="res" hidden><small id="resSmall"></small><div class="big" id="resBig"></div><small id="resBest"></small></div>
+  <button class="go-btn" id="go" type="button">לבנות</button>
+</section>
+<script>
+// heights to pass on the way up: the site's peaks (OpenStreetMap), and Kazbek
+const PEAKS=[{n:'Chrdili',h:2504},{n:'מעבר קובי',h:2900},{n:'Kudebi',h:3006},{n:'Bidara',h:3174},{n:'Sadzele',h:3307},{n:'הר קזבק',h:5054}];
+const FR=['#D1342B','#1F5FC4','#F4B942','#1B8A4C','#7B4FC4','#F07A2E'];
+const BASE=2196, STEP=10, BH=26;
+const store={get(k,d){try{const v=localStorage.getItem('tw-'+k);return v==null?d:JSON.parse(v);}catch(e){return d;}},set(k,v){try{localStorage.setItem('tw-'+k,JSON.stringify(v));}catch(e){}}};
+const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches; const $=id=>document.getElementById(id);
+const cv=$('game'), cx=cv.getContext('2d'); let W=0,H=0;
+function resize(){ const d=Math.min(2,devicePixelRatio||1); W=innerWidth; H=innerHeight; cv.width=W*d; cv.height=H*d; cx.setTransform(d,0,0,d,0,0); } addEventListener('resize',resize); resize();
+let AC=null, soundOn=false; $('snd').onclick=e=>{ e.stopPropagation(); soundOn=!soundOn; $('snd').textContent=soundOn?'🔊':'🔇'; if(soundOn&&!AC){ try{ AC=new (window.AudioContext||window.webkitAudioContext)(); }catch(_){ AC=null; } } };
+function note(i,v=.2){ if(!soundOn||!AC) return; const f=[392,440,494,523,587,659,698,784,880,988,1047][Math.min(10,i)]; const o=AC.createOscillator(), g=AC.createGain(); o.type='triangle'; o.frequency.value=f; g.gain.setValueAtTime(v,AC.currentTime); g.gain.exponentialRampToValueAtTime(.001,AC.currentTime+.35); o.connect(g); g.connect(AC.destination); o.start(); o.stop(AC.currentTime+.4); }
+function thud(){ if(!soundOn||!AC) return; const n=AC.sampleRate*.12, b=AC.createBuffer(1,n,AC.sampleRate), a=b.getChannelData(0); for(let i=0;i<n;i++) a[i]=(Math.random()*2-1)*(1-i/n); const s=AC.createBufferSource(); s.buffer=b; const f=AC.createBiquadFilter(); f.type='lowpass'; f.frequency.value=600; const g=AC.createGain(); g.gain.value=.4; s.connect(f); f.connect(g); g.connect(AC.destination); s.start(); }
+let state='menu', tower=[], mov=null, chunks=[], parts=[], cam=0, streak=0, perfects=0, best=store.get('best',0), passed=[], t=0, shake=0;
+function badges(){ const got=store.get('peaks',[]); $('badges').innerHTML=PEAKS.map(p=>`<span class="${got.includes(p.n)?'on':''}">${got.includes(p.n)?'★':'☆'} ${p.n} · ${p.h.toLocaleString('en-US')}</span>`).join('')+`<span class="${best?'on':''}">השיא: ${(BASE+best*STEP).toLocaleString('en-US')} מ׳</span>`; }
+function start(){ const w0=Math.min(W*.62,260); tower=[{x:(W-w0)/2, w:w0, c:0}]; streak=0; perfects=0; passed=[]; chunks=[]; parts=[]; cam=0; t=0; spawn(); $('menuStart').hidden=true; $('hud').hidden=false; state='play'; hud(); }
+function spawn(){ const top=tower[tower.length-1], n=tower.length; const speed=(150+Math.min(260,n*6))*(W/390)**.3; mov={x:n%2? -top.w : W, w:top.w, dir:n%2?1:-1, v:speed, c:n%FR.length}; }
+function hud(){ const n=tower.length-1; $('alt').textContent=(BASE+n*STEP).toLocaleString('en-US'); $('blocks').textContent=n; const s=$('streak'); s.hidden=streak<2; s.textContent='רצף מושלם ×'+streak; }
+function drop(){ if(state!=='play'||!mov) return; const top=tower[tower.length-1]; let x=mov.x, w=mov.w; const d=x-top.x;
+  if(Math.abs(d)<=Math.max(5,top.w*.04)){ x=top.x; streak++; perfects++; note(streak-1,.22); if(streak>=3 && w<Math.min(W*.62,260)){ w=Math.min(Math.min(W*.62,260), w+top.w*.06); x=top.x-(w-top.w)/2; } ring(x,w); }
+  else { const l=Math.max(x,top.x), r=Math.min(x+w,top.x+top.w);
+    if(r<=l){ chunks.push({x,w,y:yOf(tower.length),vy:0,vx:mov.dir*60,rot:0,c:mov.c}); mov=null; over(); return; }
+    // slice off the part that hangs over the edge
+    if(x<l) chunks.push({x,w:l-x,y:yOf(tower.length),vy:0,vx:-80,rot:0,c:mov.c}); if(x+w>r) chunks.push({x:r,w:x+w-r,y:yOf(tower.length),vy:0,vx:80,rot:0,c:mov.c});
+    x=l; w=r-l; streak=0; thud(); }
+  tower.push({x,w,c:mov.c}); for(let k=0;k<10;k++) parts.push({x:x+Math.random()*w,y:yOf(tower.length-1),vx:(Math.random()-.5)*120,vy:-60-Math.random()*90,life:.6});
+  try{ navigator.vibrate&&navigator.vibrate(streak>0?18:8); }catch(_){}
+  const h=BASE+(tower.length-1)*STEP; for(const p of PEAKS) if(h>=p.h && !passed.includes(p.n)){ passed.push(p.n); $('peakBig').textContent=p.n+' · '+p.h.toLocaleString('en-US')+' מ׳'; const e=$('peak'); e.classList.remove('go'); void e.offsetWidth; e.classList.add('go'); note(10,.25); }
+  hud(); spawn(); }
+let rings=[]; function ring(x,w){ rings.push({x,w,y:yOf(tower.length),life:.5}); }
+function over(){ state='over'; shake=reduce?0:10; setTimeout(()=>{ const n=tower.length-1; if(n>best){ best=n; store.set('best',n); } const got=store.get('peaks',[]); for(const p of passed) if(!got.includes(p)) got.push(p); store.set('peaks',got);
+  $('res').hidden=false; $('resSmall').textContent=n+' קוביות · '+perfects+' מושלמות'; $('resBig').textContent=(BASE+n*STEP).toLocaleString('en-US')+' מ׳'; $('resBest').textContent= n>=best&&n>0?'שיא חדש!':'השיא: '+(BASE+best*STEP).toLocaleString('en-US')+' מ׳';
+  badges(); $('go').textContent='עוד מגדל'; $('hud').hidden=true; $('streak').hidden=true; $('menuStart').hidden=false; state='menu'; }, 1100); }
+const yOf=i=>H*.78 - i*BH; // world y of block i (before the camera)
+cv.addEventListener('pointerdown',e=>{ e.preventDefault(); drop(); }); addEventListener('keydown',e=>{ if(e.code==='Space'||e.code==='Enter'){ e.preventDefault(); if(state==='play') drop(); } });
+$('go').onclick=()=>start();
+let last=performance.now();
+function frame(now){ const dt=Math.min(.05,(now-last)/1000); last=now; t+=dt;
+  if(state==='play'&&mov){ mov.x+=mov.dir*mov.v*dt; if(mov.x>W-mov.w*.15&&mov.dir>0) mov.dir=-1; if(mov.x<-mov.w*.85&&mov.dir<0) mov.dir=1; }
+  for(const c of chunks){ c.vy+=900*dt; c.y+=c.vy*dt; c.x+=c.vx*dt; c.rot+=c.vx*.004*dt*10; } chunks=chunks.filter(c=>c.y<H*3+tower.length*BH);
+  for(const p of parts){ p.vy+=500*dt; p.x+=p.vx*dt; p.y+=p.vy*dt; p.life-=dt; } parts=parts.filter(p=>p.life>0);
+  for(const r of rings) r.life-=dt; rings=rings.filter(r=>r.life>0);
+  const want=Math.max(0,(tower.length-9)*BH); cam+=(want-cam)*Math.min(1,dt*5); shake=Math.max(0,shake-dt*30);
+  draw(); requestAnimationFrame(frame); }
+function draw(){
+  const n=tower.length, hgt=BASE+Math.max(0,n-1)*STEP, k=Math.min(1,(hgt-BASE)/2900); // the sky darkens toward Kazbek's height
+  const g=cx.createLinearGradient(0,0,0,H); g.addColorStop(0,`rgb(${Math.round(80-60*k)},${Math.round(150-110*k)},${Math.round(220-120*k)})`); g.addColorStop(1,`rgb(${Math.round(210-120*k)},${Math.round(230-120*k)},${Math.round(245-100*k)})`); cx.fillStyle=g; cx.fillRect(0,0,W,H);
+  if(k>.3){ for(let i=0;i<60;i++){ const a=(k-.3)*1.4*((i*37)%10)/10; cx.fillStyle=`rgba(255,255,255,${a})`; cx.fillRect((i*97)%W,(i*53)%(H*.6),1.6,1.6); } }
+  cx.save(); if(shake) cx.translate((Math.random()-.5)*shake,0); cx.translate(0,cam);
+  // the village and the slopes at the bottom
+  cx.fillStyle='#fff'; cx.beginPath(); cx.moveTo(0,H*.78+BH); cx.quadraticCurveTo(W*.3,H*.7,W*.5,H*.78+BH); cx.quadraticCurveTo(W*.8,H*.72,W,H*.76); cx.lineTo(W,H*3); cx.lineTo(0,H*3); cx.closePath(); cx.fill();
+  for(let i=0;i<6;i++){ const x=W*(.06+i*.17), y=H*.8+BH+8; cx.fillStyle='#7A3E2E'; cx.fillRect(x,y,26,16); cx.fillStyle='#fff'; cx.beginPath(); cx.moveTo(x-3,y); cx.lineTo(x+13,y-11); cx.lineTo(x+29,y); cx.fill(); cx.fillStyle='#F4B942'; cx.fillRect(x+9,y+5,6,6); }
+  // height marks of the peaks, on the side
+  for(const p of PEAKS){ const i=(p.h-BASE)/STEP, y=yOf(i)+BH; if(y+cam<-20||y+cam>H+20) continue; cx.strokeStyle='rgba(255,255,255,.5)'; cx.setLineDash([6,6]); cx.beginPath(); cx.moveTo(0,y); cx.lineTo(W,y); cx.stroke(); cx.setLineDash([]); cx.fillStyle='#fff'; cx.font='700 13px "IBM Plex Sans Hebrew",sans-serif'; cx.textAlign='left'; cx.fillText(p.n+' · '+p.h.toLocaleString('en-US')+' מ׳',10,y-6); }
+  const block=(x,y,w,c,a=1)=>{ cx.globalAlpha=a; cx.fillStyle='#FFFFFF'; cx.fillRect(x,y,w,BH-2); cx.fillStyle='#D5E2EF'; cx.fillRect(x,y+BH-8,w,6); cx.fillStyle=FR[c]; cx.fillRect(x,y+BH-6,w,3); cx.fillStyle='rgba(255,255,255,.9)'; cx.fillRect(x,y,w,4); cx.globalAlpha=1; };
+  tower.forEach((b,i)=>block(b.x,yOf(i),b.w,b.c));
+  for(const c of chunks){ cx.save(); cx.translate(c.x+c.w/2,c.y+BH/2); cx.rotate(c.rot); block(-c.w/2,-BH/2,c.w,c.c); cx.restore(); }
+  for(const r of rings){ cx.strokeStyle=`rgba(244,185,66,${r.life*2})`; cx.lineWidth=3; const g2=(.5-r.life)*40; cx.strokeRect(r.x-g2,r.y-g2/3,r.w+g2*2,BH+g2*2/3); }
+  for(const p of parts){ cx.fillStyle=`rgba(255,255,255,${p.life*1.6})`; cx.beginPath(); cx.arc(p.x,p.y,3,0,7); cx.fill(); }
+  if(mov&&state==='play'){ block(mov.x,yOf(n),mov.w,mov.c); cx.fillStyle='rgba(19,35,58,.15)'; const top=tower[n-1]; cx.fillRect(top.x,yOf(n)+BH-2,top.w,2); }
+  // a snowman on top: the hat and the face come when the tower is tall
+  const tb=tower[n-1]; if(tb&&n>1){ const x=tb.x+tb.w/2, y=yOf(n-1); cx.fillStyle='#fff'; cx.beginPath(); cx.arc(x,y-14,14,0,7); cx.fill(); cx.fillStyle='#13233A'; cx.beginPath(); cx.arc(x-5,y-17,2,0,7); cx.arc(x+5,y-17,2,0,7); cx.fill(); cx.fillStyle='#F08A3C'; cx.beginPath(); cx.moveTo(x,y-13); cx.lineTo(x+12,y-11); cx.lineTo(x,y-10); cx.fill();
+    if(n>=10){ cx.fillStyle='#13233A'; cx.fillRect(x-11,y-30,22,4); cx.fillRect(x-7,y-42,14,12); } if(n>=20){ cx.fillStyle=FR[(n>>2)%6]; cx.fillRect(x-13,y-4,26,5); } }
+  cx.restore(); }
+badges(); requestAnimationFrame(frame);
+</script>
