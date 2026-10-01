@@ -578,7 +578,7 @@ ul.notes li{margin-bottom:4px}
 .nav-about{display:inline-flex;align-items:center}
 
 /* fly down the run: where we are, and stop */
-.fly-hud{position:absolute;left:50%;top:12px;transform:translateX(-50%);z-index:6;display:flex;align-items:center;gap:12px;max-width:calc(100% - 24px);padding:6px 6px 6px 14px;background:var(--board);color:var(--on-board);box-shadow:0 2px 10px rgba(0,0,0,.25)}
+.fly-hud{position:absolute;left:50%;top:12px;transform:translateX(-50%);z-index:6;display:flex;align-items:center;gap:12px;max-width:calc(100% - 24px);padding:6px 6px 6px 14px;background:var(--ink);color:var(--paper);box-shadow:0 2px 10px rgba(0,0,0,.25)}
 .fly-hud[hidden]{display:none}
 .mapwrap.flying .hint3d,.mapwrap.flying .inset,.mapwrap.flying .mstat{visibility:hidden}
 .fh-txt{display:flex;flex-direction:column;min-width:0;line-height:1.25}
