@@ -99,7 +99,7 @@ class MainActivity : ComponentActivity() {
         // the spike opens on the map; the skeleton will open on the home page (nav/Nav.kt)
         nav = Nav(Route.Map(), savedInstanceState?.getStringArrayList("nav"))
         Qa.init(this)
-        Telemetry.start(this, BuildConfig.FLAVOR)
+        startTelemetry()
         enableEdgeToEdge()
         preferTopRefreshRate()
         haptics = Haptics(this)
@@ -107,7 +107,7 @@ class MainActivity : ComponentActivity() {
         mapView = MapView(this, refreshHz, glStats)
         mapView.onChosen = { p ->
             if (nav.top is Route.Map) nav.replaceTop(Route.Map(p?.key))
-            if (p != null) Telemetry.event("run_open", mapOf("run" to p.key))
+            if (p != null) Telemetry.event("run_open", mapOf("run" to p.key, "color" to p.color, "via" to "map"))
         }
         @Suppress("DEPRECATION")
         val version = if (Build.VERSION.SDK_INT >= 28) packageManager.getPackageInfo(packageName, 0).longVersionCode else packageManager.getPackageInfo(packageName, 0).versionCode.toLong()
@@ -129,6 +129,22 @@ class MainActivity : ComponentActivity() {
         handleQa(intent)
         loadInBackground()
         setContent { App() }
+    }
+
+    /** Usage and crashes (telemetry/Telemetry.kt), with the properties every event carries, then app_open. */
+    private fun startTelemetry() {
+        val lang = Lang.current(resources)
+        val manual = if (Build.VERSION.SDK_INT >= 33) !getSystemService(android.app.LocaleManager::class.java).applicationLocales.isEmpty else Lang.chosen(this) != null
+        Telemetry.start(this, BuildConfig.FLAVOR, Telemetry.Common(
+            appVersion = BuildConfig.VERSION_NAME,
+            build = if (BuildConfig.DEBUG) "debug" else if (BuildConfig.FLAVOR == "preview") "test" else "store",
+            lang = lang.tag,
+            langSource = if (manual) "manual" else "auto",
+            theme = "auto", // no day-and-night choice in the app yet
+            deviceClass = if (resources.configuration.smallestScreenWidthDp >= 600) "tablet" else "phone",
+        ))
+        val link = intent?.data != null
+        Telemetry.event("app_open", mapOf("source" to if (link) "link" else "direct", "cold" to true))
     }
 
     override fun attachBaseContext(base: android.content.Context) = super.attachBaseContext(Lang.wrap(base))
@@ -247,9 +263,12 @@ class MainActivity : ComponentActivity() {
     @Composable
     private fun App() {
         BackHandler(enabled = nav.canBack) { nav.back() }
-        // page_view with the site's page names (map, games/descent, ticket); a chosen run is run_open, not a page
-        val page = nav.top.let { if (it is Route.Map) "map" else it.path }
-        LaunchedEffect(page) { Telemetry.event("page_view", mapOf("page" to page)) }
+        // screen_view with the contract's screen names (docs/GROWTH.md); a chosen run is run_open, not a screen.
+        // The spike's ticket tab has no screen of its own in the contract (the pass lives on the home screen).
+        val screen = when (val r = nav.top) { is Route.Map -> "map"; is Route.Game -> "game:" + r.name; else -> null }
+        LaunchedEffect(screen) {
+            if (screen != null) Telemetry.event("screen_view", if (screen.startsWith("game:")) mapOf("screen" to "game", "game" to screen.removePrefix("game:")) else mapOf("screen" to screen))
+        }
         // the direction of the language on screen (i18n/Lang.kt): Hebrew today, so right to left
         CompositionLocalProvider(LocalLayoutDirection provides Lang.current(resources).direction) {
             Column(Modifier.fillMaxSize().background(Palette.snow)) {
@@ -262,7 +281,7 @@ class MainActivity : ComponentActivity() {
                     if (showStats) StatsBar(tab == 0, Modifier.align(Alignment.TopStart))
                 }
                 Row(Modifier.fillMaxWidth().background(Palette.ink).navigationBarsPadding()) {
-                    listOf(R.string.tab_map, R.string.tab_descent, R.string.tab_ticket).map { stringResource(it) }.forEachIndexed { i, label ->
+                    listOf(R.string.app_tab_map, R.string.app_tab_descent, R.string.app_tab_ticket).map { stringResource(it) }.forEachIndexed { i, label ->
                         Box(
                             Modifier.weight(1f).heightIn(min = 56.dp).background(if (i == tab) Palette.glacier else Palette.ink).clickable { if (i == 0) nav.toStart() else nav.switchTo(if (i == 1) Route.Game("descent") else Route.Ticket); haptics.tick(0.4f) },
                             contentAlignment = Alignment.Center,

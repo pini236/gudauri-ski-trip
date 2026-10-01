@@ -62,6 +62,9 @@ object Lang {
         }
     }
 
+    /** The user's own choice on older phones (null = follow the phone). */
+    fun chosen(context: Context): String? = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getString("tag", null)
+
     /** Older phones: the saved choice, applied to the activity's resources (MainActivity.attachBaseContext). */
     fun wrap(base: Context): Context {
         if (Build.VERSION.SDK_INT >= 33) return base

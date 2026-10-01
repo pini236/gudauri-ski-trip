@@ -74,6 +74,10 @@ android {
     buildFeatures { compose = true; resValues = true; buildConfig = true }
     testOptions { unitTests.all { it.systemProperty("site.data", File(repoRoot, "site/data").absolutePath) } }
     sourceSets["main"].assets.directories.add(layout.buildDirectory.dir("generated/siteAssets").get().asFile.path)
+    // the words, from i18n/strings.json (tools/build-app-strings.py): every language in test builds, only the
+    // released ones in store builds
+    sourceSets["debug"].res.directories.add(layout.buildDirectory.dir("generated/i18n/debug").get().asFile.path)
+    sourceSets["release"].res.directories.add(layout.buildDirectory.dir("generated/i18n/release").get().asFile.path)
 }
 
 kotlin { jvmToolchain(21) }
@@ -89,6 +93,28 @@ val copySiteData by tasks.registering(Exec::class) {
     commandLine("python3", File(repoRoot, "tools/build-app-data.py").path, out.path)
 }
 tasks.named("preBuild") { dependsOn(copySiteData) }
+
+/**
+ * The languages of each build. Debug builds (the emulator run, development) carry all four, including the ones
+ * still waiting for a native speaker. Release builds (the GitHub test build and the store build) carry only the
+ * released ones: Hebrew today. English joins when the left-to-right signs and screens pass the canvas
+ * (decision 32); Russian and Georgian also need the speakers' review (i18n/REVIEW.md), and the generator refuses
+ * them in a release build until then.
+ */
+val releaseLanguages = "he"
+val debugLanguages = "he,en,ru,ka"
+fun stringsTask(name: String, langs: String, unreviewed: Boolean) = tasks.registering(Exec::class) {
+    val out = layout.buildDirectory.dir("generated/i18n/$name").get().asFile
+    inputs.file(File(repoRoot, "i18n/strings.json"))
+    inputs.file(File(repoRoot, "tools/build-app-strings.py"))
+    inputs.property("langs", langs)
+    outputs.dir(out)
+    doFirst { out.deleteRecursively() }
+    commandLine(listOf("python3", File(repoRoot, "tools/build-app-strings.py").path, out.path, langs) + if (unreviewed) listOf("--unreviewed") else emptyList())
+}
+val debugStrings by stringsTask("debug", debugLanguages, unreviewed = true)
+val releaseStrings by stringsTask("release", releaseLanguages, unreviewed = false)
+tasks.named("preBuild") { dependsOn(debugStrings, releaseStrings) }
 
 dependencies {
     implementation(platform("androidx.compose:compose-bom:2026.09.00"))

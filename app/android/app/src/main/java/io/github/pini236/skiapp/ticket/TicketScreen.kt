@@ -1,6 +1,7 @@
 package io.github.pini236.skiapp.ticket
 
 import androidx.compose.animation.core.Animatable
+import io.github.pini236.skiapp.telemetry.Telemetry
 import io.github.pini236.skiapp.R
 import androidx.compose.ui.res.stringResource
 import androidx.compose.animation.core.Spring
@@ -59,8 +60,8 @@ private const val HOLES = 11
 @Composable
 fun TicketScreen(haptics: Haptics, sounds: Sounds) {
     val tm = rememberTextMeasurer()
-    val words = TicketWords(stringResource(R.string.ticket_title), stringResource(R.string.ticket_flight), stringResource(R.string.ticket_gate),
-        stringResource(R.string.ticket_stub), stringResource(R.string.ticket_sign))
+    val words = TicketWords(stringResource(R.string.app_ticket_title), stringResource(R.string.app_ticket_flight, "GD 101", "15.12", "16:00"), stringResource(R.string.app_ticket_gate),
+        stringResource(R.string.app_ticket_stub), stringResource(R.string.nav_map))
     var tear by remember { mutableFloatStateOf(0f) } // 0..1 down the perforation
     var torn by remember { mutableIntStateOf(0) }
     var falling by remember { mutableStateOf(false) }
@@ -85,14 +86,14 @@ fun TicketScreen(haptics: Haptics, sounds: Sounds) {
     }
 
     Column(Modifier.fillMaxSize().padding(16.dp), verticalArrangement = Arrangement.spacedBy(18.dp)) {
-        Text(stringResource(R.string.ticket_hint), fontFamily = Plex, fontSize = 14.sp, color = Palette.muted)
+        Text(stringResource(R.string.app_ticket_hint), fontFamily = Plex, fontSize = 14.sp, color = Palette.muted)
         Canvas(
             Modifier.fillMaxWidth().height(230.dp)
                 .pointerInput(Unit) {
                     detectDragGestures(
                         onDragEnd = {
                             if (falling) return@detectDragGestures
-                            if (tear > 0.55f) { tear = 1f; torn = HOLES; falling = true; haptics.click(1f) }
+                            if (tear > 0.55f) { tear = 1f; torn = HOLES; falling = true; haptics.click(1f); Telemetry.event("ticket_tear", mapOf("leg" to "out")) }
                             else scope.launch { // not far enough: the paper springs back
                                 val a = Animatable(tear); a.animateTo(0f, spring(dampingRatio = 0.5f)) { tear = value; frame++ }; torn = 0
                             }
@@ -109,7 +110,7 @@ fun TicketScreen(haptics: Haptics, sounds: Sounds) {
                             if (before == 0) sounds.play("ticket-tear", 0.9f)
                             repeat(torn - before) { haptics.tick(0.35f + Random.nextFloat() * 0.3f) } // one bite per hole
                         }
-                        if (tear >= 1f) { torn = HOLES; falling = true; haptics.click(1f) }
+                        if (tear >= 1f) { torn = HOLES; falling = true; haptics.click(1f); Telemetry.event("ticket_tear", mapOf("leg" to "out")) }
                         frame++
                     }
                 },
@@ -122,7 +123,7 @@ fun TicketScreen(haptics: Haptics, sounds: Sounds) {
                 detectTapGestures { haptics.tick(0.6f); scope.launch { wobble.snapTo(6f); wobble.animateTo(0f, spring(dampingRatio = 0.25f, stiffness = Spring.StiffnessLow)) } }
             },
         ) { drawSnowSign(tm, words, wobble.value) }
-        Text(stringResource(R.string.ticket_credits),
+        Text(stringResource(R.string.app_ticket_credits),
             fontFamily = Plex, fontSize = 11.sp, color = Palette.muted)
     }
 }

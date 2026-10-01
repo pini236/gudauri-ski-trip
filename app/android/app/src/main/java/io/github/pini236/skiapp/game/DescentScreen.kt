@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -53,7 +54,7 @@ private class Flake(var x: Float, var y: Float, var vx: Float, var vy: Float, va
 
 @Composable
 fun DescentScreen(profile: Profile?, haptics: Haptics, sounds: Sounds) {
-    if (profile == null) { Box(Modifier.fillMaxSize()) { Text(stringResource(R.string.loading), Modifier.align(Alignment.Center), fontFamily = Plex) }; return }
+    if (profile == null) { Box(Modifier.fillMaxSize()) { Text(stringResource(R.string.app_loading), Modifier.align(Alignment.Center), fontFamily = Plex) }; return }
     var round by remember { mutableIntStateOf(0) }
     val game = remember(round) { Descent(profile.h, profile.step, profile.len) }
     val flakes = remember(round) { ArrayList<Flake>() }
@@ -64,12 +65,13 @@ fun DescentScreen(profile: Profile?, haptics: Haptics, sounds: Sounds) {
     val res = LocalContext.current.resources
     val nf = remember { NumberFormat.getIntegerInstance(Lang.current(res).locale) }
 
-    LaunchedEffect(round) { Telemetry.event("game_start", mapOf("game" to "descent", "run" to profile.key)) }
+    // game_start and game_end (docs/GROWTH.md): the level is the run; the spike keeps no records, so best is false
+    LaunchedEffect(round) { Telemetry.event("game_start", mapOf("game" to "descent", "level" to profile.key)) }
     val startedAt = remember(round) { System.currentTimeMillis() }
-    LaunchedEffect(done) {
-        if (done) Telemetry.event("game_end", mapOf("game" to "descent", "run" to profile.key, "flips" to game.flips, "landings" to game.landings,
-            "crashes" to game.crashes, "seconds" to (System.currentTimeMillis() - startedAt) / 1000))
-    }
+    fun end(completed: Boolean) = Telemetry.event("game_end", mapOf("game" to "descent", "level" to profile.key, "score" to game.flips,
+        "seconds" to (System.currentTimeMillis() - startedAt) / 1000, "completed" to completed, "best" to false))
+    LaunchedEffect(done) { if (done) end(completed = true) }
+    DisposableEffect(round) { onDispose { if (!done) end(completed = false) } }
     LaunchedEffect(round) {
         var last = 0L
         while (true) {
@@ -102,7 +104,7 @@ fun DescentScreen(profile: Profile?, haptics: Haptics, sounds: Sounds) {
     }
     LaunchedEffect(round) {
         while (true) {
-            hud = res.getString(R.string.descent_hud, profile.key, nf.format(game.distance.toInt()), nf.format(profile.len.toInt()), game.speedKmh.toInt(), game.flips)
+            hud = res.getString(R.string.app_descent_hud, profile.key, nf.format(game.distance.toInt()), nf.format(profile.len.toInt()), game.speedKmh.toInt(), game.flips)
             delay(100)
         }
     }
@@ -123,12 +125,12 @@ fun DescentScreen(profile: Profile?, haptics: Haptics, sounds: Sounds) {
             fontFamily = Plex, fontSize = 14.sp, color = Color.White)
         if (done) {
             Column(Modifier.align(Alignment.Center).background(Color(0xF2FFFFFF)).padding(20.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                Text(stringResource(R.string.descent_done), fontFamily = Karantina, fontWeight = FontWeight.Bold, fontSize = 44.sp, color = Palette.ink)
-                Text(stringResource(R.string.descent_score, game.flips, game.landings, game.crashes), fontFamily = Plex, fontSize = 15.sp, color = Palette.ink)
-                Box(Modifier.padding(top = 12.dp)) { Button(stringResource(R.string.descent_again)) { round++ } }
+                Text(stringResource(R.string.app_descent_done), fontFamily = Karantina, fontWeight = FontWeight.Bold, fontSize = 44.sp, color = Palette.ink)
+                Text(stringResource(R.string.app_descent_score, game.flips, game.landings, game.crashes), fontFamily = Plex, fontSize = 15.sp, color = Palette.ink)
+                Box(Modifier.padding(top = 12.dp)) { Button(stringResource(R.string.game_descent_again)) { round++ } }
             }
         } else {
-            Text(stringResource(if (game.air) R.string.descent_hint_air else R.string.descent_hint_ground),
+            Text(stringResource(if (game.air) R.string.game_descent_coach_air_flip else R.string.app_descent_hint_ground),
                 Modifier.align(Alignment.BottomCenter).fillMaxWidth().background(Color(0xE613233A)).padding(14.dp),
                 fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = Color.White)
         }

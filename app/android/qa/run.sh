@@ -56,6 +56,9 @@ note "device: $(adb shell getprop ro.product.model | tr -d '\r') · Android $(ad
 note "gpu: $(adb shell dumpsys SurfaceFlinger | grep -m1 'GLES:' | tr -d '\r')"
 
 adb install -r -g "$APK" > /dev/null || { fail "install"; exit 1; }
+# the test build carries all four languages (tools/build-app-strings.py); the run, and the store screenshots, are in
+# Hebrew, the app's own language setting, whatever the emulator's language is
+adb shell cmd locale set-app-locales "$PKG" --locales he > /dev/null 2>&1 || note "could not set the app's language"
 
 # ---- the map ----
 map() {

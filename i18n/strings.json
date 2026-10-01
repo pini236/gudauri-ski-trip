@@ -9180,6 +9180,232 @@
     "ru",
     "ka"
    ]
+  },
+  "app.tab_map": {
+   "he": "מפה",
+   "en": "Map",
+   "ru": "Карта",
+   "ka": "რუკა",
+   "where": "app/android",
+   "note": "short: bottom tab",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.tab_descent": {
+   "he": "ירידה",
+   "en": "Descent",
+   "ru": "Спуск",
+   "ka": "დაშვება",
+   "where": "app/android",
+   "note": "short: bottom tab, the descent game",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.tab_ticket": {
+   "he": "כרטיס",
+   "en": "Pass",
+   "ru": "Талон",
+   "ka": "ბარათი",
+   "where": "app/android",
+   "note": "short: bottom tab, the boarding pass",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.loading": {
+   "he": "טוען…",
+   "en": "Loading…",
+   "ru": "Загрузка…",
+   "ka": "იტვირთება…",
+   "where": "app/android",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.map_loading": {
+   "he": "טוען את ההר…",
+   "en": "Loading the mountain…",
+   "ru": "Загружаем гору…",
+   "ka": "მთა იტვირთება…",
+   "where": "app/android",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.map_hint": {
+   "he": "נגיעה במסלול בוחרת אותו. אצבע אחת מזיזה, שתיים מקרבות, מסובבות ומטות.",
+   "en": "Tap a run to select it. One finger moves the map; two fingers zoom, turn and tilt.",
+   "ru": "Нажмите на трассу, чтобы выбрать её. Одним пальцем — сдвиг, двумя — масштаб, поворот и наклон.",
+   "ka": "შეეხეთ ტრასას მის ასარჩევად. ერთი თითით რუკა გადაადგილდება, ორით — მასშტაბი, მობრუნება და დახრა.",
+   "where": "app/android",
+   "note": "gesture hint at the bottom of the 3D map",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.close": {
+   "he": "סגירה",
+   "en": "Close",
+   "ru": "Закрыть",
+   "ka": "დახურვა",
+   "where": "app/android",
+   "note": "accessibility label of the ✕ button",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.peak_label": {
+   "he": "{name} · {ele} מ׳",
+   "en": "{name} · {ele} m",
+   "ru": "{name} · {ele} м",
+   "ka": "{name} · {ele} მ",
+   "where": "app/android",
+   "note": "3D label: peak name (Latin, as in the data) and its height",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.lift_label": {
+   "he": "רכבל {name}",
+   "en": "{name} lift",
+   "ru": "Подъёмник {name}",
+   "ka": "საბაგირო {name}",
+   "where": "app/android",
+   "note": "3D label at a lift's top station; the name stays in Latin letters (glossary)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.descent_hud": {
+   "he": "{run} · {dist} / {len} מ׳ · {kmh} קמ״ש · סלטות {flips}",
+   "en": "{run} · {dist} / {len} m · {kmh} km/h · flips {flips}",
+   "ru": "{run} · {dist} / {len} м · {kmh} км/ч · сальто {flips}",
+   "ka": "{run} · {dist} / {len} მ · {kmh} კმ/სთ · სალტო {flips}",
+   "where": "app/android",
+   "note": "descent game HUD: run, distance done / run length, speed, flips",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.descent_done": {
+   "he": "הגעתם למטה!",
+   "en": "You made it down!",
+   "ru": "Вы внизу!",
+   "ka": "ქვემოთ ჩამოხვედით!",
+   "where": "app/android",
+   "note": "end title",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.descent_score": {
+   "he": "סלטות {flips} · נחיתות {landings} · נפילות {crashes}",
+   "en": "Flips {flips} · landings {landings} · falls {crashes}",
+   "ru": "Сальто {flips} · приземлений {landings} · падений {crashes}",
+   "ka": "სალტო {flips} · დაშვება {landings} · დაცემა {crashes}",
+   "where": "app/android",
+   "note": "end summary",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.descent_hint_ground": {
+   "he": "מחזיקים ומתכופפים, משחררים לקפיצה",
+   "en": "Hold to crouch, release to jump",
+   "ru": "Держите — присед, отпустите — прыжок",
+   "ka": "დააჭირეთ ჩასაჯდომად, გაუშვით ასახტომად",
+   "where": "app/android",
+   "note": "coach line at the bottom, on the snow",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.ticket_hint": {
+   "he": "כרטיס לדוגמה: גוררים את הספח למטה כדי לתלוש",
+   "en": "Sample pass: drag the stub down to tear it off",
+   "ru": "Пример талона: потяните корешок вниз, чтобы оторвать",
+   "ka": "ნიმუში: გადაათრიეთ მოსაჭრელი ნაწილი ქვემოთ მოსაგლეჯად",
+   "where": "app/android",
+   "note": "above the sample boarding pass in the app",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.ticket_title": {
+   "he": "כרטיס עלייה למטוס · דוגמה",
+   "en": "Boarding pass · sample",
+   "ru": "Посадочный талон · пример",
+   "ka": "ჩასხდომის ბარათი · ნიმუში",
+   "where": "app/android",
+   "note": "printed on the pass strip",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.ticket_flight": {
+   "he": "טיסה {flight} · {date} · {time}",
+   "en": "Flight {flight} · {date} · {time}",
+   "ru": "Рейс {flight} · {date} · {time}",
+   "ka": "რეისი {flight} · {date} · {time}",
+   "where": "app/android",
+   "note": "printed on the pass: flight number, date, departure time",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.ticket_gate": {
+   "he": "שער — · מושב —",
+   "en": "Gate — · Seat —",
+   "ru": "Выход — · Место —",
+   "ka": "გასასვლელი — · ადგილი —",
+   "where": "app/android",
+   "note": "printed on the pass; we never know gate and seat",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.ticket_stub": {
+   "he": "ספח",
+   "en": "Stub",
+   "ru": "Корешок",
+   "ka": "მოსაჭრელი",
+   "where": "app/android",
+   "note": "short: printed on the stub strip",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.ticket_credits": {
+   "he": "צליל הקריעה: \"Perforated Tear\" מאת everythingsounds (Freesound), ברישיון CC BY 4.0. צלילי הכרטיס: Kenney (CC0).",
+   "en": "Tearing sound: \"Perforated Tear\" by everythingsounds (Freesound), CC BY 4.0. Pass sounds: Kenney (CC0).",
+   "ru": "Звук отрыва: «Perforated Tear», автор everythingsounds (Freesound), лицензия CC BY 4.0. Звуки талона: Kenney (CC0).",
+   "ka": "მოგლეჯის ხმა: „Perforated Tear“, ავტორი everythingsounds (Freesound), ლიცენზია CC BY 4.0. ბარათის ხმები: Kenney (CC0).",
+   "where": "app/android",
+   "note": "required credit (CC BY 4.0), must stay visible",
+   "check": [
+    "ru",
+    "ka"
+   ]
   }
  }
 }

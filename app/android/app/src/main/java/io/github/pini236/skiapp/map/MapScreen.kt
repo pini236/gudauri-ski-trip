@@ -46,16 +46,23 @@ import kotlin.math.roundToInt
 fun MapScreen(view: MapView, scene: MapScene?) {
     var selected by remember { mutableStateOf<Piste?>(view.selected) }
     var flying by remember { mutableStateOf(false) }
+    var stopped by remember { mutableStateOf(false) }
+    var flyStart by remember { mutableStateOf(0L) }
     DisposableEffect(view) {
         view.onSelect = { selected = it }
-        view.onFlying = { flying = it }
+        view.onFlying = { now ->
+            if (flying && !now) selected?.let {
+                Telemetry.event("run_fly_end", mapOf("run" to it.key, "completed" to !stopped, "seconds" to (System.currentTimeMillis() - flyStart) / 1000))
+            }
+            flying = now
+        }
         onDispose { view.onSelect = null; view.onFlying = null }
     }
 
     Box(Modifier.fillMaxSize()) {
         AndroidView(factory = { view.also { (it.parent as? android.view.ViewGroup)?.removeView(it) } }, modifier = Modifier.fillMaxSize())
         if (scene == null) {
-            Text(stringResource(R.string.map_loading), Modifier.align(Alignment.Center), fontFamily = Plex, fontSize = 16.sp, color = Palette.ink)
+            Text(stringResource(R.string.app_map_loading), Modifier.align(Alignment.Center), fontFamily = Plex, fontSize = 16.sp, color = Palette.ink)
         }
         val p = selected
         if (p != null) {
@@ -67,12 +74,15 @@ fun MapScreen(view: MapView, scene: MapScene?) {
                         Text(p.name, fontFamily = Karantina, fontWeight = FontWeight.Bold, fontSize = 30.sp, color = Color.White)
                     }
                     Spacer1()
-                    Button(stringResource(if (flying) R.string.map_stop else R.string.map_fly)) { if (flying) view.stopFly() else { view.flyDown(); Telemetry.event("run_fly", mapOf("run" to p.key)) } }
-                    Button("✕", stringResource(R.string.map_close)) { view.select(null) }
+                    Button(stringResource(if (flying) R.string.run_fly_stop else R.string.run_fly_button)) {
+                        if (flying) { stopped = true; view.stopFly() }
+                        else { stopped = false; flyStart = System.currentTimeMillis(); view.flyDown(); Telemetry.event("run_fly_start", mapOf("run" to p.key)) }
+                    }
+                    Button("✕", stringResource(R.string.app_close)) { view.select(null) }
                 }
             }
         } else if (scene != null) {
-            Text(stringResource(R.string.map_hint),
+            Text(stringResource(R.string.app_map_hint),
                 Modifier.align(Alignment.BottomCenter).padding(16.dp).background(Color(0xE6FFFFFF)).padding(10.dp),
                 fontFamily = Plex, fontSize = 13.sp, color = Palette.ink)
         }
@@ -89,7 +99,7 @@ private fun FlyBar(view: MapView, name: String) {
     val nf = remember { NumberFormat.getIntegerInstance(Lang.current(res).locale) }
     LaunchedEffect(view) {
         while (true) {
-            view.flyInfo()?.let { f -> line = res.getString(R.string.map_fly_line, nf.format(f[0].toInt()), nf.format(f[2].toInt()), f[3].roundToInt()) }
+            view.flyInfo()?.let { f -> line = res.getString(R.string.run_fly_hud_readout, nf.format(f[0].toInt()), nf.format(f[2].toInt()), f[3].roundToInt()) }
             delay(100)
         }
     }

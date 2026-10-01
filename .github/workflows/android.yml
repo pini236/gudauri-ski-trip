@@ -6,9 +6,9 @@ name: android
 on:
   push:
     branches: [main]
-    paths: ['app/android/**', 'site/data/**', 'site/audio/**', 'site/games/descent/**', 'tools/build-app-data.py', '.github/workflows/android.yml']
+    paths: ['app/android/**', 'site/data/**', 'site/audio/**', 'site/games/descent/**', 'tools/build-app-data.py', 'tools/build-app-strings.py', 'i18n/strings.json', '.github/workflows/android.yml']
   pull_request:
-    paths: ['app/android/**', 'site/data/**', 'site/audio/**', 'site/games/descent/**', 'tools/build-app-data.py', '.github/workflows/android.yml']
+    paths: ['app/android/**', 'site/data/**', 'site/audio/**', 'site/games/descent/**', 'tools/build-app-data.py', 'tools/build-app-strings.py', 'i18n/strings.json', '.github/workflows/android.yml']
   workflow_dispatch:
 
 concurrency:
