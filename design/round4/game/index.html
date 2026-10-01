@@ -7,7 +7,7 @@
    A single look (a bright winter day), the same in both themes. */
 :root{
   --sky:#5E9BD6; --snow:#F7FAFD; --ink:#13233A; --muted:#4B5A6F; --paper:#FFFFFF; --rule:#CBD5DF;
-  --accent:#F4B942; --blue:#1F5FC4; --red:#D1342B; --green:#1B8A4C; --black:#13233A;
+  --accent:#F4B942; --warn:#F08A3C; --blue:#1F5FC4; --red:#D1342B; --green:#1B8A4C; --black:#13233A;
   --f-display:"Karantina","Arial Narrow",sans-serif; --f-body:"IBM Plex Sans Hebrew",system-ui,-apple-system,"Segoe UI",sans-serif;
   color-scheme:light;
 }
@@ -18,22 +18,28 @@ body{margin:0;background:var(--sky);color:var(--ink);font-family:var(--f-body);d
 .hud{position:fixed;left:0;right:0;top:0;padding:calc(env(safe-area-inset-top,0px) + 10px) 12px 0;display:flex;justify-content:space-between;align-items:flex-start;gap:8px;pointer-events:none}
 .box{background:rgba(19,35,58,.84);color:#fff;padding:6px 10px;display:flex;flex-direction:column;align-items:flex-start}
 .box b{font-family:var(--f-display);font-size:36px;line-height:.9;font-variant-numeric:tabular-nums}
-.box small{font-size:11px;color:var(--accent);font-weight:700}
+.box small{font-size:11px;color:var(--accent);font-weight:700;font-variant-numeric:tabular-nums}
 .sign{display:inline-flex;align-items:center;padding:4px 14px 4px 26px;color:#fff;font-family:var(--f-display);font-size:26px;line-height:1;clip-path:polygon(0 50%,16px 0,100% 0,100% 100%,16px 100%)}
-.crew{position:fixed;top:calc(env(safe-area-inset-top,0px) + 62px);right:12px;display:flex;gap:4px;pointer-events:none}
+.crew{position:fixed;top:calc(env(safe-area-inset-top,0px) + 62px);right:12px;display:flex;gap:4px;align-items:center;pointer-events:none}
 .crew i{width:14px;height:14px;border:2px solid #fff;opacity:.35}
 .crew i.on{opacity:1}
-.bar{position:fixed;left:12px;right:12px;top:calc(env(safe-area-inset-top,0px) + 86px);height:8px;background:rgba(19,35,58,.35);pointer-events:none}
-.bar span{position:absolute;inset:0 auto 0 0;background:var(--accent)}
-.bar em{position:absolute;top:-4px;width:4px;height:16px;background:#fff;transform:translateX(-2px)}
+.crew em{font-style:normal;color:#fff;font-weight:700;font-size:13px;margin-inline-start:6px;text-shadow:0 1px 2px rgba(19,35,58,.6);font-variant-numeric:tabular-nums}
+.combo{position:fixed;bottom:calc(env(safe-area-inset-bottom,0px) + 86px);left:12px;background:var(--accent);color:var(--ink);font-family:var(--f-display);font-size:24px;line-height:1;padding:3px 10px;pointer-events:none;transition:transform .2s cubic-bezier(.3,1.8,.5,1)}
+.combo.bump{transform:scale(1.25)}
 .speed{position:fixed;left:12px;bottom:calc(env(safe-area-inset-bottom,0px) + 14px);pointer-events:none}
-.pop{position:fixed;left:50%;top:32%;transform:translate(-50%,-50%);font-family:var(--f-display);font-size:54px;line-height:1;color:#fff;text-shadow:0 3px 0 var(--ink),0 0 18px rgba(19,35,58,.5);white-space:nowrap;pointer-events:none;opacity:0}
+.pop{position:fixed;left:50%;top:34%;transform:translate(-50%,-50%);font-family:var(--f-display);font-size:clamp(34px,11vw,56px);line-height:1;color:#fff;text-shadow:0 3px 0 var(--ink),0 0 18px rgba(19,35,58,.5);white-space:nowrap;pointer-events:none;opacity:0}
 .pop.go{animation:pop 1.1s cubic-bezier(.2,1.4,.4,1) forwards}
 @keyframes pop{0%{opacity:0;transform:translate(-50%,-30%) scale(.6)}20%{opacity:1;transform:translate(-50%,-50%) scale(1.08)}75%{opacity:1}100%{opacity:0;transform:translate(-50%,-80%) scale(1)}}
-.hint{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 60px);transform:translateX(-50%);background:rgba(255,255,255,.92);color:var(--ink);padding:8px 14px;font-size:14px;font-weight:700;white-space:nowrap;pointer-events:none;transition:opacity .6s}
+.banner{position:fixed;right:12px;top:calc(env(safe-area-inset-top,0px) + 122px);display:flex;align-items:center;gap:8px;padding:6px 14px 6px 30px;background:var(--warn);color:var(--ink);font-weight:700;font-size:15px;clip-path:polygon(0 50%,18px 0,100% 0,100% 100%,18px 100%);pointer-events:none;transform:translateX(0);transition:transform .35s cubic-bezier(.3,1.4,.5,1),opacity .3s}
+.banner.off{transform:translateX(110%);opacity:0}
+.banner b{font-family:var(--f-display);font-size:24px;line-height:1;font-weight:700}
+.hint{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 70px);transform:translateX(-50%);background:rgba(255,255,255,.92);color:var(--ink);padding:8px 14px;font-size:14px;font-weight:700;white-space:nowrap;pointer-events:none;transition:opacity .6s}
+.count{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;pointer-events:none;padding:0 16px}
+.count b{font-family:var(--f-display);font-size:140px;line-height:.8;color:#fff;text-shadow:0 5px 0 var(--ink)}
+.count .mis{background:rgba(19,35,58,.86);color:#fff;padding:10px 14px;display:flex;flex-direction:column;gap:4px;font-size:14px;max-width:22em}
+.count .mis span{color:var(--accent);font-weight:700;font-size:12px}
 /* menus */
 .menu{position:fixed;inset:0;overflow:auto;padding:calc(env(safe-area-inset-top,0px) + 16px) 16px calc(env(safe-area-inset-bottom,0px) + 20px);background:linear-gradient(rgba(94,155,214,.25),rgba(13,21,34,.72) 60%);display:flex;flex-direction:column;gap:14px;touch-action:auto}
-.menu[hidden]{display:none}
 .menu h1{margin:0;font-family:var(--f-display);font-size:58px;line-height:.9;text-wrap:balance;color:#fff;text-shadow:0 3px 0 var(--ink)}
 .menu h2{margin:0;font-family:var(--f-display);font-size:28px;line-height:1;color:#fff}
 .menu p{margin:0;color:#fff;font-size:14px;line-height:1.45;max-width:36em}
@@ -43,8 +49,10 @@ body{margin:0;background:var(--sky);color:var(--ink);font-family:var(--f-body);d
 .friends button[aria-pressed="true"]{background:#fff;outline:3px solid var(--accent);outline-offset:-3px}
 .runs{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:8px;padding-inline-start:14px}
 .runs::before{content:"";position:absolute;inset-inline-start:0;top:-6px;bottom:-10px;width:7px;background:var(--ink)}
-.runs button{min-height:54px;max-width:100%;padding:4px 16px 4px 30px;color:#fff;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:0;clip-path:polygon(0 50%,18px 0,100% 0,100% 100%,18px 100%);transition:transform .25s cubic-bezier(.3,1.5,.5,1)}
+.runs button{min-height:58px;max-width:100%;padding:4px 16px 4px 30px;color:#fff;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:1px;clip-path:polygon(0 50%,18px 0,100% 0,100% 100%,18px 100%);transition:transform .25s cubic-bezier(.3,1.5,.5,1)}
+.runs button .top{display:flex;align-items:baseline;gap:10px}
 .runs button b{font-family:var(--f-display);font-size:30px;line-height:1;white-space:nowrap}
+.runs button .stars{font-size:15px;letter-spacing:1px;color:var(--accent);white-space:nowrap}
 .runs button span{font-size:12.5px;opacity:.95;font-variant-numeric:tabular-nums}
 .runs button[aria-pressed="true"]{transform:translateX(-10px);box-shadow:inset 0 -5px 0 rgba(255,255,255,.6)}
 .opts{display:flex;flex-wrap:wrap;gap:8px}
@@ -55,17 +63,28 @@ body{margin:0;background:var(--sky);color:var(--ink);font-family:var(--f-body);d
 .how{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
 .how div{background:rgba(255,255,255,.14);color:#fff;padding:8px;font-size:12.5px;line-height:1.3;border-top:3px solid var(--accent)}
 .how b{display:block;font-family:var(--f-display);font-size:22px;line-height:1}
+.legend{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px 12px;color:#fff;font-size:12.5px}
+.legend span{display:flex;align-items:center;gap:8px;min-width:0}
+.legend svg{flex:none}
 .res{background:#fff;padding:14px;display:flex;flex-direction:column;gap:8px;transform:rotate(-2deg);box-shadow:0 10px 24px rgba(0,0,0,.3)}
 .res .big{font-family:var(--f-display);font-size:64px;line-height:.85;font-variant-numeric:tabular-nums}
-.rows{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;border-top:1px solid var(--rule);padding-top:8px}
-.rows span{display:flex;flex-direction:column;font-size:12px;color:var(--muted)}
-.rows b{font-family:var(--f-display);font-size:30px;line-height:1;color:var(--ink);font-variant-numeric:tabular-nums}
+.res .stars{font-size:30px;letter-spacing:4px;color:var(--rule)}
+.res .stars i{font-style:normal}
+.res .stars i.on{color:var(--accent)}
+.rows{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;border-top:1px solid var(--rule);padding-top:8px}
+.rows span{display:flex;flex-direction:column;font-size:11.5px;color:var(--muted);min-width:0}
+.rows b{font-family:var(--f-display);font-size:clamp(22px,6.5vw,30px);line-height:1;color:var(--ink);font-variant-numeric:tabular-nums}
+.goals{display:flex;flex-direction:column;gap:3px;border-top:1px solid var(--rule);padding-top:8px;font-size:13px}
+.goals span{display:flex;gap:8px;color:var(--muted)}
+.goals span.ok{color:var(--ink);font-weight:700}
+.goals span::before{content:"☆";color:var(--rule)}
+.goals span.ok::before{content:"★";color:var(--accent)}
 .note{font-size:11.5px;color:rgba(255,255,255,.8)}
 .small-btns{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .small-btns button{font:inherit;min-height:48px;border:2px solid #fff;background:transparent;color:#fff;font-weight:700;cursor:pointer}
 button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 .snd{position:fixed;bottom:calc(env(safe-area-inset-bottom,0px) + 14px);right:12px;font:inherit;min-width:44px;min-height:44px;border:0;background:rgba(19,35,58,.7);color:#fff;font-weight:700;cursor:pointer}
-@media (prefers-reduced-motion:reduce){.pop.go{animation-duration:.01s}.runs button{transition:none}}
+@media (prefers-reduced-motion:reduce){.pop.go{animation-duration:.01s}.runs button,.banner,.combo{transition:none}}
 </style>
 
 <canvas id="game" aria-label="המשחק: גולש יורד במסלול"></canvas>
@@ -75,15 +94,17 @@ button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
   <div class="box"><b id="hudTime">0:00.0</b><small id="hudGap"></small></div>
 </div>
 <div class="crew" id="crew" hidden></div>
-<div class="bar" id="bar" hidden><span id="barFill"></span><em id="barAva"></em></div>
-<div class="speed box" id="speedBox" hidden><b id="hudSpeed">0</b><small style="color:#fff">קמ״ש</small></div>
+<div class="combo" id="combo" hidden>רצף ×1</div>
+<div class="banner off" id="banner" aria-live="polite"><b id="bannerBig"></b><span id="bannerTxt"></span></div>
+<div class="speed box" id="speedBox" hidden><b id="hudSpeed">0</b><small><span style="color:#fff">קמ״ש</span> · <span id="hudAlt"></span></small></div>
 <div class="pop" id="pop"></div>
-<div class="hint" id="hint" hidden>נגיעה: קפיצה · החזקה באוויר: סלטה</div>
+<div class="hint" id="hint" hidden>נגיעה: קפיצה · החזקה באוויר: סלטה · החזקה על השלג: התכופפות</div>
+<div class="count" id="count" hidden><b id="countN">3</b><div class="mis" id="countMis"></div></div>
 <button class="snd" id="snd" type="button" aria-pressed="false" aria-label="צליל">🔇</button>
 
 <section class="menu" id="menuStart" aria-label="התחלה">
   <h1>הירידה של החבר׳ה</h1>
-  <p>המסלולים האמיתיים של גודאורי, בשיפועים האמיתיים שלהם. אספו את החבר׳ה בדרך, עשו סלטות, ותברחו מהמפולת עד הרכבל.</p>
+  <p>המסלולים האמיתיים של גודאורי, בשיפועים האמיתיים שלהם. אספו את החבר׳ה בדרך, קפצו מעל ערוצים ורטרקים, עשו סלטות, ותברחו מהמפולת עד הרכבל.</p>
   <h2>מי גולש?</h2>
   <div class="friends" id="friends" role="group" aria-label="בחירת חבר"></div>
   <h2>איזה מסלול?</h2>
@@ -92,10 +113,11 @@ button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
   <div class="how">
     <div><b>נגיעה</b>קפיצה מהשלג</div>
     <div><b>החזקה באוויר</b>סלטה אחורה</div>
-    <div><b>נחיתה ישרה</b>על המדרון: תאוצה ונקודות</div>
+    <div><b>החזקה על השלג</b>התכופפות: מהר יותר, ונגד הרוח</div>
   </div>
+  <div class="legend" id="legend"></div>
   <button class="go-btn" id="go" type="button">לגלוש!</button>
-  <p class="note">הפרופיל של כל מסלול נמדד ממודל הגובה לאורך הקו האמיתי שלו (OpenStreetMap), כל 5 מטרים, עם הגבהה פי 1.5. הקפיצות והגבשושיות נוספו בשביל המשחק.</p>
+  <p class="note">הפרופיל של כל מסלול נמדד ממודל הגובה לאורך הקו האמיתי שלו (OpenStreetMap), כל 5 מטרים, עם הגבהה פי 1.5, והגובה בפינה הוא הגובה האמיתי. רוח וערפל מופיעים רק מעל 2,900 מ׳, כמו ברכס. הקפיצות, הערוצים והמכשולים נוספו בשביל המשחק.</p>
 </section>
 
 <section class="menu" id="menuEnd" aria-label="תוצאה" hidden>
@@ -103,11 +125,14 @@ button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
   <div class="res">
     <span style="font-size:12px;color:var(--muted);font-weight:700" id="endWho"></span>
     <div class="big" id="endTime"></div>
+    <div class="stars" id="endStars"></div>
     <div class="rows">
       <span>סלטות<b id="endFlips">0</b></span>
-      <span>חבר׳ה שהגיעו<b id="endCrew">0</b></span>
+      <span>חבר׳ה<b id="endCrew">0</b></span>
+      <span>חצ׳אפורי<b id="endCoins">0</b></span>
       <span>נקודות<b id="endScore">0</b></span>
     </div>
+    <div class="goals" id="endGoals"></div>
     <span style="font-size:13px;color:var(--muted)" id="endBest"></span>
   </div>
   <button class="go-btn" id="again" type="button">עוד ירידה</button>
@@ -125,17 +150,27 @@ const FRIENDS = [
   {n:'יהודה ו׳', c:'#D1342B'}, {n:'דובי', c:'#1F5FC4'}, {n:'שרוליק', c:'#F4B942'},
   {n:'מוישי', c:'#1B8A4C'}, {n:'יהודה ה׳', c:'#7B4FC4'}, {n:'פיני', c:'#F07A2E'}];
 const RUNCOL = {green:'#1B8A4C', blue:'#1F5FC4', red:'#D1342B', black:'#13233A'};
-const EXAG = 1.5, G = 9.81, VMAX = 30;
+// the third star: a different challenge on every run
+const MISSION = {
+  'Pirveli':   {t:'3 סלטות בירידה אחת',        ok:s=>s.flips>=3},
+  'Kikilo 1':  {t:'לאסוף 25 חצ׳אפורי',          ok:s=>s.coins>=25},
+  'Tatra 2':   {t:'לקפוץ מעל הרטרק',            ok:s=>s.overCat},
+  'Sadzele 3': {t:'ירידה בלי אף נפילה',          ok:s=>s.falls===0},
+  'Sadzele 1': {t:'סלטה כפולה',                  ok:s=>s.maxFlip>=2}};
+const EXAG = 1.5, G = 9.81, VMAX = 30, SPACING = 4.2;
 const store = { get(k,d){ try{ const v = localStorage.getItem('ski-'+k); return v==null?d:JSON.parse(v);}catch(e){return d;} },
                 set(k,v){ try{ localStorage.setItem('ski-'+k, JSON.stringify(v)); }catch(e){} } };
 const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const $ = id => document.getElementById(id);
+const fmtM = v => Math.round(v).toLocaleString('en-US');
 
 /* ---------- menus ---------- */
 let me = store.get('me', 5), runIdx = store.get('run', 2), useAva = store.get('ava', true), useGhost = store.get('ghost', true);
-const $ = id => document.getElementById(id);
+function starStr(n){ return '★'.repeat(n)+'☆'.repeat(3-n); }
 function drawMenus(){
   $('friends').innerHTML = FRIENDS.map((f,i)=>`<button type="button" style="--c:${f.c}" aria-pressed="${i===me}" data-f="${i}"><svg width="30" height="30" viewBox="-15 -28 30 30" aria-hidden="true"><path d="M-8,-2 L-7,-15 Q0,-22 7,-15 L8,-2 Z" fill="${f.c}"/><circle cx="0" cy="-21" r="5.5" fill="#F4F7FB" stroke="#13233A" stroke-width="1.4"/><rect x="-5" y="-23" width="10" height="3" fill="#13233A"/><path d="M-13,0 L13,0" stroke="#13233A" stroke-width="3" stroke-linecap="round"/></svg>${f.n}</button>`).join('');
-  $('runs').innerHTML = PROFILES.map((r,i)=>`<button type="button" style="background:${RUNCOL[r.color]};width:${100-i*5}%" aria-pressed="${i===runIdx}" data-r="${i}"><b dir="ltr">${r.key}</b><span>${(r.len/1000).toFixed(1)} ק״מ · ירידה ${r.top-r.bot} מ׳${bestTxt(i)}</span></button>`).join('');
+  $('runs').innerHTML = PROFILES.map((r,i)=>{ const st=store.get('stars-'+r.key,0);
+    return `<button type="button" style="background:${RUNCOL[r.color]};width:${100-i*5}%" aria-pressed="${i===runIdx}" data-r="${i}"><span class="top"><b dir="ltr">${r.key}</b><span class="stars" aria-label="${st} כוכבים">${starStr(st)}</span></span><span>${(r.len/1000).toFixed(1)} ק״מ · ירידה ${r.top-r.bot} מ׳${bestTxt(i)}</span><span>★ ${MISSION[r.key].t}</span></button>`; }).join('');
   $('optAva').setAttribute('aria-pressed', useAva); $('optGhost').setAttribute('aria-pressed', useGhost);
 }
 function bestTxt(i){ const b = store.get('best-'+PROFILES[i].key, null); return b ? ' · שיא '+fmt(b.t) : ''; }
@@ -152,14 +187,14 @@ $('copy').onclick = ()=>{
 };
 
 /* ---------- sound (off until the player turns it on) ---------- */
-let zoom=0, AC=null, wind=null, windGain=null, soundOn=false;
+let zoom=0, AC=null, windGain=null, soundOn=false;
 $('snd').onclick = e=>{ e.stopPropagation(); soundOn=!soundOn; $('snd').textContent = soundOn?'🔊':'🔇'; $('snd').setAttribute('aria-pressed',soundOn);
   if(soundOn && !AC){ try{ AC=new (window.AudioContext||window.webkitAudioContext)();
     const len=AC.sampleRate*2, buf=AC.createBuffer(1,len,AC.sampleRate), d=buf.getChannelData(0); for(let i=0;i<len;i++) d[i]=Math.random()*2-1;
-    wind=AC.createBufferSource(); wind.buffer=buf; wind.loop=true; const f=AC.createBiquadFilter(); f.type='bandpass'; f.frequency.value=700; f.Q.value=.6;
-    windGain=AC.createGain(); windGain.gain.value=0; wind.connect(f); f.connect(windGain); windGain.connect(AC.destination); wind.start(); }catch(err){ AC=null; } }
+    const src=AC.createBufferSource(); src.buffer=buf; src.loop=true; const f=AC.createBiquadFilter(); f.type='bandpass'; f.frequency.value=700; f.Q.value=.6;
+    windGain=AC.createGain(); windGain.gain.value=0; src.connect(f); f.connect(windGain); windGain.connect(AC.destination); src.start(); }catch(err){ AC=null; } }
   if(windGain) windGain.gain.value = 0; };
-function thump(freq=90, dur=.18, vol=.5){ if(!soundOn||!AC) return; const o=AC.createOscillator(), g=AC.createGain(); o.frequency.setValueAtTime(freq,AC.currentTime); o.frequency.exponentialRampToValueAtTime(freq*.5,AC.currentTime+dur); g.gain.setValueAtTime(vol,AC.currentTime); g.gain.exponentialRampToValueAtTime(.001,AC.currentTime+dur); o.connect(g); g.connect(AC.destination); o.start(); o.stop(AC.currentTime+dur); }
+function tone(freq=90, dur=.18, vol=.5, type='sine', end=.5){ if(!soundOn||!AC) return; const o=AC.createOscillator(), g=AC.createGain(); o.type=type; o.frequency.setValueAtTime(freq,AC.currentTime); o.frequency.exponentialRampToValueAtTime(freq*end,AC.currentTime+dur); g.gain.setValueAtTime(vol,AC.currentTime); g.gain.exponentialRampToValueAtTime(.001,AC.currentTime+dur); o.connect(g); g.connect(AC.destination); o.start(); o.stop(AC.currentTime+dur); }
 function buzz(ms){ try{ navigator.vibrate && navigator.vibrate(ms); }catch(e){} }
 
 /* ---------- world ---------- */
@@ -168,201 +203,384 @@ function resize(){ DPR=Math.min(2,window.devicePixelRatio||1); W=innerWidth; H=i
 addEventListener('resize', resize); resize();
 const pano = new Image(); pano.src = PANO;
 
-let R, terrain, kickers, crewSpots, avalanche;
+function rng(seed){ return ()=>{ seed|=0; seed=seed+0x6D2B79F5|0; let t=Math.imul(seed^seed>>>15,1|seed); t=t+Math.imul(t^t>>>7,61|t)^t; return ((t^t>>>14)>>>0)/4294967296; }; }
+let R, base, terrain, kickers, gaps, rocks, cats, coins, zones, crewSpots, dog, signs, avalanche;
+const realH = x => { const i=Math.max(0,Math.min(R.h.length-1.001,x/5)), i0=Math.floor(i); return R.h[i0]+(R.h[i0+1]-R.h[i0])*(i-i0); };
 function buildRun(){
-  R = PROFILES[runIdx]; const n=R.h.length, h0=R.h[0];
-  // real profile (exaggerated), with game moguls and kickers on top
-  const base = R.h.map(v=>(v-h0)*EXAG);
+  R = PROFILES[runIdx]; const n=R.h.length, h0=R.h[0], L=R.len, rnd=rng(runIdx*7919+17);
+  const hard = {green:0, blue:1, red:2, black:3}[R.color];
+  base = R.h.map(v=>(v-h0)*EXAG);
+  const steep = i => (base[Math.max(0,i-4)]-base[Math.min(n-1,i+4)])/40; // drop per metre around sample i
+  // kickers: where a gentler stretch meets a steeper one (a natural lip), or every ~170 m
   kickers=[]; let lastK=-999;
-  for(let i=24;i<n-30;i++){ // a kicker where a gentler stretch meets a steeper one (a natural lip), or every ~180 m
-    const s1=(base[i-6]-base[i])/30, s2=(base[i]-base[i+6])/30;
-    if((s2-s1>0.08 && i*5-lastK>90) || i*5-lastK>180){ kickers.push(i*5); lastK=i*5; }
-  }
+  for(let i=24;i<n-30;i++){ const s1=(base[i-6]-base[i])/30, s2=(base[i]-base[i+6])/30;
+    if((s2-s1>0.08 && i*5-lastK>90) || i*5-lastK>170){ kickers.push({x:i*5, gap:false}); lastK=i*5; } }
+  // gullies to jump: on the steeper kickers in the middle of the run (none on the green)
+  gaps=[]; const want=[0,1,2,2][hard];
+  const cand = kickers.filter(k=>k.x>L*0.25 && k.x<L*0.85).sort((a,b)=>steep(b.x/5-6)-steep(a.x/5-6));
+  for(const k of cand){ if(gaps.length>=want) break; if(gaps.some(g=>Math.abs(g.x0-k.x)<250)) continue; k.gap=true; gaps.push({x0:k.x+0.5, x1:k.x+7.5, warned:false}); }
   terrain = new Float32Array(n);
   for(let i=0;i<n;i++){ const x=i*5; let y=base[i] + Math.sin(x*0.09)*0.35 + Math.sin(x*0.031+1.3)*0.6;
-    for(const k of kickers){ const d=x-k; if(d>-14&&d<=0) y += (d+14)/14*2.2*((d+14)/14); } // ramp up to the lip
-    terrain[i]=y; }
-  // the five other friends wait along the run
+    for(const k of kickers){ const d=x-k.x, hgt=k.gap?3.0:2.2; if(d>-15&&d<=0) y += hgt*((d+15)/15)**2; } terrain[i]=y; }
+  const busy = (x,r)=> x<60 || x>L-60 || kickers.some(k=>x>k.x-r-15 && x<k.x+r+22) || gaps.some(g=>x>g.x0-r-15&&x<g.x1+r+15);
+  // rocks to hop over
+  rocks=[]; for(let x=110+rnd()*80; x<L-80; x+= [260,190,150,120][hard]*(0.7+rnd()*0.6)){ if(!busy(x,10)) rocks.push({x, h:0.7+rnd()*0.35, hit:false}); }
+  // one snowcat grooming its way up the run, from about the middle
+  cats=[]; { let x=L*(0.42+rnd()*0.12); for(let k=0;k<40&&busy(x,20);k++) x+=9; cats.push({x, v:1.6, over:false, hit:false, warned:false}); }
+  // surface zones: deep powder slows you, ice is fast, wind on the ridge (only above 2,900 m real) pushes you back
+  zones=[]; let zx=150+rnd()*100;
+  while(zx<L-120){ const kind = rnd()<0.5?'powder':'ice', w = kind==='powder'?22+rnd()*10:30+rnd()*15;
+    if(!busy(zx,w) && !rocks.some(r=>r.x>zx-8&&r.x<zx+w+8)) zones.push({kind, x0:zx, x1:zx+w, warned:false}); zx += 230+rnd()*200; }
+  let nw=0; for(let x=60;x<L-60&&nw<3;x+=5){ if(realH(x)>2900 && !busy(x,45)){ zones.push({kind:'wind', x0:x, x1:x+45, warned:false}); nw++; x+=240; } }
+  // khachapuri: an arc over every kicker (the reward for jumping) and short lines on the snow
+  coins=[];
+  for(const k of kickers){ const span=k.gap?20:16; for(let j=0;j<5;j++){ const f=(j+0.5)/5; coins.push({x:k.x+3+span*f, dy:1.2+4.2*Math.sin(Math.PI*f), got:false}); } }
+  for(let x=90; x<L-60; x+=110+rnd()*70){ if(busy(x,14)||rocks.some(r=>Math.abs(r.x-x)<18)) continue; for(let j=0;j<4;j++) coins.push({x:x+j*2.6, dy:0.9, got:false}); }
+  // the five other friends wait along the run, not on top of anything else
   const others=FRIENDS.map((f,i)=>i).filter(i=>i!==me);
-  crewSpots = others.map((fi,k)=>({fi, x: R.len*(0.14+0.16*k)+12, got:false, lost:false}));
+  crewSpots = others.map((fi,k)=>{ let x=L*(0.1+0.16*k)+12; for(let j=0;j<30&&(busy(x,6)||rocks.some(r=>Math.abs(r.x-x)<12)||zones.some(z=>x>z.x0-6&&x<z.x1+6));j++) x+=7; return {fi, x, got:false, lost:false, joinT:0}; });
+  dog = {x0:L*0.72, on:false, done:false, x:0, y:0, t:0};
+  // signs a little ahead of each surprise
+  signs=[]; for(const g of gaps) signs.push({x:g.x0-45, t:'ערוץ! קפצו'}); for(const z of zones) if(z.kind!=='wind') signs.push({x:z.x0-30, t:z.kind==='powder'?'שלג עמוק':'קרח'});
+  signs.push({x:cats[0].x-60, t:'רטרק במסלול'});
 }
-function ground(x){ const i=Math.max(0,Math.min(terrain.length-2, x/5)); const i0=Math.floor(i), f=i-i0; return terrain[i0]*(1-f)+terrain[i0+1]*f; }
-function slope(x){ return Math.atan2(ground(x+1.5)-ground(x-1.5),3); } // angle of the snow (negative going down)
+function inGap(x){ for(const g of gaps) if(x>g.x0&&x<g.x1) return g; return null; }
+function baseGround(x){ const i=Math.max(0,Math.min(terrain.length-2, x/5)); const i0=Math.floor(i), f=i-i0; return terrain[i0]*(1-f)+terrain[i0+1]*f; }
+function ground(x){ return baseGround(x) - (inGap(x)?7:0); }
+function slope(x){ return Math.atan2(baseGround(x+1)-baseGround(x-1),2); } // angle of the snow, negative going down (a gully's walls don't count)
+function zoneAt(x){ for(const z of zones) if(x>=z.x0&&x<=z.x1) return z; return null; }
 
 /* ---------- player ---------- */
-let P, t, state='menu', holding=false, flips=0, score=0, crew=[], trail=[], ghost=null, rec=[], particles=[], shake=0, slow=1, lastResultText='', hintT=0;
+let P, t, state='menu', holding=false, flips=0, score=0, crew=[], hist=[], tracks=[], ghost=null, rec=[], particles=[], shake=0, slow=1, lastResultText='', hintT=0;
+let stats, combo=1, countT=0, finT=0, bannerT=0, windT=0;
 function start(){
-  buildRun(); $('menuStart').hidden=true; $('menuEnd').hidden=true; ['hud','crew','bar','speedBox'].forEach(id=>$(id).hidden=false);
+  buildRun(); $('menuStart').hidden=true; $('menuEnd').hidden=true; ['hud','crew','speedBox','combo'].forEach(id=>$(id).hidden=false);
   $('hudRun').textContent=R.key; $('hudRun').style.background=RUNCOL[R.color];
-  P={x:4,y:ground(4),s:9,vx:9,vy:0,air:false,ang:slope(4),spin:0,airRot:0,crash:0,crouch:0,land:0};
-  t=0; flips=0; score=0; crew=[]; trail=[]; rec=[]; particles=[]; shake=0; slow=1;
-  avalanche={x:-90, v:8, on:useAva};
+  P={x:3,y:ground(3),s:0,vx:0,vy:0,air:false,ang:slope(3),airRot:0,crash:0,crouch:0,land:0,inv:0,airT:0};
+  t=0; flips=0; score=0; crew=[]; hist=[]; tracks=[[3,3]]; rec=[]; particles=[]; shake=0; slow=1; combo=1; zoom=0;
+  stats={flips:0, coins:0, overCat:false, falls:0, maxFlip:0};
+  avalanche={x:-110, v:8, on:useAva};
   const g=store.get('ghost-'+R.key,null); ghost = useGhost && g ? g : null;
-  $('crew').innerHTML = crewSpots.map(c=>`<i style="background:${FRIENDS[c.fi].c}" data-fi="${c.fi}"></i>`).join('');
-  $('hint').hidden=false; $('hint').style.opacity=1; hintT=0;
-  state='run'; last=performance.now();
+  drawCrewHud(); setCombo(1,false);
+  $('hint').hidden=true; hideBanner();
+  $('countMis').innerHTML = `<span>שלושה כוכבים ב-${R.key}</span>★ להגיע לרכבל<br>★ להביא את כל החבר׳ה<br>★ ${MISSION[R.key].t}`;
+  $('count').hidden=false; countT=3; $('countN').textContent='3';
+  state='count'; last=performance.now();
   if(AC&&AC.state==='suspended') AC.resume();
 }
+function drawCrewHud(){ $('crew').innerHTML = crewSpots.map(c=>`<i style="background:${FRIENDS[c.fi].c}" data-fi="${c.fi}"></i>`).join('')+'<em id="coinHud">0 🥟</em>'; }
 function popText(txt){ const p=$('pop'); p.textContent=txt; p.classList.remove('go'); void p.offsetWidth; p.classList.add('go'); }
+function banner(big, txt){ $('bannerBig').textContent=big; $('bannerTxt').textContent=txt; $('banner').classList.remove('off'); bannerT=2.6; }
+function hideBanner(){ $('banner').classList.add('off'); bannerT=0; }
+function setCombo(n, bump=true){ combo=Math.min(6,n); const el=$('combo'); el.textContent='רצף ×'+combo; el.style.opacity = combo>1?1:.45; if(bump&&!reduce){ el.classList.remove('bump'); void el.offsetWidth; el.classList.add('bump'); setTimeout(()=>el.classList.remove('bump'),200); } }
 function press(){ if(state!=='run') return; holding=true;
-  if(!P.air && P.crash<=0){ P.air=true; P.vy = P.s*Math.sin(P.ang) + 8.2; P.vx = P.s*Math.cos(P.ang); P.airRot=0; thump(220,.08,.15); } }
+  if(!P.air && P.crash<=0){ takeOff(P.s*Math.cos(P.ang), P.s*Math.sin(P.ang)+8.2); tone(220,.08,.15); } }
 function release(){ holding=false; }
+function takeOff(vx,vy){ P.air=true; P.vx=vx; P.vy=vy; P.airRot=0; P.airT=0; const tr=tracks[tracks.length-1]; if(tr) tr[1]=P.x; }
 cv.addEventListener('pointerdown', e=>{ e.preventDefault(); press(); });
 addEventListener('pointerup', release); addEventListener('pointercancel', release);
 addEventListener('keydown', e=>{ if(e.code==='Space'||e.code==='ArrowUp'){ e.preventDefault(); if(!holding) press(); } });
 addEventListener('keyup', e=>{ if(e.code==='Space'||e.code==='ArrowUp') release(); });
 
-function spray(x,y,n,spd,col='#fff'){ for(let i=0;i<n;i++) particles.push({x,y,vx:-spd*(0.3+Math.random()*0.6),vy:1+Math.random()*3,life:.5+Math.random()*.5,r:.12+Math.random()*.2,col}); }
-function crashNow(){
-  P.crash=1.0; P.s*=0.45; shake=reduce?0:14; buzz([40,30,60]); thump(70,.35,.7); spray(P.x,P.y+.5,40,6);
-  const lostOne=crew.pop(); if(lostOne){ crewSpots.find(c=>c.fi===lostOne.fi).lost=true; popText(FRIENDS[lostOne.fi].n+' נפל!'); } else popText('אאוץ׳');
+function spray(x,y,n,spd,col='#fff',up=3){ for(let i=0;i<n;i++) particles.push({x,y,vx:-spd*(0.3+Math.random()*0.6),vy:1+Math.random()*up,life:.5+Math.random()*.5,r:.12+Math.random()*.2,col}); }
+function burst(x,y,cols,n){ for(let i=0;i<n;i++){ const a=Math.random()*Math.PI, v=4+Math.random()*7; particles.push({x,y,vx:Math.cos(a)*v,vy:Math.sin(a)*v+2,life:1+Math.random()*.8,r:.18,col:cols[i%cols.length],conf:true}); } }
+function loseFriend(){ const lostOne=crew.pop(); if(lostOne){ crewSpots.find(c=>c.fi===lostOne.fi).lost=true; return FRIENDS[lostOne.fi].n; } return null; }
+function crashNow(msg){
+  P.crash=1.0; P.inv=2.0; P.air=false; P.y=ground(P.x); P.s*=0.4; shake=reduce?0:14; buzz([40,30,60]); tone(70,.35,.7); spray(P.x,P.y+.5,40,6);
+  stats.falls++; setCombo(1,false); const who=loseFriend(); popText(who? who+' נשאר מאחור!' : (msg||'אאוץ׳'));
+}
+function fellIn(g){
+  const tr=tracks[tracks.length-1]; if(tr) tr[1]=Math.min(tr[1],g.x0);
+  P.x=g.x1+1.5; P.y=ground(P.x); P.air=false; P.s=4; P.crash=1.1; P.inv=2.2; P.ang=slope(P.x); shake=reduce?0:18; buzz([60,40,80]); tone(55,.5,.8);
+  spray(P.x,P.y+.3,50,5,'#fff',5); stats.falls++; setCombo(1,false); tracks.push([P.x,P.x]);
+  const who=loseFriend(); popText(who? 'הערוץ בלע את '+who : 'נפלת לערוץ!');
 }
 function land(){
-  const a=slope(P.x), rel=Math.atan2(Math.sin(P.ang-a),Math.cos(P.ang-a));
+  const a=slope(P.x), wall = ground(P.x)-P.y;
+  const g=inGap(P.x); if(g || wall>1.4){ fellIn(g||gaps.find(q=>P.x>=q.x1-0.5&&P.x<q.x1+4)||{x0:P.x-5,x1:P.x}); return; }
+  const rel=Math.atan2(Math.sin(P.ang-a),Math.cos(P.ang-a));
   const n=Math.floor((Math.abs(P.airRot)+0.9)/(2*Math.PI));
-  P.air=false; P.y=ground(P.x);
+  P.air=false; P.y=ground(P.x); tracks.push([P.x,P.x]);
   if(Math.abs(rel)>0.75){ crashNow(); return; }
   const along=P.vx*Math.cos(a)+P.vy*Math.sin(a);
-  P.s=Math.min(VMAX, Math.max(4, along)); P.ang=a; P.land=.25;
-  if(n>0){ flips+=n; const mult=1+crew.length; score+=n*100*mult; P.s=Math.min(VMAX+3,P.s+3*n); slow=reduce?1:.35; buzz(30);
-    popText((n>1?n+' סלטות':'סלטה!')+(mult>1?' ×'+mult:'')); thump(140,.2,.5); spray(P.x,P.y,26,P.s*.6); }
-  else { score+=10; spray(P.x,P.y,12,P.s*.4); thump(100,.12,.25); if(Math.abs(rel)<0.12){ P.s+=1.5; score+=15; } }
+  P.s=Math.min(VMAX, Math.max(4, along)); P.ang=a; P.land=.3;
+  const clean = Math.abs(rel)<0.14;
+  if(n>0){ flips+=n; stats.flips+=n; stats.maxFlip=Math.max(stats.maxFlip,n); const mult=(1+crew.length)*combo; score+=n*100*mult; P.s=Math.min(VMAX+3,P.s+3*n); slow=reduce?1:.35; buzz(30);
+    popText((n>1?n+' סלטות!':'סלטה!')+(mult>1?' ×'+mult:'')); tone(140,.2,.5); spray(P.x,P.y,26,P.s*.6); setCombo(combo+1); }
+  else { spray(P.x,P.y,12,P.s*.4); tone(100,.12,.25); if(P.airT>0.5){ score+=20*combo; if(clean){ P.s+=1.5; score+=15; popText('נחיתה נקייה'); setCombo(combo+1); } } }
 }
 
 let last=performance.now();
 function step(now){
   let dt=Math.min(0.05,(now-last)/1000); last=now;
-  if(state==='run'){ dt*=slow; slow=Math.min(1,slow+dt*1.8); update(dt); }
+  if(state==='count'){ countT-=dt; const n=Math.ceil(countT); $('countN').textContent = n>0? n : 'סעו!';
+    if(countT<=-0.4){ $('count').hidden=true; state='run'; P.s=7; $('hint').hidden=false; $('hint').style.opacity=1; hintT=0; tone(660,.25,.3,'triangle',1); }
+    else if(Math.ceil(countT)!==Math.ceil(countT+dt)) tone(440,.12,.25,'triangle',1); }
+  if(state==='run'||state==='fin'){ dt*=slow; slow=Math.min(1,slow+dt*1.8); update(dt); }
   draw(); requestAnimationFrame(step);
 }
 function update(dt){
-  t+=dt; hintT+=dt; if(hintT>5) $('hint').style.opacity=0;
-  const a=slope(P.x);
-  if(P.crash>0){ P.crash-=dt; P.s=Math.max(0,P.s-6*dt); P.x+=P.s*Math.cos(a)*dt; P.y=ground(P.x); P.ang+=dt*9; if(P.crash<=0){ P.ang=a; P.s=Math.max(P.s,4); } }
+  t+=dt; if(state==='run'){ hintT+=dt; if(hintT>6) $('hint').style.opacity=0; }
+  if(bannerT>0){ bannerT-=dt; if(bannerT<=0) hideBanner(); }
+  const a=slope(P.x), z=zoneAt(P.x);
+  P.inv=Math.max(0,P.inv-dt);
+  if(state==='fin'){ // glide to a stop at the station and celebrate
+    finT+=dt; P.s=Math.max(0,P.s-9*dt); P.x+=P.s*Math.cos(a)*dt; if(P.air){ P.vy-=G*dt; P.y+=P.vy*dt; P.x+=P.vx*dt*.3; if(P.y<=ground(P.x)){ P.air=false; } } if(!P.air) P.y=ground(P.x); P.ang+=(a-P.ang)*Math.min(1,dt*10);
+    if(Math.random()<dt*6) burst(P.x+2+Math.random()*6, ground(P.x)+6, FRIENDS.map(f=>f.c), 8);
+    if(finT>1.6) finish(true);
+  } else if(P.crash>0){ P.crash-=dt; P.s=Math.max(0,P.s-6*dt); P.x+=P.s*Math.cos(a)*dt; P.y=ground(P.x); P.ang+=dt*9; if(P.crash<=0){ P.ang=a; P.s=Math.max(P.s,4); } }
   else if(!P.air){
     P.crouch += ((holding?1:0)-P.crouch)*Math.min(1,dt*8);
-    const drag = holding?0.0022:0.0034;
-    P.s += (-G*Math.sin(a) - drag*P.s*P.s - 0.035*G*Math.cos(a))*dt;
+    let drag = holding?0.0022:0.0034, mu=0.035, push=0;
+    if(z&&z.kind==='powder'){ drag*=4.5; mu=0.09; }
+    if(z&&z.kind==='ice'){ drag*=0.8; mu=0.008; }
+    if(z&&z.kind==='wind'){ push = holding? 0.8 : 4.2; }
+    P.s += (-G*Math.sin(a) - drag*P.s*P.s - mu*G*Math.cos(a) - push)*dt;
     P.s = Math.min(VMAX, Math.max(P.s, 3.2));        // skating on the flats; a racer's top speed
-    const nx=P.x+P.s*Math.cos(a)*dt, ny=ground(nx), ty=P.y+P.s*Math.sin(a)*dt;
+    const nx=P.x+P.s*Math.cos(a)*dt, ty=P.y+P.s*Math.sin(a)*dt;
     // the snow bends away faster than gravity can hold you: airborne off the lip
     const bend = (a - slope(P.x+2.5))/2.5;
-    if(P.s>7 && bend*P.s*P.s > G*Math.cos(a)*1.05){ P.air=true; P.vx=P.s*Math.cos(a); P.vy=P.s*Math.sin(a); P.airRot=0; P.x=nx; P.y=ty; }
-    if(!P.air){ P.x=nx; P.y=ny; }
+    if(P.s>7 && bend*P.s*P.s > G*Math.cos(a)*1.05){ takeOff(P.s*Math.cos(a), P.s*Math.sin(a)); P.x=nx; P.y=ty; }
+    else { P.x=nx; P.y=ground(nx); const tr=tracks[tracks.length-1]; if(tr) tr[1]=P.x; const g=inGap(P.x); if(g) fellIn(g); }
     P.ang += (a-P.ang)*Math.min(1,dt*14);
-    if(Math.random()<P.s*dt*2.5) spray(P.x-0.6,P.y+0.1,1+(P.s>14?1:0),P.s*.5);
+    const sp = z&&z.kind==='powder' ? 4 : 1;
+    if(Math.random()<P.s*dt*2.5*sp) spray(P.x-0.6,P.y+0.1,sp+(P.s>14?1:0),P.s*.5,'#fff',sp>1?5:3);
   } else {
+    P.airT+=dt;
     const v=Math.hypot(P.vx,P.vy), d=1-0.0034*v*dt; P.vx*=d; P.vy*=d; // the same air drag as on the snow
+    if(z&&z.kind==='wind') P.vx=Math.max(2,P.vx-3*dt);
     P.vy -= G*dt; P.x+=P.vx*dt; P.y+=P.vy*dt;
     const spin = holding? 7.6 : 0; P.ang += spin*dt; P.airRot += spin*dt;
+    if(!holding){ // let go and the skier settles toward the snow below (and finishes a nearly complete flip)
+      const tgt=slope(P.x), rel=Math.atan2(Math.sin(P.ang-tgt),Math.cos(P.ang-tgt)); const fwd = P.airRot>0.5 && rel>0 ? Math.min(2*Math.PI-((P.airRot%(2*Math.PI))||2*Math.PI), 9) : 0;
+      const step = fwd>0 && fwd<1.6 ? Math.min(fwd, 4*dt) : -Math.sign(rel)*Math.min(Math.abs(rel), 2.6*dt);
+      P.ang += step; if(step>0) P.airRot += step; }
     P.crouch += ((holding?1:0)-P.crouch)*Math.min(1,dt*10);
     if(P.y<=ground(P.x)) land();
   }
   P.land=Math.max(0,P.land-dt);
-  // friends: ski through one to pick them up
-  for(const c of crewSpots){ if(c.got||c.lost) continue; if(Math.abs(P.x-c.x)<4 && P.y-ground(P.x)<5 && P.crash<=0){ c.got=true; crew.push({fi:c.fi}); score+=150; popText(FRIENDS[c.fi].n+' הצטרף!'); buzz(20); thump(330,.1,.2); } }
-  trail.push({x:P.x,y:P.y,ang:P.ang,crouch:P.crouch}); if(trail.length>400) trail.shift();
+  const hgt = P.y-ground(P.x);
+  if(state==='run'){
+    // rocks and the snowcat: jump them or fall
+    for(const r of rocks){ if(!r.hit && Math.abs(P.x-r.x)<0.8 && hgt<r.h && P.inv<=0 && P.crash<=0){ r.hit=true; crashNow('סלע!'); } }
+    for(const c of cats){
+      if(Math.abs(P.x-c.x)>3) { c.x -= c.v*dt*(inGap(c.x-2.5)?0:1); }
+      if(!c.warned && c.x-P.x<70 && c.x>P.x){ c.warned=true; banner('רטרק!','עולה במסלול. קפצו מעליו'); }
+      if(Math.abs(P.x-c.x)<2.0){ if(hgt<2.1 && !c.over && P.inv<=0 && P.crash<=0 && !c.hit){ c.hit=true; crashNow('נתקעת ברטרק!'); }
+        else if(hgt>=2.1 && !c.over){ c.over=true; stats.overCat=true; score+=300*combo; popText('מעל הרטרק!'); tone(520,.2,.35,'triangle',1.5); setCombo(combo+1); } }
+    }
+    for(const g of gaps) if(!g.warned && g.x0-P.x<60 && g.x0>P.x){ g.warned=true; banner('ערוץ!','קפצו רגע לפני הקצה'); }
+    for(const zz of zones) if(!zz.warned && zz.x0-P.x<35 && zz.x1>P.x){ zz.warned=true;
+      if(zz.kind==='wind') banner('רוח ברכס','החזיקו על השלג כדי להתכופף'); else if(zz.kind==='powder') banner('שלג עמוק','מאט. אפשר לקפוץ מעליו'); else banner('קרח','מהיר! תחזיקו חזק'); }
+    // khachapuri
+    for(const c of coins){ if(c.got) continue; const cy=baseGround(c.x)+c.dy; if(Math.abs(P.x-c.x)<1.3 && Math.abs(P.y+0.9-cy)<1.5){ c.got=true; stats.coins++; score+=10*combo; tone(990+stats.coins%5*80,.07,.12,'triangle',1.2); particles.push({x:c.x,y:cy,vx:0,vy:3,life:.5,r:.25,col:'#F4B942'}); } }
+    // friends: ski through one to pick them up
+    for(const c of crewSpots){ if(c.got||c.lost) continue; if(Math.abs(P.x-c.x)<4 && hgt<8 && P.crash<=0){ c.got=true; c.joinT=0.7; crew.push({fi:c.fi, from:c.x}); score+=150; popText(FRIENDS[c.fi].n+' הצטרף!'); setCombo(combo+1); buzz(20); tone(330,.1,.2); } }
+    // a Gudauri dog joins for a while near the bottom
+    if(!dog.on && !dog.done && P.x>dog.x0){ dog.on=true; dog.t=0; banner('🐕','כלב של גודאורי רץ איתכם'); }
+    if(P.x>=R.len-8){ state='fin'; finT=0; hideBanner(); $('hint').hidden=true; popText(R.lift?'רכבל '+R.lift:'סיום!'); tone(520,.3,.4,'triangle',2); burst(P.x+3,P.y+3,FRIENDS.map(f=>f.c),60); }
+  }
+  if(dog.on){ dog.t+=dt; if(dog.t>14 || state==='fin'){ dog.on=false; dog.done=true; } }
+  // history of positions: the crew ride in your exact tracks, a fixed distance apart
+  const lastH=hist[hist.length-1]; if(!lastH || P.x-lastH.x>0.15 || P.air!==lastH.air) hist.push({x:P.x,y:P.y,ang:P.ang,air:P.air,c:P.crouch}); if(hist.length>4000) hist.splice(0,1000);
+  for(const c of crewSpots) c.joinT=Math.max(0,c.joinT-dt);
   if(rec.length===0||t-rec[rec.length-1][0]>=0.1) rec.push([+t.toFixed(2),+P.x.toFixed(1),+P.y.toFixed(1),+P.ang.toFixed(2)]);
   // avalanche
-  if(avalanche.on){ const as=Math.max(0,-Math.sin(slope(Math.max(0,avalanche.x)))); // it runs fast on steep snow and slows on the flats
-    avalanche.v += ((6+t*0.06+as*90) - avalanche.v)*Math.min(1,dt*0.8); avalanche.v=Math.min(avalanche.v,28.5); avalanche.x+=avalanche.v*dt;
+  if(avalanche.on && state==='run'){ const as=Math.max(0,-Math.sin(slope(Math.max(0,avalanche.x))));
+    // fast on steep snow, slow on the flats; it never falls hopelessly far behind
+    let tv = Math.min(24, 5+t*0.05+as*55); if(P.x-avalanche.x>140) tv=Math.max(tv,P.s+3);
+    avalanche.v += (tv - avalanche.v)*Math.min(1,dt*0.8); if(t>2) avalanche.x+=avalanche.v*dt;
     if(avalanche.x>=P.x-1){ finish(false); return; } }
-  // particles
-  for(const p of particles){ p.vy-=G*0.35*dt; p.x+=p.vx*dt; p.y+=p.vy*dt; p.life-=dt; } particles=particles.filter(p=>p.life>0);
-  shake=Math.max(0,shake-dt*40);
-  if(P.x>=R.len-5) finish(true);
+  for(const p of particles){ p.vy-=G*(p.conf?0.25:0.35)*dt; p.x+=p.vx*dt; p.y+=p.vy*dt; p.life-=dt; } particles=particles.filter(p=>p.life>0);
+  if(particles.length>500) particles.splice(0,particles.length-500);
+  shake=Math.max(0,shake-dt*40); windT+=dt;
   // HUD
-  $('hudTime').textContent=fmt(t); $('hudSpeed').textContent=Math.round(P.s*3.6);
-  $('barFill').style.width=(P.x/R.len*100).toFixed(1)+'%'; $('barAva').style.left=Math.max(0,avalanche.x/R.len*100).toFixed(1)+'%'; $('barAva').hidden=!avalanche.on;
+  $('hudTime').textContent=fmt(t); $('hudSpeed').textContent=Math.round(P.s*3.6); $('hudAlt').textContent=fmtM(realH(P.x))+' מ׳';
   if(ghost){ const gx=ghostAt(t); const gap=(P.x-gx[1]); $('hudGap').textContent = gap>=0?'לפני השיא ב-'+Math.round(gap)+' מ׳':'אחרי השיא ב-'+Math.round(-gap)+' מ׳'; } else $('hudGap').textContent='';
   $('crew').querySelectorAll('i').forEach(el=>{ const fi=+el.dataset.fi; el.classList.toggle('on', crew.some(c=>c.fi===fi)); el.style.opacity = crewSpots.find(c=>c.fi===fi).lost? '.12' : ''; });
-  if(windGain&&soundOn) windGain.gain.value=Math.min(.35,P.s/80);
+  $('coinHud').textContent=stats.coins+' 🥟';
+  if(windGain&&soundOn) windGain.gain.value=Math.min(.35,P.s/80 + (z&&z.kind==='wind'?.15:0));
+}
+function histAt(x){ // the rider's own path, at distance x along the run
+  let lo=0, hi=hist.length-1; if(hi<0||x<=hist[0].x) return {x, y:ground(x), ang:slope(x), air:false, c:0};
+  while(hi-lo>1){ const m=(lo+hi)>>1; if(hist[m].x<x) lo=m; else hi=m; } return hist[lo];
 }
 function ghostAt(tt){ if(!ghost) return null; let i=0; while(i<ghost.r.length-1&&ghost.r[i+1][0]<tt) i++; return ghost.r[i]; }
 function fmt(s){ const m=Math.floor(s/60), r=s-m*60; return m+':'+(r<10?'0':'')+r.toFixed(1); }
 function finish(ok){
-  state='end'; if(windGain) windGain.gain.value=0; ['hud','crew','bar','speedBox','hint'].forEach(id=>$(id).hidden=true);
+  state='end'; if(windGain) windGain.gain.value=0; ['hud','crew','speedBox','hint','combo'].forEach(id=>$(id).hidden=true); hideBanner();
   const got=crew.length; score += ok? got*200 + Math.max(0,Math.round(600-t*3)) : 0;
-  $('endTitle').textContent = ok? 'הגעתם לרכבל!' : 'המפולת תפסה אותך';
+  const goals=[ok, ok&&got===5, ok&&MISSION[R.key].ok(stats)], nStars=goals.filter(Boolean).length;
+  const prev=store.get('stars-'+R.key,0); if(nStars>prev) store.set('stars-'+R.key,nStars);
+  $('endTitle').textContent = ok? (got===5?'כל החבר׳ה הגיעו לרכבל!':'הגעתם לרכבל!') : 'המפולת תפסה אותך';
   $('endWho').textContent = FRIENDS[me].n+' · '+R.key+(R.lift?' עד רכבל '+R.lift:'');
-  $('endTime').textContent = ok? fmt(t) : Math.round(P.x)+' מ׳';
-  $('endFlips').textContent=flips; $('endCrew').textContent=got+'/5'; $('endScore').textContent=score;
+  $('endTime').textContent = ok? fmt(t) : Math.round(P.x)+' מ׳ מתוך '+fmtM(R.len);
+  $('endStars').innerHTML = [0,1,2].map(i=>`<i class="${goals[i]?'on':''}">★</i>`).join('');
+  $('endGoals').innerHTML = [['להגיע לרכבל',goals[0]],['להביא את כל החבר׳ה ('+got+'/5)',goals[1]],[MISSION[R.key].t,goals[2]]].map(([s,o])=>`<span class="${o?'ok':''}">${s}</span>`).join('');
+  $('endFlips').textContent=flips; $('endCrew').textContent=got+'/5'; $('endCoins').textContent=stats.coins+'/'+coins.length; $('endScore').textContent=score;
   const key='best-'+R.key, best=store.get(key,null);
   if(ok && (!best||t<best.t)){ store.set(key,{t,who:me}); store.set('ghost-'+R.key,{t,who:me,r:rec}); $('endBest').textContent='שיא חדש במסלול! בפעם הבאה תגלוש מול רוח הרפאים שלו.'; }
   else $('endBest').textContent = best? 'השיא במסלול: '+fmt(best.t)+' ('+FRIENDS[best.who].n+')' : '';
-  lastResultText = ok ? `${FRIENDS[me].n} ירד ב-${R.key} ב-${fmt(t)}, עם ${flips} סלטות ו-${got} מתוך 5 חבר׳ה. מי עוקף?` : `המפולת תפסה את ${FRIENDS[me].n} ב-${R.key} אחרי ${Math.round(P.x)} מ׳. מי מגיע רחוק יותר?`;
+  lastResultText = ok ? `${FRIENDS[me].n} ירד ב-${R.key} ב-${fmt(t)} ${starStr(nStars)}: ${flips} סלטות, ${got} מתוך 5 חבר׳ה ו-${stats.coins} חצ׳אפורי. מי עוקף?` : `המפולת תפסה את ${FRIENDS[me].n} ב-${R.key} אחרי ${Math.round(P.x)} מ׳. מי מגיע רחוק יותר?`;
   $('copyNote').textContent='באתר עצמו הקישור יכיל את הירידה, והחברים יגלשו מול רוח הרפאים שלך.';
   $('menuEnd').hidden=false;
 }
 
-/* ---------- drawing ---------- */
-function skier(x,y,ang,col,crouch=0,alpha=1,label){
-  cx.save(); cx.translate(x,y); cx.rotate(-ang); cx.scale(1.35,1.35); cx.globalAlpha=alpha;
-  const h=1-0.3*crouch;
-  cx.strokeStyle='#13233A'; cx.lineCap='round'; cx.lineWidth=.16; cx.beginPath(); cx.moveTo(-.95,0); cx.lineTo(1.05,0); cx.stroke(); // ski
-  cx.beginPath(); cx.moveTo(1.05,0); cx.quadraticCurveTo(1.25,0,1.3,.12); cx.stroke();
-  cx.fillStyle='#2A3B55'; cx.beginPath(); cx.moveTo(-.25,.05); cx.lineTo(-.05,.8*h); cx.lineTo(.2,.8*h); cx.lineTo(.3,.05); cx.fill(); // legs
-  cx.fillStyle=col; cx.beginPath(); cx.moveTo(-.25,.75*h); cx.quadraticCurveTo(-.3,1.55*h,.12,1.62*h); cx.quadraticCurveTo(.45,1.5*h,.35,.75*h); cx.fill(); // jacket
-  cx.strokeStyle=col; cx.lineWidth=.18; cx.beginPath(); cx.moveTo(.1,1.35*h); cx.lineTo(.55,1.05*h); cx.stroke(); // arm
-  cx.strokeStyle='#3A4556'; cx.lineWidth=.06; cx.beginPath(); cx.moveTo(.55,1.05*h); cx.lineTo(-.3,.05); cx.stroke(); // pole
-  cx.fillStyle='#F4F7FB'; cx.strokeStyle='#13233A'; cx.lineWidth=.07; cx.beginPath(); cx.arc(.14,1.88*h,.26,0,7); cx.fill(); cx.stroke(); // helmet
-  cx.fillStyle='#13233A'; cx.fillRect(.18,1.8*h,.26,.1); // goggles
+/* ---------- drawing (world units are metres, y up) ---------- */
+// skis lie along the snow; the body stays upright over the boots and leans into the fall line; in the air everything turns together
+function skier(x,y,skiAng,bodyAng,col,o={}){
+  const cr=o.crouch||0, h=1-0.32*cr, al=o.alpha==null?1:o.alpha, k=1.6;
+  cx.save(); cx.translate(x,y); cx.globalAlpha=al;
+  cx.save(); cx.rotate(skiAng); cx.scale(k,k);
+  cx.strokeStyle='#13233A'; cx.lineCap='round'; cx.lineWidth=.13; cx.beginPath(); cx.moveTo(-.95,.04); cx.lineTo(1.0,.04); cx.quadraticCurveTo(1.22,.04,1.28,.2); cx.stroke();
   cx.restore();
-  if(label){ cx.save(); cx.globalAlpha=alpha; cx.fillStyle='#13233A'; cx.font='700 0.8px "IBM Plex Sans Hebrew",sans-serif'; cx.textAlign='center'; cx.scale(1,-1); cx.fillText(label,x,-(y+2.7)); cx.restore(); }
+  cx.rotate(bodyAng); cx.scale(k,k);
+  const kneeX = .18+.25*cr, hipY=.85*h;
+  cx.strokeStyle='#2A3B55'; cx.lineWidth=.2; cx.lineJoin='round'; cx.beginPath(); cx.moveTo(0,.1); cx.lineTo(kneeX,.45*h); cx.lineTo(-.05,hipY); cx.stroke(); // legs
+  cx.fillStyle='#1A2A40'; cx.fillRect(-.14,.04,.3,.14); // boots
+  const torso = .35*cr; // tuck folds the torso forward
+  cx.save(); cx.translate(-.05,hipY); cx.rotate(-torso);
+  if(o.scarf!=null){ cx.strokeStyle=col; cx.lineWidth=.12; cx.beginPath(); cx.moveTo(.05,.72); for(let s=1;s<=4;s++) cx.lineTo(.05-s*.22, .72+Math.sin(o.scarf*14+s*1.3)*.07*s - s*.02); cx.stroke(); }
+  cx.fillStyle=col; cx.beginPath(); cx.moveTo(-.2,-.05); cx.quadraticCurveTo(-.26,.7,.1,.78); cx.quadraticCurveTo(.4,.66,.3,-.05); cx.closePath(); cx.fill();
+  cx.fillStyle='rgba(255,255,255,.35)'; cx.fillRect(-.2,.25,.5,.07); // jacket stripe
+  const wave = o.wave!=null ? Math.sin(o.wave*9)*.5 : null;
+  cx.strokeStyle=col; cx.lineWidth=.17;
+  if(wave!=null){ cx.beginPath(); cx.moveTo(.08,.6); cx.lineTo(.35,.95+wave*.2); cx.lineTo(.5+wave*.15,1.25); cx.stroke(); }
+  else { cx.beginPath(); cx.moveTo(.08,.58); cx.lineTo(.5,.3-.1*cr); cx.stroke(); cx.strokeStyle='#3A4556'; cx.lineWidth=.05; cx.beginPath(); cx.moveTo(.5,.3-.1*cr); cx.lineTo(-.25-.3*cr,-hipY+.08); cx.stroke(); } // arm and pole
+  cx.fillStyle='#F4F7FB'; cx.strokeStyle='#13233A'; cx.lineWidth=.06; cx.beginPath(); cx.arc(.12,1.0,.25,0,7); cx.fill(); cx.stroke(); // helmet
+  cx.fillStyle='#13233A'; cx.fillRect(.16,.93,.25,.1); cx.fillStyle=col; cx.fillRect(.18,.95,.2,.05); // goggles
+  cx.restore(); cx.restore();
+  if(o.label){ cx.save(); cx.globalAlpha=al; cx.scale(1,-1); cx.font='700 0.8px "IBM Plex Sans Hebrew",sans-serif'; cx.textAlign='center';
+    const w=cx.measureText(o.label).width+0.5; cx.fillStyle=o.labelBg||'#fff'; cx.fillRect(x-w/2,-(y+4.3),w,1.05); cx.fillStyle='#13233A'; cx.fillText(o.label,x,-(y+3.5)); cx.restore(); }
 }
+function shadow(x,hgt){ const gy=ground(x); if(inGap(x)) return; const s=Math.max(.2,1-hgt/10); cx.save(); cx.fillStyle=`rgba(40,60,90,${.25*s})`; cx.translate(x,gy+.02); cx.rotate(slope(x)); cx.scale(1,.28); cx.beginPath(); cx.arc(0,0,1.3*s,0,7); cx.fill(); cx.restore(); }
+function tree(X,Y,h,col){ cx.fillStyle=col; for(let k=0;k<3;k++){ const w=h*(0.42-k*0.1), y=Y-h*(0.28+k*0.24); cx.beginPath(); cx.moveTo(X,y-h*0.34); cx.lineTo(X+w,y+h*0.06); cx.lineTo(X-w,y+h*0.06); cx.fill(); } cx.fillRect(X-h*0.04,Y-h*0.28,h*0.08,h*0.28);
+  cx.fillStyle='rgba(255,255,255,.85)'; for(let k=0;k<3;k++){ const w=h*(0.42-k*0.1), y=Y-h*(0.28+k*0.24); cx.beginPath(); cx.moveTo(X,y-h*0.34); cx.lineTo(X+w*.45,y-h*.12); cx.lineTo(X-w*.45,y-h*.12); cx.fill(); } }
+const hash=i=>{ const v=Math.sin(i*127.1)*43758.5; return v-Math.floor(v); };
 function draw(){
-  // close on the skier when slow, pulling back as speed and airtime grow
-  const want = Math.min(W,H*0.75) / (20 + (P? P.s*0.75 + Math.max(0,P.y-ground(P.x))*1.2 : 0));
+  const hNow = P? Math.max(0,P.y-ground(P.x)) : 0;
+  const want = Math.min(W,H*0.75) / (14 + (P? P.s*0.6 + Math.min(hNow,12)*1.0 : 0));
   zoom = zoom ? zoom + (want-zoom)*0.06 : want; const sc = zoom;
-  const camX = P? P.x - W*0.3/sc : 0, camY = P? P.y + (P.y-ground(P.x))*0.3 + H*0.1/sc : 0;
+  const camX = P? P.x - W*0.27/sc : 0, camY = P? P.y + Math.min(hNow,12)*0.35 + H*0.1/sc : 0;
+  const fog = R? Math.max(0,Math.min(.55,(realH(P?P.x:0)-2950)/400)) : 0;
   // sky and the real view from the village, drifting slowly
   const g=cx.createLinearGradient(0,0,0,H); g.addColorStop(0,'#4F90D2'); g.addColorStop(.6,'#D2E4F3'); cx.fillStyle=g; cx.fillRect(0,0,W,H);
   if(pano.complete&&pano.naturalWidth){ const ph=Math.max(H*0.7,W*0.42*pano.naturalHeight/pano.naturalWidth), pw=ph*pano.naturalWidth/pano.naturalHeight, top=H*0.78-ph;
     const scroll=(P?P.x:0)*0.6, k0=Math.floor(scroll/pw);
     for(let k=k0;k*pw-scroll<W;k++){ const x=k*pw-scroll; cx.save(); if(k%2){ cx.translate(x+pw,0); cx.scale(-1,1); cx.drawImage(pano,0,top,pw,ph); } else cx.drawImage(pano,x,top,pw,ph); cx.restore(); } // mirrored tiles hide the seam
     const hz=cx.createLinearGradient(0,top+ph*0.72,0,top+ph); hz.addColorStop(0,'rgba(226,236,246,0)'); hz.addColorStop(1,'rgba(226,236,246,1)'); cx.fillStyle=hz; cx.fillRect(0,top+ph*0.72,W,ph*0.28); cx.fillStyle='#E2ECF6'; cx.fillRect(0,top+ph-1,W,H); }
-  if(!P){ return; }
+  if(fog>0){ cx.fillStyle=`rgba(236,242,248,${fog*1.2})`; cx.fillRect(0,0,W,H); }
+  if(!P||!R) return;
   const sx=x=>(x-camX)*sc, sy=y=>H*0.5-(y-camY)*sc;
   cx.save(); if(shake) cx.translate((Math.random()-.5)*shake,(Math.random()-.5)*shake);
-  // pines beside the piste: a paler row behind it and a darker, bigger row in front (depth and a sense of speed)
-  const tree=(X,Y,h,col)=>{ cx.fillStyle=col; for(let k=0;k<3;k++){ const w=h*(0.42-k*0.1), y=Y-h*(0.28+k*0.24); cx.beginPath(); cx.moveTo(X,y-h*0.34); cx.lineTo(X+w,y+h*0.06); cx.lineTo(X-w,y+h*0.06); cx.fill(); } cx.fillRect(X-h*0.04,Y-h*0.28,h*0.08,h*0.28); };
-  const hash=i=>{ const v=Math.sin(i*127.1)*43758.5; return v-Math.floor(v); };
-  const treeRow=(gap,off,hmin,hmax,col,par)=>{ const cxw=camX*par; for(let i=Math.floor((cxw-40)/gap);i<(cxw+W/sc+40)/gap;i++){ if(hash(i+off)<0.45) continue; const wx=i*gap+hash(i*3+off)*gap*0.8; const gx=camX+(wx-cxw);
-      if(gx<0||gx>R.len) continue; const X=sx(gx), Y=sy(ground(gx))+off*sc; tree(X,Y,(hmin+(hmax-hmin)*hash(i*7+off))*sc,col); } };
-  // snow body
-  const x0=camX-2, x1=camX+W/sc+2;
-  cx.beginPath(); cx.moveTo(sx(x0),H+10); for(let x=x0;x<=x1;x+=1.5) cx.lineTo(sx(x),sy(ground(x))); cx.lineTo(sx(x1),H+10); cx.closePath();
+  const x0=camX-3, x1=camX+W/sc+3;
+  // the surface, with the gully walls exactly at their edges
+  const xs=[]; for(let x=x0;x<=x1;x+=1) xs.push(x); for(const gp of gaps) if(gp.x1>x0&&gp.x0<x1) xs.push(gp.x0,gp.x0+.001,gp.x1-.001,gp.x1); xs.sort((a,b)=>a-b);
+  const gy=x=>{ const gp=inGap(x); return gp? baseGround(x)-7 : baseGround(x); };
+  cx.beginPath(); cx.moveTo(sx(x0),H+10); for(const x of xs) cx.lineTo(sx(x),sy(gy(x))); cx.lineTo(sx(x1),H+10); cx.closePath();
   const sg=cx.createLinearGradient(0,H*.3,0,H); sg.addColorStop(0,'#FFFFFF'); sg.addColorStop(1,'#C9D8E7'); cx.fillStyle=sg; cx.fill();
-  cx.strokeStyle='#8FA7C0'; cx.lineWidth=2; cx.beginPath(); for(let x=x0;x<=x1;x+=1.5){ const X=sx(x),Y=sy(ground(x)); x===x0?cx.moveTo(X,Y):cx.lineTo(X,Y);} cx.stroke();
-  // corduroy just under the surface
-  cx.strokeStyle='rgba(143,167,192,.35)'; cx.lineWidth=1; for(let k=1;k<4;k++){ cx.beginPath(); for(let x=x0;x<=x1;x+=3){ const X=sx(x),Y=sy(ground(x))+k*7; x===x0?cx.moveTo(X,Y):cx.lineTo(X,Y);} cx.stroke(); }
-  treeRow(7,6,6,10,'#2F5A4A',1.15); treeRow(11,11,8,13,'#1F4436',1.3);
-  // piste markers every 25 m in the run's colour, kickers with orange flags
-  for(let m=Math.ceil(x0/25)*25;m<x1;m+=25){ const X=sx(m),Y=sy(ground(m)); cx.fillStyle=RUNCOL[R.color]; cx.fillRect(X-2,Y-sc*1.6,4,sc*1.6); cx.fillStyle='#fff'; cx.fillRect(X-2,Y-sc*1.6,4,sc*.35); }
-  for(const k of kickers){ if(k<x0||k>x1) continue; const X=sx(k),Y=sy(ground(k)); cx.fillStyle='#F08A3C'; cx.beginPath(); cx.moveTo(X,Y-sc*2.2); cx.lineTo(X+sc*.9,Y-sc*1.9); cx.lineTo(X,Y-sc*1.6); cx.fill(); cx.strokeStyle='#13233A'; cx.lineWidth=1.5; cx.beginPath(); cx.moveTo(X,Y); cx.lineTo(X,Y-sc*2.2); cx.stroke(); }
-  // the lift at the bottom
+  // gully: a dark cut with icy water at the bottom
+  for(const gp of gaps){ if(gp.x1<x0||gp.x0>x1) continue; const a=gp.x0, b=gp.x1;
+    cx.fillStyle='#6F88A3'; cx.beginPath(); cx.moveTo(sx(a),sy(baseGround(a))); cx.lineTo(sx(a),sy(baseGround(a)-7)); cx.lineTo(sx(b),sy(baseGround(b)-7)); cx.lineTo(sx(b),sy(baseGround(b))); cx.closePath(); cx.fill();
+    cx.fillStyle='#3E6E9C'; cx.fillRect(sx(a),sy(baseGround(a)-5.8),(b-a)*sc,1.2*sc);
+    cx.strokeStyle='rgba(255,255,255,.6)'; cx.lineWidth=1.5; cx.beginPath(); for(let q=0;q<4;q++){ const xx=a+((q*2+t*1.5)%(b-a)); cx.moveTo(sx(xx),sy(baseGround(a)-5.8)+2); cx.lineTo(sx(xx+.8),sy(baseGround(a)-5.8)+2); } cx.stroke();
+    cx.fillStyle='#fff'; cx.fillRect(sx(a)-2,sy(baseGround(a)),4,sc*1.2); cx.fillRect(sx(b)-2,sy(baseGround(b)),4,sc*1.2); }
+  // ice sheen and powder pillows on the surface
+  for(const z of zones){ if(z.x1<x0||z.x0>x1||z.kind==='wind') continue;
+    if(z.kind==='ice'){ cx.strokeStyle='rgba(120,200,240,.8)'; cx.lineWidth=Math.max(3,sc*.35); cx.beginPath(); for(let x=z.x0;x<=z.x1;x+=1){ const X=sx(x),Y=sy(ground(x))+cx.lineWidth/2; x===z.x0?cx.moveTo(X,Y):cx.lineTo(X,Y);} cx.stroke();
+      cx.strokeStyle='rgba(255,255,255,.9)'; cx.lineWidth=1.5; for(let x=z.x0+2;x<z.x1;x+=5){ const X=sx(x),Y=sy(ground(x))+sc*.2; cx.beginPath(); cx.moveTo(X,Y); cx.lineTo(X+sc*1.2,Y-sc*.12); cx.stroke(); } }
+    else { cx.fillStyle='#FFFFFF'; for(let x=z.x0;x<=z.x1;x+=1.6){ cx.beginPath(); cx.arc(sx(x),sy(ground(x)),sc*(0.55+0.25*hash(Math.round(x*3))),0,7); cx.fill(); }
+      cx.strokeStyle='rgba(143,167,192,.5)'; cx.lineWidth=1; cx.beginPath(); for(let x=z.x0;x<=z.x1;x+=1.6){ cx.moveTo(sx(x)+sc*.5,sy(ground(x))); cx.arc(sx(x),sy(ground(x)),sc*(0.55+0.25*hash(Math.round(x*3))),0,-Math.PI,true); } cx.stroke(); } }
+  cx.strokeStyle='#8FA7C0'; cx.lineWidth=2; cx.beginPath(); let first=true; for(const x of xs){ if(inGap(x)) { first=true; continue; } const X=sx(x),Y=sy(gy(x)); first?cx.moveTo(X,Y):cx.lineTo(X,Y); first=false; } cx.stroke();
+  // corduroy just under the surface, and your ski tracks carved into it
+  cx.strokeStyle='rgba(143,167,192,.3)'; cx.lineWidth=1; for(let k=1;k<4;k++){ cx.beginPath(); first=true; for(let x=x0;x<=x1;x+=3){ if(inGap(x)){first=true;continue;} const X=sx(x),Y=sy(baseGround(x))+k*7; first?cx.moveTo(X,Y):cx.lineTo(X,Y); first=false; } cx.stroke(); }
+  cx.strokeStyle='rgba(95,125,160,.55)'; cx.lineWidth=Math.max(1,sc*.09);
+  for(const tr of tracks){ const a=Math.max(tr[0],x0), b=Math.min(tr[1],x1); if(b<=a) continue; for(const off of [.16,.4]){ cx.beginPath(); for(let x=a;x<=b;x+=0.8){ const X=sx(x),Y=sy(ground(x))+off*sc; x===a?cx.moveTo(X,Y):cx.lineTo(X,Y);} cx.lineTo(sx(b),sy(ground(b))+off*sc); cx.stroke(); } }
+  // pines in front of the piste
+  const treeRow=(gap,off,hmin,hmax,col,par)=>{ const cxw=camX*par; for(let i=Math.floor((cxw-40)/gap);i<(cxw+W/sc+40)/gap;i++){ if(hash(i+off)<0.45) continue; const wx=i*gap+hash(i*3+off)*gap*0.8; const gx=camX+(wx-cxw);
+      if(gx<0||gx>R.len) continue; tree(sx(gx), sy(baseGround(gx))+off*sc, (hmin+(hmax-hmin)*hash(i*7+off))*sc, col); } };
+  treeRow(8,8,4.5,7.5,'#2F5A4A',1.15); treeRow(12,13,6,10,'#1F4436',1.3);
+  // piste markers every 25 m in the run's colour, kicker flags, warning signs
+  for(let m=Math.ceil(x0/25)*25;m<x1;m+=25){ if(inGap(m)) continue; const X=sx(m),Y=sy(ground(m)); cx.fillStyle=RUNCOL[R.color]; cx.fillRect(X-2,Y-sc*1.6,4,sc*1.6); cx.fillStyle='#fff'; cx.fillRect(X-2,Y-sc*1.6,4,sc*.35); }
+  for(const k of kickers){ if(k.x<x0||k.x>x1) continue; const X=sx(k.x),Y=sy(ground(k.x)); cx.fillStyle=k.gap?'#D1342B':'#F08A3C'; cx.beginPath(); cx.moveTo(X,Y-sc*2.4); cx.lineTo(X+sc*1,Y-sc*2.05); cx.lineTo(X,Y-sc*1.7); cx.fill(); cx.strokeStyle='#13233A'; cx.lineWidth=1.5; cx.beginPath(); cx.moveTo(X,Y); cx.lineTo(X,Y-sc*2.4); cx.stroke(); }
+  cx.textAlign='center'; cx.font=`700 ${Math.max(11,Math.round(sc*.75))}px "IBM Plex Sans Hebrew",sans-serif`;
+  for(const s of [...signs, {x:6,t:'זינוק · '+fmtM(R.top)+' מ׳'}]){ if(s.x<x0-10||s.x>x1+10) continue; const X=sx(s.x),Y=sy(ground(s.x)); const w=cx.measureText(s.t).width+sc*1.2, hh=sc*1.1;
+    cx.fillStyle='#13233A'; cx.fillRect(X-2,Y-sc*3.2,4,sc*3.2); cx.fillStyle=s.x<10?RUNCOL[R.color]:'#F08A3C';
+    cx.beginPath(); cx.moveTo(X-w/2-hh*.4,Y-sc*3.2-hh/2); cx.lineTo(X-w/2,Y-sc*3.2-hh); cx.lineTo(X+w/2,Y-sc*3.2-hh); cx.lineTo(X+w/2,Y-sc*3.2); cx.lineTo(X-w/2,Y-sc*3.2); cx.closePath(); cx.fill();
+    cx.fillStyle=s.x<10?'#fff':'#13233A'; cx.fillText(s.t,X,Y-sc*3.2-hh*.28); }
+  // the lift and the finish arch
   const lx=R.len-3; if(lx>x0-20&&lx<x1+20){ const X=sx(lx),Y=sy(ground(lx)); cx.fillStyle='#13233A'; cx.fillRect(X-3,Y-sc*9,6,sc*9); cx.fillRect(X-sc*2.2,Y-sc*9,sc*4.4,sc*.8); cx.strokeStyle='#13233A'; cx.lineWidth=2; cx.beginPath(); cx.moveTo(X,Y-sc*8.6); cx.lineTo(X+W,Y-sc*8.6-W*.35); cx.stroke();
-    cx.fillStyle='#F4B942'; cx.font=`700 ${Math.round(sc*1.6)}px Karantina, sans-serif`; cx.textAlign='center'; cx.fillText(R.lift?('רכבל '+R.lift):'סיום', X, Y-sc*10); }
-  // friends waiting on the slope
+    cx.fillStyle='#F4B942'; cx.font=`700 ${Math.round(sc*1.6)}px Karantina, sans-serif`; cx.fillText(R.lift?('רכבל '+R.lift):'סיום', X, Y-sc*10);
+    const fx=R.len-8; const FX=sx(fx), FY=sy(ground(fx)); cx.fillStyle='#D1342B'; cx.fillRect(FX-sc*3,FY-sc*4.2,sc*6,sc*.9); cx.fillStyle='#13233A'; cx.fillRect(FX-sc*3,FY-sc*4.2,3,sc*4.2); cx.fillRect(FX+sc*3-3,FY-sc*4.2,3,sc*4.2);
+    cx.fillStyle='#fff'; cx.font=`700 ${Math.round(sc*.8)}px "IBM Plex Sans Hebrew",sans-serif`; cx.fillText('סיום',FX,FY-sc*3.5); }
   const toW=(fn)=>{ cx.save(); cx.translate(sx(camX),sy(camY)); cx.scale(sc,-sc); cx.translate(-camX,-camY); fn(); cx.restore(); };
   toW(()=>{
-    for(const c of crewSpots){ if(c.got||c.lost||c.x<x0-5||c.x>x1+5) continue; const y=ground(c.x); skier(c.x,y,slope(c.x),FRIENDS[c.fi].c,0,1,FRIENDS[c.fi].n);
-      cx.save(); cx.globalAlpha=.6+.4*Math.sin(t*6); cx.strokeStyle='#F4B942'; cx.lineWidth=.15; cx.beginPath(); cx.arc(c.x,y+1.1,1.9,0,7); cx.stroke(); cx.restore(); }
+    // rocks
+    for(const r of rocks){ if(r.x<x0-3||r.x>x1+3) continue; const y=ground(r.x); cx.save(); cx.translate(r.x,y); cx.rotate(slope(r.x));
+      cx.fillStyle='#5B6675'; cx.beginPath(); cx.moveTo(-.9,0); cx.lineTo(-.6,r.h*.8); cx.lineTo(-.1,r.h); cx.lineTo(.5,r.h*.85); cx.lineTo(.9,0); cx.fill();
+      cx.fillStyle='#fff'; cx.beginPath(); cx.moveTo(-.62,r.h*.78); cx.lineTo(-.1,r.h+.08); cx.lineTo(.52,r.h*.86); cx.lineTo(.2,r.h*.7); cx.lineTo(-.3,r.h*.72); cx.fill(); cx.restore(); }
+    // khachapuri (a boat of bread with an egg)
+    for(const c of coins){ if(c.got||c.x<x0-2||c.x>x1+2) continue; const y=baseGround(c.x)+c.dy+Math.sin(t*4+c.x)*.12; cx.save(); cx.translate(c.x,y);
+      cx.fillStyle='#C9822E'; cx.beginPath(); cx.ellipse(0,0,.62,.3,0,0,7); cx.fill(); cx.fillStyle='#F7E3A1'; cx.beginPath(); cx.ellipse(0,.04,.42,.18,0,0,7); cx.fill(); cx.fillStyle='#F4A11D'; cx.beginPath(); cx.arc(0,.06,.11,0,7); cx.fill(); cx.restore(); }
+    // snowcat grooming uphill
+    for(const c of cats){ if(c.x<x0-6||c.x>x1+6) continue; const y=ground(c.x); cx.save(); cx.translate(c.x,y); cx.rotate(slope(c.x));
+      cx.fillStyle='#2A2F38'; cx.beginPath(); cx.roundRect ? cx.roundRect(-2.2,0,4.4,.8,.35) : cx.rect(-2.2,0,4.4,.8); cx.fill();
+      cx.fillStyle='#fff'; for(let w=-1.8;w<=1.8;w+=.9){ cx.beginPath(); cx.arc(w,.4,.22,0,7); cx.fill(); }
+      cx.fillStyle='#D1342B'; cx.fillRect(-1.9,.8,3.4,.8); cx.fillRect(-.3,1.6,1.7,.9); cx.fillStyle='#BFE3F5'; cx.fillRect(0,1.75,1.2,.6);
+      cx.fillStyle='#8F99A6'; cx.beginPath(); cx.moveTo(-2.3,.1); cx.lineTo(-3,.1); cx.lineTo(-3.1,1.3); cx.lineTo(-2.3,1.1); cx.fill(); // blade
+      cx.fillStyle = (Math.sin(t*8)>0)?'#F4B942':'#8a6a1f'; cx.fillRect(.4,2.5,.4,.22); // beacon
+      cx.restore(); }
+    // friends waiting, facing you and waving, then pushing off into the line
+    for(const c of crewSpots){ if(c.lost) continue; if(c.got && c.joinT<=0) continue; if(c.x<x0-5||c.x>x1+5) continue;
+      if(!c.got){ const y=ground(c.x); const a=slope(c.x); skier(c.x,y,a,a*.4,FRIENDS[c.fi].c,{wave:t+c.fi,label:FRIENDS[c.fi].n,labelBg:'#F4B942'}); } }
     // the best run, as a ghost
-    if(ghost){ const gp=ghostAt(t); if(gp) skier(gp[1],gp[2],gp[3],FRIENDS[ghost.who].c,0,.38,'השיא'); }
-    // the crew following in your tracks
-    crew.forEach((c,k)=>{ const idx=trail.length-1-Math.round((k+1)*14/ Math.max(.6,slow)); const p=trail[Math.max(0,idx)]; if(p) skier(p.x,p.y,p.ang,FRIENDS[c.fi].c,p.crouch*.6,1); });
-    skier(P.x,P.y,P.ang,FRIENDS[me].c,P.crouch,1);
-    for(const p of particles){ cx.globalAlpha=Math.max(0,p.life); cx.fillStyle=p.col; cx.beginPath(); cx.arc(p.x,p.y,p.r,0,7); cx.fill(); } cx.globalAlpha=1;
+    if(ghost){ const gp=ghostAt(t); if(gp) skier(gp[1],gp[2],gp[3],gp[3]*.5,FRIENDS[ghost.who].c,{alpha:.35,label:'השיא'}); }
+    // the crew: in your tracks, SPACING metres apart; they jump and flip where you did
+    crew.forEach((c,k)=>{ let tx=P.x-SPACING*(k+1); let p=histAt(tx); let x=p.x, y=p.air?p.y:ground(p.x), ang=p.air?p.ang:slope(p.x);
+      const sp=crewSpots.find(s=>s.fi===c.fi); if(sp&&sp.joinT>0){ const f=sp.joinT/0.7; x=x*(1-f)+sp.x*f; y=y*(1-f)+ground(sp.x)*f; }
+      if(p.air) shadow(x, y-ground(x)); skier(x,y,ang,p.air?ang:ang*.4,FRIENDS[c.fi].c,{crouch:p.c*.8,scarf:t+k}); });
+    // the dog
+    if(dog.on){ const dx=P.x-SPACING*(crew.length+1)+Math.sin(dog.t*1.3)*1.5, dy=ground(dx)+Math.abs(Math.sin(dog.t*12))*.35; cx.save(); cx.translate(dx,dy); cx.rotate(slope(dx));
+      cx.fillStyle='#C99A5B'; cx.beginPath(); cx.ellipse(0,.55,.6,.28,0,0,7); cx.fill(); cx.beginPath(); cx.ellipse(.62,.82,.25,.2,0,0,7); cx.fill(); cx.fillStyle='#8C6434'; cx.beginPath(); cx.ellipse(.62,1,.08,.13,-.4,0,7); cx.fill();
+      cx.strokeStyle='#C99A5B'; cx.lineWidth=.13; const ph=dog.t*14; cx.beginPath(); cx.moveTo(-.4,.4); cx.lineTo(-.4+Math.sin(ph)*.2,0); cx.moveTo(.35,.4); cx.lineTo(.35-Math.sin(ph)*.2,0); cx.moveTo(-.6,.6); cx.lineTo(-.9,.85+Math.sin(ph)*.1); cx.stroke(); cx.fillStyle='#13233A'; cx.beginPath(); cx.arc(.72,.86,.04,0,7); cx.fill(); cx.restore(); }
+    // you
+    const a=slope(P.x); if(P.air) shadow(P.x,hNow);
+    const onSnow=!P.air&&P.crash<=0, body = onSnow ? a*.4 : P.ang;
+    skier(P.x,P.y,onSnow?a:P.ang,body,FRIENDS[me].c,{crouch:P.crouch,scarf:t});
+    for(const p of particles){ cx.globalAlpha=Math.max(0,Math.min(1,p.life)); cx.fillStyle=p.col; if(p.conf){ cx.fillRect(p.x-.12,p.y-.08,.24,.16); } else { cx.beginPath(); cx.arc(p.x,p.y,p.r,0,7); cx.fill(); } } cx.globalAlpha=1;
   });
   // the avalanche: a wall of powder behind you
   if(avalanche.on){ const X=sx(avalanche.x); if(X>-200){ const grd=cx.createLinearGradient(X-260,0,X+40,0); grd.addColorStop(0,'rgba(255,255,255,1)'); grd.addColorStop(.8,'rgba(240,246,252,.95)'); grd.addColorStop(1,'rgba(240,246,252,0)'); cx.fillStyle=grd;
       cx.beginPath(); cx.moveTo(-10,H); for(let yy=H;yy>H*0.08;yy-=18){ cx.lineTo(X+Math.sin(yy*.05+t*6)*16+Math.sin(yy*.013+t*2)*24,yy); } cx.lineTo(-10,H*0.08); cx.closePath(); cx.fill(); } }
   cx.restore();
+  // ridge wind: streaks blowing up the run, against you
+  const zNow=zoneAt(P.x); if(zNow&&zNow.kind==='wind'&&!reduce){ cx.strokeStyle='rgba(255,255,255,.75)'; cx.lineWidth=2; for(let i=0;i<22;i++){ const y=(i*53)%H, x=((i*211+windT*1100)%(W+200))-100; cx.beginPath(); cx.moveTo(x,y); cx.lineTo(x-60,y+4); cx.stroke(); } }
+  if(fog>0){ const fg=cx.createLinearGradient(W*.55,0,W,0); fg.addColorStop(0,'rgba(236,242,248,0)'); fg.addColorStop(1,`rgba(236,242,248,${fog*1.4})`); cx.fillStyle=fg; cx.fillRect(0,0,W,H); }
   // speed lines when fast
   if(P.s>18&&!reduce){ cx.strokeStyle='rgba(255,255,255,.55)'; cx.lineWidth=2; for(let i=0;i<8;i++){ const y=(i*97+t*900)%H, x=(i*151+t*1400)%W; cx.beginPath(); cx.moveTo(W-x,y); cx.lineTo(W-x-40-(P.s-18)*6,y+8); cx.stroke(); } }
+  if(state!=='menu' && state!=='end') miniMap();
 }
+// the real profile of the run across the top, with what is coming
+function miniMap(){
+  const el=$('crew'); if(el.hidden) return; const r=el.getBoundingClientRect(); const top=r.bottom+10, h=26, left=12, w=W-24; const n=R.h.length;
+  const px=x=>left+w*(x/R.len), py=v=>top+h*(1-(v-R.bot)/Math.max(1,R.top-R.bot));
+  cx.fillStyle='rgba(19,35,58,.38)'; cx.beginPath(); cx.moveTo(left,top+h); for(let i=0;i<n;i+=2) cx.lineTo(px(i*5),py(R.h[i])); cx.lineTo(left+w,top+h); cx.closePath(); cx.fill();
+  cx.save(); cx.beginPath(); cx.rect(left,top-4,px(P.x)-left,h+8); cx.clip(); cx.fillStyle='rgba(244,185,66,.85)'; cx.beginPath(); cx.moveTo(left,top+h); for(let i=0;i<n;i+=2) cx.lineTo(px(i*5),py(R.h[i])); cx.lineTo(left+w,top+h); cx.closePath(); cx.fill(); cx.restore();
+  const mark=(x,col,s=4)=>{ cx.fillStyle=col; cx.fillRect(px(x)-s/2,py(realH(x))-s-2,s,s); };
+  for(const gp of gaps) mark(gp.x0,'#D1342B',5); for(const c of cats) mark(c.x,'#D1342B',6); for(const c of crewSpots) if(!c.got&&!c.lost) mark(c.x,FRIENDS[c.fi].c,6);
+  if(avalanche.on&&avalanche.x>0){ cx.fillStyle='#fff'; cx.fillRect(px(avalanche.x)-2,top-3,4,h+6); }
+  cx.fillStyle=FRIENDS[me].c; cx.strokeStyle='#fff'; cx.lineWidth=2; cx.beginPath(); cx.arc(px(P.x),py(realH(P.x))-1,5,0,7); cx.fill(); cx.stroke();
+}
+// the menu legend, drawn with the same shapes as the game
+$('legend').innerHTML = [
+  ['<ellipse cx="12" cy="12" rx="10" ry="5" fill="#C9822E"/><ellipse cx="12" cy="11.5" rx="7" ry="3" fill="#F7E3A1"/><circle cx="12" cy="11.5" r="2" fill="#F4A11D"/>','חצ׳אפורי: נקודות, והרבה מעל הקפיצות'],
+  ['<path d="M3,20 L6,9 L12,5 L18,8 L21,20Z" fill="#5B6675"/><path d="M6,9 L12,4 L18,8 L14,9 L9,9Z" fill="#fff"/>','סלע: לקפוץ מעליו'],
+  ['<rect x="2" y="6" width="20" height="12" fill="#6F88A3"/><rect x="2" y="14" width="20" height="4" fill="#3E6E9C"/>','ערוץ: קופצים רגע לפני הקצה'],
+  ['<rect x="4" y="12" width="16" height="5" fill="#2A2F38"/><rect x="5" y="7" width="12" height="5" fill="#D1342B"/><rect x="11" y="3" width="5" height="4" fill="#D1342B"/>','רטרק: עולה במסלול, קפיצה גבוהה'],
+  ['<circle cx="6" cy="16" r="5" fill="#fff" stroke="#8FA7C0"/><circle cx="13" cy="15" r="6" fill="#fff" stroke="#8FA7C0"/><circle cx="19" cy="16" r="4" fill="#fff" stroke="#8FA7C0"/>','שלג עמוק מאט, קרח מאיץ'],
+  ['<path d="M2,8 H16 M5,13 H22 M2,18 H14" stroke="#fff" stroke-width="2.4"/>','רוח ברכס: להחזיק על השלג']
+].map(([svg,txt])=>`<span><svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true">${svg}</svg>${txt}</span>`).join('');
 drawMenus(); requestAnimationFrame(step);
 // a still, readable first frame behind the menu
-(function preview(){ buildRun(); P={x:40,y:ground(40),s:0,ang:slope(40),crouch:0,air:false,crash:0}; t=0; avalanche={x:-999,on:false}; })();
+(function preview(){ buildRun(); P={x:40,y:ground(40),s:0,ang:slope(40),crouch:0,air:false,crash:0,inv:0}; t=0; hist=[]; tracks=[]; crew=[]; stats={coins:0}; avalanche={x:-999,on:false}; dog={on:false}; })();
 </script>
