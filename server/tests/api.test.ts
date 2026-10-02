@@ -234,6 +234,22 @@ test("trips: same flight, an admin filling in, one trip per group", async () => 
   await fails(out, "same_flight", { group_id: g, trip_id: ski.id }, "not_member");
   await fails(dobi, "same_flight", { group_id: g, trip_id: work.id }, "trip_not_in_group");
 
+  // One trip per person (decision 27): again, it overwrites the trip this group shows, no new row.
+  await sql`update public.trips set out_flight = '6H 899' where id = ${ski.id}`;
+  eq((await call(dobi, "same_flight", { group_id: g, trip_id: ski.id })).trip_id, mine, "the same trip again");
+  eq(await count(sql`select count(*) n from public.trips where owner_id = ${dobi}`), 1, "still one trip");
+  const [again] = await sql`select out_flight, entered_by from public.trips where id = ${mine}`;
+  eq([again.out_flight, again.entered_by], ["6H 899", dobi], "updated in place, entered by them");
+  // The trip the app keeps (my_trip_id), even when this group shows none yet: that one is overwritten.
+  const yuda = await user("yuda");
+  await call(yuda, "join_group", { code, display_name: "Yuda" });
+  const [kept] = await sql`insert into public.trips (owner_id, out_flight) values (${yuda}, 'LY 1') returning id`;
+  eq((await call(yuda, "same_flight", { group_id: g, trip_id: ski.id, my_trip_id: kept.id })).trip_id, kept.id, "the kept trip");
+  const [k] = await sql`select out_flight, out_to from public.trips where id = ${kept.id}`;
+  eq([k.out_flight, k.out_to], ["6H 899", "TBS"], "the kept trip now has the flight");
+  eq(await count(sql`select count(*) n from public.trips where owner_id = ${yuda}`), 1, "no second trip");
+  await fails(yuda, "same_flight", { group_id: g, trip_id: ski.id, my_trip_id: mine }, "trip_not_yours");
+
   // An admin fills in for a member who has not.
   await call(guest, "join_group", { code, display_name: "Guest" });
   await fails(dobi, "set_member_trip", { group_id: g, user_id: guest, trip: { out_flight: "6H 897" } }, "not_admin");

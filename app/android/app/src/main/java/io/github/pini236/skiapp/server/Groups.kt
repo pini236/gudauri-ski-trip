@@ -24,7 +24,16 @@ class Groups(private val server: Server) {
     data class Group(val id: String, val name: String, val startsOn: LocalDate?, val endsOn: LocalDate?)
 
     /** A working invite (Q3, Q4): the six letters to say aloud, and the token for the link. */
-    data class Invite(val id: String, val code: String, val token: String, val requiresApproval: Boolean, val maxUses: Int?, val expiresAt: String?)
+    data class Invite(
+        val id: String, val code: String, val token: String, val requiresApproval: Boolean, val maxUses: Int?, val expiresAt: String?,
+        /** How many joined with it; at [maxUses] it stops working. */
+        val uses: Int = 0,
+        /** When it stops working: [expiresAt], or else the day after the trip ends, or else 90 days after it was made. */
+        val validUntil: Instant? = null,
+    ) {
+        /** Still lets people in (not used up, not expired); a revoked one is never returned. */
+        fun working(now: Instant = Instant.now()): Boolean = (maxUses == null || uses < maxUses) && (validUntil == null || now < validUntil)
+    }
 
     /** What an invite opens (Q5): the group and who is in it. [status] is "ok" or why not ("invalid_code"...). */
     data class Preview(
@@ -94,9 +103,14 @@ class Groups(private val server: Server) {
     fun setMine(groupId: String, displayName: String, tripId: String?) =
         action("set_my_membership", JSONObject().put("group_id", groupId).put("display_name", displayName.trim()).put("trip_id", tripId ?: JSONObject.NULL))
 
-    /** "I'm on the same flight" (Q7): a copy of that member's trip becomes mine, shown in the group. Its id. */
-    fun sameFlight(groupId: String, tripId: String): String =
-        server.call("same_flight", JSONObject().put("group_id", groupId).put("trip_id", tripId)).getString("trip_id")
+    /**
+     * "I'm on the same flight" (Q7): that member's flight becomes mine, shown in the group. A person has one trip
+     * (decision 27): [myTripId] (the one the phone keeps, [ServerTripSync.tripId]) is overwritten, or else the one this
+     * group shows for me; only with neither is a new one made. Returns my trip's id.
+     */
+    fun sameFlight(groupId: String, tripId: String, myTripId: String? = null): String =
+        server.call("same_flight", JSONObject().put("group_id", groupId).put("trip_id", tripId).apply { myTripId?.let { put("my_trip_id", it) } })
+            .getString("trip_id")
 
     fun leave(groupId: String) = action("leave_group", JSONObject().put("group_id", groupId))
 
@@ -160,9 +174,13 @@ class Groups(private val server: Server) {
 
     fun delete(groupId: String) = action("delete_group", JSONObject().put("group_id", groupId))
 
-    /** The working invite (admins see it; the server makes one with the group). */
+    /**
+     * The working invite, or null: every member sees it (the server makes one with the group). One used up to its
+     * limit, or expired, is not returned: sharing it would only show "invalid code".
+     */
     fun invite(groupId: String): Invite? =
-        objects(server.select("invites", "select=*&group_id=eq.${enc(groupId)}&revoked_at=is.null&order=created_at.desc&limit=1")).firstOrNull()?.let(::invite)
+        objects(server.select("invites", "select=*,groups(ends_on)&group_id=eq.${enc(groupId)}&revoked_at=is.null&order=created_at.desc&limit=5"))
+            .map(::invite).firstOrNull { it.working(Instant.ofEpochMilli(server.nowSeconds() * 1000)) }
 
     /** A new invite that replaces the working one (a leaked code stops working). */
     fun newInvite(groupId: String, requiresApproval: Boolean = false, maxUses: Int? = null, expiresAt: Instant? = null): Invite =
@@ -198,8 +216,14 @@ class Groups(private val server: Server) {
         private fun meetup(o: JSONObject) = Meetup(o.getString("id"), o.getString("group_id"), o.getString("station"), instant(o.getString("meet_at")), str(o, "note"), str(o, "created_by"))
         private fun request(o: JSONObject) = JoinRequest(o.getString("id"), o.getString("group_id"), o.getString("user_id"), o.getString("display_name"),
             o.getString("kind"), str(o, "reclaim_user_id"), o.getString("status"))
-        private fun invite(o: JSONObject) = Invite(o.getString("id"), o.getString("code"), o.getString("token"), o.optBoolean("requires_approval"),
-            if (o.isNull("max_uses")) null else o.optInt("max_uses"), str(o, "expires_at"))
+        private fun invite(o: JSONObject): Invite {
+            // the server's rule (server/CONTRACT.md, "תוקף הזמנה"): expires_at, or the day after the trip, or 90 days
+            val until = str(o, "expires_at")?.let(::instant)
+                ?: o.optJSONObject("groups")?.let { date(it, "ends_on") }?.plusDays(1)?.atStartOfDay(java.time.ZoneOffset.UTC)?.toInstant()
+                ?: str(o, "created_at")?.let { instant(it).plus(java.time.Duration.ofDays(90)) }
+            return Invite(o.getString("id"), o.getString("code"), o.getString("token"), o.optBoolean("requires_approval"),
+                if (o.isNull("max_uses")) null else o.optInt("max_uses"), str(o, "expires_at"), o.optInt("uses", 0), until)
+        }
 
         // the tables answer "2027-01-10T08:30:00+00:00"
         internal fun instant(s: String): Instant = OffsetDateTime.parse(s).toInstant()

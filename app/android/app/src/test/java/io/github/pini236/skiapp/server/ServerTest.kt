@@ -200,6 +200,36 @@ class ServerTest {
         }
     }
 
+    @Test fun aUsedUpOrExpiredInviteIsNotOffered() {
+        val store = MemorySessionStore()
+        store.save(Session.fromAuth(JSONObject(session("a")), now / 1000))
+        val s = server(store)
+        val t32 = "t".repeat(32)
+        // newest first: used up, then expired by the trip's end, then a working one
+        answers += Response(200, """[
+            {"id":"i3","code":"CCCCCC","token":"$t32","requires_approval":false,"max_uses":5,"uses":5,"expires_at":null,"created_at":"2027-01-01T00:00:00+00:00","groups":{"ends_on":"2027-12-01"}},
+            {"id":"i2","code":"BBBBBB","token":"$t32","requires_approval":false,"max_uses":null,"uses":0,"expires_at":null,"created_at":"2027-01-01T00:00:00+00:00","groups":{"ends_on":"2020-01-15"}},
+            {"id":"i1","code":"AAAAAA","token":"$t32","requires_approval":false,"max_uses":10,"uses":3,"expires_at":"2099-01-01T00:00:00+00:00","created_at":"2027-01-01T00:00:00+00:00","groups":{"ends_on":null}}]""")
+        val inv = Groups(s).invite("g1")!!
+        assertEquals("i1", inv.id)
+        assertEquals(3, inv.uses)
+        assertTrue(sent[0].url.contains("select=*,groups(ends_on)"))
+        answers += Response(200, """[{"id":"i3","code":"CCCCCC","token":"$t32","requires_approval":false,"max_uses":1,"uses":1,"expires_at":null,"created_at":"2027-01-01T00:00:00+00:00","groups":{"ends_on":null}}]""")
+        assertNull(Groups(s).invite("g1"))
+    }
+
+    @Test fun sameFlightOverwritesTheTripThePhoneKeeps() {
+        val store = MemorySessionStore()
+        store.save(Session.fromAuth(JSONObject(session("a")), now / 1000))
+        val s = server(store)
+        answers += Response(200, """{"trip_id":"mine"}""")
+        assertEquals("mine", Groups(s).sameFlight("g1", "t2", "mine"))
+        assertEquals("mine", JSONObject(sent[0].body!!).getString("my_trip_id"))
+        answers += Response(200, """{"trip_id":"new"}""")
+        Groups(s).sameFlight("g1", "t2")
+        assertFalse(JSONObject(sent[1].body!!).has("my_trip_id"))
+    }
+
     @Test fun codes() {
         assertEquals("ABCDEF", Groups.normalizeCode("abc def"))
         assertEquals("ABCDEF", Groups.normalizeCode("ABC-DEF"))
