@@ -509,12 +509,14 @@ function activateMap(){
 // pages: #map shows the map, anything else the home page
 const pgHome=document.getElementById('home'),pgMap=document.getElementById('mapPage'),pgMeet=document.getElementById('meetPage'),pgGames=document.getElementById('gamesPage'),pgAbout=document.getElementById('aboutPage'),pgTrip=document.getElementById('tripPage');
 function route(){
-  const h=location.hash,m=h.startsWith('#map'),mt=h.startsWith('#meet'),gm=h.startsWith('#games'),ab=h.startsWith('#about'),tr=h==='#trip',run=h.startsWith('#map/run/')?decodeURIComponent(h.slice(9)):null,wasMap=!pgMap.hidden;
-  pgHome.hidden=m||mt||gm||ab||tr;pgMap.hidden=!m;pgMeet.hidden=!mt;pgGames.hidden=!gm;pgAbout.hidden=!ab;pgTrip.hidden=!tr;if(tr)TRIPFORM.open();
+  const h=location.hash,m=h.startsWith('#map'),mt=h.startsWith('#meet'),gm=h.startsWith('#games'),ab=h.startsWith('#about'),tr=h==='#trip',ac=/^#(signin|account|join|group)(\/|$)/.test(h),run=h.startsWith('#map/run/')?decodeURIComponent(h.slice(9)):null,wasMap=!pgMap.hidden;
+  pgHome.hidden=m||mt||gm||ab||tr||ac;pgMap.hidden=!m;pgMeet.hidden=!mt;pgGames.hidden=!gm;pgAbout.hidden=!ab;pgTrip.hidden=!tr;if(tr)TRIPFORM.open();
+  // accounts and groups: js/account.js shows its own pages (round 12)
+  if(window.ACCOUNT)ACCOUNT.route(ac?h:'');
   const cur=m?'map':mt?'meet':gm?'games':ab?'about':'home';
   document.querySelectorAll('[data-nav]').forEach(a=>{if(a.dataset.nav===cur)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current');});
   if(m&&!wasMap)LSTAT.viewed();
-  requestAnimationFrame(()=>{if(gm||ab||tr)return;if(mt){if(MEET)MEET.open(h.slice(6));return;}if(!m){DN.layout();return;}activateMap();
+  requestAnimationFrame(()=>{if(gm||ab||tr||ac)return;if(mt){if(MEET)MEET.open(h.slice(6));return;}if(!m){DN.layout();return;}activateMap();
     if(run&&run!==current&&(byKey[run]||D.missing.some(x=>x.name===run)))select(run,{push:false,via:'link'});
     else if(!run&&current)overview();});
   if(!wasMap||!m){window.scrollTo(0,0);pgHome.scrollTop=0;}
@@ -811,7 +813,7 @@ const MEET=(function(){
     const s=byId[S.sid];requestAnimationFrame(()=>{if(!shown||arg){shown=true;if(s)goTo(s.x,s.y,1800,0);else fitAll(0);}render();if(arg&&s)document.getElementById('meetCard').scrollIntoView({block:'center'});});
   }
   ui.querySelector('#meetTime').value=S.time;
-  return {open};
+  return {open,station:id=>byId[id]&&byId[id].name,current:()=>S.sid?{sid:S.sid,day:S.day,time:S.time}:null};
 })();
 
   // snow on the signs: soft mounds and a few rounded drips (seeded, so every sign keeps its own pile)
@@ -923,6 +925,8 @@ function renderTicket(){
     const h=[.30,.42,.55,.48,.62,.80,.70,.58,.66,.92,1,.86,.74,.60,.68,.78,.64,.50,.44,.56,.70,.62,.48,.36,.42,.30,.24,.34,.28,.20,.26,.18],w=80/h.length;
     svg.innerHTML=h.map((v,i)=>`<rect x="${(i*w).toFixed(1)}" y="${(28-v*28).toFixed(1)}" width="${i%3===0?2:i%2?1.2:.7}" height="${(v*28).toFixed(1)}"/>`).join('');
   });
+  // the passenger is the account (round 12, P1 to P7)
+  if(window.ACCOUNT)ACCOUNT.paintPass();
 }
 document.getElementById('seasonBoard').insertAdjacentHTML('afterbegin',snowCap(7,358));
 // the trip form (#trip, round 12 W2): the browser's own date and time pickers, the destination starts as Tbilisi,
@@ -959,13 +963,13 @@ const TRIPFORM=(()=>{
   f.addEventListener('input',e=>{if(e.target.name)e.target.removeAttribute('aria-invalid');paint();});
   f.addEventListener('change',paint);
   document.getElementById('tfSkiBtn').addEventListener('click',()=>{manual=!manual;if(manual&&!q('sf').value){const a=MYTRIP.skiAuto(read().out,read().ret);if(a){q('sf').value=a.from;q('sl').value=a.to;}}paint();});
-  document.getElementById('tfDelete').addEventListener('click',()=>{MYTRIP.set(null);renderTicket();countdown(document.documentElement.dataset.theme==='dark');location.hash='#home';});
+  document.getElementById('tfDelete').addEventListener('click',()=>{MYTRIP.set(null);window.ACCOUNT&&ACCOUNT.tripSaved();renderTicket();countdown(document.documentElement.dataset.theme==='dark');location.hash='#home';});
   f.addEventListener('submit',e=>{e.preventDefault();err.hidden=true;const t=read();
     if(!MYTRIP.ISO.test(t.out.date))return fail('od','trip.need_date');
     for(const n of ['ofr','oto'])if(!q(n).value&&!/^[A-Z]{3}$/.test(q(n+'x').value.trim().toUpperCase()))return fail(n+'x','trip.bad_code');
     if(t.ret&&t.ret.date<t.out.date)return fail('rd','trip.bad_order');
     if(t.ski&&t.ski.to<t.ski.from)return fail('sl','trip.bad_order');
-    MYTRIP.set({v:1,...t});renderTicket();countdown(document.documentElement.dataset.theme==='dark');location.hash='#home';});
+    const was=MYTRIP.get();MYTRIP.set({v:1,...t,...(was&&was.sid?{sid:was.sid}:{})});window.ACCOUNT&&ACCOUNT.tripSaved();renderTicket();countdown(document.documentElement.dataset.theme==='dark');location.hash='#home';});
   return {open};})();
 // about and settings (#about): sound and vibration for the whole site and the games, and clearing the game records
 (function(){const P=window.GUD_PREFS||{sound:true,haptics:true};
@@ -1007,6 +1011,8 @@ const TRIPFORM=(()=>{
   });
 })();
 renderTicket();
+// accounts and groups (js/account.js) work with these, and draw on the pages before the first route
+if(window.ACCOUNT)ACCOUNT.start({MYTRIP,esc,snowCap,MEET,renderTicket,countdown});
 route();
 overview();applyFilters();
 // the app download sign: shown only when the file really is on the server
@@ -1014,7 +1020,7 @@ fetch('downloads/gudauri-2027.apk',{method:'HEAD'}).then(r=>{
   if(!r.ok||/text\/html/.test(r.headers.get('content-type')||''))return;
   const mb=+r.headers.get('content-length')/1048576;
   document.getElementById('appMeta').textContent=mb>0?T('home.app_download_meta_size',{size:mb.toFixed(mb<10?1:0)}):T('home.app_download');
-  document.getElementById('appBoard').hidden=false;document.getElementById('appBoard').addEventListener('click',()=>track('app_download',{store:'apk',placement:'home'}));document.getElementById('appHow').hidden=false;document.getElementById('boardNext').hidden=true;
+  document.getElementById('appBoard').hidden=false;document.getElementById('appBoard').addEventListener('click',()=>track('app_download',{store:'apk',placement:'home'}));document.getElementById('appHow').hidden=false;
 }).catch(()=>{});
 document.getElementById('loading').hidden=true;
 })().catch(e=>{console.error(e);const l=document.getElementById('loading');l.hidden=false;l.textContent=typeof T==='function'?T('home.load_error'):'Error';});

@@ -12525,6 +12525,1320 @@
     "ru",
     "ka"
    ]
+  },
+  "acct.signin_title": {
+   "he": "כניסה",
+   "en": "Sign in",
+   "ru": "Вход",
+   "ka": "შესვლა",
+   "where": "site/index.html",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "acct.signin_lead": {
+   "he": "בלי סיסמה, ובלי מיילים מאיתנו. רק השם, ומה שגוגל או אפל מעבירים.",
+   "en": "No password, and no emails from us. Just your name, and what Google or Apple pass on.",
+   "ru": "Без пароля и без писем от нас. Только имя и то, что передают Google или Apple.",
+   "ka": "პაროლის გარეშე და ჩვენგან წერილების გარეშე. მხოლოდ სახელი და ის, რასაც Google ან Apple გადმოგვცემს.",
+   "where": "site/index.html",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "acct.why_title": {
+   "he": "למה להתחבר",
+   "en": "Why sign in",
+   "ru": "Зачем входить",
+   "ka": "რატომ შევიდეთ",
+   "where": "site/index.html",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "acct.why_group": {
+   "he": "ליצור קבוצה ולהזמין את החבר׳ה",
+   "en": "Create a group and invite your friends",
+   "ru": "Создать группу и пригласить друзей",
+   "ka": "შექმენით ჯგუფი და მოიწვიეთ მეგობრები",
+   "where": "site/index.html",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "acct.why_sync": {
+   "he": "הטיול והקבוצה, גם באפליקציה ובמחשב אחר",
+   "en": "Your trip and group, in the app and on another computer too",
+   "ru": "Поездка и группа — и в приложении, и на другом компьютере",
+   "ka": "თქვენი მოგზაურობა და ჯგუფი, აპშიც და სხვა კომპიუტერზეც",
+   "where": "site/index.html",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "acct.why_rest": {
+   "he": "כל השאר עובד בלי חשבון: המפה, הטיול שלך, המשחקים, וגם הצטרפות לקבוצה בקוד.",
+   "en": "Everything else works without an account: the map, your trip, the games, and joining a group with a code.",
+   "ru": "Всё остальное работает без аккаунта: карта, ваша поездка, игры и вступление в группу по коду.",
+   "ka": "დანარჩენი ყველაფერი ანგარიშის გარეშე მუშაობს: რუკა, თქვენი მოგზაურობა, თამაშები და ჯგუფში კოდით შესვლაც.",
+   "where": "site/index.html",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "acct.google": {
+   "he": "המשך עם גוגל",
+   "en": "Continue with Google",
+   "ru": "Продолжить с Google",
+   "ka": "გაგრძელება Google-ით",
+   "where": "site/index.html",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "acct.apple": {
+   "he": "המשך עם אפל",
+   "en": "Continue with Apple",
+   "ru": "Продолжить с Apple",
+   "ka": "გაგრძელება Apple-ით",
+   "where": "site/index.html",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "acct.later": {
+   "he": "לא עכשיו, להמשיך כאורח",
+   "en": "Not now, continue as a guest",
+   "ru": "Не сейчас, продолжить как гость",
+   "ka": "ახლა არა, გავაგრძელებ სტუმრად",
+   "where": "site/index.html",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "acct.soon": {
+   "he": "הכניסה עם גוגל ואפל נפתחת בקרוב. בינתיים אפשר להצטרף לקבוצה בקוד, בלי חשבון.",
+   "en": "Signing in with Google and Apple opens soon. Meanwhile you can join a group with a code, without an account.",
+   "ru": "Вход через Google и Apple скоро откроется. А пока можно вступить в группу по коду, без аккаунта.",
+   "ka": "Google-ით და Apple-ით შესვლა მალე გაიხსნება. მანამდე ჯგუფში კოდით შესვლა ანგარიშის გარეშეც შეიძლება.",
+   "where": "site/js/account.js",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "acct.moves_note": {
+   "he": "מה שכבר שמור בדפדפן הזה (הטיול שלך) עובר לחשבון.",
+   "en": "What is already saved in this browser (your trip) moves to the account.",
+   "ru": "То, что уже сохранено в этом браузере (ваша поездка), перейдёт в аккаунт.",
+   "ka": "რაც ამ ბრაუზერში უკვე შენახულია (თქვენი მოგზაურობა), ანგარიშზე გადავა.",
+   "where": "site/index.html",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "acct.title": {
+   "he": "חשבון",
+   "en": "Account",
+   "ru": "Аккаунт",
+   "ka": "ანგარიში",
+   "where": "site/index.html",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "acct.name_hint": {
+   "he": "השם שמופיע בקבוצות",
+   "en": "The name shown in groups",
+   "ru": "Имя, которое видно в группах",
+   "ka": "სახელი, რომელიც ჯგუფებში ჩანს",
+   "where": "site/js/account.js",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "acct.change": {
+   "he": "שינוי",
+   "en": "Change",
+   "ru": "Изменить",
+   "ka": "შეცვლა",
+   "where": "site/js/account.js",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "acct.save": {
+   "he": "שמירה",
+   "en": "Save",
+   "ru": "Сохранить",
+   "ka": "შენახვა",
+   "where": "site/js/account.js",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "acct.ways": {
+   "he": "דרכי כניסה",
+   "en": "Ways to sign in",
+   "ru": "Способы входа",
+   "ka": "შესვლის გზები",
+   "where": "site/index.html",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "acct.ways_lead": {
+   "he": "כמה דרכים לאותו חשבון, כדי שלא ייווצר חשבון שני.",
+   "en": "Several ways into the same account, so that no second account is made.",
+   "ru": "Несколько способов войти в один аккаунт, чтобы не появился второй.",
+   "ka": "რამდენიმე გზა ერთსა და იმავე ანგარიშში, რომ მეორე არ შეიქმნას.",
+   "where": "site/index.html",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "acct.google_name": {
+   "he": "גוגל",
+   "en": "Google",
+   "ru": "Google",
+   "ka": "Google",
+   "where": "site/js/account.js",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "acct.apple_name": {
+   "he": "אפל",
+   "en": "Apple",
+   "ru": "Apple",
+   "ka": "Apple",
+   "where": "site/js/account.js",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "acct.connected": {
+   "he": "מחובר",
+   "en": "Connected",
+   "ru": "Подключён",
+   "ka": "დაკავშირებულია",
+   "where": "site/js/account.js",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "acct.not_connected": {
+   "he": "לא מחובר",
+   "en": "Not connected",
+   "ru": "Не подключён",
+   "ka": "არ არის დაკავშირებული",
+   "where": "site/js/account.js",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "acct.connect": {
+   "he": "חיבור",
+   "en": "Connect",
+   "ru": "Подключить",
+   "ka": "დაკავშირება",
+   "where": "site/js/account.js",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "acct.my_groups": {
+   "he": "הקבוצות שלי",
+   "en": "My groups",
+   "ru": "Мои группы",
+   "ka": "ჩემი ჯგუფები",
+   "where": "site/index.html",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "acct.no_groups": {
+   "he": "עוד לא בשום קבוצה.",
+   "en": "Not in any group yet.",
+   "ru": "Пока ни в одной группе.",
+   "ka": "ჯერ არცერთ ჯგუფში არ ხართ.",
+   "where": "site/js/account.js",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "acct.open": {
+   "he": "פתיחה",
+   "en": "Open",
+   "ru": "Открыть",
+   "ka": "გახსნა",
+   "where": "site/js/account.js",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "acct.role_admin": {
+   "he": "מנהל",
+   "en": "Admin",
+   "ru": "Админ",
+   "ka": "ადმინი",
+   "where": "site/js/account.js",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "acct.sync_note": {
+   "he": "הטיול שלך והקבוצות מסונכרנים בין האתר לאפליקציה.",
+   "en": "Your trip and groups are synced between the site and the app.",
+   "ru": "Ваша поездка и группы синхронизируются между сайтом и приложением.",
+   "ka": "თქვენი მოგზაურობა და ჯგუფები სინქრონდება საიტსა და აპს შორის.",
+   "where": "site/index.html",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "acct.sign_out": {
+   "he": "יציאה מהחשבון",
+   "en": "Sign out",
+   "ru": "Выйти из аккаунта",
+   "ka": "ანგარიშიდან გასვლა",
+   "where": "site/index.html",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "acct.sign_out_short": {
+   "he": "יציאה",
+   "en": "Sign out",
+   "ru": "Выйти",
+   "ka": "გასვლა",
+   "where": "site/js/account.js",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "acct.delete": {
+   "he": "מחיקת החשבון",
+   "en": "Delete the account",
+   "ru": "Удалить аккаунт",
+   "ka": "ანგარიშის წაშლა",
+   "where": "site/index.html",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "acct.guest_member": {
+   "he": "אורח בקבוצה: הדפדפן הזה זוכר אותך. כדי לא לאבד את המקום, שומרים אותו עם גוגל או אפל.",
+   "en": "A guest in a group: this browser remembers you. To keep your place, save it with Google or Apple.",
+   "ru": "Гость в группе: этот браузер вас помнит. Чтобы не потерять место, сохраните его через Google или Apple.",
+   "ka": "სტუმარი ჯგუფში: ეს ბრაუზერი გიცნობთ. ადგილი რომ არ დაკარგოთ, შეინახეთ Google-ით ან Apple-ით.",
+   "where": "site/js/account.js",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "acct.manage": {
+   "he": "ניהול החשבון",
+   "en": "Manage the account",
+   "ru": "Управление аккаунтом",
+   "ka": "ანგარიშის მართვა",
+   "where": "site/js/account.js",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "acct.signed_google": {
+   "he": "מחובר עם גוגל",
+   "en": "Signed in with Google",
+   "ru": "Вход через Google",
+   "ka": "შესულია Google-ით",
+   "where": "site/js/account.js",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "acct.signed_apple": {
+   "he": "מחובר עם אפל",
+   "en": "Signed in with Apple",
+   "ru": "Вход через Apple",
+   "ka": "შესულია Apple-ით",
+   "where": "site/js/account.js",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "acct.signed_guest": {
+   "he": "אורח בקבוצה, בלי חשבון",
+   "en": "A guest in a group, without an account",
+   "ru": "Гость в группе, без аккаунта",
+   "ka": "სტუმარი ჯგუფში, ანგარიშის გარეშე",
+   "where": "site/js/account.js",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "acct.pop_sub": {
+   "he": "הטיול והקבוצה גם באפליקציה",
+   "en": "Your trip and group in the app too",
+   "ru": "Поездка и группа — и в приложении",
+   "ka": "მოგზაურობა და ჯგუფი აპშიც",
+   "where": "site/js/account.js",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "acct.offline": {
+   "he": "אין חיבור לשרת. מוצג מה שנשמר לאחרונה.",
+   "en": "No connection to the server. Showing what was saved last.",
+   "ru": "Нет связи с сервером. Показано последнее сохранённое.",
+   "ka": "სერვერთან კავშირი არ არის. ნაჩვენებია ბოლოს შენახული.",
+   "where": "site/js/account.js",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "acct.error": {
+   "he": "משהו השתבש. נסו שוב.",
+   "en": "Something went wrong. Please try again.",
+   "ru": "Что-то пошло не так. Попробуйте ещё раз.",
+   "ka": "რაღაც არასწორად წავიდა. სცადეთ თავიდან.",
+   "where": "site/js/account.js",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "acct.session_over": {
+   "he": "החיבור נגמר. אם היית בקבוצה, אפשר לחזור אליה ב\"אני כבר בקבוצה\" בקישור ההזמנה.",
+   "en": "The connection ended. If you were in a group, you can return to it with \"I'm already in the group\" in the invite link.",
+   "ru": "Сессия закончилась. Если вы были в группе, вернитесь в неё через «Я уже в группе» по ссылке-приглашению.",
+   "ka": "კავშირი დასრულდა. თუ ჯგუფში იყავით, შეგიძლიათ დაბრუნდეთ „მე უკვე ჯგუფში ვარ“-ით მოწვევის ბმულიდან.",
+   "where": "site/js/account.js",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "acct.pass_top_me": {
+   "he": "SKI PASS · החשבון שלך",
+   "en": "SKI PASS · Your account",
+   "ru": "SKI PASS · Ваш аккаунт",
+   "ka": "SKI PASS · თქვენი ანგარიში",
+   "where": "site/js/account.js",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "acct.pass_top_guest": {
+   "he": "SKI PASS · אורח",
+   "en": "SKI PASS · Guest",
+   "ru": "SKI PASS · Гость",
+   "ka": "SKI PASS · სტუმარი",
+   "where": "site/js/account.js",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "acct.no_account": {
+   "he": "בלי חשבון",
+   "en": "No account",
+   "ru": "Без аккаунта",
+   "ka": "ანგარიშის გარეშე",
+   "where": "site/js/account.js",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "acct.pass_guest_sub": {
+   "he": "הכל עובד בלי חשבון. חשבון צריך רק כדי ליצור קבוצה, או לראות את הטיול גם באפליקציה.",
+   "en": "Everything works without an account. You only need one to create a group, or to see your trip in the app too.",
+   "ru": "Всё работает без аккаунта. Он нужен только чтобы создать группу или видеть поездку и в приложении.",
+   "ka": "ყველაფერი ანგარიშის გარეშე მუშაობს. ის მხოლოდ ჯგუფის შესაქმნელად ან მოგზაურობის აპშიც სანახავად გჭირდებათ.",
+   "where": "site/js/account.js",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "acct.delete_title": {
+   "he": "מחיקת חשבון",
+   "en": "Delete your account",
+   "ru": "Удаление аккаунта",
+   "ka": "ანგარიშის წაშლა",
+   "where": "site/index.html",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "acct.delete_lead": {
+   "he": "כאן מוחקים את החשבון של האתר ושל האפליקציה, גם בלי האפליקציה. נכנסים עם אותה דרך שבה נרשמת, ומאשרים.",
+   "en": "Here you delete your account for the site and the app, even without the app. Sign in the way you signed up, and confirm.",
+   "ru": "Здесь удаляется аккаунт сайта и приложения, даже без приложения. Войдите тем же способом, что и при регистрации, и подтвердите.",
+   "ka": "აქ წაშლით საიტისა და აპის ანგარიშს, აპის გარეშეც. შედით იმავე გზით, რითაც დარეგისტრირდით, და დაადასტურეთ.",
+   "where": "site/index.html",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "acct.delete_what": {
+   "he": "מה נמחק",
+   "en": "What is deleted",
+   "ru": "Что удаляется",
+   "ka": "რა იშლება",
+   "where": "site/index.html",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "acct.delete_1": {
+   "he": "החשבון, השם ודרכי הכניסה",
+   "en": "The account, your name and the ways to sign in",
+   "ru": "Аккаунт, имя и способы входа",
+   "ka": "ანგარიში, სახელი და შესვლის გზები",
+   "where": "site/index.html",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "acct.delete_2": {
+   "he": "הטיול שלך והשיאים שבשרת",
+   "en": "Your trip and your high scores on the server",
+   "ru": "Ваша поездка и рекорды на сервере",
+   "ka": "თქვენი მოგზაურობა და რეკორდები სერვერზე",
+   "where": "site/index.html",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "acct.delete_3": {
+   "he": "החברות בקבוצות והטיסות שהזנת. מפגשים שיצרת נשארים בקבוצה, בלי השם שלך.",
+   "en": "Your group memberships and the flights you entered. Meetups you created stay in the group, without your name.",
+   "ru": "Членство в группах и введённые вами рейсы. Созданные вами встречи остаются в группе, без вашего имени.",
+   "ka": "ჯგუფებში წევრობა და თქვენ მიერ შეყვანილი ფრენები. თქვენ მიერ შექმნილი შეხვედრები ჯგუფში რჩება, თქვენი სახელის გარეშე.",
+   "where": "site/index.html",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "acct.delete_more": {
+   "he": "הכל נמחק מיד, בלי תקופת המתנה. מה ששמור בטלפון או בדפדפן נשאר שם, עד שמוחקים את האפליקציה או מנקים את הדפדפן. בקבוצה שרק את/ה מנהל/ת בה, המנהלות עוברת לחבר אחר.",
+   "en": "Everything is deleted at once, with no waiting period. What is stored on a phone or in a browser stays there until you delete the app or clear the browser. In a group where you are the only admin, another member becomes admin.",
+   "ru": "Всё удаляется сразу, без периода ожидания. То, что хранится в телефоне или браузере, остаётся там, пока вы не удалите приложение или не очистите браузер. В группе, где вы единственный админ, админом станет другой участник.",
+   "ka": "ყველაფერი მაშინვე იშლება, მოლოდინის გარეშე. ტელეფონში ან ბრაუზერში შენახული იქ რჩება, სანამ აპს არ წაშლით ან ბრაუზერს არ გაასუფთავებთ. ჯგუფში, სადაც ერთადერთი ადმინი ხართ, ადმინი სხვა წევრი გახდება.",
+   "where": "site/index.html",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "acct.delete_google": {
+   "he": "כניסה עם גוגל כדי למחוק",
+   "en": "Sign in with Google to delete",
+   "ru": "Войти через Google, чтобы удалить",
+   "ka": "შედით Google-ით წასაშლელად",
+   "where": "site/index.html",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "acct.delete_apple": {
+   "he": "כניסה עם אפל כדי למחוק",
+   "en": "Sign in with Apple to delete",
+   "ru": "Войти через Apple, чтобы удалить",
+   "ka": "შედით Apple-ით წასაშლელად",
+   "where": "site/index.html",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "acct.delete_now": {
+   "he": "מחיקת החשבון שלי",
+   "en": "Delete my account",
+   "ru": "Удалить мой аккаунт",
+   "ka": "ჩემი ანგარიშის წაშლა",
+   "where": "site/index.html",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "acct.delete_confirm": {
+   "he": "בטוח? אי אפשר לבטל. לחיצה נוספת מוחקת.",
+   "en": "Sure? This cannot be undone. Tap again to delete.",
+   "ru": "Уверены? Это нельзя отменить. Нажмите ещё раз, чтобы удалить.",
+   "ka": "დარწმუნებული ხართ? ამის გაუქმება შეუძლებელია. წასაშლელად კიდევ შეეხეთ.",
+   "where": "site/js/account.js",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "acct.deleted": {
+   "he": "החשבון נמחק.",
+   "en": "The account was deleted.",
+   "ru": "Аккаунт удалён.",
+   "ka": "ანგარიში წაიშალა.",
+   "where": "site/js/account.js",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "acct.delete_mail": {
+   "he": "אין גישה לחשבון? כתבו לנו מאותו מייל, ונמחק תוך 30 יום:",
+   "en": "No access to the account? Write to us from the same email, and we will delete it within 30 days:",
+   "ru": "Нет доступа к аккаунту? Напишите нам с той же почты, и мы удалим его в течение 30 дней:",
+   "ka": "ანგარიშზე წვდომა არ გაქვთ? მოგვწერეთ იმავე ელფოსტიდან და 30 დღეში წავშლით:",
+   "where": "site/index.html",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "join.title": {
+   "he": "הזמנה לקבוצה",
+   "en": "Invitation to a group",
+   "ru": "Приглашение в группу",
+   "ka": "მოწვევა ჯგუფში",
+   "where": "site/index.html",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "join.invited_to": {
+   "he": "הוזמנת ל",
+   "en": "You are invited to",
+   "ru": "Вас пригласили в",
+   "ka": "მოწვეული ხართ",
+   "where": "site/js/account.js",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "join.name_label": {
+   "he": "איך קוראים לך בקבוצה?",
+   "en": "What is your name in the group?",
+   "ru": "Как вас зовут в группе?",
+   "ka": "რა გქვიათ ჯგუფში?",
+   "where": "site/index.html",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "join.name_ph": {
+   "he": "השם שהחבר׳ה יראו",
+   "en": "The name your friends will see",
+   "ru": "Имя, которое увидят друзья",
+   "ka": "სახელი, რომელსაც მეგობრები დაინახავენ",
+   "where": "site/index.html",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "join.go": {
+   "he": "הצטרפות",
+   "en": "Join",
+   "ru": "Вступить",
+   "ka": "შეერთება",
+   "where": "site/index.html",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "join.no_signup": {
+   "he": "בלי הרשמה. הדפדפן הזה זוכר אותך; אפשר לשמור חשבון עם גוגל או אפל אחר כך.",
+   "en": "No sign-up. This browser remembers you; you can save an account with Google or Apple later.",
+   "ru": "Без регистрации. Этот браузер вас запомнит; аккаунт через Google или Apple можно сохранить позже.",
+   "ka": "რეგისტრაციის გარეშე. ეს ბრაუზერი დაგიმახსოვრებთ; ანგარიშის შენახვა Google-ით ან Apple-ით მოგვიანებითაც შეიძლება.",
+   "where": "site/index.html",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "join.reclaim_title": {
+   "he": "אני כבר בקבוצה",
+   "en": "I'm already in the group",
+   "ru": "Я уже в группе",
+   "ka": "მე უკვე ჯგუფში ვარ",
+   "where": "site/index.html",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "join.reclaim_lead": {
+   "he": "החלפת טלפון או דפדפן? בוחרים את השם שלך, והמנהל מאשר. הכל חוזר, בלי כפיל.",
+   "en": "New phone or browser? Pick your name and the admin approves. Everything comes back, with no duplicate.",
+   "ru": "Сменили телефон или браузер? Выберите своё имя, и админ подтвердит. Всё вернётся, без дублей.",
+   "ka": "ტელეფონი ან ბრაუზერი შეცვალეთ? აირჩიეთ თქვენი სახელი და ადმინი დაადასტურებს. ყველაფერი დაბრუნდება, დუბლიკატის გარეშე.",
+   "where": "site/index.html",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "join.reclaim_pick": {
+   "he": "בחירת השם שלי",
+   "en": "Pick my name",
+   "ru": "Выбрать своё имя",
+   "ka": "ჩემი სახელის არჩევა",
+   "where": "site/index.html",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "join.app_note": {
+   "he": "יש לך את האפליקציה? אחרי ההתקנה מקלידים את הקוד",
+   "en": "Have the app? After installing, type the code",
+   "ru": "Есть приложение? После установки введите код",
+   "ka": "გაქვთ აპი? დაყენების შემდეგ შეიყვანეთ კოდი",
+   "where": "site/index.html",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "join.code_title": {
+   "he": "הצטרפות בקוד",
+   "en": "Join with a code",
+   "ru": "Вступить по коду",
+   "ka": "შეერთება კოდით",
+   "where": "site/index.html",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "join.code_label": {
+   "he": "קוד הזמנה",
+   "en": "Invite code",
+   "ru": "Код приглашения",
+   "ka": "მოწვევის კოდი",
+   "where": "site/index.html",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "join.code_go": {
+   "he": "המשך",
+   "en": "Continue",
+   "ru": "Продолжить",
+   "ka": "გაგრძელება",
+   "where": "site/index.html",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "join.loading": {
+   "he": "בודק את ההזמנה…",
+   "en": "Checking the invitation…",
+   "ru": "Проверяем приглашение…",
+   "ka": "მოწვევას ვამოწმებთ…",
+   "where": "site/js/account.js",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "join.st_invalid_code": {
+   "he": "הקוד לא תקף. אולי פג תוקפו, או שיש בו טעות.",
+   "en": "The code is not valid. It may have expired, or it has a typo.",
+   "ru": "Код недействителен. Возможно, он истёк или в нём ошибка.",
+   "ka": "კოდი არასწორია. შესაძლოა ვადა გაუვიდა ან შეცდომაა.",
+   "where": "site/js/account.js",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "join.st_rate_limited": {
+   "he": "יותר מדי ניסיונות. נסו שוב בעוד רבע שעה.",
+   "en": "Too many attempts. Try again in a quarter of an hour.",
+   "ru": "Слишком много попыток. Попробуйте через четверть часа.",
+   "ka": "ძალიან ბევრი მცდელობა. სცადეთ თხუთმეტ წუთში.",
+   "where": "site/js/account.js",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "join.st_group_full": {
+   "he": "הקבוצה מלאה.",
+   "en": "The group is full.",
+   "ru": "Группа заполнена.",
+   "ka": "ჯგუფი სავსეა.",
+   "where": "site/js/account.js",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "join.st_pending": {
+   "he": "הבקשה נשלחה למנהל. כשיאשר, הקבוצה תופיע כאן.",
+   "en": "The request was sent to the admin. Once approved, the group shows up here.",
+   "ru": "Запрос отправлен админу. После подтверждения группа появится здесь.",
+   "ka": "მოთხოვნა ადმინს გაეგზავნა. დადასტურების შემდეგ ჯგუფი აქ გამოჩნდება.",
+   "where": "site/js/account.js",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "join.st_already_member": {
+   "he": "כבר בקבוצה.",
+   "en": "Already in the group.",
+   "ru": "Уже в группе.",
+   "ka": "უკვე ჯგუფში ხართ.",
+   "where": "site/js/account.js",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "join.st_sign_in_instead": {
+   "he": "השם הזה שייך לחבר רשום: נכנסים עם החשבון שלו.",
+   "en": "This name belongs to a registered member: sign in with that account.",
+   "ru": "Это имя принадлежит зарегистрированному участнику: войдите в его аккаунт.",
+   "ka": "ეს სახელი რეგისტრირებულ წევრს ეკუთვნის: შედით მისი ანგარიშით.",
+   "where": "site/js/account.js",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "join.st_no_such_member": {
+   "he": "החבר הזה כבר לא בקבוצה.",
+   "en": "That member is no longer in the group.",
+   "ru": "Этого участника уже нет в группе.",
+   "ka": "ეს წევრი ჯგუფში აღარ არის.",
+   "where": "site/js/account.js",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "join.dates": {
+   "he": "{from} עד {to}",
+   "en": "{from} to {to}",
+   "ru": "с {from} по {to}",
+   "ka": "{from}–{to}",
+   "where": "site/js/account.js",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "group.members_n": {
+   "he": {
+    "one": "חבר אחד",
+    "two": "2 חברים",
+    "other": "{n} חברים"
+   },
+   "en": {
+    "one": "{n} member",
+    "other": "{n} members"
+   },
+   "ru": {
+    "one": "{n} участник",
+    "few": "{n} участника",
+    "many": "{n} участников",
+    "other": "{n} участника"
+   },
+   "ka": {
+    "one": "{n} წევრი",
+    "other": "{n} წევრი"
+   },
+   "where": "site/js/account.js",
+   "note": "{n} = members in the group",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "group.tab_flights": {
+   "he": "טיסות",
+   "en": "Flights",
+   "ru": "Рейсы",
+   "ka": "ფრენები",
+   "where": "site/index.html",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "group.tab_meetups": {
+   "he": "מפגשים",
+   "en": "Meetups",
+   "ru": "Встречи",
+   "ka": "შეხვედრები",
+   "where": "site/index.html",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "group.tab_scores": {
+   "he": "שיאים",
+   "en": "High scores",
+   "ru": "Рекорды",
+   "ka": "რეკორდები",
+   "where": "site/index.html",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "group.tab_members": {
+   "he": "חברים",
+   "en": "Members",
+   "ru": "Участники",
+   "ka": "წევრები",
+   "where": "site/index.html",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "group.departs": {
+   "he": "המראה {t}",
+   "en": "Departs {t}",
+   "ru": "Вылет {t}",
+   "ka": "გაფრენა {t}",
+   "where": "site/js/account.js",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "group.same_flight": {
+   "he": "אני על אותה טיסה",
+   "en": "I'm on this flight",
+   "ru": "Я на этом рейсе",
+   "ka": "მეც ამ რეისით მივფრინავ",
+   "where": "site/js/account.js",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "group.show_my_trip": {
+   "he": "להציג את הטיסה שלי בקבוצה",
+   "en": "Show my flight in the group",
+   "ru": "Показать мой рейс в группе",
+   "ka": "ჩემი ფრენის ჩვენება ჯგუფში",
+   "where": "site/js/account.js",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "group.add_my_trip": {
+   "he": "הוספת הטיסה שלי",
+   "en": "Add my flight",
+   "ru": "Добавить мой рейс",
+   "ka": "ჩემი ფრენის დამატება",
+   "where": "site/js/account.js",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "group.no_flight": {
+   "he": "עוד בלי טיסה",
+   "en": "No flight yet",
+   "ru": "Пока без рейса",
+   "ka": "ჯერ ფრენის გარეშე",
+   "where": "site/js/account.js",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "group.entered_by_admin": {
+   "he": "הוזן על ידי מנהל",
+   "en": "Entered by an admin",
+   "ru": "Внесено админом",
+   "ka": "შეიყვანა ადმინმა",
+   "where": "site/js/account.js",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "group.no_flights": {
+   "he": "עוד אף אחד לא הוסיף טיסה.",
+   "en": "No one has added a flight yet.",
+   "ru": "Пока никто не добавил рейс.",
+   "ka": "ჯერ არავის დაუმატებია ფრენა.",
+   "where": "site/js/account.js",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "group.meetup_new": {
+   "he": "מפגש חדש",
+   "en": "New meetup",
+   "ru": "Новая встреча",
+   "ka": "ახალი შეხვედრა",
+   "where": "site/js/account.js",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "group.no_meetups": {
+   "he": "עוד אין מפגשים. בוחרים תחנה ושעה בנקודת המפגש, ושומרים בקבוצה.",
+   "en": "No meetups yet. Pick a station and a time on the meeting point page, and save it to the group.",
+   "ru": "Встреч пока нет. Выберите станцию и время на странице места встречи и сохраните в группе.",
+   "ka": "შეხვედრები ჯერ არ არის. აირჩიეთ სადგური და დრო შეხვედრის ადგილის გვერდზე და შეინახეთ ჯგუფში.",
+   "where": "site/js/account.js",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "group.scores_none": {
+   "he": "עוד אין שיאים בקבוצה. השיאים מגיעים מהמשחקים באפליקציה.",
+   "en": "No high scores in the group yet. They come from the games in the app.",
+   "ru": "В группе пока нет рекордов. Они приходят из игр в приложении.",
+   "ka": "ჯგუფში რეკორდები ჯერ არ არის. ისინი აპის თამაშებიდან მოდის.",
+   "where": "site/js/account.js",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "group.admin": {
+   "he": "מנהל",
+   "en": "Admin",
+   "ru": "Админ",
+   "ka": "ადმინი",
+   "where": "site/js/account.js",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "group.you": {
+   "he": "את/ה",
+   "en": "You",
+   "ru": "Вы",
+   "ka": "თქვენ",
+   "where": "site/js/account.js",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "group.requests": {
+   "he": "בקשות להצטרף",
+   "en": "Requests to join",
+   "ru": "Запросы на вступление",
+   "ka": "შეერთების მოთხოვნები",
+   "where": "site/js/account.js",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "group.approve": {
+   "he": "אישור",
+   "en": "Approve",
+   "ru": "Принять",
+   "ka": "დადასტურება",
+   "where": "site/js/account.js",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "group.reject": {
+   "he": "דחייה",
+   "en": "Decline",
+   "ru": "Отклонить",
+   "ka": "უარყოფა",
+   "where": "site/js/account.js",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "group.reclaim_req": {
+   "he": "רוצה לחזור בתור {name}",
+   "en": "Wants to come back as {name}",
+   "ru": "Хочет вернуться как {name}",
+   "ka": "სურს დაბრუნდეს როგორც {name}",
+   "where": "site/js/account.js",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "group.leave": {
+   "he": "יציאה מהקבוצה",
+   "en": "Leave the group",
+   "ru": "Выйти из группы",
+   "ka": "ჯგუფიდან გასვლა",
+   "where": "site/js/account.js",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "group.leave_confirm": {
+   "he": "בטוח? לחיצה נוספת מוציאה אותך מהקבוצה.",
+   "en": "Sure? Tap again to leave the group.",
+   "ru": "Уверены? Нажмите ещё раз, чтобы выйти из группы.",
+   "ka": "დარწმუნებული ხართ? ჯგუფიდან გასასვლელად კიდევ შეეხეთ.",
+   "where": "site/js/account.js",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "group.invite_code": {
+   "he": "קוד הזמנה",
+   "en": "Invite code",
+   "ru": "Код приглашения",
+   "ka": "მოწვევის კოდი",
+   "where": "site/js/account.js",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "group.invite_wa": {
+   "he": "שליחה בוואטסאפ",
+   "en": "Send on WhatsApp",
+   "ru": "Отправить в WhatsApp",
+   "ka": "გაგზავნა WhatsApp-ში",
+   "where": "site/js/account.js",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "group.invite_msg": {
+   "he": "בואו לקבוצה \"{name}\" בגודאורי: {link} (או הקוד {code})",
+   "en": "Join the group \"{name}\" in Gudauri: {link} (or the code {code})",
+   "ru": "Вступайте в группу «{name}» в Гудаури: {link} (или код {code})",
+   "ka": "შემოუერთდით ჯგუფს „{name}“ გუდაურში: {link} (ან კოდი {code})",
+   "where": "site/js/account.js",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "group.copy": {
+   "he": "העתקת קישור",
+   "en": "Copy link",
+   "ru": "Скопировать ссылку",
+   "ka": "ბმულის კოპირება",
+   "where": "site/js/account.js",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "group.private_note": {
+   "he": "רק חברי הקבוצה רואים את הדף הזה.",
+   "en": "Only the group's members see this page.",
+   "ru": "Эту страницу видят только участники группы.",
+   "ka": "ამ გვერდს მხოლოდ ჯგუფის წევრები ხედავენ.",
+   "where": "site/js/account.js",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "group.empty_title": {
+   "he": "קבוצה",
+   "en": "Group",
+   "ru": "Группа",
+   "ka": "ჯგუფი",
+   "where": "site/index.html",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "group.empty_lead": {
+   "he": "קבוצה היא דף משותף לחבר׳ה: הטיסות של כולם, מפגשים ושיאים.",
+   "en": "A group is a shared page for your friends: everyone's flights, meetups and high scores.",
+   "ru": "Группа — общая страница для друзей: рейсы всех, встречи и рекорды.",
+   "ka": "ჯგუფი მეგობრების საერთო გვერდია: ყველას ფრენები, შეხვედრები და რეკორდები.",
+   "where": "site/index.html",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "group.create": {
+   "he": "יצירת קבוצה",
+   "en": "Create a group",
+   "ru": "Создать группу",
+   "ka": "ჯგუფის შექმნა",
+   "where": "site/index.html",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "group.create_needs": {
+   "he": "יצירת קבוצה דורשת חשבון גוגל או אפל.",
+   "en": "Creating a group needs a Google or Apple account.",
+   "ru": "Для создания группы нужен аккаунт Google или Apple.",
+   "ka": "ჯგუფის შესაქმნელად Google-ის ან Apple-ის ანგარიშია საჭირო.",
+   "where": "site/index.html",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "group.create_name": {
+   "he": "שם הקבוצה",
+   "en": "Group name",
+   "ru": "Название группы",
+   "ka": "ჯგუფის სახელი",
+   "where": "site/index.html",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "group.create_name_ph": {
+   "he": "למשל גודאורי 2027",
+   "en": "e.g. Gudauri 2027",
+   "ru": "например, Гудаури 2027",
+   "ka": "მაგ. გუდაური 2027",
+   "where": "site/index.html",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "group.my_name": {
+   "he": "השם שלי בקבוצה",
+   "en": "My name in the group",
+   "ru": "Моё имя в группе",
+   "ka": "ჩემი სახელი ჯგუფში",
+   "where": "site/index.html",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "home.board_group_sub": {
+   "he": "יצירת קבוצה, או הצטרפות בקוד",
+   "en": "Create a group, or join with a code",
+   "ru": "Создать группу или вступить по коду",
+   "ka": "შექმენით ჯგუფი ან შეუერთდით კოდით",
+   "where": "site/index.html",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "meet.save_group": {
+   "he": "שמירה בקבוצה",
+   "en": "Save to the group",
+   "ru": "Сохранить в группе",
+   "ka": "შენახვა ჯგუფში",
+   "where": "site/index.html",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "meet.saved_group": {
+   "he": "נשמר בקבוצה",
+   "en": "Saved to the group",
+   "ru": "Сохранено в группе",
+   "ka": "შენახულია ჯგუფში",
+   "where": "site/js/account.js",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "acct.loading": {
+   "he": "טוען…",
+   "en": "Loading…",
+   "ru": "Загрузка…",
+   "ka": "იტვირთება…",
+   "where": "site/js/account.js",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "about.credit_accounts": {
+   "he": "חשבונות וקבוצות: supabase-js, ברישיון MIT.",
+   "en": "Accounts and groups: supabase-js, MIT license.",
+   "ru": "Аккаунты и группы: supabase-js, лицензия MIT.",
+   "ka": "ანგარიშები და ჯგუფები: supabase-js, MIT ლიცენზიით.",
+   "where": "site/index.html",
+   "check": [
+    "ru",
+    "ka"
+   ]
   }
  }
 }

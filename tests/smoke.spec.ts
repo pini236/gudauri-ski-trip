@@ -158,7 +158,7 @@ test('קישור להורדת האפליקציה מופיע רק כשהקובץ 
   await page.goto('/');
   await loaded(page);
   await expect(page.locator('#appBoard')).toBeHidden();
-  await expect(page.locator('#boardNext')).toBeVisible();
+  await expect(page.locator('#groupBoard')).toBeVisible();
 });
 
 test('כשהקובץ קיים מוצג שלט הורדה עם גודל והסבר התקנה', async ({ page }) => {
@@ -167,7 +167,6 @@ test('כשהקובץ קיים מוצג שלט הורדה עם גודל והסב�
   await loaded(page);
   await expect(page.locator('#appBoard')).toBeVisible();
   await expect(page.locator('#appBoard')).toHaveAttribute('href', 'downloads/gudauri-2027.apk');
-  await expect(page.locator('#boardNext')).toBeHidden();
   await page.locator('#appHow summary').click();
   await expect(page.locator('#appHow li')).toHaveCount(3);
 });
