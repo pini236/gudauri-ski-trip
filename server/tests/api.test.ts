@@ -173,6 +173,10 @@ test("invites: code, link, revoke, expiry, limits, approval", async () => {
   // Manual approval
   inv = await call(admin, "create_invite", { group_id: g, requires_approval: true });
   await call(admin, "remove_member", { group_id: g, user_id: e });
+  const hidden = await call(x, "invite_preview", { code: inv.code });
+  eq([hidden.status, hidden.requires_approval, hidden.members.length], ["ok", true, 0], "an invitation that needs approval hides the names");
+  const shown = await call(admin, "invite_preview", { code: inv.code });
+  eq([shown.already_member, shown.members.length > 0], [true, true], "but a member still sees them");
   eq((await call(e, "join_group", { code: inv.code, display_name: "E again" })).status, "pending", "waits");
   eq(await count(sql`select count(*) n from public.group_members where group_id = ${g} and user_id = ${e}`), 0, "not yet");
   const req = (await sql`select id from public.join_requests where user_id = ${e} and status = 'pending'`)[0].id;

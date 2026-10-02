@@ -970,6 +970,262 @@
       "h": 572,
       "page": "round12",
       "title": "נגיעה בשם: החשבון ויציאה"
+    },
+    "X0-Decide.dc.html": {
+      "x": 0,
+      "y": 0,
+      "w": 520,
+      "h": 760,
+      "page": "round13",
+      "title": "מה לאשר בסבב 13"
+    },
+    "X1a-PrivacyLang.dc.html": {
+      "x": 600,
+      "y": 0,
+      "w": 390,
+      "h": 120,
+      "page": "round13",
+      "title": "דף הפרטיות: לפני (40 פיקסלים)"
+    },
+    "X1b-PrivacyLang.dc.html": {
+      "x": 1050,
+      "y": 0,
+      "w": 390,
+      "h": 124,
+      "page": "round13",
+      "title": "דף הפרטיות: אחרי (44 פיקסלים)"
+    },
+    "X2a-School1He.dc.html": {
+      "x": 600,
+      "y": 544,
+      "w": 390,
+      "h": 220,
+      "page": "round13",
+      "title": "שיעור 1: לפני"
+    },
+    "X2b-School1He.dc.html": {
+      "x": 1050,
+      "y": 544,
+      "w": 390,
+      "h": 254,
+      "page": "round13",
+      "title": "שיעור 1: אחרי"
+    },
+    "X2c-School2He.dc.html": {
+      "x": 1500,
+      "y": 544,
+      "w": 390,
+      "h": 230,
+      "page": "round13",
+      "title": "שיעור 2: לפני"
+    },
+    "X2d-School2He.dc.html": {
+      "x": 1950,
+      "y": 544,
+      "w": 390,
+      "h": 264,
+      "page": "round13",
+      "title": "שיעור 2: אחרי"
+    },
+    "X2e-School1En.dc.html": {
+      "x": 600,
+      "y": 1228,
+      "w": 390,
+      "h": 220,
+      "page": "round13",
+      "title": "Lesson 1: before"
+    },
+    "X2f-School1En.dc.html": {
+      "x": 1050,
+      "y": 1228,
+      "w": 390,
+      "h": 254,
+      "page": "round13",
+      "title": "Lesson 1: after"
+    },
+    "X2g-School2En.dc.html": {
+      "x": 1500,
+      "y": 1228,
+      "w": 390,
+      "h": 230,
+      "page": "round13",
+      "title": "Lesson 2: before"
+    },
+    "X2h-School2En.dc.html": {
+      "x": 1950,
+      "y": 1228,
+      "w": 390,
+      "h": 264,
+      "page": "round13",
+      "title": "Lesson 2: after"
+    },
+    "X3a-Google.dc.html": {
+      "x": 600,
+      "y": 1912,
+      "w": 390,
+      "h": 174,
+      "page": "round13",
+      "title": "כפתור גוגל: לפני"
+    },
+    "X3b-Google.dc.html": {
+      "x": 1050,
+      "y": 1912,
+      "w": 390,
+      "h": 174,
+      "page": "round13",
+      "title": "כפתור גוגל: אחרי (הסמל של גוגל)"
+    },
+    "X4a-ReclaimAsk.dc.html": {
+      "x": 600,
+      "y": 2506,
+      "w": 390,
+      "h": 280,
+      "page": "round13",
+      "title": "\"אני כבר בקבוצה\": לפני"
+    },
+    "X4b-ReclaimAsk.dc.html": {
+      "x": 1050,
+      "y": 2506,
+      "w": 390,
+      "h": 390,
+      "page": "round13",
+      "title": "\"אני כבר בקבוצה\": אחרי, עם השם שלך"
+    },
+    "X4c-ReclaimAdmin.dc.html": {
+      "x": 1500,
+      "y": 2506,
+      "w": 390,
+      "h": 173,
+      "page": "round13",
+      "title": "אצל המנהל: לפני"
+    },
+    "X4d-ReclaimAdmin.dc.html": {
+      "x": 1950,
+      "y": 2506,
+      "w": 390,
+      "h": 173,
+      "page": "round13",
+      "title": "אצל המנהל: אחרי"
+    },
+    "M0-Decide.dc.html": {
+      "x": 0,
+      "y": 0,
+      "w": 520,
+      "h": 900,
+      "page": "round14",
+      "title": "מה לאשר בסבב 14"
+    },
+    "M1-Members.dc.html": {
+      "x": 600,
+      "y": 0,
+      "w": 390,
+      "h": 1096,
+      "page": "round14",
+      "title": "חברים: התפריט של חבר (⋮)"
+    },
+    "M2-FillTrip.dc.html": {
+      "x": 1050,
+      "y": 0,
+      "w": 390,
+      "h": 1524,
+      "page": "round14",
+      "title": "מילוי הטיסה בשביל חבר"
+    },
+    "M3-NameDates.dc.html": {
+      "x": 1500,
+      "y": 0,
+      "w": 390,
+      "h": 1306,
+      "page": "round14",
+      "title": "שם ותאריכים"
+    },
+    "M4-Invite.dc.html": {
+      "x": 1950,
+      "y": 0,
+      "w": 390,
+      "h": 1282,
+      "page": "round14",
+      "title": "הגדרות ההזמנה"
+    },
+    "M5-DeleteArmed.dc.html": {
+      "x": 2400,
+      "y": 0,
+      "w": 390,
+      "h": 1019,
+      "page": "round14",
+      "title": "מחיקת הקבוצה: לחיצה שנייה"
+    },
+    "M6-MembersDesktop.dc.html": {
+      "x": 600,
+      "y": 1944,
+      "w": 1280,
+      "h": 844,
+      "page": "round14",
+      "title": "במחשב"
+    },
+    "M7-Scores.dc.html": {
+      "x": 600,
+      "y": 3208,
+      "w": 390,
+      "h": 844,
+      "page": "round14",
+      "title": "שיאים: גם מהמשחקים באתר"
+    },
+    "M8-MeetPick.dc.html": {
+      "x": 1050,
+      "y": 3208,
+      "w": 390,
+      "h": 2069,
+      "page": "round14",
+      "title": "נקודת מפגש: באיזו קבוצה לשמור"
+    },
+    "N1-GuestHome.dc.html": {
+      "x": 600,
+      "y": 5697,
+      "w": 390,
+      "h": 1352,
+      "page": "round14",
+      "title": "דף הבית, אורח"
+    },
+    "N2-TripHome.dc.html": {
+      "x": 1050,
+      "y": 5697,
+      "w": 390,
+      "h": 1263,
+      "page": "round14",
+      "title": "עם טיול, נגיעה בשם"
+    },
+    "N3-SignIn.dc.html": {
+      "x": 1500,
+      "y": 5697,
+      "w": 390,
+      "h": 844,
+      "page": "round14",
+      "title": "כניסה"
+    },
+    "N4-GroupFlights.dc.html": {
+      "x": 1950,
+      "y": 5697,
+      "w": 390,
+      "h": 844,
+      "page": "round14",
+      "title": "קבוצה: טיסות"
+    },
+    "N5-Account.dc.html": {
+      "x": 2400,
+      "y": 5697,
+      "w": 390,
+      "h": 844,
+      "page": "round14",
+      "title": "חשבון"
+    },
+    "N6-AboutPass.dc.html": {
+      "x": 2850,
+      "y": 5697,
+      "w": 390,
+      "h": 760,
+      "page": "round14",
+      "title": "הגדרות: הסקי־פס"
     }
   },
   "createdOnFiles": {
@@ -979,7 +1235,7 @@
   "designSystems": [],
   "launch": {
     "view": "canvas",
-    "page": "round12"
+    "page": "round14"
   },
   "notes": {
     "featRow1": {
@@ -1296,6 +1552,87 @@
       "w": 240,
       "x": 0,
       "y": 6441
+    },
+    "round13row0": {
+      "kind": "title1",
+      "maxW": 860,
+      "page": "round13",
+      "text": "1. דף הפרטיות: כפתורי השפה",
+      "w": 240,
+      "x": 600,
+      "y": -300
+    },
+    "round13row1": {
+      "kind": "title1",
+      "maxW": 1740,
+      "page": "round13",
+      "text": "2. בית הספר לסקי: המילים בציורים, בעברית",
+      "w": 240,
+      "x": 600,
+      "y": 244
+    },
+    "round13row2": {
+      "kind": "title1",
+      "maxW": 1740,
+      "page": "round13",
+      "text": "2. בית הספר לסקי: באנגלית",
+      "w": 240,
+      "x": 600,
+      "y": 928
+    },
+    "round13row3": {
+      "kind": "title1",
+      "maxW": 860,
+      "page": "round13",
+      "text": "3. \"המשך עם גוגל\"",
+      "w": 240,
+      "x": 600,
+      "y": 1612
+    },
+    "round13row4": {
+      "kind": "title1",
+      "maxW": 1740,
+      "page": "round13",
+      "text": "4. \"אני כבר בקבוצה\": מי מבקש",
+      "w": 240,
+      "x": 600,
+      "y": 2206
+    },
+    "round14row0": {
+      "kind": "title1",
+      "maxW": 2190,
+      "page": "round14",
+      "text": "ניהול הקבוצה למנהל, בטלפון",
+      "w": 240,
+      "x": 600,
+      "y": -300
+    },
+    "round14row1": {
+      "kind": "title1",
+      "maxW": 1280,
+      "page": "round14",
+      "text": "ניהול הקבוצה במחשב",
+      "w": 240,
+      "x": 600,
+      "y": 1644
+    },
+    "round14row2": {
+      "kind": "title1",
+      "maxW": 860,
+      "page": "round14",
+      "text": "שיאים ונקודת מפגש",
+      "w": 240,
+      "x": 600,
+      "y": 2908
+    },
+    "round14row3": {
+      "kind": "title1",
+      "maxW": 2640,
+      "page": "round14",
+      "text": "באתר עכשיו: סבב 12 כפי שנבנה (בלי שינוי, רק להשוואה)",
+      "w": 240,
+      "x": 600,
+      "y": 5397
     }
   },
   "order": [
@@ -1418,9 +1755,49 @@
     "P5-AboutGuest.dc.html",
     "G1-GondolaGuest.dc.html",
     "G2-GondolaMe.dc.html",
-    "P7-PassMenu.dc.html"
+    "P7-PassMenu.dc.html",
+    "X0-Decide.dc.html",
+    "X1a-PrivacyLang.dc.html",
+    "X1b-PrivacyLang.dc.html",
+    "X2a-School1He.dc.html",
+    "X2b-School1He.dc.html",
+    "X2c-School2He.dc.html",
+    "X2d-School2He.dc.html",
+    "X2e-School1En.dc.html",
+    "X2f-School1En.dc.html",
+    "X2g-School2En.dc.html",
+    "X2h-School2En.dc.html",
+    "X3a-Google.dc.html",
+    "X3b-Google.dc.html",
+    "X4a-ReclaimAsk.dc.html",
+    "X4b-ReclaimAsk.dc.html",
+    "X4c-ReclaimAdmin.dc.html",
+    "X4d-ReclaimAdmin.dc.html",
+    "M0-Decide.dc.html",
+    "M1-Members.dc.html",
+    "M2-FillTrip.dc.html",
+    "M3-NameDates.dc.html",
+    "M4-Invite.dc.html",
+    "M5-DeleteArmed.dc.html",
+    "M6-MembersDesktop.dc.html",
+    "M7-Scores.dc.html",
+    "M8-MeetPick.dc.html",
+    "N1-GuestHome.dc.html",
+    "N2-TripHome.dc.html",
+    "N3-SignIn.dc.html",
+    "N4-GroupFlights.dc.html",
+    "N5-Account.dc.html",
+    "N6-AboutPass.dc.html"
   ],
   "pages": [
+    {
+      "id": "round14",
+      "name": "סבב 14: ניהול הקבוצה באתר"
+    },
+    {
+      "id": "round13",
+      "name": "סבב 13: תיקונים קטנים"
+    },
     {
       "id": "round12",
       "name": "סבב 12: חשבון וקבוצה באתר"

@@ -213,7 +213,22 @@
 
 **סשן האפליקציה, כדי שהטופס והמדיניות יהיו נכונים:** ב-PostHog לכבות שמירת כתובות IP ולבחור שרת באירופה; ב-Sentry שרת באירופה ובלי פרטים מזהים (`sendDefaultPii` כבוי); בלי מיקום.
 
-**ג. משלב החשבונות (13.5):** נוספים `Personal info` (`Name`, `Email address`, `User IDs`) ו-`App activity` (`Other user-generated content`: טיולים, מפגשים, שיאים), למטרות `App functionality` ו-`Account management`; מחיקת חשבון חובה. הנתונים המדויקים לפי `docs/USERS.md`.
+**ג. משלב החשבונות (13.5), הגרסה שהמדיניות שפורסמה ב-2.10.2026 מתארת:**
+
+| קטגוריה | סוג | מטרה | חובה או רשות | משותף? |
+|---|---|---|---|---|
+| `Personal info` | `Name` | `App functionality`, `Account management` | רשות (השם בקבוצה) | לא; חברי הקבוצה רואים אותו, וזה לא "שיתוף" בהגדרת גוגל כי הוא חלק מהפעולה שהמשתמש ביקש |
+| `Personal info` | `Email address` | `Account management` | רשות, רק בכניסה עם גוגל | לא |
+| `Personal info` | `User IDs` | `App functionality`, `Account management` | רשות (הזהות בקבוצה, גם אנונימית) | לא |
+| `App activity` | `Other user-generated content` | `App functionality` | רשות (טיולים, מפגשים, שיאים) | לא |
+| `App activity` | `App interactions` | `Analytics` | רשות (מתג המדידה) | לא |
+| `App info and performance` | `Crash logs`, `Diagnostics` | `Analytics`, `App functionality` | רשות (מתג המדידה) | לא |
+| `Device or other IDs` | `Device or other IDs` | `Analytics` | רשות (מתג המדידה) | לא |
+
+- **מחיקה:** כן, באפליקציה (הגדרות, חשבון) ובדף `gudauri-ski-trip.vercel.app/account` (גוגל פליי דורשת קישור כזה בשדה "Delete account URL"). גם בלי החשבון אפשר לבקש מחיקה של נתונים בפנייה לכתובת התמיכה.
+- **הצפנה בתעבורה:** כן.
+- **שאלון הדירוג:** `User interaction` = כן (חברי קבוצה רואים שמות ומפגשים), כמו בסעיף "שאלון הדירוג" למטה.
+- **לבדוק לפני שממלאים:** אם גוגל פליי מחשיבה `Photos` כשהתמונה מחשבון גוגל נשמרת בשירות ההתחברות בלי להיקרא. ההצהרה המדויקת היא `Email address` ו-`Name`; התמונה לא בשימוש (`docs/PRIVACY.md`, "חשבונות וקבוצות").
 
 ### שאלון הדירוג (`Content rating`)
 

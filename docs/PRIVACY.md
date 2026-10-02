@@ -1,6 +1,6 @@
 # מדיניות פרטיות
 
-המדיניות של האפליקציה והאתר, בעברית ובאנגלית. אושרה על ידי פיני ב-1.10.2026 (החלטה 33), והסעיף על המדידה באתר ב-2.10.2026 (החלטה 37), ומתפרסמת באתר: https://gudauri-ski-trip.vercel.app/privacy (באנגלית: `/privacy#en`). **הקובץ הזה הוא המקור:** הדף נבנה ממנו בפקודה `python3 tools/build-privacy.py`, ובדיקה בגיטהאב נכשלת אם הם לא תואמים.
+המדיניות של האפליקציה והאתר, בעברית ובאנגלית. אושרה על ידי פיני ב-1.10.2026 (החלטה 33), והסעיף על המדידה באתר ב-2.10.2026 (החלטה 37), והעדכון לחשבונות, קבוצות ושרת ב-2.10.2026 (פיני אישר לפרסם את הטיוטה כמו שהיא), ומתפרסמת באתר: https://gudauri-ski-trip.vercel.app/privacy (באנגלית: `/privacy#en`). **הקובץ הזה הוא המקור:** הדף נבנה ממנו בפקודה `python3 tools/build-privacy.py`, ובדיקה בגיטהאב נכשלת אם הם לא תואמים.
 
 ---
 
@@ -16,14 +16,15 @@ Gudi: Gudauri Ski Map היא אפליקציה לאנדרואיד (המזהה `io
 
 ### בקצרה
 
-- האפליקציה עובדת בלי הרשמה, ולא מבקשת שם, מייל, טלפון או מיקום.
-- כמעט הכל נשמר רק בטלפון שלך.
-- אנחנו אוספים רק מדידת שימוש אנונימית ודיווחי קריסות, כדי לשפר את האפליקציה. אפשר לכבות את שניהם בהגדרות.
+- האפליקציה והאתר עובדים בלי הרשמה, ולא מבקשים שם, מייל, טלפון או מיקום.
+- ההגדרות והמועדפים נשארים רק אצלך. השיאים במשחקים ו"הטיול שלך" נשארים רק אצלך עד שמצטרפים לקבוצה.
+- **קבוצות** הן הפעם היחידה שמידע נשלח לשרת שלנו, ורק אם בחרת להצטרף לקבוצה או ליצור אותה. בקבוצה חברי הקבוצה רואים את השם שבחרת, את הטיול שבחרת לשתף, את המפגשים ואת השיאים.
+- אנחנו אוספים גם מדידת שימוש אנונימית ודיווחי קריסות. אפשר לכבות את שניהם בהגדרות.
 - אין פרסומות, לא מוכרים מידע, ולא עוקבים אחריך באפליקציות או באתרים אחרים.
 
-### מה נשמר רק בטלפון
+### מה נשמר רק אצלך
 
-ההגדרות, המועדפים, השיאים במשחקים ו"הטיול שלך" (טיסה ותאריכים) נשמרים בטלפון בלבד, ולא נשלחים אלינו. אם גיבוי המכשיר דלוק, אנדרואיד עשוי לגבות אותם לחשבון הגוגל שלך לפי מדיניות הפרטיות של גוגל, ולשחזר אותם בטלפון חדש. לנו אין גישה לגיבוי הזה.
+ההגדרות והמועדפים נשמרים בטלפון (או בדפדפן) בלבד, ולא נשלחים אלינו. השיאים במשחקים ו"הטיול שלך" (טיסה ותאריכים) נשמרים כך גם הם, **עד שאתה מצטרף לקבוצה**: אז עותק של הטיול והשיא הכי גבוה שלך בכל משחק נשמרים גם בשרת, כדי שחברי הקבוצה יראו את הטיסה שלך ואת טבלת השיאים (ראו "חשבונות וקבוצות"). גיבוי המכשיר כבוי באפליקציה: מה שנשמר בה לא עובר לגיבוי של אנדרואיד.
 
 ### מה אנחנו אוספים
 
@@ -31,6 +32,27 @@ Gudi: Gudauri Ski Map היא אפליקציה לאנדרואיד (המזהה `io
 2. **דיווח קריסות** (בשירות Sentry, בשרתים באירופה): כשהאפליקציה קורסת או נתקלת בשגיאה, נשלח תיאור טכני של התקלה, עם דגם הטלפון, גרסת מערכת ההפעלה, גרסת האפליקציה והשעה. הדיווח לא כולל תוכן אישי. כתובת ה-IP לא נשמרת.
 
 את שניהם אפשר לכבות בכל רגע במסך ההגדרות, ואז לא נשלח דבר. המידע משמש רק כדי להבין מה עובד, מה לא ומה לתקן. נתוני השימוש נשמרים עד שנה, ודיווחי הקריסות עד 90 יום.
+
+### חשבונות וקבוצות
+
+אפשר להשתמש במפה, במשחקים ובכרטיס הטיסה בלי להירשם. כדי להצטרף לקבוצה או ליצור אותה, האפליקציה והאתר מתחברים לשרת שלנו (Supabase, בשרתים בפרנקפורט שבגרמניה).
+
+**מה נשמר בשרת:**
+
+1. **זהות.** הצטרפות לקבוצה בקישור או בקוד יוצרת זהות אנונימית: מזהה אקראי, בלי שם ובלי מייל. כניסה עם חשבון גוגל שומרת בשירות ההתחברות את כתובת המייל, השם והתמונה שגוגל מוסרת, ואת המזהה של החשבון. אנחנו מעתיקים לפרופיל רק את השם, כברירת מחדל לשם בקבוצה; לא מציגים את המייל או את התמונה לאף אחד, ולא משתמשים בהם לשום דבר אחר.
+2. **פרופיל:** השם שבחרת בקבוצה (עד 40 תווים) ושפת הממשק.
+3. **קבוצות:** שם הקבוצה ותאריכי הטיול שלה, מי חבר בה ובאיזה תפקיד (חבר או מנהל), הזמנות (קוד וקישור), ובקשות הצטרפות.
+4. **טיסות:** אם בחרת לשתף את הטיול שלך עם קבוצה, העותק שלו (תאריכים, מספרי טיסה, שדות תעופה ושעות) נראה לחברי הקבוצה. מנהל קבוצה יכול להזין טיסה בשם חבר, וזה מסומן.
+5. **מפגשים ושיאים:** מפגשים שחברי הקבוצה קובעים (תחנה, שעה והערה), והשיא הכי גבוה שלך בכל משחק, שנראה לחברי הקבוצה.
+6. **יומן פעולות** (נשמר 180 יום, לא נגיש לאפליקציות): מי עשה פעולה רגישה ומתי (יצירת קבוצה, הצטרפות, אישור או דחייה של בקשה, הוצאת חבר, מינוי מנהל, מחיקת חשבון, וניסיונות שגויים להזין קוד הזמנה). **לוגים טכניים של השרת** (נשמרים יום אחד): הפעולה, מזהה המשתמש, התוצאה וזמן התגובה, וכתובת ה-IP של הבקשה, כמו בכל שרת.
+
+**מי רואה מה:** חבר בקבוצה רואה את שאר החברים בה (שם), את הטיסות שהם בחרו לשתף, את המפגשים ואת השיאים. מי שאינו חבר לא רואה כלום. מנהל רואה גם בקשות הצטרפות. מי שמקבל קישור הזמנה (או קוד) לקבוצה שאינה דורשת אישור רואה את שמות החברים בה לפני שהוא מצטרף, כדי שחבר שהחליף טלפון יוכל לבקש לחזור.
+
+**כמה זמן:** המידע נשמר כל עוד החשבון והקבוצה קיימים. זהות אנונימית שאינה חברה באף קבוצה נמחקת מהשרת אחרי 30 יום. קבוצה ללא חברים נמחקת. מי שעוזב קבוצה, הטיסה שלו מפסיקה להופיע בה.
+
+**מחיקה:** אפשר למחוק את החשבון בכל רגע, בלי לפנות אלינו: באפליקציה (הגדרות, חשבון), או באתר בכתובת `gudauri-ski-trip.vercel.app/account`. המחיקה מוציאה אותך מכל הקבוצות (אם היית המנהל, חבר רשום ותיק מתמנה במקומך), ומוחקת את הפרופיל, הטיולים, השיאים וזהות ההתחברות. מפגשים שקבעת נשארים בקבוצה בלי שמך. השם שלך נמחק גם מיומן הפעולות.
+
+**שירותים שמעבדים בשבילנו:** Supabase (מסד הנתונים, ההתחברות וזמן אמת; שרתים בפרנקפורט), וגוגל, לכניסה עם חשבון גוגל (חלה עליה מדיניות הפרטיות של גוגל). אנחנו לא מוכרים ולא מעבירים את המידע הזה לאף אחד אחר.
 
 ### תוכן מהרשת
 
@@ -43,7 +65,9 @@ Gudi: Gudauri Ski Map היא אפליקציה לאנדרואיד (המזהה `io
 
 ### האתר
 
-האתר לא דורש הרשמה ולא משתמש בעוגיות. ההגדרות, השפה, השיאים ו"הטיול שלך" (טיסות ותאריכים) נשמרים בדפדפן שלך בלבד, ולא נשלחים אלינו.
+האתר לא דורש הרשמה ולא משתמש בעוגיות. ההגדרות, השפה, השיאים ו"הטיול שלך" (טיסות ותאריכים) נשמרים בדפדפן שלך, ולא נשלחים אלינו (אלא אם הצטרפת לקבוצה, ראו למטה).
+
+**אם מצטרפים לקבוצה או נכנסים עם גוגל,** הדפדפן שומר גם את ההתחברות (בזיכרון הדפדפן, לא בעוגייה) ועותק של הקבוצה, והמידע נשמר בשרת כמתואר ב"חשבונות וקבוצות". כדי להציג את האתר ולאפשר כניסה, הדפדפן טוען גם את ספריית ההתחברות (supabase-js, מ-jsDelivr, רק כשיש חיבור לקבוצה), את הכניסה של גוגל (רק כשלוחצים על "כניסה עם גוגל"), ואת סקריפטי המדידה של PostHog ו-Sentry (אלא אם כיבית את המדידה). השירותים האלה רואים את כתובת ה-IP שלך.
 
 **מדידת שימוש ודיווח שגיאות באתר** (PostHog ו-Sentry, בשרתים באירופה): באילו עמודים ופעולות משתמשים, שפת הממשק, סוג המכשיר (טלפון, טאבלט או מחשב) ומאיזה קישור הגעת, ותיאור טכני של שגיאות. כדי לספור ביקורים חוזרים נשמר בדפדפן מזהה אקראי (לא עוגייה), שלא קשור לשם, למייל או לטלפון; מחיקת נתוני האתר בדפדפן מוחקת אותו. כתובת ה-IP לא נשמרת. אפשר לכבות את זה בעמוד ההגדרות של האתר, ואז לא נשלח דבר.
 
@@ -57,9 +81,11 @@ Gudi: Gudauri Ski Map היא אפליקציה לאנדרואיד (המזהה `io
 
 אפשר לפנות אלינו ב-pinisagent@gmail.com כדי לשאול איזה מידע נשמר, ולבקש לתקן או למחוק אותו. מאחר שמדידת השימוש ודיווחי הקריסות לא קשורים לזהות שלך, הדרך הפשוטה ביותר היא לכבות אותם בהגדרות, או להתקין מחדש כדי לקבל מזהה חדש.
 
+כדי לראות, לתקן או למחוק מידע שנשמר בשרת: מחיקת החשבון (למעלה) מוחקת הכל. לשאלות או לתיקון, pinisagent@gmail.com. הנתונים בקבוצה נראים כבר לחברי הקבוצה, ולכן אפשר גם פשוט לבקש מהם או מהמנהל.
+
 ### אבטחה והעברה לחו״ל
 
-כל התקשורת מוצפנת (HTTPS). שירותי המדידה והקריסות מאחסנים את המידע בשרתים באירופה.
+כל התקשורת מוצפנת (HTTPS). מסד הנתונים של הקבוצות, ההתחברות ושירותי המדידה והקריסות מאחסנים את המידע בשרתים באירופה. הגישה למידע בשרת מוגבלת בכללים ברמת השורה: כל אחד רואה רק קבוצות שהוא חבר בהן.
 
 ### שינויים
 
@@ -79,14 +105,15 @@ Gudi: Gudauri Ski Map is an Android app (package `io.github.pini236.skiapp`) and
 
 ### In short
 
-- The app works without signing up, and never asks for your name, email, phone number or location.
-- Almost everything stays on your phone.
-- We only collect anonymous usage statistics and crash reports, to improve the app. You can turn both off in Settings.
+- The app and the website work without signing up, and never ask for your name, email, phone number or location.
+- Your settings and favorites stay only with you. Your game high scores and "Your trip" stay only with you until you join a group.
+- **Groups** are the one case where data is sent to our server, and only if you choose to join or create a group. In a group, the other members see the name you chose, the trip you chose to share, the meetups and the high scores.
+- We also collect anonymous usage statistics and crash reports. You can turn both off in Settings.
 - No ads. We do not sell data, and we do not track you across other apps or websites.
 
-### Stored only on your phone
+### Stored only with you
 
-Your settings, favorites, game high scores and "Your trip" (flights and dates) are stored only on your phone and are never sent to us. If device backup is on, Android may back them up to your Google account under Google's privacy policy and restore them on a new phone. We have no access to that backup.
+Your settings and favorites are stored only on your phone (or in your browser) and are never sent to us. Your game high scores and "Your trip" (flights and dates) are kept that way too, **until you join a group**: then a copy of the trip and your best score in each game are also kept on our server, so the group's members can see your flight and the score table (see "Accounts and groups"). Device backup is turned off in the app: what it stores is not included in Android backups.
 
 ### What we collect
 
@@ -94,6 +121,27 @@ Your settings, favorites, game high scores and "Your trip" (flights and dates) a
 2. **Crash reports** (Sentry, servers in the EU): when the app crashes or hits an error, a technical description of the problem is sent, with phone model, OS version, app version and time. Reports contain no personal content. IP addresses are not stored.
 
 You can turn both off at any time in Settings, and nothing is sent. The data is used only to understand what works, what doesn't and what to fix. Usage data is kept for up to one year and crash reports for up to 90 days.
+
+### Accounts and groups
+
+You can use the map, the games and the boarding pass without signing up. To join or create a group, the app and the website connect to our server (Supabase, servers in Frankfurt, Germany).
+
+**What is stored on the server:**
+
+1. **Identity.** Joining a group by link or code creates an anonymous identity: a random ID, with no name and no email. Signing in with a Google account stores, in the sign-in service, the email address, name and picture that Google provides, and the account's ID. We copy only the name into the profile, as the default for your name in a group; we do not show your email or picture to anyone and do not use them for anything else.
+2. **Profile:** the name you chose in the group (up to 40 characters) and the interface language.
+3. **Groups:** the group's name and trip dates, who is a member and in what role (member or admin), invitations (code and link), and join requests.
+4. **Flights:** if you chose to share your trip with a group, its copy (dates, flight numbers, airports and times) is visible to the group's members. A group admin can enter a flight on a member's behalf, and this is marked.
+5. **Meetups and scores:** meetups the group's members set (station, time and a note), and your best score in each game, visible to the group's members.
+6. **Action log** (kept 180 days, not accessible to the apps): who did a sensitive action and when (creating a group, joining, approving or rejecting a request, removing a member, appointing an admin, deleting an account, and wrong attempts to enter an invitation code). **Technical server logs** (kept one day): the action, the user ID, the result and the response time, and the IP address of the request, as on any server.
+
+**Who sees what:** a group member sees the other members (name), the flights they chose to share, the meetups and the scores. Someone who is not a member sees nothing. An admin also sees join requests. Someone who receives an invitation link (or code) to a group that does not require approval sees the members' names before joining, so that a member who changed phones can ask to come back.
+
+**How long:** data is kept as long as the account and the group exist. An anonymous identity that is in no group is deleted from the server after 30 days. A group with no members is deleted. When you leave a group, your flight stops showing in it.
+
+**Deletion:** you can delete your account at any time, without contacting us: in the app (Settings, Account), or on the website at `gudauri-ski-trip.vercel.app/account`. Deletion removes you from every group (if you were the admin, a long-standing registered member becomes admin), and deletes your profile, trips, scores and sign-in identity. Meetups you set stay in the group without your name. Your name is also removed from the action log.
+
+**Services that process data for us:** Supabase (database, sign-in and realtime; servers in Frankfurt), and Google, for signing in with a Google account (Google's privacy policy applies). We do not sell this data or pass it to anyone else.
 
 ### Content from the internet
 
@@ -106,7 +154,9 @@ No ads. We don't use the device advertising ID. We don't sell or share data with
 
 ### The website
 
-The website requires no sign-up and uses no cookies. Settings, language, scores and "Your trip" (flights and dates) are stored only in your browser and are never sent to us.
+The website requires no sign-up and uses no cookies. Settings, language, scores and "Your trip" (flights and dates) are stored in your browser and are not sent to us (unless you joined a group, see below).
+
+**If you join a group or sign in with Google,** your browser also keeps the sign-in (in the browser's storage, not a cookie) and a copy of the group, and the data is stored on the server as described in "Accounts and groups". To display the site and allow sign-in, your browser also loads the sign-in library (supabase-js, from jsDelivr, only when connected to a group), Google's sign-in (only when you press "Sign in with Google"), and the PostHog and Sentry measurement scripts (unless you turned measurement off). These services see your IP address.
 
 **Usage statistics and error reports on the website** (PostHog and Sentry, servers in the EU): which pages and features are used, the interface language, the kind of device (phone, tablet or computer), which link you came from, and a technical description of errors. To count returning visits, a random ID is kept in your browser (not a cookie); it is not linked to your name, email or phone number, and clearing the site's data in your browser deletes it. IP addresses are not stored. You can turn this off on the site's settings page, and then nothing is sent.
 
@@ -120,9 +170,11 @@ The app is intended for ages 13 and up and is not directed at children. We do no
 
 You can contact us at pinisagent@gmail.com to ask what data is stored, and to have it corrected or deleted. Since usage statistics and crash reports are not linked to your identity, the simplest way is to turn them off in Settings, or reinstall to get a new ID.
 
+To see, correct or delete data stored on the server: deleting your account (above) deletes everything. For questions or corrections, pinisagent@gmail.com. Group data is already visible to the group's members, so you can also simply ask them or the admin.
+
 ### Security and international transfer
 
-All communication is encrypted (HTTPS). The usage and crash services store data on servers in the EU.
+All communication is encrypted (HTTPS). The groups database, sign-in, and the usage and crash services store data on servers in the EU. Access to server data is limited by row-level rules: everyone sees only the groups they belong to.
 
 ### Changes
 
