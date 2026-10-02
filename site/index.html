@@ -3,17 +3,17 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>גודאורי 2027: אתר ההיערכות</title>
-<meta name="description" content="אתר היערכות לחופשת סקי בגודאורי, גאורגיה: מפת מסלולים ורכבלים, מודל תלת-ממדי של ההר ופרטים על כל מסלול.">
+<title data-i18n="meta.title">גודאורי 2027: אתר ההיערכות</title>
+<meta name="description" data-i18n-attr="content:meta.description" content="אתר היערכות לחופשת סקי בגודאורי, גאורגיה: מפת מסלולים ורכבלים, מודל תלת-ממדי של ההר ופרטים על כל מסלול.">
 <meta name="robots" content="noindex">
 <meta name="theme-color" content="#EEF2F5" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#0D1522" media="(prefers-color-scheme: dark)">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <meta property="og:type" content="website">
 <meta property="og:locale" content="he_IL">
-<meta property="og:site_name" content="גודאורי 2027">
-<meta property="og:title" content="גודאורי 2027: אתר ההיערכות">
-<meta property="og:description" content="מפת מסלולים ורכבלים, מודל תלת-ממדי של ההר ופרטים על כל מסלול.">
+<meta property="og:site_name" data-i18n-attr="content:common.site_name" content="גודאורי 2027">
+<meta property="og:title" data-i18n-attr="content:meta.title" content="גודאורי 2027: אתר ההיערכות">
+<meta property="og:description" data-i18n-attr="content:meta.og_description" content="מפת מסלולים ורכבלים, מודל תלת-ממדי של ההר ופרטים על כל מסלול.">
 <meta property="og:url" content="https://gudauri-ski-trip.vercel.app/">
 <meta property="og:image" content="https://gudauri-ski-trip.vercel.app/og.jpg">
 <meta property="og:image:width" content="1200">
@@ -23,22 +23,23 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Karantina:wght@700&family=IBM+Plex+Sans+Hebrew:wght@400;500;600;700&display=swap">
 <link rel="stylesheet" href="css/site.css">
+<script src="js/i18n.js"></script>
 <script src="js/prefs.js"></script>
 </head>
 <body>
-<div id="loading" role="status">טוען את האתר…</div>
+<div id="loading" role="status" data-i18n="common.loading">טוען את האתר…</div>
 <div class="site">
 <header class="topbar">
-  <a class="brand" href="#home">גודאורי 2027</a>
-  <nav class="signs" aria-label="חלקי האתר">
-    <a href="#home" data-nav="home">בית</a>
-    <a href="#map" data-nav="map">מפת מסלולים</a>
-    <a href="#meet" data-nav="meet">נקודת מפגש</a>
-    <a href="#games" data-nav="games">משחקים</a>
-    <a href="#about" data-nav="about" class="nav-about" aria-label="אודות והגדרות"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="3.2"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M5.3 18.7l2.1-2.1M16.6 7.4l2.1-2.1"/></svg></a>
+  <a class="brand" href="#home" data-i18n="common.site_name">גודאורי 2027</a>
+  <nav class="signs" aria-label="חלקי האתר" data-i18n-attr="aria-label:nav.sections">
+    <a href="#home" data-nav="home" data-i18n="nav.home">בית</a>
+    <a href="#map" data-nav="map" data-i18n="nav.map">מפת מסלולים</a>
+    <a href="#meet" data-nav="meet" data-i18n="nav.meet">נקודת מפגש</a>
+    <a href="#games" data-nav="games" data-i18n="nav.games">משחקים</a>
+    <a href="#about" data-nav="about" class="nav-about" aria-label="אודות והגדרות" data-i18n-attr="aria-label:common.about_settings"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="3.2"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M5.3 18.7l2.1-2.1M16.6 7.4l2.1-2.1"/></svg></a>
   </nav>
-  <span class="tb-count" id="tbCount"><b class="num" id="tbDays"></b> <span data-days-word>ימים</span> לטיסה</span>
-  <div class="dn"><span class="dn-clock">השעה בגודאורי<b class="num" data-dn-clock>--:--</b></span><button type="button" class="dn-btn" data-dn aria-label="מצב תצוגה"><svg class="i-auto" width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 3a9 9 0 0 1 0 18z" fill="currentColor"/></svg><svg class="i-day" width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="5" fill="#F4B942"/><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8" stroke="#F4B942" stroke-width="2" stroke-linecap="round"/></svg><svg class="i-night" width="24" height="24" viewBox="0 0 34 34" aria-hidden="true"><path d="M17 3A14 14 0 0 1 17 31A7.5 14 0 0 0 17 3Z" fill="currentColor"/></svg><span class="dn-lbl" data-dn-lbl>אוטומטי</span></button></div>
+  <span class="tb-count" id="tbCount" data-i18n-js="common.days_to_flight;common.nights_to_flight"><b class="num" id="tbDays"></b> <span data-days-word>ימים</span> לטיסה</span>
+  <div class="dn"><span class="dn-clock"><span data-i18n="nav.gudauri_time">השעה בגודאורי</span><b class="num" data-dn-clock>--:--</b></span><button type="button" class="dn-btn" data-dn aria-label="מצב תצוגה" data-i18n-attr="aria-label:nav.display_mode"><svg class="i-auto" width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 3a9 9 0 0 1 0 18z" fill="currentColor"/></svg><svg class="i-day" width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="5" fill="#F4B942"/><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8" stroke="#F4B942" stroke-width="2" stroke-linecap="round"/></svg><svg class="i-night" width="24" height="24" viewBox="0 0 34 34" aria-hidden="true"><path d="M17 3A14 14 0 0 1 17 31A7.5 14 0 0 0 17 3Z" fill="currentColor"/></svg><span class="dn-lbl" data-dn-lbl data-i18n="common.mode_auto">אוטומטי</span></button></div>
 </header>
 
 <main class="page page-home" id="home">
@@ -52,143 +53,144 @@
     <span class="sky-phase" id="skyPhase"></span>
   </div>
   <div class="home-inner">
-    <div class="home-top"><h1 class="loc">גודאורי, גאורגיה</h1><span class="when">חופשת סקי, ינואר 2027</span><div class="dn dn-home"><span class="dn-clock">השעה בגודאורי<b class="num" data-dn-clock>--:--</b></span><button type="button" class="dn-btn" data-dn aria-label="מצב תצוגה"><svg class="i-auto" width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 3a9 9 0 0 1 0 18z" fill="currentColor"/></svg><svg class="i-day" width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="5" fill="#F4B942"/><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8" stroke="#F4B942" stroke-width="2" stroke-linecap="round"/></svg><svg class="i-night" width="24" height="24" viewBox="0 0 34 34" aria-hidden="true"><path d="M17 3A14 14 0 0 1 17 31A7.5 14 0 0 0 17 3Z" fill="currentColor"/></svg><span class="dn-lbl" data-dn-lbl>אוטומטי</span></button></div></div>
-    <section class="ticket-wrap" aria-label="פרטי הטיסה">
+    <div class="home-top"><h1 class="loc" data-i18n="home.location">גודאורי, גאורגיה</h1><span class="when" data-i18n="home.when">חופשת סקי, ינואר 2027</span><div class="dn dn-home"><span class="dn-clock"><span data-i18n="nav.gudauri_time">השעה בגודאורי</span><b class="num" data-dn-clock>--:--</b></span><button type="button" class="dn-btn" data-dn aria-label="מצב תצוגה" data-i18n-attr="aria-label:nav.display_mode"><svg class="i-auto" width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 3a9 9 0 0 1 0 18z" fill="currentColor"/></svg><svg class="i-day" width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="5" fill="#F4B942"/><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8" stroke="#F4B942" stroke-width="2" stroke-linecap="round"/></svg><svg class="i-night" width="24" height="24" viewBox="0 0 34 34" aria-hidden="true"><path d="M17 3A14 14 0 0 1 17 31A7.5 14 0 0 0 17 3Z" fill="currentColor"/></svg><span class="dn-lbl" data-dn-lbl data-i18n="common.mode_auto">אוטומטי</span></button></div></div>
+    <section class="ticket-wrap" aria-label="פרטי הטיסה" data-i18n-attr="aria-label:ticket.flight_details">
       <div class="bp-stack" id="bpStack">
-      <article class="bp is-back" data-leg="ret" hidden aria-label="כרטיס חזור">
+      <article class="bp is-back" data-leg="ret" hidden aria-label="כרטיס חזור" data-i18n-attr="aria-label:ticket.card_return">
         <div class="bp-main">
-          <div class="bp-strip"><span><span data-f="airline">—</span> · כרטיס עלייה · חזור<span data-f="note"></span></span><span class="num" data-f="date">—</span></div>
+          <div class="bp-strip"><span data-i18n-js="ticket.strip_return"><span data-f="airline">—</span> · כרטיס עלייה · חזור<span data-f="note"></span></span><span class="num" data-f="date">—</span></div>
           <div class="bp-body">
             <div class="bp-route">
-              <div><small>מ</small><b class="bp-code" dir="ltr" data-f="fromCode">—</b><span class="ph" data-f="from">מוצא</span></div>
+              <div><small data-i18n="ticket.from">מ</small><b class="bp-code" dir="ltr" data-f="fromCode">—</b><span class="ph" data-f="from" data-i18n="ticket.origin">מוצא</span></div>
               <svg class="bp-plane" width="28" height="28" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M2 13.5v-2l8-4.5V2.5a1.5 1.5 0 0 1 3 0V7l8 4.5v2l-8-2.5v5l2.5 2v1.5L12 18.5 8.5 19.5V18l2.5-2v-5z" transform="rotate(-90 12 12)"/></svg>
-              <div class="bp-to"><small>אל</small><b class="bp-code" dir="ltr" data-f="toCode">—</b><span class="ph" data-f="to">יעד</span></div>
+              <div class="bp-to"><small data-i18n="ticket.to">אל</small><b class="bp-code" dir="ltr" data-f="toCode">—</b><span class="ph" data-f="to" data-i18n="ticket.destination">יעד</span></div>
             </div>
-            <div class="bp-grid"><span><small>טיסה</small><b dir="ltr" data-f="flight">—</b></span><span><small>המראה</small><b class="num" data-f="departs">—</b></span><span><small>נחיתה</small><b class="num" data-f="arrives">—</b></span></div>
-            <div class="bp-grid"><span><small>נוסעים</small><b data-f="pax">—</b></span><span><small>כבודה</small><b data-f="baggage">—</b></span><span><small>ימי סקי</small><b class="num" dir="ltr" data-f="skiRange">—</b></span></div>
+            <div class="bp-grid"><span><small data-i18n="ticket.flight">טיסה</small><b dir="ltr" data-f="flight">—</b></span><span><small data-i18n="ticket.departs">המראה</small><b class="num" data-f="departs">—</b></span><span><small data-i18n="ticket.arrives">נחיתה</small><b class="num" data-f="arrives">—</b></span></div>
+            <div class="bp-grid"><span><small data-i18n="ticket.pax">נוסעים</small><b data-f="pax">—</b></span><span><small data-i18n="ticket.baggage">כבודה</small><b data-f="baggage">—</b></span><span><small data-i18n="ticket.ski_days">ימי סקי</small><b class="num" dir="ltr" data-f="skiRange">—</b></span></div>
           </div>
         </div>
-        <div class="bp-slot"><span class="bp-gone">נתלש!<br>נתראה בשדה</span>
-          <button type="button" class="bp-stub" aria-label="לתלוש את הספח"><small>קודם</small><b class="num bp-big" data-f="skiCount">—</b><small>ימי סקי</small><span class="bp-mini" dir="ltr" data-f="pair">—</span><svg class="bp-ridge" viewBox="0 0 80 28" aria-hidden="true"></svg></button>
+        <div class="bp-slot"><span class="bp-gone" data-i18n-js="ticket.torn;ticket.see_you">נתלש!<br>נתראה בשדה</span>
+          <button type="button" class="bp-stub" aria-label="לתלוש את הספח" data-i18n-attr="aria-label:ticket.tear_stub"><small data-f="skiPre" data-i18n-js="ticket.stub_ski_first">קודם</small><b class="num bp-big" data-f="skiCount">—</b><small data-f="skiPost" data-i18n-js="ticket.stub_ski_first">ימי סקי</small><span class="bp-mini" dir="ltr" data-f="pair">—</span><svg class="bp-ridge" viewBox="0 0 80 28" aria-hidden="true"></svg></button>
         </div>
-        <button type="button" class="bp-swap" aria-label="להביא קדימה את כרטיס החזור"></button>
+        <button type="button" class="bp-swap" aria-label="להביא קדימה את כרטיס החזור" data-i18n-attr="aria-label:ticket.swap_return"></button>
       </article>
-      <article class="bp is-front" data-leg="out" aria-label="כרטיס הלוך">
+      <article class="bp is-front" data-leg="out" aria-label="כרטיס הלוך" data-i18n-attr="aria-label:ticket.card_out">
         <div class="bp-main">
-          <div class="bp-strip"><span><span data-f="airline">—</span> · כרטיס עלייה · הלוך<span data-f="note"></span></span><span class="num" data-f="date" id="tDate">—</span></div>
+          <div class="bp-strip"><span data-i18n-js="ticket.strip_out"><span data-f="airline">—</span> · כרטיס עלייה · הלוך<span data-f="note"></span></span><span class="num" data-f="date" id="tDate">—</span></div>
           <div class="bp-body">
             <div class="bp-route">
-              <div><small>מ</small><b class="bp-code" dir="ltr" data-f="fromCode">—</b><span id="tFrom" class="ph" data-f="from">מוצא</span></div>
+              <div><small data-i18n="ticket.from">מ</small><b class="bp-code" dir="ltr" data-f="fromCode">—</b><span id="tFrom" class="ph" data-f="from" data-i18n="ticket.origin">מוצא</span></div>
               <svg class="bp-plane" width="28" height="28" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M2 13.5v-2l8-4.5V2.5a1.5 1.5 0 0 1 3 0V7l8 4.5v2l-8-2.5v5l2.5 2v1.5L12 18.5 8.5 19.5V18l2.5-2v-5z" transform="rotate(-90 12 12)"/></svg>
-              <div class="bp-to"><small>אל</small><b class="bp-code" dir="ltr" data-f="toCode">—</b><span id="tTo" class="ph" data-f="to">יעד</span></div>
+              <div class="bp-to"><small data-i18n="ticket.to">אל</small><b class="bp-code" dir="ltr" data-f="toCode">—</b><span id="tTo" class="ph" data-f="to" data-i18n="ticket.destination">יעד</span></div>
             </div>
-            <div class="bp-grid"><span><small>טיסה</small><b id="tFlight" dir="ltr" data-f="flight">—</b></span><span><small>המראה</small><b class="num" id="tDeparts" data-f="departs">—</b></span><span><small>נחיתה</small><b class="num" id="tArrives" data-f="arrives">—</b></span></div>
-            <div class="bp-grid"><span><small>נוסעים</small><b data-f="pax">—</b></span><span><small>כבודה</small><b data-f="baggage">—</b></span><span><small>ימי סקי</small><b class="num" dir="ltr" data-f="skiRange">—</b></span></div>
+            <div class="bp-grid"><span><small data-i18n="ticket.flight">טיסה</small><b id="tFlight" dir="ltr" data-f="flight">—</b></span><span><small data-i18n="ticket.departs">המראה</small><b class="num" id="tDeparts" data-f="departs">—</b></span><span><small data-i18n="ticket.arrives">נחיתה</small><b class="num" id="tArrives" data-f="arrives">—</b></span></div>
+            <div class="bp-grid"><span><small data-i18n="ticket.pax">נוסעים</small><b data-f="pax">—</b></span><span><small data-i18n="ticket.baggage">כבודה</small><b data-f="baggage">—</b></span><span><small data-i18n="ticket.ski_days">ימי סקי</small><b class="num" dir="ltr" data-f="skiRange">—</b></span></div>
           </div>
         </div>
-        <div class="bp-slot"><span class="bp-gone">נתלש!<br>נתראה בשדה</span>
-          <button type="button" class="bp-stub" aria-label="לתלוש את הספח"><small>עוד</small><b class="num bp-big" id="tDays"></b><small id="tDaysLbl"><span data-days-word>ימים</span> לטיסה</small><span class="bp-mini" dir="ltr" data-f="pair">—</span><svg class="bp-ridge" viewBox="0 0 80 28" aria-hidden="true"></svg></button>
+        <div class="bp-slot"><span class="bp-gone" data-i18n-js="ticket.torn;ticket.see_you">נתלש!<br>נתראה בשדה</span>
+          <button type="button" class="bp-stub" aria-label="לתלוש את הספח" data-i18n-attr="aria-label:ticket.tear_stub"><small id="tDaysPre" data-i18n-js="ticket.stub_days;ticket.stub_nights">עוד</small><b class="num bp-big" id="tDays"></b><small id="tDaysLbl" data-i18n-js="ticket.stub_days;ticket.stub_nights"><span data-days-word>ימים</span> לטיסה</small><span class="bp-mini" dir="ltr" data-f="pair">—</span><svg class="bp-ridge" viewBox="0 0 80 28" aria-hidden="true"></svg></button>
         </div>
-        <button type="button" class="bp-swap" aria-label="להביא קדימה את כרטיס ההלוך"></button>
+        <button type="button" class="bp-swap" aria-label="להביא קדימה את כרטיס ההלוך" data-i18n-attr="aria-label:ticket.swap_out"></button>
       </article>
       </div>
-      <p class="bp-hint" id="bpHint"><span id="bpHintSwap" hidden>נגיעה בכרטיס שמאחור מחליפה · </span>נגיעה בספח תולשת</p>
+      <p class="bp-hint" id="bpHint"><span id="bpHintSwap" hidden data-i18n="ticket.hint_swap">נגיעה בכרטיס שמאחור מחליפה · </span><span data-i18n="ticket.hint_tear">נגיעה בספח תולשת</span></p>
     </section>
-    <nav class="post" aria-label="חלקי האתר">
-      <a class="board" href="#map"><b>מפת מסלולים</b><span>27 מסלולים, פרטים וסרטונים</span></a>
-      <a class="board board-meet" href="#meet"><b>נקודת מפגש</b><span>בוחרים תחנה ושעה ושולחים לקבוצה</span></a>
-      <a class="board board-games" href="#games"><b>משחקים</b><span>הירידה, בית הספר לסקי, שלג טרי ועוד</span></a>
-      <a class="board board-app" id="appBoard" href="downloads/gudauri-2027.apk" download hidden><b>אפליקציה לאנדרואיד</b><span id="appMeta">להורדה</span></a>
+    <nav class="post" aria-label="חלקי האתר" data-i18n-attr="aria-label:nav.sections">
+      <a class="board" href="#map"><b data-i18n="nav.map">מפת מסלולים</b><span data-i18n="home.board_map_sub">27 מסלולים, פרטים וסרטונים</span></a>
+      <a class="board board-meet" href="#meet"><b data-i18n="nav.meet">נקודת מפגש</b><span data-i18n="home.board_meet_sub">בוחרים תחנה ושעה ושולחים לקבוצה</span></a>
+      <a class="board board-games" href="#games"><b data-i18n="nav.games">משחקים</b><span data-i18n="home.board_games_sub">הירידה, בית הספר לסקי, שלג טרי ועוד</span></a>
+      <a class="board board-app" id="appBoard" href="downloads/gudauri-2027.apk" download hidden><b data-i18n="home.app_board">אפליקציה לאנדרואיד</b><span id="appMeta" data-i18n="home.app_download">להורדה</span></a>
       <details class="app-how" id="appHow" hidden>
-        <summary>איך מתקינים?</summary>
+        <summary data-i18n="home.app_how">איך מתקינים?</summary>
         <ol>
-          <li>מורידים את הקובץ בטלפון.</li>
-          <li>פותחים אותו, ומאשרים התקנה כשהטלפון שואל על התקנה ממקור לא ידוע.</li>
-          <li>פותחים את האפליקציה "גודאורי 2027".</li>
+          <li data-i18n="home.app_step1">מורידים את הקובץ בטלפון.</li>
+          <li data-i18n="home.app_step2">פותחים אותו, ומאשרים התקנה כשהטלפון שואל על התקנה ממקור לא ידוע.</li>
+          <li data-i18n="home.app_step3">פותחים את האפליקציה "גודאורי 2027".</li>
         </ol>
-        <p>מתאים ל-Android 8.0 ומעלה. האפליקציה בנויה על אותם נתונים כמו האתר.</p>
+        <p data-i18n="home.app_req">מתאים ל-Android 8.0 ומעלה. האפליקציה בנויה על אותם נתונים כמו האתר.</p>
       </details>
-      <span class="board-next" id="boardNext">חלקים נוספים בקרוב</span>
+      <span class="board-next" id="boardNext" data-i18n="home.board_next">חלקים נוספים בקרוב</span>
     </nav>
-    <section class="tally" aria-label="מסלולים במפה הרשמית">
-      <h2>מסלולים במפה הרשמית</h2>
-      <ul><li class="t-green"><b class="num">5</b><span>ירוק</span></li><li class="t-blue"><b class="num">16</b><span>כחול</span></li><li class="t-red"><b class="num">4</b><span>אדום</span></li><li class="t-black"><b class="num">2</b><span>שחור</span></li></ul>
+    <section class="tally" aria-label="מסלולים במפה הרשמית" data-i18n-attr="aria-label:home.tally">
+      <h2 data-i18n="home.tally">מסלולים במפה הרשמית</h2>
+      <ul><li class="t-green"><b class="num">5</b><span data-i18n="common.color_green">ירוק</span></li><li class="t-blue"><b class="num">16</b><span data-i18n="common.color_blue">כחול</span></li><li class="t-red"><b class="num">4</b><span data-i18n="common.color_red">אדום</span></li><li class="t-black"><b class="num">2</b><span data-i18n="common.color_black">שחור</span></li></ul>
     </section>
-    <section class="crew" aria-label="מי טס">
-      <h2>החבר׳ה <span class="num" id="crewCount"></span></h2>
+    <section class="crew" aria-label="מי טס" data-i18n-attr="aria-label:home.crew_aria">
+      <h2><span data-i18n="common.crew">החבר׳ה</span> <span class="num" id="crewCount"></span></h2>
       <ul id="crewList"></ul>
     </section>
-    <a class="home-about" href="#about">אודות, הגדרות וקרדיטים</a>
-    <a class="home-privacy" href="privacy">מדיניות פרטיות</a>
+    <a class="home-about" href="#about" data-i18n="home.about_link">אודות, הגדרות וקרדיטים</a>
+    <a class="home-privacy" href="privacy" data-i18n="home.privacy_link">מדיניות פרטיות</a>
   </div>
 </main>
 
 <main class="page page-about" id="aboutPage" hidden>
-  <div class="mhead"><h1>אודות והגדרות</h1><a href="#home"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg>בית</a></div>
+  <div class="mhead"><h1 data-i18n="common.about_settings">אודות והגדרות</h1><a href="#home"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg><span data-i18n="nav.home">בית</span></a></div>
   <div class="about">
-    <section class="ab-set" aria-label="הגדרות">
-      <h2>הגדרות</h2>
-      <button type="button" class="ab-row" data-pref="sound" aria-pressed="true"><span><b>צליל</b><small>בכרטיס הטיסה ובמשחקים</small></span><i class="ab-sw" aria-hidden="true"></i></button>
-      <button type="button" class="ab-row" data-pref="haptics" aria-pressed="true"><span><b>רטט</b><small>בטלפונים שתומכים (לא באייפון)</small></span><i class="ab-sw" aria-hidden="true"></i></button>
-      <button type="button" class="ab-row" data-dn aria-label="מצב תצוגה"><span><b>תצוגה</b><small>אוטומטי לפי השעה בגודאורי, יום או לילה</small></span><span class="ab-val" data-dn-lbl>אוטומטי</span></button>
-      <button type="button" class="ab-row ab-reset" id="abReset"><span><b>איפוס השיאים במשחקים</b><small id="abResetTxt">השיאים נשמרים רק בטלפון הזה</small></span></button>
+    <section class="ab-set" aria-label="הגדרות" data-i18n-attr="aria-label:about.settings">
+      <h2 data-i18n="about.settings">הגדרות</h2>
+      <button type="button" class="ab-row" data-pref="sound" aria-pressed="true"><span><b data-i18n="about.sound">צליל</b><small data-i18n="about.sound_sub">בכרטיס הטיסה ובמשחקים</small></span><i class="ab-sw" aria-hidden="true"></i></button>
+      <button type="button" class="ab-row" data-pref="haptics" aria-pressed="true"><span><b data-i18n="about.haptics">רטט</b><small data-i18n="about.haptics_sub">בטלפונים שתומכים (לא באייפון)</small></span><i class="ab-sw" aria-hidden="true"></i></button>
+      <button type="button" class="ab-row" data-dn aria-label="מצב תצוגה" data-i18n-attr="aria-label:nav.display_mode"><span><b data-i18n="about.display">תצוגה</b><small data-i18n="about.display_sub">אוטומטי לפי השעה בגודאורי, יום או לילה</small></span><span class="ab-val" data-dn-lbl data-i18n="common.mode_auto">אוטומטי</span></button>
+      <button type="button" class="ab-row" id="abLang" aria-haspopup="dialog" aria-controls="langSheet"><span><b><span data-i18n="about.language">שפה</span><span class="ab-lang-en" lang="en" dir="ltr"> · Language</span></b><small id="abLangSub" data-i18n="about.language_auto">נבחרה לפי הדפדפן</small></span><span class="ab-val" id="abLangVal" translate="no">עברית</span></button>
+      <button type="button" class="ab-row ab-reset" id="abReset"><span><b data-i18n="about.reset">איפוס השיאים במשחקים</b><small id="abResetTxt" data-i18n="about.reset_sub">השיאים נשמרים רק בטלפון הזה</small></span></button>
     </section>
-    <section class="ab-who" aria-label="מי בנה">
-      <h2>מי בנה</h2>
+    <section class="ab-who" aria-label="מי בנה" data-i18n-attr="aria-label:about.who">
+      <h2 data-i18n="about.who">מי בנה</h2>
       <div class="ab-pass">
-        <div class="ab-pass-top"><span>SKI PASS · גודאורי 2027</span><span>בונה האתר</span></div>
+        <div class="ab-pass-top"><span data-i18n="about.pass_top">SKI PASS · גודאורי 2027</span><span data-i18n="about.builder">בונה האתר</span></div>
         <div class="ab-pass-body">
           <img src="https://github.com/pini236.png?size=160" alt="" width="88" height="88" loading="lazy">
-          <div><b>פיני זולברג</b><span>תכנן ובנה את האתר לחופשת הסקי של החבר׳ה, ינואר 2027, יחד עם Claude.</span>
+          <div><b data-i18n="about.builder_name">פיני זולברג</b><span data-i18n="about.bio">תכנן ובנה את האתר לחופשת הסקי של החבר׳ה, ינואר 2027, יחד עם Claude.</span>
             <a class="ab-gh" href="https://github.com/pini236" target="_blank" rel="noopener"><svg width="20" height="20" viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0016 8c0-4.42-3.58-8-8-8z"/></svg><span dir="ltr">pini236</span></a></div>
         </div>
       </div>
     </section>
-    <section class="ab-credits" aria-label="קרדיטים">
-      <h2>קרדיטים</h2>
+    <section class="ab-credits" aria-label="קרדיטים" data-i18n-attr="aria-label:about.credits">
+      <h2 data-i18n="about.credits">קרדיטים</h2>
       <ul>
-        <li><b>מסלולים, רכבלים וכבישים:</b> © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">התורמים של OpenStreetMap</a>, ברישיון ODbL.</li>
-        <li><b>גבהים ותבליט:</b> AWS Terrain Tiles, בעיקר SRTM.</li>
-        <li><b>צליל הקריעה בכרטיס:</b> <a href="https://freesound.org/people/everythingsounds/sounds/198233/" target="_blank" rel="noopener">everythingsounds ב-Freesound</a>, ברישיון <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a>.</li>
-        <li><b>צלילי הקלפים:</b> <a href="https://kenney.nl/assets/casino-audio" target="_blank" rel="noopener">Kenney</a>, ברישיון CC0.</li>
-        <li><b>גופנים:</b> Karantina ו-IBM Plex Sans Hebrew, ברישיון OFL. <b>תלת-ממד:</b> three.js, ברישיון MIT.</li>
-        <li><b>סרטונים:</b> שייכים ליוצרים שלהם ביוטיוב, ומוטמעים בלבד.</li>
-        <li>המפה הרשמית של MTA שימשה רק לזיהוי שמות וצבעים של מסלולים, ולא הועתקה.</li>
+        <li><b data-i18n="about.credit_osm_label">מסלולים, רכבלים וכבישים:</b> © <span data-i18n-tpl="about.credit_licensed" data-var-license="ODbL"><a data-slot="link" data-i18n="about.credit_osm_link" href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">התורמים של OpenStreetMap</a>, ברישיון ODbL.</span></li>
+        <li><b data-i18n="about.credit_terrain_label">גבהים ותבליט:</b> <span data-i18n="about.credit_terrain">AWS Terrain Tiles, בעיקר SRTM.</span></li>
+        <li><b data-i18n="about.credit_tear_label">צליל הקריעה בכרטיס:</b> <span data-i18n-tpl="about.credit_licensed"><a data-slot="link" data-i18n="about.credit_tear_link" href="https://freesound.org/people/everythingsounds/sounds/198233/" target="_blank" rel="noopener">everythingsounds ב-Freesound</a>, ברישיון <a data-slot="license" href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a>.</span></li>
+        <li><b data-i18n="about.credit_cards_label">צלילי הקלפים:</b> <span data-i18n-tpl="about.credit_licensed" data-var-license="CC0"><a data-slot="link" href="https://kenney.nl/assets/casino-audio" target="_blank" rel="noopener">Kenney</a>, ברישיון CC0.</span></li>
+        <li><b data-i18n="about.credit_fonts_label">גופנים:</b> <span data-i18n="about.credit_fonts">Karantina ו-IBM Plex Sans Hebrew, ברישיון OFL.</span> <b data-i18n="about.credit_3d_label">תלת-ממד:</b> <span data-i18n="about.credit_3d">three.js, ברישיון MIT.</span></li>
+        <li><b data-i18n="about.credit_videos_label">סרטונים:</b> <span data-i18n="about.credit_videos">שייכים ליוצרים שלהם ביוטיוב, ומוטמעים בלבד.</span></li>
+        <li data-i18n="about.credit_mta">המפה הרשמית של MTA שימשה רק לזיהוי שמות וצבעים של מסלולים, ולא הועתקה.</li>
       </ul>
-      <p class="ab-privacy"><a href="privacy">מדיניות פרטיות</a> · אתר ואפליקציה לא רשמיים, בלי קשר ל-MTA.</p>
+      <p class="ab-privacy"><a href="privacy" data-i18n="home.privacy_link">מדיניות פרטיות</a> · <span data-i18n="about.unofficial">אתר ואפליקציה לא רשמיים, בלי קשר ל-MTA.</span></p>
     </section>
   </div>
 </main>
 
 <main class="page page-map" id="mapPage" hidden>
-  <div class="mhead"><h1>מפת מסלולים</h1><a href="#home"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg>בית</a></div>
+  <div class="mhead"><h1 data-i18n="nav.map">מפת מסלולים</h1><a href="#home"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg><span data-i18n="nav.home">בית</span></a></div>
   <div class="mbody">
     <aside id="panel" aria-live="polite"></aside>
     <div class="mcol">
       <div class="toolbar">
-        <div class="viewsw" role="group" aria-label="סוג תצוגה" id="viewsw" hidden><button type="button" data-view="3d" aria-pressed="false">תלת-ממד</button><button type="button" data-view="2d" aria-pressed="true">מבט על</button></div>
-        <div class="filters" id="filters" role="group" aria-label="סינון המפה"><button type="button" class="fchip" data-filter="green" aria-pressed="true"><span class="sq green"></span>ירוק</button><button type="button" class="fchip" data-filter="blue" aria-pressed="true"><span class="sq blue"></span>כחול</button><button type="button" class="fchip" data-filter="red" aria-pressed="true"><span class="sq red"></span>אדום</button><button type="button" class="fchip" data-filter="black" aria-pressed="true"><span class="sq black"></span>שחור</button><button type="button" class="fchip" data-filter="lifts" aria-pressed="true"><span class="sq lifts"></span>רכבלים</button><button type="button" class="fchip" data-filter="unnamed" aria-pressed="true"><span class="sq unnamed"></span>ללא שם</button></div>
+        <div class="viewsw" role="group" aria-label="סוג תצוגה" data-i18n-attr="aria-label:map.view_type" id="viewsw" hidden><button type="button" data-view="3d" aria-pressed="false" data-i18n="map.view_3d">תלת-ממד</button><button type="button" data-view="2d" aria-pressed="true" data-i18n="map.view_top">מבט על</button></div>
+        <div class="filters" id="filters" role="group" aria-label="סינון המפה" data-i18n-attr="aria-label:map.filter"><button type="button" class="fchip" data-filter="green" aria-pressed="true"><span class="sq green"></span><span data-i18n="common.color_green">ירוק</span></button><button type="button" class="fchip" data-filter="blue" aria-pressed="true"><span class="sq blue"></span><span data-i18n="common.color_blue">כחול</span></button><button type="button" class="fchip" data-filter="red" aria-pressed="true"><span class="sq red"></span><span data-i18n="common.color_red">אדום</span></button><button type="button" class="fchip" data-filter="black" aria-pressed="true"><span class="sq black"></span><span data-i18n="common.color_black">שחור</span></button><button type="button" class="fchip" data-filter="lifts" aria-pressed="true"><span class="sq lifts"></span><span data-i18n="map.lifts">רכבלים</span></button><button type="button" class="fchip" data-filter="unnamed" aria-pressed="true"><span class="sq unnamed"></span><span data-i18n="map.unnamed">ללא שם</span></button></div>
       </div>
       <div class="mapwrap">
       <div class="mstat" id="mstat" role="status" data-state="none"></div>
-      <svg id="map" role="img" aria-label="מפת מסלולים ורכבלים בגודאורי"></svg>
-      <div id="map3d" hidden role="img" aria-label="מודל תלת-ממדי של ההר עם המסלולים והרכבלים. גררו לסיבוב, גלגלת או צביטה לזום."></div>
-      <div class="hint3d" id="hint3d"><span class="h-fine">גרירה: סיבוב · גלגלת: זום · מקש ימני: הזזה</span><span class="h-touch">אצבע אחת: סיבוב · שתיים: זום והזזה</span></div>
+      <svg id="map" role="img" aria-label="מפת מסלולים ורכבלים בגודאורי" data-i18n-attr="aria-label:map.map_aria"></svg>
+      <div id="map3d" hidden role="img" data-i18n-attr="aria-label:map.map3d_aria" aria-label="מודל תלת-ממדי של ההר עם המסלולים והרכבלים. גררו לסיבוב, גלגלת או צביטה לזום."></div>
+      <div class="hint3d" id="hint3d"><span class="h-fine" data-i18n="map.hint_mouse">גרירה: סיבוב · גלגלת: זום · מקש ימני: הזזה</span><span class="h-touch" data-i18n="map.hint_touch">אצבע אחת: סיבוב · שתיים: זום והזזה</span></div>
       <div class="ctrls">
-        <button type="button" id="zin" aria-label="התקרב">+</button>
-        <button type="button" id="zout" aria-label="התרחק">−</button>
-        <button type="button" id="zfit" aria-label="הצג הכל" style="font-size:.8rem">⤢</button>
-        <button type="button" class="compass" id="compass" aria-label="סיבוב חזרה למבט מדרום"><svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><path d="M10 2l4 8h-8z" fill="var(--p-red)"/><path d="M10 18l4-8h-8z" fill="var(--muted)"/></svg></button>
+        <button type="button" id="zin" aria-label="התקרב" data-i18n-attr="aria-label:map.zoom_in">+</button>
+        <button type="button" id="zout" aria-label="התרחק" data-i18n-attr="aria-label:map.zoom_out">−</button>
+        <button type="button" id="zfit" aria-label="הצג הכל" data-i18n-attr="aria-label:map.zoom_fit" style="font-size:.8rem">⤢</button>
+        <button type="button" class="compass" id="compass" aria-label="סיבוב חזרה למבט מדרום" data-i18n-attr="aria-label:map.compass"><svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><path d="M10 2l4 8h-8z" fill="var(--p-red)"/><path d="M10 18l4-8h-8z" fill="var(--muted)"/></svg></button>
       </div>
       <div class="north" aria-hidden="true">▲<br>N</div>
       <div class="scale" id="scale"><i></i><span></span></div>
       <div class="inset" id="inset">
         <div class="inset-card" id="insetCard" hidden>
-          <div class="inset-head"><span>צד Kobi</span><button type="button" id="insetClose" aria-label="סגירת חלון צד Kobi">✕</button></div>
-          <svg id="kobimap" role="img" aria-label="מפת הצד הצפוני: מסלול Kobi ורכבלי Kobi"></svg>
-          <p class="inset-note">הירידה הצפונית מ-Kobi Pass לכפר Kobi. מוקטן ביחס למפה הראשית.</p>
+          <div class="inset-head"><span data-i18n="map.kobi_side">צד Kobi</span><button type="button" id="insetClose" aria-label="סגירת חלון צד Kobi" data-i18n-attr="aria-label:map.kobi_close">✕</button></div>
+          <svg id="kobimap" role="img" data-i18n-attr="aria-label:map.kobi_map_aria" aria-label="מפת הצד הצפוני: מסלול Kobi ורכבלי Kobi"></svg>
+          <p class="inset-note" data-i18n="map.kobi_note">הירידה הצפונית מ-Kobi Pass לכפר Kobi. מוקטן ביחס למפה הראשית.</p>
         </div>
-        <button type="button" class="inset-toggle" id="insetOpen" aria-expanded="false" aria-controls="insetCard"><span class="sw blue"></span>צד Kobi</button>
+        <button type="button" class="inset-toggle" id="insetOpen" aria-expanded="false" aria-controls="insetCard"><span class="sw blue"></span><span data-i18n="map.kobi_side">צד Kobi</span></button>
       </div>
     </div>
     </div>
@@ -196,73 +198,85 @@
 </main>
 
 <main class="page page-games" id="gamesPage" hidden>
-  <div class="mhead"><h1>משחקים</h1><a href="#home"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg>בית</a></div>
+  <div class="mhead"><h1 data-i18n="nav.games">משחקים</h1><a href="#home"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg><span data-i18n="nav.home">בית</span></a></div>
   <div class="games">
-    <div class="games-head"><span class="games-sign">5 משחקים</span><p class="games-intro">על השלג של גודאורי. השיאים נשמרים רק בטלפון שלכם, ומומלץ עם צליל.</p></div>
+    <div class="games-head"><span class="games-sign" data-i18n-plural="games.count" data-n="5">5 משחקים</span><p class="games-intro" data-i18n="games.intro">על השלג של גודאורי. השיאים נשמרים רק בטלפון שלכם, ומומלץ עם צליל.</p></div>
     <ul class="games-list">
-      <li class="gc-feature"><a class="game-card" href="games/descent/" style="--gc:#1F5FC4"><span class="gc-face"><span class="gc-thumb"><img src="games/thumbs/descent.webp" alt="" width="540" height="360" loading="lazy"><svg class="gc-play" width="34" height="34" viewBox="0 0 34 34" aria-hidden="true"><circle cx="17" cy="17" r="16" fill="#13233A" opacity=".82"/><path d="M21.5 11.5v11L12.5 17z" fill="#fff"/></svg><span class="gc-meta">5 מסלולים</span></span><span class="gc-body"><b>הירידה של החבר׳ה</b><span class="gc-tag">הירידה על המסלולים האמיתיים</span><span class="gc-long">גולשים על הפרופיל האמיתי של מסלולי גודאורי, אוספים את החבר׳ה ובורחים מהמפולת. מחזיקים כדי להתכופף, משחררים כדי לקפוץ.</span></span></span></a></li>
-      <li><a class="game-card" href="games/school/" style="--gc:#1B8A4C"><span class="gc-face"><span class="gc-thumb"><img src="games/thumbs/school.webp" alt="" width="540" height="360" loading="lazy"><svg class="gc-play" width="34" height="34" viewBox="0 0 34 34" aria-hidden="true"><circle cx="17" cy="17" r="16" fill="#13233A" opacity=".82"/><path d="M21.5 11.5v11L12.5 17z" fill="#fff"/></svg><span class="gc-meta">7 שיעורים</span></span><span class="gc-body"><b>בית הספר לסקי</b><span class="gc-tag">מעצירה בפיצה ועד קרווינג</span><span class="gc-long">שבעה שיעורים. בכל שיעור עיקרון אחד ותרגיל שבנוי בשבילו, עם מאמן שאומר מה קורה.</span></span></span></a></li>
-      <li><a class="game-card" href="games/fresh-snow/" style="--gc:#5B9BFF"><span class="gc-face"><span class="gc-thumb"><img src="games/thumbs/fresh-snow.webp" alt="" width="540" height="360" loading="lazy"><svg class="gc-play" width="34" height="34" viewBox="0 0 34 34" aria-hidden="true"><circle cx="17" cy="17" r="16" fill="#13233A" opacity=".82"/><path d="M21.5 11.5v11L12.5 17z" fill="#fff"/></svg><span class="gc-meta">בלי ניקוד</span></span><span class="gc-body"><b>שלג טרי</b><span class="gc-tag">לגעת בשלג ולרסק אגם קפוא</span><span class="gc-long">אצבע, מגף, מגלשיים או חתול שלג, עם הצליל של אבקה, קרום ושלג רטוב.</span></span></span></a></li>
-      <li class="gc-ink"><a class="game-card" href="games/merge/" style="--gc:#F4B942"><span class="gc-face"><span class="gc-thumb"><img src="games/thumbs/merge.webp" alt="" width="540" height="360" loading="lazy"><svg class="gc-play" width="34" height="34" viewBox="0 0 34 34" aria-hidden="true"><circle cx="17" cy="17" r="16" fill="#13233A" opacity=".82"/><path d="M21.5 11.5v11L12.5 17z" fill="#fff"/></svg><span class="gc-meta">משחק קצר</span></span><span class="gc-body"><b>איחוד כדורי שלג</b><span class="gc-tag">מפתית ועד מלך קזבק</span><span class="gc-long">מחליקים, ושני כדורים זהים מתאחדים לגדול יותר.</span></span></span></a></li>
-      <li><a class="game-card" href="games/snowball/" style="--gc:#13233A"><span class="gc-face"><span class="gc-thumb"><img src="games/thumbs/snowball.webp" alt="" width="540" height="360" loading="lazy"><svg class="gc-play" width="34" height="34" viewBox="0 0 34 34" aria-hidden="true"><circle cx="17" cy="17" r="16" fill="#13233A" opacity=".82"/><path d="M21.5 11.5v11L12.5 17z" fill="#fff"/></svg><span class="gc-meta">5 יריבים</span></span><span class="gc-body"><b>קרב כדורי שלג</b><span class="gc-tag">מאחורי החומה, מול החבר׳ה</span><span class="gc-long">מתכופפים מאחורי החומה, קמים, מכוונים וזורקים. כל הזירה תמיד מולכם.</span></span></span></a></li>
+      <li class="gc-feature"><a class="game-card" href="games/descent/" style="--gc:#1F5FC4"><span class="gc-face"><span class="gc-thumb"><img src="games/thumbs/descent.webp" alt="" width="540" height="360" loading="lazy"><svg class="gc-play" width="34" height="34" viewBox="0 0 34 34" aria-hidden="true"><circle cx="17" cy="17" r="16" fill="#13233A" opacity=".82"/><path d="M21.5 11.5v11L12.5 17z" fill="#fff"/></svg><span class="gc-meta" data-i18n-plural="games.descent_meta" data-n="5">5 מסלולים</span></span><span class="gc-body"><b data-i18n="games.descent_name">הירידה של החבר׳ה</b><span class="gc-tag" data-i18n="games.descent_tag">הירידה על המסלולים האמיתיים</span><span class="gc-long" data-i18n="games.descent_long">גולשים על הפרופיל האמיתי של מסלולי גודאורי, אוספים את החבר׳ה ובורחים מהמפולת. מחזיקים כדי להתכופף, משחררים כדי לקפוץ.</span></span></span></a></li>
+      <li><a class="game-card" href="games/school/" style="--gc:#1B8A4C"><span class="gc-face"><span class="gc-thumb"><img src="games/thumbs/school.webp" alt="" width="540" height="360" loading="lazy"><svg class="gc-play" width="34" height="34" viewBox="0 0 34 34" aria-hidden="true"><circle cx="17" cy="17" r="16" fill="#13233A" opacity=".82"/><path d="M21.5 11.5v11L12.5 17z" fill="#fff"/></svg><span class="gc-meta" data-i18n-plural="games.school_meta" data-n="7">7 שיעורים</span></span><span class="gc-body"><b data-i18n="games.school_name">בית הספר לסקי</b><span class="gc-tag" data-i18n="games.school_tag">מעצירה בפיצה ועד קרווינג</span><span class="gc-long" data-i18n="games.school_long">שבעה שיעורים. בכל שיעור עיקרון אחד ותרגיל שבנוי בשבילו, עם מאמן שאומר מה קורה.</span></span></span></a></li>
+      <li><a class="game-card" href="games/fresh-snow/" style="--gc:#5B9BFF"><span class="gc-face"><span class="gc-thumb"><img src="games/thumbs/fresh-snow.webp" alt="" width="540" height="360" loading="lazy"><svg class="gc-play" width="34" height="34" viewBox="0 0 34 34" aria-hidden="true"><circle cx="17" cy="17" r="16" fill="#13233A" opacity=".82"/><path d="M21.5 11.5v11L12.5 17z" fill="#fff"/></svg><span class="gc-meta" data-i18n="games.fresh_meta">בלי ניקוד</span></span><span class="gc-body"><b data-i18n="games.fresh_name">שלג טרי</b><span class="gc-tag" data-i18n="games.fresh_tag">לגעת בשלג ולרסק אגם קפוא</span><span class="gc-long" data-i18n="games.fresh_long">אצבע, מגף, מגלשיים או חתול שלג, עם הצליל של אבקה, קרום ושלג רטוב.</span></span></span></a></li>
+      <li class="gc-ink"><a class="game-card" href="games/merge/" style="--gc:#F4B942"><span class="gc-face"><span class="gc-thumb"><img src="games/thumbs/merge.webp" alt="" width="540" height="360" loading="lazy"><svg class="gc-play" width="34" height="34" viewBox="0 0 34 34" aria-hidden="true"><circle cx="17" cy="17" r="16" fill="#13233A" opacity=".82"/><path d="M21.5 11.5v11L12.5 17z" fill="#fff"/></svg><span class="gc-meta" data-i18n="games.merge_meta">משחק קצר</span></span><span class="gc-body"><b data-i18n="games.merge_name">איחוד כדורי שלג</b><span class="gc-tag" data-i18n="games.merge_tag">מפתית ועד מלך קזבק</span><span class="gc-long" data-i18n="games.merge_long">מחליקים, ושני כדורים זהים מתאחדים לגדול יותר.</span></span></span></a></li>
+      <li><a class="game-card" href="games/snowball/" style="--gc:#13233A"><span class="gc-face"><span class="gc-thumb"><img src="games/thumbs/snowball.webp" alt="" width="540" height="360" loading="lazy"><svg class="gc-play" width="34" height="34" viewBox="0 0 34 34" aria-hidden="true"><circle cx="17" cy="17" r="16" fill="#13233A" opacity=".82"/><path d="M21.5 11.5v11L12.5 17z" fill="#fff"/></svg><span class="gc-meta" data-i18n-plural="games.snowball_meta" data-n="5">5 יריבים</span></span><span class="gc-body"><b data-i18n="games.snowball_name">קרב כדורי שלג</b><span class="gc-tag" data-i18n="games.snowball_tag">מאחורי החומה, מול החבר׳ה</span><span class="gc-long" data-i18n="games.snowball_long">מתכופפים מאחורי החומה, קמים, מכוונים וזורקים. כל הזירה תמיד מולכם.</span></span></span></a></li>
     </ul>
   </div>
 </main>
 
 <main class="page page-meet" id="meetPage" hidden>
-  <div class="mhead"><h1>נקודת מפגש</h1><a href="#home"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg>בית</a></div>
+  <div class="mhead"><h1 data-i18n="nav.meet">נקודת מפגש</h1><a href="#home"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg><span data-i18n="nav.home">בית</span></a></div>
   <div class="meet">
     <div class="meet-map">
-      <svg id="meetMap" role="img" aria-label="מפת תחנות הרכבלים. לחיצה על סיכה בוחרת נקודת מפגש"></svg>
+      <svg id="meetMap" role="img" data-i18n-attr="aria-label:meet.map_aria" aria-label="מפת תחנות הרכבלים. לחיצה על סיכה בוחרת נקודת מפגש"></svg>
       <div class="meet-callout" id="meetCallout" aria-live="polite"><span class="mc-top"><b dir="ltr"></b><span class="mc-alt num" dir="ltr"></span></span><span class="mc-where"></span></div>
-      <button type="button" class="meet-all" id="meetAll">כל ההר</button>
-      <div class="meet-zoom" role="group" aria-label="זום"><button type="button" id="meetZin" aria-label="להתקרב">+</button><button type="button" id="meetZout" aria-label="להתרחק">−</button></div>
-      <button type="button" class="meet-clear" id="meetClear" hidden><svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 3L13 13M13 3L3 13" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>ניקוי הבחירה</button>
+      <button type="button" class="meet-all" id="meetAll" data-i18n="meet.whole_mountain">כל ההר</button>
+      <div class="meet-zoom" role="group" aria-label="זום" data-i18n-attr="aria-label:meet.zoom"><button type="button" id="meetZin" aria-label="להתקרב" data-i18n-attr="aria-label:meet.zoom_in">+</button><button type="button" id="meetZout" aria-label="להתרחק" data-i18n-attr="aria-label:meet.zoom_out">−</button></div>
+      <button type="button" class="meet-clear" id="meetClear" hidden><svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 3L13 13M13 3L3 13" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg><span data-i18n="meet.clear">ניקוי הבחירה</span></button>
       <span class="meet-hint" id="meetHint"></span>
-      <div class="meet-toast" id="meetToast" role="status" hidden><span>הבחירה בוטלה</span><button type="button" id="meetUndo">החזרה</button></div>
+      <div class="meet-toast" id="meetToast" role="status" hidden><span data-i18n="meet.cleared">הבחירה בוטלה</span><button type="button" id="meetUndo" data-i18n="meet.undo">החזרה</button></div>
     </div>
     <div class="meet-side" id="meetUI">
-      <section class="meet-q" aria-label="מתי">
-        <h2>מתי</h2>
-        <div class="meet-days" role="group" aria-label="יום" data-days></div>
-        <div class="meet-times" role="group" aria-label="שעה" data-times></div>
-        <label class="meet-own">שעה אחרת <input type="time" id="meetTime" step="300"></label>
+      <section class="meet-q" aria-label="מתי" data-i18n-attr="aria-label:meet.when">
+        <h2 data-i18n="meet.when">מתי</h2>
+        <div class="meet-days" role="group" aria-label="יום" data-i18n-attr="aria-label:meet.day" data-days></div>
+        <div class="meet-times" role="group" aria-label="שעה" data-i18n-attr="aria-label:meet.time" data-times></div>
+        <label class="meet-own"><span data-i18n="meet.other_time">שעה אחרת</span> <input type="time" id="meetTime" step="300"></label>
       </section>
-      <section aria-label="הנקודות של הקבוצה">
-        <h2>או בלחיצה אחת</h2>
+      <section aria-label="הנקודות של הקבוצה" data-i18n-attr="aria-label:meet.group_spots">
+        <h2 data-i18n="meet.one_tap">או בלחיצה אחת</h2>
         <div class="meet-post" data-pre></div>
       </section>
-      <section class="mcard-wrap" aria-label="כרטיס מפגש">
-        <div class="mcard-empty" id="meetEmpty"><svg width="34" height="44" viewBox="-15 -44 30 46" aria-hidden="true"><path d="M0 0C0 0-14-17-14-28A14 14 0 0 1 14-28C14-17 0 0 0 0Z" fill="none" stroke="currentColor" stroke-width="2" stroke-dasharray="4 3"/></svg><span><b>כרטיס המפגש מחכה</b><span>בוחרים תחנה על המפה, או נקודה קבועה למעלה, והכרטיס יודפס כאן.</span></span></div>
-        <button type="button" class="mcard-x" id="meetCardX" aria-label="לבטל את נקודת המפגש" hidden><svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 3L13 13M13 3L3 13" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg></button>
+      <section class="mcard-wrap" aria-label="כרטיס מפגש" data-i18n-attr="aria-label:meet.card">
+        <div class="mcard-empty" id="meetEmpty"><svg width="34" height="44" viewBox="-15 -44 30 46" aria-hidden="true"><path d="M0 0C0 0-14-17-14-28A14 14 0 0 1 14-28C14-17 0 0 0 0Z" fill="none" stroke="currentColor" stroke-width="2" stroke-dasharray="4 3"/></svg><span><b data-i18n="meet.empty_title">כרטיס המפגש מחכה</b><span data-i18n="meet.empty_body">בוחרים תחנה על המפה, או נקודה קבועה למעלה, והכרטיס יודפס כאן.</span></span></div>
+        <button type="button" class="mcard-x" id="meetCardX" aria-label="לבטל את נקודת המפגש" data-i18n-attr="aria-label:meet.cancel" hidden><svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 3L13 13M13 3L3 13" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg></button>
         <div class="mcard" id="meetCard" hidden>
-          <div class="mc-head"><span>כרטיס מפגש</span><span>החבר׳ה · גודאורי 2027</span></div>
+          <div class="mc-head"><span data-i18n="meet.card">כרטיס מפגש</span><span data-i18n="meet.card_sub">החבר׳ה · גודאורי 2027</span></div>
           <div class="mc-main">
-            <div class="mc-row"><span class="mc-col"><small>נפגשים ב</small><b class="mc-sign" dir="ltr" data-f="name"></b></span><span class="mc-col mc-end"><small>שעה</small><b class="mc-time num" data-f="time"></b></span></div>
-            <div class="mc-meta"><span><small>שער</small><b data-f="where"></b></span><span><small>גובה</small><b class="num" data-f="alt"></b></span><span><small>יום</small><b data-f="day"></b></span></div>
+            <div class="mc-row"><span class="mc-col"><small data-i18n="meet.meet_at">נפגשים ב</small><b class="mc-sign" dir="ltr" data-f="name"></b></span><span class="mc-col mc-end"><small data-i18n="meet.time">שעה</small><b class="mc-time num" data-f="time"></b></span></div>
+            <div class="mc-meta"><span><small data-i18n="meet.gate">שער</small><b data-f="where"></b></span><span><small data-i18n="meet.altitude">גובה</small><b class="num" data-f="alt"></b></span><span><small data-i18n="meet.day">יום</small><b data-f="day"></b></span></div>
           </div>
           <div class="mc-stub"><span data-f="c1"></span><b class="num" data-f="c2"></b><span data-f="c3"></span></div>
         </div>
       </section>
-      <section aria-label="איך מגיעים" id="meetRoutesSec" hidden>
-        <h2>איך מגיעים</h2>
+      <section aria-label="איך מגיעים" data-i18n-attr="aria-label:meet.routes" id="meetRoutesSec" hidden>
+        <h2 data-i18n="meet.routes">איך מגיעים</h2>
         <ul class="meet-routes" id="meetRoutes"></ul>
-        <p class="hint">לפי החיבורים בנתוני המסלולים. בלי זמנים ובלי תורים.</p>
+        <p class="hint" data-i18n="meet.routes_hint">לפי החיבורים בנתוני המסלולים. בלי זמנים ובלי תורים.</p>
       </section>
       <div class="meet-share" id="meetShareBox" hidden>
-        <a class="btn mshare-wa" id="meetWa" href="#" target="_blank" rel="noopener">שליחה בוואטסאפ</a>
-        <button type="button" class="btn" id="meetShare">שיתוף עם תמונה</button>
-        <button type="button" class="btn ghost" id="meetCopy">העתקת הקישור</button>
-        <button type="button" class="btn ghost" id="meetOnMap">לראות במפת המסלולים</button>
+        <a class="btn mshare-wa" id="meetWa" href="#" target="_blank" rel="noopener" data-i18n="meet.send_wa">שליחה בוואטסאפ</a>
+        <button type="button" class="btn" id="meetShare" data-i18n="meet.share_image">שיתוף עם תמונה</button>
+        <button type="button" class="btn ghost" id="meetCopy" data-i18n="meet.copy_link">העתקת הקישור</button>
+        <button type="button" class="btn ghost" id="meetOnMap" data-i18n="meet.on_map">לראות במפת המסלולים</button>
       </div>
-      <p class="hint">בלי מסד נתונים ובלי הרשמה: המקום, היום והשעה נמצאים בתוך הקישור עצמו.</p>
+      <p class="hint" data-i18n="meet.no_db">בלי מסד נתונים ובלי הרשמה: המקום, היום והשעה נמצאים בתוך הקישור עצמו.</p>
     </div>
   </div>
 </main>
 </div>
 
+<dialog class="lang-sheet" id="langSheet" aria-labelledby="langTitle">
+  <form method="dialog" class="ls-head"><h2 id="langTitle" data-i18n="about.language">שפה</h2><button class="ls-x" value="close" aria-label="סגירה" data-i18n-attr="aria-label:common.close">✕</button></form>
+  <p class="ls-hint" data-i18n="about.language_hint">כל שפה כתובה בכתב שלה, כדי שכל אחד ימצא את שלו. הבחירה נשמרת בטלפון הזה.</p>
+  <div class="ls-list" role="radiogroup" aria-labelledby="langTitle" translate="no">
+    <label lang="he" dir="rtl"><span>עברית</span><input type="radio" name="lang" value="he"></label>
+    <label lang="en" dir="ltr"><span>English</span><input type="radio" name="lang" value="en"></label>
+    <label lang="ru" dir="ltr"><span>Русский</span><input type="radio" name="lang" value="ru"></label>
+    <label lang="ka" dir="ltr"><span>ქართული</span><input type="radio" name="lang" value="ka"></label>
+  </div>
+  <button type="button" class="ls-auto" id="langAuto" data-i18n="about.language_browser">לפי הדפדפן (אוטומטי)</button>
+</dialog>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="js/relief.js"></script>
 <script src="js/app.js"></script>
+<script src="js/lang-picker.js"></script>
 </body>
 </html>

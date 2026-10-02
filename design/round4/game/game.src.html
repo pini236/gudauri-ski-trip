@@ -1,5 +1,5 @@
-<title>הירידה של החבר׳ה</title>
-<meta name="description" content="משחק גלישה על המסלולים האמיתיים של גודאורי">
+<title data-i18n="game.descent.title">הירידה של החבר׳ה</title>
+<meta name="description" data-i18n-attr="content:game.descent.meta_description" content="משחק גלישה על המסלולים האמיתיים של גודאורי">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Karantina:wght@700&family=IBM+Plex+Sans+Hebrew:wght@400;600;700&display=swap">
 <style>
@@ -37,7 +37,7 @@ body{margin:0;background:var(--sky);color:var(--ink);font-family:var(--f-body);d
 .pads{position:fixed;left:12px;right:12px;bottom:calc(env(safe-area-inset-bottom,0px) + 12px);display:grid;grid-template-columns:minmax(0,1fr);gap:12px;pointer-events:none;direction:ltr}
 .pad{pointer-events:auto;position:relative;min-height:84px;min-width:0;direction:rtl;border:2px solid rgba(255,255,255,.75);background:rgba(19,35,58,.55);color:#fff;font:inherit;display:flex;align-items:center;gap:10px;padding:8px 12px;cursor:pointer;touch-action:none;-webkit-tap-highlight-color:transparent;transition:background .12s,transform .12s}
 .pad svg{flex:none}
-.pad span{display:flex;flex-direction:column;align-items:flex-start;text-align:right;min-width:0;overflow:hidden}
+.pad span{display:flex;flex-direction:column;align-items:flex-start;text-align:start;min-width:0;overflow:hidden}
 .pad b{font-family:var(--f-display);font-size:clamp(20px,5.6vw,30px);line-height:1;white-space:nowrap}
 .pad small{font-size:12px;line-height:1.25;opacity:.85}
 .pad::before{content:"";position:absolute;inset:0;background:rgba(255,255,255,.35);transform-origin:left;transform:scaleX(var(--load,0));pointer-events:none}
@@ -64,6 +64,9 @@ body{margin:0;background:var(--sky);color:var(--ink);font-family:var(--f-body);d
 .runs{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:8px;padding-inline-start:14px}
 .runs::before{content:"";position:absolute;inset-inline-start:0;top:-6px;bottom:-10px;width:7px;background:var(--ink)}
 .runs button{min-height:58px;max-width:100%;padding:4px 16px 4px 30px;color:#fff;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:1px;clip-path:polygon(0 50%,18px 0,100% 0,100% 100%,18px 100%);transition:transform .25s cubic-bezier(.3,1.5,.5,1)}
+/* left-to-right languages: the page reads from the left, and the run signs point the other way (decision 32) */
+html[dir="ltr"] body,html[dir="ltr"] .pad{direction:ltr}
+html[dir="ltr"] .runs button{padding:4px 30px 4px 16px;clip-path:polygon(0 0,calc(100% - 18px) 0,100% 50%,calc(100% - 18px) 100%,0 100%)}
 .runs button .top{display:flex;align-items:baseline;gap:10px}
 .runs button b{font-family:var(--f-display);font-size:30px;line-height:1;white-space:nowrap}
 .runs button .stars{font-size:15px;letter-spacing:1px;color:var(--accent);white-space:nowrap}
@@ -101,11 +104,11 @@ button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 @media (prefers-reduced-motion:reduce){.pop.go{animation-duration:.01s}.runs button,.banner,.combo,.pad,.pad .tip{transition:none}.pad.coach{animation:none;outline:4px solid var(--accent)}}
 </style>
 
-<canvas id="game" aria-label="המשחק: גולש יורד במסלול"></canvas>
+<canvas id="game" data-i18n-attr="aria-label:game.descent.canvas_label" aria-label="המשחק: גולש יורד במסלול"></canvas>
 
 <div class="hud" id="hud" hidden>
   <div class="sign" id="hudRun">Tatra 2</div>
-  <div class="box"><b id="hudTime">0:00.0</b><small><span id="hudSpeed">0</span> קמ״ש · <span id="hudAlt"></span></small><small id="hudGap"></small></div>
+  <div class="box"><b id="hudTime">0:00.0</b><small><span id="hudSpeed">0</span> <span data-i18n="game.descent.hud_speed_unit">קמ״ש</span> · <span id="hudAlt"></span></small><small id="hudGap"></small></div>
 </div>
 <div class="crew" id="crew" hidden></div>
 <div class="combo" id="combo" hidden>רצף ×1</div>
@@ -113,66 +116,67 @@ button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 
 <div class="pop" id="pop"></div>
 <div class="pads" id="pads" hidden>
-  <button class="pad" id="padJump" type="button" aria-label="קפיצה"><svg width="26" height="26" viewBox="0 0 34 34" aria-hidden="true"><path d="M17 26 V8 M9 15 L17 7 L25 15" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="square"/></svg><span><b id="jumpBig">קפיצה</b><small id="jumpSmall">מתכופפים, ומשחררים לקפיצה</small></span><i class="tip" id="jumpTip"></i></button>
+  <button class="pad" id="padJump" type="button" data-i18n-attr="aria-label:game.descent.jump" aria-label="קפיצה"><svg width="26" height="26" viewBox="0 0 34 34" aria-hidden="true"><path d="M17 26 V8 M9 15 L17 7 L25 15" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="square"/></svg><span><b id="jumpBig" data-i18n="game.descent.jump">קפיצה</b><small id="jumpSmall" data-i18n="game.descent.jump_hint">מתכופפים, ומשחררים לקפיצה</small></span><i class="tip" id="jumpTip"></i></button>
 </div>
 <div class="count" id="count" hidden><b id="countN">3</b><div class="mis" id="countMis"></div></div>
-<button class="snd" id="snd" hidden type="button" aria-pressed="false" aria-label="צליל">🔇</button>
+<button class="snd" id="snd" hidden type="button" aria-pressed="false" data-i18n-attr="aria-label:game.descent.sound" aria-label="צליל">🔇</button>
 
 <section class="menu" id="menuStart" aria-label="התחלה">
-  <h1>הירידה של החבר׳ה</h1>
-  <p>המסלולים האמיתיים של גודאורי, בשיפועים האמיתיים שלהם. אספו את החבר׳ה בדרך, קפצו מעל ערוצים וחתולי שלג, עשו סלטות, ותברחו מהמפולת עד הרכבל.</p>
-  <h2>מי גולש?</h2>
-  <div class="friends" id="friends" role="group" aria-label="בחירת חבר"></div>
-  <h2>איזה מסלול?</h2>
-  <div class="runs" id="runs" role="group" aria-label="בחירת מסלול"></div>
-  <div class="opts"><button class="chip" id="optAva" type="button" aria-pressed="true">עם מפולת</button><button class="chip" id="optGhost" type="button" aria-pressed="true">רוח רפאים של השיא</button></div>
+  <h1 data-i18n="game.descent.title">הירידה של החבר׳ה</h1>
+  <p data-i18n="game.descent.intro">המסלולים האמיתיים של גודאורי, בשיפועים האמיתיים שלהם. אספו את החבר׳ה בדרך, קפצו מעל ערוצים וחתולי שלג, עשו סלטות, ותברחו מהמפולת עד הרכבל.</p>
+  <h2 data-i18n="game.descent.who_skis">מי גולש?</h2>
+  <div class="friends" id="friends" role="group" data-i18n-attr="aria-label:game.descent.choose_friend_label" aria-label="בחירת חבר"></div>
+  <h2 data-i18n="game.descent.which_run">איזה מסלול?</h2>
+  <div class="runs" id="runs" role="group" data-i18n-attr="aria-label:game.descent.choose_run_label" aria-label="בחירת מסלול"></div>
+  <div class="opts"><button class="chip" id="optAva" type="button" aria-pressed="true" data-i18n="game.descent.opt_avalanche">עם מפולת</button><button class="chip" id="optGhost" type="button" aria-pressed="true" data-i18n="game.descent.opt_ghost">רוח רפאים של השיא</button></div>
   <div class="how">
-    <div><b>להחזיק: מתכופפים</b>כמו בגלישה אמיתית: מתכופפים לפני הקפיצה. ככה גם מהירים יותר ועומדים נגד הרוח.</div>
-    <div><b>לשחרר: קופצים</b>ככל שמתכופפים יותר, קופצים גבוה יותר. שחרור על הקו הצהוב שלפני קפיצה: "פופ מושלם". באוויר, להחזיק שוב: סלטה.</div>
+    <div><b data-i18n="game.descent.how_hold_title">להחזיק: מתכופפים</b><span data-i18n="game.descent.how_hold_text">כמו בגלישה אמיתית: מתכופפים לפני הקפיצה. ככה גם מהירים יותר ועומדים נגד הרוח.</span></div>
+    <div><b data-i18n="game.descent.how_release_title">לשחרר: קופצים</b><span data-i18n="game.descent.how_release_text">ככל שמתכופפים יותר, קופצים גבוה יותר. שחרור על הקו הצהוב שלפני קפיצה: "פופ מושלם". באוויר, להחזיק שוב: סלטה.</span></div>
   </div>
-  <p class="note" style="margin-top:-6px">כפתור אחד, או נגיעה בכל מקום במסך. במקלדת: רווח.</p>
+  <p class="note" style="margin-top:-6px" data-i18n="game.descent.controls_note">כפתור אחד, או נגיעה בכל מקום במסך. במקלדת: רווח.</p>
   <div class="legend" id="legend"></div>
-  <button class="go-btn" id="go" type="button">לגלוש!</button>
-  <p class="note">הפרופיל של כל מסלול נמדד ממודל הגובה לאורך הקו האמיתי שלו (OpenStreetMap), כל 5 מטרים, עם הגבהה פי 1.5, והגובה בפינה הוא הגובה האמיתי. רוח וערפל מופיעים רק מעל 2,900 מ׳, כמו ברכס. הקפיצות, הערוצים והמכשולים נוספו בשביל המשחק.</p>
+  <button class="go-btn" id="go" type="button" data-i18n="game.descent.go">לגלוש!</button>
+  <p class="note" data-i18n="game.descent.profile_note">הפרופיל של כל מסלול נמדד ממודל הגובה לאורך הקו האמיתי שלו (OpenStreetMap), כל 5 מטרים, עם הגבהה פי 1.5, והגובה בפינה הוא הגובה האמיתי. רוח וערפל מופיעים רק מעל 2,900 מ׳, כמו ברכס. הקפיצות, הערוצים והמכשולים נוספו בשביל המשחק.</p>
 </section>
 
 <section class="menu" id="menuEnd" aria-label="תוצאה" hidden>
-  <h2 id="endTitle">הגעת לרכבל!</h2>
+  <h2 id="endTitle" data-i18n="game.descent.end_reached_lift_you">הגעת לרכבל!</h2>
   <div class="res">
     <span style="font-size:12px;color:var(--muted);font-weight:700" id="endWho"></span>
     <div class="big" id="endTime"></div>
     <div class="stars" id="endStars"></div>
     <div class="rows">
-      <span>סלטות<b id="endFlips">0</b></span>
-      <span>חבר׳ה<b id="endCrew">0</b></span>
-      <span>חצ׳אפורי<b id="endCoins">0</b></span>
-      <span>נקודות<b id="endScore">0</b></span>
+      <span><span data-i18n="game.descent.stat_flips">סלטות</span><b id="endFlips">0</b></span>
+      <span><span data-i18n="game.descent.stat_crew">חבר׳ה</span><b id="endCrew">0</b></span>
+      <span><span data-i18n="game.descent.stat_khachapuri">חצ׳אפורי</span><b id="endCoins">0</b></span>
+      <span><span data-i18n="game.descent.stat_points">נקודות</span><b id="endScore">0</b></span>
     </div>
     <div class="goals" id="endGoals"></div>
     <span style="font-size:13px;color:var(--muted)" id="endBest"></span>
   </div>
-  <button class="go-btn" id="again" type="button">עוד ירידה</button>
-  <div class="small-btns"><button type="button" id="toMenu">מסלול או חבר אחר</button><button type="button" id="copy">העתקת התוצאה לקבוצה</button></div>
-  <p class="note" id="copyNote">באתר עצמו הקישור יכיל את הירידה, והחברים יגלשו מול רוח הרפאים שלך.</p>
+  <button class="go-btn" id="again" type="button" data-i18n="game.descent.again">עוד ירידה</button>
+  <div class="small-btns"><button type="button" id="toMenu" data-i18n="game.descent.to_menu">מסלול או חבר אחר</button><button type="button" id="copy" data-i18n="game.descent.copy_result">העתקת התוצאה לקבוצה</button></div>
+  <p class="note" id="copyNote" data-i18n="game.descent.copy_note">באתר עצמו הקישור יכיל את הירידה, והחברים יגלשו מול רוח הרפאים שלך.</p>
 </section>
 
 <script>
+const L=window.L||((k,he,v)=>he.replace(/\{(\w+)\}/g,(m,x)=>v&&x in v?v[x]:m));
 const PROFILES = __PROFILES__;
 const PANO = "__PANO__";
 // ride from the highest point of the line to its lowest point after it (a few lines climb past the lift or start on a traverse)
 for(const r of PROFILES){ let i0=0; r.h.forEach((v,i)=>{ if(v>r.h[i0]) i0=i; }); let i1=i0; for(let i=i0;i<r.h.length;i++) if(r.h[i]<r.h[i1]) i1=i;
   r.h=r.h.slice(i0,i1+1); r.len=(r.h.length-1)*5; r.top=Math.round(r.h[0]); r.bot=Math.round(r.h[r.h.length-1]); }
 const FRIENDS = [
-  {n:'יהודה ו׳', c:'#D1342B'}, {n:'דובי', c:'#1F5FC4'}, {n:'שרוליק', c:'#F4B942'},
-  {n:'מוישי', c:'#1B8A4C'}, {n:'יהודה ה׳', c:'#7B4FC4'}, {n:'פיני', c:'#F07A2E'}];
+  {get n(){return L('game.descent.friend_yehuda_v','יהודה ו׳');}, c:'#D1342B'}, {get n(){return L('game.descent.friend_dubi','דובי');}, c:'#1F5FC4'}, {get n(){return L('game.descent.friend_sruli','שרוליק');}, c:'#F4B942'},
+  {get n(){return L('game.descent.friend_moishe','מוישי');}, c:'#1B8A4C'}, {get n(){return L('game.descent.friend_yehuda_h','יהודה ה׳');}, c:'#7B4FC4'}, {get n(){return L('game.descent.friend_pini','פיני');}, c:'#F07A2E'}];
 const RUNCOL = {green:'#1B8A4C', blue:'#1F5FC4', red:'#D1342B', black:'#13233A'};
 // the third star: a different challenge on every run
 const MISSION = {
-  'Pirveli':   {t:'3 סלטות בירידה אחת',        ok:s=>s.flips>=3},
-  'Kikilo 1':  {t:'לאסוף 25 חצ׳אפורי',          ok:s=>s.coins>=25},
-  'Tatra 2':   {t:'לקפוץ מעל חתול השלג',            ok:s=>s.overCat},
-  'Sadzele 3': {t:'ירידה בלי אף נפילה',          ok:s=>s.falls===0},
-  'Sadzele 1': {t:'סלטה כפולה',                  ok:s=>s.maxFlip>=2}};
+  'Pirveli':   {get t(){return L('game.descent.mission_pirveli','3 סלטות בירידה אחת');},        ok:s=>s.flips>=3},
+  'Kikilo 1':  {get t(){return L('game.descent.mission_kikilo_1','לאסוף 25 חצ׳אפורי');},          ok:s=>s.coins>=25},
+  'Tatra 2':   {get t(){return L('game.descent.mission_tatra_2','לקפוץ מעל חתול השלג');},            ok:s=>s.overCat},
+  'Sadzele 3': {get t(){return L('game.descent.mission_sadzele_3','ירידה בלי אף נפילה');},          ok:s=>s.falls===0},
+  'Sadzele 1': {get t(){return L('game.descent.mission_sadzele_1','סלטה כפולה');},                  ok:s=>s.maxFlip>=2}};
 const EXAG = 1.5, G = 9.81, VMAX = 30, SPACING = 4.2;
 const store = { get(k,d){ try{ const v = localStorage.getItem('ski-'+k); return v==null?d:JSON.parse(v);}catch(e){return d;} },
                 set(k,v){ try{ localStorage.setItem('ski-'+k, JSON.stringify(v)); }catch(e){} } };
@@ -186,10 +190,10 @@ function starStr(n){ return '★'.repeat(n)+'☆'.repeat(3-n); }
 function drawMenus(){
   $('friends').innerHTML = FRIENDS.map((f,i)=>`<button type="button" style="--c:${f.c}" aria-pressed="${i===me}" data-f="${i}"><svg width="30" height="30" viewBox="-15 -28 30 30" aria-hidden="true"><path d="M-8,-2 L-7,-15 Q0,-22 7,-15 L8,-2 Z" fill="${f.c}"/><circle cx="0" cy="-21" r="5.5" fill="#F4F7FB" stroke="#13233A" stroke-width="1.4"/><rect x="-5" y="-23" width="10" height="3" fill="#13233A"/><path d="M-13,0 L13,0" stroke="#13233A" stroke-width="3" stroke-linecap="round"/></svg>${f.n}</button>`).join('');
   $('runs').innerHTML = PROFILES.map((r,i)=>{ const st=store.get('stars-'+r.key,0);
-    return `<button type="button" style="background:${RUNCOL[r.color]};width:${100-i*5}%" aria-pressed="${i===runIdx}" data-r="${i}"><span class="top"><b dir="ltr">${r.key}</b><span class="stars" aria-label="${st} כוכבים">${starStr(st)}</span></span><span>${(r.len/1000).toFixed(1)} ק״מ · ירידה ${r.top-r.bot} מ׳${bestTxt(i)}</span><span>★ ${MISSION[r.key].t}</span></button>`; }).join('');
+    return `<button type="button" style="background:${RUNCOL[r.color]};width:${100-i*5}%" aria-pressed="${i===runIdx}" data-r="${i}"><span class="top"><b dir="ltr">${r.key}</b><span class="stars" aria-label="${L('game.descent.stars_label','{n} כוכבים',{n:st})}">${starStr(st)}</span></span><span>${L('game.descent.run_card_stats','{km} ק״מ · ירידה {m} מ׳',{km:(r.len/1000).toFixed(1),m:r.top-r.bot})}${bestTxt(i)}</span><span>★ ${MISSION[r.key].t}</span></button>`; }).join('');
   $('optAva').setAttribute('aria-pressed', useAva); $('optGhost').setAttribute('aria-pressed', useGhost);
 }
-function bestTxt(i){ const b = store.get('best-'+PROFILES[i].key, null); return b ? ' · שיא '+fmt(b.t) : ''; }
+function bestTxt(i){ const b = store.get('best-'+PROFILES[i].key, null); return b ? L('game.descent.best_suffix',' · שיא {time}',{time:fmt(b.t)}) : ''; }
 $('friends').addEventListener('click', e=>{ const b=e.target.closest('[data-f]'); if(!b) return; me=+b.dataset.f; store.set('me',me); drawMenus(); });
 $('runs').addEventListener('click', e=>{ const b=e.target.closest('[data-r]'); if(!b) return; runIdx=+b.dataset.r; store.set('run',runIdx); drawMenus(); });
 $('optAva').onclick = ()=>{ useAva=!useAva; store.set('ava',useAva); drawMenus(); };
@@ -199,7 +203,7 @@ $('again').onclick = ()=>start();
 $('toMenu').onclick = ()=>{ $('menuEnd').hidden=true; $('menuStart').hidden=false; drawMenus(); state='menu'; };
 $('copy').onclick = ()=>{
   const t = lastResultText; const note=$('copyNote');
-  if(navigator.clipboard) navigator.clipboard.writeText(t).then(()=>{note.textContent='הועתק. אפשר להדביק בקבוצה.';},()=>{note.textContent=t;}); else note.textContent=t;
+  if(navigator.clipboard) navigator.clipboard.writeText(t).then(()=>{note.textContent=L('game.descent.copied','הועתק. אפשר להדביק בקבוצה.');},()=>{note.textContent=t;}); else note.textContent=t;
 };
 
 /* ---------- sound (off until the player turns it on) ---------- */
@@ -223,7 +227,7 @@ function rng(seed){ return ()=>{ seed|=0; seed=seed+0x6D2B79F5|0; let t=Math.imu
 let R, base, terrain, kickers, gaps, rocks, cats, coins, zones, crewSpots, dog, signs, avalanche;
 const realH = x => { const i=Math.max(0,Math.min(R.h.length-1.001,x/5)), i0=Math.floor(i); return R.h[i0]+(R.h[i0+1]-R.h[i0])*(i-i0); };
 function buildRun(){
-  R = PROFILES[runIdx]; const n=R.h.length, h0=R.h[0], L=R.len, rnd=rng(runIdx*7919+17);
+  R = PROFILES[runIdx]; const n=R.h.length, h0=R.h[0], RL=R.len, rnd=rng(runIdx*7919+17);
   const hard = {green:0, blue:1, red:2, black:3}[R.color];
   base = R.h.map(v=>(v-h0)*EXAG);
   const steep = i => (base[Math.max(0,i-4)]-base[Math.min(n-1,i+4)])/40; // drop per metre around sample i
@@ -233,32 +237,32 @@ function buildRun(){
     if((s2-s1>0.08 && i*5-lastK>90) || i*5-lastK>170){ kickers.push({x:i*5, gap:false}); lastK=i*5; } }
   // gullies to jump: on the steeper kickers in the middle of the run (none on the green)
   gaps=[]; const want=[0,1,2,2][hard];
-  const cand = kickers.filter(k=>k.x>L*0.25 && k.x<L*0.85).sort((a,b)=>steep(b.x/5-6)-steep(a.x/5-6));
+  const cand = kickers.filter(k=>k.x>RL*0.25 && k.x<RL*0.85).sort((a,b)=>steep(b.x/5-6)-steep(a.x/5-6));
   for(const k of cand){ if(gaps.length>=want) break; if(gaps.some(g=>Math.abs(g.x0-k.x)<250)) continue; k.gap=true; gaps.push({x0:k.x+0.5, x1:k.x+7.5, warned:false}); }
   terrain = new Float32Array(n);
   for(let i=0;i<n;i++){ const x=i*5; let y=base[i] + Math.sin(x*0.09)*0.35 + Math.sin(x*0.031+1.3)*0.6;
     for(const k of kickers){ const d=x-k.x, hgt=k.gap?3.0:2.2; if(d>-15&&d<=0) y += hgt*((d+15)/15)**2; } terrain[i]=y; }
-  const busy = (x,r)=> x<60 || x>L-60 || kickers.some(k=>x>k.x-r-15 && x<k.x+r+22) || gaps.some(g=>x>g.x0-r-15&&x<g.x1+r+15);
+  const busy = (x,r)=> x<60 || x>RL-60 || kickers.some(k=>x>k.x-r-15 && x<k.x+r+22) || gaps.some(g=>x>g.x0-r-15&&x<g.x1+r+15);
   // rocks to hop over
-  rocks=[]; for(let x=110+rnd()*80; x<L-80; x+= [260,190,150,120][hard]*(0.7+rnd()*0.6)){ if(!busy(x,10)) rocks.push({x, h:0.7+rnd()*0.35, hit:false}); }
+  rocks=[]; for(let x=110+rnd()*80; x<RL-80; x+= [260,190,150,120][hard]*(0.7+rnd()*0.6)){ if(!busy(x,10)) rocks.push({x, h:0.7+rnd()*0.35, hit:false}); }
   // one snowcat grooming its way up the run, from about the middle
-  cats=[]; { let x=L*(0.42+rnd()*0.12); for(let k=0;k<40&&busy(x,20);k++) x+=9; cats.push({x, v:1.6, over:false, hit:false, warned:false}); }
+  cats=[]; { let x=RL*(0.42+rnd()*0.12); for(let k=0;k<40&&busy(x,20);k++) x+=9; cats.push({x, v:1.6, over:false, hit:false, warned:false}); }
   // surface zones: deep powder slows you, ice is fast, wind on the ridge (only above 2,900 m real) pushes you back
   zones=[]; let zx=150+rnd()*100;
-  while(zx<L-120){ const kind = rnd()<0.5?'powder':'ice', w = kind==='powder'?22+rnd()*10:30+rnd()*15;
+  while(zx<RL-120){ const kind = rnd()<0.5?'powder':'ice', w = kind==='powder'?22+rnd()*10:30+rnd()*15;
     if(!busy(zx,w) && !rocks.some(r=>r.x>zx-8&&r.x<zx+w+8)) zones.push({kind, x0:zx, x1:zx+w, warned:false}); zx += 230+rnd()*200; }
-  let nw=0; for(let x=60;x<L-60&&nw<3;x+=5){ if(realH(x)>2900 && !busy(x,45)){ zones.push({kind:'wind', x0:x, x1:x+45, warned:false}); nw++; x+=240; } }
+  let nw=0; for(let x=60;x<RL-60&&nw<3;x+=5){ if(realH(x)>2900 && !busy(x,45)){ zones.push({kind:'wind', x0:x, x1:x+45, warned:false}); nw++; x+=240; } }
   // khachapuri: an arc over every kicker (the reward for jumping) and short lines on the snow
   coins=[];
   for(const k of kickers){ const span=k.gap?20:16; for(let j=0;j<5;j++){ const f=(j+0.5)/5; coins.push({x:k.x+3+span*f, dy:1.2+4.2*Math.sin(Math.PI*f), got:false}); } }
-  for(let x=90; x<L-60; x+=110+rnd()*70){ if(busy(x,14)||rocks.some(r=>Math.abs(r.x-x)<18)) continue; for(let j=0;j<4;j++) coins.push({x:x+j*2.6, dy:0.9, got:false}); }
+  for(let x=90; x<RL-60; x+=110+rnd()*70){ if(busy(x,14)||rocks.some(r=>Math.abs(r.x-x)<18)) continue; for(let j=0;j<4;j++) coins.push({x:x+j*2.6, dy:0.9, got:false}); }
   // the five other friends wait along the run, not on top of anything else
   const others=FRIENDS.map((f,i)=>i).filter(i=>i!==me);
-  crewSpots = others.map((fi,k)=>{ let x=L*(0.1+0.16*k)+12; for(let j=0;j<30&&(busy(x,6)||rocks.some(r=>Math.abs(r.x-x)<12)||zones.some(z=>x>z.x0-6&&x<z.x1+6));j++) x+=7; return {fi, x, got:false, lost:false, joinT:0}; });
-  dog = {x0:L*0.72, on:false, done:false, x:0, y:0, t:0};
+  crewSpots = others.map((fi,k)=>{ let x=RL*(0.1+0.16*k)+12; for(let j=0;j<30&&(busy(x,6)||rocks.some(r=>Math.abs(r.x-x)<12)||zones.some(z=>x>z.x0-6&&x<z.x1+6));j++) x+=7; return {fi, x, got:false, lost:false, joinT:0}; });
+  dog = {x0:RL*0.72, on:false, done:false, x:0, y:0, t:0};
   // signs a little ahead of each surprise
-  signs=[]; for(const g of gaps) signs.push({x:g.x0-45, t:'ערוץ! קפצו'}); for(const z of zones) if(z.kind!=='wind') signs.push({x:z.x0-30, t:z.kind==='powder'?'שלג עמוק':'קרח'});
-  signs.push({x:cats[0].x-60, t:'חתול שלג במסלול'});
+  signs=[]; for(const g of gaps) signs.push({x:g.x0-45, t:L('game.descent.sign_gully','ערוץ! קפצו')}); for(const z of zones) if(z.kind!=='wind') signs.push({x:z.x0-30, t:z.kind==='powder'?L('game.descent.powder','שלג עמוק'):L('game.descent.ice','קרח')});
+  signs.push({x:cats[0].x-60, t:L('game.descent.sign_snowcat','חתול שלג במסלול')});
 }
 function inGap(x){ for(const g of gaps) if(x>g.x0&&x<g.x1) return g; return null; }
 function baseGround(x){ const i=Math.max(0,Math.min(terrain.length-2, x/5)); const i0=Math.floor(i), f=i-i0; return terrain[i0]*(1-f)+terrain[i0+1]*f; }
@@ -279,7 +283,7 @@ function start(){
   const g=store.get('ghost-'+R.key,null); ghost = useGhost && g ? g : null;
   drawCrewHud(); setCombo(1,false);
   hideBanner();
-  $('countMis').innerHTML = `<span>שלושה כוכבים ב-${R.key}</span>★ להגיע לרכבל<br>★ להביא את כל החבר׳ה<br>★ ${MISSION[R.key].t}`;
+  $('countMis').innerHTML = `<span>${L('game.descent.count_three_stars','שלושה כוכבים ב-{run}',{run:R.key})}</span>★ ${L('game.descent.goal_reach_lift','להגיע לרכבל')}<br>★ ${L('game.descent.goal_bring_crew','להביא את כל החבר׳ה')}<br>★ ${MISSION[R.key].t}`;
   $('count').hidden=false; countT=3; $('countN').textContent='3';
   state='count'; last=performance.now();
   if(AC&&AC.state==='suspended') AC.resume();
@@ -288,7 +292,7 @@ function drawCrewHud(){ $('crew').innerHTML = crewSpots.map(c=>`<i style="backgr
 function popText(txt){ const p=$('pop'); p.textContent=txt; p.classList.remove('go'); void p.offsetWidth; p.classList.add('go'); }
 function banner(big, txt){ $('bannerBig').textContent=big; $('bannerTxt').textContent=txt; $('banner').classList.remove('off'); bannerT=2.6; }
 function hideBanner(){ $('banner').classList.add('off'); bannerT=0; }
-function setCombo(n, bump=true){ combo=Math.min(6,n); const el=$('combo'); el.textContent='רצף ×'+combo; el.style.opacity = combo>1?1:.45; if(bump&&!reduce){ el.classList.remove('bump'); void el.offsetWidth; el.classList.add('bump'); setTimeout(()=>el.classList.remove('bump'),200); } }
+function setCombo(n, bump=true){ combo=Math.min(6,n); const el=$('combo'); el.textContent=L('game.descent.combo','רצף ×{n}',{n:combo}); el.style.opacity = combo>1?1:.45; if(bump&&!reduce){ el.classList.remove('bump'); void el.offsetWidth; el.classList.add('bump'); setTimeout(()=>el.classList.remove('bump'),200); } }
 function press(){ if(state!=='run') return; holding=true; $('padJump').classList.add('on');
   if(P.air){ P.flipArm=true; return; } // a fresh press in the air starts a flip
   P.loading = P.crash<=0; P.loadT=0; }
@@ -298,7 +302,7 @@ function release(){ const was=holding; holding=false; $('padJump').classList.rem
   if(state!=='run' || P.air || P.crash>0) return;
   const lip = kickers.find(k=>k.x-P.x>-0.6 && k.x-P.x<3.2), k=Math.min(1,P.loadT/0.32);
   let pop = 5.4 + 3.8*k;
-  if(lip){ pop*=1.35; popText('פופ מושלם!'); stats.pops=(stats.pops||0)+1; score+=40*combo; tone(520,.12,.3,'triangle',1.6); }
+  if(lip){ pop*=1.35; popText(L('game.descent.pop_perfect','פופ מושלם!')); stats.pops=(stats.pops||0)+1; score+=40*combo; tone(520,.12,.3,'triangle',1.6); }
   const a=slope(P.x), n=[-Math.sin(a), Math.cos(a)]; // pop away from the snow, not straight up
   takeOff(P.s*Math.cos(a)+pop*n[0]*.55, P.s*Math.sin(a)+pop*n[1]); P.squash=1;
   if(!reduce) zoomKick=0.06+0.08*k;
@@ -311,8 +315,8 @@ let padState='';
 function padLabels(){ const k = P.air ? 'air' : (holding&&P.loading) ? 'load' : 'snow';
   $('padJump').style.setProperty('--load', k==='load' ? Math.min(1,P.loadT/0.32) : 0);
   if(k===padState) return; padState=k;
-  const L={air:['סלטה','להחזיק כדי להסתובב'], load:['לשחרר!','ככל שמחזיקים, קופצים גבוה יותר'], snow:['קפיצה','להחזיק ולשחרר']}[k];
-  $('jumpBig').textContent=L[0]; $('jumpSmall').textContent=L[1]; }
+  const LB={air:[L('game.descent.coach_flip','סלטה'),L('game.descent.coach_flip_hint','להחזיק כדי להסתובב')], load:[L('game.descent.coach_release','לשחרר!'),L('game.descent.coach_release_hint','ככל שמחזיקים, קופצים גבוה יותר')], snow:[L('game.descent.jump','קפיצה'),L('game.descent.coach_jump_hint','להחזיק ולשחרר')]}[k];
+  $('jumpBig').textContent=LB[0]; $('jumpSmall').textContent=LB[1]; }
 function bindPad(el, down, up){ el.addEventListener('pointerdown', e=>{ e.preventDefault(); e.stopPropagation(); try{ el.setPointerCapture(e.pointerId); }catch(_){} down(); });
   ['pointerup','pointercancel','lostpointercapture'].forEach(ev=>el.addEventListener(ev, e=>{ e.stopPropagation(); up(); })); el.addEventListener('contextmenu', e=>e.preventDefault()); }
 bindPad($('padJump'), press, release);
@@ -329,13 +333,13 @@ function burst(x,y,cols,n){ for(let i=0;i<n;i++){ const a=Math.random()*Math.PI,
 function loseFriend(){ const lostOne=crew.pop(); if(lostOne){ crewSpots.find(c=>c.fi===lostOne.fi).lost=true; return FRIENDS[lostOne.fi].n; } return null; }
 function crashNow(msg){
   P.crash=1.0; P.inv=2.0; P.air=false; P.y=ground(P.x); P.s*=0.4; shake=reduce?0:14; buzz([40,30,60]); tone(70,.35,.7); spray(P.x,P.y+.5,40,6);
-  stats.falls++; setCombo(1,false); const who=loseFriend(); popText(who? who+' נשאר מאחור!' : (msg||'אאוץ׳'));
+  stats.falls++; setCombo(1,false); const who=loseFriend(); popText(who? L('game.descent.pop_left_behind','{name} נשאר מאחור!',{name:who}) : (msg||L('game.descent.pop_ouch','אאוץ׳')));
 }
 function fellIn(g){
   const tr=tracks[tracks.length-1]; if(tr) tr[1]=Math.min(tr[1],g.x0);
   P.x=g.x1+1.5; P.y=ground(P.x); P.air=false; P.s=4; P.crash=1.1; P.inv=2.2; P.ang=slope(P.x); shake=reduce?0:18; buzz([60,40,80]); tone(55,.5,.8);
   spray(P.x,P.y+.3,50,5,'#fff',5); stats.falls++; setCombo(1,false); tracks.push([P.x,P.x]);
-  const who=loseFriend(); popText(who? 'הערוץ בלע את '+who : 'נפלת לערוץ!');
+  const who=loseFriend(); popText(who? L('game.descent.pop_gully_swallowed','הערוץ בלע את {name}',{name:who}) : L('game.descent.pop_fell_gully','נפלת לערוץ!'));
 }
 function land(){
   const a=slope(P.x), wall = ground(P.x)-P.y;
@@ -349,16 +353,16 @@ function land(){
   const grabbed = P.grab>=0.35; if(grabbed){ stats.grabs=(stats.grabs||0)+1; }
   const clean = Math.abs(rel)<0.14;
   if(n>0){ flips+=n; stats.flips+=n; stats.maxFlip=Math.max(stats.maxFlip,n); const mult=(1+crew.length)*combo; score+=n*100*mult; P.s=Math.min(VMAX+3,P.s+3*n); slow=reduce?1:.35; buzz(30);
-    if(grabbed){ score+=150*mult; } popText((n>1?n+' סלטות':'סלטה')+(grabbed?' עם תפיסה!':'!')+(mult>1?' ×'+mult:'')); tone(140,.2,.5); spray(P.x,P.y,26,P.s*.6); setCombo(combo+1); }
-  else if(grabbed){ const pts=Math.round(P.grab*2)*50*combo; score+=pts; popText('תפיסה! +'+pts); tone(300,.15,.35,'triangle',1.4); spray(P.x,P.y,18,P.s*.5); setCombo(combo+1); }
-  else { spray(P.x,P.y,12,P.s*.4); tone(100,.12,.25); if(P.airT>0.5){ score+=20*combo; if(clean){ P.s+=1.5; score+=15; popText('נחיתה נקייה'); setCombo(combo+1); } } }
+    if(grabbed){ score+=150*mult; } popText(L('game.descent.pop_flips','{n} סלטות',{n})+(grabbed?L('game.descent.pop_with_grab_suffix',' עם תפיסה!'):'!')+(mult>1?' ×'+mult:'')); tone(140,.2,.5); spray(P.x,P.y,26,P.s*.6); setCombo(combo+1); }
+  else if(grabbed){ const pts=Math.round(P.grab*2)*50*combo; score+=pts; popText(L('game.descent.pop_grab','תפיסה! +{pts}',{pts})); tone(300,.15,.35,'triangle',1.4); spray(P.x,P.y,18,P.s*.5); setCombo(combo+1); }
+  else { spray(P.x,P.y,12,P.s*.4); tone(100,.12,.25); if(P.airT>0.5){ score+=20*combo; if(clean){ P.s+=1.5; score+=15; popText(L('game.descent.pop_clean_landing','נחיתה נקייה')); setCombo(combo+1); } } }
   P.grab=0; if(holding){ P.loading=true; P.loadT=0; P.flipArm=false; }
 }
 
 let last=performance.now();
 function step(now){
   let dt=Math.min(0.05,(now-last)/1000); last=now;
-  if(state==='count'){ countT-=dt; const n=Math.ceil(countT); $('countN').textContent = n>0? n : 'סעו!';
+  if(state==='count'){ countT-=dt; const n=Math.ceil(countT); $('countN').textContent = n>0? n : L('game.descent.count_go','סעו!');
     if(countT<=-0.4){ $('count').hidden=true; state='run'; P.s=7; padLabels(); tone(660,.25,.3,'triangle',1); }
     else if(Math.ceil(countT)!==Math.ceil(countT+dt)) tone(440,.12,.25,'triangle',1); }
   if(state==='run'||state==='fin'){ dt*=slow; slow=Math.min(1,slow+dt*1.8); update(dt); }
@@ -413,26 +417,26 @@ function update(dt){
   const hgt = P.y-ground(P.x);
   if(state==='run'){
     // rocks and the snowcat: jump them or fall
-    for(const r of rocks){ if(!r.hit && Math.abs(P.x-r.x)<0.8 && hgt<r.h && P.inv<=0 && P.crash<=0){ r.hit=true; crashNow('סלע!'); } }
+    for(const r of rocks){ if(!r.hit && Math.abs(P.x-r.x)<0.8 && hgt<r.h && P.inv<=0 && P.crash<=0){ r.hit=true; crashNow(L('game.descent.crash_rock','סלע!')); } }
     for(const c of cats){
       if(Math.abs(P.x-c.x)>3) { c.x -= c.v*dt*(inGap(c.x-2.5)?0:1); }
-      if(!c.warned && c.x-P.x<70 && c.x>P.x){ c.warned=true; banner('חתול שלג!','עולה במסלול. קפצו מעליו'); }
-      if(Math.abs(P.x-c.x)<2.0){ if(hgt<2.1 && !c.over && P.inv<=0 && P.crash<=0 && !c.hit){ c.hit=true; crashNow('נתקעת בחתול השלג!'); }
-        else if(hgt>=2.1 && !c.over){ c.over=true; stats.overCat=true; score+=300*combo; popText('מעל חתול השלג!'); tone(520,.2,.35,'triangle',1.5); setCombo(combo+1); } }
+      if(!c.warned && c.x-P.x<70 && c.x>P.x){ c.warned=true; banner(L('game.descent.banner_snowcat','חתול שלג!'),L('game.descent.banner_snowcat_text','עולה במסלול. קפצו מעליו')); }
+      if(Math.abs(P.x-c.x)<2.0){ if(hgt<2.1 && !c.over && P.inv<=0 && P.crash<=0 && !c.hit){ c.hit=true; crashNow(L('game.descent.crash_snowcat','נתקעת בחתול השלג!')); }
+        else if(hgt>=2.1 && !c.over){ c.over=true; stats.overCat=true; score+=300*combo; popText(L('game.descent.pop_over_snowcat','מעל חתול השלג!')); tone(520,.2,.35,'triangle',1.5); setCombo(combo+1); } }
     }
-    if(!P.air && P.crash<=0 && kickers.some(k=>k.x-P.x>4&&k.x-P.x<14)) coach('load','jump','להחזיק עכשיו...');
-    if(!P.air && P.crash<=0 && holding && kickers.some(k=>k.x-P.x>0&&k.x-P.x<3.2)) coach('jump','jump','לשחרר על הקו הצהוב!');
-    if(P.air && P.airT>0.25 && !holding && coached.jump) coach('flip','jump','באוויר: להחזיק לסלטה');
-    for(const g of gaps) if(!g.warned && g.x0-P.x<60 && g.x0>P.x){ g.warned=true; banner('ערוץ!','קפצו רגע לפני הקצה'); }
+    if(!P.air && P.crash<=0 && kickers.some(k=>k.x-P.x>4&&k.x-P.x<14)) coach('load','jump',L('game.descent.coach_hold_now','להחזיק עכשיו...'));
+    if(!P.air && P.crash<=0 && holding && kickers.some(k=>k.x-P.x>0&&k.x-P.x<3.2)) coach('jump','jump',L('game.descent.coach_release_line','לשחרר על הקו הצהוב!'));
+    if(P.air && P.airT>0.25 && !holding && coached.jump) coach('flip','jump',L('game.descent.coach_air_flip','באוויר: להחזיק לסלטה'));
+    for(const g of gaps) if(!g.warned && g.x0-P.x<60 && g.x0>P.x){ g.warned=true; banner(L('game.descent.banner_gully','ערוץ!'),L('game.descent.banner_gully_text','קפצו רגע לפני הקצה')); }
     for(const zz of zones) if(!zz.warned && zz.x0-P.x<35 && zz.x1>P.x){ zz.warned=true;
-      if(zz.kind==='wind'){ banner('רוח ברכס','להחזיק את הכפתור: מתכופפים נגד הרוח'); coach('wind','jump','להחזיק נגד הרוח',true); } else if(zz.kind==='powder') banner('שלג עמוק','מאט. אפשר לקפוץ מעליו'); else banner('קרח','מהיר! תחזיקו חזק'); }
+      if(zz.kind==='wind'){ banner(L('game.descent.banner_wind','רוח ברכס'),L('game.descent.banner_wind_text','להחזיק את הכפתור: מתכופפים נגד הרוח')); coach('wind','jump',L('game.descent.coach_wind','להחזיק נגד הרוח'),true); } else if(zz.kind==='powder') banner(L('game.descent.powder','שלג עמוק'),L('game.descent.banner_powder_text','מאט. אפשר לקפוץ מעליו')); else banner(L('game.descent.ice','קרח'),L('game.descent.banner_ice_text','מהיר! תחזיקו חזק')); }
     // khachapuri
     for(const c of coins){ if(c.got) continue; const cy=baseGround(c.x)+c.dy; if(Math.abs(P.x-c.x)<1.3 && Math.abs(P.y+0.9-cy)<1.5){ c.got=true; stats.coins++; score+=10*combo; tone(990+stats.coins%5*80,.07,.12,'triangle',1.2); particles.push({x:c.x,y:cy,vx:0,vy:3,life:.5,r:.25,col:'#F4B942'}); } }
     // friends: ski through one to pick them up
-    for(const c of crewSpots){ if(c.got||c.lost) continue; if(Math.abs(P.x-c.x)<4 && hgt<12 && P.crash<=0){ c.got=true; c.joinT=0.7; crew.push({fi:c.fi, from:c.x}); score+=150; popText(FRIENDS[c.fi].n+' הצטרף!'); setCombo(combo+1); buzz(20); tone(330,.1,.2); } }
+    for(const c of crewSpots){ if(c.got||c.lost) continue; if(Math.abs(P.x-c.x)<4 && hgt<12 && P.crash<=0){ c.got=true; c.joinT=0.7; crew.push({fi:c.fi, from:c.x}); score+=150; popText(L('game.descent.pop_joined','{name} הצטרף!',{name:FRIENDS[c.fi].n})); setCombo(combo+1); buzz(20); tone(330,.1,.2); } }
     // a Gudauri dog joins for a while near the bottom
-    if(!dog.on && !dog.done && P.x>dog.x0){ dog.on=true; dog.t=0; banner('🐕','כלב של גודאורי רץ איתכם'); }
-    if(P.x>=R.len-8){ state='fin'; finT=0; hideBanner(); release(); tuck(false); popText(R.lift?'רכבל '+R.lift:'סיום!'); tone(520,.3,.4,'triangle',2); burst(P.x+3,P.y+3,FRIENDS.map(f=>f.c),60); }
+    if(!dog.on && !dog.done && P.x>dog.x0){ dog.on=true; dog.t=0; banner('🐕',L('game.descent.banner_dog','כלב של גודאורי רץ איתכם')); }
+    if(P.x>=R.len-8){ state='fin'; finT=0; hideBanner(); release(); tuck(false); popText(R.lift?L('game.descent.lift_name','רכבל {lift}',{lift:R.lift}):L('game.descent.finish_pop','סיום!')); tone(520,.3,.4,'triangle',2); burst(P.x+3,P.y+3,FRIENDS.map(f=>f.c),60); }
   }
   if(dog.on){ dog.t+=dt; if(dog.t>14 || state==='fin'){ dog.on=false; dog.done=true; } }
   // history of positions: the crew ride in your exact tracks, a fixed distance apart
@@ -449,8 +453,8 @@ function update(dt){
   if(particles.length>500) particles.splice(0,particles.length-500);
   shake=Math.max(0,shake-dt*40); windT+=dt;
   // HUD
-  $('hudTime').textContent=fmt(t); $('hudSpeed').textContent=Math.round(P.s*3.6); $('hudAlt').textContent=fmtM(realH(P.x))+' מ׳';
-  if(ghost){ const gx=ghostAt(t); const gap=(P.x-gx[1]); $('hudGap').textContent = gap>=0?'לפני השיא ב-'+Math.round(gap)+' מ׳':'אחרי השיא ב-'+Math.round(-gap)+' מ׳'; } else $('hudGap').textContent='';
+  $('hudTime').textContent=fmt(t); $('hudSpeed').textContent=Math.round(P.s*3.6); $('hudAlt').textContent=L('game.descent.meters','{m} מ׳',{m:fmtM(realH(P.x))});
+  if(ghost){ const gx=ghostAt(t); const gap=(P.x-gx[1]); $('hudGap').textContent = gap>=0?L('game.descent.hud_gap_ahead','לפני השיא ב-{m} מ׳',{m:Math.round(gap)}):L('game.descent.hud_gap_behind','אחרי השיא ב-{m} מ׳',{m:Math.round(-gap)}); } else $('hudGap').textContent='';
   $('crew').querySelectorAll('i').forEach(el=>{ const fi=+el.dataset.fi; el.classList.toggle('on', crew.some(c=>c.fi===fi)); el.style.opacity = crewSpots.find(c=>c.fi===fi).lost? '.12' : ''; });
   $('coinHud').textContent=stats.coins+' 🥟';
   if(windGain&&soundOn) windGain.gain.value=Math.min(.35,P.s/80 + (z&&z.kind==='wind'?.15:0));
@@ -466,17 +470,17 @@ function finish(ok){
   const got=crew.length; score += ok? got*200 + Math.max(0,Math.round(600-t*3)) : 0;
   const goals=[ok, ok&&got===5, ok&&MISSION[R.key].ok(stats)], nStars=goals.filter(Boolean).length;
   const prev=store.get('stars-'+R.key,0); if(nStars>prev) store.set('stars-'+R.key,nStars);
-  $('endTitle').textContent = ok? (got===5?'כל החבר׳ה הגיעו לרכבל!':'הגעתם לרכבל!') : 'המפולת תפסה אותך';
-  $('endWho').textContent = FRIENDS[me].n+' · '+R.key+(R.lift?' עד רכבל '+R.lift:'');
-  $('endTime').textContent = ok? fmt(t) : Math.round(P.x)+' מ׳ מתוך '+fmtM(R.len);
+  $('endTitle').textContent = ok? (got===5?L('game.descent.end_all_crew','כל החבר׳ה הגיעו לרכבל!'):L('game.descent.end_reached_lift_all','הגעתם לרכבל!')) : L('game.descent.end_caught','המפולת תפסה אותך');
+  $('endWho').textContent = FRIENDS[me].n+' · '+R.key+(R.lift?L('game.descent.end_to_lift_suffix',' עד רכבל {lift}',{lift:R.lift}):'');
+  $('endTime').textContent = ok? fmt(t) : L('game.descent.end_distance','{m} מ׳ מתוך {total}',{m:Math.round(P.x),total:fmtM(R.len)});
   $('endStars').innerHTML = [0,1,2].map(i=>`<i class="${goals[i]?'on':''}">★</i>`).join('');
-  $('endGoals').innerHTML = [['להגיע לרכבל',goals[0]],['להביא את כל החבר׳ה ('+got+'/5)',goals[1]],[MISSION[R.key].t,goals[2]]].map(([s,o])=>`<span class="${o?'ok':''}">${s}</span>`).join('');
+  $('endGoals').innerHTML = [[L('game.descent.goal_reach_lift','להגיע לרכבל'),goals[0]],[L('game.descent.goal_bring_crew_count','להביא את כל החבר׳ה ({got}/5)',{got}),goals[1]],[MISSION[R.key].t,goals[2]]].map(([s,o])=>`<span class="${o?'ok':''}">${s}</span>`).join('');
   $('endFlips').textContent=flips; $('endCrew').textContent=got+'/5'; $('endCoins').textContent=stats.coins+'/'+coins.length; $('endScore').textContent=score;
   const key='best-'+R.key, best=store.get(key,null);
-  if(ok && (!best||t<best.t)){ store.set(key,{t,who:me}); store.set('ghost-'+R.key,{t,who:me,r:rec}); $('endBest').textContent='שיא חדש במסלול! בפעם הבאה תגלוש מול רוח הרפאים שלו.'; }
-  else $('endBest').textContent = best? 'השיא במסלול: '+fmt(best.t)+' ('+FRIENDS[best.who].n+')' : '';
-  lastResultText = ok ? `${FRIENDS[me].n} ירד ב-${R.key} ב-${fmt(t)} ${starStr(nStars)}: ${flips} סלטות, ${stats.pops||0} פופים מושלמים, ${got} מתוך 5 חבר׳ה ו-${stats.coins} חצ׳אפורי. מי עוקף?` : `המפולת תפסה את ${FRIENDS[me].n} ב-${R.key} אחרי ${Math.round(P.x)} מ׳. מי מגיע רחוק יותר?`;
-  $('copyNote').textContent='באתר עצמו הקישור יכיל את הירידה, והחברים יגלשו מול רוח הרפאים שלך.';
+  if(ok && (!best||t<best.t)){ store.set(key,{t,who:me}); store.set('ghost-'+R.key,{t,who:me,r:rec}); $('endBest').textContent=L('game.descent.end_new_best','שיא חדש במסלול! בפעם הבאה תגלוש מול רוח הרפאים שלו.'); }
+  else $('endBest').textContent = best? L('game.descent.end_best','השיא במסלול: {time} ({name})',{time:fmt(best.t),name:FRIENDS[best.who].n}) : '';
+  lastResultText = ok ? L('game.descent.share_result','{name} ירד ב-{run} ב-{time} {stars}: {flips} סלטות, {pops} פופים מושלמים, {got} מתוך 5 חבר׳ה ו-{coins} חצ׳אפורי. מי עוקף?',{name:FRIENDS[me].n,run:R.key,time:fmt(t),stars:starStr(nStars),flips,pops:stats.pops||0,got,coins:stats.coins}) : L('game.descent.share_caught','המפולת תפסה את {name} ב-{run} אחרי {m} מ׳. מי מגיע רחוק יותר?',{name:FRIENDS[me].n,run:R.key,m:Math.round(P.x)});
+  $('copyNote').textContent=L('game.descent.copy_note','באתר עצמו הקישור יכיל את הירידה, והחברים יגלשו מול רוח הרפאים שלך.');
   $('menuEnd').hidden=false;
 }
 
@@ -562,15 +566,15 @@ function draw(){
   for(const k of kickers){ if(k.x<x0||k.x>x1) continue; const X=sx(k.x),Y=sy(ground(k.x));
     cx.strokeStyle='rgba(244,185,66,.9)'; cx.lineWidth=Math.max(3,sc*.3); cx.beginPath(); cx.moveTo(sx(k.x-3.2),sy(ground(k.x-3.2))+1); cx.lineTo(X,Y+1); cx.stroke(); /* the pop zone */ cx.fillStyle=k.gap?'#D1342B':'#F08A3C'; cx.beginPath(); cx.moveTo(X,Y-sc*2.4); cx.lineTo(X+sc*1,Y-sc*2.05); cx.lineTo(X,Y-sc*1.7); cx.fill(); cx.strokeStyle='#13233A'; cx.lineWidth=1.5; cx.beginPath(); cx.moveTo(X,Y); cx.lineTo(X,Y-sc*2.4); cx.stroke(); }
   cx.textAlign='center'; cx.font=`700 ${Math.max(11,Math.round(sc*.75))}px "IBM Plex Sans Hebrew",sans-serif`;
-  for(const s of [...signs, {x:6,t:'זינוק · '+fmtM(R.top)+' מ׳'}]){ if(s.x<x0-10||s.x>x1+10) continue; const X=sx(s.x),Y=sy(ground(s.x)); const w=cx.measureText(s.t).width+sc*1.2, hh=sc*1.1;
+  for(const s of [...signs, {x:6,t:L('game.descent.sign_start','זינוק · {alt} מ׳',{alt:fmtM(R.top)})}]){ if(s.x<x0-10||s.x>x1+10) continue; const X=sx(s.x),Y=sy(ground(s.x)); const w=cx.measureText(s.t).width+sc*1.2, hh=sc*1.1;
     cx.fillStyle='#13233A'; cx.fillRect(X-2,Y-sc*3.2,4,sc*3.2); cx.fillStyle=s.x<10?RUNCOL[R.color]:'#F08A3C';
     cx.beginPath(); cx.moveTo(X-w/2-hh*.4,Y-sc*3.2-hh/2); cx.lineTo(X-w/2,Y-sc*3.2-hh); cx.lineTo(X+w/2,Y-sc*3.2-hh); cx.lineTo(X+w/2,Y-sc*3.2); cx.lineTo(X-w/2,Y-sc*3.2); cx.closePath(); cx.fill();
     cx.fillStyle=s.x<10?'#fff':'#13233A'; cx.fillText(s.t,X,Y-sc*3.2-hh*.28); }
   // the lift and the finish arch
   const lx=R.len-3; if(lx>x0-20&&lx<x1+20){ const X=sx(lx),Y=sy(ground(lx)); cx.fillStyle='#13233A'; cx.fillRect(X-3,Y-sc*9,6,sc*9); cx.fillRect(X-sc*2.2,Y-sc*9,sc*4.4,sc*.8); cx.strokeStyle='#13233A'; cx.lineWidth=2; cx.beginPath(); cx.moveTo(X,Y-sc*8.6); cx.lineTo(X+W,Y-sc*8.6-W*.35); cx.stroke();
-    cx.fillStyle='#F4B942'; cx.font=`700 ${Math.round(sc*1.6)}px Karantina, sans-serif`; cx.fillText(R.lift?('רכבל '+R.lift):'סיום', X, Y-sc*10);
+    cx.fillStyle='#F4B942'; cx.font=`700 ${Math.round(sc*1.6)}px Karantina, sans-serif`; cx.fillText(R.lift?L('game.descent.lift_name','רכבל {lift}',{lift:R.lift}):L('game.descent.finish_sign','סיום'), X, Y-sc*10);
     const fx=R.len-8; const FX=sx(fx), FY=sy(ground(fx)); cx.fillStyle='#D1342B'; cx.fillRect(FX-sc*3,FY-sc*4.2,sc*6,sc*.9); cx.fillStyle='#13233A'; cx.fillRect(FX-sc*3,FY-sc*4.2,3,sc*4.2); cx.fillRect(FX+sc*3-3,FY-sc*4.2,3,sc*4.2);
-    cx.fillStyle='#fff'; cx.font=`700 ${Math.round(sc*.8)}px "IBM Plex Sans Hebrew",sans-serif`; cx.fillText('סיום',FX,FY-sc*3.5); }
+    cx.fillStyle='#fff'; cx.font=`700 ${Math.round(sc*.8)}px "IBM Plex Sans Hebrew",sans-serif`; cx.fillText(L('game.descent.finish_sign','סיום'),FX,FY-sc*3.5); }
   const toW=(fn)=>{ cx.save(); cx.translate(sx(camX),sy(camY)); cx.scale(sc,-sc); cx.translate(-camX,-camY); fn(); cx.restore(); };
   toW(()=>{
     // rocks
@@ -592,7 +596,7 @@ function draw(){
     for(const c of crewSpots){ if(c.lost) continue; if(c.got && c.joinT<=0) continue; if(c.x<x0-5||c.x>x1+5) continue;
       if(!c.got){ const y=ground(c.x); const a=slope(c.x); skier(c.x,y,a,a*.4,FRIENDS[c.fi].c,{wave:t+c.fi,label:FRIENDS[c.fi].n,labelBg:'#F4B942'}); } }
     // the best run, as a ghost
-    if(ghost){ const gp=ghostAt(t); if(gp) skier(gp[1],gp[2],gp[3],gp[3]*.5,FRIENDS[ghost.who].c,{alpha:.35,label:'השיא'}); }
+    if(ghost){ const gp=ghostAt(t); if(gp) skier(gp[1],gp[2],gp[3],gp[3]*.5,FRIENDS[ghost.who].c,{alpha:.35,label:L('game.descent.ghost_label','השיא')}); }
     // the crew: in your tracks, SPACING metres apart; they jump and flip where you did
     crew.forEach((c,k)=>{ let tx=P.x-SPACING*(k+1); let p=histAt(tx); let x=p.x, y=p.air?p.y:ground(p.x), ang=p.air?p.ang:slope(p.x);
       const sp=crewSpots.find(s=>s.fi===c.fi); if(sp&&sp.joinT>0){ const f=sp.joinT/0.7; x=x*(1-f)+sp.x*f; y=y*(1-f)+ground(sp.x)*f; }
@@ -630,15 +634,21 @@ function miniMap(){
   cx.fillStyle=FRIENDS[me].c; cx.strokeStyle='#fff'; cx.lineWidth=2; cx.beginPath(); cx.arc(px(P.x),py(realH(P.x))-1,5,0,7); cx.fill(); cx.stroke();
 }
 // the menu legend, drawn with the same shapes as the game
-$('legend').innerHTML = [
-  ['<ellipse cx="12" cy="12" rx="10" ry="5" fill="#C9822E"/><ellipse cx="12" cy="11.5" rx="7" ry="3" fill="#F7E3A1"/><circle cx="12" cy="11.5" r="2" fill="#F4A11D"/>','חצ׳אפורי: נקודות, והרבה מעל הקפיצות'],
-  ['<path d="M3,20 L6,9 L12,5 L18,8 L21,20Z" fill="#5B6675"/><path d="M6,9 L12,4 L18,8 L14,9 L9,9Z" fill="#fff"/>','סלע: לקפוץ מעליו'],
-  ['<rect x="2" y="6" width="20" height="12" fill="#6F88A3"/><rect x="2" y="14" width="20" height="4" fill="#3E6E9C"/>','ערוץ: קופצים רגע לפני הקצה'],
-  ['<rect x="4" y="12" width="16" height="5" fill="#2A2F38"/><rect x="5" y="7" width="12" height="5" fill="#D1342B"/><rect x="11" y="3" width="5" height="4" fill="#D1342B"/>','חתול שלג: עולה במסלול, קפיצה גבוהה'],
-  ['<circle cx="6" cy="16" r="5" fill="#fff" stroke="#8FA7C0"/><circle cx="13" cy="15" r="6" fill="#fff" stroke="#8FA7C0"/><circle cx="19" cy="16" r="4" fill="#fff" stroke="#8FA7C0"/>','שלג עמוק מאט, קרח מאיץ'],
-  ['<path d="M2,8 H16 M5,13 H22 M2,18 H14" stroke="#fff" stroke-width="2.4"/>','רוח ברכס: להחזיק על השלג']
-].map(([svg,txt])=>`<span><svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true">${svg}</svg>${txt}</span>`).join('');
-drawMenus(); requestAnimationFrame(step);
+// the words come from i18n.js on the site: the menu, the legend and the still frame wait for them
+function drawLegend(){ $('legend').innerHTML = [
+  ['<ellipse cx="12" cy="12" rx="10" ry="5" fill="#C9822E"/><ellipse cx="12" cy="11.5" rx="7" ry="3" fill="#F7E3A1"/><circle cx="12" cy="11.5" r="2" fill="#F4A11D"/>',L('game.descent.legend_khachapuri','חצ׳אפורי: נקודות, והרבה מעל הקפיצות')],
+  ['<path d="M3,20 L6,9 L12,5 L18,8 L21,20Z" fill="#5B6675"/><path d="M6,9 L12,4 L18,8 L14,9 L9,9Z" fill="#fff"/>',L('game.descent.legend_rock','סלע: לקפוץ מעליו')],
+  ['<rect x="2" y="6" width="20" height="12" fill="#6F88A3"/><rect x="2" y="14" width="20" height="4" fill="#3E6E9C"/>',L('game.descent.legend_gully','ערוץ: קופצים רגע לפני הקצה')],
+  ['<rect x="4" y="12" width="16" height="5" fill="#2A2F38"/><rect x="5" y="7" width="12" height="5" fill="#D1342B"/><rect x="11" y="3" width="5" height="4" fill="#D1342B"/>',L('game.descent.legend_snowcat','חתול שלג: עולה במסלול, קפיצה גבוהה')],
+  ['<circle cx="6" cy="16" r="5" fill="#fff" stroke="#8FA7C0"/><circle cx="13" cy="15" r="6" fill="#fff" stroke="#8FA7C0"/><circle cx="19" cy="16" r="4" fill="#fff" stroke="#8FA7C0"/>',L('game.descent.legend_snow','שלג עמוק מאט, קרח מאיץ')],
+  ['<path d="M2,8 H16 M5,13 H22 M2,18 H14" stroke="#fff" stroke-width="2.4"/>',L('game.descent.legend_wind','רוח ברכס: להחזיק על השלג')]
+].map(([svg,txt])=>`<span><svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true">${svg}</svg>${txt}</span>`).join(''); }
+requestAnimationFrame(step);
 // a still, readable first frame behind the menu
-(function preview(){ buildRun(); P={x:40,y:ground(40),s:0,ang:slope(40),crouch:0,air:false,crash:0,inv:0}; t=0; hist=[]; tracks=[]; crew=[]; stats={coins:0}; avalanche={x:-999,on:false}; dog={on:false}; })();
+function preview(){ buildRun(); P={x:40,y:ground(40),s:0,ang:slope(40),crouch:0,air:false,crash:0,inv:0}; t=0; hist=[]; tracks=[]; crew=[]; stats={coins:0}; avalanche={x:-999,on:false}; dog={on:false}; }
+preview();
+(window.I18N?I18N.ready:Promise.resolve()).then(()=>{
+  $('menuStart').setAttribute('aria-label',L('game.descent.menu_start_label','התחלה'));
+  $('menuEnd').setAttribute('aria-label',L('game.descent.menu_end_label','תוצאה'));
+  drawLegend(); drawMenus(); if(state==='menu') preview(); });
 </script>

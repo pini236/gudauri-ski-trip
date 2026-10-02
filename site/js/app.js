@@ -1,4 +1,5 @@
 (async function main(){
+await I18N.ready; // the words of the chosen language (js/i18n.js); everything below draws with T()
 const soft=(url,fallback)=>fetch(url).then(r=>r.ok?r.json():fallback).catch(()=>fallback);
 const [D,TERR,TRIP,vids]=await Promise.all([
   fetch('data/runs-and-lifts.json').then(r=>{if(!r.ok)throw new Error('runs-and-lifts '+r.status);return r.json();}),
@@ -6,12 +7,27 @@ const [D,TERR,TRIP,vids]=await Promise.all([
   soft('data/trip.json',null),
   soft('data/videos-seed.json',[])
 ]);
-const HEB={green:'ירוק',blue:'כחול',red:'אדום',black:'שחור'};
-const RATE={green:[1,'מתחילים'],blue:[2,'קל'],red:[3,'בינוני'],black:[4,'קשה']};
-const OSMD={novice:['מתחילים','green'],easy:['קל','blue'],intermediate:['בינוני','red'],advanced:['מתקדם','black'],expert:['מומחים','black']};
-const LK={chair_lift:'רכבל כיסאות',gondola:'גונדולה',platter:'מעלית צלחת',magic_carpet:'מסוע',drag_lift:'מעלית גרירה',t_bar:'מעלית T'};
+const HEB=Object.fromEntries(['green','blue','red','black'].map(c=>[c,T('common.color_'+c)]));
+const RATE={green:[1,T('map.difficulty_beginner')],blue:[2,T('map.difficulty_easy')],red:[3,T('map.difficulty_intermediate')],black:[4,T('map.difficulty_hard')]};
+const OSMD={novice:[T('run.osm_grade_novice'),'green'],easy:[T('run.osm_grade_easy'),'blue'],intermediate:[T('run.osm_grade_intermediate'),'red'],advanced:[T('run.osm_grade_advanced'),'black'],expert:[T('run.osm_grade_expert'),'black']};
+const LK=Object.fromEntries(['chair_lift','gondola','platter','magic_carpet','drag_lift','t_bar'].map(k=>[k,T('lift.kind_'+k)]));
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const fmtLen=m=>m>=1000?(m/1000).toFixed(2)+' ק״מ':m+' מ׳';
+// words from the strings file: E() escaped text; H() escaped text with markup slots (raw) in its {placeholders}.
+// raw.n is special: {n} also picks the plural form, so the number is put in first and then wrapped.
+const E=(k,v)=>esc(T(k,v));
+const H=(key,vars={},raw={})=>{const v={...vars},m=[];for(const k in raw)if(k!=='n'){v[k]='\uE000'+m.length+'\uE001';m.push(raw[k]);}
+  let out=esc(T(key,v)).replace(/\uE000(\d+)\uE001/g,(_,i)=>m[i]);if('n' in raw)out=out.replace(esc(String(vars.n)),raw.n);return out;};
+const num=x=>`<span class="num">${x}</span>`;
+// a counter drawn in three places (small text, big number, small text): the text before and after {n}
+const slots=(key,vars)=>{const s=T(key,vars),v=String(vars.n!=null?vars.n:vars.hm),i=s.indexOf(v);return i<0?[s,'','']:[s.slice(0,i).trim(),v,s.slice(i+v.length).trim()];};
+const fmtLen=m=>m>=1000?T('common.unit_km',{n:(m/1000).toFixed(2)}):T('common.unit_m',{n:m});
+// static words that need a number or a link inside them; the Hebrew is already in the markup
+if(I18N.lang!=='he'){
+  document.querySelectorAll('[data-i18n-plural]').forEach(el=>{el.textContent=T(el.dataset.i18nPlural,{n:+el.dataset.n});});
+  document.querySelectorAll('[data-i18n-tpl]').forEach(el=>{const raw={},vars={};el.querySelectorAll('[data-slot]').forEach(x=>{raw[x.dataset.slot]=x.outerHTML;});
+    for(const a of el.attributes)if(a.name.startsWith('data-var-'))vars[a.name.slice(9)]=a.value;el.innerHTML=H(el.dataset.i18nTpl,vars,raw);});
+  document.querySelectorAll('.bp-gone').forEach(el=>{el.innerHTML=E('ticket.torn')+'<br>'+E('ticket.see_you');});
+}
 const byKey=Object.fromEntries(D.pistes.map(p=>[p.key,p]));
 const reduceMotion=()=>matchMedia('(prefers-reduced-motion: reduce)').matches;
 // Kobi side = everything north of Kobi Pass (the top of Firni). Shown in its own inset.
@@ -22,12 +38,21 @@ const isKobiL=l=>meanLat([l.g])>KOBI_LAT;
 const mainPistes=D.pistes.filter(p=>!isKobiP(p)),kobiPistes=D.pistes.filter(isKobiP);
 const mainLifts=D.lifts.filter(l=>!isKobiL(l)),kobiLifts=D.lifts.filter(isKobiL);
 const kobiRun=byKey['Kobi'];const PASS=kobiRun?kobiRun.segs[0].g[0]:[42.5111,44.4929];
-const dispName=p=>p.named?(p.key==='Firni ?'?'Firni (1/2?)':p.key):'קטע ללא שם';
+const dispName=p=>p.named?(p.key==='Firni ?'?'Firni (1/2?)':p.key):T('map.unnamed_segment');
 
-// countdown (top bar + ticket stub)
-(function(){const t=new Date((TRIP&&TRIP.outbound?TRIP.outbound.date:'2027-01-10')+'T00:00:00+02:00');const d=Math.ceil((t-new Date())/864e5);
- const tb=document.getElementById('tbDays'),stub=document.getElementById('tDays'),lbl=document.getElementById('tDaysLbl');
- if(d>0){tb.textContent=d;stub.textContent=d;}else{document.getElementById('tbCount').textContent='בדרך לגודאורי';stub.textContent='0';lbl.textContent='יוצאים לדרך';}})();
+// countdown (top bar + ticket stub). Drawn again by the day and night switch: in the dark the days are nights.
+const daysLeft=Math.ceil((new Date((TRIP&&TRIP.outbound?TRIP.outbound.date:'2027-01-10')+'T00:00:00+02:00')-new Date())/864e5);
+function countdown(dark){
+  const tb=document.getElementById('tbCount'),stub=document.getElementById('tDays'),pre=document.getElementById('tDaysPre'),lbl=document.getElementById('tDaysLbl'),d=daysLeft;
+  const [c1,,c3]=slots(dark?'ticket.stub_nights':'ticket.stub_days',{n:Math.max(d,0)});pre.textContent=c1;
+  if(d>0){
+    // the top bar is a flex row: its first word after the number in its own box, as in the markup
+    const [a,,b]=slots(dark?'common.nights_to_flight':'common.days_to_flight',{n:d}),sp=b.indexOf(' ');
+    tb.innerHTML=(a?`<span>${esc(a)}</span>`:'')+`<b class="num" id="tbDays">${d}</b>`+(sp>0?`<span>${esc(b.slice(0,sp))}</span>${esc(b.slice(sp))}`:esc(b));
+    // the same boxes as the markup had (first word in a span), so the Hebrew renders exactly as before
+    const sp3=c3.indexOf(' ');stub.textContent=d;lbl.innerHTML=sp3>0?`<span>${esc(c3.slice(0,sp3))}</span>${esc(c3.slice(sp3))}`:esc(c3);}
+  else{tb.textContent=T('home.countdown_on_the_way');stub.textContent='0';lbl.textContent=T('ticket.stub_departing');}
+}
 
 // projection (meters, north up)
 const lat0=42.51,lon0=44.495,kx=111320*Math.cos(lat0*Math.PI/180),ky=111320;
@@ -90,7 +115,7 @@ function addRelief(root,lblRoot,store,skipPass){
 }
 addRelief(svg,mainLbl,{labels,marks},true);
 // signpost at Kobi Pass: opens the Kobi-side inset. First in the list so it wins label collisions.
-{const[x,y]=P(PASS);const t=mk('text',{x,y,class:'lbl kobi-link','text-anchor':'middle','data-kobi':'1',role:'button','aria-label':'פתיחת צד Kobi'},mainLbl);t.textContent='צד Kobi ▲';labels.unshift(t);}
+{const[x,y]=P(PASS);const t=mk('text',{x,y,class:'lbl kobi-link','text-anchor':'middle','data-kobi':'1',role:'button','aria-label':T('map.kobi_side_aria')},mainLbl);t.textContent=T('map.kobi_side_label');labels.unshift(t);}
 
 function layoutLabels(labels,stations,u,mks){
   labels.forEach(t=>{const pk=t.classList.contains('peak');t.setAttribute('font-size',(t.classList.contains('lift')?11.5:pk?12:13)*u);t.setAttribute('stroke-width',3.2*u);t.setAttribute('dy',(pk?-11:-6)*u);});
@@ -213,52 +238,52 @@ function liftBtn(name){const l=D.lifts.find(x=>x.name===name);return l?`<button 
 function pisteBtn(k){const p=byKey[k];return p?`<button class="tag c-${p.color}" data-goto="${esc(k)}">${esc(dispName(p))}</button>`:'';}
 function notesFor(p){
   const n=[];
-  if(p.key==='Firni ?')n.push('ב-OSM הקו נקרא "Frini" ללא מספר. במפה הרשמית יש Firni 1 ו-Firni 2, ולא ברור לאיזה מהם הקו שייך. השני חסר בנתונים.');
-  if(p.key==='Zuma')n.push('ב-OSM מופיע כשני קווים, Zuma-1 ו-Zuma-2. במפה הרשמית: Zuma.');
+  if(p.key==='Firni ?')n.push(T('run.note_firni_unclear'));
+  if(p.key==='Zuma')n.push(T('run.note_zuma_two_lines'));
   const mism=p.osmDiff.filter(x=>x!=='—'&&OSMD[x]&&OSMD[x][1]!==p.color);
-  if(p.named&&mism.length)n.push(`ב-OSM חלק מהקטעים מדורגים "${mism.map(x=>OSMD[x][0]).join(', ')}". הצבע כאן לפי המפה הרשמית (${HEB[p.color]}).`);
-  if(p.named&&p.osmDiff.includes('—'))n.push('לחלק מהקטעים אין דירוג קושי ב-OSM. הצבע לפי המפה הרשמית.');
-  const lin=p.segs.filter(s=>!s.area).length;if(lin>1)n.push(`${lin} קטעים נפרדים ב-OSM. האורך הוא סכום הקטעים.`);
-  if(p.segs.some(s=>s.area))n.push('כולל גם שטח מסלול (פוליגון) שלא נספר באורך.');
-  if(p.lit.includes('yes'))n.push('מסומן כמואר בערב.');
-  if(p.kind==='ski-way')n.push('לפי המקרא של המפה הרשמית זו דרך מקשרת (Ski Way) בין אזורים, ולא מסלול.');
-  if(p.kind==='beginner-area')n.push('אזור מתחילים. מוצג כקו המרכז שלו.');
-  if(!p.named)n.push('קטע בנתוני OSM בלי שם. לא שויך למסלול רשמי. הצבע לפי דירוג OSM.');
+  if(p.named&&mism.length)n.push(T('run.note_osm_grade_mismatch',{grades:mism.map(x=>OSMD[x][0]).join(', '),color:HEB[p.color]}));
+  if(p.named&&p.osmDiff.includes('—'))n.push(T('run.note_osm_no_grade'));
+  const lin=p.segs.filter(s=>!s.area).length;if(lin>1)n.push(T('run.note_separate_segments',{n:lin}));
+  if(p.segs.some(s=>s.area))n.push(T('run.note_area_polygon'));
+  if(p.lit.includes('yes'))n.push(T('run.note_lit'));
+  if(p.kind==='ski-way')n.push(T('run.note_ski_way'));
+  if(p.kind==='beginner-area')n.push(T('run.note_beginner_area'));
+  if(!p.named)n.push(T('run.note_unnamed_osm'));
   return n;
 }
 function hostOf(u){try{return new URL(u).hostname.replace(/^www\./,'')}catch{return u}}
 const ytId=u=>{try{const x=new URL(u);if(/(^|\.)youtube\.com$/.test(x.hostname))return(x.searchParams.get('v')||'').match(/^[\w-]{11}$/)?x.searchParams.get('v'):null;if(x.hostname==='youtu.be'){const i=x.pathname.slice(1);return/^[\w-]{11}$/.test(i)?i:null;}}catch{}return null;};
 function vidList(key){
   const list=vids.filter(v=>v.piste===key).sort((a,b)=>(b.at||0)-(a.at||0));
-  return list.length?`<ul class="vids">${list.map(v=>{const id=ytId(v.url);const thumb=id?`<button type="button" class="vthumb" data-vid="${id}" data-title="${esc(v.title||'')}" aria-label="הפעלת הסרטון${v.title?': '+esc(v.title):''}"><img src="https://i.ytimg.com/vi/${id}/hqdefault.jpg" alt="" loading="lazy"><span class="play"></span></button>`:'';
-    return `<li>${thumb}<a href="${esc(v.url)}" target="_blank" rel="noopener">${esc(v.title||hostOf(v.url))}</a><small>${esc(v.channel?[v.channel,v.length].filter(Boolean).join(' · '):[v.by||'',v.at?new Date(v.at).toLocaleDateString('he-IL'):''].filter(Boolean).join(' · '))}</small></li>`;}).join('')}</ul>`:'<p class="hint">עוד אין סרטונים למסלול הזה.</p>';
+  return list.length?`<ul class="vids">${list.map(v=>{const id=ytId(v.url);const thumb=id?`<button type="button" class="vthumb" data-vid="${id}" data-title="${esc(v.title||'')}" aria-label="${v.title?E('run.video_play_aria_titled',{title:v.title}):E('run.video_play_aria')}"><img src="https://i.ytimg.com/vi/${id}/hqdefault.jpg" alt="" loading="lazy"><span class="play"></span></button>`:'';
+    return `<li>${thumb}<a href="${esc(v.url)}" target="_blank" rel="noopener">${esc(v.title||hostOf(v.url))}</a><small>${esc(v.channel?[v.channel,v.length].filter(Boolean).join(' · '):[v.by||'',v.at?I18N.date(v.at):''].filter(Boolean).join(' · '))}</small></li>`;}).join('')}</ul>`:`<p class="hint">${E('run.videos_empty')}</p>`;
 }
 function vidBlock(key,label){
-  return `<h3>סרטונים</h3>${vidList(key)}
-  <p class="hint"><a href="https://www.youtube.com/results?search_query=${encodeURIComponent('Gudauri '+label+' ski')}" target="_blank" rel="noopener">חיפוש "Gudauri ${esc(label)}" ביוטיוב ↗</a></p>`;
+  return `<h3>${E('run.videos_heading')}</h3>${vidList(key)}
+  <p class="hint"><a href="https://www.youtube.com/results?search_query=${encodeURIComponent('Gudauri '+label+' ski')}" target="_blank" rel="noopener">${E('run.videos_search_youtube',{name:label})}</a></p>`;
 }
 function elevRows(p){
   if(!TM)return'';const lines=p.segs.filter(s=>!s.area).map(s=>s.g.map(P));if(!lines.length)return'';
   const s=GudRelief.stats(TM,lines);
-  return `<dt>גובה</dt><dd><span class="num">${s.top}</span> מ׳ למעלה, <span class="num">${s.bot}</span> מ׳ למטה</dd>
-  <dt>ירידה</dt><dd><span class="num">${s.drop}</span> מ׳${lines.length===1&&p.len?` · שיפוע ממוצע <span class="num">${Math.round(s.drop/p.len*100)}%</span>`:''}</dd>
-  <dt>קטע תלול</dt><dd><span class="num">${Math.round(s.maxG*100)}%</span> <span class="hint">(100 מ׳ התלולים ביותר)</span></dd>`;
+  return `<dt>${E('run.stat_altitude_label')}</dt><dd>${H('run.stat_altitude_value',{},{top:num(s.top),bot:num(s.bot)})}</dd>
+  <dt>${E('run.stat_drop_label')}</dt><dd>${H('common.unit_m',{n:s.drop},{n:num(s.drop)})}${lines.length===1&&p.len?' · '+H('run.stat_avg_gradient',{},{pct:num(Math.round(s.drop/p.len*100))}):''}</dd>
+  <dt>${E('run.stat_steep_label')}</dt><dd>${num(Math.round(s.maxG*100)+'%')} <span class="hint">${E('run.stat_steep_hint')}</span></dd>`;
 }
-const CONFH={high:'גבוהה',medium:'בינונית',low:'נמוכה'};
-const STATH={'osm-named':'דרך ב-OSM שנשאה את השם הזה','osm-unnamed-match':'דרך ב-OSM בלי שם, שהותאמה לפי המיקום במפה הרשמית','gps':'הקלטות GPS'};
+const CONFH={high:T('run.confidence_high'),medium:T('run.confidence_medium'),low:T('run.confidence_low')};
+const STATH={'osm-named':T('run.source_osm_named'),'osm-unnamed-match':T('run.source_osm_unnamed_match'),'gps':T('run.source_gps')};
 function researchBlock(p){const r=p.research;
-  return `<h3>מקור ומידת ודאות</h3>
-  <dl class="kv"><dt>ודאות</dt><dd>${CONFH[r.conf]||esc(r.conf)}</dd>
-  <dt>מקור</dt><dd>${esc(STATH[r.status]||r.status)}${r.historical?' (הדרך נמחקה מ-OSM ב-2024, נלקחה מהיסטוריית העריכה)':''}</dd>
-  ${r.gps?`<dt>הקלטות GPS</dt><dd><span class="num">${r.gps}</span> הקלטות ציבוריות עוברות לאורכו</dd>`:''}
-  ${r.partial?`<dt>היקף</dt><dd>${esc(r.partial)}</dd>`:''}</dl>
+  return `<h3>${E('run.source_heading')}</h3>
+  <dl class="kv"><dt>${E('run.confidence_label')}</dt><dd>${esc(CONFH[r.conf]||r.conf)}</dd>
+  <dt>${E('run.source_label')}</dt><dd>${esc(STATH[r.status]||r.status)}${r.historical?E('run.source_historical'):''}</dd>
+  ${r.gps?`<dt>${E('run.gps_tracks_label')}</dt><dd>${H('run.gps_tracks_value',{n:r.gps},{n:num(r.gps)})}</dd>`:''}
+  ${r.partial?`<dt>${E('run.coverage_label')}</dt><dd>${esc(r.partial)}</dd>`:''}</dl>
   <p class="hint">${esc(r.notes)}</p>
   <ul class="notes">${r.sources.map(x=>`<li class="hint">${esc(x)}</li>`).join('')}</ul>`;}
 const navList=()=>{const order=['green','blue','red','black'];return D.pistes.filter(p=>p.named).sort((a,b)=>order.indexOf(a.color)-order.indexOf(b.color)||a.key.localeCompare(b.key,undefined,{numeric:true})).map(p=>p.key);};
 function runNav(key){
-  const L=navList(),i=L.indexOf(key);if(i<0)return `<div class="run-nav"><button type="button" class="rn-share" data-share="${esc(key)}">שיתוף</button></div>`;
-  const prev=L[(i-1+L.length)%L.length],next=L[(i+1)%L.length];
-  return `<div class="run-nav" role="group" aria-label="מעבר בין מסלולים"><button type="button" data-goto="${esc(prev)}" aria-label="המסלול הקודם: ${esc(prev)}">→ <span dir="ltr">${esc(prev)}</span></button><button type="button" class="rn-share" data-share="${esc(key)}">שיתוף</button><button type="button" data-goto="${esc(next)}" aria-label="המסלול הבא: ${esc(next)}"><span dir="ltr">${esc(next)}</span> ←</button></div>`;
+  const L=navList(),i=L.indexOf(key);if(i<0)return `<div class="run-nav"><button type="button" class="rn-share" data-share="${esc(key)}">${E('run.share_button')}</button></div>`;
+  const prev=L[(i-1+L.length)%L.length],next=L[(i+1)%L.length],[back,fwd]=I18N.ltr?['←','→']:['→','←'];
+  return `<div class="run-nav" role="group" aria-label="${E('run.nav_group_aria')}"><button type="button" data-goto="${esc(prev)}" aria-label="${E('run.nav_prev_aria',{run:prev})}">${back} <span dir="ltr">${esc(prev)}</span></button><button type="button" class="rn-share" data-share="${esc(key)}">${E('run.share_button')}</button><button type="button" data-goto="${esc(next)}" aria-label="${E('run.nav_next_aria',{run:next})}"><span dir="ltr">${esc(next)}</span> ${fwd}</button></div>`;
 }
 let cmpStats=null;
 function comparable(){ // steepness and length of every named run, once
@@ -277,137 +302,136 @@ function runViewBlock(key){
   const cmp=comparable(),me=cmp.find(x=>x.key===key);
   let cmpHtml='';if(me&&cmp.length>2){const others=cmp.filter(x=>x.key!==key);
     const bg=others.slice().sort((a,b)=>Math.abs(a.g-me.g)-Math.abs(b.g-me.g))[0],bl=others.slice().sort((a,b)=>Math.abs(a.len-me.len)-Math.abs(b.len-me.len))[0];
-    cmpHtml=`<p class="run-cmp">תלול בערך כמו ${pisteBtn(bg.key)} ארוך בערך כמו ${pisteBtn(bl.key)}</p>`;}
-  const endTxt=p.toLifts.length?`מגיעים לרכבל ${p.toLifts.map(liftBtn).join('')}`:p.joins.length?`ממשיכים אל ${p.joins.map(pisteBtn).join('')}`:'';
-  const startTxt=p.fromLifts.length?`יורדים מרכבל ${p.fromLifts.map(liftBtn).join('')}`:'';
-  const fly=can3d&&!reduceMotion()?`<button type="button" class="btn run-fly" data-fly="${esc(key)}">טיסה במורד המסלול</button>`:'';
-  return `<h3>פרופיל הגובה</h3>
+    cmpHtml=`<p class="run-cmp">${H('run.compare_line',{},{steep_run:pisteBtn(bg.key),long_run:pisteBtn(bl.key)})}</p>`;}
+  const endTxt=p.toLifts.length?H('run.end_to_lift',{},{lifts:p.toLifts.map(liftBtn).join('')}):p.joins.length?H('run.end_continue_to',{},{runs:p.joins.map(pisteBtn).join('')}):'';
+  const startTxt=p.fromLifts.length?H('run.start_from_lift',{},{lifts:p.fromLifts.map(liftBtn).join('')}):'';
+  const fly=can3d&&!reduceMotion()?`<button type="button" class="btn run-fly" data-fly="${esc(key)}">${E('run.fly_button')}</button>`:'';
+  return `<h3>${E('run.profile_heading')}</h3>
   <div class="prof"><svg viewBox="0 0 ${W} ${Hc}" preserveAspectRatio="none" aria-hidden="true">
     <polygon points="8,${Hc-16} ${line} ${W-8},${Hc-16}" class="pf-fill"/><polyline points="${line}" class="pf-line"/>${band}
     ${st.g?`<rect x="${X(st.d)}" y="0" width="${(X(S[st.j].d)-X(st.d)).toFixed(1)}" height="${Hc-16}" class="pf-steep"/>`:''}
     <line id="pfX" x1="8" x2="8" y1="0" y2="${Hc-8}" class="pf-x"/></svg><span class="pf-dot" id="pfDot" style="left:${(8/W*100).toFixed(2)}%;top:${Y(S[0].h)}px"></span>
-    <input type="range" id="profRange" min="0" max="${n-1}" value="0" aria-label="מיקום לאורך המסלול, מלמעלה למטה" dir="ltr" data-key="${esc(key)}">
+    <input type="range" id="profRange" min="0" max="${n-1}" value="0" aria-label="${E('run.profile_range_aria')}" dir="ltr" data-key="${esc(key)}">
     <span class="pf-top num">${Math.round(hmax)}</span><span class="pf-bot num">${Math.round(hmin)}</span></div>
-  <div class="prof-read"><span><small>מההתחלה</small><b class="num" id="pfD">0 מ׳</b></span><span><small>גובה</small><b class="num" id="pfH">${Math.round(S[0].h).toLocaleString('en-US')} מ׳</b></span><span><small>שיפוע כאן</small><b class="num" id="pfA">${Math.round(S[0].a)}°</b></span></div>
-  <ul class="slope-key">${GudRelief.SLOPE.map(([,c,t])=>`<li><i style="background:${c}"></i>${t}</li>`).join('')}</ul>
+  <div class="prof-read"><span><small>${E('run.profile_from_start')}</small><b class="num" id="pfD">${E('common.unit_m',{n:0})}</b></span><span><small>${E('run.profile_altitude_label')}</small><b class="num" id="pfH">${E('common.unit_m',{n:Math.round(S[0].h).toLocaleString('en-US')})}</b></span><span><small>${E('run.profile_slope_here')}</small><b class="num" id="pfA">${Math.round(S[0].a)}°</b></span></div>
+  <ul class="slope-key">${GudRelief.SLOPE.map(([,c,t],i,a)=>`<li><i style="background:${c}"></i>${esc(i===0?T('map.slope_upto15'):i===a.length-1?T('map.slope_over30'):t)}</li>`).join('')}</ul>
   ${fly}
-  <h3>מה מחכה לך</h3>
+  <h3>${E('run.ahead_heading')}</h3>
   <ol class="brief">
-    <li><b>התחלה · <span class="num">${Math.round(S[0].h)}</span> מ׳</b><span>${deg(g0)}° ב-150 המטרים הראשונים. ${startTxt}</span></li>
-    ${st.g?`<li class="b-steep"><b>הקטע התלול · אחרי <span class="num">${Math.round(st.d)}</span> מ׳</b><span>${deg(maxG)}° (<span class="num">${Math.round(maxG*100)}%</span>) לאורך 100 מ׳</span></li>`:''}
-    <li><b>הסוף · <span class="num">${Math.round(S[n-1].h)}</span> מ׳</b><span>אחרי <span class="num">${Math.round(dmax)}</span> מ׳. ${endTxt}</span></li>
+    <li><b>${H('run.ahead_start_title',{},{alt:num(Math.round(S[0].h))})}</b><span>${H('run.ahead_start_text',{deg:deg(g0)},{start:startTxt})}</span></li>
+    ${st.g?`<li class="b-steep"><b>${H('run.ahead_steep_title',{},{dist:num(Math.round(st.d))})}</b><span>${H('run.ahead_steep_text',{deg:deg(maxG)},{pct:num(Math.round(maxG*100))})}</span></li>`:''}
+    <li><b>${H('run.ahead_end_title',{},{alt:num(Math.round(S[n-1].h))})}</b><span>${H('run.ahead_end_text',{},{dist:num(Math.round(dmax)),end:endTxt})}</span></li>
   </ol>
   ${cmpHtml}
-  <p class="hint">פני השטח עד 150 מ׳ מהמסלול צבועים לפי אותו מקרא. הגבהים והשיפועים ממודל הגובה (כ-30 מ׳), לאורך הקו הארוך ביותר של המסלול. בקירות קצרים השיפוע האמיתי יכול להיות גבוה יותר.</p>`;
+  <p class="hint">${E('run.profile_hint')}</p>`;
 }
 function profAt(i){
   const k=document.getElementById('profRange');if(!k)return;const pr=runProfile(k.dataset.key);if(!pr)return;const S=pr.S,q=S[Math.max(0,Math.min(S.length-1,i))];
   const svgp=panel.querySelector('.prof svg'),vb_=svgp.viewBox.baseVal,W=vb_.width,Hc=vb_.height,dmax=S[S.length-1].d,hs=S.map(z=>z.h),hmax=Math.max(...hs),hmin=Math.min(...hs);
   const x=8+q.d/dmax*(W-16),y=8+(hmax-q.h)/((hmax-hmin)||1)*(Hc-30);
   const X=document.getElementById('pfX');X.setAttribute('x1',x);X.setAttribute('x2',x);const dot=document.getElementById('pfDot');dot.style.left=(x/W*100)+'%';dot.style.top=y+'px';
-  document.getElementById('pfD').textContent=Math.round(q.d).toLocaleString('en-US')+' מ׳';document.getElementById('pfH').textContent=Math.round(q.h).toLocaleString('en-US')+' מ׳';document.getElementById('pfA').textContent=Math.round(q.a)+'°';
+  document.getElementById('pfD').textContent=T('common.unit_m',{n:Math.round(q.d).toLocaleString('en-US')});document.getElementById('pfH').textContent=T('common.unit_m',{n:Math.round(q.h).toLocaleString('en-US')});document.getElementById('pfA').textContent=Math.round(q.a)+'°';
   setMarker(q);flyHudAt(q);
 }
 let flying=false;
 function stopFly(){if(flying&&v3)v3.stopFly();flying=false;}
 // while flying: a bar on the map with where we are, and a stop button (on the phone the profile is out of view)
 function flyHud(on,name){let h=document.getElementById('flyHud');
-  if(!h){h=document.createElement('div');h.className='fly-hud';h.id='flyHud';h.setAttribute('role','status');h.innerHTML='<span class="fh-txt"><b class="fh-name"></b><span class="num fh-d"></span></span><button type="button" class="fh-stop">עצירה</button>';
+  if(!h){h=document.createElement('div');h.className='fly-hud';h.id='flyHud';h.setAttribute('role','status');h.innerHTML='<span class="fh-txt"><b class="fh-name"></b><span class="num fh-d"></span></span><button type="button" class="fh-stop">'+E('run.fly_stop')+'</button>';
     document.querySelector('.mapwrap').appendChild(h);h.querySelector('.fh-stop').addEventListener('click',()=>stopFly());}
   h.hidden=!on;h.parentNode.classList.toggle('flying',on);if(name)h.querySelector('.fh-name').textContent=name;}
-function flyHudAt(q){const h=document.getElementById('flyHud');if(h&&!h.hidden)h.querySelector('.fh-d').textContent=`${Math.round(q.d).toLocaleString('en-US')} מ׳ · ${Math.round(q.h).toLocaleString('en-US')} מ׳ גובה · ${Math.round(q.a)}°`;}
+function flyHudAt(q){const h=document.getElementById('flyHud');if(h&&!h.hidden)h.querySelector('.fh-d').textContent=T('run.fly_hud_readout',{dist:Math.round(q.d).toLocaleString('en-US'),alt:Math.round(q.h).toLocaleString('en-US'),deg:Math.round(q.a)});}
 function renderPiste(key){
   const p=byKey[key];
   if(!p){const m=D.missing.find(x=>x.name===key);if(!m)return overview();
-    panel.innerHTML=`<button class="back" data-back>→ כל המסלולים</button><h2 class="c-${m.color}">${esc(m.name)}</h2>
-    <dl class="kv"><dt>צבע רשמי</dt><dd>${pips(m.color)}${HEB[m.color]} · ${RATE[m.color][1]}</dd><dt>אורך</dt><dd>—</dd></dl>
-    <h3>הערות</h3><div class="notice">מסלול זה מופיע במפה הרשמית אבל אין לו קו בנתוני OpenStreetMap. לא ציירנו אותו כדי לא לנחש את התוואי.</div>${vidBlock(key,m.name)}`;
+    panel.innerHTML=`<button class="back" data-back>${E('map.back_all_runs')}</button><h2 class="c-${m.color}">${esc(m.name)}</h2>
+    <dl class="kv"><dt>${E('run.official_color_label')}</dt><dd>${pips(m.color)}${esc(HEB[m.color])} · ${esc(RATE[m.color][1])}</dd><dt>${E('common.length_label')}</dt><dd>—</dd></dl>
+    <h3>${E('run.notes_heading')}</h3><div class="notice">${E('run.missing_notice')}</div>${vidBlock(key,m.name)}`;
     return;}
   const c=p.color,label=p.named?(p.key==='Firni ?'?'Firni':p.key):'';
-  panel.innerHTML=`<button class="back" data-back>→ כל המסלולים</button>
-  <div class="run-sign"><h2 class="c-${c}">${esc(dispName(p))}</h2>${p.refs.length?`<span class="run-ref num" title="סימון המסלול">${esc(p.refs[0])}</span>`:''}</div>
+  panel.innerHTML=`<button class="back" data-back>${E('map.back_all_runs')}</button>
+  <div class="run-sign"><h2 class="c-${c}">${esc(dispName(p))}</h2>${p.refs.length?`<span class="run-ref num" title="${E('run.ref_title')}">${esc(p.refs[0])}</span>`:''}</div>
   ${runNav(key)}
   <dl class="kv">
-    <dt>אורך</dt><dd class="num">${fmtLen(p.len)}</dd>
+    <dt>${E('common.length_label')}</dt><dd class="num">${esc(fmtLen(p.len))}</dd>
     ${elevRows(p)}
-    <dt>צבע</dt><dd><span class="sw ${c}"></span> ${HEB[c]}${p.named?' (מפה רשמית)':' (לפי OSM)'}</dd>
-    <dt>קושי</dt><dd>${pips(c)}${RATE[c][1]}</dd>
-    ${p.osmDiff.length?`<dt>דירוג OSM</dt><dd>${p.osmDiff.map(x=>OSMD[x]?OSMD[x][0]:'ללא').join(' / ')}</dd>`:''}
-    ${p.refs.length?`<dt>סימון</dt><dd class="num">${esc(p.refs.join(', '))}</dd>`:''}
-    ${p.groom.length?`<dt>הכשרה</dt><dd>${p.groom.includes('classic')?'מוכשר (ratrak)':esc(p.groom.join(', '))}</dd>`:''}
+    <dt>${E('run.color_label')}</dt><dd><span class="sw ${c}"></span> ${esc(HEB[c])}${E(p.named?'run.color_official_suffix':'run.color_osm_suffix')}</dd>
+    <dt>${E('run.difficulty_label')}</dt><dd>${pips(c)}${esc(RATE[c][1])}</dd>
+    ${p.osmDiff.length?`<dt>${E('run.osm_grade_label')}</dt><dd>${esc(p.osmDiff.map(x=>OSMD[x]?OSMD[x][0]:T('run.osm_grade_none')).join(' / '))}</dd>`:''}
+    ${p.refs.length?`<dt>${E('run.ref_label')}</dt><dd class="num">${esc(p.refs.join(', '))}</dd>`:''}
+    ${p.groom.length?`<dt>${E('run.grooming_label')}</dt><dd>${p.groom.includes('classic')?E('run.groomed_value'):esc(p.groom.join(', '))}</dd>`:''}
   </dl>
   ${runViewBlock(key)}
-  <h3>חיבורים</h3>
+  <h3>${E('run.connections_heading')}</h3>
   <dl class="kv">
-    <dt>רכבל בראש</dt><dd>${p.fromLifts.map(liftBtn).join('')||'—'}</dd>
-    <dt>רכבל בתחתית</dt><dd>${p.toLifts.map(liftBtn).join('')||'—'}</dd>
-    <dt>מתחבר אל</dt><dd>${p.joins.map(pisteBtn).join('')||'—'}</dd>
-    <dt>מגיעים מ־</dt><dd>${p.fromPistes.map(pisteBtn).join('')||'—'}</dd>
+    <dt>${E('run.lift_at_top')}</dt><dd>${p.fromLifts.map(liftBtn).join('')||'—'}</dd>
+    <dt>${E('run.lift_at_bottom')}</dt><dd>${p.toLifts.map(liftBtn).join('')||'—'}</dd>
+    <dt>${E('run.joins_label')}</dt><dd>${p.joins.map(pisteBtn).join('')||'—'}</dd>
+    <dt>${E('run.from_runs_label')}</dt><dd>${p.fromPistes.map(pisteBtn).join('')||'—'}</dd>
   </dl>
-  ${TM?'<p class="hint">גבהים מתוך מודל פני השטח (רזולוציה של כ-30 מ׳), דיוק בערך ±15 מ׳.</p>':''}
-  <p class="hint">חושב מקרבת קצוות הקווים (עד 200 מ׳ לתחנה, 60 מ׳ למסלול). כדאי לוודא מול המפה הרשמית.</p>
-  <h3>הערות</h3><ul class="notes">${notesFor(p).map(x=>`<li>${esc(x)}</li>`).join('')||'<li>אין</li>'}</ul>
+  ${TM?`<p class="hint">${E('run.elevation_accuracy_hint')}</p>`:''}
+  <p class="hint">${E('run.connections_hint')}</p>
+  <h3>${E('run.notes_heading')}</h3><ul class="notes">${notesFor(p).map(x=>`<li>${esc(x)}</li>`).join('')||`<li>${E('run.notes_none')}</li>`}</ul>
   ${p.research?researchBlock(p):''}
   <p class="hint">OSM: ${[...new Set(p.research&&p.research.osmIds.length?p.research.osmIds:p.segs.map(s=>s.id))].map(id=>`<a href="https://www.openstreetmap.org/way/${id}" target="_blank" rel="noopener">${id}</a>`).join(' · ')}</p>
   ${p.named?vidBlock(key,label):''}`;
 }
 function liftElev(l){
-  if(!TM){return l.rise?`<dt>הפרש גובה</dt><dd class="num">${esc(l.rise)} מ׳</dd>`:'';}
+  if(!TM){return l.rise?`<dt>${E('lift.rise_label')}</dt><dd class="num">${E('common.unit_m',{n:l.rise})}</dd>`:'';}
   const a=P(l.g[0]),b=P(l.g[l.g.length-1]),ea=Math.round(TM.elev(a[0],a[1])),eb=Math.round(TM.elev(b[0],b[1]));
-  return `<dt>תחנות</dt><dd><span class="num">${Math.min(ea,eb)}</span> מ׳ למטה, <span class="num">${Math.max(ea,eb)}</span> מ׳ למעלה</dd><dt>הפרש גובה</dt><dd><span class="num">${Math.abs(eb-ea)}</span> מ׳ (מהמודל)${l.rise?` · ב-OSM: <span class="num">${esc(l.rise)}</span> מ׳`:''}</dd>`;
+  return `<dt>${E('lift.stations_label')}</dt><dd>${H('lift.stations_value',{},{bot:num(Math.min(ea,eb)),top:num(Math.max(ea,eb))})}</dd><dt>${E('lift.rise_label')}</dt><dd>${H('lift.rise_model_value',{n:Math.abs(eb-ea)},{n:num(Math.abs(eb-ea))})}${l.rise?H('lift.rise_osm_suffix',{n:l.rise},{n:num(esc(l.rise))}):''}</dd>`;
 }
 function showLift(id){
   const l=D.lifts.find(x=>x.id===id);if(!l)return;clearSel();current=null;if(location.hash.startsWith('#map/run/'))history.pushState(null,'','#map');
   const top=D.pistes.filter(p=>p.fromLifts.includes(l.name)).map(p=>pisteBtn(p.key)).join('');
   const bot=D.pistes.filter(p=>p.toLifts.includes(l.name)).map(p=>pisteBtn(p.key)).join('');
-  panel.innerHTML=`<button class="back" data-back>→ כל המסלולים</button><h2>⇡ ${esc(l.name||'ללא שם')}</h2>
-  <dl class="kv"><dt>סוג</dt><dd>${LK[l.kind]||esc(l.kind)}${l.status==='inactive'?' (לא פעיל לפי OSM)':''}</dd>
-  <dt>אורך</dt><dd class="num">${fmtLen(l.len)}</dd>
-  ${l.dur?`<dt>זמן נסיעה</dt><dd class="num">${esc(l.dur)} דק׳</dd>`:''}
-  ${l.occ?`<dt>מקומות</dt><dd class="num">${esc(l.occ)}${l.bubble==='yes'?' · עם כיפה':''}</dd>`:''}
-  ${l.cap?`<dt>קיבולת</dt><dd class="num">${esc(l.cap)} לשעה</dd>`:''}
+  panel.innerHTML=`<button class="back" data-back>${E('map.back_all_runs')}</button><h2>⇡ ${esc(l.name||T('lift.unnamed'))}</h2>
+  <dl class="kv"><dt>${E('lift.type_label')}</dt><dd>${esc(LK[l.kind]||l.kind)}${l.status==='inactive'?E('lift.inactive_suffix'):''}</dd>
+  <dt>${E('common.length_label')}</dt><dd class="num">${esc(fmtLen(l.len))}</dd>
+  ${l.dur?`<dt>${E('lift.ride_time_label')}</dt><dd class="num">${E('lift.ride_time_value',{n:l.dur})}</dd>`:''}
+  ${l.occ?`<dt>${E('lift.seats_label')}</dt><dd class="num">${esc(l.occ)}${l.bubble==='yes'?E('lift.bubble_suffix'):''}</dd>`:''}
+  ${l.cap?`<dt>${E('lift.capacity_label')}</dt><dd class="num">${E('lift.capacity_value',{n:l.cap})}</dd>`:''}
   ${liftElev(l)}
-  ${l.year?`<dt>נבנה</dt><dd class="num">${esc(l.year)}</dd>`:''}</dl>
-  <h3>מסלולים מהתחנה העליונה</h3><div>${top||'—'}</div>
-  <h3>מסלולים שמסתיימים בתחנה התחתונה</h3><div>${bot||'—'}</div>
+  ${l.year?`<dt>${E('lift.built_label')}</dt><dd class="num">${esc(l.year)}</dd>`:''}</dl>
+  <h3>${E('lift.runs_from_top_heading')}</h3><div>${top||'—'}</div>
+  <h3>${E('lift.runs_to_bottom_heading')}</h3><div>${bot||'—'}</div>
   <p class="hint">OSM: <a href="https://www.openstreetmap.org/way/${l.id}" target="_blank" rel="noopener">${l.id}</a></p>`;
 }
 function overview(){
   clearSel();current=null;
   const named=D.pistes.filter(p=>p.named);const order=['green','blue','red','black'];
   named.sort((a,b)=>order.indexOf(a.color)-order.indexOf(b.color)||a.key.localeCompare(b.key,undefined,{numeric:true}));
-  const f=[...order.map(c=>[c,HEB[c]]),['unnamed','ללא שם'],['lifts','רכבלים']];
   panel.innerHTML=`
-  <h2 class="ov">כל המסלולים</h2>
+  <h2 class="ov">${E('map.overview_heading')}</h2>
   ${LSTAT.block()}
-  <p class="lead">לחצו על מסלול במפה או ברשימה לפרטים וסרטונים. קו מקווקו דק הוא קטע בלי שם בנתונים, וקו מקווקו כחול הוא דרך מקשרת. הצד הצפוני של Kobi נפתח מהכפתור בפינת המפה.</p>
-  <h3>מסלולים במפה · ${named.length}</h3>
+  <p class="lead">${E('map.overview_lead')}</p>
+  <h3>${E('map.overview_on_map_count',{n:named.length})}</h3>
   <div class="index">${named.map(p=>`<button data-goto="${esc(p.key)}" data-zoom="1"><span class="sw ${p.color}"></span>${esc(dispName(p))}<span class="len">${fmtLen(p.len)}</span></button>`).join('')}</div>
-  ${D.missing.length?`<h3>במפה הרשמית, חסרים בנתונים · ${D.missing.length}</h3>
+  ${D.missing.length?`<h3>${E('map.overview_missing_count',{n:D.missing.length})}</h3>
   <div class="miss">${D.missing.map(m=>`<button class="chip" data-goto="${esc(m.name)}"><span class="sw ${m.color}"></span>${esc(m.name)}</button>`).join('')}</div>`:''}
-  ${(()=>{const pr=D.pistes.filter(p=>p.research&&p.research.partial);return pr.length?`<h3>הושלמו חלקית · ${pr.length}</h3>
+  ${(()=>{const pr=D.pistes.filter(p=>p.research&&p.research.partial);return pr.length?`<h3>${E('map.overview_partial_count',{n:pr.length})}</h3>
   <div class="miss">${pr.map(p=>`<button class="chip" data-goto="${esc(p.key)}" data-zoom="1"><span class="sw ${p.color}"></span>${esc(p.key)}</button>`).join('')}</div>
-  <p class="hint">מסלולים שנמצא רק חלק מהם, או רק קו המרכז שלהם. בפרטים של כל אחד: מה נמצא, מאיפה ובאיזו ודאות. את החלקים החסרים לא ציירנו, כדי לא לנחש.</p>`:''})()}
-  <h3>מקור</h3>
-  <p class="hint">קווים: OpenStreetMap דרך Overpass, נמשך ${D.fetched}. שמות וצבעים לפי המפה הרשמית של Gudauri (MTA). אורכים אופקיים מהקואורדינטות. תבליט וגבהים: אריחי גובה Terrarium (AWS Open Data, בעיקר SRTM). פסגות: שמות וגבהים לפי המפה הרשמית, מיקום לפי OSM. הכפר, הכבישים והאגם: OSM. השלמת המסלולים החסרים: היסטוריית העריכה של OSM והקלטות GPS ציבוריות (api.openstreetmap.org), ${esc(D.research?D.research.date:'')}. © OpenStreetMap contributors, ODbL.</p>
-  <p class="hint">במבט התלת-ממדי: גרירה מסובבת, גלגלת או צביטה מזיזות זום, מקש ימני או שתי אצבעות מזיזים את המפה.</p>`;
+  <p class="hint">${E('map.overview_partial_hint')}</p>`:''})()}
+  <h3>${E('map.overview_source_heading')}</h3>
+  <p class="hint">${E('map.overview_source_text',{fetched:D.fetched,research_date:D.research?D.research.date:''})}</p>
+  <p class="hint">${E('map.overview_3d_controls_hint')}</p>`;
 }
 panel.addEventListener('input',e=>{if(e.target.id==='profRange')profAt(+e.target.value);});
 panel.addEventListener('click',e=>{
   const b=e.target.closest('button');if(!b)return;
   if(b.dataset.share!==undefined){const k=b.dataset.share,url=location.origin+location.pathname+'#map/run/'+encodeURIComponent(k);
-    if(navigator.share)navigator.share({title:'גודאורי 2027: '+k,url}).catch(()=>{});
-    else if(navigator.clipboard)navigator.clipboard.writeText(url).then(()=>{b.textContent='הקישור הועתק';setTimeout(()=>{b.textContent='שיתוף';},2200);}).catch(()=>{});return;}
+    if(navigator.share)navigator.share({title:T('run.share_title',{run:k}),url}).catch(()=>{});
+    else if(navigator.clipboard)navigator.clipboard.writeText(url).then(()=>{b.textContent=T('common.link_copied');setTimeout(()=>{b.textContent=T('run.share_button');},2200);}).catch(()=>{});return;}
   if(b.dataset.fly){if(flying){stopFly();return;}const pr=runProfile(b.dataset.fly);if(!pr)return;if(view!=='3d')setView('3d',false);if(!v3)return;
-    flying=true;b.textContent='עצירה';b.setAttribute('aria-pressed','true');
+    flying=true;b.textContent=T('run.fly_stop');b.setAttribute('aria-pressed','true');
     const p_=byKey[b.dataset.fly];flyHud(true,dispName(p_)||b.dataset.fly);flyHudAt(pr.S[0]);
     // the map is above the panel on the phone: bring it into view so the flight is seen
     const r=document.querySelector('.mapwrap').getBoundingClientRect();if(r.top<-4||r.bottom>innerHeight+4)scrollTo({top:Math.max(0,r.top+scrollY-8),behavior:'smooth'});
-    v3.flyAlong(pr.S.map(q=>[q.x,q.y]),()=>{flying=false;flyHud(false);const bb=panel.querySelector('[data-fly]');if(bb){bb.textContent='טיסה במורד המסלול';bb.setAttribute('aria-pressed','false');}});return;}
+    v3.flyAlong(pr.S.map(q=>[q.x,q.y]),()=>{flying=false;flyHud(false);const bb=panel.querySelector('[data-fly]');if(bb){bb.textContent=T('run.fly_button');bb.setAttribute('aria-pressed','false');}});return;}
   if(b.dataset.back!==undefined){overview();if(location.hash!=='#map')history.pushState(null,'','#map');return;}
   if(b.dataset.filter){const k=b.dataset.filter;hidden.has(k)?hidden.delete(k):hidden.add(k);b.setAttribute('aria-pressed',!hidden.has(k));applyFilters();return;}
   if(b.dataset.vid){const w=document.createElement('div');w.className='vframe';const f=document.createElement('iframe');
-    f.src='https://www.youtube-nocookie.com/embed/'+b.dataset.vid+'?autoplay=1&rel=0';f.title=b.dataset.title||'סרטון';f.allow='autoplay; encrypted-media; picture-in-picture; fullscreen';f.allowFullscreen=true;f.referrerPolicy='strict-origin-when-cross-origin';
+    f.src='https://www.youtube-nocookie.com/embed/'+b.dataset.vid+'?autoplay=1&rel=0';f.title=b.dataset.title||T('run.video_iframe_title');f.allow='autoplay; encrypted-media; picture-in-picture; fullscreen';f.allowFullscreen=true;f.referrerPolicy='strict-origin-when-cross-origin';
     w.appendChild(f);b.replaceWith(w);return;}
   if(b.dataset.goto){select(b.dataset.goto,{zoom:true});panel.scrollTop=0;if(matchMedia('(max-width:760px)').matches)panel.scrollIntoView({block:'start'});return;}
   if(b.dataset.lift){const l=D.lifts.find(x=>x.id===+b.dataset.lift);showLift(+b.dataset.lift);if(l){if(view==='3d')v3.focusLift(l.id);else if(isKobiL(l))openInset();else focusOn([l.g]);}return;}
@@ -509,7 +533,7 @@ const DN=(function(){
   const hex=c=>[1,3,5].map(i=>parseInt(c.slice(i,i+2),16));
   const mix=(a,b,t)=>'#'+hex(a).map((v,i)=>Math.round(v+(hex(b)[i]-v)*t).toString(16).padStart(2,'0')).join('');
   const lerp=(a,b,t)=>a+(b-a)*t;
-  const MODES=['auto','day','night'],LBL={auto:'אוטומטי',day:'יום',night:'לילה'};
+  const MODES=['auto','day','night'],LBL={auto:T('daynight.mode_auto'),day:T('daynight.mode_day'),night:T('daynight.mode_night')};
   let mode='auto';try{const m=localStorage.getItem('gud-daynight');if(MODES.includes(m))mode=m;}catch(e){}
   const sky=document.getElementById('homeSky'),pano=document.getElementById('pano'),root=document.documentElement;
   // stars and snowflakes: fixed positions, so the sky looks the same on every visit
@@ -538,7 +562,7 @@ const DN=(function(){
     const K=keys(t);let i=0;while(i<K.length-2&&K[i+1].h<h)i++;
     const a=K[i],b=K[i+1],f=Math.min(1,Math.max(0,(h-a.h)/((b.h-a.h)||1)));
     const dark=mode==='night'||(mode==='auto'&&(h<t.rise-.3||h>t.set+.3));
-    const phase=dark?(h>t.set&&h<t.set+1.3?'דמדומים':'לילה'):h<t.rise+.8?'זריחה':h<t.set-2?'יום':h<t.set-.6?'שעת זהב':'שקיעה';
+    const phase=T('daynight.phase_'+(dark?(h>t.set&&h<t.set+1.3?'twilight':'night'):h<t.rise+.8?'sunrise':h<t.set-2?'day':h<t.set-.6?'golden_hour':'sunset'));
     return {a,b,f,dark,now,h,g,phase,morning:h<t.noon};
   }
   function paint(anim){
@@ -547,9 +571,9 @@ const DN=(function(){
     const hh=Math.floor(s.now),mm=Math.floor((s.now-hh)*60);
     document.querySelectorAll('[data-dn-clock]').forEach(e=>e.textContent=String(hh).padStart(2,'0')+':'+String(mm).padStart(2,'0'));
     document.querySelectorAll('[data-dn]').forEach(bt=>{bt.dataset.mode=mode;const nx=MODES[(MODES.indexOf(mode)+1)%3];
-      bt.setAttribute('aria-label',`מצב תצוגה: ${LBL[mode]}. לחיצה עוברת ל${LBL[nx]}`);bt.title=bt.getAttribute('aria-label');});
+      bt.setAttribute('aria-label',T('daynight.button_aria',{mode:LBL[mode],next:LBL[nx]}));bt.title=bt.getAttribute('aria-label');});
     document.querySelectorAll('[data-dn-lbl]').forEach(e=>e.textContent=LBL[mode]);
-    document.querySelectorAll('[data-days-word]').forEach(e=>e.textContent=s.dark?'לילות':'ימים');
+    countdown(s.dark);
     if(typeof v3!=='undefined'&&v3){v3.setTheme(s.dark);const p=GudRelief.sun(s.g,s.h);v3.setLight({alt:p.alt,az:p.az,dark:s.dark,sky:[mix(a.sky[0],b.sky[0],f),mix(a.sky[1],b.sky[1],f)]});}
     if(!variant)return;
     sky.style.setProperty('--sky-top',mix(a.sky[0],b.sky[0],f));sky.style.setProperty('--sky-bot',mix(a.sky[1],b.sky[1],f));
@@ -592,15 +616,15 @@ const MEET=(function(){
       if(near){near.ends.push({l,end});return;}
       st.push({id:l.id+end,x:q[0],y:q[1],h:TM?Math.round(TM.elev(q[0],q[1])):null,ends:[{l,end}]});});
   });
-  st.forEach(s=>{const b=s.ends.filter(e=>e.end==='b'),t=s.ends.filter(e=>e.end==='t'),n=a=>a.map(e=>e.l.name).join(' ו-');
+  st.forEach(s=>{const b=s.ends.filter(e=>e.end==='b'),t=s.ends.filter(e=>e.end==='t'),n=a=>a.map(e=>e.l.name).join(T('meet.lift_names_join'));
     s.name=(b[0]||t[0]).l.name;
-    s.where=[b.length?`התחנה התחתונה של ${n(b)}`:'',t.length?`התחנה העליונה של ${n(t)}`:''].filter(Boolean).join(', ');});
+    s.where=[b.length?T('meet.where_bottom_station',{lifts:n(b)}):'',t.length?T('meet.where_top_station',{lifts:n(t)}):''].filter(Boolean).join(', ');});
   const byId=Object.fromEntries(st.map(s=>[s.id,s]));
   const find=name=>(end)=>st.find(s=>s.ends.some(e=>e.l.name===name&&e.end===end));
   // ski days of the trip (11 to 14 January), and suggested fixed spots for the group
-  const DAYS=[['2027-01-11','ב׳ 11.1'],['2027-01-12','ג׳ 12.1'],['2027-01-13','ד׳ 13.1'],['2027-01-14','ה׳ 14.1']];
+  const DAYS=[['2027-01-11',T('meet.day_mon_11')],['2027-01-12',T('meet.day_tue_12')],['2027-01-13',T('meet.day_wed_13')],['2027-01-14',T('meet.day_thu_14')]];
   const TIMES=['09:30','11:00','12:30','13:30','15:00','16:30'];
-  const PRE=[['am','רכבל הבוקר',find('Goodaura')('b'),'09:30'],['noon','צהריים',find('Goodaura')('t'),'13:00'],['pm','סוף יום',find('New Goodaura')('b'),'16:30']].filter(p=>p[2]);
+  const PRE=[['am',T('meet.preset_morning_lift'),find('Goodaura')('b'),'09:30'],['noon',T('meet.preset_noon'),find('Goodaura')('t'),'13:00'],['pm',T('meet.preset_end_of_day'),find('New Goodaura')('b'),'16:30']].filter(p=>p[2]);
   // nothing is picked at first (Pini, round 8): the map asks where to meet, and the card waits
   const S={sid:'',time:'12:30',day:DAYS[0][0],preset:''};
   // map
@@ -663,9 +687,9 @@ const MEET=(function(){
   new ResizeObserver(()=>{if(!document.getElementById('meetPage').hidden)applyVB();}).observe(svgM);
   // controls
   const ui=document.getElementById('meetUI');
-  ui.querySelector('[data-days]').innerHTML=DAYS.map(([v,l])=>`<button type="button" data-day="${v}">${l}</button>`).join('');
+  ui.querySelector('[data-days]').innerHTML=DAYS.map(([v,l])=>`<button type="button" data-day="${v}">${esc(l)}</button>`).join('');
   ui.querySelector('[data-times]').innerHTML=TIMES.map(t=>`<button type="button" class="num" data-time="${t}">${t}</button>`).join('');
-  ui.querySelector('[data-pre]').innerHTML=PRE.map(([k,l,s,t],i)=>`<button type="button" class="mp-sign mp-${k}" data-pre="${k}"><b>${l}</b><span dir="ltr">${esc(s.name)} ${t}</span></button>`).join('');
+  ui.querySelector('[data-pre]').innerHTML=PRE.map(([k,l,s,t],i)=>`<button type="button" class="mp-sign mp-${k}" data-pre="${k}"><b>${esc(l)}</b><span dir="ltr">${esc(s.name)} ${t}</span></button>`).join('');
   ui.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;
     if(b.dataset.day){S.day=b.dataset.day;S.preset='';render();}
     else if(b.dataset.time){S.time=b.dataset.time;S.preset='';ui.querySelector('#meetTime').value=S.time;render();}
@@ -677,18 +701,18 @@ const MEET=(function(){
   function routes(s){const out=[];
     s.ends.forEach(({l,end})=>{
       if(end==='b')D.pistes.filter(p=>p.named&&p.toLifts.includes(l.name)).forEach(p=>{const pr=p.fromPistes.map(k=>byKey[k]).find(x=>x&&x.named&&x.key!==p.key);
-        out.push({from:pr?`מ-${pr.key}`:`מראש ${p.key}`,html:[pr?chip(pr):'',chip(p),dot].filter(Boolean).join(sep)});});
-      else out.push({from:`מהתחנה התחתונה של ${l.name}`,html:[liftChip(l.name),dot].join(sep)});});
+        out.push({from:pr?T('meet.route_from_run',{run:pr.key}):T('meet.route_from_top_of',{run:p.key}),html:[pr?chip(pr):'',chip(p),dot].filter(Boolean).join(sep)});});
+      else out.push({from:T('meet.route_from_bottom_station',{lift:l.name}),html:[liftChip(l.name),dot].join(sep)});});
     return out.filter((r,i)=>out.findIndex(q=>q.html===r.html)===i).slice(0,4);}
   const pad=n=>String(n).padStart(2,'0');
   function link(){return location.origin+location.pathname+`#meet/${S.sid}/${S.time.replace(':','')}/${S.day.replace(/-/g,'')}`;}
   function dayLbl(){return (DAYS.find(d=>d[0]===S.day)||[0,S.day.split('-').reverse().join('.')])[1];}
-  function message(){const s=byId[S.sid];return `נפגשים ב-${s.name} ביום ${dayLbl()} בשעה ${S.time}.\n${s.where}${s.h?`, ${s.h.toLocaleString('en-US')} מ׳`:''}.\nעל המפה: ${link()}`;}
+  function message(){const s=byId[S.sid];return T('meet.share_message',{place:s.name,day:dayLbl(),time:S.time,where:s.where,alt:s.h?T('meet.share_alt_suffix',{n:s.h.toLocaleString('en-US')}):'',link:link()});}
   function countdown(){ // in Gudauri time (UTC+4)
     const [y,mo,d]=S.day.split('-').map(Number),[hh,mm]=S.time.split(':').map(Number);
     const t=Date.UTC(y,mo-1,d,hh-4,mm),diff=(t-Date.now())/6e4;
-    if(diff<0)return ['','כבר עבר',''];if(diff<24*60)return diff<60?['עוד',Math.round(diff),'דקות למפגש']:['עוד',Math.floor(diff/60)+':'+pad(Math.round(diff%60)),'שעות למפגש'];
-    return ['עוד',Math.ceil(diff/1440),'ימים למפגש'];}
+    if(diff<0)return ['',T('meet.countdown_passed'),''];if(diff<24*60)return diff<60?slots('meet.countdown_minutes',{n:Math.round(diff)}):slots('meet.countdown_hours',{hm:Math.floor(diff/60)+':'+pad(Math.round(diff%60))});
+    return slots('meet.countdown_days',{n:Math.ceil(diff/1440)});}
   function render(){
     const s=byId[S.sid],none=!s;applyVB();
     // the empty state, and everything that only makes sense once a spot is picked
@@ -696,21 +720,21 @@ const MEET=(function(){
     document.getElementById('meetEmpty').hidden=!none;document.getElementById('meetCard').hidden=none;document.getElementById('meetCardX').hidden=none;
     document.getElementById('meetRoutesSec').hidden=none;document.getElementById('meetShareBox').hidden=none;
     const hint=document.getElementById('meetHint');hint.classList.toggle('ask',none);
-    hint.textContent=none?`איפה נפגשים? לחצו על אחת מ-${st.length} התחנות`:'לחיצה על שטח ריק במפה, או שוב על הסיכה, מבטלת את הבחירה';
+    hint.textContent=none?T('meet.hint_pick',{n:st.length}):T('meet.hint_clear');
     if(none){ui.querySelectorAll('[data-pre]').forEach(b=>b.setAttribute('aria-pressed','false'));
       ui.querySelectorAll('[data-day]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.day===S.day)));
       ui.querySelectorAll('[data-time]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.time===S.time)));
       if(location.hash.startsWith('#meet')&&location.hash!=='#meet')history.replaceState(null,'','#meet');return;}
-    const c=document.getElementById('meetCallout');c.querySelector('b').textContent=s.name;c.querySelector('.mc-alt').textContent=s.h?s.h.toLocaleString('en-US')+' מ׳':'';c.querySelector('.mc-where').textContent=s.where;
+    const c=document.getElementById('meetCallout');c.querySelector('b').textContent=s.name;c.querySelector('.mc-alt').textContent=s.h?T('common.unit_m',{n:s.h.toLocaleString('en-US')}):'';c.querySelector('.mc-where').textContent=s.where;
     ui.querySelectorAll('[data-day]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.day===S.day)));
     ui.querySelectorAll('[data-time]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.time===S.time)));
     ui.querySelectorAll('[data-pre]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.pre===S.preset)));
     const card=document.getElementById('meetCard'),[c1,c2,c3]=countdown();
     card.querySelector('[data-f="name"]').textContent=s.name;card.querySelector('[data-f="time"]').textContent=S.time;
-    card.querySelector('[data-f="where"]').textContent=s.where;card.querySelector('[data-f="alt"]').textContent=s.h?s.h.toLocaleString('en-US')+' מ׳':'—';
+    card.querySelector('[data-f="where"]').textContent=s.where;card.querySelector('[data-f="alt"]').textContent=s.h?T('common.unit_m',{n:s.h.toLocaleString('en-US')}):'—';
     card.querySelector('[data-f="day"]').textContent=dayLbl();
     card.querySelector('[data-f="c1"]').textContent=c1;card.querySelector('[data-f="c2"]').textContent=c2;card.querySelector('[data-f="c3"]').textContent=c3;
-    const R=routes(s);document.getElementById('meetRoutes').innerHTML=R.length?R.map(r=>`<li><small>${esc(r.from)}</small><div class="rt">${r.html}</div></li>`).join(''):'<li class="hint">אין בנתונים מסלול שמגיע לכאן.</li>';
+    const R=routes(s);document.getElementById('meetRoutes').innerHTML=R.length?R.map(r=>`<li><small>${esc(r.from)}</small><div class="rt">${r.html}</div></li>`).join(''):`<li class="hint">${E('meet.routes_empty')}</li>`;
     document.getElementById('meetWa').href='https://wa.me/?text='+encodeURIComponent(message());
     const want=`#meet/${S.sid}/${S.time.replace(':','')}/${S.day.replace(/-/g,'')}`;if(location.hash.startsWith('#meet')&&location.hash!==want)history.replaceState(null,'',want);
   }
@@ -739,17 +763,17 @@ const MEET=(function(){
     x.fillStyle='#1F5FC4';x.beginPath();x.moveTo(60,H-170);x.lineTo(110,H-270);x.lineTo(60+nw,H-270);x.lineTo(60+nw,H-70);x.lineTo(110,H-70);x.closePath();x.fill();
     x.fillStyle='#fff';x.font=`700 ${fs}px ${DISP}`;x.fillText(s.name,130,H-112);
     x.fillStyle='#F4B942';x.fillRect(W-60-tw,H-270,tw,200);fit(S.time,tw-40,150);x.fillStyle='#13233A';x.textAlign='center';x.fillText(S.time,W-60-tw/2,H-112);
-    x.direction='rtl';x.textAlign='right';x.fillStyle='#fff';x.font=`600 40px ${BODY}`;x.fillText('כרטיס מפגש · '+dayLbl(),W-60,H-330);
-    x.fillStyle='#13233A';x.fillRect(W-420,40,360,70);x.fillStyle='#fff';x.font=`700 34px ${BODY}`;x.fillText('גודאורי 2027',W-90,88);
+    x.direction=I18N.ltr?'ltr':'rtl';x.textAlign='right';x.fillStyle='#fff';x.font=`600 40px ${BODY}`;x.fillText(T('meet.share_image_card_label',{day:dayLbl()}),W-60,H-330);
+    x.fillStyle='#13233A';x.fillRect(W-420,40,360,70);x.fillStyle='#fff';x.font=`700 34px ${BODY}`;x.fillText(T('common.site_name'),W-90,88);
     return new Promise(r=>cv.toBlob(r,'image/png'));
   }
   document.getElementById('meetShare').addEventListener('click',async e=>{const b=e.currentTarget,s=byId[S.sid];
     try{const blob=await image(),file=new File([blob],'meet.png',{type:'image/png'});
-      if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],text:message(),title:'נקודת מפגש: '+s.name});return;}
-      if(navigator.share){await navigator.share({text:message(),title:'נקודת מפגש: '+s.name});return;}
+      if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],text:message(),title:T('meet.share_title',{place:s.name})});return;}
+      if(navigator.share){await navigator.share({text:message(),title:T('meet.share_title',{place:s.name})});return;}
       const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='meet-'+s.name.replace(/\W+/g,'-')+'.png';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),4000);
     }catch(err){}});
-  document.getElementById('meetCopy').addEventListener('click',e=>{const b=e.currentTarget;if(!navigator.clipboard)return;navigator.clipboard.writeText(link()).then(()=>{b.textContent='הקישור הועתק';setTimeout(()=>{b.textContent='העתקת הקישור';},2200);}).catch(()=>{});});
+  document.getElementById('meetCopy').addEventListener('click',e=>{const b=e.currentTarget;if(!navigator.clipboard)return;navigator.clipboard.writeText(link()).then(()=>{b.textContent=T('common.link_copied');setTimeout(()=>{b.textContent=T('meet.copy_link');},2200);}).catch(()=>{});});
   document.getElementById('meetOnMap').addEventListener('click',()=>{const s=byId[S.sid];location.hash='#map';requestAnimationFrame(()=>requestAnimationFrame(()=>{showLift(s.ends[0].l.id);if(view==='3d'&&v3)v3.focusLift(s.ends[0].l.id);else focusOn([s.ends[0].l.g]);}));});
   let shown=false;
   function open(arg){ // arg: "<station>/<HHMM>/<YYYYMMDD>" from a shared link, or empty
@@ -785,24 +809,24 @@ const LSTAT=(function(){
   const isOpen=n=>fresh()&&data.lifts&&data.lifts[n]?!!data.lifts[n].open:null;
   const runOpen=p=>{if(!fresh())return null;const r=data.pistes&&data.pistes[p.key];if(r&&!r.open)return false;
     const up=p.fromLifts.filter(n=>data.lifts&&data.lifts[n]);return up.length?up.some(n=>data.lifts[n].open):(r?!!r.open:null);}; // open for me: the run and a lift up to it
-  const REASON={wind:'רוח',weather:'מזג אוויר',maintenance:'תחזוקה',season:'מחוץ לעונה'};
-  const ago=t=>{const m=Math.round((Date.now()-Date.parse(t))/6e4);return m<1?'עכשיו':m<60?`לפני ${m} דק׳`:`לפני ${Math.round(m/60)} שע׳`;};
+  const REASON=Object.fromEntries(['wind','weather','maintenance','season'].map(k=>[k,T('status.reason_'+k)]));
+  const ago=t=>{const m=Math.round((Date.now()-Date.parse(t))/6e4);return m<1?T('status.ago_now'):m<60?T('status.ago_minutes',{n:m}):T('status.ago_hours',{n:Math.round(m/60)});};
   function block(){
     if(!fresh()){const season=[11,0,1,2,3].includes(new Date().getMonth());
-      return `<section class="lstat" aria-label="מצב הרכבלים"><h3>${season?'אין מידע עדכני':'ההר עוד ישן'}</h3>
-      <p class="lead">${season?'כרגע אין דיווח עדכני מ-MTA על הרכבלים. המפה מוצגת כרגיל.':'עוד אין דיווח על רכבלים. העונה בגודאורי נפתחת בדרך כלל בדצמבר, ואז השלטים יתנקו מהשלג.'}</p>
+      return `<section class="lstat" aria-label="${E('status.heading_lift_status')}"><h3>${E(season?'status.no_recent_data':'status.mountain_asleep')}</h3>
+      <p class="lead">${E(season?'status.lead_in_season':'status.lead_off_season')}</p>
       <div class="lstat-post">${names.slice(0,6).map((n,i)=>`<div class="lsign s${i%2}"><div class="ls-face"><b dir="ltr">${esc(n)}</b><span>?</span></div>${snowCap(i,300)}</div>`).join('')}</div>
-      <p class="hint"><b>לא מנחשים מצב:</b> כשאין דיווח עדכני, כתוב כאן שאין.</p></section>`;}
+      <p class="hint"><b>${E('status.no_guessing_bold')}</b> ${E('status.no_guessing_text')}</p></section>`;}
     const open=names.filter(n=>isOpen(n)).length;
     let prev=null;try{prev=JSON.parse(localStorage.getItem('gud-lstat')||'null');}catch(e){}
-    const changes=prev?names.filter(n=>prev[n]!==undefined&&prev[n]!==isOpen(n)).map(n=>`${n} ${isOpen(n)?'נפתח':'נסגר'} מאז שבדקת`):[];
+    const changes=prev?names.filter(n=>prev[n]!==undefined&&prev[n]!==isOpen(n)).map(n=>T(isOpen(n)?'status.change_opened':'status.change_closed',{lift:n})):[];
     try{localStorage.setItem('gud-lstat',JSON.stringify(Object.fromEntries(names.map(n=>[n,isOpen(n)]))));}catch(e){}
-    return `<section class="lstat" aria-label="מצב הרכבלים"><h3>מצב הרכבלים</h3>
+    return `<section class="lstat" aria-label="${E('status.heading_lift_status')}"><h3>${E('status.heading_lift_status')}</h3>
       ${changes.length?`<ul class="lstat-changes">${changes.map(c=>`<li>${esc(c)}</li>`).join('')}</ul>`:''}
-      <div class="board-dep" role="table" aria-label="רכבלים"><div class="bd-row bd-head" role="row"><span role="columnheader">רכבל</span><span role="columnheader">מצב</span><span role="columnheader">הערה</span></div>
-      ${names.map((n,i)=>{const o=isOpen(n),r=data.lifts[n]&&data.lifts[n].reason;return `<div class="bd-row" role="row" style="--i:${i}"><span role="cell" dir="ltr">${esc(n)}</span><span role="cell" class="${o?'bd-open':o===false?'bd-closed':''}">${o?'פתוח':o===false?'סגור':'—'}</span><span role="cell">${r?esc(REASON[r]||r):''}</span></div>`;}).join('')}</div>
-      <button type="button" class="fchip lstat-me" data-forme aria-pressed="${forMe}">רק מה שפתוח בשבילי</button>
-      <p class="hint">מקור: דף הסטטוס של MTA. מסלול מסומן פתוח רק אם גם רכבל שמגיע לראשו פתוח. ${open} מתוך ${names.length} רכבלים פתוחים.</p></section>`;
+      <div class="board-dep" role="table" aria-label="${E('status.board_aria')}"><div class="bd-row bd-head" role="row"><span role="columnheader">${E('status.board_col_lift')}</span><span role="columnheader">${E('status.board_col_state')}</span><span role="columnheader">${E('status.board_col_note')}</span></div>
+      ${names.map((n,i)=>{const o=isOpen(n),r=data.lifts[n]&&data.lifts[n].reason;return `<div class="bd-row" role="row" style="--i:${i}"><span role="cell" dir="ltr">${esc(n)}</span><span role="cell" class="${o?'bd-open':o===false?'bd-closed':''}">${o?E('status.lift_open'):o===false?E('status.lift_closed'):'—'}</span><span role="cell">${r?esc(REASON[r]||r):''}</span></div>`;}).join('')}</div>
+      <button type="button" class="fchip lstat-me" data-forme aria-pressed="${forMe}">${E('status.only_open_for_me')}</button>
+      <p class="hint">${E('status.board_hint',{open,total:names.length})}</p></section>`;
   }
   // the map: closed lifts grey and dashed, chairs moving on open ones, and "only what's open for me"
   const gChairs=mk('g',{class:'chairs','aria-hidden':'true'});svg.insertBefore(gChairs,mainLbl);
@@ -810,10 +834,10 @@ const LSTAT=(function(){
     const bar=document.getElementById('mstat');
     gChairs.innerHTML='';svg.classList.toggle('forme',forMe&&fresh());
     svg.querySelectorAll('g.lg[data-lid]').forEach(g=>g.classList.remove('closed'));
-    if(!fresh()){bar.innerHTML=`<span class="ms-dot"></span>${data?'אין מידע עדכני על הרכבלים':'עוד אין מידע על הרכבלים'}`;bar.dataset.state='none';
+    if(!fresh()){bar.innerHTML=`<span class="ms-dot"></span>${E(data?'status.bar_no_recent':'status.bar_no_data_yet')}`;bar.dataset.state='none';
       D.pistes.forEach(p=>(pisteEls[p.key]||[]).forEach(e=>e.classList.remove('shut')));if(v3&&v3.liftState)v3.liftState(null);return;}
     const open=names.filter(n=>isOpen(n)).length;
-    bar.dataset.state='live';bar.innerHTML=`<span class="ms-dot"></span><b class="num">${open}</b> מתוך <b class="num">${names.length}</b> רכבלים פתוחים · עודכן ${ago(data.updated)}`;
+    bar.dataset.state='live';bar.innerHTML=`<span class="ms-dot"></span>${H('status.bar_summary',{ago:ago(data.updated)},{open:`<b class="num">${open}</b>`,total:`<b class="num">${names.length}</b>`})}`;
     mainLifts.forEach(l=>{const g=svg.querySelector(`g.lg[data-lid="${l.id}"]`);const o=l.name?isOpen(l.name):null;if(g)g.classList.toggle('closed',o===false);
       if(o&&!reduceMotion()){const d=pathD(l.g),len=l.len||1000,dur=Math.max(8,len/60);
         for(let k=0;k<3;k++){const c=mk('circle',{r:12,class:'chair'},gChairs);const am=mk('animateMotion',{dur:dur+'s',begin:`-${(dur*k/3).toFixed(1)}s`,repeatCount:'indefinite',path:d},c);}}});
@@ -834,12 +858,18 @@ const fmtDate=iso=>{const[y,m,d]=iso.split('-');return +d+'.'+ +m+'.'+y;};
 function renderTicket(){
   const o=TRIP&&TRIP.outbound||{},r=TRIP&&TRIP.return,members=TRIP&&TRIP.members||[];
   const short=iso=>{const[,m,d]=iso.split('-');return +d+'.'+ +m;};
+  const [skiPre,,skiPost]=slots('ticket.stub_ski_first',{n:4});
+  // trip.json is in Hebrew. Other languages name its cities, airline and baggage by stable codes when the strings file knows them.
+  const loc=(key,v)=>{if(I18N.lang==='he'||!v)return v;const w=T(key);return w===key?v:w;};
+  const airline=loc('ticket.airline_'+String(o.flight||'').split(' ')[0].toLowerCase(),TRIP&&TRIP.airline),baggage=loc('ticket.baggage_'+(TRIP&&TRIP.baggageKind||''),TRIP&&TRIP.baggage);
   const fill=(card,f)=>{
+    // the strip: "<airline> · boarding pass · outbound<note>", with the airline and the note in their own spans
+    card.querySelector('.bp-strip > span').innerHTML=H(card.dataset.leg==='ret'?'ticket.strip_return':'ticket.strip_out',{},{airline:'<span data-f="airline"></span>',note:'<span data-f="note"></span>'});
     card.querySelectorAll('[data-f]').forEach(el=>{
-      const k=el.dataset.f,v={airline:TRIP&&TRIP.airline,dateShort:f.date&&short(f.date),date:f.date&&fmtDate(f.date),pax:members.length?members.length+' החבר׳ה':'',
-        baggage:TRIP&&TRIP.baggage,pair:f.fromCode&&f.toCode?f.fromCode+' › '+f.toCode:'',note:f.departs&&+f.departs.split(':')[0]<6?' · בלילה':'',skiCount:skiCount,skiRange:sd?short(sd.from).split('.')[0]+'–'+short(sd.to):''}[k]??f[k];
-      if(k==='note'){el.textContent=v||'';return;}
-      el.textContent=v||(k==='from'?'מוצא':k==='to'?'יעד':'—');
+      const k=el.dataset.f,v={airline,from:loc('ticket.city_'+String(f.fromCode||'').toLowerCase(),f.from),to:loc('ticket.city_'+String(f.toCode||'').toLowerCase(),f.to),dateShort:f.date&&short(f.date),date:f.date&&fmtDate(f.date),pax:members.length?T('ticket.pax_crew',{n:members.length}):'',
+        baggage,pair:f.fromCode&&f.toCode?f.fromCode+' › '+f.toCode:'',note:f.departs&&+f.departs.split(':')[0]<6?T('ticket.note_overnight'):'',skiCount:skiCount,skiRange:sd?short(sd.from).split('.')[0]+'–'+short(sd.to):'',skiPre,skiPost}[k]??f[k];
+      if(k==='note'||k==='skiPre'||k==='skiPost'){el.textContent=v||'';return;}
+      el.textContent=v||(k==='from'?T('ticket.from_placeholder'):k==='to'?T('ticket.to_placeholder'):'—');
       if(k==='from'||k==='to')el.classList.toggle('ph',!v);
     });
   };
@@ -861,11 +891,11 @@ function renderTicket(){
   const paint=()=>document.querySelectorAll('[data-pref]').forEach(b=>b.setAttribute('aria-pressed',String(!!P[b.dataset.pref])));paint();
   document.querySelectorAll('[data-pref]').forEach(b=>b.addEventListener('click',()=>{const k=b.dataset.pref;window.setGudPref(k,!P[k]);paint();
     if(k==='haptics'&&P.haptics)try{navigator.vibrate&&navigator.vibrate(20);}catch(e){}
-    if(k==='sound'||k==='haptics')document.getElementById('abResetTxt').textContent='ההגדרה נשמרה. במשחק פתוח היא תחול בכניסה הבאה';}));
+    if(k==='sound'||k==='haptics')document.getElementById('abResetTxt').textContent=T('about.setting_saved');}));
   let armed=false;const r=document.getElementById('abReset'),rt=document.getElementById('abResetTxt');
-  r.addEventListener('click',()=>{if(!armed){armed=true;r.classList.add('armed');rt.textContent='בטוח? לחיצה נוספת מוחקת את כל השיאים';setTimeout(()=>{armed=false;r.classList.remove('armed');},4000);return;}
+  r.addEventListener('click',()=>{if(!armed){armed=true;r.classList.add('armed');rt.textContent=T('about.reset_confirm');setTimeout(()=>{armed=false;r.classList.remove('armed');},4000);return;}
     try{Object.keys(localStorage).filter(k=>(window.GUD_GAME_KEYS||[]).some(p=>k.startsWith(p))).forEach(k=>localStorage.removeItem(k));}catch(e){}
-    armed=false;r.classList.remove('armed');rt.textContent='השיאים נמחקו';});})();
+    armed=false;r.classList.remove('armed');rt.textContent=T('about.reset_done');});})();
 // the passes: tap the one behind to bring it forward, tap the stub to tear it off (it comes back)
 (function(){
   const stack=document.getElementById('bpStack');let busy=false,ac=null;const snd={};
@@ -898,12 +928,12 @@ function renderTicket(){
 renderTicket();
 route();
 overview();applyFilters();
-// קישור להורדת האפליקציה: מופיע רק אם הקובץ באמת קיים בשרת
+// the app download sign: shown only when the file really is on the server
 fetch('downloads/gudauri-2027.apk',{method:'HEAD'}).then(r=>{
   if(!r.ok||/text\/html/.test(r.headers.get('content-type')||''))return;
   const mb=+r.headers.get('content-length')/1048576;
-  document.getElementById('appMeta').textContent='להורדה'+(mb>0?' · '+mb.toFixed(mb<10?1:0)+' MB':'');
+  document.getElementById('appMeta').textContent=mb>0?T('home.app_download_meta_size',{size:mb.toFixed(mb<10?1:0)}):T('home.app_download');
   document.getElementById('appBoard').hidden=false;document.getElementById('appHow').hidden=false;document.getElementById('boardNext').hidden=true;
 }).catch(()=>{});
 document.getElementById('loading').hidden=true;
-})().catch(e=>{console.error(e);const l=document.getElementById('loading');l.hidden=false;l.textContent='שגיאה בטעינת האתר. נסו לרענן את הדף.';});
+})().catch(e=>{console.error(e);const l=document.getElementById('loading');l.hidden=false;l.textContent=typeof T==='function'?T('home.load_error'):'Error';});

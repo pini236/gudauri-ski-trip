@@ -1,5 +1,5 @@
-<title>שלג טרי</title>
-<meta name="description" content="נוגעים בשלג טרי, מיישרים אותו בחתול שלג, ומרסקים אגם קפוא">
+<title data-i18n="game.fresh.title">שלג טרי</title>
+<meta name="description" data-i18n-attr="content:game.fresh.meta_description" content="נוגעים בשלג טרי, מיישרים אותו בחתול שלג, ומרסקים אגם קפוא">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Karantina:wght@700&family=IBM+Plex+Sans+Hebrew:wght@400;600;700&display=swap">
 <style>
@@ -22,41 +22,45 @@ body{margin:0;background:#E8F0F8;color:var(--ink);font-family:var(--f-body);dire
 .stat b{display:block;font-family:var(--f-display);font-size:26px;line-height:1;font-variant-numeric:tabular-nums}
 .tip{position:fixed;left:50%;top:46%;transform:translate(-50%,-50%);background:rgba(19,35,58,.82);color:#fff;padding:10px 16px;font-weight:700;font-size:15px;text-align:center;pointer-events:none;transition:opacity .6s;max-width:80%}
 button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+html[dir=ltr] body{direction:ltr}
 </style>
-<canvas id="snow" aria-label="שלג טרי, לגעת בו"></canvas>
-<canvas id="lake" aria-label="אגם קפוא, לרסק אותו" hidden></canvas>
-<div class="top"><div class="title">שלג טרי<small id="kindTxt">אבקה של בוקר, מינוס 8</small></div><div class="stat" id="statBox"><b id="area">0%</b>עקבות</div></div>
-<div class="tip" id="tip">נוגעים בשלג. הצליל עולה 🔊</div>
+<canvas id="snow" aria-label="שלג טרי, לגעת בו" data-i18n-attr="aria-label:game.fresh.snow_canvas_label"></canvas>
+<canvas id="lake" aria-label="אגם קפוא, לרסק אותו" data-i18n-attr="aria-label:game.fresh.lake_canvas_label" hidden></canvas>
+<div class="top"><div class="title"><span data-i18n="game.fresh.title">שלג טרי</span><small id="kindTxt" data-i18n="game.fresh.kind_powder_desc">אבקה של בוקר, מינוס 8</small></div><div class="stat" id="statBox"><b id="area">0%</b><span id="statLbl" data-i18n="game.fresh.stat_tracks">עקבות</span></div></div>
+<div class="tip" id="tip" data-i18n="game.fresh.tip">נוגעים בשלג. הצליל עולה 🔊</div>
 <div class="bar">
   <div class="row kind" id="scenes" role="group" aria-label="איפה">
-    <button type="button" data-s="snow" aria-pressed="true">❄️ שלג</button>
-    <button type="button" data-s="lake" aria-pressed="false">🧊 אגם קפוא</button>
-    <button type="button" id="snd" aria-pressed="true" aria-label="צליל">🔊</button>
+    <button type="button" data-s="snow" aria-pressed="true" data-i18n="game.fresh.scene_snow">❄️ שלג</button>
+    <button type="button" data-s="lake" aria-pressed="false" data-i18n="game.fresh.scene_lake">🧊 אגם קפוא</button>
+    <button type="button" id="snd" aria-pressed="true" aria-label="צליל" data-i18n-attr="aria-label:game.fresh.sound">🔊</button>
   </div>
   <div class="row" id="lakeRow" hidden>
-    <button type="button" id="refreeze"><span class="i">🧊</span>קפיאה מחדש</button>
+    <button type="button" id="refreeze"><span class="i">🧊</span><span data-i18n="game.fresh.refreeze">קפיאה מחדש</span></button>
   </div>
-  <div class="row kind" id="kinds" role="group" aria-label="סוג השלג">
-    <button type="button" data-k="powder" aria-pressed="true">אבקה</button>
-    <button type="button" data-k="crust" aria-pressed="false">קרום קפוא</button>
-    <button type="button" data-k="wet" aria-pressed="false">שלג רטוב</button>
+  <div class="row kind" id="kinds" role="group" aria-label="סוג השלג" data-i18n-attr="aria-label:game.fresh.kinds_label">
+    <button type="button" data-k="powder" aria-pressed="true" data-i18n="game.fresh.kind_powder">אבקה</button>
+    <button type="button" data-k="crust" aria-pressed="false" data-i18n="game.fresh.kind_crust">קרום קפוא</button>
+    <button type="button" data-k="wet" aria-pressed="false" data-i18n="game.fresh.kind_wet">שלג רטוב</button>
   </div>
-  <div class="row" id="tools" role="group" aria-label="במה נוגעים">
-    <button type="button" data-t="hand" aria-pressed="true"><span class="i">☝️</span>אצבע</button>
-    <button type="button" data-t="boot" aria-pressed="false"><span class="i">🥾</span>מגף</button>
-    <button type="button" data-t="ski" aria-pressed="false"><span class="i">🎿</span>מגלשיים</button>
-    <button type="button" data-t="ball" aria-pressed="false"><span class="i">⚪</span>כדור</button>
-    <button type="button" data-t="cat" aria-pressed="false"><span class="i">🚜</span>חתול שלג</button>
-    <button type="button" id="fresh"><span class="i">❄️</span>שלג חדש</button>
+  <div class="row" id="tools" role="group" aria-label="במה נוגעים" data-i18n-attr="aria-label:game.fresh.tools_label">
+    <button type="button" data-t="hand" aria-pressed="true"><span class="i">☝️</span><span data-i18n="game.fresh.tool_hand">אצבע</span></button>
+    <button type="button" data-t="boot" aria-pressed="false"><span class="i">🥾</span><span data-i18n="game.fresh.tool_boot">מגף</span></button>
+    <button type="button" data-t="ski" aria-pressed="false"><span class="i">🎿</span><span data-i18n="game.fresh.tool_ski">מגלשיים</span></button>
+    <button type="button" data-t="ball" aria-pressed="false"><span class="i">⚪</span><span data-i18n="game.fresh.tool_ball">כדור</span></button>
+    <button type="button" data-t="cat" aria-pressed="false"><span class="i">🚜</span><span data-i18n="game.fresh.tool_cat">חתול שלג</span></button>
+    <button type="button" id="fresh"><span class="i">❄️</span><span data-i18n="game.fresh.new_snow">שלג חדש</span></button>
   </div>
 </div>
 <script>
 const $=id=>document.getElementById(id);
+const L=window.L||((k,he,v)=>he.replace(/\{(\w+)\}/g,(m,x)=>v&&x in v?v[x]:m));
+// the group of scene buttons keeps its Hebrew label in the markup (tools/build-games.py finds the page by it)
+(window.I18N?I18N.ready:Promise.resolve()).then(()=>$('scenes').setAttribute('aria-label',L('game.fresh.scenes_label','איפה')));
 const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
 const KINDS={
-  powder:{txt:'אבקה של בוקר, מינוס 8', depth:1.0, berm:.35, rough:.12, soft:1.0},
-  crust:{txt:'קרום קפוא אחרי לילה קר', depth:.75, berm:.15, rough:.5, soft:.25},
-  wet:{txt:'שלג רטוב של צהריים, אפס מעלות', depth:.6, berm:.55, rough:.03, soft:.5}};
+  powder:{txt:()=>L('game.fresh.kind_powder_desc','אבקה של בוקר, מינוס 8'), depth:1.0, berm:.35, rough:.12, soft:1.0},
+  crust:{txt:()=>L('game.fresh.kind_crust_desc','קרום קפוא אחרי לילה קר'), depth:.75, berm:.15, rough:.5, soft:.25},
+  wet:{txt:()=>L('game.fresh.kind_wet_desc','שלג רטוב של צהריים, אפס מעלות'), depth:.6, berm:.55, rough:.03, soft:.5}};
 let kind='powder', tool='hand', soundOn=true;
 /* ---------- the snow: a height field, a cell every 3 px, lit by a low sun from the top left ---------- */
 const CELL=3, cv=$('snow'), cx=cv.getContext('2d');
@@ -151,7 +155,7 @@ function swap(id){ const f=fingers.get(id); last=f.last; acc=f.acc??99; }
 function unswap(id){ const f=fingers.get(id); if(f){ f.last=last; f.acc=acc; } }
 /* ---------- buttons ---------- */
 $('tools').addEventListener('click',e=>{ const b=e.target.closest('[data-t]'); if(!b) return; tool=b.dataset.t; document.querySelectorAll('[data-t]').forEach(x=>x.setAttribute('aria-pressed',x===b)); });
-$('kinds').addEventListener('click',e=>{ const b=e.target.closest('[data-k]'); if(!b) return; kind=b.dataset.k; document.querySelectorAll('[data-k]').forEach(x=>x.setAttribute('aria-pressed',x===b)); $('kindTxt').textContent=KINDS[kind].txt; freshSnow(true); });
+$('kinds').addEventListener('click',e=>{ const b=e.target.closest('[data-k]'); if(!b) return; kind=b.dataset.k; document.querySelectorAll('[data-k]').forEach(x=>x.setAttribute('aria-pressed',x===b)); $('kindTxt').textContent=KINDS[kind].txt(); freshSnow(true); });
 $('snd').onclick=()=>{ soundOn=!soundOn; $('snd').setAttribute('aria-pressed',soundOn); $('snd').textContent=soundOn?'🔊':'🔇'; };
 // fresh snow falls and slowly fills every track back in
 let falling=0, flakes=[];
@@ -217,7 +221,7 @@ function breakCell(c,depth){ if(c.broken) return; c.broken=true; broken++;
   shards.push({spr,x:bx,y:by,w:bw,h:bh,t:0,rot:(Math.random()-.5)*.35,tilt:Math.random()<.5?1:-1});
   ripples.push({x:c.x,y:c.y,r:4,a:.6}); for(let i=0;i<10;i++) chips.push({x:c.x+(Math.random()-.5)*bw*.5,y:c.y+(Math.random()-.5)*bh*.5,vx:(Math.random()-.5)*120,vy:-40-Math.random()*100,life:.6,r:1.5+Math.random()*2.5,water:Math.random()<.5});
   chain = chainT>0 ? chain+1 : 1; chainT=.5; if(chain>bestChain){ bestChain=chain; try{ localStorage.setItem('lake-best',bestChain); }catch(_){} }
-  if(chain>=3) bigText('שרשרת ×'+chain);
+  if(chain>=3) bigText(L('game.fresh.chain','שרשרת ×{n}',{n:chain}));
   breakSound(depth); lakeStat();
   // weakened neighbours follow: the satisfying collapse
   for(const k of c.nb){ const nb=cells[k]; if(!nb.broken && nb.hp<.55) setTimeout(()=>breakCell(nb,depth+1),70+Math.random()*90); } }
@@ -254,7 +258,7 @@ function lakeFrame(dt){ const W=lk.width, H=lk.height; chainT=Math.max(0,chainT-
 /* switching between the snow and the lake */
 $('scenes').addEventListener('click',e=>{ const b=e.target.closest('[data-s]'); if(!b) return; scene=b.dataset.s; document.querySelectorAll('[data-s]').forEach(x=>x.setAttribute('aria-pressed',x===b));
   const lake=scene==='lake'; lk.hidden=!lake; cv.hidden=lake; $('kinds').hidden=lake; $('tools').hidden=lake; $('lakeRow').hidden=!lake;
-  $('kindTxt').textContent= lake ? 'אגם קפוא ליד הכפר. נוגעים כדי לרסק' : KINDS[kind].txt; $('statBox').lastChild.textContent= lake ? 'שבור' : 'עקבות';
+  $('kindTxt').textContent= lake ? L('game.fresh.lake_desc','אגם קפוא ליד הכפר. נוגעים כדי לרסק') : KINDS[kind].txt(); $('statLbl').textContent= lake ? L('game.fresh.stat_broken','שבור') : L('game.fresh.stat_tracks','עקבות');
   if(lake && !cells.length) initLake(); if(lake) lakeStat(); else dirty=true; });
 $('refreeze').onclick=()=>{ initLake(); refreezeT=1; const a=ac(); if(a) grain(a.currentTime,.6,.12,'highpass',6000,.5); };
 addEventListener('resize',()=>{ if(scene==='lake') initLake(); else cells=[]; });

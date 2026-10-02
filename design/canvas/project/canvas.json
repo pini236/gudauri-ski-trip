@@ -762,6 +762,38 @@
       "h": 800,
       "page": "round10p",
       "title": "גופנים לרוסית ולגאורגית"
+    },
+    "LP1-HomeBottom.dc.html": {
+      "x": 0,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "page": "round11",
+      "title": "בורר בתחתית דף הבית"
+    },
+    "LP2-HomeBottomEn.dc.html": {
+      "x": 470,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "page": "round11",
+      "title": "אותו בורר באנגלית"
+    },
+    "LP3-Settings.dc.html": {
+      "x": 940,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "page": "round11",
+      "title": "שורה בהגדרות, עם רשימה"
+    },
+    "LP4-TopBar.dc.html": {
+      "x": 1410,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "page": "round11",
+      "title": "קוד קצר בסרגל העליון"
     }
   },
   "createdOnFiles": {
@@ -771,7 +803,7 @@
   "designSystems": [],
   "launch": {
     "view": "canvas",
-    "page": "round10"
+    "page": "round11"
   },
   "notes": {
     "featRow1": {
@@ -1025,6 +1057,15 @@
       "w": 240,
       "x": 0,
       "y": 4200
+    },
+    "round11row0": {
+      "kind": "title1",
+      "maxW": 1800,
+      "page": "round11",
+      "w": 240,
+      "x": 0,
+      "y": -300,
+      "text": "בורר שפה גלוי: איפה? ההמלצה: LP1 ו-LP3 ביחד (בתחתית דף הבית ובהגדרות). LP4 הכי גלוי אבל מעמיס את הסרגל"
     }
   },
   "order": [
@@ -1120,9 +1161,17 @@
     "LT1-English.dc.html",
     "LT2-Russian.dc.html",
     "LT3-Georgian.dc.html",
-    "FT1-Fonts.dc.html"
+    "FT1-Fonts.dc.html",
+    "LP1-HomeBottom.dc.html",
+    "LP2-HomeBottomEn.dc.html",
+    "LP3-Settings.dc.html",
+    "LP4-TopBar.dc.html"
   ],
   "pages": [
+    {
+      "id": "round11",
+      "name": "סבב 11: בורר שפה"
+    },
     {
       "id": "round10",
       "name": "סבב 10: הטיול שלך וחשבון"

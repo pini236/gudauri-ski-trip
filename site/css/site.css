@@ -38,6 +38,7 @@
 html,body{height:100%}
 body{background:var(--snow);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.5}
 .site{height:100%;display:grid;grid-template-rows:auto 1fr;direction:rtl;min-height:0}
+[dir="ltr"] .site{direction:ltr}
 a{color:var(--glacier)}
 button:focus-visible,a:focus-visible,input:focus-visible,.fchip:focus-visible{outline:2px solid var(--glacier);outline-offset:2px}
 .num{font-variant-numeric:tabular-nums}
@@ -586,6 +587,62 @@ ul.notes li{margin-bottom:4px}
 .fh-d{font-size:.8rem;white-space:nowrap;opacity:.9}
 .fh-stop{min-height:44px;padding:0 16px;border:0;background:var(--accent);color:var(--on-accent);font:inherit;font-weight:700;cursor:pointer}
 
+/* ---- Languages written left to right (round 10, LT1 to LT3; decision 36) ----
+   The page mirrors: html[dir="ltr"] flips flex rows and logical properties by itself. Here: the signs point
+   forward in the reading direction (arrow on the right), the ticket stub moves to the right, and the fonts per script. */
+html.i18n-wait body{visibility:hidden}
+[dir="ltr"] .signs a[aria-current="page"]{padding:0 28px 0 18px;clip-path:polygon(0 0,calc(100% - 14px) 0,100% 50%,calc(100% - 14px) 100%,0 100%)}
+[dir="ltr"] .board{padding:10px 34px 10px 18px;clip-path:polygon(0 0,calc(100% - 22px) 0,100% 50%,calc(100% - 22px) 100%,0 100%)}
+[dir="ltr"] #panel h2{padding:6px 30px 6px 16px;clip-path:polygon(0 0,calc(100% - 16px) 0,100% 50%,calc(100% - 16px) 100%,0 100%)}
+[dir="ltr"] .mp-sign{padding:0 30px 0 16px;clip-path:polygon(0 0,calc(100% - 18px) 0,100% 50%,calc(100% - 18px) 100%,0 100%)}
+[dir="ltr"] .mc-sign{padding:5px 28px 5px 14px;clip-path:polygon(0 0,calc(100% - 18px) 0,100% 50%,calc(100% - 18px) 100%,0 100%)}
+[dir="ltr"] .rt-run{padding:0 20px 0 10px;clip-path:polygon(0 0,calc(100% - 12px) 0,100% 50%,calc(100% - 12px) 100%,0 100%)}
+[dir="ltr"] .ls-face{padding:12px 30px 0 14px;clip-path:polygon(0 0,calc(100% - 18px) 0,100% 50%,calc(100% - 18px) 100%,0 100%)}
+[dir="ltr"] .games-sign{padding:2px 30px 2px 16px;clip-path:polygon(0 0,calc(100% - 16px) 0,100% 50%,calc(100% - 16px) 100%,0 100%)}
+[dir="ltr"] .gc-face{clip-path:polygon(0 0,calc(100% - 30px) 0,100% 50%,calc(100% - 30px) 100%,0 100%)}
+[dir="ltr"] #panel h2.ov{padding:0;clip-path:none}
+[dir="ltr"] .bp-to{text-align:right}
+[dir="ltr"] .bp-main{-webkit-mask:radial-gradient(circle 11px at 100% 0,transparent 98%,#000) top/100% 51% no-repeat,radial-gradient(circle 11px at 100% 100%,transparent 98%,#000) bottom/100% 51% no-repeat;mask:radial-gradient(circle 11px at 100% 0,transparent 98%,#000) top/100% 51% no-repeat,radial-gradient(circle 11px at 100% 100%,transparent 98%,#000) bottom/100% 51% no-repeat}
+[dir="ltr"] .bp-gone{border-right:2px dashed var(--dash);border-left:0}
+[dir="ltr"] .bp-stub{border-right:0;border-left:2px dashed var(--dash);transform-origin:0 100%;-webkit-mask:radial-gradient(circle 11px at 0 0,transparent 98%,#000) top/100% 51% no-repeat,radial-gradient(circle 11px at 0 100%,transparent 98%,#000) bottom/100% 51% no-repeat;mask:radial-gradient(circle 11px at 0 0,transparent 98%,#000) top/100% 51% no-repeat,radial-gradient(circle 11px at 0 100%,transparent 98%,#000) bottom/100% 51% no-repeat}
+[dir="ltr"] .bp-stub.torn1,[dir="ltr"] .bp-stub.torn2{clip-path:polygon(100% 0,7% 0.00%, 0% 4.17%, 7% 8.33%, 0% 12.50%, 7% 16.67%, 0% 20.83%, 7% 25.00%, 0% 29.17%, 7% 33.33%, 0% 37.50%, 7% 41.67%, 0% 45.83%, 7% 50.00%, 0% 54.17%, 7% 58.33%, 0% 62.50%, 7% 66.67%, 0% 70.83%, 7% 75.00%, 0% 79.17%, 7% 83.33%, 0% 87.50%, 7% 91.67%, 0% 95.83%, 7% 100.00%, 100% 100%)}
+[dir="ltr"] .bp-stub.torn1{transform:rotate(9deg) translate(4px,2px)}
+[dir="ltr"] .bp-stub.torn2{transform:translate(58px,210px) rotate(34deg)}
+[dir="ltr"] .bp.is-back{transform:translate(12px,-58px) rotate(-2.6deg) scale(.955)}
+[dir="ltr"] .bp.is-front{transform:rotate(2deg)}
+html[lang="en"]{--f-body:"IBM Plex Sans","IBM Plex Sans Hebrew",system-ui,-apple-system,"Segoe UI",sans-serif}
+html[lang="ru"]{--f-display:"Oswald","Arial Narrow",sans-serif;--f-body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif}
+html[lang="ka"]{--f-display:"Noto Sans Georgian","Arial Narrow",sans-serif;--f-body:"Noto Sans Georgian",system-ui,sans-serif}
+html[lang="ka"] :is(.brand,.signs a,.tb-count b,.dn-clock b,.bp-code,.bp-big,.bp-mini,.board b,.tally b,.mhead h1,.north,.inset-head,#panel h2,#panel h3,.run-ref,.prof-read b,.mc-top b,.mcard-empty b,.meet-side h2,.meet-times button,.mp-sign span,.mc-head span:first-child,.mc-sign,.mc-time,.mc-stub b,.rt-run,.mstat b,.ls-face b,.bd-row span:first-child,.games-sign,.gc-body b,.about h2,.ab-pass-body b,.fh-name){font-stretch:62.5%;font-weight:800}
+/* Oswald is wider than Karantina: titles a little smaller, so the signs keep their size */
+html[lang="ru"] :is(.brand,.signs a,.tb-count b,.dn-clock b,.bp-code,.bp-big,.bp-mini,.board b,.tally b,.mhead h1,.north,.inset-head,#panel h2,#panel h3,.run-ref,.prof-read b,.mc-top b,.mcard-empty b,.meet-side h2,.meet-times button,.mp-sign span,.mc-head span:first-child,.mc-sign,.mc-time,.mc-stub b,.rt-run,.mstat b,.ls-face b,.bd-row span:first-child,.games-sign,.gc-body b,.about h2,.ab-pass-body b,.fh-name){font-weight:600;letter-spacing:-.01em}
+/* Longer words than Hebrew on the boarding pass: one line each, and cut with an ellipsis rather than overlap */
+[dir="ltr"] .bp-strip>span:first-child{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+[dir="ltr"] .bp-grid>span{min-width:0}
+[dir="ltr"] .bp-grid small,[dir="ltr"] .bp-grid b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+[dir="ltr"] .bp-grid b{font-size:13px}
+/* Language list (round 11, LP3): a sheet from the bottom, each language in its own script and title font */
+.lang-sheet{position:fixed;inset:auto 0 0 0;margin:0 auto;width:100%;max-width:480px;max-height:90vh;box-sizing:border-box;padding:10px 20px 24px;border:0;background:var(--paper);color:var(--ink);box-shadow:0 -10px 30px rgba(0,0,0,.25)}
+.lang-sheet::backdrop{background:rgba(13,21,34,.55)}
+.lang-sheet[open]{animation:lsin .25s ease-out}
+@keyframes lsin{from{transform:translateY(30px);opacity:0}}
+@media (min-width:761px){.lang-sheet{inset:0;margin:auto;max-height:min(90vh,560px)}}
+.ls-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0}
+.ls-head h2{margin:0;font-family:var(--f-display);font-weight:700;font-size:32px;line-height:1.1}
+.ls-x{width:44px;height:44px;border:0;background:transparent;color:var(--ink);font-size:20px;cursor:pointer}
+.ls-hint{margin:2px 0 14px;font-size:13.5px;color:var(--muted)}
+.ls-list{display:flex;flex-direction:column;gap:8px}
+.ls-list label{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:56px;padding:0 14px;border:2px solid var(--rule);background:var(--paper);cursor:pointer}
+.ls-list label:has(input:checked){border-color:var(--ink)}
+.ls-list input{width:22px;height:22px;margin:0;accent-color:var(--ink)}
+.ls-list span{font:700 28px/1 "Karantina","Arial Narrow",sans-serif}
+.ls-list [lang="ru"] span{font:600 26px/1 "Oswald","Arial Narrow",sans-serif}
+.ls-list [lang="ka"] span{font:800 26px/1 "Noto Sans Georgian",sans-serif;font-stretch:62.5%}
+.ls-auto{margin-top:14px;min-height:44px;padding:0;border:0;background:transparent;color:var(--p-blue);font:inherit;font-size:14px;text-decoration:underline;cursor:pointer}
+@media (prefers-reduced-motion:reduce){.lang-sheet[open]{animation:none}}
+.ab-row b span{display:inline}
+/* "home" points back in the reading direction */
+[dir="ltr"] .mhead a svg{transform:scaleX(-1)}
 /* Privacy page (/privacy, round 10 P1 and P2). Built by tools/build-privacy.py from docs/PRIVACY.md. */
 html.pv,html.pv body{height:auto}
 .pv-top{position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:12px;padding:8px 16px;background:var(--paper);border-bottom:1px solid var(--rule);direction:rtl}

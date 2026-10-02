@@ -26,7 +26,7 @@ R.load=function(T){
 
 /* ---------- profile stats for a polyline set ---------- */
 /* slope colours (approved thresholds: 15°, 25°, 30°) */
-R.SLOPE=[[15,'#3FA85F','עד 15°'],[25,'#F2C13D','15°–25°'],[30,'#F08A3C','25°–30°'],[91,'#DC3B33','מעל 30°']];
+R.SLOPE=[[15,'#3FA85F','map.slope_upto15'],[25,'#F2C13D','15°–25°'],[30,'#F08A3C','25°–30°'],[91,'#DC3B33','map.slope_over30']];
 R.slopeColor=deg=>R.SLOPE.find(x=>deg<x[0])[1];
 
 /* the ground around a run, coloured by slope: a canvas over the run's box plus a margin.
@@ -101,7 +101,7 @@ R.svgMarks=function(M,lblRoot,markRoot,store){
     const a=el('tspan',{},t);a.textContent=p.n;const b=el('tspan',{class:'ele'},t);b.textContent=' '+p.ele;
     t._below=true;peaks.push(t);
   });
-  const places=M.env.places.filter(p=>['Gudauri','Kobi'].includes(p.n)).map(p=>{const t=el('text',{x:p.x,y:p.y,class:'lbl place-v','text-anchor':'middle'},lblRoot);t.textContent=p.n==='Gudauri'?'גודאורי':'Kobi';return t;});
+  const places=M.env.places.filter(p=>['Gudauri','Kobi'].includes(p.n)).map(p=>{const t=el('text',{x:p.x,y:p.y,class:'lbl place-v','text-anchor':'middle'},lblRoot);t.textContent=p.n==='Gudauri'?T('map.place_gudauri'):'Kobi';return t;});
   return {peaks,places};
 };
 
@@ -254,7 +254,7 @@ R.View3D=function(opts){
   function addLabel(html,cls,xyz,pri,data){const e=document.createElement('div');e.className='r3-lbl '+cls;e.innerHTML=html;if(data)Object.assign(e.dataset,data);lay.appendChild(e);const o={e,v:new THREE.Vector3(...xyz),pri,w:0,h:0};labels.push(o);return o;}
   const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
   M.peaks.forEach(p=>addLabel(`<span class="pk-ico${p.pass?' pass':''}"></span><b>${esc(p.n)}</b> <span class="num">${p.ele}</span>`,'peak',[p.x,M.elev(p.x,p.y)+6,p.y],100));
-  M.env.places.filter(p=>['Gudauri','Kobi'].includes(p.n)).forEach(p=>addLabel(p.n==='Gudauri'?'גודאורי':'Kobi','place',[p.x,M.elev(p.x,p.y)+10,p.y],60));
+  M.env.places.filter(p=>['Gudauri','Kobi'].includes(p.n)).forEach(p=>addLabel(p.n==='Gudauri'?T('map.place_gudauri'):'Kobi','place',[p.x,M.elev(p.x,p.y)+10,p.y],60));
   Object.values(pisteObjs).forEach(o=>{if(!o.p.named)return;const L=o.lines.slice().sort((a,b)=>b.length-a.length)[0];const q=L[Math.floor(L.length*0.45)];
     o.label=addLabel(esc(opts.dispName(o.p)),'piste c-'+o.p.color,[q[0],q[1]+8,q[2]],40,{key:o.p.key});});
 

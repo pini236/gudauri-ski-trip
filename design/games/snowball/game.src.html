@@ -1,5 +1,5 @@
-<title>קרב כדורי שלג</title>
-<meta name="description" content="קרב כדורי שלג בין החבר׳ה, עם חומות שנשחקות ורוח">
+<title data-i18n="game.snowball.title">קרב כדורי שלג</title>
+<meta name="description" data-i18n-attr="content:game.snowball.meta_description" content="קרב כדורי שלג בין החבר׳ה, עם חומות שנשחקות ורוח">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Karantina:wght@700&family=IBM+Plex+Sans+Hebrew:wght@400;600;700&display=swap">
 <style>
@@ -13,6 +13,7 @@ body{margin:0;background:#9CC3E6;color:var(--ink);font-family:var(--f-body);dire
 .hud{position:fixed;left:0;right:0;top:0;padding:calc(env(safe-area-inset-top,0px) + 10px) 12px 0;display:grid;grid-template-columns:1fr auto 1fr;gap:8px;align-items:start;pointer-events:none;direction:ltr}
 .side{display:flex;flex-direction:column;gap:4px;align-items:flex-start;direction:rtl}
 .side.r{align-items:flex-end}
+html[dir="ltr"] body,html[dir="ltr"] .side{direction:ltr}
 .tag{display:inline-flex;align-items:center;gap:6px;background:rgba(19,35,58,.86);color:#fff;padding:5px 10px;font-weight:700;font-size:14px;border-top:5px solid var(--c,#fff)}
 .hp{display:flex;gap:3px}
 .hp i{width:14px;height:14px;border-radius:50%;background:#fff;box-shadow:inset 0 -3px 0 #C9D8E7;border:1px solid rgba(19,35,58,.3)}
@@ -34,7 +35,7 @@ body{margin:0;background:#9CC3E6;color:var(--ink);font-family:var(--f-body);dire
 .friends button{font:inherit;border:0;cursor:pointer;min-height:56px;background:rgba(255,255,255,.9);border-top:8px solid var(--c);font-weight:700;font-size:15px;color:var(--ink)}
 .friends button[aria-pressed="true"]{background:#fff;outline:3px solid var(--accent);outline-offset:-3px}
 .ladder{display:flex;flex-direction:column;gap:8px}
-.rung{font:inherit;border:0;cursor:pointer;text-align:right;display:grid;grid-template-columns:auto 1fr auto;gap:2px 12px;align-items:center;background:#fff;color:var(--ink);padding:8px 12px;border-inline-start:10px solid var(--c);min-height:58px}
+.rung{font:inherit;border:0;cursor:pointer;text-align:start;display:grid;grid-template-columns:auto 1fr auto;gap:2px 12px;align-items:center;background:#fff;color:var(--ink);padding:8px 12px;border-inline-start:10px solid var(--c);min-height:58px}
 .rung .n{grid-row:span 2;font-family:var(--f-display);font-size:34px;line-height:1;color:var(--muted)}
 .rung b{font-family:var(--f-display);font-size:24px;line-height:1}
 .rung small{font-size:12px;color:var(--muted);grid-column:2 / 4}
@@ -67,54 +68,55 @@ button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 @media (prefers-reduced-motion:reduce){.pop.go{animation-duration:.01s}}
 </style>
 
-<canvas id="game" aria-label="המשחק: קרב כדורי שלג"></canvas>
+<canvas id="game" data-i18n-attr="aria-label:game.snowball.canvas_label" aria-label="המשחק: קרב כדורי שלג"></canvas>
 <div class="hud" id="hud" hidden>
   <div class="side" id="sideL"><span class="tag" id="nameL"></span><span class="hp" id="hpL"></span></div>
   <div class="mid"><span class="lvl" id="lvl">1</span><span class="wind" id="wind"></span></div>
   <div class="side r" id="sideR"></div>
 </div>
 <div class="pop" id="pop"></div>
-<div class="hint" id="hint" hidden>גוררים למעלה כדי לקום ולכוון, ומשחררים כדי לזרוק. כשלא מכוונים, אתה מוגן מאחורי החומה</div>
-<button class="snd" id="snd" type="button" hidden aria-pressed="false" aria-label="צליל">🔇</button>
+<div class="hint" id="hint" hidden data-i18n="game.snowball.hint">גוררים למעלה כדי לקום ולכוון, ומשחררים כדי לזרוק. כשלא מכוונים, אתה מוגן מאחורי החומה</div>
+<button class="snd" id="snd" type="button" hidden aria-pressed="false" data-i18n-attr="aria-label:game.snowball.sound" aria-label="צליל">🔇</button>
 
 <section class="menu" id="menuStart" aria-label="התחלה">
-  <h1>קרב כדורי שלג</h1>
-  <p>אתה מאחורי החומה שלך, והחבר׳ה מאחורי שלהם. קמים, מכוונים, זורקים, ומתכופפים לפני שהכדור שלהם מגיע.</p>
-  <h2>מי זורק?</h2>
-  <div class="friends" id="friends" role="group" aria-label="בחירת חבר"></div>
-  <div><h2 style="margin-bottom:10px">הסולם</h2><div class="ladder" id="ladder" role="group" aria-label="בחירת שלב"></div></div>
+  <h1 data-i18n="game.snowball.title">קרב כדורי שלג</h1>
+  <p data-i18n="game.snowball.intro">אתה מאחורי החומה שלך, והחבר׳ה מאחורי שלהם. קמים, מכוונים, זורקים, ומתכופפים לפני שהכדור שלהם מגיע.</p>
+  <h2 data-i18n="game.snowball.who_throws">מי זורק?</h2>
+  <div class="friends" id="friends" role="group" data-i18n-attr="aria-label:game.snowball.choose_friend_label" aria-label="בחירת חבר"></div>
+  <div><h2 style="margin-bottom:10px" data-i18n="game.snowball.ladder">הסולם</h2><div class="ladder" id="ladder" role="group" data-i18n-attr="aria-label:game.snowball.choose_level_label" aria-label="בחירת שלב"></div></div>
   <div class="how">
-    <div><b>גוררים</b>למעלה מכל מקום במסך. קמים מעל החומה, ועיגול מראה לאן הכדור יגיע בלי רוח.</div>
-    <div><b>משחררים</b>והכדור עף. הרוח מסיטה אותו, אז מכוונים קצת נגדה.</div>
-    <div><b>מתכופפים</b>כשמרימים את האצבע. כדור שמתקרב אליך? לא לקום עכשיו.</div>
+    <div><b data-i18n="game.snowball.how_drag_title">גוררים</b><span data-i18n="game.snowball.how_drag_text">למעלה מכל מקום במסך. קמים מעל החומה, ועיגול מראה לאן הכדור יגיע בלי רוח.</span></div>
+    <div><b data-i18n="game.snowball.how_release_title">משחררים</b><span data-i18n="game.snowball.how_release_text">והכדור עף. הרוח מסיטה אותו, אז מכוונים קצת נגדה.</span></div>
+    <div><b data-i18n="game.snowball.how_duck_title">מתכופפים</b><span data-i18n="game.snowball.how_duck_text">כשמרימים את האצבע. כדור שמתקרב אליך? לא לקום עכשיו.</span></div>
   </div>
-  <button class="go-btn" id="go" type="button">לקרב!</button>
-  <p class="note">הדמויות הן החבר׳ה בצבעי המעילים מהמשחקים האחרים. הזירות, הרוח והיריבים הם בשביל המשחק.</p>
+  <button class="go-btn" id="go" type="button" data-i18n="game.snowball.go">לקרב!</button>
+  <p class="note" data-i18n="game.snowball.characters_note">הדמויות הן החבר׳ה בצבעי המעילים מהמשחקים האחרים. הזירות, הרוח והיריבים הם בשביל המשחק.</p>
 </section>
 
 <section class="menu" id="menuEnd" aria-label="תוצאה" hidden>
-  <h2 id="endTitle">ניצחת!</h2>
+  <h2 id="endTitle" data-i18n="game.snowball.won">ניצחת!</h2>
   <div class="res">
     <span style="font-size:12px;color:var(--muted);font-weight:700" id="endWho"></span>
     <div class="big" id="endBig"></div>
     <div class="stars" id="endStars"></div>
-    <div class="rows"><span>פגיעות<b id="endHits">0</b></span><span>כובעים<b id="endHats">0</b></span><span>דיוק<b id="endAcc">0</b></span></div>
+    <div class="rows"><span><span data-i18n="game.snowball.stat_hits">פגיעות</span><b id="endHits">0</b></span><span><span data-i18n="game.snowball.stat_hats">כובעים</span><b id="endHats">0</b></span><span><span data-i18n="game.snowball.stat_accuracy">דיוק</span><b id="endAcc">0</b></span></div>
     <div class="goals" id="endGoals"></div>
   </div>
-  <button class="go-btn" id="again" type="button">עוד סיבוב</button>
-  <div class="small-btns"><button type="button" id="next">השלב הבא</button><button type="button" id="toMenu">לתפריט</button></div>
+  <button class="go-btn" id="again" type="button" data-i18n="game.snowball.again">עוד סיבוב</button>
+  <div class="small-btns"><button type="button" id="next" data-i18n="game.snowball.next_level">השלב הבא</button><button type="button" id="toMenu" data-i18n="game.snowball.to_menu">לתפריט</button></div>
 </section>
 
 <script>
-const FR = [{n:'יהודה ו׳',c:'#D1342B'},{n:'דובי',c:'#1F5FC4'},{n:'שרוליק',c:'#F4B942'},{n:'מוישי',c:'#1B8A4C'},{n:'יהודה ה׳',c:'#7B4FC4'},{n:'פיני',c:'#F07A2E'}];
+const L=window.L||((k,he,v)=>he.replace(/\{(\w+)\}/g,(m,x)=>v&&x in v?v[x]:m));
+const FR = [{get n(){return L('game.snowball.friend_yehuda_v','יהודה ו׳');},c:'#D1342B'},{get n(){return L('game.snowball.friend_dubi','דובי');},c:'#1F5FC4'},{get n(){return L('game.snowball.friend_sruli','שרוליק');},c:'#F4B942'},{get n(){return L('game.snowball.friend_moishe','מוישי');},c:'#1B8A4C'},{get n(){return L('game.snowball.friend_yehuda_h','יהודה ה׳');},c:'#7B4FC4'},{get n(){return L('game.snowball.friend_pini','פיני');},c:'#F07A2E'}];
 const PANO = "__PANO__";
 // five rungs: more friends behind the far wall, shorter peeks, stronger wind, better aim
 const RUNGS = [
-  {name:'בחצר המלון', n:1, hp:3, wind:[0,1],  err:.9,  up:[1.8,2.4], wait:[1.6,2.6], goal:{t:'לנצח בלי לחטוף', ok:s=>s.taken===0}},
-  {name:'ליד הרכבל',  n:1, hp:3, wind:[-2,2], err:.6,  up:[1.4,1.9], wait:[1.3,2.2], goal:{t:'להעיף כובע', ok:s=>s.hats>=1}},
-  {name:'בשלג העמוק', n:2, hp:2, wind:[-2,2], err:.55, up:[1.3,1.8], wait:[1.6,2.8], goal:{t:'דיוק של 50%', ok:s=>s.thrown>0&&s.hits/s.thrown>=.5}},
-  {name:'על הרכס',    n:2, hp:2, wind:[-4,4], err:.42, up:[1.1,1.6], wait:[1.3,2.4], goal:{t:'שני כובעים', ok:s=>s.hats>=2}},
-  {name:'בפסגה, ברוח',n:3, hp:2, wind:[-5,5], err:.36, up:[1.0,1.4], wait:[1.5,2.8], goal:{t:'לנצח בלי לחטוף', ok:s=>s.taken===0}}];
+  {name:()=>L('game.snowball.arena_hotel_yard','בחצר המלון'), n:1, hp:3, wind:[0,1],  err:.9,  up:[1.8,2.4], wait:[1.6,2.6], goal:{t:()=>L('game.snowball.goal_win_untouched','לנצח בלי לחטוף'), ok:s=>s.taken===0}},
+  {name:()=>L('game.snowball.arena_lift','ליד הרכבל'),  n:1, hp:3, wind:[-2,2], err:.6,  up:[1.4,1.9], wait:[1.3,2.2], goal:{t:()=>L('game.snowball.goal_hat','להעיף כובע'), ok:s=>s.hats>=1}},
+  {name:()=>L('game.snowball.arena_deep_snow','בשלג העמוק'), n:2, hp:2, wind:[-2,2], err:.55, up:[1.3,1.8], wait:[1.6,2.8], goal:{t:()=>L('game.snowball.goal_accuracy','דיוק של 50%'), ok:s=>s.thrown>0&&s.hits/s.thrown>=.5}},
+  {name:()=>L('game.snowball.arena_ridge','על הרכס'),    n:2, hp:2, wind:[-4,4], err:.42, up:[1.1,1.6], wait:[1.3,2.4], goal:{t:()=>L('game.snowball.goal_two_hats','שני כובעים'), ok:s=>s.hats>=2}},
+  {name:()=>L('game.snowball.arena_summit','בפסגה, ברוח'),n:3, hp:2, wind:[-5,5], err:.36, up:[1.0,1.4], wait:[1.5,2.8], goal:{t:()=>L('game.snowball.goal_win_untouched','לנצח בלי לחטוף'), ok:s=>s.taken===0}}];
 const store={get(k,d){try{const v=localStorage.getItem('snw2-'+k);return v==null?d:JSON.parse(v);}catch(e){return d;}},set(k,v){try{localStorage.setItem('snw2-'+k,JSON.stringify(v));}catch(e){}}};
 const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
 const $=id=>document.getElementById(id);
@@ -127,7 +129,7 @@ function foesOf(i){ const o=FR.map((f,k)=>k).filter(k=>k!==me); return Array.fro
 function drawMenu(){
   $('friends').innerHTML=FR.map((f,i)=>`<button type="button" style="--c:${f.c}" aria-pressed="${i===me}" data-me="${i}">${f.n}</button>`).join('');
   $('ladder').innerHTML=RUNGS.map((r,i)=>{ const os=foesOf(i), st=stars(i), open=i===0||stars(i-1)>0;
-    return `<button class="rung" type="button" style="--c:${FR[os[0]].c}" data-r="${i}" aria-pressed="${i===rung}" ${open?'':'disabled'}><span class="n">${i+1}</span><b>${os.map(k=>FR[k].n).join(' + ')} · ${r.name}</b><span class="st">${open?'★'.repeat(st)+'☆'.repeat(3-st):'🔒'}</span><small>רוח עד ${Math.max(...r.wind.map(Math.abs))} · ★ ${r.goal.t}</small></button>`; }).join('');
+    return `<button class="rung" type="button" style="--c:${FR[os[0]].c}" data-r="${i}" aria-pressed="${i===rung}" ${open?'':'disabled'}><span class="n">${i+1}</span><b>${os.map(k=>FR[k].n).join(' + ')} · ${r.name()}</b><span class="st">${open?'★'.repeat(st)+'☆'.repeat(3-st):'🔒'}</span><small>${L('game.snowball.rung_wind','רוח עד {n}',{n:Math.max(...r.wind.map(Math.abs))})} · ★ ${r.goal.t()}</small></button>`; }).join('');
 }
 $('friends').onclick=e=>{ const b=e.target.closest('[data-me]'); if(!b) return; me=+b.dataset.me; store.set('me',me); drawMenu(); };
 $('ladder').onclick=e=>{ const b=e.target.closest('[data-r]'); if(!b||b.disabled) return; rung=+b.dataset.r; store.set('rung',rung); drawMenu(); };
@@ -163,10 +165,10 @@ function start(){
   newWind(); state='play';
   $('menuStart').hidden=true; $('menuEnd').hidden=true; ['hud','snd'].forEach(id=>$(id).hidden=false);
   $('nameL').textContent=FR[me].n; $('nameL').style.setProperty('--c',FR[me].c);
-  $('lvl').textContent=(rung+1)+' · '+cfg.name; hpUI(); $('hint').hidden=false; $('hint').style.opacity=1;
+  $('lvl').textContent=(rung+1)+' · '+cfg.name(); hpUI(); $('hint').hidden=false; $('hint').style.opacity=1;
 }
 function newWind(){ const [a,b]=cfg.wind; wind=Math.round(rnd(a,b)*2)/2; windLabel(); }
-function windLabel(){ $('wind').textContent=Math.abs(wind)<.25?'אין רוח':'רוח '+Math.abs(wind)+' '+(wind>0?'⟶':'⟵'); }
+function windLabel(){ $('wind').textContent=Math.abs(wind)<.25?L('game.snowball.no_wind','אין רוח'):L('game.snowball.wind','רוח {n} {arrow}',{n:Math.abs(wind),arrow:wind>0?'⟶':'⟵'}); }
 function hpUI(){ const dots=n=>Array.from({length:n.max},(_,i)=>`<i class="${i<n.hp?'':'off'}"></i>`).join('');
   $('hpL').innerHTML=dots({hp:myHp,max:3});
   $('sideR').innerHTML=foes.map(o=>`<span class="tag" style="--c:${FR[o.fi].c}">${FR[o.fi].n}</span><span class="hp">${dots({hp:o.hp,max:cfg.hp})}</span>`).join(''); }
@@ -220,13 +222,13 @@ function update(dt){
       if(pz<ZO && b.z>=ZO){ for(const o of foes){ if(o.hp<=0) continue; const bs=BASE(o), head=bs+1.62, wt=farWallTop(o.x);
           if(Math.abs(b.x-o.x)<.25 && Math.abs(b.y-head)<.25 && head>wt){ b.dead=true; hitFoe(o,b,true); break; }
           if(Math.abs(b.x-o.x)<.33 && b.y<bs+1.32 && b.y>Math.max(wt,bs+.4)){ b.dead=true; hitFoe(o,b,false); break; } } }
-      if(!b.dead && b.y<0){ b.dead=true; splatAt(b.x,0,b.z,8); noise(.1,.15,600); if(b.z>ZO-2) popText(Math.abs(b.x)>0?'פספוס':''); }
+      if(!b.dead && b.y<0){ b.dead=true; splatAt(b.x,0,b.z,8); noise(.1,.15,600); if(b.z>ZO-2) popText(Math.abs(b.x)>0?L('game.snowball.pop_miss','פספוס'):''); }
       if(b.z>ZO+6) b.dead=true;
     } else {
       if(pz>ZW && b.z<=ZW && b.y<WALL){ b.dead=true; splatAt(b.x,b.y,ZW,16); noise(.15,.35,900); shake=reduce?0:4; continue; }
       if(pz>.3 && b.z<=.3){ b.dead=true;
         const exposed = camH>1.3, dx=Math.abs(b.x-camX), dy=b.y-camH;
-        if(exposed && dx<.42 && dy>-.95 && dy<.3){ meHit(b); } else if(dx<1.2){ noise(.2,.25,3000,'bandpass'); popText('עבר מעליך'); } }
+        if(exposed && dx<.42 && dy>-.95 && dy<.3){ meHit(b); } else if(dx<1.2){ noise(.2,.25,3000,'bandpass'); popText(L('game.snowball.pop_over_you','עבר מעליך')); } }
       if(b.y<0){ b.dead=true; splatAt(b.x,0,b.z,8); } }
   }
   balls=balls.filter(b=>!b.dead);
@@ -239,21 +241,21 @@ function update(dt){
 function splatAt(x,y,z,n){ for(let i=0;i<n;i++){ const a=rnd(0,Math.PI), v=rnd(.6,2.6); parts.push({x,y:y+.05,z,vx:Math.cos(a)*v,vy:Math.sin(a)*v,vz:rnd(-.6,.6),life:rnd(.35,.8),r:rnd(.04,.09)}); } }
 function wallHit(x,y){ splatAt(x,y,ZF,12); noise(.12,.22,800); const i=Math.round((x+6)/.25); for(let k=-2;k<=2;k++){ const j=i+k; if(farWall[j]!=null) farWall[j]=Math.max(.55,farWall[j]-.09*(1-Math.abs(k)/3)); } }
 function hitFoe(o,b,head){ o.hp--; o.hit=.5; o.wob=1; stats.hits++; splatAt(b.x,b.y,ZO,22); buzz(head?40:20); noise(.2,.4,1200); tone(head?520:380,.16,.3,1.5);
-  if(head && o.hat){ o.hat=false; stats.hats++; hats.push({x:o.x,y:BASE(o)+1.8,z:ZO,vx:b.vx*.15,vy:3.5,vz:2,r:0,vr:rnd(-9,9),col:FR[o.fi].c}); popText('הכובע עף!'); }
-  else popText(head?'בראש!':'פגיעה!');
-  if(o.hp<=0){ popText(FR[o.fi].n+' בחוץ!'); o.phase='out'; }
-  hpUI(); if(foes.every(f=>f.hp<=0)){ state='done'; won=true; endT=0; setTimeout(()=>popText('ניצחת!'),700); } }
+  if(head && o.hat){ o.hat=false; stats.hats++; hats.push({x:o.x,y:BASE(o)+1.8,z:ZO,vx:b.vx*.15,vy:3.5,vz:2,r:0,vr:rnd(-9,9),col:FR[o.fi].c}); popText(L('game.snowball.pop_hat_off','הכובע עף!')); }
+  else popText(head?L('game.snowball.pop_head','בראש!'):L('game.snowball.pop_hit','פגיעה!'));
+  if(o.hp<=0){ popText(L('game.snowball.pop_out','{name} בחוץ!',{name:FR[o.fi].n})); o.phase='out'; }
+  hpUI(); if(foes.every(f=>f.hp<=0)){ state='done'; won=true; endT=0; setTimeout(()=>popText(L('game.snowball.won','ניצחת!')),700); } }
 function meHit(b){ myHp--; stats.taken++; shake=reduce?0:16; buzz([40,30,40]); noise(.25,.5,1400); tone(140,.25,.35,.6);
   // snow stuck on the screen, sliding down
   for(let i=0;i<9;i++) splats.push({x:W/2+(b.x-camX)*W*.5+rnd(-W*.25,W*.25), y:rnd(H*.2,H*.65), r:rnd(28,70), life:rnd(1.6,2.4), max:2.4, seed:Math.random()*9});
-  popText('חטפת!'); hpUI(); if(myHp<=0){ state='done'; won=false; endT=0; } }
+  popText(L('game.snowball.pop_got_hit','חטפת!')); hpUI(); if(myHp<=0){ state='done'; won=false; endT=0; } }
 function finish(){
   state='end'; ['hud','hint','snd'].forEach(id=>$(id).hidden=true);
   const g=[won, won&&stats.taken===0, won&&cfg.goal.ok(stats)], n=g.filter(Boolean).length; if(n>stars(rung)) store.set('stars-'+rung,n);
-  $('endTitle').textContent= won? 'ניצחת!' : 'הפעם הם ניצחו'; $('endWho').textContent=(rung+1)+'. '+cfg.name+' · '+foes.map(o=>FR[o.fi].n).join(' + ');
+  $('endTitle').textContent= won? L('game.snowball.won','ניצחת!') : L('game.snowball.lost','הפעם הם ניצחו'); $('endWho').textContent=(rung+1)+'. '+cfg.name()+' · '+foes.map(o=>FR[o.fi].n).join(' + ');
   $('endBig').textContent=stats.hits+' : '+stats.taken;
   $('endStars').innerHTML=[0,1,2].map(i=>`<i class="${g[i]?'on':''}">★</i>`).join('');
-  $('endGoals').innerHTML=[['לנצח',g[0]],['בלי לחטוף אף כדור',g[1]],[cfg.goal.t,g[2]]].map(([s,o])=>`<span class="${o?'ok':''}">${s}</span>`).join('');
+  $('endGoals').innerHTML=[[L('game.snowball.goal_win','לנצח'),g[0]],[L('game.snowball.goal_no_hit_taken','בלי לחטוף אף כדור'),g[1]],[cfg.goal.t(),g[2]]].map(([s,o])=>`<span class="${o?'ok':''}">${s}</span>`).join('');
   $('next').hidden=!(won && rung<RUNGS.length-1);
   $('endHits').textContent=stats.hits; $('endHats').textContent=stats.hats; $('endAcc').textContent=(stats.thrown?Math.round(stats.hits/stats.thrown*100):0)+'%';
   $('menuEnd').hidden=false; }
@@ -326,5 +328,10 @@ function foe(o){ // a friend facing you, rising from behind the far wall
   if(o.hp<=0){ cx.strokeStyle='#13233A'; cx.lineWidth=.03*s; cx.beginPath(); cx.moveTo(-.1*s,hy+.1*s); cx.lineTo(.1*s,hy+.1*s); cx.stroke(); }
   if(o.hat) hat(0,hy-.12*s,fr.c,s);
   cx.restore(); }
-drawMenu(); requestAnimationFrame(frame);
+// the words come from i18n.js on the site; draw the menu once they are in place
+(window.I18N?I18N.ready:Promise.resolve()).then(()=>{
+  $('menuStart').setAttribute('aria-label',L('game.snowball.menu_start_label','התחלה'));
+  $('menuEnd').setAttribute('aria-label',L('game.snowball.menu_end_label','תוצאה'));
+  drawMenu(); });
+requestAnimationFrame(frame);
 </script>

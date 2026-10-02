@@ -33,6 +33,7 @@
   - `site/index.html`: תבנית בלבד, בלי קוד ובלי נתונים.
   - `site/css/site.css`: כל העיצוב והטוקנים.
   - `site/js/relief.js`: הספרייה `GudRelief`: טעינת המודל, `stats()` לגבהים ושיפועים, `View3D` (three.js r128 מ-cdnjs).
+  - `site/js/i18n.js` ו-`site/i18n/`: ארבע שפות (מאז 2.10.2026). כל טקסט באתר מגיע מ-`i18n/strings.json` דרך `T('key')`, `data-i18n` בדף, או `L('key','עברית')` במשחקים. **טקסט חדש נכנס קודם ל-`i18n/strings.json`**, ואז `python3 tools/build-site-strings.py`. הפירוט ב-`i18n/README.md`.
   - `site/js/app.js`: הסקריפט הראשי. הפונקציה `main()` טוענת את שני קבצי הנתונים ב-`fetch` ואז בונה הכל: ניווט `#home` / `#map`, מפה דו-ממדית (SVG), פאנל פרטים, סינון, כרטיס טיסה, סרטונים.
   - `site/data/terrain.json`: מודל גובה, תבליט, קווי גובה, סביבה, פסגות.
   - `site/data/runs-and-lifts.json`: מסלולים ורכבלים.
