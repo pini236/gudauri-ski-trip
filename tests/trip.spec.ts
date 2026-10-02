@@ -102,3 +102,13 @@ test('נקודת מפגש בלי טיול: שבוע מהיום', async ({ page }
   await expect(page.locator('[data-days] button').first()).toHaveAttribute('data-day', '2026-12-31');
   expect(errors).toEqual([]);
 });
+
+test('הטיול שלך: אין תווית ריקה בעברית (גם לפני שמילוי השפה רץ)', async ({ page }) => {
+  await page.goto('/');
+  await loaded(page);
+  await page.evaluate(() => { location.hash = '#trip'; });
+  await expect(page.locator('#tripForm')).toBeVisible();
+  const empty = await page.locator('#tripForm .tf-fld > span').evaluateAll(els => els.filter(e => !e.textContent?.trim()).length);
+  expect(empty).toBe(0);
+  await expect(page.locator('#tripForm .tf-fld > span').first()).toHaveText('תאריך');
+});

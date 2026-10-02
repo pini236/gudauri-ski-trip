@@ -87,6 +87,8 @@ class Page(HTMLParser):
     def __init__(self):
         super().__init__(convert_charrefs=True)
         self.stack, self.keys, self.errors = [], [], []
+        self.cur = None  # [key, text, has_child, line]: a plain data-i18n element, to compare with the Hebrew
+        self.he_texts = []
 
     def covered(self):
         return any(a for _, a in self.stack)
@@ -94,6 +96,10 @@ class Page(HTMLParser):
     def handle_starttag(self, tag, attrs):
         a = dict(attrs)
         line = self.getpos()[0]
+        if self.cur:
+            self.cur[2] = True
+        if a.get("data-i18n") and tag not in VOID:
+            self.cur = [a["data-i18n"].strip(), "", False, line, tag]
         for name in TEXT_ATTRS:
             if a.get(name):
                 self.keys += [(k.strip(), f"index.html:{line} {name}") for k in a[name].split(";") if k.strip()]
@@ -112,12 +118,17 @@ class Page(HTMLParser):
             self.stack.append((tag, here))
 
     def handle_endtag(self, tag):
+        if self.cur and tag == self.cur[4]:
+            self.he_texts.append(self.cur)
+            self.cur = None
         while self.stack:
             t, _ = self.stack.pop()
             if t == tag:
                 break
 
     def handle_data(self, data):
+        if self.cur:
+            self.cur[1] += data
         if HEB.search(data) and not self.covered():
             self.errors.append(f"index.html:{self.getpos()[0]}: text \"{data.strip()[:50]}\" has no i18n attribute")
 
@@ -152,6 +163,12 @@ def main():
     for k, where in page.keys:
         need(k, where)
     errors += page.errors
+    # The page is shown as written when the language is Hebrew (i18n.js fills it only for the other languages),
+    # so the Hebrew in the HTML must be the Hebrew in the strings file: an empty or stale label is what people would see.
+    for key, text, has_child, line, _ in page.he_texts:
+        he = strings.get(key, {}).get("he")
+        if he is not None and not has_child and text != he:
+            errors.append(f"index.html:{line}: the Hebrew of '{key}' is \"{text[:40]}\", but strings.json says \"{he[:40]}\"")
 
     for e in errors:
         print("ERROR", e)
