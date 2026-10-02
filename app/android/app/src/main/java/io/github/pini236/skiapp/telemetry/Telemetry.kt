@@ -30,6 +30,7 @@ import io.sentry.android.core.SentryAndroid
 object Telemetry {
     private const val PREFS = "telemetry"
     @Volatile private var usage = false
+    @Volatile private var build: String? = null
     @Volatile private var crashes = false
 
     val hasKeys: Boolean get() = BuildConfig.POSTHOG_KEY.isNotBlank() || BuildConfig.SENTRY_DSN.isNotBlank()
@@ -68,7 +69,8 @@ object Telemetry {
             PostHog.optIn()
             PostHog.register("platform", "android")
             PostHog.register("app_version", common.appVersion)
-            PostHog.register("build", common.build)
+            // "build" is a key PostHog keeps for itself, and register() drops it without a word: it goes with each event
+            build = common.build
             PostHog.register("lang", common.lang)
             PostHog.register("lang_source", common.langSource)
             PostHog.register("theme", common.theme)
@@ -92,7 +94,7 @@ object Telemetry {
     }
 
     fun event(name: String, props: Map<String, Any> = emptyMap()) {
-        if (usage) PostHog.capture(event = name, properties = props)
+        if (usage) PostHog.capture(event = name, properties = build?.let { props + ("build" to it) } ?: props)
     }
 
     /** The emulator run's check that crash reports reach Sentry (debug builds only, MainActivity's qa.sentry). */
