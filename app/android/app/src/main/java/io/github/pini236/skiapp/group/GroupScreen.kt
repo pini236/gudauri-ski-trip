@@ -281,7 +281,7 @@ fun GroupScreen(
 @Composable
 private fun Tabs(tab: GroupTab, onTab: (GroupTab) -> Unit) {
     val c = Ski.colors
-    val names = listOf(R.string.app_g_tab_flights, R.string.app_g_tab_meetups, R.string.app_g_tab_scores, R.string.app_g_tab_members)
+    val names = listOf(R.string.app_g_tab_flights, R.string.app_g_tab_meetups, R.string.group_tab_scores, R.string.app_g_tab_members)
     Row(Modifier.padding(horizontal = 16.dp).fillMaxWidth().drawBehind { drawRect(c.ink, Offset(0f, size.height - 2.dp.toPx()), androidx.compose.ui.geometry.Size(size.width, 2.dp.toPx())) }) {
         for ((i, t) in GroupTab.entries.withIndex()) {
             val on = t == tab
@@ -358,7 +358,7 @@ private fun Flights(g: Group, myTrip: Trip?, onSame: () -> Unit, onShowMine: () 
         }.padding(horizontal = 14.dp, vertical = 12.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             Column(Modifier.weight(1f)) {
                 Text(m.name + if (m.me) " $me" else "", style = Ski.type.bodyBold, color = c.ink)
-                Muted(stringResource(R.string.app_g_no_flight_yet), size = 12.5f)
+                Muted(stringResource(R.string.group_no_flight), size = 12.5f)
             }
             when {
                 m.me && myTrip != null -> Button2(stringResource(R.string.app_g_show_mine), Look.INK, onShowMine, small = true, full = false)
@@ -506,7 +506,7 @@ private fun Members(api: GroupApi, g: Group, r: Runner, reload: () -> Unit, onIn
             Text(stringResource(if (q.reclaim) R.string.app_g_request_reclaim else R.string.app_g_request_join, q.name), style = Ski.type.bodyBold.copy(fontSize = 15.5.sp), color = c.ink)
             Muted(stringResource(if (q.reclaim) R.string.app_g_request_reclaim_sub else R.string.app_g_request_join_sub), size = 12.5f)
             Row(Modifier.padding(top = 10.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                PrimaryButton(stringResource(R.string.app_g_approve), Icons.check, { r.run { api.decide(q.id, true); reload() } }, Modifier.weight(1f))
+                PrimaryButton(stringResource(R.string.group_approve), Icons.check, { r.run { api.decide(q.id, true); reload() } }, Modifier.weight(1f))
                 Button2(stringResource(R.string.app_g_reject), Look.GHOST, { r.run { api.decide(q.id, false); reload() } }, Modifier.weight(1f), icon = Icons.x, small = true)
             }
         }

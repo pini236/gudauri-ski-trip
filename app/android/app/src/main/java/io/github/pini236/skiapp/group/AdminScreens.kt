@@ -91,7 +91,7 @@ fun NewGroupScreen(api: GroupApi, myTrip: Trip?, today: LocalDate, onCancel: () 
             GroupDates(from, to, { pick = it })
             Note(stringResource(R.string.app_g_dates_note), Icons.clock)
             Field(stringResource(R.string.app_g_your_name), me, { me = it.take(40) }, hint = stringResource(R.string.app_g_your_name_hint))
-            if (myTrip != null) Toggle(stringResource(R.string.app_g_show_my_trip),
+            if (myTrip != null) Toggle(stringResource(R.string.group_show_my_trip),
                 listOfNotNull(myTrip.out.flight.ifBlank { null }, shortDate(myTrip.out.date) + (myTrip.out.departs?.let { " · $it" } ?: "")).joinToString(", "),
                 showTrip, { showTrip = it })
             val ok = name.isNotBlank() && me.isNotBlank()

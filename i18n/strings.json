@@ -824,7 +824,7 @@
    "he": "הלוך",
    "en": "Outbound",
    "ru": "Туда",
-   "ka": "წასვლა",
+   "ka": "გამგზავრება",
    "where": "app/android",
    "note": "the outbound flight: pass strip, form section",
    "check": [
@@ -922,8 +922,8 @@
   "app.sign_group_sub": {
    "he": "יצירת קבוצה, או הצטרפות בקוד",
    "en": "Create a group, or join with a code",
-   "ru": "Создать группу или войти по коду",
-   "ka": "ჯგუფის შექმნა ან კოდით შესვლა",
+   "ru": "Создать группу или вступить по коду",
+   "ka": "ჯგუფის შექმნა ან შეერთება კოდით",
    "where": "app/android",
    "note": "home sign subtitle",
    "check": [
@@ -10229,18 +10229,6 @@
     "ka"
    ]
   },
-  "app.a_connected": {
-   "he": "מחובר",
-   "en": "Connected",
-   "ru": "Подключено",
-   "ka": "დაკავშირებულია",
-   "where": "app/android",
-   "note": "A4, a way in",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
   "app.a_not_connected": {
    "he": "לא מחובר",
    "en": "Not connected",
@@ -10769,18 +10757,6 @@
     "ka"
    ]
   },
-  "app.g_show_my_trip": {
-   "he": "הטיול שלי יופיע בקבוצה",
-   "en": "Show my trip in the group",
-   "ru": "Показывать мою поездку в группе",
-   "ka": "ჩემი მოგზაურობა ჯგუფში გამოჩნდეს",
-   "where": "app/android",
-   "note": "Q1 switch",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
   "app.g_create_it": {
    "he": "יצירת הקבוצה",
    "en": "Create the group",
@@ -11204,8 +11180,8 @@
   "app.g_code_title": {
    "he": "הצטרפות בקוד",
    "en": "Join with a code",
-   "ru": "Вход по коду",
-   "ka": "კოდით შესვლა",
+   "ru": "Вступить по коду",
+   "ka": "შეერთება კოდით",
    "where": "app/android",
    "note": "Q4 title",
    "check": [
@@ -11345,18 +11321,6 @@
     "ka"
    ]
   },
-  "app.g_tab_scores": {
-   "he": "שיאים",
-   "en": "Scores",
-   "ru": "Рекорды",
-   "ka": "რეკორდები",
-   "where": "app/android",
-   "note": "tab",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
   "app.g_tab_members": {
    "he": "חברים",
    "en": "Members",
@@ -11412,18 +11376,6 @@
    "ka": "ბორტზე",
    "where": "app/android",
    "note": "Q6, under the count",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "app.g_no_flight_yet": {
-   "he": "עוד אין טיסה",
-   "en": "No flight yet",
-   "ru": "Рейса пока нет",
-   "ka": "ფრენა ჯერ არ არის",
-   "where": "app/android",
-   "note": "Q6",
    "check": [
     "ru",
     "ka"
@@ -11777,18 +11729,6 @@
     "ka"
    ]
   },
-  "app.g_approve": {
-   "he": "אישור",
-   "en": "Approve",
-   "ru": "Подтвердить",
-   "ka": "დადასტურება",
-   "where": "app/android",
-   "note": "Q10 button",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
   "app.g_reject": {
    "he": "דחייה",
    "en": "Decline",
@@ -11850,7 +11790,7 @@
    ]
   },
   "app.g_unmake_admin": {
-   "he": "הסרה מניהול",
+   "he": "הורדה ממנהל",
    "en": "Remove as admin",
    "ru": "Снять с администраторов",
    "ka": "ადმინისტრატორობიდან მოხსნა",
