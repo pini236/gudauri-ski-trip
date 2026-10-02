@@ -7,9 +7,10 @@
 <link rel="icon" href="../../favicon.svg" type="image/svg+xml">
 <style>[hidden]{display:none!important}</style>
 <style>.back-site{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 14px;background:rgba(19,35,58,.88);color:#fff;font:700 14px "IBM Plex Sans Hebrew",system-ui,sans-serif;text-decoration:none;align-self:flex-start;flex:0 0 auto;box-sizing:border-box}.back-site:focus-visible{outline:3px solid #F4B942;outline-offset:2px}</style>
+<script src="../../js/i18n.js" data-base="../../i18n/" data-file="game-school"></script>
 <script src="../../js/prefs.js"></script>
-<title>בית הספר לסקי</title>
-<meta name="description" content="שבעה שיעורים קצרים: עקרונות הגלישה, ותרגול שמרגיש כמו על השלג">
+<title data-i18n="game.school.title">בית הספר לסקי</title>
+<meta name="description" data-i18n-attr="content:game.school.meta_description" content="שבעה שיעורים קצרים: עקרונות הגלישה, ותרגול שמרגיש כמו על השלג">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Karantina:wght@700&family=IBM+Plex+Sans+Hebrew:wght@400;600;700&display=swap">
 <style>
@@ -18,6 +19,8 @@
   --f-display:"Karantina","Arial Narrow",sans-serif; --f-body:"IBM Plex Sans Hebrew",system-ui,-apple-system,"Segoe UI",sans-serif; color-scheme:light; }
 html,body{height:100%}
 [hidden]{display:none!important}
+html[dir=ltr] body,html[dir=ltr] .skis button{direction:ltr}
+html[dir=ltr] .sign{padding:4px 26px 4px 14px;clip-path:polygon(0 0,calc(100% - 16px) 0,100% 50%,calc(100% - 16px) 100%,0 100%)}
 body{margin:0;background:#F4F8FB;color:var(--ink);font-family:var(--f-body);direction:rtl;overflow:hidden;-webkit-user-select:none;user-select:none;touch-action:none}
 #game{position:fixed;inset:0;width:100%;height:100%;display:block}
 .hud{position:fixed;left:0;right:0;top:0;padding:calc(env(safe-area-inset-top,0px) + 10px) 12px 0;display:flex;justify-content:space-between;align-items:flex-start;gap:8px;pointer-events:none}
@@ -43,7 +46,7 @@ body{margin:0;background:#F4F8FB;color:var(--ink);font-family:var(--f-body);dire
 .menu h2{margin:0;font-family:var(--f-display);font-size:30px;line-height:1}
 .menu p{margin:0;font-size:14px;line-height:1.5;max-width:36em;color:var(--muted)}
 .lessons{display:flex;flex-direction:column;gap:8px}
-.les{font:inherit;border:0;cursor:pointer;text-align:right;display:grid;grid-template-columns:auto 1fr auto;gap:2px 12px;align-items:center;background:#fff;color:var(--ink);padding:10px 12px;border-inline-start:10px solid var(--c);min-height:60px;box-shadow:0 2px 0 var(--rule)}
+.les{font:inherit;border:0;cursor:pointer;text-align:start;display:grid;grid-template-columns:auto 1fr auto;gap:2px 12px;align-items:center;background:#fff;color:var(--ink);padding:10px 12px;border-inline-start:10px solid var(--c);min-height:60px;box-shadow:0 2px 0 var(--rule)}
 .les .n{grid-row:span 2;font-family:var(--f-display);font-size:36px;line-height:1;color:var(--muted)}
 .les b{font-family:var(--f-display);font-size:25px;line-height:1}
 .les small{font-size:12.5px;color:var(--muted);grid-column:2 / 4}
@@ -84,38 +87,40 @@ button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 .skis button.on{background:var(--accent);border-color:var(--accent)}
 </style>
 
-<canvas id="game" aria-label="מדרון האימון"></canvas>
-<div class="hud" id="hud" hidden><span class="sign" id="hudName"></span><span class="box" id="spdBox"><b id="spd">0</b><small>קמ״ש</small></span></div>
+<canvas id="game" aria-label="מדרון האימון" data-i18n-attr="aria-label:game.school.canvas_label"></canvas>
+<div class="hud" id="hud" hidden><span class="sign" id="hudName"></span><span class="box" id="spdBox"><b id="spd">0</b><small data-i18n="game.school.kmh">קמ״ש</small></span></div>
 <div class="task" id="task" hidden><span id="taskTxt"></span></div>
 <div class="coach" id="coach" hidden><span id="coachTxt"></span></div>
 <div class="checks" id="checks" hidden></div>
 <div class="pop" id="pop"></div>
-<div class="slider" id="slider" hidden><div class="tr"></div><span class="lb" style="top:-2px">ישרים</span><span class="lb" style="bottom:-2px">פיצה רחבה</span><div class="hd" id="sliderHd">פיצה</div></div>
-<div class="skis" id="skis" hidden><button type="button" id="skiL"><b>מגלש שמאל</b><small>ללחוץ עליו</small></button><button type="button" id="skiR"><b>מגלש ימין</b><small>ללחוץ עליו</small></button></div>
-<button class="wedge" id="wedge" type="button" hidden><b>פיצה</b><small>להחזיק כדי להאט</small></button>
+<div class="slider" id="slider" hidden><div class="tr"></div><span class="lb" style="top:-2px" data-i18n="game.school.slider_straight">ישרים</span><span class="lb" style="bottom:-2px" data-i18n="game.school.slider_wide">פיצה רחבה</span><div class="hd" id="sliderHd" data-i18n="game.school.wedge_btn">פיצה</div></div>
+<div class="skis" id="skis" hidden><button type="button" id="skiL"><b data-i18n="game.school.ski_left">מגלש שמאל</b><small data-i18n="game.school.press_it">ללחוץ עליו</small></button><button type="button" id="skiR"><b data-i18n="game.school.ski_right">מגלש ימין</b><small data-i18n="game.school.press_it">ללחוץ עליו</small></button></div>
+<button class="wedge" id="wedge" type="button" hidden><b data-i18n="game.school.wedge_btn">פיצה</b><small data-i18n="game.school.wedge_btn_hint">להחזיק כדי להאט</small></button>
 <div class="hint" id="hint" hidden></div>
 
 <section class="menu" id="menu" aria-label="שיעורים">
-  <a class="back-site" href="../../#games" style="">→ לכל המשחקים</a>
-  <h1>בית הספר לסקי</h1>
-  <p>שבעה שיעורים קצרים, מהעצירה הראשונה ועד קרווינג. בכל שיעור עיקרון אחד, ותרגיל שבנוי בדיוק בשבילו: שליטה אחרת, משימות אחרות, ומאמן שאומר בזמן אמת מה קורה ולמה.</p>
+  <a class="back-site" href="../../#games" style="" data-i18n="game.school.back_to_games">→ לכל המשחקים</a>
+  <h1 data-i18n="game.school.title">בית הספר לסקי</h1>
+  <p data-i18n="game.school.intro">שבעה שיעורים קצרים, מהעצירה הראשונה ועד קרווינג. בכל שיעור עיקרון אחד, ותרגיל שבנוי בדיוק בשבילו: שליטה אחרת, משימות אחרות, ומאמן שאומר בזמן אמת מה קורה ולמה.</p>
   <div class="lessons" id="lessons"></div>
-  <p style="font-size:12px">משחק, לא תחליף למדריך. העקרונות כאן הם הבסיס שמדריכים מלמדים בימים הראשונים.</p>
+  <p style="font-size:12px" data-i18n="game.school.disclaimer">משחק, לא תחליף למדריך. העקרונות כאן הם הבסיס שמדריכים מלמדים בימים הראשונים.</p>
 </section>
 
-<section class="menu" id="brief" aria-label="השיעור" hidden>
+<section class="menu" id="brief" aria-label="השיעור" data-i18n-attr="aria-label:game.school.brief_label" hidden>
   <div class="card" id="briefCard"></div>
-  <button class="go-btn" id="go" type="button">לשלג!</button>
-  <div class="two"><button type="button" id="back1">לכל השיעורים</button><span></span></div>
+  <button class="go-btn" id="go" type="button" data-i18n="game.school.go">לשלג!</button>
+  <div class="two"><button type="button" id="back1" data-i18n="game.school.back_to_lessons">לכל השיעורים</button><span></span></div>
 </section>
 
-<section class="menu" id="result" aria-label="תוצאה" hidden>
+<section class="menu" id="result" aria-label="תוצאה" data-i18n-attr="aria-label:game.school.result_label" hidden>
   <div class="card" id="resCard"></div>
-  <button class="go-btn" id="next" type="button">השיעור הבא</button>
-  <div class="two"><button type="button" id="retry">עוד פעם</button><button type="button" id="back2">לכל השיעורים</button></div>
+  <button class="go-btn" id="next" type="button" data-i18n="game.school.next_lesson">השיעור הבא</button>
+  <div class="two"><button type="button" id="retry" data-i18n="game.school.retry">עוד פעם</button><button type="button" id="back2" data-i18n="game.school.back_to_lessons">לכל השיעורים</button></div>
 </section>
 
 <script>
+/* words: L('key','Hebrew',vars) from ../../js/i18n.js on the site; here it falls back to the Hebrew */
+const L=window.L||((k,he,v)=>he.replace(/\{(\w+)\}/g,(m,x)=>v&&x in v?v[x]:m));
 const G=9.81, KMH=3.6;
 const store={get(k,d){try{const v=localStorage.getItem('school-'+k);return v==null?d:JSON.parse(v);}catch(e){return d;}},set(k,v){try{localStorage.setItem('school-'+k,JSON.stringify(v));}catch(e){}}};
 const $=id=>document.getElementById(id);
@@ -123,66 +128,66 @@ const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
 const RUNCOL={green:'#1B8A4C',blue:'#1F5FC4',red:'#D1342B',black:'#13233A'};
 /* small drawings for the lesson cards (forward is up, as on the slope) */
 const D={
- wedge:`<svg width="220" height="120" viewBox="0 0 220 120"><g stroke="#13233A" stroke-width="10" stroke-linecap="square"><line x1="98" y1="14" x2="60" y2="106"/><line x1="122" y1="14" x2="160" y2="106"/></g><text x="110" y="10" font-size="11" text-anchor="middle" fill="#4B5A6F">קצוות קרובים</text><text x="110" y="118" font-size="11" text-anchor="middle" fill="#4B5A6F">זנבות רחוקים</text></svg>`,
- outer:`<svg width="220" height="130" viewBox="0 0 220 130"><path d="M110 120 Q110 60 50 14" fill="none" stroke="#CBD5DF" stroke-width="3" stroke-dasharray="6 5"/><g transform="translate(104 70) rotate(-20)"><rect x="-20" y="-36" width="8" height="70" fill="#13233A"/><rect x="12" y="-36" width="8" height="70" fill="#D1342B"/></g><text x="150" y="60" font-size="12" fill="#D1342B" font-weight="700">לוחצים על הימני</text><text x="30" y="40" font-size="12" fill="#4B5A6F">…ופונים שמאלה</text></svg>`,
- shape:`<svg width="220" height="130" viewBox="0 0 220 130"><path d="M110 124 C200 104 200 80 110 66 C20 52 20 28 110 6" fill="none" stroke="#1F5FC4" stroke-width="4"/><path d="M110 6 L110 124" stroke="#D1342B" stroke-width="3" stroke-dasharray="5 5"/><text x="118" y="120" font-size="11" fill="#D1342B">ישר במורד: מאיץ</text><text x="150" y="60" font-size="11" fill="#1F5FC4">לרוחב: מאט</text></svg>`,
- rhythm:`<svg width="220" height="120" viewBox="0 0 220 120"><path d="M110 116 C170 100 170 80 110 64 C50 48 50 28 110 8" fill="none" stroke="#1F5FC4" stroke-width="4"/><g fill="#F4B942"><circle cx="152" cy="90" r="7"/><circle cx="68" cy="36" r="7"/></g><text x="10" y="112" font-size="11" fill="#4B5A6F">טיק… טאק… טיק…</text></svg>`,
- look:`<svg width="220" height="120" viewBox="0 0 220 120"><circle cx="110" cy="108" r="10" fill="#F07A2E"/><path d="M110 98 L150 14" stroke="#4B5A6F" stroke-width="2" stroke-dasharray="4 4"/><g fill="#1F5FC4"><rect x="80" y="70" width="4" height="16" opacity=".25"/><rect x="132" y="42" width="4" height="16"/><rect x="150" y="12" width="4" height="16"/></g><text x="10" y="40" font-size="11" fill="#4B5A6F">העיניים: רחוק קדימה</text></svg>`,
- carve:`<svg width="220" height="120" viewBox="0 0 220 120"><path d="M30 110 Q110 70 190 10" fill="none" stroke="#13233A" stroke-width="2"/><path d="M40 114 Q120 74 200 14" fill="none" stroke="#13233A" stroke-width="2"/><path d="M20 40 Q50 50 80 70" fill="none" stroke="#9FB5CB" stroke-width="16" opacity=".6"/><text x="120" y="110" font-size="11" fill="#13233A">קרווינג: שני קווים דקים</text><text x="10" y="24" font-size="11" fill="#4B5A6F">החלקה: מריחה רחבה</text></svg>`,
- final:`<svg width="220" height="110" viewBox="0 0 220 110"><path d="M10 100 L80 30 L120 60 L160 14 L210 100Z" fill="#E9F1F8" stroke="#9FB5CB" stroke-width="2"/><path d="M150 26 C120 50 170 60 130 90" fill="none" stroke="#1F5FC4" stroke-width="3"/></svg>`};
+ get wedge(){return `<svg width="220" height="120" viewBox="0 0 220 120"><g stroke="#13233A" stroke-width="10" stroke-linecap="square"><line x1="98" y1="14" x2="60" y2="106"/><line x1="122" y1="14" x2="160" y2="106"/></g><text x="110" y="10" font-size="11" text-anchor="middle" fill="#4B5A6F">${L('game.school.d_tips_close','קצוות קרובים')}</text><text x="110" y="118" font-size="11" text-anchor="middle" fill="#4B5A6F">${L('game.school.d_tails_apart','זנבות רחוקים')}</text></svg>`;},
+ get outer(){return `<svg width="220" height="130" viewBox="0 0 220 130"><path d="M110 120 Q110 60 50 14" fill="none" stroke="#CBD5DF" stroke-width="3" stroke-dasharray="6 5"/><g transform="translate(104 70) rotate(-20)"><rect x="-20" y="-36" width="8" height="70" fill="#13233A"/><rect x="12" y="-36" width="8" height="70" fill="#D1342B"/></g><text x="150" y="60" font-size="12" fill="#D1342B" font-weight="700">${L('game.school.d_press_right','לוחצים על הימני')}</text><text x="30" y="40" font-size="12" fill="#4B5A6F">${L('game.school.d_turn_left','…ופונים שמאלה')}</text></svg>`;},
+ get shape(){return `<svg width="220" height="130" viewBox="0 0 220 130"><path d="M110 124 C200 104 200 80 110 66 C20 52 20 28 110 6" fill="none" stroke="#1F5FC4" stroke-width="4"/><path d="M110 6 L110 124" stroke="#D1342B" stroke-width="3" stroke-dasharray="5 5"/><text x="118" y="120" font-size="11" fill="#D1342B">${L('game.school.d_straight_fast','ישר במורד: מאיץ')}</text><text x="150" y="60" font-size="11" fill="#1F5FC4">${L('game.school.d_across_slow','לרוחב: מאט')}</text></svg>`;},
+ get rhythm(){return `<svg width="220" height="120" viewBox="0 0 220 120"><path d="M110 116 C170 100 170 80 110 64 C50 48 50 28 110 8" fill="none" stroke="#1F5FC4" stroke-width="4"/><g fill="#F4B942"><circle cx="152" cy="90" r="7"/><circle cx="68" cy="36" r="7"/></g><text x="10" y="112" font-size="11" fill="#4B5A6F">${L('game.school.d_tick','טיק… טאק… טיק…')}</text></svg>`;},
+ get look(){return `<svg width="220" height="120" viewBox="0 0 220 120"><circle cx="110" cy="108" r="10" fill="#F07A2E"/><path d="M110 98 L150 14" stroke="#4B5A6F" stroke-width="2" stroke-dasharray="4 4"/><g fill="#1F5FC4"><rect x="80" y="70" width="4" height="16" opacity=".25"/><rect x="132" y="42" width="4" height="16"/><rect x="150" y="12" width="4" height="16"/></g><text x="10" y="40" font-size="11" fill="#4B5A6F">${L('game.school.d_eyes_far','העיניים: רחוק קדימה')}</text></svg>`;},
+ get carve(){return `<svg width="220" height="120" viewBox="0 0 220 120"><path d="M30 110 Q110 70 190 10" fill="none" stroke="#13233A" stroke-width="2"/><path d="M40 114 Q120 74 200 14" fill="none" stroke="#13233A" stroke-width="2"/><path d="M20 40 Q50 50 80 70" fill="none" stroke="#9FB5CB" stroke-width="16" opacity=".6"/><text x="120" y="110" font-size="11" fill="#13233A">${L('game.school.d_carve_lines','קרווינג: שני קווים דקים')}</text><text x="10" y="24" font-size="11" fill="#4B5A6F">${L('game.school.d_skid_smear','החלקה: מריחה רחבה')}</text></svg>`;},
+ get final(){return `<svg width="220" height="110" viewBox="0 0 220 110"><path d="M10 100 L80 30 L120 60 L160 14 L210 100Z" fill="#E9F1F8" stroke="#9FB5CB" stroke-width="2"/><path d="M150 26 C120 50 170 60 130 90" fill="none" stroke="#1F5FC4" stroke-width="3"/></svg>`;}};
 /* seven lessons. Each has its own control (mode) and its own drill. y runs down the slope; gates are [x, y, width] */
-const L=[
- {name:'עוצרים בפיצה', col:'green', mode:'wedge', slope:9, len:125, start:4, d:D.wedge,
-  rule:'בפיצה, קצות המגלשיים קרובים והזנבות רחוקים. דוחפים את הזנבות החוצה עם העקבים. ככל שהפיצה רחבה יותר, הבלימה חזקה יותר. פיצה צרה רק מאטה.',
-  ctrl:'המגלשיים ישרים לבד. גוררים אצבע למעלה ולמטה, והסרגל בצד קובע את רוחב הפיצה: למטה רחבה, למעלה צרה.',
-  drill:'שלושה קווי עצירה: לעצור לגמרי ממש לפניהם, ואז לצמצם את הפיצה ולהמשיך. בין קו 2 לקו 3, רצועה ירוקה: להחזיק בה מהירות של 6 עד 10 קמ״ש, בעזרת רוחב הפיצה.',
-  goals:['לעצור לפני שלושת הקווים','להחזיק את המהירות ברצועה הירוקה','לעצור במרחק ממוצע של עד 1.5 מ׳']},
- {name:'פונים בפיצה', col:'green', mode:'skis', slope:10, len:175, start:3, d:D.outer,
+const LS=[
+ {get name(){return L('game.school.lesson1_title','עוצרים בפיצה');}, col:'green', mode:'wedge', slope:9, len:125, start:4, get d(){return D.wedge;},
+  get rule(){return L('game.school.lesson1_rule','בפיצה, קצות המגלשיים קרובים והזנבות רחוקים. דוחפים את הזנבות החוצה עם העקבים. ככל שהפיצה רחבה יותר, הבלימה חזקה יותר. פיצה צרה רק מאטה.');},
+  get ctrl(){return L('game.school.lesson1_controls','המגלשיים ישרים לבד. גוררים אצבע למעלה ולמטה, והסרגל בצד קובע את רוחב הפיצה: למטה רחבה, למעלה צרה.');},
+  get drill(){return L('game.school.lesson1_drill','שלושה קווי עצירה: לעצור לגמרי ממש לפניהם, ואז לצמצם את הפיצה ולהמשיך. בין קו 2 לקו 3, רצועה ירוקה: להחזיק בה מהירות של 6 עד 10 קמ״ש, בעזרת רוחב הפיצה.');},
+  get goals(){return [L('game.school.lesson1_goal1','לעצור לפני שלושת הקווים'),L('game.school.lesson1_goal2','להחזיק את המהירות ברצועה הירוקה'),L('game.school.lesson1_goal3','לעצור במרחק ממוצע של עד 1.5 מ׳')];}},
+ {get name(){return L('game.school.lesson2_title','פונים בפיצה');}, col:'green', mode:'skis', slope:10, len:175, start:3, get d(){return D.outer;},
   gates:[[-5,28,6],[5,52,6],[-5,76,6],[5,100,6],[-5,124,6],[5,148,6]],
-  rule:'כדי לפנות שמאלה, לוחצים על המגלש הימני, החיצוני. כדי לפנות ימינה, על השמאלי. זה הפוך ממה שנדמה בהתחלה, ולכן מתרגלים את זה.',
-  ctrl:'שני כפתורים: מגלש שמאל ומגלש ימין. לוחצים על אחד מהם, וזה המגלש שעליו כל המשקל.',
-  drill:'שישה שערים, פעם משמאל ופעם מימין. לפני כל שער המאמן שואל לאן פונים, ואתם בוחרים על איזה מגלש ללחוץ.',
-  goals:['לעבור לפחות 4 שערים','לעבור את כל 6 השערים','כל השערים, ולכל היותר לחיצה הפוכה אחת']},
- {name:'הסיבוב הוא הבלם', col:'blue', mode:'steer', slope:15, len:285, start:3, d:D.shape, demo:3.5,
+  get rule(){return L('game.school.lesson2_rule','כדי לפנות שמאלה, לוחצים על המגלש הימני, החיצוני. כדי לפנות ימינה, על השמאלי. זה הפוך ממה שנדמה בהתחלה, ולכן מתרגלים את זה.');},
+  get ctrl(){return L('game.school.lesson2_controls','שני כפתורים: מגלש שמאל ומגלש ימין. לוחצים על אחד מהם, וזה המגלש שעליו כל המשקל.');},
+  get drill(){return L('game.school.lesson2_drill','שישה שערים, פעם משמאל ופעם מימין. לפני כל שער המאמן שואל לאן פונים, ואתם בוחרים על איזה מגלש ללחוץ.');},
+  get goals(){return [L('game.school.lesson2_goal1','לעבור לפחות 4 שערים'),L('game.school.lesson2_goal2','לעבור את כל 6 השערים'),L('game.school.lesson2_goal3','כל השערים, ולכל היותר לחיצה הפוכה אחת')];}},
+ {get name(){return L('game.school.lesson3_title','הסיבוב הוא הבלם');}, col:'blue', mode:'steer', slope:15, len:285, start:3, get d(){return D.shape;}, demo:3.5,
   traps:[70,130,190,250], trapLimit:22,
-  rule:'בלי פיצה, את המהירות שולטים בצורת הסיבוב. ישר במורד מאיץ. באלכסון מאיץ פחות. לרוחב המדרון מאט. כל סיבוב שמסתיים לרוחב הוא בלימה.',
-  ctrl:'המגלשיים פונים לכיוון האצבע. בהתחלה רק צופים: כמה שניות ישר במורד, כדי להרגיש כמה מהר זה מאיץ.',
-  drill:'ארבע מכמונות מהירות: לעבור כל אחת מתחת ל-22 קמ״ש, בלי פיצה. המאמן אומר כל רגע אם אתם מאיצים או מאטים.',
-  goals:['לעבור 3 מכמונות','לעבור את כל 4 המכמונות','כל המכמונות, ואף פעם לא מעל 35 קמ״ש']},
- {name:'מקבילי, בקצב', col:'blue', mode:'rhythm', slope:14, len:240, start:5, beat:1.15, d:D.rhythm,
-  rule:'גולש טוב מסובב בקצב קבוע: כל סיבוב מתחיל כשהקודם נגמר. מתחילים מוקדם, לא כשהעץ כבר מולך. המגלשיים מקבילים, ברוחב הירכיים.',
-  ctrl:'נגיעה בכל מקום במסך מתחילה סיבוב לצד השני. אין צורך לכוון.',
-  drill:'מטרונום מתקתק. נוגעים בדיוק על הפעימה. כל נגיעה מקבלת ציון: מושלם, טוב, מוקדם או מאוחר. פעימה שמפספסים, והמהירות עולה.',
-  goals:['10 סיבובים בקצב (טוב או מושלם)','8 סיבובים מושלמים','רצף של 8 סיבובים בקצב']},
- {name:'מבט קדימה', col:'red', mode:'steer', slope:15, len:260, start:4, d:D.look, traffic:true, fade:true,
+  get rule(){return L('game.school.lesson3_rule','בלי פיצה, את המהירות שולטים בצורת הסיבוב. ישר במורד מאיץ. באלכסון מאיץ פחות. לרוחב המדרון מאט. כל סיבוב שמסתיים לרוחב הוא בלימה.');},
+  get ctrl(){return L('game.school.lesson3_controls','המגלשיים פונים לכיוון האצבע. בהתחלה רק צופים: כמה שניות ישר במורד, כדי להרגיש כמה מהר זה מאיץ.');},
+  get drill(){return L('game.school.lesson3_drill','ארבע מכמונות מהירות: לעבור כל אחת מתחת ל-22 קמ״ש, בלי פיצה. המאמן אומר כל רגע אם אתם מאיצים או מאטים.');},
+  get goals(){return [L('game.school.lesson3_goal1','לעבור 3 מכמונות'),L('game.school.lesson3_goal2','לעבור את כל 4 המכמונות'),L('game.school.lesson3_goal3','כל המכמונות, ואף פעם לא מעל 35 קמ״ש')];}},
+ {get name(){return L('game.school.lesson4_title','מקבילי, בקצב');}, col:'blue', mode:'rhythm', slope:14, len:240, start:5, beat:1.15, get d(){return D.rhythm;},
+  get rule(){return L('game.school.lesson4_rule','גולש טוב מסובב בקצב קבוע: כל סיבוב מתחיל כשהקודם נגמר. מתחילים מוקדם, לא כשהעץ כבר מולך. המגלשיים מקבילים, ברוחב הירכיים.');},
+  get ctrl(){return L('game.school.lesson4_controls','נגיעה בכל מקום במסך מתחילה סיבוב לצד השני. אין צורך לכוון.');},
+  get drill(){return L('game.school.lesson4_drill','מטרונום מתקתק. נוגעים בדיוק על הפעימה. כל נגיעה מקבלת ציון: מושלם, טוב, מוקדם או מאוחר. פעימה שמפספסים, והמהירות עולה.');},
+  get goals(){return [L('game.school.lesson4_goal1','10 סיבובים בקצב (טוב או מושלם)'),L('game.school.lesson4_goal2','8 סיבובים מושלמים'),L('game.school.lesson4_goal3','רצף של 8 סיבובים בקצב')];}},
+ {get name(){return L('game.school.lesson5_title','מבט קדימה');}, col:'red', mode:'steer', slope:15, len:260, start:4, get d(){return D.look;}, traffic:true, fade:true,
   gates:[[0,35,6],[-6,70,6],[5,105,6],[-4,140,6],[6,175,6],[-5,210,6],[3,245,6]],
-  rule:'מסתכלים שלושה סיבובים קדימה, לא על קצות המגלשיים. מי שגולש לפניכם, נמוך מכם, תמיד קודם. עוקפים אותו במרחק.',
-  ctrl:'המגלשיים פונים לכיוון האצבע.',
-  drill:'הדגלים נעלמים כשמתקרבים אליהם, כמו שקורה כשמסתכלים על המגלשיים. רואים אותם רק מרחוק, ולכן מתכננים מרחוק. בדרך גולשים אחרים.',
-  goals:['לעבור 5 שערים','לעבור 6 שערים, בלי התנגשות','כל 7 השערים, בלי התנגשות']},
- {name:'קרווינג', col:'red', mode:'lean', slope:16, len:285, start:6, d:D.carve,
-  rule:'בקרווינג לא מסובבים את המגלשיים. מטים אותם על הקנט, והצורה שלהם מסובבת אתכם. יותר הטיה, סיבוב הדוק יותר. מעבר חד מקנט לקנט שובר את האחיזה ומחליק.',
-  ctrl:'הפעם האצבע לא מכוונת. היא קובעת כמה להטות: ימינה מהמרכז מטה ימינה, שמאלה מטה שמאלה. המד בתחתית מראה את ההטיה.',
-  drill:'לצייר קשתות נקיות: כל סיבוב שלם בלי החלקה הוא "קשת נקייה". שני קווים דקים בשלג אומרים שזה עבד. מעבר חד ומהיר מורח את השלג.',
-  goals:['4 קשתות נקיות','8 קשתות נקיות','8 קשתות, ופחות משנייה וחצי של החלקה']},
- {name:'מבחן סיום', col:'blue', mode:'steer', slope:16, len:340, start:4, d:D.final, wedgeBtn:true, traffic:true, limit:40,
+  get rule(){return L('game.school.lesson5_rule','מסתכלים שלושה סיבובים קדימה, לא על קצות המגלשיים. מי שגולש לפניכם, נמוך מכם, תמיד קודם. עוקפים אותו במרחק.');},
+  get ctrl(){return L('game.school.lesson5_controls','המגלשיים פונים לכיוון האצבע.');},
+  get drill(){return L('game.school.lesson5_drill','הדגלים נעלמים כשמתקרבים אליהם, כמו שקורה כשמסתכלים על המגלשיים. רואים אותם רק מרחוק, ולכן מתכננים מרחוק. בדרך גולשים אחרים.');},
+  get goals(){return [L('game.school.lesson5_goal1','לעבור 5 שערים'),L('game.school.lesson5_goal2','לעבור 6 שערים, בלי התנגשות'),L('game.school.lesson5_goal3','כל 7 השערים, בלי התנגשות')];}},
+ {get name(){return L('game.school.lesson6_title','קרווינג');}, col:'red', mode:'lean', slope:16, len:285, start:6, get d(){return D.carve;},
+  get rule(){return L('game.school.lesson6_rule','בקרווינג לא מסובבים את המגלשיים. מטים אותם על הקנט, והצורה שלהם מסובבת אתכם. יותר הטיה, סיבוב הדוק יותר. מעבר חד מקנט לקנט שובר את האחיזה ומחליק.');},
+  get ctrl(){return L('game.school.lesson6_controls','הפעם האצבע לא מכוונת. היא קובעת כמה להטות: ימינה מהמרכז מטה ימינה, שמאלה מטה שמאלה. המד בתחתית מראה את ההטיה.');},
+  get drill(){return L('game.school.lesson6_drill','לצייר קשתות נקיות: כל סיבוב שלם בלי החלקה הוא "קשת נקייה". שני קווים דקים בשלג אומרים שזה עבד. מעבר חד ומהיר מורח את השלג.');},
+  get goals(){return [L('game.school.lesson6_goal1','4 קשתות נקיות'),L('game.school.lesson6_goal2','8 קשתות נקיות'),L('game.school.lesson6_goal3','8 קשתות, ופחות משנייה וחצי של החלקה')];}},
+ {get name(){return L('game.school.lesson7_title','מבחן סיום');}, col:'blue', mode:'steer', slope:16, len:340, start:4, get d(){return D.final;}, wedgeBtn:true, traffic:true, limit:40,
   gates:[[-5,40,7],[5,85,7],[-6,130,7],[4,175,7],[-5,220,7],[5,265,7],[0,310,8]],
-  rule:'הכל ביחד: מבט קדימה, צורת סיבוב ששולטת במהירות, ופיצה רק כשבאמת צריך.',
-  ctrl:'המגלשיים פונים לכיוון האצבע. כפתור "פיצה" לבלימה.',
-  drill:'שערים, גולשים אחרים, ומהירות עד 40 קמ״ש.',
-  goals:['לסיים, עם לפחות 5 שערים','כל השערים, בלי התנגשות','וגם מתחת ל-40 ב-90% מהזמן']}];
+  get rule(){return L('game.school.lesson7_rule','הכל ביחד: מבט קדימה, צורת סיבוב ששולטת במהירות, ופיצה רק כשבאמת צריך.');},
+  get ctrl(){return L('game.school.lesson7_controls','המגלשיים פונים לכיוון האצבע. כפתור "פיצה" לבלימה.');},
+  get drill(){return L('game.school.lesson7_drill','שערים, גולשים אחרים, ומהירות עד 40 קמ״ש.');},
+  get goals(){return [L('game.school.lesson7_goal1','לסיים, עם לפחות 5 שערים'),L('game.school.lesson7_goal2','כל השערים, בלי התנגשות'),L('game.school.lesson7_goal3','וגם מתחת ל-40 ב-90% מהזמן')];}}];
 
 /* ---------- menus ---------- */
 const stars=i=>store.get('stars-'+i,0);
-function drawMenu(){ $('lessons').innerHTML=L.map((l,i)=>{ const open=i===0||stars(i-1)>0, st=stars(i);
+function drawMenu(){ $('lessons').innerHTML=LS.map((l,i)=>{ const open=i===0||stars(i-1)>0, st=stars(i);
   return `<button class="les" type="button" style="--c:${RUNCOL[l.col]}" data-i="${i}" ${open?'':'disabled'}><span class="n">${i+1}</span><b>${l.name}</b><span class="st">${open?'★'.repeat(st)+'☆'.repeat(3-st):'🔒'}</span><small>${l.drill.split('.')[0]}.</small></button>`; }).join(''); }
 let cur=0;
 $('lessons').onclick=e=>{ const b=e.target.closest('[data-i]'); if(!b||b.disabled) return; brief(+b.dataset.i); };
-function brief(i){ cur=i; const l=L[i]; state='brief'; hideHud(); $('menu').hidden=true; $('result').hidden=true; $('brief').hidden=false;
+function brief(i){ cur=i; const l=LS[i]; state='brief'; hideHud(); $('menu').hidden=true; $('result').hidden=true; $('brief').hidden=false;
   $('briefCard').style.setProperty('--c',RUNCOL[l.col]);
-  $('briefCard').innerHTML=`<span class="k">שיעור ${i+1} מתוך ${L.length}</span><h3>${l.name}</h3>${l.d}<p class="rule">${l.rule}</p><div class="ctrl"><b>השליטה:</b> ${l.ctrl}</div><div class="ctrl"><b>התרגיל:</b> ${l.drill}</div><div class="goals">${l.goals.map(g=>`<span>${g}</span>`).join('')}</div>`; }
+  $('briefCard').innerHTML=`<span class="k">${L('game.school.brief_header','שיעור {n} מתוך {total}',{n:i+1,total:LS.length})}</span><h3>${l.name}</h3>${l.d}<p class="rule">${l.rule}</p><div class="ctrl"><b>${L('game.school.brief_controls','השליטה:')}</b> ${l.ctrl}</div><div class="ctrl"><b>${L('game.school.brief_drill','התרגיל:')}</b> ${l.drill}</div><div class="goals">${l.goals.map(g=>`<span>${g}</span>`).join('')}</div>`; }
 $('go').onclick=()=>start(); $('retry').onclick=()=>brief(cur);
-$('next').onclick=()=>{ if(cur<L.length-1) brief(cur+1); else toMenu(); };
+$('next').onclick=()=>{ if(cur<LS.length-1) brief(cur+1); else toMenu(); };
 $('back1').onclick=toMenu; $('back2').onclick=toMenu;
 const HUD=['hud','task','coach','checks','slider','skis','wedge','hint'];
 function hideHud(){ HUD.forEach(id=>$(id).hidden=true); }
@@ -201,7 +206,7 @@ function resize(){ const d=Math.min(2,devicePixelRatio||1); W=innerWidth; H=inne
 addEventListener('resize',resize); resize();
 let state='menu', lv, S, tracks, gates, people, finger=null, t=0, st, camY=0, camX=0, last=performance.now(), ctl={};
 const sx=x=>W/2+(x-camX)*PX, sy=y=>H*.7-(y-camY)*PX;
-function start(){ lv=L[cur]; audio(); if(AC&&AC.state==='suspended') AC.resume();
+function start(){ lv=LS[cur]; audio(); if(AC&&AC.state==='suspended') AC.resume();
   S={x:0,y:-2,h:0,v:lv.start||3,wedge:0,skid:0,edge:0,crashT:0};
   gates=(lv.gates||[]).map(g=>({x:g[0],y:g[1],w:g[2],done:null}));
   people=[]; if(lv.traffic){ for(let k=0;k<6;k++) people.push({x:(k%2?1:-1)*(2+((k*37)%6)),y:45+k*(lv.len-70)/6,v:2+(k%3)*.8,ph:k*1.3,amp:2.5+(k%3),c:['#1B8A4C','#7B4FC4','#F4B942','#1F5FC4'][k%4],hit:false}); }
@@ -217,7 +222,7 @@ function start(){ lv=L[cur]; audio(); if(AC&&AC.state==='suspended') AC.resume()
   ['hud','task','coach','checks'].forEach(id=>$(id).hidden=false);
   $('slider').hidden=lv.mode!=='wedge'; $('skis').hidden=lv.mode!=='skis'; $('wedge').hidden=!lv.wedgeBtn; $('wedge').classList.remove('on');
   $('hudName').textContent=(cur+1)+'. '+lv.name; $('taskTxt').textContent=lv.drill.split('.')[0];
-  coach(lv.mode==='steer'&&lv.demo?'צופים: ישר במורד, בלי לגעת':'מתחילים');
+  coach(lv.mode==='steer'&&lv.demo?L('game.school.coach_watch_demo','צופים: ישר במורד, בלי לגעת'):L('game.school.coach_start','מתחילים'));
   state='run'; checks(); }
 function popText(s){ const p=$('pop'); p.textContent=s; p.classList.remove('go'); void p.offsetWidth; p.classList.add('go'); }
 let coachLast='';
@@ -236,15 +241,15 @@ addEventListener('keyup',e=>{ keys[e.code]=false; if(e.code==='ArrowLeft') ctl.s
 function nextGate(){ return gates.find(g=>g.done==null); }
 function pressSki(key){ if(state!=='run'||lv.mode!=='skis') return; const g=nextGate(); const turnsLeft = key==='skiR';
   if(g){ const need = g.x < S.x-1 ? 'left' : g.x > S.x+1 ? 'right' : null;
-    if(need && ((need==='left')!==turnsLeft)){ st.wrong++; coach(turnsLeft?'לחצת על הימני, ופנית שמאלה. השער מימין: לוחצים על השמאלי':'לחצת על השמאלי, ופנית ימינה. השער משמאל: לוחצים על הימני','bad'); buzz(30); ding(200,.2,.15,'square'); checks(); }
-    else if(need) coach(turnsLeft?'נכון: ימני, החיצוני, מפנה שמאלה':'נכון: שמאלי, החיצוני, מפנה ימינה','good'); } }
+    if(need && ((need==='left')!==turnsLeft)){ st.wrong++; coach(turnsLeft?L('game.school.coach_wrong_left','לחצת על הימני, ופנית שמאלה. השער מימין: לוחצים על השמאלי'):L('game.school.coach_wrong_right','לחצת על השמאלי, ופנית ימינה. השער משמאל: לוחצים על הימני'),'bad'); buzz(30); ding(200,.2,.15,'square'); checks(); }
+    else if(need) coach(turnsLeft?L('game.school.coach_correct_left','נכון: ימני, החיצוני, מפנה שמאלה'):L('game.school.coach_correct_right','נכון: שמאלי, החיצוני, מפנה ימינה'),'good'); } }
 /* lesson 4: every tap starts a turn; the coach grades the timing against the beat */
 function tap(){ if(state!=='run') return; st.taps++; st.lastTap=t; const B=lv.beat, ph=((t-st.beat0)%B+B)%B, off=Math.min(ph,B-ph)*(ph<B/2?1:-1);
   ctl.turnDir*=-1; ctl.target=ctl.turnDir*.95;
   const a=Math.abs(off); let txt, cls;
-  if(a<.12){ st.perfect++; st.good++; st.streak++; txt='מושלם!'; cls='good'; ding(880,.12,.15); }
-  else if(a<.25){ st.good++; st.streak++; txt='טוב'; cls='good'; ding(660,.1,.12); }
-  else { st.streak=0; txt= off>0?'מאוחר: מתחילים את הסיבוב קודם':'מוקדם: לחכות לפעימה'; cls='bad'; ding(220,.12,.1,'square'); }
+  if(a<.12){ st.perfect++; st.good++; st.streak++; txt=L('game.school.beat_perfect','מושלם!'); cls='good'; ding(880,.12,.15); }
+  else if(a<.25){ st.good++; st.streak++; txt=L('game.school.beat_good','טוב'); cls='good'; ding(660,.1,.12); }
+  else { st.streak=0; txt= off>0?L('game.school.beat_late','מאוחר: מתחילים את הסיבוב קודם'):L('game.school.beat_early','מוקדם: לחכות לפעימה'); cls='bad'; ding(220,.12,.1,'square'); }
   st.best=Math.max(st.best,st.streak); coach(txt,cls); checks(); }
 
 function frame(now){ const dt=Math.min(.033,(now-last)/1000); last=now; if(state==='run'||state==='done') update(dt); draw(); requestAnimationFrame(frame); }
@@ -254,7 +259,7 @@ function update(dt){
   if(lv.mode==='wedge'){ want=0;
     if(finger){ const top=H*.3, bot=H*.82; ctl.wedge=Math.max(0,Math.min(1,(finger.y-top)/(bot-top))); }
     if(keys.ArrowDown) ctl.wedge=Math.min(1,ctl.wedge+dt*.8); if(keys.ArrowUp) ctl.wedge=Math.max(0,ctl.wedge-dt*.8);
-    wedge=ctl.wedge; const hd=$('sliderHd'); hd.style.top=(ctl.wedge*100)+'%'; hd.textContent='פיצה '+Math.round(ctl.wedge*100)+'%'; }
+    wedge=ctl.wedge; const hd=$('sliderHd'); hd.style.top=(ctl.wedge*100)+'%'; hd.textContent=L('game.school.slider_pct','פיצה {pct}%',{pct:Math.round(ctl.wedge*100)}); }
   else if(lv.mode==='skis'){ wedge=.25; rateMax=1.3; want = ctl.skiR&&!ctl.skiL ? -.75 : ctl.skiL&&!ctl.skiR ? .75 : S.h*.6; }
   else if(lv.mode==='steer'){
     if(lv.demo && t<lv.demo){ want=0; }
@@ -285,10 +290,10 @@ function update(dt){
   if(lv.limit){ if(kmh<=lv.limit) st.under+=dt; $('spdBox').classList.toggle('over',kmh>lv.limit); }
   if(AC&&hissG){ hissG.gain.value=Math.min(.22,S.v*.012+S.skid*.12+S.wedge*.05); hissF.frequency.value=900+S.v*80+S.skid*1500; }
   drills(dt,kmh);
-  for(const g of gates){ if(g.done==null && S.y>=g.y){ g.done=Math.abs(S.x-g.x)<=g.w/2; if(g.done){ st.gates++; ding(660+st.gates*30); popText('שער!'); } else { popText('פספסת שער'); buzz(20); } checks(); } }
+  for(const g of gates){ if(g.done==null && S.y>=g.y){ g.done=Math.abs(S.x-g.x)<=g.w/2; if(g.done){ st.gates++; ding(660+st.gates*30); popText(L('game.school.pop_gate','שער!')); } else { popText(L('game.school.pop_gate_missed','פספסת שער')); buzz(20); } checks(); } }
   for(const p of people){ p.ph+=dt*.6; p.x+=Math.cos(p.ph)*p.amp*dt*.8; p.y+=p.v*dt;
-    if(!p.hit && Math.hypot(p.x-S.x,p.y-S.y)<1.3 && S.crashT<=0){ p.hit=true; st.crashes++; S.crashT=.8; S.v*=.3; popText('התנגשות!'); coach('מי שלמטה ממך תמיד קודם. עוקפים במרחק','bad'); buzz([30,40,30]); checks(); }
-    else if(!p.hit && p.y>S.y && p.y-S.y<9 && Math.abs(p.x-S.x)<3) coach('גולש לפניך: לעקוף במרחק'); }
+    if(!p.hit && Math.hypot(p.x-S.x,p.y-S.y)<1.3 && S.crashT<=0){ p.hit=true; st.crashes++; S.crashT=.8; S.v*=.3; popText(L('game.school.pop_crash','התנגשות!')); coach(L('game.school.coach_priority','מי שלמטה ממך תמיד קודם. עוקפים במרחק'),'bad'); buzz([30,40,30]); checks(); }
+    else if(!p.hit && p.y>S.y && p.y-S.y<9 && Math.abs(p.x-S.x)<3) coach(L('game.school.coach_skier_ahead','גולש לפניך: לעקוף במרחק')); }
   if(S.y>=lv.len) finishLesson();
 }
 /* ---------- what each drill watches and says ---------- */
@@ -297,54 +302,54 @@ function drills(dt,kmh){
   if(lv.mode==='wedge'){
     const line=STOPS[st.stopIdx];
     if(line!=null){ const d=line-S.y;
-      if(S.v<.12 && d>=0 && d<6 && t>1){ st.stops.push(d); st.stopIdx++; popText(d<1.5?'עצירה מושלמת!':'עצרת'); ding(d<1.5?880:660); coach('עכשיו לצמצם את הפיצה (למעלה) ולהמשיך','good'); checks(); if(st.stopIdx>=STOPS.length) setTimeout(finishLesson,900); }
-      else if(S.y>line){ st.stops.push(null); st.stopIdx++; popText('עברת את הקו'); buzz(30); checks(); if(st.stopIdx>=STOPS.length) setTimeout(finishLesson,900); }
-      else if(d<14 && S.v>2) coach('הקו מתקרב: לפתוח פיצה רחבה (למטה)'); }
-    if(S.y>BAND[0]&&S.y<BAND[1]){ st.bandT+=dt; if(kmh>=6&&kmh<=10){ st.band+=dt; coach('בדיוק ברצועה: '+Math.round(kmh)+' קמ״ש','good'); } else coach(kmh>10?'מהר מדי: עוד קצת פיצה':'לאט מדי: פיצה צרה יותר','bad'); }
-    else if(!(line!=null && line-S.y<14 && S.v>2)){ coach(ctl.wedge<.2?'מגלשיים כמעט ישרים: מאיצים':ctl.wedge<.6?'פיצה צרה: מאטה בעדינות':'פיצה רחבה: בלימה חזקה', ctl.wedge>=.6?'good':''); }
+      if(S.v<.12 && d>=0 && d<6 && t>1){ st.stops.push(d); st.stopIdx++; popText(d<1.5?L('game.school.pop_stop_perfect','עצירה מושלמת!'):L('game.school.pop_stopped','עצרת')); ding(d<1.5?880:660); coach(L('game.school.coach_narrow_continue','עכשיו לצמצם את הפיצה (למעלה) ולהמשיך'),'good'); checks(); if(st.stopIdx>=STOPS.length) setTimeout(finishLesson,900); }
+      else if(S.y>line){ st.stops.push(null); st.stopIdx++; popText(L('game.school.pop_line_passed','עברת את הקו')); buzz(30); checks(); if(st.stopIdx>=STOPS.length) setTimeout(finishLesson,900); }
+      else if(d<14 && S.v>2) coach(L('game.school.coach_line_close','הקו מתקרב: לפתוח פיצה רחבה (למטה)')); }
+    if(S.y>BAND[0]&&S.y<BAND[1]){ st.bandT+=dt; if(kmh>=6&&kmh<=10){ st.band+=dt; coach(L('game.school.coach_in_band','בדיוק ברצועה: {kmh} קמ״ש',{kmh:Math.round(kmh)}),'good'); } else coach(kmh>10?L('game.school.coach_too_fast','מהר מדי: עוד קצת פיצה'):L('game.school.coach_too_slow','לאט מדי: פיצה צרה יותר'),'bad'); }
+    else if(!(line!=null && line-S.y<14 && S.v>2)){ coach(ctl.wedge<.2?L('game.school.coach_skis_straight','מגלשיים כמעט ישרים: מאיצים'):ctl.wedge<.6?L('game.school.coach_narrow_pizza','פיצה צרה: מאטה בעדינות'):L('game.school.coach_wide_pizza','פיצה רחבה: בלימה חזקה'), ctl.wedge>=.6?'good':''); }
   }
-  if(lv.mode==='skis'){ const g=nextGate(); if(g && !ctl.skiL && !ctl.skiR){ const side=g.x<S.x?'משמאל':'מימין'; if(st.asked!==g){ st.asked=g; } coach('השער הבא '+side+'. על איזה מגלש לוחצים?'); } }
+  if(lv.mode==='skis'){ const g=nextGate(); if(g && !ctl.skiL && !ctl.skiR){ if(st.asked!==g){ st.asked=g; } coach(g.x<S.x?L('game.school.coach_next_gate_left','השער הבא משמאל. על איזה מגלש לוחצים?'):L('game.school.coach_next_gate_right','השער הבא מימין. על איזה מגלש לוחצים?')); } }
   if(lv.mode==='steer' && lv.traps){
-    if(lv.demo && t<lv.demo){ coach('צופים: ישר במורד, '+Math.round(kmh)+' קמ״ש ועולה'); return; }
-    if(lv.demo && t<lv.demo+.1) popText('עכשיו אתם!');
+    if(lv.demo && t<lv.demo){ coach(L('game.school.coach_demo_speed','צופים: ישר במורד, {kmh} קמ״ש ועולה',{kmh:Math.round(kmh)})); return; }
+    if(lv.demo && t<lv.demo+.1) popText(L('game.school.pop_your_turn','עכשיו אתם!'));
     const tr=lv.traps[st.trapIdx];
-    if(tr!=null && S.y>=tr){ const ok=kmh<=lv.trapLimit; st.traps.push(ok); st.trapIdx++; popText(ok?'עברת את המכמונת!':'נתפסת: '+Math.round(kmh)+' קמ״ש'); ok?ding(880):buzz(40); checks(); }
-    const ah=Math.abs(S.h); coach(ah<.35?'ישר במורד: מאיץ':ah<1.0?'באלכסון: מאיץ פחות':'לרוחב המדרון: מאט', ah<.35?'bad':ah>1?'good':''); }
+    if(tr!=null && S.y>=tr){ const ok=kmh<=lv.trapLimit; st.traps.push(ok); st.trapIdx++; popText(ok?L('game.school.pop_trap_ok','עברת את המכמונת!'):L('game.school.pop_trap_caught','נתפסת: {kmh} קמ״ש',{kmh:Math.round(kmh)})); ok?ding(880):buzz(40); checks(); }
+    const ah=Math.abs(S.h); coach(ah<.35?L('game.school.coach_straight','ישר במורד: מאיץ'):ah<1.0?L('game.school.coach_diagonal','באלכסון: מאיץ פחות'):L('game.school.coach_across','לרוחב המדרון: מאט'), ah<.35?'bad':ah>1?'good':''); }
   if(lv.mode==='rhythm'){ const B=lv.beat, n=Math.floor((t-st.beat0)/B);
-    if(n>st.beatN){ st.beatN=n; ding(1200,.05,.12,'square'); st.pulse=1; if(t-st.lastTap>B*1.8&&st.taps>0){ st.streak=0; coach('פספסת פעימה: המהירות עולה','bad'); } }
-    st.pulse=Math.max(0,(st.pulse||0)-dt*3); if(st.taps===0) coach('מקשיבים לטיק… ונוגעים בדיוק על הפעימה'); }
+    if(n>st.beatN){ st.beatN=n; ding(1200,.05,.12,'square'); st.pulse=1; if(t-st.lastTap>B*1.8&&st.taps>0){ st.streak=0; coach(L('game.school.coach_missed_beat','פספסת פעימה: המהירות עולה'),'bad'); } }
+    st.pulse=Math.max(0,(st.pulse||0)-dt*3); if(st.taps===0) coach(L('game.school.coach_listen','מקשיבים לטיק… ונוגעים בדיוק על הפעימה')); }
   if(lv.mode==='lean'){
-    if(S.skid>.25){ st.skidT+=dt; coach('מעבר חד מדי: המגלשיים מחליקים','bad'); } else if(Math.abs(S.edge)>.3) coach('על הקנט: לתת לו לסובב','good'); else coach('ישרים: להטות לאט לצד אחד');
+    if(S.skid>.25){ st.skidT+=dt; coach(L('game.school.coach_skid','מעבר חד מדי: המגלשיים מחליקים'),'bad'); } else if(Math.abs(S.edge)>.3) coach(L('game.school.coach_on_edge','על הקנט: לתת לו לסובב'),'good'); else coach(L('game.school.coach_flat','ישרים: להטות לאט לצד אחד'));
     // a clean arc: from one side to the other, long enough, without skidding
     const side=Math.abs(S.edge)>.3?Math.sign(S.edge):0;
-    if(side){ if(!st.arc||st.arc.side!==side){ if(st.arc&&st.arc.clean&&st.arc.dur>.8&&Math.abs(S.h-st.arc.h0)>.6){ st.arcs++; popText('קשת נקייה! '+st.arcs); ding(700+st.arcs*40); checks(); } st.arc={side,dur:0,clean:true,h0:S.h}; } st.arc.dur+=dt; if(S.skid>.25) st.arc.clean=false; } }
+    if(side){ if(!st.arc||st.arc.side!==side){ if(st.arc&&st.arc.clean&&st.arc.dur>.8&&Math.abs(S.h-st.arc.h0)>.6){ st.arcs++; popText(L('game.school.pop_clean_arc','קשת נקייה! {n}',{n:st.arcs})); ding(700+st.arcs*40); checks(); } st.arc={side,dur:0,clean:true,h0:S.h}; } st.arc.dur+=dt; if(S.skid>.25) st.arc.clean=false; } }
 }
 function checks(){ if(!lv) return; let items=[];
-  if(lv.mode==='wedge'){ items=STOPS.map((_,i)=>[`עצירה בקו ${i+1}`, st.stops[i]===undefined?'':st.stops[i]===null?'no':'ok']); items.splice(2,0,['רצועה ירוקה'+(st.bandT>0?' '+Math.round(st.band/Math.max(.01,st.bandT)*100)+'%':''), st.bandT>0&&S.y>BAND[1]?(st.band/st.bandT>=.7?'ok':'no'):'']); }
-  else if(lv.mode==='skis') items=[[`שערים ${st.gates} / ${gates.length}`, gates.every(g=>g.done!=null)?(st.gates===gates.length?'ok':'no'):''],[`לחיצות הפוכות: ${st.wrong}`, st.wrong>1?'no':'']];
-  else if(lv.traps) items=lv.traps.map((_,i)=>[`מכמונת ${i+1}`, st.traps[i]===undefined?'':st.traps[i]?'ok':'no']);
-  else if(lv.mode==='rhythm') items=[[`בקצב: ${st.good} / 10`, st.good>=10?'ok':''],[`מושלמים: ${st.perfect} / 8`, st.perfect>=8?'ok':''],[`רצף: ${st.streak} (שיא ${st.best})`, st.best>=8?'ok':'']];
-  else if(lv.mode==='lean') items=[[`קשתות נקיות: ${st.arcs}`, st.arcs>=8?'ok':''],[`החלקה: ${st.skidT.toFixed(1)} ש׳`, st.skidT>=1.5?'no':'']];
-  else items=[[`שערים ${st.gates} / ${gates.length}`, ''],[`התנגשויות: ${st.crashes}`, st.crashes?'no':'']];
+  if(lv.mode==='wedge'){ items=STOPS.map((_,i)=>[L('game.school.check_stop_line','עצירה בקו {n}',{n:i+1}), st.stops[i]===undefined?'':st.stops[i]===null?'no':'ok']); items.splice(2,0,[st.bandT>0?L('game.school.check_band_pct','רצועה ירוקה {pct}%',{pct:Math.round(st.band/Math.max(.01,st.bandT)*100)}):L('game.school.check_band','רצועה ירוקה'), st.bandT>0&&S.y>BAND[1]?(st.band/st.bandT>=.7?'ok':'no'):'']); }
+  else if(lv.mode==='skis') items=[[L('game.school.check_gates','שערים {n} / {total}',{n:st.gates,total:gates.length}), gates.every(g=>g.done!=null)?(st.gates===gates.length?'ok':'no'):''],[L('game.school.check_wrong','לחיצות הפוכות: {n}',{n:st.wrong}), st.wrong>1?'no':'']];
+  else if(lv.traps) items=lv.traps.map((_,i)=>[L('game.school.check_trap','מכמונת {n}',{n:i+1}), st.traps[i]===undefined?'':st.traps[i]?'ok':'no']);
+  else if(lv.mode==='rhythm') items=[[L('game.school.check_on_beat','בקצב: {n} / 10',{n:st.good}), st.good>=10?'ok':''],[L('game.school.check_perfect','מושלמים: {n} / 8',{n:st.perfect}), st.perfect>=8?'ok':''],[L('game.school.check_streak','רצף: {n} (שיא {best})',{n:st.streak,best:st.best}), st.best>=8?'ok':'']];
+  else if(lv.mode==='lean') items=[[L('game.school.check_arcs','קשתות נקיות: {n}',{n:st.arcs}), st.arcs>=8?'ok':''],[L('game.school.check_skid','החלקה: {sec} ש׳',{sec:st.skidT.toFixed(1)}), st.skidT>=1.5?'no':'']];
+  else items=[[L('game.school.check_gates','שערים {n} / {total}',{n:st.gates,total:gates.length}), ''],[L('game.school.check_crashes','התנגשויות: {n}',{n:st.crashes}), st.crashes?'no':'']];
   $('checks').innerHTML=items.map(([s,c])=>`<span class="${c}">${s}</span>`).join(''); }
 function finishLesson(){ if(state!=='run') return; state='done'; if(hissG) hissG.gain.value=0;
   let g, line;
   if(lv.mode==='wedge'){ const ok=st.stops.filter(d=>d!=null); const avg=ok.length?ok.reduce((a,b)=>a+b,0)/ok.length:99; const band=st.bandT?st.band/st.bandT:0;
-    g=[ok.length===3, band>=.7, ok.length===3&&avg<=1.5]; line=`${ok.length} עצירות מתוך 3 · ממוצע ${avg<90?avg.toFixed(1)+' מ׳':'-'} מהקו · ${Math.round(band*100)}% ברצועה`; }
-  else if(lv.mode==='skis'){ g=[st.gates>=4, st.gates===6, st.gates===6&&st.wrong<=1]; line=`${st.gates} שערים מתוך 6 · ${st.wrong} לחיצות הפוכות`; }
-  else if(lv.traps){ const n=st.traps.filter(Boolean).length; g=[n>=3, n===4, n===4&&st.maxV<=35]; line=`${n} מכמונות מתוך 4 · שיא ${Math.round(st.maxV)} קמ״ש`; }
-  else if(lv.mode==='rhythm'){ g=[st.good>=10, st.perfect>=8, st.best>=8]; line=`${st.good} בקצב · ${st.perfect} מושלמים · רצף שיא ${st.best}`; }
-  else if(lv.mode==='lean'){ g=[st.arcs>=4, st.arcs>=8, st.arcs>=8&&st.skidT<1.5]; line=`${st.arcs} קשתות נקיות · ${st.skidT.toFixed(1)} שניות של החלקה`; }
-  else if(lv.fade){ g=[st.gates>=5, st.gates>=6&&st.crashes===0, st.gates===7&&st.crashes===0]; line=`${st.gates} שערים מתוך 7 · ${st.crashes} התנגשויות`; }
-  else { const u=st.under/st.time, all=st.gates===gates.length&&st.crashes===0; g=[st.gates>=5, all, all&&u>=.9]; line=`${st.gates}/${gates.length} שערים · ${st.crashes} התנגשויות · ${Math.round(u*100)}% מתחת ל-40`; }
+    g=[ok.length===3, band>=.7, ok.length===3&&avg<=1.5]; line=L('game.school.res_wedge','{stops} עצירות מתוך 3 · ממוצע {avg} מהקו · {pct}% ברצועה',{stops:ok.length,avg:avg<90?L('game.school.res_meters','{m} מ׳',{m:avg.toFixed(1)}):'-',pct:Math.round(band*100)}); }
+  else if(lv.mode==='skis'){ g=[st.gates>=4, st.gates===6, st.gates===6&&st.wrong<=1]; line=L('game.school.res_skis','{n} שערים מתוך 6 · {wrong} לחיצות הפוכות',{n:st.gates,wrong:st.wrong}); }
+  else if(lv.traps){ const n=st.traps.filter(Boolean).length; g=[n>=3, n===4, n===4&&st.maxV<=35]; line=L('game.school.res_traps','{n} מכמונות מתוך 4 · שיא {max} קמ״ש',{n,max:Math.round(st.maxV)}); }
+  else if(lv.mode==='rhythm'){ g=[st.good>=10, st.perfect>=8, st.best>=8]; line=L('game.school.res_rhythm','{good} בקצב · {perfect} מושלמים · רצף שיא {best}',{good:st.good,perfect:st.perfect,best:st.best}); }
+  else if(lv.mode==='lean'){ g=[st.arcs>=4, st.arcs>=8, st.arcs>=8&&st.skidT<1.5]; line=L('game.school.res_lean','{arcs} קשתות נקיות · {sec} שניות של החלקה',{arcs:st.arcs,sec:st.skidT.toFixed(1)}); }
+  else if(lv.fade){ g=[st.gates>=5, st.gates>=6&&st.crashes===0, st.gates===7&&st.crashes===0]; line=L('game.school.res_look','{n} שערים מתוך 7 · {crashes} התנגשויות',{n:st.gates,crashes:st.crashes}); }
+  else { const u=st.under/st.time, all=st.gates===gates.length&&st.crashes===0; g=[st.gates>=5, all, all&&u>=.9]; line=L('game.school.res_final','{n}/{total} שערים · {crashes} התנגשויות · {pct}% מתחת ל-40',{n:st.gates,total:gates.length,crashes:st.crashes,pct:Math.round(u*100)}); }
   const n=g.filter(Boolean).length; if(n>stars(cur)) store.set('stars-'+cur,n);
   setTimeout(()=>showResult(g,n,line), 900); }
-const TIPS=['פיצה רחבה = בלימה חזקה. פיצה צרה = האטה עדינה. רוחב הפיצה הוא דוושת הבלם.','לפנות שמאלה: המשקל על המגלש הימני. לפנות ימינה: על השמאלי.','לא בולמים: מסיימים את הסיבוב לרוחב המדרון.','סיבוב חדש מתחיל כשהקודם נגמר. קצב קבוע = שליטה.','העיניים רחוק קדימה. מי שלמטה ממך תמיד קודם.','מטים בעדינות, ונותנים לקנט לעבוד.','כל העקרונות יחד. בהצלחה בגודאורי!'];
+const TIPS=()=>[L('game.school.tip_1','פיצה רחבה = בלימה חזקה. פיצה צרה = האטה עדינה. רוחב הפיצה הוא דוושת הבלם.'),L('game.school.tip_2','לפנות שמאלה: המשקל על המגלש הימני. לפנות ימינה: על השמאלי.'),L('game.school.tip_3','לא בולמים: מסיימים את הסיבוב לרוחב המדרון.'),L('game.school.tip_4','סיבוב חדש מתחיל כשהקודם נגמר. קצב קבוע = שליטה.'),L('game.school.tip_5','העיניים רחוק קדימה. מי שלמטה ממך תמיד קודם.'),L('game.school.tip_6','מטים בעדינות, ונותנים לקנט לעבוד.'),L('game.school.tip_7','כל העקרונות יחד. בהצלחה בגודאורי!')];
 function showResult(g,n,line){ hideHud(); $('result').hidden=false; state='result';
   $('resCard').style.setProperty('--c',RUNCOL[lv.col]);
-  $('resCard').innerHTML=`<span class="k">שיעור ${cur+1} · ${lv.name}</span><div class="big" style="color:var(--accent);letter-spacing:4px">${'★'.repeat(n)}<span style="color:var(--rule)">${'★'.repeat(3-n)}</span></div><p class="rule">${line}</p><div class="goals">${lv.goals.map((x,i)=>`<span class="${g[i]?'ok':''}">${x}</span>`).join('')}</div><div class="ctrl">לזכור: ${TIPS[cur]}</div>`;
-  $('next').textContent = cur<L.length-1 ? (n>0?'השיעור הבא':'לנסות שוב') : 'לכל השיעורים';
-  $('next').onclick = n>0 ? (()=>{ if(cur<L.length-1) brief(cur+1); else toMenu(); }) : (()=>brief(cur)); }
+  $('resCard').innerHTML=`<span class="k">${L('game.school.result_header','שיעור {n} · {name}',{n:cur+1,name:lv.name})}</span><div class="big" style="color:var(--accent);letter-spacing:4px">${'★'.repeat(n)}<span style="color:var(--rule)">${'★'.repeat(3-n)}</span></div><p class="rule">${line}</p><div class="goals">${lv.goals.map((x,i)=>`<span class="${g[i]?'ok':''}">${x}</span>`).join('')}</div><div class="ctrl">${L('game.school.remember','לזכור: {tip}',{tip:TIPS()[cur]})}</div>`;
+  $('next').textContent = cur<LS.length-1 ? (n>0?L('game.school.next_lesson','השיעור הבא'):L('game.school.try_again','לנסות שוב')) : L('game.school.back_to_lessons','לכל השיעורים');
+  $('next').onclick = n>0 ? (()=>{ if(cur<LS.length-1) brief(cur+1); else toMenu(); }) : (()=>brief(cur)); }
 
 /* ---------- drawing ---------- */
 function draw(){
@@ -355,9 +360,9 @@ function draw(){
   cx.fillStyle='rgba(159,181,203,.16)'; for(let y=Math.floor(yBot/6)*6;y<yTop;y+=6){ for(let k=0;k<4;k++){ const x=((y*7.3+k*11)%28)-14; cx.beginPath(); cx.ellipse(sx(x),sy(y+((k*2.1)%6)),PX*1.2,PX*.25,0,0,7); cx.fill(); } }
   for(let y=Math.floor(yBot/9)*9; y<yTop; y+=9){ for(const side of [-1,1]){ tree(sx(side*(edge+2+((y*3.7)%5))),sy(y)); } }
   // drill markings
-  if(lv.mode==='wedge'){ STOPS.forEach((y,i)=>{ const Y=sy(y), c=st.stops[i]===undefined?'#F08A3C':st.stops[i]===null?'#D1342B':'#1B8A4C'; cx.fillStyle=c; cx.fillRect(sx(-edge),Y-3,sx(edge)-sx(-edge),6); cx.fillStyle='rgba(27,138,76,.12)'; cx.fillRect(sx(-edge),Y,sx(edge)-sx(-edge),PX*1.5); label('קו '+(i+1),sx(-edge)+40,Y-8,c); });
-    cx.fillStyle='rgba(27,138,76,.13)'; cx.fillRect(sx(-edge),sy(BAND[1]),sx(edge)-sx(-edge),sy(BAND[0])-sy(BAND[1])); label('רצועה: 6 עד 10 קמ״ש',sx(edge)-90,sy(BAND[0])-8,'#1B8A4C'); }
-  if(lv.traps){ lv.traps.forEach((y,i)=>{ const Y=sy(y), c=st.traps[i]===undefined?'#1F5FC4':st.traps[i]?'#1B8A4C':'#D1342B'; cx.fillStyle=c; cx.globalAlpha=.18; cx.fillRect(sx(-edge),Y-PX*1.2,sx(edge)-sx(-edge),PX*1.2); cx.globalAlpha=1; cx.fillRect(sx(-edge),Y-2,sx(edge)-sx(-edge),4); label('מכמונת: עד '+lv.trapLimit,sx(0),Y-PX*1.3,c); }); }
+  if(lv.mode==='wedge'){ STOPS.forEach((y,i)=>{ const Y=sy(y), c=st.stops[i]===undefined?'#F08A3C':st.stops[i]===null?'#D1342B':'#1B8A4C'; cx.fillStyle=c; cx.fillRect(sx(-edge),Y-3,sx(edge)-sx(-edge),6); cx.fillStyle='rgba(27,138,76,.12)'; cx.fillRect(sx(-edge),Y,sx(edge)-sx(-edge),PX*1.5); label(L('game.school.canvas_line','קו {n}',{n:i+1}),sx(-edge)+40,Y-8,c); });
+    cx.fillStyle='rgba(27,138,76,.13)'; cx.fillRect(sx(-edge),sy(BAND[1]),sx(edge)-sx(-edge),sy(BAND[0])-sy(BAND[1])); label(L('game.school.canvas_band','רצועה: 6 עד 10 קמ״ש'),sx(edge)-90,sy(BAND[0])-8,'#1B8A4C'); }
+  if(lv.traps){ lv.traps.forEach((y,i)=>{ const Y=sy(y), c=st.traps[i]===undefined?'#1F5FC4':st.traps[i]?'#1B8A4C':'#D1342B'; cx.fillStyle=c; cx.globalAlpha=.18; cx.fillRect(sx(-edge),Y-PX*1.2,sx(edge)-sx(-edge),PX*1.2); cx.globalAlpha=1; cx.fillRect(sx(-edge),Y-2,sx(edge)-sx(-edge),4); label(L('game.school.canvas_trap','מכמונת: עד {limit}',{limit:lv.trapLimit}),sx(0),Y-PX*1.3,c); }); }
   // tracks: two thin lines when clean, a wide smear when skidding, a V in the wedge
   for(const side of [-1,1]){ for(let i=1;i<tracks.length;i++){ const p=tracks[i-1], q=tracks[i]; if(q.y<yBot-2||p.y>yTop+2) continue;
     const off=(o)=>(.17+o.wd*.25)*side; cx.strokeStyle=q.sk>.25?'rgba(159,181,203,.45)':'rgba(70,95,125,.55)'; cx.lineWidth=q.sk>.25?PX*(.15+q.sk*.5):1.6;
@@ -379,7 +384,7 @@ function draw(){
 function label(s,X,Y,c){ cx.font='700 13px "IBM Plex Sans Hebrew",sans-serif'; cx.textAlign='center'; const w=cx.measureText(s).width+12; cx.fillStyle='rgba(255,255,255,.9)'; cx.fillRect(X-w/2,Y-15,w,19); cx.fillStyle=c; cx.fillText(s,X,Y); }
 function leanGauge(){ const X=W/2, Y=H-70, r=Math.min(W*.36,150); cx.lineWidth=12; cx.strokeStyle='#EEF2F5'; cx.beginPath(); cx.arc(X,Y,r,Math.PI*1.15,Math.PI*1.85); cx.stroke();
   const ang=Math.PI*1.5+S.edge*Math.PI*.35; cx.strokeStyle=S.skid>.25?'#D1342B':'#1B8A4C'; cx.beginPath(); cx.arc(X,Y,r,Math.min(Math.PI*1.5,ang),Math.max(Math.PI*1.5,ang)); cx.stroke();
-  cx.fillStyle='#13233A'; cx.beginPath(); cx.arc(X+Math.cos(ang)*r,Y+Math.sin(ang)*r,9,0,7); cx.fill(); label('הטיה',X,Y-r*.35,'#13233A'); }
+  cx.fillStyle='#13233A'; cx.beginPath(); cx.arc(X+Math.cos(ang)*r,Y+Math.sin(ang)*r,9,0,7); cx.fill(); label(L('game.school.canvas_tilt','הטיה'),X,Y-r*.35,'#13233A'); }
 function tree(X,Y){ if(Y<-40||Y>H+40) return; cx.fillStyle='rgba(19,35,58,.12)'; cx.beginPath(); cx.ellipse(X+6,Y+4,PX*1.1,PX*.5,0,0,7); cx.fill(); cx.fillStyle='#2F6B4F'; cx.beginPath(); cx.arc(X,Y,PX*1.1,0,7); cx.fill(); cx.fillStyle='#fff'; cx.beginPath(); cx.arc(X-PX*.3,Y-PX*.3,PX*.45,0,7); cx.fill(); }
 function person(X,Y,c,h,hit){ cx.save(); cx.translate(X,Y); cx.rotate(h); cx.fillStyle='#13233A'; cx.fillRect(-PX*.28,-PX*.8,PX*.12,PX*1.6); cx.fillRect(PX*.16,-PX*.8,PX*.12,PX*1.6); cx.fillStyle=hit?'#9FB5CB':c; cx.beginPath(); cx.arc(0,0,PX*.38,0,7); cx.fill(); cx.fillStyle='#F2D2BE'; cx.beginPath(); cx.arc(0,-PX*.1,PX*.18,0,7); cx.fill(); cx.restore(); }
 function skier(){ const X=sx(S.x), Y=sy(S.y); cx.save(); cx.translate(X,Y); cx.rotate(S.h);
@@ -391,5 +396,7 @@ function skier(){ const X=sx(S.x), Y=sy(S.y); cx.save(); cx.translate(X,Y); cx.r
   cx.fillStyle='#F07A2E'; cx.beginPath(); cx.ellipse(lean,0,PX*.5,PX*.36,0,0,7); cx.fill();
   cx.fillStyle='#13233A'; cx.beginPath(); cx.arc(lean*1.3,-PX*.08,PX*.22,0,7); cx.fill();
   cx.restore(); }
-drawMenu(); requestAnimationFrame(frame);
+/* the menu is drawn after the words arrived; the lessons section keeps its Hebrew label in the markup (the site build looks for it) */
+(window.I18N?I18N.ready:Promise.resolve()).then(()=>{ $('menu').setAttribute('aria-label',L('game.school.lessons_label','שיעורים')); if(window.I18N&&I18N.lang!=='he') document.title=L('game.school.title','בית הספר לסקי'); drawMenu(); });
+requestAnimationFrame(frame);
 </script>
