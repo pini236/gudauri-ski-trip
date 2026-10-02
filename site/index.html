@@ -25,6 +25,7 @@
 <link rel="stylesheet" href="css/site.css">
 <script src="js/i18n.js"></script>
 <script src="js/prefs.js"></script>
+<script src="js/telemetry.js"></script>
 </head>
 <body>
 <div id="loading" role="status" data-i18n="common.loading">טוען את האתר…</div>
@@ -133,6 +134,7 @@
       <button type="button" class="ab-row" data-pref="haptics" aria-pressed="true"><span><b data-i18n="about.haptics">רטט</b><small data-i18n="about.haptics_sub">בטלפונים שתומכים (לא באייפון)</small></span><i class="ab-sw" aria-hidden="true"></i></button>
       <button type="button" class="ab-row" data-dn aria-label="מצב תצוגה" data-i18n-attr="aria-label:nav.display_mode"><span><b data-i18n="about.display">תצוגה</b><small data-i18n="about.display_sub">אוטומטי לפי השעה בגודאורי, יום או לילה</small></span><span class="ab-val" data-dn-lbl data-i18n="common.mode_auto">אוטומטי</span></button>
       <button type="button" class="ab-row" id="abLang" aria-haspopup="dialog" aria-controls="langSheet"><span><b><span data-i18n="about.language">שפה</span><span class="ab-lang-en" lang="en" dir="ltr"> · Language</span></b><small id="abLangSub" data-i18n="about.language_auto">נבחרה לפי הדפדפן</small></span><span class="ab-val" id="abLangVal" translate="no">עברית</span></button>
+      <div class="ab-row ab-ana"><span><b id="abAnaLbl" data-i18n="about.analytics">מדידת שימוש ודיווח שגיאות</b><small><span id="abAnaTxt" data-i18n="about.analytics_on">אנונימי ובלי עוגיות: באילו עמודים משתמשים ומה נשבר.</span> <a href="privacy" data-i18n="about.analytics_what">מה נאסף</a></small></span><button type="button" class="ab-swbtn" data-pref="analytics" aria-pressed="true" aria-labelledby="abAnaLbl"><i class="ab-sw" aria-hidden="true"></i></button></div>
       <button type="button" class="ab-row ab-reset" id="abReset"><span><b data-i18n="about.reset">איפוס השיאים במשחקים</b><small id="abResetTxt" data-i18n="about.reset_sub">השיאים נשמרים רק בטלפון הזה</small></span></button>
     </section>
     <section class="ab-who" aria-label="מי בנה" data-i18n-attr="aria-label:about.who">

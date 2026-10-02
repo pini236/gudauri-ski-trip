@@ -9,6 +9,7 @@
 <style>.back-site{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 14px;background:rgba(19,35,58,.88);color:#fff;font:700 14px "IBM Plex Sans Hebrew",system-ui,sans-serif;text-decoration:none;align-self:flex-start;flex:0 0 auto;box-sizing:border-box}.back-site:focus-visible{outline:3px solid #F4B942;outline-offset:2px}</style>
 <script src="../../js/i18n.js" data-base="../../i18n/" data-file="game-snowball"></script>
 <script src="../../js/prefs.js"></script>
+<script src="../../js/telemetry.js" data-game="snowball"></script>
 <title data-i18n="game.snowball.title">קרב כדורי שלג</title>
 <meta name="description" data-i18n-attr="content:game.snowball.meta_description" content="קרב כדורי שלג בין החבר׳ה, עם חומות שנשחקות ורוח">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -178,7 +179,12 @@ function start(){
   $('menuStart').hidden=true; $('menuEnd').hidden=true; ['hud','snd'].forEach(id=>$(id).hidden=false);
   $('nameL').textContent=FR[me].n; $('nameL').style.setProperty('--c',FR[me].c);
   $('lvl').textContent=(rung+1)+' · '+cfg.name(); hpUI(); $('hint').hidden=false; $('hint').style.opacity=1;
+  g0=performance.now(); window.track&&track('game_start',{game:'snowball',level:rung+1});
 }
+// usage statistics (site/js/telemetry.js; absent in the design preview): level = the rung on the ladder, score = hits; best = more stars than before
+let g0=0;
+function gameEnd(ok,best){ if(!g0) return; window.track&&track('game_end',{game:'snowball',level:rung+1,score:stats.hits,seconds:Math.round((performance.now()-g0)/1000),completed:ok,best}); g0=0; }
+addEventListener('pagehide',()=>{ if(state==='play'||state==='done') gameEnd(false,false); });
 function newWind(){ const [a,b]=cfg.wind; wind=Math.round(rnd(a,b)*2)/2; windLabel(); }
 function windLabel(){ $('wind').textContent=Math.abs(wind)<.25?L('game.snowball.no_wind','אין רוח'):L('game.snowball.wind','רוח {n} {arrow}',{n:Math.abs(wind),arrow:wind>0?'⟶':'⟵'}); }
 function hpUI(){ const dots=n=>Array.from({length:n.max},(_,i)=>`<i class="${i<n.hp?'':'off'}"></i>`).join('');
@@ -263,7 +269,7 @@ function meHit(b){ myHp--; stats.taken++; shake=reduce?0:16; buzz([40,30,40]); n
   popText(L('game.snowball.pop_got_hit','חטפת!')); hpUI(); if(myHp<=0){ state='done'; won=false; endT=0; } }
 function finish(){
   state='end'; ['hud','hint','snd'].forEach(id=>$(id).hidden=true);
-  const g=[won, won&&stats.taken===0, won&&cfg.goal.ok(stats)], n=g.filter(Boolean).length; if(n>stars(rung)) store.set('stars-'+rung,n);
+  const g=[won, won&&stats.taken===0, won&&cfg.goal.ok(stats)], n=g.filter(Boolean).length; gameEnd(won, n>stars(rung)); if(n>stars(rung)) store.set('stars-'+rung,n);
   $('endTitle').textContent= won? L('game.snowball.won','ניצחת!') : L('game.snowball.lost','הפעם הם ניצחו'); $('endWho').textContent=(rung+1)+'. '+cfg.name()+' · '+foes.map(o=>FR[o.fi].n).join(' + ');
   $('endBig').textContent=stats.hits+' : '+stats.taken;
   $('endStars').innerHTML=[0,1,2].map(i=>`<i class="${g[i]?'on':''}">★</i>`).join('');
