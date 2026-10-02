@@ -9,8 +9,9 @@ Writes <out>/values/strings.xml (Hebrew, the default), <out>/values-<lang>/strin
 - Placeholders: {name} becomes %N$s, numbered by their first appearance in the Hebrew text, the same numbers in
   every language (a translation may move them). The app passes arguments in the Hebrew order.
 - Plurals (CLDR forms per language) become <plurals>.
-- A language whose strings still wait for a native speaker ("check" in i18n/strings.json, see i18n/REVIEW.md) is
-  refused unless --unreviewed is given: test builds may carry it, store builds may not.
+- Which languages a build carries is decided by the build (app/android/app/build.gradle.kts). A native speaker's review
+  ("check" in i18n/strings.json) is not required for now (decision 39, 2.10.2026); the tool only reports how many
+  strings of each language are still unchecked.
 """
 import json
 import re
@@ -74,7 +75,6 @@ def file_for(lang, strings):
 
 def main():
     args = [a for a in sys.argv[1:] if not a.startswith("--")]
-    unreviewed = "--unreviewed" in sys.argv
     out = Path(args[0]).resolve()
     langs = args[1].split(",")
     data = json.loads((ROOT / "i18n/strings.json").read_text(encoding="utf-8"))
@@ -87,10 +87,10 @@ def main():
         names[n] = key
     if langs[0] != data["meta"]["source"]:
         raise SystemExit("the first language must be the source (he): it is the default values/ file")
-    pending = {l for e in strings.values() for l in e.get("check", [])}
-    blocked = [l for l in langs if l in pending]
-    if blocked and not unreviewed:
-        raise SystemExit(f"waiting for a native speaker (i18n/REVIEW.md): {blocked}. Test builds only, with --unreviewed.")
+    for l in langs:
+        n = sum(1 for e in strings.values() if l in e.get("check", []))
+        if n:
+            print(f"{l}: {n} strings not checked by a native speaker (not required for now, decision 39)")
     for i, lang in enumerate(langs):
         d = out / ("values" if i == 0 else f"values-{lang}")
         d.mkdir(parents=True, exist_ok=True)
