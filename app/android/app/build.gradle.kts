@@ -96,8 +96,8 @@ tasks.named("preBuild") { dependsOn(copySiteData) }
 
 /**
  * The languages of each build. Debug builds (the emulator run, development) carry all four. Release builds (the
- * GitHub test build and the store build) carry only Hebrew until the left-to-right signs and screens pass the canvas
- * (decision 32); then English, Russian and Georgian join here. A native speaker's review is not required for now
+ * GitHub test build and the store build) carry only Hebrew until the app has the left-to-right signs and the fonts
+ * approved in the canvas (LT1 to LT3, FT1, decision 36); then English, Russian and Georgian join here. A native speaker's review is not required for now
  * (decision 39).
  */
 val releaseLanguages = "he"
