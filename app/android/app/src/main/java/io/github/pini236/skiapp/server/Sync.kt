@@ -416,7 +416,7 @@ class Sync(
             .put("entered_by", JSONObject(s.enteredBy))
             .put("meetups", JSONArray(s.meetups.map { JSONObject().put("id", it.id).put("station", it.station).put("at", it.at.toString()).put("note", it.note ?: JSONObject.NULL).put("created_by", it.createdBy ?: JSONObject.NULL) }))
             .put("scores", JSONObject().apply { s.scores.forEach { (g, l) -> put(g, JSONArray(l.map { JSONObject().put("user_id", it.userId).put("name", it.name).put("best", it.best) })) } })
-            .put("invite", s.invite?.let { JSONObject().put("id", it.id).put("code", it.code).put("token", it.token).put("requires_approval", it.requiresApproval).put("max_uses", it.maxUses ?: JSONObject.NULL).put("expires_at", it.expiresAt ?: JSONObject.NULL) } ?: JSONObject.NULL)
+            .put("invite", s.invite?.let { JSONObject().put("id", it.id).put("code", it.code).put("token", it.token).put("requires_approval", it.requiresApproval).put("max_uses", it.maxUses ?: JSONObject.NULL).put("expires_at", it.expiresAt ?: JSONObject.NULL).put("uses", it.uses).put("valid_until", it.validUntil?.toString() ?: JSONObject.NULL) } ?: JSONObject.NULL)
             .put("requests", JSONArray(s.requests.map(::request)))
             .put("read_at", s.readAt ?: 0)
 
@@ -427,8 +427,9 @@ class Sync(
             val scores = o.getJSONObject("scores").let { sc -> sc.keys().asSequence().associateWith { g -> arr(sc, g).map { Groups.Score(it.getString("user_id"), it.getString("name"), it.getInt("best")) } } }
             val inv = o.optJSONObject("invite")?.let {
                 Groups.Invite(it.getString("id"), it.getString("code"), it.getString("token"), it.optBoolean("requires_approval"),
-                    if (it.isNull("max_uses")) null else it.getInt("max_uses"), if (it.isNull("expires_at")) null else it.getString("expires_at"))
-            }
+                    if (it.isNull("max_uses")) null else it.getInt("max_uses"), if (it.isNull("expires_at")) null else it.getString("expires_at"),
+                    it.optInt("uses", 0), if (it.isNull("valid_until")) null else it.optString("valid_until").ifBlank { null }?.let(Instant::parse))
+            }?.takeIf { it.working() } // one that expired while the phone was offline is not offered for sharing
             return Snapshot(
                 id,
                 o.optJSONObject("group")?.let(::group),
