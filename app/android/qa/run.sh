@@ -336,7 +336,9 @@ meet() {
   mark; tapText "שמירה בקבוצה" && waitlog "meetup saved" 10 && { sleep 2; shot meet-group-after; }
   # the reminders (Q8): each meetup ahead reminds a quarter of an hour before; one turned off, then the next one rings
   waitlog "reminders armed" 10; tapText "תזכורת רבע שעה לפני" && sleep 1 && shot meet-group-remind-off
-  mark; qa "--es qa.remind next"; waitlog "reminder shown" 10 && { adb shell cmd statusbar expand-notifications; sleep 2; shot meet-reminder
+  # the shade draws a new notification a moment after it opens: the picture waits for it
+  mark; qa "--es qa.remind next"; waitlog "reminder shown" 10 && { adb shell cmd statusbar expand-notifications
+    for _ in 1 2 3 4 5 6; do [ -n "$(where "~בעוד רבע שעה")" ] && break; sleep 1; done; sleep 0.5; shot meet-reminder
     tapText "~בעוד רבע שעה" && sleep 3 && shot meet-from-reminder || adb shell cmd statusbar collapse; }
   # a tap on a meetup in the group opens its card
   qa "--es qa.tab group/g1/meetups"; sleep 2
