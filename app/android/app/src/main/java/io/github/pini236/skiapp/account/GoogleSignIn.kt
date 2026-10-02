@@ -20,9 +20,9 @@ import java.security.SecureRandom
 object GoogleSignIn {
     /**
      * The web client id from Google Cloud (Pini creates it; docs/APP-NATIVE.md). Not a secret: it is in every app that
-     * signs in with Google. Empty until it exists, and then the button says Google sign-in is not ready yet.
+     * signs in with Google. Created 2.10.2026 (server/README.md, "כניסה עם גוגל"); while empty, the button said not ready.
      */
-    const val WEB_CLIENT_ID = ""
+    const val WEB_CLIENT_ID = "116975370454-2f0dqvfn3obp9i0j24r8pn71h230c6q8.apps.googleusercontent.com"
 
     class Result(val idToken: String, val nonce: String, val name: String?)
 
