@@ -155,7 +155,7 @@ test('טיסה במורד המסלול: המפה נגללת לתצוגה, פס �
   await expect(hud).toBeVisible();
   await expect(hud.locator('.fh-name')).toHaveText('Tatra 2');
   // המפה בתוך המסך, גם בטלפון שבו הכפתור מתחת למפה
-  await expect.poll(async () => page.locator('.mapwrap').evaluate(e => { const r = e.getBoundingClientRect(); return r.top > -10 && r.top < innerHeight / 2; })).toBe(true);
+  await expect.poll(async () => page.locator('.mapwrap').evaluate(e => { const r = e.getBoundingClientRect(); return r.top > -10 && r.top < innerHeight / 2; }), { timeout: 15000 }).toBe(true);
   // the flight eases in, and software 3D on a slow machine renders few frames: allow the whole flight
   await expect(page.locator('#pfD')).not.toHaveText('0 מ׳', { timeout: 30000 });
   await hud.locator('.fh-stop').click();

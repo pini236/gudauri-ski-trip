@@ -1,0 +1,174 @@
+#!/usr/bin/env python3
+"""Builds the privacy page of the site (site/privacy.html, served at /privacy) from docs/PRIVACY.md.
+
+docs/PRIVACY.md stays the only source of the text (decision 33); edit it there and run this again.
+The design is P1 and P2 of round 10 in the canvas (decision 36): Hebrew and English on one page,
+a language switch (/privacy#en opens the English), the "unofficial" sign and the "in short" box under fresh snow.
+Run from the repo root: python3 tools/build-privacy.py"""
+import html, pathlib, re
+
+root = pathlib.Path(__file__).resolve().parent.parent
+SRC = root / 'docs/PRIVACY.md'
+OUT = root / 'site/privacy.html'
+MAIL = 'pinisagent@gmail.com'
+
+
+def snow_cap(i, w):
+    """The same drift of snow as snowCap() in site/js/app.js (same seed, same shape), drawn once here."""
+    r = (i + 1) * 9301 % 233280
+
+    def rnd(a, b):
+        nonlocal r
+        r = (r * 9301 + 49297) % 233280
+        return a + (b - a) * r / 233280
+    top, x0, x1 = 26, 16, w + 6
+    up = [[x0 - 4, top + 6], [x0 + 4, top - 2]]
+    x, pk = x0 + 14, True
+    while x < x1 - 20:
+        mid = 1 - abs((x - x0) / (x1 - x0) - .5) * 1.1
+        up.append([x, top - 8 - mid * rnd(10, 20)] if pk else [x, top - rnd(1, 6)])
+        x += rnd(30, 48) if pk else rnd(22, 34)
+        pk = not pk
+    up += [[x1 - 6, top - 3], [x1 + 2, top + 5]]
+    lo, x = [], x1 - 2
+    while x > x0 + 8:
+        lo.append([x, top + rnd(8, 13)])
+        x -= rnd(26, 44)
+    lo.append([x0 + 2, top + 10])
+    pts = up + lo + [up[0]]
+    d = f'M{pts[0][0]:.1f},{pts[0][1]:.1f}'
+    for k in range(len(pts) - 1):
+        p0, p1, p2, p3 = pts[max(k - 1, 0)], pts[k], pts[k + 1], pts[min(k + 2, len(pts) - 1)]
+        d += (f' C{p1[0] + (p2[0] - p0[0]) / 6:.1f},{p1[1] + (p2[1] - p0[1]) / 6:.1f}'
+              f' {p2[0] - (p3[0] - p1[0]) / 6:.1f},{p2[1] - (p3[1] - p1[1]) / 6:.1f} {p2[0]:.1f},{p2[1]:.1f}')
+    drips = ''
+    for _ in range(2):
+        dx, dl, dw, y0 = rnd(x0 + 40, x1 - 40), rnd(7, 13), rnd(4, 6), top + 8
+        drips += f'<path d="M{dx - dw},{y0}C{dx - dw},{y0 + dl * .6} {dx - dw / 2},{y0 + dl} {dx},{y0 + dl}C{dx + dw / 2},{y0 + dl} {dx + dw},{y0 + dl * .6} {dx + dw},{y0}Z"/>'
+    return (f'<svg class="snowcap" viewBox="0 0 {w + 16} 56" preserveAspectRatio="none" aria-hidden="true">'
+            f'<g class="sc-sh"><path d="{d}Z"/>{drips}</g><g class="sc"><path d="{d}Z"/>{drips}</g></svg>')
+
+
+def inline(s):
+    s = html.escape(s, quote=False)
+    s = re.sub(r'\*\*(.+?)\*\*', r'<b>\1</b>', s)
+    s = re.sub(r'`(.+?)`', r'<span dir="ltr">\1</span>', s)
+    s = s.replace(MAIL, f'<a href="mailto:{MAIL}" dir="ltr">{MAIL}</a>')
+    return s
+
+
+def blocks(text):
+    """Paragraphs and lists (bulleted or numbered) from a small piece of markdown."""
+    out, items, kind = [], [], None
+
+    def flush():
+        nonlocal items, kind
+        if items:
+            out.append(f'<{kind}>' + ''.join(f'<li>{inline(t)}</li>' for t in items) + f'</{kind}>')
+        items, kind = [], None
+    for line in text.strip().split('\n'):
+        line = line.strip()
+        m = re.match(r'^(- |\d+\. )(.*)$', line)
+        if m:
+            k = 'ol' if m.group(1)[0].isdigit() else 'ul'
+            if kind and kind != k:
+                flush()
+            kind = k
+            items.append(m.group(2))
+        else:
+            flush()
+            if line:
+                out.append(f'<p>{inline(line)}</p>')
+    flush()
+    return '\n'.join(out)
+
+
+def language(md, lang):
+    """One language of the policy: title, date, intro, the unofficial note, and the sections."""
+    head, *secs = md.split('\n### ')
+    lines = [l.strip() for l in head.strip().split('\n') if l.strip()]
+    title = re.sub(r'\*\*(.+?)\*\*', r'\1', lines[0]).split(':')[0]
+    date, intro, unofficial = lines[1], lines[2], lines[3]
+    m = re.match(r'\*\*(.+?)\*\*\s*(.*)', unofficial)
+    sections = []
+    for s in secs:
+        t, _, body = s.partition('\n')
+        sections.append((t.strip(), blocks(body)))
+    return dict(title=title, date=date, intro=inline(intro), uo_title=m.group(1).rstrip('.'), uo_text=m.group(2),
+                short=sections[0], rest=sections[1:])
+
+
+def section_html(p, lang):
+    rtl = lang == 'he'
+    rest = '\n'.join(f'<section class="pv-sec"><h2>{t}</h2>\n{b}</section>' for t, b in p['rest'])
+    return f'''<article class="pv-doc" id="{lang}" lang="{lang}" dir="{'rtl' if rtl else 'ltr'}">
+<h1>{'מדיניות פרטיות' if rtl else 'Privacy Policy'}</h1>
+<p class="pv-date">{p['date']}</p>
+<p class="pv-intro">{p['intro']}</p>
+<div class="pv-sign"><b>{p['uo_title']}</b><span>{p['uo_text']}</span></div>
+<section class="pv-short">{snow_cap(5 if rtl else 9, 300)}<h2>{p['short'][0]}</h2>
+{p['short'][1]}</section>
+{rest}
+</article>'''
+
+
+def build():
+    md = SRC.read_text(encoding='utf-8')
+    he = md.split('## עברית', 1)[1].split('## English', 1)[0].strip().strip('-').strip()
+    en = md.split('## English', 1)[1].strip()
+    he_p, en_p = language(he, 'he'), language(en, 'en')
+    back = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg>'
+    return f'''<!doctype html>
+<!-- Generated by tools/build-privacy.py from docs/PRIVACY.md. Do not edit here. -->
+<html lang="he" dir="rtl" class="pv">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>מדיניות פרטיות · Privacy Policy · Gudi: Gudauri Ski Map</title>
+<meta name="description" content="מדיניות הפרטיות של האפליקציה והאתר. Privacy policy of the app and the website.">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#EEF2F5" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0D1522" media="(prefers-color-scheme: dark)">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Karantina:wght@700&family=IBM+Plex+Sans+Hebrew:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="css/site.css">
+</head>
+<body>
+<header class="pv-top">
+  <a class="pv-brand" href="/">גודאורי 2027</a>
+  <div class="pv-lang" role="group" aria-label="שפה · Language">
+    <button type="button" data-lang="he" aria-pressed="true" lang="he">עברית</button>
+    <button type="button" data-lang="en" aria-pressed="false" lang="en">English</button>
+  </div>
+  <a class="pv-back" href="/#about">{back}<span data-back-he>אודות</span><span data-back-en lang="en" hidden>About</span></a>
+</header>
+<main class="pv-main">
+{section_html(he_p, 'he')}
+{section_html(en_p, 'en')}
+<p class="pv-foot"><span dir="ltr">gudauri-ski-trip.vercel.app/privacy</span></p>
+</main>
+<script>
+// both languages are in the page; without script both show, one after the other
+(function(){{
+  var docs={{he:document.getElementById('he'),en:document.getElementById('en')}};
+  function show(l){{
+    docs.he.hidden=l!=='he';docs.en.hidden=l!=='en';
+    document.documentElement.lang=l;document.documentElement.dir=l==='he'?'rtl':'ltr';
+    document.querySelectorAll('[data-lang]').forEach(function(b){{b.setAttribute('aria-pressed',String(b.dataset.lang===l));}});
+    document.querySelector('[data-back-he]').hidden=l!=='he';document.querySelector('[data-back-en]').hidden=l!=='en';
+  }}
+  document.querySelectorAll('[data-lang]').forEach(function(b){{b.addEventListener('click',function(){{
+    show(b.dataset.lang);history.replaceState(null,'',b.dataset.lang==='en'?'#en':location.pathname);window.scrollTo(0,0);}});}});
+  show(location.hash==='#en'?'en':'he');window.scrollTo(0,0);
+}})();
+</script>
+</body>
+</html>
+'''
+
+
+if __name__ == '__main__':
+    OUT.write_text(build(), encoding='utf-8')
+    print('wrote', OUT.relative_to(root))

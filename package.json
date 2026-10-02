@@ -4,7 +4,8 @@
   "description": "אתר היערכות לחופשת סקי בגודאורי",
   "scripts": {
     "start": "http-server site -p 4173 -c-1",
-    "test": "playwright test"
+    "test": "playwright test",
+    "test:quick": "playwright test --project=phone-light"
   },
   "devDependencies": {
     "@playwright/test": "1.56.1",

@@ -1,11 +1,11 @@
 # The daily keepalive (decision 28): the free Supabase plan pauses a project
-# with too little database activity for a week. Once a day this calls
-# keepalive() through the public API (server/supabase/migrations/*_keepalive.sql).
+# with too little database activity for a week. Once a day this calls the
+# server's keepalive action (server/supabase/functions/api/), which writes
+# to the database and, once a day, cleans up unused guest identities.
 #
-# Needs two repository variables (Settings > Secrets and variables > Actions >
-# Variables), set once the project exists: SUPABASE_URL and
-# SUPABASE_PUBLISHABLE_KEY (the public key; not a secret). Until then it
-# does nothing.
+# The project's address and publishable key are public by design (the
+# apps carry them too), so they are written here. Repository variables
+# SUPABASE_URL and SUPABASE_PUBLISHABLE_KEY override them if ever set.
 #
 # GitHub turns off scheduled workflows in a repository with no activity for
 # 60 days; it sends an email first, and one click turns it back on.
@@ -23,15 +23,15 @@ jobs:
     steps:
       - name: Call keepalive()
         env:
-          URL: ${{ vars.SUPABASE_URL }}
-          KEY: ${{ vars.SUPABASE_PUBLISHABLE_KEY }}
+          URL: ${{ vars.SUPABASE_URL || 'https://vanuhuzuhnljvcoihvys.supabase.co' }}
+          KEY: ${{ vars.SUPABASE_PUBLISHABLE_KEY || 'sb_publishable_BpJiIkRbIob7U6xa_Xt_9A_AJqtoupz' }}
         run: |
           if [ -z "$URL" ] || [ -z "$KEY" ]; then
             echo "::notice::No Supabase project yet (SUPABASE_URL / SUPABASE_PUBLISHABLE_KEY not set). Nothing to do."
             exit 0
           fi
           for i in 1 2 3; do
-            if curl -fsS -X POST "$URL/rest/v1/rpc/keepalive" -H "apikey: $KEY" -H "Content-Type: application/json" -d '{}'; then
+            if curl -fsS -X POST "$URL/functions/v1/api/keepalive" -H "apikey: $KEY" -H "x-region: eu-central-1" -H "Content-Type: application/json" -d '{}'; then
               echo; exit 0
             fi
             sleep $((i * 30))

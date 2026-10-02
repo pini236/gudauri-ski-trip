@@ -9,11 +9,11 @@ on:
   # waiting run on main out of the single slot below. Another branch runs it by hand (workflow_dispatch).
   push:
     branches: [main]
-    paths: ['app/android/**', 'site/data/**', 'site/audio/**', 'site/games/descent/**', 'tools/build-app-data.py', 'tools/build-app-strings.py', 'i18n/strings.json', '.github/workflows/android-qa.yml']
+    paths: ['app/android/**', 'site/data/**', 'site/audio/**', 'site/games/descent/**', 'site/img/pano/**', 'tools/build-app-data.py', 'tools/build-app-strings.py', 'i18n/strings.json', '.github/workflows/android-qa.yml']
   workflow_dispatch:
     inputs:
       scenario:
-        description: 'map, descent, ticket, store or all'
+        description: 'map, descent, home, store or all'
         default: all
       api:
         description: 'Android version of the emulator (API level)'
@@ -47,6 +47,11 @@ jobs:
           "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "platforms;android-37.2" "build-tools;36.0.0" > /dev/null
       - name: Build the debug and release apps
         working-directory: app/android
+        # with the usage and crash keys, so the run also checks that events and crash reports arrive; every event
+        # carries build=debug, and the dashboards filter it out (docs/GROWTH.md)
+        env:
+          POSTHOG_KEY: ${{ secrets.POSTHOG_KEY }}
+          SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
         run: ./gradlew --no-daemon :app:assemblePreviewDebug :app:assemblePreviewRelease
       - name: Hardware virtualisation for the emulator
         run: |

@@ -26,7 +26,7 @@ R.load=function(T){
 
 /* ---------- profile stats for a polyline set ---------- */
 /* slope colours (approved thresholds: 15°, 25°, 30°) */
-R.SLOPE=[[15,'#3FA85F','עד 15°'],[25,'#F2C13D','15°–25°'],[30,'#F08A3C','25°–30°'],[91,'#DC3B33','מעל 30°']];
+R.SLOPE=[[15,'#3FA85F','map.slope_upto15'],[25,'#F2C13D','15°–25°'],[30,'#F08A3C','25°–30°'],[91,'#DC3B33','map.slope_over30']];
 R.slopeColor=deg=>R.SLOPE.find(x=>deg<x[0])[1];
 
 /* the ground around a run, coloured by slope: a canvas over the run's box plus a margin.
@@ -360,21 +360,21 @@ R.View3D=function(opts){
 
   /* animation */
   let anim=null;
-  function stopAnim(){clearTimeout(flyWait);if(anim){cancelAnimationFrame(anim.raf);const cb=anim.onStop;anim=null;if(cb)cb();}}
+  function stopAnim(){clearTimeout(flyWait);flyWait=null;const pend=flyEnd;flyEnd=null;if(anim){cancelAnimationFrame(anim.raf);const cb=anim.onStop;anim=null;if(cb)cb();if(cb===pend)return;}if(pend)pend();}
   function flyTo(to,ms){stopAnim();const from={...st};
     let daz=((to.az??st.az)-from.az)%(2*Math.PI);if(daz>Math.PI)daz-=2*Math.PI;if(daz<-Math.PI)daz+=2*Math.PI;
     const tgt={tx:to.tx??st.tx,tz:to.tz??st.tz,dist:to.dist??st.dist,pol:to.pol??st.pol,az:from.az+daz};
     if(matchMedia('(prefers-reduced-motion: reduce)').matches||!ms){Object.assign(st,tgt);request();return;}
-    const t0=performance.now();anim={};
-    const step=()=>{let t=Math.min(1,(performance.now()-t0)/ms);const e=t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;
+    const t0=performance.now(),me=anim={};
+    const step=()=>{if(anim!==me)return;let t=Math.min(1,(performance.now()-t0)/ms);const e=t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;
       for(const k in tgt)st[k]=from[k]+(tgt[k]-from[k])*e;place();renderer.render(scene,camera);layoutLabels();
-      if(t<1&&anim)anim.raf=requestAnimationFrame(step);else anim=null;};
+      if(t<1)me.raf=requestAnimationFrame(step);else anim=null;};
     anim.raf=requestAnimationFrame(step);}
   function focusLines(lines,extra,k){let a=1e9,b=1e9,c=-1e9,e=-1e9;lines.forEach(L=>L.forEach(q=>{a=Math.min(a,q[0]);c=Math.max(c,q[0]);b=Math.min(b,q[2]);e=Math.max(e,q[2]);}));
     const ext=Math.max(c-a,e-b,500);flyTo(Object.assign({tx:(a+c)/2,tz:(b+e)/2,dist:Math.max(k?1300:1600,ext*(k||2.3)),pol:0.62},extra||{}),k?1100:800);}
 
   /* selection/filter API */
-  let selLabel=null,paintObj=null,markObj=null,groundObj=null,flyWait=0,lightKey='';
+  let selLabel=null,paintObj=null,markObj=null,groundObj=null,flyWait=0,flyEnd=null,lightKey='';
   const R3={sel:null};
   const api={
     select(key){R3.sel=key||null;selLabel=key&&pisteObjs[key]?pisteObjs[key].label:null;
@@ -451,14 +451,18 @@ R.View3D=function(opts){
       const azAt=d=>{const a=at(d-60),b=at(d+180);return Math.atan2(-(b[0]-a[0]),-(b[1]-a[1]));};
       const ms=Math.max(15000,Math.min(40000,tot*14)),s0=at(0);
       flyTo({tx:s0[0],tz:s0[1],dist:650,pol:.42,az:azAt(0)},1200);if(anim)anim.onStop=onEnd;
-      const wait=setTimeout(()=>{const t0=performance.now();anim={};let az=st.az;
-        const step=()=>{const t=Math.min(1,(performance.now()-t0)/ms),e=t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2,d=e*tot,p=at(d);
+      // until the flight itself starts, a stop from anywhere (a touch, another camera move) still ends it
+      const wait=setTimeout(()=>{flyEnd=null;
+        // on a slow machine the move to the top can still be running: the flight takes over, and each animation
+        // only goes on while it is still the current one (the move ending used to wipe the flight after one frame)
+        if(anim)cancelAnimationFrame(anim.raf);const t0=performance.now(),me=anim={};let az=st.az;
+        const step=()=>{if(anim!==me)return;const t=Math.min(1,(performance.now()-t0)/ms),e=t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2,d=e*tot,p=at(d);
           let da=azAt(d)-az;da=Math.atan2(Math.sin(da),Math.cos(da));az+=da*0.04;
           Object.assign(st,{tx:p[0],tz:p[1],dist:650,pol:.42,az});place();renderer.render(scene,camera);layoutLabels();
           if(opts.onFly)opts.onFly(d/tot);
-          if(t<1&&anim)anim.raf=requestAnimationFrame(step);else if(anim){anim=null;if(onEnd)onEnd();}};
-        anim.raf=requestAnimationFrame(step);anim.onStop=onEnd;},1250);
-      flyWait=wait;},
+          if(t<1)me.raf=requestAnimationFrame(step);else{anim=null;if(onEnd)onEnd();}};
+        me.raf=requestAnimationFrame(step);me.onStop=onEnd;},1250);
+      flyWait=wait;flyEnd=onEnd;},
     stopFly(){stopAnim();},
     // lift status: {liftId: true|false|null}; closed lifts turn grey. null clears it.
     liftState(m){liftObjs.forEach(o=>{const v=m?m[o.l.id]:null;o.c2.material.uniforms.color.value.set(v===false?'#9aa5b3':(opts.liftColor||'#2a2f38'));});request();},
