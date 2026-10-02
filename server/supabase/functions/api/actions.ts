@@ -467,7 +467,8 @@ const actions: Record<string, Action> = {
     const r = await useCode(tx, user, body.code);
     if (!r.invite) return { status: r.status };
     const group = r.invite.group_id;
-    const [g] = await tx`select id, name, starts_on, ends_on from public.groups where id = ${group}`;
+    // Dates as plain text (2027-01-10), not as a moment in some time zone.
+    const [g] = await tx`select id, name, starts_on::text, ends_on::text from public.groups where id = ${group}`;
     const members = await tx`select user_id, display_name from public.group_members
                              where group_id = ${group} order by joined_at, user_id`;
     return {
