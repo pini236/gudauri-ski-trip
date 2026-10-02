@@ -31,7 +31,7 @@ jobs:
             exit 0
           fi
           for i in 1 2 3; do
-            if curl -fsS -X POST "$URL/functions/v1/api/keepalive" -H "apikey: $KEY" -H "Content-Type: application/json" -d '{}'; then
+            if curl -fsS -X POST "$URL/functions/v1/api/keepalive" -H "apikey: $KEY" -H "x-region: eu-central-1" -H "Content-Type: application/json" -d '{}'; then
               echo; exit 0
             fi
             sleep $((i * 30))

@@ -147,6 +147,7 @@ test("invites: code, link, revoke, expiry, limits, approval", async () => {
 
   const preview = await call(d, "invite_preview", { code: inv.code });
   eq([preview.status, preview.members.length, preview.already_member], ["ok", 4, false], "preview: group and names");
+  eq(preview.starts_on, today, "dates come back as plain dates");
 
   const old = inv.code;
   const fresh = await call(admin, "create_invite", { group_id: g });
