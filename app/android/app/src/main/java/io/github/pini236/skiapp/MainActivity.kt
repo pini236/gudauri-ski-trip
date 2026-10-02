@@ -12,6 +12,7 @@ import android.view.FrameMetrics
 import android.view.ViewTreeObserver
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.background
@@ -70,6 +71,7 @@ import io.github.pini236.skiapp.meet.MeetScreen
 import io.github.pini236.skiapp.meet.Relief2D
 import io.github.pini236.skiapp.meet.Preset
 import io.github.pini236.skiapp.meet.Reminders
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -399,6 +401,15 @@ class MainActivity : ComponentActivity() {
         BackHandler(enabled = nav.canBack) { nav.back() }
         // the clock: Gudauri's hour for the sky and the countdown, once every half minute (or pinned by the QA run)
         LaunchedEffect(Unit) { while (true) { delay(30_000); tick = nowMs() } }
+        // the notification permission for the meetups' reminders, asked when the app first opens (Pini, 2.10.2026)
+        val askNotifications = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { ok ->
+            Qa.log("notifications ${if (ok) "allowed" else "refused"}"); armReminders()
+        }
+        LaunchedEffect(Unit) {
+            if (Reminders.shouldAsk(this@MainActivity, Reminders.Ask.OPEN)) {
+                Reminders.markAsked(this@MainActivity, Reminders.Ask.OPEN); askNotifications.launch(android.Manifest.permission.POST_NOTIFICATIONS)
+            }
+        }
         val frame = remember(tick, dnMode) { DayNight.at(tick, dnMode) }
         val top = nav.top
         // screen_view with the contract's screen names (docs/GROWTH.md); a chosen run is run_open, not a screen. The way

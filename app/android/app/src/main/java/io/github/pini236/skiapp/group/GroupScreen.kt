@@ -385,11 +385,11 @@ private fun Meetups(g: Group, now: LocalDateTime, station: (String) -> Station?,
     val ahead = g.meetups.filter { it.at.atZone(zone).toLocalDateTime() > now }
     val next = ahead.minByOrNull { it.at }
     var toggled by remember { mutableIntStateOf(0) }
-    // the notification permission (Android 13 and later), asked once, the first time a meetup ahead would remind
+    // the notification permission (Android 13 and later): a second chance, the first time a meetup ahead would remind
     val ask = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { onReminders() }
     LaunchedEffect(ahead.size) {
-        if (Build.VERSION.SDK_INT >= 33 && ahead.any { Reminders.isOn(context, it.id) } && !Reminders.allowed(context) && !Reminders.asked(context)) {
-            Reminders.markAsked(context); ask.launch(Manifest.permission.POST_NOTIFICATIONS)
+        if (ahead.any { Reminders.isOn(context, it.id) } && Reminders.shouldAsk(context, Reminders.Ask.MEETUPS)) {
+            Reminders.markAsked(context, Reminders.Ask.MEETUPS); ask.launch(Manifest.permission.POST_NOTIFICATIONS)
         }
     }
     for ((day, list) in byDay) {

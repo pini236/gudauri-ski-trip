@@ -47,10 +47,14 @@ object Reminders {
         prefs(c).edit().putStringSet("off", off).apply()
     }
 
-    /** The notification permission (Android 13 and later), asked once from the meetups (Q8). */
+    /**
+     * The notification permission (Android 13 and later), asked at most twice: when the app first opens (Pini,
+     * 2.10.2026), and once more the first time a meetup ahead would remind (Q8). Android itself shows it twice at most.
+     */
     fun allowed(c: Context) = Build.VERSION.SDK_INT < 33 || c.checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED
-    fun asked(c: Context) = prefs(c).getBoolean("asked", false)
-    fun markAsked(c: Context) = prefs(c).edit().putBoolean("asked", true).apply()
+    enum class Ask { OPEN, MEETUPS }
+    fun shouldAsk(c: Context, at: Ask) = Build.VERSION.SDK_INT >= 33 && !allowed(c) && !prefs(c).getBoolean("asked_" + at.name.lowercase(), false)
+    fun markAsked(c: Context, at: Ask) = prefs(c).edit().putBoolean("asked_" + at.name.lowercase(), true).apply()
 
     /**
      * Sets the alarms of these meetups (the ones whose reminder is on and still ahead), and takes away the ones that
