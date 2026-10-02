@@ -60,6 +60,8 @@ import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.pini236.skiapp.R
+import io.github.pini236.skiapp.meet.Station
+import io.github.pini236.skiapp.meet.stationWhere
 import io.github.pini236.skiapp.home.DayNight
 import io.github.pini236.skiapp.home.Hero
 import io.github.pini236.skiapp.home.PassShape
@@ -114,7 +116,7 @@ private val GAMES = listOf("descent" to R.string.games_descent_name, "school" to
 @Composable
 fun GroupScreen(
     api: GroupApi, groupId: String, tab: GroupTab, frame: DayNight.Frame, myTrip: Trip?, now: LocalDateTime, justJoined: Boolean, saveOffers: Int,
-    stationName: (String) -> String?,
+    station: (String) -> Station?, onOpenMeetup: (Meetup) -> Unit,
     onTab: (GroupTab) -> Unit, onBack: () -> Unit, onInvite: () -> Unit, onNewMeetup: () -> Unit, onEditTrip: () -> Unit,
     onMyTrip: (Trip) -> Unit, onLeft: () -> Unit, signInGoogle: suspend () -> Unit, onSaveOffered: () -> Unit,
 ) {
@@ -189,7 +191,7 @@ fun GroupScreen(
                         onSame = { sheet = "same" },
                         onShowMine = { r.run { api.showMyTrip(g.id, g.me?.name ?: "", myTrip); reload() } },
                         onFillFor = { forMember = it; sheet = "fill" })
-                    GroupTab.MEETUPS -> Meetups(g, now, stationName, onNewMeetup)
+                    GroupTab.MEETUPS -> Meetups(g, now, station, onOpenMeetup, onNewMeetup)
                     GroupTab.SCORES -> Scores(api, g)
                     GroupTab.MEMBERS -> Members(api, g, r, reload = { reload() }, onInvite = onInvite, onEdit = { sheet = "edit" }, onLeft = onLeft)
                 }
@@ -356,9 +358,12 @@ private fun Flights(g: Group, myTrip: Trip?, onSame: () -> Unit, onShowMine: () 
     Note(stringResource(R.string.app_g_flights_private), Icons.lock)
 }
 
-/** Meetups (Q8): every meetup of the group, by day, who set it; a new one is picked on the meeting-point map. */
+/**
+ * Meetups (Q8): every meetup of the group, by day, who set it; a new one is picked on the meeting-point map, and a
+ * tap opens its card there (how to get there, sharing). The station's name is the meeting point's, as on the site.
+ */
 @Composable
-private fun Meetups(g: Group, now: LocalDateTime, stationName: (String) -> String?, onNew: () -> Unit) {
+private fun Meetups(g: Group, now: LocalDateTime, station: (String) -> Station?, onOpen: (Meetup) -> Unit, onNew: () -> Unit) {
     val c = Ski.colors
     val zone = ZoneId.of("Asia/Tbilisi")
     val byDay = g.meetups.sortedBy { it.at }.groupBy { it.at.atZone(zone).toLocalDate() }
@@ -369,14 +374,13 @@ private fun Meetups(g: Group, now: LocalDateTime, stationName: (String) -> Strin
         for (m in list) {
             val at = m.at.atZone(zone)
             Row(Modifier.fillMaxWidth().height(IntrinsicSize.Min).shadow(6.dp, RectangleShape).background(c.bpPaper).paperGrain(c.dark)
-                .let { if (m == next) it.border(2.dp, c.accent) else it }) {
+                .let { if (m == next) it.border(2.dp, c.accent) else it }.clickable(role = A11y.Button) { onOpen(m) }) {
                 Column(Modifier.width(76.dp).fillMaxHeight().padding(vertical = 8.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
                     Muted(shortDate(at.toLocalDate()), size = 12f)
                     Text("%02d:%02d".format(at.hour, at.minute), style = TextStyle(fontFamily = Karantina, fontWeight = FontWeight.Bold, fontSize = 36.sp, lineHeight = 32.sp), color = c.ink)
                 }
                 Column(Modifier.weight(1f).padding(horizontal = 14.dp, vertical = 10.dp)) {
-                    val lift = stationName(m.station)
-                    val place = if (lift == null) m.station else stringResource(if (m.station.endsWith("t")) R.string.meet_where_top_station else R.string.meet_where_bottom_station, lift)
+                    val place = station(m.station)?.let { stationWhere(it) } ?: m.station
                     Text(place, style = Ski.type.bodyBold.copy(fontSize = 15.5.sp), color = c.ink)
                     m.byName?.let { Muted(stringResource(R.string.app_g_set_by, it), size = 12.5f) }
                     m.note?.let { Muted(it, size = 12.5f) }

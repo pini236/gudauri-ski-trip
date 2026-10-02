@@ -2,6 +2,7 @@ package io.github.pini236.skiapp.group
 
 import io.github.pini236.skiapp.telemetry.Telemetry
 import io.github.pini236.skiapp.trip.Trip
+import java.time.Instant
 import java.time.LocalDate
 
 /**
@@ -26,4 +27,9 @@ class MeasuredGroupApi(private val api: GroupApi) : GroupApi by api {
     }
 
     override suspend fun leave(groupId: String) { api.leave(groupId); Telemetry.event("group_leave") }
+
+    /** reminder: false until the reminders arrive (Q8's "a quarter of an hour before") */
+    override suspend fun addMeetup(groupId: String, station: String, at: Instant) {
+        api.addMeetup(groupId, station, at); Telemetry.event("meetup_create", mapOf("reminder" to false))
+    }
 }

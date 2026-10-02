@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import org.json.JSONArray
 import org.json.JSONObject
+import java.time.Instant
 import java.time.LocalDate
 
 /** My trip on the server, now, and its id there (server/TripSync.kt keeps it one row). */
@@ -225,6 +226,11 @@ class LiveGroupApi(
             sync?.group(groupId)?.state?.value?.scores?.get(game) ?: throw e
         }
         rows.map { Score(it.userId, it.name, it.best, it.userId == me) }
+    }
+
+    /** Through the queue on the phone ([Sync]): shown in the group at once, sent when there is signal (no signal is fine). */
+    override suspend fun addMeetup(groupId: String, station: String, at: Instant) {
+        io { val q = sync; if (q != null) q.group(groupId).addMeetup(station, at) else groups.addMeetup(groupId, station, at) }
     }
 
     private companion object {

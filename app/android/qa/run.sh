@@ -300,6 +300,43 @@ group() {
   qa "--es qa.group none --es qa.tab home --es qa.trip '$TRIP_HE'"; sleep 1
 }
 
+# ---- the meeting point (M1 to M3, round 8's MP1 to MP3) and a meetup saved in the group (Q8) ----
+meet() {
+  local up="$((W / 2)) $((H * 85 / 100)) $((W / 2)) $((H * 35 / 100)) 400" down="$((W / 2)) $((H * 30 / 100)) $((W / 2)) $((H * 90 / 100)) 300"
+  # a trip (its ski days are the day chips), mid-December at noon in Gudauri: nothing is picked at first (MP1)
+  qa "--es qa.group none --es qa.tab home --es qa.trip '$TRIP_HE' --es qa.mode auto --es qa.time 2026-12-15T12:00"; waitlog "trip set" 20
+  mark; qa "--es qa.tab meet"; waitlog "meet ready" 20; sleep 2; shot meet-empty
+  drag $up; sleep 1; shot meet-empty-below
+  # one tap on a spot of the post (M2) prints the card (M3); the map flies to it
+  mark; tapText "רכבל הבוקר" && waitlog "meet picked" 5 && { sleep 1.5; shot meet-preset; }
+  drag $up; sleep 1; shot meet-card
+  drag $up; sleep 1; shot meet-ways-share
+  drag $down; sleep 0.5; drag $down; sleep 0.5; drag $down; sleep 1; shot meet-picked-map
+  # clear it, and bring it back (MP3)
+  mark; tapText "ניקוי הבחירה" && waitlog "meet cleared" 5 && { sleep 0.8; shot meet-cleared; }
+  tapText "החזרה" && sleep 1.5 && shot meet-undone
+  # a pin on the map: the zoom buttons, then a tap on the picked pin clears it (a tap on another one picks that)
+  tapText "להתקרב" && sleep 0.8 && tapText "להתקרב" && sleep 1 && shot meet-zoomed
+  # a link from the site (the top of Shino and Firni, 13:00 on the 12th), then at night
+  mark; qa "--es qa.tab meet/472374253t/1300/20270112"; waitlog "meet ready" 15; sleep 2; shot meet-link
+  qa "--es qa.mode night"; sleep 2; shot meet-link-night; drag $up; sleep 1; shot meet-link-night-card
+  qa "--es qa.mode auto"; sleep 1
+  # in English, left to right
+  adb shell cmd locale set-app-locales "$PKG" --locales en > /dev/null 2>&1; sleep 3
+  mark; qa "--es qa.tab meet/158744075b/0930/20270111"; waitlog "meet ready" 15; sleep 2; shot meet-en; drag $up; sleep 1; shot meet-en-card
+  adb shell cmd locale set-app-locales "$PKG" --locales he > /dev/null 2>&1; sleep 3
+
+  # a member: the group's meetups, "new meetup" leads here, and saving goes back to the group with the meetup in it (Q8)
+  qa "--es qa.group member --es qa.tab group/g1/meetups"; waitlog "group seed member" 20; sleep 2.5; shot meet-group-before
+  mark; tapText "מפגש חדש" && waitlog "meet ready" 15 && sleep 1.5
+  tapText "צהריים" && sleep 1.5
+  drag $up; sleep 0.8; drag $up; sleep 0.8; drag $up; sleep 1; shot meet-group-save
+  mark; tapText "שמירה בקבוצה" && waitlog "meetup saved" 10 && { sleep 2; shot meet-group-after; }
+  # a tap on a meetup in the group opens its card
+  tapText "~התחנה" && sleep 2 && shot meet-from-group
+  qa "--es qa.group none --es qa.tab home"; sleep 1
+}
+
 # ---- the store screenshots (Google Play: portrait 9:16) ----
 # a 1080x1920 screen, a clean status bar (demo mode), no measuring bar; the files go to $OUT/store
 store() {
@@ -341,8 +378,9 @@ for sc in ${SCENARIO//,/ }; do
     descent) descent ;;
     home) home ;;
     group) group ;;
+    meet) meet ;;
     store) store ;;
-    *) map; descent; home; group; store ;;
+    *) map; descent; home; group; meet; store ;;
   esac
 done
 

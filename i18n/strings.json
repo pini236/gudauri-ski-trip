@@ -931,18 +931,6 @@
     "ka"
    ]
   },
-  "app.soon_meet": {
-   "he": "נקודת המפגש מגיעה לאפליקציה בשלב הבא. בינתיים היא עובדת באתר.",
-   "en": "The meeting point comes to the app next. Meanwhile it works on the site.",
-   "ru": "Место встречи появится в приложении следующим. Пока оно работает на сайте.",
-   "ka": "შეხვედრის ადგილი აპში შემდეგ ეტაპზე დაემატება. მანამდე ის საიტზე მუშაობს.",
-   "where": "app/android",
-   "note": "placeholder page until stage 13.4",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
   "app.ticket_credits": {
    "he": "צליל הקריעה: \"Perforated Tear\" מאת everythingsounds (Freesound), ברישיון CC BY 4.0. צלילי הכרטיס: Kenney (CC0).",
    "en": "Tearing sound: \"Perforated Tear\" by everythingsounds (Freesound), CC BY 4.0. Pass sounds: Kenney (CC0).",

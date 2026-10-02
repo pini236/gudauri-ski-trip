@@ -61,7 +61,7 @@ private class FakeGroupApi : GroupApi {
             if (admin) listOf(JoinRequest("r1", "u9", "יואב שחר", reclaim = true)) else emptyList(),
             listOf(
                 Meetup("m1", "158744075b", LocalDate.of(2027, 1, 11).atTime(9, 30).toInstant(ZoneOffset.ofHours(4)), null, "נועה כהן"),
-                Meetup("m2", "158744075t", LocalDate.of(2027, 1, 11).atTime(13, 0).toInstant(ZoneOffset.ofHours(4)), null, "דנה מזרחי"),
+                Meetup("m2", "158744055b", LocalDate.of(2027, 1, 11).atTime(13, 0).toInstant(ZoneOffset.ofHours(4)), null, "דנה מזרחי"),
             ))
         if (kind == "invited") { groups[gid] = groups.getValue(gid).let { g -> g.copy(members = g.members.filter { it.userId != "me" }) }; meNow = null }
     }
@@ -200,6 +200,12 @@ private class FakeGroupApi : GroupApi {
         val by = g.members.first { it.userId == me.userId }.name
         val tid = id(); trips[tid] = trip
         groups[groupId] = g.copy(members = g.members.map { if (it.userId == userId) it.copy(trip = trip, tripId = tid, enteredByAdmin = by) else it })
+    }
+
+    override suspend fun addMeetup(groupId: String, station: String, at: Instant) {
+        wait(); val me = meOrThrow(); val g = groups[groupId] ?: throw ApiException("not_found")
+        val by = g.members.firstOrNull { it.userId == me.userId }?.name
+        groups[groupId] = g.copy(meetups = g.meetups + Meetup(id(), station, at, null, by))
     }
 
     override suspend fun leaderboard(groupId: String, game: String): List<Score> {

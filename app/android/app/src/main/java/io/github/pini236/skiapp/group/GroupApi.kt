@@ -169,6 +169,9 @@ interface GroupApi {
     suspend fun setMemberTrip(groupId: String, userId: String, trip: Trip)
 
     suspend fun leaderboard(groupId: String, game: String): List<Score>
+
+    /** A meetup from the meeting point (Q8): kept on the phone at once and sent when there is signal. */
+    suspend fun addMeetup(groupId: String, station: String, at: Instant)
 }
 
 /** Invite codes: six letters without I and O (the server's alphabet), typed in any case; or the long token from a link. */

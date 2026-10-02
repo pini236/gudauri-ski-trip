@@ -205,6 +205,16 @@ class MapView(context: Context, refreshHz: Float, val stats: FrameStats) : Frame
         }
     }
 
+    /** The meeting point's "see it on the run map": the camera on a lift's whole line, as on a chosen run. */
+    fun showLift(id: String) {
+        val s = scene ?: return
+        val i = s.runs.lifts.indexOfFirst { it.id == id }
+        if (i < 0) return
+        select(null, chosen = false)
+        // after the map has its size (it may have just been put on the screen)
+        post { worker.execute { renderer.animateCamera(Framing.fit(s.liftLines[i], width.toFloat(), height.toFloat(), { x, z -> s.terrain.elev(x, z) })); Qa.log("showing lift $id") } }
+    }
+
     /** Puts the camera at a given view (the QA run uses it for repeatable screenshots). */
     fun look(st: OrbitCamera.State) = renderer.animateCamera(st, 0.05f)
 

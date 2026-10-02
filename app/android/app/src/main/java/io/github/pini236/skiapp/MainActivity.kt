@@ -63,6 +63,11 @@ import io.github.pini236.skiapp.home.DayNight
 import io.github.pini236.skiapp.home.HomeAction
 import io.github.pini236.skiapp.home.HomeScreen
 import io.github.pini236.skiapp.home.SoonScreen
+import io.github.pini236.skiapp.meet.Meet
+import io.github.pini236.skiapp.meet.MeetPlan
+import io.github.pini236.skiapp.meet.MeetSave
+import io.github.pini236.skiapp.meet.MeetScreen
+import io.github.pini236.skiapp.meet.Relief2D
 import io.github.pini236.skiapp.account.AccountScreen
 import io.github.pini236.skiapp.account.GoogleSignIn
 import io.github.pini236.skiapp.group.CodeScreen
@@ -112,6 +117,10 @@ class MainActivity : ComponentActivity() {
     private lateinit var siteData: SiteData
 
     private var scene by mutableStateOf<MapScene?>(null)
+    /** The meeting point's stations (from the same data as the map), and its top view, read the first time it opens. */
+    private var meetPlan by mutableStateOf<MeetPlan?>(null)
+    private var relief by mutableStateOf<Relief2D?>(null)
+    private var reliefAsked = false
     private var profile by mutableStateOf<Profile?>(null)
     private var sunNote by mutableStateOf("")
     private lateinit var nav: Nav
@@ -247,6 +256,8 @@ class MainActivity : ComponentActivity() {
         val profiles = Profile.parse(asset("data/profiles.json"))
         Startup.dataMs = SystemClock.uptimeMillis() - t0
         runOnUiThread { profile = profiles.firstOrNull { it.key == "Tatra 2" } ?: profiles.firstOrNull() }
+        val plan = MeetPlan.build(runs, terrain)
+        runOnUiThread { meetPlan = plan }
         val t1 = SystemClock.uptimeMillis()
         val s = MapScene(terrain, runs)
         Startup.meshMs = SystemClock.uptimeMillis() - t1
@@ -392,7 +403,18 @@ class MainActivity : ComponentActivity() {
                         })
                     Route.Trip -> TripForm(trip, LocalDateTime.ofInstant(Instant.ofEpochMilli(tick), ZoneId.systemDefault()).toLocalDate(), onSave = { t -> keepTrip(t); Qa.log("trip saved"); nav.back() },
                         onDelete = { keepTrip(null); Qa.log("trip deleted"); nav.back() }, onCancel = { nav.back() })
-                    is Route.Meet -> SoonScreen(stringResource(R.string.nav_meet), stringResource(R.string.app_soon_meet)) { nav.back() }
+                    is Route.Meet -> {
+                        LaunchedEffect(Unit) {
+                            if (!reliefAsked) { reliefAsked = true; loader.execute { val r = Relief2D.parse(assets.open("data/terrain.json").bufferedReader().use { it.readText() }); runOnUiThread { relief = r; Qa.log("meet relief ready") } } }
+                        }
+                        // from a group's page, a new meetup goes back to that group (Q8)
+                        val fromGroup = (nav.routes.getOrNull(nav.routes.size - 2) as? Route.Group)?.id
+                        MeetScreen(meetPlan, scene?.runs, relief, trip, tick, top,
+                            save = if (groupApi.ready) MeetSave(groupApi, fromGroup) { id -> nav.back(); if (nav.top is Route.Group) nav.replaceTop(Route.Group(id, GroupTab.MEETUPS.key)) } else null,
+                            onRoute = { r -> if (nav.top is Route.Meet && nav.top != r) nav.replaceTop(r) },
+                            onOnMap = { st -> nav.push(Route.Map(nav.find<Route.Map>()?.run)); mapView.showLift(st.ends.first().lift.id) },
+                            onBack = { nav.back() })
+                    }
                     is Route.Group -> if (!groupApi.ready) SoonScreen(stringResource(R.string.app_sign_group), stringResource(R.string.app_soon_group)) { nav.back() }
                         else if (top.id == null) GroupHub(groupApi, onGroup = { id -> nav.replaceTop(Route.Group(id, GroupTab.FLIGHTS.key)) }) {
                             GroupEntryScreen(groupApi, onBack = { nav.back() },
@@ -401,7 +423,8 @@ class MainActivity : ComponentActivity() {
                         }
                         else GroupScreen(groupApi, top.id, GroupTab.of(top.tab), frame, trip, LocalDateTime.ofInstant(Instant.ofEpochMilli(tick), ZoneId.systemDefault()),
                             justJoined = justJoined, saveOffers = accountPrefs.getInt("save_offers", 0),
-                            stationName = { key -> scene?.runs?.lifts?.firstOrNull { it.id.isNotEmpty() && it.id == key.dropLast(1) }?.name },
+                            station = { key -> meetPlan?.byId?.get(key) },
+                            onOpenMeetup = { m -> val at = m.at.atOffset(Meet.GUDAURI); nav.push(Meet.route(m.station, at.toLocalTime(), at.toLocalDate())) },
                             onTab = { nav.replaceTop(Route.Group(top.id, it.key)) }, onBack = { nav.toStart() },
                             onInvite = { nav.push(Route.GroupInvite(top.id)) }, onNewMeetup = { nav.push(Route.Meet()) }, onEditTrip = { nav.push(Route.Trip) },
                             onMyTrip = { t -> keepTrip(t) }, onLeft = { nav.toStart() }, signInGoogle = ::signInGoogle,
