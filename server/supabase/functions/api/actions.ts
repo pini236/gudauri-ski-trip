@@ -626,8 +626,6 @@ const actions: Record<string, Action> = {
     return {};
   },
 
-  // "I'm on the same flight": copy a trip shown in the group into a new
-  // trip of mine, and show it there.
   // "I'm on the same flight": that member's flight becomes mine, shown in
   // this group. A person has one trip (decision 27), so a trip of mine is
   // overwritten rather than copied next to it: the one the app keeps
