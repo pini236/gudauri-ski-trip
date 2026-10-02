@@ -1,136 +1,190 @@
 package io.github.pini236.skiapp.home
 
-import android.graphics.BitmapFactory
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
-import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.clickable
-import androidx.compose.ui.semantics.Role
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableLongStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.draw.drawWithCache
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.Shadow
+import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.pini236.skiapp.R
 import io.github.pini236.skiapp.fx.Haptics
 import io.github.pini236.skiapp.fx.Sounds
-import io.github.pini236.skiapp.map.Sky
 import io.github.pini236.skiapp.trip.Trip
+import io.github.pini236.skiapp.ui.Icons
 import io.github.pini236.skiapp.ui.Ski
-import io.github.pini236.skiapp.ui.SkiTheme
-import kotlinx.coroutines.delay
-import java.time.Instant
 import java.time.LocalDateTime
-import java.time.ZoneId
+import java.time.Month
+import kotlin.random.Random
 
-/** What the home page can open. Places that are not built yet in the app (meeting point, group) have no sign yet. */
-class HomeActions(val addTrip: () -> Unit, val editTrip: () -> Unit, val map: () -> Unit, val games: () -> Unit)
+/** Where the home page's signs and buttons lead (MainActivity turns them into routes). */
+enum class HomeAction { MAP, MEET, GAMES, GROUP, ABOUT, TRIP, STATUS }
 
 /**
- * The home page of the app (round 10: H1 without a trip, H3 by day and H4 at night with one). The view from the
- * village at the time in Gudauri (the site's seven pictures), the boarding pass of the user's own trip or a blank one
- * waiting to be filled, the state of the season, and the trail signs. Dark at night in Gudauri, as on the site.
+ * The home page (round 10, H1 to H4; decision 36): the sky and the view from the village by the hour in Gudauri,
+ * the user's own boarding pass (or an empty one inviting to add it), the state of the season when there is no trip,
+ * and the post of signs. Left-to-right languages mirror it (LT1 to LT3): the post on the left, arrows to the right.
  */
 @Composable
-fun HomeScreen(trip: Trip?, haptics: Haptics, sounds: Sounds, actions: HomeActions, nowMs: Long? = null) {
-    var now by remember { mutableLongStateOf(nowMs ?: System.currentTimeMillis()) }
-    LaunchedEffect(nowMs) { if (nowMs == null) while (true) { delay(30_000); now = System.currentTimeMillis() } else now = nowMs }
-    val pano = Sky.pano(now)
-    SkiTheme(dark = pano.dark) {
-        val c = Ski.colors
-        val bg = c.snow
-        Box(Modifier.fillMaxSize().background(bg)) {
-            PanoView(pano, Modifier.fillMaxWidth().height(260.dp))
-            Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).statusBarsPadding().navigationBarsPadding()) {
-                Header(Sky.clock(now), pano.dark)
-                Spacer(Modifier.height(54.dp))
-                Column(Modifier.padding(horizontal = 16.dp)) {
-                    if (trip == null) EmptyPass(bg, actions.addTrip)
-                    else TripPass(trip, trip.daysTo(LocalDateTime.ofInstant(Instant.ofEpochMilli(now), ZoneId.systemDefault())), bg, haptics, sounds, actions.editTrip)
-                    if (trip == null) { Spacer(Modifier.height(36.dp)); SeasonBoard(actions.map) }
-                }
-                Spacer(Modifier.height(30.dp))
-                SignPost(Modifier.fillMaxWidth()) {
-                    TrailSign(stringResource(R.string.nav_map), stringResource(R.string.home_board_map_sub), c.blue, c.onBoard, .9f, actions.map)
-                    TrailSign(stringResource(R.string.nav_games), stringResource(R.string.home_board_games_sub), c.green, c.onBoard, .86f, actions.games)
-                }
-                Spacer(Modifier.height(40.dp))
-            }
-        }
-    }
-}
-
-/** The two pictures either side of now, cross-faded (assets/pano, from site/img/pano). */
-@Composable
-private fun PanoView(p: Sky.Pano, modifier: Modifier) {
-    val ctx = LocalContext.current
-    fun load(name: String): ImageBitmap? = runCatching { ctx.assets.open("pano/pano-$name.webp").use { BitmapFactory.decodeStream(it).asImageBitmap() } }.getOrNull()
-    val a = remember(p.from) { load(p.from) }
-    val b = remember(p.to) { load(p.to) }
-    Box(modifier) {
-        a?.let { Image(it, null, Modifier.fillMaxSize(), contentScale = ContentScale.Crop, alignment = Alignment.BottomCenter) }
-        b?.let { Image(it, null, Modifier.fillMaxSize().alpha(p.mix), contentScale = ContentScale.Crop, alignment = Alignment.BottomCenter) }
-        // the view melts into the page below
-        Box(Modifier.fillMaxWidth().height(70.dp).align(Alignment.BottomCenter).background(Brush.verticalGradient(listOf(Color.Transparent, Ski.colors.snow))))
-    }
-}
-
-@Composable
-private fun Header(clock: String, dark: Boolean) {
-    val ink = if (dark) Color(0xFFEAF0F7) else Ski.colors.ink
-    Row(Modifier.fillMaxWidth().padding(start = 16.dp, end = 16.dp, top = 14.dp), verticalAlignment = Alignment.CenterVertically) {
-        Column {
-            Text(stringResource(R.string.home_location), style = Ski.type.brand, color = ink)
-            Row(verticalAlignment = Alignment.Bottom) {
-                Text(stringResource(R.string.nav_gudauri_time) + " ", style = Ski.type.small.copy(fontSize = 12.sp), color = ink)
-                Text(clock, style = Ski.type.bodyBold, color = ink)
-            }
-        }
-    }
-}
-
-/** The state of the season, as on the site: no lift report yet, so the board sleeps under the snow (S3). */
-@Composable
-private fun SeasonBoard(openMap: () -> Unit) {
+fun HomeScreen(trip: Trip?, frame: DayNight.Frame, mode: DayNight.Mode, now: LocalDateTime, haptics: Haptics, sounds: Sounds,
+               onMode: () -> Unit, go: (HomeAction) -> Unit) {
     val c = Ski.colors
-    Box(Modifier.fillMaxWidth()) {
-        Column(Modifier.fillMaxWidth().background(c.paper)) {
-            Box(Modifier.fillMaxWidth().height(6.dp).background(c.dash))
-            Column(Modifier.padding(horizontal = 14.dp, vertical = 12.dp)) {
-                Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.Bottom) {
-                    Text(stringResource(R.string.status_mountain_asleep), Modifier.weight(1f), style = Ski.type.title.copy(fontSize = 30.sp), color = c.ink)
-                    Text(stringResource(R.string.app_home_season_link), Modifier.heightIn(min = 44.dp).clickable(role = Role.Button, onClick = openMap).padding(start = 8.dp, top = 14.dp), style = Ski.type.label, color = c.glacier)
-                }
-                Text(stringResource(R.string.status_lead_off_season), Modifier.padding(top = 4.dp), style = Ski.type.small, color = c.muted)
+    val top = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
+    Box(Modifier.fillMaxSize().background(c.snow).verticalScroll(rememberScrollState())) {
+        Hero(frame, 250.dp + top)
+        Column(Modifier.align(Alignment.TopCenter).widthIn(max = 520.dp).fillMaxWidth().padding(top = top)) {
+            Head(frame, mode, onMode) { go(HomeAction.ABOUT) }
+            if (trip != null) {
+                Spacer(Modifier.height(56.dp))
+                Box(Modifier.padding(horizontal = 16.dp)) { TripPass(trip, now, haptics, sounds) { go(HomeAction.TRIP) } }
+                Spacer(Modifier.height(38.dp))
+            } else {
+                Spacer(Modifier.height(58.dp))
+                Box(Modifier.padding(horizontal = 16.dp)) { EmptyPass { go(HomeAction.TRIP) } }
+                Spacer(Modifier.height(40.dp))
+                Box(Modifier.padding(horizontal = 16.dp)) { SeasonBoard(now) { go(HomeAction.STATUS) } }
+                Spacer(Modifier.height(30.dp))
+            }
+            SignPost(listOf(
+                SignSpec(stringResource(R.string.nav_map), stringResource(R.string.home_board_map_sub), SignColors.blue, Color.White, .90f) { go(HomeAction.MAP) },
+                SignSpec(stringResource(R.string.nav_meet), stringResource(R.string.home_board_meet_sub), SignColors.gold, SignColors.ink, .82f) { go(HomeAction.MEET) },
+                SignSpec(stringResource(R.string.nav_games), stringResource(R.string.home_board_games_sub), SignColors.green, Color.White, .86f) { go(HomeAction.GAMES) },
+                SignSpec(stringResource(R.string.app_sign_group), stringResource(R.string.app_sign_group_sub), if (c.dark) SignColors.inkNight else SignColors.ink, Color.White, .78f) { go(HomeAction.GROUP) },
+            ))
+        }
+    }
+}
+
+/** The head over the sky: the place and the time there, the day-and-night button and the way to about and settings. */
+@Composable
+private fun Head(frame: DayNight.Frame, mode: DayNight.Mode, onMode: () -> Unit, onAbout: () -> Unit) {
+    val c = Ski.colors
+    // a soft halo keeps the words readable over any sky (the site's --sky-halo)
+    val halo = Shadow(if (c.dark) Color(0x990D1522) else Color(0x99FFFFFF), blurRadius = 10f)
+    val names = mapOf(DayNight.Mode.AUTO to R.string.daynight_mode_auto, DayNight.Mode.DAY to R.string.daynight_mode_day, DayNight.Mode.NIGHT to R.string.daynight_mode_night)
+    val modeLabel = stringResource(R.string.daynight_button_aria, stringResource(names.getValue(mode)), stringResource(names.getValue(mode.next())))
+    Row(Modifier.fillMaxWidth().padding(start = 16.dp, end = 10.dp, top = 18.dp), verticalAlignment = Alignment.CenterVertically) {
+        Column(Modifier.weight(1f)) {
+            Text(stringResource(R.string.home_location), style = Ski.type.brand.copy(shadow = halo), color = c.ink)
+            Row(verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                Text(stringResource(R.string.nav_gudauri_time), style = Ski.type.small.copy(fontSize = 12.sp, shadow = halo), color = c.ink)
+                Text(frame.clock, style = Ski.type.bodyBold.copy(fontSize = 15.sp, shadow = halo, textDirection = TextDirection.Ltr), color = c.ink)
             }
         }
-        SnowCap(7, Modifier.fillMaxWidth().height(40.dp).offset(y = (-22).dp))
+        Box(Modifier.size(44.dp).clickable(role = Role.Button, onClick = onMode).semantics { contentDescription = modeLabel }, contentAlignment = Alignment.Center) {
+            Icon(Icons.dayNight, null, Modifier.size(22.dp), tint = c.ink)
+        }
+        val about = stringResource(R.string.common_about_settings)
+        Box(Modifier.size(44.dp).clickable(role = Role.Button, onClick = onAbout).semantics { contentDescription = about }, contentAlignment = Alignment.Center) {
+            Icon(Icons.gear, null, Modifier.size(22.dp), tint = c.ink)
+        }
+    }
+}
+
+/**
+ * The state of the season, as on the site when there is no report (S3): out of season the mountain sleeps under the
+ * snow; in season with no fresh report it says so. The live status arrives with stage 13.4.
+ */
+@Composable
+private fun SeasonBoard(now: LocalDateTime, onClick: () -> Unit) {
+    val c = Ski.colors
+    val inSeason = now.month in listOf(Month.DECEMBER, Month.JANUARY, Month.FEBRUARY, Month.MARCH, Month.APRIL)
+    Column(
+        Modifier.fillMaxWidth()
+            .shadow(6.dp, RectangleShape, ambientColor = Color(0x1A13233A), spotColor = Color(0x1A13233A))
+            .background(c.paper)
+            .drawWithCache {
+                val snow = snowCap(7, size.width, density)
+                onDrawWithContent {
+                    drawContent()
+                    drawRect(c.dash, Offset.Zero, Size(size.width, 6.dp.toPx()))
+                    drawSnow(snow, density)
+                }
+            }
+            .clickable(role = Role.Button, onClick = onClick)
+            .padding(start = 14.dp, end = 14.dp, top = 18.dp, bottom = 12.dp),
+    ) {
+        Row(verticalAlignment = Alignment.Bottom) {
+            Text(stringResource(if (inSeason) R.string.status_no_recent_data else R.string.status_mountain_asleep), Modifier.weight(1f),
+                style = Ski.type.title.copy(fontSize = Ski.type.title.fontSize * (30f / 44f)), color = c.ink)
+            Text(stringResource(R.string.status_heading_lift_status), style = Ski.type.label, color = c.glacier)
+        }
+        Text(stringResource(if (inSeason) R.string.status_lead_in_season else R.string.status_lead_off_season), Modifier.padding(top = 4.dp),
+            style = Ski.type.small, color = c.muted)
+    }
+}
+
+/**
+ * Fresh snow lying on a top edge, with a few drips (the canvas's cap(), the snowy signs of round 8): soft mounds along
+ * the edge, white with a faint blue outline. Fixed by [seed], so it looks the same every time.
+ */
+fun snowCap(seed: Int, w: Float, d: Float, height: Float = 22f): Path {
+    val h = height * d
+    val rnd = Random(seed)
+    val n = maxOf(4, (w / d / 34).toInt())
+    val pts = List(n + 1) { i -> Offset(i * w / n, (6 + rnd.nextFloat() * 8) * d) }
+    return Path().apply {
+        moveTo(0f, h); lineTo(0f, pts[0].y)
+        for (i in 0 until n) {
+            val a = pts[i]; val b = pts[i + 1]
+            quadraticTo((a.x + b.x) / 2, minOf(a.y, b.y) - (6 + rnd.nextFloat() * 6) * d, b.x, b.y)
+        }
+        lineTo(w, h - 6 * d)
+        var x = w
+        while (x > 0) {
+            val nx = maxOf(0f, x - (18 + rnd.nextFloat() * 30) * d)
+            if (rnd.nextFloat() < .35f && nx > 8 * d) {
+                val dx = (x + nx) / 2
+                lineTo(dx + 5 * d, h - 6 * d)
+                quadraticTo(dx + 4 * d, h + (6 + rnd.nextFloat() * 6) * d, dx, h + (8 + rnd.nextFloat() * 5) * d)
+                quadraticTo(dx - 4 * d, h + 6 * d, dx - 5 * d, h - 6 * d)
+            }
+            quadraticTo((x + nx) / 2, h + (-2 + rnd.nextFloat() * 4) * d, nx, h - 6 * d)
+            x = nx
+        }
+        close()
+    }
+}
+
+/** The cap sits on the edge: its bottom 8 over the board, the rest above it, with a little shadow. */
+fun DrawScope.drawSnow(p: Path, d: Float, height: Float = 22f) {
+    translate(0f, -(height - 8) * d) {
+        translate(0f, 2 * d) { drawPath(p, Color(0x2E13233A)) }
+        drawPath(p, Color.White)
+        drawPath(p, Color(0xFFC9D8E8), style = Stroke(1 * d))
     }
 }

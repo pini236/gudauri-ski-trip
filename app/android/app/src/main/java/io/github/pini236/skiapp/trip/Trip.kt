@@ -9,110 +9,124 @@ import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 
 /**
- * "Your trip" (decision 27, round 10 H1 to H4): the user's own flights, kept on the phone only, without signing up.
- * The crew's flight and names are never packed into the app (docs/USERS.md); this is whatever the user types.
- * Only the outbound date is required (H2). Times are as printed on the ticket, local to each airport.
+ * "Your trip" (decision 27, screens H1 to H4): one person's own flights, kept only on this phone, no sign-up.
+ * Nothing about the group is packed in the app (trip.json never is); the group's flights come back through the
+ * group (stage 13.5).
  */
-data class Flight(
+data class Leg(
     val date: LocalDate,
-    val number: String = "",
+    val flight: String = "",
     val from: String = "",
     val to: String = "",
     val departs: LocalTime? = null,
     val arrives: LocalTime? = null,
-)
+) {
+    /** "TLV · Tel Aviv" (or "TLV Tel Aviv") -> TLV and Tel Aviv; a place typed without an airport code has none. */
+    val fromCode: String? get() = code(from)
+    val toCode: String? get() = code(to)
+    val fromCity: String get() = city(from)
+    val toCity: String get() = city(to)
 
-data class Trip(val out: Flight, val back: Flight? = null) {
+    // three letters alone or before "·" ("tlv", "TLV · Tel Aviv"), or three capitals before a space ("TLV Tel Aviv");
+    // "Tel Aviv" is a city, not the code TEL
+    private fun code(s: String) = (Regex("^\\s*([A-Za-z]{3})\\s*(·|$)").find(s) ?: Regex("^\\s*([A-Z]{3})\\s").find(s))?.groupValues?.get(1)?.uppercase()
+    private fun city(s: String) = if (code(s) != null) s.trim().drop(3).trimStart(' ', '·').trim() else s.trim()
+}
+
+data class Trip(val out: Leg, val ret: Leg? = null, val ski: ClosedRange<LocalDate>? = null) {
+
+    /** The ski days: the ones the user set by hand ("שינוי" in H2), or the full days the flights leave. */
+    fun skiDays(): ClosedRange<LocalDate>? = ski ?: flightSkiDays()
 
     /**
-     * The full ski days: from the day after landing (the same day when landing before noon) to the day before the
-     * return flight (the same day when it leaves in the evening). A return in the small hours (the crew's 01:35)
-     * leaves the evening before free: the last ski day is the day before. Null when there is no return yet.
+     * Full ski days: from the day after landing (the same day if you land by 09:00) to the day before the return
+     * flight (the same day if it leaves at 18:00 or later). The group's trip, landing 10.1 at 20:35 and flying back
+     * 15.1 at 01:35, gives 11 to 14 January, four days, as on the site. Null when there is no return, or no full day.
      */
-    fun skiDays(): Pair<LocalDate, LocalDate>? {
-        val back = back ?: return null
-        val landed = out.arrives ?: out.departs
-        val first = if (landed != null && landed.isBefore(LocalTime.NOON)) out.date else out.date.plusDays(1)
-        val leaves = back.departs
-        val last = if (leaves != null && !leaves.isBefore(LocalTime.of(18, 0))) back.date else back.date.minusDays(1)
-        return if (last.isBefore(first)) null else first to last
+    fun flightSkiDays(): ClosedRange<LocalDate>? {
+        val r = ret ?: return null
+        val dep = out.departs
+        val arr = out.arrives
+        // an overnight flight (lands earlier on the clock than it left) lands the next day
+        val landed = if (dep != null && arr != null && arr < dep) out.date.plusDays(1) else out.date
+        val first = if (arr != null && arr <= LocalTime.of(9, 0)) landed else landed.plusDays(1)
+        val last = if (r.departs != null && r.departs >= LocalTime.of(18, 0)) r.date else r.date.minusDays(1)
+        return if (first <= last) first..last else null
     }
 
-    /** Days to the outbound flight, rounded up as on the site (0 once it has left). */
-    fun daysTo(now: LocalDateTime): Long {
-        val at = out.date.atTime(out.departs ?: LocalTime.MIDNIGHT)
-        val mins = Duration.between(now, at).toMinutes()
-        return if (mins <= 0) 0 else (mins + 24 * 60 - 1) / (24 * 60)
+    fun skiDayCount(): Int = skiDays()?.let { (it.endInclusive.toEpochDay() - it.start.toEpochDay() + 1).toInt() } ?: 0
+
+    /** Whole days until the outbound flight, rounded up as on the site (0 once it has left). */
+    fun daysToFlight(now: LocalDateTime): Int {
+        val dep = LocalDateTime.of(out.date, out.departs ?: LocalTime.MIDNIGHT)
+        val mins = Duration.between(now, dep).toMinutes()
+        return if (mins <= 0) 0 else ((mins + 24 * 60 - 1) / (24 * 60)).toInt()
     }
 
-    fun toJson(): String = JSONObject().apply {
-        put("v", 1)
-        put("out", flightJson(out))
-        back?.let { put("back", flightJson(it)) }
-    }.toString()
+    fun toJson(): JSONObject = JSONObject().put("v", 1).put("out", leg(out)).apply {
+        ret?.let { put("ret", leg(it)) }
+        ski?.let { put("ski", JSONObject().put("from", it.start.toString()).put("to", it.endInclusive.toString())) }
+    }
 
     companion object {
-        private val DATE: DateTimeFormatter = DateTimeFormatter.ISO_LOCAL_DATE
-        private val TIME: DateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm")
+        private val T = DateTimeFormatter.ofPattern("HH:mm")
 
-        private fun flightJson(f: Flight) = JSONObject().apply {
-            put("date", f.date.format(DATE))
-            if (f.number.isNotBlank()) put("number", f.number)
-            if (f.from.isNotBlank()) put("from", f.from)
-            if (f.to.isNotBlank()) put("to", f.to)
-            f.departs?.let { put("departs", it.format(TIME)) }
-            f.arrives?.let { put("arrives", it.format(TIME)) }
-        }
+        private fun leg(l: Leg) = JSONObject().put("date", l.date.toString()).put("flight", l.flight).put("from", l.from).put("to", l.to)
+            .put("departs", l.departs?.format(T) ?: "").put("arrives", l.arrives?.format(T) ?: "")
 
-        private fun flight(o: JSONObject) = Flight(
-            date = LocalDate.parse(o.getString("date"), DATE),
-            number = o.optString("number"),
-            from = o.optString("from"),
-            to = o.optString("to"),
-            departs = o.optString("departs").takeIf { it.isNotEmpty() }?.let { LocalTime.parse(it, TIME) },
-            arrives = o.optString("arrives").takeIf { it.isNotEmpty() }?.let { LocalTime.parse(it, TIME) },
+        private fun leg(o: JSONObject) = Leg(
+            LocalDate.parse(o.getString("date")), o.optString("flight"), o.optString("from"), o.optString("to"),
+            o.optString("departs").takeIf { it.isNotBlank() }?.let { LocalTime.parse(it, T) },
+            o.optString("arrives").takeIf { it.isNotBlank() }?.let { LocalTime.parse(it, T) },
         )
 
-        /** A saved trip, or null when there is none or it cannot be read (never a crash). */
+        /** A saved trip, or null for anything odd (a newer format, a damaged file): the home page then invites to add one. */
         fun fromJson(s: String?): Trip? = runCatching {
             val o = JSONObject(s ?: return null)
-            Trip(flight(o.getJSONObject("out")), o.optJSONObject("back")?.let { flight(it) })
+            if (o.optInt("v", 1) > 1) return null
+            val ski = o.optJSONObject("ski")?.let { LocalDate.parse(it.getString("from"))..LocalDate.parse(it.getString("to")) }?.takeIf { it.start <= it.endInclusive }
+            Trip(leg(o.getJSONObject("out")), o.optJSONObject("ret")?.let { leg(it) }, ski)
         }.getOrNull()
-
-        /** "10.1.2027", "10.1.27" or "10/1/2027". Null when it is not a real date. */
-        fun parseDate(s: String): LocalDate? {
-            val m = Regex("""^\s*(\d{1,2})[./-](\d{1,2})[./-](\d{2}|\d{4})\s*$""").find(s) ?: return null
-            val (d, mo, y) = m.destructured
-            val year = if (y.length == 2) 2000 + y.toInt() else y.toInt()
-            return runCatching { LocalDate.of(year, mo.toInt(), d.toInt()) }.getOrNull()
-        }
-
-        /** "16:00" or "1600". Null when it is not a time. */
-        fun parseTime(s: String): LocalTime? {
-            val m = Regex("""^\s*(\d{1,2}):?(\d{2})\s*$""").find(s) ?: return null
-            val (h, mi) = m.destructured
-            return runCatching { LocalTime.of(h.toInt(), mi.toInt()) }.getOrNull()
-        }
-
-        fun showDate(d: LocalDate) = "${d.dayOfMonth}.${d.monthValue}.${d.year}"
-        fun showDay(d: LocalDate) = "${d.dayOfMonth}.${d.monthValue}"
-        fun showTime(t: LocalTime?) = t?.format(TIME) ?: ""
     }
 }
 
-/** The airport code for the big letters on the pass: the first three Latin letters typed ("TLV · Tel Aviv" -> TLV). */
-fun airportCode(s: String): String = Regex("[A-Za-z]{3}").find(s)?.value?.uppercase() ?: ""
-
-/** The rest of what was typed, after the code ("TLV · תל אביב" -> "תל אביב"). */
-fun airportName(s: String): String = s.replace(Regex("^\\s*[A-Za-z]{3}\\s*[·:,-]?\\s*"), "").trim()
-
-/**
- * Kept on the phone only, in the app's own preferences. System backup (allowBackup) may copy it to the user's Google
- * account and back on a new phone, as the privacy policy says; nothing is sent to us.
- */
+/** Kept only on this phone (SharedPreferences), and gone with "delete the trip" or the app. */
 class TripStore(context: Context) {
     private val prefs = context.getSharedPreferences("trip", Context.MODE_PRIVATE)
     fun load(): Trip? = Trip.fromJson(prefs.getString("trip", null))
-    fun save(t: Trip) = prefs.edit().putString("trip", t.toJson()).apply()
+    fun save(t: Trip) = prefs.edit().putString("trip", t.toJson().toString()).apply()
     fun clear() = prefs.edit().remove("trip").apply()
+}
+
+/**
+ * The form's words to values and back (H2): dates as people write them here ("10.1.2027", "10/1/27", "10.1" for the
+ * next 10 January) and times ("16:00", "16.00", "1600", "16"). Blank is null; anything unreadable is [Bad].
+ */
+object TripText {
+    object Bad
+
+    fun date(s: String, today: LocalDate): Any? {
+        val t = s.trim()
+        if (t.isEmpty()) return null
+        runCatching { return LocalDate.parse(t) } // 2027-01-10
+        val m = Regex("^(\\d{1,2})[./-](\\d{1,2})(?:[./-](\\d{2}|\\d{4}))?$").find(t) ?: return Bad
+        val (d, mo, y) = m.destructured
+        return runCatching {
+            if (y.isEmpty()) {
+                val thisYear = LocalDate.of(today.year, mo.toInt(), d.toInt())
+                if (thisYear < today) thisYear.plusYears(1) else thisYear
+            } else LocalDate.of(if (y.length == 2) 2000 + y.toInt() else y.toInt(), mo.toInt(), d.toInt())
+        }.getOrElse { Bad }
+    }
+
+    fun time(s: String): Any? {
+        val t = s.trim()
+        if (t.isEmpty()) return null
+        val m = Regex("^(\\d{1,2})(?:[:.]?(\\d{2}))?$").find(t) ?: return Bad
+        val (h, mi) = m.destructured
+        return runCatching { LocalTime.of(h.toInt(), if (mi.isEmpty()) 0 else mi.toInt()) }.getOrElse { Bad }
+    }
+
+    fun date(d: LocalDate?) = d?.let { "${it.dayOfMonth}.${it.monthValue}.${it.year}" } ?: ""
+    fun time(t: LocalTime?) = t?.let { "%02d:%02d".format(it.hour, it.minute) } ?: ""
 }

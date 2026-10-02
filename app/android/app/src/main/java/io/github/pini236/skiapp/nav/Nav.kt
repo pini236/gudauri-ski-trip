@@ -7,7 +7,7 @@ import java.net.URLEncoder
 
 /**
  * Where the user is, as the site says it (site/js/app.js route()): `home`, `map`, `map/run/<key>`, `meet`,
- * `meet/<station>/<HHMM>/<YYYYMMDD>`, `games`, `games/<name>`, `about`, and the app's own `trip` (the trip form). The same words make the saved state
+ * `meet/<station>/<HHMM>/<YYYYMMDD>`, `games`, `games/<name>`, `about`, and the app's own `trip` and `group`. The same words make the saved state
  * (the system may close the app in the background, and it must come back to the same place) and read the site's
  * shared links (a run, a meeting point), so a link from WhatsApp opens the same screen in the app.
  */
@@ -21,10 +21,10 @@ sealed interface Route {
     }
     data object Games : Route { override val path = "games" }
     data class Game(val name: String) : Route { override val path = "games/$name" }
-    data object Ticket : Route { override val path = "ticket" }
     data object About : Route { override val path = "about" }
-    /** The form for "your trip" (round 10, H2). App only: the site has no such page yet. */
+    /** The app's own places, not on the site: the trip form (H2) and the group (13.5). */
     data object Trip : Route { override val path = "trip" }
+    data object Group : Route { override val path = "group" }
 
     companion object {
         private val NAME = Regex("[a-z0-9-]{1,40}")
@@ -55,9 +55,9 @@ sealed interface Route {
                     parts.size == 2 && NAME.matches(parts[1]) -> Game(parts[1])
                     else -> null
                 }
-                "ticket" -> if (parts.size == 1) Ticket else null
                 "about" -> if (parts.size == 1) About else null
                 "trip" -> if (parts.size == 1) Trip else null
+                "group" -> if (parts.size == 1) Group else null
                 else -> null
             }
         }

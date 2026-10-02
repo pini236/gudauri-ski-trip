@@ -1,87 +1,96 @@
 package io.github.pini236.skiapp.trip
 
-import io.github.pini236.skiapp.map.Sky
-import io.github.pini236.skiapp.nav.Route
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
-import org.junit.Assert.assertTrue
 import org.junit.Test
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
-import java.time.ZoneOffset
 
 class TripTest {
-    private fun d(y: Int, m: Int, day: Int) = LocalDate.of(y, m, day)
-    private val crewLike = Trip(
-        Flight(d(2027, 1, 10), "GD 101", "TLV · תל אביב", "TBS", LocalTime.of(16, 0), LocalTime.of(20, 35)),
-        Flight(d(2027, 1, 15), "GD 102", "TBS", "TLV", LocalTime.of(1, 35), LocalTime.of(2, 15)),
+    private fun t(h: Int, m: Int) = LocalTime.of(h, m)
+    private val d = { day: Int -> LocalDate.of(2027, 1, day) }
+
+    /** The group's trip (docs/STATUS.md): 10.1 16:00 → 20:35, back 15.1 01:35 → 02:15. */
+    private val group = Trip(
+        Leg(d(10), "6H 897", "TLV · תל אביב", "TBS · טביליסי", t(16, 0), t(20, 35)),
+        Leg(d(15), "6H 892", "TBS · טביליסי", "TLV · תל אביב", t(1, 35), t(2, 15)),
     )
 
-    @Test fun skiDaysLikeTheCrew() {
-        // land in the evening of the 10th, fly back at 01:35 on the 15th: four full days, 11 to 14 (docs/STATUS.md)
-        assertEquals(d(2027, 1, 11) to d(2027, 1, 14), crewLike.skiDays())
+    @Test fun theGroupSkisElevenToFourteen() {
+        assertEquals(d(11)..d(14), group.skiDays())
+        assertEquals(4, group.skiDayCount())
     }
 
-    @Test fun skiDaysMorningLandingAndEveningReturn() {
-        val t = Trip(Flight(d(2027, 2, 1), arrives = LocalTime.of(9, 30)), Flight(d(2027, 2, 5), departs = LocalTime.of(19, 0)))
-        assertEquals(d(2027, 2, 1) to d(2027, 2, 5), t.skiDays())
+    @Test fun skiDayEdges() {
+        // landing early in the morning: that day counts; an evening flight home: the last day counts
+        val early = Trip(Leg(d(10), departs = t(5, 0), arrives = t(8, 30)), Leg(d(15), departs = t(19, 0)))
+        assertEquals(d(10)..d(15), early.skiDays())
+        // an overnight flight lands the next day
+        val night = Trip(Leg(d(10), departs = t(23, 0), arrives = t(3, 0)), Leg(d(15), departs = t(10, 0)))
+        assertEquals(d(11)..d(14), night.skiDays())
+        // no return yet, or no full day at all
+        assertNull(Trip(Leg(d(10))).skiDays())
+        assertNull(Trip(Leg(d(10), arrives = t(20, 0)), Leg(d(11), departs = t(6, 0))).skiDays())
     }
 
-    @Test fun noReturnNoSkiDays() = assertNull(Trip(Flight(d(2027, 1, 10))).skiDays())
-
-    @Test fun daysToRoundsUpAndStopsAtZero() {
-        assertEquals(1, crewLike.daysTo(LocalDateTime.of(2027, 1, 10, 9, 0)))
-        assertEquals(2, crewLike.daysTo(LocalDateTime.of(2027, 1, 8, 17, 0)))
-        assertEquals(0, crewLike.daysTo(LocalDateTime.of(2027, 1, 10, 16, 0)))
-        assertEquals(0, crewLike.daysTo(LocalDateTime.of(2027, 1, 12, 8, 0)))
+    @Test fun countdownRoundsUpAndStopsAtZero() {
+        assertEquals(1, group.daysToFlight(LocalDateTime.of(2027, 1, 10, 15, 59)))
+        assertEquals(1, group.daysToFlight(LocalDateTime.of(2027, 1, 9, 16, 0)))
+        assertEquals(2, group.daysToFlight(LocalDateTime.of(2027, 1, 9, 15, 0)))
+        assertEquals(0, group.daysToFlight(LocalDateTime.of(2027, 1, 10, 16, 0)))
+        assertEquals(0, group.daysToFlight(LocalDateTime.of(2027, 1, 12, 9, 0)))
     }
 
-    @Test fun jsonRoundTrip() {
-        assertEquals(crewLike, Trip.fromJson(crewLike.toJson()))
-        val onlyDate = Trip(Flight(d(2027, 3, 3)))
-        assertEquals(onlyDate, Trip.fromJson(onlyDate.toJson()))
+    @Test fun codesAndCities() {
+        assertEquals("TLV", group.out.fromCode); assertEquals("תל אביב", group.out.fromCity)
+        assertEquals("TBS", Leg(d(1), to = "tbs").toCode)
+        assertNull(Leg(d(1), to = "טביליסי").toCode); assertEquals("טביליסי", Leg(d(1), to = "טביליסי").toCity)
     }
 
-    @Test fun badJsonIsNullNotACrash() {
+    @Test fun savedAndReadBack() {
+        assertEquals(group, Trip.fromJson(group.toJson().toString()))
+        val one = Trip(Leg(d(10)))
+        assertEquals(one, Trip.fromJson(one.toJson().toString()))
+        assertNull(Trip.fromJson("{oops"))
+        assertNull(Trip.fromJson("{\"v\":2,\"out\":{\"date\":\"2027-01-10\"}}"))
         assertNull(Trip.fromJson(null))
-        assertNull(Trip.fromJson("{"))
-        assertNull(Trip.fromJson("""{"out":{"date":"2027-13-40"}}"""))
     }
 
-    @Test fun parseDatesAndTimes() {
-        assertEquals(d(2027, 1, 10), Trip.parseDate("10.1.2027"))
-        assertEquals(d(2027, 1, 10), Trip.parseDate(" 10/01/27 "))
-        assertNull(Trip.parseDate("31.2.2027"))
-        assertNull(Trip.parseDate("tomorrow"))
-        assertEquals(LocalTime.of(1, 35), Trip.parseTime("01:35"))
-        assertEquals(LocalTime.of(16, 0), Trip.parseTime("1600"))
-        assertNull(Trip.parseTime("25:00"))
+    @Test fun readsDatesAndTimesAsTyped() {
+        val today = LocalDate.of(2026, 10, 2)
+        assertEquals(d(10), TripText.date("10.1.2027", today))
+        assertEquals(d(10), TripText.date("10/1/27", today))
+        assertEquals(d(10), TripText.date(" 2027-01-10 ", today))
+        assertEquals(d(10), TripText.date("10.1", today)) // the next 10 January
+        assertEquals(LocalDate.of(2026, 12, 20), TripText.date("20.12", today))
+        assertNull(TripText.date("", today))
+        assertEquals(TripText.Bad, TripText.date("31.2.2027", today))
+        assertEquals(TripText.Bad, TripText.date("tomorrow", today))
+        assertEquals(t(16, 0), TripText.time("16:00"))
+        assertEquals(t(1, 35), TripText.time("1.35"))
+        assertEquals(t(16, 5), TripText.time("1605"))
+        assertEquals(t(9, 0), TripText.time("9"))
+        assertNull(TripText.time(" "))
+        assertEquals(TripText.Bad, TripText.time("25:00"))
+        assertEquals("10.1.2027", TripText.date(d(10)))
+        assertEquals("01:35", TripText.time(t(1, 35)))
     }
 
-    @Test fun airportCodeAndName() {
-        assertEquals("TLV", airportCode("TLV · תל אביב"))
-        assertEquals("TBS", airportCode("tbs"))
-        assertEquals("", airportCode("תל אביב"))
-        assertEquals("תל אביב", airportName("TLV · תל אביב"))
+    @Test fun aCityAfterTheCodeWithoutTheDot() {
+        val l = Leg(d(10), from = "TLV · תל אביב", to = "TBS Tbilisi")
+        assertEquals("TLV", l.fromCode); assertEquals("תל אביב", l.fromCity)
+        assertEquals("TBS", l.toCode); assertEquals("Tbilisi", l.toCity)
+        val plain = Leg(d(10), from = "Tel Aviv")
+        assertNull(plain.fromCode); assertEquals("Tel Aviv", plain.fromCity)
+        assertNull(Leg(d(10), from = "tbs Tbilisi").fromCode)
     }
 
-    @Test fun tripIsARoute() {
-        assertEquals(Route.Trip, Route.parse("trip"))
-        assertEquals("trip", Route.Trip.path)
-        assertNull(Route.parse("trip/x"))
-    }
-
-    @Test fun homeViewFollowsTheTimeInGudauri() {
-        fun at(h: Int, m: Int = 0) = LocalDateTime.of(2027, 1, 12, h, m).toInstant(ZoneOffset.ofHours(4)).toEpochMilli()
-        val noon = Sky.pano(at(12, 40))
-        assertFalse(noon.dark)
-        assertTrue(noon.from in setOf("morning", "noon") && noon.to in setOf("noon", "gold"))
-        val night = Sky.pano(at(23))
-        assertTrue(night.dark)
-        assertEquals("night", night.from)
-        assertEquals("13:35", Sky.clock(at(13, 35)))
-        assertEquals("00:05", Sky.clock(at(0, 5)))
+    @Test fun skiDaysSetByHandWinAndSurviveSaving() {
+        val mine = group.copy(ski = d(12)..d(13))
+        assertEquals(d(12)..d(13), mine.skiDays())
+        assertEquals(2, mine.skiDayCount())
+        assertEquals(d(11)..d(14), mine.flightSkiDays())
+        assertEquals(mine, Trip.fromJson(mine.toJson().toString()))
     }
 }

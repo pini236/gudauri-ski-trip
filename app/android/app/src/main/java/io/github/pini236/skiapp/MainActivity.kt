@@ -15,30 +15,27 @@ import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import java.time.ZoneId
+import java.time.LocalDateTime
+import java.time.LocalDate
+import java.time.Instant
+import androidx.core.view.WindowCompat
+import androidx.compose.ui.platform.LocalView
+import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalLayoutDirection
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.pini236.skiapp.data.Profile
@@ -62,20 +59,26 @@ import io.github.pini236.skiapp.perf.FrameStats
 import io.github.pini236.skiapp.perf.Startup
 import io.github.pini236.skiapp.qa.GesturePlayer
 import io.github.pini236.skiapp.qa.Qa
-import io.github.pini236.skiapp.ticket.TicketScreen
-import io.github.pini236.skiapp.home.HomeActions
+import io.github.pini236.skiapp.home.AboutScreen
+import io.github.pini236.skiapp.home.DayNight
+import io.github.pini236.skiapp.home.HomeAction
 import io.github.pini236.skiapp.home.HomeScreen
-import io.github.pini236.skiapp.trip.TripScreen
+import io.github.pini236.skiapp.home.SoonScreen
+import io.github.pini236.skiapp.trip.Trip
+import io.github.pini236.skiapp.trip.TripForm
 import io.github.pini236.skiapp.trip.TripStore
-import io.github.pini236.skiapp.ui.Karantina
+import io.github.pini236.skiapp.ui.BackLink
+import io.github.pini236.skiapp.ui.Ski
+import io.github.pini236.skiapp.ui.SkiTheme
 import io.github.pini236.skiapp.ui.Palette
 import io.github.pini236.skiapp.ui.Plex
 import kotlinx.coroutines.delay
 import java.util.concurrent.Executors
 
 /**
- * Feasibility spike (docs/APP-NATIVE.md, stage 13.1): the 3D map, the descent game and the boarding pass,
- * with a frame counter on top. Not the real app: just enough to measure what is risky.
+ * The app (docs/APP-NATIVE.md): it opens on the home page (round 10, H1 to H4) with the user's own trip and the post of
+ * signs; the signs lead to the 3D map and the descent game of the feasibility spike (13.1), and to the places still
+ * to come. Debug and test builds keep the spike's frame counter on the map and the game.
  */
 class MainActivity : ComponentActivity() {
     private companion object { const val SKY_EVERY_MS = 5 * 60_000L }
@@ -93,19 +96,26 @@ class MainActivity : ComponentActivity() {
     private var profile by mutableStateOf<Profile?>(null)
     private var sunNote by mutableStateOf("")
     private lateinit var nav: Nav
-    private lateinit var trips: TripStore
-    private var trip by mutableStateOf<io.github.pini236.skiapp.trip.Trip?>(null)
     private var showStats by mutableStateOf(true)
     private var qaPending: Intent? = null
     private var clockMs: Long? = null // the QA run pins the time of day; otherwise it is now
+    private fun nowMs() = clockMs ?: System.currentTimeMillis()
+
+    // the user's own trip (decision 27), kept only on this phone
+    private lateinit var trips: TripStore
+    private var trip by mutableStateOf<Trip?>(null)
+    // day and night (6.3, N1): the choice is kept; auto follows the clock in Gudauri
+    private var dnMode by mutableStateOf(DayNight.Mode.AUTO)
+    private var tick by mutableStateOf(0L)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // the app opens on the home page (round 10, H1 to H4); the map, the game and the spike's pass are places on top
         nav = Nav(Route.Home, savedInstanceState?.getStringArrayList("nav"))
+        Qa.init(this)
         trips = TripStore(this)
         trip = trips.load()
-        Qa.init(this)
+        dnMode = getSharedPreferences("daynight", MODE_PRIVATE).getString("mode", null)?.let { m -> DayNight.Mode.entries.firstOrNull { it.name == m } } ?: DayNight.Mode.AUTO
+        tick = nowMs()
         startTelemetry()
         enableEdgeToEdge()
         preferTopRefreshRate()
@@ -147,7 +157,7 @@ class MainActivity : ComponentActivity() {
             build = if (BuildConfig.DEBUG) "debug" else if (BuildConfig.FLAVOR == "preview") "test" else "store",
             lang = lang.tag,
             langSource = if (manual) "manual" else "auto",
-            theme = "auto", // no day-and-night choice in the app yet
+            theme = dnMode.name.lowercase(),
             deviceClass = if (resources.configuration.smallestScreenWidthDp >= 600) "tablet" else "phone",
         ))
         val link = intent?.data != null
@@ -231,11 +241,13 @@ class MainActivity : ComponentActivity() {
         if (i == null || !Qa.enabled) return
         val keys = i.extras?.keySet()?.filter { it.startsWith("qa.") }.orEmpty()
         if (keys.isEmpty()) return
-        i.getStringExtra("qa.tab")?.let { when (it) { "descent" -> nav.switchTo(Route.Game("descent")); "ticket" -> nav.switchTo(Route.Ticket); "trip" -> nav.switchTo(Route.Trip); "home" -> nav.toStart(); else -> nav.switchTo(nav.find<Route.Map>() ?: Route.Map()) } }
-        // a sample trip for the home page's screenshots, or none (the guest home, H1)
-        i.getStringExtra("qa.trip")?.let { t -> if (t == "none") { trips.clear(); trip = null } else { trip = Qa.sampleTrip(); trips.save(trip!!) }; Qa.log("trip $t") }
+        i.getStringExtra("qa.tab")?.let { when (it) { "map" -> nav.switchTo(Route.Map(nav.find<Route.Map>()?.run)); "descent" -> nav.switchTo(Route.Game("descent")); "trip" -> nav.switchTo(Route.Trip); else -> nav.toStart() } }
         i.getStringExtra("qa.stats")?.let { showStats = it != "off" }
-        i.getStringExtra("qa.time")?.let { clockMs = Qa.gudauriTime(it) }
+        i.getStringExtra("qa.time")?.let { clockMs = Qa.gudauriTime(it); tick = nowMs() }
+        i.getStringExtra("qa.sentry")?.let { Telemetry.testCrashReport(it); loader.execute { Telemetry.flush(); Qa.log("telemetry ${if (Telemetry.hasKeys) "keys" else "no keys"}, flushed") } }
+        i.getStringExtra("qa.mode")?.let { m -> DayNight.Mode.entries.firstOrNull { it.name.equals(m, true) }?.let { dnMode = it } }
+        // a trip for the run, from the script (never packed in the app: decision 27), or "none" for the guest's home
+        i.getStringExtra("qa.trip")?.let { t -> if (t == "none") { trips.clear(); trip = null } else Trip.fromJson(t)?.let { trips.save(it); trip = it } ?: Qa.log("bad trip $t"); Qa.log("trip ${if (trip == null) "none" else "set"}") }
         Qa.log("intent ${keys.sorted()}")
         if (scene == null) qaPending = i else applyQaMap(i) // the rest needs the mountain
     }
@@ -276,28 +288,58 @@ class MainActivity : ComponentActivity() {
     @Composable
     private fun App() {
         BackHandler(enabled = nav.canBack) { nav.back() }
+        // the clock: Gudauri's hour for the sky and the countdown, once every half minute (or pinned by the QA run)
+        LaunchedEffect(Unit) { while (true) { delay(30_000); tick = nowMs() } }
+        val frame = remember(tick, dnMode) { DayNight.at(tick, dnMode) }
+        val top = nav.top
         // screen_view with the contract's screen names (docs/GROWTH.md); a chosen run is run_open, not a screen.
-        // The spike's pass has no screen of its own in the contract (the pass lives on the home screen).
-        val screen = when (val r = nav.top) { Route.Home -> "home"; Route.Trip -> "trip"; is Route.Map -> "map"; is Route.Game -> "game:" + r.name; else -> null }
+        // The group is not in the contract yet, so it sends none.
+        val screen = when (top) {
+            Route.Home -> "home"; is Route.Map -> "map"; is Route.Meet -> "meet"; Route.Games -> "games"; Route.About -> "about"; Route.Trip -> "trip"
+            is Route.Game -> "game:" + top.name; else -> null
+        }
         LaunchedEffect(screen) {
             if (screen != null) Telemetry.event("screen_view", if (screen.startsWith("game:")) mapOf("screen" to "game", "game" to screen.removePrefix("game:")) else mapOf("screen" to screen))
         }
-        // the direction of the language on screen (i18n/Lang.kt): Hebrew today, so right to left
-        CompositionLocalProvider(LocalLayoutDirection provides Lang.current(resources).direction) {
-            Box(Modifier.fillMaxSize().background(Palette.snow)) {
-                when (val r = nav.top) {
-                    Route.Home -> HomeScreen(trip, haptics, sounds, HomeActions(
-                        addTrip = { nav.push(Route.Trip) }, editTrip = { nav.push(Route.Trip) },
-                        map = { nav.push(nav.find<Route.Map>() ?: Route.Map()) }, games = { nav.push(Route.Game("descent")) },
-                    ), clockMs)
-                    Route.Trip -> TripScreen(trip,
-                        onSave = { t -> trips.save(t); trip = t; nav.back(); haptics.click(0.5f) },
-                        onDelete = { trips.clear(); trip = null; nav.back() },
-                        onCancel = { nav.back() })
-                    is Route.Map -> Box(Modifier.fillMaxSize().navigationBarsPadding()) { MapScreen(mapView, scene); if (showStats) StatsBar(true, Modifier.align(Alignment.TopStart)) }
-                    is Route.Game -> Box(Modifier.fillMaxSize().navigationBarsPadding()) { DescentScreen(profile, haptics, sounds); if (showStats) StatsBar(false, Modifier.align(Alignment.TopStart)) }
-                    Route.Ticket -> Box(Modifier.statusBarsPadding().padding(top = 28.dp)) { TicketScreen(haptics, sounds) }
-                    else -> { LaunchedEffect(r) { nav.toStart() } } // a place the app does not have yet: home
+        // the whole app goes dark at night, as the site does; the spike's map and game keep their day colours
+        val spike = top is Route.Map || top is Route.Game
+        val view = LocalView.current
+        SideEffect { WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = spike || !frame.dark }
+        SkiTheme(dark = frame.dark) {
+            Box(Modifier.fillMaxSize().background(if (spike) Palette.snow else Ski.colors.snow)) {
+                when (top) {
+                    Route.Home -> HomeScreen(trip, frame, dnMode, LocalDateTime.ofInstant(Instant.ofEpochMilli(tick), ZoneId.systemDefault()), haptics, sounds,
+                        onMode = {
+                            dnMode = dnMode.next(); haptics.tick(.4f)
+                            getSharedPreferences("daynight", MODE_PRIVATE).edit().putString("mode", dnMode.name).apply()
+                            Telemetry.event("theme_set", mapOf("mode" to dnMode.name.lowercase()))
+                        },
+                        go = { a ->
+                            haptics.tick(.4f)
+                            nav.push(when (a) {
+                                HomeAction.MAP, HomeAction.STATUS -> Route.Map(nav.find<Route.Map>()?.run)
+                                HomeAction.MEET -> Route.Meet()
+                                HomeAction.GAMES -> Route.Game("descent") // the games page arrives with stage 13.6
+                                HomeAction.GROUP -> Route.Group
+                                HomeAction.ABOUT -> Route.About
+                                HomeAction.TRIP -> Route.Trip
+                            })
+                        })
+                    Route.Trip -> TripForm(trip, LocalDate.now(), onSave = { t -> trips.save(t); trip = t; Qa.log("trip saved"); nav.back() },
+                        onDelete = { trips.clear(); trip = null; Qa.log("trip deleted"); nav.back() }, onCancel = { nav.back() })
+                    is Route.Meet -> SoonScreen(stringResource(R.string.nav_meet), stringResource(R.string.app_soon_meet)) { nav.back() }
+                    Route.Group -> SoonScreen(stringResource(R.string.app_sign_group), stringResource(R.string.app_soon_group)) { nav.back() }
+                    Route.About -> AboutScreen(BuildConfig.VERSION_NAME, onPrivacy = {
+                        startActivity(Intent(Intent.ACTION_VIEW, android.net.Uri.parse("https://${Route.SITE_HOST}/privacy?utm_source=app")))
+                    }) { nav.back() }
+                    else -> {
+                        if (top is Route.Game) DescentScreen(profile, haptics, sounds) else MapScreen(mapView, scene)
+                        if (showStats) StatsBar(top !is Route.Game, Modifier.align(Alignment.TopStart))
+                        // the way home, over the mountain or the game
+                        Box(Modifier.align(Alignment.TopEnd).statusBarsPadding().padding(6.dp).background(Color(0xE6FFFFFF))) {
+                            BackLink(stringResource(R.string.nav_home), { nav.back() }, Palette.glacier)
+                        }
+                    }
                 }
             }
         }

@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -121,7 +122,7 @@ fun DescentScreen(profile: Profile?, haptics: Haptics, sounds: Sounds) {
             frame // redraw every game frame
             drawScene(game, flakes, shake)
         }
-        Text(hud, Modifier.align(Alignment.TopCenter).padding(top = 40.dp).background(Color(0xCC13233A)).padding(horizontal = 10.dp, vertical = 4.dp),
+        Text(hud, Modifier.align(Alignment.TopCenter).statusBarsPadding().padding(top = 56.dp).background(Color(0xCC13233A)).padding(horizontal = 10.dp, vertical = 4.dp),
             fontFamily = Plex, fontSize = 14.sp, color = Color.White)
         if (done) {
             Column(Modifier.align(Alignment.Center).background(Color(0xF2FFFFFF)).padding(20.dp), horizontalAlignment = Alignment.CenterHorizontally) {

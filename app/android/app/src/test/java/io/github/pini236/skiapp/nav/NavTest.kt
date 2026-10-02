@@ -9,7 +9,7 @@ import org.junit.Test
 class NavTest {
     @Test fun pathsRoundTrip() {
         val all = listOf(Route.Home, Route.Map(), Route.Map("Tatra 2"), Route.Map("Kudebi 1/2 (old)"), Route.Meet(), Route.Meet("lift-12", "0930", "20270112"),
-            Route.Games, Route.Game("descent"), Route.Ticket, Route.About)
+            Route.Games, Route.Game("descent"), Route.About, Route.Trip, Route.Group)
         for (r in all) assertEquals(r.path, r, Route.parse(r.path))
     }
 
@@ -28,24 +28,30 @@ class NavTest {
         assertNull(Route.fromSiteLink("not a url"))
     }
 
-    @Test fun tabsReplaceEachOtherAndBackReturnsToTheStart() {
-        val n = Nav(Route.Map())
+    @Test fun signsStackOnHomeAndBackReturnsHome() {
+        val n = Nav(Route.Home)
         assertFalse(n.canBack)
-        n.switchTo(Route.Game("descent")); n.switchTo(Route.Ticket)
-        assertEquals(Route.Ticket, n.top)
-        assertTrue(n.back()); assertEquals(Route.Map(), n.top)
+        n.push(Route.Map()); n.replaceTop(Route.Map("Tatra 2"))
+        assertEquals(Route.Map("Tatra 2"), n.top)
+        assertTrue(n.back()); assertEquals(Route.Home, n.top)
+        n.push(Route.Trip); n.push(Route.Trip) // a double tap does not stack twice
+        assertTrue(n.back()); assertEquals(Route.Home, n.top)
         assertFalse(n.back())
+        // a top-level switch keeps home underneath
+        n.switchTo(Route.Game("descent")); n.switchTo(Route.Group)
+        assertEquals(listOf(Route.Home, Route.Group), n.routes)
     }
 
     @Test fun theChosenRunSurvivesARestart() {
-        val n = Nav(Route.Map())
-        n.replaceTop(Route.Map("Sadzele 2"))
+        val n = Nav(Route.Home)
+        n.push(Route.Map("Sadzele 2"))
         n.push(Route.About)
-        val again = Nav(Route.Map(), n.save())
+        val again = Nav(Route.Home, n.save())
         assertEquals(Route.About, again.top)
         again.back()
         assertEquals(Route.Map("Sadzele 2"), again.top)
-        // a saved state that makes no sense starts clean
-        assertEquals(Route.Map(), Nav(Route.Map(), arrayListOf("garbage", "about")).top)
+        // a saved state that makes no sense starts clean, and so does the spike's (it started on the map)
+        assertEquals(Route.Home, Nav(Route.Home, arrayListOf("garbage", "about")).top)
+        assertEquals(listOf<Route>(Route.Home), Nav(Route.Home, arrayListOf("map/run/Tatra%202", "ticket")).routes)
     }
 }
