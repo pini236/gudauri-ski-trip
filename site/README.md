@@ -7,7 +7,7 @@
 | קובץ | מה הוא |
 |---|---|
 | `index.html` | המבנה של הדפים (בית, מפה, נקודת מפגש, משחקים, ואודות והגדרות) ושכבת טעינה |
-| `vercel.json` | כותרות אבטחה, `noindex` ומטמון לנתונים (Vercel קורא אותו מתיקיית ה-Root, שהיא `site`) |
+| `vercel.json` | כותרות אבטחה, `noindex`, מטמון לנתונים, ושלב בנייה קטן שכותב את קוד ה-commit ל-`data-version` (המדידה שולחת אותו כגרסת האתר). Vercel קורא אותו מתיקיית ה-Root, שהיא `site` |
 | `privacy.html` | מדיניות הפרטיות (`/privacy`, באנגלית `/privacy#en`). **לא עורכים כאן:** נבנה מ-`docs/PRIVACY.md` בפקודה `python3 tools/build-privacy.py` |
 | `og.jpg`, `favicon.svg` | תמונת שיתוף (מקור ב-`../design/og/`) ואייקון |
 | `css/site.css` | כל העיצוב. הצבעים מוגדרים כמשתנים ב-`:root` |

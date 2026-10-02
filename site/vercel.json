@@ -1,5 +1,7 @@
 {
   "cleanUrls": true,
+  "buildCommand": "node -e \"const fs=require('fs'),p=require('path');const v=(process.env.VERCEL_GIT_COMMIT_SHA||'dev').slice(0,7);const pages=['index.html'].concat(fs.readdirSync('games',{withFileTypes:true}).filter(d=>d.isDirectory()&&fs.existsSync(p.join('games',d.name,'index.html'))).map(d=>p.join('games',d.name,'index.html')));for(const f of pages){const s=fs.readFileSync(f,'utf8');const t=s.replace(/<html([^>]*)>/,(m,a)=>'<html'+a.replace(/ data-version=\\\"[^\\\"]*\\\"/,'')+' data-version=\\\"'+v+'\\\">');if(t!==s)fs.writeFileSync(f,t);}console.log('stamped',pages.length,'pages with',v)\"",
+  "outputDirectory": ".",
   "headers": [
     {
       "source": "/(.*)",
