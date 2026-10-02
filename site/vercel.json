@@ -1,7 +1,5 @@
 {
   "cleanUrls": true,
-  "buildCommand": "node stamp-version.js",
-  "outputDirectory": ".",
   "headers": [
     {
       "source": "/(.*)",

@@ -61,7 +61,7 @@ python3 tools/build-games.py
 
 - **Framework Preset:** Other
 - **Root Directory:** `site`
-- **Build Command:** ריק בלוח הבקרה. `site/vercel.json` מגדיר שלב בנייה קטן (`buildCommand`, ו-`outputDirectory: "."`) שכותב את קוד ה-commit הקצר ל-`data-version` בדף הבית ובמשחקים, והמדידה שולחת אותו כ-`app_version` (בלעדיו, כשמריצים מקומית, `web`)
+- **Build Command:** ריק
 
 **נתונים:** "הטיול שלך" נשמר בדפדפן בלבד (`gud-trip`), ודף הבית מציג את הכרטיס של מי שמסתכל או כרטיס ריק. הטיסה והשמות של החבר׳ה ירדו מהאתר (החלטה 27, סבב 12); עותק לקנבס ב-`design/data/trip.json`. הסרטונים ב-`site/data/videos-seed.json`. האתר מציג אותם לקריאה בלבד, ולעדכון עורכים את הקובץ ועושים commit. הפריסה ב-Vercel אוטומטית בכל מיזוג ל-`main`. התחברות ומסד נתונים הם רעיון לעתיד (`docs/ROADMAP.md`).
 
