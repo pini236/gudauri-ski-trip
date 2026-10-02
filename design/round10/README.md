@@ -4,7 +4,7 @@
 
 https://claude.ai/artifact/TVdeDbFBhvFDZdhCKjcys4
 
-נבנה רק מה שכבר תוכנן ב-`docs/USERS.md`, ב-`docs/APP-NATIVE.md` וב-`docs/PRIVACY.md`. השמות והטיסות הם הציבוריים מ-`site/data/trip.json`. השיאים, קוד ההזמנה וחלוקת הטיסות בקבוצה הם נתוני דוגמה.
+נבנה רק מה שכבר תוכנן ב-`docs/USERS.md`, ב-`docs/APP-NATIVE.md` וב-`docs/PRIVACY.md`. השמות והטיסות הם הציבוריים מ-`design/data/trip.json`, שירד מהאתר. השיאים, קוד ההזמנה וחלוקת הטיסות בקבוצה הם נתוני דוגמה.
 
 ## בנייה
 

@@ -119,7 +119,7 @@
         </ol>
         <p data-i18n="home.app_req">מתאים ל-Android 8.0 ומעלה. האפליקציה בנויה על אותם נתונים כמו האתר.</p>
       </details>
-      <span class="board-next" id="boardNext" data-i18n="home.board_next">חלקים נוספים בקרוב</span>
+      <a class="board board-group" id="groupBoard" href="#group"><b data-i18n="group.empty_title">קבוצה</b><span id="groupBoardSub" data-i18n="home.board_group_sub">יצירת קבוצה, או הצטרפות בקוד</span></a>
     </nav>
     <section class="tally" aria-label="מסלולים במפה הרשמית" data-i18n-attr="aria-label:home.tally">
       <h2 data-i18n="home.tally">מסלולים במפה הרשמית</h2>
@@ -149,9 +149,98 @@
   </form>
 </main>
 
+<!-- accounts and groups (round 12, stage 13.9). The pages are filled by js/account.js -->
+<main class="page page-acct" id="signinPage" hidden>
+  <div class="ac">
+    <div class="ac-head"><h1 data-i18n="acct.signin_title">כניסה</h1><a href="#home"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg><span data-i18n="nav.home">בית</span></a></div>
+    <p class="ac-lead" data-i18n="acct.signin_lead">בלי סיסמה, ובלי מיילים מאיתנו. רק השם, ומה שגוגל או אפל מעבירים.</p>
+    <div class="ac-card ink" data-snow="21"><h2 data-i18n="acct.why_title">למה להתחבר</h2>
+      <ul class="ac-list"><li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="9" cy="8" r="3.2"/><path d="M3 19c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5"/><circle cx="17" cy="9" r="2.5"/><path d="M16 13.6c2.8.3 5 2.2 5 5.4"/></svg><span data-i18n="acct.why_group">ליצור קבוצה ולהזמין את החבר׳ה</span></li>
+        <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M7 18h10a4 4 0 0 0 0-8 6 6 0 0 0-11.6 1.5A3.5 3.5 0 0 0 7 18z"/></svg><span data-i18n="acct.why_sync">הטיול והקבוצה, גם באפליקציה ובמחשב אחר</span></li></ul>
+      <p data-i18n="acct.why_rest">כל השאר עובד בלי חשבון: המפה, הטיול שלך, המשחקים, וגם הצטרפות לקבוצה בקוד.</p></div>
+    <div class="ac-btns" data-providers></div>
+    <p class="ac-note" id="signinSoon" hidden></p>
+    <a class="ac-btn quiet" href="#home" data-i18n="acct.later">לא עכשיו, להמשיך כאורח</a>
+    <p class="ac-note"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M7 18h10a4 4 0 0 0 0-8 6 6 0 0 0-11.6 1.5A3.5 3.5 0 0 0 7 18z"/></svg><span data-i18n="acct.moves_note">מה שכבר שמור בדפדפן הזה (הטיול שלך) עובר לחשבון.</span></p>
+    <p class="err" data-err role="alert" hidden></p>
+    <a class="ac-small" href="privacy" data-i18n="home.privacy_link">מדיניות פרטיות</a>
+  </div>
+</main>
+
+<main class="page page-acct" id="accountPage" hidden>
+  <div class="ac">
+    <div class="ac-head"><h1 data-i18n="acct.title">חשבון</h1><a href="#home"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg><span data-i18n="nav.home">בית</span></a></div>
+    <div class="ac-card" id="acMe"></div>
+    <p class="ac-note" id="acGuestNote" hidden></p>
+    <section class="ac-sec-box"><h2 data-i18n="acct.ways">דרכי כניסה</h2><p class="ac-lead" data-i18n="acct.ways_lead">כמה דרכים לאותו חשבון, כדי שלא ייווצר חשבון שני.</p><div id="acWays"></div></section>
+    <section class="ac-sec-box"><h2 data-i18n="acct.my_groups">הקבוצות שלי</h2><div id="acGroups"></div></section>
+    <p class="ac-note"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M7 18h10a4 4 0 0 0 0-8 6 6 0 0 0-11.6 1.5A3.5 3.5 0 0 0 7 18z"/></svg><span data-i18n="acct.sync_note">הטיול שלך והקבוצות מסונכרנים בין האתר לאפליקציה.</span></p>
+    <p class="err" data-err role="alert" hidden></p>
+    <div class="ac-btns"><button type="button" class="ac-btn ghost" id="acOut"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 5h5v14h-5M10 8l-4 4 4 4M6 12h10"/></svg><span data-i18n="acct.sign_out">יציאה מהחשבון</span></button><a class="ac-btn danger" href="#account/delete"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 7h14M10 7V4h4v3M7 7l1 13h8l1-13"/></svg><span data-i18n="acct.delete">מחיקת החשבון</span></a></div>
+  </div>
+</main>
+
+<main class="page page-acct" id="deletePage" hidden>
+  <div class="ac">
+    <div class="ac-head"><h1 data-i18n="acct.delete_title">מחיקת חשבון</h1><a href="#home"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg><span data-i18n="nav.home">בית</span></a></div>
+    <p class="ac-lead" data-i18n="acct.delete_lead">כאן מוחקים את החשבון של האתר ושל האפליקציה, גם בלי האפליקציה. נכנסים עם אותה דרך שבה נרשמת, ומאשרים.</p>
+    <div class="ac-card red" data-snow="5"><h2 data-i18n="acct.delete_what">מה נמחק</h2>
+      <ul class="ac-list"><li class="ac-no"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg><span data-i18n="acct.delete_1">החשבון, השם ודרכי הכניסה</span></li>
+        <li class="ac-no"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg><span data-i18n="acct.delete_2">הטיול שלך והשיאים שבשרת</span></li>
+        <li class="ac-no"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg><span data-i18n="acct.delete_3">החברות בקבוצות והטיסות שהזנת. מפגשים שיצרת נשארים בקבוצה, בלי השם שלך.</span></li></ul>
+      <p data-i18n="acct.delete_more">הכל נמחק מיד, בלי תקופת המתנה. מה ששמור בטלפון או בדפדפן נשאר שם, עד שמוחקים את האפליקציה או מנקים את הדפדפן. בקבוצה שרק את/ה מנהל/ת בה, המנהלות עוברת לחבר אחר.</p></div>
+    <div class="ac-btns" id="delBtns"></div>
+    <p class="ac-note" id="delSoon" hidden></p>
+    <p class="err" data-err role="alert" hidden></p>
+    <p class="ac-note"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="5" width="18" height="14"/><path d="M3 6l9 7 9-7"/></svg><span><span data-i18n="acct.delete_mail">אין גישה לחשבון? כתבו לנו מאותו מייל, ונמחק תוך 30 יום:</span> <a href="mailto:pinisagent@gmail.com" dir="ltr">pinisagent@gmail.com</a></span></p>
+    <a class="ac-small" href="privacy" data-i18n="home.privacy_link">מדיניות פרטיות</a>
+  </div>
+</main>
+
+<main class="page page-acct" id="joinPage" hidden>
+  <div class="ac">
+    <div class="ac-head"><h1 data-i18n="join.title">הזמנה לקבוצה</h1><a href="#home"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg><span data-i18n="nav.home">בית</span></a></div>
+    <div class="ac-card" id="joinCard" data-snow="12"></div>
+    <form class="ac-form" id="joinForm" hidden>
+      <label class="ac-fld"><span data-i18n="join.name_label">איך קוראים לך בקבוצה?</span><input type="text" name="name" maxlength="40" autocomplete="nickname" placeholder="השם שהחבר׳ה יראו" data-i18n-attr="placeholder:join.name_ph"></label>
+      <button type="submit" class="ac-btn blue"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="9" cy="8" r="3.2"/><path d="M3 19c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5"/><circle cx="17" cy="9" r="2.5"/><path d="M16 13.6c2.8.3 5 2.2 5 5.4"/></svg><span data-i18n="join.go">הצטרפות</span></button>
+    </form>
+    <p class="err" data-err role="alert" hidden></p>
+    <p class="ac-note" id="joinNoSignup" hidden><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="5" y="11" width="14" height="9"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg><span data-i18n="join.no_signup">בלי הרשמה. הדפדפן הזה זוכר אותך; אפשר לשמור חשבון עם גוגל או אפל אחר כך.</span></p>
+    <div class="ac-card ink" id="joinReclaim" hidden><h2 data-i18n="join.reclaim_title">אני כבר בקבוצה</h2><p data-i18n="join.reclaim_lead">החלפת טלפון או דפדפן? בוחרים את השם שלך, והמנהל מאשר. הכל חוזר, בלי כפיל.</p>
+      <button type="button" class="ac-btn ghost" id="joinReclaimBtn" data-i18n="join.reclaim_pick">בחירת השם שלי</button><div class="ac-names" id="joinNames" hidden></div></div>
+    <p class="ac-lead ac-app" id="joinApp" hidden><span data-i18n="join.app_note">יש לך את האפליקציה? אחרי ההתקנה מקלידים את הקוד</span> <b dir="ltr" id="joinCode"></b></p>
+  </div>
+</main>
+
+<main class="page page-acct" id="groupPage" hidden>
+  <div class="ac ac-wide">
+    <div class="ac-head"><h1 id="grTitle" data-i18n="group.empty_title">קבוצה</h1><a href="#home"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg><span data-i18n="nav.home">בית</span></a></div>
+    <div id="grNone" hidden>
+      <p class="ac-lead" data-i18n="group.empty_lead">קבוצה היא דף משותף לחבר׳ה: הטיסות של כולם, מפגשים ושיאים.</p>
+      <form class="ac-card ac-form" id="grCode" data-snow="3"><h2 data-i18n="join.code_title">הצטרפות בקוד</h2>
+        <label class="ac-fld"><span data-i18n="join.code_label">קוד הזמנה</span><input type="text" name="code" class="code" dir="ltr" maxlength="64" autocapitalize="characters" autocomplete="off" spellcheck="false"></label>
+        <button type="submit" class="ac-btn blue" data-i18n="join.code_go">המשך</button></form>
+      <form class="ac-card ink ac-form" id="grCreate"><h2 data-i18n="group.create">יצירת קבוצה</h2>
+        <p class="ac-needs" data-i18n="group.create_needs">יצירת קבוצה דורשת חשבון גוגל או אפל.</p>
+        <label class="ac-fld"><span data-i18n="group.create_name">שם הקבוצה</span><input type="text" name="name" maxlength="60" placeholder="למשל גודאורי 2027" data-i18n-attr="placeholder:group.create_name_ph"></label>
+        <label class="ac-fld"><span data-i18n="group.my_name">השם שלי בקבוצה</span><input type="text" name="me" maxlength="40" autocomplete="nickname"></label>
+        <button type="submit" class="ac-btn" data-i18n="group.create">יצירת קבוצה</button></form>
+    </div>
+    <div id="grSome" hidden>
+      <p class="ac-lead" id="grMeta"></p>
+      <nav class="ac-tabs" id="grTabs" aria-label="קבוצה" data-i18n-attr="aria-label:group.empty_title"><button type="button" data-tab="flights" data-i18n="group.tab_flights">טיסות</button><button type="button" data-tab="meetups" data-i18n="group.tab_meetups">מפגשים</button><button type="button" data-tab="scores" data-i18n="group.tab_scores">שיאים</button><button type="button" data-tab="members" data-i18n="group.tab_members">חברים</button></nav>
+      <div class="ac-cols"><div id="grMain"></div><div id="grSide"></div></div>
+    </div>
+    <p class="err" data-err role="alert" hidden></p>
+    <p class="ac-note" id="grNote"></p>
+  </div>
+</main>
+
 <main class="page page-about" id="aboutPage" hidden>
   <div class="mhead"><h1 data-i18n="common.about_settings">אודות והגדרות</h1><a href="#home"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg><span data-i18n="nav.home">בית</span></a></div>
   <div class="about">
+    <section class="ab-me" id="abMe" aria-label="חשבון" data-i18n-attr="aria-label:acct.title"></section>
     <section class="ab-set" aria-label="הגדרות" data-i18n-attr="aria-label:about.settings">
       <h2 data-i18n="about.settings">הגדרות</h2>
       <button type="button" class="ab-row" data-pref="sound" aria-pressed="true"><span><b data-i18n="about.sound">צליל</b><small data-i18n="about.sound_sub">בכרטיס הטיסה ובמשחקים</small></span><i class="ab-sw" aria-hidden="true"></i></button>
@@ -179,7 +268,7 @@
         <li><b data-i18n="about.credit_terrain_label">גבהים ותבליט:</b> <span data-i18n="about.credit_terrain">AWS Terrain Tiles, בעיקר SRTM.</span></li>
         <li><b data-i18n="about.credit_tear_label">צליל הקריעה בכרטיס:</b> <span data-i18n-tpl="about.credit_licensed"><a data-slot="link" data-i18n="about.credit_tear_link" href="https://freesound.org/people/everythingsounds/sounds/198233/" target="_blank" rel="noopener">everythingsounds ב-Freesound</a>, ברישיון <a data-slot="license" href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a>.</span></li>
         <li><b data-i18n="about.credit_cards_label">צלילי הקלפים:</b> <span data-i18n-tpl="about.credit_licensed" data-var-license="CC0"><a data-slot="link" href="https://kenney.nl/assets/casino-audio" target="_blank" rel="noopener">Kenney</a>, ברישיון CC0.</span></li>
-        <li><b data-i18n="about.credit_fonts_label">גופנים:</b> <span data-i18n="about.credit_fonts">Karantina ו-IBM Plex Sans Hebrew, ברישיון OFL.</span> <b data-i18n="about.credit_3d_label">תלת-ממד:</b> <span data-i18n="about.credit_3d">three.js, ברישיון MIT.</span></li>
+        <li><b data-i18n="about.credit_fonts_label">גופנים:</b> <span data-i18n="about.credit_fonts">Karantina ו-IBM Plex Sans Hebrew, ברישיון OFL.</span> <b data-i18n="about.credit_3d_label">תלת-ממד:</b> <span data-i18n="about.credit_3d">three.js, ברישיון MIT.</span> <span data-i18n="about.credit_accounts">חשבונות וקבוצות: supabase-js, ברישיון MIT.</span></li>
         <li><b data-i18n="about.credit_videos_label">סרטונים:</b> <span data-i18n="about.credit_videos">שייכים ליוצרים שלהם ביוטיוב, ומוטמעים בלבד.</span></li>
         <li data-i18n="about.credit_mta">המפה הרשמית של MTA שימשה רק לזיהוי שמות וצבעים של מסלולים, ולא הועתקה.</li>
       </ul>
@@ -282,6 +371,7 @@
         <button type="button" class="btn" id="meetShare" data-i18n="meet.share_image">שיתוף עם תמונה</button>
         <button type="button" class="btn ghost" id="meetCopy" data-i18n="meet.copy_link">העתקת הקישור</button>
         <button type="button" class="btn ghost" id="meetOnMap" data-i18n="meet.on_map">לראות במפת המסלולים</button>
+        <button type="button" class="btn" id="meetGroup" hidden data-i18n="meet.save_group">שמירה בקבוצה</button>
       </div>
       <p class="hint" data-i18n="meet.no_db">בלי מסד נתונים ובלי הרשמה: המקום, היום והשעה נמצאים בתוך הקישור עצמו.</p>
     </div>
@@ -304,5 +394,6 @@
 <script src="js/relief.js"></script>
 <script src="js/app.js"></script>
 <script src="js/lang-picker.js"></script>
+<script src="js/account.js"></script>
 </body>
 </html>

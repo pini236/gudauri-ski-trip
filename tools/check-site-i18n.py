@@ -4,9 +4,9 @@
     python3 tools/check-site-i18n.py      (exit code 1 on errors)
 
 1. Every key the site uses exists in i18n/strings.json: T('...'), E('...'), H('...'), slots('...') and any other
-   string literal shaped like a key in site/js/app.js and site/js/relief.js, and every key in the data-i18n*
+   string literal shaped like a key in site/js/app.js, relief.js and account.js, and every key in the data-i18n*
    attributes of site/index.html. A literal that ends in "_" or "." (e.g. 'common.color_'+c) must be the start of a key.
-2. No Hebrew is left in site/js/app.js outside comments.
+2. No Hebrew is left in site/js/app.js and account.js outside comments.
 3. Every Hebrew text and every Hebrew attribute in site/index.html is covered:
    - text: the element or one of its ancestors has data-i18n, data-i18n-html, data-i18n-tpl, data-i18n-plural,
      or data-i18n-js (text that app.js draws itself from the keys named there);
@@ -134,7 +134,7 @@ def main():
             errors.append(f"{where}: key '{key}' is not in i18n/strings.json")
 
     used = 0
-    for name in ("site/js/app.js", "site/js/relief.js"):
+    for name in ("site/js/app.js", "site/js/relief.js", "site/js/account.js"):
         src = (ROOT / name).read_text(encoding="utf-8")
         code = js_code_only(src)
         for m in KEY_LIT.finditer(code):
@@ -142,7 +142,7 @@ def main():
                 continue
             need(m.group(2), f"{name}:{code.count(chr(10), 0, m.start()) + 1}")
             used += 1
-        if name.endswith("app.js"):
+        if name.endswith(("app.js", "account.js")):
             for no, line in enumerate(code.split("\n"), 1):
                 if HEB.search(line):
                     errors.append(f"{name}:{no}: Hebrew outside a comment: {line.strip()[:80]}")

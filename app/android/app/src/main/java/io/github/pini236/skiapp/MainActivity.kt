@@ -138,9 +138,12 @@ class MainActivity : ComponentActivity() {
     }
     private var justJoined by mutableStateOf(false)
 
-    /** Google's sheet, then the server. A debug build without the web client id signs in to the pretend server directly. */
+    /**
+     * Google's sheet, then the server. A debug build talks to the pretend server (DevServer), so it signs in there
+     * directly: the emulator run never meets Google's real sheet, now that the web client id is set.
+     */
     private suspend fun signInGoogle() {
-        if (BuildConfig.DEBUG && GoogleSignIn.WEB_CLIENT_ID.isEmpty() && groupApi.ready) { groupApi.signInWithGoogle("dev", "dev"); return }
+        if (BuildConfig.DEBUG && groupApi.ready) { groupApi.signInWithGoogle("dev", "dev"); return }
         val g = GoogleSignIn.signIn(this)
         groupApi.signInWithGoogle(g.idToken, g.nonce)
     }
