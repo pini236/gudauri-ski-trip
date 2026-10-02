@@ -89,7 +89,10 @@ map() {
   done
   # the system closes the app in the background: it must come back to the same run (nav/Nav.kt)
   # (am kill does not close it on Android 15; the debug app's own user can kill its process, as the system does)
-  adb shell input keyevent KEYCODE_HOME; sleep 2
+  # the system closes an app only after it saved its state: wait for that before the kill (a slow emulator may not
+  # have stopped the app yet two seconds after Home)
+  mark; adb shell input keyevent KEYCODE_HOME
+  waitlog "state saved" 30; sleep 1
   local pid; pid=$(adb shell pidof "$PKG" | tr -d '\r')
   [ -n "$pid" ] && adb shell run-as "$PKG" kill -9 "$pid"; sleep 1
   if adb shell pidof "$PKG" > /dev/null; then fail "the app was not closed in the background"; fi

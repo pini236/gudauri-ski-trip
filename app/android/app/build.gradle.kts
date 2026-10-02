@@ -95,25 +95,24 @@ val copySiteData by tasks.registering(Exec::class) {
 tasks.named("preBuild") { dependsOn(copySiteData) }
 
 /**
- * The languages of each build. Debug builds (the emulator run, development) carry all four, including the ones
- * still waiting for a native speaker. Release builds (the GitHub test build and the store build) carry only the
- * released ones: Hebrew today. English joins when the left-to-right signs and screens pass the canvas
- * (decision 32); Russian and Georgian also need the speakers' review (i18n/REVIEW.md), and the generator refuses
- * them in a release build until then.
+ * The languages of each build. Debug builds (the emulator run, development) carry all four. Release builds (the
+ * GitHub test build and the store build) carry only Hebrew until the app has the left-to-right signs and the fonts
+ * approved in the canvas (LT1 to LT3, FT1, decision 36); then English, Russian and Georgian join here. A native speaker's review is not required for now
+ * (decision 39).
  */
 val releaseLanguages = "he"
 val debugLanguages = "he,en,ru,ka"
-fun stringsTask(name: String, langs: String, unreviewed: Boolean) = tasks.registering(Exec::class) {
+fun stringsTask(name: String, langs: String) = tasks.registering(Exec::class) {
     val out = layout.buildDirectory.dir("generated/i18n/$name").get().asFile
     inputs.file(File(repoRoot, "i18n/strings.json"))
     inputs.file(File(repoRoot, "tools/build-app-strings.py"))
     inputs.property("langs", langs)
     outputs.dir(out)
     doFirst { out.deleteRecursively() }
-    commandLine(listOf("python3", File(repoRoot, "tools/build-app-strings.py").path, out.path, langs) + if (unreviewed) listOf("--unreviewed") else emptyList())
+    commandLine("python3", File(repoRoot, "tools/build-app-strings.py").path, out.path, langs)
 }
-val debugStrings by stringsTask("debug", debugLanguages, unreviewed = true)
-val releaseStrings by stringsTask("release", releaseLanguages, unreviewed = false)
+val debugStrings by stringsTask("debug", debugLanguages)
+val releaseStrings by stringsTask("release", releaseLanguages)
 tasks.named("preBuild") { dependsOn(debugStrings, releaseStrings) }
 
 dependencies {

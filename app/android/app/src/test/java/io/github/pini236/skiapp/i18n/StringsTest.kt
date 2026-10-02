@@ -1,6 +1,5 @@
 package io.github.pini236.skiapp.i18n
 
-import org.json.JSONObject
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -9,12 +8,11 @@ import javax.xml.parsers.DocumentBuilderFactory
 
 /**
  * The generated language files (tools/build-app-strings.py, from i18n/strings.json): every language has every
- * name with the same placeholders, the language lists match the files and Lang.ALL, and a store build never carries
- * a language that still waits for a native speaker (i18n/REVIEW.md).
+ * name with the same placeholders, the language lists match the files and Lang.ALL, and a store build carries exactly
+ * the released languages (build.gradle.kts).
  */
 class StringsTest {
     private val gen = File("build/generated/i18n")
-    private val repo = File(System.getProperty("site.data") ?: "../../../site/data").parentFile.parentFile
 
     private fun entries(f: File): Map<String, String> {
         val doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(f)
@@ -52,12 +50,11 @@ class StringsTest {
         assertTrue("unknown language", Lang.ALL.map { it.tag }.containsAll(languages("debug")))
     }
 
-    @Test fun storeBuildsCarryOnlyReviewedLanguages() {
-        val strings = JSONObject(File(repo, "i18n/strings.json").readText()).getJSONObject("strings")
-        val pending = HashSet<String>()
-        for (k in strings.keys()) strings.getJSONObject(k).optJSONArray("check")?.let { a -> for (i in 0 until a.length()) pending += a.getString(i) }
-        val release = languages("release")
-        assertTrue("store build carries unreviewed $pending ∩ $release", release.none { it in pending })
-        assertEquals("he", release.first())
+    @Test fun storeBuildsCarryTheReleasedLanguages() {
+        // the released languages are set in the build (releaseLanguages); Hebrew is always first, the default
+        val gradle = File("build.gradle.kts").readText()
+        val released = Regex("val releaseLanguages = \"([a-z,]+)\"").find(gradle)!!.groupValues[1].split(",")
+        assertEquals("he", released.first())
+        assertEquals(released.sorted(), languages("release").sorted())
     }
 }
