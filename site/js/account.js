@@ -7,7 +7,7 @@ window.ACCOUNT=(function(){
   let MYTRIP,esc,snowCap,MEET,renderTicket,countdown;
   const URL_='https://vanuhuzuhnljvcoihvys.supabase.co',KEY='sb_publishable_BpJiIkRbIob7U6xa_Xt_9A_AJqtoupz',REGION='eu-central-1';
   // the web client from the Google console (server/README.md, "כניסה עם גוגל"); empty until Pini sends it
-  const GOOGLE_CLIENT_ID='';
+  const GOOGLE_CLIENT_ID='116975370454-2f0dqvfn3obp9i0j24r8pn71h230c6q8.apps.googleusercontent.com';
   const APPLE=false; // Sign in with Apple on the web: once the Apple developer account exists
   const SB_KEY='sb-vanuhuzuhnljvcoihvys-auth-token',CACHE='gud-acct',GAMES=['descent','school','fresh','snowball','merge'];
   const $=id=>document.getElementById(id);
@@ -122,7 +122,7 @@ window.ACCOUNT=(function(){
   async function providerButtons(host,del){
     host.innerHTML='';const soon=!GOOGLE_CLIENT_ID;
     if(GOOGLE_CLIENT_ID){const g=document.createElement('div');g.className='ac-gsi';host.appendChild(g);
-      try{await loadScript('https://accounts.google.com/gsi/client');const raw=crypto.randomUUID(),hashed=await sha256(raw);
+      try{if(!(window.google&&google.accounts&&google.accounts.id))await loadScript('https://accounts.google.com/gsi/client');const raw=crypto.randomUUID(),hashed=await sha256(raw);
         google.accounts.id.initialize({client_id:GOOGLE_CLIENT_ID,nonce:hashed,callback:r=>withIdToken('google',r.credential,raw).catch(e=>showErr(host.closest('.ac'),e))});
         google.accounts.id.renderButton(g,{type:'standard',theme:'outline',size:'large',text:'continue_with',width:Math.min(host.clientWidth||360,400),locale:I18N.lang});}
       catch(e){showErr(host.closest('.ac'),e);}}

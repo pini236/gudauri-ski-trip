@@ -859,30 +859,6 @@
     "ka"
    ]
   },
-  "app.pass_swipe_out": {
-   "he": "החלקה לכרטיס ההלוך",
-   "en": "swipe for the outbound pass",
-   "ru": "смахните к талону туда",
-   "ka": "გადაფურცლეთ წასვლის ბილეთზე",
-   "where": "app/android",
-   "note": "hint under the return pass",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "app.pass_swipe_ret": {
-   "he": "החלקה לכרטיס החזור",
-   "en": "swipe for the return pass",
-   "ru": "смахните к обратному талону",
-   "ka": "გადაფურცლეთ დაბრუნების ბილეთზე",
-   "where": "app/android",
-   "note": "hint under the pass, after the tear hint",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
   "app.pass_traveller": {
    "he": "נוסע",
    "en": "Traveller",

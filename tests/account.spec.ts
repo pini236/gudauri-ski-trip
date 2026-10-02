@@ -30,6 +30,8 @@ async function fakeServer(page: Page) {
   const group = { id: 'g1', name: 'קבוצת בדיקה', starts_on: '2027-01-10', ends_on: '2027-01-15' };
   const json = (r: Route, body: unknown, status = 200) => r.fulfill({ status, contentType: 'application/json', headers: { 'access-control-allow-origin': '*', 'access-control-allow-headers': '*' }, body: JSON.stringify(body) });
   await page.routeWebSocket(/supabase\.co\/realtime/, () => {});
+  await page.route('https://accounts.google.com/gsi/client', r => r.fulfill({ contentType: 'text/javascript', body:
+    "window.google={accounts:{id:{initialize:function(o){window.__gsi=o;},renderButton:function(el){var b=document.createElement('button');b.type='button';b.setAttribute('data-fake-gsi','');b.textContent='Google';el.appendChild(b);}}}};" }));
   await page.route(`${SB}/**`, async r => {
     const req = r.request(), u = new URL(req.url()), path = u.pathname;
     if (req.method() === 'OPTIONS') return r.fulfill({ status: 204, headers: { 'access-control-allow-origin': '*', 'access-control-allow-headers': '*', 'access-control-allow-methods': '*' } });
@@ -76,9 +78,9 @@ test('אורח: האתר לא פונה לשרת, ושלט הקבוצה מזמי�
   await expect(page.locator('#groupBoardSub')).toHaveText('יצירת קבוצה, או הצטרפות בקוד');
   await page.goto('/#signin');
   await expect(page.locator('#signinPage')).toBeVisible();
-  // the Google client is not set yet: the buttons wait, and say so
-  await expect(page.locator('#signinPage .ac-btn.google')).toBeDisabled();
-  await expect(page.locator('#signinSoon')).toBeVisible();
+  // Google's own button (Google Identity Services, faked here), and Apple waits for its account
+  await expect(page.locator('#signinPage .ac-gsi [data-fake-gsi]')).toBeVisible();
+  await expect(page.locator('#signinPage .ac-btn.apple')).toBeDisabled();
   await page.goto('/#group');
   await expect(page.locator('#grCode')).toBeVisible();
   await expect(page.locator('#grCreate button')).toBeDisabled();

@@ -4,3 +4,4 @@ node_modules/
 
 test-results/
 playwright-report/
+app/android/app/src/main/assets/sentry-debug-meta.properties

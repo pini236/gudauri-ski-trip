@@ -28,7 +28,7 @@ const deps = {
 
 const CORS = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, apikey, content-type, x-client-info",
+  "Access-Control-Allow-Headers": "authorization, apikey, content-type, x-client-info, x-region",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
 

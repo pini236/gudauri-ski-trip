@@ -87,6 +87,19 @@ class ServerTest {
         assertEquals(2, sent.size)
     }
 
+    @Test fun aBusyServerDoesNotEndTheSession() {
+        val store = MemorySessionStore()
+        val s = server(store)
+        store.save(Session.fromAuth(JSONObject(session("a", expires = now / 1000 + 10)), now / 1000)) // about to end: renewed first
+        answers += Response(429, """{"error_code":"over_request_rate_limit"}""")
+        try {
+            s.call("join_group", JSONObject()); fail()
+        } catch (e: ServerError) {
+            assertEquals(429, e.status)
+        }
+        assertEquals("still signed in", "a", store.load()?.accessToken)
+    }
+
     @Test fun refusalsKeepTheServersCode() {
         val store = MemorySessionStore()
         store.save(Session.fromAuth(JSONObject(session("a")), now / 1000))

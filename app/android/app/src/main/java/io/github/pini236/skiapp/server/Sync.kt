@@ -81,7 +81,7 @@ class Sync(
     /** Watch my groups list (the home of the group screens): approvals and removals show without a reload. */
     @Synchronized
     fun watchMine() {
-        val me = server.auth.current()?.userId ?: return
+        val me = server.auth.userId() ?: return
         if (mineChannel != null || realtime == null) return refreshMine()
         mineChannel = realtime.join(
             "me:$me",
@@ -155,8 +155,9 @@ class Sync(
             } catch (_: Offline) {
                 break
             } catch (e: ServerError) {
-                // refused: drop it, and read the group again so the screen shows what the server has
-                if (e.code == "no_session") break
+                // no session, a server hiccup (5xx), a busy server (429) or a timeout (408): it stays in the queue for next time
+                if (e.code == "no_session" || e.status >= 500 || e.status == 429 || e.status == 408) break
+                // refused for good: drop it, and read the group again so the screen shows what the server has
                 outbox.remove(op.id)
             }
             touched += op.groupId
@@ -171,7 +172,9 @@ class Sync(
             "score" -> groups.submitScore(b.getString("game"), b.getInt("score"))
             "my_membership" -> groups.setMine(op.groupId, b.getString("name"), b.optString("trip").ifBlank { null })
             "meetup_add" -> {
-                val m = groups.addMeetup(op.groupId, b.getString("station"), Instant.parse(b.getString("at")), b.optString("note").ifBlank { null })
+                // the temporary id's own part is the id the server gets, so a repeat of this write finds the same meetup
+                val m = groups.addMeetup(op.groupId, b.getString("station"), Instant.parse(b.getString("at")), b.optString("note").ifBlank { null },
+                    id = b.getString("local").removePrefix("local:"))
                 outbox.rename(b.getString("local"), m.id)
                 synchronized(this) { stores[op.groupId] }?.renamed(b.getString("local"), m)
             }
@@ -230,8 +233,9 @@ class Sync(
         }
 
         internal fun readFromServer() {
-            val me = server.auth.current()?.userId
             try {
+                // inside the try: renewing the session may need the network and may fail like any call
+                val me = server.auth.current()?.userId
                 val members = groups.members(groupId)
                 if (me == null || members.none { it.userId == me }) {
                     flow.value = Snapshot(groupId, gone = true, readAt = server.nowSeconds() * 1000)
@@ -284,7 +288,7 @@ class Sync(
             val body = JSONObject().put("station", station).put("at", at.toString()).put("note", note ?: "")
             // a meetup not sent yet: change what will be sent
             if (id.startsWith("local:") && outbox.update(id) { it.put("station", station).put("at", at.toString()).put("note", note ?: "") }) {
-                flow.value = applyLocal(flow.value, Op("", "meetup_add", groupId, body.put("local", id)), server.auth.current()?.userId)
+                flow.value = applyLocal(flow.value, Op("", "meetup_add", groupId, body.put("local", id)), server.auth.userId())
                 return
             }
             queue("meetup_change", body.put("id", id))
@@ -298,7 +302,7 @@ class Sync(
 
         private fun queue(kind: String, body: JSONObject) {
             val op = outbox.add(kind, groupId, body)
-            flow.value = applyLocal(flow.value, op, server.auth.current()?.userId).copy(waiting = outbox.forGroup(groupId).size)
+            flow.value = applyLocal(flow.value, op, server.auth.userId()).copy(waiting = outbox.forGroup(groupId).size)
             flush()
         }
 

@@ -61,6 +61,8 @@ class Realtime(
     private var retry: ScheduledFuture<*>? = null
     private var hadGap = false
     private var lastToken: String? = null
+    // Which socket is the current one. A late "closed" or message from a socket we already gave up must not reset the new one.
+    private var generation = 0
 
     val connected: Boolean @Synchronized get() = open
 
@@ -96,15 +98,17 @@ class Realtime(
         if (socket != null || channels.isEmpty()) return
         val url = server.url.replaceFirst("https://", "wss://").replaceFirst("http://", "ws://") +
             "/realtime/v1/websocket?apikey=${Server.enc(server.key)}&vsn=1.0.0"
+        val mine = ++generation
         socket = sockets.open(url, object : Listener {
-            override fun onOpen() = opened()
-            override fun onMessage(text: String) = received(text)
-            override fun onClosed() = closed()
+            override fun onOpen() = opened(mine)
+            override fun onMessage(text: String) = received(mine, text)
+            override fun onClosed() = closed(mine)
         })
     }
 
     @Synchronized
-    private fun opened() {
+    private fun opened(gen: Int) {
+        if (gen != generation) return
         open = true
         attempts = 0
         heartbeat?.cancel(false)
@@ -119,7 +123,8 @@ class Realtime(
 
     private fun tokenChangedLocked() = runCatching { tokenChanged() }
 
-    private fun received(text: String) {
+    private fun received(gen: Int, text: String) {
+        if (synchronized(this) { gen != generation }) return
         debug?.invoke(text)
         val m = runCatching { JSONObject(text) }.getOrNull() ?: return
         if (m.optString("event") != "postgres_changes") return
@@ -129,7 +134,8 @@ class Realtime(
     }
 
     @Synchronized
-    private fun closed() {
+    private fun closed(gen: Int) {
+        if (gen != generation) return
         socket = null
         open = false
         heartbeat?.cancel(false)
@@ -146,6 +152,7 @@ class Realtime(
         retry?.cancel(false)
         heartbeat?.cancel(false)
         val s = socket
+        generation++ // whatever this socket still says is old news
         socket = null
         open = false
         hadGap = false

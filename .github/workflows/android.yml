@@ -31,6 +31,12 @@ jobs:
       # usage and crash reporting (app/.../telemetry/Telemetry.kt): anonymous, EU, with a switch to turn it off
       POSTHOG_KEY: ${{ secrets.POSTHOG_KEY }}
       SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
+      # crash reports from the minified release builds arrive scrambled unless Sentry gets each build's mapping file.
+      # The upload steps run only when this secret exists (docs/GROWTH.md, "Sentry"); without it nothing changes.
+      SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+      SENTRY_URL: https://de.sentry.io
+      SENTRY_ORG: piniz
+      SENTRY_PROJECT: gudi-android
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-java@v4
@@ -51,11 +57,25 @@ jobs:
         run: |
           echo "$KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/test.jks"
           echo "ANDROID_TEST_KEYSTORE_PATH=$RUNNER_TEMP/test.jks" >> "$GITHUB_ENV"
+      - name: Sentry, the preview build's mapping id
+        if: env.SENTRY_AUTH_TOKEN != ''
+        run: |
+          id=$(uuidgen)
+          echo "SENTRY_MAP_ID=$id" >> "$GITHUB_ENV"
+          # the app reads this file at start, so a crash report names the mapping it needs
+          mkdir -p app/src/main/assets
+          echo "io.sentry.ProguardUuids=$id" > app/src/main/assets/sentry-debug-meta.properties
       - name: Build the preview APK
         env:
           ANDROID_TEST_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_TEST_KEYSTORE_PASSWORD }}
           ANDROID_TEST_KEY_ALIAS: ${{ secrets.ANDROID_TEST_KEY_ALIAS }}
         run: ./gradlew --no-daemon :app:assemblePreviewRelease
+      - name: Sentry, upload the preview build's mapping
+        if: env.SENTRY_AUTH_TOKEN != '' && github.event_name != 'pull_request'
+        continue-on-error: true # a Sentry problem never holds a build back
+        run: |
+          curl -sL https://sentry.io/get-cli/ | sh
+          sentry-cli upload-proguard --uuid "$SENTRY_MAP_ID" app/build/outputs/mapping/previewRelease/mapping.txt
       - name: Check the signature is the registered test key
         if: github.event_name != 'pull_request'
         run: |
@@ -82,12 +102,22 @@ jobs:
         run: |
           echo "$KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/upload.jks"
           echo "ANDROID_UPLOAD_KEYSTORE_PATH=$RUNNER_TEMP/upload.jks" >> "$GITHUB_ENV"
+      - name: Sentry, the store build's mapping id
+        if: github.event_name == 'push' && env.SENTRY_AUTH_TOKEN != ''
+        run: |
+          id=$(uuidgen)
+          echo "SENTRY_MAP_ID=$id" >> "$GITHUB_ENV"
+          echo "io.sentry.ProguardUuids=$id" > app/src/main/assets/sentry-debug-meta.properties
       - name: Build the store bundle
         if: github.event_name == 'push'
         env:
           ANDROID_UPLOAD_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_UPLOAD_KEYSTORE_PASSWORD }}
           ANDROID_UPLOAD_KEY_ALIAS: ${{ secrets.ANDROID_UPLOAD_KEY_ALIAS }}
         run: ./gradlew --no-daemon :app:bundleStoreRelease
+      - name: Sentry, upload the store build's mapping
+        if: github.event_name == 'push' && env.SENTRY_AUTH_TOKEN != ''
+        continue-on-error: true
+        run: sentry-cli upload-proguard --uuid "$SENTRY_MAP_ID" app/build/outputs/mapping/storeRelease/mapping.txt
       - name: Check the bundle is signed with the registered upload key
         if: github.event_name == 'push'
         run: |

@@ -2,7 +2,7 @@
 -- server code): each group sees only its own things, a group sees only
 -- the trip a member chose for it, and the tables the server owns are
 -- read-only for apps.
-select plan(30);
+select plan(32);
 
 create temp table ids (name text primary key, id uuid);
 grant all on ids to authenticated;
@@ -84,6 +84,13 @@ select throws_ok($$update meetups set group_id = (select id from ids where name 
   'cannot move a meetup to another group');
 select throws_ok($$insert into meetups (group_id, station, meet_at) select id, 'bad station!', now() from ids where name = 'ski'$$,
   '23514', null, 'the station is an id from the map data');
+
+-- A meetup made without signal is sent with an id the phone chose, and may be sent twice
+insert into meetups (id, group_id, station, meet_at) select '11111111-1111-4111-8111-111111111111', id, 'goodaura-bottom', now() from ids where name = 'ski';
+select is((select count(*)::int from meetups where id = '11111111-1111-4111-8111-111111111111'), 1, 'a member sends a new meetup with an id of their own');
+insert into meetups (id, group_id, station, meet_at) select '11111111-1111-4111-8111-111111111111', id, 'goodaura-bottom', now() from ids where name = 'ski'
+  on conflict (id) do nothing;
+select is((select count(*)::int from meetups where id = '11111111-1111-4111-8111-111111111111'), 1, 'the same meetup sent again is still one');
 
 select tests.as_owner();
 select is((select count(*)::int from trips where destination in ('hacked', 'mine')), 0, 'nobody changed others'' trips');

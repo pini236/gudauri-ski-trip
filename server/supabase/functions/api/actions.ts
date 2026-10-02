@@ -517,9 +517,12 @@ const actions: Record<string, Action> = {
     const [m] = await tx`select display_name from public.group_members where group_id = ${group} and user_id = ${member}`;
     if (!m) return { status: "no_such_member" };
     if (await isRegistered(tx, member)) return { status: "sign_in_instead" };
+    // The name of the one asking, so the admin sees who is claiming a name (and not only the name being claimed).
+    // Clients that do not send it yet get the claimed member's name, as before.
+    const asking = body.display_name == null ? m.display_name : cleanName(body.display_name);
     await tx`
       insert into public.join_requests (group_id, user_id, display_name, kind, reclaim_user_id)
-      values (${group}, ${user}, ${m.display_name}, 'reclaim', ${member})
+      values (${group}, ${user}, ${asking}, 'reclaim', ${member})
       on conflict (group_id, user_id) where status = 'pending'
       do update set display_name = excluded.display_name, kind = 'reclaim', reclaim_user_id = excluded.reclaim_user_id`;
     await audit(tx, user, "reclaim_requested", group, member);

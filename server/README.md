@@ -145,7 +145,20 @@ keytool -list -v -keystore <קובץ המפתח> -alias ski-app-test
 
 ## פריסה
 
-- **מסד הנתונים:** המיגרציות ב-`supabase/migrations/` מוחלות דרך החיבור של Claude לסופבייס. היסטוריית המיגרציות בשרת שונה מעט מהקבצים, כי החלק הראשון הוחל בחלקים לפני החלטה 40 (`schema`, ארבעה חלקי `functions_*`, `audit_log`). אחר כך `drop_old_sql_actions` (בעורך השאילתות) ו-`limits_search_path`. התוצאה זהה לקבצים.
+- **מסד הנתונים:** המיגרציות ב-`supabase/migrations/` מוחלות דרך החיבור של Claude לסופבייס. היסטוריית המיגרציות בשרת שונה מהקבצים (נבדק ב-2.10.2026, `list_migrations`): בשרת שבע שורות (`schema`, `functions_require`, `functions_clean_name`, `functions_invites_internal`, `functions_members_internal`, `audit_log`, `limits_search_path`), עם חותמות זמן של רגע ההרצה; בריפו שלוש (`schema`, `server_code`, `limits_search_path`). הסיבה: החלק הראשון הוחל בחלקים לפני החלטה 40, והמחיקה של הפונקציות הישנות הורצה בעורך השאילתות. **התוצאה במסד הנתונים זהה לקבצים,** אבל הכלי של סופבייס (`supabase db push`) היה מנסה להחיל את הקבצים מחדש ונכשל. **ליישור** (פיני מריץ בעורך השאילתות, אחרי שכל המיגרציות החדשות הוחלו; זו מחיקה, ולכן לא דרך החיבור של Claude): מוחקים את שורות ההיסטוריה ומכניסים במקומן שורה לכל קובץ, באותה גרסה ובאותו שם:
+
+```sql
+begin;
+delete from supabase_migrations.schema_migrations;
+insert into supabase_migrations.schema_migrations (version, name) values
+  ('20261001120000', 'schema'),
+  ('20261002120000', 'server_code'),
+  ('20261002130000', 'limits_search_path'),
+  ('20261002140000', 'meetup_client_id');
+commit;
+```
+
+כל מיגרציה חדשה אחר כך: מחילים דרך החיבור, ואז מתקנים את הגרסה בשורה שלה לגרסה של הקובץ (או מריצים את הסקריפט שוב עם השורה החדשה).
 - **השרת:** נפרס דרך החיבור של Claude לסופבייס (`api`, בלי בדיקת חיבור בשער, כי הפונקציה בודקת בעצמה). פריסה אוטומטית מ-GitHub דורשת אסימון גישה של פיני (`docs/ROADMAP.md`).
 
 ## מה פיני מגדיר בלוח הבקרה
@@ -153,7 +166,7 @@ keytool -list -v -keystore <קובץ המפתח> -alias ski-app-test
 אף סוד לא נכנס לריפו. בלוח הבקרה של הפרויקט, תחת Authentication:
 
 1. **Sign In / Providers:**
-   - **Anonymous sign-ins:** להדליק. בלי זה אורחים לא יכולים להצטרף לקבוצה (נבדק: היום כבוי).
+   - **Anonymous sign-ins:** להדליק. בלי זה אורחים לא יכולים להצטרף לקבוצה. **הודלק (פיני, 2.10.2026), ונבדק על השרת האמיתי: אורח נכנס, מצטרף ועוזב.**
    - **Allow manual linking:** להדליק.
    - **Email:** לכבות הרשמה במייל.
    - **Google:** ראו "כניסה עם גוגל: צעד אחר צעד" למעלה.

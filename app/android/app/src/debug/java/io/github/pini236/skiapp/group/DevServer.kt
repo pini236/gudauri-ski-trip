@@ -10,8 +10,8 @@ import java.time.ZoneOffset
 import java.util.UUID
 
 /**
- * A pretend server for debug builds only (the emulator run and development), until the real client from server/ is
- * wired in. It follows the server's rules where the screens can see them (guests cannot create groups, admins only
+ * A pretend server for debug builds only (the emulator run and development: it never meets Google's sign-in sheet or
+ * the real server; the real client in server/ is what the other builds use). It follows the server's rules where the screens can see them (guests cannot create groups, admins only
  * for admin actions, the last admin cannot step down, join statuses). Made-up people and flights: never the crew's
  * (decision 27). Not in release builds (src/release has an empty one).
  */

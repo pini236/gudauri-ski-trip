@@ -110,7 +110,7 @@ POST /functions/v1/api/<פעולה>
 | פעולה | שדות | תשובה | מי |
 |---|---|---|---|
 | `my_account` | | `{id, display_name, lang, is_anonymous}` | כל מחובר |
-| `delete_my_account` | | `{deleted: true}` | כל מחובר. יוצא מכל הקבוצות (לכל קבוצה נשאר מנהל), מוחק טיולים, שיאים והזהות. מפגשים שיצר נשארים בלי שמו. אחר כך האפליקציה מוחקת את החיבור והעותק המקומי |
+| `delete_my_account` | | `{deleted: true}` | כל מחובר. יוצא מכל הקבוצות (אם לא נשאר בקבוצה מנהל, החבר הרשום הוותיק מתמנה; אם כל מי שנשאר הוא אורח, הקבוצה נשארת בלי מנהל עד ש-`claim_admin` של חבר רשום; קבוצה ריקה נמחקת), מוחק טיולים, שיאים והזהות. מפגשים שיצר נשארים בלי שמו. אחר כך האפליקציה מוחקת את החיבור והעותק המקומי |
 | `create_merge_ticket` | | `{ticket}` | אורח בלבד (`not_a_guest`). תקף 15 דקות, פעם אחת |
 | `merge_guest` | `ticket` | `{merged: true}` | חשבון רשום (`must_register`). `invalid_ticket` אם פג או שגוי |
 
@@ -124,7 +124,7 @@ POST /functions/v1/api/<פעולה>
 |---|---|---|
 | `invite_preview` | `code` | `{status:"ok", group_id, name, starts_on, ends_on, requires_approval, already_member, members:[{user_id, display_name}]}`, או `{status}` עם `invalid_code` / `rate_limited` |
 | `join_group` | `code`, `display_name` | `{status, group_id?}`: `joined`, `pending` (ממתין למנהל), `already_member`, `invalid_code`, `rate_limited`, `group_full` |
-| `request_reclaim` | `code`, `member_id` | "אני כבר בקבוצה": בקשה להיות שוב החבר הזה, באישור מנהל. `{status}`: `pending`, `already_member`, `no_such_member`, `sign_in_instead` (החבר רשום, שייכנס עם החשבון), `invalid_code`, `rate_limited` |
+| `request_reclaim` | `code`, `member_id`, `display_name?` (השם של מי שמבקש, 1 עד 40, כדי שהמנהל יראה מי מבקש; בלעדיו נשמר שם החבר המבוקש, כמו קודם) | "אני כבר בקבוצה": בקשה להיות שוב החבר הזה, באישור מנהל. `{status}`: `pending`, `already_member`, `no_such_member`, `sign_in_instead` (החבר רשום, שייכנס עם החשבון), `invalid_code`, `rate_limited` |
 | `cancel_join_request` | `request_id` | `{}` |
 
 שלוש הראשונות פתוחות גם לאורח. הן היחידות שיוצרות זהות אנונימית כשאין.
@@ -176,6 +176,8 @@ POST /functions/v1/api/<פעולה>
 | `scores` | שלי, ושל מי שאני איתו בקבוצה | אין (`submit_score`) | `user_id, game, best, achieved_at` |
 
 **כללי הערכים בטיול:** קוד שדה תעופה הוא שלוש אותיות גדולות בלבד (`TLV`). מקום שהוקלד בלי קוד לא עולה לשרת ונשאר בטלפון. מספר טיסה עד 12 תווים, יעד עד 60. ההלוך לפני החזור, ותחילת ימי הסקי לפני סופם.
+
+**מפגש חדש עם מזהה מהלקוח:** אפשר לשלוח גם `id` (uuid שהטלפון בחר) בהוספה ישירה, עם הכותרת `Prefer: return=representation,resolution=ignore-duplicates`. שליחה חוזרת של אותו מפגש (התשובה הראשונה לא חזרה) לא יוצרת שני מפגשים: התשובה ריקה, וקוראים את השורה לפי ה-`id`. בלי `id` השרת בוחר מזהה, כמו קודם. (מיגרציה `20261002140000_meetup_client_id.sql`)
 
 **כללי הערכים במפגש:** `station` הוא מזהה תחנה מהנתונים של האתר (`^[A-Za-z0-9_.:-]{1,64}$`), `note` עד 140 תווים.
 
@@ -249,7 +251,7 @@ wss://vanuhuzuhnljvcoihvys.supabase.co/realtime/v1/websocket?apikey=<המפתח 
 | כתיבה | בלי קליטה | התנגשות |
 |---|---|---|
 | שיא (`submit_score`) | נכנס לתור | אין: נשמר רק הגבוה |
-| מפגש: הוספה, שינוי, מחיקה | נכנס לתור. למפגש חדש מזהה זמני (`local:...`), שמתחלף במזהה של השרת | השמירה האחרונה גוברת |
+| מפגש: הוספה, שינוי, מחיקה | נכנס לתור. למפגש חדש מזהה זמני (`local:<uuid>`); ה-uuid הוא גם המזהה שנשלח לשרת, כך ששליחה חוזרת לא יוצרת כפילות | השמירה האחרונה גוברת |
 | השם שלי והטיסה שלי בקבוצה (`set_my_membership`) | נכנס לתור, והחדש מחליף את הישן בתור | השמירה האחרונה גוברת |
 | כל השאר (הצטרפות, יצירת קבוצה, ניהול, מחיקת חשבון) | **דורש קליטה.** המסך אומר שאין חיבור | |
 
