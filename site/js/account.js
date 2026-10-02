@@ -38,7 +38,11 @@ window.ACCOUNT=(function(){
       try{const j=await r.error.context.json();if(j&&j.error)code=j.error;}catch(e){}
       throw err(code);}
     return r.data;}
-  async function rest(q){const r=await q;if(r.error)throw err(r.error.message&&/fetch/i.test(r.error.message)?'offline':'server_error');return r.data;}
+  // a direct write to a table answers {code, message}: a limit comes back as its own code (P0001), like the API's (server/CONTRACT.md)
+  function restCode(r){const e=r.error,m=e.message||'',c=e.code||'';if(/fetch/i.test(m))return 'offline';
+    if(r.status===401||c==='PGRST301'||/jwt/i.test(m))return 'not_signed_in';if(c==='P0001'&&/^[a-z_]+$/.test(m))return m;
+    if(c==='42501')return 'not_allowed';if(/^2[23]/.test(c))return 'invalid_input';return 'server_error';}
+  async function rest(q){const r=await q;if(r.error)throw err(restCode(r));return r.data;}
   async function user(){const c=await client();const {data}=await c.auth.getSession();return data.session&&data.session.user||null;}
   async function guest(){const c=await client();if(await user())return;const r=await c.auth.signInAnonymously();if(r.error)throw err('server_error');}
 
@@ -119,7 +123,7 @@ window.ACCOUNT=(function(){
     else{const s=await c.auth.signInWithIdToken({provider,token,nonce});if(s.error)throw err('server_error');}
     tr('sign_in',{method:provider});state.ended=false;await refresh();pushTrip();
     let next='#account';try{next=sessionStorage.getItem('gud-after-signin')||next;sessionStorage.removeItem('gud-after-signin');}catch(e){}
-    location.hash=next;}
+    if(location.hash===next)route(next);else location.hash=next;} // signed in from the page you were on (/account): draw it again
   async function providerButtons(host,del){
     host.innerHTML='';const soon=!GOOGLE_CLIENT_ID;
     if(GOOGLE_CLIENT_ID){const g=document.createElement('div');g.className='ac-gsi';host.appendChild(g);
@@ -250,10 +254,11 @@ window.ACCOUNT=(function(){
       const tids=members.map(m=>m.trip_id).filter(Boolean);
       const trips=tids.length?await rest(c.from('trips').select('id,owner_id,out_date,out_flight,out_from,out_to,out_departs,ret_date,ret_flight,ret_departs,entered_by').in('id',tids)):[];
       const meetups=await rest(c.from('meetups').select('id,station,meet_at,note').eq('group_id',gid).order('meet_at'));
-      const inv=await rest(c.from('invites').select('id,code,token,revoked_at,expires_at,requires_approval').eq('group_id',gid).is('revoked_at',null));
+      const inv=await rest(c.from('invites').select('id,code,token,revoked_at,expires_at,requires_approval,max_uses,uses').eq('group_id',gid).is('revoked_at',null));
+      const live_=inv.filter(v=>!(v.expires_at&&Date.parse(v.expires_at)<=Date.now())&&!(v.max_uses&&v.uses>=v.max_uses)); // an expired or used-up invite is not shown or shared
       const me=members.find(m=>m.user_id===state.uid),admin=me&&me.role==='admin';
       const reqs=admin?await rest(c.from('join_requests').select('id,display_name,kind,reclaim_user_id,status').eq('group_id',gid).eq('status','pending')):[];
-      G={g,members,trips,meetups,invite:inv[inv.length-1]||null,reqs,scores:G&&G.g&&G.g.id===gid?G.scores:null,at:Date.now()};
+      G={g,members,trips,meetups,invite:live_[live_.length-1]||null,reqs,scores:G&&G.g&&G.g.id===gid?G.scores:null,at:Date.now()};
       try{localStorage.setItem(gKey(gid),JSON.stringify(G));}catch(e){}
       clearErr(pg);draw();if(tab==='scores')loadScores();}
     catch(e){if(G)draw();showErr(pg,e);}}
@@ -309,7 +314,7 @@ window.ACCOUNT=(function(){
     const me=G.members.find(m=>m.user_id===state.uid),admin=me&&me.role==='admin',reg=registered();
     const reqs=admin&&G.reqs.length?`<div class="ac-sec-box"><h2>${esc(T('group.requests'))}</h2>${G.reqs.map(r=>{const was=r.kind==='reclaim'&&G.members.find(m=>m.user_id===r.reclaim_user_id);
       return `<div class="ac-row"><span class="ac-txt"><b>${esc(r.display_name||'')}</b>${was?`<small>${esc(T('group.reclaim_req',{name:was.display_name}))}</small>`:''}</span><button type="button" class="ac-link" data-req="${esc(r.id)}" data-ok="1">${esc(T('group.approve'))}</button><button type="button" class="ac-link" data-req="${esc(r.id)}" data-ok="0" style="color:var(--muted)">${esc(T('group.reject'))}</button></div>`;}).join('')}</div>`:'';
-    const list=G.members.map(m=>{const mine=m.user_id===state.uid,open=adm.menu===m.user_id,t=G.trips.find(x=>x.id===m.trip_id),own=t&&!t.entered_by;
+    const list=G.members.map(m=>{const mine=m.user_id===state.uid,open=adm.menu===m.user_id,t=G.trips.find(x=>x.id===m.trip_id),own=t&&(!t.entered_by||t.entered_by===m.user_id);
       const row=`<div class="ac-row"><span class="ac-av sm" style="background:var(--ink)">${esc(letter(m.display_name))}</span><span class="ac-txt"><b>${esc(m.display_name)}</b><small>${[m.role==='admin'?T('group.admin'):'',mine?T('group.you'):''].filter(Boolean).map(esc).join(' · ')}</small></span>`
         +(admin&&!mine?`<button type="button" class="ac-more" data-mmenu="${esc(m.user_id)}" aria-expanded="${open}" aria-label="${esc(T('group.member_menu',{name:m.display_name}))}">⋮</button>`:'')+`</div>`;
       const menu=open?`<div class="ac-menu"><button type="button" data-role="${m.role==='admin'?'member':'admin'}" data-uid="${esc(m.user_id)}">${esc(T(m.role==='admin'?'group.make_member':'group.make_admin'))}</button>`
@@ -338,7 +343,8 @@ window.ACCOUNT=(function(){
   $('groupPage').addEventListener('click',async e=>{
     const pg=$('groupPage'),t=e.target;
     const run=async(fn)=>{clearErr(pg);try{await fn();await refresh();await reload();}catch(x){showErr(pg,x);}};
-    const same=t.closest('[data-same]');if(same){run(async()=>{const r=await api('same_flight',{group_id:gid,trip_id:same.dataset.same});await setMine(r.trip_id);});return;}
+    const same=t.closest('[data-same]');if(same){run(async()=>{const r=await api('same_flight',{group_id:gid,trip_id:same.dataset.same});await setMine(r.trip_id);
+      const c=await client(),[n]=await rest(c.from('trips').select('*').eq('id',r.trip_id));if(n)asMine(n);});return;}
     if(t.closest('[data-showtrip]')){run(()=>pushTrip(true));return;}
     const dm_=t.closest('[data-delmeet]');if(dm_){run(async()=>{const c=await client();await rest(c.from('meetups').delete().eq('id',dm_.dataset.delmeet));});return;}
     const rq=t.closest('[data-req]');if(rq){run(()=>api('decide_join_request',{request_id:rq.dataset.req,approve:rq.dataset.ok==='1'}));return;}
@@ -384,9 +390,11 @@ window.ACCOUNT=(function(){
     await setMine(sid);return sid;}
   // a new browser after signing in: your trip comes back from the account
   async function pullTrip(c){
-    const [t]=await rest(c.from('trips').select('*').eq('owner_id',state.uid).is('entered_by',null).order('updated_at',{ascending:false}).limit(1));
+    const [t]=await rest(c.from('trips').select('*').eq('owner_id',state.uid).or(`entered_by.is.null,entered_by.eq.${state.uid}`).order('updated_at',{ascending:false}).limit(1));
     if(!t||!t.out_date||MYTRIP.get())return;
-    const hm=v=>v?String(v).slice(0,5):'';
+    asMine(t);}
+  // a trip row from the server becomes the trip in this browser, linked to that row
+  function asMine(t){const hm=v=>v?String(v).slice(0,5):'';
     MYTRIP.set({v:1,sid:t.id,out:{date:t.out_date,flight:t.out_flight||'',from:t.out_from||'',to:t.out_to||'',departs:hm(t.out_departs),arrives:hm(t.out_arrives)},
       ret:t.ret_date?{date:t.ret_date,flight:t.ret_flight||'',departs:hm(t.ret_departs),arrives:hm(t.ret_arrives)}:null,ski:t.ski_from&&t.ski_to?{from:t.ski_from,to:t.ski_to}:null});
     renderTicket();countdown(document.documentElement.dataset.theme==='dark');}

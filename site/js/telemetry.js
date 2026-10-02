@@ -45,11 +45,13 @@
       }});
   });
   // app_open once, screen_view on every page change (#home, #map, #meet, #games, #about, #trip; a game page names itself)
-  var q=new URLSearchParams(location.search),game=(document.currentScript&&document.currentScript.getAttribute('data-game'))||'';
-  track('app_open',{source:q.get('utm_medium')==='share'?'share_link':q.get('utm_source')?'link':'direct'});
+  // app_open once per visit (this tab): a game page or the privacy page opened from the site is not another open
+  var cs=document.currentScript,q=new URLSearchParams(location.search),game=(cs&&cs.getAttribute('data-game'))||'',page=(cs&&cs.getAttribute('data-screen'))||'';
+  var opened=false;try{opened=!!sessionStorage.getItem('gud-opened');sessionStorage.setItem('gud-opened','1');}catch(e){}
+  if(!opened)track('app_open',{source:q.get('utm_medium')==='share'?'share_link':q.get('utm_source')?'link':'direct'});
   function screenView(){var h=(location.hash||'#home').slice(1).split('/')[0]||'home';
-    track('screen_view',game?{screen:'game',game:game}:{screen:['home','map','meet','games','about','trip','signin','account','join','group'].indexOf(h)>=0?h:'home'});}
-  screenView._h=(location.hash||'#home').slice(1).split('/')[0];screenView();if(!game)addEventListener('hashchange',function(){var last=screenView._h,h=(location.hash||'#home').slice(1).split('/')[0];if(h!==last){screenView._h=h;screenView();}});
+    track('screen_view',game?{screen:'game',game:game}:page?{screen:page}:{screen:['home','map','meet','games','about','trip','signin','account','join','group'].indexOf(h)>=0?h:'home'});}
+  screenView._h=(location.hash||'#home').slice(1).split('/')[0];screenView();if(!game&&!page)addEventListener('hashchange',function(){var last=screenView._h,h=(location.hash||'#home').slice(1).split('/')[0];if(h!==last){screenView._h=h;screenView();}});
   if(SENTRY_DSN)load('https://browser.sentry-cdn.com/8.38.0/bundle.min.js',function(){
     if(!window.Sentry)return;
     Sentry.init({dsn:SENTRY_DSN,sendDefaultPii:false,tracesSampleRate:0,environment:'web',

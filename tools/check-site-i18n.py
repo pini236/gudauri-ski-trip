@@ -11,13 +11,14 @@
    - text: the element or one of its ancestors has data-i18n, data-i18n-html, data-i18n-tpl, data-i18n-plural,
      or data-i18n-js (text that app.js draws itself from the keys named there);
    - attributes (aria-label, alt, title, placeholder, content): named in the element's data-i18n-attr.
+4. Every key the games use (L('game...'), data-i18n, data-i18n-attr in site/games/*/index.html) exists.
 """
 import json, pathlib, re, sys
 from html.parser import HTMLParser
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 HEB = re.compile(r"[֐-׿]")
-AREAS = "meta|nav|common|home|ticket|daynight|about|map|run|lift|status|meet|games"
+AREAS = "meta|nav|common|home|ticket|daynight|about|map|run|lift|status|meet|games|acct|group|join|trip"
 KEY_LIT = re.compile(r"""(['"`])((?:%s)\.[a-z0-9_.]*)\1""" % AREAS)
 FILE = re.compile(r"\.(png|jpe?g|webp|svg|json|wav|html)$")  # a file name such as 'meet.png', not a key
 TEXT_ATTRS = ("data-i18n", "data-i18n-html", "data-i18n-tpl", "data-i18n-plural", "data-i18n-js")
@@ -170,9 +171,26 @@ def main():
         if he is not None and not has_child and text != he:
             errors.append(f"index.html:{line}: the Hebrew of '{key}' is \"{text[:40]}\", but strings.json says \"{he[:40]}\"")
 
+    # 4. The games (site/games/*/index.html, built from design/): every L('game...') and data-i18n key exists.
+    #    Their Hebrew stays in the code as the fallback, so only the keys are checked here.
+    game_keys = 0
+    GAME_KEY = re.compile(r"""(?:\bL\(\s*|data-i18n(?:-html)?=)(['"`])(game\.[a-z0-9_.]+)\1""")
+    GAME_ATTR = re.compile(r'data-i18n-attr="([^"]+)"')
+    for f in sorted((ROOT / "site/games").glob("*/index.html")):
+        src = f.read_text(encoding="utf-8")
+        name = str(f.relative_to(ROOT))
+        for m in GAME_KEY.finditer(src):
+            need(m.group(2), f"{name}:{src.count(chr(10), 0, m.start()) + 1}")
+            game_keys += 1
+        for m in GAME_ATTR.finditer(src):
+            for part in m.group(1).split(";"):
+                if ":" in part:
+                    need(part.split(":", 1)[1].strip(), f"{name}:{src.count(chr(10), 0, m.start()) + 1} data-i18n-attr")
+                    game_keys += 1
+
     for e in errors:
         print("ERROR", e)
-    print(f"{used} key literals in the scripts, {len(page.keys)} keys in index.html, {len(errors)} errors")
+    print(f"{used} key literals in the scripts, {len(page.keys)} keys in index.html, {game_keys} in the games, {len(errors)} errors")
     return 1 if errors else 0
 
 
