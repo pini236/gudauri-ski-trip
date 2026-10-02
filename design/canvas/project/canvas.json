@@ -763,37 +763,117 @@
       "page": "round10p",
       "title": "גופנים לרוסית ולגאורגית"
     },
-    "LP1-HomeBottom.dc.html": {
+    "AN1-AnalyticsOn.dc.html": {
       "x": 0,
       "y": 0,
       "w": 390,
       "h": 844,
-      "page": "round11",
-      "title": "בורר בתחתית דף הבית"
+      "page": "round11a",
+      "title": "מדידה: דלוק (ברירת המחדל)"
     },
-    "LP2-HomeBottomEn.dc.html": {
+    "AN2-AnalyticsOff.dc.html": {
       "x": 470,
       "y": 0,
       "w": 390,
       "h": 844,
-      "page": "round11",
-      "title": "אותו בורר באנגלית"
+      "page": "round11a",
+      "title": "מדידה: כבוי"
     },
-    "LP3-Settings.dc.html": {
+    "R12-0-Decide.dc.html": {
+      "x": 0,
+      "y": 0,
+      "w": 520,
+      "h": 1349,
+      "page": "round12",
+      "title": "מה לאשר בסבב 12"
+    },
+    "W1-GuestHome.dc.html": {
+      "x": 600,
+      "y": 0,
+      "w": 390,
+      "h": 1349,
+      "page": "round12",
+      "title": "דף הבית: אורח, בלי טיול"
+    },
+    "W2-TripForm.dc.html": {
+      "x": 1070,
+      "y": 0,
+      "w": 390,
+      "h": 929,
+      "page": "round12",
+      "title": "הטיול שלך באתר"
+    },
+    "W3-TripHome.dc.html": {
+      "x": 1540,
+      "y": 0,
+      "w": 390,
+      "h": 1263,
+      "page": "round12",
+      "title": "דף הבית: עם הטיול, מחובר"
+    },
+    "W11-TripHomeNight.dc.html": {
+      "x": 2010,
+      "y": 0,
+      "w": 390,
+      "h": 1263,
+      "page": "round12",
+      "title": "דף הבית: עם הטיול, בלילה"
+    },
+    "W4-SignIn.dc.html": {
+      "x": 0,
+      "y": 1769,
+      "w": 390,
+      "h": 844,
+      "page": "round12",
+      "title": "כניסה: גוגל, אפל, או אורח"
+    },
+    "W5-Account.dc.html": {
+      "x": 470,
+      "y": 1769,
+      "w": 390,
+      "h": 844,
+      "page": "round12",
+      "title": "חשבון"
+    },
+    "W6-DeleteAccount.dc.html": {
       "x": 940,
-      "y": 0,
+      "y": 1769,
       "w": 390,
       "h": 844,
-      "page": "round11",
-      "title": "שורה בהגדרות, עם רשימה"
+      "page": "round12",
+      "title": "מחיקת חשבון (לגוגל פליי)"
     },
-    "LP4-TopBar.dc.html": {
-      "x": 1410,
-      "y": 0,
+    "W7-Join.dc.html": {
+      "x": 0,
+      "y": 3033,
       "w": 390,
       "h": 844,
-      "page": "round11",
-      "title": "קוד קצר בסרגל העליון"
+      "page": "round12",
+      "title": "הזמנה לקבוצה מקישור"
+    },
+    "W8-Group.dc.html": {
+      "x": 470,
+      "y": 3033,
+      "w": 390,
+      "h": 844,
+      "page": "round12",
+      "title": "דף הקבוצה: טיסות"
+    },
+    "W10-GroupDesktop.dc.html": {
+      "x": 940,
+      "y": 3033,
+      "w": 1280,
+      "h": 844,
+      "page": "round12",
+      "title": "דף הקבוצה במחשב"
+    },
+    "W9-TripHomeDesktop.dc.html": {
+      "x": 0,
+      "y": 4297,
+      "w": 1280,
+      "h": 844,
+      "page": "round12",
+      "title": "דף הבית במחשב: עם הטיול"
     }
   },
   "createdOnFiles": {
@@ -803,7 +883,7 @@
   "designSystems": [],
   "launch": {
     "view": "canvas",
-    "page": "round11"
+    "page": "round12"
   },
   "notes": {
     "featRow1": {
@@ -1058,14 +1138,50 @@
       "x": 0,
       "y": 4200
     },
-    "round11row0": {
+    "round11arow0": {
       "kind": "title1",
-      "maxW": 1800,
-      "page": "round11",
+      "maxW": 860,
+      "page": "round11a",
       "w": 240,
       "x": 0,
       "y": -300,
-      "text": "בורר שפה גלוי: איפה? ההמלצה: LP1 ו-LP3 ביחד (בתחתית דף הבית ובהגדרות). LP4 הכי גלוי אבל מעמיס את הסרגל"
+      "text": "מתג למדידה ולשגיאות בהגדרות האתר"
+    },
+    "round12row0": {
+      "kind": "title1",
+      "maxW": 2400,
+      "page": "round12",
+      "text": "דף הבית: הטיול שלך במקום הכרטיס של החבר׳ה",
+      "w": 240,
+      "x": 0,
+      "y": -300
+    },
+    "round12row1": {
+      "kind": "title1",
+      "maxW": 1330,
+      "page": "round12",
+      "text": "כניסה, חשבון ומחיקת חשבון",
+      "w": 240,
+      "x": 0,
+      "y": 1469
+    },
+    "round12row2": {
+      "kind": "title1",
+      "maxW": 2220,
+      "page": "round12",
+      "text": "קבוצה: הזמנה מקישור ודף הקבוצה",
+      "w": 240,
+      "x": 0,
+      "y": 2733
+    },
+    "round12row3": {
+      "kind": "title1",
+      "maxW": 1280,
+      "page": "round12",
+      "text": "במחשב",
+      "w": 240,
+      "x": 0,
+      "y": 3997
     }
   },
   "order": [
@@ -1162,15 +1278,29 @@
     "LT2-Russian.dc.html",
     "LT3-Georgian.dc.html",
     "FT1-Fonts.dc.html",
-    "LP1-HomeBottom.dc.html",
-    "LP2-HomeBottomEn.dc.html",
-    "LP3-Settings.dc.html",
-    "LP4-TopBar.dc.html"
+    "AN1-AnalyticsOn.dc.html",
+    "AN2-AnalyticsOff.dc.html",
+    "R12-0-Decide.dc.html",
+    "W1-GuestHome.dc.html",
+    "W2-TripForm.dc.html",
+    "W3-TripHome.dc.html",
+    "W11-TripHomeNight.dc.html",
+    "W4-SignIn.dc.html",
+    "W5-Account.dc.html",
+    "W6-DeleteAccount.dc.html",
+    "W7-Join.dc.html",
+    "W8-Group.dc.html",
+    "W10-GroupDesktop.dc.html",
+    "W9-TripHomeDesktop.dc.html"
   ],
   "pages": [
     {
-      "id": "round11",
-      "name": "סבב 11: בורר שפה"
+      "id": "round12",
+      "name": "סבב 12: חשבון וקבוצה באתר"
+    },
+    {
+      "id": "round11a",
+      "name": "סבב 11: מדידה באתר"
     },
     {
       "id": "round10",
