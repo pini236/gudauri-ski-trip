@@ -405,7 +405,8 @@ class MainActivity : ComponentActivity() {
                         onDelete = { keepTrip(null); Qa.log("trip deleted"); nav.back() }, onCancel = { nav.back() })
                     is Route.Meet -> {
                         LaunchedEffect(Unit) {
-                            if (!reliefAsked) { reliefAsked = true; loader.execute { val r = Relief2D.parse(assets.open("data/terrain.json").bufferedReader().use { it.readText() }); runOnUiThread { relief = r; Qa.log("meet relief ready") } } }
+                            // its own thread: the loader may still be casting the map's shadows
+                            if (!reliefAsked) { reliefAsked = true; Thread({ val r = Relief2D.parse(assets.open("data/terrain.json").bufferedReader().use { it.readText() }); runOnUiThread { relief = r; Qa.log("meet relief ready") } }, "meet-relief").start() }
                         }
                         // from a group's page, a new meetup goes back to that group (Q8)
                         val fromGroup = (nav.routes.getOrNull(nav.routes.size - 2) as? Route.Group)?.id

@@ -9,6 +9,7 @@ Writes <out>/values/strings.xml (Hebrew, the default), <out>/values-<lang>/strin
 - Placeholders: {name} becomes %N$s, numbered by their first appearance in the Hebrew text, the same numbers in
   every language (a translation may move them). The app passes arguments in the Hebrew order.
 - Plurals (CLDR forms per language) become <plurals>.
+- Spaces at the start or end of a text (suffixes, joiners) are kept as \u0020, which Android does not trim.
 - Which languages a build carries is decided by the build (app/android/app/build.gradle.kts). A native speaker's review
   ("check" in i18n/strings.json) is not required for now (decision 39, 2.10.2026); the tool only reports how many
   strings of each language are still unchecked.
@@ -51,6 +52,10 @@ def android(text, idx):
     if out[:1] in "@?":
         out = "\\" + out
     out = PH.sub(lambda m: f"%{idx[m.group(1)]}$s", out)
+    # Android drops spaces at the edges of a value; a suffix (" · best {time}") or a joiner (" and ") needs them
+    lead = len(out) - len(out.lstrip(" ")); trail = len(out) - len(out.rstrip(" "))
+    if lead or trail:
+        out = "\\u0020" * lead + out.strip(" ") + "\\u0020" * trail
     return out, has
 
 

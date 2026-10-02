@@ -49,6 +49,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.AbsoluteAlignment
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.draw.rotate
@@ -157,6 +158,7 @@ fun MeetScreen(
         if (start.station != null) Telemetry.event("meet_link_open")
         val s = plan?.byId?.get(start.station)
         if (s != null) view.goTo(scope, s.x, s.y, 1800f, 0) else plan?.let { view.fitAll(scope, it.stations, 0) }
+        Qa.log("meet ready (link)${if (s != null) " · ${s.id}" else ""}")
     }
     // the first window: on the station of a link, else the whole mountain
     LaunchedEffect(plan, view.ready) {
@@ -187,7 +189,7 @@ fun MeetScreen(
         Column(Modifier.verticalScroll(rememberScrollState()).navigationBarsPadding()) {
             // ---- the map (M1, MP1) ----
             val mapH = (LocalConfiguration.current.screenHeightDp * .52f).dp
-            Box(Modifier.fillMaxWidth().height(mapH).background(c.snow)) {
+            Box(Modifier.fillMaxWidth().height(mapH).clipToBounds().background(c.snow)) {
                 if (plan != null && runs != null) {
                     val lines = remember(runs) { MeetLines(runs) }
                     MeetMap(view, plan, lines, relief, c, sid, stringResource(R.string.meet_map_aria),
@@ -287,13 +289,16 @@ fun dayLabel(d: LocalDate, lang: String): String =
     if (lang == "he") DateTimeFormatter.ofPattern("EEEEE", Locale.forLanguageTag("he")).format(d) + " ${d.dayOfMonth}.${d.monthValue}"
     else runCatching { DateTimeFormatter.ofPattern("EEE d MMM", Locale.forLanguageTag(lang)).format(d) }.getOrElse { "${d.dayOfMonth}.${d.monthValue}" }
 
+/** A Latin name inside a sentence of another direction, kept whole ("מ-Tatra 1", "של Goodaura ו-New Goodaura"). */
+fun iso(name: String) = "\u2068$name\u2069"
+
 /** "התחנה התחתונה של Goodaura ו-New Goodaura" (the site's where). */
 @Composable
 fun stationWhere(s: Station): String {
     val join = stringResource(R.string.meet_lift_names_join)
     return listOfNotNull(
-        s.bottomOf.takeIf { it.isNotEmpty() }?.let { stringResource(R.string.meet_where_bottom_station, it.joinToString(join)) },
-        s.topOf.takeIf { it.isNotEmpty() }?.let { stringResource(R.string.meet_where_top_station, it.joinToString(join)) },
+        s.bottomOf.takeIf { it.isNotEmpty() }?.let { n -> stringResource(R.string.meet_where_bottom_station, n.joinToString(join) { iso(it) }) },
+        s.topOf.takeIf { it.isNotEmpty() }?.let { n -> stringResource(R.string.meet_where_top_station, n.joinToString(join) { iso(it) }) },
     ).joinToString(", ")
 }
 
@@ -343,6 +348,8 @@ private fun Callout(view: MeetView, s: Station) {
         val left = (x - 100.dp).coerceIn(8.dp, max(8f, (w - 208.dp).value).dp)
         val top = max(6f, (y - 128.dp).value).dp
         val tip = (x - left - 8.dp).coerceIn(12.dp, 184.dp)
+        // positions on the map are physical (left and top), whatever the reading direction
+        Box(Modifier.fillMaxSize(), contentAlignment = AbsoluteAlignment.TopLeft) {
         Box(Modifier.absoluteOffset(left, top).width(200.dp)) {
             Column(Modifier.shadow(10.dp, RectangleShape).background(NAVY).padding(start = 12.dp, end = 12.dp, top = 8.dp, bottom = 9.dp), verticalArrangement = Arrangement.spacedBy(2.dp)) {
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.Bottom) {
@@ -351,8 +358,9 @@ private fun Callout(view: MeetView, s: Station) {
                 }
                 Text(where, style = Ski.type.small.copy(fontSize = 12.sp), color = FOG)
             }
-            // the tip points down at the pin; positions on the map are physical, whatever the reading direction
+            // the tip points down at the pin
             Box(Modifier.align(AbsoluteAlignment.BottomLeft).absoluteOffset(tip, 8.dp).size(16.dp).rotate(45f).background(NAVY))
+        }
         }
     }
 }
@@ -518,9 +526,9 @@ private class LeftArrow(private val a: Dp) : Shape {
 private fun WayRow(w: Way) {
     val c = Ski.colors
     val from = when (val f = w.from) {
-        is Way.From.Run -> stringResource(R.string.meet_route_from_run, f.key)
-        is Way.From.TopOf -> stringResource(R.string.meet_route_from_top_of, f.key)
-        is Way.From.BottomOf -> stringResource(R.string.meet_route_from_bottom_station, f.lift)
+        is Way.From.Run -> stringResource(R.string.meet_route_from_run, iso(f.key))
+        is Way.From.TopOf -> stringResource(R.string.meet_route_from_top_of, iso(f.key))
+        is Way.From.BottomOf -> stringResource(R.string.meet_route_from_bottom_station, iso(f.lift))
     }
     val arrow = remember { LeftArrow(12.dp) }
     Column(Modifier.fillMaxWidth().drawBehind { drawRect(c.rule, Offset(0f, size.height - 1.dp.toPx()), Size(size.width, 1.dp.toPx())) }.padding(vertical = 10.dp),
@@ -562,7 +570,7 @@ private fun ShareBox(s: Station, time: LocalTime, day: LocalDate, dayText: Strin
     val c = Ski.colors
     val hhmm = "%02d:%02d".format(time.hour, time.minute)
     val link = Meet.link(s.id, time, day)
-    val where = stationWhere(s)
+    val where = stationWhere(s).replace("\u2068", "").replace("\u2069", "") // the message is plain text for other apps
     val alt = s.h?.let { stringResource(R.string.meet_share_alt_suffix, String.format(Locale.US, "%,d", it)) } ?: ""
     val message = stringResource(R.string.meet_share_message, s.name, dayText, hhmm, where, alt, link)
     val title = stringResource(R.string.meet_share_title, s.name)

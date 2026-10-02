@@ -302,16 +302,18 @@ group() {
 
 # ---- the meeting point (M1 to M3, round 8's MP1 to MP3) and a meetup saved in the group (Q8) ----
 meet() {
-  local up="$((W / 2)) $((H * 85 / 100)) $((W / 2)) $((H * 35 / 100)) 400" down="$((W / 2)) $((H * 30 / 100)) $((W / 2)) $((H * 90 / 100)) 300"
+  # the page scrolls under the map: drag below it (a drag on the map moves the map)
+  local up="$((W / 2)) $((H * 85 / 100)) $((W / 2)) $((H * 35 / 100)) 400" down="$((W / 2)) $((H * 70 / 100)) $((W / 2)) $((H * 98 / 100)) 300"
+  totop() { for _ in 1 2 3 4 5 6 7; do drag $down; sleep 0.3; done; sleep 0.8; }
   # a trip (its ski days are the day chips), mid-December at noon in Gudauri: nothing is picked at first (MP1)
   qa "--es qa.group none --es qa.tab home --es qa.trip '$TRIP_HE' --es qa.mode auto --es qa.time 2026-12-15T12:00"; waitlog "trip set" 20
-  mark; qa "--es qa.tab meet"; waitlog "meet ready" 20; sleep 2; shot meet-empty
+  mark; qa "--es qa.tab meet"; waitlog "meet ready" 45; waitlog "meet relief ready" 45; sleep 2; shot meet-empty
   drag $up; sleep 1; shot meet-empty-below
   # one tap on a spot of the post (M2) prints the card (M3); the map flies to it
   mark; tapText "רכבל הבוקר" && waitlog "meet picked" 5 && { sleep 1.5; shot meet-preset; }
   drag $up; sleep 1; shot meet-card
   drag $up; sleep 1; shot meet-ways-share
-  drag $down; sleep 0.5; drag $down; sleep 0.5; drag $down; sleep 1; shot meet-picked-map
+  totop; shot meet-picked-map
   # clear it, and bring it back (MP3)
   mark; tapText "ניקוי הבחירה" && waitlog "meet cleared" 5 && { sleep 0.8; shot meet-cleared; }
   tapText "החזרה" && sleep 1.5 && shot meet-undone
@@ -329,7 +331,7 @@ meet() {
   # a member: the group's meetups, "new meetup" leads here, and saving goes back to the group with the meetup in it (Q8)
   qa "--es qa.group member --es qa.tab group/g1/meetups"; waitlog "group seed member" 20; sleep 2.5; shot meet-group-before
   mark; tapText "מפגש חדש" && waitlog "meet ready" 15 && sleep 1.5
-  tapText "צהריים" && sleep 1.5
+  drag $up; sleep 1; tapText "צהריים" && sleep 1.5
   drag $up; sleep 0.8; drag $up; sleep 0.8; drag $up; sleep 1; shot meet-group-save
   mark; tapText "שמירה בקבוצה" && waitlog "meetup saved" 10 && { sleep 2; shot meet-group-after; }
   # a tap on a meetup in the group opens its card

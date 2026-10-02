@@ -57,4 +57,10 @@ class StringsTest {
         assertEquals("he", released.first())
         assertEquals(released.sorted(), languages("release").sorted())
     }
+
+    /** A joiner or a suffix keeps its spaces (Android trims them unless escaped): "Goodaura ו-New Goodaura", not "Goodauraו-". */
+    @Test fun spacesAtTheEdgesAreKept() {
+        assertEquals("\\u0020ו-", entries(File(gen, "debug/values/strings.xml"))["meet_lift_names_join"])
+        assertEquals("\\u0020and\\u0020", entries(File(gen, "debug/values-en/strings.xml"))["meet_lift_names_join"])
+    }
 }
