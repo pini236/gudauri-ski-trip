@@ -25,7 +25,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import java.time.ZoneId
 import java.time.LocalDateTime
-import java.time.LocalDate
 import java.time.Instant
 import androidx.core.view.WindowCompat
 import androidx.compose.ui.platform.LocalView
@@ -383,7 +382,7 @@ class MainActivity : ComponentActivity() {
                                 HomeAction.TRIP -> Route.Trip
                             })
                         })
-                    Route.Trip -> TripForm(trip, LocalDate.now(), onSave = { t -> keepTrip(t); Qa.log("trip saved"); nav.back() },
+                    Route.Trip -> TripForm(trip, LocalDateTime.ofInstant(Instant.ofEpochMilli(tick), ZoneId.systemDefault()).toLocalDate(), onSave = { t -> keepTrip(t); Qa.log("trip saved"); nav.back() },
                         onDelete = { keepTrip(null); Qa.log("trip deleted"); nav.back() }, onCancel = { nav.back() })
                     is Route.Meet -> SoonScreen(stringResource(R.string.nav_meet), stringResource(R.string.app_soon_meet)) { nav.back() }
                     is Route.Group -> if (!groupApi.ready) SoonScreen(stringResource(R.string.app_sign_group), stringResource(R.string.app_soon_group)) { nav.back() }
@@ -399,7 +398,7 @@ class MainActivity : ComponentActivity() {
                             onInvite = { nav.push(Route.GroupInvite(top.id)) }, onNewMeetup = { nav.push(Route.Meet()) }, onEditTrip = { nav.push(Route.Trip) },
                             onMyTrip = { t -> keepTrip(t) }, onLeft = { nav.toStart() }, signInGoogle = ::signInGoogle,
                             onSaveOffered = { justJoined = false; accountPrefs.edit().putInt("save_offers", accountPrefs.getInt("save_offers", 0) + 1).apply() })
-                    Route.GroupNew -> NewGroupScreen(groupApi, trip, LocalDate.now(), onCancel = { nav.back() },
+                    Route.GroupNew -> NewGroupScreen(groupApi, trip, LocalDateTime.ofInstant(Instant.ofEpochMilli(tick), ZoneId.systemDefault()).toLocalDate(), onCancel = { nav.back() },
                         onCreated = { id -> nav.back(); if (nav.top is Route.Group) nav.replaceTop(Route.Group(id, GroupTab.FLIGHTS.key)) else nav.push(Route.Group(id, GroupTab.FLIGHTS.key)) })
                     is Route.GroupInvite -> InviteScreen(groupApi, top.id) { nav.back() }
                     Route.JoinCode -> CodeScreen("", onBack = { nav.back() }) { c -> nav.replaceTop(Route.Join(c)) }
