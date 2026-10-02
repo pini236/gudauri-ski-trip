@@ -34,14 +34,33 @@ class LiveServerTest {
         assumeTrue(System.getenv("SERVER_LIVE") == "1")
         val s = Server(BuildConfig.SUPABASE_URL, BuildConfig.SUPABASE_KEY, MemorySessionStore(), transport)
         val groups = Groups(s)
+        try {
+            run(s, groups)
+        } finally {
+            runCatching { Account(s).delete() } // nothing stays on the server, even when a check fails
+        }
+    }
+
+    private fun run(s: Server, groups: Groups) {
 
         assertEquals("invalid_code", groups.preview("ZZZZZZ").status) // makes the guest
         val me = Account(s).me()!!
         assertTrue(me.anonymous)
         assertEquals(emptyList<Groups.Group>(), groups.mine())
 
+        // realtime: a channel on my trips hears the insert below
+        val heard = java.util.concurrent.LinkedBlockingQueue<String>()
+        val subscribed = java.util.concurrent.CountDownLatch(1)
+        Realtime.debug = { if (it.contains("Subscribed to PostgreSQL")) subscribed.countDown() }
+        val rt = Realtime(s)
+        val ch = rt.join("live-test", listOf(Realtime.Watch("trips")), { heard.add(it) })
+        assertTrue(subscribed.await(30, java.util.concurrent.TimeUnit.SECONDS))
+
         val trip = Trip(Leg(LocalDate.of(2027, 1, 10), "6H 897", "TLV · תל אביב", "TBS · טביליסי"))
         val row = s.insert("trips", TripRow.of(trip))
+        assertEquals("trips", heard.poll(15, java.util.concurrent.TimeUnit.SECONDS))
+        rt.leave(ch)
+        Realtime.debug = null
         assertEquals("TBS", row.getString("out_to"))
         val id = row.getString("id")
         val changed = s.update("trips", id, TripRow.of(trip.copy(ret = Leg(LocalDate.of(2027, 1, 15), "6H 892"))))!!

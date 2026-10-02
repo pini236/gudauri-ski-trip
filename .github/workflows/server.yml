@@ -82,8 +82,9 @@ jobs:
         working-directory: server
         run: |
           supabase functions serve api > /tmp/functions.log 2>&1 &
+          # ready = a real answer (2xx); while the runtime starts, the gateway answers 502
           for i in $(seq 1 60); do
-            curl -s -o /dev/null -X OPTIONS http://127.0.0.1:54321/functions/v1/api/keepalive && break
+            curl -sf -o /dev/null -X OPTIONS http://127.0.0.1:54321/functions/v1/api/keepalive && break
             sleep 2
           done
       - name: Call it like an app
