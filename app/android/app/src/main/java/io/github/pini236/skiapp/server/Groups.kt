@@ -44,7 +44,8 @@ class Groups(private val server: Server) {
     /** A request waiting for an admin (Q10): to join, or to be a member again ("reclaim", [reclaimUserId]). */
     data class JoinRequest(val id: String, val groupId: String, val userId: String, val name: String, val kind: String, val reclaimUserId: String?, val status: String)
 
-    data class Meetup(val id: String, val groupId: String, val station: String, val at: Instant, val note: String?)
+    /** [createdBy]: who set it (null once that person deleted their account, or while it waits to be sent). */
+    data class Meetup(val id: String, val groupId: String, val station: String, val at: Instant, val note: String?, val createdBy: String? = null)
 
     data class Score(val userId: String, val name: String, val best: Int)
 
@@ -108,16 +109,24 @@ class Groups(private val server: Server) {
         objects(server.select("group_members", "select=user_id,display_name,role,trip_id&group_id=eq.${enc(groupId)}&order=joined_at,user_id"))
             .map { Member(it.getString("user_id"), it.getString("display_name"), it.getString("role"), str(it, "trip_id")) }
 
+    /** A trip shown in the group, and who entered it: an admin for a member (Q7, "entered by") or its owner. */
+    data class Flight(val id: String, val ownerId: String, val enteredBy: String?, val trip: Trip) {
+        val byAdmin: Boolean get() = enteredBy != null && enteredBy != ownerId
+    }
+
     /** The trips the group's members show (Q7), by trip id. */
-    fun flights(groupId: String): Map<String, Trip> {
+    fun flights(groupId: String): Map<String, Trip> = flightDetails(groupId).mapValues { it.value.trip }
+
+    fun flightDetails(groupId: String): Map<String, Flight> {
         val ids = members(groupId).mapNotNull { it.tripId }
         if (ids.isEmpty()) return emptyMap()
-        return objects(server.select("trips", "select=*&id=in.(${ids.joinToString(",") { enc(it) }})"))
-            .mapNotNull { o -> TripRow.trip(o)?.let { o.getString("id") to it } }.toMap()
+        return objects(server.select("trips", "select=*&id=in.(${ids.joinToString(",") { enc(it) }})")).mapNotNull { o ->
+            TripRow.trip(o)?.let { o.getString("id") to Flight(o.getString("id"), o.getString("owner_id"), str(o, "entered_by"), it) }
+        }.toMap()
     }
 
     fun meetups(groupId: String): List<Meetup> =
-        objects(server.select("meetups", "select=id,group_id,station,meet_at,note&group_id=eq.${enc(groupId)}&order=meet_at")).map(::meetup)
+        objects(server.select("meetups", "select=id,group_id,station,meet_at,note,created_by&group_id=eq.${enc(groupId)}&order=meet_at")).map(::meetup)
 
     /** Any member may add, change or remove a meetup (Q8); the last one saved wins. */
     fun addMeetup(groupId: String, station: String, at: Instant, note: String? = null): Meetup =
@@ -179,7 +188,7 @@ class Groups(private val server: Server) {
         private fun str(o: JSONObject, k: String): String? = if (o.isNull(k)) null else o.optString(k).ifBlank { null }
         private fun group(o: JSONObject, idKey: String) = Group(o.getString(idKey), o.getString("name"), date(o, "starts_on"), date(o, "ends_on"))
         private fun joined(o: JSONObject) = Joined(o.optString("status"), str(o, "group_id"))
-        private fun meetup(o: JSONObject) = Meetup(o.getString("id"), o.getString("group_id"), o.getString("station"), instant(o.getString("meet_at")), str(o, "note"))
+        private fun meetup(o: JSONObject) = Meetup(o.getString("id"), o.getString("group_id"), o.getString("station"), instant(o.getString("meet_at")), str(o, "note"), str(o, "created_by"))
         private fun request(o: JSONObject) = JoinRequest(o.getString("id"), o.getString("group_id"), o.getString("user_id"), o.getString("display_name"),
             o.getString("kind"), str(o, "reclaim_user_id"), o.getString("status"))
         private fun invite(o: JSONObject) = Invite(o.getString("id"), o.getString("code"), o.getString("token"), o.optBoolean("requires_approval"),

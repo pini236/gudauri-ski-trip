@@ -44,6 +44,8 @@ class Sync(
         val group: Groups.Group? = null,
         val members: List<Groups.Member> = emptyList(),
         val flights: Map<String, Trip> = emptyMap(),
+        /** Trips an admin entered for a member (Q7, "entered by"): trip id to the admin's user id. */
+        val enteredBy: Map<String, String> = emptyMap(),
         val meetups: List<Groups.Meetup> = emptyList(),
         val scores: Map<String, List<Groups.Score>> = emptyMap(),
         /** The working invite: every member sees it and may share it. */
@@ -238,11 +240,13 @@ class Sync(
                 }
                 val group = groups.mine().firstOrNull { it.id == groupId }
                 val admin = members.first { it.userId == me }.admin
+                val flights = groups.flightDetails(groupId)
                 var s = Snapshot(
                     groupId,
                     group,
                     members,
-                    groups.flights(groupId),
+                    flights.mapValues { it.value.trip },
+                    flights.values.filter { it.byAdmin }.associate { it.id to it.enteredBy!! },
                     groups.meetups(groupId),
                     games.associateWith { groups.leaderboard(groupId, it) },
                     groups.invite(groupId), // every member may share it (docs/USERS.md)
@@ -280,7 +284,7 @@ class Sync(
             val body = JSONObject().put("station", station).put("at", at.toString()).put("note", note ?: "")
             // a meetup not sent yet: change what will be sent
             if (id.startsWith("local:") && outbox.update(id) { it.put("station", station).put("at", at.toString()).put("note", note ?: "") }) {
-                flow.value = applyLocal(flow.value, Op("", "meetup_add", groupId, body.put("local", id)), null)
+                flow.value = applyLocal(flow.value, Op("", "meetup_add", groupId, body.put("local", id)), server.auth.current()?.userId)
                 return
             }
             queue("meetup_change", body.put("id", id))
@@ -325,7 +329,7 @@ class Sync(
             }
             "my_membership" -> s.copy(members = s.members.map { if (it.userId == me) it.copy(name = b.getString("name"), tripId = b.optString("trip").ifBlank { null }) else it })
             "meetup_add" -> {
-                val m = Groups.Meetup(b.getString("local"), s.groupId, b.getString("station"), Instant.parse(b.getString("at")), b.optString("note").ifBlank { null })
+                val m = Groups.Meetup(b.getString("local"), s.groupId, b.getString("station"), Instant.parse(b.getString("at")), b.optString("note").ifBlank { null }, me)
                 s.copy(meetups = (s.meetups.filterNot { it.id == m.id } + m).sortedBy { it.at })
             }
             "meetup_change" -> s.copy(meetups = s.meetups.map {
@@ -405,7 +409,8 @@ class Sync(
             .put("group", s.group?.let(::group) ?: JSONObject.NULL)
             .put("members", JSONArray(s.members.map { JSONObject().put("user_id", it.userId).put("name", it.name).put("role", it.role).put("trip_id", it.tripId ?: JSONObject.NULL) }))
             .put("flights", JSONObject().apply { s.flights.forEach { (id, t) -> put(id, TripRow.of(t)) } })
-            .put("meetups", JSONArray(s.meetups.map { JSONObject().put("id", it.id).put("station", it.station).put("at", it.at.toString()).put("note", it.note ?: JSONObject.NULL) }))
+            .put("entered_by", JSONObject(s.enteredBy))
+            .put("meetups", JSONArray(s.meetups.map { JSONObject().put("id", it.id).put("station", it.station).put("at", it.at.toString()).put("note", it.note ?: JSONObject.NULL).put("created_by", it.createdBy ?: JSONObject.NULL) }))
             .put("scores", JSONObject().apply { s.scores.forEach { (g, l) -> put(g, JSONArray(l.map { JSONObject().put("user_id", it.userId).put("name", it.name).put("best", it.best) })) } })
             .put("invite", s.invite?.let { JSONObject().put("id", it.id).put("code", it.code).put("token", it.token).put("requires_approval", it.requiresApproval).put("max_uses", it.maxUses ?: JSONObject.NULL).put("expires_at", it.expiresAt ?: JSONObject.NULL) } ?: JSONObject.NULL)
             .put("requests", JSONArray(s.requests.map(::request)))
@@ -425,7 +430,11 @@ class Sync(
                 o.optJSONObject("group")?.let(::group),
                 arr(o, "members").map { Groups.Member(it.getString("user_id"), it.getString("name"), it.getString("role"), if (it.isNull("trip_id")) null else it.getString("trip_id")) },
                 flights,
-                arr(o, "meetups").map { Groups.Meetup(it.getString("id"), id, it.getString("station"), Instant.parse(it.getString("at")), if (it.isNull("note")) null else it.getString("note")) },
+                o.optJSONObject("entered_by")?.let { e -> e.keys().asSequence().associateWith { e.getString(it) } }.orEmpty(),
+                arr(o, "meetups").map {
+                    Groups.Meetup(it.getString("id"), id, it.getString("station"), Instant.parse(it.getString("at")),
+                        if (it.isNull("note")) null else it.getString("note"), if (it.isNull("created_by")) null else it.optString("created_by").ifBlank { null })
+                },
                 scores,
                 inv,
                 arr(o, "requests").map(::request),

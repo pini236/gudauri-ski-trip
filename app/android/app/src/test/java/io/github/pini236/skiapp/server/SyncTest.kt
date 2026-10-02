@@ -42,10 +42,10 @@ class SyncTest {
                 Response(200, """[{"groups":{"id":"g1","name":"גודאורי","starts_on":"2027-01-10","ends_on":"2027-01-15"}}]""")
             r.method == "GET" && path.startsWith("/rest/v1/group_members") -> Response(200, members)
             r.method == "GET" && path.startsWith("/rest/v1/trips") ->
-                Response(200, """[{"id":"t2","out_date":"2027-01-10","out_flight":"6H 897","out_from":"TLV","out_to":"TBS"}]""")
+                Response(200, """[{"id":"t2","owner_id":"u2","entered_by":"u1","out_date":"2027-01-10","out_flight":"6H 897","out_from":"TLV","out_to":"TBS"}]""")
             r.method == "GET" && path.startsWith("/rest/v1/meetups") -> Response(200, meetups.toString())
             r.method == "POST" && path == "/rest/v1/meetups" -> {
-                val row = JSONObject(r.body!!).put("id", "m${meetups.length() + 1}")
+                val row = JSONObject(r.body!!).put("id", "m${meetups.length() + 1}").put("created_by", "u1")
                 meetups.put(row)
                 Response(201, JSONArray().put(row).toString())
             }
@@ -67,7 +67,8 @@ class SyncTest {
         assertEquals("גודאורי", snap.group!!.name)
         assertEquals(2, snap.members.size)
         assertEquals("6H 897", snap.flights.getValue("t2").out.flight)
-        assertEquals("ABCDEF", snap.invite!!.code) // I am an admin
+        assertEquals("ABCDEF", snap.invite!!.code)
+        assertEquals(mapOf("t2" to "u1"), snap.enteredBy) // I entered Dubi's flight as an admin
         assertEquals(now, snap.readAt)
 
         // a new launch with no signal: the same group, from the file, marked as not fresh
@@ -113,6 +114,7 @@ class SyncTest {
         snap = later.group("g1").state.value
         assertEquals(0, snap.waiting)
         assertEquals("m1", snap.meetups.single().id)
+        assertEquals("u1", snap.meetups.single().createdBy)
     }
 
     @Test fun aRefusedWriteIsDroppedAndTheTruthShown() {
