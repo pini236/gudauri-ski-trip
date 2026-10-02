@@ -14,7 +14,7 @@ import javax.microedition.khronos.opengles.GL10
 import kotlin.math.atan2
 import kotlin.math.hypot
 
-private const val TERRAIN_VS = """#version 300 es
+private val TERRAIN_VS = """#version 300 es
 layout(location=0) in vec3 aPos;
 layout(location=1) in vec3 aNormal;
 layout(location=2) in vec3 aColor;
@@ -24,7 +24,7 @@ layout(location=5) in float aHi;
 uniform mat4 uMvp; uniform vec3 uSun; uniform vec3 uSunCol; uniform vec3 uAmbTop; uniform vec3 uAmbGround;
 uniform vec3 uCam; uniform float uDim; uniform vec2 uFog; uniform vec3 uDimCol;
 out vec3 vCol; out float vFog;
-vec3 slopeCol(float d){ return d<15.0? vec3(0.247,0.659,0.373) : d<25.0? vec3(0.949,0.757,0.239) : d<30.0? vec3(0.941,0.541,0.235) : vec3(0.863,0.231,0.2); }
+${SlopeColors.GLSL}
 void main(){
   gl_Position = uMvp*vec4(aPos,1.0);
   vec3 n = normalize(aNormal);

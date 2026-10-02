@@ -85,12 +85,14 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           cd "$OUT" && zip -qr "$RUNNER_TEMP/qa.zip" . && cd -
-          gh release delete android-qa --yes --cleanup-tag 2>/dev/null || true
+          # main keeps its own results; a branch's run goes to a release of its own, so it never covers main's
+          tag=android-qa; [ "$GITHUB_REF_NAME" = main ] || tag=android-qa-branch
+          gh release delete "$tag" --yes --cleanup-tag 2>/dev/null || true
           {
             echo "בדיקה באמולטור, ענף ${GITHUB_REF_NAME}, קומיט ${GITHUB_SHA::7}."
             echo "הריצה: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
             echo
             cat "$OUT/summary.txt" 2>/dev/null || echo "(no summary: the run stopped before the app started)"
           } > "$RUNNER_TEMP/notes.md"
-          gh release create android-qa "$RUNNER_TEMP/qa.zip" "$OUT"/sheet-*.png $(ls "$OUT"/store/*.png 2>/dev/null) --prerelease --target "$GITHUB_SHA" \
-            --title "אנדרואיד: בדיקה באמולטור" --notes-file "$RUNNER_TEMP/notes.md"
+          gh release create "$tag" "$RUNNER_TEMP/qa.zip" "$OUT"/sheet-*.png $(ls "$OUT"/store/*.png 2>/dev/null) --prerelease --target "$GITHUB_SHA" \
+            --title "אנדרואיד: בדיקה באמולטור$([ "$tag" = android-qa ] || echo " (ענף ${GITHUB_REF_NAME})")" --notes-file "$RUNNER_TEMP/notes.md"

@@ -8,13 +8,22 @@ import kotlin.math.atan
 import kotlin.math.hypot
 import kotlin.math.sqrt
 
-/** Approved slope thresholds (decision 10): 15°, 25°, 30°. RGB 0..1. */
+/**
+ * Approved slope thresholds (decision 10): 15°, 25°, 30°, with the site's colours (GudRelief.SLOPE in site/js/relief.js,
+ * checked in SlopeColorsTest). RGB 0..1. Defined once: a chosen run's paint here, and the terrain's shader (MapRenderer).
+ */
 object SlopeColors {
-    fun of(deg: Float): FloatArray = when {
-        deg < 15 -> floatArrayOf(0.247f, 0.659f, 0.373f)
-        deg < 25 -> floatArrayOf(0.949f, 0.757f, 0.239f)
-        deg < 30 -> floatArrayOf(0.941f, 0.541f, 0.235f)
-        else -> floatArrayOf(0.863f, 0.231f, 0.200f)
+    val LIMITS = floatArrayOf(15f, 25f, 30f)
+    val HEX = listOf("#3FA85F", "#F2C13D", "#F08A3C", "#DC3B33")
+    private val RGB = HEX.map { h -> FloatArray(3) { i -> h.substring(1 + i * 2, 3 + i * 2).toInt(16) / 255f } }
+
+    fun of(deg: Float): FloatArray = RGB[LIMITS.indexOfFirst { deg < it }.let { if (it < 0) LIMITS.size else it }].copyOf()
+
+    /** The same, as a function of the terrain's vertex shader (numbers written with a dot, whatever the phone's language). */
+    val GLSL: String = run {
+        fun v(c: FloatArray) = String.format(java.util.Locale.ROOT, "vec3(%.3f,%.3f,%.3f)", c[0], c[1], c[2])
+        val steps = LIMITS.indices.joinToString(" ") { i -> String.format(java.util.Locale.ROOT, "d<%.1f? %s :", LIMITS[i], v(RGB[i])) }
+        "vec3 slopeCol(float d){ return $steps ${v(RGB.last())}; }"
     }
 }
 

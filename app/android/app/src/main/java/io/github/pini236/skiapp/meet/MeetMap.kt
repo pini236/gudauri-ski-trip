@@ -136,13 +136,13 @@ private class Paints(c: SkiColors, density: Float) {
             colorFilter = ColorMatrixColorFilter(g); alpha = (255 * .95f).toInt()
         } else { xfermode = PorterDuffXfermode(PorterDuff.Mode.MULTIPLY); alpha = (255 * .62f).toInt() }
     }
-    private val contourI = if (c.dark) Color(0xFF7A90AA) else Color(0xFF62758C)
+    private val contourI = c.contourI
     val c50 = stroke(c.contour, .55f); val c100 = stroke(c.contour, .7f); val c250 = stroke(contourI, .8f)
-    val village = fill(if (c.dark) Color(0xFF3A352F) else Color(0xFFE3D8CB), .75f)
+    val village = fill(c.village, .75f)
     val river = stroke(c.water, .9f)
-    val water = fill(c.water); val waterEdge = stroke(if (c.dark) Color(0xFF4D82B3) else Color(0xFF5F8FBB))
+    val water = fill(c.water); val waterEdge = stroke(c.waterEdge)
     val casing = stroke(c.casing, .85f)
-    val roadMain = stroke(if (c.dark) Color(0xFF8F857B) else Color(0xFF8A7C70)); val road = stroke(c.road)
+    val roadMain = stroke(c.roadMain); val road = stroke(c.road)
     val runs = mapOf("green" to c.green, "blue" to c.blue, "red" to c.red, "black" to c.black).mapValues { stroke(it.value, .8f) }
     val lift = stroke(c.lift)
     val pinBody = fill(c.paper); val pinLine = stroke(c.ink); val pinOn = fill(Color(0xFFF4B942))
