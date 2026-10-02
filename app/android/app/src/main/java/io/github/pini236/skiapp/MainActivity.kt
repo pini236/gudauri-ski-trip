@@ -77,7 +77,10 @@ import io.github.pini236.skiapp.group.InviteCode
 import io.github.pini236.skiapp.group.InviteScreen
 import io.github.pini236.skiapp.group.InvitedScreen
 import io.github.pini236.skiapp.group.NewGroupScreen
-import io.github.pini236.skiapp.group.NoServer
+import io.github.pini236.skiapp.group.LiveGroupApi
+import io.github.pini236.skiapp.server.PrefsSessionStore
+import io.github.pini236.skiapp.server.Server
+import io.github.pini236.skiapp.server.ServerTripSync
 import io.github.pini236.skiapp.group.ReclaimScreen
 import io.github.pini236.skiapp.trip.Trip
 import io.github.pini236.skiapp.trip.TripForm
@@ -122,16 +125,30 @@ class MainActivity : ComponentActivity() {
     // day and night (6.3, N1): the choice is kept; auto follows the clock in Gudauri
     private var dnMode by mutableStateOf(DayNight.Mode.AUTO)
     private var tick by mutableStateOf(0L)
-    // accounts and the group (13.5): a pretend server in debug builds until the real client is wired in; none in release
-    private val groupApi: GroupApi = DevServer.create() ?: NoServer
-    private var justJoined by mutableStateOf(false)
+    // accounts and the group (13.5): the real server (server/), or the pretend one of debug builds for the emulator run.
+    // My trip goes to the server only once this phone has a session there (it joined or made a group).
+    private val server by lazy { Server.of(this) }
+    private val tripSync by lazy { ServerTripSync(this, server) }
     private val accountPrefs by lazy { getSharedPreferences("account", MODE_PRIVATE) }
+    private val groupApi: GroupApi by lazy {
+        DevServer.create() ?: LiveGroupApi(server, PrefsSessionStore(this), tripSync, { Lang.current(resources).tag },
+            ready = GoogleSignIn.WEB_CLIENT_ID.isNotEmpty(), saved = accountPrefs.getString("me", null),
+            keep = { v -> accountPrefs.edit().apply { if (v == null) remove("me") else putString("me", v) }.apply() })
+    }
+    private var justJoined by mutableStateOf(false)
 
     /** Google's sheet, then the server. A debug build without the web client id signs in to the pretend server directly. */
     private suspend fun signInGoogle() {
         if (BuildConfig.DEBUG && GoogleSignIn.WEB_CLIENT_ID.isEmpty() && groupApi.ready) { groupApi.signInWithGoogle("dev", "dev"); return }
         val g = GoogleSignIn.signIn(this)
         groupApi.signInWithGoogle(g.idToken, g.nonce)
+    }
+
+    /** "Your trip": on the phone, and on the server when this phone has a session there (server/TripSync.kt). */
+    private fun keepTrip(t: Trip?) {
+        if (t == null) trips.clear() else trips.save(t)
+        trip = t
+        if (groupApi is LiveGroupApi) tripSync.pushed(t)
     }
 
     private fun openPrivacy() = startActivity(Intent(Intent.ACTION_VIEW, android.net.Uri.parse("https://${Route.SITE_HOST}/privacy?utm_source=app")))
@@ -172,6 +189,7 @@ class MainActivity : ComponentActivity() {
             }
         })
         handleQa(intent)
+        if (groupApi is LiveGroupApi) tripSync.flush() // a trip saved without signal goes now
         loadInBackground()
         setContent { App() }
     }
@@ -359,8 +377,8 @@ class MainActivity : ComponentActivity() {
                                 HomeAction.TRIP -> Route.Trip
                             })
                         })
-                    Route.Trip -> TripForm(trip, LocalDate.now(), onSave = { t -> trips.save(t); trip = t; Qa.log("trip saved"); nav.back() },
-                        onDelete = { trips.clear(); trip = null; Qa.log("trip deleted"); nav.back() }, onCancel = { nav.back() })
+                    Route.Trip -> TripForm(trip, LocalDate.now(), onSave = { t -> keepTrip(t); Qa.log("trip saved"); nav.back() },
+                        onDelete = { keepTrip(null); Qa.log("trip deleted"); nav.back() }, onCancel = { nav.back() })
                     is Route.Meet -> SoonScreen(stringResource(R.string.nav_meet), stringResource(R.string.app_soon_meet)) { nav.back() }
                     is Route.Group -> if (!groupApi.ready) SoonScreen(stringResource(R.string.app_sign_group), stringResource(R.string.app_soon_group)) { nav.back() }
                         else if (top.id == null) GroupHub(groupApi, onGroup = { id -> nav.replaceTop(Route.Group(id, GroupTab.FLIGHTS.key)) }) {
@@ -373,7 +391,7 @@ class MainActivity : ComponentActivity() {
                             stationName = { key -> scene?.runs?.lifts?.firstOrNull { it.id.isNotEmpty() && it.id == key.dropLast(1) }?.name },
                             onTab = { nav.replaceTop(Route.Group(top.id, it.key)) }, onBack = { nav.toStart() },
                             onInvite = { nav.push(Route.GroupInvite(top.id)) }, onNewMeetup = { nav.push(Route.Meet()) }, onEditTrip = { nav.push(Route.Trip) },
-                            onMyTrip = { t -> trips.save(t); trip = t }, onLeft = { nav.toStart() }, signInGoogle = ::signInGoogle,
+                            onMyTrip = { t -> keepTrip(t) }, onLeft = { nav.toStart() }, signInGoogle = ::signInGoogle,
                             onSaveOffered = { justJoined = false; accountPrefs.edit().putInt("save_offers", accountPrefs.getInt("save_offers", 0) + 1).apply() })
                     Route.GroupNew -> NewGroupScreen(groupApi, trip, LocalDate.now(), onCancel = { nav.back() },
                         onCreated = { id -> nav.back(); if (nav.top is Route.Group) nav.replaceTop(Route.Group(id, GroupTab.FLIGHTS.key)) else nav.push(Route.Group(id, GroupTab.FLIGHTS.key)) })

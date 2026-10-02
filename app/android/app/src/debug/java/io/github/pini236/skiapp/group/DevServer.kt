@@ -80,7 +80,7 @@ private class FakeGroupApi : GroupApi {
     override suspend fun myGroups(): List<GroupSummary> {
         wait(); val me = meNow ?: return emptyList()
         return groups.values.filter { g -> g.members.any { it.userId == me.userId } }
-            .map { GroupSummary(it.id, it.name, it.startsOn, it.endsOn, it.members.first { m -> m.userId == me.userId }.role) }
+            .map { GroupSummary(it.id, it.name, it.startsOn, it.endsOn) }
     }
 
     override suspend fun group(id: String): Group {

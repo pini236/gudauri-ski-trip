@@ -6,8 +6,8 @@ import java.time.LocalDate
 
 /*
  * Accounts and groups (docs/USERS.md, round 10: A1 to A5, Q1 to Q10). The screens talk to the server only through
- * [GroupApi]; the client that speaks to Supabase lives in server/ (the server session, stage 13.5) and implements it.
- * Names and shapes follow server/README.md and server/supabase/functions/api/actions.ts.
+ * [GroupApi]: [LiveGroupApi] over the client in server/ (the server session, stage 13.5), or the pretend server of
+ * debug builds. Names and shapes follow server/README.md and server/supabase/functions/api/actions.ts.
  */
 
 enum class Role { ADMIN, MEMBER }
@@ -15,7 +15,7 @@ enum class Role { ADMIN, MEMBER }
 /** Who this phone is on the server: nobody yet (null), a guest (an anonymous identity), or a registered account. */
 data class Me(val userId: String, val registered: Boolean, val name: String?, val google: Boolean = false, val apple: Boolean = false)
 
-data class GroupSummary(val id: String, val name: String, val startsOn: LocalDate?, val endsOn: LocalDate?, val myRole: Role)
+data class GroupSummary(val id: String, val name: String, val startsOn: LocalDate?, val endsOn: LocalDate?)
 
 data class Member(
     val userId: String,
@@ -118,35 +118,6 @@ interface GroupApi {
     suspend fun setMemberTrip(groupId: String, userId: String, trip: Trip)
 
     suspend fun leaderboard(groupId: String, game: String): List<Score>
-}
-
-/** No server yet (the release build until the client from server/ is wired in): nothing works, and nothing pretends to. */
-object NoServer : GroupApi {
-    override val ready = false
-    override fun me(): Me? = null
-    private fun no(): Nothing = throw ApiException("offline")
-    override suspend fun signInGuest() = no()
-    override suspend fun signInWithGoogle(idToken: String, nonce: String) = no()
-    override suspend fun signOut() = Unit
-    override suspend fun deleteAccount() = no()
-    override suspend fun rename(name: String) = no()
-    override suspend fun myGroups() = emptyList<GroupSummary>()
-    override suspend fun group(id: String) = no()
-    override suspend fun createGroup(name: String, myName: String, startsOn: LocalDate?, endsOn: LocalDate?, myTrip: Trip?) = no()
-    override suspend fun updateGroup(id: String, name: String, startsOn: LocalDate?, endsOn: LocalDate?) = no()
-    override suspend fun deleteGroup(id: String) = no()
-    override suspend fun newInvite(groupId: String, requiresApproval: Boolean) = no()
-    override suspend fun preview(code: String) = no()
-    override suspend fun join(code: String, myName: String) = no()
-    override suspend fun reclaim(code: String, memberId: String) = no()
-    override suspend fun decide(requestId: String, approve: Boolean) = no()
-    override suspend fun leave(groupId: String) = no()
-    override suspend fun removeMember(groupId: String, userId: String) = no()
-    override suspend fun setRole(groupId: String, userId: String, role: Role) = no()
-    override suspend fun showMyTrip(groupId: String, myName: String, trip: Trip?) = no()
-    override suspend fun sameFlight(groupId: String, tripId: String) = no()
-    override suspend fun setMemberTrip(groupId: String, userId: String, trip: Trip) = no()
-    override suspend fun leaderboard(groupId: String, game: String) = no()
 }
 
 /** Invite codes: six letters without I and O (the server's alphabet), typed in any case; or the long token from a link. */
