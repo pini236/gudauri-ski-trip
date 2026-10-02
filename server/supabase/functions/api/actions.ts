@@ -1,4 +1,4 @@
-// The server's actions (decision 39). Apps call them over HTTP through
+// The server's actions (decision 40). Apps call them over HTTP through
 // index.ts: POST /functions/v1/api/<action> with a JSON body.
 //
 // Every action runs in one database transaction: all of it happens, or

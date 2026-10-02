@@ -1,4 +1,4 @@
-// The server (decision 39): one Supabase Edge Function for all actions,
+// The server (decision 40): one Supabase Edge Function for all actions,
 // so one warm instance serves them all (fewer cold starts).
 //
 //   POST /functions/v1/api/<action>   JSON body, session token in Authorization

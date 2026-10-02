@@ -1,6 +1,6 @@
 -- Who can reach what in the database directly: row level security on
 -- every table, nothing for the anon role, the internal schema closed,
--- and no SQL actions left (they live in the server code, decision 39).
+-- and no SQL actions left (they live in the server code, decision 40).
 select plan(16);
 
 select ok(bool_and(c.relrowsecurity), 'row level security is on for every table')

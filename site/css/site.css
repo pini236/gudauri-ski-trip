@@ -585,3 +585,39 @@ ul.notes li{margin-bottom:4px}
 .fh-name{font-family:var(--f-display);font-size:1.15rem;letter-spacing:.02em}
 .fh-d{font-size:.8rem;white-space:nowrap;opacity:.9}
 .fh-stop{min-height:44px;padding:0 16px;border:0;background:var(--accent);color:var(--on-accent);font:inherit;font-weight:700;cursor:pointer}
+
+/* Privacy page (/privacy, round 10 P1 and P2). Built by tools/build-privacy.py from docs/PRIVACY.md. */
+html.pv,html.pv body{height:auto}
+.pv-top{position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:12px;padding:8px 16px;background:var(--paper);border-bottom:1px solid var(--rule);direction:rtl}
+.pv-brand{font-family:var(--f-display);font-weight:700;font-size:30px;line-height:1;color:var(--ink);text-decoration:none;min-height:44px;display:inline-flex;align-items:center}
+.pv-lang{display:inline-flex;border:2px solid var(--ink);margin-inline-start:auto}
+.pv-lang button{min-height:40px;min-width:44px;padding:0 12px;border:0;background:transparent;color:var(--ink);font:600 14px/1 var(--f-body);cursor:pointer}
+.pv-lang button[lang="en"]{font-family:"IBM Plex Sans",var(--f-body)}
+.pv-lang button[aria-pressed="true"]{background:var(--ink);color:var(--snow)}
+.pv-back{display:inline-flex;align-items:center;gap:4px;min-height:44px;font-size:15px;font-weight:700;color:var(--glacier);text-decoration:none}
+.pv-main{max-width:760px;margin:0 auto;padding:18px 16px 40px;box-sizing:border-box}
+.pv-doc{font-size:15.5px;line-height:1.65}
+.pv-doc[lang="en"]{font-family:"IBM Plex Sans",var(--f-body)}
+.pv-doc:not([hidden])+.pv-doc:not([hidden]){margin-top:48px;padding-top:24px;border-top:2px solid var(--ink)}
+.pv-doc h1{margin:0 0 6px;font-family:var(--f-display);font-weight:700;font-size:52px;line-height:1}
+.pv-doc h2{margin:0 0 8px;font-family:var(--f-display);font-weight:700;font-size:32px;line-height:1.05}
+.pv-doc p{margin:0 0 10px}
+.pv-doc ul,.pv-doc ol{margin:0 0 10px;padding-inline-start:22px}
+.pv-doc li{margin-bottom:6px}
+.pv-doc a{color:var(--glacier)}
+.pv-date{color:var(--muted);font-size:13.5px}
+.pv-sign{display:flex;flex-direction:column;margin:16px 0 0;padding:10px 20px 10px 40px;background:var(--p-red);color:var(--on-board);clip-path:polygon(0 50%,26px 0,100% 0,100% 100%,26px 100%);filter:drop-shadow(0 4px 6px var(--shadow))}
+.pv-doc[dir="ltr"] .pv-sign{padding:10px 40px 10px 20px;clip-path:polygon(0 0,calc(100% - 26px) 0,100% 50%,calc(100% - 26px) 100%,0 100%)}
+.pv-sign b{font-family:var(--f-display);font-weight:700;font-size:32px;line-height:1}
+.pv-sign span{font-size:13.5px;line-height:1.4}
+.pv-short{position:relative;margin:34px 0 8px;padding:16px 16px 6px;background:var(--paper);border-top:6px solid var(--p-blue);box-shadow:0 6px 14px var(--shadow)}
+.pv-sec{padding:18px 0 4px;border-top:1px solid var(--rule)}
+.pv-short+.pv-sec{border-top:0}
+.pv-foot{margin:28px 0 0;color:var(--muted);font-size:13px}
+@media (min-width:900px){.pv-doc h1{font-size:64px}.pv-doc{font-size:16px}.pv-sign{max-width:70%}}
+.home-privacy{grid-column:1/-1;justify-self:start;margin:0;min-height:44px;display:inline-flex;align-items:center;font-size:14px;font-weight:600;color:var(--muted)}
+.ab-privacy{margin:14px 0 0;font-size:14px;color:var(--muted)}.ab-privacy a{color:var(--glacier);font-weight:600}
+.pv-doc{scroll-margin-top:72px}
+.pv-brand{white-space:nowrap}
+.pv-doc span[dir="ltr"],.pv-doc a[dir="ltr"]{unicode-bidi:isolate;white-space:nowrap}
+@media (max-width:420px){.pv-brand{font-size:24px}.pv-top{gap:8px;padding:6px 12px}.pv-lang button{padding:0 9px}}

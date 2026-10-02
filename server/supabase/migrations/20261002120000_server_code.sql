@@ -1,4 +1,4 @@
--- The actions moved to server code (decision 39): one Supabase Edge
+-- The actions moved to server code (decision 40): one Supabase Edge
 -- Function, server/supabase/functions/api/. The database keeps the
 -- tables, the row level security and the guards (previous migration).
 --

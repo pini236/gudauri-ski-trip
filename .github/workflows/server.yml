@@ -2,7 +2,7 @@
 #   - the database rules (pgTAP) and the server's actions (Deno), on the
 #     real Supabase database, and on a plain Postgres with a stand-in for
 #     Supabase (the way they run in a cloud session without Docker);
-#   - the server itself (decision 39): the whole local Supabase with the
+#   - the server itself (decision 40): the whole local Supabase with the
 #     function running, called over HTTP the way the apps call it.
 name: server
 
