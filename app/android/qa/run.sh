@@ -342,6 +342,14 @@ meet() {
   qa "--es qa.tab group/g1/meetups"; sleep 2
   tapText "~התחנה" && sleep 2 && shot meet-from-group
   qa "--es qa.group none --es qa.tab home"; sleep 1
+  # the notification permission is asked when the app first opens (the run installs with it granted): taken away, the
+  # next open asks, and "Allow" gives it back
+  adb shell pm revoke "$PKG" android.permission.POST_NOTIFICATIONS > /dev/null 2>&1
+  adb shell pm clear-permission-flags "$PKG" android.permission.POST_NOTIFICATIONS user-set user-fixed > /dev/null 2>&1 || true
+  adb shell am force-stop "$PKG"; sleep 1
+  mark; adb shell am start -n "$ACT" > /dev/null; waitlog "notifications asked" 30 && { sleep 2; shot first-open-notifications
+    tapText "Allow" && waitlog "notifications allowed" 10 && { sleep 1; shot first-open-allowed; }; }
+  adb shell pm grant "$PKG" android.permission.POST_NOTIFICATIONS > /dev/null 2>&1 || true
 }
 
 # ---- the store screenshots (Google Play: portrait 9:16) ----

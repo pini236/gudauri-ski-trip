@@ -407,7 +407,8 @@ class MainActivity : ComponentActivity() {
         }
         LaunchedEffect(Unit) {
             if (Reminders.shouldAsk(this@MainActivity, Reminders.Ask.OPEN)) {
-                Reminders.markAsked(this@MainActivity, Reminders.Ask.OPEN); askNotifications.launch(android.Manifest.permission.POST_NOTIFICATIONS)
+                Reminders.markAsked(this@MainActivity, Reminders.Ask.OPEN); Qa.log("notifications asked")
+                askNotifications.launch(android.Manifest.permission.POST_NOTIFICATIONS)
             }
         }
         val frame = remember(tick, dnMode) { DayNight.at(tick, dnMode) }
