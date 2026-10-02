@@ -287,7 +287,12 @@ function start(){
   $('count').hidden=false; countT=3; $('countN').textContent='3';
   state='count'; last=performance.now();
   if(AC&&AC.state==='suspended') AC.resume();
+  g0=performance.now(); window.track&&track('game_start',{game:'descent',level:R.key});
 }
+// usage statistics (site/js/telemetry.js; absent in the design preview): game_end when the run ends, or when the page is left mid-run
+let g0=0;
+function gameEnd(ok,best){ if(!g0) return; window.track&&track('game_end',{game:'descent',level:R.key,score,seconds:Math.round((performance.now()-g0)/1000),completed:ok,best}); g0=0; }
+addEventListener('pagehide',()=>{ if(state==='count'||state==='run'||state==='fin') gameEnd(false,false); });
 function drawCrewHud(){ $('crew').innerHTML = crewSpots.map(c=>`<i style="background:${FRIENDS[c.fi].c}" data-fi="${c.fi}"></i>`).join('')+'<em id="coinHud">0 🥟</em>'; }
 function popText(txt){ const p=$('pop'); p.textContent=txt; p.classList.remove('go'); void p.offsetWidth; p.classList.add('go'); }
 function banner(big, txt){ $('bannerBig').textContent=big; $('bannerTxt').textContent=txt; $('banner').classList.remove('off'); bannerT=2.6; }
@@ -477,6 +482,7 @@ function finish(ok){
   $('endGoals').innerHTML = [[L('game.descent.goal_reach_lift','להגיע לרכבל'),goals[0]],[L('game.descent.goal_bring_crew_count','להביא את כל החבר׳ה ({got}/5)',{got}),goals[1]],[MISSION[R.key].t,goals[2]]].map(([s,o])=>`<span class="${o?'ok':''}">${s}</span>`).join('');
   $('endFlips').textContent=flips; $('endCrew').textContent=got+'/5'; $('endCoins').textContent=stats.coins+'/'+coins.length; $('endScore').textContent=score;
   const key='best-'+R.key, best=store.get(key,null);
+  gameEnd(ok, !!(ok && (!best||t<best.t)));
   if(ok && (!best||t<best.t)){ store.set(key,{t,who:me}); store.set('ghost-'+R.key,{t,who:me,r:rec}); $('endBest').textContent=L('game.descent.end_new_best','שיא חדש במסלול! בפעם הבאה תגלוש מול רוח הרפאים שלו.'); }
   else $('endBest').textContent = best? L('game.descent.end_best','השיא במסלול: {time} ({name})',{time:fmt(best.t),name:FRIENDS[best.who].n}) : '';
   lastResultText = ok ? L('game.descent.share_result','{name} ירד ב-{run} ב-{time} {stars}: {flips} סלטות, {pops} פופים מושלמים, {got} מתוך 5 חבר׳ה ו-{coins} חצ׳אפורי. מי עוקף?',{name:FRIENDS[me].n,run:R.key,time:fmt(t),stars:starStr(nStars),flips,pops:stats.pops||0,got,coins:stats.coins}) : L('game.descent.share_caught','המפולת תפסה את {name} ב-{run} אחרי {m} מ׳. מי מגיע רחוק יותר?',{name:FRIENDS[me].n,run:R.key,m:Math.round(P.x)});

@@ -148,7 +148,7 @@ svg.addEventListener('pointermove',e=>{const p=ptrs.get(e.pointerId);if(!p)retur
   if(ptrs.size===1){const dx=e.clientX-p.x,dy=e.clientY-p.y;moved+=Math.abs(dx)+Math.abs(dy);vb.x-=dx*u;vb.y-=dy*u;p.x=e.clientX;p.y=e.clientY;apply();}
   else if(ptrs.size===2){p.x=e.clientX;p.y=e.clientY;const[a,b]=[...ptrs.values()];const d=Math.hypot(a.x-b.x,a.y-b.y);const r=svg.getBoundingClientRect();if(pinch){zoomAt(pinch/d,(a.x+b.x)/2-r.left,(a.y+b.y)/2-r.top);}pinch=d;moved+=10;}});
 function up(e){const was=ptrs.size;ptrs.delete(e.pointerId);if(ptrs.size<2)pinch=null;if(!ptrs.size)svg.classList.remove('drag');
-  if(was===1&&moved<6&&e.type==='pointerup'){const el=document.elementFromPoint(e.clientX,e.clientY);if(el&&el.dataset.kobi)openInset();else if(el&&el.dataset.key)select(el.dataset.key);else if(el&&el.dataset.lift)showLift(+el.dataset.lift);}}
+  if(was===1&&moved<6&&e.type==='pointerup'){const el=document.elementFromPoint(e.clientX,e.clientY);if(el&&el.dataset.kobi)openInset();else if(el&&el.dataset.key)select(el.dataset.key,{via:'map'});else if(el&&el.dataset.lift)showLift(+el.dataset.lift);}}
 svg.addEventListener('pointerup',up);svg.addEventListener('pointercancel',up);
 document.getElementById('zin').onclick=()=>{const[cw,ch]=sz();zoomAt(1/1.5,cw/2,ch/2);};
 document.getElementById('zout').onclick=()=>{const[cw,ch]=sz();zoomAt(1.5,cw/2,ch/2);};
@@ -171,7 +171,7 @@ function closeInset(){card.hidden=true;openBtn.hidden=false;openBtn.setAttribute
 openBtn.onclick=openInset;
 document.getElementById('insetClose').onclick=closeInset;
 new ResizeObserver(layoutInset).observe(kSvg);
-kSvg.addEventListener('click',e=>{const el=e.target.closest('[data-key],[data-lift]');if(!el)return;if(el.dataset.key)select(el.dataset.key);else showLift(+el.dataset.lift);});
+kSvg.addEventListener('click',e=>{const el=e.target.closest('[data-key],[data-lift]');if(!el)return;if(el.dataset.key)select(el.dataset.key,{via:'map'});else showLift(+el.dataset.lift);});
 
 // filters
 const hidden=new Set();
@@ -225,8 +225,10 @@ function setMarker(q){
 }
 function focusOn(els){let a=1e9,b=1e9,c=-1e9,d=-1e9;els.forEach(g=>g.forEach(q=>{const[x,y]=P(q);a=Math.min(a,x);c=Math.max(c,x);b=Math.min(b,y);d=Math.max(d,y);}));
   const[cw,ch]=sz();const w=Math.max(c-a,(d-b)*cw/ch,900)*1.5;vb.w=w;vb.h=w*ch/cw;vb.x=(a+c)/2-w/2;vb.y=(b+d)/2-vb.h/2;apply();}
-function select(key,{zoom=true,push=true}={}){
-  const p=byKey[key];clearSel();
+let scrubbed=null; // run_profile_scrub: once per opened run
+function select(key,{zoom=true,push=true,via=''}={}){
+  const p=byKey[key];clearSel();scrubbed=null;
+  {const c=p?p.color:(D.missing.find(x=>x.name===key)||{}).color;if(via&&c)track('run_open',{run:key,color:c,via});}
   if(p){[svg,kSvg].forEach(m=>m.classList.add('has-sel'));(pisteEls[key]||[]).forEach(e=>e.classList.add('on'));if(v3){v3.select(key);v3.paint(key,1300);}paint2d(key);
     if(zoom){if(view==='3d')v3.focus(key);else if(isKobiP(p))openInset();else focusOn(p.segs.map(s=>s.g));}}
   current=key;renderPiste(key);
@@ -333,7 +335,7 @@ function profAt(i){
   document.getElementById('pfD').textContent=T('common.unit_m',{n:Math.round(q.d).toLocaleString('en-US')});document.getElementById('pfH').textContent=T('common.unit_m',{n:Math.round(q.h).toLocaleString('en-US')});document.getElementById('pfA').textContent=Math.round(q.a)+'°';
   setMarker(q);flyHudAt(q);
 }
-let flying=false;
+let flying=false,flyProg=0;
 function stopFly(){if(flying&&v3)v3.stopFly();flying=false;}
 // while flying: a bar on the map with where we are, and a stop button (on the phone the profile is out of view)
 function flyHud(on,name){let h=document.getElementById('flyHud');
@@ -382,7 +384,7 @@ function liftElev(l){
   return `<dt>${E('lift.stations_label')}</dt><dd>${H('lift.stations_value',{},{bot:num(Math.min(ea,eb)),top:num(Math.max(ea,eb))})}</dd><dt>${E('lift.rise_label')}</dt><dd>${H('lift.rise_model_value',{n:Math.abs(eb-ea)},{n:num(Math.abs(eb-ea))})}${l.rise?H('lift.rise_osm_suffix',{n:l.rise},{n:num(esc(l.rise))}):''}</dd>`;
 }
 function showLift(id){
-  const l=D.lifts.find(x=>x.id===id);if(!l)return;clearSel();current=null;if(location.hash.startsWith('#map/run/'))history.pushState(null,'','#map');
+  const l=D.lifts.find(x=>x.id===id);if(!l)return;track('lift_open',{lift:l.name||null});clearSel();current=null;if(location.hash.startsWith('#map/run/'))history.pushState(null,'','#map');
   const top=D.pistes.filter(p=>p.fromLifts.includes(l.name)).map(p=>pisteBtn(p.key)).join('');
   const bot=D.pistes.filter(p=>p.toLifts.includes(l.name)).map(p=>pisteBtn(p.key)).join('');
   panel.innerHTML=`<button class="back" data-back>${E('map.back_all_runs')}</button><h2>⇡ ${esc(l.name||T('lift.unnamed'))}</h2>
@@ -416,31 +418,32 @@ function overview(){
   <p class="hint">${E('map.overview_source_text',{fetched:D.fetched,research_date:D.research?D.research.date:''})}</p>
   <p class="hint">${E('map.overview_3d_controls_hint')}</p>`;
 }
-panel.addEventListener('input',e=>{if(e.target.id==='profRange')profAt(+e.target.value);});
+panel.addEventListener('input',e=>{if(e.target.id==='profRange'){profAt(+e.target.value);if(scrubbed!==current){scrubbed=current;track('run_profile_scrub',{run:current});}}});
 panel.addEventListener('click',e=>{
   const b=e.target.closest('button');if(!b)return;
   if(b.dataset.share!==undefined){const k=b.dataset.share,url=location.origin+location.pathname+'#map/run/'+encodeURIComponent(k);
-    if(navigator.share)navigator.share({title:T('run.share_title',{run:k}),url}).catch(()=>{});
-    else if(navigator.clipboard)navigator.clipboard.writeText(url).then(()=>{b.textContent=T('common.link_copied');setTimeout(()=>{b.textContent=T('run.share_button');},2200);}).catch(()=>{});return;}
+    if(navigator.share)navigator.share({title:T('run.share_title',{run:k}),url}).then(()=>track('run_share',{run:k,method:'native'})).catch(()=>{});
+    else if(navigator.clipboard)navigator.clipboard.writeText(url).then(()=>{track('run_share',{run:k,method:'copy'});b.textContent=T('common.link_copied');setTimeout(()=>{b.textContent=T('run.share_button');},2200);}).catch(()=>{});return;}
   if(b.dataset.fly){if(flying){stopFly();return;}const pr=runProfile(b.dataset.fly);if(!pr)return;if(view!=='3d')setView('3d',false);if(!v3)return;
     flying=true;b.textContent=T('run.fly_stop');b.setAttribute('aria-pressed','true');
     const p_=byKey[b.dataset.fly];flyHud(true,dispName(p_)||b.dataset.fly);flyHudAt(pr.S[0]);
+    const fk=b.dataset.fly,ft0=performance.now();let fdone=false;flyProg=0;track('run_fly_start',{run:fk});
     // the map is above the panel on the phone: bring it into view so the flight is seen
     const r=document.querySelector('.mapwrap').getBoundingClientRect();if(r.top<-4||r.bottom>innerHeight+4)scrollTo({top:Math.max(0,r.top+scrollY-8),behavior:'smooth'});
-    v3.flyAlong(pr.S.map(q=>[q.x,q.y]),()=>{flying=false;flyHud(false);const bb=panel.querySelector('[data-fly]');if(bb){bb.textContent=T('run.fly_button');bb.setAttribute('aria-pressed','false');}});return;}
+    v3.flyAlong(pr.S.map(q=>[q.x,q.y]),()=>{if(!fdone){fdone=true;track('run_fly_end',{run:fk,completed:flyProg>=.999,seconds:Math.round((performance.now()-ft0)/1000)});}flying=false;flyHud(false);const bb=panel.querySelector('[data-fly]');if(bb){bb.textContent=T('run.fly_button');bb.setAttribute('aria-pressed','false');}});return;}
   if(b.dataset.back!==undefined){overview();if(location.hash!=='#map')history.pushState(null,'','#map');return;}
   if(b.dataset.filter){const k=b.dataset.filter;hidden.has(k)?hidden.delete(k):hidden.add(k);b.setAttribute('aria-pressed',!hidden.has(k));applyFilters();return;}
-  if(b.dataset.vid){const w=document.createElement('div');w.className='vframe';const f=document.createElement('iframe');
+  if(b.dataset.vid){track('video_play',{run:current,video:b.dataset.vid});const w=document.createElement('div');w.className='vframe';const f=document.createElement('iframe');
     f.src='https://www.youtube-nocookie.com/embed/'+b.dataset.vid+'?autoplay=1&rel=0';f.title=b.dataset.title||T('run.video_iframe_title');f.allow='autoplay; encrypted-media; picture-in-picture; fullscreen';f.allowFullscreen=true;f.referrerPolicy='strict-origin-when-cross-origin';
     w.appendChild(f);b.replaceWith(w);return;}
-  if(b.dataset.goto){select(b.dataset.goto,{zoom:true});panel.scrollTop=0;if(matchMedia('(max-width:760px)').matches)panel.scrollIntoView({block:'start'});return;}
+  if(b.dataset.goto){select(b.dataset.goto,{zoom:true,via:b.closest('.run-nav')?'swipe':'list'});panel.scrollTop=0;if(matchMedia('(max-width:760px)').matches)panel.scrollIntoView({block:'start'});return;}
   if(b.dataset.lift){const l=D.lifts.find(x=>x.id===+b.dataset.lift);showLift(+b.dataset.lift);if(l){if(view==='3d')v3.focusLift(l.id);else if(isKobiL(l))openInset();else focusOn([l.g]);}return;}
 });
 
 {let sx=0,sy=0,ok=false;
   panel.addEventListener('touchstart',e=>{const t=e.touches[0];ok=e.touches.length===1&&!e.target.closest('input,.prof');sx=t.clientX;sy=t.clientY;},{passive:true});
   panel.addEventListener('touchend',e=>{if(!ok||!current)return;const t=e.changedTouches[0],dx=t.clientX-sx,dy=t.clientY-sy;if(Math.abs(dx)<70||Math.abs(dy)>45)return;
-    const L=navList(),i=L.indexOf(current);if(i<0)return;select(L[(i+(dx<0?1:-1)+L.length)%L.length]);},{passive:true});}
+    const L=navList(),i=L.indexOf(current);if(i<0)return;select(L[(i+(dx<0?1:-1)+L.length)%L.length],{via:'swipe'});},{passive:true});}
 // ---- 3D view ----
 let v3=null,view='2d';
 const wrap=document.querySelector('.mapwrap'),m3=document.getElementById('map3d'),sw=document.getElementById('viewsw');
@@ -454,14 +457,14 @@ function ensure3d(){
     const kc=P([42.532,44.4945]);
     v3=GudRelief.View3D({model:TM,host:m3,pistes:D.pistes,lifts:D.lifts,P,dispName,colors:{green:'#1B8A4C',blue:'#1F5FC4',red:'#D1342B',black:'#13233A'},liftColor:'#3A4556',
       center:[(minX+maxX)/2,(minY+maxY)/2+250],homeDist:7000,homeAz:0,homePol:0.44,
-      onPick:k=>select(k),onLift:id=>showLift(id),
-      onFly:f=>{const k=document.getElementById('profRange');if(k){const i=Math.round(f*(+k.max));k.value=i;profAt(i);}},
+      onPick:k=>select(k,{via:'map'}),onLift:id=>showLift(id),
+      onFly:f=>{flyProg=f;const k=document.getElementById('profRange');if(k){const i=Math.round(f*(+k.max));k.value=i;profAt(i);}},
       onHeading:az=>{compassSvg.style.transform=`rotate(${(az*180/Math.PI).toFixed(1)}deg)`;}});
     v3.kobi=()=>v3.view({tx:kc[0],tz:kc[1],dist:6800,az:Math.PI*0.9,pol:0.6});
     v3.setTheme(isDark());DN.paint(false); // the 3D light follows the time in Gudauri, like the home page
     v3.filter(hidden);if(current&&byKey[current]){v3.select(current);v3.paint(current,0);}
     return true;
-  }catch(e){console.warn('3D unavailable',e);v3=null;return false;}
+  }catch(e){console.warn('3D unavailable',e);v3=null;if(!ensure3d.told){ensure3d.told=1;track('map_fallback',{reason:'no_webgl'});}return false;}
 }
 function setView(m,save){
   if(m==='3d'&&!ensure3d())m='2d';view=m;
@@ -471,7 +474,7 @@ function setView(m,save){
   if(m==='3d'){v3.resize();if(!card.hidden)closeInset();}else apply();
   if(save)try{localStorage.setItem('gud-view',m);}catch(e){}
 }
-sw.addEventListener('click',e=>{const b=e.target.closest('button[data-view]');if(b)setView(b.dataset.view,true);});
+sw.addEventListener('click',e=>{const b=e.target.closest('button[data-view]');if(!b)return;const was=view;setView(b.dataset.view,true);if(view!==was)track('map_view',{view});});
 document.getElementById('zin').onclick=()=>{if(view==='3d')return v3.zoom(1/1.5);const[cw,ch]=sz();zoomAt(1/1.5,cw/2,ch/2);};
 document.getElementById('zout').onclick=()=>{if(view==='3d')return v3.zoom(1.5);const[cw,ch]=sz();zoomAt(1.5,cw/2,ch/2);};
 document.getElementById('zfit').onclick=()=>{if(view==='3d')return v3.home();fit();};
@@ -481,12 +484,13 @@ openBtn.onclick=()=>{if(view==='3d')v3.kobi();else openInset();};
 wrap.classList.add('mode2d');
 // filters live in the toolbar above the map
 document.getElementById('filters').addEventListener('click',e=>{const b=e.target.closest('button[data-filter]');if(!b)return;const k=b.dataset.filter;
-  hidden.has(k)?hidden.delete(k):hidden.add(k);b.setAttribute('aria-pressed',String(!hidden.has(k)));applyFilters();});
+  hidden.has(k)?hidden.delete(k):hidden.add(k);b.setAttribute('aria-pressed',String(!hidden.has(k)));applyFilters();track('map_filter',{filter:k,on:!hidden.has(k)});});
 // the map (and its 3D model) is set up the first time the map page is opened
 let mapReady=false;
 function activateMap(){
   if(!mapReady){mapReady=true;fit();
-    if(can3d){sw.hidden=false;let pref=null;try{pref=localStorage.getItem('gud-view');}catch(e){}setView(pref==='2d'?'2d':'3d');}}
+    if(can3d){sw.hidden=false;let pref=null;try{pref=localStorage.getItem('gud-view');}catch(e){}setView(pref==='2d'?'2d':'3d');}
+    else track('map_fallback',{reason:window.THREE&&TM?'no_webgl':'lib_failed'});}
   else if(view==='3d'&&v3)v3.resize();else apply();
 }
 // pages: #map shows the map, anything else the home page
@@ -496,8 +500,9 @@ function route(){
   pgHome.hidden=m||mt||gm||ab;pgMap.hidden=!m;pgMeet.hidden=!mt;pgGames.hidden=!gm;pgAbout.hidden=!ab;
   const cur=m?'map':mt?'meet':gm?'games':ab?'about':'home';
   document.querySelectorAll('[data-nav]').forEach(a=>{if(a.dataset.nav===cur)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current');});
+  if(m&&!wasMap)LSTAT.viewed();
   requestAnimationFrame(()=>{if(gm||ab)return;if(mt){if(MEET)MEET.open(h.slice(6));return;}if(!m){DN.layout();return;}activateMap();
-    if(run&&run!==current&&(byKey[run]||D.missing.some(x=>x.name===run)))select(run,{push:false});
+    if(run&&run!==current&&(byKey[run]||D.missing.some(x=>x.name===run)))select(run,{push:false,via:'link'});
     else if(!run&&current)overview();});
   if(!wasMap||!m){window.scrollTo(0,0);pgHome.scrollTop=0;}
 }
@@ -596,7 +601,7 @@ const DN=(function(){
     layer.querySelector('.b').style.opacity=a.img===b.img?0:f;
   }
   document.querySelectorAll('[data-dn]').forEach(bt=>bt.addEventListener('click',()=>{
-    mode=MODES[(MODES.indexOf(mode)+1)%3];try{localStorage.setItem('gud-daynight',mode);}catch(e){}paint(true);}));
+    mode=MODES[(MODES.indexOf(mode)+1)%3];try{localStorage.setItem('gud-daynight',mode);}catch(e){}paint(true);track('theme_set',{mode});}));
   new ResizeObserver(()=>{if(!pgHome.hidden)layout();}).observe(sky);
   setInterval(()=>paint(true),60000);
   paint(false);
@@ -654,7 +659,7 @@ const MEET=(function(){
     const u=vb.w/r.width,dpin=s=>{const hy=s.y-26*u*(s.id===S.sid?1.2:.8);return Math.min(Math.hypot(s.x-x,s.y-y),Math.hypot(s.x-x,hy-y));};
     const best=st.map(s=>[s,dpin(s)]).sort((a,b)=>a[1]-b[1])[0];if(!best)return;
     const px=best[1]/u;
-    if(px<=44){if(best[0].id===S.sid)clear();else pick(best[0].id,'',true);}else if(S.sid)clear();});
+    if(px<=44){if(best[0].id===S.sid)clear('pin');else{pick(best[0].id,'',true);track('meet_pick',{kind:'station',station:best[0].name});}}else if(S.sid)clear('map');});
   function fitAll(ms){let a=1e9,b=1e9,c=-1e9,d=-1e9;st.forEach(s=>{a=Math.min(a,s.x);c=Math.max(c,s.x);b=Math.min(b,s.y);d=Math.max(d,s.y);});
     const[w,h]=size();const span=Math.max(c-a,(d-b)*w/h)*1.15;goTo((a+c)/2,(b+d)/2+ (d-b)*0.05,span,ms);}
   document.getElementById('meetAll').onclick=()=>fitAll(700);
@@ -680,10 +685,10 @@ const MEET=(function(){
   svgM.addEventListener('pointerup',lift);svgM.addEventListener('pointercancel',lift);
   svgM.addEventListener('click',e=>{if(moved){e.stopImmediatePropagation();moved=false;}},true);
   let undoSid='',undoPre='',toastT=0;const toast=document.getElementById('meetToast');
-  function clear(){if(!S.sid)return;undoSid=S.sid;undoPre=S.preset;S.sid='';S.preset='';render();
+  function clear(via){if(!S.sid)return;track('meet_clear',{via});undoSid=S.sid;undoPre=S.preset;S.sid='';S.preset='';render();
     toast.hidden=false;clearTimeout(toastT);toastT=setTimeout(()=>{toast.hidden=true;},4500);}
-  document.getElementById('meetClear').onclick=clear;document.getElementById('meetCardX').onclick=clear;
-  document.getElementById('meetUndo').onclick=()=>{toast.hidden=true;clearTimeout(toastT);if(undoSid)pick(undoSid,undoPre,true);};
+  document.getElementById('meetClear').onclick=()=>clear('button');document.getElementById('meetCardX').onclick=()=>clear('card');
+  document.getElementById('meetUndo').onclick=()=>{toast.hidden=true;clearTimeout(toastT);if(undoSid){track('meet_undo');pick(undoSid,undoPre,true);}};
   new ResizeObserver(()=>{if(!document.getElementById('meetPage').hidden)applyVB();}).observe(svgM);
   // controls
   const ui=document.getElementById('meetUI');
@@ -693,7 +698,7 @@ const MEET=(function(){
   ui.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;
     if(b.dataset.day){S.day=b.dataset.day;S.preset='';render();}
     else if(b.dataset.time){S.time=b.dataset.time;S.preset='';ui.querySelector('#meetTime').value=S.time;render();}
-    else if(b.dataset.pre){const p=PRE.find(x=>x[0]===b.dataset.pre);S.time=p[3];ui.querySelector('#meetTime').value=S.time;pick(p[2].id,p[0],true);}});
+    else if(b.dataset.pre){const p=PRE.find(x=>x[0]===b.dataset.pre);S.time=p[3];ui.querySelector('#meetTime').value=S.time;pick(p[2].id,p[0],true);track('meet_pick',{kind:'preset',preset:{am:'morning',noon:'noon',pm:'end'}[p[0]]});}});
   ui.querySelector('#meetTime').addEventListener('input',e=>{if(/^\d\d:\d\d$/.test(e.target.value)){S.time=e.target.value;S.preset='';render();}});
   function pick(id,preset,fly){S.sid=id;S.preset=preset||'';const s=byId[id];if(fly&&s)goTo(s.x,s.y,Math.max(1400,vb.w<1500?vb.w:1800),650);render();}
   // how to get there, from the connections in the data only
@@ -769,15 +774,16 @@ const MEET=(function(){
   }
   document.getElementById('meetShare').addEventListener('click',async e=>{const b=e.currentTarget,s=byId[S.sid];
     try{const blob=await image(),file=new File([blob],'meet.png',{type:'image/png'});
-      if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],text:message(),title:T('meet.share_title',{place:s.name})});return;}
-      if(navigator.share){await navigator.share({text:message(),title:T('meet.share_title',{place:s.name})});return;}
-      const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='meet-'+s.name.replace(/\W+/g,'-')+'.png';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),4000);
+      if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],text:message(),title:T('meet.share_title',{place:s.name})});track('meet_share',{method:'image'});return;}
+      if(navigator.share){await navigator.share({text:message(),title:T('meet.share_title',{place:s.name})});track('meet_share',{method:'image'});return;}
+      const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='meet-'+s.name.replace(/\W+/g,'-')+'.png';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),4000);track('meet_share',{method:'image'});
     }catch(err){}});
-  document.getElementById('meetCopy').addEventListener('click',e=>{const b=e.currentTarget;if(!navigator.clipboard)return;navigator.clipboard.writeText(link()).then(()=>{b.textContent=T('common.link_copied');setTimeout(()=>{b.textContent=T('meet.copy_link');},2200);}).catch(()=>{});});
+  document.getElementById('meetCopy').addEventListener('click',e=>{const b=e.currentTarget;if(!navigator.clipboard)return;navigator.clipboard.writeText(link()).then(()=>{track('meet_share',{method:'copy'});b.textContent=T('common.link_copied');setTimeout(()=>{b.textContent=T('meet.copy_link');},2200);}).catch(()=>{});});
+  document.getElementById('meetWa').addEventListener('click',()=>track('meet_share',{method:'whatsapp'}));
   document.getElementById('meetOnMap').addEventListener('click',()=>{const s=byId[S.sid];location.hash='#map';requestAnimationFrame(()=>requestAnimationFrame(()=>{showLift(s.ends[0].l.id);if(view==='3d'&&v3)v3.focusLift(s.ends[0].l.id);else focusOn([s.ends[0].l.g]);}));});
   let shown=false;
   function open(arg){ // arg: "<station>/<HHMM>/<YYYYMMDD>" from a shared link, or empty
-    if(arg){const [sid,t,d]=arg.split('/');if(byId[sid])S.sid=sid;if(/^\d{4}$/.test(t||''))S.time=t.slice(0,2)+':'+t.slice(2);if(/^\d{8}$/.test(d||''))S.day=`${d.slice(0,4)}-${d.slice(4,6)}-${d.slice(6)}`;
+    if(arg){const [sid,t,d]=arg.split('/');if(byId[sid]){S.sid=sid;if(!shown)track('meet_link_open');}if(/^\d{4}$/.test(t||''))S.time=t.slice(0,2)+':'+t.slice(2);if(/^\d{8}$/.test(d||''))S.day=`${d.slice(0,4)}-${d.slice(4,6)}-${d.slice(6)}`;
       ui.querySelector('#meetTime').value=S.time;}
     const s=byId[S.sid];requestAnimationFrame(()=>{if(!shown||arg){shown=true;if(s)goTo(s.x,s.y,1800,0);else fitAll(0);}render();if(arg&&s)document.getElementById('meetCard').scrollIntoView({block:'center'});});
   }
@@ -845,11 +851,14 @@ const LSTAT=(function(){
     if(v3&&v3.liftState)v3.liftState(Object.fromEntries(mainLifts.filter(l=>l.name).map(l=>[l.id,isOpen(l.name)])));
     if(mapReady)apply();
   }
-  panel.addEventListener('click',e=>{const b=e.target.closest('[data-forme]');if(!b)return;forMe=!forMe;b.setAttribute('aria-pressed',String(forMe));applyMap();});
+  panel.addEventListener('click',e=>{const b=e.target.closest('[data-forme]');if(!b)return;forMe=!forMe;b.setAttribute('aria-pressed',String(forMe));applyMap();track('status_only_open',{on:forMe});});
+  // status_view: once per visit to the map; on the first visit it waits for the first answer from /api/status
+  let loaded=false,pend=false;
+  function viewed(){if(!loaded){pend=true;return;}const f=fresh();track('status_view',f?{state:'fresh',open:names.filter(n=>isOpen(n)).length,total:names.length}:{state:data?'stale':'none'});}
   function load(){return fetch('api/status',{cache:'no-store'}).then(r=>r.ok&&/json/.test(r.headers.get('content-type')||'')?r.json():null).catch(()=>null)
-    .then(j=>{data=j&&j.updated&&j.lifts?j:null;applyMap();if(!current&&!panel.querySelector('.back'))overview();});}
+    .then(j=>{data=j&&j.updated&&j.lifts?j:null;loaded=true;if(pend){pend=false;viewed();}applyMap();if(!current&&!panel.querySelector('.back'))overview();});}
   setInterval(load,5*6e4);
-  return {block,load,applyMap};
+  return {block,load,applyMap,viewed};
 })();
 LSTAT.load();
 
@@ -889,13 +898,13 @@ function renderTicket(){
 // about and settings (#about): sound and vibration for the whole site and the games, and clearing the game records
 (function(){const P=window.GUD_PREFS||{sound:true,haptics:true};
   const paint=()=>document.querySelectorAll('[data-pref]').forEach(b=>b.setAttribute('aria-pressed',String(!!P[b.dataset.pref])));paint();
-  document.querySelectorAll('[data-pref]').forEach(b=>b.addEventListener('click',()=>{const k=b.dataset.pref;window.setGudPref(k,!P[k]);paint();
+  document.querySelectorAll('[data-pref]').forEach(b=>b.addEventListener('click',()=>{const k=b.dataset.pref;window.setGudPref(k,!P[k]);paint();if(k==='sound'||k==='haptics')track('settings_change',{setting:k,on:!!P[k]});
     if(k==='haptics'&&P.haptics)try{navigator.vibrate&&navigator.vibrate(20);}catch(e){}
     if(k==='sound'||k==='haptics')document.getElementById('abResetTxt').textContent=T('about.setting_saved');}));
   let armed=false;const r=document.getElementById('abReset'),rt=document.getElementById('abResetTxt');
   r.addEventListener('click',()=>{if(!armed){armed=true;r.classList.add('armed');rt.textContent=T('about.reset_confirm');setTimeout(()=>{armed=false;r.classList.remove('armed');},4000);return;}
     try{Object.keys(localStorage).filter(k=>(window.GUD_GAME_KEYS||[]).some(p=>k.startsWith(p))).forEach(k=>localStorage.removeItem(k));}catch(e){}
-    armed=false;r.classList.remove('armed');rt.textContent=T('about.reset_done');});})();
+    armed=false;r.classList.remove('armed');rt.textContent=T('about.reset_done');track('best_reset');});})();
 // the passes: tap the one behind to bring it forward, tap the stub to tear it off (it comes back)
 (function(){
   const stack=document.getElementById('bpStack');let busy=false,ac=null;const snd={};
@@ -912,13 +921,13 @@ function renderTicket(){
     const swap=e.target.closest('.bp-swap'),stub=e.target.closest('.bp-stub');
     if(busy)return;
     if(swap&&!document.querySelector('.bp[data-leg="ret"]').hidden){
-      busy=true;play('slide',0,.7,6000);play('land',.42,.75,5000);buzz(8);
+      track('ticket_swap',{to:front().dataset.leg==='out'?'ret':'out'});busy=true;play('slide',0,.7,6000);play('land',.42,.75,5000);buzz(8);
       stack.classList.add('shuffle');
       setTimeout(()=>{stack.querySelectorAll('.bp').forEach(c=>{const f=c.classList.contains('is-front');c.classList.toggle('is-front',!f);c.classList.toggle('is-back',f);});stack.classList.remove('shuffle');},250);
       setTimeout(()=>buzz(12),460);
       setTimeout(()=>{busy=false;},640);
     }else if(stub&&stub.closest('.bp')===front()){
-      busy=true;play('tear',0,.85,7500);buzz([6,30,6,30,6,30,6,30,6,30,6,90,24]);
+      track('ticket_tear',{leg:front().dataset.leg});busy=true;play('tear',0,.85,7500);buzz([6,30,6,30,6,30,6,30,6,30,6,90,24]);
       stub.classList.add('torn1');
       setTimeout(()=>{stub.classList.add('torn2');},540);
       setTimeout(()=>{stub.classList.remove('torn1','torn2');busy=false;},2600);
@@ -933,7 +942,7 @@ fetch('downloads/gudauri-2027.apk',{method:'HEAD'}).then(r=>{
   if(!r.ok||/text\/html/.test(r.headers.get('content-type')||''))return;
   const mb=+r.headers.get('content-length')/1048576;
   document.getElementById('appMeta').textContent=mb>0?T('home.app_download_meta_size',{size:mb.toFixed(mb<10?1:0)}):T('home.app_download');
-  document.getElementById('appBoard').hidden=false;document.getElementById('appHow').hidden=false;document.getElementById('boardNext').hidden=true;
+  document.getElementById('appBoard').hidden=false;document.getElementById('appBoard').addEventListener('click',()=>track('app_download',{store:'apk',placement:'home'}));document.getElementById('appHow').hidden=false;document.getElementById('boardNext').hidden=true;
 }).catch(()=>{});
 document.getElementById('loading').hidden=true;
 })().catch(e=>{console.error(e);const l=document.getElementById('loading');l.hidden=false;l.textContent=typeof T==='function'?T('home.load_error'):'Error';});
