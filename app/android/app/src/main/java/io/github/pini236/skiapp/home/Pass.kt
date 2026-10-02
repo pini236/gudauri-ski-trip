@@ -14,6 +14,7 @@ import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
@@ -110,12 +111,13 @@ private fun passInk(): PassInk {
         if (c.dark) Shadow(Color(0xA6FFC85A), blurRadius = 14f) else null, c.dark)
 }
 
-@Composable private fun Label(text: String, p: PassInk, modifier: Modifier = Modifier) =
-    Text(text, modifier, style = Ski.type.label.copy(fontSize = 11.sp, fontWeight = FontWeight.SemiBold, letterSpacing = .05.em), color = p.muted, maxLines = 1, overflow = TextOverflow.Ellipsis)
+@Composable private fun Label(text: String, p: PassInk, modifier: Modifier = Modifier, lines: Int = 1) =
+    Text(text, modifier, style = Ski.type.label.copy(fontSize = 11.sp, fontWeight = FontWeight.SemiBold, letterSpacing = .05.em, textAlign = if (lines > 1) TextAlign.Center else TextAlign.Unspecified),
+        color = p.muted, maxLines = lines, overflow = TextOverflow.Ellipsis)
 
 @Composable private fun Value(text: String, p: PassInk, ltr: Boolean = false) =
     Text(text, style = Ski.type.bodyBold.copy(fontSize = 14.sp, lineHeight = 1.2.em, shadow = p.glow, textDirection = if (ltr) TextDirection.Ltr else TextDirection.Content),
-        color = p.ink, maxLines = 1, overflow = TextOverflow.Ellipsis)
+        color = p.ink, maxLines = 2, overflow = TextOverflow.Ellipsis)
 
 /** An airport code in the display face (Latin, so Karantina in every language); a place typed without a code shows smaller. */
 @Composable private fun Code(code: String?, place: String, p: PassInk, color: Color = p.ink) {
@@ -249,8 +251,8 @@ fun TripPass(trip: Trip, now: LocalDateTime, haptics: Haptics, sounds: Sounds, o
     val swapLabel = stringResource(if (showRet) R.string.ticket_swap_out else R.string.ticket_swap_return)
     Column {
         Row(
-            Modifier.fillMaxWidth().height(230.dp)
-                .graphicsLayer { translationX = slide.value; rotationZ = slide.value / width.coerceAtLeast(1f) * 6f }
+            // the pass grows with its words (Georgian and large text are taller), never under the canvas's 230
+            Modifier.fillMaxWidth().heightIn(min = 230.dp).height(IntrinsicSize.Min)
                 .onSizeChanged { width = it.width.toFloat() }
                 .pointerInput(trip.ret != null) {
                     detectHorizontalDragGestures(
@@ -269,7 +271,9 @@ fun TripPass(trip: Trip, now: LocalDateTime, haptics: Haptics, sounds: Sounds, o
                         scope.launch { slide.snapTo(slide.value + dx * if (trip.ret == null) .25f else 1f) }
                     }
                 }
-                .semantics { if (trip.ret != null) customActions = listOf(CustomAccessibilityAction(swapLabel) { swap(!showRet); true }) },
+                .semantics { if (trip.ret != null) customActions = listOf(CustomAccessibilityAction(swapLabel) { swap(!showRet); true }) }
+                // after the finger is read: the pass follows it without moving the ground the finger is read on
+                .graphicsLayer { translationX = slide.value; rotationZ = slide.value / width.coerceAtLeast(1f) * 6f },
         ) {
             val isRet = leg === trip.ret
             Main(p, stringResource(R.string.app_home_trip) + " · " + stringResource(if (isRet) R.string.app_pass_ret else R.string.app_pass_out), shortDate(leg.date)) {
@@ -303,15 +307,6 @@ fun TripPass(trip: Trip, now: LocalDateTime, haptics: Haptics, sounds: Sounds, o
                 val tearLabel = stringResource(R.string.ticket_tear_stub)
                 StubFace(p,
                     Modifier
-                        .graphicsLayer {
-                            transformOrigin = TransformOrigin(if (rtl) 1f else 0f, 1f)
-                            rotationZ = s * (9f * t + 25f * f)
-                            translationX = s * (4.dp.toPx() * t + 58.dp.toPx() * f)
-                            translationY = 2.dp.toPx() * t + 210.dp.toPx() * f * f
-                            alpha = 1f - (f * 1.4f - .4f).coerceIn(0f, 1f)
-                        }
-                        .shadow(if (t > 0f) 6.dp else 10.dp, if (t > 0f) torn else notch, ambientColor = Color(0x33000000), spotColor = Color(0x33000000))
-                        .clip(if (t > 0f) torn else notch)
                         .semantics { role = Role.Button; contentDescription = tearLabel }
                         .pointerInput(Unit) { detectTapGestures { tearByTap() } }
                         .pointerInput(Unit) {
@@ -322,19 +317,28 @@ fun TripPass(trip: Trip, now: LocalDateTime, haptics: Haptics, sounds: Sounds, o
                                 ch.consume()
                                 scope.launch { val v = (tear.value + dy / size.height).coerceIn(0f, 1f); tear.snapTo(v); onTear(v) }
                             }
-                        },
+                        }
+                        .graphicsLayer {
+                            transformOrigin = TransformOrigin(if (rtl) 1f else 0f, 1f)
+                            rotationZ = s * (9f * t + 25f * f)
+                            translationX = s * (4.dp.toPx() * t + 58.dp.toPx() * f)
+                            translationY = 2.dp.toPx() * t + 210.dp.toPx() * f * f
+                            alpha = 1f - (f * 1.4f - .4f).coerceIn(0f, 1f)
+                        }
+                        .shadow(if (t > 0f) 6.dp else 10.dp, if (t > 0f) torn else notch, ambientColor = Color(0x33000000), spotColor = Color(0x33000000))
+                        .clip(if (t > 0f) torn else notch),
                 ) {
                     if (!isRet) {
                         val days = trip.daysToFlight(now)
                         Label(stringResource(R.string.app_pass_more), p)
                         Big(days.toString(), p)
                         Label(if (days == 0) stringResource(R.string.ticket_stub_departing)
-                            else pluralStringResource(if (p.dark) R.plurals.app_pass_nights else R.plurals.app_pass_days, days), p)
+                            else pluralStringResource(if (p.dark) R.plurals.app_pass_nights else R.plurals.app_pass_days, days), p, lines = 2)
                     } else {
                         val n = trip.skiDayCount()
                         Label(stringResource(R.string.app_pass_first), p)
                         Big(if (n > 0) n.toString() else "—", p)
-                        Label(pluralStringResource(R.plurals.app_pass_ski_days, if (n > 0) n else 5), p)
+                        Label(pluralStringResource(R.plurals.app_pass_ski_days, if (n > 0) n else 5), p, lines = 2)
                     }
                     if (leg.fromCode != null && leg.toCode != null)
                         Text("${leg.fromCode} › ${leg.toCode}", Modifier.padding(top = 4.dp), style = TextStyle(fontFamily = Karantina, fontWeight = FontWeight.Bold, fontSize = 20.sp,
@@ -369,8 +373,8 @@ fun EmptyPass(onAdd: () -> Unit) {
     val p = passInk()
     val faint = if (p.dark) Color(0xFF3A4A66) else Color(0xFFC3CEDA)
     Column {
-        Box(Modifier.fillMaxWidth().height(216.dp)) {
-            Row(Modifier.fillMaxSize()) {
+        Box(Modifier.fillMaxWidth().heightIn(min = 216.dp).height(IntrinsicSize.Min)) {
+            Row(Modifier.fillMaxWidth().fillMaxHeight()) {
                 Main(p, stringResource(R.string.app_home_trip), stringResource(R.string.app_pass_not_set)) {
                     Route(p, stringResource(R.string.ticket_from), stringResource(R.string.ticket_to),
                         { Code("???", "", p, faint) }, { Code("???", "", p, faint) }, planeColor = faint)
@@ -386,7 +390,7 @@ fun EmptyPass(onAdd: () -> Unit) {
                         Spacer(Modifier.weight(1f))
                         Label(stringResource(R.string.app_pass_more), p)
                         Big("?", p, faint)
-                        Label(pluralStringResource(R.plurals.app_pass_days, 5), p)
+                        Label(pluralStringResource(R.plurals.app_pass_days, 5), p, lines = 2)
                         Spacer(Modifier.weight(1f))
                     }
                 }
