@@ -238,7 +238,7 @@ function aboutMe(me) {
   const card = me
     ? `<div class="ab-pass"><div class="ab-pass-top"><span>SKI PASS · החשבון שלך</span><span>גוגל</span></div><div class="ab-pass-body"><span class="ab-av">פ</span>
         <div><b>פיני זולברג</b><span>גודאורי 2027 · הטיול, השיאים והקבוצה, באתר ובאפליקציה</span>
-        <span class="ab-links"><a href="#account">ניהול החשבון${chev}</a></span></div></div></div>`
+        <span class="ab-links"><a href="#account">ניהול החשבון${chev}</a><button type="button" class="out">${ic('out', 18)}יציאה</button></span></div></div></div>`
     : `<div class="ab-pass"><div class="ab-pass-top"><span>SKI PASS · אורח</span><span>בלי חשבון</span></div><div class="ab-pass-body"><span class="ab-av guest">?</span>
         <div><b>אורח</b><span>הכל עובד בלי חשבון. חשבון צריך רק כדי ליצור קבוצה, או לראות את הטיול גם באפליקציה.</span>
         <span class="ab-links"><button type="button" class="g"><span class="r12-mark">G</span>גוגל</button><button type="button" class="a"><span class="r12-mark">A</span>אפל</button></span></div></div></div>`;
@@ -270,3 +270,15 @@ function gondola(me) {
 }
 function g1() { gondola(false); }
 function g2() { gondola(true); }
+
+// tapping your name on the pass: a small card, with the account and signing out
+function p7() {
+  ACCT = 'none'; tripHome(); passWho(true);
+  const who = $('.is-front .bp-who') || $('.bp-who');
+  const wrap = $('.ticket-wrap'); wrap.style.position = 'relative';
+  const r = who.getBoundingClientRect(), w = wrap.getBoundingClientRect();
+  wrap.insertAdjacentHTML('beforeend', `<div class="who-pop" role="dialog" aria-label="הנוסע" style="top:${r.bottom - w.top + 14}px">
+    <div class="r12-who"><span class="r12-av" style="width:44px;height:44px;font-size:28px">פ</span><span><b>פיני זולברג</b><small>מחובר עם גוגל · הטיול והשיאים גם באפליקציה</small></span></div>
+    <div class="wp-row"><a href="#account">ניהול החשבון</a><button type="button">${ic('out', 18)}יציאה</button></div></div>`);
+  window.__clip = { x: 0, y: Math.max(0, w.top + scrollY - 20), width: innerWidth, height: w.height + 200 };
+}

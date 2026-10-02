@@ -32,7 +32,7 @@ const SCREENS = [
   ['W10-GroupDesktop', 1280, 0, 'day', 'group'],
   ['W11-TripHomeNight', 390, 0, 'night', 'tripHome'],
   ['P1-PassMe', 390, 0, 'day', 'p1'], ['P2-PassGuest', 390, 0, 'day', 'p2'], ['P3-EmptyPass', 390, 0, 'day', 'p3'],
-  ['P4-AboutMe', 390, 0, 'day', 'p4'], ['P5-AboutGuest', 390, 0, 'day', 'p5'], ['P6-PassMeNight', 390, 0, 'night', 'p6'],
+  ['P4-AboutMe', 390, 0, 'day', 'p4'], ['P5-AboutGuest', 390, 0, 'day', 'p5'], ['P6-PassMeNight', 390, 0, 'night', 'p6'], ['P7-PassMenu', 390, 0, 'day', 'p7'],
   ['G1-GondolaGuest', 390, 0, 'day', 'g1'], ['G2-GondolaMe', 390, 0, 'day', 'g2'],
 ];
 
