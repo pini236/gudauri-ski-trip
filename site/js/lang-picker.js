@@ -19,8 +19,8 @@
       l.href='https://fonts.googleapis.com/css2?family=Karantina:wght@700&family=Oswald:wght@600&family=Noto+Sans+Georgian:wdth,wght@62.5,800&display=swap';document.head.appendChild(l);}
     if(sheet.showModal)sheet.showModal();else sheet.setAttribute('open','');
   });
-  sheet.addEventListener('change',function(e){if(e.target.name==='lang'&&e.target.value!==I18N.lang)I18N.set(e.target.value);});
-  document.getElementById('langAuto').addEventListener('click',function(){I18N.set(null);});
+  sheet.addEventListener('change',function(e){if(e.target.name==='lang'&&e.target.value!==I18N.lang){track('lang_set',{lang:e.target.value,previous:I18N.lang});I18N.set(e.target.value);}});
+  document.getElementById('langAuto').addEventListener('click',function(){track('lang_set',{lang:'auto',previous:I18N.lang});I18N.set(null);});
   // a tap on the dimmed page closes the list
   sheet.addEventListener('click',function(e){if(e.target===sheet)sheet.close();});
 })();

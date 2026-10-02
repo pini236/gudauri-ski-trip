@@ -9,6 +9,7 @@
 <style>.back-site{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 14px;background:rgba(19,35,58,.88);color:#fff;font:700 14px "IBM Plex Sans Hebrew",system-ui,sans-serif;text-decoration:none;align-self:flex-start;flex:0 0 auto;box-sizing:border-box}.back-site:focus-visible{outline:3px solid #F4B942;outline-offset:2px}</style>
 <script src="../../js/i18n.js" data-base="../../i18n/" data-file="game-merge"></script>
 <script src="../../js/prefs.js"></script>
+<script src="../../js/telemetry.js" data-game="merge"></script>
 <title data-i18n="game.merge.title">איחוד כדורי שלג</title>
 <meta name="description" data-i18n-attr="content:game.merge.meta_description" content="מחליקים, שני כדורים זהים מתאחדים לגדול יותר, עד איש השלג הענק">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -146,7 +147,7 @@ function render(){ tiles.forEach(el=>el.remove()); tiles.clear(); for(const row 
 function hud(){ $('score').textContent=score; $('best').textContent=best; $('undo').textContent=L('game.merge.undo','ביטול מהלך ({n})',{n:undos}); $('undo').disabled=!undos||!hist.length;
   const nx=Math.min(NAMES.length-1,maxLv+1); $('goalTxt').textContent= maxLv>=NAMES.length-1 ? L('game.merge.goal_top','הגעת לפסגה') : L('game.merge.goal_next','הבא: {name}',{name:NAMES[nx]}); $('goalBar').style.width=(maxLv/(NAMES.length-1)*100)+'%';
   const got=store.get('got',0); $('ladder').innerHTML=NAMES.map((n,i)=>`<span class="${i<=Math.max(got,maxLv)?'got':''} ${i===maxLv?'now':''}">${n}</span>`).join(''); }
-function newGame(){ finishAnim(); grid=[...Array(4)].map(()=>Array(4).fill(null)); score=0; maxLv=0; hist=[]; undos=3; wonShown=false; tiles.forEach(el=>el.remove()); tiles.clear(); spawn(); spawn(); hud(); $('over').hidden=true; store.set('save',null); }
+function newGame(){ gameEnd(); finishAnim(); grid=[...Array(4)].map(()=>Array(4).fill(null)); score=0; maxLv=0; hist=[]; undos=3; wonShown=false; tiles.forEach(el=>el.remove()); tiles.clear(); spawn(); spawn(); hud(); $('over').hidden=true; store.set('save',null); }
 function nudge(dir){ if(reduce) return; const c=['nudge-l','nudge-r','nudge-u','nudge-d'][dir]; B.classList.remove(c); void B.offsetWidth; B.classList.add(c); setTimeout(()=>B.classList.remove(c),200); }
 // a new move while the last one is still sliding finishes the last one at once, so fast swipes never get lost
 function finishAnim(){ if(!busy) return; clearTimeout(busy.timer); const b=busy; busy=null; b.done(); }
@@ -169,7 +170,7 @@ function move(dir){ // dir: 0 left 1 right 2 up 3 down, as on screen
   for(const row of grid) for(const t of row) if(t && tiles.has(t.id)) place(tiles.get(t.id),t.r,t.c);
   merges.forEach(m=>m.from.forEach(f=>{ const el=tiles.get(f.id); if(el){ el.classList.add('gone'); place(el,m.t.r,m.t.c); } }));
   // 2. when they arrive: the bigger ball pops in with a puff, the score counts up, a new flake appears
-  const done=()=>{ let gained=0;
+  const done=()=>{ let gained=0; gameStart();
     merges.forEach(m=>{ m.from.forEach(f=>{ const el=tiles.get(f.id); el&&el.remove(); tiles.delete(f.id); }); mk(m.t,'merged'); const pts=2**(m.t.lv+1); gained+=pts; plus(m.t.r,m.t.c,pts); puff(m.t.r,m.t.c,m.t.lv); });
     tiles.forEach(el=>{ if(el.classList.contains('new')) setTimeout(()=>el.classList.remove('new'),400); });
     if(merges.length){ const top=Math.max(...merges.map(m=>m.t.lv)); crunch(top, .18+.05*merges.length); buzz(merges.length>1?[10,30,10]:10);
@@ -177,7 +178,7 @@ function move(dir){ // dir: 0 left 1 right 2 up 3 down, as on screen
       if(top>maxLv){ maxLv=top; if(top>store.get('got',0)){ store.set('got',top); if(top>=3) toast(top); } } }
     spawn(); hud(); store.set('save',{g:grid,score,maxLv,undos});
     if(maxLv>=7 && !wonShown){ wonShown=true; setTimeout(()=>show(L('game.merge.won_title','איש שלג!'),L('game.merge.won_text','בנית איש שלג שלם. אפשר להמשיך לבנות: כובע, צעיף, ענק, ועד מלך קזבק.'),'continue'),500); }
-    else if(!canMove()) setTimeout(()=>show(L('game.merge.over_title','אין מקום'),L('game.merge.over_text','הגעת עד: {name}. ניקוד {score}.',{name:NAMES[maxLv],score}),'again'),400); };
+    else if(!canMove()){ gameEnd(); setTimeout(()=>show(L('game.merge.over_title','אין מקום'),L('game.merge.over_text','הגעת עד: {name}. ניקוד {score}.',{name:NAMES[maxLv],score}),'again'),400); } };
   busy={done, timer:setTimeout(()=>{ busy=null; done(); }, SLIDE)}; }
 function cellOf(dir,i,j){ // j=0 is the side the tiles slide toward; columns run right to left
   if(dir===0) return [i,3-j]; if(dir===1) return [i,j]; if(dir===2) return [j,i]; return [3-j,i]; }
@@ -197,6 +198,12 @@ addEventListener('pointermove',e=>{ if(!sw||sw.done) return; const dx=e.clientX-
 addEventListener('pointerup',()=>{ sw=null; }); addEventListener('pointercancel',()=>{ sw=null; });
 addEventListener('resize',measure);
 measure();
+// usage statistics (site/js/telemetry.js; absent in the design preview): a game runs from the first move in this visit until
+// the board is full, a new game, or leaving the page (the board itself is kept). completed = a whole snowman; no level
+let g0=0, gBest=0;
+function gameStart(){ if(g0) return; g0=performance.now(); gBest=best; window.track&&track('game_start',{game:'merge'}); }
+function gameEnd(){ if(!g0) return; window.track&&track('game_end',{game:'merge',score,seconds:Math.round((performance.now()-g0)/1000),completed:maxLv>=7,best:score>gBest}); g0=0; }
+addEventListener('pagehide',gameEnd);
 // the first board is drawn once the words of the page language are in
 function start(){ NAMES=names();
   const sv=store.get('save',null);

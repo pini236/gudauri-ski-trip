@@ -148,7 +148,7 @@ function grains(n,vol){ const a=ac(); const now=performance.now(); if(!a || now-
   try{ if(navigator.vibrate && kind!=='powder') navigator.vibrate(kind==='crust'?8:4); }catch(_){} }
 /* ---------- input: several fingers at once ---------- */
 const fingers=new Map();
-cv.addEventListener('pointerdown',e=>{ if(scene!=='snow') return; e.preventDefault(); try{cv.setPointerCapture(e.pointerId);}catch(_){} $('tip').style.opacity=0; last=null; acc=99; fingers.set(e.pointerId,{last:null}); swap(e.pointerId); stroke(e.clientX,e.clientY); unswap(e.pointerId); });
+cv.addEventListener('pointerdown',e=>{ if(scene!=='snow') return; e.preventDefault(); gameStart(); try{cv.setPointerCapture(e.pointerId);}catch(_){} $('tip').style.opacity=0; last=null; acc=99; fingers.set(e.pointerId,{last:null}); swap(e.pointerId); stroke(e.clientX,e.clientY); unswap(e.pointerId); });
 cv.addEventListener('pointermove',e=>{ if(!fingers.has(e.pointerId)) return; swap(e.pointerId); stroke(e.clientX,e.clientY); unswap(e.pointerId); });
 ['pointerup','pointercancel'].forEach(ev=>cv.addEventListener(ev,e=>fingers.delete(e.pointerId)));
 function swap(id){ const f=fingers.get(id); last=f.last; acc=f.acc??99; }
@@ -172,6 +172,12 @@ function frame(now){ const dt=Math.min(.05,(now-lt)/1000); lt=now;
   requestAnimationFrame(frame); }
 /* ---------- the frozen lake: ice in plates, cracks that spread, and plates that give way into the water ---------- */
 let scene='snow';
+// usage statistics (site/js/telemetry.js; absent in the design preview). No end here, so a game is the play in one scene
+// (level: snow or lake) from the first touch until switching scene or leaving; score = the percentage on screen
+let g0=0, gScene='', lakePrev=0; try{ lakePrev=+localStorage.getItem('lake-best')||0; }catch(_){}
+function gameStart(){ if(g0) return; g0=performance.now(); gScene=scene; window.track&&track('game_start',{game:'fresh',level:scene}); }
+function gameEnd(){ if(!g0) return; window.track&&track('game_end',{game:'fresh',level:gScene,score:parseInt($('area').textContent)||0,seconds:Math.round((performance.now()-g0)/1000),completed:true,best:gScene==='lake'&&bestChain>lakePrev}); g0=0; }
+addEventListener('pagehide',gameEnd);
 const lk=$('lake'), lx=lk.getContext('2d'), ice=document.createElement('canvas'), ix=ice.getContext('2d');
 const G2=2; let LW, LH, cid, cells=[], shards=[], ripples=[], chips=[], broken=0, chain=0, chainT=0, bestChain=0, refreezeT=0;
 function initLake(){ const W=innerWidth, H=innerHeight; lk.width=W; lk.height=H; ice.width=W; ice.height=H; LW=Math.ceil(W/G2); LH=Math.ceil(H/G2);
@@ -237,7 +243,7 @@ function breakSound(depth){ const a=ac(); if(!a) return; const t=a.currentTime+.
   grain(t+.05,.35,.28,'lowpass',500+Math.random()*200,.8);
   const o=a.createOscillator(), g=a.createGain(); o.type='sine'; o.frequency.setValueAtTime(260,t+.1); o.frequency.exponentialRampToValueAtTime(90,t+.3); g.gain.setValueAtTime(.12,t+.1); g.gain.exponentialRampToValueAtTime(.001,t+.34); o.connect(g); g.connect(a.destination); o.start(t+.1); o.stop(t+.36); }
 let lakeLast=null;
-lk.addEventListener('pointerdown',e=>{ e.preventDefault(); try{lk.setPointerCapture(e.pointerId);}catch(_){} $('tip').style.opacity=0; if(refreezeT>0) return; lakeLast={x:e.clientX,y:e.clientY,acc:0}; hit(e.clientX,e.clientY,1); });
+lk.addEventListener('pointerdown',e=>{ e.preventDefault(); gameStart(); try{lk.setPointerCapture(e.pointerId);}catch(_){} $('tip').style.opacity=0; if(refreezeT>0) return; lakeLast={x:e.clientX,y:e.clientY,acc:0}; hit(e.clientX,e.clientY,1); });
 lk.addEventListener('pointermove',e=>{ if(!lakeLast||refreezeT>0) return; const d=Math.hypot(e.clientX-lakeLast.x,e.clientY-lakeLast.y); lakeLast.acc+=d;
   // dragging scratches a hairline crack, and every so often presses harder
   if(d>3){ ix.globalCompositeOperation='source-atop'; ix.strokeStyle='rgba(255,255,255,.8)'; ix.lineWidth=1; ix.beginPath(); ix.moveTo(lakeLast.x,lakeLast.y); ix.lineTo(e.clientX+(Math.random()-.5)*3,e.clientY+(Math.random()-.5)*3); ix.stroke(); ix.globalCompositeOperation='source-over'; const a=ac(); if(a) grain(a.currentTime,.01,.2,'highpass',4000+Math.random()*2000,.7); }
@@ -256,7 +262,7 @@ function lakeFrame(dt){ const W=lk.width, H=lk.height; chainT=Math.max(0,chainT-
   for(const c of chips){ c.vy+=400*dt; c.x+=c.vx*dt; c.y+=c.vy*dt; c.life-=dt; lx.fillStyle=c.water?'rgba(160,210,240,.9)':'rgba(255,255,255,.95)'; lx.globalAlpha=Math.max(0,c.life*2); lx.beginPath(); lx.arc(c.x,c.y,c.r,0,7); lx.fill(); } lx.globalAlpha=1; chips=chips.filter(c=>c.life>0);
   if(bigT>0){ bigT-=dt; lx.globalAlpha=Math.min(1,bigT*2); lx.font='700 52px Karantina, "Arial Narrow", sans-serif'; lx.textAlign='center'; lx.fillStyle='#fff'; lx.strokeStyle='rgba(10,34,54,.6)'; lx.lineWidth=4; const y=H*.3-(1-bigT)*30; lx.strokeText(bigS,W/2,y); lx.fillText(bigS,W/2,y); lx.globalAlpha=1; } }
 /* switching between the snow and the lake */
-$('scenes').addEventListener('click',e=>{ const b=e.target.closest('[data-s]'); if(!b) return; scene=b.dataset.s; document.querySelectorAll('[data-s]').forEach(x=>x.setAttribute('aria-pressed',x===b));
+$('scenes').addEventListener('click',e=>{ const b=e.target.closest('[data-s]'); if(!b) return; if(b.dataset.s!==scene) gameEnd(); scene=b.dataset.s; document.querySelectorAll('[data-s]').forEach(x=>x.setAttribute('aria-pressed',x===b));
   const lake=scene==='lake'; lk.hidden=!lake; cv.hidden=lake; $('kinds').hidden=lake; $('tools').hidden=lake; $('lakeRow').hidden=!lake;
   $('kindTxt').textContent= lake ? L('game.fresh.lake_desc','אגם קפוא ליד הכפר. נוגעים כדי לרסק') : KINDS[kind].txt(); $('statLbl').textContent= lake ? L('game.fresh.stat_broken','שבור') : L('game.fresh.stat_tracks','עקבות');
   if(lake && !cells.length) initLake(); if(lake) lakeStat(); else dirty=true; });
