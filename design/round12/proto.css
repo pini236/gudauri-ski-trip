@@ -119,3 +119,31 @@
 .home-top .hello b{width:26px;height:26px;display:flex;align-items:center;justify-content:center;background:var(--ink);color:var(--paper);font-family:var(--f-display);font-size:19px;text-shadow:none}
 .home-top .hello svg{opacity:.8}
 @media (max-width:760px){.home-top:has(.hello){flex-wrap:wrap}.home-top:has(.hello) .loc{order:1}.home-top:has(.hello) .dn-home{order:2}}
+
+/* --- round 12b: the account in the site's own language --- */
+/* 1. the pass is the account: the passenger field is a link */
+.bp-who{display:inline-flex;align-items:center;gap:3px;color:inherit;text-decoration:underline;text-decoration-style:dotted;text-underline-offset:3px;text-decoration-thickness:1.5px}
+.bp-who svg{flex:none;opacity:.7}
+.bp-who.guest{color:var(--glacier)}
+/* the account on the settings page: a ski pass, like "who built it" */
+.ab-me .ab-pass{transform:rotate(1deg)}
+.ab-me .ab-pass-top{background:var(--ink)}
+.ab-me .ab-av{flex:none;width:88px;height:88px;display:flex;align-items:center;justify-content:center;background:var(--ink);color:var(--paper);font-family:var(--f-display);font-size:64px;font-weight:700;border:3px solid var(--paper);box-shadow:0 0 0 1px var(--rule)}
+.ab-me .ab-av.guest{background:var(--snow);color:var(--rule);box-shadow:inset 0 0 0 2px var(--rule)}
+.ab-me .ab-links{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px}
+.ab-me .ab-links a,.ab-me .ab-links button{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 12px;border:1.5px solid var(--ink);background:transparent;color:var(--ink);font:inherit;font-size:13.5px;font-weight:700;text-decoration:none}
+.ab-me .ab-links .g{background:#fff;color:#1F1F1F;border-color:#747775}
+.ab-me .ab-links .a{background:#000;color:#fff;border-color:#000}
+/* 2. the lift cabin on a cable across the view */
+.gondola{position:absolute;inset:0;pointer-events:none;z-index:2}
+.gondola a{pointer-events:auto;position:absolute;display:block;width:56px;height:84px;text-decoration:none}
+.gondola .cab-tag{position:absolute;top:86px;left:50%;transform:translateX(-50%);padding:2px 8px;background:var(--p-blue);color:#fff;font-size:12px;font-weight:700;white-space:nowrap}
+.r12-sel{width:100%;height:48px;font:inherit;font-size:16px;color:var(--ink);background:var(--paper);border:1.5px solid var(--rule);border-radius:0;padding:0 10px}
+/* the passenger card: what tapping your name on the pass opens */
+.who-pop{position:absolute;z-index:5;inset-inline:16px;padding:14px 16px;background:var(--paper);box-shadow:0 14px 30px var(--shadow),0 0 0 1px var(--rule);border-top:6px solid var(--ink);display:flex;flex-direction:column;gap:10px}
+.who-pop::before{content:"";position:absolute;top:-14px;inset-inline-start:46px;border:8px solid transparent;border-bottom-color:var(--ink)}
+.who-pop .r12-who b{font-family:var(--f-display);font-size:30px;line-height:1}
+.who-pop .r12-who small{display:block;font-size:12.5px;color:var(--muted)}
+.who-pop .wp-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.who-pop .wp-row a,.who-pop .wp-row button{display:flex;align-items:center;justify-content:center;gap:6px;min-height:46px;border:1.5px solid var(--ink);background:transparent;color:var(--ink);font:inherit;font-size:14px;font-weight:700;text-decoration:none}
+.ab-me .ab-links .out{border-color:var(--rule);color:var(--muted)}

@@ -31,15 +31,15 @@ const SCREENS = [
   ['W9-TripHomeDesktop', 1280, 0, 'day', 'tripHome'],
   ['W10-GroupDesktop', 1280, 0, 'day', 'group'],
   ['W11-TripHomeNight', 390, 0, 'night', 'tripHome'],
-  // where the account goes on the phone (Pini: the first place looked odd)
-  ['K1-DuoGuest', 390, 0, 'day', "k('duo', false)"], ['K2-DuoMe', 390, 0, 'day', "k('duo', true)"],
-  ['K3-TagGuest', 390, 0, 'day', "k('tag', false)"], ['K4-TagMe', 390, 0, 'day', "k('tag', true)"],
-  ['K5-LineGuest', 390, 0, 'day', "k('line', false)"], ['K6-LineMe', 390, 0, 'day', "k('line', true)"],
-  ['K7-DuoMeNight', 390, 0, 'night', "k('duo', true)"], ['K8-TagMeNight', 390, 0, 'night', "k('tag', true)"],
+  ['P1-PassMe', 390, 0, 'day', 'p1'], ['P2-PassGuest', 390, 0, 'day', 'p2'], ['P3-EmptyPass', 390, 0, 'day', 'p3'],
+  ['P4-AboutMe', 390, 0, 'day', 'p4'], ['P5-AboutGuest', 390, 0, 'day', 'p5'], ['P6-PassMeNight', 390, 0, 'night', 'p6'], ['P7-PassMenu', 390, 0, 'day', 'p7'],
+  ['G1-GondolaGuest', 390, 0, 'day', 'g1'], ['G2-GondolaMe', 390, 0, 'day', 'g2'],
 ];
 
 const b = await chromium.launch();
+const only = process.env.ONLY ? new RegExp(process.env.ONLY) : null;
 for (const [name, w, h, theme, fn] of SCREENS) {
+  if (only && !only.test(name)) continue;
   const ctx = await b.newContext({ viewport: { width: w, height: h || 844 }, locale: 'he-IL', timezoneId: 'Asia/Tbilisi', reducedMotion: 'reduce' });
   await ctx.addInitScript(t => { try { localStorage.setItem('gud-lang', 'he'); localStorage.setItem('gud-daynight', t); } catch (e) {} }, theme);
   await ctx.route('**/fonts.googleapis.com/**', r => r.fulfill({ contentType: 'text/css', body: FONTS }));

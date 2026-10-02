@@ -88,20 +88,25 @@ function page(html, wide = false) {
 const head = (t, back = 'בית') => `<div class="r12-head"><h1>${t}</h1><a href="#home">${ic('back')}${back}</a></div>`;
 
 function tripForm() {
+  // Pini (2.10.2026, on the app's form): typing dates and numbers by hand is uncomfortable. So: the browser's own
+  // date and time pickers, the destination starts as Tbilisi, and the return is the outbound the other way round.
   page.me = false;
+  const inp = (label, type, value, extra = '') => `<div class="r12-fld"><label>${label}</label><input type="${type}" value="${value}"${extra}></div>`;
+  const sel = (label, opts, pick) => `<div class="r12-fld"><label>${label}</label><select class="r12-sel">${opts.map(o => `<option${o === pick ? ' selected' : ''}>${o}</option>`).join('')}</select></div>`;
+  const airports = ['TLV · תל אביב', 'TBS · טביליסי', 'KUT · קוטאיסי'];
   page(head('הטיול שלך', 'ביטול')
-    + `<p class="r12-lead">הטיסות שלך לגודאורי. בלי הרשמה: נשמר רק בדפדפן הזה.</p>`
+    + `<p class="r12-lead">רק תאריך ההלוך חובה. בלי הרשמה: נשמר רק בדפדפן הזה.</p>`
     + `<form style="display:flex;flex-direction:column;gap:12px">`
     + `<div class="r12-sec"><b>הלוך</b><i></i><span>חובה רק התאריך</span></div>`
-    + `<div class="r12-grid">${fld('תאריך', '10.1.2027')}${fld('מספר טיסה', '6H 897', 'למשל 6H 897', true)}</div>`
-    + `<div class="r12-grid">${fld('מ', 'TLV · תל אביב')}${fld('אל', 'TBS · טביליסי')}</div>`
-    + `<div class="r12-grid">${fld('המראה', '16:00')}${fld('נחיתה', '20:35')}</div>`
-    + `<div class="r12-sec" style="margin-top:8px"><b>חזור</b><i></i><span>אפשר גם בלי</span></div>`
-    + `<div class="r12-grid">${fld('תאריך', '15.1.2027')}${fld('מספר טיסה', '6H 892', '', true)}</div>`
-    + `<div class="r12-grid">${fld('המראה', '01:35')}${fld('נחיתה', '02:15')}</div>`
+    + `<div class="r12-grid">${inp('תאריך', 'date', '2027-01-10')}${inp('מספר טיסה', 'text', '6H 897', ' dir="ltr" style="text-transform:uppercase" autocapitalize="characters" placeholder="למשל 6H 897"')}</div>`
+    + `<div class="r12-grid">${sel('מ', airports, 'TLV · תל אביב')}${sel('אל', airports, 'TBS · טביליסי')}</div>`
+    + `<div class="r12-grid">${inp('המראה', 'time', '16:00')}${inp('נחיתה', 'time', '20:35')}</div>`
+    + `<div class="r12-sec" style="margin-top:8px"><b>חזור</b><i></i><span dir="rtl">טביליסי › תל אביב, אוטומטית</span></div>`
+    + `<div class="r12-grid">${inp('תאריך', 'date', '2027-01-15')}${inp('מספר טיסה', 'text', '6H 892', ' dir="ltr" style="text-transform:uppercase"')}</div>`
+    + `<div class="r12-grid">${inp('המראה', 'time', '01:35')}${inp('נחיתה', 'time', '02:15')}</div>`
     + `<div class="r12-card" style="padding:12px 14px;display:flex;justify-content:space-between;align-items:center"><span><small style="font-size:12px;font-weight:600;color:var(--muted)">ימי סקי מלאים, מחושב מהטיסות</small><br><b style="font-family:var(--f-display);font-size:30px;line-height:1"><span dir="ltr">11–14.1</span> · 4 ימים</b></span><a href="#" style="font-weight:700;min-height:44px;display:inline-flex;align-items:center">שינוי</a></div>`
     + `<div class="r12-btns" style="margin-top:6px"><button type="button" class="r12-btn blue">${ic('check')}שמירה</button><button type="button" class="r12-btn quiet">מחיקת הטיול</button></div></form>`
-    + note('מתחברים? הטיול עובר לחשבון, ומופיע גם באפליקציה.', 'cloud'));
+    + note('תאריך ושעה נבחרים מהלוח של הדפדפן, בלי הקלדה. מתחברים? הטיול עובר לחשבון, ומופיע גם באפליקציה.', 'cloud'));
 }
 
 function signIn() {
@@ -207,3 +212,73 @@ function acctPhone(me) {
 function clipTop(h = 330) { window.__clip = { x: 0, y: 0, width: innerWidth, height: h }; }
 function clipPost() { const r = $('.post').getBoundingClientRect(); window.__clip = { x: 0, y: Math.max(0, r.top + scrollY - 80), width: innerWidth, height: 430 }; }
 function k(variant, me) { ACCT = variant; (me ? tripHome : guestHome)(); variant === 'tag' ? clipPost() : clipTop(variant === 'line' ? 360 : 330); }
+
+// ---------------------------------------------------------------- round 12b (Pini: all three places were bad)
+const chev = ic('back', 14).replace('M9 6l6 6-6 6', 'M15 6l-6 6 6 6');
+// 1. the pass is the account
+function passWho(me) {
+  ACCT = 'none';
+  $$('[data-f="pax"]').forEach(e => {
+    e.innerHTML = me ? `<a class="bp-who" href="#account">פיני זולברג</a>` : `<a class="bp-who guest" href="#signin">אורח</a>`;
+  });
+}
+function p1() { ACCT = 'none'; tripHome(); passWho(true); clipTicket(); }
+function p2() {
+  ACCT = 'none'; tripHome(); passWho(false);
+  clipTicket();
+}
+function p3() {
+  ACCT = 'none'; guestHome();
+  const n = $('.ticket-wrap .r12-note span'); if (n) n.innerHTML = 'בלי הרשמה. נשמר רק בדפדפן הזה. יש לך חשבון? <a href="#signin" style="font-weight:700">כניסה</a>';
+  clipTop(700);
+}
+function clipTicket() { const r = $('.ticket-wrap').getBoundingClientRect(); window.__clip = { x: 0, y: Math.max(0, r.top + scrollY - 20), width: innerWidth, height: r.height + 60 }; }
+function aboutMe(me) {
+  $$('main.page').forEach(m => { m.hidden = true; }); const a = $('#aboutPage'); a.hidden = false; scrollTo(0, 0);
+  const card = me
+    ? `<div class="ab-pass"><div class="ab-pass-top"><span>SKI PASS · החשבון שלך</span><span>גוגל</span></div><div class="ab-pass-body"><span class="ab-av">פ</span>
+        <div><b>פיני זולברג</b><span>גודאורי 2027 · הטיול, השיאים והקבוצה, באתר ובאפליקציה</span>
+        <span class="ab-links"><a href="#account">ניהול החשבון${chev}</a><button type="button" class="out">${ic('out', 18)}יציאה</button></span></div></div></div>`
+    : `<div class="ab-pass"><div class="ab-pass-top"><span>SKI PASS · אורח</span><span>בלי חשבון</span></div><div class="ab-pass-body"><span class="ab-av guest">?</span>
+        <div><b>אורח</b><span>הכל עובד בלי חשבון. חשבון צריך רק כדי ליצור קבוצה, או לראות את הטיול גם באפליקציה.</span>
+        <span class="ab-links"><button type="button" class="g"><span class="r12-mark">G</span>גוגל</button><button type="button" class="a"><span class="r12-mark">A</span>אפל</button></span></div></div></div>`;
+  $('.about').insertAdjacentHTML('afterbegin', `<section class="ab-me" aria-label="החשבון"><h2>${me ? 'החשבון' : 'כניסה'}</h2>${card}</section>`);
+  clipTop(760);
+}
+function p4() { aboutMe(true); }
+function p5() { aboutMe(false); }
+function p6() { ACCT = 'none'; tripHome(); passWho(true); clipTicket(); }
+// 2. the lift cabin
+function gondola(me) {
+  ACCT = 'none'; (me ? tripHome : guestHome)();
+  const sky = $('#homeSky');
+  const ink = 'var(--ink)';
+  sky.insertAdjacentHTML('afterend', `<div class="gondola">
+    <svg width="100%" height="200" viewBox="0 0 390 200" preserveAspectRatio="none" style="position:absolute;top:0;left:0" aria-hidden="true">
+      <path d="M-10 168 L400 58" stroke="#2A3346" stroke-width="1.6" fill="none"/></svg>
+    <a href="${me ? '#account' : '#signin'}" aria-label="${me ? 'החשבון שלך: פיני זולברג' : 'כניסה'}" style="left:272px;top:80px">
+      <svg width="56" height="84" viewBox="0 0 56 84" aria-hidden="true">
+        <path d="M28 2 L28 22" stroke="#2A3346" stroke-width="2.4"/><circle cx="28" cy="4" r="4" fill="#2A3346"/>
+        <path d="M14 22 H42 L46 30 H10 Z" fill="#2A3346"/>
+        <rect x="6" y="30" width="44" height="46" fill="${me ? '#D1342B' : '#F4F7FA'}" stroke="#2A3346" stroke-width="2"/>
+        <rect x="11" y="36" width="34" height="22" fill="${me ? '#13233A' : '#DCE8F1'}" stroke="#2A3346" stroke-width="1.5"/>
+        ${me ? '<text x="28" y="54" text-anchor="middle" font-family="Karantina" font-weight="700" font-size="22" fill="#FFFFFF">פ</text>' : '<path d="M20 52 l4-6 4 4 5-8 5 10z" fill="#9FB4C8"/>'}
+        <rect x="6" y="66" width="44" height="3" fill="${me ? '#B12A23' : '#CBD5DF'}"/>
+      </svg>${me ? '' : '<span class="cab-tag">כניסה</span>'}</a></div>`);
+  $('.page-home').style.position = 'relative';
+  clipTop(330);
+}
+function g1() { gondola(false); }
+function g2() { gondola(true); }
+
+// tapping your name on the pass: a small card, with the account and signing out
+function p7() {
+  ACCT = 'none'; tripHome(); passWho(true);
+  const who = $('.is-front .bp-who') || $('.bp-who');
+  const wrap = $('.ticket-wrap'); wrap.style.position = 'relative';
+  const r = who.getBoundingClientRect(), w = wrap.getBoundingClientRect();
+  wrap.insertAdjacentHTML('beforeend', `<div class="who-pop" role="dialog" aria-label="הנוסע" style="top:${r.bottom - w.top + 14}px">
+    <div class="r12-who"><span class="r12-av" style="width:44px;height:44px;font-size:28px">פ</span><span><b>פיני זולברג</b><small>מחובר עם גוגל · הטיול והשיאים גם באפליקציה</small></span></div>
+    <div class="wp-row"><a href="#account">ניהול החשבון</a><button type="button">${ic('out', 18)}יציאה</button></div></div>`);
+  window.__clip = { x: 0, y: Math.max(0, w.top + scrollY - 20), width: innerWidth, height: w.height + 200 };
+}

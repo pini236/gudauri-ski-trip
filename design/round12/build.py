@@ -12,7 +12,7 @@ PAGE = ('round12', 'סבב 12: חשבון וקבוצה באתר')
 
 SHOTS = [  # file, title, asset url, width, height, row
     ('W1-GuestHome.dc.html', 'דף הבית: אורח, בלי טיול', '/_blob/93d41006d332e644e4dd1aa4051c4ceb', 390, 1349, 0),
-    ('W2-TripForm.dc.html', 'הטיול שלך באתר', '/_blob/a0105af559e14ce274dc4dec5af8eb46', 390, 929, 0),
+    ('W2-TripForm.dc.html', 'הטיול שלך באתר: בוררי תאריך ושעה', '/_blob/e2da89b5a7b06fe2ff19d9f8052c18b4', 390, 947, 0),
     ('W3-TripHome.dc.html', 'דף הבית: עם הטיול, מחובר', '/_blob/6aedaa3995b3c60f258afd1aebe867eb', 390, 1263, 0),
     ('W11-TripHomeNight.dc.html', 'דף הבית: עם הטיול, בלילה', '/_blob/a663e95db61164786445c495bb6d27ac', 390, 1263, 0),
     ('W4-SignIn.dc.html', 'כניסה: גוגל, אפל, או אורח', '/_blob/4abad587e73d220c1bacb81458409b90', 390, 844, 1),
@@ -22,23 +22,25 @@ SHOTS = [  # file, title, asset url, width, height, row
     ('W8-Group.dc.html', 'דף הקבוצה: טיסות', '/_blob/03a7d6b5700edfc8ffa9f29372bcb920', 390, 844, 2),
     ('W10-GroupDesktop.dc.html', 'דף הקבוצה במחשב', '/_blob/a7dfaa5e601e1a10b18f9d1274a9b95b', 1280, 844, 2),
     ('W9-TripHomeDesktop.dc.html', 'דף הבית במחשב: עם הטיול', '/_blob/a5eac7232feb86c5ed4826b1af12f854', 1280, 844, 3),
-    # where the account goes on the phone (Pini: in W1 and W3 it looks odd). Three options, guest and signed in
-    ('K1-DuoGuest.dc.html', 'א. בקפסולה עם יום ולילה: אורח', '/_blob/ac2aff4dba44fc8c14fe8783df43e1ce', 390, 330, 4),
-    ('K2-DuoMe.dc.html', 'א. בקפסולה עם יום ולילה: מחובר', '/_blob/e943dd2c9f4ddef73729c8d7246081dd', 390, 330, 4),
-    ('K7-DuoMeNight.dc.html', 'א. בקפסולה, בלילה', '/_blob/8b25d7ab0fe7de20e1eadef54d75fdfd', 390, 330, 4),
-    ('K3-TagGuest.dc.html', 'ב. סקי־פס על עמוד השלטים: אורח', '/_blob/fe8d22fce160a42bfe9dd1f9de86179c', 390, 430, 5),
-    ('K4-TagMe.dc.html', 'ב. סקי־פס על עמוד השלטים: מחובר', '/_blob/9c7b1a1a8594b4c71f64b694ce45672c', 390, 430, 5),
-    ('K8-TagMeNight.dc.html', 'ב. סקי־פס, בלילה', '/_blob/04967ed2aaefd3d00c89e92645d9923c', 390, 430, 5),
-    ('K5-LineGuest.dc.html', 'ג. שורה מתחת לשם המקום: אורח', '/_blob/31a486563ecd07bc1d69dafdd444bff9', 390, 360, 6),
-    ('K6-LineMe.dc.html', 'ג. שורה מתחת לשם המקום: מחובר', '/_blob/69b64c82aad8eb2b6c9472f8cb5014e5', 390, 360, 6),
+    # where the account goes (Pini: the corner in W1 and W3 looked odd, and then: the three places after it were all bad).
+    # Two directions in the site's own language instead of a new button.
+    ('P1-PassMe.dc.html', 'הכרטיס הוא החשבון: מחובר', '/_blob/a0d1b53fa188af628e9a475f7ceb36e7', 390, 432, 4),
+    ('P2-PassGuest.dc.html', 'הכרטיס הוא החשבון: אורח עם טיול', '/_blob/7ee673880e34cc2b4867358f8540cac1', 390, 432, 4),
+    ('P6-PassMeNight.dc.html', 'הכרטיס הוא החשבון: בלילה', '/_blob/b06603d683f0e40c1215af9aa83331ef', 390, 432, 4),
+    ('P7-PassMenu.dc.html', 'נגיעה בשם: החשבון ויציאה', '/_blob/86e4f404f59964f8c116c2e29c7085d0', 390, 572, 4),
+    ('P3-EmptyPass.dc.html', 'אורח בלי טיול', '/_blob/30515e57ad559136ce0e7fb8827635fa', 390, 700, 4),
+    ('P4-AboutMe.dc.html', 'החשבון בהגדרות: סקי־פס, מחובר', '/_blob/434b45d0fb51fea3332b2ff936ac8c67', 390, 760, 4),
+    ('P5-AboutGuest.dc.html', 'החשבון בהגדרות: אורח', '/_blob/c8eb23eeb719f8b77b44d92301c48dee', 390, 760, 4),
+    ('G1-GondolaGuest.dc.html', 'הקרון: אורח', '/_blob/316a984517646a4587f521b19250a368', 390, 330, 5),
+    ('G2-GondolaMe.dc.html', 'הקרון: מחובר', '/_blob/603e375be513d1b53937ed89f81b550c', 390, 330, 5),
 ]
 ROWS = ['דף הבית: הטיול שלך במקום הכרטיס של החבר׳ה', 'כניסה, חשבון ומחיקת חשבון', 'קבוצה: הזמנה מקישור ודף הקבוצה', 'במחשב',
-        'כפתור החשבון בטלפון, א: בקפסולה אחת עם מתג היום והלילה (ההמלצה)', 'ב: סקי־פס תלוי על עמוד השלטים', 'ג: שורה שקטה מתחת לשם המקום']
+        'החשבון בטלפון: הכרטיס הוא החשבון (נבחר), עם יציאה בנגיעה בשם ובסקי־פס שבהגדרות', 'קרון רכבל (פיני אהב, נשמר לבהמשך)']
 
 DECIDE = [
     ('הכרטיס והשמות של החבר׳ה יורדים מדף הבית הציבורי', 'ועוברים לדף הקבוצה, שרק חבריה רואים (החלטה 27). בדף הבית: הכרטיס של מי שמסתכל, או כרטיס ריק עם "הוספת הטיסה שלי".'),
     ('הספירה לאחור בסרגל העליון', 'הולכת לפי הטיול שלך. בלי טיול היא לא מוצגת.'),
-    ('כפתור החשבון', 'במחשב: בסרגל העליון, ליד מתג היום והלילה. בטלפון (פיני: המקום ב-W1 וב-W3 נראה מוזר) שלוש אפשרויות בשורות למטה: א. בקפסולה אחת עם מתג היום והלילה (ההמלצה: נקי, באותו מקום שמחפשים הגדרות); ב. סקי־פס שתלוי על עמוד השלטים (הכי בשפה של האתר, אבל רחוק מלמעלה); ג. שורה מתחת לשם המקום ("שלום, פיני").'),
+    ('איפה החשבון', 'במחשב: בסרגל העליון. בטלפון (פיני בחר, 2.10.2026): הכרטיס הוא החשבון. בשדה "נוסע" כתוב השם שלך; נגיעה פותחת כרטיסון עם "ניהול החשבון" ו"יציאה". לאורח כתוב "אורח", ונגיעה פותחת כניסה. החשבון עצמו כסקי־פס בראש עמוד ההגדרות, גם שם עם יציאה. הקרון נשמר כרעיון.'),
     ('שלט "קבוצה" על העמוד', 'במקום "חלקים נוספים בקרוב". לאורח: יצירה או הצטרפות בקוד; למי שבקבוצה: שם הקבוצה ומספר החברים.'),
     ('דף מחיקת החשבון', 'בכתובת /account, נדרש לגוגל פליי. עובד בלי האפליקציה: נכנסים ומוחקים, או כותבים לכתובת התמיכה. מתחייבים ל-30 יום במייל.'),
     ('הצטרפות מהאתר', 'הקישור /join/<קוד> פותח את האפליקציה אם מותקנת, ואת האתר אם לא. בדפדפן: רק שם, בלי הרשמה, כמו באפליקציה (Q3, Q5).'),
@@ -100,6 +102,13 @@ def build(dst):
     index = json.loads(ip.read_text(encoding='utf-8'))
     if not any(p['id'] == PAGE[0] for p in index['pages']):
         index['pages'].insert(0, {'id': PAGE[0], 'name': PAGE[1]})
+    names = {b[0] for b in boards}
+    for f in [f for f, b in index['boards'].items() if b.get('page') == PAGE[0] and f not in names]:
+        del index['boards'][f]
+        if f in index['order']:
+            index['order'].remove(f)
+    for n in [n for n in index['notes'] if n.startswith(PAGE[0] + 'row') and int(n[len(PAGE[0]) + 3:]) >= len(ROWS)]:
+        del index['notes'][n]
     y = 0
     for ri, title in enumerate(ROWS):
         x, rowh = 0, 0
