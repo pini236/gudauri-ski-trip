@@ -127,17 +127,20 @@ descent() {
 # ---- the home page (round 10: H1 to H4, LT1 to LT3) ----
 # what is on screen: the accessibility tree (uiautomator), so a step can tap a button by its words
 uidump() { adb shell uiautomator dump /sdcard/ui.xml > /dev/null && adb pull /sdcard/ui.xml "$OUT/ui.xml" > /dev/null; }
-where() { # where <text>: the middle of the first element whose text or description holds it ("x y"), or nothing
+where() { # where <text>: the middle ("x y") of the first element whose text or description is it, else holds it; a tappable one first
   uidump
   python3 - "$OUT/ui.xml" "$1" <<'PY'
 import re, sys
 xml = open(sys.argv[1], encoding="utf-8").read(); t = sys.argv[2]
+nodes = []
 for m in re.finditer(r'<node [^>]*>', xml):
     n = m.group(0)
-    got = [g[1] for g in (re.search(r'text="([^"]*)"', n), re.search(r'content-desc="([^"]*)"', n)) if g]
+    got = [g[1].strip() for g in (re.search(r'text="([^"]*)"', n), re.search(r'content-desc="([^"]*)"', n)) if g]
     b = re.search(r'bounds="\[(\d+),(\d+)\]\[(\d+),(\d+)\]"', n)
-    if b and any(t in g for g in got):
-        x1, y1, x2, y2 = map(int, b.groups()); print((x1 + x2) // 2, (y1 + y2) // 2); break
+    if b: nodes.append((got, 'clickable="true"' in n, tuple(map(int, b.groups()))))
+ranked = sorted(((0 if t in got else 1 if any(t in g for g in got) else 9, 0 if tap else 1, i, b) for i, (got, tap, b) in enumerate(nodes)))
+if ranked and ranked[0][0] < 9:
+    x1, y1, x2, y2 = ranked[0][3]; print((x1 + x2) // 2, (y1 + y2) // 2)
 PY
 }
 tapText() { local xy; xy=$(where "$1"); if [ -z "$xy" ]; then fail "no '$1' on screen"; return 1; fi; tap $xy; }
@@ -166,8 +169,9 @@ home() {
   if [ -n "$xy" ]; then
     set -- $xy
     tap "$1" "$2"; burst home-tear 4 0.25; sleep 2.5; shot home-tear-back
-    drag $((W * 25 / 100)) "$2" $((W * 80 / 100)) "$2" 300; sleep 1.2; shot home-return-pass
-    drag $((W * 80 / 100)) "$2" $((W * 25 / 100)) "$2" 300; sleep 1.2
+    # the return pass peeks from behind (AB5, AB6): a tap on it brings it to the front, and the swipe still works
+    tapText "להביא קדימה את כרטיס החזור" && { burst home-shuffle 4 0.15; sleep 1; shot home-return-pass; }
+    drag $((W * 80 / 100)) "$2" $((W * 25 / 100)) "$2" 300; sleep 1.2; shot home-swipe-back
   else fail "no stub on the pass"; fi
   qa "--es qa.mode night"; sleep 2; shot home-trip-night
   qa "--es qa.mode auto --es qa.time 2026-12-01T16:50"; sleep 2; shot home-trip-sunset
@@ -188,6 +192,62 @@ home() {
   done
   adb shell cmd locale set-app-locales "$PKG" --locales he > /dev/null 2>&1; sleep 3
   qa "--es qa.trip '$TRIP_HE'"; sleep 1
+}
+
+# ---- accounts and the group (A1 to A5, Q1 to Q10), on the pretend server of debug builds (group/DevServer.kt) ----
+typeIn() { # typeIn <field text> <latin text>: adb types Latin only, so the run's names are Latin
+  tapText "$1" && sleep 0.4 && adb shell input text "${2// /%s}" && sleep 0.4
+}
+keyboardOff() { adb shell dumpsys input_method | grep -q "mInputShown=true" && adb shell input keyevent KEYCODE_BACK; sleep 0.8; }
+group() {
+  # a stranger: the group sign leads to the way in (A1); creating asks to sign in (A2), then the new group (Q1)
+  qa "--es qa.group none --es qa.tab home --es qa.trip '$TRIP_HE' --es qa.mode auto --es qa.time 2026-12-01T13:35"; waitlog "group seed none" 20
+  qa "--es qa.tab group"; sleep 2; shot group-entry
+  tapText "יצירת קבוצה" && sleep 1 && shot group-sign-in
+  tapText "גוגל" && sleep 2 && shot group-new
+  typeIn "גודאורי 2027" "Gudauri 2027"
+  typeIn "למשל 10.1.2027" "10.1.2027"
+  typeIn "למשל 10.1.2027" "15.1.2027"
+  typeIn "השם שהחבר׳ה מכירים" "Noa"
+  keyboardOff; shot group-new-filled
+  tapText "יצירת הקבוצה" && sleep 2.5 && shot group-created
+  tapText "הזמנה" && sleep 2 && shot group-invite
+  tapText "אישור ידני לכל מצטרף" && sleep 1.5 && shot group-invite-approval
+  adb shell input keyevent KEYCODE_BACK; sleep 1
+
+  # invited: the link (Q3) as a guest, in without signing up, and the offer to keep the place (A5)
+  qa "--es qa.group invited --es qa.tab j/KZBQRM"; waitlog "group seed invited" 20; sleep 2.5; shot group-invited
+  typeIn "השם שהחבר׳ה מכירים" "Avi"; keyboardOff
+  tapText "כניסה לקבוצה" && sleep 3 && shot group-save-offer
+  tapText "לא עכשיו" && sleep 1 && shot group-joined
+  qa "--es qa.tab account"; sleep 1.5; shot account-guest
+  # the code typed by hand (Q4), a wrong one, and "I'm already in the group" (Q5)
+  qa "--es qa.group invited --es qa.tab join"; sleep 1.5; shot group-code
+  adb shell input text "KZBQRM"; sleep 0.5; keyboardOff; shot group-code-typed
+  tapText "המשך" && sleep 2.5 && shot group-code-invited
+  tapText "אני כבר בקבוצה" && sleep 2 && shot group-reclaim
+  qa "--es qa.tab j/AAAAAA"; sleep 2.5; shot group-bad-code
+
+  # a guest member without a flight: the flights (Q6), "I'm on the same flight" (Q7), meetups (Q8), scores (Q9)
+  qa "--es qa.group member --es qa.trip none --es qa.tab group"; waitlog "group seed member" 20; sleep 2.5; shot group-flights
+  tapText "אני על אותה טיסה" && sleep 1.2 && shot group-same-flight
+  tapText "מהקבוצה" && sleep 0.5 && tapText "שמירה" && sleep 2 && shot group-same-flight-done
+  tapText "מפגשים" && sleep 1.5 && shot group-meetups
+  tapText "שיאים" && sleep 1.5 && shot group-scores
+  tapText "חברים" && sleep 1.5 && shot group-members
+
+  # an admin: a request to approve, a member's menu, the group at night and in English (Q10)
+  qa "--es qa.group admin --es qa.tab group"; waitlog "group seed admin" 20; sleep 2.5; shot group-admin
+  tapText "חברים" && sleep 1.5 && shot group-admin-members
+  tapText "אישור" && sleep 1.5 && shot group-admin-approved
+  tapText "פעולות על דנה מזרחי" && sleep 1 && shot group-admin-menu && adb shell input keyevent KEYCODE_BACK && sleep 0.8
+  qa "--es qa.tab account"; sleep 1.5; shot account
+  qa "--es qa.tab group --es qa.mode night"; sleep 2.5; shot group-night
+  qa "--es qa.mode auto"
+  adb shell cmd locale set-app-locales "$PKG" --locales en > /dev/null 2>&1; sleep 3
+  qa "--es qa.group admin --es qa.tab group"; sleep 2.5; shot group-en
+  adb shell cmd locale set-app-locales "$PKG" --locales he > /dev/null 2>&1; sleep 3
+  qa "--es qa.group none --es qa.tab home --es qa.trip '$TRIP_HE'"; sleep 1
 }
 
 # ---- the store screenshots (Google Play: portrait 9:16) ----
@@ -224,13 +284,17 @@ store() {
   adb shell wm size reset
 }
 
-case "$SCENARIO" in
-  map) map ;;
-  descent) descent ;;
-  home) home ;;
-  store) store ;;
-  *) map; descent; home; store ;;
-esac
+# one scenario, several with commas (home,group), or all
+for sc in ${SCENARIO//,/ }; do
+  case "$sc" in
+    map) map ;;
+    descent) descent ;;
+    home) home ;;
+    group) group ;;
+    store) store ;;
+    *) map; descent; home; group; store ;;
+  esac
+done
 
 # ---- usage and crash reporting: with the keys, a check message to Sentry and everything queued sent now ----
 qa "--es qa.sentry run-$(date +%s)"; waitlog "flushed" 20 && grep "SkiQa.*flushed" "$OUT/logcat.txt" | tail -1 | sed 's/.*SkiQa[^:]*: //' | tee -a "$OUT/summary.txt"; sleep 5

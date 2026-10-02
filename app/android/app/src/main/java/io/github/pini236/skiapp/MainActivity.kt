@@ -64,6 +64,21 @@ import io.github.pini236.skiapp.home.DayNight
 import io.github.pini236.skiapp.home.HomeAction
 import io.github.pini236.skiapp.home.HomeScreen
 import io.github.pini236.skiapp.home.SoonScreen
+import io.github.pini236.skiapp.account.AccountScreen
+import io.github.pini236.skiapp.account.GoogleSignIn
+import io.github.pini236.skiapp.group.CodeScreen
+import io.github.pini236.skiapp.group.DevServer
+import io.github.pini236.skiapp.group.GroupApi
+import io.github.pini236.skiapp.group.GroupEntryScreen
+import io.github.pini236.skiapp.group.GroupHub
+import io.github.pini236.skiapp.group.GroupScreen
+import io.github.pini236.skiapp.group.GroupTab
+import io.github.pini236.skiapp.group.InviteCode
+import io.github.pini236.skiapp.group.InviteScreen
+import io.github.pini236.skiapp.group.InvitedScreen
+import io.github.pini236.skiapp.group.NewGroupScreen
+import io.github.pini236.skiapp.group.NoServer
+import io.github.pini236.skiapp.group.ReclaimScreen
 import io.github.pini236.skiapp.trip.Trip
 import io.github.pini236.skiapp.trip.TripForm
 import io.github.pini236.skiapp.trip.TripStore
@@ -107,6 +122,19 @@ class MainActivity : ComponentActivity() {
     // day and night (6.3, N1): the choice is kept; auto follows the clock in Gudauri
     private var dnMode by mutableStateOf(DayNight.Mode.AUTO)
     private var tick by mutableStateOf(0L)
+    // accounts and the group (13.5): a pretend server in debug builds until the real client is wired in; none in release
+    private val groupApi: GroupApi = DevServer.create() ?: NoServer
+    private var justJoined by mutableStateOf(false)
+    private val accountPrefs by lazy { getSharedPreferences("account", MODE_PRIVATE) }
+
+    /** Google's sheet, then the server. A debug build without the web client id signs in to the pretend server directly. */
+    private suspend fun signInGoogle() {
+        if (BuildConfig.DEBUG && GoogleSignIn.WEB_CLIENT_ID.isEmpty() && groupApi.ready) { groupApi.signInWithGoogle("dev", "dev"); return }
+        val g = GoogleSignIn.signIn(this)
+        groupApi.signInWithGoogle(g.idToken, g.nonce)
+    }
+
+    private fun openPrivacy() = startActivity(Intent(Intent.ACTION_VIEW, android.net.Uri.parse("https://${Route.SITE_HOST}/privacy?utm_source=app")))
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -241,7 +269,13 @@ class MainActivity : ComponentActivity() {
         if (i == null || !Qa.enabled) return
         val keys = i.extras?.keySet()?.filter { it.startsWith("qa.") }.orEmpty()
         if (keys.isEmpty()) return
-        i.getStringExtra("qa.tab")?.let { when (it) { "map" -> nav.switchTo(Route.Map(nav.find<Route.Map>()?.run)); "descent" -> nav.switchTo(Route.Game("descent")); "trip" -> nav.switchTo(Route.Trip); else -> nav.toStart() } }
+        // the group's starting point on the pretend server: none (a stranger), member (a guest in a group), admin
+        i.getStringExtra("qa.group")?.let { DevServer.seed(groupApi, it); accountPrefs.edit().clear().apply(); justJoined = false; Qa.log("group seed $it") }
+        i.getStringExtra("qa.tab")?.let { t -> when (t) {
+            "map" -> nav.switchTo(Route.Map(nav.find<Route.Map>()?.run)); "descent" -> nav.switchTo(Route.Game("descent")); "trip" -> nav.switchTo(Route.Trip)
+            "home" -> nav.toStart()
+            else -> Route.parse(t)?.let { nav.toStart(); nav.push(it) } ?: Qa.log("bad tab $t")
+        } }
         i.getStringExtra("qa.stats")?.let { showStats = it != "off" }
         i.getStringExtra("qa.time")?.let { clockMs = Qa.gudauriTime(it); tick = nowMs() }
         i.getStringExtra("qa.sentry")?.let { Telemetry.testCrashReport(it); loader.execute { Telemetry.flush(); Qa.log("telemetry ${if (Telemetry.hasKeys) "keys" else "no keys"}, flushed") } }
@@ -320,7 +354,7 @@ class MainActivity : ComponentActivity() {
                                 HomeAction.MAP, HomeAction.STATUS -> Route.Map(nav.find<Route.Map>()?.run)
                                 HomeAction.MEET -> Route.Meet()
                                 HomeAction.GAMES -> Route.Game("descent") // the games page arrives with stage 13.6
-                                HomeAction.GROUP -> Route.Group
+                                HomeAction.GROUP -> Route.Group()
                                 HomeAction.ABOUT -> Route.About
                                 HomeAction.TRIP -> Route.Trip
                             })
@@ -328,10 +362,32 @@ class MainActivity : ComponentActivity() {
                     Route.Trip -> TripForm(trip, LocalDate.now(), onSave = { t -> trips.save(t); trip = t; Qa.log("trip saved"); nav.back() },
                         onDelete = { trips.clear(); trip = null; Qa.log("trip deleted"); nav.back() }, onCancel = { nav.back() })
                     is Route.Meet -> SoonScreen(stringResource(R.string.nav_meet), stringResource(R.string.app_soon_meet)) { nav.back() }
-                    Route.Group -> SoonScreen(stringResource(R.string.app_sign_group), stringResource(R.string.app_soon_group)) { nav.back() }
-                    Route.About -> AboutScreen(BuildConfig.VERSION_NAME, onPrivacy = {
-                        startActivity(Intent(Intent.ACTION_VIEW, android.net.Uri.parse("https://${Route.SITE_HOST}/privacy?utm_source=app")))
-                    }) { nav.back() }
+                    is Route.Group -> if (!groupApi.ready) SoonScreen(stringResource(R.string.app_sign_group), stringResource(R.string.app_soon_group)) { nav.back() }
+                        else if (top.id == null) GroupHub(groupApi, onGroup = { id -> nav.replaceTop(Route.Group(id, GroupTab.FLIGHTS.key)) }) {
+                            GroupEntryScreen(groupApi, onBack = { nav.back() },
+                                onCode = { c -> nav.push(if (InviteCode.isCode(c)) Route.Join(c) else Route.JoinCode) },
+                                onCreate = { nav.push(Route.GroupNew) }, signInGoogle = ::signInGoogle, onPrivacy = ::openPrivacy)
+                        }
+                        else GroupScreen(groupApi, top.id, GroupTab.of(top.tab), frame, trip, LocalDateTime.ofInstant(Instant.ofEpochMilli(tick), ZoneId.systemDefault()),
+                            justJoined = justJoined, saveOffers = accountPrefs.getInt("save_offers", 0),
+                            stationName = { key -> scene?.runs?.lifts?.firstOrNull { it.id.isNotEmpty() && it.id == key.dropLast(1) }?.name },
+                            onTab = { nav.replaceTop(Route.Group(top.id, it.key)) }, onBack = { nav.toStart() },
+                            onInvite = { nav.push(Route.GroupInvite(top.id)) }, onNewMeetup = { nav.push(Route.Meet()) }, onEditTrip = { nav.push(Route.Trip) },
+                            onMyTrip = { t -> trips.save(t); trip = t }, onLeft = { nav.toStart() }, signInGoogle = ::signInGoogle,
+                            onSaveOffered = { justJoined = false; accountPrefs.edit().putInt("save_offers", accountPrefs.getInt("save_offers", 0) + 1).apply() })
+                    Route.GroupNew -> NewGroupScreen(groupApi, trip, LocalDate.now(), onCancel = { nav.back() },
+                        onCreated = { id -> nav.back(); if (nav.top is Route.Group) nav.replaceTop(Route.Group(id, GroupTab.FLIGHTS.key)) else nav.push(Route.Group(id, GroupTab.FLIGHTS.key)) })
+                    is Route.GroupInvite -> InviteScreen(groupApi, top.id) { nav.back() }
+                    Route.JoinCode -> CodeScreen("", onBack = { nav.back() }) { c -> nav.replaceTop(Route.Join(c)) }
+                    is Route.Join -> InvitedScreen(groupApi, top.code, frame, dnMode, onMode = { dnMode = dnMode.next() }, onAbout = { nav.push(Route.About) },
+                        onBack = { nav.back() }, onTypeCode = { nav.replaceTop(Route.JoinCode) }, onReclaim = { nav.push(Route.Reclaim(top.code)) },
+                        onJoined = { id, guest -> justJoined = guest; nav.toStart(); nav.push(Route.Group(id, GroupTab.FLIGHTS.key)) })
+                    is Route.Reclaim -> ReclaimScreen(groupApi, top.code, onBack = { nav.back() }, signInGoogle = ::signInGoogle) { id ->
+                        nav.toStart(); nav.push(Route.Group(id, GroupTab.FLIGHTS.key))
+                    }
+                    Route.Account -> AccountScreen(groupApi, onBack = { nav.back() }, signInGoogle = ::signInGoogle) { nav.toStart() }
+                    Route.About -> AboutScreen(BuildConfig.VERSION_NAME, onPrivacy = ::openPrivacy,
+                        onAccount = if (groupApi.ready) ({ nav.push(Route.Account) }) else null) { nav.back() }
                     else -> {
                         if (top is Route.Game) DescentScreen(profile, haptics, sounds) else MapScreen(mapView, scene)
                         if (showStats) StatsBar(top !is Route.Game, Modifier.align(Alignment.TopStart))

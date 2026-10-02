@@ -7,7 +7,9 @@ import java.net.URLEncoder
 
 /**
  * Where the user is, as the site says it (site/js/app.js route()): `home`, `map`, `map/run/<key>`, `meet`,
- * `meet/<station>/<HHMM>/<YYYYMMDD>`, `games`, `games/<name>`, `about`, and the app's own `trip` and `group`. The same words make the saved state
+ * `meet/<station>/<HHMM>/<YYYYMMDD>`, `games`, `games/<name>`, `about`, the invite link `j/<code or token>`, and the
+ * app's own `trip`, `group`, `group/<id>/<tab>`, `group/new`, `group/<id>/invite`, `join`, `j/<code>/reclaim` and
+ * `account`. The same words make the saved state
  * (the system may close the app in the background, and it must come back to the same place) and read the site's
  * shared links (a run, a meeting point), so a link from WhatsApp opens the same screen in the app.
  */
@@ -24,11 +26,25 @@ sealed interface Route {
     data object About : Route { override val path = "about" }
     /** The app's own places, not on the site: the trip form (H2) and the group (13.5). */
     data object Trip : Route { override val path = "trip" }
-    data object Group : Route { override val path = "group" }
+    /** The group sign: without an id it decides (sign in and join, or my group); with one, that group on a tab. */
+    data class Group(val id: String? = null, val tab: String? = null) : Route {
+        override val path = if (id == null) "group" else listOfNotNull("group", id, tab).joinToString("/")
+    }
+    data object GroupNew : Route { override val path = "group/new" }
+    data class GroupInvite(val id: String) : Route { override val path = "group/$id/invite" }
+    /** An invite link (the site's /j/<token>) or a typed code (Q3); "I'm already in the group" (Q5). */
+    data class Join(val code: String) : Route { override val path = "j/$code" }
+    data class Reclaim(val code: String) : Route { override val path = "j/$code/reclaim" }
+    /** Typing the code (Q4). */
+    data object JoinCode : Route { override val path = "join" }
+    data object Account : Route { override val path = "account" }
 
     companion object {
         private val NAME = Regex("[a-z0-9-]{1,40}")
         private val STATION = Regex("[A-Za-z0-9_.-]{1,60}")
+        private val ID = Regex("[A-Za-z0-9-]{1,60}")
+        private val CODE = Regex("[A-Za-z0-9_-]{6,80}")
+        private val TABS = setOf("flights", "meetups", "scores", "members")
 
         /** encodeURIComponent, as the site writes run keys into links */
         fun enc(s: String): String = URLEncoder.encode(s, "UTF-8").replace("+", "%20")
@@ -57,18 +73,33 @@ sealed interface Route {
                 }
                 "about" -> if (parts.size == 1) About else null
                 "trip" -> if (parts.size == 1) Trip else null
-                "group" -> if (parts.size == 1) Group else null
+                "group" -> when {
+                    parts.size == 1 -> Group()
+                    parts.size == 2 && parts[1] == "new" -> GroupNew
+                    parts.size == 2 && ID.matches(parts[1]) -> Group(parts[1])
+                    parts.size == 3 && ID.matches(parts[1]) && parts[2] == "invite" -> GroupInvite(parts[1])
+                    parts.size == 3 && ID.matches(parts[1]) && parts[2] in TABS -> Group(parts[1], parts[2])
+                    else -> null
+                }
+                "j" -> when {
+                    parts.size == 2 && CODE.matches(parts[1]) -> Join(parts[1])
+                    parts.size == 3 && CODE.matches(parts[1]) && parts[2] == "reclaim" -> Reclaim(parts[1])
+                    else -> null
+                }
+                "join" -> if (parts.size == 1) JoinCode else null
+                "account" -> if (parts.size == 1) Account else null
                 else -> null
             }
         }
 
-        /** A link to the site (https://gudauri-ski-trip.vercel.app/#map/run/Tatra%202, …/games/descent/). */
+        /** A link to the site (https://gudauri-ski-trip.vercel.app/#map/run/Tatra%202, …/games/descent/, …/j/<token>). */
         fun fromSiteLink(url: String): Route? {
             val u = runCatching { URI(url) }.getOrNull() ?: return null
             if (u.scheme != "https" || u.host != SITE_HOST) return null
             val path = u.rawPath.orEmpty().trim('/')
             return when {
                 path.startsWith("games/") -> parse(path.removeSuffix("/index.html"))
+                path.startsWith("j/") -> parse(path).takeIf { it is Join }
                 path.isEmpty() || path == "index.html" -> parse(u.rawFragment ?: "home")
                 else -> null
             }

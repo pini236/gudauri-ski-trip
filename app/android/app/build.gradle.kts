@@ -123,6 +123,10 @@ dependencies {
     implementation("androidx.compose.material3:material3")
     implementation("com.posthog:posthog-android:3.71.4")
     implementation("io.sentry:sentry-android-core:8.59.0")
+    // "Continue with Google": the system's sign-in sheet (docs/USERS.md)
+    implementation("androidx.credentials:credentials:1.6.0")
+    implementation("androidx.credentials:credentials-play-services-auth:1.6.0")
+    implementation("com.google.android.libraries.identity.googleid:googleid:1.2.1")
     testImplementation("junit:junit:4.13.2")
     testImplementation("org.json:json:20260814")
 }

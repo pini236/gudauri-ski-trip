@@ -6,7 +6,7 @@ import org.json.JSONObject
 /** A run from site/data/runs-and-lifts.json. Each line is x,y pairs in projected metres; area segments are left out. */
 class Piste(val key: String, val name: String, val color: String, val named: Boolean, val kind: String, val lines: List<FloatArray>)
 
-class Lift(val name: String, val kind: String, val pts: FloatArray)
+class Lift(val name: String, val kind: String, val pts: FloatArray, val id: String = "")
 
 class Runs(val pistes: List<Piste>, val lifts: List<Lift>) {
     companion object {
@@ -38,7 +38,7 @@ class Runs(val pistes: List<Piste>, val lifts: List<Lift>) {
             val ls = o.getJSONArray("lifts")
             val lifts = (0 until ls.length()).map { i ->
                 val l = ls.getJSONObject(i)
-                Lift(l.str("name", ""), l.str("kind", ""), line(l.getJSONArray("g")))
+                Lift(l.str("name", ""), l.str("kind", ""), line(l.getJSONArray("g")), l.opt("id")?.toString() ?: "")
             }
             return Runs(pistes, lifts)
         }
