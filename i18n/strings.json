@@ -227,8 +227,8 @@
   },
   "common.days_to_flight": {
    "he": {
-    "one": "יום אחד לטיסה",
-    "two": "יומיים לטיסה",
+    "one": "{n} יום לטיסה",
+    "two": "{n} ימים לטיסה",
     "other": "{n} ימים לטיסה"
    },
    "en": {
@@ -245,8 +245,8 @@
     "one": "ფრენამდე {n} დღე",
     "other": "ფრენამდე {n} დღე"
    },
-   "where": "site/index.html",
-   "note": "{n} = days left; shown in top bar (number bold). In HTML built as <b>{n}</b> + 'ימים' + 'לטיסה'",
+   "where": "site/js/app.js",
+   "note": "{n} = days left. Top bar: the number is drawn big in its own element, the text before and after it around it, so every form must keep {n}",
    "check": [
     "ru",
     "ka"
@@ -301,8 +301,8 @@
   },
   "common.nights_to_flight": {
    "he": {
-    "one": "לילה אחד לטיסה",
-    "two": "שני לילות לטיסה",
+    "one": "{n} לילה לטיסה",
+    "two": "{n} לילות לטיסה",
     "other": "{n} לילות לטיסה"
    },
    "en": {
@@ -319,8 +319,8 @@
     "one": "ფრენამდე {n} ღამე",
     "other": "ფრენამდე {n} ღამე"
    },
-   "where": "site/index.html",
-   "note": "{n} = nights left; night-mode variant (app.js swaps 'ימים' to 'לילות')",
+   "where": "site/js/app.js",
+   "note": "Night-mode variant of common.days_to_flight; every form must keep {n}",
    "check": [
     "ru",
     "ka"
@@ -607,6 +607,54 @@
     "ka"
    ]
   },
+  "ticket.city_tlv": {
+   "he": "תל אביב",
+   "en": "Tel Aviv",
+   "ru": "Тель-Авив",
+   "ka": "თელ-ავივი",
+   "where": "site/js/app.js",
+   "note": "City on the boarding pass, by airport code (TLV) in site/data/trip.json. In Hebrew the site shows trip.json itself",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "ticket.city_tbs": {
+   "he": "טביליסי",
+   "en": "Tbilisi",
+   "ru": "Тбилиси",
+   "ka": "თბილისი",
+   "where": "site/js/app.js",
+   "note": "City on the boarding pass, by airport code (TBS). In Hebrew the site shows trip.json itself",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "ticket.airline_6h": {
+   "he": "ישראייר",
+   "en": "Israir",
+   "ru": "Israir",
+   "ka": "Israir",
+   "where": "site/js/app.js",
+   "note": "Airline on the boarding pass, by the airline code at the start of the flight number (6H). Brand name, kept in Latin letters outside Hebrew",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "ticket.baggage_hand": {
+   "he": "תיק יד",
+   "en": "Carry-on",
+   "ru": "Ручная кладь",
+   "ka": "ხელბარგი",
+   "where": "site/js/app.js",
+   "note": "Baggage on the boarding pass, by \"baggageKind\": \"hand\" in trip.json. short Short: a narrow column on the boarding pass.",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
   "ticket.card_out": {
    "he": "כרטיס הלוך",
    "en": "Outbound boarding pass",
@@ -754,10 +802,10 @@
   "ticket.pax": {
    "he": "נוסעים",
    "en": "Passengers",
-   "ru": "Пассажиры",
+   "ru": "Пасс.",
    "ka": "მგზავრები",
    "where": "site/index.html",
-   "note": "short: field label",
+   "note": "short: field label Short: a narrow column on the boarding pass.",
    "check": [
     "ru",
     "ka"
@@ -790,10 +838,10 @@
   "ticket.ski_days": {
    "he": "ימי סקי",
    "en": "Ski days",
-   "ru": "Дни катания",
-   "ka": "სათხილამურო დღეები",
+   "ru": "Катание",
+   "ka": "სათხ. დღეები",
    "where": "site/index.html",
-   "note": "short: field label",
+   "note": "short: field label Short: a narrow column on the boarding pass.",
    "check": [
     "ru",
     "ka"
@@ -825,8 +873,8 @@
   },
   "ticket.stub_days": {
    "he": {
-    "one": "עוד יום אחד לטיסה",
-    "two": "עוד יומיים לטיסה",
+    "one": "עוד {n} יום לטיסה",
+    "two": "עוד {n} ימים לטיסה",
     "other": "עוד {n} ימים לטיסה"
    },
    "en": {
@@ -843,8 +891,8 @@
     "one": "ფრენამდე კიდევ {n} დღე",
     "other": "ფრენამდე კიდევ {n} დღე"
    },
-   "where": "site/index.html",
-   "note": "outbound stub: in HTML 'עוד' small, {n} big, 'ימים לטיסה' small (narrow stub). Night mode uses ticket.stub_nights",
+   "where": "site/js/app.js",
+   "note": "Outbound stub, three slots: text before {n} (small) / {n} (big) / text after (small). Narrow stub. Every form must keep {n}. Night mode uses ticket.stub_nights",
    "check": [
     "ru",
     "ka"
@@ -864,8 +912,8 @@
   },
   "ticket.stub_nights": {
    "he": {
-    "one": "עוד לילה אחד לטיסה",
-    "two": "עוד שני לילות לטיסה",
+    "one": "עוד {n} לילה לטיסה",
+    "two": "עוד {n} לילות לטיסה",
     "other": "עוד {n} לילות לטיסה"
    },
    "en": {
@@ -882,8 +930,8 @@
     "one": "ფრენამდე კიდევ {n} ღამე",
     "other": "ფრენამდე კიდევ {n} ღამე"
    },
-   "where": "site/index.html",
-   "note": "night-mode variant of ticket.stub_days",
+   "where": "site/js/app.js",
+   "note": "Night-mode variant of ticket.stub_days; every form must keep {n}",
    "check": [
     "ru",
     "ka"
@@ -891,7 +939,7 @@
   },
   "ticket.stub_ski_first": {
    "he": {
-    "one": "קודם יום סקי אחד",
+    "one": "קודם {n} יום סקי",
     "two": "קודם {n} ימי סקי",
     "other": "קודם {n} ימי סקי"
    },
@@ -909,8 +957,8 @@
     "one": "ჯერ {n} სათხილამურო დღე",
     "other": "ჯერ {n} სათხილამურო დღე"
    },
-   "where": "site/index.html",
-   "note": "return stub: 'קודם' small, {n} big (ski day count), 'ימי סקי' small. Narrow stub",
+   "where": "site/js/app.js",
+   "note": "Return stub, three slots: text before {n} (small) / {n} = ski day count (big) / text after (small). Narrow stub. Every form must keep {n}",
    "check": [
     "ru",
     "ka"
@@ -1000,33 +1048,6 @@
     "ka"
    ]
   },
-  "daynight.days_to_flight": {
-   "he": {
-    "one": "יום אחד לטיסה",
-    "two": "יומיים לטיסה",
-    "other": "{n} ימים לטיסה"
-   },
-   "en": {
-    "one": "{n} day to the flight",
-    "other": "{n} days to the flight"
-   },
-   "ru": {
-    "one": "до вылета {n} день",
-    "few": "до вылета {n} дня",
-    "many": "до вылета {n} дней",
-    "other": "до вылета {n} дня"
-   },
-   "ka": {
-    "one": "ფრენამდე {n} დღე",
-    "other": "ფრენამდე {n} დღე"
-   },
-   "where": "site/js/app.js",
-   "note": "Source code only swaps the word \"ימים\" ([data-days-word]) next to a separate number element; the full phrase is in index.html. Integrate as one phrase. Shown in daytime",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
   "daynight.mode_auto": {
    "he": "אוטומטי",
    "en": "Auto",
@@ -1058,33 +1079,6 @@
    "ka": "ღამე",
    "where": "site/js/app.js",
    "note": "Display mode. short: button",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "daynight.nights_to_flight": {
-   "he": {
-    "one": "לילה אחד לטיסה",
-    "two": "{n} לילות לטיסה",
-    "other": "{n} לילות לטיסה"
-   },
-   "en": {
-    "one": "{n} night to the flight",
-    "other": "{n} nights to the flight"
-   },
-   "ru": {
-    "one": "до вылета {n} ночь",
-    "few": "до вылета {n} ночи",
-    "many": "до вылета {n} ночей",
-    "other": "до вылета {n} ночи"
-   },
-   "ka": {
-    "one": "ფრენამდე {n} ღამე",
-    "other": "ფრენამდე {n} ღამე"
-   },
-   "where": "site/js/app.js",
-   "note": "Night version of daynight.days_to_flight (source swaps \"ימים\" for \"לילות\" when dark)",
    "check": [
     "ru",
     "ka"
@@ -1181,6 +1175,18 @@
    "ka": "საიტის ავტორი",
    "where": "site/index.html",
    "note": "short: card corner label",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "about.builder_name": {
+   "he": "פיני זולברג",
+   "en": "Pini Zolberg",
+   "ru": "Пини Зольберг",
+   "ka": "პინი ზოლბერგი",
+   "where": "site/index.html",
+   "note": "The site builder's name on the ski-pass card",
    "check": [
     "ru",
     "ka"
@@ -3738,19 +3744,7 @@
    "en": "Copy link",
    "ru": "Скопировать ссылку",
    "ka": "ბმულის კოპირება",
-   "where": "site/index.html",
-   "note": "short: button",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "meet.copy_link_button": {
-   "he": "העתקת הקישור",
-   "en": "Copy link",
-   "ru": "Скопировать ссылку",
-   "ka": "ბმულის კოპირება",
-   "where": "site/js/app.js",
+   "where": "site/index.html, site/js/app.js",
    "note": "short: button",
    "check": [
     "ru",
@@ -3759,8 +3753,8 @@
   },
   "meet.countdown_days": {
    "he": {
-    "one": "עוד יום אחד למפגש",
-    "two": "עוד יומיים למפגש",
+    "one": "עוד {n} יום למפגש",
+    "two": "עוד {n} ימים למפגש",
     "other": "עוד {n} ימים למפגש"
    },
    "en": {
@@ -3778,7 +3772,7 @@
     "other": "შეხვედრამდე {n} დღე"
    },
    "where": "site/js/app.js",
-   "note": "Three slots as in meet.countdown_minutes. Source he: \"עוד {n} ימים למפגש\" for all n",
+   "note": "Three slots as in meet.countdown_minutes. Every form must keep {n}",
    "check": [
     "ru",
     "ka"
@@ -3798,7 +3792,7 @@
   },
   "meet.countdown_minutes": {
    "he": {
-    "one": "עוד דקה אחת למפגש",
+    "one": "עוד {n} דקה למפגש",
     "two": "עוד {n} דקות למפגש",
     "other": "עוד {n} דקות למפגש"
    },
@@ -3817,7 +3811,7 @@
     "other": "შეხვედრამდე {n} წუთი"
    },
    "where": "site/js/app.js",
-   "note": "Meetup card shows this in three slots: text before {n} / big number / text after. Source: c1 \"עוד\", c2 number, c3 \"דקות למפגש\"",
+   "note": "Meetup card shows this in three slots: text before {n} / big number / text after. Every form must keep {n}",
    "check": [
     "ru",
     "ka"
@@ -9402,6 +9396,150 @@
    "ka": "მოგლეჯის ხმა: „Perforated Tear“, ავტორი everythingsounds (Freesound), ლიცენზია CC BY 4.0. ბარათის ხმები: Kenney (CC0).",
    "where": "app/android",
    "note": "required credit (CC BY 4.0), must stay visible",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "game.snowball.friend_yehuda_v": {
+   "he": "יהודה ו׳",
+   "en": "Yehuda V.",
+   "ru": "Иегуда В.",
+   "ka": "იეჰუდა ვ.",
+   "where": "site/games/snowball/index.html",
+   "note": "short: first name of a friend in the group (character in the game); transliterated, not translated",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "game.snowball.friend_dubi": {
+   "he": "דובי",
+   "en": "Dubi",
+   "ru": "Дуби",
+   "ka": "დუბი",
+   "where": "site/games/snowball/index.html",
+   "note": "short: first name of a friend in the group (character in the game); transliterated, not translated",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "game.snowball.friend_sruli": {
+   "he": "שרוליק",
+   "en": "Srulik",
+   "ru": "Шрулик",
+   "ka": "შრულიკი",
+   "where": "site/games/snowball/index.html",
+   "note": "short: first name of a friend in the group (character in the game); transliterated, not translated",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "game.snowball.friend_moishe": {
+   "he": "מוישי",
+   "en": "Moishe",
+   "ru": "Мойше",
+   "ka": "მოიშე",
+   "where": "site/games/snowball/index.html",
+   "note": "short: first name of a friend in the group (character in the game); transliterated, not translated",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "game.snowball.friend_yehuda_h": {
+   "he": "יהודה ה׳",
+   "en": "Yehuda H.",
+   "ru": "Иегуда Х.",
+   "ka": "იეჰუდა ჰ.",
+   "where": "site/games/snowball/index.html",
+   "note": "short: first name of a friend in the group (character in the game); transliterated, not translated",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "game.snowball.friend_pini": {
+   "he": "פיני",
+   "en": "Pini",
+   "ru": "Пини",
+   "ka": "პინი",
+   "where": "site/games/snowball/index.html",
+   "note": "short: first name of a friend in the group (character in the game); transliterated, not translated",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "game.descent.friend_yehuda_v": {
+   "he": "יהודה ו׳",
+   "en": "Yehuda V.",
+   "ru": "Иегуда В.",
+   "ka": "იეჰუდა ვ.",
+   "where": "site/games/descent/index.html",
+   "note": "short: first name of a friend in the group (character in the game); transliterated, not translated",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "game.descent.friend_dubi": {
+   "he": "דובי",
+   "en": "Dubi",
+   "ru": "Дуби",
+   "ka": "დუბი",
+   "where": "site/games/descent/index.html",
+   "note": "short: first name of a friend in the group (character in the game); transliterated, not translated",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "game.descent.friend_sruli": {
+   "he": "שרוליק",
+   "en": "Srulik",
+   "ru": "Шрулик",
+   "ka": "შრულიკი",
+   "where": "site/games/descent/index.html",
+   "note": "short: first name of a friend in the group (character in the game); transliterated, not translated",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "game.descent.friend_moishe": {
+   "he": "מוישי",
+   "en": "Moishe",
+   "ru": "Мойше",
+   "ka": "მოიშე",
+   "where": "site/games/descent/index.html",
+   "note": "short: first name of a friend in the group (character in the game); transliterated, not translated",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "game.descent.friend_yehuda_h": {
+   "he": "יהודה ה׳",
+   "en": "Yehuda H.",
+   "ru": "Иегуда Х.",
+   "ka": "იეჰუდა ჰ.",
+   "where": "site/games/descent/index.html",
+   "note": "short: first name of a friend in the group (character in the game); transliterated, not translated",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "game.descent.friend_pini": {
+   "he": "פיני",
+   "en": "Pini",
+   "ru": "Пини",
+   "ka": "პინი",
+   "where": "site/games/descent/index.html",
+   "note": "short: first name of a friend in the group (character in the game); transliterated, not translated",
    "check": [
     "ru",
     "ka"

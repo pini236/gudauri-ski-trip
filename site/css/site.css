@@ -38,6 +38,7 @@
 html,body{height:100%}
 body{background:var(--snow);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.5}
 .site{height:100%;display:grid;grid-template-rows:auto 1fr;direction:rtl;min-height:0}
+[dir="ltr"] .site{direction:ltr}
 a{color:var(--glacier)}
 button:focus-visible,a:focus-visible,input:focus-visible,.fchip:focus-visible{outline:2px solid var(--glacier);outline-offset:2px}
 .num{font-variant-numeric:tabular-nums}
@@ -615,3 +616,8 @@ html[lang="ka"]{--f-display:"Noto Sans Georgian","Arial Narrow",sans-serif;--f-b
 html[lang="ka"] :is(.brand,.signs a,.tb-count b,.dn-clock b,.bp-code,.bp-big,.bp-mini,.board b,.tally b,.mhead h1,.north,.inset-head,#panel h2,#panel h3,.run-ref,.prof-read b,.mc-top b,.mcard-empty b,.meet-side h2,.meet-times button,.mp-sign span,.mc-head span:first-child,.mc-sign,.mc-time,.mc-stub b,.rt-run,.mstat b,.ls-face b,.bd-row span:first-child,.games-sign,.gc-body b,.about h2,.ab-pass-body b,.fh-name){font-stretch:62.5%;font-weight:800}
 /* Oswald is wider than Karantina: titles a little smaller, so the signs keep their size */
 html[lang="ru"] :is(.brand,.signs a,.tb-count b,.dn-clock b,.bp-code,.bp-big,.bp-mini,.board b,.tally b,.mhead h1,.north,.inset-head,#panel h2,#panel h3,.run-ref,.prof-read b,.mc-top b,.mcard-empty b,.meet-side h2,.meet-times button,.mp-sign span,.mc-head span:first-child,.mc-sign,.mc-time,.mc-stub b,.rt-run,.mstat b,.ls-face b,.bd-row span:first-child,.games-sign,.gc-body b,.about h2,.ab-pass-body b,.fh-name){font-weight:600;letter-spacing:-.01em}
+/* Longer words than Hebrew on the boarding pass: one line each, and cut with an ellipsis rather than overlap */
+[dir="ltr"] .bp-strip>span:first-child{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+[dir="ltr"] .bp-grid>span{min-width:0}
+[dir="ltr"] .bp-grid small,[dir="ltr"] .bp-grid b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+[dir="ltr"] .bp-grid b{font-size:13px}

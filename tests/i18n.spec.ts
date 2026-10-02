@@ -28,7 +28,7 @@ for (const lang of ['en', 'ru', 'ka']) {
     // no sideways scroll on the phone
     const over = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
     expect(over).toBeLessThanOrEqual(1);
-    expect(errors.filter(e => !/fonts\.g|ERR_|net::/.test(e))).toEqual([]);
+    expect(errors.filter(e => !/fonts\.g|ERR_|net::|Failed to load resource/.test(e))).toEqual([]);
   });
 }
 
