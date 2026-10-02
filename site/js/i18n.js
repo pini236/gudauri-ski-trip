@@ -57,7 +57,10 @@
     root.classList.remove('i18n-wait');
     return r[0];
   });
-  window.I18N={lang:lang,dir:meta.dir,locale:meta.loc,ltr:meta.dir==='ltr',released:RELEASED.slice(),t:t,apply:apply,ready:ready,
+  // set('ru') keeps a choice in this browser; set(null) goes back to the browser's language. The page reloads.
+  function set(v){save(v&&LANGS[v]?v:'');var u=new URL(location.href);if(u.searchParams.has('lang')){u.searchParams.delete('lang');location.replace(u.toString());}else location.reload();}
+  window.I18N={lang:lang,dir:meta.dir,locale:meta.loc,ltr:meta.dir==='ltr',released:RELEASED.slice(),t:t,apply:apply,ready:ready,set:set,
+    chosen:!!(LANGS[q]||LANGS[s]),
     date:function(d,o){return new Date(d).toLocaleDateString(meta.loc,o);}};
   window.T=t;
   // For the games: L('key','עברית',vars) keeps the Hebrew next to the key, and falls back to it when a key is missing.

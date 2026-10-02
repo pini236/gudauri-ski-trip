@@ -9544,6 +9544,78 @@
     "ru",
     "ka"
    ]
+  },
+  "about.language": {
+   "he": "שפה",
+   "en": "Language",
+   "ru": "Язык",
+   "ka": "ენა",
+   "where": "site/index.html",
+   "note": "short: settings row title; the row also shows \"· Language\" in English for anyone in the wrong language",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "about.language_auto": {
+   "he": "נבחרה לפי הדפדפן",
+   "en": "Chosen from your browser",
+   "ru": "Выбран по языку браузера",
+   "ka": "არჩეულია ბრაუზერის მიხედვით",
+   "where": "site/index.html",
+   "note": "settings row subtitle when no language was chosen by hand",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "about.language_manual": {
+   "he": "נבחרה כאן, ונשמרת בטלפון הזה",
+   "en": "Chosen here, saved on this phone",
+   "ru": "Выбран здесь и сохранён на этом телефоне",
+   "ka": "არჩეულია აქ და ინახება ამ ტელეფონში",
+   "where": "site/index.html",
+   "note": "settings row subtitle after choosing by hand",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "about.language_hint": {
+   "he": "כל שפה כתובה בכתב שלה, כדי שכל אחד ימצא את שלו. הבחירה נשמרת בטלפון הזה.",
+   "en": "Each language is written in its own script, so everyone finds theirs. The choice stays on this phone.",
+   "ru": "Каждый язык написан своим письмом, чтобы каждый нашёл свой. Выбор сохраняется на этом телефоне.",
+   "ka": "ყველა ენა თავისი დამწერლობითაა, რომ ყველამ თავისი იპოვოს. არჩევანი ამ ტელეფონში ინახება.",
+   "where": "site/index.html",
+   "note": "under the title of the language list",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "about.language_browser": {
+   "he": "לפי הדפדפן (אוטומטי)",
+   "en": "From the browser (automatic)",
+   "ru": "По языку браузера (автоматически)",
+   "ka": "ბრაუზერის მიხედვით (ავტომატური)",
+   "where": "site/index.html",
+   "note": "button at the bottom of the language list: forget the choice",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "common.close": {
+   "he": "סגירה",
+   "en": "Close",
+   "ru": "Закрыть",
+   "ka": "დახურვა",
+   "where": "site/index.html",
+   "note": "short: aria-label of a close button",
+   "check": [
+    "ru",
+    "ka"
+   ]
   }
  }
 }

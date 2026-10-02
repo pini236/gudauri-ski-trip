@@ -621,3 +621,25 @@ html[lang="ru"] :is(.brand,.signs a,.tb-count b,.dn-clock b,.bp-code,.bp-big,.bp
 [dir="ltr"] .bp-grid>span{min-width:0}
 [dir="ltr"] .bp-grid small,[dir="ltr"] .bp-grid b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 [dir="ltr"] .bp-grid b{font-size:13px}
+/* Language list (round 11, LP3): a sheet from the bottom, each language in its own script and title font */
+.lang-sheet{position:fixed;inset:auto 0 0 0;margin:0 auto;width:100%;max-width:480px;max-height:90vh;box-sizing:border-box;padding:10px 20px 24px;border:0;background:var(--paper);color:var(--ink);box-shadow:0 -10px 30px rgba(0,0,0,.25)}
+.lang-sheet::backdrop{background:rgba(13,21,34,.55)}
+.lang-sheet[open]{animation:lsin .25s ease-out}
+@keyframes lsin{from{transform:translateY(30px);opacity:0}}
+@media (min-width:761px){.lang-sheet{inset:0;margin:auto;max-height:min(90vh,560px)}}
+.ls-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0}
+.ls-head h2{margin:0;font-family:var(--f-display);font-weight:700;font-size:32px;line-height:1.1}
+.ls-x{width:44px;height:44px;border:0;background:transparent;color:var(--ink);font-size:20px;cursor:pointer}
+.ls-hint{margin:2px 0 14px;font-size:13.5px;color:var(--muted)}
+.ls-list{display:flex;flex-direction:column;gap:8px}
+.ls-list label{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:56px;padding:0 14px;border:2px solid var(--rule);background:var(--paper);cursor:pointer}
+.ls-list label:has(input:checked){border-color:var(--ink)}
+.ls-list input{width:22px;height:22px;margin:0;accent-color:var(--ink)}
+.ls-list span{font:700 28px/1 "Karantina","Arial Narrow",sans-serif}
+.ls-list [lang="ru"] span{font:600 26px/1 "Oswald","Arial Narrow",sans-serif}
+.ls-list [lang="ka"] span{font:800 26px/1 "Noto Sans Georgian",sans-serif;font-stretch:62.5%}
+.ls-auto{margin-top:14px;min-height:44px;padding:0;border:0;background:transparent;color:var(--p-blue);font:inherit;font-size:14px;text-decoration:underline;cursor:pointer}
+@media (prefers-reduced-motion:reduce){.lang-sheet[open]{animation:none}}
+.ab-row b span{display:inline}
+/* "home" points back in the reading direction */
+[dir="ltr"] .mhead a svg{transform:scaleX(-1)}

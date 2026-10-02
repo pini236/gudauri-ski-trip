@@ -8,7 +8,7 @@ async function visibleText(page: Page) {
   // the crew's names and run data are content, not interface; leave them out
   return page.evaluate(() => {
     const clone = document.body.cloneNode(true) as HTMLElement;
-    clone.querySelectorAll('#crewList, [hidden], script, style').forEach(e => e.remove());
+    clone.querySelectorAll('#crewList, [hidden], [translate="no"], dialog, script, style').forEach(e => e.remove());
     return clone.innerText;
   });
 }
@@ -72,4 +72,19 @@ test.describe('an English browser in Israel', () => {
     await page.goto('/#home');
     await expect(page.locator('html')).toHaveAttribute('lang', 'he');
   });
+});
+
+test('the language row in settings opens the list, and choosing switches and remembers', async ({ page }) => {
+  await page.goto('/#about');
+  await expect(page.locator('#abLangVal')).toHaveText('עברית');
+  await page.locator('#abLang').click();
+  await expect(page.locator('#langSheet')).toBeVisible();
+  await page.locator('#langSheet label[lang="en"]').click();
+  await expect(page.locator('html')).toHaveAttribute('lang', 'en');
+  await expect(page.locator('#abLangVal')).toHaveText('English');
+  await expect(page.locator('#abLangSub')).toHaveText('Chosen here, saved on this phone');
+  await page.locator('#abLang').click();
+  await page.locator('#langAuto').click();
+  await expect(page.locator('html')).toHaveAttribute('lang', 'he');
+  await expect(page.locator('#abLangSub')).toHaveText('נבחרה לפי הדפדפן');
 });

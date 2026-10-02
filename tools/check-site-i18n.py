@@ -106,7 +106,8 @@ class Page(HTMLParser):
         for at in CHECKED_ATTRS:
             if a.get(at) and HEB.search(a[at]) and at not in attr_keys:
                 self.errors.append(f"index.html:{line}: <{tag} {at}=\"{a[at][:40]}\"> has no data-i18n-attr for {at}")
-        here = any(a.get(name) for name in TEXT_ATTRS)
+        # translate="no": the same in every language on purpose (a language's own name in the language list)
+        here = any(a.get(name) for name in TEXT_ATTRS) or a.get("translate") == "no"
         if tag not in VOID:
             self.stack.append((tag, here))
 
