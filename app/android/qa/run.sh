@@ -54,6 +54,8 @@ DENSITY=$(adb shell wm density | sed -n 's/.*: \([0-9]*\).*/\1/p' | tail -1)
 dp() { echo $(( $1 * DENSITY / 160 )); }
 note "device: $(adb shell getprop ro.product.model | tr -d '\r') · Android $(adb shell getprop ro.build.version.release | tr -d '\r') · ${W}x${H} · ${DENSITY}dpi"
 note "gpu: $(adb shell dumpsys SurfaceFlinger | grep -m1 'GLES:' | tr -d '\r')"
+# no "isn't responding" dialogs from the system's own apps on the slow emulator (unblock() handles any that still show)
+adb shell settings put global hide_error_dialogs 1 > /dev/null 2>&1 || true
 
 adb install -r -g "$APK" > /dev/null || { fail "install"; exit 1; }
 # the test build carries all four languages (tools/build-app-strings.py); the run, and the store screenshots, are in
@@ -126,7 +128,27 @@ descent() {
 
 # ---- the home page (round 10: H1 to H4, LT1 to LT3) ----
 # what is on screen: the accessibility tree (uiautomator), so a step can tap a button by its words
-uidump() { adb shell uiautomator dump /sdcard/ui.xml > /dev/null && adb pull /sdcard/ui.xml "$OUT/ui.xml" > /dev/null; }
+uidump() { adb shell uiautomator dump /sdcard/ui.xml > /dev/null && adb pull /sdcard/ui.xml "$OUT/ui.xml" > /dev/null && unblock; }
+# a system "isn't responding" dialog (the emulator's launcher, now and then) covers the app: wait it out and go on,
+# and count it as a failure only when it is the app's own
+unblock() {
+  local hit; hit=$(python3 - "$OUT/ui.xml" <<'PY'
+import re, sys
+import xml.etree.ElementTree as ET
+nodes = list(ET.parse(sys.argv[1]).getroot().iter())
+title = next((n.get("text") for n in nodes if "responding" in (n.get("text") or "")), None)
+wait = next((n for n in nodes if n.get("resource-id") == "android:id/aerr_wait"), None)
+if title and wait is not None:
+    x1, y1, x2, y2 = map(int, re.findall(r"\d+", wait.get("bounds")))
+    print((x1 + x2) // 2, (y1 + y2) // 2, title)
+PY
+)
+  [ -z "$hit" ] && return 0
+  set -- $hit; local x=$1 y=$2; shift 2
+  case "$*" in *Launcher*|*"System UI"*) note "system dialog closed: $*" ;; *) fail "not responding: $*" ;; esac
+  tap "$x" "$y"; sleep 2
+  adb shell uiautomator dump /sdcard/ui.xml > /dev/null && adb pull /sdcard/ui.xml "$OUT/ui.xml" > /dev/null
+}
 where() { # where <text>: the middle ("x y") of the element whose text or description is it (else holds it), a tappable one first; "~<regex>" searches; never a disabled one
   uidump
   python3 - "$OUT/ui.xml" "$1" <<'PY'
