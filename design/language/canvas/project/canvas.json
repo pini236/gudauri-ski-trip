@@ -1,0 +1,162 @@
+{
+  "v": 3,
+  "createdOnFiles": {
+    "v": 1,
+    "at": "2026-10-02T15:29:29Z"
+  },
+  "title": "גודאורי: שפה עיצובית חדשה",
+  "launch": {
+    "view": "canvas",
+    "page": "open"
+  },
+  "pages": [
+    {
+      "id": "open",
+      "name": "פתיחה: חמש שפות"
+    },
+    {
+      "id": "today",
+      "name": "היום באתר"
+    }
+  ],
+  "boards": {
+    "Main.dc.html": {
+      "x": 0,
+      "y": 0,
+      "w": 760,
+      "h": 1520,
+      "page": "open",
+      "title": "איך לקרוא ומה לבחור"
+    },
+    "T01-Home.dc.html": {
+      "x": 0,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "page": "today",
+      "title": "היום: דף הבית"
+    },
+    "T02-HomeNight.dc.html": {
+      "x": 470,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "page": "today",
+      "title": "היום: דף הבית בלילה"
+    },
+    "T03-Map.dc.html": {
+      "x": 940,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "page": "today",
+      "title": "היום: מפה"
+    },
+    "T04-Run.dc.html": {
+      "x": 1410,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "page": "today",
+      "title": "היום: מסלול"
+    },
+    "T05-Meet.dc.html": {
+      "x": 1880,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "page": "today",
+      "title": "היום: נקודת מפגש"
+    },
+    "T06-Games.dc.html": {
+      "x": 2350,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "page": "today",
+      "title": "היום: משחקים"
+    },
+    "T07-Group.dc.html": {
+      "x": 2820,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "page": "today",
+      "title": "היום: קבוצה"
+    },
+    "T08-Settings.dc.html": {
+      "x": 3290,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "page": "today",
+      "title": "היום: אודות והגדרות"
+    },
+    "T09-GuestHome.dc.html": {
+      "x": 3760,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "page": "today",
+      "title": "היום: אורח, בלי טיסה"
+    },
+    "T10-Trip.dc.html": {
+      "x": 4230,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "page": "today",
+      "title": "היום: הטיול שלך"
+    },
+    "T11-Desktop.dc.html": {
+      "x": 0,
+      "y": 1264,
+      "w": 1280,
+      "h": 800,
+      "page": "today",
+      "title": "היום: דף הבית במחשב"
+    },
+    "T12-DesktopRun.dc.html": {
+      "x": 1360,
+      "y": 1264,
+      "w": 1280,
+      "h": 800,
+      "page": "today",
+      "title": "היום: מסלול במחשב"
+    }
+  },
+  "order": [
+    "Main.dc.html",
+    "T01-Home.dc.html",
+    "T02-HomeNight.dc.html",
+    "T03-Map.dc.html",
+    "T04-Run.dc.html",
+    "T05-Meet.dc.html",
+    "T06-Games.dc.html",
+    "T07-Group.dc.html",
+    "T08-Settings.dc.html",
+    "T09-GuestHome.dc.html",
+    "T10-Trip.dc.html",
+    "T11-Desktop.dc.html",
+    "T12-DesktopRun.dc.html"
+  ],
+  "notes": {
+    "todayrow0": {
+      "x": 0,
+      "y": -300,
+      "text": "היום באתר, בטלפון",
+      "kind": "title1",
+      "maxW": 4600,
+      "page": "today"
+    },
+    "todayrow1": {
+      "x": 0,
+      "y": 964,
+      "text": "היום באתר, במחשב",
+      "kind": "title1",
+      "maxW": 2640,
+      "page": "today"
+    }
+  },
+  "designSystems": []
+}

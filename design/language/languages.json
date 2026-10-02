@@ -1,0 +1,311 @@
+{
+  "note": "Five candidate design languages for the whole site (Pini, 2.10.2026). Tokens per language, light and dark. The piste colours keep their meaning in every language (official map): green, blue, red, black. The slope steps keep the approved thresholds (decision 10): up to 15, 15-25, 25-30, over 30 degrees.",
+  "langs": {
+    "A": {
+      "he": "שילוט",
+      "en": "Signal",
+      "idea": "השלטים של ההר עצמו הופכים לממשק: לוחות אלומיניום עם מסמרות, דיסקיות סימון של מסלולים, עמודי גבול וחיצים בצהוב של שלטי ההליכה באלפים. הכי קריא שאפשר, גם בשמש על השלג.",
+      "fonts": {
+        "display": "Heebo:900",
+        "body": "Heebo:400,500,700",
+        "num": "Heebo:800",
+        "ru": "Golos Text",
+        "ka": "Noto Sans Georgian",
+        "map": "Heebo"
+      },
+      "light": {
+        "ground": "#F3F5F7",
+        "surface": "#FFFFFF",
+        "ink": "#0E1116",
+        "muted": "#4A5361",
+        "rule": "#D3D8DF",
+        "accent": "#FFC800",
+        "onAccent": "#0E1116",
+        "alert": "#F05A1A",
+        "green": "#0F7F38",
+        "blue": "#1460D2",
+        "red": "#D7261E",
+        "black": "#0E1116"
+      },
+      "dark": {
+        "ground": "#0B0E13",
+        "surface": "#171C24",
+        "ink": "#F2F4F7",
+        "muted": "#9AA5B4",
+        "rule": "#2A313C",
+        "accent": "#FFC800",
+        "onAccent": "#0E1116",
+        "alert": "#FF7A3D",
+        "green": "#2DBE67",
+        "blue": "#4D8DFF",
+        "red": "#FF5247",
+        "black": "#F2F4F7"
+      },
+      "slope": [
+        "#0F7F38",
+        "#FFC800",
+        "#F05A1A",
+        "#D7261E"
+      ],
+      "map": {
+        "bg": "#EEF1F3",
+        "contourMinor": "#C9D0D7",
+        "contour": "#AEB8C3",
+        "contourMajor": "#7E8A97",
+        "road": "#9AA3AE",
+        "village": "#DCE0E5",
+        "lift": "#0E1116",
+        "station": "#FFFFFF",
+        "labelHalo": "#FFFFFF"
+      }
+    },
+    "B": {
+      "he": "פוסטר",
+      "en": "Poster",
+      "idea": "פוסטר סקי משנות החמישים בהדפס רשת: שכבות שטוחות של הרכסים האמיתיים, שמש גדולה, חמישה צבעי דיו על נייר, ותוויות מזוודה וסיכות של אתרי סקי. נוסטלגי, חם וחגיגי.",
+      "fonts": {
+        "display": "Suez One:400",
+        "body": "Assistant:400,600,800",
+        "num": "Suez One:400",
+        "ru": "Oswald + PT Sans",
+        "ka": "Noto Serif Georgian",
+        "map": "Assistant"
+      },
+      "light": {
+        "ground": "#F1ECE0",
+        "surface": "#FBF8F1",
+        "ink": "#1B2A4A",
+        "muted": "#555B66",
+        "rule": "#D6CCB8",
+        "accent": "#BC3A27",
+        "onAccent": "#FBF8F1",
+        "sun": "#EFAE3A",
+        "glacier": "#8DB4D3",
+        "pine": "#2D6A4F",
+        "green": "#276F44",
+        "blue": "#2457A8",
+        "red": "#BC3A27",
+        "black": "#1B2A4A"
+      },
+      "dark": {
+        "ground": "#142038",
+        "surface": "#1A2845",
+        "ink": "#F1ECE0",
+        "muted": "#AEB7C7",
+        "rule": "#33466B",
+        "accent": "#E8624B",
+        "onAccent": "#142038",
+        "sun": "#F3D27A",
+        "glacier": "#5E86AE",
+        "pine": "#3E8A66",
+        "green": "#5DBB86",
+        "blue": "#7FA8E8",
+        "red": "#E8624B",
+        "black": "#F1ECE0"
+      },
+      "slope": [
+        "#2D7A4B",
+        "#EFAE3A",
+        "#D9772E",
+        "#BC3A27"
+      ],
+      "map": {
+        "bg": "#EFE9DA",
+        "contourMinor": "#DDD3BE",
+        "contour": "#CDBF9F",
+        "contourMajor": "#A8977A",
+        "road": "#B8AC94",
+        "village": "#E2D8C3",
+        "lift": "#1B2A4A",
+        "station": "#FBF8F1",
+        "labelHalo": "#F1ECE0"
+      }
+    },
+    "C": {
+      "he": "טופוגרפי",
+      "en": "Survey",
+      "idea": "אטלס ומכשיר מדידה: קווי הגובה האמיתיים כמרקם, קווים דקים כשערה, סימני כוונת בפינות, מספרים במונוספייס וקנה מידה. הצבע שמור רק לנתונים. הדיוק, הערך הכי חשוב בפרויקט, הוא המראה.",
+      "fonts": {
+        "display": "Frank Ruhl Libre:500,700",
+        "body": "IBM Plex Sans Hebrew:400,500,600",
+        "num": "IBM Plex Mono:400,500",
+        "ru": "PT Serif + IBM Plex Sans",
+        "ka": "Noto Serif Georgian + Noto Sans Georgian",
+        "map": "IBM Plex Mono"
+      },
+      "light": {
+        "ground": "#F6F7F4",
+        "surface": "#FFFFFF",
+        "ink": "#1A1F1C",
+        "muted": "#555E58",
+        "rule": "#C9CEC6",
+        "accent": "#1E6FA8",
+        "onAccent": "#FFFFFF",
+        "contour": "#B58A62",
+        "signal": "#C93A2A",
+        "green": "#2A7F47",
+        "blue": "#1E6FA8",
+        "red": "#C93A2A",
+        "black": "#1A1F1C"
+      },
+      "dark": {
+        "ground": "#0F1412",
+        "surface": "#161D1A",
+        "ink": "#E6EBE5",
+        "muted": "#93A096",
+        "rule": "#2B3530",
+        "accent": "#6FB3E0",
+        "onAccent": "#0F1412",
+        "contour": "#8C7254",
+        "signal": "#F0705F",
+        "green": "#5CC27F",
+        "blue": "#6FB3E0",
+        "red": "#F0705F",
+        "black": "#E6EBE5"
+      },
+      "slope": [
+        "#4E9A5E",
+        "#E3C24A",
+        "#E08A3A",
+        "#D2402F"
+      ],
+      "map": {
+        "bg": "#F6F7F4",
+        "contourMinor": "#E3D2BF",
+        "contour": "#CFAE8C",
+        "contourMajor": "#B58A62",
+        "road": "#A9AFA9",
+        "village": "#E6E8E3",
+        "lift": "#1A1F1C",
+        "station": "#FFFFFF",
+        "labelHalo": "#F6F7F4"
+      }
+    },
+    "D": {
+      "he": "קרטולי",
+      "en": "Kartuli",
+      "idea": "הצד הגאורגי של הטיול: דוגמאות הרקמה של חבסורתי, המרפסות המגולפות של טביליסי, אמייל בצבעי אבני חן, רימון וזהב, וחלונות מקושתים. חם ומארח, כמו סופרה אחרי יום על ההר.",
+      "fonts": {
+        "display": "Bona Nova:700",
+        "body": "Noto Sans Hebrew:400,500,700",
+        "num": "Bona Nova:700",
+        "ru": "Bona Nova + Noto Sans",
+        "ka": "Noto Serif Georgian",
+        "map": "Noto Sans Hebrew"
+      },
+      "light": {
+        "ground": "#F7F2EA",
+        "surface": "#FFFDF9",
+        "ink": "#241A1E",
+        "muted": "#665459",
+        "rule": "#E2D6C8",
+        "accent": "#A3203A",
+        "onAccent": "#FFFDF9",
+        "teal": "#136F70",
+        "gold": "#C8962B",
+        "walnut": "#5B3A29",
+        "green": "#2E7D4F",
+        "blue": "#2A5DB0",
+        "red": "#B3233B",
+        "black": "#241A1E"
+      },
+      "dark": {
+        "ground": "#1C1416",
+        "surface": "#271C1F",
+        "ink": "#F5EDE3",
+        "muted": "#BFAEA6",
+        "rule": "#46353A",
+        "accent": "#E0546B",
+        "onAccent": "#1C1416",
+        "teal": "#3FB3B0",
+        "gold": "#E6B85C",
+        "walnut": "#A77A5C",
+        "green": "#5CBF85",
+        "blue": "#7EA6EE",
+        "red": "#E0546B",
+        "black": "#F5EDE3"
+      },
+      "slope": [
+        "#2E7D4F",
+        "#C8962B",
+        "#C8612B",
+        "#A3203A"
+      ],
+      "map": {
+        "bg": "#F4EEE4",
+        "contourMinor": "#E4D8C8",
+        "contour": "#D2C1AC",
+        "contourMajor": "#A88C70",
+        "road": "#B9A894",
+        "village": "#E8DCCB",
+        "lift": "#241A1E",
+        "station": "#FFFDF9",
+        "labelHalo": "#FFFDF9"
+      }
+    },
+    "E": {
+      "he": "מדבקות",
+      "en": "Stickers",
+      "idea": "הסנובורד של החבר׳ה מכוסה מדבקות: קווי מתאר עבים, צל קשיח מוזז, פינות עגולות, צבעים חזקים וקצת שובבות. כל רכיב הוא מדבקה שאפשר לגעת בה. מתאים במיוחד למשחקים ולקבוצה.",
+      "fonts": {
+        "display": "Fredoka:600,700",
+        "body": "Rubik:400,500,700",
+        "num": "Fredoka:700",
+        "ru": "Comfortaa + Rubik",
+        "ka": "Noto Sans Georgian",
+        "map": "Rubik"
+      },
+      "light": {
+        "ground": "#EAF4FF",
+        "surface": "#FFFFFF",
+        "ink": "#121212",
+        "muted": "#4D5260",
+        "rule": "#121212",
+        "accent": "#FFD23F",
+        "onAccent": "#121212",
+        "pink": "#FF5DA2",
+        "ice": "#57C7FF",
+        "mint": "#2FD08A",
+        "orange": "#FF7A2F",
+        "green": "#108A4E",
+        "blue": "#2160DE",
+        "red": "#D8302A",
+        "black": "#121212"
+      },
+      "dark": {
+        "ground": "#12141C",
+        "surface": "#1E2230",
+        "ink": "#F7F7F7",
+        "muted": "#B4B9C7",
+        "rule": "#F7F7F7",
+        "accent": "#FFD23F",
+        "onAccent": "#121212",
+        "pink": "#FF7DB6",
+        "ice": "#6FD1FF",
+        "mint": "#45E09C",
+        "orange": "#FF8F4F",
+        "green": "#3DCC82",
+        "blue": "#6B9BFF",
+        "red": "#FF6A62",
+        "black": "#F7F7F7"
+      },
+      "slope": [
+        "#2FD08A",
+        "#FFD23F",
+        "#FF7A2F",
+        "#F0433A"
+      ],
+      "map": {
+        "bg": "#F4F9FF",
+        "contourMinor": "#D5E4F4",
+        "contour": "#BBD0E8",
+        "contourMajor": "#8FAED1",
+        "road": "#9FB0C4",
+        "village": "#DCE7F3",
+        "lift": "#121212",
+        "station": "#FFD23F",
+        "labelHalo": "#FFFFFF"
+      }
+    }
+  }
+}
