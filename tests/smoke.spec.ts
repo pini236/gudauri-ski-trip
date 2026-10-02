@@ -158,7 +158,7 @@ test('קישור להורדת האפליקציה מופיע רק כשהקובץ 
   await page.goto('/');
   await loaded(page);
   await expect(page.locator('#appBoard')).toBeHidden();
-  await expect(page.locator('#boardNext')).toBeVisible();
+  await expect(page.locator('#groupBoard')).toBeVisible();
 });
 
 test('כשהקובץ קיים מוצג שלט הורדה עם גודל והסבר התקנה', async ({ page }) => {
@@ -167,7 +167,6 @@ test('כשהקובץ קיים מוצג שלט הורדה עם גודל והסב�
   await loaded(page);
   await expect(page.locator('#appBoard')).toBeVisible();
   await expect(page.locator('#appBoard')).toHaveAttribute('href', 'downloads/gudauri-2027.apk');
-  await expect(page.locator('#boardNext')).toBeHidden();
   await page.locator('#appHow summary').click();
   await expect(page.locator('#appHow li')).toHaveCount(3);
 });
@@ -242,6 +241,7 @@ test('תצוגת מסלול: קישור ישיר, צביעה לפי שיפוע, 
 
 test('נקודת מפגש: בוחרים תחנה ושעה, כרטיס, איך מגיעים וקישור לשיתוף', async ({ page }) => {
   const errors = watchErrors(page);
+  await withTrip(page);
   await page.goto('/#meet');
   await loaded(page);
   await expect(page.locator('#meetPage')).toBeVisible();
@@ -253,6 +253,9 @@ test('נקודת מפגש: בוחרים תחנה ושעה, כרטיס, איך מ
   await expect(page.locator('#meetCard [data-f="time"]')).toHaveText('09:30');
   await expect(page.locator('#meetRoutes li').first()).toBeVisible();
   // יום ושעה
+  // ימי הסקי של הטיול שלך: 11 עד 14 בינואר
+  await expect(page.locator('[data-days] button')).toHaveCount(4);
+  await expect(page.locator('[data-days] button').first()).toHaveText('ב׳ 11.1');
   await page.locator('[data-day="2027-01-13"]').click();
   await page.locator('[data-time="15:00"]').click();
   await expect(page.locator('#meetCard [data-f="time"]')).toHaveText('15:00');

@@ -509,12 +509,14 @@ function activateMap(){
 // pages: #map shows the map, anything else the home page
 const pgHome=document.getElementById('home'),pgMap=document.getElementById('mapPage'),pgMeet=document.getElementById('meetPage'),pgGames=document.getElementById('gamesPage'),pgAbout=document.getElementById('aboutPage'),pgTrip=document.getElementById('tripPage');
 function route(){
-  const h=location.hash,m=h.startsWith('#map'),mt=h.startsWith('#meet'),gm=h.startsWith('#games'),ab=h.startsWith('#about'),tr=h==='#trip',run=h.startsWith('#map/run/')?decodeURIComponent(h.slice(9)):null,wasMap=!pgMap.hidden;
-  pgHome.hidden=m||mt||gm||ab||tr;pgMap.hidden=!m;pgMeet.hidden=!mt;pgGames.hidden=!gm;pgAbout.hidden=!ab;pgTrip.hidden=!tr;if(tr)TRIPFORM.open();
+  const h=location.hash,m=h.startsWith('#map'),mt=h.startsWith('#meet'),gm=h.startsWith('#games'),ab=h.startsWith('#about'),tr=h==='#trip',ac=/^#(signin|account|join|group)(\/|$)/.test(h),run=h.startsWith('#map/run/')?decodeURIComponent(h.slice(9)):null,wasMap=!pgMap.hidden;
+  pgHome.hidden=m||mt||gm||ab||tr||ac;pgMap.hidden=!m;pgMeet.hidden=!mt;pgGames.hidden=!gm;pgAbout.hidden=!ab;pgTrip.hidden=!tr;if(tr)TRIPFORM.open();
+  // accounts and groups: js/account.js shows its own pages (round 12)
+  if(window.ACCOUNT)ACCOUNT.route(ac?h:'');
   const cur=m?'map':mt?'meet':gm?'games':ab?'about':'home';
   document.querySelectorAll('[data-nav]').forEach(a=>{if(a.dataset.nav===cur)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current');});
   if(m&&!wasMap)LSTAT.viewed();
-  requestAnimationFrame(()=>{if(gm||ab||tr)return;if(mt){if(MEET)MEET.open(h.slice(6));return;}if(!m){DN.layout();return;}activateMap();
+  requestAnimationFrame(()=>{if(gm||ab||tr||ac)return;if(mt){if(MEET)MEET.open(h.slice(6));return;}if(!m){DN.layout();return;}activateMap();
     if(run&&run!==current&&(byKey[run]||D.missing.some(x=>x.name===run)))select(run,{push:false,via:'link'});
     else if(!run&&current)overview();});
   if(!wasMap||!m){window.scrollTo(0,0);pgHome.scrollTop=0;}
@@ -639,8 +641,15 @@ const MEET=(function(){
     s.where=[b.length?T('meet.where_bottom_station',{lifts:n(b)}):'',t.length?T('meet.where_top_station',{lifts:n(t)}):''].filter(Boolean).join(', ');});
   const byId=Object.fromEntries(st.map(s=>[s.id,s]));
   const find=name=>(end)=>st.find(s=>s.ends.some(e=>e.l.name===name&&e.end===end));
-  // ski days of the trip (11 to 14 January), and suggested fixed spots for the group
-  const DAYS=[['2027-01-11',T('meet.day_mon_11')],['2027-01-12',T('meet.day_tue_12')],['2027-01-13',T('meet.day_wed_13')],['2027-01-14',T('meet.day_thu_14')]];
+  // the ski days of your trip (round 12): from "your trip" (up to two weeks), or the next week when there is none
+  function skiDays(){const t=MYTRIP.get(),r=MYTRIP.ski(t),out=[];
+    const addD=(iso,n)=>{const d=new Date(iso+'T12:00:00Z');d.setUTCDate(d.getUTCDate()+n);return d.toISOString().slice(0,10);};
+    let a,b;if(r){a=r.from;b=r.to;}else{a=new Date(Date.now()+4*36e5).toISOString().slice(0,10);if(t&&t.out.date>a)a=addD(t.out.date,1);b=addD(a,6);}
+    for(let d=a;d<=b&&out.length<14;d=addD(d,1))out.push([d,dayName(d)]);return out;}
+  function dayName(iso){const d=new Date(iso+'T12:00:00Z'),lang=document.documentElement.lang||'he';
+    if(lang==='he')return new Intl.DateTimeFormat('he',{weekday:'narrow',timeZone:'UTC'}).format(d)+` ${d.getUTCDate()}.${d.getUTCMonth()+1}`;
+    try{return new Intl.DateTimeFormat(lang,{weekday:'short',day:'numeric',month:'short',timeZone:'UTC'}).format(d);}catch(e){return iso.split('-').reverse().join('.');}}
+  let DAYS=skiDays();
   const TIMES=['09:30','11:00','12:30','13:30','15:00','16:30'];
   const PRE=[['am',T('meet.preset_morning_lift'),find('Goodaura')('b'),'09:30'],['noon',T('meet.preset_noon'),find('Goodaura')('t'),'13:00'],['pm',T('meet.preset_end_of_day'),find('New Goodaura')('b'),'16:30']].filter(p=>p[2]);
   // nothing is picked at first (Pini, round 8): the map asks where to meet, and the card waits
@@ -705,7 +714,8 @@ const MEET=(function(){
   new ResizeObserver(()=>{if(!document.getElementById('meetPage').hidden)applyVB();}).observe(svgM);
   // controls
   const ui=document.getElementById('meetUI');
-  ui.querySelector('[data-days]').innerHTML=DAYS.map(([v,l])=>`<button type="button" data-day="${v}">${esc(l)}</button>`).join('');
+  function drawDays(){ui.querySelector('[data-days]').innerHTML=DAYS.map(([v,l])=>`<button type="button" data-day="${v}">${esc(l)}</button>`).join('');}
+  drawDays();
   ui.querySelector('[data-times]').innerHTML=TIMES.map(t=>`<button type="button" class="num" data-time="${t}">${t}</button>`).join('');
   ui.querySelector('[data-pre]').innerHTML=PRE.map(([k,l,s,t],i)=>`<button type="button" class="mp-sign mp-${k}" data-pre="${k}"><b>${esc(l)}</b><span dir="ltr">${esc(s.name)} ${t}</span></button>`).join('');
   ui.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;
@@ -724,7 +734,7 @@ const MEET=(function(){
     return out.filter((r,i)=>out.findIndex(q=>q.html===r.html)===i).slice(0,4);}
   const pad=n=>String(n).padStart(2,'0');
   function link(){return location.origin+location.pathname+`#meet/${S.sid}/${S.time.replace(':','')}/${S.day.replace(/-/g,'')}`;}
-  function dayLbl(){return (DAYS.find(d=>d[0]===S.day)||[0,S.day.split('-').reverse().join('.')])[1];}
+  function dayLbl(){return (DAYS.find(d=>d[0]===S.day)||[0,dayName(S.day)])[1];}
   function message(){const s=byId[S.sid];return T('meet.share_message',{place:s.name,day:dayLbl(),time:S.time,where:s.where,alt:s.h?T('meet.share_alt_suffix',{n:s.h.toLocaleString('en-US')}):'',link:link()});}
   function countdown(){ // in Gudauri time (UTC+4)
     const [y,mo,d]=S.day.split('-').map(Number),[hh,mm]=S.time.split(':').map(Number);
@@ -796,12 +806,14 @@ const MEET=(function(){
   document.getElementById('meetOnMap').addEventListener('click',()=>{const s=byId[S.sid];location.hash='#map';requestAnimationFrame(()=>requestAnimationFrame(()=>{showLift(s.ends[0].l.id);if(view==='3d'&&v3)v3.focusLift(s.ends[0].l.id);else focusOn([s.ends[0].l.g]);}));});
   let shown=false;
   function open(arg){ // arg: "<station>/<HHMM>/<YYYYMMDD>" from a shared link, or empty
+    // your trip may have changed since the last visit
+    const was=DAYS.map(d=>d[0]).join();DAYS=skiDays();if(DAYS.map(d=>d[0]).join()!==was){drawDays();if(!DAYS.some(d=>d[0]===S.day))S.day=DAYS[0][0];}
     if(arg){const [sid,t,d]=arg.split('/');if(byId[sid]){S.sid=sid;if(!shown)track('meet_link_open');}if(/^\d{4}$/.test(t||''))S.time=t.slice(0,2)+':'+t.slice(2);if(/^\d{8}$/.test(d||''))S.day=`${d.slice(0,4)}-${d.slice(4,6)}-${d.slice(6)}`;
       ui.querySelector('#meetTime').value=S.time;}
     const s=byId[S.sid];requestAnimationFrame(()=>{if(!shown||arg){shown=true;if(s)goTo(s.x,s.y,1800,0);else fitAll(0);}render();if(arg&&s)document.getElementById('meetCard').scrollIntoView({block:'center'});});
   }
   ui.querySelector('#meetTime').value=S.time;
-  return {open};
+  return {open,station:id=>byId[id]&&byId[id].name,current:()=>S.sid?{sid:S.sid,day:S.day,time:S.time}:null};
 })();
 
   // snow on the signs: soft mounds and a few rounded drips (seeded, so every sign keeps its own pile)
@@ -913,6 +925,8 @@ function renderTicket(){
     const h=[.30,.42,.55,.48,.62,.80,.70,.58,.66,.92,1,.86,.74,.60,.68,.78,.64,.50,.44,.56,.70,.62,.48,.36,.42,.30,.24,.34,.28,.20,.26,.18],w=80/h.length;
     svg.innerHTML=h.map((v,i)=>`<rect x="${(i*w).toFixed(1)}" y="${(28-v*28).toFixed(1)}" width="${i%3===0?2:i%2?1.2:.7}" height="${(v*28).toFixed(1)}"/>`).join('');
   });
+  // the passenger is the account (round 12, P1 to P7)
+  if(window.ACCOUNT)ACCOUNT.paintPass();
 }
 document.getElementById('seasonBoard').insertAdjacentHTML('afterbegin',snowCap(7,358));
 // the trip form (#trip, round 12 W2): the browser's own date and time pickers, the destination starts as Tbilisi,
@@ -949,13 +963,13 @@ const TRIPFORM=(()=>{
   f.addEventListener('input',e=>{if(e.target.name)e.target.removeAttribute('aria-invalid');paint();});
   f.addEventListener('change',paint);
   document.getElementById('tfSkiBtn').addEventListener('click',()=>{manual=!manual;if(manual&&!q('sf').value){const a=MYTRIP.skiAuto(read().out,read().ret);if(a){q('sf').value=a.from;q('sl').value=a.to;}}paint();});
-  document.getElementById('tfDelete').addEventListener('click',()=>{MYTRIP.set(null);renderTicket();countdown(document.documentElement.dataset.theme==='dark');location.hash='#home';});
+  document.getElementById('tfDelete').addEventListener('click',()=>{MYTRIP.set(null);window.ACCOUNT&&ACCOUNT.tripSaved();renderTicket();countdown(document.documentElement.dataset.theme==='dark');location.hash='#home';});
   f.addEventListener('submit',e=>{e.preventDefault();err.hidden=true;const t=read();
     if(!MYTRIP.ISO.test(t.out.date))return fail('od','trip.need_date');
     for(const n of ['ofr','oto'])if(!q(n).value&&!/^[A-Z]{3}$/.test(q(n+'x').value.trim().toUpperCase()))return fail(n+'x','trip.bad_code');
     if(t.ret&&t.ret.date<t.out.date)return fail('rd','trip.bad_order');
     if(t.ski&&t.ski.to<t.ski.from)return fail('sl','trip.bad_order');
-    MYTRIP.set({v:1,...t});renderTicket();countdown(document.documentElement.dataset.theme==='dark');location.hash='#home';});
+    const was=MYTRIP.get();MYTRIP.set({v:1,...t,...(was&&was.sid?{sid:was.sid}:{})});window.ACCOUNT&&ACCOUNT.tripSaved();renderTicket();countdown(document.documentElement.dataset.theme==='dark');location.hash='#home';});
   return {open};})();
 // about and settings (#about): sound and vibration for the whole site and the games, and clearing the game records
 (function(){const P=window.GUD_PREFS||{sound:true,haptics:true};
@@ -997,6 +1011,8 @@ const TRIPFORM=(()=>{
   });
 })();
 renderTicket();
+// accounts and groups (js/account.js) work with these, and draw on the pages before the first route
+if(window.ACCOUNT)ACCOUNT.start({MYTRIP,esc,snowCap,MEET,renderTicket,countdown});
 route();
 overview();applyFilters();
 // the app download sign: shown only when the file really is on the server
@@ -1004,7 +1020,7 @@ fetch('downloads/gudauri-2027.apk',{method:'HEAD'}).then(r=>{
   if(!r.ok||/text\/html/.test(r.headers.get('content-type')||''))return;
   const mb=+r.headers.get('content-length')/1048576;
   document.getElementById('appMeta').textContent=mb>0?T('home.app_download_meta_size',{size:mb.toFixed(mb<10?1:0)}):T('home.app_download');
-  document.getElementById('appBoard').hidden=false;document.getElementById('appBoard').addEventListener('click',()=>track('app_download',{store:'apk',placement:'home'}));document.getElementById('appHow').hidden=false;document.getElementById('boardNext').hidden=true;
+  document.getElementById('appBoard').hidden=false;document.getElementById('appBoard').addEventListener('click',()=>track('app_download',{store:'apk',placement:'home'}));document.getElementById('appHow').hidden=false;
 }).catch(()=>{});
 document.getElementById('loading').hidden=true;
 })().catch(e=>{console.error(e);const l=document.getElementById('loading');l.hidden=false;l.textContent=typeof T==='function'?T('home.load_error'):'Error';});

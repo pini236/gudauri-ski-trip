@@ -2,7 +2,7 @@
 // The screens are drawn inside the real site: it loads site/, plugs the new pieces in with the site's own classes
 // (plus the few new ones in proto.css), and takes a screenshot of each. Run from the repo root:
 //   python3 -m http.server 4199 -d site &   node design/round12/proto.mjs [out dir]
-// Sample data: the trip is Pini's own (site/data/trip.json); the group's second flight and the code are made up.
+// Sample data: the trip is Pini's own (design/data/trip.json); the group's second flight and the code are made up.
 import { chromium } from 'playwright';
 import fs from 'node:fs';
 import path from 'node:path';

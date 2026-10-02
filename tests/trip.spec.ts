@@ -20,6 +20,8 @@ test('אורח: כרטיס ריק, מצב העונה, ובלי הכרטיס וה
   await expect(page.locator('#tbCount')).toBeHidden();
   await expect(page.locator('body')).not.toContainText('שרוליק');
   await expect(page.locator('.crew')).toHaveCount(0);
+  // the group's flight and names are no longer published (Pini, 2.10.2026)
+  expect((await page.request.get('/data/trip.json')).status()).toBe(404);
   const wide = await page.evaluate(() => document.documentElement.scrollWidth - innerWidth);
   expect(wide).toBeLessThanOrEqual(1);
   expect(errors).toEqual([]);
@@ -89,4 +91,14 @@ test('הטיול שלך: ימי סקי ידניים, ושדה תעופה אחר'
   await f.locator('.tf-save').click();
   await expect(page.locator('.bp[data-leg="out"] [data-f="fromCode"]')).toHaveText('IST');
   await expect(page.locator('.bp[data-leg="out"] [data-f="skiRange"]')).toHaveText('2–3.2');
+});
+
+test('נקודת מפגש בלי טיול: שבוע מהיום', async ({ page }) => {
+  const errors = watchErrors(page);
+  await page.clock.setFixedTime(new Date('2026-12-31T09:00:00Z'));
+  await page.goto('/#meet');
+  await loaded(page);
+  await expect(page.locator('[data-days] button')).toHaveCount(7);
+  await expect(page.locator('[data-days] button').first()).toHaveAttribute('data-day', '2026-12-31');
+  expect(errors).toEqual([]);
 });

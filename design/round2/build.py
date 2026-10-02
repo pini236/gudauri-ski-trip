@@ -9,7 +9,7 @@ root = pathlib.Path(__file__).resolve().parent.parent.parent
 D = json.load(open(root / 'site/data/runs-and-lifts.json', encoding='utf-8'))
 S = json.load(open(root / 'design/round2/sun-stats.json', encoding='utf-8'))
 FIRST = json.load(open(root / 'design/round2/first-sun.json', encoding='utf-8'))
-TRIP = json.load(open(root / 'site/data/trip.json', encoding='utf-8'))
+TRIP = json.load(open(root / 'design/data/trip.json', encoding='utf-8'))
 ASSET = {  # uploaded to the design canvas
     'sun0900': '/_blob/918c78a6d85918a5dcbb7d31388ab657',
     'sun1200': '/_blob/27f863a8b3c3734d1b91b58cf1ba14d5',
