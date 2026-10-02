@@ -10204,6 +10204,54 @@
     "ru",
     "ka"
    ]
+  },
+  "about.analytics": {
+   "he": "מדידת שימוש ודיווח שגיאות",
+   "en": "Usage statistics and error reports",
+   "ru": "Статистика и отчёты об ошибках",
+   "ka": "გამოყენების სტატისტიკა და შეცდომების ანგარიშები",
+   "where": "site/index.html",
+   "note": "settings row title (round 11, AN1)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "about.analytics_on": {
+   "he": "אנונימי ובלי עוגיות: באילו עמודים משתמשים ומה נשבר.",
+   "en": "Anonymous, no cookies: which pages are used and what breaks.",
+   "ru": "Анонимно и без cookie: какие страницы открывают и что ломается.",
+   "ka": "ანონიმურად და ქუქი-ფაილების გარეშე: რომელი გვერდები გამოიყენება და რა ფუჭდება.",
+   "where": "site/index.html",
+   "note": "settings row subtitle when on; followed by the link \"what is collected\"",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "about.analytics_off": {
+   "he": "כבוי: לא נשלח דבר.",
+   "en": "Off: nothing is sent.",
+   "ru": "Выключено: ничего не отправляется.",
+   "ka": "გამორთულია: არაფერი იგზავნება.",
+   "where": "site/index.html",
+   "note": "settings row subtitle when off",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "about.analytics_what": {
+   "he": "מה נאסף",
+   "en": "What is collected",
+   "ru": "Что собирается",
+   "ka": "რა გროვდება",
+   "where": "site/index.html",
+   "note": "short: link to the privacy page",
+   "check": [
+    "ru",
+    "ka"
+   ]
   }
  }
 }
