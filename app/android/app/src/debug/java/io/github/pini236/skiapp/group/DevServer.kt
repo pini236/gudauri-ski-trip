@@ -92,7 +92,7 @@ private class FakeGroupApi : GroupApi {
 
     override suspend fun createGroup(name: String, myName: String, startsOn: LocalDate?, endsOn: LocalDate?, myTrip: Trip?): String {
         wait(); val me = meOrThrow()
-        if (!me.registered) throw ApiException("not_registered")
+        if (!me.registered) throw ApiException("must_register")
         val gid = id(); val tid = myTrip?.let { id().also { t -> trips[t] = it } }
         groups[gid] = Group(gid, name.trim(), startsOn, endsOn,
             listOf(Member(me.userId, myName.trim(), Role.ADMIN, true, myTrip, tid, null, true)),
