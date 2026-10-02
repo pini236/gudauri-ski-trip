@@ -136,7 +136,7 @@ descent() {
 
 # ---- the home page (round 10: H1 to H4, LT1 to LT3) ----
 # what is on screen: the accessibility tree (uiautomator), so a step can tap a button by its words
-uidump() { adb shell uiautomator dump /sdcard/ui.xml > /dev/null && adb pull /sdcard/ui.xml "$OUT/ui.xml" > /dev/null && unblock; }
+uidump() { adb shell uiautomator dump /sdcard/ui.xml > /dev/null && adb pull /sdcard/ui.xml "$OUT/ui.xml" > /dev/null && unblock >&2; } # where() prints only its x y
 # a system "isn't responding" dialog (the emulator's launcher, now and then) covers the app: wait it out and go on,
 # and count it as a failure only when it is the app's own
 unblock() {
