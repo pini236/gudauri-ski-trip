@@ -27,7 +27,7 @@ function eq(actual: unknown, expected: unknown, what: string) {
 async function user(name: string, anonymous = false): Promise<string> {
   const id = crypto.randomUUID();
   await sql`insert into auth.users (id, email, is_anonymous, raw_user_meta_data)
-            values (${id}, ${anonymous ? null : name + "@example.com"}, ${anonymous},
+            values (${id}, ${anonymous ? null : `${name}.${id}@example.com`}, ${anonymous},
                     ${sql.json(anonymous ? {} : { full_name: name })})`;
   return id;
 }
