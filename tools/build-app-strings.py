@@ -20,6 +20,9 @@ from pathlib import Path
 from xml.sax.saxutils import escape
 
 ROOT = Path(__file__).resolve().parent.parent
+# The crew's real first names in the games (game.<name>.friend_*) are the website's. The group's names do not travel in
+# the app (decision 27), and the app's games do not use them.
+SKIP = re.compile(r"^game\.[a-z]+\.friend_")
 PH = re.compile(r"\{([a-zA-Z_][a-zA-Z0-9_]*)\}")
 
 
@@ -57,6 +60,8 @@ def file_for(lang, strings):
              '<resources>',
              f'    <string name="lang" translatable="false">{lang}</string>']
     for key, e in strings.items():
+        if SKIP.match(key):
+            continue
         idx = order(e["he"])
         v = e[lang]
         if isinstance(v, dict):
