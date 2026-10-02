@@ -142,9 +142,9 @@ PY
 }
 tapText() { local xy; xy=$(where "$1"); if [ -z "$xy" ]; then fail "no '$1' on screen"; return 1; fi; tap $xy; }
 
-# the trips the run sets (never packed in the app, decision 27): the group's public flights, and the same in English
-TRIP_HE='{"v":1,"out":{"date":"2027-01-10","flight":"6H 897","from":"TLV · תל אביב","to":"TBS · טביליסי","departs":"16:00","arrives":"20:35"},"ret":{"date":"2027-01-15","flight":"6H 892","from":"TBS · טביליסי","to":"TLV · תל אביב","departs":"01:35","arrives":"02:15"}}'
-TRIP_EN='{"v":1,"out":{"date":"2027-01-10","flight":"6H 897","from":"TLV · Tel Aviv","to":"TBS · Tbilisi","departs":"16:00","arrives":"20:35"},"ret":{"date":"2027-01-15","flight":"6H 892","from":"TBS · Tbilisi","to":"TLV · Tel Aviv","departs":"01:35","arrives":"02:15"}}'
+# the trips the run sets (never packed in the app, decision 27): made-up flight numbers, never the group's flight
+TRIP_HE='{"v":1,"out":{"date":"2027-01-10","flight":"GD 101","from":"TLV · תל אביב","to":"TBS · טביליסי","departs":"16:00","arrives":"20:35"},"ret":{"date":"2027-01-15","flight":"GD 102","from":"TBS · טביליסי","to":"TLV · תל אביב","departs":"01:35","arrives":"02:15"}}'
+TRIP_EN='{"v":1,"out":{"date":"2027-01-10","flight":"GD 101","from":"TLV · Tel Aviv","to":"TBS · Tbilisi","departs":"16:00","arrives":"20:35"},"ret":{"date":"2027-01-15","flight":"GD 102","from":"TBS · Tbilisi","to":"TLV · Tel Aviv","departs":"01:35","arrives":"02:15"}}'
 
 home() {
   # a guest with no trip, early December at midday in Gudauri (H1)
@@ -241,8 +241,9 @@ grep "SkiQa" "$OUT/logcat.txt" > "$OUT/qa-log.txt"
 # crashes anywhere, and every error line the app itself wrote
 grep -E "FATAL EXCEPTION|ANR in $PKG" -A 30 "$OUT/logcat.txt" > "$OUT/errors.txt"
 PID=$(adb shell pidof "$PKG" | tr -d '\r')
-# known noise: the system's note when the map's surface changes size (the bars appear), not an app error
-if [ -n "$PID" ]; then adb logcat -d --pid="$PID" '*:E' | grep -v -E "^-+ beginning of|BLASTBufferQueue.*rejecting buffer" >> "$OUT/errors.txt"; else fail "the app is not running at the end"; fi
+# known noise, the framework's own lines in the app's process, not app errors: the map's surface changing size (the
+# bars appear), a slow emulator missing a window sync, and the keyboard's closing animation timing out
+if [ -n "$PID" ]; then adb logcat -d --pid="$PID" '*:E' | grep -v -E "^-+ beginning of|BLASTBufferQueue.*rejecting buffer|SurfaceSyncGroup: Failed to receive transaction|FrameTracker: force finish cuj" >> "$OUT/errors.txt"; else fail "the app is not running at the end"; fi
 [ -s "$OUT/errors.txt" ] && fail "errors in the log (errors.txt)"
 
 # ---- the release build (R8): only that it starts and draws ----

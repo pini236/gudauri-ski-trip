@@ -293,9 +293,9 @@ class MainActivity : ComponentActivity() {
         val frame = remember(tick, dnMode) { DayNight.at(tick, dnMode) }
         val top = nav.top
         // screen_view with the contract's screen names (docs/GROWTH.md); a chosen run is run_open, not a screen.
-        // The trip form and the group are not in the contract (yet), so they send none.
+        // The group is not in the contract yet, so it sends none.
         val screen = when (top) {
-            Route.Home -> "home"; is Route.Map -> "map"; is Route.Meet -> "meet"; Route.Games -> "games"; Route.About -> "about"
+            Route.Home -> "home"; is Route.Map -> "map"; is Route.Meet -> "meet"; Route.Games -> "games"; Route.About -> "about"; Route.Trip -> "trip"
             is Route.Game -> "game:" + top.name; else -> null
         }
         LaunchedEffect(screen) {

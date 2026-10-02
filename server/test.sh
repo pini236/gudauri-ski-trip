@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# Runs the server tests (server/supabase/tests/*.test.sql, pgTAP).
+# Runs the server tests: the database rules (supabase/tests/*.test.sql,
+# pgTAP) and the server's actions (tests/api.test.ts, Deno).
 #
 #   server/test.sh            against $DB_URL, which already has the migrations
 #                             (on GitHub: the real Supabase database from
@@ -46,5 +47,11 @@ for t in supabase/tests/*.test.sql; do
     echo "ok: $t ($(grep -c '^ok' <<<"$out") checks)"
   fi
 done
+
+# The server's actions (supabase/functions/api/), with Deno.
+echo "server actions:"
+if ! DB_URL="$DB_URL" deno test -A --quiet --config supabase/functions/api/deno.json tests/api.test.ts; then
+  failed=1
+fi
 
 exit $failed
