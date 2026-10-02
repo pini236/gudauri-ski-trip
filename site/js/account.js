@@ -254,8 +254,11 @@ window.ACCOUNT=(function(){
       const tids=members.map(m=>m.trip_id).filter(Boolean);
       const trips=tids.length?await rest(c.from('trips').select('id,owner_id,out_date,out_flight,out_from,out_to,out_departs,ret_date,ret_flight,ret_departs,entered_by').in('id',tids)):[];
       const meetups=await rest(c.from('meetups').select('id,station,meet_at,note').eq('group_id',gid).order('meet_at'));
-      const inv=await rest(c.from('invites').select('id,code,token,revoked_at,expires_at,requires_approval,max_uses,uses').eq('group_id',gid).is('revoked_at',null));
-      const live_=inv.filter(v=>!(v.expires_at&&Date.parse(v.expires_at)<=Date.now())&&!(v.max_uses&&v.uses>=v.max_uses)); // an expired or used-up invite is not shown or shared
+      const inv=await rest(c.from('invites').select('id,code,token,revoked_at,expires_at,requires_approval,max_uses,uses,created_at').eq('group_id',gid).is('revoked_at',null));
+      // only an invite that still works is shown and shared (CONTRACT): not used up, and before it ends; with no end set,
+      // a day after the group's trip ends, or 90 days after it was made
+      const ends=v=>v.expires_at?Date.parse(v.expires_at):g.ends_on?Date.parse(g.ends_on+'T00:00:00Z')+864e5:Date.parse(v.created_at)+90*864e5;
+      const live_=inv.filter(v=>!(v.max_uses&&v.uses>=v.max_uses)&&!(ends(v)<=Date.now()));
       const me=members.find(m=>m.user_id===state.uid),admin=me&&me.role==='admin';
       const reqs=admin?await rest(c.from('join_requests').select('id,display_name,kind,reclaim_user_id,status').eq('group_id',gid).eq('status','pending')):[];
       G={g,members,trips,meetups,invite:live_[live_.length-1]||null,reqs,scores:G&&G.g&&G.g.id===gid?G.scores:null,at:Date.now()};
@@ -343,7 +346,7 @@ window.ACCOUNT=(function(){
   $('groupPage').addEventListener('click',async e=>{
     const pg=$('groupPage'),t=e.target;
     const run=async(fn)=>{clearErr(pg);try{await fn();await refresh();await reload();}catch(x){showErr(pg,x);}};
-    const same=t.closest('[data-same]');if(same){run(async()=>{const r=await api('same_flight',{group_id:gid,trip_id:same.dataset.same});await setMine(r.trip_id);
+    const same=t.closest('[data-same]');if(same){run(async()=>{const mt=MYTRIP.get(),r=await api('same_flight',{group_id:gid,trip_id:same.dataset.same,my_trip_id:mt&&mt.sid||undefined});await setMine(r.trip_id);
       const c=await client(),[n]=await rest(c.from('trips').select('*').eq('id',r.trip_id));if(n)asMine(n);});return;}
     if(t.closest('[data-showtrip]')){run(()=>pushTrip(true));return;}
     const dm_=t.closest('[data-delmeet]');if(dm_){run(async()=>{const c=await client();await rest(c.from('meetups').delete().eq('id',dm_.dataset.delmeet));});return;}
