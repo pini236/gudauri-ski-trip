@@ -677,6 +677,15 @@ html.pv,html.pv body{height:auto}
 .ab-privacy{margin:14px 0 0;font-size:14px;color:var(--muted)}.ab-privacy a{color:var(--glacier);font-weight:600}
 .pv-doc{scroll-margin-top:72px}
 .pv-brand{white-space:nowrap}
+/* Russian and Georgian (decision 46): the brand stays in Hebrew letters, the back link on one line, and the titles in
+   the fonts of round 10 (FT1) at a size that fits a phone: Oswald a little smaller, Georgian narrow and bold */
+html.pv .pv-brand{font-family:Karantina,"Arial Narrow",sans-serif}
+.pv-back{white-space:nowrap}
+html[lang="ru"] .pv-doc :is(h1,h2,.pv-sign b){font-weight:600;letter-spacing:-.01em}
+html[lang="ru"] .pv-doc h1{font-size:40px}
+html[lang="ka"] .pv-doc :is(h1,h2,.pv-sign b){font-stretch:62.5%;font-weight:800}
+html[lang="ka"] .pv-doc h1{font-size:36px;overflow-wrap:anywhere}
+@media (min-width:900px){html[lang="ru"] .pv-doc h1{font-size:52px}html[lang="ka"] .pv-doc h1{font-size:56px}}
 .pv-doc span[dir="ltr"],.pv-doc a[dir="ltr"]{unicode-bidi:isolate;white-space:nowrap}
 @media (max-width:420px){.pv-brand{font-size:24px}.pv-top{gap:8px;padding:6px 12px}.pv-lang button{padding:0 9px}}
 /* Usage statistics switch (round 11, AN1 and AN2): the row holds a link, so the switch is its own button */

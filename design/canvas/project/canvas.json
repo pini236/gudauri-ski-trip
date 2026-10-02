@@ -1226,6 +1226,62 @@
       "h": 760,
       "page": "round14",
       "title": "הגדרות: הסקי־פס"
+    },
+    "V0-Decide.dc.html": {
+      "x": 0,
+      "y": 0,
+      "w": 520,
+      "h": 844,
+      "page": "round15",
+      "title": "מה לאשר בסבב 15"
+    },
+    "V1-Before.dc.html": {
+      "x": 600,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "page": "round15",
+      "title": "היום: עברית ואנגלית"
+    },
+    "V2-He.dc.html": {
+      "x": 1050,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "page": "round15",
+      "title": "עברית"
+    },
+    "V3-En.dc.html": {
+      "x": 1500,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "page": "round15",
+      "title": "אנגלית"
+    },
+    "V4-Ru.dc.html": {
+      "x": 1950,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "page": "round15",
+      "title": "רוסית"
+    },
+    "V5-Ka.dc.html": {
+      "x": 2400,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "page": "round15",
+      "title": "גאורגית"
+    },
+    "V6-RuDesktop.dc.html": {
+      "x": 600,
+      "y": 1264,
+      "w": 1280,
+      "h": 800,
+      "page": "round15",
+      "title": "רוסית במחשב"
     }
   },
   "createdOnFiles": {
@@ -1235,7 +1291,7 @@
   "designSystems": [],
   "launch": {
     "view": "canvas",
-    "page": "round14"
+    "page": "round15"
   },
   "notes": {
     "featRow1": {
@@ -1633,6 +1689,24 @@
       "w": 240,
       "x": 600,
       "y": 5397
+    },
+    "round15row0": {
+      "kind": "title1",
+      "maxW": 2190,
+      "page": "round15",
+      "text": "בטלפון: לפני, ואחרי בארבע השפות",
+      "w": 240,
+      "x": 600,
+      "y": -300
+    },
+    "round15row1": {
+      "kind": "title1",
+      "maxW": 1280,
+      "page": "round15",
+      "text": "במחשב",
+      "w": 240,
+      "x": 600,
+      "y": 964
     }
   },
   "order": [
@@ -1787,9 +1861,20 @@
     "N3-SignIn.dc.html",
     "N4-GroupFlights.dc.html",
     "N5-Account.dc.html",
-    "N6-AboutPass.dc.html"
+    "N6-AboutPass.dc.html",
+    "V0-Decide.dc.html",
+    "V1-Before.dc.html",
+    "V2-He.dc.html",
+    "V3-En.dc.html",
+    "V4-Ru.dc.html",
+    "V5-Ka.dc.html",
+    "V6-RuDesktop.dc.html"
   ],
   "pages": [
+    {
+      "id": "round15",
+      "name": "סבב 15: דף הפרטיות בארבע שפות"
+    },
     {
       "id": "round14",
       "name": "סבב 14: ניהול הקבוצה באתר"
