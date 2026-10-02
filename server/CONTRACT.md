@@ -122,7 +122,7 @@ POST /functions/v1/api/<פעולה>
 
 | פעולה | שדות | תשובה |
 |---|---|---|
-| `invite_preview` | `code` | `{status:"ok", group_id, name, starts_on, ends_on, requires_approval, already_member, members:[{user_id, display_name}]}`, או `{status}` עם `invalid_code` / `rate_limited` |
+| `invite_preview` | `code` | `{status:"ok", group_id, name, starts_on, ends_on, requires_approval, already_member, members:[{user_id, display_name}]}` (**בהזמנה שדורשת אישור, `members` ריק למי שאינו חבר בקבוצה**: מי שהמנהל עוד לא אישר לא רואה מי בקבוצה, ולכן גם אין "אני כבר בקבוצה" בהזמנה כזאת; חבר בקבוצה רואה את הרשימה), או `{status}` עם `invalid_code` / `rate_limited` |
 | `join_group` | `code`, `display_name` | `{status, group_id?}`: `joined`, `pending` (ממתין למנהל), `already_member`, `invalid_code`, `rate_limited`, `group_full` |
 | `request_reclaim` | `code`, `member_id`, `display_name?` (השם של מי שמבקש, 1 עד 40, כדי שהמנהל יראה מי מבקש; בלעדיו נשמר שם החבר המבוקש, כמו קודם) | "אני כבר בקבוצה": בקשה להיות שוב החבר הזה, באישור מנהל. `{status}`: `pending`, `already_member`, `no_such_member`, `sign_in_instead` (החבר רשום, שייכנס עם החשבון), `invalid_code`, `rate_limited` |
 | `cancel_join_request` | `request_id` | `{}` |

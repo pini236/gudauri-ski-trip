@@ -462,7 +462,8 @@ const actions: Record<string, Action> = {
   },
 
   // What an invite opens: the group and its members' names (for "I'm
-  // already in the group"). Counts as an attempt.
+  // already in the group"; not for an invitation that needs approval, see
+  // below). Counts as an attempt.
   async invite_preview({ tx, user, body }) {
     const r = await useCode(tx, user, body.code);
     if (!r.invite) return { status: r.status };
@@ -471,12 +472,15 @@ const actions: Record<string, Action> = {
     const [g] = await tx`select id, name, starts_on::text, ends_on::text from public.groups where id = ${group}`;
     const members = await tx`select user_id, display_name from public.group_members
                              where group_id = ${group} order by joined_at, user_id`;
+    const alreadyMember = members.some((m) => m.user_id === user);
     return {
       status: "ok",
       group_id: g.id, name: g.name, starts_on: g.starts_on, ends_on: g.ends_on,
       requires_approval: r.invite.requires_approval,
-      already_member: members.some((m) => m.user_id === user),
-      members,
+      already_member: alreadyMember,
+      // An invitation that needs approval is for people the admin has not accepted yet: it does not show them who is in
+      // the group. (Members see the list; so does everyone for an open invitation, which anyone holding it may use.)
+      members: r.invite.requires_approval && !alreadyMember ? [] : members,
     };
   },
 
