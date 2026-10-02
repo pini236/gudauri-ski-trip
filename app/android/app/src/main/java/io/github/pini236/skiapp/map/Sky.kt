@@ -110,6 +110,31 @@ object Sky {
         )
     }
 
+    /** One of the seven views from the village (assets/pano, from site/img/pano), and how far to the next. */
+    class Pano(val from: String, val to: String, val mix: Float, val dark: Boolean)
+
+    /**
+     * The view on the home page at [epochMs], as on the site (site/js/app.js, keys() and their img): the two pictures
+     * either side of now and the cross-fade between them, and whether it is dark (the night palette).
+     */
+    fun pano(epochMs: Long): Pano {
+        val (rise, set, noon) = sunTimes(epochMs).let { Triple(it[0], it[1], it[2]) }
+        val h = ((epochMs / 3_600_000.0 + TZ) % 24 + 24) % 24
+        val k = listOf(0.0 to "night", rise - 1.2 to "night", rise - .3 to "dawn", rise + 1.2 to "morning", noon to "noon",
+            set - 1.8 to "gold", set - .35 to "sunset", set + .45 to "dusk", set + 1.3 to "night", 24.0 to "night")
+        var i = 0
+        while (i < k.size - 2 && k[i + 1].first < h) i++
+        val (ah, an) = k[i]; val (bh, bn) = k[i + 1]
+        val f = ((h - ah) / (bh - ah).let { if (it == 0.0) 1.0 else it }).coerceIn(0.0, 1.0).toFloat()
+        return Pano(an, bn, f, h < rise - .3 || h > set + .3)
+    }
+
+    /** The time in Gudauri as HH:mm. */
+    fun clock(epochMs: Long): String {
+        val m = (((epochMs / 60_000L) + TZ * 60L) % (24 * 60) + 24 * 60) % (24 * 60)
+        return "%02d:%02d".format(m / 60, m % 60)
+    }
+
     /** The moon's azimuth (from north, clockwise) and altitude in radians: a low-precision formula, to a degree or so. */
     fun moon(epochMs: Long): Pair<Double, Double> {
         val d = epochMs / 86_400_000.0 + 2440587.5 - 2451545.0

@@ -60,6 +60,19 @@ adb install -r -g "$APK" > /dev/null || { fail "install"; exit 1; }
 # Hebrew, the app's own language setting, whatever the emulator's language is
 adb shell cmd locale set-app-locales "$PKG" --locales he > /dev/null 2>&1 || note "could not set the app's language"
 
+# ---- the home page and "your trip" (round 10: H1 to H4) ----
+home() {
+  mark
+  adb shell "am start -W -n $ACT --es qa.trip none --es qa.tab home --es qa.stats off --es qa.time 2027-01-12T11:00" > /dev/null
+  waitlog "trip none" 30; sleep 2; shot home-guest
+  adb shell input swipe $((W / 2)) $((H * 3 / 4)) $((W / 2)) $((H / 4)) 400; sleep 1; shot home-guest-signs
+  qa "--es qa.tab trip"; sleep 2; shot trip-form-empty
+  qa "--es qa.trip sample --es qa.tab home"; waitlog "trip sample" 30; sleep 2; shot home-trip-day
+  qa "--es qa.trip sample --es qa.tab trip"; sleep 2; shot trip-form-filled
+  qa "--es qa.tab home --es qa.time 2027-01-12T21:00"; sleep 2; shot home-trip-night
+  qa "--es qa.tab home --es qa.time 2027-01-12T11:00"; sleep 1
+}
+
 # ---- the map ----
 map() {
   mark
@@ -180,11 +193,12 @@ store() {
 }
 
 case "$SCENARIO" in
+  home) home ;;
   map) map ;;
   descent) descent ;;
   ticket) ticket ;;
   store) store ;;
-  *) map; descent; ticket; store ;;
+  *) home; map; descent; ticket; store ;;
 esac
 
 # ---- what the run measured ----

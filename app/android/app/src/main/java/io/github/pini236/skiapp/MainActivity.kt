@@ -63,6 +63,10 @@ import io.github.pini236.skiapp.perf.Startup
 import io.github.pini236.skiapp.qa.GesturePlayer
 import io.github.pini236.skiapp.qa.Qa
 import io.github.pini236.skiapp.ticket.TicketScreen
+import io.github.pini236.skiapp.home.HomeActions
+import io.github.pini236.skiapp.home.HomeScreen
+import io.github.pini236.skiapp.trip.TripScreen
+import io.github.pini236.skiapp.trip.TripStore
 import io.github.pini236.skiapp.ui.Karantina
 import io.github.pini236.skiapp.ui.Palette
 import io.github.pini236.skiapp.ui.Plex
@@ -89,15 +93,18 @@ class MainActivity : ComponentActivity() {
     private var profile by mutableStateOf<Profile?>(null)
     private var sunNote by mutableStateOf("")
     private lateinit var nav: Nav
-    private val tab: Int get() = when (nav.top) { is Route.Game -> 1; Route.Ticket -> 2; else -> 0 }
+    private lateinit var trips: TripStore
+    private var trip by mutableStateOf<io.github.pini236.skiapp.trip.Trip?>(null)
     private var showStats by mutableStateOf(true)
     private var qaPending: Intent? = null
     private var clockMs: Long? = null // the QA run pins the time of day; otherwise it is now
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // the spike opens on the map; the skeleton will open on the home page (nav/Nav.kt)
-        nav = Nav(Route.Map(), savedInstanceState?.getStringArrayList("nav"))
+        // the app opens on the home page (round 10, H1 to H4); the map, the game and the spike's pass are places on top
+        nav = Nav(Route.Home, savedInstanceState?.getStringArrayList("nav"))
+        trips = TripStore(this)
+        trip = trips.load()
         Qa.init(this)
         startTelemetry()
         enableEdgeToEdge()
@@ -224,7 +231,9 @@ class MainActivity : ComponentActivity() {
         if (i == null || !Qa.enabled) return
         val keys = i.extras?.keySet()?.filter { it.startsWith("qa.") }.orEmpty()
         if (keys.isEmpty()) return
-        i.getStringExtra("qa.tab")?.let { when (it) { "descent" -> nav.switchTo(Route.Game("descent")); "ticket" -> nav.switchTo(Route.Ticket); else -> nav.toStart() } }
+        i.getStringExtra("qa.tab")?.let { when (it) { "descent" -> nav.switchTo(Route.Game("descent")); "ticket" -> nav.switchTo(Route.Ticket); "trip" -> nav.switchTo(Route.Trip); "home" -> nav.toStart(); else -> nav.switchTo(nav.find<Route.Map>() ?: Route.Map()) } }
+        // a sample trip for the home page's screenshots, or none (the guest home, H1)
+        i.getStringExtra("qa.trip")?.let { t -> if (t == "none") { trips.clear(); trip = null } else { trip = Qa.sampleTrip(); trips.save(trip!!) }; Qa.log("trip $t") }
         i.getStringExtra("qa.stats")?.let { showStats = it != "off" }
         i.getStringExtra("qa.time")?.let { clockMs = Qa.gudauriTime(it) }
         Qa.log("intent ${keys.sorted()}")
@@ -268,29 +277,27 @@ class MainActivity : ComponentActivity() {
     private fun App() {
         BackHandler(enabled = nav.canBack) { nav.back() }
         // screen_view with the contract's screen names (docs/GROWTH.md); a chosen run is run_open, not a screen.
-        // The spike's ticket tab has no screen of its own in the contract (the pass lives on the home screen).
-        val screen = when (val r = nav.top) { is Route.Map -> "map"; is Route.Game -> "game:" + r.name; else -> null }
+        // The spike's pass has no screen of its own in the contract (the pass lives on the home screen).
+        val screen = when (val r = nav.top) { Route.Home -> "home"; Route.Trip -> "trip"; is Route.Map -> "map"; is Route.Game -> "game:" + r.name; else -> null }
         LaunchedEffect(screen) {
             if (screen != null) Telemetry.event("screen_view", if (screen.startsWith("game:")) mapOf("screen" to "game", "game" to screen.removePrefix("game:")) else mapOf("screen" to screen))
         }
         // the direction of the language on screen (i18n/Lang.kt): Hebrew today, so right to left
         CompositionLocalProvider(LocalLayoutDirection provides Lang.current(resources).direction) {
-            Column(Modifier.fillMaxSize().background(Palette.snow)) {
-                Box(Modifier.weight(1f).fillMaxWidth()) {
-                    when (tab) {
-                        0 -> MapScreen(mapView, scene)
-                        1 -> DescentScreen(profile, haptics, sounds)
-                        else -> Box(Modifier.statusBarsPadding().padding(top = 28.dp)) { TicketScreen(haptics, sounds) }
-                    }
-                    if (showStats) StatsBar(tab == 0, Modifier.align(Alignment.TopStart))
-                }
-                Row(Modifier.fillMaxWidth().background(Palette.ink).navigationBarsPadding()) {
-                    listOf(R.string.app_tab_map, R.string.app_tab_descent, R.string.app_tab_ticket).map { stringResource(it) }.forEachIndexed { i, label ->
-                        Box(
-                            Modifier.weight(1f).heightIn(min = 56.dp).background(if (i == tab) Palette.glacier else Palette.ink).clickable { if (i == 0) nav.toStart() else nav.switchTo(if (i == 1) Route.Game("descent") else Route.Ticket); haptics.tick(0.4f) },
-                            contentAlignment = Alignment.Center,
-                        ) { Text(label, fontFamily = Karantina, fontWeight = FontWeight.Bold, fontSize = 28.sp, color = Color.White) }
-                    }
+            Box(Modifier.fillMaxSize().background(Palette.snow)) {
+                when (val r = nav.top) {
+                    Route.Home -> HomeScreen(trip, haptics, sounds, HomeActions(
+                        addTrip = { nav.push(Route.Trip) }, editTrip = { nav.push(Route.Trip) },
+                        map = { nav.push(nav.find<Route.Map>() ?: Route.Map()) }, games = { nav.push(Route.Game("descent")) },
+                    ), clockMs)
+                    Route.Trip -> TripScreen(trip,
+                        onSave = { t -> trips.save(t); trip = t; nav.back(); haptics.click(0.5f) },
+                        onDelete = { trips.clear(); trip = null; nav.back() },
+                        onCancel = { nav.back() })
+                    is Route.Map -> Box(Modifier.fillMaxSize().navigationBarsPadding()) { MapScreen(mapView, scene); if (showStats) StatsBar(true, Modifier.align(Alignment.TopStart)) }
+                    is Route.Game -> Box(Modifier.fillMaxSize().navigationBarsPadding()) { DescentScreen(profile, haptics, sounds); if (showStats) StatsBar(false, Modifier.align(Alignment.TopStart)) }
+                    Route.Ticket -> Box(Modifier.statusBarsPadding().padding(top = 28.dp)) { TicketScreen(haptics, sounds) }
+                    else -> { LaunchedEffect(r) { nav.toStart() } } // a place the app does not have yet: home
                 }
             }
         }

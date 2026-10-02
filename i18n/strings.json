@@ -9406,6 +9406,372 @@
     "ru",
     "ka"
    ]
+  },
+  "app.trip_title": {
+   "he": "הטיול שלך",
+   "en": "Your trip",
+   "ru": "Ваша поездка",
+   "ka": "თქვენი მოგზაურობა",
+   "where": "app/android",
+   "note": "Round 10 H1-H4: the pass strip and the form title. short",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.trip_not_set": {
+   "he": "עוד לא הוגדר",
+   "en": "Not set yet",
+   "ru": "Ещё не задано",
+   "ka": "ჯერ არ არის მითითებული",
+   "where": "app/android",
+   "note": "Empty pass strip, end side. short",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.trip_add": {
+   "he": "הוספת הטיסה שלי",
+   "en": "Add my flight",
+   "ru": "Добавить мой рейс",
+   "ka": "ჩემი რეისის დამატება",
+   "where": "app/android",
+   "note": "Button on the empty pass (H1)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.trip_local_note": {
+   "he": "בלי הרשמה. נשמר רק בטלפון, ואפשר למחוק בכל רגע.",
+   "en": "No sign-up. Saved on your phone only, and you can delete it any time.",
+   "ru": "Без регистрации. Хранится только на телефоне, удалить можно в любой момент.",
+   "ka": "რეგისტრაციის გარეშე. ინახება მხოლოდ ტელეფონში და ნებისმიერ დროს შეგიძლიათ წაშალოთ.",
+   "where": "app/android",
+   "note": "Under the empty pass (H1)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.trip_form_lead": {
+   "he": "הטיסות שלך לגודאורי. בלי הרשמה: נשמר רק בטלפון.",
+   "en": "Your flights to Gudauri. No sign-up: saved on your phone only.",
+   "ru": "Ваши рейсы в Гудаури. Без регистрации: хранится только на телефоне.",
+   "ka": "თქვენი რეისები გუდაურში. რეგისტრაციის გარეშე: ინახება მხოლოდ ტელეფონში.",
+   "where": "app/android",
+   "note": "Form lead (H2)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.trip_out": {
+   "he": "הלוך",
+   "en": "Outbound",
+   "ru": "Туда",
+   "ka": "გამგზავრება",
+   "where": "app/android",
+   "note": "Form section and pass strip (glossary). short",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.trip_back": {
+   "he": "חזור",
+   "en": "Return",
+   "ru": "Обратно",
+   "ka": "დაბრუნება",
+   "where": "app/android",
+   "note": "Form section, pass strip and field label (glossary). short",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.trip_out_required": {
+   "he": "חובה רק התאריך",
+   "en": "Only the date is required",
+   "ru": "Обязательна только дата",
+   "ka": "სავალდებულოა მხოლოდ თარიღი",
+   "where": "app/android",
+   "note": "Beside the outbound section title. short",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.trip_back_optional": {
+   "he": "אפשר גם בלי",
+   "en": "Optional",
+   "ru": "Необязательно",
+   "ka": "არასავალდებულო",
+   "where": "app/android",
+   "note": "Beside the return section title. short",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.trip_date": {
+   "he": "תאריך",
+   "en": "Date",
+   "ru": "Дата",
+   "ka": "თარიღი",
+   "where": "app/android",
+   "note": "Field label. short",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.trip_number": {
+   "he": "מספר טיסה",
+   "en": "Flight number",
+   "ru": "Номер рейса",
+   "ka": "რეისის ნომერი",
+   "where": "app/android",
+   "note": "Field label. short",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.trip_number_hint": {
+   "he": "למשל {example}",
+   "en": "e.g. {example}",
+   "ru": "например, {example}",
+   "ka": "მაგ. {example}",
+   "where": "app/android",
+   "note": "Placeholder; {example} = a flight number",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.trip_date_hint": {
+   "he": "למשל {example}",
+   "en": "e.g. {example}",
+   "ru": "например, {example}",
+   "ka": "მაგ. {example}",
+   "where": "app/android",
+   "note": "Placeholder; {example} = a date like 10.1.2027",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.trip_ski_computed": {
+   "he": "ימי סקי מלאים, מחושב מהטיסות",
+   "en": "Full ski days, from your flights",
+   "ru": "Полные дни катания, по вашим рейсам",
+   "ka": "სრული სათხილამურო დღეები, რეისების მიხედვით",
+   "where": "app/android",
+   "note": "Label of the computed ski days (H2)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.trip_ski_unknown": {
+   "he": "יחושב כשיהיה תאריך חזור",
+   "en": "Worked out once there is a return date",
+   "ru": "Рассчитаем, когда будет дата обратного рейса",
+   "ka": "გამოითვლება, როცა დაბრუნების თარიღი იქნება",
+   "where": "app/android",
+   "note": "When the return is empty",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.trip_ski_count": {
+   "he": {
+    "one": "יום אחד",
+    "two": "יומיים",
+    "other": "{n} ימים"
+   },
+   "en": {
+    "one": "{n} day",
+    "other": "{n} days"
+   },
+   "ru": {
+    "one": "{n} день",
+    "few": "{n} дня",
+    "many": "{n} дней",
+    "other": "{n} дня"
+   },
+   "ka": {
+    "one": "{n} დღე",
+    "other": "{n} დღე"
+   },
+   "where": "app/android",
+   "note": "Number of full ski days after the date range",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.trip_days_to": {
+   "he": {
+    "one": "יום לטיסה",
+    "two": "ימים לטיסה",
+    "other": "ימים לטיסה"
+   },
+   "en": {
+    "one": "day to go",
+    "other": "days to go"
+   },
+   "ru": {
+    "one": "день до вылета",
+    "few": "дня до вылета",
+    "many": "дней до вылета",
+    "other": "дня до вылета"
+   },
+   "ka": {
+    "one": "დღე ფრენამდე",
+    "other": "დღე ფრენამდე"
+   },
+   "where": "app/android",
+   "note": "Stub, under the big number (the number is drawn apart, so no {n}). short",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.trip_more": {
+   "he": "עוד",
+   "en": "In",
+   "ru": "Ещё",
+   "ka": "კიდევ",
+   "where": "app/android",
+   "note": "Stub, above the big number. short",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.trip_save": {
+   "he": "שמירה",
+   "en": "Save",
+   "ru": "Сохранить",
+   "ka": "შენახვა",
+   "where": "app/android",
+   "note": "Button. short",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.trip_delete": {
+   "he": "מחיקת הטיול",
+   "en": "Delete the trip",
+   "ru": "Удалить поездку",
+   "ka": "მოგზაურობის წაშლა",
+   "where": "app/android",
+   "note": "Quiet button in the form",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.trip_cancel": {
+   "he": "ביטול",
+   "en": "Cancel",
+   "ru": "Отмена",
+   "ka": "გაუქმება",
+   "where": "app/android",
+   "note": "Back link of the form. short",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.trip_edit": {
+   "he": "עריכה",
+   "en": "Edit",
+   "ru": "Изменить",
+   "ka": "შეცვლა",
+   "where": "app/android",
+   "note": "Link under the pass. short",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.trip_bad_date": {
+   "he": "תאריך לא תקין. למשל {example}",
+   "en": "Not a valid date. For example {example}",
+   "ru": "Неверная дата. Например, {example}",
+   "ka": "არასწორი თარიღი. მაგალითად {example}",
+   "where": "app/android",
+   "note": "Field error",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.trip_bad_time": {
+   "he": "שעה לא תקינה. למשל {example}",
+   "en": "Not a valid time. For example {example}",
+   "ru": "Неверное время. Например, {example}",
+   "ka": "არასწორი დრო. მაგალითად {example}",
+   "where": "app/android",
+   "note": "Field error",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.trip_bad_order": {
+   "he": "החזור לפני ההלוך",
+   "en": "The return is before the outbound",
+   "ru": "Обратный рейс раньше рейса туда",
+   "ka": "დაბრუნება გამგზავრებამდეა",
+   "where": "app/android",
+   "note": "Field error",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.trip_traveller": {
+   "he": "נוסע",
+   "en": "Traveller",
+   "ru": "Пассажир",
+   "ka": "მგზავრი",
+   "where": "app/android",
+   "note": "Field label on the pass. short",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.trip_me": {
+   "he": "אני",
+   "en": "Me",
+   "ru": "Я",
+   "ka": "მე",
+   "where": "app/android",
+   "note": "Value on the pass. short",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.home_season_link": {
+   "he": "מצב הרכבלים",
+   "en": "Lift status",
+   "ru": "Состояние подъёмников",
+   "ka": "საბაგიროების მდგომარეობა",
+   "where": "app/android",
+   "note": "Link on the season board (H1). short",
+   "check": [
+    "ru",
+    "ka"
+   ]
   }
  }
 }

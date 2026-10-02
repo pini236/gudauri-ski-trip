@@ -87,6 +87,7 @@ val copySiteData by tasks.registering(Exec::class) {
     val out = layout.buildDirectory.dir("generated/siteAssets").get().asFile
     inputs.dir(File(repoRoot, "site/data"))
     inputs.dir(File(repoRoot, "site/audio"))
+    inputs.dir(File(repoRoot, "site/img/pano"))
     inputs.file(File(repoRoot, "site/games/descent/index.html"))
     inputs.file(File(repoRoot, "tools/build-app-data.py"))
     outputs.dir(out)
