@@ -861,7 +861,7 @@
   },
   "app.pass_traveller": {
    "he": "נוסע",
-   "en": "Traveller",
+   "en": "Passenger",
    "ru": "Пассажир",
    "ka": "მგზავრი",
    "where": "app/android",
@@ -10351,7 +10351,7 @@
   },
   "app.a_ways_in": {
    "he": "דרכי כניסה",
-   "en": "Ways in",
+   "en": "Ways to sign in",
    "ru": "Способы входа",
    "ka": "შესვლის გზები",
    "where": "app/android",
@@ -10565,6 +10565,42 @@
     "ka"
    ]
   },
+  "app.err_not_a_guest": {
+   "he": "כבר נכנסת עם חשבון, והמקום שלך כבר שמור.",
+   "en": "You're already signed in with an account, so your place is kept.",
+   "ru": "Вы уже вошли с аккаунтом, ваше место сохранено.",
+   "ka": "უკვე შესული ხართ ანგარიშით, თქვენი ადგილი შენახულია.",
+   "where": "app/android",
+   "note": "server code not_a_guest: only a guest can do this (keeping the place), and this phone already has an account",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.err_not_signed_in": {
+   "he": "החיבור לשרת פג. נכנסים שוב, או חוזרים לקבוצה דרך \"אני כבר בקבוצה\".",
+   "en": "Your session ended. Sign in again, or get back to your group with “I'm already in the group”.",
+   "ru": "Сеанс закончился. Войдите снова или вернитесь в группу через «Я уже в группе».",
+   "ka": "სესია დასრულდა. ხელახლა შედით, ან დაბრუნდით ჯგუფში „უკვე ჯგუფში ვარ“-ით.",
+   "where": "app/android",
+   "note": "server not_signed_in / phone no_session: the session is gone",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.err_update_app": {
+   "he": "צריך לעדכן את האפליקציה כדי לעשות את זה.",
+   "en": "Update the app to do this.",
+   "ru": "Чтобы сделать это, обновите приложение.",
+   "ka": "ამისთვის განაახლეთ აპლიკაცია.",
+   "where": "app/android",
+   "note": "server unknown_action: an older app against a newer server",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
   "app.err_too_many_groups": {
    "he": "הגעת למספר הקבוצות המרבי.",
    "en": "You have reached the most groups you can have.",
@@ -10676,7 +10712,7 @@
   "app.g_join": {
    "he": "הצטרפות",
    "en": "Join",
-   "ru": "Войти",
+   "ru": "Вступить",
    "ka": "შეერთება",
    "where": "app/android",
    "note": "A1 button",
@@ -11084,7 +11120,7 @@
   "app.g_enter": {
    "he": "כניסה לקבוצה",
    "en": "Join the group",
-   "ru": "Войти в группу",
+   "ru": "Вступить в группу",
    "ka": "ჯგუფში შესვლა",
    "where": "app/android",
    "note": "Q3 button",

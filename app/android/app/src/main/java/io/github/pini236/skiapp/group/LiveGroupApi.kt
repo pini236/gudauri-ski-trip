@@ -124,7 +124,7 @@ class LiveGroupApi(
                 Member(m.userId, m.name, if (m.admin) Role.ADMIN else Role.MEMBER, m.userId == me, m.tripId?.let { s.flights[it] }, m.tripId,
                     m.tripId?.let { s.enteredBy[it] }?.let { by -> names[by] ?: "" })
             },
-            s.invite?.let { Invite(it.id, it.code, it.token, it.requiresApproval, it.expiresAt?.let(Groups::instant)) },
+            s.invite?.let(::working),
             s.requests.map { JoinRequest(it.id, it.userId, it.name, it.kind == "reclaim") },
             s.meetups.map { o -> Meetup(o.id, o.station, o.at, o.note, o.createdBy?.let { names[it] }) },
         )
@@ -145,13 +145,17 @@ class LiveGroupApi(
                 Member(m.userId, m.name, if (m.admin) Role.ADMIN else Role.MEMBER, m.userId == me, t?.trip, m.tripId,
                     t?.enteredBy?.let { by -> names[by] ?: "" })
             },
-            runCatching { groups.invite(id) }.getOrNull()?.let { Invite(it.id, it.code, it.token, it.requiresApproval, it.expiresAt?.let(Groups::instant)) },
+            runCatching { groups.invite(id) }.getOrNull()?.let(::working),
             if (admin) groups.requests(id).map { JoinRequest(it.id, it.userId, it.name, it.kind == "reclaim") } else emptyList(),
             rows(server.select("meetups", "select=id,station,meet_at,note,created_by&group_id=eq.${Server.enc(id)}&order=meet_at")).map { o ->
                 Meetup(o.getString("id"), o.getString("station"), Groups.instant(o.getString("meet_at")), str(o, "note"), str(o, "created_by")?.let { names[it] })
             },
         )
     }
+
+    /** The invite to show and share: none once it has expired (a used-up one still shows: the row's use count is not read yet). */
+    private fun working(i: Groups.Invite): Invite? =
+        Invite(i.id, i.code, i.token, i.requiresApproval, i.expiresAt?.let(Groups::instant)).takeIf { it.expiresAt?.isAfter(java.time.Instant.now()) != false }
 
     private class TripShown(val trip: Trip, val enteredBy: String?)
 

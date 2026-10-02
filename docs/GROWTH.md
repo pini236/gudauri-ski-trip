@@ -52,7 +52,7 @@
 | אירוע | מתי | מאפיינים |
 |---|---|---|
 | `app_open` | פתיחה (באתר: טעינה ראשונה של הדף) | `source`: `direct`, `link`, `share_link`, `store`, `notification`; `cold`: true/false (באפליקציה) |
-| `screen_view` | כל מעבר מסך | `screen`: `home`, `map`, `meet`, `games`, `about`, `privacy`, `game`, `trip` (טופס "הטיול שלך", באפליקציה מ-2.10.2026 ובאתר מ-2.10.2026), `signin`, `account`, `join`, `group` (כניסה, חשבון, הזמנה וקבוצה; באתר מ-2.10.2026, ובאפליקציה כשתוסיף אותם); `game` כשהמסך הוא משחק |
+| `screen_view` | כל מעבר מסך | `screen`: `home`, `map`, `meet`, `games`, `about`, `privacy`, `game`, `trip` (טופס "הטיול שלך", באפליקציה מ-2.10.2026 ובאתר מ-2.10.2026), `signin`, `account`, `join`, `group` (כניסה, חשבון, הזמנה וקבוצה; באתר ובאנדרואיד מ-2.10.2026); `game` כשהמסך הוא משחק |
 | `lang_set` | בחירת שפה בהגדרות | `lang`, `previous` |
 | `theme_set` | לחיצה על כפתור יום ולילה | `mode`: `auto`, `day`, `night` |
 | `ticket_swap` | החלפה בין כרטיס הלוך לחזור | `to`: `out`, `ret` |
@@ -85,7 +85,7 @@
 | `ad_click` | לחיצה על מודעה | `ad`; `placement` |
 | `ad_request` | שליחת בקשה לפרסום | `category` (מהרשימה, לא טקסט חופשי) |
 
-**אחרי שלב 13.5 (חשבונות וקבוצה)** נוספים, בלי מזהים: `sign_in` (`method`: `google`, `apple`, `guest`), `sign_out`, `account_delete`, `group_create`, `group_join` (`via`: `code`, `link`), `group_leave`, `meetup_create` (`reminder`: true/false). לא נשלח מזהה קבוצה ולא מספר החברים המדויק.
+**אחרי שלב 13.5 (חשבונות וקבוצה)** נוספים, בלי מזהים (באנדרואיד מ-2.10.2026, `group/MeasuredGroupApi.kt`, אחרי שהפעולה הצליחה; `group_join` רק כשנכנסים, לא כשהבקשה מחכה למנהל): `sign_in` (`method`: `google`, `apple`, `guest`), `sign_out`, `account_delete`, `group_create`, `group_join` (`via`: `code`, `link`), `group_leave`, `meetup_create` (`reminder`: true/false). לא נשלח מזהה קבוצה ולא מספר החברים המדויק.
 
 **שגיאות וקריסות** הולכות ל-Sentry, לא ל-PostHog (אלא אם בשלד יוחלט על כלי אחד, `docs/APP-NATIVE.md`).
 

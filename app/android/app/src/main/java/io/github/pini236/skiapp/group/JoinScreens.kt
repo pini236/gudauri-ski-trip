@@ -224,7 +224,19 @@ fun InvitedScreen(api: GroupApi, code: String, frame: DayNight.Frame, mode: DayN
                                             }
                                         })
                                         ErrorLine(r)
-                                        if (result == JoinStatus.GROUP_FULL) Text(stringResource(R.string.app_g_full), style = Ski.type.bodyBold, color = c.red)
+                                        // the preview was fine, but joining was refused: the code changed meanwhile, or too many tries
+                                        when (result) {
+                                            JoinStatus.GROUP_FULL -> Text(stringResource(R.string.app_g_full), style = Ski.type.bodyBold, color = c.red)
+                                            JoinStatus.INVALID_CODE -> Column {
+                                                Text(stringResource(R.string.app_g_bad_code), style = Ski.type.bodyBold, color = c.red)
+                                                Muted(stringResource(R.string.app_g_bad_code_sub), size = 13f)
+                                            }
+                                            JoinStatus.RATE_LIMITED -> Column {
+                                                Text(stringResource(R.string.app_g_too_many_tries), style = Ski.type.bodyBold, color = c.red)
+                                                Muted(stringResource(R.string.app_g_too_many_tries_sub), size = 13f)
+                                            }
+                                            else -> {}
+                                        }
                                     }
                                 }
                             }

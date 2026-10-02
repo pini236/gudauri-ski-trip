@@ -43,9 +43,8 @@ import io.github.pini236.skiapp.data.Profile
 import io.github.pini236.skiapp.fx.Haptics
 import io.github.pini236.skiapp.fx.Sounds
 import io.github.pini236.skiapp.map.Button
-import io.github.pini236.skiapp.ui.Karantina
 import io.github.pini236.skiapp.ui.Palette
-import io.github.pini236.skiapp.ui.Plex
+import io.github.pini236.skiapp.ui.Ski
 import kotlinx.coroutines.delay
 import java.text.NumberFormat
 import kotlin.math.sin
@@ -55,7 +54,7 @@ private class Flake(var x: Float, var y: Float, var vx: Float, var vy: Float, va
 
 @Composable
 fun DescentScreen(profile: Profile?, haptics: Haptics, sounds: Sounds) {
-    if (profile == null) { Box(Modifier.fillMaxSize()) { Text(stringResource(R.string.app_loading), Modifier.align(Alignment.Center), fontFamily = Plex) }; return }
+    if (profile == null) { Box(Modifier.fillMaxSize()) { Text(stringResource(R.string.app_loading), Modifier.align(Alignment.Center), fontFamily = Ski.type.text) }; return }
     var round by remember { mutableIntStateOf(0) }
     val game = remember(round) { Descent(profile.h, profile.step, profile.len) }
     val flakes = remember(round) { ArrayList<Flake>() }
@@ -123,17 +122,17 @@ fun DescentScreen(profile: Profile?, haptics: Haptics, sounds: Sounds) {
             drawScene(game, flakes, shake)
         }
         Text(hud, Modifier.align(Alignment.TopCenter).statusBarsPadding().padding(top = 56.dp).background(Color(0xCC13233A)).padding(horizontal = 10.dp, vertical = 4.dp),
-            fontFamily = Plex, fontSize = 14.sp, color = Color.White)
+            fontFamily = Ski.type.text, fontSize = 14.sp, color = Color.White)
         if (done) {
             Column(Modifier.align(Alignment.Center).background(Color(0xF2FFFFFF)).padding(20.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                Text(stringResource(R.string.app_descent_done), fontFamily = Karantina, fontWeight = FontWeight.Bold, fontSize = 44.sp, color = Palette.ink)
-                Text(stringResource(R.string.app_descent_score, game.flips, game.landings, game.crashes), fontFamily = Plex, fontSize = 15.sp, color = Palette.ink)
+                Text(stringResource(R.string.app_descent_done), fontFamily = Ski.type.display, fontWeight = FontWeight.Bold, fontSize = (44 * Ski.type.displayScale).sp, color = Palette.ink)
+                Text(stringResource(R.string.app_descent_score, game.flips, game.landings, game.crashes), fontFamily = Ski.type.text, fontSize = 15.sp, color = Palette.ink)
                 Box(Modifier.padding(top = 12.dp)) { Button(stringResource(R.string.game_descent_again)) { round++ } }
             }
         } else {
             Text(stringResource(if (game.air) R.string.game_descent_coach_air_flip else R.string.app_descent_hint_ground),
                 Modifier.align(Alignment.BottomCenter).fillMaxWidth().background(Color(0xE613233A)).padding(14.dp),
-                fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = Color.White)
+                fontFamily = Ski.type.text, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = Color.White)
         }
     }
 }

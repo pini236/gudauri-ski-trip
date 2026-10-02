@@ -187,7 +187,10 @@ fun errorText(e: Throwable?): String? {
         "not_admin" -> R.string.app_err_not_admin
         "last_admin" -> R.string.app_err_last_admin
         "admin_must_register" -> R.string.app_err_admin_must_register
-        "must_register", "not_registered", "not_a_guest" -> R.string.app_err_not_registered
+        "must_register", "not_registered" -> R.string.app_err_not_registered
+        "not_a_guest" -> R.string.app_err_not_a_guest
+        "not_signed_in", "no_session" -> R.string.app_err_not_signed_in
+        "unknown_action" -> R.string.app_err_update_app
         "too_many_groups" -> R.string.app_err_too_many_groups
         "google_not_ready" -> R.string.app_err_google_not_ready
         "cancelled" -> R.string.app_err_cancelled

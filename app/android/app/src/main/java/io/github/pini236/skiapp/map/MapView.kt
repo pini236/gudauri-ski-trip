@@ -19,7 +19,6 @@ import android.view.VelocityTracker
 import android.view.View
 import android.view.ViewConfiguration
 import android.widget.FrameLayout
-import androidx.core.content.res.ResourcesCompat
 import io.github.pini236.skiapp.R
 import io.github.pini236.skiapp.data.Piste
 import io.github.pini236.skiapp.perf.FrameStats
@@ -144,16 +143,18 @@ class MapView(context: Context, refreshHz: Float, val stats: FrameStats) : Frame
 
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
-        selected?.let { select(it) } // the GL context is new when the map tab comes back: paint the chosen run again
+        selected?.let { select(it, chosen = false) } // the GL context is new when the map tab comes back: paint the chosen run again
     }
     fun onPause() = surface.onPause()
     fun onResume() = surface.onResume()
     fun release() { worker.shutdownNow() }
 
     private fun buildLabels(s: MapScene): List<MapLabel> {
-        val display = ResourcesCompat.getFont(context, R.font.karantina_bold)
-        val body = ResourcesCompat.getFont(context, R.font.plex_hebrew_bold)
-        val nf = NumberFormat.getIntegerInstance(io.github.pini236.skiapp.i18n.Lang.current(resources).locale)
+        // the language's faces: Karantina and Plex have no Russian or Georgian letters
+        val lang = io.github.pini236.skiapp.i18n.Lang.current(resources)
+        val display = io.github.pini236.skiapp.i18n.Lang.typeface(context, lang, display = true)
+        val body = io.github.pini236.skiapp.i18n.Lang.typeface(context, lang, display = false)
+        val nf = NumberFormat.getIntegerInstance(lang.locale)
         fun layout(text: String, tf: android.graphics.Typeface?, sp: Float, color: Int): StaticLayout {
             val p = TextPaint(Paint.ANTI_ALIAS_FLAG).apply { typeface = tf; textSize = sp * resources.displayMetrics.scaledDensity; this.color = color }
             val w = kotlin.math.ceil(Layout.getDesiredWidth(text, p)).toInt()
@@ -174,11 +175,12 @@ class MapView(context: Context, refreshHz: Float, val stats: FrameStats) : Frame
     }
 
     // ---- selection ----
-    fun select(p: Piste?) {
+    /** [chosen]: the person picked it now (a tap); false when the map only paints again what was already chosen. */
+    fun select(p: Piste?, chosen: Boolean = true) {
         val s = scene ?: return
         selected = p
         onSelect?.invoke(p)
-        onChosen?.invoke(p)
+        if (chosen) onChosen?.invoke(p)
         if (p == null) { renderer.select(null); Qa.log("selected none"); return }
         worker.execute {
             val lines = s.topDown(p)

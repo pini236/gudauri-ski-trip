@@ -77,6 +77,7 @@ import io.github.pini236.skiapp.group.InviteScreen
 import io.github.pini236.skiapp.group.InvitedScreen
 import io.github.pini236.skiapp.group.NewGroupScreen
 import io.github.pini236.skiapp.group.LiveGroupApi
+import io.github.pini236.skiapp.group.MeasuredGroupApi
 import io.github.pini236.skiapp.server.PrefsSessionStore
 import io.github.pini236.skiapp.server.Server
 import io.github.pini236.skiapp.server.Sync
@@ -131,11 +132,13 @@ class MainActivity : ComponentActivity() {
     private val server by lazy { Server.of(this) }
     private val tripSync by lazy { ServerTripSync(this, server) }
     private val accountPrefs by lazy { getSharedPreferences("account", MODE_PRIVATE) }
-    private val groupApi: GroupApi by lazy {
+    /** The server (or, in debug builds, the pretend one) as is; [groupApi] is the same with the measuring events. */
+    private val rawGroupApi: GroupApi by lazy {
         DevServer.create() ?: LiveGroupApi(server, PrefsSessionStore(this), tripSync, { Lang.current(resources).tag },
             ready = GoogleSignIn.WEB_CLIENT_ID.isNotEmpty(), saved = accountPrefs.getString("me", null),
             keep = { v -> accountPrefs.edit().apply { if (v == null) remove("me") else putString("me", v) }.apply() }, sync = Sync.of(this))
     }
+    private val groupApi: GroupApi by lazy { MeasuredGroupApi(rawGroupApi) }
     private var justJoined by mutableStateOf(false)
 
     /**
@@ -152,7 +155,7 @@ class MainActivity : ComponentActivity() {
     private fun keepTrip(t: Trip?) {
         if (t == null) trips.clear() else trips.save(t)
         trip = t
-        if (groupApi is LiveGroupApi) tripSync.pushed(t)
+        if (rawGroupApi is LiveGroupApi) tripSync.pushed(t)
     }
 
     private fun openPrivacy() = startActivity(Intent(Intent.ACTION_VIEW, android.net.Uri.parse("https://${Route.SITE_HOST}/privacy?utm_source=app")))
@@ -194,7 +197,7 @@ class MainActivity : ComponentActivity() {
         })
         handleQa(intent)
         // a trip, a score or a meetup saved without signal goes now
-        if (groupApi is LiveGroupApi) { tripSync.flush(); Sync.of(this).flush() }
+        if (rawGroupApi is LiveGroupApi) { tripSync.flush(); Sync.of(this).flush() }
         loadInBackground()
         setContent { App() }
     }
@@ -252,7 +255,7 @@ class MainActivity : ComponentActivity() {
             sunNote = note
             scene = s; mapView.setScene(s); reportFullyDrawn()
             // back where the user was: the run chosen before the system closed the app
-            nav.find<Route.Map>()?.run?.let { key -> s.runs.pistes.firstOrNull { it.key == key }?.let { mapView.select(it); Qa.log("restored run $key") } }
+            nav.find<Route.Map>()?.run?.let { key -> s.runs.pistes.firstOrNull { it.key == key }?.let { mapView.select(it, chosen = false); Qa.log("restored run $key") } }
             Qa.log("scene ready")
         }
         castShadows(s)
@@ -293,7 +296,7 @@ class MainActivity : ComponentActivity() {
         val keys = i.extras?.keySet()?.filter { it.startsWith("qa.") }.orEmpty()
         if (keys.isEmpty()) return
         // the group's starting point on the pretend server: none (a stranger), member (a guest in a group), admin
-        i.getStringExtra("qa.group")?.let { DevServer.seed(groupApi, it); accountPrefs.edit().clear().apply(); justJoined = false; Qa.log("group seed $it") }
+        i.getStringExtra("qa.group")?.let { DevServer.seed(rawGroupApi, it); accountPrefs.edit().clear().apply(); justJoined = false; Qa.log("group seed $it") }
         i.getStringExtra("qa.tab")?.let { t -> when (t) {
             "map" -> nav.switchTo(Route.Map(nav.find<Route.Map>()?.run)); "descent" -> nav.switchTo(Route.Game("descent")); "trip" -> nav.switchTo(Route.Trip)
             "home" -> nav.toStart()
@@ -349,11 +352,16 @@ class MainActivity : ComponentActivity() {
         LaunchedEffect(Unit) { while (true) { delay(30_000); tick = nowMs() } }
         val frame = remember(tick, dnMode) { DayNight.at(tick, dnMode) }
         val top = nav.top
-        // screen_view with the contract's screen names (docs/GROWTH.md); a chosen run is run_open, not a screen.
-        // The group is not in the contract yet, so it sends none.
+        // screen_view with the contract's screen names (docs/GROWTH.md); a chosen run is run_open, not a screen. The way
+        // into the groups (A1) is "signin" when nobody is signed in on this phone.
         val screen = when (top) {
             Route.Home -> "home"; is Route.Map -> "map"; is Route.Meet -> "meet"; Route.Games -> "games"; Route.About -> "about"; Route.Trip -> "trip"
-            is Route.Game -> "game:" + top.name; else -> null
+            is Route.Game -> "game:" + top.name
+            is Route.Group -> if (top.id == null && groupApi.me() == null) "signin" else "group"
+            Route.GroupNew, is Route.GroupInvite -> "group"
+            is Route.Join, Route.JoinCode, is Route.Reclaim -> "join"
+            Route.Account -> "account"
+            else -> null
         }
         LaunchedEffect(screen) {
             if (screen != null) Telemetry.event("screen_view", if (screen.startsWith("game:")) mapOf("screen" to "game", "game" to screen.removePrefix("game:")) else mapOf("screen" to screen))

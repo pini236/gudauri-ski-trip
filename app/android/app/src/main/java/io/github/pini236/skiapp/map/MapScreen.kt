@@ -34,9 +34,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import io.github.pini236.skiapp.data.Piste
-import io.github.pini236.skiapp.ui.Karantina
 import io.github.pini236.skiapp.ui.Palette
-import io.github.pini236.skiapp.ui.Plex
+import io.github.pini236.skiapp.ui.Ski
 import kotlinx.coroutines.delay
 import java.text.NumberFormat
 import kotlin.math.roundToInt
@@ -62,7 +61,7 @@ fun MapScreen(view: MapView, scene: MapScene?) {
     Box(Modifier.fillMaxSize()) {
         AndroidView(factory = { view.also { (it.parent as? android.view.ViewGroup)?.removeView(it) } }, modifier = Modifier.fillMaxSize())
         if (scene == null) {
-            Text(stringResource(R.string.app_map_loading), Modifier.align(Alignment.Center), fontFamily = Plex, fontSize = 16.sp, color = Palette.ink)
+            Text(stringResource(R.string.app_map_loading), Modifier.align(Alignment.Center), fontFamily = Ski.type.text, fontSize = 16.sp, color = Palette.ink)
         }
         val p = selected
         if (p != null) {
@@ -71,7 +70,7 @@ fun MapScreen(view: MapView, scene: MapScene?) {
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     // the run's sign: its colour and its name, square corners like the trail signs
                     Box(Modifier.background(Palette.run(p.color)).padding(horizontal = 14.dp, vertical = 6.dp)) {
-                        Text(p.name, fontFamily = Karantina, fontWeight = FontWeight.Bold, fontSize = 30.sp, color = Color.White)
+                        Text(p.name, fontFamily = Ski.type.display, fontWeight = FontWeight.Bold, fontSize = (30 * Ski.type.displayScale).sp, color = Color.White)
                     }
                     Spacer1()
                     Button(stringResource(if (flying) R.string.run_fly_stop else R.string.run_fly_button)) {
@@ -84,7 +83,7 @@ fun MapScreen(view: MapView, scene: MapScene?) {
         } else if (scene != null) {
             Text(stringResource(R.string.app_map_hint),
                 Modifier.align(Alignment.BottomCenter).padding(16.dp).background(Color(0xE6FFFFFF)).padding(10.dp),
-                fontFamily = Plex, fontSize = 13.sp, color = Palette.ink)
+                fontFamily = Ski.type.text, fontSize = 13.sp, color = Palette.ink)
         }
     }
 }
@@ -104,8 +103,8 @@ private fun FlyBar(view: MapView, name: String) {
         }
     }
     Row(Modifier.background(Color(0xE613233A)).padding(horizontal = 12.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
-        Text(name, fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = Color.White)
-        Text("  ·  $line", fontFamily = Plex, fontSize = 15.sp, color = Color.White)
+        Text(name, fontFamily = Ski.type.text, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = Color.White)
+        Text("  ·  $line", fontFamily = Ski.type.text, fontSize = 15.sp, color = Color.White)
     }
 }
 
@@ -114,5 +113,5 @@ fun Button(label: String, description: String? = null, onClick: () -> Unit) {
     Box(
         Modifier.heightIn(min = 44.dp).let { m -> if (description != null) m.semantics { contentDescription = description } else m }.background(Palette.ink).clickable(onClick = onClick).padding(horizontal = 16.dp, vertical = 10.dp),
         contentAlignment = Alignment.Center,
-    ) { Text(label, fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = Color.White) }
+    ) { Text(label, fontFamily = Ski.type.text, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = Color.White) }
 }
