@@ -16,8 +16,9 @@ async function loaded(page: Page) { await expect(page.locator('#loading')).toBeH
 const b64 = (o: object) => Buffer.from(JSON.stringify(o)).toString('base64url');
 
 // a small fake of the server: one group, one other member, and whoever joins
-async function fakeServer(page: Page) {
+async function fakeServer(page: Page, opts: { admin?: boolean } = {}) {
   const calls: string[] = [];
+  const bodies: Record<string, any> = {};
   const me = { id: 'u-me', aud: 'authenticated', role: 'authenticated', is_anonymous: true, identities: [], app_metadata: {}, user_metadata: {} };
   const exp = Math.floor(Date.now() / 1000) + 3600;
   const token = `${b64({ alg: 'HS256', typ: 'JWT' })}.${b64({ sub: me.id, role: 'authenticated', aud: 'authenticated', exp, is_anonymous: true })}.c2ln`;
@@ -42,9 +43,13 @@ async function fakeServer(page: Page) {
     if (path.startsWith('/functions/v1/api/')) {
       const action = path.split('/').pop(), body = req.postDataJSON() || {};
       if (action === 'invite_preview') return json(r, body.code === 'KZBQRM' ? { status: 'ok', group_id: 'g1', ...group, requires_approval: false, already_member: false, members: db.members.map(m => ({ user_id: m.user_id, display_name: m.display_name })) } : { status: 'invalid_code' });
-      if (action === 'join_group') { db.members.push({ group_id: 'g1', user_id: me.id, role: 'member', display_name: body.display_name, trip_id: null, joined_at: '2026-10-02T10:00:00Z' }); return json(r, { status: 'joined', group_id: 'g1' }); }
+      if (action === 'join_group') { db.members.push({ group_id: 'g1', user_id: me.id, role: opts.admin ? 'admin' : 'member', display_name: body.display_name, trip_id: null, joined_at: '2026-10-02T10:00:00Z' }); return json(r, { status: 'joined', group_id: 'g1' }); }
       if (action === 'set_my_membership') { const m = db.members.find(x => x.user_id === me.id); m.trip_id = body.trip_id; return json(r, {}); }
       if (action === 'group_leaderboard') return json(r, body.game === 'descent' ? [{ user_id: 'u-dan', display_name: 'דנה בדיקה', best: 1200, achieved_at: '2026-10-01T10:00:00Z' }] : []);
+      bodies[action!] = body;
+      if (action === 'submit_score' || action === 'update_group') return json(r, {});
+      if (action === 'set_member_role') { db.members.find(x => x.user_id === body.user_id).role = body.role; return json(r, {}); }
+      if (action === 'remove_member') { db.members = db.members.filter(x => x.user_id !== body.user_id); return json(r, {}); }
       if (action === 'delete_my_account') { db.members = db.members.filter(x => x.user_id !== me.id); return json(r, { deleted: true }); }
       return json(r, { error: 'unknown_action' }, 404);
     }
@@ -64,7 +69,7 @@ async function fakeServer(page: Page) {
     }
     return json(r, {}, 404);
   });
-  return { calls, db };
+  return { calls, db, bodies };
 }
 
 test('אורח: האתר לא פונה לשרת, ושלט הקבוצה מזמין ליצור או להצטרף', async ({ page }) => {
@@ -158,5 +163,40 @@ test('קישור הזמנה וקוד שגוי, ודף מחיקת החשבון ב
   await expect(page).toHaveURL(/#account\/delete$/);
   await expect(page.locator('#deletePage')).toBeVisible();
   await expect(page.locator('#deletePage a[href^="mailto:"]')).toBeVisible();
+  expect(errors).toEqual([]);
+});
+
+test('מנהל באתר: תפריט לכל חבר, פרטי הקבוצה, והשיאים מהמשחקים עולים לקבוצה (סבב 14)', async ({ page }) => {
+  const errors = watchErrors(page);
+  const server = await fakeServer(page, { admin: true });
+  // a best score this browser kept from a game on the site (js/telemetry.js)
+  await page.addInitScript(() => { try { localStorage.setItem('gud-best', JSON.stringify({ descent: 1500 })); } catch (e) {} });
+  await page.goto('/#join/KZBQRM');
+  await loaded(page);
+  await page.locator('#joinForm input').fill('נועה ניסיון');
+  await page.locator('#joinForm button').click();
+  await expect(page).toHaveURL(/#group\/g1/);
+  await expect.poll(() => server.bodies.submit_score).toEqual({ game: 'descent', score: 1500 });
+  await page.locator('#grTabs [data-tab="members"]').click();
+  // the other member has a menu; I don't
+  await expect(page.locator('#grMain .ac-more')).toHaveCount(1);
+  await page.locator('#grMain .ac-more').click();
+  await expect(page.locator('.ac-menu [data-role="member"]')).toBeVisible();
+  await page.locator('.ac-menu [data-role="member"]').click();
+  await expect.poll(() => server.bodies.set_member_role).toEqual({ group_id: 'g1', user_id: 'u-dan', role: 'member' });
+  // remove: two taps
+  await page.locator('#grMain .ac-more').click();
+  await page.locator('.ac-menu [data-remove]').click();
+  expect(server.bodies.remove_member).toBeUndefined();
+  await page.locator('.ac-menu [data-remove]').click();
+  await expect.poll(() => server.bodies.remove_member).toEqual({ group_id: 'g1', user_id: 'u-dan' });
+  await expect(page.locator('#grMain .ac-row b').first()).toHaveText('נועה ניסיון');
+  // the group's name
+  await page.locator('[data-panel="name"]').click();
+  await page.locator('[data-nameform] input[name="n"]').fill('קבוצה חדשה');
+  await page.locator('[data-nameform] button[type="submit"]').click();
+  await expect.poll(() => server.bodies.update_group?.name).toBe('קבוצה חדשה');
+  const wide = await page.evaluate(() => document.documentElement.scrollWidth - innerWidth);
+  expect(wide).toBeLessThanOrEqual(1);
   expect(errors).toEqual([]);
 });
