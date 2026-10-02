@@ -31,9 +31,9 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -47,99 +47,120 @@ import io.github.pini236.skiapp.ui.Ski
 import io.github.pini236.skiapp.ui.TopBar
 import kotlinx.coroutines.delay
 import java.time.LocalDate
+import java.time.LocalTime
+import java.time.format.DateTimeFormatter
 
 /**
  * "Your trip" (H2, decision 27): the outbound flight (only its date is required) and the return, the full ski days
  * worked out from them, save and delete. No sign-up: it stays on this phone (TripStore).
+ *
+ * Nothing is typed but the flight numbers (Pini, 2.10.2026): dates from the calendar, times from the clock, airports
+ * from a list; the destination starts as Tbilisi, and the way back is the way out reversed.
  */
 @Composable
 fun TripForm(initial: Trip?, today: LocalDate, onSave: (Trip) -> Unit, onDelete: () -> Unit, onCancel: () -> Unit) {
     val c = Ski.colors
     val o = initial?.out; val r = initial?.ret
-    var oDate by rememberSaveable { mutableStateOf(TripText.date(o?.date)) }
+    val tbilisi = "TBS · " + stringResource(R.string.app_city_tbs)
+    var oDate by rememberSaveable { mutableStateOf(o?.date) }
     var oFlight by rememberSaveable { mutableStateOf(o?.flight.orEmpty()) }
     var oFrom by rememberSaveable { mutableStateOf(o?.from.orEmpty()) }
-    var oTo by rememberSaveable { mutableStateOf(o?.to.orEmpty()) }
-    var oDep by rememberSaveable { mutableStateOf(TripText.time(o?.departs)) }
-    var oArr by rememberSaveable { mutableStateOf(TripText.time(o?.arrives)) }
-    var rDate by rememberSaveable { mutableStateOf(TripText.date(r?.date)) }
+    var oTo by rememberSaveable { mutableStateOf(if (initial == null) tbilisi else o?.to.orEmpty()) }
+    var oDep by rememberSaveable { mutableStateOf(o?.departs) }
+    var oArr by rememberSaveable { mutableStateOf(o?.arrives) }
+    var rDate by rememberSaveable { mutableStateOf(r?.date) }
     var rFlight by rememberSaveable { mutableStateOf(r?.flight.orEmpty()) }
-    var rDep by rememberSaveable { mutableStateOf(TripText.time(r?.departs)) }
-    var rArr by rememberSaveable { mutableStateOf(TripText.time(r?.arrives)) }
+    var rDep by rememberSaveable { mutableStateOf(r?.departs) }
+    var rArr by rememberSaveable { mutableStateOf(r?.arrives) }
     // the ski days set by hand ("שינוי"), or null to follow the flights
     var manual by rememberSaveable { mutableStateOf(initial?.ski != null) }
-    var sFrom by rememberSaveable { mutableStateOf(TripText.date(initial?.ski?.start)) }
-    var sTo by rememberSaveable { mutableStateOf(TripText.date(initial?.ski?.endInclusive)) }
+    var sFrom by rememberSaveable { mutableStateOf(initial?.ski?.start) }
+    var sTo by rememberSaveable { mutableStateOf(initial?.ski?.endInclusive) }
+    // which picker is open
+    var pick by rememberSaveable { mutableStateOf<String?>(null) }
     var tried by remember { mutableStateOf(false) }
     var armed by remember { mutableStateOf(false) }
     LaunchedEffect(armed) { if (armed) { delay(4000); armed = false } }
 
-    // what the fields say now: values, or what is wrong with them
-    val pod = TripText.date(oDate, today); val prd = TripText.date(rDate, today)
-    val times = listOf(oDep, oArr, rDep, rArr).map { TripText.time(it) }
     val errDate = stringResource(R.string.app_trip_err_date)
-    val errTime = stringResource(R.string.app_trip_err_time)
-    fun dateError(v: Any?, required: Boolean): String? = when {
-        v === TripText.Bad -> errDate
-        v == null && required && tried -> errDate
-        else -> null
+    val orderBad = oDate != null && rDate != null && rDate!! < oDate!!
+    val skiOk = !manual || (sFrom != null && sTo != null && sFrom!! <= sTo!!)
+    val flights = oDate?.let { d ->
+        Trip(Leg(d, oFlight.trim(), oFrom.trim(), oTo.trim(), oDep, oArr), rDate?.let { Leg(it, rFlight.trim(), oTo.trim(), oFrom.trim(), rDep, rArr) })
     }
-    val orderBad = pod is LocalDate && prd is LocalDate && prd < pod
-    val psf = TripText.date(sFrom, today); val pst = TripText.date(sTo, today)
-    val skiOk = !manual || (psf is LocalDate && pst is LocalDate && psf <= pst)
-    val ok = pod is LocalDate && prd !== TripText.Bad && times.none { it === TripText.Bad } && !orderBad && skiOk
-    val flights = if (pod is LocalDate && prd !== TripText.Bad && times.none { it === TripText.Bad }) Trip(
-        Leg(pod, oFlight.trim(), oFrom.trim(), oTo.trim(), times[0] as? java.time.LocalTime, times[1] as? java.time.LocalTime),
-        (prd as? LocalDate)?.let { Leg(it, rFlight.trim(), oTo.trim(), oFrom.trim(), times[2] as? java.time.LocalTime, times[3] as? java.time.LocalTime) },
-    ) else null
-    val trip = if (ok && flights != null) flights.copy(ski = if (manual) (psf as LocalDate)..(pst as LocalDate) else null) else null
+    val trip = if (flights != null && !orderBad && skiOk) flights.copy(ski = if (manual) sFrom!!..sTo!! else null) else null
+    val pickDate = stringResource(R.string.app_trip_pick_date)
+    val pickTime = stringResource(R.string.app_trip_pick_time)
+    val pickPlace = stringResource(R.string.app_trip_pick_place)
+    val locale = LocalConfiguration.current.locales[0]
+    fun day(d: LocalDate?) = d?.let { DateTimeFormatter.ofPattern("EEE · d.M.yyyy", locale).format(it) }
+    fun time(t: LocalTime?) = t?.let { TripText.time(it) }
 
-    Column(Modifier.fillMaxSize().background(c.snow).statusBarsPadding().imePadding()) {
-        TopBar(stringResource(R.string.app_home_trip), stringResource(R.string.app_cancel), onCancel)
-        Column(Modifier.fillMaxWidth().verticalScroll(rememberScrollState()).navigationBarsPadding()) {
-            Column(Modifier.align(Alignment.CenterHorizontally).widthIn(max = 520.dp).padding(start = 16.dp, end = 16.dp, bottom = 24.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                Text(stringResource(R.string.app_trip_intro), Modifier.padding(bottom = 2.dp), style = Ski.type.small.copy(fontSize = 13.5.sp), color = c.muted)
-                Section(stringResource(R.string.app_pass_out), stringResource(R.string.app_trip_out_note))
-                Pair2(
-                    { Field(stringResource(R.string.app_trip_date), oDate, { oDate = it }, it, stringResource(R.string.app_trip_date_hint), ltr = true, keyboard = KeyboardType.Number, error = dateError(pod, true)) },
-                    { Field(stringResource(R.string.app_trip_flight_no), oFlight, { oFlight = it }, it, stringResource(R.string.app_trip_flight_hint), ltr = true) },
-                )
-                Pair2(
-                    { Field(stringResource(R.string.ticket_from), oFrom, { oFrom = it }, it, stringResource(R.string.app_trip_from_hint)) },
-                    { Field(stringResource(R.string.ticket_to), oTo, { oTo = it }, it, stringResource(R.string.app_trip_to_hint)) },
-                )
-                Pair2(
-                    { Field(stringResource(R.string.ticket_departs), oDep, { oDep = it }, it, "16:00", ltr = true, keyboard = KeyboardType.Number, error = if (times[0] === TripText.Bad) errTime else null) },
-                    { Field(stringResource(R.string.ticket_arrives), oArr, { oArr = it }, it, "20:35", ltr = true, keyboard = KeyboardType.Number, error = if (times[1] === TripText.Bad) errTime else null) },
-                )
-                Section(stringResource(R.string.app_pass_ret), stringResource(R.string.app_trip_ret_note))
-                Pair2(
-                    { Field(stringResource(R.string.app_trip_date), rDate, { rDate = it }, it, stringResource(R.string.app_trip_date_hint), ltr = true, keyboard = KeyboardType.Number,
-                        error = dateError(prd, false) ?: if (orderBad) stringResource(R.string.app_trip_err_order) else null) },
-                    { Field(stringResource(R.string.app_trip_flight_no), rFlight, { rFlight = it }, it, stringResource(R.string.app_trip_flight_hint), ltr = true) },
-                )
-                Pair2(
-                    { Field(stringResource(R.string.ticket_departs), rDep, { rDep = it }, it, "01:35", ltr = true, keyboard = KeyboardType.Number, error = if (times[2] === TripText.Bad) errTime else null) },
-                    { Field(stringResource(R.string.ticket_arrives), rArr, { rArr = it }, it, "02:15", ltr = true, keyboard = KeyboardType.Number, error = if (times[3] === TripText.Bad) errTime else null) },
-                )
-                SkiDays(trip ?: flights, manual, onChange = {
-                    // start from what the flights give, so changing a day is one field
-                    flights?.flightSkiDays()?.let { r -> if (sFrom.isBlank()) sFrom = TripText.date(r.start); if (sTo.isBlank()) sTo = TripText.date(r.endInclusive) }
-                    manual = true
-                }, onAuto = { manual = false })
-                if (manual) Pair2(
-                    { Field(stringResource(R.string.app_trip_ski_first), sFrom, { sFrom = it }, it, stringResource(R.string.app_trip_date_hint), ltr = true, keyboard = KeyboardType.Number,
-                        error = if (psf === TripText.Bad || (psf == null && tried)) errDate else null) },
-                    { Field(stringResource(R.string.app_trip_ski_last), sTo, { sTo = it }, it, stringResource(R.string.app_trip_date_hint), ltr = true, keyboard = KeyboardType.Number,
-                        error = if (pst === TripText.Bad || (pst == null && tried)) errDate else if (psf is LocalDate && pst is LocalDate && pst < psf) stringResource(R.string.app_trip_err_ski_order) else null) },
-                )
-                Column(Modifier.padding(top = 8.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                    PrimaryButton(stringResource(R.string.app_save), Icons.check, { tried = true; if (trip != null) onSave(trip) })
-                    if (initial != null) QuietButton(stringResource(if (armed) R.string.app_trip_delete_confirm else R.string.app_trip_delete),
-                        { if (armed) onDelete() else armed = true }, danger = armed)
+    Box(Modifier.fillMaxSize().background(c.snow)) {
+        Column(Modifier.fillMaxSize().statusBarsPadding().imePadding()) {
+            TopBar(stringResource(R.string.app_home_trip), stringResource(R.string.app_cancel), onCancel)
+            Column(Modifier.fillMaxWidth().verticalScroll(rememberScrollState()).navigationBarsPadding()) {
+                Column(Modifier.align(Alignment.CenterHorizontally).widthIn(max = 520.dp).padding(start = 16.dp, end = 16.dp, bottom = 24.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Text(stringResource(R.string.app_trip_intro), Modifier.padding(bottom = 2.dp), style = Ski.type.small.copy(fontSize = 13.5.sp), color = c.muted)
+                    Section(stringResource(R.string.app_pass_out), stringResource(R.string.app_trip_out_note))
+                    Pair2(
+                        { PickField(stringResource(R.string.app_trip_date), day(oDate), pickDate, Icons.calendar, { pick = "oDate" }, it, ltr = false,
+                            error = if (oDate == null && tried) errDate else null) },
+                        { Field(stringResource(R.string.app_trip_flight_no), oFlight, { oFlight = it.uppercase().take(12) }, it, stringResource(R.string.app_trip_flight_hint), ltr = true, caps = true) },
+                    )
+                    Pair2(
+                        { PickField(stringResource(R.string.ticket_from), oFrom.ifBlank { null }, pickPlace, Icons.plane, { pick = "oFrom" }, it, ltr = false) },
+                        { PickField(stringResource(R.string.ticket_to), oTo.ifBlank { null }, pickPlace, Icons.plane, { pick = "oTo" }, it, ltr = false) },
+                    )
+                    Pair2(
+                        { PickField(stringResource(R.string.ticket_departs), time(oDep), pickTime, Icons.clock, { pick = "oDep" }, it, onClear = { oDep = null }) },
+                        { PickField(stringResource(R.string.ticket_arrives), time(oArr), pickTime, Icons.clock, { pick = "oArr" }, it, onClear = { oArr = null }) },
+                    )
+                    Section(stringResource(R.string.app_pass_ret), stringResource(R.string.app_trip_ret_note))
+                    val back = listOf(Leg(today, from = oTo).fromCode ?: oTo.trim(), Leg(today, from = oFrom).fromCode ?: oFrom.trim())
+                    if (back.all { it.isNotBlank() }) Text(stringResource(R.string.app_trip_ret_route, back[0], back[1]), style = Ski.type.small.copy(fontSize = 13.sp), color = c.muted)
+                    Pair2(
+                        { PickField(stringResource(R.string.app_trip_date), day(rDate), pickDate, Icons.calendar, { pick = "rDate" }, it, ltr = false, onClear = { rDate = null },
+                            error = if (orderBad) stringResource(R.string.app_trip_err_order) else null) },
+                        { Field(stringResource(R.string.app_trip_flight_no), rFlight, { rFlight = it.uppercase().take(12) }, it, stringResource(R.string.app_trip_flight_hint), ltr = true, caps = true) },
+                    )
+                    Pair2(
+                        { PickField(stringResource(R.string.ticket_departs), time(rDep), pickTime, Icons.clock, { pick = "rDep" }, it, onClear = { rDep = null }) },
+                        { PickField(stringResource(R.string.ticket_arrives), time(rArr), pickTime, Icons.clock, { pick = "rArr" }, it, onClear = { rArr = null }) },
+                    )
+                    SkiDays(trip ?: flights, manual, onChange = {
+                        // start from what the flights give, so changing a day is one pick
+                        flights?.flightSkiDays()?.let { d -> if (sFrom == null) sFrom = d.start; if (sTo == null) sTo = d.endInclusive }
+                        manual = true
+                    }, onAuto = { manual = false })
+                    if (manual) Pair2(
+                        { PickField(stringResource(R.string.app_trip_ski_first), day(sFrom), pickDate, Icons.calendar, { pick = "sFrom" }, it, ltr = false,
+                            error = if (sFrom == null && tried) errDate else null) },
+                        { PickField(stringResource(R.string.app_trip_ski_last), day(sTo), pickDate, Icons.calendar, { pick = "sTo" }, it, ltr = false,
+                            error = if (sTo == null && tried) errDate else if (sFrom != null && sTo != null && sTo!! < sFrom!!) stringResource(R.string.app_trip_err_ski_order) else null) },
+                    )
+                    Column(Modifier.padding(top = 8.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                        PrimaryButton(stringResource(R.string.app_save), Icons.check, { tried = true; if (trip != null) onSave(trip) })
+                        if (initial != null) QuietButton(stringResource(if (armed) R.string.app_trip_delete_confirm else R.string.app_trip_delete),
+                            { if (armed) onDelete() else armed = true }, danger = armed)
+                    }
                 }
             }
+        }
+        val close = { pick = null }
+        when (pick) {
+            // the outbound from today on; the return and the ski days within the trip
+            "oDate" -> DateDialog(oDate, today, today, null, { oDate = it; if (rDate != null && rDate!! < it) rDate = null }, close)
+            "rDate" -> DateDialog(rDate, oDate, oDate ?: today, null, { rDate = it }, close)
+            "sFrom" -> DateDialog(sFrom, oDate, oDate, rDate, { sFrom = it }, close)
+            "sTo" -> DateDialog(sTo, sFrom ?: oDate, sFrom ?: oDate, rDate, { sTo = it }, close)
+            "oDep" -> TimeDialog(oDep, { oDep = it }, close)
+            "oArr" -> TimeDialog(oArr ?: oDep, { oArr = it }, close)
+            "rDep" -> TimeDialog(rDep, { rDep = it }, close)
+            "rArr" -> TimeDialog(rArr ?: rDep, { rArr = it }, close)
+            "oFrom" -> PlaceSheet(stringResource(R.string.app_trip_place_from), oFrom, listOf("TLV"), { oFrom = it; close() }, close)
+            "oTo" -> PlaceSheet(stringResource(R.string.app_trip_place_to), oTo, listOf("TBS", "KUT", "BUS"), { oTo = it; close() }, close)
         }
     }
 }

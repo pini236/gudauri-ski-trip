@@ -162,10 +162,12 @@ home() {
 
   # add a trip by hand: only the date is required (H2)
   tapText "הוספת הטיסה שלי" && sleep 1.5 && shot trip-form-empty
-  tapText "למשל 10.1.2027" && sleep 0.5 && adb shell input text "10.1.2027" && sleep 0.5
-  # close the keyboard (Back closes only the keyboard while it is up)
-  adb shell dumpsys input_method | grep -q "mInputShown=true" && adb shell input keyevent KEYCODE_BACK; sleep 0.8; shot trip-form-date
-  mark; tapText "שמירה" && waitlog "trip saved" 10 && { sleep 1.5; shot home-trip-date-only; }
+  # nothing typed but flight numbers: the date from the calendar, a time from the clock, the airport from the list
+  tapText "בחירת תאריך" && sleep 1.2 && shot trip-date-picker && tapText "20" && sleep 0.4 && tapText "בחירה" && sleep 1
+  tapText "בחירת שעה" && sleep 1.2 && shot trip-time-picker && tapText "בחירה" && sleep 1
+  tapText "בחירת שדה" && sleep 1.2 && shot trip-place-sheet && tapText "TLV" && sleep 1
+  shot trip-form-picked
+  mark; tapText "שמירה" && waitlog "trip saved" 10 && { sleep 1.5; shot home-trip-picked; }
 
   # the whole trip (H3), day and night (H4), the tear and the swipe to the return pass
   qa "--es qa.trip '$TRIP_HE'"; waitlog "trip set" 20; sleep 1.5; shot home-trip-day
@@ -210,8 +212,6 @@ group() {
   tapText "יצירת קבוצה" && sleep 1 && shot group-sign-in
   tapText "גוגל" && sleep 2 && shot group-new
   typeIn "גודאורי 2027" "Gudauri 2027"
-  typeIn "למשל 10.1.2027" "10.1.2027"
-  typeIn "למשל 10.1.2027" "15.1.2027"
   typeIn "השם שהחבר׳ה מכירים" "Noa"
   keyboardOff; shot group-new-filled
   tapText "יצירת הקבוצה" && sleep 2.5 && shot group-created

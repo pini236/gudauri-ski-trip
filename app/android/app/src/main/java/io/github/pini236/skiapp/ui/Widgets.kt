@@ -33,6 +33,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.unit.dp
@@ -99,7 +100,7 @@ fun BackLink(text: String, onBack: () -> Unit, color: Color = Ski.colors.glacier
 /** A labelled text field (the canvas's .fld): 48 high, a 1.5 border, square. Latin-only values (codes, numbers) read left to right. */
 @Composable
 fun Field(label: String, value: String, onChange: (String) -> Unit, modifier: Modifier = Modifier, hint: String = "", ltr: Boolean = false,
-          keyboard: KeyboardType = KeyboardType.Text, error: String? = null) {
+          keyboard: KeyboardType = KeyboardType.Text, error: String? = null, caps: Boolean = false) {
     val c = Ski.colors
     var focused by remember { mutableStateOf(false) }
     Column(modifier, verticalArrangement = Arrangement.spacedBy(5.dp)) {
@@ -111,7 +112,7 @@ fun Field(label: String, value: String, onChange: (String) -> Unit, modifier: Mo
                 .background(c.paper).border(if (focused) 2.dp else 1.5.dp, if (error != null) c.red else if (focused) c.accent else c.rule),
             singleLine = true,
             textStyle = Ski.type.body.copy(fontSize = 16.sp, color = c.ink, textDirection = if (ltr) TextDirection.Ltr else TextDirection.Content),
-            keyboardOptions = KeyboardOptions(keyboardType = keyboard, imeAction = ImeAction.Next),
+            keyboardOptions = KeyboardOptions(capitalization = if (caps) KeyboardCapitalization.Characters else KeyboardCapitalization.None, keyboardType = keyboard, imeAction = ImeAction.Next),
             cursorBrush = SolidColor(c.accent),
             decorationBox = { inner ->
                 Box(Modifier.padding(horizontal = 12.dp), contentAlignment = Alignment.CenterStart) {

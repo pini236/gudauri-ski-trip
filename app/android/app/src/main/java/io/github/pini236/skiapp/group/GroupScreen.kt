@@ -66,7 +66,7 @@ import io.github.pini236.skiapp.home.paperGrain
 import io.github.pini236.skiapp.home.shortDate
 import io.github.pini236.skiapp.trip.Leg
 import io.github.pini236.skiapp.trip.Trip
-import io.github.pini236.skiapp.trip.TripText
+import io.github.pini236.skiapp.trip.DateDialog
 import io.github.pini236.skiapp.ui.BackLink
 import io.github.pini236.skiapp.ui.Field
 import io.github.pini236.skiapp.ui.Icons
@@ -227,23 +227,22 @@ fun GroupScreen(
             }
             "edit" -> if (g != null) Sheet({ sheet = null }) {
                 var name by rememberSaveable { mutableStateOf(g.name) }
-                var from by rememberSaveable { mutableStateOf(TripText.date(g.startsOn)) }
-                var to by rememberSaveable { mutableStateOf(TripText.date(g.endsOn)) }
+                var from by rememberSaveable { mutableStateOf(g.startsOn) }
+                var to by rememberSaveable { mutableStateOf(g.endsOn) }
+                var pick by rememberSaveable { mutableStateOf<String?>(null) }
                 Display(stringResource(R.string.app_g_name_dates), 32f)
                 Column(Modifier.padding(top = 12.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                     Field(stringResource(R.string.app_g_group_name), name, { name = it.take(60) })
-                    Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                        Field(stringResource(R.string.app_g_from_date), from, { from = it }, Modifier.weight(1f), ltr = true)
-                        Field(stringResource(R.string.app_g_to_date), to, { to = it }, Modifier.weight(1f), ltr = true)
-                    }
+                    GroupDates(from, to, { pick = it })
                     PrimaryButton(stringResource(R.string.app_save), Icons.check, {
-                        val today = LocalDate.now()
-                        val f = TripText.date(from, today); val t = TripText.date(to, today)
-                        if (name.isNotBlank() && f !== TripText.Bad && t !== TripText.Bad) r.run {
-                            api.updateGroup(g.id, name, f as? LocalDate, t as? LocalDate); group = api.group(g.id); sheet = null
-                        }
+                        if (name.isNotBlank()) r.run { api.updateGroup(g.id, name, from, to); group = api.group(g.id); sheet = null }
                     })
                     ErrorLine(r)
+                }
+                val today = now.toLocalDate()
+                when (pick) {
+                    "from" -> DateDialog(from, today, today, null, { from = it; if (to != null && to!! < it) to = null }, { pick = null })
+                    "to" -> DateDialog(to, from ?: today, from ?: today, null, { to = it }, { pick = null })
                 }
             }
         }
