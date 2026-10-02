@@ -93,4 +93,12 @@ class TripTest {
         assertEquals(d(11)..d(14), mine.flightSkiDays())
         assertEquals(mine, Trip.fromJson(mine.toJson().toString()))
     }
+
+    @Test fun readsATripSavedByTheParallelBuild() {
+        val old = """{"v":1,"out":{"date":"2027-01-10","number":"GD 101","from":"TLV · Tel Aviv","to":"TBS · Tbilisi","departs":"16:00","arrives":"20:35"},
+            "back":{"date":"2027-01-15","number":"GD 102","departs":"01:35","arrives":"02:15"}}"""
+        val t = Trip.fromJson(old)!!
+        assertEquals("GD 101", t.out.flight); assertEquals("GD 102", t.ret!!.flight)
+        assertEquals(d(11)..d(14), t.skiDays())
+    }
 }

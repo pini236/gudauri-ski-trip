@@ -74,8 +74,10 @@ data class Trip(val out: Leg, val ret: Leg? = null, val ski: ClosedRange<LocalDa
         private fun leg(l: Leg) = JSONObject().put("date", l.date.toString()).put("flight", l.flight).put("from", l.from).put("to", l.to)
             .put("departs", l.departs?.format(T) ?: "").put("arrives", l.arrives?.format(T) ?: "")
 
+        // "number" and "back": how the parallel build of 2.10.2026 saved a trip (it was on the install link for a
+        // few minutes); read too, so a trip saved there is not lost
         private fun leg(o: JSONObject) = Leg(
-            LocalDate.parse(o.getString("date")), o.optString("flight"), o.optString("from"), o.optString("to"),
+            LocalDate.parse(o.getString("date")), o.optString("flight").ifBlank { o.optString("number") }, o.optString("from"), o.optString("to"),
             o.optString("departs").takeIf { it.isNotBlank() }?.let { LocalTime.parse(it, T) },
             o.optString("arrives").takeIf { it.isNotBlank() }?.let { LocalTime.parse(it, T) },
         )
@@ -85,7 +87,7 @@ data class Trip(val out: Leg, val ret: Leg? = null, val ski: ClosedRange<LocalDa
             val o = JSONObject(s ?: return null)
             if (o.optInt("v", 1) > 1) return null
             val ski = o.optJSONObject("ski")?.let { LocalDate.parse(it.getString("from"))..LocalDate.parse(it.getString("to")) }?.takeIf { it.start <= it.endInclusive }
-            Trip(leg(o.getJSONObject("out")), o.optJSONObject("ret")?.let { leg(it) }, ski)
+            Trip(leg(o.getJSONObject("out")), (o.optJSONObject("ret") ?: o.optJSONObject("back"))?.let { leg(it) }, ski)
         }.getOrNull()
     }
 }
