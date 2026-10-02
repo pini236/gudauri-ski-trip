@@ -33,3 +33,10 @@ python3 design/round12/build.py <תיקיית הקנבס>
 | `W9` | דף הבית במחשב, עם הטיול | `#home` |
 
 נתוני דוגמה: הטיסה השנייה בקבוצה והקוד `KZBQRM`. הטיסה עצמה היא של פיני (`site/data/trip.json`).
+
+## למימוש, אחרי האישור (מהסשנים של השפות והשרת, 2.10.2026)
+
+- **שפות:** כל טקסט במפתח ב-`i18n/strings.json`. אחרי הוספה: `python3 tools/build-site-strings.py` ואז `python3 tools/check-site-i18n.py` (נכשל על עברית בתוך הסקריפטים). בדף: `data-i18n`, `data-i18n-attr`, `data-i18n-html`; בקוד: `T('key', {vars})`. כל מסך חדש נבדק גם משמאל לימין (`[dir="ltr"]` ב-`site/css/site.css`).
+- **מדידה:** `track('event', {props})` מ-`site/js/telemetry.js`, רק אירועים מהחוזה ב-`docs/GROWTH.md` (אירועי כניסה וקבוצה כבר מוגדרים), בלי פרטים מזהים.
+- **פרטיות:** חשבון באתר משנה את מה שנשמר ונשלח, ולכן לעדכן את `docs/PRIVACY.md` ולהריץ `python3 tools/build-privacy.py`.
+- **שרת:** החוזה ב-`server/CONTRACT.md` (סעיף "באייפון ובאתר": `@supabase/supabase-js`, `functions.invoke`, אזור `eu-central-1`). מחיקת חשבון: הפעולה `delete_my_account`. **לא משנים את `server/`**; פעולה או שדה חסרים, וכתובות ההחזרה אחרי כניסה עם גוגל ואפל, מבקשים מסשן השרת.
