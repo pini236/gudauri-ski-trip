@@ -127,20 +127,24 @@ descent() {
 # ---- the home page (round 10: H1 to H4, LT1 to LT3) ----
 # what is on screen: the accessibility tree (uiautomator), so a step can tap a button by its words
 uidump() { adb shell uiautomator dump /sdcard/ui.xml > /dev/null && adb pull /sdcard/ui.xml "$OUT/ui.xml" > /dev/null; }
-where() { # where <text>: the middle ("x y") of the first element whose text or description is it, else holds it; a tappable one first
+where() { # where <text>: the middle ("x y") of the element whose text or description is it (else holds it), a tappable one first
   uidump
   python3 - "$OUT/ui.xml" "$1" <<'PY'
 import re, sys
-xml = open(sys.argv[1], encoding="utf-8").read(); t = sys.argv[2]
-nodes = []
-for m in re.finditer(r'<node [^>]*>', xml):
-    n = m.group(0)
-    got = [g[1].strip() for g in (re.search(r'text="([^"]*)"', n), re.search(r'content-desc="([^"]*)"', n)) if g]
-    b = re.search(r'bounds="\[(\d+),(\d+)\]\[(\d+),(\d+)\]"', n)
-    if b: nodes.append((got, 'clickable="true"' in n, tuple(map(int, b.groups()))))
-ranked = sorted(((0 if t in got else 1 if any(t in g for g in got) else 9, 0 if tap else 1, i, b) for i, (got, tap, b) in enumerate(nodes)))
-if ranked and ranked[0][0] < 9:
-    x1, y1, x2, y2 = ranked[0][3]; print((x1 + x2) // 2, (y1 + y2) // 2)
+import xml.etree.ElementTree as ET
+t = sys.argv[2]
+found = []
+def walk(n, tappable):
+    tap = tappable or n.get("clickable") == "true"
+    got = [g.strip() for g in (n.get("text") or "", n.get("content-desc") or "") if g.strip()]
+    b = re.match(r"\[(\d+),(\d+)\]\[(\d+),(\d+)\]", n.get("bounds") or "")
+    if b and got:
+        rank = 0 if t in got else 1 if any(t in g for g in got) else 9
+        if rank < 9: found.append((rank, 0 if tap else 1, len(found), tuple(map(int, b.groups()))))
+    for c in n: walk(c, tap)
+walk(ET.parse(sys.argv[1]).getroot(), False)
+if found:
+    x1, y1, x2, y2 = min(found)[3]; print((x1 + x2) // 2, (y1 + y2) // 2)
 PY
 }
 tapText() { local xy; xy=$(where "$1"); if [ -z "$xy" ]; then fail "no '$1' on screen"; return 1; fi; tap $xy; }
