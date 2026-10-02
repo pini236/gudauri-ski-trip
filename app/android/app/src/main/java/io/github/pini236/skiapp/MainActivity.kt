@@ -80,6 +80,7 @@ import io.github.pini236.skiapp.group.NewGroupScreen
 import io.github.pini236.skiapp.group.LiveGroupApi
 import io.github.pini236.skiapp.server.PrefsSessionStore
 import io.github.pini236.skiapp.server.Server
+import io.github.pini236.skiapp.server.Sync
 import io.github.pini236.skiapp.server.ServerTripSync
 import io.github.pini236.skiapp.group.ReclaimScreen
 import io.github.pini236.skiapp.trip.Trip
@@ -133,7 +134,7 @@ class MainActivity : ComponentActivity() {
     private val groupApi: GroupApi by lazy {
         DevServer.create() ?: LiveGroupApi(server, PrefsSessionStore(this), tripSync, { Lang.current(resources).tag },
             ready = GoogleSignIn.WEB_CLIENT_ID.isNotEmpty(), saved = accountPrefs.getString("me", null),
-            keep = { v -> accountPrefs.edit().apply { if (v == null) remove("me") else putString("me", v) }.apply() })
+            keep = { v -> accountPrefs.edit().apply { if (v == null) remove("me") else putString("me", v) }.apply() }, sync = Sync.of(this))
     }
     private var justJoined by mutableStateOf(false)
 
@@ -189,7 +190,8 @@ class MainActivity : ComponentActivity() {
             }
         })
         handleQa(intent)
-        if (groupApi is LiveGroupApi) tripSync.flush() // a trip saved without signal goes now
+        // a trip, a score or a meetup saved without signal goes now
+        if (groupApi is LiveGroupApi) { tripSync.flush(); Sync.of(this).flush() }
         loadInBackground()
         setContent { App() }
     }

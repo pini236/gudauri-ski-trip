@@ -11645,6 +11645,54 @@
     "ka"
    ]
   },
+  "app.g_offline": {
+   "he": "בלי קליטה. מוצג מה שנשמר בטלפון ב-{time}",
+   "en": "No signal. Showing what the phone saved at {time}",
+   "ru": "Нет связи. Показано то, что телефон сохранил в {time}",
+   "ka": "კავშირი არ არის. ნაჩვენებია ტელეფონში {time}-ზე შენახული",
+   "where": "app/android",
+   "note": "group page, above the tabs, when the last read had no signal; {time} = HH:MM, or a date and time",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.g_offline_never": {
+   "he": "בלי קליטה, והקבוצה עוד לא נשמרה בטלפון. היא תופיע כשתחזור הקליטה.",
+   "en": "No signal, and the group is not on this phone yet. It shows once the signal is back.",
+   "ru": "Нет связи, а группа ещё не сохранена на телефоне. Она появится, когда вернётся связь.",
+   "ka": "კავშირი არ არის და ჯგუფი ჯერ ტელეფონში არ არის შენახული. გამოჩნდება, როცა კავშირი აღდგება.",
+   "where": "app/android",
+   "note": "group page opened for the first time with no signal",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.g_waiting": {
+   "he": "מה ששינית כאן יישלח לקבוצה כשתחזור הקליטה",
+   "en": "What you changed here goes to the group once the signal is back",
+   "ru": "Ваши изменения уйдут в группу, когда вернётся связь",
+   "ka": "აქ შეცვლილი გაიგზავნება ჯგუფში, როცა კავშირი აღდგება",
+   "where": "app/android",
+   "note": "group page: writes waiting in the queue",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.g_gone": {
+   "he": "כבר אינך בקבוצה הזו",
+   "en": "You are no longer in this group",
+   "ru": "Вы больше не в этой группе",
+   "ka": "თქვენ აღარ ხართ ამ ჯგუფში",
+   "where": "app/android",
+   "note": "group page, when the server says I left or was removed",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
   "app.g_requests": {
    "he": "בקשות · רק מנהלים רואים",
    "en": "Requests · only admins see these",

@@ -1,6 +1,13 @@
 package io.github.pini236.skiapp.group
 
 import io.github.pini236.skiapp.trip.Trip
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancelChildren
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.launch
 import java.time.Instant
 import java.time.LocalDate
 
@@ -53,6 +60,48 @@ data class Group(
     val admins: Int get() = members.count { it.role == Role.ADMIN }
 }
 
+/**
+ * A group as its page shows it, from the phone first: [group] is null until it was read once, [readAt] (ms) is when,
+ * [offline] says the last read had no signal, [gone] that I am no longer in it, [waiting] that changes made here wait
+ * for signal.
+ */
+data class Shown(val group: Group?, val readAt: Long? = null, val offline: Boolean = false, val gone: Boolean = false, val waiting: Boolean = false)
+
+/**
+ * One group kept on the phone (server/Sync.kt): shows at once, also with no signal; reads again on [open] and on each
+ * change until [close]. After a change made on the page (approving, roles, the same flight), [refresh].
+ */
+interface GroupWatch {
+    val state: Flow<Shown>
+    val now: Shown
+    fun open()
+    fun close()
+    fun refresh()
+}
+
+/** A watch that just reads [GroupApi.group] (the pretend server; nothing kept on the phone). */
+class FetchedGroup(private val api: GroupApi, private val id: String) : GroupWatch {
+    private val flow = MutableStateFlow(Shown(null))
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
+    override val state: Flow<Shown> = flow
+    override val now: Shown get() = flow.value
+    override fun open() = refresh()
+    override fun close() = scope.coroutineContext.cancelChildren()
+    override fun refresh() {
+        scope.launch {
+            flow.value = try {
+                Shown(api.group(id), System.currentTimeMillis())
+            } catch (e: ApiException) {
+                when (e.code) {
+                    "offline" -> flow.value.copy(offline = true)
+                    "not_member", "not_found" -> Shown(null, System.currentTimeMillis(), gone = true)
+                    else -> flow.value
+                }
+            }
+        }
+    }
+}
+
 /** What an invite opens (invite_preview): the group, and its members' names for "I'm already in the group". */
 data class Preview(
     val status: JoinStatus,
@@ -96,6 +145,8 @@ interface GroupApi {
 
     suspend fun myGroups(): List<GroupSummary>
     suspend fun group(id: String): Group
+    /** The group as kept on the phone, for its page; the screens read the group only through this. */
+    fun watch(id: String): GroupWatch = FetchedGroup(this, id)
     suspend fun createGroup(name: String, myName: String, startsOn: LocalDate?, endsOn: LocalDate?, myTrip: Trip?): String
     suspend fun updateGroup(id: String, name: String, startsOn: LocalDate?, endsOn: LocalDate?)
     suspend fun deleteGroup(id: String)
