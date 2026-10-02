@@ -334,7 +334,12 @@ meet() {
   drag $up; sleep 1; tapText "צהריים" && sleep 1.5
   drag $up; sleep 0.8; drag $up; sleep 0.8; drag $up; sleep 1; shot meet-group-save
   mark; tapText "שמירה בקבוצה" && waitlog "meetup saved" 10 && { sleep 2; shot meet-group-after; }
+  # the reminders (Q8): each meetup ahead reminds a quarter of an hour before; one turned off, then the next one rings
+  waitlog "reminders armed" 10; tapText "תזכורת רבע שעה לפני" && sleep 1 && shot meet-group-remind-off
+  mark; qa "--es qa.remind next"; waitlog "reminder shown" 10 && { adb shell cmd statusbar expand-notifications; sleep 2; shot meet-reminder
+    tapText "~בעוד רבע שעה" && sleep 3 && shot meet-from-reminder || adb shell cmd statusbar collapse; }
   # a tap on a meetup in the group opens its card
+  qa "--es qa.tab group/g1/meetups"; sleep 2
   tapText "~התחנה" && sleep 2 && shot meet-from-group
   qa "--es qa.group none --es qa.tab home"; sleep 1
 }

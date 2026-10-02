@@ -11465,13 +11465,73 @@
     "ka"
    ]
   },
-  "app.g_meetups_note": {
-   "he": "מפגש חדש נבחר על מפת התחנות, וכל הקבוצה רואה אותו.",
-   "en": "A new meetup is picked on the map of stations, and the whole group sees it.",
-   "ru": "Новая встреча выбирается на карте станций, и её видит вся группа.",
-   "ka": "ახალი შეხვედრა სადგურების რუკაზე აირჩევა და მას მთელი ჯგუფი ხედავს.",
+  "app.g_meetups_offline": {
+   "he": "שמור בטלפון: המפגשים והתזכורות עובדים גם בלי קליטה על ההר.",
+   "en": "Kept on the phone: meetups and reminders work with no signal on the mountain.",
+   "ru": "Хранится в телефоне: встречи и напоминания работают и без связи в горах.",
+   "ka": "ინახება ტელეფონში: შეხვედრები და შეხსენებები მთაზე კავშირის გარეშეც მუშაობს.",
    "where": "app/android",
    "note": "Q8",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.g_remind": {
+   "he": "תזכורת רבע שעה לפני",
+   "en": "Remind me 15 minutes before",
+   "ru": "Напомнить за 15 минут",
+   "ka": "შეხსენება 15 წუთით ადრე",
+   "where": "app/android",
+   "note": "Q8",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.g_in": {
+   "he": "בעוד {time}",
+   "en": "in {time}",
+   "ru": "через {time}",
+   "ka": "დარჩა {time}",
+   "where": "app/android",
+   "note": "Q8: the next meetup, {time} as the phone's language writes a duration",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.remind_channel": {
+   "he": "תזכורות למפגשים",
+   "en": "Meetup reminders",
+   "ru": "Напоминания о встречах",
+   "ka": "შეხვედრების შეხსენებები",
+   "where": "app/android",
+   "note": "Q8: the notification channel, in the phone's settings",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.remind_title": {
+   "he": "בעוד רבע שעה: {place}",
+   "en": "In 15 minutes: {place}",
+   "ru": "Через 15 минут: {place}",
+   "ka": "15 წუთში: {place}",
+   "where": "app/android",
+   "note": "Q8: the reminder; {place} is the station",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.remind_body": {
+   "he": "{group} · נפגשים ב-{time}",
+   "en": "{group} · meeting at {time}",
+   "ru": "{group} · встреча в {time}",
+   "ka": "{group} · შეხვედრა {time}-ზე",
+   "where": "app/android",
+   "note": "Q8: the reminder; {group} is the group's name, {time} Gudauri time",
    "check": [
     "ru",
     "ka"

@@ -172,6 +172,9 @@ interface GroupApi {
 
     /** A meetup from the meeting point (Q8): kept on the phone at once and sent when there is signal. */
     suspend fun addMeetup(groupId: String, station: String, at: Instant)
+
+    /** Every meetup of my groups, with its group: what the reminders are set from (Q8). */
+    suspend fun allMeetups(): List<Pair<GroupSummary, Meetup>> = myGroups().flatMap { g -> group(g.id).meetups.map { g to it } }
 }
 
 /** Invite codes: six letters without I and O (the server's alphabet), typed in any case; or the long token from a link. */

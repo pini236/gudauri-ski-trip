@@ -60,7 +60,16 @@ import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.pini236.skiapp.R
+import io.github.pini236.skiapp.meet.Preset
+import io.github.pini236.skiapp.meet.Reminders
 import io.github.pini236.skiapp.meet.Station
+import android.Manifest
+import android.os.Build
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.selection.toggleable
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.ui.platform.LocalContext
 import io.github.pini236.skiapp.meet.stationWhere
 import io.github.pini236.skiapp.home.DayNight
 import io.github.pini236.skiapp.home.Hero
@@ -116,7 +125,7 @@ private val GAMES = listOf("descent" to R.string.games_descent_name, "school" to
 @Composable
 fun GroupScreen(
     api: GroupApi, groupId: String, tab: GroupTab, frame: DayNight.Frame, myTrip: Trip?, now: LocalDateTime, justJoined: Boolean, saveOffers: Int,
-    station: (String) -> Station?, onOpenMeetup: (Meetup) -> Unit,
+    station: (String) -> Station?, spot: (Meetup) -> Preset?, onOpenMeetup: (Meetup) -> Unit, onMeetups: () -> Unit,
     onTab: (GroupTab) -> Unit, onBack: () -> Unit, onInvite: () -> Unit, onNewMeetup: () -> Unit, onEditTrip: () -> Unit,
     onMyTrip: (Trip) -> Unit, onLeft: () -> Unit, signInGoogle: suspend () -> Unit, onSaveOffered: () -> Unit,
 ) {
@@ -126,6 +135,8 @@ fun GroupScreen(
     DisposableEffect(watch) { watch.open(); onDispose { watch.close() } }
     val shown by watch.state.collectAsState(watch.now)
     val group = shown.group
+    // the group's meetups changed (here, or from a friend in real time): the reminders on this phone follow (Q8)
+    LaunchedEffect(group?.meetups) { if (group != null) onMeetups() }
     var sheet by rememberSaveable { mutableStateOf<String?>(null) }
     var forMember by rememberSaveable { mutableStateOf<String?>(null) }
     var offered by rememberSaveable { mutableStateOf(false) }
@@ -191,7 +202,7 @@ fun GroupScreen(
                         onSame = { sheet = "same" },
                         onShowMine = { r.run { api.showMyTrip(g.id, g.me?.name ?: "", myTrip); reload() } },
                         onFillFor = { forMember = it; sheet = "fill" })
-                    GroupTab.MEETUPS -> Meetups(g, now, station, onOpenMeetup, onNewMeetup)
+                    GroupTab.MEETUPS -> Meetups(g, now, station, spot, onOpenMeetup, onNewMeetup, onMeetups)
                     GroupTab.SCORES -> Scores(api, g)
                     GroupTab.MEMBERS -> Members(api, g, r, reload = { reload() }, onInvite = onInvite, onEdit = { sheet = "edit" }, onLeft = onLeft)
                 }
@@ -361,14 +372,26 @@ private fun Flights(g: Group, myTrip: Trip?, onSame: () -> Unit, onShowMine: () 
 /**
  * Meetups (Q8): every meetup of the group, by day, who set it; a new one is picked on the meeting-point map, and a
  * tap opens its card there (how to get there, sharing). The station's name is the meeting point's, as on the site.
+ * The next one says how long until it; each one ahead reminds a quarter of an hour before, from the phone itself
+ * (meet/Reminders.kt), unless turned off. The colour is the spot of the meeting point's post, when it is one.
  */
 @Composable
-private fun Meetups(g: Group, now: LocalDateTime, station: (String) -> Station?, onOpen: (Meetup) -> Unit, onNew: () -> Unit) {
+private fun Meetups(g: Group, now: LocalDateTime, station: (String) -> Station?, spot: (Meetup) -> Preset?, onOpen: (Meetup) -> Unit, onNew: () -> Unit, onReminders: () -> Unit) {
     val c = Ski.colors
+    val context = LocalContext.current
     val zone = ZoneId.of("Asia/Tbilisi")
     val byDay = g.meetups.sortedBy { it.at }.groupBy { it.at.atZone(zone).toLocalDate() }
     if (byDay.isEmpty()) Muted(stringResource(R.string.app_g_no_meetups), size = 14f)
-    val next = g.meetups.filter { it.at.atZone(zone).toLocalDateTime() > now }.minByOrNull { it.at }
+    val ahead = g.meetups.filter { it.at.atZone(zone).toLocalDateTime() > now }
+    val next = ahead.minByOrNull { it.at }
+    var toggled by remember { mutableIntStateOf(0) }
+    // the notification permission (Android 13 and later), asked once, the first time a meetup ahead would remind
+    val ask = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { onReminders() }
+    LaunchedEffect(ahead.size) {
+        if (Build.VERSION.SDK_INT >= 33 && ahead.any { Reminders.isOn(context, it.id) } && !Reminders.allowed(context) && !Reminders.asked(context)) {
+            Reminders.markAsked(context); ask.launch(Manifest.permission.POST_NOTIFICATIONS)
+        }
+    }
     for ((day, list) in byDay) {
         Text(shortDate(day), style = Ski.type.label.copy(fontSize = 13.sp), color = c.muted)
         for (m in list) {
@@ -379,17 +402,46 @@ private fun Meetups(g: Group, now: LocalDateTime, station: (String) -> Station?,
                     Muted(shortDate(at.toLocalDate()), size = 12f)
                     Text("%02d:%02d".format(at.hour, at.minute), style = TextStyle(fontFamily = Karantina, fontWeight = FontWeight.Bold, fontSize = 36.sp, lineHeight = 32.sp), color = c.ink)
                 }
-                Column(Modifier.weight(1f).padding(horizontal = 14.dp, vertical = 10.dp)) {
+                Column(Modifier.weight(1f).padding(start = 14.dp, end = 14.dp, top = 10.dp, bottom = if (m in ahead) 2.dp else 10.dp)) {
                     val place = station(m.station)?.let { stationWhere(it) } ?: m.station
-                    Text(place, style = Ski.type.bodyBold.copy(fontSize = 15.5.sp), color = c.ink)
-                    m.byName?.let { Muted(stringResource(R.string.app_g_set_by, it), size = 12.5f) }
+                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        val sq = when (spot(m)) { Preset.MORNING -> Color(0xFFF4B942); Preset.NOON -> c.blue; Preset.END -> c.ink; null -> c.rule }
+                        Box(Modifier.size(12.dp).background(sq))
+                        Text(place, style = Ski.type.bodyBold.copy(fontSize = 15.5.sp), color = c.ink)
+                    }
+                    val left = if (m == next) stringResource(R.string.app_g_in, inWords(Duration.between(now, at.toLocalDateTime()).toMinutes(), context)) else null
+                    listOfNotNull(m.byName?.let { stringResource(R.string.app_g_set_by, it) }, left).joinToString(" · ").takeIf { it.isNotEmpty() }?.let { Muted(it, size = 12.5f) }
                     m.note?.let { Muted(it, size = 12.5f) }
+                    if (m in ahead) {
+                        val on = remember(m.id, toggled) { Reminders.isOn(context, m.id) }
+                        Row(Modifier.heightIn(min = 44.dp).toggleable(on, role = A11y.Checkbox) { Reminders.set(context, m.id, it); toggled++; onReminders() },
+                            verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            Box(Modifier.size(18.dp).background(if (on) c.accent else c.paper).border(2.dp, if (on) c.accent else c.ink), contentAlignment = Alignment.Center) {
+                                if (on) Icon(Icons.check, null, Modifier.size(14.dp), tint = c.onAccent)
+                            }
+                            Icon(Icons.bell, null, Modifier.size(16.dp), tint = c.ink)
+                            Text(stringResource(R.string.app_g_remind), style = Ski.type.bodyBold.copy(fontSize = 13.sp, fontWeight = FontWeight.SemiBold), color = c.ink)
+                        }
+                    }
                 }
             }
         }
     }
     Button2(stringResource(R.string.app_g_new_meetup), Look.INK, onNew, icon = Icons.pin)
-    Note(stringResource(R.string.app_g_meetups_note), Icons.bell)
+    Note(stringResource(R.string.app_g_meetups_offline), Icons.phone)
+}
+
+/** "שעה ו-12 דקות", "1 hour, 12 minutes": how long until a meetup, as the phone's language writes it (ICU). */
+private fun inWords(minutes: Long, context: android.content.Context): String {
+    val loc = context.resources.configuration.locales[0]
+    val f = android.icu.text.MeasureFormat.getInstance(loc, android.icu.text.MeasureFormat.FormatWidth.WIDE)
+    val m = minutes.coerceAtLeast(1)
+    return when {
+        m < 60 -> f.formatMeasures(android.icu.util.Measure(m, android.icu.util.MeasureUnit.MINUTE))
+        m < 24 * 60 -> if (m % 60 == 0L) f.formatMeasures(android.icu.util.Measure(m / 60, android.icu.util.MeasureUnit.HOUR))
+            else f.formatMeasures(android.icu.util.Measure(m / 60, android.icu.util.MeasureUnit.HOUR), android.icu.util.Measure(m % 60, android.icu.util.MeasureUnit.MINUTE))
+        else -> f.formatMeasures(android.icu.util.Measure((m + 24 * 60 - 1) / (24 * 60), android.icu.util.MeasureUnit.DAY))
+    }
 }
 
 /** High scores (Q9): the best of each member, per game. */

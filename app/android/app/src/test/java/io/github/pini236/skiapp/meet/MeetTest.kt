@@ -86,4 +86,17 @@ class MeetTest {
         assertEquals(LocalTime.of(9, 30), Meet.time(r.time)); assertEquals(LocalDate.of(2027, 1, 11), Meet.day(r.day))
         assertNull(Meet.time("2561")); assertNull(Meet.day("20271341"))
     }
+
+    @Test fun aReminderIsForAMeetupAheadThatIsNotTurnedOff() {
+        val at = Meet.at(LocalDate.of(2027, 1, 11), LocalTime.of(9, 30))
+        fun item(id: String, t: Instant) = Reminders.Item(id, t, "Goodaura", "Gudauri 2027", "09:30", "meet/158744075b/0930/20270111")
+        val items = listOf(item("a", at), item("b", at), item("c", at.minusSeconds(3600)))
+        // at 09:10: a quarter of an hour before 09:30 is 09:15, still ahead; the one an hour earlier is not
+        val now = Instant.parse("2027-01-11T05:10:00Z")
+        assertEquals(listOf("a"), Reminders.due(items, setOf("b"), now).map { it.id })
+        // at 09:16 it is too late to remind of 09:30 (the meetup itself is still ahead)
+        assertEquals(emptyList<String>(), Reminders.due(items, emptySet(), Instant.parse("2027-01-11T05:16:00Z")).map { it.id })
+        // the item travels in the alarm as text and back
+        assertEquals(items[0], Reminders.Item.of(items[0].json()))
+    }
 }

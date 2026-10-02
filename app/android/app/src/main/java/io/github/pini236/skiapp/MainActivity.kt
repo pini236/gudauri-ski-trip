@@ -68,6 +68,12 @@ import io.github.pini236.skiapp.meet.MeetPlan
 import io.github.pini236.skiapp.meet.MeetSave
 import io.github.pini236.skiapp.meet.MeetScreen
 import io.github.pini236.skiapp.meet.Relief2D
+import io.github.pini236.skiapp.meet.Preset
+import io.github.pini236.skiapp.meet.Reminders
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import io.github.pini236.skiapp.account.AccountScreen
 import io.github.pini236.skiapp.account.GoogleSignIn
 import io.github.pini236.skiapp.group.CodeScreen
@@ -105,7 +111,11 @@ import java.util.concurrent.Executors
  * to come. Debug and test builds keep the spike's frame counter on the map and the game.
  */
 class MainActivity : ComponentActivity() {
-    private companion object { const val SKY_EVERY_MS = 5 * 60_000L }
+    companion object {
+        private const val SKY_EVERY_MS = 5 * 60_000L
+        /** A place to open (a path of nav/Nav.kt), from the app's own notifications: a meetup's reminder (meet/Reminders.kt). */
+        const val OPEN = "open"
+    }
     private val uiStats = FrameStats()
     private val glStats = FrameStats()
     private var refreshHz = 60f
@@ -205,6 +215,7 @@ class MainActivity : ComponentActivity() {
             }
         })
         handleQa(intent)
+        handleOpen(intent)
         // a trip, a score or a meetup saved without signal goes now
         if (rawGroupApi is LiveGroupApi) { tripSync.flush(); Sync.of(this).flush() }
         loadInBackground()
@@ -235,7 +246,32 @@ class MainActivity : ComponentActivity() {
         Qa.log("state saved ${nav.save()}")
     }
 
-    override fun onNewIntent(intent: Intent) { super.onNewIntent(intent); setIntent(intent); handleQa(intent) }
+    override fun onNewIntent(intent: Intent) { super.onNewIntent(intent); setIntent(intent); handleQa(intent); handleOpen(intent) }
+
+    /** A reminder's tap opens its meetup's card, over home. */
+    private fun handleOpen(i: Intent?) {
+        val r = Route.parse(i?.getStringExtra(OPEN) ?: return) ?: return
+        i.removeExtra(OPEN)
+        nav.toStart(); nav.push(r)
+    }
+
+    /**
+     * The reminders of every meetup of my groups (Q8), from what the phone keeps: armed again when the app opens, when a
+     * group's meetups change, after a meetup is saved, and after signing out (then none are left).
+     */
+    private fun armReminders() {
+        if (!groupApi.ready) return
+        val plan = meetPlan ?: return
+        lifecycleScope.launch {
+            val all = runCatching { groupApi.allMeetups() }.getOrNull() ?: return@launch
+            val items = all.map { (g, m) ->
+                val at = m.at.atOffset(Meet.GUDAURI)
+                Reminders.Item(m.id, m.at, plan.byId[m.station]?.name ?: m.station, g.name, "%02d:%02d".format(at.hour, at.minute),
+                    Meet.route(m.station, at.toLocalTime(), at.toLocalDate()).path)
+            }
+            withContext(Dispatchers.IO) { Reminders.arm(this@MainActivity, items) }
+        }
+    }
 
     private fun preferTopRefreshRate() {
         @Suppress("DEPRECATION")
@@ -257,7 +293,7 @@ class MainActivity : ComponentActivity() {
         Startup.dataMs = SystemClock.uptimeMillis() - t0
         runOnUiThread { profile = profiles.firstOrNull { it.key == "Tatra 2" } ?: profiles.firstOrNull() }
         val plan = MeetPlan.build(runs, terrain)
-        runOnUiThread { meetPlan = plan }
+        runOnUiThread { meetPlan = plan; armReminders() }
         val t1 = SystemClock.uptimeMillis()
         val s = MapScene(terrain, runs)
         Startup.meshMs = SystemClock.uptimeMillis() - t1
@@ -315,6 +351,8 @@ class MainActivity : ComponentActivity() {
         } }
         i.getStringExtra("qa.stats")?.let { showStats = it != "off" }
         i.getStringExtra("qa.time")?.let { clockMs = Qa.gudauriTime(it); tick = nowMs() }
+        // the next meetup's reminder, now (the run cannot wait for the real quarter of an hour before)
+        i.getStringExtra("qa.remind")?.let { Reminders.armed(this).minByOrNull { it.at }?.let { r -> Reminders.show(this, r) } ?: Qa.log("no reminder armed") }
         i.getStringExtra("qa.sentry")?.let { Telemetry.testCrashReport(it); loader.execute { Telemetry.flush(); Qa.log("telemetry ${if (Telemetry.hasKeys) "keys" else "no keys"}, flushed") } }
         i.getStringExtra("qa.mode")?.let { m -> DayNight.Mode.entries.firstOrNull { it.name.equals(m, true) }?.let { dnMode = it } }
         // a trip for the run, from the script (never packed in the app: decision 27), or "none" for the guest's home
@@ -411,7 +449,7 @@ class MainActivity : ComponentActivity() {
                         // from a group's page, a new meetup goes back to that group (Q8)
                         val fromGroup = (nav.routes.getOrNull(nav.routes.size - 2) as? Route.Group)?.id
                         MeetScreen(meetPlan, scene?.runs, relief, trip, tick, top,
-                            save = if (groupApi.ready) MeetSave(groupApi, fromGroup) { id -> nav.back(); if (nav.top is Route.Group) nav.replaceTop(Route.Group(id, GroupTab.MEETUPS.key)) } else null,
+                            save = if (groupApi.ready) MeetSave(groupApi, fromGroup, after = ::armReminders) { id -> nav.back(); if (nav.top is Route.Group) nav.replaceTop(Route.Group(id, GroupTab.MEETUPS.key)) } else null,
                             onRoute = { r -> if (nav.top is Route.Meet && nav.top != r) nav.replaceTop(r) },
                             onOnMap = { st -> nav.push(Route.Map(nav.find<Route.Map>()?.run)); mapView.showLift(st.ends.first().lift.id) },
                             onBack = { nav.back() })
@@ -425,7 +463,10 @@ class MainActivity : ComponentActivity() {
                         else GroupScreen(groupApi, top.id, GroupTab.of(top.tab), frame, trip, LocalDateTime.ofInstant(Instant.ofEpochMilli(tick), ZoneId.systemDefault()),
                             justJoined = justJoined, saveOffers = accountPrefs.getInt("save_offers", 0),
                             station = { key -> meetPlan?.byId?.get(key) },
+                            spot = { m -> val plan = meetPlan; val at = m.at.atOffset(Meet.GUDAURI); val hm = "%02d:%02d".format(at.hour, at.minute)
+                                Preset.entries.firstOrNull { p -> p.time == hm && plan?.preset(p)?.id == m.station } },
                             onOpenMeetup = { m -> val at = m.at.atOffset(Meet.GUDAURI); nav.push(Meet.route(m.station, at.toLocalTime(), at.toLocalDate())) },
+                            onMeetups = ::armReminders,
                             onTab = { nav.replaceTop(Route.Group(top.id, it.key)) }, onBack = { nav.toStart() },
                             onInvite = { nav.push(Route.GroupInvite(top.id)) }, onNewMeetup = { nav.push(Route.Meet()) }, onEditTrip = { nav.push(Route.Trip) },
                             onMyTrip = { t -> keepTrip(t) }, onLeft = { nav.toStart() }, signInGoogle = ::signInGoogle,
@@ -440,7 +481,7 @@ class MainActivity : ComponentActivity() {
                     is Route.Reclaim -> ReclaimScreen(groupApi, top.code, onBack = { nav.back() }, signInGoogle = ::signInGoogle) { id ->
                         nav.toStart(); nav.push(Route.Group(id, GroupTab.FLIGHTS.key))
                     }
-                    Route.Account -> AccountScreen(groupApi, onBack = { nav.back() }, signInGoogle = ::signInGoogle) { nav.toStart() }
+                    Route.Account -> AccountScreen(groupApi, onBack = { nav.back() }, signInGoogle = ::signInGoogle) { nav.toStart(); armReminders() }
                     Route.About -> AboutScreen(BuildConfig.VERSION_NAME, onPrivacy = ::openPrivacy,
                         onAccount = if (groupApi.ready) ({ nav.push(Route.Account) }) else null) { nav.back() }
                     else -> {

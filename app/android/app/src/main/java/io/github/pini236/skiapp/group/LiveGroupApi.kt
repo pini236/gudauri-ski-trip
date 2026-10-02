@@ -233,6 +233,16 @@ class LiveGroupApi(
         io { val q = sync; if (q != null) q.group(groupId).addMeetup(station, at) else groups.addMeetup(groupId, station, at) }
     }
 
+    /** From the groups kept on the phone (no network: a reminder must be set on the mountain too). */
+    override suspend fun allMeetups(): List<Pair<GroupSummary, Meetup>> {
+        val q = sync ?: return super.allMeetups()
+        return withContext(Dispatchers.IO) {
+            q.myGroups.value.groups.flatMap { g ->
+                q.group(g.id).state.value.meetups.map { m -> GroupSummary(g.id, g.name, g.startsOn, g.endsOn) to Meetup(m.id, m.station, m.at, m.note, null) }
+            }
+        }
+    }
+
     private companion object {
         fun rows(a: JSONArray): List<JSONObject> = (0 until a.length()).map { a.getJSONObject(it) }
         fun str(o: JSONObject, k: String): String? = if (o.isNull(k)) null else o.optString(k).ifBlank { null }

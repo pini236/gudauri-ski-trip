@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The reminders' icon in the status bar (meet/Reminders.kt): the app's bell (ui/Icons.kt), filled, white on clear. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp" android:height="24dp" android:viewportWidth="24" android:viewportHeight="24">
+    <path android:fillColor="#FFFFFFFF" android:pathData="M6,16V11a6,6 0 0,1 12,0v5l2,2H4z" />
+    <path android:fillColor="#FFFFFFFF" android:pathData="M10,19.2h4a2,2 0 0,1 -4,0z" />
+</vector>
