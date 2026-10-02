@@ -1,0 +1,100 @@
+/* Round 12: only what the site doesn't have yet. Everything else is the site's own CSS and tokens. */
+
+/* the account button: next to the day and night switch, on the phone and on the computer */
+.acct{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 14px;border:1.5px solid var(--ink);border-radius:22px;background:var(--paper);color:var(--ink);font:inherit;font-size:14px;font-weight:700;text-decoration:none;white-space:nowrap}
+.acct.me{padding:0;width:44px;justify-content:center;border-radius:0;background:var(--ink);color:var(--paper);border:0;font-family:var(--f-display);font-size:28px;line-height:1}
+.home-top .acct{align-self:center}
+@media (min-width:761px){.acct-m{display:none}}
+@media (max-width:760px){.home-top .acct:not(.me){width:44px;padding:0;justify-content:center}.home-top .acct:not(.me) .acct-t{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}.home-top{flex-wrap:nowrap}}
+
+/* the empty pass: the approved pass, blank, waiting for the user's flight */
+.bp-empty{position:relative;margin-top:60px;display:flex;height:236px;filter:drop-shadow(0 10px 14px var(--shadow));width:100%}
+.bp-empty .be-main{flex:1;min-width:0;background:var(--paper);display:flex;flex-direction:column}
+.bp-empty .be-strip{display:flex;justify-content:space-between;padding:7px 16px;background:var(--p-blue);color:#fff;font-size:12px;font-weight:700;letter-spacing:.04em}
+.bp-empty .be-row{display:flex;justify-content:space-between;align-items:flex-end;padding:12px 16px 0}
+.bp-empty small{display:block;font-size:11px;font-weight:600;letter-spacing:.05em;color:var(--muted)}
+.bp-empty .be-code{font-family:var(--f-display);font-weight:700;font-size:46px;line-height:.8;color:var(--rule)}
+.bp-empty .be-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:12px 16px 0;padding-top:8px;border-top:1px solid var(--rule)}
+.bp-empty .be-grid i{display:block;height:12px;margin-top:6px;border-bottom:2px dashed var(--rule);width:70%}
+.bp-empty .be-stub{width:100px;flex:none;background:var(--paper);border-inline-start:2px dashed var(--rule);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+.bp-empty .be-stub b{font-family:var(--f-display);font-size:64px;line-height:.8;color:var(--rule)}
+.bp-empty .be-add{position:absolute;inset:40px 0 0 100px;display:flex;align-items:center;justify-content:center}
+.btn-blue{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:52px;padding:0 20px;border:0;background:var(--p-blue);color:#fff;font:inherit;font-size:16.5px;font-weight:700;text-decoration:none;box-shadow:0 6px 14px color-mix(in srgb,var(--p-blue) 35%,transparent)}
+.r12-note{display:flex;gap:8px;align-items:flex-start;margin:10px 0 0;font-size:13px;line-height:1.45;color:var(--muted)}
+.r12-note svg{flex:none;margin-top:1px}
+
+/* the season, under the snow (S3), on the guest's home page */
+.season{position:relative;margin-top:34px;display:block;padding:12px 14px;background:var(--paper);border-top:6px solid var(--rule);color:var(--ink);text-decoration:none;box-shadow:0 6px 14px var(--shadow)}
+.season b{font-family:var(--f-display);font-size:30px;line-height:1}
+.season span{display:block;margin-top:4px;font-size:13px;color:var(--muted)}
+.season em{float:inline-end;font-style:normal;font-size:12.5px;font-weight:700;color:var(--glacier)}
+.snowcap{position:absolute;display:block;top:-15px;inset-inline:0;width:100%;height:20px;pointer-events:none}
+
+/* the group sign on the post */
+.board-group{background:var(--ink);color:var(--paper);width:80%;box-sizing:border-box}
+.board-group span{opacity:.85}
+
+/* the pass's own line: whose trip, and edit */
+.bp-hint .r12-edit{margin-inline-start:12px;font-weight:700;color:var(--glacier);text-decoration:none;display:inline-flex;align-items:center;gap:4px;min-height:44px}
+
+/* new pages: a narrow column like #about */
+.r12-page{max-width:620px;margin:0 auto;padding:10px 16px 48px;box-sizing:border-box;display:flex;flex-direction:column;gap:22px}
+.r12-page.wide{max-width:1080px}
+.r12-head{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.r12-head h1{margin:0;font-family:var(--f-display);font-weight:700;font-size:44px;line-height:1}
+.r12-head a{display:inline-flex;align-items:center;gap:4px;min-height:44px;font-size:15px;font-weight:700;color:var(--glacier);text-decoration:none}
+.r12-lead{margin:-12px 0 0;font-size:14px;line-height:1.5;color:var(--muted)}
+.r12-card{position:relative;background:var(--paper);border-top:6px solid var(--p-blue);padding:18px 16px 16px;box-shadow:0 6px 14px var(--shadow)}
+.r12-card.ink{border-top-color:var(--ink)}
+.r12-card.red{border-top-color:var(--p-red)}
+.r12-card h2{margin:0;font-family:var(--f-display);font-weight:700;font-size:32px;line-height:1}
+.r12-card p{margin:6px 0 12px;font-size:14px;line-height:1.5;color:var(--muted)}
+.r12-sec{display:flex;align-items:center;gap:10px;margin:4px 0 -6px}
+.r12-sec b{font-family:var(--f-display);font-size:30px;line-height:1}
+.r12-sec i{flex:1;height:1px;background:var(--rule)}
+.r12-sec span{font-size:12px;color:var(--muted)}
+.r12-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.r12-fld{display:flex;flex-direction:column;gap:5px;min-width:0}
+.r12-fld label{font-size:13px;font-weight:600;color:var(--muted)}
+.r12-fld input{width:100%;height:48px;font-size:16px;background:var(--paper)}
+.r12-fld input.code{font-family:var(--f-display);font-size:30px;letter-spacing:.12em;text-align:center}
+.r12-btns{display:flex;flex-direction:column;gap:10px}
+.r12-btn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;min-height:52px;padding:0 18px;box-sizing:border-box;border:0;font:inherit;font-size:16px;font-weight:700;text-decoration:none;cursor:pointer;background:var(--ink);color:var(--paper)}
+.r12-btn.blue{background:var(--p-blue);color:#fff}
+.r12-btn.google{background:#fff;color:#1F1F1F;border:1px solid #747775}
+.r12-btn.apple{background:#000;color:#fff}
+.r12-btn.ghost{background:transparent;color:var(--ink);border:2px solid var(--ink)}
+.r12-btn.quiet{background:transparent;color:var(--glacier)}
+.r12-btn.danger{background:transparent;color:var(--p-red);border:2px solid var(--p-red)}
+.r12-btn.solid-red{background:var(--p-red);color:#fff}
+.r12-mark{flex:none;width:22px;height:22px;border-radius:50%;border:2px solid currentColor;box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;font:700 13px/1 Arial,sans-serif}
+.r12-row{display:flex;align-items:center;gap:12px;min-height:58px;border-bottom:1px solid var(--rule)}
+.r12-row>span:not(.r12-mark):not(.r12-av){flex:1;display:flex;flex-direction:column}
+.r12-row b{font-size:15px}.r12-row small{font-size:12.5px;color:var(--muted)}
+.r12-who{display:flex;align-items:center;gap:14px}
+.r12-av{flex:none;width:52px;height:52px;background:var(--ink);color:var(--paper);display:flex;align-items:center;justify-content:center;font-family:var(--f-display);font-size:34px}
+.r12-list{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:6px;font-size:14px}
+.r12-list li{display:flex;gap:8px;align-items:flex-start}
+.r12-ok{color:var(--p-green)}.r12-no{color:var(--p-red)}
+
+/* the group page */
+.r12-tabs{display:flex;gap:0;border-bottom:2px solid var(--rule);overflow-x:auto;scrollbar-width:none}
+.r12-tabs a{min-height:46px;padding:0 14px;display:flex;align-items:center;font-family:var(--f-display);font-weight:700;font-size:24px;color:var(--muted);text-decoration:none;white-space:nowrap;margin-bottom:-2px;border-bottom:4px solid transparent}
+.r12-tabs a[aria-current]{color:var(--ink);border-bottom-color:var(--p-blue)}
+.r12-flight{background:var(--paper);box-shadow:0 6px 14px var(--shadow)}
+.r12-flight .fs{display:flex;justify-content:space-between;padding:7px 14px;background:var(--p-blue);color:#fff;font-size:12px;font-weight:700}
+.r12-flight .fb{display:flex;align-items:center;justify-content:space-between;padding:10px 14px}
+.r12-flight .fb b{font-family:var(--f-display);font-size:40px;line-height:.85}
+.r12-flight .fb small{display:block;font-size:12px;color:var(--muted)}
+.r12-flight .fp{display:flex;flex-wrap:wrap;gap:6px;padding:0 14px 12px}
+.r12-flight .fp span{padding:4px 10px;background:var(--snow);border-top:3px solid var(--ink);font-size:13.5px;font-weight:500}
+.r12-flight .fp span.me{border-top-color:var(--p-blue);font-weight:700}
+.r12-flight.other .fs{background:var(--ink)}
+.r12-meet{display:flex;gap:12px;align-items:center;padding:12px 14px;background:var(--paper);border-inline-start:6px solid var(--p-blue)}
+.r12-meet .mt{font-family:var(--f-display);font-size:34px;line-height:1;min-width:64px}
+.r12-meet span{display:flex;flex-direction:column;font-size:13px;color:var(--muted)}.r12-meet span b{font-size:15px;color:var(--ink)}
+.r12-cols{display:grid;grid-template-columns:minmax(0,1fr);gap:22px}
+@media (min-width:900px){.r12-cols{grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);column-gap:40px;align-items:start}}
+.r12-invite{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 14px;background:var(--paper);border:2px dashed var(--rule)}
+.r12-invite b{font-family:var(--f-display);font-size:34px;letter-spacing:.12em;line-height:1}
+.r12-sample{position:absolute;top:8px;inset-inline-start:8px;padding:2px 8px;background:var(--gold,#F4B942);color:#13233A;font-size:11px;font-weight:700}
