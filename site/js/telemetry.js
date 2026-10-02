@@ -5,7 +5,7 @@
    Code calls track('event', {props}); it does nothing when the switch is off or the scripts did not load. */
 (function(){
   var POSTHOG_KEY='phc_njMEqbLpeiRxvqRxpop9m8pP4xwb6PHnqjuvaTxu9Ch3'; // public by design: it can only send events
-  var SENTRY_DSN=''; // the site's Sentry project; empty = no error reports
+  var SENTRY_DSN='https://9e0fede583a2521cfddd6efff76aa9aa@o4512183732404224.ingest.de.sentry.io/4512183998873680'; // gudi-web (EU); public by design
   var P=window.GUD_PREFS||{};
   var on=P.analytics!==false&&!/^(localhost|127\.)/.test(location.hostname)&&!navigator.webdriver;
   var queue=[],ph=null;
