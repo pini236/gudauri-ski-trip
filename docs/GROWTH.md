@@ -75,7 +75,7 @@
 | `meet_share` | שיתוף נקודת מפגש | `method`: `whatsapp`, `image`, `copy` |
 | `meet_link_open` | פתיחה מקישור של נקודת מפגש | |
 | `game_start` | התחלת משחק | `game`: `descent`, `school`, `fresh`, `merge`, `snowball`; `level` (מסלול, שיעור או יריב, אם יש) |
-| `game_end` | סוף משחק, יציאה או הפסד | `game`; `level`; `score`; `seconds`; `completed`: true/false; `best`: true/false (שיא חדש) |
+| `game_end` | סוף משחק, יציאה או הפסד | `game`; `level`; `score`; `seconds`; `completed`: true/false; `best`: true/false (שיא חדש). **`score` הוא הניקוד שהמשחק מציג** (בירידה: הנקודות, לא מספר הסלטות; בבית הספר לסקי: הכוכבים בשיעור). טבלת השיאים בקבוצה נבנית ממנו: בבית הספר לסקי סכום הכוכבים הטובים בכל שיעור, ובשאר המשחקים הניקוד הגבוה (2.10.2026) |
 | `settings_change` | שינוי בהגדרות | `setting`: `sound`, `haptics`, `analytics`; `on`: true/false |
 | `best_reset` | איפוס השיאים | |
 | `app_download` | לחיצה על הורדה או על קישור לחנות | `store`: `play`, `appstore`, `apk`; `placement`: `home`, `about`, `banner` |

@@ -23,7 +23,12 @@ GAMES = [
 STYLE = ('<style>.back-site{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 14px;'
          'background:rgba(19,35,58,.88);color:#fff;font:700 14px "IBM Plex Sans Hebrew",system-ui,sans-serif;'
          'text-decoration:none;align-self:flex-start;flex:0 0 auto;box-sizing:border-box}'
-         '.back-site:focus-visible{outline:3px solid #F4B942;outline-offset:2px}</style>')
+         '.back-site:focus-visible{outline:3px solid #F4B942;outline-offset:2px}'
+         # the fonts of the other scripts (decision 36, FT1), as in site/css/site.css: js/i18n.js loads them
+         'html[lang="en"]{--f-body:"IBM Plex Sans","IBM Plex Sans Hebrew",system-ui,-apple-system,"Segoe UI",sans-serif}'
+         'html[lang="ru"]{--f-display:"Oswald","Arial Narrow",sans-serif;--f-body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif}'
+         'html[lang="ka"]{--f-display:"Noto Sans Georgian","Arial Narrow",sans-serif;--f-body:"Noto Sans Georgian",system-ui,sans-serif}'
+         'html:not([lang="he"]) .back-site{font-family:var(--f-body)}</style>')
 HEAD = ('<!doctype html>\n<html lang="he" dir="rtl">\n<meta charset="utf-8">\n'
         '<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">\n'
         '<meta name="robots" content="noindex">\n<meta name="theme-color" content="#13233A">\n'
@@ -35,6 +40,15 @@ HEAD = ('<!doctype html>\n<html lang="he" dir="rtl">\n<meta charset="utf-8">\n'
 LINK = '<a class="back-site" href="../../#games" style="{style}" data-i18n="game.{key}.back_to_games">→ לכל המשחקים</a>'
 # the language file of each game (tools/build-site-strings.py): game.<key>.* in i18n/strings.json
 KEYS = {'fresh-snow': 'fresh'}
+# labels for screen readers written in Hebrew in the sources (design/): the language file translates them
+LABELS = {
+    'descent': [('<section class="menu" id="menuStart" aria-label="התחלה">', 'game.descent.menu_start_label'),
+                ('<section class="menu" id="menuEnd" aria-label="תוצאה" hidden>', 'game.descent.menu_end_label')],
+    'school': [('<section class="menu" id="menu" aria-label="שיעורים">', 'game.school.lessons_label')],
+    'fresh-snow': [('<div class="row kind" id="scenes" role="group" aria-label="איפה">', 'game.fresh.scenes_label')],
+    'snowball': [('<section class="menu" id="menuStart" aria-label="התחלה">', 'game.snowball.menu_start_label'),
+                 ('<section class="menu" id="menuEnd" aria-label="תוצאה" hidden>', 'game.snowball.menu_end_label')],
+}
 
 
 def build(slug, src, place):
@@ -50,6 +64,9 @@ def build(slug, src, place):
         html = html.replace(find, find + '\n  ' + link)
     else:  # the first thing inside a row of buttons
         html = html.replace(find, find.replace('<div class="row">', '<div class="row">' + link))
+    for tag, k in LABELS.get(slug, []):
+        assert html.count(tag) == 1, f'{slug}: {tag} was not found once'
+        html = html.replace(tag, tag[:-1] + f' data-i18n-attr="aria-label:{k}">')
     # a full document head: the games were written for the artifact viewer, which adds these itself
     html = HEAD.format(key=key) + html
     # the link's style goes right after the page's own styles, so the title stays in the first lines

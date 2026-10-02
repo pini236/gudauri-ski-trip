@@ -27,7 +27,7 @@
   root.lang=lang;root.dir=meta.dir;
   if(lang!=='he')root.classList.add('i18n-wait');
   // Fonts for the other scripts (round 10, FT1): titles in Oswald (Russian) or Noto Sans Georgian; text in IBM Plex Sans.
-  var FONTS={en:'IBM+Plex+Sans:wght@400;500;600;700',ru:'Oswald:wght@500;700&family=IBM+Plex+Sans:wght@400;500;600;700',ka:'Noto+Sans+Georgian:wdth,wght@62.5..100,400..800'};
+  var FONTS={en:'IBM+Plex+Sans:wght@400;500;600;700',ru:'Oswald:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700',ka:'Noto+Sans+Georgian:wdth,wght@62.5..100,400..800'};
   if(FONTS[lang]){var fl=document.createElement('link');fl.rel='stylesheet';fl.href='https://fonts.googleapis.com/css2?family='+FONTS[lang]+'&display=swap';document.head.appendChild(fl);}
 
   var S={},PR=null;

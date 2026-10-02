@@ -1270,18 +1270,6 @@
     "ka"
    ]
   },
-  "common.crew": {
-   "he": "החבר׳ה",
-   "en": "The crew",
-   "ru": "Компания",
-   "ka": "ჯგუფი",
-   "where": "site/index.html",
-   "note": "crew heading on home; count follows",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
   "common.days_to_flight": {
    "he": {
     "one": "{n} יום לטיסה",
@@ -6670,18 +6658,6 @@
     "ka"
    ]
   },
-  "home.board_next": {
-   "he": "חלקים נוספים בקרוב",
-   "en": "More sections coming soon",
-   "ru": "Скоро новые разделы",
-   "ka": "მალე ახალი განყოფილებები",
-   "where": "site/index.html",
-   "note": "short: sign",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
   "home.countdown_on_the_way": {
    "he": "בדרך לגודאורי",
    "en": "On the way to Gudauri",
@@ -6689,18 +6665,6 @@
    "ka": "გზაში გუდაურისკენ",
    "where": "site/js/app.js",
    "note": "Top bar after the flight date passed. short",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "home.crew_aria": {
-   "he": "מי טס",
-   "en": "Who's flying",
-   "ru": "Кто летит",
-   "ka": "ვინ მიფრინავს",
-   "where": "site/index.html",
-   "note": "aria-label of crew section",
    "check": [
     "ru",
     "ka"
@@ -7107,30 +7071,6 @@
    "ka": "რუკის ფილტრი",
    "where": "site/index.html",
    "note": "aria-label of chips group",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "map.filter_lifts": {
-   "he": "רכבלים",
-   "en": "Lifts",
-   "ru": "Подъёмники",
-   "ka": "საბაგიროები",
-   "where": "site/js/app.js",
-   "note": "Filter chip. short: chip",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "map.filter_unnamed": {
-   "he": "ללא שם",
-   "en": "Unnamed",
-   "ru": "Без названия",
-   "ka": "უსახელო",
-   "where": "site/js/app.js",
-   "note": "Filter chip. short: chip",
    "check": [
     "ru",
     "ka"
@@ -7673,54 +7613,6 @@
    "ka": "დღე",
    "where": "site/index.html",
    "note": "short: aria-label of day group and card field label",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "meet.day_mon_11": {
-   "he": "ב׳ 11.1",
-   "en": "Mon 11 Jan",
-   "ru": "Пн 11.01",
-   "ka": "ორშ 11.01",
-   "where": "site/js/app.js",
-   "note": "Ski day chip, Monday 11 Jan 2027. short: chip",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "meet.day_thu_14": {
-   "he": "ה׳ 14.1",
-   "en": "Thu 14 Jan",
-   "ru": "Чт 14.01",
-   "ka": "ხუთ 14.01",
-   "where": "site/js/app.js",
-   "note": "Ski day chip, Thursday 14 Jan 2027. short: chip",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "meet.day_tue_12": {
-   "he": "ג׳ 12.1",
-   "en": "Tue 12 Jan",
-   "ru": "Вт 12.01",
-   "ka": "სამ 12.01",
-   "where": "site/js/app.js",
-   "note": "Ski day chip, Tuesday 12 Jan 2027. short: chip",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "meet.day_wed_13": {
-   "he": "ד׳ 13.1",
-   "en": "Wed 13 Jan",
-   "ru": "Ср 13.01",
-   "ka": "ოთხ 13.01",
-   "where": "site/js/app.js",
-   "note": "Ski day chip, Wednesday 13 Jan 2027. short: chip",
    "check": [
     "ru",
     "ka"
@@ -9656,18 +9548,6 @@
     "ka"
    ]
   },
-  "ticket.airline_6h": {
-   "he": "ישראייר",
-   "en": "Israir",
-   "ru": "Israir",
-   "ka": "Israir",
-   "where": "site/js/app.js",
-   "note": "Airline on the boarding pass, by the airline code at the start of the flight number (6H). Brand name, kept in Latin letters outside Hebrew",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
   "ticket.arrives": {
    "he": "נחיתה",
    "en": "Arrives",
@@ -9687,18 +9567,6 @@
    "ka": "ბარგი",
    "where": "site/index.html",
    "note": "short: field label",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "ticket.baggage_hand": {
-   "he": "תיק יד",
-   "en": "Carry-on",
-   "ru": "Ручная кладь",
-   "ka": "ხელბარგი",
-   "where": "site/js/app.js",
-   "note": "Baggage on the boarding pass, by \"baggageKind\": \"hand\" in trip.json. short Short: a narrow column on the boarding pass.",
    "check": [
     "ru",
     "ka"
@@ -9879,18 +9747,6 @@
    "ka": "მგზავრები",
    "where": "site/index.html",
    "note": "short: field label Short: a narrow column on the boarding pass.",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "ticket.pax_crew": {
-   "he": "{n} החבר׳ה",
-   "en": "Crew of {n}",
-   "ru": "Компания: {n}",
-   "ka": "ჯგუფი: {n}",
-   "where": "site/js/app.js",
-   "note": "Passengers field on the boarding pass; {n} = number of members",
    "check": [
     "ru",
     "ka"
@@ -14407,6 +14263,127 @@
    "en": "Which group?",
    "ru": "В какую группу?",
    "ka": "რომელ ჯგუფში?",
+   "where": "site/js/account.js",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "group.err_too_many_groups": {
+   "he": "הגעת למספר הקבוצות המרבי.",
+   "en": "You have reached the maximum number of groups.",
+   "ru": "Достигнуто максимальное число групп.",
+   "ka": "მიღწეულია ჯგუფების მაქსიმალური რაოდენობა.",
+   "where": "site/js/account.js",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "group.err_invalid_name": {
+   "he": "השם ריק או ארוך מדי.",
+   "en": "The name is empty or too long.",
+   "ru": "Имя пустое или слишком длинное.",
+   "ka": "სახელი ცარიელია ან ძალიან გრძელია.",
+   "where": "site/js/account.js",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "group.err_too_many_trips": {
+   "he": "נשמרו יותר מדי טיסות בחשבון הזה.",
+   "en": "Too many trips are saved in this account.",
+   "ru": "В этом аккаунте сохранено слишком много поездок.",
+   "ka": "ამ ანგარიშში ძალიან ბევრი მოგზაურობაა შენახული.",
+   "where": "site/js/account.js",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "group.err_too_many_meetups": {
+   "he": "יש כבר יותר מדי מפגשים בקבוצה.",
+   "en": "The group already has too many meetups.",
+   "ru": "В группе уже слишком много встреч.",
+   "ka": "ჯგუფში უკვე ძალიან ბევრი შეხვედრაა.",
+   "where": "site/js/account.js",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "group.err_trip_not_yours": {
+   "he": "הטיסה הזו לא שלך.",
+   "en": "This trip is not yours.",
+   "ru": "Эта поездка не ваша.",
+   "ka": "ეს მოგზაურობა თქვენი არ არის.",
+   "where": "site/js/account.js",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "group.err_request_closed": {
+   "he": "הבקשה כבר טופלה.",
+   "en": "This request was already handled.",
+   "ru": "Этот запрос уже обработан.",
+   "ka": "ეს მოთხოვნა უკვე განხილულია.",
+   "where": "site/js/account.js",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "group.err_member_gone": {
+   "he": "החבר כבר לא בקבוצה.",
+   "en": "That member is no longer in the group.",
+   "ru": "Этого участника уже нет в группе.",
+   "ka": "ეს წევრი ჯგუფში აღარ არის.",
+   "where": "site/js/account.js",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "group.err_group_full": {
+   "he": "הקבוצה מלאה.",
+   "en": "The group is full.",
+   "ru": "Группа заполнена.",
+   "ka": "ჯგუფი სავსეა.",
+   "where": "site/js/account.js",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "group.err_unknown_action": {
+   "he": "צריך לרענן את הדף.",
+   "en": "Please refresh the page.",
+   "ru": "Обновите страницу.",
+   "ka": "გთხოვთ, განაახლოთ გვერდი.",
+   "where": "site/js/account.js",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "group.err_not_allowed": {
+   "he": "אין הרשאה לעשות את זה.",
+   "en": "You are not allowed to do that.",
+   "ru": "Нет прав на это действие.",
+   "ka": "ამის უფლება არ გაქვთ.",
+   "where": "site/js/account.js",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "group.err_invalid_input": {
+   "he": "אחד הפרטים לא תקין.",
+   "en": "One of the details is not valid.",
+   "ru": "Одно из полей заполнено неверно.",
+   "ka": "ერთ-ერთი მონაცემი არასწორია.",
    "where": "site/js/account.js",
    "check": [
     "ru",

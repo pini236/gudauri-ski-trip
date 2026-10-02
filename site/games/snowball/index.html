@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#13233A">
 <link rel="icon" href="../../favicon.svg" type="image/svg+xml">
 <style>[hidden]{display:none!important}</style>
-<style>.back-site{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 14px;background:rgba(19,35,58,.88);color:#fff;font:700 14px "IBM Plex Sans Hebrew",system-ui,sans-serif;text-decoration:none;align-self:flex-start;flex:0 0 auto;box-sizing:border-box}.back-site:focus-visible{outline:3px solid #F4B942;outline-offset:2px}</style>
+<style>.back-site{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 14px;background:rgba(19,35,58,.88);color:#fff;font:700 14px "IBM Plex Sans Hebrew",system-ui,sans-serif;text-decoration:none;align-self:flex-start;flex:0 0 auto;box-sizing:border-box}.back-site:focus-visible{outline:3px solid #F4B942;outline-offset:2px}html[lang="en"]{--f-body:"IBM Plex Sans","IBM Plex Sans Hebrew",system-ui,-apple-system,"Segoe UI",sans-serif}html[lang="ru"]{--f-display:"Oswald","Arial Narrow",sans-serif;--f-body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif}html[lang="ka"]{--f-display:"Noto Sans Georgian","Arial Narrow",sans-serif;--f-body:"Noto Sans Georgian",system-ui,sans-serif}html:not([lang="he"]) .back-site{font-family:var(--f-body)}</style>
 <script src="../../js/i18n.js" data-base="../../i18n/" data-file="game-snowball"></script>
 <script src="../../js/prefs.js"></script>
 <script src="../../js/telemetry.js" data-game="snowball"></script>
@@ -90,7 +90,7 @@ button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 <div class="hint" id="hint" hidden data-i18n="game.snowball.hint">גוררים למעלה כדי לקום ולכוון, ומשחררים כדי לזרוק. כשלא מכוונים, אתה מוגן מאחורי החומה</div>
 <button class="snd" id="snd" type="button" hidden aria-pressed="false" data-i18n-attr="aria-label:game.snowball.sound" aria-label="צליל">🔇</button>
 
-<section class="menu" id="menuStart" aria-label="התחלה">
+<section class="menu" id="menuStart" aria-label="התחלה" data-i18n-attr="aria-label:game.snowball.menu_start_label">
   <a class="back-site" href="../../#games" style="" data-i18n="game.snowball.back_to_games">→ לכל המשחקים</a>
   <h1 data-i18n="game.snowball.title">קרב כדורי שלג</h1>
   <p data-i18n="game.snowball.intro">אתה מאחורי החומה שלך, והחבר׳ה מאחורי שלהם. קמים, מכוונים, זורקים, ומתכופפים לפני שהכדור שלהם מגיע.</p>
@@ -106,7 +106,7 @@ button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
   <p class="note" data-i18n="game.snowball.characters_note">הדמויות הן החבר׳ה בצבעי המעילים מהמשחקים האחרים. הזירות, הרוח והיריבים הם בשביל המשחק.</p>
 </section>
 
-<section class="menu" id="menuEnd" aria-label="תוצאה" hidden>
+<section class="menu" id="menuEnd" aria-label="תוצאה" hidden data-i18n-attr="aria-label:game.snowball.menu_end_label">
   <h2 id="endTitle" data-i18n="game.snowball.won">ניצחת!</h2>
   <div class="res">
     <span style="font-size:12px;color:var(--muted);font-weight:700" id="endWho"></span>

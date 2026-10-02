@@ -38,6 +38,7 @@ async function fakeServer(page: Page, opts: { admin?: boolean } = {}) {
     if (req.method() === 'OPTIONS') return r.fulfill({ status: 204, headers: { 'access-control-allow-origin': '*', 'access-control-allow-headers': '*', 'access-control-allow-methods': '*' } });
     calls.push(req.method() + ' ' + path);
     if (path === '/auth/v1/signup') return json(r, session);
+    if (path === '/auth/v1/token') { Object.assign(me, { is_anonymous: false, identities: [{ provider: 'google' }], app_metadata: { provider: 'google', providers: ['google'] } }); return json(r, { ...session, user: me }); }
     if (path === '/auth/v1/user') return json(r, me);
     if (path === '/auth/v1/logout') return r.fulfill({ status: 204, headers: { 'access-control-allow-origin': '*' } });
     if (path.startsWith('/functions/v1/api/')) {
@@ -48,6 +49,7 @@ async function fakeServer(page: Page, opts: { admin?: boolean } = {}) {
       if (action === 'group_leaderboard') return json(r, body.game === 'descent' ? [{ user_id: 'u-dan', display_name: 'דנה בדיקה', best: 1200, achieved_at: '2026-10-01T10:00:00Z' }] : []);
       bodies[action!] = body;
       if (action === 'submit_score' || action === 'update_group') return json(r, {});
+      if (action === 'same_flight') { const src = db.trips.find(t => t.id === body.trip_id); db.trips.push({ ...src, id: 't-copy', owner_id: me.id, entered_by: me.id }); db.members.find(x => x.user_id === me.id).trip_id = 't-copy'; return json(r, { trip_id: 't-copy' }); }
       if (action === 'set_member_role') { db.members.find(x => x.user_id === body.user_id).role = body.role; return json(r, {}); }
       if (action === 'remove_member') { db.members = db.members.filter(x => x.user_id !== body.user_id); return json(r, {}); }
       if (action === 'delete_my_account') { db.members = db.members.filter(x => x.user_id !== me.id); return json(r, { deleted: true }); }
@@ -63,7 +65,7 @@ async function fakeServer(page: Page, opts: { admin?: boolean } = {}) {
         const uid = q.get('user_id');
         return json(r, uid ? db.members.filter(m => 'eq.' + m.user_id === uid) : db.members);
       }
-      if (table === 'trips') return json(r, db.trips);
+      if (table === 'trips') { const id = q.get('id'); return json(r, id && id.startsWith('eq.') ? db.trips.filter(t => t.id === id.slice(3)) : db.trips); }
       if (table === 'meetups') return json(r, db.meetups);
       return json(r, []);
     }
@@ -198,5 +200,37 @@ test('מנהל באתר: תפריט לכל חבר, פרטי הקבוצה, והש
   await expect.poll(() => server.bodies.update_group?.name).toBe('קבוצה חדשה');
   const wide = await page.evaluate(() => document.documentElement.scrollWidth - innerWidth);
   expect(wide).toBeLessThanOrEqual(1);
+  expect(errors).toEqual([]);
+});
+
+test('"אני על אותה טיסה": הטיסה בדפדפן נקשרת לעותק שלי, כך שהשמירה הבאה לא מחזירה את הקבוצה לטיסה אחרת', async ({ page }) => {
+  const errors = watchErrors(page);
+  await fakeServer(page);
+  await page.goto('/#join/KZBQRM');
+  await loaded(page);
+  await page.locator('#joinForm input').fill('נועה ניסיון');
+  await page.locator('#joinForm button').click();
+  await expect(page).toHaveURL(/#group\/g1/);
+  await page.locator('[data-same]').first().click();
+  await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('gud-trip') || '{}').sid)).toBe('t-copy');
+  await expect(page.locator('#bpStack')).toHaveCount(1);
+  expect(errors).toEqual([]);
+});
+
+test('/account למשתמש רשום: נכנסים עם גוגל וחוזרים ישר למחיקה', async ({ page }) => {
+  const errors = watchErrors(page);
+  const server = await fakeServer(page);
+  await page.goto('/#account/delete');
+  await loaded(page);
+  await expect(page.locator('#delBtns [data-fake-gsi]')).toBeVisible();
+  // Google answers with an ID token (faked): the site signs in and comes back to the delete page
+  await page.evaluate(() => (window as any).__gsi.callback({ credential: 'x.y.z' }));
+  await expect(page).toHaveURL(/#account\/delete$/);
+  await expect(page.locator('#delGo')).toBeVisible();
+  await page.locator('#delGo').click();
+  await page.locator('#delGo').click();
+  await expect(page.locator('#delBtns')).toContainText('החשבון נמחק.');
+  expect(server.calls).toContain('POST /auth/v1/token');
+  expect(server.calls).toContain('POST /functions/v1/api/delete_my_account');
   expect(errors).toEqual([]);
 });
