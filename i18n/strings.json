@@ -13815,6 +13815,315 @@
     "ru",
     "ka"
    ]
+  },
+  "group.member_menu": {
+   "he": "פעולות על {name}",
+   "en": "Actions for {name}",
+   "ru": "Действия: {name}",
+   "ka": "მოქმედებები: {name}",
+   "where": "site/js/account.js",
+   "note": "aria-label of the ⋮ button",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "group.make_admin": {
+   "he": "מינוי למנהל",
+   "en": "Make admin",
+   "ru": "Сделать админом",
+   "ka": "ადმინად დანიშვნა",
+   "where": "site/js/account.js",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "group.make_member": {
+   "he": "הורדה ממנהל",
+   "en": "Remove as admin",
+   "ru": "Снять админа",
+   "ka": "ადმინობის მოხსნა",
+   "where": "site/js/account.js",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "group.fill_trip": {
+   "he": "מילוי הטיסה",
+   "en": "Fill in the flight",
+   "ru": "Внести рейс",
+   "ka": "ფრენის შევსება",
+   "where": "site/js/account.js",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "group.remove": {
+   "he": "הוצאה מהקבוצה",
+   "en": "Remove from the group",
+   "ru": "Удалить из группы",
+   "ka": "ჯგუფიდან ამოღება",
+   "where": "site/js/account.js",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "group.remove_confirm": {
+   "he": "לחיצה נוספת מוציאה את {name}",
+   "en": "Tap again to remove {name}",
+   "ru": "Нажмите ещё раз, чтобы удалить: {name}",
+   "ka": "კიდევ შეეხეთ, რომ ამოიღოთ: {name}",
+   "where": "site/js/account.js",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "group.admin_tools": {
+   "he": "ניהול הקבוצה",
+   "en": "Manage the group",
+   "ru": "Управление группой",
+   "ka": "ჯგუფის მართვა",
+   "where": "site/js/account.js",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "group.edit_details": {
+   "he": "שם ותאריכים",
+   "en": "Name and dates",
+   "ru": "Название и даты",
+   "ka": "სახელი და თარიღები",
+   "where": "site/js/account.js",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "group.invite_settings": {
+   "he": "הגדרות ההזמנה",
+   "en": "Invitation settings",
+   "ru": "Настройки приглашения",
+   "ka": "მოწვევის პარამეტრები",
+   "where": "site/js/account.js",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "group.delete": {
+   "he": "מחיקת הקבוצה",
+   "en": "Delete the group",
+   "ru": "Удалить группу",
+   "ka": "ჯგუფის წაშლა",
+   "where": "site/js/account.js",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "group.delete_confirm": {
+   "he": "הקבוצה תימחק לכולם. לחיצה נוספת מוחקת.",
+   "en": "The group will be deleted for everyone. Tap again to delete.",
+   "ru": "Группа будет удалена для всех. Нажмите ещё раз, чтобы удалить.",
+   "ka": "ჯგუფი ყველასთვის წაიშლება. წასაშლელად კიდევ შეეხეთ.",
+   "where": "site/js/account.js",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "group.starts": {
+   "he": "התחלה",
+   "en": "Starts",
+   "ru": "Начало",
+   "ka": "დაწყება",
+   "where": "site/js/account.js",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "group.ends": {
+   "he": "סוף",
+   "en": "Ends",
+   "ru": "Конец",
+   "ka": "დასრულება",
+   "where": "site/js/account.js",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "group.approval": {
+   "he": "כל מצטרף חדש מחכה לאישור של מנהל",
+   "en": "Every new member waits for an admin to approve",
+   "ru": "Каждый новый участник ждёт подтверждения админа",
+   "ka": "ყოველი ახალი წევრი ადმინის დადასტურებას ელოდება",
+   "where": "site/js/account.js",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "group.new_invite": {
+   "he": "קוד וקישור חדשים",
+   "en": "New code and link",
+   "ru": "Новый код и ссылка",
+   "ka": "ახალი კოდი და ბმული",
+   "where": "site/js/account.js",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "group.new_invite_note": {
+   "he": "הקוד והקישור הקודמים יפסיקו לעבוד.",
+   "en": "The previous code and link stop working.",
+   "ru": "Прежние код и ссылка перестанут работать.",
+   "ka": "წინა კოდი და ბმული აღარ იმუშავებს.",
+   "where": "site/js/account.js",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "group.revoke": {
+   "he": "ביטול ההזמנה",
+   "en": "Cancel the invitation",
+   "ru": "Отменить приглашение",
+   "ka": "მოწვევის გაუქმება",
+   "where": "site/js/account.js",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "group.no_invite": {
+   "he": "אין הזמנה פעילה. אפשר ליצור חדשה בניהול הקבוצה.",
+   "en": "No active invitation. You can make a new one under managing the group.",
+   "ru": "Нет активного приглашения. Новое можно создать в управлении группой.",
+   "ka": "აქტიური მოწვევა არ არის. ახლის შექმნა ჯგუფის მართვაში შეიძლება.",
+   "where": "site/js/account.js",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "group.claim_admin": {
+   "he": "לקבוצה אין מנהל. להיות מנהל",
+   "en": "The group has no admin. Become admin",
+   "ru": "В группе нет админа. Стать админом",
+   "ka": "ჯგუფს ადმინი არ ჰყავს. გახდით ადმინი",
+   "where": "site/js/account.js",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "group.trip_for": {
+   "he": "הטיסה של {name}",
+   "en": "{name}'s flight",
+   "ru": "Рейс: {name}",
+   "ka": "{name}-ის ფრენა",
+   "where": "site/js/account.js",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "group.trip_for_note": {
+   "he": "כשהחבר יזין טיסה בעצמו, היא תחליף את זו.",
+   "en": "When the member enters a flight themselves, it replaces this one.",
+   "ru": "Когда участник внесёт рейс сам, он заменит этот.",
+   "ka": "როცა წევრი თავად შეიყვანს ფრენას, ის ამას ჩაანაცვლებს.",
+   "where": "site/js/account.js",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "group.err_admin_must_register": {
+   "he": "רק חבר שנכנס עם גוגל או אפל יכול להיות מנהל.",
+   "en": "Only a member signed in with Google or Apple can be an admin.",
+   "ru": "Админом может быть только участник, вошедший через Google или Apple.",
+   "ka": "ადმინი მხოლოდ Google-ით ან Apple-ით შესული წევრი შეიძლება იყოს.",
+   "where": "site/js/account.js",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "group.err_last_admin": {
+   "he": "צריך להשאיר לפחות מנהל אחד.",
+   "en": "At least one admin has to stay.",
+   "ru": "Должен остаться хотя бы один админ.",
+   "ka": "ერთი ადმინი მაინც უნდა დარჩეს.",
+   "where": "site/js/account.js",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "group.err_member_owns_trip": {
+   "he": "החבר כבר הזין טיסה בעצמו.",
+   "en": "The member already entered a flight themselves.",
+   "ru": "Участник уже сам внёс рейс.",
+   "ka": "წევრმა ფრენა უკვე თავად შეიყვანა.",
+   "where": "site/js/account.js",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "group.err_not_admin": {
+   "he": "רק מנהל יכול לעשות את זה.",
+   "en": "Only an admin can do that.",
+   "ru": "Это может только админ.",
+   "ka": "ამის გაკეთება მხოლოდ ადმინს შეუძლია.",
+   "where": "site/js/account.js",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "group.err_must_register": {
+   "he": "צריך להיכנס עם גוגל או אפל בשביל זה.",
+   "en": "This needs signing in with Google or Apple.",
+   "ru": "Для этого нужно войти через Google или Apple.",
+   "ka": "ამისთვის Google-ით ან Apple-ით უნდა შეხვიდეთ.",
+   "where": "site/js/account.js",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "group.scores_note": {
+   "he": "השיאים מהמשחקים באתר ובאפליקציה. שלך נשלחים לקבוצה מהדפדפן הזה.",
+   "en": "High scores from the games on the site and in the app. Yours are sent to the group from this browser.",
+   "ru": "Рекорды из игр на сайте и в приложении. Ваши отправляются в группу из этого браузера.",
+   "ka": "რეკორდები საიტისა და აპის თამაშებიდან. თქვენი ჯგუფს ამ ბრაუზერიდან ეგზავნება.",
+   "where": "site/js/account.js",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "meet.pick_group": {
+   "he": "באיזו קבוצה?",
+   "en": "Which group?",
+   "ru": "В какую группу?",
+   "ka": "რომელ ჯგუფში?",
+   "where": "site/js/account.js",
+   "check": [
+    "ru",
+    "ka"
+   ]
   }
  }
 }

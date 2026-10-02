@@ -9,7 +9,13 @@
   var P=window.GUD_PREFS||{};
   var on=P.analytics!==false&&!/^(localhost|127\.)/.test(location.hostname)&&!navigator.webdriver;
   var queue=[],ph=null;
-  window.track=function(name,props){if(!on)return;if(ph)ph.capture(name,props||{});else if(queue.length<50)queue.push([name,props||{}]);};
+  // the games' high scores for the group's table (js/account.js sends them, only once you are in a group):
+  // kept in this browser whatever the switch says, since nothing leaves the browser here. Ski school counts its stars
+  // (the best of each lesson, added up); every other game its best score.
+  function best(g,props){try{var k='gud-best',b=JSON.parse(localStorage.getItem(k)||'{}'),s=Math.max(0,Math.floor(Number(props.score)||0));
+    if(g==='school'){var l=b.schoolLv||{};l[props.level]=Math.max(l[props.level]||0,s);b.schoolLv=l;s=Object.keys(l).reduce(function(a,x){return a+l[x];},0);}
+    if(s>(b[g]||0)){b[g]=s;localStorage.setItem(k,JSON.stringify(b));}}catch(e){}}
+  window.track=function(name,props){if(name==='game_end'&&props&&props.game)best(props.game,props);if(!on)return;if(ph)ph.capture(name,props||{});else if(queue.length<50)queue.push([name,props||{}]);};
   window.GUD_TELEMETRY={get on(){return on;}};
   // the switch in settings: its subtitle follows the state; turning it off stops sending at once (prefs.js keeps it)
   document.addEventListener('DOMContentLoaded',function(){
