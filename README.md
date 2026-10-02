@@ -10,10 +10,10 @@
 | תיקייה | מה בה |
 |---|---|
 | [`site/`](site/) | האתר עצמו, בארבע שפות: `index.html`, `css/`, `js/` (`i18n.js` בוחר שפה ומתרגם, `telemetry.js` מדידה ושגיאות), `i18n/` (קבצי השפה, נוצרים מ-`i18n/strings.json`), `data/` (הנתונים כקבצי JSON) ו-`img/pano/` (הנוף מהכפר, שבע שעות ביום בשני רוחבים). `audio/` הם צלילי כרטיס הטיסה. `games/` הם המשחקים, שנבנים מ-`design/` (ראו למטה) |
-| [`app/android/`](app/android/) | אפליקציית האנדרואיד החדשה, נייטיב מלא (Kotlin עם Jetpack Compose, המפה ב-OpenGL ES 3). כרגע בדיקת ההיתכנות. משתמשת בנתוני האתר לקריאה בלבד. התכנון ב-[`docs/APP-NATIVE.md`](docs/APP-NATIVE.md); גרסת האייפון תהיה ב-`app/ios/` |
+| [`app/android/`](app/android/) | אפליקציית האנדרואיד החדשה, נייטיב מלא (Kotlin עם Jetpack Compose, המפה ב-OpenGL ES 3). המפה, המשחק הראשון, דף הבית, "הטיול שלך", כניסה וקבוצות (מול השרת), בארבע שפות; נשארו המשחקים הנוספים, נקודת המפגש ומצב הרכבלים (`docs/STATUS.md`, שלב 13). משתמשת בנתוני האתר לקריאה בלבד. התכנון ב-[`docs/APP-NATIVE.md`](docs/APP-NATIVE.md); גרסת האייפון תהיה ב-`app/ios/` |
 | [`server/`](server/) | השרת (Supabase): מבנה הנתונים וההרשאות, והשרת עצמו, פונקציה אחת ב-`TypeScript` עם כל הפעולות של החשבונות והקבוצות (החלטה 40), והבדיקות. הפרויקט פועל. ההסבר ב-[`server/README.md`](server/README.md), ואיך מדברים איתו (לכל אפליקציה ולאתר) ב-[`server/CONTRACT.md`](server/CONTRACT.md) |
 | [`chatgpt/`](chatgpt/) | התיקייה שעליה עובד ChatGPT: אפליקציית האנדרואיד שלו (`chatgpt/android-native/`), להשוואה. Claude לא נוגע בה |
-| [`i18n/`](i18n/) | ארבע השפות (עברית, אנגלית, רוסית, גאורגית): מילון מונחים ושמות המסלולים בכל שפה (`glossary.md`), כל המחרוזות של האתר בקובץ אחד (`strings.json`), דף החנות ברוסית ובגאורגית, ובדיקה (`python3 i18n/check.py`). הרוסית והגאורגית ממתינות לבדיקת דובר. עדיין לא מחובר לאתר או לאפליקציות |
+| [`i18n/`](i18n/) | ארבע השפות (עברית, אנגלית, רוסית, גאורגית): מילון מונחים ושמות המסלולים בכל שפה (`glossary.md`), כל המחרוזות של האתר בקובץ אחד (`strings.json`), דף החנות ברוסית ובגאורגית, ובדיקה (`python3 i18n/check.py`). הרוסית והגאורגית לא נבדקו על ידי דובר, ולפי החלטה 39 לא מחכים לזה (הסימון `check` בקובץ נשאר מידע). מחובר לאתר, למשחקים ולאפליקציה |
 | [`tools/`](tools/) | כלים: `build-videos.py` בונה את קובץ הסרטונים ואת `research/videos.md` מ-`videos-curated.json`. `build-games.py` מעתיק את המשחקים שאושרו לאתר. `build-app-data.py` מעתיק את נתוני האתר לאפליקציות, לקריאה בלבד. `build-site-strings.py` בונה את קבצי השפה של האתר (`site/i18n/`) מ-`i18n/strings.json`, ו-`check-site-i18n.py` בודק שאין באתר טקסט בלי מפתח. `build-privacy.py` בונה את דף הפרטיות (`site/privacy.html`) מ-`docs/PRIVACY.md` |
 | [`.claude/`](.claude/) | הכנת סשן בענן: התקנת כלי הבדיקה של האתר ושל ערכת הפיתוח של אנדרואיד (`hooks/session-start.sh`) |
 | [`.github/workflows/`](.github/workflows/) | בדיקות האתר (`tests.yml`), בנייה וחתימה של אפליקציית האנדרואיד (`android.yml`), בדיקות השרת (`server.yml`) והמשימה היומית של השרת (`server-keepalive.yml`). כל אחד רץ רק כשהתיקייה שלו משתנה |
@@ -42,7 +42,9 @@ npm install
 npm start
 ```
 
-ואז לפתוח את הכתובת `http://127.0.0.1:4173`. הבדיקות: `npm test`.
+ואז לפתוח את הכתובת `http://127.0.0.1:4173`.
+
+**בדיקות:** הבדיקה המלאה (ארבעת המצבים) רצה ב-GitHub בכל דחיפה. מקומית רק מה שהשתנה, במצב אחד: `npm run test:quick -- tests/<קובץ>.spec.ts` (אפשר להוסיף `-g "<שם>"`); `npm test` מריץ הכל בארבעת המצבים, וזה איטי בסביבת הענן. בדיקות השפות: `python3 i18n/check.py` ו-`python3 tools/check-site-i18n.py` (רצות גם ב-GitHub).
 
 **משחקים:** המקור של כל משחק ב-`design/games/` (ומשחק הגלישה ב-`design/round4/game/`). אחרי כל שינוי במשחק, מעתיקים אותו לאתר:
 
@@ -51,7 +53,7 @@ python3 tools/build-games.py
 ```
 
 - המודל התלת-ממדי טוען את three.js r128 מ-cdnjs. בלי רשת האתר עובר אוטומטית למבט על.
-- הגופנים (Karantina, IBM Plex Sans Hebrew) נטענים מ-Google Fonts.
+- הגופנים נטענים מ-Google Fonts: Karantina ו-IBM Plex Sans Hebrew בעברית, ובשפות האחרות Oswald (כותרות ברוסית), Noto Sans Georgian ו-IBM Plex Sans (החלטה 36).
 
 ## פריסה ב-Vercel
 
