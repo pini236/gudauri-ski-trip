@@ -211,7 +211,8 @@ fun InvitedScreen(api: GroupApi, code: String, frame: DayNight.Frame, mode: DayN
                                     Row(Modifier.padding(top = 6.dp), horizontalArrangement = Arrangement.spacedBy(14.dp)) {
                                         if (p.startsOn != null && p.endsOn != null) Text("${dayRange(p.startsOn..p.endsOn)}.${p.endsOn.year}",
                                             style = Ski.type.small.copy(fontSize = 13.5.sp, textDirection = TextDirection.Ltr), color = c.muted)
-                                        Muted(pluralStringResource(R.plurals.app_g_members, p.members.size, p.members.size))
+                                        // an invite that needs approval shows no names to who is not in yet (the server's rule)
+                                        if (p.members.isNotEmpty()) Muted(pluralStringResource(R.plurals.app_g_members, p.members.size, p.members.size))
                                     }
                                     Column(Modifier.padding(top = 16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                                         Field(stringResource(R.string.app_g_your_name), name, { name = it.take(40) }, hint = stringResource(R.string.app_g_your_name_hint))
@@ -231,7 +232,8 @@ fun InvitedScreen(api: GroupApi, code: String, frame: DayNight.Frame, mode: DayN
                     }
                     if (preview?.status == JoinStatus.OK && result != JoinStatus.PENDING) Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                         Note(stringResource(R.string.app_g_no_signup), Icons.lock)
-                        Row(Modifier.fillMaxWidth().heightIn(min = 56.dp).background(c.paper).border(1.5.dp, c.rule).clickable(role = Role.Button, onClick = onReclaim).padding(horizontal = 14.dp),
+                        // "I'm already in the group" needs the names to pick from; without them, joining asks the admin as usual
+                        if (preview?.members?.isNotEmpty() == true) Row(Modifier.fillMaxWidth().heightIn(min = 56.dp).background(c.paper).border(1.5.dp, c.rule).clickable(role = Role.Button, onClick = onReclaim).padding(horizontal = 14.dp),
                             verticalAlignment = Alignment.CenterVertically) {
                             Column(Modifier.weight(1f)) {
                                 Text(stringResource(R.string.app_g_already_in), style = Ski.type.bodyBold, color = c.ink)
