@@ -33,14 +33,17 @@ data class Leg(
     private fun city(s: String) = if (code(s) != null) s.trim().drop(3).trimStart(' ', '·').trim() else s.trim()
 }
 
-data class Trip(val out: Leg, val ret: Leg? = null) {
+data class Trip(val out: Leg, val ret: Leg? = null, val ski: ClosedRange<LocalDate>? = null) {
+
+    /** The ski days: the ones the user set by hand ("שינוי" in H2), or the full days the flights leave. */
+    fun skiDays(): ClosedRange<LocalDate>? = ski ?: flightSkiDays()
 
     /**
      * Full ski days: from the day after landing (the same day if you land by 09:00) to the day before the return
      * flight (the same day if it leaves at 18:00 or later). The group's trip, landing 10.1 at 20:35 and flying back
      * 15.1 at 01:35, gives 11 to 14 January, four days, as on the site. Null when there is no return, or no full day.
      */
-    fun skiDays(): ClosedRange<LocalDate>? {
+    fun flightSkiDays(): ClosedRange<LocalDate>? {
         val r = ret ?: return null
         val dep = out.departs
         val arr = out.arrives
@@ -60,7 +63,10 @@ data class Trip(val out: Leg, val ret: Leg? = null) {
         return if (mins <= 0) 0 else ((mins + 24 * 60 - 1) / (24 * 60)).toInt()
     }
 
-    fun toJson(): JSONObject = JSONObject().put("v", 1).put("out", leg(out)).apply { ret?.let { put("ret", leg(it)) } }
+    fun toJson(): JSONObject = JSONObject().put("v", 1).put("out", leg(out)).apply {
+        ret?.let { put("ret", leg(it)) }
+        ski?.let { put("ski", JSONObject().put("from", it.start.toString()).put("to", it.endInclusive.toString())) }
+    }
 
     companion object {
         private val T = DateTimeFormatter.ofPattern("HH:mm")
@@ -78,7 +84,8 @@ data class Trip(val out: Leg, val ret: Leg? = null) {
         fun fromJson(s: String?): Trip? = runCatching {
             val o = JSONObject(s ?: return null)
             if (o.optInt("v", 1) > 1) return null
-            Trip(leg(o.getJSONObject("out")), o.optJSONObject("ret")?.let { leg(it) })
+            val ski = o.optJSONObject("ski")?.let { LocalDate.parse(it.getString("from"))..LocalDate.parse(it.getString("to")) }?.takeIf { it.start <= it.endInclusive }
+            Trip(leg(o.getJSONObject("out")), o.optJSONObject("ret")?.let { leg(it) }, ski)
         }.getOrNull()
     }
 }

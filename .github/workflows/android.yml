@@ -28,8 +28,7 @@ jobs:
     env:
       APP_VERSION_CODE: ${{ github.run_number }}
       APP_VERSION_NAME: 0.1.${{ github.run_number }}
-      # usage and crash reporting (app/.../telemetry/Telemetry.kt): empty until Pini adds the secrets, and then the
-      # app starts sending (anonymous, EU, with a switch to turn it off)
+      # usage and crash reporting (app/.../telemetry/Telemetry.kt): anonymous, EU, with a switch to turn it off
       POSTHOG_KEY: ${{ secrets.POSTHOG_KEY }}
       SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
     steps:

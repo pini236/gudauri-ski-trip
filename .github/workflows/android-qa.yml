@@ -47,6 +47,11 @@ jobs:
           "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "platforms;android-37.2" "build-tools;36.0.0" > /dev/null
       - name: Build the debug and release apps
         working-directory: app/android
+        # with the usage and crash keys, so the run also checks that events and crash reports arrive; every event
+        # carries build=debug, and the dashboards filter it out (docs/GROWTH.md)
+        env:
+          POSTHOG_KEY: ${{ secrets.POSTHOG_KEY }}
+          SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
         run: ./gradlew --no-daemon :app:assemblePreviewDebug :app:assemblePreviewRelease
       - name: Hardware virtualisation for the emulator
         run: |

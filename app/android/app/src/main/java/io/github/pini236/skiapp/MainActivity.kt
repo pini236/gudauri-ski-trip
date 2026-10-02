@@ -244,6 +244,7 @@ class MainActivity : ComponentActivity() {
         i.getStringExtra("qa.tab")?.let { when (it) { "map" -> nav.switchTo(Route.Map(nav.find<Route.Map>()?.run)); "descent" -> nav.switchTo(Route.Game("descent")); "trip" -> nav.switchTo(Route.Trip); else -> nav.toStart() } }
         i.getStringExtra("qa.stats")?.let { showStats = it != "off" }
         i.getStringExtra("qa.time")?.let { clockMs = Qa.gudauriTime(it); tick = nowMs() }
+        i.getStringExtra("qa.sentry")?.let { Telemetry.testCrashReport(it); loader.execute { Telemetry.flush(); Qa.log("telemetry ${if (Telemetry.hasKeys) "keys" else "no keys"}, flushed") } }
         i.getStringExtra("qa.mode")?.let { m -> DayNight.Mode.entries.firstOrNull { it.name.equals(m, true) }?.let { dnMode = it } }
         // a trip for the run, from the script (never packed in the app: decision 27), or "none" for the guest's home
         i.getStringExtra("qa.trip")?.let { t -> if (t == "none") { trips.clear(); trip = null } else Trip.fromJson(t)?.let { trips.save(it); trip = it } ?: Qa.log("bad trip $t"); Qa.log("trip ${if (trip == null) "none" else "set"}") }

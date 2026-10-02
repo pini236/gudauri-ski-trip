@@ -1,6 +1,7 @@
 package io.github.pini236.skiapp.trip
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -8,6 +9,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
@@ -30,6 +32,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.unit.dp
@@ -63,6 +66,10 @@ fun TripForm(initial: Trip?, today: LocalDate, onSave: (Trip) -> Unit, onDelete:
     var rFlight by rememberSaveable { mutableStateOf(r?.flight.orEmpty()) }
     var rDep by rememberSaveable { mutableStateOf(TripText.time(r?.departs)) }
     var rArr by rememberSaveable { mutableStateOf(TripText.time(r?.arrives)) }
+    // the ski days set by hand ("שינוי"), or null to follow the flights
+    var manual by rememberSaveable { mutableStateOf(initial?.ski != null) }
+    var sFrom by rememberSaveable { mutableStateOf(TripText.date(initial?.ski?.start)) }
+    var sTo by rememberSaveable { mutableStateOf(TripText.date(initial?.ski?.endInclusive)) }
     var tried by remember { mutableStateOf(false) }
     var armed by remember { mutableStateOf(false) }
     LaunchedEffect(armed) { if (armed) { delay(4000); armed = false } }
@@ -78,11 +85,14 @@ fun TripForm(initial: Trip?, today: LocalDate, onSave: (Trip) -> Unit, onDelete:
         else -> null
     }
     val orderBad = pod is LocalDate && prd is LocalDate && prd < pod
-    val ok = pod is LocalDate && prd !== TripText.Bad && times.none { it === TripText.Bad } && !orderBad
-    val trip = if (ok) Trip(
-        Leg(pod as LocalDate, oFlight.trim(), oFrom.trim(), oTo.trim(), times[0] as? java.time.LocalTime, times[1] as? java.time.LocalTime),
+    val psf = TripText.date(sFrom, today); val pst = TripText.date(sTo, today)
+    val skiOk = !manual || (psf is LocalDate && pst is LocalDate && psf <= pst)
+    val ok = pod is LocalDate && prd !== TripText.Bad && times.none { it === TripText.Bad } && !orderBad && skiOk
+    val flights = if (pod is LocalDate && prd !== TripText.Bad && times.none { it === TripText.Bad }) Trip(
+        Leg(pod, oFlight.trim(), oFrom.trim(), oTo.trim(), times[0] as? java.time.LocalTime, times[1] as? java.time.LocalTime),
         (prd as? LocalDate)?.let { Leg(it, rFlight.trim(), oTo.trim(), oFrom.trim(), times[2] as? java.time.LocalTime, times[3] as? java.time.LocalTime) },
     ) else null
+    val trip = if (ok && flights != null) flights.copy(ski = if (manual) (psf as LocalDate)..(pst as LocalDate) else null) else null
 
     Column(Modifier.fillMaxSize().background(c.snow).statusBarsPadding().imePadding()) {
         TopBar(stringResource(R.string.app_home_trip), stringResource(R.string.app_cancel), onCancel)
@@ -113,7 +123,17 @@ fun TripForm(initial: Trip?, today: LocalDate, onSave: (Trip) -> Unit, onDelete:
                     { Field(stringResource(R.string.ticket_departs), rDep, { rDep = it }, it, "01:35", ltr = true, keyboard = KeyboardType.Number, error = if (times[2] === TripText.Bad) errTime else null) },
                     { Field(stringResource(R.string.ticket_arrives), rArr, { rArr = it }, it, "02:15", ltr = true, keyboard = KeyboardType.Number, error = if (times[3] === TripText.Bad) errTime else null) },
                 )
-                SkiDays(trip)
+                SkiDays(trip ?: flights, manual, onChange = {
+                    // start from what the flights give, so changing a day is one field
+                    flights?.flightSkiDays()?.let { r -> if (sFrom.isBlank()) sFrom = TripText.date(r.start); if (sTo.isBlank()) sTo = TripText.date(r.endInclusive) }
+                    manual = true
+                }, onAuto = { manual = false })
+                if (manual) Pair2(
+                    { Field(stringResource(R.string.app_trip_ski_first), sFrom, { sFrom = it }, it, stringResource(R.string.app_trip_date_hint), ltr = true, keyboard = KeyboardType.Number,
+                        error = if (psf === TripText.Bad || (psf == null && tried)) errDate else null) },
+                    { Field(stringResource(R.string.app_trip_ski_last), sTo, { sTo = it }, it, stringResource(R.string.app_trip_date_hint), ltr = true, keyboard = KeyboardType.Number,
+                        error = if (pst === TripText.Bad || (pst == null && tried)) errDate else if (psf is LocalDate && pst is LocalDate && pst < psf) stringResource(R.string.app_trip_err_ski_order) else null) },
+                )
                 Column(Modifier.padding(top = 8.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
                     PrimaryButton(stringResource(R.string.app_save), Icons.check, { tried = true; if (trip != null) onSave(trip) })
                     if (initial != null) QuietButton(stringResource(if (armed) R.string.app_trip_delete_confirm else R.string.app_trip_delete),
@@ -140,18 +160,23 @@ private fun Pair2(a: @Composable (Modifier) -> Unit, b: @Composable (Modifier) -
     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) { a(Modifier.weight(1f)); b(Modifier.weight(1f)) }
 }
 
-/** The full ski days, worked out from the flights as on the site (Trip.skiDays). */
+/** The ski days: worked out from the flights as on the site (Trip.flightSkiDays), or set by hand with "שינוי". */
 @Composable
-private fun SkiDays(trip: Trip?) {
+private fun SkiDays(trip: Trip?, manual: Boolean, onChange: () -> Unit, onAuto: () -> Unit) {
     val c = Ski.colors
     val days = trip?.skiDays()
-    Column(Modifier.fillMaxWidth().background(c.paper).drawBehind { drawRect(c.accent, Offset.Zero, Size(size.width, 6.dp.toPx())) }
-        .padding(start = 14.dp, end = 14.dp, top = 18.dp, bottom = 12.dp)) {
-        Text(stringResource(R.string.app_trip_ski_calc), style = Ski.type.label.copy(fontSize = 12.sp), color = c.muted)
-        Text(
-            if (days == null) stringResource(R.string.app_trip_ski_none)
-            else pluralStringResource(R.plurals.app_trip_ski_value, trip.skiDayCount(), "⁦" + dayRange(days) + "⁩", trip.skiDayCount()),
-            style = Ski.type.title.copy(fontSize = Ski.type.title.fontSize * (30f / 44f), textDirection = TextDirection.Content), color = c.ink,
-        )
+    Row(Modifier.fillMaxWidth().background(c.paper).drawBehind { drawRect(c.accent, Offset.Zero, Size(size.width, 6.dp.toPx())) }
+        .padding(start = 14.dp, end = 8.dp, top = 12.dp, bottom = 6.dp), verticalAlignment = Alignment.CenterVertically) {
+        Column(Modifier.weight(1f).padding(vertical = 6.dp)) {
+            Text(stringResource(if (manual) R.string.app_trip_ski_manual else R.string.app_trip_ski_calc), style = Ski.type.label.copy(fontSize = 12.sp), color = c.muted)
+            Text(
+                if (days == null) stringResource(R.string.app_trip_ski_none)
+                else pluralStringResource(R.plurals.app_trip_ski_value, trip.skiDayCount(), "\u2066" + dayRange(days) + "\u2069", trip.skiDayCount()),
+                style = Ski.type.title.copy(fontSize = Ski.type.title.fontSize * (30f / 44f), textDirection = TextDirection.Content), color = c.ink,
+            )
+        }
+        Text(stringResource(if (manual) R.string.app_trip_ski_auto else R.string.app_trip_ski_change),
+            Modifier.heightIn(min = 44.dp).clickable(role = Role.Button, onClick = if (manual) onAuto else onChange).padding(horizontal = 8.dp, vertical = 12.dp),
+            style = Ski.type.bodyBold.copy(fontSize = 13.5.sp), color = c.glacier)
     }
 }

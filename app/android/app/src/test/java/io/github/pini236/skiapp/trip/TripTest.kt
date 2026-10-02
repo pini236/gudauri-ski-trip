@@ -85,4 +85,12 @@ class TripTest {
         assertNull(plain.fromCode); assertEquals("Tel Aviv", plain.fromCity)
         assertNull(Leg(d(10), from = "tbs Tbilisi").fromCode)
     }
+
+    @Test fun skiDaysSetByHandWinAndSurviveSaving() {
+        val mine = group.copy(ski = d(12)..d(13))
+        assertEquals(d(12)..d(13), mine.skiDays())
+        assertEquals(2, mine.skiDayCount())
+        assertEquals(d(11)..d(14), mine.flightSkiDays())
+        assertEquals(mine, Trip.fromJson(mine.toJson().toString()))
+    }
 }

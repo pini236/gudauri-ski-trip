@@ -9898,6 +9898,78 @@
     "ru",
     "ka"
    ]
+  },
+  "app.trip_ski_change": {
+   "he": "שינוי",
+   "en": "Change",
+   "ru": "Изменить",
+   "ka": "შეცვლა",
+   "where": "app/android",
+   "note": "trip form: set the ski days by hand (H2)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.trip_ski_auto": {
+   "he": "לפי הטיסות",
+   "en": "From the flights",
+   "ru": "По рейсам",
+   "ka": "რეისების მიხედვით",
+   "where": "app/android",
+   "note": "trip form: back to the ski days worked out from the flights",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.trip_ski_manual": {
+   "he": "ימי סקי, לפי הבחירה שלך",
+   "en": "Ski days, as you set them",
+   "ru": "Дни катания, как вы указали",
+   "ka": "სათხილამურო დღეები, თქვენი არჩევით",
+   "where": "app/android",
+   "note": "trip form, above the ski days when set by hand",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.trip_ski_first": {
+   "he": "יום סקי ראשון",
+   "en": "First ski day",
+   "ru": "Первый день катания",
+   "ka": "პირველი სათხილამურო დღე",
+   "where": "app/android",
+   "note": "field label",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.trip_ski_last": {
+   "he": "יום סקי אחרון",
+   "en": "Last ski day",
+   "ru": "Последний день катания",
+   "ka": "ბოლო სათხილამურო დღე",
+   "where": "app/android",
+   "note": "field label",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.trip_err_ski_order": {
+   "he": "האחרון לפני הראשון",
+   "en": "The last is before the first",
+   "ru": "Последний раньше первого",
+   "ka": "ბოლო პირველზე ადრეა",
+   "where": "app/android",
+   "note": "field error",
+   "check": [
+    "ru",
+    "ka"
+   ]
   }
  }
 }

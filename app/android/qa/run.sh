@@ -232,6 +232,9 @@ case "$SCENARIO" in
   *) map; descent; home; store ;;
 esac
 
+# ---- usage and crash reporting: with the keys, a check message to Sentry and everything queued sent now ----
+qa "--es qa.sentry run-$(date +%s)"; waitlog "flushed" 20 && grep "SkiQa.*flushed" "$OUT/logcat.txt" | tail -1 | sed 's/.*SkiQa[^:]*: //' | tee -a "$OUT/summary.txt"; sleep 5
+
 # ---- what the run measured ----
 adb shell dumpsys gfxinfo "$PKG" > "$OUT/gfxinfo.txt"
 grep "SkiQa" "$OUT/logcat.txt" > "$OUT/qa-log.txt"

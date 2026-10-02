@@ -14,7 +14,8 @@ import io.sentry.android.core.SentryAndroid
  * the EU, nothing that identifies a person, and one switch that turns both off.
  *
  * - The keys exist only in GitHub's secret store and reach the app when a build is made there (build.gradle.kts).
- *   A build without them (local, the emulator run) sends nothing at all.
+ *   A build without them (a local one) sends nothing at all. The emulator run has them, to check that events and
+ *   crash reports arrive; its events say build=debug and the dashboards leave them out.
  * - Anonymous: no identify(), no person profiles, no screen recording, no default personal data in crash reports.
  *   The id is PostHog's random install id; it changes when the app is reinstalled. Dropping the IP address is a
  *   project setting on both services (docs/APP-NATIVE.md, "Usage and crashes").
@@ -93,4 +94,10 @@ object Telemetry {
     fun event(name: String, props: Map<String, Any> = emptyMap()) {
         if (usage) PostHog.capture(event = name, properties = props)
     }
+
+    /** The emulator run's check that crash reports reach Sentry (debug builds only, MainActivity's qa.sentry). */
+    fun testCrashReport(note: String) { if (crashes) Sentry.captureMessage("qa check: $note") }
+
+    /** Send what is queued now (the emulator run checks arrival right after). */
+    fun flush() { if (usage) PostHog.flush(); if (crashes) Sentry.flush(5000) }
 }
