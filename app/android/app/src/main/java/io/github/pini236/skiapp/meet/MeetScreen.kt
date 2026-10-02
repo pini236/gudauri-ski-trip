@@ -498,7 +498,8 @@ private fun MeetCard(s: Station, time: LocalTime, day: String, left: Meet.Left, 
             }
         }
         val cancel = stringResource(R.string.meet_cancel)
-        Box(Modifier.align(AbsoluteAlignment.TopLeft).absoluteOffset((-6).dp, (-8).dp).size(44.dp).shadow(4.dp, CircleShape).background(c.paper, CircleShape).border(2.dp, c.ink, CircleShape)
+        // at the end of the reading direction (left in Hebrew, as on the site; right in English, off the card's title)
+        Box(Modifier.align(Alignment.TopEnd).offset(6.dp, (-8).dp).size(44.dp).shadow(4.dp, CircleShape).background(c.paper, CircleShape).border(2.dp, c.ink, CircleShape)
             .clickable(role = Role.Button, onClick = onCancel).semantics { contentDescription = cancel }, contentAlignment = Alignment.Center) {
             Icon(Icons.x, null, Modifier.size(14.dp), tint = c.ink)
         }

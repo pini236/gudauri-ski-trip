@@ -314,9 +314,9 @@ meet() {
   drag $up; sleep 1; shot meet-card
   drag $up; sleep 1; shot meet-ways-share
   totop; shot meet-picked-map
-  # clear it, and bring it back (MP3)
-  mark; tapText "ניקוי הבחירה" && waitlog "meet cleared" 5 && { sleep 0.8; shot meet-cleared; }
-  tapText "החזרה" && sleep 1.5 && shot meet-undone
+  # clear it, and bring it back (MP3); the undo shows for 4.5 s, so it is tapped before anything slow
+  mark; tapText "ניקוי הבחירה" && waitlog "meet cleared" 5 && { sleep 0.5; tapText "החזרה" && sleep 1.5 && shot meet-undone; }
+  mark; tapText "ניקוי הבחירה" && waitlog "meet cleared" 5 && { sleep 0.5; shot meet-cleared; }
   # a pin on the map: the zoom buttons, then a tap on the picked pin clears it (a tap on another one picks that)
   tapText "להתקרב" && sleep 0.8 && tapText "להתקרב" && sleep 1 && shot meet-zoomed
   # a link from the site (the top of Shino and Firni, 13:00 on the 12th), then at night
