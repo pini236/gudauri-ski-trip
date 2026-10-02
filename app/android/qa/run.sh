@@ -165,7 +165,7 @@ PY
   tap "$x" "$y"; sleep 2
   adb shell uiautomator dump /sdcard/ui.xml > /dev/null && adb pull /sdcard/ui.xml "$OUT/ui.xml" > /dev/null
 }
-where() { # where <text>: the middle ("x y") of the element whose text or description is it (else holds it), a tappable one first
+where() { # where <text>: the middle ("x y") of the element whose text or description is it (else holds it), a tappable one first; "~<regex>" searches; never a disabled one
   uidump
   python3 - "$OUT/ui.xml" "$1" <<'PY'
 import re, sys
@@ -176,8 +176,9 @@ def walk(n, tappable):
     tap = tappable or n.get("clickable") == "true"
     got = [g.strip() for g in (n.get("text") or "", n.get("content-desc") or "") if g.strip()]
     b = re.match(r"\[(\d+),(\d+)\]\[(\d+),(\d+)\]", n.get("bounds") or "")
-    if b and got:
-        rank = 0 if t in got else 1 if any(t in g for g in got) else 9
+    if b and got and n.get("enabled") != "false":
+        if t.startswith("~"): rank = 1 if any(re.search(t[1:], g) for g in got) else 9
+        else: rank = 0 if t in got else 1 if any(t in g for g in got) else 9
         if rank < 9: found.append((rank, 0 if tap else 1, len(found), tuple(map(int, b.groups()))))
     for c in n: walk(c, tap)
 try: root = ET.parse(sys.argv[1]).getroot()
@@ -207,10 +208,12 @@ home() {
 
   # add a trip by hand: only the date is required (H2)
   tapText "הוספת הטיסה שלי" && sleep 1.5 && shot trip-form-empty
-  tapText "למשל 10.1.2027" && sleep 0.5 && adb shell input text "10.1.2027" && sleep 0.5
-  # close the keyboard (Back closes only the keyboard while it is up)
-  adb shell dumpsys input_method | grep -q "mInputShown=true" && adb shell input keyevent KEYCODE_BACK; sleep 0.8; shot trip-form-date
-  mark; tapText "שמירה" && waitlog "trip saved" 10 && { sleep 1.5; shot home-trip-date-only; }
+  # nothing typed but flight numbers: the date from the calendar, a time from the clock, the airport from the list
+  tapText "בחירת תאריך" && sleep 1.2 && shot trip-date-picker && tapText "מעבר לחודש הבא" && sleep 0.8 && tapText "~(?<!\d)20(?!\d)" && sleep 0.5 && shot trip-date-chosen && tapText "בחירה" && sleep 1
+  tapText "בחירת שעה" && sleep 1.2 && shot trip-time-picker && tapText "בחירה" && sleep 1
+  tapText "בחירת שדה" && sleep 1.2 && shot trip-place-sheet && tapText "TLV" && sleep 1
+  shot trip-form-picked
+  mark; tapText "שמירה" && waitlog "trip saved" 10 && { sleep 1.5; shot home-trip-picked; }
 
   # the whole trip (H3), day and night (H4), the tear and the swipe to the return pass
   qa "--es qa.trip '$TRIP_HE'"; waitlog "trip set" 20; sleep 1.5; shot home-trip-day

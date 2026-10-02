@@ -64,6 +64,10 @@ import io.github.pini236.skiapp.ui.PrimaryButton
 import io.github.pini236.skiapp.ui.Ski
 import io.github.pini236.skiapp.ui.TopBar
 import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import io.github.pini236.skiapp.trip.DateDialog
+import io.github.pini236.skiapp.trip.PickField
+import androidx.compose.ui.platform.LocalConfiguration
 
 /**
  * A new group (Q1): its name, its own dates (its countdown, and how long its invite works), your name in it, and
@@ -73,36 +77,46 @@ import java.time.LocalDate
 fun NewGroupScreen(api: GroupApi, myTrip: Trip?, today: LocalDate, onCancel: () -> Unit, onCreated: (String) -> Unit) {
     val c = Ski.colors
     var name by rememberSaveable { mutableStateOf("") }
-    var from by rememberSaveable { mutableStateOf(TripText.date(myTrip?.out?.date)) }
-    var to by rememberSaveable { mutableStateOf(TripText.date(myTrip?.ret?.date)) }
+    var from by rememberSaveable { mutableStateOf(myTrip?.out?.date) }
+    var to by rememberSaveable { mutableStateOf(myTrip?.ret?.date) }
     var me by rememberSaveable { mutableStateOf(api.me()?.name.orEmpty()) }
     var showTrip by rememberSaveable { mutableStateOf(myTrip != null) }
+    var pick by rememberSaveable { mutableStateOf<String?>(null) }
     val r = rememberRunner()
-    val f = TripText.date(from, today); val t = TripText.date(to, today)
-    val errDate = stringResource(R.string.app_trip_err_date)
     Column(Modifier.fillMaxSize().background(c.snow).statusBarsPadding()) {
         TopBar(stringResource(R.string.app_g_new_title), stringResource(R.string.app_cancel), onCancel)
         Page {
             Field(stringResource(R.string.app_g_group_name), name, { name = it.take(60) }, hint = stringResource(R.string.app_g_group_name_hint))
-            Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                Field(stringResource(R.string.app_g_from_date), from, { from = it }, Modifier.weight(1f), stringResource(R.string.app_trip_date_hint), ltr = true,
-                    keyboard = KeyboardType.Number, error = if (f === TripText.Bad) errDate else null)
-                Field(stringResource(R.string.app_g_to_date), to, { to = it }, Modifier.weight(1f), stringResource(R.string.app_trip_date_hint), ltr = true,
-                    keyboard = KeyboardType.Number, error = if (t === TripText.Bad || (f is LocalDate && t is LocalDate && t < f)) errDate else null)
-            }
+            GroupDates(from, to, { pick = it })
             Note(stringResource(R.string.app_g_dates_note), Icons.clock)
             Field(stringResource(R.string.app_g_your_name), me, { me = it.take(40) }, hint = stringResource(R.string.app_g_your_name_hint))
             if (myTrip != null) Toggle(stringResource(R.string.app_g_show_my_trip),
                 listOfNotNull(myTrip.out.flight.ifBlank { null }, shortDate(myTrip.out.date) + (myTrip.out.departs?.let { " · $it" } ?: "")).joinToString(", "),
                 showTrip, { showTrip = it })
-            val ok = name.isNotBlank() && me.isNotBlank() && f !== TripText.Bad && t !== TripText.Bad && !(f is LocalDate && t is LocalDate && t < f)
+            val ok = name.isNotBlank() && me.isNotBlank()
             PrimaryButton(stringResource(R.string.app_g_create_it), Icons.people, {
-                if (ok) r.run { onCreated(api.createGroup(name, me, f as? LocalDate, t as? LocalDate, if (showTrip) myTrip else null)) }
+                if (ok) r.run { onCreated(api.createGroup(name, me, from, to, if (showTrip) myTrip else null)) }
             })
             ErrorLine(r)
             Spacer(Modifier.height(8.dp))
             Note(stringResource(R.string.app_g_admin_note), Icons.key)
         }
+    }
+    when (pick) {
+        "from" -> DateDialog(stringResource(R.string.app_g_from_date), from, today, today, null, { from = it; if (to != null && to!! < it) to = null }, { pick = null })
+        "to" -> DateDialog(stringResource(R.string.app_g_to_date), to, from ?: today, from ?: today, null, { to = it }, { pick = null })
+    }
+}
+
+/** The group's dates (Q1, Q10): from the calendar, the end never before the start; both may stay empty. */
+@Composable
+internal fun GroupDates(from: LocalDate?, to: LocalDate?, onPick: (String) -> Unit) {
+    val locale = LocalConfiguration.current.locales[0]
+    fun day(d: LocalDate?) = d?.let { DateTimeFormatter.ofPattern("EEE · d.M.yyyy", locale).format(it) }
+    val hint = stringResource(R.string.app_trip_pick_date)
+    Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+        PickField(stringResource(R.string.app_g_from_date), day(from), hint, Icons.calendar, { onPick("from") }, Modifier.weight(1f), ltr = false)
+        PickField(stringResource(R.string.app_g_to_date), day(to), hint, Icons.calendar, { onPick("to") }, Modifier.weight(1f), ltr = false)
     }
 }
 

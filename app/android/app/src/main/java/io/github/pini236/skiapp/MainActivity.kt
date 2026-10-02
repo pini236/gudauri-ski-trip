@@ -25,7 +25,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import java.time.ZoneId
 import java.time.LocalDateTime
-import java.time.LocalDate
 import java.time.Instant
 import androidx.core.view.WindowCompat
 import androidx.compose.ui.platform.LocalView
@@ -80,6 +79,7 @@ import io.github.pini236.skiapp.group.NewGroupScreen
 import io.github.pini236.skiapp.group.LiveGroupApi
 import io.github.pini236.skiapp.server.PrefsSessionStore
 import io.github.pini236.skiapp.server.Server
+import io.github.pini236.skiapp.server.Sync
 import io.github.pini236.skiapp.server.ServerTripSync
 import io.github.pini236.skiapp.group.ReclaimScreen
 import io.github.pini236.skiapp.trip.Trip
@@ -134,7 +134,7 @@ class MainActivity : ComponentActivity() {
     private val groupApi: GroupApi by lazy {
         DevServer.create() ?: LiveGroupApi(server, PrefsSessionStore(this), tripSync, { Lang.current(resources).tag },
             ready = GoogleSignIn.WEB_CLIENT_ID.isNotEmpty(), saved = accountPrefs.getString("me", null),
-            keep = { v -> accountPrefs.edit().apply { if (v == null) remove("me") else putString("me", v) }.apply() })
+            keep = { v -> accountPrefs.edit().apply { if (v == null) remove("me") else putString("me", v) }.apply() }, sync = Sync.of(this))
     }
     private var justJoined by mutableStateOf(false)
 
@@ -193,7 +193,8 @@ class MainActivity : ComponentActivity() {
             }
         })
         handleQa(intent)
-        if (groupApi is LiveGroupApi) tripSync.flush() // a trip saved without signal goes now
+        // a trip, a score or a meetup saved without signal goes now
+        if (groupApi is LiveGroupApi) { tripSync.flush(); Sync.of(this).flush() }
         loadInBackground()
         setContent { App() }
     }
@@ -381,7 +382,7 @@ class MainActivity : ComponentActivity() {
                                 HomeAction.TRIP -> Route.Trip
                             })
                         })
-                    Route.Trip -> TripForm(trip, LocalDate.now(), onSave = { t -> keepTrip(t); Qa.log("trip saved"); nav.back() },
+                    Route.Trip -> TripForm(trip, LocalDateTime.ofInstant(Instant.ofEpochMilli(tick), ZoneId.systemDefault()).toLocalDate(), onSave = { t -> keepTrip(t); Qa.log("trip saved"); nav.back() },
                         onDelete = { keepTrip(null); Qa.log("trip deleted"); nav.back() }, onCancel = { nav.back() })
                     is Route.Meet -> SoonScreen(stringResource(R.string.nav_meet), stringResource(R.string.app_soon_meet)) { nav.back() }
                     is Route.Group -> if (!groupApi.ready) SoonScreen(stringResource(R.string.app_sign_group), stringResource(R.string.app_soon_group)) { nav.back() }
@@ -397,7 +398,7 @@ class MainActivity : ComponentActivity() {
                             onInvite = { nav.push(Route.GroupInvite(top.id)) }, onNewMeetup = { nav.push(Route.Meet()) }, onEditTrip = { nav.push(Route.Trip) },
                             onMyTrip = { t -> keepTrip(t) }, onLeft = { nav.toStart() }, signInGoogle = ::signInGoogle,
                             onSaveOffered = { justJoined = false; accountPrefs.edit().putInt("save_offers", accountPrefs.getInt("save_offers", 0) + 1).apply() })
-                    Route.GroupNew -> NewGroupScreen(groupApi, trip, LocalDate.now(), onCancel = { nav.back() },
+                    Route.GroupNew -> NewGroupScreen(groupApi, trip, LocalDateTime.ofInstant(Instant.ofEpochMilli(tick), ZoneId.systemDefault()).toLocalDate(), onCancel = { nav.back() },
                         onCreated = { id -> nav.back(); if (nav.top is Route.Group) nav.replaceTop(Route.Group(id, GroupTab.FLIGHTS.key)) else nav.push(Route.Group(id, GroupTab.FLIGHTS.key)) })
                     is Route.GroupInvite -> InviteScreen(groupApi, top.id) { nav.back() }
                     Route.JoinCode -> CodeScreen("", onBack = { nav.back() }) { c -> nav.replaceTop(Route.Join(c)) }

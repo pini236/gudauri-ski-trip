@@ -649,7 +649,7 @@ html.pv,html.pv body{height:auto}
 .pv-top{position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:12px;padding:8px 16px;background:var(--paper);border-bottom:1px solid var(--rule);direction:rtl}
 .pv-brand{font-family:var(--f-display);font-weight:700;font-size:30px;line-height:1;color:var(--ink);text-decoration:none;min-height:44px;display:inline-flex;align-items:center}
 .pv-lang{display:inline-flex;border:2px solid var(--ink);margin-inline-start:auto}
-.pv-lang button{min-height:40px;min-width:44px;padding:0 12px;border:0;background:transparent;color:var(--ink);font:600 14px/1 var(--f-body);cursor:pointer}
+.pv-lang button{min-height:44px;min-width:44px;padding:0 12px;border:0;background:transparent;color:var(--ink);font:600 14px/1 var(--f-body);cursor:pointer}
 .pv-lang button[lang="en"]{font-family:"IBM Plex Sans",var(--f-body)}
 .pv-lang button[aria-pressed="true"]{background:var(--ink);color:var(--snow)}
 .pv-back{display:inline-flex;align-items:center;gap:4px;min-height:44px;font-size:15px;font-weight:700;color:var(--glacier);text-decoration:none}

@@ -6,9 +6,12 @@ import io.github.pini236.skiapp.server.Offline
 import io.github.pini236.skiapp.server.Server
 import io.github.pini236.skiapp.server.ServerError
 import io.github.pini236.skiapp.server.SessionStore
+import io.github.pini236.skiapp.server.Sync
 import io.github.pini236.skiapp.server.TripRow
 import io.github.pini236.skiapp.trip.Trip
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import org.json.JSONArray
 import org.json.JSONObject
@@ -25,6 +28,9 @@ fun interface MyTripOnServer {
  *
  * [ready] waits for Google sign-in (the web client id): without it nobody can create a group, so the sign would lead
  * to a way in that goes nowhere. My name and Google are kept on the phone ([saved], [keep]) so [me] needs no network.
+ *
+ * The group page reads through [sync] (server/Sync.kt: the copy on the phone, Realtime, and the queue of writes), so
+ * it opens at once and keeps working with no signal. My groups and the high scores fall back to that copy offline.
  */
 class LiveGroupApi(
     private val server: Server,
@@ -34,6 +40,7 @@ class LiveGroupApi(
     override val ready: Boolean,
     saved: String? = null,
     private val keep: (String?) -> Unit = {},
+    private val sync: Sync? = null,
 ) : GroupApi {
     private val groups = Groups(server)
     private val account = Account(server)
@@ -80,12 +87,48 @@ class LiveGroupApi(
         return me()!!
     }
 
-    override suspend fun signOut() { io { server.auth.forget() }; forget() }
-    override suspend fun deleteAccount() { io { account.delete() }; forget() }
+    override suspend fun signOut() { io { server.auth.forget() }; forget(); sync?.forget() }
+    override suspend fun deleteAccount() { io { account.delete() }; forget(); sync?.forget() }
     override suspend fun rename(name: String) { io { account.setProfile(name, lang()) }; remember(name.trim(), null) }
 
     override suspend fun myGroups(): List<GroupSummary> = io {
-        if (store.load() == null) emptyList() else groups.mine().map { g -> GroupSummary(g.id, g.name, g.startsOn, g.endsOn) }
+        if (store.load() == null) return@io emptyList()
+        val list = try {
+            groups.mine().also { sync?.refreshMine() }
+        } catch (e: Offline) {
+            // no signal: the groups as the phone last saw them
+            sync?.myGroups?.value?.groups?.takeIf { it.isNotEmpty() } ?: throw e
+        }
+        list.map { g -> GroupSummary(g.id, g.name, g.startsOn, g.endsOn) }
+    }
+
+    override fun watch(id: String): GroupWatch {
+        val kept = sync?.group(id) ?: return FetchedGroup(this, id)
+        return object : GroupWatch {
+            override val state: Flow<Shown> = kept.state.map(::shown)
+            override val now: Shown get() = shown(kept.state.value)
+            override fun open() = kept.open()
+            override fun close() = kept.close()
+            override fun refresh() = kept.refresh()
+        }
+    }
+
+    /** The phone's copy of a group as the page shows it. */
+    internal fun shown(s: Sync.Snapshot): Shown {
+        val me = store.load()?.userId
+        val head = s.group
+        val names = s.members.associate { it.userId to it.name }
+        val g = if (head == null || s.members.isEmpty()) null else Group(
+            head.id, head.name, head.startsOn, head.endsOn,
+            s.members.map { m ->
+                Member(m.userId, m.name, if (m.admin) Role.ADMIN else Role.MEMBER, m.userId == me, m.tripId?.let { s.flights[it] }, m.tripId,
+                    m.tripId?.let { s.enteredBy[it] }?.let { by -> names[by] ?: "" })
+            },
+            s.invite?.let { Invite(it.id, it.code, it.token, it.requiresApproval, it.expiresAt?.let(Groups::instant)) },
+            s.requests.map { JoinRequest(it.id, it.userId, it.name, it.kind == "reclaim") },
+            s.meetups.map { o -> Meetup(o.id, o.station, o.at, o.note, o.createdBy?.let { names[it] }) },
+        )
+        return Shown(g, s.readAt, s.offline, s.gone, s.waiting > 0)
     }
 
     override suspend fun group(id: String): Group = io {
@@ -110,15 +153,15 @@ class LiveGroupApi(
         )
     }
 
-    private class Shown(val trip: Trip, val enteredBy: String?)
+    private class TripShown(val trip: Trip, val enteredBy: String?)
 
     /** The trips by id; "entered by" only when an admin filled it in and the member has not taken it over. */
-    private fun tripRows(ids: List<String>): Map<String, Shown> {
+    private fun tripRows(ids: List<String>): Map<String, TripShown> {
         if (ids.isEmpty()) return emptyMap()
         return rows(server.select("trips", "select=*&id=in.(${ids.joinToString(",") { Server.enc(it) }})")).mapNotNull { o ->
             val t = TripRow.trip(o) ?: return@mapNotNull null
             val by = str(o, "entered_by")?.takeIf { it != str(o, "owner_id") }
-            o.getString("id") to Shown(t, by)
+            o.getString("id") to TripShown(t, by)
         }.toMap()
     }
 
@@ -128,7 +171,7 @@ class LiveGroupApi(
     }
 
     override suspend fun updateGroup(id: String, name: String, startsOn: LocalDate?, endsOn: LocalDate?) = io { groups.update(id, name, startsOn, endsOn) }
-    override suspend fun deleteGroup(id: String) = io { groups.delete(id) }
+    override suspend fun deleteGroup(id: String) { io { groups.delete(id); sync?.refreshMine() } }
 
     override suspend fun newInvite(groupId: String, requiresApproval: Boolean): Invite = io {
         groups.newInvite(groupId, requiresApproval).let { Invite(it.id, it.code, it.token, it.requiresApproval, it.expiresAt?.let(Groups::instant)) }
@@ -146,7 +189,7 @@ class LiveGroupApi(
 
     override suspend fun reclaim(code: String, memberId: String): JoinResult = io { groups.reclaim(code, memberId).let { JoinResult(JoinStatus.of(it.status), it.groupId) } }
     override suspend fun decide(requestId: String, approve: Boolean) = io { groups.decide(requestId, approve) }
-    override suspend fun leave(groupId: String) = io { groups.leave(groupId) }
+    override suspend fun leave(groupId: String) { io { groups.leave(groupId); sync?.refreshMine() } }
     override suspend fun removeMember(groupId: String, userId: String) = io { groups.remove(groupId, userId) }
     override suspend fun setRole(groupId: String, userId: String, role: Role) = io { groups.setRole(groupId, userId, role.name.lowercase()) }
 
@@ -168,7 +211,13 @@ class LiveGroupApi(
 
     override suspend fun leaderboard(groupId: String, game: String): List<Score> = io {
         val me = store.load()?.userId
-        groups.leaderboard(groupId, game).map { Score(it.userId, it.name, it.best, it.userId == me) }
+        val rows = try {
+            groups.leaderboard(groupId, game)
+        } catch (e: Offline) {
+            // no signal: the table the phone keeps for this game (with my own best that waits to be sent), if any
+            sync?.group(groupId)?.state?.value?.scores?.get(game) ?: throw e
+        }
+        rows.map { Score(it.userId, it.name, it.best, it.userId == me) }
     }
 
     private companion object {

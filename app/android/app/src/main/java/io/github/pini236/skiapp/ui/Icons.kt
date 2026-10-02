@@ -43,6 +43,8 @@ object Icons {
     val bell = line("bell", false, "M6 16V11a6 6 0 0 1 12 0v5l2 2H4z", "M10 20a2 2 0 0 0 4 0")
     val pin = line("pin", false, "M12 21s-6.5-6.4-6.5-11.2a6.5 6.5 0 0 1 13 0C18.5 14.6 12 21 12 21z", circle(12f, 9.8f, 2.4f))
     val clock = line("clock", false, circle(12f, 12f, 9f), "M12 7v5l3.5 2")
+    val calendar = line("calendar", false, "M4 6h16v14H4z", "M4 10h16M8 3.5v4M16 3.5v4")
+    val search = line("search", false, circle(10.5f, 10.5f, 6.5f), "M15.5 15.5L20 20")
     val trophy = line("trophy", false, "M8 4h8v5a4 4 0 0 1-8 0z", "M8 6H4.5a3 3 0 0 0 3.5 4M16 6h3.5a3 3 0 0 1-3.5 4M12 13v4M8.5 20.5h7M10 17h4")
     val x = line("x", false, "M6 6l12 12M18 6L6 18")
     val more = ImageVector.Builder("more", 24.dp, 24.dp, 24f, 24f).apply {

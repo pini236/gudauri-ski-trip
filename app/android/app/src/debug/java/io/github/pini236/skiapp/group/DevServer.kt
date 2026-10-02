@@ -123,8 +123,11 @@ private class FakeGroupApi : GroupApi {
     override suspend fun preview(code: String): Preview {
         wait(); val me = meOrThrow()
         val g = byCode(code) ?: return Preview(JoinStatus.INVALID_CODE)
-        return Preview(JoinStatus.OK, g.id, g.name, g.startsOn, g.endsOn, g.invite?.requiresApproval == true,
-            g.members.any { it.userId == me.userId }, g.members.map { it.userId to it.name })
+        val member = g.members.any { it.userId == me.userId }
+        val approval = g.invite?.requiresApproval == true
+        // like the server: an invite that needs approval shows no names to who is not in the group
+        return Preview(JoinStatus.OK, g.id, g.name, g.startsOn, g.endsOn, approval, member,
+            if (approval && !member) emptyList() else g.members.map { it.userId to it.name })
     }
 
     override suspend fun join(code: String, myName: String): JoinResult {

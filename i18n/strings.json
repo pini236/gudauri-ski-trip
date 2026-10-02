@@ -967,18 +967,6 @@
     "ka"
    ]
   },
-  "app.trip_date_hint": {
-   "he": "למשל 10.1.2027",
-   "en": "e.g. 10.1.2027",
-   "ru": "напр. 10.1.2027",
-   "ka": "მაგ. 10.1.2027",
-   "where": "app/android",
-   "note": "field hint: day.month.year",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
   "app.trip_delete": {
    "he": "מחיקת הטיול",
    "en": "Delete the trip",
@@ -1039,18 +1027,6 @@
     "ka"
    ]
   },
-  "app.trip_err_time": {
-   "he": "שעה בצורה 16:00",
-   "en": "A time like 16:00",
-   "ru": "Время в виде 16:00",
-   "ka": "დრო ასე: 16:00",
-   "where": "app/android",
-   "note": "field error",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
   "app.trip_flight_hint": {
    "he": "למשל 6H 897",
    "en": "e.g. 6H 897",
@@ -1070,18 +1046,6 @@
    "ka": "რეისის ნომერი",
    "where": "app/android",
    "note": "field label",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "app.trip_from_hint": {
-   "he": "למשל TLV · תל אביב",
-   "en": "e.g. TLV · Tel Aviv",
-   "ru": "напр. TLV · Тель-Авив",
-   "ka": "მაგ. TLV · თელ-ავივი",
-   "where": "app/android",
-   "note": "field hint: airport code, then the city",
    "check": [
     "ru",
     "ka"
@@ -1229,18 +1193,6 @@
    },
    "where": "app/android",
    "note": "{range} = 11–14.1, {n} = number of days",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "app.trip_to_hint": {
-   "he": "למשל TBS · טביליסי",
-   "en": "e.g. TBS · Tbilisi",
-   "ru": "напр. TBS · Тбилиси",
-   "ka": "მაგ. TBS · თბილისი",
-   "where": "app/android",
-   "note": "field hint: airport code, then the city",
    "check": [
     "ru",
     "ka"
@@ -11669,6 +11621,54 @@
     "ka"
    ]
   },
+  "app.g_offline": {
+   "he": "בלי קליטה. מוצג מה שנשמר בטלפון ב-{time}",
+   "en": "No signal. Showing what the phone saved at {time}",
+   "ru": "Нет связи. Показано то, что телефон сохранил в {time}",
+   "ka": "კავშირი არ არის. ნაჩვენებია ტელეფონში {time}-ზე შენახული",
+   "where": "app/android",
+   "note": "group page, above the tabs, when the last read had no signal; {time} = HH:MM, or a date and time",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.g_offline_never": {
+   "he": "בלי קליטה, והקבוצה עוד לא נשמרה בטלפון. היא תופיע כשתחזור הקליטה.",
+   "en": "No signal, and the group is not on this phone yet. It shows once the signal is back.",
+   "ru": "Нет связи, а группа ещё не сохранена на телефоне. Она появится, когда вернётся связь.",
+   "ka": "კავშირი არ არის და ჯგუფი ჯერ ტელეფონში არ არის შენახული. გამოჩნდება, როცა კავშირი აღდგება.",
+   "where": "app/android",
+   "note": "group page opened for the first time with no signal",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.g_waiting": {
+   "he": "מה ששינית כאן יישלח לקבוצה כשתחזור הקליטה",
+   "en": "What you changed here goes to the group once the signal is back",
+   "ru": "Ваши изменения уйдут в группу, когда вернётся связь",
+   "ka": "აქ შეცვლილი გაიგზავნება ჯგუფში, როცა კავშირი აღდგება",
+   "where": "app/android",
+   "note": "group page: writes waiting in the queue",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.g_gone": {
+   "he": "כבר אינך בקבוצה הזו",
+   "en": "You are no longer in this group",
+   "ru": "Вы больше не в этой группе",
+   "ka": "თქვენ აღარ ხართ ამ ჯგუფში",
+   "where": "app/android",
+   "note": "group page, when the server says I left or was removed",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
   "app.g_requests": {
    "he": "בקשות · רק מנהלים רואים",
    "en": "Requests · only admins see these",
@@ -12033,6 +12033,258 @@
    "ka": "რა გროვდება",
    "where": "site/index.html",
    "note": "short: link to the privacy page",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.pick_ok": {
+   "he": "בחירה",
+   "en": "Select",
+   "ru": "Выбрать",
+   "ka": "არჩევა",
+   "where": "app/android",
+   "note": "the date and time pickers' confirm button",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.trip_pick_date": {
+   "he": "בחירת תאריך",
+   "en": "Pick a date",
+   "ru": "Выбрать дату",
+   "ka": "თარიღის არჩევა",
+   "where": "app/android",
+   "note": "an empty date field (opens the calendar)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.trip_pick_time": {
+   "he": "בחירת שעה",
+   "en": "Pick a time",
+   "ru": "Выбрать время",
+   "ka": "დროის არჩევა",
+   "where": "app/android",
+   "note": "an empty time field (opens the clock)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.trip_pick_place": {
+   "he": "בחירת שדה",
+   "en": "Pick airport",
+   "ru": "Аэропорт",
+   "ka": "აეროპორტი",
+   "where": "app/android",
+   "note": "an empty airport field (opens the list)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.trip_place_from": {
+   "he": "מאיפה ממריאים?",
+   "en": "Flying from?",
+   "ru": "Откуда вылет?",
+   "ka": "საიდან მიფრინავთ?",
+   "where": "app/android",
+   "note": "the airport list's title, outbound origin",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.trip_place_to": {
+   "he": "לאן נוחתים?",
+   "en": "Landing where?",
+   "ru": "Куда прилёт?",
+   "ka": "სად ჯდებით?",
+   "where": "app/android",
+   "note": "the airport list's title, destination",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.trip_place_search": {
+   "he": "חיפוש עיר או קוד שדה",
+   "en": "Search a city or airport code",
+   "ru": "Поиск города или кода аэропорта",
+   "ka": "ქალაქის ან აეროპორტის კოდის ძებნა",
+   "where": "app/android",
+   "note": "search field in the airport list",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.trip_place_other": {
+   "he": "להשתמש ב: {text}",
+   "en": "Use: {text}",
+   "ru": "Использовать: {text}",
+   "ka": "გამოყენება: {text}",
+   "where": "app/android",
+   "note": "a place that is not in the list, as typed; {text} = what was typed",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.trip_clear": {
+   "he": "ניקוי",
+   "en": "Clear",
+   "ru": "Очистить",
+   "ka": "გასუფთავება",
+   "where": "app/android",
+   "note": "read out on the x that empties an optional date or time",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.trip_ret_route": {
+   "he": "חזרה מ-{from} ל-{to}",
+   "en": "Back from {from} to {to}",
+   "ru": "Обратно: из {from} в {to}",
+   "ka": "დაბრუნება: {from}-დან {to}-ში",
+   "where": "app/android",
+   "note": "under the return heading; {from} and {to} = airport codes or places, the way out reversed",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.city_bus": {
+   "he": "בטומי",
+   "en": "Batumi",
+   "ru": "Батуми",
+   "ka": "ბათუმი",
+   "where": "app/android",
+   "note": "a city in the airport list of the trip form",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.city_etm": {
+   "he": "אילת",
+   "en": "Eilat",
+   "ru": "Эйлат",
+   "ka": "ეილათი",
+   "where": "app/android",
+   "note": "a city in the airport list of the trip form",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.city_ist": {
+   "he": "איסטנבול",
+   "en": "Istanbul",
+   "ru": "Стамбул",
+   "ka": "სტამბოლი",
+   "where": "app/android",
+   "note": "a city in the airport list of the trip form",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.city_dxb": {
+   "he": "דובאי",
+   "en": "Dubai",
+   "ru": "Дубай",
+   "ka": "დუბაი",
+   "where": "app/android",
+   "note": "a city in the airport list of the trip form",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.city_mow": {
+   "he": "מוסקבה",
+   "en": "Moscow",
+   "ru": "Москва",
+   "ka": "მოსკოვი",
+   "where": "app/android",
+   "note": "a city in the airport list of the trip form",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.city_led": {
+   "he": "סנקט פטרבורג",
+   "en": "Saint Petersburg",
+   "ru": "Санкт-Петербург",
+   "ka": "სანქტ-პეტერბურგი",
+   "where": "app/android",
+   "note": "a city in the airport list of the trip form",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.city_waw": {
+   "he": "ורשה",
+   "en": "Warsaw",
+   "ru": "Варшава",
+   "ka": "ვარშავა",
+   "where": "app/android",
+   "note": "a city in the airport list of the trip form",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.city_rix": {
+   "he": "ריגה",
+   "en": "Riga",
+   "ru": "Рига",
+   "ka": "რიგა",
+   "where": "app/android",
+   "note": "a city in the airport list of the trip form",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.city_vie": {
+   "he": "וינה",
+   "en": "Vienna",
+   "ru": "Вена",
+   "ka": "ვენა",
+   "where": "app/android",
+   "note": "a city in the airport list of the trip form",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.city_muc": {
+   "he": "מינכן",
+   "en": "Munich",
+   "ru": "Мюнхен",
+   "ka": "მიუნხენი",
+   "where": "app/android",
+   "note": "a city in the airport list of the trip form",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.city_lon": {
+   "he": "לונדון",
+   "en": "London",
+   "ru": "Лондон",
+   "ka": "ლონდონი",
+   "where": "app/android",
+   "note": "a city in the airport list of the trip form",
    "check": [
     "ru",
     "ka"

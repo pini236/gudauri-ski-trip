@@ -33,6 +33,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -66,7 +68,7 @@ import io.github.pini236.skiapp.home.paperGrain
 import io.github.pini236.skiapp.home.shortDate
 import io.github.pini236.skiapp.trip.Leg
 import io.github.pini236.skiapp.trip.Trip
-import io.github.pini236.skiapp.trip.TripText
+import io.github.pini236.skiapp.trip.DateDialog
 import io.github.pini236.skiapp.ui.BackLink
 import io.github.pini236.skiapp.ui.Field
 import io.github.pini236.skiapp.ui.Icons
@@ -117,13 +119,16 @@ fun GroupScreen(
     onMyTrip: (Trip) -> Unit, onLeft: () -> Unit, signInGoogle: suspend () -> Unit, onSaveOffered: () -> Unit,
 ) {
     val c = Ski.colors
-    var group by remember { mutableStateOf<Group?>(null) }
+    // the group as kept on the phone (server/Sync.kt): at once, also with no signal, and live while the page shows
+    val watch = remember(groupId) { api.watch(groupId) }
+    DisposableEffect(watch) { watch.open(); onDispose { watch.close() } }
+    val shown by watch.state.collectAsState(watch.now)
+    val group = shown.group
     var sheet by rememberSaveable { mutableStateOf<String?>(null) }
     var forMember by rememberSaveable { mutableStateOf<String?>(null) }
     var offered by rememberSaveable { mutableStateOf(false) }
-    val load = rememberRunner(); val r = rememberRunner()
-    fun reload() = load.run { group = api.group(groupId) }
-    LaunchedEffect(groupId) { reload() }
+    val r = rememberRunner()
+    fun reload() = watch.refresh()
     // A5: a guest who just joined is offered to keep the place, and once more a week before the trip; never again
     LaunchedEffect(group) {
         val g = group ?: return@LaunchedEffect
@@ -168,11 +173,21 @@ fun GroupScreen(
             Tabs(tab, onTab)
             val g = group
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                if (g == null) { if (load.busy) Muted(stringResource(R.string.app_loading)) else ErrorLine(load); return@Column }
+                if (g == null) {
+                    when {
+                        shown.gone -> { Muted(stringResource(R.string.app_g_gone), size = 15f); QuietButton(stringResource(R.string.nav_home), onBack) }
+                        shown.offline -> Note(stringResource(R.string.app_g_offline_never), Icons.cloud)
+                        else -> Muted(stringResource(R.string.app_loading))
+                    }
+                    return@Column
+                }
+                if (shown.gone) Note(stringResource(R.string.app_g_gone), Icons.cloud)
+                else if (shown.offline) Note(stringResource(R.string.app_g_offline, savedAt(shown.readAt, now)), Icons.cloud)
+                if (shown.waiting) Muted(stringResource(R.string.app_g_waiting), size = 12.5f)
                 when (tab) {
                     GroupTab.FLIGHTS -> Flights(g, myTrip,
                         onSame = { sheet = "same" },
-                        onShowMine = { r.run { api.showMyTrip(g.id, g.me?.name ?: "", myTrip); group = api.group(g.id) } },
+                        onShowMine = { r.run { api.showMyTrip(g.id, g.me?.name ?: "", myTrip); reload() } },
                         onFillFor = { forMember = it; sheet = "fill" })
                     GroupTab.MEETUPS -> Meetups(g, now, stationName, onNewMeetup)
                     GroupTab.SCORES -> Scores(api, g)
@@ -218,7 +233,7 @@ fun GroupScreen(
                         r.run {
                             if (fill) { val who = forMember ?: return@run; api.setMemberTrip(g.id, who, g.members.first { it.tripId == tid }.trip!!) }
                             else { val t = api.sameFlight(g.id, tid); if (myTrip == null) onMyTrip(t) }
-                            group = api.group(g.id); sheet = null
+                            reload(); sheet = null
                         }
                     })
                     if (!fill) QuietButton(stringResource(R.string.app_g_other_flight), { sheet = null; onEditTrip() })
@@ -227,23 +242,22 @@ fun GroupScreen(
             }
             "edit" -> if (g != null) Sheet({ sheet = null }) {
                 var name by rememberSaveable { mutableStateOf(g.name) }
-                var from by rememberSaveable { mutableStateOf(TripText.date(g.startsOn)) }
-                var to by rememberSaveable { mutableStateOf(TripText.date(g.endsOn)) }
+                var from by rememberSaveable { mutableStateOf(g.startsOn) }
+                var to by rememberSaveable { mutableStateOf(g.endsOn) }
+                var pick by rememberSaveable { mutableStateOf<String?>(null) }
                 Display(stringResource(R.string.app_g_name_dates), 32f)
                 Column(Modifier.padding(top = 12.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                     Field(stringResource(R.string.app_g_group_name), name, { name = it.take(60) })
-                    Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                        Field(stringResource(R.string.app_g_from_date), from, { from = it }, Modifier.weight(1f), ltr = true)
-                        Field(stringResource(R.string.app_g_to_date), to, { to = it }, Modifier.weight(1f), ltr = true)
-                    }
+                    GroupDates(from, to, { pick = it })
                     PrimaryButton(stringResource(R.string.app_save), Icons.check, {
-                        val today = LocalDate.now()
-                        val f = TripText.date(from, today); val t = TripText.date(to, today)
-                        if (name.isNotBlank() && f !== TripText.Bad && t !== TripText.Bad) r.run {
-                            api.updateGroup(g.id, name, f as? LocalDate, t as? LocalDate); group = api.group(g.id); sheet = null
-                        }
+                        if (name.isNotBlank()) r.run { api.updateGroup(g.id, name, from, to); reload(); sheet = null }
                     })
                     ErrorLine(r)
+                }
+                val today = now.toLocalDate()
+                when (pick) {
+                    "from" -> DateDialog(stringResource(R.string.app_g_from_date), from, today, today, null, { from = it; if (to != null && to!! < it) to = null }, { pick = null })
+                    "to" -> DateDialog(stringResource(R.string.app_g_to_date), to, from ?: today, from ?: today, null, { to = it }, { pick = null })
                 }
             }
         }
@@ -463,4 +477,11 @@ private fun Members(api: GroupApi, g: Group, r: Runner, reload: () -> Unit, onIn
             if (armed == "delete") r.run { api.deleteGroup(g.id); onLeft() } else armed = "delete"
         }, icon = Icons.trash)
     }
+}
+
+/** When the phone saved the group: the time today, else the day and the time. */
+private fun savedAt(ms: Long?, now: LocalDateTime): String {
+    if (ms == null) return "—"
+    val t = java.time.Instant.ofEpochMilli(ms).atZone(java.time.ZoneId.systemDefault()).toLocalDateTime()
+    return java.time.format.DateTimeFormatter.ofPattern(if (t.toLocalDate() == now.toLocalDate()) "HH:mm" else "d.M HH:mm").format(t)
 }

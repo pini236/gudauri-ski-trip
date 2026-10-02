@@ -4,7 +4,10 @@ import io.github.pini236.skiapp.server.MemorySessionStore
 import io.github.pini236.skiapp.server.Request
 import io.github.pini236.skiapp.server.Response
 import io.github.pini236.skiapp.server.Server
+import io.github.pini236.skiapp.server.Groups
 import io.github.pini236.skiapp.server.Session
+import io.github.pini236.skiapp.server.Sync
+import io.github.pini236.skiapp.trip.Leg
 import io.github.pini236.skiapp.trip.Trip
 import kotlinx.coroutines.runBlocking
 import org.json.JSONObject
@@ -14,6 +17,7 @@ import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
 import org.junit.Test
+import java.time.Instant
 import java.time.LocalDate
 
 /** The screens' API over the server client: how the server's rows become the group page, and its refusals. */
@@ -65,6 +69,39 @@ class LiveGroupApiTest {
         assertEquals("KZBQRM", g.invite!!.code)
         assertEquals("Avi", g.meetups.single().byName)
         assertEquals(1, g.admins)
+    }
+
+    @Test fun theGroupPageFromThePhonesCopy() {
+        signedIn("u1")
+        val avi = Trip(Leg(LocalDate.of(2027, 1, 10), "GD 101", "TLV", "TBS"))
+        val s = Sync.Snapshot(
+            "g1", Groups.Group("g1", "Gudauri 2027", LocalDate.of(2027, 1, 10), null),
+            listOf(Groups.Member("u1", "Noa", "admin"), Groups.Member("u2", "Avi", "member", "t1")),
+            flights = mapOf("t1" to avi), enteredBy = mapOf("t1" to "u1"),
+            meetups = listOf(Groups.Meetup("local:x", "g1", "158744075b", Instant.parse("2027-01-11T05:30:00Z"), null, "u1")),
+            invite = Groups.Invite("i1", "KZBQRM", "t".repeat(40), true, null, null),
+            requests = listOf(Groups.JoinRequest("r1", "g1", "u9", "Dana", "join", null, "pending")),
+            readAt = now, offline = true, waiting = 1,
+        )
+        val shown = api().shown(s)
+        val g = shown.group!!
+        assertTrue(g.admin)
+        assertEquals("GD 101", g.members[1].trip!!.out.flight)
+        assertEquals("Noa", g.members[1].enteredByAdmin)
+        // a meetup made here without signal shows at once, under my name
+        assertEquals("Noa", g.meetups.single().byName)
+        assertEquals(JoinRequest("r1", "u9", "Dana", reclaim = false), g.requests.single())
+        assertEquals("KZBQRM", g.invite!!.code)
+        assertTrue(shown.offline && shown.waiting)
+        assertEquals(now, shown.readAt)
+    }
+
+    @Test fun aGroupNeverReadOrLeftShowsNoGroup() {
+        signedIn("u1")
+        assertNull(api().shown(Sync.Snapshot("g1")).group)
+        val left = api().shown(Sync.Snapshot("g1", gone = true, readAt = now))
+        assertNull(left.group)
+        assertTrue(left.gone)
     }
 
     @Test fun aMemberSeesNoRequestsAndTheirOwnTripIsNotEnteredByAnyone() = runBlocking {
