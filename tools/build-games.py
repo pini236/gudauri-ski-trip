@@ -30,7 +30,8 @@ HEAD = ('<!doctype html>\n<html lang="he" dir="rtl">\n<meta charset="utf-8">\n'
         '<link rel="icon" href="../../favicon.svg" type="image/svg+xml">\n'
         '<style>[hidden]{{display:none!important}}</style>\n'
         '<script src="../../js/i18n.js" data-base="../../i18n/" data-file="game-{key}"></script>\n'
-        '<script src="../../js/prefs.js"></script>\n')
+        '<script src="../../js/prefs.js"></script>\n'
+        '<script src="../../js/telemetry.js" data-game="{key}"></script>\n')
 LINK = '<a class="back-site" href="../../#games" style="{style}" data-i18n="game.{key}.back_to_games">→ לכל המשחקים</a>'
 # the language file of each game (tools/build-site-strings.py): game.<key>.* in i18n/strings.json
 KEYS = {'fresh-snow': 'fresh'}

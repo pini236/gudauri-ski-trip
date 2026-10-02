@@ -1,6 +1,6 @@
 # מדיניות פרטיות
 
-המדיניות של האפליקציה והאתר, בעברית ובאנגלית. אושרה על ידי פיני ב-1.10.2026 (החלטה 33), ומתפרסמת באתר: https://gudauri-ski-trip.vercel.app/privacy (באנגלית: `/privacy#en`). **הקובץ הזה הוא המקור:** הדף נבנה ממנו בפקודה `python3 tools/build-privacy.py`, ובדיקה בגיטהאב נכשלת אם הם לא תואמים.
+המדיניות של האפליקציה והאתר, בעברית ובאנגלית. אושרה על ידי פיני ב-1.10.2026 (החלטה 33), והסעיף על המדידה באתר ב-2.10.2026 (החלטה 37), ומתפרסמת באתר: https://gudauri-ski-trip.vercel.app/privacy (באנגלית: `/privacy#en`). **הקובץ הזה הוא המקור:** הדף נבנה ממנו בפקודה `python3 tools/build-privacy.py`, ובדיקה בגיטהאב נכשלת אם הם לא תואמים.
 
 ---
 
@@ -8,7 +8,7 @@
 
 **מדיניות פרטיות: Gudi: Gudauri Ski Map**
 
-בתוקף מ-1.10.2026
+בתוקף מ-2.10.2026
 
 Gudi: Gudauri Ski Map היא אפליקציה לאנדרואיד (המזהה `io.github.pini236.skiapp`) ואתר (`gudauri-ski-trip.vercel.app`) עם מפת הסקי של גודאורי, גאורגיה. פיני זולברג, אדם פרטי מישראל, פיתח אותם ואחראי עליהם. לכל שאלה או בקשה: pinisagent@gmail.com.
 
@@ -43,7 +43,11 @@ Gudi: Gudauri Ski Map היא אפליקציה לאנדרואיד (המזהה `io
 
 ### האתר
 
-האתר לא דורש הרשמה ולא משתמש בעוגיות. ההגדרות והשיאים נשמרים בדפדפן שלך בלבד. כדי להציג את האתר, הדפדפן טוען גופנים מ-Google Fonts וספרייה מ-cdnjs, וסרטונים מיוטיוב (בגרסה שלא שומרת עוגיות עד שמפעילים סרטון). השירותים האלה רואים את כתובת ה-IP שלך.
+האתר לא דורש הרשמה ולא משתמש בעוגיות. ההגדרות, השפה והשיאים נשמרים בדפדפן שלך בלבד.
+
+**מדידת שימוש ודיווח שגיאות באתר** (PostHog ו-Sentry, בשרתים באירופה): באילו עמודים ופעולות משתמשים, שפת הממשק, סוג המכשיר (טלפון, טאבלט או מחשב) ומאיזה קישור הגעת, ותיאור טכני של שגיאות. כדי לספור ביקורים חוזרים נשמר בדפדפן מזהה אקראי (לא עוגייה), שלא קשור לשם, למייל או לטלפון; מחיקת נתוני האתר בדפדפן מוחקת אותו. כתובת ה-IP לא נשמרת. אפשר לכבות את זה בעמוד ההגדרות של האתר, ואז לא נשלח דבר.
+
+כדי להציג את האתר, הדפדפן טוען גופנים מ-Google Fonts וספרייה מ-cdnjs, וסרטונים מיוטיוב (בגרסה שלא שומרת עוגיות עד שמפעילים סרטון). השירותים האלה רואים את כתובת ה-IP שלך.
 
 ### ילדים
 
@@ -67,7 +71,7 @@ Gudi: Gudauri Ski Map היא אפליקציה לאנדרואיד (המזהה `io
 
 **Privacy Policy: Gudi: Gudauri Ski Map**
 
-Effective October 1, 2026
+Effective October 2, 2026
 
 Gudi: Gudauri Ski Map is an Android app (package `io.github.pini236.skiapp`) and a website (`gudauri-ski-trip.vercel.app`) with a ski map of Gudauri, Georgia. They are developed and run by Pini Zolberg, a private individual in Israel. For any question or request: pinisagent@gmail.com.
 
@@ -102,7 +106,11 @@ No ads. We don't use the device advertising ID. We don't sell or share data with
 
 ### The website
 
-The website requires no sign-up and uses no cookies. Settings and scores are stored only in your browser. To display the site, your browser loads fonts from Google Fonts, a library from cdnjs, and videos from YouTube (in the version that sets no cookies until you play a video). These services see your IP address.
+The website requires no sign-up and uses no cookies. Settings, language and scores are stored only in your browser.
+
+**Usage statistics and error reports on the website** (PostHog and Sentry, servers in the EU): which pages and features are used, the interface language, the kind of device (phone, tablet or computer), which link you came from, and a technical description of errors. To count returning visits, a random ID is kept in your browser (not a cookie); it is not linked to your name, email or phone number, and clearing the site's data in your browser deletes it. IP addresses are not stored. You can turn this off on the site's settings page, and then nothing is sent.
+
+To display the site, your browser loads fonts from Google Fonts, a library from cdnjs, and videos from YouTube (in the version that sets no cookies until you play a video). These services see your IP address.
 
 ### Children
 

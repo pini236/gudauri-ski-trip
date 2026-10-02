@@ -9,6 +9,7 @@
 <style>.back-site{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 14px;background:rgba(19,35,58,.88);color:#fff;font:700 14px "IBM Plex Sans Hebrew",system-ui,sans-serif;text-decoration:none;align-self:flex-start;flex:0 0 auto;box-sizing:border-box}.back-site:focus-visible{outline:3px solid #F4B942;outline-offset:2px}</style>
 <script src="../../js/i18n.js" data-base="../../i18n/" data-file="game-school"></script>
 <script src="../../js/prefs.js"></script>
+<script src="../../js/telemetry.js" data-game="school"></script>
 <title data-i18n="game.school.title">בית הספר לסקי</title>
 <meta name="description" data-i18n-attr="content:game.school.meta_description" content="שבעה שיעורים קצרים: עקרונות הגלישה, ותרגול שמרגיש כמו על השלג">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -226,7 +227,11 @@ function start(){ lv=LS[cur]; audio(); if(AC&&AC.state==='suspended') AC.resume(
   $('slider').hidden=lv.mode!=='wedge'; $('skis').hidden=lv.mode!=='skis'; $('wedge').hidden=!lv.wedgeBtn; $('wedge').classList.remove('on');
   $('hudName').textContent=(cur+1)+'. '+lv.name; $('taskTxt').textContent=lv.drill.split('.')[0];
   coach(lv.mode==='steer'&&lv.demo?L('game.school.coach_watch_demo','צופים: ישר במורד, בלי לגעת'):L('game.school.coach_start','מתחילים'));
-  state='run'; checks(); }
+  state='run'; checks(); g0=performance.now(); window.track&&track('game_start',{game:'school',level:cur+1}); }
+// usage statistics (site/js/telemetry.js; absent in the design preview): level = lesson number, score = stars, completed = at least one star
+let g0=0;
+function gameEnd(n,best){ if(!g0) return; window.track&&track('game_end',{game:'school',level:cur+1,score:n,seconds:Math.round((performance.now()-g0)/1000),completed:n>0,best}); g0=0; }
+addEventListener('pagehide',()=>{ if(state==='run'||state==='done') gameEnd(0,false); });
 function popText(s){ const p=$('pop'); p.textContent=s; p.classList.remove('go'); void p.offsetWidth; p.classList.add('go'); }
 let coachLast='';
 function coach(txt,cls=''){ const k=txt+'|'+cls; if(k===coachLast) return; coachLast=k; const el=$('coachTxt'); el.textContent=txt; el.className=cls; }
@@ -345,7 +350,7 @@ function finishLesson(){ if(state!=='run') return; state='done'; if(hissG) hissG
   else if(lv.mode==='lean'){ g=[st.arcs>=4, st.arcs>=8, st.arcs>=8&&st.skidT<1.5]; line=L('game.school.res_lean','{arcs} קשתות נקיות · {sec} שניות של החלקה',{arcs:st.arcs,sec:st.skidT.toFixed(1)}); }
   else if(lv.fade){ g=[st.gates>=5, st.gates>=6&&st.crashes===0, st.gates===7&&st.crashes===0]; line=L('game.school.res_look','{n} שערים מתוך 7 · {crashes} התנגשויות',{n:st.gates,crashes:st.crashes}); }
   else { const u=st.under/st.time, all=st.gates===gates.length&&st.crashes===0; g=[st.gates>=5, all, all&&u>=.9]; line=L('game.school.res_final','{n}/{total} שערים · {crashes} התנגשויות · {pct}% מתחת ל-40',{n:st.gates,total:gates.length,crashes:st.crashes,pct:Math.round(u*100)}); }
-  const n=g.filter(Boolean).length; if(n>stars(cur)) store.set('stars-'+cur,n);
+  const n=g.filter(Boolean).length; gameEnd(n, n>stars(cur)); if(n>stars(cur)) store.set('stars-'+cur,n);
   setTimeout(()=>showResult(g,n,line), 900); }
 const TIPS=()=>[L('game.school.tip_1','פיצה רחבה = בלימה חזקה. פיצה צרה = האטה עדינה. רוחב הפיצה הוא דוושת הבלם.'),L('game.school.tip_2','לפנות שמאלה: המשקל על המגלש הימני. לפנות ימינה: על השמאלי.'),L('game.school.tip_3','לא בולמים: מסיימים את הסיבוב לרוחב המדרון.'),L('game.school.tip_4','סיבוב חדש מתחיל כשהקודם נגמר. קצב קבוע = שליטה.'),L('game.school.tip_5','העיניים רחוק קדימה. מי שלמטה ממך תמיד קודם.'),L('game.school.tip_6','מטים בעדינות, ונותנים לקנט לעבוד.'),L('game.school.tip_7','כל העקרונות יחד. בהצלחה בגודאורי!')];
 function showResult(g,n,line){ hideHud(); $('result').hidden=false; state='result';
