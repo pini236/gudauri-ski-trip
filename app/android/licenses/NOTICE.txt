@@ -1,0 +1,26 @@
+Gudauri ski app: third-party notices
+=====================================
+
+The texts of the licenses are in this folder, packed in the app (assets/licenses/).
+
+Data
+- Runs, lifts, roads, rivers and the village: (c) OpenStreetMap contributors, under the Open Database License (ODbL).
+  https://www.openstreetmap.org/copyright
+- Elevation and relief: AWS Terrain Tiles (Mapzen), mostly SRTM (NASA).
+- The official MTA trail map was used only to identify the names and colours of runs. It was not copied.
+
+Sounds
+- The ticket's tear: "Perforated Tear" by everythingsounds on Freesound, CC BY 4.0.
+  https://freesound.org/people/everythingsounds/sounds/198233/
+- The card sounds: Kenney, Casino Audio, CC0. https://kenney.nl/assets/casino-audio
+
+Fonts (SIL Open Font License 1.1: OFL-*.txt)
+- Karantina, IBM Plex Sans, IBM Plex Sans Hebrew, Oswald, Noto Sans Georgian.
+
+Libraries
+- Jetpack Compose, AndroidX (activity, credentials): Apache License 2.0 (Apache-2.0.txt).
+- Kotlin and kotlinx: Apache License 2.0.
+- OkHttp: Apache License 2.0.
+- Sign in with Google (googleid, play-services-auth): Apache License 2.0 / Android SDK terms.
+- PostHog Android: MIT (MIT-PostHog.txt).
+- Sentry Android: MIT (MIT-Sentry.txt).

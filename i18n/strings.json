@@ -492,6 +492,18 @@
     "ka"
    ]
   },
+  "app.about_libs": {
+   "he": "ספריות קוד פתוח: Jetpack Compose, AndroidX, Kotlin ו-OkHttp ברישיון Apache 2.0, ו-PostHog ו-Sentry ברישיון MIT.",
+   "en": "Open-source libraries: Jetpack Compose, AndroidX, Kotlin and OkHttp under the Apache 2.0 license, and PostHog and Sentry under the MIT license.",
+   "ru": "Библиотеки с открытым кодом: Jetpack Compose, AndroidX, Kotlin и OkHttp (лицензия Apache 2.0), PostHog и Sentry (лицензия MIT).",
+   "ka": "ღია კოდის ბიბლიოთეკები: Jetpack Compose, AndroidX, Kotlin და OkHttp (ლიცენზია Apache 2.0), PostHog და Sentry (ლიცენზია MIT).",
+   "where": "app/android",
+   "note": "about, credits: the libraries in the app (their license texts are packed in assets/licenses)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
   "app.about_more": {
    "he": "ההגדרות (צליל, רטט, שפה) מגיעות בשלב הבא.",
    "en": "Settings (sound, vibration, language) come next.",
@@ -10440,6 +10452,66 @@
    "ka": "ამისთვის განაახლეთ აპლიკაცია.",
    "where": "app/android",
    "note": "server unknown_action: an older app against a newer server",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.err_group_has_admin": {
+   "he": "לקבוצה כבר יש מנהל.",
+   "en": "The group already has an admin.",
+   "ru": "В группе уже есть администратор.",
+   "ka": "ჯგუფს უკვე ჰყავს ადმინისტრატორი.",
+   "where": "app/android",
+   "note": "server group_has_admin (claim_admin)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.err_use_leave_group": {
+   "he": "כדי לצאת בעצמך, משתמשים ב\"עזיבת הקבוצה\".",
+   "en": "To leave yourself, use “Leave the group”.",
+   "ru": "Чтобы выйти самому, нажмите «Покинуть группу».",
+   "ka": "თავად გასასვლელად გამოიყენეთ „ჯგუფის დატოვება“.",
+   "where": "app/android",
+   "note": "server use_leave_group (remove_member on yourself)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.err_trip_not_in_group": {
+   "he": "הטיסה הזו כבר לא מוצגת בקבוצה.",
+   "en": "That flight is no longer shown in the group.",
+   "ru": "Этот рейс больше не показан в группе.",
+   "ka": "ეს ფრენა ჯგუფში აღარ ჩანს.",
+   "where": "app/android",
+   "note": "server trip_not_in_group (same_flight)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.err_invalid_ticket": {
+   "he": "חיבור החשבונות לקח יותר מדי זמן. נכנסים שוב עם גוגל.",
+   "en": "Linking the accounts took too long. Sign in with Google again.",
+   "ru": "Связывание аккаунтов заняло слишком много времени. Войдите через Google снова.",
+   "ka": "ანგარიშების დაკავშირებას ძალიან დიდი დრო დასჭირდა. ხელახლა შედით Google-ით.",
+   "where": "app/android",
+   "note": "server invalid_ticket (merge_guest)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.err_already_member": {
+   "he": "כבר בקבוצה.",
+   "en": "Already in the group.",
+   "ru": "Уже в группе.",
+   "ka": "უკვე ჯგუფშია.",
+   "where": "app/android",
+   "note": "server already_member (an admin approves a request of someone who is already in)",
    "check": [
     "ru",
     "ka"

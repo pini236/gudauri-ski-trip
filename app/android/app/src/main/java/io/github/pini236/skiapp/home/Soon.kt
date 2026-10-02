@@ -18,6 +18,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
@@ -46,8 +47,9 @@ fun SoonScreen(title: String, text: String, onBack: () -> Unit) {
 }
 
 /**
- * About, for now (the full page with settings is stage 13.7): the version, the credits the recordings require
- * (the tear is CC BY: its credit must be visible while the sound is in the app), and the privacy policy.
+ * About, for now (the full page with settings is stage 13.7): the version, the credits the data, the recordings and
+ * the libraries require (OpenStreetMap's ODbL and the tear's CC BY ask for a visible credit; the license texts are
+ * packed in assets/licenses), and the privacy policy.
  */
 @Composable
 fun AboutScreen(version: String, onPrivacy: () -> Unit, onAccount: (() -> Unit)?, onBack: () -> Unit) {
@@ -66,8 +68,15 @@ fun AboutScreen(version: String, onPrivacy: () -> Unit, onAccount: (() -> Unit)?
                 Telemetry.setEnabled(context, it, BuildConfig.FLAVOR)
             })
             Text(stringResource(R.string.about_credits), style = Ski.type.title.copy(fontSize = Ski.type.title.fontSize * (30f / 44f)), color = c.ink)
+            // the map's data, as the site credits it: OpenStreetMap's licence (ODbL) asks for the credit and its link
+            val uri = LocalUriHandler.current
+            Text(stringResource(R.string.about_credit_osm_label) + " © " + stringResource(R.string.about_credit_licensed, stringResource(R.string.about_credit_osm_link), "ODbL"),
+                Modifier.heightIn(min = 44.dp).clickable(role = Role.Button) { uri.openUri("https://www.openstreetmap.org/copyright") }.padding(vertical = 10.dp),
+                style = Ski.type.small.copy(textDecoration = TextDecoration.Underline), color = c.muted)
+            Text(stringResource(R.string.about_credit_terrain_label) + " " + stringResource(R.string.about_credit_terrain), style = Ski.type.small, color = c.muted)
             Text(stringResource(R.string.app_ticket_credits), style = Ski.type.small, color = c.muted)
             Text(stringResource(R.string.about_credit_fonts_label) + " " + stringResource(R.string.app_about_fonts), style = Ski.type.small, color = c.muted)
+            Text(stringResource(R.string.app_about_libs), style = Ski.type.small, color = c.muted)
             Text(stringResource(R.string.about_credit_mta), style = Ski.type.small, color = c.muted)
             Text(stringResource(R.string.app_about_privacy), Modifier.heightIn(min = 44.dp).clickable(role = Role.Button, onClick = onPrivacy).padding(vertical = 10.dp),
                 style = Ski.type.bodyBold.copy(textDecoration = TextDecoration.Underline), color = c.glacier)

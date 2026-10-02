@@ -188,7 +188,11 @@ class MainActivity : ComponentActivity() {
         if (rawGroupApi is LiveGroupApi) tripSync.pushed(t)
     }
 
-    private fun openPrivacy() = startActivity(Intent(Intent.ACTION_VIEW, android.net.Uri.parse("https://${Route.SITE_HOST}/privacy?utm_source=app")))
+    /** The privacy page in the app's language: the page opens #en, #ru or #ka on that article (Hebrew is its default). */
+    private fun openPrivacy() {
+        val tag = Lang.current(resources).tag
+        startActivity(Intent(Intent.ACTION_VIEW, android.net.Uri.parse("https://${Route.SITE_HOST}/privacy?utm_source=app" + if (tag == "he") "" else "#$tag")))
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
