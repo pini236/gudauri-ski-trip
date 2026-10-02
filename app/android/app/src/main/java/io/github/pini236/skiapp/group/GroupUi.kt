@@ -1,5 +1,7 @@
 package io.github.pini236.skiapp.group
 
+import androidx.compose.ui.res.painterResource
+import androidx.compose.foundation.Image
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -162,9 +164,8 @@ fun GoogleButton(text: String, onClick: () -> Unit, enabled: Boolean = true) {
             .heightIn(min = 52.dp).padding(horizontal = 18.dp),
         horizontalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterHorizontally), verticalAlignment = Alignment.CenterVertically,
     ) {
-        Box(Modifier.size(20.dp).border(2.dp, Color(0xFF747775), androidx.compose.foundation.shape.CircleShape), contentAlignment = Alignment.Center) {
-            Text("G", style = Ski.type.bodyBold.copy(fontSize = 12.sp, textAlign = TextAlign.Center), color = Color(0xFF1F1F1F))
-        }
+        // Google's own "G" (round 13, item 3), as on the site's button
+        Image(painterResource(R.drawable.ic_google_g), null, Modifier.size(20.dp))
         Text(text, style = Ski.type.bodyBold.copy(fontSize = 16.5.sp), color = Color(0xFF1F1F1F))
     }
 }
