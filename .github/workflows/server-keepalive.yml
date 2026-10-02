@@ -1,6 +1,7 @@
 # The daily keepalive (decision 28): the free Supabase plan pauses a project
-# with too little database activity for a week. Once a day this calls
-# keepalive() through the public API (server/supabase/migrations/*_keepalive.sql).
+# with too little database activity for a week. Once a day this calls the
+# server's keepalive action (server/supabase/functions/api/), which writes
+# to the database and, once a day, cleans up unused guest identities.
 #
 # Needs two repository variables (Settings > Secrets and variables > Actions >
 # Variables), set once the project exists: SUPABASE_URL and
@@ -31,7 +32,7 @@ jobs:
             exit 0
           fi
           for i in 1 2 3; do
-            if curl -fsS -X POST "$URL/rest/v1/rpc/keepalive" -H "apikey: $KEY" -H "Content-Type: application/json" -d '{}'; then
+            if curl -fsS -X POST "$URL/functions/v1/api/keepalive" -H "apikey: $KEY" -H "Content-Type: application/json" -d '{}'; then
               echo; exit 0
             fi
             sleep $((i * 30))
