@@ -286,14 +286,17 @@ function elevRows(p){
 }
 const CONFH={high:T('run.confidence_high'),medium:T('run.confidence_medium'),low:T('run.confidence_low')};
 const STATH={'osm-named':T('run.source_osm_named'),'osm-unnamed-match':T('run.source_osm_unnamed_match'),'gps':T('run.source_gps')};
-function researchBlock(p){const r=p.research;
+// the research notes are written in Hebrew in the data file; their translations live in the strings file (research.<run>.*),
+// and a note with no translation shows as written
+const RN=(key,he)=>{const v=T(key);return v===key?he:v;},rslug=p=>p.key.toLowerCase().replace(/ /g,'_');
+function researchBlock(p){const r=p.research,k='research.'+rslug(p);
   return `<h3>${E('run.source_heading')}</h3>
   <dl class="kv"><dt>${E('run.confidence_label')}</dt><dd>${esc(CONFH[r.conf]||r.conf)}</dd>
   <dt>${E('run.source_label')}</dt><dd>${esc(STATH[r.status]||r.status)}${r.historical?E('run.source_historical'):''}</dd>
   ${r.gps?`<dt>${E('run.gps_tracks_label')}</dt><dd>${H('run.gps_tracks_value',{n:r.gps},{n:num(r.gps)})}</dd>`:''}
-  ${r.partial?`<dt>${E('run.coverage_label')}</dt><dd>${esc(r.partial)}</dd>`:''}</dl>
-  <p class="hint">${esc(r.notes)}</p>
-  <ul class="notes">${r.sources.map(x=>`<li class="hint">${esc(x)}</li>`).join('')}</ul>`;}
+  ${r.partial?`<dt>${E('run.coverage_label')}</dt><dd>${esc(RN(k+'.partial',r.partial))}</dd>`:''}</dl>
+  <p class="hint">${esc(RN(k+'.notes',r.notes))}</p>
+  <ul class="notes">${r.sources.map(x=>`<li class="hint">${esc(/[\u0590-\u05ff]/.test(x)?RN('research.source_mta',x):x)}</li>`).join('')}</ul>`;}
 const navList=()=>{const order=['green','blue','red','black'];return D.pistes.filter(p=>p.named).sort((a,b)=>order.indexOf(a.color)-order.indexOf(b.color)||a.key.localeCompare(b.key,undefined,{numeric:true})).map(p=>p.key);};
 function runNav(key){
   const L=navList(),i=L.indexOf(key);if(i<0)return `<div class="run-nav"><button type="button" class="rn-share" data-share="${esc(key)}">${E('run.share_button')}</button></div>`;

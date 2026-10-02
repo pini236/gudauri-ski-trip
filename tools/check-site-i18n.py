@@ -12,13 +12,14 @@
      or data-i18n-js (text that app.js draws itself from the keys named there);
    - attributes (aria-label, alt, title, placeholder, content): named in the element's data-i18n-attr.
 4. Every key the games use (L('game...'), data-i18n, data-i18n-attr in site/games/*/index.html) exists.
+5. The Hebrew research notes in site/data/runs-and-lifts.json match their keys (research.<run>.*), so none is left untranslated.
 """
 import json, pathlib, re, sys
 from html.parser import HTMLParser
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 HEB = re.compile(r"[֐-׿]")
-AREAS = "meta|nav|common|home|ticket|daynight|about|map|run|lift|status|meet|games|acct|group|join|trip"
+AREAS = "meta|nav|common|home|ticket|daynight|about|map|run|lift|status|meet|games|acct|group|join|trip|research"
 KEY_LIT = re.compile(r"""(['"`])((?:%s)\.[a-z0-9_.]*)\1""" % AREAS)
 FILE = re.compile(r"\.(png|jpe?g|webp|svg|json|wav|html)$")  # a file name such as 'meet.png', not a key
 TEXT_ATTRS = ("data-i18n", "data-i18n-html", "data-i18n-tpl", "data-i18n-plural", "data-i18n-js")
@@ -187,6 +188,20 @@ def main():
                 if ":" in part:
                     need(part.split(":", 1)[1].strip(), f"{name}:{src.count(chr(10), 0, m.start()) + 1} data-i18n-attr")
                     game_keys += 1
+
+    # 5. The research notes (site/data/runs-and-lifts.json) are translated in the strings file (research.<run>.*):
+    #    its Hebrew must be the data's Hebrew, or a changed note would show a stale translation.
+    data = json.loads((ROOT / "site/data/runs-and-lifts.json").read_text(encoding="utf-8"))
+    for p in data["pistes"]:
+        r = p.get("research")
+        if not r:
+            continue
+        k = "research." + p["key"].lower().replace(" ", "_")
+        pairs = [(k + ".notes", r.get("notes")), (k + ".partial", r.get("partial"))]
+        pairs += [("research.source_mta", x) for x in r.get("sources", []) if HEB.search(x)]
+        for key, he in pairs:
+            if he and HEB.search(he) and strings.get(key, {}).get("he") != he:
+                errors.append(f"runs-and-lifts.json, {p['key']}: the Hebrew of '{key}' is not the data's (translate the change)")
 
     for e in errors:
         print("ERROR", e)

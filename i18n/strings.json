@@ -14437,6 +14437,174 @@
     "ru",
     "ka"
    ]
+  },
+  "research.baby.notes": {
+   "he": "המועמד הוצע על ידי ChatGPT ואושר על ידי המשתמש מול המפה הרשמית. קו מרכז בלבד (162 מ', ירידה של 17 מ', 2709 אל 2692), לא גבול של אזור. הוא נמצא 78 מ' מערבית-צפונית לתחנת Goodaura העליונה ו-129 מ' מצפון-מערב לתחתית Snow Park, כמו האזור הירוק במפה. ב-OSM אין לו שם והוא מסומן easy ולא novice. ה-GPS סביבו הוא בעיקר תנועה איטית באזור תחנות (חציון 0.6 מ'/ש'), ולכן אינו ראיה לשם. אין מקור למיקום ה-J-bar עצמו או לגבול האזור. הקו כבר מוצג באתר כמסלול ללא שם. ביטחון בינוני בזכות אישור המשתמש והמיקום.",
+   "en": "The candidate was suggested by ChatGPT and confirmed by the user against the official map. Centre line only (162 m, a 17 m drop, 2709 to 2692), not an area boundary. It lies 78 m west-northwest of the upper Goodaura station and 129 m northwest of the bottom of Snow Park, like the green area on the map. In OSM it has no name and is tagged easy, not novice. The GPS around it is mostly slow movement in a station area (median 0.6 m/s), so it is no evidence for the name. There is no source for the position of the J-bar itself or for the area's boundary. The line is already shown on the site as an unnamed run. Medium confidence, thanks to the user's confirmation and the location.",
+   "ru": "Кандидата предложил ChatGPT, пользователь подтвердил его по официальной карте. Только центральная линия (162 м, перепад 17 м, с 2709 до 2692), а не граница зоны. Она находится в 78 м к западу-северо-западу от верхней станции Goodaura и в 129 м к северо-западу от низа Snow Park, как зелёная зона на карте. В OSM у неё нет названия, и она помечена как easy, а не novice. GPS вокруг неё — в основном медленное движение в зоне станций (медиана 0,6 м/с), поэтому это не доказательство названия. Нет источника для положения самого бугеля (J-bar) и для границы зоны. Линия уже показана на сайте как трасса без названия. Средняя уверенность благодаря подтверждению пользователя и расположению.",
+   "ka": "კანდიდატი შემოგვთავაზა ChatGPT-მა და მომხმარებელმა დაადასტურა ოფიციალურ რუკასთან შედარებით. მხოლოდ ცენტრალური ხაზი (162 მ, 17 მ დაშვება, 2709-დან 2692-მდე) და არა ზონის საზღვარი. ის მდებარეობს Goodaura-ს ზედა სადგურიდან 78 მ-ში დასავლეთ-ჩრდილო-დასავლეთით და Snow Park-ის ქვედა ნაწილიდან 129 მ-ში ჩრდილო-დასავლეთით, როგორც რუკაზე მწვანე ზონა. OSM-ში მას სახელი არ აქვს და მონიშნულია როგორც easy და არა novice. მის გარშემო GPS ძირითადად ნელი მოძრაობაა სადგურების ზონაში (მედიანა 0,6 მ/წმ), ამიტომ ეს სახელის მტკიცებულება არ არის. თავად J-bar-ის მდებარეობისა და ზონის საზღვრის წყარო არ არსებობს. ხაზი საიტზე უკვე ნაჩვენებია როგორც უსახელო ტრასა. საშუალო სანდოობა მომხმარებლის დადასტურებისა და მდებარეობის გამო.",
+   "where": "site/js/app.js (research notes from site/data/runs-and-lifts.json)",
+   "note": "research.notes of Baby: the Hebrew must stay identical to the data file (tools/check-site-i18n.py); numbers, OSM ids and names as in the source",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "research.baby.partial": {
+   "he": "קו המרכז של אזור המתחילים. גבולות האזור והמעלית עצמה לא נמצאו בנתונים.",
+   "en": "The centre line of the beginner area. The area's boundaries and the lift itself were not found in the data.",
+   "ru": "Центральная линия учебной зоны. Границы зоны и сам подъёмник в данных не найдены.",
+   "ka": "დამწყებთა ზონის ცენტრალური ხაზი. ზონის საზღვრები და თავად საბაგირო მონაცემებში ვერ მოიძებნა.",
+   "where": "site/js/app.js (research notes from site/data/runs-and-lifts.json)",
+   "note": "research.partial of Baby",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "research.bombora.notes": {
+   "he": "המועמד הוצע על ידי ChatGPT ואושר על ידי המשתמש מול המפה הרשמית. קו מרכז בלבד (310 מ', ירידה של 24 מ', 2691 אל 2667), לא גבול של אזור. הוא מתחיל 6 מ' מתחנת Khada התחתונה ומסתיים 43 מ' מתחנת Kudebi התחתונה, כמו האזור הירוק במפה. אי-התאמה שלא הוכרעה: לפי skiresort ה-J-bar בגובה 2740 עד 2780 מ', והדרך נמצאת 50 עד 110 מ' נמוך מזה. ב-OSM אין לו שם והוא מסומן easy ולא novice. ה-GPS סביבו כולל תנועה איטית של תור לרכבלים. אין מקור למיקום ה-J-bar עצמו או לגבול האזור. הקו כבר מוצג באתר כמסלול ללא שם. ביטחון בינוני בזכות אישור המשתמש והמיקום.",
+   "en": "The candidate was suggested by ChatGPT and confirmed by the user against the official map. Centre line only (310 m, a 24 m drop, 2691 to 2667), not an area boundary. It starts 6 m from the lower Khada station and ends 43 m from the lower Kudebi station, like the green area on the map. An unresolved mismatch: according to skiresort the J-bar is at 2740 to 2780 m, and the way is 50 to 110 m lower than that. In OSM it has no name and is tagged easy, not novice. The GPS around it includes slow movement of lift queues. There is no source for the position of the J-bar itself or for the area's boundary. The line is already shown on the site as an unnamed run. Medium confidence, thanks to the user's confirmation and the location.",
+   "ru": "Кандидата предложил ChatGPT, пользователь подтвердил его по официальной карте. Только центральная линия (310 м, перепад 24 м, с 2691 до 2667), а не граница зоны. Она начинается в 6 м от нижней станции Khada и заканчивается в 43 м от нижней станции Kudebi, как зелёная зона на карте. Неразрешённое расхождение: по skiresort бугель (J-bar) находится на высоте 2740–2780 м, а линия на 50–110 м ниже. В OSM у неё нет названия, и она помечена как easy, а не novice. GPS вокруг неё включает медленное движение очередей к подъёмникам. Нет источника для положения самого бугеля и для границы зоны. Линия уже показана на сайте как трасса без названия. Средняя уверенность благодаря подтверждению пользователя и расположению.",
+   "ka": "კანდიდატი შემოგვთავაზა ChatGPT-მა და მომხმარებელმა დაადასტურა ოფიციალურ რუკასთან შედარებით. მხოლოდ ცენტრალური ხაზი (310 მ, 24 მ დაშვება, 2691-დან 2667-მდე) და არა ზონის საზღვარი. ის იწყება Khada-ს ქვედა სადგურიდან 6 მ-ში და მთავრდება Kudebi-ს ქვედა სადგურიდან 43 მ-ში, როგორც რუკაზე მწვანე ზონა. გადაუწყვეტელი შეუსაბამობა: skiresort-ის მიხედვით J-bar 2740–2780 მ სიმაღლეზეა, ხაზი კი ამაზე 50–110 მ-ით დაბლაა. OSM-ში მას სახელი არ აქვს და მონიშნულია როგორც easy და არა novice. მის გარშემო GPS მოიცავს საბაგიროების რიგების ნელ მოძრაობას. თავად J-bar-ის მდებარეობისა და ზონის საზღვრის წყარო არ არსებობს. ხაზი საიტზე უკვე ნაჩვენებია როგორც უსახელო ტრასა. საშუალო სანდოობა მომხმარებლის დადასტურებისა და მდებარეობის გამო.",
+   "where": "site/js/app.js (research notes from site/data/runs-and-lifts.json)",
+   "note": "research.notes of Bombora: the Hebrew must stay identical to the data file (tools/check-site-i18n.py); numbers, OSM ids and names as in the source",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "research.bombora.partial": {
+   "he": "קו המרכז של אזור המתחילים. גבולות האזור והמעלית עצמה לא נמצאו בנתונים.",
+   "en": "The centre line of the beginner area. The area's boundaries and the lift itself were not found in the data.",
+   "ru": "Центральная линия учебной зоны. Границы зоны и сам подъёмник в данных не найдены.",
+   "ka": "დამწყებთა ზონის ცენტრალური ხაზი. ზონის საზღვრები და თავად საბაგირო მონაცემებში ვერ მოიძებნა.",
+   "where": "site/js/app.js (research notes from site/data/runs-and-lifts.json)",
+   "note": "research.partial of Bombora",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "research.shino.notes": {
+   "he": "לפי המקרא של המפה הרשמית קו מקווקו כחול כהה הוא Ski Way (דרך מקשרת), כלומר Shino הוא חיבור בין אזורים ולא מסלול סקי; לכן kind הוא ski-way ולא run. הקו במפה יוצא מהצומת של Tatra 1 ו-Tatra 2 ליד תחנת Shino התחתונה וממשיך מזרחה לכיוון Zuma. הדרך הלא ממופה 1259783832 (1283 מ', יורדת מ-2313 ל-2182 מ') תואמת את זה, אבל ב-OSM היא נוצרה ב-10.3.2024 מקטע שהיה קודם חלק מ-Tatra 1 ואין לה שם, ולכן ההתאמה נשענת על המפה בלבד וביטחון נמוך. הקטע המערבי של הקו המקווקו (שבו יושבת התווית Shino, לכיוון Alpina) אין לו דרך ב-OSM. ChatGPT סימן not-found. המועמד 668794712 (230 מ', מחבר לתחנת Shino התחתונה) נשאר כחלופה.",
+   "en": "According to the legend of the official map, a dark blue dashed line is a Ski Way (a connecting route), so Shino is a link between areas and not a ski run; therefore its kind is ski-way, not run. On the map the line leaves the junction of Tatra 1 and Tatra 2 near the lower Shino station and continues east towards Zuma. The unnamed way 1259783832 (1283 m, descending from 2313 to 2182 m) matches this, but in OSM it was created on 10.3.2024 from a section that used to be part of Tatra 1 and has no name, so the match rests on the map alone and confidence is low. The western section of the dashed line (where the Shino label sits, towards Alpina) has no way in OSM. ChatGPT marked it not-found. The candidate 668794712 (230 m, connecting to the lower Shino station) remains as an alternative.",
+   "ru": "Согласно легенде официальной карты, тёмно-синяя пунктирная линия — это Ski Way (соединительная дорога), то есть Shino — переход между зонами, а не трасса; поэтому её тип ski-way, а не run. На карте линия выходит из развилки Tatra 1 и Tatra 2 у нижней станции Shino и продолжается на восток в сторону Zuma. Безымянная линия 1259783832 (1283 м, спуск с 2313 до 2182 м) этому соответствует, но в OSM она создана 10.3.2024 из участка, который раньше был частью Tatra 1, и не имеет названия, поэтому совпадение опирается только на карту, и уверенность низкая. У западного участка пунктира (где стоит подпись Shino, в сторону Alpina) в OSM линии нет. ChatGPT отметил его как not-found. Кандидат 668794712 (230 м, ведёт к нижней станции Shino) остаётся как альтернатива.",
+   "ka": "ოფიციალური რუკის ლეგენდის მიხედვით, მუქი ლურჯი წყვეტილი ხაზი არის Ski Way (დამაკავშირებელი გზა), ანუ Shino ზონებს შორის კავშირია და არა სათხილამურო ტრასა; ამიტომ მისი ტიპია ski-way და არა run. რუკაზე ხაზი გამოდის Tatra 1-ისა და Tatra 2-ის გზაჯვარედინიდან Shino-ს ქვედა სადგურთან და გრძელდება აღმოსავლეთით, Zuma-ს მიმართულებით. უსახელო გზა 1259783832 (1283 მ, ეშვება 2313-დან 2182 მ-მდე) ამას შეესაბამება, მაგრამ OSM-ში ის შეიქმნა 10.3.2024-ს მონაკვეთისგან, რომელიც ადრე Tatra 1-ის ნაწილი იყო, და სახელი არ აქვს, ამიტომ შესაბამისობა მხოლოდ რუკას ეყრდნობა და სანდოობა დაბალია. წყვეტილი ხაზის დასავლეთ მონაკვეთს (სადაც Shino-ს წარწერაა, Alpina-ს მიმართულებით) OSM-ში გზა არ აქვს. ChatGPT-მ ის მონიშნა როგორც not-found. კანდიდატი 668794712 (230 მ, Shino-ს ქვედა სადგურთან აკავშირებს) ალტერნატივად რჩება.",
+   "where": "site/js/app.js (research notes from site/data/runs-and-lifts.json)",
+   "note": "research.notes of Shino: the Hebrew must stay identical to the data file (tools/check-site-i18n.py); numbers, OSM ids and names as in the source",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "research.shino.partial": {
+   "he": "הקטע המערבי של הדרך המקשרת, לכיוון Alpina, לא נמצא בנתונים.",
+   "en": "The western section of the connecting route, towards Alpina, was not found in the data.",
+   "ru": "Западный участок соединительной дороги, в сторону Alpina, в данных не найден.",
+   "ka": "დამაკავშირებელი გზის დასავლეთი მონაკვეთი, Alpina-ს მიმართულებით, მონაცემებში ვერ მოიძებნა.",
+   "where": "site/js/app.js (research notes from site/data/runs-and-lifts.json)",
+   "note": "research.partial of Shino",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "research.firni_1.notes": {
+   "he": "במפה הרשמית Firni 1 הוא הקו המזרחי של גונדולת Firni. הדרך היחידה ב-OSM, 668794719, נמצאת בצד המזרחי של הגונדולה רק בחמישית העליונה (nodes 0 עד 9, 692 מ'), ואחר כך חוצה לצד המערבי; לכן רק החלק העליון נשמר כאן, והמשך הקו המזרחי לא נמצא. לגבי Kobi: ב-OSM הדרך נקראה Kobi 1 במרץ 2023 ומאז מרץ 2024 Frini, שגיאת כתיב של Firni (בגופן של המפה Firni נראה כמו Fimi). Kobi במפה הוא שם קטע הרכבל העליון, ולמסלול Kobi (668794718) כבר יש קו נפרד באתר מעל תחנת Firni העליונה. אין GPS שעוקב אחרי הקו. ChatGPT שמר את כל הדרך כ-Firni 1 (medium); כאן היא מפוצלת לפי צד הגונדולה. הדרך המלאה מצורפת כחלופה.",
+   "en": "On the official map Firni 1 is the eastern line of the Firni gondola. The only way in OSM, 668794719, runs on the eastern side of the gondola only in its top fifth (nodes 0 to 9, 692 m), and then crosses to the western side; so only the upper part is kept here, and the rest of the eastern line was not found. About Kobi: in OSM the way was called Kobi 1 in March 2023 and since March 2024 Frini, a misspelling of Firni (in the map's font Firni looks like Fimi). Kobi on the map is the name of the upper lift section, and the Kobi run (668794718) already has a separate line on the site above the upper Firni station. No GPS follows the line. ChatGPT kept the whole way as Firni 1 (medium); here it is split by the side of the gondola. The full way is attached as an alternative.",
+   "ru": "На официальной карте Firni 1 — восточная линия гондолы Firni. Единственная линия в OSM, 668794719, идёт с восточной стороны гондолы только в верхней пятой части (узлы 0–9, 692 м), а затем переходит на западную сторону; поэтому здесь сохранена только верхняя часть, а продолжение восточной линии не найдено. О Kobi: в OSM эта линия называлась Kobi 1 в марте 2023 года, а с марта 2024 года — Frini, опечатка в Firni (шрифтом карты Firni выглядит как Fimi). Kobi на карте — название верхнего участка подъёмника, а у трассы Kobi (668794718) на сайте уже есть отдельная линия выше верхней станции Firni. GPS, идущего вдоль линии, нет. ChatGPT сохранил всю линию как Firni 1 (medium); здесь она разделена по сторонам гондолы. Полная линия приложена как альтернатива.",
+   "ka": "ოფიციალურ რუკაზე Firni 1 არის Firni-ს გონდოლის აღმოსავლეთი ხაზი. OSM-ში ერთადერთი გზა, 668794719, გონდოლის აღმოსავლეთ მხარეს გადის მხოლოდ ზედა მეხუთედში (კვანძები 0–9, 692 მ), შემდეგ კი დასავლეთ მხარეს გადადის; ამიტომ აქ მხოლოდ ზედა ნაწილია შენახული, აღმოსავლეთი ხაზის გაგრძელება კი ვერ მოიძებნა. Kobi-ს შესახებ: OSM-ში ამ გზას 2023 წლის მარტში Kobi 1 ერქვა, 2024 წლის მარტიდან კი Frini, რაც Firni-ს ორთოგრაფიული შეცდომაა (რუკის შრიფტით Firni ჰგავს Fimi-ს). რუკაზე Kobi საბაგიროს ზედა მონაკვეთის სახელია, ხოლო Kobi-ს ტრასას (668794718) საიტზე უკვე აქვს ცალკე ხაზი Firni-ს ზედა სადგურის ზემოთ. ხაზის გასწვრივ GPS არ არის. ChatGPT-მ მთელი გზა შეინახა როგორც Firni 1 (medium); აქ ის გაყოფილია გონდოლის მხარეების მიხედვით. სრული გზა ალტერნატივად არის დართული.",
+   "where": "site/js/app.js (research notes from site/data/runs-and-lifts.json)",
+   "note": "research.notes of Firni 1: the Hebrew must stay identical to the data file (tools/check-site-i18n.py); numbers, OSM ids and names as in the source",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "research.firni_1.partial": {
+   "he": "נמצא רק החלק העליון, 692 מ׳ בצד המזרחי של הגונדולה. ההמשך לא נמצא בשום מקור.",
+   "en": "Only the upper part was found, 692 m on the eastern side of the gondola. The rest was not found in any source.",
+   "ru": "Найдена только верхняя часть, 692 м с восточной стороны гондолы. Продолжение не найдено ни в одном источнике.",
+   "ka": "ნაპოვნია მხოლოდ ზედა ნაწილი, 692 მ გონდოლის აღმოსავლეთ მხარეს. გაგრძელება არცერთ წყაროში ვერ მოიძებნა.",
+   "where": "site/js/app.js (research notes from site/data/runs-and-lifts.json)",
+   "note": "research.partial of Firni 1",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "research.firni_2.notes": {
+   "he": "במפה הרשמית Firni 2 הוא הקו המערבי של הגונדולה: יוצא מהחלק העליון, יורד בצד המערבי, מתפתל מזרחה ליד האגם ומתחבר לגונדולה בסוף. החלק התחתון של הדרך 668794719 (nodes 9 עד 22, 1612 מ') נמצא בצד המערבי ומסתיים בחזרה ליד הגונדולה, כמו Firni 2, ולכן נשמר כאן. ההתחלה של Firni 2 בחלק העליון לא נמצאה. אין ב-OSM שם עם מספר וגם אין GPS, לכן ההתאמה לפי מיקום במפה בלבד וביטחון נמוך. ChatGPT סימן not-found. הדרך המלאה מצורפת כחלופה.",
+   "en": "On the official map Firni 2 is the western line of the gondola: it leaves the upper part, descends on the western side, winds east near the lake and joins the gondola at the end. The lower part of way 668794719 (nodes 9 to 22, 1612 m) is on the western side and ends back near the gondola, like Firni 2, so it is kept here. The start of Firni 2 in the upper part was not found. OSM has no numbered name and there is no GPS, so the match is by position on the map only and confidence is low. ChatGPT marked it not-found. The full way is attached as an alternative.",
+   "ru": "На официальной карте Firni 2 — западная линия гондолы: выходит из верхней части, спускается по западной стороне, петляет на восток у озера и в конце соединяется с гондолой. Нижняя часть линии 668794719 (узлы 9–22, 1612 м) находится на западной стороне и заканчивается снова у гондолы, как Firni 2, поэтому она сохранена здесь. Начало Firni 2 в верхней части не найдено. В OSM нет названия с номером и нет GPS, поэтому совпадение только по положению на карте, и уверенность низкая. ChatGPT отметил его как not-found. Полная линия приложена как альтернатива.",
+   "ka": "ოფიციალურ რუკაზე Firni 2 გონდოლის დასავლეთი ხაზია: გამოდის ზედა ნაწილიდან, ეშვება დასავლეთ მხარეს, ტბასთან აღმოსავლეთისკენ იხვევა და ბოლოს გონდოლას უერთდება. გზის 668794719 ქვედა ნაწილი (კვანძები 9–22, 1612 მ) დასავლეთ მხარესაა და კვლავ გონდოლასთან მთავრდება, როგორც Firni 2, ამიტომ აქ არის შენახული. Firni 2-ის დასაწყისი ზედა ნაწილში ვერ მოიძებნა. OSM-ში ნომრიანი სახელი და GPS არ არის, ამიტომ შესაბამისობა მხოლოდ რუკაზე მდებარეობით არის დადგენილი და სანდოობა დაბალია. ChatGPT-მ ის მონიშნა როგორც not-found. სრული გზა ალტერნატივად არის დართული.",
+   "where": "site/js/app.js (research notes from site/data/runs-and-lifts.json)",
+   "note": "research.notes of Firni 2: the Hebrew must stay identical to the data file (tools/check-site-i18n.py); numbers, OSM ids and names as in the source",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "research.firni_2.partial": {
+   "he": "נמצא רק החלק התחתון, 1.6 ק״מ בצד המערבי של הגונדולה. ההתחלה בחלק העליון לא נמצאה.",
+   "en": "Only the lower part was found, 1.6 km on the western side of the gondola. The start in the upper part was not found.",
+   "ru": "Найдена только нижняя часть, 1,6 км с западной стороны гондолы. Начало в верхней части не найдено.",
+   "ka": "ნაპოვნია მხოლოდ ქვედა ნაწილი, 1,6 კმ გონდოლის დასავლეთ მხარეს. დასაწყისი ზედა ნაწილში ვერ მოიძებნა.",
+   "where": "site/js/app.js (research notes from site/data/runs-and-lifts.json)",
+   "note": "research.partial of Firni 2",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "research.tatra_2.notes": {
+   "he": "קו פנימי מאזור התחנה העליונה עד תחנת Shino התחתונה (2282 מ'), כולל הגזע התחתון המשותף עם Tatra 1. הגיאומטריה היא שתי דרכי OSM היסטוריות ששתיהן נקראו Tatra 2 (668794706 ו-1018641392), מחוברות בצומת (42.4799,44.4818). זו אותה גיאומטריה כמו בחבילה של ChatGPT; בגרסה הקודמת שלי הסתיימה הדרך בצומת בלבד (1476 מ'). כל 12 ה-nodes של 1018641392 נמצאים גם ב-Tatra 1 הנוכחי, ולכן הגזע התחתון כבר מצויר באתר תחת Tatra 1. הענף התחתון 668794711 (221 מ') נקרא Tatra 2 ב-OSM בין מרץ 2023 למרץ 2024 ומאז Tatra 1, והוא מצורף כחלופה. שמות OSM היו הפוכים ב-2019 (הדרך 668794706 נקראה אז Tatra 1), ולכן ההכרעה נשענת גם על המפה ועל אישור המשתמש.",
+   "en": "An inner line from the upper station area to the lower Shino station (2282 m), including the lower trunk shared with Tatra 1. The geometry is two historical OSM ways that were both called Tatra 2 (668794706 and 1018641392), joined at a junction (42.4799,44.4818). This is the same geometry as in the ChatGPT package; in my earlier version the way ended at the junction only (1476 m). All 12 nodes of 1018641392 are also in the current Tatra 1, so the lower trunk is already drawn on the site under Tatra 1. The lower branch 668794711 (221 m) was called Tatra 2 in OSM between March 2023 and March 2024 and Tatra 1 since then, and it is attached as an alternative. The OSM names were reversed in 2019 (way 668794706 was then called Tatra 1), so the decision also rests on the map and on the user's confirmation.",
+   "ru": "Внутренняя линия от зоны верхней станции до нижней станции Shino (2282 м), включая нижний общий ствол с Tatra 1. Геометрия — две исторические линии OSM, обе назывались Tatra 2 (668794706 и 1018641392), соединённые в развилке (42.4799,44.4818). Это та же геометрия, что и в пакете ChatGPT; в моей прежней версии линия заканчивалась только у развилки (1476 м). Все 12 узлов 1018641392 есть и в нынешней Tatra 1, поэтому нижний ствол уже нарисован на сайте как Tatra 1. Нижняя ветка 668794711 (221 м) в OSM называлась Tatra 2 с марта 2023 по март 2024 года, а с тех пор — Tatra 1; она приложена как альтернатива. В 2019 году названия в OSM были перепутаны (линия 668794706 тогда называлась Tatra 1), поэтому решение опирается также на карту и на подтверждение пользователя.",
+   "ka": "შიდა ხაზი ზედა სადგურის ზონიდან Shino-ს ქვედა სადგურამდე (2282 მ), Tatra 1-თან საერთო ქვედა ღეროს ჩათვლით. გეომეტრია ორი ისტორიული OSM გზაა, რომლებსაც ორივეს Tatra 2 ერქვა (668794706 და 1018641392), შეერთებული გზაჯვარედინზე (42.4799,44.4818). ეს იგივე გეომეტრიაა, რაც ChatGPT-ის პაკეტში; ჩემს წინა ვერსიაში გზა მხოლოდ გზაჯვარედინზე მთავრდებოდა (1476 მ). 1018641392-ის ყველა 12 კვანძი ამჟამინდელ Tatra 1-შიცაა, ამიტომ ქვედა ღერო საიტზე უკვე დახატულია Tatra 1-ის სახით. ქვედა განშტოებას 668794711 (221 მ) OSM-ში 2023 წლის მარტიდან 2024 წლის მარტამდე Tatra 2 ერქვა, მას შემდეგ კი Tatra 1, და ის ალტერნატივად არის დართული. 2019 წელს OSM-ის სახელები შებრუნებული იყო (გზას 668794706 მაშინ Tatra 1 ერქვა), ამიტომ გადაწყვეტილება რუკასა და მომხმარებლის დადასტურებასაც ეყრდნობა.",
+   "where": "site/js/app.js (research notes from site/data/runs-and-lifts.json)",
+   "note": "research.notes of Tatra 2: the Hebrew must stay identical to the data file (tools/check-site-i18n.py); numbers, OSM ids and names as in the source",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "research.soliko_2.notes": {
+   "he": "קטע חלקי בלבד: 372 מ' מתוך כ-1,180 מ' (מדריך צד שלישי). הזיהוי של הקטע נתמך משלושה כיוונים: ב-OSM שמו Soliko 2 עם ref 2B (בין 2A=Soliko 1 ל-2C=Sportuli 1); ה-node הראשון שלו משותף עם Soliko 1, ובמפה Soliko 2 מתפצל מ-Soliko 1; והוא חוצה את רכבל Shino בגובה 2,424 מ', בערך באמצע הרכבל, בדיוק כמו במפה. ההמשך עד תחתית ההר לא נמצא באף מקור: מבין 11 הקלטות GPS שגלשו בתחילת הקו, רובן המשיכו לאורך Soliko 1 או Sportuli 1 ולא לאורך מסלול נפרד, ולכן לא נוצרה הארכה. ChatGPT סימן אותה גיאומטריה בדיוק ב-high; אצלי medium כי היא חלקית. הדרך 1259783832 אינה Soliko 2 (ראו Shino).",
+   "en": "A partial section only: 372 m out of about 1,180 m (a third-party guide). The identification of the section is supported from three directions: in OSM its name is Soliko 2 with ref 2B (between 2A=Soliko 1 and 2C=Sportuli 1); its first node is shared with Soliko 1, and on the map Soliko 2 branches off Soliko 1; and it crosses the Shino lift at 2,424 m, about halfway along the lift, exactly as on the map. The rest down to the bottom of the mountain was not found in any source: of 11 GPS recordings that skied the start of the line, most continued along Soliko 1 or Sportuli 1 and not along a separate run, so no extension was made. ChatGPT marked exactly the same geometry high; mine is medium because it is partial. Way 1259783832 is not Soliko 2 (see Shino).",
+   "ru": "Только частичный участок: 372 м из примерно 1180 м (по стороннему путеводителю). Опознание участка подтверждается с трёх сторон: в OSM его название Soliko 2 с ref 2B (между 2A=Soliko 1 и 2C=Sportuli 1); его первый узел общий с Soliko 1, и на карте Soliko 2 ответвляется от Soliko 1; и он пересекает подъёмник Shino на высоте 2424 м, примерно на середине подъёмника, точно как на карте. Продолжение до низа горы не найдено ни в одном источнике: из 11 записей GPS, проехавших начало линии, большинство продолжили по Soliko 1 или Sportuli 1, а не по отдельной трассе, поэтому продление не создано. ChatGPT отметил ровно ту же геометрию как high; у меня medium, потому что она частичная. Линия 1259783832 — это не Soliko 2 (см. Shino).",
+   "ka": "მხოლოდ ნაწილობრივი მონაკვეთი: 372 მ დაახლოებით 1180 მ-დან (მესამე მხარის გზამკვლევით). მონაკვეთის იდენტიფიკაცია სამი მხრიდან დასტურდება: OSM-ში მისი სახელია Soliko 2, ref 2B-ით (2A=Soliko 1-სა და 2C=Sportuli 1-ს შორის); მისი პირველი კვანძი საერთოა Soliko 1-თან, ხოლო რუკაზე Soliko 2 Soliko 1-იდან განიშტოება; და ის კვეთს Shino-ს საბაგიროს 2424 მ სიმაღლეზე, დაახლოებით საბაგიროს შუაში, ზუსტად როგორც რუკაზე. გაგრძელება მთის ძირამდე არცერთ წყაროში ვერ მოიძებნა: 11 GPS ჩანაწერიდან, რომლებმაც ხაზის დასაწყისი ჩაიარეს, უმეტესობამ გააგრძელა Soliko 1-ით ან Sportuli 1-ით და არა ცალკე ტრასით, ამიტომ გაგრძელება არ შეიქმნა. ChatGPT-მ ზუსტად იგივე გეომეტრია მონიშნა როგორც high; ჩემთან medium-ია, რადგან ნაწილობრივია. გზა 1259783832 არ არის Soliko 2 (იხ. Shino).",
+   "where": "site/js/app.js (research notes from site/data/runs-and-lifts.json)",
+   "note": "research.notes of Soliko 2: the Hebrew must stay identical to the data file (tools/check-site-i18n.py); numbers, OSM ids and names as in the source",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "research.soliko_2.partial": {
+   "he": "נמצאו רק 372 המטרים העליונים מתוך כ-1,180 מ׳. ההמשך עד תחתית ההר לא נמצא בשום מקור.",
+   "en": "Only the top 372 metres out of about 1,180 m were found. The rest down to the bottom of the mountain was not found in any source.",
+   "ru": "Найдены только верхние 372 метра из примерно 1180 м. Продолжение до низа горы не найдено ни в одном источнике.",
+   "ka": "ნაპოვნია მხოლოდ ზედა 372 მეტრი დაახლოებით 1180 მ-დან. გაგრძელება მთის ძირამდე არცერთ წყაროში ვერ მოიძებნა.",
+   "where": "site/js/app.js (research notes from site/data/runs-and-lifts.json)",
+   "note": "research.partial of Soliko 2",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "research.source_mta": {
+   "he": "המפה הרשמית של MTA (התמונה שצורפה בשיחה), שימוש לזיהוי שם, צבע, התחלה, סיום ומקרא בלבד",
+   "en": "The official MTA map (the image attached in the conversation), used only to identify name, colour, start, end and legend",
+   "ru": "Официальная карта MTA (изображение, приложенное в переписке), использована только для определения названия, цвета, начала, конца и легенды",
+   "ka": "MTA-ს ოფიციალური რუკა (საუბარში მიმაგრებული სურათი), გამოყენებულია მხოლოდ სახელის, ფერის, დასაწყისის, დასასრულისა და ლეგენდის დასადგენად",
+   "where": "site/js/app.js (research notes from site/data/runs-and-lifts.json)",
+   "note": "the Hebrew source line about the official MTA map, in research.sources",
+   "check": [
+    "ru",
+    "ka"
+   ]
   }
  }
 }

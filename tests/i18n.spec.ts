@@ -88,3 +88,15 @@ test('the language row in settings opens the list, and choosing switches and rem
   await expect(page.locator('html')).toHaveAttribute('lang', 'he');
   await expect(page.locator('#abLangSub')).toHaveText('נבחרה לפי הדפדפן');
 });
+
+// the research notes of a run are written in Hebrew in the data file and translated in the strings file (research.*)
+for (const [lang, words] of [['en', 'connecting route'], ['ru', 'соединительная дорога'], ['ka', 'დამაკავშირებელი გზა']] as const) {
+  test(`run research notes in ${lang}`, async ({ page }) => {
+    await page.goto(`/?lang=${lang}#map/run/Shino`);
+    await expect(page.locator('#loading')).toBeHidden({ timeout: 20_000 });
+    const notes = page.locator('#panel p.hint').filter({ hasText: words });
+    await expect(notes.first()).toBeVisible({ timeout: 15_000 });
+    const panel = await page.locator('#panel').innerText();
+    expect(panel).not.toMatch(HEBREW);
+  });
+}
