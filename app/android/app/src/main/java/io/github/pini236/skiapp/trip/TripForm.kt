@@ -149,16 +149,20 @@ fun TripForm(initial: Trip?, today: LocalDate, onSave: (Trip) -> Unit, onDelete:
             }
         }
         val close = { pick = null }
+        // each picker says which field it fills: "Outbound · Departs"
+        val out = stringResource(R.string.app_pass_out); val ret = stringResource(R.string.app_pass_ret)
+        val dateL = stringResource(R.string.app_trip_date); val depL = stringResource(R.string.ticket_departs); val arrL = stringResource(R.string.ticket_arrives)
+        fun head(leg: String, field: String) = "$leg · $field"
         when (pick) {
             // the outbound from today on; the return and the ski days within the trip
-            "oDate" -> DateDialog(oDate, today, today, null, { oDate = it; if (rDate != null && rDate!! < it) rDate = null }, close)
-            "rDate" -> DateDialog(rDate, oDate, oDate ?: today, null, { rDate = it }, close)
-            "sFrom" -> DateDialog(sFrom, oDate, oDate, rDate, { sFrom = it }, close)
-            "sTo" -> DateDialog(sTo, sFrom ?: oDate, sFrom ?: oDate, rDate, { sTo = it }, close)
-            "oDep" -> TimeDialog(oDep, { oDep = it }, close)
-            "oArr" -> TimeDialog(oArr ?: oDep, { oArr = it }, close)
-            "rDep" -> TimeDialog(rDep, { rDep = it }, close)
-            "rArr" -> TimeDialog(rArr ?: rDep, { rArr = it }, close)
+            "oDate" -> DateDialog(head(out, dateL), oDate, today, today, null, { oDate = it; if (rDate != null && rDate!! < it) rDate = null }, close)
+            "rDate" -> DateDialog(head(ret, dateL), rDate, oDate, oDate ?: today, null, { rDate = it }, close)
+            "sFrom" -> DateDialog(stringResource(R.string.app_trip_ski_first), sFrom, oDate, oDate, rDate, { sFrom = it }, close)
+            "sTo" -> DateDialog(stringResource(R.string.app_trip_ski_last), sTo, sFrom ?: oDate, sFrom ?: oDate, rDate, { sTo = it }, close)
+            "oDep" -> TimeDialog(head(out, depL), oDep, { oDep = it }, close)
+            "oArr" -> TimeDialog(head(out, arrL), oArr ?: oDep, { oArr = it }, close)
+            "rDep" -> TimeDialog(head(ret, depL), rDep, { rDep = it }, close)
+            "rArr" -> TimeDialog(head(ret, arrL), rArr ?: rDep, { rArr = it }, close)
             "oFrom" -> PlaceSheet(stringResource(R.string.app_trip_place_from), oFrom, listOf("TLV"), { oFrom = it; close() }, close)
             "oTo" -> PlaceSheet(stringResource(R.string.app_trip_place_to), oTo, listOf("TBS", "KUT", "BUS"), { oTo = it; close() }, close)
         }

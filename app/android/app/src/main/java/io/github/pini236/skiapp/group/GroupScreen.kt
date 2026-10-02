@@ -241,8 +241,8 @@ fun GroupScreen(
                 }
                 val today = now.toLocalDate()
                 when (pick) {
-                    "from" -> DateDialog(from, today, today, null, { from = it; if (to != null && to!! < it) to = null }, { pick = null })
-                    "to" -> DateDialog(to, from ?: today, from ?: today, null, { to = it }, { pick = null })
+                    "from" -> DateDialog(stringResource(R.string.app_g_from_date), from, today, today, null, { from = it; if (to != null && to!! < it) to = null }, { pick = null })
+                    "to" -> DateDialog(stringResource(R.string.app_g_to_date), to, from ?: today, from ?: today, null, { to = it }, { pick = null })
                 }
             }
         }

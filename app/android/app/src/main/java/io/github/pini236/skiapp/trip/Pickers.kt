@@ -39,6 +39,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
@@ -55,6 +56,7 @@ import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.ZoneOffset
+import java.time.format.DateTimeFormatter
 
 /*
  * Filling the trip without typing (Pini, 2.10.2026: "typing dates and lots of numbers by hand is not comfortable"):
@@ -101,10 +103,14 @@ internal fun PickerTheme(content: @Composable () -> Unit) {
 private fun LocalDate.millis() = atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli()
 private fun Long.date(): LocalDate = Instant.ofEpochMilli(this).atZone(ZoneOffset.UTC).toLocalDate()
 
-/** A day from the system's calendar, between [min] and [max]; it opens on [initial] or on [open]'s month. */
+/**
+ * A day from the system's calendar, between [min] and [max]; it opens on [initial] or on [open]'s month. [title] says
+ * which day this is ("Outbound · Date"), and the chosen day shows big above the month, in the app's own headline type.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-internal fun DateDialog(initial: LocalDate?, open: LocalDate?, min: LocalDate?, max: LocalDate?, onPick: (LocalDate) -> Unit, onDismiss: () -> Unit) {
+internal fun DateDialog(title: String, initial: LocalDate?, open: LocalDate?, min: LocalDate?, max: LocalDate?, onPick: (LocalDate) -> Unit, onDismiss: () -> Unit) {
+    val c = Ski.colors
     val state = rememberDatePickerState(
         initialSelectedDateMillis = initial?.millis(),
         initialDisplayedMonthMillis = (initial ?: open ?: min)?.millis(),
@@ -115,25 +121,38 @@ internal fun DateDialog(initial: LocalDate?, open: LocalDate?, min: LocalDate?, 
             }
         },
     )
+    val locale = LocalConfiguration.current.locales[0]
+    val chosen = state.selectedDateMillis?.date()
     PickerTheme {
         DatePickerDialog(
             onDismissRequest = onDismiss,
-            confirmButton = { TextButton({ state.selectedDateMillis?.let { onPick(it.date()) }; onDismiss() }, enabled = state.selectedDateMillis != null) { Text(stringResource(R.string.app_pick_ok)) } },
+            confirmButton = { TextButton({ chosen?.let(onPick); onDismiss() }, enabled = chosen != null) { Text(stringResource(R.string.app_pick_ok)) } },
             dismissButton = { TextButton(onDismiss) { Text(stringResource(R.string.app_cancel)) } },
-        ) { DatePicker(state, showModeToggle = false) }
+        ) {
+            DatePicker(
+                state, showModeToggle = false,
+                title = { Text(title, Modifier.padding(start = 24.dp, end = 12.dp, top = 18.dp), style = Ski.type.label.copy(fontSize = 13.sp), color = c.muted) },
+                headline = {
+                    Text(chosen?.let { DateTimeFormatter.ofPattern("EEEE · d.M.yyyy", locale).format(it) } ?: stringResource(R.string.app_trip_pick_date),
+                        Modifier.padding(start = 24.dp, end = 12.dp, bottom = 10.dp), style = Ski.type.title.copy(fontSize = 34.sp),
+                        color = if (chosen == null) c.muted else c.ink, maxLines = 1)
+                },
+            )
+        }
     }
 }
 
-/** A time from the system's clock face, in 24 hours. */
+/** A time from the system's clock face, in 24 hours; [title] says which time this is ("Outbound · Departs"). */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-internal fun TimeDialog(initial: LocalTime?, onPick: (LocalTime) -> Unit, onDismiss: () -> Unit) {
+internal fun TimeDialog(title: String, initial: LocalTime?, onPick: (LocalTime) -> Unit, onDismiss: () -> Unit) {
     val state = rememberTimePickerState(initial?.hour ?: 12, initial?.minute ?: 0, is24Hour = true)
     PickerTheme {
         AlertDialog(
             onDismissRequest = onDismiss,
             confirmButton = { TextButton({ onPick(LocalTime.of(state.hour, state.minute)); onDismiss() }) { Text(stringResource(R.string.app_pick_ok)) } },
             dismissButton = { TextButton(onDismiss) { Text(stringResource(R.string.app_cancel)) } },
+            title = { Text(title, style = Ski.type.title.copy(fontSize = 34.sp), color = Ski.colors.ink, maxLines = 1) },
             text = { Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) { TimePicker(state) } },
         )
     }
