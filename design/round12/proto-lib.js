@@ -88,20 +88,25 @@ function page(html, wide = false) {
 const head = (t, back = 'בית') => `<div class="r12-head"><h1>${t}</h1><a href="#home">${ic('back')}${back}</a></div>`;
 
 function tripForm() {
+  // Pini (2.10.2026, on the app's form): typing dates and numbers by hand is uncomfortable. So: the browser's own
+  // date and time pickers, the destination starts as Tbilisi, and the return is the outbound the other way round.
   page.me = false;
+  const inp = (label, type, value, extra = '') => `<div class="r12-fld"><label>${label}</label><input type="${type}" value="${value}"${extra}></div>`;
+  const sel = (label, opts, pick) => `<div class="r12-fld"><label>${label}</label><select class="r12-sel">${opts.map(o => `<option${o === pick ? ' selected' : ''}>${o}</option>`).join('')}</select></div>`;
+  const airports = ['TLV · תל אביב', 'TBS · טביליסי', 'KUT · קוטאיסי'];
   page(head('הטיול שלך', 'ביטול')
-    + `<p class="r12-lead">הטיסות שלך לגודאורי. בלי הרשמה: נשמר רק בדפדפן הזה.</p>`
+    + `<p class="r12-lead">רק תאריך ההלוך חובה. בלי הרשמה: נשמר רק בדפדפן הזה.</p>`
     + `<form style="display:flex;flex-direction:column;gap:12px">`
     + `<div class="r12-sec"><b>הלוך</b><i></i><span>חובה רק התאריך</span></div>`
-    + `<div class="r12-grid">${fld('תאריך', '10.1.2027')}${fld('מספר טיסה', '6H 897', 'למשל 6H 897', true)}</div>`
-    + `<div class="r12-grid">${fld('מ', 'TLV · תל אביב')}${fld('אל', 'TBS · טביליסי')}</div>`
-    + `<div class="r12-grid">${fld('המראה', '16:00')}${fld('נחיתה', '20:35')}</div>`
-    + `<div class="r12-sec" style="margin-top:8px"><b>חזור</b><i></i><span>אפשר גם בלי</span></div>`
-    + `<div class="r12-grid">${fld('תאריך', '15.1.2027')}${fld('מספר טיסה', '6H 892', '', true)}</div>`
-    + `<div class="r12-grid">${fld('המראה', '01:35')}${fld('נחיתה', '02:15')}</div>`
+    + `<div class="r12-grid">${inp('תאריך', 'date', '2027-01-10')}${inp('מספר טיסה', 'text', '6H 897', ' dir="ltr" style="text-transform:uppercase" autocapitalize="characters" placeholder="למשל 6H 897"')}</div>`
+    + `<div class="r12-grid">${sel('מ', airports, 'TLV · תל אביב')}${sel('אל', airports, 'TBS · טביליסי')}</div>`
+    + `<div class="r12-grid">${inp('המראה', 'time', '16:00')}${inp('נחיתה', 'time', '20:35')}</div>`
+    + `<div class="r12-sec" style="margin-top:8px"><b>חזור</b><i></i><span dir="rtl">טביליסי › תל אביב, אוטומטית</span></div>`
+    + `<div class="r12-grid">${inp('תאריך', 'date', '2027-01-15')}${inp('מספר טיסה', 'text', '6H 892', ' dir="ltr" style="text-transform:uppercase"')}</div>`
+    + `<div class="r12-grid">${inp('המראה', 'time', '01:35')}${inp('נחיתה', 'time', '02:15')}</div>`
     + `<div class="r12-card" style="padding:12px 14px;display:flex;justify-content:space-between;align-items:center"><span><small style="font-size:12px;font-weight:600;color:var(--muted)">ימי סקי מלאים, מחושב מהטיסות</small><br><b style="font-family:var(--f-display);font-size:30px;line-height:1"><span dir="ltr">11–14.1</span> · 4 ימים</b></span><a href="#" style="font-weight:700;min-height:44px;display:inline-flex;align-items:center">שינוי</a></div>`
     + `<div class="r12-btns" style="margin-top:6px"><button type="button" class="r12-btn blue">${ic('check')}שמירה</button><button type="button" class="r12-btn quiet">מחיקת הטיול</button></div></form>`
-    + note('מתחברים? הטיול עובר לחשבון, ומופיע גם באפליקציה.', 'cloud'));
+    + note('תאריך ושעה נבחרים מהלוח של הדפדפן, בלי הקלדה. מתחברים? הטיול עובר לחשבון, ומופיע גם באפליקציה.', 'cloud'));
 }
 
 function signIn() {

@@ -12,7 +12,7 @@ PAGE = ('round12', 'סבב 12: חשבון וקבוצה באתר')
 
 SHOTS = [  # file, title, asset url, width, height, row
     ('W1-GuestHome.dc.html', 'דף הבית: אורח, בלי טיול', '/_blob/93d41006d332e644e4dd1aa4051c4ceb', 390, 1349, 0),
-    ('W2-TripForm.dc.html', 'הטיול שלך באתר', '/_blob/a0105af559e14ce274dc4dec5af8eb46', 390, 929, 0),
+    ('W2-TripForm.dc.html', 'הטיול שלך באתר: בוררי תאריך ושעה', '/_blob/e2da89b5a7b06fe2ff19d9f8052c18b4', 390, 947, 0),
     ('W3-TripHome.dc.html', 'דף הבית: עם הטיול, מחובר', '/_blob/6aedaa3995b3c60f258afd1aebe867eb', 390, 1263, 0),
     ('W11-TripHomeNight.dc.html', 'דף הבית: עם הטיול, בלילה', '/_blob/a663e95db61164786445c495bb6d27ac', 390, 1263, 0),
     ('W4-SignIn.dc.html', 'כניסה: גוגל, אפל, או אורח', '/_blob/4abad587e73d220c1bacb81458409b90', 390, 844, 1),

@@ -138,3 +138,4 @@
 .gondola{position:absolute;inset:0;pointer-events:none;z-index:2}
 .gondola a{pointer-events:auto;position:absolute;display:block;width:56px;height:84px;text-decoration:none}
 .gondola .cab-tag{position:absolute;top:86px;left:50%;transform:translateX(-50%);padding:2px 8px;background:var(--p-blue);color:#fff;font-size:12px;font-weight:700;white-space:nowrap}
+.r12-sel{width:100%;height:48px;font:inherit;font-size:16px;color:var(--ink);background:var(--paper);border:1.5px solid var(--rule);border-radius:0;padding:0 10px}
