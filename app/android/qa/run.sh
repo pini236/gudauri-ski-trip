@@ -28,13 +28,21 @@ burst() { # burst <name> <count> <gap seconds>: frames of an animation
 
 # the app's own log lines (tag SkiQa) stream into a file; each step waits for its line after a mark
 adb logcat -c
-adb logcat -v time > "$OUT/logcat.txt" 2>&1 &
-LOGCAT=$!
+: > "$OUT/logcat.txt"
+logcat_on() { # stream the log into the file; after a break (adb drops it now and then), go on from its last line
+  local since; since=$(tail -n 1 "$OUT/logcat.txt" | cut -c1-18)
+  if [[ "$since" =~ ^[0-9]{2}-[0-9]{2}\ [0-9:.]{12}$ ]]; then adb logcat -v time -T "$since" >> "$OUT/logcat.txt" 2>&1 &
+  else adb logcat -v time >> "$OUT/logcat.txt" 2>&1 &
+  fi
+  LOGCAT=$!
+}
+logcat_on
 MARK=0
 mark() { MARK=$(wc -l < "$OUT/logcat.txt"); }
 waitlog() { # waitlog <text> [seconds]
   local deadline=$((SECONDS + ${2:-60}))
   while (( SECONDS < deadline )); do
+    kill -0 "$LOGCAT" 2> /dev/null || { note "log stream broke: started again"; logcat_on; }
     # grep reads to the end (no -q): with pipefail, an early exit would kill tail and fail the check
     tail -n +"$((MARK + 1))" "$OUT/logcat.txt" | grep "SkiQa.*$1" > /dev/null && return 0
     sleep 0.5
