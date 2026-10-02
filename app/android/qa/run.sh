@@ -136,7 +136,15 @@ descent() {
 
 # ---- the home page (round 10: H1 to H4, LT1 to LT3) ----
 # what is on screen: the accessibility tree (uiautomator), so a step can tap a button by its words
-uidump() { adb shell uiautomator dump /sdcard/ui.xml > /dev/null && adb pull /sdcard/ui.xml "$OUT/ui.xml" > /dev/null && unblock >&2; } # where() prints only its x y
+uidump() { # never an old tree: the tool gives up on a screen that is still busy ("could not get idle state"), so try again
+  local i
+  for i in 1 2 3; do
+    adb shell rm -f /sdcard/ui.xml
+    adb shell uiautomator dump /sdcard/ui.xml 2>&1 | grep -q "dumped to" && adb pull /sdcard/ui.xml "$OUT/ui.xml" > /dev/null && { unblock >&2; return 0; } # where() prints only its x y
+    sleep 1
+  done
+  : > "$OUT/ui.xml"; return 1
+}
 # a system "isn't responding" dialog (the emulator's launcher, now and then) covers the app: wait it out and go on,
 # and count it as a failure only when it is the app's own
 unblock() {
@@ -172,12 +180,19 @@ def walk(n, tappable):
         rank = 0 if t in got else 1 if any(t in g for g in got) else 9
         if rank < 9: found.append((rank, 0 if tap else 1, len(found), tuple(map(int, b.groups()))))
     for c in n: walk(c, tap)
-walk(ET.parse(sys.argv[1]).getroot(), False)
+try: root = ET.parse(sys.argv[1]).getroot()
+except ET.ParseError: sys.exit(0)
+walk(root, False)
 if found:
     x1, y1, x2, y2 = min(found)[3]; print((x1 + x2) // 2, (y1 + y2) // 2)
 PY
 }
-tapText() { local xy; xy=$(where "$1"); if [ -z "$xy" ]; then fail "no '$1' on screen"; return 1; fi; tap $xy; }
+tapText() { # waits up to about 3 s for the words to show
+  local xy i
+  for i in 1 2 3; do xy=$(where "$1"); [ -n "$xy" ] && break; sleep 1; done
+  if [ -z "$xy" ]; then fail "no '$1' on screen"; return 1; fi
+  tap $xy
+}
 
 # the trips the run sets (never packed in the app, decision 27): made-up flight numbers, never the group's flight
 TRIP_HE='{"v":1,"out":{"date":"2027-01-10","flight":"GD 101","from":"TLV · תל אביב","to":"TBS · טביליסי","departs":"16:00","arrives":"20:35"},"ret":{"date":"2027-01-15","flight":"GD 102","from":"TBS · טביליסי","to":"TLV · תל אביב","departs":"01:35","arrives":"02:15"}}'
