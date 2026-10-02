@@ -52,7 +52,7 @@
 | אירוע | מתי | מאפיינים |
 |---|---|---|
 | `app_open` | פתיחה (באתר: טעינה ראשונה של הדף) | `source`: `direct`, `link`, `share_link`, `store`, `notification`; `cold`: true/false (באפליקציה) |
-| `screen_view` | כל מעבר מסך | `screen`: `home`, `map`, `meet`, `games`, `about`, `privacy`, `game`, `trip` (טופס "הטיול שלך", באפליקציה בלבד, מ-2.10.2026); `game` כשהמסך הוא משחק |
+| `screen_view` | כל מעבר מסך | `screen`: `home`, `map`, `meet`, `games`, `about`, `privacy`, `game`, `trip` (טופס "הטיול שלך", באפליקציה מ-2.10.2026 ובאתר מ-2.10.2026); `game` כשהמסך הוא משחק |
 | `lang_set` | בחירת שפה בהגדרות | `lang`, `previous` |
 | `theme_set` | לחיצה על כפתור יום ולילה | `mode`: `auto`, `day`, `night` |
 | `ticket_swap` | החלפה בין כרטיס הלוך לחזור | `to`: `out`, `ret` |

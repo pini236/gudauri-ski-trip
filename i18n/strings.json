@@ -12061,6 +12061,470 @@
     "ru",
     "ka"
    ]
+  },
+  "ticket.city_kut": {
+   "he": "קוטאיסי",
+   "en": "Kutaisi",
+   "ru": "Кутаиси",
+   "ka": "ქუთაისი",
+   "where": "site/js/app.js",
+   "note": "City by airport code (KUT)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "ticket.leg_back": {
+   "he": "חזור",
+   "en": "Return",
+   "ru": "Обратно",
+   "ka": "დაბრუნება",
+   "where": "site/js/app.js",
+   "note": "short: field label on the outbound pass, the return date",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "ticket.leg_out": {
+   "he": "הלוך",
+   "en": "Outbound",
+   "ru": "Туда",
+   "ka": "გამგზავრება",
+   "where": "site/js/app.js",
+   "note": "short: field label on the return pass, the outbound date",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "ticket.pax_guest": {
+   "he": "אורח",
+   "en": "Guest",
+   "ru": "Гость",
+   "ka": "სტუმარი",
+   "where": "site/js/app.js",
+   "note": "passenger field when not signed in",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "ticket.pax_one": {
+   "he": "נוסע",
+   "en": "Passenger",
+   "ru": "Пассажир",
+   "ka": "მგზავრი",
+   "where": "site/js/app.js",
+   "note": "short: field label on the pass",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "ticket.strip_mine_out": {
+   "he": "הטיול שלך · הלוך{note}",
+   "en": "Your trip · Outbound{note}",
+   "ru": "Ваша поездка · Туда{note}",
+   "ka": "თქვენი მოგზაურობა · გამგზავრება{note}",
+   "where": "site/js/app.js",
+   "note": "top strip of your own pass; {note} = optional suffix",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "ticket.strip_mine_return": {
+   "he": "הטיול שלך · חזור{note}",
+   "en": "Your trip · Return{note}",
+   "ru": "Ваша поездка · Обратно{note}",
+   "ka": "თქვენი მოგზაურობა · დაბრუნება{note}",
+   "where": "site/js/app.js",
+   "note": "top strip of your own return pass",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "trip.add": {
+   "he": "הוספת הטיסה שלי",
+   "en": "Add my flight",
+   "ru": "Добавить мой рейс",
+   "ka": "ჩემი რეისის დამატება",
+   "where": "site/index.html",
+   "note": "button",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "trip.airport_code": {
+   "he": "קוד שדה התעופה",
+   "en": "Airport code",
+   "ru": "Код аэропорта",
+   "ka": "აეროპორტის კოდი",
+   "where": "site/index.html",
+   "note": "field label, three letters",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "trip.back": {
+   "he": "חזור",
+   "en": "Return",
+   "ru": "Обратно",
+   "ka": "დაბრუნება",
+   "where": "site/index.html",
+   "note": "section heading",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "trip.back_auto": {
+   "he": "{route}, אוטומטית",
+   "en": "{route}, automatically",
+   "ru": "{route}, автоматически",
+   "ka": "{route}, ავტომატურად",
+   "where": "site/js/app.js",
+   "note": "{route} = e.g. TBS › TLV: the return is the outbound the other way round",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "trip.back_optional": {
+   "he": "אפשר גם בלי",
+   "en": "Optional",
+   "ru": "Можно без него",
+   "ka": "არასავალდებულო",
+   "where": "site/index.html",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "trip.bad_code": {
+   "he": "שלוש אותיות באנגלית, למשל TLV",
+   "en": "Three letters, e.g. TLV",
+   "ru": "Три латинские буквы, например TLV",
+   "ka": "სამი ლათინური ასო, მაგ. TLV",
+   "where": "site/js/app.js",
+   "note": "error",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "trip.bad_order": {
+   "he": "החזור לפני ההלוך",
+   "en": "The return is before the outbound",
+   "ru": "Обратный рейс раньше рейса туда",
+   "ka": "დაბრუნება გამგზავრებამდეა",
+   "where": "site/js/app.js",
+   "note": "error",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "trip.cancel": {
+   "he": "ביטול",
+   "en": "Cancel",
+   "ru": "Отмена",
+   "ka": "გაუქმება",
+   "where": "site/index.html",
+   "note": "link back",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "trip.date": {
+   "he": "תאריך",
+   "en": "Date",
+   "ru": "Дата",
+   "ka": "თარიღი",
+   "where": "site/index.html",
+   "note": "field label",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "trip.delete": {
+   "he": "מחיקת הטיול",
+   "en": "Delete the trip",
+   "ru": "Удалить поездку",
+   "ka": "მოგზაურობის წაშლა",
+   "where": "site/index.html",
+   "note": "button",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "trip.edit": {
+   "he": "עריכה",
+   "en": "Edit",
+   "ru": "Изменить",
+   "ka": "შეცვლა",
+   "where": "site/index.html",
+   "note": "link under the pass",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "trip.empty_title": {
+   "he": "הטיול שלך",
+   "en": "Your trip",
+   "ru": "Ваша поездка",
+   "ka": "თქვენი მოგზაურობა",
+   "where": "site/index.html",
+   "note": "strip of the empty pass",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "trip.empty_unset": {
+   "he": "עוד לא הוגדר",
+   "en": "Not set yet",
+   "ru": "Ещё не задана",
+   "ka": "ჯერ არ არის მითითებული",
+   "where": "site/index.html",
+   "note": "strip of the empty pass",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "trip.lead": {
+   "he": "רק תאריך ההלוך חובה. בלי הרשמה: נשמר רק בדפדפן הזה.",
+   "en": "Only the outbound date is required. No sign-up: saved only in this browser.",
+   "ru": "Обязательна только дата вылета туда. Без регистрации: хранится только в этом браузере.",
+   "ka": "სავალდებულოა მხოლოდ გამგზავრების თარიღი. რეგისტრაციის გარეშე: ინახება მხოლოდ ამ ბრაუზერში.",
+   "where": "site/index.html",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "trip.local_note": {
+   "he": "בלי הרשמה. נשמר רק בדפדפן הזה, ואפשר למחוק בכל רגע.",
+   "en": "No sign-up. Saved only in this browser, and you can delete it any time.",
+   "ru": "Без регистрации. Хранится только в этом браузере, удалить можно в любой момент.",
+   "ka": "რეგისტრაციის გარეშე. ინახება მხოლოდ ამ ბრაუზერში და ნებისმიერ დროს შეგიძლიათ წაშალოთ.",
+   "where": "site/index.html",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "trip.need_date": {
+   "he": "צריך את תאריך ההלוך",
+   "en": "The outbound date is needed",
+   "ru": "Нужна дата вылета туда",
+   "ka": "საჭიროა გამგზავრების თარიღი",
+   "where": "site/js/app.js",
+   "note": "error",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "trip.number": {
+   "he": "מספר טיסה",
+   "en": "Flight number",
+   "ru": "Номер рейса",
+   "ka": "რეისის ნომერი",
+   "where": "site/index.html",
+   "note": "field label",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "trip.number_hint": {
+   "he": "למשל {example}",
+   "en": "e.g. {example}",
+   "ru": "например {example}",
+   "ka": "მაგ. {example}",
+   "where": "site/index.html",
+   "note": "placeholder",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "trip.other_airport": {
+   "he": "אחר…",
+   "en": "Other…",
+   "ru": "Другой…",
+   "ka": "სხვა…",
+   "where": "site/index.html",
+   "note": "option in the airport list",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "trip.out": {
+   "he": "הלוך",
+   "en": "Outbound",
+   "ru": "Туда",
+   "ka": "გამგზავრება",
+   "where": "site/index.html",
+   "note": "section heading",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "trip.out_required": {
+   "he": "חובה רק התאריך",
+   "en": "Only the date is required",
+   "ru": "Обязательна только дата",
+   "ka": "სავალდებულოა მხოლოდ თარიღი",
+   "where": "site/index.html",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "trip.save": {
+   "he": "שמירה",
+   "en": "Save",
+   "ru": "Сохранить",
+   "ka": "შენახვა",
+   "where": "site/index.html",
+   "note": "button",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "trip.ski_auto": {
+   "he": "לפי הטיסות",
+   "en": "From the flights",
+   "ru": "По рейсам",
+   "ka": "რეისების მიხედვით",
+   "where": "site/index.html",
+   "note": "link: back to computed ski days",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "trip.ski_change": {
+   "he": "שינוי",
+   "en": "Change",
+   "ru": "Изменить",
+   "ka": "შეცვლა",
+   "where": "site/index.html",
+   "note": "link",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "trip.ski_computed": {
+   "he": "ימי סקי מלאים, מחושב מהטיסות",
+   "en": "Full ski days, worked out from the flights",
+   "ru": "Полные дни катания, по рейсам",
+   "ka": "სრული სათხილამურო დღეები, რეისების მიხედვით",
+   "where": "site/index.html",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "trip.ski_count": {
+   "he": {
+    "one": "יום אחד",
+    "two": "יומיים",
+    "other": "{n} ימים"
+   },
+   "en": {
+    "one": "{n} day",
+    "other": "{n} days"
+   },
+   "ru": {
+    "one": "{n} день",
+    "few": "{n} дня",
+    "many": "{n} дней",
+    "other": "{n} дня"
+   },
+   "ka": {
+    "one": "{n} დღე",
+    "other": "{n} დღე"
+   },
+   "where": "site/js/app.js",
+   "note": "{n} = full ski days",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "trip.ski_first": {
+   "he": "יום ראשון",
+   "en": "First day",
+   "ru": "Первый день",
+   "ka": "პირველი დღე",
+   "where": "site/index.html",
+   "note": "field label",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "trip.ski_last": {
+   "he": "יום אחרון",
+   "en": "Last day",
+   "ru": "Последний день",
+   "ka": "ბოლო დღე",
+   "where": "site/index.html",
+   "note": "field label",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "trip.ski_manual": {
+   "he": "ימי סקי מלאים, נקבע ידנית",
+   "en": "Full ski days, set by hand",
+   "ru": "Полные дни катания, вручную",
+   "ka": "სრული სათხილამურო დღეები, ხელით",
+   "where": "site/js/app.js",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "trip.ski_unknown": {
+   "he": "יחושבו מתאריך החזור",
+   "en": "Worked out from the return date",
+   "ru": "Посчитаем по дате обратного рейса",
+   "ka": "გამოითვლება დაბრუნების თარიღიდან",
+   "where": "site/js/app.js",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "trip.title": {
+   "he": "הטיול שלך",
+   "en": "Your trip",
+   "ru": "Ваша поездка",
+   "ka": "თქვენი მოგზაურობა",
+   "where": "site/index.html",
+   "note": "page title",
+   "check": [
+    "ru",
+    "ka"
+   ]
   }
  }
 }

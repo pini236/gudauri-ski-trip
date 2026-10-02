@@ -1,10 +1,9 @@
 (async function main(){
 await I18N.ready; // the words of the chosen language (js/i18n.js); everything below draws with T()
 const soft=(url,fallback)=>fetch(url).then(r=>r.ok?r.json():fallback).catch(()=>fallback);
-const [D,TERR,TRIP,vids]=await Promise.all([
+const [D,TERR,vids]=await Promise.all([
   fetch('data/runs-and-lifts.json').then(r=>{if(!r.ok)throw new Error('runs-and-lifts '+r.status);return r.json();}),
   soft('data/terrain.json',null),
-  soft('data/trip.json',null),
   soft('data/videos-seed.json',[])
 ]);
 const HEB=Object.fromEntries(['green','blue','red','black'].map(c=>[c,T('common.color_'+c)]));
@@ -41,9 +40,23 @@ const kobiRun=byKey['Kobi'];const PASS=kobiRun?kobiRun.segs[0].g[0]:[42.5111,44.
 const dispName=p=>p.named?(p.key==='Firni ?'?'Firni (1/2?)':p.key):T('map.unnamed_segment');
 
 // countdown (top bar + ticket stub). Drawn again by the day and night switch: in the dark the days are nights.
-const daysLeft=Math.ceil((new Date((TRIP&&TRIP.outbound?TRIP.outbound.date:'2027-01-10')+'T00:00:00+02:00')-new Date())/864e5);
+// your trip (round 12, stage 13.9): kept only in this browser, never sent anywhere. {v:1, out:{date,flight,from,to,departs,arrives},
+// ret:{date,flight,departs,arrives}|null (the outbound the other way round), ski:{from,to}|null (set by hand)}
+const MYTRIP=(()=>{const K='gud-trip',ISO=/^\d{4}-\d\d-\d\d$/;
+  const get=()=>{try{const t=JSON.parse(localStorage.getItem(K)||'null');return t&&t.v===1&&t.out&&ISO.test(t.out.date)?t:null;}catch(e){return null;}};
+  const set=t=>{try{t?localStorage.setItem(K,JSON.stringify(t)):localStorage.removeItem(K);}catch(e){}};
+  const addDays=(iso,n)=>{const d=new Date(iso+'T12:00:00Z');d.setUTCDate(d.getUTCDate()+n);return d.toISOString().slice(0,10);};
+  // full ski days: from the day after landing (the same day when landing before noon) to the day before the return
+  // (the same day when the return leaves at 18:00 or later). The crew: land 10.1 at 20:35, back 15.1 at 01:35, so 11 to 14.
+  const skiAuto=(o,r)=>{if(!o||!o.date||!r||!r.date)return null;
+    const first=o.arrives&&o.arrives<'12:00'?o.date:addDays(o.date,1),last=r.departs&&r.departs>='18:00'?r.date:addDays(r.date,-1);
+    return first<=last?{from:first,to:last}:null;};
+  const ski=t=>t?(t.ski||skiAuto(t.out,t.ret)):null;
+  const days=t=>t?Math.ceil((new Date(t.out.date+'T00:00:00')-new Date())/864e5):null;
+  return {get,set,skiAuto,ski,days,ISO};})();
 function countdown(dark){
-  const tb=document.getElementById('tbCount'),stub=document.getElementById('tDays'),pre=document.getElementById('tDaysPre'),lbl=document.getElementById('tDaysLbl'),d=daysLeft;
+  const tb=document.getElementById('tbCount'),stub=document.getElementById('tDays'),pre=document.getElementById('tDaysPre'),lbl=document.getElementById('tDaysLbl'),d=MYTRIP.days(MYTRIP.get());
+  tb.hidden=d===null;if(d===null)return;
   const [c1,,c3]=slots(dark?'ticket.stub_nights':'ticket.stub_days',{n:Math.max(d,0)});pre.textContent=c1;
   if(d>0){
     // the top bar is a flex row: its first word after the number in its own box, as in the markup
@@ -494,14 +507,14 @@ function activateMap(){
   else if(view==='3d'&&v3)v3.resize();else apply();
 }
 // pages: #map shows the map, anything else the home page
-const pgHome=document.getElementById('home'),pgMap=document.getElementById('mapPage'),pgMeet=document.getElementById('meetPage'),pgGames=document.getElementById('gamesPage'),pgAbout=document.getElementById('aboutPage');
+const pgHome=document.getElementById('home'),pgMap=document.getElementById('mapPage'),pgMeet=document.getElementById('meetPage'),pgGames=document.getElementById('gamesPage'),pgAbout=document.getElementById('aboutPage'),pgTrip=document.getElementById('tripPage');
 function route(){
-  const h=location.hash,m=h.startsWith('#map'),mt=h.startsWith('#meet'),gm=h.startsWith('#games'),ab=h.startsWith('#about'),run=h.startsWith('#map/run/')?decodeURIComponent(h.slice(9)):null,wasMap=!pgMap.hidden;
-  pgHome.hidden=m||mt||gm||ab;pgMap.hidden=!m;pgMeet.hidden=!mt;pgGames.hidden=!gm;pgAbout.hidden=!ab;
+  const h=location.hash,m=h.startsWith('#map'),mt=h.startsWith('#meet'),gm=h.startsWith('#games'),ab=h.startsWith('#about'),tr=h==='#trip',run=h.startsWith('#map/run/')?decodeURIComponent(h.slice(9)):null,wasMap=!pgMap.hidden;
+  pgHome.hidden=m||mt||gm||ab||tr;pgMap.hidden=!m;pgMeet.hidden=!mt;pgGames.hidden=!gm;pgAbout.hidden=!ab;pgTrip.hidden=!tr;if(tr)TRIPFORM.open();
   const cur=m?'map':mt?'meet':gm?'games':ab?'about':'home';
   document.querySelectorAll('[data-nav]').forEach(a=>{if(a.dataset.nav===cur)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current');});
   if(m&&!wasMap)LSTAT.viewed();
-  requestAnimationFrame(()=>{if(gm||ab)return;if(mt){if(MEET)MEET.open(h.slice(6));return;}if(!m){DN.layout();return;}activateMap();
+  requestAnimationFrame(()=>{if(gm||ab||tr)return;if(mt){if(MEET)MEET.open(h.slice(6));return;}if(!m){DN.layout();return;}activateMap();
     if(run&&run!==current&&(byKey[run]||D.missing.some(x=>x.name===run)))select(run,{push:false,via:'link'});
     else if(!run&&current)overview();});
   if(!wasMap||!m){window.scrollTo(0,0);pgHome.scrollTop=0;}
@@ -865,36 +878,85 @@ LSTAT.load();
 // flight ticket: one shared doc (trip/flight), editable by Contributors
 const fmtDate=iso=>{const[y,m,d]=iso.split('-');return +d+'.'+ +m+'.'+y;};
 function renderTicket(){
-  const o=TRIP&&TRIP.outbound||{},r=TRIP&&TRIP.return,members=TRIP&&TRIP.members||[];
+  const t=MYTRIP.get(),stack=document.getElementById('bpStack');
+  stack.hidden=!t;document.getElementById('bpHint').hidden=!t;
+  ['bpEmpty','tripNote','seasonBoard'].forEach(id=>{document.getElementById(id).hidden=!!t;});
+  if(!t)return;
   const short=iso=>{const[,m,d]=iso.split('-');return +d+'.'+ +m;};
-  const [skiPre,,skiPost]=slots('ticket.stub_ski_first',{n:4});
-  // trip.json is in Hebrew. Other languages name its cities, airline and baggage by stable codes when the strings file knows them.
-  const loc=(key,v)=>{if(I18N.lang==='he'||!v)return v;const w=T(key);return w===key?v:w;};
-  const airline=loc('ticket.airline_'+String(o.flight||'').split(' ')[0].toLowerCase(),TRIP&&TRIP.airline),baggage=loc('ticket.baggage_'+(TRIP&&TRIP.baggageKind||''),TRIP&&TRIP.baggage);
+  const city=code=>{if(!code)return '';const k='ticket.city_'+code.toLowerCase(),w=T(k);return w===k?'':w;};
+  const o=t.out,r=t.ret&&t.ret.date?t.ret:null,sd=MYTRIP.ski(t);
+  const skiCount=sd?Math.round((new Date(sd.to)-new Date(sd.from))/864e5)+1:0;
+  const [skiPre,,skiPost]=slots('ticket.stub_ski_first',{n:skiCount||0});
+  const legs={out:{...o,fromCode:o.from,toCode:o.to,other:r&&r.date},ret:r&&{...r,fromCode:o.to,toCode:o.from,other:o.date}};
   const fill=(card,f)=>{
-    // the strip: "<airline> · boarding pass · outbound<note>", with the airline and the note in their own spans
-    card.querySelector('.bp-strip > span').innerHTML=H(card.dataset.leg==='ret'?'ticket.strip_return':'ticket.strip_out',{},{airline:'<span data-f="airline"></span>',note:'<span data-f="note"></span>'});
+    const leg=card.dataset.leg;
+    card.querySelector('.bp-strip > span').innerHTML=H(leg==='ret'?'ticket.strip_mine_return':'ticket.strip_mine_out',{},{note:'<span data-f="note"></span>'});
+    // the second row of your own pass: you, the other leg's date, and the ski days (no airline and no baggage to show)
+    const lab=(k,key)=>{const el=card.querySelector(`[data-f="${k}"]`),l=el&&el.parentElement.querySelector('small');if(l){l.removeAttribute('data-i18n');l.textContent=T(key);}};
+    lab('pax','ticket.pax_one');lab('baggage',leg==='ret'?'ticket.leg_out':'ticket.leg_back');
     card.querySelectorAll('[data-f]').forEach(el=>{
-      const k=el.dataset.f,v={airline,from:loc('ticket.city_'+String(f.fromCode||'').toLowerCase(),f.from),to:loc('ticket.city_'+String(f.toCode||'').toLowerCase(),f.to),dateShort:f.date&&short(f.date),date:f.date&&fmtDate(f.date),pax:members.length?T('ticket.pax_crew',{n:members.length}):'',
-        baggage,pair:f.fromCode&&f.toCode?f.fromCode+' › '+f.toCode:'',note:f.departs&&+f.departs.split(':')[0]<6?T('ticket.note_overnight'):'',skiCount:skiCount,skiRange:sd?short(sd.from).split('.')[0]+'–'+short(sd.to):'',skiPre,skiPost}[k]??f[k];
-      if(k==='note'||k==='skiPre'||k==='skiPost'){el.textContent=v||'';return;}
+      const k=el.dataset.f,v={from:city(f.fromCode),to:city(f.toCode),dateShort:f.date&&short(f.date),date:f.date&&fmtDate(f.date),pax:T('ticket.pax_guest'),
+        baggage:f.other?short(f.other):'',pair:f.fromCode&&f.toCode?f.fromCode+' › '+f.toCode:'',note:f.departs&&+f.departs.split(':')[0]<6?T('ticket.note_overnight'):'',
+        skiCount:skiCount?String(skiCount):'',skiRange:sd?short(sd.from).split('.')[0]+'–'+short(sd.to):'',skiPre:skiCount?skiPre:'',skiPost:skiCount?skiPost:''}[k]??f[k];
+      if(k==='note'||k==='skiPre'||k==='skiPost'||k==='airline'){el.textContent=v||'';return;}
       el.textContent=v||(k==='from'?T('ticket.from_placeholder'):k==='to'?T('ticket.to_placeholder'):'—');
       if(k==='from'||k==='to')el.classList.toggle('ph',!v);
     });
   };
-  const sd=TRIP&&TRIP.skiDays,skiCount=sd?String(Math.round((new Date(sd.to)-new Date(sd.from))/864e5)+1):'';
-  fill(document.querySelector('.bp[data-leg="out"]'),o);
+  fill(document.querySelector('.bp[data-leg="out"]'),legs.out);
   const rc=document.querySelector('.bp[data-leg="ret"]');
-  if(r){fill(rc,r);rc.hidden=false;document.getElementById('bpHintSwap').hidden=false;}
+  if(r)fill(rc,legs.ret);
+  rc.hidden=!r;document.getElementById('bpHintSwap').hidden=!r;
+  if(!r&&rc.classList.contains('is-front')){rc.classList.replace('is-front','is-back');document.querySelector('.bp[data-leg="out"]').classList.replace('is-back','is-front');}
   document.querySelectorAll('.bp-ridge').forEach(svg=>{
     /* the "barcode" is the ridge above New Gudauri drawn as bars: it is the mountain, not a code anyone could scan */
     const h=[.30,.42,.55,.48,.62,.80,.70,.58,.66,.92,1,.86,.74,.60,.68,.78,.64,.50,.44,.56,.70,.62,.48,.36,.42,.30,.24,.34,.28,.20,.26,.18],w=80/h.length;
     svg.innerHTML=h.map((v,i)=>`<rect x="${(i*w).toFixed(1)}" y="${(28-v*28).toFixed(1)}" width="${i%3===0?2:i%2?1.2:.7}" height="${(v*28).toFixed(1)}"/>`).join('');
   });
-  document.getElementById('crewCount').textContent=members.length?'· '+members.length:'';
-  document.getElementById('crewList').innerHTML=members.map(n=>`<li>${esc(n)}</li>`).join('');
-  document.querySelector('.crew').hidden=!members.length;
 }
+document.getElementById('seasonBoard').insertAdjacentHTML('afterbegin',snowCap(7,358));
+// the trip form (#trip, round 12 W2): the browser's own date and time pickers, the destination starts as Tbilisi,
+// and the return is the outbound the other way round
+const TRIPFORM=(()=>{
+  const f=document.getElementById('tripForm'),AIR=['TLV','TBS','KUT'],q=n=>f.elements[n],err=document.getElementById('tfErr');
+  let manual=false;
+  const city=code=>{const k='ticket.city_'+code.toLowerCase(),w=T(k);return w===k?code:code+' · '+w;};
+  ['ofr','oto'].forEach(n=>{q(n).innerHTML=AIR.map(c=>`<option value="${c}">${esc(city(c))}</option>`).join('')+`<option value="">${esc(T('trip.other_airport'))}</option>`;});
+  q('of').placeholder=q('rf').placeholder=T('trip.number_hint',{example:'\u20686H 897\u2069'});
+  const code=n=>q(n).value||q(n+'x').value.trim().toUpperCase();
+  const read=()=>({out:{date:q('od').value,flight:q('of').value.trim().toUpperCase(),from:code('ofr'),to:code('oto'),departs:q('odp').value,arrives:q('oar').value},
+    ret:q('rd').value?{date:q('rd').value,flight:q('rf').value.trim().toUpperCase(),departs:q('rdp').value,arrives:q('rar').value}:null,
+    ski:manual&&q('sf').value&&q('sl').value?{from:q('sf').value,to:q('sl').value}:null});
+  const paint=()=>{const t=read();
+    document.getElementById('tfOther').hidden=!!(q('ofr').value&&q('oto').value);
+    q('ofrx').parentElement.hidden=!!q('ofr').value;q('otox').parentElement.hidden=!!q('oto').value;
+    const br=document.getElementById('tfBackRoute');br.textContent=t.out.from&&t.out.to?T('trip.back_auto',{route:t.out.to+' › '+t.out.from}):T('trip.back_optional');br.dir='auto';
+    const sd=manual?t.ski:MYTRIP.skiAuto(t.out,t.ret),b=document.getElementById('tfSki');
+    document.getElementById('tfSkiLbl').textContent=T(manual?'trip.ski_manual':'trip.ski_computed');
+    document.getElementById('tfSkiBtn').textContent=T(manual?'trip.ski_auto':'trip.ski_change');
+    document.getElementById('tfSkiManual').hidden=!manual;
+    if(sd){const n=Math.round((new Date(sd.to)-new Date(sd.from))/864e5)+1,sh=iso=>{const[,m,d]=iso.split('-');return +d+'.'+ +m;};
+      b.innerHTML=`<span dir="ltr">${sh(sd.from)===sh(sd.to)?sh(sd.from):sh(sd.from).split('.')[0]+'–'+sh(sd.to)}</span> · ${esc(T('trip.ski_count',{n}))}`;}
+    else b.textContent=T('trip.ski_unknown');};
+  const open=()=>{const t=MYTRIP.get(),o=t&&t.out||{},r=t&&t.ret||{};err.hidden=true;
+    q('od').value=o.date||'';q('of').value=o.flight||'';q('odp').value=o.departs||'';q('oar').value=o.arrives||'';
+    const pick=(n,c,def)=>{const v=c||def;q(n).value=AIR.includes(v)?v:'';q(n+'x').value=AIR.includes(v)?'':v;};
+    pick('ofr',o.from,'TLV');pick('oto',o.to,'TBS');
+    q('rd').value=r.date||'';q('rf').value=r.flight||'';q('rdp').value=r.departs||'';q('rar').value=r.arrives||'';
+    manual=!!(t&&t.ski);q('sf').value=manual?t.ski.from:'';q('sl').value=manual?t.ski.to:'';
+    document.getElementById('tfDelete').hidden=!t;f.querySelectorAll('[aria-invalid]').forEach(e=>e.removeAttribute('aria-invalid'));paint();};
+  const fail=(n,key)=>{err.textContent=T(key);err.hidden=false;if(n){q(n).setAttribute('aria-invalid','true');q(n).focus();}};
+  f.addEventListener('input',e=>{if(e.target.name)e.target.removeAttribute('aria-invalid');paint();});
+  f.addEventListener('change',paint);
+  document.getElementById('tfSkiBtn').addEventListener('click',()=>{manual=!manual;if(manual&&!q('sf').value){const a=MYTRIP.skiAuto(read().out,read().ret);if(a){q('sf').value=a.from;q('sl').value=a.to;}}paint();});
+  document.getElementById('tfDelete').addEventListener('click',()=>{MYTRIP.set(null);renderTicket();countdown(document.documentElement.dataset.theme==='dark');location.hash='#home';});
+  f.addEventListener('submit',e=>{e.preventDefault();err.hidden=true;const t=read();
+    if(!MYTRIP.ISO.test(t.out.date))return fail('od','trip.need_date');
+    for(const n of ['ofr','oto'])if(!q(n).value&&!/^[A-Z]{3}$/.test(q(n+'x').value.trim().toUpperCase()))return fail(n+'x','trip.bad_code');
+    if(t.ret&&t.ret.date<t.out.date)return fail('rd','trip.bad_order');
+    if(t.ski&&t.ski.to<t.ski.from)return fail('sl','trip.bad_order');
+    MYTRIP.set({v:1,...t});renderTicket();countdown(document.documentElement.dataset.theme==='dark');location.hash='#home';});
+  return {open};})();
 // about and settings (#about): sound and vibration for the whole site and the games, and clearing the game records
 (function(){const P=window.GUD_PREFS||{sound:true,haptics:true};
   const paint=()=>document.querySelectorAll('[data-pref]').forEach(b=>b.setAttribute('aria-pressed',String(!!P[b.dataset.pref])));paint();
