@@ -240,8 +240,6 @@ group() {
   tapText "יצירת קבוצה" && sleep 1 && shot group-sign-in
   tapText "גוגל" && sleep 2 && shot group-new
   typeIn "גודאורי 2027" "Gudauri 2027"
-  typeIn "למשל 10.1.2027" "10.1.2027"
-  typeIn "למשל 10.1.2027" "15.1.2027"
   typeIn "השם שהחבר׳ה מכירים" "Noa"
   keyboardOff; shot group-new-filled
   tapText "יצירת הקבוצה" && sleep 2.5 && shot group-created
