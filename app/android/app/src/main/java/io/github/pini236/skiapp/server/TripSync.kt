@@ -17,7 +17,7 @@ fun interface TripSync {
  * stays off it. Without signal the latest trip waits and goes with the next [flush] (on launch, or when the group
  * page opens). Keeps the server's id of my trip, so it is one row that changes, not a new row each time.
  */
-class ServerTripSync(context: Context, private val server: Server) : TripSync {
+class ServerTripSync(context: Context, private val server: Server) : TripSync, io.github.pini236.skiapp.group.MyTripOnServer {
     private val prefs = context.getSharedPreferences("server_trip", Context.MODE_PRIVATE)
     private val worker = Executors.newSingleThreadExecutor()
 
@@ -30,6 +30,13 @@ class ServerTripSync(context: Context, private val server: Server) : TripSync {
     }
 
     fun flush() = worker.execute { runCatching { send() } }
+
+    /** Now, on the caller's (background) thread: my trip on the server, and its id, to show it in a group. */
+    override fun sendNow(trip: Trip): String {
+        prefs.edit().putString("pending", trip.toJson().toString()).apply()
+        send()
+        return tripId ?: throw ServerError("no_session", 401)
+    }
 
     @Synchronized
     private fun send() {

@@ -40,6 +40,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
@@ -192,20 +193,30 @@ private fun Ridge(color: Color) {
     }
 }
 
+/** Where a card sits in the stack, and how dim it is (the site's .bp.is-front, .is-back and .shuffle, AB5). */
+private class Pose(val x: Float, val y: Float, val rot: Float, val scale: Float, val dim: Float) {
+    fun to(o: Pose, t: Float) = Pose(x + (o.x - x) * t, y + (o.y - y) * t, rot + (o.rot - rot) * t, scale + (o.scale - scale) * t, dim + (o.dim - dim) * t)
+}
+
+/** How far the card behind shows above the one in front (its strip: "your trip · return · 15.1"). */
+val PASS_PEEK = 46.dp
+
 /**
- * The boarding pass for the user's own trip (decisions 19 and 27, H3 and H4): the outbound pass, and the return one a
- * swipe away. A tap on the stub tears it along the perforation, hole by hole, with the recorded tear and a tick of the
- * haptics per hole; dragging the stub down tears it by hand. It comes back. In left-to-right languages the whole pass
- * mirrors: the stub on the right (LT1).
+ * The boarding pass for the user's own trip (decisions 19 and 27, H3 and H4), with the return pass behind it, its top
+ * showing, as on the site (AB5, AB6): a tap on the one behind brings it to the front (a swipe on the front one too).
+ * A tap on the stub tears it along the perforation, hole by hole, with the recorded tear and a tick of the haptics per
+ * hole; dragging the stub down tears it by hand. It comes back. In left-to-right languages the whole stack mirrors:
+ * the stub on the right, the card behind leaning the other way (LT1).
  */
 @Composable
 fun TripPass(trip: Trip, now: LocalDateTime, haptics: Haptics, sounds: Sounds, onEdit: () -> Unit) {
     val p = passInk()
     val rtl = LocalLayoutDirection.current == LayoutDirection.Rtl
     val scope = rememberCoroutineScope()
+    val hasRet = trip.ret != null
     var showRet by remember { mutableStateOf(false) }
-    val leg = if (showRet && trip.ret != null) trip.ret else trip.out
-    val slide = remember { Animatable(0f) }
+    val shuffle = remember { Animatable(0f) } // 0..1 while the two cards change places
+    val drag = remember { Animatable(0f) } // the front card following a swipe a little
     var width by remember { mutableStateOf(1f) }
 
     // the tear: 0..1 down the perforation, then the fall, then it comes back
@@ -220,7 +231,7 @@ fun TripPass(trip: Trip, now: LocalDateTime, haptics: Haptics, sounds: Sounds, o
     fun drop() = scope.launch {
         busy = true
         haptics.click(1f)
-        Telemetry.event("ticket_tear", mapOf("leg" to if (leg === trip.ret) "ret" else "out"))
+        Telemetry.event("ticket_tear", mapOf("leg" to if (showRet && hasRet) "ret" else "out"))
         fall.animateTo(1f, tween(620, easing = FastOutSlowInEasing))
         delay(1500)
         tear.snapTo(0f); fall.snapTo(0f); holes = 0
@@ -234,128 +245,165 @@ fun TripPass(trip: Trip, now: LocalDateTime, haptics: Haptics, sounds: Sounds, o
         tear.animateTo(1f, tween(520, easing = LinearEasing)) { onTear(value) }
         drop()
     }
-    fun swap(to: Boolean) = scope.launch {
-        if (trip.ret == null || busy) return@launch
+    // the site's shuffle: the front card slides down and out, the one behind comes forward, and they settle swapped
+    fun swap() = scope.launch {
+        if (!hasRet || busy) return@launch
         busy = true
-        val dir = if (to) -1f else 1f // out the way the finger went, the other pass in from the other side
         sounds.play("ticket-slide", .7f); haptics.tick(.5f)
-        slide.animateTo(dir * width * 1.1f * (if (rtl) -1f else 1f), tween(220))
-        showRet = to
-        Telemetry.event("ticket_swap", mapOf("to" to if (to) "ret" else "out"))
-        slide.snapTo(-slide.value)
-        slide.animateTo(0f, spring(dampingRatio = .75f, stiffness = 500f))
-        sounds.play("ticket-land", .75f); haptics.click(.6f)
+        launch { delay(420); sounds.play("ticket-land", .75f); haptics.click(.6f) }
+        launch { drag.animateTo(0f) }
+        shuffle.animateTo(1f, tween(640, easing = FastOutSlowInEasing))
+        showRet = !showRet
+        shuffle.snapTo(0f)
+        Telemetry.event("ticket_swap", mapOf("to" to if (showRet) "ret" else "out"))
         busy = false
     }
 
-    val swapLabel = stringResource(if (showRet) R.string.ticket_swap_out else R.string.ticket_swap_return)
+    // the poses, in the reading direction: the card behind sits up and toward the end, leaning back (the site's px as dp)
+    val s = if (rtl) 1f else -1f
+    val front = Pose(0f, 0f, 0f, 1f, 0f)
+    val back = Pose(-12f * s, -PASS_PEEK.value, 2.6f * s, .955f, if (p.dark) .28f else .10f)
+    val outFront = Pose(26f * s, 84f, -7f * s, 1f, 0f)
+    val outBack = Pose(-4f * s, -26f, .6f * s, .985f, if (p.dark) .14f else .05f)
+    val t = shuffle.value
+    val k = .4f
+    val poseA = if (t < k) front.to(outFront, t / k) else outFront.to(back, (t - k) / (1 - k)) // the card in front now
+    val poseB = if (t < k) back.to(outBack, t / k) else outBack.to(front, (t - k) / (1 - k)) // the card behind now
+    val frontIsRet = showRet && hasRet
+    val swapLabel = stringResource(if (frontIsRet) R.string.ticket_swap_out else R.string.ticket_swap_return)
+
+    @Composable
+    fun card(isRet: Boolean, pose: Pose, inFront: Boolean) {
+        Box(
+            Modifier.fillMaxWidth()
+                .graphicsLayer {
+                    translationX = pose.x.dp.toPx() + if (inFront) drag.value else 0f
+                    translationY = pose.y.dp.toPx()
+                    rotationZ = pose.rot + if (inFront) drag.value / width.coerceAtLeast(1f) * 5f else 0f
+                    scaleX = pose.scale; scaleY = pose.scale
+                    transformOrigin = TransformOrigin(.5f, .6f)
+                }
+                .drawWithContent { drawContent(); if (pose.dim > .005f) drawRect(Color.Black, alpha = pose.dim) }
+                // the card behind: one tap brings it forward (the whole card, under the one in front only its top shows)
+                .let { m -> if (!inFront) m.semantics { contentDescription = swapLabel; role = Role.Button }.clickable(onClick = { swap() }) else m },
+        ) {
+            PassCard(trip, isRet, now, p, rtl, front = inFront,
+                tearT = if (inFront) tear.value else 0f, fallT = if (inFront) fall.value else 0f,
+                onTap = { tearByTap() },
+                onTearDrag = { dy, h -> if (!busy) scope.launch { val v = (tear.value + dy / h).coerceIn(0f, 1f); tear.snapTo(v); onTear(v) } },
+                onTearEnd = { if (!busy) scope.launch { if (tear.value > .55f) { sounds.play("ticket-tear", .6f); tear.animateTo(1f) { onTear(value) }; drop() } else { tear.animateTo(0f, spring(dampingRatio = .5f)); holes = 0 } } })
+        }
+    }
+
     Column {
-        Row(
-            // the pass grows with its words (Georgian and large text are taller), never under the canvas's 230
-            Modifier.fillMaxWidth().heightIn(min = 230.dp).height(IntrinsicSize.Min)
+        Box(
+            Modifier.fillMaxWidth().padding(top = if (hasRet) PASS_PEEK else 0.dp)
                 .onSizeChanged { width = it.width.toFloat() }
-                .pointerInput(trip.ret != null) {
+                .pointerInput(hasRet) {
+                    // a swipe on the front card works too: far enough either way, and the cards change places
                     detectHorizontalDragGestures(
-                        onDragEnd = {
-                            val x = slide.value
-                            // forward in the reading direction brings the return pass, back brings the outbound
-                            val forward = if (rtl) x > 0 else x < 0
-                            if (trip.ret != null && abs(x) > width * .22f && forward != showRet) swap(!showRet)
-                            else scope.launch { slide.animateTo(0f, spring(dampingRatio = .6f)) }
-                        },
-                        onDragCancel = { scope.launch { slide.animateTo(0f) } },
+                        onDragEnd = { if (hasRet && abs(drag.value) > width * .18f) swap() else scope.launch { drag.animateTo(0f, spring(dampingRatio = .6f)) } },
+                        onDragCancel = { scope.launch { drag.animateTo(0f) } },
                     ) { ch, dx ->
                         if (busy) return@detectHorizontalDragGestures
                         ch.consume()
-                        // without a return pass the paper only gives a little
-                        scope.launch { slide.snapTo(slide.value + dx * if (trip.ret == null) .25f else 1f) }
+                        scope.launch { drag.snapTo(drag.value + dx * if (hasRet) .45f else .2f) }
                     }
                 }
-                .semantics { if (trip.ret != null) customActions = listOf(CustomAccessibilityAction(swapLabel) { swap(!showRet); true }) }
-                // after the finger is read: the pass follows it without moving the ground the finger is read on
-                .graphicsLayer { translationX = slide.value; rotationZ = slide.value / width.coerceAtLeast(1f) * 6f },
+                .semantics { if (hasRet) customActions = listOf(CustomAccessibilityAction(swapLabel) { swap(); true }) },
         ) {
-            val isRet = leg === trip.ret
-            Main(p, stringResource(R.string.app_home_trip) + " · " + stringResource(if (isRet) R.string.app_pass_ret else R.string.app_pass_out), shortDate(leg.date)) {
-                Route(p, stringResource(R.string.ticket_from), stringResource(R.string.ticket_to),
-                    { Code(leg.fromCode, leg.fromCity, p); City(leg.fromCity, p) },
-                    { Code(leg.toCode, leg.toCity, p); City(leg.toCity, p, end = true) })
-                Grid(p) {
-                    Cell(stringResource(R.string.ticket_flight), p) { Value(leg.flight.ifBlank { "—" }, p, ltr = true) }
-                    Cell(stringResource(R.string.ticket_departs), p) { Value(leg.departs?.toString() ?: "—", p, ltr = true) }
-                    Cell(stringResource(R.string.ticket_arrives), p) { Value(leg.arrives?.toString() ?: "—", p, ltr = true) }
-                }
-                Grid(p) {
-                    Cell(stringResource(R.string.app_pass_traveller), p) { Value(stringResource(R.string.app_pass_me), p) }
-                    Cell(stringResource(R.string.ticket_ski_days), p) { Value(trip.skiDays()?.let { dayRange(it) } ?: "—", p, ltr = true) }
-                    val other = if (isRet) trip.out else trip.ret
-                    Cell(stringResource(if (isRet) R.string.app_pass_out else R.string.app_pass_ret), p) {
-                        Value(other?.let { o -> if (o.departs != null && o.departs < LocalTime.of(6, 0)) stringResource(R.string.app_pass_at_night, shortDate(o.date)) else shortDate(o.date) } ?: "—", p)
-                    }
-                }
-            }
-            // the slot: what is left once the stub is gone, and the stub itself
-            Box(Modifier.width(STUB).fillMaxHeight()) {
-                Column(Modifier.fillMaxSize().padding(vertical = 2.dp).border(2.dp, p.dash.copy(alpha = .8f)).padding(6.dp),
-                    verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text(stringResource(R.string.ticket_torn) + "\n" + stringResource(R.string.ticket_see_you), style = Ski.type.small.copy(fontSize = 12.sp, textAlign = TextAlign.Center), color = p.muted)
-                }
-                val notch = remember { PassShape(seamAtEnd = false, r = NOTCH) }
-                val torn = remember { TornShape(seamAtStart = true) }
-                val t = tear.value; val f = fall.value
-                val s = if (rtl) -1f else 1f
-                val tearLabel = stringResource(R.string.ticket_tear_stub)
-                StubFace(p,
-                    Modifier
-                        .semantics { role = Role.Button; contentDescription = tearLabel }
-                        .pointerInput(Unit) { detectTapGestures { tearByTap() } }
-                        .pointerInput(Unit) {
-                            detectVerticalDragGestures(
-                                onDragEnd = { if (!busy) scope.launch { if (tear.value > .55f) { sounds.play("ticket-tear", .6f); tear.animateTo(1f) { onTear(value) }; drop() } else { tear.animateTo(0f, spring(dampingRatio = .5f)); holes = 0 } } },
-                            ) { ch, dy ->
-                                if (busy) return@detectVerticalDragGestures
-                                ch.consume()
-                                scope.launch { val v = (tear.value + dy / size.height).coerceIn(0f, 1f); tear.snapTo(v); onTear(v) }
-                            }
-                        }
-                        .graphicsLayer {
-                            transformOrigin = TransformOrigin(if (rtl) 1f else 0f, 1f)
-                            rotationZ = s * (9f * t + 25f * f)
-                            translationX = s * (4.dp.toPx() * t + 58.dp.toPx() * f)
-                            translationY = 2.dp.toPx() * t + 210.dp.toPx() * f * f
-                            alpha = 1f - (f * 1.4f - .4f).coerceIn(0f, 1f)
-                        }
-                        .shadow(if (t > 0f) 6.dp else 10.dp, if (t > 0f) torn else notch, ambientColor = Color(0x33000000), spotColor = Color(0x33000000))
-                        .clip(if (t > 0f) torn else notch),
-                ) {
-                    if (!isRet) {
-                        val days = trip.daysToFlight(now)
-                        Label(stringResource(R.string.app_pass_more), p)
-                        Big(days.toString(), p)
-                        Label(if (days == 0) stringResource(R.string.ticket_stub_departing)
-                            else pluralStringResource(if (p.dark) R.plurals.app_pass_nights else R.plurals.app_pass_days, days), p, lines = 2)
-                    } else {
-                        val n = trip.skiDayCount()
-                        Label(stringResource(R.string.app_pass_first), p)
-                        Big(if (n > 0) n.toString() else "—", p)
-                        Label(pluralStringResource(R.plurals.app_pass_ski_days, if (n > 0) n else 5), p, lines = 2)
-                    }
-                    if (leg.fromCode != null && leg.toCode != null)
-                        Text("${leg.fromCode} › ${leg.toCode}", Modifier.padding(top = 4.dp), style = TextStyle(fontFamily = Karantina, fontWeight = FontWeight.Bold, fontSize = 20.sp,
-                            lineHeight = 1.em, shadow = p.glow, textDirection = TextDirection.Ltr), color = p.ink)
-                    Spacer(Modifier.weight(1f))
-                    Ridge(p.ink)
-                }
-            }
+            // drawn back to front; past the middle of a swap the one coming forward is on top
+            if (hasRet) {
+                if (t < k) { card(!frontIsRet, poseB, false); card(frontIsRet, poseA, true) }
+                else { card(frontIsRet, poseA, true); card(!frontIsRet, poseB, false) }
+            } else card(false, front, true)
         }
         // under the pass: what the gestures do, and editing the trip
         Row(Modifier.fillMaxWidth().padding(top = 10.dp), verticalAlignment = Alignment.CenterVertically) {
-            val hint = stringResource(R.string.ticket_hint_tear) + if (trip.ret != null) " · " + stringResource(if (showRet) R.string.app_pass_swipe_out else R.string.app_pass_swipe_ret) else ""
+            val hint = (if (hasRet) stringResource(R.string.ticket_hint_swap).trimEnd() + " " else "") + stringResource(R.string.ticket_hint_tear)
             Text(hint, Modifier.weight(1f), style = Ski.type.small.copy(fontSize = 12.sp), color = Ski.colors.muted)
             Row(Modifier.heightIn(min = 44.dp).clickable(role = Role.Button, onClick = onEdit).padding(start = 8.dp), verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                 Icon(Icons.edit, null, Modifier.size(17.dp), tint = p.acc)
                 Text(stringResource(R.string.app_edit), style = Ski.type.bodyBold.copy(fontSize = 13.5.sp), color = p.acc)
+            }
+        }
+    }
+}
+
+/** One pass: the main part and the stub. Only the card in front takes touches on its stub. */
+@Composable
+private fun PassCard(trip: Trip, isRet: Boolean, now: LocalDateTime, p: PassInk, rtl: Boolean, front: Boolean, tearT: Float, fallT: Float,
+                     onTap: () -> Unit, onTearDrag: (dy: Float, height: Float) -> Unit, onTearEnd: () -> Unit) {
+    val leg = if (isRet) trip.ret!! else trip.out
+    Row(
+        // the pass grows with its words (Georgian and large text are taller), never under the canvas's 230
+        Modifier.fillMaxWidth().heightIn(min = 230.dp).height(IntrinsicSize.Min),
+    ) {
+        Main(p, stringResource(R.string.app_home_trip) + " · " + stringResource(if (isRet) R.string.app_pass_ret else R.string.app_pass_out), shortDate(leg.date)) {
+            Route(p, stringResource(R.string.ticket_from), stringResource(R.string.ticket_to),
+                { Code(leg.fromCode, leg.fromCity, p); City(leg.fromCity, p) },
+                { Code(leg.toCode, leg.toCity, p); City(leg.toCity, p, end = true) })
+            Grid(p) {
+                Cell(stringResource(R.string.ticket_flight), p) { Value(leg.flight.ifBlank { "—" }, p, ltr = true) }
+                Cell(stringResource(R.string.ticket_departs), p) { Value(leg.departs?.toString() ?: "—", p, ltr = true) }
+                Cell(stringResource(R.string.ticket_arrives), p) { Value(leg.arrives?.toString() ?: "—", p, ltr = true) }
+            }
+            Grid(p) {
+                Cell(stringResource(R.string.app_pass_traveller), p) { Value(stringResource(R.string.app_pass_me), p) }
+                Cell(stringResource(R.string.ticket_ski_days), p) { Value(trip.skiDays()?.let { dayRange(it) } ?: "—", p, ltr = true) }
+                val other = if (isRet) trip.out else trip.ret
+                Cell(stringResource(if (isRet) R.string.app_pass_out else R.string.app_pass_ret), p) {
+                    Value(other?.let { o -> if (o.departs != null && o.departs < LocalTime.of(6, 0)) stringResource(R.string.app_pass_at_night, shortDate(o.date)) else shortDate(o.date) } ?: "—", p)
+                }
+            }
+        }
+        // the slot: what is left once the stub is gone, and the stub itself
+        Box(Modifier.width(STUB).fillMaxHeight()) {
+            if (front) Column(Modifier.fillMaxSize().padding(vertical = 2.dp).border(2.dp, p.dash.copy(alpha = .8f)).padding(6.dp),
+                verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
+                Text(stringResource(R.string.ticket_torn) + "\n" + stringResource(R.string.ticket_see_you), style = Ski.type.small.copy(fontSize = 12.sp, textAlign = TextAlign.Center), color = p.muted)
+            }
+            val notch = remember { PassShape(seamAtEnd = false, r = NOTCH) }
+            val torn = remember { TornShape(seamAtStart = true) }
+            val sx = if (rtl) -1f else 1f
+            val tearLabel = stringResource(R.string.ticket_tear_stub)
+            StubFace(p,
+                Modifier
+                    .let { m ->
+                        if (!front) m else m.semantics { role = Role.Button; contentDescription = tearLabel }
+                            .pointerInput(Unit) { detectTapGestures { onTap() } }
+                            .pointerInput(Unit) {
+                                detectVerticalDragGestures(onDragEnd = onTearEnd) { ch, dy -> ch.consume(); onTearDrag(dy, size.height.toFloat()) }
+                            }
+                    }
+                    .graphicsLayer {
+                        transformOrigin = TransformOrigin(if (rtl) 1f else 0f, 1f)
+                        rotationZ = sx * (9f * tearT + 25f * fallT)
+                        translationX = sx * (4.dp.toPx() * tearT + 58.dp.toPx() * fallT)
+                        translationY = 2.dp.toPx() * tearT + 210.dp.toPx() * fallT * fallT
+                        alpha = 1f - (fallT * 1.4f - .4f).coerceIn(0f, 1f)
+                    }
+                    .shadow(if (tearT > 0f) 6.dp else 10.dp, if (tearT > 0f) torn else notch, ambientColor = Color(0x33000000), spotColor = Color(0x33000000))
+                    .clip(if (tearT > 0f) torn else notch),
+            ) {
+                if (!isRet) {
+                    val days = trip.daysToFlight(now)
+                    Label(stringResource(R.string.app_pass_more), p)
+                    Big(days.toString(), p)
+                    Label(if (days == 0) stringResource(R.string.ticket_stub_departing)
+                        else pluralStringResource(if (p.dark) R.plurals.app_pass_nights else R.plurals.app_pass_days, days), p, lines = 2)
+                } else {
+                    val n = trip.skiDayCount()
+                    Label(stringResource(R.string.app_pass_first), p)
+                    Big(if (n > 0) n.toString() else "—", p)
+                    Label(pluralStringResource(R.plurals.app_pass_ski_days, if (n > 0) n else 5), p, lines = 2)
+                }
+                if (leg.fromCode != null && leg.toCode != null)
+                    Text("${leg.fromCode} › ${leg.toCode}", Modifier.padding(top = 4.dp), style = TextStyle(fontFamily = Karantina, fontWeight = FontWeight.Bold, fontSize = 20.sp,
+                        lineHeight = 1.em, shadow = p.glow, textDirection = TextDirection.Ltr), color = p.ink)
+                Spacer(Modifier.weight(1f))
+                Ridge(p.ink)
             }
         }
     }

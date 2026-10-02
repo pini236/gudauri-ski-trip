@@ -42,12 +42,14 @@ fun SoonScreen(title: String, text: String, onBack: () -> Unit) {
  * (the tear is CC BY: its credit must be visible while the sound is in the app), and the privacy policy.
  */
 @Composable
-fun AboutScreen(version: String, onPrivacy: () -> Unit, onBack: () -> Unit) {
+fun AboutScreen(version: String, onPrivacy: () -> Unit, onAccount: (() -> Unit)?, onBack: () -> Unit) {
     val c = Ski.colors
     Column(Modifier.fillMaxSize().background(c.snow).statusBarsPadding()) {
         TopBar(stringResource(R.string.common_about_settings), stringResource(R.string.nav_home), onBack)
         Column(Modifier.verticalScroll(rememberScrollState()).navigationBarsPadding().padding(horizontal = 16.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
             Text(stringResource(R.string.app_about_version, version), style = Ski.type.bodyBold, color = c.ink)
+            if (onAccount != null) Text(stringResource(R.string.app_a_account), Modifier.heightIn(min = 44.dp).clickable(role = Role.Button, onClick = onAccount).padding(vertical = 10.dp),
+                style = Ski.type.bodyBold.copy(textDecoration = TextDecoration.Underline), color = c.glacier)
             Text(stringResource(R.string.about_credits), style = Ski.type.title.copy(fontSize = Ski.type.title.fontSize * (30f / 44f)), color = c.ink)
             Text(stringResource(R.string.app_ticket_credits), style = Ski.type.small, color = c.muted)
             Text(stringResource(R.string.about_credit_fonts_label) + " " + stringResource(R.string.app_about_fonts), style = Ski.type.small, color = c.muted)

@@ -69,7 +69,8 @@ fun HomeScreen(trip: Trip?, frame: DayNight.Frame, mode: DayNight.Mode, now: Loc
         Column(Modifier.align(Alignment.TopCenter).widthIn(max = 520.dp).fillMaxWidth().padding(top = top)) {
             Head(frame, mode, onMode) { go(HomeAction.ABOUT) }
             if (trip != null) {
-                Spacer(Modifier.height(56.dp))
+                // with a return pass, its top shows above the outbound one (PASS_PEEK), over the mountains
+                Spacer(Modifier.height(if (trip.ret != null) 20.dp else 56.dp))
                 Box(Modifier.padding(horizontal = 16.dp)) { TripPass(trip, now, haptics, sounds) { go(HomeAction.TRIP) } }
                 Spacer(Modifier.height(38.dp))
             } else {
@@ -91,7 +92,7 @@ fun HomeScreen(trip: Trip?, frame: DayNight.Frame, mode: DayNight.Mode, now: Loc
 
 /** The head over the sky: the place and the time there, the day-and-night button and the way to about and settings. */
 @Composable
-private fun Head(frame: DayNight.Frame, mode: DayNight.Mode, onMode: () -> Unit, onAbout: () -> Unit) {
+internal fun Head(frame: DayNight.Frame, mode: DayNight.Mode, onMode: () -> Unit, onAbout: () -> Unit) {
     val c = Ski.colors
     // a soft halo keeps the words readable over any sky (the site's --sky-halo)
     val halo = Shadow(if (c.dark) Color(0x990D1522) else Color(0x99FFFFFF), blurRadius = 10f)

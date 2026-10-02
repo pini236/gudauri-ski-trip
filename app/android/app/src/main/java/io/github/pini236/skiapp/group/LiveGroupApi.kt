@@ -1,0 +1,178 @@
+package io.github.pini236.skiapp.group
+
+import io.github.pini236.skiapp.server.Account
+import io.github.pini236.skiapp.server.Groups
+import io.github.pini236.skiapp.server.Offline
+import io.github.pini236.skiapp.server.Server
+import io.github.pini236.skiapp.server.ServerError
+import io.github.pini236.skiapp.server.SessionStore
+import io.github.pini236.skiapp.server.TripRow
+import io.github.pini236.skiapp.trip.Trip
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import org.json.JSONArray
+import org.json.JSONObject
+import java.time.LocalDate
+
+/** My trip on the server, now, and its id there (server/TripSync.kt keeps it one row). */
+fun interface MyTripOnServer {
+    fun sendNow(trip: Trip): String
+}
+
+/**
+ * The screens' [GroupApi] over the real server (the client in server/, from the server session, 13.5). Every call
+ * runs off the main thread; a refusal becomes [ApiException] with the server's code, no answer at all is "offline".
+ *
+ * [ready] waits for Google sign-in (the web client id): without it nobody can create a group, so the sign would lead
+ * to a way in that goes nowhere. My name and Google are kept on the phone ([saved], [keep]) so [me] needs no network.
+ */
+class LiveGroupApi(
+    private val server: Server,
+    private val store: SessionStore,
+    private val myTrip: MyTripOnServer,
+    private val lang: () -> String,
+    override val ready: Boolean,
+    saved: String? = null,
+    private val keep: (String?) -> Unit = {},
+) : GroupApi {
+    private val groups = Groups(server)
+    private val account = Account(server)
+    private var profile: JSONObject = saved?.let { runCatching { JSONObject(it) }.getOrNull() } ?: JSONObject()
+
+    private suspend fun <T> io(block: () -> T): T = withContext(Dispatchers.IO) {
+        try {
+            block()
+        } catch (e: ServerError) {
+            throw ApiException(if (e.code == "no_session") "not_signed_in" else e.code)
+        } catch (e: Offline) {
+            throw ApiException("offline")
+        }
+    }
+
+    private fun remember(name: String?, google: Boolean?) {
+        if (name != null) profile.put("name", name)
+        if (google != null) profile.put("google", google)
+        keep(profile.toString())
+    }
+
+    private fun forget() { profile = JSONObject(); keep(null) }
+
+    override fun me(): Me? {
+        val s = store.load() ?: return null
+        return Me(s.userId, registered = !s.anonymous, name = profile.optString("name").ifBlank { null }, google = profile.optBoolean("google"))
+    }
+
+    override suspend fun signInGuest(): Me = io { server.auth.currentOrGuest() }.let { me()!! }
+
+    override suspend fun signInWithGoogle(idToken: String, nonce: String): Me {
+        io {
+            try {
+                server.auth.signInWithIdToken("google", idToken, nonce)
+            } catch (e: ServerError) {
+                // that Google account already has an identity: bring the guest's groups and trips over to it
+                if (e.code != "identity_already_exists") throw e
+                val ticket = account.mergeTicket()
+                server.auth.signInWithIdToken("google", idToken, nonce, link = false)
+                account.mergeGuest(ticket)
+            }
+            remember(account.me()?.name, true)
+        }
+        return me()!!
+    }
+
+    override suspend fun signOut() { io { server.auth.forget() }; forget() }
+    override suspend fun deleteAccount() { io { account.delete() }; forget() }
+    override suspend fun rename(name: String) { io { account.setProfile(name, lang()) }; remember(name.trim(), null) }
+
+    override suspend fun myGroups(): List<GroupSummary> = io {
+        if (store.load() == null) emptyList() else groups.mine().map { g -> GroupSummary(g.id, g.name, g.startsOn, g.endsOn) }
+    }
+
+    override suspend fun group(id: String): Group = io {
+        val me = store.load()?.userId ?: throw ServerError("no_session", 401)
+        val head = rows(server.select("groups", "select=id,name,starts_on,ends_on&id=eq.${Server.enc(id)}")).firstOrNull() ?: throw ServerError("not_found", 404)
+        val members = groups.members(id)
+        val names = members.associate { it.userId to it.name }
+        val trips = tripRows(members.mapNotNull { it.tripId })
+        val admin = members.any { it.userId == me && it.admin }
+        Group(
+            id, head.getString("name"), Groups.date(head, "starts_on"), Groups.date(head, "ends_on"),
+            members.map { m ->
+                val t = m.tripId?.let { trips[it] }
+                Member(m.userId, m.name, if (m.admin) Role.ADMIN else Role.MEMBER, m.userId == me, t?.trip, m.tripId,
+                    t?.enteredBy?.let { by -> names[by] ?: "" })
+            },
+            runCatching { groups.invite(id) }.getOrNull()?.let { Invite(it.id, it.code, it.token, it.requiresApproval, it.expiresAt?.let(Groups::instant)) },
+            if (admin) groups.requests(id).map { JoinRequest(it.id, it.userId, it.name, it.kind == "reclaim") } else emptyList(),
+            rows(server.select("meetups", "select=id,station,meet_at,note,created_by&group_id=eq.${Server.enc(id)}&order=meet_at")).map { o ->
+                Meetup(o.getString("id"), o.getString("station"), Groups.instant(o.getString("meet_at")), str(o, "note"), str(o, "created_by")?.let { names[it] })
+            },
+        )
+    }
+
+    private class Shown(val trip: Trip, val enteredBy: String?)
+
+    /** The trips by id; "entered by" only when an admin filled it in and the member has not taken it over. */
+    private fun tripRows(ids: List<String>): Map<String, Shown> {
+        if (ids.isEmpty()) return emptyMap()
+        return rows(server.select("trips", "select=*&id=in.(${ids.joinToString(",") { Server.enc(it) }})")).mapNotNull { o ->
+            val t = TripRow.trip(o) ?: return@mapNotNull null
+            val by = str(o, "entered_by")?.takeIf { it != str(o, "owner_id") }
+            o.getString("id") to Shown(t, by)
+        }.toMap()
+    }
+
+    override suspend fun createGroup(name: String, myName: String, startsOn: LocalDate?, endsOn: LocalDate?, myTrip: Trip?): String = io {
+        val tripId = myTrip?.let(this.myTrip::sendNow)
+        groups.create(name, myName, startsOn, endsOn, tripId).also { if (profile.optString("name").isBlank()) remember(myName.trim(), null) }
+    }
+
+    override suspend fun updateGroup(id: String, name: String, startsOn: LocalDate?, endsOn: LocalDate?) = io { groups.update(id, name, startsOn, endsOn) }
+    override suspend fun deleteGroup(id: String) = io { groups.delete(id) }
+
+    override suspend fun newInvite(groupId: String, requiresApproval: Boolean): Invite = io {
+        groups.newInvite(groupId, requiresApproval).let { Invite(it.id, it.code, it.token, it.requiresApproval, it.expiresAt?.let(Groups::instant)) }
+    }
+
+    override suspend fun preview(code: String): Preview = io {
+        val p = groups.preview(code)
+        val g = p.group ?: return@io Preview(JoinStatus.of(p.status))
+        Preview(JoinStatus.OK, g.id, g.name, g.startsOn, g.endsOn, p.requiresApproval, p.alreadyMember, p.members.map { it.userId to it.name })
+    }
+
+    override suspend fun join(code: String, myName: String): JoinResult = io {
+        groups.join(code, myName).let { JoinResult(JoinStatus.of(it.status), it.groupId) }.also { if (profile.optString("name").isBlank()) remember(myName.trim(), null) }
+    }
+
+    override suspend fun reclaim(code: String, memberId: String): JoinResult = io { groups.reclaim(code, memberId).let { JoinResult(JoinStatus.of(it.status), it.groupId) } }
+    override suspend fun decide(requestId: String, approve: Boolean) = io { groups.decide(requestId, approve) }
+    override suspend fun leave(groupId: String) = io { groups.leave(groupId) }
+    override suspend fun removeMember(groupId: String, userId: String) = io { groups.remove(groupId, userId) }
+    override suspend fun setRole(groupId: String, userId: String, role: Role) = io { groups.setRole(groupId, userId, role.name.lowercase()) }
+
+    override suspend fun showMyTrip(groupId: String, myName: String, trip: Trip?) = io { groups.setMine(groupId, myName, trip?.let(myTrip::sendNow)) }
+
+    /**
+     * "I'm on the same flight": that flight becomes my trip (on the phone, by the caller, and as my one row on the
+     * server), shown in this group under my name there.
+     */
+    override suspend fun sameFlight(groupId: String, tripId: String): Trip = io {
+        val me = store.load()?.userId ?: throw ServerError("no_session", 401)
+        val t = tripRows(listOf(tripId))[tripId]?.trip ?: throw ServerError("trip_not_in_group", 404)
+        val name = groups.members(groupId).firstOrNull { it.userId == me }?.name ?: throw ServerError("not_member", 403)
+        groups.setMine(groupId, name, myTrip.sendNow(t))
+        t
+    }
+
+    override suspend fun setMemberTrip(groupId: String, userId: String, trip: Trip) { io { groups.setMemberTrip(groupId, userId, trip) } }
+
+    override suspend fun leaderboard(groupId: String, game: String): List<Score> = io {
+        val me = store.load()?.userId
+        groups.leaderboard(groupId, game).map { Score(it.userId, it.name, it.best, it.userId == me) }
+    }
+
+    private companion object {
+        fun rows(a: JSONArray): List<JSONObject> = (0 until a.length()).map { a.getJSONObject(it) }
+        fun str(o: JSONObject, k: String): String? = if (o.isNull(k)) null else o.optString(k).ifBlank { null }
+    }
+}

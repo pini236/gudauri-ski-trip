@@ -10205,6 +10205,1815 @@
     "ka"
    ]
   },
+  "app.on": {
+   "he": "דלוק",
+   "en": "On",
+   "ru": "Вкл.",
+   "ka": "ჩართული",
+   "where": "app/android",
+   "note": "switch state, read out",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.off": {
+   "he": "כבוי",
+   "en": "Off",
+   "ru": "Выкл.",
+   "ka": "გამორთული",
+   "where": "app/android",
+   "note": "switch state, read out",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.a_sign_in_title": {
+   "he": "כניסה כדי ליצור קבוצה",
+   "en": "Sign in to create a group",
+   "ru": "Войдите, чтобы создать группу",
+   "ka": "შედით ჯგუფის შესაქმნელად",
+   "where": "app/android",
+   "note": "A2 sheet title",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.a_sign_in_sub": {
+   "he": "בלי סיסמה, ובלי מיילים מאיתנו. רק שם, ומה שגוגל מעבירה.",
+   "en": "No password, and no emails from us. Just a name, and what Google passes on.",
+   "ru": "Без пароля и без писем от нас. Только имя и то, что передаёт Google.",
+   "ka": "პაროლის გარეშე და ჩვენგან წერილების გარეშე. მხოლოდ სახელი და ის, რასაც Google გადმოგცემს.",
+   "where": "app/android",
+   "note": "A2",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.a_google": {
+   "he": "גוגל",
+   "en": "Google",
+   "ru": "Google",
+   "ka": "Google",
+   "where": "app/android",
+   "note": "the sign-in button and the account's ways in",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.a_google_continue": {
+   "he": "המשך עם גוגל",
+   "en": "Continue with Google",
+   "ru": "Продолжить с Google",
+   "ka": "გაგრძელება Google-ით",
+   "where": "app/android",
+   "note": "A4, not signed in",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.a_apple": {
+   "he": "אפל",
+   "en": "Apple",
+   "ru": "Apple",
+   "ka": "Apple",
+   "where": "app/android",
+   "note": "A4, ways in",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.a_not_now": {
+   "he": "לא עכשיו",
+   "en": "Not now",
+   "ru": "Не сейчас",
+   "ka": "ახლა არა",
+   "where": "app/android",
+   "note": "A2, A5",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.a_moves_over": {
+   "he": "הטיול שלך, המועדפים והשיאים שכבר בטלפון עוברים לחשבון, ומופיעים גם באתר.",
+   "en": "Your trip, favourites and high scores already on the phone move to the account, and show on the site too.",
+   "ru": "Ваша поездка, избранное и рекорды, которые уже есть в телефоне, переходят в аккаунт и появляются на сайте.",
+   "ka": "თქვენი მოგზაურობა, რჩეულები და რეკორდები, რაც უკვე ტელეფონშია, ანგარიშზე გადადის და საიტზეც ჩანს.",
+   "where": "app/android",
+   "note": "A2",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.a_delete_any_time": {
+   "he": "אפשר למחוק את החשבון בכל רגע, מההגדרות.",
+   "en": "You can delete the account at any time, from the settings.",
+   "ru": "Аккаунт можно удалить в любой момент в настройках.",
+   "ka": "ანგარიშის წაშლა ნებისმიერ დროს შეგიძლიათ, პარამეტრებიდან.",
+   "where": "app/android",
+   "note": "A2",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.a_account": {
+   "he": "חשבון",
+   "en": "Account",
+   "ru": "Аккаунт",
+   "ka": "ანგარიში",
+   "where": "app/android",
+   "note": "A4 title, and the link in About",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.a_not_signed_in": {
+   "he": "עוד אין חשבון בטלפון הזה. כל מה שבאפליקציה עובד גם בלי.",
+   "en": "There is no account on this phone yet. Everything in the app works without one.",
+   "ru": "На этом телефоне пока нет аккаунта. Всё в приложении работает и без него.",
+   "ka": "ამ ტელეფონზე ჯერ ანგარიში არ არის. აპლიკაციაში ყველაფერი მის გარეშეც მუშაობს.",
+   "where": "app/android",
+   "note": "A4, nobody signed in",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.a_no_name": {
+   "he": "בלי שם",
+   "en": "No name",
+   "ru": "Без имени",
+   "ka": "სახელის გარეშე",
+   "where": "app/android",
+   "note": "A4, a guest without a name",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.a_name_in_groups": {
+   "he": "השם שמופיע בקבוצות",
+   "en": "The name groups see",
+   "ru": "Имя, которое видят группы",
+   "ka": "სახელი, რომელსაც ჯგუფები ხედავენ",
+   "where": "app/android",
+   "note": "A4, under the name; followed by · change",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.a_change": {
+   "he": "שינוי",
+   "en": "Change",
+   "ru": "Изменить",
+   "ka": "შეცვლა",
+   "where": "app/android",
+   "note": "A4, a link",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.a_my_name": {
+   "he": "השם שלי",
+   "en": "My name",
+   "ru": "Моё имя",
+   "ka": "ჩემი სახელი",
+   "where": "app/android",
+   "note": "A4, field",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.a_guest_note": {
+   "he": "נכנסת בלי הרשמה. רק מי שמחליף טלפון או מוחק את האפליקציה צריך לבקש מהמנהל לחזור. חשבון שומר את המקום שלך.",
+   "en": "You came in without signing up. Only someone who changes phone or deletes the app has to ask an admin to come back. An account keeps your place.",
+   "ru": "Вы вошли без регистрации. Только тому, кто сменит телефон или удалит приложение, придётся просить администратора вернуть его. Аккаунт сохраняет ваше место.",
+   "ka": "რეგისტრაციის გარეშე შეხვედით. მხოლოდ ის, ვინც ტელეფონს შეცვლის ან აპლიკაციას წაშლის, ადმინისტრატორს უნდა სთხოვოს დაბრუნება. ანგარიში თქვენს ადგილს ინახავს.",
+   "where": "app/android",
+   "note": "A4, a guest",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.a_save_google": {
+   "he": "שמירה עם גוגל",
+   "en": "Save with Google",
+   "ru": "Сохранить через Google",
+   "ka": "შენახვა Google-ით",
+   "where": "app/android",
+   "note": "A4 and A5: a guest keeps their place",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.a_ways_in": {
+   "he": "דרכי כניסה",
+   "en": "Ways in",
+   "ru": "Способы входа",
+   "ka": "შესვლის გზები",
+   "where": "app/android",
+   "note": "A4 heading",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.a_ways_in_sub": {
+   "he": "כמה דרכים לאותו חשבון, כדי שלא ייווצר חשבון שני.",
+   "en": "Several ways into the same account, so that no second account is made.",
+   "ru": "Несколько способов войти в один аккаунт, чтобы не появился второй.",
+   "ka": "ერთსა და იმავე ანგარიშში შესვლის რამდენიმე გზა, რომ მეორე ანგარიში არ შეიქმნას.",
+   "where": "app/android",
+   "note": "A4",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.a_connected": {
+   "he": "מחובר",
+   "en": "Connected",
+   "ru": "Подключено",
+   "ka": "დაკავშირებულია",
+   "where": "app/android",
+   "note": "A4, a way in",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.a_not_connected": {
+   "he": "לא מחובר",
+   "en": "Not connected",
+   "ru": "Не подключено",
+   "ka": "არ არის დაკავშირებული",
+   "where": "app/android",
+   "note": "A4, a way in",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.a_connect": {
+   "he": "חיבור",
+   "en": "Connect",
+   "ru": "Подключить",
+   "ka": "დაკავშირება",
+   "where": "app/android",
+   "note": "A4, button",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.a_what_syncs": {
+   "he": "מה מסונכרן",
+   "en": "What syncs",
+   "ru": "Что синхронизируется",
+   "ka": "რა სინქრონიზდება",
+   "where": "app/android",
+   "note": "A4 heading",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.a_what_syncs_text": {
+   "he": "הטיול שלך, המועדפים, השיאים והקבוצות. בין הטלפון לאתר, ובטלפון חדש.",
+   "en": "Your trip, favourites, high scores and groups. Between the phone and the site, and on a new phone.",
+   "ru": "Ваша поездка, избранное, рекорды и группы. Между телефоном и сайтом, и на новом телефоне.",
+   "ka": "თქვენი მოგზაურობა, რჩეულები, რეკორდები და ჯგუფები. ტელეფონსა და საიტს შორის და ახალ ტელეფონზე.",
+   "where": "app/android",
+   "note": "A4",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.a_sign_out": {
+   "he": "יציאה מהחשבון",
+   "en": "Sign out",
+   "ru": "Выйти из аккаунта",
+   "ka": "ანგარიშიდან გასვლა",
+   "where": "app/android",
+   "note": "A4",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.a_delete": {
+   "he": "מחיקת החשבון",
+   "en": "Delete the account",
+   "ru": "Удалить аккаунт",
+   "ka": "ანგარიშის წაშლა",
+   "where": "app/android",
+   "note": "A4",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.a_delete_confirm": {
+   "he": "נגיעה נוספת מוחקת לצמיתות",
+   "en": "Tap again to delete for good",
+   "ru": "Нажмите ещё раз, чтобы удалить навсегда",
+   "ka": "კიდევ ერთხელ შეეხეთ სამუდამოდ წასაშლელად",
+   "where": "app/android",
+   "note": "A4, the second step",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.a_delete_note": {
+   "he": "מחיקה מוחקת מהשרת את החשבון, הטיול והחברות בקבוצות. קבוצה שרק את/ה מנהל/ת בה מבקשת קודם למנות מנהל אחר. גם מהאתר: {url}",
+   "en": "Deleting removes the account, the trip and the group memberships from the server. A group where you are the only admin asks you to name another admin first. Also from the site: {url}",
+   "ru": "Удаление стирает с сервера аккаунт, поездку и членство в группах. Группа, где вы единственный администратор, сначала попросит назначить другого. Также с сайта: {url}",
+   "ka": "წაშლა სერვერიდან შლის ანგარიშს, მოგზაურობას და ჯგუფებში წევრობას. ჯგუფი, სადაც ერთადერთი ადმინისტრატორი ხართ, ჯერ სხვა ადმინისტრატორის დანიშვნას მოგთხოვთ. ასევე საიტიდან: {url}",
+   "where": "app/android",
+   "note": "A4; {url} = the site's account page",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.a_welcome": {
+   "he": "ברוכים הבאים לקבוצה!",
+   "en": "Welcome to the group!",
+   "ru": "Добро пожаловать в группу!",
+   "ka": "კეთილი იყოს თქვენი მობრძანება ჯგუფში!",
+   "where": "app/android",
+   "note": "A5 title",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.a_welcome_sub": {
+   "he": "הכניסה הייתה בלי הרשמה, וזה מספיק. רק מי שמחליף טלפון או מוחק את האפליקציה צריך לבקש מהמנהל לחזור. נגיעה אחת שומרת את המקום שלך:",
+   "en": "You joined without signing up, and that is enough. Only someone who changes phone or deletes the app has to ask an admin to come back. One tap keeps your place:",
+   "ru": "Вы вошли без регистрации, и этого достаточно. Только тому, кто сменит телефон или удалит приложение, придётся просить администратора. Одно касание сохранит ваше место:",
+   "ka": "რეგისტრაციის გარეშე შეხვედით და ეს საკმარისია. მხოლოდ ის, ვინც ტელეფონს შეცვლის ან აპლიკაციას წაშლის, ადმინისტრატორს უნდა სთხოვოს დაბრუნება. ერთი შეხება თქვენს ადგილს შეინახავს:",
+   "where": "app/android",
+   "note": "A5",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.a_ask_once_more": {
+   "he": "נשאל עוד פעם אחת בלבד, שבוע לפני הטיול.",
+   "en": "We will ask only once more, a week before the trip.",
+   "ru": "Мы спросим ещё только раз, за неделю до поездки.",
+   "ka": "კიდევ მხოლოდ ერთხელ გკითხავთ, მოგზაურობამდე ერთი კვირით ადრე.",
+   "where": "app/android",
+   "note": "A5",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.err_not_admin": {
+   "he": "רק מנהלים יכולים לעשות את זה.",
+   "en": "Only admins can do that.",
+   "ru": "Это могут только администраторы.",
+   "ka": "ამის გაკეთება მხოლოდ ადმინისტრატორებს შეუძლიათ.",
+   "where": "app/android",
+   "note": "server refusal",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.err_last_admin": {
+   "he": "את/ה המנהל/ת היחיד/ה. קודם ממנים מנהל נוסף.",
+   "en": "You are the only admin. Name another admin first.",
+   "ru": "Вы единственный администратор. Сначала назначьте ещё одного.",
+   "ka": "თქვენ ერთადერთი ადმინისტრატორი ხართ. ჯერ სხვა დანიშნეთ.",
+   "where": "app/android",
+   "note": "server refusal",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.err_admin_must_register": {
+   "he": "רק חבר עם חשבון יכול להיות מנהל.",
+   "en": "Only a member with an account can be an admin.",
+   "ru": "Администратором может быть только участник с аккаунтом.",
+   "ka": "ადმინისტრატორი მხოლოდ ანგარიშის მქონე წევრი შეიძლება იყოს.",
+   "where": "app/android",
+   "note": "server refusal",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.err_not_registered": {
+   "he": "בשביל זה צריך חשבון.",
+   "en": "This needs an account.",
+   "ru": "Для этого нужен аккаунт.",
+   "ka": "ამისთვის ანგარიში გჭირდებათ.",
+   "where": "app/android",
+   "note": "server refusal",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.err_too_many_groups": {
+   "he": "הגעת למספר הקבוצות המרבי.",
+   "en": "You have reached the most groups you can have.",
+   "ru": "Достигнуто максимальное число групп.",
+   "ka": "ჯგუფების მაქსიმალურ რაოდენობას მიაღწიეთ.",
+   "where": "app/android",
+   "note": "server refusal",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.err_google_not_ready": {
+   "he": "הכניסה עם גוגל עוד לא מוכנה באפליקציה. בקרוב.",
+   "en": "Signing in with Google is not ready in the app yet. Soon.",
+   "ru": "Вход через Google в приложении пока не готов. Скоро.",
+   "ka": "Google-ით შესვლა აპლიკაციაში ჯერ მზად არ არის. მალე.",
+   "where": "app/android",
+   "note": "before the web client id exists",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.err_cancelled": {
+   "he": "הכניסה בוטלה.",
+   "en": "Sign-in was cancelled.",
+   "ru": "Вход отменён.",
+   "ka": "შესვლა გაუქმდა.",
+   "where": "app/android",
+   "note": "the user closed Google's sheet",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.err_offline": {
+   "he": "אין חיבור לשרת. בודקים קליטה ומנסים שוב.",
+   "en": "No connection to the server. Check the signal and try again.",
+   "ru": "Нет связи с сервером. Проверьте сеть и попробуйте снова.",
+   "ka": "სერვერთან კავშირი არ არის. შეამოწმეთ ქსელი და კიდევ სცადეთ.",
+   "where": "app/android",
+   "note": "no network",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.err_general": {
+   "he": "משהו השתבש. אפשר לנסות שוב.",
+   "en": "Something went wrong. Try again.",
+   "ru": "Что-то пошло не так. Попробуйте снова.",
+   "ka": "რაღაც არასწორად წავიდა. კიდევ სცადეთ.",
+   "where": "app/android",
+   "note": "any other refusal",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.g_intro": {
+   "he": "בקבוצה רואים את הטיסות של כולם, קובעים מפגשים ומתחרים בשיאים.",
+   "en": "In a group you see everyone's flights, set meetups and compete for high scores.",
+   "ru": "В группе видны рейсы всех, можно назначать встречи и соревноваться в рекордах.",
+   "ka": "ჯგუფში ყველას ფრენები ჩანს, შეხვედრებს ნიშნავთ და რეკორდებში ეჯიბრებით.",
+   "where": "app/android",
+   "note": "A1",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.g_have_code": {
+   "he": "יש לי קוד הזמנה",
+   "en": "I have an invite code",
+   "ru": "У меня есть код приглашения",
+   "ka": "მაქვს მოწვევის კოდი",
+   "where": "app/android",
+   "note": "A1 card title",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.g_have_code_sub": {
+   "he": "שש אותיות, מהקישור שקיבלת. בלי הרשמה.",
+   "en": "Six letters, from the link you got. No sign-up.",
+   "ru": "Шесть букв из полученной ссылки. Без регистрации.",
+   "ka": "ექვსი ასო, მიღებული ბმულიდან. რეგისტრაციის გარეშე.",
+   "where": "app/android",
+   "note": "A1",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.g_code_label": {
+   "he": "קוד הזמנה",
+   "en": "Invite code",
+   "ru": "Код приглашения",
+   "ka": "მოწვევის კოდი",
+   "where": "app/android",
+   "note": "A1, Q4 field",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.g_join": {
+   "he": "הצטרפות",
+   "en": "Join",
+   "ru": "Войти",
+   "ka": "შეერთება",
+   "where": "app/android",
+   "note": "A1 button",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.g_create": {
+   "he": "יצירת קבוצה",
+   "en": "Create a group",
+   "ru": "Создать группу",
+   "ka": "ჯგუფის შექმნა",
+   "where": "app/android",
+   "note": "A1 card title and button",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.g_create_sub": {
+   "he": "מי שמנהל קבוצה צריך חשבון, כדי שההזמנות יישארו שלו גם בטלפון חדש. כניסה בנגיעה, עם החשבון שכבר בטלפון.",
+   "en": "Whoever runs a group needs an account, so the invites stay theirs on a new phone too. One tap, with the account already on the phone.",
+   "ru": "Тому, кто ведёт группу, нужен аккаунт, чтобы приглашения остались за ним и на новом телефоне. Вход одним касанием, с аккаунтом, который уже есть в телефоне.",
+   "ka": "ჯგუფის მმართველს ანგარიში სჭირდება, რომ მოწვევები ახალ ტელეფონზეც მისი დარჩეს. შესვლა ერთი შეხებით, ტელეფონში უკვე არსებული ანგარიშით.",
+   "where": "app/android",
+   "note": "A1",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.g_rest_works": {
+   "he": "כל השאר עובד בלי חשבון: המפה, הטיול שלך, המשחקים והשיאים.",
+   "en": "Everything else works without an account: the map, your trip, the games and the high scores.",
+   "ru": "Всё остальное работает без аккаунта: карта, ваша поездка, игры и рекорды.",
+   "ka": "დანარჩენი ყველაფერი ანგარიშის გარეშე მუშაობს: რუკა, თქვენი მოგზაურობა, თამაშები და რეკორდები.",
+   "where": "app/android",
+   "note": "A1",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.g_new_title": {
+   "he": "קבוצה חדשה",
+   "en": "New group",
+   "ru": "Новая группа",
+   "ka": "ახალი ჯგუფი",
+   "where": "app/android",
+   "note": "Q1 title",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.g_group_name": {
+   "he": "שם הקבוצה",
+   "en": "Group name",
+   "ru": "Название группы",
+   "ka": "ჯგუფის სახელი",
+   "where": "app/android",
+   "note": "Q1 field",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.g_group_name_hint": {
+   "he": "גודאורי 2027",
+   "en": "Gudauri 2027",
+   "ru": "Гудаури 2027",
+   "ka": "გუდაური 2027",
+   "where": "app/android",
+   "note": "Q1 field hint",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.g_from_date": {
+   "he": "מתאריך",
+   "en": "From",
+   "ru": "С",
+   "ka": "დან",
+   "where": "app/android",
+   "note": "Q1 field",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.g_to_date": {
+   "he": "עד תאריך",
+   "en": "To",
+   "ru": "По",
+   "ka": "მდე",
+   "where": "app/android",
+   "note": "Q1 field",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.g_dates_note": {
+   "he": "התאריכים של הקבוצה: הספירה לאחור, ותוקף ההזמנה עד הסוף שלהם.",
+   "en": "The group's dates: the countdown, and the invite works until they end.",
+   "ru": "Даты группы: обратный отсчёт, и приглашение действует до их конца.",
+   "ka": "ჯგუფის თარიღები: უკუთვლა, და მოწვევა მათ დასრულებამდე მოქმედებს.",
+   "where": "app/android",
+   "note": "Q1",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.g_your_name": {
+   "he": "איך קוראים לך בקבוצה?",
+   "en": "Your name in the group?",
+   "ru": "Как вас зовут в группе?",
+   "ka": "რა გქვიათ ჯგუფში?",
+   "where": "app/android",
+   "note": "Q1, Q3 field",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.g_your_name_hint": {
+   "he": "השם שהחבר׳ה מכירים",
+   "en": "The name your friends know",
+   "ru": "Имя, которое знают друзья",
+   "ka": "სახელი, რომელსაც მეგობრები იცნობენ",
+   "where": "app/android",
+   "note": "Q1, Q3 field hint",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.g_show_my_trip": {
+   "he": "הטיול שלי יופיע בקבוצה",
+   "en": "Show my trip in the group",
+   "ru": "Показывать мою поездку в группе",
+   "ka": "ჩემი მოგზაურობა ჯგუფში გამოჩნდეს",
+   "where": "app/android",
+   "note": "Q1 switch",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.g_create_it": {
+   "he": "יצירת הקבוצה",
+   "en": "Create the group",
+   "ru": "Создать группу",
+   "ka": "ჯგუფის შექმნა",
+   "where": "app/android",
+   "note": "Q1 button",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.g_admin_note": {
+   "he": "את/ה המנהל/ת. מומלץ למנות עוד מנהל אחד לפחות, כדי שהקבוצה לא תישאר בלי מנהל.",
+   "en": "You are the admin. Name at least one more admin, so the group is never left without one.",
+   "ru": "Вы администратор. Назначьте хотя бы ещё одного, чтобы группа не осталась без администратора.",
+   "ka": "თქვენ ადმინისტრატორი ხართ. დანიშნეთ კიდევ ერთი მაინც, რომ ჯგუფი ადმინისტრატორის გარეშე არ დარჩეს.",
+   "where": "app/android",
+   "note": "Q1",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.g_invite_title": {
+   "he": "הזמנת חברים",
+   "en": "Invite friends",
+   "ru": "Пригласить друзей",
+   "ka": "მეგობრების მოწვევა",
+   "where": "app/android",
+   "note": "Q2 title",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.g_to_group": {
+   "he": "לקבוצה",
+   "en": "Group",
+   "ru": "Группа",
+   "ka": "ჯგუფი",
+   "where": "app/android",
+   "note": "Q2 back link",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.g_invite_strip": {
+   "he": "הזמנה לקבוצה",
+   "en": "Invite to the group",
+   "ru": "Приглашение в группу",
+   "ka": "მოწვევა ჯგუფში",
+   "where": "app/android",
+   "note": "Q2 card strip",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.g_invite_how": {
+   "he": "הקישור פותח את האפליקציה, או את האתר למי שאין. מי שהתקין בדרך מקליד את הקוד:",
+   "en": "The link opens the app, or the site for those without it. Whoever installs on the way types the code:",
+   "ru": "Ссылка открывает приложение, а у кого его нет, сайт. Кто устанавливает по дороге, вводит код:",
+   "ka": "ბმული აპლიკაციას ხსნის, ან საიტს, ვისაც არ აქვს. ვინც გზაში დააყენებს, კოდს აკრეფს:",
+   "where": "app/android",
+   "note": "Q2",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.g_code_aria": {
+   "he": "קוד ההזמנה {code}",
+   "en": "Invite code {code}",
+   "ru": "Код приглашения {code}",
+   "ka": "მოწვევის კოდი {code}",
+   "where": "app/android",
+   "note": "Q2, read out",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.g_copy_link": {
+   "he": "העתקת הקישור",
+   "en": "Copy the link",
+   "ru": "Скопировать ссылку",
+   "ka": "ბმულის კოპირება",
+   "where": "app/android",
+   "note": "Q2, read out",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.g_whatsapp": {
+   "he": "וואטסאפ",
+   "en": "WhatsApp",
+   "ru": "WhatsApp",
+   "ka": "WhatsApp",
+   "where": "app/android",
+   "note": "Q2 button",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.g_share": {
+   "he": "שיתוף",
+   "en": "Share",
+   "ru": "Поделиться",
+   "ka": "გაზიარება",
+   "where": "app/android",
+   "note": "Q2 button",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.g_invite_message": {
+   "he": "בואו לקבוצה {group} באפליקציה של גודאורי: {link}\nמי שמתקין מהחנות מקליד את הקוד {code}",
+   "en": "Join {group} in the Gudauri app: {link}\nInstalling from the store? Type the code {code}",
+   "ru": "Присоединяйтесь к группе {group} в приложении Гудаури: {link}\nУстанавливаете из магазина? Введите код {code}",
+   "ka": "შემოუერთდით ჯგუფს {group} გუდაურის აპლიკაციაში: {link}\nმაღაზიიდან აყენებთ? აკრიფეთ კოდი {code}",
+   "where": "app/android",
+   "note": "the message sent from Q2",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.g_invite_settings": {
+   "he": "הגדרות ההזמנה · מנהלים",
+   "en": "Invite settings · admins",
+   "ru": "Настройки приглашения · администраторы",
+   "ka": "მოწვევის პარამეტრები · ადმინისტრატორები",
+   "where": "app/android",
+   "note": "Q2 heading",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.g_manual_approval": {
+   "he": "אישור ידני לכל מצטרף",
+   "en": "Approve everyone who joins",
+   "ru": "Подтверждать каждого вручную",
+   "ka": "ყოველი შემომსვლელის ხელით დადასტურება",
+   "where": "app/android",
+   "note": "Q2 switch",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.g_manual_off": {
+   "he": "כבוי: כל מי שיש לו את הקישור נכנס",
+   "en": "Off: anyone with the link gets in",
+   "ru": "Выкл.: входит любой, у кого есть ссылка",
+   "ka": "გამორთული: შედის ყველა, ვისაც ბმული აქვს",
+   "where": "app/android",
+   "note": "Q2",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.g_manual_on": {
+   "he": "דלוק: מנהל מאשר כל מצטרף",
+   "en": "On: an admin approves everyone who joins",
+   "ru": "Вкл.: администратор подтверждает каждого",
+   "ka": "ჩართული: ადმინისტრატორი ყველა შემომსვლელს ადასტურებს",
+   "where": "app/android",
+   "note": "Q2",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.g_valid": {
+   "he": "תוקף",
+   "en": "Valid",
+   "ru": "Действует",
+   "ka": "მოქმედებს",
+   "where": "app/android",
+   "note": "Q2",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.g_valid_until": {
+   "he": "עד סוף הטיול, {date}",
+   "en": "Until the end of the trip, {date}",
+   "ru": "До конца поездки, {date}",
+   "ka": "მოგზაურობის ბოლომდე, {date}",
+   "where": "app/android",
+   "note": "Q2",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.g_valid_90": {
+   "he": "90 יום מיצירת הקישור",
+   "en": "90 days from when the link was made",
+   "ru": "90 дней с создания ссылки",
+   "ka": "ბმულის შექმნიდან 90 დღე",
+   "where": "app/android",
+   "note": "Q2, a group without dates",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.g_replace_link": {
+   "he": "ביטול הקישור והחלפה בחדש",
+   "en": "Cancel the link and make a new one",
+   "ru": "Отменить ссылку и создать новую",
+   "ka": "ბმულის გაუქმება და ახლით შეცვლა",
+   "where": "app/android",
+   "note": "Q2",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.g_replace_note": {
+   "he": "הקישור והקוד הישנים מפסיקים לעבוד מיד. מי שכבר בקבוצה נשאר.",
+   "en": "The old link and code stop working at once. Whoever is already in stays.",
+   "ru": "Старые ссылка и код сразу перестают работать. Кто уже в группе, остаётся.",
+   "ka": "ძველი ბმული და კოდი მაშინვე წყვეტს მუშაობას. ვინც უკვე ჯგუფშია, რჩება.",
+   "where": "app/android",
+   "note": "Q2",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.g_invited_to": {
+   "he": "הוזמנת ל",
+   "en": "You are invited to",
+   "ru": "Вас пригласили в",
+   "ka": "მოწვეული ხართ",
+   "where": "app/android",
+   "note": "Q3, over the group's name",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.g_enter": {
+   "he": "כניסה לקבוצה",
+   "en": "Join the group",
+   "ru": "Войти в группу",
+   "ka": "ჯგუფში შესვლა",
+   "where": "app/android",
+   "note": "Q3 button",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.g_ask_to_join": {
+   "he": "בקשה להצטרף",
+   "en": "Ask to join",
+   "ru": "Попросить вступить",
+   "ka": "შესვლის მოთხოვნა",
+   "where": "app/android",
+   "note": "Q3 button, approval on",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.g_no_signup": {
+   "he": "בלי הרשמה ובלי סיסמה. אפשר לשמור חשבון אחר כך, אם רוצים.",
+   "en": "No sign-up and no password. You can keep an account later, if you like.",
+   "ru": "Без регистрации и пароля. Аккаунт можно сохранить позже, если захотите.",
+   "ka": "რეგისტრაციისა და პაროლის გარეშე. ანგარიშის შენახვა მოგვიანებითაც შეგიძლიათ, თუ მოისურვებთ.",
+   "where": "app/android",
+   "note": "Q3",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.g_already_in": {
+   "he": "אני כבר בקבוצה",
+   "en": "I'm already in the group",
+   "ru": "Я уже в группе",
+   "ka": "უკვე ჯგუფში ვარ",
+   "where": "app/android",
+   "note": "Q3 link, Q5 title",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.g_already_in_sub": {
+   "he": "החלפתי טלפון, או מחקתי את האפליקציה",
+   "en": "I changed phone, or deleted the app",
+   "ru": "Я сменил телефон или удалил приложение",
+   "ka": "ტელეფონი შევცვალე ან აპლიკაცია წავშალე",
+   "where": "app/android",
+   "note": "Q3",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.g_pending_title": {
+   "he": "ממתין לאישור",
+   "en": "Waiting for approval",
+   "ru": "Ожидает подтверждения",
+   "ka": "დადასტურების მოლოდინში",
+   "where": "app/android",
+   "note": "Q3, Q5",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.g_pending_sub": {
+   "he": "המנהלים מקבלים בקשה בדף הקבוצה. בינתיים כל השאר עובד.",
+   "en": "The admins get a request on the group page. Meanwhile everything else works.",
+   "ru": "Администраторы получат запрос на странице группы. Пока всё остальное работает.",
+   "ka": "ადმინისტრატორები მოთხოვნას ჯგუფის გვერდზე მიიღებენ. მანამდე დანარჩენი ყველაფერი მუშაობს.",
+   "where": "app/android",
+   "note": "Q3, Q5",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.g_bad_code": {
+   "he": "הקוד לא עובד",
+   "en": "The code does not work",
+   "ru": "Код не работает",
+   "ka": "კოდი არ მუშაობს",
+   "where": "app/android",
+   "note": "Q3",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.g_bad_code_sub": {
+   "he": "אולי הוא הוחלף בחדש, או שפג תוקפו. אפשר לבקש מהמנהל קישור חדש.",
+   "en": "Maybe it was replaced, or it expired. Ask an admin for a new link.",
+   "ru": "Возможно, его заменили или срок истёк. Попросите у администратора новую ссылку.",
+   "ka": "შესაძლოა შეცვალეს ან ვადა გაუვიდა. ადმინისტრატორს ახალი ბმული სთხოვეთ.",
+   "where": "app/android",
+   "note": "Q3",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.g_too_many_tries": {
+   "he": "יותר מדי ניסיונות",
+   "en": "Too many tries",
+   "ru": "Слишком много попыток",
+   "ka": "მეტისმეტად ბევრი მცდელობა",
+   "where": "app/android",
+   "note": "Q3",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.g_too_many_tries_sub": {
+   "he": "מחכים כמה דקות ומנסים שוב.",
+   "en": "Wait a few minutes and try again.",
+   "ru": "Подождите несколько минут и попробуйте снова.",
+   "ka": "რამდენიმე წუთი დაელოდეთ და კიდევ სცადეთ.",
+   "where": "app/android",
+   "note": "Q3",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.g_retype": {
+   "he": "הקלדת הקוד",
+   "en": "Type the code",
+   "ru": "Ввести код",
+   "ka": "კოდის აკრეფა",
+   "where": "app/android",
+   "note": "Q3 button",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.g_full": {
+   "he": "הקבוצה מלאה.",
+   "en": "The group is full.",
+   "ru": "Группа заполнена.",
+   "ka": "ჯგუფი სავსეა.",
+   "where": "app/android",
+   "note": "Q3",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.g_code_title": {
+   "he": "הצטרפות בקוד",
+   "en": "Join with a code",
+   "ru": "Вход по коду",
+   "ka": "კოდით შესვლა",
+   "where": "app/android",
+   "note": "Q4 title",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.g_code_why": {
+   "he": "התקנת מהקישור? החנות לא מעבירה את ההזמנה, אז מקלידים את הקוד מההודעה.",
+   "en": "Installed from the link? The store does not pass the invite on, so type the code from the message.",
+   "ru": "Установили по ссылке? Магазин не передаёт приглашение, поэтому введите код из сообщения.",
+   "ka": "ბმულიდან დააყენეთ? მაღაზია მოწვევას არ გადმოსცემს, ამიტომ შეტყობინებიდან კოდი აკრიფეთ.",
+   "where": "app/android",
+   "note": "Q4",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.g_six_letters": {
+   "he": "שש אותיות",
+   "en": "Six letters",
+   "ru": "Шесть букв",
+   "ka": "ექვსი ასო",
+   "where": "app/android",
+   "note": "Q4 label",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.g_continue": {
+   "he": "המשך",
+   "en": "Continue",
+   "ru": "Продолжить",
+   "ka": "გაგრძელება",
+   "where": "app/android",
+   "note": "Q4 button",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.g_code_letters": {
+   "he": "אותיות לטיניות בלבד, בלי I ו-O, כדי שלא יתבלבלו עם ספרות.",
+   "en": "Latin letters only, without I and O, so they are not mistaken for numbers.",
+   "ru": "Только латинские буквы, без I и O, чтобы их не путали с цифрами.",
+   "ka": "მხოლოდ ლათინური ასოები, I-ისა და O-ს გარეშე, რომ ციფრებში არ აგერიოთ.",
+   "where": "app/android",
+   "note": "Q4",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.g_back": {
+   "he": "חזרה",
+   "en": "Back",
+   "ru": "Назад",
+   "ka": "უკან",
+   "where": "app/android",
+   "note": "Q5 back link",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.g_reclaim_intro": {
+   "he": "בוחרים את השם שלך ב{group}. מנהל מאשר, ואת/ה חוזר/ת עם כל מה שהיה לך: הטיסה, המפגשים והשיאים.",
+   "en": "Pick your name in {group}. An admin approves, and you are back with all you had: the flight, the meetups and the high scores.",
+   "ru": "Выберите своё имя в группе {group}. Администратор подтвердит, и вы вернётесь со всем, что было: рейсом, встречами и рекордами.",
+   "ka": "აირჩიეთ თქვენი სახელი ჯგუფში {group}. ადმინისტრატორი დაადასტურებს და დაბრუნდებით ყველაფრით, რაც გქონდათ: ფრენით, შეხვედრებით და რეკორდებით.",
+   "where": "app/android",
+   "note": "Q5",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.g_send_request": {
+   "he": "שליחת בקשה למנהל",
+   "en": "Send a request to an admin",
+   "ru": "Отправить запрос администратору",
+   "ka": "მოთხოვნის გაგზავნა ადმინისტრატორთან",
+   "where": "app/android",
+   "note": "Q5 button",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.g_sign_in_instead": {
+   "he": "לשם הזה יש חשבון. נכנסים איתו, וחוזרים לקבוצה בלי אישור.",
+   "en": "This name has an account. Sign in with it, and you are back in the group without approval.",
+   "ru": "У этого имени есть аккаунт. Войдите с ним и вернитесь в группу без подтверждения.",
+   "ka": "ამ სახელს ანგარიში აქვს. შედით მისით და ჯგუფში დადასტურების გარეშე დაბრუნდებით.",
+   "where": "app/android",
+   "note": "Q5",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.g_invite_short": {
+   "he": "הזמנה",
+   "en": "Invite",
+   "ru": "Пригласить",
+   "ka": "მოწვევა",
+   "where": "app/android",
+   "note": "group head button",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.g_tab_flights": {
+   "he": "טיסות",
+   "en": "Flights",
+   "ru": "Рейсы",
+   "ka": "ფრენები",
+   "where": "app/android",
+   "note": "tab",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.g_tab_meetups": {
+   "he": "מפגשים",
+   "en": "Meetups",
+   "ru": "Встречи",
+   "ka": "შეხვედრები",
+   "where": "app/android",
+   "note": "tab",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.g_tab_scores": {
+   "he": "שיאים",
+   "en": "Scores",
+   "ru": "Рекорды",
+   "ka": "რეკორდები",
+   "where": "app/android",
+   "note": "tab",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.g_tab_members": {
+   "he": "חברים",
+   "en": "Members",
+   "ru": "Участники",
+   "ka": "წევრები",
+   "where": "app/android",
+   "note": "tab",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.g_me_suffix": {
+   "he": "(את/ה)",
+   "en": "(you)",
+   "ru": "(вы)",
+   "ka": "(თქვენ)",
+   "where": "app/android",
+   "note": "after my name",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.g_dep_arr": {
+   "he": "{dep}, נחיתה {arr}",
+   "en": "{dep}, lands {arr}",
+   "ru": "{dep}, посадка {arr}",
+   "ka": "{dep}, დაჯდება {arr}",
+   "where": "app/android",
+   "note": "Q6, Q7: departure and landing times",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.g_entered_by": {
+   "he": "הוזן על ידי {admin} (מנהל). {member} רואה את זה, ויכול/ה לשנות.",
+   "en": "Entered by {admin} (admin). {member} sees it, and can change it.",
+   "ru": "Внесено администратором {admin}. {member} видит это и может изменить.",
+   "ka": "შეიყვანა {admin}-მა (ადმინისტრატორი). {member} ამას ხედავს და შეცვლა შეუძლია.",
+   "where": "app/android",
+   "note": "Q6",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.g_on_flight": {
+   "he": "על הטיסה",
+   "en": "on board",
+   "ru": "на борту",
+   "ka": "ბორტზე",
+   "where": "app/android",
+   "note": "Q6, under the count",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.g_no_flight_yet": {
+   "he": "עוד אין טיסה",
+   "en": "No flight yet",
+   "ru": "Рейса пока нет",
+   "ka": "ფრენა ჯერ არ არის",
+   "where": "app/android",
+   "note": "Q6",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.g_same_flight": {
+   "he": "אני על אותה טיסה",
+   "en": "I'm on the same flight",
+   "ru": "Я на том же рейсе",
+   "ka": "იმავე ფრენით მივფრინავ",
+   "where": "app/android",
+   "note": "Q6 button, Q7 title",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.g_fill_for": {
+   "he": "מילוי בשבילו",
+   "en": "Fill in for them",
+   "ru": "Заполнить за него",
+   "ka": "მისთვის შევსება",
+   "where": "app/android",
+   "note": "Q6 button for admins",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.g_show_mine": {
+   "he": "הצגת הטיסה שלי",
+   "en": "Show my flight",
+   "ru": "Показать мой рейс",
+   "ka": "ჩემი ფრენის ჩვენება",
+   "where": "app/android",
+   "note": "Q6, I have a trip but it is not shown",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.g_flights_private": {
+   "he": "הטיסות גלויות רק לחברי הקבוצה.",
+   "en": "Flights are seen only by the group's members.",
+   "ru": "Рейсы видят только участники группы.",
+   "ka": "ფრენებს მხოლოდ ჯგუფის წევრები ხედავენ.",
+   "where": "app/android",
+   "note": "Q6",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.g_same_sub": {
+   "he": "הטיסות שכבר בקבוצה. נגיעה אחת, והיא נכנסת גם לטיול שלך.",
+   "en": "The flights already in the group. One tap, and it goes into your trip too.",
+   "ru": "Рейсы, которые уже есть в группе. Одно касание, и он попадёт и в вашу поездку.",
+   "ka": "ჯგუფში უკვე არსებული ფრენები. ერთი შეხება და თქვენს მოგზაურობაშიც მოხვდება.",
+   "where": "app/android",
+   "note": "Q7",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.g_fill_sub": {
+   "he": "בוחרים טיסה שכבר בקבוצה. החבר רואה אותה, ויכול לשנות.",
+   "en": "Pick a flight already in the group. The member sees it, and can change it.",
+   "ru": "Выберите рейс, который уже есть в группе. Участник увидит его и сможет изменить.",
+   "ka": "აირჩიეთ ჯგუფში უკვე არსებული ფრენა. წევრი მას დაინახავს და შეცვლა შეეძლება.",
+   "where": "app/android",
+   "note": "Q7 for an admin",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.g_other_flight": {
+   "he": "טיסה אחרת",
+   "en": "Another flight",
+   "ru": "Другой рейс",
+   "ka": "სხვა ფრენა",
+   "where": "app/android",
+   "note": "Q7",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.g_set_by": {
+   "he": "קבע/ה: {name}",
+   "en": "Set by {name}",
+   "ru": "Назначил(а): {name}",
+   "ka": "დანიშნა: {name}",
+   "where": "app/android",
+   "note": "Q8",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.g_no_meetups": {
+   "he": "עוד אין מפגשים.",
+   "en": "No meetups yet.",
+   "ru": "Встреч пока нет.",
+   "ka": "შეხვედრები ჯერ არ არის.",
+   "where": "app/android",
+   "note": "Q8",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.g_new_meetup": {
+   "he": "מפגש חדש",
+   "en": "New meetup",
+   "ru": "Новая встреча",
+   "ka": "ახალი შეხვედრა",
+   "where": "app/android",
+   "note": "Q8 button",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.g_meetups_note": {
+   "he": "מפגש חדש נבחר על מפת התחנות, וכל הקבוצה רואה אותו.",
+   "en": "A new meetup is picked on the map of stations, and the whole group sees it.",
+   "ru": "Новая встреча выбирается на карте станций, и её видит вся группа.",
+   "ka": "ახალი შეხვედრა სადგურების რუკაზე აირჩევა და მას მთელი ჯგუფი ხედავს.",
+   "where": "app/android",
+   "note": "Q8",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.g_no_scores": {
+   "he": "עוד אין שיאים במשחק הזה.",
+   "en": "No high scores in this game yet.",
+   "ru": "В этой игре рекордов пока нет.",
+   "ka": "ამ თამაშში რეკორდები ჯერ არ არის.",
+   "where": "app/android",
+   "note": "Q9",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.g_scores_note": {
+   "he": "השיא הכי טוב של כל אחד, מכל משחק. נשלח לקבוצה כשיש קליטה.",
+   "en": "Everyone's best, in each game. Sent to the group when there is signal.",
+   "ru": "Лучший результат каждого в каждой игре. Отправляется в группу, когда есть сеть.",
+   "ka": "თითოეულის საუკეთესო შედეგი თითოეულ თამაშში. ჯგუფში იგზავნება, როცა ქსელია.",
+   "where": "app/android",
+   "note": "Q9",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.g_requests": {
+   "he": "בקשות · רק מנהלים רואים",
+   "en": "Requests · only admins see these",
+   "ru": "Запросы · видят только администраторы",
+   "ka": "მოთხოვნები · მხოლოდ ადმინისტრატორები ხედავენ",
+   "where": "app/android",
+   "note": "Q10 heading",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.g_request_join": {
+   "he": "{name} מבקש/ת להצטרף",
+   "en": "{name} asks to join",
+   "ru": "{name} просит вступить",
+   "ka": "{name} შესვლას ითხოვს",
+   "where": "app/android",
+   "note": "Q10",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.g_request_join_sub": {
+   "he": "אחרי אישור נכנסים לקבוצה.",
+   "en": "Once approved, they are in the group.",
+   "ru": "После подтверждения он(а) войдёт в группу.",
+   "ka": "დადასტურების შემდეგ ჯგუფში შევა.",
+   "where": "app/android",
+   "note": "Q10",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.g_request_reclaim": {
+   "he": "{name}: אני כבר בקבוצה",
+   "en": "{name}: I'm already in the group",
+   "ru": "{name}: я уже в группе",
+   "ka": "{name}: უკვე ჯგუფში ვარ",
+   "where": "app/android",
+   "note": "Q10",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.g_request_reclaim_sub": {
+   "he": "טלפון חדש. אחרי אישור חוזרים עם הטיסה והשיאים, בלי כפיל.",
+   "en": "A new phone. Once approved, they are back with the flight and the high scores, with no double.",
+   "ru": "Новый телефон. После подтверждения вернётся с рейсом и рекордами, без двойника.",
+   "ka": "ახალი ტელეფონი. დადასტურების შემდეგ ფრენითა და რეკორდებით დაბრუნდება, დუბლიკატის გარეშე.",
+   "where": "app/android",
+   "note": "Q10",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.g_approve": {
+   "he": "אישור",
+   "en": "Approve",
+   "ru": "Подтвердить",
+   "ka": "დადასტურება",
+   "where": "app/android",
+   "note": "Q10 button",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.g_reject": {
+   "he": "דחייה",
+   "en": "Decline",
+   "ru": "Отклонить",
+   "ka": "უარყოფა",
+   "where": "app/android",
+   "note": "Q10 button",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.g_role_admin": {
+   "he": "מנהל",
+   "en": "Admin",
+   "ru": "Администратор",
+   "ka": "ადმინისტრატორი",
+   "where": "app/android",
+   "note": "Q10",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.g_role_member": {
+   "he": "חבר",
+   "en": "Member",
+   "ru": "Участник",
+   "ka": "წევრი",
+   "where": "app/android",
+   "note": "Q10",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.g_actions_on": {
+   "he": "פעולות על {name}",
+   "en": "Actions for {name}",
+   "ru": "Действия: {name}",
+   "ka": "მოქმედებები: {name}",
+   "where": "app/android",
+   "note": "Q10, read out on the menu button",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.g_make_admin": {
+   "he": "מינוי למנהל",
+   "en": "Make admin",
+   "ru": "Назначить администратором",
+   "ka": "ადმინისტრატორად დანიშვნა",
+   "where": "app/android",
+   "note": "Q10 menu",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.g_unmake_admin": {
+   "he": "הסרה מניהול",
+   "en": "Remove as admin",
+   "ru": "Снять с администраторов",
+   "ka": "ადმინისტრატორობიდან მოხსნა",
+   "where": "app/android",
+   "note": "Q10 menu",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.g_remove": {
+   "he": "הוצאה מהקבוצה",
+   "en": "Remove from the group",
+   "ru": "Удалить из группы",
+   "ka": "ჯგუფიდან ამოღება",
+   "where": "app/android",
+   "note": "Q10 menu",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.g_menu_note": {
+   "he": "בתפריט של כל חבר: מינוי למנהל, הוצאה מהקבוצה.",
+   "en": "In each member's menu: make admin, remove from the group.",
+   "ru": "В меню каждого участника: назначить администратором, удалить из группы.",
+   "ka": "თითოეული წევრის მენიუში: ადმინისტრატორად დანიშვნა, ჯგუფიდან ამოღება.",
+   "where": "app/android",
+   "note": "Q10",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.g_name_dates": {
+   "he": "שם ותאריכים",
+   "en": "Name and dates",
+   "ru": "Название и даты",
+   "ka": "სახელი და თარიღები",
+   "where": "app/android",
+   "note": "Q10 button and sheet title",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.g_invite_settings_link": {
+   "he": "הגדרות ההזמנה",
+   "en": "Invite settings",
+   "ru": "Настройки приглашения",
+   "ka": "მოწვევის პარამეტრები",
+   "where": "app/android",
+   "note": "Q10 button",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.g_leave": {
+   "he": "עזיבת הקבוצה",
+   "en": "Leave the group",
+   "ru": "Покинуть группу",
+   "ka": "ჯგუფის დატოვება",
+   "where": "app/android",
+   "note": "Q10",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.g_leave_confirm": {
+   "he": "נגיעה נוספת: לעזוב",
+   "en": "Tap again to leave",
+   "ru": "Нажмите ещё раз, чтобы выйти",
+   "ka": "კიდევ შეეხეთ დასატოვებლად",
+   "where": "app/android",
+   "note": "Q10, the second step",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.g_delete": {
+   "he": "מחיקת הקבוצה",
+   "en": "Delete the group",
+   "ru": "Удалить группу",
+   "ka": "ჯგუფის წაშლა",
+   "where": "app/android",
+   "note": "Q10",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.g_delete_confirm": {
+   "he": "נגיעה נוספת מוחקת את הקבוצה לכולם",
+   "en": "Tap again to delete the group for everyone",
+   "ru": "Нажмите ещё раз, чтобы удалить группу для всех",
+   "ka": "კიდევ შეეხეთ ჯგუფის ყველასთვის წასაშლელად",
+   "where": "app/android",
+   "note": "Q10, the second step",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.g_members": {
+   "he": {
+    "one": "חבר אחד",
+    "two": "שני חברים",
+    "other": "{n} חברים"
+   },
+   "en": {
+    "one": "1 member",
+    "other": "{n} members"
+   },
+   "ru": {
+    "one": "{n} участник",
+    "few": "{n} участника",
+    "many": "{n} участников",
+    "other": "{n} участника"
+   },
+   "ka": {
+    "one": "1 წევრი",
+    "other": "{n} წევრი"
+   },
+   "where": "app/android",
+   "note": "group head, Q3; {n} = the number",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.g_admins": {
+   "he": {
+    "one": "מנהל אחד",
+    "two": "שני מנהלים",
+    "other": "{n} מנהלים"
+   },
+   "en": {
+    "one": "1 admin",
+    "other": "{n} admins"
+   },
+   "ru": {
+    "one": "{n} администратор",
+    "few": "{n} администратора",
+    "many": "{n} администраторов",
+    "other": "{n} администратора"
+   },
+   "ka": {
+    "one": "1 ადმინისტრატორი",
+    "other": "{n} ადმინისტრატორი"
+   },
+   "where": "app/android",
+   "note": "group head; {n} = the number",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.g_from_group": {
+   "he": {
+    "one": "אחד מהקבוצה",
+    "two": "שניים מהקבוצה",
+    "other": "{n} מהקבוצה"
+   },
+   "en": {
+    "one": "1 from the group",
+    "other": "{n} from the group"
+   },
+   "ru": {
+    "one": "{n} из группы",
+    "few": "{n} из группы",
+    "many": "{n} из группы",
+    "other": "{n} из группы"
+   },
+   "ka": {
+    "one": "1 ჯგუფიდან",
+    "other": "{n} ჯგუფიდან"
+   },
+   "where": "app/android",
+   "note": "Q7, on each flight; {n} = the number",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
   "about.analytics": {
    "he": "מדידת שימוש ודיווח שגיאות",
    "en": "Usage statistics and error reports",
