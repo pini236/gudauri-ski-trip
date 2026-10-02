@@ -899,69 +899,69 @@
       "page": "round12",
       "title": "דף הבית במחשב: עם הטיול"
     },
-    "K1-DuoGuest.dc.html": {
+    "P1-PassMe.dc.html": {
       "x": 0,
       "y": 5561,
       "w": 390,
-      "h": 330,
+      "h": 432,
       "page": "round12",
-      "title": "א. בקפסולה עם יום ולילה: אורח"
+      "title": "הכרטיס הוא החשבון: מחובר"
     },
-    "K2-DuoMe.dc.html": {
+    "P2-PassGuest.dc.html": {
       "x": 470,
       "y": 5561,
       "w": 390,
-      "h": 330,
+      "h": 432,
       "page": "round12",
-      "title": "א. בקפסולה עם יום ולילה: מחובר"
+      "title": "הכרטיס הוא החשבון: אורח עם טיול"
     },
-    "K7-DuoMeNight.dc.html": {
+    "P6-PassMeNight.dc.html": {
       "x": 940,
       "y": 5561,
       "w": 390,
+      "h": 432,
+      "page": "round12",
+      "title": "הכרטיס הוא החשבון: בלילה"
+    },
+    "P3-EmptyPass.dc.html": {
+      "x": 1410,
+      "y": 5561,
+      "w": 390,
+      "h": 700,
+      "page": "round12",
+      "title": "אורח בלי טיול"
+    },
+    "P4-AboutMe.dc.html": {
+      "x": 1880,
+      "y": 5561,
+      "w": 390,
+      "h": 760,
+      "page": "round12",
+      "title": "החשבון בהגדרות: סקי־פס, מחובר"
+    },
+    "P5-AboutGuest.dc.html": {
+      "x": 2350,
+      "y": 5561,
+      "w": 390,
+      "h": 760,
+      "page": "round12",
+      "title": "החשבון בהגדרות: אורח"
+    },
+    "G1-GondolaGuest.dc.html": {
+      "x": 0,
+      "y": 6741,
+      "w": 390,
       "h": 330,
       "page": "round12",
-      "title": "א. בקפסולה, בלילה"
+      "title": "הקרון: אורח"
     },
-    "K3-TagGuest.dc.html": {
-      "x": 0,
-      "y": 6311,
-      "w": 390,
-      "h": 430,
-      "page": "round12",
-      "title": "ב. סקי־פס על עמוד השלטים: אורח"
-    },
-    "K4-TagMe.dc.html": {
+    "G2-GondolaMe.dc.html": {
       "x": 470,
-      "y": 6311,
+      "y": 6741,
       "w": 390,
-      "h": 430,
+      "h": 330,
       "page": "round12",
-      "title": "ב. סקי־פס על עמוד השלטים: מחובר"
-    },
-    "K8-TagMeNight.dc.html": {
-      "x": 940,
-      "y": 6311,
-      "w": 390,
-      "h": 430,
-      "page": "round12",
-      "title": "ב. סקי־פס, בלילה"
-    },
-    "K5-LineGuest.dc.html": {
-      "x": 0,
-      "y": 7161,
-      "w": 390,
-      "h": 360,
-      "page": "round12",
-      "title": "ג. שורה מתחת לשם המקום: אורח"
-    },
-    "K6-LineMe.dc.html": {
-      "x": 470,
-      "y": 7161,
-      "w": 390,
-      "h": 360,
-      "page": "round12",
-      "title": "ג. שורה מתחת לשם המקום: מחובר"
+      "title": "הקרון: מחובר"
     }
   },
   "createdOnFiles": {
@@ -1273,30 +1273,21 @@
     },
     "round12row4": {
       "kind": "title1",
-      "maxW": 1330,
+      "maxW": 2740,
       "page": "round12",
-      "text": "כפתור החשבון בטלפון, א: בקפסולה אחת עם מתג היום והלילה (ההמלצה)",
+      "text": "החשבון בטלפון, כיוון 1 (ההמלצה): הכרטיס הוא החשבון, והחשבון עצמו כסקי־פס בהגדרות",
       "w": 240,
       "x": 0,
       "y": 5261
     },
     "round12row5": {
       "kind": "title1",
-      "maxW": 1330,
-      "page": "round12",
-      "text": "ב: סקי־פס תלוי על עמוד השלטים",
-      "w": 240,
-      "x": 0,
-      "y": 6011
-    },
-    "round12row6": {
-      "kind": "title1",
       "maxW": 860,
       "page": "round12",
-      "text": "ג: שורה שקטה מתחת לשם המקום",
+      "text": "כיוון 2: קרון רכבל על כבל מעל הנוף",
       "w": 240,
       "x": 0,
-      "y": 6861
+      "y": 6441
     }
   },
   "order": [
@@ -1411,14 +1402,14 @@
     "LP2-HomeBottomEn.dc.html",
     "LP3-Settings.dc.html",
     "LP4-TopBar.dc.html",
-    "K1-DuoGuest.dc.html",
-    "K2-DuoMe.dc.html",
-    "K7-DuoMeNight.dc.html",
-    "K3-TagGuest.dc.html",
-    "K4-TagMe.dc.html",
-    "K8-TagMeNight.dc.html",
-    "K5-LineGuest.dc.html",
-    "K6-LineMe.dc.html"
+    "P1-PassMe.dc.html",
+    "P2-PassGuest.dc.html",
+    "P6-PassMeNight.dc.html",
+    "P3-EmptyPass.dc.html",
+    "P4-AboutMe.dc.html",
+    "P5-AboutGuest.dc.html",
+    "G1-GondolaGuest.dc.html",
+    "G2-GondolaMe.dc.html"
   ],
   "pages": [
     {
