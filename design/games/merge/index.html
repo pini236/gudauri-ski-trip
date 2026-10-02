@@ -1,5 +1,5 @@
-<title>איחוד כדורי שלג</title>
-<meta name="description" content="מחליקים, שני כדורים זהים מתאחדים לגדול יותר, עד איש השלג הענק">
+<title data-i18n="game.merge.title">איחוד כדורי שלג</title>
+<meta name="description" data-i18n-attr="content:game.merge.meta_description" content="מחליקים, שני כדורים זהים מתאחדים לגדול יותר, עד איש השלג הענק">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Karantina:wght@700&family=IBM+Plex+Sans+Hebrew:wght@400;600;700&display=swap">
 <style>
@@ -57,18 +57,23 @@ h1{margin:0;font-family:var(--f-display);font-size:clamp(26px,7.6vw,44px);white-
 .ladder span.now{outline:2px solid var(--accent)}
 .hint{font-size:12px;color:#A9C1D8;text-align:center}
 button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+html[dir=ltr] body{direction:ltr}
 @media (prefers-reduced-motion:reduce){.tile{transition:none}.tile .in,.plus,.toast,#board{animation:none!important}}
 </style>
-<header><h1>איחוד כדורי שלג</h1><div class="scores"><div class="sc"><small>ניקוד</small><b id="score">0</b></div><div class="sc"><small>שיא</small><b id="best">0</b></div></div></header>
-<div class="goal"><span id="goalTxt">הבא: כדור קטן</span><div class="bar"><i id="goalBar"></i></div></div>
-<div id="board" aria-label="לוח 4 על 4"><canvas id="fx"></canvas></div>
-<div class="row"><button id="undo" type="button">ביטול מהלך (<span id="undoN">3</span>)</button><button id="new" type="button">משחק חדש</button><button id="snd" class="snd" type="button" aria-label="צליל" aria-pressed="true">🔊</button></div>
+<header><h1 data-i18n="game.merge.title">איחוד כדורי שלג</h1><div class="scores"><div class="sc"><small data-i18n="game.merge.score">ניקוד</small><b id="score">0</b></div><div class="sc"><small data-i18n="game.merge.best">שיא</small><b id="best">0</b></div></div></header>
+<div class="goal"><span id="goalTxt"></span><div class="bar"><i id="goalBar"></i></div></div>
+<div id="board" aria-label="לוח 4 על 4" data-i18n-attr="aria-label:game.merge.board_label"><canvas id="fx"></canvas></div>
+<div class="row"><button id="undo" type="button"></button><button id="new" type="button" data-i18n="game.merge.new_game">משחק חדש</button><button id="snd" class="snd" type="button" aria-label="צליל" data-i18n-attr="aria-label:game.merge.sound" aria-pressed="true">🔊</button></div>
 <div class="ladder" id="ladder"></div>
-<div class="hint">מחליקים לכל כיוון, בכל מקום במסך (או חצים במקלדת). שני כדורים זהים מתאחדים.</div>
-<div class="over" id="over" hidden><h2 id="ovT"></h2><p id="ovP"></p><button id="ovB" type="button"></button><button id="ovU" type="button" class="sec" hidden>ביטול המהלך האחרון</button></div>
+<div class="hint" data-i18n="game.merge.hint">מחליקים לכל כיוון, בכל מקום במסך (או חצים במקלדת). שני כדורים זהים מתאחדים.</div>
+<div class="over" id="over" hidden><h2 id="ovT"></h2><p id="ovP"></p><button id="ovB" type="button"></button><button id="ovU" type="button" class="sec" hidden data-i18n="game.merge.undo_last">ביטול המהלך האחרון</button></div>
 <script>
 // twelve steps, from a flake to the king of Kazbek (2 → 4096 in the classic game)
-const NAMES=['פתית','כדור קטן','כדור','כדור גדול','ראש','בטן','גוף','איש שלג','עם כובע','עם צעיף','איש שלג ענק','מלך קזבק'];
+const L=window.L||((k,he,v)=>he.replace(/\{(\w+)\}/g,(m,x)=>v&&x in v?v[x]:m));
+// the names are read once the language file is in (start, at the bottom)
+let NAMES=[];
+const names=()=>[L('game.merge.name_1','פתית'),L('game.merge.name_2','כדור קטן'),L('game.merge.name_3','כדור'),L('game.merge.name_4','כדור גדול'),L('game.merge.name_5','ראש'),L('game.merge.name_6','בטן'),
+  L('game.merge.name_7','גוף'),L('game.merge.name_8','איש שלג'),L('game.merge.name_9','עם כובע'),L('game.merge.name_10','עם צעיף'),L('game.merge.name_11','איש שלג ענק'),L('game.merge.name_12','מלך קזבק')];
 const store={get(k,d){try{const v=localStorage.getItem('mg-'+k);return v==null?d:JSON.parse(v);}catch(e){return d;}},set(k,v){try{localStorage.setItem('mg-'+k,JSON.stringify(v));}catch(e){}}};
 const $=id=>document.getElementById(id), B=$('board'), FX=$('fx'), fx=FX.getContext('2d');
 const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches, SLIDE=reduce?0:110;
@@ -120,22 +125,22 @@ function fxStep(now){ const dt=fxLast?Math.min(.05,(now-fxLast)/1000):.016; fxLa
   for(const p of puffs){ p.vy+=geo.cs*2.2*dt; p.vx*=Math.exp(-3*dt); p.x+=p.vx*dt; p.y+=p.vy*dt; p.life-=dt; fx.globalAlpha=Math.max(0,Math.min(1,p.life*2.5)); fx.fillStyle=p.gold?'#F4B942':'#fff'; fx.beginPath(); fx.arc(p.x,p.y,p.r,0,7); fx.fill(); }
   fx.globalAlpha=1; puffs=puffs.filter(p=>p.life>0); if(puffs.length) requestAnimationFrame(fxStep); else { fxOn=false; fxLast=0; fx.clearRect(0,0,geo.bw,geo.bw); } }
 function plus(r,c,n){ const el=document.createElement('div'); el.className='plus'; el.textContent='+'+n; el.style.left=(X(c)+geo.cs/2)+'px'; el.style.top=(Y(r)+geo.cs*.3)+'px'; B.appendChild(el); setTimeout(()=>el.remove(),850); }
-function toast(lv){ const el=document.createElement('div'); el.className='toast'; el.innerHTML=`<span class="ic" style="--cs:56px">${ballSVG(lv).replace('margin-bottom:14%','')}</span><span><small>חדש!</small><b>${NAMES[lv]}</b></span>`; document.body.appendChild(el); setTimeout(()=>el.remove(),1700); }
+function toast(lv){ const el=document.createElement('div'); el.className='toast'; el.innerHTML=`<span class="ic" style="--cs:56px">${ballSVG(lv).replace('margin-bottom:14%','')}</span><span><small>${L('game.merge.toast_new','חדש!')}</small><b>${NAMES[lv]}</b></span>`; document.body.appendChild(el); setTimeout(()=>el.remove(),1700); }
 
 /* ---------- the game ---------- */
 function emptyCells(){ const e=[]; for(let r=0;r<4;r++)for(let c=0;c<4;c++) if(!grid[r][c]) e.push([r,c]); return e; }
 function spawn(){ const e=emptyCells(); if(!e.length) return; const [r,c]=e[Math.floor(Math.random()*e.length)]; const t={id:nid++,lv:Math.random()<.9?0:1,r,c}; grid[r][c]=t; mk(t,'new'); }
 function snapshot(){ return {g:grid.map(row=>row.map(t=>t&&{...t})), score, maxLv}; }
 function render(){ tiles.forEach(el=>el.remove()); tiles.clear(); for(const row of grid) for(const t of row) if(t) mk(t); hud(); }
-function hud(){ $('score').textContent=score; $('best').textContent=best; $('undoN').textContent=undos; $('undo').disabled=!undos||!hist.length;
-  const nx=Math.min(NAMES.length-1,maxLv+1); $('goalTxt').textContent= maxLv>=NAMES.length-1 ? 'הגעת לפסגה' : 'הבא: '+NAMES[nx]; $('goalBar').style.width=(maxLv/(NAMES.length-1)*100)+'%';
+function hud(){ $('score').textContent=score; $('best').textContent=best; $('undo').textContent=L('game.merge.undo','ביטול מהלך ({n})',{n:undos}); $('undo').disabled=!undos||!hist.length;
+  const nx=Math.min(NAMES.length-1,maxLv+1); $('goalTxt').textContent= maxLv>=NAMES.length-1 ? L('game.merge.goal_top','הגעת לפסגה') : L('game.merge.goal_next','הבא: {name}',{name:NAMES[nx]}); $('goalBar').style.width=(maxLv/(NAMES.length-1)*100)+'%';
   const got=store.get('got',0); $('ladder').innerHTML=NAMES.map((n,i)=>`<span class="${i<=Math.max(got,maxLv)?'got':''} ${i===maxLv?'now':''}">${n}</span>`).join(''); }
 function newGame(){ finishAnim(); grid=[...Array(4)].map(()=>Array(4).fill(null)); score=0; maxLv=0; hist=[]; undos=3; wonShown=false; tiles.forEach(el=>el.remove()); tiles.clear(); spawn(); spawn(); hud(); $('over').hidden=true; store.set('save',null); }
 function nudge(dir){ if(reduce) return; const c=['nudge-l','nudge-r','nudge-u','nudge-d'][dir]; B.classList.remove(c); void B.offsetWidth; B.classList.add(c); setTimeout(()=>B.classList.remove(c),200); }
 // a new move while the last one is still sliding finishes the last one at once, so fast swipes never get lost
 function finishAnim(){ if(!busy) return; clearTimeout(busy.timer); const b=busy; busy=null; b.done(); }
 function move(dir){ // dir: 0 left 1 right 2 up 3 down, as on screen
-  if(!$('over').hidden) return; finishAnim();
+  if(!grid||!$('over').hidden) return; finishAnim();
   const before=snapshot(); let moved=false; const merges=[];
   for(let i=0;i<4;i++){
     const line=[]; for(let j=0;j<4;j++){ const [r,c]=cellOf(dir,i,j); line.push(grid[r][c]); }
@@ -160,16 +165,19 @@ function move(dir){ // dir: 0 left 1 right 2 up 3 down, as on screen
       score+=gained; const sb=$('score'); sb.classList.remove('bump'); void sb.offsetWidth; sb.classList.add('bump'); if(score>best){ best=score; store.set('best',best); }
       if(top>maxLv){ maxLv=top; if(top>store.get('got',0)){ store.set('got',top); if(top>=3) toast(top); } } }
     spawn(); hud(); store.set('save',{g:grid,score,maxLv,undos});
-    if(maxLv>=7 && !wonShown){ wonShown=true; setTimeout(()=>show('איש שלג!','בנית איש שלג שלם. אפשר להמשיך לבנות: כובע, צעיף, ענק, ועד מלך קזבק.','להמשיך'),500); }
-    else if(!canMove()) setTimeout(()=>show('אין מקום','הגעת עד: '+NAMES[maxLv]+'. ניקוד '+score+'.','עוד פעם'),400); };
+    if(maxLv>=7 && !wonShown){ wonShown=true; setTimeout(()=>show(L('game.merge.won_title','איש שלג!'),L('game.merge.won_text','בנית איש שלג שלם. אפשר להמשיך לבנות: כובע, צעיף, ענק, ועד מלך קזבק.'),'continue'),500); }
+    else if(!canMove()) setTimeout(()=>show(L('game.merge.over_title','אין מקום'),L('game.merge.over_text','הגעת עד: {name}. ניקוד {score}.',{name:NAMES[maxLv],score}),'again'),400); };
   busy={done, timer:setTimeout(()=>{ busy=null; done(); }, SLIDE)}; }
 function cellOf(dir,i,j){ // j=0 is the side the tiles slide toward; columns run right to left
   if(dir===0) return [i,3-j]; if(dir===1) return [i,j]; if(dir===2) return [j,i]; return [3-j,i]; }
 function canMove(){ if(emptyCells().length) return true; for(let r=0;r<4;r++)for(let c=0;c<4;c++){ const v=grid[r][c].lv; if(c<3&&grid[r][c+1].lv===v) return true; if(r<3&&grid[r+1][c].lv===v) return true; } return false; }
-function show(t,p,b){ $('ovT').textContent=t; $('ovP').textContent=p; $('ovB').textContent=b; $('ovU').hidden = !(b==='עוד פעם' && undos && hist.length); $('over').hidden=false; $('ovB').onclick=()=>{ if(b==='להמשיך') $('over').hidden=true; else newGame(); }; }
+// act: 'continue' (close and keep playing) or 'again' (a new game); compared by key, never by the shown words
+function show(t,p,act){ $('ovT').textContent=t; $('ovP').textContent=p; const ob=$('ovB'); ob.dataset.act=act;
+  ob.textContent= act==='continue' ? L('game.merge.continue','להמשיך') : L('game.merge.again','עוד פעם');
+  $('ovU').hidden = !(act==='again' && undos && hist.length); $('over').hidden=false; ob.onclick=()=>{ if(ob.dataset.act==='continue') $('over').hidden=true; else newGame(); }; }
 $('new').onclick=newGame;
 $('ovU').onclick=()=>{ $('over').hidden=true; $('undo').onclick(); };
-$('undo').onclick=()=>{ finishAnim(); if(!undos||!hist.length) return; const s=hist.pop(); grid=s.g; score=s.score; maxLv=s.maxLv; undos--; render(); store.set('save',{g:grid,score,maxLv,undos}); };
+$('undo').onclick=()=>{ finishAnim(); if(!grid||!undos||!hist.length) return; const s=hist.pop(); grid=s.g; score=s.score; maxLv=s.maxLv; undos--; render(); store.set('save',{g:grid,score,maxLv,undos}); };
 addEventListener('keydown',e=>{ const m={ArrowLeft:0,ArrowRight:1,ArrowUp:2,ArrowDown:3}[e.key]; if(m!=null){ e.preventDefault(); move(m); } });
 // the swipe fires while the finger is still moving, anywhere on the screen
 let sw=null;
@@ -178,6 +186,9 @@ addEventListener('pointermove',e=>{ if(!sw||sw.done) return; const dx=e.clientX-
 addEventListener('pointerup',()=>{ sw=null; }); addEventListener('pointercancel',()=>{ sw=null; });
 addEventListener('resize',measure);
 measure();
-const sv=store.get('save',null);
-if(sv&&sv.g){ grid=sv.g; score=sv.score; maxLv=sv.maxLv; undos=sv.undos??3; wonShown=maxLv>=7; nid=1+Math.max(0,...grid.flat().filter(Boolean).map(t=>t.id)); render(); } else newGame();
+// the first board is drawn once the words of the page language are in
+function start(){ NAMES=names();
+  const sv=store.get('save',null);
+  if(sv&&sv.g){ grid=sv.g; score=sv.score; maxLv=sv.maxLv; undos=sv.undos??3; wonShown=maxLv>=7; nid=1+Math.max(0,...grid.flat().filter(Boolean).map(t=>t.id)); render(); } else newGame(); }
+(window.I18N?I18N.ready:Promise.resolve()).then(start);
 </script>

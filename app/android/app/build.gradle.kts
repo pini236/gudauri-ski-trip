@@ -22,6 +22,9 @@ android {
         buildConfigField("String", "POSTHOG_KEY", "\"${System.getenv("POSTHOG_KEY") ?: ""}\"")
         buildConfigField("String", "POSTHOG_HOST", "\"${System.getenv("POSTHOG_HOST") ?: "https://eu.i.posthog.com"}\"")
         buildConfigField("String", "SENTRY_DSN", "\"${System.getenv("SENTRY_DSN") ?: ""}\"")
+        // the server (server/README.md): public by design, the protection is the row rules and the server's checks
+        buildConfigField("String", "SUPABASE_URL", "\"${System.getenv("SUPABASE_URL") ?: "https://vanuhuzuhnljvcoihvys.supabase.co"}\"")
+        buildConfigField("String", "SUPABASE_KEY", "\"${System.getenv("SUPABASE_KEY") ?: "sb_publishable_BpJiIkRbIob7U6xa_Xt_9A_AJqtoupz"}\"")
     }
 
     // The keys live only in GitHub's secret store (docs/APP-NATIVE.md); local builds fall back to the debug key.

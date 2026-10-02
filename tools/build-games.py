@@ -28,9 +28,12 @@ HEAD = ('<!doctype html>\n<html lang="he" dir="rtl">\n<meta charset="utf-8">\n'
         '<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">\n'
         '<meta name="robots" content="noindex">\n<meta name="theme-color" content="#13233A">\n'
         '<link rel="icon" href="../../favicon.svg" type="image/svg+xml">\n'
-        '<style>[hidden]{display:none!important}</style>\n'
+        '<style>[hidden]{{display:none!important}}</style>\n'
+        '<script src="../../js/i18n.js" data-base="../../i18n/" data-file="game-{key}"></script>\n'
         '<script src="../../js/prefs.js"></script>\n')
-LINK = '<a class="back-site" href="../../#games" style="{style}">→ לכל המשחקים</a>'
+LINK = '<a class="back-site" href="../../#games" style="{style}" data-i18n="game.{key}.back_to_games">→ לכל המשחקים</a>'
+# the language file of each game (tools/build-site-strings.py): game.<key>.* in i18n/strings.json
+KEYS = {'fresh-snow': 'fresh'}
 
 
 def build(slug, src, place):
@@ -40,13 +43,14 @@ def build(slug, src, place):
     html = (folder / 'index.html').read_text()
     find, how, style = place
     assert html.count(find) == 1, f'{slug}: the anchor for the back link was not found once'
-    link = LINK.format(style=style)
+    key = KEYS.get(slug, slug)
+    link = LINK.format(style=style, key=key)
     if how == 'after':
         html = html.replace(find, find + '\n  ' + link)
     else:  # the first thing inside a row of buttons
         html = html.replace(find, find.replace('<div class="row">', '<div class="row">' + link))
     # a full document head: the games were written for the artifact viewer, which adds these itself
-    html = HEAD + html
+    html = HEAD.format(key=key) + html
     # the link's style goes right after the page's own styles, so the title stays in the first lines
     html = html.replace('</style>', '</style>\n' + STYLE, 1)
     dest = out / slug
