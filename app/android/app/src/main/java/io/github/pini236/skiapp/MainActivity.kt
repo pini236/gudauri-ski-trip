@@ -6,6 +6,7 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.HandlerThread
+import android.os.Looper
 import android.os.Process
 import android.os.SystemClock
 import android.view.FrameMetrics
@@ -126,6 +127,14 @@ class MainActivity : ComponentActivity() {
     private lateinit var mapView: MapView
     private val metricsThread = HandlerThread("frame-metrics").apply { start() }
     private val loader = Executors.newSingleThreadExecutor()
+    /**
+     * The sky's tick waits on the main thread's own handler, not on the map's view: a view that is off the screen (the
+     * home page is showing) cannot take back what it posted, and the tick then ran after onDestroy (GUDI-ANDROID-2).
+     */
+    private val ui = Handler(Looper.getMainLooper())
+
+    /** Work for the loader thread from the main thread; none once the screen is gone (its loader is shut down). */
+    private fun inBackground(work: () -> Unit) { if (!loader.isShutdown) loader.execute(work) }
     private lateinit var siteData: SiteData
 
     private var scene by mutableStateOf<MapScene?>(null)
@@ -308,7 +317,7 @@ class MainActivity : ComponentActivity() {
             Qa.log("scene ready")
         }
         castShadows(s)
-        runOnUiThread { qaPending?.let { qaPending = null; applyQaMap(it, sunDone = true) }; mapView.postDelayed(skyTick, SKY_EVERY_MS) }
+        runOnUiThread { if (isDestroyed) return@runOnUiThread; qaPending?.let { qaPending = null; applyQaMap(it, sunDone = true) }; ui.postDelayed(skyTick, SKY_EVERY_MS) }
         // new runs, lifts and videos from the site, if there are any: read at the next launch (data/SiteData.kt)
         val refreshed = siteData.refresh()
         Qa.log("data refresh ${refreshed.entries.joinToString { "${it.key} ${it.value}" }}")
@@ -318,8 +327,9 @@ class MainActivity : ComponentActivity() {
     private val skyTick: Runnable = object : Runnable {
         override fun run() {
             val s = scene ?: return
-            if (clockMs == null) loader.execute { val note = placeSun(s, System.currentTimeMillis()); runOnUiThread { sunNote = note }; castShadows(s) }
-            mapView.postDelayed(this, SKY_EVERY_MS)
+            if (isDestroyed) return
+            if (clockMs == null) inBackground { val note = placeSun(s, System.currentTimeMillis()); runOnUiThread { sunNote = note }; castShadows(s) }
+            ui.postDelayed(this, SKY_EVERY_MS)
         }
     }
 
@@ -355,7 +365,7 @@ class MainActivity : ComponentActivity() {
         i.getStringExtra("qa.time")?.let { clockMs = Qa.gudauriTime(it); tick = nowMs() }
         // the next meetup's reminder, now (the run cannot wait for the real quarter of an hour before)
         i.getStringExtra("qa.remind")?.let { Reminders.armed(this).minByOrNull { it.at }?.let { r -> Reminders.show(this, r) } ?: Qa.log("no reminder armed") }
-        i.getStringExtra("qa.sentry")?.let { Telemetry.testCrashReport(it); loader.execute { Telemetry.flush(); Qa.log("telemetry ${if (Telemetry.hasKeys) "keys" else "no keys"}, flushed") } }
+        i.getStringExtra("qa.sentry")?.let { Telemetry.testCrashReport(it); inBackground { Telemetry.flush(); Qa.log("telemetry ${if (Telemetry.hasKeys) "keys" else "no keys"}, flushed") } }
         i.getStringExtra("qa.mode")?.let { m -> DayNight.Mode.entries.firstOrNull { it.name.equals(m, true) }?.let { dnMode = it } }
         // a trip for the run, from the script (never packed in the app: decision 27), or "none" for the guest's home
         i.getStringExtra("qa.trip")?.let { t -> if (t == "none") { trips.clear(); trip = null } else Trip.fromJson(t)?.let { trips.save(it); trip = it } ?: Qa.log("bad trip $t"); Qa.log("trip ${if (trip == null) "none" else "set"}") }
@@ -367,11 +377,11 @@ class MainActivity : ComponentActivity() {
         val s = scene ?: return
         if (i.hasExtra("qa.time") && !sunDone) {
             val ms = clockMs ?: return
-            loader.execute { val note = placeSun(s, ms); runOnUiThread { sunNote = note }; castShadows(s) }
+            inBackground { val note = placeSun(s, ms); runOnUiThread { sunNote = note }; castShadows(s) }
         }
         i.getStringExtra("qa.face")?.let { body ->
             // turn to the sun or the moon, almost level, to see it over the ridges (after the new time's light is in)
-            loader.execute {
+            inBackground {
                 runOnUiThread {
                     val d = if (body == "moon") s.light.moonDir else s.light.sunDir
                     val st = mapView.camera.state()
@@ -394,7 +404,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onPause() { super.onPause(); mapView.onPause() }
     override fun onResume() { super.onResume(); mapView.onResume() }
-    override fun onDestroy() { super.onDestroy(); mapView.removeCallbacks(skyTick); sounds.release(); mapView.release(); metricsThread.quitSafely(); loader.shutdownNow() }
+    override fun onDestroy() { super.onDestroy(); ui.removeCallbacks(skyTick); sounds.release(); mapView.release(); metricsThread.quitSafely(); loader.shutdownNow() }
 
     @Composable
     private fun App() {
