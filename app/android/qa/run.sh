@@ -290,7 +290,13 @@ group() {
   qa "--es qa.group admin --es qa.tab group"; waitlog "group seed admin" 20; sleep 2.5; shot group-admin
   tapText "חברים" && sleep 1.5 && shot group-admin-members
   tapText "אישור" && sleep 1.5 && shot group-admin-approved
-  tapText "פעולות על דנה מזרחי" && sleep 1 && shot group-admin-menu && adb shell input keyevent KEYCODE_BACK && sleep 0.8
+  tapText "פעולות על דנה מזרחי" && sleep 1 && shot group-admin-menu
+  # out of the group in two taps (as on the site): the item asks once more, the menu stays open
+  tapText "הוצאה מהקבוצה" && sleep 0.8 && shot group-admin-remove-sure && adb shell input keyevent KEYCODE_BACK && sleep 0.8
+  # a meetup is deleted for everyone in two taps: the X, then "tap again"
+  tapText "מפגשים" && sleep 1.5 && tapText "מחיקת המפגש" && sleep 0.8 && shot group-meetup-delete-sure
+  tapText "~נגיעה נוספת: למחוק" && sleep 1.5 && shot group-meetup-deleted
+  tapText "חברים" && sleep 1
   qa "--es qa.tab account"; sleep 1.5; shot account
   qa "--es qa.tab group --es qa.mode night"; sleep 2.5; shot group-night
   qa "--es qa.mode auto"

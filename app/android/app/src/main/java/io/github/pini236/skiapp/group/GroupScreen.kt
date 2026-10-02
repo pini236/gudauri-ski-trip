@@ -202,7 +202,8 @@ fun GroupScreen(
                         onSame = { sheet = "same" },
                         onShowMine = { r.run { api.showMyTrip(g.id, g.me?.name ?: "", myTrip); reload() } },
                         onFillFor = { forMember = it; sheet = "fill" })
-                    GroupTab.MEETUPS -> Meetups(g, now, station, spot, onOpenMeetup, onNewMeetup, onMeetups)
+                    GroupTab.MEETUPS -> Meetups(g, now, station, spot, onOpenMeetup, onNewMeetup, onMeetups,
+                        onDelete = { m -> r.run { api.removeMeetup(g.id, m.id); reload() } })
                     GroupTab.SCORES -> Scores(api, g)
                     GroupTab.MEMBERS -> Members(api, g, r, reload = { reload() }, onInvite = onInvite, onEdit = { sheet = "edit" }, onLeft = onLeft)
                 }
@@ -376,8 +377,12 @@ private fun Flights(g: Group, myTrip: Trip?, onSame: () -> Unit, onShowMine: () 
  * (meet/Reminders.kt), unless turned off. The colour is the spot of the meeting point's post, when it is one.
  */
 @Composable
-private fun Meetups(g: Group, now: LocalDateTime, station: (String) -> Station?, spot: (Meetup) -> Preset?, onOpen: (Meetup) -> Unit, onNew: () -> Unit, onReminders: () -> Unit) {
+private fun Meetups(g: Group, now: LocalDateTime, station: (String) -> Station?, spot: (Meetup) -> Preset?, onOpen: (Meetup) -> Unit, onNew: () -> Unit, onReminders: () -> Unit,
+                    onDelete: (Meetup) -> Unit) {
     val c = Ski.colors
+    // the X deletes for the whole group (any member may, as on the site): a second tap within a few seconds
+    var armed by remember { mutableStateOf<String?>(null) }
+    LaunchedEffect(armed) { if (armed != null) { kotlinx.coroutines.delay(4000); armed = null } }
     val context = LocalContext.current
     val zone = ZoneId.of("Asia/Tbilisi")
     val byDay = g.meetups.sortedBy { it.at }.groupBy { it.at.atZone(zone).toLocalDate() }
@@ -412,6 +417,9 @@ private fun Meetups(g: Group, now: LocalDateTime, station: (String) -> Station?,
                     val left = if (m == next) stringResource(R.string.app_g_in, inWords(Duration.between(now, at.toLocalDateTime()).toMinutes(), context)) else null
                     listOfNotNull(m.byName?.let { stringResource(R.string.app_g_set_by, it) }, left).joinToString(" · ").takeIf { it.isNotEmpty() }?.let { Muted(it, size = 12.5f) }
                     m.note?.let { Muted(it, size = 12.5f) }
+                    if (armed == m.id) Text(stringResource(R.string.app_g_meetup_delete_confirm), Modifier.heightIn(min = 44.dp)
+                        .clickable(role = A11y.Button) { armed = null; onDelete(m) }.padding(vertical = 12.dp),
+                        style = Ski.type.bodyBold.copy(fontSize = 13.sp), color = c.red)
                     if (m in ahead) {
                         val on = remember(m.id, toggled) { Reminders.isOn(context, m.id) }
                         Row(Modifier.heightIn(min = 44.dp).toggleable(on, role = A11y.Checkbox) { Reminders.set(context, m.id, it); toggled++; onReminders() },
@@ -423,6 +431,11 @@ private fun Meetups(g: Group, now: LocalDateTime, station: (String) -> Station?,
                             Text(stringResource(R.string.app_g_remind), style = Ski.type.bodyBold.copy(fontSize = 13.sp, fontWeight = FontWeight.SemiBold), color = c.ink)
                         }
                     }
+                }
+                val label = stringResource(R.string.app_g_meetup_delete)
+                Box(Modifier.size(44.dp).clickable(role = A11y.Button) { armed = if (armed == m.id) null else m.id }.semantics { contentDescription = label },
+                    contentAlignment = Alignment.Center) {
+                    Icon(Icons.x, null, Modifier.size(18.dp), tint = if (armed == m.id) c.red else c.muted)
                 }
             }
         }
@@ -516,13 +529,20 @@ private fun Members(api: GroupApi, g: Group, r: Runner, reload: () -> Unit, onIn
                     DropdownMenu(menu, { menu = false }) {
                         if (m.role == Role.MEMBER) DropdownMenuItem({ Text(stringResource(R.string.app_g_make_admin)) }, { menu = false; r.run { api.setRole(g.id, m.userId, Role.ADMIN); reload() } })
                         else DropdownMenuItem({ Text(stringResource(R.string.app_g_unmake_admin)) }, { menu = false; r.run { api.setRole(g.id, m.userId, Role.MEMBER); reload() } })
-                        DropdownMenuItem({ Text(stringResource(R.string.app_g_remove), color = c.red) }, { menu = false; r.run { api.removeMember(g.id, m.userId); reload() } })
+                        // out of the group in two taps, as on the site: the item asks once more (the menu stays open)
+                        val sure = armed == "rm:" + m.userId
+                        DropdownMenuItem({ Text(if (sure) stringResource(R.string.group_remove_confirm, m.name) else stringResource(R.string.app_g_remove), color = c.red) }, {
+                            if (sure) { menu = false; armed = null; r.run { api.removeMember(g.id, m.userId); reload() } } else armed = "rm:" + m.userId
+                        })
                     }
                 }
             }
         }
     }
     if (g.admin) Muted(stringResource(R.string.app_g_menu_note), size = 13f)
+    // no admin left (the last one deleted the account and only guests remained): a registered member takes it on
+    if (g.members.none { it.role == Role.ADMIN } && api.me()?.registered == true)
+        PrimaryButton(stringResource(R.string.group_claim_admin), Icons.check, { r.run { api.claimAdmin(g.id); reload() } })
     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
         if (g.admin) QuietButton(stringResource(R.string.app_g_name_dates), onEdit)
         QuietButton(stringResource(R.string.app_g_invite_settings_link), onInvite)

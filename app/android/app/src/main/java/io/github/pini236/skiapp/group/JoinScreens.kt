@@ -204,6 +204,7 @@ fun InvitedScreen(api: GroupApi, code: String, frame: DayNight.Frame, mode: DayN
                                 result == JoinStatus.PENDING -> {
                                     Display(stringResource(R.string.app_g_pending_title), 30f)
                                     Muted(stringResource(R.string.app_g_pending_sub), Modifier.padding(top = 6.dp))
+                                    p.groupId?.let { gid -> QuietButton(stringResource(R.string.app_g_pending_cancel), { r.run { api.cancelRequest(gid); onBack() } }) }
                                 }
                                 else -> {
                                     Muted(stringResource(R.string.app_g_invited_to))
@@ -296,6 +297,7 @@ fun ReclaimScreen(api: GroupApi, code: String, onBack: () -> Unit, signInGoogle:
                 JoinStatus.PENDING -> SnowCard(Color(0xFFF4B942), 61) {
                     Text(stringResource(R.string.app_g_pending_title), style = Ski.type.bodyBold.copy(fontSize = 14.5.sp), color = c.ink)
                     Muted(stringResource(R.string.app_g_pending_sub), size = 12.5f)
+                    p.groupId?.let { gid -> QuietButton(stringResource(R.string.app_g_pending_cancel), { r.run { api.cancelRequest(gid); onBack() } }) }
                 }
                 JoinStatus.SIGN_IN_INSTEAD -> {
                     Text(stringResource(R.string.app_g_sign_in_instead), style = Ski.type.bodyBold, color = c.ink)

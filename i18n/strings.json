@@ -11117,6 +11117,18 @@
     "ka"
    ]
   },
+  "app.g_pending_cancel": {
+   "he": "ביטול הבקשה",
+   "en": "Withdraw the request",
+   "ru": "Отозвать запрос",
+   "ka": "მოთხოვნის გაუქმება",
+   "where": "app/android",
+   "note": "Q3/Q5, while a request waits for an admin (cancel_join_request)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
   "app.g_bad_code": {
    "he": "הקוד לא עובד",
    "en": "The code does not work",
@@ -11532,6 +11544,30 @@
    "ka": "ახალი შეხვედრა",
    "where": "app/android",
    "note": "Q8 button",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.g_meetup_delete": {
+   "he": "מחיקת המפגש",
+   "en": "Delete the meetup",
+   "ru": "Удалить встречу",
+   "ka": "შეხვედრის წაშლა",
+   "where": "app/android",
+   "note": "Q8, the X on a meetup (its label for screen readers)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.g_meetup_delete_confirm": {
+   "he": "נגיעה נוספת: למחוק לכולם",
+   "en": "Tap again to delete it for everyone",
+   "ru": "Нажмите ещё раз, чтобы удалить для всех",
+   "ka": "კიდევ შეეხეთ ყველასთვის წასაშლელად",
+   "where": "app/android",
+   "note": "Q8, the second tap that deletes a meetup for the whole group",
    "check": [
     "ru",
     "ka"
