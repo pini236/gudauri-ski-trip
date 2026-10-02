@@ -2,12 +2,12 @@
    The words come from i18n/strings.json, built into i18n/<lang>.json by tools/build-site-strings.py.
    Which language: ?lang=xx (saved in this browser; ?lang=auto forgets it), then the saved choice, then the browser.
    Hebrew for anyone with Hebrew in the browser languages or the Israeli time zone, else the first released language the
-   browser asks for, else English. A language still waiting for a native speaker ("released": false) is never picked by
-   itself, only through ?lang. Loaded in <head>, before the page draws, so lang and dir are right from the start. */
+   browser asks for, else English. Loaded in <head>, before the page draws, so lang and dir are right from the start. */
 (function(){
   var LANGS={he:{dir:'rtl',loc:'he-IL'},en:{dir:'ltr',loc:'en-GB'},ru:{dir:'ltr',loc:'ru-RU'},ka:{dir:'ltr',loc:'ka-GE'}};
-  // Updated by hand when a language passes the native speaker review (the file's "released" flag is the real gate).
-  var RELEASED=['he','en'];
+  // The languages picked from the browser. All four since 2.10.2026 (decision 39, confirmed by Pini for the site:
+  // no native speaker review for now). A language left out is never picked by itself, only through ?lang.
+  var RELEASED=['he','en','ru','ka'];
   var KEY='gud-lang';
   // A game page loads its own file: <script src="../../js/i18n.js" data-base="../../i18n/" data-file="game-descent">.
   var me=document.currentScript,BASE=(me&&me.getAttribute('data-base'))||'i18n/',FILE=(me&&me.getAttribute('data-file'))||'';

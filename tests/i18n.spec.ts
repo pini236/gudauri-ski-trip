@@ -52,7 +52,15 @@ test('the choice is remembered, and ?lang=auto forgets it', async ({ page }) => 
 
 test.describe('a Russian browser outside Israel', () => {
   test.use({ locale: 'ru-RU', timezoneId: 'Europe/Moscow' });
-  test('gets English until Russian passes the native speaker review', async ({ page }) => {
+  test('gets Russian', async ({ page }) => {
+    await page.goto('/#home');
+    await expect(page.locator('html')).toHaveAttribute('lang', 'ru');
+  });
+});
+
+test.describe('a German browser', () => {
+  test.use({ locale: 'de-DE', timezoneId: 'Europe/Berlin' });
+  test('gets English', async ({ page }) => {
     await page.goto('/#home');
     await expect(page.locator('html')).toHaveAttribute('lang', 'en');
   });

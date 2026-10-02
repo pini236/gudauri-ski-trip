@@ -2,8 +2,8 @@
 """Build the site's language files from i18n/strings.json (the single source).
 
 Writes site/i18n/<lang>.json for he, en, ru, ka: {"lang", "dir", "released", "strings": {key: value}}.
-A language is "released" only when no string still waits for a native speaker (no "check" entry for it),
-so i18n.js never picks an unreviewed language by itself; ?lang=ru still previews it.
+"pending" counts the strings no native speaker has checked yet ("check"). Since decision 39 that is information
+only; the languages the site picks from the browser are listed in site/js/i18n.js (RELEASED).
 Keys of the native apps (app.*) are left out, and each game (game.<id>.*) gets its own file,
 site/i18n/game-<id>.<lang>.json, so the home page does not load the games' words. Run after every change to i18n/strings.json:
 
@@ -30,11 +30,11 @@ def main():
     for g, strings in sorted(groups.items()):
         for lang in langs:
             pending = sum(1 for v in strings.values() if lang in v.get("check", []))
-            out = {"lang": lang, "dir": DIRS[lang], "released": pending == 0,
+            out = {"lang": lang, "dir": DIRS[lang], "pending": pending,
                    "strings": {k: v[lang] for k, v in sorted(strings.items())}}
             name = f"game-{g}.{lang}.json" if g else f"{lang}.json"
             (OUT / name).write_text(json.dumps(out, ensure_ascii=False, separators=(",", ":")) + "\n", encoding="utf-8")
-            print(f"site/i18n/{name}: {len(strings)} strings, " + ("released" if pending == 0 else f"{pending} waiting for a native speaker"))
+            print(f"site/i18n/{name}: {len(strings)} strings, " + (f"{pending} not checked by a native speaker" if pending else "checked"))
 
 
 if __name__ == "__main__":
