@@ -850,3 +850,24 @@ html.pv,html.pv body{height:auto}
 .ab-me .ab-links .out{border-color:var(--rule);color:var(--muted)}
 .ab-me .ab-pass-body b{font-family:var(--f-display);font-size:30px;line-height:1}
 .ab-me .ab-pass-body span{font-size:13px;color:var(--muted)}
+/* managing the group (round 14): the ⋮ menu on a member, the admin's rows and the small forms under them */
+.ac-more{flex:none;min-width:44px;min-height:44px;background:none;border:0;color:var(--ink);font-size:24px;font-weight:700;line-height:1;cursor:pointer}
+.ac-more[aria-expanded="true"]{background:var(--snow)}
+.ac-menu{display:flex;flex-wrap:wrap;gap:8px;padding:10px 0 12px;border-bottom:1px solid var(--rule)}
+.ac-menu button{min-height:44px;padding:0 12px;border:1.5px solid var(--ink);background:var(--paper);color:var(--ink);font:inherit;font-size:14px;font-weight:700;cursor:pointer}
+.ac-menu button.red{border-color:var(--p-red);color:var(--p-red)}
+.ac-sub{margin:10px 0 12px;box-shadow:0 4px 10px var(--shadow)}
+.ac-sub h3{margin:0;font-family:var(--f-display);font-size:26px;line-height:1}
+.ac-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.ac-sel,.ac-fld select{width:100%;height:48px;font:inherit;font-size:16px;color:var(--ink);background:var(--paper);border:1.5px solid var(--rule);border-radius:0;padding:0 8px}
+.ac-check{display:flex;gap:10px;align-items:center;min-height:44px;font-size:14px}
+.ac-check input{width:22px;height:22px;flex:none}
+.ac-rowbtn{width:100%;background:none;border:0;border-bottom:1px solid var(--rule);padding:0;font:inherit;color:var(--ink);text-align:start;cursor:pointer}
+.ac-rowbtn::after{content:"›";font-size:22px;color:var(--muted);padding-inline:6px}
+[dir="rtl"] .ac-rowbtn::after{content:"‹"}
+.ac-rowbtn[aria-expanded="true"]::after{content:"⌄"}
+.ac-rowbtn.red b{color:var(--p-red)}
+.ac-rowbtn.red::after{content:none}
+.ac-pick{display:flex;flex-wrap:wrap;gap:8px;align-items:center;width:100%}
+.ac-pick small{width:100%;font-size:13px;font-weight:600;color:var(--muted)}
+.ac-cols>div>.ac-sec-box:first-child{margin-top:10px}
