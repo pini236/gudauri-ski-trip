@@ -38,6 +38,18 @@ class ServerTripSync(context: Context, private val server: Server) : TripSync, i
         return tripId ?: throw ServerError("no_session", 401)
     }
 
+    /**
+     * The server made or chose my trip row itself ("I'm on the same flight", [Groups.sameFlight]): from now on that row
+     * is my trip, so the next save from the phone updates it instead of adding another. [trip] is what the phone now
+     * keeps; if it is what waits to be sent, nothing is left to send. A newer save still waiting goes to this row.
+     */
+    @Synchronized
+    fun adopt(id: String, trip: Trip) {
+        val e = prefs.edit().putString("id", id)
+        if (prefs.getString("pending", null) == trip.toJson().toString()) e.remove("pending")
+        e.apply()
+    }
+
     @Synchronized
     private fun send() {
         val pending = prefs.getString("pending", null) ?: return

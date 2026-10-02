@@ -628,13 +628,45 @@ const actions: Record<string, Action> = {
 
   // "I'm on the same flight": copy a trip shown in the group into a new
   // trip of mine, and show it there.
+  // "I'm on the same flight": that member's flight becomes mine, shown in
+  // this group. A person has one trip (decision 27), so a trip of mine is
+  // overwritten rather than copied next to it: the one the app keeps
+  // (my_trip_id), or else the one this group already shows for me. Only
+  // with neither is a new trip made. Other groups showing that trip see
+  // the change too.
   async same_flight({ tx, user, body }) {
     const group = uuid(body, "group_id");
     const trip = uuid(body, "trip_id");
     await requireMember(tx, group, user);
     const shown = await tx`select 1 from public.group_members where group_id = ${group} and trip_id = ${trip}`;
     if (!shown.length) throw new ApiError("trip_not_in_group", 404);
-    const mine = await copyTrip(tx, trip, user, user);
+    let target = optUuid(body, "my_trip_id");
+    if (target) {
+      const own = await tx`select 1 from public.trips where id = ${target} and owner_id = ${user}`;
+      if (!own.length) throw new ApiError("trip_not_yours", 409);
+    } else {
+      const [m] = await tx`
+        select t.id from public.group_members m join public.trips t on t.id = m.trip_id and t.owner_id = ${user}
+        where m.group_id = ${group} and m.user_id = ${user}`;
+      target = m?.id ?? null;
+    }
+    let mine: string;
+    if (!target) {
+      mine = await copyTrip(tx, trip, user, user);
+    } else {
+      if (target !== trip) {
+        await tx`
+          update public.trips t set
+            destination = s.destination,
+            out_date = s.out_date, out_flight = s.out_flight, out_from = s.out_from, out_to = s.out_to,
+            out_departs = s.out_departs, out_arrives = s.out_arrives,
+            ret_date = s.ret_date, ret_flight = s.ret_flight, ret_from = s.ret_from, ret_to = s.ret_to,
+            ret_departs = s.ret_departs, ret_arrives = s.ret_arrives,
+            ski_from = s.ski_from, ski_to = s.ski_to, entered_by = ${user}
+          from public.trips s where t.id = ${target} and s.id = ${trip}`;
+      }
+      mine = target;
+    }
     await tx`update public.group_members set trip_id = ${mine} where group_id = ${group} and user_id = ${user}`;
     return { trip_id: mine };
   },
