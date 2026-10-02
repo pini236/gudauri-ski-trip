@@ -18,8 +18,12 @@ import org.json.JSONObject
 import java.time.LocalDate
 
 /** My trip on the server, now, and its id there (server/TripSync.kt keeps it one row). */
-fun interface MyTripOnServer {
+interface MyTripOnServer {
     fun sendNow(trip: Trip): String
+    /** The server's id of my trip, if it has one yet. */
+    val tripId: String?
+    /** The server wrote my trip row itself ("I'm on the same flight"): from now on that row is my trip. */
+    fun adopt(id: String, trip: Trip)
 }
 
 /**
@@ -201,13 +205,12 @@ class LiveGroupApi(
 
     /**
      * "I'm on the same flight": that flight becomes my trip (on the phone, by the caller, and as my one row on the
-     * server), shown in this group under my name there.
+     * server), shown in this group under my name there. The server overwrites the row the phone keeps (decision 27:
+     * one trip a person), so the phone adopts the id it answers with, and its next save changes that row.
      */
     override suspend fun sameFlight(groupId: String, tripId: String): Trip = io {
-        val me = store.load()?.userId ?: throw ServerError("no_session", 401)
         val t = tripRows(listOf(tripId))[tripId]?.trip ?: throw ServerError("trip_not_in_group", 404)
-        val name = groups.members(groupId).firstOrNull { it.userId == me }?.name ?: throw ServerError("not_member", 403)
-        groups.setMine(groupId, name, myTrip.sendNow(t))
+        myTrip.adopt(groups.sameFlight(groupId, tripId, myTrip.tripId), t)
         t
     }
 

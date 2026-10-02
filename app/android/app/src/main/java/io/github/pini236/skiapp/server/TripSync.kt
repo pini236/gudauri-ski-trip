@@ -21,8 +21,8 @@ class ServerTripSync(context: Context, private val server: Server) : TripSync, i
     private val prefs = context.getSharedPreferences("server_trip", Context.MODE_PRIVATE)
     private val worker = Executors.newSingleThreadExecutor()
 
-    /** The server's id of my trip, to show it in a group ([Groups.setMine], [Groups.create]). */
-    val tripId: String? get() = prefs.getString("id", null)
+    /** The server's id of my trip, to show it in a group ([Groups.setMine], [Groups.create], [Groups.sameFlight]). */
+    override val tripId: String? get() = prefs.getString("id", null)
 
     override fun pushed(trip: Trip?) {
         prefs.edit().putString("pending", trip?.toJson()?.toString() ?: DELETED).apply()
@@ -41,12 +41,15 @@ class ServerTripSync(context: Context, private val server: Server) : TripSync, i
     /**
      * The server made or chose my trip row itself ("I'm on the same flight", [Groups.sameFlight]): from now on that row
      * is my trip, so the next save from the phone updates it instead of adding another. [trip] is what the phone now
-     * keeps; if it is what waits to be sent, nothing is left to send. A newer save still waiting goes to this row.
+     * keeps; if it is what waits to be sent, nothing is left to send. A newer save still waiting goes to this row. A
+     * delete still waiting is older than this (the button shows only with no trip on the phone, and the phone now keeps
+     * [trip]), so it goes too: sent later, it would delete the row just adopted.
      */
     @Synchronized
-    fun adopt(id: String, trip: Trip) {
+    override fun adopt(id: String, trip: Trip) {
         val e = prefs.edit().putString("id", id)
-        if (prefs.getString("pending", null) == trip.toJson().toString()) e.remove("pending")
+        val pending = prefs.getString("pending", null)
+        if (pending == trip.toJson().toString() || pending == DELETED) e.remove("pending")
         e.apply()
     }
 

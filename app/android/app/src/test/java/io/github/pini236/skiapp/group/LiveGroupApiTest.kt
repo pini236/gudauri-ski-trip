@@ -28,7 +28,16 @@ class LiveGroupApiTest {
     private val answers = mutableMapOf<String, String>()
     private val store = MemorySessionStore()
     private val pushed = mutableListOf<Trip>()
+    private val adopted = mutableListOf<Pair<String, Trip>>()
+    private var myTripId: String? = null
     private var kept: String? = null
+
+    /** The phone's one trip row on the server (server/TripSync.kt), in memory. */
+    private val myTrip = object : MyTripOnServer {
+        override val tripId get() = myTripId
+        override fun sendNow(trip: Trip): String { pushed += trip; myTripId = "my-trip"; return "my-trip" }
+        override fun adopt(id: String, trip: Trip) { adopted += id to trip; myTripId = id }
+    }
 
     private fun api(): LiveGroupApi {
         val server = Server("https://x.supabase.co", "pk", store, { r ->
@@ -36,7 +45,7 @@ class LiveGroupApiTest {
             val path = r.url.removePrefix("https://x.supabase.co/").substringBefore('?')
             answers[path]?.let { Response(200, it) } ?: Response(400, """{"error":"invalid_input"}""")
         }, { now })
-        return LiveGroupApi(server, store, { t -> pushed += t; "my-trip" }, { "he" }, ready = true, keep = { kept = it })
+        return LiveGroupApi(server, store, myTrip, { "he" }, ready = true, keep = { kept = it })
     }
 
     private fun signedIn(user: String = "u1", anon: Boolean = false) =
@@ -117,17 +126,44 @@ class LiveGroupApiTest {
         assertTrue(sent.none { it.url.contains("join_requests") })
     }
 
-    @Test fun theSameFlightBecomesMyTripShownInTheGroup() = runBlocking {
+    @Test fun theSameFlightOverwritesTheTripThePhoneKeeps() = runBlocking {
         signedIn("u1")
+        myTripId = "mine"
         answers["rest/v1/trips"] = "[$trip]"
-        answers["rest/v1/group_members"] = """[{"user_id":"u1","display_name":"Noa","role":"member","trip_id":null}]"""
-        answers["functions/v1/api/set_my_membership"] = "{}"
+        answers["functions/v1/api/same_flight"] = """{"trip_id":"mine"}"""
         val t = api().sameFlight("g1", "t1")
         assertEquals("GD 101", t.out.flight)
-        assertEquals(listOf(t), pushed)
-        val body = JSONObject(sent.last { it.url.endsWith("set_my_membership") }.body!!)
-        assertEquals("my-trip", body.getString("trip_id"))
-        assertEquals("Noa", body.getString("display_name"))
+        val body = JSONObject(sent.last { it.url.endsWith("same_flight") }.body!!)
+        assertEquals("g1", body.getString("group_id"))
+        assertEquals("t1", body.getString("trip_id"))
+        assertEquals("mine", body.getString("my_trip_id"))
+        // one row a person (decision 27): the server wrote it, so nothing is sent from the phone and no copy is made
+        assertEquals(listOf("mine" to t), adopted)
+        assertTrue(pushed.isEmpty())
+        assertTrue(sent.none { it.url.contains("set_my_membership") || (it.url.contains("rest/v1/trips") && it.method != "GET") })
+    }
+
+    @Test fun theSameFlightWithNoTripOnTheServerYetAdoptsTheNewRow() = runBlocking {
+        signedIn("u1")
+        answers["rest/v1/trips"] = "[$trip]"
+        answers["functions/v1/api/same_flight"] = """{"trip_id":"new-row"}"""
+        val t = api().sameFlight("g1", "t1")
+        assertFalse(JSONObject(sent.last { it.url.endsWith("same_flight") }.body!!).has("my_trip_id"))
+        assertEquals(listOf("new-row" to t), adopted)
+        assertEquals("new-row", myTripId)
+    }
+
+    @Test fun theSameFlightRefusedKeepsTheRowThePhoneHas() = runBlocking {
+        signedIn("u1")
+        myTripId = "mine"
+        answers["rest/v1/trips"] = "[$trip]"
+        try {
+            api().sameFlight("g1", "t1"); fail()
+        } catch (e: ApiException) {
+            assertEquals("invalid_input", e.code)
+        }
+        assertTrue(adopted.isEmpty())
+        assertEquals("mine", myTripId)
     }
 
     @Test fun joiningAsAGuestKeepsTheNameAndTheStatus() = runBlocking {

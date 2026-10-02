@@ -232,7 +232,7 @@ fun GroupScreen(
                         val tid = picked ?: return@PrimaryButton
                         r.run {
                             if (fill) { val who = forMember ?: return@run; api.setMemberTrip(g.id, who, g.members.first { it.tripId == tid }.trip!!) }
-                            else { val t = api.sameFlight(g.id, tid); if (myTrip == null) onMyTrip(t) }
+                            else onMyTrip(api.sameFlight(g.id, tid))
                             reload(); sheet = null
                         }
                     })
