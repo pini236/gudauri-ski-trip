@@ -10481,18 +10481,6 @@
     "ka"
    ]
   },
-  "app.a_soon": {
-   "he": "עם האייפון",
-   "en": "With the iPhone app",
-   "ru": "С приложением для iPhone",
-   "ka": "iPhone-ის აპლიკაციასთან ერთად",
-   "where": "app/android",
-   "note": "A4: Apple sign-in arrives with the iPhone app",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
   "app.a_what_syncs": {
    "he": "מה מסונכרן",
    "en": "What syncs",

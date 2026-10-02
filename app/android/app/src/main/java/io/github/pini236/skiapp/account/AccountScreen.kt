@@ -53,7 +53,7 @@ import io.github.pini236.skiapp.ui.Ski
 import io.github.pini236.skiapp.ui.TopBar
 
 /**
- * The account (A4): the name the groups see, the ways in (Google now; Apple when the iPhone comes, decision 31), what
+ * The account (A4): the name the groups see, the ways in (Google; Apple only if linked on an iPhone, docs/USERS.md), what
  * syncs, signing out, and deleting the account (asks twice; also from the site at /account). A guest sees the offer
  * to keep their place with Google instead.
  */
@@ -104,7 +104,8 @@ fun AccountScreen(api: GroupApi, onBack: () -> Unit, signInGoogle: suspend () ->
                     Display(stringResource(R.string.app_a_ways_in), 28f)
                     Muted(stringResource(R.string.app_a_ways_in_sub), Modifier.padding(bottom = 6.dp), 13f)
                     Way(stringResource(R.string.app_a_google), m.google, mark = { GMark() }, connect = { r.run { signInGoogle(); me = api.me() } })
-                    Way(stringResource(R.string.app_a_apple), m.apple, mark = { AppleMark() }, connect = null)
+                    // on Android only Google (docs/USERS.md); Apple shows once it was linked on an iPhone
+                    if (m.apple) Way(stringResource(R.string.app_a_apple), true, mark = { AppleMark() }, connect = null)
                 }
                 Display(stringResource(R.string.app_a_what_syncs), 28f, Modifier.padding(top = 8.dp))
                 Note(stringResource(R.string.app_a_what_syncs_text), Icons.cloud)
@@ -134,7 +135,6 @@ private fun Way(name: String, on: Boolean, mark: @Composable () -> Unit, connect
         when {
             on -> Icon(Icons.check, null, Modifier.size(22.dp), tint = c.green)
             connect != null -> Button2(stringResource(R.string.app_a_connect), Look.GHOST, connect, small = true, full = false)
-            else -> Muted(stringResource(R.string.app_a_soon), size = 12.5f)
         }
     }
 }
