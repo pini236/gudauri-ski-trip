@@ -53,15 +53,4 @@ begin
   perform set_config('request.jwt.claims', '', true);
 end $$;
 
--- The current invite code of a group (read as the owner).
-create function tests.code(p_group uuid) returns text
-language sql stable security definer set search_path = '' as $$
-  select code from public.invites where group_id = p_group and revoked_at is null order by created_at desc limit 1
-$$;
-
-create function tests.token(p_group uuid) returns text
-language sql stable security definer set search_path = '' as $$
-  select token from public.invites where group_id = p_group and revoked_at is null order by created_at desc limit 1
-$$;
-
 grant execute on all functions in schema tests to anon, authenticated;

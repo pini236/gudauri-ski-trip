@@ -1,7 +1,9 @@
-# Server tests (server/): the migrations and the row level security tests,
-# twice: on the real Supabase database (Supabase CLI, Docker) and on a plain
-# Postgres with a stand-in for Supabase (the way they run in a cloud session
-# without Docker). Runs only when the server changes (decision 34).
+# Server tests (server/), only when the server changes (decision 34):
+#   - the database rules (pgTAP) and the server's actions (Deno), on the
+#     real Supabase database, and on a plain Postgres with a stand-in for
+#     Supabase (the way they run in a cloud session without Docker);
+#   - the server itself (decision 40): the whole local Supabase with the
+#     function running, called over HTTP the way the apps call it.
 name: server
 
 on:
@@ -15,22 +17,26 @@ concurrency:
   group: server-${{ github.ref }}
   cancel-in-progress: true
 
+env:
+  # Placeholders so the config loads; nobody signs in with Google or Apple here.
+  SUPABASE_AUTH_EXTERNAL_GOOGLE_CLIENT_ID: test
+  SUPABASE_AUTH_EXTERNAL_GOOGLE_SECRET: test
+  SUPABASE_AUTH_EXTERNAL_APPLE_CLIENT_ID: test
+  SUPABASE_AUTH_EXTERNAL_APPLE_SECRET: test
+
 jobs:
   supabase:
-    name: real Supabase
+    name: real Supabase database
     runs-on: ubuntu-latest
     timeout-minutes: 20
-    env:
-      # Placeholders so the config loads; nobody signs in during the tests.
-      SUPABASE_AUTH_EXTERNAL_GOOGLE_CLIENT_ID: test
-      SUPABASE_AUTH_EXTERNAL_GOOGLE_SECRET: test
-      SUPABASE_AUTH_EXTERNAL_APPLE_CLIENT_ID: test
-      SUPABASE_AUTH_EXTERNAL_APPLE_SECRET: test
     steps:
       - uses: actions/checkout@v4
       - uses: supabase/setup-cli@v1
         with:
           version: 2.119.0
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
       - name: Start the database and apply the migrations
         working-directory: server
         run: |
@@ -45,6 +51,9 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
       - name: Postgres 16 with pgTAP
         run: |
           sudo apt-get update -q
@@ -53,3 +62,34 @@ jobs:
           sudo -u postgres psql -c "alter user postgres password 'postgres'"
       - name: Tests
         run: DB_URL=postgresql://postgres:postgres@127.0.0.1:5432/postgres server/test.sh --fresh
+
+  function:
+    name: the server over HTTP
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: supabase/setup-cli@v1
+        with:
+          version: 2.119.0
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+      - name: Start Supabase
+        working-directory: server
+        run: supabase start -x studio,imgproxy,storage-api,logflare,vector
+      - name: Run the function
+        working-directory: server
+        run: |
+          supabase functions serve api > /tmp/functions.log 2>&1 &
+          for i in $(seq 1 60); do
+            curl -s -o /dev/null -X OPTIONS http://127.0.0.1:54321/functions/v1/api/keepalive && break
+            sleep 2
+          done
+      - name: Call it like an app
+        working-directory: server
+        run: |
+          eval "$(supabase status -o env | sed 's/^/export /')"
+          deno run -A tests/smoke.ts "$API_URL" "$ANON_KEY"
+      - if: always()
+        run: cat /tmp/functions.log || true
