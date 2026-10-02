@@ -114,7 +114,8 @@ class MainActivity : ComponentActivity() {
     private var profile by mutableStateOf<Profile?>(null)
     private var sunNote by mutableStateOf("")
     private lateinit var nav: Nav
-    private var showStats by mutableStateOf(true)
+    // the frame counter of the feasibility check: development and test builds only, never the store build
+    private var showStats by mutableStateOf(BuildConfig.DEBUG || BuildConfig.FLAVOR == "preview")
     private var qaPending: Intent? = null
     private var clockMs: Long? = null // the QA run pins the time of day; otherwise it is now
     private fun nowMs() = clockMs ?: System.currentTimeMillis()
