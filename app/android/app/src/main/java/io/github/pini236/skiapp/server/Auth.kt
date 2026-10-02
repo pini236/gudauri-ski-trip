@@ -69,6 +69,9 @@ class Auth internal constructor(private val server: Server, private val store: S
         return if (s.expiresAt - server.nowSeconds() > 60) s else refresh()
     }
 
+    /** Who this phone is, from what is stored: no network and no waiting (safe on the main thread). */
+    fun userId(): String? = store.load()?.userId
+
     /** The session, made anonymously if there is none yet: only from an action the person took (joining a group). */
     @Synchronized
     fun currentOrGuest(): Session = current() ?: signInAnonymously()
@@ -99,7 +102,8 @@ class Auth internal constructor(private val server: Server, private val store: S
         return try {
             keep(server.auth("token?grant_type=refresh_token", JSONObject().put("refresh_token", s.refreshToken)))
         } catch (e: ServerError) {
-            if (e.status in 400..499) { store.save(null); null } else throw e
+            // only "this session is over" ends it: a busy server (429), a timeout (408) or a hiccup must not sign the person out
+            if (e.status == 400 || e.status == 401 || e.code == "invalid_grant" || e.code == "refresh_token_not_found" || e.code == "session_not_found") { store.save(null); null } else throw e
         }
     }
 

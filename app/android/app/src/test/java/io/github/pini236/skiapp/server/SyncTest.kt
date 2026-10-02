@@ -22,6 +22,7 @@ class SyncTest {
     private val meetups = JSONArray()
     private var best = 0
     private var refuse: String? = null
+    private var hiccup: String? = null
 
     private val fake = Transport { r ->
         if (!online) throw Offline(java.io.IOException("no signal"))
@@ -31,6 +32,7 @@ class SyncTest {
             r.method == "POST" && path.startsWith("/functions/v1/api/") -> {
                 val action = path.substringAfterLast('/')
                 if (action == refuse) return@Transport Response(403, """{"error":"not_member"}""")
+                if (action == hiccup) return@Transport Response(503, """{"error":"server_error"}""")
                 when (action) {
                     "submit_score" -> { best = maxOf(best, JSONObject(r.body!!).getInt("score")); Response(200, """{"best":$best}""") }
                     "group_leaderboard" -> Response(200, if (best > 0) """[{"user_id":"u1","display_name":"פיני","best":$best}]""" else "[]")
@@ -125,6 +127,18 @@ class SyncTest {
         g.setMine("שם אחר", null)
         assertEquals(0, g.state.value.waiting)
         assertEquals("פיני", g.state.value.me("u1")!!.name)
+    }
+
+    @Test fun aServerHiccupKeepsTheWriteInTheQueue() {
+        val s = sync()
+        val g = s.group("g1")
+        g.open()
+        hiccup = "set_my_membership"
+        g.setMine("שם אחר", null)
+        assertEquals("a 503 is not a refusal: it waits", 1, g.state.value.waiting)
+        hiccup = null
+        s.flush()
+        assertEquals(0, g.state.value.waiting)
     }
 
     @Test fun aMeetupRemovedBeforeItWasSentNeverGoes() {

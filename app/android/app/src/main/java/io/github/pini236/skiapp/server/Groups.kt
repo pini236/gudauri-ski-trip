@@ -129,8 +129,15 @@ class Groups(private val server: Server) {
         objects(server.select("meetups", "select=id,group_id,station,meet_at,note,created_by&group_id=eq.${enc(groupId)}&order=meet_at")).map(::meetup)
 
     /** Any member may add, change or remove a meetup (Q8); the last one saved wins. */
-    fun addMeetup(groupId: String, station: String, at: Instant, note: String? = null): Meetup =
-        meetup(server.insert("meetups", JSONObject().put("group_id", groupId).put("station", station).put("meet_at", at.toString()).put("note", note ?: JSONObject.NULL)))
+    fun addMeetup(groupId: String, station: String, at: Instant, note: String? = null, id: String? = null): Meetup {
+        val row = JSONObject().put("group_id", groupId).put("station", station).put("meet_at", at.toString()).put("note", note ?: JSONObject.NULL)
+        // an id from the phone (the queue's own): a meetup made without signal and sent twice is still one meetup
+        if (id != null) row.put("id", id)
+        val made = (if (id != null) server.insertOnce("meetups", row) else server.insert("meetups", row))
+            ?: server.select("meetups", "select=id,group_id,station,meet_at,note,created_by&id=eq.${enc(id!!)}").optJSONObject(0)
+            ?: throw ServerError("conflict", 409)
+        return meetup(made)
+    }
 
     fun changeMeetup(id: String, station: String, at: Instant, note: String? = null): Meetup? =
         server.update("meetups", id, JSONObject().put("station", station).put("meet_at", at.toString()).put("note", note ?: JSONObject.NULL))?.let(::meetup)

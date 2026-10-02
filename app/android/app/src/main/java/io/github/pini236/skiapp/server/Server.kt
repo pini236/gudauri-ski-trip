@@ -69,12 +69,19 @@ class Server(
     }
 
     /** A new row, returned as the server stored it. */
-    fun insert(table: String, row: JSONObject): JSONObject {
-        val r = authorized { token ->
-            Request("POST", "$url/rest/v1/$table", headers(token) + ("Prefer" to "return=representation"), row.toString())
-        }
+    fun insert(table: String, row: JSONObject): JSONObject = post(table, row, "return=representation")
+        ?: throw ServerError("empty_answer", 200)
+
+    /**
+     * Like [insert], for a row that carries an id the phone chose: sending it again (a write that was sent but whose
+     * answer never came back) changes nothing. The answer is then null, and the caller reads the row it already made.
+     */
+    fun insertOnce(table: String, row: JSONObject): JSONObject? = post(table, row, "return=representation,resolution=ignore-duplicates")
+
+    private fun post(table: String, row: JSONObject, prefer: String): JSONObject? {
+        val r = authorized { token -> Request("POST", "$url/rest/v1/$table", headers(token) + ("Prefer" to prefer), row.toString()) }
         if (!r.ok) throw ServerError(code(r), r.status)
-        return JSONArray(r.body).getJSONObject(0)
+        return JSONArray(r.body).optJSONObject(0)
     }
 
     /** Change the row with this id; null when the rules hide it (gone, or not mine). */

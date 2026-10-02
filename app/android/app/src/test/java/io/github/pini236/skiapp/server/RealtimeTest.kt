@@ -73,4 +73,21 @@ class RealtimeTest {
         assertEquals("phx_leave", sent.last().getString("event"))
         assertEquals(1, closes)
     }
+
+    @Test fun anOldSocketClosingLateDoesNotResetTheNewOne() {
+        val rt = Realtime(server, sockets, timer)
+        val c = rt.join("me:u1", listOf(Realtime.Watch("groups")), {})
+        listener!!.onOpen()
+        val old = listener!!
+        rt.leave(c) // the last channel is gone: the socket is given up
+        rt.join("me:u1", listOf(Realtime.Watch("groups")), {})
+        val fresh = listener!!
+        assertTrue(fresh !== old)
+        fresh.onOpen()
+        assertTrue(rt.connected)
+        old.onClosed() // the old socket's close arrives late
+        assertTrue("the new connection is still up", rt.connected)
+        Thread.sleep(1500)
+        assertTrue("and no second connection was started", listener === fresh)
+    }
 }
