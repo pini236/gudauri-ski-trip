@@ -19,7 +19,7 @@ import java.net.URLEncoder
  */
 class Server(
     val url: String,
-    private val key: String,
+    val key: String,
     store: SessionStore,
     private val transport: Transport = UrlTransport,
     private val clock: () -> Long = System::currentTimeMillis,
@@ -110,13 +110,27 @@ class Server(
 
         fun enc(s: String): String = URLEncoder.encode(s, "UTF-8")
 
-        /** The app's server, with the session kept on this phone. */
-        fun of(context: Context) = Server(BuildConfig.SUPABASE_URL, BuildConfig.SUPABASE_KEY, PrefsSessionStore(context.applicationContext))
+        @Volatile private var instance: Server? = null
 
-        // {"error": "not_admin"} from the server's code; {"code": "PGRST...", "message": ...} from the tables.
-        private fun code(r: Response): String = runCatching {
+        /** The app's one server client, with the session kept on this phone (one, so the session is renewed once). */
+        fun of(context: Context): Server = instance ?: synchronized(this) {
+            instance ?: Server(BuildConfig.SUPABASE_URL, BuildConfig.SUPABASE_KEY, PrefsSessionStore(context.applicationContext)).also { instance = it }
+        }
+
+        // {"error": "not_admin"} from the server's code. From the tables {"code": ..., "message": ...}: a guard's
+        // refusal (P0001) carries its own short code in the message ("too_many_trips"); bad values and the row
+        // rules get the same codes as the server's code uses (server/CONTRACT.md, "שגיאות").
+        internal fun code(r: Response): String = runCatching {
             val o = JSONObject(r.body)
-            o.optString("error").ifBlank { o.optString("code") }
+            o.optString("error").ifBlank {
+                when (val c = o.optString("code")) {
+                    "P0001" -> o.optString("message").takeIf { it.matches(Regex("^[a-z_]+$")) } ?: c
+                    "23514", "22P02", "22007", "22008", "23502" -> "invalid_input"
+                    "42501" -> "not_allowed"
+                    "23503" -> "conflict"
+                    else -> c
+                }
+            }
         }.getOrNull()?.ifBlank { null } ?: "http_${r.status}"
 
         // Auth answers {"error_code": "..."} (or {"error": "invalid_grant"} on older servers).
