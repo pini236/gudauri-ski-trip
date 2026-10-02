@@ -43,7 +43,7 @@ Gudi: Gudauri Ski Map היא אפליקציה לאנדרואיד (המזהה `io
 
 ### האתר
 
-האתר לא דורש הרשמה ולא משתמש בעוגיות. ההגדרות, השפה והשיאים נשמרים בדפדפן שלך בלבד.
+האתר לא דורש הרשמה ולא משתמש בעוגיות. ההגדרות, השפה, השיאים ו"הטיול שלך" (טיסות ותאריכים) נשמרים בדפדפן שלך בלבד, ולא נשלחים אלינו.
 
 **מדידת שימוש ודיווח שגיאות באתר** (PostHog ו-Sentry, בשרתים באירופה): באילו עמודים ופעולות משתמשים, שפת הממשק, סוג המכשיר (טלפון, טאבלט או מחשב) ומאיזה קישור הגעת, ותיאור טכני של שגיאות. כדי לספור ביקורים חוזרים נשמר בדפדפן מזהה אקראי (לא עוגייה), שלא קשור לשם, למייל או לטלפון; מחיקת נתוני האתר בדפדפן מוחקת אותו. כתובת ה-IP לא נשמרת. אפשר לכבות את זה בעמוד ההגדרות של האתר, ואז לא נשלח דבר.
 
@@ -106,7 +106,7 @@ No ads. We don't use the device advertising ID. We don't sell or share data with
 
 ### The website
 
-The website requires no sign-up and uses no cookies. Settings, language and scores are stored only in your browser.
+The website requires no sign-up and uses no cookies. Settings, language, scores and "Your trip" (flights and dates) are stored only in your browser and are never sent to us.
 
 **Usage statistics and error reports on the website** (PostHog and Sentry, servers in the EU): which pages and features are used, the interface language, the kind of device (phone, tablet or computer), which link you came from, and a technical description of errors. To count returning visits, a random ID is kept in your browser (not a cookie); it is not linked to your name, email or phone number, and clearing the site's data in your browser deletes it. IP addresses are not stored. You can turn this off on the site's settings page, and then nothing is sent.
 

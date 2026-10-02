@@ -61,7 +61,7 @@ import java.time.format.DateTimeFormatter
 fun TripForm(initial: Trip?, today: LocalDate, onSave: (Trip) -> Unit, onDelete: () -> Unit, onCancel: () -> Unit) {
     val c = Ski.colors
     val o = initial?.out; val r = initial?.ret
-    val tbilisi = "TBS · " + stringResource(R.string.app_city_tbs)
+    val tbilisi = "TBS · " + stringResource(R.string.ticket_city_tbs)
     var oDate by rememberSaveable { mutableStateOf(o?.date) }
     var oFlight by rememberSaveable { mutableStateOf(o?.flight.orEmpty()) }
     var oFrom by rememberSaveable { mutableStateOf(o?.from.orEmpty()) }

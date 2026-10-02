@@ -10,6 +10,13 @@ function watchErrors(page: Page) {
   return errors;
 }
 
+// a trip saved in this browser (round 12: the home page shows your own trip, not the crew's)
+const MY_TRIP = { v: 1, out: { date: '2027-01-10', flight: '6H 897', from: 'TLV', to: 'TBS', departs: '16:00', arrives: '20:35' },
+  ret: { date: '2027-01-15', flight: '6H 892', departs: '01:35', arrives: '02:15' }, ski: null };
+async function withTrip(page: Page) {
+  await page.addInitScript(t => { try { localStorage.setItem('gud-trip', JSON.stringify(t)); } catch (e) {} }, MY_TRIP);
+}
+
 async function loaded(page: Page) {
   await expect(page.locator('#loading')).toBeHidden({ timeout: 20_000 });
 }
@@ -19,7 +26,7 @@ test('דף הבית, מפה, בחירת מסלול, סינון וחזרה', asyn
   await page.goto('/');
   await loaded(page);
   await expect(page.locator('h1.loc')).toContainText('גודאורי');
-  await expect(page.locator('#tDays')).toHaveText(/\d+|0/);
+  await expect(page.locator('#bpEmpty')).toBeVisible();
   await page.screenshot({ path: `test-results/${info.project.name}-home.png` });
 
   await page.goto('/#map');
@@ -70,7 +77,7 @@ test('נתונים נטענים מקבצים נפרדים', async ({ page }) => 
   page.on('response', r => { if (/\/data\/.*\.json$/.test(r.url())) seen.push(r.url().split('/').pop()!); });
   await page.goto('/');
   await loaded(page);
-  expect(seen.sort()).toEqual(['runs-and-lifts.json', 'terrain.json', 'trip.json', 'videos-seed.json']);
+  expect(seen.sort()).toEqual(['runs-and-lifts.json', 'terrain.json', 'videos-seed.json']);
 });
 
 test('תגיות ה-head: שפה, noindex, וקישור לשיתוף', async ({ page }) => {
@@ -84,21 +91,6 @@ test('תגיות ה-head: שפה, noindex, וקישור לשיתוף', async ({ 
   expect(res.ok()).toBeTruthy();
   const icon = await page.locator('link[rel="icon"]').getAttribute('href');
   expect((await page.request.get('/' + icon)).ok()).toBeTruthy();
-});
-
-test('כרטיס הטיסה והחבר׳ה מוצגים מקובץ הנתונים, בלי עריכה', async ({ page }) => {
-  await page.goto('/');
-  await loaded(page);
-  await expect(page.locator('#tFrom')).toHaveText('תל אביב');
-  await expect(page.locator('#tTo')).toHaveText('טביליסי');
-  await expect(page.locator('#tFlight')).toHaveText('6H 897');
-  await expect(page.locator('#tDate')).toHaveText('10.1.2027');
-  await expect(page.locator('#tDeparts')).toHaveText('16:00');
-  await expect(page.locator('#tArrives')).toHaveText('20:35');
-  await expect(page.locator('.bp[data-leg="ret"] [data-f="date"]')).toHaveText('15.1.2027');
-  await expect(page.locator('#crewList li')).toHaveCount(6);
-  await expect(page.locator('#crewList')).toContainText('פיני זולברג');
-  await expect(page.locator('#tEdit, #tForm, #addform')).toHaveCount(0);
 });
 
 test('סרטונים מקובץ ההתחלה מוצגים בפרטי המסלול, בלי טופס הוספה', async ({ page }) => {
@@ -121,15 +113,12 @@ test('סרטונים מקובץ ההתחלה מוצגים בפרטי המסלו�
   await expect(frame).toHaveAttribute('src', /youtube-nocookie\.com\/embed\/dQw4w9WgXcQ/);
 });
 
-test('בלי קבצי טיסה וסרטונים האתר ממשיך לעבוד', async ({ page }) => {
+test('בלי קובץ הסרטונים האתר ממשיך לעבוד', async ({ page }) => {
   const errors = watchErrors(page);
-  await page.route('**/trip.json', r => r.abort());
   await page.route('**/videos-seed.json', r => r.abort());
   await page.goto('/');
   await loaded(page);
-  await expect(page.locator('#tFrom')).toHaveText('מוצא');
-  await expect(page.locator('.bp[data-leg="ret"]')).toBeHidden();
-  await expect(page.locator('.crew')).toBeHidden();
+  await expect(page.locator('#bpEmpty')).toBeVisible();
   expect(errors).toEqual([]);
 });
 
@@ -185,6 +174,7 @@ test('כשהקובץ קיים מוצג שלט הורדה עם גודל והסב�
 
 test('יום ולילה: שלושה מצבים, שעון גודאורי והנוף מתחלף', async ({ page }) => {
   const errors = watchErrors(page);
+  await withTrip(page);
   await page.clock.setFixedTime(new Date('2026-12-12T09:00:00Z')); // 13:00 בגודאורי
   await page.goto('/');
   await loaded(page);
@@ -312,6 +302,7 @@ test('מצב רכבלים: בלי מידע שלטים מושלגים, עם מי�
 
 test('כרטיס הטיסה: שני כרטיסים שמתחלפים, וספח שנתלש וחוזר', async ({ page }) => {
   const errors = watchErrors(page);
+  await withTrip(page);
   await page.goto('/');
   await loaded(page);
   const front = page.locator('.bp.is-front');

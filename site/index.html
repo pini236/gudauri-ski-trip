@@ -56,6 +56,13 @@
   <div class="home-inner">
     <div class="home-top"><h1 class="loc" data-i18n="home.location">גודאורי, גאורגיה</h1><span class="when" data-i18n="home.when">חופשת סקי, ינואר 2027</span><div class="dn dn-home"><span class="dn-clock"><span data-i18n="nav.gudauri_time">השעה בגודאורי</span><b class="num" data-dn-clock>--:--</b></span><button type="button" class="dn-btn" data-dn aria-label="מצב תצוגה" data-i18n-attr="aria-label:nav.display_mode"><svg class="i-auto" width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 3a9 9 0 0 1 0 18z" fill="currentColor"/></svg><svg class="i-day" width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="5" fill="#F4B942"/><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8" stroke="#F4B942" stroke-width="2" stroke-linecap="round"/></svg><svg class="i-night" width="24" height="24" viewBox="0 0 34 34" aria-hidden="true"><path d="M17 3A14 14 0 0 1 17 31A7.5 14 0 0 0 17 3Z" fill="currentColor"/></svg><span class="dn-lbl" data-dn-lbl data-i18n="common.mode_auto">אוטומטי</span></button></div></div>
     <section class="ticket-wrap" aria-label="פרטי הטיסה" data-i18n-attr="aria-label:ticket.flight_details">
+      <div class="bp-empty" id="bpEmpty" hidden>
+        <div class="be-main"><div class="be-strip"><span data-i18n="trip.empty_title">הטיול שלך</span><span data-i18n="trip.empty_unset">עוד לא הוגדר</span></div>
+          <div class="be-row"><div><small data-i18n="ticket.from">מ</small><span class="be-code" dir="ltr">???</span></div><div class="be-to"><small data-i18n="ticket.to">אל</small><span class="be-code" dir="ltr">???</span></div></div>
+          <div class="be-grid"><div><small data-i18n="ticket.flight">טיסה</small><i></i></div><div><small data-i18n="ticket.departs">המראה</small><i></i></div><div><small data-i18n="ticket.ski_days">ימי סקי</small><i></i></div></div></div>
+        <div class="be-stub"><b>?</b></div>
+        <div class="be-add"><a class="btn-blue" href="#trip"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span data-i18n="trip.add">הוספת הטיסה שלי</span></a></div>
+      </div>
       <div class="bp-stack" id="bpStack">
       <article class="bp is-back" data-leg="ret" hidden aria-label="כרטיס חזור" data-i18n-attr="aria-label:ticket.card_return">
         <div class="bp-main">
@@ -94,7 +101,9 @@
         <button type="button" class="bp-swap" aria-label="להביא קדימה את כרטיס ההלוך" data-i18n-attr="aria-label:ticket.swap_out"></button>
       </article>
       </div>
-      <p class="bp-hint" id="bpHint"><span id="bpHintSwap" hidden data-i18n="ticket.hint_swap">נגיעה בכרטיס שמאחור מחליפה · </span><span data-i18n="ticket.hint_tear">נגיעה בספח תולשת</span></p>
+      <p class="bp-hint" id="bpHint"><span id="bpHintSwap" hidden data-i18n="ticket.hint_swap">נגיעה בכרטיס שמאחור מחליפה · </span><span data-i18n="ticket.hint_tear">נגיעה בספח תולשת</span><a class="bp-edit" href="#trip"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16z"/></svg><span data-i18n="trip.edit">עריכה</span></a></p>
+      <p class="trip-note" id="tripNote" hidden><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="5" y="11" width="14" height="9"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg><span data-i18n="trip.local_note">בלי הרשמה. נשמר רק בדפדפן הזה, ואפשר למחוק בכל רגע.</span></p>
+      <a class="season" id="seasonBoard" href="#map" hidden><em data-i18n="status.heading_lift_status">מצב הרכבלים</em><b data-i18n="status.mountain_asleep">ההר עוד ישן</b><span data-i18n="status.lead_off_season">עוד אין דיווח על רכבלים.</span></a>
     </section>
     <nav class="post" aria-label="חלקי האתר" data-i18n-attr="aria-label:nav.sections">
       <a class="board" href="#map"><b data-i18n="nav.map">מפת מסלולים</b><span data-i18n="home.board_map_sub">27 מסלולים, פרטים וסרטונים</span></a>
@@ -116,13 +125,28 @@
       <h2 data-i18n="home.tally">מסלולים במפה הרשמית</h2>
       <ul><li class="t-green"><b class="num">5</b><span data-i18n="common.color_green">ירוק</span></li><li class="t-blue"><b class="num">16</b><span data-i18n="common.color_blue">כחול</span></li><li class="t-red"><b class="num">4</b><span data-i18n="common.color_red">אדום</span></li><li class="t-black"><b class="num">2</b><span data-i18n="common.color_black">שחור</span></li></ul>
     </section>
-    <section class="crew" aria-label="מי טס" data-i18n-attr="aria-label:home.crew_aria">
-      <h2><span data-i18n="common.crew">החבר׳ה</span> <span class="num" id="crewCount"></span></h2>
-      <ul id="crewList"></ul>
-    </section>
     <a class="home-about" href="#about" data-i18n="home.about_link">אודות, הגדרות וקרדיטים</a>
     <a class="home-privacy" href="privacy" data-i18n="home.privacy_link">מדיניות פרטיות</a>
   </div>
+</main>
+
+<main class="page page-trip" id="tripPage" hidden>
+  <form class="tf" id="tripForm" novalidate>
+    <div class="tf-head"><h1 data-i18n="trip.title">הטיול שלך</h1><a href="#home"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg><span data-i18n="trip.cancel">ביטול</span></a></div>
+    <p class="tf-lead" data-i18n="trip.lead">רק תאריך ההלוך חובה. בלי הרשמה: נשמר רק בדפדפן הזה.</p>
+    <div class="tf-sec"><b data-i18n="trip.out">הלוך</b><i></i><span data-i18n="trip.out_required">חובה רק התאריך</span></div>
+    <div class="tf-grid"><label class="tf-fld"><span data-i18n="trip.date"></span><input type="date" name="od" required></label><label class="tf-fld"><span data-i18n="trip.number"></span><input type="text" name="of" dir="ltr" autocapitalize="characters" autocomplete="off" maxlength="9"></label></div>
+    <div class="tf-grid"><label class="tf-fld"><span data-i18n="ticket.from"></span><select name="ofr"></select></label><label class="tf-fld"><span data-i18n="ticket.to"></span><select name="oto"></select></label></div>
+    <div class="tf-grid" id="tfOther" hidden><label class="tf-fld"><span data-i18n="trip.airport_code"></span><input type="text" name="ofrx" dir="ltr" maxlength="3" autocapitalize="characters" autocomplete="off"></label><label class="tf-fld"><span data-i18n="trip.airport_code"></span><input type="text" name="otox" dir="ltr" maxlength="3" autocapitalize="characters" autocomplete="off"></label></div>
+    <div class="tf-grid"><label class="tf-fld"><span data-i18n="ticket.departs"></span><input type="time" name="odp"></label><label class="tf-fld"><span data-i18n="ticket.arrives"></span><input type="time" name="oar"></label></div>
+    <div class="tf-sec"><b data-i18n="trip.back">חזור</b><i></i><span id="tfBackRoute" data-i18n="trip.back_optional">אפשר גם בלי</span></div>
+    <div class="tf-grid"><label class="tf-fld"><span data-i18n="trip.date"></span><input type="date" name="rd"></label><label class="tf-fld"><span data-i18n="trip.number"></span><input type="text" name="rf" dir="ltr" autocapitalize="characters" autocomplete="off" maxlength="9"></label></div>
+    <div class="tf-grid"><label class="tf-fld"><span data-i18n="ticket.departs"></span><input type="time" name="rdp"></label><label class="tf-fld"><span data-i18n="ticket.arrives"></span><input type="time" name="rar"></label></div>
+    <div class="tf-ski"><div><small id="tfSkiLbl" data-i18n="trip.ski_computed">ימי סקי מלאים, מחושב מהטיסות</small><b id="tfSki"></b></div><button type="button" class="tf-link" id="tfSkiBtn" data-i18n="trip.ski_change">שינוי</button></div>
+    <div class="tf-grid" id="tfSkiManual" hidden><label class="tf-fld"><span data-i18n="trip.ski_first"></span><input type="date" name="sf"></label><label class="tf-fld"><span data-i18n="trip.ski_last"></span><input type="date" name="sl"></label></div>
+    <p class="err" id="tfErr" role="alert" hidden></p>
+    <div class="tf-btns"><button type="submit" class="tf-save"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg><span data-i18n="trip.save">שמירה</span></button><button type="button" class="tf-link" id="tfDelete" hidden data-i18n="trip.delete">מחיקת הטיול</button></div>
+  </form>
 </main>
 
 <main class="page page-about" id="aboutPage" hidden>

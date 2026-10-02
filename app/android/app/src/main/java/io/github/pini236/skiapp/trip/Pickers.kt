@@ -68,8 +68,8 @@ import java.time.format.DateTimeFormatter
 internal class Airport(val code: String, val city: Int)
 
 internal val AIRPORTS = listOf(
-    Airport("TBS", R.string.app_city_tbs), Airport("KUT", R.string.app_city_kut), Airport("BUS", R.string.app_city_bus),
-    Airport("TLV", R.string.app_city_tlv), Airport("ETM", R.string.app_city_etm),
+    Airport("TBS", R.string.ticket_city_tbs), Airport("KUT", R.string.ticket_city_kut), Airport("BUS", R.string.app_city_bus),
+    Airport("TLV", R.string.ticket_city_tlv), Airport("ETM", R.string.app_city_etm),
     Airport("IST", R.string.app_city_ist), Airport("SAW", R.string.app_city_ist), Airport("DXB", R.string.app_city_dxb),
     Airport("SVO", R.string.app_city_mow), Airport("VKO", R.string.app_city_mow), Airport("DME", R.string.app_city_mow), Airport("LED", R.string.app_city_led),
     Airport("WAW", R.string.app_city_waw), Airport("RIX", R.string.app_city_rix), Airport("VIE", R.string.app_city_vie),

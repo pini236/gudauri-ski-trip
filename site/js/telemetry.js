@@ -38,11 +38,11 @@
         ph=p;queue.splice(0).forEach(function(e){p.capture(e[0],e[1]);});
       }});
   });
-  // app_open once, screen_view on every page change (#home, #map, #meet, #games, #about; a game page names itself)
+  // app_open once, screen_view on every page change (#home, #map, #meet, #games, #about, #trip; a game page names itself)
   var q=new URLSearchParams(location.search),game=(document.currentScript&&document.currentScript.getAttribute('data-game'))||'';
   track('app_open',{source:q.get('utm_medium')==='share'?'share_link':q.get('utm_source')?'link':'direct'});
   function screenView(){var h=(location.hash||'#home').slice(1).split('/')[0]||'home';
-    track('screen_view',game?{screen:'game',game:game}:{screen:['home','map','meet','games','about'].indexOf(h)>=0?h:'home'});}
+    track('screen_view',game?{screen:'game',game:game}:{screen:['home','map','meet','games','about','trip'].indexOf(h)>=0?h:'home'});}
   screenView._h=(location.hash||'#home').slice(1).split('/')[0];screenView();if(!game)addEventListener('hashchange',function(){var last=screenView._h,h=(location.hash||'#home').slice(1).split('/')[0];if(h!==last){screenView._h=h;screenView();}});
   if(SENTRY_DSN)load('https://browser.sentry-cdn.com/8.38.0/bundle.min.js',function(){
     if(!window.Sentry)return;
