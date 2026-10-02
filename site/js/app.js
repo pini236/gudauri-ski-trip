@@ -639,8 +639,15 @@ const MEET=(function(){
     s.where=[b.length?T('meet.where_bottom_station',{lifts:n(b)}):'',t.length?T('meet.where_top_station',{lifts:n(t)}):''].filter(Boolean).join(', ');});
   const byId=Object.fromEntries(st.map(s=>[s.id,s]));
   const find=name=>(end)=>st.find(s=>s.ends.some(e=>e.l.name===name&&e.end===end));
-  // ski days of the trip (11 to 14 January), and suggested fixed spots for the group
-  const DAYS=[['2027-01-11',T('meet.day_mon_11')],['2027-01-12',T('meet.day_tue_12')],['2027-01-13',T('meet.day_wed_13')],['2027-01-14',T('meet.day_thu_14')]];
+  // the ski days of your trip (round 12): from "your trip" (up to two weeks), or the next week when there is none
+  function skiDays(){const t=MYTRIP.get(),r=MYTRIP.ski(t),out=[];
+    const addD=(iso,n)=>{const d=new Date(iso+'T12:00:00Z');d.setUTCDate(d.getUTCDate()+n);return d.toISOString().slice(0,10);};
+    let a,b;if(r){a=r.from;b=r.to;}else{a=new Date(Date.now()+4*36e5).toISOString().slice(0,10);if(t&&t.out.date>a)a=addD(t.out.date,1);b=addD(a,6);}
+    for(let d=a;d<=b&&out.length<14;d=addD(d,1))out.push([d,dayName(d)]);return out;}
+  function dayName(iso){const d=new Date(iso+'T12:00:00Z'),lang=document.documentElement.lang||'he';
+    if(lang==='he')return new Intl.DateTimeFormat('he',{weekday:'narrow',timeZone:'UTC'}).format(d)+` ${d.getUTCDate()}.${d.getUTCMonth()+1}`;
+    try{return new Intl.DateTimeFormat(lang,{weekday:'short',day:'numeric',month:'short',timeZone:'UTC'}).format(d);}catch(e){return iso.split('-').reverse().join('.');}}
+  let DAYS=skiDays();
   const TIMES=['09:30','11:00','12:30','13:30','15:00','16:30'];
   const PRE=[['am',T('meet.preset_morning_lift'),find('Goodaura')('b'),'09:30'],['noon',T('meet.preset_noon'),find('Goodaura')('t'),'13:00'],['pm',T('meet.preset_end_of_day'),find('New Goodaura')('b'),'16:30']].filter(p=>p[2]);
   // nothing is picked at first (Pini, round 8): the map asks where to meet, and the card waits
@@ -705,7 +712,8 @@ const MEET=(function(){
   new ResizeObserver(()=>{if(!document.getElementById('meetPage').hidden)applyVB();}).observe(svgM);
   // controls
   const ui=document.getElementById('meetUI');
-  ui.querySelector('[data-days]').innerHTML=DAYS.map(([v,l])=>`<button type="button" data-day="${v}">${esc(l)}</button>`).join('');
+  function drawDays(){ui.querySelector('[data-days]').innerHTML=DAYS.map(([v,l])=>`<button type="button" data-day="${v}">${esc(l)}</button>`).join('');}
+  drawDays();
   ui.querySelector('[data-times]').innerHTML=TIMES.map(t=>`<button type="button" class="num" data-time="${t}">${t}</button>`).join('');
   ui.querySelector('[data-pre]').innerHTML=PRE.map(([k,l,s,t],i)=>`<button type="button" class="mp-sign mp-${k}" data-pre="${k}"><b>${esc(l)}</b><span dir="ltr">${esc(s.name)} ${t}</span></button>`).join('');
   ui.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;
@@ -724,7 +732,7 @@ const MEET=(function(){
     return out.filter((r,i)=>out.findIndex(q=>q.html===r.html)===i).slice(0,4);}
   const pad=n=>String(n).padStart(2,'0');
   function link(){return location.origin+location.pathname+`#meet/${S.sid}/${S.time.replace(':','')}/${S.day.replace(/-/g,'')}`;}
-  function dayLbl(){return (DAYS.find(d=>d[0]===S.day)||[0,S.day.split('-').reverse().join('.')])[1];}
+  function dayLbl(){return (DAYS.find(d=>d[0]===S.day)||[0,dayName(S.day)])[1];}
   function message(){const s=byId[S.sid];return T('meet.share_message',{place:s.name,day:dayLbl(),time:S.time,where:s.where,alt:s.h?T('meet.share_alt_suffix',{n:s.h.toLocaleString('en-US')}):'',link:link()});}
   function countdown(){ // in Gudauri time (UTC+4)
     const [y,mo,d]=S.day.split('-').map(Number),[hh,mm]=S.time.split(':').map(Number);
@@ -796,6 +804,8 @@ const MEET=(function(){
   document.getElementById('meetOnMap').addEventListener('click',()=>{const s=byId[S.sid];location.hash='#map';requestAnimationFrame(()=>requestAnimationFrame(()=>{showLift(s.ends[0].l.id);if(view==='3d'&&v3)v3.focusLift(s.ends[0].l.id);else focusOn([s.ends[0].l.g]);}));});
   let shown=false;
   function open(arg){ // arg: "<station>/<HHMM>/<YYYYMMDD>" from a shared link, or empty
+    // your trip may have changed since the last visit
+    const was=DAYS.map(d=>d[0]).join();DAYS=skiDays();if(DAYS.map(d=>d[0]).join()!==was){drawDays();if(!DAYS.some(d=>d[0]===S.day))S.day=DAYS[0][0];}
     if(arg){const [sid,t,d]=arg.split('/');if(byId[sid]){S.sid=sid;if(!shown)track('meet_link_open');}if(/^\d{4}$/.test(t||''))S.time=t.slice(0,2)+':'+t.slice(2);if(/^\d{8}$/.test(d||''))S.day=`${d.slice(0,4)}-${d.slice(4,6)}-${d.slice(6)}`;
       ui.querySelector('#meetTime').value=S.time;}
     const s=byId[S.sid];requestAnimationFrame(()=>{if(!shown||arg){shown=true;if(s)goTo(s.x,s.y,1800,0);else fitAll(0);}render();if(arg&&s)document.getElementById('meetCard').scrollIntoView({block:'center'});});

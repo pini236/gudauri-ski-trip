@@ -12136,9 +12136,9 @@
   },
   "ticket.strip_mine_return": {
    "he": "הטיול שלך · חזור{note}",
-   "en": "Your trip · Return{note}",
-   "ru": "Ваша поездка · Обратно{note}",
-   "ka": "თქვენი მოგზაურობა · დაბრუნება{note}",
+   "en": "Return flight{note}",
+   "ru": "Обратный рейс{note}",
+   "ka": "დაბრუნება{note}",
    "where": "site/js/app.js",
    "note": "top strip of your own return pass",
    "check": [

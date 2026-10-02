@@ -10,7 +10,7 @@ import numpy as np
 root = pathlib.Path(__file__).resolve().parent.parent.parent
 T = json.load(open(root / 'site/data/terrain.json', encoding='utf-8'))
 D = json.load(open(root / 'site/data/runs-and-lifts.json', encoding='utf-8'))
-TRIP = json.load(open(root / 'site/data/trip.json', encoding='utf-8'))
+TRIP = json.load(open(root / 'design/data/trip.json', encoding='utf-8'))
 PANO = {'noon': '/_blob/d5ad1e6d2660c28123782ea318a7fd85', 'sunset': '/_blob/7c3d6f578ae52970e966e31246d900c9', 'gold': '/_blob/98b133d6dbe89ed912fd5c489d3704a3'}
 C = {'snow': '#EEF2F5', 'paper': '#FFFFFF', 'ink': '#13233A', 'muted': '#4B5A6F', 'rule': '#CBD5DF', 'blue': '#1F5FC4',
      'green': '#1B8A4C', 'red': '#D1342B', 'accent': '#F4B942', 'nbg': '#0D1522', 'npaper': '#16223A', 'nmuted': '#A3B3C8'}

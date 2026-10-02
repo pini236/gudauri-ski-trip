@@ -4,12 +4,12 @@
 Five phone artboards for the canvas page "סבב 7: כרטיס עלייה למטוס":
 BP0 is the card as it is on the site today (for comparison), BP1 to BP3 are three
 directions, and BP4 is the recommended one at night. All flight data comes from
-site/data/trip.json; there is no gate, seat, boarding time or booking number, and
+design/data/trip.json; there is no gate, seat, boarding time or booking number, and
 the barcode and the square are drawings, not codes.
 Run from the repo root: python3 design/round7/build.py"""
 import json, pathlib
 root = pathlib.Path(__file__).resolve().parent.parent.parent
-TRIP = json.load(open(root / 'site/data/trip.json', encoding='utf-8'))
+TRIP = json.load(open(root / 'design/data/trip.json', encoding='utf-8'))
 O, R = TRIP['outbound'], TRIP['return']
 PANO = {'noon': '/_blob/d5ad1e6d2660c28123782ea318a7fd85', 'night': None}
 C = {'snow': '#EEF2F5', 'paper': '#FFFFFF', 'paper2': '#F4F7FA', 'ink': '#13233A', 'muted': '#4B5A6F', 'rule': '#CBD5DF',

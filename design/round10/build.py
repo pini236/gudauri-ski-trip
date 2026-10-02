@@ -11,13 +11,13 @@ Three canvas pages:
                                          LT1-LT3 left-to-right signs (English, Russian, Georgian), FT1 fonts.
 
 Only what the planning documents already say is drawn. Names and flights are the public ones from
-site/data/trip.json; the scores, the second flight and the invite code are sample data, and say so.
+design/data/trip.json; the scores, the second flight and the invite code are sample data, and say so.
 Run from the repo root: python3 design/round10/build.py [canvas folder]
 (default: design/canvas/project; the canvas index is updated next to the files)."""
 import json, pathlib, random, sys
 
 root = pathlib.Path(__file__).resolve().parent.parent.parent
-TRIP = json.load(open(root / 'site/data/trip.json', encoding='utf-8'))
+TRIP = json.load(open(root / 'design/data/trip.json', encoding='utf-8'))
 O, R = TRIP['outbound'], TRIP['return']
 CREW = TRIP['members']
 PANO = '/_blob/d5ad1e6d2660c28123782ea318a7fd85'  # the view from the village at noon, already in the canvas
