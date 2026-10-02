@@ -32,7 +32,10 @@ const CREW = ['יהודה וצלר', 'דובי אלבום', 'שרוליק לפק
 
 // --- the home page
 
+// which place for the account on the phone: 'corner' (the first draft), 'duo', 'tag' or 'line'
+let ACCT = 'corner';
 function acct(me) {
+  if (ACCT !== 'corner' && innerWidth < 761) return acctPhone(me);
   const b = me ? `<a class="acct me" href="#account" aria-label="החשבון שלך: פיני זולברג">פ</a>`
                 : `<a class="acct" href="#signin" aria-label="כניסה">${ic('people', 18)}<span class="acct-t">כניסה</span></a>`;
   $('.home-top .dn-home')?.insertAdjacentHTML('beforebegin', b.replace('class="acct', 'class="acct-m acct'));
@@ -182,3 +185,25 @@ function group() {
             : flights + invite)
     + note('רק חברי הקבוצה רואים את הדף הזה. הכרטיס והשמות של החבר׳ה עברו לכאן מדף הבית הציבורי.', 'lock'), wide);
 }
+
+function acctPhone(me) {
+  $('.topbar .dn')?.insertAdjacentHTML('afterend', me ? `<a class="acct me" href="#account">פ</a>` : `<a class="acct" href="#signin">${ic('people', 18)}כניסה</a>`);
+  if (ACCT === 'duo') {
+    const dn = $('.home-top .dn-home .dn-btn');
+    const wrap = document.createElement('span'); wrap.className = 'duo';
+    dn.replaceWith(wrap); wrap.appendChild(dn);
+    wrap.insertAdjacentHTML('beforeend', '<i></i>' + (me ? `<a class="duo-me" href="#account" aria-label="החשבון שלך"><b>פ</b></a>` : `<a class="duo-me" href="#signin">${ic('people', 18)}כניסה</a>`));
+  } else if (ACCT === 'tag') {
+    $('.post').insertAdjacentHTML('afterbegin', me
+      ? `<a class="skitag" href="#account"><b class="av">פ</b><span><b>פיני זולברג</b><small>החשבון שלך</small></span></a>`
+      : `<a class="skitag" href="#signin"><b class="av" style="background:var(--p-blue)">${ic('people', 20)}</b><span><b>כניסה</b><small>הטיול שלך בכל מכשיר</small></span></a>`);
+  } else if (ACCT === 'line') {
+    $('.home-top .loc').insertAdjacentHTML('afterend', me
+      ? `<a class="hello" href="#account"><b>פ</b>שלום, פיני${ic('back', 16).replace('M9 6l6 6-6 6', 'M15 6l-6 6 6 6')}</a>`
+      : `<a class="hello" href="#signin">${ic('people', 18)}כניסה${ic('back', 16).replace('M9 6l6 6-6 6', 'M15 6l-6 6 6 6')}</a>`);
+  }
+}
+// the part of the page each account screen shows
+function clipTop(h = 330) { window.__clip = { x: 0, y: 0, width: innerWidth, height: h }; }
+function clipPost() { const r = $('.post').getBoundingClientRect(); window.__clip = { x: 0, y: Math.max(0, r.top + scrollY - 80), width: innerWidth, height: 430 }; }
+function k(variant, me) { ACCT = variant; (me ? tripHome : guestHome)(); variant === 'tag' ? clipPost() : clipTop(variant === 'line' ? 360 : 330); }

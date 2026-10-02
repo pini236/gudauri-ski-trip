@@ -31,6 +31,11 @@ const SCREENS = [
   ['W9-TripHomeDesktop', 1280, 0, 'day', 'tripHome'],
   ['W10-GroupDesktop', 1280, 0, 'day', 'group'],
   ['W11-TripHomeNight', 390, 0, 'night', 'tripHome'],
+  // where the account goes on the phone (Pini: the first place looked odd)
+  ['K1-DuoGuest', 390, 0, 'day', "k('duo', false)"], ['K2-DuoMe', 390, 0, 'day', "k('duo', true)"],
+  ['K3-TagGuest', 390, 0, 'day', "k('tag', false)"], ['K4-TagMe', 390, 0, 'day', "k('tag', true)"],
+  ['K5-LineGuest', 390, 0, 'day', "k('line', false)"], ['K6-LineMe', 390, 0, 'day', "k('line', true)"],
+  ['K7-DuoMeNight', 390, 0, 'night', "k('duo', true)"], ['K8-TagMeNight', 390, 0, 'night', "k('tag', true)"],
 ];
 
 const b = await chromium.launch();
@@ -45,9 +50,10 @@ for (const [name, w, h, theme, fn] of SCREENS) {
   await p.evaluate(() => document.fonts.ready);
   await p.waitForTimeout(1500);
   await p.addStyleTag({ content: css });
-  await p.evaluate(`${lib}\n;${fn}();`);
+  await p.evaluate(`${lib}\n;${fn.includes('(') ? fn : fn + '()'};`);
   await p.waitForTimeout(600);
-  await p.screenshot({ path: path.join(out, name + '.png'), fullPage: !h });
+  const clip = await p.evaluate(() => window.__clip || null);
+  await p.screenshot({ path: path.join(out, name + '.png'), fullPage: !h || !!clip, ...(clip ? { clip } : {}) });
   await ctx.close();
   console.log(name);
 }
