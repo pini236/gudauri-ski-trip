@@ -106,6 +106,13 @@ class ServerTest {
         }
     }
 
+    @Test fun tableRefusalsGetShortCodes() {
+        assertEquals("too_many_trips", Server.code(Response(400, """{"code":"P0001","message":"too_many_trips"}""")))
+        assertEquals("invalid_input", Server.code(Response(400, """{"code":"23514","message":"new row violates check"}""")))
+        assertEquals("not_allowed", Server.code(Response(403, """{"code":"42501","message":"row-level security"}""")))
+        assertEquals("http_500", Server.code(Response(500, "")))
+    }
+
     @Test fun noAnswerIsOffline() {
         val store = MemorySessionStore()
         store.save(Session.fromAuth(JSONObject(session("a")), now / 1000))

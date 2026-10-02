@@ -130,6 +130,8 @@ dependencies {
     implementation("androidx.credentials:credentials:1.6.0")
     implementation("androidx.credentials:credentials-play-services-auth:1.6.0")
     implementation("com.google.android.libraries.identity.googleid:googleid:1.2.1")
+    // the server's realtime WebSocket (server/Realtime.kt); Android has none built in
+    implementation("com.squareup.okhttp3:okhttp:5.1.0")
     testImplementation("junit:junit:4.13.2")
     testImplementation("org.json:json:20260814")
 }
