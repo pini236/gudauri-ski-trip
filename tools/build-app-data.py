@@ -2,7 +2,8 @@
 """Copy the site's data into the native apps (read-only: never writes into site/).
 
 Usage: python3 tools/build-app-data.py <out-dir>
-Writes <out-dir>/data/{terrain,runs-and-lifts,videos-seed,profiles}.json and <out-dir>/audio/*.wav.
+Writes <out-dir>/data/{terrain,runs-and-lifts,videos-seed,profiles}.json, <out-dir>/audio/*.wav and
+<out-dir>/pano/*.webp (the real view from the village through the day, for the home page).
 profiles.json is the elevation profile of each run in the descent game, taken from
 site/games/descent/index.html so the app plays the exact same runs as the site.
 trip.json (the group's flight and names) is never copied: see docs/USERS.md.
@@ -33,6 +34,9 @@ def main():
     (out / "data/profiles.json").write_text(json.dumps(profiles(), separators=(",", ":")), encoding="utf-8")
     for wav in sorted((SITE / "audio").glob("*.wav")):
         shutil.copyfile(wav, out / "audio" / wav.name)
+    (out / "pano").mkdir(parents=True, exist_ok=True)
+    for img in sorted((SITE / "img/pano").glob("*.webp")):
+        shutil.copyfile(img, out / "pano" / img.name)
 
 
 if __name__ == "__main__":

@@ -69,10 +69,12 @@ data class SkiType(
     /** per language (i18n/Lang.kt): Karantina and Plex have Hebrew and Latin only */
     val display: FontFamily = Karantina,
     val text: FontFamily = Plex,
-    val brand: TextStyle = TextStyle(fontFamily = display, fontWeight = FontWeight.Bold, fontSize = 34.sp, lineHeight = 1.em),
-    val sign: TextStyle = TextStyle(fontFamily = display, fontWeight = FontWeight.Bold, fontSize = 26.sp, lineHeight = 1.em),
-    val title: TextStyle = TextStyle(fontFamily = display, fontWeight = FontWeight.Bold, fontSize = 44.sp, lineHeight = 1.em),
-    val number: TextStyle = TextStyle(fontFamily = display, fontWeight = FontWeight.Bold, fontSize = 22.sp, lineHeight = 1.em),
+    /** Oswald and the narrow Georgian set bigger than Karantina at the same size (i18n/Lang.kt) */
+    val displayScale: Float = 1f,
+    val brand: TextStyle = TextStyle(fontFamily = display, fontWeight = FontWeight.Bold, fontSize = (34 * displayScale).sp, lineHeight = 1.em),
+    val sign: TextStyle = TextStyle(fontFamily = display, fontWeight = FontWeight.Bold, fontSize = (26 * displayScale).sp, lineHeight = 1.em),
+    val title: TextStyle = TextStyle(fontFamily = display, fontWeight = FontWeight.Bold, fontSize = (44 * displayScale).sp, lineHeight = 1.em),
+    val number: TextStyle = TextStyle(fontFamily = display, fontWeight = FontWeight.Bold, fontSize = (22 * displayScale).sp, lineHeight = 1.em),
     val body: TextStyle = TextStyle(fontFamily = text, fontWeight = FontWeight.Normal, fontSize = 15.sp, lineHeight = 1.5.em),
     val bodyBold: TextStyle = TextStyle(fontFamily = text, fontWeight = FontWeight.Bold, fontSize = 15.sp, lineHeight = 1.5.em),
     val small: TextStyle = TextStyle(fontFamily = text, fontWeight = FontWeight.Normal, fontSize = 13.sp, lineHeight = 1.4.em),
@@ -97,7 +99,7 @@ fun SkiTheme(dark: Boolean = isSystemInDarkTheme(), content: @Composable () -> U
     val lang = Lang.current(LocalContext.current.resources)
     CompositionLocalProvider(
         LocalColors provides if (dark) NightColors else DayColors,
-        LocalType provides SkiType(display = Lang.display(lang), text = Lang.body(lang)),
+        LocalType provides SkiType(display = Lang.display(lang), text = Lang.body(lang), displayScale = Lang.displayScale(lang)),
         LocalLayoutDirection provides lang.direction,
         content = content,
     )

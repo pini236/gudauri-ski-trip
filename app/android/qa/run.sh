@@ -124,27 +124,70 @@ descent() {
   sleep 8; shot descent-later
 }
 
-# ---- the boarding pass ----
-ticket() {
-  qa "--es qa.tab ticket"; sleep 2; shot ticket
-  adb shell uiautomator dump /sdcard/ui.xml > /dev/null && adb pull /sdcard/ui.xml "$OUT/ticket-ui.xml" > /dev/null
-  # the ticket canvas starts 18dp under the hint line; the stub is its left 30%
-  local top
-  top=$(python3 - "$OUT/ticket-ui.xml" <<'PY'
+# ---- the home page (round 10: H1 to H4, LT1 to LT3) ----
+# what is on screen: the accessibility tree (uiautomator), so a step can tap a button by its words
+uidump() { adb shell uiautomator dump /sdcard/ui.xml > /dev/null && adb pull /sdcard/ui.xml "$OUT/ui.xml" > /dev/null; }
+where() { # where <text>: the middle of the first element whose text or description holds it ("x y"), or nothing
+  uidump
+  python3 - "$OUT/ui.xml" "$1" <<'PY'
 import re, sys
-xml = open(sys.argv[1], encoding="utf-8").read()
-m = re.search(r'text="כרטיס לדוגמה[^"]*"[^>]*bounds="\[\d+,\d+\]\[\d+,(\d+)\]"', xml)
-print(m.group(1) if m else "")
+xml = open(sys.argv[1], encoding="utf-8").read(); t = sys.argv[2]
+for m in re.finditer(r'<node [^>]*>', xml):
+    n = m.group(0)
+    got = [g[1] for g in (re.search(r'text="([^"]*)"', n), re.search(r'content-desc="([^"]*)"', n)) if g]
+    b = re.search(r'bounds="\[(\d+),(\d+)\]\[(\d+),(\d+)\]"', n)
+    if b and any(t in g for g in got):
+        x1, y1, x2, y2 = map(int, b.groups()); print((x1 + x2) // 2, (y1 + y2) // 2); break
 PY
-)
-  if [ -z "$top" ]; then fail "ticket hint not found"; return; fi
-  local x=$(( $(dp 16) + (W - $(dp 32)) * 12 / 100 ))
-  local y0=$(( top + $(dp 18) + $(dp 20) ))
-  drag "$x" "$y0" "$x" $(( y0 + $(dp 90) )) 600; sleep 0.3; shot ticket-half-tear
-  sleep 1.5; shot ticket-sprang-back
-  drag "$x" "$y0" "$x" $(( y0 + $(dp 220) )) 700; sleep 0.25; burst ticket-torn 3 0.4
-  sleep 2; shot ticket-back
-  tap $((W / 2)) $(( top + $(dp 18) + $(dp 230) + $(dp 18) + $(dp 85) )); sleep 0.3; shot ticket-sign-wobble
+}
+tapText() { local xy; xy=$(where "$1"); if [ -z "$xy" ]; then fail "no '$1' on screen"; return 1; fi; tap $xy; }
+
+# the trips the run sets (never packed in the app, decision 27): the group's public flights, and the same in English
+TRIP_HE='{"v":1,"out":{"date":"2027-01-10","flight":"6H 897","from":"TLV · תל אביב","to":"TBS · טביליסי","departs":"16:00","arrives":"20:35"},"ret":{"date":"2027-01-15","flight":"6H 892","from":"TBS · טביליסי","to":"TLV · תל אביב","departs":"01:35","arrives":"02:15"}}'
+TRIP_EN='{"v":1,"out":{"date":"2027-01-10","flight":"6H 897","from":"TLV · Tel Aviv","to":"TBS · Tbilisi","departs":"16:00","arrives":"20:35"},"ret":{"date":"2027-01-15","flight":"6H 892","from":"TBS · Tbilisi","to":"TLV · Tel Aviv","departs":"01:35","arrives":"02:15"}}'
+
+home() {
+  # a guest with no trip, early December at midday in Gudauri (H1)
+  qa "--es qa.tab home --es qa.trip none --es qa.mode auto --es qa.time 2026-12-01T13:35"; waitlog "trip none" 20
+  sleep 2; shot home-guest
+  drag $((W / 2)) $((H * 3 / 4)) $((W / 2)) $((H / 4)) 400; sleep 1; shot home-guest-signs
+  drag $((W / 2)) $((H / 4)) $((W / 2)) $((H * 3 / 4)) 300; sleep 0.5
+
+  # add a trip by hand: only the date is required (H2)
+  tapText "הוספת הטיסה שלי" && sleep 1.5 && shot trip-form-empty
+  tapText "למשל 10.1.2027" && sleep 0.5 && adb shell input text "10.1.2027" && sleep 0.5
+  # close the keyboard (Back closes only the keyboard while it is up)
+  adb shell dumpsys input_method | grep -q "mInputShown=true" && adb shell input keyevent KEYCODE_BACK; sleep 0.8; shot trip-form-date
+  mark; tapText "שמירה" && waitlog "trip saved" 10 && { sleep 1.5; shot home-trip-date-only; }
+
+  # the whole trip (H3), day and night (H4), the tear and the swipe to the return pass
+  qa "--es qa.trip '$TRIP_HE'"; waitlog "trip set" 20; sleep 1.5; shot home-trip-day
+  local xy; xy=$(where "לתלוש את הספח")
+  if [ -n "$xy" ]; then
+    set -- $xy
+    tap "$1" "$2"; burst home-tear 4 0.25; sleep 2.5; shot home-tear-back
+    drag $((W * 25 / 100)) "$2" $((W * 80 / 100)) "$2" 300; sleep 1.2; shot home-return-pass
+    drag $((W * 80 / 100)) "$2" $((W * 25 / 100)) "$2" 300; sleep 1.2
+  else fail "no stub on the pass"; fi
+  qa "--es qa.mode night"; sleep 2; shot home-trip-night
+  qa "--es qa.mode auto --es qa.time 2026-12-01T16:50"; sleep 2; shot home-trip-sunset
+  qa "--es qa.mode auto --es qa.time 2026-12-01T13:35"; sleep 1
+  tapText "עריכה" && sleep 1.5 && shot trip-form-filled && adb shell input keyevent KEYCODE_BACK && sleep 1
+
+  # the signs lead on, and back home
+  tapText "מפת מסלולים" && sleep 3 && shot home-sign-map
+  tapText "בית" && sleep 1.5 && shot home-back
+  tapText "נקודת מפגש" && sleep 1 && shot home-sign-meet && adb shell input keyevent KEYCODE_BACK && sleep 1
+  tapText "אודות והגדרות" && sleep 1 && shot home-about && adb shell input keyevent KEYCODE_BACK && sleep 1
+
+  # left to right (LT1 to LT3): the post on the left, the arrows and the stub on the right
+  for l in en ru ka; do
+    adb shell cmd locale set-app-locales "$PKG" --locales "$l" > /dev/null 2>&1; sleep 3
+    qa "--es qa.tab home --es qa.trip '$TRIP_EN' --es qa.time 2026-12-01T13:35"; sleep 2; shot "home-$l"
+    qa "--es qa.trip none"; sleep 1.5; shot "home-$l-guest"
+  done
+  adb shell cmd locale set-app-locales "$PKG" --locales he > /dev/null 2>&1; sleep 3
+  qa "--es qa.trip '$TRIP_HE'"; sleep 1
 }
 
 # ---- the store screenshots (Google Play: portrait 9:16) ----
@@ -174,7 +217,9 @@ store() {
   qa "--es qa.time 2027-01-12T11:00"; waitlog "shadow ready" 120
   qa "--es qa.tab descent"; sleep 3
   sleep 2; hold $((W / 2)) $((H / 2)) 700; sleep 0.5; sshot descent
-  qa "--es qa.tab ticket"; sleep 2; sshot ticket
+  qa "--es qa.tab home --es qa.trip '$TRIP_HE' --es qa.time 2026-12-01T13:35"; sleep 2.5; sshot home
+  qa "--es qa.mode night"; sleep 2; sshot home-night
+  qa "--es qa.mode auto"
   adb shell am broadcast -a com.android.systemui.demo -e command exit > /dev/null
   adb shell wm size reset
 }
@@ -182,9 +227,9 @@ store() {
 case "$SCENARIO" in
   map) map ;;
   descent) descent ;;
-  ticket) ticket ;;
+  home) home ;;
   store) store ;;
-  *) map; descent; ticket; store ;;
+  *) map; descent; home; store ;;
 esac
 
 # ---- what the run measured ----

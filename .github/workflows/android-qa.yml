@@ -9,11 +9,11 @@ on:
   # waiting run on main out of the single slot below. Another branch runs it by hand (workflow_dispatch).
   push:
     branches: [main]
-    paths: ['app/android/**', 'site/data/**', 'site/audio/**', 'site/games/descent/**', 'tools/build-app-data.py', 'tools/build-app-strings.py', 'i18n/strings.json', '.github/workflows/android-qa.yml']
+    paths: ['app/android/**', 'site/data/**', 'site/audio/**', 'site/games/descent/**', 'site/img/pano/**', 'tools/build-app-data.py', 'tools/build-app-strings.py', 'i18n/strings.json', '.github/workflows/android-qa.yml']
   workflow_dispatch:
     inputs:
       scenario:
-        description: 'map, descent, ticket, store or all'
+        description: 'map, descent, home, store or all'
         default: all
       api:
         description: 'Android version of the emulator (API level)'

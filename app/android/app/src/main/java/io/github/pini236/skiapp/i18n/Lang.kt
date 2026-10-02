@@ -6,7 +6,11 @@ import android.content.res.Configuration
 import android.content.res.Resources
 import android.os.Build
 import android.os.LocaleList
+import androidx.compose.ui.text.ExperimentalTextApi
+import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontVariation
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.LayoutDirection
 import io.github.pini236.skiapp.R
 import io.github.pini236.skiapp.ui.Karantina
@@ -43,11 +47,33 @@ object Lang {
     fun current(res: Resources): Language = byTag(res.getString(R.string.lang))
 
     /**
-     * Fonts per script. Karantina has Hebrew and Latin only, and IBM Plex Sans Hebrew no full Cyrillic: Russian and
-     * Georgian use the system's fonts until their own are chosen in the canvas (decision 32).
+     * Fonts per language, as approved in the canvas (FT1, decision 36): Hebrew Karantina and IBM Plex Sans Hebrew;
+     * English Karantina and IBM Plex Sans; Russian Oswald 600 and IBM Plex Sans; Georgian Noto Sans Georgian, narrow
+     * (width 62.5%) and 800 for headings, regular for text. All OFL, packed in the app (licences in app/android/licenses).
      */
-    fun display(l: Language): FontFamily = if (l.script == Script.HEBREW || l.script == Script.LATIN) Karantina else FontFamily.SansSerif
-    fun body(l: Language): FontFamily = if (l.script == Script.HEBREW || l.script == Script.LATIN) Plex else FontFamily.SansSerif
+    @OptIn(ExperimentalTextApi::class)
+    fun display(l: Language): FontFamily = when (l.script) {
+        Script.HEBREW, Script.LATIN -> Karantina
+        Script.CYRILLIC -> FontFamily(Font(R.font.oswald, FontWeight.Bold, variationSettings = FontVariation.Settings(FontVariation.weight(600))))
+        Script.GEORGIAN -> FontFamily(Font(R.font.noto_sans_georgian, FontWeight.Bold,
+            variationSettings = FontVariation.Settings(FontVariation.weight(800), FontVariation.width(62.5f))))
+    }
+
+    @OptIn(ExperimentalTextApi::class)
+    fun body(l: Language): FontFamily = when (l.script) {
+        Script.HEBREW -> Plex
+        Script.LATIN, Script.CYRILLIC -> FontFamily(
+            Font(R.font.plex_sans, FontWeight.Normal, variationSettings = FontVariation.Settings(FontVariation.weight(400))),
+            Font(R.font.plex_sans, FontWeight.Bold, variationSettings = FontVariation.Settings(FontVariation.weight(700))),
+        )
+        Script.GEORGIAN -> FontFamily(
+            Font(R.font.noto_sans_georgian, FontWeight.Normal, variationSettings = FontVariation.Settings(FontVariation.weight(400))),
+            Font(R.font.noto_sans_georgian, FontWeight.Bold, variationSettings = FontVariation.Settings(FontVariation.weight(700))),
+        )
+    }
+
+    /** Display sizes per language: Oswald and the narrow Georgian are bigger than Karantina at the same size (FT1, LT2, LT3). */
+    fun displayScale(l: Language): Float = when (l.script) { Script.CYRILLIC -> 0.85f; Script.GEORGIAN -> 0.9f; else -> 1f }
 
     private const val PREFS = "lang"
 
