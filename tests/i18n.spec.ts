@@ -89,7 +89,7 @@ test('the language button in the top bar opens the list on every page, and choos
     await page.goto('/' + hash);
     const btn = page.locator('.lang-btn:visible').first();
     await expect(btn).toBeVisible();
-    await expect(btn).toContainText('עב');
+    await expect(btn).toContainText('HE');
     const box = await btn.boundingBox();
     expect(box!.height).toBeGreaterThanOrEqual(44);
   }

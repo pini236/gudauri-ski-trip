@@ -4,7 +4,7 @@
    Choosing saves it in this browser and reloads; "from the browser" forgets the choice (site/js/i18n.js). */
 (function(){
   var NAMES={he:'עברית',en:'English',ru:'Русский',ka:'ქართული'};
-  var CODES={he:'עב',en:'EN',ru:'RU',ka:'KA'};
+  var CODES={he:'HE',en:'EN',ru:'RU',ka:'KA'};
   var row=document.getElementById('abLang'),sheet=document.getElementById('langSheet');
   if(!sheet||!window.I18N)return;
   var fonts=false;
