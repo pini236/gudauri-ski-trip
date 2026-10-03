@@ -244,6 +244,10 @@ home() {
     qa "--es qa.tab home --es qa.trip '$TRIP_EN' --es qa.time 2026-12-01T13:35"; sleep 2; shot "home-$l"
     qa "--es qa.trip none"; sleep 1.5; shot "home-$l-guest"
   done
+  # a phone in a language the app does not have (French) gets English, not Hebrew (3.10.2026)
+  adb shell cmd locale set-app-locales "$PKG" --locales fr > /dev/null 2>&1; sleep 3
+  qa "--es qa.tab home --es qa.trip none"; sleep 2; shot home-fr-english
+  [ -n "$(where "Add my flight")" ] && note "a French phone: English" || fail "a French phone is not in English"
   adb shell cmd locale set-app-locales "$PKG" --locales he > /dev/null 2>&1; sleep 3
   qa "--es qa.trip '$TRIP_HE'"; sleep 1
 }
@@ -365,6 +369,51 @@ meet() {
   adb shell pm grant "$PKG" android.permission.POST_NOTIFICATIONS > /dev/null 2>&1 || true
 }
 
+# ---- the language from the home page (3.10.2026): the tag in the head opens the list; a tap saves the language ----
+lang() {
+  local up="$((W / 2)) $((H * 85 / 100)) $((W / 2)) $((H * 45 / 100)) 400"
+  adb shell cmd locale set-app-locales "$PKG" --locales he > /dev/null 2>&1; sleep 3
+  qa "--es qa.group none --es qa.tab home --es qa.trip none --es qa.mode auto --es qa.time 2026-12-01T13:35"; waitlog "trip none" 20; sleep 2
+  shot lang-he-closed
+  mark; tapText "שפה: עברית" && waitlog "lang sheet open" 5 && { sleep 1; shot lang-he-open; }
+  qa "--es qa.mode night"; sleep 2; shot lang-he-open-night
+  adb shell input keyevent KEYCODE_BACK; sleep 1; shot lang-he-closed-night
+  qa "--es qa.mode auto"; sleep 1
+  # each language from the list: the app comes back in it, mirrored, with its fonts (LT1 to LT3, FT1)
+  local pick
+  for pick in "English:en:Language: English" "Русский:ru:Язык: Русский" "ქართული:ka:ენა: ქართული"; do
+    local name=${pick%%:*} rest=${pick#*:}; local code=${rest%%:*} tag=${rest#*:}
+    mark; tapText "~^(שפה|Language|Язык|ენა): " && waitlog "lang sheet open" 5 && sleep 1 && tapText "$name" && waitlog "lang set $code" 5
+    sleep 4; shot "lang-$code-closed"
+    mark; tapText "$tag" && waitlog "lang sheet open" 5 && { sleep 1; shot "lang-$code-open"; }
+    [ "$code" = en ] && { qa "--es qa.mode night"; sleep 2; shot lang-en-open-night; adb shell input keyevent KEYCODE_BACK; sleep 1; shot lang-en-closed-night; qa "--es qa.mode auto"; sleep 1; } || { adb shell input keyevent KEYCODE_BACK; sleep 1; }
+  done
+  # "from the phone": back to the phone's language (the emulator's English); then the run goes on in Hebrew
+  mark; tapText "ენა: ქართული" && waitlog "lang sheet open" 5 && sleep 1 && { drag $up; sleep 0.5; tapText "~ტელეფონის მიხედვით" && waitlog "lang set auto" 5 && { sleep 4; shot lang-auto; }; }
+  adb shell cmd locale set-app-locales "$PKG" --locales he > /dev/null 2>&1; sleep 3
+  qa "--es qa.tab home"; sleep 1
+}
+
+# ---- the phone's own language, with no choice in the app (decision 47): Hebrew only on a phone set to Hebrew ----
+# the emulator's whole system language changes (root, then the system restarts); a fresh install has no app choice
+phone() {
+  if ! adb root 2>&1 | grep -qE "restarting|already"; then note "no root: the phone's language not tested"; return; fi
+  sleep 3; adb wait-for-device
+  adb uninstall "$PKG" > /dev/null; adb install -r -g "$APK" > /dev/null || { fail "reinstall"; return; }
+  local loc
+  for loc in he-IL ru-RU ka-GE en-US; do
+    adb shell setprop persist.sys.locale "$loc"; adb shell setprop ctl.restart zygote
+    sleep 5; adb wait-for-device
+    local i; for i in $(seq 1 60); do [ "$(adb shell getprop sys.boot_completed | tr -d '\r')" = 1 ] && break; sleep 2; done; sleep 10
+    kill "$LOGCAT" 2> /dev/null; logcat_on # the restart dropped the log stream
+    mark; adb shell am start -W -n "$ACT" --es qa.tab home --es qa.trip none --es qa.mode auto > /dev/null; waitlog "trip none" 30; sleep 3; shot "phone-$loc"
+    if [ "$loc" = he-IL ]; then [ -n "$(where "הוספת הטיסה שלי")" ] && note "a phone in $loc: Hebrew" || fail "a phone in $loc is not in Hebrew"
+    else [ -n "$(where "Add my flight")" ] && note "a phone in $loc: English" || fail "a phone in $loc is not in English"; fi
+  done
+  adb unroot > /dev/null 2>&1; sleep 3; adb wait-for-device
+  adb shell cmd locale set-app-locales "$PKG" --locales he > /dev/null 2>&1; sleep 2
+}
+
 # ---- the lift status (13.4, the site's S1 to S3): no report, an old one, a fresh one (status/LiftStatus.kt) ----
 status() {
   local up="$((W / 2)) $((H * 85 / 100)) $((W / 2)) $((H * 45 / 100)) 400"
@@ -437,8 +486,10 @@ for sc in ${SCENARIO//,/ }; do
     group) group ;;
     meet) meet ;;
     status) status ;;
+    lang) lang ;;
+    phone) phone ;;
     store) store ;;
-    *) map; descent; home; group; meet; status; store ;;
+    *) map; descent; home; group; meet; status; lang; phone; store ;;
   esac
 done
 
