@@ -232,6 +232,9 @@ class MapView(context: Context, refreshHz: Float, val stats: FrameStats) : Frame
     }
 
     fun stopFly() { renderer.stopFly() }
+
+    /** The lift status on the mountain (S1): closed lifts and runs, and "only what's open for me". */
+    fun setStatus(p: StatusPaint) { renderer.status = p; surface.requestRender() }
     /** Distance along, run length, height and slope where the skier is; null when not flying. */
     fun flyInfo(): FloatArray? = renderer.flyInfo
 

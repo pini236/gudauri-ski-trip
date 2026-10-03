@@ -36,13 +36,28 @@ import androidx.compose.ui.viewinterop.AndroidView
 import io.github.pini236.skiapp.data.Piste
 import io.github.pini236.skiapp.ui.Palette
 import io.github.pini236.skiapp.ui.Ski
+import io.github.pini236.skiapp.ui.SkiTheme
+import io.github.pini236.skiapp.group.Sheet
+import io.github.pini236.skiapp.status.LiftStatus
+import io.github.pini236.skiapp.status.StatusBar
+import io.github.pini236.skiapp.status.StatusBoard
+import androidx.compose.foundation.layout.statusBarsPadding
 import kotlinx.coroutines.delay
 import java.text.NumberFormat
 import kotlin.math.roundToInt
 
-/** The 3D map screen: the GL mountain with a run sign and the fly-down button on top. */
+/** What the map shows of the lift status (13.4, S1 to S3), and the board's sheet. */
+class MapStatus(
+    val status: LiftStatus, val changes: List<Pair<String, Boolean>>, val inSeason: Boolean,
+    val forMe: Boolean, val onForMe: (Boolean) -> Unit, val sheet: Boolean, val onSheet: (Boolean) -> Unit,
+)
+
+/**
+ * The 3D map screen: the GL mountain with a run sign and the fly-down button on top, and the lift status: its bar at
+ * the top (S1), and a tap on it opens the board (S2) or the snowy signs (S3), as in the site's map panel.
+ */
 @Composable
-fun MapScreen(view: MapView, scene: MapScene?) {
+fun MapScreen(view: MapView, scene: MapScene?, ms: MapStatus? = null) {
     var selected by remember { mutableStateOf<Piste?>(view.selected) }
     var flying by remember { mutableStateOf(false) }
     var stopped by remember { mutableStateOf(false) }
@@ -84,6 +99,15 @@ fun MapScreen(view: MapView, scene: MapScene?) {
             Text(stringResource(R.string.app_map_hint),
                 Modifier.align(Alignment.BottomCenter).padding(16.dp).background(Color(0xE6FFFFFF)).padding(10.dp),
                 fontFamily = Ski.type.text, fontSize = 13.sp, color = Palette.ink)
+        }
+        // the map keeps its day colours (the spike), and so do the bar and the board over it
+        if (ms != null && scene != null) SkiTheme(dark = false) {
+            Box(Modifier.fillMaxSize()) {
+                if (!flying) StatusBar(ms.status, { ms.onSheet(true) }, Modifier.align(Alignment.TopCenter).statusBarsPadding().padding(top = 56.dp, start = 16.dp, end = 16.dp))
+                if (ms.sheet) Sheet({ ms.onSheet(false) }) {
+                    StatusBoard(ms.status, ms.changes, ms.forMe, ms.onForMe, ms.inSeason)
+                }
+            }
         }
     }
 }

@@ -77,6 +77,14 @@ import io.github.pini236.skiapp.group.ErrorLine
 import io.github.pini236.skiapp.group.rememberRunner
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.repeatOnLifecycle
+import org.json.JSONObject
+import io.github.pini236.skiapp.status.LiftStatus
+import io.github.pini236.skiapp.status.Report
+import io.github.pini236.skiapp.status.StatusSource
+import io.github.pini236.skiapp.map.StatusPaint
+import io.github.pini236.skiapp.map.MapStatus
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -174,6 +182,15 @@ class MainActivity : ComponentActivity() {
     private val groupApi: GroupApi by lazy { MeasuredGroupApi(rawGroupApi) }
     private var justJoined by mutableStateOf(false)
 
+    // the lift status (13.4, S1 to S3): the site's /api/status, read every five minutes while the app is open
+    private val statusSource by lazy { StatusSource(this) }
+    private var report by mutableStateOf<Report?>(null)
+    private var statusLoaded by mutableStateOf(false)
+    private var statusPinned = false // the emulator run's own report
+    private var liftNames by mutableStateOf<List<String>>(emptyList())
+    private var forMe by mutableStateOf(false)
+    private var statusSheet by mutableStateOf(false)
+
     /**
      * Google's sheet, then the server. A debug build talks to the pretend server (DevServer), so it signs in there
      * directly: the emulator run never meets Google's real sheet, now that the web client id is set.
@@ -234,8 +251,10 @@ class MainActivity : ComponentActivity() {
                 return true
             }
         })
+        report = statusSource.cached()
         handleQa(intent)
         handleOpen(intent)
+        lifecycleScope.launch { repeatOnLifecycle(Lifecycle.State.STARTED) { while (true) { loadStatus(); delay(LiftStatus.EVERY_MS) } } }
         // a trip, a score or a meetup saved without signal goes now
         if (rawGroupApi is LiveGroupApi) { tripSync.flush(); Sync.of(this).flush() }
         loadInBackground()
@@ -293,6 +312,34 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    /** The lift status from the site, or the last good one on the phone (status/LiftStatus.kt). */
+    private suspend fun loadStatus() {
+        if (statusPinned) return
+        val r = withContext(Dispatchers.IO) { statusSource.load() }
+        if (statusPinned) return
+        report = r; statusLoaded = true
+        Qa.log("status ${if (r == null) "none" else "report"}")
+    }
+
+    /**
+     * The emulator run's report (qa.status): "fresh" (six minutes old: two lifts closed, Tatra 2 closed, and Goodaura
+     * opened since the last look), "stale" (two hours old) or "none". The site is not read while it is pinned.
+     */
+    private fun pinStatus(kind: String) {
+        val names = listOf("Snow Park", "Pirveli", "Sadzele", "Khada", "Goodaura", "Soliko", "Zuma", "Shino", "Kudebi", "Firni", "Kikilo", "New Goodaura")
+        val shut = mapOf("Sadzele" to "wind", "Kudebi" to "maintenance")
+        val ago = if (kind == "stale") 2 * 3600_000L else 6 * 60_000L
+        val r = if (kind == "none") null else Report.parse(JSONObject()
+            .put("updated", Instant.ofEpochMilli(nowMs() - ago).toString())
+            .put("lifts", JSONObject().apply { for (n in names) put(n, JSONObject().put("open", n !in shut).apply { shut[n]?.let { put("reason", it) } }) })
+            .put("pistes", JSONObject().put("Tatra 2", JSONObject().put("open", false)))
+            .toString())
+        statusPinned = true
+        statusSource.pin(r, r?.let { names.associateWith { n -> n != "Goodaura" } })
+        report = r; statusLoaded = true
+        Qa.log("status pinned $kind")
+    }
+
     private fun preferTopRefreshRate() {
         @Suppress("DEPRECATION")
         val display = if (Build.VERSION.SDK_INT >= 30) display else windowManager.defaultDisplay
@@ -311,7 +358,7 @@ class MainActivity : ComponentActivity() {
         Qa.log("data runs from ${siteData.source("runs-and-lifts.json")}")
         val profiles = Profile.parse(asset("data/profiles.json"))
         Startup.dataMs = SystemClock.uptimeMillis() - t0
-        runOnUiThread { profile = profiles.firstOrNull { it.key == "Tatra 2" } ?: profiles.firstOrNull() }
+        runOnUiThread { profile = profiles.firstOrNull { it.key == "Tatra 2" } ?: profiles.firstOrNull(); liftNames = LiftStatus.names(runs.mainLifts) }
         val plan = MeetPlan.build(runs, terrain)
         runOnUiThread { meetPlan = plan; armReminders() }
         val t1 = SystemClock.uptimeMillis()
@@ -372,6 +419,9 @@ class MainActivity : ComponentActivity() {
         } }
         i.getStringExtra("qa.stats")?.let { showStats = it != "off" }
         i.getStringExtra("qa.time")?.let { clockMs = Qa.gudauriTime(it); tick = nowMs() }
+        i.getStringExtra("qa.status")?.let { pinStatus(it) }
+        i.getStringExtra("qa.sheet")?.let { statusSheet = it == "on"; Qa.log("status sheet ${if (statusSheet) "open" else "closed"}") }
+        i.getStringExtra("qa.forme")?.let { forMe = it == "on"; Qa.log("for me ${if (forMe) "on" else "off"}") }
         // the next meetup's reminder, now (the run cannot wait for the real quarter of an hour before)
         i.getStringExtra("qa.remind")?.let { Reminders.armed(this).minByOrNull { it.at }?.let { r -> Reminders.show(this, r) } ?: Qa.log("no reminder armed") }
         i.getStringExtra("qa.sentry")?.let { Telemetry.testCrashReport(it); inBackground { Telemetry.flush(); Qa.log("telemetry ${if (Telemetry.hasKeys) "keys" else "no keys"}, flushed") } }
@@ -432,6 +482,28 @@ class MainActivity : ComponentActivity() {
         }
         val frame = remember(tick, dnMode) { DayNight.at(tick, dnMode) }
         val top = nav.top
+        // the lift status now; on the mountain, closed lifts and runs (S1), and "only what's open for me"
+        val lstat = remember(tick, report, liftNames) { LiftStatus(liftNames, report, tick) }
+        val paint = remember(lstat.fresh, report, forMe, scene) {
+            val runs = scene?.runs
+            if (!lstat.fresh || runs == null) StatusPaint.NONE
+            else StatusPaint(runs.pistes.filter { lstat.runOpen(it) == false }.map { it.key }.toSet(),
+                runs.mainLifts.filter { lstat.isOpen(it.name.ifBlank { null }) == false }.map { it.name }.toSet(), forMe)
+        }
+        LaunchedEffect(paint) { mapView.setStatus(paint); if (paint !== StatusPaint.NONE) Qa.log("status on map: ${paint.closedLifts.size} lifts, ${paint.closedRuns.size} runs closed${if (paint.forMe) ", for me" else ""}") }
+        // "opened since you checked": against the state the board showed last time, which is then kept
+        val changes = remember(statusSheet, report) { if (statusSheet && lstat.fresh) lstat.changes(statusSource.before()) else emptyList() }
+        LaunchedEffect(statusSheet, report) { if (statusSheet && lstat.fresh) statusSource.seen(lstat.snapshot()) }
+        // status_view: once per visit to the map, after the first answer (docs/GROWTH.md)
+        val onMap = top is Route.Map
+        var statusViewed by remember(onMap) { mutableStateOf(false) }
+        LaunchedEffect(onMap, statusLoaded) {
+            if (onMap && statusLoaded && !statusViewed) {
+                statusViewed = true
+                Telemetry.event("status_view", if (lstat.fresh) mapOf("state" to "fresh", "open" to lstat.open, "total" to lstat.names.size) else mapOf("state" to if (report == null) "none" else "stale"))
+            }
+        }
+        LaunchedEffect(statusSheet) { if (statusSheet) Qa.log("status board ${if (lstat.fresh) "live" else "snowy"}") }
         // screen_view with the contract's screen names (docs/GROWTH.md); a chosen run is run_open, not a screen. The way
         // into the groups (A1) is "signin" when nobody is signed in on this phone.
         val screen = when (top) {
@@ -453,7 +525,7 @@ class MainActivity : ComponentActivity() {
         SkiTheme(dark = frame.dark) {
             Box(Modifier.fillMaxSize().background(if (spike) Palette.snow else Ski.colors.snow)) {
                 when (top) {
-                    Route.Home -> HomeScreen(trip, frame, dnMode, LocalDateTime.ofInstant(Instant.ofEpochMilli(tick), ZoneId.systemDefault()), haptics, sounds,
+                    Route.Home -> HomeScreen(trip, frame, dnMode, LocalDateTime.ofInstant(Instant.ofEpochMilli(tick), ZoneId.systemDefault()), haptics, sounds, status = lstat,
                         onMode = {
                             dnMode = dnMode.next(); haptics.tick(.4f)
                             getSharedPreferences("daynight", MODE_PRIVATE).edit().putString("mode", dnMode.name).apply()
@@ -461,6 +533,7 @@ class MainActivity : ComponentActivity() {
                         },
                         go = { a ->
                             haptics.tick(.4f)
+                            if (a == HomeAction.STATUS) statusSheet = true
                             nav.push(when (a) {
                                 HomeAction.MAP, HomeAction.STATUS -> Route.Map(nav.find<Route.Map>()?.run)
                                 HomeAction.MEET -> Route.Meet()
@@ -526,7 +599,10 @@ class MainActivity : ComponentActivity() {
                     Route.About -> AboutScreen(BuildConfig.VERSION_NAME, onPrivacy = ::openPrivacy,
                         onAccount = if (groupApi.ready) ({ nav.push(Route.Account) }) else null) { nav.back() }
                     else -> {
-                        if (top is Route.Game) DescentScreen(profile, haptics, sounds) else MapScreen(mapView, scene)
+                        if (top is Route.Game) DescentScreen(profile, haptics, sounds)
+                        else MapScreen(mapView, scene, MapStatus(lstat, changes, LiftStatus.inSeason(LocalDateTime.ofInstant(Instant.ofEpochMilli(tick), ZoneId.systemDefault()).monthValue),
+                            forMe, { on -> forMe = on; Telemetry.event("status_only_open", mapOf("on" to on)); Qa.log("for me ${if (on) "on" else "off"}") },
+                            statusSheet, { open -> statusSheet = open }))
                         if (showStats) StatsBar(top !is Route.Game, Modifier.align(Alignment.TopStart))
                         // the way home, over the mountain or the game
                         Box(Modifier.align(Alignment.TopEnd).statusBarsPadding().padding(6.dp).background(Color(0xE6FFFFFF))) {

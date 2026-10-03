@@ -5,12 +5,14 @@ import org.json.JSONObject
 
 /**
  * A run from site/data/runs-and-lifts.json. Each line is x,y pairs in projected metres; area segments are left out.
- * [toLifts] and [fromPistes] are the connections the site computed (the meeting point's "how to get there"), and
- * [lat] is the mean latitude of all its points, areas too (the site's split of the Kobi side, [Runs.KOBI_LAT]).
+ * [toLifts], [fromPistes] and [fromLifts] are the connections the site computed (the meeting point's "how to get
+ * there", and a run is open only if a lift up to it is), and [lat] is the mean latitude of all its points, areas too
+ * (the site's split of the Kobi side, [Runs.KOBI_LAT]).
  */
 class Piste(
     val key: String, val name: String, val color: String, val named: Boolean, val kind: String, val lines: List<FloatArray>,
     val toLifts: List<String> = emptyList(), val fromPistes: List<String> = emptyList(), val lat: Double = 0.0,
+    val fromLifts: List<String> = emptyList(),
 )
 
 /** A lift: its line in projected metres, from its first point. [status] "inactive" for one that does not run. */
@@ -58,7 +60,7 @@ class Runs(val pistes: List<Piste>, val lifts: List<Lift>) {
                     .map { line(it.getJSONArray("g")) }
                     .filter { it.size >= 4 }
                 Piste(p.getString("key"), p.str("name", p.getString("key")), p.str("color", "black"), p.optBoolean("named", false), p.str("kind", "run"), lines,
-                    p.strings("toLifts"), p.strings("fromPistes"), meanLat(all.map { it.getJSONArray("g") }))
+                    p.strings("toLifts"), p.strings("fromPistes"), meanLat(all.map { it.getJSONArray("g") }), p.strings("fromLifts"))
             }
             val ls = o.getJSONArray("lifts")
             val lifts = (0 until ls.length()).map { i ->
