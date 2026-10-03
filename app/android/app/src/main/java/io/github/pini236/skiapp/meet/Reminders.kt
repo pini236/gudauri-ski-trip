@@ -12,6 +12,7 @@ import android.content.pm.PackageManager
 import android.os.Build
 import io.github.pini236.skiapp.MainActivity
 import io.github.pini236.skiapp.R
+import io.github.pini236.skiapp.i18n.Lang
 import io.github.pini236.skiapp.qa.Qa
 import org.json.JSONArray
 import org.json.JSONObject
@@ -86,7 +87,8 @@ object Reminders {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
 
     /** The notification: "In 15 minutes: Goodaura", the group and the time; a tap opens the meetup's card. */
-    fun show(c: Context, it: Item) {
+    fun show(ctx: Context, it: Item) {
+        val c = Lang.wrap(ctx) // the app's language, as on its screens (a receiver's context has the phone's)
         val nm = c.getSystemService(NotificationManager::class.java) ?: return
         nm.createNotificationChannel(NotificationChannel(CHANNEL, c.getString(R.string.app_remind_channel), NotificationManager.IMPORTANCE_HIGH))
         if (!allowed(c)) { Qa.log("reminder not allowed"); return }

@@ -2,9 +2,9 @@
 """Android string resources from i18n/strings.json (read-only: never writes into i18n/ or site/).
 
 Usage: python3 tools/build-app-strings.py <out-res-dir> <langs, e.g. he,en,ru,ka>
-Writes <out>/values/strings.xml (English when the build carries it: the words for a phone in a language the app does
-not have), <out>/values-<lang>/strings.xml for the others (Hebrew as values-iw, the qualifier every Android version
-reads), and <out>/xml/locales_config.xml listing exactly those languages.
+Writes <out>/values-<lang>/strings.xml for every language (Hebrew as values-iw, the qualifier every Android version
+reads), <out>/values/strings.xml again in English when the build carries it (the words for a phone in a language the
+app does not have), and <out>/xml/locales_config.xml listing exactly those languages.
 
 - Keys: "area.name" becomes "area_name" (game.descent.again -> game_descent_again).
 - Placeholders: {name} becomes %N$s, numbered by their first appearance in the Hebrew text, the same numbers in
@@ -107,9 +107,10 @@ def main():
     # a phone in a language the app does not have reads values/: English, the store's default language (decision 33)
     fallback = "en" if "en" in langs else langs[0]
     for lang in langs:
-        d = out / ("values" if lang == fallback else f"values-{QUALIFIER.get(lang, lang)}")
-        d.mkdir(parents=True, exist_ok=True)
-        (d / "strings.xml").write_text(file_for(lang, strings), encoding="utf-8")
+        # the fallback also has its own folder: a phone listing English and then Hebrew must match English first
+        for d in ([out / "values"] if lang == fallback else []) + [out / f"values-{QUALIFIER.get(lang, lang)}"]:
+            d.mkdir(parents=True, exist_ok=True)
+            (d / "strings.xml").write_text(file_for(lang, strings), encoding="utf-8")
     (out / "xml").mkdir(parents=True, exist_ok=True)
     (out / "xml/locales_config.xml").write_text(
         '<?xml version="1.0" encoding="utf-8"?>\n'

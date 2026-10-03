@@ -34,7 +34,7 @@ class StringsTest {
         val config = Regex("android:name=\"([a-z-]+)\"").findAll(File(dir, "xml/locales_config.xml").readText()).map { it.groupValues[1] }.toList()
         val default = Regex("name=\"lang\"[^>]*>([a-z]+)<").find(File(dir, "values/strings.xml").readText())!!.groupValues[1]
         val others = dir.listFiles { f -> f.name.startsWith("values-") }!!.map { it.name.removePrefix("values-").let { q -> if (q == "iw") "he" else q } }.sorted()
-        assertEquals("$build: locales_config lists the files", (listOf(default) + others).sorted(), config.sorted())
+        assertEquals("$build: locales_config lists the files", (listOf(default) + others).distinct().sorted(), config.sorted())
         return config
     }
 
@@ -42,7 +42,7 @@ class StringsTest {
         val dir = File(gen, "debug")
         val base = entries(File(dir, "values/strings.xml"))
         assertTrue(base.size > 700)
-        for (lang in languages("debug").filter { it != "en" }) {
+        for (lang in languages("debug")) {
             val other = entries(File(dir, "values-${if (lang == "he") "iw" else lang}/strings.xml"))
             assertEquals("values-$lang: names", base.keys, other.keys)
             for ((k, v) in base) if (!k.startsWith("plurals:")) assertEquals("values-$lang/$k: placeholders", placeholders(v), placeholders(other.getValue(k)))
@@ -56,9 +56,14 @@ class StringsTest {
             val default = Regex("name=\"lang\"[^>]*>([a-z]+)<").find(File(gen, "$build/values/strings.xml").readText())!!.groupValues[1]
             assertEquals("$build: values/", "en", default)
             assertTrue("$build: values-iw", File(gen, "$build/values-iw/strings.xml").readText().contains(">he<"))
+            assertTrue("$build: values-en", File(gen, "$build/values-en/strings.xml").readText().contains(">en<"))
         }
         assertEquals("en", Lang.byTag("fr").tag)
         assertEquals("he", Lang.byTag("iw").tag)
+        // without a choice in the app: Hebrew on a phone set to Hebrew, English on any other (Pini, 3.10.2026)
+        assertEquals("he", Lang.auto(java.util.Locale.forLanguageTag("he-IL")))
+        assertEquals("he", Lang.auto(java.util.Locale("iw")))
+        for (t in listOf("en-US", "ru-RU", "ka-GE", "fr-FR")) assertEquals(t, "en", Lang.auto(java.util.Locale.forLanguageTag(t)))
     }
 
     @Test fun storeBuildsCarryTheReleasedLanguages() {

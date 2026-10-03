@@ -20,9 +20,9 @@ import java.util.Locale
 /**
  * The four languages (decision 32, docs/APP-NATIVE.md decision 13): Hebrew first, then English, Russian and Georgian.
  * What the user reads decides everything else: the language of the strings actually in use (R.string.lang, one per
- * values-xx file) sets the layout direction and the fonts, so a phone in a language the app does not have gets a
- * whole English screen (values/ is English, Hebrew is values-iw; 3.10.2026, the store's default language, decision
- * 33), never words of one language in the layout of another.
+ * values-xx file) sets the layout direction and the fonts, never words of one language in the layout of another.
+ * Without a choice in the app, a phone set to Hebrew gets Hebrew and any other English ([auto], Pini, 3.10.2026;
+ * English is the store's default language, decision 33); values/ is English too, for anything else that reads it.
  *
  * The choice is the app's own (not the phone's): the phone's per-app language on Android 13+, and on older phones a
  * saved choice applied in attachBaseContext. The language tag on the home page calls [set] (3.10.2026; home/LangSheet.kt).
@@ -115,10 +115,23 @@ object Lang {
     /** The user's own choice on older phones (null = follow the phone). */
     fun chosen(context: Context): String? = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getString("tag", null)
 
-    /** Older phones: the saved choice, applied to the activity's resources (MainActivity.attachBaseContext). */
+    /**
+     * Without a language chosen in the app: Hebrew on a phone set to Hebrew, English on any other, Russian and Georgian
+     * too (Pini, 3.10.2026); the tag on the home page picks any of the four.
+     */
+    fun auto(phone: Locale?): String = if (phone?.language == "he" || phone?.language == "iw") "he" else "en"
+
+    /**
+     * The language for the activity's resources (MainActivity.attachBaseContext), and for a notification's words: a
+     * choice made in the app is the phone's per-app language on Android 13+ (the system applies it) or the saved one
+     * on older phones; with no choice, [auto], one language only, so the phone's other languages never get in.
+     */
     fun wrap(base: Context): Context {
-        if (Build.VERSION.SDK_INT >= 33) return base
-        val tag = base.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getString("tag", null) ?: return base
+        val phone = base.resources.configuration.locales[0]
+        val tag = if (Build.VERSION.SDK_INT >= 33) {
+            if (!base.getSystemService(LocaleManager::class.java).applicationLocales.isEmpty) return base
+            auto(phone)
+        } else base.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getString("tag", null) ?: auto(phone)
         val locale = Locale.forLanguageTag(tag)
         val conf = Configuration(base.resources.configuration).apply { setLocale(locale); setLayoutDirection(locale) }
         return base.createConfigurationContext(conf)
