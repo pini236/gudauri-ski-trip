@@ -76,7 +76,7 @@ def section_html(p, lang):
 <p class="pv-date">{p['date']}</p>
 <p class="pv-intro">{p['intro']}</p>
 <div class="pv-sign"><b>{p['uo_title']}</b><span>{p['uo_text']}</span></div>
-<section class="pv-short" data-snow="{SEED[lang]}"><h2>{p['short'][0]}</h2>
+<section class="pv-short" data-snow="{SEED[lang]}" data-snow-pile><h2>{p['short'][0]}</h2>
 {p['short'][1]}</section>
 {rest}
 </article>'''

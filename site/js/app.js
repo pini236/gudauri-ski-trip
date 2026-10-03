@@ -299,7 +299,7 @@ function researchBlock(p){const r=p.research,k='research.'+rslug(p);
   ${r.gps?`<dt>${E('run.gps_tracks_label')}</dt><dd>${H('run.gps_tracks_value',{n:r.gps},{n:num(r.gps)})}</dd>`:''}
   ${r.partial?`<dt>${E('run.coverage_label')}</dt><dd>${esc(RN(k+'.partial',r.partial))}</dd>`:''}</dl>
   <p class="hint">${esc(RN(k+'.notes',r.notes))}</p>
-  <ul class="notes">${r.sources.map(x=>`<li class="hint">${esc(/[\u0590-\u05ff]/.test(x)?RN('research.source_mta',x):x)}</li>`).join('')}</ul>`;}
+  <ul class="notes">${r.sources.map(x=>`<li class="hint"><bdi>${esc(/[\u0590-\u05ff]/.test(x)?RN('research.source_mta',x):x)}</bdi></li>`).join('')}</ul>`;}
 const navList=()=>{const order=['green','blue','red','black'];return D.pistes.filter(p=>p.named).sort((a,b)=>order.indexOf(a.color)-order.indexOf(b.color)||a.key.localeCompare(b.key,undefined,{numeric:true})).map(p=>p.key);};
 function runNav(key){
   const L=navList(),i=L.indexOf(key);if(i<0)return `<div class="run-nav"><button type="button" class="rn-share" data-share="${esc(key)}">${E('run.share_button')}</button></div>`;
@@ -858,7 +858,7 @@ const LSTAT=(function(){
     return `<section class="lstat" aria-label="${E('status.heading_lift_status')}"><h3>${E('status.heading_lift_status')}</h3>
       ${changes.length?`<ul class="lstat-changes">${changes.map(c=>`<li>${esc(c)}</li>`).join('')}</ul>`:''}
       <div class="board-dep" role="table" aria-label="${E('status.board_aria')}"><div class="bd-row bd-head" role="row"><span role="columnheader">${E('status.board_col_lift')}</span><span role="columnheader">${E('status.board_col_state')}</span><span role="columnheader">${E('status.board_col_note')}</span></div>
-      ${names.map((n,i)=>{const o=isOpen(n),r=data.lifts[n]&&data.lifts[n].reason;return `<div class="bd-row" role="row" style="--i:${i}"><span role="cell" dir="ltr">${esc(n)}</span><span role="cell" class="${o?'bd-open':o===false?'bd-closed':''}">${o?E('status.lift_open'):o===false?E('status.lift_closed'):'—'}</span><span role="cell">${r?esc(REASON[r]||r):''}</span></div>`;}).join('')}</div>
+      ${names.map((n,i)=>{const o=isOpen(n),r=data.lifts[n]&&data.lifts[n].reason;return `<div class="bd-row" role="row" style="--i:${i}"><span role="cell"><bdi>${esc(n)}</bdi></span><span role="cell" class="${o?'bd-open':o===false?'bd-closed':''}">${o?E('status.lift_open'):o===false?E('status.lift_closed'):'—'}</span><span role="cell">${r?esc(REASON[r]||r):''}</span></div>`;}).join('')}</div>
       <button type="button" class="fchip lstat-me" data-forme aria-pressed="${forMe}">${E('status.only_open_for_me')}</button>
       <p class="hint">${E('status.board_hint',{open,total:names.length})}</p></section>`;
   }

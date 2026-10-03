@@ -64,16 +64,15 @@ button:focus-visible,a:focus-visible,input:focus-visible,.fchip:focus-visible{ou
 .next{display:flex;align-items:center;min-height:40px;padding:0 14px;border:2px dashed var(--dash);color:var(--muted);font-size:14px;white-space:nowrap}
 .tb-count{margin-inline-start:auto;display:flex;align-items:baseline;gap:8px;color:var(--muted);font-size:14px;white-space:nowrap}
 .tb-count b{font-family:var(--f-display);font-size:34px;line-height:1;color:var(--accent)}
-/* with no trip there is no countdown: the clock, the day and night button and the account still sit at the far end */
-/* the controls stay together at the end of the bar: the space goes before the first of them that shows (the countdown,
-   or without a trip the language button, or without it the day and night button) */
-.tb-count[hidden]+.dn,.tb-count[hidden]+.lang-btn{margin-inline-start:auto}
+/* the controls stay together at the end of the bar: with no trip there is no countdown, and the space goes before the
+   clock, the language and day and night buttons and the account */
+.tb-count[hidden]+.dn{margin-inline-start:auto}
 /* a narrower computer or a longer language (a tablet, Russian, Georgian): the bar gives up the least needed words first,
    until it fits without the page scrolling sideways (tb-fit1 to tb-fit5, js/app.js) */
 .topbar.tb-fit1{gap:16px;padding-inline:16px}
 .tb-fit1 .dn-clock>span{display:none}
 .tb-fit2 .tb-count{display:none}
-.tb-fit2 .tb-count+.dn,.tb-fit2 .tb-count+.lang-btn{margin-inline-start:auto}
+.tb-fit2 .tb-count+.dn{margin-inline-start:auto}
 .tb-fit2 .dn-lbl{display:none}
 .tb-fit2 .dn-btn{width:44px;padding:0;justify-content:center}
 .topbar.tb-fit2 .tb-acct:not(.me){width:44px;padding:0;justify-content:center}
@@ -152,7 +151,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,.fchip:focus-visible{ou
 .bp-grid b{display:block;font-size:14px;white-space:nowrap}
 html[dir="rtl"] .bp-grid b[dir="ltr"]{text-align:right}
 .bp-slot{position:relative;width:100px;flex:none}
-.bp-gone{position:absolute;inset:0;border:2px dashed var(--dash);border-right:0;display:flex;align-items:center;justify-content:center;text-align:center;font-size:12px;color:var(--bp-muted);background:var(--bp-paper2)}
+.bp-gone{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;font-size:12px;color:var(--bp-muted)}
 .bp-stub{position:relative;width:100%;height:100%;margin:0;padding:12px 6px 10px;box-sizing:border-box;border:0;border-right:2px dashed var(--dash);background-color:var(--bp-paper2);color:inherit;font:inherit;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;text-align:center;
   transform-origin:100% 100%;transition:transform .35s ease-out,opacity .3s;-webkit-mask:radial-gradient(circle 11px at 100% 0,transparent 98%,#000) top/100% 51% no-repeat,radial-gradient(circle 11px at 100% 100%,transparent 98%,#000) bottom/100% 51% no-repeat;mask:radial-gradient(circle 11px at 100% 0,transparent 98%,#000) top/100% 51% no-repeat,radial-gradient(circle 11px at 100% 100%,transparent 98%,#000) bottom/100% 51% no-repeat}
 .bp-big{font:700 60px/.8 var(--f-display);color:var(--bp-acc)}
@@ -287,8 +286,8 @@ ul.notes li{margin-bottom:4px}
 .vids li{border:1px solid var(--rule);padding:10px 12px;min-width:0}
 .vids a{color:var(--glacier);font-weight:600;word-break:break-word}
 .vids small{color:var(--muted);display:block}
-/* an English title or source keeps its own word order (its dots and brackets stay at its end) and the side of the page */
-.vids a,.vids small,ul.notes li{unicode-bidi:plaintext}
+/* an English title keeps its own word order (its dots and brackets stay at its end), on the side of the page */
+.vids a{unicode-bidi:plaintext}
 .vthumb{position:relative;display:block;width:100%;aspect-ratio:16/9;padding:0;border:0;background:#13233A;cursor:pointer;overflow:hidden;margin-bottom:8px}
 .vthumb img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
 .vthumb .play{position:absolute;inset:0;margin:auto;width:56px;height:56px;border-radius:28px;background:rgba(19,35,58,.82);border:2px solid #fff}
@@ -361,7 +360,8 @@ ul.notes li{margin-bottom:4px}
   .page-home{overflow:visible;overflow-x:clip}
   .ticket-wrap{margin-top:116px}
   .sky-phase{bottom:auto;top:150px}
-  .sky-moon{left:44%;top:8%}
+  /* on a phone the moon keeps clear of the header and of the peaks' names: low on the right, under the buttons or the name */
+  .sky-moon{left:auto;right:8%;top:84px}
   .mhead{position:static;width:auto;height:auto;overflow:visible;clip-path:none;white-space:normal;display:flex;align-items:center;justify-content:space-between;padding:10px 16px 4px 12px}
   .mbody{display:flex;flex-direction:column}
   .mcol{order:-1}
@@ -402,8 +402,8 @@ ul.notes li{margin-bottom:4px}
 .pf-x{stroke:var(--ink);stroke-width:1.2;stroke-dasharray:3 3;vector-effect:non-scaling-stroke}
 .pf-dot{position:absolute;width:12px;height:12px;margin:-8px 0 0 -8px;border-radius:50%;background:var(--paper);border:2.5px solid var(--ink);pointer-events:none}
 .prof input{position:absolute;inset:0;width:100%;height:100%;margin:0;opacity:0;cursor:ew-resize}
-/* the highest point is where the run starts, top left, so its number goes to the empty top right */
-.pf-top,.pf-bot{position:absolute;left:10px;font-size:11px;color:var(--muted);pointer-events:none}.pf-top{top:4px;left:auto;right:10px}.pf-bot{bottom:20px}
+/* both heights on the left, where the run starts; the highest just under the start point, not under its circle */
+.pf-top,.pf-bot{position:absolute;left:10px;font-size:11px;color:var(--muted);pointer-events:none}.pf-top{top:20px}.pf-bot{bottom:20px}
 .prof-read{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:8px}
 .prof-read span{display:flex;flex-direction:column}
 .prof-read small{font-size:12px;color:var(--muted)}
@@ -587,7 +587,7 @@ ul.notes li{margin-bottom:4px}
 .gc-thumb{position:relative;flex:0 0 auto;width:118px;overflow:hidden;background:var(--grid);border-inline-end:4px solid rgba(255,255,255,.55)}
 .gc-feature .gc-thumb{width:180px}
 .gc-thumb img{display:block;width:100%;height:100%;object-fit:cover}
-.gc-play{position:absolute;inset-inline-start:6px;bottom:6px;width:28px;height:28px}
+.gc-play{position:absolute;inset:0;margin:auto;width:28px;height:28px}
 .gc-meta{position:absolute;inset-inline-end:0;bottom:6px;background:rgba(19,35,58,.84);color:#fff;font-size:11px;font-weight:700;padding:2px 8px}
 .gc-body{flex:1;display:flex;flex-direction:column;justify-content:center;gap:3px;padding:0 14px;padding-inline-end:36px;min-width:0}
 .gc-body b{font-family:var(--f-display);font-weight:700;font-size:30px;line-height:.95}
@@ -602,9 +602,7 @@ ul.notes li{margin-bottom:4px}
   .game-card{height:96px}.gc-feature .game-card{height:122px}.gc-thumb{width:96px}.gc-feature .gc-thumb{width:124px}
   .gc-body{padding:8px 10px 0;padding-inline-end:32px}
   .gc-body b{font-size:25px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}.gc-feature .gc-body b{font-size:29px}
-  .gc-tag{font-size:11.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  /* a narrow picture: the play mark goes up, so the time under it has the bottom to itself */
-  .gc-play{top:6px;bottom:auto}}
+  .gc-tag{font-size:11.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}}
 @media (max-width:370px){.gc-thumb{width:84px}.gc-feature .gc-thumb{width:104px}.gc-body b{font-size:23px}}
 @media (prefers-reduced-motion:reduce){.game-card{transition:none}}
 
@@ -664,7 +662,6 @@ html.i18n-wait body{visibility:hidden}
 [dir="ltr"] #panel h2.ov{padding:0;clip-path:none}
 [dir="ltr"] .bp-to{text-align:right}
 [dir="ltr"] .bp-main{-webkit-mask:radial-gradient(circle 11px at 100% 0,transparent 98%,#000) top/100% 51% no-repeat,radial-gradient(circle 11px at 100% 100%,transparent 98%,#000) bottom/100% 51% no-repeat;mask:radial-gradient(circle 11px at 100% 0,transparent 98%,#000) top/100% 51% no-repeat,radial-gradient(circle 11px at 100% 100%,transparent 98%,#000) bottom/100% 51% no-repeat}
-[dir="ltr"] .bp-gone{border-right:2px dashed var(--dash);border-left:0}
 [dir="ltr"] .bp-stub{border-right:0;border-left:2px dashed var(--dash);transform-origin:0 100%;-webkit-mask:radial-gradient(circle 11px at 0 0,transparent 98%,#000) top/100% 51% no-repeat,radial-gradient(circle 11px at 0 100%,transparent 98%,#000) bottom/100% 51% no-repeat;mask:radial-gradient(circle 11px at 0 0,transparent 98%,#000) top/100% 51% no-repeat,radial-gradient(circle 11px at 0 100%,transparent 98%,#000) bottom/100% 51% no-repeat}
 [dir="ltr"] .bp-stub.torn1,[dir="ltr"] .bp-stub.torn2{clip-path:polygon(100% 0,7% 0.00%, 0% 4.17%, 7% 8.33%, 0% 12.50%, 7% 16.67%, 0% 20.83%, 7% 25.00%, 0% 29.17%, 7% 33.33%, 0% 37.50%, 7% 41.67%, 0% 45.83%, 7% 50.00%, 0% 54.17%, 7% 58.33%, 0% 62.50%, 7% 66.67%, 0% 70.83%, 7% 75.00%, 0% 79.17%, 7% 83.33%, 0% 87.50%, 7% 91.67%, 0% 95.83%, 7% 100.00%, 100% 100%)}
 [dir="ltr"] .bp-stub.torn1{transform:rotate(9deg) translate(4px,2px)}
@@ -692,7 +689,7 @@ html[lang="ru"] :is(.brand,.signs a,.tb-count b,.dn-clock b,.bp-code,.bp-big,.bp
 .topbar .lang-btn{margin-inline-start:0;padding:0 8px}
 .topbar .lang-btn svg{display:none}
 @media (max-width:760px){.lang-btn.in-page{display:inline-flex}.lang-btn.in-top{display:none}
-  .mhead .lang-btn,.ac-head .lang-btn,.tf-head .lang-btn{margin-inline-start:auto;margin-inline-end:6px}.home-top .lang-btn{margin-inline-start:auto;margin-inline-end:8px}.home-top .lang-btn+.dn-home{margin-inline-start:0}}
+  .mhead .lang-btn,.ac-head .lang-btn,.tf-head .lang-btn{margin-inline-start:auto;margin-inline-end:6px}}
 /* a phone header too narrow for its title in whole words (js/app.js): the language button without its globe; then on the
    home page the clock's caption, and then the clock; on the other pages the title gets a line of its own */
 .hd-fit1 .lang-btn svg{display:none}

@@ -14,7 +14,8 @@
       l.href='https://fonts.googleapis.com/css2?family=Karantina:wght@700&family=Oswald:wght@600&family=Noto+Sans+Georgian:wdth,wght@62.5,800&display=swap';document.head.appendChild(l);}
     if(sheet.showModal)sheet.showModal();else sheet.setAttribute('open','');
   }
-  // one button in each header: .in-top in the desktop top bar, .in-page in the header of a page on phones
+  // one button in each header: .in-top in the desktop top bar, .in-page in the header of a page on phones. On the home
+  // page and in the top bar it goes between the clock and the day and night button, so the buttons are side by side
   var GLOBE='<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.6 2.7 3.9 5.7 3.9 9s-1.3 6.3-3.9 9c-2.6-2.7-3.9-5.7-3.9-9S9.4 5.7 12 3z"/></svg>';
   var btns=[];
   function add(host,before,cls){
@@ -24,10 +25,10 @@
     b.addEventListener('click',open);
     host.insertBefore(b,before||null);btns.push(b);
   }
-  var top=document.querySelector('.topbar');
-  if(top)add(top,top.querySelector('.dn'),'in-top');
-  var ht=document.querySelector('.home-top');
-  if(ht)add(ht,ht.querySelector('.dn-home'),'in-page');
+  var top=document.querySelector('.topbar .dn');
+  if(top)add(top,top.querySelector('.dn-btn'),'in-top');
+  var ht=document.querySelector('.home-top .dn-home');
+  if(ht)add(ht,ht.querySelector('.dn-btn'),'in-page');
   document.querySelectorAll('.mhead,.ac-head,.tf-head').forEach(function(h){add(h,h.querySelector('a'),'in-page');});
   I18N.ready.then(function(){
     btns.forEach(function(b){b.setAttribute('aria-label',T('about.language')+' · Language');b.querySelector('b').textContent=CODES[I18N.lang];});
