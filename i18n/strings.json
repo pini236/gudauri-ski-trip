@@ -706,18 +706,6 @@
     "ka"
    ]
   },
-  "app.pass_at_night": {
-   "he": "{date}, בלילה",
-   "en": "{date}, night",
-   "ru": "{date}, ночью",
-   "ka": "{date}, ღამით",
-   "where": "app/android",
-   "note": "a flight leaving before 06:00; {date} = 15.1",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
   "app.pass_days": {
    "he": {
     "one": "יום לטיסה",
@@ -914,18 +902,6 @@
    "ka": "ჯგუფი",
    "where": "app/android",
    "note": "home sign, and the group page title",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "app.sign_group_sub": {
-   "he": "יצירת קבוצה, או הצטרפות בקוד",
-   "en": "Create a group, or join with a code",
-   "ru": "Создать группу или вступить по коду",
-   "ka": "ჯგუფის შექმნა ან შეერთება კოდით",
-   "where": "app/android",
-   "note": "home sign subtitle",
    "check": [
     "ru",
     "ka"

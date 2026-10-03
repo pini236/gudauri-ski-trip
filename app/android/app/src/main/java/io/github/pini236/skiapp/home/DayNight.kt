@@ -49,6 +49,18 @@ object DayNight {
         return ch(16) or ch(8) or ch(0)
     }
 
+    /**
+     * The moment the mountain is lit as (map/Sky.kt): now in auto, else that day's solar noon (day) or 22:00 (night) in
+     * Gudauri, as the site's state() feeds its 3D light.
+     */
+    fun lightTime(epochMs: Long, mode: Mode): Long {
+        if (mode == Mode.AUTO) return epochMs
+        val h = if (mode == Mode.DAY) Sky.sunTimes(epochMs)[2] else 22.0
+        val hourMs = 3_600_000L
+        val dayStart = Math.floorDiv(epochMs + 4 * hourMs, 24 * hourMs) * 24 * hourMs - 4 * hourMs
+        return dayStart + (h * hourMs).toLong()
+    }
+
     fun at(epochMs: Long, mode: Mode): Frame {
         val local = epochMs / 3_600_000.0 + 4
         val now = local - floor(local / 24) * 24

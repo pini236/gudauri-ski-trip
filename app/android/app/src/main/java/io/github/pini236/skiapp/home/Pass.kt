@@ -340,7 +340,9 @@ private fun PassCard(trip: Trip, isRet: Boolean, now: LocalDateTime, p: PassInk,
         // the pass grows with its words (Georgian and large text are taller), never under the canvas's 230
         Modifier.fillMaxWidth().heightIn(min = 230.dp).height(IntrinsicSize.Min),
     ) {
-        Main(p, stringResource(R.string.app_home_trip) + " · " + stringResource(if (isRet) R.string.app_pass_ret else R.string.app_pass_out), shortDate(leg.date)) {
+        // the site's strip: "your trip · return", and " · overnight" on a leg that leaves before 06:00 (A-33)
+        val night = if (leg.departs != null && leg.departs < LocalTime.of(6, 0)) stringResource(R.string.ticket_note_overnight) else ""
+        Main(p, stringResource(if (isRet) R.string.ticket_strip_mine_return else R.string.ticket_strip_mine_out, night), shortDate(leg.date)) {
             Route(p, stringResource(R.string.ticket_from), stringResource(R.string.ticket_to),
                 { Code(leg.fromCode, leg.fromCity, p); City(leg.fromCity, p) },
                 { Code(leg.toCode, leg.toCity, p); City(leg.toCity, p, end = true) })
@@ -354,7 +356,7 @@ private fun PassCard(trip: Trip, isRet: Boolean, now: LocalDateTime, p: PassInk,
                 Cell(stringResource(R.string.ticket_ski_days), p) { Value(trip.skiDays()?.let { dayRange(it) } ?: "—", p, ltr = true) }
                 val other = if (isRet) trip.out else trip.ret
                 Cell(stringResource(if (isRet) R.string.app_pass_out else R.string.app_pass_ret), p) {
-                    Value(other?.let { o -> if (o.departs != null && o.departs < LocalTime.of(6, 0)) stringResource(R.string.app_pass_at_night, shortDate(o.date)) else shortDate(o.date) } ?: "—", p)
+                    Value(other?.let { shortDate(it.date) } ?: "—", p)
                 }
             }
         }

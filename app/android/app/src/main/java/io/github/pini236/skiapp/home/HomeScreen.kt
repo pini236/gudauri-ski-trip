@@ -34,6 +34,7 @@ import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.translate
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.draw.drawWithContent
@@ -70,7 +71,9 @@ enum class HomeAction { MAP, MEET, GAMES, GROUP, ABOUT, TRIP, STATUS }
  */
 @Composable
 fun HomeScreen(trip: Trip?, frame: DayNight.Frame, mode: DayNight.Mode, now: LocalDateTime, haptics: Haptics, sounds: Sounds,
-               onMode: () -> Unit, status: LiftStatus? = null, onLang: ((String?) -> Unit)? = null, go: (HomeAction) -> Unit) {
+               onMode: () -> Unit, status: LiftStatus? = null, onLang: ((String?) -> Unit)? = null,
+               /** My first group's name and how many are in it (0: not known yet), for the group sign, as on the site. */
+               group: Pair<String, Int>? = null, go: (HomeAction) -> Unit) {
     val c = Ski.colors
     val top = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
     var langs by remember { mutableStateOf(false) }
@@ -95,7 +98,9 @@ fun HomeScreen(trip: Trip?, frame: DayNight.Frame, mode: DayNight.Mode, now: Loc
                 SignSpec(stringResource(R.string.nav_map), stringResource(R.string.home_board_map_sub), SignColors.blue, Color.White, .90f) { go(HomeAction.MAP) },
                 SignSpec(stringResource(R.string.nav_meet), stringResource(R.string.home_board_meet_sub), SignColors.gold, SignColors.ink, .82f) { go(HomeAction.MEET) },
                 SignSpec(stringResource(R.string.nav_games), stringResource(R.string.home_board_games_sub), SignColors.green, Color.White, .86f) { go(HomeAction.GAMES) },
-                SignSpec(stringResource(R.string.app_sign_group), stringResource(R.string.app_sign_group_sub), if (c.dark) SignColors.inkNight else SignColors.ink, Color.White, .78f) { go(HomeAction.GROUP) },
+                // in a group: its name and how many are in it (the site's groupBoardSub); otherwise the way in
+                SignSpec(stringResource(R.string.app_sign_group), group?.let { (name, n) -> if (n > 0) name + " · " + pluralStringResource(R.plurals.group_members_n, n, n) else name }
+                    ?: stringResource(R.string.home_board_group_sub), if (c.dark) SignColors.inkNight else SignColors.ink, Color.White, .78f) { go(HomeAction.GROUP) },
             ))
         }
     }
