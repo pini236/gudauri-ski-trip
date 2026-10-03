@@ -36,6 +36,7 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextDirection
@@ -47,6 +48,9 @@ import io.github.pini236.skiapp.fx.Sounds
 import io.github.pini236.skiapp.trip.Trip
 import io.github.pini236.skiapp.ui.Icons
 import io.github.pini236.skiapp.ui.Ski
+import io.github.pini236.skiapp.status.LiftStatus
+import io.github.pini236.skiapp.status.LiveDot
+import io.github.pini236.skiapp.status.summaryText
 import java.time.LocalDateTime
 import java.time.Month
 import kotlin.random.Random
@@ -61,7 +65,7 @@ enum class HomeAction { MAP, MEET, GAMES, GROUP, ABOUT, TRIP, STATUS }
  */
 @Composable
 fun HomeScreen(trip: Trip?, frame: DayNight.Frame, mode: DayNight.Mode, now: LocalDateTime, haptics: Haptics, sounds: Sounds,
-               onMode: () -> Unit, go: (HomeAction) -> Unit) {
+               onMode: () -> Unit, status: LiftStatus? = null, go: (HomeAction) -> Unit) {
     val c = Ski.colors
     val top = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
     Box(Modifier.fillMaxSize().background(c.snow).verticalScroll(rememberScrollState())) {
@@ -77,7 +81,7 @@ fun HomeScreen(trip: Trip?, frame: DayNight.Frame, mode: DayNight.Mode, now: Loc
                 Spacer(Modifier.height(58.dp))
                 Box(Modifier.padding(horizontal = 16.dp)) { EmptyPass { go(HomeAction.TRIP) } }
                 Spacer(Modifier.height(40.dp))
-                Box(Modifier.padding(horizontal = 16.dp)) { SeasonBoard(now) { go(HomeAction.STATUS) } }
+                Box(Modifier.padding(horizontal = 16.dp)) { SeasonBoard(now, status) { go(HomeAction.STATUS) } }
                 Spacer(Modifier.height(30.dp))
             }
             SignPost(listOf(
@@ -118,12 +122,30 @@ internal fun Head(frame: DayNight.Frame, mode: DayNight.Mode, onMode: () -> Unit
 
 /**
  * The state of the season, as on the site when there is no report (S3): out of season the mountain sleeps under the
- * snow; in season with no fresh report it says so. The live status arrives with stage 13.4.
+ * snow; in season with no fresh report it says so. With a fresh report (13.4) the snow is gone and it says how many
+ * lifts are open (S1's line). A tap opens the board over the map.
  */
 @Composable
-private fun SeasonBoard(now: LocalDateTime, onClick: () -> Unit) {
+private fun SeasonBoard(now: LocalDateTime, status: LiftStatus?, onClick: () -> Unit) {
     val c = Ski.colors
     val inSeason = now.month in listOf(Month.DECEMBER, Month.JANUARY, Month.FEBRUARY, Month.MARCH, Month.APRIL)
+    if (status != null && status.fresh) {
+        Column(
+            Modifier.fillMaxWidth()
+                .shadow(6.dp, RectangleShape, ambientColor = Color(0x1A13233A), spotColor = Color(0x1A13233A))
+                .background(c.paper)
+                .drawWithContent { drawContent(); drawRect(c.green, Offset.Zero, Size(size.width, 6.dp.toPx())) }
+                .clickable(role = Role.Button, onClick = onClick)
+                .padding(start = 14.dp, end = 14.dp, top = 18.dp, bottom = 12.dp),
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                LiveDot(true)
+                Text(stringResource(R.string.status_heading_lift_status), style = Ski.type.title.copy(fontSize = Ski.type.title.fontSize * (30f / 44f)), color = c.ink)
+            }
+            Text(summaryText(status), Modifier.padding(top = 4.dp), style = Ski.type.small, color = c.muted)
+        }
+        return
+    }
     Column(
         Modifier.fillMaxWidth()
             .shadow(6.dp, RectangleShape, ambientColor = Color(0x1A13233A), spotColor = Color(0x1A13233A))

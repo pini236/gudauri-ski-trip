@@ -72,6 +72,8 @@ adb shell cmd locale set-app-locales "$PKG" --locales he > /dev/null 2>&1 || not
 
 # ---- the map ----
 map() {
+  # from a cold start, whatever ran before (a running app drops a plain start's extras)
+  adb shell am force-stop "$PKG"; sleep 1
   mark
   adb shell "am start -W -n $ACT --es qa.tab map --es qa.time 2027-01-12T11:00" | tee -a "$OUT/summary.txt"
   waitlog "scene ready" 120 && waitlog "shadow ready" 120
@@ -363,6 +365,35 @@ meet() {
   adb shell pm grant "$PKG" android.permission.POST_NOTIFICATIONS > /dev/null 2>&1 || true
 }
 
+# ---- the lift status (13.4, the site's S1 to S3): no report, an old one, a fresh one (status/LiftStatus.kt) ----
+status() {
+  local up="$((W / 2)) $((H * 85 / 100)) $((W / 2)) $((H * 45 / 100)) 400"
+  # no report, out of season: the home's board sleeps under the snow (S3), and a tap opens the snowy signs over the map
+  adb shell am force-stop "$PKG"; sleep 1; mark
+  adb shell "am start -W -n $ACT --es qa.tab home --es qa.trip none --es qa.mode auto --es qa.group none --es qa.time 2026-10-03T11:00 --es qa.status none" > /dev/null
+  waitlog "status pinned none" 30; waitlog "scene ready" 120
+  sleep 2; drag $up; sleep 1; shot status-home-asleep
+  mark; tapText "ההר עוד ישן" && waitlog "status board snowy" 10 && { sleep 2; shot status-snowy; drag $up; sleep 1; shot status-snowy-below; }
+  # in season, a report two hours old: no current information, and the map as it is
+  mark; qa "--es qa.sheet off --es qa.time 2027-01-12T11:00 --es qa.status stale"; waitlog "status pinned stale" 10; sleep 2; shot status-stale-bar
+  mark; tapText "אין מידע עדכני על הרכבלים" && waitlog "status board snowy" 10 && { sleep 2; shot status-stale-board; }
+  # a fresh one: the bar counts the open lifts (S1); on the mountain closed lifts grey and dashed, closed runs dashed
+  mark; qa "--es qa.sheet off --es qa.status fresh"; waitlog "status on map" 10; sleep 2.5; shot status-live-map
+  # the board (S2): its rows flip in, what changed since the last look, and "only what's open for me"
+  mark; tapText "~מתוך 12" && waitlog "status board live" 10 && { burst status-board-flip 3 0.2; sleep 1.5; shot status-board; }
+  drag $up; sleep 1; shot status-board-below
+  mark; tapText "רק מה שפתוח בשבילי" && waitlog "for me on" 5 && { sleep 0.8; shot status-forme; }
+  adb shell input keyevent KEYCODE_BACK; sleep 2; shot status-forme-map
+  # home: the board without its snow, and how many lifts are open
+  qa "--es qa.forme off --es qa.tab home"; sleep 2; drag $up; sleep 1; shot status-home-live
+  # left to right (the language change starts the screen again, so the run's time and report go again)
+  adb shell cmd locale set-app-locales "$PKG" --locales en > /dev/null 2>&1; sleep 3
+  qa "--es qa.time 2027-01-12T11:00 --es qa.status fresh --es qa.tab map --es qa.sheet on"; sleep 2.5; shot status-en
+  qa "--es qa.status none --es qa.sheet off"; sleep 0.5; qa "--es qa.sheet on"; sleep 2; shot status-en-snowy
+  adb shell cmd locale set-app-locales "$PKG" --locales he > /dev/null 2>&1; sleep 3
+  qa "--es qa.sheet off --es qa.tab home"; sleep 1
+}
+
 # ---- the store screenshots (Google Play: portrait 9:16) ----
 # a 1080x1920 screen, a clean status bar (demo mode), no measuring bar; the files go to $OUT/store
 store() {
@@ -405,8 +436,9 @@ for sc in ${SCENARIO//,/ }; do
     home) home ;;
     group) group ;;
     meet) meet ;;
+    status) status ;;
     store) store ;;
-    *) map; descent; home; group; meet; store ;;
+    *) map; descent; home; group; meet; status; store ;;
   esac
 done
 

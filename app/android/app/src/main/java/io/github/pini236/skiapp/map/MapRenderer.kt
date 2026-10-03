@@ -105,10 +105,16 @@ void main(){
   gl_Position=c; vCol=aColor; vProg=aProg;
 }"""
 
+// vProg: 0..1 down the chosen run (painted from the top, uReveal), or metres along a line (the dashes of a closed one)
 private const val LINE_FS = """#version 300 es
 precision mediump float;
-in vec4 vCol; in float vProg; uniform float uReveal; uniform float uAlpha; uniform vec4 uTint; out vec4 o;
-void main(){ if(vProg>uReveal) discard; vec4 c = mix(vCol, vec4(uTint.rgb, vCol.a), uTint.a); o = vec4(c.rgb, c.a*uAlpha); }"""
+in vec4 vCol; in highp float vProg; uniform highp float uReveal; uniform float uAlpha; uniform vec4 uTint;
+uniform highp float uDash; uniform float uOn; out vec4 o;
+void main(){
+  if(vProg>uReveal) discard;
+  if(uDash>0.0 && fract(vProg/uDash)>uOn) discard;
+  vec4 c = mix(vCol, vec4(uTint.rgb, vCol.a), uTint.a); o = vec4(c.rgb, c.a*uAlpha);
+}"""
 
 // the skier's dot during the fly-down: the ink dot of the site, a white ring and a soft halo, always on top
 private const val MARK_VS = """#version 300 es
@@ -167,6 +173,14 @@ private fun program(vs: String, fs: String): Int {
     return p
 }
 
+/**
+ * What the lift status changes on the map (S1, as the site draws it): a closed run grey and dashed, a closed lift grey
+ * and dashed, and with "only what's open for me" the closed runs faded away.
+ */
+class StatusPaint(val closedRuns: Set<String>, val closedLifts: Set<String>, val forMe: Boolean) {
+    companion object { val NONE = StatusPaint(emptySet(), emptySet(), false) }
+}
+
 /** What changes when a run is chosen: the glow on the snow and the run painted in slope colours. */
 class Selection(val key: String, val highlight: FloatArray, val casing: Ribbon, val paint: Ribbon, val path: FloatArray)
 
@@ -190,7 +204,8 @@ class MapRenderer(
     private var terrainProg = 0; private var lineProg = 0; private var markProg = 0; private var skyProg = 0; private var markT = 0f
     private val inv = FloatArray(16)
     private val terrainVao = IntArray(1); private val terrainBufs = IntArray(4); private var terrainCount = 0
-    private var pistes = ArrayList<Pair<GpuRibbon, GpuRibbon>>(); private var lifts: GpuRibbon? = null
+    private val pistes = ArrayList<Triple<String, GpuRibbon, GpuRibbon>>(); private val lifts = ArrayList<Pair<String, GpuRibbon>>()
+    @Volatile var status: StatusPaint = StatusPaint.NONE
     private var selCasing: GpuRibbon? = null; private var selPaint: GpuRibbon? = null
     private var width = 1; private var height = 1
     private val mvp = FloatArray(16); private val eye = FloatArray(3)
@@ -223,7 +238,7 @@ class MapRenderer(
         markProg = program(MARK_VS, MARK_FS)
         skyProg = program(SKY_VS, SKY_FS)
         // a new GL context (first start, or the map tab came back): everything is uploaded again
-        uploaded = false; pistes.clear(); lifts = null; selCasing = null; selPaint = null; dim = 0f; dimTarget = 0f
+        uploaded = false; pistes.clear(); lifts.clear(); selCasing = null; selPaint = null; dim = 0f; dimTarget = 0f
         glEnable(GL_DEPTH_TEST); glEnable(GL_CULL_FACE); glCullFace(GL_BACK)
         glClearColor(0.86f, 0.91f, 0.945f, 1f)
     }
@@ -244,8 +259,8 @@ class MapRenderer(
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, terrainBufs[3]); glBufferData(GL_ELEMENT_ARRAY_BUFFER, m.indices.size * 4, ints(m.indices), GL_STATIC_DRAW)
         glBindVertexArray(0)
         terrainCount = m.count
-        for ((cas, core) in s.pisteRibbons) pistes += GpuRibbon(cas) to GpuRibbon(core)
-        lifts = GpuRibbon(s.liftRibbon)
+        for (p in s.pisteRibbons) pistes += Triple(p.key, GpuRibbon(p.casing), GpuRibbon(p.core))
+        for ((name, r) in s.liftRibbons) lifts += name to GpuRibbon(r)
         uploaded = true
     }
 
@@ -317,12 +332,30 @@ class MapRenderer(
         glUniform2f(glGetUniformLocation(lineProg, "uRes"), width.toFloat(), height.toFloat())
         val uW = glGetUniformLocation(lineProg, "uWidth"); val uB = glGetUniformLocation(lineProg, "uBias")
         val uR = glGetUniformLocation(lineProg, "uReveal"); val uA = glGetUniformLocation(lineProg, "uAlpha"); val uT = glGetUniformLocation(lineProg, "uTint")
-        glUniform1f(uR, 2f); glUniform4f(uT, 0f, 0f, 0f, 0f)
+        val uD = glGetUniformLocation(lineProg, "uDash"); val uOn = glGetUniformLocation(lineProg, "uOn")
+        glUniform1f(uR, 1e9f); glUniform4f(uT, 0f, 0f, 0f, 0f); glUniform1f(uD, 0f)
         val others = 1f - 0.65f * dim
-        glUniform1f(uA, others)
-        glUniform1f(uW, 5.6f * density); glUniform1f(uB, 0.0006f); for (p in pistes) p.first.draw()
-        glUniform1f(uW, 2.6f * density); glUniform1f(uB, 0.0008f); for (p in pistes) p.second.draw()
-        glUniform1f(uW, 1.8f * density); glUniform1f(uB, 0.0010f); lifts?.draw()
+        // the lift status: dashes about as long on screen as the site's (6 on 5 off for a run, 4 and 4 for a lift)
+        val paint = status
+        val px = (2 * st.dist * kotlin.math.tan(Math.toRadians(20.0)) / height.coerceAtLeast(1)).toFloat()
+        fun fade(key: String) = if (paint.forMe && key in paint.closedRuns) 0.15f else 1f
+        glUniform1f(uW, 5.6f * density); glUniform1f(uB, 0.0006f)
+        for (p in pistes) { glUniform1f(uA, others * fade(p.first)); p.second.draw() }
+        glUniform1f(uW, 2.6f * density); glUniform1f(uB, 0.0008f)
+        for (p in pistes) {
+            val shut = p.first in paint.closedRuns
+            glUniform1f(uA, others * fade(p.first))
+            if (shut) { glUniform4f(uT, 0.557f, 0.612f, 0.678f, 1f); glUniform1f(uD, 11f * density * px); glUniform1f(uOn, 6f / 11f) }
+            p.third.draw()
+            if (shut) { glUniform4f(uT, 0f, 0f, 0f, 0f); glUniform1f(uD, 0f) }
+        }
+        glUniform1f(uA, others); glUniform1f(uW, 1.8f * density); glUniform1f(uB, 0.0010f)
+        for ((name, r) in lifts) {
+            val shut = name in paint.closedLifts
+            if (shut) { glUniform4f(uT, 0.604f, 0.647f, 0.702f, 1f); glUniform1f(uD, 8f * density * px); glUniform1f(uOn, 0.5f) }
+            r.draw()
+            if (shut) { glUniform4f(uT, 0f, 0f, 0f, 0f); glUniform1f(uD, 0f) }
+        }
         if (selPaint != null) {
             glUniform1f(uA, 1f); glUniform1f(uR, reveal)
             glUniform1f(uW, 9f * density); glUniform1f(uB, 0.0012f); selCasing?.draw()

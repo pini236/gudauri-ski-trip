@@ -105,6 +105,9 @@ class Ribbon(val vertices: FloatArray, val indices: IntArray) {
     }
 }
 
+/** A run's lines for the GPU: its key, the white casing and the coloured core. */
+class PisteLines(val key: String, val casing: Ribbon, val core: Ribbon)
+
 /** Everything the map needs, prepared off the GL thread. */
 class MapScene(val terrain: Terrain, val runs: Runs) {
     val mesh = TerrainMesh.build(terrain)
@@ -116,14 +119,28 @@ class MapScene(val terrain: Terrain, val runs: Runs) {
     val draped: Map<String, List<FloatArray>> = runs.pistes.associate { p -> p.key to p.lines.map { drape(it, 4f) } }
     val liftLines: List<FloatArray> = runs.lifts.map { cable(it) }
 
-    /** White casing and coloured core for every run, built here so the first GL frame only uploads. */
-    val pisteRibbons: List<Pair<Ribbon, Ribbon>> = runs.pistes.mapNotNull { p ->
+    /**
+     * White casing and coloured core for every run, built here so the first GL frame only uploads. The core's progress
+     * is metres along the line: a closed run is drawn dashed (the lift status, S1).
+     */
+    val pisteRibbons: List<PisteLines> = runs.pistes.mapNotNull { p ->
         val lines = draped[p.key] ?: return@mapNotNull null
         if (lines.isEmpty()) return@mapNotNull null
         val c = MapRenderer.runRgb(p.color)
-        Ribbon.build(lines, { _, _ -> floatArrayOf(1f, 1f, 1f, 1f) }) to Ribbon.build(lines, { _, _ -> c })
+        val m = metres(lines)
+        PisteLines(p.key, Ribbon.build(lines, { _, _ -> floatArrayOf(1f, 1f, 1f, 1f) }), Ribbon.build(lines, { _, _ -> c }, { li, i -> m[li][i] }))
     }
-    val liftRibbon: Ribbon = Ribbon.build(liftLines, { _, _ -> floatArrayOf(0.227f, 0.271f, 0.337f, 1f) })
+    /** One ribbon per lift, by name, so a closed one can be drawn grey and dashed. */
+    val liftRibbons: List<Pair<String, Ribbon>> = runs.lifts.mapIndexed { i, l ->
+        val m = metres(listOf(liftLines[i]))
+        l.name to Ribbon.build(listOf(liftLines[i]), { _, _ -> floatArrayOf(0.227f, 0.271f, 0.337f, 1f) }, { _, k -> m[0][k] })
+    }
+
+    /** Metres along each line (x, y, z triples), from its first point. */
+    private fun metres(lines: List<FloatArray>): List<FloatArray> = lines.map { l ->
+        val n = l.size / 3
+        FloatArray(n).also { c -> for (i in 1 until n) c[i] = c[i - 1] + hypot(hypot(l[i * 3] - l[i * 3 - 3], l[i * 3 + 2] - l[i * 3 - 1]), l[i * 3 + 1] - l[i * 3 - 2]) }
+    }
 
     fun drape(xy: FloatArray, lift: Float): FloatArray {
         val out = ArrayList<Float>()
