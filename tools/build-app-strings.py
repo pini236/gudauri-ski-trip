@@ -2,8 +2,9 @@
 """Android string resources from i18n/strings.json (read-only: never writes into i18n/ or site/).
 
 Usage: python3 tools/build-app-strings.py <out-res-dir> <langs, e.g. he,en,ru,ka>
-Writes <out>/values/strings.xml (Hebrew, the default), <out>/values-<lang>/strings.xml for the others, and
-<out>/xml/locales_config.xml listing exactly those languages.
+Writes <out>/values/strings.xml (English when the build carries it: the words for a phone in a language the app does
+not have), <out>/values-<lang>/strings.xml for the others (Hebrew as values-iw, the qualifier every Android version
+reads), and <out>/xml/locales_config.xml listing exactly those languages.
 
 - Keys: "area.name" becomes "area_name" (game.descent.again -> game_descent_again).
 - Placeholders: {name} becomes %N$s, numbered by their first appearance in the Hebrew text, the same numbers in
@@ -25,6 +26,8 @@ ROOT = Path(__file__).resolve().parent.parent
 # the app (decision 27), and the app's games do not use them.
 SKIP = re.compile(r"^game\.[a-z]+\.friend_")
 PH = re.compile(r"\{([a-zA-Z_][a-zA-Z0-9_]*)\}")
+# Android's resource qualifiers keep the old code for Hebrew (values-iw), as the platform itself does
+QUALIFIER = {"he": "iw"}
 
 
 def name(key):
@@ -96,13 +99,15 @@ def main():
             raise SystemExit(f"{key} and {names[n]} both become {n}")
         names[n] = key
     if langs[0] != data["meta"]["source"]:
-        raise SystemExit("the first language must be the source (he): it is the default values/ file")
+        raise SystemExit("the first language must be the source (he): its order numbers the placeholders")
     for l in langs:
         n = sum(1 for e in strings.values() if l in e.get("check", []))
         if n:
             print(f"{l}: {n} strings not checked by a native speaker (not required for now, decision 39)")
-    for i, lang in enumerate(langs):
-        d = out / ("values" if i == 0 else f"values-{lang}")
+    # a phone in a language the app does not have reads values/: English, the store's default language (decision 33)
+    fallback = "en" if "en" in langs else langs[0]
+    for lang in langs:
+        d = out / ("values" if lang == fallback else f"values-{QUALIFIER.get(lang, lang)}")
         d.mkdir(parents=True, exist_ok=True)
         (d / "strings.xml").write_text(file_for(lang, strings), encoding="utf-8")
     (out / "xml").mkdir(parents=True, exist_ok=True)

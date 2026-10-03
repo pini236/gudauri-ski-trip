@@ -244,6 +244,10 @@ home() {
     qa "--es qa.tab home --es qa.trip '$TRIP_EN' --es qa.time 2026-12-01T13:35"; sleep 2; shot "home-$l"
     qa "--es qa.trip none"; sleep 1.5; shot "home-$l-guest"
   done
+  # a phone in a language the app does not have (French) gets English, not Hebrew (3.10.2026)
+  adb shell cmd locale set-app-locales "$PKG" --locales fr > /dev/null 2>&1; sleep 3
+  qa "--es qa.tab home --es qa.trip none"; sleep 2; shot home-fr-english
+  [ -n "$(where "Add my flight")" ] && note "a French phone: English" || fail "a French phone is not in English"
   adb shell cmd locale set-app-locales "$PKG" --locales he > /dev/null 2>&1; sleep 3
   qa "--es qa.trip '$TRIP_HE'"; sleep 1
 }

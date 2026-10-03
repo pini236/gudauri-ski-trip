@@ -20,8 +20,9 @@ import java.util.Locale
 /**
  * The four languages (decision 32, docs/APP-NATIVE.md decision 13): Hebrew first, then English, Russian and Georgian.
  * What the user reads decides everything else: the language of the strings actually in use (R.string.lang, one per
- * values-xx file) sets the layout direction and the fonts, so a phone in a language the app does not have yet gets a
- * whole Hebrew screen, never Hebrew words in a left-to-right layout.
+ * values-xx file) sets the layout direction and the fonts, so a phone in a language the app does not have gets a
+ * whole English screen (values/ is English, Hebrew is values-iw; 3.10.2026, the store's default language, decision
+ * 33), never words of one language in the layout of another.
  *
  * The choice is the app's own (not the phone's): the phone's per-app language on Android 13+, and on older phones a
  * saved choice applied in attachBaseContext. The settings screen (13.7) calls [set].
@@ -41,7 +42,10 @@ object Lang {
         Language("ka", "ქართული", rtl = false, script = Script.GEORGIAN),
     )
 
-    fun byTag(tag: String?): Language = ALL.firstOrNull { it.tag == tag?.substringBefore('-')?.let { t -> if (t == "iw") "he" else t } } ?: ALL[0]
+    /** A language the app does not have is English, as on a phone in such a language. */
+    fun byTag(tag: String?): Language = ALL.firstOrNull { it.tag == tag?.substringBefore('-')?.let { t -> if (t == "iw") "he" else t } } ?: ENGLISH
+
+    val ENGLISH get() = ALL[1]
 
     /** The language of the words on screen now. */
     fun current(res: Resources): Language = byTag(res.getString(R.string.lang))

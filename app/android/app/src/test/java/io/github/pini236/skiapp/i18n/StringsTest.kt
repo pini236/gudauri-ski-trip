@@ -33,7 +33,7 @@ class StringsTest {
         val dir = File(gen, build)
         val config = Regex("android:name=\"([a-z-]+)\"").findAll(File(dir, "xml/locales_config.xml").readText()).map { it.groupValues[1] }.toList()
         val default = Regex("name=\"lang\"[^>]*>([a-z]+)<").find(File(dir, "values/strings.xml").readText())!!.groupValues[1]
-        val others = dir.listFiles { f -> f.name.startsWith("values-") }!!.map { it.name.removePrefix("values-") }.sorted()
+        val others = dir.listFiles { f -> f.name.startsWith("values-") }!!.map { it.name.removePrefix("values-").let { q -> if (q == "iw") "he" else q } }.sorted()
         assertEquals("$build: locales_config lists the files", (listOf(default) + others).sorted(), config.sorted())
         return config
     }
@@ -42,16 +42,27 @@ class StringsTest {
         val dir = File(gen, "debug")
         val base = entries(File(dir, "values/strings.xml"))
         assertTrue(base.size > 700)
-        for (lang in languages("debug").drop(1)) {
-            val other = entries(File(dir, "values-$lang/strings.xml"))
+        for (lang in languages("debug").filter { it != "en" }) {
+            val other = entries(File(dir, "values-${if (lang == "he") "iw" else lang}/strings.xml"))
             assertEquals("values-$lang: names", base.keys, other.keys)
             for ((k, v) in base) if (!k.startsWith("plurals:")) assertEquals("values-$lang/$k: placeholders", placeholders(v), placeholders(other.getValue(k)))
         }
         assertTrue("unknown language", Lang.ALL.map { it.tag }.containsAll(languages("debug")))
     }
 
+    /** A phone in a language the app does not have reads values/: English (3.10.2026); Hebrew is values-iw. */
+    @Test fun englishIsTheDefault() {
+        for (build in listOf("debug", "release")) {
+            val default = Regex("name=\"lang\"[^>]*>([a-z]+)<").find(File(gen, "$build/values/strings.xml").readText())!!.groupValues[1]
+            assertEquals("$build: values/", "en", default)
+            assertTrue("$build: values-iw", File(gen, "$build/values-iw/strings.xml").readText().contains(">he<"))
+        }
+        assertEquals("en", Lang.byTag("fr").tag)
+        assertEquals("he", Lang.byTag("iw").tag)
+    }
+
     @Test fun storeBuildsCarryTheReleasedLanguages() {
-        // the released languages are set in the build (releaseLanguages); Hebrew is always first, the default
+        // the released languages are set in the build (releaseLanguages); Hebrew is always first, the source
         val gradle = File("build.gradle.kts").readText()
         val released = Regex("val releaseLanguages = \"([a-z,]+)\"").find(gradle)!!.groupValues[1].split(",")
         assertEquals("he", released.first())
@@ -60,7 +71,7 @@ class StringsTest {
 
     /** A joiner or a suffix keeps its spaces (Android trims them unless escaped): "Goodaura ו-New Goodaura", not "Goodauraו-". */
     @Test fun spacesAtTheEdgesAreKept() {
-        assertEquals("\\u0020ו-", entries(File(gen, "debug/values/strings.xml"))["meet_lift_names_join"])
-        assertEquals("\\u0020and\\u0020", entries(File(gen, "debug/values-en/strings.xml"))["meet_lift_names_join"])
+        assertEquals("\\u0020ו-", entries(File(gen, "debug/values-iw/strings.xml"))["meet_lift_names_join"])
+        assertEquals("\\u0020and\\u0020", entries(File(gen, "debug/values/strings.xml"))["meet_lift_names_join"])
     }
 }
