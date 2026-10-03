@@ -465,8 +465,8 @@ runview() {
   # the lift's tag among the connections (the name alone: "Kudebi 1" and "Kudebi 2" are runs)
   for i in 1 2 3 4 5; do xy=$(where "~^Kudebi$"); [ -n "$xy" ] && break; drag $up; sleep 1; done
   mark; tapText "~^Kudebi$" && waitlog "lift open Kudebi" 5 && { sleep 3; shot lift-panel; drag $up; sleep 1; shot lift-panel-runs; }
-  # the list of all runs, and the filters
-  qa "--es qa.run none"; sleep 2
+  # the list of all runs, and the filters (Back closes the lift's panel first)
+  adb shell input keyevent KEYCODE_BACK; sleep 1; qa "--es qa.run none"; sleep 2
   mark; tapText "כל המסלולים" && waitlog "run list open" 5 && { sleep 1.5; shot run-list; }
   mark; tapText "אדום" && waitlog "filter red off" 5 && { sleep 2; shot run-list-no-red; }
   mark; tapText "אדום" && waitlog "filter red on" 5
