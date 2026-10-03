@@ -485,6 +485,7 @@ function ensure3d(){
     v3.kobi=()=>v3.view({tx:kc[0],tz:kc[1],dist:6800,az:Math.PI*0.9,pol:0.6});
     v3.setTheme(isDark());DN.paint(false); // the 3D light follows the time in Gudauri, like the home page
     v3.filter(hidden);if(current&&byKey[current]){v3.select(current);v3.paint(current,0);}
+    try{LSTAT.applyMap();}catch(e){} // the lift status, if it came before the 3D view
     return true;
   }catch(e){console.warn('3D unavailable',e);v3=null;if(!ensure3d.told){ensure3d.told=1;track('map_fallback',{reason:'no_webgl'});}return false;}
 }
@@ -875,7 +876,7 @@ const LSTAT=(function(){
     gChairs.innerHTML='';svg.classList.toggle('forme',forMe&&fresh());
     svg.querySelectorAll('g.lg[data-lid]').forEach(g=>g.classList.remove('closed'));
     if(!fresh()){bar.innerHTML=`<span class="ms-dot"></span><span class="ms-txt">${E(data?'status.bar_no_recent':'status.bar_no_data_yet')}</span>`;bar.dataset.state='none';
-      D.pistes.forEach(p=>(pisteEls[p.key]||[]).forEach(e=>e.classList.remove('shut')));if(v3&&v3.liftState)v3.liftState(null);return;}
+      D.pistes.forEach(p=>(pisteEls[p.key]||[]).forEach(e=>e.classList.remove('shut')));if(v3&&v3.liftState){v3.liftState(null);v3.runState(null,false);}return;}
     const open=names.filter(n=>isOpen(n)).length;
     // on a phone the line breaks at the dot, between how many are open and when it was updated
     const parts=H('status.bar_summary',{ago:ago(data.updated)},{open:`<b class="num">${open}</b>`,total:`<b class="num">${names.length}</b>`}).split(' · ');
@@ -884,7 +885,8 @@ const LSTAT=(function(){
       if(o&&!reduceMotion()){const d=pathD(l.g),len=l.len||1000,dur=Math.max(8,len/60);
         for(let k=0;k<3;k++){const c=mk('circle',{r:12,class:'chair'},gChairs);const am=mk('animateMotion',{dur:dur+'s',begin:`-${(dur*k/3).toFixed(1)}s`,repeatCount:'indefinite',path:d},c);}}});
     D.pistes.forEach(p=>{const o=runOpen(p);(pisteEls[p.key]||[]).forEach(e=>e.classList.toggle('shut',o===false));});
-    if(v3&&v3.liftState)v3.liftState(Object.fromEntries(mainLifts.filter(l=>l.name).map(l=>[l.id,isOpen(l.name)])));
+    // in 3D too (S-19): closed dashed, chairs on the open lifts, and "only what's open for me"
+    if(v3&&v3.liftState){v3.liftState(Object.fromEntries(mainLifts.filter(l=>l.name).map(l=>[l.id,isOpen(l.name)])));v3.runState(Object.fromEntries(D.pistes.map(p=>[p.key,runOpen(p)])),forMe);}
     if(mapReady)apply();
   }
   // the season board on the home page (while there is no trip of your own): S3's snowy sign with no report, which in
