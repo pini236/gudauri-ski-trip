@@ -73,7 +73,7 @@ fun MapScreen(view: MapView, scene: MapScene?, ms: MapStatus? = null, videos: Li
     var flying by remember { mutableStateOf(false) }
     var stopped by remember { mutableStateOf(false) }
     var flyStart by remember { mutableStateOf(0L) }
-    var lift by remember { mutableStateOf<Lift?>(null) }
+    var lift by remember { mutableStateOf<Lift?>(view.shownLift.also { view.shownLift = null }) }
     var list by rememberSaveable { mutableStateOf(false) }
     var expanded by rememberSaveable { mutableStateOf(false) }
     var hidden by rememberSaveable { mutableStateOf(emptySet<String>()) }
@@ -85,7 +85,8 @@ fun MapScreen(view: MapView, scene: MapScene?, ms: MapStatus? = null, videos: Li
             }
             flying = now
         }
-        onDispose { view.onSelect = null; view.onFlying = null }
+        view.onLift = { l -> if (lift?.id != l.id) { lift = l; list = false; Qa.log("lift open ${l.name}") } }
+        onDispose { view.onSelect = null; view.onFlying = null; view.onLift = null }
     }
     // the filters: a colour hides its runs, "unnamed" the sections without a name, "lifts" the lifts
     LaunchedEffect(hidden, scene) {
@@ -101,9 +102,9 @@ fun MapScreen(view: MapView, scene: MapScene?, ms: MapStatus? = null, videos: Li
         PanelActions(
             goRun = { key, via -> scene?.runs?.pistes?.firstOrNull { it.key == key }?.let { view.select(it, via = via) } },
             goLift = { l ->
-                view.select(null); lift = l; list = false; expanded = true; Qa.log("lift open ${l.name}")
+                view.select(null); lift = l; list = false; Qa.log("lift open ${l.name}")
                 Telemetry.event("lift_open", if (l.name.isBlank()) emptyMap() else mapOf("lift" to l.name))
-                if (l.id.isNotBlank()) view.showLift(l.id)
+                if (l.id.isNotBlank()) view.showLift(l.id) // which calls onLift: the panel is already this lift's
             },
             fly = { selected?.let { p -> stopped = false; flyStart = System.currentTimeMillis(); expanded = false; view.unmark(); view.flyDown(); Telemetry.event("run_fly_start", mapOf("run" to p.key)) } },
             stopFly = { stopped = true; view.stopFly() },

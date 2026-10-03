@@ -121,6 +121,10 @@ class MapView(context: Context, refreshHz: Float, val stats: FrameStats) : Frame
     /** The activity's listener: the chosen run goes into the saved place (nav/Nav.kt); [via] how (run_open's `via`). */
     var onChosen: ((Piste?, String) -> Unit)? = null
     var onFlying: ((Boolean) -> Unit)? = null
+    /** The map screen's listener: a lift the map shows (the meeting point's "see it on the run map"), for its panel. */
+    var onLift: ((io.github.pini236.skiapp.data.Lift) -> Unit)? = null
+    /** A lift shown while no map screen listened; the next map screen opens its panel. */
+    var shownLift: io.github.pini236.skiapp.data.Lift? = null
     val msaa get() = surface.msaa
 
     init {
@@ -164,21 +168,27 @@ class MapView(context: Context, refreshHz: Float, val stats: FrameStats) : Frame
         fun layout(text: String, tf: android.graphics.Typeface?, sp: Float, color: Int): StaticLayout {
             val p = TextPaint(Paint.ANTI_ALIAS_FLAG).apply { typeface = tf; textSize = sp * resources.displayMetrics.scaledDensity; this.color = color }
             val w = kotlin.math.ceil(Layout.getDesiredWidth(text, p)).toInt()
-            return StaticLayout.Builder.obtain(text, 0, text.length, p, w).setAlignment(Layout.Alignment.ALIGN_CENTER).setIncludePad(false).build()
+            // the language's direction, not the first letter's: a Latin name first made a Hebrew label read left to right
+            // and put "מ׳" on the wrong side of the height
+            val dir = if (lang.rtl) android.text.TextDirectionHeuristics.RTL else android.text.TextDirectionHeuristics.LTR
+            return StaticLayout.Builder.obtain(text, 0, text.length, p, w).setAlignment(Layout.Alignment.ALIGN_CENTER).setTextDirection(dir).setIncludePad(false).build()
         }
         val out = ArrayList<MapLabel>()
         // peaks: a Latin name, a Hebrew unit and a number in one line, the bidi case
         for (p in s.terrain.peaks) out += MapLabel(p.x, s.terrain.elev(p.x, p.y) + 30, p.y,
-            layout(context.getString(R.string.app_peak_label, p.name, nf.format(p.ele)), display, 19f, Color.argb(255, 19, 35, 58)), 3, false)
+            layout(context.getString(R.string.app_peak_label, iso(p.name), nf.format(p.ele)), display, 19f, Color.argb(255, 19, 35, 58)), 3, false)
         // top stations of the named lifts
         s.runs.lifts.forEachIndexed { i, l ->
             if (l.name.isBlank()) return@forEachIndexed
             val line = s.liftLines[i]; val n = line.size / 3
             val top = if (line[1] > line[(n - 1) * 3 + 1]) 0 else n - 1
-            out += MapLabel(line[top * 3], line[top * 3 + 1] + 20, line[top * 3 + 2], layout(context.getString(R.string.app_lift_label, l.name), body, 12f, Color.WHITE), 2, true)
+            out += MapLabel(line[top * 3], line[top * 3 + 1] + 20, line[top * 3 + 2], layout(context.getString(R.string.app_lift_label, iso(l.name)), body, 12f, Color.WHITE), 2, true)
         }
         return out.sortedByDescending { it.priority }
     }
+
+    /** A Latin name kept in its own direction inside a label of any language (first-strong isolate). */
+    private fun iso(name: String) = "\u2068$name\u2069"
 
     // ---- selection ----
     /**
@@ -221,6 +231,9 @@ class MapView(context: Context, refreshHz: Float, val stats: FrameStats) : Frame
         val i = s.runs.lifts.indexOfFirst { it.id == id }
         if (i < 0) return
         select(null, chosen = false)
+        // the map screen may not be on the screen yet (the meeting point pushes the map, then shows the lift)
+        val l = s.runs.lifts[i]
+        onLift?.let { it(l) } ?: run { shownLift = l }
         // after the map has its size (it may have just been put on the screen)
         post { inBackground { renderer.animateCamera(Framing.fit(s.liftLines[i], width.toFloat(), height.toFloat(), { x, z -> s.terrain.elev(x, z) })); Qa.log("showing lift $id") } }
     }
