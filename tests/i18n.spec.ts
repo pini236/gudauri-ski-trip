@@ -50,14 +50,6 @@ test('the choice is remembered, and ?lang=auto forgets it', async ({ page }) => 
   await expect(page.locator('html')).toHaveAttribute('dir', 'rtl');
 });
 
-test.describe('a Russian browser outside Israel', () => {
-  test.use({ locale: 'ru-RU', timezoneId: 'Europe/Moscow' });
-  test('gets Russian', async ({ page }) => {
-    await page.goto('/#home');
-    await expect(page.locator('html')).toHaveAttribute('lang', 'ru');
-  });
-});
-
 test.describe('a German browser', () => {
   test.use({ locale: 'de-DE', timezoneId: 'Europe/Berlin' });
   test('gets English', async ({ page }) => {
@@ -68,10 +60,47 @@ test.describe('a German browser', () => {
 
 test.describe('an English browser in Israel', () => {
   test.use({ locale: 'en-US', timezoneId: 'Asia/Jerusalem' });
-  test('gets Hebrew', async ({ page }) => {
+  test('gets English (only a Hebrew browser gets Hebrew)', async ({ page }) => {
     await page.goto('/#home');
+    await expect(page.locator('html')).toHaveAttribute('lang', 'en');
+  });
+});
+
+test.describe('a Russian browser', () => {
+  test.use({ locale: 'ru-RU', timezoneId: 'Europe/Moscow' });
+  test('gets English too', async ({ page }) => {
+    await page.goto('/#home');
+    await expect(page.locator('html')).toHaveAttribute('lang', 'en');
+    await page.goto('/privacy');
+    await expect(page.locator('html')).toHaveAttribute('lang', 'en');
+  });
+});
+
+test.describe('an old Hebrew browser (iw)', () => {
+  test.use({ locale: 'iw-IL' });
+  test('gets Hebrew', async ({ page }) => {
+    await page.goto('/privacy');
     await expect(page.locator('html')).toHaveAttribute('lang', 'he');
   });
+});
+
+test('the language button in the top bar opens the list on every page, and choosing switches', async ({ page }) => {
+  for (const hash of ['#home', '#map', '#about', '#signin']) {
+    await page.goto('/' + hash);
+    const btn = page.locator('.lang-btn:visible').first();
+    await expect(btn).toBeVisible();
+    await expect(btn).toContainText('עב');
+    const box = await btn.boundingBox();
+    expect(box!.height).toBeGreaterThanOrEqual(44);
+  }
+  await page.goto('/#home');
+  await page.locator('.lang-btn:visible').first().click();
+  await expect(page.locator('#langSheet')).toBeVisible();
+  await page.locator('#langSheet label[lang="ru"]').click();
+  await expect(page.locator('html')).toHaveAttribute('lang', 'ru');
+  await expect(page.locator('.lang-btn:visible').first()).toContainText('RU');
+  await page.goto('/privacy');
+  await expect(page.locator('html')).toHaveAttribute('lang', 'ru');
 });
 
 test('the language row in settings opens the list, and choosing switches and remembers', async ({ page }) => {

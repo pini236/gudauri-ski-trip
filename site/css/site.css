@@ -623,6 +623,12 @@ html[lang="ru"] :is(.brand,.signs a,.tb-count b,.dn-clock b,.bp-code,.bp-big,.bp
 [dir="ltr"] .bp-grid small,[dir="ltr"] .bp-grid b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 [dir="ltr"] .bp-grid b{font-size:13px}
 /* Language list (round 11, LP3): a sheet from the bottom, each language in its own script and title font */
+.lang-btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;flex:none;min-width:44px;height:44px;padding:0 10px;border:1.5px solid var(--ink);border-radius:22px;background:var(--paper);color:var(--ink);font:inherit;font-size:13px;font-weight:700;cursor:pointer}
+.lang-btn b{font-weight:700;line-height:1}
+.lang-btn.in-page{display:none}
+.topbar .lang-btn{margin-inline-start:12px}
+@media (max-width:760px){.lang-btn.in-page{display:inline-flex}.lang-btn.in-top{display:none}
+  .mhead .lang-btn,.ac-head .lang-btn,.tf-head .lang-btn{margin-inline-start:auto;margin-inline-end:6px}.home-top .lang-btn{margin-inline-start:auto;margin-inline-end:8px}.home-top .lang-btn+.dn-home{margin-inline-start:0}}
 .lang-sheet{position:fixed;inset:auto 0 0 0;margin:0 auto;width:100%;max-width:480px;max-height:90vh;box-sizing:border-box;padding:10px 20px 24px;border:0;background:var(--paper);color:var(--ink);box-shadow:0 -10px 30px rgba(0,0,0,.25)}
 .lang-sheet::backdrop{background:rgba(13,21,34,.55)}
 .lang-sheet[open]{animation:lsin .25s ease-out}
