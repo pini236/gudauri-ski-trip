@@ -220,6 +220,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         nav = Nav(Route.Home, savedInstanceState?.getStringArrayList("nav"))
         Qa.init(this)
+        Qa.log("language ${Lang.current(resources).tag} · phone ${android.content.res.Resources.getSystem().configuration.locales.toLanguageTags()} · ${if (Lang.manual(this)) "chosen in the app" else "automatic"}")
         trips = TripStore(this)
         trip = trips.load()
         dnMode = getSharedPreferences("daynight", MODE_PRIVATE).getString("mode", null)?.let { m -> DayNight.Mode.entries.firstOrNull { it.name == m } } ?: DayNight.Mode.AUTO
@@ -375,7 +376,8 @@ class MainActivity : ComponentActivity() {
         castShadows(s)
         runOnUiThread { if (isDestroyed) return@runOnUiThread; qaPending?.let { qaPending = null; applyQaMap(it, sunDone = true) }; ui.postDelayed(skyTick, SKY_EVERY_MS) }
         // new runs, lifts and videos from the site, if there are any: read at the next launch (data/SiteData.kt)
-        val refreshed = siteData.refresh()
+        // whatever goes wrong with a refresh, the app keeps the data it has (it never crashes over it)
+        val refreshed = runCatching { siteData.refresh() }.getOrElse { Telemetry.handled(it); emptyMap() }
         Qa.log("data refresh ${refreshed.entries.joinToString { "${it.key} ${it.value}" }}")
     }
 
