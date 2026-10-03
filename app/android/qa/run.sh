@@ -49,6 +49,14 @@ waitlog() { # waitlog <text> [seconds]
   done
   fail "no '$1' in the log after ${2:-60}s"; return 1
 }
+seen() { # seen <text> [seconds]: as waitlog, but a miss is no failure (the caller tries again)
+  local deadline=$((SECONDS + ${2:-30}))
+  while (( SECONDS < deadline )); do
+    tail -n +"$((MARK + 1))" "$OUT/logcat.txt" | grep "SkiQa.*$1" > /dev/null && return 0
+    sleep 0.5
+  done
+  return 1
+}
 qa() { # qa <extras...>: one string for the device shell, values with spaces in single quotes
   mark
   adb shell "am start -W --activity-single-top -n $ACT $*" > /dev/null
@@ -413,7 +421,14 @@ phone() {
     local i; for i in $(seq 1 60); do [ "$(adb shell getprop sys.boot_completed | tr -d '\r')" = 1 ] && break; sleep 2; done; sleep 10
     kill "$LOGCAT" 2> /dev/null; logcat_on # the restart dropped the log stream
     note "system language asked $loc: $(adb shell getprop persist.sys.locale | tr -d '\r'), the system says $(adb shell am get-config 2> /dev/null | grep -m1 -oE '^config: [^ ]+' | tr -d '\r')"
-    mark; adb shell am start -W -n "$ACT" --es qa.tab home --es qa.trip none --es qa.mode auto > /dev/null; waitlog "trip none" 30; sleep 3; shot "phone-$loc"
+    # the system may still be coming back from the restart (its "booted" flag outlives it): start the app until it answers
+    local opened=""
+    for i in 1 2 3; do
+      mark; adb shell am start -W -n "$ACT" --es qa.tab home --es qa.trip none --es qa.mode auto > /dev/null 2>&1
+      seen "trip none" 30 && { opened=1; break; }; sleep 5
+    done
+    [ -z "$opened" ] && fail "the app did not open on a phone in $loc"
+    sleep 3; shot "phone-$loc"
     tail -n +"$((MARK + 1))" "$OUT/logcat.txt" | grep -m1 "SkiQa.*language " | sed 's/.*SkiQa[^:]*: /  app: /' | tee -a "$OUT/summary.txt"
     # the screen reader of the test can be slow to come back after the restart: a few tries
     local want="Add my flight" got=""; [ "$loc" = he-IL ] && want="הוספת הטיסה שלי"
@@ -447,8 +462,9 @@ runview() {
   xy=$(where "המסלול הבא: Kudebi 1"); if [ -n "$xy" ]; then set -- $xy; mark; drag $((W * 3 / 4)) "$2" $((W / 6)) "$2" 300; waitlog "selected Kudebi 1" 10 && { sleep 3; shot run-next; }; else fail "no step to the next run"; fi
   # a lift of the run: its panel
   mark; tapText "הצגת כל הפרטים" && waitlog "panel open" 5; sleep 1
-  for i in 1 2 3; do xy=$(where "Kudebi"); [ -n "$xy" ] && break; drag $up; sleep 1; done
-  mark; tapText "Kudebi" && waitlog "lift open Kudebi" 5 && { sleep 3; shot lift-panel; drag $up; sleep 1; shot lift-panel-runs; }
+  # the lift's tag among the connections (the name alone: "Kudebi 1" and "Kudebi 2" are runs)
+  for i in 1 2 3 4 5; do xy=$(where "~^Kudebi$"); [ -n "$xy" ] && break; drag $up; sleep 1; done
+  mark; tapText "~^Kudebi$" && waitlog "lift open Kudebi" 5 && { sleep 3; shot lift-panel; drag $up; sleep 1; shot lift-panel-runs; }
   # the list of all runs, and the filters
   qa "--es qa.run none"; sleep 2
   mark; tapText "כל המסלולים" && waitlog "run list open" 5 && { sleep 1.5; shot run-list; }

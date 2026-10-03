@@ -134,7 +134,7 @@ fun MapScreen(view: MapView, scene: MapScene?, ms: MapStatus? = null, videos: Li
                             },
                             body = { RunBody(p, facts, scene.runs, scene.terrain, videos, actions) })
                     }
-                    l != null -> MapPanel(true, {}, { lift = null }, head = { LiftHead(l) }, body = { LiftBody(l, scene.runs, scene.terrain, actions) })
+                    l != null -> MapPanel(true, {}, { lift = null }, head = { LiftHead(l) }, body = { LiftBody(l, scene.runs, scene.terrain, actions) }, bodyMax = 0.45f)
                     list -> MapPanel(true, {}, { list = false },
                         head = { Text(stringResource(R.string.map_overview_heading), style = Ski.type.title.copy(fontSize = Ski.type.title.fontSize * (32f / 44f)), color = Ski.colors.ink) },
                         body = {
@@ -144,7 +144,7 @@ fun MapScreen(view: MapView, scene: MapScene?, ms: MapStatus? = null, videos: Li
                                 Telemetry.event("map_filter", mapOf("filter" to k, "on" to on))
                                 Qa.log("filter $k ${if (on) "on" else "off"}")
                             }, scene.runs.fetched, scene.runs.researchDate, actions)
-                        })
+                        }, bodyMax = 0.5f)
                     else -> Row(Modifier.align(Alignment.BottomCenter).fillMaxWidth().navigationBarsPadding().padding(12.dp),
                         verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         Text(stringResource(R.string.app_map_hint), Modifier.weight(1f).background(Color(0xE6FFFFFF)).padding(10.dp),

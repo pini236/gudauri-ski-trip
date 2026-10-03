@@ -142,9 +142,14 @@ fun runLink(key: String) = "https://gudauri-ski-trip.vercel.app/#map/run/" + jav
 
 /** The panel's frame: paper over the map's bottom, a handle that shows all of it or only its head. */
 @Composable
-fun BoxScope.MapPanel(expanded: Boolean, onExpand: (Boolean) -> Unit, onClose: () -> Unit, head: @Composable ColumnScope.() -> Unit, body: @Composable ColumnScope.() -> Unit) {
+fun BoxScope.MapPanel(
+    expanded: Boolean, onExpand: (Boolean) -> Unit, onClose: () -> Unit,
+    head: @Composable ColumnScope.() -> Unit, body: @Composable ColumnScope.() -> Unit, bodyMax: Float = 0.36f,
+) {
     val c = Ski.colors
-    val max = (LocalConfiguration.current.screenHeightDp * 0.62f).dp
+    // the head and the open body together stay under about two thirds of the screen: the run, the lift status bar
+    // and the way home stay in sight above it
+    val max = (LocalConfiguration.current.screenHeightDp * bodyMax).dp
     Column(
         Modifier.align(Alignment.BottomCenter).fillMaxWidth().shadow(12.dp, RectangleShape).background(c.paper)
             .clickable(remember { androidx.compose.foundation.interaction.MutableInteractionSource() }, null) {}
@@ -245,7 +250,8 @@ fun ColumnScope.RunHead(p: Piste, facts: RunFacts?, order: List<String>, flying:
             if (p.refs.isNotEmpty()) {
                 val title = stringResource(R.string.run_ref_title)
                 Box(Modifier.border(2.dp, c.ink).background(Color.White).padding(horizontal = 8.dp, vertical = 2.dp).semantics { contentDescription = title + " " + p.refs[0] }) {
-                    Text(p.refs[0], style = Ski.type.number, color = Color(0xFF13233A))
+                    // the text face: the display face draws 7 like a Hebrew letter
+                    Text(p.refs[0], style = Ski.type.bodyBold.copy(fontSize = 20.sp), color = Color(0xFF13233A))
                 }
             }
         }
