@@ -16,43 +16,7 @@ MAIL = 'pinisagent@gmail.com'
 # its full name for screen readers, and the label of the link back to the site's about page (common.about_settings)
 LANGS = [('he', 'עברית', 'עב', 'עברית', 'אודות'), ('en', 'English', 'EN', 'English', 'About'),
          ('ru', 'Русский', 'RU', 'Русский', 'О сайте'), ('ka', 'ქართული', 'KA', 'ქართული', 'შესახებ')]
-SEED = {'he': 5, 'en': 9, 'ru': 13, 'ka': 17}  # a different drift of snow for each language
-
-
-def snow_cap(i, w):
-    """The same drift of snow as snowCap() in site/js/app.js (same seed, same shape), drawn once here."""
-    r = (i + 1) * 9301 % 233280
-
-    def rnd(a, b):
-        nonlocal r
-        r = (r * 9301 + 49297) % 233280
-        return a + (b - a) * r / 233280
-    top, x0, x1 = 26, 16, w + 6
-    up = [[x0 - 4, top + 6], [x0 + 4, top - 2]]
-    x, pk = x0 + 14, True
-    while x < x1 - 20:
-        mid = 1 - abs((x - x0) / (x1 - x0) - .5) * 1.1
-        up.append([x, top - 8 - mid * rnd(10, 20)] if pk else [x, top - rnd(1, 6)])
-        x += rnd(30, 48) if pk else rnd(22, 34)
-        pk = not pk
-    up += [[x1 - 6, top - 3], [x1 + 2, top + 5]]
-    lo, x = [], x1 - 2
-    while x > x0 + 8:
-        lo.append([x, top + rnd(8, 13)])
-        x -= rnd(26, 44)
-    lo.append([x0 + 2, top + 10])
-    pts = up + lo + [up[0]]
-    d = f'M{pts[0][0]:.1f},{pts[0][1]:.1f}'
-    for k in range(len(pts) - 1):
-        p0, p1, p2, p3 = pts[max(k - 1, 0)], pts[k], pts[k + 1], pts[min(k + 2, len(pts) - 1)]
-        d += (f' C{p1[0] + (p2[0] - p0[0]) / 6:.1f},{p1[1] + (p2[1] - p0[1]) / 6:.1f}'
-              f' {p2[0] - (p3[0] - p1[0]) / 6:.1f},{p2[1] - (p3[1] - p1[1]) / 6:.1f} {p2[0]:.1f},{p2[1]:.1f}')
-    drips = ''
-    for _ in range(2):
-        dx, dl, dw, y0 = rnd(x0 + 40, x1 - 40), rnd(7, 13), rnd(4, 6), top + 8
-        drips += f'<path d="M{dx - dw},{y0}C{dx - dw},{y0 + dl * .6} {dx - dw / 2},{y0 + dl} {dx},{y0 + dl}C{dx + dw / 2},{y0 + dl} {dx + dw},{y0 + dl * .6} {dx + dw},{y0}Z"/>'
-    return (f'<svg class="snowcap" viewBox="0 0 {w + 16} 56" preserveAspectRatio="none" aria-hidden="true">'
-            f'<g class="sc-sh"><path d="{d}Z"/>{drips}</g><g class="sc"><path d="{d}Z"/>{drips}</g></svg>')
+SEED = {'he': 5, 'en': 9, 'ru': 13, 'ka': 17}  # a different drift of snow for each language (drawn by site/js/snow.js)
 
 
 def inline(s):
@@ -112,7 +76,7 @@ def section_html(p, lang):
 <p class="pv-date">{p['date']}</p>
 <p class="pv-intro">{p['intro']}</p>
 <div class="pv-sign"><b>{p['uo_title']}</b><span>{p['uo_text']}</span></div>
-<section class="pv-short">{snow_cap(SEED[lang], 300)}<h2>{p['short'][0]}</h2>
+<section class="pv-short" data-snow="{SEED[lang]}"><h2>{p['short'][0]}</h2>
 {p['short'][1]}</section>
 {rest}
 </article>'''
@@ -149,6 +113,7 @@ def build():
 <link rel="stylesheet" href="css/site.css">
 <script src="js/prefs.js"></script>
 <script src="js/telemetry.js" data-screen="privacy"></script>
+<script src="js/snow.js" defer></script>
 </head>
 <body>
 <header class="pv-top">

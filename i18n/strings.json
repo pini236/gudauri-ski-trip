@@ -410,10 +410,10 @@
    ]
   },
   "about.reset_sub": {
-   "he": "השיאים נשמרים רק בטלפון הזה",
-   "en": "Best scores are saved only on this phone",
-   "ru": "Рекорды хранятся только на этом телефоне",
-   "ka": "რეკორდები მხოლოდ ამ ტელეფონში ინახება",
+   "he": "השיאים שנשמרו בדפדפן הזה",
+   "en": "The best scores saved in this browser",
+   "ru": "Рекорды, сохранённые в этом браузере",
+   "ka": "ამ ბრაუზერში შენახული რეკორდები",
    "where": "site/index.html",
    "note": "initial text; app.js changes it during reset",
    "check": [
@@ -6326,10 +6326,10 @@
    ]
   },
   "games.intro": {
-   "he": "על השלג של גודאורי. השיאים נשמרים רק בטלפון שלכם, ומומלץ עם צליל.",
-   "en": "On Gudauri's snow. Best scores stay on your phone only, and sound is recommended.",
-   "ru": "На снегу Гудаури. Рекорды хранятся только на вашем телефоне, лучше играть со звуком.",
-   "ka": "გუდაურის თოვლზე. რეკორდები მხოლოდ თქვენს ტელეფონში ინახება. გირჩევთ, ითამაშოთ ხმით.",
+   "he": "על השלג של גודאורי. השיאים נשמרים בדפדפן, ומי שבקבוצה רואה אותם גם בטבלת הקבוצה. מומלץ עם צליל.",
+   "en": "On Gudauri's snow. Best scores are saved in your browser, and if you're in a group they show in its table too. Sound is recommended.",
+   "ru": "На снегу Гудаури. Рекорды сохраняются в браузере, а если вы в группе, они видны и в её таблице. Лучше играть со звуком.",
+   "ka": "გუდაურის თოვლზე. რეკორდები ბრაუზერში ინახება, და თუ ჯგუფში ხართ, ჯგუფის ცხრილშიც ჩანს. გირჩევთ, ითამაშოთ ხმით.",
    "where": "site/index.html",
    "check": [
     "ru",
@@ -7469,10 +7469,10 @@
    ]
   },
   "meet.card_sub": {
-   "he": "החבר׳ה · גודאורי 2027",
-   "en": "The crew · Gudauri 2027",
-   "ru": "Компания · Гудаури 2027",
-   "ka": "ჯგუფი · გუდაური 2027",
+   "he": "גודאורי 2027",
+   "en": "Gudauri 2027",
+   "ru": "Гудаури 2027",
+   "ka": "გუდაური 2027",
    "where": "site/index.html",
    "note": "card header, right side",
    "check": [
@@ -7712,10 +7712,10 @@
    ]
   },
   "meet.no_db": {
-   "he": "בלי מסד נתונים ובלי הרשמה: המקום, היום והשעה נמצאים בתוך הקישור עצמו.",
-   "en": "No database and no sign-up: the place, day and time live inside the link itself.",
-   "ru": "Без базы данных и регистрации: место, день и время хранятся в самой ссылке.",
-   "ka": "მონაცემთა ბაზისა და რეგისტრაციის გარეშე: ადგილი, დღე და დრო თავად ბმულშია.",
+   "he": "הקישור עובד בלי הרשמה: המקום, היום והשעה נמצאים בתוך הקישור עצמו.",
+   "en": "The link works without signing up: the place, day and time live inside the link itself.",
+   "ru": "Ссылка работает без регистрации: место, день и время хранятся в самой ссылке.",
+   "ka": "ბმული რეგისტრაციის გარეშე მუშაობს: ადგილი, დღე და დრო თავად ბმულშია.",
    "where": "site/index.html",
    "check": [
     "ru",
@@ -12843,6 +12843,18 @@
     "ka"
    ]
   },
+  "acct.apple_soon": {
+   "he": "בקרוב",
+   "en": "Soon",
+   "ru": "Скоро",
+   "ka": "მალე",
+   "where": "site/js/account.js",
+   "note": "Sign in with Apple is not open on the site yet: on its button and in the account's ways to sign in",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
   "acct.connected": {
    "he": "מחובר",
    "en": "Connected",
@@ -13651,6 +13663,18 @@
     "ka"
    ]
   },
+  "group.meetup_delete": {
+   "he": "מחיקת המפגש",
+   "en": "Delete the meetup",
+   "ru": "Удалить встречу",
+   "ka": "შეხვედრის წაშლა",
+   "where": "site/js/account.js",
+   "note": "For screen readers: the X next to a meetup in the group's meetups tab",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
   "group.no_meetups": {
    "he": "עוד אין מפגשים. בוחרים תחנה ושעה בנקודת המפגש, ושומרים בקבוצה.",
    "en": "No meetups yet. Pick a station and a time on the meeting point page, and save it to the group.",
@@ -13663,10 +13687,10 @@
    ]
   },
   "group.scores_none": {
-   "he": "עוד אין שיאים בקבוצה. השיאים מגיעים מהמשחקים באפליקציה.",
-   "en": "No high scores in the group yet. They come from the games in the app.",
-   "ru": "В группе пока нет рекордов. Они приходят из игр в приложении.",
-   "ka": "ჯგუფში რეკორდები ჯერ არ არის. ისინი აპის თამაშებიდან მოდის.",
+   "he": "עוד אין שיאים בקבוצה. השיאים מגיעים מהמשחקים באתר ובאפליקציה.",
+   "en": "No high scores in the group yet. They come from the games on the site and in the app.",
+   "ru": "В группе пока нет рекордов. Они приходят из игр на сайте и в приложении.",
+   "ka": "ჯგუფში რეკორდები ჯერ არ არის. ისინი საიტისა და აპის თამაშებიდან მოდის.",
    "where": "site/js/account.js",
    "check": [
     "ru",

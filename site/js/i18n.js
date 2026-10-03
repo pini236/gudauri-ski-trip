@@ -59,9 +59,17 @@
   });
   // set('ru') keeps a choice in this browser; set(null) goes back to the browser's language. The page reloads.
   function set(v){save(v&&LANGS[v]?v:'');var u=new URL(location.href);if(u.searchParams.has('lang')){u.searchParams.delete('lang');location.replace(u.toString());}else location.reload();}
+  // Days and months in Georgian, for a browser that has no Georgian dates (Chrome here falls back to its own language and
+  // wrote Hebrew month names on the Georgian page). Only what the site asks for: weekday, day, month, year.
+  var KA_WD=['კვი','ორშ','სამ','ოთხ','ხუთ','პარ','შაბ'],KA_MO=['იან','თებ','მარ','აპრ','მაი','ივნ','ივლ','აგვ','სექ','ოქტ','ნოე','დეკ'],kaOk=false;
+  try{kaOk=new Intl.DateTimeFormat('ka',{month:'short'}).resolvedOptions().locale.slice(0,2)==='ka';}catch(e){}
+  function date(d,o){d=new Date(d);
+    if(lang==='ka'&&!kaOk&&o&&(o.weekday||o.month)){var u=o.timeZone==='UTC',wd=u?d.getUTCDay():d.getDay(),dd=u?d.getUTCDate():d.getDate(),mo=u?d.getUTCMonth():d.getMonth(),yy=u?d.getUTCFullYear():d.getFullYear();
+      var dm=o.day||o.month?(o.day?dd+' ':'')+(o.month?KA_MO[mo]:'')+(o.year?' '+yy:''):'';
+      return (o.weekday?KA_WD[wd]+(dm?', ':''):'')+dm.trim();}
+    return d.toLocaleDateString(meta.loc,o);}
   window.I18N={lang:lang,dir:meta.dir,locale:meta.loc,ltr:meta.dir==='ltr',released:RELEASED.slice(),t:t,apply:apply,ready:ready,set:set,
-    chosen:!!(LANGS[q]||LANGS[s]),
-    date:function(d,o){return new Date(d).toLocaleDateString(meta.loc,o);}};
+    chosen:!!(LANGS[q]||LANGS[s]),date:date};
   window.T=t;
   // For the games: L('key','עברית',vars) keeps the Hebrew next to the key, and falls back to it when a key is missing.
   window.L=function(key,he,vars){var v=S[key];return v==null?fill(he,vars):t(key,vars);};

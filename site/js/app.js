@@ -56,6 +56,8 @@ const MYTRIP=(()=>{const K='gud-trip',ISO=/^\d{4}-\d\d-\d\d$/;
   return {get,set,skiAuto,ski,days,ISO};})();
 function countdown(dark){
   const tb=document.getElementById('tbCount'),stub=document.getElementById('tDays'),pre=document.getElementById('tDaysPre'),lbl=document.getElementById('tDaysLbl'),d=MYTRIP.days(MYTRIP.get());
+  // the empty pass (no trip yet) has the same stub, with a question mark for the number (round 12, W1)
+  {const [a,,c]=slots(dark?'ticket.stub_nights':'ticket.stub_days',{n:5});document.getElementById('beStubPre').textContent=a;document.getElementById('beStubPost').textContent=c;}
   tb.hidden=d===null;if(d===null)return;
   const [c1,,c3]=slots(dark?'ticket.stub_nights':'ticket.stub_days',{n:Math.max(d,0)});pre.textContent=c1;
   if(d>0){
@@ -128,7 +130,8 @@ function addRelief(root,lblRoot,store,skipPass){
 }
 addRelief(svg,mainLbl,{labels,marks},true);
 // signpost at Kobi Pass: opens the Kobi-side inset. First in the list so it wins label collisions.
-{const[x,y]=P(PASS);const t=mk('text',{x,y,class:'lbl kobi-link','text-anchor':'middle','data-kobi':'1',role:'button','aria-label':T('map.kobi_side_aria')},mainLbl);t.textContent=T('map.kobi_side_label');labels.unshift(t);}
+{const[x,y]=P(PASS);const t=mk('text',{x,y,class:'lbl kobi-link','text-anchor':'middle','data-kobi':'1',role:'button',tabindex:'0','aria-label':T('map.kobi_side_aria')},mainLbl);t.textContent=T('map.kobi_side_label');labels.unshift(t);
+  t.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();openInset();}});} // the keyboard reaches it too
 
 function layoutLabels(labels,stations,u,mks){
   labels.forEach(t=>{const pk=t.classList.contains('peak');t.setAttribute('font-size',(t.classList.contains('lift')?11.5:pk?12:13)*u);t.setAttribute('stroke-width',3.2*u);t.setAttribute('dy',(pk?-11:-6)*u);});
@@ -433,6 +436,7 @@ function overview(){
   <h3>${E('map.overview_source_heading')}</h3>
   <p class="hint">${E('map.overview_source_text',{fetched:D.fetched,research_date:D.research?D.research.date:''})}</p>
   <p class="hint">${E('map.overview_3d_controls_hint')}</p>`;
+  SNOW.scan(panel);
 }
 panel.addEventListener('input',e=>{if(e.target.id==='profRange'){profAt(+e.target.value);if(scrubbed!==current){scrubbed=current;track('run_profile_scrub',{run:current});}}});
 panel.addEventListener('click',e=>{
@@ -516,7 +520,7 @@ function route(){
   pgHome.hidden=m||mt||gm||ab||tr||ac;pgMap.hidden=!m;pgMeet.hidden=!mt;pgGames.hidden=!gm;pgAbout.hidden=!ab;pgTrip.hidden=!tr;if(tr)TRIPFORM.open();
   // accounts and groups: js/account.js shows its own pages (round 12)
   if(window.ACCOUNT)ACCOUNT.route(ac?h:'');
-  const cur=m?'map':mt?'meet':gm?'games':ab?'about':'home';
+  const cur=m?'map':mt?'meet':gm?'games':ab?'about':tr||ac?'':'home';
   document.querySelectorAll('[data-nav]').forEach(a=>{if(a.dataset.nav===cur)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current');});
   if(m&&!wasMap)LSTAT.viewed();
   requestAnimationFrame(()=>{if(gm||ab||tr||ac)return;if(mt){if(MEET)MEET.open(h.slice(6));return;}if(!m){DN.layout();return;}activateMap();
@@ -639,7 +643,9 @@ const MEET=(function(){
       if(near){near.ends.push({l,end});return;}
       st.push({id:l.id+end,x:q[0],y:q[1],h:TM?Math.round(TM.elev(q[0],q[1])):null,ends:[{l,end}]});});
   });
-  st.forEach(s=>{const b=s.ends.filter(e=>e.end==='b'),t=s.ends.filter(e=>e.end==='t'),n=a=>a.map(e=>e.l.name).join(T('meet.lift_names_join'));
+  // each name kept whole and apart from the words around it (a Latin name in a Hebrew sentence: "של Goodaura ו-New Goodaura")
+  const iso=x=>'\u2068'+x.replace(/ /g,'\u00a0')+'\u2069';
+  st.forEach(s=>{const b=s.ends.filter(e=>e.end==='b'),t=s.ends.filter(e=>e.end==='t'),n=a=>a.map(e=>iso(e.l.name)).join(T('meet.lift_names_join'));
     s.name=(b[0]||t[0]).l.name;
     s.where=[b.length?T('meet.where_bottom_station',{lifts:n(b)}):'',t.length?T('meet.where_top_station',{lifts:n(t)}):''].filter(Boolean).join(', ');});
   const byId=Object.fromEntries(st.map(s=>[s.id,s]));
@@ -651,7 +657,7 @@ const MEET=(function(){
     for(let d=a;d<=b&&out.length<14;d=addD(d,1))out.push([d,dayName(d)]);return out;}
   function dayName(iso){const d=new Date(iso+'T12:00:00Z'),lang=document.documentElement.lang||'he';
     if(lang==='he')return new Intl.DateTimeFormat('he',{weekday:'narrow',timeZone:'UTC'}).format(d)+` ${d.getUTCDate()}.${d.getUTCMonth()+1}`;
-    try{return new Intl.DateTimeFormat(lang,{weekday:'short',day:'numeric',month:'short',timeZone:'UTC'}).format(d);}catch(e){return iso.split('-').reverse().join('.');}}
+    try{return I18N.date(d,{weekday:'short',day:'numeric',month:'short',timeZone:'UTC'});}catch(e){return iso.split('-').reverse().join('.');}}
   let DAYS=skiDays();
   const TIMES=['09:30','11:00','12:30','13:30','15:00','16:30'];
   const PRE=[['am',T('meet.preset_morning_lift'),find('Goodaura')('b'),'09:30'],['noon',T('meet.preset_noon'),find('Goodaura')('t'),'13:00'],['pm',T('meet.preset_end_of_day'),find('New Goodaura')('b'),'16:30']].filter(p=>p[2]);
@@ -685,8 +691,11 @@ const MEET=(function(){
     const best=st.map(s=>[s,dpin(s)]).sort((a,b)=>a[1]-b[1])[0];if(!best)return;
     const px=best[1]/u;
     if(px<=44){if(best[0].id===S.sid)clear('pin');else{pick(best[0].id,'',true);track('meet_pick',{kind:'station',station:best[0].name});}}else if(S.sid)clear('map');});
+  // the whole mountain: every pin in view, its head clear of the buttons at the top and its point clear of the line at the bottom
   function fitAll(ms){let a=1e9,b=1e9,c=-1e9,d=-1e9;st.forEach(s=>{a=Math.min(a,s.x);c=Math.max(c,s.x);b=Math.min(b,s.y);d=Math.max(d,s.y);});
-    const[w,h]=size();const span=Math.max(c-a,(d-b)*w/h)*1.15;goTo((a+c)/2,(b+d)/2+ (d-b)*0.05,span,ms);}
+    const[w,h]=size(),hint=document.getElementById('meetHint'),top=86,bot=(hint&&hint.offsetHeight?hint.offsetHeight+12:0)+14;
+    const sx=w-64,sy=Math.max(80,h-top-bot),span=Math.max((c-a)/sx,(d-b)/sy)*w,ys=top+sy/2;
+    goTo((a+c)/2,(b+d)/2+(0.55*h-ys)*span/w,span,ms);}
   document.getElementById('meetAll').onclick=()=>fitAll(700);
   // zoom: buttons, the wheel, two fingers; and dragging moves the map (a drag is not a tap)
   const zoomAt=(f,cx_,cy_,ms)=>{const[w,h]=size();const nw=Math.max(300,Math.min(9000,vb.w*f));const px=cx_??vb.x+vb.w/2,py=cy_??vb.y+vb.h/2;
@@ -813,24 +822,14 @@ const MEET=(function(){
     const was=DAYS.map(d=>d[0]).join();DAYS=skiDays();if(DAYS.map(d=>d[0]).join()!==was){drawDays();if(!DAYS.some(d=>d[0]===S.day))S.day=DAYS[0][0];}
     if(arg){const [sid,t,d]=arg.split('/');if(byId[sid]){S.sid=sid;if(!shown)track('meet_link_open');}if(/^\d{4}$/.test(t||''))S.time=t.slice(0,2)+':'+t.slice(2);if(/^\d{8}$/.test(d||''))S.day=`${d.slice(0,4)}-${d.slice(4,6)}-${d.slice(6)}`;
       ui.querySelector('#meetTime').value=S.time;}
-    const s=byId[S.sid];requestAnimationFrame(()=>{if(!shown||arg){shown=true;if(s)goTo(s.x,s.y,1800,0);else fitAll(0);}render();if(arg&&s)document.getElementById('meetCard').scrollIntoView({block:'center'});});
+    const s=byId[S.sid];requestAnimationFrame(()=>{render();if(!shown||arg){shown=true;if(s)goTo(s.x,s.y,1800,0);else fitAll(0);}if(arg&&s)document.getElementById('meetCard').scrollIntoView({block:'center'});});
   }
   ui.querySelector('#meetTime').value=S.time;
   return {open,station:id=>byId[id]&&byId[id].name,current:()=>S.sid?{sid:S.sid,day:S.day,time:S.time}:null};
 })();
 
-  // snow on the signs: soft mounds and a few rounded drips (seeded, so every sign keeps its own pile)
-function snowCap(i,w){let r=(i+1)*9301%233280;const rnd=(a,b)=>{r=(r*9301+49297)%233280;return a+(b-a)*r/233280;};
-  const top=26,x0=16,x1=w+6,up=[[x0-4,top+6],[x0+4,top-2]];let x=x0+14,pk=true;
-  while(x<x1-20){const mid=1-Math.abs((x-x0)/(x1-x0)-.5)*1.1;up.push(pk?[x,top-8-mid*rnd(10,20)]:[x,top-rnd(1,6)]);x+=pk?rnd(30,48):rnd(22,34);pk=!pk;}
-  up.push([x1-6,top-3],[x1+2,top+5]);const lo=[];x=x1-2;while(x>x0+8){lo.push([x,top+rnd(8,13)]);x-=rnd(26,44);}lo.push([x0+2,top+10]);
-  const pts=[...up,...lo,up[0]];let d=`M${pts[0][0].toFixed(1)},${pts[0][1].toFixed(1)}`;
-  for(let k=0;k<pts.length-1;k++){const p0=pts[Math.max(k-1,0)],p1=pts[k],p2=pts[k+1],p3=pts[Math.min(k+2,pts.length-1)];
-    d+=` C${(p1[0]+(p2[0]-p0[0])/6).toFixed(1)},${(p1[1]+(p2[1]-p0[1])/6).toFixed(1)} ${(p2[0]-(p3[0]-p1[0])/6).toFixed(1)},${(p2[1]-(p3[1]-p1[1])/6).toFixed(1)} ${p2[0].toFixed(1)},${p2[1].toFixed(1)}`;}
-  let drips='';for(let k=0;k<2;k++){const dx=rnd(x0+40,x1-40),dl=rnd(7,13),dw=rnd(4,6),y0=top+8;drips+=`<path d="M${dx-dw},${y0}C${dx-dw},${y0+dl*.6} ${dx-dw/2},${y0+dl} ${dx},${y0+dl}C${dx+dw/2},${y0+dl} ${dx+dw},${y0+dl*.6} ${dx+dw},${y0}Z"/>`;}
-  return `<svg class="snowcap" viewBox="0 0 ${w+16} 56" preserveAspectRatio="none" aria-hidden="true"><g class="sc-sh"><path d="${d}Z"/>${drips}</g><g class="sc"><path d="${d}Z"/>${drips}</g></svg>`;}
-// the games page: fresh snow on top of every game sign (round 8)
-document.querySelectorAll('.games-list .game-card').forEach((a,i)=>a.insertAdjacentHTML('beforeend',snowCap(i+7,300)));
+// the games page: fresh snow on top of every game sign (round 8); js/snow.js draws it to each sign's width
+document.querySelectorAll('.games-list .game-card').forEach((a,i)=>{a.dataset.snow=i+7;a.dataset.snowArrow=30;});SNOW.scan(document.getElementById('gamesPage'));
 
 // ---- lift status (design round 3, S1 to S3). Source: /api/status, a Vercel function that reads the MTA status page
 // (to be written when the page works again, in December). Format:
@@ -849,7 +848,7 @@ const LSTAT=(function(){
     if(!fresh()){const season=[11,0,1,2,3].includes(new Date().getMonth());
       return `<section class="lstat" aria-label="${E('status.heading_lift_status')}"><h3>${E(season?'status.no_recent_data':'status.mountain_asleep')}</h3>
       <p class="lead">${E(season?'status.lead_in_season':'status.lead_off_season')}</p>
-      <div class="lstat-post">${names.slice(0,6).map((n,i)=>`<div class="lsign s${i%2}"><div class="ls-face"><b dir="ltr">${esc(n)}</b><span>?</span></div>${snowCap(i,300)}</div>`).join('')}</div>
+      <div class="lstat-post">${names.slice(0,6).map((n,i)=>`<div class="lsign s${i%2}" data-snow="${i}" data-snow-arrow="18" data-snow-low><div class="ls-face"><b dir="ltr">${esc(n)}</b><span>?</span></div></div>`).join('')}</div>
       <p class="hint"><b>${E('status.no_guessing_bold')}</b> ${E('status.no_guessing_text')}</p></section>`;}
     const open=names.filter(n=>isOpen(n)).length;
     let prev=null;try{prev=JSON.parse(localStorage.getItem('gud-lstat')||'null');}catch(e){}
@@ -868,10 +867,12 @@ const LSTAT=(function(){
     const bar=document.getElementById('mstat');
     gChairs.innerHTML='';svg.classList.toggle('forme',forMe&&fresh());
     svg.querySelectorAll('g.lg[data-lid]').forEach(g=>g.classList.remove('closed'));
-    if(!fresh()){bar.innerHTML=`<span class="ms-dot"></span>${E(data?'status.bar_no_recent':'status.bar_no_data_yet')}`;bar.dataset.state='none';
+    if(!fresh()){bar.innerHTML=`<span class="ms-dot"></span><span class="ms-txt">${E(data?'status.bar_no_recent':'status.bar_no_data_yet')}</span>`;bar.dataset.state='none';
       D.pistes.forEach(p=>(pisteEls[p.key]||[]).forEach(e=>e.classList.remove('shut')));if(v3&&v3.liftState)v3.liftState(null);return;}
     const open=names.filter(n=>isOpen(n)).length;
-    bar.dataset.state='live';bar.innerHTML=`<span class="ms-dot"></span>${H('status.bar_summary',{ago:ago(data.updated)},{open:`<b class="num">${open}</b>`,total:`<b class="num">${names.length}</b>`})}`;
+    // on a phone the line breaks at the dot, between how many are open and when it was updated
+    const parts=H('status.bar_summary',{ago:ago(data.updated)},{open:`<b class="num">${open}</b>`,total:`<b class="num">${names.length}</b>`}).split(' · ');
+    bar.dataset.state='live';bar.innerHTML=`<span class="ms-dot"></span><span class="ms-txt">${parts.map(x=>`<span class="ms-part">${x}</span>`).join(' · ')}</span>`;
     mainLifts.forEach(l=>{const g=svg.querySelector(`g.lg[data-lid="${l.id}"]`);const o=l.name?isOpen(l.name):null;if(g)g.classList.toggle('closed',o===false);
       if(o&&!reduceMotion()){const d=pathD(l.g),len=l.len||1000,dur=Math.max(8,len/60);
         for(let k=0;k<3;k++){const c=mk('circle',{r:12,class:'chair'},gChairs);const am=mk('animateMotion',{dur:dur+'s',begin:`-${(dur*k/3).toFixed(1)}s`,repeatCount:'indefinite',path:d},c);}}});
@@ -931,7 +932,6 @@ function renderTicket(){
   // the passenger is the account (round 12, P1 to P7)
   if(window.ACCOUNT)ACCOUNT.paintPass();
 }
-document.getElementById('seasonBoard').insertAdjacentHTML('afterbegin',snowCap(7,358));
 // the trip form (#trip, round 12 W2): the browser's own date and time pickers, the destination starts as Tbilisi,
 // and the return is the outbound the other way round
 const TRIPFORM=(()=>{
@@ -1014,8 +1014,18 @@ const TRIPFORM=(()=>{
   });
 })();
 renderTicket();
+// the top bar on a narrower computer or in a longer language (a tablet, Russian, Georgian): the clock's caption goes
+// first, then the words on the buttons and the countdown, then the clock, then the signs break into two lines, and last
+// the site's name goes, until it fits without scrolling sideways (nothing in it shrinks, so too long shows as overflow)
+(function(){
+  const bar=document.querySelector('.topbar'),L=['tb-fit1','tb-fit2','tb-fit3','tb-fit4','tb-fit5'];
+  const fit=()=>{bar.classList.remove(...L);if(getComputedStyle(bar).display==='none')return;
+    for(const c of L){if(bar.scrollWidth<=bar.clientWidth+1)break;bar.classList.add(c);}};
+  new ResizeObserver(fit).observe(bar);new MutationObserver(fit).observe(bar,{childList:true,subtree:true,characterData:true});
+  if(document.fonts)document.fonts.ready.then(fit);fit();
+})();
 // accounts and groups (js/account.js) work with these, and draw on the pages before the first route
-if(window.ACCOUNT)ACCOUNT.start({MYTRIP,esc,snowCap,MEET,renderTicket,countdown});
+if(window.ACCOUNT)ACCOUNT.start({MYTRIP,esc,MEET,renderTicket,countdown});
 route();
 overview();applyFilters();
 // the app download sign: shown only when the file really is on the server
