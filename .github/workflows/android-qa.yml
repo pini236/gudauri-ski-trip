@@ -13,7 +13,7 @@ on:
   workflow_dispatch:
     inputs:
       scenario:
-        description: 'map, descent, home, group, meet, status, lang, store, several with commas, or all'
+        description: 'map, descent, home, group, meet, status, lang, phone, store, several with commas, or all'
         default: all
       api:
         description: 'Android version of the emulator (API level)'

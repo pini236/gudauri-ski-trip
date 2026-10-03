@@ -394,6 +394,26 @@ lang() {
   qa "--es qa.tab home"; sleep 1
 }
 
+# ---- the phone's own language, with no choice in the app (decision 47): Hebrew only on a phone set to Hebrew ----
+# the emulator's whole system language changes (root, then the system restarts); a fresh install has no app choice
+phone() {
+  if ! adb root 2>&1 | grep -qE "restarting|already"; then note "no root: the phone's language not tested"; return; fi
+  sleep 3; adb wait-for-device
+  adb uninstall "$PKG" > /dev/null; adb install -r -g "$APK" > /dev/null || { fail "reinstall"; return; }
+  local loc
+  for loc in he-IL ru-RU ka-GE en-US; do
+    adb shell setprop persist.sys.locale "$loc"; adb shell setprop ctl.restart zygote
+    sleep 5; adb wait-for-device
+    local i; for i in $(seq 1 60); do [ "$(adb shell getprop sys.boot_completed | tr -d '\r')" = 1 ] && break; sleep 2; done; sleep 10
+    kill "$LOGCAT" 2> /dev/null; logcat_on # the restart dropped the log stream
+    mark; adb shell am start -W -n "$ACT" --es qa.tab home --es qa.trip none --es qa.mode auto > /dev/null; waitlog "trip none" 30; sleep 3; shot "phone-$loc"
+    if [ "$loc" = he-IL ]; then [ -n "$(where "הוספת הטיסה שלי")" ] && note "a phone in $loc: Hebrew" || fail "a phone in $loc is not in Hebrew"
+    else [ -n "$(where "Add my flight")" ] && note "a phone in $loc: English" || fail "a phone in $loc is not in English"; fi
+  done
+  adb unroot > /dev/null 2>&1; sleep 3; adb wait-for-device
+  adb shell cmd locale set-app-locales "$PKG" --locales he > /dev/null 2>&1; sleep 2
+}
+
 # ---- the lift status (13.4, the site's S1 to S3): no report, an old one, a fresh one (status/LiftStatus.kt) ----
 status() {
   local up="$((W / 2)) $((H * 85 / 100)) $((W / 2)) $((H * 45 / 100)) 400"
@@ -467,8 +487,9 @@ for sc in ${SCENARIO//,/ }; do
     meet) meet ;;
     status) status ;;
     lang) lang ;;
+    phone) phone ;;
     store) store ;;
-    *) map; descent; home; group; meet; status; lang; store ;;
+    *) map; descent; home; group; meet; status; lang; phone; store ;;
   esac
 done
 
