@@ -14570,6 +14570,116 @@
     "ka"
    ]
   },
+  "group.err_invalid_ticket": {
+   "he": "חיבור החשבונות לקח יותר מדי זמן. נכנסים שוב עם גוגל.",
+   "en": "Linking the accounts took too long. Sign in with Google again.",
+   "ru": "Связывание аккаунтов заняло слишком много времени. Войдите через Google снова.",
+   "ka": "ანგარიშების დაკავშირებას ძალიან დიდი დრო დასჭირდა. ხელახლა შედით Google-ით.",
+   "where": "site/js/account.js",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "group.err_not_member": {
+   "he": "כבר לא בקבוצה הזו. מרעננים את הדף.",
+   "en": "No longer in this group. Refresh the page.",
+   "ru": "Вы больше не в этой группе. Обновите страницу.",
+   "ka": "თქვენ აღარ ხართ ამ ჯგუფში. განაახლეთ გვერდი.",
+   "where": "site/js/account.js",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "group.err_not_found": {
+   "he": "זה כבר לא קיים. מרעננים את הדף.",
+   "en": "That no longer exists. Refresh the page.",
+   "ru": "Этого больше нет. Обновите страницу.",
+   "ka": "ეს აღარ არსებობს. განაახლეთ გვერდი.",
+   "where": "site/js/account.js",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "group.err_trip_not_in_group": {
+   "he": "הטיסה הזו כבר לא מוצגת בקבוצה.",
+   "en": "That flight is no longer shown in the group.",
+   "ru": "Этот рейс больше не показан в группе.",
+   "ka": "ეს ფრენა ჯგუფში აღარ ჩანს.",
+   "where": "site/js/account.js",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "group.err_already_member": {
+   "he": "כבר בקבוצה.",
+   "en": "Already in the group.",
+   "ru": "Уже в группе.",
+   "ka": "უკვე ჯგუფშია.",
+   "where": "site/js/account.js",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "group.err_group_has_admin": {
+   "he": "לקבוצה כבר יש מנהל.",
+   "en": "The group already has an admin.",
+   "ru": "В группе уже есть администратор.",
+   "ka": "ჯგუფს უკვე ჰყავს ადმინისტრატორი.",
+   "where": "site/js/account.js",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "group.err_sign_in_instead": {
+   "he": "לחבר הזה יש חשבון: הוא נכנס איתו וחוזר לקבוצה בלי אישור.",
+   "en": "This member has an account: they sign in with it and come back without approval.",
+   "ru": "У этого участника есть аккаунт: он входит через него и возвращается без подтверждения.",
+   "ka": "ამ წევრს აქვს ანგარიში: ის შედის მისით და ბრუნდება დადასტურების გარეშე.",
+   "where": "site/js/account.js",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "group.err_conflict": {
+   "he": "משהו השתנה בינתיים. מרעננים ומנסים שוב.",
+   "en": "Something changed in the meantime. Refresh and try again.",
+   "ru": "Что-то изменилось. Обновите страницу и попробуйте ещё раз.",
+   "ka": "ამასობაში რაღაც შეიცვალა. განაახლეთ და სცადეთ თავიდან.",
+   "where": "site/js/account.js",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "group.err_server_error": {
+   "he": "תקלה בשרת. נסו שוב מאוחר יותר.",
+   "en": "A server problem. Please try again later.",
+   "ru": "Ошибка сервера. Попробуйте позже.",
+   "ka": "სერვერის შეცდომა. სცადეთ მოგვიანებით.",
+   "where": "site/js/account.js",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "group.err_use_leave_group": {
+   "he": "כדי לצאת בעצמך, משתמשים ב\"עזיבת הקבוצה\".",
+   "en": "To leave yourself, use “Leave the group”.",
+   "ru": "Чтобы выйти самому, нажмите «Покинуть группу».",
+   "ka": "თავად გასასვლელად გამოიყენეთ „ჯგუფის დატოვება“.",
+   "where": "site/js/account.js",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
   "research.baby.notes": {
    "he": "המועמד הוצע על ידי ChatGPT ואושר על ידי המשתמש מול המפה הרשמית. קו מרכז בלבד (162 מ', ירידה של 17 מ', 2709 אל 2692), לא גבול של אזור. הוא נמצא 78 מ' מערבית-צפונית לתחנת Goodaura העליונה ו-129 מ' מצפון-מערב לתחתית Snow Park, כמו האזור הירוק במפה. ב-OSM אין לו שם והוא מסומן easy ולא novice. ה-GPS סביבו הוא בעיקר תנועה איטית באזור תחנות (חציון 0.6 מ'/ש'), ולכן אינו ראיה לשם. אין מקור למיקום ה-J-bar עצמו או לגבול האזור. הקו כבר מוצג באתר כמסלול ללא שם. ביטחון בינוני בזכות אישור המשתמש והמיקום.",
    "en": "The candidate was suggested by ChatGPT and confirmed by the user against the official map. Centre line only (162 m, a 17 m drop, 2709 to 2692), not an area boundary. It lies 78 m west-northwest of the upper Goodaura station and 129 m northwest of the bottom of Snow Park, like the green area on the map. In OSM it has no name and is tagged easy, not novice. The GPS around it is mostly slow movement in a station area (median 0.6 m/s), so it is no evidence for the name. There is no source for the position of the J-bar itself or for the area's boundary. The line is already shown on the site as an unnamed run. Medium confidence, thanks to the user's confirmation and the location.",

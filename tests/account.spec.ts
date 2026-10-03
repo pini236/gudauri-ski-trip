@@ -16,7 +16,7 @@ async function loaded(page: Page) { await expect(page.locator('#loading')).toBeH
 const b64 = (o: object) => Buffer.from(JSON.stringify(o)).toString('base64url');
 
 // a small fake of the server: one group, one other member, and whoever joins
-async function fakeServer(page: Page, opts: { admin?: boolean } = {}) {
+async function fakeServer(page: Page, opts: { admin?: boolean; meetFull?: boolean } = {}) {
   const calls: string[] = [];
   const bodies: Record<string, any> = {};
   const me = { id: 'u-me', aud: 'authenticated', role: 'authenticated', is_anonymous: true, identities: [], app_metadata: {}, user_metadata: {} };
@@ -59,6 +59,7 @@ async function fakeServer(page: Page, opts: { admin?: boolean } = {}) {
       const table = path.slice(9), q = u.searchParams;
       if (req.method() === 'POST' && table === 'trips') { const row = { ...req.postDataJSON(), id: 't-me', owner_id: me.id, entered_by: null }; db.trips.push(row); return json(r, [{ id: 't-me' }], 201); }
       if (req.method() === 'DELETE' && table === 'trips') { const id = (q.get('id') || '').slice(3); db.trips = db.trips.filter(t => t.id !== id); db.members.forEach(m => { if (m.trip_id === id) m.trip_id = null; }); return json(r, null, 204); }
+      if (req.method() === 'POST' && table === 'meetups' && opts.meetFull) return json(r, { code: 'P0001', message: 'too_many_meetups' }, 400);
       if (req.method() === 'POST' && table === 'meetups') { db.meetups.push({ id: 'm' + (db.meetups.length + 1), ...req.postDataJSON() }); return json(r, null, 201); }
       if (table === 'profiles') return json(r, []);
       if (table === 'groups') return json(r, db.members.some(m => m.user_id === me.id) ? [group] : []);
@@ -239,6 +240,21 @@ test('מחיקת "הטיול שלך" מוחקת גם את השורה בשרת, �
   expect(server.db.trips.map(t => t.id)).toEqual(['t-dan']);
   await page.goto('/#group/g1');
   await expect(page.locator('.ac-flight .fp span')).toHaveText(['דנה בדיקה']);
+  expect(errors).toEqual([]);
+});
+
+test('שמירת מפגש שהשרת סירב לה: ההודעה אומרת למה (ד5)', async ({ page }) => {
+  const errors = watchErrors(page);
+  await fakeServer(page, { meetFull: true });
+  await page.goto('/#join/KZBQRM');
+  await loaded(page);
+  await page.locator('#joinForm input').fill('נועה ניסיון');
+  await page.locator('#joinForm button').click();
+  await expect(page).toHaveURL(/#group\/g1/);
+  await page.goto('/#meet');
+  await page.locator('[data-pre="am"]').click();
+  await page.locator('#meetGroup').click();
+  await expect(page.locator('#meetGroup')).toHaveText('יש כבר יותר מדי מפגשים בקבוצה.');
   expect(errors).toEqual([]);
 });
 

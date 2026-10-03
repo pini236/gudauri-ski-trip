@@ -135,9 +135,10 @@ window.ACCOUNT=(function(){
     // Apple waits for the developer account: its button says so ("soon") instead of looking broken
     host.insertAdjacentHTML('beforeend',`<button type="button" class="ac-btn apple${APPLE?'':' soon'}" disabled><span class="ac-mark">A</span>${esc(T(del?'acct.delete_apple':'acct.apple'))}${APPLE?'':`<small class="ac-soon">${esc(T('acct.apple_soon'))}</small>`}</button>`);
     return soon||!APPLE;}
-  function showErr(root,e){const p=root&&root.querySelector('[data-err]');if(!p)return;
-    const code=e&&e.code||'server_error';const own=T('group.err_'+code);
-    p.textContent=code==='offline'?T('acct.offline'):code==='not_signed_in'||code==='no_session'?T('acct.session_over'):own!=='group.err_'+code?own:T('acct.error');p.hidden=false;}
+  // every error code the contract marks gets its own words (CONTRACT, D5); an unknown one the general message
+  function errText(e){const code=e&&e.code||'server_error',own=T('group.err_'+code);
+    return code==='offline'?T('acct.offline'):code==='not_signed_in'||code==='no_session'?T('acct.session_over'):own!=='group.err_'+code?own:T('acct.error');}
+  function showErr(root,e){const p=root&&root.querySelector('[data-err]');if(!p)return;p.textContent=errText(e);p.hidden=false;}
   const clearErr=root=>{const p=root.querySelector('[data-err]');if(p)p.hidden=true;};
 
   // ---- the pages
@@ -421,7 +422,7 @@ window.ACCOUNT=(function(){
   async function saveMeet(b,g){const s=MEET.current();if(!s)return;b.disabled=true;$('meetGroupPick')?.remove();
     try{const c=await client();await rest(c.from('meetups').insert({group_id:g.id,station:s.sid,meet_at:`${s.day}T${s.time}:00+04:00`}));
       tr('meetup_create',{reminder:false});b.textContent=T('meet.saved_group');setTimeout(()=>{b.textContent=T('meet.save_group');b.disabled=false;},2500);}
-    catch(x){b.disabled=false;b.textContent=T('acct.error');setTimeout(()=>{b.textContent=T('meet.save_group');},2500);}}
+    catch(x){b.disabled=false;b.textContent=errText(x);setTimeout(()=>{b.textContent=T('meet.save_group');},4000);}}
   document.addEventListener('click',e=>{const b=e.target.closest('#meetGroup'),pick=e.target.closest('[data-meetgroup]');
     const gs=state.groups||[];
     if(pick){saveMeet($('meetGroup'),gs.find(g=>g.id===pick.dataset.meetgroup));return;}
