@@ -1282,6 +1282,390 @@
       "h": 800,
       "page": "round15",
       "title": "רוסית במחשב"
+    },
+    "R16-0-Decide.dc.html": {
+      "x": 0,
+      "y": 0,
+      "w": 560,
+      "h": 1500,
+      "page": "round16",
+      "title": "מה לאשר בסבב 16"
+    },
+    "R16-snow-season.dc.html": {
+      "x": 640,
+      "y": 0,
+      "w": 812,
+      "h": 298,
+      "page": "round16",
+      "title": "השלט \"ההר עוד ישן\" בדף הבית"
+    },
+    "R16-snow-season-night.dc.html": {
+      "x": 1532,
+      "y": 0,
+      "w": 812,
+      "h": 298,
+      "page": "round16",
+      "title": "אותו שלט בלילה"
+    },
+    "R16-snow-lstat.dc.html": {
+      "x": 2424,
+      "y": 0,
+      "w": 788,
+      "h": 622,
+      "page": "round16",
+      "title": "שלטי \"ההר עוד ישן\" במפה"
+    },
+    "R16-snow-lstat-night.dc.html": {
+      "x": 3292,
+      "y": 0,
+      "w": 788,
+      "h": 622,
+      "page": "round16",
+      "title": "אותם שלטים בלילה"
+    },
+    "R16-snow-games.dc.html": {
+      "x": 4160,
+      "y": 0,
+      "w": 796,
+      "h": 624,
+      "page": "round16",
+      "title": "שלטי המשחקים"
+    },
+    "R16-snow-games-en.dc.html": {
+      "x": 5036,
+      "y": 0,
+      "w": 796,
+      "h": 624,
+      "page": "round16",
+      "title": "שלטי המשחקים באנגלית"
+    },
+    "R16-snow-signin.dc.html": {
+      "x": 5912,
+      "y": 0,
+      "w": 844,
+      "h": 372,
+      "page": "round16",
+      "title": "כרטיס \"למה להתחבר\""
+    },
+    "R16-snow-group.dc.html": {
+      "x": 6836,
+      "y": 0,
+      "w": 844,
+      "h": 813,
+      "page": "round16",
+      "title": "קבוצה: הצטרפות בקוד ויצירה"
+    },
+    "R16-snow-privacy.dc.html": {
+      "x": 7760,
+      "y": 0,
+      "w": 844,
+      "h": 651,
+      "page": "round16",
+      "title": "דף הפרטיות: \"בקצרה\""
+    },
+    "R16-home-focus.dc.html": {
+      "x": 640,
+      "y": 1233,
+      "w": 1320,
+      "h": 1796,
+      "page": "round16",
+      "title": "דף הבית במחשב"
+    },
+    "R16-home-pass.dc.html": {
+      "x": 2040,
+      "y": 1233,
+      "w": 780,
+      "h": 506,
+      "page": "round16",
+      "title": "כרטיס הטיסה"
+    },
+    "R16-home-torn.dc.html": {
+      "x": 2900,
+      "y": 1233,
+      "w": 780,
+      "h": 506,
+      "page": "round16",
+      "title": "הספח שנתלש"
+    },
+    "R16-home-empty.dc.html": {
+      "x": 3760,
+      "y": 1233,
+      "w": 788,
+      "h": 418,
+      "page": "round16",
+      "title": "כרטיס ריק (אורח בלי טיול)"
+    },
+    "R16-home-ka.dc.html": {
+      "x": 4628,
+      "y": 1233,
+      "w": 844,
+      "h": 988,
+      "page": "round16",
+      "title": "דף הבית בגאורגית"
+    },
+    "R16-home-moon.dc.html": {
+      "x": 5552,
+      "y": 1233,
+      "w": 844,
+      "h": 444,
+      "page": "round16",
+      "title": "הירח בלילה"
+    },
+    "R16-home-who.dc.html": {
+      "x": 6476,
+      "y": 1233,
+      "w": 780,
+      "h": 610,
+      "page": "round16",
+      "title": "השם על הכרטיס"
+    },
+    "R16-top-ru.dc.html": {
+      "x": 640,
+      "y": 3449,
+      "w": 940,
+      "h": 324,
+      "page": "round16",
+      "title": "הסרגל העליון ברוסית, מחשב צר (900)"
+    },
+    "R16-top-ka.dc.html": {
+      "x": 1660,
+      "y": 3449,
+      "w": 840,
+      "h": 324,
+      "page": "round16",
+      "title": "הסרגל העליון בגאורגית, טאבלט (800)"
+    },
+    "R16-top-he.dc.html": {
+      "x": 2580,
+      "y": 3449,
+      "w": 1320,
+      "h": 324,
+      "page": "round16",
+      "title": "הסרגל העליון בעברית"
+    },
+    "R16-top-current.dc.html": {
+      "x": 3980,
+      "y": 3449,
+      "w": 1320,
+      "h": 324,
+      "page": "round16",
+      "title": "השלט \"בית\" בעמודי החשבון"
+    },
+    "R16-map-3d.dc.html": {
+      "x": 640,
+      "y": 4193,
+      "w": 900,
+      "h": 596,
+      "page": "round16",
+      "title": "מצב הרכבלים בתלת-ממד"
+    },
+    "R16-map-pill.dc.html": {
+      "x": 1620,
+      "y": 4193,
+      "w": 844,
+      "h": 264,
+      "page": "round16",
+      "title": "פס המצב בטלפון"
+    },
+    "R16-map-prof.dc.html": {
+      "x": 2544,
+      "y": 4193,
+      "w": 812,
+      "h": 288,
+      "page": "round16",
+      "title": "פרופיל הגובה"
+    },
+    "R16-map-board.dc.html": {
+      "x": 3436,
+      "y": 4193,
+      "w": 804,
+      "h": 464,
+      "page": "round16",
+      "title": "לוח הרכבלים"
+    },
+    "R16-map-tags.dc.html": {
+      "x": 4320,
+      "y": 4193,
+      "w": 812,
+      "h": 362,
+      "page": "round16",
+      "title": "כפתורי המסלולים והרכבלים בפאנל"
+    },
+    "R16-map-vids.dc.html": {
+      "x": 5212,
+      "y": 4193,
+      "w": 804,
+      "h": 684,
+      "page": "round16",
+      "title": "כותרות הסרטונים"
+    },
+    "R16-meet-card.dc.html": {
+      "x": 640,
+      "y": 5297,
+      "w": 812,
+      "h": 526,
+      "page": "round16",
+      "title": "כרטיס המפגש"
+    },
+    "R16-meet-card-en.dc.html": {
+      "x": 1532,
+      "y": 5297,
+      "w": 812,
+      "h": 526,
+      "page": "round16",
+      "title": "כרטיס המפגש באנגלית"
+    },
+    "R16-meet-callout.dc.html": {
+      "x": 2424,
+      "y": 5297,
+      "w": 608,
+      "h": 274,
+      "page": "round16",
+      "title": "הבועה מעל הסיכה"
+    },
+    "R16-meet-share.dc.html": {
+      "x": 3112,
+      "y": 5297,
+      "w": 828,
+      "h": 340,
+      "page": "round16",
+      "title": "כפתורי השיתוף"
+    },
+    "R16-meet-ka.dc.html": {
+      "x": 4020,
+      "y": 5297,
+      "w": 844,
+      "h": 792,
+      "page": "round16",
+      "title": "נקודת המפגש בגאורגית"
+    },
+    "R16-meet-routes.dc.html": {
+      "x": 4944,
+      "y": 5297,
+      "w": 828,
+      "h": 398,
+      "page": "round16",
+      "title": "\"איך מגיעים\""
+    },
+    "R16-meet-routes-en.dc.html": {
+      "x": 5852,
+      "y": 5297,
+      "w": 828,
+      "h": 398,
+      "page": "round16",
+      "title": "\"איך מגיעים\" באנגלית"
+    },
+    "R16-meet-map.dc.html": {
+      "x": 6760,
+      "y": 5297,
+      "w": 844,
+      "h": 584,
+      "page": "round16",
+      "title": "\"כל ההר\""
+    },
+    "R16-meet-night.dc.html": {
+      "x": 7684,
+      "y": 5297,
+      "w": 812,
+      "h": 526,
+      "page": "round16",
+      "title": "כרטיס המפגש בלילה"
+    },
+    "R16-games-ru.dc.html": {
+      "x": 640,
+      "y": 6509,
+      "w": 796,
+      "h": 794,
+      "page": "round16",
+      "title": "עמוד המשחקים ברוסית"
+    },
+    "R16-about-lang.dc.html": {
+      "x": 640,
+      "y": 7723,
+      "w": 808,
+      "h": 226,
+      "page": "round16",
+      "title": "השורה \"שפה · Language\""
+    },
+    "R16-about-night.dc.html": {
+      "x": 1528,
+      "y": 7723,
+      "w": 844,
+      "h": 904,
+      "page": "round16",
+      "title": "הגדרות בלילה"
+    },
+    "R16-about-en.dc.html": {
+      "x": 2452,
+      "y": 7723,
+      "w": 812,
+      "h": 654,
+      "page": "round16",
+      "title": "המתגים באנגלית"
+    },
+    "R16-acct-me.dc.html": {
+      "x": 640,
+      "y": 9047,
+      "w": 828,
+      "h": 286,
+      "page": "round16",
+      "title": "החשבון: השם ו\"שינוי\""
+    },
+    "R16-acct-ways.dc.html": {
+      "x": 1548,
+      "y": 9047,
+      "w": 828,
+      "h": 286,
+      "page": "round16",
+      "title": "החשבון: דרכי כניסה"
+    },
+    "R16-signin-apple.dc.html": {
+      "x": 2456,
+      "y": 9047,
+      "w": 828,
+      "h": 270,
+      "page": "round16",
+      "title": "כניסה: גוגל ואפל"
+    },
+    "R16-group-night.dc.html": {
+      "x": 3364,
+      "y": 9047,
+      "w": 812,
+      "h": 568,
+      "page": "round16",
+      "title": "דף הקבוצה בלילה"
+    },
+    "R16-group-day.dc.html": {
+      "x": 4256,
+      "y": 9047,
+      "w": 812,
+      "h": 315,
+      "page": "round16",
+      "title": "מספר הטיסה בקבוצה"
+    },
+    "R16-narrow-privacy.dc.html": {
+      "x": 640,
+      "y": 10035,
+      "w": 704,
+      "h": 344,
+      "page": "round16",
+      "title": "דף הפרטיות בטלפון קטן (320)"
+    },
+    "R16-narrow-privacy-ru.dc.html": {
+      "x": 1424,
+      "y": 10035,
+      "w": 704,
+      "h": 404,
+      "page": "round16",
+      "title": "אותו דף ברוסית"
+    },
+    "R16-narrow-trip-ka.dc.html": {
+      "x": 2208,
+      "y": 10035,
+      "w": 704,
+      "h": 524,
+      "page": "round16",
+      "title": "הטיול שלך בגאורגית (320)"
     }
   },
   "createdOnFiles": {
@@ -1291,7 +1675,7 @@
   "designSystems": [],
   "launch": {
     "view": "canvas",
-    "page": "round15"
+    "page": "round16"
   },
   "notes": {
     "featRow1": {
@@ -1707,6 +2091,87 @@
       "w": 240,
       "x": 600,
       "y": 964
+    },
+    "round16row0": {
+      "kind": "title1",
+      "maxW": 7964,
+      "page": "round16",
+      "text": "השלג על השלטים והכרטיסים: מה שהראית בצילום, בכל מקום באתר",
+      "w": 240,
+      "x": 640,
+      "y": -300
+    },
+    "round16row1": {
+      "kind": "title1",
+      "maxW": 6616,
+      "page": "round16",
+      "text": "דף הבית",
+      "w": 240,
+      "x": 640,
+      "y": 933
+    },
+    "round16row2": {
+      "kind": "title1",
+      "maxW": 4660,
+      "page": "round16",
+      "text": "הסרגל העליון במחשב",
+      "w": 240,
+      "x": 640,
+      "y": 3149
+    },
+    "round16row3": {
+      "kind": "title1",
+      "maxW": 5376,
+      "page": "round16",
+      "text": "מפת המסלולים",
+      "w": 240,
+      "x": 640,
+      "y": 3893
+    },
+    "round16row4": {
+      "kind": "title1",
+      "maxW": 7856,
+      "page": "round16",
+      "text": "נקודת מפגש",
+      "w": 240,
+      "x": 640,
+      "y": 4997
+    },
+    "round16row5": {
+      "kind": "title1",
+      "maxW": 860,
+      "page": "round16",
+      "text": "משחקים",
+      "w": 240,
+      "x": 640,
+      "y": 6209
+    },
+    "round16row6": {
+      "kind": "title1",
+      "maxW": 2624,
+      "page": "round16",
+      "text": "אודות והגדרות",
+      "w": 240,
+      "x": 640,
+      "y": 7423
+    },
+    "round16row7": {
+      "kind": "title1",
+      "maxW": 4428,
+      "page": "round16",
+      "text": "כניסה, חשבון וקבוצה",
+      "w": 240,
+      "x": 640,
+      "y": 8747
+    },
+    "round16row8": {
+      "kind": "title1",
+      "maxW": 2272,
+      "page": "round16",
+      "text": "טלפון קטן ושפות ארוכות",
+      "w": 240,
+      "x": 640,
+      "y": 9735
     }
   },
   "order": [
@@ -1868,9 +2333,61 @@
     "V3-En.dc.html",
     "V4-Ru.dc.html",
     "V5-Ka.dc.html",
-    "V6-RuDesktop.dc.html"
+    "V6-RuDesktop.dc.html",
+    "R16-0-Decide.dc.html",
+    "R16-snow-season.dc.html",
+    "R16-snow-season-night.dc.html",
+    "R16-snow-lstat.dc.html",
+    "R16-snow-lstat-night.dc.html",
+    "R16-snow-games.dc.html",
+    "R16-snow-games-en.dc.html",
+    "R16-snow-signin.dc.html",
+    "R16-snow-group.dc.html",
+    "R16-snow-privacy.dc.html",
+    "R16-home-focus.dc.html",
+    "R16-home-pass.dc.html",
+    "R16-home-torn.dc.html",
+    "R16-home-empty.dc.html",
+    "R16-home-ka.dc.html",
+    "R16-home-moon.dc.html",
+    "R16-home-who.dc.html",
+    "R16-top-ru.dc.html",
+    "R16-top-ka.dc.html",
+    "R16-top-he.dc.html",
+    "R16-top-current.dc.html",
+    "R16-map-3d.dc.html",
+    "R16-map-pill.dc.html",
+    "R16-map-prof.dc.html",
+    "R16-map-board.dc.html",
+    "R16-map-tags.dc.html",
+    "R16-map-vids.dc.html",
+    "R16-meet-card.dc.html",
+    "R16-meet-card-en.dc.html",
+    "R16-meet-callout.dc.html",
+    "R16-meet-share.dc.html",
+    "R16-meet-ka.dc.html",
+    "R16-meet-routes.dc.html",
+    "R16-meet-routes-en.dc.html",
+    "R16-meet-map.dc.html",
+    "R16-meet-night.dc.html",
+    "R16-games-ru.dc.html",
+    "R16-about-lang.dc.html",
+    "R16-about-night.dc.html",
+    "R16-about-en.dc.html",
+    "R16-acct-me.dc.html",
+    "R16-acct-ways.dc.html",
+    "R16-signin-apple.dc.html",
+    "R16-group-night.dc.html",
+    "R16-group-day.dc.html",
+    "R16-narrow-privacy.dc.html",
+    "R16-narrow-privacy-ru.dc.html",
+    "R16-narrow-trip-ka.dc.html"
   ],
   "pages": [
+    {
+      "id": "round16",
+      "name": "סבב 16: ליטוש העיצוב באתר"
+    },
     {
       "id": "round15",
       "name": "סבב 15: דף הפרטיות בארבע שפות"
