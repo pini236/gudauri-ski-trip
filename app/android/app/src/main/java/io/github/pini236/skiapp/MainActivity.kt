@@ -220,6 +220,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         nav = Nav(Route.Home, savedInstanceState?.getStringArrayList("nav"))
         Qa.init(this)
+        Qa.log("language ${Lang.current(resources).tag} · phone ${android.content.res.Resources.getSystem().configuration.locales.toLanguageTags()} · ${if (Lang.manual(this)) "chosen in the app" else "automatic"}")
         trips = TripStore(this)
         trip = trips.load()
         dnMode = getSharedPreferences("daynight", MODE_PRIVATE).getString("mode", null)?.let { m -> DayNight.Mode.entries.firstOrNull { it.name == m } } ?: DayNight.Mode.AUTO
@@ -264,7 +265,7 @@ class MainActivity : ComponentActivity() {
     /** Usage and crashes (telemetry/Telemetry.kt), with the properties every event carries, then app_open. */
     private fun startTelemetry() {
         val lang = Lang.current(resources)
-        val manual = if (Build.VERSION.SDK_INT >= 33) !getSystemService(android.app.LocaleManager::class.java).applicationLocales.isEmpty else Lang.chosen(this) != null
+        val manual = Lang.manual(this)
         Telemetry.start(this, BuildConfig.FLAVOR, Telemetry.Common(
             appVersion = BuildConfig.VERSION_NAME,
             build = if (BuildConfig.DEBUG) "debug" else if (BuildConfig.FLAVOR == "preview") "test" else "store",
@@ -375,7 +376,8 @@ class MainActivity : ComponentActivity() {
         castShadows(s)
         runOnUiThread { if (isDestroyed) return@runOnUiThread; qaPending?.let { qaPending = null; applyQaMap(it, sunDone = true) }; ui.postDelayed(skyTick, SKY_EVERY_MS) }
         // new runs, lifts and videos from the site, if there are any: read at the next launch (data/SiteData.kt)
-        val refreshed = siteData.refresh()
+        // whatever goes wrong with a refresh, the app keeps the data it has (it never crashes over it)
+        val refreshed = runCatching { siteData.refresh() }.getOrElse { Telemetry.handled(it); emptyMap() }
         Qa.log("data refresh ${refreshed.entries.joinToString { "${it.key} ${it.value}" }}")
     }
 
@@ -526,6 +528,12 @@ class MainActivity : ComponentActivity() {
             Box(Modifier.fillMaxSize().background(if (spike) Palette.snow else Ski.colors.snow)) {
                 when (top) {
                     Route.Home -> HomeScreen(trip, frame, dnMode, LocalDateTime.ofInstant(Instant.ofEpochMilli(tick), ZoneId.systemDefault()), haptics, sounds, status = lstat,
+                        onLang = { tag ->
+                            // the app comes back in the new language (the phone recreates the screen); home stays home
+                            Telemetry.event("lang_set", mapOf("lang" to (tag ?: "auto"), "previous" to Lang.current(resources).tag))
+                            Qa.log("lang set ${tag ?: "auto"}")
+                            Lang.set(this@MainActivity, tag)
+                        },
                         onMode = {
                             dnMode = dnMode.next(); haptics.tick(.4f)
                             getSharedPreferences("daynight", MODE_PRIVATE).edit().putString("mode", dnMode.name).apply()

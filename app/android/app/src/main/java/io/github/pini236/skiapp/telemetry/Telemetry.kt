@@ -98,6 +98,9 @@ object Telemetry {
     }
 
     /** The emulator run's check that crash reports reach Sentry (debug builds only, MainActivity's qa.sentry). */
+    /** An error the app got over (it did not crash), so it still shows in Sentry. */
+    fun handled(e: Throwable) { if (crashes) Sentry.captureException(e) }
+
     fun testCrashReport(note: String) { if (crashes) Sentry.captureMessage("qa check: $note") }
 
     /** Send what is queued now (the emulator run checks arrival right after). */

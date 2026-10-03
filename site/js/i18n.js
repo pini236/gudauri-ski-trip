@@ -1,12 +1,12 @@
 /* Interface language of the site (decision 32): Hebrew, English, Russian, Georgian.
    The words come from i18n/strings.json, built into i18n/<lang>.json by tools/build-site-strings.py.
    Which language: ?lang=xx (saved in this browser; ?lang=auto forgets it), then the saved choice, then the browser.
-   Hebrew for anyone with Hebrew in the browser languages or the Israeli time zone, else the first released language the
-   browser asks for, else English. Loaded in <head>, before the page draws, so lang and dir are right from the start. */
+   Hebrew only when Hebrew (he or iw) is among the browser languages; every other browser gets English (3.10.2026, Pini:
+   Google Play reviewers and tourists open the pages in English; Russian and Georgian are chosen with the language button). Loaded in <head>, before the page draws, so lang and dir are right from the start. */
 (function(){
   var LANGS={he:{dir:'rtl',loc:'he-IL'},en:{dir:'ltr',loc:'en-GB'},ru:{dir:'ltr',loc:'ru-RU'},ka:{dir:'ltr',loc:'ka-GE'}};
-  // The languages picked from the browser. All four since 2.10.2026 (decision 39, confirmed by Pini for the site:
-  // no native speaker review for now). A language left out is never picked by itself, only through ?lang.
+  // The four languages the site offers (decision 39: no native speaker review for now). The browser picks only Hebrew or
+  // English; Russian and Georgian come from ?lang or the language button.
   var RELEASED=['he','en','ru','ka'];
   var KEY='gud-lang';
   // A game page loads its own file: <script src="../../js/i18n.js" data-base="../../i18n/" data-file="game-descent">.
@@ -15,10 +15,7 @@
   function save(v){try{if(v)localStorage.setItem(KEY,v);else localStorage.removeItem(KEY);}catch(e){}}
   function fromBrowser(){
     var list=(navigator.languages&&navigator.languages.length?navigator.languages:[navigator.language||'']).map(function(l){return String(l).toLowerCase().split('-')[0];});
-    var tz='';try{tz=Intl.DateTimeFormat().resolvedOptions().timeZone||'';}catch(e){}
-    if(list.indexOf('he')>=0||list.indexOf('iw')>=0||tz==='Asia/Jerusalem'||tz==='Asia/Tel_Aviv')return 'he';
-    for(var i=0;i<list.length;i++)if(RELEASED.indexOf(list[i])>=0)return list[i];
-    return 'en';
+    return list.indexOf('he')>=0||list.indexOf('iw')>=0?'he':'en';
   }
   var q='';try{q=(new URLSearchParams(location.search).get('lang')||'').toLowerCase();}catch(e){}
   if(q==='auto')save('');else if(LANGS[q])save(q);

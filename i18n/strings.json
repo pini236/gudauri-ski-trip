@@ -11105,6 +11105,30 @@
     "ka"
    ]
   },
+  "app.lang_phone": {
+   "he": "לפי הטלפון (אוטומטי)",
+   "en": "From the phone (automatic)",
+   "ru": "По языку телефона (автоматически)",
+   "ka": "ტელეფონის მიხედვით (ავტომატური)",
+   "where": "app/android",
+   "note": "the home's language list: back to the phone's language (as about.language_browser on the site)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.lang_button": {
+   "he": "שפה: {name}",
+   "en": "Language: {name}",
+   "ru": "Язык: {name}",
+   "ka": "ენა: {name}",
+   "where": "app/android",
+   "note": "screen reader label of the language tag on the home page; {name} is the language in its own script",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
   "app.g_bad_code": {
    "he": "הקוד לא עובד",
    "en": "The code does not work",

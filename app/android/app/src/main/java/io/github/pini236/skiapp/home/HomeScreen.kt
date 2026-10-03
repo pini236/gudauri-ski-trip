@@ -48,6 +48,11 @@ import io.github.pini236.skiapp.fx.Sounds
 import io.github.pini236.skiapp.trip.Trip
 import io.github.pini236.skiapp.ui.Icons
 import io.github.pini236.skiapp.ui.Ski
+import io.github.pini236.skiapp.qa.Qa
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.getValue
 import io.github.pini236.skiapp.status.LiftStatus
 import io.github.pini236.skiapp.status.LiveDot
 import io.github.pini236.skiapp.status.summaryText
@@ -65,13 +70,15 @@ enum class HomeAction { MAP, MEET, GAMES, GROUP, ABOUT, TRIP, STATUS }
  */
 @Composable
 fun HomeScreen(trip: Trip?, frame: DayNight.Frame, mode: DayNight.Mode, now: LocalDateTime, haptics: Haptics, sounds: Sounds,
-               onMode: () -> Unit, status: LiftStatus? = null, go: (HomeAction) -> Unit) {
+               onMode: () -> Unit, status: LiftStatus? = null, onLang: ((String?) -> Unit)? = null, go: (HomeAction) -> Unit) {
     val c = Ski.colors
     val top = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
+    var langs by remember { mutableStateOf(false) }
+    Box(Modifier.fillMaxSize()) {
     Box(Modifier.fillMaxSize().background(c.snow).verticalScroll(rememberScrollState())) {
         Hero(frame, 250.dp + top)
         Column(Modifier.align(Alignment.TopCenter).widthIn(max = 520.dp).fillMaxWidth().padding(top = top)) {
-            Head(frame, mode, onMode) { go(HomeAction.ABOUT) }
+            Head(frame, mode, onMode, onLang?.let { { langs = true; Qa.log("lang sheet open") } }) { go(HomeAction.ABOUT) }
             if (trip != null) {
                 // with a return pass, its top shows above the outbound one (PASS_PEEK), over the mountains
                 Spacer(Modifier.height(if (trip.ret != null) 20.dp else 56.dp))
@@ -92,11 +99,13 @@ fun HomeScreen(trip: Trip?, frame: DayNight.Frame, mode: DayNight.Mode, now: Loc
             ))
         }
     }
+    if (langs && onLang != null) LangSheet({ tag -> langs = false; onLang(tag) }) { langs = false }
+    }
 }
 
 /** The head over the sky: the place and the time there, the day-and-night button and the way to about and settings. */
 @Composable
-internal fun Head(frame: DayNight.Frame, mode: DayNight.Mode, onMode: () -> Unit, onAbout: () -> Unit) {
+internal fun Head(frame: DayNight.Frame, mode: DayNight.Mode, onMode: () -> Unit, onLang: (() -> Unit)? = null, onAbout: () -> Unit) {
     val c = Ski.colors
     // a soft halo keeps the words readable over any sky (the site's --sky-halo)
     val halo = Shadow(if (c.dark) Color(0x990D1522) else Color(0x99FFFFFF), blurRadius = 10f)
@@ -110,6 +119,7 @@ internal fun Head(frame: DayNight.Frame, mode: DayNight.Mode, onMode: () -> Unit
                 Text(frame.clock, style = Ski.type.bodyBold.copy(fontSize = 15.sp, shadow = halo, textDirection = TextDirection.Ltr), color = c.ink)
             }
         }
+        if (onLang != null) LangTag(halo, onLang)
         Box(Modifier.size(44.dp).clickable(role = Role.Button, onClick = onMode).semantics { contentDescription = modeLabel }, contentAlignment = Alignment.Center) {
             Icon(Icons.dayNight, null, Modifier.size(22.dp), tint = c.ink)
         }

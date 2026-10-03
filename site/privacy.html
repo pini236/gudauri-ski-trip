@@ -197,18 +197,15 @@
     document.documentElement.lang=l;document.documentElement.dir=l==='he'?'rtl':'ltr';
     document.querySelectorAll('[data-lang]').forEach(function(b){b.setAttribute('aria-pressed',String(b.dataset.lang===l));});
   }
-  // like js/i18n.js: the language saved on the site, then the browser (Hebrew for Hebrew or Israel), else English
+  // like js/i18n.js: the language saved on the site, then Hebrew for a Hebrew browser, else English
   function chosen(){
-    var h=location.hash.slice(1);if(L.indexOf(h)>0)return h;
+    var h=location.hash.slice(1);if(L.indexOf(h)>=0)return h;
     var s='';try{s=localStorage.getItem('gud-lang')||'';}catch(e){}if(L.indexOf(s)>=0)return s;
     var list=(navigator.languages&&navigator.languages.length?navigator.languages:[navigator.language||'']).map(function(x){return String(x).toLowerCase().split('-')[0];});
-    var tz='';try{tz=Intl.DateTimeFormat().resolvedOptions().timeZone||'';}catch(e){}
-    if(list.indexOf('he')>=0||list.indexOf('iw')>=0||tz==='Asia/Jerusalem'||tz==='Asia/Tel_Aviv')return 'he';
-    for(var i=0;i<list.length;i++)if(L.indexOf(list[i])>=0)return list[i];
-    return 'en';
+    return list.indexOf('he')>=0||list.indexOf('iw')>=0?'he':'en';
   }
   document.querySelectorAll('[data-lang]').forEach(function(b){b.addEventListener('click',function(){
-    show(b.dataset.lang);history.replaceState(null,'',b.dataset.lang==='he'?location.pathname:'#'+b.dataset.lang);window.scrollTo(0,0);});});
+    show(b.dataset.lang);history.replaceState(null,'','#'+b.dataset.lang);window.scrollTo(0,0);});});
   show(chosen());window.scrollTo(0,0);
 })();
 </script>

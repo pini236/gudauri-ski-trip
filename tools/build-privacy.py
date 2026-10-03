@@ -4,7 +4,7 @@
 docs/PRIVACY.md stays the only source of the text (decision 33); edit it there and run this again.
 The design is P1 and P2 of round 10 in the canvas (decision 36): the policy in Hebrew, English, Russian and Georgian
 (decision 46) on one page, a language switch (/privacy#en, #ru, #ka open the others; with no hash, the language chosen on
-the site, or the browser's, as js/i18n.js picks it), the "unofficial" sign and the "in short" box under fresh snow.
+the site, else Hebrew for a Hebrew browser and English for any other, as js/i18n.js picks it), the "unofficial" sign and the "in short" box under fresh snow.
 Run from the repo root: python3 tools/build-privacy.py"""
 import html, pathlib, re
 
@@ -136,18 +136,15 @@ def build():
     document.documentElement.lang=l;document.documentElement.dir=l==='he'?'rtl':'ltr';
     document.querySelectorAll('[data-lang]').forEach(function(b){{b.setAttribute('aria-pressed',String(b.dataset.lang===l));}});
   }}
-  // like js/i18n.js: the language saved on the site, then the browser (Hebrew for Hebrew or Israel), else English
+  // like js/i18n.js: the language saved on the site, then Hebrew for a Hebrew browser, else English
   function chosen(){{
-    var h=location.hash.slice(1);if(L.indexOf(h)>0)return h;
+    var h=location.hash.slice(1);if(L.indexOf(h)>=0)return h;
     var s='';try{{s=localStorage.getItem('gud-lang')||'';}}catch(e){{}}if(L.indexOf(s)>=0)return s;
     var list=(navigator.languages&&navigator.languages.length?navigator.languages:[navigator.language||'']).map(function(x){{return String(x).toLowerCase().split('-')[0];}});
-    var tz='';try{{tz=Intl.DateTimeFormat().resolvedOptions().timeZone||'';}}catch(e){{}}
-    if(list.indexOf('he')>=0||list.indexOf('iw')>=0||tz==='Asia/Jerusalem'||tz==='Asia/Tel_Aviv')return 'he';
-    for(var i=0;i<list.length;i++)if(L.indexOf(list[i])>=0)return list[i];
-    return 'en';
+    return list.indexOf('he')>=0||list.indexOf('iw')>=0?'he':'en';
   }}
   document.querySelectorAll('[data-lang]').forEach(function(b){{b.addEventListener('click',function(){{
-    show(b.dataset.lang);history.replaceState(null,'',b.dataset.lang==='he'?location.pathname:'#'+b.dataset.lang);window.scrollTo(0,0);}});}});
+    show(b.dataset.lang);history.replaceState(null,'','#'+b.dataset.lang);window.scrollTo(0,0);}});}});
   show(chosen());window.scrollTo(0,0);
 }})();
 </script>

@@ -107,7 +107,8 @@ tasks.named("preBuild") { dependsOn(copySiteData, copyLicenses) }
 /**
  * The languages of each build: all four (decision 32), since the app has the left-to-right signs and the fonts
  * approved in the canvas (LT1 to LT3, FT1, decision 36; 2.10.2026). A native speaker's review is not required for
- * now (decision 39). Hebrew first: it is the default values/ file.
+ * now (decision 39). Hebrew first: the source, whose order numbers the placeholders. values/ is English, for a phone in
+ * a language the app does not have (3.10.2026).
  */
 val releaseLanguages = "he,en,ru,ka"
 val debugLanguages = "he,en,ru,ka"
