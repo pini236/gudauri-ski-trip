@@ -402,3 +402,23 @@ test("keepalive: open to anyone, cleans once a day", async () => {
   eq(await count(sql`select count(*) n from auth.users where id in (${newGuest}, ${member})`), 2,
     "new guests and guests in a group stay");
 });
+
+test("the account name reaches every group (decision 50)", async () => {
+  const pini = await user("pini");
+  const g1 = await newGroup(pini);
+  const g2 = await newGroup(pini);
+  const other = await user("other");
+  const g3 = await newGroup(other);
+  await call(pini, "set_my_membership", { group_id: g2, display_name: "Pini in g2", trip_id: null });
+  await sql`update public.profiles set display_name = 'Pinchas' where id = ${pini}`;
+  const names = await sql`select group_id, display_name from public.group_members where user_id = ${pini}`;
+  eq(names.length, 2, "two groups");
+  for (const n of names) eq(n.display_name, "Pinchas", "the new name in every group, also one named by hand");
+  eq((await sql`select display_name from public.group_members where group_id = ${g3}`)[0].display_name, "Admin",
+    "nobody else changes");
+  await sql`update public.profiles set lang = 'en' where id = ${pini}`;
+  await call(pini, "set_my_membership", { group_id: g1, display_name: "P", trip_id: null });
+  await sql`update public.profiles set lang = 'ru' where id = ${pini}`;
+  eq((await sql`select display_name from public.group_members where group_id = ${g1} and user_id = ${pini}`)[0]
+    .display_name, "P", "only a name change spreads, not a change of language");
+});
