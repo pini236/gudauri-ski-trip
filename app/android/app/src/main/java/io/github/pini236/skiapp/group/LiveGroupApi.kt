@@ -220,6 +220,14 @@ class LiveGroupApi(
 
     override suspend fun setMemberTrip(groupId: String, userId: String, trip: Trip) { io { groups.setMemberTrip(groupId, userId, trip) } }
 
+    /** Mine, not one an admin filled in for me (entered_by empty or me), the newest first; the phone adopts its row. */
+    override suspend fun myTripOnServer(): Trip? = io {
+        val me = store.load()?.userId ?: return@io null
+        val o = rows(server.select("trips", "select=*&owner_id=eq.${Server.enc(me)}&or=(entered_by.is.null,entered_by.eq.${Server.enc(me)})&order=updated_at.desc&limit=1"))
+            .firstOrNull() ?: return@io null
+        TripRow.trip(o)?.also { myTrip.adopt(o.getString("id"), it) }
+    }
+
     override suspend fun leaderboard(groupId: String, game: String): List<Score> = io {
         val me = store.load()?.userId
         val rows = try {

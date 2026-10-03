@@ -171,6 +171,11 @@ interface GroupApi {
     suspend fun showMyTrip(groupId: String, myName: String, trip: Trip?)
     /** "I'm on the same flight": a copy of that trip becomes mine, in this group; returned to keep on the phone too. */
     suspend fun sameFlight(groupId: String, tripId: String): Trip
+    /**
+     * A phone with no trip of its own, just signed in (a new phone, or the app installed again): my newest trip on the
+     * server, as the site's pullTrip, which this phone then keeps as its own row; null when there is none.
+     */
+    suspend fun myTripOnServer(): Trip? = null
     /** An admin fills in a member's flight while the member has not. */
     suspend fun setMemberTrip(groupId: String, userId: String, trip: Trip)
 

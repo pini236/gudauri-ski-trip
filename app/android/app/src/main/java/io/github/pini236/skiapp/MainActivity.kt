@@ -179,6 +179,8 @@ class MainActivity : ComponentActivity() {
         if (BuildConfig.DEBUG && groupApi.ready) { groupApi.signInWithGoogle("dev", "dev"); return }
         val g = GoogleSignIn.signIn(this)
         groupApi.signInWithGoogle(g.idToken, g.nonce)
+        // a new phone (or the app installed again) with no trip yet: the trip this account keeps on the server comes back
+        if (trip == null) runCatching { groupApi.myTripOnServer() }.getOrNull()?.let { trips.save(it); trip = it; Qa.log("trip restored") }
     }
 
     /** "Your trip": on the phone, and on the server when this phone has a session there (server/TripSync.kt). */

@@ -198,6 +198,19 @@ class LiveGroupApiTest {
         assertEquals("r1", calls[2].second.getString("request_id"))
     }
 
+    @Test fun aNewPhoneGetsMyTripBack() = runBlocking {
+        signedIn("u2")
+        answers["rest/v1/trips"] = "[${trip.replace("\"entered_by\":\"u1\"", "\"entered_by\":null")}]"
+        val t = api().myTripOnServer()
+        assertEquals("GD 101", t!!.out.flight)
+        assertEquals("t1", adopted.single().first)
+        val q = sent.last().url
+        assertTrue(q, q.contains("owner_id=eq.u2") && q.contains("order=updated_at.desc") && q.contains("limit=1"))
+        // nobody signed in: nothing to bring back
+        store.save(null)
+        assertNull(api().myTripOnServer())
+    }
+
     @Test fun refusalsKeepTheServersCode() = runBlocking {
         signedIn()
         try {
