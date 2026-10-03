@@ -1,5 +1,5 @@
 -- One place for the limits: private.limits() (the database rules and the server's code both read it; the code
--- used to keep its own copy). The two numbers only the code used are added: how long the audit log is kept.
+-- used to keep its own copy). The one number only the code used is added: how long the audit log is kept (audit_days).
 create or replace function private.limits() returns jsonb language sql immutable set search_path = '' as $$
   select jsonb_build_object(
     'trips_per_user', 20,
