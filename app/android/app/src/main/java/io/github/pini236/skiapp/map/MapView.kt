@@ -118,9 +118,13 @@ class MapView(context: Context, refreshHz: Float, val stats: FrameStats) : Frame
     var scene: MapScene? = null; private set
     var selected: Piste? = null; private set
     var onSelect: ((Piste?) -> Unit)? = null
-    /** The activity's listener: the chosen run goes into the saved place (nav/Nav.kt). */
-    var onChosen: ((Piste?) -> Unit)? = null
+    /** The activity's listener: the chosen run goes into the saved place (nav/Nav.kt); [via] how (run_open's `via`). */
+    var onChosen: ((Piste?, String) -> Unit)? = null
     var onFlying: ((Boolean) -> Unit)? = null
+    /** The map screen's listener: a lift the map shows (the meeting point's "see it on the run map"), for its panel. */
+    var onLift: ((io.github.pini236.skiapp.data.Lift) -> Unit)? = null
+    /** A lift shown while no map screen listened; the next map screen opens its panel. */
+    var shownLift: io.github.pini236.skiapp.data.Lift? = null
     val msaa get() = surface.msaa
 
     init {
@@ -164,30 +168,40 @@ class MapView(context: Context, refreshHz: Float, val stats: FrameStats) : Frame
         fun layout(text: String, tf: android.graphics.Typeface?, sp: Float, color: Int): StaticLayout {
             val p = TextPaint(Paint.ANTI_ALIAS_FLAG).apply { typeface = tf; textSize = sp * resources.displayMetrics.scaledDensity; this.color = color }
             val w = kotlin.math.ceil(Layout.getDesiredWidth(text, p)).toInt()
-            return StaticLayout.Builder.obtain(text, 0, text.length, p, w).setAlignment(Layout.Alignment.ALIGN_CENTER).setIncludePad(false).build()
+            // the language's direction, not the first letter's: a Latin name first made a Hebrew label read left to right
+            // and put "מ׳" on the wrong side of the height
+            val dir = if (lang.rtl) android.text.TextDirectionHeuristics.RTL else android.text.TextDirectionHeuristics.LTR
+            return StaticLayout.Builder.obtain(text, 0, text.length, p, w).setAlignment(Layout.Alignment.ALIGN_CENTER).setTextDirection(dir).setIncludePad(false).build()
         }
         val out = ArrayList<MapLabel>()
         // peaks: a Latin name, a Hebrew unit and a number in one line, the bidi case
         for (p in s.terrain.peaks) out += MapLabel(p.x, s.terrain.elev(p.x, p.y) + 30, p.y,
-            layout(context.getString(R.string.app_peak_label, p.name, nf.format(p.ele)), display, 19f, Color.argb(255, 19, 35, 58)), 3, false)
+            layout(context.getString(R.string.app_peak_label, iso(p.name), nf.format(p.ele)), display, 19f, Color.argb(255, 19, 35, 58)), 3, false)
         // top stations of the named lifts
         s.runs.lifts.forEachIndexed { i, l ->
             if (l.name.isBlank()) return@forEachIndexed
             val line = s.liftLines[i]; val n = line.size / 3
             val top = if (line[1] > line[(n - 1) * 3 + 1]) 0 else n - 1
-            out += MapLabel(line[top * 3], line[top * 3 + 1] + 20, line[top * 3 + 2], layout(context.getString(R.string.app_lift_label, l.name), body, 12f, Color.WHITE), 2, true)
+            out += MapLabel(line[top * 3], line[top * 3 + 1] + 20, line[top * 3 + 2], layout(context.getString(R.string.app_lift_label, iso(l.name)), body, 12f, Color.WHITE), 2, true)
         }
         return out.sortedByDescending { it.priority }
     }
 
+    /** A Latin name kept in its own direction inside a label of any language (first-strong isolate). */
+    private fun iso(name: String) = "\u2068$name\u2069"
+
     // ---- selection ----
-    /** [chosen]: the person picked it now (a tap); false when the map only paints again what was already chosen. */
-    fun select(p: Piste?, chosen: Boolean = true) {
+    /**
+     * [chosen]: the person picked it now (a tap on the map, or [via] the list, the sign's steps, a link); false when the
+     * map only paints again what was already chosen.
+     */
+    fun select(p: Piste?, chosen: Boolean = true, via: String = "map") {
         val s = scene ?: return
         selected = p
         onSelect?.invoke(p)
-        if (chosen) onChosen?.invoke(p)
-        if (p == null) { renderer.select(null); Qa.log("selected none"); return }
+        if (chosen) onChosen?.invoke(p, via)
+        renderer.marker = null
+        if (p == null) { framed = null; renderer.select(null); Qa.log("selected none"); return }
         inBackground {
             val lines = s.topDown(p)
             if (lines.isEmpty()) return@inBackground
@@ -205,8 +219,9 @@ class MapView(context: Context, refreshHz: Float, val stats: FrameStats) : Frame
             val path = lines.fold(FloatArray(0)) { acc, l -> acc + l }
             val sel = Selection(p.key, s.highlight(lines), casing, paint, path)
             renderer.select(sel)
-            // land the camera on the whole run, between the bars, looking uphill so its top is at the top
-            renderer.animateCamera(Framing.fit(path, width.toFloat(), height.toFloat(), { x, z -> s.terrain.elev(x, z) }))
+            // land the camera on the whole run, between the bars and above the panel, looking uphill so its top is at the top
+            framed = path
+            renderer.animateCamera(Framing.fit(path, width.toFloat(), height.toFloat(), { x, z -> s.terrain.elev(x, z) }, box = Framing.Box(bottom = freeBottom)))
             Qa.log("selected ${p.key}")
         }
     }
@@ -217,8 +232,15 @@ class MapView(context: Context, refreshHz: Float, val stats: FrameStats) : Frame
         val i = s.runs.lifts.indexOfFirst { it.id == id }
         if (i < 0) return
         select(null, chosen = false)
+        // the map screen may not be on the screen yet (the meeting point pushes the map, then shows the lift)
+        val l = s.runs.lifts[i]
+        onLift?.let { it(l) } ?: run { shownLift = l }
         // after the map has its size (it may have just been put on the screen)
-        post { inBackground { renderer.animateCamera(Framing.fit(s.liftLines[i], width.toFloat(), height.toFloat(), { x, z -> s.terrain.elev(x, z) })); Qa.log("showing lift $id") } }
+        post { inBackground {
+            framed = s.liftLines[i]
+            renderer.animateCamera(Framing.fit(s.liftLines[i], width.toFloat(), height.toFloat(), { x, z -> s.terrain.elev(x, z) }, box = Framing.Box(bottom = freeBottom)))
+            Qa.log("showing lift $id")
+        } }
     }
 
     /** Puts the camera at a given view (the QA run uses it for repeatable screenshots). */
@@ -232,6 +254,30 @@ class MapView(context: Context, refreshHz: Float, val stats: FrameStats) : Frame
     }
 
     fun stopFly() { renderer.stopFly() }
+
+    /** The line the camera is framing (the chosen run, a lift), and the free part of the screen above the map's panel. */
+    @Volatile private var framed: FloatArray? = null
+    @Volatile private var freeBottom = Framing.Box().bottom
+
+    /**
+     * The map's panel covers the screen below [bottom] (a fraction of the height): the run or lift in view moves to
+     * the part above it, so the dot of its profile is never under the panel.
+     */
+    fun setFreeBottom(bottom: Float) {
+        val b = bottom.coerceIn(0.3f, Framing.Box().bottom)
+        if (kotlin.math.abs(b - freeBottom) < 0.02f) return
+        freeBottom = b
+        val path = framed ?: return
+        val s = scene ?: return
+        inBackground { renderer.animateCamera(Framing.fit(path, width.toFloat(), height.toFloat(), { x, z -> s.terrain.elev(x, z) }, box = Framing.Box(bottom = b)), 0.6f) }
+    }
+
+    /** A dot on the mountain at a point of the chosen run (its profile under the finger, T2); null takes it away. */
+    fun mark(x: Float, y: Float) { val s = scene ?: return; renderer.marker = floatArrayOf(x, s.terrain.elev(x, y), y); surface.requestRender() }
+    fun unmark() { if (renderer.marker != null) { renderer.marker = null; surface.requestRender() } }
+
+    /** The map's filters (the site's): these runs and, with [lifts] false, the lifts are not drawn, and a tap passes them by. */
+    fun setHidden(keys: Set<String>, lifts: Boolean) { renderer.hidden = keys; renderer.hideLifts = !lifts; surface.requestRender() }
 
     /** The lift status on the mountain (S1): closed lifts and runs, and "only what's open for me". */
     fun setStatus(p: StatusPaint) { renderer.status = p; surface.requestRender() }
@@ -366,7 +412,8 @@ class MapView(context: Context, refreshHz: Float, val stats: FrameStats) : Frame
         val mvp = FloatArray(16); val eye = FloatArray(3); val v = FloatArray(4); val o = FloatArray(4)
         OrbitCamera.mvp(camera.state(), width.toFloat() / height, mvp, eye) { x, z -> s.terrain.elev(x, z) }
         var best: Piste? = null; var bestD = 28 * density
-        for (p in s.runs.pistes) for (l in s.draped[p.key] ?: emptyList()) {
+        val off = renderer.hidden
+        for (p in s.runs.pistes) if (p.key !in off) for (l in s.draped[p.key] ?: emptyList()) {
             var i = 0
             while (i < l.size / 3) {
                 v[0] = l[i * 3]; v[1] = l[i * 3 + 1]; v[2] = l[i * 3 + 2]; v[3] = 1f
