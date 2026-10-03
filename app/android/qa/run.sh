@@ -244,7 +244,16 @@ home() {
   tapText "מפת מסלולים" && sleep 3 && shot home-sign-map
   tapText "בית" && sleep 1.5 && shot home-back
   tapText "נקודת מפגש" && sleep 1 && shot home-sign-meet && adb shell input keyevent KEYCODE_BACK && sleep 1
-  tapText "אודות והגדרות" && sleep 1 && shot home-about && adb shell input keyevent KEYCODE_BACK && sleep 1
+  # home below the signs: the tally of runs and the two links (A-32)
+  drag $((W / 2)) $((H * 80 / 100)) $((W / 2)) $((H * 20 / 100)) 400; sleep 1; shot home-bottom
+  drag $((W / 2)) $((H * 20 / 100)) $((W / 2)) $((H * 80 / 100)) 300; drag $((W / 2)) $((H * 20 / 100)) $((W / 2)) $((H * 80 / 100)) 300; sleep 1
+  # about and settings (13.7): the account's pass, the settings, who built it, the credits
+  if tapText "אודות והגדרות"; then
+    sleep 1; shot home-about
+    for k in 2 3 4; do drag $((W / 2)) $((H * 80 / 100)) $((W / 2)) $((H * 25 / 100)) 400; sleep 1; shot "home-about-$k"; done
+    tapText "איפוס השיאים במשחקים" && sleep 0.5 && shot home-about-reset-armed
+    adb shell input keyevent KEYCODE_BACK && sleep 1
+  else fail "no way to about from home"; fi
 
   # left to right (LT1 to LT3): the post on the left, the arrows and the stub on the right
   for l in en ru ka; do

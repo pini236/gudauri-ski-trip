@@ -41,6 +41,8 @@ object DayNight {
         val dark: Boolean,
         /** The clock in Gudauri, "13:35". */
         val clock: String,
+        /** The part of the day the sky shows, the site's chip on the sky (daynight.phase_*): sunrise, day, golden_hour, sunset, twilight, night. */
+        val phase: String = "day",
     )
 
     private fun lerp(a: Float, b: Float, t: Float) = a + (b - a) * t
@@ -80,6 +82,9 @@ object DayNight {
             lerp(a.glow, b.glow, f), if (f < .5f) a.glowC else b.glowC, h < noon,
             lerp(a.star, b.star, f), lerp(a.moon, b.moon, f), lerp(a.win, b.win, f),
             dark, "%02d:%02d".format(hh, mm),
+            // the site's state().phase
+            if (dark) (if (h > set && h < set + 1.3) "twilight" else "night")
+            else if (h < rise + .8) "sunrise" else if (h < set - 2) "day" else if (h < set - .6) "golden_hour" else "sunset",
         )
     }
 }
