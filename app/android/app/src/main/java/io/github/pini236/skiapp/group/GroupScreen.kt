@@ -60,7 +60,16 @@ import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.pini236.skiapp.R
+import io.github.pini236.skiapp.meet.Preset
+import io.github.pini236.skiapp.meet.Reminders
 import io.github.pini236.skiapp.meet.Station
+import android.Manifest
+import android.os.Build
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.selection.toggleable
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.ui.platform.LocalContext
 import io.github.pini236.skiapp.meet.stationWhere
 import io.github.pini236.skiapp.home.DayNight
 import io.github.pini236.skiapp.home.Hero
@@ -116,9 +125,11 @@ private val GAMES = listOf("descent" to R.string.games_descent_name, "school" to
 @Composable
 fun GroupScreen(
     api: GroupApi, groupId: String, tab: GroupTab, frame: DayNight.Frame, myTrip: Trip?, now: LocalDateTime, justJoined: Boolean, saveOffers: Int,
-    station: (String) -> Station?, onOpenMeetup: (Meetup) -> Unit,
+    station: (String) -> Station?, spot: (Meetup) -> Preset?, onOpenMeetup: (Meetup) -> Unit, onMeetups: () -> Unit,
     onTab: (GroupTab) -> Unit, onBack: () -> Unit, onInvite: () -> Unit, onNewMeetup: () -> Unit, onEditTrip: () -> Unit,
     onMyTrip: (Trip) -> Unit, onLeft: () -> Unit, signInGoogle: suspend () -> Unit, onSaveOffered: () -> Unit,
+    /** An admin fills in a new flight for this member (the trip form, set_member_trip). */
+    onFillNew: (String) -> Unit = {},
 ) {
     val c = Ski.colors
     // the group as kept on the phone (server/Sync.kt): at once, also with no signal, and live while the page shows
@@ -126,6 +137,8 @@ fun GroupScreen(
     DisposableEffect(watch) { watch.open(); onDispose { watch.close() } }
     val shown by watch.state.collectAsState(watch.now)
     val group = shown.group
+    // the group's meetups changed (here, or from a friend in real time): the reminders on this phone follow (Q8)
+    LaunchedEffect(group?.meetups) { if (group != null) onMeetups() }
     var sheet by rememberSaveable { mutableStateOf<String?>(null) }
     var forMember by rememberSaveable { mutableStateOf<String?>(null) }
     var offered by rememberSaveable { mutableStateOf(false) }
@@ -190,8 +203,9 @@ fun GroupScreen(
                     GroupTab.FLIGHTS -> Flights(g, myTrip,
                         onSame = { sheet = "same" },
                         onShowMine = { r.run { api.showMyTrip(g.id, g.me?.name ?: "", myTrip); reload() } },
-                        onFillFor = { forMember = it; sheet = "fill" })
-                    GroupTab.MEETUPS -> Meetups(g, now, station, onOpenMeetup, onNewMeetup)
+                        onFillFor = { id -> if (g.members.any { it.trip != null }) { forMember = id; sheet = "fill" } else onFillNew(id) })
+                    GroupTab.MEETUPS -> Meetups(g, now, station, spot, onOpenMeetup, onNewMeetup, onMeetups,
+                        onDelete = { m -> r.run { api.removeMeetup(g.id, m.id); reload() } })
                     GroupTab.SCORES -> Scores(api, g)
                     GroupTab.MEMBERS -> Members(api, g, r, reload = { reload() }, onInvite = onInvite, onEdit = { sheet = "edit" }, onLeft = onLeft)
                 }
@@ -239,6 +253,7 @@ fun GroupScreen(
                         }
                     })
                     if (!fill) QuietButton(stringResource(R.string.app_g_other_flight), { sheet = null; onEditTrip() })
+                    else QuietButton(stringResource(R.string.app_g_other_flight), { sheet = null; forMember?.let(onFillNew) })
                     ErrorLine(r)
                 }
             }
@@ -269,7 +284,7 @@ fun GroupScreen(
 @Composable
 private fun Tabs(tab: GroupTab, onTab: (GroupTab) -> Unit) {
     val c = Ski.colors
-    val names = listOf(R.string.app_g_tab_flights, R.string.app_g_tab_meetups, R.string.app_g_tab_scores, R.string.app_g_tab_members)
+    val names = listOf(R.string.app_g_tab_flights, R.string.app_g_tab_meetups, R.string.group_tab_scores, R.string.app_g_tab_members)
     Row(Modifier.padding(horizontal = 16.dp).fillMaxWidth().drawBehind { drawRect(c.ink, Offset(0f, size.height - 2.dp.toPx()), androidx.compose.ui.geometry.Size(size.width, 2.dp.toPx())) }) {
         for ((i, t) in GroupTab.entries.withIndex()) {
             val on = t == tab
@@ -346,12 +361,12 @@ private fun Flights(g: Group, myTrip: Trip?, onSame: () -> Unit, onShowMine: () 
         }.padding(horizontal = 14.dp, vertical = 12.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             Column(Modifier.weight(1f)) {
                 Text(m.name + if (m.me) " $me" else "", style = Ski.type.bodyBold, color = c.ink)
-                Muted(stringResource(R.string.app_g_no_flight_yet), size = 12.5f)
+                Muted(stringResource(R.string.group_no_flight), size = 12.5f)
             }
             when {
                 m.me && myTrip != null -> Button2(stringResource(R.string.app_g_show_mine), Look.INK, onShowMine, small = true, full = false)
                 m.me && g.members.any { it.trip != null } -> PrimaryButton(stringResource(R.string.app_g_same_flight), null, onSame, full = false)
-                !m.me && g.admin && g.members.any { it.trip != null } -> Button2(stringResource(R.string.app_g_fill_for), Look.GHOST, { onFillFor(m.userId) }, small = true, full = false)
+                !m.me && g.admin -> Button2(stringResource(R.string.app_g_fill_for), Look.GHOST, { onFillFor(m.userId) }, small = true, full = false)
             }
         }
     }
@@ -361,14 +376,30 @@ private fun Flights(g: Group, myTrip: Trip?, onSame: () -> Unit, onShowMine: () 
 /**
  * Meetups (Q8): every meetup of the group, by day, who set it; a new one is picked on the meeting-point map, and a
  * tap opens its card there (how to get there, sharing). The station's name is the meeting point's, as on the site.
+ * The next one says how long until it; each one ahead reminds a quarter of an hour before, from the phone itself
+ * (meet/Reminders.kt), unless turned off. The colour is the spot of the meeting point's post, when it is one.
  */
 @Composable
-private fun Meetups(g: Group, now: LocalDateTime, station: (String) -> Station?, onOpen: (Meetup) -> Unit, onNew: () -> Unit) {
+private fun Meetups(g: Group, now: LocalDateTime, station: (String) -> Station?, spot: (Meetup) -> Preset?, onOpen: (Meetup) -> Unit, onNew: () -> Unit, onReminders: () -> Unit,
+                    onDelete: (Meetup) -> Unit) {
     val c = Ski.colors
+    // the X deletes for the whole group (any member may, as on the site): a second tap within a few seconds
+    var armed by remember { mutableStateOf<String?>(null) }
+    LaunchedEffect(armed) { if (armed != null) { kotlinx.coroutines.delay(4000); armed = null } }
+    val context = LocalContext.current
     val zone = ZoneId.of("Asia/Tbilisi")
     val byDay = g.meetups.sortedBy { it.at }.groupBy { it.at.atZone(zone).toLocalDate() }
     if (byDay.isEmpty()) Muted(stringResource(R.string.app_g_no_meetups), size = 14f)
-    val next = g.meetups.filter { it.at.atZone(zone).toLocalDateTime() > now }.minByOrNull { it.at }
+    val ahead = g.meetups.filter { it.at.atZone(zone).toLocalDateTime() > now }
+    val next = ahead.minByOrNull { it.at }
+    var toggled by remember { mutableIntStateOf(0) }
+    // the notification permission (Android 13 and later): a second chance, the first time a meetup ahead would remind
+    val ask = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { onReminders() }
+    LaunchedEffect(ahead.size) {
+        if (ahead.any { Reminders.isOn(context, it.id) } && Reminders.shouldAsk(context, Reminders.Ask.MEETUPS)) {
+            Reminders.markAsked(context, Reminders.Ask.MEETUPS); ask.launch(Manifest.permission.POST_NOTIFICATIONS)
+        }
+    }
     for ((day, list) in byDay) {
         Text(shortDate(day), style = Ski.type.label.copy(fontSize = 13.sp), color = c.muted)
         for (m in list) {
@@ -379,17 +410,54 @@ private fun Meetups(g: Group, now: LocalDateTime, station: (String) -> Station?,
                     Muted(shortDate(at.toLocalDate()), size = 12f)
                     Text("%02d:%02d".format(at.hour, at.minute), style = TextStyle(fontFamily = Karantina, fontWeight = FontWeight.Bold, fontSize = 36.sp, lineHeight = 32.sp), color = c.ink)
                 }
-                Column(Modifier.weight(1f).padding(horizontal = 14.dp, vertical = 10.dp)) {
+                Column(Modifier.weight(1f).padding(start = 14.dp, end = 14.dp, top = 10.dp, bottom = if (m in ahead) 2.dp else 10.dp)) {
                     val place = station(m.station)?.let { stationWhere(it) } ?: m.station
-                    Text(place, style = Ski.type.bodyBold.copy(fontSize = 15.5.sp), color = c.ink)
-                    m.byName?.let { Muted(stringResource(R.string.app_g_set_by, it), size = 12.5f) }
+                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        val sq = when (spot(m)) { Preset.MORNING -> Color(0xFFF4B942); Preset.NOON -> c.blue; Preset.END -> c.ink; null -> c.rule }
+                        Box(Modifier.size(12.dp).background(sq))
+                        Text(place, style = Ski.type.bodyBold.copy(fontSize = 15.5.sp), color = c.ink)
+                    }
+                    val left = if (m == next) stringResource(R.string.app_g_in, inWords(Duration.between(now, at.toLocalDateTime()).toMinutes(), context)) else null
+                    listOfNotNull(m.byName?.let { stringResource(R.string.app_g_set_by, it) }, left).joinToString(" · ").takeIf { it.isNotEmpty() }?.let { Muted(it, size = 12.5f) }
                     m.note?.let { Muted(it, size = 12.5f) }
+                    if (armed == m.id) Text(stringResource(R.string.app_g_meetup_delete_confirm), Modifier.heightIn(min = 44.dp)
+                        .clickable(role = A11y.Button) { armed = null; onDelete(m) }.padding(vertical = 12.dp),
+                        style = Ski.type.bodyBold.copy(fontSize = 13.sp), color = c.red)
+                    if (m in ahead) {
+                        val on = remember(m.id, toggled) { Reminders.isOn(context, m.id) }
+                        Row(Modifier.heightIn(min = 44.dp).toggleable(on, role = A11y.Checkbox) { Reminders.set(context, m.id, it); toggled++; onReminders() },
+                            verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            Box(Modifier.size(18.dp).background(if (on) c.accent else c.paper).border(2.dp, if (on) c.accent else c.ink), contentAlignment = Alignment.Center) {
+                                if (on) Icon(Icons.check, null, Modifier.size(14.dp), tint = c.onAccent)
+                            }
+                            Icon(Icons.bell, null, Modifier.size(16.dp), tint = c.ink)
+                            Text(stringResource(R.string.app_g_remind), style = Ski.type.bodyBold.copy(fontSize = 13.sp, fontWeight = FontWeight.SemiBold), color = c.ink)
+                        }
+                    }
+                }
+                val label = stringResource(R.string.app_g_meetup_delete)
+                Box(Modifier.size(44.dp).clickable(role = A11y.Button) { armed = if (armed == m.id) null else m.id }.semantics { contentDescription = label },
+                    contentAlignment = Alignment.Center) {
+                    Icon(Icons.x, null, Modifier.size(18.dp), tint = if (armed == m.id) c.red else c.muted)
                 }
             }
         }
     }
     Button2(stringResource(R.string.app_g_new_meetup), Look.INK, onNew, icon = Icons.pin)
-    Note(stringResource(R.string.app_g_meetups_note), Icons.bell)
+    Note(stringResource(R.string.app_g_meetups_offline), Icons.phone)
+}
+
+/** "שעה ו-12 דקות", "1 hour, 12 minutes": how long until a meetup, as the phone's language writes it (ICU). */
+private fun inWords(minutes: Long, context: android.content.Context): String {
+    val loc = context.resources.configuration.locales[0]
+    val f = android.icu.text.MeasureFormat.getInstance(loc, android.icu.text.MeasureFormat.FormatWidth.WIDE)
+    val m = minutes.coerceAtLeast(1)
+    return when {
+        m < 60 -> f.formatMeasures(android.icu.util.Measure(m, android.icu.util.MeasureUnit.MINUTE))
+        m < 24 * 60 -> if (m % 60 == 0L) f.formatMeasures(android.icu.util.Measure(m / 60, android.icu.util.MeasureUnit.HOUR))
+            else f.formatMeasures(android.icu.util.Measure(m / 60, android.icu.util.MeasureUnit.HOUR), android.icu.util.Measure(m % 60, android.icu.util.MeasureUnit.MINUTE))
+        else -> f.formatMeasures(android.icu.util.Measure((m + 24 * 60 - 1) / (24 * 60), android.icu.util.MeasureUnit.DAY))
+    }
 }
 
 /** High scores (Q9): the best of each member, per game. */
@@ -441,7 +509,7 @@ private fun Members(api: GroupApi, g: Group, r: Runner, reload: () -> Unit, onIn
             Text(stringResource(if (q.reclaim) R.string.app_g_request_reclaim else R.string.app_g_request_join, q.name), style = Ski.type.bodyBold.copy(fontSize = 15.5.sp), color = c.ink)
             Muted(stringResource(if (q.reclaim) R.string.app_g_request_reclaim_sub else R.string.app_g_request_join_sub), size = 12.5f)
             Row(Modifier.padding(top = 10.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                PrimaryButton(stringResource(R.string.app_g_approve), Icons.check, { r.run { api.decide(q.id, true); reload() } }, Modifier.weight(1f))
+                PrimaryButton(stringResource(R.string.group_approve), Icons.check, { r.run { api.decide(q.id, true); reload() } }, Modifier.weight(1f))
                 Button2(stringResource(R.string.app_g_reject), Look.GHOST, { r.run { api.decide(q.id, false); reload() } }, Modifier.weight(1f), icon = Icons.x, small = true)
             }
         }
@@ -464,13 +532,20 @@ private fun Members(api: GroupApi, g: Group, r: Runner, reload: () -> Unit, onIn
                     DropdownMenu(menu, { menu = false }) {
                         if (m.role == Role.MEMBER) DropdownMenuItem({ Text(stringResource(R.string.app_g_make_admin)) }, { menu = false; r.run { api.setRole(g.id, m.userId, Role.ADMIN); reload() } })
                         else DropdownMenuItem({ Text(stringResource(R.string.app_g_unmake_admin)) }, { menu = false; r.run { api.setRole(g.id, m.userId, Role.MEMBER); reload() } })
-                        DropdownMenuItem({ Text(stringResource(R.string.app_g_remove), color = c.red) }, { menu = false; r.run { api.removeMember(g.id, m.userId); reload() } })
+                        // out of the group in two taps, as on the site: the item asks once more (the menu stays open)
+                        val sure = armed == "rm:" + m.userId
+                        DropdownMenuItem({ Text(if (sure) stringResource(R.string.group_remove_confirm, m.name) else stringResource(R.string.app_g_remove), color = c.red) }, {
+                            if (sure) { menu = false; armed = null; r.run { api.removeMember(g.id, m.userId); reload() } } else armed = "rm:" + m.userId
+                        })
                     }
                 }
             }
         }
     }
     if (g.admin) Muted(stringResource(R.string.app_g_menu_note), size = 13f)
+    // no admin left (the last one deleted the account and only guests remained): a registered member takes it on
+    if (g.members.none { it.role == Role.ADMIN } && api.me()?.registered == true)
+        PrimaryButton(stringResource(R.string.group_claim_admin), Icons.check, { r.run { api.claimAdmin(g.id); reload() } })
     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
         if (g.admin) QuietButton(stringResource(R.string.app_g_name_dates), onEdit)
         QuietButton(stringResource(R.string.app_g_invite_settings_link), onInvite)

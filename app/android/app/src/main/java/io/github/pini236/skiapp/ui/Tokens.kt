@@ -30,6 +30,8 @@ data class SkiColors(
     val accent: Color, val onAccent: Color, val dash: Color,
     val sky1: Color, val sky2: Color,
     val water: Color, val road: Color, val contour: Color, val peak: Color,
+    // the map drawn flat (the meeting point): the site's --water-edge, --road-main, --vill, --contour-i
+    val waterEdge: Color, val roadMain: Color, val village: Color, val contourI: Color,
     val shadow: Color,
     // the boarding pass (--bp-*)
     val bpPaper: Color, val bpPaper2: Color, val bpInk: Color, val bpMuted: Color, val bpStrip: Color, val bpOnStrip: Color, val bpAccent: Color,
@@ -46,6 +48,7 @@ val DayColors = SkiColors(
     accent = Color(0xFF1F5FC4), onAccent = Color(0xFFFFFFFF), dash = Color(0xFF8E9CAD),
     sky1 = Color(0xFFDCE8F1), sky2 = Color(0xFFEEF2F5),
     water = Color(0xFF8DB6D8), road = Color(0xFFA49A91), contour = Color(0xFF8193A8), peak = Color(0xFF3D4A5C),
+    waterEdge = Color(0xFF5F8FBB), roadMain = Color(0xFF8A7C70), village = Color(0xFFE3D8CB), contourI = Color(0xFF62758C),
     shadow = Color(0x2E13233A),
     bpPaper = Color(0xFFFFFFFF), bpPaper2 = Color(0xFFF4F7FA), bpInk = Color(0xFF13233A), bpMuted = Color(0xFF4B5A6F), bpStrip = Color(0xFF1F5FC4), bpOnStrip = Color(0xFFFFFFFF), bpAccent = Color(0xFF1F5FC4),
     dark = false,
@@ -58,6 +61,7 @@ val NightColors = SkiColors(
     accent = Color(0xFFF4B942), onAccent = Color(0xFF0D1522), dash = Color(0xFF51627D),
     sky1 = Color(0xFF0B1320), sky2 = Color(0xFF16223A),
     water = Color(0xFF2C5A82), road = Color(0xFF6D6760), contour = Color(0xFF5A6D85), peak = Color(0xFFC9D3E0),
+    waterEdge = Color(0xFF4D82B3), roadMain = Color(0xFF8F857B), village = Color(0xFF3A352F), contourI = Color(0xFF7A90AA),
     shadow = Color(0x73000000),
     bpPaper = Color(0xFF16223A), bpPaper2 = Color(0xFF1B2944), bpInk = Color(0xFFFFD98A), bpMuted = Color(0xFFC9B98F), bpStrip = Color(0xFFF4B942), bpOnStrip = Color(0xFF0D1522), bpAccent = Color(0xFFFFD98A),
     dark = true,

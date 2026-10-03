@@ -77,6 +77,8 @@ android {
     buildFeatures { compose = true; resValues = true; buildConfig = true }
     testOptions { unitTests.all { it.systemProperty("site.data", File(repoRoot, "site/data").absolutePath) } }
     sourceSets["main"].assets.directories.add(layout.buildDirectory.dir("generated/siteAssets").get().asFile.path)
+    // the licenses that must travel with the app: the fonts' OFL texts, the libraries' licenses and the notices
+    sourceSets["main"].assets.directories.add(layout.buildDirectory.dir("generated/licenseAssets").get().asFile.path)
     // the words, from i18n/strings.json (tools/build-app-strings.py): every language in test builds, only the
     // released ones in store builds
     sourceSets["debug"].res.directories.add(layout.buildDirectory.dir("generated/i18n/debug").get().asFile.path)
@@ -96,7 +98,11 @@ val copySiteData by tasks.registering(Exec::class) {
     outputs.dir(out)
     commandLine("python3", File(repoRoot, "tools/build-app-data.py").path, out.path)
 }
-tasks.named("preBuild") { dependsOn(copySiteData) }
+val copyLicenses by tasks.registering(Copy::class) {
+    from(layout.projectDirectory.dir("../licenses"))
+    into(layout.buildDirectory.dir("generated/licenseAssets/licenses"))
+}
+tasks.named("preBuild") { dependsOn(copySiteData, copyLicenses) }
 
 /**
  * The languages of each build: all four (decision 32), since the app has the left-to-right signs and the fonts

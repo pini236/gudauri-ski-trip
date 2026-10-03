@@ -1,0 +1,818 @@
+{
+  "v": 3,
+  "createdOnFiles": {
+    "v": 1,
+    "at": "2026-10-02T15:29:29Z"
+  },
+  "title": "גודאורי: שפה עיצובית חדשה",
+  "launch": {
+    "view": "canvas",
+    "page": "open"
+  },
+  "pages": [
+    {
+      "id": "open",
+      "name": "פתיחה: חמש שפות"
+    },
+    {
+      "id": "parts",
+      "name": "רכיבים"
+    },
+    {
+      "id": "phone",
+      "name": "מסכים בטלפון"
+    },
+    {
+      "id": "desk",
+      "name": "מחשב"
+    },
+    {
+      "id": "today",
+      "name": "היום באתר"
+    }
+  ],
+  "boards": {
+    "Main.dc.html": {
+      "x": 0,
+      "y": 0,
+      "w": 760,
+      "h": 1520,
+      "page": "open",
+      "title": "איך לקרוא ומה לבחור"
+    },
+    "A0-Identity.dc.html": {
+      "x": 840,
+      "y": 0,
+      "w": 1280,
+      "h": 1640,
+      "page": "open",
+      "title": "A · שילוט: זהות"
+    },
+    "B0-Identity.dc.html": {
+      "x": 2200,
+      "y": 0,
+      "w": 1280,
+      "h": 1830,
+      "page": "open",
+      "title": "B · פוסטר: זהות"
+    },
+    "C0-Identity.dc.html": {
+      "x": 3560,
+      "y": 0,
+      "w": 1280,
+      "h": 1100,
+      "page": "open",
+      "title": "C · טופוגרפי: זהות"
+    },
+    "D0-Identity.dc.html": {
+      "x": 4920,
+      "y": 0,
+      "w": 1280,
+      "h": 1840,
+      "page": "open",
+      "title": "D · קרטולי: זהות"
+    },
+    "E0-Identity.dc.html": {
+      "x": 6280,
+      "y": 0,
+      "w": 1280,
+      "h": 1424,
+      "page": "open",
+      "title": "E · מדבקות: זהות"
+    },
+    "A1-Core.dc.html": {
+      "x": 0,
+      "y": 0,
+      "w": 1280,
+      "h": 1980,
+      "page": "parts",
+      "title": "A · שילוט: רכיבים: הבסיס"
+    },
+    "B1-Core.dc.html": {
+      "x": 1360,
+      "y": 0,
+      "w": 1280,
+      "h": 1990,
+      "page": "parts",
+      "title": "B · פוסטר: רכיבים: הבסיס"
+    },
+    "C1-Core.dc.html": {
+      "x": 2720,
+      "y": 0,
+      "w": 1280,
+      "h": 1770,
+      "page": "parts",
+      "title": "C · טופוגרפי: רכיבים: הבסיס"
+    },
+    "D1-Core.dc.html": {
+      "x": 4080,
+      "y": 0,
+      "w": 1280,
+      "h": 2440,
+      "page": "parts",
+      "title": "D · קרטולי: רכיבים: הבסיס"
+    },
+    "E1-Core.dc.html": {
+      "x": 5440,
+      "y": 0,
+      "w": 1280,
+      "h": 2048,
+      "page": "parts",
+      "title": "E · מדבקות: רכיבים: הבסיס"
+    },
+    "A2-Domain.dc.html": {
+      "x": 0,
+      "y": 2860,
+      "w": 1280,
+      "h": 2620,
+      "page": "parts",
+      "title": "A · שילוט: רכיבים: של גודאורי"
+    },
+    "B2-Domain.dc.html": {
+      "x": 1360,
+      "y": 2860,
+      "w": 1280,
+      "h": 2330,
+      "page": "parts",
+      "title": "B · פוסטר: רכיבים: של גודאורי"
+    },
+    "C2-Domain.dc.html": {
+      "x": 2720,
+      "y": 2860,
+      "w": 1280,
+      "h": 2010,
+      "page": "parts",
+      "title": "C · טופוגרפי: רכיבים: של גודאורי"
+    },
+    "D2-Domain.dc.html": {
+      "x": 4080,
+      "y": 2860,
+      "w": 1280,
+      "h": 2850,
+      "page": "parts",
+      "title": "D · קרטולי: רכיבים: של גודאורי"
+    },
+    "E2-Domain.dc.html": {
+      "x": 5440,
+      "y": 2860,
+      "w": 1280,
+      "h": 2480,
+      "page": "parts",
+      "title": "E · מדבקות: רכיבים: של גודאורי"
+    },
+    "A3-Home.dc.html": {
+      "x": 0,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "page": "phone",
+      "title": "A: בית"
+    },
+    "A4-HomeNight.dc.html": {
+      "x": 470,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "page": "phone",
+      "title": "A: בית בלילה"
+    },
+    "A5-Map.dc.html": {
+      "x": 940,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "page": "phone",
+      "title": "A: מפה"
+    },
+    "A6-Run.dc.html": {
+      "x": 1410,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "page": "phone",
+      "title": "A: Tatra 2"
+    },
+    "A7-Meet.dc.html": {
+      "x": 1880,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "page": "phone",
+      "title": "A: נקודת מפגש"
+    },
+    "A8-Games.dc.html": {
+      "x": 2350,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "page": "phone",
+      "title": "A: משחקים"
+    },
+    "A9-Group.dc.html": {
+      "x": 2820,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "page": "phone",
+      "title": "A: קבוצה"
+    },
+    "A10-Settings.dc.html": {
+      "x": 3290,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "page": "phone",
+      "title": "A: הגדרות"
+    },
+    "B3-Home.dc.html": {
+      "x": 0,
+      "y": 1264,
+      "w": 390,
+      "h": 844,
+      "page": "phone",
+      "title": "B: בית"
+    },
+    "B4-HomeNight.dc.html": {
+      "x": 470,
+      "y": 1264,
+      "w": 390,
+      "h": 844,
+      "page": "phone",
+      "title": "B: בית בלילה"
+    },
+    "B5-Map.dc.html": {
+      "x": 940,
+      "y": 1264,
+      "w": 390,
+      "h": 844,
+      "page": "phone",
+      "title": "B: מפה"
+    },
+    "B6-Run.dc.html": {
+      "x": 1410,
+      "y": 1264,
+      "w": 390,
+      "h": 844,
+      "page": "phone",
+      "title": "B: Tatra 2"
+    },
+    "B7-Meet.dc.html": {
+      "x": 1880,
+      "y": 1264,
+      "w": 390,
+      "h": 844,
+      "page": "phone",
+      "title": "B: נקודת מפגש"
+    },
+    "B8-Games.dc.html": {
+      "x": 2350,
+      "y": 1264,
+      "w": 390,
+      "h": 844,
+      "page": "phone",
+      "title": "B: משחקים"
+    },
+    "B9-Group.dc.html": {
+      "x": 2820,
+      "y": 1264,
+      "w": 390,
+      "h": 844,
+      "page": "phone",
+      "title": "B: קבוצה"
+    },
+    "B10-Settings.dc.html": {
+      "x": 3290,
+      "y": 1264,
+      "w": 390,
+      "h": 844,
+      "page": "phone",
+      "title": "B: הגדרות"
+    },
+    "C3-Home.dc.html": {
+      "x": 0,
+      "y": 2528,
+      "w": 390,
+      "h": 844,
+      "page": "phone",
+      "title": "C: בית"
+    },
+    "C4-HomeNight.dc.html": {
+      "x": 470,
+      "y": 2528,
+      "w": 390,
+      "h": 844,
+      "page": "phone",
+      "title": "C: בית בלילה"
+    },
+    "C5-Map.dc.html": {
+      "x": 940,
+      "y": 2528,
+      "w": 390,
+      "h": 844,
+      "page": "phone",
+      "title": "C: מפה"
+    },
+    "C6-Run.dc.html": {
+      "x": 1410,
+      "y": 2528,
+      "w": 390,
+      "h": 844,
+      "page": "phone",
+      "title": "C: Tatra 2"
+    },
+    "C7-Meet.dc.html": {
+      "x": 1880,
+      "y": 2528,
+      "w": 390,
+      "h": 844,
+      "page": "phone",
+      "title": "C: נקודת מפגש"
+    },
+    "C8-Games.dc.html": {
+      "x": 2350,
+      "y": 2528,
+      "w": 390,
+      "h": 844,
+      "page": "phone",
+      "title": "C: משחקים"
+    },
+    "C9-Group.dc.html": {
+      "x": 2820,
+      "y": 2528,
+      "w": 390,
+      "h": 844,
+      "page": "phone",
+      "title": "C: קבוצה"
+    },
+    "C10-Settings.dc.html": {
+      "x": 3290,
+      "y": 2528,
+      "w": 390,
+      "h": 844,
+      "page": "phone",
+      "title": "C: הגדרות"
+    },
+    "D3-Home.dc.html": {
+      "x": 0,
+      "y": 3792,
+      "w": 390,
+      "h": 844,
+      "page": "phone",
+      "title": "D: בית"
+    },
+    "D4-HomeNight.dc.html": {
+      "x": 470,
+      "y": 3792,
+      "w": 390,
+      "h": 844,
+      "page": "phone",
+      "title": "D: בית בלילה"
+    },
+    "D5-Map.dc.html": {
+      "x": 940,
+      "y": 3792,
+      "w": 390,
+      "h": 844,
+      "page": "phone",
+      "title": "D: מפה"
+    },
+    "D6-Run.dc.html": {
+      "x": 1410,
+      "y": 3792,
+      "w": 390,
+      "h": 844,
+      "page": "phone",
+      "title": "D: Tatra 2"
+    },
+    "D7-Meet.dc.html": {
+      "x": 1880,
+      "y": 3792,
+      "w": 390,
+      "h": 844,
+      "page": "phone",
+      "title": "D: נקודת מפגש"
+    },
+    "D8-Games.dc.html": {
+      "x": 2350,
+      "y": 3792,
+      "w": 390,
+      "h": 844,
+      "page": "phone",
+      "title": "D: משחקים"
+    },
+    "D9-Group.dc.html": {
+      "x": 2820,
+      "y": 3792,
+      "w": 390,
+      "h": 844,
+      "page": "phone",
+      "title": "D: קבוצה"
+    },
+    "D10-Settings.dc.html": {
+      "x": 3290,
+      "y": 3792,
+      "w": 390,
+      "h": 844,
+      "page": "phone",
+      "title": "D: הגדרות"
+    },
+    "E3-Home.dc.html": {
+      "x": 0,
+      "y": 5056,
+      "w": 390,
+      "h": 844,
+      "page": "phone",
+      "title": "E: בית"
+    },
+    "E4-HomeNight.dc.html": {
+      "x": 470,
+      "y": 5056,
+      "w": 390,
+      "h": 844,
+      "page": "phone",
+      "title": "E: בית בלילה"
+    },
+    "E5-Map.dc.html": {
+      "x": 940,
+      "y": 5056,
+      "w": 390,
+      "h": 844,
+      "page": "phone",
+      "title": "E: מפה"
+    },
+    "E6-Run.dc.html": {
+      "x": 1410,
+      "y": 5056,
+      "w": 390,
+      "h": 844,
+      "page": "phone",
+      "title": "E: Tatra 2"
+    },
+    "E7-Meet.dc.html": {
+      "x": 1880,
+      "y": 5056,
+      "w": 390,
+      "h": 844,
+      "page": "phone",
+      "title": "E: נקודת מפגש"
+    },
+    "E8-Games.dc.html": {
+      "x": 2350,
+      "y": 5056,
+      "w": 390,
+      "h": 844,
+      "page": "phone",
+      "title": "E: משחקים"
+    },
+    "E9-Group.dc.html": {
+      "x": 2820,
+      "y": 5056,
+      "w": 390,
+      "h": 844,
+      "page": "phone",
+      "title": "E: קבוצה"
+    },
+    "E10-Settings.dc.html": {
+      "x": 3290,
+      "y": 5056,
+      "w": 390,
+      "h": 844,
+      "page": "phone",
+      "title": "E: הגדרות"
+    },
+    "A11-Desktop.dc.html": {
+      "x": 0,
+      "y": 0,
+      "w": 1280,
+      "h": 800,
+      "page": "desk",
+      "title": "A · שילוט: מחשב"
+    },
+    "B11-Desktop.dc.html": {
+      "x": 0,
+      "y": 1220,
+      "w": 1280,
+      "h": 800,
+      "page": "desk",
+      "title": "B · פוסטר: מחשב"
+    },
+    "C11-Desktop.dc.html": {
+      "x": 0,
+      "y": 2440,
+      "w": 1280,
+      "h": 800,
+      "page": "desk",
+      "title": "C · טופוגרפי: מחשב"
+    },
+    "D11-Desktop.dc.html": {
+      "x": 0,
+      "y": 3660,
+      "w": 1280,
+      "h": 800,
+      "page": "desk",
+      "title": "D · קרטולי: מחשב"
+    },
+    "E11-Desktop.dc.html": {
+      "x": 0,
+      "y": 4880,
+      "w": 1280,
+      "h": 800,
+      "page": "desk",
+      "title": "E · מדבקות: מחשב"
+    },
+    "T01-Home.dc.html": {
+      "x": 0,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "page": "today",
+      "title": "היום: דף הבית"
+    },
+    "T02-HomeNight.dc.html": {
+      "x": 470,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "page": "today",
+      "title": "היום: דף הבית בלילה"
+    },
+    "T03-Map.dc.html": {
+      "x": 940,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "page": "today",
+      "title": "היום: מפה"
+    },
+    "T04-Run.dc.html": {
+      "x": 1410,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "page": "today",
+      "title": "היום: מסלול"
+    },
+    "T05-Meet.dc.html": {
+      "x": 1880,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "page": "today",
+      "title": "היום: נקודת מפגש"
+    },
+    "T06-Games.dc.html": {
+      "x": 2350,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "page": "today",
+      "title": "היום: משחקים"
+    },
+    "T07-Group.dc.html": {
+      "x": 2820,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "page": "today",
+      "title": "היום: קבוצה"
+    },
+    "T08-Settings.dc.html": {
+      "x": 3290,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "page": "today",
+      "title": "היום: אודות והגדרות"
+    },
+    "T09-GuestHome.dc.html": {
+      "x": 3760,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "page": "today",
+      "title": "היום: אורח, בלי טיסה"
+    },
+    "T10-Trip.dc.html": {
+      "x": 4230,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "page": "today",
+      "title": "היום: הטיול שלך"
+    },
+    "T11-Desktop.dc.html": {
+      "x": 0,
+      "y": 1264,
+      "w": 1280,
+      "h": 800,
+      "page": "today",
+      "title": "היום: דף הבית במחשב"
+    },
+    "T12-DesktopRun.dc.html": {
+      "x": 1360,
+      "y": 1264,
+      "w": 1280,
+      "h": 800,
+      "page": "today",
+      "title": "היום: מסלול במחשב"
+    }
+  },
+  "order": [
+    "Main.dc.html",
+    "A0-Identity.dc.html",
+    "B0-Identity.dc.html",
+    "C0-Identity.dc.html",
+    "D0-Identity.dc.html",
+    "E0-Identity.dc.html",
+    "A1-Core.dc.html",
+    "B1-Core.dc.html",
+    "C1-Core.dc.html",
+    "D1-Core.dc.html",
+    "E1-Core.dc.html",
+    "A2-Domain.dc.html",
+    "B2-Domain.dc.html",
+    "C2-Domain.dc.html",
+    "D2-Domain.dc.html",
+    "E2-Domain.dc.html",
+    "A3-Home.dc.html",
+    "A4-HomeNight.dc.html",
+    "A5-Map.dc.html",
+    "A6-Run.dc.html",
+    "A7-Meet.dc.html",
+    "A8-Games.dc.html",
+    "A9-Group.dc.html",
+    "A10-Settings.dc.html",
+    "B3-Home.dc.html",
+    "B4-HomeNight.dc.html",
+    "B5-Map.dc.html",
+    "B6-Run.dc.html",
+    "B7-Meet.dc.html",
+    "B8-Games.dc.html",
+    "B9-Group.dc.html",
+    "B10-Settings.dc.html",
+    "C3-Home.dc.html",
+    "C4-HomeNight.dc.html",
+    "C5-Map.dc.html",
+    "C6-Run.dc.html",
+    "C7-Meet.dc.html",
+    "C8-Games.dc.html",
+    "C9-Group.dc.html",
+    "C10-Settings.dc.html",
+    "D3-Home.dc.html",
+    "D4-HomeNight.dc.html",
+    "D5-Map.dc.html",
+    "D6-Run.dc.html",
+    "D7-Meet.dc.html",
+    "D8-Games.dc.html",
+    "D9-Group.dc.html",
+    "D10-Settings.dc.html",
+    "E3-Home.dc.html",
+    "E4-HomeNight.dc.html",
+    "E5-Map.dc.html",
+    "E6-Run.dc.html",
+    "E7-Meet.dc.html",
+    "E8-Games.dc.html",
+    "E9-Group.dc.html",
+    "E10-Settings.dc.html",
+    "A11-Desktop.dc.html",
+    "B11-Desktop.dc.html",
+    "C11-Desktop.dc.html",
+    "D11-Desktop.dc.html",
+    "E11-Desktop.dc.html",
+    "T01-Home.dc.html",
+    "T02-HomeNight.dc.html",
+    "T03-Map.dc.html",
+    "T04-Run.dc.html",
+    "T05-Meet.dc.html",
+    "T06-Games.dc.html",
+    "T07-Group.dc.html",
+    "T08-Settings.dc.html",
+    "T09-GuestHome.dc.html",
+    "T10-Trip.dc.html",
+    "T11-Desktop.dc.html",
+    "T12-DesktopRun.dc.html"
+  ],
+  "notes": {
+    "openrow": {
+      "x": 840,
+      "y": -300,
+      "text": "חמש שפות עיצוביות",
+      "kind": "title1",
+      "maxW": 6720,
+      "page": "open"
+    },
+    "parts1": {
+      "x": 0,
+      "y": -300,
+      "text": "רכיבים: הבסיס",
+      "kind": "title1",
+      "maxW": 6720,
+      "page": "parts"
+    },
+    "parts2": {
+      "x": 0,
+      "y": 2560,
+      "text": "רכיבים: של גודאורי",
+      "kind": "title1",
+      "maxW": 6720,
+      "page": "parts"
+    },
+    "phoneA": {
+      "x": 0,
+      "y": -300,
+      "text": "A · שילוט",
+      "kind": "title1",
+      "maxW": 3680,
+      "page": "phone"
+    },
+    "phoneB": {
+      "x": 0,
+      "y": 964,
+      "text": "B · פוסטר",
+      "kind": "title1",
+      "maxW": 3680,
+      "page": "phone"
+    },
+    "phoneC": {
+      "x": 0,
+      "y": 2228,
+      "text": "C · טופוגרפי",
+      "kind": "title1",
+      "maxW": 3680,
+      "page": "phone"
+    },
+    "phoneD": {
+      "x": 0,
+      "y": 3492,
+      "text": "D · קרטולי",
+      "kind": "title1",
+      "maxW": 3680,
+      "page": "phone"
+    },
+    "phoneE": {
+      "x": 0,
+      "y": 4756,
+      "text": "E · מדבקות",
+      "kind": "title1",
+      "maxW": 3680,
+      "page": "phone"
+    },
+    "deskA": {
+      "x": 0,
+      "y": -300,
+      "text": "A · שילוט",
+      "kind": "title1",
+      "maxW": 1280,
+      "page": "desk"
+    },
+    "deskB": {
+      "x": 0,
+      "y": 920,
+      "text": "B · פוסטר",
+      "kind": "title1",
+      "maxW": 1280,
+      "page": "desk"
+    },
+    "deskC": {
+      "x": 0,
+      "y": 2140,
+      "text": "C · טופוגרפי",
+      "kind": "title1",
+      "maxW": 1280,
+      "page": "desk"
+    },
+    "deskD": {
+      "x": 0,
+      "y": 3360,
+      "text": "D · קרטולי",
+      "kind": "title1",
+      "maxW": 1280,
+      "page": "desk"
+    },
+    "deskE": {
+      "x": 0,
+      "y": 4580,
+      "text": "E · מדבקות",
+      "kind": "title1",
+      "maxW": 1280,
+      "page": "desk"
+    },
+    "todayrow0": {
+      "x": 0,
+      "y": -300,
+      "text": "היום באתר, בטלפון",
+      "kind": "title1",
+      "maxW": 4600,
+      "page": "today"
+    },
+    "todayrow1": {
+      "x": 0,
+      "y": 964,
+      "text": "היום באתר, במחשב",
+      "kind": "title1",
+      "maxW": 2640,
+      "page": "today"
+    }
+  },
+  "designSystems": []
+}

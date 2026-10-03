@@ -1,5 +1,7 @@
 package io.github.pini236.skiapp.group
 
+import androidx.compose.ui.res.painterResource
+import androidx.compose.foundation.Image
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -162,9 +164,8 @@ fun GoogleButton(text: String, onClick: () -> Unit, enabled: Boolean = true) {
             .heightIn(min = 52.dp).padding(horizontal = 18.dp),
         horizontalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterHorizontally), verticalAlignment = Alignment.CenterVertically,
     ) {
-        Box(Modifier.size(20.dp).border(2.dp, Color(0xFF747775), androidx.compose.foundation.shape.CircleShape), contentAlignment = Alignment.Center) {
-            Text("G", style = Ski.type.bodyBold.copy(fontSize = 12.sp, textAlign = TextAlign.Center), color = Color(0xFF1F1F1F))
-        }
+        // Google's own "G" (round 13, item 3), as on the site's button
+        Image(painterResource(R.drawable.ic_google_g), null, Modifier.size(20.dp))
         Text(text, style = Ski.type.bodyBold.copy(fontSize = 16.5.sp), color = Color(0xFF1F1F1F))
     }
 }
@@ -178,25 +179,46 @@ fun Avatar(name: String, strong: Boolean, sizeDp: Int = 36) {
     }
 }
 
-/** The way a refusal from the server reads in the user's language. */
+/**
+ * The way a refusal from the server reads in the user's language: a message for every code in server/CONTRACT.md that
+ * a person can meet. The site's own words (group.err_*) where they fit the app as they are, so both read the same.
+ */
 @Composable
 fun errorText(e: Throwable?): String? {
     if (e == null) return null
-    val code = (e as? ApiException)?.code ?: "offline"
-    return stringResource(when (code) {
-        "not_admin" -> R.string.app_err_not_admin
-        "last_admin" -> R.string.app_err_last_admin
-        "admin_must_register" -> R.string.app_err_admin_must_register
-        "must_register", "not_registered" -> R.string.app_err_not_registered
-        "not_a_guest" -> R.string.app_err_not_a_guest
-        "not_signed_in", "no_session" -> R.string.app_err_not_signed_in
-        "unknown_action" -> R.string.app_err_update_app
-        "too_many_groups" -> R.string.app_err_too_many_groups
-        "google_not_ready" -> R.string.app_err_google_not_ready
-        "cancelled" -> R.string.app_err_cancelled
-        "offline", "network" -> R.string.app_err_offline
-        else -> R.string.app_err_general
-    })
+    return stringResource(errorRes((e as? ApiException)?.code ?: "offline"))
+}
+
+fun errorRes(code: String): Int = when (code) {
+    "not_admin" -> R.string.app_err_not_admin
+    "last_admin" -> R.string.app_err_last_admin
+    "admin_must_register" -> R.string.app_err_admin_must_register
+    "must_register", "not_registered" -> R.string.app_err_not_registered
+    "not_a_guest" -> R.string.app_err_not_a_guest
+    "not_signed_in", "no_session" -> R.string.app_err_not_signed_in
+    "unknown_action" -> R.string.app_err_update_app
+    "too_many_groups" -> R.string.app_err_too_many_groups
+    "group_full" -> R.string.app_g_full
+    "already_member" -> R.string.app_err_already_member
+    "not_member" -> R.string.app_g_gone
+    "sign_in_instead" -> R.string.app_g_sign_in_instead
+    "group_has_admin" -> R.string.app_err_group_has_admin
+    "use_leave_group" -> R.string.app_err_use_leave_group
+    "trip_not_in_group" -> R.string.app_err_trip_not_in_group
+    "invalid_ticket" -> R.string.app_err_invalid_ticket
+    "member_owns_trip" -> R.string.group_err_member_owns_trip
+    "request_closed" -> R.string.group_err_request_closed
+    "member_gone" -> R.string.group_err_member_gone
+    "too_many_trips" -> R.string.group_err_too_many_trips
+    "too_many_meetups" -> R.string.group_err_too_many_meetups
+    "trip_not_yours" -> R.string.group_err_trip_not_yours
+    "invalid_name" -> R.string.group_err_invalid_name
+    "invalid_input" -> R.string.group_err_invalid_input
+    "not_allowed" -> R.string.group_err_not_allowed
+    "google_not_ready" -> R.string.app_err_google_not_ready
+    "cancelled" -> R.string.app_err_cancelled
+    "offline", "network" -> R.string.app_err_offline
+    else -> R.string.app_err_general
 }
 
 /** One action at a time: busy while it runs, the error if it failed. */

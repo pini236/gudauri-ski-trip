@@ -208,6 +208,28 @@ private class FakeGroupApi : GroupApi {
         groups[groupId] = g.copy(meetups = g.meetups + Meetup(id(), station, at, null, by))
     }
 
+    override suspend fun claimAdmin(groupId: String) {
+        wait(); val me = meOrThrow(); val g = groups[groupId] ?: throw ApiException("not_found")
+        if (!me.registered) throw ApiException("must_register")
+        if (g.members.any { it.role == Role.ADMIN }) throw ApiException("group_has_admin")
+        groups[groupId] = g.copy(members = g.members.map { if (it.userId == me.userId) it.copy(role = Role.ADMIN) else it })
+    }
+
+    override suspend fun revokeInvite(inviteId: String) {
+        wait(); val g = groups.values.firstOrNull { it.invite?.id == inviteId } ?: throw ApiException("not_found")
+        admin(g.id); groups[g.id] = g.copy(invite = null)
+    }
+
+    override suspend fun cancelRequest(groupId: String) {
+        wait(); val me = meOrThrow(); val g = groups[groupId] ?: return
+        groups[groupId] = g.copy(requests = g.requests.filterNot { it.userId == me.userId })
+    }
+
+    override suspend fun removeMeetup(groupId: String, meetupId: String) {
+        wait(); val g = groups[groupId] ?: throw ApiException("not_found")
+        groups[groupId] = g.copy(meetups = g.meetups.filterNot { it.id == meetupId })
+    }
+
     override suspend fun leaderboard(groupId: String, game: String): List<Score> {
         wait(); val me = meOrThrow(); val g = groups[groupId] ?: throw ApiException("not_found")
         val best = listOf(12480, 11920, 9310, 8775, 6040)

@@ -28,8 +28,8 @@ class MeasuredGroupApi(private val api: GroupApi) : GroupApi by api {
 
     override suspend fun leave(groupId: String) { api.leave(groupId); Telemetry.event("group_leave") }
 
-    /** reminder: false until the reminders arrive (Q8's "a quarter of an hour before") */
+    /** reminder: a new meetup reminds a quarter of an hour before unless turned off (Q8, meet/Reminders.kt) */
     override suspend fun addMeetup(groupId: String, station: String, at: Instant) {
-        api.addMeetup(groupId, station, at); Telemetry.event("meetup_create", mapOf("reminder" to false))
+        api.addMeetup(groupId, station, at); Telemetry.event("meetup_create", mapOf("reminder" to true))
     }
 }

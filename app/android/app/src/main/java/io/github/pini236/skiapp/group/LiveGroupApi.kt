@@ -201,6 +201,9 @@ class LiveGroupApi(
     override suspend fun leave(groupId: String) { io { groups.leave(groupId); sync?.refreshMine() } }
     override suspend fun removeMember(groupId: String, userId: String) = io { groups.remove(groupId, userId) }
     override suspend fun setRole(groupId: String, userId: String, role: Role) = io { groups.setRole(groupId, userId, role.name.lowercase()) }
+    override suspend fun claimAdmin(groupId: String) = io { groups.claimAdmin(groupId) }
+    override suspend fun revokeInvite(inviteId: String) = io { groups.revokeInvite(inviteId) }
+    override suspend fun cancelRequest(groupId: String) = io { groups.myRequests().filter { it.groupId == groupId }.forEach { groups.cancelRequest(it.id) } }
 
     override suspend fun showMyTrip(groupId: String, myName: String, trip: Trip?) = io { groups.setMine(groupId, myName, trip?.let(myTrip::sendNow)) }
 
@@ -217,6 +220,14 @@ class LiveGroupApi(
 
     override suspend fun setMemberTrip(groupId: String, userId: String, trip: Trip) { io { groups.setMemberTrip(groupId, userId, trip) } }
 
+    /** Mine, not one an admin filled in for me (entered_by empty or me), the newest first; the phone adopts its row. */
+    override suspend fun myTripOnServer(): Trip? = io {
+        val me = store.load()?.userId ?: return@io null
+        val o = rows(server.select("trips", "select=*&owner_id=eq.${Server.enc(me)}&or=(entered_by.is.null,entered_by.eq.${Server.enc(me)})&order=updated_at.desc&limit=1"))
+            .firstOrNull() ?: return@io null
+        TripRow.trip(o)?.also { myTrip.adopt(o.getString("id"), it) }
+    }
+
     override suspend fun leaderboard(groupId: String, game: String): List<Score> = io {
         val me = store.load()?.userId
         val rows = try {
@@ -231,6 +242,21 @@ class LiveGroupApi(
     /** Through the queue on the phone ([Sync]): shown in the group at once, sent when there is signal (no signal is fine). */
     override suspend fun addMeetup(groupId: String, station: String, at: Instant) {
         io { val q = sync; if (q != null) q.group(groupId).addMeetup(station, at) else groups.addMeetup(groupId, station, at) }
+    }
+
+    /** Through the queue on the phone too: gone from the group at once, deleted on the server when there is signal. */
+    override suspend fun removeMeetup(groupId: String, meetupId: String) {
+        io { val q = sync; if (q != null) q.group(groupId).removeMeetup(meetupId) else groups.removeMeetup(meetupId) }
+    }
+
+    /** From the groups kept on the phone (no network: a reminder must be set on the mountain too). */
+    override suspend fun allMeetups(): List<Pair<GroupSummary, Meetup>> {
+        val q = sync ?: return super.allMeetups()
+        return withContext(Dispatchers.IO) {
+            q.myGroups.value.groups.flatMap { g ->
+                q.group(g.id).state.value.meetups.map { m -> GroupSummary(g.id, g.name, g.startsOn, g.endsOn) to Meetup(m.id, m.station, m.at, m.note, null) }
+            }
+        }
     }
 
     private companion object {

@@ -179,6 +179,38 @@ class LiveGroupApiTest {
         assertEquals("Avi", JSONObject(kept!!).getString("name"))
     }
 
+    @Test fun theSitesActions() = runBlocking {
+        signedIn("u1")
+        answers["functions/v1/api/claim_admin"] = "{}"
+        answers["functions/v1/api/revoke_invite"] = "{}"
+        answers["functions/v1/api/cancel_join_request"] = "{}"
+        answers["rest/v1/join_requests"] = """[{"id":"r1","group_id":"g1","user_id":"u1","display_name":"Noa","kind":"approval","reclaim_user_id":null,"status":"pending"},
+            {"id":"r2","group_id":"g2","user_id":"u1","display_name":"Noa","kind":"approval","reclaim_user_id":null,"status":"pending"}]"""
+        val a = api()
+        a.claimAdmin("g1")
+        a.revokeInvite("i1")
+        // only the request to this group is withdrawn
+        a.cancelRequest("g1")
+        val calls = sent.filter { it.url.contains("/functions/v1/api/") }.map { it.url.substringAfterLast('/') to JSONObject(it.body!!) }
+        assertEquals(listOf("claim_admin", "revoke_invite", "cancel_join_request"), calls.map { it.first })
+        assertEquals("g1", calls[0].second.getString("group_id"))
+        assertEquals("i1", calls[1].second.getString("invite_id"))
+        assertEquals("r1", calls[2].second.getString("request_id"))
+    }
+
+    @Test fun aNewPhoneGetsMyTripBack() = runBlocking {
+        signedIn("u2")
+        answers["rest/v1/trips"] = "[${trip.replace("\"entered_by\":\"u1\"", "\"entered_by\":null")}]"
+        val t = api().myTripOnServer()
+        assertEquals("GD 101", t!!.out.flight)
+        assertEquals("t1", adopted.single().first)
+        val q = sent.last().url
+        assertTrue(q, q.contains("owner_id=eq.u2") && q.contains("order=updated_at.desc") && q.contains("limit=1"))
+        // nobody signed in: nothing to bring back
+        store.save(null)
+        assertNull(api().myTripOnServer())
+    }
+
     @Test fun refusalsKeepTheServersCode() = runBlocking {
         signedIn()
         try {

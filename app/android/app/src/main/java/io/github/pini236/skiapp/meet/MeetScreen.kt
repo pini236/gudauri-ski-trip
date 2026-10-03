@@ -113,7 +113,7 @@ private val NAVY = Color(0xFF13233A)
 private val FOG = Color(0xFFA3B3C8)
 
 /** Where a group meetup can go from here: my groups, and the one the person came from (the group page's "new meetup"). */
-class MeetSave(val api: GroupApi, val from: String?, val onSaved: (groupId: String) -> Unit)
+class MeetSave(val api: GroupApi, val from: String?, val after: () -> Unit = {}, val onSaved: (groupId: String) -> Unit)
 
 /**
  * The meeting point (design round 3, M1 to M3; round 8, MP1 to MP3), as on the site's #meet: nothing is picked at
@@ -617,7 +617,7 @@ private fun SaveButton(save: MeetSave, s: Station, at: Instant, modifier: Modifi
     val gs = groups.orEmpty()
     if (gs.isEmpty()) return
     fun go(id: String) = r.run {
-        save.api.addMeetup(id, s.id, at); saved = true; choose = false; Qa.log("meetup saved in $id")
+        save.api.addMeetup(id, s.id, at); saved = true; choose = false; Qa.log("meetup saved in $id"); save.after()
         if (save.from == id) save.onSaved(id)
     }
     Column(modifier, verticalArrangement = Arrangement.spacedBy(6.dp)) {

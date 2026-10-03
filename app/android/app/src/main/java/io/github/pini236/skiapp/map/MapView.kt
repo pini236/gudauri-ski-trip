@@ -147,7 +147,13 @@ class MapView(context: Context, refreshHz: Float, val stats: FrameStats) : Frame
     }
     fun onPause() = surface.onPause()
     fun onResume() = surface.onResume()
-    fun release() { worker.shutdownNow() }
+    fun release() { removeCallbacks(pendingPick); worker.shutdownNow() }
+
+    /**
+     * Work for the map's thread; none after release(). A tap's pending pick posted while the map was on the screen still
+     * runs if the map left the screen before the activity was destroyed (a view off the screen cannot take it back).
+     */
+    private fun inBackground(work: () -> Unit) { if (!worker.isShutdown) worker.execute(work) }
 
     private fun buildLabels(s: MapScene): List<MapLabel> {
         // the language's faces: Karantina and Plex have no Russian or Georgian letters
@@ -182,9 +188,9 @@ class MapView(context: Context, refreshHz: Float, val stats: FrameStats) : Frame
         onSelect?.invoke(p)
         if (chosen) onChosen?.invoke(p)
         if (p == null) { renderer.select(null); Qa.log("selected none"); return }
-        worker.execute {
+        inBackground {
             val lines = s.topDown(p)
-            if (lines.isEmpty()) return@execute
+            if (lines.isEmpty()) return@inBackground
             var total = 0f
             val lens = lines.map { l -> var acc = 0f; for (i in 1 until l.size / 3) acc += hypot(l[i * 3] - l[i * 3 - 3], l[i * 3 + 2] - l[i * 3 - 1]); total += acc; acc }
             val slopes = lines.map { s.lineSlopes(it) }
@@ -212,7 +218,7 @@ class MapView(context: Context, refreshHz: Float, val stats: FrameStats) : Frame
         if (i < 0) return
         select(null, chosen = false)
         // after the map has its size (it may have just been put on the screen)
-        post { worker.execute { renderer.animateCamera(Framing.fit(s.liftLines[i], width.toFloat(), height.toFloat(), { x, z -> s.terrain.elev(x, z) })); Qa.log("showing lift $id") } }
+        post { inBackground { renderer.animateCamera(Framing.fit(s.liftLines[i], width.toFloat(), height.toFloat(), { x, z -> s.terrain.elev(x, z) })); Qa.log("showing lift $id") } }
     }
 
     /** Puts the camera at a given view (the QA run uses it for repeatable screenshots). */

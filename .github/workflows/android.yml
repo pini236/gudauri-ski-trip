@@ -4,11 +4,12 @@
 name: android
 
 on:
+  # every branch runs the unit tests and builds (the tests also read the site's tokens and relief, and the server's
+  # contract); only main signs and publishes
   push:
-    branches: [main]
-    paths: ['app/android/**', 'site/data/**', 'site/audio/**', 'site/games/descent/**', 'site/img/pano/**', 'tools/build-app-data.py', 'tools/build-app-strings.py', 'i18n/strings.json', '.github/workflows/android.yml']
+    paths: ['app/android/**', 'site/data/**', 'site/audio/**', 'site/games/descent/**', 'site/img/pano/**', 'site/css/site.css', 'site/js/relief.js', 'server/CONTRACT.md', 'tools/build-app-data.py', 'tools/build-app-strings.py', 'i18n/strings.json', '.github/workflows/android.yml']
   pull_request:
-    paths: ['app/android/**', 'site/data/**', 'site/audio/**', 'site/games/descent/**', 'site/img/pano/**', 'tools/build-app-data.py', 'tools/build-app-strings.py', 'i18n/strings.json', '.github/workflows/android.yml']
+    paths: ['app/android/**', 'site/data/**', 'site/audio/**', 'site/games/descent/**', 'site/img/pano/**', 'site/css/site.css', 'site/js/relief.js', 'server/CONTRACT.md', 'tools/build-app-data.py', 'tools/build-app-strings.py', 'i18n/strings.json', '.github/workflows/android.yml']
   workflow_dispatch:
 
 concurrency:
@@ -51,7 +52,7 @@ jobs:
       - name: Unit tests
         run: ./gradlew --no-daemon :app:testPreviewDebugUnitTest
       - name: Test key
-        if: github.event_name != 'pull_request'
+        if: github.ref == 'refs/heads/main'
         env:
           KEYSTORE_BASE64: ${{ secrets.ANDROID_TEST_KEYSTORE_BASE64 }}
         run: |
@@ -71,20 +72,20 @@ jobs:
           ANDROID_TEST_KEY_ALIAS: ${{ secrets.ANDROID_TEST_KEY_ALIAS }}
         run: ./gradlew --no-daemon :app:assemblePreviewRelease
       - name: Sentry, upload the preview build's mapping
-        if: env.SENTRY_AUTH_TOKEN != '' && github.event_name != 'pull_request'
+        if: env.SENTRY_AUTH_TOKEN != '' && github.ref == 'refs/heads/main'
         continue-on-error: true # a Sentry problem never holds a build back
         run: |
           curl -sL https://sentry.io/get-cli/ | sh
           sentry-cli upload-proguard --uuid "$SENTRY_MAP_ID" app/build/outputs/mapping/previewRelease/mapping.txt
       - name: Check the signature is the registered test key
-        if: github.event_name != 'pull_request'
+        if: github.ref == 'refs/heads/main'
         run: |
           cert=$("$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --print-certs app/build/outputs/apk/preview/release/app-preview-release.apk | grep -i "SHA-256 digest" | head -1 | awk '{print toupper($NF)}')
           want=$(echo "BA:09:08:B5:CB:5E:48:36:C7:78:70:B2:25:8E:5A:7B:43:13:45:34:81:4F:37:47:67:1D:6A:37:7C:E8:B3:06" | tr -d ':')
           echo "signed with $cert"
           test "$cert" = "$want"
       - name: Publish
-        if: github.event_name != 'pull_request'
+        if: github.ref == 'refs/heads/main'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -96,37 +97,37 @@ jobs:
       # The store bundle: signed with the upload key (Google holds the real signing key), only on main.
       # After the preview is published, so a problem with this key never holds the preview back.
       - name: Upload key
-        if: github.event_name == 'push'
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         env:
           KEYSTORE_BASE64: ${{ secrets.ANDROID_UPLOAD_KEYSTORE_BASE64 }}
         run: |
           echo "$KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/upload.jks"
           echo "ANDROID_UPLOAD_KEYSTORE_PATH=$RUNNER_TEMP/upload.jks" >> "$GITHUB_ENV"
       - name: Sentry, the store build's mapping id
-        if: github.event_name == 'push' && env.SENTRY_AUTH_TOKEN != ''
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && env.SENTRY_AUTH_TOKEN != ''
         run: |
           id=$(uuidgen)
           echo "SENTRY_MAP_ID=$id" >> "$GITHUB_ENV"
           echo "io.sentry.ProguardUuids=$id" > app/src/main/assets/sentry-debug-meta.properties
       - name: Build the store bundle
-        if: github.event_name == 'push'
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         env:
           ANDROID_UPLOAD_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_UPLOAD_KEYSTORE_PASSWORD }}
           ANDROID_UPLOAD_KEY_ALIAS: ${{ secrets.ANDROID_UPLOAD_KEY_ALIAS }}
         run: ./gradlew --no-daemon :app:bundleStoreRelease
       - name: Sentry, upload the store build's mapping
-        if: github.event_name == 'push' && env.SENTRY_AUTH_TOKEN != ''
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && env.SENTRY_AUTH_TOKEN != ''
         continue-on-error: true
         run: sentry-cli upload-proguard --uuid "$SENTRY_MAP_ID" app/build/outputs/mapping/storeRelease/mapping.txt
       - name: Check the bundle is signed with the registered upload key
-        if: github.event_name == 'push'
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: |
           cert=$(keytool -printcert -jarfile app/build/outputs/bundle/storeRelease/app-store-release.aab | grep "SHA256:" | head -1 | awk '{print toupper($NF)}' | tr -d ':')
           want=$(echo "85:FB:FB:02:AE:0B:50:CC:53:92:55:4D:27:61:5E:A6:8E:2E:79:75:EB:8D:75:10:60:30:6D:A9:7D:D7:DD:31" | tr -d ':')
           echo "signed with $cert"
           test "$cert" = "$want"
       - name: Publish the store bundle
-        if: github.event_name == 'push'
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |

@@ -290,7 +290,16 @@ group() {
   qa "--es qa.group admin --es qa.tab group"; waitlog "group seed admin" 20; sleep 2.5; shot group-admin
   tapText "חברים" && sleep 1.5 && shot group-admin-members
   tapText "אישור" && sleep 1.5 && shot group-admin-approved
-  tapText "פעולות על דנה מזרחי" && sleep 1 && shot group-admin-menu && adb shell input keyevent KEYCODE_BACK && sleep 0.8
+  # an admin fills in a new flight for a member who has none: "fill in for them", then "another flight" (the trip form)
+  tapText "טיסות" && sleep 1.5 && tapText "מילוי בשבילו" && sleep 1.2 && tapText "טיסה אחרת" && sleep 2 && shot group-admin-fill-new
+  adb shell input keyevent KEYCODE_BACK && sleep 1 && tapText "חברים" && sleep 1
+  tapText "פעולות על דנה מזרחי" && sleep 1 && shot group-admin-menu
+  # out of the group in two taps (as on the site): the item asks once more, the menu stays open
+  tapText "הוצאה מהקבוצה" && sleep 0.8 && shot group-admin-remove-sure && adb shell input keyevent KEYCODE_BACK && sleep 0.8
+  # a meetup is deleted for everyone in two taps: the X, then "tap again"
+  tapText "מפגשים" && sleep 1.5 && tapText "מחיקת המפגש" && sleep 0.8 && shot group-meetup-delete-sure
+  tapText "~נגיעה נוספת: למחוק" && sleep 1.5 && shot group-meetup-deleted
+  tapText "חברים" && sleep 1
   qa "--es qa.tab account"; sleep 1.5; shot account
   qa "--es qa.tab group --es qa.mode night"; sleep 2.5; shot group-night
   qa "--es qa.mode auto"
@@ -334,9 +343,24 @@ meet() {
   drag $up; sleep 1; tapText "צהריים" && sleep 1.5
   drag $up; sleep 0.8; drag $up; sleep 0.8; drag $up; sleep 1; shot meet-group-save
   mark; tapText "שמירה בקבוצה" && waitlog "meetup saved" 10 && { sleep 2; shot meet-group-after; }
+  # the reminders (Q8): each meetup ahead reminds a quarter of an hour before; one turned off, then the next one rings
+  waitlog "reminders armed" 10; tapText "תזכורת רבע שעה לפני" && sleep 1 && shot meet-group-remind-off
+  # the shade draws a new notification a moment after it opens: the picture waits for it
+  mark; qa "--es qa.remind next"; waitlog "reminder shown" 10 && { adb shell cmd statusbar expand-notifications
+    for _ in 1 2 3 4 5 6; do [ -n "$(where "~בעוד רבע שעה")" ] && break; sleep 1; done; sleep 0.5; shot meet-reminder
+    tapText "~בעוד רבע שעה" && sleep 3 && shot meet-from-reminder || adb shell cmd statusbar collapse; }
   # a tap on a meetup in the group opens its card
+  qa "--es qa.tab group/g1/meetups"; sleep 2
   tapText "~התחנה" && sleep 2 && shot meet-from-group
   qa "--es qa.group none --es qa.tab home"; sleep 1
+  # the notification permission is asked when the app first opens (the run installs with it granted): taken away, the
+  # next open asks, and "Allow" gives it back
+  adb shell pm revoke "$PKG" android.permission.POST_NOTIFICATIONS > /dev/null 2>&1
+  adb shell pm clear-permission-flags "$PKG" android.permission.POST_NOTIFICATIONS user-set user-fixed > /dev/null 2>&1 || true
+  adb shell am force-stop "$PKG"; sleep 1
+  mark; adb shell am start -n "$ACT" > /dev/null; waitlog "notifications asked" 30 && { sleep 2; shot first-open-notifications
+    tapText "Allow" && waitlog "notifications allowed" 10 && { sleep 1; shot first-open-allowed; }; }
+  adb shell pm grant "$PKG" android.permission.POST_NOTIFICATIONS > /dev/null 2>&1 || true
 }
 
 # ---- the store screenshots (Google Play: portrait 9:16) ----
@@ -414,4 +438,5 @@ fi
 
 kill "$LOGCAT" 2> /dev/null
 note "screenshots: $n · failures: $FAILS"
-exit 0
+# a failure turns the run red (2.10.2026, after clean runs in a row); the results are published either way
+[ "$FAILS" -eq 0 ]

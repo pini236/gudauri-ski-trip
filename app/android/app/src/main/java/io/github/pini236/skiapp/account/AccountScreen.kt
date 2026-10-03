@@ -130,7 +130,7 @@ private fun Way(name: String, on: Boolean, mark: @Composable () -> Unit, connect
         mark()
         Column(Modifier.weight(1f)) {
             Text(name, style = Ski.type.bodyBold, color = c.ink)
-            Muted(stringResource(if (on) R.string.app_a_connected else R.string.app_a_not_connected), size = 12.5f)
+            Muted(stringResource(if (on) R.string.acct_connected else R.string.app_a_not_connected), size = 12.5f)
         }
         when {
             on -> Icon(Icons.check, null, Modifier.size(22.dp), tint = c.green)

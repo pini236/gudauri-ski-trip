@@ -27,6 +27,7 @@ class TokensTest {
             "p-green" to c.green, "p-blue" to c.blue, "p-red" to c.red, "p-black" to c.black, "on-board" to c.onBoard,
             "accent" to c.accent, "on-accent" to c.onAccent, "dash" to c.dash, "sky1" to c.sky1, "sky2" to c.sky2,
             "water" to c.water, "road" to c.road, "contour" to c.contour, "peak" to c.peak,
+            "water-edge" to c.waterEdge, "road-main" to c.roadMain, "vill" to c.village, "contour-i" to c.contourI,
             "bp-paper" to c.bpPaper, "bp-paper2" to c.bpPaper2, "bp-ink" to c.bpInk, "bp-muted" to c.bpMuted,
             "bp-strip" to c.bpStrip, "bp-on-strip" to c.bpOnStrip, "bp-acc" to c.bpAccent,
         )

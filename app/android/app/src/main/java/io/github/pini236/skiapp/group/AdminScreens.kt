@@ -61,6 +61,7 @@ import io.github.pini236.skiapp.ui.Icons
 import io.github.pini236.skiapp.ui.Karantina
 import io.github.pini236.skiapp.ui.Note
 import io.github.pini236.skiapp.ui.PrimaryButton
+import io.github.pini236.skiapp.ui.QuietButton
 import io.github.pini236.skiapp.ui.Ski
 import io.github.pini236.skiapp.ui.TopBar
 import java.time.LocalDate
@@ -90,7 +91,7 @@ fun NewGroupScreen(api: GroupApi, myTrip: Trip?, today: LocalDate, onCancel: () 
             GroupDates(from, to, { pick = it })
             Note(stringResource(R.string.app_g_dates_note), Icons.clock)
             Field(stringResource(R.string.app_g_your_name), me, { me = it.take(40) }, hint = stringResource(R.string.app_g_your_name_hint))
-            if (myTrip != null) Toggle(stringResource(R.string.app_g_show_my_trip),
+            if (myTrip != null) Toggle(stringResource(R.string.group_show_my_trip),
                 listOfNotNull(myTrip.out.flight.ifBlank { null }, shortDate(myTrip.out.date) + (myTrip.out.departs?.let { " · $it" } ?: "")).joinToString(", "),
                 showTrip, { showTrip = it })
             val ok = name.isNotBlank() && me.isNotBlank()
@@ -148,6 +149,7 @@ fun InviteScreen(api: GroupApi, groupId: String, onBack: () -> Unit) {
             val inv = g.invite
             Spacer(Modifier.height(10.dp))
             if (inv != null) InviteCard(g.name, inv) { copy(ctx, InviteCode.link(inv.token)) }
+            else Muted(stringResource(R.string.group_no_invite), size = 14f)
             val text = inv?.let { stringResource(R.string.app_g_invite_message, g.name, InviteCode.link(it.token), it.code) }
             Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                 PrimaryButton(stringResource(R.string.app_g_whatsapp), Icons.share, { text?.let { shareInvite(ctx, it, true) } }, Modifier.weight(1f))
@@ -164,6 +166,8 @@ fun InviteScreen(api: GroupApi, groupId: String, onBack: () -> Unit) {
                 Box(Modifier.fillMaxWidth().height(1.dp).background(c.rule))
                 Button2(stringResource(R.string.app_g_replace_link), Look.DANGER, { r.run { api.newInvite(groupId, inv?.requiresApproval == true); group = api.group(groupId) } }, icon = Icons.x)
                 Muted(stringResource(R.string.app_g_replace_note), size = 12.5f)
+                // the invite stops working, with no new one (as on the site); "new code and link" makes the next
+                if (inv != null) QuietButton(stringResource(R.string.group_revoke), { r.run { api.revokeInvite(inv.id); group = api.group(groupId) } }, danger = true)
                 ErrorLine(r)
             }
         }

@@ -32,6 +32,8 @@ sealed interface Route {
     }
     data object GroupNew : Route { override val path = "group/new" }
     data class GroupInvite(val id: String) : Route { override val path = "group/$id/invite" }
+    /** An admin fills in a new flight for a member (set_member_trip): the trip form, for them. */
+    data class TripFor(val group: String, val user: String) : Route { override val path = "group/$group/trip/$user" }
     /** An invite link (the site's /j/<token>) or a typed code (Q3); "I'm already in the group" (Q5). */
     data class Join(val code: String) : Route { override val path = "j/$code" }
     data class Reclaim(val code: String) : Route { override val path = "j/$code/reclaim" }
@@ -79,6 +81,7 @@ sealed interface Route {
                     parts.size == 2 && ID.matches(parts[1]) -> Group(parts[1])
                     parts.size == 3 && ID.matches(parts[1]) && parts[2] == "invite" -> GroupInvite(parts[1])
                     parts.size == 3 && ID.matches(parts[1]) && parts[2] in TABS -> Group(parts[1], parts[2])
+                    parts.size == 4 && ID.matches(parts[1]) && parts[2] == "trip" && ID.matches(parts[3]) -> TripFor(parts[1], parts[3])
                     else -> null
                 }
                 "j" -> when {

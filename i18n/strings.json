@@ -492,6 +492,18 @@
     "ka"
    ]
   },
+  "app.about_libs": {
+   "he": "ספריות קוד פתוח: Jetpack Compose, AndroidX, Kotlin ו-OkHttp ברישיון Apache 2.0, ו-PostHog ו-Sentry ברישיון MIT.",
+   "en": "Open-source libraries: Jetpack Compose, AndroidX, Kotlin and OkHttp under the Apache 2.0 license, and PostHog and Sentry under the MIT license.",
+   "ru": "Библиотеки с открытым кодом: Jetpack Compose, AndroidX, Kotlin и OkHttp (лицензия Apache 2.0), PostHog и Sentry (лицензия MIT).",
+   "ka": "ღია კოდის ბიბლიოთეკები: Jetpack Compose, AndroidX, Kotlin და OkHttp (ლიცენზია Apache 2.0), PostHog და Sentry (ლიცენზია MIT).",
+   "where": "app/android",
+   "note": "about, credits: the libraries in the app (their license texts are packed in assets/licenses)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
   "app.about_more": {
    "he": "ההגדרות (צליל, רטט, שפה) מגיעות בשלב הבא.",
    "en": "Settings (sound, vibration, language) come next.",
@@ -812,7 +824,7 @@
    "he": "הלוך",
    "en": "Outbound",
    "ru": "Туда",
-   "ka": "წასვლა",
+   "ka": "გამგზავრება",
    "where": "app/android",
    "note": "the outbound flight: pass strip, form section",
    "check": [
@@ -910,8 +922,8 @@
   "app.sign_group_sub": {
    "he": "יצירת קבוצה, או הצטרפות בקוד",
    "en": "Create a group, or join with a code",
-   "ru": "Создать группу или войти по коду",
-   "ka": "ჯგუფის შექმნა ან კოდით შესვლა",
+   "ru": "Создать группу или вступить по коду",
+   "ka": "ჯგუფის შექმნა ან შეერთება კოდით",
    "where": "app/android",
    "note": "home sign subtitle",
    "check": [
@@ -10217,18 +10229,6 @@
     "ka"
    ]
   },
-  "app.a_connected": {
-   "he": "מחובר",
-   "en": "Connected",
-   "ru": "Подключено",
-   "ka": "დაკავშირებულია",
-   "where": "app/android",
-   "note": "A4, a way in",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
   "app.a_not_connected": {
    "he": "לא מחובר",
    "en": "Not connected",
@@ -10440,6 +10440,66 @@
    "ka": "ამისთვის განაახლეთ აპლიკაცია.",
    "where": "app/android",
    "note": "server unknown_action: an older app against a newer server",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.err_group_has_admin": {
+   "he": "לקבוצה כבר יש מנהל.",
+   "en": "The group already has an admin.",
+   "ru": "В группе уже есть администратор.",
+   "ka": "ჯგუფს უკვე ჰყავს ადმინისტრატორი.",
+   "where": "app/android",
+   "note": "server group_has_admin (claim_admin)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.err_use_leave_group": {
+   "he": "כדי לצאת בעצמך, משתמשים ב\"עזיבת הקבוצה\".",
+   "en": "To leave yourself, use “Leave the group”.",
+   "ru": "Чтобы выйти самому, нажмите «Покинуть группу».",
+   "ka": "თავად გასასვლელად გამოიყენეთ „ჯგუფის დატოვება“.",
+   "where": "app/android",
+   "note": "server use_leave_group (remove_member on yourself)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.err_trip_not_in_group": {
+   "he": "הטיסה הזו כבר לא מוצגת בקבוצה.",
+   "en": "That flight is no longer shown in the group.",
+   "ru": "Этот рейс больше не показан в группе.",
+   "ka": "ეს ფრენა ჯგუფში აღარ ჩანს.",
+   "where": "app/android",
+   "note": "server trip_not_in_group (same_flight)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.err_invalid_ticket": {
+   "he": "חיבור החשבונות לקח יותר מדי זמן. נכנסים שוב עם גוגל.",
+   "en": "Linking the accounts took too long. Sign in with Google again.",
+   "ru": "Связывание аккаунтов заняло слишком много времени. Войдите через Google снова.",
+   "ka": "ანგარიშების დაკავშირებას ძალიან დიდი დრო დასჭირდა. ხელახლა შედით Google-ით.",
+   "where": "app/android",
+   "note": "server invalid_ticket (merge_guest)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.err_already_member": {
+   "he": "כבר בקבוצה.",
+   "en": "Already in the group.",
+   "ru": "Уже в группе.",
+   "ka": "უკვე ჯგუფშია.",
+   "where": "app/android",
+   "note": "server already_member (an admin approves a request of someone who is already in)",
    "check": [
     "ru",
     "ka"
@@ -10692,18 +10752,6 @@
    "ka": "სახელი, რომელსაც მეგობრები იცნობენ",
    "where": "app/android",
    "note": "Q1, Q3 field hint",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "app.g_show_my_trip": {
-   "he": "הטיול שלי יופיע בקבוצה",
-   "en": "Show my trip in the group",
-   "ru": "Показывать мою поездку в группе",
-   "ka": "ჩემი მოგზაურობა ჯგუფში გამოჩნდეს",
-   "where": "app/android",
-   "note": "Q1 switch",
    "check": [
     "ru",
     "ka"
@@ -11045,6 +11093,18 @@
     "ka"
    ]
   },
+  "app.g_pending_cancel": {
+   "he": "ביטול הבקשה",
+   "en": "Withdraw the request",
+   "ru": "Отозвать запрос",
+   "ka": "მოთხოვნის გაუქმება",
+   "where": "app/android",
+   "note": "Q3/Q5, while a request waits for an admin (cancel_join_request)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
   "app.g_bad_code": {
    "he": "הקוד לא עובד",
    "en": "The code does not work",
@@ -11120,8 +11180,8 @@
   "app.g_code_title": {
    "he": "הצטרפות בקוד",
    "en": "Join with a code",
-   "ru": "Вход по коду",
-   "ka": "კოდით შესვლა",
+   "ru": "Вступить по коду",
+   "ka": "შეერთება კოდით",
    "where": "app/android",
    "note": "Q4 title",
    "check": [
@@ -11261,18 +11321,6 @@
     "ka"
    ]
   },
-  "app.g_tab_scores": {
-   "he": "שיאים",
-   "en": "Scores",
-   "ru": "Рекорды",
-   "ka": "რეკორდები",
-   "where": "app/android",
-   "note": "tab",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
   "app.g_tab_members": {
    "he": "חברים",
    "en": "Members",
@@ -11328,18 +11376,6 @@
    "ka": "ბორტზე",
    "where": "app/android",
    "note": "Q6, under the count",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "app.g_no_flight_yet": {
-   "he": "עוד אין טיסה",
-   "en": "No flight yet",
-   "ru": "Рейса пока нет",
-   "ka": "ფრენა ჯერ არ არის",
-   "where": "app/android",
-   "note": "Q6",
    "check": [
     "ru",
     "ka"
@@ -11417,6 +11453,18 @@
     "ka"
    ]
   },
+  "app.g_fill_new_sub": {
+   "he": "הטיסה נשמרת בקבוצה, עם סימון שמנהל מילא אותה. החבר רואה אותה ויכול לשנות.",
+   "en": "The flight is kept in the group, marked as filled in by an admin. The member sees it and can change it.",
+   "ru": "Рейс сохраняется в группе с пометкой, что его заполнил администратор. Участник видит его и может изменить.",
+   "ka": "ფრენა ინახება ჯგუფში, აღნიშვნით, რომ ადმინისტრატორმა შეავსო. წევრი ხედავს მას და შეუძლია შეცვალოს.",
+   "where": "app/android",
+   "note": "the trip form when an admin fills in a new flight for a member (set_member_trip)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
   "app.g_other_flight": {
    "he": "טיסה אחרת",
    "en": "Another flight",
@@ -11465,13 +11513,97 @@
     "ka"
    ]
   },
-  "app.g_meetups_note": {
-   "he": "מפגש חדש נבחר על מפת התחנות, וכל הקבוצה רואה אותו.",
-   "en": "A new meetup is picked on the map of stations, and the whole group sees it.",
-   "ru": "Новая встреча выбирается на карте станций, и её видит вся группа.",
-   "ka": "ახალი შეხვედრა სადგურების რუკაზე აირჩევა და მას მთელი ჯგუფი ხედავს.",
+  "app.g_meetup_delete": {
+   "he": "מחיקת המפגש",
+   "en": "Delete the meetup",
+   "ru": "Удалить встречу",
+   "ka": "შეხვედრის წაშლა",
+   "where": "app/android",
+   "note": "Q8, the X on a meetup (its label for screen readers)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.g_meetup_delete_confirm": {
+   "he": "נגיעה נוספת: למחוק לכולם",
+   "en": "Tap again to delete it for everyone",
+   "ru": "Нажмите ещё раз, чтобы удалить для всех",
+   "ka": "კიდევ შეეხეთ ყველასთვის წასაშლელად",
+   "where": "app/android",
+   "note": "Q8, the second tap that deletes a meetup for the whole group",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.g_meetups_offline": {
+   "he": "שמור בטלפון: המפגשים והתזכורות עובדים גם בלי קליטה על ההר.",
+   "en": "Kept on the phone: meetups and reminders work with no signal on the mountain.",
+   "ru": "Хранится в телефоне: встречи и напоминания работают и без связи в горах.",
+   "ka": "ინახება ტელეფონში: შეხვედრები და შეხსენებები მთაზე კავშირის გარეშეც მუშაობს.",
    "where": "app/android",
    "note": "Q8",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.g_remind": {
+   "he": "תזכורת רבע שעה לפני",
+   "en": "Remind me 15 minutes before",
+   "ru": "Напомнить за 15 минут",
+   "ka": "შეხსენება 15 წუთით ადრე",
+   "where": "app/android",
+   "note": "Q8",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.g_in": {
+   "he": "בעוד {time}",
+   "en": "in {time}",
+   "ru": "через {time}",
+   "ka": "დარჩა {time}",
+   "where": "app/android",
+   "note": "Q8: the next meetup, {time} as the phone's language writes a duration",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.remind_channel": {
+   "he": "תזכורות למפגשים",
+   "en": "Meetup reminders",
+   "ru": "Напоминания о встречах",
+   "ka": "შეხვედრების შეხსენებები",
+   "where": "app/android",
+   "note": "Q8: the notification channel, in the phone's settings",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.remind_title": {
+   "he": "בעוד רבע שעה: {place}",
+   "en": "In 15 minutes: {place}",
+   "ru": "Через 15 минут: {place}",
+   "ka": "15 წუთში: {place}",
+   "where": "app/android",
+   "note": "Q8: the reminder; {place} is the station",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.remind_body": {
+   "he": "{group} · נפגשים ב-{time}",
+   "en": "{group} · meeting at {time}",
+   "ru": "{group} · встреча в {time}",
+   "ka": "{group} · შეხვედრა {time}-ზე",
+   "where": "app/android",
+   "note": "Q8: the reminder; {group} is the group's name, {time} Gudauri time",
    "check": [
     "ru",
     "ka"
@@ -11609,18 +11741,6 @@
     "ka"
    ]
   },
-  "app.g_approve": {
-   "he": "אישור",
-   "en": "Approve",
-   "ru": "Подтвердить",
-   "ka": "დადასტურება",
-   "where": "app/android",
-   "note": "Q10 button",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
   "app.g_reject": {
    "he": "דחייה",
    "en": "Decline",
@@ -11682,7 +11802,7 @@
    ]
   },
   "app.g_unmake_admin": {
-   "he": "הסרה מניהול",
+   "he": "הורדה ממנהל",
    "en": "Remove as admin",
    "ru": "Снять с администраторов",
    "ka": "ადმინისტრატორობიდან მოხსნა",

@@ -160,11 +160,22 @@ interface GroupApi {
     suspend fun leave(groupId: String)
     suspend fun removeMember(groupId: String, userId: String)
     suspend fun setRole(groupId: String, userId: String, role: Role)
+    /** "Be the admin" (claim_admin): only while the group has no admin, and only for a registered member. */
+    suspend fun claimAdmin(groupId: String)
+    /** The admin cancels the working invite: its code and link stop working until a new one is made. */
+    suspend fun revokeInvite(inviteId: String)
+    /** My request to join this group, still waiting for an admin, is withdrawn (cancel_join_request). */
+    suspend fun cancelRequest(groupId: String)
 
     /** My trip in this group (null: none shown). The client creates or updates my trip on the server. */
     suspend fun showMyTrip(groupId: String, myName: String, trip: Trip?)
     /** "I'm on the same flight": a copy of that trip becomes mine, in this group; returned to keep on the phone too. */
     suspend fun sameFlight(groupId: String, tripId: String): Trip
+    /**
+     * A phone with no trip of its own, just signed in (a new phone, or the app installed again): my newest trip on the
+     * server, as the site's pullTrip, which this phone then keeps as its own row; null when there is none.
+     */
+    suspend fun myTripOnServer(): Trip? = null
     /** An admin fills in a member's flight while the member has not. */
     suspend fun setMemberTrip(groupId: String, userId: String, trip: Trip)
 
@@ -172,6 +183,11 @@ interface GroupApi {
 
     /** A meetup from the meeting point (Q8): kept on the phone at once and sent when there is signal. */
     suspend fun addMeetup(groupId: String, station: String, at: Instant)
+    /** A meetup goes for everyone (any member may, as on the site): gone from the phone at once, sent when there is signal. */
+    suspend fun removeMeetup(groupId: String, meetupId: String)
+
+    /** Every meetup of my groups, with its group: what the reminders are set from (Q8). */
+    suspend fun allMeetups(): List<Pair<GroupSummary, Meetup>> = myGroups().flatMap { g -> group(g.id).meetups.map { g to it } }
 }
 
 /** Invite codes: six letters without I and O (the server's alphabet), typed in any case; or the long token from a link. */

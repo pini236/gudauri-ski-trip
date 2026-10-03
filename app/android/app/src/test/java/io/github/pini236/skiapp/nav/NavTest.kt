@@ -10,7 +10,7 @@ class NavTest {
     @Test fun pathsRoundTrip() {
         val all = listOf(Route.Home, Route.Map(), Route.Map("Tatra 2"), Route.Map("Kudebi 1/2 (old)"), Route.Meet(), Route.Meet("lift-12", "0930", "20270112"),
             Route.Games, Route.Game("descent"), Route.About, Route.Trip, Route.Group(), Route.Group("g1"), Route.Group("5f0c-77", "scores"),
-            Route.GroupNew, Route.GroupInvite("g1"), Route.Join("KZBQRM"), Route.Join("t".repeat(40)), Route.Reclaim("KZBQRM"), Route.JoinCode, Route.Account)
+            Route.GroupNew, Route.GroupInvite("g1"), Route.TripFor("g1", "u-2"), Route.Join("KZBQRM"), Route.Join("t".repeat(40)), Route.Reclaim("KZBQRM"), Route.JoinCode, Route.Account)
         for (r in all) assertEquals(r.path, r, Route.parse(r.path))
     }
 
