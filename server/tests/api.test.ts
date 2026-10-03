@@ -74,6 +74,8 @@ test("the way in: unknown actions, no session, bad input", async () => {
   await fails(pini, "update_group", { group_id: "not-a-uuid" }, "invalid_input");
   await fails(pini, "create_group", { name: "x", display_name: "   " }, "invalid_name");
   await fails(pini, "create_group", { name: "x", display_name: "a\u0000b" }, "invalid_name");
+  await fails(pini, "create_group", { name: "  ", display_name: "Pini" }, "invalid_name");
+  await fails(pini, "create_group", { name: "x".repeat(61), display_name: "Pini" }, "invalid_name");
   eq((await handle(deps, pini, "create_group", [] as unknown as Record<string, unknown>)).status, 400, "array body");
 });
 
@@ -123,6 +125,7 @@ test("groups: create, see, manage, and always keep an admin", async () => {
 
   await call(guest, "update_group", { group_id: g, name: "Renamed", starts_on: null, ends_on: null });
   eq((await sql`select name from public.groups where id = ${g}`)[0].name, "Renamed", "admin renames");
+  await fails(guest, "update_group", { group_id: g, name: "", starts_on: null, ends_on: null }, "invalid_name");
 
   await call(guest, "leave_group", { group_id: g });
   eq(await count(sql`select count(*) n from public.groups where id = ${g}`), 0, "the last member leaving deletes the group");

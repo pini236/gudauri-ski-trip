@@ -169,7 +169,7 @@ POST /functions/v1/api/<פעולה>
 
 | פעולה | שדות | תשובה | שגיאות |
 |---|---|---|---|
-| `update_group` | `group_id`, `name`, `starts_on`, `ends_on` | `{}` | `not_admin` |
+| `update_group` | `group_id`, `name` (1 עד 60), `starts_on`, `ends_on` | `{}` | `not_admin`, `invalid_name` |
 | `delete_group` | `group_id` | `{}` | `not_admin` |
 | `create_invite` | `group_id`, `requires_approval?`, `max_uses?`, `expires_at?` | `{id, code, token, requires_approval, max_uses, expires_at}`. מבטלת את ההזמנות הקודמות | `not_admin` |
 | `revoke_invite` | `invite_id` | `{}` | `not_admin` |
@@ -190,7 +190,7 @@ POST /functions/v1/api/<פעולה>
 
 | טבלה | מי רואה | כתיבה ישירה | עמודות עיקריות |
 |---|---|---|---|
-| `profiles` | רק את שלי | עדכון של `display_name` ו-`lang` (`he`, `en`, `ru`, `ka`) | `id, display_name, lang` |
+| `profiles` | רק את שלי | עדכון של `display_name` ו-`lang` (`he`, `en`, `ru`, `ka`) | `id, display_name, lang`. **`lang` היום לא נקרא בשום מקום;** הוא שמור לשפה של הודעות שהשרת ישלח בעתיד (התראות). לא מוחקים אותו, כי האפליקציה כבר כותבת אותו (כלל 1) |
 | `trips` | שלי, וטיול שחבר בחר להציג בקבוצה שלי | הכנסה, עדכון ומחיקה של שלי, בעמודות הטיסה בלבד. עד 20 לאדם | `id, owner_id, destination, out_date, out_flight, out_from, out_to, out_departs, out_arrives, ret_*, ski_from, ski_to, entered_by` |
 | `groups` | חברי הקבוצה | אין (דרך קוד השרת) | `id, name, starts_on, ends_on, created_by` |
 | `group_members` | חברי הקבוצה | אין | `group_id, user_id, role, display_name, trip_id, joined_at` |
@@ -214,7 +214,7 @@ POST /functions/v1/api/<פעולה>
 | קוד | מצב | פירוש | הודעה משלה |
 |---|---|---|---|
 | `invalid_input` | 400 | ערך חסר או לא תקין | כללית |
-| `invalid_name` | 400 | שם ריק, ארוך מדי או עם תווי בקרה | כן |
+| `invalid_name` | 400 | שם ריק, ארוך מדי או עם תווי בקרה: שם של אדם (עד 40) או של קבוצה (עד 60, ב-`create_group` וב-`update_group`; מ-3.10.2026, לפני כן `invalid_input`) | כן |
 | `invalid_json` | 400 | הגוף לא JSON | כללית |
 | `invalid_ticket` | 400 | כרטיס המיזוג פג או שגוי | כן |
 | `not_signed_in` | 401 | אין חיבור, או שפג | כן |

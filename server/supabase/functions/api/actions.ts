@@ -92,10 +92,11 @@ export function cleanName(v: unknown): string {
   return s;
 }
 
+// A group's name: 1 to 60 characters, no control characters. Same error as a person's name, so the apps show the same message.
 function groupName(v: unknown): string {
-  if (typeof v !== "string") throw new ApiError("invalid_input");
+  if (typeof v !== "string") throw new ApiError("invalid_name");
   const s = v.trim();
-  if ([...s].length < 1 || [...s].length > 60 || /\p{Cc}/u.test(s)) throw new ApiError("invalid_input");
+  if ([...s].length < 1 || [...s].length > 60 || /\p{Cc}/u.test(s)) throw new ApiError("invalid_name");
   return s;
 }
 
