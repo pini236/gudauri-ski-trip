@@ -105,10 +105,10 @@
    ]
   },
   "about.credit_fonts": {
-   "he": "Karantina ו-IBM Plex Sans Hebrew, ברישיון OFL.",
-   "en": "Karantina and IBM Plex Sans Hebrew, under the OFL license.",
-   "ru": "Karantina и IBM Plex Sans Hebrew, лицензия OFL.",
-   "ka": "Karantina და IBM Plex Sans Hebrew, ლიცენზია OFL.",
+   "he": "Karantina, IBM Plex Sans Hebrew, IBM Plex Sans, Oswald ו-Noto Sans Georgian, ברישיון OFL.",
+   "en": "Karantina, IBM Plex Sans Hebrew, IBM Plex Sans, Oswald and Noto Sans Georgian, under the OFL license.",
+   "ru": "Karantina, IBM Plex Sans Hebrew, IBM Plex Sans, Oswald и Noto Sans Georgian, лицензия OFL.",
+   "ka": "Karantina, IBM Plex Sans Hebrew, IBM Plex Sans, Oswald და Noto Sans Georgian, ლიცენზია OFL.",
    "where": "site/index.html",
    "check": [
     "ru",

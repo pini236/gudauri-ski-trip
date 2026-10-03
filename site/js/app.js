@@ -800,7 +800,8 @@ const MEET=(function(){
     x.fillStyle='#fff';x.beginPath();x.arc(px,py-100,19,0,7);x.fill();x.stroke();
     const g=x.createLinearGradient(0,H-420,0,H);g.addColorStop(0,'rgba(19,35,58,0)');g.addColorStop(.45,'rgba(19,35,58,.85)');g.addColorStop(1,'rgba(19,35,58,.95)');x.fillStyle=g;x.fillRect(0,H-420,W,420);
     await document.fonts.ready.catch(()=>{});
-    const DISP='"Karantina","Arial Narrow",sans-serif',BODY='"IBM Plex Sans Hebrew",sans-serif';
+    // the fonts of the language (FT1): the same tokens as the page, so Russian and Georgian are not drawn in Karantina (S-15)
+    const cs=getComputedStyle(document.documentElement),DISP=cs.getPropertyValue('--f-display').trim()||'"Karantina","Arial Narrow",sans-serif',BODY=cs.getPropertyValue('--f-body').trim()||'"IBM Plex Sans Hebrew",sans-serif';
     const fit=(t,max,px)=>{x.font=`700 ${px}px ${DISP}`;while(px>60&&x.measureText(t).width>max){px-=6;x.font=`700 ${px}px ${DISP}`;}return px;};
     x.direction='ltr';x.textAlign='left';
     const tw=Math.min(300,(fit(S.time,300,150),x.measureText(S.time).width)+50);
