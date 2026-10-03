@@ -400,6 +400,9 @@ phone() {
   if ! adb root 2>&1 | grep -qE "restarting|already"; then note "no root: the phone's language not tested"; return; fi
   sleep 3; adb wait-for-device
   adb uninstall "$PKG" > /dev/null; adb install -r -g "$APK" > /dev/null || { fail "reinstall"; return; }
+  # no language chosen in the app: the system keeps an app's choice across a quick reinstall (the run set Hebrew at its
+  # start), and this part runs on an emulator of its own, with no "from the phone" before it (3.10.2026)
+  adb shell cmd locale set-app-locales "$PKG" > /dev/null 2>&1; sleep 1
   local loc
   for loc in he-IL ru-RU ka-GE en-US; do
     adb shell setprop persist.sys.locale "$loc"; adb shell setprop ctl.restart zygote

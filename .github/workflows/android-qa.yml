@@ -124,12 +124,14 @@ jobs:
           path: parts
       - name: One result from the parts
         run: |
-          mkdir -p "$OUT/shots"
+          mkdir -p "$OUT/shots" "$OUT/parts"
           for d in parts/android-qa-*; do
             p=${d#parts/android-qa-}
-            cp -r "$d" "$OUT/$p"
+            cp -r "$d" "$OUT/parts/$p"
             { echo "== $p"; cat "$d/summary.txt" 2>/dev/null || echo "(no summary)"; echo; } >> "$OUT/summary.txt"
             for f in "$d"/shots/*.png; do [ -f "$f" ] && cp "$f" "$OUT/shots/$p-$(basename "$f")"; done
+            # the store screenshots, where the release has always had them
+            if [ -d "$d/store" ]; then mkdir -p "$OUT/store"; cp "$d"/store/*.png "$OUT/store/" 2> /dev/null || true; fi
           done
           cat "$OUT/summary.txt"
       - name: Contact sheets
@@ -149,7 +151,7 @@ jobs:
           # main keeps its own results; a branch's run goes to a release of its own, so it never covers main's
           tag=android-qa; [ "$GITHUB_REF_NAME" = main ] || tag=android-qa-branch
           title="אנדרואיד: בדיקה באמולטור$([ "$tag" = android-qa ] || echo " (ענף ${GITHUB_REF_NAME})")"
-          files=("$RUNNER_TEMP/qa.zip" "$OUT"/sheet-*.png $(ls "$OUT"/store/*.png 2>/dev/null))
+          files=("$RUNNER_TEMP/qa.zip" "$OUT"/sheet-*.png $(ls "$OUT"/store/*.png 2> /dev/null || true))
           {
             echo "בדיקה באמולטור, ענף ${GITHUB_REF_NAME}, קומיט ${GITHUB_SHA::7}."
             echo "הריצה: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
