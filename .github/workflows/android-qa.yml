@@ -87,12 +87,23 @@ jobs:
           cd "$OUT" && zip -qr "$RUNNER_TEMP/qa.zip" . && cd -
           # main keeps its own results; a branch's run goes to a release of its own, so it never covers main's
           tag=android-qa; [ "$GITHUB_REF_NAME" = main ] || tag=android-qa-branch
-          gh release delete "$tag" --yes --cleanup-tag 2>/dev/null || true
+          title="אנדרואיד: בדיקה באמולטור$([ "$tag" = android-qa ] || echo " (ענף ${GITHUB_REF_NAME})")"
+          files=("$RUNNER_TEMP/qa.zip" "$OUT"/sheet-*.png $(ls "$OUT"/store/*.png 2>/dev/null))
           {
             echo "בדיקה באמולטור, ענף ${GITHUB_REF_NAME}, קומיט ${GITHUB_SHA::7}."
             echo "הריצה: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
             echo
             cat "$OUT/summary.txt" 2>/dev/null || echo "(no summary: the run stopped before the app started)"
           } > "$RUNNER_TEMP/notes.md"
-          gh release create "$tag" "$RUNNER_TEMP/qa.zip" "$OUT"/sheet-*.png $(ls "$OUT"/store/*.png 2>/dev/null) --prerelease --target "$GITHUB_SHA" \
-            --title "אנדרואיד: בדיקה באמולטור$([ "$tag" = android-qa ] || echo " (ענף ${GITHUB_REF_NAME})")" --notes-file "$RUNNER_TEMP/notes.md"
+          if [ "$tag" = android-qa ]; then
+            gh release delete "$tag" --yes --cleanup-tag 2>/dev/null || true
+            gh release create "$tag" "${files[@]}" --prerelease --target "$GITHUB_SHA" --title "$title" --notes-file "$RUNNER_TEMP/notes.md"
+          else
+            # a branch's release stays where it is and only its files change: a new tag on a branch's commit was
+            # refused to the run's token (HTTP 403, 3.10.2026); the notes name the commit
+            gh release view "$tag" > /dev/null 2>&1 \
+              || gh release create "$tag" --prerelease --target "${{ github.event.repository.default_branch }}" --title "$title" --notes-file "$RUNNER_TEMP/notes.md"
+            gh release view "$tag" --json assets -q '.assets[].name' | while read -r a; do gh release delete-asset "$tag" "$a" --yes; done
+            gh release upload "$tag" "${files[@]}" --clobber
+            gh release edit "$tag" --title "$title" --notes-file "$RUNNER_TEMP/notes.md"
+          fi
