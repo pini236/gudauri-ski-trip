@@ -44,13 +44,20 @@ window.ACCOUNT=(function(){
     if(c==='42501')return 'not_allowed';if(/^2[23]/.test(c))return 'invalid_input';return 'server_error';}
   async function rest(q){const r=await q;if(r.error)throw err(restCode(r));return r.data;}
   async function user(){const c=await client();const {data}=await c.auth.getSession();return data.session&&data.session.user||null;}
-  async function guest(){const c=await client();if(await user())return;const r=await c.auth.signInAnonymously();if(r.error)throw err('server_error');}
+  async function guest(){const c=await client();if(await user())return;const r=await c.auth.signInAnonymously();if(r.error)throw err('server_error');tr('sign_in',{method:'guest'});}
 
   // ---- what we know, kept in this browser
   let state=load(),signingOut=false;
   function load(){try{return JSON.parse(localStorage.getItem(CACHE)||'null')||{};}catch(e){return {};}}
+  // my groups live (CONTRACT, realtime, me:<user>): a request approved, removed from a group, a group renamed
+  let meLive=null;
+  function watchMe(c){if(meLive&&meLive.uid===state.uid)return;if(meLive){meLive.ch.unsubscribe();meLive=null;}
+    const u=state.uid,ch=c.channel('me:'+u);let t=0;const again=()=>{clearTimeout(t);t=setTimeout(()=>refresh(),400);};
+    ch.on('postgres_changes',{event:'*',schema:'public',table:'group_members',filter:'user_id=eq.'+u},again).on('postgres_changes',{event:'DELETE',schema:'public',table:'group_members'},again)
+      .on('postgres_changes',{event:'*',schema:'public',table:'join_requests',filter:'user_id=eq.'+u},again).on('postgres_changes',{event:'*',schema:'public',table:'groups'},again);
+    ch.subscribe();meLive={uid:u,ch};}
   function keep(){try{localStorage.setItem(CACHE,JSON.stringify(state));}catch(e){}}
-  function wipe(){const ended=state.ended;state={};if(ended)state.ended=true;try{localStorage.removeItem(CACHE);Object.keys(localStorage).filter(k=>k.startsWith('gud-group-')).forEach(k=>localStorage.removeItem(k));}catch(e){}
+  function wipe(){if(meLive){meLive.ch.unsubscribe();meLive=null;}const ended=state.ended;state={};if(ended)state.ended=true;try{localStorage.removeItem(CACHE);Object.keys(localStorage).filter(k=>k.startsWith('gud-group-')).forEach(k=>localStorage.removeItem(k));}catch(e){}
     const t=MYTRIP.get();if(t&&t.sid){delete t.sid;MYTRIP.set(t);}}
   const signedIn=()=>!!state.uid&&hasSession();
   const registered=()=>signedIn()&&!state.anon;
@@ -68,7 +75,10 @@ window.ACCOUNT=(function(){
         groups:gs.map(g=>{const m=mine.find(x=>x.group_id===g.id);return {...g,role:m.role,me:m.display_name,trip:m.trip_id,count:all.filter(a=>a.group_id===g.id).length};})
           .sort((a,b)=>(a.starts_on||'9').localeCompare(b.starts_on||'9'))};
       keep();
+      let pend=null;try{pend=JSON.parse(localStorage.getItem('gud-pending')||'null');}catch(e){}
+      if(pend&&state.groups.some(g=>g.id===pend.group_id)){tr('group_join',{via:pend.via});try{localStorage.removeItem('gud-pending');}catch(e){}}
       if(!state.anon&&!MYTRIP.get())await pullTrip(c);
+      watchMe(c);
       if(state.groups.length)await sendBests();}
     catch(e){/* no connection: what was kept is shown */}
     paint();}
@@ -196,6 +206,7 @@ window.ACCOUNT=(function(){
   async function openJoin(code){
     code=code.replace(/[\s-]/g,'');if(/^[a-z]{6}$/i.test(code))code=code.toUpperCase();joinCode=code;preview=null;
     const card=$('joinCard'),f=$('joinForm'),pg=$('joinPage');
+    clearErr(pg);
     ['joinForm','joinNoSignup','joinReclaim','joinApp'].forEach(id=>$(id).hidden=true);$('joinNames').hidden=true;
     card.querySelectorAll(':scope>:not(.snowcap)').forEach(x=>x.remove());
     card.insertAdjacentHTML('beforeend',`<p>${esc(T('join.loading'))}</p>`);
@@ -207,23 +218,39 @@ window.ACCOUNT=(function(){
     if(r.status!=='ok'){card.insertAdjacentHTML('beforeend',`<p>${esc(T('join.st_'+r.status))}</p>`);return;}
     preview=r;
     if(r.already_member){await refresh();location.replace('#group/'+r.group_id);return;}
+    let req=null;try{const c=await client();[req]=await rest(c.from('join_requests').select('id').eq('user_id',state.uid||(await user()).id).eq('group_id',r.group_id).eq('status','pending').limit(1));}catch(e){}
     card.insertAdjacentHTML('beforeend',`<small>${esc(T('join.invited_to'))}</small><p class="ac-big">${esc(r.name)}</p><p>${esc(T('group.members_n',{n:(r.members||[]).length}))}${r.starts_on?' · '+esc(T('join.dates',{from:dm(r.starts_on),to:dm(r.ends_on||r.starts_on)})):''}</p>`);
     f.hidden=false;$('joinNoSignup').hidden=false;
     if(!f.name.value&&state.name)f.name.value=state.name;
     $('joinReclaim').hidden=!(r.members||[]).length;
-    if(/^[A-Z]{6}$/i.test(code)){$('joinApp').hidden=false;$('joinCode').textContent=code.toUpperCase();}}
+    if(/^[A-Z]{6}$/i.test(code)){$('joinApp').hidden=false;$('joinCode').textContent=code.toUpperCase();}
+    if(req)showPending(req.id);}
+  function via(){return joinCode.length>8?'link':'code';}
+  function pendNote(){try{localStorage.setItem('gud-pending',JSON.stringify({group_id:preview&&preview.group_id,via:via()}));}catch(e){}}
+  async function showPending(id){const pg=$('joinPage'),p=pg.querySelector('[data-err]');
+    if(!id){try{const c=await client(),[q]=await rest(c.from('join_requests').select('id').eq('user_id',state.uid||(await user()).id).eq('group_id',preview.group_id).eq('status','pending').limit(1));id=q&&q.id;}catch(e){}}
+    $('joinForm').hidden=true;$('joinNames').hidden=true;
+    p.innerHTML=`<span>${esc(T('join.st_pending'))}</span>${id?`<button type="button" class="ac-btn quiet" data-cancelreq="${esc(id)}">${esc(T('join.cancel_request'))}</button>`:''}`;p.hidden=false;}
   $('joinForm').addEventListener('submit',async e=>{e.preventDefault();const pg=$('joinPage');clearErr(pg);
     const name=e.target.name.value.trim();if(!name||name.length>40){e.target.name.focus();return;}
     const b=e.target.querySelector('button');b.disabled=true;
     try{const r=await api('join_group',{code:joinCode,display_name:name});
-      if(r.status==='joined'||r.status==='already_member'){tr('group_join',{via:joinCode.length>8?'link':'code'});await refresh();await pushTrip();location.hash='#group/'+r.group_id;}
-      else{const p=pg.querySelector('[data-err]');p.textContent=T('join.st_'+r.status);p.hidden=false;if(r.status==='pending')$('joinForm').hidden=true;}}
+      if(r.status==='joined'||r.status==='already_member'){if(r.status==='joined')tr('group_join',{via:via()});await refresh();await pushTrip();location.hash='#group/'+r.group_id;}
+      else if(r.status==='pending'){pendNote();await showPending();}
+      else{const p=pg.querySelector('[data-err]');p.textContent=T('join.st_'+r.status);p.hidden=false;}}
     catch(x){showErr(pg,x);}b.disabled=false;});
   $('joinReclaimBtn').addEventListener('click',()=>{const box=$('joinNames');if(!preview)return;box.hidden=false;
     box.innerHTML=preview.members.map(m=>`<button type="button" data-mid="${esc(m.user_id)}">${esc(m.display_name)}</button>`).join('');});
   $('joinNames').addEventListener('click',async e=>{const b=e.target.closest('[data-mid]');if(!b)return;const pg=$('joinPage');clearErr(pg);
-    try{const r=await api('request_reclaim',{code:joinCode,member_id:b.dataset.mid});const p=pg.querySelector('[data-err]');p.textContent=T('join.st_'+r.status);p.hidden=false;$('joinNames').hidden=true;}
+    try{const r=await api('request_reclaim',{code:joinCode,member_id:b.dataset.mid});
+      if(r.status==='pending'){pendNote();await showPending();return;}
+      const p=pg.querySelector('[data-err]');p.innerHTML=`<span>${esc(T('join.st_'+r.status))}</span>`;p.hidden=false;$('joinNames').hidden=true;
+      // a registered member: they come back by signing in, as in the app (S-25)
+      if(r.status==='sign_in_instead'){try{sessionStorage.setItem('gud-after-signin','#join/'+encodeURIComponent(joinCode));}catch(e){}p.insertAdjacentHTML('beforeend',`<a class="ac-btn" href="#signin">${esc(T('join.sign_in_btn'))}</a>`);}}
     catch(x){showErr(pg,x);}});
+  $('joinPage').addEventListener('click',async e=>{const b=e.target.closest('[data-cancelreq]');if(!b)return;const pg=$('joinPage');b.disabled=true;
+    try{await api('cancel_join_request',{request_id:b.dataset.cancelreq});try{localStorage.removeItem('gud-pending');}catch(x){}clearErr(pg);$('joinForm').hidden=false;}
+    catch(x){b.disabled=false;showErr(pg,x);}});
 
   // ---- the group page (W8, W10)
   let G=null,tab='flights',gid='';
@@ -240,7 +267,7 @@ window.ACCOUNT=(function(){
     if(!live&&sb){const ch=sb.channel('group:'+gid);const f='group_id=eq.'+gid;let t=0;const again=()=>{clearTimeout(t);t=setTimeout(reload,400);};
       ['group_members','meetups','invites','join_requests'].forEach(tb=>ch.on('postgres_changes',{event:'*',schema:'public',table:tb,filter:f},again));
       ch.on('postgres_changes',{event:'DELETE',schema:'public',table:'group_members'},again).on('postgres_changes',{event:'DELETE',schema:'public',table:'meetups'},again)
-        .on('postgres_changes',{event:'*',schema:'public',table:'trips'},again).on('postgres_changes',{event:'*',schema:'public',table:'groups',filter:'id=eq.'+gid},again);
+        .on('postgres_changes',{event:'*',schema:'public',table:'trips'},again).on('postgres_changes',{event:'*',schema:'public',table:'scores'},again).on('postgres_changes',{event:'*',schema:'public',table:'groups',filter:'id=eq.'+gid},again);
       ch.subscribe();live=ch;}}
   function showNone(){
     $('grTitle').textContent=T('group.empty_title');$('grNone').hidden=false;$('grSome').hidden=true;$('grNote').innerHTML='';

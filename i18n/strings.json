@@ -13661,6 +13661,30 @@
     "ka"
    ]
   },
+  "join.cancel_request": {
+   "he": "ביטול הבקשה",
+   "en": "Withdraw the request",
+   "ru": "Отозвать запрос",
+   "ka": "მოთხოვნის გაუქმება",
+   "where": "site/js/account.js",
+   "note": "while a request waits for an admin (cancel_join_request), as in the app",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "join.sign_in_btn": {
+   "he": "כניסה עם החשבון",
+   "en": "Sign in with the account",
+   "ru": "Войти через аккаунт",
+   "ka": "ანგარიშით შესვლა",
+   "where": "site/js/account.js",
+   "note": "after sign_in_instead in \"I'm already in the group\"",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
   "join.dates": {
    "he": "{from} עד {to}",
    "en": "{from} to {to}",

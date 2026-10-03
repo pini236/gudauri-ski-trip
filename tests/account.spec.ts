@@ -16,7 +16,7 @@ async function loaded(page: Page) { await expect(page.locator('#loading')).toBeH
 const b64 = (o: object) => Buffer.from(JSON.stringify(o)).toString('base64url');
 
 // a small fake of the server: one group, one other member, and whoever joins
-async function fakeServer(page: Page, opts: { admin?: boolean; meetFull?: boolean } = {}) {
+async function fakeServer(page: Page, opts: { admin?: boolean; meetFull?: boolean; approval?: boolean } = {}) {
   const calls: string[] = [];
   const bodies: Record<string, any> = {};
   const me = { id: 'u-me', aud: 'authenticated', role: 'authenticated', is_anonymous: true, identities: [], app_metadata: {}, user_metadata: {} };
@@ -26,6 +26,7 @@ async function fakeServer(page: Page, opts: { admin?: boolean; meetFull?: boolea
   const db = {
     members: [{ group_id: 'g1', user_id: 'u-dan', role: 'admin', display_name: 'דנה בדיקה', trip_id: 't-dan', joined_at: '2026-10-01T10:00:00Z' }] as any[],
     trips: [{ id: 't-dan', owner_id: 'u-dan', out_date: '2027-01-10', out_flight: '6H 897', out_from: 'TLV', out_to: 'TBS', out_departs: '16:00:00', ret_date: '2027-01-15', entered_by: null }] as any[],
+    requests: [] as any[],
     meetups: [{ id: 'm1', group_id: 'g1', station: 'x', meet_at: '2027-01-11T05:30:00+00:00', note: null }] as any[],
   };
   const group = { id: 'g1', name: 'קבוצת בדיקה', starts_on: '2027-01-10', ends_on: '2027-01-15' };
@@ -44,6 +45,8 @@ async function fakeServer(page: Page, opts: { admin?: boolean; meetFull?: boolea
     if (path.startsWith('/functions/v1/api/')) {
       const action = path.split('/').pop(), body = req.postDataJSON() || {};
       if (action === 'invite_preview') return json(r, body.code === 'KZBQRM' ? { status: 'ok', group_id: 'g1', ...group, requires_approval: false, already_member: false, members: db.members.map(m => ({ user_id: m.user_id, display_name: m.display_name })) } : { status: 'invalid_code' });
+      if (action === 'join_group' && opts.approval) { db.requests.push({ id: 'rq1', group_id: 'g1', user_id: me.id, status: 'pending' }); return json(r, { status: 'pending' }); }
+      if (action === 'cancel_join_request') { db.requests.forEach(q => { if (q.id === body.request_id) q.status = 'cancelled'; }); return json(r, {}); }
       if (action === 'join_group') { db.members.push({ group_id: 'g1', user_id: me.id, role: opts.admin ? 'admin' : 'member', display_name: body.display_name, trip_id: null, joined_at: '2026-10-02T10:00:00Z' }); return json(r, { status: 'joined', group_id: 'g1' }); }
       if (action === 'set_my_membership') { const m = db.members.find(x => x.user_id === me.id); m.trip_id = body.trip_id; return json(r, {}); }
       if (action === 'group_leaderboard') return json(r, body.game === 'descent' ? [{ user_id: 'u-dan', display_name: 'דנה בדיקה', best: 1200, achieved_at: '2026-10-01T10:00:00Z' }] : []);
@@ -69,6 +72,7 @@ async function fakeServer(page: Page, opts: { admin?: boolean; meetFull?: boolea
       }
       if (table === 'trips') { const id = q.get('id'); return json(r, id && id.startsWith('eq.') ? db.trips.filter(t => t.id === id.slice(3)) : db.trips); }
       if (table === 'meetups') return json(r, db.meetups);
+      if (table === 'join_requests') return json(r, db.requests.filter(x => 'eq.' + x.status === q.get('status') && (!q.get('user_id') || 'eq.' + x.user_id === q.get('user_id'))));
       return json(r, []);
     }
     return json(r, {}, 404);
@@ -255,6 +259,25 @@ test('שמירת מפגש שהשרת סירב לה: ההודעה אומרת למ
   await page.locator('[data-pre="am"]').click();
   await page.locator('#meetGroup').click();
   await expect(page.locator('#meetGroup')).toHaveText('יש כבר יותר מדי מפגשים בקבוצה.');
+  expect(errors).toEqual([]);
+});
+
+test('בקשה שממתינה למנהל: נשארת אחרי טעינה מחדש, ואפשר לבטל אותה (S-6)', async ({ page }) => {
+  const errors = watchErrors(page);
+  const server = await fakeServer(page, { approval: true });
+  await page.goto('/#join/KZBQRM');
+  await loaded(page);
+  await page.locator('#joinForm input').fill('נועה ניסיון');
+  await page.locator('#joinForm button').click();
+  await expect(page.locator('#joinPage [data-cancelreq]')).toBeVisible();
+  await expect(page.locator('#joinForm')).toBeHidden();
+  await page.reload();
+  await loaded(page);
+  await expect(page.locator('#joinPage [data-err]')).toContainText('הבקשה נשלחה למנהל');
+  await page.locator('#joinPage [data-cancelreq]').click();
+  await expect(page.locator('#joinForm')).toBeVisible();
+  expect(server.calls).toContain('POST /functions/v1/api/cancel_join_request');
+  expect(server.db.requests[0].status).toBe('cancelled');
   expect(errors).toEqual([]);
 });
 
