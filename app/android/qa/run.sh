@@ -497,8 +497,14 @@ for sc in ${SCENARIO//,/ }; do
   esac
 done
 
+# the run in parallel parts (android-qa.yml): the checks below that need doing once run with one part only (FINAL=1);
+# a run on its own (no FINAL) does them all
+FINAL=${FINAL-1}
+
 # ---- usage and crash reporting: with the keys, a check message to Sentry and everything queued sent now ----
+if [ -n "$FINAL" ]; then
 qa "--es qa.sentry run-$(date +%s)"; waitlog "flushed" 20 && grep "SkiQa.*flushed" "$OUT/logcat.txt" | tail -1 | sed 's/.*SkiQa[^:]*: //' | tee -a "$OUT/summary.txt"; sleep 5
+fi
 
 # ---- what the run measured ----
 adb shell dumpsys gfxinfo "$PKG" > "$OUT/gfxinfo.txt"
@@ -512,7 +518,7 @@ if [ -n "$PID" ]; then adb logcat -d --pid="$PID" '*:E' | grep -v -E "^-+ beginn
 [ -s "$OUT/errors.txt" ] && fail "errors in the log (errors.txt)"
 
 # ---- the release build (R8): only that it starts and draws ----
-if [ -f "$RELEASE_APK" ]; then
+if [ -n "$FINAL" ] && [ -f "$RELEASE_APK" ]; then
   adb uninstall "$PKG" > /dev/null
   if adb install -r "$RELEASE_APK" > /dev/null; then
     mark; adb shell am start -W -n "$ACT" > /dev/null; sleep 12; shot release-start
