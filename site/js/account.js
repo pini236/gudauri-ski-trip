@@ -4,7 +4,7 @@
 // this browser too, so they open at once and without a connection.
 window.ACCOUNT=(function(){
   // from js/app.js, at start
-  let MYTRIP,esc,snowCap,MEET,renderTicket,countdown;
+  let MYTRIP,esc,MEET,renderTicket,countdown;
   const URL_='https://vanuhuzuhnljvcoihvys.supabase.co',KEY='sb_publishable_BpJiIkRbIob7U6xa_Xt_9A_AJqtoupz',REGION='eu-central-1';
   // the web client from the Google console (server/README.md, "כניסה עם גוגל"); empty until Pini sends it
   const GOOGLE_CLIENT_ID='116975370454-2f0dqvfn3obp9i0j24r8pn71h230c6q8.apps.googleusercontent.com';
@@ -132,7 +132,8 @@ window.ACCOUNT=(function(){
         google.accounts.id.renderButton(g,{type:'standard',theme:'outline',size:'large',text:'continue_with',width:Math.min(host.clientWidth||360,400),locale:I18N.lang});}
       catch(e){showErr(host.closest('.ac'),e);}}
     else host.insertAdjacentHTML('beforeend',`<button type="button" class="ac-btn google" disabled><span class="ac-mark">G</span>${esc(T(del?'acct.delete_google':'acct.google'))}</button>`);
-    host.insertAdjacentHTML('beforeend',`<button type="button" class="ac-btn apple" disabled><span class="ac-mark">A</span>${esc(T(del?'acct.delete_apple':'acct.apple'))}</button>`);
+    // Apple waits for the developer account: its button says so ("soon") instead of looking broken
+    host.insertAdjacentHTML('beforeend',`<button type="button" class="ac-btn apple${APPLE?'':' soon'}" disabled><span class="ac-mark">A</span>${esc(T(del?'acct.delete_apple':'acct.apple'))}${APPLE?'':`<small class="ac-soon">${esc(T('acct.apple_soon'))}</small>`}</button>`);
     return soon||!APPLE;}
   function showErr(root,e){const p=root&&root.querySelector('[data-err]');if(!p)return;
     const code=e&&e.code||'server_error';const own=T('group.err_'+code);
@@ -148,7 +149,7 @@ window.ACCOUNT=(function(){
     if(which!=='group'&&live){live.unsubscribe();live=null;}
     if(!which)return false;
     window.scrollTo(0,0);const pg=$(PAGES[which]);clearErr(pg);
-    pg.querySelectorAll('[data-snow]:not([data-snowed])').forEach(c=>{c.setAttribute('data-snowed','');c.insertAdjacentHTML('afterbegin',snowCap(+c.dataset.snow,358));});
+    SNOW.scan(pg);
     ({signin:openSignin,account:openAccount,del:openDelete,join:()=>openJoin(decodeURIComponent(m[2]||'')),group:()=>openGroup(m[2]||'')})[which]();
     return true;}
 
@@ -160,7 +161,7 @@ window.ACCOUNT=(function(){
   function openAccount(){
     if(!signedIn()){location.replace('#signin');return;}
     const card=$('acMe');
-    const show=()=>{card.innerHTML=`<div class="ac-who"><span class="ac-av">${esc(letter(state.name))}</span><span style="display:flex;flex-direction:column;min-width:0"><b class="ac-name">${esc(state.name||T('ticket.pax_guest'))}</b><span class="ac-sub">${esc(T('acct.name_hint'))} · <button type="button" class="ac-link" data-rename style="background:none;border:0;padding:0;font:inherit;color:var(--glacier);font-weight:700;cursor:pointer;min-height:24px">${esc(T('acct.change'))}</button></span></span></div>`;};
+    const show=()=>{card.innerHTML=`<div class="ac-who"><span class="ac-av">${esc(letter(state.name))}</span><span style="display:flex;flex-direction:column;min-width:0"><b class="ac-name">${esc(state.name||T('ticket.pax_guest'))}</b><span class="ac-sub">${esc(T('acct.name_hint'))} · <button type="button" class="ac-link" data-rename style="display:inline-flex;align-items:center;min-height:44px;margin:-10px 0;background:none;border:0;padding:0 4px;font:inherit;color:var(--glacier);font-weight:700;cursor:pointer">${esc(T('acct.change'))}</button></span></span></div>`;};
     show();
     card.onclick=e=>{if(!e.target.closest('[data-rename]'))return;
       card.innerHTML=`<form class="ac-form" data-rn><label class="ac-fld"><span>${esc(T('acct.name_hint'))}</span><input type="text" name="n" maxlength="40" value="${esc(state.name)}"></label><button type="submit" class="ac-btn">${esc(T('acct.save'))}</button></form>`;
@@ -169,7 +170,7 @@ window.ACCOUNT=(function(){
         try{const c=await client();await rest(c.from('profiles').update({display_name:n}).eq('id',state.uid));state.name=n;keep();paint();show();}catch(x){showErr($('accountPage'),x);}};};
     const gn=$('acGuestNote');gn.hidden=!state.anon;gn.innerHTML=`${ic('lock',18)}<span>${esc(T('acct.guest_member'))}</span>`;
     const p=state.providers||[];
-    $('acWays').innerHTML=['google','apple'].map(k=>`<div class="ac-row"><span class="ac-mark" style="width:28px;height:28px">${k==='google'?'G':'A'}</span><span class="ac-txt"><b>${esc(T('acct.'+k+'_name'))}</b><small>${esc(T(p.includes(k)?'acct.connected':'acct.not_connected'))}</small></span>${p.includes(k)?`<span class="ac-ok">${ic('check',22)}</span>`:`<a href="#signin">${esc(T('acct.connect'))}</a>`}</div>`).join('');
+    $('acWays').innerHTML=['google','apple'].map(k=>`<div class="ac-row"><span class="ac-mark" style="width:28px;height:28px">${k==='google'?'G':'A'}</span><span class="ac-txt"><b>${esc(T('acct.'+k+'_name'))}</b><small>${esc(T(p.includes(k)?'acct.connected':'acct.not_connected'))}</small></span>${p.includes(k)?`<span class="ac-ok">${ic('check',22)}</span>`:k==='apple'&&!APPLE?`<small class="ac-soon">${esc(T('acct.apple_soon'))}</small>`:`<a href="#signin">${esc(T('acct.connect'))}</a>`}</div>`).join('');
     const gs=state.groups||[];
     $('acGroups').innerHTML=gs.length?gs.map(g=>`<div class="ac-row"><span class="ac-av sm">${esc(letter(g.name))}</span><span class="ac-txt"><b>${esc(g.name)}</b><small>${esc(T('group.members_n',{n:g.count}))}${g.role==='admin'?' · '+esc(T('acct.role_admin')):''}</small></span><a href="#group/${g.id}">${esc(T('acct.open'))}</a></div>`).join('')
       :`<p class="ac-lead" style="margin:0">${esc(T('acct.no_groups'))}</p>`;
@@ -269,10 +270,16 @@ window.ACCOUNT=(function(){
     if(!G)return;const {g,members}=G;
     $('grTitle').textContent=g.name;
     $('grMeta').textContent=[T('group.members_n',{n:members.length}),g.starts_on?T('join.dates',{from:dm(g.starts_on),to:dm(g.ends_on||g.starts_on)}):''].filter(Boolean).join(' · ');
-    document.querySelectorAll('#grTabs [data-tab]').forEach(b=>{b.setAttribute('role','tab');b.setAttribute('aria-selected',String(b.dataset.tab===tab));});
+    // tabs for a screen reader and the keyboard: one tab in the Tab order, the arrows move between them
+    $('grTabs').setAttribute('role','tablist');$('grMain').setAttribute('role','tabpanel');$('grMain').setAttribute('aria-labelledby','grTab-'+tab);
+    document.querySelectorAll('#grTabs [data-tab]').forEach(b=>{const on=b.dataset.tab===tab;b.id='grTab-'+b.dataset.tab;b.setAttribute('role','tab');b.setAttribute('aria-selected',String(on));b.setAttribute('aria-controls','grMain');b.tabIndex=on?0:-1;});
     $('grMain').innerHTML=({flights:drawFlights,meetups:drawMeetups,scores:drawScores,members:drawMembers})[tab]();
     $('grSide').innerHTML=drawInvite();}
   $('grTabs').addEventListener('click',e=>{const b=e.target.closest('[data-tab]');if(!b)return;tab=b.dataset.tab;draw();if(tab==='scores'&&!(G&&G.scores))loadScores();});
+  $('grTabs').addEventListener('keydown',e=>{const all=[...$('grTabs').querySelectorAll('[data-tab]')].filter(b=>!b.hidden),i=all.indexOf(document.activeElement);if(i<0)return;
+    const fwd=I18N.ltr?'ArrowRight':'ArrowLeft',back=I18N.ltr?'ArrowLeft':'ArrowRight';
+    const j=e.key===fwd?(i+1)%all.length:e.key===back?(i-1+all.length)%all.length:e.key==='Home'?0:e.key==='End'?all.length-1:-1;
+    if(j<0)return;e.preventDefault();all[j].click();all[j].focus();});
   function drawFlights(){
     const {members,trips}=G,byId=Object.fromEntries(trips.map(t=>[t.id,t])),me=members.find(m=>m.user_id===state.uid)||{};
     const groups=new Map();members.forEach(m=>{const t=byId[m.trip_id];if(!t)return;const k=[t.out_date,t.out_flight||'',t.out_from||'',t.out_to||''].join('|');
@@ -289,10 +296,10 @@ window.ACCOUNT=(function(){
     return (cards||`<p class="ac-lead" style="margin:0">${esc(T('group.no_flights'))}</p>`)
       +(none.length?`<p class="ac-note"><span><b>${esc(T('group.no_flight'))}:</b> ${none.map(m=>esc(m.display_name)).join(', ')}</span></p>`:'')+mineAct;}
   function gTime(iso){const d=new Date(new Date(iso).getTime()+4*36e5);return {hm:d.toISOString().slice(11,16),day:d.toISOString().slice(0,10)};}
-  function dayName(iso){const d=new Date(iso+'T12:00:00Z');try{return (I18N.lang==='he'?new Intl.DateTimeFormat('he',{weekday:'narrow',timeZone:'UTC'}).format(d)+' ':new Intl.DateTimeFormat(I18N.locale,{weekday:'short',timeZone:'UTC'}).format(d)+' ')+dm(iso);}catch(e){return dm(iso);}}
+  function dayName(iso){const d=new Date(iso+'T12:00:00Z');try{return (I18N.lang==='he'?new Intl.DateTimeFormat('he',{weekday:'narrow',timeZone:'UTC'}).format(d)+' ':I18N.date(d,{weekday:'short',timeZone:'UTC'})+' ')+dm(iso);}catch(e){return dm(iso);}}
   function drawMeetups(){
     const list=G.meetups.map(m=>{const {hm,day}=gTime(m.meet_at),name=(MEET&&MEET.station(m.station))||m.station;
-      return `<div class="ac-meet"><span class="mt num">${hm}</span><span style="flex:1"><b dir="auto">${esc(name)}</b>${esc(dayName(day))}${m.note?' · '+esc(m.note):''}</span><button type="button" class="ac-x" data-delmeet="${esc(m.id)}" aria-label="${esc(T('common.close'))}" style="min-width:44px;min-height:44px;background:none;border:0;color:var(--muted);cursor:pointer">${ic('x',18)}</button></div>`;}).join('');
+      return `<div class="ac-meet"><span class="mt num">${hm}</span><span style="flex:1"><b dir="auto">${esc(name)}</b>${esc(dayName(day))}${m.note?' · '+esc(m.note):''}</span><button type="button" class="ac-x" data-delmeet="${esc(m.id)}" aria-label="${esc(T('group.meetup_delete'))}" style="min-width:44px;min-height:44px;background:none;border:0;color:var(--muted);cursor:pointer">${ic('x',18)}</button></div>`;}).join('');
     return (list||`<p class="ac-lead" style="margin:0">${esc(T('group.no_meetups'))}</p>`)+`<a class="ac-btn ghost" href="#meet">${ic('plus')}${esc(T('group.meetup_new'))}</a>`;}
   async function loadScores(){
     try{const out={};for(const game of GAMES)out[game]=await api('group_leaderboard',{group_id:gid,game});G.scores=out;try{localStorage.setItem(gKey(gid),JSON.stringify(G));}catch(e){}if(tab==='scores')draw();}
@@ -428,7 +435,7 @@ window.ACCOUNT=(function(){
   addEventListener('online',()=>{if(started&&signedIn())refresh();});
   document.addEventListener('visibilitychange',()=>{if(!document.hidden&&gid&&!$('groupPage').hidden)reload();});
   let started=false;
-  function start(x){({MYTRIP,esc,snowCap,MEET,renderTicket,countdown}=x);started=true;paint();refresh();}
+  function start(x){({MYTRIP,esc,MEET,renderTicket,countdown}=x);started=true;paint();refresh();}
   const ifStarted=f=>(...a)=>started?f(...a):undefined;
   return {start,route:ifStarted(route),paint:ifStarted(paint),paintPass:ifStarted(paintPass),tripSaved:ifStarted(tripSaved),signedIn,state:()=>state};
 })();

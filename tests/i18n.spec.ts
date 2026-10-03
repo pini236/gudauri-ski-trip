@@ -84,6 +84,14 @@ test.describe('an old Hebrew browser (iw)', () => {
   });
 });
 
+test('the language button sits after the clock, next to the day and night button, in the top bar and on the phone home page', async ({ page }) => {
+  await page.goto('/#home');
+  await expect(page.locator('.lang-btn:visible').first()).toBeVisible();
+  // the round buttons side by side, not button, clock, button (Pini, on the canvas, 3.10.2026)
+  const order = await page.evaluate(() => ['.topbar .dn', '.home-top .dn-home'].map(s => [...document.querySelector(s)!.children].map(e => e.classList[0])));
+  expect(order).toEqual([['dn-clock', 'lang-btn', 'dn-btn'], ['dn-clock', 'lang-btn', 'dn-btn']]);
+});
+
 test('the language button in the top bar opens the list on every page, and choosing switches', async ({ page }) => {
   for (const hash of ['#home', '#map', '#about', '#signin']) {
     await page.goto('/' + hash);
