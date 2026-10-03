@@ -397,7 +397,10 @@ lang() {
 # ---- the phone's own language, with no choice in the app (decision 47): Hebrew only on a phone set to Hebrew ----
 # the emulator's whole system language changes (root, then the system restarts); a fresh install has no app choice
 phone() {
-  if ! adb root 2>&1 | grep -qE "restarting|already"; then note "no root: the phone's language not tested"; return; fi
+  # root, to change the whole system's language; the emulator sometimes answers late, so a few tries
+  local rooted="" r
+  for r in 1 2 3 4; do adb root 2>&1 | grep -qE "restarting|already" && { rooted=1; break; }; sleep 4; adb wait-for-device; done
+  if [ -z "$rooted" ]; then fail "no root: the phone's language not tested"; adb shell am start -W -n "$ACT" > /dev/null; return; fi
   sleep 3; adb wait-for-device
   adb uninstall "$PKG" > /dev/null; adb install -r -g "$APK" > /dev/null || { fail "reinstall"; return; }
   # no language chosen in the app: the system keeps an app's choice across a quick reinstall (the run set Hebrew at its
@@ -419,6 +422,7 @@ phone() {
   done
   adb unroot > /dev/null 2>&1; sleep 3; adb wait-for-device
   adb shell cmd locale set-app-locales "$PKG" --locales he > /dev/null 2>&1; sleep 2
+  adb shell am start -W -n "$ACT" > /dev/null # the app running again, for whatever comes next
 }
 
 # ---- the run view (13.3, the site's T1 to T4): the sign and the panel, the profile that moves the dot, a swipe to the

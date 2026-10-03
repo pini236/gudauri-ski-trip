@@ -36,6 +36,7 @@ jobs:
     timeout-minutes: 25
     outputs:
       parts: ${{ steps.plan.outputs.parts }}
+      final: ${{ steps.plan.outputs.final }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-java@v4
@@ -61,6 +62,9 @@ jobs:
           s="${{ inputs.scenario || 'all' }}"
           [ "$s" = all ] && s="map,descent,home,group,meet,status,run,lang,phone,store"
           echo "parts=$(python3 -c 'import json,sys; print(json.dumps([p.strip() for p in sys.argv[1].split(",") if p.strip()]))' "$s")" >> "$GITHUB_OUTPUT"
+          # the release build's start and the crash-report check run with one part: not the phone's language, which
+          # restarts the whole system
+          echo "final=$(python3 -c 'import sys; p=[x.strip() for x in sys.argv[1].split(",") if x.strip()]; print(next((x for x in p if x != "phone"), p[0]))' "$s")" >> "$GITHUB_OUTPUT"
       - uses: actions/upload-artifact@v4
         with:
           name: apks
@@ -80,8 +84,8 @@ jobs:
     env:
       OUT: ${{ github.workspace }}/qa-out
       SCENARIO: ${{ matrix.part }}
-      # the release build's start and the crash-report check run once, with the first part
-      FINAL: ${{ matrix.part == fromJSON(needs.build.outputs.parts)[0] && '1' || '' }}
+      # the release build's start and the crash-report check run once, with one part
+      FINAL: ${{ matrix.part == needs.build.outputs.final && '1' || '' }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
