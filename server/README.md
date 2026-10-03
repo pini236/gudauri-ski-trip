@@ -115,7 +115,7 @@ DB_URL=postgresql://postgres:postgres@127.0.0.1:5432/postgres server/test.sh --f
 | `Web application` | `supabase` | ב-Authorized redirect URIs: `https://vanuhuzuhnljvcoihvys.supabase.co/auth/v1/callback`. **שומרים את ה-Client ID ואת ה-Client secret** |
 | `Android` | `android test` | Package name: `io.github.pini236.skiapp.test`. SHA-1: `2E:11:21:B1:B5:75:23:FB:FD:D1:AD:69:36:AE:0E:D1:BE:16:32:E3` (מפתח הבדיקה) |
 | `Android` | `android upload` | Package name: `io.github.pini236.skiapp`. SHA-1: `19:FE:D7:8F:23:B5:2C:06:D3:7A:14:A8:DF:A5:B4:3F:AC:F9:EA:8D` (מפתח ההעלאה) |
-| `Android` | `android play` | Package name: `io.github.pini236.skiapp`. SHA-1 של **מפתח החתימה של גוגל פליי**: אחרי ההעלאה הראשונה, בקונסולת גוגל פליי, תחת Test and release, ואז App integrity, ואז App signing. **בלי הלקוח הזה, הכניסה לא תעבוד באפליקציה שהותקנה מהחנות** |
+| `Android` | `android play` | Package name: `io.github.pini236.skiapp`. SHA-1 של **מפתח החתימה של גוגל פליי**: `64:9F:4A:17:85:FF:67:90:E1:06:08:52:5E:A8:D4:DB:D3:6F:23:9C` (נרשם 3.10.2026). הנתיב בקונסולה: מוגן על ידי Play, הגנה של חנות Play, ניהול של חתימת האפליקציה. קודם: אחרי ההעלאה הראשונה, בקונסולת גוגל פליי, תחת Test and release, ואז App integrity, ואז App signing. **בלי הלקוח הזה, הכניסה לא תעבוד באפליקציה שהותקנה מהחנות** |
 
 את שתי טביעות ה-SHA-1 הוציא Claude מהקבצים החתומים שבגרסאות ב-GitHub, וטביעות ה-SHA-256 שלהם תואמות למה שרשום ב-`docs/APP-NATIVE.md`. אם תרצה לבדוק בעצמך, על המק:
 
