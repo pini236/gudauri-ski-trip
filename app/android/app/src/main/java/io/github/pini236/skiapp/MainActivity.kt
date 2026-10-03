@@ -72,6 +72,9 @@ import io.github.pini236.skiapp.meet.MeetScreen
 import io.github.pini236.skiapp.meet.Relief2D
 import io.github.pini236.skiapp.meet.Preset
 import io.github.pini236.skiapp.meet.Reminders
+import androidx.compose.runtime.produceState
+import io.github.pini236.skiapp.group.ErrorLine
+import io.github.pini236.skiapp.group.rememberRunner
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
@@ -435,7 +438,7 @@ class MainActivity : ComponentActivity() {
             Route.Home -> "home"; is Route.Map -> "map"; is Route.Meet -> "meet"; Route.Games -> "games"; Route.About -> "about"; Route.Trip -> "trip"
             is Route.Game -> "game:" + top.name
             is Route.Group -> if (top.id == null && groupApi.me() == null) "signin" else "group"
-            Route.GroupNew, is Route.GroupInvite -> "group"
+            Route.GroupNew, is Route.GroupInvite, is Route.TripFor -> "group"
             is Route.Join, Route.JoinCode, is Route.Reclaim -> "join"
             Route.Account -> "account"
             else -> null
@@ -497,11 +500,21 @@ class MainActivity : ComponentActivity() {
                             onMeetups = ::armReminders,
                             onTab = { nav.replaceTop(Route.Group(top.id, it.key)) }, onBack = { nav.toStart() },
                             onInvite = { nav.push(Route.GroupInvite(top.id)) }, onNewMeetup = { nav.push(Route.Meet()) }, onEditTrip = { nav.push(Route.Trip) },
+                            onFillNew = { uid -> nav.push(Route.TripFor(top.id, uid)) },
                             onMyTrip = { t -> keepTrip(t) }, onLeft = { nav.toStart() }, signInGoogle = ::signInGoogle,
                             onSaveOffered = { justJoined = false; accountPrefs.edit().putInt("save_offers", accountPrefs.getInt("save_offers", 0) + 1).apply() })
                     Route.GroupNew -> NewGroupScreen(groupApi, trip, LocalDateTime.ofInstant(Instant.ofEpochMilli(tick), ZoneId.systemDefault()).toLocalDate(), onCancel = { nav.back() },
                         onCreated = { id -> nav.back(); if (nav.top is Route.Group) nav.replaceTop(Route.Group(id, GroupTab.FLIGHTS.key)) else nav.push(Route.Group(id, GroupTab.FLIGHTS.key)) })
                     is Route.GroupInvite -> InviteScreen(groupApi, top.id) { nav.back() }
+                    is Route.TripFor -> {
+                        // an admin fills in a new flight for a member: the same form, sent to the group (set_member_trip)
+                        val name by produceState<String?>(null, top) { value = runCatching { groupApi.group(top.group).members.firstOrNull { it.userId == top.user }?.name }.getOrNull() }
+                        val r = rememberRunner()
+                        TripForm(null, LocalDateTime.ofInstant(Instant.ofEpochMilli(tick), ZoneId.systemDefault()).toLocalDate(),
+                            onSave = { t -> r.run { groupApi.setMemberTrip(top.group, top.user, t); Qa.log("member trip saved"); nav.back() } },
+                            onDelete = {}, onCancel = { nav.back() },
+                            title = stringResource(R.string.group_trip_for, name ?: "…"), intro = stringResource(R.string.app_g_fill_new_sub), footer = { ErrorLine(r) })
+                    }
                     Route.JoinCode -> CodeScreen("", onBack = { nav.back() }) { c -> nav.replaceTop(Route.Join(c)) }
                     is Route.Join -> InvitedScreen(groupApi, top.code, frame, dnMode, onMode = { dnMode = dnMode.next() }, onAbout = { nav.push(Route.About) },
                         onBack = { nav.back() }, onTypeCode = { nav.replaceTop(Route.JoinCode) }, onReclaim = { nav.push(Route.Reclaim(top.code)) },

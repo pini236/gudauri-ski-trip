@@ -58,7 +58,8 @@ import java.time.format.DateTimeFormatter
  * from a list; the destination starts as Tbilisi, and the way back is the way out reversed.
  */
 @Composable
-fun TripForm(initial: Trip?, today: LocalDate, onSave: (Trip) -> Unit, onDelete: () -> Unit, onCancel: () -> Unit) {
+fun TripForm(initial: Trip?, today: LocalDate, onSave: (Trip) -> Unit, onDelete: () -> Unit, onCancel: () -> Unit,
+             title: String? = null, intro: String? = null, footer: @Composable () -> Unit = {}) {
     val c = Ski.colors
     val o = initial?.out; val r = initial?.ret
     val tbilisi = "TBS · " + stringResource(R.string.ticket_city_tbs)
@@ -98,11 +99,11 @@ fun TripForm(initial: Trip?, today: LocalDate, onSave: (Trip) -> Unit, onDelete:
 
     Box(Modifier.fillMaxSize().background(c.snow)) {
         Column(Modifier.fillMaxSize().statusBarsPadding().imePadding()) {
-            TopBar(stringResource(R.string.app_home_trip), stringResource(R.string.app_cancel), onCancel)
+            TopBar(title ?: stringResource(R.string.app_home_trip), stringResource(R.string.app_cancel), onCancel)
             Column(Modifier.fillMaxWidth().verticalScroll(rememberScrollState()).navigationBarsPadding()) {
                 Column(Modifier.align(Alignment.CenterHorizontally).widthIn(max = 520.dp).padding(start = 16.dp, end = 16.dp, bottom = 24.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    Text(stringResource(R.string.app_trip_intro), Modifier.padding(bottom = 2.dp), style = Ski.type.small.copy(fontSize = 13.5.sp), color = c.muted)
+                    Text(intro ?: stringResource(R.string.app_trip_intro), Modifier.padding(bottom = 2.dp), style = Ski.type.small.copy(fontSize = 13.5.sp), color = c.muted)
                     Section(stringResource(R.string.app_pass_out), stringResource(R.string.app_trip_out_note))
                     Pair2(
                         { PickField(stringResource(R.string.app_trip_date), day(oDate), pickDate, Icons.calendar, { pick = "oDate" }, it, ltr = false,
@@ -144,6 +145,7 @@ fun TripForm(initial: Trip?, today: LocalDate, onSave: (Trip) -> Unit, onDelete:
                         PrimaryButton(stringResource(R.string.app_save), Icons.check, { tried = true; if (trip != null) onSave(trip) })
                         if (initial != null) QuietButton(stringResource(if (armed) R.string.app_trip_delete_confirm else R.string.app_trip_delete),
                             { if (armed) onDelete() else armed = true }, danger = armed)
+                        footer()
                     }
                 }
             }

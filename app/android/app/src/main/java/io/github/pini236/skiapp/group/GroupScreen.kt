@@ -128,6 +128,8 @@ fun GroupScreen(
     station: (String) -> Station?, spot: (Meetup) -> Preset?, onOpenMeetup: (Meetup) -> Unit, onMeetups: () -> Unit,
     onTab: (GroupTab) -> Unit, onBack: () -> Unit, onInvite: () -> Unit, onNewMeetup: () -> Unit, onEditTrip: () -> Unit,
     onMyTrip: (Trip) -> Unit, onLeft: () -> Unit, signInGoogle: suspend () -> Unit, onSaveOffered: () -> Unit,
+    /** An admin fills in a new flight for this member (the trip form, set_member_trip). */
+    onFillNew: (String) -> Unit = {},
 ) {
     val c = Ski.colors
     // the group as kept on the phone (server/Sync.kt): at once, also with no signal, and live while the page shows
@@ -201,7 +203,7 @@ fun GroupScreen(
                     GroupTab.FLIGHTS -> Flights(g, myTrip,
                         onSame = { sheet = "same" },
                         onShowMine = { r.run { api.showMyTrip(g.id, g.me?.name ?: "", myTrip); reload() } },
-                        onFillFor = { forMember = it; sheet = "fill" })
+                        onFillFor = { id -> if (g.members.any { it.trip != null }) { forMember = id; sheet = "fill" } else onFillNew(id) })
                     GroupTab.MEETUPS -> Meetups(g, now, station, spot, onOpenMeetup, onNewMeetup, onMeetups,
                         onDelete = { m -> r.run { api.removeMeetup(g.id, m.id); reload() } })
                     GroupTab.SCORES -> Scores(api, g)
@@ -251,6 +253,7 @@ fun GroupScreen(
                         }
                     })
                     if (!fill) QuietButton(stringResource(R.string.app_g_other_flight), { sheet = null; onEditTrip() })
+                    else QuietButton(stringResource(R.string.app_g_other_flight), { sheet = null; forMember?.let(onFillNew) })
                     ErrorLine(r)
                 }
             }
@@ -363,7 +366,7 @@ private fun Flights(g: Group, myTrip: Trip?, onSame: () -> Unit, onShowMine: () 
             when {
                 m.me && myTrip != null -> Button2(stringResource(R.string.app_g_show_mine), Look.INK, onShowMine, small = true, full = false)
                 m.me && g.members.any { it.trip != null } -> PrimaryButton(stringResource(R.string.app_g_same_flight), null, onSame, full = false)
-                !m.me && g.admin && g.members.any { it.trip != null } -> Button2(stringResource(R.string.app_g_fill_for), Look.GHOST, { onFillFor(m.userId) }, small = true, full = false)
+                !m.me && g.admin -> Button2(stringResource(R.string.app_g_fill_for), Look.GHOST, { onFillFor(m.userId) }, small = true, full = false)
             }
         }
     }

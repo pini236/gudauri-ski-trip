@@ -11453,6 +11453,18 @@
     "ka"
    ]
   },
+  "app.g_fill_new_sub": {
+   "he": "הטיסה נשמרת בקבוצה, עם סימון שמנהל מילא אותה. החבר רואה אותה ויכול לשנות.",
+   "en": "The flight is kept in the group, marked as filled in by an admin. The member sees it and can change it.",
+   "ru": "Рейс сохраняется в группе с пометкой, что его заполнил администратор. Участник видит его и может изменить.",
+   "ka": "ფრენა ინახება ჯგუფში, აღნიშვნით, რომ ადმინისტრატორმა შეავსო. წევრი ხედავს მას და შეუძლია შეცვალოს.",
+   "where": "app/android",
+   "note": "the trip form when an admin fills in a new flight for a member (set_member_trip)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
   "app.g_other_flight": {
    "he": "טיסה אחרת",
    "en": "Another flight",

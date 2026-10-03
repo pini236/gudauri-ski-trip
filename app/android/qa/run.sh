@@ -290,6 +290,9 @@ group() {
   qa "--es qa.group admin --es qa.tab group"; waitlog "group seed admin" 20; sleep 2.5; shot group-admin
   tapText "חברים" && sleep 1.5 && shot group-admin-members
   tapText "אישור" && sleep 1.5 && shot group-admin-approved
+  # an admin fills in a new flight for a member who has none: "fill in for them", then "another flight" (the trip form)
+  tapText "טיסות" && sleep 1.5 && tapText "מילוי בשבילו" && sleep 1.2 && tapText "טיסה אחרת" && sleep 2 && shot group-admin-fill-new
+  adb shell input keyevent KEYCODE_BACK && sleep 1 && tapText "חברים" && sleep 1
   tapText "פעולות על דנה מזרחי" && sleep 1 && shot group-admin-menu
   # out of the group in two taps (as on the site): the item asks once more, the menu stays open
   tapText "הוצאה מהקבוצה" && sleep 0.8 && shot group-admin-remove-sure && adb shell input keyevent KEYCODE_BACK && sleep 0.8
