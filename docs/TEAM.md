@@ -147,3 +147,16 @@
 | תפקיד | מזהה הסשן |
 |---|---|
 | ארכיטקט המערכת | `session_01JUxNys6FzfkFTAFyHbYdCe` |
+| מנהל מוצר ראשי | `session_01FQzet3TccwGaf7XAD6jXRU` |
+| מעצב מוצר, חוויה ונגישות | `session_018WEovaqXC4kNabe89Cnwoj` |
+| מיתוג ושם המוצר | `session_018GPC74jJjDr5GqxH4TyzZm` |
+| שיווק וצמיחה | `session_01M8pFK3E42YvZGKaxqte363` |
+| חנויות האפליקציות | `session_01SsHXZXQwttr5zMNXP1Ptmp` |
+| אנליסט נתונים ומדידה | `session_01Po3XS1oKjBDWK9uUrHbmft` |
+| תוכן, ניסוח ושפות | `session_019k19PuDmyzecDEFv7DGcdx` |
+| קהילה, תמיכה ובודקים | `session_01QJSEcEojgxw7snkGaBMFew` |
+| משפטי, פרטיות ורגולציה | `session_01WyUw3zcg1Bz3C3VzdEXu2E` |
+| פיתוח עסקי, שותפויות ומודל הכנסות | `session_01P4m1hth4fxmZ2sPYFYhbAf` |
+| מומחה סקי וגודאורי | `session_018h1GMPbYZpMqn9Hk2S3fXL` |
+| מעצב משחקים | `session_013YRaeCdeugeUUTdhmHKTcf` |
+| ראש איכות ושחרורים | `session_01FWjiM4FHAvUtLorqKRidLz` |
