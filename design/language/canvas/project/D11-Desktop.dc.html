@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="he">
+<head>
+<meta charset="utf-8">
+<title>D · דף הבית במחשב</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bona+Nova:wght@400;700&family=Noto+Sans+Hebrew:wght@400;500;700&family=Noto+Serif+Georgian:wght@600&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#A3203A}a:hover{color:#241A1E}
+</style>
+</helmet>
+<div dir="rtl" lang="he" style="width: 1280px; height: 800px; box-sizing: border-box; overflow: hidden; position: relative; font-family: 'Noto Sans Hebrew', sans-serif; font-variant-numeric: lining-nums; background: #F7F2EA; color: #241A1E">
+
+  <!-- desktop top bar -->
+  <div style="position: absolute; top: 0; right: 0; left: 0; height: 72px; display: flex; align-items: center; padding: 0 40px; gap: 36px; background: #FFFDF9">
+    <a href="#" style="display: flex; align-items: center; gap: 10px; text-decoration: none; color: #241A1E">
+      <svg width="24" height="24" viewBox="0 0 9 9" aria-hidden="true"><path fill="#A3203A" d="M0 4h9v1H0zM4 0h1v9H4zM3 1h3v1H3zM3 7h3v1H3zM1 3h1v3H1zM7 3h1v3H7z"/></svg>
+      <span>
+        <span style="display: block; font-family: 'Bona Nova', serif; font-weight: 700; font-size: 24px; line-height: 26px">גודאורי 2027</span>
+        <span lang="ka" style="display: block; font-family: 'Noto Serif Georgian', serif; font-weight: 600; font-size: 11px; line-height: 14px; color: #A3203A; letter-spacing: .06em">გუდაური</span>
+      </span>
+    </a>
+    <nav style="display: flex; align-items: flex-end; gap: 6px; height: 72px">
+      <a href="#" aria-current="page" style="display: flex; align-items: center; height: 46px; padding: 0 20px; border-radius: 23px 23px 0 0; background: #A3203A; color: #FFFDF9; box-shadow: inset 0 0 0 3px #A3203A, inset 0 0 0 4.5px #C8962B; font-size: 15px; font-weight: 700; text-decoration: none">בית</a>
+      <a href="#" style="display: flex; align-items: center; height: 46px; padding: 0 16px; color: #241A1E; font-size: 15px; font-weight: 700; text-decoration: none">מפת מסלולים</a>
+      <a href="#" style="display: flex; align-items: center; height: 46px; padding: 0 16px; color: #241A1E; font-size: 15px; font-weight: 700; text-decoration: none">נקודת מפגש</a>
+      <a href="#" style="display: flex; align-items: center; height: 46px; padding: 0 16px; color: #241A1E; font-size: 15px; font-weight: 700; text-decoration: none">משחקים</a>
+    </nav>
+    <div style="margin-right: auto; display: flex; align-items: center; gap: 14px">
+      <span style="display: inline-flex; align-items: center; gap: 8px; height: 36px; padding: 0 14px; border-radius: 18px 18px 6px 6px; background: #136F70; color: #FFFDF9; box-shadow: inset 0 0 0 2.5px #136F70, inset 0 0 0 4px #C8962B; font-size: 14px; font-weight: 700"><span style="font-family: 'Bona Nova', serif; font-size: 18px">100</span> ימים לטיסה</span>
+      <span style="text-align: left">
+        <span style="display: block; font-size: 11px; line-height: 14px; color: #665459">השעה בגודאורי</span>
+        <span dir="ltr" style="display: block; font-family: 'Bona Nova', serif; font-weight: 700; font-size: 18px; line-height: 21px; text-align: left">19:12</span>
+      </span>
+      <button type="button" aria-label="תצוגה: יום. החלפה ללילה" style="font-variant-numeric: lining-nums; width: 44px; height: 44px; padding: 0; border: 1.5px solid #E2D6C8; border-radius: 22px 22px 8px 8px; background: #FFFDF9; display: flex; align-items: center; justify-content: center; cursor: pointer">
+        <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.4" fill="#C8962B"/><path fill="#C8962B" d="M22.5 12.0L20.6 13.1L18.7 12.0L20.6 10.9ZM19.4 19.4L17.3 18.9L16.7 16.7L18.9 17.3ZM12.0 22.5L10.9 20.6L12.0 18.7L13.1 20.6ZM4.6 19.4L5.1 17.3L7.3 16.7L6.7 18.9ZM1.5 12.0L3.4 10.9L5.3 12.0L3.4 13.1ZM4.6 4.6L6.7 5.1L7.3 7.3L5.1 6.7ZM12.0 1.5L13.1 3.4L12.0 5.3L10.9 3.4ZM19.4 4.6L18.9 6.7L16.7 7.3L17.3 5.1Z"/></svg>
+      </button>
+      <button type="button" aria-label="אודות, הגדרות וקרדיטים" style="font-variant-numeric: lining-nums; width: 44px; height: 44px; padding: 0; border: 1.5px solid #E2D6C8; border-radius: 22px 22px 8px 8px; background: #FFFDF9; display: flex; align-items: center; justify-content: center; cursor: pointer">
+        <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="#241A1E" stroke-width="1.7" stroke-linejoin="round"><path d="M19.2 10.2 L21.5 10.4 L21.5 13.6 L19.2 13.8 L18.3 15.8 L19.8 17.5 L17.5 19.8 L15.8 18.3 L13.8 19.2 L13.6 21.5 L10.4 21.5 L10.2 19.2 L8.2 18.3 L6.5 19.8 L4.2 17.5 L5.7 15.8 L4.8 13.8 L2.5 13.6 L2.5 10.4 L4.8 10.2 L5.7 8.2 L4.2 6.5 L6.5 4.2 L8.2 5.7 L10.2 4.8 L10.4 2.5 L13.6 2.5 L13.8 4.8 L15.8 5.7 L17.5 4.2 L19.8 6.5 L18.3 8.2Z"/><circle cx="12" cy="12" r="3.2"/></svg>
+      </button>
+    </div>
+  </div>
+  <div style="position: absolute; top: 72px; right: 0; left: 0; height: 1px; background: #E2D6C8"></div>
+
+  <!-- hero -->
+  <div style="position: absolute; top: 73px; left: 0; width: 1280px; height: 469px; overflow: hidden">
+    <div style="position: absolute; top: 0; left: 0; right: 0; height: 17px; background: url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2224%22 height=%2217%22%3E%3Cpath fill-rule=%22evenodd%22 fill=%22%235B3A29%22 d=%22M0 0H24V4A12 11 0 0 1 0 4Z M9.4 8.5a2.6 2.6 0 1 0 5.2 0a2.6 2.6 0 1 0 -5.2 0Z%22/%3E%3Ccircle cx=%220%22 cy=%2215%22 r=%221.8%22 fill=%22%235B3A29%22/%3E%3Ccircle cx=%2224%22 cy=%2215%22 r=%221.8%22 fill=%22%235B3A29%22/%3E%3C/svg%3E') repeat-x 8px 0 / 24px 17px; z-index: 2"></div>
+    <svg width="1280" height="330" viewBox="0 0 1000 320" preserveAspectRatio="none" style="position: absolute; top: 139px; left: 0; display: block" role="img" aria-label="קו הרכס של גודאורי מהכפר">
+      <defs>
+        <pattern id="d11x" width="30" height="30" patternUnits="userSpaceOnUse"><path transform="translate(6 6) scale(1.1)" fill="#C8962B" fill-opacity=".38" d="M0 4h9v1H0zM4 0h1v9H4zM3 1h3v1H3zM3 7h3v1H3zM1 3h1v3H1zM7 3h1v3H7z"/></pattern>
+      </defs>
+      <circle cx="472" cy="40" r="17" fill="#C8962B"/>
+      <path fill="#C8962B" transform="translate(472 40) scale(2.1) translate(-12 -12)" d="M22.5 12.0L20.6 13.1L18.7 12.0L20.6 10.9ZM19.4 19.4L17.3 18.9L16.7 16.7L18.9 17.3ZM12.0 22.5L10.9 20.6L12.0 18.7L13.1 20.6ZM4.6 19.4L5.1 17.3L7.3 16.7L6.7 18.9ZM1.5 12.0L3.4 10.9L5.3 12.0L3.4 13.1ZM4.6 4.6L6.7 5.1L7.3 7.3L5.1 6.7ZM12.0 1.5L13.1 3.4L12.0 5.3L10.9 3.4ZM19.4 4.6L18.9 6.7L16.7 7.3L17.3 5.1Z"/>
+      <path d="M0 320L0 49L3 49L9 46L16 41L22 35L28 36L34 44L41 47L47 52L53 57L59 59L66 58L72 61L78 62L84 65L91 64L97 64L103 63L109 61L116 58L122 54L128 51L134 53L141 58L147 63L153 67L159 70L166 72L172 72L178 71L184 68L191 70L197 71L203 73L209 78L216 84L222 89L228 98L234 99L241 92L247 87L253 83L259 79L266 76L272 78L278 78L284 74L291 69L297 68L303 62L309 60L316 57L322 53L328 51L334 47L341 42L347 40L353 35L359 34L366 34L372 38L378 42L384 46L391 42L397 38L403 34L409 35L416 37L422 41L428 45L434 50L441 56L447 59L453 58L459 56L466 52L472 48L478 44L484 44L491 43L497 40L503 36L509 33L516 30L522 24L528 17L534 13L541 13L547 17L553 24L559 26L566 24L572 24L578 22L584 20L591 19L597 18L603 18L609 20L616 24L622 24L628 25L634 27L641 31L647 30L653 28L659 27L666 28L672 31L678 36L684 42L691 47L697 49L703 53L709 58L716 64L722 68L728 74L734 79L741 84L747 89L753 93L759 99L766 98L772 96L778 92L784 90L791 89L797 90L803 91L809 93L816 95L822 94L828 92L834 88L841 83L847 79L853 74L859 69L866 68L872 65L878 62L884 66L891 67L897 68L903 68L909 70L916 74L922 75L928 75L934 76L941 77L947 84L953 90L959 94L966 96L972 96L978 87L984 82L991 78L997 71L1000 320Z" fill="#FFFDF9" stroke="#5B3A29" stroke-width="1.4" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>
+      <path d="M0 320L0 231L3 229L9 226L16 220L22 214L28 208L34 197L41 187L47 179L53 170L59 158L66 157L72 156L78 155L84 155L91 156L97 157L103 157L109 158L116 158L122 159L128 160L134 161L141 159L147 160L153 159L159 157L166 154L172 153L178 153L184 151L191 155L197 158L203 156L209 150L216 140L222 135L228 130L234 128L241 126L247 123L253 118L259 114L266 111L272 107L278 104L284 102L291 99L297 97L303 93L309 91L316 90L322 87L328 83L334 78L341 76L347 70L353 62L359 59L366 60L372 63L378 66L384 68L391 69L397 69L403 69L409 67L416 66L422 64L428 64L434 64L441 63L447 62L453 61L459 61L466 61L472 60L478 60L484 59L491 59L497 58L503 58L509 58L516 57L522 56L528 55L534 54L541 54L547 52L553 50L559 48L566 48L572 46L578 44L584 40L591 35L597 30L603 27L609 28L616 31L622 34L628 36L634 37L641 39L647 41L653 44L659 46L666 49L672 49L678 47L684 42L691 40L697 39L703 39L709 42L716 46L722 51L728 55L734 61L741 65L747 68L753 72L759 73L766 74L772 77L778 82L784 88L791 89L797 96L803 102L809 106L816 111L822 114L828 119L834 126L841 129L847 127L853 127L859 126L866 126L872 124L878 123L884 124L891 126L897 126L903 126L909 124L916 123L922 122L928 121L934 119L941 122L947 122L953 125L959 130L966 134L972 138L978 144L984 148L991 150L997 152L1000 320Z" fill="#E2D6C8" stroke="#5B3A29" stroke-width="1" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>
+      <path d="M0 320L0 320L3 320L9 320L16 320L22 320L28 320L34 320L41 320L47 320L53 320L59 320L66 320L72 318L78 311L84 303L91 292L97 286L103 281L109 278L116 276L122 273L128 269L134 263L141 256L147 251L153 247L159 243L166 241L172 239L178 237L184 234L191 230L197 227L203 222L209 217L216 214L222 211L228 210L234 209L241 208L247 207L253 206L259 204L266 202L272 199L278 196L284 193L291 192L297 190L303 189L309 187L316 186L322 185L328 184L334 183L341 183L347 183L353 183L359 184L366 184L372 182L378 181L384 178L391 177L397 176L403 177L409 178L416 181L422 183L428 184L434 183L441 181L447 178L453 176L459 176L466 174L472 172L478 170L484 168L491 167L497 167L503 168L509 169L516 171L522 174L528 181L534 186L541 191L547 192L553 192L559 192L566 188L572 183L578 178L584 173L591 168L597 162L603 156L609 151L616 144L622 139L628 134L634 129L641 128L647 126L653 125L659 124L666 127L672 122L678 123L684 125L691 127L697 132L703 139L709 145L716 149L722 151L728 152L734 152L741 153L747 153L753 153L759 156L766 161L772 168L778 176L784 182L791 186L797 191L803 195L809 196L816 194L822 191L828 188L834 184L841 182L847 180L853 177L859 174L866 171L872 166L878 163L884 159L891 156L897 152L903 148L909 146L916 145L922 146L928 146L934 144L941 143L947 141L953 140L959 139L966 141L972 145L978 150L984 156L991 160L997 164L1000 320Z" fill="#136F70"/>
+      <path d="M0 320L0 320L3 320L9 320L16 320L22 320L28 320L34 320L41 320L47 320L53 320L59 320L66 320L72 318L78 311L84 303L91 292L97 286L103 281L109 278L116 276L122 273L128 269L134 263L141 256L147 251L153 247L159 243L166 241L172 239L178 237L184 234L191 230L197 227L203 222L209 217L216 214L222 211L228 210L234 209L241 208L247 207L253 206L259 204L266 202L272 199L278 196L284 193L291 192L297 190L303 189L309 187L316 186L322 185L328 184L334 183L341 183L347 183L353 183L359 184L366 184L372 182L378 181L384 178L391 177L397 176L403 177L409 178L416 181L422 183L428 184L434 183L441 181L447 178L453 176L459 176L466 174L472 172L478 170L484 168L491 167L497 167L503 168L509 169L516 171L522 174L528 181L534 186L541 191L547 192L553 192L559 192L566 188L572 183L578 178L584 173L591 168L597 162L603 156L609 151L616 144L622 139L628 134L634 129L641 128L647 126L653 125L659 124L666 127L672 122L678 123L684 125L691 127L697 132L703 139L709 145L716 149L722 151L728 152L734 152L741 153L747 153L753 153L759 156L766 161L772 168L778 176L784 182L791 186L797 191L803 195L809 196L816 194L822 191L828 188L834 184L841 182L847 180L853 177L859 174L866 171L872 166L878 163L884 159L891 156L897 152L903 148L909 146L916 145L922 146L928 146L934 144L941 143L947 141L953 140L959 139L966 141L972 145L978 150L984 156L991 160L997 164L1000 320Z" fill="url(#d11x)"/>
+    </svg>
+    <!-- peak labels -->
+    <div dir="ltr" style="position: absolute; top: 138px; left: 457px; width: 120px; text-align: center">
+      <div style="font-size: 14px; line-height: 18px"><span style="font-family: 'Bona Nova', serif; font-weight: 700; font-size: 16px">Bidara</span> <span style="color: #665459">3174</span></div>
+      <div style="width: 1px; height: 14px; background: #5B3A29; margin: 3px auto 0"></div>
+    </div>
+    <div dir="ltr" style="position: absolute; top: 121px; left: 704px; width: 120px; text-align: center">
+      <div style="font-size: 14px; line-height: 18px"><span style="font-family: 'Bona Nova', serif; font-weight: 700; font-size: 16px">Sadzele</span> <span style="color: #665459">3307</span></div>
+      <div style="width: 1px; height: 14px; background: #5B3A29; margin: 3px auto 0"></div>
+    </div>
+
+    <!-- title block -->
+    <div style="position: absolute; top: 40px; right: 64px; width: 460px">
+      <div lang="ka" style="font-family: 'Noto Serif Georgian', serif; font-weight: 600; font-size: 17px; line-height: 22px; color: #A3203A; letter-spacing: .05em">გუდაური</div>
+      <div style="font-family: 'Bona Nova', serif; font-weight: 700; font-size: 52px; line-height: 60px">גודאורי, גאורגיה</div>
+      <div style="font-size: 17px; line-height: 24px; color: #5B3A29; font-weight: 500">חופשת סקי, ינואר 2027</div>
+    </div>
+
+    <!-- return pass behind -->
+    <div style="position: absolute; top: 186px; right: 80px; width: 428px; height: 70px; background: #5B3A29; border-radius: 10px 10px 0 0">
+      <div style="display: flex; justify-content: space-between; align-items: center; height: 32px; padding: 0 16px; color: #FFFDF9; font-size: 13px; font-weight: 700">
+        <span>הטיול שלך · חזור · בלילה</span>
+        <span dir="ltr" style="font-family: 'Bona Nova', serif; font-size: 15px">15.1.2027</span>
+      </div>
+    </div>
+
+    <!-- the boarding pass -->
+    <div role="group" aria-label="כרטיס הטיסה, הלוך" style="position: absolute; top: 218px; right: 64px; width: 460px; height: 240px; box-sizing: border-box; background: #FFFDF9; border-radius: 12px; border: 1px solid #E2D6C8; box-shadow: 0 16px 34px rgba(36,26,30,.16)">
+      <div style="position: absolute; top: -1px; right: -1px; left: -1px; height: 36px; background: #A3203A; border-radius: 12px 12px 0 0; display: flex; justify-content: space-between; align-items: center; padding: 0 18px; color: #FFFDF9">
+        <span style="font-size: 14px; font-weight: 700">הטיול שלך · הלוך</span>
+        <span dir="ltr" style="font-family: 'Bona Nova', serif; font-weight: 700; font-size: 17px">10.1.2027</span>
+      </div>
+      <div style="position: absolute; top: 35px; right: 0; left: 0; height: 12px; background: url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2224%22 height=%2212%22%3E%3Cpath d=%22M6 1L11 6L6 11L1 6Z%22 fill=%22%23A3203A%22/%3E%3Crect x=%2217%22 y=%223%22 width=%222%22 height=%226%22 fill=%22%23C8962B%22/%3E%3Crect x=%2215%22 y=%225%22 width=%226%22 height=%222%22 fill=%22%23C8962B%22/%3E%3C/svg%3E') repeat-x 4px 0 / 24px 12px; border-bottom: 1px solid #E2D6C8"></div>
+      <div style="position: absolute; top: 48px; right: 0; width: 338px; bottom: 0; padding: 10px 20px 0 16px; box-sizing: border-box">
+        <div style="display: flex; align-items: flex-end; justify-content: space-between">
+          <div>
+            <div style="font-size: 11px; line-height: 14px; color: #665459">מ</div>
+            <div dir="ltr" style="font-family: 'Bona Nova', serif; font-weight: 700; font-size: 42px; line-height: 44px; text-align: right">TLV</div>
+            <div style="font-size: 12.5px; line-height: 16px; color: #665459">תל אביב</div>
+          </div>
+          <svg width="90" height="24" viewBox="0 0 90 24" aria-hidden="true" style="margin-bottom: 22px"><path d="M2 12H74" stroke="#136F70" stroke-width="1.5" stroke-dasharray="3 3"/><path d="M88 12l-9-6v4.2H70l-3-3h-2.5l2 4.8-2 4.8H67l3-3h9V18z" fill="#136F70" transform="translate(90 0) scale(-1 1)"/></svg>
+          <div style="text-align: left">
+            <div style="font-size: 11px; line-height: 14px; color: #665459">אל</div>
+            <div dir="ltr" style="font-family: 'Bona Nova', serif; font-weight: 700; font-size: 42px; line-height: 44px">TBS</div>
+            <div style="font-size: 12.5px; line-height: 16px; color: #665459">טביליסי</div>
+          </div>
+        </div>
+        <div style="border-top: 1.5px dashed #D9CBBA; margin: 8px 0 7px"></div>
+        <div style="display: grid; grid-template-columns: 1.2fr 1fr 1fr; row-gap: 8px">
+          <div><div style="font-size: 11px; line-height: 14px; color: #665459">טיסה</div><div dir="ltr" style="font-family: 'Bona Nova', serif; font-weight: 700; font-size: 16px; line-height: 20px; text-align: right">6H 897</div></div>
+          <div><div style="font-size: 11px; line-height: 14px; color: #665459">המראה</div><div dir="ltr" style="font-family: 'Bona Nova', serif; font-weight: 700; font-size: 16px; line-height: 20px; text-align: right">16:00</div></div>
+          <div><div style="font-size: 11px; line-height: 14px; color: #665459">נחיתה</div><div dir="ltr" style="font-family: 'Bona Nova', serif; font-weight: 700; font-size: 16px; line-height: 20px; text-align: right">20:35</div></div>
+          <div><div style="font-size: 11px; line-height: 14px; color: #665459">נוסע</div><div style="font-weight: 700; font-size: 13.5px; line-height: 20px">נועה ניסיון</div></div>
+          <div><div style="font-size: 11px; line-height: 14px; color: #665459">חזור</div><div dir="ltr" style="font-family: 'Bona Nova', serif; font-weight: 700; font-size: 16px; line-height: 20px; text-align: right">15.1</div></div>
+          <div><div style="font-size: 11px; line-height: 14px; color: #665459">ימי סקי</div><div dir="ltr" style="font-family: 'Bona Nova', serif; font-weight: 700; font-size: 16px; line-height: 20px; text-align: right">11–14.1</div></div>
+        </div>
+      </div>
+      <div style="position: absolute; top: 54px; bottom: 8px; left: 118px; width: 8px; background: url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%228%22 height=%2210%22%3E%3Cpath d=%22M4 2L6.5 5L4 8L1.5 5Z%22 fill=%22%23D9CBBA%22/%3E%3C/svg%3E') repeat-y 0 0 / 8px 10px"></div>
+      <div role="button" tabindex="0" aria-label="ספח: עוד 100 ימים לטיסה. נגיעה תולשת" style="position: absolute; top: 58px; left: 12px; width: 98px; bottom: 10px; background: #136F70; border-radius: 49px 49px 6px 6px; box-shadow: inset 0 0 0 4px #136F70, inset 0 0 0 5.5px #C8962B; color: #FFFDF9; text-align: center; padding-top: 22px; box-sizing: border-box">
+        <div style="font-size: 12px; line-height: 15px">עוד</div>
+        <div style="font-family: 'Bona Nova', serif; font-weight: 700; font-size: 40px; line-height: 42px">100</div>
+        <div style="font-size: 12px; line-height: 15px">ימים לטיסה</div>
+        <svg width="12" height="12" viewBox="0 0 9 9" aria-hidden="true" style="display: block; margin: 8px auto 6px"><path fill="#E6B85C" d="M0 4h9v1H0zM4 0h1v9H4zM3 1h3v1H3zM3 7h3v1H3zM1 3h1v3H1zM7 3h1v3H7z"/></svg>
+        <div dir="ltr" style="font-size: 12px; line-height: 15px; font-weight: 700">TLV › TBS</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- the four niches -->
+  <div style="position: absolute; top: 562px; right: 64px; left: 64px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px">
+    <a href="#" style="display: block; height: 206px; background: #136F70; color: #FFFDF9; text-decoration: none; text-align: center; border-radius: 50% 50% 10px 10px / 72px 72px 10px 10px; box-shadow: inset 0 0 0 6px #136F70, inset 0 0 0 7.5px #C8962B, 0 6px 14px rgba(36,26,30,.12)">
+      <span style="display: flex; width: 54px; height: 54px; margin: 24px auto 0; border-radius: 50%; border: 1.5px solid #E6B85C; align-items: center; justify-content: center">
+        <svg width="27" height="27" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="#FFFDF9" stroke-width="1.8" stroke-linejoin="round"><path d="M3 6.5l5.5-2.5 7 2.5 5.5-2.5v13.5l-5.5 2.5-7-2.5L3 20z"/><path d="M8.5 4v13.5M15.5 6.5V20"/></svg>
+      </span>
+      <span style="display: block; margin-top: 14px; font-family: 'Bona Nova', serif; font-weight: 700; font-size: 25px; line-height: 30px">מפת מסלולים</span>
+      <span style="display: block; margin: 6px 24px 0; font-size: 14px; line-height: 20px">27 מסלולים, פרטים וסרטונים</span>
+    </a>
+    <a href="#" style="display: block; height: 206px; background: #A3203A; color: #FFFDF9; text-decoration: none; text-align: center; border-radius: 50% 50% 10px 10px / 72px 72px 10px 10px; box-shadow: inset 0 0 0 6px #A3203A, inset 0 0 0 7.5px #C8962B, 0 6px 14px rgba(36,26,30,.12)">
+      <span style="display: flex; width: 54px; height: 54px; margin: 24px auto 0; border-radius: 50%; border: 1.5px solid #E6B85C; align-items: center; justify-content: center">
+        <svg width="27" height="27" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="#FFFDF9" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"><path d="M12 21.5s-6.5-6.2-6.5-11.5a6.5 6.5 0 0 1 13 0c0 5.3-6.5 11.5-6.5 11.5z"/><path d="M12 6.8v6.4M8.8 10h6.4"/></svg>
+      </span>
+      <span style="display: block; margin-top: 14px; font-family: 'Bona Nova', serif; font-weight: 700; font-size: 25px; line-height: 30px">נקודת מפגש</span>
+      <span style="display: block; margin: 6px 24px 0; font-size: 14px; line-height: 20px">בוחרים תחנה ושעה ושולחים לקבוצה</span>
+    </a>
+    <a href="#" style="display: block; height: 206px; background: #C8962B; color: #241A1E; text-decoration: none; text-align: center; border-radius: 50% 50% 10px 10px / 72px 72px 10px 10px; box-shadow: inset 0 0 0 6px #C8962B, inset 0 0 0 7.5px #5B3A29, 0 6px 14px rgba(36,26,30,.12)">
+      <span style="display: flex; width: 54px; height: 54px; margin: 24px auto 0; border-radius: 50%; border: 1.5px solid #5B3A29; align-items: center; justify-content: center">
+        <svg width="27" height="27" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="#241A1E" stroke-width="1.8" stroke-linejoin="round"><path d="M12 2.8l9.2 9.2-9.2 9.2L2.8 12z"/><circle cx="12" cy="8.2" r="1.2" fill="#241A1E" stroke="none"/><circle cx="12" cy="15.8" r="1.2" fill="#241A1E" stroke="none"/><circle cx="8.2" cy="12" r="1.2" fill="#241A1E" stroke="none"/><circle cx="15.8" cy="12" r="1.2" fill="#241A1E" stroke="none"/></svg>
+      </span>
+      <span style="display: block; margin-top: 14px; font-family: 'Bona Nova', serif; font-weight: 700; font-size: 25px; line-height: 30px">משחקים</span>
+      <span style="display: block; margin: 6px 24px 0; font-size: 14px; line-height: 20px">הירידה, בית הספר לסקי, שלג טרי ועוד</span>
+    </a>
+    <a href="#" style="display: block; height: 206px; background: #5B3A29; color: #FFFDF9; text-decoration: none; text-align: center; border-radius: 50% 50% 10px 10px / 72px 72px 10px 10px; box-shadow: inset 0 0 0 6px #5B3A29, inset 0 0 0 7.5px #C8962B, 0 6px 14px rgba(36,26,30,.12)">
+      <span style="display: flex; width: 54px; height: 54px; margin: 24px auto 0; border-radius: 50%; border: 1.5px solid #E6B85C; align-items: center; justify-content: center">
+        <svg width="27" height="27" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="#FFFDF9" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="8" r="3"/><path d="M6.5 20v-1.2a5.5 5.5 0 0 1 11 0V20"/><circle cx="5" cy="10.2" r="2.1"/><path d="M1.8 19v-.8a3.4 3.4 0 0 1 4-3.3"/><circle cx="19" cy="10.2" r="2.1"/><path d="M22.2 19v-.8a3.4 3.4 0 0 0-4-3.3"/></svg>
+      </span>
+      <span style="display: block; margin-top: 14px; font-family: 'Bona Nova', serif; font-weight: 700; font-size: 25px; line-height: 30px">קבוצה</span>
+      <span style="display: block; margin: 6px 24px 0; font-size: 14px; line-height: 20px">גודאורי 2027 · 4 חברים</span>
+    </a>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":800}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>
