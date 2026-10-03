@@ -72,6 +72,8 @@ adb shell cmd locale set-app-locales "$PKG" --locales he > /dev/null 2>&1 || not
 
 # ---- the map ----
 map() {
+  # from a cold start, whatever ran before (a running app drops a plain start's extras)
+  adb shell am force-stop "$PKG"; sleep 1
   mark
   adb shell "am start -W -n $ACT --es qa.tab map --es qa.time 2027-01-12T11:00" | tee -a "$OUT/summary.txt"
   waitlog "scene ready" 120 && waitlog "shadow ready" 120
