@@ -139,6 +139,8 @@ dependencies {
     implementation("com.google.android.libraries.identity.googleid:googleid:1.2.1")
     // the server's realtime WebSocket (server/Realtime.kt); Android has none built in
     implementation("com.squareup.okhttp3:okhttp:5.1.0")
+    // where an install from Google Play came from (the first app_open's source "store", docs/GROWTH.md)
+    implementation("com.android.installreferrer:installreferrer:2.2")
     testImplementation("junit:junit:4.13.2")
     testImplementation("org.json:json:20260814")
 }

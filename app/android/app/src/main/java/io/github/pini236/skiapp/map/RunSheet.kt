@@ -76,6 +76,7 @@ import io.github.pini236.skiapp.data.RunFacts
 import io.github.pini236.skiapp.data.Runs
 import io.github.pini236.skiapp.data.Terrain
 import io.github.pini236.skiapp.data.Video
+import io.github.pini236.skiapp.nav.Route
 import io.github.pini236.skiapp.home.SignShape
 import io.github.pini236.skiapp.i18n.Lang
 import io.github.pini236.skiapp.qa.Qa
@@ -138,7 +139,7 @@ fun openLink(ctx: Context, url: String) {
 }
 
 /** The run's link on the site (#map/run/<key>), which opens the same run in the app or on the site. */
-fun runLink(key: String) = "https://gudauri-ski-trip.vercel.app/#map/run/" + java.net.URLEncoder.encode(key, "UTF-8").replace("+", "%20")
+fun runLink(key: String) = "https://${Route.SITE_HOST}/?${Route.SHARED}#map/run/" + java.net.URLEncoder.encode(key, "UTF-8").replace("+", "%20")
 
 /** The panel's frame: paper over the map's bottom, a handle that shows all of it or only its head. */
 @Composable

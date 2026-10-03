@@ -39,9 +39,11 @@ data class Trip(val out: Leg, val ret: Leg? = null, val ski: ClosedRange<LocalDa
     fun skiDays(): ClosedRange<LocalDate>? = ski ?: flightSkiDays()
 
     /**
-     * Full ski days: from the day after landing (the same day if you land by 09:00) to the day before the return
-     * flight (the same day if it leaves at 18:00 or later). The group's trip, landing 10.1 at 20:35 and flying back
-     * 15.1 at 01:35, gives 11 to 14 January, four days, as on the site. Null when there is no return, or no full day.
+     * Full ski days, as on the site (MYTRIP.skiAuto): from the day after landing (the same day if you land before
+     * 12:00) to the day before the return flight (the same day if it leaves at 18:00 or later). The group's trip,
+     * landing 10.1 at 20:35 and flying back 15.1 at 01:35, gives 11 to 14 January, four days. An overnight flight
+     * lands the next day (only here so far; the site gets it too, PARITY S-27). Null when there is no return, or no
+     * full day.
      */
     fun flightSkiDays(): ClosedRange<LocalDate>? {
         val r = ret ?: return null
@@ -49,18 +51,20 @@ data class Trip(val out: Leg, val ret: Leg? = null, val ski: ClosedRange<LocalDa
         val arr = out.arrives
         // an overnight flight (lands earlier on the clock than it left) lands the next day
         val landed = if (dep != null && arr != null && arr < dep) out.date.plusDays(1) else out.date
-        val first = if (arr != null && arr <= LocalTime.of(9, 0)) landed else landed.plusDays(1)
+        val first = if (arr != null && arr < LocalTime.NOON) landed else landed.plusDays(1)
         val last = if (r.departs != null && r.departs >= LocalTime.of(18, 0)) r.date else r.date.minusDays(1)
         return if (first <= last) first..last else null
     }
 
     fun skiDayCount(): Int = skiDays()?.let { (it.endInclusive.toEpochDay() - it.start.toEpochDay() + 1).toInt() } ?: 0
 
-    /** Whole days until the outbound flight, rounded up as on the site (0 once it has left). */
+    /**
+     * Days until the outbound flight, as on the site (MYTRIP.days): to the midnight that starts the flight's day, in
+     * the phone's time, rounded up. 0 from that midnight on ("on the way").
+     */
     fun daysToFlight(now: LocalDateTime): Int {
-        val dep = LocalDateTime.of(out.date, out.departs ?: LocalTime.MIDNIGHT)
-        val mins = Duration.between(now, dep).toMinutes()
-        return if (mins <= 0) 0 else ((mins + 24 * 60 - 1) / (24 * 60)).toInt()
+        val ms = Duration.between(now, out.date.atStartOfDay()).toMillis()
+        return if (ms <= 0) 0 else ((ms + DAY_MS - 1) / DAY_MS).toInt()
     }
 
     fun toJson(): JSONObject = JSONObject().put("v", 1).put("out", leg(out)).apply {
@@ -69,6 +73,7 @@ data class Trip(val out: Leg, val ret: Leg? = null, val ski: ClosedRange<LocalDa
     }
 
     companion object {
+        private const val DAY_MS = 24 * 60 * 60 * 1000L
         private val T = DateTimeFormatter.ofPattern("HH:mm")
 
         private fun leg(l: Leg) = JSONObject().put("date", l.date.toString()).put("flight", l.flight).put("from", l.from).put("to", l.to)

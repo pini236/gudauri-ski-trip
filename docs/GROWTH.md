@@ -51,7 +51,7 @@
 
 | אירוע | מתי | מאפיינים |
 |---|---|---|
-| `app_open` | פתיחה (באתר: טעינה ראשונה של הדף) | `source`: `direct`, `link`, `share_link`, `store`, `notification`; `cold`: true/false (באפליקציה) |
+| `app_open` | פתיחה (באתר: טעינה ראשונה של הדף; באפליקציה גם חזרה מהרקע, `cold: false`) | `source`: `direct`, `link`, `share_link` (קישור עם `utm_medium=share`, שהאפליקציה או האתר שיתפו), `store` (הפתיחה הראשונה של התקנה מגוגל פליי, עם `utm_source`, `utm_medium`, `utm_campaign` מהקישור לחנות, אם יש), `notification`; `cold`: true/false (באפליקציה) |
 | `screen_view` | כל מעבר מסך | `screen`: `home`, `map`, `meet`, `games`, `about`, `privacy`, `game`, `trip` (טופס "הטיול שלך", באפליקציה מ-2.10.2026 ובאתר מ-2.10.2026), `signin`, `account`, `join`, `group` (כניסה, חשבון, הזמנה וקבוצה; באתר ובאנדרואיד מ-2.10.2026); `game` כשהמסך הוא משחק |
 | `lang_set` | בחירת שפה בהגדרות | `lang`, `previous` |
 | `theme_set` | לחיצה על כפתור יום ולילה | `mode`: `auto`, `day`, `night` |

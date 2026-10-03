@@ -148,9 +148,9 @@ fun InviteScreen(api: GroupApi, groupId: String, onBack: () -> Unit) {
             if (g == null) { if (load.busy) Muted(stringResource(R.string.app_loading)) else ErrorLine(load); return@Page }
             val inv = g.invite
             Spacer(Modifier.height(10.dp))
-            if (inv != null) InviteCard(g.name, inv) { copy(ctx, InviteCode.link(inv.token)) }
+            if (inv != null) InviteCard(g.name, inv) { copy(ctx, InviteCode.shared(inv.token)) }
             else Muted(stringResource(R.string.group_no_invite), size = 14f)
-            val text = inv?.let { stringResource(R.string.app_g_invite_message, g.name, InviteCode.link(it.token), it.code) }
+            val text = inv?.let { stringResource(R.string.app_g_invite_message, g.name, InviteCode.shared(it.token), it.code) }
             Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                 PrimaryButton(stringResource(R.string.app_g_whatsapp), Icons.share, { text?.let { shareInvite(ctx, it, true) } }, Modifier.weight(1f))
                 Button2(stringResource(R.string.app_g_share), Look.GHOST, { text?.let { shareInvite(ctx, it, false) } }, Modifier.weight(1f), icon = Icons.share)

@@ -70,21 +70,14 @@ class MapStatus(
 @Composable
 fun MapScreen(view: MapView, scene: MapScene?, ms: MapStatus? = null, videos: List<Video> = emptyList()) {
     var selected by remember { mutableStateOf<Piste?>(view.selected) }
-    var flying by remember { mutableStateOf(false) }
-    var stopped by remember { mutableStateOf(false) }
-    var flyStart by remember { mutableStateOf(0L) }
+    var flying by remember { mutableStateOf(view.flying) }
     var lift by remember { mutableStateOf<Lift?>(view.shownLift.also { view.shownLift = null }) }
     var list by rememberSaveable { mutableStateOf(false) }
     var expanded by rememberSaveable { mutableStateOf(false) }
     var hidden by rememberSaveable { mutableStateOf(emptySet<String>()) }
     DisposableEffect(view) {
         view.onSelect = { p -> selected = p; if (p != null) { lift = null; list = false }; expanded = false; view.unmark() }
-        view.onFlying = { now ->
-            if (flying && !now) selected?.let {
-                Telemetry.event("run_fly_end", mapOf("run" to it.key, "completed" to !stopped, "seconds" to (System.currentTimeMillis() - flyStart) / 1000))
-            }
-            flying = now
-        }
+        view.onFlying = { now -> flying = now } // run_fly_start and run_fly_end are sent by the map (MapView.flyDown)
         view.onLift = { l -> if (lift?.id != l.id) { lift = l; list = false; Qa.log("lift open ${l.name}") } }
         onDispose { view.onSelect = null; view.onFlying = null; view.onLift = null }
     }
@@ -103,15 +96,17 @@ fun MapScreen(view: MapView, scene: MapScene?, ms: MapStatus? = null, videos: Li
             goRun = { key, via -> scene?.runs?.pistes?.firstOrNull { it.key == key }?.let { view.select(it, via = via) } },
             goLift = { l ->
                 view.select(null); lift = l; list = false; Qa.log("lift open ${l.name}")
-                Telemetry.event("lift_open", if (l.name.isBlank()) emptyMap() else mapOf("lift" to l.name))
                 if (l.id.isNotBlank()) view.showLift(l.id) // which calls onLift: the panel is already this lift's
             },
-            fly = { selected?.let { p -> stopped = false; flyStart = System.currentTimeMillis(); expanded = false; view.unmark(); view.flyDown(); Telemetry.event("run_fly_start", mapOf("run" to p.key)) } },
-            stopFly = { stopped = true; view.stopFly() },
+            fly = { if (selected != null) { expanded = false; view.unmark(); view.flyDown() } },
+            stopFly = { view.stopFly() },
             mark = { x, y -> view.mark(x, y) },
             unmark = { view.unmark() },
         )
     }
+    // a tap on a lift's line, as on a connection's tag; lift_open however the panel opened (a tap, a tag, the meeting point)
+    DisposableEffect(view, actions) { view.onLiftTap = { l -> actions.goLift(l) }; onDispose { view.onLiftTap = null } }
+    LaunchedEffect(lift) { lift?.let { l -> Telemetry.event("lift_open", if (l.name.isBlank()) emptyMap() else mapOf("lift" to l.name)) } }
     // the part of the screen above the panel, where the camera frames the run or the lift
     val onPanel: (Int) -> Unit = remember(view) { { h -> if (view.height > 0) view.setFreeBottom(1f - h.toFloat() / view.height - 0.03f) } }
     LaunchedEffect(selected == null && lift == null && !list) { if (selected == null && lift == null && !list) view.setFreeBottom(1f) }

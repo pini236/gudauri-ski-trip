@@ -26,6 +26,9 @@ class TripTest {
         // landing early in the morning: that day counts; an evening flight home: the last day counts
         val early = Trip(Leg(d(10), departs = t(5, 0), arrives = t(8, 30)), Leg(d(15), departs = t(19, 0)))
         assertEquals(d(10)..d(15), early.skiDays())
+        // the same day when landing before noon, as on the site; at noon or later the next day
+        assertEquals(d(10), Trip(Leg(d(10), departs = t(6, 0), arrives = t(11, 59)), Leg(d(15))).skiDays()!!.start)
+        assertEquals(d(11), Trip(Leg(d(10), departs = t(6, 0), arrives = t(12, 0)), Leg(d(15))).skiDays()!!.start)
         // an overnight flight lands the next day
         val night = Trip(Leg(d(10), departs = t(23, 0), arrives = t(3, 0)), Leg(d(15), departs = t(10, 0)))
         assertEquals(d(11)..d(14), night.skiDays())
@@ -34,12 +37,16 @@ class TripTest {
         assertNull(Trip(Leg(d(10), arrives = t(20, 0)), Leg(d(11), departs = t(6, 0))).skiDays())
     }
 
-    @Test fun countdownRoundsUpAndStopsAtZero() {
-        assertEquals(1, group.daysToFlight(LocalDateTime.of(2027, 1, 10, 15, 59)))
-        assertEquals(1, group.daysToFlight(LocalDateTime.of(2027, 1, 9, 16, 0)))
-        assertEquals(2, group.daysToFlight(LocalDateTime.of(2027, 1, 9, 15, 0)))
-        assertEquals(0, group.daysToFlight(LocalDateTime.of(2027, 1, 10, 16, 0)))
+    @Test fun countdownToTheMidnightOfTheFlightDayAsOnTheSite() {
+        // the site: Math.ceil((new Date(out.date + 'T00:00:00') - new Date()) / 864e5), "on the way" from 0
+        assertEquals(1, group.daysToFlight(LocalDateTime.of(2027, 1, 9, 0, 1)))
+        assertEquals(1, group.daysToFlight(LocalDateTime.of(2027, 1, 9, 23, 59)))
+        assertEquals(2, group.daysToFlight(LocalDateTime.of(2027, 1, 8, 23, 59)))
+        assertEquals(1, group.daysToFlight(LocalDateTime.of(2027, 1, 9, 0, 0)))
+        assertEquals(0, group.daysToFlight(LocalDateTime.of(2027, 1, 10, 0, 0)))
+        assertEquals(0, group.daysToFlight(LocalDateTime.of(2027, 1, 10, 15, 59)))
         assertEquals(0, group.daysToFlight(LocalDateTime.of(2027, 1, 12, 9, 0)))
+        assertEquals(99, group.daysToFlight(LocalDateTime.of(2026, 10, 3, 12, 0)))
     }
 
     @Test fun codesAndCities() {

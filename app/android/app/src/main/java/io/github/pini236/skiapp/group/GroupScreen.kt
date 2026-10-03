@@ -99,16 +99,21 @@ enum class GroupTab { FLIGHTS, MEETUPS, SCORES, MEMBERS;
     companion object { fun of(key: String?) = entries.firstOrNull { it.key == key } ?: FLIGHTS }
 }
 
-/** The group sign: my group if I am in one (the first, for now), otherwise the way in (A1). */
+/**
+ * The group sign: my group if I am in one (the first, for now), otherwise the way in (A1). Watched live while it
+ * shows (A-19): an admin who lets me in opens the group, and a request decided meanwhile leaves the way in.
+ */
 @Composable
-fun GroupHub(api: GroupApi, onGroup: (String) -> Unit, entry: @Composable () -> Unit) {
+fun GroupHub(api: GroupApi, onGroup: (String) -> Unit, entry: @Composable (changes: Int) -> Unit) {
     var groups by remember { mutableStateOf<List<GroupSummary>?>(null) }
+    var changes by remember { mutableStateOf(0) }
     val r = rememberRunner()
-    LaunchedEffect(Unit) { r.run { groups = if (api.me() == null) emptyList() else api.myGroups() } }
+    DisposableEffect(api) { val stop = api.watchMine { changes++ }; onDispose { stop() } }
+    LaunchedEffect(changes) { r.run { groups = if (api.me() == null) emptyList() else api.myGroups() } }
     val g = groups
     when {
         g == null && r.error == null -> Box(Modifier.fillMaxSize().background(Ski.colors.snow))
-        g.isNullOrEmpty() -> entry()
+        g.isNullOrEmpty() -> entry(changes)
         else -> LaunchedEffect(g) { onGroup(g.first().id) }
     }
 }
@@ -199,6 +204,16 @@ fun GroupScreen(
                 if (shown.gone) Note(stringResource(R.string.app_g_gone), Icons.cloud)
                 else if (shown.offline) Note(stringResource(R.string.app_g_offline, savedAt(shown.readAt, now)), Icons.cloud)
                 if (shown.waiting) Muted(stringResource(R.string.app_g_waiting), size = 12.5f)
+                // a change that waited for signal and the server refused: say why (ד5), until closed
+                shown.refused?.let { code ->
+                    val close = stringResource(R.string.common_close)
+                    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                        Text(stringResource(R.string.app_g_refused, stringResource(errorRes(code))), Modifier.weight(1f),
+                            style = Ski.type.bodyBold.copy(fontSize = 13.5.sp), color = c.red)
+                        Box(Modifier.size(44.dp).clickable(role = A11y.Button) { watch.clearRefused() }.semantics { contentDescription = close },
+                            contentAlignment = Alignment.Center) { Text("✕", style = Ski.type.body.copy(fontSize = 16.sp), color = c.ink) }
+                    }
+                }
                 when (tab) {
                     GroupTab.FLIGHTS -> Flights(g, myTrip,
                         onSame = { sheet = "same" },

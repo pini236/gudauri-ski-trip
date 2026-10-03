@@ -147,7 +147,6 @@ fun MeetScreen(
     // the address follows the choice (a link to share, and the place to come back to after the system closes the app)
     var reported by remember { mutableStateOf<Route.Meet?>(null) }
     LaunchedEffect(sid, dayIso, timeTxt) { val r = if (sid == null) Route.Meet() else Meet.route(sid!!, time, day); reported = r; onRoute(r) }
-    LaunchedEffect(Unit) { if (start.station != null) Telemetry.event("meet_link_open") }
     // another meeting point's link while this page is open: that place, day and time
     LaunchedEffect(start) {
         val was = reported ?: return@LaunchedEffect
@@ -155,7 +154,6 @@ fun MeetScreen(
         sid = start.station; preset = null
         Meet.day(start.day)?.let { dayIso = it.toString() }
         Meet.time(start.time)?.let { timeTxt = "%02d:%02d".format(it.hour, it.minute) }
-        if (start.station != null) Telemetry.event("meet_link_open")
         val s = plan?.byId?.get(start.station)
         if (s != null) view.goTo(scope, s.x, s.y, 1800f, 0) else plan?.let { view.fitAll(scope, it.stations, 0) }
         Qa.log("meet ready (link)${if (s != null) " · ${s.id}" else ""}")
@@ -570,7 +568,7 @@ private fun ShareBox(s: Station, time: LocalTime, day: LocalDate, dayText: Strin
     val context = LocalContext.current
     val c = Ski.colors
     val hhmm = "%02d:%02d".format(time.hour, time.minute)
-    val link = Meet.link(s.id, time, day)
+    val link = Meet.shared(s.id, time, day)
     val where = stationWhere(s).replace("\u2068", "").replace("\u2069", "") // the message is plain text for other apps
     val alt = s.h?.let { stringResource(R.string.meet_share_alt_suffix, String.format(Locale.US, "%,d", it)) } ?: ""
     val message = stringResource(R.string.meet_share_message, s.name, dayText, hhmm, where, alt, link)
@@ -581,14 +579,14 @@ private fun ShareBox(s: Station, time: LocalTime, day: LocalDate, dayText: Strin
     LaunchedEffect(copied) { if (copied) { delay(2200); copied = false } }
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Button2(stringResource(R.string.meet_send_wa), Look.INK, {
-            Telemetry.event("meet_share", mapOf("method" to "whatsapp"))
+            // measured once it went (no app to take it: nothing was shared)
             runCatching { context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://wa.me/?text=" + Uri.encode(message)))) }
+                .onSuccess { Telemetry.event("meet_share", mapOf("method" to "whatsapp")) }
         })
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             Button2(stringResource(R.string.meet_share_image), Look.INK, {
-                Telemetry.event("meet_share", mapOf("method" to "image"))
                 val bmp = MeetImage.draw(s, hhmm, label, site, runs, relief, Lang.typeface(context, lang, true), Lang.typeface(context, lang, false), lang.rtl)
-                runCatching { MeetImage.share(context, bmp, message, title) }
+                runCatching { MeetImage.share(context, bmp, message, title) }.onSuccess { Telemetry.event("meet_share", mapOf("method" to "image")) }
             }, Modifier.weight(1f))
             Button2(stringResource(if (copied) R.string.common_link_copied else R.string.meet_copy_link), Look.GHOST, {
                 (context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager).setPrimaryClip(ClipData.newPlainText(title, link))

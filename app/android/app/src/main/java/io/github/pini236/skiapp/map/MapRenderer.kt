@@ -221,7 +221,8 @@ class MapRenderer(
 
     private var camAnim: Triple<OrbitCamera.State, OrbitCamera.State, FloatArray>? = null // from, to, [t, duration]
     @Volatile private var fly: FlyDown? = null
-    @Volatile var onFlyEnded: (() -> Unit)? = null
+    /** A flight ended: its token, and whether it reached the bottom (false: stopped). */
+    @Volatile var onFlyEnded: ((Any, Boolean) -> Unit)? = null
 
     fun select(sel: Selection?) { if (sel == null) clearSelection = true else pendingSelection = sel; requestRender() }
     fun updateShadow() { shadowDirty = true; requestRender() }
@@ -230,8 +231,8 @@ class MapRenderer(
         camAnim = Triple(camera.state(), to, floatArrayOf(0f, seconds)); requestRender()
     }
 
-    fun startFly(path: FloatArray) { fly = FlyDown(path); camAnim = null; requestRender() }
-    fun stopFly() { if (fly != null) { fly = null; onFlyEnded?.invoke() } }
+    fun startFly(path: FloatArray, token: Any) { fly = FlyDown(path, token); camAnim = null; requestRender() }
+    fun stopFly() { val f = fly ?: return; fly = null; onFlyEnded?.invoke(f.token, false) }
     fun cancelCameraAnimation() { camAnim = null }
     /** Distance along, run length, height and slope where the skier is, while flying. */
     val flyInfo: FloatArray? get() = fly?.info
@@ -298,7 +299,7 @@ class MapRenderer(
         var moving = false
         // camera: a scripted move (landing on a run, flying down it) or a fling
         fly?.let { f ->
-            if (f.step(dt, camera)) moving = true else { fly = null; onFlyEnded?.invoke() }
+            if (f.step(dt, camera)) moving = true else { fly = null; onFlyEnded?.invoke(f.token, true) }
         }
         camAnim?.let { (from, to, tt) ->
             tt[0] += dt
@@ -429,7 +430,7 @@ class MapRenderer(
 }
 
 /** The camera flies down a run from the top: behind and above the line, looking ahead. Any touch stops it. */
-class FlyDown(private val path: FloatArray) {
+class FlyDown(private val path: FloatArray, val token: Any = Unit) {
     private val n = path.size / 3
     private val cum = FloatArray(n).also { c -> for (i in 1 until n) c[i] = c[i - 1] + hypot(path[i * 3] - path[i * 3 - 3], path[i * 3 + 2] - path[i * 3 - 1]) }
     private var s = 0f
