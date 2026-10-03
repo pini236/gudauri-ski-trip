@@ -84,7 +84,11 @@ class SiteData(
         return m
     }
 
-    private fun saveMeta() = writeAtomic(File(dir, META), meta.toString().toByteArray())
+    /**
+     * The checks and ETags on disk. A failed write only means the next launch asks the site again, so it never stops
+     * the app (Sentry GUDI-ANDROID-3: a write that failed while the phone restarted crashed the app).
+     */
+    private fun saveMeta() { runCatching { writeAtomic(File(dir, META), meta.toString().toByteArray()) } }
 
     private fun writeAtomic(f: File, bytes: ByteArray) {
         val tmp = File(f.parentFile, f.name + ".tmp")
@@ -140,11 +144,11 @@ class SiteData(
                             m.put("packaged", true).put("etag", r.etag ?: "")
                             Outcome.UNCHANGED
                         }
-                        s.valid(text) -> {
-                            writeAtomic(local, r.body)
+                        // a file that cannot be written is a failed refresh, tried again next time
+                        s.valid(text) -> if (runCatching { writeAtomic(local, r.body) }.isSuccess) {
                             m.put("packaged", false).put("etag", r.etag ?: "")
                             Outcome.UPDATED
-                        }
+                        } else Outcome.FAILED
                         else -> Outcome.REJECTED
                     }
                 }

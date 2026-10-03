@@ -99,4 +99,14 @@ class SiteDataTest {
         assertEquals(runs, next.read("runs-and-lifts.json"))
         assertFalse(File(dir, "runs-and-lifts.json").exists())
     }
+
+    /** A file that cannot be written is a failed refresh, never a crash (Sentry GUDI-ANDROID-3). */
+    @Test fun aWriteThatFailsNeverCrashes() {
+        File(dir, "meta.json.tmp").mkdirs() // a folder where the file goes: every write of it fails
+        File(dir, "runs-and-lifts.json.tmp").mkdirs()
+        val d = data(site(mapOf("runs-and-lifts.json" to ("\"v2\"" to newerRuns), "videos-seed.json" to ("\"v1\"" to videos))))
+        val r = d.refresh(force = true)
+        assertEquals(SiteData.Outcome.FAILED, r["runs-and-lifts.json"])
+        assertEquals(packaged("runs-and-lifts.json"), d.read("runs-and-lifts.json"))
+    }
 }

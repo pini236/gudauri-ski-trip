@@ -406,9 +406,13 @@ phone() {
     sleep 5; adb wait-for-device
     local i; for i in $(seq 1 60); do [ "$(adb shell getprop sys.boot_completed | tr -d '\r')" = 1 ] && break; sleep 2; done; sleep 10
     kill "$LOGCAT" 2> /dev/null; logcat_on # the restart dropped the log stream
+    note "system language asked $loc: $(adb shell getprop persist.sys.locale | tr -d '\r'), the system says $(adb shell am get-config 2> /dev/null | grep -m1 -oE '^config: [^ ]+' | tr -d '\r')"
     mark; adb shell am start -W -n "$ACT" --es qa.tab home --es qa.trip none --es qa.mode auto > /dev/null; waitlog "trip none" 30; sleep 3; shot "phone-$loc"
-    if [ "$loc" = he-IL ]; then [ -n "$(where "הוספת הטיסה שלי")" ] && note "a phone in $loc: Hebrew" || fail "a phone in $loc is not in Hebrew"
-    else [ -n "$(where "Add my flight")" ] && note "a phone in $loc: English" || fail "a phone in $loc is not in English"; fi
+    tail -n +"$((MARK + 1))" "$OUT/logcat.txt" | grep -m1 "SkiQa.*language " | sed 's/.*SkiQa[^:]*: /  app: /' | tee -a "$OUT/summary.txt"
+    # the screen reader of the test can be slow to come back after the restart: a few tries
+    local want="Add my flight" got=""; [ "$loc" = he-IL ] && want="הוספת הטיסה שלי"
+    for i in 1 2 3 4 5; do got=$(where "$want"); [ -n "$got" ] && break; sleep 2; done
+    [ -n "$got" ] && note "a phone in $loc: ${want}" || fail "a phone in $loc does not show '$want'"
   done
   adb unroot > /dev/null 2>&1; sleep 3; adb wait-for-device
   adb shell cmd locale set-app-locales "$PKG" --locales he > /dev/null 2>&1; sleep 2
