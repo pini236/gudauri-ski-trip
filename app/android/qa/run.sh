@@ -49,6 +49,14 @@ waitlog() { # waitlog <text> [seconds]
   done
   fail "no '$1' in the log after ${2:-60}s"; return 1
 }
+seen() { # seen <text> [seconds]: as waitlog, but a miss is no failure (the caller tries again)
+  local deadline=$((SECONDS + ${2:-30}))
+  while (( SECONDS < deadline )); do
+    tail -n +"$((MARK + 1))" "$OUT/logcat.txt" | grep "SkiQa.*$1" > /dev/null && return 0
+    sleep 0.5
+  done
+  return 1
+}
 qa() { # qa <extras...>: one string for the device shell, values with spaces in single quotes
   mark
   adb shell "am start -W --activity-single-top -n $ACT $*" > /dev/null
@@ -397,9 +405,15 @@ lang() {
 # ---- the phone's own language, with no choice in the app (decision 47): Hebrew only on a phone set to Hebrew ----
 # the emulator's whole system language changes (root, then the system restarts); a fresh install has no app choice
 phone() {
-  if ! adb root 2>&1 | grep -qE "restarting|already"; then note "no root: the phone's language not tested"; return; fi
+  # root, to change the whole system's language; the emulator sometimes answers late, so a few tries
+  local rooted="" r
+  for r in 1 2 3 4; do adb root 2>&1 | grep -qE "restarting|already" && { rooted=1; break; }; sleep 4; adb wait-for-device; done
+  if [ -z "$rooted" ]; then fail "no root: the phone's language not tested"; adb shell am start -W -n "$ACT" > /dev/null; return; fi
   sleep 3; adb wait-for-device
   adb uninstall "$PKG" > /dev/null; adb install -r -g "$APK" > /dev/null || { fail "reinstall"; return; }
+  # no language chosen in the app: the system keeps an app's choice across a quick reinstall (the run set Hebrew at its
+  # start), and this part runs on an emulator of its own, with no "from the phone" before it (3.10.2026)
+  adb shell cmd locale set-app-locales "$PKG" > /dev/null 2>&1; sleep 1
   local loc
   for loc in he-IL ru-RU ka-GE en-US; do
     adb shell setprop persist.sys.locale "$loc"; adb shell setprop ctl.restart zygote
@@ -407,7 +421,14 @@ phone() {
     local i; for i in $(seq 1 60); do [ "$(adb shell getprop sys.boot_completed | tr -d '\r')" = 1 ] && break; sleep 2; done; sleep 10
     kill "$LOGCAT" 2> /dev/null; logcat_on # the restart dropped the log stream
     note "system language asked $loc: $(adb shell getprop persist.sys.locale | tr -d '\r'), the system says $(adb shell am get-config 2> /dev/null | grep -m1 -oE '^config: [^ ]+' | tr -d '\r')"
-    mark; adb shell am start -W -n "$ACT" --es qa.tab home --es qa.trip none --es qa.mode auto > /dev/null; waitlog "trip none" 30; sleep 3; shot "phone-$loc"
+    # the system may still be coming back from the restart (its "booted" flag outlives it): start the app until it answers
+    local opened=""
+    for i in 1 2 3; do
+      mark; adb shell am start -W -n "$ACT" --es qa.tab home --es qa.trip none --es qa.mode auto > /dev/null 2>&1
+      seen "trip none" 30 && { opened=1; break; }; sleep 5
+    done
+    [ -z "$opened" ] && fail "the app did not open on a phone in $loc"
+    sleep 3; shot "phone-$loc"
     tail -n +"$((MARK + 1))" "$OUT/logcat.txt" | grep -m1 "SkiQa.*language " | sed 's/.*SkiQa[^:]*: /  app: /' | tee -a "$OUT/summary.txt"
     # the screen reader of the test can be slow to come back after the restart: a few tries
     local want="Add my flight" got=""; [ "$loc" = he-IL ] && want="הוספת הטיסה שלי"
@@ -416,6 +437,51 @@ phone() {
   done
   adb unroot > /dev/null 2>&1; sleep 3; adb wait-for-device
   adb shell cmd locale set-app-locales "$PKG" --locales he > /dev/null 2>&1; sleep 2
+  adb shell am start -W -n "$ACT" > /dev/null # the app running again, for whatever comes next
+}
+
+# ---- the run view (13.3, the site's T1 to T4): the sign and the panel, the profile that moves the dot, a swipe to the
+# next run, a lift's panel, the list of runs with the filters, and English (map/RunSheet.kt) ----
+runview() {
+  local up="$((W / 2)) $((H * 90 / 100)) $((W / 2)) $((H * 50 / 100)) 500" xy
+  adb shell am force-stop "$PKG"; sleep 1; mark
+  adb shell "am start -W -n $ACT --es qa.tab map --es qa.time 2027-01-12T11:00 --es qa.stats off" > /dev/null
+  waitlog "scene ready" 120 && waitlog "shadow ready" 120
+  mark; qa "--es qa.run 'Tatra 2'"; waitlog "selected Tatra 2" 20; sleep 3; shot run-head
+  mark; tapText "הצגת כל הפרטים" && waitlog "panel open" 5 && { sleep 1.5; shot run-panel; }
+  # the profile: a finger along it moves the dot on the mountain
+  drag $up; sleep 1
+  xy=$(where "מיקום לאורך המסלול, מלמעלה למטה")
+  if [ -n "$xy" ]; then set -- $xy; mark; drag $((W / 8)) "$2" $((W * 5 / 8)) "$2" 900; waitlog "profile scrub Tatra 2" 5; sleep 1.5; shot run-profile
+  else fail "no elevation profile"; fi
+  drag $up; sleep 1; shot run-ahead
+  drag $up; sleep 1; shot run-connections
+  drag $up; sleep 1; shot run-research
+  drag $up; sleep 1; shot run-videos
+  # the next run: a swipe across the sign (as on the site, to the left is the next one)
+  xy=$(where "המסלול הבא: Kudebi 1"); if [ -n "$xy" ]; then set -- $xy; mark; drag $((W * 3 / 4)) "$2" $((W / 6)) "$2" 300; waitlog "selected Kudebi 1" 10 && { sleep 3; shot run-next; }; else fail "no step to the next run"; fi
+  # a lift of the run: its panel
+  mark; tapText "הצגת כל הפרטים" && waitlog "panel open" 5; sleep 1
+  # the lift's tag among the connections (the name alone: "Kudebi 1" and "Kudebi 2" are runs)
+  for i in 1 2 3 4 5; do xy=$(where "~^Kudebi$"); [ -n "$xy" ] && break; drag $up; sleep 1; done
+  mark; tapText "~^Kudebi$" && waitlog "lift open Kudebi" 5 && { sleep 3; shot lift-panel; drag $up; sleep 1; shot lift-panel-runs; }
+  # the list of all runs, and the filters (Back closes the lift's panel first)
+  adb shell input keyevent KEYCODE_BACK; sleep 1; qa "--es qa.run none"; sleep 2
+  mark; tapText "כל המסלולים" && waitlog "run list open" 5 && { sleep 1.5; shot run-list; }
+  mark; tapText "אדום" && waitlog "filter red off" 5 && { sleep 2; shot run-list-no-red; }
+  mark; tapText "אדום" && waitlog "filter red on" 5
+  drag $up; sleep 1; shot run-list-runs
+  for i in 1 2 3 4; do xy=$(where "Sadzele 1"); [ -n "$xy" ] && break; drag $up; sleep 1; done
+  mark; tapText "Sadzele 1" && waitlog "selected Sadzele 1" 10 && { sleep 3; shot run-from-list; }
+  # English: the same panel, left to right
+  adb shell cmd locale set-app-locales "$PKG" --locales en > /dev/null 2>&1; sleep 3
+  adb shell am force-stop "$PKG"; sleep 1; mark
+  adb shell "am start -W -n $ACT --es qa.tab map --es qa.time 2027-01-12T11:00 --es qa.stats off" > /dev/null
+  waitlog "scene ready" 120 && waitlog "shadow ready" 120
+  mark; qa "--es qa.run 'Tatra 2'"; waitlog "selected Tatra 2" 20; sleep 3; shot run-head-en
+  mark; tapText "Show all the details" && waitlog "panel open" 5 && { sleep 1.5; shot run-panel-en; drag $up; sleep 1; shot run-profile-en; }
+  adb shell cmd locale set-app-locales "$PKG" --locales he > /dev/null 2>&1; sleep 3
+  qa "--es qa.run none --es qa.tab home"; sleep 1
 }
 
 # ---- the lift status (13.4, the site's S1 to S3): no report, an old one, a fresh one (status/LiftStatus.kt) ----
@@ -493,12 +559,19 @@ for sc in ${SCENARIO//,/ }; do
     lang) lang ;;
     phone) phone ;;
     store) store ;;
-    *) map; descent; home; group; meet; status; lang; phone; store ;;
+    run) runview ;;
+    *) map; descent; home; group; meet; status; runview; lang; phone; store ;;
   esac
 done
 
+# the run in parallel parts (android-qa.yml): the checks below that need doing once run with one part only (FINAL=1);
+# a run on its own (no FINAL) does them all
+FINAL=${FINAL-1}
+
 # ---- usage and crash reporting: with the keys, a check message to Sentry and everything queued sent now ----
+if [ -n "$FINAL" ]; then
 qa "--es qa.sentry run-$(date +%s)"; waitlog "flushed" 20 && grep "SkiQa.*flushed" "$OUT/logcat.txt" | tail -1 | sed 's/.*SkiQa[^:]*: //' | tee -a "$OUT/summary.txt"; sleep 5
+fi
 
 # ---- what the run measured ----
 adb shell dumpsys gfxinfo "$PKG" > "$OUT/gfxinfo.txt"
@@ -512,7 +585,7 @@ if [ -n "$PID" ]; then adb logcat -d --pid="$PID" '*:E' | grep -v -E "^-+ beginn
 [ -s "$OUT/errors.txt" ] && fail "errors in the log (errors.txt)"
 
 # ---- the release build (R8): only that it starts and draws ----
-if [ -f "$RELEASE_APK" ]; then
+if [ -n "$FINAL" ] && [ -f "$RELEASE_APK" ]; then
   adb uninstall "$PKG" > /dev/null
   if adb install -r "$RELEASE_APK" > /dev/null; then
     mark; adb shell am start -W -n "$ACT" > /dev/null; sleep 12; shot release-start

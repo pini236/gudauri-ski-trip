@@ -206,6 +206,11 @@ class MapRenderer(
     private val terrainVao = IntArray(1); private val terrainBufs = IntArray(4); private var terrainCount = 0
     private val pistes = ArrayList<Triple<String, GpuRibbon, GpuRibbon>>(); private val lifts = ArrayList<Pair<String, GpuRibbon>>()
     @Volatile var status: StatusPaint = StatusPaint.NONE
+    /** The point of a chosen run under the finger on its elevation profile (T2): x, height, z; null when none. */
+    @Volatile var marker: FloatArray? = null
+    /** The map's filters: runs not drawn (by key), and the lifts off. */
+    @Volatile var hidden: Set<String> = emptySet()
+    @Volatile var hideLifts = false
     private var selCasing: GpuRibbon? = null; private var selPaint: GpuRibbon? = null
     private var width = 1; private var height = 1
     private val mvp = FloatArray(16); private val eye = FloatArray(3)
@@ -339,10 +344,12 @@ class MapRenderer(
         val paint = status
         val px = (2 * st.dist * kotlin.math.tan(Math.toRadians(20.0)) / height.coerceAtLeast(1)).toFloat()
         fun fade(key: String) = if (paint.forMe && key in paint.closedRuns) 0.15f else 1f
+        val off = hidden
         glUniform1f(uW, 5.6f * density); glUniform1f(uB, 0.0006f)
-        for (p in pistes) { glUniform1f(uA, others * fade(p.first)); p.second.draw() }
+        for (p in pistes) { if (p.first in off) continue; glUniform1f(uA, others * fade(p.first)); p.second.draw() }
         glUniform1f(uW, 2.6f * density); glUniform1f(uB, 0.0008f)
         for (p in pistes) {
+            if (p.first in off) continue
             val shut = p.first in paint.closedRuns
             glUniform1f(uA, others * fade(p.first))
             if (shut) { glUniform4f(uT, 0.557f, 0.612f, 0.678f, 1f); glUniform1f(uD, 11f * density * px); glUniform1f(uOn, 6f / 11f) }
@@ -350,7 +357,7 @@ class MapRenderer(
             if (shut) { glUniform4f(uT, 0f, 0f, 0f, 0f); glUniform1f(uD, 0f) }
         }
         glUniform1f(uA, others); glUniform1f(uW, 1.8f * density); glUniform1f(uB, 0.0010f)
-        for ((name, r) in lifts) {
+        if (!hideLifts) for ((name, r) in lifts) {
             val shut = name in paint.closedLifts
             if (shut) { glUniform4f(uT, 0.604f, 0.647f, 0.702f, 1f); glUniform1f(uD, 8f * density * px); glUniform1f(uOn, 0.5f) }
             r.draw()
@@ -361,15 +368,17 @@ class MapRenderer(
             glUniform1f(uW, 9f * density); glUniform1f(uB, 0.0012f); selCasing?.draw()
             glUniform1f(uW, 5f * density); glUniform1f(uB, 0.0014f); selPaint?.draw()
         }
-        fly?.let { f ->
-            // the dot where the skier is now, over everything, so it never hides behind the snow
-            val p = f.position
+        val dot = fly?.position ?: marker
+        if (dot != null) {
+            // the dot where the skier is now (flying down, or under the finger on the profile), over everything, so it
+            // never hides behind the snow
+            val p = dot
             markT += dt
             glDisable(GL_DEPTH_TEST); glBindVertexArray(0)
             glUseProgram(markProg)
             glUniformMatrix4fv(glGetUniformLocation(markProg, "uMvp"), 1, false, mvp, 0)
             glUniform1f(glGetUniformLocation(markProg, "uSize"), 34f * density)
-            glUniform1f(glGetUniformLocation(markProg, "uPulse"), (0.5f + 0.5f * kotlin.math.sin(markT * 4f)))
+            glUniform1f(glGetUniformLocation(markProg, "uPulse"), if (fly != null) 0.5f + 0.5f * kotlin.math.sin(markT * 4f) else 0.5f)
             glDisableVertexAttribArray(0); glVertexAttrib3f(0, p[0], p[1] + 6f, p[2])
             glDrawArrays(GL_POINTS, 0, 1)
             glEnable(GL_DEPTH_TEST)

@@ -11117,6 +11117,30 @@
     "ka"
    ]
   },
+  "app.panel_more": {
+   "he": "הצגת כל הפרטים",
+   "en": "Show all the details",
+   "ru": "Показать все подробности",
+   "ka": "ყველა დეტალის ჩვენება",
+   "where": "app/android",
+   "note": "screen reader label of the handle of the map's panel (a run, a lift), when it shows only its head",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.panel_less": {
+   "he": "פחות פרטים",
+   "en": "Fewer details",
+   "ru": "Меньше подробностей",
+   "ka": "ნაკლები დეტალი",
+   "where": "app/android",
+   "note": "screen reader label of the same handle when the panel shows everything",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
   "app.lang_button": {
    "he": "שפה: {name}",
    "en": "Language: {name}",

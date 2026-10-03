@@ -43,6 +43,7 @@ import io.github.pini236.skiapp.data.Profile
 import io.github.pini236.skiapp.data.Runs
 import io.github.pini236.skiapp.data.SiteData
 import io.github.pini236.skiapp.data.Terrain
+import io.github.pini236.skiapp.data.Video
 import io.github.pini236.skiapp.fx.Haptics
 import io.github.pini236.skiapp.fx.Sounds
 import io.github.pini236.skiapp.game.DescentScreen
@@ -151,6 +152,8 @@ class MainActivity : ComponentActivity() {
     private var scene by mutableStateOf<MapScene?>(null)
     /** The meeting point's stations (from the same data as the map), and its top view, read the first time it opens. */
     private var meetPlan by mutableStateOf<MeetPlan?>(null)
+    /** The runs' videos (site/data/videos-seed.json), for the run's panel (13.3). */
+    private var videos by mutableStateOf(emptyList<Video>())
     private var relief by mutableStateOf<Relief2D?>(null)
     private var reliefAsked = false
     private var profile by mutableStateOf<Profile?>(null)
@@ -231,9 +234,9 @@ class MainActivity : ComponentActivity() {
         haptics = Haptics(this)
         sounds = Sounds(this)
         mapView = MapView(this, refreshHz, glStats)
-        mapView.onChosen = { p ->
+        mapView.onChosen = { p, via ->
             if (nav.top is Route.Map) nav.replaceTop(Route.Map(p?.key))
-            if (p != null) Telemetry.event("run_open", mapOf("run" to p.key, "color" to p.color, "via" to "map"))
+            if (p != null) Telemetry.event("run_open", mapOf("run" to p.key, "color" to p.color, "via" to via))
         }
         @Suppress("DEPRECATION")
         val version = if (Build.VERSION.SDK_INT >= 28) packageManager.getPackageInfo(packageName, 0).longVersionCode else packageManager.getPackageInfo(packageName, 0).versionCode.toLong()
@@ -360,6 +363,8 @@ class MainActivity : ComponentActivity() {
         val profiles = Profile.parse(asset("data/profiles.json"))
         Startup.dataMs = SystemClock.uptimeMillis() - t0
         runOnUiThread { profile = profiles.firstOrNull { it.key == "Tatra 2" } ?: profiles.firstOrNull(); liftNames = LiftStatus.names(runs.mainLifts) }
+        val vids = runCatching { Video.parse(siteData.read("videos-seed.json")) }.getOrElse { Telemetry.handled(it); emptyList() }
+        runOnUiThread { videos = vids }
         val plan = MeetPlan.build(runs, terrain)
         runOnUiThread { meetPlan = plan; armReminders() }
         val t1 = SystemClock.uptimeMillis()
@@ -608,7 +613,7 @@ class MainActivity : ComponentActivity() {
                         onAccount = if (groupApi.ready) ({ nav.push(Route.Account) }) else null) { nav.back() }
                     else -> {
                         if (top is Route.Game) DescentScreen(profile, haptics, sounds)
-                        else MapScreen(mapView, scene, MapStatus(lstat, changes, LiftStatus.inSeason(LocalDateTime.ofInstant(Instant.ofEpochMilli(tick), ZoneId.systemDefault()).monthValue),
+                        else MapScreen(mapView, scene, videos = videos, ms = MapStatus(lstat, changes, LiftStatus.inSeason(LocalDateTime.ofInstant(Instant.ofEpochMilli(tick), ZoneId.systemDefault()).monthValue),
                             forMe, { on -> forMe = on; Telemetry.event("status_only_open", mapOf("on" to on)); Qa.log("for me ${if (on) "on" else "off"}") },
                             statusSheet, { open -> statusSheet = open }))
                         if (showStats) StatsBar(top !is Route.Game, Modifier.align(Alignment.TopStart))

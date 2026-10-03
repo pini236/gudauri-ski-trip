@@ -1,6 +1,16 @@
 package io.github.pini236.skiapp.map
 
 import androidx.compose.foundation.background
+import androidx.activity.compose.BackHandler
+import androidx.compose.runtime.produceState
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.foundation.layout.navigationBarsPadding
+import io.github.pini236.skiapp.data.Lift
+import io.github.pini236.skiapp.data.RunFacts
+import io.github.pini236.skiapp.data.Video
+import io.github.pini236.skiapp.qa.Qa
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import io.github.pini236.skiapp.telemetry.Telemetry
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.contentDescription
@@ -53,24 +63,60 @@ class MapStatus(
 )
 
 /**
- * The 3D map screen: the GL mountain with a run sign and the fly-down button on top, and the lift status: its bar at
- * the top (S1), and a tap on it opens the board (S2) or the snowy signs (S3), as in the site's map panel.
+ * The 3D map screen: the GL mountain, and over it the map's panel (13.3): a chosen run (T1 to T4), a lift, or the list
+ * of all runs with the filters (map/RunSheet.kt); the fly-down bar; and the lift status: its bar at the top (S1), and a
+ * tap on it opens the board (S2) or the snowy signs (S3), as in the site's map panel.
  */
 @Composable
-fun MapScreen(view: MapView, scene: MapScene?, ms: MapStatus? = null) {
+fun MapScreen(view: MapView, scene: MapScene?, ms: MapStatus? = null, videos: List<Video> = emptyList()) {
     var selected by remember { mutableStateOf<Piste?>(view.selected) }
     var flying by remember { mutableStateOf(false) }
     var stopped by remember { mutableStateOf(false) }
     var flyStart by remember { mutableStateOf(0L) }
+    var lift by remember { mutableStateOf<Lift?>(view.shownLift.also { view.shownLift = null }) }
+    var list by rememberSaveable { mutableStateOf(false) }
+    var expanded by rememberSaveable { mutableStateOf(false) }
+    var hidden by rememberSaveable { mutableStateOf(emptySet<String>()) }
     DisposableEffect(view) {
-        view.onSelect = { selected = it }
+        view.onSelect = { p -> selected = p; if (p != null) { lift = null; list = false }; expanded = false; view.unmark() }
         view.onFlying = { now ->
             if (flying && !now) selected?.let {
                 Telemetry.event("run_fly_end", mapOf("run" to it.key, "completed" to !stopped, "seconds" to (System.currentTimeMillis() - flyStart) / 1000))
             }
             flying = now
         }
-        onDispose { view.onSelect = null; view.onFlying = null }
+        view.onLift = { l -> if (lift?.id != l.id) { lift = l; list = false; Qa.log("lift open ${l.name}") } }
+        onDispose { view.onSelect = null; view.onFlying = null; view.onLift = null }
+    }
+    // the filters: a colour hides its runs, "unnamed" the sections without a name, "lifts" the lifts
+    LaunchedEffect(hidden, scene) {
+        val runs = scene?.runs ?: return@LaunchedEffect
+        view.setHidden(runs.pistes.filter { it.color in hidden || (!it.named && "unnamed" in hidden) }.map { it.key }.toSet(), "lifts" !in hidden)
+    }
+    val order = remember(scene) { scene?.runs?.pistes?.let { RunFacts.order(it) } ?: emptyList() }
+    val facts by produceState<RunFacts?>(null, selected?.key, scene) {
+        val p = selected; val s = scene
+        value = if (p == null || s == null) null else withContext(Dispatchers.Default) { RunFacts.of(s.terrain, p) }
+    }
+    val actions = remember(view, scene) {
+        PanelActions(
+            goRun = { key, via -> scene?.runs?.pistes?.firstOrNull { it.key == key }?.let { view.select(it, via = via) } },
+            goLift = { l ->
+                view.select(null); lift = l; list = false; Qa.log("lift open ${l.name}")
+                Telemetry.event("lift_open", if (l.name.isBlank()) emptyMap() else mapOf("lift" to l.name))
+                if (l.id.isNotBlank()) view.showLift(l.id) // which calls onLift: the panel is already this lift's
+            },
+            fly = { selected?.let { p -> stopped = false; flyStart = System.currentTimeMillis(); expanded = false; view.unmark(); view.flyDown(); Telemetry.event("run_fly_start", mapOf("run" to p.key)) } },
+            stopFly = { stopped = true; view.stopFly() },
+            mark = { x, y -> view.mark(x, y) },
+            unmark = { view.unmark() },
+        )
+    }
+    // the part of the screen above the panel, where the camera frames the run or the lift
+    val onPanel: (Int) -> Unit = remember(view) { { h -> if (view.height > 0) view.setFreeBottom(1f - h.toFloat() / view.height - 0.03f) } }
+    LaunchedEffect(selected == null && lift == null && !list) { if (selected == null && lift == null && !list) view.setFreeBottom(1f) }
+    BackHandler(enabled = selected != null || lift != null || list) {
+        when { selected != null -> view.select(null); lift != null -> lift = null; else -> list = false }
     }
 
     Box(Modifier.fillMaxSize()) {
@@ -78,34 +124,42 @@ fun MapScreen(view: MapView, scene: MapScene?, ms: MapStatus? = null) {
         if (scene == null) {
             Text(stringResource(R.string.app_map_loading), Modifier.align(Alignment.Center), fontFamily = Ski.type.text, fontSize = 16.sp, color = Palette.ink)
         }
-        val p = selected
-        if (p != null) {
-            Column(Modifier.align(Alignment.BottomCenter).fillMaxWidth().padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                if (flying) FlyBar(view, p.name)
-                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    // the run's sign: its colour and its name, square corners like the trail signs
-                    Box(Modifier.background(Palette.run(p.color)).padding(horizontal = 14.dp, vertical = 6.dp)) {
-                        Text(p.name, fontFamily = Ski.type.display, fontWeight = FontWeight.Bold, fontSize = (30 * Ski.type.displayScale).sp, color = Color.White)
-                    }
-                    Spacer1()
-                    Button(stringResource(if (flying) R.string.run_fly_stop else R.string.run_fly_button)) {
-                        if (flying) { stopped = true; view.stopFly() }
-                        else { stopped = false; flyStart = System.currentTimeMillis(); view.flyDown(); Telemetry.event("run_fly_start", mapOf("run" to p.key)) }
-                    }
-                    Button("✕", stringResource(R.string.app_close)) { view.select(null) }
-                }
-            }
-        } else if (scene != null) {
-            Text(stringResource(R.string.app_map_hint),
-                Modifier.align(Alignment.BottomCenter).padding(16.dp).background(Color(0xE6FFFFFF)).padding(10.dp),
-                fontFamily = Ski.type.text, fontSize = 13.sp, color = Palette.ink)
-        }
-        // the map keeps its day colours (the spike), and so do the bar and the board over it
-        if (ms != null && scene != null) SkiTheme(dark = false) {
+        // the map keeps its day colours (the spike), and so do the panel, the bar and the board over it
+        if (scene != null) SkiTheme(dark = false) {
             Box(Modifier.fillMaxSize()) {
-                if (!flying) StatusBar(ms.status, { ms.onSheet(true) }, Modifier.align(Alignment.TopCenter).statusBarsPadding().padding(top = 56.dp, start = 16.dp, end = 16.dp))
-                if (ms.sheet) Sheet({ ms.onSheet(false) }) {
-                    StatusBoard(ms.status, ms.changes, ms.forMe, ms.onForMe, ms.inSeason)
+                val p = selected; val l = lift
+                when {
+                    p != null -> {
+                        MapPanel(expanded, { expanded = it; Qa.log("panel ${if (it) "open" else "closed"}") }, { view.select(null) }, onHeight = onPanel,
+                            head = {
+                                if (flying) Box(Modifier.padding(bottom = 8.dp)) { FlyBar(view, runName(p)) }
+                                RunHead(p, facts, order, flying, true, actions)
+                            },
+                            body = { RunBody(p, facts, scene.runs, scene.terrain, videos, actions) })
+                    }
+                    l != null -> MapPanel(true, {}, { lift = null }, head = { LiftHead(l) }, body = { LiftBody(l, scene.runs, scene.terrain, actions) }, bodyMax = 0.45f, onHeight = onPanel)
+                    list -> MapPanel(true, {}, { list = false },
+                        head = { Text(stringResource(R.string.map_overview_heading), style = Ski.type.title.copy(fontSize = Ski.type.title.fontSize * (32f / 44f)), color = Ski.colors.ink) },
+                        body = {
+                            RunList(scene.runs, order, hidden, { k ->
+                                val on = k in hidden
+                                hidden = if (on) hidden - k else hidden + k
+                                Telemetry.event("map_filter", mapOf("filter" to k, "on" to on))
+                                Qa.log("filter $k ${if (on) "on" else "off"}")
+                            }, scene.runs.fetched, scene.runs.researchDate, actions)
+                        }, bodyMax = 0.5f, onHeight = onPanel)
+                    else -> Row(Modifier.align(Alignment.BottomCenter).fillMaxWidth().navigationBarsPadding().padding(12.dp),
+                        verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Text(stringResource(R.string.app_map_hint), Modifier.weight(1f).background(Color(0xE6FFFFFF)).padding(10.dp),
+                            fontFamily = Ski.type.text, fontSize = 13.sp, color = Palette.ink)
+                        Button(stringResource(R.string.map_overview_heading)) { list = true; Qa.log("run list open") }
+                    }
+                }
+                if (ms != null) {
+                    if (!flying) StatusBar(ms.status, { ms.onSheet(true) }, Modifier.align(Alignment.TopCenter).statusBarsPadding().padding(top = 56.dp, start = 16.dp, end = 16.dp))
+                    if (ms.sheet) Sheet({ ms.onSheet(false) }) {
+                        StatusBoard(ms.status, ms.changes, ms.forMe, ms.onForMe, ms.inSeason)
+                    }
                 }
             }
         }

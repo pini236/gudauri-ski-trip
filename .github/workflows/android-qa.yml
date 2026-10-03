@@ -13,27 +13,30 @@ on:
   workflow_dispatch:
     inputs:
       scenario:
-        description: 'map, descent, home, group, meet, status, lang, phone, store, several with commas, or all'
+        description: 'map, descent, home, group, meet, status, run, lang, phone, store, several with commas, or all'
         default: all
       api:
         description: 'Android version of the emulator (API level)'
         default: '35'
 
-# one emulator run at a time, so the release always matches one run
+# main keeps one run at a time, so its release always matches one run; a branch's newer run replaces its older one,
+# and never waits behind main (3.10.2026: branch runs used to queue behind every full run on main)
 concurrency:
-  group: android-qa
-  cancel-in-progress: false
+  group: android-qa-${{ github.ref_name }}
+  cancel-in-progress: ${{ github.ref_name != 'main' }}
 
 permissions:
   contents: write
 
+# Build once, then every part of the run on an emulator of its own, all at the same time (3.10.2026: the whole run
+# took about 30 minutes in a row), then one job puts the parts together and publishes them.
 jobs:
-  emulator:
+  build:
     runs-on: ubuntu-latest
-    timeout-minutes: 50
-    env:
-      OUT: ${{ github.workspace }}/qa-out
-      SCENARIO: ${{ inputs.scenario || 'all' }}
+    timeout-minutes: 25
+    outputs:
+      parts: ${{ steps.plan.outputs.parts }}
+      final: ${{ steps.plan.outputs.final }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-java@v4
@@ -53,6 +56,42 @@ jobs:
           POSTHOG_KEY: ${{ secrets.POSTHOG_KEY }}
           SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
         run: ./gradlew --no-daemon :app:assemblePreviewDebug :app:assemblePreviewRelease
+      - name: The parts
+        id: plan
+        run: |
+          s="${{ inputs.scenario || 'all' }}"
+          [ "$s" = all ] && s="map,descent,home,group,meet,status,run,lang,phone,store"
+          echo "parts=$(python3 -c 'import json,sys; print(json.dumps([p.strip() for p in sys.argv[1].split(",") if p.strip()]))' "$s")" >> "$GITHUB_OUTPUT"
+          # the release build's start and the crash-report check run with one part: not the phone's language, which
+          # restarts the whole system
+          echo "final=$(python3 -c 'import sys; p=[x.strip() for x in sys.argv[1].split(",") if x.strip()]; print(next((x for x in p if x != "phone"), p[0]))' "$s")" >> "$GITHUB_OUTPUT"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: apks
+          retention-days: 1
+          path: |
+            app/android/app/build/outputs/apk/preview/debug/app-preview-debug.apk
+            app/android/app/build/outputs/apk/preview/release/app-preview-release.apk
+
+  emulator:
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    strategy:
+      fail-fast: false
+      matrix:
+        part: ${{ fromJSON(needs.build.outputs.parts) }}
+    env:
+      OUT: ${{ github.workspace }}/qa-out
+      SCENARIO: ${{ matrix.part }}
+      # the release build's start and the crash-report check run once, with one part
+      FINAL: ${{ matrix.part == needs.build.outputs.final && '1' || '' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: apks
+          path: app/android/app/build/outputs/apk/preview
       - name: Hardware virtualisation for the emulator
         run: |
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
@@ -68,19 +107,47 @@ jobs:
           disable-animations: false
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -no-snapshot-save -camera-back none
           script: bash app/android/qa/run.sh
-      - name: Contact sheets
+      - uses: actions/upload-artifact@v4
         if: always()
+        with:
+          name: android-qa-${{ matrix.part }}
+          path: qa-out
+          retention-days: 14
+
+  publish:
+    needs: [build, emulator]
+    if: always() && needs.build.result == 'success'
+    runs-on: ubuntu-latest
+    env:
+      OUT: ${{ github.workspace }}/qa-out
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: android-qa-*
+          path: parts
+      - name: One result from the parts
+        run: |
+          mkdir -p "$OUT/shots" "$OUT/parts"
+          for d in parts/android-qa-*; do
+            p=${d#parts/android-qa-}
+            cp -r "$d" "$OUT/parts/$p"
+            { echo "== $p"; cat "$d/summary.txt" 2>/dev/null || echo "(no summary)"; echo; } >> "$OUT/summary.txt"
+            for f in "$d"/shots/*.png; do [ -f "$f" ] && cp "$f" "$OUT/shots/$p-$(basename "$f")"; done
+            # the store screenshots, where the release has always had them
+            if [ -d "$d/store" ]; then mkdir -p "$OUT/store"; cp "$d"/store/*.png "$OUT/store/" 2> /dev/null || true; fi
+          done
+          cat "$OUT/summary.txt"
+      - name: Contact sheets
         run: |
           pip install --quiet pillow
           python3 app/android/qa/sheet.py "$OUT/shots" "$OUT"
       - uses: actions/upload-artifact@v4
-        if: always()
         with:
           name: android-qa
           path: qa-out
           retention-days: 14
       - name: Publish
-        if: always()
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -88,7 +155,7 @@ jobs:
           # main keeps its own results; a branch's run goes to a release of its own, so it never covers main's
           tag=android-qa; [ "$GITHUB_REF_NAME" = main ] || tag=android-qa-branch
           title="אנדרואיד: בדיקה באמולטור$([ "$tag" = android-qa ] || echo " (ענף ${GITHUB_REF_NAME})")"
-          files=("$RUNNER_TEMP/qa.zip" "$OUT"/sheet-*.png $(ls "$OUT"/store/*.png 2>/dev/null))
+          files=("$RUNNER_TEMP/qa.zip" "$OUT"/sheet-*.png $(ls "$OUT"/store/*.png 2> /dev/null || true))
           {
             echo "בדיקה באמולטור, ענף ${GITHUB_REF_NAME}, קומיט ${GITHUB_SHA::7}."
             echo "הריצה: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
