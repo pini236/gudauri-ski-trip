@@ -10,7 +10,6 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
@@ -53,6 +52,7 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
@@ -145,13 +145,14 @@ fun runLink(key: String) = "https://gudauri-ski-trip.vercel.app/#map/run/" + jav
 fun BoxScope.MapPanel(
     expanded: Boolean, onExpand: (Boolean) -> Unit, onClose: () -> Unit,
     head: @Composable ColumnScope.() -> Unit, body: @Composable ColumnScope.() -> Unit, bodyMax: Float = 0.36f,
+    onHeight: (Int) -> Unit = {},
 ) {
     val c = Ski.colors
     // the head and the open body together stay under about two thirds of the screen: the run, the lift status bar
     // and the way home stay in sight above it
     val max = (LocalConfiguration.current.screenHeightDp * bodyMax).dp
     Column(
-        Modifier.align(Alignment.BottomCenter).fillMaxWidth().shadow(12.dp, RectangleShape).background(c.paper)
+        Modifier.align(Alignment.BottomCenter).fillMaxWidth().onSizeChanged { onHeight(it.height) }.shadow(12.dp, RectangleShape).background(c.paper)
             .clickable(remember { androidx.compose.foundation.interaction.MutableInteractionSource() }, null) {}
             .navigationBarsPadding(),
     ) {
@@ -469,7 +470,8 @@ private fun RunProfile(p: Piste, f: RunFacts, runs: Runs, terrain: Terrain, a: P
             }
             Canvas(Modifier.fillMaxWidth().height(132.dp)
                 .pointerInput(f) { detectTapGestures { o -> pick(o.x, size.width.toFloat()) } }
-                .pointerInput(f) { detectDragGestures(onDragEnd = {}) { ch, _ -> pick(ch.position.x, size.width.toFloat()) } }) {
+                // sideways only: a swipe up or down on the profile scrolls the panel
+                .pointerInput(f) { detectHorizontalDragGestures { ch, _ -> pick(ch.position.x, size.width.toFloat()) } }) {
                 val w = size.width; val h = size.height - 18.dp.toPx()
                 val pad = 8f
                 fun x(d: Float) = pad + d / dmax * (w - 2 * pad)

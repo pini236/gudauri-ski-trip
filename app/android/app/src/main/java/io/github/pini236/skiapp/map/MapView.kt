@@ -201,7 +201,7 @@ class MapView(context: Context, refreshHz: Float, val stats: FrameStats) : Frame
         onSelect?.invoke(p)
         if (chosen) onChosen?.invoke(p, via)
         renderer.marker = null
-        if (p == null) { renderer.select(null); Qa.log("selected none"); return }
+        if (p == null) { framed = null; renderer.select(null); Qa.log("selected none"); return }
         inBackground {
             val lines = s.topDown(p)
             if (lines.isEmpty()) return@inBackground
@@ -219,8 +219,9 @@ class MapView(context: Context, refreshHz: Float, val stats: FrameStats) : Frame
             val path = lines.fold(FloatArray(0)) { acc, l -> acc + l }
             val sel = Selection(p.key, s.highlight(lines), casing, paint, path)
             renderer.select(sel)
-            // land the camera on the whole run, between the bars, looking uphill so its top is at the top
-            renderer.animateCamera(Framing.fit(path, width.toFloat(), height.toFloat(), { x, z -> s.terrain.elev(x, z) }))
+            // land the camera on the whole run, between the bars and above the panel, looking uphill so its top is at the top
+            framed = path
+            renderer.animateCamera(Framing.fit(path, width.toFloat(), height.toFloat(), { x, z -> s.terrain.elev(x, z) }, box = Framing.Box(bottom = freeBottom)))
             Qa.log("selected ${p.key}")
         }
     }
@@ -235,7 +236,11 @@ class MapView(context: Context, refreshHz: Float, val stats: FrameStats) : Frame
         val l = s.runs.lifts[i]
         onLift?.let { it(l) } ?: run { shownLift = l }
         // after the map has its size (it may have just been put on the screen)
-        post { inBackground { renderer.animateCamera(Framing.fit(s.liftLines[i], width.toFloat(), height.toFloat(), { x, z -> s.terrain.elev(x, z) })); Qa.log("showing lift $id") } }
+        post { inBackground {
+            framed = s.liftLines[i]
+            renderer.animateCamera(Framing.fit(s.liftLines[i], width.toFloat(), height.toFloat(), { x, z -> s.terrain.elev(x, z) }, box = Framing.Box(bottom = freeBottom)))
+            Qa.log("showing lift $id")
+        } }
     }
 
     /** Puts the camera at a given view (the QA run uses it for repeatable screenshots). */
@@ -249,6 +254,23 @@ class MapView(context: Context, refreshHz: Float, val stats: FrameStats) : Frame
     }
 
     fun stopFly() { renderer.stopFly() }
+
+    /** The line the camera is framing (the chosen run, a lift), and the free part of the screen above the map's panel. */
+    @Volatile private var framed: FloatArray? = null
+    @Volatile private var freeBottom = Framing.Box().bottom
+
+    /**
+     * The map's panel covers the screen below [bottom] (a fraction of the height): the run or lift in view moves to
+     * the part above it, so the dot of its profile is never under the panel.
+     */
+    fun setFreeBottom(bottom: Float) {
+        val b = bottom.coerceIn(0.3f, Framing.Box().bottom)
+        if (kotlin.math.abs(b - freeBottom) < 0.02f) return
+        freeBottom = b
+        val path = framed ?: return
+        val s = scene ?: return
+        inBackground { renderer.animateCamera(Framing.fit(path, width.toFloat(), height.toFloat(), { x, z -> s.terrain.elev(x, z) }, box = Framing.Box(bottom = b)), 0.6f) }
+    }
 
     /** A dot on the mountain at a point of the chosen run (its profile under the finger, T2); null takes it away. */
     fun mark(x: Float, y: Float) { val s = scene ?: return; renderer.marker = floatArrayOf(x, s.terrain.elev(x, y), y); surface.requestRender() }

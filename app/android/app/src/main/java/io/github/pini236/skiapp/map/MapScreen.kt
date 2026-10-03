@@ -112,6 +112,9 @@ fun MapScreen(view: MapView, scene: MapScene?, ms: MapStatus? = null, videos: Li
             unmark = { view.unmark() },
         )
     }
+    // the part of the screen above the panel, where the camera frames the run or the lift
+    val onPanel: (Int) -> Unit = remember(view) { { h -> if (view.height > 0) view.setFreeBottom(1f - h.toFloat() / view.height - 0.03f) } }
+    LaunchedEffect(selected == null && lift == null && !list) { if (selected == null && lift == null && !list) view.setFreeBottom(1f) }
     BackHandler(enabled = selected != null || lift != null || list) {
         when { selected != null -> view.select(null); lift != null -> lift = null; else -> list = false }
     }
@@ -127,14 +130,14 @@ fun MapScreen(view: MapView, scene: MapScene?, ms: MapStatus? = null, videos: Li
                 val p = selected; val l = lift
                 when {
                     p != null -> {
-                        MapPanel(expanded, { expanded = it; Qa.log("panel ${if (it) "open" else "closed"}") }, { view.select(null) },
+                        MapPanel(expanded, { expanded = it; Qa.log("panel ${if (it) "open" else "closed"}") }, { view.select(null) }, onHeight = onPanel,
                             head = {
                                 if (flying) Box(Modifier.padding(bottom = 8.dp)) { FlyBar(view, runName(p)) }
                                 RunHead(p, facts, order, flying, true, actions)
                             },
                             body = { RunBody(p, facts, scene.runs, scene.terrain, videos, actions) })
                     }
-                    l != null -> MapPanel(true, {}, { lift = null }, head = { LiftHead(l) }, body = { LiftBody(l, scene.runs, scene.terrain, actions) }, bodyMax = 0.45f)
+                    l != null -> MapPanel(true, {}, { lift = null }, head = { LiftHead(l) }, body = { LiftBody(l, scene.runs, scene.terrain, actions) }, bodyMax = 0.45f, onHeight = onPanel)
                     list -> MapPanel(true, {}, { list = false },
                         head = { Text(stringResource(R.string.map_overview_heading), style = Ski.type.title.copy(fontSize = Ski.type.title.fontSize * (32f / 44f)), color = Ski.colors.ink) },
                         body = {
@@ -144,7 +147,7 @@ fun MapScreen(view: MapView, scene: MapScene?, ms: MapStatus? = null, videos: Li
                                 Telemetry.event("map_filter", mapOf("filter" to k, "on" to on))
                                 Qa.log("filter $k ${if (on) "on" else "off"}")
                             }, scene.runs.fetched, scene.runs.researchDate, actions)
-                        }, bodyMax = 0.5f)
+                        }, bodyMax = 0.5f, onHeight = onPanel)
                     else -> Row(Modifier.align(Alignment.BottomCenter).fillMaxWidth().navigationBarsPadding().padding(12.dp),
                         verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         Text(stringResource(R.string.app_map_hint), Modifier.weight(1f).background(Color(0xE6FFFFFF)).padding(10.dp),
