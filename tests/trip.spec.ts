@@ -27,6 +27,35 @@ test('אורח: כרטיס ריק, מצב העונה, ובלי הכרטיס וה
   expect(errors).toEqual([]);
 });
 
+test('לוח העונה: ההר ישן עד דצמבר, בעונה בלי דיווח "אין מידע עדכני", ועם דיווח עדכני כמה רכבלים פתוחים, בלי שלג', async ({ page }) => {
+  const errors = watchErrors(page);
+  const board = page.locator('#seasonBoard');
+  await page.clock.setFixedTime(new Date('2026-10-20T09:00:00Z'));
+  await page.goto('/');
+  await loaded(page);
+  await expect(board).toHaveAttribute('data-state', 'off');
+  await expect(board).toContainText('ההר עוד ישן');
+  await expect(board.locator('.snowcap')).toBeVisible();
+  // in January, during the trip, with no report from the lift status function
+  await page.clock.setFixedTime(new Date('2027-01-12T09:00:00Z'));
+  await page.reload();
+  await loaded(page);
+  await expect(board).toHaveAttribute('data-state', 'season');
+  await expect(board).toContainText('אין מידע עדכני');
+  await expect(board).not.toContainText('ההר עוד ישן');
+  await expect(board.locator('.snowcap')).toBeVisible();
+  // a fresh report: the snow is gone and it says how many lifts are open
+  await page.route('**/api/status', r => r.fulfill({ contentType: 'application/json', body: JSON.stringify({
+    updated: '2027-01-12T08:55:00Z', lifts: { Goodaura: { open: true }, Kudebi: { open: false, reason: 'wind' }, Sadzele: { open: true } }, pistes: {} }) }));
+  await page.reload();
+  await loaded(page);
+  await expect(board).toHaveAttribute('data-state', 'live');
+  await expect(board).toContainText('מצב הרכבלים');
+  await expect(board).toContainText(/2\s*מתוך\s*\d+\s*רכבלים פתוחים/);
+  await expect(board.locator('.snowcap')).toBeHidden();
+  expect(errors).toEqual([]);
+});
+
 test('הטיול שלך: טופס, שמירה בדפדפן, הכרטיס, עריכה ומחיקה', async ({ page }) => {
   const errors = watchErrors(page);
   await page.clock.setFixedTime(new Date('2026-12-31T09:00:00Z'));

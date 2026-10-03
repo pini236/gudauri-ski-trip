@@ -14,6 +14,8 @@ const ONLY = process.env.ONLY ? new RegExp(process.env.ONLY) : null;
 fs.mkdirSync(OUT, { recursive: true });
 
 const LIVE = { updated: new Date(Date.now() - 6 * 60000).toISOString(), lifts: { 'Snow Park': { open: true }, 'Pirveli': { open: true }, 'Sadzele': { open: false, reason: 'wind' }, 'Khada': { open: true }, 'Goodaura': { open: true }, 'Soliko': { open: true }, 'Kudebi': { open: false, reason: 'wind' }, 'Tatra': { open: true }, 'New Goodaura': { open: true }, 'Kikilo': { open: true }, 'Shino': { open: true }, 'Zuma': { open: true } }, pistes: {} };
+// January, during the trip, and a report from six minutes before (the season board on the home page)
+const JAN = '2027-01-12T09:00:00Z', LIVE_JAN = { ...LIVE, updated: '2027-01-12T08:54:00Z' };
 const D2 = { 'gud-view': '2d' };
 const click = sel => async p => { await p.locator(sel).first().click(); await p.waitForTimeout(800); };
 const seq = (...fs) => async p => { for (const f of fs) await f(p); };
@@ -32,6 +34,10 @@ const PAIRS = [
   ['snow-signin', 'snow', 'כרטיס "למה להתחבר"', 'השלג מתחיל בפינה ולא 11 פיקסלים פנימה, בלי פס מסגרת שמציץ', '/#signin', { ...PHONE }, null, '#signinPage .ac-card', [34, 16, 12]],
   ['snow-group', 'snow', 'קבוצה: הצטרפות בקוד ויצירה', 'השלג לא מכסה את השורה שמעליו, ושני הכרטיסים לא נוגעים זה בזה', '/#group', { ...PHONE }, null, '#grNone', [12, 16, 12]],
   ['snow-privacy', 'snow', 'דף הפרטיות: "בקצרה"', 'אותו שלג כמו בשאר האתר', '/privacy.html', { ...PHONE }, null, '.pv-short', [34, 16, 12]],
+  // the season board on the home page in season (added after the Android session's note, 3.10.2026)
+  ['season-jan', 'season', 'לוח העונה בינואר, בלי דיווח', 'בעונה הוא אומר "אין מידע עדכני", כמו השלטים במפה (S3), ולא "ההר עוד ישן... העונה נפתחת בדרך כלל בדצמבר"', '/#home', { ...PHONE, trip: null, now: JAN }, null, '#seasonBoard', [34, 16, 16]],
+  ['season-live', 'season', 'לוח העונה עם דיווח עדכני', 'השלג יורד, הפס למעלה בירוק של מסלול פתוח, ונכתב כמה רכבלים פתוחים ומתי עודכן, כמו בפס של המפה (S1) ובאפליקציה', '/#home', { ...PHONE, trip: null, now: JAN, status: LIVE_JAN }, null, '#seasonBoard', [34, 16, 16]],
+  ['season-live-night', 'season', 'אותו לוח בלילה', 'אותו דבר על הנייר הכהה', '/#home', { ...PHONE, trip: null, now: JAN, status: LIVE_JAN, theme: 'night' }, null, '#seasonBoard', [34, 16, 16]],
   // home
   ['home-focus', 'home', 'דף הבית במחשב', 'בלי מסגרת הפוקוס של הדפדפן סביב כל הדף', '/#home', { ...DESK, trip: MYTRIP }, null, [0, 0, 1280, 800], [0, 0, 0]],
   ['home-pass', 'home', 'כרטיס הטיסה', 'הערכים מיושרים לכותרות שלהם ("6H 897" לא נדבק ל-"16:00"), והברקוד של הכרטיס שמאחור לא מציץ', '/#home', { ...PHONE, trip: MYTRIP }, null, '#bpStack', [30, 8, 16]],

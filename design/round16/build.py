@@ -18,6 +18,7 @@ from build import page  # same board shell as rounds 12 to 15
 PAGE = ('round16', 'סבב 16: ליטוש העיצוב באתר')
 ROWS = [  # group, title over the row
     ('snow', 'השלג על השלטים והכרטיסים: מה שהראית בצילום, בכל מקום באתר'),
+    ('season', 'לוח העונה בדף הבית, בינואר: בזמן הטיול'),
     ('home', 'דף הבית'),
     ('top', 'הסרגל העליון במחשב'),
     ('map', 'מפת המסלולים'),
@@ -39,6 +40,10 @@ DECIDE = [
     ('השלג', 'רכיב אחד לכל השלטים והכרטיסים באתר ובדף הפרטיות (שלט "ההר עוד ישן", שלטי הרכבלים, המשחקים, הכרטיסים של הכניסה והקבוצה). '
              'השלג מצויר לפי הרוחב האמיתי של כל שלט, יושב על הקצה ומכסה את המסגרת, נגמר איפה שהחץ מתחיל ומתהפך עם השפה, ובלילה באור ירח. '
              'הצורה והצבעים כמו בשלט המושלג שאישרת בסבב 3 (S3).'),
+    ('לוח העונה', 'הלוח בדף הבית אמר תמיד "ההר עוד ישן... העונה נפתחת בדרך כלל בדצמבר", גם בינואר וגם כשהרכבלים פתוחים. '
+                  'עכשיו הוא כמו השלטים והפס במפה (S1, S3): עד דצמבר ההר ישן, בעונה בלי דיווח "אין מידע עדכני", ועם דיווח עדכני השלג יורד, '
+                  'הפס למעלה ירוק ונכתב כמה רכבלים פתוחים ומתי עודכן. כך זה גם באפליקציה (סשן האנדרואיד, 3.10.2026), כדי ששתיהן ייראו אותו דבר. '
+                  'הלוח עדיין מופיע רק למי שעוד אין לו טיול (החלטה 46).'),
     ('הלילה', 'בלילה הכחול, הירוק והאדום בהירים, ולכן הטקסט עליהם כהה, כמו בשלטים במפה. עד היום היה שם לבן, שלא קריא (ניגודיות 2.8, ובפסים על הדיו 1.15). '
               'בסריקה של כל העמודים, 35 ממצאי ניגודיות ירדו ל-6: שני "???" בכרטיס הריק (קישוט), ושלושה גבוליים (4.4 במקום 4.5) בירוק ובאדום של המסלולים.'),
     ('בלי גלילה הצידה', 'נבדק בשמונה רוחבים (320 עד 1024) ובארבע השפות. הסרגל העליון במחשב צר מוותר על דברים לפי הסדר; בדף הפרטיות, בטופס הטיול ובכותרות בגאורגית הכל נכנס.'),
@@ -51,6 +56,7 @@ DECIDE = [
                     'הסמל בלשונית הדפדפן הוא עדיין השלט הכחול הישן. רשום ב-ROADMAP.'),
 ]
 GAP, PAD = 24, 20
+DH = 1560  # the decide card's height
 
 
 def pair_board(p, urls):
@@ -84,7 +90,7 @@ def decide_card(n):
     items = ''.join(f'<li style="display: flex; flex-direction: column; gap: 2px; padding: 10px 0; border-top: 1px solid #CBD5DF">'
                     f'<b style="font-size: 16px">{i + 1}. {t}</b><span style="font-size: 14px; line-height: 1.55; color: #4B5A6F">{s}</span></li>'
                     for i, (t, s) in enumerate(DECIDE))
-    return (f'<div style="width: 560px; height: 1500px; box-sizing: border-box; padding: 28px; background: #FFFFFF; color: #13233A; '
+    return (f'<div style="width: 560px; height: {DH}px; box-sizing: border-box; padding: 28px; background: #FFFFFF; color: #13233A; '
             f"font-family: 'IBM Plex Sans Hebrew', system-ui, sans-serif; direction: rtl; border-top: 8px solid #1F5FC4\">"
             f"<h1 style=\"margin: 0; font-family: Karantina, 'Arial Narrow', sans-serif; font-size: 52px; line-height: 1\">מה לאשר בסבב 16</h1>"
             f'<p style="margin: 8px 0 16px; font-size: 14.5px; line-height: 1.55; color: #4B5A6F">ביקשת לעבור על כל העיצוב באתר, עמוד אחרי עמוד ורכיב אחרי רכיב, ולתקן. '
@@ -97,7 +103,7 @@ def build(dst):
     pairs = json.loads((here / 'shots/pairs.json').read_text(encoding='utf-8'))
     urls = json.loads((here / 'shots/assets.json').read_text(encoding='utf-8'))
     pairs = [p for p in pairs if p.get('before') and p.get('after')]
-    boards = [('R16-0-Decide.dc.html', 'מה לאשר בסבב 16', page('מה לאשר בסבב 16', decide_card(len(pairs)), 560, 1500), 560, 1500, None)]
+    boards = [('R16-0-Decide.dc.html', 'מה לאשר בסבב 16', page('מה לאשר בסבב 16', decide_card(len(pairs)), 560, DH), 560, DH, None)]
     for p in pairs:
         card, w, h = pair_board(p, urls)
         boards.append((f'R16-{p["id"]}.dc.html', p['title'], page(p['title'], card, w, h), w, h, p['group']))
@@ -114,7 +120,7 @@ def build(dst):
             index['order'].remove(f)
     for n in [n for n in index['notes'] if n.startswith(PAGE[0] + 'row')]:
         del index['notes'][n]
-    index['boards'][boards[0][0]] = {'x': 0, 'y': 0, 'w': 560, 'h': 1500, 'page': PAGE[0], 'title': boards[0][1]}
+    index['boards'][boards[0][0]] = {'x': 0, 'y': 0, 'w': 560, 'h': DH, 'page': PAGE[0], 'title': boards[0][1]}
     if boards[0][0] not in index['order']:
         index['order'].append(boards[0][0])
     y = 0

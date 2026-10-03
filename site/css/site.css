@@ -672,7 +672,7 @@ html.i18n-wait body{visibility:hidden}
 html[lang="en"]{--f-body:"IBM Plex Sans","IBM Plex Sans Hebrew",system-ui,-apple-system,"Segoe UI",sans-serif}
 html[lang="ru"]{--f-display:"Oswald","Arial Narrow",sans-serif;--f-body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif}
 html[lang="ka"]{--f-display:"Noto Sans Georgian","Arial Narrow",sans-serif;--f-body:"Noto Sans Georgian",system-ui,sans-serif}
-html[lang="ka"] :is(.board b,.mhead h1,.tf-head h1,.ac-head h1,.gc-body b,.season b,.mcard-empty b,.ac-card h2,.about h2,.tf-sec b){line-height:1.22}
+html[lang="ka"] :is(.board b,.mhead h1,.tf-head h1,.ac-head h1,.gc-body b,.season>b,.mcard-empty b,.ac-card h2,.about h2,.tf-sec b){line-height:1.22}
 /* Georgian words are long: on a phone the page titles are smaller, so a word fits beside the link back and is not cut */
 @media (max-width:420px){html[lang="ka"] :is(.tf-head h1,.ac-head h1,.mhead h1){font-size:30px}}
 html[lang="ka"] :is(.tf-head h1,.tf-sec b,.ac-head h1,.ac-card h2,.ac-big,.ac-sec-box h2,.ac-tabs button,.ac-flight .fb b,.ac-meet .mt,.ac-invite b,.ac-board h3,.ac-who b,.ab-me .ab-pass-body b,.ab-me .ab-av,.ac-av,.tb-acct.me,.brand,.signs a,.tb-count b,.dn-clock b,.bp-code,.bp-big,.bp-mini,.board b,.tally b,.mhead h1,.north,.inset-head,#panel h2,#panel h3,.run-ref,.prof-read b,.mc-top b,.mcard-empty b,.meet-side h2,.meet-times button,.mp-sign span,.mc-head span:first-child,.mc-sign,.mc-time,.mc-stub b,.rt-run,.mstat b,.ls-face b,.bd-row span:first-child,.games-sign,.gc-body b,.about h2,.ab-pass-body b,.fh-name){font-stretch:62.5%;font-weight:800}
@@ -780,9 +780,15 @@ html[lang="ka"] .pv-doc h1{font-size:36px;overflow-wrap:anywhere}
 .trip-note svg{flex:none;margin-top:1px}
 .bp-edit{display:inline-flex;align-items:center;gap:4px;min-height:44px;margin-inline-start:12px;font-weight:700;color:var(--glacier);text-decoration:none;vertical-align:middle}
 .season{position:relative;align-self:stretch;max-width:460px;margin-top:38px;display:block;padding:14px 14px 12px;background:var(--paper);border-top:6px solid var(--rule);color:var(--ink);text-decoration:none;box-shadow:0 6px 14px var(--shadow)}
-.season b{display:block;font-family:var(--f-display);font-size:30px;line-height:1}
-.season span{display:block;margin-top:4px;font-size:13px;line-height:1.45;color:var(--muted)}
+.season>b{display:block;font-family:var(--f-display);font-size:30px;line-height:1}
+.season>span{display:block;margin-top:4px;font-size:13px;line-height:1.45;color:var(--muted)}
 .season em{float:inline-end;font-style:normal;font-size:12.5px;font-weight:700;color:var(--glacier)}
+/* with a fresh lift report (S1): no snow, the green of an open run on top, a live dot and how many lifts are open */
+.season[data-state="live"]{border-top-color:var(--p-green)}
+.season[data-state="live"] :is(.snowcap,em){display:none}
+.season>b .ms-dot{display:inline-block;width:11px;height:11px;margin-inline-end:9px;vertical-align:.12em;background:var(--p-green);box-shadow:0 0 0 0 var(--p-green);animation:live 2s ease-out infinite}
+.season>span .num{font-family:var(--f-display);font-size:20px;line-height:1;color:var(--ink)}
+@media (prefers-reduced-motion:reduce){.season>b .ms-dot{animation:none}}
 .page-trip{min-height:0}
 .tf{max-width:620px;margin:0 auto;padding:14px 16px 48px;box-sizing:border-box;display:flex;flex-direction:column;gap:12px}
 .tf-head{display:flex;align-items:center;justify-content:space-between;gap:12px}

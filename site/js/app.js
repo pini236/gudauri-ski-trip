@@ -839,13 +839,14 @@ const LSTAT=(function(){
   let data=null,forMe=false;const STALE=30*6e4;
   const names=mainLifts.filter(l=>l.name&&l.status!=='inactive').map(l=>l.name);
   const fresh=()=>data&&data.updated&&Date.now()-Date.parse(data.updated)<STALE;
+  const inSeason=()=>[11,0,1,2,3].includes(new Date().getMonth()); // December to April
   const isOpen=n=>fresh()&&data.lifts&&data.lifts[n]?!!data.lifts[n].open:null;
   const runOpen=p=>{if(!fresh())return null;const r=data.pistes&&data.pistes[p.key];if(r&&!r.open)return false;
     const up=p.fromLifts.filter(n=>data.lifts&&data.lifts[n]);return up.length?up.some(n=>data.lifts[n].open):(r?!!r.open:null);}; // open for me: the run and a lift up to it
   const REASON=Object.fromEntries(['wind','weather','maintenance','season'].map(k=>[k,T('status.reason_'+k)]));
   const ago=t=>{const m=Math.round((Date.now()-Date.parse(t))/6e4);return m<1?T('status.ago_now'):m<60?T('status.ago_minutes',{n:m}):T('status.ago_hours',{n:Math.round(m/60)});};
   function block(){
-    if(!fresh()){const season=[11,0,1,2,3].includes(new Date().getMonth());
+    if(!fresh()){const season=inSeason();
       return `<section class="lstat" aria-label="${E('status.heading_lift_status')}"><h3>${E(season?'status.no_recent_data':'status.mountain_asleep')}</h3>
       <p class="lead">${E(season?'status.lead_in_season':'status.lead_off_season')}</p>
       <div class="lstat-post">${names.slice(0,6).map((n,i)=>`<div class="lsign s${i%2}" data-snow="${i}" data-snow-arrow="18" data-snow-low><div class="ls-face"><b dir="ltr">${esc(n)}</b><span>?</span></div></div>`).join('')}</div>
@@ -880,12 +881,28 @@ const LSTAT=(function(){
     if(v3&&v3.liftState)v3.liftState(Object.fromEntries(mainLifts.filter(l=>l.name).map(l=>[l.id,isOpen(l.name)])));
     if(mapReady)apply();
   }
+  // the season board on the home page (while there is no trip of your own): S3's snowy sign with no report, which in
+  // season says there is no current information rather than that the mountain sleeps; with a fresh report the snow is
+  // gone and it says how many lifts are open, in S1's words (as in the app, 13.4)
+  function applyHome(){
+    const el=document.getElementById('seasonBoard');if(!el)return;
+    const em=el.querySelector(':scope>em'),b=el.querySelector(':scope>b'),sp=el.querySelector(':scope>span');
+    if(fresh()){const open=names.filter(n=>isOpen(n)).length;el.dataset.state='live';
+      b.innerHTML=`<span class="ms-dot" aria-hidden="true"></span>${E('status.heading_lift_status')}`;
+      // the line breaks at the dot, between how many are open and when it was updated, as on the map
+      const parts=H('status.bar_summary',{ago:ago(data.updated)},{open:`<b class="num">${open}</b>`,total:`<b class="num">${names.length}</b>`}).split(' · ');
+      sp.innerHTML=parts.map(x=>`<span class="ms-part">${x}</span>`).join(' · ');return;}
+    const s=inSeason();el.dataset.state=s?'season':'off';
+    em.textContent=T('status.heading_lift_status');b.textContent=T(s?'status.no_recent_data':'status.mountain_asleep');
+    sp.textContent=T(s?'status.lead_in_season':'status.lead_off_season');
+  }
+  applyHome();
   panel.addEventListener('click',e=>{const b=e.target.closest('[data-forme]');if(!b)return;forMe=!forMe;b.setAttribute('aria-pressed',String(forMe));applyMap();track('status_only_open',{on:forMe});});
   // status_view: once per visit to the map; on the first visit it waits for the first answer from /api/status
   let loaded=false,pend=false;
   function viewed(){if(!loaded){pend=true;return;}const f=fresh();track('status_view',f?{state:'fresh',open:names.filter(n=>isOpen(n)).length,total:names.length}:{state:data?'stale':'none'});}
   function load(){return fetch('api/status',{cache:'no-store'}).then(r=>r.ok&&/json/.test(r.headers.get('content-type')||'')?r.json():null).catch(()=>null)
-    .then(j=>{data=j&&j.updated&&j.lifts?j:null;loaded=true;if(pend){pend=false;viewed();}applyMap();if(!current&&!panel.querySelector('.back'))overview();});}
+    .then(j=>{data=j&&j.updated&&j.lifts?j:null;loaded=true;if(pend){pend=false;viewed();}applyMap();applyHome();if(!current&&!panel.querySelector('.back'))overview();});}
   setInterval(load,5*6e4);
   return {block,load,applyMap,viewed};
 })();
