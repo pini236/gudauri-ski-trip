@@ -74,6 +74,8 @@ test("the way in: unknown actions, no session, bad input", async () => {
   await fails(pini, "update_group", { group_id: "not-a-uuid" }, "invalid_input");
   await fails(pini, "create_group", { name: "x", display_name: "   " }, "invalid_name");
   await fails(pini, "create_group", { name: "x", display_name: "a\u0000b" }, "invalid_name");
+  await fails(pini, "create_group", { name: "  ", display_name: "Pini" }, "invalid_name");
+  await fails(pini, "create_group", { name: "x".repeat(61), display_name: "Pini" }, "invalid_name");
   eq((await handle(deps, pini, "create_group", [] as unknown as Record<string, unknown>)).status, 400, "array body");
 });
 
@@ -123,6 +125,7 @@ test("groups: create, see, manage, and always keep an admin", async () => {
 
   await call(guest, "update_group", { group_id: g, name: "Renamed", starts_on: null, ends_on: null });
   eq((await sql`select name from public.groups where id = ${g}`)[0].name, "Renamed", "admin renames");
+  await fails(guest, "update_group", { group_id: g, name: "", starts_on: null, ends_on: null }, "invalid_name");
 
   await call(guest, "leave_group", { group_id: g });
   eq(await count(sql`select count(*) n from public.groups where id = ${g}`), 0, "the last member leaving deletes the group");
@@ -398,4 +401,24 @@ test("keepalive: open to anyone, cleans once a day", async () => {
   eq(await count(sql`select count(*) n from auth.users where id = ${oldGuest}`), 0, "an old guest in no group is gone");
   eq(await count(sql`select count(*) n from auth.users where id in (${newGuest}, ${member})`), 2,
     "new guests and guests in a group stay");
+});
+
+test("the account name reaches every group (decision 50)", async () => {
+  const pini = await user("pini");
+  const g1 = await newGroup(pini);
+  const g2 = await newGroup(pini);
+  const other = await user("other");
+  const g3 = await newGroup(other);
+  await call(pini, "set_my_membership", { group_id: g2, display_name: "Pini in g2", trip_id: null });
+  await sql`update public.profiles set display_name = 'Pinchas' where id = ${pini}`;
+  const names = await sql`select group_id, display_name from public.group_members where user_id = ${pini}`;
+  eq(names.length, 2, "two groups");
+  for (const n of names) eq(n.display_name, "Pinchas", "the new name in every group, also one named by hand");
+  eq((await sql`select display_name from public.group_members where group_id = ${g3}`)[0].display_name, "Admin",
+    "nobody else changes");
+  await sql`update public.profiles set lang = 'en' where id = ${pini}`;
+  await call(pini, "set_my_membership", { group_id: g1, display_name: "P", trip_id: null });
+  await sql`update public.profiles set lang = 'ru' where id = ${pini}`;
+  eq((await sql`select display_name from public.group_members where group_id = ${g1} and user_id = ${pini}`)[0]
+    .display_name, "P", "only a name change spreads, not a change of language");
 });
