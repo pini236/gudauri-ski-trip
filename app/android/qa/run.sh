@@ -303,8 +303,8 @@ group() {
 
   # a guest member without a flight: the flights (Q6), "I'm on the same flight" (Q7), meetups (Q8), scores (Q9)
   qa "--es qa.group member --es qa.trip none --es qa.tab group"; waitlog "group seed member" 20; sleep 2.5; shot group-flights
-  tapText "אני על אותה טיסה" && sleep 1.2 && shot group-same-flight
-  tapText "מהקבוצה" && sleep 0.5 && tapText "שמירה" && sleep 2 && shot group-same-flight-done
+  # "I'm on the same flight" on a flight I am not on (A-34, as on the site): one tap, and I am on it
+  tapText "אני על אותה טיסה" && sleep 2 && shot group-same-flight-done
   tapText "מפגשים" && sleep 1.5 && shot group-meetups
   tapText "שיאים" && sleep 1.5 && shot group-scores
   tapText "חברים" && sleep 1.5 && shot group-members
