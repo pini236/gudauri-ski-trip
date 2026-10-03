@@ -910,7 +910,10 @@ const LSTAT=(function(){
   let loaded=false,pend=false;
   function viewed(){if(!loaded){pend=true;return;}const f=fresh();track('status_view',f?{state:'fresh',open:names.filter(n=>isOpen(n)).length,total:names.length}:{state:data?'stale':'none'});}
   function load(){return fetch('api/status',{cache:'no-store'}).then(r=>r.ok&&/json/.test(r.headers.get('content-type')||'')?r.json():null).catch(()=>null)
-    .then(j=>{data=j&&j.updated&&j.lifts?j:null;loaded=true;if(pend){pend=false;viewed();}applyMap();applyHome();if(!current&&!panel.querySelector('.back'))overview();});}
+    .then(j=>{j=j&&j.updated&&j.lifts?j:null;
+      // the last report stays in this browser, as in the app (S-29): with no answer it is shown while it is fresh
+      try{if(j)localStorage.setItem('gud-lstat-last',JSON.stringify(j));else j=JSON.parse(localStorage.getItem('gud-lstat-last')||'null');}catch(e){}
+      data=j&&j.updated&&j.lifts?j:null;loaded=true;if(pend){pend=false;viewed();}applyMap();applyHome();if(!current&&!panel.querySelector('.back'))overview();});}
   setInterval(load,5*6e4);
   return {block,load,applyMap,viewed};
 })();

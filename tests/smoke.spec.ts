@@ -303,6 +303,13 @@ test('מצב רכבלים: בלי מידע שלטים מושלגים, עם מי�
     expect(st.faded).toBe(st.shut);
     expect(st.chairs).toBe(6);
   }
+  // no answer from the function: the last report kept in the browser, while it is fresh (S-29)
+  await page.unroute('**/api/status');
+  await page.route('**/api/status', r => r.abort());
+  await page.reload();
+  await loaded(page);
+  await expect(page.locator('#mstat')).toHaveAttribute('data-state', 'live');
+  await page.unroute('**/api/status');
   // נתון ישן מחצי שעה: לא מציגים אותו
   await page.route('**/api/status', r => r.fulfill({ contentType: 'application/json', body: JSON.stringify({
     updated: new Date(Date.now() - 45 * 60000).toISOString(), lifts: { Goodaura: { open: false } }, pistes: {} }) }));
