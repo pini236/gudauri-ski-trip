@@ -58,6 +58,7 @@ async function fakeServer(page: Page, opts: { admin?: boolean } = {}) {
     if (path.startsWith('/rest/v1/')) {
       const table = path.slice(9), q = u.searchParams;
       if (req.method() === 'POST' && table === 'trips') { const row = { ...req.postDataJSON(), id: 't-me', owner_id: me.id, entered_by: null }; db.trips.push(row); return json(r, [{ id: 't-me' }], 201); }
+      if (req.method() === 'DELETE' && table === 'trips') { const id = (q.get('id') || '').slice(3); db.trips = db.trips.filter(t => t.id !== id); db.members.forEach(m => { if (m.trip_id === id) m.trip_id = null; }); return json(r, null, 204); }
       if (req.method() === 'POST' && table === 'meetups') { db.meetups.push({ id: 'm' + (db.meetups.length + 1), ...req.postDataJSON() }); return json(r, null, 201); }
       if (table === 'profiles') return json(r, []);
       if (table === 'groups') return json(r, db.members.some(m => m.user_id === me.id) ? [group] : []);
@@ -111,10 +112,14 @@ test('הצטרפות בקוד: אורח, הטיסה שלי בקבוצה, החש�
   await page.locator('#joinForm button').click();
   await expect(page).toHaveURL(/#group\/g1/);
   await expect(page.locator('#grTitle')).toHaveText('קבוצת בדיקה');
-  // my trip went up, and sits on the same flight as the other member
+  // my trip went up, but the group shows it only once I choose it (CONTRACT, D1)
+  expect(server.calls).toContain('POST /rest/v1/trips');
+  expect(server.calls).not.toContain('POST /functions/v1/api/set_my_membership');
+  await expect(page.locator('.ac-flight .fp span')).toHaveText(['דנה בדיקה']);
+  await page.locator('[data-showtrip]').click();
   await expect(page.locator('.ac-flight .fp span')).toHaveText(['דנה בדיקה', 'נועה ניסיון']);
   await expect(page.locator('.ac-flight .fp span.me')).toHaveText('נועה ניסיון');
-  expect(server.calls).toContain('POST /rest/v1/trips');
+  expect(server.db.members.find(m => m.display_name === 'נועה ניסיון').trip_id).toBe('t-me');
   await expect(page.locator('.ac-invite')).toHaveCount(0);
   await page.locator('#grTabs [data-tab="members"]').click();
   await expect(page.locator('#grMain .ac-row b')).toHaveText(['דנה בדיקה', 'נועה ניסיון']);
@@ -214,6 +219,26 @@ test('"אני על אותה טיסה": הטיסה בדפדפן נקשרת לעו
   await page.locator('[data-same]').first().click();
   await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('gud-trip') || '{}').sid)).toBe('t-copy');
   await expect(page.locator('#bpStack')).toHaveCount(1);
+  expect(errors).toEqual([]);
+});
+
+test('מחיקת "הטיול שלך" מוחקת גם את השורה בשרת, והקבוצה מפסיקה להציג אותו (ד2)', async ({ page }) => {
+  const errors = watchErrors(page);
+  const server = await fakeServer(page);
+  await page.addInitScript(t => { try { if (!sessionStorage.getItem('seeded')) { localStorage.setItem('gud-trip', JSON.stringify(t)); sessionStorage.setItem('seeded', '1'); } } catch (e) {} }, MY_TRIP);
+  await page.goto('/#join/KZBQRM');
+  await loaded(page);
+  await page.locator('#joinForm input').fill('נועה ניסיון');
+  await page.locator('#joinForm button').click();
+  await expect(page).toHaveURL(/#group\/g1/);
+  await page.locator('[data-showtrip]').click();
+  await expect(page.locator('.ac-flight .fp span.me')).toHaveText('נועה ניסיון');
+  await page.goto('/#trip');
+  await page.locator('#tfDelete').click();
+  await expect.poll(() => server.calls.includes('DELETE /rest/v1/trips')).toBe(true);
+  expect(server.db.trips.map(t => t.id)).toEqual(['t-dan']);
+  await page.goto('/#group/g1');
+  await expect(page.locator('.ac-flight .fp span')).toHaveText(['דנה בדיקה']);
   expect(errors).toEqual([]);
 });
 

@@ -983,7 +983,7 @@ const TRIPFORM=(()=>{
   f.addEventListener('input',e=>{if(e.target.name)e.target.removeAttribute('aria-invalid');paint();});
   f.addEventListener('change',paint);
   document.getElementById('tfSkiBtn').addEventListener('click',()=>{manual=!manual;if(manual&&!q('sf').value){const a=MYTRIP.skiAuto(read().out,read().ret);if(a){q('sf').value=a.from;q('sl').value=a.to;}}paint();});
-  document.getElementById('tfDelete').addEventListener('click',()=>{MYTRIP.set(null);window.ACCOUNT&&ACCOUNT.tripSaved();renderTicket();countdown(document.documentElement.dataset.theme==='dark');location.hash='#home';});
+  document.getElementById('tfDelete').addEventListener('click',()=>{const was=MYTRIP.get();MYTRIP.set(null);window.ACCOUNT&&ACCOUNT.tripDeleted(was&&was.sid);renderTicket();countdown(document.documentElement.dataset.theme==='dark');location.hash='#home';});
   f.addEventListener('submit',e=>{e.preventDefault();err.hidden=true;const t=read();
     if(!MYTRIP.ISO.test(t.out.date))return fail('od','trip.need_date');
     for(const n of ['ofr','oto'])if(!q(n).value&&!/^[A-Z]{3}$/.test(q(n+'x').value.trim().toUpperCase()))return fail(n+'x','trip.bad_code');

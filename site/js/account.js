@@ -353,9 +353,9 @@ window.ACCOUNT=(function(){
   $('groupPage').addEventListener('click',async e=>{
     const pg=$('groupPage'),t=e.target;
     const run=async(fn)=>{clearErr(pg);try{await fn();await refresh();await reload();}catch(x){showErr(pg,x);}};
-    const same=t.closest('[data-same]');if(same){run(async()=>{const mt=MYTRIP.get(),r=await api('same_flight',{group_id:gid,trip_id:same.dataset.same,my_trip_id:mt&&mt.sid||undefined});await setMine(r.trip_id);
+    const same=t.closest('[data-same]');if(same){run(async()=>{const mt=MYTRIP.get(),r=await api('same_flight',{group_id:gid,trip_id:same.dataset.same,my_trip_id:mt&&mt.sid||undefined});
       const c=await client(),[n]=await rest(c.from('trips').select('*').eq('id',r.trip_id));if(n)asMine(n);});return;}
-    if(t.closest('[data-showtrip]')){run(()=>pushTrip(true));return;}
+    if(t.closest('[data-showtrip]')){run(async()=>{const sid=await pushTrip(true),g=(state.groups||[]).find(x=>x.id===gid);if(sid&&g)await api('set_my_membership',{group_id:gid,display_name:g.me,trip_id:sid});});return;}
     const dm_=t.closest('[data-delmeet]');if(dm_){run(async()=>{const c=await client();await rest(c.from('meetups').delete().eq('id',dm_.dataset.delmeet));});return;}
     const rq=t.closest('[data-req]');if(rq){run(()=>api('decide_join_request',{request_id:rq.dataset.req,approve:rq.dataset.ok==='1'}));return;}
     const cp=t.closest('[data-copy]');if(cp&&navigator.clipboard){navigator.clipboard.writeText(cp.dataset.copy).then(()=>{cp.textContent=T('common.link_copied');setTimeout(()=>{cp.textContent=T('group.copy');},2200);}).catch(()=>{});return;}
@@ -389,15 +389,14 @@ window.ACCOUNT=(function(){
     return {out_date:o.date,out_flight:o.flight||null,out_from:code(o.from),out_to:code(o.to),out_departs:tm(o.departs),out_arrives:tm(o.arrives),
       ret_date:r&&r.date||null,ret_flight:r&&r.flight||null,ret_from:r?code(o.to):null,ret_to:r?code(o.from):null,ret_departs:r?tm(r.departs):null,ret_arrives:r?tm(r.arrives):null,
       ski_from:t.ski&&t.ski.from||null,ski_to:t.ski&&t.ski.to||null};}
-  async function setMine(tid){for(const g of state.groups||[])if(g.trip!==tid)await api('set_my_membership',{group_id:g.id,display_name:g.me,trip_id:tid});}
   async function pushTrip(force){
     if(!signedIn()||(!(state.groups||[]).length&&!force&&!registered()))return null;
     const t=MYTRIP.get(),c=await client();
-    if(!t){if(state.groups)for(const g of state.groups)if(g.trip)await api('set_my_membership',{group_id:g.id,display_name:g.me,trip_id:null});return null;}
+    if(!t)return null;
     let sid=t.sid;
     if(sid){const u=await rest(c.from('trips').update(row(t)).eq('id',sid).select('id'));if(!u.length)sid=null;}
     if(!sid){const [n]=await rest(c.from('trips').insert(row(t)).select('id'));sid=n.id;const t2=MYTRIP.get();if(t2){t2.sid=sid;MYTRIP.set(t2);}}
-    await setMine(sid);return sid;}
+    return sid;}
   // a new browser after signing in: your trip comes back from the account
   async function pullTrip(c){
     const [t]=await rest(c.from('trips').select('*').eq('owner_id',state.uid).or(`entered_by.is.null,entered_by.eq.${state.uid}`).order('updated_at',{ascending:false}).limit(1));
@@ -412,7 +411,10 @@ window.ACCOUNT=(function(){
   async function sendBests(){let b={},sent={};try{b=JSON.parse(localStorage.getItem('gud-best')||'{}');sent=JSON.parse(localStorage.getItem('gud-best-sent')||'{}');}catch(e){}
     for(const g of GAMES){if(!(b[g]>(sent[g]||0)))continue;try{await api('submit_score',{game:g,score:b[g]});sent[g]=b[g];}catch(e){break;}}
     try{localStorage.setItem('gud-best-sent',JSON.stringify(sent));}catch(e){}}
+  // saving updates the one row; it shows only in the groups where you chose it (CONTRACT, D1)
   function tripSaved(){if(signedIn())pushTrip().then(()=>refresh()).catch(()=>{});}
+  // deleting your trip deletes the row too, so no group shows it any more (D2)
+  function tripDeleted(sid){if(!sid||!signedIn())return;client().then(c=>rest(c.from('trips').delete().eq('id',sid))).then(()=>refresh()).catch(()=>{});}
 
   // ---- a meetup from the meeting point page goes to the group
   window.MEET_GROUP=()=>{const b=$('meetGroup');if(b)b.hidden=!(signedIn()&&(state.groups||[]).length);};
@@ -437,5 +439,5 @@ window.ACCOUNT=(function(){
   let started=false;
   function start(x){({MYTRIP,esc,MEET,renderTicket,countdown}=x);started=true;paint();refresh();}
   const ifStarted=f=>(...a)=>started?f(...a):undefined;
-  return {start,route:ifStarted(route),paint:ifStarted(paint),paintPass:ifStarted(paintPass),tripSaved:ifStarted(tripSaved),signedIn,state:()=>state};
+  return {start,route:ifStarted(route),paint:ifStarted(paint),paintPass:ifStarted(paintPass),tripSaved:ifStarted(tripSaved),tripDeleted:ifStarted(tripDeleted),signedIn,state:()=>state};
 })();
