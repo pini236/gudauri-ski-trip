@@ -12697,10 +12697,10 @@
    ]
   },
   "trip.ski_first": {
-   "he": "יום ראשון",
-   "en": "First day",
-   "ru": "Первый день",
-   "ka": "პირველი დღე",
+   "he": "יום סקי ראשון",
+   "en": "First ski day",
+   "ru": "Первый день катания",
+   "ka": "პირველი სათხილამურო დღე",
    "where": "site/index.html",
    "note": "field label",
    "check": [
@@ -12709,10 +12709,10 @@
    ]
   },
   "trip.ski_last": {
-   "he": "יום אחרון",
-   "en": "Last day",
-   "ru": "Последний день",
-   "ka": "ბოლო დღე",
+   "he": "יום סקי אחרון",
+   "en": "Last ski day",
+   "ru": "Последний день катания",
+   "ka": "ბოლო სათხილამურო დღე",
    "where": "site/index.html",
    "note": "field label",
    "check": [
