@@ -25,7 +25,7 @@ import java.util.Locale
  * 33), never words of one language in the layout of another.
  *
  * The choice is the app's own (not the phone's): the phone's per-app language on Android 13+, and on older phones a
- * saved choice applied in attachBaseContext. The settings screen (13.7) calls [set].
+ * saved choice applied in attachBaseContext. The language tag on the home page calls [set] (3.10.2026; home/LangSheet.kt).
  */
 object Lang {
     enum class Script { HEBREW, LATIN, CYRILLIC, GEORGIAN }
@@ -33,6 +33,8 @@ object Lang {
     class Language(val tag: String, val name: String, val rtl: Boolean, val script: Script) {
         val locale: Locale get() = Locale.forLanguageTag(tag)
         val direction get() = if (rtl) LayoutDirection.Rtl else LayoutDirection.Ltr
+        /** The short mark on the home's language tag, as on the privacy page's buttons: עב, EN, RU, KA. */
+        val code: String get() = if (tag == "he") "עב" else tag.uppercase()
     }
 
     val ALL = listOf(
@@ -105,6 +107,10 @@ object Lang {
             (context as? android.app.Activity)?.recreate()
         }
     }
+
+    /** Whether the language was chosen in the app, not taken from the phone. */
+    fun manual(context: Context): Boolean =
+        if (Build.VERSION.SDK_INT >= 33) !context.getSystemService(LocaleManager::class.java).applicationLocales.isEmpty else chosen(context) != null
 
     /** The user's own choice on older phones (null = follow the phone). */
     fun chosen(context: Context): String? = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getString("tag", null)

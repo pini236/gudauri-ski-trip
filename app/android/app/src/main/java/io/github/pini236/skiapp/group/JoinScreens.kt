@@ -187,7 +187,7 @@ fun InvitedScreen(api: GroupApi, code: String, frame: DayNight.Frame, mode: DayN
             Box {
                 Hero(frame, 230.dp + top)
                 Column(Modifier.padding(top = top)) {
-                    Head(frame, mode, onMode, onAbout)
+                    Head(frame, mode, onMode, onAbout = onAbout)
                     Spacer(Modifier.height(60.dp))
                     val p = preview
                     Box(Modifier.padding(horizontal = 16.dp)) {

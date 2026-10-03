@@ -369,6 +369,31 @@ meet() {
   adb shell pm grant "$PKG" android.permission.POST_NOTIFICATIONS > /dev/null 2>&1 || true
 }
 
+# ---- the language from the home page (3.10.2026): the tag in the head opens the list; a tap saves the language ----
+lang() {
+  local up="$((W / 2)) $((H * 85 / 100)) $((W / 2)) $((H * 45 / 100)) 400"
+  adb shell cmd locale set-app-locales "$PKG" --locales he > /dev/null 2>&1; sleep 3
+  qa "--es qa.group none --es qa.tab home --es qa.trip none --es qa.mode auto --es qa.time 2026-12-01T13:35"; waitlog "trip none" 20; sleep 2
+  shot lang-he-closed
+  mark; tapText "שפה: עברית" && waitlog "lang sheet open" 5 && { sleep 1; shot lang-he-open; }
+  qa "--es qa.mode night"; sleep 2; shot lang-he-open-night
+  adb shell input keyevent KEYCODE_BACK; sleep 1; shot lang-he-closed-night
+  qa "--es qa.mode auto"; sleep 1
+  # each language from the list: the app comes back in it, mirrored, with its fonts (LT1 to LT3, FT1)
+  local pick
+  for pick in "English:en:Language: English" "Русский:ru:Язык: Русский" "ქართული:ka:ენა: ქართული"; do
+    local name=${pick%%:*} rest=${pick#*:}; local code=${rest%%:*} tag=${rest#*:}
+    mark; tapText "~^(שפה|Language|Язык|ენა): " && waitlog "lang sheet open" 5 && sleep 1 && tapText "$name" && waitlog "lang set $code" 5
+    sleep 4; shot "lang-$code-closed"
+    mark; tapText "$tag" && waitlog "lang sheet open" 5 && { sleep 1; shot "lang-$code-open"; }
+    [ "$code" = en ] && { qa "--es qa.mode night"; sleep 2; shot lang-en-open-night; adb shell input keyevent KEYCODE_BACK; sleep 1; shot lang-en-closed-night; qa "--es qa.mode auto"; sleep 1; } || { adb shell input keyevent KEYCODE_BACK; sleep 1; }
+  done
+  # "from the phone": back to the phone's language (the emulator's English); then the run goes on in Hebrew
+  mark; tapText "ენა: ქართული" && waitlog "lang sheet open" 5 && sleep 1 && { drag $up; sleep 0.5; tapText "~ტელეფონის მიხედვით" && waitlog "lang set auto" 5 && { sleep 4; shot lang-auto; }; }
+  adb shell cmd locale set-app-locales "$PKG" --locales he > /dev/null 2>&1; sleep 3
+  qa "--es qa.tab home"; sleep 1
+}
+
 # ---- the lift status (13.4, the site's S1 to S3): no report, an old one, a fresh one (status/LiftStatus.kt) ----
 status() {
   local up="$((W / 2)) $((H * 85 / 100)) $((W / 2)) $((H * 45 / 100)) 400"
@@ -441,8 +466,9 @@ for sc in ${SCENARIO//,/ }; do
     group) group ;;
     meet) meet ;;
     status) status ;;
+    lang) lang ;;
     store) store ;;
-    *) map; descent; home; group; meet; status; store ;;
+    *) map; descent; home; group; meet; status; lang; store ;;
   esac
 done
 
