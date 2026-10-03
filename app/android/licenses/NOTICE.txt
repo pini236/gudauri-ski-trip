@@ -22,5 +22,6 @@ Libraries
 - Kotlin and kotlinx: Apache License 2.0.
 - OkHttp: Apache License 2.0.
 - Sign in with Google (googleid, play-services-auth): Apache License 2.0 / Android SDK terms.
+- Google Play Install Referrer (installreferrer): Android Software Development Kit License.
 - PostHog Android: MIT (MIT-PostHog.txt).
 - Sentry Android: MIT (MIT-Sentry.txt).

@@ -10,7 +10,7 @@ class ErrorsTest {
     private val contract = File(File(System.getProperty("site.data") ?: "../../../site/data").parentFile.parentFile, "server/CONTRACT.md").readText()
 
     /** Codes a person never meets as such: a broken request, or a server fault that only "try again" can answer. */
-    private val general = setOf("invalid_json", "use_post", "not_found", "conflict", "cannot_move_meetup", "server_error")
+    private val general = setOf("invalid_json", "use_post", "cannot_move_meetup")
 
     @Test fun everyCodeInTheContractHasAMessage() {
         val table = contract.substringAfter("## שגיאות").substringBefore("\n## ")
@@ -18,5 +18,12 @@ class ErrorsTest {
         assertTrue("the errors table was not found in the contract", codes.size > 20)
         val fallback = errorRes("no_such_code")
         for (code in codes - general) assertNotEquals("no message for $code", fallback, errorRes(code))
+    }
+
+    /** The answers of joining and "I'm already in the group" that are not a success read as their own message too (ד5). */
+    @Test fun everyJoinAnswerHasAMessage() {
+        val fallback = errorRes("no_such_code")
+        for (code in listOf("invalid_code", "rate_limited", "group_full", "already_member", "no_such_member", "sign_in_instead"))
+            assertNotEquals("no message for $code", fallback, errorRes(code))
     }
 }

@@ -20,7 +20,8 @@ import java.util.concurrent.Executors
  * - [GroupStore.open] (a screen is showing) reads it again and listens to Realtime; a change reads it again.
  * - Writes made here show at once and wait in a queue (a file) until the server takes them: scores (only a higher
  *   one counts, so sending twice is harmless), meetups (the last one saved wins), my name and trip in the group.
- *   A write the server refuses is dropped and the group read again, so the screen shows the truth.
+ *   A write the server refuses is dropped and the group read again, so the screen shows the truth, and the refusal's
+ *   code stays on the group ([Snapshot.refused]) so the page can say why, until it is dismissed.
  * - Everything else (joining, admin actions) needs signal: call [Groups] directly, then [GroupStore.refresh].
  *
  * One [Sync] for the app ([of]). All network work runs on one background thread, in order.
@@ -57,6 +58,8 @@ class Sync(
         val gone: Boolean = false,
         /** Writes made here that the server has not taken yet. */
         val waiting: Int = 0,
+        /** The code of the last write here that the server refused for good, until the page dismisses it (ד5). */
+        val refused: String? = null,
     ) {
         fun me(userId: String?) = members.firstOrNull { it.userId == userId }
     }
@@ -157,8 +160,9 @@ class Sync(
             } catch (e: ServerError) {
                 // no session, a server hiccup (5xx), a busy server (429) or a timeout (408): it stays in the queue for next time
                 if (e.code == "no_session" || e.status >= 500 || e.status == 429 || e.status == 408) break
-                // refused for good: drop it, and read the group again so the screen shows what the server has
+                // refused for good: drop it, and read the group again so the screen shows what the server has, and why
                 outbox.remove(op.id)
+                synchronized(this) { stores[op.groupId] }?.refused(e.code)
             }
             touched += op.groupId
         }
@@ -259,7 +263,7 @@ class Sync(
                 )
                 // what waits in the queue still shows, on top of what the server sent
                 outbox.forGroup(groupId).forEach { s = applyLocal(s, it, me) }
-                s = s.copy(waiting = outbox.forGroup(groupId).size)
+                s = s.copy(waiting = outbox.forGroup(groupId).size, refused = flow.value.refused)
                 flow.value = s
                 write(file, Codec.snapshot(s))
             } catch (_: Offline) {
@@ -269,6 +273,11 @@ class Sync(
                 flow.value = flow.value.copy(offline = e.code == "no_session")
             }
         }
+
+        internal fun refused(code: String) { flow.value = flow.value.copy(refused = code) }
+
+        /** The page showed the refusal, and the person closed it. */
+        fun clearRefused() { flow.value = flow.value.copy(refused = null) }
 
         // --- Writes that wait for signal ---
 

@@ -93,6 +93,12 @@ object Telemetry {
         }
     }
 
+    /** The day and night mode changed (theme_set): the events after it carry the new one (PARITY X-2). */
+    fun setTheme(mode: String) {
+        common = common?.let { Common(it.appVersion, it.build, it.lang, it.langSource, mode, it.deviceClass) }
+        if (usage) PostHog.register("theme", mode)
+    }
+
     fun event(name: String, props: Map<String, Any> = emptyMap()) {
         if (usage) PostHog.capture(event = name, properties = build?.let { props + ("build" to it) } ?: props)
     }

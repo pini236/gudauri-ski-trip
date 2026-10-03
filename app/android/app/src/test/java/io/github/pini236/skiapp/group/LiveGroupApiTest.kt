@@ -37,6 +37,7 @@ class LiveGroupApiTest {
         override val tripId get() = myTripId
         override fun sendNow(trip: Trip): String { pushed += trip; myTripId = "my-trip"; return "my-trip" }
         override fun adopt(id: String, trip: Trip) { adopted += id to trip; myTripId = id }
+        override fun forget() { myTripId = null }
     }
 
     private fun api(): LiveGroupApi {
@@ -209,6 +210,17 @@ class LiveGroupApiTest {
         // nobody signed in: nothing to bring back
         store.save(null)
         assertNull(api().myTripOnServer())
+    }
+
+    @Test fun signingOutOrDeletingForgetsMyTripRow() = runBlocking {
+        // the row was that account's: the next session (someone else, or a new guest) must not update it (PARITY A-4)
+        signedIn("u1"); myTripId = "t1"
+        api().signOut()
+        assertNull(myTripId)
+        signedIn("u1"); myTripId = "t1"
+        answers["functions/v1/api/delete_my_account"] = "{}"
+        api().deleteAccount()
+        assertNull(myTripId)
     }
 
     @Test fun refusalsKeepTheServersCode() = runBlocking {

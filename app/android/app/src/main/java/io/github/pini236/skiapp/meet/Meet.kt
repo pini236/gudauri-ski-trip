@@ -140,6 +140,10 @@ object Meet {
     fun link(station: String, time: LocalTime, day: LocalDate): String =
         "https://${Route.SITE_HOST}/#" + route(station, time, day).path
 
+    /** The same link as it is shared, saying it came from the app ([Route.SHARED]). */
+    fun shared(station: String, time: LocalTime, day: LocalDate): String =
+        "https://${Route.SITE_HOST}/?${Route.SHARED}#" + route(station, time, day).path
+
     fun route(station: String, time: LocalTime, day: LocalDate): Route.Meet =
         Route.Meet(station, "%02d%02d".format(time.hour, time.minute), "%04d%02d%02d".format(day.year, day.monthValue, day.dayOfMonth))
 

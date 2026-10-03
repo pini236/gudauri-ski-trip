@@ -109,6 +109,12 @@ sealed interface Route {
         }
 
         const val SITE_HOST = "gudauri-ski-trip.vercel.app"
+
+        /**
+         * What a link the app shares carries (a run, a meeting point, an invite; docs/GROWTH.md): it came from the
+         * app (utm_source), shared (utm_medium), so its opening counts as app_open with source share_link.
+         */
+        const val SHARED = "utm_source=app&utm_medium=share"
     }
 }
 

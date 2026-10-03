@@ -1,6 +1,7 @@
 package io.github.pini236.skiapp
 
 import android.content.Intent
+import io.github.pini236.skiapp.telemetry.OpenSource
 import io.github.pini236.skiapp.telemetry.Telemetry
 import android.os.Build
 import android.os.Bundle
@@ -130,7 +131,11 @@ class MainActivity : ComponentActivity() {
         private const val SKY_EVERY_MS = 5 * 60_000L
         /** A place to open (a path of nav/Nav.kt), from the app's own notifications: a meetup's reminder (meet/Reminders.kt). */
         const val OPEN = "open"
+        /** The app went to the background (not a turn of the screen): coming back is a warm app_open. */
+        @Volatile private var backgrounded = false
     }
+    /** How the app was brought back (onNewIntent), for the warm app_open. */
+    private var warmSource: String? = null
     private val uiStats = FrameStats()
     private val glStats = FrameStats()
     private var refreshHz = 60f
@@ -182,7 +187,7 @@ class MainActivity : ComponentActivity() {
             ready = GoogleSignIn.WEB_CLIENT_ID.isNotEmpty(), saved = accountPrefs.getString("me", null),
             keep = { v -> accountPrefs.edit().apply { if (v == null) remove("me") else putString("me", v) }.apply() }, sync = Sync.of(this))
     }
-    private val groupApi: GroupApi by lazy { MeasuredGroupApi(rawGroupApi) }
+    private val groupApi: GroupApi by lazy { MeasuredGroupApi(rawGroupApi, getSharedPreferences("join_via", MODE_PRIVATE)) }
     private var justJoined by mutableStateOf(false)
 
     // the lift status (13.4, S1 to S3): the site's /api/status, read every five minutes while the app is open
@@ -213,10 +218,13 @@ class MainActivity : ComponentActivity() {
         if (rawGroupApi is LiveGroupApi) tripSync.pushed(t)
     }
 
-    /** The privacy page in the app's language: the page opens #en, #ru or #ka on that article (Hebrew is its default). */
+    /**
+     * The privacy page in the app's language: #he, #en, #ru or #ka opens that article. Hebrew too: without a hash the
+     * page goes by the browser's languages, and a browser without Hebrew opens English (decision 48).
+     */
     private fun openPrivacy() {
         val tag = Lang.current(resources).tag
-        startActivity(Intent(Intent.ACTION_VIEW, android.net.Uri.parse("https://${Route.SITE_HOST}/privacy?utm_source=app" + if (tag == "he") "" else "#$tag")))
+        startActivity(Intent(Intent.ACTION_VIEW, android.net.Uri.parse("https://${Route.SITE_HOST}/privacy?utm_source=app#$tag")))
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -277,8 +285,13 @@ class MainActivity : ComponentActivity() {
             theme = dnMode.name.lowercase(),
             deviceClass = if (resources.configuration.smallestScreenWidthDp >= 600) "tablet" else "phone",
         ))
-        val link = intent?.data != null
-        Telemetry.event("app_open", mapOf("source" to if (link) "link" else "direct", "cold" to true))
+        // a notification, a link (shared from the app or the site: share_link), or the first open of a Play install
+        backgrounded = false
+        val source = OpenSource.of(intent, OPEN)
+        if (source != "direct") Telemetry.event("app_open", mapOf("source" to source, "cold" to true))
+        else OpenSource.firstFromStore(this) { store ->
+            Telemetry.event("app_open", (if (store == null) mapOf("source" to "direct") else mapOf<String, Any>("source" to "store") + store) + ("cold" to true))
+        }
     }
 
     override fun attachBaseContext(base: android.content.Context) = super.attachBaseContext(Lang.wrap(base))
@@ -289,10 +302,23 @@ class MainActivity : ComponentActivity() {
         Qa.log("state saved ${nav.save()}")
     }
 
-    override fun onNewIntent(intent: Intent) { super.onNewIntent(intent); setIntent(intent); handleQa(intent); handleOpen(intent) }
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent); setIntent(intent)
+        warmSource = OpenSource.of(intent, OPEN)
+        handleQa(intent); handleOpen(intent)
+    }
 
-    /** A reminder's tap opens its meetup's card, over home. */
+    /**
+     * A reminder's tap opens its meetup's card, over home; a link to the site (a run, a meeting point, an invite) opens
+     * the same place in the app. Each once: a turn of the screen does not open it again.
+     */
     private fun handleOpen(i: Intent?) {
+        i?.data?.let { uri ->
+            i.data = null
+            val r = Route.fromSiteLink(uri.toString()) ?: return@let
+            nav.toStart(); if (r != Route.Home) nav.push(r)
+            if (r is Route.Meet && r.station != null) Telemetry.event("meet_link_open")
+        }
         val r = Route.parse(i?.getStringExtra(OPEN) ?: return) ?: return
         i.removeExtra(OPEN)
         nav.toStart(); nav.push(r)
@@ -469,7 +495,21 @@ class MainActivity : ComponentActivity() {
     }
 
     override fun onPause() { super.onPause(); mapView.onPause() }
-    override fun onResume() { super.onResume(); mapView.onResume() }
+    override fun onResume() {
+        super.onResume(); mapView.onResume()
+        if (backgrounded) { backgrounded = false; Telemetry.event("app_open", mapOf("source" to (warmSource ?: "direct"), "cold" to false)) }
+        warmSource = null
+    }
+
+    override fun onStop() { super.onStop(); if (!isChangingConfigurations) backgrounded = true }
+
+    /** The day and night switch (home, the invitation): kept, measured, and the events after it carry the new mode. */
+    private fun nextMode() {
+        dnMode = dnMode.next(); haptics.tick(.4f)
+        getSharedPreferences("daynight", MODE_PRIVATE).edit().putString("mode", dnMode.name).apply()
+        Telemetry.event("theme_set", mapOf("mode" to dnMode.name.lowercase()))
+        Telemetry.setTheme(dnMode.name.lowercase())
+    }
     override fun onDestroy() { super.onDestroy(); ui.removeCallbacks(skyTick); sounds.release(); mapView.release(); metricsThread.quitSafely(); loader.shutdownNow() }
 
     @Composable
@@ -539,11 +579,7 @@ class MainActivity : ComponentActivity() {
                             Qa.log("lang set ${tag ?: "auto"}")
                             Lang.set(this@MainActivity, tag)
                         },
-                        onMode = {
-                            dnMode = dnMode.next(); haptics.tick(.4f)
-                            getSharedPreferences("daynight", MODE_PRIVATE).edit().putString("mode", dnMode.name).apply()
-                            Telemetry.event("theme_set", mapOf("mode" to dnMode.name.lowercase()))
-                        },
+                        onMode = ::nextMode,
                         go = { a ->
                             haptics.tick(.4f)
                             if (a == HomeAction.STATUS) statusSheet = true
@@ -572,9 +608,9 @@ class MainActivity : ComponentActivity() {
                             onBack = { nav.back() })
                     }
                     is Route.Group -> if (!groupApi.ready) SoonScreen(stringResource(R.string.app_sign_group), stringResource(R.string.app_soon_group)) { nav.back() }
-                        else if (top.id == null) GroupHub(groupApi, onGroup = { id -> nav.replaceTop(Route.Group(id, GroupTab.FLIGHTS.key)) }) {
-                            GroupEntryScreen(groupApi, onBack = { nav.back() },
-                                onCode = { c -> nav.push(if (InviteCode.isCode(c)) Route.Join(c) else Route.JoinCode) },
+                        else if (top.id == null) GroupHub(groupApi, onGroup = { id -> nav.replaceTop(Route.Group(id, GroupTab.FLIGHTS.key)) }) { changes ->
+                            GroupEntryScreen(groupApi, changes = changes, onBack = { nav.back() },
+                                onCode = { c -> nav.push(if (InviteCode.isCode(c) || InviteCode.isToken(c)) Route.Join(c) else Route.JoinCode) },
                                 onCreate = { nav.push(Route.GroupNew) }, signInGoogle = ::signInGoogle, onPrivacy = ::openPrivacy)
                         }
                         else GroupScreen(groupApi, top.id, GroupTab.of(top.tab), frame, trip, LocalDateTime.ofInstant(Instant.ofEpochMilli(tick), ZoneId.systemDefault()),
@@ -602,7 +638,7 @@ class MainActivity : ComponentActivity() {
                             title = stringResource(R.string.group_trip_for, name ?: "…"), intro = stringResource(R.string.app_g_fill_new_sub), footer = { ErrorLine(r) })
                     }
                     Route.JoinCode -> CodeScreen("", onBack = { nav.back() }) { c -> nav.replaceTop(Route.Join(c)) }
-                    is Route.Join -> InvitedScreen(groupApi, top.code, frame, dnMode, onMode = { dnMode = dnMode.next() }, onAbout = { nav.push(Route.About) },
+                    is Route.Join -> InvitedScreen(groupApi, top.code, frame, dnMode, onMode = ::nextMode, onAbout = { nav.push(Route.About) },
                         onBack = { nav.back() }, onTypeCode = { nav.replaceTop(Route.JoinCode) }, onReclaim = { nav.push(Route.Reclaim(top.code)) },
                         onJoined = { id, guest -> justJoined = guest; nav.toStart(); nav.push(Route.Group(id, GroupTab.FLIGHTS.key)) })
                     is Route.Reclaim -> ReclaimScreen(groupApi, top.code, onBack = { nav.back() }, signInGoogle = ::signInGoogle) { id ->

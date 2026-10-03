@@ -65,7 +65,9 @@ data class Group(
  * [offline] says the last read had no signal, [gone] that I am no longer in it, [waiting] that changes made here wait
  * for signal.
  */
-data class Shown(val group: Group?, val readAt: Long? = null, val offline: Boolean = false, val gone: Boolean = false, val waiting: Boolean = false)
+data class Shown(val group: Group?, val readAt: Long? = null, val offline: Boolean = false, val gone: Boolean = false, val waiting: Boolean = false,
+                 /** A change made here that waited for signal, and the server refused: its code, until [GroupWatch.clearRefused]. */
+                 val refused: String? = null)
 
 /**
  * One group kept on the phone (server/Sync.kt): shows at once, also with no signal; reads again on [open] and on each
@@ -77,6 +79,7 @@ interface GroupWatch {
     fun open()
     fun close()
     fun refresh()
+    fun clearRefused() {}
 }
 
 /** A watch that just reads [GroupApi.group] (the pretend server; nothing kept on the phone). */
@@ -166,6 +169,13 @@ interface GroupApi {
     suspend fun revokeInvite(inviteId: String)
     /** My request to join this group, still waiting for an admin, is withdrawn (cancel_join_request). */
     suspend fun cancelRequest(groupId: String)
+    /** The groups my requests still wait on (an admin has not decided): shown, and can be withdrawn, after a restart too. */
+    suspend fun pendingRequests(): List<String> = emptyList()
+    /**
+     * Watch my groups while a screen waits on them (the group sign, a request waiting for an admin), live (Realtime
+     * "me:"): [onChange] after each change, with the groups an admin has just let me into. Returns how to stop.
+     */
+    fun watchMine(onChange: (approved: List<String>) -> Unit): () -> Unit = {}
 
     /** My trip in this group (null: none shown). The client creates or updates my trip on the server. */
     suspend fun showMyTrip(groupId: String, myName: String, trip: Trip?)
@@ -195,9 +205,27 @@ object InviteCode {
     const val LETTERS = "ABCDEFGHJKLMNPQRSTUVWXYZ"
     fun clean(s: String): String = s.uppercase().filter { it in LETTERS }.take(6)
     fun isCode(s: String) = s.length == 6 && s.all { it in LETTERS }
+    /** The long token of an invite link (/j/<token>): it cannot be guessed, so it is not typed. */
+    fun isToken(s: String) = TOKEN.matches(s)
+    private val TOKEN = Regex("[A-Za-z0-9_-]{32,64}")
+
+    /**
+     * A pasted invite link, as the site makes them: /j/<token> (the token) or /join/<code> (the six letters); null for
+     * anything else, which is then typed as letters.
+     */
+    fun fromLink(s: String): String? {
+        Regex("/j/([A-Za-z0-9_-]{32,64})(?![A-Za-z0-9_-])").find(s)?.let { return it.groupValues[1] }
+        Regex("/join/([A-Za-z-]{6,9})(?![A-Za-z])").find(s)?.let { m -> return clean(m.groupValues[1]).takeIf(::isCode) }
+        return null
+    }
+
+    /** How the invite came (group_join's `via`), as the site tells: the long token is a link, six letters were typed. */
+    fun via(code: String) = if (code.trim().length > 8) "link" else "code"
     /**
      * The link the invite card shares (site route /j/..., docs/USERS.md: it opens the app, or the site). It carries the
      * long token, not the six letters: a token cannot be guessed, so the server does not count it against the guesses.
      */
     fun link(token: String) = "https://gudauri-ski-trip.vercel.app/j/$token"
+    /** The link as it is shared (copied, sent): it says it came from the app ([io.github.pini236.skiapp.nav.Route.SHARED]). */
+    fun shared(token: String) = link(token) + "?" + io.github.pini236.skiapp.nav.Route.SHARED
 }

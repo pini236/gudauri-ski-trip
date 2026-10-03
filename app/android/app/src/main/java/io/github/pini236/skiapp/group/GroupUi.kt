@@ -215,6 +215,12 @@ fun errorRes(code: String): Int = when (code) {
     "invalid_name" -> R.string.group_err_invalid_name
     "invalid_input" -> R.string.group_err_invalid_input
     "not_allowed" -> R.string.group_err_not_allowed
+    "not_found" -> R.string.app_err_not_found
+    "conflict" -> R.string.app_err_conflict
+    "server_error" -> R.string.app_err_server_error
+    "rate_limited" -> R.string.join_st_rate_limited
+    "invalid_code" -> R.string.join_st_invalid_code
+    "no_such_member" -> R.string.join_st_no_such_member
     "google_not_ready" -> R.string.app_err_google_not_ready
     "cancelled" -> R.string.app_err_cancelled
     "offline", "network" -> R.string.app_err_offline

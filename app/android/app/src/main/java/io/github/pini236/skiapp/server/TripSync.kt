@@ -53,6 +53,13 @@ class ServerTripSync(context: Context, private val server: Server) : TripSync, i
         e.apply()
     }
 
+    /**
+     * Signed out, or the account deleted (PARITY A-4): the row and anything waiting belonged to that account. Without
+     * this a new session (another person, or a new guest) would try to update a row it does not own.
+     */
+    @Synchronized
+    override fun forget() = prefs.edit().remove("id").remove("pending").apply()
+
     @Synchronized
     private fun send() {
         val pending = prefs.getString("pending", null) ?: return

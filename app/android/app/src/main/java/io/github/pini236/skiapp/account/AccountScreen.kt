@@ -85,7 +85,7 @@ fun AccountScreen(api: GroupApi, onBack: () -> Unit, signInGoogle: suspend () ->
                     Display(m.name ?: stringResource(R.string.app_a_no_name), 30f)
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Muted(stringResource(R.string.app_a_name_in_groups) + " · ", size = 13f)
-                        Text(stringResource(R.string.app_a_change), Modifier.heightIn(min = 32.dp).clickable { naming = !naming }.padding(vertical = 6.dp),
+                        Text(stringResource(R.string.app_a_change), Modifier.heightIn(min = 44.dp).clickable { naming = !naming }.padding(vertical = 6.dp),
                             style = Ski.type.bodyBold.copy(fontSize = 13.sp), color = c.glacier)
                     }
                 }
@@ -108,11 +108,12 @@ fun AccountScreen(api: GroupApi, onBack: () -> Unit, signInGoogle: suspend () ->
                     if (m.apple) Way(stringResource(R.string.app_a_apple), true, mark = { AppleMark() }, connect = null)
                 }
                 Display(stringResource(R.string.app_a_what_syncs), 28f, Modifier.padding(top = 8.dp))
-                Note(stringResource(R.string.app_a_what_syncs_text), Icons.cloud)
+                Note(stringResource(R.string.acct_sync_note), Icons.cloud)
             }
             ErrorLine(r)
             Column(Modifier.padding(top = 10.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                Button2(stringResource(R.string.app_a_sign_out), Look.GHOST, { r.run { api.signOut(); onGone() } }, icon = Icons.out)
+                // a guest has no way back in: signing out would only lose the groups (the site shows it only when registered)
+                if (m.registered) Button2(stringResource(R.string.app_a_sign_out), Look.GHOST, { r.run { api.signOut(); onGone() } }, icon = Icons.out)
                 Button2(stringResource(if (armed) R.string.app_a_delete_confirm else R.string.app_a_delete), Look.DANGER, {
                     if (armed) r.run { api.deleteAccount(); onGone() } else armed = true
                 }, icon = Icons.trash)
@@ -139,10 +140,10 @@ private fun Way(name: String, on: Boolean, mark: @Composable () -> Unit, connect
     }
 }
 
-/** A plain G in a ring, until the official mark is added (Google's branding rules, docs/ROADMAP.md). */
+/** Google's official mark in the ring, as on the sign-in button (round 13, item 3; Google's branding rules). */
 @Composable
 private fun GMark() = Box(Modifier.size(28.dp).border(2.dp, Color(0xFF747775), CircleShape), contentAlignment = Alignment.Center) {
-    Text("G", style = Ski.type.bodyBold.copy(fontSize = 14.sp, textDirection = TextDirection.Ltr), color = Color(0xFF1F1F1F))
+    androidx.compose.foundation.Image(androidx.compose.ui.res.painterResource(R.drawable.ic_google_g), null, Modifier.size(16.dp))
 }
 
 @Composable

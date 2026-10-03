@@ -23,6 +23,7 @@ import io.github.pini236.skiapp.R
 import io.github.pini236.skiapp.data.Piste
 import io.github.pini236.skiapp.perf.FrameStats
 import io.github.pini236.skiapp.qa.Qa
+import io.github.pini236.skiapp.telemetry.Telemetry
 import java.text.NumberFormat
 import java.util.concurrent.Executors
 import javax.microedition.khronos.egl.EGL10
@@ -30,6 +31,7 @@ import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.egl.EGLDisplay
 import kotlin.math.atan2
 import kotlin.math.hypot
+import kotlin.math.roundToInt
 
 /** GL surface that asks for the screen's top refresh rate and 4x anti-aliasing when it can get it. */
 @SuppressLint("ViewConstructor")
@@ -60,10 +62,12 @@ private class MountainSurface(context: Context, private val refreshHz: Float) : 
 }
 
 /** A label on the mountain: Hebrew, Latin names and numbers mixed, laid out natively (bidi) once and drawn every frame. */
-private class MapLabel(val x: Float, val y: Float, val z: Float, val layout: StaticLayout, val priority: Int, val dark: Boolean)
+private class MapLabel(val x: Float, val y: Float, val z: Float, val layout: StaticLayout, val priority: Int, val dark: Boolean, val lift: Boolean = false)
 
 private class LabelOverlay(context: Context, private val camera: OrbitCamera) : View(context) {
     var labels: List<MapLabel> = emptyList()
+    /** The lifts filtered out (the list's "lifts"): their labels go with their lines. */
+    var hideLifts = false
     var ground: ((Float, Float) -> Float)? = null
     private val mvp = FloatArray(16); private val eye = FloatArray(3); private val v = FloatArray(4); private val out = FloatArray(4)
     private val placed = ArrayList<RectF>()
@@ -77,6 +81,7 @@ private class LabelOverlay(context: Context, private val camera: OrbitCamera) : 
         placed.clear()
         var used = 0
         for (l in labels) {
+            if (l.lift && hideLifts) continue
             v[0] = l.x; v[1] = l.y; v[2] = l.z; v[3] = 1f
             Matrix.multiplyMV(out, 0, mvp, 0, v, 0)
             if (out[3] <= 0) continue
@@ -123,6 +128,8 @@ class MapView(context: Context, refreshHz: Float, val stats: FrameStats) : Frame
     var onFlying: ((Boolean) -> Unit)? = null
     /** The map screen's listener: a lift the map shows (the meeting point's "see it on the run map"), for its panel. */
     var onLift: ((io.github.pini236.skiapp.data.Lift) -> Unit)? = null
+    /** A tap on a lift's line (nearer than any run): the map screen opens its panel (PARITY A-10). */
+    var onLiftTap: ((io.github.pini236.skiapp.data.Lift) -> Unit)? = null
     /** A lift shown while no map screen listened; the next map screen opens its panel. */
     var shownLift: io.github.pini236.skiapp.data.Lift? = null
     val msaa get() = surface.msaa
@@ -132,7 +139,7 @@ class MapView(context: Context, refreshHz: Float, val stats: FrameStats) : Frame
         surface.renderMode = GLSurfaceView.RENDERMODE_WHEN_DIRTY
         addView(surface, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT))
         addView(overlay, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT))
-        renderer.onFlyEnded = { post { onFlying?.invoke(false); Qa.log("fly ended") } }
+        renderer.onFlyEnded = { token, done -> post { flyEnded(token, done) } }
     }
 
     fun setScene(s: MapScene) {
@@ -182,7 +189,7 @@ class MapView(context: Context, refreshHz: Float, val stats: FrameStats) : Frame
             if (l.name.isBlank()) return@forEachIndexed
             val line = s.liftLines[i]; val n = line.size / 3
             val top = if (line[1] > line[(n - 1) * 3 + 1]) 0 else n - 1
-            out += MapLabel(line[top * 3], line[top * 3 + 1] + 20, line[top * 3 + 2], layout(context.getString(R.string.app_lift_label, iso(l.name)), body, 12f, Color.WHITE), 2, true)
+            out += MapLabel(line[top * 3], line[top * 3 + 1] + 20, line[top * 3 + 2], layout(context.getString(R.string.app_lift_label, iso(l.name)), body, 12f, Color.WHITE), 2, true, lift = true)
         }
         return out.sortedByDescending { it.priority }
     }
@@ -197,6 +204,8 @@ class MapView(context: Context, refreshHz: Float, val stats: FrameStats) : Frame
      */
     fun select(p: Piste?, chosen: Boolean = true, via: String = "map") {
         val s = scene ?: return
+        // another run, or none (the panel closed): the flight down the old one stops (PARITY A-8)
+        if (flyToken != null && p?.key != flyKey) stopFly()
         selected = p
         onSelect?.invoke(p)
         if (chosen) onChosen?.invoke(p, via)
@@ -246,14 +255,35 @@ class MapView(context: Context, refreshHz: Float, val stats: FrameStats) : Frame
     /** Puts the camera at a given view (the QA run uses it for repeatable screenshots). */
     fun look(st: OrbitCamera.State) = renderer.animateCamera(st, 0.05f)
 
+    // the flight now (run_fly_start and run_fly_end, as on the site): a token per flight, so the end of an old one
+    // (posted from the map's thread) is never taken for the end of a new one
+    private var flyToken: Any? = null
+    private var flyKey = ""
+    private var flyT0 = 0L
+    val flying get() = flyToken != null
+
     fun flyDown() {
         val s = scene ?: return; val p = selected ?: return
         val path = s.topDown(p).fold(FloatArray(0)) { acc, l -> acc + l }
         if (path.size < 6) return
-        renderer.startFly(path); onFlying?.invoke(true); Qa.log("fly started")
+        flyToken?.let { flyEnded(it, false) }
+        val token = Any()
+        flyToken = token; flyKey = p.key; flyT0 = System.currentTimeMillis()
+        renderer.startFly(path, token)
+        Telemetry.event("run_fly_start", mapOf("run" to p.key))
+        onFlying?.invoke(true); Qa.log("fly started")
     }
 
-    fun stopFly() { renderer.stopFly() }
+    /** Stopped by the person (the bar's button, another run, the panel closed); a touch on the map stops it too. */
+    fun stopFly() { val t = flyToken ?: return; renderer.stopFly(); flyEnded(t, false) }
+
+    /** [done]: it reached the bottom of the run (the site's completed: progress at the end). */
+    private fun flyEnded(token: Any, done: Boolean) {
+        if (token !== flyToken) return
+        flyToken = null
+        Telemetry.event("run_fly_end", mapOf("run" to flyKey, "completed" to done, "seconds" to ((System.currentTimeMillis() - flyT0) / 1000.0).roundToInt()))
+        onFlying?.invoke(false); Qa.log("fly ended")
+    }
 
     /** The line the camera is framing (the chosen run, a lift), and the free part of the screen above the map's panel. */
     @Volatile private var framed: FloatArray? = null
@@ -277,7 +307,7 @@ class MapView(context: Context, refreshHz: Float, val stats: FrameStats) : Frame
     fun unmark() { if (renderer.marker != null) { renderer.marker = null; surface.requestRender() } }
 
     /** The map's filters (the site's): these runs and, with [lifts] false, the lifts are not drawn, and a tap passes them by. */
-    fun setHidden(keys: Set<String>, lifts: Boolean) { renderer.hidden = keys; renderer.hideLifts = !lifts; surface.requestRender() }
+    fun setHidden(keys: Set<String>, lifts: Boolean) { renderer.hidden = keys; renderer.hideLifts = !lifts; overlay.hideLifts = !lifts; overlay.invalidate(); surface.requestRender() }
 
     /** The lift status on the mountain (S1): closed lifts and runs, and "only what's open for me". */
     fun setStatus(p: StatusPaint) { renderer.status = p; surface.requestRender() }
@@ -426,6 +456,22 @@ class MapView(context: Context, refreshHz: Float, val stats: FrameStats) : Frame
                 i += 2
             }
         }
+        // the lifts too (not when filtered out): along each cable, so a long span between two points is found
+        var lift = -1
+        if (!renderer.hideLifts) s.liftLines.forEachIndexed { li, l ->
+            if (s.runs.lifts[li].id.isBlank()) return@forEachIndexed
+            for (i in 0 until l.size / 3 - 1) for (k in 0..8) {
+                val f = k / 8f
+                for (j in 0..2) v[j] = l[i * 3 + j] + (l[i * 3 + 3 + j] - l[i * 3 + j]) * f
+                v[3] = 1f
+                Matrix.multiplyMV(o, 0, mvp, 0, v, 0)
+                if (o[3] <= 0) continue
+                val sx = (o[0] / o[3] * 0.5f + 0.5f) * width; val sy = (1 - (o[1] / o[3] * 0.5f + 0.5f)) * height
+                val d = hypot(sx - px, sy - py)
+                if (d < bestD) { bestD = d; lift = li; best = null }
+            }
+        }
+        if (lift >= 0) { val l = s.runs.lifts[lift]; post { onLiftTap?.invoke(l) }; return }
         if (best != null && best != selected) select(best) else if (best == null && selected != null) select(null)
     }
 }

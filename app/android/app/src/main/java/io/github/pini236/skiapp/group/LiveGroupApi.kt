@@ -9,7 +9,12 @@ import io.github.pini236.skiapp.server.SessionStore
 import io.github.pini236.skiapp.server.Sync
 import io.github.pini236.skiapp.server.TripRow
 import io.github.pini236.skiapp.trip.Trip
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.drop
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
@@ -25,6 +30,8 @@ interface MyTripOnServer {
     val tripId: String?
     /** The server wrote my trip row itself ("I'm on the same flight"): from now on that row is my trip. */
     fun adopt(id: String, trip: Trip)
+    /** Signed out or the account deleted: the row was that account's, so the next session starts without it. */
+    fun forget()
 }
 
 /**
@@ -92,8 +99,8 @@ class LiveGroupApi(
         return me()!!
     }
 
-    override suspend fun signOut() { io { server.auth.forget() }; forget(); sync?.forget() }
-    override suspend fun deleteAccount() { io { account.delete() }; forget(); sync?.forget() }
+    override suspend fun signOut() { io { server.auth.forget() }; forget(); sync?.forget(); myTrip.forget() }
+    override suspend fun deleteAccount() { io { account.delete() }; forget(); sync?.forget(); myTrip.forget() }
     override suspend fun rename(name: String) { io { account.setProfile(name, lang()) }; remember(name.trim(), null) }
 
     override suspend fun myGroups(): List<GroupSummary> = io {
@@ -115,6 +122,7 @@ class LiveGroupApi(
             override fun open() = kept.open()
             override fun close() = kept.close()
             override fun refresh() = kept.refresh()
+            override fun clearRefused() = kept.clearRefused()
         }
     }
 
@@ -133,7 +141,7 @@ class LiveGroupApi(
             s.requests.map { JoinRequest(it.id, it.userId, it.name, it.kind == "reclaim") },
             s.meetups.map { o -> Meetup(o.id, o.station, o.at, o.note, o.createdBy?.let { names[it] }) },
         )
-        return Shown(g, s.readAt, s.offline, s.gone, s.waiting > 0)
+        return Shown(g, s.readAt, s.offline, s.gone, s.waiting > 0, s.refused)
     }
 
     override suspend fun group(id: String): Group = io {
@@ -193,10 +201,37 @@ class LiveGroupApi(
     }
 
     override suspend fun join(code: String, myName: String): JoinResult = io {
-        groups.join(code, myName).let { JoinResult(JoinStatus.of(it.status), it.groupId) }.also { if (profile.optString("name").isBlank()) remember(myName.trim(), null) }
+        groups.join(code, myName).let { JoinResult(JoinStatus.of(it.status), it.groupId) }.also {
+            if (profile.optString("name").isBlank()) remember(myName.trim(), null)
+            if (it.status == JoinStatus.PENDING) sync?.refreshMine() // the request goes into my copy, to see its approval
+        }
     }
 
-    override suspend fun reclaim(code: String, memberId: String): JoinResult = io { groups.reclaim(code, memberId).let { JoinResult(JoinStatus.of(it.status), it.groupId) } }
+    override suspend fun reclaim(code: String, memberId: String): JoinResult = io {
+        groups.reclaim(code, memberId).let { JoinResult(JoinStatus.of(it.status), it.groupId) }.also { if (it.status == JoinStatus.PENDING) sync?.refreshMine() }
+    }
+
+    override suspend fun pendingRequests(): List<String> =
+        if (store.load() == null) emptyList() else io { groups.myRequests().map { it.groupId }.distinct() }
+
+    /**
+     * My groups in the phone's copy (Sync), live while watched. A group my request waited on that is now one of mine is
+     * an approval (also one decided while the app was closed: the copy remembers the request).
+     */
+    override fun watchMine(onChange: (approved: List<String>) -> Unit): () -> Unit {
+        val s = sync ?: return {}
+        val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
+        var waiting = s.myGroups.value.requests.map { it.groupId }.toSet()
+        scope.launch {
+            s.myGroups.drop(1).collect { m ->
+                val approved = m.groups.map { it.id }.filter { it in waiting }
+                waiting = m.requests.map { it.groupId }.toSet()
+                onChange(approved)
+            }
+        }
+        s.watchMine()
+        return { scope.cancel(); s.unwatchMine() }
+    }
     override suspend fun decide(requestId: String, approve: Boolean) = io { groups.decide(requestId, approve) }
     override suspend fun leave(groupId: String) { io { groups.leave(groupId); sync?.refreshMine() } }
     override suspend fun removeMember(groupId: String, userId: String) = io { groups.remove(groupId, userId) }

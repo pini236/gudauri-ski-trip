@@ -51,7 +51,7 @@
 
 | אירוע | מתי | מאפיינים |
 |---|---|---|
-| `app_open` | פתיחה (באתר: טעינה ראשונה של הדף) | `source`: `direct`, `link`, `share_link`, `store`, `notification`; `cold`: true/false (באפליקציה) |
+| `app_open` | פתיחה (באתר: טעינה ראשונה של הדף; באפליקציה גם חזרה מהרקע, `cold: false`) | `source`: `direct`, `link`, `share_link` (קישור עם `utm_medium=share`, שהאפליקציה או האתר שיתפו), `store` (הפתיחה הראשונה של התקנה מגוגל פליי, עם `utm_source`, `utm_medium`, `utm_campaign` מהקישור לחנות, אם יש), `notification`; `cold`: true/false (באפליקציה) |
 | `screen_view` | כל מעבר מסך | `screen`: `home`, `map`, `meet`, `games`, `about`, `privacy`, `game`, `trip` (טופס "הטיול שלך", באפליקציה מ-2.10.2026 ובאתר מ-2.10.2026), `signin`, `account`, `join`, `group` (כניסה, חשבון, הזמנה וקבוצה; באתר ובאנדרואיד מ-2.10.2026); `game` כשהמסך הוא משחק |
 | `lang_set` | בחירת שפה בהגדרות | `lang`, `previous` |
 | `theme_set` | לחיצה על כפתור יום ולילה | `mode`: `auto`, `day`, `night` |
@@ -60,7 +60,7 @@
 | `map_view` | מעבר בין תלת-ממד למבט על | `view`: `3d`, `2d` |
 | `map_fallback` | התלת-ממד לא עלה והאתר עבר למבט על | `reason`: `no_webgl`, `lib_failed` |
 | `map_filter` | שינוי סינון | `filter`: `green`, `blue`, `red`, `black`, `lifts`, `unnamed`; `on`: true/false |
-| `run_open` | פתיחת מסלול | `run` (מפתח המסלול, למשל `Tatra 2`); `color`; `via`: `map`, `list`, `swipe`, `link`, `meet`, `search` |
+| `run_open` | פתיחת מסלול | `run` (מפתח המסלול, למשל `Tatra 2`); `color`; `via`: `map`, `list`, `swipe`, `link`, `meet` (בלי חיפוש, החלטה 50) |
 | `run_profile_scrub` | גרירה על פרופיל הגובה (פעם אחת לכל פתיחת מסלול) | `run` |
 | `run_fly_start` | התחלת טיסה במורד המסלול | `run` |
 | `run_fly_end` | סוף הטיסה או עצירה | `run`; `completed`: true/false; `seconds` |

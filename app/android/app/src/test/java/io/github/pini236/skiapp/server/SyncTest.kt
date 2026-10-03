@@ -127,6 +127,12 @@ class SyncTest {
         g.setMine("שם אחר", null)
         assertEquals(0, g.state.value.waiting)
         assertEquals("פיני", g.state.value.me("u1")!!.name)
+        // and the page can say why, until it is closed
+        assertEquals("not_member", g.state.value.refused)
+        g.refresh()
+        assertEquals("not_member", g.state.value.refused)
+        g.clearRefused()
+        assertNull(g.state.value.refused)
     }
 
     @Test fun aServerHiccupKeepsTheWriteInTheQueue() {

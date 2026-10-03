@@ -505,10 +505,10 @@
    ]
   },
   "app.about_more": {
-   "he": "ההגדרות (צליל, רטט, שפה) מגיעות בשלב הבא.",
-   "en": "Settings (sound, vibration, language) come next.",
-   "ru": "Настройки (звук, вибрация, язык) появятся следующими.",
-   "ka": "პარამეტრები (ხმა, ვიბრაცია, ენა) შემდეგ ეტაპზე დაემატება.",
+   "he": "ההגדרות (צליל ורטט) מגיעות בשלב הבא.",
+   "en": "Settings (sound and vibration) come next.",
+   "ru": "Настройки (звук и вибрация) появятся следующими.",
+   "ka": "პარამეტრები (ხმა და ვიბრაცია) შემდეგ ეტაპზე დაემატება.",
    "where": "app/android",
    "note": "about page, until stage 13.7",
    "check": [
@@ -10086,10 +10086,10 @@
    ]
   },
   "app.a_moves_over": {
-   "he": "הטיול שלך, המועדפים והשיאים שכבר בטלפון עוברים לחשבון, ומופיעים גם באתר.",
-   "en": "Your trip, favourites and high scores already on the phone move to the account, and show on the site too.",
-   "ru": "Ваша поездка, избранное и рекорды, которые уже есть в телефоне, переходят в аккаунт и появляются на сайте.",
-   "ka": "თქვენი მოგზაურობა, რჩეულები და რეკორდები, რაც უკვე ტელეფონშია, ანგარიშზე გადადის და საიტზეც ჩანს.",
+   "he": "מה שכבר שמור בטלפון הזה (הטיול שלך) עובר לחשבון, ומופיע גם באתר.",
+   "en": "What is already saved on this phone (your trip) moves to the account, and shows on the site too.",
+   "ru": "То, что уже сохранено в этом телефоне (ваша поездка), перейдёт в аккаунт и появится на сайте.",
+   "ka": "რაც ამ ტელეფონში უკვე შენახულია (თქვენი მოგზაურობა), ანგარიშზე გადავა და საიტზეც გამოჩნდება.",
    "where": "app/android",
    "note": "A2",
    "check": [
@@ -10265,18 +10265,6 @@
     "ka"
    ]
   },
-  "app.a_what_syncs_text": {
-   "he": "הטיול שלך, המועדפים, השיאים והקבוצות. בין הטלפון לאתר, ובטלפון חדש.",
-   "en": "Your trip, favourites, high scores and groups. Between the phone and the site, and on a new phone.",
-   "ru": "Ваша поездка, избранное, рекорды и группы. Между телефоном и сайтом, и на новом телефоне.",
-   "ka": "თქვენი მოგზაურობა, რჩეულები, რეკორდები და ჯგუფები. ტელეფონსა და საიტს შორის და ახალ ტელეფონზე.",
-   "where": "app/android",
-   "note": "A4",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
   "app.a_sign_out": {
    "he": "יציאה מהחשבון",
    "en": "Sign out",
@@ -10314,10 +10302,10 @@
    ]
   },
   "app.a_delete_note": {
-   "he": "מחיקה מוחקת מהשרת את החשבון, הטיול והחברות בקבוצות. קבוצה שרק את/ה מנהל/ת בה מבקשת קודם למנות מנהל אחר. גם מהאתר: {url}",
-   "en": "Deleting removes the account, the trip and the group memberships from the server. A group where you are the only admin asks you to name another admin first. Also from the site: {url}",
-   "ru": "Удаление стирает с сервера аккаунт, поездку и членство в группах. Группа, где вы единственный администратор, сначала попросит назначить другого. Также с сайта: {url}",
-   "ka": "წაშლა სერვერიდან შლის ანგარიშს, მოგზაურობას და ჯგუფებში წევრობას. ჯგუფი, სადაც ერთადერთი ადმინისტრატორი ხართ, ჯერ სხვა ადმინისტრატორის დანიშვნას მოგთხოვთ. ასევე საიტიდან: {url}",
+   "he": "מחיקה מוחקת מהשרת את החשבון, הטיול והחברות בקבוצות. בקבוצה שרק את/ה מנהל/ת בה, המנהלות עוברת לחבר אחר. גם מהאתר: {url}",
+   "en": "Deleting removes the account, the trip and the group memberships from the server. In a group where you are the only admin, another member becomes admin. Also from the site: {url}",
+   "ru": "Удаление стирает с сервера аккаунт, поездку и членство в группах. В группе, где вы единственный администратор, администратором станет другой участник. Также с сайта: {url}",
+   "ka": "წაშლა სერვერიდან შლის ანგარიშს, მოგზაურობას და ჯგუფებში წევრობას. ჯგუფში, სადაც ერთადერთი ადმინისტრატორი ხართ, ადმინისტრატორი სხვა წევრი გახდება. ასევე საიტიდან: {url}",
    "where": "app/android",
    "note": "A4; {url} = the site's account page",
    "check": [
@@ -11136,6 +11124,54 @@
    "ka": "ნაკლები დეტალი",
    "where": "app/android",
    "note": "screen reader label of the same handle when the panel shows everything",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.err_not_found": {
+   "he": "זה כבר לא קיים. אולי נמחק בינתיים.",
+   "en": "That no longer exists. It may have been deleted meanwhile.",
+   "ru": "Этого больше нет. Возможно, его уже удалили.",
+   "ka": "ეს აღარ არსებობს. შესაძლოა, ამასობაში წაიშალა.",
+   "where": "app/android",
+   "note": "server/CONTRACT.md, errors (D5)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.err_conflict": {
+   "he": "משהו השתנה בינתיים. מנסים שוב.",
+   "en": "Something changed meanwhile. Try again.",
+   "ru": "Тем временем что-то изменилось. Попробуйте ещё раз.",
+   "ka": "ამასობაში რაღაც შეიცვალა. კიდევ სცადეთ.",
+   "where": "app/android",
+   "note": "server/CONTRACT.md, errors (D5)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.err_server_error": {
+   "he": "תקלה בשרת. מנסים שוב מאוחר יותר.",
+   "en": "A fault on the server. Try again later.",
+   "ru": "Ошибка на сервере. Попробуйте позже.",
+   "ka": "შეცდომა სერვერზე. მოგვიანებით სცადეთ.",
+   "where": "app/android",
+   "note": "server/CONTRACT.md, errors (D5)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.g_refused": {
+   "he": "שינוי שחיכה לקליטה לא נשמר בקבוצה. {reason}",
+   "en": "A change that waited for signal was not saved to the group. {reason}",
+   "ru": "Изменение, которое ждало связи, не сохранилось в группе. {reason}",
+   "ka": "ცვლილება, რომელიც კავშირს ელოდა, ჯგუფში არ შეინახა. {reason}",
+   "where": "app/android",
+   "note": "group page: a queued write the server refused (D5)",
    "check": [
     "ru",
     "ka"

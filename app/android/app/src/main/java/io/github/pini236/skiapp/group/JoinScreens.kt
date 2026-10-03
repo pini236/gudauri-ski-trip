@@ -27,6 +27,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -72,22 +73,34 @@ import io.github.pini236.skiapp.ui.TopBar
  * A2). Everything else works without an account.
  */
 @Composable
-fun GroupEntryScreen(api: GroupApi, onBack: () -> Unit, onCode: (String) -> Unit, onCreate: () -> Unit, signInGoogle: suspend () -> Unit, onPrivacy: () -> Unit) {
+fun GroupEntryScreen(api: GroupApi, onBack: () -> Unit, onCode: (String) -> Unit, onCreate: () -> Unit, signInGoogle: suspend () -> Unit, onPrivacy: () -> Unit,
+                     /** My groups changed (GroupHub watches them): read the waiting requests again. */
+                     changes: Int = 0) {
     val c = Ski.colors
     var code by rememberSaveable { mutableStateOf("") }
     var sheet by rememberSaveable { mutableStateOf(false) }
     val r = rememberRunner()
+    // my requests still waiting for an admin, after a restart too (A-19): the same card as when it was sent (Q3)
+    var pending by remember { mutableStateOf(emptyList<String>()) }
+    LaunchedEffect(api, changes) { pending = runCatching { api.pendingRequests() }.getOrDefault(emptyList()) }
     Box(Modifier.fillMaxSize().background(c.snow)) {
         Column(Modifier.fillMaxSize().statusBarsPadding()) {
             TopBar(stringResource(R.string.app_sign_group), stringResource(R.string.nav_home), onBack)
             Page {
                 Muted(stringResource(R.string.app_g_intro), size = 14f)
                 Spacer(Modifier.height(4.dp))
+                for (gid in pending) SnowCard(Color(0xFFF4B942), 61) {
+                    Text(stringResource(R.string.app_g_pending_title), style = Ski.type.bodyBold.copy(fontSize = 14.5.sp), color = c.ink)
+                    Muted(stringResource(R.string.app_g_pending_sub), size = 12.5f)
+                    QuietButton(stringResource(R.string.app_g_pending_cancel), { r.run { api.cancelRequest(gid); pending = pending - gid } })
+                }
                 SnowCard(c.accent, 31) {
                     Display(stringResource(R.string.app_g_have_code), 34f)
                     Muted(stringResource(R.string.app_g_have_code_sub), Modifier.padding(top = 4.dp, bottom = 12.dp))
                     Row(verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        Field(stringResource(R.string.app_g_code_label), code, { code = InviteCode.clean(it) }, Modifier.weight(1f), "KZBQRM", ltr = true)
+                        // a pasted invite link goes straight in (its token or code); anything else is typed letters
+                        Field(stringResource(R.string.app_g_code_label), code, { v -> InviteCode.fromLink(v)?.let(onCode) ?: run { code = InviteCode.clean(v) } },
+                            Modifier.weight(1f), "KZBQRM", ltr = true)
                         PrimaryButton(stringResource(R.string.app_g_join), null, { onCode(code) }, full = false)
                     }
                 }
@@ -137,7 +150,7 @@ fun CodeScreen(initial: String, onBack: () -> Unit, onContinue: (String) -> Unit
             Spacer(Modifier.height(10.dp))
             Text(stringResource(R.string.app_g_six_letters), style = Ski.type.label.copy(fontSize = 13.sp), color = c.muted)
             Box {
-                BasicTextField(code, { code = InviteCode.clean(it) },
+                BasicTextField(code, { v -> InviteCode.fromLink(v)?.let(onContinue) ?: run { code = InviteCode.clean(v) } },
                     Modifier.matchParentSize().focusRequester(focus).semantics { contentDescription = label },
                     textStyle = TextStyle(color = Color.Transparent), cursorBrush = androidx.compose.ui.graphics.SolidColor(Color.Transparent), singleLine = true,
                     keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Characters, keyboardType = KeyboardType.Ascii, autoCorrectEnabled = false))
@@ -180,6 +193,10 @@ fun InvitedScreen(api: GroupApi, code: String, frame: DayNight.Frame, mode: DayN
             preview = p
             if (p.alreadyMember && p.groupId != null) onJoined(p.groupId, false)
         }
+    }
+    // waiting for an admin: the approval opens the group, live (A-19)
+    if (result == JoinStatus.PENDING) preview?.groupId?.let { gid ->
+        DisposableEffect(gid) { val stop = api.watchMine { approved -> if (gid in approved) onJoined(gid, api.me()?.registered != true) }; onDispose { stop() } }
     }
     val top = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
     Box(Modifier.fillMaxSize().background(c.snow)) {
@@ -274,6 +291,10 @@ fun ReclaimScreen(api: GroupApi, code: String, onBack: () -> Unit, signInGoogle:
     var status by remember { mutableStateOf<JoinStatus?>(null) }
     val load = rememberRunner(); val r = rememberRunner()
     LaunchedEffect(code) { load.run { if (api.me() == null) api.signInGuest(); preview = api.preview(code) } }
+    // waiting for an admin: the approval opens the group, live (A-19)
+    if (status == JoinStatus.PENDING) preview?.groupId?.let { gid ->
+        DisposableEffect(gid) { val stop = api.watchMine { approved -> if (gid in approved) onDone(gid) }; onDispose { stop() } }
+    }
     Column(Modifier.fillMaxSize().background(c.snow).statusBarsPadding()) {
         TopBar(stringResource(R.string.app_g_already_in), stringResource(R.string.app_g_back), onBack)
         Page {
@@ -307,7 +328,14 @@ fun ReclaimScreen(api: GroupApi, code: String, onBack: () -> Unit, signInGoogle:
                     PrimaryButton(stringResource(R.string.app_g_send_request), null, {
                         pick?.let { m -> r.run { val j = api.reclaim(code, m); status = j.status; if (j.status == JoinStatus.ALREADY_MEMBER) j.groupId?.let(onDone) } }
                     })
-                    if (status == JoinStatus.NO_SUCH_MEMBER || status == JoinStatus.INVALID_CODE) Text(stringResource(R.string.app_err_general), color = c.red, style = Ski.type.bodyBold)
+                    // every answer its own words (ד5), the site's (join.st_*)
+                    when (status) {
+                        JoinStatus.NO_SUCH_MEMBER -> R.string.join_st_no_such_member
+                        JoinStatus.INVALID_CODE -> R.string.join_st_invalid_code
+                        JoinStatus.RATE_LIMITED -> R.string.join_st_rate_limited
+                        JoinStatus.GROUP_FULL -> R.string.join_st_group_full
+                        else -> null
+                    }?.let { Text(stringResource(it), color = c.red, style = Ski.type.bodyBold) }
                 }
             }
             ErrorLine(r)
