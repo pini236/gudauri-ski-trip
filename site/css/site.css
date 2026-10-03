@@ -65,13 +65,15 @@ button:focus-visible,a:focus-visible,input:focus-visible,.fchip:focus-visible{ou
 .tb-count{margin-inline-start:auto;display:flex;align-items:baseline;gap:8px;color:var(--muted);font-size:14px;white-space:nowrap}
 .tb-count b{font-family:var(--f-display);font-size:34px;line-height:1;color:var(--accent)}
 /* with no trip there is no countdown: the clock, the day and night button and the account still sit at the far end */
-.tb-count[hidden]+.dn{margin-inline-start:auto}
+/* the controls stay together at the end of the bar: the space goes before the first of them that shows (the countdown,
+   or without a trip the language button, or without it the day and night button) */
+.tb-count[hidden]+.dn,.tb-count[hidden]+.lang-btn{margin-inline-start:auto}
 /* a narrower computer or a longer language (a tablet, Russian, Georgian): the bar gives up the least needed words first,
    until it fits without the page scrolling sideways (tb-fit1 to tb-fit5, js/app.js) */
 .topbar.tb-fit1{gap:16px;padding-inline:16px}
 .tb-fit1 .dn-clock>span{display:none}
 .tb-fit2 .tb-count{display:none}
-.tb-fit2 .dn{margin-inline-start:auto}
+.tb-fit2 .tb-count+.dn,.tb-fit2 .tb-count+.lang-btn{margin-inline-start:auto}
 .tb-fit2 .dn-lbl{display:none}
 .tb-fit2 .dn-btn{width:44px;padding:0;justify-content:center}
 .topbar.tb-fit2 .tb-acct:not(.me){width:44px;padding:0;justify-content:center}
@@ -691,6 +693,14 @@ html[lang="ru"] :is(.brand,.signs a,.tb-count b,.dn-clock b,.bp-code,.bp-big,.bp
 .topbar .lang-btn svg{display:none}
 @media (max-width:760px){.lang-btn.in-page{display:inline-flex}.lang-btn.in-top{display:none}
   .mhead .lang-btn,.ac-head .lang-btn,.tf-head .lang-btn{margin-inline-start:auto;margin-inline-end:6px}.home-top .lang-btn{margin-inline-start:auto;margin-inline-end:8px}.home-top .lang-btn+.dn-home{margin-inline-start:0}}
+/* a phone header too narrow for its title in whole words (js/app.js): the language button without its globe; then on the
+   home page the clock's caption, and then the clock; on the other pages the title gets a line of its own */
+.hd-fit1 .lang-btn svg{display:none}
+.hd-fit1 .lang-btn{padding:0 8px}
+.home-top.hd-fit2 .dn-clock>span{display:none}
+.home-top.hd-fit3 .dn-clock{display:none}
+:is(.mhead,.ac-head,.tf-head).hd-fit2{flex-wrap:wrap;row-gap:2px}
+:is(.mhead,.ac-head,.tf-head).hd-fit2>h1{order:1;flex:1 0 100%}
 .lang-sheet{position:fixed;inset:auto 0 0 0;margin:0 auto;width:100%;max-width:480px;max-height:90vh;box-sizing:border-box;padding:10px 20px 24px;border:0;background:var(--paper);color:var(--ink);box-shadow:0 -10px 30px rgba(0,0,0,.25)}
 .lang-sheet::backdrop{background:rgba(13,21,34,.55)}
 .lang-sheet[open]{animation:lsin .25s ease-out}
@@ -711,7 +721,7 @@ html[lang="ru"] :is(.brand,.signs a,.tb-count b,.dn-clock b,.bp-code,.bp-big,.bp
 @media (prefers-reduced-motion:reduce){.lang-sheet[open]{animation:none}}
 .ab-row b span{display:inline}
 /* "home" points back in the reading direction */
-[dir="ltr"] .mhead a svg{transform:scaleX(-1)}
+[dir="ltr"] :is(.mhead,.ac-head,.tf-head) a svg{transform:scaleX(-1)}
 /* Privacy page (/privacy, round 10 P1 and P2). Built by tools/build-privacy.py from docs/PRIVACY.md. */
 html.pv,html.pv body{height:auto}
 .pv-top{position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:12px;padding:8px 16px;background:var(--paper);border-bottom:1px solid var(--rule);direction:rtl}

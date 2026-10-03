@@ -1041,6 +1041,25 @@ renderTicket();
   new ResizeObserver(fit).observe(bar);new MutationObserver(fit).observe(bar,{childList:true,subtree:true,characterData:true});
   if(document.fonts)document.fonts.ready.then(fit);fit();
 })();
+// the header of a page on a phone, with the language button (3.10.2026): the title keeps its words whole. First the button
+// gives up its globe; then on the home page the clock's caption goes (and then the clock), and on the other pages the
+// title gets a line of its own under the button and the link back
+(function(){
+  const L=['hd-fit1','hd-fit2','hd-fit3'];
+  const broken=t=>{if(t.scrollWidth>t.clientWidth+1)return true; // wider than its box, or a word split over two lines
+    const w=document.createTreeWalker(t,NodeFilter.SHOW_TEXT);
+    for(let n;(n=w.nextNode());){const re=/\S+/g;let m;
+      while((m=re.exec(n.textContent))){const r=document.createRange();r.setStart(n,m.index);r.setEnd(n,m.index+m[0].length);
+        if(new Set([...r.getClientRects()].filter(q=>q.width>.5).map(q=>Math.round(q.top))).size>1)return true;}}
+    return false;};
+  const fit=h=>{h.classList.remove(...L);const t=h.querySelector(':scope>h1'),b=h.querySelector('.lang-btn');
+    if(!t||!b||!b.offsetWidth)return; // the button shows in the headers on phones only
+    for(const c of L){if(!broken(t))break;h.classList.add(c);}};
+  const heads=[...document.querySelectorAll('.home-top,.mhead,.ac-head,.tf-head')];
+  const ro=new ResizeObserver(es=>es.forEach(e=>{const h=e.target,w=Math.round(e.contentRect.width);if(w!==h._fitW){h._fitW=w;fit(h);}}));
+  heads.forEach(h=>{ro.observe(h);const t=h.querySelector(':scope>h1');if(t)new MutationObserver(()=>fit(h)).observe(t,{childList:true,subtree:true,characterData:true});});
+  if(document.fonts)document.fonts.ready.then(()=>heads.forEach(fit));
+})();
 // accounts and groups (js/account.js) work with these, and draw on the pages before the first route
 if(window.ACCOUNT)ACCOUNT.start({MYTRIP,esc,MEET,renderTicket,countdown});
 route();
