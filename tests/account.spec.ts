@@ -240,6 +240,7 @@ test('מחיקת "הטיול שלך" מוחקת גם את השורה בשרת, �
   await expect(page.locator('.ac-flight .fp span.me')).toHaveText('נועה ניסיון');
   await page.goto('/#trip');
   await page.locator('#tfDelete').click();
+  await page.locator('#tfDelete').click();
   await expect.poll(() => server.calls.includes('DELETE /rest/v1/trips')).toBe(true);
   expect(server.db.trips.map(t => t.id)).toEqual(['t-dan']);
   await page.goto('/#group/g1');

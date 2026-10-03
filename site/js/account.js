@@ -127,6 +127,7 @@ window.ACCOUNT=(function(){
     const c=await client();const u=await user();
     if(u&&u.is_anonymous){ // a guest keeps their place: Google joins the same identity
       const r=await c.auth.linkIdentity({provider,token,nonce});
+      if(r.error&&r.error.code!=='identity_already_exists')throw err(r.error.status===0?'offline':'server_error'); // any other failure is not a merge (S-26)
       if(r.error){ // that Google account already has an identity: merge the guest into it (CONTRACT)
         const {ticket}=await api('create_merge_ticket');signingOut=true;await c.auth.signOut({scope:'local'});signingOut=false;
         const s=await c.auth.signInWithIdToken({provider,token,nonce});if(s.error)throw err('server_error');await api('merge_guest',{ticket});}}
@@ -219,7 +220,7 @@ window.ACCOUNT=(function(){
     preview=r;
     if(r.already_member){await refresh();location.replace('#group/'+r.group_id);return;}
     let req=null;try{const c=await client();[req]=await rest(c.from('join_requests').select('id').eq('user_id',state.uid||(await user()).id).eq('group_id',r.group_id).eq('status','pending').limit(1));}catch(e){}
-    card.insertAdjacentHTML('beforeend',`<small>${esc(T('join.invited_to'))}</small><p class="ac-big">${esc(r.name)}</p><p>${esc(T('group.members_n',{n:(r.members||[]).length}))}${r.starts_on?' · '+esc(T('join.dates',{from:dm(r.starts_on),to:dm(r.ends_on||r.starts_on)})):''}</p>`);
+    card.insertAdjacentHTML('beforeend',`<small>${esc(T('join.invited_to'))}</small><p class="ac-big">${esc(r.name)}</p><p>${(r.members||[]).length?esc(T('group.members_n',{n:r.members.length})):''}${(r.members||[]).length&&r.starts_on?' · ':''}${r.starts_on?esc(T('join.dates',{from:dm(r.starts_on),to:dm(r.ends_on||r.starts_on)})):''}</p>`);
     f.hidden=false;$('joinNoSignup').hidden=false;
     if(!f.name.value&&state.name)f.name.value=state.name;
     $('joinReclaim').hidden=!(r.members||[]).length;
@@ -374,7 +375,7 @@ window.ACCOUNT=(function(){
     return reqs+`<div>${list}</div>`+claim+tools+`<button type="button" class="ac-btn danger" data-leave>${ic('out')}${esc(T('group.leave'))}</button>`;}
   function drawInvite(){
     const v=G.invite;if(!v){const me=G.members.find(m=>m.user_id===state.uid);return me&&me.role==='admin'?`<p class="ac-note">${esc(T('group.no_invite'))}</p>`:'';}
-    const link=location.origin+'/j/'+v.token,msg=T('group.invite_msg',{name:G.g.name,link,code:v.code});
+    const link=location.origin+'/j/'+v.token+'?utm_medium=share',msg=T('group.invite_msg',{name:G.g.name,link,code:v.code});
     return `<div class="ac-invite"><span><small style="display:block;font-size:12px;color:var(--muted);font-weight:600">${esc(T('group.invite_code'))}</small><b dir="ltr">${esc(v.code)}</b></span>
       <span class="ac-iv"><a href="https://wa.me/?text=${encodeURIComponent(msg)}" target="_blank" rel="noopener">${esc(T('group.invite_wa'))}</a><button type="button" data-copy="${esc(link)}">${esc(T('group.copy'))}</button></span></div>`;}
   let leaveArm=0;

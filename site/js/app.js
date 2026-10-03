@@ -48,8 +48,10 @@ const MYTRIP=(()=>{const K='gud-trip',ISO=/^\d{4}-\d\d-\d\d$/;
   const addDays=(iso,n)=>{const d=new Date(iso+'T12:00:00Z');d.setUTCDate(d.getUTCDate()+n);return d.toISOString().slice(0,10);};
   // full ski days: from the day after landing (the same day when landing before noon) to the day before the return
   // (the same day when the return leaves at 18:00 or later). The crew: land 10.1 at 20:35, back 15.1 at 01:35, so 11 to 14.
+  // An overnight flight (it lands earlier on the clock than it left) lands the next day, as in the app (S-27).
   const skiAuto=(o,r)=>{if(!o||!o.date||!r||!r.date)return null;
-    const first=o.arrives&&o.arrives<'12:00'?o.date:addDays(o.date,1),last=r.departs&&r.departs>='18:00'?r.date:addDays(r.date,-1);
+    const landed=o.departs&&o.arrives&&o.arrives<o.departs?addDays(o.date,1):o.date;
+    const first=o.arrives&&o.arrives<'12:00'?landed:addDays(landed,1),last=r.departs&&r.departs>='18:00'?r.date:addDays(r.date,-1);
     return first<=last?{from:first,to:last}:null;};
   const ski=t=>t?(t.ski||skiAuto(t.out,t.ret)):null;
   const days=t=>t?Math.ceil((new Date(t.out.date+'T00:00:00')-new Date())/864e5):null;
@@ -441,7 +443,7 @@ function overview(){
 panel.addEventListener('input',e=>{if(e.target.id==='profRange'){profAt(+e.target.value);if(scrubbed!==current){scrubbed=current;track('run_profile_scrub',{run:current});}}});
 panel.addEventListener('click',e=>{
   const b=e.target.closest('button');if(!b)return;
-  if(b.dataset.share!==undefined){const k=b.dataset.share,url=location.origin+location.pathname+'#map/run/'+encodeURIComponent(k);
+  if(b.dataset.share!==undefined){const k=b.dataset.share,url=location.origin+location.pathname+'?utm_medium=share#map/run/'+encodeURIComponent(k);
     if(navigator.share)navigator.share({title:T('run.share_title',{run:k}),url}).then(()=>track('run_share',{run:k,method:'native'})).catch(()=>{});
     else if(navigator.clipboard)navigator.clipboard.writeText(url).then(()=>{track('run_share',{run:k,method:'copy'});b.textContent=T('common.link_copied');setTimeout(()=>{b.textContent=T('run.share_button');},2200);}).catch(()=>{});return;}
   if(b.dataset.fly){if(flying){stopFly();return;}const pr=runProfile(b.dataset.fly);if(!pr)return;if(view!=='3d')setView('3d',false);if(!v3)return;
@@ -745,7 +747,7 @@ const MEET=(function(){
       else out.push({from:T('meet.route_from_bottom_station',{lift:l.name}),html:[liftChip(l.name),dot].join(sep)});});
     return out.filter((r,i)=>out.findIndex(q=>q.html===r.html)===i).slice(0,4);}
   const pad=n=>String(n).padStart(2,'0');
-  function link(){return location.origin+location.pathname+`#meet/${S.sid}/${S.time.replace(':','')}/${S.day.replace(/-/g,'')}`;}
+  function link(){return location.origin+location.pathname+`?utm_medium=share#meet/${S.sid}/${S.time.replace(':','')}/${S.day.replace(/-/g,'')}`;}
   function dayLbl(){return (DAYS.find(d=>d[0]===S.day)||[0,dayName(S.day)])[1];}
   function message(){const s=byId[S.sid];return T('meet.share_message',{place:s.name,day:dayLbl(),time:S.time,where:s.where,alt:s.h?T('meet.share_alt_suffix',{n:s.h.toLocaleString('en-US')}):'',link:link()});}
   function countdown(){ // in Gudauri time (UTC+4)
@@ -778,6 +780,9 @@ const MEET=(function(){
     document.getElementById('meetWa').href='https://wa.me/?text='+encodeURIComponent(message());
     const want=`#meet/${S.sid}/${S.time.replace(':','')}/${S.day.replace(/-/g,'')}`;if(location.hash.startsWith('#meet')&&location.hash!==want)history.replaceState(null,'',want);
   }
+  // the countdown keeps going while the page is open (S-13)
+  setInterval(()=>{if(document.hidden||document.getElementById('meetPage').hidden||!byId[S.sid])return;
+    const card=document.getElementById('meetCard'),c=countdown();['c1','c2','c3'].forEach((f,i)=>{card.querySelector(`[data-f="${f}"]`).textContent=c[i];});},30000);
   // the image for sharing: the mountain around the spot, the pin, the name and the time
   async function image(){
     const s=byId[S.sid],W=1080,H=1080,cv=document.createElement('canvas');cv.width=W;cv.height=H;const x=cv.getContext('2d');
@@ -961,7 +966,10 @@ const TRIPFORM=(()=>{
   const read=()=>({out:{date:q('od').value,flight:q('of').value.trim().toUpperCase(),from:code('ofr'),to:code('oto'),departs:q('odp').value,arrives:q('oar').value},
     ret:q('rd').value?{date:q('rd').value,flight:q('rf').value.trim().toUpperCase(),departs:q('rdp').value,arrives:q('rar').value}:null,
     ski:manual&&q('sf').value&&q('sl').value?{from:q('sf').value,to:q('sl').value}:null});
-  const paint=()=>{const t=read();
+  // dates that have passed cannot be picked (a stored one stays, so a trip under way can still be edited)
+  const today=()=>new Date().toLocaleDateString('sv');
+  const paint=()=>{const t=read(),d0=today(),was=MYTRIP.get();
+    q('od').min=was&&was.out.date<d0?was.out.date:d0;q('rd').min=t.out.date||d0;q('sf').min=q('sl').min=t.out.date||'';
     document.getElementById('tfOther').hidden=!!(q('ofr').value&&q('oto').value);
     q('ofrx').parentElement.hidden=!!q('ofr').value;q('otox').parentElement.hidden=!!q('oto').value;
     const br=document.getElementById('tfBackRoute');br.textContent=t.out.from&&t.out.to?T('trip.back_auto',{route:t.out.to+' › '+t.out.from}):T('trip.back_optional');br.dir='auto';
@@ -978,14 +986,20 @@ const TRIPFORM=(()=>{
     pick('ofr',o.from,'TLV');pick('oto',o.to,'TBS');
     q('rd').value=r.date||'';q('rf').value=r.flight||'';q('rdp').value=r.departs||'';q('rar').value=r.arrives||'';
     manual=!!(t&&t.ski);q('sf').value=manual?t.ski.from:'';q('sl').value=manual?t.ski.to:'';
-    document.getElementById('tfDelete').hidden=!t;f.querySelectorAll('[aria-invalid]').forEach(e=>e.removeAttribute('aria-invalid'));paint();};
+    const del=document.getElementById('tfDelete');del.hidden=!t;delArm=0;del.textContent=T('trip.delete');f.querySelectorAll('[aria-invalid]').forEach(e=>e.removeAttribute('aria-invalid'));paint();};
   const fail=(n,key)=>{err.textContent=T(key);err.hidden=false;if(n){q(n).setAttribute('aria-invalid','true');q(n).focus();}};
   f.addEventListener('input',e=>{if(e.target.name)e.target.removeAttribute('aria-invalid');paint();});
   f.addEventListener('change',paint);
   document.getElementById('tfSkiBtn').addEventListener('click',()=>{manual=!manual;if(manual&&!q('sf').value){const a=MYTRIP.skiAuto(read().out,read().ret);if(a){q('sf').value=a.from;q('sl').value=a.to;}}paint();});
-  document.getElementById('tfDelete').addEventListener('click',()=>{const was=MYTRIP.get();MYTRIP.set(null);window.ACCOUNT&&ACCOUNT.tripDeleted(was&&was.sid);renderTicket();countdown(document.documentElement.dataset.theme==='dark');location.hash='#home';});
+  let delArm=0;
+  document.getElementById('tfDelete').addEventListener('click',e=>{
+    if(Date.now()-delArm>6000){delArm=Date.now();e.currentTarget.textContent=T('trip.delete_confirm');return;} // two taps, as in the app
+    const was=MYTRIP.get();MYTRIP.set(null);window.ACCOUNT&&ACCOUNT.tripDeleted(was&&was.sid);renderTicket();countdown(document.documentElement.dataset.theme==='dark');location.hash='#home';});
   f.addEventListener('submit',e=>{e.preventDefault();err.hidden=true;const t=read();
     if(!MYTRIP.ISO.test(t.out.date))return fail('od','trip.need_date');
+    const old=MYTRIP.get(),d0=today();
+    if(t.out.date<d0&&!(old&&old.out.date===t.out.date))return fail('od','trip.past_date');
+    if(t.ret&&t.ret.date<d0&&!(old&&old.ret&&old.ret.date===t.ret.date))return fail('rd','trip.past_date');
     for(const n of ['ofr','oto'])if(!q(n).value&&!/^[A-Z]{3}$/.test(q(n+'x').value.trim().toUpperCase()))return fail(n+'x','trip.bad_code');
     if(t.ret&&t.ret.date<t.out.date)return fail('rd','trip.bad_order');
     if(t.ski&&t.ski.to<t.ski.from)return fail('sl','trip.bad_order');

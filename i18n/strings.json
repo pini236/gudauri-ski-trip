@@ -12541,6 +12541,29 @@
     "ka"
    ]
   },
+  "trip.delete_confirm": {
+   "he": "בטוח? לחיצה נוספת מוחקת",
+   "en": "Sure? Tap again to delete",
+   "ru": "Точно? Нажмите ещё раз, чтобы удалить",
+   "ka": "დარწმუნებული ხართ? წასაშლელად კვლავ შეეხეთ",
+   "where": "site/js/app.js",
+   "note": "the second tap deletes, as in the app",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "trip.past_date": {
+   "he": "התאריך הזה כבר עבר.",
+   "en": "That date has already passed.",
+   "ru": "Эта дата уже прошла.",
+   "ka": "ეს თარიღი უკვე გავიდა.",
+   "where": "site/js/app.js",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
   "trip.edit": {
    "he": "עריכה",
    "en": "Edit",
