@@ -438,4 +438,5 @@ fi
 
 kill "$LOGCAT" 2> /dev/null
 note "screenshots: $n · failures: $FAILS"
-exit 0
+# a failure turns the run red (2.10.2026, after clean runs in a row); the results are published either way
+[ "$FAILS" -eq 0 ]
