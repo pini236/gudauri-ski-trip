@@ -8,7 +8,8 @@
 // people's data to an app.
 //
 // Errors are short codes (for example "not_admin"); each app maps them
-// to a message in its own language. The list is in server/README.md.
+// to a message in its own language. The contract (every action, field,
+// answer and error code) is server/CONTRACT.md.
 
 import type postgres from "postgres";
 
@@ -35,17 +36,8 @@ export class ApiError extends Error {
   }
 }
 
-// Abuse protection; the numbers are a first guess (docs/USERS.md).
-export const LIMITS = {
-  tripsPerUser: 20, // enforced by the database trigger
-  groupsCreatedPerUser: 20,
-  membersPerGroup: 100,
-  failsPer15Min: 5,
-  failsPerDay: 20,
-  globalFailsPerHour: 300,
-  anonCleanupDays: 30,
-  auditDays: 180,
-};
+// Abuse protection: the numbers are in one place, private.limits() in the
+// database (server/supabase/migrations/), read here inside the queries.
 
 const CODE_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ"; // no I or O
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -209,12 +201,14 @@ async function attemptsBlocked(tx: Tx, user: string, short: boolean): Promise<bo
     select
       count(*) filter (where user_id = ${user} and at > now() - interval '15 minutes') as mine15,
       count(*) filter (where user_id = ${user}) as mine_day,
-      count(*) filter (where at > now() - interval '1 hour') as everyone_hour
+      count(*) filter (where at > now() - interval '1 hour') as everyone_hour,
+      (select private.limits()) as l
     from private.invite_attempts
     where not ok and at > now() - interval '1 day'`;
-  return Number(r.mine15) >= LIMITS.failsPer15Min ||
-    Number(r.mine_day) >= LIMITS.failsPerDay ||
-    (short && Number(r.everyone_hour) >= LIMITS.globalFailsPerHour);
+  const l = r.l as Record<string, number>;
+  return Number(r.mine15) >= l.fails_per_15_min ||
+    Number(r.mine_day) >= l.fails_per_day ||
+    (short && Number(r.everyone_hour) >= l.global_fails_per_hour);
 }
 
 // A working invite for a code or token, counting the attempt.
@@ -244,8 +238,8 @@ async function useCode(tx: Tx, user: string, raw: unknown): Promise<{ invite?: I
 // ---------------------------------------------------------------------
 
 async function addMember(tx: Tx, group: string, user: string, name: string, memberRole = "member") {
-  const [r] = await tx`select count(*)::int as n from public.group_members where group_id = ${group}`;
-  if (r.n >= LIMITS.membersPerGroup) throw new ApiError("group_full", 409);
+  const [r] = await tx`select count(*)::int as n, (private.limits() ->> 'members_per_group')::int as max from public.group_members where group_id = ${group}`;
+  if (r.n >= r.max) throw new ApiError("group_full", 409);
   await tx`insert into public.group_members (group_id, user_id, role, display_name)
            values (${group}, ${user}, ${memberRole}, ${name})`;
 }
@@ -403,8 +397,9 @@ const actions: Record<string, Action> = {
     const starts = optDate(body, "starts_on");
     const ends = optDate(body, "ends_on");
     const trip = optUuid(body, "trip_id");
-    const [c] = await tx`select count(*)::int as n from public.groups where created_by = ${user}`;
-    if (c.n >= LIMITS.groupsCreatedPerUser) throw new ApiError("too_many_groups", 409);
+    const [c] = await tx`select count(*)::int as n, (private.limits() ->> 'groups_created_per_user')::int as max
+                         from public.groups where created_by = ${user}`;
+    if (c.n >= c.max) throw new ApiError("too_many_groups", 409);
     const [g] = await tx`insert into public.groups (name, starts_on, ends_on, created_by)
                          values (${name}, ${starts}, ${ends}, ${user}) returning id`;
     await addMember(tx, g.id, user, display, "admin");
@@ -492,8 +487,8 @@ const actions: Record<string, Action> = {
     const group = r.invite.group_id;
     await lockGroup(tx, group);
     if (await role(tx, group, user)) return { status: "already_member", group_id: group };
-    const [c] = await tx`select count(*)::int as n from public.group_members where group_id = ${group}`;
-    if (c.n >= LIMITS.membersPerGroup) return { status: "group_full" };
+    const [c] = await tx`select count(*)::int as n, (private.limits() ->> 'members_per_group')::int as max from public.group_members where group_id = ${group}`;
+    if (c.n >= c.max) return { status: "group_full" };
     if (r.invite.requires_approval) {
       await tx`
         insert into public.join_requests (group_id, user_id, display_name, kind)
@@ -740,11 +735,11 @@ async function keepalive(d: Deps): Promise<Result> {
       await tx`update private.heartbeat set cleaned_at = now() where id = 1`;
       await tx`delete from private.invite_attempts where at < now() - interval '2 days'`;
       await tx`delete from private.merge_tickets where expires_at < now()`;
-      await tx`delete from private.audit_log where at < now() - make_interval(days => ${LIMITS.auditDays})`;
+      await tx`delete from private.audit_log where at < now() - make_interval(days => (private.limits() ->> 'audit_days')::int)`;
       removed = (await tx`
         select u.id from auth.users u
         where u.is_anonymous
-          and u.created_at < now() - make_interval(days => ${LIMITS.anonCleanupDays})
+          and u.created_at < now() - make_interval(days => (private.limits() ->> 'anon_cleanup_days')::int)
           and not exists (select 1 from public.group_members m where m.user_id = u.id)
           and not exists (select 1 from public.join_requests q where q.user_id = u.id and q.status = 'pending')
           and not exists (select 1 from private.merge_tickets t where t.anon_user_id = u.id)
