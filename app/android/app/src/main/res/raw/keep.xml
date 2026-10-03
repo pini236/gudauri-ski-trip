@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The research notes of a run are read by their name (research_<run>_notes, map/RunSheet.kt): kept when the release
+     build drops resources that no code names directly. -->
+<resources xmlns:tools="http://schemas.android.com/tools" tools:keep="@string/research_*" />

@@ -421,6 +421,49 @@ phone() {
   adb shell cmd locale set-app-locales "$PKG" --locales he > /dev/null 2>&1; sleep 2
 }
 
+# ---- the run view (13.3, the site's T1 to T4): the sign and the panel, the profile that moves the dot, a swipe to the
+# next run, a lift's panel, the list of runs with the filters, and English (map/RunSheet.kt) ----
+runview() {
+  local up="$((W / 2)) $((H * 90 / 100)) $((W / 2)) $((H * 50 / 100)) 500" xy
+  adb shell am force-stop "$PKG"; sleep 1; mark
+  adb shell "am start -W -n $ACT --es qa.tab map --es qa.time 2027-01-12T11:00 --es qa.stats off" > /dev/null
+  waitlog "scene ready" 120 && waitlog "shadow ready" 120
+  mark; qa "--es qa.run 'Tatra 2'"; waitlog "selected Tatra 2" 20; sleep 3; shot run-head
+  mark; tapText "הצגת כל הפרטים" && waitlog "panel open" 5 && { sleep 1.5; shot run-panel; }
+  # the profile: a finger along it moves the dot on the mountain
+  drag $up; sleep 1
+  xy=$(where "מיקום לאורך המסלול, מלמעלה למטה")
+  if [ -n "$xy" ]; then set -- $xy; mark; drag $((W / 8)) "$2" $((W * 5 / 8)) "$2" 900; waitlog "profile scrub Tatra 2" 5; sleep 1.5; shot run-profile
+  else fail "no elevation profile"; fi
+  drag $up; sleep 1; shot run-ahead
+  drag $up; sleep 1; shot run-connections
+  drag $up; sleep 1; shot run-research
+  drag $up; sleep 1; shot run-videos
+  # the next run: a swipe across the sign (as on the site, to the left is the next one)
+  xy=$(where "המסלול הבא: Kudebi 1"); if [ -n "$xy" ]; then set -- $xy; mark; drag $((W * 3 / 4)) "$2" $((W / 6)) "$2" 300; waitlog "selected Kudebi 1" 10 && { sleep 3; shot run-next; }; else fail "no step to the next run"; fi
+  # a lift of the run: its panel
+  mark; tapText "הצגת כל הפרטים" && waitlog "panel open" 5; sleep 1
+  for i in 1 2 3; do xy=$(where "Kudebi"); [ -n "$xy" ] && break; drag $up; sleep 1; done
+  mark; tapText "Kudebi" && waitlog "lift open Kudebi" 5 && { sleep 3; shot lift-panel; drag $up; sleep 1; shot lift-panel-runs; }
+  # the list of all runs, and the filters
+  qa "--es qa.run none"; sleep 2
+  mark; tapText "כל המסלולים" && waitlog "run list open" 5 && { sleep 1.5; shot run-list; }
+  mark; tapText "אדום" && waitlog "filter red off" 5 && { sleep 2; shot run-list-no-red; }
+  mark; tapText "אדום" && waitlog "filter red on" 5
+  drag $up; sleep 1; shot run-list-runs
+  for i in 1 2 3 4; do xy=$(where "Sadzele 1"); [ -n "$xy" ] && break; drag $up; sleep 1; done
+  mark; tapText "Sadzele 1" && waitlog "selected Sadzele 1" 10 && { sleep 3; shot run-from-list; }
+  # English: the same panel, left to right
+  adb shell cmd locale set-app-locales "$PKG" --locales en > /dev/null 2>&1; sleep 3
+  adb shell am force-stop "$PKG"; sleep 1; mark
+  adb shell "am start -W -n $ACT --es qa.tab map --es qa.time 2027-01-12T11:00 --es qa.stats off" > /dev/null
+  waitlog "scene ready" 120 && waitlog "shadow ready" 120
+  mark; qa "--es qa.run 'Tatra 2'"; waitlog "selected Tatra 2" 20; sleep 3; shot run-head-en
+  mark; tapText "Show all the details" && waitlog "panel open" 5 && { sleep 1.5; shot run-panel-en; drag $up; sleep 1; shot run-profile-en; }
+  adb shell cmd locale set-app-locales "$PKG" --locales he > /dev/null 2>&1; sleep 3
+  qa "--es qa.run none --es qa.tab home"; sleep 1
+}
+
 # ---- the lift status (13.4, the site's S1 to S3): no report, an old one, a fresh one (status/LiftStatus.kt) ----
 status() {
   local up="$((W / 2)) $((H * 85 / 100)) $((W / 2)) $((H * 45 / 100)) 400"
@@ -496,7 +539,8 @@ for sc in ${SCENARIO//,/ }; do
     lang) lang ;;
     phone) phone ;;
     store) store ;;
-    *) map; descent; home; group; meet; status; lang; phone; store ;;
+    run) runview ;;
+    *) map; descent; home; group; meet; status; runview; lang; phone; store ;;
   esac
 done
 

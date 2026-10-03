@@ -118,8 +118,8 @@ class MapView(context: Context, refreshHz: Float, val stats: FrameStats) : Frame
     var scene: MapScene? = null; private set
     var selected: Piste? = null; private set
     var onSelect: ((Piste?) -> Unit)? = null
-    /** The activity's listener: the chosen run goes into the saved place (nav/Nav.kt). */
-    var onChosen: ((Piste?) -> Unit)? = null
+    /** The activity's listener: the chosen run goes into the saved place (nav/Nav.kt); [via] how (run_open's `via`). */
+    var onChosen: ((Piste?, String) -> Unit)? = null
     var onFlying: ((Boolean) -> Unit)? = null
     val msaa get() = surface.msaa
 
@@ -181,12 +181,16 @@ class MapView(context: Context, refreshHz: Float, val stats: FrameStats) : Frame
     }
 
     // ---- selection ----
-    /** [chosen]: the person picked it now (a tap); false when the map only paints again what was already chosen. */
-    fun select(p: Piste?, chosen: Boolean = true) {
+    /**
+     * [chosen]: the person picked it now (a tap on the map, or [via] the list, the sign's steps, a link); false when the
+     * map only paints again what was already chosen.
+     */
+    fun select(p: Piste?, chosen: Boolean = true, via: String = "map") {
         val s = scene ?: return
         selected = p
         onSelect?.invoke(p)
-        if (chosen) onChosen?.invoke(p)
+        if (chosen) onChosen?.invoke(p, via)
+        renderer.marker = null
         if (p == null) { renderer.select(null); Qa.log("selected none"); return }
         inBackground {
             val lines = s.topDown(p)
@@ -232,6 +236,13 @@ class MapView(context: Context, refreshHz: Float, val stats: FrameStats) : Frame
     }
 
     fun stopFly() { renderer.stopFly() }
+
+    /** A dot on the mountain at a point of the chosen run (its profile under the finger, T2); null takes it away. */
+    fun mark(x: Float, y: Float) { val s = scene ?: return; renderer.marker = floatArrayOf(x, s.terrain.elev(x, y), y); surface.requestRender() }
+    fun unmark() { if (renderer.marker != null) { renderer.marker = null; surface.requestRender() } }
+
+    /** The map's filters (the site's): these runs and, with [lifts] false, the lifts are not drawn, and a tap passes them by. */
+    fun setHidden(keys: Set<String>, lifts: Boolean) { renderer.hidden = keys; renderer.hideLifts = !lifts; surface.requestRender() }
 
     /** The lift status on the mountain (S1): closed lifts and runs, and "only what's open for me". */
     fun setStatus(p: StatusPaint) { renderer.status = p; surface.requestRender() }
@@ -366,7 +377,8 @@ class MapView(context: Context, refreshHz: Float, val stats: FrameStats) : Frame
         val mvp = FloatArray(16); val eye = FloatArray(3); val v = FloatArray(4); val o = FloatArray(4)
         OrbitCamera.mvp(camera.state(), width.toFloat() / height, mvp, eye) { x, z -> s.terrain.elev(x, z) }
         var best: Piste? = null; var bestD = 28 * density
-        for (p in s.runs.pistes) for (l in s.draped[p.key] ?: emptyList()) {
+        val off = renderer.hidden
+        for (p in s.runs.pistes) if (p.key !in off) for (l in s.draped[p.key] ?: emptyList()) {
             var i = 0
             while (i < l.size / 3) {
                 v[0] = l[i * 3]; v[1] = l[i * 3 + 1]; v[2] = l[i * 3 + 2]; v[3] = 1f

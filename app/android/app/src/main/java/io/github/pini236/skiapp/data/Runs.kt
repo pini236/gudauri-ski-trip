@@ -13,12 +13,29 @@ class Piste(
     val key: String, val name: String, val color: String, val named: Boolean, val kind: String, val lines: List<FloatArray>,
     val toLifts: List<String> = emptyList(), val fromPistes: List<String> = emptyList(), val lat: Double = 0.0,
     val fromLifts: List<String> = emptyList(),
+    /** What the run's panel shows (13.3): the length in metres, the trail numbers, OSM's grades, grooming and lights. */
+    val len: Int = 0, val refs: List<String> = emptyList(), val osmDiff: List<String> = emptyList(),
+    val groom: List<String> = emptyList(), val lit: List<String> = emptyList(), val joins: List<String> = emptyList(),
+    /** The OSM ways it is drawn from, and whether one of its parts is an area (a beginner zone). */
+    val osmIds: List<Long> = emptyList(), val hasArea: Boolean = false, val research: Research? = null,
+)
+
+/** Where a filled-in run comes from (site/data/runs-and-lifts.json, research); the notes are in Hebrew in the data. */
+class Research(
+    val conf: String, val status: String, val notes: String, val sources: List<String>, val gps: Int,
+    val osmIds: List<Long>, val historical: Boolean, val partial: String?,
 )
 
 /** A lift: its line in projected metres, from its first point. [status] "inactive" for one that does not run. */
-class Lift(val name: String, val kind: String, val pts: FloatArray, val id: String = "", val status: String? = null, val lat: Double = 0.0)
+class Lift(
+    val name: String, val kind: String, val pts: FloatArray, val id: String = "", val status: String? = null, val lat: Double = 0.0,
+    /** The lift's panel (13.3): length in metres, ride minutes, seats, bubble, people an hour, rise and year, from OSM. */
+    val len: Int = 0, val dur: String? = null, val occ: String? = null, val bubble: String? = null,
+    val cap: String? = null, val rise: String? = null, val year: String? = null,
+)
 
-class Runs(val pistes: List<Piste>, val lifts: List<Lift>) {
+/** [fetched]: when the lines were taken from OSM; [researchDate]: when the missing runs were filled in (the list's source). */
+class Runs(val pistes: List<Piste>, val lifts: List<Lift>, val fetched: String = "", val researchDate: String = "") {
     /** The main side of the mountain, without Kobi (the site's mainPistes and mainLifts). */
     val mainPistes: List<Piste> get() = pistes.filter { it.lat <= KOBI_LAT }
     val mainLifts: List<Lift> get() = lifts.filter { it.lat <= KOBI_LAT }
@@ -29,7 +46,14 @@ class Runs(val pistes: List<Piste>, val lifts: List<Lift>) {
 
         /** JSON null counts as missing (Android's org.json would otherwise return the text "null"). */
         private fun JSONObject.str(k: String, fallback: String) = if (isNull(k)) fallback else getString(k)
+        private fun JSONObject.strOrNull(k: String): String? = if (!has(k) || isNull(k)) null else get(k).toString().takeIf { it.isNotBlank() }
         private fun JSONObject.strings(k: String): List<String> = optJSONArray(k)?.let { a -> (0 until a.length()).map { a.getString(it) } }.orEmpty()
+        private fun JSONObject.longs(k: String): List<Long> = optJSONArray(k)?.let { a -> (0 until a.length()).map { a.getLong(it) } }.orEmpty()
+
+        private fun research(r: JSONObject?) = r?.let {
+            Research(it.str("conf", ""), it.str("status", ""), it.str("notes", ""), it.strings("sources"), it.optInt("gps", 0),
+                it.longs("osmIds"), it.optBoolean("historical", false), it.strOrNull("partial"))
+        }
 
         /** The mean latitude of every point of these lines (the site's meanLat). */
         private fun meanLat(lines: List<JSONArray>): Double {
@@ -60,15 +84,18 @@ class Runs(val pistes: List<Piste>, val lifts: List<Lift>) {
                     .map { line(it.getJSONArray("g")) }
                     .filter { it.size >= 4 }
                 Piste(p.getString("key"), p.str("name", p.getString("key")), p.str("color", "black"), p.optBoolean("named", false), p.str("kind", "run"), lines,
-                    p.strings("toLifts"), p.strings("fromPistes"), meanLat(all.map { it.getJSONArray("g") }), p.strings("fromLifts"))
+                    p.strings("toLifts"), p.strings("fromPistes"), meanLat(all.map { it.getJSONArray("g") }), p.strings("fromLifts"),
+                    p.optInt("len", 0), p.strings("refs"), p.strings("osmDiff"), p.strings("groom"), p.strings("lit"), p.strings("joins"),
+                    all.map { it.optLong("id") }, all.any { it.optBoolean("area", false) }, research(p.optJSONObject("research")))
             }
             val ls = o.getJSONArray("lifts")
             val lifts = (0 until ls.length()).map { i ->
                 val l = ls.getJSONObject(i)
                 val g = l.getJSONArray("g")
-                Lift(l.str("name", ""), l.str("kind", ""), line(g), l.opt("id")?.toString() ?: "", if (l.isNull("status")) null else l.optString("status"), meanLat(listOf(g)))
+                Lift(l.str("name", ""), l.str("kind", ""), line(g), l.opt("id")?.toString() ?: "", if (l.isNull("status")) null else l.optString("status"), meanLat(listOf(g)),
+                    l.optInt("len", 0), l.strOrNull("dur"), l.strOrNull("occ"), l.strOrNull("bubble"), l.strOrNull("cap"), l.strOrNull("rise"), l.strOrNull("year"))
             }
-            return Runs(pistes, lifts)
+            return Runs(pistes, lifts, o.str("fetched", ""), o.optJSONObject("research")?.str("date", "") ?: "")
         }
     }
 }
