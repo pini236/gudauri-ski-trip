@@ -60,7 +60,7 @@
 | `map_view` | מעבר בין תלת-ממד למבט על | `view`: `3d`, `2d` |
 | `map_fallback` | התלת-ממד לא עלה והאתר עבר למבט על | `reason`: `no_webgl`, `lib_failed` |
 | `map_filter` | שינוי סינון | `filter`: `green`, `blue`, `red`, `black`, `lifts`, `unnamed`; `on`: true/false |
-| `run_open` | פתיחת מסלול | `run` (מפתח המסלול, למשל `Tatra 2`); `color`; `via`: `map`, `list`, `swipe`, `link`, `meet`, `search` |
+| `run_open` | פתיחת מסלול | `run` (מפתח המסלול, למשל `Tatra 2`); `color`; `via`: `map`, `list`, `swipe`, `link`, `meet` (בלי חיפוש, החלטה 50) |
 | `run_profile_scrub` | גרירה על פרופיל הגובה (פעם אחת לכל פתיחת מסלול) | `run` |
 | `run_fly_start` | התחלת טיסה במורד המסלול | `run` |
 | `run_fly_end` | סוף הטיסה או עצירה | `run`; `completed`: true/false; `seconds` |
