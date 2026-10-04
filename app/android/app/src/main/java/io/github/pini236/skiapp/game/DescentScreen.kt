@@ -162,21 +162,22 @@ fun DescentScreen(profiles: List<Profile>, haptics: Haptics, onBack: () -> Unit,
     fun stars(i: Int) = Bests.level(context, "descent", i + 1)
     fun bestTime(key: String) = prefs.getFloat("best-$key", -1f)
 
-    // usage statistics, as the site: level = the run, score = the points; best = a new best time on the run
+    // usage statistics: level = the run, score = the points; best = a new record of the points (the contract, and the
+    // group's table; on the site it is still a faster time, S-33)
     var started by remember { mutableStateOf(0L) }
-    fun gameEnd(g: DescentGame, ok: Boolean, best: Boolean) {
+    fun gameEnd(g: DescentGame, ok: Boolean) {
         if (started == 0L) return
+        val best = Bests.ended(context, "descent", null, g.score)
         Telemetry.event("game_end", mapOf("game" to "descent", "level" to g.c.key, "score" to g.score,
             "seconds" to ((System.currentTimeMillis() - started) / 1000.0).roundToInt(), "completed" to ok, "best" to best))
         started = 0L
-        // the group's table: the best points (the site's telemetry best())
-        if (Bests.ended(context, "descent", null, g.score)) onBest()
+        if (best) onBest()
     }
     fun playing() = phase == Ride.PLAY && game?.state != DescentGame.State.END
     fun stop() { hiss?.stop(); hiss = null }
-    fun toMenu() { game?.let { if (playing()) gameEnd(it, false, false) }; stop(); view.game = null; game = null; phase = Ride.MENU; menuV++ }
+    fun toMenu() { game?.let { if (playing()) gameEnd(it, false) }; stop(); view.game = null; game = null; phase = Ride.MENU; menuV++ }
     fun start() {
-        game?.let { if (playing()) gameEnd(it, false, false) }
+        game?.let { if (playing()) gameEnd(it, false) }
         val c = Course(profiles[runIdx], runIdx, me)
         val ghost = if (useGhost) DescentGame.Ghost.load(prefs.getString("ghost-${c.key}", null)) else null
         pop = null; banner = null; tip = null; combo = 1; newBest = false; copied = false
@@ -197,7 +198,7 @@ fun DescentScreen(profiles: List<Profile>, haptics: Haptics, onBack: () -> Unit,
                 val best = ok && (prev < 0 || g.t < prev)
                 if (best) { prefs.edit().putFloat("best-${g.c.key}", g.t).putInt("bestWho-${g.c.key}", me).putString("ghost-${g.c.key}", g.record().save()).apply() }
                 newBest = best
-                gameEnd(g, ok, best)
+                gameEnd(g, ok)
                 hiss?.gain = 0f
                 phase = Ride.END; menuV++
                 Qa.log("descent done ${g.c.key} ${if (ok) "lift" else "caught"} ${g.stars} stars ${g.score} points")
@@ -219,7 +220,7 @@ fun DescentScreen(profiles: List<Profile>, haptics: Haptics, onBack: () -> Unit,
     DisposableEffect(Unit) {
         DescentQa.go = { if (phase != Ride.PLAY) start() }
         DescentQa.bottom = { game?.toBottom() }
-        onDispose { game?.let { if (playing()) gameEnd(it, false, false) }; hiss?.stop(); DescentQa.go = null; DescentQa.bottom = null }
+        onDispose { game?.let { if (playing()) gameEnd(it, false) }; hiss?.stop(); DescentQa.go = null; DescentQa.bottom = null }
     }
     BackHandler(enabled = phase != Ride.MENU) { toMenu() }
 
