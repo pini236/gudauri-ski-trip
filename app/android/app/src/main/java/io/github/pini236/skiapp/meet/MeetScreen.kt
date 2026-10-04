@@ -139,6 +139,7 @@ fun MeetScreen(
     val day = LocalDate.parse(dayIso); val time = Meet.parseTime(timeTxt)
     val station = plan?.byId?.get(sid)
     val view = remember { MeetView() }
+    view.still = io.github.pini236.skiapp.status.reducedMotion()
     val scope = rememberCoroutineScope()
     var undo by remember { mutableStateOf<Pair<String, String?>?>(null) }
     var toast by remember { mutableIntStateOf(0) }

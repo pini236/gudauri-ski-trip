@@ -29,4 +29,16 @@ class DayNightTest {
         assertEquals("23:00", DayNight.at(gud(23), Mode.DAY).clock) // the clock always tells the real time
         assertEquals(Mode.DAY, Mode.AUTO.next()); assertEquals(Mode.AUTO, Mode.NIGHT.next())
     }
+
+    @Test fun theMountainIsLitAsTheSwitchSays() {
+        // auto: now; day: that day's solar noon in Gudauri; night: 22:00 there (the site's state() for its 3D light)
+        val at = gud(23)
+        assertEquals(at, DayNight.lightTime(at, Mode.AUTO))
+        val night = java.time.Instant.ofEpochMilli(DayNight.lightTime(at, Mode.NIGHT)).atOffset(ZoneOffset.ofHours(4))
+        assertEquals(22, night.hour); assertEquals(0, night.minute)
+        assertEquals(java.time.Instant.ofEpochMilli(at).atOffset(ZoneOffset.ofHours(4)).toLocalDate(), night.toLocalDate())
+        val day = java.time.Instant.ofEpochMilli(DayNight.lightTime(at, Mode.DAY)).atOffset(ZoneOffset.ofHours(4))
+        assertTrue("solar noon in Gudauri is about 13:00 local time", day.hour in 12..13)
+        assertFalse(io.github.pini236.skiapp.map.Sky.at(DayNight.lightTime(at, Mode.DAY)).dark)
+    }
 }

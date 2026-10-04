@@ -72,7 +72,7 @@ import kotlinx.coroutines.delay
 @Composable
 fun reducedMotion(): Boolean {
     val ctx = LocalContext.current
-    return remember { Settings.Global.getFloat(ctx.contentResolver, Settings.Global.ANIMATOR_DURATION_SCALE, 1f) == 0f }
+    return remember { io.github.pini236.skiapp.ui.Motion.reduced(ctx) }
 }
 
 /** "6 min ago", "now", "2 hr ago" (status.ago_*). */

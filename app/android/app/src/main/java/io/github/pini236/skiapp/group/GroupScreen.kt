@@ -217,12 +217,14 @@ fun GroupScreen(
                 when (tab) {
                     GroupTab.FLIGHTS -> Flights(g, myTrip,
                         onSame = { sheet = "same" },
+                        onSameAs = { tid -> r.run { onMyTrip(api.sameFlight(g.id, tid)); reload() } },
                         onShowMine = { r.run { api.showMyTrip(g.id, g.me?.name ?: "", myTrip); reload() } },
                         onFillFor = { id -> if (g.members.any { it.trip != null }) { forMember = id; sheet = "fill" } else onFillNew(id) })
                     GroupTab.MEETUPS -> Meetups(g, now, station, spot, onOpenMeetup, onNewMeetup, onMeetups,
                         onDelete = { m -> r.run { api.removeMeetup(g.id, m.id); reload() } })
                     GroupTab.SCORES -> Scores(api, g)
-                    GroupTab.MEMBERS -> Members(api, g, r, reload = { reload() }, onInvite = onInvite, onEdit = { sheet = "edit" }, onLeft = onLeft)
+                    GroupTab.MEMBERS -> Members(api, g, r, reload = { reload() }, onInvite = onInvite, onEdit = { sheet = "edit" }, onLeft = onLeft,
+                        onFill = { m -> if (m.trip == null && g.members.any { it.trip != null }) { forMember = m.userId; sheet = "fill" } else onFillNew(m.userId) })
                 }
                 ErrorLine(r)
             }
@@ -335,7 +337,9 @@ private fun legWhen(l: Leg, ret: Boolean): String = listOfNotNull(
  */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun Flights(g: Group, myTrip: Trip?, onSame: () -> Unit, onShowMine: () -> Unit, onFillFor: (String) -> Unit) {
+private fun Flights(g: Group, myTrip: Trip?, onSame: () -> Unit, onShowMine: () -> Unit, onFillFor: (String) -> Unit,
+                    /** "I'm on the same flight" on a flight I am not on (the site's data-same): that trip's id. */
+                    onSameAs: (String) -> Unit = {}) {
     val c = Ski.colors
     val legs = buildList {
         for (m in g.members) {
@@ -360,6 +364,10 @@ private fun Flights(g: Group, myTrip: Trip?, onSame: () -> Unit, onShowMine: () 
                 }
                 rows.map { it.third }.firstOrNull { it.enteredByAdmin != null }?.let { m ->
                     Muted(stringResource(R.string.app_g_entered_by, m.enteredByAdmin!!, m.name), Modifier.padding(top = 6.dp), 12f)
+                }
+                // as on the site: on every outbound flight I am not on (the trip is copied whole, so not on a return)
+                if (!key.first && rows.none { it.third.me }) rows.first().third.tripId?.let { tid ->
+                    Box(Modifier.padding(top = 8.dp)) { Button2(stringResource(R.string.app_g_same_flight), Look.GHOST, { onSameAs(tid) }, small = true, full = false) }
                 }
             }
             Column(Modifier.width(64.dp).fillMaxHeight().background(c.bpPaper2).drawBehind {
@@ -514,7 +522,9 @@ private fun Scores(api: GroupApi, g: Group) {
  * Leaving and deleting ask twice.
  */
 @Composable
-private fun Members(api: GroupApi, g: Group, r: Runner, reload: () -> Unit, onInvite: () -> Unit, onEdit: () -> Unit, onLeft: () -> Unit) {
+private fun Members(api: GroupApi, g: Group, r: Runner, reload: () -> Unit, onInvite: () -> Unit, onEdit: () -> Unit, onLeft: () -> Unit,
+                    /** The admin fills in, or fixes, a member's flight (a member who entered their own is not offered it). */
+                    onFill: (Member) -> Unit = {}) {
     val c = Ski.colors
     var armed by remember { mutableStateOf<String?>(null) }
     LaunchedEffect(armed) { if (armed != null) { kotlinx.coroutines.delay(4000); armed = null } }
@@ -547,6 +557,8 @@ private fun Members(api: GroupApi, g: Group, r: Runner, reload: () -> Unit, onIn
                     DropdownMenu(menu, { menu = false }) {
                         if (m.role == Role.MEMBER) DropdownMenuItem({ Text(stringResource(R.string.app_g_make_admin)) }, { menu = false; r.run { api.setRole(g.id, m.userId, Role.ADMIN); reload() } })
                         else DropdownMenuItem({ Text(stringResource(R.string.app_g_unmake_admin)) }, { menu = false; r.run { api.setRole(g.id, m.userId, Role.MEMBER); reload() } })
+                        // as on the site: unless the member entered the flight themselves (A-20: a flight an admin entered can be fixed)
+                        if (m.trip == null || m.enteredByAdmin != null) DropdownMenuItem({ Text(stringResource(R.string.group_fill_trip)) }, { menu = false; onFill(m) })
                         // out of the group in two taps, as on the site: the item asks once more (the menu stays open)
                         val sure = armed == "rm:" + m.userId
                         DropdownMenuItem({ Text(if (sure) stringResource(R.string.group_remove_confirm, m.name) else stringResource(R.string.app_g_remove), color = c.red) }, {

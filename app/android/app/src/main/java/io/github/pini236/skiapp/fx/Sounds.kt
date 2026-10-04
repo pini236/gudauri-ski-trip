@@ -5,7 +5,7 @@ import android.media.AudioAttributes
 import android.media.SoundPool
 
 /** Short sounds from assets/audio (copied read-only from site/audio). SoundPool keeps them decoded for low latency. */
-class Sounds(context: Context) {
+class Sounds(private val context: Context) {
     private val pool = SoundPool.Builder()
         .setMaxStreams(6)
         .setAudioAttributes(
@@ -24,6 +24,7 @@ class Sounds(context: Context) {
     }
 
     fun play(name: String, volume: Float = 1f, rate: Float = 1f) {
+        if (!FxPrefs.sound(context)) return // the settings' switch (13.7)
         val id = ids[name] ?: return
         pool.play(id, volume, volume, 1, 0, rate.coerceIn(0.5f, 2f))
     }

@@ -25,6 +25,7 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.setValue
 import java.time.ZoneId
 import java.time.LocalDateTime
@@ -423,8 +424,9 @@ class MainActivity : ComponentActivity() {
     }
 
     /** Light: the sky over Gudauri at that time, as on the site: the sun by day, the moon at night (map/Sky.kt). */
+    /** The mountain's light: now, or noon or 22:00 in Gudauri when the switch says day or night, as on the site (A-11). */
     private fun placeSun(s: MapScene, timeMs: Long): String {
-        s.light = Sky.at(timeMs)
+        s.light = Sky.at(DayNight.lightTime(timeMs, dnMode))
         return s.light.note
     }
 
@@ -503,12 +505,21 @@ class MainActivity : ComponentActivity() {
 
     override fun onStop() { super.onStop(); if (!isChangingConfigurations) backgrounded = true }
 
-    /** The day and night switch (home, the invitation): kept, measured, and the events after it carry the new mode. */
+    /** A language from the sheet (home or settings; null: by the phone): the app comes back in it (the phone recreates the screen). */
+    private fun setLang(tag: String?) {
+        Telemetry.event("lang_set", mapOf("lang" to (tag ?: "auto"), "previous" to Lang.current(resources).tag))
+        Qa.log("lang set ${tag ?: "auto"}")
+        Lang.set(this, tag)
+    }
+
+    /** The day and night switch (home, the invitation, settings): kept, measured, and the events after it carry the new mode. */
     private fun nextMode() {
         dnMode = dnMode.next(); haptics.tick(.4f)
         getSharedPreferences("daynight", MODE_PRIVATE).edit().putString("mode", dnMode.name).apply()
         Telemetry.event("theme_set", mapOf("mode" to dnMode.name.lowercase()))
         Telemetry.setTheme(dnMode.name.lowercase())
+        // the mountain's light and shadows follow the switch
+        scene?.let { s -> inBackground { val note = placeSun(s, clockMs ?: System.currentTimeMillis()); runOnUiThread { sunNote = note }; castShadows(s) } }
     }
     override fun onDestroy() { super.onDestroy(); ui.removeCallbacks(skyTick); sounds.release(); mapView.release(); metricsThread.quitSafely(); loader.shutdownNow() }
 
@@ -537,6 +548,17 @@ class MainActivity : ComponentActivity() {
             else StatusPaint(runs.pistes.filter { lstat.runOpen(it) == false }.map { it.key }.toSet(),
                 runs.mainLifts.filter { lstat.isOpen(it.name.ifBlank { null }) == false }.map { it.name }.toSet(), forMe)
         }
+        // the group sign's line on home: my first group, read again each time home shows (A-27)
+        var firstGroup by remember { mutableStateOf<Pair<String, Int>?>(null) }
+        // me, for the pass's passenger (A-32): read again each time home shows (after signing in or out elsewhere)
+        var me by remember { mutableStateOf(if (groupApi.ready) groupApi.me() else null) }
+        LaunchedEffect(top) {
+            if ((top == Route.Home || top == Route.About) && groupApi.ready) { me = groupApi.me(); if (top == Route.Home) firstGroup = runCatching { groupApi.firstGroup() }.getOrNull() }
+        }
+        // the account on the pass and on the settings' ski pass (A-32)
+        val account = if (groupApi.ready) io.github.pini236.skiapp.home.Account(me, onManage = { nav.push(Route.Account) },
+            onSignIn = { nav.push(Route.Account) },
+            onSignOut = { lifecycleScope.launch { runCatching { groupApi.signOut() }; me = groupApi.me(); firstGroup = null; armReminders() } }) else null
         LaunchedEffect(paint) { mapView.setStatus(paint); if (paint !== StatusPaint.NONE) Qa.log("status on map: ${paint.closedLifts.size} lifts, ${paint.closedRuns.size} runs closed${if (paint.forMe) ", for me" else ""}") }
         // "opened since you checked": against the state the board showed last time, which is then kept
         val changes = remember(statusSheet, report) { if (statusSheet && lstat.fresh) lstat.changes(statusSource.before()) else emptyList() }
@@ -566,23 +588,21 @@ class MainActivity : ComponentActivity() {
             if (screen != null) Telemetry.event("screen_view", if (screen.startsWith("game:")) mapOf("screen" to "game", "game" to screen.removePrefix("game:")) else mapOf("screen" to screen))
         }
         // the whole app goes dark at night, as the site does; the spike's map and game keep their day colours
-        val spike = top is Route.Map || top is Route.Game
+        // the game keeps its day colours; the map follows the day and night switch, as on the site (A-11)
+        val spike = top is Route.Game
         val view = LocalView.current
         SideEffect { WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = spike || !frame.dark }
         SkiTheme(dark = frame.dark) {
             Box(Modifier.fillMaxSize().background(if (spike) Palette.snow else Ski.colors.snow)) {
                 when (top) {
-                    Route.Home -> HomeScreen(trip, frame, dnMode, LocalDateTime.ofInstant(Instant.ofEpochMilli(tick), ZoneId.systemDefault()), haptics, sounds, status = lstat,
-                        onLang = { tag ->
-                            // the app comes back in the new language (the phone recreates the screen); home stays home
-                            Telemetry.event("lang_set", mapOf("lang" to (tag ?: "auto"), "previous" to Lang.current(resources).tag))
-                            Qa.log("lang set ${tag ?: "auto"}")
-                            Lang.set(this@MainActivity, tag)
-                        },
+                    Route.Home -> HomeScreen(trip, frame, dnMode, LocalDateTime.ofInstant(Instant.ofEpochMilli(tick), ZoneId.systemDefault()), haptics, sounds, status = lstat, group = firstGroup,
+                        onLang = ::setLang,
                         onMode = ::nextMode,
+                        account = account,
                         go = { a ->
                             haptics.tick(.4f)
                             if (a == HomeAction.STATUS) statusSheet = true
+                            if (a == HomeAction.PRIVACY) { openPrivacy(); return@HomeScreen }
                             nav.push(when (a) {
                                 HomeAction.MAP, HomeAction.STATUS -> Route.Map(nav.find<Route.Map>()?.run)
                                 HomeAction.MEET -> Route.Meet()
@@ -590,6 +610,7 @@ class MainActivity : ComponentActivity() {
                                 HomeAction.GROUP -> Route.Group()
                                 HomeAction.ABOUT -> Route.About
                                 HomeAction.TRIP -> Route.Trip
+                                HomeAction.PRIVACY -> Route.Home
                             })
                         })
                     Route.Trip -> TripForm(trip, LocalDateTime.ofInstant(Instant.ofEpochMilli(tick), ZoneId.systemDefault()).toLocalDate(), onSave = { t -> keepTrip(t); Qa.log("trip saved"); nav.back() },
@@ -629,13 +650,17 @@ class MainActivity : ComponentActivity() {
                         onCreated = { id -> nav.back(); if (nav.top is Route.Group) nav.replaceTop(Route.Group(id, GroupTab.FLIGHTS.key)) else nav.push(Route.Group(id, GroupTab.FLIGHTS.key)) })
                     is Route.GroupInvite -> InviteScreen(groupApi, top.id) { nav.back() }
                     is Route.TripFor -> {
-                        // an admin fills in a new flight for a member: the same form, sent to the group (set_member_trip)
-                        val name by produceState<String?>(null, top) { value = runCatching { groupApi.group(top.group).members.firstOrNull { it.userId == top.user }?.name }.getOrNull() }
+                        // an admin fills in a flight for a member, or fixes one an admin entered (A-20): the same form, filled
+                        // with that flight, sent to the group (set_member_trip)
+                        val member by produceState<Pair<String, Trip?>?>(null, top) {
+                            value = runCatching { groupApi.group(top.group).members.firstOrNull { it.userId == top.user } }.getOrNull()?.let { it.name to it.trip } ?: ("…" to null)
+                        }
+                        val name = member?.first
                         val r = rememberRunner()
-                        TripForm(null, LocalDateTime.ofInstant(Instant.ofEpochMilli(tick), ZoneId.systemDefault()).toLocalDate(),
+                        if (member != null) key(member) { TripForm(member?.second, LocalDateTime.ofInstant(Instant.ofEpochMilli(tick), ZoneId.systemDefault()).toLocalDate(),
                             onSave = { t -> r.run { groupApi.setMemberTrip(top.group, top.user, t); Qa.log("member trip saved"); nav.back() } },
                             onDelete = {}, onCancel = { nav.back() },
-                            title = stringResource(R.string.group_trip_for, name ?: "…"), intro = stringResource(R.string.app_g_fill_new_sub), footer = { ErrorLine(r) })
+                            title = stringResource(R.string.group_trip_for, name ?: "…"), intro = stringResource(R.string.app_g_fill_new_sub), footer = { ErrorLine(r) }, canDelete = false) }
                     }
                     Route.JoinCode -> CodeScreen("", onBack = { nav.back() }) { c -> nav.replaceTop(Route.Join(c)) }
                     is Route.Join -> InvitedScreen(groupApi, top.code, frame, dnMode, onMode = ::nextMode, onAbout = { nav.push(Route.About) },
@@ -645,13 +670,14 @@ class MainActivity : ComponentActivity() {
                         nav.toStart(); nav.push(Route.Group(id, GroupTab.FLIGHTS.key))
                     }
                     Route.Account -> AccountScreen(groupApi, onBack = { nav.back() }, signInGoogle = ::signInGoogle) { nav.toStart(); armReminders() }
-                    Route.About -> AboutScreen(BuildConfig.VERSION_NAME, onPrivacy = ::openPrivacy,
-                        onAccount = if (groupApi.ready) ({ nav.push(Route.Account) }) else null) { nav.back() }
+                    Route.About -> AboutScreen(BuildConfig.VERSION_NAME, onPrivacy = ::openPrivacy, account = account, mode = dnMode, onMode = ::nextMode,
+                        lang = Lang.current(resources), langManual = Lang.manual(this@MainActivity), onLang = ::setLang,
+                        onResetBests = { getSharedPreferences("bests", MODE_PRIVATE).edit().clear().apply(); Qa.log("bests reset") }) { nav.back() }
                     else -> {
                         if (top is Route.Game) DescentScreen(profile, haptics, sounds)
                         else MapScreen(mapView, scene, videos = videos, ms = MapStatus(lstat, changes, LiftStatus.inSeason(LocalDateTime.ofInstant(Instant.ofEpochMilli(tick), ZoneId.systemDefault()).monthValue),
                             forMe, { on -> forMe = on; Telemetry.event("status_only_open", mapOf("on" to on)); Qa.log("for me ${if (on) "on" else "off"}") },
-                            statusSheet, { open -> statusSheet = open }))
+                            statusSheet, { open -> statusSheet = open }), dark = frame.dark)
                         if (showStats) StatsBar(top !is Route.Game, Modifier.align(Alignment.TopStart))
                         // the way home, over the mountain or the game
                         Box(Modifier.align(Alignment.TopEnd).statusBarsPadding().padding(6.dp).background(Color(0xE6FFFFFF))) {
