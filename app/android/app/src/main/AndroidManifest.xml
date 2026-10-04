@@ -4,6 +4,8 @@
     <uses-permission android:name="android.permission.VIBRATE" />
     <!-- data refresh from the site (data/SiteData.kt), and later videos, lift status and the group -->
     <uses-permission android:name="android.permission.INTERNET" />
+    <!-- the group write queue is sent as soon as the network is back (server/Sync.kt, R-7); a normal permission, no prompt -->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <!-- the meetups' reminders (Q8, meet/Reminders.kt): a notification a quarter of an hour before, set again after a restart -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />

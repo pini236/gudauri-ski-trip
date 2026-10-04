@@ -23,6 +23,8 @@ class SyncTest {
     private var best = 0
     private var refuse: String? = null
     private var hiccup: String? = null
+    private var garbled: String? = null
+    private val planned = mutableListOf<Pair<Long, Runnable>>()
 
     private val fake = Transport { r ->
         if (!online) throw Offline(java.io.IOException("no signal"))
@@ -33,6 +35,7 @@ class SyncTest {
                 val action = path.substringAfterLast('/')
                 if (action == refuse) return@Transport Response(403, """{"error":"not_member"}""")
                 if (action == hiccup) return@Transport Response(503, """{"error":"server_error"}""")
+                if (action == garbled) return@Transport Response(200, "<html>proxy</html>")
                 when (action) {
                     "submit_score" -> { best = maxOf(best, JSONObject(r.body!!).getInt("score")); Response(200, """{"best":$best}""") }
                     "group_leaderboard" -> Response(200, if (best > 0) """[{"user_id":"u1","display_name":"פיני","best":$best}]""" else "[]")
@@ -58,7 +61,8 @@ class SyncTest {
     }
 
     private val store = MemorySessionStore(Session("a", "r", now / 1000 + 3600, "u1", false))
-    private fun sync() = Sync(Server("https://x.supabase.co", "pk", store, fake, { now }), tmp.root, listOf("descent"), realtime = null, worker = { it.run() })
+    private fun sync() = Sync(Server("https://x.supabase.co", "pk", store, fake, { now }), tmp.root, listOf("descent"), realtime = null, worker = { it.run() },
+        later = { ms, task -> planned += ms to task })
 
     @Test fun aGroupIsKeptOnThePhone() {
         val s = sync()
@@ -180,5 +184,53 @@ class SyncTest {
         s.forget()
         assertTrue(s.myGroups.value.groups.isEmpty())
         assertTrue(tmp.root.listFiles()!!.isEmpty())
+    }
+
+    @Test fun anAnswerThatIsNotJsonKeepsTheWriteAndDoesNotCrash() {
+        val s = sync()
+        val g = s.group("g1")
+        g.open()
+        garbled = "submit_score"
+        g.submitScore("descent", 40)
+        assertEquals("the score waits", 1, g.state.value.waiting)
+        assertEquals(listOf(Sync.FIRST_RETRY_MS), planned.map { it.first })
+        garbled = null
+        planned.removeAt(0).second.run() // the planned try
+        assertEquals(0, g.state.value.waiting)
+        assertEquals(40, best)
+        assertEquals("a queue that got through starts the count again", 0L, s.nextRetryMs)
+    }
+
+    @Test fun aStuckQueueIsTriedAgainWithAGrowingWait() {
+        val s = sync()
+        val g = s.group("g1")
+        g.open()
+        hiccup = "submit_score"
+        g.submitScore("descent", 10)
+        val waits = mutableListOf<Long>()
+        repeat(9) {
+            waits += planned.single().first
+            planned.removeAt(0).second.run()
+        }
+        assertEquals(listOf(5_000L, 10_000L, 20_000L, 40_000L, 80_000L, 160_000L, 300_000L, 300_000L, 300_000L), waits)
+        hiccup = null
+        planned.removeAt(0).second.run()
+        assertEquals(10, best)
+        assertTrue("nothing more is planned", planned.isEmpty())
+    }
+
+    @Test fun noSignalPlansATryAndAQueueThatWentThroughPlansNone() {
+        val s = sync()
+        val g = s.group("g1")
+        g.open()
+        online = false
+        g.submitScore("descent", 7)
+        assertEquals(1, planned.size)
+        g.submitScore("descent", 8) // tried again by the person: still one try planned, not two
+        assertEquals(1, planned.size)
+        online = true
+        planned.removeAt(0).second.run()
+        assertEquals(8, best)
+        assertTrue(planned.isEmpty())
     }
 }
