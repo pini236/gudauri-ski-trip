@@ -12,7 +12,9 @@
 #
 # When it fails, or the server says the previous beat is more than 36 hours
 # old (a missed day), one issue is opened (or commented on) so Pini gets an
-# email (docs/ARCHITECTURE.md, R-12).
+# email, and the next run that passes closes it (docs/ARCHITECTURE.md, R-12).
+# A run that never starts (GitHub turned it off) is caught only by an outside
+# check: docs/OPERATIONS.md.
 name: server-keepalive
 
 on:
@@ -49,6 +51,15 @@ jobs:
             sleep $((i * 30))
           done
           echo "::error::keepalive failed three times"; exit 1
+
+      - name: All good again, close the alert
+        if: success()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          title="The server's daily task (keepalive) failed"
+          n=$(gh issue list -R "$GITHUB_REPOSITORY" --state open --search "\"$title\" in:title" --json number -q '.[0].number')
+          if [ -n "$n" ]; then gh issue close "$n" -R "$GITHUB_REPOSITORY" -c "Passed again: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"; fi
 
       - name: Tell Pini (one issue, commented on again each time)
         if: failure()
