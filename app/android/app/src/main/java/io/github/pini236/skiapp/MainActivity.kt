@@ -50,6 +50,7 @@ import io.github.pini236.skiapp.fx.Haptics
 import io.github.pini236.skiapp.fx.Sounds
 import io.github.pini236.skiapp.game.Bests
 import io.github.pini236.skiapp.game.DescentScreen
+import io.github.pini236.skiapp.game.FreshSnowScreen
 import io.github.pini236.skiapp.game.GamesScreen
 import io.github.pini236.skiapp.game.MergeScreen
 import io.github.pini236.skiapp.game.appGames
@@ -471,7 +472,7 @@ class MainActivity : ComponentActivity() {
             getSharedPreferences("merge", MODE_PRIVATE).edit().putString("save", m.save()).putInt("got", if (b == "near") 6 else 0).apply(); Qa.log("merge board $b")
         }
         i.getStringExtra("qa.tab")?.let { t -> when (t) {
-            "map" -> nav.switchTo(Route.Map(nav.find<Route.Map>()?.run)); "descent" -> nav.switchTo(Route.Game("descent")); "games" -> nav.switchTo(Route.Games); "merge" -> { nav.switchTo(Route.Games); nav.push(Route.Game("merge")) }; "trip" -> nav.switchTo(Route.Trip)
+            "map" -> nav.switchTo(Route.Map(nav.find<Route.Map>()?.run)); "descent" -> nav.switchTo(Route.Game("descent")); "games" -> nav.switchTo(Route.Games); "merge", "fresh" -> { nav.switchTo(Route.Games); nav.push(Route.Game(t)) }; "trip" -> nav.switchTo(Route.Trip)
             "home" -> nav.toStart()
             else -> Route.parse(t)?.let { nav.toStart(); nav.push(it) } ?: Qa.log("bad tab $t")
         } }
@@ -698,6 +699,7 @@ class MainActivity : ComponentActivity() {
                     // the games page (13.6, the site's #games, GP2), and the games the app has
                     Route.Games -> GamesScreen(appGames(runs = 1), onOpen = { g -> haptics.tick(.4f); nav.push(Route.Game(g)) }) { nav.back() }
                     Route.Game("merge") -> MergeScreen(haptics, onBack = { nav.back() }) { sendBests() }
+                    Route.Game("fresh") -> FreshSnowScreen(haptics, onBack = { nav.back() }) { sendBests() }
                     Route.About -> AboutScreen(BuildConfig.VERSION_NAME, onPrivacy = ::openPrivacy, account = account, mode = dnMode, onMode = ::nextMode,
                         lang = Lang.current(resources), langManual = Lang.manual(this@MainActivity), onLang = ::setLang,
                         onResetBests = { Bests.reset(this@MainActivity); Qa.log("bests reset") }) { nav.back() }

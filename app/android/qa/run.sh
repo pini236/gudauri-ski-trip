@@ -172,12 +172,27 @@ games() {
   tapText "להמשיך" && { sleep 1; shot merge-go-on; }
   adb shell input keyevent KEYCODE_BACK; sleep 1.5; shot games-back
   [ -n "$(where "איחוד כדורי שלג")" ] || fail "back from the game is not the games page"
+  # fresh snow (13.6): a finger, a boot and the snowcat on the snow, the frozen crust, new snow; then the frozen lake
+  mark; tapText "שלג טרי" && { sleep 2; shot fresh-start; }
+  drag $((W * 20 / 100)) $((H * 30 / 100)) $((W * 80 / 100)) $((H * 42 / 100)) 700; drag $((W * 70 / 100)) $((H * 25 / 100)) $((W * 30 / 100)) $((H * 55 / 100)) 700
+  sleep 0.6; shot fresh-finger; waitlog "fresh snow" 5
+  tapText "מגף" && { drag $((W * 25 / 100)) $((H * 60 / 100)) $((W * 75 / 100)) $((H * 35 / 100)) 1500; sleep 0.5; shot fresh-boot; }
+  tapText "חתול שלג" && { drag $((W * 5 / 100)) $((H * 48 / 100)) $((W * 95 / 100)) $((H * 48 / 100)) 1200; sleep 0.2; shot fresh-snowcat; sleep 1.4; shot fresh-corduroy; }
+  tapText "קרום קפוא" && tapText "כדור" && { drag $((W * 30 / 100)) $((H * 30 / 100)) $((W * 60 / 100)) $((H * 50 / 100)) 900; sleep 0.5; shot fresh-crust; }
+  tapText "שלג חדש" && { sleep 0.8; shot fresh-falling; sleep 2.5; shot fresh-new-snow; }
+  mark; tapText "אגם קפוא" && { sleep 2; shot fresh-lake; }
+  local k; for k in 1 2 3 4 5 6 7 8; do tap $((W * (25 + (k * 37) % 50) / 100)) $((H * (28 + (k * 23) % 34) / 100)); sleep 0.25; done
+  shot fresh-lake-hits; sleep 1.5; shot fresh-lake-broken; waitlog "fresh lake" 5
+  tapText "קפיאה מחדש" && { sleep 1.5; shot fresh-refreeze; }
+  adb shell input keyevent KEYCODE_BACK; sleep 1.5
+  [ -n "$(where "איחוד כדורי שלג")" ] || fail "back from fresh snow is not the games page"
   qa "--es qa.mode night"; sleep 1.5; shot games-night
   qa "--es qa.mode auto"
   # left to right: the post on the left, the signs point right, the board does not flip
   adb shell cmd locale set-app-locales "$PKG" --locales en > /dev/null 2>&1; sleep 3
   qa "--es qa.tab games"; sleep 2; shot games-en
   qa "--es qa.merge near --es qa.tab merge"; sleep 2; shot merge-en
+  qa "--es qa.tab fresh"; sleep 2; drag $((W * 20 / 100)) $((H * 35 / 100)) $((W * 80 / 100)) $((H * 45 / 100)) 700; sleep 0.5; shot fresh-en
   adb shell cmd locale set-app-locales "$PKG" --locales he > /dev/null 2>&1; sleep 3
   qa "--es qa.tab home"; sleep 1
 }
@@ -288,10 +303,11 @@ home() {
   # about and settings (13.7): the account's pass, the settings, who built it, the credits
   if tapText "אודות והגדרות"; then
     sleep 1; shot home-about
-    drag $((W * 7 / 100)) $((H * 80 / 100)) $((W * 7 / 100)) $((H * 25 / 100)) 400; sleep 1; shot home-about-2
     # the reset asks twice: armed while it is on screen, before the credits scroll it away
     tapText "איפוס השיאים במשחקים" && sleep 0.5 && shot home-about-reset-armed
-    drag $((W * 7 / 100)) $((H * 80 / 100)) $((W * 7 / 100)) $((H * 25 / 100)) 400; sleep 1; shot home-about-3
+    # slow drags: a quick one from the edge flings the page to its end
+    drag $((W * 7 / 100)) $((H * 80 / 100)) $((W * 7 / 100)) $((H * 45 / 100)) 1000; sleep 1; shot home-about-2
+    drag $((W * 7 / 100)) $((H * 80 / 100)) $((W * 7 / 100)) $((H * 45 / 100)) 1000; sleep 1; shot home-about-3
     adb shell input keyevent KEYCODE_BACK && sleep 1
   else fail "no way to about from home"; fi
 

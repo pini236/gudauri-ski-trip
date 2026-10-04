@@ -66,13 +66,15 @@ import io.github.pini236.skiapp.ui.TopBar
  * A game on the games page, as the site lists it (site/index.html, #gamesPage): its trail colour, dark words on the light
  * colours, its place in the site's order (which sets how far its sign reaches), and the first one wider.
  */
-class GameCard(val key: String, val order: Int, val color: Color, val ink: Boolean, val name: String, val tag: String, val meta: String)
+class GameCard(val key: String, val order: Int, val color: Color, val ink: Boolean, val name: String, val tag: String, val meta: String, val thumb: String = key)
 
 /** The games the app has (13.6), in the site's order. The rest of the site's five arrive one by one. */
 @Composable
 fun appGames(runs: Int): List<GameCard> = listOf(
     GameCard("descent", 0, SignColors.blue, false, stringResource(R.string.games_descent_name), stringResource(R.string.games_descent_tag),
         pluralStringResource(R.plurals.games_descent_meta, runs, runs)),
+    GameCard("fresh", 2, Color(0xFF5B9BFF), true, stringResource(R.string.games_fresh_name), stringResource(R.string.games_fresh_tag),
+        stringResource(R.string.games_fresh_meta), thumb = "fresh-snow"),
     GameCard("merge", 3, SignColors.gold, true, stringResource(R.string.games_merge_name), stringResource(R.string.games_merge_tag),
         stringResource(R.string.games_merge_meta)),
 )
@@ -128,8 +130,8 @@ private fun GameSign(g: GameCard, index: Int, feature: Boolean, onClick: () -> U
     val pressed by press.collectIsPressedAsState()
     // the sign swings on the post a little under the finger (the site's :active), not with reduced motion
     val tilt by animateFloatAsState(if (pressed && !still) (if (rtl) -.6f else .6f) else 0f, spring(dampingRatio = .45f, stiffness = 600f), label = "tilt")
-    val thumb = remember(g.key) {
-        runCatching { context.assets.open("thumbs/${g.key}.webp").use { BitmapFactory.decodeStream(it) }?.asImageBitmap() }.getOrNull()
+    val thumb = remember(g.thumb) {
+        runCatching { context.assets.open("thumbs/${g.thumb}.webp").use { BitmapFactory.decodeStream(it) }?.asImageBitmap() }.getOrNull()
     }
     Box(
         Modifier.fillMaxWidth(REACH[g.order.coerceIn(0, REACH.size - 1)]).height(if (feature) 122.dp else 96.dp)
