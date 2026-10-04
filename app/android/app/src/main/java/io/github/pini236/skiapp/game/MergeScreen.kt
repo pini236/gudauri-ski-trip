@@ -42,6 +42,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.withFrameNanos
+import androidx.compose.ui.AbsoluteAlignment
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -279,7 +280,8 @@ fun MergeScreen(haptics: Haptics, onBack: () -> Unit, onBest: (Int) -> Unit = {}
                 val cs = with(LocalDensity.current) { csPx.toDp() }
                 val boardLabel = stringResource(R.string.game_merge_board_label)
                 Box(Modifier.align(Alignment.Center).size(side).absoluteOffset { val k = (sin(nudge.value * Math.PI).toFloat() * 6 * dens).roundToInt(); IntOffset(nudgeDir.x * k, nudgeDir.y * k) }.background(BOARD)
-                    .semantics { contentDescription = boardLabel; stateDescription = tiles.filter { it.kind != TileView.GONE }.sortedWith(compareBy({ it.r }, { it.c })).joinToString { names[it.lv] } }) {
+                    .semantics { contentDescription = boardLabel; stateDescription = tiles.filter { it.kind != TileView.GONE }.sortedWith(compareBy({ it.r }, { it.c })).joinToString { names[it.lv] } }, contentAlignment = AbsoluteAlignment.TopLeft) {
+
                     for (r in 0 until 4) for (c in 0 until 4) Box(Modifier.absoluteOffset { IntOffset((gapPx + c * (csPx + gapPx)).roundToInt(), (gapPx + r * (csPx + gapPx)).roundToInt()) }.size(cs).background(CELL))
                     for (t in tiles.sortedBy { if (it.kind == TileView.GONE) 0 else 1 }) key(t.id) {
                         val pos by animateIntOffsetAsState(IntOffset((gapPx + t.c * (csPx + gapPx)).roundToInt(), (gapPx + t.r * (csPx + gapPx)).roundToInt()), tween(slide, easing = FastOutSlowInEasing), label = "tile")

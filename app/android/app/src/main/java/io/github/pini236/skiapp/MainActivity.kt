@@ -471,7 +471,7 @@ class MainActivity : ComponentActivity() {
             getSharedPreferences("merge", MODE_PRIVATE).edit().putString("save", m.save()).putInt("got", if (b == "near") 6 else 0).apply(); Qa.log("merge board $b")
         }
         i.getStringExtra("qa.tab")?.let { t -> when (t) {
-            "map" -> nav.switchTo(Route.Map(nav.find<Route.Map>()?.run)); "descent" -> nav.switchTo(Route.Game("descent")); "games" -> nav.switchTo(Route.Games); "merge" -> nav.switchTo(Route.Game("merge")); "trip" -> nav.switchTo(Route.Trip)
+            "map" -> nav.switchTo(Route.Map(nav.find<Route.Map>()?.run)); "descent" -> nav.switchTo(Route.Game("descent")); "games" -> nav.switchTo(Route.Games); "merge" -> { nav.switchTo(Route.Games); nav.push(Route.Game("merge")) }; "trip" -> nav.switchTo(Route.Trip)
             "home" -> nav.toStart()
             else -> Route.parse(t)?.let { nav.toStart(); nav.push(it) } ?: Qa.log("bad tab $t")
         } }
