@@ -401,3 +401,19 @@ test('אודות והגדרות: צליל ורטט נשמרים, קרדיטים,
   await expect(page.locator('p.credits')).toHaveCount(0);
   expect(errors).toEqual([]);
 });
+
+test('קובץ האימות לקישורים שפותחים את האפליקציה (S-28): נגיש, ועם טביעות האצבע שב-docs/APP-NATIVE.md', async ({ page }) => {
+  const r = await page.request.get('/.well-known/assetlinks.json');
+  expect(r.status()).toBe(200);
+  const links = await r.json();
+  const doc = require('fs').readFileSync(require('path').join(__dirname, '..', 'docs', 'APP-NATIVE.md'), 'utf8');
+  const byPkg = Object.fromEntries(links.map((l: any) => [l.target.package_name, l.target.sha256_cert_fingerprints]));
+  expect(Object.keys(byPkg).sort()).toEqual(['io.github.pini236.skiapp', 'io.github.pini236.skiapp.test']);
+  for (const fps of Object.values(byPkg) as string[][]) for (const fp of fps) {
+    expect(fp).toMatch(/^([0-9A-F]{2}:){31}[0-9A-F]{2}$/);
+    expect(doc).toContain(fp);
+  }
+  const vercel = JSON.parse(require('fs').readFileSync(require('path').join(__dirname, '..', 'site', 'vercel.json'), 'utf8'));
+  const h = vercel.headers.find((x: any) => x.source === '/.well-known/assetlinks.json');
+  expect(h.headers).toContainEqual({ key: 'Content-Type', value: 'application/json' });
+});
