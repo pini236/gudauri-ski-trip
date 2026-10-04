@@ -1,0 +1,22 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "io.github.pini236.skiapp",
+      "sha256_cert_fingerprints": [
+        "85:FB:FB:02:AE:0B:50:CC:53:92:55:4D:27:61:5E:A6:8E:2E:79:75:EB:8D:75:10:60:30:6D:A9:7D:D7:DD:31"
+      ]
+    }
+  },
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "io.github.pini236.skiapp.test",
+      "sha256_cert_fingerprints": [
+        "BA:09:08:B5:CB:5E:48:36:C7:78:70:B2:25:8E:5A:7B:43:13:45:34:81:4F:37:47:67:1D:6A:37:7C:E8:B3:06"
+      ]
+    }
+  }
+]
