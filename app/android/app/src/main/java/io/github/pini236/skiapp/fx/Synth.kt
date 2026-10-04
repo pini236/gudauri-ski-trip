@@ -4,71 +4,157 @@ import android.content.Context
 import android.media.AudioAttributes
 import android.media.AudioFormat
 import android.media.AudioTrack
-import java.util.concurrent.Executors
 import kotlin.math.PI
+import kotlin.math.cos
 import kotlin.math.exp
 import kotlin.math.pow
 import kotlin.math.sin
+import kotlin.math.tanh
 import kotlin.random.Random
 
 /**
- * The games' little sounds made on the phone, as the site makes them with Web Audio (no files): the crunch of packed
- * snow, higher for bigger merges, with a soft tone over the big ones, and a swish. Off with the settings' sound switch.
+ * The games' little sounds made on the phone, as the site makes them with Web Audio (no files): grains of filtered noise
+ * (the snow, the ice), tones that slide (a ping, a squeak), the crunch of packed snow and a swish. Everything goes into
+ * one mixer (one stream to the speaker, stopped after two quiet seconds), so many grains a second cost little. Off with
+ * the settings' sound switch.
  */
 class Synth(private val context: Context) {
-    private val rate = 22050
-    private val worker = Executors.newSingleThreadExecutor { r -> Thread(r, "synth").apply { isDaemon = true } }
+    enum class Filter { LOW, HIGH, BAND }
 
-    private fun play(samples: FloatArray, volume: Float) {
-        if (!FxPrefs.sound(context)) return
-        worker.execute {
-            runCatching {
-                val pcm = ShortArray(samples.size) { (samples[it].coerceIn(-1f, 1f) * volume * Short.MAX_VALUE).toInt().toShort() }
-                val t = AudioTrack.Builder()
-                    .setAudioAttributes(AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_GAME).setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION).build())
-                    .setAudioFormat(AudioFormat.Builder().setEncoding(AudioFormat.ENCODING_PCM_16BIT).setSampleRate(rate).setChannelMask(AudioFormat.CHANNEL_OUT_MONO).build())
-                    .setTransferMode(AudioTrack.MODE_STATIC).setBufferSizeInBytes(pcm.size * 2).build()
-                t.write(pcm, 0, pcm.size)
-                t.play()
-                Thread.sleep(pcm.size * 1000L / rate + 60)
-                t.release()
-            }
+    private fun on() = FxPrefs.sound(context)
+
+    /**
+     * The site's grain(): noise of [dur] seconds through a [type] filter at [freq] Hz (Q [q]), falling away squared, with a
+     * short rise; at [at] seconds from now.
+     */
+    fun grain(at: Double, dur: Double, vol: Float, type: Filter, freq: Double, q: Double) {
+        if (!on()) return
+        val n = maxOf(64, (RATE * dur).toInt())
+        val f = Biquad(type, freq, q)
+        val s = FloatArray(n) { i ->
+            val e = (1 - i.toDouble() / n).pow(2) * (if (i < n * .05) i / (n * .05) else 1.0)
+            f.next((Random.nextDouble() * 2 - 1) * e).toFloat()
         }
+        Mixer.play(s, vol, (at * RATE).toInt())
     }
 
-    /** Grainy noise through a band around [centre] Hz (a two-pole resonator, the site's bandpass). */
-    private fun band(n: Int, centre: Double, q: Double, env: (Int) -> Double): FloatArray {
-        val w = 2 * PI * centre / rate; val r = exp(-w / (2 * q)).coerceIn(0.0, 0.999)
-        val a1 = 2 * r * kotlin.math.cos(w); val a2 = -r * r
-        var y1 = 0.0; var y2 = 0.0
-        return FloatArray(n) { i ->
-            val x = (Random.nextDouble() * 2 - 1) * env(i) * (if (Random.nextDouble() < .3) 1.0 else .35)
-            val y = (1 - r) * x + a1 * y1 + a2 * y2; y2 = y1; y1 = y; (y * 3).toFloat()
+    /**
+     * A tone sliding from [f0] to [f1] Hz over [dur] seconds (exponential, as Web Audio's ramp), its loudness falling the
+     * same way from [vol]; a sine, or a sawtooth through a band at [band] Hz (the squeak of wet snow).
+     */
+    fun tone(at: Double, f0: Double, f1: Double, dur: Double, vol: Float, saw: Boolean = false, band: Double = 0.0, q: Double = 1.0) {
+        if (!on()) return
+        val n = (RATE * dur).toInt()
+        val f = if (band > 0) Biquad(Filter.BAND, band, q) else null
+        var ph = 0.0
+        val s = FloatArray(n) { i ->
+            val k = i.toDouble() / n
+            val fr = f0 * (f1 / f0).pow(k)
+            ph += fr / RATE
+            val w = if (saw) 2 * (ph - kotlin.math.floor(ph + .5)) else sin(2 * PI * ph)
+            val v = w * 0.001.pow(k) // to a thousandth of [vol] by the end
+            (f?.next(v) ?: v).toFloat()
         }
+        Mixer.play(s, vol, (at * RATE).toInt())
     }
 
     /** A merge: [lv] the new ball's level (0 a flake .. 11 the king). */
     fun crunch(lv: Int, volume: Float = .25f) {
-        val n = (rate * (.09 + lv * .01)).toInt()
-        val s = band(n, 700.0 + lv * 260, 1.4) { i -> (1 - i.toDouble() / n).pow(2) }
-        if (lv >= 4) {
-            val f = 330 * 2.0.pow((lv - 4) / 6.0); val m = (rate * .35).toInt()
-            val out = FloatArray(maxOf(n, m))
-            for (i in out.indices) {
-                val tone = if (i < m) sin(2 * PI * f * i / rate) * .32 * exp(-i.toDouble() / m * 4.6) else 0.0
-                out[i] = (if (i < n) s[i] else 0f) + tone.toFloat()
-            }
-            play(out, volume * 1.6f)
-        } else play(s, volume * 1.6f)
+        if (!on()) return
+        val n = (RATE * (.09 + lv * .01)).toInt()
+        val b = Biquad(Filter.BAND, 700.0 + lv * 260, 1.4)
+        val s = FloatArray(n) { i ->
+            val x = (Random.nextDouble() * 2 - 1) * (1 - i.toDouble() / n).pow(2) * (if (Random.nextDouble() < .3) 1.0 else .35)
+            (b.next(x) * 3).toFloat()
+        }
+        Mixer.play(s, volume * 1.6f)
+        if (lv >= 4) tone(0.0, 330 * 2.0.pow((lv - 4) / 6.0), 330 * 2.0.pow((lv - 4) / 6.0), .35, volume * .5f)
     }
 
     /** A slide. */
     fun swish() {
-        val n = (rate * .07).toInt()
+        if (!on()) return
+        val n = (RATE * .07).toInt()
         var prev = 0.0
-        play(FloatArray(n) { i ->
+        Mixer.play(FloatArray(n) { i ->
             val x = (Random.nextDouble() * 2 - 1) * sin(PI * i / n)
             val y = x - prev; prev = x; y.toFloat() // high-pass: only the hiss
         }, .3f)
+    }
+
+    /** A filter from the Web Audio cookbook (the same curves as BiquadFilterNode's lowpass, highpass and bandpass). */
+    private class Biquad(type: Filter, freq: Double, q: Double) {
+        private val b0: Double; private val b1: Double; private val b2: Double; private val a1: Double; private val a2: Double
+        private var x1 = 0.0; private var x2 = 0.0; private var y1 = 0.0; private var y2 = 0.0
+        init {
+            val w = 2 * PI * freq.coerceIn(10.0, RATE * .45) / RATE
+            val alpha = sin(w) / (2 * maxOf(q, .0001))
+            val c = cos(w); val a0 = 1 + alpha
+            when (type) {
+                Filter.LOW -> { b0 = (1 - c) / 2 / a0; b1 = (1 - c) / a0; b2 = b0 }
+                Filter.HIGH -> { b0 = (1 + c) / 2 / a0; b1 = -(1 + c) / a0; b2 = b0 }
+                Filter.BAND -> { b0 = alpha / a0; b1 = 0.0; b2 = -alpha / a0 }
+            }
+            a1 = -2 * c / a0; a2 = (1 - alpha) / a0
+        }
+        fun next(x: Double): Double {
+            val y = b0 * x + b1 * x1 + b2 * x2 - a1 * y1 - a2 * y2
+            x2 = x1; x1 = x; y2 = y1; y1 = y
+            return y
+        }
+    }
+
+    /** One stream for every sound: voices added from any thread, mixed in small pieces, soft at the top. */
+    private object Mixer {
+        private class Voice(val s: FloatArray, val vol: Float, var wait: Int) { var at = 0 }
+        private val lock = Any()
+        private val voices = ArrayList<Voice>()
+        private var running = false
+
+        fun play(s: FloatArray, vol: Float, wait: Int = 0) {
+            synchronized(lock) {
+                if (voices.size > 96) return // a storm of grains: the rest would not be heard anyway
+                voices += Voice(s, vol, maxOf(0, wait))
+                if (!running) { running = true; Thread(::loop, "synth").apply { isDaemon = true; start() } }
+            }
+        }
+
+        private fun loop() {
+            val t = runCatching {
+                AudioTrack.Builder()
+                    .setAudioAttributes(AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_GAME).setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION).build())
+                    .setAudioFormat(AudioFormat.Builder().setEncoding(AudioFormat.ENCODING_PCM_16BIT).setSampleRate(RATE).setChannelMask(AudioFormat.CHANNEL_OUT_MONO).build())
+                    .setTransferMode(AudioTrack.MODE_STREAM)
+                    .setBufferSizeInBytes(maxOf(AudioTrack.getMinBufferSize(RATE, AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT), CHUNK * 4))
+                    .build().also { it.play() }
+            }.getOrNull()
+            if (t == null) { synchronized(lock) { voices.clear(); running = false }; return }
+            val mix = FloatArray(CHUNK); val pcm = ShortArray(CHUNK)
+            var quiet = 0
+            while (true) {
+                java.util.Arrays.fill(mix, 0f)
+                synchronized(lock) {
+                    if (voices.isEmpty()) {
+                        quiet += CHUNK
+                        if (quiet > RATE * 2) { running = false; t.stop(); t.release(); return }
+                    } else quiet = 0
+                    val it = voices.iterator()
+                    while (it.hasNext()) {
+                        val v = it.next()
+                        var i = 0
+                        if (v.wait > 0) { val w = minOf(v.wait, CHUNK); v.wait -= w; i = w }
+                        while (i < CHUNK && v.at < v.s.size) { mix[i] += v.s[v.at++] * v.vol; i++ }
+                        if (v.at >= v.s.size) it.remove()
+                    }
+                }
+                for (i in 0 until CHUNK) pcm[i] = (tanh(mix[i].toDouble()) * 30000).toInt().toShort()
+                t.write(pcm, 0, CHUNK)
+            }
+        }
+    }
+
+    companion object {
+        const val RATE = 44100
+        private const val CHUNK = 512
     }
 }

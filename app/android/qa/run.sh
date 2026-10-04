@@ -64,6 +64,8 @@ qa() { # qa <extras...>: one string for the device shell, values with spaces in 
 tap() { adb shell input tap "$1" "$2"; }
 hold() { adb shell input swipe "$1" "$2" "$1" "$2" "$3"; } # hold <x> <y> <ms>
 drag() { adb shell input swipe "$1" "$2" "$3" "$4" "$5"; } # drag <x1> <y1> <x2> <y2> <ms>
+# a page is scrolled near its edge (x 7%, past the system back gesture), where nothing is tappable: a drag over a sign or a link can land as a tap
+# while the page is not yet scrollable (main runs 88 to 102: the games sign, a link in "what's ahead")
 
 read -r W H < <(adb shell wm size | sed -n 's/.*: \([0-9]*\)x\([0-9]*\).*/\1 \2/p' | tail -1)
 DENSITY=$(adb shell wm density | sed -n 's/.*: \([0-9]*\).*/\1/p' | tail -1)
@@ -148,7 +150,7 @@ descent() {
 games() {
   # in a group on the pretend server, so a new best goes to the group's table
   qa "--es qa.group member --es qa.tab home --es qa.trip none"; sleep 3
-  drag $((W / 2)) $((H * 80 / 100)) $((W / 2)) $((H * 35 / 100)) 400; sleep 1
+  drag $((W * 7 / 100)) $((H * 80 / 100)) $((W * 7 / 100)) $((H * 35 / 100)) 400; sleep 1
   if tapText "משחקים"; then sleep 2; shot games-page; else fail "no games sign on home"; fi
   tapText "איחוד כדורי שלג" && { sleep 2; shot merge-start; }
   # a swipe anywhere moves the board: a few, then undo
@@ -281,15 +283,15 @@ home() {
   tapText "בית" && sleep 1.5 && shot home-back
   tapText "נקודת מפגש" && sleep 1 && shot home-sign-meet && adb shell input keyevent KEYCODE_BACK && sleep 1
   # home below the signs: the tally of runs and the two links (A-32)
-  drag $((W / 2)) $((H * 80 / 100)) $((W / 2)) $((H * 20 / 100)) 400; sleep 1; shot home-bottom
+  drag $((W * 7 / 100)) $((H * 80 / 100)) $((W * 7 / 100)) $((H * 20 / 100)) 400; sleep 1; shot home-bottom
   drag $((W / 2)) $((H * 20 / 100)) $((W / 2)) $((H * 80 / 100)) 300; drag $((W / 2)) $((H * 20 / 100)) $((W / 2)) $((H * 80 / 100)) 300; sleep 1
   # about and settings (13.7): the account's pass, the settings, who built it, the credits
   if tapText "אודות והגדרות"; then
     sleep 1; shot home-about
-    drag $((W / 2)) $((H * 80 / 100)) $((W / 2)) $((H * 25 / 100)) 400; sleep 1; shot home-about-2
+    drag $((W * 7 / 100)) $((H * 80 / 100)) $((W * 7 / 100)) $((H * 25 / 100)) 400; sleep 1; shot home-about-2
     # the reset asks twice: armed while it is on screen, before the credits scroll it away
     tapText "איפוס השיאים במשחקים" && sleep 0.5 && shot home-about-reset-armed
-    drag $((W / 2)) $((H * 80 / 100)) $((W / 2)) $((H * 25 / 100)) 400; sleep 1; shot home-about-3
+    drag $((W * 7 / 100)) $((H * 80 / 100)) $((W * 7 / 100)) $((H * 25 / 100)) 400; sleep 1; shot home-about-3
     adb shell input keyevent KEYCODE_BACK && sleep 1
   else fail "no way to about from home"; fi
 
@@ -373,7 +375,7 @@ group() {
 # ---- the meeting point (M1 to M3, round 8's MP1 to MP3) and a meetup saved in the group (Q8) ----
 meet() {
   # the page scrolls under the map: drag below it (a drag on the map moves the map)
-  local up="$((W / 2)) $((H * 85 / 100)) $((W / 2)) $((H * 35 / 100)) 400" down="$((W / 2)) $((H * 70 / 100)) $((W / 2)) $((H * 98 / 100)) 300"
+  local up="$((W * 7 / 100)) $((H * 85 / 100)) $((W * 7 / 100)) $((H * 35 / 100)) 400" down="$((W * 7 / 100)) $((H * 70 / 100)) $((W * 7 / 100)) $((H * 98 / 100)) 300"
   totop() { for _ in 1 2 3 4 5 6 7; do drag $down; sleep 0.3; done; sleep 0.8; }
   # a trip (its ski days are the day chips), mid-December at noon in Gudauri: nothing is picked at first (MP1)
   qa "--es qa.group none --es qa.tab home --es qa.trip '$TRIP_HE' --es qa.mode auto --es qa.time 2026-12-15T12:00"; waitlog "trip set" 20
@@ -426,7 +428,7 @@ meet() {
 
 # ---- the language from the home page (3.10.2026): the tag in the head opens the list; a tap saves the language ----
 lang() {
-  local up="$((W / 2)) $((H * 85 / 100)) $((W / 2)) $((H * 45 / 100)) 400"
+  local up="$((W * 7 / 100)) $((H * 85 / 100)) $((W * 7 / 100)) $((H * 45 / 100)) 400"
   adb shell cmd locale set-app-locales "$PKG" --locales he > /dev/null 2>&1; sleep 3
   qa "--es qa.group none --es qa.tab home --es qa.trip none --es qa.mode auto --es qa.time 2026-12-01T13:35"; waitlog "trip none" 20; sleep 2
   shot lang-he-closed
@@ -495,7 +497,7 @@ phone() {
 # ---- the run view (13.3, the site's T1 to T4): the sign and the panel, the profile that moves the dot, a swipe to the
 # next run, a lift's panel, the list of runs with the filters, and English (map/RunSheet.kt) ----
 runview() {
-  local up="$((W / 2)) $((H * 90 / 100)) $((W / 2)) $((H * 50 / 100)) 500" xy
+  local up="$((W * 7 / 100)) $((H * 90 / 100)) $((W * 7 / 100)) $((H * 50 / 100)) 500" xy
   adb shell am force-stop "$PKG"; sleep 1; mark
   adb shell "am start -W -n $ACT --es qa.tab map --es qa.time 2027-01-12T11:00 --es qa.stats off" > /dev/null
   waitlog "scene ready" 120 && waitlog "shadow ready" 120
@@ -538,7 +540,7 @@ runview() {
 
 # ---- the lift status (13.4, the site's S1 to S3): no report, an old one, a fresh one (status/LiftStatus.kt) ----
 status() {
-  local up="$((W / 2)) $((H * 85 / 100)) $((W / 2)) $((H * 45 / 100)) 400"
+  local up="$((W * 7 / 100)) $((H * 85 / 100)) $((W * 7 / 100)) $((H * 45 / 100)) 400"
   # no report, out of season: the home's board sleeps under the snow (S3), and a tap opens the snowy signs over the map
   adb shell am force-stop "$PKG"; sleep 1; mark
   adb shell "am start -W -n $ACT --es qa.tab home --es qa.trip none --es qa.mode auto --es qa.group none --es qa.time 2026-10-03T11:00 --es qa.status none" > /dev/null

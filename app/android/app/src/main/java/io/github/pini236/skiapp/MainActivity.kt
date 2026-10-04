@@ -700,7 +700,7 @@ class MainActivity : ComponentActivity() {
                     Route.Game("merge") -> MergeScreen(haptics, onBack = { nav.back() }) { sendBests() }
                     Route.About -> AboutScreen(BuildConfig.VERSION_NAME, onPrivacy = ::openPrivacy, account = account, mode = dnMode, onMode = ::nextMode,
                         lang = Lang.current(resources), langManual = Lang.manual(this@MainActivity), onLang = ::setLang,
-                        onResetBests = { getSharedPreferences("bests", MODE_PRIVATE).edit().clear().apply(); Qa.log("bests reset") }) { nav.back() }
+                        onResetBests = { Bests.reset(this@MainActivity); Qa.log("bests reset") }) { nav.back() }
                     else -> {
                         if (top is Route.Game) DescentScreen(profile, haptics, sounds)
                         else MapScreen(mapView, scene, videos = videos, ms = MapStatus(lstat, changes, LiftStatus.inSeason(LocalDateTime.ofInstant(Instant.ofEpochMilli(tick), ZoneId.systemDefault()).monthValue),
