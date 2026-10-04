@@ -477,8 +477,13 @@ class MainActivity : ComponentActivity() {
             "open" -> { io.github.pini236.skiapp.game.Bests.openAllLessons(this); Qa.log("school lessons open") }
             "finish" -> io.github.pini236.skiapp.game.SchoolQa.finish?.invoke()
         } }
+        // the snowball fight: every rung open, or the fight now won at once
+        i.getStringExtra("qa.snowball")?.let { a -> when (a) {
+            "open" -> { for (n in 1..io.github.pini236.skiapp.game.RUNGS.size) io.github.pini236.skiapp.game.Bests.setLevel(this, "snowball", n, 1); Qa.log("snowball rungs open") }
+            "win" -> io.github.pini236.skiapp.game.SnowballQa.win?.invoke()
+        } }
         i.getStringExtra("qa.tab")?.let { t -> when (t) {
-            "map" -> nav.switchTo(Route.Map(nav.find<Route.Map>()?.run)); "descent" -> nav.switchTo(Route.Game("descent")); "games" -> nav.switchTo(Route.Games); "merge", "fresh", "school" -> { nav.switchTo(Route.Games); nav.push(Route.Game(t)) }; "trip" -> nav.switchTo(Route.Trip)
+            "map" -> nav.switchTo(Route.Map(nav.find<Route.Map>()?.run)); "descent" -> nav.switchTo(Route.Game("descent")); "games" -> nav.switchTo(Route.Games); "merge", "fresh", "school", "snowball" -> { nav.switchTo(Route.Games); nav.push(Route.Game(t)) }; "trip" -> nav.switchTo(Route.Trip)
             "home" -> nav.toStart()
             else -> Route.parse(t)?.let { nav.toStart(); nav.push(it) } ?: Qa.log("bad tab $t")
         } }
@@ -620,8 +625,8 @@ class MainActivity : ComponentActivity() {
         // the whole app goes dark at night, as the site does; the spike's map and game keep their day colours
         // the game keeps its day colours; the map follows the day and night switch, as on the site (A-11)
         val spike = top is Route.Game
-        // the merging game is a blue evening whatever the hour: light icons over it
-        val evening = top == Route.Game("merge")
+        // the merging game is a blue evening whatever the hour, and the snowball fight a blue sky: light icons over them
+        val evening = top == Route.Game("merge") || top == Route.Game("snowball")
         val view = LocalView.current
         SideEffect { WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = !evening && (spike || !frame.dark) }
         SkiTheme(dark = frame.dark) {
@@ -707,6 +712,7 @@ class MainActivity : ComponentActivity() {
                     Route.Game("merge") -> MergeScreen(haptics, onBack = { nav.back() }) { sendBests() }
                     Route.Game("fresh") -> FreshSnowScreen(haptics, onBack = { nav.back() }) { sendBests() }
                     Route.Game("school") -> SchoolScreen(haptics, onBack = { nav.back() }) { sendBests() }
+                    Route.Game("snowball") -> io.github.pini236.skiapp.game.SnowballScreen(haptics, onBack = { nav.back() }) { sendBests() }
                     Route.About -> AboutScreen(BuildConfig.VERSION_NAME, onPrivacy = ::openPrivacy, account = account, mode = dnMode, onMode = ::nextMode,
                         lang = Lang.current(resources), langManual = Lang.manual(this@MainActivity), onLang = ::setLang,
                         onResetBests = { Bests.reset(this@MainActivity); Qa.log("bests reset") }) { nav.back() }

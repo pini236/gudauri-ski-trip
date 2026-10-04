@@ -248,6 +248,45 @@ school() {
   qa "--es qa.tab home"; sleep 1
 }
 
+# ---- the snowball fight (13.6): the coats, the ladder, a throw, the result, back, the summit, left to right ----
+scrollDown() { drag $((W * 7 / 100)) $((H * 80 / 100)) $((W * 7 / 100)) $((H * 30 / 100)) 400; sleep .8; }
+snowball() {
+  qa "--es qa.group member --es qa.trip none --es qa.tab snowball"; sleep 3; shot snowball-menu
+  [ -n "$(where "המעיל שלך")" ] || fail "no coat picker in the snowball fight's menu"
+  [ -n "$(where "בחצר המלון")" ] || fail "no first rung on the snowball fight's ladder"
+  tapText "כחול" && { sleep .6; shot snowball-coat; }
+  scrollDown; shot snowball-menu-bottom
+  mark; tapText "לקרב!" && { sleep 2; shot snowball-fight; }
+  waitlog "snowball start 1" 3
+  # a finger in the middle: up over the wall with the ring and the arc, then the throw
+  hold $((W / 2)) $((H * 50 / 100)) 1800 & sleep 1.2; shot snowball-aim; wait
+  waitlog "snowball pop" 4
+  # down behind the wall a while: their balls come
+  sleep 4; shot snowball-later
+  # the fight won at once: the result
+  mark; qa "--es qa.snowball win"; sleep 3.5; shot snowball-won
+  waitlog "snowball done 1 won" 4
+  [ -n "$(where "עוד סיבוב")" ] || fail "no 'another round' after a won fight"
+  [ -n "$(where "השלב הבא")" ] || fail "no 'next rung' after a won fight"
+  tapText "לתפריט" && { sleep 1; shot snowball-menu-star; }
+  # back from a fight is the menu
+  scrollDown; tapText "לקרב!" && sleep 1.5; adb shell input keyevent KEYCODE_BACK; sleep 1
+  [ -n "$(where "המעיל שלך")" ] || fail "back from a fight is not the snowball menu"
+  # every rung open: the summit, three of them in the wind
+  qa "--es qa.tab home"; sleep 1
+  qa "--es qa.snowball open --es qa.tab snowball"; sleep 2
+  scrollDown; tapText "בפסגה, ברוח" && { sleep .5; tapText "לקרב!"; sleep 2.5; shot snowball-summit; }
+  adb shell input keyevent KEYCODE_BACK; sleep 1
+  adb shell input keyevent KEYCODE_BACK; sleep 1.5
+  [ -n "$(where "קרב כדורי שלג")" ] || fail "back from the snowball fight is not the games page"
+  # left to right: the same field, the tags where they were
+  adb shell cmd locale set-app-locales "$PKG" --locales en > /dev/null 2>&1; sleep 3
+  qa "--es qa.tab snowball"; sleep 2; shot snowball-menu-en
+  scrollDown; tapText "Fight!" && { sleep 2.5; shot snowball-fight-en; }
+  adb shell cmd locale set-app-locales "$PKG" --locales he > /dev/null 2>&1; sleep 3
+  qa "--es qa.tab home"; sleep 1
+}
+
 # ---- the home page (round 10: H1 to H4, LT1 to LT3) ----
 # what is on screen: the accessibility tree (uiautomator), so a step can tap a button by its words
 uidump() { # never an old tree: the tool gives up on a screen that is still busy ("could not get idle state"), so try again
@@ -675,6 +714,7 @@ for sc in ${SCENARIO//,/ }; do
     descent) descent ;;
     games) games ;;
     school) school ;;
+    snowball) snowball ;;
     home) home ;;
     group) group ;;
     meet) meet ;;
@@ -683,7 +723,7 @@ for sc in ${SCENARIO//,/ }; do
     phone) phone ;;
     store) store ;;
     run) runview ;;
-    *) map; descent; games; school; home; group; meet; status; runview; lang; phone; store ;;
+    *) map; descent; games; school; snowball; home; group; meet; status; runview; lang; phone; store ;;
   esac
 done
 

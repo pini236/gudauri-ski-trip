@@ -40,9 +40,10 @@ class Synth(private val context: Context) {
 
     /**
      * A tone sliding from [f0] to [f1] Hz over [dur] seconds (exponential, as Web Audio's ramp), its loudness falling the
-     * same way from [vol]; a sine, or a sawtooth through a band at [band] Hz (the squeak of wet snow).
+     * same way from [vol]; a sine, a triangle ([tri], the snowball fight's tone()), or a sawtooth through a band at [band] Hz
+     * (the squeak of wet snow).
      */
-    fun tone(at: Double, f0: Double, f1: Double, dur: Double, vol: Float, saw: Boolean = false, band: Double = 0.0, q: Double = 1.0) {
+    fun tone(at: Double, f0: Double, f1: Double, dur: Double, vol: Float, saw: Boolean = false, band: Double = 0.0, q: Double = 1.0, tri: Boolean = false) {
         if (!on()) return
         val n = (RATE * dur).toInt()
         val f = if (band > 0) Biquad(Filter.BAND, band, q) else null
@@ -51,7 +52,7 @@ class Synth(private val context: Context) {
             val k = i.toDouble() / n
             val fr = f0 * (f1 / f0).pow(k)
             ph += fr / RATE
-            val w = if (saw) 2 * (ph - kotlin.math.floor(ph + .5)) else sin(2 * PI * ph)
+            val w = if (saw) 2 * (ph - kotlin.math.floor(ph + .5)) else if (tri) 4 * kotlin.math.abs(ph % 1.0 - .5) - 1 else sin(2 * PI * ph)
             val v = w * 0.001.pow(k) // to a thousandth of [vol] by the end
             (f?.next(v) ?: v).toFloat()
         }

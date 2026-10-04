@@ -11153,6 +11153,66 @@
     "ka"
    ]
   },
+  "app.snowball_coat": {
+   "he": "המעיל שלך",
+   "en": "Your coat",
+   "ru": "Твоя куртка",
+   "ka": "შენი ქურთუკი",
+   "where": "app/android",
+   "note": "snowball fight in the app: the coat picker's heading (no names in the app's games, Pini 4.10.2026; the site picks a friend by name, game.snowball.who_throws)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.snowball_out": {
+   "he": "בחוץ!",
+   "en": "Out!",
+   "ru": "Выбывает!",
+   "ka": "გავარდა!",
+   "where": "app/android",
+   "note": "snowball fight in the app: a character is out (the site says the name, game.snowball.pop_out)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.color_yellow": {
+   "he": "צהוב",
+   "en": "Yellow",
+   "ru": "Жёлтая",
+   "ka": "ყვითელი",
+   "where": "app/android",
+   "note": "a coat colour in the app's games, for a screen reader (with common.color_red, _blue, _green)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.color_purple": {
+   "he": "סגול",
+   "en": "Purple",
+   "ru": "Фиолетовая",
+   "ka": "იისფერი",
+   "where": "app/android",
+   "note": "a coat colour in the app's games, for a screen reader",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.color_orange": {
+   "he": "כתום",
+   "en": "Orange",
+   "ru": "Оранжевая",
+   "ka": "ნარინჯისფერი",
+   "where": "app/android",
+   "note": "a coat colour in the app's games, for a screen reader",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
   "app.about_lang_auto": {
    "he": "נבחרה לפי הטלפון",
    "en": "Chosen by the phone",

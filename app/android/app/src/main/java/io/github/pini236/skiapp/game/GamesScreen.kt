@@ -79,6 +79,8 @@ fun appGames(runs: Int): List<GameCard> = listOf(
         stringResource(R.string.games_fresh_meta), thumb = "fresh-snow"),
     GameCard("merge", 3, SignColors.gold, true, stringResource(R.string.games_merge_name), stringResource(R.string.games_merge_tag),
         stringResource(R.string.games_merge_meta)),
+    GameCard("snowball", 4, Color(0xFF13233A), false, stringResource(R.string.games_snowball_name), stringResource(R.string.games_snowball_tag),
+        pluralStringResource(R.plurals.games_snowball_meta, COATS.size - 1, COATS.size - 1)),
 )
 
 // how far each sign reaches from the post, by its place in the site's list (.games-list li:nth-child)
