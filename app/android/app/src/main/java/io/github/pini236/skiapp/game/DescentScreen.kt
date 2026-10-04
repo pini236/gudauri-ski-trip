@@ -487,8 +487,9 @@ private fun PlayHud(g: DescentGame, h: Hud, combo: Int, comboN: Int, still: Bool
                     style = Ski.type.bodyBold.copy(fontSize = 11.sp), color = ACCENT) }
             }
         }
-        // the others: a square each, on once picked up, faint when lost; and the khachapuri
-        Row(Modifier.align(AbsoluteAlignment.TopRight).padding(top = 62.dp, end = 12.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+        // the others: a square each, on once picked up, faint when lost; and the khachapuri. On the side the reading starts
+        // (the right in Hebrew, as on the site; in the other languages the left, under the run's sign, clear of the time)
+        Row(Modifier.align(Alignment.TopStart).padding(top = 62.dp, start = 12.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
             g.c.spots.forEachIndexed { k, sp ->
                 val st = h.crew.getOrNull(k) ?: '.'
                 Box(Modifier.size(14.dp).alpha(when (st) { 'o' -> 1f; 'x' -> .12f; else -> .35f }).background(Color(COATS[sp.coat].color)).border(2.dp, Color.White))
