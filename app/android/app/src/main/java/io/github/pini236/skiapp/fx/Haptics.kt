@@ -10,7 +10,7 @@ import android.os.VibratorManager
  * Rich haptics where the phone supports them (composition primitives), with simpler fallbacks.
  * [level] says which path this phone got, so the spike can report it.
  */
-class Haptics(context: Context) {
+class Haptics(private val context: Context) {
     private val vib: Vibrator? =
         if (Build.VERSION.SDK_INT >= 31) context.getSystemService(VibratorManager::class.java)?.defaultVibrator
         else @Suppress("DEPRECATION") context.getSystemService(Vibrator::class.java)
@@ -29,11 +29,16 @@ class Haptics(context: Context) {
         else -> "רטט פשוט"
     }
 
+    /** The settings' switch (13.7): off, nothing vibrates. */
+    private val on get() = FxPrefs.haptics(context)
+
     private fun prim(id: Int, scale: Float) {
+        if (!on) return
         if (Build.VERSION.SDK_INT >= 30) vib?.vibrate(VibrationEffect.startComposition().addPrimitive(id, scale.coerceIn(0f, 1f)).compose())
     }
 
     private fun predefined(id: Int, ms: Long, amp: Int) {
+        if (!on) return
         if (Build.VERSION.SDK_INT >= 29) vib?.vibrate(VibrationEffect.createPredefined(id))
         else vib?.vibrate(VibrationEffect.createOneShot(ms, amp.coerceIn(1, 255)))
     }

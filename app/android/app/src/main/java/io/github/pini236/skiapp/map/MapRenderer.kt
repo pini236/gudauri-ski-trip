@@ -133,6 +133,16 @@ void main(){
   else o = vec4(1.0,1.0,1.0,(0.55+0.2*uPulse)*(1.0-(r-0.42)/0.58));
 }"""
 
+// a lift's station, a dark dot in a white ring at a fixed size on screen (the site's station dots, A-14)
+private const val STATION_FS = """#version 300 es
+precision mediump float;
+out vec4 o;
+void main(){
+  float r = length(gl_PointCoord*2.0-1.0);
+  if(r>1.0) discard;
+  o = r<0.58 ? vec4(0.165,0.184,0.220,1.0) : vec4(1.0);
+}"""
+
 /** A ribbon on the GPU. */
 private class GpuRibbon(r: Ribbon) {
     val vao = IntArray(1); private val bufs = IntArray(2); val count = r.indices.size
@@ -202,6 +212,12 @@ class MapRenderer(
 
     private var uploaded = false
     private var terrainProg = 0; private var lineProg = 0; private var markProg = 0; private var skyProg = 0; private var markT = 0f
+    private var stationProg = 0
+    private val stationVao = IntArray(1); private val stationBuf = IntArray(1); private var stationCount = 0
+    /** Each run's line width against a named run's, as on the site: a ski way 2.8 and a section without a name 2.6 to 4. */
+    private val pisteW = HashMap<String, Float>()
+    /** Per lift, in the order of [lifts]: out of use (drawn dashed, as the site's map does). */
+    private val liftInactive = ArrayList<Boolean>()
     private val inv = FloatArray(16)
     private val terrainVao = IntArray(1); private val terrainBufs = IntArray(4); private var terrainCount = 0
     private val pistes = ArrayList<Triple<String, GpuRibbon, GpuRibbon>>(); private val lifts = ArrayList<Pair<String, GpuRibbon>>()
@@ -227,7 +243,11 @@ class MapRenderer(
     fun select(sel: Selection?) { if (sel == null) clearSelection = true else pendingSelection = sel; requestRender() }
     fun updateShadow() { shadowDirty = true; requestRender() }
 
+    /** Reduced motion (ui/Motion.kt): the camera lands at once, the run is painted whole, the mountain dims at once. */
+    @Volatile var still = false
+
     fun animateCamera(to: OrbitCamera.State, seconds: Float = 1.1f) {
+        if (still) { camAnim = null; camera.set(to); requestRender(); return }
         camAnim = Triple(camera.state(), to, floatArrayOf(0f, seconds)); requestRender()
     }
 
@@ -242,9 +262,10 @@ class MapRenderer(
         terrainProg = program(TERRAIN_VS, TERRAIN_FS)
         lineProg = program(LINE_VS, LINE_FS)
         markProg = program(MARK_VS, MARK_FS)
+        stationProg = program(MARK_VS, STATION_FS)
         skyProg = program(SKY_VS, SKY_FS)
         // a new GL context (first start, or the map tab came back): everything is uploaded again
-        uploaded = false; pistes.clear(); lifts.clear(); selCasing = null; selPaint = null; dim = 0f; dimTarget = 0f
+        uploaded = false; pistes.clear(); lifts.clear(); liftInactive.clear(); stationCount = 0; selCasing = null; selPaint = null; dim = 0f; dimTarget = 0f
         glEnable(GL_DEPTH_TEST); glEnable(GL_CULL_FACE); glCullFace(GL_BACK)
         glClearColor(0.86f, 0.91f, 0.945f, 1f)
     }
@@ -266,7 +287,16 @@ class MapRenderer(
         glBindVertexArray(0)
         terrainCount = m.count
         for (p in s.pisteRibbons) pistes += Triple(p.key, GpuRibbon(p.casing), GpuRibbon(p.core))
-        for ((name, r) in s.liftRibbons) lifts += name to GpuRibbon(r)
+        for (p in s.runs.pistes) pisteW[p.key] = when { !p.named -> 0.65f; p.kind == "ski-way" -> 0.7f; else -> 1f }
+        s.liftRibbons.forEachIndexed { i, (name, r) -> lifts += name to GpuRibbon(r); liftInactive += s.runs.lifts.getOrNull(i)?.status == "inactive" }
+        // both ends of every lift's cable
+        val ends = FloatArray(s.liftLines.size * 6)
+        s.liftLines.forEachIndexed { i, l -> val n = l.size / 3; for (j in 0..2) { ends[i * 6 + j] = l[j]; ends[i * 6 + 3 + j] = l[(n - 1) * 3 + j] } }
+        glGenVertexArrays(1, stationVao, 0); glBindVertexArray(stationVao[0])
+        glGenBuffers(1, stationBuf, 0); glBindBuffer(GL_ARRAY_BUFFER, stationBuf[0]); glBufferData(GL_ARRAY_BUFFER, ends.size * 4, floats(ends), GL_STATIC_DRAW)
+        attr(0, 3, 12, 0)
+        glBindVertexArray(0)
+        stationCount = ends.size / 3
         uploaded = true
     }
 
@@ -288,12 +318,12 @@ class MapRenderer(
             pendingSelection = null
             selCasing?.release(); selPaint?.release()
             selCasing = GpuRibbon(sel.casing); selPaint = GpuRibbon(sel.paint)
-            setTerrainAttrib(2, sel.highlight); reveal = 0f; dimTarget = 1f
+            setTerrainAttrib(2, sel.highlight); reveal = if (still) 1f else 0f; dimTarget = 1f; if (still) dim = 1f
         }
         if (clearSelection) {
             clearSelection = false
             selCasing?.release(); selPaint?.release(); selCasing = null; selPaint = null
-            setTerrainAttrib(2, FloatArray(s.shadow.size)); dimTarget = 0f; stopFly()
+            setTerrainAttrib(2, FloatArray(s.shadow.size)); dimTarget = 0f; if (still) dim = 0f; stopFly()
         }
 
         var moving = false
@@ -346,23 +376,36 @@ class MapRenderer(
         val px = (2 * st.dist * kotlin.math.tan(Math.toRadians(20.0)) / height.coerceAtLeast(1)).toFloat()
         fun fade(key: String) = if (paint.forMe && key in paint.closedRuns) 0.15f else 1f
         val off = hidden
-        glUniform1f(uW, 5.6f * density); glUniform1f(uB, 0.0006f)
-        for (p in pistes) { if (p.first in off) continue; glUniform1f(uA, others * fade(p.first)); p.second.draw() }
-        glUniform1f(uW, 2.6f * density); glUniform1f(uB, 0.0008f)
+        glUniform1f(uB, 0.0006f)
+        for (p in pistes) {
+            if (p.first in off) continue
+            glUniform1f(uW, (2.6f * (pisteW[p.first] ?: 1f) + 3f) * density); glUniform1f(uA, others * fade(p.first)); p.second.draw()
+        }
+        glUniform1f(uB, 0.0008f)
         for (p in pistes) {
             if (p.first in off) continue
             val shut = p.first in paint.closedRuns
+            glUniform1f(uW, 2.6f * (pisteW[p.first] ?: 1f) * density)
             glUniform1f(uA, others * fade(p.first))
             if (shut) { glUniform4f(uT, 0.557f, 0.612f, 0.678f, 1f); glUniform1f(uD, 11f * density * px); glUniform1f(uOn, 6f / 11f) }
             p.third.draw()
             if (shut) { glUniform4f(uT, 0f, 0f, 0f, 0f); glUniform1f(uD, 0f) }
         }
         glUniform1f(uA, others); glUniform1f(uW, 1.8f * density); glUniform1f(uB, 0.0010f)
-        if (!hideLifts) for ((name, r) in lifts) {
-            val shut = name in paint.closedLifts
+        if (!hideLifts) lifts.forEachIndexed { i, (name, r) ->
+            val shut = name.isNotBlank() && name in paint.closedLifts
+            val idle = liftInactive.getOrElse(i) { false }
             if (shut) { glUniform4f(uT, 0.604f, 0.647f, 0.702f, 1f); glUniform1f(uD, 8f * density * px); glUniform1f(uOn, 0.5f) }
+            else if (idle) { glUniform1f(uD, 5f * density * px); glUniform1f(uOn, 0.4f) } // the site's 2 on, 3 off
             r.draw()
-            if (shut) { glUniform4f(uT, 0f, 0f, 0f, 0f); glUniform1f(uD, 0f) }
+            if (shut || idle) { glUniform4f(uT, 0f, 0f, 0f, 0f); glUniform1f(uD, 0f) }
+        }
+        if (!hideLifts && stationCount > 0) {
+            glUseProgram(stationProg)
+            glUniformMatrix4fv(glGetUniformLocation(stationProg, "uMvp"), 1, false, mvp, 0)
+            glUniform1f(glGetUniformLocation(stationProg, "uSize"), 9f * density)
+            glBindVertexArray(stationVao[0]); glDrawArrays(GL_POINTS, 0, stationCount); glBindVertexArray(0)
+            glUseProgram(lineProg)
         }
         if (selPaint != null) {
             glUniform1f(uA, 1f); glUniform1f(uR, reveal)

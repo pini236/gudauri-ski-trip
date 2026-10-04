@@ -41,12 +41,26 @@ object DayNight {
         val dark: Boolean,
         /** The clock in Gudauri, "13:35". */
         val clock: String,
+        /** The part of the day the sky shows, the site's chip on the sky (daynight.phase_*): sunrise, day, golden_hour, sunset, twilight, night. */
+        val phase: String = "day",
     )
 
     private fun lerp(a: Float, b: Float, t: Float) = a + (b - a) * t
     private fun mixRgb(a: Int, b: Int, t: Float): Int {
         fun ch(s: Int) = (lerp(((a shr s) and 255).toFloat(), ((b shr s) and 255).toFloat(), t) + .5f).toInt() shl s
         return ch(16) or ch(8) or ch(0)
+    }
+
+    /**
+     * The moment the mountain is lit as (map/Sky.kt): now in auto, else that day's solar noon (day) or 22:00 (night) in
+     * Gudauri, as the site's state() feeds its 3D light.
+     */
+    fun lightTime(epochMs: Long, mode: Mode): Long {
+        if (mode == Mode.AUTO) return epochMs
+        val h = if (mode == Mode.DAY) Sky.sunTimes(epochMs)[2] else 22.0
+        val hourMs = 3_600_000L
+        val dayStart = Math.floorDiv(epochMs + 4 * hourMs, 24 * hourMs) * 24 * hourMs - 4 * hourMs
+        return dayStart + (h * hourMs).toLong()
     }
 
     fun at(epochMs: Long, mode: Mode): Frame {
@@ -68,6 +82,9 @@ object DayNight {
             lerp(a.glow, b.glow, f), if (f < .5f) a.glowC else b.glowC, h < noon,
             lerp(a.star, b.star, f), lerp(a.moon, b.moon, f), lerp(a.win, b.win, f),
             dark, "%02d:%02d".format(hh, mm),
+            // the site's state().phase
+            if (dark) (if (h > set && h < set + 1.3) "twilight" else "night")
+            else if (h < rise + .8) "sunrise" else if (h < set - 2) "day" else if (h < set - .6) "golden_hour" else "sunset",
         )
     }
 }

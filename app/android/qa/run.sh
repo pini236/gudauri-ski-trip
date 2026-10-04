@@ -244,7 +244,18 @@ home() {
   tapText "מפת מסלולים" && sleep 3 && shot home-sign-map
   tapText "בית" && sleep 1.5 && shot home-back
   tapText "נקודת מפגש" && sleep 1 && shot home-sign-meet && adb shell input keyevent KEYCODE_BACK && sleep 1
-  tapText "אודות והגדרות" && sleep 1 && shot home-about && adb shell input keyevent KEYCODE_BACK && sleep 1
+  # home below the signs: the tally of runs and the two links (A-32)
+  drag $((W / 2)) $((H * 80 / 100)) $((W / 2)) $((H * 20 / 100)) 400; sleep 1; shot home-bottom
+  drag $((W / 2)) $((H * 20 / 100)) $((W / 2)) $((H * 80 / 100)) 300; drag $((W / 2)) $((H * 20 / 100)) $((W / 2)) $((H * 80 / 100)) 300; sleep 1
+  # about and settings (13.7): the account's pass, the settings, who built it, the credits
+  if tapText "אודות והגדרות"; then
+    sleep 1; shot home-about
+    drag $((W / 2)) $((H * 80 / 100)) $((W / 2)) $((H * 25 / 100)) 400; sleep 1; shot home-about-2
+    # the reset asks twice: armed while it is on screen, before the credits scroll it away
+    tapText "איפוס השיאים במשחקים" && sleep 0.5 && shot home-about-reset-armed
+    drag $((W / 2)) $((H * 80 / 100)) $((W / 2)) $((H * 25 / 100)) 400; sleep 1; shot home-about-3
+    adb shell input keyevent KEYCODE_BACK && sleep 1
+  else fail "no way to about from home"; fi
 
   # left to right (LT1 to LT3): the post on the left, the arrows and the stub on the right
   for l in en ru ka; do
@@ -294,8 +305,8 @@ group() {
 
   # a guest member without a flight: the flights (Q6), "I'm on the same flight" (Q7), meetups (Q8), scores (Q9)
   qa "--es qa.group member --es qa.trip none --es qa.tab group"; waitlog "group seed member" 20; sleep 2.5; shot group-flights
-  tapText "אני על אותה טיסה" && sleep 1.2 && shot group-same-flight
-  tapText "מהקבוצה" && sleep 0.5 && tapText "שמירה" && sleep 2 && shot group-same-flight-done
+  # "I'm on the same flight" on a flight I am not on (A-34, as on the site): one tap, and I am on it
+  tapText "אני על אותה טיסה" && sleep 2 && shot group-same-flight-done
   tapText "מפגשים" && sleep 1.5 && shot group-meetups
   tapText "שיאים" && sleep 1.5 && shot group-scores
   tapText "חברים" && sleep 1.5 && shot group-members
@@ -411,6 +422,8 @@ phone() {
   if [ -z "$rooted" ]; then fail "no root: the phone's language not tested"; adb shell am start -W -n "$ACT" > /dev/null; return; fi
   sleep 3; adb wait-for-device
   adb uninstall "$PKG" > /dev/null; adb install -r -g "$APK" > /dev/null || { fail "reinstall"; return; }
+  # the notifications question covered the home page on the first open (runs 96, 97): granted outright, as in the rest
+  adb shell pm grant "$PKG" android.permission.POST_NOTIFICATIONS > /dev/null 2>&1 || true
   # no language chosen in the app: the system keeps an app's choice across a quick reinstall (the run set Hebrew at its
   # start), and this part runs on an emulator of its own, with no "from the phone" before it (3.10.2026)
   adb shell cmd locale set-app-locales "$PKG" > /dev/null 2>&1; sleep 1
@@ -432,7 +445,10 @@ phone() {
     tail -n +"$((MARK + 1))" "$OUT/logcat.txt" | grep -m1 "SkiQa.*language " | sed 's/.*SkiQa[^:]*: /  app: /' | tee -a "$OUT/summary.txt"
     # the screen reader of the test can be slow to come back after the restart: a few tries
     local want="Add my flight" got=""; [ "$loc" = he-IL ] && want="הוספת הטיסה שלי"
-    for i in 1 2 3 4 5; do got=$(where "$want"); [ -n "$got" ] && break; sleep 2; done
+    for i in 1 2 3 4 5; do got=$(where "$want"); [ -n "$got" ] && break
+      # a system question over the page (notifications), in the phone's language: answered, and looked at again
+      local w xy; for w in "Allow" "יש אישור" "Разрешить" "დაშვება"; do xy=$(where "$w"); [ -n "$xy" ] && { tap $xy; break; }; done
+      sleep 2; done
     [ -n "$got" ] && note "a phone in $loc: ${want}" || fail "a phone in $loc does not show '$want'"
   done
   adb unroot > /dev/null 2>&1; sleep 3; adb wait-for-device

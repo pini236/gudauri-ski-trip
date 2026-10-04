@@ -68,7 +68,9 @@ class MapStatus(
  * tap on it opens the board (S2) or the snowy signs (S3), as in the site's map panel.
  */
 @Composable
-fun MapScreen(view: MapView, scene: MapScene?, ms: MapStatus? = null, videos: List<Video> = emptyList()) {
+fun MapScreen(view: MapView, scene: MapScene?, ms: MapStatus? = null, videos: List<Video> = emptyList(),
+              /** Night (the day and night switch): the panel, the bar and the board go dark, as on the site (A-11). */
+              dark: Boolean = false) {
     var selected by remember { mutableStateOf<Piste?>(view.selected) }
     var flying by remember { mutableStateOf(view.flying) }
     var lift by remember { mutableStateOf<Lift?>(view.shownLift.also { view.shownLift = null }) }
@@ -102,6 +104,7 @@ fun MapScreen(view: MapView, scene: MapScene?, ms: MapStatus? = null, videos: Li
             stopFly = { view.stopFly() },
             mark = { x, y -> view.mark(x, y) },
             unmark = { view.unmark() },
+            flyAt = { view.flyInfo()?.get(0) },
         )
     }
     // a tap on a lift's line, as on a connection's tag; lift_open however the panel opened (a tap, a tag, the meeting point)
@@ -119,8 +122,8 @@ fun MapScreen(view: MapView, scene: MapScene?, ms: MapStatus? = null, videos: Li
         if (scene == null) {
             Text(stringResource(R.string.app_map_loading), Modifier.align(Alignment.Center), fontFamily = Ski.type.text, fontSize = 16.sp, color = Palette.ink)
         }
-        // the map keeps its day colours (the spike), and so do the panel, the bar and the board over it
-        if (scene != null) SkiTheme(dark = false) {
+        // the panel, the bar and the board over the map in the app's colours: dark at night, as the site's map
+        if (scene != null) SkiTheme(dark = dark) {
             Box(Modifier.fillMaxSize()) {
                 val p = selected; val l = lift
                 when {
@@ -130,7 +133,7 @@ fun MapScreen(view: MapView, scene: MapScene?, ms: MapStatus? = null, videos: Li
                                 if (flying) Box(Modifier.padding(bottom = 8.dp)) { FlyBar(view, runName(p)) }
                                 RunHead(p, facts, order, flying, true, actions)
                             },
-                            body = { RunBody(p, facts, scene.runs, scene.terrain, videos, actions) })
+                            body = { RunBody(p, facts, scene.runs, scene.terrain, videos, actions, flying) })
                     }
                     l != null -> MapPanel(true, {}, { lift = null }, head = { LiftHead(l) }, body = { LiftBody(l, scene.runs, scene.terrain, actions) }, bodyMax = 0.45f, onHeight = onPanel)
                     list -> MapPanel(true, {}, { list = false },

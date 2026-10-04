@@ -148,6 +148,16 @@ interface GroupApi {
 
     suspend fun myGroups(): List<GroupSummary>
     suspend fun group(id: String): Group
+    /**
+     * The group sign on home (the site's groupBoardSub): my first group's name and how many are in it, from the phone's
+     * copy when there is one; null when I am in none (or offline with nothing kept).
+     */
+    suspend fun firstGroup(): Pair<String, Int>? {
+        if (me() == null) return null
+        val g = runCatching { myGroups() }.getOrNull()?.firstOrNull() ?: return null
+        val n = watch(g.id).now.group?.members?.size ?: runCatching { group(g.id).members.size }.getOrNull() ?: 0
+        return g.name to n
+    }
     /** The group as kept on the phone, for its page; the screens read the group only through this. */
     fun watch(id: String): GroupWatch = FetchedGroup(this, id)
     suspend fun createGroup(name: String, myName: String, startsOn: LocalDate?, endsOn: LocalDate?, myTrip: Trip?): String
