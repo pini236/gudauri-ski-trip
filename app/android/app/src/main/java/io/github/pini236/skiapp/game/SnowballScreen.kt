@@ -95,10 +95,11 @@ private enum class Fight { MENU, PLAY, END }
  * The snowball fight on the phone (13.6), the site's game (site/games/snowball): you behind your wall, the characters
  * behind theirs; stand up and aim with a finger, let go to throw, and duck before their ball arrives. A ladder of five
  * rungs, each with three stars (to win, without being hit, the rung's goal); a rung opens when the one before it has a
- * star. The characters have no names in the app (Pini, 4.10.2026), only coats and hats: you pick your coat.
+ * star. The characters have no names in the app (Pini, 4.10.2026), only coats and hats: you pick your coat; [names] can
+ * give a coat a name later (the group's names, docs/ROADMAP.md).
  */
 @Composable
-fun SnowballScreen(haptics: Haptics, onBack: () -> Unit, onBest: () -> Unit = {}) {
+fun SnowballScreen(haptics: Haptics, onBack: () -> Unit, onBest: () -> Unit = {}, names: (Int) -> String? = { null }) {
     val context = LocalContext.current
     val synth = remember { Synth(context) }
     val still = remember { Motion.reduced(context) }
@@ -167,7 +168,7 @@ fun SnowballScreen(haptics: Haptics, onBack: () -> Unit, onBest: () -> Unit = {}
             Fight.MENU -> Shade { Menu(me, rung, starsV, ::stars, onBack, onCoat = { me = it; prefs.edit().putInt("me", it).apply() },
                 onRung = { rung = it; prefs.edit().putInt("rung", it).apply() }, onGo = { start() }) }
             Fight.PLAY -> fight?.let { g ->
-                Hud(g, hpV)
+                Hud(g, hpV, names)
                 Pop(pop, popN, still)
                 Hint(hint)
             }
@@ -340,11 +341,12 @@ private fun Stat(label: Int, value: String, modifier: Modifier) {
 
 // ---------- in the fight: your balls on the left, the rung and the wind in the middle, theirs on the right ----------
 
-/** A coat's tag (the site's .tag): its colour on top, and the balls left, full or dashed. */
+/** A coat's tag (the site's .tag): its colour on top, a name when there is one, and the balls left, full or dashed. */
 @Composable
-private fun Tag(coat: Int, hp: Int, max: Int) {
+private fun Tag(coat: Int, hp: Int, max: Int, name: String?) {
     Row(Modifier.drawBehind { drawRect(Color(COATS[coat].color), size = Size(size.width, 5.dp.toPx())) }.padding(top = 5.dp).background(INK.copy(alpha = .86f))
-        .padding(horizontal = 10.dp, vertical = 6.dp), horizontalArrangement = Arrangement.spacedBy(3.dp)) {
+        .padding(horizontal = 10.dp, vertical = 6.dp), horizontalArrangement = Arrangement.spacedBy(3.dp), verticalAlignment = Alignment.CenterVertically) {
+        if (name != null) Text(name, Modifier.padding(end = 4.dp), style = Ski.type.bodyBold.copy(fontSize = 14.sp), color = Color.White, maxLines = 1)
         for (k in 0 until max) Canvas(Modifier.size(14.dp)) {
             val r = size.minDimension / 2
             if (k < hp) { drawCircle(Color.White, r); drawCircle(Color(0xFFC9D8E7), r * .9f, center.copy(y = center.y + r * .25f), alpha = .6f); drawCircle(INK.copy(alpha = .3f), r - .5f, style = Stroke(1f)) }
@@ -355,12 +357,12 @@ private fun Tag(coat: Int, hp: Int, max: Int) {
 
 @Composable
 @Suppress("UNUSED_PARAMETER") // a new [hpV] reads the balls again
-private fun Hud(g: SnowballFight, hpV: Int) {
+private fun Hud(g: SnowballFight, hpV: Int, names: (Int) -> String?) {
     val scale = Ski.type.displayScale
     // laid out as the site's (direction:ltr): you on the left, they on the right, in every language
     CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
         Row(Modifier.fillMaxWidth().statusBarsPadding().padding(start = 12.dp, end = 12.dp, top = 10.dp), verticalAlignment = Alignment.Top) {
-            Box(Modifier.weight(1f)) { Tag(g.me, g.myHp, 3) }
+            Box(Modifier.weight(1f)) { Tag(g.me, g.myHp, 3, names(g.me)) }
             Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 Text("${g.rungIndex + 1} · ${stringResource(g.rung.arena)}", Modifier.background(ACCENT).padding(horizontal = 12.dp, vertical = 3.dp),
                     style = Ski.type.title.copy(fontSize = (24 * scale).sp, lineHeight = 1.em), color = INK, maxLines = 1)
@@ -370,7 +372,7 @@ private fun Hud(g: SnowballFight, hpV: Int) {
                     Modifier.background(Color.White.copy(alpha = .88f)).padding(horizontal = 10.dp, vertical = 3.dp), style = Ski.type.bodyBold.copy(fontSize = 12.5.sp), color = INK)
             }
             Column(Modifier.weight(1f), horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                for (o in g.foes) Tag(o.coat, o.hp, g.rung.hp)
+                for (o in g.foes) Tag(o.coat, o.hp, g.rung.hp, names(o.coat))
             }
         }
     }

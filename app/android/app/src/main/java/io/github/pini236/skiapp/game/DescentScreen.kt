@@ -121,10 +121,11 @@ fun descentTime(s: Float): String { val m = floor(s / 60).toInt(); val r = s - m
  * The crew's descent on the phone (13.6), the site's game (site/games/descent): five real runs, one button, the
  * others to pick up on the way, the avalanche behind and the ghost of the best run. Three stars a run (the lift, the
  * whole crew, the run's mission), points as on the site; the best time and its ghost are kept on the phone, and the
- * best points go to the group's table. The others have no names in the app (Pini, 4.10.2026), only coats.
+ * best points go to the group's table. The others have no names in the app (Pini, 4.10.2026), only coats; [names] can
+ * give a coat a name later (the group's names, docs/ROADMAP.md).
  */
 @Composable
-fun DescentScreen(profiles: List<Profile>, haptics: Haptics, onBack: () -> Unit, onBest: () -> Unit = {}) {
+fun DescentScreen(profiles: List<Profile>, haptics: Haptics, onBack: () -> Unit, onBest: () -> Unit = {}, names: (Int) -> String? = { null }) {
     val context = LocalContext.current
     val synth = remember { Synth(context) }
     val still = remember { Motion.reduced(context) }
@@ -154,6 +155,7 @@ fun DescentScreen(profiles: List<Profile>, haptics: Haptics, onBack: () -> Unit,
             words = { id, a -> context.getString(id, *a) }
         }
     }
+    view.names = names
     val density = LocalDensity.current
     view.mapTop = WindowInsets.statusBars.getTop(density) + with(density) { 92.dp.toPx() }
     val course = remember(runIdx, me) { Course(profiles[runIdx], runIdx, me) }

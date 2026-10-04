@@ -717,8 +717,8 @@ class MainActivity : ComponentActivity() {
                     Route.Game("merge") -> MergeScreen(haptics, onBack = { nav.back() }) { sendBests() }
                     Route.Game("fresh") -> FreshSnowScreen(haptics, onBack = { nav.back() }) { sendBests() }
                     Route.Game("school") -> SchoolScreen(haptics, onBack = { nav.back() }) { sendBests() }
-                    Route.Game("snowball") -> io.github.pini236.skiapp.game.SnowballScreen(haptics, onBack = { nav.back() }) { sendBests() }
-                    Route.Game("descent") -> io.github.pini236.skiapp.game.DescentScreen(profiles, haptics, onBack = { nav.back() }) { sendBests() }
+                    Route.Game("snowball") -> io.github.pini236.skiapp.game.SnowballScreen(haptics, onBack = { nav.back() }, onBest = { sendBests() })
+                    Route.Game("descent") -> io.github.pini236.skiapp.game.DescentScreen(profiles, haptics, onBack = { nav.back() }, onBest = { sendBests() })
                     Route.About -> AboutScreen(BuildConfig.VERSION_NAME, onPrivacy = ::openPrivacy, account = account, mode = dnMode, onMode = ::nextMode,
                         lang = Lang.current(resources), langManual = Lang.manual(this@MainActivity), onLang = ::setLang,
                         onResetBests = { Bests.reset(this@MainActivity); Qa.log("bests reset") }) { nav.back() }

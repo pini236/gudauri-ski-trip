@@ -48,7 +48,9 @@ class DescentView(context: Context, private val still: Boolean) : View(context) 
     var display: Typeface? = null
     /** The words on the snow: the signs, the lift and the finish, and the ghost's label. */
     var words: (Int, Array<Any>) -> String = { _, _ -> "" }
-    var locale: java.util.Locale = java.util.Locale.US
+    /** A name for the character in coat i, or none (the app's games have no names for now, Pini 4.10.2026; the idea
+     *  of the group's names is in docs/ROADMAP.md). */
+    var names: (Int) -> String? = { null }
 
     private val d = resources.displayMetrics.density
     @Volatile private var pano: Bitmap? = null
@@ -307,8 +309,9 @@ class DescentView(context: Context, private val still: Boolean) : View(context) 
         }
         line.strokeCap = Paint.Cap.BUTT
         cv.restore()
-        // the ghost's label, in pixels
-        if (g != null) { val gi = g.ghostAt(t); if (gi >= 0) label(cv, sx(g.ghost!!.r[gi + 1]), sy(g.ghost.r[gi + 2]), words(io.github.pini236.skiapp.R.string.game_descent_ghost_label, emptyArray())) }
+        // labels, in pixels: the ghost's, and the names of those waiting when they have one
+        if (g != null) { val gi = g.ghostAt(t); if (gi >= 0) label(cv, sx(g.ghost!!.r[gi + 1]), sy(g.ghost.r[gi + 2]), words(io.github.pini236.skiapp.R.string.game_descent_ghost_label, emptyArray()), 0xFFFFFFFF.toInt(), 89) }
+        for (sp in c.spots) { if (sp.lost || sp.got || sp.x < x0 - 5 || sp.x > x1 + 5) continue; names(sp.coat)?.let { label(cv, sx(sp.x), sy(c.ground(sp.x)), it, 0xFFF4B942.toInt(), 255) } }
         // the avalanche: a wall of powder behind you
         if (g != null && g.avalancheOn) {
             val X = sx(g.avaX)
@@ -369,11 +372,11 @@ class DescentView(context: Context, private val still: Boolean) : View(context) 
         font.color = if (start) 0xFFFFFFFF.toInt() else INK; cv.drawText(s, X, Y - sc * 3.2f - hh * .28f, font)
     }
 
-    private fun label(cv: Canvas, X: Float, Y: Float, s: String) {
+    private fun label(cv: Canvas, X: Float, Y: Float, s: String, bg: Int, alpha: Int) {
         font.typeface = text; font.textSize = .8f * sc; font.color = INK
         val w = font.measureText(s) + .5f * sc
-        fill.color = 0x59FFFFFF; cv.drawRect(X - w / 2, Y - 4.3f * sc, X + w / 2, Y - 3.25f * sc, fill)
-        font.alpha = 89; cv.drawText(s, X, Y - 3.5f * sc, font); font.alpha = 255
+        fill.color = bg; fill.alpha = alpha; cv.drawRect(X - w / 2, Y - 4.3f * sc, X + w / 2, Y - 3.25f * sc, fill); fill.alpha = 255
+        font.alpha = alpha; cv.drawText(s, X, Y - 3.5f * sc, font); font.alpha = 255
     }
 
     private fun shadow(cv: Canvas, c: Course, x: Float, hgt: Float) {
