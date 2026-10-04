@@ -250,8 +250,10 @@ home() {
   # about and settings (13.7): the account's pass, the settings, who built it, the credits
   if tapText "אודות והגדרות"; then
     sleep 1; shot home-about
-    for k in 2 3 4; do drag $((W / 2)) $((H * 80 / 100)) $((W / 2)) $((H * 25 / 100)) 400; sleep 1; shot "home-about-$k"; done
+    drag $((W / 2)) $((H * 80 / 100)) $((W / 2)) $((H * 25 / 100)) 400; sleep 1; shot home-about-2
+    # the reset asks twice: armed while it is on screen, before the credits scroll it away
     tapText "איפוס השיאים במשחקים" && sleep 0.5 && shot home-about-reset-armed
+    drag $((W / 2)) $((H * 80 / 100)) $((W / 2)) $((H * 25 / 100)) 400; sleep 1; shot home-about-3
     adb shell input keyevent KEYCODE_BACK && sleep 1
   else fail "no way to about from home"; fi
 
@@ -420,6 +422,8 @@ phone() {
   if [ -z "$rooted" ]; then fail "no root: the phone's language not tested"; adb shell am start -W -n "$ACT" > /dev/null; return; fi
   sleep 3; adb wait-for-device
   adb uninstall "$PKG" > /dev/null; adb install -r -g "$APK" > /dev/null || { fail "reinstall"; return; }
+  # the notifications question covered the home page on the first open (runs 96, 97): granted outright, as in the rest
+  adb shell pm grant "$PKG" android.permission.POST_NOTIFICATIONS > /dev/null 2>&1 || true
   # no language chosen in the app: the system keeps an app's choice across a quick reinstall (the run set Hebrew at its
   # start), and this part runs on an emulator of its own, with no "from the phone" before it (3.10.2026)
   adb shell cmd locale set-app-locales "$PKG" > /dev/null 2>&1; sleep 1
@@ -441,7 +445,10 @@ phone() {
     tail -n +"$((MARK + 1))" "$OUT/logcat.txt" | grep -m1 "SkiQa.*language " | sed 's/.*SkiQa[^:]*: /  app: /' | tee -a "$OUT/summary.txt"
     # the screen reader of the test can be slow to come back after the restart: a few tries
     local want="Add my flight" got=""; [ "$loc" = he-IL ] && want="הוספת הטיסה שלי"
-    for i in 1 2 3 4 5; do got=$(where "$want"); [ -n "$got" ] && break; sleep 2; done
+    for i in 1 2 3 4 5; do got=$(where "$want"); [ -n "$got" ] && break
+      # a system question over the page (notifications), in the phone's language: answered, and looked at again
+      local w xy; for w in "Allow" "יש אישור" "Разрешить" "დაშვება"; do xy=$(where "$w"); [ -n "$xy" ] && { tap $xy; break; }; done
+      sleep 2; done
     [ -n "$got" ] && note "a phone in $loc: ${want}" || fail "a phone in $loc does not show '$want'"
   done
   adb unroot > /dev/null 2>&1; sleep 3; adb wait-for-device
