@@ -7,7 +7,7 @@
 //   DB_URL=... deno test -A --config supabase/functions/api/deno.json tests/api.test.ts
 
 import postgres from "postgres";
-import { handle, type Deps } from "../supabase/functions/api/actions.ts";
+import { ACTION_NAMES, handle, type Deps, type Meta } from "../supabase/functions/api/actions.ts";
 
 const sql = postgres(Deno.env.get("DB_URL") ?? "postgresql://postgres:postgres@127.0.0.1:54322/postgres", {
   onnotice: () => {},
@@ -34,8 +34,8 @@ async function user(name: string, anonymous = false): Promise<string> {
 
 // Call an action; returns the body, and checks the HTTP status.
 // deno-lint-ignore no-explicit-any
-async function call(u: string | null, action: string, body: Record<string, unknown> = {}, status = 200): Promise<any> {
-  const r = await handle(deps, u, action, body);
+async function call(u: string | null, action: string, body: Record<string, unknown> = {}, status = 200, meta: Meta = {}): Promise<any> {
+  const r = await handle(deps, u, action, body, meta);
   if (r.status !== status) throw new Error(`${action}: expected ${status}, got ${r.status} ${JSON.stringify(r.body)}`);
   return r.body;
 }
@@ -189,7 +189,7 @@ test("invites: code, link, revoke, expiry, limits, approval", async () => {
   await fails(admin, "decide_join_request", { request_id: req, approve: true }, "request_closed");
 });
 
-test("guessing the code: per person, per day, and a global brake", async () => {
+test("guessing the code: per person, per day, and per network address", async () => {
   const admin = await user("admin");
   const g = await newGroup(admin);
   const inv = await invite(g);
@@ -207,11 +207,20 @@ test("guessing the code: per person, per day, and a global brake", async () => {
             select ${other}, now() - interval '1 hour' * i, false from generate_series(1, 20) i`;
   eq((await call(other, "invite_preview", { code: inv.code })).status, "rate_limited", "twenty a day");
 
-  const fresh = await user("fresh", true);
-  await sql`insert into private.invite_attempts (user_id, ok) select gen_random_uuid(), false from generate_series(1, 300)`;
+  // Many identities from one address: blocked by the address, while everyone else still joins (R-13).
+  const fresh = await user("fresh", true), elsewhere = await user("elsewhere", true);
+  const there = { ipKey: "abc" }, here = { ipKey: "def" };
+  await sql`insert into private.invite_attempts (user_id, ok, ip_key) select gen_random_uuid(), false, 'abc' from generate_series(1, 60)`;
+  await sql`insert into private.invite_attempts (user_id, ok, ip_key) select gen_random_uuid(), false, 'xyz' from generate_series(1, 5000)`;
   try {
-    eq((await call(fresh, "invite_preview", { code: inv.code })).status, "rate_limited", "global brake on codes");
-    eq((await call(fresh, "invite_preview", { code: inv.token })).status, "ok", "links keep working");
+    eq((await call(fresh, "invite_preview", { code: inv.code }, 200, there)).status, "rate_limited", "sixty an hour per address");
+    eq((await call(fresh, "invite_preview", { code: inv.token }, 200, there)).status, "ok", "links keep working");
+    eq((await call(elsewhere, "invite_preview", { code: inv.code }, 200, here)).status, "ok",
+      "thousands of wrong guesses from elsewhere do not close joining for others");
+    eq((await call(elsewhere, "invite_preview", { code: inv.code })).status, "ok", "no address known: per person only");
+    await call(elsewhere, "invite_preview", { code: "ZZZZZZ" }, 200, here);
+    eq(await count(sql`select count(*) n from private.invite_attempts where user_id = ${elsewhere} and ip_key = 'def'`), 2,
+      "attempts keep the address key");
   } finally {
     await sql`delete from private.invite_attempts`;
   }
@@ -421,4 +430,147 @@ test("the account name reaches every group (decision 50)", async () => {
   await sql`update public.profiles set lang = 'ru' where id = ${pini}`;
   eq((await sql`select display_name from public.group_members where group_id = ${g1} and user_id = ${pini}`)[0]
     .display_name, "P", "only a name change spreads, not a change of language");
+});
+
+// R-2: the function runs as the database's owner, so every action checks by itself who may act. Every action has a
+// row here: a stranger (registered, not in the group) and, for admin actions, a plain member must be refused, and
+// nothing in the group may change. A new action without a row fails this test.
+test("authorization matrix: every action against a stranger, a member and an admin", async () => {
+  const admin = await user("admin"), member = await user("member"), stranger = await user("stranger");
+  const g = await newGroup(admin);
+  await call(member, "join_group", { code: (await invite(g)).code, display_name: "Member" });
+  const [t] = await sql`insert into public.trips (owner_id, out_date) values (${member}, '2027-01-10') returning id`;
+  await call(member, "set_my_membership", { group_id: g, display_name: "Member", trip_id: t.id });
+  const inv = await invite(g);
+  const [inviteRow] = await sql`select id from public.invites where group_id = ${g} and revoked_at is null`;
+  const [req] = await sql`insert into public.join_requests (group_id, user_id, display_name, kind)
+                          values (${g}, ${await user("asker", true)}, 'Asker', 'approval') returning id`;
+
+  // who may: "any" = anyone signed in, "member" = members of the group, "admin" = its admins
+  const matrix: Record<string, { who: "any" | "member" | "admin" | "self"; body: Record<string, unknown> }> = {
+    my_account: { who: "self", body: {} },
+    delete_my_account: { who: "self", body: {} },
+    create_merge_ticket: { who: "self", body: {} },
+    merge_guest: { who: "self", body: { ticket: "x".repeat(32) } },
+    create_group: { who: "self", body: { name: "Mine", display_name: "Me" } },
+    update_group: { who: "admin", body: { group_id: g, name: "Taken" } },
+    delete_group: { who: "admin", body: { group_id: g } },
+    create_invite: { who: "admin", body: { group_id: g } },
+    revoke_invite: { who: "admin", body: { invite_id: inviteRow.id } },
+    invite_preview: { who: "any", body: { code: inv.code } },
+    join_group: { who: "any", body: { code: inv.code, display_name: "X" } },
+    request_reclaim: { who: "any", body: { code: inv.code, member_id: member } },
+    cancel_join_request: { who: "self", body: { request_id: req.id } },
+    decide_join_request: { who: "admin", body: { request_id: req.id, approve: false } },
+    leave_group: { who: "self", body: { group_id: g } },
+    remove_member: { who: "admin", body: { group_id: g, user_id: member } },
+    set_member_role: { who: "admin", body: { group_id: g, user_id: member, role: "admin" } },
+    claim_admin: { who: "member", body: { group_id: g } },
+    set_my_membership: { who: "self", body: { group_id: g, display_name: "Y" } },
+    same_flight: { who: "member", body: { group_id: g, trip_id: t.id } },
+    set_member_trip: { who: "admin", body: { group_id: g, user_id: member, trip: { out_date: "2027-01-11" } } },
+    submit_score: { who: "self", body: { game: "descent", score: 1 } },
+    group_leaderboard: { who: "member", body: { group_id: g, game: "descent" } },
+  };
+  eq(Object.keys(matrix).sort(), [...ACTION_NAMES].sort(), "every action has a row in the matrix");
+
+  const snapshot = async () =>
+    JSON.stringify(await sql`select
+      (select json_agg(g order by id) from public.groups g where id = ${g}) as groups,
+      (select json_agg(m order by user_id) from public.group_members m where group_id = ${g}) as members,
+      (select json_agg(i order by id) from public.invites i where group_id = ${g}) as invites,
+      (select json_agg(q order by id) from public.join_requests q where group_id = ${g}) as requests,
+      (select json_agg(t order by id) from public.trips t where owner_id = ${member}) as trips`);
+  const before = await snapshot();
+  const refused = ["not_member", "not_admin", "trip_not_in_group"];
+  for (const [action, row] of Object.entries(matrix)) {
+    if (row.who === "admin" || row.who === "member") {
+      const r = await handle(deps, stranger, action, row.body);
+      eq(refused.includes((r.body as { error?: string }).error ?? ""), true, `${action}: a stranger is refused (${JSON.stringify(r.body)})`);
+    }
+    if (row.who === "admin") {
+      const r = await handle(deps, member, action, row.body);
+      eq((r.body as { error?: string }).error, "not_admin", `${action}: a member who is not an admin is refused`);
+    }
+  }
+  eq(await snapshot(), before, "nothing in the group changed after all the refusals");
+
+  // a stranger acting on their own things never reaches the group
+  await call(stranger, "set_my_membership", { group_id: g, display_name: "Y" }, 403);
+  await call(stranger, "leave_group", { group_id: g });
+  await call(stranger, "cancel_join_request", { request_id: req.id });
+  eq(await snapshot(), before, "and not after acting on their own things");
+
+  // and the admin may do the admin actions
+  for (const action of ["update_group", "create_invite", "decide_join_request", "set_member_trip"]) {
+    await call(admin, action, matrix[action].body);
+  }
+});
+
+test("a field that was not sent does not change (R-14)", async () => {
+  const admin = await user("admin");
+  const g = await newGroup(admin, { starts_on: "2027-01-10", ends_on: "2027-01-15" });
+  const [t] = await sql`insert into public.trips (owner_id, out_date) values (${admin}, '2027-01-10') returning id`;
+  await call(admin, "set_my_membership", { group_id: g, display_name: "Admin", trip_id: t.id });
+
+  await call(admin, "update_group", { group_id: g, name: "Renamed" });
+  const [a] = await sql`select name, starts_on::text, ends_on::text from public.groups where id = ${g}`;
+  eq([a.name, a.starts_on, a.ends_on], ["Renamed", "2027-01-10", "2027-01-15"], "the dates stay when not sent");
+  await call(admin, "update_group", { group_id: g, ends_on: null });
+  const [b] = await sql`select name, starts_on::text, ends_on from public.groups where id = ${g}`;
+  eq([b.name, b.starts_on, b.ends_on], ["Renamed", "2027-01-10", null], "a date sent as null is cleared, the rest stays");
+
+  await call(admin, "set_my_membership", { group_id: g, display_name: "New name" });
+  const [m] = await sql`select display_name, trip_id from public.group_members where group_id = ${g} and user_id = ${admin}`;
+  eq([m.display_name, m.trip_id], ["New name", t.id], "the trip stays when not sent");
+  await call(admin, "set_my_membership", { group_id: g, trip_id: null });
+  const [n] = await sql`select display_name, trip_id from public.group_members where group_id = ${g} and user_id = ${admin}`;
+  eq([n.display_name, n.trip_id], ["New name", null], "trip_id null hides it, the name stays");
+  await call(admin, "update_group", { group_id: g, name: "" }, 400);
+});
+
+test("deleting an account finishes even when the identity cannot be deleted at once (R-15)", async () => {
+  const pini = await user("pini");
+  await newGroup(pini);
+  let down = true;
+  const flaky: Deps = {
+    sql,
+    deleteAuthUser: async (id) => {
+      if (down) throw new Error("auth is down");
+      await sql`delete from auth.users where id = ${id}`;
+    },
+  };
+  const r = await handle(flaky, pini, "delete_my_account", {});
+  eq(r.status, 200, "the person is told it is done");
+  eq(await count(sql`select count(*) n from public.group_members where user_id = ${pini}`), 0, "their rows are gone");
+  eq(await count(sql`select count(*) n from private.pending_deletions where user_id = ${pini}`), 1, "the identity waits");
+  await sql`update private.heartbeat set cleaned_at = null`;
+  eq((await handle(flaky, null, "keepalive", {})).status, 200, "a keepalive that cannot finish it still answers");
+  eq(await count(sql`select count(*) n from auth.users where id = ${pini}`), 1, "still there");
+  down = false;
+  await sql`update private.heartbeat set cleaned_at = null`;
+  const k = (await handle(flaky, null, "keepalive", {})).body as { finished_deletions: number };
+  eq(k.finished_deletions >= 1, true, "the next keepalive finishes it");
+  eq(await count(sql`select count(*) n from auth.users where id = ${pini}`), 0, "the identity is gone");
+  eq(await count(sql`select count(*) n from private.pending_deletions where user_id = ${pini}`), 0, "and nothing waits");
+});
+
+test("the last use of an invite goes to one person only (R-20)", async () => {
+  const admin = await user("admin");
+  const g = await newGroup(admin);
+  const inv = await call(admin, "create_invite", { group_id: g, max_uses: 1 });
+  const a = await user("a", true), b = await user("b", true);
+  const [ra, rb] = await Promise.all([
+    call(a, "join_group", { code: inv.code, display_name: "A" }),
+    call(b, "join_group", { code: inv.code, display_name: "B" }),
+  ]);
+  eq([ra.status, rb.status].sort(), ["invalid_code", "joined"], "one joins, the other is told the code is used up");
+  eq(await count(sql`select count(*) n from public.group_members where group_id = ${g}`), 2, "admin and one more");
+  eq((await sql`select uses from public.invites where id = ${inv.id}`)[0].uses, 1, "one use counted");
+});
+
+test("keepalive says when the last beat is more than a day and a half old (R-12)", async () => {
+  await sql`update private.heartbeat set beat_at = now() - interval '2 days'`;
+  eq((await call(null, "keepalive")).stale, true, "a missed day");
+  eq((await call(null, "keepalive")).stale, false, "the next one is on time");
 });

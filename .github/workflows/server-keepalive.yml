@@ -9,12 +9,20 @@
 #
 # GitHub turns off scheduled workflows in a repository with no activity for
 # 60 days; it sends an email first, and one click turns it back on.
+#
+# When it fails, or the server says the previous beat is more than 36 hours
+# old (a missed day), one issue is opened (or commented on) so Pini gets an
+# email (docs/ARCHITECTURE.md, R-12).
 name: server-keepalive
 
 on:
   schedule:
     - cron: '17 6 * * *'
   workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
 
 jobs:
   keepalive:
@@ -31,9 +39,24 @@ jobs:
             exit 0
           fi
           for i in 1 2 3; do
-            if curl -fsS -X POST "$URL/functions/v1/api/keepalive" -H "apikey: $KEY" -H "x-region: eu-central-1" -H "Content-Type: application/json" -d '{}'; then
-              echo; exit 0
+            if out=$(curl -fsS -X POST "$URL/functions/v1/api/keepalive" -H "apikey: $KEY" -H "x-region: eu-central-1" -H "Content-Type: application/json" -d '{}'); then
+              echo "$out"
+              if echo "$out" | grep -q '"stale":true'; then
+                echo "::error::the previous keepalive was more than 36 hours ago: a day was missed"; exit 1
+              fi
+              exit 0
             fi
             sleep $((i * 30))
           done
           echo "::error::keepalive failed three times"; exit 1
+
+      - name: Tell Pini (one issue, commented on again each time)
+        if: failure()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          title="The server's daily task (keepalive) failed"
+          n=$(gh issue list -R "$GITHUB_REPOSITORY" --state open --search "\"$title\" in:title" --json number -q '.[0].number')
+          body="The daily keepalive failed or found a missed day: $RUN. Without it the free Supabase plan pauses the project after a week. server/README.md, 'פריסה'."
+          if [ -n "$n" ]; then gh issue comment "$n" -R "$GITHUB_REPOSITORY" -b "$body"; else gh issue create -R "$GITHUB_REPOSITORY" -t "$title" -b "$body"; fi

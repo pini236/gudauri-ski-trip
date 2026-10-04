@@ -39,6 +39,20 @@ function reply(status: number, body: unknown) {
   });
 }
 
+// The caller's network address as a keyed hash that changes every day: enough to count wrong code guesses per address
+// (R-13), and nothing that can be turned back into the address, or linked across days. The key is the service key,
+// which only the server has. Which header carries the real address behind Supabase's proxy: server/README.md.
+const ipSecret = new TextEncoder().encode(Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "local");
+async function ipKey(req: Request): Promise<string | undefined> {
+  const h = req.headers;
+  const ip = h.get("cf-connecting-ip") ?? h.get("x-real-ip") ?? h.get("x-forwarded-for")?.split(",")[0];
+  if (!ip?.trim()) return undefined;
+  const key = await crypto.subtle.importKey("raw", ipSecret, { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
+  const day = new Date().toISOString().slice(0, 10);
+  const mac = await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(`${day}|${ip.trim()}`));
+  return [...new Uint8Array(mac)].slice(0, 12).map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+
 async function caller(req: Request): Promise<string | null> {
   const token = req.headers.get("Authorization")?.replace(/^Bearer\s+/i, "");
   if (!token) return null;
@@ -66,7 +80,7 @@ Deno.serve(async (req) => {
       return reply(status, { error });
     }
     user = action === "keepalive" ? null : await caller(req);
-    const r = await handle(deps, user, action, body);
+    const r = await handle(deps, user, action, body, { ipKey: await ipKey(req) });
     status = r.status;
     error = (r.body as { error?: string } | null)?.error;
     return reply(r.status, r.body);
