@@ -13,7 +13,7 @@
 |---|---|---|---|---|
 | אתר | `site/`, `tests/`, `tools/build-*` של האתר | סשן הקנבס והאתר | `session_01YWgsVi3W636coCw6wabhWZ` | `docs/PARITY.md`: S-28 (קובץ האימות לקישורים שפותחים את האפליקציה) |
 | אנדרואיד | `app/android/` | סשן האנדרואיד | `session_01Gpr4L7H5gxaycQcxMRD5cE` | המשחקים באפליקציה (13.6, A-22), ואחר כך שאר הפערים ב-`docs/PARITY.md` |
-| שרת | `server/` | פנוי | | |
+| שרת | `server/` | סשן השרת | `session_015zyd36yAbiCU5tEkVwFCpc` | ממצאי הארכיטקט ב-`docs/ARCHITECTURE.md`, סעיף 9: R-2, R-6, R-7, R-12, R-13, R-14, R-15, R-20 (לבקשת סשן המנהל) |
 | אייפון | `app/ios/` | פנוי (יתחיל בסשן על המק של פיני) | | |
 | קנבס | `design/`, הקנבס | סשן ליטוש העיצוב | `session_011G2wvmFpKYzoT1gYcd9vmk` | (1) בדיקת השפה העיצובית: הקנבס מוכן (https://claude.ai/artifact/TW8xaEsc2EjqodwLcrMzaw), 15 הצעות ממתינות לאישור של פיני; אחרי האישור מסמך העיצוב אצלי, והקוד לסשנים של האתר והאנדרואיד. (2) סבב קנבס לפריטי היישור (`docs/PARITY.md`: K-2 עד K-5, P-K2, A-28, S-1 ופערי המראה שנשארו מסבב 16), לבקשת סשן המנהל; בלי שינוי ב-`site/` וב-`app/` עד אישור |
 | קנבס: שפה עיצובית חדשה | `design/language/` וקנבס נפרד (https://claude.ai/artifact/9yxrGgytb2Gmi4i1UqEhST) | פנוי (חמש השפות מוכנות, ממתין לבחירה של פיני) | | |
