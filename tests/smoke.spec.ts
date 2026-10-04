@@ -293,6 +293,23 @@ test('מצב רכבלים: בלי מידע שלטים מושלגים, עם מי�
   await expect(page.locator('#map .lg.closed')).toHaveCount(1);
   await page.locator('[data-forme]').click();
   await expect(page.locator('[data-forme]')).toHaveAttribute('aria-pressed', 'true');
+  // in 3D too (S-19): Kudebi dashed, chairs on the two open lifts, and its runs faded for "only what's open for me"
+  if (await page.locator('#viewsw').isVisible()) { // if three.js loaded
+    await page.click('#viewsw [data-view="3d"]');
+    await expect(page.locator('#viewsw [data-view="3d"]')).toHaveAttribute('aria-pressed', 'true');
+    const st = await page.evaluate(() => (Array.from(document.querySelectorAll('canvas')).find((c: any) => c.liftStatus) as any).liftStatus());
+    expect(st.closed).toBe(1);
+    expect(st.shut).toBeGreaterThan(0);
+    expect(st.faded).toBe(st.shut);
+    expect(st.chairs).toBe(6);
+  }
+  // no answer from the function: the last report kept in the browser, while it is fresh (S-29)
+  await page.unroute('**/api/status');
+  await page.route('**/api/status', r => r.abort());
+  await page.reload();
+  await loaded(page);
+  await expect(page.locator('#mstat')).toHaveAttribute('data-state', 'live');
+  await page.unroute('**/api/status');
   // נתון ישן מחצי שעה: לא מציגים אותו
   await page.route('**/api/status', r => r.fulfill({ contentType: 'application/json', body: JSON.stringify({
     updated: new Date(Date.now() - 45 * 60000).toISOString(), lifts: { Goodaura: { open: false } }, pistes: {} }) }));

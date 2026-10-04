@@ -99,10 +99,30 @@ test('הטיול שלך: טופס, שמירה בדפדפן, הכרטיס, ערי
   // edit, then delete
   await page.locator('.bp-edit').click();
   await expect(f.locator('input[name="od"]')).toHaveValue('2027-01-10');
+  // two taps, as in the app
+  await page.locator('#tfDelete').click();
+  await expect(page.locator('#tfDelete')).toHaveText('בטוח? לחיצה נוספת מוחקת');
   await page.locator('#tfDelete').click();
   await expect(page.locator('#bpEmpty')).toBeVisible();
   expect(await page.evaluate(() => localStorage.getItem('gud-trip'))).toBeNull();
   expect(errors).toEqual([]);
+});
+
+test('הטיול שלך: תאריך שעבר נחסם, וטיסת לילה נוחתת למחרת (S-10, S-27)', async ({ page }) => {
+  await page.clock.setFixedTime(new Date('2026-10-20T09:00:00Z'));
+  await page.goto('/#trip');
+  await loaded(page);
+  const f = page.locator('#tripForm');
+  await expect(f.locator('input[name="od"]')).toHaveAttribute('min', '2026-10-20');
+  await f.locator('input[name="od"]').fill('2026-10-01');
+  await f.locator('.tf-save').click();
+  await expect(page.locator('#tfErr')).toHaveText('התאריך הזה כבר עבר.');
+  // leaves 23:00, lands 05:30 the next morning: skiing starts that same day
+  await f.locator('input[name="od"]').fill('2027-01-10');
+  await f.locator('input[name="odp"]').fill('23:00');
+  await f.locator('input[name="oar"]').fill('05:30');
+  await f.locator('input[name="rd"]').fill('2027-01-15');
+  await expect(page.locator('#tfSki')).toContainText('11–14');
 });
 
 test('הטיול שלך: ימי סקי ידניים, ושדה תעופה אחר', async ({ page }) => {

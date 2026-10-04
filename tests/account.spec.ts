@@ -16,7 +16,7 @@ async function loaded(page: Page) { await expect(page.locator('#loading')).toBeH
 const b64 = (o: object) => Buffer.from(JSON.stringify(o)).toString('base64url');
 
 // a small fake of the server: one group, one other member, and whoever joins
-async function fakeServer(page: Page, opts: { admin?: boolean } = {}) {
+async function fakeServer(page: Page, opts: { admin?: boolean; meetFull?: boolean; approval?: boolean } = {}) {
   const calls: string[] = [];
   const bodies: Record<string, any> = {};
   const me = { id: 'u-me', aud: 'authenticated', role: 'authenticated', is_anonymous: true, identities: [], app_metadata: {}, user_metadata: {} };
@@ -26,6 +26,7 @@ async function fakeServer(page: Page, opts: { admin?: boolean } = {}) {
   const db = {
     members: [{ group_id: 'g1', user_id: 'u-dan', role: 'admin', display_name: 'דנה בדיקה', trip_id: 't-dan', joined_at: '2026-10-01T10:00:00Z' }] as any[],
     trips: [{ id: 't-dan', owner_id: 'u-dan', out_date: '2027-01-10', out_flight: '6H 897', out_from: 'TLV', out_to: 'TBS', out_departs: '16:00:00', ret_date: '2027-01-15', entered_by: null }] as any[],
+    requests: [] as any[],
     meetups: [{ id: 'm1', group_id: 'g1', station: 'x', meet_at: '2027-01-11T05:30:00+00:00', note: null }] as any[],
   };
   const group = { id: 'g1', name: 'קבוצת בדיקה', starts_on: '2027-01-10', ends_on: '2027-01-15' };
@@ -44,6 +45,8 @@ async function fakeServer(page: Page, opts: { admin?: boolean } = {}) {
     if (path.startsWith('/functions/v1/api/')) {
       const action = path.split('/').pop(), body = req.postDataJSON() || {};
       if (action === 'invite_preview') return json(r, body.code === 'KZBQRM' ? { status: 'ok', group_id: 'g1', ...group, requires_approval: false, already_member: false, members: db.members.map(m => ({ user_id: m.user_id, display_name: m.display_name })) } : { status: 'invalid_code' });
+      if (action === 'join_group' && opts.approval) { db.requests.push({ id: 'rq1', group_id: 'g1', user_id: me.id, status: 'pending' }); return json(r, { status: 'pending' }); }
+      if (action === 'cancel_join_request') { db.requests.forEach(q => { if (q.id === body.request_id) q.status = 'cancelled'; }); return json(r, {}); }
       if (action === 'join_group') { db.members.push({ group_id: 'g1', user_id: me.id, role: opts.admin ? 'admin' : 'member', display_name: body.display_name, trip_id: null, joined_at: '2026-10-02T10:00:00Z' }); return json(r, { status: 'joined', group_id: 'g1' }); }
       if (action === 'set_my_membership') { const m = db.members.find(x => x.user_id === me.id); m.trip_id = body.trip_id; return json(r, {}); }
       if (action === 'group_leaderboard') return json(r, body.game === 'descent' ? [{ user_id: 'u-dan', display_name: 'דנה בדיקה', best: 1200, achieved_at: '2026-10-01T10:00:00Z' }] : []);
@@ -58,6 +61,8 @@ async function fakeServer(page: Page, opts: { admin?: boolean } = {}) {
     if (path.startsWith('/rest/v1/')) {
       const table = path.slice(9), q = u.searchParams;
       if (req.method() === 'POST' && table === 'trips') { const row = { ...req.postDataJSON(), id: 't-me', owner_id: me.id, entered_by: null }; db.trips.push(row); return json(r, [{ id: 't-me' }], 201); }
+      if (req.method() === 'DELETE' && table === 'trips') { const id = (q.get('id') || '').slice(3); db.trips = db.trips.filter(t => t.id !== id); db.members.forEach(m => { if (m.trip_id === id) m.trip_id = null; }); return json(r, null, 204); }
+      if (req.method() === 'POST' && table === 'meetups' && opts.meetFull) return json(r, { code: 'P0001', message: 'too_many_meetups' }, 400);
       if (req.method() === 'POST' && table === 'meetups') { db.meetups.push({ id: 'm' + (db.meetups.length + 1), ...req.postDataJSON() }); return json(r, null, 201); }
       if (table === 'profiles') return json(r, []);
       if (table === 'groups') return json(r, db.members.some(m => m.user_id === me.id) ? [group] : []);
@@ -67,6 +72,7 @@ async function fakeServer(page: Page, opts: { admin?: boolean } = {}) {
       }
       if (table === 'trips') { const id = q.get('id'); return json(r, id && id.startsWith('eq.') ? db.trips.filter(t => t.id === id.slice(3)) : db.trips); }
       if (table === 'meetups') return json(r, db.meetups);
+      if (table === 'join_requests') return json(r, db.requests.filter(x => 'eq.' + x.status === q.get('status') && (!q.get('user_id') || 'eq.' + x.user_id === q.get('user_id'))));
       return json(r, []);
     }
     return json(r, {}, 404);
@@ -111,10 +117,14 @@ test('הצטרפות בקוד: אורח, הטיסה שלי בקבוצה, החש�
   await page.locator('#joinForm button').click();
   await expect(page).toHaveURL(/#group\/g1/);
   await expect(page.locator('#grTitle')).toHaveText('קבוצת בדיקה');
-  // my trip went up, and sits on the same flight as the other member
+  // my trip went up, but the group shows it only once I choose it (CONTRACT, D1)
+  expect(server.calls).toContain('POST /rest/v1/trips');
+  expect(server.calls).not.toContain('POST /functions/v1/api/set_my_membership');
+  await expect(page.locator('.ac-flight .fp span')).toHaveText(['דנה בדיקה']);
+  await page.locator('[data-showtrip]').click();
   await expect(page.locator('.ac-flight .fp span')).toHaveText(['דנה בדיקה', 'נועה ניסיון']);
   await expect(page.locator('.ac-flight .fp span.me')).toHaveText('נועה ניסיון');
-  expect(server.calls).toContain('POST /rest/v1/trips');
+  expect(server.db.members.find(m => m.display_name === 'נועה ניסיון').trip_id).toBe('t-me');
   await expect(page.locator('.ac-invite')).toHaveCount(0);
   await page.locator('#grTabs [data-tab="members"]').click();
   await expect(page.locator('#grMain .ac-row b')).toHaveText(['דנה בדיקה', 'נועה ניסיון']);
@@ -214,6 +224,61 @@ test('"אני על אותה טיסה": הטיסה בדפדפן נקשרת לעו
   await page.locator('[data-same]').first().click();
   await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('gud-trip') || '{}').sid)).toBe('t-copy');
   await expect(page.locator('#bpStack')).toHaveCount(1);
+  expect(errors).toEqual([]);
+});
+
+test('מחיקת "הטיול שלך" מוחקת גם את השורה בשרת, והקבוצה מפסיקה להציג אותו (ד2)', async ({ page }) => {
+  const errors = watchErrors(page);
+  const server = await fakeServer(page);
+  await page.addInitScript(t => { try { if (!sessionStorage.getItem('seeded')) { localStorage.setItem('gud-trip', JSON.stringify(t)); sessionStorage.setItem('seeded', '1'); } } catch (e) {} }, MY_TRIP);
+  await page.goto('/#join/KZBQRM');
+  await loaded(page);
+  await page.locator('#joinForm input').fill('נועה ניסיון');
+  await page.locator('#joinForm button').click();
+  await expect(page).toHaveURL(/#group\/g1/);
+  await page.locator('[data-showtrip]').click();
+  await expect(page.locator('.ac-flight .fp span.me')).toHaveText('נועה ניסיון');
+  await page.goto('/#trip');
+  await page.locator('#tfDelete').click();
+  await page.locator('#tfDelete').click();
+  await expect.poll(() => server.calls.includes('DELETE /rest/v1/trips')).toBe(true);
+  expect(server.db.trips.map(t => t.id)).toEqual(['t-dan']);
+  await page.goto('/#group/g1');
+  await expect(page.locator('.ac-flight .fp span')).toHaveText(['דנה בדיקה']);
+  expect(errors).toEqual([]);
+});
+
+test('שמירת מפגש שהשרת סירב לה: ההודעה אומרת למה (ד5)', async ({ page }) => {
+  const errors = watchErrors(page);
+  await fakeServer(page, { meetFull: true });
+  await page.goto('/#join/KZBQRM');
+  await loaded(page);
+  await page.locator('#joinForm input').fill('נועה ניסיון');
+  await page.locator('#joinForm button').click();
+  await expect(page).toHaveURL(/#group\/g1/);
+  await page.goto('/#meet');
+  await page.locator('[data-pre="am"]').click();
+  await page.locator('#meetGroup').click();
+  await expect(page.locator('#meetGroup')).toHaveText('יש כבר יותר מדי מפגשים בקבוצה.');
+  expect(errors).toEqual([]);
+});
+
+test('בקשה שממתינה למנהל: נשארת אחרי טעינה מחדש, ואפשר לבטל אותה (S-6)', async ({ page }) => {
+  const errors = watchErrors(page);
+  const server = await fakeServer(page, { approval: true });
+  await page.goto('/#join/KZBQRM');
+  await loaded(page);
+  await page.locator('#joinForm input').fill('נועה ניסיון');
+  await page.locator('#joinForm button').click();
+  await expect(page.locator('#joinPage [data-cancelreq]')).toBeVisible();
+  await expect(page.locator('#joinForm')).toBeHidden();
+  await page.reload();
+  await loaded(page);
+  await expect(page.locator('#joinPage [data-err]')).toContainText('הבקשה נשלחה למנהל');
+  await page.locator('#joinPage [data-cancelreq]').click();
+  await expect(page.locator('#joinForm')).toBeVisible();
+  expect(server.calls).toContain('POST /functions/v1/api/cancel_join_request');
+  expect(server.db.requests[0].status).toBe('cancelled');
   expect(errors).toEqual([]);
 });
 

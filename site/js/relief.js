@@ -170,34 +170,35 @@ R.View3D=function(opts){
 
   /* screen-space lines */
   const uRes={value:new THREE.Vector2(1,1)};
-  const vsh=`uniform vec2 res;uniform float width;attribute vec3 prev;attribute vec3 next;attribute float side;
+  const vsh=`attribute float dist;varying float vDist;uniform vec2 res;uniform float width;attribute vec3 prev;attribute vec3 next;attribute float side;
   #include <fog_pars_vertex>
   void main(){mat4 m=projectionMatrix*modelViewMatrix;vec4 c=m*vec4(position,1.);vec4 p=m*vec4(prev,1.);vec4 n=m*vec4(next,1.);
   vec2 a=c.xy/c.w*res,b=p.xy/p.w*res,e=n.xy/n.w*res;vec2 d1=a-b,d2=e-a;
   if(length(d1)<1e-4)d1=d2;if(length(d2)<1e-4)d2=d1;d1=normalize(d1);d2=normalize(d2);vec2 t=normalize(d1+d2);if(length(d1+d2)<1e-3)t=d1;
   vec2 nn=vec2(-t.y,t.x);float ml=1./max(dot(nn,vec2(-d1.y,d1.x)),.6);
-  c.xy+=nn*side*width*0.5*ml/res*c.w;gl_Position=c;
+  c.xy+=nn*side*width*0.5*ml/res*c.w;gl_Position=c;vDist=dist;
   vec4 mvPosition=modelViewMatrix*vec4(position,1.);
   #include <fog_vertex>
   }`;
-  const fsh=`uniform vec3 color;uniform float opacity;
+  // dash: a closed lift or run is dashed (in metres along the line, 0 = solid), as on the map from above
+  const fsh=`uniform vec3 color;uniform float opacity;uniform float dash;varying float vDist;
   #include <fog_pars_fragment>
-  void main(){gl_FragColor=vec4(color,opacity);
+  void main(){if(dash>0.&&mod(vDist,dash)>dash*.55)discard;gl_FragColor=vec4(color,opacity);
   #include <fog_fragment>
   }`;
   function lineMat(color,width,off){
-    return new THREE.ShaderMaterial({uniforms:THREE.UniformsUtils.merge([THREE.UniformsLib.fog,{color:{value:new THREE.Color(color)},opacity:{value:1},width:{value:width},res:{value:new THREE.Vector2(1,1)}}]),
+    return new THREE.ShaderMaterial({uniforms:THREE.UniformsUtils.merge([THREE.UniformsLib.fog,{color:{value:new THREE.Color(color)},opacity:{value:1},dash:{value:0},width:{value:width},res:{value:new THREE.Vector2(1,1)}}]),
       vertexShader:vsh.replace('uniform vec2 res;','uniform vec2 res;'),fragmentShader:fsh,transparent:true,fog:true,side:THREE.DoubleSide,depthWrite:false,polygonOffset:true,polygonOffsetFactor:off,polygonOffsetUnits:off});
   }
   function lineGeo(lines){
-    const P=[],Pr=[],Nx=[],Sd=[],I=[];let base=0;
-    lines.forEach(L=>{const n=L.length;if(n<2)return;
-      for(let i=0;i<n;i++){const q=L[i],pr=L[Math.max(0,i-1)],nx_=L[Math.min(n-1,i+1)];
-        for(const s of [-1,1]){P.push(q[0],q[1],q[2]);Pr.push(pr[0],pr[1],pr[2]);Nx.push(nx_[0],nx_[1],nx_[2]);Sd.push(s);}
+    const P=[],Pr=[],Nx=[],Sd=[],Ds=[],I=[];let base=0;
+    lines.forEach(L=>{const n=L.length;if(n<2)return;let dd=0;
+      for(let i=0;i<n;i++){const q=L[i],pr=L[Math.max(0,i-1)],nx_=L[Math.min(n-1,i+1)];if(i)dd+=Math.hypot(q[0]-pr[0],q[1]-pr[1],q[2]-pr[2]);
+        for(const s of [-1,1]){P.push(q[0],q[1],q[2]);Pr.push(pr[0],pr[1],pr[2]);Nx.push(nx_[0],nx_[1],nx_[2]);Sd.push(s);Ds.push(dd);}
         if(i<n-1){const a=base+i*2;I.push(a,a+1,a+2,a+2,a+1,a+3);}}
       base+=n*2;});
     const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(P,3));g.setAttribute('prev',new THREE.Float32BufferAttribute(Pr,3));
-    g.setAttribute('next',new THREE.Float32BufferAttribute(Nx,3));g.setAttribute('side',new THREE.Float32BufferAttribute(Sd,1));g.setIndex(I);return g;
+    g.setAttribute('next',new THREE.Float32BufferAttribute(Nx,3));g.setAttribute('side',new THREE.Float32BufferAttribute(Sd,1));g.setAttribute('dist',new THREE.Float32BufferAttribute(Ds,1));g.setIndex(I);return g;
   }
   // painted run: slope colour per vertex, revealed from the top down (reveal 0..1 against each vertex's share of the way)
   const vshP=vsh.replace('attribute float side;','attribute float side;attribute vec3 acol;attribute float prog;varying vec3 vCol;varying float vProg;').replace('gl_Position=c;','gl_Position=c;vCol=acol;vProg=prog;');
@@ -237,10 +238,10 @@ R.View3D=function(opts){
     cas.renderOrder=2;core.renderOrder=3;scene.add(cas);scene.add(core);
     pisteObjs[p.key]={cas,core,lines,p,w};pickables.push({kind:'piste',key:p.key,lines});
   });
-  const liftMat=lineMat(opts.liftColor||'#2a2f38',2,-5),liftCas=lineMat('#ffffff',4.4,-3);
+  const liftCas=lineMat('#ffffff',4.4,-3);
   const stations=[];
   (opts.noLines?[]:opts.lifts).forEach(l=>{const L=cable(l.g.map(opts.P));const g=lineGeo([L]);
-    const c1=new THREE.Mesh(g,liftCas),c2=new THREE.Mesh(g,liftMat);c1.renderOrder=4;c2.renderOrder=5;scene.add(c1);scene.add(c2);
+    const c1=new THREE.Mesh(g,liftCas),c2=new THREE.Mesh(g,lineMat(opts.liftColor||'#2a2f38',2,-5));c1.renderOrder=4;c2.renderOrder=5;scene.add(c1);scene.add(c2);
     liftObjs.push({l,L,c1,c2});pickables.push({kind:'lift',id:l.id,lines:[L]});stations.push(L[0],L[L.length-1]);});
   // stations as screen-size dots
   (function(){const c=document.createElement('canvas');c.width=c.height=32;const x=c.getContext('2d');x.fillStyle='#2a2f38';x.strokeStyle='#fff';x.lineWidth=5;x.beginPath();x.arc(16,16,11,0,7);x.fill();x.stroke();
@@ -296,10 +297,30 @@ R.View3D=function(opts){
         return new THREE.Vector3(c.x+v.x*b,c.y+v.y*b,c.z+v.z*b);}prev=t;}
     return null;}
 
+  /* lift status (6.9, S1 and S2 in 3D): closed lifts grey and dashed, chairs moving on the open ones (three each, a lap
+     in len/60 seconds as on the map from above), closed runs dashed, and "only what's open for me" fades them */
+  const SHUT='#9aa5b3';let chairs=null,chairT=0;
+  function liftCum(L){const c=[0];for(let i=1;i<L.length;i++)c.push(c[i-1]+Math.hypot(L[i][0]-L[i-1][0],L[i][1]-L[i-1][1],L[i][2]-L[i-1][2]));return c;}
+  function at(o,f){const c=o.cum||(o.cum=liftCum(o.L)),d=f*c[c.length-1];let i=1;while(i<c.length-1&&c[i]<d)i++;
+    const a=o.L[i-1],b=o.L[i],t=c[i]>c[i-1]?(d-c[i-1])/(c[i]-c[i-1]):0;return [a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t+3,a[2]+(b[2]-a[2])*t];}
+  function setChairs(list){if(chairs){scene.remove(chairs.pts);chairs.pts.geometry.dispose();chairs=null;}
+    if(!list.length||matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+    const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(new Float32Array(list.length*9),3));
+    const pts=new THREE.Points(g,new THREE.PointsMaterial({color:0xF4B942,size:6*Math.min(2,devicePixelRatio||1),sizeAttenuation:false}));pts.renderOrder=6;pts.frustumCulled=false;
+    scene.add(pts);chairs={pts,list};}
+  function moveChairs(){if(!chairs)return;const a=chairs.pts.geometry.attributes.position,now=performance.now()/1000;
+    chairs.list.forEach((o,j)=>{const dur=Math.max(8,(o.l.len||1000)/60);for(let k=0;k<3;k++){const q=at(o,((now/dur)+k/3)%1);a.setXYZ(j*3+k,q[0],q[1],q[2]);}});
+    a.needsUpdate=true;}
+  const pst={m:null,forMe:false};
+  function runLook(o){const sel=R3.sel,on=!sel||o.p.key===sel,shut=pst.m&&pst.m[o.p.key]===false,dim=pst.forMe&&shut?.15:1;
+    o.core.material.uniforms.opacity.value=(on?1:.28)*dim;o.cas.material.uniforms.opacity.value=(on?1:.2)*dim;
+    o.core.material.uniforms.color.value.set(shut?SHUT:COL[o.p.color]);o.core.material.uniforms.dash.value=shut?50:0;}
+
   /* rendering */
   let queued=false;const tmp=new THREE.Vector3();
   function request(){if(!queued){queued=true;requestAnimationFrame(frame);}}
-  function frame(){queued=false;place();renderer.render(scene,camera);layoutLabels();if(opts.onRender)opts.onRender();}
+  function frame(){queued=false;place();moveChairs();renderer.render(scene,camera);layoutLabels();if(opts.onRender)opts.onRender();
+    if(chairs&&!document.hidden&&cvs.isConnected&&cvs.offsetParent!==null){clearTimeout(chairT);chairT=setTimeout(request,100);}} // the chairs at about 10 frames a second, only while seen
   function layoutLabels(){
     const kept=[];const sel=R3.sel;
     labels.slice().sort((a,b)=>(b===selLabel?1e3:b.pri)-(a===selLabel?1e3:a.pri)).forEach(o=>{
@@ -378,7 +399,7 @@ R.View3D=function(opts){
   const R3={sel:null};
   const api={
     select(key){R3.sel=key||null;selLabel=key&&pisteObjs[key]?pisteObjs[key].label:null;
-      Object.values(pisteObjs).forEach(o=>{const on=!key||o.p.key===key;o.core.material.uniforms.opacity.value=on?1:.28;o.cas.material.uniforms.opacity.value=on?1:.2;
+      Object.values(pisteObjs).forEach(o=>{runLook(o);
         o.core.material.uniforms.width.value=o.p.key===key?o.w+2.4:o.w;o.cas.material.uniforms.width.value=o.p.key===key?o.w+7:o.w+3.2;
         o.cas.material.uniforms.color.value.set(o.p.key===key?'#ffe38a':'#ffffff');});
       liftObjs.forEach(o=>{o.c2.material.uniforms.opacity.value=key?.45:1;});
@@ -465,16 +486,20 @@ R.View3D=function(opts){
       flyWait=wait;flyEnd=onEnd;},
     stopFly(){stopAnim();},
     // lift status: {liftId: true|false|null}; closed lifts turn grey. null clears it.
-    liftState(m){liftObjs.forEach(o=>{const v=m?m[o.l.id]:null;o.c2.material.uniforms.color.value.set(v===false?'#9aa5b3':(opts.liftColor||'#2a2f38'));});request();},
+    liftState(m){liftObjs.forEach(o=>{const v=m?m[o.l.id]:null;o.c2.material.uniforms.color.value.set(v===false?SHUT:(opts.liftColor||'#2a2f38'));o.c2.material.uniforms.dash.value=v===false?40:0;});
+      setChairs(m?liftObjs.filter(o=>m[o.l.id]===true):[]);request();},
+    runState(m,forMe){pst.m=m||null;pst.forMe=!!forMe;Object.values(pisteObjs).forEach(runLook);request();},
     home(){flyTo(home,900);},
     north(){flyTo({az:0},600);},
     zoom(f){zoomAt(f);},
     view(v){flyTo(v,900);},
     get state(){return {...st};},
+    get liftStatus(){return {chairs:chairs?chairs.list.length*3:0,closed:liftObjs.filter(o=>o.c2.material.uniforms.dash.value>0).length,shut:Object.values(pisteObjs).filter(o=>o.core.material.uniforms.dash.value>0).length,faded:Object.values(pisteObjs).filter(o=>o.core.material.uniforms.opacity.value<.2).length};},
     setTheme(dark){const c=dark?0x16243a:0xdde7f0;fog.color.setHex(c);hemi.intensity=dark?0.5:0.62;request();},
     resize,request,canvas:cvs,renderer
   };
   resize();place();
+  cvs.liftStatus=()=>api.liftStatus; // for the tests: what the lift status did to the view
   return api;
 };
 window.GudRelief=R;

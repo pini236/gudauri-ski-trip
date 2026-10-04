@@ -48,8 +48,10 @@ const MYTRIP=(()=>{const K='gud-trip',ISO=/^\d{4}-\d\d-\d\d$/;
   const addDays=(iso,n)=>{const d=new Date(iso+'T12:00:00Z');d.setUTCDate(d.getUTCDate()+n);return d.toISOString().slice(0,10);};
   // full ski days: from the day after landing (the same day when landing before noon) to the day before the return
   // (the same day when the return leaves at 18:00 or later). The crew: land 10.1 at 20:35, back 15.1 at 01:35, so 11 to 14.
+  // An overnight flight (it lands earlier on the clock than it left) lands the next day, as in the app (S-27).
   const skiAuto=(o,r)=>{if(!o||!o.date||!r||!r.date)return null;
-    const first=o.arrives&&o.arrives<'12:00'?o.date:addDays(o.date,1),last=r.departs&&r.departs>='18:00'?r.date:addDays(r.date,-1);
+    const landed=o.departs&&o.arrives&&o.arrives<o.departs?addDays(o.date,1):o.date;
+    const first=o.arrives&&o.arrives<'12:00'?landed:addDays(landed,1),last=r.departs&&r.departs>='18:00'?r.date:addDays(r.date,-1);
     return first<=last?{from:first,to:last}:null;};
   const ski=t=>t?(t.ski||skiAuto(t.out,t.ret)):null;
   const days=t=>t?Math.ceil((new Date(t.out.date+'T00:00:00')-new Date())/864e5):null;
@@ -441,7 +443,7 @@ function overview(){
 panel.addEventListener('input',e=>{if(e.target.id==='profRange'){profAt(+e.target.value);if(scrubbed!==current){scrubbed=current;track('run_profile_scrub',{run:current});}}});
 panel.addEventListener('click',e=>{
   const b=e.target.closest('button');if(!b)return;
-  if(b.dataset.share!==undefined){const k=b.dataset.share,url=location.origin+location.pathname+'#map/run/'+encodeURIComponent(k);
+  if(b.dataset.share!==undefined){const k=b.dataset.share,url=location.origin+location.pathname+'?utm_medium=share#map/run/'+encodeURIComponent(k);
     if(navigator.share)navigator.share({title:T('run.share_title',{run:k}),url}).then(()=>track('run_share',{run:k,method:'native'})).catch(()=>{});
     else if(navigator.clipboard)navigator.clipboard.writeText(url).then(()=>{track('run_share',{run:k,method:'copy'});b.textContent=T('common.link_copied');setTimeout(()=>{b.textContent=T('run.share_button');},2200);}).catch(()=>{});return;}
   if(b.dataset.fly){if(flying){stopFly();return;}const pr=runProfile(b.dataset.fly);if(!pr)return;if(view!=='3d')setView('3d',false);if(!v3)return;
@@ -483,6 +485,7 @@ function ensure3d(){
     v3.kobi=()=>v3.view({tx:kc[0],tz:kc[1],dist:6800,az:Math.PI*0.9,pol:0.6});
     v3.setTheme(isDark());DN.paint(false); // the 3D light follows the time in Gudauri, like the home page
     v3.filter(hidden);if(current&&byKey[current]){v3.select(current);v3.paint(current,0);}
+    try{LSTAT.applyMap();}catch(e){} // the lift status, if it came before the 3D view
     return true;
   }catch(e){console.warn('3D unavailable',e);v3=null;if(!ensure3d.told){ensure3d.told=1;track('map_fallback',{reason:'no_webgl'});}return false;}
 }
@@ -745,7 +748,7 @@ const MEET=(function(){
       else out.push({from:T('meet.route_from_bottom_station',{lift:l.name}),html:[liftChip(l.name),dot].join(sep)});});
     return out.filter((r,i)=>out.findIndex(q=>q.html===r.html)===i).slice(0,4);}
   const pad=n=>String(n).padStart(2,'0');
-  function link(){return location.origin+location.pathname+`#meet/${S.sid}/${S.time.replace(':','')}/${S.day.replace(/-/g,'')}`;}
+  function link(){return location.origin+location.pathname+`?utm_medium=share#meet/${S.sid}/${S.time.replace(':','')}/${S.day.replace(/-/g,'')}`;}
   function dayLbl(){return (DAYS.find(d=>d[0]===S.day)||[0,dayName(S.day)])[1];}
   function message(){const s=byId[S.sid];return T('meet.share_message',{place:s.name,day:dayLbl(),time:S.time,where:s.where,alt:s.h?T('meet.share_alt_suffix',{n:s.h.toLocaleString('en-US')}):'',link:link()});}
   function countdown(){ // in Gudauri time (UTC+4)
@@ -778,6 +781,9 @@ const MEET=(function(){
     document.getElementById('meetWa').href='https://wa.me/?text='+encodeURIComponent(message());
     const want=`#meet/${S.sid}/${S.time.replace(':','')}/${S.day.replace(/-/g,'')}`;if(location.hash.startsWith('#meet')&&location.hash!==want)history.replaceState(null,'',want);
   }
+  // the countdown keeps going while the page is open (S-13)
+  setInterval(()=>{if(document.hidden||document.getElementById('meetPage').hidden||!byId[S.sid])return;
+    const card=document.getElementById('meetCard'),c=countdown();['c1','c2','c3'].forEach((f,i)=>{card.querySelector(`[data-f="${f}"]`).textContent=c[i];});},30000);
   // the image for sharing: the mountain around the spot, the pin, the name and the time
   async function image(){
     const s=byId[S.sid],W=1080,H=1080,cv=document.createElement('canvas');cv.width=W;cv.height=H;const x=cv.getContext('2d');
@@ -795,7 +801,8 @@ const MEET=(function(){
     x.fillStyle='#fff';x.beginPath();x.arc(px,py-100,19,0,7);x.fill();x.stroke();
     const g=x.createLinearGradient(0,H-420,0,H);g.addColorStop(0,'rgba(19,35,58,0)');g.addColorStop(.45,'rgba(19,35,58,.85)');g.addColorStop(1,'rgba(19,35,58,.95)');x.fillStyle=g;x.fillRect(0,H-420,W,420);
     await document.fonts.ready.catch(()=>{});
-    const DISP='"Karantina","Arial Narrow",sans-serif',BODY='"IBM Plex Sans Hebrew",sans-serif';
+    // the fonts of the language (FT1): the same tokens as the page, so Russian and Georgian are not drawn in Karantina (S-15)
+    const cs=getComputedStyle(document.documentElement),DISP=cs.getPropertyValue('--f-display').trim()||'"Karantina","Arial Narrow",sans-serif',BODY=cs.getPropertyValue('--f-body').trim()||'"IBM Plex Sans Hebrew",sans-serif';
     const fit=(t,max,px)=>{x.font=`700 ${px}px ${DISP}`;while(px>60&&x.measureText(t).width>max){px-=6;x.font=`700 ${px}px ${DISP}`;}return px;};
     x.direction='ltr';x.textAlign='left';
     const tw=Math.min(300,(fit(S.time,300,150),x.measureText(S.time).width)+50);
@@ -869,7 +876,7 @@ const LSTAT=(function(){
     gChairs.innerHTML='';svg.classList.toggle('forme',forMe&&fresh());
     svg.querySelectorAll('g.lg[data-lid]').forEach(g=>g.classList.remove('closed'));
     if(!fresh()){bar.innerHTML=`<span class="ms-dot"></span><span class="ms-txt">${E(data?'status.bar_no_recent':'status.bar_no_data_yet')}</span>`;bar.dataset.state='none';
-      D.pistes.forEach(p=>(pisteEls[p.key]||[]).forEach(e=>e.classList.remove('shut')));if(v3&&v3.liftState)v3.liftState(null);return;}
+      D.pistes.forEach(p=>(pisteEls[p.key]||[]).forEach(e=>e.classList.remove('shut')));if(v3&&v3.liftState){v3.liftState(null);v3.runState(null,false);}return;}
     const open=names.filter(n=>isOpen(n)).length;
     // on a phone the line breaks at the dot, between how many are open and when it was updated
     const parts=H('status.bar_summary',{ago:ago(data.updated)},{open:`<b class="num">${open}</b>`,total:`<b class="num">${names.length}</b>`}).split(' · ');
@@ -878,7 +885,8 @@ const LSTAT=(function(){
       if(o&&!reduceMotion()){const d=pathD(l.g),len=l.len||1000,dur=Math.max(8,len/60);
         for(let k=0;k<3;k++){const c=mk('circle',{r:12,class:'chair'},gChairs);const am=mk('animateMotion',{dur:dur+'s',begin:`-${(dur*k/3).toFixed(1)}s`,repeatCount:'indefinite',path:d},c);}}});
     D.pistes.forEach(p=>{const o=runOpen(p);(pisteEls[p.key]||[]).forEach(e=>e.classList.toggle('shut',o===false));});
-    if(v3&&v3.liftState)v3.liftState(Object.fromEntries(mainLifts.filter(l=>l.name).map(l=>[l.id,isOpen(l.name)])));
+    // in 3D too (S-19): closed dashed, chairs on the open lifts, and "only what's open for me"
+    if(v3&&v3.liftState){v3.liftState(Object.fromEntries(mainLifts.filter(l=>l.name).map(l=>[l.id,isOpen(l.name)])));v3.runState(Object.fromEntries(D.pistes.map(p=>[p.key,runOpen(p)])),forMe);}
     if(mapReady)apply();
   }
   // the season board on the home page (while there is no trip of your own): S3's snowy sign with no report, which in
@@ -902,7 +910,10 @@ const LSTAT=(function(){
   let loaded=false,pend=false;
   function viewed(){if(!loaded){pend=true;return;}const f=fresh();track('status_view',f?{state:'fresh',open:names.filter(n=>isOpen(n)).length,total:names.length}:{state:data?'stale':'none'});}
   function load(){return fetch('api/status',{cache:'no-store'}).then(r=>r.ok&&/json/.test(r.headers.get('content-type')||'')?r.json():null).catch(()=>null)
-    .then(j=>{data=j&&j.updated&&j.lifts?j:null;loaded=true;if(pend){pend=false;viewed();}applyMap();applyHome();if(!current&&!panel.querySelector('.back'))overview();});}
+    .then(j=>{j=j&&j.updated&&j.lifts?j:null;
+      // the last report stays in this browser, as in the app (S-29): with no answer it is shown while it is fresh
+      try{if(j)localStorage.setItem('gud-lstat-last',JSON.stringify(j));else j=JSON.parse(localStorage.getItem('gud-lstat-last')||'null');}catch(e){}
+      data=j&&j.updated&&j.lifts?j:null;loaded=true;if(pend){pend=false;viewed();}applyMap();applyHome();if(!current&&!panel.querySelector('.back'))overview();});}
   setInterval(load,5*6e4);
   return {block,load,applyMap,viewed};
 })();
@@ -961,7 +972,10 @@ const TRIPFORM=(()=>{
   const read=()=>({out:{date:q('od').value,flight:q('of').value.trim().toUpperCase(),from:code('ofr'),to:code('oto'),departs:q('odp').value,arrives:q('oar').value},
     ret:q('rd').value?{date:q('rd').value,flight:q('rf').value.trim().toUpperCase(),departs:q('rdp').value,arrives:q('rar').value}:null,
     ski:manual&&q('sf').value&&q('sl').value?{from:q('sf').value,to:q('sl').value}:null});
-  const paint=()=>{const t=read();
+  // dates that have passed cannot be picked (a stored one stays, so a trip under way can still be edited)
+  const today=()=>new Date().toLocaleDateString('sv');
+  const paint=()=>{const t=read(),d0=today(),was=MYTRIP.get();
+    q('od').min=was&&was.out.date<d0?was.out.date:d0;q('rd').min=t.out.date||d0;q('sf').min=q('sl').min=t.out.date||'';
     document.getElementById('tfOther').hidden=!!(q('ofr').value&&q('oto').value);
     q('ofrx').parentElement.hidden=!!q('ofr').value;q('otox').parentElement.hidden=!!q('oto').value;
     const br=document.getElementById('tfBackRoute');br.textContent=t.out.from&&t.out.to?T('trip.back_auto',{route:t.out.to+' › '+t.out.from}):T('trip.back_optional');br.dir='auto';
@@ -978,14 +992,20 @@ const TRIPFORM=(()=>{
     pick('ofr',o.from,'TLV');pick('oto',o.to,'TBS');
     q('rd').value=r.date||'';q('rf').value=r.flight||'';q('rdp').value=r.departs||'';q('rar').value=r.arrives||'';
     manual=!!(t&&t.ski);q('sf').value=manual?t.ski.from:'';q('sl').value=manual?t.ski.to:'';
-    document.getElementById('tfDelete').hidden=!t;f.querySelectorAll('[aria-invalid]').forEach(e=>e.removeAttribute('aria-invalid'));paint();};
+    const del=document.getElementById('tfDelete');del.hidden=!t;delArm=0;del.textContent=T('trip.delete');f.querySelectorAll('[aria-invalid]').forEach(e=>e.removeAttribute('aria-invalid'));paint();};
   const fail=(n,key)=>{err.textContent=T(key);err.hidden=false;if(n){q(n).setAttribute('aria-invalid','true');q(n).focus();}};
   f.addEventListener('input',e=>{if(e.target.name)e.target.removeAttribute('aria-invalid');paint();});
   f.addEventListener('change',paint);
   document.getElementById('tfSkiBtn').addEventListener('click',()=>{manual=!manual;if(manual&&!q('sf').value){const a=MYTRIP.skiAuto(read().out,read().ret);if(a){q('sf').value=a.from;q('sl').value=a.to;}}paint();});
-  document.getElementById('tfDelete').addEventListener('click',()=>{MYTRIP.set(null);window.ACCOUNT&&ACCOUNT.tripSaved();renderTicket();countdown(document.documentElement.dataset.theme==='dark');location.hash='#home';});
+  let delArm=0;
+  document.getElementById('tfDelete').addEventListener('click',e=>{
+    if(Date.now()-delArm>6000){delArm=Date.now();e.currentTarget.textContent=T('trip.delete_confirm');return;} // two taps, as in the app
+    const was=MYTRIP.get();MYTRIP.set(null);window.ACCOUNT&&ACCOUNT.tripDeleted(was&&was.sid);renderTicket();countdown(document.documentElement.dataset.theme==='dark');location.hash='#home';});
   f.addEventListener('submit',e=>{e.preventDefault();err.hidden=true;const t=read();
     if(!MYTRIP.ISO.test(t.out.date))return fail('od','trip.need_date');
+    const old=MYTRIP.get(),d0=today();
+    if(t.out.date<d0&&!(old&&old.out.date===t.out.date))return fail('od','trip.past_date');
+    if(t.ret&&t.ret.date<d0&&!(old&&old.ret&&old.ret.date===t.ret.date))return fail('rd','trip.past_date');
     for(const n of ['ofr','oto'])if(!q(n).value&&!/^[A-Z]{3}$/.test(q(n+'x').value.trim().toUpperCase()))return fail(n+'x','trip.bad_code');
     if(t.ret&&t.ret.date<t.out.date)return fail('rd','trip.bad_order');
     if(t.ski&&t.ski.to<t.ski.from)return fail('sl','trip.bad_order');

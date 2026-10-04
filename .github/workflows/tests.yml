@@ -5,9 +5,9 @@ name: tests
 on:
   # only when the site or its tests change (decision 34: each project builds and tests on its own)
   push:
-    paths: ['site/**', 'tests/**', 'package.json', 'package-lock.json', 'playwright.config.ts', 'docs/PRIVACY.md', 'i18n/**', 'tools/check-site-i18n.py', 'tools/build-privacy.py', '.github/workflows/tests.yml']
+    paths: ['site/**', 'tests/**', 'package.json', 'package-lock.json', 'playwright.config.ts', 'docs/PRIVACY.md', 'i18n/**', 'tools/check-site-i18n.py', 'tools/build-privacy.py', 'tools/build-site-strings.py', 'tools/build-games.py', 'design/games/**', 'design/round4/game/**', '.github/workflows/tests.yml']
   pull_request:
-    paths: ['site/**', 'tests/**', 'package.json', 'package-lock.json', 'playwright.config.ts', 'docs/PRIVACY.md', 'i18n/**', 'tools/check-site-i18n.py', 'tools/build-privacy.py', '.github/workflows/tests.yml']
+    paths: ['site/**', 'tests/**', 'package.json', 'package-lock.json', 'playwright.config.ts', 'docs/PRIVACY.md', 'i18n/**', 'tools/check-site-i18n.py', 'tools/build-privacy.py', 'tools/build-site-strings.py', 'tools/build-games.py', 'design/games/**', 'design/round4/game/**', '.github/workflows/tests.yml']
   workflow_dispatch:
 
 concurrency:
@@ -23,6 +23,13 @@ jobs:
       - uses: actions/checkout@v4
       - run: python3 i18n/check.py
       - run: python3 tools/check-site-i18n.py
+      # the site's language files, the games and the privacy page are built from their sources; they must match (S-21)
+      - name: built files match their sources
+        run: |
+          python3 tools/build-site-strings.py
+          python3 tools/build-games.py
+          python3 tools/build-privacy.py
+          git diff --exit-code -- site/ || { echo "::error::Run tools/build-site-strings.py, tools/build-games.py and tools/build-privacy.py, and commit what changed"; exit 1; }
 
   playwright:
     name: ${{ matrix.project }}

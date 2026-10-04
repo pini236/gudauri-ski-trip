@@ -44,13 +44,20 @@ window.ACCOUNT=(function(){
     if(c==='42501')return 'not_allowed';if(/^2[23]/.test(c))return 'invalid_input';return 'server_error';}
   async function rest(q){const r=await q;if(r.error)throw err(restCode(r));return r.data;}
   async function user(){const c=await client();const {data}=await c.auth.getSession();return data.session&&data.session.user||null;}
-  async function guest(){const c=await client();if(await user())return;const r=await c.auth.signInAnonymously();if(r.error)throw err('server_error');}
+  async function guest(){const c=await client();if(await user())return;const r=await c.auth.signInAnonymously();if(r.error)throw err('server_error');tr('sign_in',{method:'guest'});}
 
   // ---- what we know, kept in this browser
   let state=load(),signingOut=false;
   function load(){try{return JSON.parse(localStorage.getItem(CACHE)||'null')||{};}catch(e){return {};}}
+  // my groups live (CONTRACT, realtime, me:<user>): a request approved, removed from a group, a group renamed
+  let meLive=null;
+  function watchMe(c){if(meLive&&meLive.uid===state.uid)return;if(meLive){meLive.ch.unsubscribe();meLive=null;}
+    const u=state.uid,ch=c.channel('me:'+u);let t=0;const again=()=>{clearTimeout(t);t=setTimeout(()=>refresh(),400);};
+    ch.on('postgres_changes',{event:'*',schema:'public',table:'group_members',filter:'user_id=eq.'+u},again).on('postgres_changes',{event:'DELETE',schema:'public',table:'group_members'},again)
+      .on('postgres_changes',{event:'*',schema:'public',table:'join_requests',filter:'user_id=eq.'+u},again).on('postgres_changes',{event:'*',schema:'public',table:'groups'},again);
+    ch.subscribe();meLive={uid:u,ch};}
   function keep(){try{localStorage.setItem(CACHE,JSON.stringify(state));}catch(e){}}
-  function wipe(){const ended=state.ended;state={};if(ended)state.ended=true;try{localStorage.removeItem(CACHE);Object.keys(localStorage).filter(k=>k.startsWith('gud-group-')).forEach(k=>localStorage.removeItem(k));}catch(e){}
+  function wipe(){if(meLive){meLive.ch.unsubscribe();meLive=null;}const ended=state.ended;state={};if(ended)state.ended=true;try{localStorage.removeItem(CACHE);Object.keys(localStorage).filter(k=>k.startsWith('gud-group-')).forEach(k=>localStorage.removeItem(k));}catch(e){}
     const t=MYTRIP.get();if(t&&t.sid){delete t.sid;MYTRIP.set(t);}}
   const signedIn=()=>!!state.uid&&hasSession();
   const registered=()=>signedIn()&&!state.anon;
@@ -68,7 +75,10 @@ window.ACCOUNT=(function(){
         groups:gs.map(g=>{const m=mine.find(x=>x.group_id===g.id);return {...g,role:m.role,me:m.display_name,trip:m.trip_id,count:all.filter(a=>a.group_id===g.id).length};})
           .sort((a,b)=>(a.starts_on||'9').localeCompare(b.starts_on||'9'))};
       keep();
+      let pend=null;try{pend=JSON.parse(localStorage.getItem('gud-pending')||'null');}catch(e){}
+      if(pend&&state.groups.some(g=>g.id===pend.group_id)){tr('group_join',{via:pend.via});try{localStorage.removeItem('gud-pending');}catch(e){}}
       if(!state.anon&&!MYTRIP.get())await pullTrip(c);
+      watchMe(c);
       if(state.groups.length)await sendBests();}
     catch(e){/* no connection: what was kept is shown */}
     paint();}
@@ -117,6 +127,7 @@ window.ACCOUNT=(function(){
     const c=await client();const u=await user();
     if(u&&u.is_anonymous){ // a guest keeps their place: Google joins the same identity
       const r=await c.auth.linkIdentity({provider,token,nonce});
+      if(r.error&&r.error.code!=='identity_already_exists')throw err(r.error.status===0?'offline':'server_error'); // any other failure is not a merge (S-26)
       if(r.error){ // that Google account already has an identity: merge the guest into it (CONTRACT)
         const {ticket}=await api('create_merge_ticket');signingOut=true;await c.auth.signOut({scope:'local'});signingOut=false;
         const s=await c.auth.signInWithIdToken({provider,token,nonce});if(s.error)throw err('server_error');await api('merge_guest',{ticket});}}
@@ -135,9 +146,10 @@ window.ACCOUNT=(function(){
     // Apple waits for the developer account: its button says so ("soon") instead of looking broken
     host.insertAdjacentHTML('beforeend',`<button type="button" class="ac-btn apple${APPLE?'':' soon'}" disabled><span class="ac-mark">A</span>${esc(T(del?'acct.delete_apple':'acct.apple'))}${APPLE?'':`<small class="ac-soon">${esc(T('acct.apple_soon'))}</small>`}</button>`);
     return soon||!APPLE;}
-  function showErr(root,e){const p=root&&root.querySelector('[data-err]');if(!p)return;
-    const code=e&&e.code||'server_error';const own=T('group.err_'+code);
-    p.textContent=code==='offline'?T('acct.offline'):code==='not_signed_in'||code==='no_session'?T('acct.session_over'):own!=='group.err_'+code?own:T('acct.error');p.hidden=false;}
+  // every error code the contract marks gets its own words (CONTRACT, D5); an unknown one the general message
+  function errText(e){const code=e&&e.code||'server_error',own=T('group.err_'+code);
+    return code==='offline'?T('acct.offline'):code==='not_signed_in'||code==='no_session'?T('acct.session_over'):own!=='group.err_'+code?own:T('acct.error');}
+  function showErr(root,e){const p=root&&root.querySelector('[data-err]');if(!p)return;p.textContent=errText(e);p.hidden=false;}
   const clearErr=root=>{const p=root.querySelector('[data-err]');if(p)p.hidden=true;};
 
   // ---- the pages
@@ -195,6 +207,7 @@ window.ACCOUNT=(function(){
   async function openJoin(code){
     code=code.replace(/[\s-]/g,'');if(/^[a-z]{6}$/i.test(code))code=code.toUpperCase();joinCode=code;preview=null;
     const card=$('joinCard'),f=$('joinForm'),pg=$('joinPage');
+    clearErr(pg);
     ['joinForm','joinNoSignup','joinReclaim','joinApp'].forEach(id=>$(id).hidden=true);$('joinNames').hidden=true;
     card.querySelectorAll(':scope>:not(.snowcap)').forEach(x=>x.remove());
     card.insertAdjacentHTML('beforeend',`<p>${esc(T('join.loading'))}</p>`);
@@ -206,23 +219,39 @@ window.ACCOUNT=(function(){
     if(r.status!=='ok'){card.insertAdjacentHTML('beforeend',`<p>${esc(T('join.st_'+r.status))}</p>`);return;}
     preview=r;
     if(r.already_member){await refresh();location.replace('#group/'+r.group_id);return;}
-    card.insertAdjacentHTML('beforeend',`<small>${esc(T('join.invited_to'))}</small><p class="ac-big">${esc(r.name)}</p><p>${esc(T('group.members_n',{n:(r.members||[]).length}))}${r.starts_on?' · '+esc(T('join.dates',{from:dm(r.starts_on),to:dm(r.ends_on||r.starts_on)})):''}</p>`);
+    let req=null;try{const c=await client();[req]=await rest(c.from('join_requests').select('id').eq('user_id',state.uid||(await user()).id).eq('group_id',r.group_id).eq('status','pending').limit(1));}catch(e){}
+    card.insertAdjacentHTML('beforeend',`<small>${esc(T('join.invited_to'))}</small><p class="ac-big">${esc(r.name)}</p><p>${(r.members||[]).length?esc(T('group.members_n',{n:r.members.length})):''}${(r.members||[]).length&&r.starts_on?' · ':''}${r.starts_on?esc(T('join.dates',{from:dm(r.starts_on),to:dm(r.ends_on||r.starts_on)})):''}</p>`);
     f.hidden=false;$('joinNoSignup').hidden=false;
     if(!f.name.value&&state.name)f.name.value=state.name;
     $('joinReclaim').hidden=!(r.members||[]).length;
-    if(/^[A-Z]{6}$/i.test(code)){$('joinApp').hidden=false;$('joinCode').textContent=code.toUpperCase();}}
+    if(/^[A-Z]{6}$/i.test(code)){$('joinApp').hidden=false;$('joinCode').textContent=code.toUpperCase();}
+    if(req)showPending(req.id);}
+  function via(){return joinCode.length>8?'link':'code';}
+  function pendNote(){try{localStorage.setItem('gud-pending',JSON.stringify({group_id:preview&&preview.group_id,via:via()}));}catch(e){}}
+  async function showPending(id){const pg=$('joinPage'),p=pg.querySelector('[data-err]');
+    if(!id){try{const c=await client(),[q]=await rest(c.from('join_requests').select('id').eq('user_id',state.uid||(await user()).id).eq('group_id',preview.group_id).eq('status','pending').limit(1));id=q&&q.id;}catch(e){}}
+    $('joinForm').hidden=true;$('joinNames').hidden=true;
+    p.innerHTML=`<span>${esc(T('join.st_pending'))}</span>${id?`<button type="button" class="ac-btn quiet" data-cancelreq="${esc(id)}">${esc(T('join.cancel_request'))}</button>`:''}`;p.hidden=false;}
   $('joinForm').addEventListener('submit',async e=>{e.preventDefault();const pg=$('joinPage');clearErr(pg);
     const name=e.target.name.value.trim();if(!name||name.length>40){e.target.name.focus();return;}
     const b=e.target.querySelector('button');b.disabled=true;
     try{const r=await api('join_group',{code:joinCode,display_name:name});
-      if(r.status==='joined'||r.status==='already_member'){tr('group_join',{via:joinCode.length>8?'link':'code'});await refresh();await pushTrip();location.hash='#group/'+r.group_id;}
-      else{const p=pg.querySelector('[data-err]');p.textContent=T('join.st_'+r.status);p.hidden=false;if(r.status==='pending')$('joinForm').hidden=true;}}
+      if(r.status==='joined'||r.status==='already_member'){if(r.status==='joined')tr('group_join',{via:via()});await refresh();await pushTrip();location.hash='#group/'+r.group_id;}
+      else if(r.status==='pending'){pendNote();await showPending();}
+      else{const p=pg.querySelector('[data-err]');p.textContent=T('join.st_'+r.status);p.hidden=false;}}
     catch(x){showErr(pg,x);}b.disabled=false;});
   $('joinReclaimBtn').addEventListener('click',()=>{const box=$('joinNames');if(!preview)return;box.hidden=false;
     box.innerHTML=preview.members.map(m=>`<button type="button" data-mid="${esc(m.user_id)}">${esc(m.display_name)}</button>`).join('');});
   $('joinNames').addEventListener('click',async e=>{const b=e.target.closest('[data-mid]');if(!b)return;const pg=$('joinPage');clearErr(pg);
-    try{const r=await api('request_reclaim',{code:joinCode,member_id:b.dataset.mid});const p=pg.querySelector('[data-err]');p.textContent=T('join.st_'+r.status);p.hidden=false;$('joinNames').hidden=true;}
+    try{const r=await api('request_reclaim',{code:joinCode,member_id:b.dataset.mid});
+      if(r.status==='pending'){pendNote();await showPending();return;}
+      const p=pg.querySelector('[data-err]');p.innerHTML=`<span>${esc(T('join.st_'+r.status))}</span>`;p.hidden=false;$('joinNames').hidden=true;
+      // a registered member: they come back by signing in, as in the app (S-25)
+      if(r.status==='sign_in_instead'){try{sessionStorage.setItem('gud-after-signin','#join/'+encodeURIComponent(joinCode));}catch(e){}p.insertAdjacentHTML('beforeend',`<a class="ac-btn" href="#signin">${esc(T('join.sign_in_btn'))}</a>`);}}
     catch(x){showErr(pg,x);}});
+  $('joinPage').addEventListener('click',async e=>{const b=e.target.closest('[data-cancelreq]');if(!b)return;const pg=$('joinPage');b.disabled=true;
+    try{await api('cancel_join_request',{request_id:b.dataset.cancelreq});try{localStorage.removeItem('gud-pending');}catch(x){}clearErr(pg);$('joinForm').hidden=false;}
+    catch(x){b.disabled=false;showErr(pg,x);}});
 
   // ---- the group page (W8, W10)
   let G=null,tab='flights',gid='';
@@ -239,7 +268,7 @@ window.ACCOUNT=(function(){
     if(!live&&sb){const ch=sb.channel('group:'+gid);const f='group_id=eq.'+gid;let t=0;const again=()=>{clearTimeout(t);t=setTimeout(reload,400);};
       ['group_members','meetups','invites','join_requests'].forEach(tb=>ch.on('postgres_changes',{event:'*',schema:'public',table:tb,filter:f},again));
       ch.on('postgres_changes',{event:'DELETE',schema:'public',table:'group_members'},again).on('postgres_changes',{event:'DELETE',schema:'public',table:'meetups'},again)
-        .on('postgres_changes',{event:'*',schema:'public',table:'trips'},again).on('postgres_changes',{event:'*',schema:'public',table:'groups',filter:'id=eq.'+gid},again);
+        .on('postgres_changes',{event:'*',schema:'public',table:'trips'},again).on('postgres_changes',{event:'*',schema:'public',table:'scores'},again).on('postgres_changes',{event:'*',schema:'public',table:'groups',filter:'id=eq.'+gid},again);
       ch.subscribe();live=ch;}}
   function showNone(){
     $('grTitle').textContent=T('group.empty_title');$('grNone').hidden=false;$('grSome').hidden=true;$('grNote').innerHTML='';
@@ -346,16 +375,16 @@ window.ACCOUNT=(function(){
     return reqs+`<div>${list}</div>`+claim+tools+`<button type="button" class="ac-btn danger" data-leave>${ic('out')}${esc(T('group.leave'))}</button>`;}
   function drawInvite(){
     const v=G.invite;if(!v){const me=G.members.find(m=>m.user_id===state.uid);return me&&me.role==='admin'?`<p class="ac-note">${esc(T('group.no_invite'))}</p>`:'';}
-    const link=location.origin+'/j/'+v.token,msg=T('group.invite_msg',{name:G.g.name,link,code:v.code});
+    const link=location.origin+'/j/'+v.token+'?utm_medium=share',msg=T('group.invite_msg',{name:G.g.name,link,code:v.code});
     return `<div class="ac-invite"><span><small style="display:block;font-size:12px;color:var(--muted);font-weight:600">${esc(T('group.invite_code'))}</small><b dir="ltr">${esc(v.code)}</b></span>
       <span class="ac-iv"><a href="https://wa.me/?text=${encodeURIComponent(msg)}" target="_blank" rel="noopener">${esc(T('group.invite_wa'))}</a><button type="button" data-copy="${esc(link)}">${esc(T('group.copy'))}</button></span></div>`;}
   let leaveArm=0;
   $('groupPage').addEventListener('click',async e=>{
     const pg=$('groupPage'),t=e.target;
     const run=async(fn)=>{clearErr(pg);try{await fn();await refresh();await reload();}catch(x){showErr(pg,x);}};
-    const same=t.closest('[data-same]');if(same){run(async()=>{const mt=MYTRIP.get(),r=await api('same_flight',{group_id:gid,trip_id:same.dataset.same,my_trip_id:mt&&mt.sid||undefined});await setMine(r.trip_id);
+    const same=t.closest('[data-same]');if(same){run(async()=>{const mt=MYTRIP.get(),r=await api('same_flight',{group_id:gid,trip_id:same.dataset.same,my_trip_id:mt&&mt.sid||undefined});
       const c=await client(),[n]=await rest(c.from('trips').select('*').eq('id',r.trip_id));if(n)asMine(n);});return;}
-    if(t.closest('[data-showtrip]')){run(()=>pushTrip(true));return;}
+    if(t.closest('[data-showtrip]')){run(async()=>{const sid=await pushTrip(true),g=(state.groups||[]).find(x=>x.id===gid);if(sid&&g)await api('set_my_membership',{group_id:gid,display_name:g.me,trip_id:sid});});return;}
     const dm_=t.closest('[data-delmeet]');if(dm_){run(async()=>{const c=await client();await rest(c.from('meetups').delete().eq('id',dm_.dataset.delmeet));});return;}
     const rq=t.closest('[data-req]');if(rq){run(()=>api('decide_join_request',{request_id:rq.dataset.req,approve:rq.dataset.ok==='1'}));return;}
     const cp=t.closest('[data-copy]');if(cp&&navigator.clipboard){navigator.clipboard.writeText(cp.dataset.copy).then(()=>{cp.textContent=T('common.link_copied');setTimeout(()=>{cp.textContent=T('group.copy');},2200);}).catch(()=>{});return;}
@@ -389,15 +418,14 @@ window.ACCOUNT=(function(){
     return {out_date:o.date,out_flight:o.flight||null,out_from:code(o.from),out_to:code(o.to),out_departs:tm(o.departs),out_arrives:tm(o.arrives),
       ret_date:r&&r.date||null,ret_flight:r&&r.flight||null,ret_from:r?code(o.to):null,ret_to:r?code(o.from):null,ret_departs:r?tm(r.departs):null,ret_arrives:r?tm(r.arrives):null,
       ski_from:t.ski&&t.ski.from||null,ski_to:t.ski&&t.ski.to||null};}
-  async function setMine(tid){for(const g of state.groups||[])if(g.trip!==tid)await api('set_my_membership',{group_id:g.id,display_name:g.me,trip_id:tid});}
   async function pushTrip(force){
     if(!signedIn()||(!(state.groups||[]).length&&!force&&!registered()))return null;
     const t=MYTRIP.get(),c=await client();
-    if(!t){if(state.groups)for(const g of state.groups)if(g.trip)await api('set_my_membership',{group_id:g.id,display_name:g.me,trip_id:null});return null;}
+    if(!t)return null;
     let sid=t.sid;
     if(sid){const u=await rest(c.from('trips').update(row(t)).eq('id',sid).select('id'));if(!u.length)sid=null;}
     if(!sid){const [n]=await rest(c.from('trips').insert(row(t)).select('id'));sid=n.id;const t2=MYTRIP.get();if(t2){t2.sid=sid;MYTRIP.set(t2);}}
-    await setMine(sid);return sid;}
+    return sid;}
   // a new browser after signing in: your trip comes back from the account
   async function pullTrip(c){
     const [t]=await rest(c.from('trips').select('*').eq('owner_id',state.uid).or(`entered_by.is.null,entered_by.eq.${state.uid}`).order('updated_at',{ascending:false}).limit(1));
@@ -412,14 +440,17 @@ window.ACCOUNT=(function(){
   async function sendBests(){let b={},sent={};try{b=JSON.parse(localStorage.getItem('gud-best')||'{}');sent=JSON.parse(localStorage.getItem('gud-best-sent')||'{}');}catch(e){}
     for(const g of GAMES){if(!(b[g]>(sent[g]||0)))continue;try{await api('submit_score',{game:g,score:b[g]});sent[g]=b[g];}catch(e){break;}}
     try{localStorage.setItem('gud-best-sent',JSON.stringify(sent));}catch(e){}}
+  // saving updates the one row; it shows only in the groups where you chose it (CONTRACT, D1)
   function tripSaved(){if(signedIn())pushTrip().then(()=>refresh()).catch(()=>{});}
+  // deleting your trip deletes the row too, so no group shows it any more (D2)
+  function tripDeleted(sid){if(!sid||!signedIn())return;client().then(c=>rest(c.from('trips').delete().eq('id',sid))).then(()=>refresh()).catch(()=>{});}
 
   // ---- a meetup from the meeting point page goes to the group
   window.MEET_GROUP=()=>{const b=$('meetGroup');if(b)b.hidden=!(signedIn()&&(state.groups||[]).length);};
   async function saveMeet(b,g){const s=MEET.current();if(!s)return;b.disabled=true;$('meetGroupPick')?.remove();
     try{const c=await client();await rest(c.from('meetups').insert({group_id:g.id,station:s.sid,meet_at:`${s.day}T${s.time}:00+04:00`}));
       tr('meetup_create',{reminder:false});b.textContent=T('meet.saved_group');setTimeout(()=>{b.textContent=T('meet.save_group');b.disabled=false;},2500);}
-    catch(x){b.disabled=false;b.textContent=T('acct.error');setTimeout(()=>{b.textContent=T('meet.save_group');},2500);}}
+    catch(x){b.disabled=false;b.textContent=errText(x);setTimeout(()=>{b.textContent=T('meet.save_group');},4000);}}
   document.addEventListener('click',e=>{const b=e.target.closest('#meetGroup'),pick=e.target.closest('[data-meetgroup]');
     const gs=state.groups||[];
     if(pick){saveMeet($('meetGroup'),gs.find(g=>g.id===pick.dataset.meetgroup));return;}
@@ -437,5 +468,5 @@ window.ACCOUNT=(function(){
   let started=false;
   function start(x){({MYTRIP,esc,MEET,renderTicket,countdown}=x);started=true;paint();refresh();}
   const ifStarted=f=>(...a)=>started?f(...a):undefined;
-  return {start,route:ifStarted(route),paint:ifStarted(paint),paintPass:ifStarted(paintPass),tripSaved:ifStarted(tripSaved),signedIn,state:()=>state};
+  return {start,route:ifStarted(route),paint:ifStarted(paint),paintPass:ifStarted(paintPass),tripSaved:ifStarted(tripSaved),tripDeleted:ifStarted(tripDeleted),signedIn,state:()=>state};
 })();

@@ -105,10 +105,10 @@
    ]
   },
   "about.credit_fonts": {
-   "he": "Karantina ו-IBM Plex Sans Hebrew, ברישיון OFL.",
-   "en": "Karantina and IBM Plex Sans Hebrew, under the OFL license.",
-   "ru": "Karantina и IBM Plex Sans Hebrew, лицензия OFL.",
-   "ka": "Karantina და IBM Plex Sans Hebrew, ლიცენზია OFL.",
+   "he": "Karantina, IBM Plex Sans Hebrew, IBM Plex Sans, Oswald ו-Noto Sans Georgian, ברישיון OFL.",
+   "en": "Karantina, IBM Plex Sans Hebrew, IBM Plex Sans, Oswald and Noto Sans Georgian, under the OFL license.",
+   "ru": "Karantina, IBM Plex Sans Hebrew, IBM Plex Sans, Oswald и Noto Sans Georgian, лицензия OFL.",
+   "ka": "Karantina, IBM Plex Sans Hebrew, IBM Plex Sans, Oswald და Noto Sans Georgian, ლიცენზია OFL.",
    "where": "site/index.html",
    "check": [
     "ru",
@@ -12565,6 +12565,29 @@
     "ka"
    ]
   },
+  "trip.delete_confirm": {
+   "he": "בטוח? לחיצה נוספת מוחקת",
+   "en": "Sure? Tap again to delete",
+   "ru": "Точно? Нажмите ещё раз, чтобы удалить",
+   "ka": "დარწმუნებული ხართ? წასაშლელად კვლავ შეეხეთ",
+   "where": "site/js/app.js",
+   "note": "the second tap deletes, as in the app",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "trip.past_date": {
+   "he": "התאריך הזה כבר עבר.",
+   "en": "That date has already passed.",
+   "ru": "Эта дата уже прошла.",
+   "ka": "ეს თარიღი უკვე გავიდა.",
+   "where": "site/js/app.js",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
   "trip.edit": {
    "he": "עריכה",
    "en": "Edit",
@@ -13380,8 +13403,8 @@
   "acct.delete_more": {
    "he": "הכל נמחק מיד, בלי תקופת המתנה. מה ששמור בטלפון או בדפדפן נשאר שם, עד שמוחקים את האפליקציה או מנקים את הדפדפן. בקבוצה שרק את/ה מנהל/ת בה, המנהלות עוברת לחבר אחר.",
    "en": "Everything is deleted at once, with no waiting period. What is stored on a phone or in a browser stays there until you delete the app or clear the browser. In a group where you are the only admin, another member becomes admin.",
-   "ru": "Всё удаляется сразу, без периода ожидания. То, что хранится в телефоне или браузере, остаётся там, пока вы не удалите приложение или не очистите браузер. В группе, где вы единственный админ, админом станет другой участник.",
-   "ka": "ყველაფერი მაშინვე იშლება, მოლოდინის გარეშე. ტელეფონში ან ბრაუზერში შენახული იქ რჩება, სანამ აპს არ წაშლით ან ბრაუზერს არ გაასუფთავებთ. ჯგუფში, სადაც ერთადერთი ადმინი ხართ, ადმინი სხვა წევრი გახდება.",
+   "ru": "Всё удаляется сразу, без периода ожидания. То, что хранится в телефоне или браузере, остаётся там, пока вы не удалите приложение или не очистите браузер. В группе, где вы единственный администратор, администратором станет другой участник.",
+   "ka": "ყველაფერი მაშინვე იშლება, მოლოდინის გარეშე. ტელეფონში ან ბრაუზერში შენახული იქ რჩება, სანამ აპს არ წაშლით ან ბრაუზერს არ გაასუფთავებთ. ჯგუფში, სადაც ერთადერთი ადმინისტრატორი ხართ, ადმინისტრატორი სხვა წევრი გახდება.",
    "where": "site/index.html",
    "check": [
     "ru",
@@ -13534,8 +13557,8 @@
   "join.reclaim_lead": {
    "he": "החלפת טלפון או דפדפן? בוחרים את השם שלך, והמנהל מאשר. הכל חוזר, בלי כפיל.",
    "en": "New phone or browser? Pick your name and the admin approves. Everything comes back, with no duplicate.",
-   "ru": "Сменили телефон или браузер? Выберите своё имя, и админ подтвердит. Всё вернётся, без дублей.",
-   "ka": "ტელეფონი ან ბრაუზერი შეცვალეთ? აირჩიეთ თქვენი სახელი და ადმინი დაადასტურებს. ყველაფერი დაბრუნდება, დუბლიკატის გარეშე.",
+   "ru": "Сменили телефон или браузер? Выберите своё имя, и администратор подтвердит. Всё вернётся, без дублей.",
+   "ka": "ტელეფონი ან ბრაუზერი შეცვალეთ? აირჩიეთ თქვენი სახელი და ადმინისტრატორი დაადასტურებს. ყველაფერი დაბრუნდება, დუბლიკატის გარეშე.",
    "where": "site/index.html",
    "check": [
     "ru",
@@ -13644,8 +13667,8 @@
   "join.st_pending": {
    "he": "הבקשה נשלחה למנהל. כשיאשר, הקבוצה תופיע כאן.",
    "en": "The request was sent to the admin. Once approved, the group shows up here.",
-   "ru": "Запрос отправлен админу. После подтверждения группа появится здесь.",
-   "ka": "მოთხოვნა ადმინს გაეგზავნა. დადასტურების შემდეგ ჯგუფი აქ გამოჩნდება.",
+   "ru": "Запрос отправлен администратору. После подтверждения группа появится здесь.",
+   "ka": "მოთხოვნა ადმინისტრატორს გაეგზავნა. დადასტურების შემდეგ ჯგუფი აქ გამოჩნდება.",
    "where": "site/js/account.js",
    "check": [
     "ru",
@@ -13680,6 +13703,30 @@
    "ru": "Этого участника уже нет в группе.",
    "ka": "ეს წევრი ჯგუფში აღარ არის.",
    "where": "site/js/account.js",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "join.cancel_request": {
+   "he": "ביטול הבקשה",
+   "en": "Withdraw the request",
+   "ru": "Отозвать запрос",
+   "ka": "მოთხოვნის გაუქმება",
+   "where": "site/js/account.js",
+   "note": "while a request waits for an admin (cancel_join_request), as in the app",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "join.sign_in_btn": {
+   "he": "כניסה עם החשבון",
+   "en": "Sign in with the account",
+   "ru": "Войти через аккаунт",
+   "ka": "ანგარიშით შესვლა",
+   "where": "site/js/account.js",
+   "note": "after sign_in_instead in \"I'm already in the group\"",
    "check": [
     "ru",
     "ka"
@@ -13825,8 +13872,8 @@
   "group.entered_by_admin": {
    "he": "הוזן על ידי מנהל",
    "en": "Entered by an admin",
-   "ru": "Внесено админом",
-   "ka": "შეიყვანა ადმინმა",
+   "ru": "Внесено администратором",
+   "ka": "შეიყვანა ადმინისტრატორმა",
    "where": "site/js/account.js",
    "check": [
     "ru",
@@ -14179,8 +14226,8 @@
   "group.make_admin": {
    "he": "מינוי למנהל",
    "en": "Make admin",
-   "ru": "Сделать админом",
-   "ka": "ადმინად დანიშვნა",
+   "ru": "Сделать администратором",
+   "ka": "ადმინისტრატორად დანიშვნა",
    "where": "site/js/account.js",
    "check": [
     "ru",
@@ -14190,8 +14237,8 @@
   "group.make_member": {
    "he": "הורדה ממנהל",
    "en": "Remove as admin",
-   "ru": "Снять админа",
-   "ka": "ადმინობის მოხსნა",
+   "ru": "Снять администратора",
+   "ka": "ადმინისტრატორობის მოხსნა",
    "where": "site/js/account.js",
    "check": [
     "ru",
@@ -14311,8 +14358,8 @@
   "group.approval": {
    "he": "כל מצטרף חדש מחכה לאישור של מנהל",
    "en": "Every new member waits for an admin to approve",
-   "ru": "Каждый новый участник ждёт подтверждения админа",
-   "ka": "ყოველი ახალი წევრი ადმინის დადასტურებას ელოდება",
+   "ru": "Каждый новый участник ждёт подтверждения администратора",
+   "ka": "ყოველი ახალი წევრი ადმინისტრატორის დადასტურებას ელოდება",
    "where": "site/js/account.js",
    "check": [
     "ru",
@@ -14366,8 +14413,8 @@
   "group.claim_admin": {
    "he": "לקבוצה אין מנהל. להיות מנהל",
    "en": "The group has no admin. Become admin",
-   "ru": "В группе нет админа. Стать админом",
-   "ka": "ჯგუფს ადმინი არ ჰყავს. გახდით ადმინი",
+   "ru": "В группе нет администратора. Стать администратором",
+   "ka": "ჯგუფს ადმინისტრატორი არ ჰყავს. გახდით ადმინისტრატორი",
    "where": "site/js/account.js",
    "check": [
     "ru",
@@ -14399,8 +14446,8 @@
   "group.err_admin_must_register": {
    "he": "רק חבר שנכנס עם גוגל או אפל יכול להיות מנהל.",
    "en": "Only a member signed in with Google or Apple can be an admin.",
-   "ru": "Админом может быть только участник, вошедший через Google или Apple.",
-   "ka": "ადმინი მხოლოდ Google-ით ან Apple-ით შესული წევრი შეიძლება იყოს.",
+   "ru": "Администратором может быть только участник, вошедший через Google или Apple.",
+   "ka": "ადმინისტრატორი მხოლოდ Google-ით ან Apple-ით შესული წევრი შეიძლება იყოს.",
    "where": "site/js/account.js",
    "check": [
     "ru",
@@ -14410,8 +14457,8 @@
   "group.err_last_admin": {
    "he": "צריך להשאיר לפחות מנהל אחד.",
    "en": "At least one admin has to stay.",
-   "ru": "Должен остаться хотя бы один админ.",
-   "ka": "ერთი ადმინი მაინც უნდა დარჩეს.",
+   "ru": "Должен остаться хотя бы один администратор.",
+   "ka": "ერთი ადმინისტრატორი მაინც უნდა დარჩეს.",
    "where": "site/js/account.js",
    "check": [
     "ru",
@@ -14432,8 +14479,8 @@
   "group.err_not_admin": {
    "he": "רק מנהל יכול לעשות את זה.",
    "en": "Only an admin can do that.",
-   "ru": "Это может только админ.",
-   "ka": "ამის გაკეთება მხოლოდ ადმინს შეუძლია.",
+   "ru": "Это может только администратор.",
+   "ka": "ამის გაკეთება მხოლოდ ადმინისტრატორს შეუძლია.",
    "where": "site/js/account.js",
    "check": [
     "ru",
@@ -14588,6 +14635,116 @@
    "en": "One of the details is not valid.",
    "ru": "Одно из полей заполнено неверно.",
    "ka": "ერთ-ერთი მონაცემი არასწორია.",
+   "where": "site/js/account.js",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "group.err_invalid_ticket": {
+   "he": "חיבור החשבונות לקח יותר מדי זמן. נכנסים שוב עם גוגל.",
+   "en": "Linking the accounts took too long. Sign in with Google again.",
+   "ru": "Связывание аккаунтов заняло слишком много времени. Войдите через Google снова.",
+   "ka": "ანგარიშების დაკავშირებას ძალიან დიდი დრო დასჭირდა. ხელახლა შედით Google-ით.",
+   "where": "site/js/account.js",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "group.err_not_member": {
+   "he": "כבר לא בקבוצה הזו. מרעננים את הדף.",
+   "en": "No longer in this group. Refresh the page.",
+   "ru": "Вы больше не в этой группе. Обновите страницу.",
+   "ka": "თქვენ აღარ ხართ ამ ჯგუფში. განაახლეთ გვერდი.",
+   "where": "site/js/account.js",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "group.err_not_found": {
+   "he": "זה כבר לא קיים. מרעננים את הדף.",
+   "en": "That no longer exists. Refresh the page.",
+   "ru": "Этого больше нет. Обновите страницу.",
+   "ka": "ეს აღარ არსებობს. განაახლეთ გვერდი.",
+   "where": "site/js/account.js",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "group.err_trip_not_in_group": {
+   "he": "הטיסה הזו כבר לא מוצגת בקבוצה.",
+   "en": "That flight is no longer shown in the group.",
+   "ru": "Этот рейс больше не показан в группе.",
+   "ka": "ეს ფრენა ჯგუფში აღარ ჩანს.",
+   "where": "site/js/account.js",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "group.err_already_member": {
+   "he": "כבר בקבוצה.",
+   "en": "Already in the group.",
+   "ru": "Уже в группе.",
+   "ka": "უკვე ჯგუფშია.",
+   "where": "site/js/account.js",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "group.err_group_has_admin": {
+   "he": "לקבוצה כבר יש מנהל.",
+   "en": "The group already has an admin.",
+   "ru": "В группе уже есть администратор.",
+   "ka": "ჯგუფს უკვე ჰყავს ადმინისტრატორი.",
+   "where": "site/js/account.js",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "group.err_sign_in_instead": {
+   "he": "לחבר הזה יש חשבון: הוא נכנס איתו וחוזר לקבוצה בלי אישור.",
+   "en": "This member has an account: they sign in with it and come back without approval.",
+   "ru": "У этого участника есть аккаунт: он входит через него и возвращается без подтверждения.",
+   "ka": "ამ წევრს აქვს ანგარიში: ის შედის მისით და ბრუნდება დადასტურების გარეშე.",
+   "where": "site/js/account.js",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "group.err_conflict": {
+   "he": "משהו השתנה בינתיים. מרעננים ומנסים שוב.",
+   "en": "Something changed in the meantime. Refresh and try again.",
+   "ru": "Что-то изменилось. Обновите страницу и попробуйте ещё раз.",
+   "ka": "ამასობაში რაღაც შეიცვალა. განაახლეთ და სცადეთ თავიდან.",
+   "where": "site/js/account.js",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "group.err_server_error": {
+   "he": "תקלה בשרת. נסו שוב מאוחר יותר.",
+   "en": "A server problem. Please try again later.",
+   "ru": "Ошибка сервера. Попробуйте позже.",
+   "ka": "სერვერის შეცდომა. სცადეთ მოგვიანებით.",
+   "where": "site/js/account.js",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "group.err_use_leave_group": {
+   "he": "כדי לצאת בעצמך, משתמשים ב\"עזיבת הקבוצה\".",
+   "en": "To leave yourself, use “Leave the group”.",
+   "ru": "Чтобы выйти самому, нажмите «Покинуть группу».",
+   "ka": "თავად გასასვლელად გამოიყენეთ „ჯგუფის დატოვება“.",
    "where": "site/js/account.js",
    "check": [
     "ru",
