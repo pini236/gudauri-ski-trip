@@ -401,8 +401,13 @@ test("keepalive: open to anyone, cleans once a day", async () => {
   await sql`update auth.users set created_at = now() - interval '40 days' where id in (${oldGuest}, ${member})`;
   const g = await newGroup(pini);
   await call(member, "join_group", { code: (await invite(g)).code, display_name: "Guest" });
+  await sql`insert into private.invite_attempts (user_id, ok, ip_key, at)
+            values (${pini}, false, 'old', now() - interval '3 days'), (${pini}, false, 'new', now() - interval '1 day')`;
   await sql`update private.heartbeat set cleaned_at = null`;
   const first = await call(null, "keepalive");
+  eq((await sql`select ip_key from private.invite_attempts where user_id = ${pini}`).map((r) => r.ip_key), ["new"],
+    "code attempts (and the address keys in them) are deleted after two days");
+  await sql`delete from private.invite_attempts where user_id = ${pini}`;
   const second = await call(null, "keepalive");
   eq(first.removed_guests >= 1, true, "the first call of the day cleans");
   eq(second.removed_guests, 0, "later calls that day do not");
