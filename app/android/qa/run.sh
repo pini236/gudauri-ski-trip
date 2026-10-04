@@ -213,6 +213,8 @@ school() {
   [ -n "$(where "לנסות שוב")" ] || fail "no 'try again' after a lesson with no star"
   tapText "לכל השיעורים" && sleep 1
   # every lesson open: the two skis (the first gate is on the left, so the left ski is the wrong one)
+  # from home, so the school's page opens again and reads the stars
+  qa "--es qa.tab home"; sleep 1
   qa "--es qa.school open --es qa.tab school"; sleep 2; shot school-menu-open
   tapText "פונים בפיצה" && tapText "לשלג!" && sleep 1.5
   mark; tapText "מגלש שמאל"; waitlog "coach_wrong_right" 3

@@ -13,6 +13,7 @@ import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.waitForUpOrCancellation
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.absoluteOffset
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
@@ -493,19 +494,19 @@ private fun Pop(say: Say?, n: Int, still: Boolean) {
     }
 }
 
-/** Lesson 1: the wedge's width, from the finger's height (the slider on the left only shows it). */
+/** Lesson 1: the wedge's width, from the finger's height (the slider on the left only shows it; on the left in every language, so offsets that do not mirror). */
 @Composable
 private fun Slider(pct: Int) {
     BoxWithConstraints(Modifier.fillMaxSize()) {
         val top = maxHeight * .3f; val h = maxHeight * .52f
-        Box(Modifier.align(AbsoluteAlignment.TopLeft).offset(x = 14.dp, y = top).width(200.dp).height(h)) {
-            Box(Modifier.align(AbsoluteAlignment.TopLeft).offset(x = 26.dp).width(12.dp).height(h)
+        Box(Modifier.align(AbsoluteAlignment.TopLeft).absoluteOffset(x = 14.dp, y = top).width(200.dp).height(h)) {
+            Box(Modifier.align(AbsoluteAlignment.TopLeft).absoluteOffset(x = 26.dp).width(12.dp).height(h)
                 .background(Brush.verticalGradient(0f to Color(0xFFEEF2F5), .6f to ACCENT, 1f to RED)))
-            Text(stringResource(R.string.game_school_slider_straight), Modifier.align(AbsoluteAlignment.TopLeft).offset(x = 44.dp, y = (-2).dp),
+            Text(stringResource(R.string.game_school_slider_straight), Modifier.align(AbsoluteAlignment.TopLeft).absoluteOffset(x = 44.dp, y = (-2).dp),
                 style = Ski.type.label.copy(fontSize = 11.sp), color = MUTED, maxLines = 1, softWrap = false)
-            Text(stringResource(R.string.game_school_slider_wide), Modifier.align(AbsoluteAlignment.BottomLeft).offset(x = 44.dp, y = 2.dp),
+            Text(stringResource(R.string.game_school_slider_wide), Modifier.align(AbsoluteAlignment.BottomLeft).absoluteOffset(x = 44.dp, y = 2.dp),
                 style = Ski.type.label.copy(fontSize = 11.sp), color = MUTED, maxLines = 1, softWrap = false)
-            Box(Modifier.align(AbsoluteAlignment.TopLeft).offset(x = 4.dp, y = h * (pct / 100f) - 15.dp).size(56.dp, 30.dp).background(INK), contentAlignment = Alignment.Center) {
+            Box(Modifier.align(AbsoluteAlignment.TopLeft).absoluteOffset(x = 4.dp, y = h * (pct / 100f) - 15.dp).size(56.dp, 30.dp).background(INK), contentAlignment = Alignment.Center) {
                 Text(stringResource(R.string.game_school_slider_pct, pct.toString()), style = Ski.type.label.copy(fontSize = 11.sp, lineHeight = 1.em), color = Color.White,
                     textAlign = TextAlign.Center, maxLines = 1)
             }
