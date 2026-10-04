@@ -1,6 +1,33 @@
 package io.github.pini236.skiapp.home
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.em
+import androidx.compose.ui.unit.sp
+import io.github.pini236.skiapp.fx.FxPrefs
+import io.github.pini236.skiapp.i18n.Lang
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -47,40 +74,171 @@ fun SoonScreen(title: String, text: String, onBack: () -> Unit) {
 }
 
 /**
- * About, for now (the full page with settings is stage 13.7): the version, the credits the data, the recordings and
- * the libraries require (OpenStreetMap's ODbL and the tear's CC BY ask for a visible credit; the license texts are
- * packed in assets/licenses), and the privacy policy.
+ * About and settings (13.7), as the site's #about (decision 21, round 11): the account's ski pass, the settings
+ * (sound, vibration, the display, the language, measuring, resetting the high scores), who built it, and the credits the
+ * data, the recordings and the libraries require (OpenStreetMap's ODbL and the tear's CC BY ask for a visible credit; the
+ * license texts are packed in assets/licenses), the privacy policy and "unofficial".
  */
 @Composable
-fun AboutScreen(version: String, onPrivacy: () -> Unit, onAccount: (() -> Unit)?, onBack: () -> Unit) {
+fun AboutScreen(
+    version: String, onPrivacy: () -> Unit, account: Account?, mode: DayNight.Mode, onMode: () -> Unit,
+    lang: Lang.Language, langManual: Boolean, onLang: (String?) -> Unit, onResetBests: () -> Unit, onBack: () -> Unit,
+) {
     val c = Ski.colors
-    Column(Modifier.fillMaxSize().background(c.snow).statusBarsPadding()) {
+    val context = LocalContext.current
+    val uri = LocalUriHandler.current
+    var langs by remember { mutableStateOf(false) }
+    Box(Modifier.fillMaxSize().background(c.snow)) {
+    Column(Modifier.fillMaxSize().statusBarsPadding()) {
         TopBar(stringResource(R.string.common_about_settings), stringResource(R.string.nav_home), onBack)
-        Column(Modifier.verticalScroll(rememberScrollState()).navigationBarsPadding().padding(horizontal = 16.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
-            Text(stringResource(R.string.app_about_version, version), style = Ski.type.bodyBold, color = c.ink)
-            if (onAccount != null) Text(stringResource(R.string.app_a_account), Modifier.heightIn(min = 44.dp).clickable(role = Role.Button, onClick = onAccount).padding(vertical = 10.dp),
-                style = Ski.type.bodyBold.copy(textDecoration = TextDecoration.Underline), color = c.glacier)
-            // the switch of the site's settings (round 11, AN1/AN2): off stops usage statistics and crash reports at once
-            val context = LocalContext.current
-            var analytics by remember { mutableStateOf(Telemetry.enabled(context)) }
-            Toggle(stringResource(R.string.about_analytics), stringResource(if (analytics) R.string.about_analytics_on else R.string.about_analytics_off), analytics, {
-                analytics = it
-                Telemetry.setEnabled(context, it, BuildConfig.FLAVOR)
-            })
-            Text(stringResource(R.string.about_credits), style = Ski.type.title.copy(fontSize = Ski.type.title.fontSize * (30f / 44f)), color = c.ink)
-            // the map's data, as the site credits it: OpenStreetMap's licence (ODbL) asks for the credit and its link
-            val uri = LocalUriHandler.current
-            Text(stringResource(R.string.about_credit_osm_label) + " © " + stringResource(R.string.about_credit_licensed, stringResource(R.string.about_credit_osm_link), "ODbL"),
-                Modifier.heightIn(min = 44.dp).clickable(role = Role.Button) { uri.openUri("https://www.openstreetmap.org/copyright") }.padding(vertical = 10.dp),
-                style = Ski.type.small.copy(textDecoration = TextDecoration.Underline), color = c.muted)
-            Text(stringResource(R.string.about_credit_terrain_label) + " " + stringResource(R.string.about_credit_terrain), style = Ski.type.small, color = c.muted)
-            Text(stringResource(R.string.app_ticket_credits), style = Ski.type.small, color = c.muted)
-            Text(stringResource(R.string.about_credit_fonts_label) + " " + stringResource(R.string.app_about_fonts), style = Ski.type.small, color = c.muted)
-            Text(stringResource(R.string.app_about_libs), style = Ski.type.small, color = c.muted)
-            Text(stringResource(R.string.about_credit_mta), style = Ski.type.small, color = c.muted)
-            Text(stringResource(R.string.app_about_privacy), Modifier.heightIn(min = 44.dp).clickable(role = Role.Button, onClick = onPrivacy).padding(vertical = 10.dp),
-                style = Ski.type.bodyBold.copy(textDecoration = TextDecoration.Underline), color = c.glacier)
-            Note(stringResource(R.string.app_about_more), Icons.phone)
+        Column(Modifier.verticalScroll(rememberScrollState()).navigationBarsPadding().padding(start = 16.dp, end = 16.dp, bottom = 24.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            // the account's ski pass (the site's #abMe, P4 and P5 of round 12)
+            if (account != null) {
+                val me = account.me
+                H2(stringResource(if (me != null) R.string.acct_title else R.string.acct_signin_title))
+                SkiPass(stringResource(if (me != null) R.string.acct_pass_top_me else R.string.acct_pass_top_guest),
+                    stringResource(when { me == null -> R.string.acct_no_account; me.registered -> R.string.acct_google_name; else -> R.string.acct_signed_guest })) {
+                    io.github.pini236.skiapp.group.Avatar(me?.name ?: "?", me != null, 52)
+                    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                        Text(me?.name ?: stringResource(R.string.ticket_pax_guest), style = Ski.type.title.copy(fontSize = 34.sp, lineHeight = 32.sp), color = c.ink)
+                        Text(stringResource(when { me == null -> R.string.app_g_rest_works; me.registered -> R.string.acct_sync_note; else -> R.string.app_a_guest_note }),
+                            style = Ski.type.small.copy(fontSize = 13.5.sp), color = c.muted)
+                        Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                            if (me != null) Link(stringResource(R.string.acct_manage), account.onManage)
+                            if (me == null) Link(stringResource(R.string.acct_signin_title), account.onSignIn)
+                            else if (me.registered) Link(stringResource(R.string.acct_sign_out_short), account.onSignOut, c.ink)
+                        }
+                    }
+                }
+            }
+            // the settings (the site's .ab-set)
+            H2(stringResource(R.string.about_settings))
+            var sound by remember { mutableStateOf(FxPrefs.sound(context)) }
+            var haptics by remember { mutableStateOf(FxPrefs.haptics(context)) }
+            Column {
+                Toggle(stringResource(R.string.about_sound), stringResource(R.string.about_sound_sub), sound, {
+                    sound = it; FxPrefs.set(context, "sound", it); Telemetry.event("settings_change", mapOf("setting" to "sound", "on" to it))
+                })
+                Toggle(stringResource(R.string.about_haptics), stringResource(R.string.about_haptics_sub), haptics, {
+                    haptics = it; FxPrefs.set(context, "haptics", it); Telemetry.event("settings_change", mapOf("setting" to "haptics", "on" to it))
+                })
+                val modes = mapOf(DayNight.Mode.AUTO to R.string.daynight_mode_auto, DayNight.Mode.DAY to R.string.daynight_mode_day, DayNight.Mode.NIGHT to R.string.daynight_mode_night)
+                Row2(stringResource(R.string.about_display), stringResource(R.string.about_display_sub), stringResource(modes.getValue(mode)), onClick = onMode)
+                Row2(stringResource(R.string.about_language) + if (lang.tag != "en") " · Language" else "",
+                    stringResource(if (langManual) R.string.about_language_manual else R.string.app_about_lang_auto), lang.name) { langs = true }
+                // the switch of the site's settings (round 11, AN1/AN2): off stops usage statistics and crash reports at once
+                var analytics by remember { mutableStateOf(Telemetry.enabled(context)) }
+                Toggle(stringResource(R.string.about_analytics), stringResource(if (analytics) R.string.about_analytics_on else R.string.about_analytics_off), analytics, {
+                    analytics = it
+                    Telemetry.setEnabled(context, it, BuildConfig.FLAVOR)
+                })
+                // reset the high scores: twice, as on the site
+                var armed by remember { mutableStateOf(false) }
+                var done by remember { mutableStateOf(false) }
+                LaunchedEffect(armed) { if (armed) { kotlinx.coroutines.delay(4000); armed = false } }
+                Row2(stringResource(R.string.about_reset), stringResource(when { done -> R.string.about_reset_done; armed -> R.string.about_reset_confirm; else -> R.string.app_about_reset_sub }),
+                    null, danger = armed) {
+                    if (armed) { armed = false; done = true; onResetBests(); Telemetry.event("best_reset") } else { armed = true; done = false }
+                }
+            }
+            // who built it (the site's .ab-who)
+            H2(stringResource(R.string.about_who))
+            SkiPass(stringResource(R.string.about_pass_top), stringResource(R.string.about_builder)) {
+                BuilderPhoto()
+                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    Text(stringResource(R.string.about_builder_name), style = Ski.type.title.copy(fontSize = 34.sp, lineHeight = 32.sp), color = c.ink)
+                    Text(stringResource(R.string.about_bio), style = Ski.type.small.copy(fontSize = 13.5.sp), color = c.muted)
+                    Link("github.com/pini236", { uri.openUri("https://github.com/pini236") })
+                }
+            }
+            // the credits (the site's .ab-credits)
+            H2(stringResource(R.string.about_credits))
+            Credit(stringResource(R.string.about_credit_osm_label), "© " + stringResource(R.string.about_credit_licensed, stringResource(R.string.about_credit_osm_link), "ODbL"),
+                "https://www.openstreetmap.org/copyright")
+            Credit(stringResource(R.string.about_credit_terrain_label), stringResource(R.string.about_credit_terrain))
+            Credit(stringResource(R.string.about_credit_tear_label), stringResource(R.string.about_credit_licensed, stringResource(R.string.about_credit_tear_link), "CC BY 4.0"),
+                "https://freesound.org/people/everythingsounds/sounds/198233/")
+            Credit(stringResource(R.string.about_credit_cards_label), stringResource(R.string.about_credit_licensed, "Kenney", "CC0"), "https://kenney.nl/assets/casino-audio")
+            Credit(stringResource(R.string.about_credit_fonts_label), stringResource(R.string.app_about_fonts))
+            Credit(null, stringResource(R.string.app_about_libs))
+            Credit(stringResource(R.string.about_credit_videos_label), stringResource(R.string.app_about_credit_videos))
+            Credit(null, stringResource(R.string.about_credit_mta))
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Link(stringResource(R.string.app_about_privacy), onPrivacy)
+                Text(" · " + stringResource(R.string.about_unofficial), Modifier.weight(1f), style = Ski.type.small.copy(fontSize = 13.sp), color = c.muted)
+            }
+            Text(stringResource(R.string.app_about_version, version), style = Ski.type.small, color = c.muted)
         }
     }
+    if (langs) LangSheet({ tag -> langs = false; onLang(tag) }) { langs = false }
+    }
+}
+
+@Composable
+private fun H2(text: String) = Text(text, Modifier.padding(top = 14.dp).semantics { heading() },
+    style = Ski.type.title.copy(fontSize = Ski.type.title.fontSize * (30f / 44f)), color = Ski.colors.ink)
+
+@Composable
+private fun Link(text: String, onClick: () -> Unit, color: Color = Ski.colors.glacier) =
+    Text(text, Modifier.heightIn(min = 44.dp).clickable(role = Role.Button, onClick = onClick).padding(vertical = 12.dp),
+        style = Ski.type.bodyBold.copy(fontSize = 14.sp), color = color)
+
+/** A settings row that is not a switch (the site's .ab-row button): its name and line, and the value at the end. */
+@Composable
+private fun Row2(title: String, sub: String, value: String?, danger: Boolean = false, onClick: () -> Unit) {
+    val c = Ski.colors
+    Row(Modifier.fillMaxWidth().heightIn(min = 60.dp).clickable(role = Role.Button, onClick = onClick).padding(vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(14.dp)) {
+        Column(Modifier.weight(1f)) {
+            Text(title, style = Ski.type.bodyBold.copy(fontSize = 15.5.sp), color = if (danger) c.red else c.ink)
+            Text(sub, style = Ski.type.small, color = if (danger) c.red else c.muted)
+        }
+        if (value != null) Text(value, style = Ski.type.bodyBold.copy(fontSize = 14.sp), color = c.glacier)
+    }
+    Box(Modifier.fillMaxWidth().height(1.dp).background(c.rule))
+}
+
+/** A ski pass card (the site's .ab-pass): a blue strip with two words, and its body, tilted a little. */
+@Composable
+private fun SkiPass(top: String, right: String, body: @Composable RowScope.() -> Unit) {
+    val c = Ski.colors
+    val shape = RoundedCornerShape(12.dp)
+    Column(Modifier.widthIn(max = 420.dp).fillMaxWidth().rotate(-1.5f).shadow(10.dp, shape).background(c.paper, shape)) {
+        Row(Modifier.fillMaxWidth().background(c.blue).padding(horizontal = 14.dp, vertical = 8.dp), horizontalArrangement = Arrangement.SpaceBetween) {
+            Text(top, style = Ski.type.label.copy(fontSize = 12.sp, letterSpacing = .05.em), color = Color.White)
+            Text(right, style = Ski.type.label.copy(fontSize = 12.sp, letterSpacing = .05.em), color = Color.White)
+        }
+        Row(Modifier.padding(14.dp), horizontalArrangement = Arrangement.spacedBy(14.dp), verticalAlignment = Alignment.Top, content = body)
+    }
+}
+
+/** The builder's picture from GitHub, as on the site; his initial while it loads, or with no signal. */
+@Composable
+private fun BuilderPhoto() {
+    var bmp by remember { mutableStateOf(PHOTO) }
+    LaunchedEffect(Unit) {
+        if (bmp == null) bmp = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+            runCatching { java.net.URL("https://github.com/pini236.png?size=160").openStream().use { android.graphics.BitmapFactory.decodeStream(it) } }.getOrNull()?.also { PHOTO = it }
+        }
+    }
+    val c = Ski.colors
+    Box(Modifier.size(88.dp).background(c.grid, RoundedCornerShape(8.dp)).border(3.dp, c.paper, RoundedCornerShape(8.dp)), contentAlignment = Alignment.Center) {
+        val b = bmp
+        if (b != null) Image(b.asImageBitmap(), null, Modifier.size(82.dp).clip(RoundedCornerShape(6.dp)), contentScale = ContentScale.Crop)
+        else Text(stringResource(R.string.about_builder_name).take(1), style = Ski.type.title.copy(fontSize = 44.sp), color = c.ink)
+    }
+}
+
+private var PHOTO: android.graphics.Bitmap? = null
+
+/** A credit: what, in bold, and whose; with [url], the words are the link (OpenStreetMap's licence asks for it). */
+@Composable
+private fun Credit(label: String?, text: String, url: String? = null) {
+    val c = Ski.colors
+    val uri = LocalUriHandler.current
+    Text(buildAnnotatedString {
+        if (label != null) { pushStyle(SpanStyle(fontWeight = FontWeight.Bold, color = c.ink)); append(label + " "); pop() }
+        append(text)
+    }, if (url != null) Modifier.heightIn(min = 44.dp).clickable(role = Role.Button) { uri.openUri(url) }.padding(vertical = 8.dp) else Modifier,
+        style = Ski.type.small.copy(fontSize = 13.sp, textDecoration = if (url != null) TextDecoration.Underline else null), color = c.muted)
 }

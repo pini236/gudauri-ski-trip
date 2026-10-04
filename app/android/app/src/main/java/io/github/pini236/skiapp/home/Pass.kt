@@ -31,6 +31,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.mutableStateOf
@@ -63,6 +64,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
@@ -115,6 +117,13 @@ private fun passInk(): PassInk {
 @Composable private fun Label(text: String, p: PassInk, modifier: Modifier = Modifier, lines: Int = 1) =
     Text(text, modifier, style = Ski.type.label.copy(fontSize = 11.sp, fontWeight = FontWeight.SemiBold, letterSpacing = .05.em, textAlign = if (lines > 1) TextAlign.Center else TextAlign.Unspecified),
         color = p.muted, maxLines = lines, overflow = TextOverflow.Ellipsis)
+
+/**
+ * Who travels, when there is an account to speak of (decision 42 on the site, decision 50 here): [name] is mine when
+ * signed in (null: a guest without one), and a tap opens the account card or the way in (P1 to P7 of round 12).
+ */
+class Passenger(val name: String?, val onTap: () -> Unit)
+val LocalPassenger = compositionLocalOf<Passenger?> { null }
 
 @Composable private fun Value(text: String, p: PassInk, ltr: Boolean = false) =
     Text(text, style = Ski.type.bodyBold.copy(fontSize = 14.sp, lineHeight = 1.2.em, shadow = p.glow, textDirection = if (ltr) TextDirection.Ltr else TextDirection.Content),
@@ -340,7 +349,9 @@ private fun PassCard(trip: Trip, isRet: Boolean, now: LocalDateTime, p: PassInk,
         // the pass grows with its words (Georgian and large text are taller), never under the canvas's 230
         Modifier.fillMaxWidth().heightIn(min = 230.dp).height(IntrinsicSize.Min),
     ) {
-        Main(p, stringResource(R.string.app_home_trip) + " · " + stringResource(if (isRet) R.string.app_pass_ret else R.string.app_pass_out), shortDate(leg.date)) {
+        // the site's strip: "your trip · return", and " · overnight" on a leg that leaves before 06:00 (A-33)
+        val night = if (leg.departs != null && leg.departs < LocalTime.of(6, 0)) stringResource(R.string.ticket_note_overnight) else ""
+        Main(p, stringResource(if (isRet) R.string.ticket_strip_mine_return else R.string.ticket_strip_mine_out, night), shortDate(leg.date)) {
             Route(p, stringResource(R.string.ticket_from), stringResource(R.string.ticket_to),
                 { Code(leg.fromCode, leg.fromCity, p); City(leg.fromCity, p) },
                 { Code(leg.toCode, leg.toCity, p); City(leg.toCity, p, end = true) })
@@ -350,11 +361,19 @@ private fun PassCard(trip: Trip, isRet: Boolean, now: LocalDateTime, p: PassInk,
                 Cell(stringResource(R.string.ticket_arrives), p) { Value(leg.arrives?.toString() ?: "—", p, ltr = true) }
             }
             Grid(p) {
-                Cell(stringResource(R.string.app_pass_traveller), p) { Value(stringResource(R.string.app_pass_me), p) }
+                Cell(stringResource(R.string.app_pass_traveller), p) {
+                    val who = LocalPassenger.current
+                    if (who == null) Value(stringResource(R.string.app_pass_me), p)
+                    else Text(who.name ?: stringResource(R.string.ticket_pax_guest),
+                        // the site's .bp-who: dotted underline on the name, the guest in the accent; only the front pass takes the tap
+                        Modifier.heightIn(min = 24.dp).let { m -> if (front) m.clickable(role = Role.Button, onClick = who.onTap) else m },
+                        style = Ski.type.bodyBold.copy(fontSize = 14.sp, lineHeight = 1.2.em, shadow = p.glow, textDecoration = TextDecoration.Underline),
+                        color = if (who.name == null) p.acc else p.ink, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                }
                 Cell(stringResource(R.string.ticket_ski_days), p) { Value(trip.skiDays()?.let { dayRange(it) } ?: "—", p, ltr = true) }
                 val other = if (isRet) trip.out else trip.ret
                 Cell(stringResource(if (isRet) R.string.app_pass_out else R.string.app_pass_ret), p) {
-                    Value(other?.let { o -> if (o.departs != null && o.departs < LocalTime.of(6, 0)) stringResource(R.string.app_pass_at_night, shortDate(o.date)) else shortDate(o.date) } ?: "—", p)
+                    Value(other?.let { shortDate(it.date) } ?: "—", p)
                 }
             }
         }

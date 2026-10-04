@@ -157,7 +157,7 @@ class MapView(context: Context, refreshHz: Float, val stats: FrameStats) : Frame
         selected?.let { select(it, chosen = false) } // the GL context is new when the map tab comes back: paint the chosen run again
     }
     fun onPause() = surface.onPause()
-    fun onResume() = surface.onResume()
+    fun onResume() { renderer.still = io.github.pini236.skiapp.ui.Motion.reduced(context); surface.onResume() }
     fun release() { removeCallbacks(pendingPick); worker.shutdownNow() }
 
     /**
@@ -184,12 +184,19 @@ class MapView(context: Context, refreshHz: Float, val stats: FrameStats) : Frame
         // peaks: a Latin name, a Hebrew unit and a number in one line, the bidi case
         for (p in s.terrain.peaks) out += MapLabel(p.x, s.terrain.elev(p.x, p.y) + 30, p.y,
             layout(context.getString(R.string.app_peak_label, iso(p.name), nf.format(p.ele)), display, 19f, Color.argb(255, 19, 35, 58)), 3, false)
-        // top stations of the named lifts
+        // the named lifts, halfway along the cable, as on the site (A-35)
         s.runs.lifts.forEachIndexed { i, l ->
             if (l.name.isBlank()) return@forEachIndexed
             val line = s.liftLines[i]; val n = line.size / 3
-            val top = if (line[1] > line[(n - 1) * 3 + 1]) 0 else n - 1
-            out += MapLabel(line[top * 3], line[top * 3 + 1] + 20, line[top * 3 + 2], layout(context.getString(R.string.app_lift_label, iso(l.name)), body, 12f, Color.WHITE), 2, true, lift = true)
+            if (n < 2) return@forEachIndexed
+            var total = 0f
+            for (k in 1 until n) total += hypot(line[k * 3] - line[k * 3 - 3], line[k * 3 + 2] - line[k * 3 - 1])
+            var k = 1; var acc = 0f
+            while (k < n - 1 && acc + hypot(line[k * 3] - line[k * 3 - 3], line[k * 3 + 2] - line[k * 3 - 1]) < total / 2) { acc += hypot(line[k * 3] - line[k * 3 - 3], line[k * 3 + 2] - line[k * 3 - 1]); k++ }
+            val seg = hypot(line[k * 3] - line[k * 3 - 3], line[k * 3 + 2] - line[k * 3 - 1]).coerceAtLeast(0.01f)
+            val f = ((total / 2 - acc) / seg).coerceIn(0f, 1f)
+            val m = FloatArray(3) { j -> line[(k - 1) * 3 + j] + (line[k * 3 + j] - line[(k - 1) * 3 + j]) * f }
+            out += MapLabel(m[0], m[1] + 12, m[2], layout(context.getString(R.string.app_lift_label, iso(l.name)), body, 12f, Color.WHITE), 2, true, lift = true)
         }
         return out.sortedByDescending { it.priority }
     }
@@ -264,7 +271,9 @@ class MapView(context: Context, refreshHz: Float, val stats: FrameStats) : Frame
 
     fun flyDown() {
         val s = scene ?: return; val p = selected ?: return
-        val path = s.topDown(p).fold(FloatArray(0)) { acc, l -> acc + l }
+        // along the run's longest line, the one its profile shows, as on the site (A-13); not across its other pieces
+        fun len(l: FloatArray): Float { var a = 0f; for (i in 1 until l.size / 3) a += hypot(l[i * 3] - l[i * 3 - 3], l[i * 3 + 2] - l[i * 3 - 1]); return a }
+        val path = s.topDown(p).maxByOrNull(::len) ?: return
         if (path.size < 6) return
         flyToken?.let { flyEnded(it, false) }
         val token = Any()

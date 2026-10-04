@@ -64,6 +64,14 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.ProgressBarRangeInfo
+import androidx.compose.ui.semantics.progressBarRangeInfo
+import androidx.compose.ui.semantics.setProgress
+import androidx.compose.ui.semantics.stateDescription
+import androidx.compose.ui.text.LinkAnnotation
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextLinkStyles
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.LayoutDirection
@@ -225,6 +233,8 @@ class PanelActions(
     val stopFly: () -> Unit,
     val mark: (x: Float, y: Float) -> Unit,
     val unmark: () -> Unit,
+    /** While flying down: how far along the run (metres), for the profile's dot. */
+    val flyAt: () -> Float? = { null },
 )
 
 /** The head of a run's panel: the sign (T4), its number, the steps to the run before and after, share, and the numbers. */
@@ -279,10 +289,11 @@ fun ColumnScope.RunHead(p: Piste, facts: RunFacts?, order: List<String>, flying:
                 NavButton("$next $fwd", nextDesc, Modifier.weight(1f)) { a.goRun(next, "swipe") }
             } else ShareButton(p, Modifier.weight(1f))
         }
-        if (canFly && facts != null) {
+        // with reduced motion there is no fly down, as on the site (A-12)
+        if (canFly && facts != null && (flying || !io.github.pini236.skiapp.status.reducedMotion())) {
             Box(Modifier.padding(top = 8.dp).fillMaxWidth().heightIn(min = 44.dp).background(if (flying) c.red else c.ink)
                 .clickable(role = Role.Button) { if (flying) a.stopFly() else a.fly() }, contentAlignment = Alignment.Center) {
-                Text(stringResource(if (flying) R.string.run_fly_stop else R.string.run_fly_button), style = Ski.type.bodyBold, color = Color.White)
+                Text(stringResource(if (flying) R.string.run_fly_stop else R.string.run_fly_button), style = Ski.type.bodyBold, color = if (flying) Color.White else c.snow)
             }
         }
     }
@@ -319,13 +330,13 @@ private fun ShareButton(p: Piste, modifier: Modifier) {
         Telemetry.event("run_share", mapOf("run" to p.key, "method" to "native"))
         Qa.log("shared ${p.key}")
     }, contentAlignment = Alignment.Center) {
-        Text(stringResource(R.string.run_share_button), style = Ski.type.bodyBold.copy(fontSize = 14.sp), color = Color.White)
+        Text(stringResource(R.string.run_share_button), style = Ski.type.bodyBold.copy(fontSize = 14.sp), color = c.snow)
     }
 }
 
 /** The rest of a run's panel: the details, the profile and briefing (T2, T3), connections, notes, research, videos. */
 @Composable
-fun ColumnScope.RunBody(p: Piste, facts: RunFacts?, runs: Runs, terrain: Terrain, videos: List<Video>, a: PanelActions) {
+fun ColumnScope.RunBody(p: Piste, facts: RunFacts?, runs: Runs, terrain: Terrain, videos: List<Video>, a: PanelActions, flying: Boolean = false) {
     val c = Ski.colors
     val ctx = LocalContext.current
     val n = nf()
@@ -351,7 +362,7 @@ fun ColumnScope.RunBody(p: Piste, facts: RunFacts?, runs: Runs, terrain: Terrain
     if (p.refs.isNotEmpty()) KvText(stringResource(R.string.run_ref_label), p.refs.joinToString(", "))
     if (p.groom.isNotEmpty()) KvText(stringResource(R.string.run_grooming_label), if ("classic" in p.groom) stringResource(R.string.run_groomed_value) else p.groom.joinToString(", "))
 
-    if (facts != null && facts.points.size >= 4) RunProfile(p, facts, runs, terrain, a)
+    if (facts != null && facts.points.size >= 4) RunProfile(p, facts, runs, terrain, a, flying)
 
     // connections (the site's: lifts at the top and the bottom, runs it joins and comes from)
     H3(stringResource(R.string.run_connections_heading))
@@ -448,11 +459,22 @@ private fun Research(p: Piste, r: io.github.pini236.skiapp.data.Research) {
 
 /** The elevation profile (T2): drag along it and the dot moves on the mountain; then "what's ahead" and the comparison (T3). */
 @Composable
-private fun RunProfile(p: Piste, f: RunFacts, runs: Runs, terrain: Terrain, a: PanelActions) {
+private fun RunProfile(p: Piste, f: RunFacts, runs: Runs, terrain: Terrain, a: PanelActions, flying: Boolean = false) {
     val c = Ski.colors
     val n = nf()
     val pts = f.points
     var at by remember(p.key) { mutableIntStateOf(0) }
+    // flying down: the profile's dot goes with the camera, as on the site (A-13)
+    LaunchedEffect(flying, f) {
+        if (!flying) return@LaunchedEffect
+        while (true) {
+            androidx.compose.runtime.withFrameNanos { }
+            val d = a.flyAt() ?: break
+            var best = at; var bd = Float.MAX_VALUE
+            for (i in pts.indices) { val e = abs(pts[i].d - d); if (e < bd) { bd = e; best = i } }
+            at = best
+        }
+    }
     var scrubbed by remember(p.key) { mutableStateOf(false) }
     val hs = remember(f) { pts.map { it.h } }
     val hmax = hs.max(); val hmin = hs.min(); val dmax = f.length.coerceAtLeast(1f)
@@ -460,14 +482,24 @@ private fun RunProfile(p: Piste, f: RunFacts, runs: Runs, terrain: Terrain, a: P
     val desc = stringResource(R.string.run_profile_range_aria)
     // the profile reads from the top of the run, at the left, in every language (as on the site)
     CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
-        Box(Modifier.fillMaxWidth().height(132.dp).semantics { contentDescription = desc }) {
+        val here = stringResource(R.string.run_profile_from_start) + " " + metres(pts[at].d.roundToInt()) + ", " +
+            stringResource(R.string.run_profile_altitude_label) + " " + metres(pts[at].h.roundToInt()) + ", " + "${pts[at].a.roundToInt()}°"
+        fun go(best: Int) {
+            at = best
+            a.mark(pts[best].x, pts[best].y)
+            if (!scrubbed) { scrubbed = true; Telemetry.event("run_profile_scrub", mapOf("run" to p.key)); Qa.log("profile scrub ${p.key}") }
+        }
+        // a screen reader moves along it too, as along a slider (the site's range input): up and down by about 100 m (A-15)
+        Box(Modifier.fillMaxWidth().height(132.dp).semantics {
+            contentDescription = desc; stateDescription = here
+            progressBarRangeInfo = ProgressBarRangeInfo(at.toFloat(), 0f..(pts.size - 1).toFloat(), steps = 0)
+            setProgress { v -> go(v.roundToInt().coerceIn(0, pts.size - 1)); true }
+        }) {
             fun pick(x: Float, w: Float) {
                 val d = ((x - 8f) / (w - 16f)).coerceIn(0f, 1f) * dmax
                 var best = 0; var bd = Float.MAX_VALUE
                 for (i in pts.indices) { val e = abs(pts[i].d - d); if (e < bd) { bd = e; best = i } }
-                at = best
-                a.mark(pts[best].x, pts[best].y)
-                if (!scrubbed) { scrubbed = true; Telemetry.event("run_profile_scrub", mapOf("run" to p.key)); Qa.log("profile scrub ${p.key}") }
+                go(best)
             }
             Canvas(Modifier.fillMaxWidth().height(132.dp)
                 .pointerInput(f) { detectTapGestures { o -> pick(o.x, size.width.toFloat()) } }
@@ -484,8 +516,8 @@ private fun RunProfile(p: Piste, f: RunFacts, runs: Runs, terrain: Terrain, a: P
                 fill.lineTo(w - pad, base); fill.close()
                 // the steepest 100 m behind the line
                 if (f.steepG > 0) drawRect(Color(0x33DC3B33), Offset(x(f.steepD), 0f), Size(x(pts[f.steepJ].d) - x(f.steepD), base))
-                drawPath(fill, Color(0x2213233A))
-                drawPath(line, Color(0xFF13233A), style = Stroke(2.dp.toPx(), cap = StrokeCap.Round))
+                drawPath(fill, c.ink.copy(alpha = 0.13f))
+                drawPath(line, c.ink, style = Stroke(2.dp.toPx(), cap = StrokeCap.Round))
                 // the slope band under it, in the slope colours
                 var i = 0
                 while (i < pts.size - 1) {
@@ -495,9 +527,10 @@ private fun RunProfile(p: Piste, f: RunFacts, runs: Runs, terrain: Terrain, a: P
                     i = j
                 }
                 val q = pts[at]
-                drawLine(Color(0xFF2E6A8E), Offset(x(q.d), 0f), Offset(x(q.d), h - 8f), 1.5.dp.toPx())
-                drawCircle(Color.White, 7.dp.toPx(), Offset(x(q.d), y(q.h)))
-                drawCircle(Color(0xFF2E6A8E), 5.dp.toPx(), Offset(x(q.d), y(q.h)))
+                // the theme's colours, so the profile reads at night too (the site's dark panel, A-11)
+                drawLine(c.glacier, Offset(x(q.d), 0f), Offset(x(q.d), h - 8f), 1.5.dp.toPx())
+                drawCircle(c.paper, 7.dp.toPx(), Offset(x(q.d), y(q.h)))
+                drawCircle(c.glacier, 5.dp.toPx(), Offset(x(q.d), y(q.h)))
             }
             Text(n.format(hmax.roundToInt()), Modifier.align(Alignment.TopEnd), style = Ski.type.small.copy(fontSize = 11.sp), color = c.muted)
             Text(n.format(hmin.roundToInt()), Modifier.align(Alignment.BottomEnd), style = Ski.type.small.copy(fontSize = 11.sp), color = c.muted)
@@ -520,12 +553,13 @@ private fun RunProfile(p: Piste, f: RunFacts, runs: Runs, terrain: Terrain, a: P
         }
     }
 
-    // what's ahead (T3): the start, the steep part, the finish
+    // what's ahead (T3): the start, the steep part, the finish; the lifts and runs in it are links, as on the site (A-15)
     H3(stringResource(R.string.run_ahead_heading))
     val lifts = { names: List<String> -> names.joinToString(", ") }
+    val liftLinks = { names: List<String> -> names.mapNotNull { nm -> runs.lifts.firstOrNull { it.name == nm }?.let { l -> nm to { a.goLift(l) } } } }
     Ahead(stringResource(R.string.run_ahead_start_title, n.format(pts.first().h.roundToInt())),
         stringResource(R.string.run_ahead_start_text, RunFacts.deg(f.g0.toDouble()).toString(),
-            if (p.fromLifts.isNotEmpty()) stringResource(R.string.run_start_from_lift, lifts(p.fromLifts)) else ""), false)
+            if (p.fromLifts.isNotEmpty()) stringResource(R.string.run_start_from_lift, lifts(p.fromLifts)) else ""), false, liftLinks(p.fromLifts))
     if (f.steepG > 0) Ahead(stringResource(R.string.run_ahead_steep_title, n.format(f.steepD.roundToInt())),
         stringResource(R.string.run_ahead_steep_text, RunFacts.deg(f.maxG).toString(), n.format((f.maxG * 100).roundToInt())), true)
     val end = when {
@@ -533,8 +567,10 @@ private fun RunProfile(p: Piste, f: RunFacts, runs: Runs, terrain: Terrain, a: P
         p.joins.isNotEmpty() -> stringResource(R.string.run_end_continue_to, p.joins.joinToString(", "))
         else -> ""
     }
+    val endLinks = if (p.toLifts.isNotEmpty()) liftLinks(p.toLifts)
+        else p.joins.mapNotNull { k -> runs.pistes.firstOrNull { it.key == k }?.let { k to { a.goRun(k, "list") } } }
     Ahead(stringResource(R.string.run_ahead_end_title, n.format(pts.last().h.roundToInt())),
-        stringResource(R.string.run_ahead_end_text, n.format(f.length.roundToInt()), end), false)
+        stringResource(R.string.run_ahead_end_text, n.format(f.length.roundToInt()), end), false, endLinks)
     // the comparison: about as steep as, about as long as (T3)
     val cmp = remember(p.key) { RunFacts.compare(terrain, runs.pistes, p.key, CMP) }
     if (cmp != null) {
@@ -560,13 +596,25 @@ private fun RunProfile(p: Piste, f: RunFacts, runs: Runs, terrain: Terrain, a: P
 private val CMP = java.util.concurrent.ConcurrentHashMap<String, Pair<Double, Int>>()
 
 @Composable
-private fun Ahead(title: String, text: String, steep: Boolean) {
+private fun Ahead(title: String, text: String, steep: Boolean, links: List<Pair<String, () -> Unit>> = emptyList()) {
     val c = Ski.colors
+    // each name in the sentence, in order, opens its lift or run
+    val t = text.trim()
+    val linked = buildAnnotatedString {
+        append(t)
+        var from = 0
+        for ((name, go) in links) {
+            val i = t.indexOf(name, from)
+            if (i < 0) continue
+            addLink(LinkAnnotation.Clickable(name, TextLinkStyles(SpanStyle(color = c.glacier, fontWeight = FontWeight.Bold, textDecoration = TextDecoration.Underline))) { go() }, i, i + name.length)
+            from = i + name.length
+        }
+    }
     Row(Modifier.fillMaxWidth().padding(vertical = 5.dp)) {
         Box(Modifier.padding(top = 5.dp, end = 10.dp).size(10.dp).background(if (steep) Color(0xFFDC3B33) else c.ink))
         Column {
             Text(title, style = Ski.type.bodyBold, color = c.ink)
-            Text(text.trim(), style = Ski.type.body.copy(fontSize = 14.sp), color = c.muted)
+            Text(linked, style = Ski.type.body.copy(fontSize = 14.sp), color = c.muted)
         }
     }
 }

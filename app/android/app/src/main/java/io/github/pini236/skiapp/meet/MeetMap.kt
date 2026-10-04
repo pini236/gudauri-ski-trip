@@ -50,6 +50,8 @@ import kotlin.math.pow
  */
 @Stable
 class MeetView {
+    /** Reduced motion (ui/Motion.kt): the map jumps to a place instead of gliding there, as on the site. */
+    var still = false
     var x by mutableFloatStateOf(0f); private set
     var y by mutableFloatStateOf(0f); private set
     var span by mutableFloatStateOf(1f); private set
@@ -95,7 +97,7 @@ class MeetView {
 
     private fun animate(scope: CoroutineScope, tx: Float, ty: Float, ts: Float, ms: Int, ease: (Float) -> Float) {
         stop()
-        if (ms <= 0 || !ready) { to(tx, ty, ts); return }
+        if (ms <= 0 || !ready || still) { to(tx, ty, ts); return }
         val fx = x; val fy = y; val fs = span
         move = scope.launch {
             val t0 = withFrameNanos { it }

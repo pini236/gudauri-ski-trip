@@ -59,7 +59,9 @@ import java.time.format.DateTimeFormatter
  */
 @Composable
 fun TripForm(initial: Trip?, today: LocalDate, onSave: (Trip) -> Unit, onDelete: () -> Unit, onCancel: () -> Unit,
-             title: String? = null, intro: String? = null, footer: @Composable () -> Unit = {}) {
+             title: String? = null, intro: String? = null, footer: @Composable () -> Unit = {},
+             /** False for a member's flight an admin fixes: only the member deletes their own. */
+             canDelete: Boolean = true) {
     val c = Ski.colors
     val o = initial?.out; val r = initial?.ret
     val tbilisi = "TBS · " + stringResource(R.string.ticket_city_tbs)
@@ -143,7 +145,7 @@ fun TripForm(initial: Trip?, today: LocalDate, onSave: (Trip) -> Unit, onDelete:
                     )
                     Column(Modifier.padding(top = 8.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
                         PrimaryButton(stringResource(R.string.app_save), Icons.check, { tried = true; if (trip != null) onSave(trip) })
-                        if (initial != null) QuietButton(stringResource(if (armed) R.string.app_trip_delete_confirm else R.string.app_trip_delete),
+                        if (initial != null && canDelete) QuietButton(stringResource(if (armed) R.string.app_trip_delete_confirm else R.string.app_trip_delete),
                             { if (armed) onDelete() else armed = true }, danger = armed)
                         footer()
                     }
