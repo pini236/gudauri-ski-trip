@@ -105,8 +105,11 @@ private val PAGE = Color(0xFFF4F8FB)
 /** What the emulator run reaches into: the lesson on the slope now, ended at once. */
 internal object SchoolQa { var finish: (() -> Unit)? = null }
 
-/** A [Say] in words: its resource, with the arguments (and a [Say] among them) said too. */
-fun Context.say(s: Say): String = getString(s.id, *s.args.map { if (it is Say) say(it) else it.toString() }.toTypedArray())
+/** A [Say] in words: its resource (a plural when it has a count), with the arguments (and a [Say] among them) said too. */
+fun Context.say(s: Say): String {
+    val a = s.args.map { if (it is Say) say(it) else it.toString() }.toTypedArray()
+    return (if (s.count >= 0) resources.getQuantityString(s.id, s.count, *a) else getString(s.id, *a)) + s.tail
+}
 
 private enum class Phase { MENU, BRIEF, RUN, RESULT }
 

@@ -23,7 +23,7 @@ def profiles():
     marker = "const PROFILES = "
     start = html.index(marker) + len(marker)
     data, _ = json.JSONDecoder().raw_decode(html[start:])
-    return [{k: p[k] for k in ("key", "color", "len", "top", "bot", "step", "h")} for p in data]
+    return [{**{k: p[k] for k in ("key", "color", "len", "top", "bot", "step", "h")}, "lift": p.get("lift", "")} for p in data]
 
 
 def main():

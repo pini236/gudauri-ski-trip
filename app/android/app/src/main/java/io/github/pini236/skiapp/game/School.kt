@@ -15,7 +15,7 @@ import kotlin.math.sign
 import kotlin.math.sin
 
 /** Words from the game to the screen: a string resource and its arguments in the Hebrew order (a [Say] inside is said too). */
-data class Say(val id: Int, val args: List<Any> = emptyList())
+data class Say(val id: Int, val args: List<Any> = emptyList(), val count: Int = -1, val tail: String = "")
 
 /** The ski school's seven lessons, each with its own control. */
 enum class SchoolMode { WEDGE, SKIS, STEER, RHYTHM, LEAN }

@@ -138,12 +138,34 @@ map() {
   qa "--es qa.time 2027-01-12T12:30 $RESET"; waitlog "shadow ready" 120
 }
 
-# ---- the descent game ----
+scrollDown() { drag $((W * 7 / 100)) $((H * 80 / 100)) $((W * 7 / 100)) $((H * 30 / 100)) 400; sleep .8; }
+# ---- the descent (13.6, the site's game): the coats and the runs, the count, jumps and a flip, the bottom, the result ----
 descent() {
-  qa "--es qa.tab descent"; sleep 3; shot descent-start
+  qa "--es qa.group member --es qa.trip none --es qa.tab descent"; sleep 3; shot descent-menu
+  [ -n "$(where "המעיל שלך")" ] || fail "no coat picker in the descent's menu"
+  [ -n "$(where "Tatra 2")" ] || fail "no runs in the descent's menu"
+  scrollDown; shot descent-menu-bottom
+  mark; qa "--es qa.descent go"; sleep 1.2; shot descent-count
+  waitlog "descent start" 3
+  sleep 3; shot descent-start
   for i in 1 2 3; do hold $((W / 2)) $((H / 2)) 700; sleep 0.6; shot "descent-jump-$i"; done
   hold $((W / 2)) $((H / 2)) 300; sleep 0.15; hold $((W / 2)) $((H / 2)) 1600; shot descent-flip
-  sleep 8; shot descent-later
+  sleep 6; shot descent-later
+  # straight to the bottom: the lift, the result, the copy for the group
+  mark; qa "--es qa.descent bottom"; sleep 4.5; shot descent-end
+  waitlog "descent done" 6
+  [ -n "$(where "עוד ירידה")" ] || fail "no 'another run' after the descent"
+  tapText "העתקת התוצאה לקבוצה" && { sleep .8; shot descent-copied; waitlog "descent copied" 3; }
+  adb shell input keyevent KEYCODE_BACK; sleep 1
+  [ -n "$(where "המעיל שלך")" ] || fail "back from the result is not the descent's menu"
+  adb shell input keyevent KEYCODE_BACK; sleep 1.5
+  [ -n "$(where "הירידה של החבר׳ה")" ] || fail "back from the descent is not the games page"
+  # left to right: the run's sign and the time swap sides, the crew stays on the right
+  adb shell cmd locale set-app-locales "$PKG" --locales en > /dev/null 2>&1; sleep 3
+  qa "--es qa.tab descent"; sleep 2; shot descent-menu-en
+  qa "--es qa.descent go"; sleep 6; shot descent-en
+  adb shell cmd locale set-app-locales "$PKG" --locales he > /dev/null 2>&1; sleep 3
+  qa "--es qa.tab home"; sleep 1
 }
 
 # ---- the games page (13.6, the site's #games, GP2) and the merging game ----
@@ -249,7 +271,6 @@ school() {
 }
 
 # ---- the snowball fight (13.6): the coats, the ladder, a throw, the result, back, the summit, left to right ----
-scrollDown() { drag $((W * 7 / 100)) $((H * 80 / 100)) $((W * 7 / 100)) $((H * 30 / 100)) 400; sleep .8; }
 snowball() {
   qa "--es qa.group member --es qa.trip none --es qa.tab snowball"; sleep 3; shot snowball-menu
   [ -n "$(where "המעיל שלך")" ] || fail "no coat picker in the snowball fight's menu"
@@ -698,8 +719,8 @@ store() {
   qa "--es qa.time 2027-01-12T16:40 --es qa.cam '600,-500,11000,20,36' --es qa.face sun"; waitlog "shadow ready" 120; sleep 1.5; sshot sunset
   qa "--es qa.time 2027-01-12T21:00 --es qa.cam '600,-500,11000,20,36' --es qa.face moon"; waitlog "shadow ready" 120; sleep 1.5; sshot night
   qa "--es qa.time 2027-01-12T11:00"; waitlog "shadow ready" 120
-  qa "--es qa.tab descent"; sleep 3
-  sleep 2; hold $((W / 2)) $((H / 2)) 700; sleep 0.5; sshot descent
+  qa "--es qa.tab descent"; sleep 2; qa "--es qa.descent go"; sleep 6
+  hold $((W / 2)) $((H / 2)) 700; sleep 0.5; sshot descent
   qa "--es qa.tab home --es qa.trip '$TRIP_HE' --es qa.time 2026-12-01T13:35"; sleep 2.5; sshot home
   qa "--es qa.mode night"; sleep 2; sshot home-night
   qa "--es qa.mode auto"

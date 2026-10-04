@@ -168,7 +168,7 @@ class MainActivity : ComponentActivity() {
     private var videos by mutableStateOf(emptyList<Video>())
     private var relief by mutableStateOf<Relief2D?>(null)
     private var reliefAsked = false
-    private var profile by mutableStateOf<Profile?>(null)
+    private var profiles by mutableStateOf<List<Profile>>(emptyList())
     private var sunNote by mutableStateOf("")
     private lateinit var nav: Nav
     // the frame counter of the feasibility check: development and test builds only, never the store build
@@ -408,7 +408,7 @@ class MainActivity : ComponentActivity() {
         Qa.log("data runs from ${siteData.source("runs-and-lifts.json")}")
         val profiles = Profile.parse(asset("data/profiles.json"))
         Startup.dataMs = SystemClock.uptimeMillis() - t0
-        runOnUiThread { profile = profiles.firstOrNull { it.key == "Tatra 2" } ?: profiles.firstOrNull(); liftNames = LiftStatus.names(runs.mainLifts) }
+        runOnUiThread { this.profiles = profiles; liftNames = LiftStatus.names(runs.mainLifts) }
         val vids = runCatching { Video.parse(siteData.read("videos-seed.json")) }.getOrElse { Telemetry.handled(it); emptyList() }
         runOnUiThread { videos = vids }
         val plan = MeetPlan.build(runs, terrain)
@@ -477,13 +477,18 @@ class MainActivity : ComponentActivity() {
             "open" -> { io.github.pini236.skiapp.game.Bests.openAllLessons(this); Qa.log("school lessons open") }
             "finish" -> io.github.pini236.skiapp.game.SchoolQa.finish?.invoke()
         } }
+        // the descent: the run started now, or skied to the bottom at once
+        i.getStringExtra("qa.descent")?.let { a -> when (a) {
+            "go" -> io.github.pini236.skiapp.game.DescentQa.go?.invoke()
+            "bottom" -> io.github.pini236.skiapp.game.DescentQa.bottom?.invoke()
+        } }
         // the snowball fight: every rung open, or the fight now won at once
         i.getStringExtra("qa.snowball")?.let { a -> when (a) {
             "open" -> { for (n in 1..io.github.pini236.skiapp.game.RUNGS.size) io.github.pini236.skiapp.game.Bests.setLevel(this, "snowball", n, 1); Qa.log("snowball rungs open") }
             "win" -> io.github.pini236.skiapp.game.SnowballQa.win?.invoke()
         } }
         i.getStringExtra("qa.tab")?.let { t -> when (t) {
-            "map" -> nav.switchTo(Route.Map(nav.find<Route.Map>()?.run)); "descent" -> nav.switchTo(Route.Game("descent")); "games" -> nav.switchTo(Route.Games); "merge", "fresh", "school", "snowball" -> { nav.switchTo(Route.Games); nav.push(Route.Game(t)) }; "trip" -> nav.switchTo(Route.Trip)
+            "map" -> nav.switchTo(Route.Map(nav.find<Route.Map>()?.run)); "games" -> nav.switchTo(Route.Games); "merge", "fresh", "school", "snowball", "descent" -> { nav.switchTo(Route.Games); nav.push(Route.Game(t)) }; "trip" -> nav.switchTo(Route.Trip)
             "home" -> nav.toStart()
             else -> Route.parse(t)?.let { nav.toStart(); nav.push(it) } ?: Qa.log("bad tab $t")
         } }
@@ -625,8 +630,8 @@ class MainActivity : ComponentActivity() {
         // the whole app goes dark at night, as the site does; the spike's map and game keep their day colours
         // the game keeps its day colours; the map follows the day and night switch, as on the site (A-11)
         val spike = top is Route.Game
-        // the merging game is a blue evening whatever the hour, and the snowball fight a blue sky: light icons over them
-        val evening = top == Route.Game("merge") || top == Route.Game("snowball")
+        // the merging game is a blue evening whatever the hour, and the snowball fight and the descent a blue sky: light icons over them
+        val evening = top == Route.Game("merge") || top == Route.Game("snowball") || top == Route.Game("descent")
         val view = LocalView.current
         SideEffect { WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = !evening && (spike || !frame.dark) }
         SkiTheme(dark = frame.dark) {
@@ -713,12 +718,12 @@ class MainActivity : ComponentActivity() {
                     Route.Game("fresh") -> FreshSnowScreen(haptics, onBack = { nav.back() }) { sendBests() }
                     Route.Game("school") -> SchoolScreen(haptics, onBack = { nav.back() }) { sendBests() }
                     Route.Game("snowball") -> io.github.pini236.skiapp.game.SnowballScreen(haptics, onBack = { nav.back() }) { sendBests() }
+                    Route.Game("descent") -> io.github.pini236.skiapp.game.DescentScreen(profiles, haptics, onBack = { nav.back() }) { sendBests() }
                     Route.About -> AboutScreen(BuildConfig.VERSION_NAME, onPrivacy = ::openPrivacy, account = account, mode = dnMode, onMode = ::nextMode,
                         lang = Lang.current(resources), langManual = Lang.manual(this@MainActivity), onLang = ::setLang,
                         onResetBests = { Bests.reset(this@MainActivity); Qa.log("bests reset") }) { nav.back() }
                     else -> {
-                        if (top is Route.Game) DescentScreen(profile, haptics, sounds)
-                        else MapScreen(mapView, scene, videos = videos, ms = MapStatus(lstat, changes, LiftStatus.inSeason(LocalDateTime.ofInstant(Instant.ofEpochMilli(tick), ZoneId.systemDefault()).monthValue),
+                        MapScreen(mapView, scene, videos = videos, ms = MapStatus(lstat, changes, LiftStatus.inSeason(LocalDateTime.ofInstant(Instant.ofEpochMilli(tick), ZoneId.systemDefault()).monthValue),
                             forMe, { on -> forMe = on; Telemetry.event("status_only_open", mapOf("on" to on)); Qa.log("for me ${if (on) "on" else "off"}") },
                             statusSheet, { open -> statusSheet = open }), dark = frame.dark)
                         if (showStats) StatsBar(top !is Route.Game, Modifier.align(Alignment.TopStart))

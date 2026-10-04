@@ -101,7 +101,8 @@ class Runs(val pistes: List<Piste>, val lifts: List<Lift>, val fetched: String =
 }
 
 /** A run's profile in the descent game (exported from site/games/descent/index.html by tools/build-app-data.py). */
-class Profile(val key: String, val color: String, val len: Float, val top: Float, val bot: Float, val step: Float, val h: FloatArray) {
+/** [lift] is the lift at the bottom of the run, when there is one. */
+class Profile(val key: String, val color: String, val len: Float, val top: Float, val bot: Float, val step: Float, val h: DoubleArray, val lift: String = "") {
     companion object {
         fun parse(json: String): List<Profile> {
             val a = JSONArray(json)
@@ -111,7 +112,7 @@ class Profile(val key: String, val color: String, val len: Float, val top: Float
                 Profile(
                     p.getString("key"), p.getString("color"), p.getDouble("len").toFloat(),
                     p.getDouble("top").toFloat(), p.getDouble("bot").toFloat(), p.getDouble("step").toFloat(),
-                    FloatArray(h.length()) { h.getDouble(it).toFloat() },
+                    DoubleArray(h.length()) { h.getDouble(it) }, p.optString("lift", ""),
                 )
             }
         }
