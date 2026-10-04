@@ -10,7 +10,9 @@ create table private.pending_deletions (
 alter table private.pending_deletions enable row level security;
 
 -- R-13: wrong code guesses are counted per network address too (a keyed hash of it that changes every day, never the
--- address itself), instead of one limit for everyone, which let anyone close joining by code for all.
+-- address itself), instead of one limit for everyone, which let anyone close joining by code for all. Above
+-- guard_fails_per_hour wrong guesses in the whole system, "protection mode": a right six-letter code still works, but
+-- asks an admin (pending) instead of joining, so a code guessed by a crowd of addresses lets no one in by itself.
 alter table private.invite_attempts add column ip_key text;
 create index invite_attempts_ip_idx on private.invite_attempts (ip_key, at) where ip_key is not null;
 
@@ -23,6 +25,7 @@ create or replace function private.limits() returns jsonb language sql immutable
     'fails_per_15_min', 5,
     'fails_per_day', 20,
     'fails_per_ip_hour', 60,
+    'guard_fails_per_hour', 1000,
     'anon_cleanup_days', 30,
     'audit_days', 180
   )

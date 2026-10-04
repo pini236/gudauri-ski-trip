@@ -524,7 +524,7 @@ class Sync(
                 cm.registerDefaultNetworkCallback(object : android.net.ConnectivityManager.NetworkCallback() {
                     override fun onAvailable(network: android.net.Network) = action()
                 })
-            }
+            }.onFailure { android.util.Log.w("Sync", "no network listener; the queue relies on its timed retries", it) }
         }
 
         private fun arr(o: JSONObject, k: String): List<JSONObject> = o.optJSONArray(k)?.let { a -> (0 until a.length()).map { a.getJSONObject(it) } }.orEmpty()

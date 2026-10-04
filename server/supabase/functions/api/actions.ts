@@ -216,7 +216,16 @@ async function attemptsBlocked(tx: Tx, user: string, short: boolean, ipKey: stri
     (short && ipKey !== null && Number(r.address_hour) >= l.fails_per_ip_hour);
 }
 
-// A working invite for a code or token, counting the attempt.
+// Protection mode (R-13): so many wrong guesses in the whole system this hour that a right six-letter code may be one
+// a crowd of addresses guessed. It still works, but asks an admin instead of joining; links are not affected.
+async function guarded(tx: Tx): Promise<boolean> {
+  const [r] = await tx`
+    select count(*) >= (private.limits() ->> 'guard_fails_per_hour')::int as on
+    from private.invite_attempts where not ok and at > now() - interval '1 hour'`;
+  return !!r.on;
+}
+
+// A working invite for a code or token, counting the attempt. In protection mode a six-letter code needs approval.
 async function useCode(tx: Tx, user: string, raw: unknown, meta: Meta): Promise<{ invite?: Invite; status: string }> {
   const key = normalizeCode(raw);
   const ipKey = meta.ipKey ?? null;
@@ -238,6 +247,10 @@ async function useCode(tx: Tx, user: string, raw: unknown, meta: Meta): Promise<
     invite = rows[0];
   }
   await tx`insert into private.invite_attempts (user_id, ok, ip_key) values (${user}, ${!!invite}, ${ipKey})`;
+  if (invite && key.kind === "code" && !invite.requires_approval && (await guarded(tx))) {
+    await audit(tx, user, "invite_guarded", invite.group_id);
+    invite = { ...invite, requires_approval: true };
+  }
   return invite ? { invite, status: "ok" } : { status: "invalid_code" };
 }
 
@@ -336,6 +349,13 @@ async function leaveAllGroups(tx: Tx, user: string) {
 // ---------------------------------------------------------------------
 // Actions
 // ---------------------------------------------------------------------
+
+// The caller's address, from the header Supabase's proxy sets (index.ts hashes it): Cloudflare's, the proxy's, else the
+// LAST entry of x-forwarded-for, the one the proxy added; the first is whatever the caller sent.
+export function clientIp(h: Headers): string | undefined {
+  const ip = h.get("cf-connecting-ip") ?? h.get("x-real-ip") ?? h.get("x-forwarded-for")?.split(",").at(-1);
+  return ip?.trim() || undefined;
+}
 
 // What the edge knows about the request, beyond the session.
 export interface Meta {
@@ -763,10 +783,14 @@ async function keepalive(d: Deps): Promise<Result> {
   let removed: string[] = [];
   let pending: string[] = [];
   let stale = false;
+  let guardedDay = 0;
   const beat = await d.sql.begin(async (tx) => {
     // More than 36 hours since the last beat: the daily task missed a day, and says so (R-12).
     const [prev] = await tx`select beat_at < now() - interval '36 hours' as late from private.heartbeat where id = 1`;
     stale = !!prev?.late;
+    const [gd] = await tx`select count(*)::int as n from private.audit_log
+                          where action = 'invite_guarded' and at > now() - interval '1 day'`;
+    guardedDay = gd.n;
     const [b] = await tx`
       update private.heartbeat set beat_at = now(), beats = beats + 1 where id = 1
       returning beat_at, beats, cleaned_at`;
@@ -801,7 +825,10 @@ async function keepalive(d: Deps): Promise<Result> {
   }
   return {
     status: 200,
-    body: { ok: true, beats: Number(beat.beats), removed_guests: removed.length, finished_deletions: finished, stale },
+    body: {
+      ok: true, beats: Number(beat.beats), removed_guests: removed.length, finished_deletions: finished, stale,
+      guarded_last_day: guardedDay,
+    },
   };
 }
 

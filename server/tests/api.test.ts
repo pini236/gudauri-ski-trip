@@ -7,7 +7,7 @@
 //   DB_URL=... deno test -A --config supabase/functions/api/deno.json tests/api.test.ts
 
 import postgres from "postgres";
-import { ACTION_NAMES, handle, type Deps, type Meta } from "../supabase/functions/api/actions.ts";
+import { ACTION_NAMES, clientIp, handle, type Deps, type Meta } from "../supabase/functions/api/actions.ts";
 
 const sql = postgres(Deno.env.get("DB_URL") ?? "postgresql://postgres:postgres@127.0.0.1:54322/postgres", {
   onnotice: () => {},
@@ -573,4 +573,32 @@ test("keepalive says when the last beat is more than a day and a half old (R-12)
   await sql`update private.heartbeat set beat_at = now() - interval '2 days'`;
   eq((await call(null, "keepalive")).stale, true, "a missed day");
   eq((await call(null, "keepalive")).stale, false, "the next one is on time");
+});
+
+test("protection mode: a crowd of wrong guesses makes a right code ask an admin (R-13)", async () => {
+  const admin = await user("admin");
+  const g = await newGroup(admin);
+  const inv = await invite(g);
+  const a = await user("a", true), b = await user("b", true), c = await user("c", true);
+  await sql`insert into private.invite_attempts (user_id, ok, ip_key)
+            select gen_random_uuid(), false, 'k' || (i % 50) from generate_series(1, 1000) i`;
+  try {
+    const p = await call(a, "invite_preview", { code: inv.code }, 200, { ipKey: "a1" });
+    eq([p.status, p.requires_approval, p.members.length], ["ok", true, 0], "the preview says it needs an admin, no names");
+    eq((await call(a, "join_group", { code: inv.code, display_name: "A" }, 200, { ipKey: "a1" })).status, "pending",
+      "a right code still works, but waits for an admin");
+    eq((await call(b, "join_group", { code: inv.token, display_name: "B" })).status, "joined", "links are not affected");
+    eq((await call(null, "keepalive")).guarded_last_day >= 2, true, "the daily task reports it");
+  } finally {
+    await sql`delete from private.invite_attempts`;
+  }
+  eq((await call(c, "join_group", { code: inv.code, display_name: "C" })).status, "joined", "below the line, as before");
+});
+
+test("the caller's address comes from the proxy, not from what the caller sent (R-13)", () => {
+  eq(clientIp(new Headers({ "cf-connecting-ip": "1.1.1.1", "x-forwarded-for": "6.6.6.6, 2.2.2.2" })), "1.1.1.1", "Cloudflare's first");
+  eq(clientIp(new Headers({ "x-real-ip": "3.3.3.3", "x-forwarded-for": "6.6.6.6" })), "3.3.3.3", "then the proxy's");
+  eq(clientIp(new Headers({ "x-forwarded-for": "6.6.6.6, 7.7.7.7, 2.2.2.2" })), "2.2.2.2", "else the last one, the proxy's");
+  eq(clientIp(new Headers({})), undefined, "none: not counted per address");
+  return Promise.resolve();
 });
