@@ -9,7 +9,7 @@ on:
   # waiting run on main out of the single slot below. Another branch runs it by hand (workflow_dispatch).
   push:
     branches: [main]
-    paths: ['app/android/**', 'site/data/**', 'site/audio/**', 'site/games/descent/**', 'site/img/pano/**', 'tools/build-app-data.py', 'tools/build-app-strings.py', 'i18n/strings.json', '.github/workflows/android-qa.yml']
+    paths: ['app/android/**', 'site/data/**', 'site/audio/**', 'site/games/descent/**', 'site/games/thumbs/**', 'site/img/pano/**', 'tools/build-app-data.py', 'tools/build-app-strings.py', 'i18n/strings.json', '.github/workflows/android-qa.yml']
   workflow_dispatch:
     inputs:
       scenario:
@@ -60,7 +60,7 @@ jobs:
         id: plan
         run: |
           s="${{ inputs.scenario || 'all' }}"
-          [ "$s" = all ] && s="map,descent,home,group,meet,status,run,lang,phone,store"
+          [ "$s" = all ] && s="map,descent,games,home,group,meet,status,run,lang,phone,store"
           echo "parts=$(python3 -c 'import json,sys; print(json.dumps([p.strip() for p in sys.argv[1].split(",") if p.strip()]))' "$s")" >> "$GITHUB_OUTPUT"
           # the release build's start and the crash-report check run with one part: not the phone's language, which
           # restarts the whole system

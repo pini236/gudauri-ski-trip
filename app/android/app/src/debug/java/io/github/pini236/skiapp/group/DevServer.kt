@@ -41,7 +41,7 @@ private class FakeGroupApi : GroupApi {
     )
 
     fun seed(kind: String) {
-        groups.clear(); trips.clear(); meNow = null
+        groups.clear(); trips.clear(); mine.clear(); meNow = null
         if (kind == "none") return
         val admin = kind == "admin"
         val me = Me("me", registered = admin, name = if (admin) "נועה כהן" else "איתי לוי", google = admin)
@@ -233,6 +233,15 @@ private class FakeGroupApi : GroupApi {
     override suspend fun leaderboard(groupId: String, game: String): List<Score> {
         wait(); val me = meOrThrow(); val g = groups[groupId] ?: throw ApiException("not_found")
         val best = listOf(12480, 11920, 9310, 8775, 6040)
-        return g.members.take(5).mapIndexed { i, m -> Score(m.userId, m.name, best[i], m.userId == me.userId) }
+        return g.members.take(5).mapIndexed { i, m -> Score(m.userId, m.name, if (m.userId == me.userId) mine[game] ?: best[i] else best[i], m.userId == me.userId) }
+            .sortedByDescending { it.best }
+    }
+
+    /** My high scores, as the server keeps them: only the best of each game. */
+    private val mine = HashMap<String, Int>()
+    override suspend fun submitBest(game: String, score: Int): Boolean {
+        val me = meNow ?: return false
+        if (groups.values.none { g -> g.members.any { it.userId == me.userId } }) return false
+        mine[game] = maxOf(mine[game] ?: 0, score); io.github.pini236.skiapp.qa.Qa.log("score sent $game $score"); return true
     }
 }

@@ -7,9 +7,9 @@ on:
   # every branch runs the unit tests and builds (the tests also read the site's tokens and relief, and the server's
   # contract); only main signs and publishes
   push:
-    paths: ['app/android/**', 'site/data/**', 'site/audio/**', 'site/games/descent/**', 'site/img/pano/**', 'site/css/site.css', 'site/js/relief.js', 'server/CONTRACT.md', 'tools/build-app-data.py', 'tools/build-app-strings.py', 'i18n/strings.json', '.github/workflows/android.yml']
+    paths: ['app/android/**', 'site/data/**', 'site/audio/**', 'site/games/descent/**', 'site/games/thumbs/**', 'site/img/pano/**', 'site/css/site.css', 'site/js/relief.js', 'server/CONTRACT.md', 'tools/build-app-data.py', 'tools/build-app-strings.py', 'i18n/strings.json', '.github/workflows/android.yml']
   pull_request:
-    paths: ['app/android/**', 'site/data/**', 'site/audio/**', 'site/games/descent/**', 'site/img/pano/**', 'site/css/site.css', 'site/js/relief.js', 'server/CONTRACT.md', 'tools/build-app-data.py', 'tools/build-app-strings.py', 'i18n/strings.json', '.github/workflows/android.yml']
+    paths: ['app/android/**', 'site/data/**', 'site/audio/**', 'site/games/descent/**', 'site/games/thumbs/**', 'site/img/pano/**', 'site/css/site.css', 'site/js/relief.js', 'server/CONTRACT.md', 'tools/build-app-data.py', 'tools/build-app-strings.py', 'i18n/strings.json', '.github/workflows/android.yml']
   workflow_dispatch:
 
 concurrency:

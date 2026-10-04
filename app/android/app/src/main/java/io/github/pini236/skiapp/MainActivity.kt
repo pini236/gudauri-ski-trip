@@ -48,7 +48,11 @@ import io.github.pini236.skiapp.data.Terrain
 import io.github.pini236.skiapp.data.Video
 import io.github.pini236.skiapp.fx.Haptics
 import io.github.pini236.skiapp.fx.Sounds
+import io.github.pini236.skiapp.game.Bests
 import io.github.pini236.skiapp.game.DescentScreen
+import io.github.pini236.skiapp.game.GamesScreen
+import io.github.pini236.skiapp.game.MergeScreen
+import io.github.pini236.skiapp.game.appGames
 import io.github.pini236.skiapp.map.MapScene
 import io.github.pini236.skiapp.map.MapScreen
 import io.github.pini236.skiapp.map.MapView
@@ -329,6 +333,19 @@ class MainActivity : ComponentActivity() {
      * The reminders of every meetup of my groups (Q8), from what the phone keeps: armed again when the app opens, when a
      * group's meetups change, after a meetup is saved, and after signing out (then none are left).
      */
+    /**
+     * The games' high scores on this phone that the group's table has not had yet (the site's sendBests): when the app
+     * opens home in a group, and after a new best. Through the queue, so no signal is fine.
+     */
+    private fun sendBests() {
+        if (!groupApi.ready) return
+        lifecycleScope.launch {
+            for ((g, b) in Bests.unsent(this@MainActivity)) {
+                if (runCatching { groupApi.submitBest(g, b) }.getOrDefault(false)) Bests.markSent(this@MainActivity, g, b) else break
+            }
+        }
+    }
+
     private fun armReminders() {
         if (!groupApi.ready) return
         val plan = meetPlan ?: return
@@ -447,8 +464,14 @@ class MainActivity : ComponentActivity() {
         if (keys.isEmpty()) return
         // the group's starting point on the pretend server: none (a stranger), member (a guest in a group), admin
         i.getStringExtra("qa.group")?.let { DevServer.seed(rawGroupApi, it); accountPrefs.edit().clear().apply(); justJoined = false; Qa.log("group seed $it") }
+        // the merging game's board (13.6): "near" (one swipe left from a whole snowman), or a new game
+        i.getStringExtra("qa.merge")?.let { b ->
+            val m = io.github.pini236.skiapp.game.Merge(kotlin.random.Random(7))
+            if (b == "near") m.set(listOf(listOf(6, 6, -1, -1), listOf(4, 3, 2, 1), listOf(-1, -1, -1, -1), listOf(-1, -1, -1, -1))) else m.newGame()
+            getSharedPreferences("merge", MODE_PRIVATE).edit().putString("save", m.save()).putInt("got", if (b == "near") 6 else 0).apply(); Qa.log("merge board $b")
+        }
         i.getStringExtra("qa.tab")?.let { t -> when (t) {
-            "map" -> nav.switchTo(Route.Map(nav.find<Route.Map>()?.run)); "descent" -> nav.switchTo(Route.Game("descent")); "trip" -> nav.switchTo(Route.Trip)
+            "map" -> nav.switchTo(Route.Map(nav.find<Route.Map>()?.run)); "descent" -> nav.switchTo(Route.Game("descent")); "games" -> nav.switchTo(Route.Games); "merge" -> nav.switchTo(Route.Game("merge")); "trip" -> nav.switchTo(Route.Trip)
             "home" -> nav.toStart()
             else -> Route.parse(t)?.let { nav.toStart(); nav.push(it) } ?: Qa.log("bad tab $t")
         } }
@@ -553,7 +576,7 @@ class MainActivity : ComponentActivity() {
         // me, for the pass's passenger (A-32): read again each time home shows (after signing in or out elsewhere)
         var me by remember { mutableStateOf(if (groupApi.ready) groupApi.me() else null) }
         LaunchedEffect(top) {
-            if ((top == Route.Home || top == Route.About) && groupApi.ready) { me = groupApi.me(); if (top == Route.Home) firstGroup = runCatching { groupApi.firstGroup() }.getOrNull() }
+            if ((top == Route.Home || top == Route.About) && groupApi.ready) { me = groupApi.me(); if (top == Route.Home) { firstGroup = runCatching { groupApi.firstGroup() }.getOrNull(); if (firstGroup != null) sendBests() } }
         }
         // the account on the pass and on the settings' ski pass (A-32)
         val account = if (groupApi.ready) io.github.pini236.skiapp.home.Account(me, onManage = { nav.push(Route.Account) },
@@ -590,8 +613,10 @@ class MainActivity : ComponentActivity() {
         // the whole app goes dark at night, as the site does; the spike's map and game keep their day colours
         // the game keeps its day colours; the map follows the day and night switch, as on the site (A-11)
         val spike = top is Route.Game
+        // the merging game is a blue evening whatever the hour: light icons over it
+        val evening = top == Route.Game("merge")
         val view = LocalView.current
-        SideEffect { WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = spike || !frame.dark }
+        SideEffect { WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = !evening && (spike || !frame.dark) }
         SkiTheme(dark = frame.dark) {
             Box(Modifier.fillMaxSize().background(if (spike) Palette.snow else Ski.colors.snow)) {
                 when (top) {
@@ -606,7 +631,7 @@ class MainActivity : ComponentActivity() {
                             nav.push(when (a) {
                                 HomeAction.MAP, HomeAction.STATUS -> Route.Map(nav.find<Route.Map>()?.run)
                                 HomeAction.MEET -> Route.Meet()
-                                HomeAction.GAMES -> Route.Game("descent") // the games page arrives with stage 13.6
+                                HomeAction.GAMES -> Route.Games
                                 HomeAction.GROUP -> Route.Group()
                                 HomeAction.ABOUT -> Route.About
                                 HomeAction.TRIP -> Route.Trip
@@ -670,6 +695,9 @@ class MainActivity : ComponentActivity() {
                         nav.toStart(); nav.push(Route.Group(id, GroupTab.FLIGHTS.key))
                     }
                     Route.Account -> AccountScreen(groupApi, onBack = { nav.back() }, signInGoogle = ::signInGoogle) { nav.toStart(); armReminders() }
+                    // the games page (13.6, the site's #games, GP2), and the games the app has
+                    Route.Games -> GamesScreen(appGames(runs = 1), onOpen = { g -> haptics.tick(.4f); nav.push(Route.Game(g)) }) { nav.back() }
+                    Route.Game("merge") -> MergeScreen(haptics, onBack = { nav.back() }) { sendBests() }
                     Route.About -> AboutScreen(BuildConfig.VERSION_NAME, onPrivacy = ::openPrivacy, account = account, mode = dnMode, onMode = ::nextMode,
                         lang = Lang.current(resources), langManual = Lang.manual(this@MainActivity), onLang = ::setLang,
                         onResetBests = { getSharedPreferences("bests", MODE_PRIVATE).edit().clear().apply(); Qa.log("bests reset") }) { nav.back() }

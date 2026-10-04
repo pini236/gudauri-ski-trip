@@ -144,6 +144,42 @@ descent() {
   sleep 8; shot descent-later
 }
 
+# ---- the games page (13.6, the site's #games, GP2) and the merging game ----
+games() {
+  # in a group on the pretend server, so a new best goes to the group's table
+  qa "--es qa.group member --es qa.tab home --es qa.trip none"; sleep 3
+  drag $((W / 2)) $((H * 80 / 100)) $((W / 2)) $((H * 35 / 100)) 400; sleep 1
+  if tapText "משחקים"; then sleep 2; shot games-page; else fail "no games sign on home"; fi
+  tapText "איחוד כדורי שלג" && { sleep 2; shot merge-start; }
+  # a swipe anywhere moves the board: a few, then undo
+  mark; local d; for d in L U R D L D; do
+    case $d in L) drag $((W * 75 / 100)) $((H / 2)) $((W * 25 / 100)) $((H / 2)) 150 ;; R) drag $((W * 25 / 100)) $((H / 2)) $((W * 75 / 100)) $((H / 2)) 150 ;;
+      U) drag $((W / 2)) $((H * 60 / 100)) $((W / 2)) $((H * 35 / 100)) 150 ;; D) drag $((W / 2)) $((H * 35 / 100)) $((W / 2)) $((H * 60 / 100)) 150 ;; esac
+    sleep 0.5
+  done
+  sleep 0.4; shot merge-moved
+  waitlog "merge moved" 3
+  tapText "ביטול מהלך" && { sleep 0.8; shot merge-undo; }
+  # one swipe from a whole snowman: the merge, the puff and the points, then "Snowman!"; the best goes to the group
+  qa "--es qa.tab home"; sleep 1
+  mark; qa "--es qa.merge near --es qa.tab merge"; sleep 2; shot merge-near
+  drag $((W * 75 / 100)) $((H / 2)) $((W * 25 / 100)) $((H / 2)) 150; sleep 0.25; shot merge-merging
+  sleep 1.2; shot merge-won
+  [ -n "$(where "איש שלג!")" ] || fail "no 'Snowman!' after a whole snowman"
+  waitlog "score sent merge" 10 # the new best, to the group's table
+  tapText "להמשיך" && { sleep 1; shot merge-go-on; }
+  adb shell input keyevent KEYCODE_BACK; sleep 1.5; shot games-back
+  [ -n "$(where "איחוד כדורי שלג")" ] || fail "back from the game is not the games page"
+  qa "--es qa.mode night"; sleep 1.5; shot games-night
+  qa "--es qa.mode auto"
+  # left to right: the post on the left, the signs point right, the board does not flip
+  adb shell cmd locale set-app-locales "$PKG" --locales en > /dev/null 2>&1; sleep 3
+  qa "--es qa.tab games"; sleep 2; shot games-en
+  qa "--es qa.merge near --es qa.tab merge"; sleep 2; shot merge-en
+  adb shell cmd locale set-app-locales "$PKG" --locales he > /dev/null 2>&1; sleep 3
+  qa "--es qa.tab home"; sleep 1
+}
+
 # ---- the home page (round 10: H1 to H4, LT1 to LT3) ----
 # what is on screen: the accessibility tree (uiautomator), so a step can tap a button by its words
 uidump() { # never an old tree: the tool gives up on a screen that is still busy ("could not get idle state"), so try again
@@ -568,6 +604,7 @@ for sc in ${SCENARIO//,/ }; do
   case "$sc" in
     map) map ;;
     descent) descent ;;
+    games) games ;;
     home) home ;;
     group) group ;;
     meet) meet ;;
@@ -576,7 +613,7 @@ for sc in ${SCENARIO//,/ }; do
     phone) phone ;;
     store) store ;;
     run) runview ;;
-    *) map; descent; home; group; meet; status; runview; lang; phone; store ;;
+    *) map; descent; games; home; group; meet; status; runview; lang; phone; store ;;
   esac
 done
 

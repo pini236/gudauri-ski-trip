@@ -11141,6 +11141,18 @@
     "ka"
    ]
   },
+  "app.games_intro": {
+   "he": "על השלג של גודאורי. השיאים נשמרים בטלפון, ומי שבקבוצה רואה אותם גם בטבלת הקבוצה. מומלץ עם צליל.",
+   "en": "On Gudauri's snow. Best scores are saved on your phone, and if you're in a group they show in its table too. Sound is recommended.",
+   "ru": "На снегу Гудаури. Рекорды сохраняются на телефоне, а если вы в группе, они видны и в её таблице. Лучше играть со звуком.",
+   "ka": "გუდაურის თოვლზე. რეკორდები ტელეფონში ინახება, და თუ ჯგუფში ხართ, ჯგუფის ცხრილშიც ჩანს. გირჩევთ, ითამაშოთ ხმით.",
+   "where": "app/android",
+   "note": "the games page (13.6): the site's games.intro, on a phone",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
   "app.about_lang_auto": {
    "he": "נבחרה לפי הטלפון",
    "en": "Chosen by the phone",

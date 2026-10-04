@@ -3,7 +3,8 @@
 
 Usage: python3 tools/build-app-data.py <out-dir>
 Writes <out-dir>/data/{terrain,runs-and-lifts,videos-seed,profiles}.json, <out-dir>/audio/*.wav and
-<out-dir>/pano/*.webp (the real view from the village through the day, for the home page).
+<out-dir>/pano/*.webp (the real view from the village through the day, for the home page) and <out-dir>/thumbs/*.webp
+(the games page's pictures).
 profiles.json is the elevation profile of each run in the descent game, taken from
 site/games/descent/index.html so the app plays the exact same runs as the site.
 trip.json (the group's flight and names) is never copied: see docs/USERS.md.
@@ -37,6 +38,10 @@ def main():
     (out / "pano").mkdir(parents=True, exist_ok=True)
     for img in sorted((SITE / "img/pano").glob("*.webp")):
         shutil.copyfile(img, out / "pano" / img.name)
+    # the games page's pictures, the site's (round 8, GP2)
+    (out / "thumbs").mkdir(parents=True, exist_ok=True)
+    for img in sorted((SITE / "games/thumbs").glob("*.webp")):
+        shutil.copyfile(img, out / "thumbs" / img.name)
 
 
 if __name__ == "__main__":

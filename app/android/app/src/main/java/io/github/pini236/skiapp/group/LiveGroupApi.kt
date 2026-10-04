@@ -274,6 +274,14 @@ class LiveGroupApi(
         rows.map { Score(it.userId, it.name, it.best, it.userId == me) }
     }
 
+    override suspend fun submitBest(game: String, score: Int): Boolean = io {
+        if (server.auth.userId() == null) return@io false
+        val first = (runCatching { groups.mine() }.getOrNull() ?: sync?.myGroups?.value?.groups.orEmpty()).firstOrNull()?.id ?: return@io false
+        val q = sync
+        if (q != null) q.group(first).submitScore(game, score) else groups.submitScore(game, score)
+        true
+    }
+
     /** Through the queue on the phone ([Sync]): shown in the group at once, sent when there is signal (no signal is fine). */
     override suspend fun addMeetup(groupId: String, station: String, at: Instant) {
         io { val q = sync; if (q != null) q.group(groupId).addMeetup(station, at) else groups.addMeetup(groupId, station, at) }
