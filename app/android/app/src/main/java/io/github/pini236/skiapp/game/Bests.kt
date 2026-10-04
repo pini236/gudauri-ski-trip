@@ -29,6 +29,12 @@ object Bests {
         return offer(context, game, s)
     }
     private const val LEVELS = "bests_school"
+    /** The ski school's stars in a lesson ([level] its number, from 1): the best of it, and what opens the next one. */
+    fun lesson(context: Context, level: Int): Int = context.getSharedPreferences(LEVELS, Context.MODE_PRIVATE).getInt(level.toString(), 0)
+    /** For the emulator run: every lesson with a star, so all of them are open. */
+    internal fun openAllLessons(context: Context) = context.getSharedPreferences(LEVELS, Context.MODE_PRIVATE).edit().apply {
+        for (i in 1..7) putInt(i.toString(), maxOf(1, lesson(context, i)))
+    }.apply()
     /** The settings' reset: every game's record on this phone (what the group's table already had stays there). */
     fun reset(context: Context) {
         context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit().clear().apply()

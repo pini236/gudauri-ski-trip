@@ -3,6 +3,8 @@ package io.github.pini236.skiapp.game
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.text.BasicText
+import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -171,6 +173,8 @@ private fun Pick(text: String, on: Boolean, modifier: Modifier = Modifier, small
         horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
         Text(text, style = Ski.type.bodyBold.copy(fontSize = if (sub != null) 20.sp else if (small) 12.5.sp else 13.5.sp, lineHeight = if (sub != null) 22.sp else 16.sp),
             color = if (on) Color.White else INK, maxLines = 1)
-        if (sub != null) Text(sub, style = Ski.type.bodyBold.copy(fontSize = 11.5.sp, lineHeight = 13.sp), color = if (on) Color.White else INK, maxLines = 2, textAlign = TextAlign.Center)
+        // one word (Snowcat, Ратрак) shrinks to fit rather than break in the middle; two words take two lines
+        if (sub != null) BasicText(sub, style = Ski.type.bodyBold.copy(fontSize = 11.5.sp, lineHeight = 13.sp, color = if (on) Color.White else INK, textAlign = TextAlign.Center),
+            maxLines = if (' ' in sub.trim()) 2 else 1, autoSize = TextAutoSize.StepBased(minFontSize = 8.sp, maxFontSize = 11.5.sp, stepSize = .5.sp))
     }
 }

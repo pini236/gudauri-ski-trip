@@ -177,7 +177,7 @@ games() {
   drag $((W * 20 / 100)) $((H * 30 / 100)) $((W * 80 / 100)) $((H * 42 / 100)) 700; drag $((W * 70 / 100)) $((H * 25 / 100)) $((W * 30 / 100)) $((H * 55 / 100)) 700
   sleep 0.6; shot fresh-finger; waitlog "fresh snow" 5
   tapText "מגף" && { drag $((W * 25 / 100)) $((H * 60 / 100)) $((W * 75 / 100)) $((H * 35 / 100)) 1500; sleep 0.5; shot fresh-boot; }
-  tapText "חתול שלג" && { drag $((W * 5 / 100)) $((H * 48 / 100)) $((W * 95 / 100)) $((H * 48 / 100)) 1200; sleep 0.2; shot fresh-snowcat; sleep 1.4; shot fresh-corduroy; }
+  tapText "חתול שלג" && { drag $((W * 12 / 100)) $((H * 48 / 100)) $((W * 88 / 100)) $((H * 48 / 100)) 1200; sleep 0.2; shot fresh-snowcat; sleep 1.4; shot fresh-corduroy; }
   tapText "קרום קפוא" && tapText "כדור" && { drag $((W * 30 / 100)) $((H * 30 / 100)) $((W * 60 / 100)) $((H * 50 / 100)) 900; sleep 0.5; shot fresh-crust; }
   tapText "שלג חדש" && { sleep 0.8; shot fresh-falling; sleep 2.5; shot fresh-new-snow; }
   mark; tapText "אגם קפוא" && { sleep 2; shot fresh-lake; }
@@ -193,6 +193,55 @@ games() {
   qa "--es qa.tab games"; sleep 2; shot games-en
   qa "--es qa.merge near --es qa.tab merge"; sleep 2; shot merge-en
   qa "--es qa.tab fresh"; sleep 2; drag $((W * 20 / 100)) $((H * 35 / 100)) $((W * 80 / 100)) $((H * 45 / 100)) 700; sleep 0.5; shot fresh-en
+  adb shell cmd locale set-app-locales "$PKG" --locales he > /dev/null 2>&1; sleep 3
+  qa "--es qa.tab home"; sleep 1
+}
+
+# ---- the ski school (13.6): the lessons, a brief, the wedge on the slope, the result; then the skis, the beat, carving and the final test ----
+school() {
+  qa "--es qa.group member --es qa.trip none --es qa.tab school"; sleep 3; shot school-menu
+  [ -n "$(where "עוצרים בפיצה")" ] || fail "no first lesson in the school's menu"
+  tapText "עוצרים בפיצה" && { sleep 1; shot school-brief; }
+  mark; tapText "לשלג!" && { sleep 2.5; shot school-wedge; }
+  waitlog "school start 1" 3
+  # the finger low on the slope: a wide wedge, and the skier stops
+  hold $((W / 2)) $((H * 80 / 100)) 2500; shot school-wedge-wide
+  waitlog "coach_wide_pizza" 3
+  # the lesson ended at once: no stop, no star, "try again"
+  mark; qa "--es qa.school finish"; sleep 1.5; shot school-result
+  waitlog "school done 1 0 stars" 3
+  [ -n "$(where "לנסות שוב")" ] || fail "no 'try again' after a lesson with no star"
+  tapText "לכל השיעורים" && sleep 1
+  # every lesson open: the two skis (the first gate is on the left, so the left ski is the wrong one)
+  qa "--es qa.school open --es qa.tab school"; sleep 2; shot school-menu-open
+  tapText "פונים בפיצה" && tapText "לשלג!" && sleep 1.5
+  mark; tapText "מגלש שמאל"; waitlog "coach_wrong_right" 3
+  local xy; xy=$(where "מגלש ימין"); [ -n "$xy" ] && { hold $xy 1800; shot school-skis; }
+  waitlog "coach_correct_left" 3
+  adb shell input keyevent KEYCODE_BACK; sleep 1
+  [ -n "$(where "פונים בפיצה")" ] || fail "back from a lesson is not the school's menu"
+  # the beat: taps anywhere, graded
+  tapText "מקבילי, בקצב" && tapText "לשלג!" && sleep 2
+  mark; local k; for k in 1 2 3 4 5; do tap $((W / 2)) $((H * 55 / 100)); sleep 1.15; done
+  shot school-rhythm; seen "beat_" 2 || fail "no grade for a tap on the beat"
+  adb shell input keyevent KEYCODE_BACK; sleep 1
+  # carving: the finger leans the skis; the gauge at the bottom
+  tapText "קרווינג" && tapText "לשלג!" && sleep 1.5
+  drag $((W * 30 / 100)) $((H / 2)) $((W * 70 / 100)) $((H / 2)) 1500; drag $((W * 70 / 100)) $((H / 2)) $((W * 30 / 100)) $((H / 2)) 1500
+  shot school-carve
+  adb shell input keyevent KEYCODE_BACK; sleep 1
+  # the final test: gates, other skiers and the wedge button
+  tapText "מבחן סיום" && { sleep 1; shot school-final-brief; tapText "לשלג!"; sleep 3; shot school-final; }
+  xy=$(where "פיצה"); [ -n "$xy" ] && { hold $xy 1200; shot school-final-wedge; }
+  adb shell input keyevent KEYCODE_BACK; sleep 1
+  adb shell input keyevent KEYCODE_BACK; sleep 1.5
+  [ -n "$(where "בית הספר לסקי")" ] || fail "back from the school is not the games page"
+  # left to right: the sign points right, the skis stay where they are, the checklist stays on the right
+  adb shell cmd locale set-app-locales "$PKG" --locales en > /dev/null 2>&1; sleep 3
+  qa "--es qa.tab school"; sleep 2; shot school-menu-en
+  tapText "Stopping in a pizza" && { sleep 1; shot school-brief-en; tapText "To the snow!"; sleep 2.5; shot school-wedge-en; }
+  adb shell input keyevent KEYCODE_BACK; sleep 1
+  tapText "Turning in a pizza" && tapText "To the snow!" && { sleep 2; shot school-skis-en; }
   adb shell cmd locale set-app-locales "$PKG" --locales he > /dev/null 2>&1; sleep 3
   qa "--es qa.tab home"; sleep 1
 }
@@ -623,6 +672,7 @@ for sc in ${SCENARIO//,/ }; do
     map) map ;;
     descent) descent ;;
     games) games ;;
+    school) school ;;
     home) home ;;
     group) group ;;
     meet) meet ;;
@@ -631,7 +681,7 @@ for sc in ${SCENARIO//,/ }; do
     phone) phone ;;
     store) store ;;
     run) runview ;;
-    *) map; descent; games; home; group; meet; status; runview; lang; phone; store ;;
+    *) map; descent; games; school; home; group; meet; status; runview; lang; phone; store ;;
   esac
 done
 

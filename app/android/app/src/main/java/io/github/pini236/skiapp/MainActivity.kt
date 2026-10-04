@@ -51,6 +51,7 @@ import io.github.pini236.skiapp.fx.Sounds
 import io.github.pini236.skiapp.game.Bests
 import io.github.pini236.skiapp.game.DescentScreen
 import io.github.pini236.skiapp.game.FreshSnowScreen
+import io.github.pini236.skiapp.game.SchoolScreen
 import io.github.pini236.skiapp.game.GamesScreen
 import io.github.pini236.skiapp.game.MergeScreen
 import io.github.pini236.skiapp.game.appGames
@@ -471,8 +472,13 @@ class MainActivity : ComponentActivity() {
             if (b == "near") m.set(listOf(listOf(6, 6, -1, -1), listOf(4, 3, 2, 1), listOf(-1, -1, -1, -1), listOf(-1, -1, -1, -1))) else m.newGame()
             getSharedPreferences("merge", MODE_PRIVATE).edit().putString("save", m.save()).putInt("got", if (b == "near") 6 else 0).apply(); Qa.log("merge board $b")
         }
+        // the ski school: every lesson open, or the lesson on the slope ended now
+        i.getStringExtra("qa.school")?.let { a -> when (a) {
+            "open" -> { io.github.pini236.skiapp.game.Bests.openAllLessons(this); Qa.log("school lessons open") }
+            "finish" -> io.github.pini236.skiapp.game.SchoolQa.finish?.invoke()
+        } }
         i.getStringExtra("qa.tab")?.let { t -> when (t) {
-            "map" -> nav.switchTo(Route.Map(nav.find<Route.Map>()?.run)); "descent" -> nav.switchTo(Route.Game("descent")); "games" -> nav.switchTo(Route.Games); "merge", "fresh" -> { nav.switchTo(Route.Games); nav.push(Route.Game(t)) }; "trip" -> nav.switchTo(Route.Trip)
+            "map" -> nav.switchTo(Route.Map(nav.find<Route.Map>()?.run)); "descent" -> nav.switchTo(Route.Game("descent")); "games" -> nav.switchTo(Route.Games); "merge", "fresh", "school" -> { nav.switchTo(Route.Games); nav.push(Route.Game(t)) }; "trip" -> nav.switchTo(Route.Trip)
             "home" -> nav.toStart()
             else -> Route.parse(t)?.let { nav.toStart(); nav.push(it) } ?: Qa.log("bad tab $t")
         } }
@@ -700,6 +706,7 @@ class MainActivity : ComponentActivity() {
                     Route.Games -> GamesScreen(appGames(runs = 1), onOpen = { g -> haptics.tick(.4f); nav.push(Route.Game(g)) }) { nav.back() }
                     Route.Game("merge") -> MergeScreen(haptics, onBack = { nav.back() }) { sendBests() }
                     Route.Game("fresh") -> FreshSnowScreen(haptics, onBack = { nav.back() }) { sendBests() }
+                    Route.Game("school") -> SchoolScreen(haptics, onBack = { nav.back() }) { sendBests() }
                     Route.About -> AboutScreen(BuildConfig.VERSION_NAME, onPrivacy = ::openPrivacy, account = account, mode = dnMode, onMode = ::nextMode,
                         lang = Lang.current(resources), langManual = Lang.manual(this@MainActivity), onLang = ::setLang,
                         onResetBests = { Bests.reset(this@MainActivity); Qa.log("bests reset") }) { nav.back() }

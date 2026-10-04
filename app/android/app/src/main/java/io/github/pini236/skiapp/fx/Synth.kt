@@ -82,11 +82,43 @@ class Synth(private val context: Context) {
         }, .3f)
     }
 
+    /**
+     * The site's ding(): a triangle (or a square) at [f] Hz for [dur] seconds, its loudness falling from [vol] to a
+     * thousandth, as Web Audio's exponential ramp.
+     */
+    fun ding(f: Double, dur: Double = .3, vol: Float = .18f, square: Boolean = false) {
+        if (!on()) return
+        val n = (RATE * dur).toInt()
+        Mixer.play(FloatArray(n) { i ->
+            val ph = (f * i / RATE) % 1.0
+            val w = if (square) (if (ph < .5) 1.0 else -1.0) else 4 * kotlin.math.abs(ph - .5) - 1
+            (w * (.001 / vol).pow(i.toDouble() / n)).toFloat()
+        }, vol)
+    }
+
+    /**
+     * Skis on the snow (the ski school's hiss): noise through a band at [Hiss.freq] Hz, at [Hiss.gain], both changed any
+     * time, on until [Hiss.stop]. Silent while the settings' sound is off.
+     */
+    fun hiss(): Hiss = Hiss().also { Mixer.add(it) }
+
+    inner class Hiss internal constructor() {
+        @Volatile var gain = 0f
+        @Volatile var freq = 1800.0
+        @Volatile internal var stopped = false
+        internal val band = Biquad(Filter.BAND, 1800.0, .7)
+        internal var g = 0f
+        internal fun audible() = on()
+        fun stop() { stopped = true }
+    }
+
     /** A filter from the Web Audio cookbook (the same curves as BiquadFilterNode's lowpass, highpass and bandpass). */
-    private class Biquad(type: Filter, freq: Double, q: Double) {
-        private val b0: Double; private val b1: Double; private val b2: Double; private val a1: Double; private val a2: Double
+    internal class Biquad(private val type: Filter, freq: Double, private val q: Double) {
+        private var b0 = 0.0; private var b1 = 0.0; private var b2 = 0.0; private var a1 = 0.0; private var a2 = 0.0
         private var x1 = 0.0; private var x2 = 0.0; private var y1 = 0.0; private var y2 = 0.0
-        init {
+        init { set(freq) }
+        /** A new frequency, keeping what is already ringing. */
+        fun set(freq: Double) {
             val w = 2 * PI * freq.coerceIn(10.0, RATE * .45) / RATE
             val alpha = sin(w) / (2 * maxOf(q, .0001))
             val c = cos(w); val a0 = 1 + alpha
@@ -109,15 +141,20 @@ class Synth(private val context: Context) {
         private class Voice(val s: FloatArray, val vol: Float, var wait: Int) { var at = 0 }
         private val lock = Any()
         private val voices = ArrayList<Voice>()
+        private val hisses = ArrayList<Synth.Hiss>()
         private var running = false
 
         fun play(s: FloatArray, vol: Float, wait: Int = 0) {
             synchronized(lock) {
                 if (voices.size > 96) return // a storm of grains: the rest would not be heard anyway
                 voices += Voice(s, vol, maxOf(0, wait))
-                if (!running) { running = true; Thread(::loop, "synth").apply { isDaemon = true; start() } }
+                wake()
             }
         }
+
+        fun add(h: Synth.Hiss) { synchronized(lock) { hisses += h; wake() } }
+
+        private fun wake() { if (!running) { running = true; Thread(::loop, "synth").apply { isDaemon = true; start() } } }
 
         private fun loop() {
             val t = runCatching {
@@ -128,13 +165,13 @@ class Synth(private val context: Context) {
                     .setBufferSizeInBytes(maxOf(AudioTrack.getMinBufferSize(RATE, AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT), CHUNK * 4))
                     .build().also { it.play() }
             }.getOrNull()
-            if (t == null) { synchronized(lock) { voices.clear(); running = false }; return }
+            if (t == null) { synchronized(lock) { voices.clear(); hisses.clear(); running = false }; return }
             val mix = FloatArray(CHUNK); val pcm = ShortArray(CHUNK)
             var quiet = 0
             while (true) {
                 java.util.Arrays.fill(mix, 0f)
                 synchronized(lock) {
-                    if (voices.isEmpty()) {
+                    if (voices.isEmpty() && hisses.isEmpty()) {
                         quiet += CHUNK
                         if (quiet > RATE * 2) { running = false; t.stop(); t.release(); return }
                     } else quiet = 0
@@ -145,6 +182,15 @@ class Synth(private val context: Context) {
                         if (v.wait > 0) { val w = minOf(v.wait, CHUNK); v.wait -= w; i = w }
                         while (i < CHUNK && v.at < v.s.size) { mix[i] += v.s[v.at++] * v.vol; i++ }
                         if (v.at >= v.s.size) it.remove()
+                    }
+                    val hi = hisses.iterator()
+                    while (hi.hasNext()) {
+                        val h = hi.next()
+                        val to = if (h.stopped || !h.audible()) 0f else h.gain
+                        if (h.stopped && h.g < 1e-4f) { hi.remove(); continue }
+                        h.band.set(h.freq)
+                        // a smooth change of loudness, about a twentieth of a second
+                        for (i in 0 until CHUNK) { h.g += (to - h.g) * .0005f; mix[i] += (h.band.next(Random.nextDouble() * 2 - 1) * h.g).toFloat() }
                     }
                 }
                 for (i in 0 until CHUNK) pcm[i] = (tanh(mix[i].toDouble()) * 30000).toInt().toShort()

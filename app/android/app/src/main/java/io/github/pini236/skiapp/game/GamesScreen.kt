@@ -73,6 +73,8 @@ class GameCard(val key: String, val order: Int, val color: Color, val ink: Boole
 fun appGames(runs: Int): List<GameCard> = listOf(
     GameCard("descent", 0, SignColors.blue, false, stringResource(R.string.games_descent_name), stringResource(R.string.games_descent_tag),
         pluralStringResource(R.plurals.games_descent_meta, runs, runs)),
+    GameCard("school", 1, SignColors.green, false, stringResource(R.string.games_school_name), stringResource(R.string.games_school_tag),
+        pluralStringResource(R.plurals.games_school_meta, LESSONS.size, LESSONS.size)),
     GameCard("fresh", 2, Color(0xFF5B9BFF), true, stringResource(R.string.games_fresh_name), stringResource(R.string.games_fresh_tag),
         stringResource(R.string.games_fresh_meta), thumb = "fresh-snow"),
     GameCard("merge", 3, SignColors.gold, true, stringResource(R.string.games_merge_name), stringResource(R.string.games_merge_tag),
