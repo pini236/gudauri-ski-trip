@@ -35,8 +35,20 @@
   function theme(){try{return localStorage.getItem('gud-daynight')||'auto';}catch(e){return 'auto';}}
   function load(src,cb){var s=document.createElement('script');s.src=src;s.async=true;s.crossOrigin='anonymous';s.onload=cb;document.head.appendChild(s);}
 
+  // addresses carry secrets: the invite code or link token (/join/<code>, /j/<token>, #join/...) and the group id
+  // (#group/<id>). Nothing past the page itself leaves the browser: the hash keeps only its first part, the
+  // path only the screen, and the query only utm_* (docs/GROWTH.md, what is never sent)
+  function cleanUrl(u){if(typeof u!=='string'||!u)return u;try{var x=new URL(u,location.href),h=(x.hash||'').slice(1).split('/')[0],q=new URLSearchParams();
+      x.searchParams.forEach(function(v,k){if(/^utm_/.test(k))q.set(k,v);});
+      var p=/^\/(j|join)\//.test(x.pathname)?'/'+x.pathname.split('/')[1]:x.pathname;
+      return x.origin+p+(q.toString()?'?'+q:'')+(h?'#'+h:'');}catch(e){return '';}}
+  var URL_KEYS=['$current_url','$pathname','$referrer','$initial_current_url','$initial_referrer','$initial_pathname','$host'];
+  function cleanProps(o){if(!o)return;URL_KEYS.forEach(function(k){if(typeof o[k]==='string'&&k!=='$host')o[k]=k==='$pathname'||k==='$initial_pathname'?cleanUrl(o[k]).replace(/^https?:\/\/[^/]+/,'').split(/[?#]/)[0]:cleanUrl(o[k]);});}
+  window.GUD_CLEAN_URL=cleanUrl; // for the tests
   function sentry(){Sentry.init({dsn:SENTRY_DSN,sendDefaultPii:false,tracesSampleRate:0,environment:'web',
-      beforeSend:function(ev){if(ev.request){delete ev.request.cookies;delete ev.request.headers;}if(ev.user)delete ev.user.ip_address;return ev;}});}
+      beforeSend:function(ev){if(ev.request){delete ev.request.cookies;delete ev.request.headers;delete ev.request.query_string;if(ev.request.url)ev.request.url=cleanUrl(ev.request.url);}if(ev.user)delete ev.user.ip_address;
+        (ev.breadcrumbs||[]).forEach(function(b){var d=b&&b.data;if(!d)return;['from','to','url'].forEach(function(k){if(typeof d[k]==='string')d[k]=cleanUrl(d[k]);});});
+        return ev;}});}
   function start(){
   if(window.Sentry&&Sentry.init)sentry();else if(SENTRY_DSN)load('https://browser.sentry-cdn.com/8.38.0/bundle.min.js',function(){if(window.Sentry)sentry();});
   if(started)return;started=true;
@@ -45,6 +57,7 @@
     posthog.init(POSTHOG_KEY,{api_host:'https://eu.i.posthog.com',persistence:'localStorage',person_profiles:'identified_only',
       autocapture:false,capture_pageview:false,capture_pageleave:false,disable_session_recording:true,enable_heatmaps:false,
       disable_surveys:true,capture_performance:false,capture_dead_clicks:false,advanced_disable_flags:true,ip:false,
+      before_send:function(ev){if(ev){cleanProps(ev.properties);cleanProps(ev.$set_once);cleanProps(ev.$set);}return ev;},
       loaded:function(p){
         if(p.has_opted_out_capturing&&p.has_opted_out_capturing())p.opt_in_capturing(); // the switch was turned back on
         var I=window.I18N||{};
