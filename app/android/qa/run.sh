@@ -280,7 +280,7 @@ snowball() {
   mark; tapText "לקרב!" && { sleep 2; shot snowball-fight; }
   waitlog "snowball start 1" 3
   # a finger in the middle: up over the wall with the ring and the arc, then the throw
-  hold $((W / 2)) $((H * 50 / 100)) 1800 & sleep 1.2; shot snowball-aim; wait
+  hold $((W / 2)) $((H * 50 / 100)) 1800 & local hp=$!; sleep 1.2; shot snowball-aim; wait $hp
   waitlog "snowball pop" 4
   # down behind the wall a while: their balls come
   sleep 4; shot snowball-later
