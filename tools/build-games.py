@@ -6,7 +6,7 @@ Run it after every change to a game:
 
     python3 tools/build-games.py
 """
-import pathlib, subprocess, sys
+import pathlib, re, subprocess, sys
 
 root = pathlib.Path(__file__).resolve().parents[1]
 out = root / 'site' / 'games'
@@ -74,6 +74,12 @@ def build(slug, src, place):
     html = html.replace('</style>', '</style>\n' + STYLE, 1)
     dest = out / slug
     dest.mkdir(parents=True, exist_ok=True)
+    # the game's own script goes into a file next to the page (R-3): the site's content security policy runs no
+    # script written inside a page. The sources in design/ keep it inline, for the artifact viewer.
+    inline = re.findall(r'<script>(.*?)</script>', html, flags=re.S)
+    assert len(inline) == 1, f'{slug}: expected one inline script, found {len(inline)}'
+    html = html.replace('<script>' + inline[0] + '</script>', '<script src="game.js"></script>')
+    (dest / 'game.js').write_text(inline[0].strip('\n') + '\n')
     (dest / 'index.html').write_text(html)
     print(f'{slug}: {len(html) // 1024} KB')
 

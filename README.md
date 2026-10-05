@@ -52,7 +52,7 @@ npm start
 python3 tools/build-games.py
 ```
 
-- המודל התלת-ממדי טוען את three.js r128 מ-cdnjs. בלי רשת האתר עובר אוטומטית למבט על.
+- המודל התלת-ממדי טוען את three.js r128 מהאתר עצמו (`site/js/vendor/`). אם הוא לא נטען, האתר עובר אוטומטית למבט על.
 - הגופנים נטענים מ-Google Fonts: Karantina ו-IBM Plex Sans Hebrew בעברית, ובשפות האחרות Oswald (כותרות ברוסית), Noto Sans Georgian ו-IBM Plex Sans (החלטה 36).
 
 ## פריסה ב-Vercel

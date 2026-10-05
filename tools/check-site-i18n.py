@@ -11,7 +11,7 @@
    - text: the element or one of its ancestors has data-i18n, data-i18n-html, data-i18n-tpl, data-i18n-plural,
      or data-i18n-js (text that app.js draws itself from the keys named there);
    - attributes (aria-label, alt, title, placeholder, content): named in the element's data-i18n-attr.
-4. Every key the games use (L('game...'), data-i18n, data-i18n-attr in site/games/*/index.html) exists.
+4. Every key the games use (L('game...'), data-i18n, data-i18n-attr in site/games/*/index.html and game.js) exists.
 5. The Hebrew research notes in site/data/runs-and-lifts.json match their keys (research.<run>.*), so none is left untranslated.
 """
 import json, pathlib, re, sys
@@ -177,7 +177,7 @@ def main():
     game_keys = 0
     GAME_KEY = re.compile(r"""(?:\bL\(\s*|data-i18n(?:-html)?=)(['"`])(game\.[a-z0-9_.]+)\1""")
     GAME_ATTR = re.compile(r'data-i18n-attr="([^"]+)"')
-    for f in sorted((ROOT / "site/games").glob("*/index.html")):
+    for f in sorted([*(ROOT / "site/games").glob("*/index.html"), *(ROOT / "site/games").glob("*/game.js")]):
         src = f.read_text(encoding="utf-8")
         name = str(f.relative_to(ROOT))
         for m in GAME_KEY.finditer(src):

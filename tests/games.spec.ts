@@ -1,4 +1,5 @@
 import { test, expect, Page } from '@playwright/test';
+import { listenCsp } from './csp-listen';
 
 // אזור המשחקים (החלטה 17): עמוד המשחקים באתר, וחמשת המשחקים שבאתר, כל אחד בעמוד משלו.
 const GAMES = [
@@ -12,7 +13,7 @@ const GAMES = [
 function watchErrors(page: Page) {
   const errors: string[] = [];
   page.on('pageerror', e => errors.push('pageerror: ' + e.message));
-  page.on('console', m => {
+  listenCsp(page); page.on('console', m => {
     if (m.type() === 'error' && !/Failed to load resource/.test(m.text())) errors.push(m.text());
   });
   return errors;

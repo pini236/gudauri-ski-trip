@@ -1,10 +1,11 @@
 import { test, expect, Page } from '@playwright/test';
+import { listenCsp } from './csp-listen';
 
 // "Your trip" on the site (round 12, stage 13.9): kept only in this browser. The crew's ticket and names are off the home page.
 function watchErrors(page: Page) {
   const errors: string[] = [];
   page.on('pageerror', e => errors.push('pageerror: ' + e.message));
-  page.on('console', m => { if (m.type() === 'error' && !/Failed to load resource/.test(m.text())) errors.push(m.text()); });
+  listenCsp(page); page.on('console', m => { if (m.type() === 'error' && !/Failed to load resource/.test(m.text())) errors.push(m.text()); });
   return errors;
 }
 async function loaded(page: Page) { await expect(page.locator('#loading')).toBeHidden({ timeout: 20_000 }); }

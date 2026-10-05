@@ -1,4 +1,5 @@
 import { test, expect, Page } from '@playwright/test';
+import { listenCsp } from './csp-listen';
 
 // The four interface languages (decision 32, i18n/). The rest of the suite runs in Hebrew (locale he-IL in the config).
 const KEY_LIKE = /\b(?:meta|nav|common|home|ticket|daynight|about|map|run|lift|status|meet|games|game)\.[a-z0-9_]+(?:\.[a-z0-9_]+)?\b/;
@@ -17,7 +18,7 @@ for (const lang of ['en', 'ru', 'ka']) {
   test(`home in ${lang}: left to right, no Hebrew and no raw keys`, async ({ page }) => {
     const errors: string[] = [];
     page.on('pageerror', e => errors.push(String(e)));
-    page.on('console', m => { if (m.type() === 'error') errors.push(m.text()); });
+    listenCsp(page); page.on('console', m => { if (m.type() === 'error') errors.push(m.text()); });
     await page.goto(`/?lang=${lang}#home`);
     await expect(page.locator('html')).toHaveAttribute('lang', lang);
     await expect(page.locator('html')).toHaveAttribute('dir', 'ltr');

@@ -1,10 +1,11 @@
 import { test, expect, Page } from '@playwright/test';
+import { listenCsp } from './csp-listen';
 
 // שגיאות רשת של גופנים חיצוניים לא נחשבות. כל שגיאת קוד באתר נחשבת.
 function watchErrors(page: Page) {
   const errors: string[] = [];
   page.on('pageerror', e => errors.push('pageerror: ' + e.message));
-  page.on('console', m => {
+  listenCsp(page); page.on('console', m => {
     if (m.type() === 'error' && !/Failed to load resource/.test(m.text())) errors.push(m.text());
   });
   return errors;
@@ -64,7 +65,7 @@ test('דף הבית, מפה, בחירת מסלול, סינון וחזרה', asyn
 
 test('בלי three.js האתר עובר למבט על ומסתיר את בורר התצוגה', async ({ page }) => {
   const errors = watchErrors(page);
-  await page.route('**/three.min.js', r => r.abort());
+  await page.route('**/three-r128.min.js', r => r.abort());
   await page.goto('/#map');
   await loaded(page);
   await expect(page.locator('#viewsw')).toBeHidden();
