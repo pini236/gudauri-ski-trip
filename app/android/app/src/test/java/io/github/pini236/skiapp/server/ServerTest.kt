@@ -260,4 +260,26 @@ class ServerTest {
         assertTrue(TripRow.of(Trip(Leg(d(10), from = "Tel Aviv"))).isNull("out_from"))
         assertNull(TripRow.trip(JSONObject()))
     }
+
+    @Test fun aSuccessThatIsNotJsonIsAnErrorNotACrash() {
+        val store = MemorySessionStore(Session("a", "r", now / 1000 + 3600, "u1", false))
+        val s = server(store)
+        for (body in listOf("<html>proxy</html>", "{\"cut", "[1,")) {
+            answers += Response(200, body)
+            try {
+                s.call("my_account"); fail()
+            } catch (e: ServerError) {
+                assertEquals("bad_response", e.code)
+                assertEquals(200, e.status)
+            }
+        }
+        answers += Response(200, "not a list")
+        try {
+            s.select("groups", "select=id"); fail()
+        } catch (e: ServerError) {
+            assertEquals("bad_response", e.code)
+        }
+        answers += Response(200, "")
+        assertEquals(0, s.call("set_my_membership").length()) // an empty answer is fine: {}
+    }
 }

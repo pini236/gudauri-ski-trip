@@ -11,6 +11,7 @@ import java.time.Instant
 import java.util.UUID
 import java.util.concurrent.Executor
 import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
 
 /**
  * The group's data on the phone (decision 28, server/CONTRACT.md "עותק מקומי"): what the screens show comes from
@@ -24,7 +25,9 @@ import java.util.concurrent.Executors
  *   code stays on the group ([Snapshot.refused]) so the page can say why, until it is dismissed.
  * - Everything else (joining, admin actions) needs signal: call [Groups] directly, then [GroupStore.refresh].
  *
- * One [Sync] for the app ([of]). All network work runs on one background thread, in order.
+ * One [Sync] for the app ([of]). All network work runs on one background thread, in order. A queue that cannot get
+ * through (no signal, a server hiccup, an answer that is not what it should be) is tried again by itself, after a
+ * wait that grows from 5 seconds to 5 minutes, and at once when the phone gets a network back ([of]).
  */
 class Sync(
     val server: Server,
@@ -33,6 +36,8 @@ class Sync(
     private val games: List<String> = emptyList(),
     private val realtime: Realtime? = Realtime(server),
     private val worker: Executor = Executors.newSingleThreadExecutor { r -> Thread(r, "sync").apply { isDaemon = true } },
+    /** Runs a task after a delay in ms: the next try of the queue, when the last one could not get through. */
+    private val later: (Long, Runnable) -> Unit = DefaultLater,
 ) {
     val groups = Groups(server)
 
@@ -68,6 +73,9 @@ class Sync(
     private val outbox = Outbox(File(dir, "outbox.json"))
     private val mine = MutableStateFlow(readMine())
     private var mineChannel: Realtime.Channel? = null
+    // the next try of the queue: its wait (0 = none planned), and whether one is planned already
+    private var retryMs = 0L
+    private var retryPlanned = false
 
     init {
         dir.mkdirs()
@@ -131,6 +139,8 @@ class Sync(
             write(File(dir, "mine.json"), mineJson(m))
         } catch (_: Offline) {
             mine.value = mine.value.copy(offline = true)
+        } catch (_: org.json.JSONException) {
+            mine.value = mine.value.copy(offline = true) // an answer that is not what it should be: shown as not fresh
         } catch (_: ServerError) {
             mine.value = mine.value.copy(offline = false)
         }
@@ -150,25 +160,52 @@ class Sync(
 
     private fun sendOutbox() {
         val touched = HashSet<String>()
+        var stuck = false
         while (true) {
             val op = outbox.first() ?: break
             try {
                 send(op)
                 outbox.remove(op.id)
             } catch (_: Offline) {
+                stuck = true
+                break
+            } catch (_: org.json.JSONException) {
+                // the server took it, but its answer is not what it should be: every write here is safe to send again
+                stuck = true
                 break
             } catch (e: ServerError) {
-                // no session, a server hiccup (5xx), a busy server (429) or a timeout (408): it stays in the queue for next time
-                if (e.code == "no_session" || e.status >= 500 || e.status == 429 || e.status == 408) break
+                // no session, a server hiccup (5xx), a busy server (429), a timeout (408) or an answer that is not
+                // JSON: it stays in the queue for next time
+                if (e.code == "no_session") break
+                if (e.code == Server.BAD_RESPONSE || e.status >= 500 || e.status == 429 || e.status == 408) { stuck = true; break }
                 // refused for good: drop it, and read the group again so the screen shows what the server has, and why
                 outbox.remove(op.id)
                 synchronized(this) { stores[op.groupId] }?.refused(e.code)
             }
             touched += op.groupId
         }
+        planRetry(stuck)
         touched.forEach { id -> synchronized(this) { stores[id] }?.readFromServer() }
         synchronized(this) { stores.values.toList() }.forEach { it.countWaiting() }
     }
+
+    // A queue that could not get through is tried again after 5 s, then 10, 20... up to 5 minutes; one that went
+    // through starts the count again. (No session: only signing in helps, so no retry is planned.)
+    private fun planRetry(stuck: Boolean) {
+        synchronized(this) {
+            if (!stuck) { retryMs = 0; return }
+            retryMs = if (retryMs == 0L) FIRST_RETRY_MS else minOf(retryMs * 2, MAX_RETRY_MS)
+            if (retryPlanned) return
+            retryPlanned = true
+        }
+        later(retryMs, Runnable {
+            synchronized(this) { retryPlanned = false }
+            flush()
+        })
+    }
+
+    /** The wait before the next try of the queue, in ms; 0 when none is planned (for the tests). */
+    internal val nextRetryMs: Long get() = synchronized(this) { retryMs }
 
     private fun send(op: Op) {
         val b = op.body
@@ -268,6 +305,8 @@ class Sync(
                 write(file, Codec.snapshot(s))
             } catch (_: Offline) {
                 flow.value = flow.value.copy(offline = true)
+            } catch (_: org.json.JSONException) {
+                flow.value = flow.value.copy(offline = true) // an answer that is not what it should be: kept, marked as not fresh
             } catch (e: ServerError) {
                 // not mine any more, or the session is gone: keep what is shown, it is marked as not fresh
                 flow.value = flow.value.copy(offline = e.code == "no_session")
@@ -462,7 +501,30 @@ class Sync(
 
         /** The app's one [Sync], kept in the app's private files (never backed up: backup is off in the manifest). */
         fun of(context: Context, games: List<String> = listOf("descent")): Sync = instance ?: synchronized(this) {
-            instance ?: Sync(Server.of(context), File(context.applicationContext.filesDir, "server"), games).also { instance = it }
+            instance ?: Sync(Server.of(context), File(context.applicationContext.filesDir, "server"), games).also {
+                instance = it
+                whenOnline(context.applicationContext) { it.flush() }
+            }
+        }
+
+        const val FIRST_RETRY_MS = 5_000L
+        const val MAX_RETRY_MS = 5 * 60_000L
+
+        private val DefaultLater: (Long, Runnable) -> Unit = run {
+            val timer = Executors.newSingleThreadScheduledExecutor { r -> Thread(r, "sync-retry").apply { isDaemon = true } }
+            val f: (Long, Runnable) -> Unit = { ms, task -> timer.schedule(task, ms, TimeUnit.MILLISECONDS) }
+            f
+        }
+
+        // The queue is sent as soon as the phone has a network again, not only at the next launch. Needs
+        // ACCESS_NETWORK_STATE; without it (or on an odd phone) the timed retries still run.
+        private fun whenOnline(context: Context, action: () -> Unit) {
+            runCatching {
+                val cm = context.getSystemService(android.net.ConnectivityManager::class.java) ?: return
+                cm.registerDefaultNetworkCallback(object : android.net.ConnectivityManager.NetworkCallback() {
+                    override fun onAvailable(network: android.net.Network) = action()
+                })
+            }.onFailure { android.util.Log.w("Sync", "no network listener; the queue relies on its timed retries", it) }
         }
 
         private fun arr(o: JSONObject, k: String): List<JSONObject> = o.optJSONArray(k)?.let { a -> (0 until a.length()).map { a.getJSONObject(it) } }.orEmpty()

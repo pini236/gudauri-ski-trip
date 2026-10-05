@@ -40,7 +40,7 @@ class Server(
     internal fun auth(path: String, body: JSONObject, token: String? = null): JSONObject {
         val r = transport.send(Request("POST", "$url/auth/v1/$path", headers(token), body.toString()))
         if (!r.ok) throw ServerError(authCode(r), r.status)
-        return JSONObject(r.body)
+        return obj(r)
     }
 
     /**
@@ -49,23 +49,23 @@ class Server(
      * identity when there is no session yet (docs/USERS.md: a guest touches the server only to join); any other
      * action without a session is [ServerError] "no_session".
      */
-    fun call(action: String, body: JSONObject = JSONObject()): JSONObject = send(action, body).let { if (it.isBlank()) JSONObject() else JSONObject(it) }
+    fun call(action: String, body: JSONObject = JSONObject()): JSONObject = send(action, body).let { if (it.body.isBlank()) JSONObject() else obj(it) }
 
     /** An action whose answer is a list (group_leaderboard). */
-    fun callList(action: String, body: JSONObject = JSONObject()): JSONArray = JSONArray(send(action, body))
+    fun callList(action: String, body: JSONObject = JSONObject()): JSONArray = list(send(action, body))
 
-    private fun send(action: String, body: JSONObject): String {
+    private fun send(action: String, body: JSONObject): Response {
         require(action.matches(Regex("^[a-z_]+$"))) { action }
         val r = authorized(guest = action in GUEST_ACTIONS) { token -> Request("POST", "$url/functions/v1/api/$action", headers(token), body.toString()) }
         if (!r.ok) throw ServerError(code(r), r.status)
-        return r.body
+        return r
     }
 
     /** Rows the row rules let me see: [query] is PostgREST's ("select=id,name&group_id=eq.<id>&order=joined_at"). */
     fun select(table: String, query: String): JSONArray {
         val r = authorized { token -> Request("GET", "$url/rest/v1/$table?$query", headers(token)) }
         if (!r.ok) throw ServerError(code(r), r.status)
-        return JSONArray(r.body)
+        return list(r)
     }
 
     /** A new row, returned as the server stored it. */
@@ -81,7 +81,7 @@ class Server(
     private fun post(table: String, row: JSONObject, prefer: String): JSONObject? {
         val r = authorized { token -> Request("POST", "$url/rest/v1/$table", headers(token) + ("Prefer" to prefer), row.toString()) }
         if (!r.ok) throw ServerError(code(r), r.status)
-        return JSONArray(r.body).optJSONObject(0)
+        return list(r).optJSONObject(0)
     }
 
     /** Change the row with this id; null when the rules hide it (gone, or not mine). */
@@ -90,7 +90,7 @@ class Server(
             Request("PATCH", "$url/rest/v1/$table?id=eq.${enc(id)}", headers(token) + ("Prefer" to "return=representation"), row.toString())
         }
         if (!r.ok) throw ServerError(code(r), r.status)
-        return JSONArray(r.body).optJSONObject(0)
+        return list(r).optJSONObject(0)
     }
 
     fun delete(table: String, id: String) {
@@ -111,6 +111,12 @@ class Server(
 
     companion object {
         const val REGION = "eu-central-1"
+
+        /** A success whose body is not the JSON it should be (a proxy's page, a cut answer): [BAD_RESPONSE], never a crash. */
+        const val BAD_RESPONSE = "bad_response"
+
+        internal fun obj(r: Response): JSONObject = try { JSONObject(r.body) } catch (_: org.json.JSONException) { throw ServerError(BAD_RESPONSE, r.status) }
+        internal fun list(r: Response): JSONArray = try { JSONArray(r.body) } catch (_: org.json.JSONException) { throw ServerError(BAD_RESPONSE, r.status) }
 
         /** The actions a guest may start with, before the phone has any session. */
         val GUEST_ACTIONS = setOf("invite_preview", "join_group", "request_reclaim")

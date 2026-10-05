@@ -200,6 +200,12 @@ interface GroupApi {
     suspend fun setMemberTrip(groupId: String, userId: String, trip: Trip)
 
     suspend fun leaderboard(groupId: String, game: String): List<Score>
+    /**
+     * A game's high score on this phone goes to the groups' tables (submit_score; the server keeps only the best, and
+     * the table is one for all my groups), as the site's sendBests: through the queue, so it waits for signal. False when
+     * I am in no group, and then nothing is sent.
+     */
+    suspend fun submitBest(game: String, score: Int): Boolean = false
 
     /** A meetup from the meeting point (Q8): kept on the phone at once and sent when there is signal. */
     suspend fun addMeetup(groupId: String, station: String, at: Instant)

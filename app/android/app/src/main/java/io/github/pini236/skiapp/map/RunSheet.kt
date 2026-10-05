@@ -629,7 +629,8 @@ private fun Videos(p: Piste, list: List<Video>) {
     for (v in list) {
         val id = v.youtubeId
         Column(Modifier.fillMaxWidth().padding(vertical = 6.dp).clickable {
-            Telemetry.event("video_play", mapOf("run" to p.key, "video" to (id ?: v.url)))
+            // the YouTube id only, never an address (docs/GROWTH.md; A-36); the site counts only YouTube's videos too
+            if (id != null) Telemetry.event("video_play", mapOf("run" to p.key, "video" to id))
             openLink(ctx, v.url)
         }) {
             if (id != null) Thumb(id, if (v.title.isNotBlank()) stringResource(R.string.run_video_play_aria_titled, v.title) else stringResource(R.string.run_video_play_aria))

@@ -2,10 +2,13 @@
 // index.ts: POST /functions/v1/api/<action> with a JSON body.
 //
 // Every action runs in one database transaction: all of it happens, or
-// none of it. The database still enforces its own rules underneath
-// (row level security for what apps read directly, and the guards in
-// server/supabase/migrations/), so a bug here cannot open other
-// people's data to an app.
+// none of it. The function connects as the database's owner, so the row
+// rules (which guard what apps read and write directly) do NOT apply
+// here: every action checks by itself who may do it (requireMember,
+// requireAdmin...), and a missing check opens other people's groups.
+// tests/api.test.ts holds a matrix of every action against a stranger, a
+// member and an admin, and fails when an action is added without a row
+// in it. The guard triggers in server/supabase/migrations/ still run.
 //
 // Errors are short codes (for example "not_admin"); each app maps them
 // to a message in its own language. The contract (every action, field,
@@ -196,26 +199,39 @@ async function newCode(tx: Tx): Promise<string> {
 }
 
 // Too many wrong guesses by this person, or (for six-letter codes, the
-// only guessable kind) by everyone together.
-async function attemptsBlocked(tx: Tx, user: string, short: boolean): Promise<boolean> {
+// only guessable kind) from this network address. There is no limit for
+// everyone together: it let anyone close joining by code for all (R-13).
+async function attemptsBlocked(tx: Tx, user: string, short: boolean, ipKey: string | null): Promise<boolean> {
   const [r] = await tx`
     select
       count(*) filter (where user_id = ${user} and at > now() - interval '15 minutes') as mine15,
       count(*) filter (where user_id = ${user}) as mine_day,
-      count(*) filter (where at > now() - interval '1 hour') as everyone_hour,
+      count(*) filter (where ip_key = ${ipKey} and at > now() - interval '1 hour') as address_hour,
       (select private.limits()) as l
     from private.invite_attempts
-    where not ok and at > now() - interval '1 day'`;
+    where not ok and at > now() - interval '1 day' and (user_id = ${user} or ip_key = ${ipKey})`;
   const l = r.l as Record<string, number>;
   return Number(r.mine15) >= l.fails_per_15_min ||
     Number(r.mine_day) >= l.fails_per_day ||
-    (short && Number(r.everyone_hour) >= l.global_fails_per_hour);
+    (short && ipKey !== null && Number(r.address_hour) >= l.fails_per_ip_hour);
 }
 
-// A working invite for a code or token, counting the attempt.
-async function useCode(tx: Tx, user: string, raw: unknown): Promise<{ invite?: Invite; status: string }> {
+// Protection mode (R-13): so many wrong guesses in the whole system this hour that a right six-letter code may be one
+// a crowd of addresses guessed. It still works, but asks an admin instead of joining; links are not affected.
+async function guarded(tx: Tx): Promise<boolean> {
+  const [r] = await tx`
+    select count(*) >= (private.limits() ->> 'guard_fails_per_hour')::int as on
+    from private.invite_attempts where not ok and at > now() - interval '1 hour'`;
+  return !!r.on;
+}
+
+// A working invite for a code or token, counting the attempt. In protection mode a six-letter code needs approval.
+async function useCode(tx: Tx, user: string, raw: unknown, meta: Meta): Promise<{ invite?: Invite; status: string }> {
   const key = normalizeCode(raw);
-  if (await attemptsBlocked(tx, user, key.kind !== "token")) {
+  const ipKey = meta.ipKey ?? null;
+  // One guess at a time per person, so two at once cannot both pass the count (R-20).
+  await tx`select pg_advisory_xact_lock(hashtext('invite_attempts'), hashtext(${user}))`;
+  if (await attemptsBlocked(tx, user, key.kind !== "token", ipKey)) {
     await audit(tx, user, "invite_rate_limited");
     return { status: "rate_limited" };
   }
@@ -230,7 +246,11 @@ async function useCode(tx: Tx, user: string, raw: unknown): Promise<{ invite?: I
         and coalesce(i.expires_at, (g.ends_on + 1)::timestamptz, i.created_at + interval '90 days') > now()`;
     invite = rows[0];
   }
-  await tx`insert into private.invite_attempts (user_id, ok) values (${user}, ${!!invite})`;
+  await tx`insert into private.invite_attempts (user_id, ok, ip_key) values (${user}, ${!!invite}, ${ipKey})`;
+  if (invite && key.kind === "code" && !invite.requires_approval && (await guarded(tx))) {
+    await audit(tx, user, "invite_guarded", invite.group_id);
+    invite = { ...invite, requires_approval: true };
+  }
   return invite ? { invite, status: "ok" } : { status: "invalid_code" };
 }
 
@@ -330,11 +350,27 @@ async function leaveAllGroups(tx: Tx, user: string) {
 // Actions
 // ---------------------------------------------------------------------
 
+// The caller's address, from the header Supabase's proxy sets (index.ts hashes it): Cloudflare's, the proxy's, else the
+// LAST entry of x-forwarded-for, the one the proxy added; the first is whatever the caller sent.
+export function clientIp(h: Headers): string | undefined {
+  const ip = h.get("cf-connecting-ip") ?? h.get("x-real-ip") ?? h.get("x-forwarded-for")?.split(",").at(-1);
+  return ip?.trim() || undefined;
+}
+
+// What the edge knows about the request, beyond the session.
+export interface Meta {
+  // A keyed hash of the caller's network address that changes every day
+  // (index.ts), for counting wrong code guesses per address; never the
+  // address itself. Missing when unknown.
+  ipKey?: string;
+}
+
 interface Ctx {
   deps: Deps;
   tx: Tx;
   user: string;
   body: Body;
+  meta: Meta;
   after: Array<() => Promise<void>>; // runs after the transaction commits
 }
 
@@ -359,6 +395,8 @@ const actions: Record<string, Action> = {
     await tx`update private.audit_log set user_id = null where user_id = ${user}`;
     await tx`update private.audit_log set target = null where target = ${user}`;
     await audit(tx, null, "account_deleted");
+    // The identity goes after the transaction; if that fails, the keepalive tries again (R-15).
+    await tx`insert into private.pending_deletions (user_id) values (${user}) on conflict do nothing`;
     after.push(() => deps.deleteAuthUser(user));
     return { deleted: true };
   },
@@ -385,6 +423,7 @@ const actions: Record<string, Action> = {
     await absorb(tx, anon, user, null);
     await leaveAllGroups(tx, anon);
     await audit(tx, user, "guest_merged", null, anon);
+    await tx`insert into private.pending_deletions (user_id) values (${anon}) on conflict do nothing`;
     after.push(() => deps.deleteAuthUser(anon));
     return { merged: true };
   },
@@ -411,12 +450,17 @@ const actions: Record<string, Action> = {
     return { group_id: g.id };
   },
 
+  // Only the fields that were sent change; a date sent as null is cleared,
+  // a date not sent stays (R-14).
   async update_group({ tx, user, body }) {
     const group = uuid(body, "group_id");
     await requireAdmin(tx, group, user);
-    await tx`update public.groups set name = ${groupName(body.name)},
-               starts_on = ${optDate(body, "starts_on")}, ends_on = ${optDate(body, "ends_on")}
-             where id = ${group}`;
+    const values: Record<string, unknown> = {};
+    if ("name" in body) values.name = groupName(body.name);
+    if ("starts_on" in body) values.starts_on = optDate(body, "starts_on");
+    if ("ends_on" in body) values.ends_on = optDate(body, "ends_on");
+    // deno-lint-ignore no-explicit-any
+    if (Object.keys(values).length) await tx`update public.groups set ${tx(values as any)} where id = ${group}`;
     await audit(tx, user, "group_updated", group);
     return {};
   },
@@ -460,8 +504,8 @@ const actions: Record<string, Action> = {
   // What an invite opens: the group and its members' names (for "I'm
   // already in the group"; not for an invitation that needs approval, see
   // below). Counts as an attempt.
-  async invite_preview({ tx, user, body }) {
-    const r = await useCode(tx, user, body.code);
+  async invite_preview({ tx, user, body, meta }) {
+    const r = await useCode(tx, user, body.code, meta);
     if (!r.invite) return { status: r.status };
     const group = r.invite.group_id;
     // Dates as plain text (2027-01-10), not as a moment in some time zone.
@@ -481,9 +525,9 @@ const actions: Record<string, Action> = {
   },
 
   // Join with a code or link token; guests (anonymous identities) too.
-  async join_group({ tx, user, body }) {
+  async join_group({ tx, user, body, meta }) {
     const name = cleanName(body.display_name);
-    const r = await useCode(tx, user, body.code);
+    const r = await useCode(tx, user, body.code, meta);
     if (!r.invite) return { status: r.status };
     const group = r.invite.group_id;
     await lockGroup(tx, group);
@@ -499,8 +543,11 @@ const actions: Record<string, Action> = {
       await audit(tx, user, "join_requested", group);
       return { status: "pending", group_id: group };
     }
+    // Counted under the group's lock, so two people cannot both take the last use (R-20).
+    const used = await tx`update public.invites set uses = uses + 1
+                          where id = ${r.invite.id} and (max_uses is null or uses < max_uses) returning 1`;
+    if (!used.length) return { status: "invalid_code" };
     await addMember(tx, group, user, name);
-    await tx`update public.invites set uses = uses + 1 where id = ${r.invite.id}`;
     await audit(tx, user, "joined", group);
     return { status: "joined", group_id: group };
   },
@@ -508,9 +555,9 @@ const actions: Record<string, Action> = {
   // "I'm already in the group": someone who lost their guest identity asks
   // to be that member again; an admin approves. Registered members just
   // sign in again.
-  async request_reclaim({ tx, user, body }) {
+  async request_reclaim({ tx, user, body, meta }) {
     const member = uuid(body, "member_id");
-    const r = await useCode(tx, user, body.code);
+    const r = await useCode(tx, user, body.code, meta);
     if (!r.invite) return { status: r.status };
     const group = r.invite.group_id;
     if (await role(tx, group, user)) return { status: "already_member", group_id: group };
@@ -612,12 +659,18 @@ const actions: Record<string, Action> = {
     return {};
   },
 
-  // My name in a group, and which of my trips it shows (null: none).
+  // My name in a group, and which of my trips it shows (null: none). Only
+  // the fields that were sent change: trip_id not sent keeps the trip shown
+  // (R-14).
   async set_my_membership({ tx, user, body }) {
     const group = uuid(body, "group_id");
-    const r = await tx`update public.group_members
-                       set display_name = ${cleanName(body.display_name)}, trip_id = ${optUuid(body, "trip_id")}
-                       where group_id = ${group} and user_id = ${user} returning 1`;
+    const values: Record<string, unknown> = {};
+    if ("display_name" in body) values.display_name = cleanName(body.display_name);
+    if ("trip_id" in body) values.trip_id = optUuid(body, "trip_id");
+    const r = Object.keys(values).length
+      // deno-lint-ignore no-explicit-any
+      ? await tx`update public.group_members set ${tx(values as any)} where group_id = ${group} and user_id = ${user} returning 1`
+      : await tx`select 1 from public.group_members where group_id = ${group} and user_id = ${user}`;
     if (!r.length) throw new ApiError("not_member", 403);
     return {};
   },
@@ -728,7 +781,16 @@ const actions: Record<string, Action> = {
 // stays on their phone); old invite attempts and audit entries go too.
 async function keepalive(d: Deps): Promise<Result> {
   let removed: string[] = [];
+  let pending: string[] = [];
+  let stale = false;
+  let guardedDay = 0;
   const beat = await d.sql.begin(async (tx) => {
+    // More than 36 hours since the last beat: the daily task missed a day, and says so (R-12).
+    const [prev] = await tx`select beat_at < now() - interval '36 hours' as late from private.heartbeat where id = 1`;
+    stale = !!prev?.late;
+    const [gd] = await tx`select count(*)::int as n from private.audit_log
+                          where action = 'invite_guarded' and at > now() - interval '1 day'`;
+    guardedDay = gd.n;
     const [b] = await tx`
       update private.heartbeat set beat_at = now(), beats = beats + 1 where id = 1
       returning beat_at, beats, cleaned_at`;
@@ -745,16 +807,37 @@ async function keepalive(d: Deps): Promise<Result> {
           and not exists (select 1 from public.join_requests q where q.user_id = u.id and q.status = 'pending')
           and not exists (select 1 from private.merge_tickets t where t.anon_user_id = u.id)
         limit 500`).map((r) => r.id);
+      pending = (await tx`select user_id from private.pending_deletions order by at limit 500`).map((r) => r.user_id);
     }
     return b;
   });
   for (const id of removed) await d.deleteAuthUser(id);
-  return { status: 200, body: { ok: true, beats: Number(beat.beats), removed_guests: removed.length } };
+  // identities whose deletion did not finish (R-15); one that fails again waits for tomorrow
+  let finished = 0;
+  for (const id of pending) {
+    try {
+      await d.deleteAuthUser(id);
+      await d.sql`delete from private.pending_deletions where user_id = ${id}`;
+      finished++;
+    } catch (e) {
+      console.error(JSON.stringify({ action: "keepalive", pending_deletion: id, error: String(e) }));
+    }
+  }
+  return {
+    status: 200,
+    body: {
+      ok: true, beats: Number(beat.beats), removed_guests: removed.length, finished_deletions: finished, stale,
+      guarded_last_day: guardedDay,
+    },
+  };
 }
 
 // Run one action for one caller. `user` is the verified user id from the
 // session, or null when the request has none.
-export async function handle(d: Deps, user: string | null, action: string, body: Body): Promise<Result> {
+// The actions, for the authorization matrix in tests/api.test.ts.
+export const ACTION_NAMES = Object.keys(actions);
+
+export async function handle(d: Deps, user: string | null, action: string, body: Body, meta: Meta = {}): Promise<Result> {
   if (action === "keepalive") return await keepalive(d);
   const fn = Object.hasOwn(actions, action) ? actions[action] : undefined;
   if (!fn) return { status: 404, body: { error: "unknown_action" } };
@@ -764,8 +847,15 @@ export async function handle(d: Deps, user: string | null, action: string, body:
   }
   const after: Array<() => Promise<void>> = [];
   try {
-    const data = await d.sql.begin((tx) => fn({ deps: d, tx, user, body, after }));
-    for (const f of after) await f();
+    const data = await d.sql.begin((tx) => fn({ deps: d, tx, user, body, meta, after }));
+    // What runs after the commit (deleting an identity) cannot undo it; a failure is retried by the keepalive.
+    for (const f of after) {
+      try {
+        await f();
+      } catch (e) {
+        console.error(JSON.stringify({ action, user, after_commit: String(e) }));
+      }
+    }
     return { status: 200, body: data };
   } catch (e) {
     if (e instanceof ApiError) return { status: e.status, body: { error: e.code } };

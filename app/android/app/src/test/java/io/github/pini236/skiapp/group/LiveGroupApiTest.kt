@@ -212,6 +212,21 @@ class LiveGroupApiTest {
         assertNull(api().myTripOnServer())
     }
 
+    @Test fun aBestGoesToTheTableOnlyFromSomeoneInAGroup() = runBlocking {
+        // not signed in, or in no group: nothing is sent, and the phone keeps it for later
+        assertFalse(api().submitBest("merge", 512))
+        signedIn("u1")
+        answers["rest/v1/group_members"] = "[]"
+        assertFalse(api().submitBest("merge", 512))
+        assertTrue(sent.none { it.url.contains("submit_score") })
+        // in a group: the server gets the game and the score (it keeps only the best)
+        answers["rest/v1/group_members"] = """[{"groups":{"id":"g1","name":"G","starts_on":null,"ends_on":null}}]"""
+        answers["functions/v1/api/submit_score"] = """{"best":512}"""
+        assertTrue(api().submitBest("merge", 512))
+        val body = JSONObject(sent.last { it.url.contains("submit_score") }.body!!)
+        assertEquals("merge", body.getString("game")); assertEquals(512, body.getInt("score"))
+    }
+
     @Test fun signingOutOrDeletingForgetsMyTripRow() = runBlocking {
         // the row was that account's: the next session (someone else, or a new guest) must not update it (PARITY A-4)
         signedIn("u1"); myTripId = "t1"

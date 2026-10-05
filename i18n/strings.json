@@ -11141,6 +11141,150 @@
     "ka"
    ]
   },
+  "app.games_intro": {
+   "he": "על השלג של גודאורי. השיאים נשמרים בטלפון, ומי שבקבוצה רואה אותם גם בטבלת הקבוצה. מומלץ עם צליל.",
+   "en": "On Gudauri's snow. Best scores are saved on your phone, and if you're in a group they show in its table too. Sound is recommended.",
+   "ru": "На снегу Гудаури. Рекорды сохраняются на телефоне, а если вы в группе, они видны и в её таблице. Лучше играть со звуком.",
+   "ka": "გუდაურის თოვლზე. რეკორდები ტელეფონში ინახება, და თუ ჯგუფში ხართ, ჯგუფის ცხრილშიც ჩანს. გირჩევთ, ითამაშოთ ხმით.",
+   "where": "app/android",
+   "note": "the games page (13.6): the site's games.intro, on a phone",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.game_coat": {
+   "he": "המעיל שלך",
+   "en": "Your coat",
+   "ru": "Твоя куртка",
+   "ka": "შენი ქურთუკი",
+   "where": "app/android",
+   "note": "the coat picker's heading in the app's games (snowball fight, descent; no names in the app's games, Pini 4.10.2026; the site picks a friend by name)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.descent_joined": {
+   "he": "חבר הצטרף!",
+   "en": "A friend joined!",
+   "ru": "Друг с вами!",
+   "ka": "მეგობარი შემოგიერთდათ!",
+   "where": "app/android",
+   "note": "descent in the app: one of the others joins (the site says the name, game.descent.pop_joined)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.descent_left_behind": {
+   "he": "חבר נשאר מאחור!",
+   "en": "A friend got left behind!",
+   "ru": "Друг отстал!",
+   "ka": "მეგობარი უკან დარჩა!",
+   "where": "app/android",
+   "note": "descent in the app: a fall loses one of the crew (the site says the name, game.descent.pop_left_behind)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.descent_gully_swallowed": {
+   "he": "הערוץ בלע חבר",
+   "en": "The gully swallowed a friend",
+   "ru": "Овраг поглотил друга",
+   "ka": "ხევმა მეგობარი ჩაყლაპა",
+   "where": "app/android",
+   "note": "descent in the app: a fall into a gully loses one of the crew (game.descent.pop_gully_swallowed)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.descent_best": {
+   "he": "השיא במסלול: {time}",
+   "en": "Best on this run: {time}",
+   "ru": "Рекорд трассы: {time}",
+   "ka": "ტრასის რეკორდი: {time}",
+   "where": "app/android",
+   "note": "descent in the app, the result card (the site adds who, game.descent.end_best)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.descent_share": {
+   "he": "ירדתי ב-{run} ב-{time} {stars}: {flips} סלטות, {pops} פופים מושלמים, {got} מתוך 5 חבר׳ה ו-{coins} חצ׳אפורי. מי עוקף?",
+   "en": "I did {run} in {time} {stars}: flips {flips}, perfect pops {pops}, crew {got}/5, khachapuri {coins}. Who can beat that?",
+   "ru": "Я спустился по {run} за {time} {stars}: сальто {flips}, идеальных отрывов {pops}, компания {got} из 5, хачапури {coins}. Кто быстрее?",
+   "ka": "{run}, {time} {stars}. სალტო: {flips}, იდეალური აფრენა: {pops}, ჯგუფი: {got}/5, ხაჭაპური: {coins}. ვინ აჯობებს?",
+   "where": "app/android",
+   "note": "descent in the app: the result copied for the group, in the first person (the site names the skier, game.descent.share_result)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.descent_share_caught": {
+   "he": "המפולת תפסה אותי ב-{run} אחרי {m} מ׳. מי מגיע רחוק יותר?",
+   "en": "The avalanche caught me on {run} after {m} m. Who gets further?",
+   "ru": "Лавина настигла меня на {run} через {m} м. Кто уедет дальше?",
+   "ka": "ზვავმა {run}-ზე {m} მ-ის შემდეგ დამეწია. ვინ წავა უფრო შორს?",
+   "where": "app/android",
+   "note": "descent in the app: caught by the avalanche, copied for the group (game.descent.share_caught)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.snowball_out": {
+   "he": "בחוץ!",
+   "en": "Out!",
+   "ru": "Выбывает!",
+   "ka": "გავარდა!",
+   "where": "app/android",
+   "note": "snowball fight in the app: a character is out (the site says the name, game.snowball.pop_out)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.color_yellow": {
+   "he": "צהוב",
+   "en": "Yellow",
+   "ru": "Жёлтая",
+   "ka": "ყვითელი",
+   "where": "app/android",
+   "note": "a coat colour in the app's games, for a screen reader (with common.color_red, _blue, _green)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.color_purple": {
+   "he": "סגול",
+   "en": "Purple",
+   "ru": "Фиолетовая",
+   "ka": "იისფერი",
+   "where": "app/android",
+   "note": "a coat colour in the app's games, for a screen reader",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.color_orange": {
+   "he": "כתום",
+   "en": "Orange",
+   "ru": "Оранжевая",
+   "ka": "ნარინჯისფერი",
+   "where": "app/android",
+   "note": "a coat colour in the app's games, for a screen reader",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
   "app.about_lang_auto": {
    "he": "נבחרה לפי הטלפון",
    "en": "Chosen by the phone",

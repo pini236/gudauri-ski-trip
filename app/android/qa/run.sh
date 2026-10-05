@@ -64,6 +64,8 @@ qa() { # qa <extras...>: one string for the device shell, values with spaces in 
 tap() { adb shell input tap "$1" "$2"; }
 hold() { adb shell input swipe "$1" "$2" "$1" "$2" "$3"; } # hold <x> <y> <ms>
 drag() { adb shell input swipe "$1" "$2" "$3" "$4" "$5"; } # drag <x1> <y1> <x2> <y2> <ms>
+# a page is scrolled near its edge (x 7%, past the system back gesture), where nothing is tappable: a drag over a sign or a link can land as a tap
+# while the page is not yet scrollable (main runs 88 to 102: the games sign, a link in "what's ahead")
 
 read -r W H < <(adb shell wm size | sed -n 's/.*: \([0-9]*\)x\([0-9]*\).*/\1 \2/p' | tail -1)
 DENSITY=$(adb shell wm density | sed -n 's/.*: \([0-9]*\).*/\1/p' | tail -1)
@@ -136,12 +138,174 @@ map() {
   qa "--es qa.time 2027-01-12T12:30 $RESET"; waitlog "shadow ready" 120
 }
 
-# ---- the descent game ----
+scrollDown() { drag $((W * 7 / 100)) $((H * 80 / 100)) $((W * 7 / 100)) $((H * 30 / 100)) 400; sleep .8; }
+# ---- the descent (13.6, the site's game): the coats and the runs, the count, jumps and a flip, the bottom, the result ----
 descent() {
-  qa "--es qa.tab descent"; sleep 3; shot descent-start
+  qa "--es qa.group member --es qa.trip none --es qa.tab descent"; sleep 3; shot descent-menu
+  [ -n "$(where "המעיל שלך")" ] || fail "no coat picker in the descent's menu"
+  [ -n "$(where "Tatra 2")" ] || fail "no runs in the descent's menu"
+  scrollDown; shot descent-menu-bottom
+  mark; qa "--es qa.descent go"; sleep 1.2; shot descent-count
+  waitlog "descent start" 3
+  sleep 3; shot descent-start
   for i in 1 2 3; do hold $((W / 2)) $((H / 2)) 700; sleep 0.6; shot "descent-jump-$i"; done
   hold $((W / 2)) $((H / 2)) 300; sleep 0.15; hold $((W / 2)) $((H / 2)) 1600; shot descent-flip
-  sleep 8; shot descent-later
+  sleep 6; shot descent-later
+  # straight to the bottom: the lift, the result, the copy for the group
+  mark; qa "--es qa.descent bottom"; sleep 4.5; shot descent-end
+  waitlog "descent done" 6
+  [ -n "$(where "עוד ירידה")" ] || fail "no 'another run' after the descent"
+  tapText "העתקת התוצאה לקבוצה" && { sleep .8; shot descent-copied; waitlog "descent copied" 3; }
+  adb shell input keyevent KEYCODE_BACK; sleep 1
+  [ -n "$(where "המעיל שלך")" ] || fail "back from the result is not the descent's menu"
+  adb shell input keyevent KEYCODE_BACK; sleep 1.5
+  [ -n "$(where "הירידה של החבר׳ה")" ] || fail "back from the descent is not the games page"
+  # left to right: the run's sign and the time swap sides, the crew stays on the right
+  adb shell cmd locale set-app-locales "$PKG" --locales en > /dev/null 2>&1; sleep 3
+  qa "--es qa.tab descent"; sleep 2; shot descent-menu-en
+  qa "--es qa.descent go"; sleep 6; shot descent-en
+  adb shell cmd locale set-app-locales "$PKG" --locales he > /dev/null 2>&1; sleep 3
+  qa "--es qa.tab home"; sleep 1
+}
+
+# ---- the games page (13.6, the site's #games, GP2) and the merging game ----
+games() {
+  # in a group on the pretend server, so a new best goes to the group's table
+  qa "--es qa.group member --es qa.tab home --es qa.trip none"; sleep 3
+  drag $((W * 7 / 100)) $((H * 80 / 100)) $((W * 7 / 100)) $((H * 35 / 100)) 400; sleep 1
+  if tapText "משחקים"; then sleep 2; shot games-page; else fail "no games sign on home"; fi
+  tapText "איחוד כדורי שלג" && { sleep 2; shot merge-start; }
+  # a swipe anywhere moves the board: a few, then undo
+  mark; local d; for d in L U R D L D; do
+    case $d in L) drag $((W * 75 / 100)) $((H / 2)) $((W * 25 / 100)) $((H / 2)) 150 ;; R) drag $((W * 25 / 100)) $((H / 2)) $((W * 75 / 100)) $((H / 2)) 150 ;;
+      U) drag $((W / 2)) $((H * 60 / 100)) $((W / 2)) $((H * 35 / 100)) 150 ;; D) drag $((W / 2)) $((H * 35 / 100)) $((W / 2)) $((H * 60 / 100)) 150 ;; esac
+    sleep 0.5
+  done
+  sleep 0.4; shot merge-moved
+  waitlog "merge moved" 3
+  tapText "ביטול מהלך" && { sleep 0.8; shot merge-undo; }
+  # one swipe from a whole snowman: the merge, the puff and the points, then "Snowman!"; the best goes to the group
+  qa "--es qa.tab home"; sleep 1
+  mark; qa "--es qa.merge near --es qa.tab merge"; sleep 2; shot merge-near
+  drag $((W * 75 / 100)) $((H / 2)) $((W * 25 / 100)) $((H / 2)) 150; sleep 0.25; shot merge-merging
+  sleep 1.2; shot merge-won
+  [ -n "$(where "איש שלג!")" ] || fail "no 'Snowman!' after a whole snowman"
+  waitlog "score sent merge" 10 # the new best, to the group's table
+  tapText "להמשיך" && { sleep 1; shot merge-go-on; }
+  adb shell input keyevent KEYCODE_BACK; sleep 1.5; shot games-back
+  [ -n "$(where "איחוד כדורי שלג")" ] || fail "back from the game is not the games page"
+  # fresh snow (13.6): a finger, a boot and the snowcat on the snow, the frozen crust, new snow; then the frozen lake
+  mark; tapText "שלג טרי" && { sleep 2; shot fresh-start; }
+  drag $((W * 20 / 100)) $((H * 30 / 100)) $((W * 80 / 100)) $((H * 42 / 100)) 700; drag $((W * 70 / 100)) $((H * 25 / 100)) $((W * 30 / 100)) $((H * 55 / 100)) 700
+  sleep 0.6; shot fresh-finger; waitlog "fresh snow" 5
+  tapText "מגף" && { drag $((W * 25 / 100)) $((H * 60 / 100)) $((W * 75 / 100)) $((H * 35 / 100)) 1500; sleep 0.5; shot fresh-boot; }
+  tapText "חתול שלג" && { drag $((W * 12 / 100)) $((H * 48 / 100)) $((W * 88 / 100)) $((H * 48 / 100)) 1200; sleep 0.2; shot fresh-snowcat; sleep 1.4; shot fresh-corduroy; }
+  tapText "קרום קפוא" && tapText "כדור" && { drag $((W * 30 / 100)) $((H * 30 / 100)) $((W * 60 / 100)) $((H * 50 / 100)) 900; sleep 0.5; shot fresh-crust; }
+  tapText "שלג חדש" && { sleep 0.8; shot fresh-falling; sleep 2.5; shot fresh-new-snow; }
+  mark; tapText "אגם קפוא" && { sleep 2; shot fresh-lake; }
+  local k; for k in 1 2 3 4 5 6 7 8; do tap $((W * (25 + (k * 37) % 50) / 100)) $((H * (28 + (k * 23) % 34) / 100)); sleep 0.25; done
+  shot fresh-lake-hits; sleep 1.5; shot fresh-lake-broken; waitlog "fresh lake" 5
+  tapText "קפיאה מחדש" && { sleep 1.5; shot fresh-refreeze; }
+  adb shell input keyevent KEYCODE_BACK; sleep 1.5
+  [ -n "$(where "איחוד כדורי שלג")" ] || fail "back from fresh snow is not the games page"
+  qa "--es qa.mode night"; sleep 1.5; shot games-night
+  qa "--es qa.mode auto"
+  # left to right: the post on the left, the signs point right, the board does not flip
+  adb shell cmd locale set-app-locales "$PKG" --locales en > /dev/null 2>&1; sleep 3
+  qa "--es qa.tab games"; sleep 2; shot games-en
+  qa "--es qa.merge near --es qa.tab merge"; sleep 2; shot merge-en
+  qa "--es qa.tab fresh"; sleep 2; drag $((W * 20 / 100)) $((H * 35 / 100)) $((W * 80 / 100)) $((H * 45 / 100)) 700; sleep 0.5; shot fresh-en
+  adb shell cmd locale set-app-locales "$PKG" --locales he > /dev/null 2>&1; sleep 3
+  qa "--es qa.tab home"; sleep 1
+}
+
+# ---- the ski school (13.6): the lessons, a brief, the wedge on the slope, the result; then the skis, the beat, carving and the final test ----
+school() {
+  qa "--es qa.group member --es qa.trip none --es qa.tab school"; sleep 3; shot school-menu
+  [ -n "$(where "עוצרים בפיצה")" ] || fail "no first lesson in the school's menu"
+  tapText "עוצרים בפיצה" && { sleep 1; shot school-brief; }
+  mark; tapText "לשלג!" && { sleep 2.5; shot school-wedge; }
+  waitlog "school start 1" 3
+  # the finger low on the slope: a wide wedge, and the skier stops
+  hold $((W / 2)) $((H * 80 / 100)) 2500; shot school-wedge-wide
+  waitlog "coach_wide_pizza" 3
+  # the lesson ended at once: no stop, no star, "try again"
+  mark; qa "--es qa.school finish"; sleep 1.5; shot school-result
+  waitlog "school done 1 0 stars" 3
+  [ -n "$(where "לנסות שוב")" ] || fail "no 'try again' after a lesson with no star"
+  tapText "לכל השיעורים" && sleep 1
+  # every lesson open: the two skis (the first gate is on the left, so the left ski is the wrong one)
+  # from home, so the school's page opens again and reads the stars
+  qa "--es qa.tab home"; sleep 1
+  qa "--es qa.school open --es qa.tab school"; sleep 2; shot school-menu-open
+  tapText "פונים בפיצה" && tapText "לשלג!" && sleep 1.5
+  mark; tapText "מגלש שמאל"; waitlog "coach_wrong_right" 3
+  local xy; xy=$(where "מגלש ימין"); [ -n "$xy" ] && { hold $xy 1800; shot school-skis; }
+  waitlog "coach_correct_left" 3
+  adb shell input keyevent KEYCODE_BACK; sleep 1
+  [ -n "$(where "פונים בפיצה")" ] || fail "back from a lesson is not the school's menu"
+  # the beat: taps anywhere, graded
+  tapText "מקבילי, בקצב" && tapText "לשלג!" && sleep 2
+  mark; local k; for k in 1 2 3 4 5; do tap $((W / 2)) $((H * 55 / 100)); sleep 1.15; done
+  shot school-rhythm; seen "beat_" 2 || fail "no grade for a tap on the beat"
+  adb shell input keyevent KEYCODE_BACK; sleep 1
+  # carving: the finger leans the skis; the gauge at the bottom
+  tapText "קרווינג" && tapText "לשלג!" && sleep 1.5
+  drag $((W * 30 / 100)) $((H / 2)) $((W * 70 / 100)) $((H / 2)) 1500; drag $((W * 70 / 100)) $((H / 2)) $((W * 30 / 100)) $((H / 2)) 1500
+  shot school-carve
+  adb shell input keyevent KEYCODE_BACK; sleep 1
+  # the final test: gates, other skiers and the wedge button
+  tapText "מבחן סיום" && { sleep 1; shot school-final-brief; tapText "לשלג!"; sleep 3; shot school-final; }
+  xy=$(where "פיצה"); [ -n "$xy" ] && { hold $xy 1200; shot school-final-wedge; }
+  adb shell input keyevent KEYCODE_BACK; sleep 1
+  adb shell input keyevent KEYCODE_BACK; sleep 1.5
+  [ -n "$(where "בית הספר לסקי")" ] || fail "back from the school is not the games page"
+  # left to right: the sign points right, the skis stay where they are, the checklist stays on the right
+  adb shell cmd locale set-app-locales "$PKG" --locales en > /dev/null 2>&1; sleep 3
+  qa "--es qa.tab school"; sleep 2; shot school-menu-en
+  tapText "Stopping in a pizza" && { sleep 1; shot school-brief-en; tapText "To the snow!"; sleep 2.5; shot school-wedge-en; }
+  adb shell input keyevent KEYCODE_BACK; sleep 1
+  tapText "Turning in a pizza" && tapText "To the snow!" && { sleep 2; shot school-skis-en; }
+  adb shell cmd locale set-app-locales "$PKG" --locales he > /dev/null 2>&1; sleep 3
+  qa "--es qa.tab home"; sleep 1
+}
+
+# ---- the snowball fight (13.6): the coats, the ladder, a throw, the result, back, the summit, left to right ----
+snowball() {
+  qa "--es qa.group member --es qa.trip none --es qa.tab snowball"; sleep 3; shot snowball-menu
+  [ -n "$(where "המעיל שלך")" ] || fail "no coat picker in the snowball fight's menu"
+  [ -n "$(where "בחצר המלון")" ] || fail "no first rung on the snowball fight's ladder"
+  tapText "כחול" && { sleep .6; shot snowball-coat; }
+  scrollDown; shot snowball-menu-bottom
+  mark; tapText "לקרב!" && { sleep 2; shot snowball-fight; }
+  waitlog "snowball start 1" 3
+  # a finger in the middle: up over the wall with the ring and the arc, then the throw
+  hold $((W / 2)) $((H * 50 / 100)) 1800 & local hp=$!; sleep 1.2; shot snowball-aim; wait $hp
+  waitlog "snowball pop" 4
+  # down behind the wall a while: their balls come
+  sleep 4; shot snowball-later
+  # the fight won at once: the result
+  mark; qa "--es qa.snowball win"; sleep 3.5; shot snowball-won
+  waitlog "snowball done 1 won" 4
+  [ -n "$(where "עוד סיבוב")" ] || fail "no 'another round' after a won fight"
+  [ -n "$(where "השלב הבא")" ] || fail "no 'next rung' after a won fight"
+  tapText "לתפריט" && { sleep 1; shot snowball-menu-star; }
+  # back from a fight is the menu
+  scrollDown; tapText "לקרב!" && sleep 1.5; adb shell input keyevent KEYCODE_BACK; sleep 1
+  [ -n "$(where "המעיל שלך")" ] || fail "back from a fight is not the snowball menu"
+  # every rung open: the summit, three of them in the wind
+  qa "--es qa.tab home"; sleep 1
+  qa "--es qa.snowball open --es qa.tab snowball"; sleep 2
+  scrollDown; tapText "בפסגה, ברוח" && { sleep .5; tapText "לקרב!"; sleep 2.5; shot snowball-summit; }
+  adb shell input keyevent KEYCODE_BACK; sleep 1
+  adb shell input keyevent KEYCODE_BACK; sleep 1.5
+  [ -n "$(where "קרב כדורי שלג")" ] || fail "back from the snowball fight is not the games page"
+  # left to right: the same field, the tags where they were
+  adb shell cmd locale set-app-locales "$PKG" --locales en > /dev/null 2>&1; sleep 3
+  qa "--es qa.tab snowball"; sleep 2; shot snowball-menu-en
+  scrollDown; tapText "Fight!" && { sleep 2.5; shot snowball-fight-en; }
+  adb shell cmd locale set-app-locales "$PKG" --locales he > /dev/null 2>&1; sleep 3
+  qa "--es qa.tab home"; sleep 1
 }
 
 # ---- the home page (round 10: H1 to H4, LT1 to LT3) ----
@@ -245,15 +409,16 @@ home() {
   tapText "בית" && sleep 1.5 && shot home-back
   tapText "נקודת מפגש" && sleep 1 && shot home-sign-meet && adb shell input keyevent KEYCODE_BACK && sleep 1
   # home below the signs: the tally of runs and the two links (A-32)
-  drag $((W / 2)) $((H * 80 / 100)) $((W / 2)) $((H * 20 / 100)) 400; sleep 1; shot home-bottom
+  drag $((W * 7 / 100)) $((H * 80 / 100)) $((W * 7 / 100)) $((H * 20 / 100)) 400; sleep 1; shot home-bottom
   drag $((W / 2)) $((H * 20 / 100)) $((W / 2)) $((H * 80 / 100)) 300; drag $((W / 2)) $((H * 20 / 100)) $((W / 2)) $((H * 80 / 100)) 300; sleep 1
   # about and settings (13.7): the account's pass, the settings, who built it, the credits
   if tapText "אודות והגדרות"; then
     sleep 1; shot home-about
-    drag $((W / 2)) $((H * 80 / 100)) $((W / 2)) $((H * 25 / 100)) 400; sleep 1; shot home-about-2
     # the reset asks twice: armed while it is on screen, before the credits scroll it away
     tapText "איפוס השיאים במשחקים" && sleep 0.5 && shot home-about-reset-armed
-    drag $((W / 2)) $((H * 80 / 100)) $((W / 2)) $((H * 25 / 100)) 400; sleep 1; shot home-about-3
+    # slow drags: a quick one from the edge flings the page to its end
+    drag $((W * 7 / 100)) $((H * 80 / 100)) $((W * 7 / 100)) $((H * 45 / 100)) 1000; sleep 1; shot home-about-2
+    drag $((W * 7 / 100)) $((H * 80 / 100)) $((W * 7 / 100)) $((H * 45 / 100)) 1000; sleep 1; shot home-about-3
     adb shell input keyevent KEYCODE_BACK && sleep 1
   else fail "no way to about from home"; fi
 
@@ -337,7 +502,7 @@ group() {
 # ---- the meeting point (M1 to M3, round 8's MP1 to MP3) and a meetup saved in the group (Q8) ----
 meet() {
   # the page scrolls under the map: drag below it (a drag on the map moves the map)
-  local up="$((W / 2)) $((H * 85 / 100)) $((W / 2)) $((H * 35 / 100)) 400" down="$((W / 2)) $((H * 70 / 100)) $((W / 2)) $((H * 98 / 100)) 300"
+  local up="$((W * 7 / 100)) $((H * 85 / 100)) $((W * 7 / 100)) $((H * 35 / 100)) 400" down="$((W * 7 / 100)) $((H * 70 / 100)) $((W * 7 / 100)) $((H * 98 / 100)) 300"
   totop() { for _ in 1 2 3 4 5 6 7; do drag $down; sleep 0.3; done; sleep 0.8; }
   # a trip (its ski days are the day chips), mid-December at noon in Gudauri: nothing is picked at first (MP1)
   qa "--es qa.group none --es qa.tab home --es qa.trip '$TRIP_HE' --es qa.mode auto --es qa.time 2026-12-15T12:00"; waitlog "trip set" 20
@@ -390,7 +555,7 @@ meet() {
 
 # ---- the language from the home page (3.10.2026): the tag in the head opens the list; a tap saves the language ----
 lang() {
-  local up="$((W / 2)) $((H * 85 / 100)) $((W / 2)) $((H * 45 / 100)) 400"
+  local up="$((W * 7 / 100)) $((H * 85 / 100)) $((W * 7 / 100)) $((H * 45 / 100)) 400"
   adb shell cmd locale set-app-locales "$PKG" --locales he > /dev/null 2>&1; sleep 3
   qa "--es qa.group none --es qa.tab home --es qa.trip none --es qa.mode auto --es qa.time 2026-12-01T13:35"; waitlog "trip none" 20; sleep 2
   shot lang-he-closed
@@ -459,7 +624,7 @@ phone() {
 # ---- the run view (13.3, the site's T1 to T4): the sign and the panel, the profile that moves the dot, a swipe to the
 # next run, a lift's panel, the list of runs with the filters, and English (map/RunSheet.kt) ----
 runview() {
-  local up="$((W / 2)) $((H * 90 / 100)) $((W / 2)) $((H * 50 / 100)) 500" xy
+  local up="$((W * 7 / 100)) $((H * 90 / 100)) $((W * 7 / 100)) $((H * 50 / 100)) 500" xy
   adb shell am force-stop "$PKG"; sleep 1; mark
   adb shell "am start -W -n $ACT --es qa.tab map --es qa.time 2027-01-12T11:00 --es qa.stats off" > /dev/null
   waitlog "scene ready" 120 && waitlog "shadow ready" 120
@@ -502,7 +667,7 @@ runview() {
 
 # ---- the lift status (13.4, the site's S1 to S3): no report, an old one, a fresh one (status/LiftStatus.kt) ----
 status() {
-  local up="$((W / 2)) $((H * 85 / 100)) $((W / 2)) $((H * 45 / 100)) 400"
+  local up="$((W * 7 / 100)) $((H * 85 / 100)) $((W * 7 / 100)) $((H * 45 / 100)) 400"
   # no report, out of season: the home's board sleeps under the snow (S3), and a tap opens the snowy signs over the map
   adb shell am force-stop "$PKG"; sleep 1; mark
   adb shell "am start -W -n $ACT --es qa.tab home --es qa.trip none --es qa.mode auto --es qa.group none --es qa.time 2026-10-03T11:00 --es qa.status none" > /dev/null
@@ -554,8 +719,8 @@ store() {
   qa "--es qa.time 2027-01-12T16:40 --es qa.cam '600,-500,11000,20,36' --es qa.face sun"; waitlog "shadow ready" 120; sleep 1.5; sshot sunset
   qa "--es qa.time 2027-01-12T21:00 --es qa.cam '600,-500,11000,20,36' --es qa.face moon"; waitlog "shadow ready" 120; sleep 1.5; sshot night
   qa "--es qa.time 2027-01-12T11:00"; waitlog "shadow ready" 120
-  qa "--es qa.tab descent"; sleep 3
-  sleep 2; hold $((W / 2)) $((H / 2)) 700; sleep 0.5; sshot descent
+  qa "--es qa.tab descent"; sleep 2; qa "--es qa.descent go"; sleep 6
+  hold $((W / 2)) $((H / 2)) 700; sleep 0.5; sshot descent
   qa "--es qa.tab home --es qa.trip '$TRIP_HE' --es qa.time 2026-12-01T13:35"; sleep 2.5; sshot home
   qa "--es qa.mode night"; sleep 2; sshot home-night
   qa "--es qa.mode auto"
@@ -568,6 +733,9 @@ for sc in ${SCENARIO//,/ }; do
   case "$sc" in
     map) map ;;
     descent) descent ;;
+    games) games ;;
+    school) school ;;
+    snowball) snowball ;;
     home) home ;;
     group) group ;;
     meet) meet ;;
@@ -576,7 +744,7 @@ for sc in ${SCENARIO//,/ }; do
     phone) phone ;;
     store) store ;;
     run) runview ;;
-    *) map; descent; home; group; meet; status; runview; lang; phone; store ;;
+    *) map; descent; games; school; snowball; home; group; meet; status; runview; lang; phone; store ;;
   esac
 done
 

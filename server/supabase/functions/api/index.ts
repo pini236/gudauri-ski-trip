@@ -10,7 +10,7 @@
 
 import postgres from "postgres";
 import { createClient } from "@supabase/supabase-js";
-import { handle } from "./actions.ts";
+import { clientIp, handle } from "./actions.ts";
 
 // Provided by Supabase to every Edge Function.
 const sql = postgres(Deno.env.get("SUPABASE_DB_URL")!, { prepare: false, max: 4, idle_timeout: 20 });
@@ -37,6 +37,37 @@ function reply(status: number, body: unknown) {
     status,
     headers: { ...CORS, "Content-Type": "application/json" },
   });
+}
+
+// The caller's network address as a keyed hash that changes every day: enough to count wrong code guesses per address
+// (R-13), and nothing that can be turned back into the address, or linked across days. The key is derived from the
+// service key ("ip-v1"), which only the server has, so replacing one never touches the other.
+//
+// Which header: Cloudflare's and the proxy's own first; else the LAST entry of x-forwarded-for, the one the proxy
+// added (the first is whatever the caller sent). No trusted address: not counted per address (logged), never put in
+// a shared "unknown" bucket, which would let anyone close joining for all again. Checked after deploying:
+// server/README.md, "פריסה".
+async function hmac(key: Uint8Array<ArrayBuffer>, text: string): Promise<Uint8Array<ArrayBuffer>> {
+  const k = await crypto.subtle.importKey("raw", key, { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
+  return new Uint8Array(await crypto.subtle.sign("HMAC", k, new TextEncoder().encode(text)));
+}
+const ipSecret = hmac(new TextEncoder().encode(Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "local"), "ip-v1");
+
+// Counting per address keeps a keyed hash of the address for two days: personal data, so it is on only once Pini has
+// approved the line about it in the privacy policy (docs/PRIVACY.md, the architect's review of R-13). Off: no address
+// is read or kept, and wrong guesses are limited per person and by protection mode only.
+const COUNT_BY_ADDRESS = false;
+
+async function ipKey(req: Request, action: string): Promise<string | undefined> {
+  if (!COUNT_BY_ADDRESS) return undefined;
+  const ip = clientIp(req.headers);
+  if (!ip) {
+    if (["invite_preview", "join_group", "request_reclaim"].includes(action)) console.log(JSON.stringify({ action, no_client_ip: true }));
+    return undefined;
+  }
+  const day = new Date().toISOString().slice(0, 10);
+  const mac = await hmac(await ipSecret, `${day}|${ip}`);
+  return [...mac].slice(0, 12).map((b) => b.toString(16).padStart(2, "0")).join("");
 }
 
 async function caller(req: Request): Promise<string | null> {
@@ -66,7 +97,7 @@ Deno.serve(async (req) => {
       return reply(status, { error });
     }
     user = action === "keepalive" ? null : await caller(req);
-    const r = await handle(deps, user, action, body);
+    const r = await handle(deps, user, action, body, { ipKey: await ipKey(req, action) });
     status = r.status;
     error = (r.body as { error?: string } | null)?.error;
     return reply(r.status, r.body);
