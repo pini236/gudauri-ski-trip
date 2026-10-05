@@ -133,7 +133,8 @@ private class LabelOverlay(context: Context, private val camera: OrbitCamera) : 
         val infoH = (p.wind?.height ?: 0) + (p.snow?.height ?: 0).toFloat()
         val h = padTop + p.title.height + 2 * d + maxOf(p.temp.height.toFloat(), infoH) + padBot
         var top = sy - stem - h
-        if (top < 8 * d) top = sy + stem
+        // under the map's own buttons and status bar (about 150 dp from the top), the card hangs below its point
+        if (top < 150 * d) top = sy + stem
         val left = (sx - w / 2).coerceIn(8 * d, maxOf(8 * d, width - w - 8 * d))
         val ink = Color.rgb(19, 35, 58)
         // the stem to the point, the card, its rule
