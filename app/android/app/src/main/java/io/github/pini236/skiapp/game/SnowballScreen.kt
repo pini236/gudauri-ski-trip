@@ -24,6 +24,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.absolutePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -174,7 +175,7 @@ fun SnowballScreen(haptics: Haptics, onBack: () -> Unit, onBest: () -> Unit = {}
                 Hint(hint)
                 // the sound, at the bottom right, as the site's (A-41)
                 SoundKey(stringResource(R.string.game_snowball_sound),
-                    Modifier.align(AbsoluteAlignment.BottomRight).navigationBarsPadding().padding(end = 12.dp, bottom = 14.dp))
+                    Modifier.align(AbsoluteAlignment.BottomRight).navigationBarsPadding().absolutePadding(right = 12.dp, bottom = 14.dp))
             }
             Fight.END -> result?.let { r -> Shade { End(rung, r,
                 onAgain = { start() },
@@ -407,7 +408,8 @@ private fun Pop(say: Say?, n: Int, still: Boolean) {
 private fun Hint(on: Boolean) {
     val a by animateFloatAsState(if (on) 1f else 0f, tween(500), label = "hint")
     if (a <= 0f) return
-    Box(Modifier.fillMaxSize().navigationBarsPadding().padding(16.dp), contentAlignment = Alignment.BottomCenter) {
+    // clear of the sound at the bottom right (SoundKey)
+    Box(Modifier.fillMaxSize().navigationBarsPadding().padding(16.dp).absolutePadding(right = 48.dp), contentAlignment = Alignment.BottomCenter) {
         Text(stringResource(R.string.game_snowball_hint), Modifier.fillMaxWidth().alpha(a).background(Color.White.copy(alpha = .92f)).padding(horizontal = 12.dp, vertical = 7.dp),
             style = Ski.type.bodyBold.copy(fontSize = 14.sp, lineHeight = 1.35.em), color = INK)
     }
