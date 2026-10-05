@@ -305,3 +305,20 @@ test('/account למשתמש רשום: נכנסים עם גוגל וחוזרים 
   expect(server.calls).toContain('POST /functions/v1/api/delete_my_account');
   expect(errors).toEqual([]);
 });
+
+// X-4: the same four cases as the app's unit test (docs/ARCHITECTURE.md)
+test('קיבוץ החברים לכרטיסי טיסה לפי כיוון, תאריך ומספר הטיסה (X-4)', async ({ page }) => {
+  await page.goto('/#home');
+  await loaded(page);
+  const same = await page.evaluate(() => {
+    const k = (window as any).ACCOUNT.flightKey;
+    const t = (o: any) => ({ out_date: '2027-01-10', ...o });
+    return [
+      k(t({ out_flight: '897', out_from: 'TLV', out_to: 'TBS' })) === k(t({ out_flight: '897' })), // with airports and without: one card
+      k(t({ out_flight: 'IZ 897' })) === k(t({ out_flight: 'iz-897' })), // a space or not: one card
+      k(t({ out_from: 'TLV', out_to: 'TBS' })) === k(t({ out_from: 'TLV', out_to: 'KUT' })), // no number, other airports: two cards
+      k(t({ out_flight: '897', out_from: 'TLV', out_to: 'TBS' })) === k(t({ out_from: 'TLV', out_to: 'TBS' })), // number and none: two cards
+    ];
+  });
+  expect(same).toEqual([true, true, false, false]);
+});

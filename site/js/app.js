@@ -217,7 +217,7 @@ function sampleLine(L,step){
       for(let k=1;k<=n;k++){const t=k/n;o.push({x:a[0]+(b[0]-a[0])*t,y:a[1]+(b[1]-a[1])*t,d:d+l*t});}d+=l;}
     else o.push({x:L[0][0],y:L[0][1],d:0});}
   o.forEach(q=>q.h=TM.elev(q.x,q.y));
-  o.forEach((q,i)=>{let a=i,b=i;while(a>0&&q.d-o[a].d<20)a--;while(b<o.length-1&&o[b].d-q.d<20)b++;const dd=o[b].d-o[a].d;q.a=dd?Math.atan(Math.abs(o[b].h-o[a].h)/dd)*180/Math.PI:0;});
+  const cum=o.map(q=>q.d),hs=o.map(q=>q.h);o.forEach((q,i)=>{q.a=GudRelief.lineSlope(cum,hs,i);}); // X-3: the one rule
   return o;
 }
 const runLines=p=>p.segs.filter(s=>!s.area).map(s=>topDown(s.g.map(P)));
