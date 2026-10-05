@@ -15,7 +15,7 @@
 | אנדרואיד | `app/android/` | סשן האנדרואיד | `session_01Gpr4L7H5gxaycQcxMRD5cE` | המשחקים הושלמו (13.6), R-10 ו-R-18 טופלו. הבא: X-3, X-4, רובוטי הבדיקה של גוגל פליי, Sentry והתמונה של פיני, ואחר כך שאר הפערים ב-`docs/PARITY.md` |
 | שרת | `server/` | פנוי | | |
 | אייפון | `app/ios/` | פנוי (יתחיל בסשן על המק של פיני) | | |
-| קנבס | `design/`, הקנבס | פנוי (רדום, החלטה 54) | | בדיקת השפה העיצובית ממתינה לפיני (15 הצעות, https://claude.ai/artifact/TW8xaEsc2EjqodwLcrMzaw). סבב 18, יישור הקו בקנבס, הושהה; מה שנאסף ב-`design/round18/README.md` |
+| קנבס | `design/`, הקנבס | מעצב המוצר | `session_018WEovaqXC4kNabe89Cnwoj` | סבב 19: מזג אוויר ורוח לפי גבהים ומיקום עצמי, לאתר ולאנדרואיד (`design/round19/`, החלטה 57), לבקשת סשן המנהל; בלי קוד באתר ובאפליקציה |
 | קנבס: שפה עיצובית חדשה | `design/language/` וקנבס נפרד (https://claude.ai/artifact/9yxrGgytb2Gmi4i1UqEhST) | פנוי (חמש השפות מוכנות, ממתין לבחירה של פיני) | | |
 | ארכיטקטורה | `docs/ARCHITECTURE.md`, `docs/ROLE-ARCHITECT.md` | ארכיטקט המערכת (קבוע) | `session_01JUxNys6FzfkFTAFyHbYdCe` | קו הבסיס הושלם (`docs/ARCHITECTURE.md`). זמין לשאלות ולסקירות תכנון |
 | שפות | `i18n/` | משותף: כל סשן מוסיף רק מפתחות של התחום שלו | | |
