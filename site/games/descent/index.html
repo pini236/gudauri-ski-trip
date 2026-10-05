@@ -138,8 +138,8 @@ button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
   <a class="back-site" href="../../#games" style="" data-i18n="game.descent.back_to_games">→ לכל המשחקים</a>
   <h1 data-i18n="game.descent.title">הירידה של החבר׳ה</h1>
   <p data-i18n="game.descent.intro">המסלולים האמיתיים של גודאורי, בשיפועים האמיתיים שלהם. אספו את החבר׳ה בדרך, קפצו מעל ערוצים וחתולי שלג, עשו סלטות, ותברחו מהמפולת עד הרכבל.</p>
-  <h2 data-i18n="game.descent.who_skis">מי גולש?</h2>
-  <div class="friends" id="friends" role="group" data-i18n-attr="aria-label:game.descent.choose_friend_label" aria-label="בחירת חבר"></div>
+  <h2 data-i18n="game.descent.your_coat">המעיל שלך</h2>
+  <div class="friends" id="friends" role="group" data-i18n-attr="aria-label:game.descent.choose_coat_label" aria-label="בחירת מעיל"></div>
   <h2 data-i18n="game.descent.which_run">איזה מסלול?</h2>
   <div class="runs" id="runs" role="group" data-i18n-attr="aria-label:game.descent.choose_run_label" aria-label="בחירת מסלול"></div>
   <div class="opts"><button class="chip" id="optAva" type="button" aria-pressed="true" data-i18n="game.descent.opt_avalanche">עם מפולת</button><button class="chip" id="optGhost" type="button" aria-pressed="true" data-i18n="game.descent.opt_ghost">רוח רפאים של השיא</button></div>
@@ -180,9 +180,8 @@ const PANO = "data:image/webp;base64,UklGRs5cAABXRUJQVlA4WAoAAAAQAAAACwMAHwMAQUx
 // ride from the highest point of the line to its lowest point after it (a few lines climb past the lift or start on a traverse)
 for(const r of PROFILES){ let i0=0; r.h.forEach((v,i)=>{ if(v>r.h[i0]) i0=i; }); let i1=i0; for(let i=i0;i<r.h.length;i++) if(r.h[i]<r.h[i1]) i1=i;
   r.h=r.h.slice(i0,i1+1); r.len=(r.h.length-1)*5; r.top=Math.round(r.h[0]); r.bot=Math.round(r.h[r.h.length-1]); }
-const FRIENDS = [
-  {get n(){return L('game.descent.friend_yehuda_v','יהודה ו׳');}, c:'#D1342B'}, {get n(){return L('game.descent.friend_dubi','דובי');}, c:'#1F5FC4'}, {get n(){return L('game.descent.friend_sruli','שרוליק');}, c:'#F4B942'},
-  {get n(){return L('game.descent.friend_moishe','מוישי');}, c:'#1B8A4C'}, {get n(){return L('game.descent.friend_yehuda_h','יהודה ה׳');}, c:'#7B4FC4'}, {get n(){return L('game.descent.friend_pini','פיני');}, c:'#F07A2E'}];
+const FRIENDS = // the six skiers, no names (decision 55): a coat colour each
+  [{get n(){return L('game.descent.coat_red','אדום');}, c:'#D1342B'}, {get n(){return L('game.descent.coat_blue','כחול');}, c:'#1F5FC4'}, {get n(){return L('game.descent.coat_yellow','צהוב');}, c:'#F4B942'}, {get n(){return L('game.descent.coat_green','ירוק');}, c:'#1B8A4C'}, {get n(){return L('game.descent.coat_purple','סגול');}, c:'#7B4FC4'}, {get n(){return L('game.descent.coat_orange','כתום');}, c:'#F07A2E'}];
 const RUNCOL = {green:'#1B8A4C', blue:'#1F5FC4', red:'#D1342B', black:'#13233A'};
 // the third star: a different challenge on every run
 const MISSION = {
@@ -349,16 +348,16 @@ addEventListener('keyup', e=>{ if(KEYS.includes(e.code)) release(); });
 
 function spray(x,y,n,spd,col='#fff',up=3){ for(let i=0;i<n;i++) particles.push({x,y,vx:-spd*(0.3+Math.random()*0.6),vy:1+Math.random()*up,life:.5+Math.random()*.5,r:.12+Math.random()*.2,col}); }
 function burst(x,y,cols,n){ for(let i=0;i<n;i++){ const a=Math.random()*Math.PI, v=4+Math.random()*7; particles.push({x,y,vx:Math.cos(a)*v,vy:Math.sin(a)*v+2,life:1+Math.random()*.8,r:.18,col:cols[i%cols.length],conf:true}); } }
-function loseFriend(){ const lostOne=crew.pop(); if(lostOne){ crewSpots.find(c=>c.fi===lostOne.fi).lost=true; return FRIENDS[lostOne.fi].n; } return null; }
+function loseFriend(){ const lostOne=crew.pop(); if(lostOne){ crewSpots.find(c=>c.fi===lostOne.fi).lost=true; return true; } return false; }
 function crashNow(msg){
   P.crash=1.0; P.inv=2.0; P.air=false; P.y=ground(P.x); P.s*=0.4; shake=reduce?0:14; buzz([40,30,60]); tone(70,.35,.7); spray(P.x,P.y+.5,40,6);
-  stats.falls++; setCombo(1,false); const who=loseFriend(); popText(who? L('game.descent.pop_left_behind','{name} נשאר מאחור!',{name:who}) : (msg||L('game.descent.pop_ouch','אאוץ׳')));
+  stats.falls++; setCombo(1,false); const who=loseFriend(); popText(who? L('game.descent.pop_left_behind','חבר נשאר מאחור!') : (msg||L('game.descent.pop_ouch','אאוץ׳')));
 }
 function fellIn(g){
   const tr=tracks[tracks.length-1]; if(tr) tr[1]=Math.min(tr[1],g.x0);
   P.x=g.x1+1.5; P.y=ground(P.x); P.air=false; P.s=4; P.crash=1.1; P.inv=2.2; P.ang=slope(P.x); shake=reduce?0:18; buzz([60,40,80]); tone(55,.5,.8);
   spray(P.x,P.y+.3,50,5,'#fff',5); stats.falls++; setCombo(1,false); tracks.push([P.x,P.x]);
-  const who=loseFriend(); popText(who? L('game.descent.pop_gully_swallowed','הערוץ בלע את {name}',{name:who}) : L('game.descent.pop_fell_gully','נפלת לערוץ!'));
+  const who=loseFriend(); popText(who? L('game.descent.pop_gully_swallowed','הערוץ בלע חבר') : L('game.descent.pop_fell_gully','נפלת לערוץ!'));
 }
 function land(){
   const a=slope(P.x), wall = ground(P.x)-P.y;
@@ -452,7 +451,7 @@ function update(dt){
     // khachapuri
     for(const c of coins){ if(c.got) continue; const cy=baseGround(c.x)+c.dy; if(Math.abs(P.x-c.x)<1.3 && Math.abs(P.y+0.9-cy)<1.5){ c.got=true; stats.coins++; score+=10*combo; tone(990+stats.coins%5*80,.07,.12,'triangle',1.2); particles.push({x:c.x,y:cy,vx:0,vy:3,life:.5,r:.25,col:'#F4B942'}); } }
     // friends: ski through one to pick them up
-    for(const c of crewSpots){ if(c.got||c.lost) continue; if(Math.abs(P.x-c.x)<4 && hgt<12 && P.crash<=0){ c.got=true; c.joinT=0.7; crew.push({fi:c.fi, from:c.x}); score+=150; popText(L('game.descent.pop_joined','{name} הצטרף!',{name:FRIENDS[c.fi].n})); setCombo(combo+1); buzz(20); tone(330,.1,.2); } }
+    for(const c of crewSpots){ if(c.got||c.lost) continue; if(Math.abs(P.x-c.x)<4 && hgt<12 && P.crash<=0){ c.got=true; c.joinT=0.7; crew.push({fi:c.fi, from:c.x}); score+=150; popText(L('game.descent.pop_joined','חבר הצטרף!')); setCombo(combo+1); buzz(20); tone(330,.1,.2); } }
     // a Gudauri dog joins for a while near the bottom
     if(!dog.on && !dog.done && P.x>dog.x0){ dog.on=true; dog.t=0; banner('🐕',L('game.descent.banner_dog','כלב של גודאורי רץ איתכם')); }
     if(P.x>=R.len-8){ state='fin'; finT=0; hideBanner(); release(); tuck(false); popText(R.lift?L('game.descent.lift_name','רכבל {lift}',{lift:R.lift}):L('game.descent.finish_pop','סיום!')); tone(520,.3,.4,'triangle',2); burst(P.x+3,P.y+3,FRIENDS.map(f=>f.c),60); }
@@ -490,7 +489,7 @@ function finish(ok){
   const goals=[ok, ok&&got===5, ok&&MISSION[R.key].ok(stats)], nStars=goals.filter(Boolean).length;
   const prev=store.get('stars-'+R.key,0); if(nStars>prev) store.set('stars-'+R.key,nStars);
   $('endTitle').textContent = ok? (got===5?L('game.descent.end_all_crew','כל החבר׳ה הגיעו לרכבל!'):L('game.descent.end_reached_lift_all','הגעתם לרכבל!')) : L('game.descent.end_caught','המפולת תפסה אותך');
-  $('endWho').textContent = FRIENDS[me].n+' · '+R.key+(R.lift?L('game.descent.end_to_lift_suffix',' עד רכבל {lift}',{lift:R.lift}):'');
+  $('endWho').textContent = R.key+(R.lift?L('game.descent.end_to_lift_suffix',' עד רכבל {lift}',{lift:R.lift}):'');
   $('endTime').textContent = ok? fmt(t) : L('game.descent.end_distance','{m} מ׳ מתוך {total}',{m:Math.round(P.x),total:fmtM(R.len)});
   $('endStars').innerHTML = [0,1,2].map(i=>`<i class="${goals[i]?'on':''}">★</i>`).join('');
   $('endGoals').innerHTML = [[L('game.descent.goal_reach_lift','להגיע לרכבל'),goals[0]],[L('game.descent.goal_bring_crew_count','להביא את כל החבר׳ה ({got}/5)',{got}),goals[1]],[MISSION[R.key].t,goals[2]]].map(([s,o])=>`<span class="${o?'ok':''}">${s}</span>`).join('');
@@ -498,8 +497,8 @@ function finish(ok){
   const key='best-'+R.key, best=store.get(key,null);
   gameEnd(ok, !!(ok && (!best||t<best.t)));
   if(ok && (!best||t<best.t)){ store.set(key,{t,who:me}); store.set('ghost-'+R.key,{t,who:me,r:rec}); $('endBest').textContent=L('game.descent.end_new_best','שיא חדש במסלול! בפעם הבאה תגלוש מול רוח הרפאים שלו.'); }
-  else $('endBest').textContent = best? L('game.descent.end_best','השיא במסלול: {time} ({name})',{time:fmt(best.t),name:FRIENDS[best.who].n}) : '';
-  lastResultText = ok ? L('game.descent.share_result','{name} ירד ב-{run} ב-{time} {stars}: {flips} סלטות, {pops} פופים מושלמים, {got} מתוך 5 חבר׳ה ו-{coins} חצ׳אפורי. מי עוקף?',{name:FRIENDS[me].n,run:R.key,time:fmt(t),stars:starStr(nStars),flips,pops:stats.pops||0,got,coins:stats.coins}) : L('game.descent.share_caught','המפולת תפסה את {name} ב-{run} אחרי {m} מ׳. מי מגיע רחוק יותר?',{name:FRIENDS[me].n,run:R.key,m:Math.round(P.x)});
+  else $('endBest').textContent = best? L('game.descent.end_best','השיא במסלול: {time}',{time:fmt(best.t)}) : '';
+  lastResultText = ok ? L('game.descent.share_result','ירדתי ב-{run} ב-{time} {stars}: {flips} סלטות, {pops} פופים מושלמים, {got} מתוך 5 חבר׳ה ו-{coins} חצ׳אפורי. מי עוקף?',{run:R.key,time:fmt(t),stars:starStr(nStars),flips,pops:stats.pops||0,got,coins:stats.coins}) : L('game.descent.share_caught','המפולת תפסה אותי ב-{run} אחרי {m} מ׳. מי מגיע רחוק יותר?',{run:R.key,m:Math.round(P.x)});
   $('copyNote').textContent=L('game.descent.copy_note','הקישור שולח את התוצאה. רוח הרפאים של השיא נשמרת רק בדפדפן הזה.');
   $('menuEnd').hidden=false;
 }
@@ -614,7 +613,7 @@ function draw(){
       cx.restore(); }
     // friends waiting, facing you and waving, then pushing off into the line
     for(const c of crewSpots){ if(c.lost) continue; if(c.got && c.joinT<=0) continue; if(c.x<x0-5||c.x>x1+5) continue;
-      if(!c.got){ const y=ground(c.x); const a=slope(c.x); skier(c.x,y,a,a*.4,FRIENDS[c.fi].c,{wave:t+c.fi,label:FRIENDS[c.fi].n,labelBg:'#F4B942'}); } }
+      if(!c.got){ const y=ground(c.x); const a=slope(c.x); skier(c.x,y,a,a*.4,FRIENDS[c.fi].c,{wave:t+c.fi}); } }
     // the best run, as a ghost
     if(ghost){ const gp=ghostAt(t); if(gp) skier(gp[1],gp[2],gp[3],gp[3]*.5,FRIENDS[ghost.who].c,{alpha:.35,label:L('game.descent.ghost_label','השיא')}); }
     // the crew: in your tracks, SPACING metres apart; they jump and flip where you did
