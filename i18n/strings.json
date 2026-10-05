@@ -1611,18 +1611,6 @@
     "ka"
    ]
   },
-  "game.descent.choose_friend_label": {
-   "he": "בחירת חבר",
-   "en": "Choose a friend",
-   "ru": "Выбор друга",
-   "ka": "მეგობრის არჩევა",
-   "where": "site/games/descent/index.html",
-   "note": "aria-label",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
   "game.descent.choose_run_label": {
    "he": "בחירת מסלול",
    "en": "Choose a run",
@@ -1779,10 +1767,10 @@
    ]
   },
   "game.descent.copy_note": {
-   "he": "באתר עצמו הקישור יכיל את הירידה, והחברים יגלשו מול רוח הרפאים שלך.",
-   "en": "On the site itself the link will include your run, and friends will race your ghost.",
-   "ru": "На самом сайте ссылка будет содержать ваш спуск, и друзья поедут против вашего призрака.",
-   "ka": "თავად საიტზე ბმული თქვენს დაშვებას შეიცავს და მეგობრები თქვენს აჩრდილს შეეჯიბრებიან.",
+   "he": "הקישור שולח את התוצאה. רוח הרפאים של השיא נשמרת רק בדפדפן הזה.",
+   "en": "The link shares your result. Your best run's ghost stays only in this browser.",
+   "ru": "Ссылка передаёт ваш результат. Призрак рекордного спуска хранится только в этом браузере.",
+   "ka": "ბმული თქვენს შედეგს აზიარებს. რეკორდული დაშვების აჩრდილი მხოლოდ ამ ბრაუზერში ინახება.",
    "where": "site/games/descent/index.html",
    "check": [
     "ru",
@@ -1862,12 +1850,12 @@
    ]
   },
   "game.descent.end_best": {
-   "he": "השיא במסלול: {time} ({name})",
-   "en": "Best on this run: {time} ({name})",
-   "ru": "Рекорд трассы: {time} ({name})",
-   "ka": "ტრასის რეკორდი: {time} ({name})",
+   "he": "השיא במסלול: {time}",
+   "en": "Best on this run: {time}",
+   "ru": "Рекорд трассы: {time}",
+   "ka": "ტრასის რეკორდი: {time}",
    "where": "site/games/descent/index.html",
-   "note": "{time}=m:ss.s, {name}=friend",
+   "note": "{time}=m:ss.s, {name}=friend; no names (decision 55)",
    "check": [
     "ru",
     "ka"
@@ -1963,78 +1951,6 @@
    "ka": "ფინიში",
    "where": "site/games/descent/index.html",
    "note": "short: canvas sign",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "game.descent.friend_dubi": {
-   "he": "דובי",
-   "en": "Dubi",
-   "ru": "Дуби",
-   "ka": "დუბი",
-   "where": "site/games/descent/index.html",
-   "note": "short: first name of a friend in the group (character in the game); transliterated, not translated",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "game.descent.friend_moishe": {
-   "he": "מוישי",
-   "en": "Moishe",
-   "ru": "Мойше",
-   "ka": "მოიშე",
-   "where": "site/games/descent/index.html",
-   "note": "short: first name of a friend in the group (character in the game); transliterated, not translated",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "game.descent.friend_pini": {
-   "he": "פיני",
-   "en": "Pini",
-   "ru": "Пини",
-   "ka": "პინი",
-   "where": "site/games/descent/index.html",
-   "note": "short: first name of a friend in the group (character in the game); transliterated, not translated",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "game.descent.friend_sruli": {
-   "he": "שרוליק",
-   "en": "Srulik",
-   "ru": "Шрулик",
-   "ka": "შრულიკი",
-   "where": "site/games/descent/index.html",
-   "note": "short: first name of a friend in the group (character in the game); transliterated, not translated",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "game.descent.friend_yehuda_h": {
-   "he": "יהודה ה׳",
-   "en": "Yehuda H.",
-   "ru": "Иегуда Х.",
-   "ka": "იეჰუდა ჰ.",
-   "where": "site/games/descent/index.html",
-   "note": "short: first name of a friend in the group (character in the game); transliterated, not translated",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "game.descent.friend_yehuda_v": {
-   "he": "יהודה ו׳",
-   "en": "Yehuda V.",
-   "ru": "Иегуда В.",
-   "ka": "იეჰუდა ვ.",
-   "where": "site/games/descent/index.html",
-   "note": "short: first name of a friend in the group (character in the game); transliterated, not translated",
    "check": [
     "ru",
     "ka"
@@ -2510,36 +2426,36 @@
    ]
   },
   "game.descent.pop_gully_swallowed": {
-   "he": "הערוץ בלע את {name}",
-   "en": "The gully swallowed {name}",
-   "ru": "Овраг поглотил {name}",
-   "ka": "ხევმა {name} ჩაყლაპა",
+   "he": "הערוץ בלע חבר",
+   "en": "The gully swallowed a friend",
+   "ru": "Овраг поглотил друга",
+   "ka": "ხევმა მეგობარი ჩაყლაპა",
    "where": "site/games/descent/index.html",
-   "note": "{name}=friend name",
+   "note": "{name}=friend name; no names (decision 55)",
    "check": [
     "ru",
     "ka"
    ]
   },
   "game.descent.pop_joined": {
-   "he": "{name} הצטרף!",
-   "en": "{name} joined!",
-   "ru": "{name} с вами!",
-   "ka": "{name} შემოგიერთდათ!",
+   "he": "חבר הצטרף!",
+   "en": "A friend joined!",
+   "ru": "Друг с вами!",
+   "ka": "მეგობარი შემოგიერთდათ!",
    "where": "site/games/descent/index.html",
-   "note": "{name}=friend name (male)",
+   "note": "{name}=friend name (male); no names (decision 55)",
    "check": [
     "ru",
     "ka"
    ]
   },
   "game.descent.pop_left_behind": {
-   "he": "{name} נשאר מאחור!",
-   "en": "{name} got left behind!",
-   "ru": "{name} отстал!",
-   "ka": "{name} უკან დარჩა!",
+   "he": "חבר נשאר מאחור!",
+   "en": "A friend got left behind!",
+   "ru": "Друг отстал!",
+   "ka": "მეგობარი უკან დარჩა!",
    "where": "site/games/descent/index.html",
-   "note": "{name}=friend name (male)",
+   "note": "{name}=friend name (male); no names (decision 55)",
    "check": [
     "ru",
     "ka"
@@ -2630,24 +2546,24 @@
    ]
   },
   "game.descent.share_caught": {
-   "he": "המפולת תפסה את {name} ב-{run} אחרי {m} מ׳. מי מגיע רחוק יותר?",
-   "en": "The avalanche caught {name} on {run} after {m} m. Who gets further?",
-   "ru": "Лавина настигла {name} на {run} через {m} м. Кто уедет дальше?",
-   "ka": "ზვავმა {name} {run}-ზე {m} მ-ის შემდეგ დაეწია. ვინ წავა უფრო შორს?",
+   "he": "המפולת תפסה אותי ב-{run} אחרי {m} מ׳. מי מגיע רחוק יותר?",
+   "en": "The avalanche caught me on {run} after {m} m. Who gets further?",
+   "ru": "Лавина настигла меня на {run} через {m} м. Кто уедет дальше?",
+   "ka": "ზვავმა {run}-ზე {m} მ-ის შემდეგ დამეწია. ვინ წავა უფრო შორს?",
    "where": "site/games/descent/index.html",
-   "note": "copied share text; {name}=friend, {run}=run, {m}=meters",
+   "note": "copied share text; {name}=friend, {run}=run, {m}=meters; no names (decision 55)",
    "check": [
     "ru",
     "ka"
    ]
   },
   "game.descent.share_result": {
-   "he": "{name} ירד ב-{run} ב-{time} {stars}: {flips} סלטות, {pops} פופים מושלמים, {got} מתוך 5 חבר׳ה ו-{coins} חצ׳אפורי. מי עוקף?",
-   "en": "{name} did {run} in {time} {stars}: flips {flips}, perfect pops {pops}, crew {got}/5, khachapuri {coins}. Who can beat that?",
-   "ru": "{name} спустился по {run} за {time} {stars}: сальто {flips}, идеальных отрывов {pops}, компания {got} из 5, хачапури {coins}. Кто быстрее?",
-   "ka": "{name}: {run}, {time} {stars}. სალტო: {flips}, იდეალური აფრენა: {pops}, ჯგუფი: {got}/5, ხაჭაპური: {coins}. ვინ აჯობებს?",
+   "he": "ירדתי ב-{run} ב-{time} {stars}: {flips} סלטות, {pops} פופים מושלמים, {got} מתוך 5 חבר׳ה ו-{coins} חצ׳אפורי. מי עוקף?",
+   "en": "I did {run} in {time} {stars}: flips {flips}, perfect pops {pops}, crew {got}/5, khachapuri {coins}. Who can beat that?",
+   "ru": "Я спустился по {run} за {time} {stars}: сальто {flips}, идеальных отрывов {pops}, компания {got} из 5, хачапури {coins}. Кто быстрее?",
+   "ka": "{run}, {time} {stars}. სალტო: {flips}, იდეალური აფრენა: {pops}, ჯგუფი: {got}/5, ხაჭაპური: {coins}. ვინ აჯობებს?",
    "where": "site/games/descent/index.html",
-   "note": "copied share text for WhatsApp group; {stars}=★☆ string; numbers in 'label number' form to avoid plural agreement",
+   "note": "copied share text for WhatsApp group; {stars}=★☆ string; numbers in 'label number' form to avoid plural agreement; no names (decision 55)",
    "check": [
     "ru",
     "ka"
@@ -2805,18 +2721,6 @@
    "en": "Which run?",
    "ru": "Какая трасса?",
    "ka": "რომელი ტრასა?",
-   "where": "site/games/descent/index.html",
-   "note": "heading",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "game.descent.who_skis": {
-   "he": "מי גולש?",
-   "en": "Who's skiing?",
-   "ru": "Кто едет?",
-   "ka": "ვინ სრიალებს?",
    "where": "site/games/descent/index.html",
    "note": "heading",
    "check": [
@@ -5566,18 +5470,6 @@
     "ka"
    ]
   },
-  "game.snowball.choose_friend_label": {
-   "he": "בחירת חבר",
-   "en": "Choose a friend",
-   "ru": "Выбор друга",
-   "ka": "მეგობრის არჩევა",
-   "where": "site/games/snowball/index.html",
-   "note": "aria-label",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
   "game.snowball.choose_level_label": {
    "he": "בחירת שלב",
    "en": "Choose a level",
@@ -5585,78 +5477,6 @@
    "ka": "ეტაპის არჩევა",
    "where": "site/games/snowball/index.html",
    "note": "aria-label",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "game.snowball.friend_dubi": {
-   "he": "דובי",
-   "en": "Dubi",
-   "ru": "Дуби",
-   "ka": "დუბი",
-   "where": "site/games/snowball/index.html",
-   "note": "short: first name of a friend in the group (character in the game); transliterated, not translated",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "game.snowball.friend_moishe": {
-   "he": "מוישי",
-   "en": "Moishe",
-   "ru": "Мойше",
-   "ka": "მოიშე",
-   "where": "site/games/snowball/index.html",
-   "note": "short: first name of a friend in the group (character in the game); transliterated, not translated",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "game.snowball.friend_pini": {
-   "he": "פיני",
-   "en": "Pini",
-   "ru": "Пини",
-   "ka": "პინი",
-   "where": "site/games/snowball/index.html",
-   "note": "short: first name of a friend in the group (character in the game); transliterated, not translated",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "game.snowball.friend_sruli": {
-   "he": "שרוליק",
-   "en": "Srulik",
-   "ru": "Шрулик",
-   "ka": "შრულიკი",
-   "where": "site/games/snowball/index.html",
-   "note": "short: first name of a friend in the group (character in the game); transliterated, not translated",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "game.snowball.friend_yehuda_h": {
-   "he": "יהודה ה׳",
-   "en": "Yehuda H.",
-   "ru": "Иегуда Х.",
-   "ka": "იეჰუდა ჰ.",
-   "where": "site/games/snowball/index.html",
-   "note": "short: first name of a friend in the group (character in the game); transliterated, not translated",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "game.snowball.friend_yehuda_v": {
-   "he": "יהודה ו׳",
-   "en": "Yehuda V.",
-   "ru": "Иегуда В.",
-   "ka": "იეჰუდა ვ.",
-   "where": "site/games/snowball/index.html",
-   "note": "short: first name of a friend in the group (character in the game); transliterated, not translated",
    "check": [
     "ru",
     "ka"
@@ -5986,12 +5806,12 @@
    ]
   },
   "game.snowball.pop_out": {
-   "he": "{name} בחוץ!",
-   "en": "{name} is out!",
-   "ru": "{name} выбывает!",
-   "ka": "{name} გავარდა!",
+   "he": "בחוץ!",
+   "en": "Out!",
+   "ru": "Выбывает!",
+   "ka": "გავარდა!",
    "where": "site/games/snowball/index.html",
-   "note": "{name}=friend name",
+   "note": "{name}=friend name; no names (decision 55)",
    "check": [
     "ru",
     "ka"
@@ -6088,18 +5908,6 @@
    "ka": "მენიუში",
    "where": "site/games/snowball/index.html",
    "note": "short: button",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "game.snowball.who_throws": {
-   "he": "מי זורק?",
-   "en": "Who's throwing?",
-   "ru": "Кто бросает?",
-   "ka": "ვინ ისვრის?",
-   "where": "site/games/snowball/index.html",
-   "note": "heading",
    "check": [
     "ru",
     "ka"
@@ -8454,7 +8262,7 @@
    ]
   },
   "run.groomed_value": {
-   "he": "מוכשר (ratrak)",
+   "he": "מוכן (נמתח בחתול שלג)",
    "en": "Groomed (snowcat)",
    "ru": "Подготовлена ратраком",
    "ka": "დამუშავებული (რატრაკით)",
@@ -8587,7 +8395,7 @@
    "en": "In OSM the line is called \"Frini\", with no number. The official map has Firni 1 and Firni 2, and it's unclear which one this line belongs to. The other one is missing from the data.",
    "ru": "В OSM линия называется «Frini», без номера. На официальной карте есть Firni 1 и Firni 2, и непонятно, к какой из них относится линия. Второй в данных нет.",
    "ka": "OSM-ში ხაზს „Frini“ ჰქვია, ნომრის გარეშე. ოფიციალურ რუკაზე არის Firni 1 და Firni 2 და გაურკვეველია, რომელს ეკუთვნის ეს ხაზი. მეორე მონაცემებში არ არის.",
-   "where": "site/js/app.js",
+   "where": "app/android",
    "note": "\"Frini\" is the misspelled OSM name, keep as is",
    "check": [
     "ru",
@@ -14914,6 +14722,210 @@
    "ka": "MTA-ს ოფიციალური რუკა (საუბარში მიმაგრებული სურათი), გამოყენებულია მხოლოდ სახელის, ფერის, დასაწყისის, დასასრულისა და ლეგენდის დასადგენად",
    "where": "site/js/app.js (research notes from site/data/runs-and-lifts.json)",
    "note": "the Hebrew source line about the official MTA map, in research.sources",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "game.descent.coat_red": {
+   "he": "אדום",
+   "en": "Red",
+   "ru": "Красная",
+   "ka": "წითელი",
+   "where": "site/games/descent/index.html",
+   "note": "short: a coat colour, the name of a character in the game (no names, decision 55); ru feminine (куртка)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "game.descent.coat_blue": {
+   "he": "כחול",
+   "en": "Blue",
+   "ru": "Синяя",
+   "ka": "ლურჯი",
+   "where": "site/games/descent/index.html",
+   "note": "short: a coat colour, the name of a character in the game (no names, decision 55); ru feminine (куртка)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "game.descent.coat_yellow": {
+   "he": "צהוב",
+   "en": "Yellow",
+   "ru": "Жёлтая",
+   "ka": "ყვითელი",
+   "where": "site/games/descent/index.html",
+   "note": "short: a coat colour, the name of a character in the game (no names, decision 55); ru feminine (куртка)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "game.descent.coat_green": {
+   "he": "ירוק",
+   "en": "Green",
+   "ru": "Зелёная",
+   "ka": "მწვანე",
+   "where": "site/games/descent/index.html",
+   "note": "short: a coat colour, the name of a character in the game (no names, decision 55); ru feminine (куртка)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "game.descent.coat_purple": {
+   "he": "סגול",
+   "en": "Purple",
+   "ru": "Фиолетовая",
+   "ka": "იისფერი",
+   "where": "site/games/descent/index.html",
+   "note": "short: a coat colour, the name of a character in the game (no names, decision 55); ru feminine (куртка)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "game.descent.coat_orange": {
+   "he": "כתום",
+   "en": "Orange",
+   "ru": "Оранжевая",
+   "ka": "ნარინჯისფერი",
+   "where": "site/games/descent/index.html",
+   "note": "short: a coat colour, the name of a character in the game (no names, decision 55); ru feminine (куртка)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "game.descent.your_coat": {
+   "he": "המעיל שלך",
+   "en": "Your coat",
+   "ru": "Твоя куртка",
+   "ka": "შენი ქურთუკი",
+   "where": "site/games/descent/index.html",
+   "note": "heading of the coat picker (no names, decision 55)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "game.descent.choose_coat_label": {
+   "he": "בחירת מעיל",
+   "en": "Choose a coat",
+   "ru": "Выбор куртки",
+   "ka": "ქურთუკის არჩევა",
+   "where": "site/games/descent/index.html",
+   "note": "aria-label",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "game.snowball.coat_red": {
+   "he": "אדום",
+   "en": "Red",
+   "ru": "Красная",
+   "ka": "წითელი",
+   "where": "site/games/snowball/index.html",
+   "note": "short: a coat colour, the name of a character in the game (no names, decision 55); ru feminine (куртка)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "game.snowball.coat_blue": {
+   "he": "כחול",
+   "en": "Blue",
+   "ru": "Синяя",
+   "ka": "ლურჯი",
+   "where": "site/games/snowball/index.html",
+   "note": "short: a coat colour, the name of a character in the game (no names, decision 55); ru feminine (куртка)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "game.snowball.coat_yellow": {
+   "he": "צהוב",
+   "en": "Yellow",
+   "ru": "Жёлтая",
+   "ka": "ყვითელი",
+   "where": "site/games/snowball/index.html",
+   "note": "short: a coat colour, the name of a character in the game (no names, decision 55); ru feminine (куртка)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "game.snowball.coat_green": {
+   "he": "ירוק",
+   "en": "Green",
+   "ru": "Зелёная",
+   "ka": "მწვანე",
+   "where": "site/games/snowball/index.html",
+   "note": "short: a coat colour, the name of a character in the game (no names, decision 55); ru feminine (куртка)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "game.snowball.coat_purple": {
+   "he": "סגול",
+   "en": "Purple",
+   "ru": "Фиолетовая",
+   "ka": "იისფერი",
+   "where": "site/games/snowball/index.html",
+   "note": "short: a coat colour, the name of a character in the game (no names, decision 55); ru feminine (куртка)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "game.snowball.coat_orange": {
+   "he": "כתום",
+   "en": "Orange",
+   "ru": "Оранжевая",
+   "ka": "ნარინჯისფერი",
+   "where": "site/games/snowball/index.html",
+   "note": "short: a coat colour, the name of a character in the game (no names, decision 55); ru feminine (куртка)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "game.snowball.your_coat": {
+   "he": "המעיל שלך",
+   "en": "Your coat",
+   "ru": "Твоя куртка",
+   "ka": "შენი ქურთუკი",
+   "where": "site/games/snowball/index.html",
+   "note": "heading of the coat picker (no names, decision 55)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "game.snowball.choose_coat_label": {
+   "he": "בחירת מעיל",
+   "en": "Choose a coat",
+   "ru": "Выбор куртки",
+   "ka": "ქურთუკის არჩევა",
+   "where": "site/games/snowball/index.html",
+   "note": "aria-label",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "trip.ski_outside": {
+   "he": "ימי הסקי צריכים להיות בתוך הטיול",
+   "en": "The ski days need to be within the trip",
+   "ru": "Дни катания должны быть в пределах поездки",
+   "ka": "სათხილამურო დღეები მოგზაურობის ფარგლებში უნდა იყოს",
+   "where": "site/js/app.js",
+   "note": "trip form error: a manual ski day before the outbound or after the return (S-34)",
    "check": [
     "ru",
     "ka"

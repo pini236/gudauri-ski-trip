@@ -81,8 +81,8 @@ button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 <section class="menu" id="menuStart" aria-label="התחלה">
   <h1 data-i18n="game.snowball.title">קרב כדורי שלג</h1>
   <p data-i18n="game.snowball.intro">אתה מאחורי החומה שלך, והחבר׳ה מאחורי שלהם. קמים, מכוונים, זורקים, ומתכופפים לפני שהכדור שלהם מגיע.</p>
-  <h2 data-i18n="game.snowball.who_throws">מי זורק?</h2>
-  <div class="friends" id="friends" role="group" data-i18n-attr="aria-label:game.snowball.choose_friend_label" aria-label="בחירת חבר"></div>
+  <h2 data-i18n="game.snowball.your_coat">המעיל שלך</h2>
+  <div class="friends" id="friends" role="group" data-i18n-attr="aria-label:game.snowball.choose_coat_label" aria-label="בחירת מעיל"></div>
   <div><h2 style="margin-bottom:10px" data-i18n="game.snowball.ladder">הסולם</h2><div class="ladder" id="ladder" role="group" data-i18n-attr="aria-label:game.snowball.choose_level_label" aria-label="בחירת שלב"></div></div>
   <div class="how">
     <div><b data-i18n="game.snowball.how_drag_title">גוררים</b><span data-i18n="game.snowball.how_drag_text">למעלה מכל מקום במסך. קמים מעל החומה, ועיגול מראה לאן הכדור יגיע בלי רוח.</span></div>
@@ -108,7 +108,7 @@ button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 
 <script>
 const L=window.L||((k,he,v)=>he.replace(/\{(\w+)\}/g,(m,x)=>v&&x in v?v[x]:m));
-const FR = [{get n(){return L('game.snowball.friend_yehuda_v','יהודה ו׳');},c:'#D1342B'},{get n(){return L('game.snowball.friend_dubi','דובי');},c:'#1F5FC4'},{get n(){return L('game.snowball.friend_sruli','שרוליק');},c:'#F4B942'},{get n(){return L('game.snowball.friend_moishe','מוישי');},c:'#1B8A4C'},{get n(){return L('game.snowball.friend_yehuda_h','יהודה ה׳');},c:'#7B4FC4'},{get n(){return L('game.snowball.friend_pini','פיני');},c:'#F07A2E'}];
+const FR = [{get n(){return L('game.snowball.coat_red','אדום');}, c:'#D1342B'}, {get n(){return L('game.snowball.coat_blue','כחול');}, c:'#1F5FC4'}, {get n(){return L('game.snowball.coat_yellow','צהוב');}, c:'#F4B942'}, {get n(){return L('game.snowball.coat_green','ירוק');}, c:'#1B8A4C'}, {get n(){return L('game.snowball.coat_purple','סגול');}, c:'#7B4FC4'}, {get n(){return L('game.snowball.coat_orange','כתום');}, c:'#F07A2E'}]; // no names (decision 55): a coat colour each
 const PANO = "__PANO__";
 // five rungs: more friends behind the far wall, shorter peeks, stronger wind, better aim
 const RUNGS = [
@@ -129,7 +129,7 @@ function foesOf(i){ const o=FR.map((f,k)=>k).filter(k=>k!==me); return Array.fro
 function drawMenu(){
   $('friends').innerHTML=FR.map((f,i)=>`<button type="button" style="--c:${f.c}" aria-pressed="${i===me}" data-me="${i}">${f.n}</button>`).join('');
   $('ladder').innerHTML=RUNGS.map((r,i)=>{ const os=foesOf(i), st=stars(i), open=i===0||stars(i-1)>0;
-    return `<button class="rung" type="button" style="--c:${FR[os[0]].c}" data-r="${i}" aria-pressed="${i===rung}" ${open?'':'disabled'}><span class="n">${i+1}</span><b>${os.map(k=>FR[k].n).join(' + ')} · ${r.name()}</b><span class="st">${open?'★'.repeat(st)+'☆'.repeat(3-st):'🔒'}</span><small>${L('game.snowball.rung_wind','רוח עד {n}',{n:Math.max(...r.wind.map(Math.abs))})} · ★ ${r.goal.t()}</small></button>`; }).join('');
+    return `<button class="rung" type="button" style="--c:${FR[os[0]].c}" data-r="${i}" aria-pressed="${i===rung}" ${open?'':'disabled'}><span class="n">${i+1}</span><b>${r.name()}</b><span class="st">${open?'★'.repeat(st)+'☆'.repeat(3-st):'🔒'}</span><small>${L('game.snowball.rung_wind','רוח עד {n}',{n:Math.max(...r.wind.map(Math.abs))})} · ★ ${r.goal.t()}</small></button>`; }).join('');
 }
 $('friends').onclick=e=>{ const b=e.target.closest('[data-me]'); if(!b) return; me=+b.dataset.me; store.set('me',me); drawMenu(); };
 $('ladder').onclick=e=>{ const b=e.target.closest('[data-r]'); if(!b||b.disabled) return; rung=+b.dataset.r; store.set('rung',rung); drawMenu(); };
@@ -248,7 +248,7 @@ function wallHit(x,y){ splatAt(x,y,ZF,12); noise(.12,.22,800); const i=Math.roun
 function hitFoe(o,b,head){ o.hp--; o.hit=.5; o.wob=1; stats.hits++; splatAt(b.x,b.y,ZO,22); buzz(head?40:20); noise(.2,.4,1200); tone(head?520:380,.16,.3,1.5);
   if(head && o.hat){ o.hat=false; stats.hats++; hats.push({x:o.x,y:BASE(o)+1.8,z:ZO,vx:b.vx*.15,vy:3.5,vz:2,r:0,vr:rnd(-9,9),col:FR[o.fi].c}); popText(L('game.snowball.pop_hat_off','הכובע עף!')); }
   else popText(head?L('game.snowball.pop_head','בראש!'):L('game.snowball.pop_hit','פגיעה!'));
-  if(o.hp<=0){ popText(L('game.snowball.pop_out','{name} בחוץ!',{name:FR[o.fi].n})); o.phase='out'; }
+  if(o.hp<=0){ popText(L('game.snowball.pop_out','בחוץ!')); o.phase='out'; }
   hpUI(); if(foes.every(f=>f.hp<=0)){ state='done'; won=true; endT=0; setTimeout(()=>popText(L('game.snowball.won','ניצחת!')),700); } }
 function meHit(b){ myHp--; stats.taken++; shake=reduce?0:16; buzz([40,30,40]); noise(.25,.5,1400); tone(140,.25,.35,.6);
   // snow stuck on the screen, sliding down
@@ -257,7 +257,7 @@ function meHit(b){ myHp--; stats.taken++; shake=reduce?0:16; buzz([40,30,40]); n
 function finish(){
   state='end'; ['hud','hint','snd'].forEach(id=>$(id).hidden=true);
   const g=[won, won&&stats.taken===0, won&&cfg.goal.ok(stats)], n=g.filter(Boolean).length; gameEnd(won, n>stars(rung)); if(n>stars(rung)) store.set('stars-'+rung,n);
-  $('endTitle').textContent= won? L('game.snowball.won','ניצחת!') : L('game.snowball.lost','הפעם הם ניצחו'); $('endWho').textContent=(rung+1)+'. '+cfg.name()+' · '+foes.map(o=>FR[o.fi].n).join(' + ');
+  $('endTitle').textContent= won? L('game.snowball.won','ניצחת!') : L('game.snowball.lost','הפעם הם ניצחו'); $('endWho').textContent=(rung+1)+'. '+cfg.name();
   $('endBig').textContent=stats.hits+' : '+stats.taken;
   $('endStars').innerHTML=[0,1,2].map(i=>`<i class="${g[i]?'on':''}">★</i>`).join('');
   $('endGoals').innerHTML=[[L('game.snowball.goal_win','לנצח'),g[0]],[L('game.snowball.goal_no_hit_taken','בלי לחטוף אף כדור'),g[1]],[cfg.goal.t(),g[2]]].map(([s,o])=>`<span class="${o?'ok':''}">${s}</span>`).join('');

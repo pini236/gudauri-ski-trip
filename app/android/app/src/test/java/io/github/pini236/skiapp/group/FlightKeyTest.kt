@@ -1,31 +1,27 @@
 package io.github.pini236.skiapp.group
 
 import io.github.pini236.skiapp.trip.Leg
-import org.json.JSONObject
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotEquals
 import org.junit.Test
-import java.io.File
 import java.time.LocalDate
 
-/** X-4: the group's flight cards are made as on the site, on the shared cases in docs/parity-cases.json. */
+/**
+ * X-4: the group's flight cards are made as on the site. The same four cases as the site's test
+ * (tests/account.spec.ts, "X-4"): the outbound legs of two members, and whether they share one card.
+ */
 class FlightKeyTest {
-    private val cases = JSONObject(File(File(System.getProperty("site.data") ?: "../../../site/data").parentFile.parentFile, "docs/parity-cases.json").readText())
-        .getJSONObject("x4").getJSONArray("cases")
+    private val d = LocalDate.of(2027, 1, 10)
+    private fun key(flight: String, from: String = "", to: String = "") = FlightKey.of(Leg(d, flight, from, to), false)
 
-    @Test fun theSharedCases() {
-        for (k in 0 until cases.length()) {
-            val c = cases.getJSONObject(k)
-            val legs = c.getJSONArray("legs")
-            val keys = (0 until legs.length()).map { i ->
-                val l = legs.getJSONObject(i)
-                FlightKey.of(Leg(LocalDate.parse(l.getString("date")), l.getString("flight"), l.getString("from"), l.getString("to")), false)
-            }.toSet()
-            assertEquals(c.getString("name"), c.getInt("cards"), keys.size)
-        }
+    @Test fun theSitesFourCases() {
+        assertEquals("with airports and without: one card", key("897", "TLV", "TBS"), key("897"))
+        assertEquals("a space or not: one card", key("IZ 897"), key("iz-897"))
+        assertNotEquals("no number, other airports: two cards", key("", "TLV", "TBS"), key("", "TLV", "KUT"))
+        assertNotEquals("a number and none: two cards", key("897", "TLV", "TBS"), key("", "TLV", "TBS"))
     }
 
     @Test fun theDirectionAndTheNumber() {
-        val d = LocalDate.of(2027, 1, 10)
         assertEquals("IZ897", FlightKey.number(" iz - 897 "))
         // out and back on the same day and number are two cards
         assertEquals(2, setOf(FlightKey.of(Leg(d, "IZ897"), false), FlightKey.of(Leg(d, "IZ897"), true)).size)

@@ -134,7 +134,12 @@ test('הטיול שלך: ימי סקי ידניים, ושדה תעופה אחר'
   await f.locator('input[name="od"]').fill('2027-02-01');
   await f.locator('input[name="rd"]').fill('2027-02-06');
   await page.locator('#tfSkiBtn').click();
+  // a ski day after the return is refused, as in the app (S-34)
+  await expect(f.locator('input[name="sl"]')).toHaveAttribute('max', '2027-02-06');
   await f.locator('input[name="sf"]').fill('2027-02-02');
+  await f.locator('input[name="sl"]').fill('2027-02-08');
+  await f.locator('.tf-save').click();
+  await expect(page.locator('#tfErr')).toHaveText('ימי הסקי צריכים להיות בתוך הטיול');
   await f.locator('input[name="sl"]').fill('2027-02-03');
   await expect(page.locator('#tfSki')).toContainText('יומיים');
   await f.locator('.tf-save').click();

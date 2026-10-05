@@ -55,3 +55,17 @@ for (const g of GAMES) {
     expect(errors).toEqual([]);
   });
 }
+
+// בלי שמות החבר׳ה במשחקים באתר (החלטה 55, כמו באפליקציה): בוחרים מעיל לפי צבע
+test('הירידה וקרב כדורי שלג: מעילים לפי צבע, בלי שמות', async ({ page }) => {
+  const errors = watchErrors(page);
+  for (const slug of ['descent', 'snowball']) {
+    await page.goto(`/games/${slug}/`);
+    const coats = page.locator('#friends button');
+    await expect(coats).toHaveCount(6);
+    await expect(coats.first()).toContainText('אדום');
+    await expect(page.locator('#friends')).toHaveAttribute('aria-label', 'בחירת מעיל');
+    for (const name of ['פיני', 'דובי', 'שרוליק', 'מוישי', 'יהודה']) await expect(page.locator('body')).not.toContainText(name);
+  }
+  expect(errors).toEqual([]);
+});
