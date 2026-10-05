@@ -14858,6 +14858,942 @@
     "ru",
     "ka"
    ]
+  },
+  "weather.button": {
+   "he": "מזג אוויר",
+   "en": "Weather",
+   "ru": "Погода",
+   "ka": "ამინდი",
+   "where": "site and app/android (round 19, decision 58)",
+   "note": "button that shows the weather layer on the map. short",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "weather.title": {
+   "he": "מזג אוויר לפי גובה",
+   "en": "Weather by altitude",
+   "ru": "Погода по высоте",
+   "ka": "ამინდი სიმაღლის მიხედვით",
+   "where": "site and app/android (round 19, decision 58)",
+   "note": "heading of the weather list under the map",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "weather.sub_fresh": {
+   "he": "תחזית לגובה של כל נקודה · עודכנה {ago}",
+   "en": "Forecast for the altitude of each point · updated {ago}",
+   "ru": "Прогноз для высоты каждой точки · обновлён {ago}",
+   "ka": "პროგნოზი თითოეული წერტილის სიმაღლისთვის · განახლდა {ago}",
+   "where": "site and app/android (round 19, decision 58)",
+   "note": "{ago} is status.ago_minutes / status.ago_hours",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "weather.stale": {
+   "he": "תחזית ישנה",
+   "en": "Old forecast",
+   "ru": "Старый прогноз",
+   "ka": "ძველი პროგნოზი",
+   "where": "site and app/android (round 19, decision 58)",
+   "note": "the forecast is 12 to 48 hours old (m-6 section 4). short",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "weather.sub_stale": {
+   "he": "עודכנה {ago}, כנראה בלי קליטה",
+   "en": "updated {ago}, probably no signal",
+   "ru": "обновлён {ago}, наверное, нет связи",
+   "ka": "განახლდა {ago}, ალბათ კავშირი არ არის",
+   "where": "site and app/android (round 19, decision 58)",
+   "note": "after weather.stale and a middle dot",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "weather.sub_none": {
+   "he": "אין מידע. התחזית האחרונה ישנה מיומיים, או שעוד לא הגיעה.",
+   "en": "No data. The last forecast is more than two days old, or none has arrived yet.",
+   "ru": "Нет данных. Последний прогноз старше двух дней или ещё не пришёл.",
+   "ka": "მონაცემები არ არის. ბოლო პროგნოზი ორ დღეზე ძველია, ან ჯერ არ მოსულა.",
+   "where": "site and app/android (round 19, decision 58)",
+   "note": "no forecast, or older than 48 hours",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "weather.none": {
+   "he": "אין מידע",
+   "en": "No data",
+   "ru": "Нет данных",
+   "ka": "მონაცემები არ არის",
+   "where": "site and app/android (round 19, decision 58)",
+   "note": "one point or a day without a forecast. short",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "weather.note": {
+   "he": "רוח ושלג חדש ב-24 השעות האחרונות. החץ מראה לאן הרוח נושבת.",
+   "en": "Wind, and new snow in the last 24 hours. The arrow shows where the wind blows to.",
+   "ru": "Ветер и новый снег за последние 24 часа. Стрелка показывает, куда дует ветер.",
+   "ka": "ქარი და ახალი თოვლი ბოლო 24 საათში. ისარი აჩვენებს, საით უბერავს ქარი.",
+   "where": "site and app/android (round 19, decision 58)",
+   "note": "under the weather list",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "weather.note_none": {
+   "he": "כשאין נתון לא מנחשים: הנקודות נשארות על המפה עם קו, עד שתחזית חדשה מגיעה.",
+   "en": "With no data we do not guess: the points stay on the map with a dash until a new forecast arrives.",
+   "ru": "Без данных мы не угадываем: точки остаются на карте с прочерком, пока не придёт новый прогноз.",
+   "ka": "მონაცემების გარეშე არ ვხვდებით: წერტილები რუკაზე ტირით რჩება, სანამ ახალი პროგნოზი არ მოვა.",
+   "where": "site and app/android (round 19, decision 58)",
+   "note": "under the weather list when there is no data",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "weather.credit": {
+   "he": "נתוני מזג האוויר: {source}",
+   "en": "Weather data by {source}",
+   "ru": "Данные о погоде: {source}",
+   "ka": "ამინდის მონაცემები: {source}",
+   "where": "site and app/android (round 19, decision 58)",
+   "note": "{source} is the link Open-Meteo.com (CC BY 4.0 requires it, m-6 section 6)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "weather.wind_gusts": {
+   "he": "רוח {wind} קמ״ש, משבים {gusts}",
+   "en": "Wind {wind} km/h, gusts {gusts}",
+   "ru": "Ветер {wind} км/ч, порывы {gusts}",
+   "ka": "ქარი {wind} კმ/სთ, შემობერვები {gusts}",
+   "where": "site and app/android (round 19, decision 58)",
+   "note": "after the wind arrow",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "weather.wind_short": {
+   "he": "{wind} קמ״ש",
+   "en": "{wind} km/h",
+   "ru": "{wind} км/ч",
+   "ka": "{wind} კმ/სთ",
+   "where": "site and app/android (round 19, decision 58)",
+   "note": "wind on the home board, after the arrow. short",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "weather.new_snow": {
+   "he": "שלג חדש {n} ס״מ",
+   "en": "New snow {n} cm",
+   "ru": "Новый снег {n} см",
+   "ka": "ახალი თოვლი {n} სმ",
+   "where": "site and app/android (round 19, decision 58)",
+   "note": "new snow in the last 24 hours",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "weather.snow_short": {
+   "he": "שלג {n} ס״מ",
+   "en": "Snow {n} cm",
+   "ru": "Снег {n} см",
+   "ka": "თოვლი {n} სმ",
+   "where": "site and app/android (round 19, decision 58)",
+   "note": "new snow on the home board. short",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "weather.no_new_snow": {
+   "he": "בלי שלג חדש",
+   "en": "No new snow",
+   "ru": "Без нового снега",
+   "ka": "ახალი თოვლის გარეშე",
+   "where": "site and app/android (round 19, decision 58)",
+   "note": "a ski day in the forecast with no snow",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "weather.wind_from_n": {
+   "he": "רוח מצפון",
+   "en": "Wind from the north",
+   "ru": "Ветер с севера",
+   "ka": "ჩრდილოეთის ქარი",
+   "where": "site and app/android (round 19, decision 58)",
+   "note": "what the wind arrow says to a screen reader",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "weather.wind_from_ne": {
+   "he": "רוח מצפון-מזרח",
+   "en": "Wind from the northeast",
+   "ru": "Ветер с северо-востока",
+   "ka": "ჩრდილო-აღმოსავლეთის ქარი",
+   "where": "site and app/android (round 19, decision 58)",
+   "note": "what the wind arrow says to a screen reader",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "weather.wind_from_e": {
+   "he": "רוח ממזרח",
+   "en": "Wind from the east",
+   "ru": "Ветер с востока",
+   "ka": "აღმოსავლეთის ქარი",
+   "where": "site and app/android (round 19, decision 58)",
+   "note": "what the wind arrow says to a screen reader",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "weather.wind_from_se": {
+   "he": "רוח מדרום-מזרח",
+   "en": "Wind from the southeast",
+   "ru": "Ветер с юго-востока",
+   "ka": "სამხრეთ-აღმოსავლეთის ქარი",
+   "where": "site and app/android (round 19, decision 58)",
+   "note": "what the wind arrow says to a screen reader",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "weather.wind_from_s": {
+   "he": "רוח מדרום",
+   "en": "Wind from the south",
+   "ru": "Ветер с юга",
+   "ka": "სამხრეთის ქარი",
+   "where": "site and app/android (round 19, decision 58)",
+   "note": "what the wind arrow says to a screen reader",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "weather.wind_from_sw": {
+   "he": "רוח מדרום-מערב",
+   "en": "Wind from the southwest",
+   "ru": "Ветер с юго-запада",
+   "ka": "სამხრეთ-დასავლეთის ქარი",
+   "where": "site and app/android (round 19, decision 58)",
+   "note": "what the wind arrow says to a screen reader",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "weather.wind_from_w": {
+   "he": "רוח ממערב",
+   "en": "Wind from the west",
+   "ru": "Ветер с запада",
+   "ka": "დასავლეთის ქარი",
+   "where": "site and app/android (round 19, decision 58)",
+   "note": "what the wind arrow says to a screen reader",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "weather.wind_from_nw": {
+   "he": "רוח מצפון-מערב",
+   "en": "Wind from the northwest",
+   "ru": "Ветер с северо-запада",
+   "ka": "ჩრდილო-დასავლეთის ქარი",
+   "where": "site and app/android (round 19, decision 58)",
+   "note": "what the wind arrow says to a screen reader",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "weather.point_village": {
+   "he": "הכפר",
+   "en": "The village",
+   "ru": "Деревня",
+   "ka": "სოფელი",
+   "where": "site and app/android (round 19, decision 58)",
+   "note": "weather point: the bottom of New Goodaura",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "weather.point_goodaura": {
+   "he": "Goodaura העליונה",
+   "en": "Upper Goodaura",
+   "ru": "Верхняя Goodaura",
+   "ka": "ზედა Goodaura",
+   "where": "site and app/android (round 19, decision 58)",
+   "note": "weather point: the top of the Goodaura gondola (Sadzele stays Latin)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "today.title": {
+   "he": "היום על ההר",
+   "en": "Today on the mountain",
+   "ru": "Сегодня на горе",
+   "ka": "დღეს მთაზე",
+   "where": "site and app/android (round 19, decision 58)",
+   "note": "home board during the trip (replaces the season board)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "today.updated": {
+   "he": "עודכן {ago}",
+   "en": "Updated {ago}",
+   "ru": "Обновлено {ago}",
+   "ka": "განახლდა {ago}",
+   "where": "site and app/android (round 19, decision 58)",
+   "note": "{ago} is status.ago_minutes / status.ago_hours. short",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "today.risk_title": {
+   "he": "סגירה בגלל רוח · הערכה",
+   "en": "Closure in the wind · estimate",
+   "ru": "Закрытие из-за ветра · оценка",
+   "ka": "დახურვა ქარის გამო · შეფასება",
+   "where": "site and app/android (round 19, decision 58)",
+   "note": "heading of the wind closure risk rows",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "today.risk_low": {
+   "he": "נמוך",
+   "en": "Low",
+   "ru": "Низкий",
+   "ka": "დაბალი",
+   "where": "site and app/android (round 19, decision 58)",
+   "note": "risk level. short",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "today.risk_medium": {
+   "he": "בינוני",
+   "en": "Medium",
+   "ru": "Средний",
+   "ka": "საშუალო",
+   "where": "site and app/android (round 19, decision 58)",
+   "note": "risk level. short",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "today.risk_high": {
+   "he": "גבוה",
+   "en": "High",
+   "ru": "Высокий",
+   "ka": "მაღალი",
+   "where": "site and app/android (round 19, decision 58)",
+   "note": "risk level. short",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "today.closed_mta": {
+   "he": "סגור · לפי MTA",
+   "en": "Closed · per MTA",
+   "ru": "Закрыт · по данным MTA",
+   "ka": "დახურულია · MTA-ს მიხედვით",
+   "where": "site and app/android (round 19, decision 58)",
+   "note": "a live MTA report replaces the estimate for that lift. short",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "today.open_mta": {
+   "he": "פתוח · לפי MTA",
+   "en": "Open · per MTA",
+   "ru": "Открыт · по данным MTA",
+   "ka": "ღიაა · MTA-ს მიხედვით",
+   "where": "site and app/android (round 19, decision 58)",
+   "note": "a live MTA report replaces the estimate for that lift. short",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "today.risk_why": {
+   "he": "הערכה לפי התחזית, לא דיווח של אתר הסקי. כשיש דיווח של MTA על הרכבלים, הוא קובע.",
+   "en": "An estimate from the forecast, not a report from the ski resort. When MTA reports on the lifts, the report wins.",
+   "ru": "Оценка по прогнозу, а не сообщение курорта. Когда MTA сообщает о подъёмниках, решает сообщение.",
+   "ka": "შეფასება პროგნოზის მიხედვით და არა კურორტის ცნობა. როცა MTA საბაგიროებზე იტყობინება, მთავარია მისი ცნობა.",
+   "where": "site and app/android (round 19, decision 58)",
+   "note": "under the risk rows (m-6 section 3: the same words everywhere)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "today.risk_why_mixed": {
+   "he": "{lift} לפי הדיווח של MTA. ל-{other} עוד אין דיווח, ולכן מוצגת ההערכה לפי התחזית.",
+   "en": "{lift} per the MTA report. {other} has no report yet, so the estimate is shown.",
+   "ru": "{lift} — по данным MTA. По {other} данных ещё нет, поэтому показана оценка по прогнозу.",
+   "ka": "{lift} — MTA-ს ცნობის მიხედვით. {other}-ზე ცნობა ჯერ არ არის, ამიტომ ნაჩვენებია შეფასება პროგნოზის მიხედვით.",
+   "where": "site and app/android (round 19, decision 58)",
+   "note": "one lift has a live report and the other not; lift names stay Latin",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "today.risk_why_all": {
+   "he": "לפי הדיווח של MTA על הרכבלים.",
+   "en": "Per the MTA report on the lifts.",
+   "ru": "По данным MTA о подъёмниках.",
+   "ka": "MTA-ს ცნობის მიხედვით საბაგიროებზე.",
+   "where": "site and app/android (round 19, decision 58)",
+   "note": "both lifts have a live report",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "today.lifts_none": {
+   "he": "עוד אין דיווח על הרכבלים",
+   "en": "No lift report yet",
+   "ru": "Сообщений о подъёмниках ещё нет",
+   "ka": "საბაგიროებზე ცნობა ჯერ არ არის",
+   "where": "site and app/android (round 19, decision 58)",
+   "note": "lift status row on the board without a report",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "today.ahead_title": {
+   "he": "התחזית לימי הסקי שלך",
+   "en": "The forecast for your ski days",
+   "ru": "Прогноз на ваши дни катания",
+   "ka": "პროგნოზი თქვენი სათხილამურო დღეებისთვის",
+   "where": "site and app/android (round 19, decision 58)",
+   "note": "home board before the trip, once the first ski day is within the 15-day forecast",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "today.ahead_day": {
+   "he": "יום סקי {n}",
+   "en": "Ski day {n}",
+   "ru": "День катания {n}",
+   "ka": "სათხილამურო დღე {n}",
+   "where": "site and app/android (round 19, decision 58)",
+   "note": "under the date of each ski day. short",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "today.ahead_later": {
+   "he": "התחזית ליום הזה תיפתח ב-{date}",
+   "en": "The forecast for this day opens on {date}",
+   "ru": "Прогноз на этот день появится {date}",
+   "ka": "ამ დღის პროგნოზი გამოჩნდება: {date}",
+   "where": "site and app/android (round 19, decision 58)",
+   "note": "a ski day still beyond the 15 days; {date} like 30.12",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "today.ahead_note": {
+   "he": "תחזית עד 15 ימים קדימה; ככל שהיום קרוב, היא מדויקת יותר. הלוח מופיע כשיום הסקי הראשון שלך נכנס לתחזית, ובטיול עצמו הופך ל\"היום על ההר\".",
+   "en": "A forecast up to 15 days ahead; the closer the day, the more accurate it is. The board appears when your first ski day enters the forecast, and during the trip it becomes \"Today on the mountain\".",
+   "ru": "Прогноз до 15 дней вперёд; чем ближе день, тем он точнее. Табло появляется, когда ваш первый день катания попадает в прогноз, а во время поездки становится «Сегодня на горе».",
+   "ka": "პროგნოზი 15 დღით წინ; რაც უფრო ახლოა დღე, მით უფრო ზუსტია. დაფა ჩნდება, როცა თქვენი პირველი სათხილამურო დღე პროგნოზში მოხვდება, ხოლო მოგზაურობისას ხდება „დღეს მთაზე“.",
+   "where": "site and app/android (round 19, decision 58)",
+   "note": "under the days board",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "run.cond_title": {
+   "he": "התנאים במסלול",
+   "en": "Conditions on the run",
+   "ru": "Условия на трассе",
+   "ka": "პირობები ტრასაზე",
+   "where": "site and app/android (round 19, decision 58)",
+   "note": "run panel section, after the details",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "run.cond_top": {
+   "he": "בראש המסלול",
+   "en": "At the top",
+   "ru": "Наверху",
+   "ka": "ტრასის თავში",
+   "where": "site and app/android (round 19, decision 58)",
+   "note": "row name. short",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "run.cond_bottom": {
+   "he": "בתחתית",
+   "en": "At the bottom",
+   "ru": "Внизу",
+   "ka": "ტრასის ბოლოში",
+   "where": "site and app/android (round 19, decision 58)",
+   "note": "row name. short",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "run.cond_note": {
+   "he": "תחזית לגובה של ראש המסלול ושל התחתית, עודכנה {ago}. ההר עצמו יכול להיות קר וסוער יותר בקטעים חשופים.",
+   "en": "A forecast for the altitudes of the top and the bottom of the run, updated {ago}. The mountain itself can be colder and windier on exposed stretches.",
+   "ru": "Прогноз для высоты начала и конца трассы, обновлён {ago}. На открытых участках на горе может быть холоднее и ветренее.",
+   "ka": "პროგნოზი ტრასის თავისა და ბოლოს სიმაღლისთვის, განახლდა {ago}. ღია მონაკვეთებზე მთა შეიძლება უფრო ცივი და ქარიანი იყოს.",
+   "where": "site and app/android (round 19, decision 58)",
+   "note": "under the two rows",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "loc.button": {
+   "he": "איפה אני",
+   "en": "Where am I",
+   "ru": "Где я",
+   "ka": "სად ვარ",
+   "where": "site and app/android (round 19, decision 58)",
+   "note": "the location button on the map (its label for a screen reader)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "loc.on_run": {
+   "he": "על {run} · {color}",
+   "en": "On {run} · {color}",
+   "ru": "На {run} · {color}",
+   "ka": "ტრასაზე {run} · {color}",
+   "where": "site and app/android (round 19, decision 58)",
+   "note": "{run} stays Latin, {color} is common.color_*",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "loc.accuracy": {
+   "he": "דיוק של כ-{n} מ׳",
+   "en": "accurate to about {n} m",
+   "ru": "точность около {n} м",
+   "ka": "სიზუსტე დაახლ. {n} მ",
+   "where": "site and app/android (round 19, decision 58)",
+   "note": "after the altitude and a middle dot",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "loc.on_lift": {
+   "he": "על הרכבל {lift}",
+   "en": "On the {lift} lift",
+   "ru": "На подъёмнике {lift}",
+   "ka": "საბაგიროზე {lift}",
+   "where": "site and app/android (round 19, decision 58)",
+   "note": "{lift} stays Latin",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "loc.going_up": {
+   "he": "בדרך למעלה",
+   "en": "On the way up",
+   "ru": "Едем вверх",
+   "ka": "ზემოთ მივდივართ",
+   "where": "site and app/android (round 19, decision 58)",
+   "note": "under loc.on_lift. short",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "loc.free": {
+   "he": "לא על מסלול",
+   "en": "Not on a run",
+   "ru": "Не на трассе",
+   "ka": "ტრასის გარეთ",
+   "where": "site and app/android (round 19, decision 58)",
+   "note": "accurate, but not within 30 m of a run (not drawn in round 19; a neutral line)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "loc.low_title": {
+   "he": "המיקום לא מדויק · כ-{n} מ׳",
+   "en": "Location not accurate · about {n} m",
+   "ru": "Местоположение неточное · около {n} м",
+   "ka": "მდებარეობა არაზუსტია · დაახლ. {n} მ",
+   "where": "site and app/android (round 19, decision 58)",
+   "note": "accuracy over 30 m",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "loc.low_sub": {
+   "he": "מחכים לאות טוב יותר כדי לדעת על איזה מסלול",
+   "en": "Waiting for a better signal to know which run",
+   "ru": "Ждём сигнал получше, чтобы понять, какая трасса",
+   "ka": "უკეთეს სიგნალს ველოდებით, რომ გავიგოთ რომელი ტრასაა",
+   "where": "site and app/android (round 19, decision 58)",
+   "note": "under loc.low_title",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "loc.approx_title": {
+   "he": "המיקום משוער · כ-{n} מ׳",
+   "en": "Approximate location · about {n} m",
+   "ru": "Приблизительное местоположение · около {n} м",
+   "ka": "სავარაუდო მდებარეობა · დაახლ. {n} მ",
+   "where": "site and app/android (round 19, decision 58)",
+   "note": "the user allowed only an approximate location",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "loc.approx_sub": {
+   "he": "הטלפון נתן מיקום משוער, ולכן לא מצמידים למסלול",
+   "en": "The phone gave an approximate location, so no run is matched",
+   "ru": "Телефон дал приблизительное местоположение, поэтому трасса не определяется",
+   "ka": "ტელეფონმა სავარაუდო მდებარეობა მისცა, ამიტომ ტრასას ვერ ვუკავშირებთ",
+   "where": "site and app/android (round 19, decision 58)",
+   "note": "under loc.approx_title",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "loc.approx_action": {
+   "he": "מיקום מדויק",
+   "en": "Precise location",
+   "ru": "Точное местоположение",
+   "ka": "ზუსტი მდებარეობა",
+   "where": "site and app/android (round 19, decision 58)",
+   "note": "button: ask again for a precise location. short",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "loc.unavail_title": {
+   "he": "אין מיקום במכשיר הזה",
+   "en": "No location on this device",
+   "ru": "На этом устройстве нет геолокации",
+   "ka": "ამ მოწყობილობაზე მდებარეობა არ არის",
+   "where": "site and app/android (round 19, decision 58)",
+   "note": "the device or browser has no location at all",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "loc.unavail_sub": {
+   "he": "הדפדפן או המכשיר לא נותנים מיקום",
+   "en": "The browser or the device gives no location",
+   "ru": "Браузер или устройство не дают местоположение",
+   "ka": "ბრაუზერი ან მოწყობილობა მდებარეობას არ იძლევა",
+   "where": "site and app/android (round 19, decision 58)",
+   "note": "site",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "loc.unavail_sub_phone": {
+   "he": "המיקום כבוי בטלפון, או שאין בו מיקום",
+   "en": "Location is off on the phone, or it has none",
+   "ru": "Геолокация на телефоне выключена или недоступна",
+   "ka": "ტელეფონზე მდებარეობა გამორთულია ან არ არის",
+   "where": "site and app/android (round 19, decision 58)",
+   "note": "app: location services off",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "loc.unavail_action_phone": {
+   "he": "הגדרות המיקום",
+   "en": "Location settings",
+   "ru": "Настройки геолокации",
+   "ka": "მდებარეობის პარამეტრები",
+   "where": "site and app/android (round 19, decision 58)",
+   "note": "app: opens the phone location settings. short",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "loc.out_title": {
+   "he": "לא בגודאורי כרגע",
+   "en": "Not in Gudauri right now",
+   "ru": "Сейчас не в Гудаури",
+   "ka": "ახლა გუდაურში არ ხართ",
+   "where": "site and app/android (round 19, decision 58)",
+   "note": "outside the terrain model",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "loc.out_sub": {
+   "he": "המיקום יופיע על המפה כשתהיו על ההר",
+   "en": "Your location will show on the map once you are on the mountain",
+   "ru": "Местоположение появится на карте, когда вы будете на горе",
+   "ka": "მდებარეობა რუკაზე გამოჩნდება, როცა მთაზე იქნებით",
+   "where": "site and app/android (round 19, decision 58)",
+   "note": "under loc.out_title",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "loc.denied_title": {
+   "he": "אין הרשאה למיקום",
+   "en": "No permission for location",
+   "ru": "Нет доступа к местоположению",
+   "ka": "მდებარეობაზე წვდომა არ არის",
+   "where": "site and app/android (round 19, decision 58)",
+   "note": "the user refused",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "loc.denied_sub": {
+   "he": "אפשר לאשר בהגדרות הדפדפן, ואז לנסות שוב",
+   "en": "You can allow it in the browser settings, then try again",
+   "ru": "Можно разрешить в настройках браузера и попробовать снова",
+   "ka": "შეგიძლიათ ნება დართოთ ბრაუზერის პარამეტრებში და ისევ სცადოთ",
+   "where": "site and app/android (round 19, decision 58)",
+   "note": "site",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "loc.denied_sub_phone": {
+   "he": "אפשר לאשר בהגדרות הטלפון, ואז לנסות שוב",
+   "en": "You can allow it in the phone settings, then try again",
+   "ru": "Можно разрешить в настройках телефона и попробовать снова",
+   "ka": "შეგიძლიათ ნება დართოთ ტელეფონის პარამეტრებში და ისევ სცადოთ",
+   "where": "site and app/android (round 19, decision 58)",
+   "note": "app",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "loc.denied_action": {
+   "he": "איך מאשרים",
+   "en": "How to allow",
+   "ru": "Как разрешить",
+   "ka": "როგორ დავრთოთ ნება",
+   "where": "site and app/android (round 19, decision 58)",
+   "note": "site: opens a short how-to. short",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "loc.denied_action_phone": {
+   "he": "להגדרות",
+   "en": "Settings",
+   "ru": "Настройки",
+   "ka": "პარამეტრები",
+   "where": "site and app/android (round 19, decision 58)",
+   "note": "app: opens the app settings. short",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "loc.waiting_title": {
+   "he": "מחפשים את המיקום",
+   "en": "Finding your location",
+   "ru": "Ищем местоположение",
+   "ka": "მდებარეობას ვეძებთ",
+   "where": "site and app/android (round 19, decision 58)",
+   "note": "before the first fix (not drawn in round 19; a neutral line)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "loc.waiting_sub": {
+   "he": "תחת שמיים פתוחים זה לוקח עד דקה",
+   "en": "Under open sky it takes up to a minute",
+   "ru": "Под открытым небом это занимает до минуты",
+   "ka": "ღია ცის ქვეშ ამას წუთამდე სჭირდება",
+   "where": "site and app/android (round 19, decision 58)",
+   "note": "under loc.waiting_title",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "loc.ask_title": {
+   "he": "איפה אני על ההר",
+   "en": "Where am I on the mountain",
+   "ru": "Где я на горе",
+   "ka": "სად ვარ მთაზე",
+   "where": "site and app/android (round 19, decision 58)",
+   "note": "the short sheet before the system asks for location",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "loc.ask_stays_b": {
+   "he": "המיקום נשאר בטלפון.",
+   "en": "Your location stays on the phone.",
+   "ru": "Местоположение остаётся в телефоне.",
+   "ka": "მდებარეობა ტელეფონში რჩება.",
+   "where": "site and app/android (round 19, decision 58)",
+   "note": "bold, first bullet",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "loc.ask_stays": {
+   "he": "הוא לא נשלח לשרת, לא נשמר ולא נמדד.",
+   "en": "It is not sent to a server, not saved and not measured.",
+   "ru": "Оно не отправляется на сервер, не сохраняется и не учитывается в статистике.",
+   "ka": "ის სერვერზე არ იგზავნება, არ ინახება და არ იზომება.",
+   "where": "site and app/android (round 19, decision 58)",
+   "note": "after loc.ask_stays_b",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "loc.ask_map": {
+   "he": "פועל רק כשהמפה פתוחה והכפתור דלוק, כדי לחסוך בסוללה.",
+   "en": "It works only while the map is open and the button is on, to save battery.",
+   "ru": "Работает только при открытой карте и включённой кнопке, чтобы экономить батарею.",
+   "ka": "მუშაობს მხოლოდ მაშინ, როცა რუკა ღიაა და ღილაკი ჩართულია, ბატარეის დასაზოგად.",
+   "where": "site and app/android (round 19, decision 58)",
+   "note": "second bullet",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "loc.ask_offline": {
+   "he": "עובד גם בלי קליטה בהר: הטלפון מוצא את עצמו לבד.",
+   "en": "It works without signal on the mountain too: the phone finds itself.",
+   "ru": "Работает и без связи на горе: телефон сам определяет, где он.",
+   "ka": "მთაზე კავშირის გარეშეც მუშაობს: ტელეფონი თავად პოულობს თავს.",
+   "where": "site and app/android (round 19, decision 58)",
+   "note": "third bullet",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "loc.ask_go": {
+   "he": "להמשיך",
+   "en": "Continue",
+   "ru": "Продолжить",
+   "ka": "გაგრძელება",
+   "where": "site and app/android (round 19, decision 58)",
+   "note": "button. short",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "loc.ask_later": {
+   "he": "לא עכשיו",
+   "en": "Not now",
+   "ru": "Не сейчас",
+   "ka": "ახლა არა",
+   "where": "site and app/android (round 19, decision 58)",
+   "note": "button. short",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "loc.ask_after": {
+   "he": "אחרי \"להמשיך\" הדפדפן ישאל אם לאשר. אפשר לכבות בכל רגע בנגיעה בכפתור.",
+   "en": "After \"Continue\" the browser will ask whether to allow it. You can turn it off any time by tapping the button.",
+   "ru": "После «Продолжить» браузер спросит разрешение. Выключить можно в любой момент, нажав на кнопку.",
+   "ka": "„გაგრძელების“ შემდეგ ბრაუზერი ნებართვას იკითხავს. ნებისმიერ დროს შეგიძლიათ გამორთოთ ღილაკზე შეხებით.",
+   "where": "site and app/android (round 19, decision 58)",
+   "note": "site",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "loc.ask_after_phone": {
+   "he": "אחרי \"להמשיך\" הטלפון ישאל אם לאשר. אפשר לכבות בכל רגע בנגיעה בכפתור.",
+   "en": "After \"Continue\" the phone will ask whether to allow it. You can turn it off any time by tapping the button.",
+   "ru": "После «Продолжить» телефон спросит разрешение. Выключить можно в любой момент, нажав на кнопку.",
+   "ka": "„გაგრძელების“ შემდეგ ტელეფონი ნებართვას იკითხავს. ნებისმიერ დროს შეგიძლიათ გამორთოთ ღილაკზე შეხებით.",
+   "where": "site and app/android (round 19, decision 58)",
+   "note": "app",
+   "check": [
+    "ru",
+    "ka"
+   ]
   }
  }
 }

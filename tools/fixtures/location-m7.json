@@ -1,0 +1,187 @@
+{
+ "about": "Shared test values for 'where am I' (round 19, docs/ARCHITECTURE.md m-7 section 6, decision 58). Each client feeds the readings of a case in order, to a fresh locator per case, and must give the expected state after every reading. Written by the Android session; the site tests against the same file (as X-3, tools/fixtures/slope-x3.json).",
+ "data": "site/data/runs-and-lifts.json (named runs; named lifts that are not inactive) and the bounds of the terrain model in site/data/terrain.json (dem x0, x1, y0, y1)",
+ "projection": "x = (lon - 44.495) * 111320 * cos(42.51 deg), y = -(lat - 42.51) * 111320, metres, as site/js/app.js",
+ "rule": [
+  "outside: the point is outside the terrain model's bounds",
+  "approx: the phone or browser gave only an approximate location (Android 'approximate'); a big circle, no snapping",
+  "low: accuracy over 50 m",
+  "lift: within 25 m of a lift's cable, and moving up along it (the position along the cable, measured from its lower end by the terrain model, grows) in three readings in a row on the same lift; checked before the runs, for any accuracy up to 50 m",
+  "low: accuracy over 30 m and not on a lift",
+  "run: the nearest run (distance to its lines) is within 30 m; if the run of the reading before is also within 30 m and less than 10 m farther, it stays",
+  "free: none of the above (accurate, but not on a run)"
+ ],
+ "cases": [
+  {
+   "name": "on Tatra 2",
+   "readings": [
+    {
+     "lat": 42.482631,
+     "lon": 44.483401,
+     "accuracy": 8,
+     "expect": {
+      "state": "run",
+      "run": "Tatra 2"
+     }
+    }
+   ]
+  },
+  {
+   "name": "between two runs: stays on the one before",
+   "readings": [
+    {
+     "lat": 42.493934,
+     "lon": 44.502039,
+     "accuracy": 6,
+     "expect": {
+      "state": "run",
+      "run": "Kudebi 1"
+     }
+    },
+    {
+     "lat": 42.494613,
+     "lon": 44.502894,
+     "accuracy": 6,
+     "expect": {
+      "state": "run",
+      "run": "Kudebi 1"
+     }
+    }
+   ]
+  },
+  {
+   "name": "between two runs, nothing before: the nearer one",
+   "readings": [
+    {
+     "lat": 42.494613,
+     "lon": 44.502894,
+     "accuracy": 6,
+     "expect": {
+      "state": "run",
+      "run": "Kudebi 2"
+     }
+    }
+   ]
+  },
+  {
+   "name": "on the lift, going up: the lift on the third reading",
+   "readings": [
+    {
+     "lat": 42.480067,
+     "lon": 44.493006,
+     "accuracy": 10,
+     "expect": {
+      "state": "free"
+     }
+    },
+    {
+     "lat": 42.480492,
+     "lon": 44.493044,
+     "accuracy": 10,
+     "expect": {
+      "state": "free"
+     }
+    },
+    {
+     "lat": 42.480916,
+     "lon": 44.493085,
+     "accuracy": 10,
+     "expect": {
+      "state": "lift",
+      "lift": "Goodaura"
+     }
+    }
+   ]
+  },
+  {
+   "name": "near the lift, going down: never the lift",
+   "readings": [
+    {
+     "lat": 42.480916,
+     "lon": 44.493085,
+     "accuracy": 10,
+     "expect": {
+      "state": "free"
+     }
+    },
+    {
+     "lat": 42.480492,
+     "lon": 44.493044,
+     "accuracy": 10,
+     "expect": {
+      "state": "free"
+     }
+    },
+    {
+     "lat": 42.480067,
+     "lon": 44.493006,
+     "accuracy": 10,
+     "expect": {
+      "state": "free"
+     }
+    }
+   ]
+  },
+  {
+   "name": "low accuracy: no snap",
+   "readings": [
+    {
+     "lat": 42.482631,
+     "lon": 44.483401,
+     "accuracy": 80,
+     "expect": {
+      "state": "low"
+     }
+    },
+    {
+     "lat": 42.482631,
+     "lon": 44.483401,
+     "accuracy": 40,
+     "expect": {
+      "state": "low"
+     }
+    }
+   ]
+  },
+  {
+   "name": "outside the mountain",
+   "readings": [
+    {
+     "lat": 41.7151,
+     "lon": 44.8271,
+     "accuracy": 5,
+     "expect": {
+      "state": "outside"
+     }
+    }
+   ]
+  },
+  {
+   "name": "in the village, away from the runs",
+   "readings": [
+    {
+     "lat": 42.470395,
+     "lon": 44.49234,
+     "accuracy": 8,
+     "expect": {
+      "state": "free"
+     }
+    }
+   ]
+  },
+  {
+   "name": "approximate location: no snap",
+   "readings": [
+    {
+     "lat": 42.482631,
+     "lon": 44.483401,
+     "accuracy": 400,
+     "approximate": true,
+     "expect": {
+      "state": "approx"
+     }
+    }
+   ]
+  }
+ ]
+}
