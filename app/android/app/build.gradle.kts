@@ -60,12 +60,15 @@ android {
             // "where am I" (round 19): only here until Pini approves the privacy line (decision 58); its permissions are in
             // src/preview/AndroidManifest.xml, and both move to main together
             buildConfigField("boolean", "LOCATION", "true")
+            // the weather (round 19): here at once; in the store build once the server's /api/weather answers
+            buildConfigField("boolean", "WEATHER", "true")
             signingConfig = signingConfigs.findByName("test") ?: signingConfigs.getByName("debug")
         }
         create("store") {
             dimension = "channel"
             resValue("string", "app_name", "סקי")
             buildConfigField("boolean", "LOCATION", "false")
+            buildConfigField("boolean", "WEATHER", "false")
             signingConfig = signingConfigs.findByName("upload") ?: signingConfigs.getByName("debug")
         }
     }

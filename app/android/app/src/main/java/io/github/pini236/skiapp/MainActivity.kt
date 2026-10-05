@@ -396,7 +396,7 @@ class MainActivity : ComponentActivity() {
 
     /** The forecast from the site, or the last good one on the phone (weather/Weather.kt). */
     private suspend fun loadWeather() {
-        if (weatherPinned) return
+        if (weatherPinned || !BuildConfig.WEATHER) return
         val f = withContext(Dispatchers.IO) { weatherSource.load() }
         if (weatherPinned) return
         forecast = f

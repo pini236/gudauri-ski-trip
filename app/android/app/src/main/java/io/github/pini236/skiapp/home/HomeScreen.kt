@@ -107,7 +107,8 @@ fun HomeScreen(trip: Trip?, frame: DayNight.Frame, mode: DayNight.Mode, now: Loc
                 // status inside it; before it, once the first ski day is inside the forecast's 15 days, the ski days
                 val stage = trip.stage(now)
                 val ski = trip.skiDays()
-                if (stage is Trip.Stage.SkiDay) {
+                if (!io.github.pini236.skiapp.BuildConfig.WEATHER) Unit
+                else if (stage is Trip.Stage.SkiDay) {
                     Spacer(Modifier.height(30.dp))
                     Box(Modifier.padding(horizontal = 16.dp)) { io.github.pini236.skiapp.weather.TodayBoard(stage.n, stage.of, status) { go(HomeAction.STATUS) } }
                 } else if (stage is Trip.Stage.Before && ski != null && !ski.start.isAfter(now.toLocalDate().plusDays(14))) {

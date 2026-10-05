@@ -301,7 +301,7 @@ fun MapScreen(view: MapView, scene: MapScene?, ms: MapStatus? = null, videos: Li
                         // "where am I" at the start and the weather at the end, above the line (and-map-buttons)
                         if (!flying) Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.SpaceBetween) {
                             if (where != null) LocateKey(where.on, ::locate) else Box(Modifier)
-                            io.github.pini236.skiapp.weather.WeatherKey(weatherOn, ::toggleWeather)
+                            if (io.github.pini236.skiapp.BuildConfig.WEATHER) io.github.pini236.skiapp.weather.WeatherKey(weatherOn, ::toggleWeather)
                         }
                         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                             val words = where?.let { whereWords(it.state) }

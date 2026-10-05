@@ -75,7 +75,7 @@ class WhereAmI(private val context: Context, private val locator: Locator, priva
     fun refused() { state = State.Denied; send("denied") }
 
     fun off() {
-        val was = state != State.Off
+        val was = on // only a button that was really on says so (not after a refusal or no location)
         unregister(); listening = false; locator.reset(); pending = null
         state = State.Off; approximate = false
         if (was) { Telemetry.event("location_toggle", mapOf("on" to false)); Qa.log("where off") }
