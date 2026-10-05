@@ -54,7 +54,10 @@ const MYTRIP=(()=>{const K='gud-trip',ISO=/^\d{4}-\d\d-\d\d$/;
     const first=o.arrives&&o.arrives<'12:00'?landed:addDays(landed,1),last=r.departs&&r.departs>='18:00'?r.date:addDays(r.date,-1);
     return first<=last?{from:first,to:last}:null;};
   const ski=t=>t?(t.ski||skiAuto(t.out,t.ret)):null;
-  const days=t=>t?Math.ceil((new Date(t.out.date+'T00:00:00')-new Date())/864e5):null;
+  // days to the flight in calendar days, in the browser's own date (S-32): counting milliseconds to that midnight added a
+  // day between 00:00 and 01:00 while the clock is on summer time and the flight's day is not. 0 from that day on.
+  const days=t=>{if(!t)return null;const n=new Date(),today=Date.UTC(n.getFullYear(),n.getMonth(),n.getDate());
+    return Math.max(0,Math.round((Date.parse(t.out.date+'T00:00:00Z')-today)/864e5));};
   return {get,set,skiAuto,ski,days,ISO};})();
 function countdown(dark){
   const tb=document.getElementById('tbCount'),stub=document.getElementById('tDays'),pre=document.getElementById('tDaysPre'),lbl=document.getElementById('tDaysLbl'),d=MYTRIP.days(MYTRIP.get());
@@ -753,7 +756,7 @@ const MEET=(function(){
   function countdown(){ // in Gudauri time (UTC+4)
     const [y,mo,d]=S.day.split('-').map(Number),[hh,mm]=S.time.split(':').map(Number);
     const t=Date.UTC(y,mo-1,d,hh-4,mm),diff=(t-Date.now())/6e4;
-    if(diff<0)return ['',T('meet.countdown_passed'),''];if(diff<24*60)return diff<60?slots('meet.countdown_minutes',{n:Math.round(diff)}):slots('meet.countdown_hours',{hm:Math.floor(diff/60)+':'+pad(Math.round(diff%60))});
+    if(diff<0)return ['',T('meet.countdown_passed'),''];const mins=Math.round(diff);if(mins<24*60)return mins<60?slots('meet.countdown_minutes',{n:mins}):slots('meet.countdown_hours',{hm:Math.floor(mins/60)+':'+pad(mins%60)}); // round all the minutes first: 119.7 is 2:00, not 1:60 (S-30)
     return slots('meet.countdown_days',{n:Math.ceil(diff/1440)});}
   function render(){
     const s=byId[S.sid],none=!s;applyVB();
@@ -851,6 +854,7 @@ const LSTAT=(function(){
     const up=p.fromLifts.filter(n=>data.lifts&&data.lifts[n]);return up.length?up.some(n=>data.lifts[n].open):(r?!!r.open:null);}; // open for me: the run and a lift up to it
   const REASON=Object.fromEntries(['wind','weather','maintenance','season'].map(k=>[k,T('status.reason_'+k)]));
   const ago=t=>{const m=Math.round((Date.now()-Date.parse(t))/6e4);return m<1?T('status.ago_now'):m<60?T('status.ago_minutes',{n:m}):T('status.ago_hours',{n:Math.round(m/60)});};
+  let prevSeen;
   function block(){
     if(!fresh()){const season=inSeason();
       return `<section class="lstat" aria-label="${E('status.heading_lift_status')}"><h3>${E(season?'status.no_recent_data':'status.mountain_asleep')}</h3>
@@ -858,8 +862,10 @@ const LSTAT=(function(){
       <div class="lstat-post">${names.slice(0,6).map((n,i)=>`<div class="lsign s${i%2}" data-snow="${i}" data-snow-arrow="18" data-snow-low><div class="ls-face"><b dir="ltr">${esc(n)}</b><span>?</span></div></div>`).join('')}</div>
       <p class="hint"><b>${E('status.no_guessing_bold')}</b> ${E('status.no_guessing_text')}</p></section>`;}
     const open=names.filter(n=>isOpen(n)).length;
-    let prev=null;try{prev=JSON.parse(localStorage.getItem('gud-lstat')||'null');}catch(e){}
-    const changes=prev?names.filter(n=>prev[n]!==undefined&&prev[n]!==isOpen(n)).map(n=>T(isOpen(n)?'status.change_opened':'status.change_closed',{lift:n})):[];
+    // "opened since you checked" (S-31, as in the app): against the board as it was before this visit, read once, so
+    // drawing the panel again does not wipe the changes; a lift the report says nothing about is left out, not "closed"
+    if(prevSeen===undefined){prevSeen=null;try{prevSeen=JSON.parse(localStorage.getItem('gud-lstat')||'null');}catch(e){}}
+    const prev=prevSeen,changes=prev?names.filter(n=>{const o=isOpen(n);return o!==null&&n in prev&&prev[n]!==o;}).map(n=>T(isOpen(n)?'status.change_opened':'status.change_closed',{lift:n})):[];
     try{localStorage.setItem('gud-lstat',JSON.stringify(Object.fromEntries(names.map(n=>[n,isOpen(n)]))));}catch(e){}
     return `<section class="lstat" aria-label="${E('status.heading_lift_status')}"><h3>${E('status.heading_lift_status')}</h3>
       ${changes.length?`<ul class="lstat-changes">${changes.map(c=>`<li>${esc(c)}</li>`).join('')}</ul>`:''}
@@ -974,7 +980,7 @@ const TRIPFORM=(()=>{
   // dates that have passed cannot be picked (a stored one stays, so a trip under way can still be edited)
   const today=()=>new Date().toLocaleDateString('sv');
   const paint=()=>{const t=read(),d0=today(),was=MYTRIP.get();
-    q('od').min=was&&was.out.date<d0?was.out.date:d0;q('rd').min=t.out.date||d0;q('sf').min=q('sl').min=t.out.date||'';
+    q('od').min=was&&was.out.date<d0?was.out.date:d0;q('rd').min=t.out.date||d0;q('sf').min=q('sl').min=t.out.date||'';q('sf').max=q('sl').max=t.ret&&t.ret.date||''; // the ski days within the trip, as in the app (S-34)
     document.getElementById('tfOther').hidden=!!(q('ofr').value&&q('oto').value);
     q('ofrx').parentElement.hidden=!!q('ofr').value;q('otox').parentElement.hidden=!!q('oto').value;
     const br=document.getElementById('tfBackRoute');br.textContent=t.out.from&&t.out.to?T('trip.back_auto',{route:t.out.to+' › '+t.out.from}):T('trip.back_optional');br.dir='auto';
@@ -1008,6 +1014,8 @@ const TRIPFORM=(()=>{
     for(const n of ['ofr','oto'])if(!q(n).value&&!/^[A-Z]{3}$/.test(q(n+'x').value.trim().toUpperCase()))return fail(n+'x','trip.bad_code');
     if(t.ret&&t.ret.date<t.out.date)return fail('rd','trip.bad_order');
     if(t.ski&&t.ski.to<t.ski.from)return fail('sl','trip.bad_order');
+    if(t.ski&&t.ski.from<t.out.date)return fail('sf','trip.ski_outside');
+    if(t.ski&&t.ret&&t.ski.to>t.ret.date)return fail('sl','trip.ski_outside');
     const was=MYTRIP.get();MYTRIP.set({v:1,...t,...(was&&was.sid?{sid:was.sid}:{})});window.ACCOUNT&&ACCOUNT.tripSaved();renderTicket();countdown(document.documentElement.dataset.theme==='dark');location.hash='#home';});
   return {open};})();
 // about and settings (#about): sound and vibration for the whole site and the games, and clearing the game records
