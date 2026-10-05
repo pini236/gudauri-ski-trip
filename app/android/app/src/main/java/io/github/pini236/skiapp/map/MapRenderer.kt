@@ -151,6 +151,16 @@ void main(){
   o = r<0.58 ? vec4(0.165,0.184,0.220,1.0) : vec4(1.0);
 }"""
 
+// a chair on an open lift, the site's yellow (#F4B942), at a fixed size on screen (S1, A-35)
+private const val CHAIR_FS = """#version 300 es
+precision mediump float;
+out vec4 o;
+void main(){
+  float r = length(gl_PointCoord*2.0-1.0);
+  if(r>1.0) discard;
+  o = vec4(0.957,0.725,0.259,1.0);
+}"""
+
 /** A ribbon on the GPU. */
 private class GpuRibbon(r: Ribbon) {
     val vao = IntArray(1); private val bufs = IntArray(2); val count = r.indices.size
@@ -166,6 +176,8 @@ private class GpuRibbon(r: Ribbon) {
     fun draw() { if (count == 0) return; glBindVertexArray(vao[0]); glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, 0) }
     fun release() { glDeleteBuffers(2, bufs, 0); glDeleteVertexArrays(1, vao, 0) }
 }
+
+private fun sq(v: Float) = v * v
 
 private fun floats(a: FloatArray): FloatBuffer =
     ByteBuffer.allocateDirect(a.size * 4).order(ByteOrder.nativeOrder()).asFloatBuffer().apply { put(a); position(0) }
@@ -195,7 +207,11 @@ private fun program(vs: String, fs: String): Int {
  * What the lift status changes on the map (S1, as the site draws it): a closed run grey and dashed, a closed lift grey
  * and dashed, and with "only what's open for me" the closed runs faded away.
  */
-class StatusPaint(val closedRuns: Set<String>, val closedLifts: Set<String>, val forMe: Boolean) {
+class StatusPaint(
+    val closedRuns: Set<String>, val closedLifts: Set<String>, val forMe: Boolean,
+    /** The lifts reported open: three chairs ride each one, as on the site (S1, in 3D too). */
+    val openLifts: Set<String> = emptySet(),
+) {
     companion object { val NONE = StatusPaint(emptySet(), emptySet(), false) }
 }
 
@@ -222,6 +238,13 @@ class MapRenderer(
     private var terrainProg = 0; private var lineProg = 0; private var markProg = 0; private var skyProg = 0; private var markT = 0f
     private var stationProg = 0
     private val stationVao = IntArray(1); private val stationBuf = IntArray(1); private var stationCount = 0
+    /** The chairs: per lift, the cable's running length; and their places this frame, written in place (no allocation). */
+    private var chairProg = 0
+    private val chairVao = IntArray(1); private val chairBuf = IntArray(1)
+    private var cableCum: Array<FloatArray> = emptyArray(); private var cableDur = FloatArray(0)
+    private var chairXyz = FloatArray(0); private var chairData: FloatBuffer? = null
+    private val chairTick = Runnable { requestRender() }
+    private val main = android.os.Handler(android.os.Looper.getMainLooper())
     /** Each run's line width against a named run's, as on the site: a ski way 2.8 and a section without a name 2.6 to 4. */
     private val pisteW = HashMap<String, Float>()
     /** Per lift, in the order of [lifts]: out of use (drawn dashed, as the site's map does). */
@@ -272,6 +295,7 @@ class MapRenderer(
         lineProg = program(LINE_VS, LINE_FS)
         markProg = program(MARK_VS, MARK_FS)
         stationProg = program(MARK_VS, STATION_FS)
+        chairProg = program(MARK_VS, CHAIR_FS)
         skyProg = program(SKY_VS, SKY_FS)
         // a new GL context (first start, or the map tab came back): everything is uploaded again
         uploaded = false; pistes.clear(); lifts.clear(); liftInactive.clear(); stationCount = 0; selCasing = null; selPaint = null; dim = 0f; dimTarget = 0f
@@ -305,6 +329,19 @@ class MapRenderer(
         attr(0, 3, 12, 0)
         glBindVertexArray(0)
         stationCount = ends.size / 3
+        // the chairs: each cable's running length, and a lap in len/60 seconds (at least 8), as the site's
+        cableCum = Array(s.liftLines.size) { i ->
+            val l = s.liftLines[i]; val n = l.size / 3; val c = FloatArray(n)
+            for (k in 1 until n) c[k] = c[k - 1] + kotlin.math.sqrt(sq(l[k * 3] - l[k * 3 - 3]) + sq(l[k * 3 + 1] - l[k * 3 - 2]) + sq(l[k * 3 + 2] - l[k * 3 - 1]))
+            c
+        }
+        cableDur = FloatArray(s.liftLines.size) { i -> maxOf(8f, (s.runs.lifts.getOrNull(i)?.len?.takeIf { it > 0 } ?: 1000) / 60f) }
+        chairXyz = FloatArray(s.liftLines.size * 9)
+        chairData = ByteBuffer.allocateDirect(chairXyz.size * 4).order(ByteOrder.nativeOrder()).asFloatBuffer()
+        glGenVertexArrays(1, chairVao, 0); glBindVertexArray(chairVao[0])
+        glGenBuffers(1, chairBuf, 0); glBindBuffer(GL_ARRAY_BUFFER, chairBuf[0]); glBufferData(GL_ARRAY_BUFFER, chairXyz.size * 4, null, GL_DYNAMIC_DRAW)
+        attr(0, 3, 12, 0)
+        glBindVertexArray(0)
         uploaded = true
     }
 
@@ -428,6 +465,15 @@ class MapRenderer(
             glUniformMatrix4fv(glGetUniformLocation(stationProg, "uMvp"), 1, false, mvp, 0)
             glUniform1f(glGetUniformLocation(stationProg, "uSize"), 9f * density)
             glBindVertexArray(stationVao[0]); glDrawArrays(GL_POINTS, 0, stationCount); glBindVertexArray(0)
+            val n = if (still) 0 else placeChairs(s, paint.openLifts)
+            if (n > 0) {
+                glUseProgram(chairProg)
+                glUniformMatrix4fv(glGetUniformLocation(chairProg, "uMvp"), 1, false, mvp, 0)
+                glUniform1f(glGetUniformLocation(chairProg, "uSize"), 6f * density)
+                glBindVertexArray(chairVao[0]); glDrawArrays(GL_POINTS, 0, n); glBindVertexArray(0)
+                // the chairs at about ten frames a second, as the site's, unless something else already moves
+                if (!moving && fly == null) { main.removeCallbacks(chairTick); main.postDelayed(chairTick, 100) }
+            }
             glUseProgram(lineProg)
         }
         if (selPaint != null) {
@@ -455,6 +501,38 @@ class MapRenderer(
         stats.onFrame(System.nanoTime(), System.nanoTime() - t0)
         onFrame()
         if (moving || fly != null) requestRender()
+    }
+
+    /** Writes this moment's chairs on the open lifts into the GPU buffer; how many there are. */
+    private fun placeChairs(s: MapScene, open: Set<String>): Int {
+        if (open.isEmpty()) return 0
+        val data = chairData ?: return 0
+        val now = (System.nanoTime() % 3_600_000_000_000L) / 1e9
+        var n = 0
+        lifts.forEachIndexed { i, (name, _) ->
+            if (name.isBlank() || name !in open || i >= cableCum.size) return@forEachIndexed
+            val l = s.liftLines[i]; val c = cableCum[i]; val total = c.last()
+            if (total <= 0f) return@forEachIndexed
+            for (k in 0..2) {
+                val f = ((now / cableDur[i] + k / 3.0) % 1.0).toFloat()
+                chairAt(l, c, f * total, n * 3)
+                n++
+            }
+        }
+        if (n == 0) return 0
+        data.position(0); data.put(chairXyz, 0, n * 3); data.position(0)
+        glBindBuffer(GL_ARRAY_BUFFER, chairBuf[0]); glBufferSubData(GL_ARRAY_BUFFER, 0, n * 12, data)
+        return n
+    }
+
+    /** The point [d] metres along a cable, three metres above it, as the site's (writes into [chairXyz] at [o]). */
+    private fun chairAt(l: FloatArray, c: FloatArray, d: Float, o: Int) {
+        var i = 1
+        while (i < c.size - 1 && c[i] < d) i++
+        val t = if (c[i] > c[i - 1]) (d - c[i - 1]) / (c[i] - c[i - 1]) else 0f
+        chairXyz[o] = l[i * 3 - 3] + (l[i * 3] - l[i * 3 - 3]) * t
+        chairXyz[o + 1] = l[i * 3 - 2] + (l[i * 3 + 1] - l[i * 3 - 2]) * t + 3f
+        chairXyz[o + 2] = l[i * 3 - 1] + (l[i * 3 + 2] - l[i * 3 - 1]) * t
     }
 
     /** The sky first, behind everything: it writes no depth, so the mountain simply covers it. */

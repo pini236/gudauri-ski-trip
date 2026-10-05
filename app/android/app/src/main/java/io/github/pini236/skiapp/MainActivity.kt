@@ -595,7 +595,8 @@ class MainActivity : ComponentActivity() {
             val runs = scene?.runs
             if (!lstat.fresh || runs == null) StatusPaint.NONE
             else StatusPaint(runs.pistes.filter { lstat.runOpen(it) == false }.map { it.key }.toSet(),
-                runs.mainLifts.filter { lstat.isOpen(it.name.ifBlank { null }) == false }.map { it.name }.toSet(), forMe)
+                runs.mainLifts.filter { lstat.isOpen(it.name.ifBlank { null }) == false }.map { it.name }.toSet(), forMe,
+                runs.mainLifts.filter { lstat.isOpen(it.name.ifBlank { null }) == true }.map { it.name }.toSet())
         }
         // the group sign's line on home: my first group, read again each time home shows (A-27)
         var firstGroup by remember { mutableStateOf<Pair<String, Int>?>(null) }
