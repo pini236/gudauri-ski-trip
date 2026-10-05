@@ -29,15 +29,30 @@ const deps = {
 const CORS = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, apikey, content-type, x-client-info, x-region",
-  "Access-Control-Allow-Methods": "POST, OPTIONS",
+  "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
 };
 
-function reply(status: number, body: unknown) {
+function reply(status: number, body: unknown, cache?: string) {
   return new Response(JSON.stringify(body), {
     status,
-    headers: { ...CORS, "Content-Type": "application/json" },
+    // Errors and everything without a cache setting are never cached.
+    headers: { ...CORS, "Content-Type": "application/json", "Cache-Control": status === 200 && cache ? cache : "no-store" },
   });
 }
+
+// The scheduled fetches carry a secret in x-fetch-secret (FETCH_SECRET, set in the dashboard; never in the repo).
+// Compared in constant time. No secret set: nothing is authorized.
+function fetchAuthorized(req: Request): boolean {
+  const want = Deno.env.get("FETCH_SECRET") ?? "";
+  const got = req.headers.get("x-fetch-secret") ?? "";
+  if (!want || want.length !== got.length) return false;
+  let diff = 0;
+  for (let i = 0; i < want.length; i++) diff |= want.charCodeAt(i) ^ got.charCodeAt(i);
+  return diff === 0;
+}
+
+// The two public reads are GET, with no session; every other action is POST.
+const PUBLIC_READS = ["weather", "status"];
 
 // The caller's network address as a keyed hash that changes every day: enough to count wrong code guesses per address
 // (R-13), and nothing that can be turned back into the address, or linked across days. The key is derived from the
@@ -81,13 +96,14 @@ Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: CORS });
   const started = Date.now();
   const action = new URL(req.url).pathname.split("/").filter(Boolean).pop() ?? "";
-  if (req.method !== "POST") return reply(405, { error: "use_post" });
+  const isRead = PUBLIC_READS.includes(action);
+  if (req.method !== (isRead ? "GET" : "POST")) return reply(405, { error: isRead ? "use_get" : "use_post" });
 
   let user: string | null = null;
   let status = 500;
   let error: string | undefined;
   try {
-    const text = await req.text();
+    const text = isRead ? "" : await req.text();
     let body: Record<string, unknown> = {};
     try {
       body = text ? JSON.parse(text) : {};
@@ -96,11 +112,11 @@ Deno.serve(async (req) => {
       error = "invalid_json";
       return reply(status, { error });
     }
-    user = action === "keepalive" ? null : await caller(req);
-    const r = await handle(deps, user, action, body, { ipKey: await ipKey(req, action) });
+    user = action === "keepalive" || isRead || action.startsWith("fetch_") ? null : await caller(req);
+    const r = await handle(deps, user, action, body, { ipKey: await ipKey(req, action), fetchAuthorized: action.startsWith("fetch_") && fetchAuthorized(req) });
     status = r.status;
     error = (r.body as { error?: string } | null)?.error;
-    return reply(r.status, r.body);
+    return reply(r.status, r.body, r.cache);
   } catch (e) {
     console.error(JSON.stringify({ action, user, error: String(e) }));
     error = "server_error";

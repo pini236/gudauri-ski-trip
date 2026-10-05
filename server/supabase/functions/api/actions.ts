@@ -15,6 +15,7 @@
 // answer and error code) is server/CONTRACT.md.
 
 import type postgres from "postgres";
+import { buildAnswer, openMeteoUrl, type Thresholds } from "./weather.ts";
 
 type Sql = postgres.Sql;
 type Tx = postgres.TransactionSql;
@@ -26,11 +27,16 @@ export interface Deps {
   // everything that references it). In production: the Auth admin API.
   deleteAuthUser: (id: string) => Promise<void>;
   log?: (entry: Record<string, unknown>) => void;
+  // Fetches JSON from the outside (Open-Meteo). Missing: the real network. The tests give a stand-in.
+  fetchJson?: (url: string) => Promise<unknown>;
+  now?: () => Date;
 }
 
 export interface Result {
   status: number;
   body: unknown;
+  // Cache-Control for the public reads (weather, status). Absent: no cache.
+  cache?: string;
 }
 
 export class ApiError extends Error {
@@ -363,6 +369,8 @@ export interface Meta {
   // (index.ts), for counting wrong code guesses per address; never the
   // address itself. Missing when unknown.
   ipKey?: string;
+  // The scheduled fetch actions only: the x-fetch-secret header matched the server's secret (index.ts checks it).
+  fetchAuthorized?: boolean;
 }
 
 interface Ctx {
@@ -775,6 +783,47 @@ const actions: Record<string, Action> = {
   },
 };
 
+// ---------------------------------------------------------------------
+// Weather and lift status (decision 58): public reads of a stored answer, replaced only by the scheduled fetches
+// ---------------------------------------------------------------------
+
+const CACHE: Record<string, string> = { weather: "public, s-maxage=600", status: "public, s-maxage=60" };
+
+// The stored answer, or 404 without a cache (before the first fetch): a client keeps only 200 answers.
+async function readStored(d: Deps, name: "weather" | "status"): Promise<Result> {
+  const rows = name === "weather"
+    ? await d.sql`select body from private.weather_cache where id = 1`
+    : await d.sql`select body from private.lift_status_cache where id = 1`;
+  if (!rows.length) return { status: 404, body: { error: "no_data" } };
+  return { status: 200, body: rows[0].body, cache: CACHE[name] };
+}
+
+// Fetch from Open-Meteo and replace the stored answer. Any failure (network, a bad or partial answer) leaves the
+// previous answer untouched and says 502 (R: never save a partial answer).
+async function fetchWeather(d: Deps): Promise<Result> {
+  try {
+    const rows = await d.sql`select key, kmh from private.weather_thresholds`;
+    const t = Object.fromEntries(rows.map((r) => [r.key, r.kmh])) as unknown as Thresholds;
+    if (typeof t.low_max !== "number" || typeof t.medium_max !== "number") throw new Error("thresholds are missing");
+    const raw = await (d.fetchJson ?? defaultFetchJson)(openMeteoUrl());
+    const now = d.now?.() ?? new Date();
+    const answer = buildAnswer(raw, now, t);
+    await d.sql`
+      insert into private.weather_cache (id, body, fetched_at) values (1, ${d.sql.json(answer as postgres.JSONValue)}, ${now})
+      on conflict (id) do update set body = excluded.body, fetched_at = excluded.fetched_at`;
+    return { status: 200, body: { ok: true, updated: answer.updated } };
+  } catch (e) {
+    console.error(JSON.stringify({ action: "fetch_weather", error: String(e) }));
+    return { status: 502, body: { error: "fetch_failed" } };
+  }
+}
+
+async function defaultFetchJson(url: string): Promise<unknown> {
+  const r = await fetch(url, { signal: AbortSignal.timeout(20000) });
+  if (!r.ok) throw new Error(`open-meteo answered ${r.status}`);
+  return await r.json();
+}
+
 // The daily keepalive (decision 28): open to anyone, it only bumps a
 // counter, and at most once a day cleans up. Guests in no group, with no
 // pending request, older than the limit, are removed (their own data
@@ -839,6 +888,14 @@ export const ACTION_NAMES = Object.keys(actions);
 
 export async function handle(d: Deps, user: string | null, action: string, body: Body, meta: Meta = {}): Promise<Result> {
   if (action === "keepalive") return await keepalive(d);
+  // Public reads of a stored answer: no session, no body.
+  if (action === "weather" || action === "status") return await readStored(d, action);
+  // The scheduled fetches: only with the secret (index.ts compares it). The lift status page of MTA has no parser
+  // yet (December, when the page works): the fetch says 501 and the stored answer stays empty, so reads are 404.
+  if (action === "fetch_weather" || action === "fetch_status") {
+    if (!meta.fetchAuthorized) return { status: 401, body: { error: "not_signed_in" } };
+    return action === "fetch_weather" ? await fetchWeather(d) : { status: 501, body: { error: "not_implemented" } };
+  }
   const fn = Object.hasOwn(actions, action) ? actions[action] : undefined;
   if (!fn) return { status: 404, body: { error: "unknown_action" } };
   if (!user) return { status: 401, body: { error: "not_signed_in" } };
