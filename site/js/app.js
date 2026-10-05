@@ -170,7 +170,7 @@ function apply(){
   const[cw,ch]=sz();vb.h=vb.w*ch/cw;
   svg.setAttribute('viewBox',`${vb.x} ${vb.y} ${vb.w} ${vb.h}`);
   const u=vb.w/cw; // meters per px
-  layoutLabels(labels,stations,u,marks);svg.classList.toggle('far',u>9);svg.querySelectorAll('.chair').forEach(c=>c.setAttribute('r',3.6*u));runMark.setAttribute('r',7*u);if(typeof meDot!=='undefined')meDot.setAttribute('r',8*u);
+  layoutLabels(labels,stations,u,marks);svg.classList.toggle('far',u>9);svg.querySelectorAll('.chair').forEach(c=>c.setAttribute('r',3.6*u));runMark.setAttribute('r',7*u);if(typeof meDot!=='undefined')meDot.setAttribute('r',8*u);if(typeof WX!=='undefined'&&WX)WX.layout();
   const nice=[50,100,200,250,500,1000,2000];let m=nice.find(n=>n/u>=70)||2000;
   const sc=document.getElementById('scale');sc.querySelector('i').style.width=(m/u)+'px';sc.querySelector('span').textContent=m>=1000?m/1000+' km':m+' m';
 }
@@ -404,6 +404,7 @@ function renderPiste(key){
     ${p.refs.length?`<dt>${E('run.ref_label')}</dt><dd class="num">${esc(p.refs.join(', '))}</dd>`:''}
     ${p.groom.length?`<dt>${E('run.grooming_label')}</dt><dd>${p.groom.includes('classic')?E('run.groomed_value'):esc(p.groom.join(', '))}</dd>`:''}
   </dl>
+  ${typeof WX!=='undefined'&&WX?WX.cond(p):''}
   ${runViewBlock(key)}
   <h3>${E('run.connections_heading')}</h3>
   <dl class="kv">
@@ -948,9 +949,9 @@ const LSTAT=(function(){
     .then(j=>{j=j&&j.updated&&j.lifts?j:null;
       // the last report stays in this browser, as in the app (S-29): with no answer it is shown while it is fresh
       try{if(j)localStorage.setItem('gud-lstat-last',JSON.stringify(j));else j=JSON.parse(localStorage.getItem('gud-lstat-last')||'null');}catch(e){}
-      data=j&&j.updated&&j.lifts?j:null;loaded=true;if(pend){pend=false;viewed();}applyMap();applyHome();if(!current&&!panel.querySelector('.back'))overview();});}
+      data=j&&j.updated&&j.lifts?j:null;loaded=true;if(pend){pend=false;viewed();}applyMap();applyHome();if(typeof WX!=='undefined'&&WX)WX.home();if(!current&&!panel.querySelector('.back'))overview();});}
   setInterval(load,5*6e4);
-  return {block,load,applyMap,viewed};
+  return {block,load,applyMap,viewed,fresh,isOpen,names,ago,updated:()=>data&&data.updated};
 })();
 LSTAT.load();
 
@@ -1012,12 +1013,113 @@ const LOC=(function(){
   return {stop};
 })();
 
+// ---- weather by altitude (round 19, decision 58; docs/ARCHITECTURE.md m-6, server/CONTRACT.md "/api/weather"). The
+// server fetches the forecast and decides the closure risk; this only reads /api/weather (the rule in js/weather.js).
+// The last good answer stays in this browser for the mountain without reception. Never a guess: no data says so.
+var WX=(function(){ // var: apply() and renderTicket() may run before this line
+  const G=window.GudWeather;if(!G)return {cond:()=>'',layout(){},home(){}};
+  let ans=null,layer=false;try{ans=JSON.parse(localStorage.getItem('gud-wx-last')||'null');}catch(e){}
+  // the three points (server/CONTRACT.md), for the pins before any answer: the lift ends in the data
+  const WXPTS={village:{lat:42.471394,lon:44.49246},goodaura:{lat:42.492379,lon:44.494273},sadzele:{lat:42.508985,lon:44.503209}};
+  const IDS=['sadzele','goodaura','village'],NM=id=>id==='sadzele'?'Sadzele':T('weather.point_'+id);
+  const st=()=>G.state(ans,Date.now()),num=n=>Number(n).toLocaleString('en-US');
+  const deg=t=>t==null?'—':`<span dir="ltr">${t<0?'−':''}${Math.abs(t)}°</span>`;
+  const arrow=(from,size)=>from==null?'':`<svg class="wx-arrow" width="${size}" height="${size}" viewBox="0 0 16 16" role="img" aria-label="${E('weather.wind_from_'+G.dir8(from))}" style="transform:rotate(${from+180}deg)"><path d="M8 1.5v12M3.5 6 8 1.5 12.5 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+  const credit=()=>`<p class="wx-note">${H('weather.credit',{},{source:'<a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo.com</a>'})}</p>`;
+  const wind=v=>v.wind==null?E('weather.none'):v.gust==null?E('weather.wind_short',{wind:v.wind}):E('weather.wind_gusts',{wind:v.wind,gusts:v.gust});
+  const snow=v=>v.snow24==null?'':E('weather.new_snow',{n:v.snow24});
+  const pAlt=id=>{const p=G.point(ans,id);return p?p.elevation:null;};
+  function row(name,alt,v){return `<div class="wx-row${v?'':' none'}"><span class="rn"><b><bdi>${esc(name)}</bdi></b>${alt!=null?`<span><bdi>${E('common.unit_m',{n:num(alt)})}</bdi></span>`:''}</span>`+
+    (v?`<span class="rt">${deg(v.temp)}</span><span class="rw"><span>${arrow(v.dir,13)} ${wind(v)}</span><span>${snow(v)}</span></span>`:`<span class="rt">—</span><span class="rw"><span>${E('weather.none')}</span></span>`)+`</div>`;}
+  const viewed={};const seen=where=>{if(viewed[where])return;viewed[where]=1;track('weather_view',{where,state:st()});};
+  // the map layer: a chip that is off on every visit, three pins on the map and the same three places in a list
+  const chip=document.createElement('button');chip.type='button';chip.className='wx-chip';chip.setAttribute('aria-pressed','false');
+  chip.innerHTML=`<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 18h10a4 4 0 0 0 0-8 6 6 0 0 0-11.5 2A3 3 0 0 0 7 18z"/></svg><span>${E('weather.button')}</span>`;
+  const filters=document.getElementById('filters');filters.parentNode.insertBefore(chip,filters);
+  // shown once a forecast has ever arrived in this browser: before the server's first answer it would only say "no data"
+  chip.hidden=!ans;
+  const wrap=pgMap.querySelector('.mapwrap'),pins=document.createElement('div');pins.className='wx-pins';pins.hidden=true;wrap.append(pins);
+  const list=document.createElement('section');list.className='wx-list';list.hidden=true;panel.parentNode.insertBefore(list,panel);
+  function drawList(){const s=st(),ms=Date.now();
+    const sub=s==='fresh'?E('weather.sub_fresh',{ago:LSTAT.ago(ans.updated)}):s==='stale'?`<b>${E('weather.stale')}</b> · ${E('weather.sub_stale',{ago:LSTAT.ago(ans.updated)})}`:E('weather.sub_none');
+    list.innerHTML=`<h2>${E('weather.title')}</h2><p class="wl-sub">${sub}</p>`+IDS.map(id=>row(NM(id),pAlt(id),s==='none'?null:G.now(ans,id,ms))).join('')+
+      `<p class="wx-note">${E(s==='none'?'weather.note_none':'weather.note')}</p>`+credit();}
+  function layout(){if(!layer||pins.hidden)return;const s=st(),ms=Date.now(),W=wrap.clientWidth,Hh=wrap.clientHeight;pins.innerHTML='';
+    const m=svg.getScreenCTM(),r=wrap.getBoundingClientRect();if(!m)return;const pt=svg.createSVGPoint();const placed=[],ms0=document.getElementById('mstat'),minT=ms0&&ms0.offsetHeight?ms0.getBoundingClientRect().bottom-r.top+8:8;
+    IDS.forEach(id=>{const p=G.point(ans,id)||WXPTS[id];if(!p)return;const[x,y]=P([p.lat,p.lon]);pt.x=x;pt.y=y;const q=pt.matrixTransform(m),px=q.x-r.left,py=q.y-r.top;
+      const v=s==='none'?null:G.now(ans,id,ms),alt=pAlt(id);
+      const d=document.createElement('div');d.className='wx-dot';d.style.left=px+'px';d.style.top=py+'px';
+      const c=document.createElement('div');c.className='wx-pin'+(v?'':' none');
+      c.innerHTML=`<span class="pn"><bdi>${esc(NM(id))}</bdi>${alt!=null?` · <bdi>${E('common.unit_m',{n:num(alt)})}</bdi>`:''}</span>`+(s==='stale'?`<span class="pn st">${E('weather.stale')}</span>`:'')+
+        (v?`<span class="pt"><b>${deg(v.temp)}</b><span class="pw"><span>${arrow(v.dir,12)} ${v.wind==null?E('weather.none'):E('weather.wind_short',{wind:v.wind})}</span><span>${snow(v)}</span></span></span>`:`<span class="pt"><b>—</b><span class="pw"><span>${E('weather.none')}</span></span></span>`);
+      pins.append(d,c);
+      // above the point, or below it when there is no room or it would cover a pin already placed
+      const w=c.offsetWidth,h=c.offsetHeight,gap=14,left=Math.max(8,Math.min(W-w-8,px-w/2));
+      const hits=t=>placed.some(q=>left<q.l+q.w&&left+w>q.l&&t<q.t+q.h&&t+h>q.t);
+      let top=py-h-gap;if(top<minT||hits(top))top=py+gap;if(top+h>Hh-8||hits(top)&&!hits(py-h-gap))top=py-h-gap;
+      placed.push({l:left,t:top,w,h});c.style.left=left+'px';c.style.top=top+'px';
+      const stem=document.createElement('div');stem.className='wx-stem';stem.style.left=(px-.75)+'px';
+      if(top>py){stem.style.top=py+'px';stem.style.height=(top-py)+'px';}else{stem.style.top=(top+h)+'px';stem.style.height=(py-top-h)+'px';}pins.append(stem);});}
+  function setLayer(on){layer=on;chip.setAttribute('aria-pressed',String(on));pins.hidden=!on;list.hidden=!on;
+    if(on){const b=document.querySelector('#viewsw [data-view="2d"]');if(b&&b.getAttribute('aria-pressed')!=='true')b.click();
+      if(!current)focusOn([IDS.map(id=>{const q=G.point(ans,id)||WXPTS[id];return [q.lat,q.lon];})]);drawList();requestAnimationFrame(layout);seen('map');}}
+  chip.onclick=()=>setLayer(!layer);
+  // the layer is drawn on the top view; the 3D view turns it off
+  document.getElementById('viewsw').addEventListener('click',e=>{const b=e.target.closest('[data-view="3d"]');if(b&&layer)setLayer(false);});
+  addEventListener('hashchange',()=>{if(!location.hash.startsWith('#map')&&layer)setLayer(false);});
+  // the run panel: the forecast at the top and the bottom of the run, by altitude, after the details
+  function cond(p){const s=st();if(!TM||s==='none')return '';const lines=p.segs.filter(x=>!x.area).map(x=>x.g.map(P));if(!lines.length)return '';
+    const S=GudRelief.stats(TM,lines),ms=Date.now(),top=G.at(ans,S.top,ms),bot=G.at(ans,S.bot,ms);if(!top&&!bot)return '';
+    setTimeout(()=>seen('run'),0);
+    return `<section class="wx-cond"><h3>${E('run.cond_title')}</h3>${row(T('run.cond_top'),S.top,top)}${row(T('run.cond_bottom'),S.bot,bot)}`+
+      `${s==='stale'?`<p class="wx-note"><b>${E('weather.stale')}</b></p>`:''}<p class="wx-note">${E('run.cond_note',{ago:LSTAT.ago(ans.updated)})}</p>${credit()}</section>`;}
+  // the home page: "today on the mountain" during the trip, and the days ahead once the first ski day is in the forecast
+  const board=document.getElementById('wxToday');
+  const meter=n=>`<span class="wx-meter" aria-hidden="true">${[0,1,2].map(i=>`<i class="${i<=n?'on':''}"></i>`).join('')}</span>`;
+  const LV={low:0,medium:1,high:2};
+  const gDate=ms=>new Date(ms+4*36e5).toISOString().slice(0,10);
+  function home(){if(!board)return;const t=MYTRIP.get(),s=st(),sk=t&&MYTRIP.ski(t),stg=t&&MYTRIP.stage(t);
+    if(!t||!sk||s==='none'||!stg||stg.k==='over'){board.hidden=true;return;}
+    const ms=Date.now(),today=gDate(ms),days=ans.points[0]&&ans.points[0].daily?ans.points[0].daily.date:[];
+    const ago=`<em>${E('today.updated',{ago:LSTAT.ago(ans.updated)})}</em>`+(s==='stale'?` <em class="st">${E('weather.stale')}</em>`:'');
+    if(stg.k==='ski'){
+      const alt=id=>{const v=G.now(ans,id,ms);return `<div><small><bdi>${esc(NM(id))}</bdi></small><small><bdi>${pAlt(id)!=null?E('common.unit_m',{n:num(pAlt(id))}):''}</bdi></small><b class="tt">${deg(v&&v.temp)}</b>`+
+        (v?`<span>${arrow(v.dir,12)} ${v.wind==null?E('weather.none'):E('weather.wind_short',{wind:v.wind})}</span><span>${v.snow24==null?'':E('weather.snow_short',{n:v.snow24})}</span>`:`<span>${E('weather.none')}</span>`)+`</div>`;};
+      const rk=G.risk(ans,today),live={};['Sadzele','Kudebi'].forEach(n=>{const o=LSTAT.fresh()?LSTAT.isOpen(n):null;if(o!=null)live[n]=o;});
+      const rows=['Sadzele','Kudebi'].filter(n=>rk[n]||n in live).map(n=>`<div class="rk"><b dir="ltr">${n}</b>`+(n in live?`<span>${E(live[n]?'today.open_mta':'today.closed_mta')}</span><span></span>`:`<span>${E('today.risk_'+rk[n])}</span>${meter(LV[rk[n]])}`)+`</div>`).join('');
+      const nl=Object.keys(live),why=nl.length===0?E('today.risk_why'):nl.length===2||!rows.includes('Kudebi')||!rows.includes('Sadzele')?E('today.risk_why_all'):E('today.risk_why_mixed',{lift:nl[0],other:nl[0]==='Sadzele'?'Kudebi':'Sadzele'});
+      const lifts=LSTAT.fresh()?`<span class="ms-dot"></span><span>${H('status.bar_summary',{ago:LSTAT.ago(LSTAT.updated())},{open:`<b class="num">${LSTAT.names.filter(n=>LSTAT.isOpen(n)).length}</b>`,total:`<b class="num">${LSTAT.names.length}</b>`})}</span>`:`<span class="ms-dot off"></span><span>${E('today.lifts_none')}</span>`;
+      board.innerHTML=`<div class="td-head"><b>${E('today.title')}</b><span>${ago}</span></div><p class="td-sub">${E('trip.ski_day_of',{n:stg.n,m:stg.m})}</p>`+
+        `<div class="wx-alts">${['village','goodaura','sadzele'].map(alt).join('')}</div>`+
+        (rows?`<div class="wx-risk"><b class="rk-h">${E('today.risk_title')}</b>${rows}<span class="rk-why">${why}</span></div>`:'')+
+        `<a class="wx-lifts" href="#map">${lifts}<span class="go">${E('status.heading_lift_status')}</span></a>${credit()}`;
+    }else{
+      const list=[];for(let d=sk.from,i=1;d<=sk.to;i++){list.push([d,i]);const x=new Date(d+'T12:00:00Z');x.setUTCDate(x.getUTCDate()+1);d=x.toISOString().slice(0,10);}
+      if(!days.includes(sk.from)){board.hidden=true;return;}
+      const gp=G.point(ans,'goodaura'),dd=gp&&gp.daily;
+      const day=([d,i])=>{const k=dd?dd.date.indexOf(d):-1,label=I18N.date(Date.parse(d+'T12:00:00Z'),{weekday:'short',day:'numeric',month:'numeric',timeZone:'UTC'});
+        if(k<0){const o=new Date(d+'T12:00:00Z');o.setUTCDate(o.getUTCDate()-14);const opens=o.getUTCDate()+'.'+(o.getUTCMonth()+1);
+          return `<div class="wx-day later"><span class="dd"><b>${esc(label)}</b><small>${E('today.ahead_day',{n:i})}</small></span><span class="dw">${E('today.ahead_later',{date:opens})}</span><span class="dt">—</span></div>`;}
+        const v={wind:dd.wind[k]==null?null:Math.round(dd.wind[k]),gust:dd.gust[k]==null?null:Math.round(dd.gust[k]),dir:dd.dir[k]},sn=dd.snow[k]==null?null:Math.round(dd.snow[k]);
+        return `<div class="wx-day"><span class="dd"><b>${esc(label)}</b><small>${E('today.ahead_day',{n:i})}</small></span><span class="dw">${arrow(v.dir,12)} ${wind(v)} · ${sn?E('weather.new_snow',{n:sn}):E('weather.no_new_snow')}</span><span class="dt">${deg(dd.tmax[k]==null?null:Math.round(dd.tmax[k]))}</span></div>`;};
+      board.innerHTML=`<div class="td-head"><b>${E('today.ahead_title')}</b><span>${ago}</span></div><p class="td-sub"><bdi>${esc(NM('goodaura'))}</bdi>${pAlt('goodaura')!=null?`, <bdi>${E('common.unit_m',{n:num(pAlt('goodaura'))})}</bdi>`:''}</p>`+
+        `<div class="wx-days">${list.map(day).join('')}</div><p class="wx-note">${E('today.ahead_note')}</p>${credit()}`;}
+    board.setAttribute('aria-label',T(stg.k==='ski'?'today.title':'today.ahead_title'));board.hidden=false;seen('home');}
+  // read: once now, and every ten minutes while the page is open (the answer changes once an hour)
+  function load(){fetch('api/weather',{cache:'no-store'}).then(r=>r.status===200&&/json/.test(r.headers.get('content-type')||'')?r.json():null).catch(()=>null).then(j=>{
+    const had=G.state(ans,Date.now())!=='none';if(j&&j.schema===1&&j.updated&&Array.isArray(j.points)){ans=j;try{localStorage.setItem('gud-wx-last',JSON.stringify(j));}catch(e){}}chip.hidden=!ans;
+    if(layer){drawList();layout();}home();if(!had&&current&&byKey[current]&&!flying)renderPiste(current);});}
+  load();setInterval(()=>{if(!document.hidden)load();},10*6e4);
+  return {cond,layout,home};
+})();
+
 // flight ticket: one shared doc (trip/flight), editable by Contributors
 const fmtDate=iso=>{const[y,m,d]=iso.split('-');return +d+'.'+ +m+'.'+y;};
 function renderTicket(){
   const t=MYTRIP.get(),stack=document.getElementById('bpStack');
   stack.hidden=!t;document.getElementById('bpHint').hidden=!t;
   ['bpEmpty','tripNote','seasonBoard'].forEach(id=>{document.getElementById(id).hidden=!!t;});
+  if(typeof WX!=='undefined'&&WX)WX.home();
   if(!t)return;
   const short=iso=>{const[,m,d]=iso.split('-');return +d+'.'+ +m;};
   const city=code=>{if(!code)return '';const k='ticket.city_'+code.toLowerCase(),w=T(k);return w===k?'':w;};
