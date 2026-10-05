@@ -170,7 +170,7 @@ function apply(){
   const[cw,ch]=sz();vb.h=vb.w*ch/cw;
   svg.setAttribute('viewBox',`${vb.x} ${vb.y} ${vb.w} ${vb.h}`);
   const u=vb.w/cw; // meters per px
-  layoutLabels(labels,stations,u,marks);svg.classList.toggle('far',u>9);svg.querySelectorAll('.chair').forEach(c=>c.setAttribute('r',3.6*u));runMark.setAttribute('r',7*u);
+  layoutLabels(labels,stations,u,marks);svg.classList.toggle('far',u>9);svg.querySelectorAll('.chair').forEach(c=>c.setAttribute('r',3.6*u));runMark.setAttribute('r',7*u);if(typeof meDot!=='undefined')meDot.setAttribute('r',8*u);
   const nice=[50,100,200,250,500,1000,2000];let m=nice.find(n=>n/u>=70)||2000;
   const sc=document.getElementById('scale');sc.querySelector('i').style.width=(m/u)+'px';sc.querySelector('span').textContent=m>=1000?m/1000+' km':m+' m';
 }
@@ -245,6 +245,9 @@ function runProfile(key){ // the longest line of the run, top to bottom
 // 2D: the selected run, painted from the top down in slope colours
 const gPaint=mk('g',{class:'runpaint','aria-hidden':'true'});svg.insertBefore(gPaint,mainLbl);
 const runMark=mk('circle',{class:'runmark',r:10,cx:0,cy:0,'vector-effect':'non-scaling-stroke'});runMark.style.display='none';
+// "where am I" (round 19): the accuracy circle in metres and the dot in pixels; drawn by LOC below
+const meG=mk('g',{class:'me','aria-hidden':'true'});meG.style.display='none';
+const meAcc=mk('circle',{class:'me-acc',r:10,'vector-effect':'non-scaling-stroke'},meG),meDot=mk('circle',{class:'me-dot',r:10,'vector-effect':'non-scaling-stroke'},meG);
 function paint2d(key){
   gPaint.classList.remove('on');gPaint.innerHTML='';
   const p=key&&byKey[key];if(!p||!TM||isKobiP(p))return;
@@ -950,6 +953,64 @@ const LSTAT=(function(){
   return {block,load,applyMap,viewed};
 })();
 LSTAT.load();
+
+// ---- "where am I" (round 19, decision 58; docs/ARCHITECTURE.md m-7). The position stays in this browser: it is only
+// drawn, never sent, stored or measured. Off on every visit; it runs only while the map is open and the button is on.
+// Not published until Pini approves the line in the privacy policy: until then the button shows only with ?loc=1.
+const LOC=(function(){
+  const on=/[?&]loc=1\b/.test(location.search);
+  const ctrls=pgMap.querySelector('.ctrls'),wrap=pgMap.querySelector('.mapwrap');
+  const btn=document.createElement('button');btn.type='button';btn.className='loc-btn';btn.hidden=!on;btn.disabled=true;
+  btn.setAttribute('aria-pressed','false');btn.setAttribute('aria-label',T('loc.button'));
+  btn.innerHTML='<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="6.5"/><circle cx="12" cy="12" r="2.2" fill="currentColor" stroke="none"/><path d="M12 1.5v3M12 19.5v3M1.5 12h3M19.5 12h3"/></svg>';
+  ctrls.append(btn);
+  const bar=document.createElement('div');bar.className='where';bar.setAttribute('role','status');bar.hidden=true;wrap.append(bar);
+  let watch=null,loc=null,first=true;
+  const num=n=>Number(n).toLocaleString('en-US');
+  function say(off,title,sub){bar.hidden=false;bar.innerHTML=`<span class="wd${off?' off':''}"></span><span class="wt"><b>${esc(title)}</b>${sub?`<span>${esc(sub)}</span>`:''}</span>`;wrap.classList.add('has-where');}
+  function dot(r){if(!r){meG.style.display='none';if(v3&&v3.me)v3.me(null);return;}
+    meG.style.display='';meAcc.setAttribute('cx',r.x);meAcc.setAttribute('cy',r.y);meAcc.setAttribute('r',Math.max(r.acc,4));meDot.setAttribute('cx',r.x);meDot.setAttribute('cy',r.y);
+    if(v3&&v3.me)v3.me(r.x,r.y);}
+  function show(r){
+    const acc=Math.round(r.acc),alt=()=>T('common.unit_m',{n:num(Math.round(TM.elev(r.x,r.y)/10)*10)})+' · '+T('loc.accuracy',{n:acc});
+    if(r.state==='outside'){dot(null);return say(true,T('loc.out_title'),T('loc.out_sub'));}
+    dot(r);
+    if(first){first=false;if(view==='3d'&&v3)v3.view({tx:r.x,tz:r.y});else{const w=Math.min(vb.w,2600);vb.w=w;const[cw,ch]=sz();vb.h=w*ch/cw;vb.x=r.x-w/2;vb.y=r.y-vb.h/2;apply();}}
+    if(r.state==='low'||r.state==='approx')return say(false,T(r.state==='low'?'loc.low_title':'loc.approx_title',{n:acc}),T(r.state==='low'?'loc.low_sub':'loc.approx_sub'));
+    if(r.state==='lift')return say(false,T('loc.on_lift',{lift:r.lift}),T('loc.going_up')+' · '+T('loc.accuracy',{n:acc}));
+    if(r.state==='run')return say(false,T('loc.on_run',{run:r.run,color:T('common.color_'+r.color)}),alt());
+    say(false,T('loc.free'),alt());}
+  let told=false;const tell=result=>{if(!told){told=true;track('location_toggle',{on:true,result});}};
+  function stop(byUser){if(watch!=null){navigator.geolocation.clearWatch(watch);if(byUser)track('location_toggle',{on:false});}watch=null;btn.setAttribute('aria-pressed','false');bar.hidden=true;wrap.classList.remove('has-where');dot(null);}
+  function start(){
+    told=false;if(!navigator.geolocation){tell('unavailable');return say(true,T('loc.unavail_title'),T('loc.unavail_sub'));}
+    btn.setAttribute('aria-pressed','true');first=true;loc.reset();say(false,T('loc.waiting_title'),T('loc.waiting_sub'));
+    watch=navigator.geolocation.watchPosition(p=>{if(watch==null)return;const r=loc.feed({lat:p.coords.latitude,lon:p.coords.longitude,accuracy:p.coords.accuracy});tell(r.state==='outside'?'outside':'granted');show(r);},
+      e=>{if(e.code===1){tell('denied');stop();say(true,T('loc.denied_title'),T('loc.denied_sub'));}else if(e.code===2){tell('unavailable');dot(null);say(true,T('loc.unavail_title'),T('loc.unavail_sub'));}},
+      {enableHighAccuracy:true,maximumAge:5000,timeout:60000});}
+  // the short sheet before the browser asks, once in this browser
+  function ask(){let seen=false;try{seen=!!localStorage.getItem('gud-loc-asked');}catch(e){}
+    if(seen)return start();
+    const shade=document.createElement('div');shade.className='loc-shade';
+    const sh=document.createElement('div');sh.className='loc-sheet';sh.setAttribute('role','dialog');sh.setAttribute('aria-modal','true');sh.setAttribute('aria-label',T('loc.ask_title'));
+    const li=(ico,html)=>`<li>${ico}<span>${html}</span></li>`;
+    sh.innerHTML=`<h2>${E('loc.ask_title')}</h2><ul>`+
+      li('<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><rect x="6" y="2.5" width="12" height="19" rx="1.5"/><path d="M10.5 18.5h3"/></svg>',`<b>${E('loc.ask_stays_b')}</b> ${E('loc.ask_stays')}`)+
+      li('<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M9 4 3 6.5v13L9 17l6 2.5 6-2.5v-13L15 6.5 9 4z"/><path d="M9 4v13M15 6.5v13"/></svg>',E('loc.ask_map'))+
+      li('<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-6.5-6.2-6.5-11a6.5 6.5 0 0 1 13 0c0 4.8-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.3"/></svg>',E('loc.ask_offline'))+
+      `</ul><div class="bt"><button type="button" class="pri" data-go>${E('loc.ask_go')}</button><button type="button" data-later>${E('loc.ask_later')}</button></div><small>${E('loc.ask_after')}</small>`;
+    const close=()=>{shade.remove();sh.remove();btn.focus();};
+    sh.querySelector('[data-go]').onclick=()=>{try{localStorage.setItem('gud-loc-asked','1');}catch(e){}close();start();};
+    sh.querySelector('[data-later]').onclick=close;shade.onclick=close;
+    sh.addEventListener('keydown',e=>{if(e.key==='Escape')close();});
+    pgMap.append(shade,sh);sh.querySelector('[data-go]').focus();}
+  btn.onclick=()=>{if(watch!=null)stop(true);else ask();};
+  // off when the map closes, as on the phone
+  addEventListener('hashchange',()=>{if(!location.hash.startsWith('#map')&&watch!=null)stop(true);});
+  document.addEventListener('visibilitychange',()=>{if(document.hidden&&watch!=null)stop(true);});
+  terrainReady.then(()=>{if(TM&&window.GudLocate){loc=GudLocate.make(D,TM);btn.disabled=false;}else btn.hidden=true;});
+  return {stop};
+})();
 
 // flight ticket: one shared doc (trip/flight), editable by Contributors
 const fmtDate=iso=>{const[y,m,d]=iso.split('-');return +d+'.'+ +m+'.'+y;};

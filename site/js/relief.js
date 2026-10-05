@@ -403,7 +403,7 @@ R.View3D=function(opts){
     const ext=Math.max(c-a,e-b,500);flyTo(Object.assign({tx:(a+c)/2,tz:(b+e)/2,dist:Math.max(k?1300:1600,ext*(k||2.3)),pol:0.62},extra||{}),k?1100:800);}
 
   /* selection/filter API */
-  let selLabel=null,paintObj=null,markObj=null,groundObj=null,flyWait=0,flyEnd=null,lightKey='';
+  let selLabel=null,paintObj=null,markObj=null,meObj=null,groundObj=null,flyWait=0,flyEnd=null,lightKey='';
   const R3={sel:null};
   const api={
     select(key){R3.sel=key||null;selLabel=key&&pisteObjs[key]?pisteObjs[key].label:null;
@@ -466,6 +466,12 @@ R.View3D=function(opts){
         renderer.render(scene,camera);if(t<1&&paintObj)paintObj.raf=requestAnimationFrame(step);};
       paintObj.raf=requestAnimationFrame(step);
     },
+    // "where am I" (round 19): a blue dot on the terrain, apart from the profile's marker
+    me(x,y){if(!meObj){const c=document.createElement('canvas');c.width=c.height=64;const k=c.getContext('2d');k.fillStyle='rgba(31,95,196,.25)';k.beginPath();k.arc(32,32,31,0,7);k.fill();k.fillStyle='#1F5FC4';k.strokeStyle='#fff';k.lineWidth=7;k.beginPath();k.arc(32,32,17,0,7);k.fill();k.stroke();
+        const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute([0,0,0],3));
+        meObj=new THREE.Points(g,new THREE.PointsMaterial({size:30,sizeAttenuation:false,map:new THREE.CanvasTexture(c),transparent:true,depthTest:false,depthWrite:false}));meObj.renderOrder=10;meObj.frustumCulled=false;scene.add(meObj);}
+      if(x==null){meObj.visible=false;request();return;}
+      meObj.visible=true;meObj.geometry.attributes.position.setXYZ(0,x,M.elev(x,y)+8,y);meObj.geometry.attributes.position.needsUpdate=true;request();},
     // a dot on the terrain, e.g. the point chosen on the elevation profile
     marker(x,y){if(!markObj){const c=document.createElement('canvas');c.width=c.height=64;const k=c.getContext('2d');k.fillStyle='rgba(255,255,255,.45)';k.beginPath();k.arc(32,32,31,0,7);k.fill();k.fillStyle='#13233A';k.strokeStyle='#fff';k.lineWidth=7;k.beginPath();k.arc(32,32,17,0,7);k.fill();k.stroke();
         const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute([0,0,0],3));
