@@ -96,15 +96,17 @@ function move(dir){ // dir: 0 left 1 right 2 up 3 down, as on screen
       if(top>maxLv){ maxLv=top; if(top>store.get('got',0)){ store.set('got',top); if(top>=3) toast(top); } } }
     spawn(); hud(); store.set('save',{g:grid,score,maxLv,undos});
     if(maxLv>=7 && !wonShown){ wonShown=true; setTimeout(()=>show(L('game.merge.won_title','איש שלג!'),L('game.merge.won_text','בנית איש שלג שלם. אפשר להמשיך לבנות: כובע, צעיף, ענק, ועד מלך קזבק.'),'continue'),500); }
-    else if(!canMove()){ gameEnd(); setTimeout(()=>show(L('game.merge.over_title','אין מקום'),L('game.merge.over_text','הגעת עד: {name}. ניקוד {score}.',{name:NAMES[maxLv],score}),'again'),400); } };
+    else if(!canMove()) noRoom(); };
   busy={done, timer:setTimeout(()=>{ busy=null; done(); }, SLIDE)}; }
+// the board is full and nothing merges: the end (also after "continue" on the snowman, when that merge filled the board)
+function noRoom(){ gameEnd(); setTimeout(()=>show(L('game.merge.over_title','אין מקום'),L('game.merge.over_text','הגעת עד: {name}. ניקוד {score}.',{name:NAMES[maxLv],score}),'again'),400); }
 function cellOf(dir,i,j){ // j=0 is the side the tiles slide toward; columns run right to left
   if(dir===0) return [i,3-j]; if(dir===1) return [i,j]; if(dir===2) return [j,i]; return [3-j,i]; }
 function canMove(){ if(emptyCells().length) return true; for(let r=0;r<4;r++)for(let c=0;c<4;c++){ const v=grid[r][c].lv; if(c<3&&grid[r][c+1].lv===v) return true; if(r<3&&grid[r+1][c].lv===v) return true; } return false; }
 // act: 'continue' (close and keep playing) or 'again' (a new game); compared by key, never by the shown words
 function show(t,p,act){ $('ovT').textContent=t; $('ovP').textContent=p; const ob=$('ovB'); ob.dataset.act=act;
   ob.textContent= act==='continue' ? L('game.merge.continue','להמשיך') : L('game.merge.again','עוד פעם');
-  $('ovU').hidden = !(act==='again' && undos && hist.length); $('over').hidden=false; ob.onclick=()=>{ if(ob.dataset.act==='continue') $('over').hidden=true; else newGame(); }; }
+  $('ovU').hidden = !(act==='again' && undos && hist.length); $('over').hidden=false; ob.onclick=()=>{ if(ob.dataset.act==='continue'){ $('over').hidden=true; if(!canMove()) noRoom(); } else newGame(); }; }
 $('new').onclick=newGame;
 $('ovU').onclick=()=>{ $('over').hidden=true; $('undo').onclick(); };
 $('undo').onclick=()=>{ finishAnim(); if(!grid||!undos||!hist.length) return; const s=hist.pop(); grid=s.g; score=s.score; maxLv=s.maxLv; undos--; render(); store.set('save',{g:grid,score,maxLv,undos}); };
