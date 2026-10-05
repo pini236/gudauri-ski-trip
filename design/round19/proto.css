@@ -1,0 +1,112 @@
+/* Round 19 proposals, drawn inside the real site: weather by altitude, "today on the mountain", run conditions, where am I.
+   Only the site's own tokens (site/css/site.css). Injected by shots.mjs; nothing here is in the site. */
+
+/* the weather chip in the map toolbar: a layer, so it reads like the filter chips but is off by default */
+.r19-wchip{display:flex;align-items:center;gap:7px;height:44px;padding:0 14px;border:1.5px solid var(--ink);background:var(--paper);color:var(--ink);font:inherit;font-size:14px;font-weight:600;white-space:nowrap;flex:none;cursor:pointer}
+.r19-wchip[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+.r19-wchip svg{flex:none}
+
+/* a weather pin on the map: the meet callout's language (white card, ink rule), with a stem to the point */
+.r19-pin{position:absolute;z-index:3;display:flex;flex-direction:column;gap:2px;min-width:118px;padding:6px 9px 7px;background:var(--paper);border:1.5px solid var(--ink);box-shadow:0 4px 10px var(--shadow);pointer-events:none}
+.r19-stem{position:absolute;z-index:3;width:1.5px;background:var(--ink);pointer-events:none}
+.r19-pin .pn{font-size:11.5px;font-weight:600;line-height:1.25;color:var(--muted);white-space:nowrap}
+.r19-pin .pt{display:flex;align-items:center;gap:8px}
+.r19-pin .pt b{font-family:var(--f-display);font-size:30px;line-height:.9;color:var(--ink)}
+.r19-pin .pw{display:flex;flex-direction:column;font-size:12px;line-height:1.3;color:var(--ink);white-space:nowrap}
+.r19-pin.none .pt b{color:var(--muted)}
+.r19-dot{position:absolute;z-index:3;width:12px;height:12px;margin:-6px 0 0 -6px;border-radius:50%;background:var(--ink);border:2px solid var(--paper);box-sizing:border-box;pointer-events:none}
+
+/* wind: an arrow that points where the wind blows to, always with the words beside it (never the arrow alone) */
+.r19-arrow{display:inline-block;flex:none;vertical-align:-2px}
+
+/* the summary line on top of the map while the layer is on: the lift-status pill's language */
+.r19-wstat{position:absolute;bottom:12px;left:50%;transform:translateX(-50%);z-index:4;display:flex;align-items:center;gap:8px;width:max-content;max-width:calc(100% - 24px);box-sizing:border-box;padding:6px 12px;background:color-mix(in srgb,var(--paper) 94%,transparent);border:1px solid var(--rule);font-size:13px;font-weight:600;line-height:1.3}
+.r19-wstat .ms-dot{width:9px;height:9px;flex:none;background:var(--dash)}
+
+/* the list under the map (the same three places, readable and reachable without the map) */
+.r19-wlist{display:flex;flex-direction:column;margin:0 0 18px}
+.r19-wlist h2{margin:0 0 2px;font-family:var(--f-display);font-weight:700;font-size:30px;line-height:1}
+.r19-wlist .wl-sub{margin:0 0 8px;font-size:13px;color:var(--muted)}
+.r19-row{display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:center;gap:12px;min-height:56px;padding:6px 0;border-bottom:1px solid var(--rule)}
+.r19-row .rn{display:flex;flex-direction:column;min-width:0}
+.r19-row .rn b{font-size:15px}
+.r19-row .rn span{font-size:12.5px;color:var(--muted)}
+.r19-row .rt{font-family:var(--f-display);font-weight:700;font-size:32px;line-height:1}
+.r19-row .rw{display:flex;flex-direction:column;align-items:flex-end;font-size:13px;line-height:1.35;text-align:end}
+[dir="ltr"] .r19-row .rw{align-items:flex-end}
+.r19-row.none .rt{color:var(--muted)}
+.r19-note{margin:8px 0 0;font-size:12.5px;line-height:1.5;color:var(--muted)}
+
+/* wind risk for Kudebi and Sadzele: an estimate in three words with a three-step meter. Never green and red:
+   those are piste colours here, and "red" would read as a red run. Ink only, the level said in words. */
+.r19-risk{display:flex;flex-direction:column;gap:6px;margin-top:10px}
+.r19-risk .rk{display:grid;grid-template-columns:minmax(0,1fr) auto 54px;align-items:center;gap:10px;min-height:36px}
+.r19-risk .rk b{font-size:14px}
+.r19-risk .rk span{font-size:13.5px;font-weight:700}
+.r19-meter{display:grid;grid-template-columns:repeat(3,1fr);gap:3px}
+.r19-meter i{height:10px;border:1.5px solid var(--ink);box-sizing:border-box}
+.r19-meter i.on{background:var(--ink)}
+.r19-risk .rk-why{font-size:12.5px;line-height:1.5;color:var(--muted)}
+
+/* "today on the mountain": the season board's language (white card, rule on top, snow off once there is data) */
+.r19-today{position:relative;align-self:stretch;max-width:460px;margin-top:30px;padding:14px 14px 12px;background:var(--paper);border-top:6px solid var(--ink);color:var(--ink);box-shadow:0 6px 14px var(--shadow)}
+.r19-today .td-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px}
+.r19-today .td-head b{font-family:var(--f-display);font-weight:700;font-size:30px;line-height:1}
+.r19-today .td-head em{font-style:normal;font-size:12.5px;font-weight:700;color:var(--muted);white-space:nowrap}
+.r19-today .td-sub{margin:2px 0 8px;font-size:13px;color:var(--muted)}
+.r19-alts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule)}
+.r19-alts>div{display:flex;flex-direction:column;gap:1px;padding:8px 8px 9px;border-inline-start:1px solid var(--rule)}
+.r19-alts>div:first-child{border-inline-start:0;padding-inline-start:0}
+.r19-alts small{font-size:11.5px;font-weight:600;color:var(--muted);line-height:1.3}
+.r19-today .r19-alts b.tt{display:block;margin-top:2px;font-family:var(--f-display);font-weight:700;font-size:32px;line-height:1;color:var(--ink)}
+.r19-alts>div>span{font-size:12px;line-height:1.35}
+.r19-lifts{display:flex;align-items:center;gap:9px;min-height:44px;margin-top:8px;padding-top:6px;border-top:1px solid var(--rule);font-size:13.5px;font-weight:600;color:var(--ink);text-decoration:none}
+.r19-lifts .ms-dot{width:10px;height:10px;flex:none;background:var(--p-green)}
+.r19-lifts .num{font-family:var(--f-display);font-size:22px;line-height:1}
+.r19-lifts .go{margin-inline-start:auto;color:var(--glacier);font-size:12.5px;font-weight:700}
+.r19-days{display:flex;flex-direction:column}
+.r19-day{display:grid;grid-template-columns:72px minmax(0,1fr) auto;align-items:center;gap:10px;min-height:48px;border-bottom:1px solid var(--rule)}
+.r19-day:last-child{border-bottom:0}
+.r19-day .dd{display:flex;flex-direction:column;line-height:1.2}
+.r19-day .dd b{font-size:14px}.r19-day .dd small{font-size:12px;color:var(--muted)}
+.r19-day .dw{font-size:13px;line-height:1.35}
+.r19-day .dt{font-family:var(--f-display);font-weight:700;font-size:26px;line-height:1}
+.r19-day.later .dw,.r19-day.later .dt{color:var(--muted)}
+
+/* run panel: conditions at the top and the bottom of the run */
+.r19-cond{display:flex;flex-direction:column;margin:2px 0 4px}
+.r19-cond .r19-row{min-height:52px}
+
+/* where am I: the button in the map controls, the dot, and the line at the bottom of the map */
+.ctrls .r19-loc{color:var(--ink)}
+.ctrls .r19-loc[aria-pressed="true"]{background:var(--glacier);border-color:var(--glacier);color:var(--paper)}
+.r19-me{position:absolute;z-index:3;pointer-events:none}
+.r19-me .acc{position:absolute;left:0;top:0;border-radius:50%;transform:translate(-50%,-50%);background:color-mix(in srgb,var(--glacier) 16%,transparent);border:1.5px solid color-mix(in srgb,var(--glacier) 60%,transparent)}
+.r19-me .pt{position:absolute;left:0;top:0;width:18px;height:18px;border-radius:50%;transform:translate(-50%,-50%);background:var(--glacier);border:3px solid var(--paper);box-shadow:0 1px 6px var(--shadow)}
+.r19-me .hd{position:absolute;left:0;top:0;width:0;height:0;transform:translate(-50%,-100%) translateY(-12px);border-left:7px solid transparent;border-right:7px solid transparent;border-bottom:11px solid var(--glacier)}
+.r19-where{position:absolute;bottom:12px;inset-inline-start:12px;width:min(440px,calc(100% - 24px));z-index:4;display:flex;align-items:center;gap:10px;min-height:48px;box-sizing:border-box;padding:8px 12px;background:color-mix(in srgb,var(--paper) 96%,transparent);border:1.5px solid var(--ink);box-shadow:0 4px 10px var(--shadow)}
+.r19-where .wd{width:12px;height:12px;flex:none;border-radius:50%;background:var(--glacier);border:2px solid var(--paper);box-shadow:0 0 0 1.5px var(--glacier)}
+.r19-where .wd.off{background:var(--dash);box-shadow:0 0 0 1.5px var(--dash)}
+.r19-where .wt{display:flex;flex-direction:column;min-width:0;line-height:1.3}
+.r19-where .wt b{font-size:14.5px}
+.r19-where .wt span{font-size:12.5px;color:var(--muted)}
+.r19-where .wa{margin-inline-start:auto;flex:none;display:flex;align-items:center;min-height:44px;padding:0 10px;border:1.5px solid var(--rule);background:var(--paper);color:var(--glacier);font:inherit;font-size:13px;font-weight:700;white-space:nowrap}
+.r19-route{position:absolute;inset:0;z-index:2;pointer-events:none}
+
+/* the explanation before the phone asks: a sheet over the map */
+.r19-shade{position:absolute;inset:0;z-index:20;background:rgba(13,21,34,.45)}
+.r19-sheet{position:absolute;left:0;right:0;bottom:0;z-index:21;display:flex;flex-direction:column;gap:12px;padding:18px 20px 22px;background:var(--paper);border-top:6px solid var(--glacier);color:var(--ink)}
+.r19-sheet h2{margin:0;font-family:var(--f-display);font-weight:700;font-size:34px;line-height:1}
+.r19-sheet ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
+.r19-sheet li{display:grid;grid-template-columns:24px minmax(0,1fr);gap:10px;align-items:start;font-size:14.5px;line-height:1.45}
+.r19-sheet li svg{margin-top:2px;color:var(--glacier)}
+.r19-sheet .bt{display:flex;gap:10px;margin-top:4px}
+.r19-sheet .bt button{flex:1;min-height:48px;font:inherit;font-size:15px;font-weight:700;border:1.5px solid var(--ink);background:var(--paper);color:var(--ink)}
+.r19-sheet .bt button.pri{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.r19-sheet small{font-size:12.5px;color:var(--muted);line-height:1.45}
+.r19-steps{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.r19-steps li{display:flex;flex-direction:column;gap:1px;padding-inline-start:12px;border-inline-start:4px solid var(--p-blue)}
+.r19-steps li.lift{border-color:var(--lift)}
+.r19-steps li b{font-size:14.5px}.r19-steps li span{font-size:13px;color:var(--muted)}
+.r19-alts>div>small:first-child{min-height:30px}
+.r19-lifts .go{white-space:nowrap}

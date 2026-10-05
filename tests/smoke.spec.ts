@@ -413,6 +413,8 @@ test('קובץ האימות לקישורים שפותחים את האפליקצ�
   const doc = require('fs').readFileSync(require('path').join(__dirname, '..', 'docs', 'APP-NATIVE.md'), 'utf8');
   const byPkg = Object.fromEntries(links.map((l: any) => [l.target.package_name, l.target.sha256_cert_fingerprints]));
   expect(Object.keys(byPkg).sort()).toEqual(['io.github.pini236.skiapp', 'io.github.pini236.skiapp.test']);
+  // the store app: the upload key (installs from GitHub) and Google Play's signing key (installs from the store)
+  expect(byPkg['io.github.pini236.skiapp']).toHaveLength(2);
   for (const fps of Object.values(byPkg) as string[][]) for (const fp of fps) {
     expect(fp).toMatch(/^([0-9A-F]{2}:){31}[0-9A-F]{2}$/);
     expect(doc).toContain(fp);

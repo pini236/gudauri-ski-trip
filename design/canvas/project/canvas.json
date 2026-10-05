@@ -1714,6 +1714,182 @@
       "h": 204,
       "page": "round16",
       "title": "החץ חזרה באנגלית"
+    },
+    "R19-0-Decide.dc.html": {
+      "x": 0,
+      "y": 0,
+      "w": 600,
+      "h": 1560,
+      "page": "round19",
+      "title": "מה לאשר בסבב 19"
+    },
+    "R19-map-weather.dc.html": {
+      "x": 680,
+      "y": 0,
+      "w": 430,
+      "h": 1394,
+      "page": "round19",
+      "title": "השכבה במפה: עדכנית"
+    },
+    "R19-map-weather-stale.dc.html": {
+      "x": 1190,
+      "y": 0,
+      "w": 430,
+      "h": 1394,
+      "page": "round19",
+      "title": "תחזית ישנה (12 עד 48 שעות)"
+    },
+    "R19-map-weather-none.dc.html": {
+      "x": 1700,
+      "y": 0,
+      "w": 430,
+      "h": 1394,
+      "page": "round19",
+      "title": "אין מידע"
+    },
+    "R19-map-weather-night.dc.html": {
+      "x": 2210,
+      "y": 0,
+      "w": 430,
+      "h": 1008,
+      "page": "round19",
+      "title": "בלילה"
+    },
+    "R19-and-map-buttons.dc.html": {
+      "x": 2720,
+      "y": 0,
+      "w": 430,
+      "h": 857,
+      "page": "round19",
+      "title": "אנדרואיד: איפה הכפתור"
+    },
+    "R19-and-map-weather.dc.html": {
+      "x": 3230,
+      "y": 0,
+      "w": 430,
+      "h": 857,
+      "page": "round19",
+      "title": "אנדרואיד: השכבה"
+    },
+    "R19-home-today.dc.html": {
+      "x": 680,
+      "y": 1814,
+      "w": 430,
+      "h": 1274,
+      "page": "round19",
+      "title": "היום על ההר: בטיול"
+    },
+    "R19-home-ahead.dc.html": {
+      "x": 1190,
+      "y": 1814,
+      "w": 430,
+      "h": 1274,
+      "page": "round19",
+      "title": "לפני הטיול: ימי הסקי שלך"
+    },
+    "R19-home-today-live-night.dc.html": {
+      "x": 1700,
+      "y": 1814,
+      "w": 430,
+      "h": 1274,
+      "page": "round19",
+      "title": "בלילה, עם דיווח של MTA"
+    },
+    "R19-home-today-en.dc.html": {
+      "x": 2210,
+      "y": 1814,
+      "w": 430,
+      "h": 1274,
+      "page": "round19",
+      "title": "באנגלית (משמאל לימין)"
+    },
+    "R19-and-home-today.dc.html": {
+      "x": 2720,
+      "y": 1814,
+      "w": 430,
+      "h": 1296,
+      "page": "round19",
+      "title": "אנדרואיד: היום על ההר"
+    },
+    "R19-desk-home.dc.html": {
+      "x": 3230,
+      "y": 1814,
+      "w": 1320,
+      "h": 1334,
+      "page": "round19",
+      "title": "במחשב"
+    },
+    "R19-run-cond.dc.html": {
+      "x": 680,
+      "y": 3568,
+      "w": 430,
+      "h": 1424,
+      "page": "round19",
+      "title": "בפאנל המסלול"
+    },
+    "R19-and-run-cond.dc.html": {
+      "x": 1190,
+      "y": 3568,
+      "w": 430,
+      "h": 1083,
+      "page": "round19",
+      "title": "אנדרואיד: בגיליון המסלול"
+    },
+    "R19-loc-ask.dc.html": {
+      "x": 680,
+      "y": 5412,
+      "w": 430,
+      "h": 1008,
+      "page": "round19",
+      "title": "לפני שהטלפון שואל"
+    },
+    "R19-loc-on.dc.html": {
+      "x": 1190,
+      "y": 5412,
+      "w": 430,
+      "h": 1008,
+      "page": "round19",
+      "title": "איפה אני: על מסלול"
+    },
+    "R19-loc-lift.dc.html": {
+      "x": 1700,
+      "y": 5412,
+      "w": 430,
+      "h": 1008,
+      "page": "round19",
+      "title": "על רכבל"
+    },
+    "R19-states.dc.html": {
+      "x": 2210,
+      "y": 5412,
+      "w": 430,
+      "h": 1496,
+      "page": "round19",
+      "title": "כל המצבים האחרים"
+    },
+    "R19-and-loc-on.dc.html": {
+      "x": 2720,
+      "y": 5412,
+      "w": 430,
+      "h": 572,
+      "page": "round19",
+      "title": "אנדרואיד: על מסלול"
+    },
+    "R19-desk-map.dc.html": {
+      "x": 680,
+      "y": 7328,
+      "w": 1320,
+      "h": 964,
+      "page": "round19",
+      "title": "במחשב: השכבה, המיקום והתנאים יחד"
+    },
+    "R19-loc-down.dc.html": {
+      "x": 680,
+      "y": 8712,
+      "w": 430,
+      "h": 1311,
+      "page": "round19",
+      "title": "הדרך למטה לכפר"
     }
   },
   "createdOnFiles": {
@@ -1723,7 +1899,7 @@
   "designSystems": [],
   "launch": {
     "view": "canvas",
-    "page": "round16"
+    "page": "round19"
   },
   "notes": {
     "featRow1": {
@@ -2238,6 +2414,60 @@
       "w": 240,
       "x": 640,
       "y": 11167
+    },
+    "round19row0": {
+      "kind": "title1",
+      "maxW": 2980,
+      "page": "round19",
+      "text": "שכבת מזג אוויר במפה",
+      "w": 240,
+      "x": 680,
+      "y": -300
+    },
+    "round19row1": {
+      "kind": "title1",
+      "maxW": 3870,
+      "page": "round19",
+      "text": "\"היום על ההר\" בדף הבית, לפי הטיול שלך",
+      "w": 240,
+      "x": 680,
+      "y": 1514
+    },
+    "round19row2": {
+      "kind": "title1",
+      "maxW": 940,
+      "page": "round19",
+      "text": "התנאים בראש המסלול ובתחתית",
+      "w": 240,
+      "x": 680,
+      "y": 3268
+    },
+    "round19row3": {
+      "kind": "title1",
+      "maxW": 2470,
+      "page": "round19",
+      "text": "איפה אני",
+      "w": 240,
+      "x": 680,
+      "y": 5112
+    },
+    "round19row4": {
+      "kind": "title1",
+      "maxW": 1320,
+      "page": "round19",
+      "text": "במחשב",
+      "w": 240,
+      "x": 680,
+      "y": 7028
+    },
+    "round19row5": {
+      "kind": "title1",
+      "maxW": 860,
+      "page": "round19",
+      "text": "לא בגרסה 1.0: \"הדרך למטה\", הצעה נפרדת",
+      "w": 240,
+      "x": 680,
+      "y": 8412
     }
   },
   "order": [
@@ -2453,9 +2683,35 @@
     "R16-season-live-night.dc.html",
     "R16-lang-home.dc.html",
     "R16-lang-head.dc.html",
-    "R16-lang-arrow.dc.html"
+    "R16-lang-arrow.dc.html",
+    "R19-0-Decide.dc.html",
+    "R19-map-weather.dc.html",
+    "R19-map-weather-stale.dc.html",
+    "R19-map-weather-none.dc.html",
+    "R19-map-weather-night.dc.html",
+    "R19-and-map-buttons.dc.html",
+    "R19-and-map-weather.dc.html",
+    "R19-home-today.dc.html",
+    "R19-home-ahead.dc.html",
+    "R19-home-today-live-night.dc.html",
+    "R19-home-today-en.dc.html",
+    "R19-and-home-today.dc.html",
+    "R19-desk-home.dc.html",
+    "R19-run-cond.dc.html",
+    "R19-and-run-cond.dc.html",
+    "R19-loc-ask.dc.html",
+    "R19-loc-on.dc.html",
+    "R19-loc-lift.dc.html",
+    "R19-states.dc.html",
+    "R19-and-loc-on.dc.html",
+    "R19-desk-map.dc.html",
+    "R19-loc-down.dc.html"
   ],
   "pages": [
+    {
+      "id": "round19",
+      "name": "סבב 19: מזג אוויר ומיקום"
+    },
     {
       "id": "round16",
       "name": "סבב 16: ליטוש העיצוב באתר"
