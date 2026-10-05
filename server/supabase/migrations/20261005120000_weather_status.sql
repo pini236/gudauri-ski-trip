@@ -36,3 +36,8 @@ create trigger weather_threshold_audit after update on private.weather_threshold
 -- The schedule (pg_cron with pg_net, calling fetch_weather every hour and fetch_status every 10 minutes during lift
 -- hours, with the secret in the x-fetch-secret header) is set up when deploying, not here: it carries the secret.
 -- See server/README.md, "Weather and lift status".
+
+-- Row level security on, with no rules: closed to everyone but the server (the same as the other tables in private).
+alter table private.weather_cache enable row level security;
+alter table private.lift_status_cache enable row level security;
+alter table private.weather_thresholds enable row level security;
