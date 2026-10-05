@@ -170,7 +170,7 @@ button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
   </div>
   <button class="go-btn" id="again" type="button" data-i18n="game.descent.again">עוד ירידה</button>
   <div class="small-btns"><button type="button" id="toMenu" data-i18n="game.descent.to_menu">מסלול או חבר אחר</button><button type="button" id="copy" data-i18n="game.descent.copy_result">העתקת התוצאה לקבוצה</button></div>
-  <p class="note" id="copyNote" data-i18n="game.descent.copy_note">באתר עצמו הקישור יכיל את הירידה, והחברים יגלשו מול רוח הרפאים שלך.</p>
+  <p class="note" id="copyNote" data-i18n="game.descent.copy_note">הקישור שולח את התוצאה. רוח הרפאים של השיא נשמרת רק בדפדפן הזה.</p>
 </section>
 
 <script>
@@ -500,7 +500,7 @@ function finish(ok){
   if(ok && (!best||t<best.t)){ store.set(key,{t,who:me}); store.set('ghost-'+R.key,{t,who:me,r:rec}); $('endBest').textContent=L('game.descent.end_new_best','שיא חדש במסלול! בפעם הבאה תגלוש מול רוח הרפאים שלו.'); }
   else $('endBest').textContent = best? L('game.descent.end_best','השיא במסלול: {time} ({name})',{time:fmt(best.t),name:FRIENDS[best.who].n}) : '';
   lastResultText = ok ? L('game.descent.share_result','{name} ירד ב-{run} ב-{time} {stars}: {flips} סלטות, {pops} פופים מושלמים, {got} מתוך 5 חבר׳ה ו-{coins} חצ׳אפורי. מי עוקף?',{name:FRIENDS[me].n,run:R.key,time:fmt(t),stars:starStr(nStars),flips,pops:stats.pops||0,got,coins:stats.coins}) : L('game.descent.share_caught','המפולת תפסה את {name} ב-{run} אחרי {m} מ׳. מי מגיע רחוק יותר?',{name:FRIENDS[me].n,run:R.key,m:Math.round(P.x)});
-  $('copyNote').textContent=L('game.descent.copy_note','באתר עצמו הקישור יכיל את הירידה, והחברים יגלשו מול רוח הרפאים שלך.');
+  $('copyNote').textContent=L('game.descent.copy_note','הקישור שולח את התוצאה. רוח הרפאים של השיא נשמרת רק בדפדפן הזה.');
   $('menuEnd').hidden=false;
 }
 

@@ -1803,10 +1803,10 @@
    ]
   },
   "game.descent.copy_note": {
-   "he": "באתר עצמו הקישור יכיל את הירידה, והחברים יגלשו מול רוח הרפאים שלך.",
-   "en": "On the site itself the link will include your run, and friends will race your ghost.",
-   "ru": "На самом сайте ссылка будет содержать ваш спуск, и друзья поедут против вашего призрака.",
-   "ka": "თავად საიტზე ბმული თქვენს დაშვებას შეიცავს და მეგობრები თქვენს აჩრდილს შეეჯიბრებიან.",
+   "he": "הקישור שולח את התוצאה. רוח הרפאים של השיא נשמרת רק בדפדפן הזה.",
+   "en": "The link shares your result. Your best run's ghost stays only in this browser.",
+   "ru": "Ссылка передаёт ваш результат. Призрак рекордного спуска хранится только в этом браузере.",
+   "ka": "ბმული თქვენს შედეგს აზიარებს. რეკორდული დაშვების აჩრდილი მხოლოდ ამ ბრაუზერში ინახება.",
    "where": "site/games/descent/index.html",
    "check": [
     "ru",
@@ -8478,7 +8478,7 @@
    ]
   },
   "run.groomed_value": {
-   "he": "מוכשר (ratrak)",
+   "he": "מוכן (נמתח בחתול שלג)",
    "en": "Groomed (snowcat)",
    "ru": "Подготовлена ратраком",
    "ka": "დამუშავებული (რატრაკით)",
@@ -8611,7 +8611,7 @@
    "en": "In OSM the line is called \"Frini\", with no number. The official map has Firni 1 and Firni 2, and it's unclear which one this line belongs to. The other one is missing from the data.",
    "ru": "В OSM линия называется «Frini», без номера. На официальной карте есть Firni 1 и Firni 2, и непонятно, к какой из них относится линия. Второй в данных нет.",
    "ka": "OSM-ში ხაზს „Frini“ ჰქვია, ნომრის გარეშე. ოფიციალურ რუკაზე არის Firni 1 და Firni 2 და გაურკვეველია, რომელს ეკუთვნის ეს ხაზი. მეორე მონაცემებში არ არის.",
-   "where": "site/js/app.js",
+   "where": "app/android",
    "note": "\"Frini\" is the misspelled OSM name, keep as is",
    "check": [
     "ru",

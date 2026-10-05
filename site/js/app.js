@@ -258,7 +258,6 @@ function liftBtn(name){const l=D.lifts.find(x=>x.name===name);return l?`<button 
 function pisteBtn(k){const p=byKey[k];return p?`<button class="tag c-${p.color}" data-goto="${esc(k)}">${esc(dispName(p))}</button>`:'';}
 function notesFor(p){
   const n=[];
-  if(p.key==='Firni ?')n.push(T('run.note_firni_unclear'));
   if(p.key==='Zuma')n.push(T('run.note_zuma_two_lines'));
   const mism=p.osmDiff.filter(x=>x!=='—'&&OSMD[x]&&OSMD[x][1]!==p.color);
   if(p.named&&mism.length)n.push(T('run.note_osm_grade_mismatch',{grades:mism.map(x=>OSMD[x][0]).join(', '),color:HEB[p.color]}));
