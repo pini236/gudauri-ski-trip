@@ -1,5 +1,9 @@
 package io.github.pini236.skiapp.home
 
+import androidx.compose.ui.res.imageResource
+import androidx.compose.ui.graphics.painter.BitmapPainter
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.foundation.background
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
@@ -17,7 +21,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
@@ -212,24 +215,19 @@ private fun SkiPass(top: String, right: String, body: @Composable RowScope.() ->
     }
 }
 
-/** The builder's picture from GitHub, as on the site; his initial while it loads, or with no signal. */
+/**
+ * The builder's picture, his GitHub picture as on the site, packed in the app (res/drawable-nodpi/builder.png), so the
+ * page shows it without a signal and asks nothing of github.com (the architect's review of R-3, 5.10.2026). Pixel art:
+ * scaled without smoothing.
+ */
 @Composable
 private fun BuilderPhoto() {
-    var bmp by remember { mutableStateOf(PHOTO) }
-    LaunchedEffect(Unit) {
-        if (bmp == null) bmp = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
-            runCatching { java.net.URL("https://github.com/pini236.png?size=160").openStream().use { android.graphics.BitmapFactory.decodeStream(it) } }.getOrNull()?.also { PHOTO = it }
-        }
-    }
     val c = Ski.colors
     Box(Modifier.size(88.dp).background(c.grid, RoundedCornerShape(8.dp)).border(3.dp, c.paper, RoundedCornerShape(8.dp)), contentAlignment = Alignment.Center) {
-        val b = bmp
-        if (b != null) Image(b.asImageBitmap(), null, Modifier.size(82.dp).clip(RoundedCornerShape(6.dp)), contentScale = ContentScale.Crop)
-        else Text(stringResource(R.string.about_builder_name).take(1), style = Ski.type.title.copy(fontSize = 44.sp), color = c.ink)
+        Image(BitmapPainter(ImageBitmap.imageResource(R.drawable.builder), filterQuality = FilterQuality.None), null,
+            Modifier.size(82.dp).clip(RoundedCornerShape(6.dp)), contentScale = ContentScale.Crop)
     }
 }
-
-private var PHOTO: android.graphics.Bitmap? = null
 
 /** A credit: what, in bold, and whose; with [url], the words are the link (OpenStreetMap's licence asks for it). */
 @Composable

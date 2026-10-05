@@ -1,6 +1,7 @@
 package io.github.pini236.skiapp.telemetry
 
 import android.content.Context
+import android.provider.Settings
 import com.posthog.PostHog
 import com.posthog.PersonProfiles
 import com.posthog.android.PostHogAndroid
@@ -24,6 +25,9 @@ import io.sentry.android.core.SentryAndroid
  * - Events and their properties are the contract in docs/GROWTH.md ("מדידת שימוש"), the same on the site and on the
  *   iPhone: only the events in that table, no autocapture. The properties every event carries are registered once
  *   ([start]): platform, app_version, build, lang, lang_source, theme, device_class.
+ * - Google Play's test robots (the pre-launch report, on Firebase Test Lab's phones) are not people: no usage events
+ *   from them, and their crashes go to Sentry under an environment of their own, "test-lab" (the analyst, 5.10.2026:
+ *   five robots were counted as use).
  * - personProfiles NEVER: no person profile for anyone (the contract's identified_only without identify() gives the
  *   same; NEVER also keeps it so if identify() were ever called by mistake).
  */
@@ -34,6 +38,10 @@ object Telemetry {
     @Volatile private var crashes = false
 
     val hasKeys: Boolean get() = BuildConfig.POSTHOG_KEY.isNotBlank() || BuildConfig.SENTRY_DSN.isNotBlank()
+
+    /** A phone of Firebase Test Lab, where Google Play's robots run the app before a release (the documented setting). */
+    fun testLab(context: Context): Boolean =
+        runCatching { Settings.System.getString(context.contentResolver, "firebase.test.lab") == "true" }.getOrDefault(false)
 
     fun enabled(context: Context): Boolean = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getBoolean("on", true)
 
@@ -46,18 +54,19 @@ object Telemetry {
         this.common = common
         if (!enabled(context)) return
         val app = context.applicationContext
+        val robot = testLab(app)
         if (BuildConfig.SENTRY_DSN.isNotBlank() && !crashes) {
             SentryAndroid.init(app) { o ->
                 o.dsn = BuildConfig.SENTRY_DSN
                 o.isSendDefaultPii = false
-                o.environment = channel
+                o.environment = if (robot) "test-lab" else channel
                 o.tracesSampleRate = 0.0
                 o.isAttachScreenshot = false
                 o.isAttachViewHierarchy = false
             }
             crashes = true
         }
-        if (BuildConfig.POSTHOG_KEY.isNotBlank() && !usage) {
+        if (BuildConfig.POSTHOG_KEY.isNotBlank() && !usage && !robot) {
             val config = PostHogAndroidConfig(apiKey = BuildConfig.POSTHOG_KEY, host = BuildConfig.POSTHOG_HOST).apply {
                 captureApplicationLifecycleEvents = false // our own app_open, from the contract
                 captureScreenViews = false // our own screen_view, with the contract's names

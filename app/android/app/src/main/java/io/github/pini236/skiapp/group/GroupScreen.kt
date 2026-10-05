@@ -332,6 +332,22 @@ private fun legWhen(l: Leg, ret: Boolean): String = listOfNotNull(
 ).joinToString(" · ")
 
 /**
+ * Which members share one flight card (X-4, docs/ARCHITECTURE.md "החלטות יישור", the same on the site): the direction,
+ * the date and the flight number, normalised ("IZ 897" and "iz-897" are one flight); only without a number, the two
+ * airports. A row with a number and one without never meet: nothing says they are the same flight.
+ */
+internal data class FlightKey(val ret: Boolean, val date: LocalDate, val flight: String, val from: String, val to: String) {
+    companion object {
+        fun number(f: String) = f.uppercase().filterNot { it.isWhitespace() || it == '-' }
+        fun of(l: Leg, ret: Boolean): FlightKey {
+            val n = number(l.flight)
+            return if (n.isNotEmpty()) FlightKey(ret, l.date, n, "", "")
+            else FlightKey(ret, l.date, "", (l.fromCode ?: l.from.trim()).uppercase(), (l.toCode ?: l.to.trim()).uppercase())
+        }
+    }
+}
+
+/**
  * Flights (Q6): a small pass for every flight in the group, with who is on it; flights an admin entered for someone are
  * marked; who has no flight yet, with "I'm on the same flight" for me and "fill in for them" for admins.
  */
@@ -346,15 +362,15 @@ private fun Flights(g: Group, myTrip: Trip?, onSame: () -> Unit, onShowMine: () 
             val t = m.trip ?: continue
             add(Triple(t.out, false, m)); t.ret?.let { add(Triple(it, true, m)) }
         }
-    }.groupBy { (l, ret, _) -> Triple(ret, l.date, l.flight.ifBlank { "${l.fromCode}${l.toCode}" }) }
+    }.groupBy { (l, ret, _) -> FlightKey.of(l, ret) }
     val me = stringResource(R.string.app_g_me_suffix)
     val shape = remember { PassShape(seamAtEnd = true, r = 11.dp) }
-    for ((key, rows) in legs.entries.sortedWith(compareBy({ it.key.first }, { it.key.second }))) {
+    for ((key, rows) in legs.entries.sortedWith(compareBy({ it.key.ret }, { it.key.date }, { it.value.first().first.departs ?: java.time.LocalTime.MAX }))) {
         val leg = rows.first().first
         Row(Modifier.fillMaxWidth().height(IntrinsicSize.Min).shadow(6.dp, shape).background(c.bpPaper, shape).paperGrain(c.dark)) {
             Column(Modifier.weight(1f).padding(start = 14.dp, end = 14.dp, top = 10.dp, bottom = 12.dp)) {
                 LegLine(leg, 30f)
-                Muted(legWhen(leg, key.first), size = 12.5f)
+                Muted(legWhen(leg, key.ret), size = 12.5f)
                 FlowRow(Modifier.padding(top = 8.dp), horizontalArrangement = Arrangement.spacedBy(6.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
                     for ((_, _, m) in rows) Row(Modifier.heightIn(min = 30.dp).background(c.bpPaper2).let { if (m.me) it.border(2.dp, c.accent) else it }.padding(horizontal = 10.dp),
                         verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
@@ -366,7 +382,7 @@ private fun Flights(g: Group, myTrip: Trip?, onSame: () -> Unit, onShowMine: () 
                     Muted(stringResource(R.string.app_g_entered_by, m.enteredByAdmin!!, m.name), Modifier.padding(top = 6.dp), 12f)
                 }
                 // as on the site: on every outbound flight I am not on (the trip is copied whole, so not on a return)
-                if (!key.first && rows.none { it.third.me }) rows.first().third.tripId?.let { tid ->
+                if (!key.ret && rows.none { it.third.me }) rows.first().third.tripId?.let { tid ->
                     Box(Modifier.padding(top = 8.dp)) { Button2(stringResource(R.string.app_g_same_flight), Look.GHOST, { onSameAs(tid) }, small = true, full = false) }
                 }
             }

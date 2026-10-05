@@ -630,9 +630,10 @@ runview() {
   waitlog "scene ready" 120 && waitlog "shadow ready" 120
   mark; qa "--es qa.run 'Tatra 2'"; waitlog "selected Tatra 2" 20; sleep 3; shot run-head
   mark; tapText "הצגת כל הפרטים" && waitlog "panel open" 5 && { sleep 1.5; shot run-panel; }
-  # the profile: a finger along it moves the dot on the mountain
-  drag $up; sleep 1
+  # the profile: a finger along it moves the dot on the mountain. Often already on the screen; a scroll can fling past
+  # it (5.10.2026), so look first, then a short scroll at a time
   xy=$(where "מיקום לאורך המסלול, מלמעלה למטה")
+  local k; for k in 1 2; do [ -n "$xy" ] && break; drag $((W * 7 / 100)) $((H * 80 / 100)) $((W * 7 / 100)) $((H * 60 / 100)) 600; sleep 1; xy=$(where "מיקום לאורך המסלול, מלמעלה למטה"); done
   if [ -n "$xy" ]; then set -- $xy; mark; drag $((W / 8)) "$2" $((W * 5 / 8)) "$2" 900; waitlog "profile scrub Tatra 2" 5; sleep 1.5; shot run-profile
   else fail "no elevation profile"; fi
   drag $up; sleep 1; shot run-ahead
