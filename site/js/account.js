@@ -309,9 +309,13 @@ window.ACCOUNT=(function(){
     const fwd=I18N.ltr?'ArrowRight':'ArrowLeft',back=I18N.ltr?'ArrowLeft':'ArrowRight';
     const j=e.key===fwd?(i+1)%all.length:e.key===back?(i-1+all.length)%all.length:e.key==='Home'?0:e.key==='End'?all.length-1:-1;
     if(j<0)return;e.preventDefault();all[j].click();all[j].focus();});
+  // who flies together (X-4, docs/ARCHITECTURE.md, the same in the app): the leg, the date and the flight number written
+  // one way (capitals, no spaces or hyphens: IZ 897 and iz-897 are one flight); the airports only when there is no number
+  function flightKey(t,leg='out'){const n=String(t[leg+'_flight']||'').toUpperCase().replace(/[\s-]+/g,''),up=s=>String(s||'').toUpperCase();
+    return [leg,t[leg+'_date'],n?'#'+n:'@'+up(t[leg+'_from'])+'>'+up(t[leg+'_to'])].join('|');}
   function drawFlights(){
     const {members,trips}=G,byId=Object.fromEntries(trips.map(t=>[t.id,t])),me=members.find(m=>m.user_id===state.uid)||{};
-    const groups=new Map();members.forEach(m=>{const t=byId[m.trip_id];if(!t)return;const k=[t.out_date,t.out_flight||'',t.out_from||'',t.out_to||''].join('|');
+    const groups=new Map();members.forEach(m=>{const t=byId[m.trip_id];if(!t)return;const k=flightKey(t);
       if(!groups.has(k))groups.set(k,{t,people:[]});groups.get(k).people.push(m);});
     const cards=[...groups.values()].sort((a,b)=>(a.t.out_date+(a.t.out_departs||'')).localeCompare(b.t.out_date+(b.t.out_departs||''))).map(({t,people},i)=>{
       const mine=people.some(p=>p.user_id===state.uid);
@@ -468,5 +472,5 @@ window.ACCOUNT=(function(){
   let started=false;
   function start(x){({MYTRIP,esc,MEET,renderTicket,countdown}=x);started=true;paint();refresh();}
   const ifStarted=f=>(...a)=>started?f(...a):undefined;
-  return {start,route:ifStarted(route),paint:ifStarted(paint),paintPass:ifStarted(paintPass),tripSaved:ifStarted(tripSaved),tripDeleted:ifStarted(tripDeleted),signedIn,state:()=>state};
+  return {start,route:ifStarted(route),paint:ifStarted(paint),paintPass:ifStarted(paintPass),tripSaved:ifStarted(tripSaved),tripDeleted:ifStarted(tripDeleted),signedIn,state:()=>state,flightKey};
 })();

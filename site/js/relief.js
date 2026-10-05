@@ -28,6 +28,14 @@ R.load=function(T){
 /* slope colours (approved thresholds: 15°, 25°, 30°) */
 R.SLOPE=[[15,'#3FA85F','map.slope_upto15'],[25,'#F2C13D','15°–25°'],[30,'#F08A3C','25°–30°'],[91,'#DC3B33','map.slope_over30']];
 R.slopeColor=deg=>R.SLOPE.find(x=>deg<x[0])[1];
+// how steep, one rule for the site and the apps (X-3, docs/ARCHITECTURE.md): along a run, the drop between the points
+// 20 m before and 20 m after (cut at the ends), over the distance between them; the ground around a run, the smoothed
+// height 20 m to each side on both axes. The elevation model has a point about every 40 m: a shorter span shows detail
+// the data does not have, a longer one hides short walls.
+R.SLOPE_HALF=20;
+R.lineSlope=(cum,hs,i)=>{let a=i,b=i;while(a>0&&cum[i]-cum[a]<R.SLOPE_HALF)a--;while(b<cum.length-1&&cum[b]-cum[i]<R.SLOPE_HALF)b++;
+  const dd=cum[b]-cum[a];return dd?Math.atan(Math.abs(hs[b]-hs[a])/dd)*180/Math.PI:0;};
+R.groundSlope=(M,x,y)=>{const s=R.SLOPE_HALF,gx=(M.elev(x+s,y)-M.elev(x-s,y))/(2*s),gy=(M.elev(x,y+s)-M.elev(x,y-s))/(2*s);return Math.atan(Math.hypot(gx,gy))*180/Math.PI;};
 
 /* the ground around a run, coloured by slope: a canvas over the run's box plus a margin.
    lines: [[x,y],...][] in projected metres. Alpha fades out towards `buffer` metres from the line. */
@@ -41,7 +49,7 @@ R.slopeCanvas=function(M,lines,opt){
   const dist=(x,y)=>{let m=1e9;for(const s of segs){const vx=s[2]-s[0],vy=s[3]-s[1],l=vx*vx+vy*vy;let t=l?((x-s[0])*vx+(y-s[1])*vy)/l:0;t=t<0?0:t>1?1:t;const dd=Math.hypot(x-s[0]-vx*t,y-s[1]-vy*t);if(dd<m)m=dd;}return m;};
   const hex=hc=>[1,3,5].map(i=>parseInt(hc.slice(i,i+2),16)),COL=R.SLOPE.map(z=>hex(z[1]));
   for(let j=0;j<h;j++)for(let i=0;i<w;i++){const x=a+(i+.5)*px,y=b+(j+.5)*px,dd=dist(x,y);if(dd>buf)continue;
-    const gx=(M.elev(x+15,y)-M.elev(x-15,y))/30,gy=(M.elev(x,y+15)-M.elev(x,y-15))/30,deg=Math.atan(Math.hypot(gx,gy))*180/Math.PI;
+    const deg=R.groundSlope(M,x,y);
     const k=R.SLOPE.findIndex(z=>deg<z[0]),o=(j*w+i)*4,cc=COL[k];
     im.data[o]=cc[0];im.data[o+1]=cc[1];im.data[o+2]=cc[2];im.data[o+3]=Math.round(255*Math.min(1,(buf-dd)/45)*0.6);}
   g.putImageData(im,0,0);
@@ -440,8 +448,7 @@ R.View3D=function(opts){
       const cols=[],progs=[];
       lines.forEach(L=>{let tot=0;const cum=[0];for(let i=1;i<L.length;i++){tot+=Math.hypot(L[i][0]-L[i-1][0],L[i][2]-L[i-1][2]);cum.push(tot);}
         progs.push(cum.map(c=>tot?c/tot:0));
-        cols.push(L.map((q,i)=>{let a=i,b=i;while(a>0&&cum[i]-cum[a]<25)a--;while(b<L.length-1&&cum[b]-cum[i]<25)b++;
-          const dd=cum[b]-cum[a],dh=Math.abs(L[b][1]-L[a][1]);return new THREE.Color(R.slopeColor(dd?Math.atan(dh/dd)*180/Math.PI:0));}));});
+        const hs=L.map(q=>q[1]);cols.push(L.map((q,i)=>new THREE.Color(R.slopeColor(R.lineSlope(cum,hs,i)))));});
       const mat=new THREE.ShaderMaterial({uniforms:THREE.UniformsUtils.merge([THREE.UniformsLib.fog,{opacity:{value:1},reveal:{value:0},width:{value:o.w+2.4},res:{value:new THREE.Vector2(W/2,Hh/2)}}]),
         vertexShader:vshP,fragmentShader:fshP,transparent:true,fog:true,side:THREE.DoubleSide,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-6,polygonOffsetUnits:-6});
       const mesh=new THREE.Mesh(paintGeo(lines,cols,progs),mat);mesh.renderOrder=7;scene.add(mesh);
