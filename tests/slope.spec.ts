@@ -9,7 +9,7 @@ const FILE = join(__dirname, '..', 'tools', 'fixtures', 'slope-x3.json');
 
 test('השיפוע לפי כלל אחד (X-3): קו המסלול ופני השטח של Tatra 2', async ({ page }) => {
   await page.goto('/#home');
-  await expect(page.locator('html[data-model="ready"]')).toBeAttached({ timeout: 20_000 });
+  await expect(page.locator('#loading')).toBeHidden({ timeout: 20_000 });
   const got = await page.evaluate(async () => {
     const R = (window as any).GudRelief;
     const [D, T] = await Promise.all(['data/runs-and-lifts.json', 'data/terrain.json'].map(u => fetch(u).then(r => r.json())));
