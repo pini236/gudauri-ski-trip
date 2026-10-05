@@ -1,13 +1,19 @@
 import { test, expect, Page } from '@playwright/test';
+import { listenCsp } from './csp-listen';
 
 // "Your trip" on the site (round 12, stage 13.9): kept only in this browser. The crew's ticket and names are off the home page.
 function watchErrors(page: Page) {
   const errors: string[] = [];
   page.on('pageerror', e => errors.push('pageerror: ' + e.message));
-  page.on('console', m => { if (m.type() === 'error' && !/Failed to load resource/.test(m.text())) errors.push(m.text()); });
+  listenCsp(page); page.on('console', m => { if (m.type() === 'error' && !/Failed to load resource/.test(m.text())) errors.push(m.text()); });
   return errors;
 }
-async function loaded(page: Page) { await expect(page.locator('#loading')).toBeHidden({ timeout: 20_000 }); }
+async function loaded(page: Page) {
+  await expect(page.locator('#loading')).toBeHidden({ timeout: 20_000 });
+  // the elevation model and three.js come after the home page (R-11): wait for them where they matter
+  await expect(page.locator('html[data-model]')).toBeAttached({ timeout: 20_000 });
+  if (/^#map/.test(new URL(page.url()).hash)) await expect(page.locator('.mapwrap[data-three]:not([data-three="loading"])')).toBeAttached({ timeout: 20_000 });
+}
 
 test('אורח: כרטיס ריק, מצב העונה, ובלי הכרטיס והשמות של החבר׳ה', async ({ page }) => {
   const errors = watchErrors(page);

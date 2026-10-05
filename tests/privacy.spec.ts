@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { readFileSync } from 'node:fs';
+import { listenCsp } from './csp-listen';
 
 // The privacy page is generated from docs/PRIVACY.md (tools/build-privacy.py). It must stay in step with it.
 test('דף הפרטיות מעודכן מול docs/PRIVACY.md', () => {
@@ -17,7 +18,7 @@ test('דף הפרטיות מעודכן מול docs/PRIVACY.md', () => {
 test('דף הפרטיות: עברית ואנגלית, בלי שגיאות ובלי גלילה הצידה', async ({ page }) => {
   const errors: string[] = [];
   page.on('pageerror', e => errors.push(e.message));
-  page.on('console', m => { if (m.type() === 'error' && !/Failed to load resource/.test(m.text())) errors.push(m.text()); });
+  listenCsp(page); page.on('console', m => { if (m.type() === 'error' && !/Failed to load resource/.test(m.text())) errors.push(m.text()); });
   await page.goto('/privacy.html');
   await expect(page.locator('#he h1')).toHaveText('מדיניות פרטיות');
   await expect(page.locator('#en')).toBeHidden();

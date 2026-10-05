@@ -10,7 +10,7 @@ export default defineConfig({
   reporter: 'list',
   // Hebrew browser: the site picks its language from the browser (site/js/i18n.js); tests/i18n.spec.ts covers the others
   use: { baseURL: 'http://127.0.0.1:4173', ignoreHTTPSErrors: true, launchOptions, locale: 'he-IL' },
-  webServer: { command: 'npx http-server site -p 4173 -c-1 -s', url: 'http://127.0.0.1:4173', reuseExistingServer: true },
+  webServer: { command: 'node tools/serve.mjs 4173', url: 'http://127.0.0.1:4173', reuseExistingServer: true },
   projects: [
     { name: 'desktop-light', use: { ...desktop, colorScheme: 'light' } },
     { name: 'desktop-dark', use: { ...desktop, colorScheme: 'dark' } },
