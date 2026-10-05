@@ -99,6 +99,40 @@ class Forecast(val updated: Instant, val points: List<Point>, private val ridgeD
         /** The lifts whose closing in the wind the boards estimate (FEATURES section c). */
         val RISK_LIFTS = listOf("Sadzele", "Kudebi")
 
+        /**
+         * The emulator run's answer (qa.weather), with the canvas's sample numbers (design/round19/proto.js SAMPLE):
+         * the village −4°, upper Goodaura −9°, Sadzele −13°, and Sadzele's closing estimated high, Kudebi's medium.
+         */
+        fun sample(updated: Instant): Forecast {
+            val start = LocalDateTime.ofInstant(updated, GUDAURI).withMinute(0).withSecond(0).withNano(0)
+            val base = mapOf("village" to doubleArrayOf(2170.0, -4.0, 8.0, 15.0, 290.0, 5.0, 42.471394, 44.49246),
+                "goodaura" to doubleArrayOf(2710.0, -9.0, 24.0, 40.0, 300.0, 9.0, 42.492379, 44.494273),
+                "sadzele" to doubleArrayOf(3240.0, -13.0, 48.0, 70.0, 300.0, 12.0, 42.508985, 44.503209))
+            val days = (0 until 15).map { start.toLocalDate().plusDays(it.toLong()) }
+            // the days board: wind 15 and 4 cm, wind 32 gusting 55 and 12 cm, wind 10 and no snow (the canvas's three days)
+            val dw = intArrayOf(15, 32, 10); val dg = intArrayOf(22, 55, 16); val ds = intArrayOf(4, 12, 0); val dt = intArrayOf(-7, -10, -6); val dd = intArrayOf(300, 300, 240)
+            fun arr(n: Int, f: (Int) -> Any) = JSONArray().apply { for (i in 0 until n) put(f(i)) }
+            val pts = JSONArray()
+            for ((id, b) in base) {
+                val shift = (b[1] + 9).toInt() // the days board is at upper Goodaura; the others follow it by their temperature
+                pts.put(JSONObject().put("id", id).put("lat", b[6]).put("lon", b[7]).put("elevation", b[0].toInt()).put("snow24", b[5])
+                    .put("hourly", JSONObject().put("time", arr(72) { start.plusHours(it.toLong()).toString() })
+                        .put("temp", arr(72) { b[1] }).put("wind", arr(72) { b[2] }).put("gust", arr(72) { b[3] }).put("dir", arr(72) { b[4] })
+                        .put("snow", arr(72) { 0 }).put("vis", arr(72) { 8000 }).put("code", arr(72) { 3 }))
+                    .put("daily", JSONObject().put("date", arr(15) { days[it].toString() })
+                        .put("tmin", arr(15) { dt[it % 3] - 4 + shift }).put("tmax", arr(15) { dt[it % 3] + shift }).put("snow", arr(15) { ds[it % 3] })
+                        .put("wind", arr(15) { dw[it % 3] }).put("gust", arr(15) { dg[it % 3] }).put("dir", arr(15) { dd[it % 3] })))
+            }
+            val ridge = JSONObject()
+                .put("hourly", JSONObject().put("time", arr(72) { start.plusHours(it.toLong()).toString() }).put("wind700", arr(72) { 58 })
+                    .put("risk", JSONObject().put("Sadzele", arr(72) { "high" }).put("Kudebi", arr(72) { "medium" })))
+                .put("daily", JSONObject().put("date", arr(15) { days[it].toString() })
+                    .put("risk", JSONObject().put("Sadzele", arr(15) { "high" }).put("Kudebi", arr(15) { "medium" })))
+            val json = JSONObject().put("schema", 1).put("updated", updated.toString()).put("model", "sample").put("run", updated.toString())
+                .put("points", pts).put("ridge", ridge).toString()
+            return parse(json)!!
+        }
+
         /** Half up, as JavaScript's Math.round (the site's rounding; -2.5 is -2). */
         fun round(x: Double): Int = floor(x + .5).toInt()
 

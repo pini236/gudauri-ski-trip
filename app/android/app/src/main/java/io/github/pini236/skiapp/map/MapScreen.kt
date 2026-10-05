@@ -1,5 +1,6 @@
 package io.github.pini236.skiapp.map
 
+import io.github.pini236.skiapp.weather.WeatherList
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.activity.compose.BackHandler
@@ -157,6 +158,20 @@ fun MapScreen(view: MapView, scene: MapScene?, ms: MapStatus? = null, videos: Li
         val s = here
         if (s == null || top || s.fix == Locator.Fix.Outside) view.hideMe() else view.showMe(s.x, s.y, s.accuracy, s.bearing, glacier, paperArgb)
     }
+    // the weather layer (round 19, and-map-weather): off until tapped; on, the three points on the mountain and the list
+    val weather = io.github.pini236.skiapp.weather.LocalWeather.current
+    var weatherOn by rememberSaveable { mutableStateOf(false) }
+    var weatherSheet by remember { mutableStateOf(false) }
+    fun toggleWeather() {
+        weatherOn = !weatherOn; weatherSheet = weatherOn
+        if (weatherOn) Telemetry.event("weather_view", mapOf("where" to "map", "state" to weather.measure))
+        Qa.log("weather layer ${if (weatherOn) "on " + weather.measure else "off"}")
+    }
+    val pins = if (weatherOn) io.github.pini236.skiapp.weather.pinTexts(weather) else emptyList()
+    val pinKey = pins.joinToString("|") { it.title + it.temp + it.wind + it.snow + it.dir }
+    LaunchedEffect(pinKey, top, scene) {
+        view.setWeatherPins(if (top) emptyList() else pins.map { MapView.Pin(it.x, it.y, it.title, it.temp, it.wind, it.snow, it.dir) })
+    }
     // the first reading brings the camera to the dot, once each time the button goes on
     var looked by remember { mutableStateOf(false) }
     LaunchedEffect(where?.state) {
@@ -252,6 +267,7 @@ fun MapScreen(view: MapView, scene: MapScene?, ms: MapStatus? = null, videos: Li
                     modifier = Modifier.fillMaxSize())
             }
         }
+        if (top && pins.isNotEmpty() && ov.ready) SkiTheme(dark = dark) { io.github.pini236.skiapp.weather.MapPins2D(ov, pins, Modifier.fillMaxSize()) }
         if (top && here != null && here.fix != Locator.Fix.Outside && ov.ready) SkiTheme(dark = dark) { MeDot2D(ov, here, Modifier.fillMaxSize()) }
         if (scene == null) {
             Text(stringResource(R.string.app_map_loading), Modifier.align(Alignment.Center), fontFamily = Ski.type.text, fontSize = 16.sp, color = Palette.ink)
@@ -282,7 +298,11 @@ fun MapScreen(view: MapView, scene: MapScene?, ms: MapStatus? = null, videos: Li
                         }, bodyMax = 0.5f, onHeight = onPanel)
                     else -> Column(Modifier.align(Alignment.BottomCenter).fillMaxWidth().navigationBarsPadding().padding(12.dp),
                         verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                        if (!flying && where != null) LocateKey(where.on, ::locate)
+                        // "where am I" at the start and the weather at the end, above the line (and-map-buttons)
+                        if (!flying) Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.SpaceBetween) {
+                            if (where != null) LocateKey(where.on, ::locate) else Box(Modifier)
+                            io.github.pini236.skiapp.weather.WeatherKey(weatherOn, ::toggleWeather)
+                        }
                         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                             val words = where?.let { whereWords(it.state) }
                             if (words != null) WhereLine(words, ::whereAction, Modifier.weight(1f))
@@ -307,6 +327,15 @@ fun MapScreen(view: MapView, scene: MapScene?, ms: MapStatus? = null, videos: Li
                     if (!flying) StatusBar(ms.status, { ms.onSheet(true) }, Modifier.align(Alignment.TopCenter).statusBarsPadding().padding(top = 56.dp, start = 16.dp, end = 16.dp))
                     if (ms.sheet) Sheet({ ms.onSheet(false) }) {
                         StatusBoard(ms.status, ms.changes, ms.forMe, ms.onForMe, ms.inSeason)
+                    }
+                }
+                if (weatherSheet) Sheet({ weatherSheet = false }) {
+                    WeatherList(weather) { pt ->
+                        weatherSheet = false
+                        val (la, lo) = io.github.pini236.skiapp.weather.DEFAULT_LL.getValue(pt.id)
+                        val x = io.github.pini236.skiapp.data.Geo.x(lo); val y = io.github.pini236.skiapp.data.Geo.y(la)
+                        if (top) ov.goTo(scope, x, y, minOf(ov.span, 3000f), 600) else view.lookAt(x, y)
+                        Qa.log("weather point ${pt.id}")
                     }
                 }
                 if (asking) AskSheet(onGo = {

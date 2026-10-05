@@ -204,6 +204,11 @@ class MainActivity : ComponentActivity() {
     private var statusPinned = false // the emulator run's own report
     private var liftNames by mutableStateOf<List<String>>(emptyList())
     private var forMe by mutableStateOf(false)
+
+    // the weather by altitude (round 19, m-6): the site's /api/weather, every ten minutes at most while the app is open
+    private val weatherSource by lazy { io.github.pini236.skiapp.weather.WeatherSource(this) }
+    private var forecast by mutableStateOf<io.github.pini236.skiapp.weather.Forecast?>(null)
+    private var weatherPinned = false // the emulator run's own answer
     private var statusSheet by mutableStateOf(false)
 
     /**
@@ -271,9 +276,11 @@ class MainActivity : ComponentActivity() {
             }
         })
         report = statusSource.cached()
+        forecast = weatherSource.cached()
         handleQa(intent)
         handleOpen(intent)
         lifecycleScope.launch { repeatOnLifecycle(Lifecycle.State.STARTED) { while (true) { loadStatus(); delay(LiftStatus.EVERY_MS) } } }
+        lifecycleScope.launch { repeatOnLifecycle(Lifecycle.State.STARTED) { while (true) { loadWeather(); delay(io.github.pini236.skiapp.weather.WeatherSource.EVERY_MS) } } }
         // a trip, a score or a meetup saved without signal goes now
         if (rawGroupApi is LiveGroupApi) { tripSync.flush(); Sync.of(this, Bests.GAMES).flush() }
         loadInBackground()
@@ -385,6 +392,25 @@ class MainActivity : ComponentActivity() {
         if (statusPinned) return
         report = r; statusLoaded = true
         Qa.log("status ${if (r == null) "none" else "report"}")
+    }
+
+    /** The forecast from the site, or the last good one on the phone (weather/Weather.kt). */
+    private suspend fun loadWeather() {
+        if (weatherPinned) return
+        val f = withContext(Dispatchers.IO) { weatherSource.load() }
+        if (weatherPinned) return
+        forecast = f
+        Qa.log("weather ${f?.state(Instant.ofEpochMilli(nowMs()))?.name?.lowercase() ?: "none"}")
+    }
+
+    /** The emulator run's forecast (qa.weather): "fresh" (20 minutes old), "stale" (20 hours old) or "none"; never the site. */
+    private fun pinWeather(kind: String) {
+        val ago = if (kind == "stale") 20 * 3600_000L else 20 * 60_000L
+        val f = if (kind == "none") null else io.github.pini236.skiapp.weather.Forecast.sample(Instant.ofEpochMilli(nowMs() - ago))
+        weatherPinned = true
+        weatherSource.pin(f?.json)
+        forecast = f
+        Qa.log("weather pinned $kind")
     }
 
     /**
@@ -512,6 +538,7 @@ class MainActivity : ComponentActivity() {
         i.getStringExtra("qa.stats")?.let { showStats = it != "off" }
         i.getStringExtra("qa.time")?.let { clockMs = Qa.gudauriTime(it); tick = nowMs() }
         i.getStringExtra("qa.status")?.let { pinStatus(it) }
+        i.getStringExtra("qa.weather")?.let { pinWeather(it) }
         i.getStringExtra("qa.sheet")?.let { statusSheet = it == "on"; Qa.log("status sheet ${if (statusSheet) "open" else "closed"}") }
         i.getStringExtra("qa.forme")?.let { forMe = it == "on"; Qa.log("for me ${if (forMe) "on" else "off"}") }
         // the next meetup's reminder, now (the run cannot wait for the real quarter of an hour before)
@@ -654,6 +681,8 @@ class MainActivity : ComponentActivity() {
         val view = LocalView.current
         SideEffect { WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = !evening && (spike || !frame.dark) }
         SkiTheme(dark = frame.dark) {
+          androidx.compose.runtime.CompositionLocalProvider(io.github.pini236.skiapp.weather.LocalWeather provides
+              remember(forecast, tick) { io.github.pini236.skiapp.weather.WeatherNow(forecast, Instant.ofEpochMilli(tick)) }) {
             Box(Modifier.fillMaxSize().background(if (spike) Palette.snow else Ski.colors.snow)) {
                 when (top) {
                     Route.Home -> HomeScreen(trip, frame, dnMode, LocalDateTime.ofInstant(Instant.ofEpochMilli(tick), ZoneId.systemDefault()), haptics, sounds, status = lstat, group = firstGroup,
@@ -756,6 +785,7 @@ class MainActivity : ComponentActivity() {
                     }
                 }
             }
+          }
         }
     }
 

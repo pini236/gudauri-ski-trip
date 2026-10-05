@@ -103,6 +103,18 @@ fun HomeScreen(trip: Trip?, frame: DayNight.Frame, mode: DayNight.Mode, now: Loc
                     WhoCard(me, onManage = { who = false; account.onManage() }, onSignIn = { who = false; account.onSignIn() },
                         onSignOut = { who = false; account.onSignOut() })
                 }
+                // the weather on home (round 19, m-6 section 5): during the trip "today on the mountain", with the lift
+                // status inside it; before it, once the first ski day is inside the forecast's 15 days, the ski days
+                val stage = trip.stage(now)
+                val ski = trip.skiDays()
+                if (stage is Trip.Stage.SkiDay) {
+                    Spacer(Modifier.height(30.dp))
+                    Box(Modifier.padding(horizontal = 16.dp)) { io.github.pini236.skiapp.weather.TodayBoard(stage.n, stage.of, status) { go(HomeAction.STATUS) } }
+                } else if (stage is Trip.Stage.Before && ski != null && !ski.start.isAfter(now.toLocalDate().plusDays(14))) {
+                    Spacer(Modifier.height(30.dp))
+                    val days = generateSequence(ski.start) { it.plusDays(1) }.takeWhile { !it.isAfter(ski.endInclusive) }.toList()
+                    Box(Modifier.padding(horizontal = 16.dp)) { io.github.pini236.skiapp.weather.AheadBoard(days, stage.days) }
+                }
                 Spacer(Modifier.height(38.dp))
             } else {
                 Spacer(Modifier.height(32.dp))

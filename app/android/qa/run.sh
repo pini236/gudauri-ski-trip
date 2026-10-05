@@ -756,6 +756,41 @@ locate() {
   adb shell pm grant "$PKG" "$perm"
 }
 
+# ---- the weather by altitude (round 19, m-6): the app's own answers (qa.weather: fresh, stale, none), never the site ----
+weather() {
+  local up="$((W * 7 / 100)) $((H * 85 / 100)) $((W * 7 / 100)) $((H * 40 / 100)) 500"
+  adb shell am force-stop "$PKG"; sleep 1; mark
+  # during the trip, ski day 2 of 4: "today on the mountain" under the pass, with the lift status inside it
+  adb shell "am start -W -n $ACT --es qa.tab home --es qa.group none --es qa.mode auto --es qa.time 2027-01-12T10:00 --es qa.status none --es qa.weather fresh" > /dev/null
+  waitlog "weather pinned fresh" 30; qa "--es qa.trip '$TRIP_HE'"; waitlog "trip set" 20; sleep 2
+  drag $up; sleep 1; shot weather-today
+  drag $up; sleep 1; shot weather-today-below
+  # a live report: Sadzele and Kudebi say MTA's word instead of the estimate
+  qa "--es qa.status fresh"; waitlog "status pinned fresh" 10; sleep 2; shot weather-today-live
+  # an old forecast, and none
+  qa "--es qa.status none --es qa.weather stale"; waitlog "weather pinned stale" 10; sleep 2; shot weather-today-stale
+  qa "--es qa.weather none"; waitlog "weather pinned none" 10; sleep 2; shot weather-today-none
+  # before the trip: the ski days once the first is in the forecast; the last ones say when they open
+  qa "--es qa.time 2026-12-29T10:00 --es qa.weather fresh"; waitlog "weather pinned fresh" 10; sleep 1
+  qa "--es qa.tab home"; sleep 2; drag $up; sleep 1; shot weather-ahead
+  # the map: the button beside "all runs", the list in a sheet, and the three points on the mountain
+  qa "--es qa.time 2027-01-12T10:00 --es qa.weather fresh --es qa.tab map"; waitlog "scene ready" 120; sleep 3; shot weather-map-buttons
+  mark; tapText "מזג אוויר" && waitlog "weather layer on fresh" 10 && { sleep 1.5; shot weather-map-sheet; }
+  adb shell input keyevent KEYCODE_BACK; sleep 2.5; shot weather-map-pins
+  qa "--es qa.mapview 2d"; waitlog "overview fit" 60; sleep 2.5; shot weather-map-top
+  qa "--es qa.mapview 3d"; sleep 1.5
+  mark; tapText "מזג אוויר" && waitlog "weather layer off" 10
+  # the run's panel: the conditions at its top and bottom, after the details
+  mark; qa "--es qa.run 'Tatra 2'"; waitlog "selected Tatra 2" 20; sleep 2
+  mark; tapText "הצגת כל הפרטים" && waitlog "panel open" 5 && { sleep 1.5; for i in 1 2 3 4; do [ -n "$(where "התנאים במסלול")" ] && break; drag $up; sleep 1; done; shot weather-run; }
+  adb shell input keyevent KEYCODE_BACK; sleep 1
+  # English
+  adb shell cmd locale set-app-locales "$PKG" --locales en > /dev/null 2>&1; sleep 3
+  qa "--es qa.time 2027-01-12T10:00 --es qa.weather fresh --es qa.tab home"; sleep 2; drag $up; sleep 1; shot weather-today-en
+  qa "--es qa.tab map"; sleep 2; mark; tapText "Weather" && waitlog "weather layer on" 10 && { sleep 1.5; shot weather-map-sheet-en; }
+  adb shell cmd locale set-app-locales "$PKG" --locales he > /dev/null 2>&1; sleep 3
+}
+
 # ---- the store screenshots (Google Play: portrait 9:16) ----
 # a 1080x1920 screen, a clean status bar (demo mode), no measuring bar; the files go to $OUT/store
 store() {
@@ -807,7 +842,8 @@ for sc in ${SCENARIO//,/ }; do
     store) store ;;
     run) runview ;;
     locate) locate ;;
-    *) map; descent; games; school; snowball; home; group; meet; status; runview; locate; lang; phone; store ;;
+    weather) weather ;;
+    *) map; descent; games; school; snowball; home; group; meet; status; runview; locate; weather; lang; phone; store ;;
   esac
 done
 

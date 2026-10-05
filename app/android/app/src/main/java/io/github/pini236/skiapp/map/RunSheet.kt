@@ -1,5 +1,6 @@
 package io.github.pini236.skiapp.map
 
+import io.github.pini236.skiapp.weather.RunConditions
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
@@ -361,6 +362,9 @@ fun ColumnScope.RunBody(p: Piste, facts: RunFacts?, runs: Runs, terrain: Terrain
     }
     if (p.refs.isNotEmpty()) KvText(stringResource(R.string.run_ref_label), p.refs.joinToString(", "))
     if (p.groom.isNotEmpty()) KvText(stringResource(R.string.run_grooming_label), if ("classic" in p.groom) stringResource(R.string.run_groomed_value) else p.groom.joinToString(", "))
+
+    // the forecast at the run's top and bottom (round 19, and-run-cond), after the details and before the profile
+    if (facts != null && p.named) RunConditions(facts.top, facts.bot, p.key)
 
     if (facts != null && facts.points.size >= 4) RunProfile(p, facts, runs, terrain, a, flying)
 

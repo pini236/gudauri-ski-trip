@@ -69,8 +69,12 @@ private class MapLabel(
     val run: String? = null,
 )
 
+/** A weather point on the mountain (round 19): the meeting card's language, a white card with an ink rule and a stem. */
+class WeatherPin(val x: Float, val y: Float, val z: Float, val title: StaticLayout, val temp: StaticLayout, val wind: StaticLayout?, val snow: StaticLayout?, val dir: Int?, val rtl: Boolean)
+
 private class LabelOverlay(context: Context, private val camera: OrbitCamera) : View(context) {
     var labels: List<MapLabel> = emptyList()
+    var pins: List<WeatherPin> = emptyList()
     /** The lifts filtered out (the list's "lifts"): their labels go with their lines. */
     var hideLifts = false
     /** The runs filtered out, and the chosen run: then only its label of all the runs' (the site's layoutLabels). */
@@ -84,12 +88,14 @@ private class LabelOverlay(context: Context, private val camera: OrbitCamera) : 
     private val pad = 5 * resources.displayMetrics.density
 
     override fun onDraw(canvas: Canvas) {
-        if (width == 0 || (labels.isEmpty() && !meOn)) return
+        if (width == 0 || (labels.isEmpty() && !meOn && pins.isEmpty())) return
         val st = camera.state()
         OrbitCamera.mvp(st, width.toFloat() / height, mvp, eye, minEye = ground)
         placed.clear()
         used = 0
         far = st.dist > 9000f
+        // the weather's points first: the labels keep out of their way
+        for (p in pins) drawPin(canvas, p)
         // the chosen run's label first, over all the others (the site's 1e3)
         val chosen = chosenRun
         if (chosen != null) for (l in labels) if (l.run == chosen) place(canvas, l)
@@ -113,6 +119,61 @@ private class LabelOverlay(context: Context, private val camera: OrbitCamera) : 
         return true
     }
     private val p0 = FloatArray(2); private val p1 = FloatArray(2)
+    private val pinPaint = Paint(Paint.ANTI_ALIAS_FLAG)
+    private val pinPath = android.graphics.Path()
+
+    private fun drawPin(canvas: Canvas, p: WeatherPin) {
+        if (!screen(p.x, p.y, p.z, p0)) return
+        val sx = p0[0]; val sy = p0[1]
+        if (sx < -80 || sx > width + 80 || sy < -40 || sy > height + 40) return
+        val d = resources.displayMetrics.density
+        val padX = 9 * d; val padTop = 6 * d; val padBot = 7 * d; val gap = 8 * d; val arrow = 12 * d; val stem = 14 * d
+        val info = maxOf(p.wind?.width?.toFloat()?.plus(arrow + 4 * d) ?: 0f, p.snow?.width?.toFloat() ?: 0f)
+        val w = maxOf(118 * d, p.title.width.toFloat(), p.temp.width + (if (info > 0) gap + info else 0f)) + padX * 2
+        val infoH = (p.wind?.height ?: 0) + (p.snow?.height ?: 0).toFloat()
+        val h = padTop + p.title.height + 2 * d + maxOf(p.temp.height.toFloat(), infoH) + padBot
+        var top = sy - stem - h
+        if (top < 8 * d) top = sy + stem
+        val left = (sx - w / 2).coerceIn(8 * d, maxOf(8 * d, width - w - 8 * d))
+        val ink = Color.rgb(19, 35, 58)
+        // the stem to the point, the card, its rule
+        pinPaint.style = Paint.Style.FILL; pinPaint.color = ink
+        if (top > sy) canvas.drawRect(sx - .75f * d, sy, sx + .75f * d, top, pinPaint) else canvas.drawRect(sx - .75f * d, top + h, sx + .75f * d, sy, pinPaint)
+        pinPaint.color = Color.argb(40, 0, 0, 0); canvas.drawRect(left, top + 3 * d, left + w, top + h + 3 * d, pinPaint)
+        pinPaint.color = Color.WHITE; canvas.drawRect(left, top, left + w, top + h, pinPaint)
+        pinPaint.style = Paint.Style.STROKE; pinPaint.strokeWidth = 1.5f * d; pinPaint.color = ink
+        canvas.drawRect(left, top, left + w, top + h, pinPaint)
+        // the point itself: an ink dot on a white ring
+        pinPaint.style = Paint.Style.FILL; pinPaint.color = Color.WHITE; canvas.drawCircle(sx, sy, 6 * d, pinPaint)
+        pinPaint.color = ink; canvas.drawCircle(sx, sy, 4 * d, pinPaint)
+        // the words: the title at the start, then the temperature at the start and the wind and snow after it
+        val start = if (p.rtl) left + w - padX else left + padX
+        canvas.save(); canvas.translate(if (p.rtl) start - p.title.width else start, top + padTop); p.title.draw(canvas); canvas.restore()
+        val rowTop = top + padTop + p.title.height + 2 * d
+        canvas.save(); canvas.translate(if (p.rtl) start - p.temp.width else start, rowTop); p.temp.draw(canvas); canvas.restore()
+        val infoStart = if (p.rtl) start - p.temp.width - gap else start + p.temp.width + gap
+        var y = rowTop + maxOf(0f, (p.temp.height - infoH) / 2)
+        p.wind?.let { wl ->
+            val ax = if (p.rtl) infoStart - arrow / 2 else infoStart + arrow / 2
+            val ay = y + wl.height / 2f
+            p.dir?.let { dir ->
+                canvas.save(); canvas.rotate(dir + 180f, ax, ay)
+                pinPaint.style = Paint.Style.STROKE; pinPaint.strokeWidth = 1.6f * d; pinPaint.strokeCap = Paint.Cap.ROUND; pinPaint.strokeJoin = Paint.Join.ROUND; pinPaint.color = ink
+                pinPath.reset(); pinPath.moveTo(ax, ay + arrow / 2 - d); pinPath.lineTo(ax, ay - arrow / 2 + d)
+                pinPath.moveTo(ax - arrow * .28f, ay - arrow * .15f); pinPath.lineTo(ax, ay - arrow / 2 + d); pinPath.lineTo(ax + arrow * .28f, ay - arrow * .15f)
+                canvas.drawPath(pinPath, pinPaint); canvas.restore()
+            }
+            val tx = if (p.rtl) infoStart - arrow - 4 * d - wl.width else infoStart + arrow + 4 * d
+            canvas.save(); canvas.translate(tx, y); wl.draw(canvas); canvas.restore()
+            y += wl.height
+        }
+        p.snow?.let { sl ->
+            canvas.save(); canvas.translate(if (p.rtl) infoStart - sl.width else infoStart, y); sl.draw(canvas); canvas.restore()
+        }
+        // keep the labels out of the card
+        if (used == pool.size) pool += RectF()
+        val r = pool[used++]; r.set(left, minOf(top, sy), left + w, maxOf(top + h, sy)); placed += r
+    }
 
     private fun drawMe(canvas: Canvas) {
         if (!screen(meX, meY, meZ, p0)) return
@@ -454,6 +515,32 @@ class MapView(context: Context, refreshHz: Float, val stats: FrameStats) : Frame
         overlay.invalidate()
     }
     fun hideMe() { if (overlay.meOn) { overlay.meOn = false; overlay.invalidate() } }
+
+    /** The weather layer's points (round 19): name and height, the temperature, the wind (its arrow) and new snow. */
+    class Pin(val x: Float, val y: Float, val title: String, val temp: String, val wind: String?, val snow: String?, val dir: Int?)
+
+    fun setWeatherPins(pins: List<Pin>) {
+        val s = scene
+        if (s == null || pins.isEmpty()) { if (overlay.pins.isNotEmpty()) { overlay.pins = emptyList(); overlay.invalidate() }; return }
+        val lang = io.github.pini236.skiapp.i18n.Lang.current(resources)
+        val display = io.github.pini236.skiapp.i18n.Lang.typeface(context, lang, display = true)
+        val body = io.github.pini236.skiapp.i18n.Lang.typeface(context, lang, display = false)
+        val ink = Color.rgb(19, 35, 58); val muted = io.github.pini236.skiapp.ui.DayColors.muted.toArgb()
+        fun layout(text: String, tf: android.graphics.Typeface?, sp: Float, color: Int, bold: Boolean = false): StaticLayout {
+            val p = TextPaint(Paint.ANTI_ALIAS_FLAG).apply {
+                typeface = if (bold) android.graphics.Typeface.create(tf, android.graphics.Typeface.BOLD) else tf
+                textSize = sp * resources.displayMetrics.scaledDensity; this.color = color
+            }
+            val w = kotlin.math.ceil(Layout.getDesiredWidth(text, p)).toInt()
+            val dir = if (lang.rtl) android.text.TextDirectionHeuristics.RTL else android.text.TextDirectionHeuristics.LTR
+            return StaticLayout.Builder.obtain(text, 0, text.length, p, w).setTextDirection(dir).setIncludePad(false).build()
+        }
+        overlay.pins = pins.map { p ->
+            WeatherPin(p.x, s.terrain.elev(p.x, p.y) + 6f, p.y, layout(p.title, body, 11.5f, muted, bold = true), layout(p.temp, display, 30f, if (p.wind == null) muted else ink),
+                p.wind?.let { layout(it, body, 12f, ink) }, p.snow?.let { layout(it, body, 12f, ink) }, p.dir, lang.rtl)
+        }
+        overlay.invalidate()
+    }
 
     /** The camera to the dot, keeping the view's distance and heading (once, when the first reading comes). */
     fun lookAt(x: Float, y: Float) {

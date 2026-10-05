@@ -61,7 +61,7 @@ jobs:
         id: plan
         run: |
           s="${{ inputs.scenario || 'all' }}"
-          [ "$s" = all ] && s="map,descent,games,school,snowball,home,group,meet,status,run,locate,lang,phone,store"
+          [ "$s" = all ] && s="map,descent,games,school,snowball,home,group,meet,status,run,locate,weather,lang,phone,store"
           echo "parts=$(python3 -c 'import json,sys; print(json.dumps([p.strip() for p in sys.argv[1].split(",") if p.strip()]))' "$s")" >> "$GITHUB_OUTPUT"
           # the release build's start and the crash-report check run with one part: not the phone's language, which
           # restarts the whole system
