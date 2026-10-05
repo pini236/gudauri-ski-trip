@@ -40,6 +40,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.AbsoluteAlignment
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -171,6 +172,9 @@ fun SnowballScreen(haptics: Haptics, onBack: () -> Unit, onBest: () -> Unit = {}
                 Hud(g, hpV, names)
                 Pop(pop, popN, still)
                 Hint(hint)
+                // the sound, at the bottom right, as the site's (A-41)
+                SoundKey(stringResource(R.string.game_snowball_sound),
+                    Modifier.align(AbsoluteAlignment.BottomRight).navigationBarsPadding().padding(end = 12.dp, bottom = 14.dp))
             }
             Fight.END -> result?.let { r -> Shade { End(rung, r,
                 onAgain = { start() },

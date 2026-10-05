@@ -89,7 +89,12 @@ sealed interface Route {
                     parts.size == 3 && CODE.matches(parts[1]) && parts[2] == "reclaim" -> Reclaim(parts[1])
                     else -> null
                 }
-                "join" -> if (parts.size == 1) JoinCode else null
+                "join" -> when {
+                    parts.size == 1 -> JoinCode
+                    // the site's #join/<code>
+                    parts.size == 2 && CODE.matches(parts[1]) -> Join(parts[1])
+                    else -> null
+                }
                 "account" -> if (parts.size == 1) Account else null
                 else -> null
             }
@@ -103,6 +108,8 @@ sealed interface Route {
             return when {
                 path.startsWith("games/") -> parse(path.removeSuffix("/index.html"))
                 path.startsWith("j/") -> parse(path).takeIf { it is Join }
+                // the site's /join/<code> (a code typed into a link): the same invite as /j/<code>
+                path.startsWith("join/") -> parse("j/" + path.removePrefix("join/")).takeIf { it is Join }
                 path.isEmpty() || path == "index.html" -> parse(u.rawFragment ?: "home")
                 else -> null
             }

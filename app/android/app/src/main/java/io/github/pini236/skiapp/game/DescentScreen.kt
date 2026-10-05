@@ -502,6 +502,8 @@ private fun PlayHud(g: DescentGame, h: Hud, combo: Int, comboN: Int, still: Bool
         Text(stringResource(R.string.game_descent_combo, combo.toString()), Modifier.align(AbsoluteAlignment.TopLeft).padding(top = 128.dp, start = 64.dp)
             .graphicsLayer { scaleX = bump.value; scaleY = bump.value }.alpha(if (combo > 1) 1f else .45f).background(ACCENT).padding(horizontal = 10.dp, vertical = 3.dp),
             style = Ski.type.title.copy(fontSize = (24 * scale).sp, lineHeight = 1.em), color = INK)
+        // the sound, on the left under the sign, as the site's (A-41)
+        SoundKey(stringResource(R.string.game_descent_sound), Modifier.align(AbsoluteAlignment.TopLeft).padding(top = 120.dp, start = 12.dp))
     }
 }
 

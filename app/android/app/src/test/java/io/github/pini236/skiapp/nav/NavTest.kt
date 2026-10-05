@@ -23,11 +23,19 @@ class NavTest {
         // an invite link (InviteCode.link) opens the invitation, never the reclaim screen
         assertEquals(Route.Join("abcdefghijklmnopqrstuvwxyz012345"), Route.fromSiteLink("https://gudauri-ski-trip.vercel.app/j/abcdefghijklmnopqrstuvwxyz012345"))
         assertNull(Route.fromSiteLink("https://gudauri-ski-trip.vercel.app/j/KZBQRM/reclaim"))
+        // the site's /join/<code> and #join/<code> are the same invite (A-31)
+        assertEquals(Route.Join("KZBQRM"), Route.fromSiteLink("https://gudauri-ski-trip.vercel.app/join/KZBQRM"))
+        assertEquals(Route.Join("KZBQRM"), Route.fromSiteLink("https://gudauri-ski-trip.vercel.app/#join/KZBQRM"))
+        assertEquals(Route.JoinCode, Route.parse("join"))
+        // the pages that must stay in the browser (Google Play's account deletion, the policy) are not the app's
+        assertNull(Route.fromSiteLink("https://gudauri-ski-trip.vercel.app/account"))
+        assertNull(Route.fromSiteLink("https://gudauri-ski-trip.vercel.app/privacy"))
+        assertNull(Route.fromSiteLink("https://gudauri-ski-trip.vercel.app/join/KZBQRM/x"))
     }
 
     @Test fun oddInputIsIgnored() {
         for (bad in listOf(null, "#nowhere", "map/run/", "map/x/y", "meet/a/9:30/2027", "games/../../etc", "games/" + "x".repeat(60), "#map/run/%E0%A4%A",
-                "group/g1/settings", "group/../x", "j/ABC", "j/" + "x".repeat(90), "j/KZBQRM/x", "account/x")) assertNull(bad, Route.parse(bad))
+                "group/g1/settings", "group/../x", "j/ABC", "j/" + "x".repeat(90), "j/KZBQRM/x", "account/x", "join/AB", "join/KZBQRM/x")) assertNull(bad, Route.parse(bad))
         assertNull(Route.fromSiteLink("http://gudauri-ski-trip.vercel.app/#map"))
         assertNull(Route.fromSiteLink("https://evil.example/#map"))
         assertNull(Route.fromSiteLink("not a url"))

@@ -49,11 +49,20 @@ object Bests {
     private const val STARS = "bests_levels_"
     private val LEVEL_GAMES = listOf("snowball", "descent")
 
-    /** The settings' reset: every game's record on this phone (what the group's table already had stays there). */
+    /** The games with a table in the group, by their key on the server and the site (account.js GAMES). */
+    val GAMES = listOf("descent", "school", "fresh", "snowball", "merge")
+
+    /** What each game keeps on the phone besides its record: the descent's best times and ghosts, the merge's board, the choices. */
+    private val GAME_PREFS = listOf("descent", "merge", "snowball")
+
+    /**
+     * The settings' reset, as the site's (every game key in the browser, GUD_GAME_KEYS): the records, the stars, the
+     * best times and ghosts, the saved board, the choices, and what was sent to the group (what the group's table
+     * already had stays there).
+     */
     fun reset(context: Context) {
-        context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit().clear().apply()
-        context.getSharedPreferences(LEVELS, Context.MODE_PRIVATE).edit().clear().apply()
-        for (g in LEVEL_GAMES) context.getSharedPreferences(STARS + g, Context.MODE_PRIVATE).edit().clear().apply()
+        val all = listOf(PREFS, LEVELS, SENT) + LEVEL_GAMES.map { STARS + it } + GAME_PREFS
+        for (p in all) context.getSharedPreferences(p, Context.MODE_PRIVATE).edit().clear().apply()
     }
 
     fun all(context: Context): Map<String, Int> = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).all.mapNotNull { (k, v) -> (v as? Int)?.let { k to it } }.toMap()

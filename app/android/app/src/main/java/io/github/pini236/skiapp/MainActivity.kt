@@ -192,7 +192,7 @@ class MainActivity : ComponentActivity() {
     private val rawGroupApi: GroupApi by lazy {
         DevServer.create() ?: LiveGroupApi(server, PrefsSessionStore(this), tripSync, { Lang.current(resources).tag },
             ready = GoogleSignIn.WEB_CLIENT_ID.isNotEmpty(), saved = accountPrefs.getString("me", null),
-            keep = { v -> accountPrefs.edit().apply { if (v == null) remove("me") else putString("me", v) }.apply() }, sync = Sync.of(this))
+            keep = { v -> accountPrefs.edit().apply { if (v == null) remove("me") else putString("me", v) }.apply() }, sync = Sync.of(this, Bests.GAMES))
     }
     private val groupApi: GroupApi by lazy { MeasuredGroupApi(rawGroupApi, getSharedPreferences("join_via", MODE_PRIVATE)) }
     private var justJoined by mutableStateOf(false)
@@ -275,7 +275,7 @@ class MainActivity : ComponentActivity() {
         handleOpen(intent)
         lifecycleScope.launch { repeatOnLifecycle(Lifecycle.State.STARTED) { while (true) { loadStatus(); delay(LiftStatus.EVERY_MS) } } }
         // a trip, a score or a meetup saved without signal goes now
-        if (rawGroupApi is LiveGroupApi) { tripSync.flush(); Sync.of(this).flush() }
+        if (rawGroupApi is LiveGroupApi) { tripSync.flush(); Sync.of(this, Bests.GAMES).flush() }
         loadInBackground()
         setContent { App() }
     }
@@ -319,12 +319,20 @@ class MainActivity : ComponentActivity() {
      * A reminder's tap opens its meetup's card, over home; a link to the site (a run, a meeting point, an invite) opens
      * the same place in the app. Each once: a turn of the screen does not open it again.
      */
+    /** A run a link opened before the map was ready: chosen (and measured) when it is. */
+    private var linkRun: String? = null
+
     private fun handleOpen(i: Intent?) {
         i?.data?.let { uri ->
             i.data = null
             val r = Route.fromSiteLink(uri.toString()) ?: return@let
             nav.toStart(); if (r != Route.Home) nav.push(r)
             if (r is Route.Meet && r.station != null) Telemetry.event("meet_link_open")
+            // a run's link: chosen on the map now if it is ready, or as soon as it is; run_open with via=link (P-D2)
+            if (r is Route.Map && r.run != null) {
+                val p = scene?.runs?.pistes?.firstOrNull { it.key == r.run }
+                if (p != null) mapView.select(p, via = "link") else linkRun = r.run
+            }
         }
         val r = Route.parse(i?.getStringExtra(OPEN) ?: return) ?: return
         i.removeExtra(OPEN)
@@ -429,7 +437,8 @@ class MainActivity : ComponentActivity() {
             sunNote = note
             scene = s; mapView.setScene(s); reportFullyDrawn()
             // back where the user was: the run chosen before the system closed the app
-            nav.find<Route.Map>()?.run?.let { key -> s.runs.pistes.firstOrNull { it.key == key }?.let { mapView.select(it, chosen = false); Qa.log("restored run $key") } }
+            val fromLink = linkRun; linkRun = null
+            nav.find<Route.Map>()?.run?.let { key -> s.runs.pistes.firstOrNull { it.key == key }?.let { mapView.select(it, chosen = key == fromLink, via = "link"); Qa.log("restored run $key") } }
             Qa.log("scene ready")
         }
         castShadows(s)

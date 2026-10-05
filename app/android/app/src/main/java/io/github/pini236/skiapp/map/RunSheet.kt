@@ -413,7 +413,6 @@ private fun Conn(label: String, lifts: List<Lift>, keys: List<String>, runs: Run
 @Composable
 private fun notes(p: Piste): List<String> {
     val out = ArrayList<String>()
-    if (p.key == "Firni ?") out += stringResource(R.string.run_note_firni_unclear)
     if (p.key == "Zuma") out += stringResource(R.string.run_note_zuma_two_lines)
     val mism = p.osmDiff.filter { it != "—" }.mapNotNull { osmGrade(it) }.filter { it.second != p.color }
     if (p.named && mism.isNotEmpty()) out += stringResource(R.string.run_note_osm_grade_mismatch, mism.joinToString(", ") { it.first }, colorName(p.color))

@@ -24,11 +24,25 @@
         <activity
             android:name=".MainActivity"
             android:exported="true"
+            android:launchMode="singleTask"
             android:configChanges="orientation|screenSize|screenLayout|keyboardHidden|smallestScreenSize|uiMode|density"
             android:windowSoftInputMode="adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            <!-- the site's links open the app (P-D2, A-31): an invite (/j/<token>, /join/<code>), and a run or a meeting
+                 point (/#map/run/..., /#meet/...: the place is in the fragment, so the path is the site's root). Verified
+                 against the site's .well-known/assetlinks.json (S-28); /privacy and /account stay in the browser. One app, one
+                 screen: a link from WhatsApp or the browser comes to the open app (onNewIntent), not to a second copy. -->
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="https" android:host="gudauri-ski-trip.vercel.app" />
+                <data android:pathPrefix="/j/" />
+                <data android:pathPrefix="/join/" />
+                <data android:path="/" />
             </intent-filter>
         </activity>
         <receiver android:name=".meet.ReminderReceiver" android:exported="false">
