@@ -406,12 +406,21 @@ private fun PassCard(trip: Trip, isRet: Boolean, now: LocalDateTime, p: PassInk,
                     .shadow(if (tearT > 0f) 6.dp else 10.dp, if (tearT > 0f) torn else notch, ambientColor = Color(0x33000000), spotColor = Color(0x33000000))
                     .clip(if (tearT > 0f) torn else notch),
             ) {
-                if (!isRet) {
-                    val days = trip.daysToFlight(now)
-                    Label(stringResource(R.string.app_pass_more), p)
-                    Big(days.toString(), p)
-                    Label(if (days == 0) stringResource(R.string.ticket_stub_departing)
-                        else pluralStringResource(if (p.dark) R.plurals.app_pass_nights else R.plurals.app_pass_days, days), p, lines = 2)
+                if (!isRet) when (val st = trip.stage(now)) {
+                    is Trip.Stage.Before -> {
+                        val days = st.days
+                        Label(stringResource(R.string.app_pass_more), p)
+                        Big(days.toString(), p)
+                        Label(if (days == 0) stringResource(R.string.ticket_stub_departing)
+                            else pluralStringResource(if (p.dark) R.plurals.app_pass_nights else R.plurals.app_pass_days, days), p, lines = 2)
+                    }
+                    // during the trip: "ski day 2 of 4" (A-43); after the return the stub stays, with no count
+                    is Trip.Stage.SkiDay -> {
+                        Label(stringResource(R.string.ticket_stub_ski_day), p)
+                        Big(st.n.toString(), p)
+                        Label(stringResource(R.string.ticket_stub_of, st.of), p, lines = 2)
+                    }
+                    Trip.Stage.Over -> Unit
                 } else {
                     val n = trip.skiDayCount()
                     Label(stringResource(R.string.app_pass_first), p)

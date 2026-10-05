@@ -411,6 +411,9 @@ home() {
   else fail "no stub on the pass"; fi
   qa "--es qa.mode night"; sleep 2; shot home-trip-night
   qa "--es qa.mode auto --es qa.time 2026-12-01T16:50"; sleep 2; shot home-trip-sunset
+  # during the trip the stub says which ski day it is, and after the return it has no count (A-43)
+  qa "--es qa.mode auto --es qa.time 2027-01-12T10:00"; sleep 2; shot home-trip-skiday
+  qa "--es qa.mode auto --es qa.time 2027-01-16T10:00"; sleep 2; shot home-trip-over
   qa "--es qa.mode auto --es qa.time 2026-12-01T13:35"; sleep 1
   tapText "עריכה" && sleep 1.5 && shot trip-form-filled && adb shell input keyevent KEYCODE_BACK && sleep 1
 

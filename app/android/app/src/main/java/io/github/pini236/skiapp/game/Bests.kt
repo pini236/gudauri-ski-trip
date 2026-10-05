@@ -67,8 +67,8 @@ object Bests {
 
     fun all(context: Context): Map<String, Int> = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).all.mapNotNull { (k, v) -> (v as? Int)?.let { k to it } }.toMap()
 
-    // what already went to the group's table (the site's gud-best-sent): a reset does not clear it, so only a better
-    // score goes again
+    // what already went to the group's table (the site's gud-best-sent), so only a better score goes again; a reset
+    // clears it too, as on the site (A-40)
     private const val SENT = "bests_sent"
     /** The high scores the group's table has not had yet. */
     fun unsent(context: Context): Map<String, Int> {

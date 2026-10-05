@@ -67,6 +67,28 @@ data class Trip(val out: Leg, val ret: Leg? = null, val ski: ClosedRange<LocalDa
         return if (ms <= 0) 0 else ((ms + DAY_MS - 1) / DAY_MS).toInt()
     }
 
+    /** Where the trip stands today, as on the site (S-35, A-43; decision 58). */
+    sealed interface Stage {
+        /** Before the first ski day: the countdown to the flight (0 from its day on, "on the way"). */
+        data class Before(val days: Int) : Stage
+        /** On a ski day, n of m; from the last ski day to the return, m of m. */
+        data class SkiDay(val n: Int, val of: Int) : Stage
+        /** From the day after the return (or after the last ski day, when there is no return): no count at all. */
+        data object Over : Stage
+    }
+
+    fun stage(now: LocalDateTime): Stage {
+        val today = now.toLocalDate()
+        val days = skiDays()
+        val end = ret?.date ?: days?.endInclusive
+        if (end != null && today > end) return Stage.Over
+        if (days != null && today >= days.start) {
+            val m = skiDayCount()
+            return Stage.SkiDay(minOf(today.toEpochDay() - days.start.toEpochDay() + 1, m.toLong()).toInt(), m)
+        }
+        return Stage.Before(daysToFlight(now))
+    }
+
     fun toJson(): JSONObject = JSONObject().put("v", 1).put("out", leg(out)).apply {
         ret?.let { put("ret", leg(it)) }
         ski?.let { put("ski", JSONObject().put("from", it.start.toString()).put("to", it.endInclusive.toString())) }

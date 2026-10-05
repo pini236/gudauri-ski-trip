@@ -49,6 +49,25 @@ class TripTest {
         assertEquals(99, group.daysToFlight(LocalDateTime.of(2026, 10, 3, 12, 0)))
     }
 
+    @Test fun skiDayNOfMDuringTheTripAndNoCountAfterTheReturn() {
+        // the rule agreed with the site (S-35, A-43): the countdown before the first ski day, then ski day n of m, m of m
+        // until the return's day, and nothing from the day after it (or after the last ski day without a return)
+        val at = { day: Int, h: Int -> LocalDateTime.of(2027, 1, day, h, 0) }
+        assertEquals(Trip.Stage.Before(1), group.stage(at(9, 12)))
+        assertEquals(Trip.Stage.Before(0), group.stage(at(10, 22)))
+        assertEquals(Trip.Stage.SkiDay(1, 4), group.stage(at(11, 0)))
+        assertEquals(Trip.Stage.SkiDay(2, 4), group.stage(at(12, 9)))
+        assertEquals(Trip.Stage.SkiDay(4, 4), group.stage(at(14, 23)))
+        assertEquals(Trip.Stage.SkiDay(4, 4), group.stage(at(15, 1)))
+        assertEquals(Trip.Stage.Over, group.stage(at(16, 0)))
+        // ski days by hand and no return: over the day after the last one
+        val byHand = Trip(Leg(d(10)), ski = d(11)..d(12))
+        assertEquals(Trip.Stage.SkiDay(2, 2), byHand.stage(at(12, 18)))
+        assertEquals(Trip.Stage.Over, byHand.stage(at(13, 8)))
+        // no ski days and no return: the countdown stays at "on the way"
+        assertEquals(Trip.Stage.Before(0), Trip(Leg(d(10))).stage(at(20, 8)))
+    }
+
     @Test fun codesAndCities() {
         assertEquals("TLV", group.out.fromCode); assertEquals("תל אביב", group.out.fromCity)
         assertEquals("TBS", Leg(d(1), to = "tbs").toCode)

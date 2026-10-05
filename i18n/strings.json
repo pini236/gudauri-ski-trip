@@ -9563,6 +9563,30 @@
     "ka"
    ]
   },
+  "ticket.stub_ski_day": {
+   "he": "יום סקי",
+   "en": "Ski day",
+   "ru": "День катания",
+   "ka": "სათხილამურო დღე",
+   "where": "site/js/app.js, app/android",
+   "note": "Boarding pass stub during the trip, above the big day number (S-35, A-43). short",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "ticket.stub_of": {
+   "he": "מתוך {m}",
+   "en": "of {m}",
+   "ru": "из {m}",
+   "ka": "{m}-დან",
+   "where": "site/js/app.js, app/android",
+   "note": "Boarding pass stub during the trip, under the big day number: of how many ski days (S-35, A-43). short",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
   "ticket.stub_nights": {
    "he": {
     "one": "עוד {n} לילה לטיסה",
@@ -12498,6 +12522,18 @@
    "ka": "პირველი სათხილამურო დღე",
    "where": "site/index.html",
    "note": "field label",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "trip.ski_day_of": {
+   "he": "יום סקי {n} מתוך {m}",
+   "en": "Ski day {n} of {m}",
+   "ru": "День катания {n} из {m}",
+   "ka": "სათხილამურო დღე {n} {m}-დან",
+   "where": "site/js/app.js, app/android",
+   "note": "During the trip: which ski day today is (top bar on the site, the today board in the app; S-35, A-43, round 19)",
    "check": [
     "ru",
     "ka"
