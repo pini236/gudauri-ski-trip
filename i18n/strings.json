@@ -15062,6 +15062,18 @@
     "ru",
     "ka"
    ]
+  },
+  "trip.ski_outside": {
+   "he": "ימי הסקי צריכים להיות בתוך הטיול",
+   "en": "The ski days need to be within the trip",
+   "ru": "Дни катания должны быть в пределах поездки",
+   "ka": "სათხილამურო დღეები მოგზაურობის ფარგლებში უნდა იყოს",
+   "where": "site/js/app.js",
+   "note": "trip form error: a manual ski day before the outbound or after the return (S-34)",
+   "check": [
+    "ru",
+    "ka"
+   ]
   }
  }
 }

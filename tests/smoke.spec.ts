@@ -417,3 +417,20 @@ test('קובץ האימות לקישורים שפותחים את האפליקצ�
   const h = vercel.headers.find((x: any) => x.source === '/.well-known/assetlinks.json');
   expect(h.headers).toContainEqual({ key: 'Content-Type', value: 'application/json' });
 });
+
+// "opened since you checked" (S-31): a lift the report says nothing about is not "closed", and drawing the panel
+// again keeps the changes (they are against the board before this visit)
+test('מצב רכבלים: "נפתח מאז שבדקת" בלי לנחש על רכבל בלי דיווח', async ({ page }) => {
+  await page.route('**/api/status', r => r.fulfill({ contentType: 'application/json', body: JSON.stringify({
+    updated: new Date(Date.now() - 5 * 60000).toISOString(),
+    lifts: { Goodaura: { open: true }, Kudebi: { open: false } }, pistes: {} }) }));
+  await page.addInitScript(() => { if (!sessionStorage.getItem('seeded')) { sessionStorage.setItem('seeded', '1');
+    localStorage.setItem('gud-lstat', JSON.stringify({ Goodaura: false, Kudebi: false, Sadzele: true })); } });
+  await page.goto('/#map');
+  await loaded(page);
+  const ch = page.locator('.lstat-changes li');
+  await expect(ch).toHaveCount(1);
+  await expect(ch.first()).toContainText('Goodaura');
+  await page.locator('[data-forme]').click(); // draws the panel again
+  await expect(page.locator('.lstat-changes li')).toHaveCount(1);
+});

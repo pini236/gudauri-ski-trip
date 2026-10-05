@@ -25,3 +25,15 @@ test('מדידה: הכתובת שנשלחת ל-PostHog ול-Sentry בלי קוד
   expect(src).toMatch(/ev\.request\.url=cleanUrl\(ev\.request\.url\)/);
   expect(src).toMatch(/breadcrumbs/);
 });
+
+// best in game_end is a new record of the score in every game (docs/GROWTH.md, S-16, S-33)
+test('מדידה: best ב-game_end הוא שיא חדש של הניקוד, גם בירידה ובבית הספר לסקי', async ({ page }) => {
+  await page.goto('/#home');
+  const out = await page.evaluate(() => {
+    localStorage.removeItem('gud-best');
+    const end = (game: string, score: number, level?: string) => { const p: any = { game, score, level, best: true }; (window as any).track('game_end', p); return p.best; };
+    return [end('descent', 900), end('descent', 400), end('descent', 1200),
+      end('school', 3, '1'), end('school', 2, '2'), end('school', 2, '2'), end('school', 1, '1')];
+  });
+  expect(out).toEqual([true, false, true, true, true, false, false]);
+});
