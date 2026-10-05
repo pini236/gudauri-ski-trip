@@ -536,7 +536,7 @@ class MapView(context: Context, refreshHz: Float, val stats: FrameStats) : Frame
             return StaticLayout.Builder.obtain(text, 0, text.length, p, w).setTextDirection(dir).setIncludePad(false).build()
         }
         overlay.pins = pins.map { p ->
-            WeatherPin(p.x, s.terrain.elev(p.x, p.y) + 6f, p.y, layout(p.title, body, 11.5f, muted, bold = true), layout(p.temp, display, 30f, if (p.wind == null) muted else ink),
+            WeatherPin(p.x, s.terrain.elev(p.x, p.y) + 6f, p.y, layout(p.title, body, 11.5f, muted, bold = true), layout(p.temp, display, 30f, if (p.temp == "—") muted else ink),
                 p.wind?.let { layout(it, body, 12f, ink) }, p.snow?.let { layout(it, body, 12f, ink) }, p.dir, lang.rtl)
         }
         overlay.invalidate()

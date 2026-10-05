@@ -16,7 +16,8 @@ class WeatherTest {
     private val f = Forecast.parse(fixture.getJSONObject("answer").toString())!!
     private val cases = fixture.getJSONObject("cases")
     private fun local(s: String) = LocalDateTime.parse(s)
-    private fun now(o: JSONObject) = Forecast.Now(o.getInt("temp"), o.getInt("wind"), o.getInt("gust"), o.getInt("dir"), o.getInt("snow24"))
+    private fun JSONObject.int(k: String): Int? = if (isNull(k)) null else getInt(k)
+    private fun now(o: JSONObject) = Forecast.Now(o.int("temp"), o.int("wind"), o.int("gust"), o.int("dir"), o.int("snow24"))
 
     @Test fun freshStaleAndNoneByAge() {
         val a = cases.getJSONArray("state")
@@ -33,6 +34,8 @@ class WeatherTest {
             val c = a.getJSONObject(i)
             assertEquals(c.toString(), now(c.getJSONObject("expect")), f.now(c.getString("point"), local(c.getString("now"))))
         }
+        // a value the answer leaves null is null, never 0 (server/CONTRACT.md); and the fixture has such a case
+        assertNull(f.now("goodaura", local("2027-01-12T12:10"))!!.temp)
         // an hour the answer does not have
         assertNull(f.now("village", local("2027-01-20T10:00")))
     }

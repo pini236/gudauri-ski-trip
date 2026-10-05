@@ -82,8 +82,18 @@ private const val SOURCE_URL = "https://open-meteo.com/"
     return remember(res) { NumberFormat.getIntegerInstance(Lang.current(res).locale) }
 }
 
-/** "−4°", with the true minus, kept left to right. */
-fun deg(t: Int) = "⁦" + (if (t < 0) "−" else "") + kotlin.math.abs(t) + "°⁩"
+/** "−4°", with the true minus, kept left to right; a value the answer left null is a dash. */
+fun deg(t: Int?) = if (t == null) "—" else "⁦" + (if (t < 0) "−" else "") + kotlin.math.abs(t) + "°⁩"
+
+/** The wind in words: with the gusts, without them when they are missing, "no data" when the wind is. */
+@Composable fun windWords(wind: Int?, gust: Int?, short: Boolean = false): String {
+    val n = nf()
+    return when {
+        wind == null -> stringResource(R.string.weather_none)
+        short || gust == null -> stringResource(R.string.weather_wind_short, n.format(wind))
+        else -> stringResource(R.string.weather_wind_gusts, n.format(wind), n.format(gust))
+    }
+}
 
 @Composable fun pointName(id: String) = when (id) {
     "village" -> stringResource(R.string.weather_point_village)
@@ -144,15 +154,15 @@ fun WeatherRow(name: String, alt: Int, v: Forecast.Now?, onClick: (() -> Unit)? 
                 Text("⁨$name⁩", style = Ski.type.bodyBold.copy(fontSize = 15.sp), color = c.ink)
                 Text(stringResource(R.string.common_unit_m, n.format(alt)), style = Ski.type.small.copy(fontSize = 12.5.sp), color = c.muted)
             }
-            Text(v?.let { deg(it.temp) } ?: "—", style = Ski.type.title.copy(fontSize = 32.sp, lineHeight = 32.sp), color = if (v == null) c.muted else c.ink)
+            Text(deg(v?.temp), style = Ski.type.title.copy(fontSize = 32.sp, lineHeight = 32.sp), color = if (v?.temp == null) c.muted else c.ink)
             Column(horizontalAlignment = Alignment.End) {
                 if (v == null) Text(stringResource(R.string.weather_none), style = Ski.type.small.copy(fontSize = 13.sp), color = c.ink)
                 else {
                     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                        WindArrow(v.dir)
-                        Text(stringResource(R.string.weather_wind_gusts, n.format(v.wind), n.format(v.gust)), style = Ski.type.small.copy(fontSize = 13.sp), color = c.ink)
+                        if (v.wind != null) v.dir?.let { WindArrow(it) }
+                        Text(windWords(v.wind, v.gust), style = Ski.type.small.copy(fontSize = 13.sp), color = c.ink)
                     }
-                    Text(stringResource(R.string.weather_new_snow, n.format(v.snow24)), style = Ski.type.small.copy(fontSize = 13.sp), color = c.ink)
+                    v.snow24?.let { Text(stringResource(R.string.weather_new_snow, n.format(it)), style = Ski.type.small.copy(fontSize = 13.sp), color = c.ink) }
                 }
             }
         }
@@ -269,14 +279,14 @@ fun TodayBoard(day: Int, of: Int, status: LiftStatus?, onStatus: () -> Unit) {
                 Column(Modifier.weight(1f).padding(start = if (i == 0) 0.dp else 8.dp, end = 8.dp, top = 8.dp, bottom = 9.dp), verticalArrangement = Arrangement.spacedBy(1.dp)) {
                     Text("⁨${pointName(id)}⁩", style = Ski.type.small.copy(fontSize = 11.5.sp), color = c.muted)
                     Text(stringResource(R.string.common_unit_m, n.format(f?.point(id)?.elevation ?: DEFAULT_ALT.getValue(id))), style = Ski.type.small.copy(fontSize = 11.5.sp), color = c.muted)
-                    Text(v?.let { deg(it.temp) } ?: "—", Modifier.padding(top = 2.dp), style = Ski.type.title.copy(fontSize = 32.sp, lineHeight = 32.sp), color = if (v == null) c.muted else c.ink)
+                    Text(deg(v?.temp), Modifier.padding(top = 2.dp), style = Ski.type.title.copy(fontSize = 32.sp, lineHeight = 32.sp), color = if (v?.temp == null) c.muted else c.ink)
                     if (v == null) Text(stringResource(R.string.weather_none), style = Ski.type.small.copy(fontSize = 12.sp), color = c.ink)
                     else {
                         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(3.dp)) {
-                            WindArrow(v.dir, 12.dp)
-                            Text(stringResource(R.string.weather_wind_short, n.format(v.wind)), style = Ski.type.small.copy(fontSize = 12.sp), color = c.ink)
+                            if (v.wind != null) v.dir?.let { WindArrow(it, 12.dp) }
+                            Text(windWords(v.wind, null, short = true), style = Ski.type.small.copy(fontSize = 12.sp), color = c.ink)
                         }
-                        Text(stringResource(R.string.weather_snow_short, n.format(v.snow24)), style = Ski.type.small.copy(fontSize = 12.sp), color = c.ink)
+                        v.snow24?.let { Text(stringResource(R.string.weather_snow_short, n.format(it)), style = Ski.type.small.copy(fontSize = 12.sp), color = c.ink) }
                     }
                 }
             }
@@ -346,12 +356,16 @@ fun AheadBoard(skiDays: List<LocalDate>, daysToFlight: Int) {
                 }
                 if (v != null) {
                     Row(Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                        WindArrow(v.dir, 12.dp)
-                        Text(stringResource(R.string.weather_wind_gusts, n.format(v.wind), n.format(v.gust)) + " · " +
-                            (if (v.snow > 0) stringResource(R.string.weather_new_snow, n.format(v.snow)) else stringResource(R.string.weather_no_new_snow)),
+                        if (v.wind != null) v.dir?.let { WindArrow(it, 12.dp) }
+                        val snow = v.snow
+                        Text(windWords(v.wind, v.gust) + (when {
+                            snow == null -> ""
+                            snow > 0 -> " · " + stringResource(R.string.weather_new_snow, n.format(snow))
+                            else -> " · " + stringResource(R.string.weather_no_new_snow)
+                        }),
                             style = Ski.type.small.copy(fontSize = 13.sp, lineHeight = 17.sp), color = c.ink)
                     }
-                    Text(deg(v.tmax), style = Ski.type.title.copy(fontSize = 26.sp, lineHeight = 26.sp), color = c.ink)
+                    Text(deg(v.tmax), style = Ski.type.title.copy(fontSize = 26.sp, lineHeight = 26.sp), color = if (v.tmax == null) c.muted else c.ink)
                 } else {
                     val opens = d.minusDays(span - 1L)
                     Text(if (f != null && opens.isAfter(w.local.toLocalDate())) stringResource(R.string.today_ahead_later, "${opens.dayOfMonth}.${opens.monthValue}")
@@ -384,9 +398,8 @@ fun pinTexts(w: WeatherNow): List<PinText> {
         val v = f?.now(id, w.local)
         val alt = stringResource(R.string.common_unit_m, n.format(p?.elevation ?: DEFAULT_ALT.getValue(id)))
         PinText(id, io.github.pini236.skiapp.data.Geo.x(lo), io.github.pini236.skiapp.data.Geo.y(la),
-            "⁨${pointName(id)}⁩ · $alt$stale", v?.let { deg(it.temp) } ?: "—",
-            v?.let { stringResource(R.string.weather_wind_short, n.format(it.wind)) } ?: stringResource(R.string.weather_none),
-            v?.let { stringResource(R.string.weather_new_snow, n.format(it.snow24)) }, v?.dir)
+            "⁨${pointName(id)}⁩ · $alt$stale", deg(v?.temp), windWords(v?.wind, null, short = true),
+            v?.snow24?.let { stringResource(R.string.weather_new_snow, n.format(it)) }, v?.dir?.takeIf { v.wind != null })
     }
 }
 
@@ -435,7 +448,7 @@ fun MapPins2D(view: io.github.pini236.skiapp.meet.MeetView, pins: List<PinText>,
                 Column(Modifier.shadow(4.dp, RectangleShape).background(c.paper).border(1.5.dp, c.ink).padding(start = 9.dp, end = 9.dp, top = 6.dp, bottom = 7.dp)) {
                     Text(p.title, style = Ski.type.bodyBold.copy(fontSize = 11.5.sp, lineHeight = 14.sp), color = c.muted)
                     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        Text(p.temp, style = Ski.type.title.copy(fontSize = 30.sp, lineHeight = 30.sp), color = if (p.dir == null) c.muted else c.ink)
+                        Text(p.temp, style = Ski.type.title.copy(fontSize = 30.sp, lineHeight = 30.sp), color = if (p.temp == "—") c.muted else c.ink)
                         Column {
                             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                                 p.dir?.let { WindArrow(it, 12.dp) }

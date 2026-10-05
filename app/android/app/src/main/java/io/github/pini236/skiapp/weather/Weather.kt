@@ -23,11 +23,11 @@ class Forecast(val updated: Instant, val points: List<Point>, private val ridgeD
     class Point(val id: String, val elevation: Int, val snow24: Double, val hours: List<LocalDateTime>, val h: Map<String, DoubleArray>,
                 val days: List<LocalDate>, val d: Map<String, DoubleArray>)
 
-    /** What a point (or an altitude between them) has at one hour. */
-    data class Now(val temp: Int, val wind: Int, val gust: Int, val dir: Int, val snow24: Int)
+    /** What a point (or an altitude between them) has at one hour; a value the answer leaves null is null ("no data"). */
+    data class Now(val temp: Int?, val wind: Int?, val gust: Int?, val dir: Int?, val snow24: Int?)
 
     /** One day of a point (the days board before the trip). */
-    data class Day(val date: LocalDate, val tmin: Int, val tmax: Int, val snow: Int, val wind: Int, val gust: Int, val dir: Int)
+    data class Day(val date: LocalDate, val tmin: Int?, val tmax: Int?, val snow: Int?, val wind: Int?, val gust: Int?, val dir: Int?)
 
     enum class State { FRESH, STALE, NONE }
 
@@ -46,7 +46,7 @@ class Forecast(val updated: Instant, val points: List<Point>, private val ridgeD
     fun now(id: String, at: LocalDateTime): Now? {
         val p = point(id) ?: return null
         val i = p.hours.indexOf(at.withMinute(0).withSecond(0).withNano(0)).takeIf { it >= 0 } ?: return null
-        return Now(round(p.h.getValue("temp")[i]), round(p.h.getValue("wind")[i]), round(p.h.getValue("gust")[i]), p.h.getValue("dir")[i].toInt(), round(p.snow24))
+        return Now(r(p.h.getValue("temp")[i]), r(p.h.getValue("wind")[i]), r(p.h.getValue("gust")[i]), dirOf(p.h.getValue("dir")[i]), r(p.snow24))
     }
 
     /** At an altitude (a run's top or bottom): linear between the points above and below, the nearest one outside them. */
@@ -60,7 +60,7 @@ class Forecast(val updated: Instant, val points: List<Point>, private val ridgeD
             if (alt >= ea && alt <= eb) {
                 val t = (alt - ea) / (eb - ea).toDouble()
                 fun mix(x: Double, y: Double) = x + t * (y - x)
-                return Now(round(mix(a[0], b[0])), round(mix(a[1], b[1])), round(mix(a[2], b[2])), (if (t < .5) a[3] else b[3]).toInt(), round(mix(a[4], b[4])))
+                return Now(r(mix(a[0], b[0])), r(mix(a[1], b[1])), r(mix(a[2], b[2])), dirOf(if (t < .5) a[3] else b[3]), r(mix(a[4], b[4])))
             }
         }
         return null
@@ -70,13 +70,13 @@ class Forecast(val updated: Instant, val points: List<Point>, private val ridgeD
         val i = p.hours.indexOf(at.withMinute(0).withSecond(0).withNano(0)).takeIf { it >= 0 } ?: return null
         return doubleArrayOf(p.h.getValue("temp")[i], p.h.getValue("wind")[i], p.h.getValue("gust")[i], p.h.getValue("dir")[i], p.snow24)
     }
-    private fun DoubleArray.rounded() = Now(round(this[0]), round(this[1]), round(this[2]), this[3].toInt(), round(this[4]))
+    private fun DoubleArray.rounded() = Now(r(this[0]), r(this[1]), r(this[2]), dirOf(this[3]), r(this[4]))
 
     fun day(id: String, date: LocalDate): Day? {
         val p = point(id) ?: return null
         val i = p.days.indexOf(date).takeIf { it >= 0 } ?: return null
-        fun v(k: String) = round(p.d.getValue(k)[i])
-        return Day(date, v("tmin"), v("tmax"), v("snow"), v("wind"), v("gust"), p.d.getValue("dir")[i].toInt())
+        fun v(k: String) = r(p.d.getValue(k)[i])
+        return Day(date, v("tmin"), v("tmax"), v("snow"), v("wind"), v("gust"), dirOf(p.d.getValue("dir")[i]))
     }
 
     /** The last day the answer reaches (the days board: "opens on" for the days after it). */
@@ -138,6 +138,9 @@ class Forecast(val updated: Instant, val points: List<Point>, private val ridgeD
 
         /** Half up, as JavaScript's Math.round (the site's rounding; -2.5 is -2). */
         fun round(x: Double): Int = floor(x + .5).toInt()
+        /** A value the answer leaves null (NaN here) stays null: "no data", never 0 (server/CONTRACT.md). */
+        fun r(x: Double): Int? = if (x.isNaN()) null else round(x)
+        private fun dirOf(x: Double): Int? = if (x.isNaN()) null else x.toInt()
 
         private fun JSONArray.doubles() = DoubleArray(length()) { optDouble(it, Double.NaN) }
         private fun JSONArray.strings() = (0 until length()).map { optString(it) }
@@ -149,7 +152,7 @@ class Forecast(val updated: Instant, val points: List<Point>, private val ridgeD
             val points = (0 until pts.length()).map { i ->
                 val p = pts.getJSONObject(i)
                 val h = p.getJSONObject("hourly"); val d = p.getJSONObject("daily")
-                Point(p.getString("id"), p.getInt("elevation"), p.optDouble("snow24", 0.0),
+                Point(p.getString("id"), p.getInt("elevation"), p.optDouble("snow24", Double.NaN),
                     h.getJSONArray("time").strings().map { LocalDateTime.parse(it) },
                     listOf("temp", "wind", "gust", "dir").associateWith { h.getJSONArray(it).doubles() },
                     d.getJSONArray("date").strings().map { LocalDate.parse(it) },
