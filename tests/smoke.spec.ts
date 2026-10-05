@@ -360,7 +360,7 @@ test('נקודת מפגש: מתחילים בלי בחירה, ומבטלים בכ
   // זום: הכפתור מקרב את המפה
   const vbw = async () => +((await page.locator('#meetMap').getAttribute('viewBox')) || '0 0 0 0').split(' ')[2];
   // the map gets its frame in the frame after the elevation model arrives (R-11): wait for it
-  await expect.poll(vbw).toBeGreaterThan(0);
+  await expect.poll(vbw).toBeGreaterThan(1);
   const before = await vbw();
   await page.locator('#meetZin').click();
   await expect.poll(vbw).toBeLessThan(before * .8);
