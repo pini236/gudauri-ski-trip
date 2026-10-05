@@ -1,10 +1,11 @@
 import { test, expect, Page } from '@playwright/test';
+import { listenCsp } from './csp-listen';
 
 // שגיאות רשת של גופנים חיצוניים לא נחשבות. כל שגיאת קוד באתר נחשבת.
 function watchErrors(page: Page) {
   const errors: string[] = [];
   page.on('pageerror', e => errors.push('pageerror: ' + e.message));
-  page.on('console', m => {
+  listenCsp(page); page.on('console', m => {
     if (m.type() === 'error' && !/Failed to load resource/.test(m.text())) errors.push(m.text());
   });
   return errors;
@@ -19,6 +20,9 @@ async function withTrip(page: Page) {
 
 async function loaded(page: Page) {
   await expect(page.locator('#loading')).toBeHidden({ timeout: 20_000 });
+  // the elevation model and three.js come after the home page (R-11): wait for them where they matter
+  await expect(page.locator('html[data-model]')).toBeAttached({ timeout: 20_000 });
+  if (/^#map/.test(new URL(page.url()).hash)) await expect(page.locator('.mapwrap[data-three]:not([data-three="loading"])')).toBeAttached({ timeout: 20_000 });
 }
 
 test('דף הבית, מפה, בחירת מסלול, סינון וחזרה', async ({ page }, info) => {
@@ -64,7 +68,7 @@ test('דף הבית, מפה, בחירת מסלול, סינון וחזרה', asyn
 
 test('בלי three.js האתר עובר למבט על ומסתיר את בורר התצוגה', async ({ page }) => {
   const errors = watchErrors(page);
-  await page.route('**/three.min.js', r => r.abort());
+  await page.route('**/three-r128.min.js', r => r.abort());
   await page.goto('/#map');
   await loaded(page);
   await expect(page.locator('#viewsw')).toBeHidden();
@@ -435,4 +439,24 @@ test('מצב רכבלים: "נפתח מאז שבדקת" בלי לנחש על ר�
   await expect(ch.first()).toContainText('Goodaura');
   await page.locator('[data-forme]').click(); // draws the panel again
   await expect(page.locator('.lstat-changes li')).toHaveCount(1);
+});
+
+// R-11: the elevation model loads after the home page. A link to a run or a meeting point that comes before it is kept,
+// and opens when the model arrives
+test('קישור ישיר שמגיע לפני מודל הגובה נפתח כשהמודל מגיע (R-11)', async ({ page }) => {
+  const errors = watchErrors(page);
+  // held back until the page is up (the architect asked for two seconds; here it waits for the page, so it is never racy)
+  let release = () => {};
+  const held = new Promise<void>(f => { release = f; });
+  await page.route('**/data/terrain.json', async r => { await held; await new Promise(f => setTimeout(f, 2000)); await r.continue(); });
+  await page.goto('/#map/run/Tatra%202');
+  await expect(page.locator('#loading')).toBeHidden({ timeout: 20_000 });
+  await expect(page.locator('html[data-model]')).not.toBeAttached(); // the page is up before the model
+  release();
+  await expect(page.locator('#panel')).toContainText('Tatra 2', { timeout: 20_000 });
+  await expect(page.locator('html[data-model="ready"]')).toBeAttached();
+  await expect(page.locator('#panel .prof, #panel #profRange').first()).toBeAttached();
+  await page.goto('/#meet/12b/0930/20270111');
+  await expect(page.locator('#meetPage')).toBeVisible();
+  expect(errors).toEqual([]);
 });

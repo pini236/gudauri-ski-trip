@@ -1,4 +1,5 @@
 import { test, expect, Page, Route } from '@playwright/test';
+import { listenCsp } from './csp-listen';
 
 // Accounts and groups on the site (round 12, stage 13.9). The server is faked here (server/CONTRACT.md): the tests never
 // reach the real one. Names and the code are made up.
@@ -9,10 +10,15 @@ const MY_TRIP = { v: 1, out: { date: '2027-01-10', flight: '6H 897', from: 'TLV'
 function watchErrors(page: Page) {
   const errors: string[] = [];
   page.on('pageerror', e => errors.push('pageerror: ' + e.message));
-  page.on('console', m => { if (m.type() === 'error' && !/Failed to load resource/.test(m.text())) errors.push(m.text()); });
+  listenCsp(page); page.on('console', m => { if (m.type() === 'error' && !/Failed to load resource/.test(m.text())) errors.push(m.text()); });
   return errors;
 }
-async function loaded(page: Page) { await expect(page.locator('#loading')).toBeHidden({ timeout: 20_000 }); }
+async function loaded(page: Page) {
+  await expect(page.locator('#loading')).toBeHidden({ timeout: 20_000 });
+  // the elevation model and three.js come after the home page (R-11): wait for them where they matter
+  await expect(page.locator('html[data-model]')).toBeAttached({ timeout: 20_000 });
+  if (/^#map/.test(new URL(page.url()).hash)) await expect(page.locator('.mapwrap[data-three]:not([data-three="loading"])')).toBeAttached({ timeout: 20_000 });
+}
 const b64 = (o: object) => Buffer.from(JSON.stringify(o)).toString('base64url');
 
 // a small fake of the server: one group, one other member, and whoever joins

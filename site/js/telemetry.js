@@ -6,6 +6,8 @@
 (function(){
   var POSTHOG_KEY='phc_njMEqbLpeiRxvqRxpop9m8pP4xwb6PHnqjuvaTxu9Ch3'; // public by design: it can only send events
   var SENTRY_DSN='https://9e0fede583a2521cfddd6efff76aa9aa@o4512183732404224.ingest.de.sentry.io/4512183998873680'; // gudi-web (EU); public by design
+  // both libraries are served from the site itself, at a pinned version (R-3: nothing loads from another server's script)
+  var VENDOR=new URL('vendor/',(document.currentScript&&document.currentScript.src)||location.href).href;
   var P=window.GUD_PREFS||{};
   var here=!/^(localhost|127\.)/.test(location.hostname)&&!navigator.webdriver,on=P.analytics!==false&&here,started=false;
   var queue=[],ph=null;
@@ -34,7 +36,7 @@
 
   function deviceClass(){var w=Math.min(screen.width,screen.height);return w<600?'phone':w<1000?'tablet':'desktop';}
   function theme(){try{return localStorage.getItem('gud-daynight')||'auto';}catch(e){return 'auto';}}
-  function load(src,cb){var s=document.createElement('script');s.src=src;s.async=true;s.crossOrigin='anonymous';s.onload=cb;document.head.appendChild(s);}
+  function load(src,cb){var s=document.createElement('script');s.src=src;s.async=true;s.onload=cb;document.head.appendChild(s);}
 
   // addresses carry secrets: the invite code or link token (/join/<code>, /j/<token>, #join/...) and the group id
   // (#group/<id>). Nothing past the page itself leaves the browser: the hash keeps only its first part, the
@@ -51,9 +53,9 @@
         (ev.breadcrumbs||[]).forEach(function(b){var d=b&&b.data;if(!d)return;['from','to','url'].forEach(function(k){if(typeof d[k]==='string')d[k]=cleanUrl(d[k]);});});
         return ev;}});}
   function start(){
-  if(window.Sentry&&Sentry.init)sentry();else if(SENTRY_DSN)load('https://browser.sentry-cdn.com/8.38.0/bundle.min.js',function(){if(window.Sentry)sentry();});
+  if(window.Sentry&&Sentry.init)sentry();else if(SENTRY_DSN)load(VENDOR+'sentry-8.38.0.min.js',function(){if(window.Sentry)sentry();});
   if(started)return;started=true;
-  load('https://eu-assets.i.posthog.com/static/array.js',function(){
+  load(VENDOR+'posthog-1.436.1.no-external.js',function(){
     if(!window.posthog||!posthog.init)return;
     posthog.init(POSTHOG_KEY,{api_host:'https://eu.i.posthog.com',persistence:'localStorage',person_profiles:'identified_only',
       autocapture:false,capture_pageview:false,capture_pageleave:false,disable_session_recording:true,enable_heatmaps:false,
