@@ -383,11 +383,13 @@ private fun Flights(g: Group, myTrip: Trip?, onSame: () -> Unit, onShowMine: () 
                 }
                 // as on the site: on every outbound flight I am not on (the trip is copied whole, so not on a return)
                 if (!key.ret && rows.none { it.third.me }) rows.first().third.tripId?.let { tid ->
-                    Box(Modifier.padding(top = 8.dp)) { Button2(stringResource(R.string.app_g_same_flight), Look.GHOST, { onSameAs(tid) }, small = true, full = false) }
+                    Box(Modifier.padding(top = 8.dp)) { Button2(stringResource(R.string.group_same_flight), Look.GHOST, { onSameAs(tid) }, small = true, full = false) }
                 }
             }
             Column(Modifier.width(64.dp).fillMaxHeight().background(c.bpPaper2).drawBehind {
-                drawLine(c.dash, Offset(1.dp.toPx(), 0f), Offset(1.dp.toPx(), size.height), 2.dp.toPx(), pathEffect = PathEffect.dashPathEffect(floatArrayOf(6.dp.toPx(), 4.dp.toPx())))
+                // on the seam with the pass, its start: the right edge in Hebrew (PARITY A-39)
+                val x = if (layoutDirection == androidx.compose.ui.unit.LayoutDirection.Rtl) size.width - 1.dp.toPx() else 1.dp.toPx()
+                drawLine(c.dash, Offset(x, 0f), Offset(x, size.height), 2.dp.toPx(), pathEffect = PathEffect.dashPathEffect(floatArrayOf(6.dp.toPx(), 4.dp.toPx())))
             }, horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
                 Text(rows.size.toString(), style = TextStyle(fontFamily = Karantina, fontWeight = FontWeight.Bold, fontSize = 34.sp, lineHeight = 30.sp), color = c.ink)
                 Text(stringResource(R.string.app_g_on_flight), style = Ski.type.label.copy(fontSize = 11.sp), color = c.muted)
@@ -459,7 +461,7 @@ private fun Meetups(g: Group, now: LocalDateTime, station: (String) -> Station?,
                     val left = if (m == next) stringResource(R.string.app_g_in, inWords(Duration.between(now, at.toLocalDateTime()).toMinutes(), context)) else null
                     listOfNotNull(m.byName?.let { stringResource(R.string.app_g_set_by, it) }, left).joinToString(" · ").takeIf { it.isNotEmpty() }?.let { Muted(it, size = 12.5f) }
                     m.note?.let { Muted(it, size = 12.5f) }
-                    if (armed == m.id) Text(stringResource(R.string.app_g_meetup_delete_confirm), Modifier.heightIn(min = 44.dp)
+                    if (armed == m.id) Text(stringResource(R.string.trip_delete_confirm), Modifier.heightIn(min = 44.dp)
                         .clickable(role = A11y.Button) { armed = null; onDelete(m) }.padding(vertical = 12.dp),
                         style = Ski.type.bodyBold.copy(fontSize = 13.sp), color = c.red)
                     if (m in ahead) {
@@ -592,10 +594,10 @@ private fun Members(api: GroupApi, g: Group, r: Runner, reload: () -> Unit, onIn
     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
         if (g.admin) QuietButton(stringResource(R.string.app_g_name_dates), onEdit)
         QuietButton(stringResource(R.string.app_g_invite_settings_link), onInvite)
-        QuietButton(stringResource(if (armed == "leave") R.string.app_g_leave_confirm else R.string.app_g_leave), {
+        QuietButton(stringResource(if (armed == "leave") R.string.group_leave_confirm else R.string.app_g_leave), {
             if (armed == "leave") r.run { api.leave(g.id); onLeft() } else armed = "leave"
         }, danger = armed == "leave")
-        if (g.admin) Button2(stringResource(if (armed == "delete") R.string.app_g_delete_confirm else R.string.app_g_delete), Look.DANGER, {
+        if (g.admin) Button2(stringResource(if (armed == "delete") R.string.group_delete_confirm else R.string.app_g_delete), Look.DANGER, {
             if (armed == "delete") r.run { api.deleteGroup(g.id); onLeft() } else armed = "delete"
         }, icon = Icons.trash)
     }

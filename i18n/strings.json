@@ -931,18 +931,6 @@
     "ka"
    ]
   },
-  "app.trip_delete_confirm": {
-   "he": "בטוח? לחיצה נוספת מוחקת",
-   "en": "Sure? Tap again to delete",
-   "ru": "Точно? Нажмите ещё раз, чтобы удалить",
-   "ka": "დარწმუნებული ხართ? წასაშლელად კვლავ შეეხეთ",
-   "where": "app/android",
-   "note": "trip form, the second step of delete",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
   "app.trip_err_date": {
    "he": "תאריך בצורה 10.1.2027",
    "en": "A date like 10.1.2027",
@@ -958,8 +946,8 @@
   "app.trip_err_order": {
    "he": "החזור לפני ההלוך",
    "en": "The return is before the outbound",
-   "ru": "Обратный рейс раньше вылета",
-   "ka": "დაბრუნება წასვლამდეა",
+   "ru": "Обратный рейс раньше рейса туда",
+   "ka": "დაბრუნება გამგზავრებამდეა",
    "where": "app/android",
    "note": "field error on the return date",
    "check": [
@@ -1030,7 +1018,7 @@
   "app.trip_ret_note": {
    "he": "אפשר גם בלי",
    "en": "Optional",
-   "ru": "Необязательно",
+   "ru": "Можно без него",
    "ka": "არასავალდებულო",
    "where": "app/android",
    "note": "trip form, return section",
@@ -1094,18 +1082,6 @@
    "ka": "ბოლო სათხილამურო დღე",
    "where": "app/android",
    "note": "field label",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "app.trip_ski_manual": {
-   "he": "ימי סקי, לפי הבחירה שלך",
-   "en": "Ski days, as you set them",
-   "ru": "Дни катания, как вы указали",
-   "ka": "სათხილამურო დღეები, თქვენი არჩევით",
-   "where": "app/android",
-   "note": "trip form, above the ski days when set by hand",
    "check": [
     "ru",
     "ka"
@@ -10099,9 +10075,9 @@
   },
   "app.a_name_in_groups": {
    "he": "השם שמופיע בקבוצות",
-   "en": "The name groups see",
-   "ru": "Имя, которое видят группы",
-   "ka": "სახელი, რომელსაც ჯგუფები ხედავენ",
+   "en": "The name shown in groups",
+   "ru": "Имя, которое видно в группах",
+   "ka": "სახელი, რომელიც ჯგუფებში ჩანს",
    "where": "app/android",
    "note": "A4, under the name; followed by · change",
    "check": [
@@ -10116,18 +10092,6 @@
    "ka": "შეცვლა",
    "where": "app/android",
    "note": "A4, a link",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "app.a_my_name": {
-   "he": "השם שלי",
-   "en": "My name",
-   "ru": "Моё имя",
-   "ka": "ჩემი სახელი",
-   "where": "app/android",
-   "note": "A4, field",
    "check": [
     "ru",
     "ka"
@@ -10173,7 +10137,7 @@
    "he": "כמה דרכים לאותו חשבון, כדי שלא ייווצר חשבון שני.",
    "en": "Several ways into the same account, so that no second account is made.",
    "ru": "Несколько способов войти в один аккаунт, чтобы не появился второй.",
-   "ka": "ერთსა და იმავე ანგარიშში შესვლის რამდენიმე გზა, რომ მეორე ანგარიში არ შეიქმნას.",
+   "ka": "რამდენიმე გზა ერთსა და იმავე ანგარიშში, რომ მეორე არ შეიქმნას.",
    "where": "app/android",
    "note": "A4",
    "check": [
@@ -10184,7 +10148,7 @@
   "app.a_not_connected": {
    "he": "לא מחובר",
    "en": "Not connected",
-   "ru": "Не подключено",
+   "ru": "Не подключён",
    "ka": "არ არის დაკავშირებული",
    "where": "app/android",
    "note": "A4, a way in",
@@ -10241,18 +10205,6 @@
     "ka"
    ]
   },
-  "app.a_delete_confirm": {
-   "he": "נגיעה נוספת מוחקת לצמיתות",
-   "en": "Tap again to delete for good",
-   "ru": "Нажмите ещё раз, чтобы удалить навсегда",
-   "ka": "კიდევ ერთხელ შეეხეთ სამუდამოდ წასაშლელად",
-   "where": "app/android",
-   "note": "A4, the second step",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
   "app.a_delete_note": {
    "he": "מחיקה מוחקת מהשרת את החשבון, הטיול והחברות בקבוצות. בקבוצה שרק את/ה מנהל/ת בה, המנהלות עוברת לחבר אחר. גם מהאתר: {url}",
    "en": "Deleting removes the account, the trip and the group memberships from the server. In a group where you are the only admin, another member becomes admin. Also from the site: {url}",
@@ -10296,42 +10248,6 @@
    "ka": "კიდევ მხოლოდ ერთხელ გკითხავთ, მოგზაურობამდე ერთი კვირით ადრე.",
    "where": "app/android",
    "note": "A5",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "app.err_not_admin": {
-   "he": "רק מנהלים יכולים לעשות את זה.",
-   "en": "Only admins can do that.",
-   "ru": "Это могут только администраторы.",
-   "ka": "ამის გაკეთება მხოლოდ ადმინისტრატორებს შეუძლიათ.",
-   "where": "app/android",
-   "note": "server refusal",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "app.err_last_admin": {
-   "he": "את/ה המנהל/ת היחיד/ה. קודם ממנים מנהל נוסף.",
-   "en": "You are the only admin. Name another admin first.",
-   "ru": "Вы единственный администратор. Сначала назначьте ещё одного.",
-   "ka": "თქვენ ერთადერთი ადმინისტრატორი ხართ. ჯერ სხვა დანიშნეთ.",
-   "where": "app/android",
-   "note": "server refusal",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "app.err_admin_must_register": {
-   "he": "רק חבר עם חשבון יכול להיות מנהל.",
-   "en": "Only a member with an account can be an admin.",
-   "ru": "Администратором может быть только участник с аккаунтом.",
-   "ka": "ადმინისტრატორი მხოლოდ ანგარიშის მქონე წევრი შეიძლება იყოს.",
-   "where": "app/android",
-   "note": "server refusal",
    "check": [
     "ru",
     "ka"
@@ -10447,9 +10363,9 @@
   },
   "app.err_too_many_groups": {
    "he": "הגעת למספר הקבוצות המרבי.",
-   "en": "You have reached the most groups you can have.",
+   "en": "You have reached the maximum number of groups.",
    "ru": "Достигнуто максимальное число групп.",
-   "ka": "ჯგუფების მაქსიმალურ რაოდენობას მიაღწიეთ.",
+   "ka": "მიღწეულია ჯგუფების მაქსიმალური რაოდენობა.",
    "where": "app/android",
    "note": "server refusal",
    "check": [
@@ -10675,7 +10591,7 @@
   },
   "app.g_your_name": {
    "he": "איך קוראים לך בקבוצה?",
-   "en": "Your name in the group?",
+   "en": "What is your name in the group?",
    "ru": "Как вас зовут в группе?",
    "ka": "რა გქვიათ ჯგუფში?",
    "where": "app/android",
@@ -10747,7 +10663,7 @@
   },
   "app.g_invite_strip": {
    "he": "הזמנה לקבוצה",
-   "en": "Invite to the group",
+   "en": "Invitation to a group",
    "ru": "Приглашение в группу",
    "ka": "მოწვევა ჯგუფში",
    "where": "app/android",
@@ -10783,7 +10699,7 @@
   },
   "app.g_copy_link": {
    "he": "העתקת הקישור",
-   "en": "Copy the link",
+   "en": "Copy link",
    "ru": "Скопировать ссылку",
    "ka": "ბმულის კოპირება",
    "where": "app/android",
@@ -10836,18 +10752,6 @@
    "ka": "მოწვევის პარამეტრები · ადმინისტრატორები",
    "where": "app/android",
    "note": "Q2 heading",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "app.g_manual_approval": {
-   "he": "אישור ידני לכל מצטרף",
-   "en": "Approve everyone who joins",
-   "ru": "Подтверждать каждого вручную",
-   "ka": "ყოველი შემომსვლელის ხელით დადასტურება",
-   "where": "app/android",
-   "note": "Q2 switch",
    "check": [
     "ru",
     "ka"
@@ -10989,7 +10893,7 @@
    "he": "אני כבר בקבוצה",
    "en": "I'm already in the group",
    "ru": "Я уже в группе",
-   "ka": "უკვე ჯგუფში ვარ",
+   "ka": "მე უკვე ჯგუფში ვარ",
    "where": "app/android",
    "note": "Q3 link, Q5 title",
    "check": [
@@ -11098,18 +11002,6 @@
    "en": "Something changed meanwhile. Try again.",
    "ru": "Тем временем что-то изменилось. Попробуйте ещё раз.",
    "ka": "ამასობაში რაღაც შეიცვალა. კიდევ სცადეთ.",
-   "where": "app/android",
-   "note": "server/CONTRACT.md, errors (D5)",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "app.err_server_error": {
-   "he": "תקלה בשרת. מנסים שוב מאוחר יותר.",
-   "en": "A fault on the server. Try again later.",
-   "ru": "Ошибка на сервере. Попробуйте позже.",
-   "ka": "შეცდომა სერვერზე. მოგვიანებით სცადეთ.",
    "where": "app/android",
    "note": "server/CONTRACT.md, errors (D5)",
    "check": [
@@ -11603,7 +11495,7 @@
    "ru": "Я на том же рейсе",
    "ka": "იმავე ფრენით მივფრინავ",
    "where": "app/android",
-   "note": "Q6 button, Q7 title",
+   "note": "Q6 button, Q7 title · the chooser among the group's flights; on one flight's card the app uses the site's group.same_flight",
    "check": [
     "ru",
     "ka"
@@ -11736,18 +11628,6 @@
    "ka": "შეხვედრის წაშლა",
    "where": "app/android",
    "note": "Q8, the X on a meetup (its label for screen readers)",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "app.g_meetup_delete_confirm": {
-   "he": "נגיעה נוספת: למחוק לכולם",
-   "en": "Tap again to delete it for everyone",
-   "ru": "Нажмите ещё раз, чтобы удалить для всех",
-   "ka": "კიდევ შეეხეთ ყველასთვის წასაშლელად",
-   "where": "app/android",
-   "note": "Q8, the second tap that deletes a meetup for the whole group",
    "check": [
     "ru",
     "ka"
@@ -12008,7 +11888,7 @@
   "app.g_make_admin": {
    "he": "מינוי למנהל",
    "en": "Make admin",
-   "ru": "Назначить администратором",
+   "ru": "Сделать администратором",
    "ka": "ადმინისტრატორად დანიშვნა",
    "where": "app/android",
    "note": "Q10 menu",
@@ -12020,8 +11900,8 @@
   "app.g_unmake_admin": {
    "he": "הורדה ממנהל",
    "en": "Remove as admin",
-   "ru": "Снять с администраторов",
-   "ka": "ადმინისტრატორობიდან მოხსნა",
+   "ru": "Снять администратора",
+   "ka": "ადმინისტრატორობის მოხსნა",
    "where": "app/android",
    "note": "Q10 menu",
    "check": [
@@ -12067,7 +11947,7 @@
   },
   "app.g_invite_settings_link": {
    "he": "הגדרות ההזמנה",
-   "en": "Invite settings",
+   "en": "Invitation settings",
    "ru": "Настройки приглашения",
    "ka": "მოწვევის პარამეტრები",
    "where": "app/android",
@@ -12089,18 +11969,6 @@
     "ka"
    ]
   },
-  "app.g_leave_confirm": {
-   "he": "נגיעה נוספת: לעזוב",
-   "en": "Tap again to leave",
-   "ru": "Нажмите ещё раз, чтобы выйти",
-   "ka": "კიდევ შეეხეთ დასატოვებლად",
-   "where": "app/android",
-   "note": "Q10, the second step",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
   "app.g_delete": {
    "he": "מחיקת הקבוצה",
    "en": "Delete the group",
@@ -12108,18 +11976,6 @@
    "ka": "ჯგუფის წაშლა",
    "where": "app/android",
    "note": "Q10",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "app.g_delete_confirm": {
-   "he": "נגיעה נוספת מוחקת את הקבוצה לכולם",
-   "en": "Tap again to delete the group for everyone",
-   "ru": "Нажмите ещё раз, чтобы удалить группу для всех",
-   "ka": "კიდევ შეეხეთ ჯგუფის ყველასთვის წასაშლელად",
-   "where": "app/android",
-   "note": "Q10, the second step",
    "check": [
     "ru",
     "ka"

@@ -190,9 +190,9 @@ fun errorText(e: Throwable?): String? {
 }
 
 fun errorRes(code: String): Int = when (code) {
-    "not_admin" -> R.string.app_err_not_admin
-    "last_admin" -> R.string.app_err_last_admin
-    "admin_must_register" -> R.string.app_err_admin_must_register
+    "not_admin" -> R.string.group_err_not_admin
+    "last_admin" -> R.string.group_err_last_admin
+    "admin_must_register" -> R.string.group_err_admin_must_register
     "must_register", "not_registered" -> R.string.app_err_not_registered
     "not_a_guest" -> R.string.app_err_not_a_guest
     "not_signed_in", "no_session" -> R.string.app_err_not_signed_in
@@ -217,7 +217,7 @@ fun errorRes(code: String): Int = when (code) {
     "not_allowed" -> R.string.group_err_not_allowed
     "not_found" -> R.string.app_err_not_found
     "conflict" -> R.string.app_err_conflict
-    "server_error" -> R.string.app_err_server_error
+    "server_error" -> R.string.group_err_server_error
     "rate_limited" -> R.string.join_st_rate_limited
     "invalid_code" -> R.string.join_st_invalid_code
     "no_such_member" -> R.string.join_st_no_such_member

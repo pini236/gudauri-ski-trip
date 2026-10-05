@@ -145,7 +145,7 @@ fun TripForm(initial: Trip?, today: LocalDate, onSave: (Trip) -> Unit, onDelete:
                     )
                     Column(Modifier.padding(top = 8.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
                         PrimaryButton(stringResource(R.string.app_save), Icons.check, { tried = true; if (trip != null) onSave(trip) })
-                        if (initial != null && canDelete) QuietButton(stringResource(if (armed) R.string.app_trip_delete_confirm else R.string.app_trip_delete),
+                        if (initial != null && canDelete) QuietButton(stringResource(if (armed) R.string.trip_delete_confirm else R.string.app_trip_delete),
                             { if (armed) onDelete() else armed = true }, danger = armed)
                         footer()
                     }
@@ -197,7 +197,7 @@ private fun SkiDays(trip: Trip?, manual: Boolean, onChange: () -> Unit, onAuto: 
     Row(Modifier.fillMaxWidth().background(c.paper).drawBehind { drawRect(c.accent, Offset.Zero, Size(size.width, 6.dp.toPx())) }
         .padding(start = 14.dp, end = 8.dp, top = 12.dp, bottom = 6.dp), verticalAlignment = Alignment.CenterVertically) {
         Column(Modifier.weight(1f).padding(vertical = 6.dp)) {
-            Text(stringResource(if (manual) R.string.app_trip_ski_manual else R.string.app_trip_ski_calc), style = Ski.type.label.copy(fontSize = 12.sp), color = c.muted)
+            Text(stringResource(if (manual) R.string.trip_ski_manual else R.string.app_trip_ski_calc), style = Ski.type.label.copy(fontSize = 12.sp), color = c.muted)
             Text(
                 if (days == null) stringResource(R.string.app_trip_ski_none)
                 else pluralStringResource(R.plurals.app_trip_ski_value, trip.skiDayCount(), "\u2066" + dayRange(days) + "\u2069", trip.skiDayCount()),

@@ -91,7 +91,7 @@ fun AccountScreen(api: GroupApi, onBack: () -> Unit, signInGoogle: suspend () ->
                 }
             }
             if (naming) Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                Field(stringResource(R.string.app_a_my_name), name, { name = it.take(40) })
+                Field(stringResource(R.string.acct_name_hint), name, { name = it.take(40) })
                 PrimaryButton(stringResource(R.string.app_save), Icons.check, {
                     if (name.isNotBlank()) r.run { api.rename(name.trim()); me = api.me(); naming = false }
                 })
@@ -114,7 +114,7 @@ fun AccountScreen(api: GroupApi, onBack: () -> Unit, signInGoogle: suspend () ->
             Column(Modifier.padding(top = 10.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 // a guest has no way back in: signing out would only lose the groups (the site shows it only when registered)
                 if (m.registered) Button2(stringResource(R.string.app_a_sign_out), Look.GHOST, { r.run { api.signOut(); onGone() } }, icon = Icons.out)
-                Button2(stringResource(if (armed) R.string.app_a_delete_confirm else R.string.app_a_delete), Look.DANGER, {
+                Button2(stringResource(if (armed) R.string.acct_delete_confirm else R.string.app_a_delete), Look.DANGER, {
                     if (armed) r.run { api.deleteAccount(); onGone() } else armed = true
                 }, icon = Icons.trash)
             }

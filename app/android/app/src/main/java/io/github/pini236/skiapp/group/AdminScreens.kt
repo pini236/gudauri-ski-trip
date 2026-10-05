@@ -157,7 +157,7 @@ fun InviteScreen(api: GroupApi, groupId: String, onBack: () -> Unit) {
             }
             if (g.admin) {
                 Display(stringResource(R.string.app_g_invite_settings), 28f, Modifier.padding(top = 8.dp))
-                Toggle(stringResource(R.string.app_g_manual_approval), stringResource(if (inv?.requiresApproval == true) R.string.app_g_manual_on else R.string.app_g_manual_off),
+                Toggle(stringResource(R.string.group_approval), stringResource(if (inv?.requiresApproval == true) R.string.app_g_manual_on else R.string.app_g_manual_off),
                     inv?.requiresApproval == true, { on -> r.run { api.newInvite(groupId, on); group = api.group(groupId) } }, enabled = !r.busy)
                 Column(Modifier.fillMaxWidth().heightIn(min = 52.dp).padding(vertical = 8.dp)) {
                     Text(stringResource(R.string.app_g_valid), style = Ski.type.bodyBold.copy(fontSize = 15.5.sp), color = c.ink)

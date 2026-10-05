@@ -208,8 +208,9 @@ private fun SkiPass(top: String, right: String, body: @Composable RowScope.() ->
     val shape = RoundedCornerShape(12.dp)
     Column(Modifier.widthIn(max = 420.dp).fillMaxWidth().rotate(-1.5f).shadow(10.dp, shape).background(c.paper, shape)) {
         Row(Modifier.fillMaxWidth().background(c.blue).padding(horizontal = 14.dp, vertical = 8.dp), horizontalArrangement = Arrangement.SpaceBetween) {
-            Text(top, style = Ski.type.label.copy(fontSize = 12.sp, letterSpacing = .05.em), color = Color.White)
-            Text(right, style = Ski.type.label.copy(fontSize = 12.sp, letterSpacing = .05.em), color = Color.White)
+            // onBoard: white by day, dark on the bright night blue (PARITY A-38, as the site's round 16)
+            Text(top, style = Ski.type.label.copy(fontSize = 12.sp, letterSpacing = .05.em), color = c.onBoard)
+            Text(right, style = Ski.type.label.copy(fontSize = 12.sp, letterSpacing = .05.em), color = c.onBoard)
         }
         Row(Modifier.padding(14.dp), horizontalArrangement = Arrangement.spacedBy(14.dp), verticalAlignment = Alignment.Top, content = body)
     }
