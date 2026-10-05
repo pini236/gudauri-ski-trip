@@ -25,7 +25,8 @@ enum class SnowKind(val depth: Float, val berm: Float, val rough: Float, val sof
 class SnowField(val gw: Int, val gh: Int, private val rnd: Random = Random.Default) {
     val h = FloatArray(gw * gh)
     val base = FloatArray(gw * gh)
-    val touched = BooleanArray(gw * gh)
+    /** 0 untouched; a track keeps the snow it was made in (1, or 2 for wet: X-5, the site's fix). */
+    val touched = ByteArray(gw * gh)
     val crack = BooleanArray(gw * gh)
     var kind = SnowKind.POWDER
     /** Tiny ice crystals that catch the sun. */
@@ -40,13 +41,13 @@ class SnowField(val gw: Int, val gh: Int, private val rnd: Random = Random.Defau
     }
 
     /** All new snow at once. */
-    fun fresh() { base.copyInto(h); touched.fill(false); crack.fill(false) }
+    fun fresh() { base.copyInto(h); touched.fill(0); crack.fill(false) }
 
     /** Fresh snow falling: every track fills back in by [k] of what is left. */
     fun fill(k: Float) {
         for (i in h.indices) if (h[i] != base[i]) {
             h[i] += (base[i] - h[i]) * k
-            if (abs(h[i] - base[i]) < .01f) { h[i] = base[i]; touched[i] = false; crack[i] = false }
+            if (abs(h[i] - base[i]) < .01f) { h[i] = base[i]; touched[i] = 0; crack[i] = false }
         }
     }
 
@@ -67,7 +68,7 @@ class SnowField(val gw: Int, val gh: Int, private val rnd: Random = Random.Defau
                 val pr = profile?.invoke(u, v) ?: cos(r * PI.toFloat() / 2).pow(if (k.soft < .5f) .4f else .8f)
                 val jitter = 1 + (rnd.nextFloat() - .5f) * k.rough
                 val target = base[i] - depth * k.depth * pr * jitter
-                if (h[i] > target) { moved += h[i] - target; h[i] = target; touched[i] = true }
+                if (h[i] > target) { moved += h[i] - target; h[i] = target; touched[i] = if (k == SnowKind.WET) 2 else 1 }
                 if (k == SnowKind.CRUST && r > .82f && rnd.nextFloat() < .35f) crack[i] = true
             } else if (r < 1.6f) {
                 val add = k.berm * depth * .25f * sin((r - 1) / .6f * PI.toFloat())
@@ -100,7 +101,7 @@ class SnowField(val gw: Int, val gh: Int, private val rnd: Random = Random.Defau
                 val edge = min(1f, (half - abs(cross)) / 3)
                 val target = base[i] - .1f + .035f * sin(cross * 1.25f)
                 val nh = h[i] + (target - h[i]) * edge
-                m += abs(h[i] - nh); h[i] = nh; touched[i] = false; crack[i] = false
+                m += abs(h[i] - nh); h[i] = nh; touched[i] = 0; crack[i] = false
             }
         }
         return m
@@ -117,9 +118,10 @@ class SnowField(val gw: Int, val gh: Int, private val rnd: Random = Random.Defau
             val depth = max(0f, base[i] - h[i])
             var r = 226 * l + 20; var g = 236 * l + 14; var b = 248 * l + 8
             r -= depth * 22; g -= depth * 12
-            if (wet) { r -= 6; g -= 3 }
+            // a track keeps the snow it was made in; the untouched snow is the kind chosen now
+            if (if (touched[i] != 0.toByte()) touched[i] == 2.toByte() else wet) { r -= 6; g -= 3 }
             if (crack[i]) { r -= 40; g -= 30; b -= 18 }
-            if (l > .95f && sparkle[i and 65535] > .985f && !touched[i]) { r = 255f; g = 255f; b = 255f }
+            if (l > .95f && sparkle[i and 65535] > .985f && touched[i] == 0.toByte()) { r = 255f; g = 255f; b = 255f }
             px[i] = (0xFF shl 24) or (r.toInt().coerceIn(0, 255) shl 16) or (g.toInt().coerceIn(0, 255) shl 8) or b.toInt().coerceIn(0, 255)
         }
     }
@@ -127,7 +129,7 @@ class SnowField(val gw: Int, val gh: Int, private val rnd: Random = Random.Defau
     /** How much of the snow has tracks, in percent (every seventh cell, as the site counts). */
     fun tracks(): Int {
         var c = 0; var i = 0
-        while (i < touched.size) { if (touched[i]) c++; i += 7 }
+        while (i < touched.size) { if (touched[i] != 0.toByte()) c++; i += 7 }
         return Math.round(c * 7f / touched.size * 100)
     }
 

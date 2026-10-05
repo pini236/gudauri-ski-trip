@@ -60,7 +60,8 @@ class FreshSnowView(context: Context, private val synth: Synth, private val hapt
         set(v) { field = v; if (v && cells.isEmpty() && width > 0) initLake(); report(); invalidate() }
     var tool = Tool.HAND
     var kind = SnowKind.POWDER
-        set(v) { field = v; field2?.let { it.kind = v; it.fresh(); dirty = true; report(); invalidate() } }
+        // the new kind applies to new touches only; the tracks already made stay (X-5: it used to wipe the field)
+        set(v) { field = v; field2?.let { it.kind = v; dirty = true; invalidate() } }
     /** The chain's words ("Chain ×3"), in the app's language and font. */
     var chainText: (Int) -> String = { "×$it" }
     var display: Typeface? = null
