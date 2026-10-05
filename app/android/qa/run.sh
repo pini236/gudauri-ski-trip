@@ -774,7 +774,8 @@ weather() {
   qa "--es qa.time 2026-12-29T10:00 --es qa.weather fresh"; waitlog "weather pinned fresh" 10; sleep 1
   qa "--es qa.tab home"; sleep 2; drag $up; sleep 1; shot weather-ahead
   # the map: the button beside "all runs", the list in a sheet, and the three points on the mountain
-  qa "--es qa.time 2027-01-12T10:00 --es qa.weather fresh --es qa.tab map"; waitlog "scene ready" 120; sleep 3; shot weather-map-buttons
+  # (the map's scene was already made at start, behind home: no "scene ready" comes again)
+  qa "--es qa.time 2027-01-12T10:00 --es qa.weather fresh --es qa.tab map"; sleep 4; shot weather-map-buttons
   mark; tapText "מזג אוויר" && waitlog "weather layer on fresh" 10 && { sleep 1.5; shot weather-map-sheet; }
   adb shell input keyevent KEYCODE_BACK; sleep 2.5; shot weather-map-pins
   qa "--es qa.mapview 2d"; waitlog "overview fit" 60; sleep 2.5; shot weather-map-top
@@ -787,7 +788,8 @@ weather() {
   # English
   adb shell cmd locale set-app-locales "$PKG" --locales en > /dev/null 2>&1; sleep 3
   qa "--es qa.time 2027-01-12T10:00 --es qa.weather fresh --es qa.tab home"; sleep 2; drag $up; sleep 1; shot weather-today-en
-  qa "--es qa.tab map"; sleep 2; mark; tapText "Weather" && waitlog "weather layer on" 10 && { sleep 1.5; shot weather-map-sheet-en; }
+  # the new language starts the app again with its last intent (the run): no run, so the buttons show
+  qa "--es qa.tab map --es qa.run none"; waitlog "selected none" 20; sleep 3; mark; tapText "Weather" && waitlog "weather layer on" 10 && { sleep 1.5; shot weather-map-sheet-en; }
   adb shell cmd locale set-app-locales "$PKG" --locales he > /dev/null 2>&1; sleep 3
 }
 

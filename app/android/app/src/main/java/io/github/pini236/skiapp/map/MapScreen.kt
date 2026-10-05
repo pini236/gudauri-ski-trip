@@ -272,7 +272,7 @@ fun MapScreen(view: MapView, scene: MapScene?, ms: MapStatus? = null, videos: Li
                     modifier = Modifier.fillMaxSize())
             }
         }
-        if (top && pins.isNotEmpty() && ov.ready) SkiTheme(dark = dark) { io.github.pini236.skiapp.weather.MapPins2D(ov, pins, Modifier.fillMaxSize()) }
+        if (top && pins.isNotEmpty() && ov.ready) SkiTheme(dark = dark) { io.github.pini236.skiapp.weather.MapPins2D(ov, pins, Modifier.fillMaxSize(), top = 150.dp) }
         if (top && here != null && here.fix != Locator.Fix.Outside && ov.ready) SkiTheme(dark = dark) { MeDot2D(ov, here, Modifier.fillMaxSize()) }
         if (scene == null) {
             Text(stringResource(R.string.app_map_loading), Modifier.align(Alignment.Center), fontFamily = Ski.type.text, fontSize = 16.sp, color = Palette.ink)

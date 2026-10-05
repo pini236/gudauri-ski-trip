@@ -426,7 +426,8 @@ fun WeatherKey(on: Boolean, onClick: () -> Unit, modifier: Modifier = Modifier) 
 
 /** The points from above (Overview): the same cards as in 3D, over the meeting map's window. */
 @Composable
-fun MapPins2D(view: io.github.pini236.skiapp.meet.MeetView, pins: List<PinText>, modifier: Modifier) {
+/** [top]: the map's own buttons and status bar above; a box that would go under them hangs below its point instead. */
+fun MapPins2D(view: io.github.pini236.skiapp.meet.MeetView, pins: List<PinText>, modifier: Modifier, top: androidx.compose.ui.unit.Dp = 0.dp) {
     val c = Ski.colors
     androidx.compose.foundation.layout.Box(modifier) {
         val d = androidx.compose.ui.platform.LocalDensity.current
@@ -439,9 +440,9 @@ fun MapPins2D(view: io.github.pini236.skiapp.meet.MeetView, pins: List<PinText>,
             androidx.compose.foundation.layout.Box(Modifier.layout { m, cons ->
                 val pl = m.measure(cons.copy(minWidth = 0, minHeight = 0))
                 layout(cons.maxWidth, cons.maxHeight) {
-                    val gap = with(d) { 14.dp.roundToPx() }
+                    val gap = with(d) { 14.dp.roundToPx() }; val safe = with(d) { top.roundToPx() } + 8
                     val x = (px - pl.width / 2f).toInt().coerceIn(8, (cons.maxWidth - pl.width - 8).coerceAtLeast(8))
-                    val y = (py - gap - pl.height).toInt().let { if (it < 8) (py + gap).toInt() else it }
+                    val y = (py - gap - pl.height).toInt().let { if (it < safe) (py + gap).toInt() else it }
                     pl.place(x, y)
                 }
             }) {
