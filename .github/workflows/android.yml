@@ -12,17 +12,24 @@ on:
     paths: ['app/android/**', 'site/data/**', 'site/audio/**', 'site/games/descent/**', 'site/games/thumbs/**', 'site/img/pano/**', 'site/css/site.css', 'site/js/relief.js', 'server/CONTRACT.md', 'tools/build-app-data.py', 'tools/build-app-strings.py', 'i18n/strings.json', '.github/workflows/android.yml']
   workflow_dispatch:
 
+# a branch's newer push replaces its running build; main never cancels one halfway through publishing, and its newest
+# waiting push builds next
 concurrency:
   group: android-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
+# read-only by default (docs/ARCHITECTURE.md, R-10): the job that holds the signing keys cannot write to the repository,
+# and the job that writes the releases holds no keys
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   build:
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    outputs:
+      preview: ${{ steps.preview.outputs.ok }}
+      store: ${{ steps.store.outputs.ok }}
     defaults:
       run:
         working-directory: app/android
@@ -39,12 +46,12 @@ jobs:
       SENTRY_ORG: piniz
       SENTRY_PROJECT: gudi-android
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-java@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: actions/setup-java@cf277c60eb25467037889841efdb72551f06f6c3 # v4.9.1
         with:
           distribution: temurin
           java-version: 21
-      - uses: gradle/actions/setup-gradle@v4
+      - uses: gradle/actions/setup-gradle@ed408507eac070d1f99cc633dbcf757c94c7933a # v4.4.3
       - name: Android SDK
         run: |
           yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses > /dev/null || true
@@ -66,6 +73,15 @@ jobs:
           # the app reads this file at start, so a crash report names the mapping it needs
           mkdir -p app/src/main/assets
           echo "io.sentry.ProguardUuids=$id" > app/src/main/assets/sentry-debug-meta.properties
+      - name: Sentry CLI, a fixed version checked against its published hash
+        if: env.SENTRY_AUTH_TOKEN != '' && github.ref == 'refs/heads/main'
+        continue-on-error: true
+        run: |
+          cd "$RUNNER_TEMP"
+          curl -sSfL -o sentry-cli https://github.com/getsentry/sentry-cli/releases/download/2.58.6/sentry-cli-Linux-x86_64
+          echo "36b689311b399d9332950d84f4299aee682d2d290a770a77372b30a74f7e7add  sentry-cli" | sha256sum -c -
+          chmod +x sentry-cli
+          echo "$RUNNER_TEMP" >> "$GITHUB_PATH"
       - name: Build the preview APK
         env:
           ANDROID_TEST_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_TEST_KEYSTORE_PASSWORD }}
@@ -74,9 +90,7 @@ jobs:
       - name: Sentry, upload the preview build's mapping
         if: env.SENTRY_AUTH_TOKEN != '' && github.ref == 'refs/heads/main'
         continue-on-error: true # a Sentry problem never holds a build back
-        run: |
-          curl -sL https://sentry.io/get-cli/ | sh
-          sentry-cli upload-proguard --uuid "$SENTRY_MAP_ID" app/build/outputs/mapping/previewRelease/mapping.txt
+        run: sentry-cli upload-proguard --uuid "$SENTRY_MAP_ID" app/build/outputs/mapping/previewRelease/mapping.txt
       - name: Check the signature is the registered test key
         if: github.ref == 'refs/heads/main'
         run: |
@@ -84,16 +98,16 @@ jobs:
           want=$(echo "BA:09:08:B5:CB:5E:48:36:C7:78:70:B2:25:8E:5A:7B:43:13:45:34:81:4F:37:47:67:1D:6A:37:7C:E8:B3:06" | tr -d ':')
           echo "signed with $cert"
           test "$cert" = "$want"
-      - name: Publish
+      - name: Hand the preview APK to the publishing job
         if: github.ref == 'refs/heads/main'
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          cp app/build/outputs/apk/preview/release/app-preview-release.apk "$RUNNER_TEMP/ski-preview.apk"
-          gh release delete android-preview --yes --cleanup-tag 2>/dev/null || true
-          gh release create android-preview "$RUNNER_TEMP/ski-preview.apk" --prerelease \
-            --title "אנדרואיד: גרסת בדיקה ${APP_VERSION_NAME}" \
-            --notes "גרסת בדיקה ${APP_VERSION_NAME}, נבנתה מ-${GITHUB_SHA::7}. מתקינים מהטלפון: פותחים את הקובץ ski-preview.apk ומאשרים התקנה. הקישור הקבוע: https://github.com/${GITHUB_REPOSITORY}/releases/download/android-preview/ski-preview.apk"
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: preview
+          path: app/android/app/build/outputs/apk/preview/release/app-preview-release.apk
+          retention-days: 1
+      - id: preview
+        if: github.ref == 'refs/heads/main'
+        run: echo "ok=1" >> "$GITHUB_OUTPUT"
       # The store bundle: signed with the upload key (Google holds the real signing key), only on main.
       # After the preview is published, so a problem with this key never holds the preview back.
       - name: Upload key
@@ -126,13 +140,66 @@ jobs:
           want=$(echo "85:FB:FB:02:AE:0B:50:CC:53:92:55:4D:27:61:5E:A6:8E:2E:79:75:EB:8D:75:10:60:30:6D:A9:7D:D7:DD:31" | tr -d ':')
           echo "signed with $cert"
           test "$cert" = "$want"
-      - name: Publish the store bundle
+      - name: Hand the store bundle to the publishing job
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        env:
-          GH_TOKEN: ${{ github.token }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: store
+          path: app/android/app/build/outputs/bundle/storeRelease/app-store-release.aab
+          retention-days: 1
+      - id: store
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: echo "ok=1" >> "$GITHUB_OUTPUT"
+
+  # Puts each build on its fixed release. Runs even when the store bundle failed, so the preview still goes out.
+  # The release stays and only its file is replaced (R-10: it used to be deleted and created again, and the fixed link
+  # answered 404 meanwhile): the new file goes up under a temporary name and then takes the fixed one.
+  publish:
+    needs: build
+    if: always() && github.ref == 'refs/heads/main' && needs.build.outputs.preview == '1'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+      APP_VERSION_NAME: 0.1.${{ github.run_number }}
+    steps:
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: preview
+          path: out
+      - name: The store bundle, when it was built
+        if: needs.build.outputs.store == '1'
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: store
+          path: out
+      - name: Publish
         run: |
-          cp app/build/outputs/bundle/storeRelease/app-store-release.aab "$RUNNER_TEMP/ski-store.aab"
-          gh release delete android-store --yes --cleanup-tag 2>/dev/null || true
-          gh release create android-store "$RUNNER_TEMP/ski-store.aab" --prerelease \
-            --title "אנדרואיד: קובץ חנות ${APP_VERSION_NAME}" \
-            --notes "קובץ חנות (.aab) לגוגל פליי, גרסה ${APP_VERSION_NAME}, נבנה מ-${GITHUB_SHA::7}, חתום במפתח ההעלאה. לא מתקינים אותו בטלפון: מעלים אותו בקונסולה של גוגל פליי. הקישור הקבוע: https://github.com/${GITHUB_REPOSITORY}/releases/download/android-store/ski-store.aab"
+          # put <tag> <file> <name on the release> <title> <notes>
+          put() {
+            local tag=$1 file=$2 name=$3 tmp="next-$3" api="repos/$GH_REPO/releases"
+            gh release view "$tag" > /dev/null 2>&1 \
+              || gh release create "$tag" --prerelease --target "$GITHUB_SHA" --title "$4" --notes "$5"
+            gh release delete-asset "$tag" "$tmp" --yes 2> /dev/null || true
+            cp "$file" "$RUNNER_TEMP/$tmp"
+            gh release upload "$tag" "$RUNNER_TEMP/$tmp"
+            local ids old new
+            ids=$(gh api "$api/tags/$tag" -q '.assets[] | "\(.name) \(.id)"')
+            old=$(echo "$ids" | awk -v n="$name" '$1 == n {print $2}')
+            new=$(echo "$ids" | awk -v n="$tmp" '$1 == n {print $2}')
+            [ -z "$old" ] || gh api -X DELETE "$api/assets/$old"
+            gh api -X PATCH "$api/assets/$new" -f name="$name" > /dev/null
+            gh release edit "$tag" --title "$4" --notes "$5"
+          }
+          link="https://github.com/${GH_REPO}/releases/download"
+          put android-preview out/app-preview-release.apk ski-preview.apk \
+            "אנדרואיד: גרסת בדיקה ${APP_VERSION_NAME}" \
+            "גרסת בדיקה ${APP_VERSION_NAME}, נבנתה מ-${GITHUB_SHA::7}. מתקינים מהטלפון: פותחים את הקובץ ski-preview.apk ומאשרים התקנה. הקישור הקבוע: ${link}/android-preview/ski-preview.apk"
+          if [ -f out/app-store-release.aab ]; then
+            put android-store out/app-store-release.aab ski-store.aab \
+              "אנדרואיד: קובץ חנות ${APP_VERSION_NAME}" \
+              "קובץ חנות (.aab) לגוגל פליי, גרסה ${APP_VERSION_NAME}, נבנה מ-${GITHUB_SHA::7}, חתום במפתח ההעלאה. לא מתקינים אותו בטלפון: מעלים אותו בקונסולה של גוגל פליי. הקישור הקבוע: ${link}/android-store/ski-store.aab"
+          fi

@@ -84,13 +84,17 @@ class Realtime(
         if (channels.isEmpty()) disconnect()
     }
 
-    /** A renewed session token must reach the channels, or the server stops sending after the old one ends. */
-    @Synchronized
+    /**
+     * A renewed session token must reach the channels, or the server stops sending after the old one ends. The session
+     * may be renewed over the network, so it is read before taking the lock that every message waits on (R-18).
+     */
     fun tokenChanged() {
         val token = server.auth.current()?.accessToken ?: return
-        if (!open || token == lastToken) return
-        lastToken = token
-        channels.values.filter { it.joinRef != null }.forEach { send(it.topic, "access_token", JSONObject().put("access_token", token)) }
+        synchronized(this) {
+            if (!open || token == lastToken) return
+            lastToken = token
+            channels.values.filter { it.joinRef != null }.forEach { send(it.topic, "access_token", JSONObject().put("access_token", token)) }
+        }
     }
 
     @Synchronized
@@ -112,7 +116,7 @@ class Realtime(
         open = true
         attempts = 0
         heartbeat?.cancel(false)
-        heartbeat = timer.scheduleWithFixedDelay({ synchronized(this) { if (open) { send("phoenix", "heartbeat", JSONObject()); tokenChangedLocked() } } }, 25, 25, TimeUnit.SECONDS)
+        heartbeat = timer.scheduleWithFixedDelay({ synchronized(this) { if (open) send("phoenix", "heartbeat", JSONObject()) }; runCatching { tokenChanged() } }, 25, 25, TimeUnit.SECONDS)
         channels.values.forEach { sendJoin(it) }
         if (hadGap) {
             hadGap = false
@@ -120,8 +124,6 @@ class Realtime(
             timer.execute { all.forEach { runCatching { it.onReconnect() } } }
         }
     }
-
-    private fun tokenChangedLocked() = runCatching { tokenChanged() }
 
     private fun received(gen: Int, text: String) {
         if (synchronized(this) { gen != generation }) return

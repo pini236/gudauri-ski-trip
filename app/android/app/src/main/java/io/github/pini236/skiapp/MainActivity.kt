@@ -365,7 +365,8 @@ class MainActivity : ComponentActivity() {
     /** The lift status from the site, or the last good one on the phone (status/LiftStatus.kt). */
     private suspend fun loadStatus() {
         if (statusPinned) return
-        val r = withContext(Dispatchers.IO) { statusSource.load() }
+        val season = LiftStatus.inSeason(LocalDateTime.ofInstant(Instant.ofEpochMilli(nowMs()), Meet.GUDAURI).monthValue)
+        val r = withContext(Dispatchers.IO) { statusSource.load(season) }
         if (statusPinned) return
         report = r; statusLoaded = true
         Qa.log("status ${if (r == null) "none" else "report"}")
