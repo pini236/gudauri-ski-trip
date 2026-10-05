@@ -233,7 +233,7 @@ class MapView(context: Context, refreshHz: Float, val stats: FrameStats) : Frame
             val casing = Ribbon.build(lines, { _, _ -> floatArrayOf(1f, 1f, 1f, 1f) }, { li, i -> progress[li][i] })
             val paint = Ribbon.build(lines, { li, i -> SlopeColors.of(slopes[li][i]) + 1f }, { li, i -> progress[li][i] })
             val path = lines.fold(FloatArray(0)) { acc, l -> acc + l }
-            val sel = Selection(p.key, s.highlight(lines), casing, paint, path)
+            val sel = Selection(p.key, s.slopeLayer(lines), casing, paint, path)
             renderer.select(sel)
             // land the camera on the whole run, between the bars and above the panel, looking uphill so its top is at the top
             framed = path

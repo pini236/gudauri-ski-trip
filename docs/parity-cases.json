@@ -1,0 +1,17 @@
+{
+  "about": "Shared test values for the site and the apps, so each side checks itself against the same numbers (docs/PARITY.md, docs/ARCHITECTURE.md \"החלטות יישור\"). The site's tests and the apps' unit tests read this file; a change here changes all of them.",
+  "x3": {
+    "about": "X-3: the slope that paints a chosen run. line: along the run's draped line (relief.js drape, 18 m steps, top first), the height difference over the points 20 m before and 20 m after. ground: the bilinear height's central difference, 20 m each way along both axes. Degrees, from the site's own code after the rule (relief.js with 20 for 25 and for 15), 5.10.2026. Points in projected metres (x east, z south).",
+    "run": "Tatra 2",
+    "line": [
+      { "x": -632.13, "z": 2353.21, "deg": 9.629 },
+      { "x": -956.23, "z": 3066.87, "deg": 16.612 },
+      { "x": -815.05, "z": 2682.85, "deg": 20.064 }
+    ],
+    "ground": [
+      { "x": -685, "z": 2410, "deg": 13.057 },
+      { "x": -1052, "z": 3194, "deg": 17.383 },
+      { "x": -856, "z": 3850, "deg": 8.546 }
+    ]
+  }
+}

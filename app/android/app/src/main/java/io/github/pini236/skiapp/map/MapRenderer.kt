@@ -20,27 +20,35 @@ layout(location=1) in vec3 aNormal;
 layout(location=2) in vec3 aColor;
 layout(location=3) in float aSlope;
 layout(location=4) in float aShadow;
-layout(location=5) in float aHi;
 uniform mat4 uMvp; uniform vec3 uSun; uniform vec3 uSunCol; uniform vec3 uAmbTop; uniform vec3 uAmbGround;
-uniform vec3 uCam; uniform float uDim; uniform vec2 uFog; uniform vec3 uDimCol;
-out vec3 vCol; out float vFog;
-${SlopeColors.GLSL}
+uniform vec3 uCam; uniform vec2 uFog;
+out vec3 vBase; out vec3 vLight; out vec2 vXZ; out float vFog;
 void main(){
   gl_Position = uMvp*vec4(aPos,1.0);
   vec3 n = normalize(aNormal);
   float sun = max(dot(n,uSun),0.0)*(1.0-0.8*aShadow);
-  vec3 base = mix(aColor, slopeCol(aSlope), aHi*0.85);
   // sky light from above and bounce from below, and the sun (or the moon), as the site's hemisphere and sun
-  vec3 lit = base*(mix(uAmbGround, uAmbTop, 0.5+0.5*n.y)*1.25 + uSunCol*sun);
-  lit = mix(lit, uDimCol, 0.55*uDim*(1.0-aHi));
-  vCol = lit;
+  vBase = aColor;
+  vLight = mix(uAmbGround, uAmbTop, 0.5+0.5*n.y)*1.25 + uSunCol*sun;
+  vXZ = aPos.xz;
   vFog = clamp((length(aPos-uCam)-uFog.x)/(uFog.y-uFog.x),0.0,1.0);
 }"""
 
+// the ground around a chosen run in slope colours (X-3): a texture of 10 m laid on the terrain by its x and z, which
+// also keeps that ground out of the dimming of the rest of the mountain
 private const val TERRAIN_FS = """#version 300 es
-precision mediump float;
-in vec3 vCol; in float vFog; uniform vec3 uFogCol; out vec4 o;
-void main(){ o = vec4(mix(vCol,uFogCol,vFog),1.0); }"""
+precision highp float;
+in vec3 vBase; in vec3 vLight; in vec2 vXZ; in float vFog;
+uniform sampler2D uGround; uniform vec4 uGroundBox; uniform float uGroundOn;
+uniform float uDim; uniform vec3 uDimCol; uniform vec3 uFogCol; out vec4 o;
+void main(){
+  vec2 uv = (vXZ - uGroundBox.xy)*uGroundBox.zw;
+  vec4 g = (uGroundOn > 0.0 && uv.x >= 0.0 && uv.y >= 0.0 && uv.x <= 1.0 && uv.y <= 1.0) ? texture(uGround, uv) : vec4(0.0);
+  float a = g.a*uGroundOn;
+  vec3 lit = mix(vBase, g.rgb, a*0.85)*vLight;
+  lit = mix(lit, uDimCol, 0.55*uDim*(1.0-a));
+  o = vec4(mix(lit,uFogCol,vFog),1.0);
+}"""
 
 // the sky behind the mountain: the site's colours from the horizon up, and the sun and the moon where they are
 private const val SKY_VS = """#version 300 es
@@ -192,7 +200,7 @@ class StatusPaint(val closedRuns: Set<String>, val closedLifts: Set<String>, val
 }
 
 /** What changes when a run is chosen: the glow on the snow and the run painted in slope colours. */
-class Selection(val key: String, val highlight: FloatArray, val casing: Ribbon, val paint: Ribbon, val path: FloatArray)
+class Selection(val key: String, val ground: SlopeLayer, val casing: Ribbon, val paint: Ribbon, val path: FloatArray)
 
 /**
  * Draws the mountain. Runs only when something moves (render on demand), to save battery.
@@ -219,7 +227,8 @@ class MapRenderer(
     /** Per lift, in the order of [lifts]: out of use (drawn dashed, as the site's map does). */
     private val liftInactive = ArrayList<Boolean>()
     private val inv = FloatArray(16)
-    private val terrainVao = IntArray(1); private val terrainBufs = IntArray(4); private var terrainCount = 0
+    private val terrainVao = IntArray(1); private val terrainBufs = IntArray(3); private var terrainCount = 0
+    private val groundTex = IntArray(1); private var groundBox: SlopeLayer? = null
     private val pistes = ArrayList<Triple<String, GpuRibbon, GpuRibbon>>(); private val lifts = ArrayList<Pair<String, GpuRibbon>>()
     @Volatile var status: StatusPaint = StatusPaint.NONE
     /** The point of a chosen run under the finger on its elevation profile (T2): x, height, z; null when none. */
@@ -275,17 +284,16 @@ class MapRenderer(
     private fun upload(s: MapScene) {
         val m = s.mesh
         glGenVertexArrays(1, terrainVao, 0); glBindVertexArray(terrainVao[0])
-        glGenBuffers(4, terrainBufs, 0)
+        glGenBuffers(3, terrainBufs, 0)
         glBindBuffer(GL_ARRAY_BUFFER, terrainBufs[0]); glBufferData(GL_ARRAY_BUFFER, m.vertices.size * 4, floats(m.vertices), GL_STATIC_DRAW)
         val st = TerrainMesh.STRIDE * 4
         attr(0, 3, st, 0); attr(1, 3, st, 12); attr(2, 3, st, 24); attr(3, 1, st, 36)
         glBindBuffer(GL_ARRAY_BUFFER, terrainBufs[1]); glBufferData(GL_ARRAY_BUFFER, s.shadow.size * 4, floats(s.shadow), GL_DYNAMIC_DRAW)
         attr(4, 1, 4, 0)
-        glBindBuffer(GL_ARRAY_BUFFER, terrainBufs[2]); glBufferData(GL_ARRAY_BUFFER, s.shadow.size * 4, floats(FloatArray(s.shadow.size)), GL_DYNAMIC_DRAW)
-        attr(5, 1, 4, 0)
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, terrainBufs[3]); glBufferData(GL_ELEMENT_ARRAY_BUFFER, m.indices.size * 4, ints(m.indices), GL_STATIC_DRAW)
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, terrainBufs[2]); glBufferData(GL_ELEMENT_ARRAY_BUFFER, m.indices.size * 4, ints(m.indices), GL_STATIC_DRAW)
         glBindVertexArray(0)
         terrainCount = m.count
+        glGenTextures(1, groundTex, 0); groundBox = null
         for (p in s.pisteRibbons) pistes += Triple(p.key, GpuRibbon(p.casing), GpuRibbon(p.core))
         for (p in s.runs.pistes) pisteW[p.key] = when { !p.named -> 0.65f; p.kind == "ski-way" -> 0.7f; else -> 1f }
         s.liftRibbons.forEachIndexed { i, (name, r) -> lifts += name to GpuRibbon(r); liftInactive += s.runs.lifts.getOrNull(i)?.status == "inactive" }
@@ -298,6 +306,15 @@ class MapRenderer(
         glBindVertexArray(0)
         stationCount = ends.size / 3
         uploaded = true
+    }
+
+    private fun setGround(g: SlopeLayer) {
+        glBindTexture(GL_TEXTURE_2D, groundTex[0])
+        glPixelStorei(GL_UNPACK_ALIGNMENT, 1)
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, g.w, g.h, 0, GL_RGBA, GL_UNSIGNED_BYTE, ByteBuffer.wrap(g.rgba))
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR); glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR)
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE); glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE)
+        groundBox = g
     }
 
     private fun setTerrainAttrib(buf: Int, data: FloatArray) {
@@ -318,12 +335,12 @@ class MapRenderer(
             pendingSelection = null
             selCasing?.release(); selPaint?.release()
             selCasing = GpuRibbon(sel.casing); selPaint = GpuRibbon(sel.paint)
-            setTerrainAttrib(2, sel.highlight); reveal = if (still) 1f else 0f; dimTarget = 1f; if (still) dim = 1f
+            setGround(sel.ground); reveal = if (still) 1f else 0f; dimTarget = 1f; if (still) dim = 1f
         }
         if (clearSelection) {
             clearSelection = false
             selCasing?.release(); selPaint?.release(); selCasing = null; selPaint = null
-            setTerrainAttrib(2, FloatArray(s.shadow.size)); dimTarget = 0f; if (still) dim = 0f; stopFly()
+            groundBox = null; dimTarget = 0f; if (still) dim = 0f; stopFly()
         }
 
         var moving = false
@@ -357,6 +374,12 @@ class MapRenderer(
         glUniform3fv(glGetUniformLocation(terrainProg, "uAmbGround"), 1, light.ambGround, 0)
         glUniform3fv(glGetUniformLocation(terrainProg, "uCam"), 1, eye, 0)
         glUniform1f(glGetUniformLocation(terrainProg, "uDim"), dim)
+        val gb = groundBox
+        glActiveTexture(GL_TEXTURE0); glBindTexture(GL_TEXTURE_2D, groundTex[0])
+        glUniform1i(glGetUniformLocation(terrainProg, "uGround"), 0)
+        // the ground fades in with the dimming of the rest, as the site's (opacity t*1.6)
+        glUniform1f(glGetUniformLocation(terrainProg, "uGroundOn"), if (gb == null) 0f else minOf(1f, dim * 1.6f))
+        if (gb != null) glUniform4f(glGetUniformLocation(terrainProg, "uGroundBox"), gb.x0, gb.z0, 1f / gb.width, 1f / gb.depth)
         glUniform2f(glGetUniformLocation(terrainProg, "uFog"), st.dist * 1.2f + 6000f, st.dist * 4f + 30000f)
         glUniform3fv(glGetUniformLocation(terrainProg, "uFogCol"), 1, light.skyBottom, 0)
         glUniform3fv(glGetUniformLocation(terrainProg, "uDimCol"), 1, light.skyBottom, 0)

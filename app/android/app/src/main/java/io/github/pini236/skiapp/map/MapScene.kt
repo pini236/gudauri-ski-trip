@@ -6,11 +6,12 @@ import io.github.pini236.skiapp.data.Runs
 import io.github.pini236.skiapp.data.Terrain
 import kotlin.math.atan
 import kotlin.math.hypot
+import kotlin.math.roundToInt
 import kotlin.math.sqrt
 
 /**
  * Approved slope thresholds (decision 10): 15°, 25°, 30°, with the site's colours (GudRelief.SLOPE in site/js/relief.js,
- * checked in SlopeColorsTest). RGB 0..1. Defined once: a chosen run's paint here, and the terrain's shader (MapRenderer).
+ * checked in SlopeColorsTest). RGB 0..1. Defined once: a chosen run's paint, and the ground around it ([MapScene.slopeLayer]).
  */
 object SlopeColors {
     val LIMITS = floatArrayOf(15f, 25f, 30f)
@@ -18,13 +19,6 @@ object SlopeColors {
     private val RGB = HEX.map { h -> FloatArray(3) { i -> h.substring(1 + i * 2, 3 + i * 2).toInt(16) / 255f } }
 
     fun of(deg: Float): FloatArray = RGB[LIMITS.indexOfFirst { deg < it }.let { if (it < 0) LIMITS.size else it }].copyOf()
-
-    /** The same, as a function of the terrain's vertex shader (numbers written with a dot, whatever the phone's language). */
-    val GLSL: String = run {
-        fun v(c: FloatArray) = String.format(java.util.Locale.ROOT, "vec3(%.3f,%.3f,%.3f)", c[0], c[1], c[2])
-        val steps = LIMITS.indices.joinToString(" ") { i -> String.format(java.util.Locale.ROOT, "d<%.1f? %s :", LIMITS[i], v(RGB[i])) }
-        "vec3 slopeCol(float d){ return $steps ${v(RGB.last())}; }"
-    }
 }
 
 /** Interleaved terrain vertices: position(3) normal(3) colour(3) slope(1) = 10 floats. */
@@ -197,39 +191,62 @@ class MapScene(val terrain: Terrain, val runs: Runs) {
         }
     }
 
-    /** How strongly each grid vertex belongs to the selected run's surroundings (0..1, fades out at 150 m). */
-    fun highlight(lines: List<FloatArray>): FloatArray {
+    /**
+     * The slope of the ground at a point (X-3, docs/ARCHITECTURE.md): the smoothed height's central difference, 20 m
+     * each way along both axes, as the site's GudRelief.slopeCanvas. Not the model's own points (about 40 m apart, so
+     * 80 m across), which smoothed a short wall away.
+     */
+    fun groundSlope(x: Float, z: Float): Float {
         val t = terrain
-        val out = FloatArray(t.nx * t.ny)
+        val gx = (t.elev(x + GROUND_D, z) - t.elev(x - GROUND_D, z)) / (2 * GROUND_D)
+        val gz = (t.elev(x, z + GROUND_D) - t.elev(x, z - GROUND_D)) / (2 * GROUND_D)
+        return Math.toDegrees(atan(hypot(gx, gz).toDouble())).toFloat()
+    }
+
+    /**
+     * The ground around a chosen run, coloured by slope (T1, X-3): a texture of 10 m over the run's box and 150 m
+     * around it, as the site's slopeCanvas, laid on the terrain by the renderer. Alpha is how much each texel belongs
+     * to the run's surroundings: whole near the line, fading out by 150 m.
+     */
+    fun slopeLayer(lines: List<FloatArray>): SlopeLayer {
+        val t = terrain
         var minX = Float.MAX_VALUE; var maxX = -Float.MAX_VALUE; var minZ = Float.MAX_VALUE; var maxZ = -Float.MAX_VALUE
         for (l in lines) for (i in 0 until l.size / 3) {
             minX = minOf(minX, l[i * 3]); maxX = maxOf(maxX, l[i * 3])
             minZ = minOf(minZ, l[i * 3 + 2]); maxZ = maxOf(maxZ, l[i * 3 + 2])
         }
-        val pad = 160f
-        val c0 = (((minX - pad) - t.x0) / t.sx).toInt().coerceIn(0, t.nx - 1)
-        val c1 = (((maxX + pad) - t.x0) / t.sx).toInt().coerceIn(0, t.nx - 1)
-        val r0 = (((minZ - pad) - t.y0) / t.sy).toInt().coerceIn(0, t.ny - 1)
-        val r1 = (((maxZ + pad) - t.y0) / t.sy).toInt().coerceIn(0, t.ny - 1)
-        for (r in r0..r1) for (c in c0..c1) {
-            val x = t.x0 + c * t.sx; val z = t.y0 + r * t.sy
+        val x0 = maxOf(t.x0, minX - AROUND); val z0 = maxOf(t.y0, minZ - AROUND)
+        val x1 = minOf(t.x1, maxX + AROUND); val z1 = minOf(t.y1, maxZ + AROUND)
+        val w = maxOf(2, ((x1 - x0) / TEXEL).roundToInt()); val h = maxOf(2, ((z1 - z0) / TEXEL).roundToInt())
+        val out = ByteArray(w * h * 4)
+        for (j in 0 until h) for (i in 0 until w) {
+            val x = x0 + (i + 0.5f) * TEXEL; val z = z0 + (j + 0.5f) * TEXEL
             var best = Float.MAX_VALUE
             for (l in lines) {
-                val n = l.size / 3
-                var i = 0
-                while (i < n - 1) {
-                    val ax = l[i * 3]; val az = l[i * 3 + 2]; val bx = l[i * 3 + 3]; val bz = l[i * 3 + 5]
-                    val dx = bx - ax; val dz = bz - az
+                for (k in 0 until l.size / 3 - 1) {
+                    val ax = l[k * 3]; val az = l[k * 3 + 2]; val dx = l[k * 3 + 3] - ax; val dz = l[k * 3 + 5] - az
                     val len2 = dx * dx + dz * dz
                     val f = if (len2 > 0) (((x - ax) * dx + (z - az) * dz) / len2).coerceIn(0f, 1f) else 0f
                     val ex = ax + dx * f - x; val ez = az + dz * f - z
                     best = minOf(best, ex * ex + ez * ez)
-                    i++
                 }
             }
-            val d = sqrt(best)
-            out[r * t.nx + c] = ((150f - d) / 60f).coerceIn(0f, 1f)
+            val a = ((AROUND - sqrt(best)) / 60f).coerceIn(0f, 1f)
+            val c = SlopeColors.of(groundSlope(x, z))
+            val o = (j * w + i) * 4
+            out[o] = (c[0] * 255).roundToInt().toByte(); out[o + 1] = (c[1] * 255).roundToInt().toByte()
+            out[o + 2] = (c[2] * 255).roundToInt().toByte(); out[o + 3] = (a * 255).roundToInt().toByte()
         }
-        return out
+        return SlopeLayer(x0, z0, w * TEXEL, h * TEXEL, w, h, out)
+    }
+
+    companion object {
+        /** X-3: the ground's slope over 20 m each way, in texels of 10 m, out to 150 m from the run (decision 10). */
+        const val GROUND_D = 20f
+        const val TEXEL = 10f
+        const val AROUND = 150f
     }
 }
+
+/** The ground around a chosen run in slope colours: its corner and size in metres, and RGBA texels from the corner. */
+class SlopeLayer(val x0: Float, val z0: Float, val width: Float, val depth: Float, val w: Int, val h: Int, val rgba: ByteArray)
