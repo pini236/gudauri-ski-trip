@@ -56,7 +56,7 @@ const ipSecret = hmac(new TextEncoder().encode(Deno.env.get("SUPABASE_SERVICE_RO
 // Counting per address keeps a keyed hash of the address for two days: personal data, so it is on only once Pini has
 // approved the line about it in the privacy policy (docs/PRIVACY.md, the architect's review of R-13). Off: no address
 // is read or kept, and wrong guesses are limited per person and by protection mode only.
-const COUNT_BY_ADDRESS = false;
+const COUNT_BY_ADDRESS = true;
 
 async function ipKey(req: Request, action: string): Promise<string | undefined> {
   if (!COUNT_BY_ADDRESS) return undefined;
