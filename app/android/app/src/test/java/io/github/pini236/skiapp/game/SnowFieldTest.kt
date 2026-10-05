@@ -15,7 +15,7 @@ class SnowFieldTest {
         val moved = f.press(40f, 60f, 6f, 6f, 0f, 1.3f)
         assertTrue(moved > 0)
         assertTrue("the middle is lower", f.h[c] < f.base[c] - 1f)
-        assertTrue(f.touched[c])
+        assertTrue(f.touched[c] != 0.toByte())
         // the rim, a little past the stamp: powder rises there
         val rim = 60 * 80 + 40 + 8
         assertTrue("the rim rises", f.h[rim] > f.base[rim])
@@ -29,7 +29,7 @@ class SnowFieldTest {
         f.groom(40f, 60f, 0f) // the blade across the middle
         val c = 60 * 80 + 40
         assertTrue("flattened near the base, with corduroy", kotlin.math.abs(f.h[c] - (f.base[c] - .1f)) < .05f)
-        assertTrue(!f.touched[c] && !f.crack[c])
+        assertTrue(f.touched[c] == 0.toByte() && !f.crack[c])
     }
 
     @Test fun newSnowFillsEveryTrackBackIn() {

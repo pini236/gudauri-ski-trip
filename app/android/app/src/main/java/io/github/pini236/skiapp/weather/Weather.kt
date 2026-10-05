@@ -83,6 +83,9 @@ class Forecast(val updated: Instant, val points: List<Point>, private val ridgeD
     val lastDay: LocalDate? get() = points.firstOrNull()?.days?.lastOrNull()
     val days: Int get() = points.firstOrNull()?.days?.size ?: 0
 
+    /** Whether the server estimates this lift at all (a lift it leaves out has no risk row; the architect, 5.10.2026). */
+    fun hasRisk(lift: String) = lift in risk
+
     /** The server's daily estimate for a lift ("low", "medium", "high"), or null. */
     fun risk(lift: String, date: LocalDate): String? {
         val i = ridgeDates.indexOf(date).takeIf { it >= 0 } ?: return null

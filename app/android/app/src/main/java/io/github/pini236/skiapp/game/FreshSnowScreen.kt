@@ -22,6 +22,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -81,6 +82,11 @@ fun FreshSnowScreen(haptics: Haptics, onBack: () -> Unit, onBest: () -> Unit = {
             chainText = { n -> context.getString(R.string.game_fresh_chain, n.toString()) }
         }
     }
+    // the lake's longest chain on this phone (the site's lake-best): the view starts from it, and it is written only by a
+    // longer chain (X-5: a shorter one used to overwrite it); game_end's best on the lake is a longer chain, as on the site
+    val chains = remember { context.getSharedPreferences("fresh", android.content.Context.MODE_PRIVATE) }
+    var lakePrev by remember { mutableIntStateOf(chains.getInt("lake_best", 0)) }
+    LaunchedEffect(view) { view.bestChain = lakePrev }
     // usage statistics, as the site: no end here, so a game is the play in one scene (level: snow or lake), from the
     // first touch until switching the scene or leaving; score is the number on screen, and the record is the site's
     var started by remember { mutableStateOf(0L) }
@@ -88,16 +94,22 @@ fun FreshSnowScreen(haptics: Haptics, onBack: () -> Unit, onBest: () -> Unit = {
     fun gameStart() { if (started == 0L) { started = System.currentTimeMillis(); level = if (lake) "lake" else "snow"; Telemetry.event("game_start", mapOf("game" to "fresh", "level" to level)) } }
     fun gameEnd() {
         if (started == 0L) return
-        val best = Bests.ended(context, "fresh", level, stat)
+        // the group's table keeps the highest score (Bests); game_end's best is the site's: a longer chain on the lake
+        val record = Bests.ended(context, "fresh", level, stat)
+        val best = level == "lake" && view.bestChain > lakePrev
         Telemetry.event("game_end", mapOf("game" to "fresh", "level" to level, "score" to stat, "seconds" to ((System.currentTimeMillis() - started) / 1000.0).roundToInt(),
             "completed" to true, "best" to best))
+        lakePrev = maxOf(lakePrev, view.bestChain)
         started = 0L
-        if (best) onBest()
+        if (record) onBest()
     }
     view.listener = object : FreshSnowView.Listener {
         override fun onStat(percent: Int) { stat = percent; Qa.log("fresh ${if (view.lake) "lake" else "snow"} $percent%") }
         override fun onTouched() { touched = true; gameStart() }
-        override fun onChain(n: Int, label: Boolean) { if (label) Qa.log("fresh chain $n") }
+        override fun onChain(n: Int, label: Boolean) {
+            if (label) Qa.log("fresh chain $n")
+            if (n > chains.getInt("lake_best", 0)) chains.edit().putInt("lake_best", n).apply()
+        }
     }
     DisposableEffect(Unit) { onDispose { gameEnd() } }
 

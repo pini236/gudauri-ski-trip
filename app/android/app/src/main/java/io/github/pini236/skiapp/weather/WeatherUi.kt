@@ -288,6 +288,7 @@ fun TodayBoard(day: Int, of: Int, status: LiftStatus?, onStatus: () -> Unit) {
             val live = Forecast.RISK_LIFTS.associateWith { status?.isOpen(it) }
             for (lift in Forecast.RISK_LIFTS) {
                 val open = live[lift]
+                if (open == null && f != null && !f.hasRisk(lift)) continue
                 val level = f?.risk(lift, today)
                 Row(Modifier.fillMaxWidth().heightIn(min = 36.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                     Text("⁦$lift⁩", Modifier.weight(1f), style = Ski.type.bodyBold.copy(fontSize = 14.sp), color = c.ink)

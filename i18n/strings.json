@@ -221,6 +221,18 @@
     "ka"
    ]
   },
+  "about.credit_weather_label": {
+   "he": "תחזית מזג האוויר:",
+   "en": "Weather forecast:",
+   "ru": "Прогноз погоды:",
+   "ka": "ამინდის პროგნოზი:",
+   "where": "site and app/android (round 19, decision 58)",
+   "note": "credits row label; then about.credit_licensed with Open-Meteo.com and CC BY 4.0 (m-6 section 6)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
   "about.credit_videos": {
    "he": "שייכים ליוצרים שלהם ביוטיוב, ומוטמעים בלבד.",
    "en": "They belong to their creators on YouTube and are only embedded.",

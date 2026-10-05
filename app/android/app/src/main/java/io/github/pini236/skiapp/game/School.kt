@@ -218,8 +218,11 @@ class SchoolRun(val lv: Lesson, private val out: Out) {
             SchoolMode.LEAN -> {
                 val f = finger
                 val e = if (f != null) ((f.x - w / 2) / (w * .32f)).coerceIn(-1f, 1f) else s.edge * .98f
-                s.jerk = abs((e - s.edge) / dt)
+                // how fast the skis really change edge (not the finger): smoothed, so touches that come in bursts do not
+                // count as snaps (X-5, the site's fix)
+                val e0 = s.edge
                 s.edge += (e - s.edge).coerceIn(-3 * dt, 3 * dt)
+                s.jerk += (abs(s.edge - e0) / dt - s.jerk) * min(1f, dt * 10)
                 want = null
             }
         }
@@ -229,7 +232,7 @@ class SchoolRun(val lv: Lesson, private val out: Out) {
         if (lv.mode == SchoolMode.LEAN) {
             // the ski's shape turns you: more edge, a tighter turn; snapping from edge to edge breaks the grip
             rate = s.v * s.edge * .11f
-            val sk = max(0f, s.jerk - 1.6f) / 2.5f
+            val sk = max(0f, s.jerk - 2.2f) / .8f // a full edge change in under about 0.9 s is a snap
             s.skid += (min(1f, sk) - s.skid) * min(1f, dt * 8)
             if (s.h > 1.9f && rate > 0 || s.h < -1.9f && rate < 0) rate = 0f
         } else {
@@ -242,8 +245,9 @@ class SchoolRun(val lv: Lesson, private val out: Out) {
         s.h += rate * dt
         var acc = G * sin(a) * cos(s.h) - .05f * G * cos(a) - .0035f * s.v * s.v - s.wedge * (2.6f + s.v * .35f) - s.skid * s.v * .9f - abs(rate) * s.v * .06f
         if (s.crashT > 0) { s.crashT -= dt; acc = -6f }
-        // in the turning lesson you never stall: a push with the poles
-        s.v = max(if (lv.mode == SchoolMode.SKIS && running) 1.2f else 0f, s.v + acc * dt)
+        // in the turning and edging lessons you never stall: a push with the poles, so a skier who turned up the hill can
+        // turn back (X-5: the edging lesson stalled)
+        s.v = max(if ((lv.mode == SchoolMode.SKIS || lv.mode == SchoolMode.LEAN) && running) 1.2f else 0f, s.v + acc * dt)
         if (!running) s.v = max(0f, s.v - 6 * dt)
         s.x += sin(s.h) * s.v * dt; s.y += cos(s.h) * s.v * dt; s.x = s.x.coerceIn(-14f, 14f)
         camY += (s.y - camY) * min(1f, dt * 6); camX += (s.x * .55f - camX) * min(1f, dt * 3)
@@ -253,7 +257,8 @@ class SchoolRun(val lv: Lesson, private val out: Out) {
         if (!running) return
         time += dt
         val kmh = kmh
-        maxV = max(maxV, kmh)
+        // the top speed counts once you steer: not in the demo, nor the moment after it (X-5)
+        if (!(lv.demo > 0 && t < lv.demo + 1.5f)) maxV = max(maxV, kmh)
         if (lv.limit > 0 && kmh <= lv.limit) under += dt
         drills(dt, kmh)
         for (g in gates) if (g.done == null && s.y >= g.y) {

@@ -52,8 +52,8 @@ object Bests {
     /** The games with a table in the group, by their key on the server and the site (account.js GAMES). */
     val GAMES = listOf("descent", "school", "fresh", "snowball", "merge")
 
-    /** What each game keeps on the phone besides its record: the descent's best times and ghosts, the merge's board, the choices. */
-    private val GAME_PREFS = listOf("descent", "merge", "snowball")
+    /** What each game keeps on the phone besides its record: the descent's best times and ghosts, the merge's board, the lake's longest chain, the choices. */
+    private val GAME_PREFS = listOf("descent", "merge", "snowball", "fresh")
 
     /**
      * The settings' reset, as the site's (every game key in the browser, GUD_GAME_KEYS): the records, the stars, the
