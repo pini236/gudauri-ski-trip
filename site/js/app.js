@@ -60,12 +60,24 @@ const MYTRIP=(()=>{const K='gud-trip',ISO=/^\d{4}-\d\d-\d\d$/;
   // day between 00:00 and 01:00 while the clock is on summer time and the flight's day is not. 0 from that day on.
   const days=t=>{if(!t)return null;const n=new Date(),today=Date.UTC(n.getFullYear(),n.getMonth(),n.getDate());
     return Math.max(0,Math.round((Date.parse(t.out.date+'T00:00:00Z')-today)/864e5));};
-  return {get,set,skiAuto,ski,days,ISO};})();
+  // where the trip stands today (S-35, decision 58; as the app's Trip.stage): before the first ski day the countdown;
+  // on a ski day "ski day n of m", and from the last ski day to the return m of m; from the day after the return (or
+  // after the last ski day, when there is no return) no count at all
+  const stage=t=>{if(!t)return null;const n=new Date(),today=n.getFullYear()+'-'+String(n.getMonth()+1).padStart(2,'0')+'-'+String(n.getDate()).padStart(2,'0');
+    const sd=ski(t),end=t.ret&&t.ret.date?t.ret.date:sd?sd.to:null;
+    if(end&&today>end)return {k:'over'};
+    if(sd&&today>=sd.from){const m=Math.round((Date.parse(sd.to)-Date.parse(sd.from))/864e5)+1;
+      return {k:'ski',n:Math.min(Math.round((Date.parse(today)-Date.parse(sd.from))/864e5)+1,m),m};}
+    return {k:'before',days:days(t)};};
+  return {get,set,skiAuto,ski,days,stage,ISO};})();
 function countdown(dark){
   const tb=document.getElementById('tbCount'),stub=document.getElementById('tDays'),pre=document.getElementById('tDaysPre'),lbl=document.getElementById('tDaysLbl'),d=MYTRIP.days(MYTRIP.get());
   // the empty pass (no trip yet) has the same stub, with a question mark for the number (round 12, W1)
   {const [a,,c]=slots(dark?'ticket.stub_nights':'ticket.stub_days',{n:5});document.getElementById('beStubPre').textContent=a;document.getElementById('beStubPost').textContent=c;}
-  tb.hidden=d===null;if(d===null)return;
+  const st=MYTRIP.stage(MYTRIP.get());
+  tb.hidden=d===null||st.k==='over';if(d===null)return;
+  if(st.k==='over'){pre.textContent='';stub.textContent='';lbl.textContent='';return;}
+  if(st.k==='ski'){tb.textContent=T('trip.ski_day_of',{n:st.n,m:st.m});pre.textContent=T('ticket.stub_ski_day');stub.textContent=st.n;lbl.textContent=T('ticket.stub_of',{m:st.m});return;}
   const [c1,,c3]=slots(dark?'ticket.stub_nights':'ticket.stub_days',{n:Math.max(d,0)});pre.textContent=c1;
   if(d>0){
     // the top bar is a flex row: its first word after the number in its own box, as in the markup

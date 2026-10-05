@@ -172,3 +172,29 @@ test('הטיול שלך: אין תווית ריקה בעברית (גם לפני 
   expect(empty).toBe(0);
   await expect(page.locator('#tripForm .tf-fld > span').first()).toHaveText('תאריך');
 });
+
+// during the trip the stub and the top bar say "ski day n of m", and after the return there is no count (S-35, decision 58)
+test('בזמן הטיול "יום סקי 2 מתוך 4", ואחרי החזרה בלי ספירה', async ({ page }) => {
+  const errors = watchErrors(page);
+  await page.addInitScript(() => localStorage.setItem('gud-trip', JSON.stringify({ v: 1,
+    out: { date: '2027-01-10', flight: '6H 897', from: 'TLV', to: 'TBS', departs: '16:00', arrives: '20:35' },
+    ret: { date: '2027-01-15', flight: '6H 892', departs: '01:35', arrives: '02:15' }, ski: null })));
+  const step = async (iso: string) => { await page.clock.setFixedTime(new Date(iso)); await page.reload(); await loaded(page); };
+  await page.clock.setFixedTime(new Date('2027-01-09T09:00:00Z'));
+  await page.goto('/');
+  await loaded(page);
+  await expect(page.locator('#tDays')).toHaveText('1');
+  await step('2027-01-10T09:00:00Z'); // the flight's day, before the first ski day
+  await expect(page.locator('#tDays')).toHaveText('0');
+  await step('2027-01-12T09:00:00Z');
+  await expect(page.locator('#tbCount')).toHaveText('יום סקי 2 מתוך 4');
+  await expect(page.locator('#tDaysPre')).toHaveText('יום סקי');
+  await expect(page.locator('#tDays')).toHaveText('2');
+  await expect(page.locator('#tDaysLbl')).toHaveText('מתוך 4');
+  await step('2027-01-15T09:00:00Z'); // the return's day: still 4 of 4
+  await expect(page.locator('#tDays')).toHaveText('4');
+  await step('2027-01-16T09:00:00Z');
+  await expect(page.locator('#tbCount')).toBeHidden();
+  await expect(page.locator('#tDays')).toHaveText('');
+  expect(errors).toEqual([]);
+});
