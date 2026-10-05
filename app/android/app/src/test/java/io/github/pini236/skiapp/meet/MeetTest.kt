@@ -99,4 +99,14 @@ class MeetTest {
         // the item travels in the alarm as text and back
         assertEquals(items[0], Reminders.Item.of(items[0].json()))
     }
+
+    @Test fun eachReminderHasACodeOfItsOwnThatIsNeverGivenAgain() {
+        // "Aa" and "BB" have the same hash: under the hash they shared one alarm (R-18)
+        assertEquals("Aa".hashCode(), "BB".hashCode())
+        val (codes, next) = Reminders.codesFor(emptyMap(), 1, listOf("Aa", "BB", "Aa"))
+        assertEquals(mapOf("Aa" to 1, "BB" to 2), codes); assertEquals(3, next)
+        // a meetup that is armed again keeps its code; a new one gets the next, even after others dropped out
+        val (again, after) = Reminders.codesFor(mapOf("BB" to 2), next, listOf("BB", "c"))
+        assertEquals(mapOf("BB" to 2, "c" to 3), again); assertEquals(4, after)
+    }
 }

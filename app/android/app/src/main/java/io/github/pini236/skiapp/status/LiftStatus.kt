@@ -87,6 +87,8 @@ class LiftStatus(val names: List<String>, val report: Report?, val now: Long) {
 /**
  * Where the report comes from: the site's /api/status, read again every five minutes while the app is open, with the
  * last good one kept on the phone, so a restart on the mountain without reception still shows it while it is fresh.
+ * Out of season the site is asked once a day at most (R-18: it used to be every five minutes all year), so an early
+ * opening still shows within a day.
  */
 class StatusSource(ctx: Context, private val fetch: SiteData.Fetcher = HttpFetcher()) {
     private val prefs = ctx.getSharedPreferences("lstat", Context.MODE_PRIVATE)
@@ -94,7 +96,9 @@ class StatusSource(ctx: Context, private val fetch: SiteData.Fetcher = HttpFetch
     fun cached(): Report? = prefs.getString("report", null)?.let { Report.parse(it) }
 
     /** Ask the site; on any failure the cached report (checked for freshness by [LiftStatus] like any other). */
-    fun load(): Report? {
+    fun load(inSeason: Boolean = true, now: Long = System.currentTimeMillis()): Report? {
+        if (!inSeason && now - prefs.getLong("asked", 0L) in 0 until DAY_MS) return cached()
+        prefs.edit().putLong("asked", now).apply()
         val got = runCatching { fetch.get(URL, null) }.getOrNull()
         val r = got?.takeIf { it.code == 200 }?.body?.let { String(it, Charsets.UTF_8) }?.takeIf { it.trimStart().startsWith("{") }?.let { Report.parse(it) }
         if (r != null) prefs.edit().putString("report", r.json).apply()
@@ -120,5 +124,6 @@ class StatusSource(ctx: Context, private val fetch: SiteData.Fetcher = HttpFetch
 
     companion object {
         const val URL = "https://gudauri-ski-trip.vercel.app/api/status"
+        const val DAY_MS = 24 * 3600_000L
     }
 }
