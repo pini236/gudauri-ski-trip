@@ -26,7 +26,7 @@ import kotlin.math.roundToInt
  * - **Nothing leaves the phone and nothing is kept.** No reading is sent, measured, logged or written; the last one
  *   lives in memory while the button is on, and [off] drops it with what [Locator] remembered.
  * - Only while the button is on **and** the map is on screen in front ([resume] to [pause]); the button starts off on
- *   every opening, and going to the background or leaving the map turns it off (m-7 section 5).
+ *   every opening, and going to the background or leaving the map turns it off ([stop], m-7 section 5).
  * - A reading every 2 seconds or 5 metres. "Approximate" (Android 12's choice): a big circle and no snapping.
  */
 class WhereAmI(private val context: Context, private val locator: Locator, private val terrain: Terrain) {
@@ -84,8 +84,11 @@ class WhereAmI(private val context: Context, private val locator: Locator, priva
     /** The map is in front: listen again if the button is on. */
     fun resume() { resumed = true; if (listening) register() }
 
+    /** The map is not in front (a dialog, the system's permission question): stop listening, the button stays. */
+    fun pause() { resumed = false; unregister() }
+
     /** The app went to the background or the map closed: the button goes off (m-7 section 5). */
-    fun pause() { resumed = false; if (state != State.Off) off() }
+    fun stop() { resumed = false; if (state != State.Off) off() }
 
     private fun send(result: String) {
         pending = null
@@ -108,8 +111,8 @@ class WhereAmI(private val context: Context, private val locator: Locator, priva
         for (p in want) {
             if (p !in all) continue
             if (p != LocationManager.PASSIVE_PROVIDER && runCatching { lm.isProviderEnabled(p) }.getOrDefault(false).not()) continue
+            // approximate: every provider the phone allows (a phone or an emulator may have no network location at all)
             any = runCatching { lm.requestLocationUpdates(p, 2000L, 5f, listener, Looper.getMainLooper()); true }.getOrDefault(false) || any
-            if (approximate && any) break
         }
         if (!any) { state = State.Unavailable; send("unavailable"); listening = false; return }
         // a recent fix the phone already has (under half a minute) puts the dot at once

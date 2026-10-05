@@ -127,10 +127,15 @@ fun MapScreen(view: MapView, scene: MapScene?, ms: MapStatus? = null, videos: Li
         val life = (context as? androidx.lifecycle.LifecycleOwner)?.lifecycle
         if (w == null || life == null) return@DisposableEffect onDispose {}
         val obs = androidx.lifecycle.LifecycleEventObserver { _, e ->
-            if (e == androidx.lifecycle.Lifecycle.Event.ON_RESUME) w.resume() else if (e == androidx.lifecycle.Lifecycle.Event.ON_PAUSE) w.pause()
+            when (e) {
+                androidx.lifecycle.Lifecycle.Event.ON_RESUME -> w.resume()
+                androidx.lifecycle.Lifecycle.Event.ON_PAUSE -> w.pause()
+                androidx.lifecycle.Lifecycle.Event.ON_STOP -> w.stop()
+                else -> {}
+            }
         }
         life.addObserver(obs)
-        onDispose { life.removeObserver(obs); w.pause() }
+        onDispose { life.removeObserver(obs); w.stop() }
     }
     fun locate() {
         val w = where ?: return

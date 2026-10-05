@@ -730,8 +730,8 @@ locate() {
   mark; tapText "איפה אני" && waitlog "where on precise" 10
   # Tatra 2, accurate: the dot snaps to the run, and the camera comes to it
   waitlog "where run Tatra 2" 30 && { sleep 3; shot locate-run; }
-  # up the Goodaura gondola: the lift on the third reading in a row
-  mark; geo 42.480067 44.493006; sleep 2.5; geo 42.480492 44.493044; sleep 2.5; geo 42.480916 44.493085
+  # up the Goodaura gondola: the lift on the third reading in a row (the phone reads every 2 seconds, so 4 between)
+  mark; geo 42.480067 44.493006; sleep 4; geo 42.480492 44.493044; sleep 4; geo 42.480916 44.493085; sleep 4; geo 42.481341 44.493127
   waitlog "where lift Goodaura" 20 && { sleep 2; shot locate-lift; }
   # in the village, away from the runs; and far away, outside the mountain
   mark; geo 42.470395 44.49234; waitlog "where free" 20 && { sleep 2; shot locate-free; }
