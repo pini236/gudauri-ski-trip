@@ -244,8 +244,8 @@ fun DescentScreen(profiles: List<Profile>, haptics: Haptics, onBack: () -> Unit,
                 onAgain = { start() }, onMenu = { toMenu() },
                 onCopy = {
                     val ctx = context
-                    val text = if (g.ok) ctx.getString(R.string.app_descent_share, g.c.key, descentTime(g.t), "★".repeat(g.stars) + "☆".repeat(3 - g.stars), g.flips.toString(), g.stats.pops.toString(), g.got.toString(), g.stats.coins.toString())
-                        else ctx.getString(R.string.app_descent_share_caught, g.c.key, g.x.roundToInt().toString())
+                    val text = if (g.ok) ctx.getString(R.string.game_descent_share_result, g.c.key, descentTime(g.t), "★".repeat(g.stars) + "☆".repeat(3 - g.stars), g.flips.toString(), g.stats.pops.toString(), g.got.toString(), g.stats.coins.toString())
+                        else ctx.getString(R.string.game_descent_share_caught, g.c.key, g.x.roundToInt().toString())
                     (ctx.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager).setPrimaryClip(ClipData.newPlainText(ctx.getString(R.string.game_descent_title), text))
                     copied = true; Qa.log("descent copied")
                 }) } }
@@ -293,7 +293,7 @@ private fun Menu(profiles: List<Profile>, me: Int, run: Int, ava: Boolean, ghost
     BackLink(stringResource(R.string.game_descent_back_to_games).trim('→', '←', ' '), onBack, Color.White)
     Text(stringResource(R.string.game_descent_title), style = Ski.type.title.copy(fontSize = (58 * scale).sp, lineHeight = .9.em, shadow = Shadow(INK, Offset(0f, 3f), 0f)), color = Color.White)
     Text(stringResource(R.string.game_descent_intro), Modifier.widthIn(max = 520.dp), style = Ski.type.body.copy(fontSize = 14.sp, lineHeight = 1.45.em), color = Color.White)
-    H2(stringResource(R.string.app_game_coat))
+    H2(stringResource(R.string.game_descent_your_coat))
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         for (row in COATS.indices.chunked(3)) Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             for (i in row) Coat(i, i == me, Modifier.weight(1f)) { onCoat(i) }
@@ -449,7 +449,7 @@ private fun End(g: DescentGame, newBest: Boolean, best: Float, copied: Boolean, 
                 }
             }
         }
-        val bestLine = if (newBest) stringResource(R.string.game_descent_end_new_best) else if (best > 0) stringResource(R.string.app_descent_best, descentTime(best)) else ""
+        val bestLine = if (newBest) stringResource(R.string.game_descent_end_new_best) else if (best > 0) stringResource(R.string.game_descent_end_best, descentTime(best)) else ""
         if (bestLine.isNotEmpty()) Text(bestLine, style = Ski.type.small.copy(fontSize = 13.sp), color = MUTED)
     }
     GoButton(stringResource(R.string.game_descent_again), onAgain)

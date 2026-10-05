@@ -246,14 +246,14 @@ class DescentGame(val c: Course, val me: Int, private val out: Out, val avalanch
         crash = 1f; inv = 2f; air = false; y = c.ground(x); s *= .4f; shake = if (still) 0f else 14f
         out.buzz(CRASH); out.tone(70.0, .35, .7f); spray(x, y + .5f, 40, 6f)
         stats.falls++; setCombo(1)
-        out.pop(Say(if (loseFriend()) R.string.app_descent_left_behind else msg ?: R.string.game_descent_pop_ouch))
+        out.pop(Say(if (loseFriend()) R.string.game_descent_pop_left_behind else msg ?: R.string.game_descent_pop_ouch))
     }
     private fun fellIn(gx0: Float, gx1: Float) {
         tracks.lastOrNull()?.let { it[1] = min(it[1], gx0) }
         x = gx1 + 1.5f; y = c.ground(x); air = false; s = 4f; crash = 1.1f; inv = 2.2f; ang = c.slope(x); shake = if (still) 0f else 18f
         out.buzz(CRASH); out.tone(55.0, .5, .8f)
         spray(x, y + .3f, 50, 5f, WHITE, 5f); stats.falls++; setCombo(1); tracks += floatArrayOf(x, x)
-        out.pop(Say(if (loseFriend()) R.string.app_descent_gully_swallowed else R.string.game_descent_pop_fell_gully))
+        out.pop(Say(if (loseFriend()) R.string.game_descent_pop_gully_swallowed else R.string.game_descent_pop_fell_gully))
     }
     private fun land() {
         val a = c.slope(x); val wall = c.ground(x) - y
@@ -378,7 +378,7 @@ class DescentGame(val c: Course, val me: Int, private val out: Out, val avalanch
                 if (sp.got || sp.lost) continue
                 if (abs(x - sp.x) < 4 && hgt < 12 && crash <= 0) {
                     sp.got = true; sp.joinT = .7f; crew += Rider(sp.coat, sp.x); score += 150
-                    out.pop(Say(R.string.app_descent_joined)); setCombo(combo + 1); out.buzz(CLICK); out.tone(330.0, .1, .2f)
+                    out.pop(Say(R.string.game_descent_pop_joined)); setCombo(combo + 1); out.buzz(CLICK); out.tone(330.0, .1, .2f)
                 }
             }
             // a Gudauri dog joins for a while near the bottom

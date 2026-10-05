@@ -221,7 +221,7 @@ class SnowballFight(val rungIndex: Int, val me: Int, private val out: Out, priva
             hats += Hat(o.x, base(o) + 1.8f, ZO, b.vx * .15f, 3.5f, 2f, 0f, r(-9f, 9f), o.coat)
             out.pop(Say(R.string.game_snowball_pop_hat_off))
         } else out.pop(Say(if (head) R.string.game_snowball_pop_head else R.string.game_snowball_pop_hit))
-        if (o.hp <= 0) { out.pop(Say(R.string.app_snowball_out)); o.phase = OUT }
+        if (o.hp <= 0) { out.pop(Say(R.string.game_snowball_pop_out)); o.phase = OUT }
         out.hp()
         if (foes.all { it.hp <= 0 }) { state = State.DONE; won = true; endT = 0f; wonPop = t + .7f }
     }

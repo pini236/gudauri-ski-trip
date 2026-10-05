@@ -74,7 +74,7 @@ class SnowballTest {
         val o = g.foes[0]
         repeat(3) { g.camH = 1.75f; g.throwAt(o.x, g.base(o) + 1.62f); g.go(1.2f) }
         assertEquals(0, o.hp)
-        assertTrue(R.string.app_snowball_out in ear.pops)
+        assertTrue(R.string.game_snowball_pop_out in ear.pops)
         g.go(2f)
         val r = ear.done!!
         assertTrue(r.won); assertEquals(3, r.stars); assertTrue(r.goals.all { it })

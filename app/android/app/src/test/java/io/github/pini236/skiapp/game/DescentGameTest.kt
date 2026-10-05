@@ -15,7 +15,10 @@ import kotlin.random.Random
  */
 class DescentGameTest {
     private val profiles: List<Profile> by lazy {
-        val html = File(System.getProperty("site.data") ?: "../../../site/data").resolve("../games/descent/index.html").readText()
+        // the game's page, or the script of its own next to it (the site's content security policy moved it there)
+        val dir = File(System.getProperty("site.data") ?: "../../../site/data").resolve("../games/descent")
+        val html = (listOf(File(dir, "index.html")) + (dir.listFiles { f -> f.name.endsWith(".js") }?.sortedBy { it.name } ?: emptyList()))
+            .filter { it.exists() }.map { it.readText() }.first { "const PROFILES = " in it }
         val start = html.indexOf("const PROFILES = ") + "const PROFILES = ".length
         Profile.parse(html.substring(start, html.indexOf("];", start) + 1))
     }

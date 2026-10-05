@@ -207,7 +207,7 @@ private fun Menu(me: Int, rung: Int, starsV: Int, stars: (Int) -> Int, onBack: (
     BackLink(stringResource(R.string.game_snowball_back_to_games).trim('→', '←', ' '), onBack, Color.White)
     Text(stringResource(R.string.game_snowball_title), style = Ski.type.title.copy(fontSize = (58 * scale).sp, lineHeight = .9.em, shadow = titleShadow), color = Color.White)
     Text(stringResource(R.string.game_snowball_intro), Modifier.widthIn(max = 520.dp), style = Ski.type.body.copy(fontSize = 14.sp, lineHeight = 1.45.em), color = Color.White)
-    H2(stringResource(R.string.app_game_coat))
+    H2(stringResource(R.string.game_snowball_your_coat))
     // the six coats, three in a row, each with its character
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         for (row in COATS.indices.chunked(3)) Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {

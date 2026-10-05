@@ -6,7 +6,7 @@ Writes <out-dir>/data/{terrain,runs-and-lifts,videos-seed,profiles}.json, <out-d
 <out-dir>/pano/*.webp (the real view from the village through the day, for the home page) and <out-dir>/thumbs/*.webp
 (the games page's pictures).
 profiles.json is the elevation profile of each run in the descent game, taken from
-site/games/descent/index.html so the app plays the exact same runs as the site.
+the site's game (site/games/descent, its page or its script) so the app plays the exact same runs as the site.
 trip.json (the group's flight and names) is never copied: see docs/USERS.md.
 """
 import json
@@ -18,8 +18,20 @@ ROOT = Path(__file__).resolve().parent.parent
 SITE = ROOT / "site"
 
 
+def descent_source():
+    """The descent's code on the site: in its page, or in a script of its own next to it (since the site's content
+    security policy moved inline scripts out). The first file that holds the runs."""
+    d = SITE / "games/descent"
+    for f in [d / "index.html", *sorted(d.glob("*.js"))]:
+        if f.exists():
+            text = f.read_text(encoding="utf-8")
+            if "const PROFILES = " in text:
+                return text
+    raise SystemExit("no PROFILES in site/games/descent")
+
+
 def profiles():
-    html = (SITE / "games/descent/index.html").read_text(encoding="utf-8")
+    html = descent_source()
     marker = "const PROFILES = "
     start = html.index(marker) + len(marker)
     data, _ = json.JSONDecoder().raw_decode(html[start:])
