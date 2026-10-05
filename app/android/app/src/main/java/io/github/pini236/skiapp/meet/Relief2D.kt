@@ -23,6 +23,8 @@ class Relief2D(
     val village: Path, val rivers: Path, val water: Path,
     /** road classes 0 (main) to 4 (tracks) */
     val roads: List<Path>,
+    /** the named places (Gudauri, Kobi...): name and where, in metres */
+    val places: List<Triple<String, Float, Float>> = emptyList(),
 ) {
     companion object {
         fun parse(json: String): Relief2D {
@@ -59,8 +61,9 @@ class Relief2D(
             env.getJSONArray("roads").let { v ->
                 for (k in 0 until v.length()) { val r = v.getJSONArray(k); flat(r.getJSONArray(1), roads[r.getInt(0).coerceIn(0, 4)], false) }
             }
+            val places = env.optJSONArray("places")?.let { a -> (0 until a.length()).map { a.getJSONObject(it) }.map { o -> Triple(o.getString("n"), o.getDouble("x").toFloat(), o.getDouble("y").toFloat()) } }.orEmpty()
             return Relief2D(hill, d.getDouble("x0").toFloat(), d.getDouble("y0").toFloat(), d.getDouble("x1").toFloat(), d.getDouble("y1").toFloat(),
-                c50, c100, c250, village, rivers, water, roads)
+                c50, c100, c250, village, rivers, water, roads, places)
         }
     }
 }

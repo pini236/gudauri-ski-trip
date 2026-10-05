@@ -1,8 +1,10 @@
 package io.github.pini236.skiapp.map
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.produceState
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.foundation.layout.navigationBarsPadding
 import io.github.pini236.skiapp.data.Lift
@@ -67,16 +69,39 @@ class MapStatus(
  * of all runs with the filters (map/RunSheet.kt); the fly-down bar; and the lift status: its bar at the top (S1), and a
  * tap on it opens the board (S2) or the snowy signs (S3), as in the site's map panel.
  */
+/** The emulator run's switch between the views (qa.mapview), read once by the map screen. */
+object MapMode { var qa by mutableStateOf<String?>(null) }
+
 @Composable
 fun MapScreen(view: MapView, scene: MapScene?, ms: MapStatus? = null, videos: List<Video> = emptyList(),
               /** Night (the day and night switch): the panel, the bar and the board go dark, as on the site (A-11). */
-              dark: Boolean = false) {
+              dark: Boolean = false,
+              /** The map from above (A-30): the relief under it, read on demand ([askRelief]) as for the meeting point. */
+              relief: io.github.pini236.skiapp.meet.Relief2D? = null, askRelief: () -> Unit = {}) {
     var selected by remember { mutableStateOf<Piste?>(view.selected) }
     var flying by remember { mutableStateOf(view.flying) }
     var lift by remember { mutableStateOf<Lift?>(view.shownLift.also { view.shownLift = null }) }
     var list by rememberSaveable { mutableStateOf(false) }
     var expanded by rememberSaveable { mutableStateOf(false) }
     var hidden by rememberSaveable { mutableStateOf(emptySet<String>()) }
+    // the view: 3D or from above (A-30), kept on the phone as the site keeps it in the browser
+    val context = LocalContext.current
+    val prefs = remember { context.getSharedPreferences("map", android.content.Context.MODE_PRIVATE) }
+    var mode by remember { mutableStateOf(prefs.getString("view", "3d") ?: "3d") }
+    fun setMode(m: String, measure: Boolean) {
+        if (m == mode) return
+        mode = m; prefs.edit().putString("view", m).apply(); Qa.log("map view $m")
+        if (measure) Telemetry.event("map_view", mapOf("view" to m))
+    }
+    LaunchedEffect(MapMode.qa) { MapMode.qa?.let { setMode(it, false); MapMode.qa = null } }
+    val top = mode == "2d"
+    LaunchedEffect(top) { if (top) askRelief() }
+    val ov = remember { io.github.pini236.skiapp.meet.MeetView() }
+    val scope = rememberCoroutineScope()
+    val art = remember(scene) { scene?.let { OverviewArt(it.runs, it.terrain) } }
+    var marker2d by remember { mutableStateOf<FloatArray?>(null) }
+    var panelFrac by remember { mutableStateOf(0f) }
+    var fitted by remember { mutableStateOf(false) }
     DisposableEffect(view) {
         view.onSelect = { p -> selected = p; if (p != null) { lift = null; list = false }; expanded = false; view.unmark() }
         view.onFlying = { now -> flying = now } // run_fly_start and run_fly_end are sent by the map (MapView.flyDown)
@@ -89,6 +114,24 @@ fun MapScreen(view: MapView, scene: MapScene?, ms: MapStatus? = null, videos: Li
         view.setHidden(runs.pistes.filter { it.color in hidden || (!it.named && "unnamed" in hidden) }.map { it.key }.toSet(), "lifts" !in hidden)
     }
     val order = remember(scene) { scene?.runs?.pistes?.let { RunFacts.order(it) } ?: emptyList() }
+    val ovPaint by produceState<OverviewPaint?>(null, selected?.key, scene, top) {
+        val p = selected; val s = scene
+        value = if (!top || p == null || s == null) null else withContext(Dispatchers.Default) { OverviewPaint.of(s, p) }
+    }
+    // from above: the whole main side when the view opens, and a chosen run framed above the panel (the site's fit and focusOn)
+    ov.still = io.github.pini236.skiapp.ui.Motion.reduced(context)
+    LaunchedEffect(top, ov.ready, art) {
+        val a = art ?: return@LaunchedEffect
+        if (top && ov.ready && !fitted && selected == null) { ov.frame(null, a.main.left, a.main.top, a.main.right, a.main.bottom, 1.12f, 0f, 1f, 0); fitted = true; Qa.log("overview fit") }
+    }
+    LaunchedEffect(selected?.key, top, ov.ready, panelFrac > 0f) {
+        val p = selected ?: return@LaunchedEffect
+        if (!top || !ov.ready) return@LaunchedEffect
+        var a = Float.MAX_VALUE; var b = Float.MAX_VALUE; var c = -Float.MAX_VALUE; var d = -Float.MAX_VALUE
+        for (l in p.lines) for (i in 0 until l.size / 2) { a = minOf(a, l[i * 2]); c = maxOf(c, l[i * 2]); b = minOf(b, l[i * 2 + 1]); d = maxOf(d, l[i * 2 + 1]) }
+        if (a > c) return@LaunchedEffect
+        ov.frame(scope, a, b, c, d, 1.5f, 900f, 1f - panelFrac, 700); fitted = true; Qa.log("overview frame ${p.key}")
+    }
     val facts by produceState<RunFacts?>(null, selected?.key, scene) {
         val p = selected; val s = scene
         value = if (p == null || s == null) null else withContext(Dispatchers.Default) { RunFacts.of(s.terrain, p) }
@@ -100,10 +143,11 @@ fun MapScreen(view: MapView, scene: MapScene?, ms: MapStatus? = null, videos: Li
                 view.select(null); lift = l; list = false; Qa.log("lift open ${l.name}")
                 if (l.id.isNotBlank()) view.showLift(l.id) // which calls onLift: the panel is already this lift's
             },
-            fly = { if (selected != null) { expanded = false; view.unmark(); view.flyDown() } },
+            // the flight is the 3D map's: from above, the map turns to 3D first
+            fly = { if (selected != null) { expanded = false; view.unmark(); marker2d = null; setMode("3d", true); view.flyDown() } },
             stopFly = { view.stopFly() },
-            mark = { x, y -> view.mark(x, y) },
-            unmark = { view.unmark() },
+            mark = { x, y -> view.mark(x, y); marker2d = floatArrayOf(x, y) },
+            unmark = { view.unmark(); marker2d = null },
             flyAt = { view.flyInfo()?.get(0) },
         )
     }
@@ -111,14 +155,35 @@ fun MapScreen(view: MapView, scene: MapScene?, ms: MapStatus? = null, videos: Li
     DisposableEffect(view, actions) { view.onLiftTap = { l -> actions.goLift(l) }; onDispose { view.onLiftTap = null } }
     LaunchedEffect(lift) { lift?.let { l -> Telemetry.event("lift_open", if (l.name.isBlank()) emptyMap() else mapOf("lift" to l.name)) } }
     // the part of the screen above the panel, where the camera frames the run or the lift
-    val onPanel: (Int) -> Unit = remember(view) { { h -> if (view.height > 0) view.setFreeBottom(1f - h.toFloat() / view.height - 0.03f) } }
-    LaunchedEffect(selected == null && lift == null && !list) { if (selected == null && lift == null && !list) view.setFreeBottom(1f) }
+    val onPanel: (Int) -> Unit = remember(view) { { h -> if (view.height > 0) { view.setFreeBottom(1f - h.toFloat() / view.height - 0.03f); panelFrac = (h.toFloat() / view.height + .03f).coerceIn(0f, .7f) } } }
+    LaunchedEffect(selected == null && lift == null && !list) { if (selected == null && lift == null && !list) { view.setFreeBottom(1f); panelFrac = 0f } }
     BackHandler(enabled = selected != null || lift != null || list) {
         when { selected != null -> view.select(null); lift != null -> lift = null; else -> list = false }
     }
 
     Box(Modifier.fillMaxSize()) {
         AndroidView(factory = { view.also { (it.parent as? android.view.ViewGroup)?.removeView(it) } }, modifier = Modifier.fillMaxSize())
+        if (top && scene != null && art != null) {
+            val res = context.resources
+            val lang = Lang.current(res)
+            val body = remember(lang) { Lang.typeface(context, lang, display = false) }
+            val words = remember(lang) {
+                val nf = NumberFormat.getIntegerInstance(lang.locale)
+                OverviewWords(res.getString(R.string.map_kobi_side_label), res.getString(R.string.map_place_gudauri),
+                    { n, e -> res.getString(R.string.app_peak_label, "\u2068$n\u2069", nf.format(e)) },
+                    { p -> if (p.key == "Firni ?") "Firni (1/2?)" else p.key }, res.getString(R.string.map_map_aria))
+            }
+            val hiddenKeys = remember(hidden, scene) { scene.runs.pistes.filter { it.color in hidden || (!it.named && "unnamed" in hidden) }.map { it.key }.toSet() }
+            SkiTheme(dark = dark) {
+                Overview(ov, art, relief, Ski.colors, body, words, selected, ovPaint, hiddenKeys, "lifts" in hidden, ms?.status, ms?.forMe == true,
+                    marker2d, ov.still,
+                    onRun = { p -> view.select(p, via = "map") },
+                    onLift = { l -> actions.goLift(l) },
+                    onEmpty = {},
+                    onKobi = { ov.frame(scope, art.kobi.left, art.kobi.top, art.kobi.right, art.kobi.bottom, 1.3f, 900f, 1f - panelFrac, 700); Qa.log("overview kobi") },
+                    modifier = Modifier.fillMaxSize())
+            }
+        }
         if (scene == null) {
             Text(stringResource(R.string.app_map_loading), Modifier.align(Alignment.Center), fontFamily = Ski.type.text, fontSize = 16.sp, color = Palette.ink)
         }
@@ -153,6 +218,12 @@ fun MapScreen(view: MapView, scene: MapScene?, ms: MapStatus? = null, videos: Li
                         Button(stringResource(R.string.map_overview_heading)) { list = true; Qa.log("run list open") }
                     }
                 }
+                MapControls(top, flying, { m -> setMode(m, true) },
+                    zoomIn = { ov.zoomAt(scope, 1f / 1.5f, null, null, 300) }, zoomOut = { ov.zoomAt(scope, 1.5f, null, null, 300) },
+                    fit = { art?.let { a -> ov.frame(scope, a.main.left, a.main.top, a.main.right, a.main.bottom, 1.12f, 0f, 1f - panelFrac, 600) } },
+                    kobi = { art?.let { a -> ov.frame(scope, a.kobi.left, a.kobi.top, a.kobi.right, a.kobi.bottom, 1.3f, 900f, 1f - panelFrac, 700); Qa.log("overview kobi") } },
+                    north = { view.north() }, metresPerDp = if (ov.ready) 1f / ov.k * context.resources.displayMetrics.density else 0f,
+                    bottom = panelFrac)
                 if (ms != null) {
                     if (!flying) StatusBar(ms.status, { ms.onSheet(true) }, Modifier.align(Alignment.TopCenter).statusBarsPadding().padding(top = 56.dp, start = 16.dp, end = 16.dp))
                     if (ms.sheet) Sheet({ ms.onSheet(false) }) {
@@ -190,4 +261,71 @@ fun Button(label: String, description: String? = null, onClick: () -> Unit) {
         Modifier.heightIn(min = 44.dp).let { m -> if (description != null) m.semantics { contentDescription = description } else m }.background(Palette.ink).clickable(onClick = onClick).padding(horizontal = 16.dp, vertical = 10.dp),
         contentAlignment = Alignment.Center,
     ) { Text(label, fontFamily = Ski.type.text, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = Color.White) }
+}
+
+/**
+ * The map's controls, as the site's (A-30): the view switch (3D, from above) at the top; from above, zoom in, out and
+ * the whole map, the Kobi side and a scale; in 3D, the compass, which turns the camera back to look north.
+ */
+@Composable
+private fun androidx.compose.foundation.layout.BoxScope.MapControls(
+    top: Boolean, flying: Boolean, onMode: (String) -> Unit, zoomIn: () -> Unit, zoomOut: () -> Unit, fit: () -> Unit, kobi: () -> Unit,
+    north: () -> Unit, metresPerDp: Float, bottom: Float,
+) {
+    if (flying) return
+    val c = Ski.colors
+    val shape = androidx.compose.foundation.shape.RoundedCornerShape(4.dp)
+    @Composable fun Key(label: String, description: String, on: Boolean = false, onClick: () -> Unit) {
+        Box(Modifier.size(44.dp).background(if (on) c.ink else c.paper.copy(alpha = .94f), shape)
+            .border(1.dp, c.rule, shape).clickable(onClick = onClick).semantics { contentDescription = description },
+            contentAlignment = Alignment.Center) { Text(label, fontFamily = Ski.type.text, fontWeight = FontWeight.Bold, fontSize = 20.sp, color = if (on) c.paper else c.ink) }
+    }
+    val typeLabel = stringResource(R.string.map_view_type)
+    Column(Modifier.align(Alignment.TopStart).statusBarsPadding().padding(6.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Row(Modifier.semantics { contentDescription = typeLabel }.background(c.paper.copy(alpha = .94f), shape).border(1.dp, c.rule, shape)) {
+            for ((m, label) in listOf("3d" to stringResource(R.string.map_view_3d), "2d" to stringResource(R.string.map_view_top))) {
+                val on = (m == "2d") == top
+                Box(Modifier.heightIn(min = 44.dp).background(if (on) c.ink else Color.Transparent, shape).clickable { onMode(m) }
+                    .semantics { contentDescription = label + if (on) " ✓" else "" }.padding(horizontal = 14.dp), contentAlignment = Alignment.Center) {
+                    Text(label, fontFamily = Ski.type.text, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = if (on) c.paper else c.ink)
+                }
+            }
+        }
+        if (top) {
+            val kobiLabel = stringResource(R.string.map_kobi_side)
+            Box(Modifier.heightIn(min = 44.dp).background(c.paper.copy(alpha = .94f), shape).border(1.dp, c.rule, shape).clickable(onClick = kobi)
+                .padding(horizontal = 12.dp), contentAlignment = Alignment.Center) {
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                    Box(Modifier.size(12.dp).background(c.blue))
+                    Text(kobiLabel, fontFamily = Ski.type.text, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = c.ink)
+                }
+            }
+            // the scale: the round length that is at least 70 dp long (the site's)
+            if (metresPerDp > 0f) {
+                val m = listOf(50, 100, 200, 250, 500, 1000, 2000).firstOrNull { it / metresPerDp >= 70f } ?: 2000
+                Column(Modifier.background(c.paper.copy(alpha = .85f)).padding(horizontal = 6.dp, vertical = 3.dp)) {
+                    Box(Modifier.size(width = (m / metresPerDp).dp, height = 3.dp).background(c.ink))
+                    Text(if (m >= 1000) "${m / 1000} km" else "$m m", fontFamily = Ski.type.text, fontSize = 11.sp, color = c.ink)
+                }
+            }
+        }
+    }
+    Column(Modifier.align(Alignment.TopEnd).statusBarsPadding().padding(top = 112.dp, end = 12.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        if (top) {
+            Key("+", stringResource(R.string.map_zoom_in), onClick = zoomIn)
+            Key("−", stringResource(R.string.map_zoom_out), onClick = zoomOut)
+            Key("⤢", stringResource(R.string.map_zoom_fit), onClick = fit)
+        } else {
+            // the site's compass: red to the north, ink to the south
+            val label = stringResource(R.string.map_compass)
+            Box(Modifier.size(44.dp).background(c.paper.copy(alpha = .94f), shape).border(1.dp, c.rule, shape).clickable(onClick = north)
+                .semantics { contentDescription = label }, contentAlignment = Alignment.Center) {
+                androidx.compose.foundation.Canvas(Modifier.size(20.dp)) {
+                    val w = size.width; val h = size.height
+                    drawPath(androidx.compose.ui.graphics.Path().apply { moveTo(w / 2, h * .1f); lineTo(w * .7f, h / 2); lineTo(w * .3f, h / 2); close() }, c.red)
+                    drawPath(androidx.compose.ui.graphics.Path().apply { moveTo(w / 2, h * .9f); lineTo(w * .7f, h / 2); lineTo(w * .3f, h / 2); close() }, c.ink)
+                }
+            }
+        }
+    }
 }

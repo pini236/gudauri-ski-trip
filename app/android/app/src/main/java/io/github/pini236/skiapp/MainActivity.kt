@@ -362,6 +362,13 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    /** The flat relief, for the meeting point's map and the run map from above: read once, on its own thread (the loader may still be casting the map's shadows). */
+    private fun askRelief() {
+        if (reliefAsked) return
+        reliefAsked = true
+        Thread({ val r = Relief2D.parse(assets.open("data/terrain.json").bufferedReader().use { it.readText() }); runOnUiThread { relief = r; Qa.log("meet relief ready") } }, "meet-relief").start()
+    }
+
     /** The lift status from the site, or the last good one on the phone (status/LiftStatus.kt). */
     private suspend fun loadStatus() {
         if (statusPinned) return
@@ -529,6 +536,7 @@ class MainActivity : ComponentActivity() {
             val v = Qa.parseCamera(c) ?: return@let Qa.log("bad camera $c")
             mapView.look(OrbitCamera.State(v[0], s.terrain.elev(v[0], v[1]), v[1], v[2], Math.toRadians(v[3].toDouble()).toFloat(), Math.toRadians(v[4].toDouble()).toFloat()))
         }
+        i.getStringExtra("qa.mapview")?.let { io.github.pini236.skiapp.map.MapMode.qa = it }
         i.getStringExtra("qa.run")?.let { key ->
             if (key == "none") mapView.select(null)
             else s.runs.pistes.firstOrNull { it.key == key || it.name == key }?.let { mapView.select(it) } ?: Qa.log("no run $key")
@@ -661,7 +669,7 @@ class MainActivity : ComponentActivity() {
                     is Route.Meet -> {
                         LaunchedEffect(Unit) {
                             // its own thread: the loader may still be casting the map's shadows
-                            if (!reliefAsked) { reliefAsked = true; Thread({ val r = Relief2D.parse(assets.open("data/terrain.json").bufferedReader().use { it.readText() }); runOnUiThread { relief = r; Qa.log("meet relief ready") } }, "meet-relief").start() }
+                            askRelief()
                         }
                         // from a group's page, a new meetup goes back to that group (Q8)
                         val fromGroup = (nav.routes.getOrNull(nav.routes.size - 2) as? Route.Group)?.id
@@ -726,7 +734,7 @@ class MainActivity : ComponentActivity() {
                     else -> {
                         MapScreen(mapView, scene, videos = videos, ms = MapStatus(lstat, changes, LiftStatus.inSeason(LocalDateTime.ofInstant(Instant.ofEpochMilli(tick), ZoneId.systemDefault()).monthValue),
                             forMe, { on -> forMe = on; Telemetry.event("status_only_open", mapOf("on" to on)); Qa.log("for me ${if (on) "on" else "off"}") },
-                            statusSheet, { open -> statusSheet = open }), dark = frame.dark)
+                            statusSheet, { open -> statusSheet = open }), dark = frame.dark, relief = relief, askRelief = ::askRelief)
                         if (showStats) StatsBar(top !is Route.Game, Modifier.align(Alignment.TopStart))
                         // the way home, over the mountain or the game
                         Box(Modifier.align(Alignment.TopEnd).statusBarsPadding().padding(6.dp).background(Color(0xE6FFFFFF))) {

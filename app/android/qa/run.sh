@@ -136,6 +136,16 @@ map() {
     waitlog "shadow ready" 120; sleep 1.5; shot "map-light-${at/:/}${extra:+-$face}"
   done
   qa "--es qa.time 2027-01-12T12:30 $RESET"; waitlog "shadow ready" 120
+
+  # the map from above (A-30): the whole main side, a chosen run in slope colours over its ground, the Kobi side, the
+  # whole map again; then back to 3D, and the compass turns it to look north
+  mark; qa "--es qa.mapview 2d"; waitlog "map view 2d" 10; waitlog "overview fit" 60; sleep 2.5; shot top-all
+  mark; qa "--es qa.run 'Tatra 2'"; waitlog "overview frame Tatra 2" 20; sleep 3; shot top-run
+  qa "--es qa.run none"; waitlog "selected none" 10; sleep 1
+  mark; tapText "צד Kobi" && waitlog "overview kobi" 10 && { sleep 1.5; shot top-kobi; }
+  tapText "הצג הכל" && { sleep 1.5; shot top-fit; }
+  mark; tapText "תלת-ממד" && waitlog "map view 3d" 10
+  qa "$RESET"; sleep 1; mark; tapText "סיבוב חזרה למבט מדרום" && waitlog "map north" 5 && { sleep 1.5; shot map-north; }
 }
 
 scrollDown() { drag $((W * 7 / 100)) $((H * 80 / 100)) $((W * 7 / 100)) $((H * 30 / 100)) 400; sleep .8; }
@@ -452,7 +462,7 @@ group() {
   keyboardOff; shot group-new-filled
   tapText "יצירת הקבוצה" && sleep 2.5 && shot group-created
   tapText "הזמנה" && sleep 2 && shot group-invite
-  tapText "אישור ידני לכל מצטרף" && sleep 1.5 && shot group-invite-approval
+  tapText "כל מצטרף חדש מחכה לאישור של מנהל" && sleep 1.5 && shot group-invite-approval
   adb shell input keyevent KEYCODE_BACK; sleep 1
 
   # invited: the link (Q3) as a guest, in without signing up, and the offer to keep the place (A5)
@@ -488,7 +498,7 @@ group() {
   tapText "הוצאה מהקבוצה" && sleep 0.8 && shot group-admin-remove-sure && adb shell input keyevent KEYCODE_BACK && sleep 0.8
   # a meetup is deleted for everyone in two taps: the X, then "tap again"
   tapText "מפגשים" && sleep 1.5 && tapText "מחיקת המפגש" && sleep 0.8 && shot group-meetup-delete-sure
-  tapText "~נגיעה נוספת: למחוק" && sleep 1.5 && shot group-meetup-deleted
+  tapText "~לחיצה נוספת מוחקת" && sleep 1.5 && shot group-meetup-deleted
   tapText "חברים" && sleep 1
   qa "--es qa.tab account"; sleep 1.5; shot account
   qa "--es qa.tab group --es qa.mode night"; sleep 2.5; shot group-night
@@ -680,6 +690,9 @@ status() {
   mark; tapText "אין מידע עדכני על הרכבלים" && waitlog "status board snowy" 10 && { sleep 2; shot status-stale-board; }
   # a fresh one: the bar counts the open lifts (S1); on the mountain closed lifts grey and dashed, closed runs dashed
   mark; qa "--es qa.sheet off --es qa.status fresh"; waitlog "status on map" 10; sleep 2.5; shot status-live-map
+  # from above: closed lifts and runs grey and dashed, and chairs moving on the open lifts (A-35, the site's)
+  mark; qa "--es qa.mapview 2d"; waitlog "overview fit" 60; sleep 2.5; burst status-live-top 2 0.8
+  qa "--es qa.mapview 3d"; sleep 1
   # the board (S2): its rows flip in, what changed since the last look, and "only what's open for me"
   mark; tapText "~מתוך 12" && waitlog "status board live" 10 && { burst status-board-flip 3 0.2; sleep 1.5; shot status-board; }
   drag $up; sleep 1; shot status-board-below

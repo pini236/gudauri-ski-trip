@@ -259,6 +259,9 @@ class MapView(context: Context, refreshHz: Float, val stats: FrameStats) : Frame
         } }
     }
 
+    /** The compass (the site's): the camera turns back to look north, from the south, around the same spot. */
+    fun north() { val st = camera.state(); renderer.animateCamera(st.copy(yaw = 0f), 0.6f); Qa.log("map north") }
+
     /** Puts the camera at a given view (the QA run uses it for repeatable screenshots). */
     fun look(st: OrbitCamera.State) = renderer.animateCamera(st, 0.05f)
 

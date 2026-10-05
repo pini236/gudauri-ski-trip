@@ -84,6 +84,17 @@ class MeetView {
         goTo(scope, (a + c) / 2, (b + d) / 2 + (d - b) * .05f, s, ms)
     }
 
+    /**
+     * A box of the map, whole, in the top [free] part of the screen (above a panel), [pad] times its size and at least
+     * [least] metres across (the run map's fit, 1.12, and its focusOn, 1.5 and 900 m).
+     */
+    fun frame(scope: CoroutineScope?, a: Float, b: Float, c: Float, d: Float, pad: Float, least: Float, free: Float, ms: Int) {
+        val f = free.coerceIn(.3f, 1f)
+        val s = (max(max(c - a, (d - b) * w / (h * f)), least) * pad).coerceIn(300f, 9000f)
+        val tx = (a + c) / 2 - s / 2; val ty = (b + d) / 2 - s * h / w * f / 2
+        if (scope == null || ms <= 0) { stop(); to(tx, ty, s) } else animate(scope, tx, ty, s, ms) { t -> if (t < .5f) 4 * t * t * t else 1 - (-2 * t + 2).pow(3) / 2 }
+    }
+
     /** Zoom by [f] around a point of the map (the middle when null); 300 m to 9 km across. */
     fun zoomAt(scope: CoroutineScope?, f: Float, px: Float?, py: Float?, ms: Int) {
         val ns = (span * f).coerceIn(300f, 9000f)
