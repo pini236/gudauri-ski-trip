@@ -84,7 +84,7 @@ private class LabelOverlay(context: Context, private val camera: OrbitCamera) : 
     private val pad = 5 * resources.displayMetrics.density
 
     override fun onDraw(canvas: Canvas) {
-        if (width == 0 || labels.isEmpty()) return
+        if (width == 0 || (labels.isEmpty() && !meOn)) return
         val st = camera.state()
         OrbitCamera.mvp(st, width.toFloat() / height, mvp, eye, minEye = ground)
         placed.clear()
@@ -94,6 +94,58 @@ private class LabelOverlay(context: Context, private val camera: OrbitCamera) : 
         val chosen = chosenRun
         if (chosen != null) for (l in labels) if (l.run == chosen) place(canvas, l)
         for (l in labels) if (chosen == null || l.run != chosen) place(canvas, l)
+        if (meOn) drawMe(canvas)
+    }
+
+    /** "Where am I" (round 19): the dot, its accuracy circle and, when moving, where it heads; over everything. */
+    var meOn = false
+    var meX = 0f; var meY = 0f; var meZ = 0f; var meAcc = 0f; var meBearing = Float.NaN; var meDot = true
+    var meColor = Color.rgb(31, 95, 196); var mePaper = Color.WHITE
+    private val mePaint = Paint(Paint.ANTI_ALIAS_FLAG)
+    private val mePath = android.graphics.Path()
+
+    private fun screen(x: Float, y: Float, z: Float, into: FloatArray): Boolean {
+        v[0] = x; v[1] = y; v[2] = z; v[3] = 1f
+        Matrix.multiplyMV(out, 0, mvp, 0, v, 0)
+        if (out[3] <= 0) return false
+        into[0] = (out[0] / out[3] * 0.5f + 0.5f) * width
+        into[1] = (1 - (out[1] / out[3] * 0.5f + 0.5f)) * height
+        return true
+    }
+    private val p0 = FloatArray(2); private val p1 = FloatArray(2)
+
+    private fun drawMe(canvas: Canvas) {
+        if (!screen(meX, meY, meZ, p0)) return
+        val d = resources.displayMetrics.density
+        // the circle: the accuracy in metres, measured across the screen at the dot's depth
+        val r = if (screen(meX + meAcc, meY, meZ, p1)) maxOf(14 * d, kotlin.math.hypot(p1[0] - p0[0], p1[1] - p0[1])) else 14 * d
+        mePaint.style = Paint.Style.FILL; mePaint.color = (meColor and 0x00FFFFFF) or (0x29 shl 24)
+        canvas.drawCircle(p0[0], p0[1], r, mePaint)
+        mePaint.style = Paint.Style.STROKE; mePaint.strokeWidth = 1.5f * d; mePaint.color = (meColor and 0x00FFFFFF) or (0x99 shl 24)
+        canvas.drawCircle(p0[0], p0[1], r, mePaint)
+        if (!meDot) return
+        // where it heads: a small triangle beyond the dot, toward a point 30 m along the bearing
+        if (!meBearing.isNaN()) {
+            val a = Math.toRadians(meBearing.toDouble())
+            if (screen(meX + 30f * kotlin.math.sin(a).toFloat(), meY, meZ - 30f * kotlin.math.cos(a).toFloat(), p1)) {
+                val dx = p1[0] - p0[0]; val dy = p1[1] - p0[1]; val n = kotlin.math.hypot(dx, dy)
+                if (n > 1f) {
+                    val ux = dx / n; val uy = dy / n
+                    val tip = 23 * d; val base = 12 * d; val half = 7 * d
+                    mePath.reset()
+                    mePath.moveTo(p0[0] + ux * tip, p0[1] + uy * tip)
+                    mePath.lineTo(p0[0] + ux * base - uy * half, p0[1] + uy * base + ux * half)
+                    mePath.lineTo(p0[0] + ux * base + uy * half, p0[1] + uy * base - ux * half)
+                    mePath.close()
+                    mePaint.style = Paint.Style.FILL; mePaint.color = meColor
+                    canvas.drawPath(mePath, mePaint)
+                }
+            }
+        }
+        mePaint.style = Paint.Style.FILL
+        mePaint.color = Color.argb(60, 0, 0, 0); canvas.drawCircle(p0[0], p0[1] + d, 10.5f * d, mePaint)
+        mePaint.color = mePaper; canvas.drawCircle(p0[0], p0[1], 9 * d, mePaint)
+        mePaint.color = meColor; canvas.drawCircle(p0[0], p0[1], 6 * d, mePaint)
     }
 
     private var used = 0
@@ -392,6 +444,23 @@ class MapView(context: Context, refreshHz: Float, val stats: FrameStats) : Frame
     /** A dot on the mountain at a point of the chosen run (its profile under the finger, T2); null takes it away. */
     fun mark(x: Float, y: Float) { val s = scene ?: return; renderer.marker = floatArrayOf(x, s.terrain.elev(x, y), y); surface.requestRender() }
     fun unmark() { if (renderer.marker != null) { renderer.marker = null; surface.requestRender() } }
+
+    /** "Where am I" (round 19): the dot on the snow, in the site's projection; [dot] false draws only the circle. */
+    fun showMe(x: Float, y: Float, accuracy: Float, bearing: Float?, color: Int, paper: Int, dot: Boolean = true) {
+        val s = scene ?: return
+        overlay.meX = x; overlay.meZ = y; overlay.meY = s.terrain.elev(x, y) + 2f
+        overlay.meAcc = accuracy; overlay.meBearing = bearing ?: Float.NaN; overlay.meDot = dot
+        overlay.meColor = color; overlay.mePaper = paper; overlay.meOn = true
+        overlay.invalidate()
+    }
+    fun hideMe() { if (overlay.meOn) { overlay.meOn = false; overlay.invalidate() } }
+
+    /** The camera to the dot, keeping the view's distance and heading (once, when the first reading comes). */
+    fun lookAt(x: Float, y: Float) {
+        val s = scene ?: return
+        val st = camera.state()
+        renderer.animateCamera(st.copy(tx = x, ty = s.terrain.elev(x, y), tz = y, dist = minOf(st.dist, 2600f)), 0.6f)
+    }
 
     /** The map's filters (the site's): these runs and, with [lifts] false, the lifts are not drawn, and a tap passes them by. */
     fun setHidden(keys: Set<String>, lifts: Boolean) { renderer.hidden = keys; renderer.hideLifts = !lifts; overlay.hideLifts = !lifts; overlay.hiddenRuns = keys; overlay.invalidate(); surface.requestRender() }

@@ -57,11 +57,15 @@ android {
             dimension = "channel"
             applicationIdSuffix = ".test"
             resValue("string", "app_name", "סקי בדיקה")
+            // "where am I" (round 19): only here until Pini approves the privacy line (decision 58); its permissions are in
+            // src/preview/AndroidManifest.xml, and both move to main together
+            buildConfigField("boolean", "LOCATION", "true")
             signingConfig = signingConfigs.findByName("test") ?: signingConfigs.getByName("debug")
         }
         create("store") {
             dimension = "channel"
             resValue("string", "app_name", "סקי")
+            buildConfigField("boolean", "LOCATION", "false")
             signingConfig = signingConfigs.findByName("upload") ?: signingConfigs.getByName("debug")
         }
     }

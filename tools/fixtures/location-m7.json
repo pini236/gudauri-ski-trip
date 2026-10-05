@@ -1,6 +1,6 @@
 {
  "about": "Shared test values for 'where am I' (round 19, docs/ARCHITECTURE.md m-7 section 6, decision 58). Each client feeds the readings of a case in order, to a fresh locator per case, and must give the expected state after every reading. Written by the Android session; the site tests against the same file (as X-3, tools/fixtures/slope-x3.json).",
- "data": "site/data/runs-and-lifts.json (named runs; named lifts that are not inactive) and the bounds of the terrain model in site/data/terrain.json (dem x0, x1, y0, y1)",
+ "data": "site/data/runs-and-lifts.json (named runs, their segments that are not areas; named lifts that are not inactive) and the bounds of the terrain model in site/data/terrain.json (dem x0, x1, y0, y1)",
  "projection": "x = (lon - 44.495) * 111320 * cos(42.51 deg), y = -(lat - 42.51) * 111320, metres, as site/js/app.js",
  "rule": [
   "outside: the point is outside the terrain model's bounds",

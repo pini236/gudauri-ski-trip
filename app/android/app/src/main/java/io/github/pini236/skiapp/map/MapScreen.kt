@@ -3,6 +3,11 @@ package io.github.pini236.skiapp.map
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.activity.compose.BackHandler
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.offset
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -107,6 +112,61 @@ fun MapScreen(view: MapView, scene: MapScene?, ms: MapStatus? = null, videos: Li
     val ov = remember { io.github.pini236.skiapp.meet.MeetView() }
     val scope = rememberCoroutineScope()
     val art = remember(scene) { scene?.let { OverviewArt(it.runs, it.terrain) } }
+    // "where am I" (round 19): only in the test build until Pini approves the privacy line (decision 58)
+    val where = remember(scene) {
+        if (io.github.pini236.skiapp.BuildConfig.LOCATION && scene != null) WhereAmI(context.applicationContext, Locator(scene.runs, scene.terrain), scene.terrain) else null
+    }
+    var asking by remember { mutableStateOf(false) }
+    val askLocation = rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { r ->
+        if (r.values.any { it }) where?.start() else where?.refused()
+    }
+    // the button goes off in the background and when the map closes (m-7 section 5)
+    DisposableEffect(where) {
+        val w = where
+        val life = (context as? androidx.lifecycle.LifecycleOwner)?.lifecycle
+        if (w == null || life == null) return@DisposableEffect onDispose {}
+        val obs = androidx.lifecycle.LifecycleEventObserver { _, e ->
+            if (e == androidx.lifecycle.Lifecycle.Event.ON_RESUME) w.resume() else if (e == androidx.lifecycle.Lifecycle.Event.ON_PAUSE) w.pause()
+        }
+        life.addObserver(obs)
+        onDispose { life.removeObserver(obs); w.pause() }
+    }
+    fun locate() {
+        val w = where ?: return
+        when {
+            w.state != WhereAmI.State.Off -> w.off()
+            w.anyPermission -> w.start()
+            else -> asking = true
+        }
+    }
+    fun whereAction() {
+        val w = where ?: return
+        when (w.state) {
+            WhereAmI.State.Denied -> runCatching {
+                context.startActivity(android.content.Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                    android.net.Uri.fromParts("package", context.packageName, null)))
+            }
+            WhereAmI.State.Unavailable -> runCatching { context.startActivity(android.content.Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS)) }
+            // approximate: ask for the precise location (Android 12's upgrade dialog)
+            else -> askLocation.launch(arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION, android.Manifest.permission.ACCESS_COARSE_LOCATION))
+        }
+    }
+    val glacier = Ski.colors.glacier.toArgb(); val paperArgb = Ski.colors.paper.toArgb()
+    val here = where?.state as? WhereAmI.State.Fixed
+    LaunchedEffect(here, top) {
+        val s = here
+        if (s == null || top || s.fix == Locator.Fix.Outside) view.hideMe() else view.showMe(s.x, s.y, s.accuracy, s.bearing, glacier, paperArgb)
+    }
+    // the first reading brings the camera to the dot, once each time the button goes on
+    var looked by remember { mutableStateOf(false) }
+    LaunchedEffect(where?.state) {
+        val s = where?.state
+        if (s == WhereAmI.State.Off) looked = false
+        if (s is WhereAmI.State.Fixed && !looked && s.fix != Locator.Fix.Outside) {
+            looked = true
+            if (top) ov.goTo(scope, s.x, s.y, minOf(ov.span, 2500f), 600) else view.lookAt(s.x, s.y)
+        }
+    }
     var marker2d by remember { mutableStateOf<FloatArray?>(null) }
     var panelFrac by remember { mutableStateOf(0f) }
     var fitted by remember { mutableStateOf(false) }
@@ -192,6 +252,7 @@ fun MapScreen(view: MapView, scene: MapScene?, ms: MapStatus? = null, videos: Li
                     modifier = Modifier.fillMaxSize())
             }
         }
+        if (top && here != null && here.fix != Locator.Fix.Outside && ov.ready) SkiTheme(dark = dark) { MeDot2D(ov, here, Modifier.fillMaxSize()) }
         if (scene == null) {
             Text(stringResource(R.string.app_map_loading), Modifier.align(Alignment.Center), fontFamily = Ski.type.text, fontSize = 16.sp, color = Palette.ink)
         }
@@ -219,13 +280,23 @@ fun MapScreen(view: MapView, scene: MapScene?, ms: MapStatus? = null, videos: Li
                                 Qa.log("filter $k ${if (on) "on" else "off"}")
                             }, scene.runs.fetched, scene.runs.researchDate, actions)
                         }, bodyMax = 0.5f, onHeight = onPanel)
-                    else -> Row(Modifier.align(Alignment.BottomCenter).fillMaxWidth().navigationBarsPadding().padding(12.dp),
-                        verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        Text(stringResource(R.string.app_map_hint), Modifier.weight(1f).background(Color(0xE6FFFFFF)).padding(10.dp),
-                            fontFamily = Ski.type.text, fontSize = 13.sp, color = Palette.ink)
-                        Button(stringResource(R.string.map_overview_heading)) { list = true; Qa.log("run list open") }
+                    else -> Column(Modifier.align(Alignment.BottomCenter).fillMaxWidth().navigationBarsPadding().padding(12.dp),
+                        verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                        if (!flying && where != null) LocateKey(where.on, ::locate)
+                        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            val words = where?.let { whereWords(it.state) }
+                            if (words != null) WhereLine(words, ::whereAction, Modifier.weight(1f))
+                            else Text(stringResource(R.string.app_map_hint), Modifier.weight(1f).background(Color(0xE6FFFFFF)).padding(10.dp),
+                                fontFamily = Ski.type.text, fontSize = 13.sp, color = Palette.ink)
+                            Button(stringResource(R.string.map_overview_heading)) { list = true; Qa.log("run list open") }
+                        }
                     }
                 }
+                // with a panel open, the button sits above it
+                if (where != null && !flying && (p != null || l != null || list) && panelFrac > 0f)
+                    Box(Modifier.align(Alignment.BottomStart).fillMaxWidth().fillMaxHeight(panelFrac.coerceIn(.05f, .9f))) {
+                        LocateKey(where.on, ::locate, Modifier.align(Alignment.TopStart).offset(y = (-64).dp).padding(start = 12.dp))
+                    }
                 MapControls(top, flying, { m -> setMode(m, true) },
                     zoomIn = { ov.zoomAt(scope, 1f / 1.5f, null, null, 300) }, zoomOut = { ov.zoomAt(scope, 1.5f, null, null, 300) },
                     fit = { art?.let { a -> ov.frame(scope, a.main.left, a.main.top, a.main.right, a.main.bottom, 1.12f, 0f, 1f - panelFrac, 600) } },
@@ -238,6 +309,10 @@ fun MapScreen(view: MapView, scene: MapScene?, ms: MapStatus? = null, videos: Li
                         StatusBoard(ms.status, ms.changes, ms.forMe, ms.onForMe, ms.inSeason)
                     }
                 }
+                if (asking) AskSheet(onGo = {
+                    asking = false
+                    askLocation.launch(arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION, android.Manifest.permission.ACCESS_COARSE_LOCATION))
+                }, onLater = { asking = false })
             }
         }
     }

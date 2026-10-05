@@ -714,6 +714,48 @@ status() {
   qa "--es qa.sheet off --es qa.tab home"; sleep 1
 }
 
+# ---- where am I (round 19, decision 58): the short explanation, then the dot on made-up locations (the shared test
+# points, tools/fixtures/location-m7.json). The log says only the state, never the place (m-7) ----
+geo() { adb emu geo fix "$2" "$1" > /dev/null 2>&1; } # geo <lat> <lon>: the emulator's GPS
+locate() {
+  local perm="android.permission.ACCESS_FINE_LOCATION" coarse="android.permission.ACCESS_COARSE_LOCATION"
+  adb shell am force-stop "$PKG"; adb shell pm revoke "$PKG" "$perm" 2> /dev/null; adb shell pm revoke "$PKG" "$coarse" 2> /dev/null
+  adb shell cmd location set-location-enabled true 2> /dev/null; sleep 1; mark
+  adb shell "am start -W -n $ACT --es qa.tab map --es qa.trip none --es qa.time 2027-01-12T11:00" > /dev/null
+  waitlog "scene ready" 120; sleep 2; shot locate-off
+  # without a permission, the explanation comes before the phone asks; "not now" leaves the button off
+  tapText "איפה אני" && { sleep 1.5; shot locate-ask; tapText "לא עכשיו"; sleep 1; }
+  adb shell pm grant "$PKG" "$perm"; adb shell pm grant "$PKG" "$coarse"
+  geo 42.482631 44.483401; sleep 1
+  mark; tapText "איפה אני" && waitlog "where on precise" 10
+  # Tatra 2, accurate: the dot snaps to the run, and the camera comes to it
+  waitlog "where run Tatra 2" 30 && { sleep 3; shot locate-run; }
+  # up the Goodaura gondola: the lift on the third reading in a row
+  mark; geo 42.480067 44.493006; sleep 2.5; geo 42.480492 44.493044; sleep 2.5; geo 42.480916 44.493085
+  waitlog "where lift Goodaura" 20 && { sleep 2; shot locate-lift; }
+  # in the village, away from the runs; and far away, outside the mountain
+  mark; geo 42.470395 44.49234; waitlog "where free" 20 && { sleep 2; shot locate-free; }
+  mark; geo 41.7151 44.8271; waitlog "where outside" 20 && { sleep 1.5; shot locate-outside; }
+  # from above, back on Tatra 2
+  mark; geo 42.482631 44.483401; waitlog "where run Tatra 2" 20
+  qa "--es qa.mapview 2d"; waitlog "overview fit" 60; sleep 2.5; shot locate-top
+  qa "--es qa.mapview 3d"; sleep 1.5
+  # with a run's panel open, the button sits above it
+  mark; qa "--es qa.run 'Tatra 1'"; waitlog "selected Tatra 1" 15 && { sleep 2.5; shot locate-panel; adb shell input keyevent KEYCODE_BACK; sleep 1; }
+  # off: nothing is left of it
+  mark; tapText "איפה אני" && waitlog "where off" 10 && { sleep 1; shot locate-off-again; }
+  # English, on Tatra 2
+  adb shell cmd locale set-app-locales "$PKG" --locales en > /dev/null 2>&1; sleep 3
+  mark; qa "--es qa.tab map"; sleep 2; tapText "Where am I" && waitlog "where run Tatra 2" 20 && { sleep 2.5; shot locate-en; }
+  adb shell cmd locale set-app-locales "$PKG" --locales he > /dev/null 2>&1; sleep 3
+  # approximate only (Android 12's choice; revoking restarts the app): a big circle, no run, and "precise location"
+  adb shell pm revoke "$PKG" "$perm"; sleep 1; mark
+  adb shell "am start -W -n $ACT --es qa.tab map --es qa.trip none --es qa.time 2027-01-12T11:00" > /dev/null
+  waitlog "scene ready" 120; sleep 2
+  mark; tapText "איפה אני" && waitlog "where on approximate" 10 && { geo 42.482631 44.483401; waitlog "where approx" 30 && { sleep 2.5; shot locate-approx; }; }
+  adb shell pm grant "$PKG" "$perm"
+}
+
 # ---- the store screenshots (Google Play: portrait 9:16) ----
 # a 1080x1920 screen, a clean status bar (demo mode), no measuring bar; the files go to $OUT/store
 store() {
@@ -764,7 +806,8 @@ for sc in ${SCENARIO//,/ }; do
     phone) phone ;;
     store) store ;;
     run) runview ;;
-    *) map; descent; games; school; snowball; home; group; meet; status; runview; lang; phone; store ;;
+    locate) locate ;;
+    *) map; descent; games; school; snowball; home; group; meet; status; runview; locate; lang; phone; store ;;
   esac
 done
 
