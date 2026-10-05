@@ -1,9 +1,11 @@
 (async function main(){
 await I18N.ready; // the words of the chosen language (js/i18n.js); everything below draws with T()
 const soft=(url,fallback)=>fetch(url).then(r=>r.ok?r.json():fallback).catch(()=>fallback);
-const [D,TERR,vids]=await Promise.all([
+// the elevation model (terrain.json, the biggest file) does not hold up the home page (R-11): it loads alongside, and the
+// map, the meeting point and the 3D view are set up when it arrives (onTerrain below); a link to them waits for it
+const terrainP=soft('data/terrain.json',null);
+const [D,vids]=await Promise.all([
   fetch('data/runs-and-lifts.json').then(r=>{if(!r.ok)throw new Error('runs-and-lifts '+r.status);return r.json();}),
-  soft('data/terrain.json',null),
   soft('data/videos-seed.json',[])
 ]);
 const HEB=Object.fromEntries(['green','blue','red','black'].map(c=>[c,T('common.color_'+c)]));
@@ -92,7 +94,8 @@ function grid(root,x0,y0,x1,y1){
   for(let x=Math.floor((x0-3000)/500)*500;x<x1+3000;x+=500)mk('line',{x1:x,x2:x,y1:y0-6000,y2:y1+6000,'vector-effect':'non-scaling-stroke'},g);
   for(let y=Math.floor((y0-6000)/500)*500;y<y1+6000;y+=500)mk('line',{y1:y,y2:y,x1:x0-3000,x2:x1+3000,'vector-effect':'non-scaling-stroke'},g);
 }
-const TM=window.GudRelief&&TERR?GudRelief.load(TERR):null;
+let TM=null,terrainDone=false; // null until the model arrives, and for good if it does not
+const terrainReady=terrainP.then(t=>{TM=t&&window.GudRelief?GudRelief.load(t):null;try{onTerrain();}catch(e){console.error(e);}terrainDone=true;document.documentElement.dataset.model=TM?'ready':'none';});
 
 const pisteEls={},labels=[],stations=[];
 const vs={'vector-effect':'non-scaling-stroke',fill:'none','stroke-linecap':'round','stroke-linejoin':'round'};
@@ -180,7 +183,7 @@ const kSvg=document.getElementById('kobimap'),card=document.getElementById('inse
 const K={labels:[],stations:[]};
 const [kx0,ky0,kx1,ky1]=bbox([...featGeoms(kobiPistes,kobiLifts),[PASS]]);
 const kLbl=draw(kSvg,kobiPistes,kobiLifts,K);K.marks=[];
-if(TM)addRelief(kSvg,kLbl,K,false);else{const[x,y]=P(PASS);const t=mk('text',{x,y,class:'lbl place','text-anchor':'middle'},kLbl);t.textContent='Kobi Pass';K.labels.unshift(t);}
+if(TM)addRelief(kSvg,kLbl,K,false);else{const[x,y]=P(PASS);const t=mk('text',{x,y,class:'lbl place','text-anchor':'middle','data-nomodel':'1'},kLbl);t.textContent='Kobi Pass';K.labels.unshift(t);}
 function layoutInset(){
   if(card.hidden)return;const r=kSvg.getBoundingClientRect();const cw=r.width||1,ch=r.height||1;
   const w=Math.max(kx1-kx0,(ky1-ky0)*cw/ch)*1.3,h=w*ch/cw;
@@ -473,10 +476,14 @@ let v3=null,view='2d';
 const wrap=document.querySelector('.mapwrap'),m3=document.getElementById('map3d'),sw=document.getElementById('viewsw');
 const compassSvg=document.querySelector('#compass svg');
 const isDark=()=>{const t=document.documentElement.dataset.theme;return t?t==='dark':matchMedia('(prefers-color-scheme: dark)').matches;};
-function hasGL(){try{const c=document.createElement('canvas');return !!(c.getContext('webgl')||c.getContext('experimental-webgl'));}catch(e){return false;}}
-const can3d=!!(window.THREE&&TM&&hasGL());
+let gl=null;function hasGL(){if(gl===null)try{const c=document.createElement('canvas');gl=!!(c.getContext('webgl')||c.getContext('experimental-webgl'));}catch(e){gl=false;}return gl;}
+// three.js comes from the site only when the map is first opened (R-11), not with the home page
+let threeP=null;
+const loadThree=()=>threeP||(threeP=window.THREE?Promise.resolve(true):new Promise(ok=>{const s=document.createElement('script');
+  s.src='js/vendor/three-r128.min.js';s.onload=()=>ok(!!window.THREE);s.onerror=()=>ok(false);document.head.appendChild(s);}));
+const can3d=()=>!!(window.THREE&&TM&&hasGL());
 function ensure3d(){
-  if(v3)return true;if(!can3d)return false;
+  if(v3)return true;if(!can3d())return false;
   try{
     const kc=P([42.532,44.4945]);
     v3=GudRelief.View3D({model:TM,host:m3,pistes:D.pistes,lifts:D.lifts,P,dispName,colors:{green:'#1B8A4C',blue:'#1F5FC4',red:'#D1342B',black:'#13233A'},liftColor:'#3A4556',
@@ -514,8 +521,10 @@ document.getElementById('filters').addEventListener('click',e=>{const b=e.target
 let mapReady=false;
 function activateMap(){
   if(!mapReady){mapReady=true;fit();
-    if(can3d){sw.hidden=false;let pref=null;try{pref=localStorage.getItem('gud-view');}catch(e){}setView(pref==='2d'?'2d':'3d');}
-    else track('map_fallback',{reason:window.THREE&&TM?'no_webgl':'lib_failed'});}
+    if(TM&&hasGL()){wrap.dataset.three='loading';loadThree().then(ok=>{wrap.dataset.three=ok?'ready':'failed';
+      if(!ok){track('map_fallback',{reason:'lib_failed'});return;}
+      sw.hidden=false;let pref=null;try{pref=localStorage.getItem('gud-view');}catch(e){}if(view==='2d')setView(pref==='2d'?'2d':'3d');});}
+    else{wrap.dataset.three='none';track('map_fallback',{reason:TM?'no_webgl':'lib_failed'});}}
   else if(view==='3d'&&v3)v3.resize();else apply();
 }
 // pages: #map shows the map, anything else the home page
@@ -528,7 +537,9 @@ function route(){
   const cur=m?'map':mt?'meet':gm?'games':ab?'about':tr||ac?'':'home';
   document.querySelectorAll('[data-nav]').forEach(a=>{if(a.dataset.nav===cur)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current');});
   if(m&&!wasMap)LSTAT.viewed();
-  requestAnimationFrame(()=>{if(gm||ab||tr||ac)return;if(mt){if(MEET)MEET.open(h.slice(6));return;}if(!m){DN.layout();return;}activateMap();
+  requestAnimationFrame(function go(){if(gm||ab||tr||ac)return;if(!m&&!mt){DN.layout();return;}
+    if(!terrainDone){terrainReady.then(()=>{if(location.hash===h)requestAnimationFrame(go);});return;} // a link that came before the model (R-11)
+    if(mt){if(MEET)MEET.open(h.slice(6));return;}activateMap();
     if(run&&run!==current&&(byKey[run]||D.missing.some(x=>x.name===run)))select(run,{push:false,via:'link'});
     else if(!run&&current)overview();});
   if(!wasMap||!m){window.scrollTo(0,0);pgHome.scrollTop=0;}
@@ -543,7 +554,7 @@ const DN=(function(){
   // positions in the images, as fractions (design/round3/pano.json)
   const PJ={phone:{w:390,pk:[['Sadzele',.6215,.3989],['Bidara',.3796,.4325]],vil:[.4525,.6926]},
             wide:{w:1440,pk:[['Sadzele',.5659,.3989],['Bidara',.4347,.4325]],vil:[.4742,.6926]}};
-  const ELE=Object.fromEntries((TM?TM.peaks:[]).map(p=>[p.n,p.ele]));
+  const ele=()=>Object.fromEntries((TM?TM.peaks:[]).map(p=>[p.n,p.ele])); // the heights come with the model
   const gud=()=>{const g=new Date(Date.now()+TZ*36e5);return {h:g.getUTCHours()+g.getUTCMinutes()/60,g};};
   function sunTimes(g){
     const start=Date.UTC(g.getUTCFullYear(),0,1),n=Math.floor((g-start)/864e5)+1;
@@ -577,7 +588,7 @@ const DN=(function(){
     const P=PJ[v],vx=P.vil[0]*100,vy=P.vil[1]*100;
     const lights=[[-44,6],[-35,2],[-28,9],[-19,4],[-12,11],[-5,1],[3,7],[9,13],[16,3],[24,10],[31,5],[39,12],[-23,15],[0,16],[20,17],[46,8]]
       .map(([dx,dy])=>`<i style="left:calc(${vx}% + ${dx}px);top:calc(${vy}% + ${dy}px)"></i>`).join('');
-    const lbl=P.pk.map(([n,x,y])=>`<span class="pk-lbl" style="left:${x*100}%;top:calc(${y*100}% - 6px)">${esc(n)}${ELE[n]?` <span class="e">${ELE[n]}</span>`:''}</span>`).join('');
+    const ELE=ele(),lbl=P.pk.map(([n,x,y])=>`<span class="pk-lbl" data-pk="${esc(n)}" style="left:${x*100}%;top:calc(${y*100}% - 6px)">${esc(n)}${ELE[n]?` <span class="e">${ELE[n]}</span>`:''}</span>`).join('');
     pano.insertAdjacentHTML('beforeend',`<div class="lights">${lights}</div>${lbl}`);
   }
   const src=k=>`img/pano/pano-${variant==='wide'?'wide-':''}${k}.webp`;
@@ -632,11 +643,15 @@ const DN=(function(){
   new ResizeObserver(()=>{if(!pgHome.hidden)layout();}).observe(sky);
   setInterval(()=>paint(true),60000);
   paint(false);
-  return {layout,paint,mode:()=>mode};
+  // the peaks' heights, once the model is here: into the labels already drawn
+  function peaks(){const E=ele();pano.querySelectorAll('.pk-lbl').forEach(s=>{const v=E[s.dataset.pk];if(v&&!s.querySelector('.e'))s.insertAdjacentHTML('beforeend',` <span class="e">${v}</span>`);});}
+  return {layout,paint,peaks,mode:()=>mode};
 })();
 
 // ---- meeting point (design round 3, M1 to M3): pick a lift station and a time, share it. No database: all of it is in the link. ----
-const MEET=(function(){
+// built when the model is here (onTerrain): the stations' ends and heights come from it, and so do their ids
+let MEET=null;
+const makeMeet=()=>(function(){
   const host=document.getElementById('meetMap');if(!host)return null;
   // stations: both ends of every named lift on the main side, merged when closer than 70 m (shared top stations)
   const st=[];
@@ -1088,7 +1103,7 @@ renderTicket();
   if(document.fonts)document.fonts.ready.then(()=>heads.forEach(fit));
 })();
 // accounts and groups (js/account.js) work with these, and draw on the pages before the first route
-if(window.ACCOUNT)ACCOUNT.start({MYTRIP,esc,MEET,renderTicket,countdown});
+if(window.ACCOUNT)ACCOUNT.start({MYTRIP,esc,MEET:{station:id=>MEET?MEET.station(id):null,current:()=>MEET?MEET.current():null},renderTicket,countdown});
 route();
 overview();applyFilters();
 // the app download sign: shown only when the file really is on the server
@@ -1099,4 +1114,18 @@ fetch('downloads/gudauri-2027.apk',{method:'HEAD'}).then(r=>{
   document.getElementById('appBoard').hidden=false;document.getElementById('appBoard').addEventListener('click',()=>track('app_download',{store:'apk',placement:'home'}));document.getElementById('appHow').hidden=false;
 }).catch(()=>{});
 document.getElementById('loading').hidden=true;
+// the elevation model arrived (or failed, and then all of this stays without it): the relief and the peaks on both maps,
+// the heights on the home page, the meeting point, and a run open on the map drawn again with its profile
+function onTerrain(){
+  if(TM){
+    addRelief(svg,mainLbl,{labels,marks},true);
+    const ki=labels.findIndex(t=>t.dataset&&t.dataset.kobi);if(ki>0)labels.unshift(...labels.splice(ki,1)); // the signpost wins label collisions
+    const fb=kLbl.querySelector('[data-nomodel]');if(fb){K.labels.splice(K.labels.indexOf(fb),1);fb.remove();}
+    addRelief(kSvg,kLbl,K,false);
+    DN.peaks();cmpStats=null;
+    if(vb.w!==1)apply();if(!card.hidden)layoutInset();
+    if(current&&byKey[current]){paint2d(current);renderPiste(current);}
+  }
+  MEET=makeMeet();
+}
 })().catch(e=>{console.error(e);const l=document.getElementById('loading');l.hidden=false;l.textContent=typeof T==='function'?T('home.load_error'):'Error';});

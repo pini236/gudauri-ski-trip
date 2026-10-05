@@ -8,7 +8,12 @@ function watchErrors(page: Page) {
   listenCsp(page); page.on('console', m => { if (m.type() === 'error' && !/Failed to load resource/.test(m.text())) errors.push(m.text()); });
   return errors;
 }
-async function loaded(page: Page) { await expect(page.locator('#loading')).toBeHidden({ timeout: 20_000 }); }
+async function loaded(page: Page) {
+  await expect(page.locator('#loading')).toBeHidden({ timeout: 20_000 });
+  // the elevation model and three.js come after the home page (R-11): wait for them where they matter
+  await expect(page.locator('html[data-model]')).toBeAttached({ timeout: 20_000 });
+  if (/^#map/.test(new URL(page.url()).hash)) await expect(page.locator('.mapwrap[data-three]:not([data-three="loading"])')).toBeAttached({ timeout: 20_000 });
+}
 
 test('אורח: כרטיס ריק, מצב העונה, ובלי הכרטיס והשמות של החבר׳ה', async ({ page }) => {
   const errors = watchErrors(page);

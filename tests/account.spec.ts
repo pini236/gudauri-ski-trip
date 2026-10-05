@@ -13,7 +13,12 @@ function watchErrors(page: Page) {
   listenCsp(page); page.on('console', m => { if (m.type() === 'error' && !/Failed to load resource/.test(m.text())) errors.push(m.text()); });
   return errors;
 }
-async function loaded(page: Page) { await expect(page.locator('#loading')).toBeHidden({ timeout: 20_000 }); }
+async function loaded(page: Page) {
+  await expect(page.locator('#loading')).toBeHidden({ timeout: 20_000 });
+  // the elevation model and three.js come after the home page (R-11): wait for them where they matter
+  await expect(page.locator('html[data-model]')).toBeAttached({ timeout: 20_000 });
+  if (/^#map/.test(new URL(page.url()).hash)) await expect(page.locator('.mapwrap[data-three]:not([data-three="loading"])')).toBeAttached({ timeout: 20_000 });
+}
 const b64 = (o: object) => Buffer.from(JSON.stringify(o)).toString('base64url');
 
 // a small fake of the server: one group, one other member, and whoever joins

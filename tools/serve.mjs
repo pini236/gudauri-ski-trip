@@ -1,12 +1,13 @@
 // A local server for the site that sends the same headers as Vercel (site/vercel.json), so the tests see the
 // content security policy (R-3) and the other headers exactly as the deployed site does. No caching, clean URLs
-// (/privacy serves privacy.html), like Vercel's cleanUrls. Redirects are left to Vercel (the tests stub them).
+// (/privacy serves privacy.html), like Vercel's cleanUrls, and gzip. Redirects are left to Vercel (the tests stub them).
 //
 //     node tools/serve.mjs [port]          (npm start, and the tests' web server)
 import { createServer } from 'node:http';
 import { readFile, stat } from 'node:fs/promises';
 import { extname, join, normalize, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { gzipSync } from 'node:zlib';
 
 const root = join(fileURLToPath(new URL('.', import.meta.url)), '..', 'site');
 const port = Number(process.argv[2] || 4173);
@@ -36,5 +37,10 @@ createServer(async (req, res) => {
   if (!found) { res.writeHead(404, { ...headers, 'Content-Type': 'text/plain; charset=utf-8' }).end('Not found'); return; }
   headers['Content-Type'] ??= TYPES[extname(found).toLowerCase()] || 'application/octet-stream';
   headers['Cache-Control'] = 'no-store';
-  res.writeHead(200, headers).end(req.method === 'HEAD' ? undefined : await readFile(found));
+  let body = await readFile(found);
+  // compressed like on Vercel, so timings measured here are honest (text only; pictures and sound are compressed already)
+  if (/gzip/.test(req.headers['accept-encoding'] || '') && /text|json|javascript|svg/.test(headers['Content-Type'])) {
+    body = gzipSync(body); headers['Content-Encoding'] = 'gzip'; headers['Vary'] = 'Accept-Encoding';
+  }
+  res.writeHead(200, headers).end(req.method === 'HEAD' ? undefined : body);
 }).listen(port, '127.0.0.1', () => console.log(`site on http://127.0.0.1:${port}`));

@@ -26,7 +26,8 @@ test('מדיניות אבטחת התוכן: הכותרות נשלחות, ושו�
     await page.goto('/' + hash);
     await page.waitForTimeout(400);
   }
-  if (await page.locator('#viewsw').isVisible()) { await page.goto('/#map'); await page.click('#viewsw [data-view="3d"]'); await page.waitForTimeout(800); }
+  await page.goto('/#map'); await expect(page.locator('.mapwrap[data-three]:not([data-three="loading"])')).toBeAttached({ timeout: 20_000 });
+  if (await page.locator('#viewsw').isVisible()) { await page.click('#viewsw [data-view="3d"]'); await page.waitForTimeout(800); }
   await page.goto('/privacy');
   for (const g of ['descent', 'school', 'fresh-snow', 'merge', 'snowball']) {
     await page.goto(`/games/${g}/`);
