@@ -736,7 +736,10 @@ class MainActivity : ComponentActivity() {
                         MapScreen(mapView, scene, videos = videos, ms = MapStatus(lstat, changes, LiftStatus.inSeason(LocalDateTime.ofInstant(Instant.ofEpochMilli(tick), ZoneId.systemDefault()).monthValue),
                             forMe, { on -> forMe = on; Telemetry.event("status_only_open", mapOf("on" to on)); Qa.log("for me ${if (on) "on" else "off"}") },
                             statusSheet, { open -> statusSheet = open }), dark = frame.dark, relief = relief, askRelief = ::askRelief)
-                        if (showStats) StatsBar(top !is Route.Game, Modifier.align(Alignment.TopStart))
+                        // on the map the counter sits under the bar of the view switch and the lift status, and from above
+                        // (no 3D to count) it is not shown
+                        if (showStats && (top is Route.Game || !io.github.pini236.skiapp.map.MapMode.top))
+                            StatsBar(top !is Route.Game, Modifier.align(Alignment.TopStart).then(if (top is Route.Game) Modifier else Modifier.padding(top = 128.dp)))
                         // the way home, over the mountain or the game
                         Box(Modifier.align(Alignment.TopEnd).statusBarsPadding().padding(6.dp).background(Color(0xE6FFFFFF))) {
                             BackLink(stringResource(R.string.nav_home), { nav.back() }, Palette.glacier)

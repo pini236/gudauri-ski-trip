@@ -34,6 +34,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -70,7 +71,11 @@ class MapStatus(
  * tap on it opens the board (S2) or the snowy signs (S3), as in the site's map panel.
  */
 /** The emulator run's switch between the views (qa.mapview), read once by the map screen. */
-object MapMode { var qa by mutableStateOf<String?>(null) }
+object MapMode {
+    var qa by mutableStateOf<String?>(null)
+    /** The map is seen from above now (the frame counter has nothing to count then). */
+    var top by mutableStateOf(false)
+}
 
 @Composable
 fun MapScreen(view: MapView, scene: MapScene?, ms: MapStatus? = null, videos: List<Video> = emptyList(),
@@ -95,7 +100,10 @@ fun MapScreen(view: MapView, scene: MapScene?, ms: MapStatus? = null, videos: Li
     }
     LaunchedEffect(MapMode.qa) { MapMode.qa?.let { setMode(it, false); MapMode.qa = null } }
     val top = mode == "2d"
-    LaunchedEffect(top) { if (top) askRelief() }
+    SideEffect { MapMode.top = top }
+    // the relief: the map from above draws on it, and in 3D the contours, village, roads and water lie on the snow (A-16)
+    LaunchedEffect(Unit) { askRelief() }
+    LaunchedEffect(relief, view) { relief?.let { view.setEnv(it) } }
     val ov = remember { io.github.pini236.skiapp.meet.MeetView() }
     val scope = rememberCoroutineScope()
     val art = remember(scene) { scene?.let { OverviewArt(it.runs, it.terrain) } }
@@ -305,7 +313,7 @@ private fun androidx.compose.foundation.layout.BoxScope.MapControls(
                 val m = listOf(50, 100, 200, 250, 500, 1000, 2000).firstOrNull { it / metresPerDp >= 70f } ?: 2000
                 Column(Modifier.background(c.paper.copy(alpha = .85f)).padding(horizontal = 6.dp, vertical = 3.dp)) {
                     Box(Modifier.size(width = (m / metresPerDp).dp, height = 3.dp).background(c.ink))
-                    Text(if (m >= 1000) "${m / 1000} km" else "$m m", fontFamily = Ski.type.text, fontSize = 11.sp, color = c.ink)
+                    Text(if (m >= 1000) "\u2066${m / 1000} km\u2069" else "\u2066$m m\u2069", fontFamily = Ski.type.text, fontSize = 11.sp, color = c.ink)
                 }
             }
         }

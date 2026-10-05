@@ -25,6 +25,8 @@ class Relief2D(
     val roads: List<Path>,
     /** the named places (Gudauri, Kobi...): name and where, in metres */
     val places: List<Triple<String, Float, Float>> = emptyList(),
+    /** the index contours, every 500 m (the 3D map's stronger lines, as the site's) */
+    val c500: Path = Path(),
 ) {
     companion object {
         fun parse(json: String): Relief2D {
@@ -37,7 +39,7 @@ class Relief2D(
             }.getOrNull()
 
             // contours: [level, n, x, y, dx, dy, ...] as little-endian int16 (relief.js)
-            val c50 = Path(); val c100 = Path(); val c250 = Path()
+            val c50 = Path(); val c100 = Path(); val c250 = Path(); val c500 = Path()
             val raw = Base64.getDecoder().decode(t.getString("contours"))
             val s = ShortArray(raw.size / 2).also { ByteBuffer.wrap(raw).order(ByteOrder.LITTLE_ENDIAN).asShortBuffer().get(it) }
             var i = 0
@@ -45,8 +47,9 @@ class Relief2D(
                 val lev = s[i].toInt(); val n = s[i + 1].toInt()
                 var x = s[i + 2].toFloat(); var y = s[i + 3].toFloat(); i += 4
                 val p = if (lev % 250 == 0) c250 else if (lev % 100 == 0) c100 else c50
-                p.moveTo(x, y)
-                for (k in 1 until n) { x += s[i]; y += s[i + 1]; p.lineTo(x, y); i += 2 }
+                val q = if (lev % 500 == 0) c500 else null
+                p.moveTo(x, y); q?.moveTo(x, y)
+                for (k in 1 until n) { x += s[i]; y += s[i + 1]; p.lineTo(x, y); q?.lineTo(x, y); i += 2 }
             }
 
             val env = t.getJSONObject("env")
@@ -63,7 +66,7 @@ class Relief2D(
             }
             val places = env.optJSONArray("places")?.let { a -> (0 until a.length()).map { a.getJSONObject(it) }.map { o -> Triple(o.getString("n"), o.getDouble("x").toFloat(), o.getDouble("y").toFloat()) } }.orEmpty()
             return Relief2D(hill, d.getDouble("x0").toFloat(), d.getDouble("y0").toFloat(), d.getDouble("x1").toFloat(), d.getDouble("y1").toFloat(),
-                c50, c100, c250, village, rivers, water, roads, places)
+                c50, c100, c250, village, rivers, water, roads, places, c500)
         }
     }
 }

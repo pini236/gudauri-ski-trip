@@ -40,12 +40,16 @@ private const val TERRAIN_FS = """#version 300 es
 precision highp float;
 in vec3 vBase; in vec3 vLight; in vec2 vXZ; in float vFog;
 uniform sampler2D uGround; uniform vec4 uGroundBox; uniform float uGroundOn;
+uniform sampler2D uDrape; uniform vec4 uDrapeBox; uniform float uDrapeOn;
 uniform float uDim; uniform vec3 uDimCol; uniform vec3 uFogCol; out vec4 o;
 void main(){
   vec2 uv = (vXZ - uGroundBox.xy)*uGroundBox.zw;
   vec4 g = (uGroundOn > 0.0 && uv.x >= 0.0 && uv.y >= 0.0 && uv.x <= 1.0 && uv.y <= 1.0) ? texture(uGround, uv) : vec4(0.0);
   float a = g.a*uGroundOn;
-  vec3 lit = mix(vBase, g.rgb, a*0.85)*vLight;
+  // what lies on the snow (Drape.kt): contours, village, water and roads, premultiplied by its alpha
+  vec4 e = uDrapeOn > 0.0 ? texture(uDrape, (vXZ - uDrapeBox.xy)*uDrapeBox.zw) : vec4(0.0);
+  vec3 base = vBase*(1.0-e.a) + e.rgb;
+  vec3 lit = mix(base, g.rgb, a*0.85)*vLight;
   lit = mix(lit, uDimCol, 0.55*uDim*(1.0-a));
   o = vec4(mix(lit,uFogCol,vFog),1.0);
 }"""
@@ -252,6 +256,11 @@ class MapRenderer(
     private val inv = FloatArray(16)
     private val terrainVao = IntArray(1); private val terrainBufs = IntArray(3); private var terrainCount = 0
     private val groundTex = IntArray(1); private var groundBox: SlopeLayer? = null
+    /** What lies on the snow (Drape.kt): its texture once uploaded, and the picture waiting to be (from the worker). */
+    private val drapeTex = IntArray(1); private var drapeOn = false
+    @Volatile var drape: android.graphics.Bitmap? = null
+    /** A new GL context lost the uploaded picture: the map view paints it again. */
+    @Volatile var onDrapeLost: (() -> Unit)? = null
     private val pistes = ArrayList<Triple<String, GpuRibbon, GpuRibbon>>(); private val lifts = ArrayList<Pair<String, GpuRibbon>>()
     @Volatile var status: StatusPaint = StatusPaint.NONE
     /** The point of a chosen run under the finger on its elevation profile (T2): x, height, z; null when none. */
@@ -299,6 +308,8 @@ class MapRenderer(
         skyProg = program(SKY_VS, SKY_FS)
         // a new GL context (first start, or the map tab came back): everything is uploaded again
         uploaded = false; pistes.clear(); lifts.clear(); liftInactive.clear(); stationCount = 0; selCasing = null; selPaint = null; dim = 0f; dimTarget = 0f
+        drapeTex[0] = 0
+        if (drapeOn) { drapeOn = false; onDrapeLost?.invoke() }
         glEnable(GL_DEPTH_TEST); glEnable(GL_CULL_FACE); glCullFace(GL_BACK)
         glClearColor(0.86f, 0.91f, 0.945f, 1f)
     }
@@ -343,6 +354,25 @@ class MapRenderer(
         attr(0, 3, 12, 0)
         glBindVertexArray(0)
         uploaded = true
+    }
+
+    /** The picture of what lies on the snow, to the GPU once (with mipmaps, so far away it fades and does not shimmer). */
+    private fun uploadDrape(b: android.graphics.Bitmap) {
+        drape = null
+        glActiveTexture(GL_TEXTURE1)
+        if (drapeTex[0] == 0) glGenTextures(1, drapeTex, 0)
+        glBindTexture(GL_TEXTURE_2D, drapeTex[0])
+        android.opengl.GLUtils.texImage2D(GL_TEXTURE_2D, 0, b, 0)
+        glGenerateMipmap(GL_TEXTURE_2D)
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR); glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR)
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE); glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE)
+        // the slopes are seen at a low angle: anisotropic filtering where the phone has it, as the site's
+        if (glGetString(GL_EXTENSIONS)?.contains("GL_EXT_texture_filter_anisotropic") == true) {
+            val max = FloatArray(1); glGetFloatv(0x84FF, max, 0) // MAX_TEXTURE_MAX_ANISOTROPY_EXT
+            glTexParameterf(GL_TEXTURE_2D, 0x84FE, minOf(8f, max[0])) // TEXTURE_MAX_ANISOTROPY_EXT
+        }
+        b.recycle()
+        drapeOn = true
     }
 
     private fun setGround(g: SlopeLayer) {
@@ -417,6 +447,12 @@ class MapRenderer(
         // the ground fades in with the dimming of the rest, as the site's (opacity t*1.6)
         glUniform1f(glGetUniformLocation(terrainProg, "uGroundOn"), if (gb == null) 0f else minOf(1f, dim * 1.6f))
         if (gb != null) glUniform4f(glGetUniformLocation(terrainProg, "uGroundBox"), gb.x0, gb.z0, 1f / gb.width, 1f / gb.depth)
+        drape?.let { uploadDrape(it) }
+        glActiveTexture(GL_TEXTURE1); glBindTexture(GL_TEXTURE_2D, drapeTex[0])
+        glUniform1i(glGetUniformLocation(terrainProg, "uDrape"), 1)
+        glUniform1f(glGetUniformLocation(terrainProg, "uDrapeOn"), if (drapeOn) 1f else 0f)
+        glUniform4f(glGetUniformLocation(terrainProg, "uDrapeBox"), t.x0, t.y0, 1f / (t.x1 - t.x0), 1f / (t.y1 - t.y0))
+        glActiveTexture(GL_TEXTURE0)
         glUniform2f(glGetUniformLocation(terrainProg, "uFog"), st.dist * 1.2f + 6000f, st.dist * 4f + 30000f)
         glUniform3fv(glGetUniformLocation(terrainProg, "uFogCol"), 1, light.skyBottom, 0)
         glUniform3fv(glGetUniformLocation(terrainProg, "uDimCol"), 1, light.skyBottom, 0)

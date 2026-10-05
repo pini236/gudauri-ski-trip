@@ -19,6 +19,7 @@ import android.view.VelocityTracker
 import android.view.View
 import android.view.ViewConfiguration
 import android.widget.FrameLayout
+import androidx.compose.ui.graphics.toArgb
 import io.github.pini236.skiapp.R
 import io.github.pini236.skiapp.data.Piste
 import io.github.pini236.skiapp.perf.FrameStats
@@ -62,12 +63,19 @@ private class MountainSurface(context: Context, private val refreshHz: Float) : 
 }
 
 /** A label on the mountain: Hebrew, Latin names and numbers mixed, laid out natively (bidi) once and drawn every frame. */
-private class MapLabel(val x: Float, val y: Float, val z: Float, val layout: StaticLayout, val priority: Int, val dark: Boolean, val lift: Boolean = false)
+private class MapLabel(
+    val x: Float, val y: Float, val z: Float, val layout: StaticLayout, val priority: Int, val dark: Boolean, val lift: Boolean = false,
+    /** A run's label: its key (hidden with the run by the filters, and alone while a run is chosen). */
+    val run: String? = null,
+)
 
 private class LabelOverlay(context: Context, private val camera: OrbitCamera) : View(context) {
     var labels: List<MapLabel> = emptyList()
     /** The lifts filtered out (the list's "lifts"): their labels go with their lines. */
     var hideLifts = false
+    /** The runs filtered out, and the chosen run: then only its label of all the runs' (the site's layoutLabels). */
+    var hiddenRuns: Set<String> = emptySet()
+    var chosenRun: String? = null
     var ground: ((Float, Float) -> Float)? = null
     private val mvp = FloatArray(16); private val eye = FloatArray(3); private val v = FloatArray(4); private val out = FloatArray(4)
     private val placed = ArrayList<RectF>()
@@ -77,30 +85,57 @@ private class LabelOverlay(context: Context, private val camera: OrbitCamera) : 
 
     override fun onDraw(canvas: Canvas) {
         if (width == 0 || labels.isEmpty()) return
-        OrbitCamera.mvp(camera.state(), width.toFloat() / height, mvp, eye, minEye = ground)
+        val st = camera.state()
+        OrbitCamera.mvp(st, width.toFloat() / height, mvp, eye, minEye = ground)
         placed.clear()
-        var used = 0
-        for (l in labels) {
-            if (l.lift && hideLifts) continue
-            v[0] = l.x; v[1] = l.y; v[2] = l.z; v[3] = 1f
-            Matrix.multiplyMV(out, 0, mvp, 0, v, 0)
-            if (out[3] <= 0) continue
-            val sx = (out[0] / out[3] * 0.5f + 0.5f) * width
-            val sy = (1 - (out[1] / out[3] * 0.5f + 0.5f)) * height
-            if (sx < -50 || sx > width + 50 || sy < -20 || sy > height + 20) continue
-            val w = l.layout.width.toFloat(); val h = l.layout.height.toFloat()
-            if (used == pool.size) pool += RectF()
-            val r = pool[used]
-            r.set(sx - w / 2 - pad, sy - h - pad * 2, sx + w / 2 + pad, sy)
-            if (placed.any { RectF.intersects(it, r) }) continue
-            used++
-            placed += r
-            bg.color = if (l.dark) Color.argb(235, 19, 35, 58) else Color.argb(235, 255, 255, 255)
-            canvas.drawRect(r, bg)
-            bg.color = if (l.dark) Color.WHITE else Color.argb(255, 19, 35, 58)
-            canvas.drawRect(sx - 1.5f, sy, sx + 1.5f, sy + pad * 1.6f, bg) // the sign's post
-            canvas.save(); canvas.translate(r.left + pad, r.top + pad); l.layout.draw(canvas); canvas.restore()
+        used = 0
+        far = st.dist > 9000f
+        // the chosen run's label first, over all the others (the site's 1e3)
+        val chosen = chosenRun
+        if (chosen != null) for (l in labels) if (l.run == chosen) place(canvas, l)
+        for (l in labels) if (chosen == null || l.run != chosen) place(canvas, l)
+    }
+
+    private var used = 0
+    private var far = false
+
+    private fun place(canvas: Canvas, l: MapLabel) {
+        if (l.lift && hideLifts) return
+        val run = l.run
+        if (run != null && (run in hiddenRuns || (chosenRun != null && run != chosenRun) || (chosenRun == null && far))) return
+        v[0] = l.x; v[1] = l.y; v[2] = l.z; v[3] = 1f
+        Matrix.multiplyMV(out, 0, mvp, 0, v, 0)
+        if (out[3] <= 0) return
+        val sx = (out[0] / out[3] * 0.5f + 0.5f) * width
+        val sy = (1 - (out[1] / out[3] * 0.5f + 0.5f)) * height
+        if (sx < -50 || sx > width + 50 || sy < -20 || sy > height + 20) return
+        if (!visible(l)) return
+        val w = l.layout.width.toFloat(); val h = l.layout.height.toFloat()
+        if (used == pool.size) pool += RectF()
+        val r = pool[used]
+        r.set(sx - w / 2 - pad, sy - h - pad * 2, sx + w / 2 + pad, sy)
+        for (k in 0 until placed.size) if (RectF.intersects(placed[k], r)) return
+        used++
+        placed += r
+        bg.color = if (l.dark) Color.argb(235, 19, 35, 58) else Color.argb(235, 255, 255, 255)
+        canvas.drawRect(r, bg)
+        bg.color = if (l.dark) Color.WHITE else Color.argb(255, 19, 35, 58)
+        canvas.drawRect(sx - 1.5f, sy, sx + 1.5f, sy + pad * 1.6f, bg) // the sign's post
+        canvas.save(); canvas.translate(r.left + pad, r.top + pad); l.layout.draw(canvas); canvas.restore()
+    }
+
+    /**
+     * Not behind a ridge, as the site's labels: a few dozen steps along the line from the eye to the label, and the
+     * label is hidden where the mountain rises more than 8 m above that line.
+     */
+    private fun visible(l: MapLabel): Boolean {
+        val g = ground ?: return true
+        val dx = l.x - eye[0]; val dy = l.y - eye[1]; val dz = l.z - eye[2]
+        for (i in 4 until 40) {
+            val t = i / 40f
+            if (g(eye[0] + dx * t, eye[2] + dz * t) > eye[1] + dy * t + 8f) return false
         }
+        return true
     }
 }
 
@@ -134,7 +169,26 @@ class MapView(context: Context, refreshHz: Float, val stats: FrameStats) : Frame
     var shownLift: io.github.pini236.skiapp.data.Lift? = null
     val msaa get() = surface.msaa
 
+    /** What lies on the snow in 3D (Drape.kt): painted on the map's thread, and again when a new GL context lost it. */
+    private var env: io.github.pini236.skiapp.meet.Relief2D? = null
+    fun setEnv(r: io.github.pini236.skiapp.meet.Relief2D) {
+        if (env === r) return
+        env = r
+        scene?.let { overlay.labels = buildLabels(it); overlay.invalidate() } // the place labels come with the relief
+        paintDrape()
+    }
+    private fun paintDrape() {
+        val r = env ?: return
+        inBackground {
+            val b = runCatching { Drape.paint(r) }.getOrNull() ?: return@inBackground
+            renderer.drape = b
+            surface.requestRender()
+            Qa.log("map drape ready")
+        }
+    }
+
     init {
+        renderer.onDrapeLost = { post { paintDrape() } }
         surface.setRenderer(renderer)
         surface.renderMode = GLSurfaceView.RENDERMODE_WHEN_DIRTY
         addView(surface, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT))
@@ -172,8 +226,11 @@ class MapView(context: Context, refreshHz: Float, val stats: FrameStats) : Frame
         val display = io.github.pini236.skiapp.i18n.Lang.typeface(context, lang, display = true)
         val body = io.github.pini236.skiapp.i18n.Lang.typeface(context, lang, display = false)
         val nf = NumberFormat.getIntegerInstance(lang.locale)
-        fun layout(text: String, tf: android.graphics.Typeface?, sp: Float, color: Int): StaticLayout {
-            val p = TextPaint(Paint.ANTI_ALIAS_FLAG).apply { typeface = tf; textSize = sp * resources.displayMetrics.scaledDensity; this.color = color }
+        fun layout(text: String, tf: android.graphics.Typeface?, sp: Float, color: Int, bold: Boolean = false): StaticLayout {
+            val p = TextPaint(Paint.ANTI_ALIAS_FLAG).apply {
+                typeface = if (bold) android.graphics.Typeface.create(tf, android.graphics.Typeface.BOLD) else tf
+                textSize = sp * resources.displayMetrics.scaledDensity; this.color = color
+            }
             val w = kotlin.math.ceil(Layout.getDesiredWidth(text, p)).toInt()
             // the language's direction, not the first letter's: a Latin name first made a Hebrew label read left to right
             // and put "מ׳" on the wrong side of the height
@@ -183,7 +240,7 @@ class MapView(context: Context, refreshHz: Float, val stats: FrameStats) : Frame
         val out = ArrayList<MapLabel>()
         // peaks: a Latin name, a Hebrew unit and a number in one line, the bidi case
         for (p in s.terrain.peaks) out += MapLabel(p.x, s.terrain.elev(p.x, p.y) + 30, p.y,
-            layout(context.getString(R.string.app_peak_label, iso(p.name), nf.format(p.ele)), display, 19f, Color.argb(255, 19, 35, 58)), 3, false)
+            layout(context.getString(R.string.app_peak_label, iso(p.name), nf.format(p.ele)), display, 19f, Color.argb(255, 19, 35, 58)), 100, false)
         // the named lifts, halfway along the cable, as on the site (A-35)
         s.runs.lifts.forEachIndexed { i, l ->
             if (l.name.isBlank()) return@forEachIndexed
@@ -196,10 +253,27 @@ class MapView(context: Context, refreshHz: Float, val stats: FrameStats) : Frame
             val seg = hypot(line[k * 3] - line[k * 3 - 3], line[k * 3 + 2] - line[k * 3 - 1]).coerceAtLeast(0.01f)
             val f = ((total / 2 - acc) / seg).coerceIn(0f, 1f)
             val m = FloatArray(3) { j -> line[(k - 1) * 3 + j] + (line[k * 3 + j] - line[(k - 1) * 3 + j]) * f }
-            out += MapLabel(m[0], m[1] + 12, m[2], layout(context.getString(R.string.app_lift_label, iso(l.name)), body, 12f, Color.WHITE), 2, true, lift = true)
+            out += MapLabel(m[0], m[1] + 12, m[2], layout(context.getString(R.string.app_lift_label, iso(l.name)), body, 12f, Color.WHITE), 45, true, lift = true)
+        }
+        // the village and Kobi, as the site's place labels ("Kobi" stays Latin)
+        val relief = env
+        for ((n, x, z) in placesOf(relief)) {
+            val text = if (n == "Gudauri") context.getString(R.string.map_place_gudauri) else iso(n)
+            out += MapLabel(x, s.terrain.elev(x, z) + 10, z, layout(text, display, 15f, io.github.pini236.skiapp.ui.DayColors.muted.toArgb()), 60, false)
+        }
+        // the named runs, in their colours on the snow's light palette (the 3D map is always snowy, as the site's .r3-labels), 45% down their longest line (the site's)
+        for (p in s.runs.pistes) {
+            if (!p.named) continue
+            val line = s.draped[p.key]?.maxByOrNull { it.size } ?: continue
+            val k = (line.size / 3 * 0.45f).toInt().coerceAtMost(line.size / 3 - 1)
+            val name = if (p.key == "Firni ?") "Firni (1/2?)" else p.key
+            out += MapLabel(line[k * 3], line[k * 3 + 1] + 8, line[k * 3 + 2], layout(iso(name), body, 13f, io.github.pini236.skiapp.ui.DayColors.run(p.color).toArgb(), bold = true), 40, false, run = p.key)
         }
         return out.sortedByDescending { it.priority }
     }
+
+    /** The place labels: only the village and Kobi, as on the site; none until the relief is read. */
+    private fun placesOf(r: io.github.pini236.skiapp.meet.Relief2D?) = r?.places.orEmpty().filter { it.first == "Gudauri" || it.first == "Kobi" }
 
     /** A Latin name kept in its own direction inside a label of any language (first-strong isolate). */
     private fun iso(name: String) = "\u2068$name\u2069"
@@ -214,6 +288,7 @@ class MapView(context: Context, refreshHz: Float, val stats: FrameStats) : Frame
         // another run, or none (the panel closed): the flight down the old one stops (PARITY A-8)
         if (flyToken != null && p?.key != flyKey) stopFly()
         selected = p
+        overlay.chosenRun = p?.key; overlay.invalidate()
         onSelect?.invoke(p)
         if (chosen) onChosen?.invoke(p, via)
         renderer.marker = null
@@ -319,7 +394,7 @@ class MapView(context: Context, refreshHz: Float, val stats: FrameStats) : Frame
     fun unmark() { if (renderer.marker != null) { renderer.marker = null; surface.requestRender() } }
 
     /** The map's filters (the site's): these runs and, with [lifts] false, the lifts are not drawn, and a tap passes them by. */
-    fun setHidden(keys: Set<String>, lifts: Boolean) { renderer.hidden = keys; renderer.hideLifts = !lifts; overlay.hideLifts = !lifts; overlay.invalidate(); surface.requestRender() }
+    fun setHidden(keys: Set<String>, lifts: Boolean) { renderer.hidden = keys; renderer.hideLifts = !lifts; overlay.hideLifts = !lifts; overlay.hiddenRuns = keys; overlay.invalidate(); surface.requestRender() }
 
     /** The lift status on the mountain (S1): closed lifts and runs, and "only what's open for me". */
     fun setStatus(p: StatusPaint) { renderer.status = p; surface.requestRender() }
