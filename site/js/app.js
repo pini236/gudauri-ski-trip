@@ -60,12 +60,24 @@ const MYTRIP=(()=>{const K='gud-trip',ISO=/^\d{4}-\d\d-\d\d$/;
   // day between 00:00 and 01:00 while the clock is on summer time and the flight's day is not. 0 from that day on.
   const days=t=>{if(!t)return null;const n=new Date(),today=Date.UTC(n.getFullYear(),n.getMonth(),n.getDate());
     return Math.max(0,Math.round((Date.parse(t.out.date+'T00:00:00Z')-today)/864e5));};
-  return {get,set,skiAuto,ski,days,ISO};})();
+  // where the trip stands today (S-35, decision 58; as the app's Trip.stage): before the first ski day the countdown;
+  // on a ski day "ski day n of m", and from the last ski day to the return m of m; from the day after the return (or
+  // after the last ski day, when there is no return) no count at all
+  const stage=t=>{if(!t)return null;const n=new Date(),today=n.getFullYear()+'-'+String(n.getMonth()+1).padStart(2,'0')+'-'+String(n.getDate()).padStart(2,'0');
+    const sd=ski(t),end=t.ret&&t.ret.date?t.ret.date:sd?sd.to:null;
+    if(end&&today>end)return {k:'over'};
+    if(sd&&today>=sd.from){const m=Math.round((Date.parse(sd.to)-Date.parse(sd.from))/864e5)+1;
+      return {k:'ski',n:Math.min(Math.round((Date.parse(today)-Date.parse(sd.from))/864e5)+1,m),m};}
+    return {k:'before',days:days(t)};};
+  return {get,set,skiAuto,ski,days,stage,ISO};})();
 function countdown(dark){
   const tb=document.getElementById('tbCount'),stub=document.getElementById('tDays'),pre=document.getElementById('tDaysPre'),lbl=document.getElementById('tDaysLbl'),d=MYTRIP.days(MYTRIP.get());
   // the empty pass (no trip yet) has the same stub, with a question mark for the number (round 12, W1)
   {const [a,,c]=slots(dark?'ticket.stub_nights':'ticket.stub_days',{n:5});document.getElementById('beStubPre').textContent=a;document.getElementById('beStubPost').textContent=c;}
-  tb.hidden=d===null;if(d===null)return;
+  const st=MYTRIP.stage(MYTRIP.get());
+  tb.hidden=d===null||st.k==='over';if(d===null)return;
+  if(st.k==='over'){pre.textContent='';stub.textContent='';lbl.textContent='';return;}
+  if(st.k==='ski'){tb.textContent=T('trip.ski_day_of',{n:st.n,m:st.m});pre.textContent=T('ticket.stub_ski_day');stub.textContent=st.n;lbl.textContent=T('ticket.stub_of',{m:st.m});return;}
   const [c1,,c3]=slots(dark?'ticket.stub_nights':'ticket.stub_days',{n:Math.max(d,0)});pre.textContent=c1;
   if(d>0){
     // the top bar is a flex row: its first word after the number in its own box, as in the markup
@@ -929,7 +941,12 @@ const LSTAT=(function(){
   // status_view: once per visit to the map; on the first visit it waits for the first answer from /api/status
   let loaded=false,pend=false;
   function viewed(){if(!loaded){pend=true;return;}const f=fresh();track('status_view',f?{state:'fresh',open:names.filter(n=>isOpen(n)).length,total:names.length}:{state:data?'stale':'none'});}
-  function load(){return fetch('api/status',{cache:'no-store'}).then(r=>r.ok&&/json/.test(r.headers.get('content-type')||'')?r.json():null).catch(()=>null)
+  // how often (P-D14, as in the app's StatusSource): every five minutes December to April; out of season once a day at
+  // most, so an early opening still shows within a day. Skipped asks use the report kept in this browser
+  const DAY=864e5;
+  function ask(){if(inSeason())return true;let t=0;try{t=+localStorage.getItem('gud-lstat-asked')||0;}catch(e){}
+    const now=Date.now();if(now-t>=0&&now-t<DAY)return false;try{localStorage.setItem('gud-lstat-asked',String(now));}catch(e){}return true;}
+  function load(){return (ask()?fetch('api/status',{cache:'no-store'}):Promise.resolve(null)).then(r=>r.ok&&/json/.test(r.headers.get('content-type')||'')?r.json():null).catch(()=>null)
     .then(j=>{j=j&&j.updated&&j.lifts?j:null;
       // the last report stays in this browser, as in the app (S-29): with no answer it is shown while it is fresh
       try{if(j)localStorage.setItem('gud-lstat-last',JSON.stringify(j));else j=JSON.parse(localStorage.getItem('gud-lstat-last')||'null');}catch(e){}

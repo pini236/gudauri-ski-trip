@@ -50,7 +50,7 @@ done
 
 # The server's actions (supabase/functions/api/), with Deno.
 echo "server actions:"
-if ! DB_URL="$DB_URL" deno test -A --quiet --config supabase/functions/api/deno.json tests/api.test.ts; then
+if ! DB_URL="$DB_URL" deno test -A --quiet --config supabase/functions/api/deno.json tests/api.test.ts tests/weather.test.ts; then
   failed=1
 fi
 
