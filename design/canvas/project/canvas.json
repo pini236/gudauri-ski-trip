@@ -2317,11 +2317,19 @@
     },
     "R23-Spec.dc.html": {
       "x": 680,
-      "y": 2976,
+      "y": 4464,
       "w": 640,
       "h": 980,
       "page": "round23",
       "title": "פרטים למימוש"
+    },
+    "R23-Built.dc.html": {
+      "x": 680,
+      "y": 2976,
+      "w": 3632,
+      "h": 1068,
+      "page": "round23",
+      "title": "באתר עכשיו (מומש, 6.10.2026)"
     }
   },
   "createdOnFiles": {
@@ -3101,12 +3109,21 @@
     },
     "round23row2": {
       "kind": "title1",
+      "maxW": 3632,
+      "page": "round23",
+      "text": "באתר עכשיו",
+      "w": 240,
+      "x": 680,
+      "y": 2676
+    },
+    "round23row3": {
+      "kind": "title1",
       "maxW": 860,
       "page": "round23",
       "text": "פרטים למימוש",
       "w": 240,
       "x": 680,
-      "y": 2676
+      "y": 4164
     }
   },
   "order": [
@@ -3398,7 +3415,8 @@
     "R23-Picker.dc.html",
     "R23-Home.dc.html",
     "R23-Plates.dc.html",
-    "R23-Spec.dc.html"
+    "R23-Spec.dc.html",
+    "R23-Built.dc.html"
   ],
   "pages": [
     {
