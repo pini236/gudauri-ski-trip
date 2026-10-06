@@ -1890,6 +1890,118 @@
       "h": 1311,
       "page": "round19",
       "title": "הדרך למטה לכפר"
+    },
+    "R18-0-Decide.dc.html": {
+      "x": 0,
+      "y": 0,
+      "w": 600,
+      "h": 1380,
+      "page": "round18",
+      "title": "מה לאשר בסבב 18"
+    },
+    "R18-K2.dc.html": {
+      "x": 680,
+      "y": 0,
+      "w": 1266,
+      "h": 1054,
+      "page": "round18",
+      "title": "K-2 · טיסת החזור בדף הקבוצה"
+    },
+    "R18-K3a.dc.html": {
+      "x": 680,
+      "y": 1474,
+      "w": 1684,
+      "h": 864,
+      "page": "round18",
+      "title": "K-3 · מנהל ממלא טיסה לחבר"
+    },
+    "R18-K3b.dc.html": {
+      "x": 2444,
+      "y": 1474,
+      "w": 1266,
+      "h": 714,
+      "page": "round18",
+      "title": "K-3 · מפגשים: מחיקה, נגיעה, \"נשמר ב-\""
+    },
+    "R18-K4.dc.html": {
+      "x": 680,
+      "y": 2758,
+      "w": 1266,
+      "h": 874,
+      "page": "round18",
+      "title": "K-4 · \"הקבוצות שלי\" באפליקציה"
+    },
+    "R18-K5.dc.html": {
+      "x": 680,
+      "y": 4052,
+      "w": 1684,
+      "h": 1014,
+      "page": "round18",
+      "title": "K-5 · שדות התעופה, ושאלה לך"
+    },
+    "R18-S1.dc.html": {
+      "x": 680,
+      "y": 5486,
+      "w": 1266,
+      "h": 714,
+      "page": "round18",
+      "title": "המתג \"להציג את הטיסה שלי\" ביצירת קבוצה"
+    },
+    "R18-PK2.dc.html": {
+      "x": 680,
+      "y": 6620,
+      "w": 1266,
+      "h": 587,
+      "page": "round18",
+      "title": "P-K2 · כפתור היום והלילה מראה את המצב"
+    },
+    "R18-A28.dc.html": {
+      "x": 680,
+      "y": 7627,
+      "w": 1266,
+      "h": 834,
+      "page": "round18",
+      "title": "A-28 · גופן התוויות באנגלית"
+    },
+    "R18-A24.dc.html": {
+      "x": 680,
+      "y": 8881,
+      "w": 1684,
+      "h": 1038,
+      "page": "round18",
+      "title": "A-24 · מסך רישיונות באפליקציה"
+    },
+    "R18-Gnight.dc.html": {
+      "x": 680,
+      "y": 10339,
+      "w": 848,
+      "h": 994,
+      "page": "round18",
+      "title": "פערי מראה · דף הבית בלילה"
+    },
+    "R18-Gparts.dc.html": {
+      "x": 1608,
+      "y": 10339,
+      "w": 848,
+      "h": 554,
+      "page": "round18",
+      "title": "פערי מראה · מתג ולשוניות"
+    },
+    "R18-Ggroup.dc.html": {
+      "x": 2536,
+      "y": 10339,
+      "w": 848,
+      "h": 714,
+      "page": "round18",
+      "title": "פערי מראה · הקבוצה בלילה"
+    },
+    "R18-Ginvite.dc.html": {
+      "x": 3464,
+      "y": 10339,
+      "w": 848,
+      "h": 954,
+      "page": "round18",
+      "title": "פערי מראה · כרטיס ההזמנה, בכיוון ההפוך"
     }
   },
   "createdOnFiles": {
@@ -1899,7 +2011,7 @@
   "designSystems": [],
   "launch": {
     "view": "canvas",
-    "page": "round19"
+    "page": "round18"
   },
   "notes": {
     "featRow1": {
@@ -2468,6 +2580,87 @@
       "w": 240,
       "x": 680,
       "y": 8412
+    },
+    "round18row0": {
+      "kind": "title1",
+      "maxW": 1266,
+      "page": "round18",
+      "text": "K-2 · טיסת החזור",
+      "w": 240,
+      "x": 680,
+      "y": -300
+    },
+    "round18row1": {
+      "kind": "title1",
+      "maxW": 3030,
+      "page": "round18",
+      "text": "K-3 · דף הקבוצה באתר",
+      "w": 240,
+      "x": 680,
+      "y": 1174
+    },
+    "round18row2": {
+      "kind": "title1",
+      "maxW": 1266,
+      "page": "round18",
+      "text": "K-4 · הקבוצות שלי",
+      "w": 240,
+      "x": 680,
+      "y": 2458
+    },
+    "round18row3": {
+      "kind": "title1",
+      "maxW": 1684,
+      "page": "round18",
+      "text": "K-5 · שדות התעופה",
+      "w": 240,
+      "x": 680,
+      "y": 3752
+    },
+    "round18row4": {
+      "kind": "title1",
+      "maxW": 1266,
+      "page": "round18",
+      "text": "יצירת קבוצה: המתג",
+      "w": 240,
+      "x": 680,
+      "y": 5186
+    },
+    "round18row5": {
+      "kind": "title1",
+      "maxW": 1266,
+      "page": "round18",
+      "text": "P-K2 · יום ולילה",
+      "w": 240,
+      "x": 680,
+      "y": 6320
+    },
+    "round18row6": {
+      "kind": "title1",
+      "maxW": 1266,
+      "page": "round18",
+      "text": "A-28 · גופן באנגלית",
+      "w": 240,
+      "x": 680,
+      "y": 7327
+    },
+    "round18row7": {
+      "kind": "title1",
+      "maxW": 1684,
+      "page": "round18",
+      "text": "A-24 · רישיונות",
+      "w": 240,
+      "x": 680,
+      "y": 8581
+    },
+    "round18row8": {
+      "kind": "title1",
+      "maxW": 3632,
+      "page": "round18",
+      "text": "פערי המראה: האפליקציה מתיישרת לאתר (חוץ מההזמנה)",
+      "w": 240,
+      "x": 680,
+      "y": 10039
     }
   },
   "order": [
@@ -2705,9 +2898,27 @@
     "R19-states.dc.html",
     "R19-and-loc-on.dc.html",
     "R19-desk-map.dc.html",
-    "R19-loc-down.dc.html"
+    "R19-loc-down.dc.html",
+    "R18-0-Decide.dc.html",
+    "R18-K2.dc.html",
+    "R18-K3a.dc.html",
+    "R18-K3b.dc.html",
+    "R18-K4.dc.html",
+    "R18-K5.dc.html",
+    "R18-S1.dc.html",
+    "R18-PK2.dc.html",
+    "R18-A28.dc.html",
+    "R18-A24.dc.html",
+    "R18-Gnight.dc.html",
+    "R18-Gparts.dc.html",
+    "R18-Ggroup.dc.html",
+    "R18-Ginvite.dc.html"
   ],
   "pages": [
+    {
+      "id": "round18",
+      "name": "סבב 18: יישור קו בין האתר לאפליקציה"
+    },
     {
       "id": "round19",
       "name": "סבב 19: מזג אוויר ומיקום"
