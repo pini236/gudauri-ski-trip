@@ -36,7 +36,7 @@
     if(!row)return;
     var val=document.getElementById('abLangVal');
     val.textContent=NAMES[I18N.lang];val.lang=I18N.lang;val.dir=I18N.lang==='he'?'rtl':'ltr';
-    document.getElementById('abLangSub').textContent=T(I18N.chosen?'about.language_manual':'about.language_auto');
+    const sub=document.getElementById('abLangSub');sub.textContent=I18N.chosen?'':T('about.language_auto');sub.hidden=!!I18N.chosen;
     if(I18N.lang==='en')row.querySelector('.ab-lang-en').hidden=true;
   });
   if(row)row.addEventListener('click',open);

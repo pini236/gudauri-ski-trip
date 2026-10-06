@@ -398,7 +398,7 @@ private fun RunProfile(p: Piste, f: RunFacts, runs: Runs, terrain: Terrain, a: P
     var info by remember { mutableStateOf(false) }
     Row(verticalAlignment = Alignment.CenterVertically) {
         H3(stringResource(R.string.run_profile_heading))
-        InfoDot(stringResource(R.string.run_profile_info), info) { info = !info }
+        InfoDot(stringResource(R.string.run_profile_info_aria), info) { info = !info }
     }
     if (info) {
         Hint(stringResource(R.string.run_profile_hint), Modifier.padding(bottom = 2.dp))
@@ -485,9 +485,9 @@ private fun RunProfile(p: Piste, f: RunFacts, runs: Runs, terrain: Terrain, a: P
         val w = 1.dp.toPx()
         drawRect(c.rule, Offset.Zero, Size(size.width, w)); drawRect(c.rule, Offset(0f, size.height - w), Size(size.width, w))
     }) {
-        Step(stringResource(R.string.run_ahead_start), n.format(pts.first().h.roundToInt()), m, null, Modifier.weight(1f), first = true)
-        if (f.steepG > 0) Step(stringResource(R.string.run_ahead_steep), RunFacts.deg(f.maxG).toString() + "°", null, Color(0xFFDC3B33), Modifier.weight(1f))
-        Step(stringResource(R.string.run_ahead_end), n.format(pts.last().h.roundToInt()), m, null, Modifier.weight(1f))
+        Step(stringResource(R.string.run_step_start), n.format(pts.first().h.roundToInt()), m, null, Modifier.weight(1f), first = true)
+        if (f.steepG > 0) Step(stringResource(R.string.run_step_steep), RunFacts.deg(f.maxG).toString() + "°", null, Color(0xFFDC3B33), Modifier.weight(1f))
+        Step(stringResource(R.string.run_step_end), n.format(pts.last().h.roundToInt()), m, null, Modifier.weight(1f))
     }
 }
 

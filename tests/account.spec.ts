@@ -98,15 +98,25 @@ test('אורח: האתר לא פונה לשרת, ושלט הקבוצה מזמי�
   await page.goto('/');
   await loaded(page);
   await expect(page.locator('#groupBoard')).toBeVisible();
-  await expect(page.locator('#groupBoardSub')).toHaveText('יצירת קבוצה, או הצטרפות בקוד');
+  await expect(page.locator('#groupBoardSub')).toBeHidden();
   await page.goto('/#signin');
   await expect(page.locator('#signinPage')).toBeVisible();
   // Google's own button (Google Identity Services, faked here), and Apple waits for its account
   await expect(page.locator('#signinPage .ac-gsi [data-fake-gsi]')).toBeVisible();
   await expect(page.locator('#signinPage .ac-btn.apple')).toBeDisabled();
+  await expect(page.locator('#signinPage .ac-why > span')).toHaveCount(3);
+  await expect(page.locator('#signinPage')).not.toContainText('כל השאר עובד בלי חשבון');
   await page.goto('/#group');
   await expect(page.locator('#grCode')).toBeVisible();
-  await expect(page.locator('#grCreate [type=submit]')).toBeDisabled();
+  // round 20: three promises in the sign-in card; a guest's "create group" opens a sign-in sheet instead of a line saying so
+  await expect(page.locator('#grNone .ac-why > span')).toHaveCount(3);
+  await expect(page.locator('#grCreate input[name="name"]')).toBeDisabled();
+  await page.locator('#grCreate [type=submit]').click();
+  await expect(page.locator('#grSheet')).toBeVisible();
+  await expect(page.locator('#grSheet h2')).toHaveText('יצירת קבוצה דורשת התחברות');
+  await expect(page.locator('#grSheet .ac-gsi [data-fake-gsi]')).toBeVisible();
+  await page.keyboard.press('Escape');
+  await expect(page.locator('#grSheet')).toHaveCount(0);
   expect(server.calls).toEqual([]);
   expect(lib).toEqual([]);
   expect(errors).toEqual([]);
@@ -123,6 +133,10 @@ test('הצטרפות בקוד: אורח, הטיסה שלי בקבוצה, החש�
   await expect(page).toHaveURL(/#join\/KZBQRM/i);
   await expect(page.locator('#joinCard .ac-big')).toHaveText('קבוצת בדיקה');
   await expect(page.locator('#joinReclaim')).toBeVisible();
+  // round 20: the top names the group with its members as circles, and the app code is in boxes
+  await expect(page.locator('#joinCard small').first()).toHaveText('מצטרפים ל');
+  expect(await page.locator('#joinCard .ac-avs i').count()).toBeGreaterThan(0);
+  await expect(page.locator('#joinCode i')).toHaveCount(6);
   await page.locator('#joinForm input').fill('נועה ניסיון');
   await page.locator('#joinForm button').click();
   await expect(page).toHaveURL(/#group\/g1/);
@@ -166,7 +180,7 @@ test('הצטרפות בקוד: אורח, הטיסה שלי בקבוצה, החש�
   await expect(page.locator('#delBtns')).toContainText('החשבון נמחק.');
   expect(server.calls).toContain('POST /functions/v1/api/delete_my_account');
   await page.goto('/#home');
-  await expect(page.locator('#groupBoardSub')).toHaveText('יצירת קבוצה, או הצטרפות בקוד');
+  await expect(page.locator('#groupBoardSub')).toBeHidden();
   // what is in this browser stays: the trip
   await expect(page.locator('#bpStack')).toBeVisible();
   const wide = await page.evaluate(() => document.documentElement.scrollWidth - innerWidth);
@@ -287,7 +301,7 @@ test('בקשה שממתינה למנהל: נשארת אחרי טעינה מחד�
   await expect(page.locator('#joinForm')).toBeHidden();
   await page.reload();
   await loaded(page);
-  await expect(page.locator('#joinPage [data-err]')).toContainText('הבקשה נשלחה למנהל');
+  await expect(page.locator('#joinPend')).toContainText('ממתין לאישור המנהל');
   await page.locator('#joinPage [data-cancelreq]').click();
   await expect(page.locator('#joinForm')).toBeVisible();
   expect(server.calls).toContain('POST /functions/v1/api/cancel_join_request');

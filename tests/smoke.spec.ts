@@ -229,8 +229,16 @@ test('תצוגת מסלול: קישור ישיר, צביעה לפי שיפוע, 
   await range.evaluate((e: HTMLInputElement) => { e.value = String(Math.round(+e.max / 2)); e.dispatchEvent(new Event('input', { bubbles: true })); });
   await expect(page.locator('#pfD')).not.toHaveText('0 מ׳');
   await expect(page.locator('#map .runmark')).toBeVisible();
-  await expect(page.locator('.brief li')).toHaveCount(3);
-  await expect(page.locator('.run-cmp .tag')).toHaveCount(2);
+  // round 20: what's ahead is three big numbers; no compare line, connections, notes or source block (decision 64)
+  await expect(page.locator('.steps > div')).toHaveCount(3);
+  await expect(page.locator('.steps .st b')).toHaveText(/^\d+°$/);
+  await expect(page.locator('.steps > div').first().locator('b')).toHaveText(/^[\d,]+ מ׳$/);
+  await expect(page.locator('#panel')).not.toContainText('חיבורים');
+  await expect(page.locator('#panel')).not.toContainText('רמת ודאות');
+  await expect(page.locator('#panel .info-pop')).toBeHidden();
+  await page.locator('#panel [data-info]').click();
+  await expect(page.locator('#panel .info-pop')).toBeVisible();
+  await expect(page.locator('#panel [data-info]')).toHaveAttribute('aria-expanded', 'true');
   // המסלול הבא, וכפתור חזרה בדפדפן
   await page.locator('.run-nav button').last().click();
   await expect(page.locator('#panel h2')).not.toHaveText('Tatra 2');
@@ -243,7 +251,7 @@ test('תצוגת מסלול: קישור ישיר, צביעה לפי שיפוע, 
   expect(errors).toEqual([]);
 });
 
-test('נקודת מפגש: בוחרים תחנה ושעה, כרטיס, איך מגיעים וקישור לשיתוף', async ({ page }) => {
+test('נקודת מפגש: בוחרים תחנה ושעה, כרטיס וקישור לשיתוף (סבב 20: בלי איך מגיעים, שעה אחרת כבלוק, שיתוף בסמלים)', async ({ page }) => {
   const errors = watchErrors(page);
   await withTrip(page);
   await page.goto('/#meet');
@@ -255,7 +263,16 @@ test('נקודת מפגש: בוחרים תחנה ושעה, כרטיס, איך מ
   await expect(page.locator('[data-pre="am"]')).toHaveAttribute('aria-pressed', 'true');
   await expect(page.locator('#meetCard [data-f="name"]')).toHaveText('Goodaura');
   await expect(page.locator('#meetCard [data-f="time"]')).toHaveText('09:30');
-  await expect(page.locator('#meetRoutes li').first()).toBeVisible();
+  await expect(page.locator('#meetRoutes')).toHaveCount(0);
+  await expect(page.locator('#meetCallout')).toHaveText('Goodaura');
+  await expect(page.locator('[data-times] button')).toHaveCount(7);
+  await expect(page.locator('#meetShareBox .ms-ico')).toHaveCount(4);
+  await expect(page.locator('#meetCopy')).toHaveAttribute('aria-label', 'העתקת הקישור');
+  // another time: the seventh block shows the time once picked
+  await page.locator('#meetTime').fill('10:15');
+  await expect(page.locator('[data-other]')).toHaveText('10:15');
+  await expect(page.locator('[data-other]')).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.locator('#meetCard [data-f="time"]')).toHaveText('10:15');
   // יום ושעה
   // ימי הסקי של הטיול שלך: 11 עד 14 בינואר
   await expect(page.locator('[data-days] button')).toHaveCount(4);

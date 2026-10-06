@@ -28,6 +28,8 @@ test('עמוד המשחקים: שלט בבית, כרטיס לכל משחק, וח
   await expect(page.locator('#gamesPage')).toBeVisible();
   await expect(page.locator('#home')).toBeHidden();
   const cards = page.locator('#gamesPage .game-card');
+  // round 20: no intro text and no tags on the pictures
+  await expect(page.locator('#gamesPage .games-intro, #gamesPage .gc-tag, #gamesPage .gc-meta')).toHaveCount(0);
   await expect(cards).toHaveCount(GAMES.length);
   for (const g of GAMES) await expect(page.locator(`#gamesPage a[href="games/${g.slug}/"]`)).toContainText(g.title);
   await page.screenshot({ path: `test-results/${info.project.name}-games.png`, fullPage: true });

@@ -277,20 +277,6 @@ function select(key,{zoom=true,push=true,via=''}={}){
 function pips(c){const n=RATE[c][0];return `<span class="pips c-${c}">${[1,2,3,4].map(i=>`<i class="${i<=n?'on':''}"></i>`).join('')}</span>`;}
 function liftBtn(name){const l=D.lifts.find(x=>x.name===name);return l?`<button class="tag" data-lift="${l.id}">⇡ ${esc(name)}</button>`:esc(name);}
 function pisteBtn(k){const p=byKey[k];return p?`<button class="tag c-${p.color}" data-goto="${esc(k)}">${esc(dispName(p))}</button>`:'';}
-function notesFor(p){
-  const n=[];
-  if(p.key==='Zuma')n.push(T('run.note_zuma_two_lines'));
-  const mism=p.osmDiff.filter(x=>x!=='—'&&OSMD[x]&&OSMD[x][1]!==p.color);
-  if(p.named&&mism.length)n.push(T('run.note_osm_grade_mismatch',{grades:mism.map(x=>OSMD[x][0]).join(', '),color:HEB[p.color]}));
-  if(p.named&&p.osmDiff.includes('—'))n.push(T('run.note_osm_no_grade'));
-  const lin=p.segs.filter(s=>!s.area).length;if(lin>1)n.push(T('run.note_separate_segments',{n:lin}));
-  if(p.segs.some(s=>s.area))n.push(T('run.note_area_polygon'));
-  if(p.lit.includes('yes'))n.push(T('run.note_lit'));
-  if(p.kind==='ski-way')n.push(T('run.note_ski_way'));
-  if(p.kind==='beginner-area')n.push(T('run.note_beginner_area'));
-  if(!p.named)n.push(T('run.note_unnamed_osm'));
-  return n;
-}
 function hostOf(u){try{return new URL(u).hostname.replace(/^www\./,'')}catch{return u}}
 const ytId=u=>{try{const x=new URL(u);if(/(^|\.)youtube\.com$/.test(x.hostname))return(x.searchParams.get('v')||'').match(/^[\w-]{11}$/)?x.searchParams.get('v'):null;if(x.hostname==='youtu.be'){const i=x.pathname.slice(1);return/^[\w-]{11}$/.test(i)?i:null;}}catch{}return null;};
 function vidList(key){
@@ -309,30 +295,11 @@ function elevRows(p){
   <dt>${E('run.stat_drop_label')}</dt><dd>${H('common.unit_m',{n:s.drop},{n:num(s.drop)})}${lines.length===1&&p.len?' · '+H('run.stat_avg_gradient',{},{pct:num(Math.round(s.drop/p.len*100))}):''}</dd>
   <dt>${E('run.stat_steep_label')}</dt><dd>${num(Math.round(s.maxG*100)+'%')} <span class="hint">${E('run.stat_steep_hint')}</span></dd>`;
 }
-const CONFH={high:T('run.confidence_high'),medium:T('run.confidence_medium'),low:T('run.confidence_low')};
-const STATH={'osm-named':T('run.source_osm_named'),'osm-unnamed-match':T('run.source_osm_unnamed_match'),'gps':T('run.source_gps')};
-// the research notes are written in Hebrew in the data file; their translations live in the strings file (research.<run>.*),
-// and a note with no translation shows as written
-const RN=(key,he)=>{const v=T(key);return v===key?he:v;},rslug=p=>p.key.toLowerCase().replace(/ /g,'_');
-function researchBlock(p){const r=p.research,k='research.'+rslug(p);
-  return `<h3>${E('run.source_heading')}</h3>
-  <dl class="kv"><dt>${E('run.confidence_label')}</dt><dd>${esc(CONFH[r.conf]||r.conf)}</dd>
-  <dt>${E('run.source_label')}</dt><dd>${esc(STATH[r.status]||r.status)}${r.historical?E('run.source_historical'):''}</dd>
-  ${r.gps?`<dt>${E('run.gps_tracks_label')}</dt><dd>${H('run.gps_tracks_value',{n:r.gps},{n:num(r.gps)})}</dd>`:''}
-  ${r.partial?`<dt>${E('run.coverage_label')}</dt><dd>${esc(RN(k+'.partial',r.partial))}</dd>`:''}</dl>
-  <p class="hint">${esc(RN(k+'.notes',r.notes))}</p>
-  <ul class="notes">${r.sources.map(x=>`<li class="hint"><bdi>${esc(/[\u0590-\u05ff]/.test(x)?RN('research.source_mta',x):x)}</bdi></li>`).join('')}</ul>`;}
 const navList=()=>{const order=['green','blue','red','black'];return D.pistes.filter(p=>p.named).sort((a,b)=>order.indexOf(a.color)-order.indexOf(b.color)||a.key.localeCompare(b.key,undefined,{numeric:true})).map(p=>p.key);};
 function runNav(key){
   const L=navList(),i=L.indexOf(key);if(i<0)return `<div class="run-nav"><button type="button" class="rn-share" data-share="${esc(key)}">${E('run.share_button')}</button></div>`;
   const prev=L[(i-1+L.length)%L.length],next=L[(i+1)%L.length],[back,fwd]=I18N.ltr?['←','→']:['→','←'];
   return `<div class="run-nav" role="group" aria-label="${E('run.nav_group_aria')}"><button type="button" data-goto="${esc(prev)}" aria-label="${E('run.nav_prev_aria',{run:prev})}">${back} <span dir="ltr">${esc(prev)}</span></button><button type="button" class="rn-share" data-share="${esc(key)}">${E('run.share_button')}</button><button type="button" data-goto="${esc(next)}" aria-label="${E('run.nav_next_aria',{run:next})}"><span dir="ltr">${esc(next)}</span> ${fwd}</button></div>`;
-}
-let cmpStats=null;
-function comparable(){ // steepness and length of every named run, once
-  if(cmpStats)return cmpStats;cmpStats=[];
-  D.pistes.forEach(p=>{if(!p.named||(p.kind&&p.kind!=='run')||!TM)return;const Ls=runLines(p);if(!Ls.length)return;const s=GudRelief.stats(TM,Ls);cmpStats.push({key:p.key,g:s.maxG,len:p.len});});
-  return cmpStats;
 }
 function runViewBlock(key){
   const pr=runProfile(key),p=byKey[key];if(!pr||pr.S.length<4)return '';
@@ -341,15 +308,9 @@ function runViewBlock(key){
   const line=S.map(q=>X(q.d)+','+Y(q.h)).join(' ');
   let band='';for(let i=0,j=0;i<n-1;i=j){const c=GudRelief.slopeColor(S[i].a);j=i+1;while(j<n-1&&GudRelief.slopeColor(S[j].a)===c)j++;band+=`<rect x="${X(S[i].d)}" y="${Hc-14}" width="${(X(S[j].d)-X(S[i].d)+.6).toFixed(1)}" height="7" fill="${c}"/>`;}
   const st=pr.steep,deg=g=>Math.round(Math.atan(g)*180/Math.PI),maxG=GudRelief.stats(TM,runLines(p)).maxG; // the same number as in the details above
-  const first=S.find(q=>q.d>=150)||S[n-1],g0=(S[0].h-first.h)/(first.d||1);
-  const cmp=comparable(),me=cmp.find(x=>x.key===key);
-  let cmpHtml='';if(me&&cmp.length>2){const others=cmp.filter(x=>x.key!==key);
-    const bg=others.slice().sort((a,b)=>Math.abs(a.g-me.g)-Math.abs(b.g-me.g))[0],bl=others.slice().sort((a,b)=>Math.abs(a.len-me.len)-Math.abs(b.len-me.len))[0];
-    cmpHtml=`<p class="run-cmp">${H('run.compare_line',{},{steep_run:pisteBtn(bg.key),long_run:pisteBtn(bl.key)})}</p>`;}
-  const endTxt=p.toLifts.length?H('run.end_to_lift',{},{lifts:p.toLifts.map(liftBtn).join('')}):p.joins.length?H('run.end_continue_to',{},{runs:p.joins.map(pisteBtn).join('')}):'';
-  const startTxt=p.fromLifts.length?H('run.start_from_lift',{},{lifts:p.fromLifts.map(liftBtn).join('')}):'';
   const fly=can3d&&!reduceMotion()?`<button type="button" class="btn run-fly" data-fly="${esc(key)}">${E('run.fly_button')}</button>`:'';
-  return `<h3>${E('run.profile_heading')}</h3>
+  return `<h3>${E('run.profile_heading')}<button type="button" class="i-btn" data-info aria-expanded="false" aria-label="${E('run.profile_info_aria')}">i</button></h3>
+  <div class="info-pop hint" hidden><p>${E('run.profile_hint')}</p>${TM?`<p>${E('run.elevation_accuracy_hint')}</p>`:''}</div>
   <div class="prof"><svg viewBox="0 0 ${W} ${Hc}" preserveAspectRatio="none" aria-hidden="true">
     <polygon points="8,${Hc-16} ${line} ${W-8},${Hc-16}" class="pf-fill"/><polyline points="${line}" class="pf-line"/>${band}
     ${st.g?`<rect x="${X(st.d)}" y="0" width="${(X(S[st.j].d)-X(st.d)).toFixed(1)}" height="${Hc-16}" class="pf-steep"/>`:''}
@@ -360,13 +321,11 @@ function runViewBlock(key){
   <ul class="slope-key">${GudRelief.SLOPE.map(([,c,t],i,a)=>`<li><i style="background:${c}"></i>${esc(i===0?T('map.slope_upto15'):i===a.length-1?T('map.slope_over30'):t)}</li>`).join('')}</ul>
   ${fly}
   <h3>${E('run.ahead_heading')}</h3>
-  <ol class="brief">
-    <li><b>${H('run.ahead_start_title',{},{alt:num(Math.round(S[0].h))})}</b><span>${H('run.ahead_start_text',{deg:deg(g0)},{start:startTxt})}</span></li>
-    ${st.g?`<li class="b-steep"><b>${H('run.ahead_steep_title',{},{dist:num(Math.round(st.d))})}</b><span>${H('run.ahead_steep_text',{deg:deg(maxG)},{pct:num(Math.round(maxG*100))})}</span></li>`:''}
-    <li><b>${H('run.ahead_end_title',{},{alt:num(Math.round(S[n-1].h))})}</b><span>${H('run.ahead_end_text',{},{dist:num(Math.round(dmax)),end:endTxt})}</span></li>
-  </ol>
-  ${cmpHtml}
-  <p class="hint">${E('run.profile_hint')}</p>`;
+  <div class="steps">
+    <div><small>${E('run.step_start')}</small><b class="num">${H('common.unit_m',{n:Math.round(S[0].h)},{n:num(Math.round(S[0].h))})}</b></div>
+    <div class="st"><small>${E('run.step_steep')}</small><b class="num">${deg(maxG)}°</b></div>
+    <div><small>${E('run.step_end')}</small><b class="num">${H('common.unit_m',{n:Math.round(S[n-1].h)},{n:num(Math.round(S[n-1].h))})}</b></div>
+  </div>`;
 }
 function profAt(i){
   const k=document.getElementById('profRange');if(!k)return;const pr=runProfile(k.dataset.key);if(!pr)return;const S=pr.S,q=S[Math.max(0,Math.min(S.length-1,i))];
@@ -389,7 +348,7 @@ function renderPiste(key){
   if(!p){const m=D.missing.find(x=>x.name===key);if(!m)return overview();
     panel.innerHTML=`<button class="back" data-back>${E('map.back_all_runs')}</button><h2 class="c-${m.color}">${esc(m.name)}</h2>
     <dl class="kv"><dt>${E('run.official_color_label')}</dt><dd>${pips(m.color)}${esc(HEB[m.color])} · ${esc(RATE[m.color][1])}</dd><dt>${E('common.length_label')}</dt><dd>—</dd></dl>
-    <h3>${E('run.notes_heading')}</h3><div class="notice">${E('run.missing_notice')}</div>${vidBlock(key,m.name)}`;
+    <div class="notice">${E('run.missing_notice')}</div>${vidBlock(key,m.name)}`;
     return;}
   const c=p.color,label=p.named?(p.key==='Firni ?'?'Firni':p.key):'';
   panel.innerHTML=`<button class="back" data-back>${E('map.back_all_runs')}</button>
@@ -406,17 +365,6 @@ function renderPiste(key){
   </dl>
   ${typeof WX!=='undefined'&&WX?WX.cond(p):''}
   ${runViewBlock(key)}
-  <h3>${E('run.connections_heading')}</h3>
-  <dl class="kv">
-    <dt>${E('run.lift_at_top')}</dt><dd>${p.fromLifts.map(liftBtn).join('')||'—'}</dd>
-    <dt>${E('run.lift_at_bottom')}</dt><dd>${p.toLifts.map(liftBtn).join('')||'—'}</dd>
-    <dt>${E('run.joins_label')}</dt><dd>${p.joins.map(pisteBtn).join('')||'—'}</dd>
-    <dt>${E('run.from_runs_label')}</dt><dd>${p.fromPistes.map(pisteBtn).join('')||'—'}</dd>
-  </dl>
-  ${TM?`<p class="hint">${E('run.elevation_accuracy_hint')}</p>`:''}
-  <p class="hint">${E('run.connections_hint')}</p>
-  <h3>${E('run.notes_heading')}</h3><ul class="notes">${notesFor(p).map(x=>`<li>${esc(x)}</li>`).join('')||`<li>${E('run.notes_none')}</li>`}</ul>
-  ${p.research?researchBlock(p):''}
   <p class="hint">OSM: ${[...new Set(p.research&&p.research.osmIds.length?p.research.osmIds:p.segs.map(s=>s.id))].map(id=>`<a href="https://www.openstreetmap.org/way/${id}" target="_blank" rel="noopener">${id}</a>`).join(' · ')}</p>
   ${p.named?vidBlock(key,label):''}`;
 }
@@ -464,6 +412,8 @@ function overview(){
 panel.addEventListener('input',e=>{if(e.target.id==='profRange'){profAt(+e.target.value);if(scrubbed!==current){scrubbed=current;track('run_profile_scrub',{run:current});}}});
 panel.addEventListener('click',e=>{
   const b=e.target.closest('button');if(!b)return;
+  // the (i) by the profile heading opens how the numbers were worked out (round 20)
+  if(b.dataset.info!==undefined){const pop=b.closest('h3').nextElementSibling,on=pop.hidden;pop.hidden=!on;b.setAttribute('aria-expanded',String(on));return;}
   if(b.dataset.share!==undefined){const k=b.dataset.share,url=location.origin+location.pathname+'?utm_medium=share#map/run/'+encodeURIComponent(k);
     if(navigator.share)navigator.share({title:T('run.share_title',{run:k}),url}).then(()=>track('run_share',{run:k,method:'native'})).catch(()=>{});
     else if(navigator.clipboard)navigator.clipboard.writeText(url).then(()=>{track('run_share',{run:k,method:'copy'});b.textContent=T('common.link_copied');setTimeout(()=>{b.textContent=T('run.share_button');},2200);}).catch(()=>{});return;}
@@ -764,22 +714,18 @@ const makeMeet=()=>(function(){
   const ui=document.getElementById('meetUI');
   function drawDays(){ui.querySelector('[data-days]').innerHTML=DAYS.map(([v,l])=>`<button type="button" data-day="${v}">${esc(l)}</button>`).join('');}
   drawDays();
-  ui.querySelector('[data-times]').innerHTML=TIMES.map(t=>`<button type="button" class="num" data-time="${t}">${t}</button>`).join('');
+  // "another time" is a seventh block in the time row (round 20): a clock that opens the time picker, and shows the time once picked
+  const CLOCK='<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/><path d="M19 3v4M17 5h4"/></svg>';
+  ui.querySelector('[data-times]').innerHTML=TIMES.map(t=>`<button type="button" class="num" data-time="${t}">${t}</button>`).join('')+`<button type="button" class="num mt-other" data-other aria-label="${E('meet.other_time')}" title="${E('meet.other_time')}">${CLOCK}</button>`;
+  function otherTime(){const b=ui.querySelector('[data-other]'),own=!TIMES.includes(S.time);b.setAttribute('aria-pressed',String(own));b.innerHTML=own?esc(S.time):CLOCK;}
   ui.querySelector('[data-pre]').innerHTML=PRE.map(([k,l,s,t],i)=>`<button type="button" class="mp-sign mp-${k}" data-pre="${k}"><b>${esc(l)}</b><span dir="ltr">${esc(s.name)} ${t}</span></button>`).join('');
   ui.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;
-    if(b.dataset.day){S.day=b.dataset.day;S.preset='';render();}
+    if(b.dataset.other!==undefined){const t=ui.querySelector('#meetTime');try{t.showPicker();}catch(err){t.classList.add('show');t.focus();}}
+    else if(b.dataset.day){S.day=b.dataset.day;S.preset='';render();}
     else if(b.dataset.time){S.time=b.dataset.time;S.preset='';ui.querySelector('#meetTime').value=S.time;render();}
     else if(b.dataset.pre){const p=PRE.find(x=>x[0]===b.dataset.pre);S.time=p[3];ui.querySelector('#meetTime').value=S.time;pick(p[2].id,p[0],true);track('meet_pick',{kind:'preset',preset:{am:'morning',noon:'noon',pm:'end'}[p[0]]});}});
   ui.querySelector('#meetTime').addEventListener('input',e=>{if(/^\d\d:\d\d$/.test(e.target.value)){S.time=e.target.value;S.preset='';render();}});
   function pick(id,preset,fly){S.sid=id;S.preset=preset||'';const s=byId[id];if(fly&&s)goTo(s.x,s.y,Math.max(1400,vb.w<1500?vb.w:1800),650);render();}
-  // how to get there, from the connections in the data only
-  const chip=p=>`<span class="rt-run c-${p.color}" dir="ltr">${esc(dispName(p))}</span>`,liftChip=n=>`<span class="rt-lift" dir="ltr">⇡ ${esc(n)}</span>`,dot='<span class="rt-dot" aria-hidden="true"></span>',sep='<span class="rt-sep" aria-hidden="true"></span>';
-  function routes(s){const out=[];
-    s.ends.forEach(({l,end})=>{
-      if(end==='b')D.pistes.filter(p=>p.named&&p.toLifts.includes(l.name)).forEach(p=>{const pr=p.fromPistes.map(k=>byKey[k]).find(x=>x&&x.named&&x.key!==p.key);
-        out.push({from:pr?T('meet.route_from_run',{run:pr.key}):T('meet.route_from_top_of',{run:p.key}),html:[pr?chip(pr):'',chip(p),dot].filter(Boolean).join(sep)});});
-      else out.push({from:T('meet.route_from_bottom_station',{lift:l.name}),html:[liftChip(l.name),dot].join(sep)});});
-    return out.filter((r,i)=>out.findIndex(q=>q.html===r.html)===i).slice(0,4);}
   const pad=n=>String(n).padStart(2,'0');
   function link(){return location.origin+location.pathname+`?utm_medium=share#meet/${S.sid}/${S.time.replace(':','')}/${S.day.replace(/-/g,'')}`;}
   function dayLbl(){return (DAYS.find(d=>d[0]===S.day)||[0,dayName(S.day)])[1];}
@@ -794,23 +740,22 @@ const makeMeet=()=>(function(){
     // the empty state, and everything that only makes sense once a spot is picked
     document.getElementById('meetCallout').hidden=none;document.getElementById('meetClear').hidden=none;
     document.getElementById('meetEmpty').hidden=!none;document.getElementById('meetCard').hidden=none;document.getElementById('meetCardX').hidden=none;
-    document.getElementById('meetRoutesSec').hidden=none;document.getElementById('meetShareBox').hidden=none;
-    const hint=document.getElementById('meetHint');hint.classList.toggle('ask',none);
-    hint.textContent=none?T('meet.hint_pick',{n:st.length}):T('meet.hint_clear');
+    document.getElementById('meetShareBox').hidden=none;
+    const hint=document.getElementById('meetHint');hint.classList.toggle('ask',none);hint.hidden=!none;
+    hint.textContent=none?T('meet.hint_pick',{n:st.length}):'';
+    otherTime();
     if(none){ui.querySelectorAll('[data-pre]').forEach(b=>b.setAttribute('aria-pressed','false'));
       ui.querySelectorAll('[data-day]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.day===S.day)));
       ui.querySelectorAll('[data-time]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.time===S.time)));
       if(location.hash.startsWith('#meet')&&location.hash!=='#meet')history.replaceState(null,'','#meet');return;}
-    const c=document.getElementById('meetCallout');c.querySelector('b').textContent=s.name;c.querySelector('.mc-alt').textContent=s.h?T('common.unit_m',{n:s.h.toLocaleString('en-US')}):'';c.querySelector('.mc-where').textContent=s.where;
+    const c=document.getElementById('meetCallout');c.querySelector('b').textContent=s.name;
     ui.querySelectorAll('[data-day]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.day===S.day)));
     ui.querySelectorAll('[data-time]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.time===S.time)));
     ui.querySelectorAll('[data-pre]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.pre===S.preset)));
     const card=document.getElementById('meetCard'),[c1,c2,c3]=countdown();
     card.querySelector('[data-f="name"]').textContent=s.name;card.querySelector('[data-f="time"]').textContent=S.time;
-    card.querySelector('[data-f="where"]').textContent=s.where;card.querySelector('[data-f="alt"]').textContent=s.h?T('common.unit_m',{n:s.h.toLocaleString('en-US')}):'—';
     card.querySelector('[data-f="day"]').textContent=dayLbl();
     card.querySelector('[data-f="c1"]').textContent=c1;card.querySelector('[data-f="c2"]').textContent=c2;card.querySelector('[data-f="c3"]').textContent=c3;
-    const R=routes(s);document.getElementById('meetRoutes').innerHTML=R.length?R.map(r=>`<li><small>${esc(r.from)}</small><div class="rt">${r.html}</div></li>`).join(''):`<li class="hint">${E('meet.routes_empty')}</li>`;
     document.getElementById('meetWa').href='https://wa.me/?text='+encodeURIComponent(message());
     const want=`#meet/${S.sid}/${S.time.replace(':','')}/${S.day.replace(/-/g,'')}`;if(location.hash.startsWith('#meet')&&location.hash!==want)history.replaceState(null,'',want);
   }
@@ -853,7 +798,7 @@ const makeMeet=()=>(function(){
       if(navigator.share){await navigator.share({text:message(),title:T('meet.share_title',{place:s.name})});track('meet_share',{method:'image'});return;}
       const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='meet-'+s.name.replace(/\W+/g,'-')+'.png';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),4000);track('meet_share',{method:'image'});
     }catch(err){}});
-  document.getElementById('meetCopy').addEventListener('click',e=>{const b=e.currentTarget;if(!navigator.clipboard)return;navigator.clipboard.writeText(link()).then(()=>{track('meet_share',{method:'copy'});b.textContent=T('common.link_copied');setTimeout(()=>{b.textContent=T('meet.copy_link');},2200);}).catch(()=>{});});
+  document.getElementById('meetCopy').addEventListener('click',e=>{const b=e.currentTarget;if(!navigator.clipboard)return;navigator.clipboard.writeText(link()).then(()=>{track('meet_share',{method:'copy'});b.classList.add('done');b.setAttribute('aria-label',T('common.link_copied'));b.title=T('common.link_copied');setTimeout(()=>{b.classList.remove('done');b.setAttribute('aria-label',T('meet.copy_link'));b.title=T('meet.copy_link');},2200);}).catch(()=>{});});
   document.getElementById('meetWa').addEventListener('click',()=>track('meet_share',{method:'whatsapp'}));
   document.getElementById('meetOnMap').addEventListener('click',()=>{const s=byId[S.sid];location.hash='#map';requestAnimationFrame(()=>requestAnimationFrame(()=>{showLift(s.ends[0].l.id);if(view==='3d'&&v3)v3.focusLift(s.ends[0].l.id);else focusOn([s.ends[0].l.g]);}));});
   let shown=false;
@@ -928,17 +873,15 @@ const LSTAT=(function(){
   // the season board on the home page (while there is no trip of your own): S3's snowy sign with no report, which in
   // season says there is no current information rather than that the mountain sleeps; with a fresh report the snow is
   // gone and it says how many lifts are open, in S1's words (as in the app, 13.4)
+  // the board on the home page (while there is no trip of your own; round 20): a lift-status widget, one dot per lift,
+  // switched off with "no report" until a fresh one, then the open lifts filled in and when it was updated (S1)
   function applyHome(){
     const el=document.getElementById('seasonBoard');if(!el)return;
-    const em=el.querySelector(':scope>em'),b=el.querySelector(':scope>b'),sp=el.querySelector(':scope>span');
-    if(fresh()){const open=names.filter(n=>isOpen(n)).length;el.dataset.state='live';
-      b.innerHTML=`<span class="ms-dot" aria-hidden="true"></span>${E('status.heading_lift_status')}`;
-      // the line breaks at the dot, between how many are open and when it was updated, as on the map
-      const parts=H('status.bar_summary',{ago:ago(data.updated)},{open:`<b class="num">${open}</b>`,total:`<b class="num">${names.length}</b>`}).split(' · ');
-      sp.innerHTML=parts.map(x=>`<span class="ms-part">${x}</span>`).join(' · ');return;}
-    const s=inSeason();el.dataset.state=s?'season':'off';
-    em.textContent=T('status.heading_lift_status');b.textContent=T(s?'status.no_recent_data':'status.mountain_asleep');
-    sp.textContent=T(s?'status.lead_in_season':'status.lead_off_season');
+    const f=fresh(),open=f?names.filter(n=>isOpen(n)).length:0;el.dataset.state=f?'live':'off';
+    el.querySelector('.sb-dots').innerHTML=names.map(n=>`<i${f&&isOpen(n)?' class="on"':''}></i>`).join('');
+    el.querySelector('.sb-f b').textContent=open+'/'+names.length;
+    el.querySelector('.sb-f small').textContent=f?ago(data.updated):T('status.no_report');
+    el.setAttribute('aria-label',T('status.heading_lift_status')+': '+(f?T('status.bar_summary',{open,total:names.length,ago:ago(data.updated)}):T('status.no_report')));
   }
   applyHome();
   panel.addEventListener('click',e=>{const b=e.target.closest('[data-forme]');if(!b)return;forMe=!forMe;b.setAttribute('aria-pressed',String(forMe));applyMap();track('status_only_open',{on:forMe});});
@@ -1121,7 +1064,7 @@ const fmtDate=iso=>{const[y,m,d]=iso.split('-');return +d+'.'+ +m+'.'+y;};
 function renderTicket(){
   const t=MYTRIP.get(),stack=document.getElementById('bpStack');
   stack.hidden=!t;document.getElementById('bpHint').hidden=!t;
-  ['bpEmpty','tripNote','seasonBoard'].forEach(id=>{document.getElementById(id).hidden=!!t;});
+  ['bpEmpty','seasonBoard'].forEach(id=>{document.getElementById(id).hidden=!!t;});
   if(typeof WX!=='undefined'&&WX)WX.home();
   if(!t)return;
   const short=iso=>{const[,m,d]=iso.split('-');return +d+'.'+ +m;};
@@ -1141,6 +1084,8 @@ function renderTicket(){
         baggage:f.other?short(f.other):'',pair:f.fromCode&&f.toCode?f.fromCode+' › '+f.toCode:'',note:f.departs&&+f.departs.split(':')[0]<6?T('ticket.note_overnight'):'',
         skiCount:skiCount?String(skiCount):'',skiRange:sd?short(sd.from).split('.')[0]+'–'+short(sd.to):'',skiPre:skiCount?skiPre:'',skiPost:skiCount?skiPost:''}[k]??f[k];
       if(k==='note'||k==='skiPre'||k==='skiPost'||k==='airline'){el.textContent=v||'';return;}
+      // round 20: the flight number and the times are optional slots on the ticket, each opening a small sheet
+      if(!v&&(k==='flight'||k==='departs'||k==='arrives')){el.innerHTML=`<button type="button" class="tk-slot" data-slot="${leg}">${E(k==='flight'?'trip.add_number':'trip.add_time')}</button>`;return;}
       el.textContent=v||(k==='from'?T('ticket.from_placeholder'):k==='to'?T('ticket.to_placeholder'):'—');
       if(k==='from'||k==='to')el.classList.toggle('ph',!v);
     });
@@ -1194,7 +1139,7 @@ const TRIPFORM=(()=>{
     ret:r.ret_date?{date:r.ret_date,flight:r.ret_flight||'',departs:(r.ret_departs||'').slice(0,5),arrives:(r.ret_arrives||'').slice(0,5)}:null,ski:null}:null;
   cancel.addEventListener('click',e=>{if(fm&&window.ACCOUNT){e.preventDefault();location.hash=ACCOUNT.cancelTripFor()||'#home';}});
   const open=()=>{fm=window.ACCOUNT&&ACCOUNT.tripFor?ACCOUNT.tripFor():null;
-    head.textContent=fm?T('group.trip_for',{name:fm.name}):T('trip.title');lead.textContent=T(fm?'group.trip_for_note':'trip.lead');
+    head.textContent=fm?T('group.trip_for',{name:fm.name}):T('trip.title');lead.textContent=fm?T('group.trip_for_note'):'';lead.hidden=!fm;
     f.querySelector('.tf-ski').hidden=!!fm;
     const t=fm?fromRow(fm.trip):MYTRIP.get(),o=t&&t.out||{},r=t&&t.ret||{};err.hidden=true;
     q('od').value=o.date||'';q('of').value=o.flight||'';q('odp').value=o.departs||'';q('oar').value=o.arrives||'';
@@ -1240,8 +1185,63 @@ const TRIPFORM=(()=>{
     if(fm){const b=f.querySelector('.tf-save');b.disabled=true;ACCOUNT.saveTripFor(t).catch(x=>{err.textContent=ACCOUNT.errText(x);err.hidden=false;}).finally(()=>{b.disabled=false;});return;}
     const was=MYTRIP.get();MYTRIP.set({v:1,...t,...(was&&was.sid?{sid:was.sid}:{})});window.ACCOUNT&&ACCOUNT.tripSaved();renderTicket();countdown(document.documentElement.dataset.theme==='dark');location.hash='#home';});
   return {open};})();
+// round 20: the ticket is the form. "When are you flying?" opens one calendar: the first tap is the way out, the second the
+// way back, and the ski days light up between them; TLV to TBS is already there. The flight number and the times are
+// optional slots on the ticket, each opening a sheet of its own; the full form (#trip) stays behind "edit".
+const TRIPSHEET=(function(){
+  let box=null;
+  const key=e=>{if(e.key==='Escape')close();};
+  function close(){if(!box)return;box.remove();document.getElementById('tsShade')?.remove();box=null;removeEventListener('keydown',key);}
+  function shell(title,body){close();
+    document.body.insertAdjacentHTML('beforeend',`<div class="ac-shade" id="tsShade"></div><div class="ac-sheet ts-sheet" id="tripSheet" role="dialog" aria-modal="true" aria-labelledby="tsTitle"><span class="grab" aria-hidden="true"></span><h2 id="tsTitle">${esc(title)}</h2>${body}</div>`);
+    box=document.getElementById('tripSheet');document.getElementById('tsShade').addEventListener('click',close);addEventListener('keydown',key);addEventListener('hashchange',close,{once:true});return box;}
+  const pad=n=>String(n).padStart(2,'0'),iso=(y,m,d)=>`${y}-${pad(m+1)}-${pad(d)}`;
+  const today=()=>{const n=new Date();return iso(n.getFullYear(),n.getMonth(),n.getDate());};
+  function save(t){const was=MYTRIP.get();MYTRIP.set({v:1,...t,...(was&&was.sid?{sid:was.sid}:{})});window.ACCOUNT&&ACCOUNT.tripSaved();
+    renderTicket();countdown(document.documentElement.dataset.theme==='dark');close();}
+  function dates(){
+    const t=MYTRIP.get(),o=t?t.out:{},r=t&&t.ret||{};let a=o.date||'',b=r.date||'';
+    const start=a||today();let y=+start.slice(0,4),m=+start.slice(5,7)-1;const d0=today(),lang=I18N.lang;
+    const wk=[...Array(7)].map((_,i)=>new Intl.DateTimeFormat(lang,{weekday:'narrow',timeZone:'UTC'}).format(new Date(Date.UTC(2023,0,1+i))));
+    const sh=shell('',`<div class="ts-mon"><button type="button" data-mon="-1" aria-label="${E('trip.month_prev')}">${I18N.ltr?'‹':'›'}</button><button type="button" data-mon="1" aria-label="${E('trip.month_next')}">${I18N.ltr?'›':'‹'}</button></div><div class="ts-cal" role="grid"></div><div class="ts-legend"></div><button type="button" class="ac-btn blue" data-save disabled>${E('trip.save')}</button>`);
+    const draw=()=>{
+      sh.querySelector('#tsTitle').textContent=new Intl.DateTimeFormat(lang,{month:'long',year:'numeric',timeZone:'UTC'}).format(new Date(Date.UTC(y,m,1)));
+      const sd=a&&b?MYTRIP.skiAuto({...o,date:a},{...r,date:b}):null,lead=new Date(Date.UTC(y,m,1)).getUTCDay(),n=new Date(Date.UTC(y,m+1,0)).getUTCDate();
+      let h=wk.map(w=>`<small aria-hidden="true">${esc(w)}</small>`).join('')+'<span></span>'.repeat(lead);
+      for(let d=1;d<=n;d++){const v=iso(y,m,d),c=v===a?'out':v===b?'ret':sd&&v>=sd.from&&v<=sd.to?'ski':'';
+        h+=`<button type="button" class="num ${c}" data-d="${v}"${v<d0?' disabled':''} aria-pressed="${!!(v===a||v===b)}">${d}</button>`;}
+      sh.querySelector('.ts-cal').innerHTML=h;
+      const k=sd?Math.round((Date.parse(sd.to)-Date.parse(sd.from))/864e5)+1:0;
+      sh.querySelector('.ts-legend').innerHTML=`<span><i class="lg-f"></i>${E('trip.legend_flights')}</span>${k?`<span><i class="lg-s"></i>${E('trip.legend_ski',{n:k})}</span>`:''}`;
+      sh.querySelector('[data-save]').disabled=!a;};
+    sh.addEventListener('click',e=>{const bt=e.target.closest('button');if(!bt)return;
+      if(bt.dataset.mon){m+=+bt.dataset.mon;if(m<0){m=11;y--;}if(m>11){m=0;y++;}draw();}
+      else if(bt.dataset.d){const v=bt.dataset.d;if(!a||b||v<a){a=v;b='';}else b=v;draw();}
+      else if(bt.dataset.save!==undefined&&a){const same=t&&t.out.date===a&&((t.ret&&t.ret.date)||'')===b;
+        save({out:{flight:'',from:'TLV',to:'TBS',departs:'',arrives:'',...o,date:a},ret:b?{flight:'',departs:'',arrives:'',...r,date:b}:null,ski:same?t.ski||null:null});}});
+    draw();sh.querySelector('[data-d]:not([disabled])')?.focus();}
+  // one leg's details: where you land (on the way out), the flight number and the times
+  function leg(which){const t=MYTRIP.get();if(!t)return dates();const L=which==='ret'?t.ret:t.out;if(!L)return dates();
+    const out=which!=='ret',DEST=['TBS','KUT','BUS'];
+    const route=out?`<div class="ts-route" role="group" aria-label="${E('trip.land_where')}">${DEST.map(c=>`<button type="button" data-to="${c}" aria-pressed="${t.out.to===c}"><b dir="ltr">${c}</b> ${E(c==='BUS'?'app.city_bus':'ticket.city_'+c.toLowerCase())}</button>`).join('')}<a href="#trip">${E('trip.other_airport')}</a></div>`:'';
+    const sh=shell(out?T('trip.land_where'):T('ticket.card_return'),`${route}
+      <label class="ac-fld"><span>${E('ticket.flight')}</span><input name="fl" dir="ltr" maxlength="8" autocapitalize="characters" autocomplete="off" value="${esc(L.flight||'')}"></label>
+      <div class="ts-times"><label class="ac-fld"><span>${E('ticket.departs')}</span><input type="time" name="dp" value="${esc(L.departs||'')}"></label><label class="ac-fld"><span>${E('ticket.arrives')}</span><input type="time" name="ar" value="${esc(L.arrives||'')}"></label></div>
+      <button type="button" class="ac-btn blue" data-save>${E('trip.save')}</button>`);
+    let to=t.out.to;
+    sh.addEventListener('click',e=>{const bt=e.target.closest('button');if(!bt)return;
+      if(bt.dataset.to){to=bt.dataset.to;sh.querySelectorAll('[data-to]').forEach(x=>x.setAttribute('aria-pressed',String(x===bt)));}
+      else if(bt.dataset.save!==undefined){const q=n=>sh.querySelector(`[name="${n}"]`).value.trim();
+        const nl={...L,flight:q('fl').toUpperCase(),departs:q('dp'),arrives:q('ar')};
+        save(out?{...t,out:{...nl,to}}:{...t,ret:nl});}});
+    sh.querySelector('[name="fl"]').focus();}
+  document.getElementById('bpEmpty').addEventListener('click',e=>{if(e.target.closest('[data-when]'))dates();});
+  document.getElementById('bpStack').addEventListener('click',e=>{const sl=e.target.closest('[data-slot]');if(!sl)return;e.stopPropagation();leg(sl.dataset.slot);},true);
+  return {dates,leg,close};})();
 // about and settings (#about): sound and vibration for the whole site and the games, and clearing the game records
 (function(){const P=window.GUD_PREFS||{sound:true,haptics:true};
+  // no vibration row where the device can't vibrate (round 20)
+  if(!navigator.vibrate)document.getElementById('abHaptics').hidden=true;
   const paint=()=>document.querySelectorAll('[data-pref]').forEach(b=>b.setAttribute('aria-pressed',String(!!P[b.dataset.pref])));paint();
   document.querySelectorAll('[data-pref]').forEach(b=>b.addEventListener('click',()=>{const k=b.dataset.pref;window.setGudPref(k,!P[k]);paint();if(k==='sound'||k==='haptics')track('settings_change',{setting:k,on:!!P[k]});
     if(k==='haptics'&&P.haptics)try{navigator.vibrate&&navigator.vibrate(20);}catch(e){}
