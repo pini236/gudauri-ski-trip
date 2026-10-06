@@ -9,12 +9,12 @@ on:
   # waiting run on main out of the single slot below. Another branch runs it by hand (workflow_dispatch).
   push:
     branches: [main]
-    paths: ['app/android/**', 'site/data/**', 'site/audio/**', 'site/games/descent/**', 'site/games/thumbs/**', 'site/img/pano/**', 'tools/build-app-data.py', 'tools/build-app-strings.py', 'i18n/strings.json', '.github/workflows/android-qa.yml']
+    paths: ['app/android/**', 'site/data/**', 'site/audio/**', 'site/games/descent/**', 'site/games/thumbs/**', 'site/img/pano/**', 'tools/build-app-data.py', 'tools/build-app-strings.py', 'i18n/strings.json', '.github/workflows/android-qa.yml', '.github/scripts/qa-*', '.github/qa-parts.tsv']
   workflow_dispatch:
     inputs:
       scenario:
-        description: 'map, descent, home, group, meet, status, run, lang, phone, store, several with commas, or all'
-        default: all
+        description: 'auto (the parts the changed files need, .github/qa-parts.tsv; every part on main), all, one part, or several with commas: map, descent, games, school, snowball, home, group, meet, status, run, locate, weather, lang, phone, store'
+        default: auto
       api:
         description: 'Android version of the emulator (API level)'
         default: '35'
@@ -32,12 +32,25 @@ permissions:
 # Build once, then every part of the run on an emulator of its own, all at the same time (3.10.2026: the whole run
 # took about 30 minutes in a row), then one job puts the parts together and publishes them.
 jobs:
-  build:
+  # which parts, and which of them share an emulator (.github/scripts/qa-plan.py)
+  plan:
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 5
     outputs:
       parts: ${{ steps.plan.outputs.parts }}
       final: ${{ steps.plan.outputs.final }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          fetch-depth: 0
+      - name: The parts
+        id: plan
+        run: python3 .github/scripts/qa-plan.py "${{ inputs.scenario || 'all' }}" "$GITHUB_REF_NAME" | tee -a "$GITHUB_OUTPUT"
+
+  # the debug app, which every part needs; the release app builds beside it
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
       - uses: actions/setup-java@cf277c60eb25467037889841efdb72551f06f6c3 # v4.9.1
@@ -49,56 +62,83 @@ jobs:
         run: |
           yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses > /dev/null || true
           "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "platforms;android-37.2" "build-tools;36.0.0" > /dev/null
-      - name: Build the debug and release apps
+      - name: Build the debug app
         working-directory: app/android
         # with the usage and crash keys, so the run also checks that events and crash reports arrive; every event
         # carries build=debug, and the dashboards filter it out (docs/GROWTH.md)
         env:
           POSTHOG_KEY: ${{ secrets.POSTHOG_KEY }}
           SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
-        run: ./gradlew --no-daemon :app:assemblePreviewDebug :app:assemblePreviewRelease
-      - name: The parts
-        id: plan
-        run: |
-          s="${{ inputs.scenario || 'all' }}"
-          [ "$s" = all ] && s="map,descent,games,school,snowball,home,group,meet,status,run,locate,weather,lang,phone,store"
-          echo "parts=$(python3 -c 'import json,sys; print(json.dumps([p.strip() for p in sys.argv[1].split(",") if p.strip()]))' "$s")" >> "$GITHUB_OUTPUT"
-          # the release build's start and the crash-report check run with one part: not the phone's language, which
-          # restarts the whole system
-          echo "final=$(python3 -c 'import sys; p=[x.strip() for x in sys.argv[1].split(",") if x.strip()]; print(next((x for x in p if x != "phone"), p[0]))' "$s")" >> "$GITHUB_OUTPUT"
+        run: ./gradlew --no-daemon :app:assemblePreviewDebug
+      # 3 days, not 1: "Re-run failed jobs" on a run that is a day old still finds the app
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
-          name: apks
-          retention-days: 1
-          path: |
-            app/android/app/build/outputs/apk/preview/debug/app-preview-debug.apk
-            app/android/app/build/outputs/apk/preview/release/app-preview-release.apk
+          name: apk-debug
+          retention-days: 3
+          path: app/android/app/build/outputs/apk/preview/debug/app-preview-debug.apk
+
+  build-release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: actions/setup-java@cf277c60eb25467037889841efdb72551f06f6c3 # v4.9.1
+        with:
+          distribution: temurin
+          java-version: 21
+      - uses: gradle/actions/setup-gradle@ed408507eac070d1f99cc633dbcf757c94c7933a # v4.4.3
+      - name: Android SDK
+        run: |
+          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses > /dev/null || true
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "platforms;android-37.2" "build-tools;36.0.0" > /dev/null
+      - name: Build the release app
+        working-directory: app/android
+        env:
+          POSTHOG_KEY: ${{ secrets.POSTHOG_KEY }}
+          SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
+        run: ./gradlew --no-daemon :app:assemblePreviewRelease
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: apk-release
+          retention-days: 3
+          path: app/android/app/build/outputs/apk/preview/release/app-preview-release.apk
 
   emulator:
-    needs: build
+    needs: [plan, build, build-release]
     runs-on: ubuntu-latest
     timeout-minutes: 40
     strategy:
       fail-fast: false
       matrix:
-        part: ${{ fromJSON(needs.build.outputs.parts) }}
+        part: ${{ fromJSON(needs.plan.outputs.parts) }}
     env:
       OUT: ${{ github.workspace }}/qa-out
       SCENARIO: ${{ matrix.part }}
       # the release build's start and the crash-report check run once, with one part
-      FINAL: ${{ matrix.part == needs.build.outputs.final && '1' || '' }}
+      FINAL: ${{ matrix.part == needs.plan.outputs.final && '1' || '' }}
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
       - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         with:
-          name: apks
-          path: app/android/app/build/outputs/apk/preview
+          pattern: apk-*
+          merge-multiple: true
+          path: apk-all
+      - name: The apps where the script looks for them
+        run: |
+          d=app/android/app/build/outputs/apk/preview
+          mkdir -p "$d/debug" "$d/release"
+          mv apk-all/app-preview-debug.apk "$d/debug/"
+          mv apk-all/app-preview-release.apk "$d/release/"
       - name: Hardware virtualisation for the emulator
         run: |
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
+      # One try, and one more only if the emulator never started (no mark from the wrapper: boot, system image, adb). A
+      # failure inside a screen is not retried. The wrapper retries the script by itself when only the install failed.
       - name: Run on the emulator
+        id: a1
+        continue-on-error: true
         uses: reactivecircus/android-emulator-runner@a421e43855164a8197daf9d8d40fe71c6996bb0d # v2.38.0
         with:
           api-level: ${{ inputs.api || '35' }}
@@ -107,17 +147,49 @@ jobs:
           profile: pixel_6
           disable-animations: false
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -no-snapshot-save -camera-back none
-          script: bash app/android/qa/run.sh
+          script: bash .github/scripts/qa-attempt.sh
+      - name: Did the emulator start?
+        id: retry
+        if: steps.a1.outcome == 'failure'
+        run: |
+          if [ ! -f qa-out/.started ]; then echo "infra=1" >> "$GITHUB_OUTPUT"; rm -rf qa-out; echo "::warning::${{ matrix.part }}: the emulator did not start, trying once more"; fi
+      - name: Run on the emulator, second try
+        id: a2
+        if: steps.retry.outputs.infra == '1'
+        continue-on-error: true
+        uses: reactivecircus/android-emulator-runner@a421e43855164a8197daf9d8d40fe71c6996bb0d # v2.38.0
+        with:
+          api-level: ${{ inputs.api || '35' }}
+          target: google_apis
+          arch: x86_64
+          profile: pixel_6
+          disable-animations: false
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -no-snapshot-save -camera-back none
+          script: bash .github/scripts/qa-attempt.sh
+      - name: Mark an unstable part
+        if: steps.a2.outcome == 'success'
+        run: |
+          mkdir -p qa-out
+          echo "UNSTABLE: the emulator needed a second start (infrastructure)" | tee -a qa-out/summary.txt
+          echo "UNSTABLE: ${{ matrix.part }}, the emulator needed a second start" >> "$GITHUB_STEP_SUMMARY"
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         if: always()
         with:
           name: android-qa-${{ matrix.part }}
           path: qa-out
           retention-days: 14
+          # "Re-run failed jobs" puts a part's new result over its old one
+          overwrite: true
+      - name: The part's result
+        if: always()
+        run: |
+          if [ "${{ steps.retry.outputs.infra }}" = 1 ]; then r="${{ steps.a2.outcome }}"; else r="${{ steps.a1.outcome }}"; fi
+          echo "part ${{ matrix.part }}: $r"
+          [ "$r" = success ]
 
   publish:
-    needs: [build, emulator]
-    if: always() && needs.build.result == 'success'
+    needs: [plan, build, emulator]
+    if: always() && needs.plan.result == 'success' && needs.build.result == 'success'
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -150,6 +222,7 @@ jobs:
           name: android-qa
           path: qa-out
           retention-days: 14
+          overwrite: true
       - name: Publish
         env:
           GH_TOKEN: ${{ github.token }}
