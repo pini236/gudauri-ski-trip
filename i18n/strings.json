@@ -15932,6 +15932,30 @@
     "ru",
     "ka"
    ]
+  },
+  "about.credit_terrain_at_label": {
+   "he": "גבהים ותבליט ב-Sölden:",
+   "en": "Heights and relief at Sölden:",
+   "ru": "Высоты и рельеф в Зёльдене:",
+   "ka": "სიმაღლეები და რელიეფი ზელდენში:",
+   "where": "site/index.html",
+   "note": "credit line label (decision 68)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "about.credit_terrain_at": {
+   "he": "© offene Daten Österreichs – Digitales Geländemodell (DGM) Österreich, ברישיון CC BY 3.0 AT, דרך AWS Terrain Tiles.",
+   "en": "© offene Daten Österreichs – Digitales Geländemodell (DGM) Österreich, licensed CC BY 3.0 AT, through AWS Terrain Tiles.",
+   "ru": "© offene Daten Österreichs – Digitales Geländemodell (DGM) Österreich, по лицензии CC BY 3.0 AT, через AWS Terrain Tiles.",
+   "ka": "© offene Daten Österreichs – Digitales Geländemodell (DGM) Österreich, ლიცენზია CC BY 3.0 AT, AWS Terrain Tiles-ის მეშვეობით.",
+   "where": "site/index.html",
+   "note": "the exact attribution statement of the data provider; the German stays as it is",
+   "check": [
+    "ru",
+    "ka"
+   ]
   }
  }
 }
