@@ -274,7 +274,10 @@ window.ACCOUNT=(function(){
     $('grTitle').textContent=T('group.empty_title');$('grNone').hidden=false;$('grSome').hidden=true;$('grNote').innerHTML='';
     const f=$('grCreate'),reg=registered();f.querySelector('.ac-needs').hidden=reg;
     f.querySelectorAll('input,button').forEach(x=>x.disabled=!reg);
-    if(reg&&!f.me.value)f.me.value=state.name||'';}
+    if(reg&&!f.me.value)f.me.value=state.name||'';
+    // "show my flight in the group" (round 18, S-1, decision 62, as the app): only with a trip, on until switched off
+    const t=MYTRIP.get(),sw=$('grShowFlight');sw.hidden=!t;
+    if(t){$('grShowFlightSub').textContent=[T('trip.out'),dm(t.out.date),t.out.departs||'',t.out.flight||''].filter(Boolean).join(' · ');}}
   async function reload(){
     if(!gid)return;const pg=$('groupPage');
     try{const c=await client();
@@ -430,12 +433,13 @@ window.ACCOUNT=(function(){
     if(f.matches('[data-nameform]'))return done(()=>api('update_group',{group_id:gid,name:f.n.value.trim(),starts_on:f.s.value||null,ends_on:f.e.value||null}));
 });
   $('grCode').addEventListener('submit',e=>{e.preventDefault();let c=e.target.code.value.replace(/[\s-]/g,'');if(/^[a-z]{6}$/i.test(c))c=c.toUpperCase();if(c)location.hash='#join/'+encodeURIComponent(c);});
+  $('grShowFlight').addEventListener('click',e=>{const b=e.currentTarget;b.setAttribute('aria-pressed',String(b.getAttribute('aria-pressed')!=='true'));});
   $('grCreate').addEventListener('submit',async e=>{e.preventDefault();const f=e.target,pg=$('groupPage');clearErr(pg);
     const name=f.name.value.trim(),me=f.me.value.trim();if(!name){f.name.focus();return;}if(!me){f.me.focus();return;}
-    const t=MYTRIP.get();f.querySelector('button').disabled=true;
-    try{const sid=await pushTrip();const r=await api('create_group',{name,display_name:me,starts_on:t&&t.out.date||undefined,ends_on:t&&t.ret&&t.ret.date||undefined,trip_id:sid||undefined});
+    const sw=$('grShowFlight'),show=!sw.hidden&&sw.getAttribute('aria-pressed')==='true',t=show?MYTRIP.get():null;f.querySelector('[type=submit]').disabled=true;
+    try{const sid=t?await pushTrip():null;const r=await api('create_group',{name,display_name:me,starts_on:t&&t.out.date||undefined,ends_on:t&&t.ret&&t.ret.date||undefined,trip_id:sid||undefined});
       tr('group_create');await refresh();location.hash='#group/'+r.group_id;}
-    catch(x){showErr(pg,x);}f.querySelector('button').disabled=false;});
+    catch(x){showErr(pg,x);}f.querySelector('[type=submit]').disabled=false;});
 
   // ---- your trip in the server, only once you are in a group (CONTRACT, "trips")
   function row(t){const o=t.out,r=t.ret,code=c=>/^[A-Z]{3}$/.test(c||'')?c:null,tm=v=>v||null;

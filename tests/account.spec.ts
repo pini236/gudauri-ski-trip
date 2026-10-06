@@ -61,6 +61,7 @@ async function fakeServer(page: Page, opts: { admin?: boolean; meetFull?: boolea
       if (action === 'submit_score' || action === 'update_group') return json(r, {});
       if (action === 'same_flight') { const src = db.trips.find(t => t.id === body.trip_id); db.trips.push({ ...src, id: 't-copy', owner_id: me.id, entered_by: me.id }); db.members.find(x => x.user_id === me.id).trip_id = 't-copy'; return json(r, { trip_id: 't-copy' }); }
       if (action === 'set_member_role') { db.members.find(x => x.user_id === body.user_id).role = body.role; return json(r, {}); }
+      if (action === 'create_group') { db.members.push({ group_id: 'g1', user_id: me.id, role: 'admin', display_name: body.display_name, trip_id: body.trip_id || null, joined_at: '2026-10-02T10:00:00Z' }); return json(r, { group_id: 'g1' }); }
       if (action === 'set_member_trip') { db.trips.push({ ...body.trip, id: 't-tal', owner_id: body.user_id, entered_by: me.id }); db.members.find(x => x.user_id === body.user_id).trip_id = 't-tal'; return json(r, { trip_id: 't-tal' }); }
       if (action === 'remove_member') { db.members = db.members.filter(x => x.user_id !== body.user_id); return json(r, {}); }
       if (action === 'delete_my_account') { db.members = db.members.filter(x => x.user_id !== me.id); return json(r, { deleted: true }); }
@@ -104,7 +105,7 @@ test('אורח: האתר לא פונה לשרת, ושלט הקבוצה מזמי�
   await expect(page.locator('#signinPage .ac-btn.apple')).toBeDisabled();
   await page.goto('/#group');
   await expect(page.locator('#grCode')).toBeVisible();
-  await expect(page.locator('#grCreate button')).toBeDisabled();
+  await expect(page.locator('#grCreate [type=submit]')).toBeDisabled();
   expect(server.calls).toEqual([]);
   expect(lib).toEqual([]);
   expect(errors).toEqual([]);
@@ -372,7 +373,33 @@ test('מנהל: טיסה לחבר מהטיסות שבקבוצה או מהטופ�
   await page.route(`${SB}/rest/v1/**`, r => r.abort());
   await page.reload();
   await loaded(page);
-  await expect(page.locator('.ac-offline')).toContainText('בלי קליטה. מוצג מה שנשמר בטלפון ב-');
+  await expect(page.locator('.ac-offline')).toContainText('בלי קליטה. מוצג מה שנשמר בטלפון ב-', { timeout: 20_000 });
   await expect(page.locator('#groupPage [data-err]')).toBeHidden();
+  expect(errors).toEqual([]);
+});
+
+// round 18 (S-1, decision 62): creating a group shows my flight only when I choose it (on until switched off)
+test('יצירת קבוצה: המתג "להציג את הטיסה שלי בקבוצה" (סבב 18)', async ({ page }) => {
+  const errors = watchErrors(page);
+  const server = await fakeServer(page);
+  await page.addInitScript(() => localStorage.setItem('gud-trip', JSON.stringify({ v: 1, out: { date: '2027-01-10', flight: '6H 897', from: 'TLV', to: 'TBS', departs: '16:00', arrives: '20:35' },
+    ret: { date: '2027-01-15', flight: '6H 892', departs: '01:35', arrives: '02:15' }, ski: null })));
+  await page.goto('/#signin');
+  await loaded(page);
+  await expect(page.locator('#signinPage .ac-gsi [data-fake-gsi]')).toBeVisible();
+  await page.evaluate(() => (window as any).__gsi.callback({ credential: 'x.y.z' }));
+  await page.goto('/#group');
+  const sw = page.locator('#grShowFlight');
+  await expect(sw).toBeVisible();
+  await expect(sw).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.locator('#grShowFlightSub')).toContainText('6H 897');
+  await sw.click();
+  await expect(sw).toHaveAttribute('aria-pressed', 'false');
+  await sw.click();
+  await page.locator('#grCreate input[name="name"]').fill('קבוצה שלי');
+  await page.locator('#grCreate input[name="me"]').fill('נועה');
+  await page.locator('#grCreate [type=submit]').click();
+  await expect(page).toHaveURL(/#group\/g1/);
+  expect(server.bodies.create_group).toMatchObject({ name: 'קבוצה שלי', display_name: 'נועה', trip_id: 't-me', starts_on: '2027-01-10' });
   expect(errors).toEqual([]);
 });
