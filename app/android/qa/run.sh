@@ -370,7 +370,9 @@ def walk(n, tappable):
     if b and got and n.get("enabled") != "false":
         if t.startswith("~"): rank = 1 if any(re.search(t[1:], g) for g in got) else 9
         else: rank = 0 if t in got else 1 if any(t in g for g in got) else 9
-        if rank < 9: found.append((rank, 0 if tap else 1, len(found), tuple(map(int, b.groups()))))
+        # a text field counts as tappable: its label above it says the same words and does nothing
+        field = (n.get("class") or "").endswith("EditText")
+        if rank < 9: found.append((rank, 0 if tap or field else 1, len(found), tuple(map(int, b.groups()))))
     for c in n: walk(c, tap)
 try: root = ET.parse(sys.argv[1]).getroot()
 except ET.ParseError: sys.exit(0)
