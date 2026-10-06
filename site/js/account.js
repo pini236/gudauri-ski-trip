@@ -209,7 +209,7 @@ window.ACCOUNT=(function(){
     code=code.replace(/[\s-]/g,'');if(/^[a-z]{6}$/i.test(code))code=code.toUpperCase();joinCode=code;preview=null;
     const card=$('joinCard'),f=$('joinForm'),pg=$('joinPage');
     clearErr(pg);
-    ['joinForm','joinNoSignup','joinReclaim','joinApp'].forEach(id=>$(id).hidden=true);$('joinNames').hidden=true;
+    ['joinForm','joinPend','joinReclaim','joinApp'].forEach(id=>$(id).hidden=true);$('joinNames').hidden=true;
     card.querySelectorAll(':scope>:not(.snowcap)').forEach(x=>x.remove());
     card.insertAdjacentHTML('beforeend',`<p>${esc(T('join.loading'))}</p>`);
     if(!code){location.replace('#group');return;}
@@ -221,18 +221,21 @@ window.ACCOUNT=(function(){
     preview=r;
     if(r.already_member){await refresh();location.replace('#group/'+r.group_id);return;}
     let req=null;try{const c=await client();[req]=await rest(c.from('join_requests').select('id').eq('user_id',state.uid||(await user()).id).eq('group_id',r.group_id).eq('status','pending').limit(1));}catch(e){}
-    card.insertAdjacentHTML('beforeend',`<small>${esc(T('join.invited_to'))}</small><p class="ac-big">${esc(r.name)}</p><p>${(r.members||[]).length?esc(T('group.members_n',{n:r.members.length})):''}${(r.members||[]).length&&r.starts_on?' · ':''}${r.starts_on?esc(T('join.dates',{from:dm(r.starts_on),to:dm(r.ends_on||r.starts_on)})):''}</p>`);
-    f.hidden=false;$('joinNoSignup').hidden=false;
+    // round 20: the top shows the group as a ticket: the name, the dates, and the members as circles with a count
+    const ms=r.members||[],CAL='<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="5" width="18" height="16"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>';
+    card.insertAdjacentHTML('beforeend',`<small>${esc(T('join.invited_to'))}</small><p class="ac-big">${esc(r.name)}</p><p class="ac-jm">${r.starts_on?`<span>${CAL}<b class="num" dir="ltr">${esc(dm(r.starts_on))}–${esc(dm(r.ends_on||r.starts_on))}</b></span>`:''}${ms.length?`<span class="ac-avs" aria-label="${esc(T('group.members_n',{n:ms.length}))}">${ms.slice(0,4).map(m=>`<i aria-hidden="true">${esc(letter(m.display_name))}</i>`).join('')}<b class="num">${ms.length}</b></span>`:''}</p>`);
+    f.hidden=false;$('joinPend').hidden=true;
     if(!f.name.value&&state.name)f.name.value=state.name;
     $('joinReclaim').hidden=!(r.members||[]).length;
-    if(/^[A-Z]{6}$/i.test(code)){$('joinApp').hidden=false;$('joinCode').textContent=code.toUpperCase();}
+    if(/^[A-Z]{6}$/i.test(code)){$('joinApp').hidden=false;$('joinCode').innerHTML=code.toUpperCase().split('').map(c=>`<i>${esc(c)}</i>`).join('');}
     if(req)showPending(req.id);}
   function via(){return joinCode.length>8?'link':'code';}
   function pendNote(){try{localStorage.setItem('gud-pending',JSON.stringify({group_id:preview&&preview.group_id,via:via()}));}catch(e){}}
-  async function showPending(id){const pg=$('joinPage'),p=pg.querySelector('[data-err]');
+  async function showPending(id){const pg=$('joinPage'),p=$('joinPend');clearErr(pg);
     if(!id){try{const c=await client(),[q]=await rest(c.from('join_requests').select('id').eq('user_id',state.uid||(await user()).id).eq('group_id',preview.group_id).eq('status','pending').limit(1));id=q&&q.id;}catch(e){}}
     $('joinForm').hidden=true;$('joinNames').hidden=true;
-    p.innerHTML=`<span>${esc(T('join.st_pending'))}</span>${id?`<button type="button" class="ac-btn quiet" data-cancelreq="${esc(id)}">${esc(T('join.cancel_request'))}</button>`:''}`;p.hidden=false;}
+    // round 20: a card with an hourglass, "waiting for the admin" and withdraw
+    p.innerHTML=`<svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M7 3h10M7 21h10M8 3c0 5 8 5 8 9s-8 4-8 9M16 3c0 5-8 5-8 9s8 4 8 9"/></svg><span><b>${esc(T('join.pending_title'))}</b>${id?`<button type="button" data-cancelreq="${esc(id)}">${esc(T('join.cancel_request'))}</button>`:''}</span>`;p.hidden=false;}
   $('joinForm').addEventListener('submit',async e=>{e.preventDefault();const pg=$('joinPage');clearErr(pg);
     const name=e.target.name.value.trim();if(!name||name.length>40){e.target.name.focus();return;}
     const b=e.target.querySelector('button');b.disabled=true;
@@ -241,6 +244,7 @@ window.ACCOUNT=(function(){
       else if(r.status==='pending'){pendNote();await showPending();}
       else{const p=pg.querySelector('[data-err]');p.textContent=T('join.st_'+r.status);p.hidden=false;}}
     catch(x){showErr(pg,x);}b.disabled=false;});
+  $('joinCopy').addEventListener('click',e=>{const b=e.currentTarget;if(!navigator.clipboard)return;navigator.clipboard.writeText(joinCode.toUpperCase()).then(()=>{b.classList.add('done');setTimeout(()=>b.classList.remove('done'),2200);}).catch(()=>{});});
   $('joinReclaimBtn').addEventListener('click',()=>{const box=$('joinNames');if(!preview)return;box.hidden=false;
     box.innerHTML=preview.members.map(m=>`<button type="button" data-mid="${esc(m.user_id)}">${esc(m.display_name)}</button>`).join('');});
   $('joinNames').addEventListener('click',async e=>{const b=e.target.closest('[data-mid]');if(!b)return;const pg=$('joinPage');clearErr(pg);
@@ -251,7 +255,7 @@ window.ACCOUNT=(function(){
       if(r.status==='sign_in_instead'){try{sessionStorage.setItem('gud-after-signin','#join/'+encodeURIComponent(joinCode));}catch(e){}p.insertAdjacentHTML('beforeend',`<a class="ac-btn" href="#signin">${esc(T('join.sign_in_btn'))}</a>`);}}
     catch(x){showErr(pg,x);}});
   $('joinPage').addEventListener('click',async e=>{const b=e.target.closest('[data-cancelreq]');if(!b)return;const pg=$('joinPage');b.disabled=true;
-    try{await api('cancel_join_request',{request_id:b.dataset.cancelreq});try{localStorage.removeItem('gud-pending');}catch(x){}clearErr(pg);$('joinForm').hidden=false;}
+    try{await api('cancel_join_request',{request_id:b.dataset.cancelreq});try{localStorage.removeItem('gud-pending');}catch(x){}clearErr(pg);$('joinPend').hidden=true;$('joinForm').hidden=false;}
     catch(x){b.disabled=false;showErr(pg,x);}});
 
   // ---- the group page (W8, W10)
@@ -273,8 +277,8 @@ window.ACCOUNT=(function(){
       ch.subscribe();live=ch;}}
   function showNone(){
     $('grTitle').textContent=T('group.empty_title');$('grNone').hidden=false;$('grSome').hidden=true;$('grNote').innerHTML='';
-    const f=$('grCreate'),reg=registered();f.querySelector('.ac-needs').hidden=reg;
-    f.querySelectorAll('input,button').forEach(x=>x.disabled=!reg);
+    const f=$('grCreate'),reg=registered();
+    f.querySelectorAll('input,button:not([type=submit])').forEach(x=>x.disabled=!reg);
     if(reg&&!f.me.value)f.me.value=state.name||'';
     // "show my flight in the group" (round 18, S-1, decision 62, as the app): only with a trip, on until switched off
     const t=MYTRIP.get(),sw=$('grShowFlight');sw.hidden=!t;
@@ -441,7 +445,16 @@ window.ACCOUNT=(function(){
 });
   $('grCode').addEventListener('submit',e=>{e.preventDefault();let c=e.target.code.value.replace(/[\s-]/g,'');if(/^[a-z]{6}$/i.test(c))c=c.toUpperCase();if(c)location.hash='#join/'+encodeURIComponent(c);});
   $('grShowFlight').addEventListener('click',e=>{const b=e.currentTarget;b.setAttribute('aria-pressed',String(b.getAttribute('aria-pressed')!=='true'));});
+  // a guest who taps "create group" gets a sheet to sign in with Google or Apple, and comes back here (round 20)
+  function signinSheet(){if($('grSheet'))return;
+    try{sessionStorage.setItem('gud-after-signin','#group');}catch(e){}
+    const host=document.querySelector('#groupPage .ac');
+    host.insertAdjacentHTML('beforeend',`<div class="ac-shade" id="grShade"></div><div class="ac-sheet" id="grSheet" role="dialog" aria-modal="true" aria-labelledby="grSheetT"><span class="grab" aria-hidden="true"></span><h2 id="grSheetT">${esc(T('group.create_signin_title'))}</h2><div class="ac-btns" data-providers></div></div>`);
+    const close=()=>{$('grSheet')?.remove();$('grShade')?.remove();removeEventListener('keydown',esc_);},esc_=e=>{if(e.key==='Escape')close();};
+    $('grShade').addEventListener('click',close);addEventListener('keydown',esc_);addEventListener('hashchange',close,{once:true});
+    providerButtons($('grSheet').querySelector('[data-providers]'));tr('screen_view',{screen:'group_signin'});}
   $('grCreate').addEventListener('submit',async e=>{e.preventDefault();const f=e.target,pg=$('groupPage');clearErr(pg);
+    if(!registered()){signinSheet();return;}
     const name=f.name.value.trim(),me=f.me.value.trim();if(!name){f.name.focus();return;}if(!me){f.me.focus();return;}
     const sw=$('grShowFlight'),show=!sw.hidden&&sw.getAttribute('aria-pressed')==='true',t=show?MYTRIP.get():null;f.querySelector('[type=submit]').disabled=true;
     try{const sid=t?await pushTrip():null;const r=await api('create_group',{name,display_name:me,starts_on:t&&t.out.date||undefined,ends_on:t&&t.ret&&t.ret.date||undefined,trip_id:sid||undefined});

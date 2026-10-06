@@ -12667,10 +12667,10 @@
    ]
   },
   "acct.why_group": {
-   "he": "ליצור קבוצה ולהזמין את החבר׳ה",
-   "en": "Create a group and invite your friends",
-   "ru": "Создать группу и пригласить друзей",
-   "ka": "შექმენით ჯგუფი და მოიწვიეთ მეგობრები",
+   "he": "קבוצה והזמנות",
+   "en": "Group and invitations",
+   "ru": "Группа и приглашения",
+   "ka": "ჯგუფი და მოწვევები",
    "where": "site/index.html",
    "check": [
     "ru",
@@ -12678,10 +12678,10 @@
    ]
   },
   "acct.why_sync": {
-   "he": "הטיול והקבוצה, גם באפליקציה ובמחשב אחר",
-   "en": "Your trip and group, in the app and on another computer too",
-   "ru": "Поездка и группа — и в приложении, и на другом компьютере",
-   "ka": "თქვენი მოგზაურობა და ჯგუფი, აპშიც და სხვა კომპიუტერზეც",
+   "he": "גם באפליקציה",
+   "en": "In the app too",
+   "ru": "И в приложении",
+   "ka": "აპშიც",
    "where": "site/index.html",
    "check": [
     "ru",
@@ -12744,10 +12744,10 @@
    ]
   },
   "acct.moves_note": {
-   "he": "מה שכבר שמור בדפדפן הזה (הטיול שלך) עובר לחשבון.",
-   "en": "What is already saved in this browser (your trip) moves to the account.",
-   "ru": "То, что уже сохранено в этом браузере (ваша поездка), перейдёт в аккаунт.",
-   "ka": "რაც ამ ბრაუზერში უკვე შენახულია (თქვენი მოგზაურობა), ანგარიშზე გადავა.",
+   "he": "מה שכבר שמור בדפדפן הזה עובר לחשבון.",
+   "en": "What is already saved in this browser moves to the account.",
+   "ru": "То, что уже сохранено в этом браузере, перейдёт в аккаунт.",
+   "ka": "რაც ამ ბრაუზერში უკვე შენახულია, ანგარიშზე გადავა.",
    "where": "site/index.html",
    "check": [
     "ru",
@@ -13273,10 +13273,10 @@
    ]
   },
   "join.invited_to": {
-   "he": "הוזמנת ל",
-   "en": "You are invited to",
-   "ru": "Вас пригласили в",
-   "ka": "მოწვეული ხართ",
+   "he": "מצטרפים ל",
+   "en": "Joining",
+   "ru": "Вступление в",
+   "ka": "უერთდებით",
    "where": "site/js/account.js",
    "check": [
     "ru",
@@ -15898,6 +15898,90 @@
    "ka": "როგორ არის გამოთვლილი",
    "where": "site/js/app.js",
    "note": "Screen reader label of the (i) beside the elevation profile heading",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "acct.no_password": {
+   "he": "בלי סיסמה",
+   "en": "No password",
+   "ru": "Без пароля",
+   "ka": "პაროლის გარეშე",
+   "where": "site/index.html",
+   "note": "Sign-in, round 20: one of three promises under an icon",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "acct.no_mail": {
+   "he": "בלי מיילים",
+   "en": "No emails",
+   "ru": "Без писем",
+   "ka": "წერილების გარეშე",
+   "where": "site/index.html",
+   "note": "Sign-in, round 20: one of three promises under an icon",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "acct.only_name": {
+   "he": "רק השם",
+   "en": "Just your name",
+   "ru": "Только имя",
+   "ka": "მხოლოდ სახელი",
+   "where": "site/index.html",
+   "note": "Sign-in, round 20: one of three promises under an icon",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "group.why_flights": {
+   "he": "הטיסות של כולם",
+   "en": "Everyone's flights",
+   "ru": "Рейсы всех",
+   "ka": "ყველას ფრენები",
+   "where": "site/index.html",
+   "note": "Empty group page, round 20: under the plane icon",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "group.create_signin_title": {
+   "he": "יצירת קבוצה דורשת התחברות",
+   "en": "Creating a group needs signing in",
+   "ru": "Чтобы создать группу, нужно войти",
+   "ka": "ჯგუფის შესაქმნელად საჭიროა შესვლა",
+   "where": "site/js/account.js",
+   "note": "Title of the sign-in sheet a guest gets on \"create group\" (round 20)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "join.pending_title": {
+   "he": "ממתין לאישור המנהל",
+   "en": "Waiting for the admin to approve",
+   "ru": "Ждёт подтверждения администратора",
+   "ka": "ელოდება ადმინისტრატორის დადასტურებას",
+   "where": "site/js/account.js",
+   "note": "Join page, round 20: the pending request card, beside an hourglass",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "common.copy": {
+   "he": "העתקה",
+   "en": "Copy",
+   "ru": "Скопировать",
+   "ka": "კოპირება",
+   "where": "site/index.html",
+   "note": "Screen reader label of a copy icon button",
    "check": [
     "ru",
     "ka"

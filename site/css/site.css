@@ -1115,3 +1115,28 @@ html[lang="ka"] .pv-doc h1{font-size:36px;overflow-wrap:anywhere}
 .ms-ico.ms-wa{background:var(--ink);color:var(--paper)}
 .ms-ico.done{background:var(--p-green);border-color:var(--p-green);color:var(--on-board)}
 .ab-row small:empty{display:none}
+/* round 20: shapes instead of lines: three promises, the join ticket, the pending card, the app code, the sign-in sheet */
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.ac-why{display:flex;gap:14px;justify-content:space-between;margin:12px 0 2px;padding-top:12px;border-top:1px solid var(--rule)}
+.ac-why-top{margin:-4px 0 4px;padding-top:0;border-top:0}
+.ac-why>span{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;font-size:13px;font-weight:600;text-align:center;color:var(--ink)}
+.ac-why svg{color:var(--glacier)}
+.ac-card p.ac-jm{display:flex;gap:18px;align-items:center;flex-wrap:wrap;color:var(--ink)}
+.ac-jm>span{display:flex;align-items:center;gap:6px}.ac-jm b{font-family:var(--f-display);font-size:22px;line-height:1}
+.ac-avs i{display:grid;place-items:center;width:28px;height:28px;margin-inline-start:-6px;border-radius:50%;border:2px solid var(--paper);background:var(--glacier);color:#fff;font:700 13px/1 var(--f-body);font-style:normal}
+.ac-avs i:first-child{margin-inline-start:0}.ac-avs b{margin-inline-start:4px}
+.ac-pend{display:flex;align-items:center;gap:14px;padding:14px 16px;background:var(--paper);border-inline-start:6px solid #F4B942;box-shadow:0 2px 8px var(--shadow)}
+.ac-pend[hidden]{display:none}
+.ac-pend svg{flex:none;color:#C98A00}.ac-pend>span{display:flex;flex-direction:column;align-items:flex-start;gap:4px}
+.ac-pend b{font-family:var(--f-display);font-size:24px;line-height:1}
+.ac-pend button{min-height:44px;border:0;background:none;padding:0;color:var(--glacier);font:inherit;font-weight:700;font-size:14px;cursor:pointer}
+.ac-appcode{display:flex;align-items:center;gap:12px;padding:10px 12px;background:var(--paper);border:1.5px solid var(--rule)}
+.ac-appcode[hidden]{display:none}
+.ac-appcode>svg{flex:none;color:var(--ink)}
+.ac-code{display:flex;gap:4px;flex:1}.ac-code i{display:grid;place-items:center;width:30px;height:38px;border:1.5px solid var(--ink);font:700 20px/1 var(--f-body);font-style:normal;color:var(--ink)}
+.ac-appcode button{display:grid;place-items:center;width:44px;height:44px;border:0;background:none;color:var(--glacier);padding:0;cursor:pointer}
+.ac-appcode button.done{color:var(--p-green)}
+.ac-shade{position:fixed;inset:0;z-index:50;background:rgba(13,21,34,.42)}
+.ac-sheet{position:fixed;left:0;right:0;bottom:0;z-index:51;display:flex;flex-direction:column;gap:12px;max-width:520px;margin:0 auto;padding:10px 16px calc(24px + env(safe-area-inset-bottom));background:var(--paper);color:var(--ink);border-top:6px solid var(--ink)}
+.ac-sheet .grab{width:44px;height:4px;margin:0 auto;background:var(--rule)}
+.ac-sheet h2{margin:4px 0;font-family:var(--f-display);font-weight:700;font-size:30px;line-height:1.05}
