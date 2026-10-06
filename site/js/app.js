@@ -170,7 +170,7 @@ function apply(){
   const[cw,ch]=sz();vb.h=vb.w*ch/cw;
   svg.setAttribute('viewBox',`${vb.x} ${vb.y} ${vb.w} ${vb.h}`);
   const u=vb.w/cw; // meters per px
-  layoutLabels(labels,stations,u,marks);svg.classList.toggle('far',u>9);svg.querySelectorAll('.chair').forEach(c=>c.setAttribute('r',3.6*u));runMark.setAttribute('r',7*u);
+  layoutLabels(labels,stations,u,marks);svg.classList.toggle('far',u>9);svg.querySelectorAll('.chair').forEach(c=>c.setAttribute('r',3.6*u));runMark.setAttribute('r',7*u);if(typeof meDot!=='undefined')meDot.setAttribute('r',8*u);if(typeof WX!=='undefined'&&WX)WX.layout();
   const nice=[50,100,200,250,500,1000,2000];let m=nice.find(n=>n/u>=70)||2000;
   const sc=document.getElementById('scale');sc.querySelector('i').style.width=(m/u)+'px';sc.querySelector('span').textContent=m>=1000?m/1000+' km':m+' m';
 }
@@ -245,6 +245,9 @@ function runProfile(key){ // the longest line of the run, top to bottom
 // 2D: the selected run, painted from the top down in slope colours
 const gPaint=mk('g',{class:'runpaint','aria-hidden':'true'});svg.insertBefore(gPaint,mainLbl);
 const runMark=mk('circle',{class:'runmark',r:10,cx:0,cy:0,'vector-effect':'non-scaling-stroke'});runMark.style.display='none';
+// "where am I" (round 19): the accuracy circle in metres and the dot in pixels; drawn by LOC below
+const meG=mk('g',{class:'me','aria-hidden':'true'});meG.style.display='none';
+const meAcc=mk('circle',{class:'me-acc',r:10,'vector-effect':'non-scaling-stroke'},meG),meDot=mk('circle',{class:'me-dot',r:10,'vector-effect':'non-scaling-stroke'},meG);
 function paint2d(key){
   gPaint.classList.remove('on');gPaint.innerHTML='';
   const p=key&&byKey[key];if(!p||!TM||isKobiP(p))return;
@@ -401,6 +404,7 @@ function renderPiste(key){
     ${p.refs.length?`<dt>${E('run.ref_label')}</dt><dd class="num">${esc(p.refs.join(', '))}</dd>`:''}
     ${p.groom.length?`<dt>${E('run.grooming_label')}</dt><dd>${p.groom.includes('classic')?E('run.groomed_value'):esc(p.groom.join(', '))}</dd>`:''}
   </dl>
+  ${typeof WX!=='undefined'&&WX?WX.cond(p):''}
   ${runViewBlock(key)}
   <h3>${E('run.connections_heading')}</h3>
   <dl class="kv">
@@ -950,11 +954,167 @@ const LSTAT=(function(){
     .then(j=>{j=j&&j.updated&&j.lifts?j:null;
       // the last report stays in this browser, as in the app (S-29): with no answer it is shown while it is fresh
       try{if(j)localStorage.setItem('gud-lstat-last',JSON.stringify(j));else j=JSON.parse(localStorage.getItem('gud-lstat-last')||'null');}catch(e){}
-      data=j&&j.updated&&j.lifts?j:null;loaded=true;if(pend){pend=false;viewed();}applyMap();applyHome();if(!current&&!panel.querySelector('.back'))overview();});}
+      data=j&&j.updated&&j.lifts?j:null;loaded=true;if(pend){pend=false;viewed();}applyMap();applyHome();if(typeof WX!=='undefined'&&WX)WX.home();if(!current&&!panel.querySelector('.back'))overview();});}
   setInterval(load,5*6e4);
-  return {block,load,applyMap,viewed};
+  return {block,load,applyMap,viewed,fresh,isOpen,names,ago,updated:()=>data&&data.updated};
 })();
 LSTAT.load();
+
+// ---- "where am I" (round 19, decision 58; docs/ARCHITECTURE.md m-7). The position stays in this browser: it is only
+// drawn, never sent, stored or measured. Off on every visit; it runs only while the map is open and the button is on.
+// Published with its line in the privacy policy (Pini approved both, 6.10.2026).
+const LOC=(function(){
+  const on=true;
+  const ctrls=pgMap.querySelector('.ctrls'),wrap=pgMap.querySelector('.mapwrap');
+  const btn=document.createElement('button');btn.type='button';btn.className='loc-btn';btn.hidden=!on;btn.disabled=true;
+  btn.setAttribute('aria-pressed','false');btn.setAttribute('aria-label',T('loc.button'));
+  btn.innerHTML='<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="6.5"/><circle cx="12" cy="12" r="2.2" fill="currentColor" stroke="none"/><path d="M12 1.5v3M12 19.5v3M1.5 12h3M19.5 12h3"/></svg>';
+  ctrls.append(btn);
+  const bar=document.createElement('div');bar.className='where';bar.setAttribute('role','status');bar.hidden=true;wrap.append(bar);
+  let watch=null,loc=null,first=true;
+  const num=n=>Number(n).toLocaleString('en-US');
+  function say(off,title,sub){bar.hidden=false;bar.innerHTML=`<span class="wd${off?' off':''}"></span><span class="wt"><b>${esc(title)}</b>${sub?`<span>${esc(sub)}</span>`:''}</span>`;wrap.classList.add('has-where');}
+  function dot(r){if(!r){meG.style.display='none';if(v3&&v3.me)v3.me(null);return;}
+    meG.style.display='';meAcc.setAttribute('cx',r.x);meAcc.setAttribute('cy',r.y);meAcc.setAttribute('r',Math.max(r.acc,4));meDot.setAttribute('cx',r.x);meDot.setAttribute('cy',r.y);
+    if(v3&&v3.me)v3.me(r.x,r.y);}
+  function show(r){
+    const acc=Math.round(r.acc),alt=()=>T('common.unit_m',{n:num(Math.round(TM.elev(r.x,r.y)/10)*10)})+' · '+T('loc.accuracy',{n:acc});
+    if(r.state==='outside'){dot(null);return say(true,T('loc.out_title'),T('loc.out_sub'));}
+    dot(r);
+    if(first){first=false;if(view==='3d'&&v3)v3.view({tx:r.x,tz:r.y});else{const w=Math.min(vb.w,2600);vb.w=w;const[cw,ch]=sz();vb.h=w*ch/cw;vb.x=r.x-w/2;vb.y=r.y-vb.h/2;apply();}}
+    if(r.state==='low'||r.state==='approx')return say(false,T(r.state==='low'?'loc.low_title':'loc.approx_title',{n:acc}),T(r.state==='low'?'loc.low_sub':'loc.approx_sub'));
+    if(r.state==='lift')return say(false,T('loc.on_lift',{lift:r.lift}),T('loc.going_up')+' · '+T('loc.accuracy',{n:acc}));
+    if(r.state==='run')return say(false,T('loc.on_run',{run:r.run,color:T('common.color_'+r.color)}),alt());
+    say(false,T('loc.free'),alt());}
+  let told=false;const tell=result=>{if(!told){told=true;track('location_toggle',{on:true,result});}};
+  function stop(byUser){if(watch!=null){navigator.geolocation.clearWatch(watch);if(byUser)track('location_toggle',{on:false});}watch=null;btn.setAttribute('aria-pressed','false');bar.hidden=true;wrap.classList.remove('has-where');dot(null);}
+  function start(){
+    told=false;if(!navigator.geolocation){tell('unavailable');return say(true,T('loc.unavail_title'),T('loc.unavail_sub'));}
+    btn.setAttribute('aria-pressed','true');first=true;loc.reset();say(false,T('loc.waiting_title'),T('loc.waiting_sub'));
+    watch=navigator.geolocation.watchPosition(p=>{if(watch==null)return;const r=loc.feed({lat:p.coords.latitude,lon:p.coords.longitude,accuracy:p.coords.accuracy});tell(r.state==='outside'?'outside':'granted');show(r);},
+      e=>{if(e.code===1){tell('denied');stop();say(true,T('loc.denied_title'),T('loc.denied_sub'));}else if(e.code===2){tell('unavailable');dot(null);say(true,T('loc.unavail_title'),T('loc.unavail_sub'));}},
+      {enableHighAccuracy:true,maximumAge:5000,timeout:60000});}
+  // the short sheet before the browser asks, once in this browser
+  function ask(){let seen=false;try{seen=!!localStorage.getItem('gud-loc-asked');}catch(e){}
+    if(seen)return start();
+    const shade=document.createElement('div');shade.className='loc-shade';
+    const sh=document.createElement('div');sh.className='loc-sheet';sh.setAttribute('role','dialog');sh.setAttribute('aria-modal','true');sh.setAttribute('aria-label',T('loc.ask_title'));
+    const li=(ico,html)=>`<li>${ico}<span>${html}</span></li>`;
+    sh.innerHTML=`<h2>${E('loc.ask_title')}</h2><ul>`+
+      li('<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><rect x="6" y="2.5" width="12" height="19" rx="1.5"/><path d="M10.5 18.5h3"/></svg>',`<b>${E('loc.ask_stays_b')}</b> ${E('loc.ask_stays')}`)+
+      li('<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M9 4 3 6.5v13L9 17l6 2.5 6-2.5v-13L15 6.5 9 4z"/><path d="M9 4v13M15 6.5v13"/></svg>',E('loc.ask_map'))+
+      li('<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-6.5-6.2-6.5-11a6.5 6.5 0 0 1 13 0c0 4.8-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.3"/></svg>',E('loc.ask_offline'))+
+      `</ul><div class="bt"><button type="button" class="pri" data-go>${E('loc.ask_go')}</button><button type="button" data-later>${E('loc.ask_later')}</button></div><small>${E('loc.ask_after')}</small>`;
+    const close=()=>{shade.remove();sh.remove();btn.focus();};
+    sh.querySelector('[data-go]').onclick=()=>{try{localStorage.setItem('gud-loc-asked','1');}catch(e){}close();start();};
+    sh.querySelector('[data-later]').onclick=close;shade.onclick=close;
+    sh.addEventListener('keydown',e=>{if(e.key==='Escape')close();});
+    pgMap.append(shade,sh);sh.querySelector('[data-go]').focus();}
+  btn.onclick=()=>{if(watch!=null)stop(true);else ask();};
+  // off when the map closes, as on the phone
+  addEventListener('hashchange',()=>{if(!location.hash.startsWith('#map')&&watch!=null)stop(true);});
+  document.addEventListener('visibilitychange',()=>{if(document.hidden&&watch!=null)stop(true);});
+  terrainReady.then(()=>{if(TM&&window.GudLocate){loc=GudLocate.make(D,TM);btn.disabled=false;}else btn.hidden=true;});
+  return {stop};
+})();
+
+// ---- weather by altitude (round 19, decision 58; docs/ARCHITECTURE.md m-6, server/CONTRACT.md "/api/weather"). The
+// server fetches the forecast and decides the closure risk; this only reads /api/weather (the rule in js/weather.js).
+// The last good answer stays in this browser for the mountain without reception. Never a guess: no data says so.
+var WX=(function(){ // var: apply() and renderTicket() may run before this line
+  const G=window.GudWeather;if(!G)return {cond:()=>'',layout(){},home(){}};
+  let ans=null,layer=false;try{ans=JSON.parse(localStorage.getItem('gud-wx-last')||'null');}catch(e){}
+  // the three points (server/CONTRACT.md), for the pins before any answer: the lift ends in the data
+  const WXPTS={village:{lat:42.471394,lon:44.49246},goodaura:{lat:42.492379,lon:44.494273},sadzele:{lat:42.508985,lon:44.503209}};
+  const IDS=['sadzele','goodaura','village'],NM=id=>id==='sadzele'?'Sadzele':T('weather.point_'+id);
+  const st=()=>G.state(ans,Date.now()),num=n=>Number(n).toLocaleString('en-US');
+  const deg=t=>t==null?'—':`<span dir="ltr">${t<0?'−':''}${Math.abs(t)}°</span>`;
+  const arrow=(from,size)=>from==null?'':`<svg class="wx-arrow" width="${size}" height="${size}" viewBox="0 0 16 16" role="img" aria-label="${E('weather.wind_from_'+G.dir8(from))}" style="transform:rotate(${from+180}deg)"><path d="M8 1.5v12M3.5 6 8 1.5 12.5 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+  const credit=()=>`<p class="wx-note">${H('weather.credit',{},{source:'<a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo.com</a>'})}</p>`;
+  const wind=v=>v.wind==null?E('weather.none'):v.gust==null?E('weather.wind_short',{wind:v.wind}):E('weather.wind_gusts',{wind:v.wind,gusts:v.gust});
+  const snow=v=>v.snow24==null?'':E('weather.new_snow',{n:v.snow24});
+  const pAlt=id=>{const p=G.point(ans,id);return p?p.elevation:null;};
+  function row(name,alt,v){return `<div class="wx-row${v?'':' none'}"><span class="rn"><b><bdi>${esc(name)}</bdi></b>${alt!=null?`<span><bdi>${E('common.unit_m',{n:num(alt)})}</bdi></span>`:''}</span>`+
+    (v?`<span class="rt">${deg(v.temp)}</span><span class="rw"><span>${arrow(v.dir,13)} ${wind(v)}</span><span>${snow(v)}</span></span>`:`<span class="rt">—</span><span class="rw"><span>${E('weather.none')}</span></span>`)+`</div>`;}
+  const viewed={};const seen=where=>{if(viewed[where])return;viewed[where]=1;track('weather_view',{where,state:st()});};
+  // the map layer: a chip that is off on every visit, three pins on the map and the same three places in a list
+  const chip=document.createElement('button');chip.type='button';chip.className='wx-chip';chip.setAttribute('aria-pressed','false');
+  chip.innerHTML=`<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 18h10a4 4 0 0 0 0-8 6 6 0 0 0-11.5 2A3 3 0 0 0 7 18z"/></svg><span>${E('weather.button')}</span>`;
+  const filters=document.getElementById('filters');filters.parentNode.insertBefore(chip,filters);
+  const wrap=pgMap.querySelector('.mapwrap'),pins=document.createElement('div');pins.className='wx-pins';pins.hidden=true;wrap.append(pins);
+  const list=document.createElement('section');list.className='wx-list';list.hidden=true;panel.parentNode.insertBefore(list,panel);
+  function drawList(){const s=st(),ms=Date.now();
+    const sub=s==='fresh'?E('weather.sub_fresh',{ago:LSTAT.ago(ans.updated)}):s==='stale'?`<b>${E('weather.stale')}</b> · ${E('weather.sub_stale',{ago:LSTAT.ago(ans.updated)})}`:E('weather.sub_none');
+    list.innerHTML=`<h2>${E('weather.title')}</h2><p class="wl-sub">${sub}</p>`+IDS.map(id=>row(NM(id),pAlt(id),s==='none'?null:G.now(ans,id,ms))).join('')+
+      `<p class="wx-note">${E(s==='none'?'weather.note_none':'weather.note')}</p>`+credit();}
+  function layout(){if(!layer||pins.hidden)return;const s=st(),ms=Date.now(),W=wrap.clientWidth,Hh=wrap.clientHeight;pins.innerHTML='';
+    const m=svg.getScreenCTM(),r=wrap.getBoundingClientRect();if(!m)return;const pt=svg.createSVGPoint();const placed=[],ms0=document.getElementById('mstat'),minT=ms0&&ms0.offsetHeight?ms0.getBoundingClientRect().bottom-r.top+8:8;
+    IDS.forEach(id=>{const p=G.point(ans,id)||WXPTS[id];if(!p)return;const[x,y]=P([p.lat,p.lon]);pt.x=x;pt.y=y;const q=pt.matrixTransform(m),px=q.x-r.left,py=q.y-r.top;
+      const v=s==='none'?null:G.now(ans,id,ms),alt=pAlt(id);
+      const d=document.createElement('div');d.className='wx-dot';d.style.left=px+'px';d.style.top=py+'px';
+      const c=document.createElement('div');c.className='wx-pin'+(v?'':' none');
+      c.innerHTML=`<span class="pn"><bdi>${esc(NM(id))}</bdi>${alt!=null?` · <bdi>${E('common.unit_m',{n:num(alt)})}</bdi>`:''}</span>`+(s==='stale'?`<span class="pn st">${E('weather.stale')}</span>`:'')+
+        (v?`<span class="pt"><b>${deg(v.temp)}</b><span class="pw"><span>${arrow(v.dir,12)} ${v.wind==null?E('weather.none'):E('weather.wind_short',{wind:v.wind})}</span><span>${snow(v)}</span></span></span>`:`<span class="pt"><b>—</b><span class="pw"><span>${E('weather.none')}</span></span></span>`);
+      pins.append(d,c);
+      // above the point, or below it when there is no room or it would cover a pin already placed
+      const w=c.offsetWidth,h=c.offsetHeight,gap=14,left=Math.max(8,Math.min(W-w-8,px-w/2));
+      const hits=t=>placed.some(q=>left<q.l+q.w&&left+w>q.l&&t<q.t+q.h&&t+h>q.t);
+      let top=py-h-gap;if(top<minT||hits(top))top=py+gap;if(top+h>Hh-8||hits(top)&&!hits(py-h-gap))top=py-h-gap;
+      placed.push({l:left,t:top,w,h});c.style.left=left+'px';c.style.top=top+'px';
+      const stem=document.createElement('div');stem.className='wx-stem';stem.style.left=(px-.75)+'px';
+      if(top>py){stem.style.top=py+'px';stem.style.height=(top-py)+'px';}else{stem.style.top=(top+h)+'px';stem.style.height=(py-top-h)+'px';}pins.append(stem);});}
+  function setLayer(on){layer=on;chip.setAttribute('aria-pressed',String(on));pins.hidden=!on;list.hidden=!on;
+    if(on){const b=document.querySelector('#viewsw [data-view="2d"]');if(b&&b.getAttribute('aria-pressed')!=='true')b.click();
+      if(!current)focusOn([IDS.map(id=>{const q=G.point(ans,id)||WXPTS[id];return [q.lat,q.lon];})]);drawList();requestAnimationFrame(layout);seen('map');}}
+  chip.onclick=()=>setLayer(!layer);
+  // the layer is drawn on the top view; the 3D view turns it off
+  document.getElementById('viewsw').addEventListener('click',e=>{const b=e.target.closest('[data-view="3d"]');if(b&&layer)setLayer(false);});
+  addEventListener('hashchange',()=>{if(!location.hash.startsWith('#map')&&layer)setLayer(false);});
+  // the run panel: the forecast at the top and the bottom of the run, by altitude, after the details
+  function cond(p){const s=st();if(!TM||s==='none')return '';const lines=p.segs.filter(x=>!x.area).map(x=>x.g.map(P));if(!lines.length)return '';
+    const S=GudRelief.stats(TM,lines),ms=Date.now(),top=G.at(ans,S.top,ms),bot=G.at(ans,S.bot,ms);if(!top&&!bot)return '';
+    setTimeout(()=>seen('run'),0);
+    return `<section class="wx-cond"><h3>${E('run.cond_title')}</h3>${row(T('run.cond_top'),S.top,top)}${row(T('run.cond_bottom'),S.bot,bot)}`+
+      `${s==='stale'?`<p class="wx-note"><b>${E('weather.stale')}</b></p>`:''}<p class="wx-note">${E('run.cond_note',{ago:LSTAT.ago(ans.updated)})}</p>${credit()}</section>`;}
+  // the home page: "today on the mountain" during the trip, and the days ahead once the first ski day is in the forecast
+  const board=document.getElementById('wxToday');
+  const meter=n=>`<span class="wx-meter" aria-hidden="true">${[0,1,2].map(i=>`<i class="${i<=n?'on':''}"></i>`).join('')}</span>`;
+  const LV={low:0,medium:1,high:2};
+  const gDate=ms=>new Date(ms+4*36e5).toISOString().slice(0,10);
+  function home(){if(!board)return;const t=MYTRIP.get(),s=st(),sk=t&&MYTRIP.ski(t),stg=t&&MYTRIP.stage(t);
+    if(!t||!sk||s==='none'||!stg||stg.k==='over'){board.hidden=true;return;}
+    const ms=Date.now(),today=gDate(ms),days=ans.points[0]&&ans.points[0].daily?ans.points[0].daily.date:[];
+    const ago=`<em>${E('today.updated',{ago:LSTAT.ago(ans.updated)})}</em>`+(s==='stale'?` <em class="st">${E('weather.stale')}</em>`:'');
+    if(stg.k==='ski'){
+      const alt=id=>{const v=G.now(ans,id,ms);return `<div><small><bdi>${esc(NM(id))}</bdi></small><small><bdi>${pAlt(id)!=null?E('common.unit_m',{n:num(pAlt(id))}):''}</bdi></small><b class="tt">${deg(v&&v.temp)}</b>`+
+        (v?`<span>${arrow(v.dir,12)} ${v.wind==null?E('weather.none'):E('weather.wind_short',{wind:v.wind})}</span><span>${v.snow24==null?'':E('weather.snow_short',{n:v.snow24})}</span>`:`<span>${E('weather.none')}</span>`)+`</div>`;};
+      const rk=G.risk(ans,today),live={};['Sadzele','Kudebi'].forEach(n=>{const o=LSTAT.fresh()?LSTAT.isOpen(n):null;if(o!=null)live[n]=o;});
+      const rows=['Sadzele','Kudebi'].filter(n=>rk[n]||n in live).map(n=>`<div class="rk"><b dir="ltr">${n}</b>`+(n in live?`<span>${E(live[n]?'today.open_mta':'today.closed_mta')}</span><span></span>`:`<span>${E('today.risk_'+rk[n])}</span>${meter(LV[rk[n]])}`)+`</div>`).join('');
+      const nl=Object.keys(live),why=nl.length===0?E('today.risk_why'):nl.length===2||!rows.includes('Kudebi')||!rows.includes('Sadzele')?E('today.risk_why_all'):E('today.risk_why_mixed',{lift:nl[0],other:nl[0]==='Sadzele'?'Kudebi':'Sadzele'});
+      const lifts=LSTAT.fresh()?`<span class="ms-dot"></span><span>${H('status.bar_summary',{ago:LSTAT.ago(LSTAT.updated())},{open:`<b class="num">${LSTAT.names.filter(n=>LSTAT.isOpen(n)).length}</b>`,total:`<b class="num">${LSTAT.names.length}</b>`})}</span>`:`<span class="ms-dot off"></span><span>${E('today.lifts_none')}</span>`;
+      board.innerHTML=`<div class="td-head"><b>${E('today.title')}</b><span>${ago}</span></div><p class="td-sub">${E('trip.ski_day_of',{n:stg.n,m:stg.m})}</p>`+
+        `<div class="wx-alts">${['village','goodaura','sadzele'].map(alt).join('')}</div>`+
+        (rows?`<div class="wx-risk"><b class="rk-h">${E('today.risk_title')}</b>${rows}<span class="rk-why">${why}</span></div>`:'')+
+        `<a class="wx-lifts" href="#map">${lifts}<span class="go">${E('status.heading_lift_status')}</span></a>${credit()}`;
+    }else{
+      const list=[];for(let d=sk.from,i=1;d<=sk.to;i++){list.push([d,i]);const x=new Date(d+'T12:00:00Z');x.setUTCDate(x.getUTCDate()+1);d=x.toISOString().slice(0,10);}
+      if(!days.includes(sk.from)){board.hidden=true;return;}
+      const gp=G.point(ans,'goodaura'),dd=gp&&gp.daily;
+      const day=([d,i])=>{const k=dd?dd.date.indexOf(d):-1,label=I18N.date(Date.parse(d+'T12:00:00Z'),{weekday:'short',day:'numeric',month:'numeric',timeZone:'UTC'});
+        if(k<0){const o=new Date(d+'T12:00:00Z');o.setUTCDate(o.getUTCDate()-14);const opens=o.getUTCDate()+'.'+(o.getUTCMonth()+1);
+          return `<div class="wx-day later"><span class="dd"><b>${esc(label)}</b><small>${E('today.ahead_day',{n:i})}</small></span><span class="dw">${E('today.ahead_later',{date:opens})}</span><span class="dt">—</span></div>`;}
+        const v={wind:dd.wind[k]==null?null:Math.round(dd.wind[k]),gust:dd.gust[k]==null?null:Math.round(dd.gust[k]),dir:dd.dir[k]},sn=dd.snow[k]==null?null:Math.round(dd.snow[k]);
+        return `<div class="wx-day"><span class="dd"><b>${esc(label)}</b><small>${E('today.ahead_day',{n:i})}</small></span><span class="dw">${arrow(v.dir,12)} ${wind(v)} · ${sn?E('weather.new_snow',{n:sn}):E('weather.no_new_snow')}</span><span class="dt">${deg(dd.tmax[k]==null?null:Math.round(dd.tmax[k]))}</span></div>`;};
+      board.innerHTML=`<div class="td-head"><b>${E('today.ahead_title')}</b><span>${ago}</span></div><p class="td-sub"><bdi>${esc(NM('goodaura'))}</bdi>${pAlt('goodaura')!=null?`, <bdi>${E('common.unit_m',{n:num(pAlt('goodaura'))})}</bdi>`:''}</p>`+
+        `<div class="wx-days">${list.map(day).join('')}</div><p class="wx-note">${E('today.ahead_note')}</p>${credit()}`;}
+    board.setAttribute('aria-label',T(stg.k==='ski'?'today.title':'today.ahead_title'));board.hidden=false;seen('home');}
+  // read: once now, and every ten minutes while the page is open (the answer changes once an hour)
+  function load(){fetch('api/weather',{cache:'no-store'}).then(r=>r.status===200&&/json/.test(r.headers.get('content-type')||'')?r.json():null).catch(()=>null).then(j=>{
+    const had=G.state(ans,Date.now())!=='none';if(j&&j.schema===1&&j.updated&&Array.isArray(j.points)){ans=j;try{localStorage.setItem('gud-wx-last',JSON.stringify(j));}catch(e){}}
+    if(layer){drawList();layout();}home();if(!had&&current&&byKey[current]&&!flying)renderPiste(current);});}
+  load();setInterval(()=>{if(!document.hidden)load();},10*6e4);
+  return {cond,layout,home};
+})();
 
 // flight ticket: one shared doc (trip/flight), editable by Contributors
 const fmtDate=iso=>{const[y,m,d]=iso.split('-');return +d+'.'+ +m+'.'+y;};
@@ -962,6 +1122,7 @@ function renderTicket(){
   const t=MYTRIP.get(),stack=document.getElementById('bpStack');
   stack.hidden=!t;document.getElementById('bpHint').hidden=!t;
   ['bpEmpty','tripNote','seasonBoard'].forEach(id=>{document.getElementById(id).hidden=!!t;});
+  if(typeof WX!=='undefined'&&WX)WX.home();
   if(!t)return;
   const short=iso=>{const[,m,d]=iso.split('-');return +d+'.'+ +m;};
   const city=code=>{if(!code)return '';const k='ticket.city_'+code.toLowerCase(),w=T(k);return w===k?'':w;};

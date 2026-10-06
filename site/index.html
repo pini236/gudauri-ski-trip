@@ -104,6 +104,7 @@
       <p class="bp-hint" id="bpHint"><span id="bpHintSwap" hidden data-i18n="ticket.hint_swap">נגיעה בכרטיס שמאחור מחליפה · </span><span data-i18n="ticket.hint_tear">נגיעה בספח תולשת</span><a class="bp-edit" href="#trip"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16z"/></svg><span data-i18n="trip.edit">עריכה</span></a></p>
       <p class="trip-note" id="tripNote" hidden><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="5" y="11" width="14" height="9"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg><span data-i18n="trip.local_note">בלי הרשמה. נשמר רק בדפדפן הזה, ואפשר למחוק בכל רגע.</span></p>
       <a class="season" id="seasonBoard" href="#map" data-snow="7" data-snow-pile hidden><em data-i18n="status.heading_lift_status">מצב הרכבלים</em><b data-i18n="status.mountain_asleep">ההר עוד ישן</b><span data-i18n="status.lead_off_season">עוד אין דיווח על רכבלים. העונה בגודאורי נפתחת בדרך כלל בדצמבר, ואז השלטים יתנקו מהשלג.</span></a>
+      <section class="wx-today" id="wxToday" aria-live="polite" hidden></section>
     </section>
     <nav class="post" aria-label="חלקי האתר" data-i18n-attr="aria-label:nav.sections">
       <a class="board" href="#map"><b data-i18n="nav.map">מפת מסלולים</b><span data-i18n="home.board_map_sub">27 מסלולים, פרטים וסרטונים</span></a>
@@ -270,6 +271,7 @@
         <li><b data-i18n="about.credit_cards_label">צלילי הקלפים:</b> <span data-i18n-tpl="about.credit_licensed" data-var-license="CC0"><a data-slot="link" href="https://kenney.nl/assets/casino-audio" target="_blank" rel="noopener">Kenney</a>, ברישיון CC0.</span></li>
         <li><b data-i18n="about.credit_fonts_label">גופנים:</b> <span data-i18n="about.credit_fonts">Karantina, IBM Plex Sans Hebrew, IBM Plex Sans, Oswald ו-Noto Sans Georgian, ברישיון OFL.</span> <b data-i18n="about.credit_3d_label">תלת-ממד:</b> <span data-i18n="about.credit_3d">three.js, ברישיון MIT.</span> <span data-i18n="about.credit_accounts">חשבונות וקבוצות: supabase-js, ברישיון MIT.</span></li>
         <li><b data-i18n="about.credit_videos_label">סרטונים:</b> <span data-i18n="about.credit_videos">שייכים ליוצרים שלהם ביוטיוב, ומוטמעים בלבד.</span></li>
+        <li><span data-i18n-tpl="weather.credit">נתוני מזג האוויר: <a data-slot="source" href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo.com</a></span> (CC BY 4.0)</li>
         <li data-i18n="about.credit_mta">המפה הרשמית של MTA שימשה רק לזיהוי שמות וצבעים של מסלולים, ולא הועתקה.</li>
       </ul>
       <p class="ab-privacy"><a href="privacy" data-i18n="home.privacy_link">מדיניות פרטיות</a> · <span data-i18n="about.unofficial">אתר ואפליקציה לא רשמיים, בלי קשר ל-MTA.</span></p>
@@ -391,6 +393,8 @@
   <button type="button" class="ls-auto" id="langAuto" data-i18n="about.language_browser">לפי הדפדפן (אוטומטי)</button>
 </dialog>
 <script src="js/relief.js"></script>
+<script src="js/locate.js"></script>
+<script src="js/weather.js"></script>
 <script src="js/snow.js"></script>
 <script src="js/app.js"></script>
 <script src="js/lang-picker.js"></script>
