@@ -57,11 +57,9 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Outline
-import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.RectangleShape
-import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
@@ -76,9 +74,6 @@ import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.Density
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -227,9 +222,6 @@ fun MeetScreen(
                         AskDot()
                         Text(stringResource(R.string.meet_hint_pick, (plan?.stations?.size ?: 0).toString()), style = Ski.type.bodyBold.copy(fontSize = 14.sp), color = Color.White)
                     }
-                } else {
-                    Text(stringResource(R.string.meet_hint_clear), Modifier.align(AbsoluteAlignment.BottomLeft).padding(12.dp).background(c.paper.copy(alpha = .94f))
-                        .border(1.dp, c.rule).padding(horizontal = 10.dp, vertical = 4.dp), style = Ski.type.label.copy(fontSize = 12.5.sp), color = c.ink)
                 }
             }
             Box(Modifier.fillMaxWidth().height(1.dp).background(c.rule))
@@ -244,17 +236,12 @@ fun MeetScreen(
                             repeat(4 - row.size) { Spacer(Modifier.weight(1f)) }
                         }
                     }
+                    // round 20: "other time" is a clock block at the end of the times row (its words stay for a screen reader);
+                    // a time picked there shows in it, as the chosen chip
                     CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
                         Row(Modifier.fillMaxWidth().padding(top = 2.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                             for (t in Meet.TIMES) Chip(t, t == timeTxt, Modifier.weight(1f), big = true) { timeTxt = t; preset = null }
-                        }
-                    }
-                    Row(Modifier.padding(top = 10.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                        Text(stringResource(R.string.meet_other_time), style = Ski.type.small, color = c.muted)
-                        Row(Modifier.background(c.paper).border(1.5.dp, c.rule).clickable(role = Role.Button) { askTime = true }.heightIn(min = 44.dp).padding(horizontal = 12.dp),
-                            verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            Icon(Icons.clock, null, Modifier.size(18.dp), tint = c.muted)
-                            Text(timeTxt, style = Ski.type.bodyBold.copy(fontSize = 16.sp), color = c.ink)
+                            OtherTime(stringResource(R.string.meet_other_time), timeTxt.takeIf { it !in Meet.TIMES }, Modifier.weight(1f)) { askTime = true }
                         }
                     }
                 }
@@ -266,17 +253,8 @@ fun MeetScreen(
                 // ---- the card (M3; MP2 the waiting card, MP3 the X) ----
                 if (station == null) EmptyCard() else MeetCard(station, time, dayLabel(day, lang.tag), Meet.left(Meet.at(day, time), now)) { clear("card") }
 
-                if (station != null && plan != null && runs != null) {
-                    Column {
-                        H2(stringResource(R.string.meet_routes))
-                        val ways = remember(station) { plan.ways(station) }
-                        if (ways.isEmpty()) Text(stringResource(R.string.meet_routes_empty), style = Ski.type.small, color = c.muted)
-                        for (w in ways) WayRow(w)
-                        Text(stringResource(R.string.meet_routes_hint), Modifier.padding(top = 8.dp), style = Ski.type.small, color = c.muted)
-                    }
-                    ShareBox(station, time, day, dayLabel(day, lang.tag), runs, relief, lang, save) { onOnMap(station) }
-                }
-                Text(stringResource(R.string.meet_no_db), style = Ski.type.small, color = c.muted)
+                // round 20: no "how to get there" and no note under the share
+                if (station != null && plan != null && runs != null) ShareBox(station, time, day, dayLabel(day, lang.tag), runs, relief, lang, save) { onOnMap(station) }
             }
         }
     }
@@ -300,9 +278,6 @@ fun stationWhere(s: Station): String {
         s.topOf.takeIf { it.isNotEmpty() }?.let { n -> stringResource(R.string.meet_where_top_station, n.joinToString(join) { iso(it) }) },
     ).joinToString(", ")
 }
-
-@Composable
-private fun altitude(s: Station): String? = s.h?.let { stringResource(R.string.common_unit_m, String.format(Locale.US, "%,d", it)) }
 
 @Composable
 private fun H2(text: String) = Text(text, Modifier.padding(bottom = 8.dp), style = Ski.type.title.copy(fontSize = (26 * Ski.type.displayScale).sp), color = Ski.colors.ink)
@@ -335,27 +310,23 @@ private fun AskDot() {
     }
 }
 
-/** The dark label over the picked pin: the name, its height in gold, and which station it is (meet-callout). */
+/** The dark label over the picked pin (meet-callout): its name only (round 20). */
 @Composable
 private fun Callout(view: MeetView, s: Station) {
     if (!view.ready) return
     val d = LocalDensity.current
-    val where = stationWhere(s)
-    val alt = altitude(s)
     with(d) {
         val w = view.w.toDp(); val x = view.sx(s.x).toDp(); val y = view.sy(s.y).toDp()
         val left = (x - 100.dp).coerceIn(8.dp, max(8f, (w - 208.dp).value).dp)
-        val top = max(6f, (y - 128.dp).value).dp
+        // the box is one line now: its bottom stays where it was, over the pin
+        val top = max(6f, (y - 110.dp).value).dp
         val tip = (x - left - 8.dp).coerceIn(12.dp, 184.dp)
         // positions on the map are physical (left and top), whatever the reading direction
         Box(Modifier.fillMaxSize(), contentAlignment = AbsoluteAlignment.TopLeft) {
         Box(Modifier.absoluteOffset(left, top).width(200.dp)) {
             Column(Modifier.shadow(10.dp, RectangleShape).background(NAVY).padding(start = 12.dp, end = 12.dp, top = 8.dp, bottom = 9.dp), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.Bottom) {
-                    Text(s.name, Modifier.weight(1f, fill = false), style = Ski.type.title.copy(fontSize = (30 * Ski.type.displayScale).sp), color = Color.White, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                    if (alt != null) Text(alt, style = Ski.type.label.copy(fontSize = 12.sp), color = GOLD)
-                }
-                Text(where, style = Ski.type.small.copy(fontSize = 12.sp), color = FOG)
+                // round 20: the station's name only
+                Text(s.name, style = Ski.type.title.copy(fontSize = (30 * Ski.type.displayScale).sp), color = Color.White, maxLines = 1, overflow = TextOverflow.Ellipsis)
             }
             // the tip points down at the pin
             Box(Modifier.align(AbsoluteAlignment.BottomLeft).absoluteOffset(tip, 8.dp).size(16.dp).rotate(45f).background(NAVY))
@@ -453,7 +424,6 @@ private fun MeetCard(s: Station, time: LocalTime, day: String, left: Meet.Left, 
     val c = Ski.colors
     val (c1, c2, c3) = slots(left)
     val shape = remember { SignShape(18.dp) }
-    val where = stationWhere(s)
     Box(Modifier.fillMaxWidth().padding(top = 6.dp, bottom = 4.dp)) {
         Column(
             Modifier.fillMaxWidth().rotate(-2f).shadow(14.dp, RectangleShape).background(c.paper)
@@ -469,25 +439,17 @@ private fun MeetCard(s: Station, time: LocalTime, day: String, left: Meet.Left, 
                 Text(stringResource(R.string.meet_card_sub), style = Ski.type.small.copy(fontSize = 12.sp), color = FOG)
             }
             Column(Modifier.fillMaxWidth().border(1.dp, c.rule).padding(start = 16.dp, end = 16.dp, top = 12.dp, bottom = 14.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                // round 20: only the station and the time, the day over the time
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.Bottom) {
-                    Column(Modifier.weight(1f)) {
-                        Text(stringResource(R.string.meet_meet_at), style = Ski.type.small.copy(fontSize = 12.sp), color = c.muted)
-                        Box(Modifier.background(c.blue, shape).padding(start = 14.dp, end = 28.dp, top = 5.dp, bottom = 5.dp)) {
-                            CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
-                                Text(s.name, style = Ski.type.title.copy(fontSize = (34 * Ski.type.displayScale).sp), color = c.onBoard, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                            }
+                    Box(Modifier.weight(1f, fill = false).background(c.blue, shape).padding(start = 14.dp, end = 28.dp, top = 5.dp, bottom = 5.dp)) {
+                        CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
+                            Text(s.name, style = Ski.type.title.copy(fontSize = (34 * Ski.type.displayScale).sp), color = c.onBoard, maxLines = 1, overflow = TextOverflow.Ellipsis)
                         }
                     }
-                    Column(horizontalAlignment = Alignment.End) {
-                        Text(stringResource(R.string.meet_time), style = Ski.type.small.copy(fontSize = 12.sp), color = c.muted)
+                    Column(Modifier.padding(start = 12.dp), horizontalAlignment = Alignment.End) {
+                        Text(day, style = Ski.type.small.copy(fontSize = 12.sp), color = c.muted)
                         Text("%02d:%02d".format(time.hour, time.minute), style = Ski.type.title.copy(fontSize = (44 * Ski.type.displayScale).sp), color = c.ink)
                     }
-                }
-                Box(Modifier.fillMaxWidth().height(1.dp).background(c.rule))
-                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Meta(stringResource(R.string.meet_gate), where, Modifier.weight(1.6f))
-                    Meta(stringResource(R.string.meet_altitude), altitude(s) ?: "—", Modifier.weight(1f))
-                    Meta(stringResource(R.string.meet_day), day, Modifier.weight(1f))
                 }
             }
             Column(Modifier.fillMaxWidth().height(112.dp).background(GOLD), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
@@ -502,64 +464,6 @@ private fun MeetCard(s: Station, time: LocalTime, day: String, left: Meet.Left, 
             .clickable(role = Role.Button, onClick = onCancel).semantics { contentDescription = cancel }, contentAlignment = Alignment.Center) {
             Icon(Icons.x, null, Modifier.size(14.dp), tint = c.ink)
         }
-    }
-}
-
-@Composable
-private fun Meta(label: String, value: String, modifier: Modifier) {
-    Column(modifier) {
-        Text(label, style = Ski.type.small.copy(fontSize = 12.sp), color = Ski.colors.muted)
-        Text(value, style = Ski.type.bodyBold.copy(fontSize = 13.5.sp), color = Ski.colors.ink)
-    }
-}
-
-/** The chips of a way always point left, as the site draws them (rt-run). */
-private class LeftArrow(private val a: Dp) : Shape {
-    override fun createOutline(size: Size, layoutDirection: LayoutDirection, density: Density): Outline {
-        val x = with(density) { a.toPx() }
-        return Outline.Generic(Path().apply { moveTo(0f, size.height / 2); lineTo(x, 0f); lineTo(size.width, 0f); lineTo(size.width, size.height); lineTo(x, size.height); close() })
-    }
-}
-
-/** One way there (M3): where from, then the runs as small trail signs or the lift, and the gold dot of the spot. */
-@Composable
-private fun WayRow(w: Way) {
-    val c = Ski.colors
-    val from = when (val f = w.from) {
-        is Way.From.Run -> stringResource(R.string.meet_route_from_run, iso(f.key))
-        is Way.From.TopOf -> stringResource(R.string.meet_route_from_top_of, iso(f.key))
-        is Way.From.BottomOf -> stringResource(R.string.meet_route_from_bottom_station, iso(f.lift))
-    }
-    val arrow = remember { LeftArrow(12.dp) }
-    Column(Modifier.fillMaxWidth().drawBehind { drawRect(c.rule, Offset(0f, size.height - 1.dp.toPx()), Size(size.width, 1.dp.toPx())) }.padding(vertical = 10.dp),
-        verticalArrangement = Arrangement.spacedBy(6.dp)) {
-        Text(from, style = Ski.type.bodyBold.copy(fontSize = 13.sp), color = c.ink)
-        CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(4.dp, Alignment.End), verticalAlignment = Alignment.CenterVertically) {
-                for ((i, h) in w.hops.withIndex()) {
-                    if (i > 0) Sep()
-                    when (h) {
-                        is Way.Hop.Run -> Box(Modifier.background(c.run(h.piste.color), arrow).height(30.dp).padding(start = 20.dp, end = 10.dp), contentAlignment = Alignment.Center) {
-                            Text(if (h.piste.key == "Firni ?") "Firni (1/2?)" else h.piste.key, style = Ski.type.title.copy(fontSize = (21 * Ski.type.displayScale).sp),
-                                color = if (h.piste.color == "black") c.paper else Color.White, maxLines = 1)
-                        }
-                        is Way.Hop.Lift -> Box(Modifier.background(c.ink).height(30.dp).padding(horizontal = 10.dp), contentAlignment = Alignment.Center) {
-                            Text("⇡ ${h.name}", style = Ski.type.bodyBold.copy(fontSize = 13.sp), color = c.paper, maxLines = 1)
-                        }
-                    }
-                }
-                Sep()
-                Box(Modifier.size(14.dp).background(GOLD, CircleShape).border(2.dp, c.ink, CircleShape))
-            }
-        }
-    }
-}
-
-@Composable
-private fun Sep() {
-    val m = Ski.colors.muted
-    Canvas(Modifier.width(12.dp).height(2.dp)) {
-        drawLine(m, Offset(0f, 1.dp.toPx()), Offset(size.width, 1.dp.toPx()), 2.dp.toPx(), pathEffect = PathEffect.dashPathEffect(floatArrayOf(2.dp.toPx(), 2.dp.toPx())))
     }
 }
 
@@ -578,26 +482,48 @@ private fun ShareBox(s: Station, time: LocalTime, day: LocalDate, dayText: Strin
     val site = stringResource(R.string.common_site_name)
     var copied by remember { mutableStateOf(false) }
     LaunchedEffect(copied) { if (copied) { delay(2200); copied = false } }
-    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        Button2(stringResource(R.string.meet_send_wa), Look.INK, {
-            // measured once it went (no app to take it: nothing was shared)
-            runCatching { context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://wa.me/?text=" + Uri.encode(message)))) }
-                .onSuccess { Telemetry.event("meet_share", mapOf("method" to "whatsapp")) }
-        })
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            Button2(stringResource(R.string.meet_share_image), Look.INK, {
+    // round 20: four small icon buttons, WhatsApp filled; their words stay for a screen reader
+    Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        Row(Modifier.padding(top = 4.dp), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            ShareIcon(Icons.whatsapp, stringResource(R.string.meet_send_wa), true) {
+                // measured once it went (no app to take it: nothing was shared)
+                runCatching { context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://wa.me/?text=" + Uri.encode(message)))) }
+                    .onSuccess { Telemetry.event("meet_share", mapOf("method" to "whatsapp")) }
+            }
+            ShareIcon(Icons.image, stringResource(R.string.meet_share_image)) {
                 val bmp = MeetImage.draw(s, hhmm, label, site, runs, relief, Lang.typeface(context, lang, true), Lang.typeface(context, lang, false), lang.rtl)
                 runCatching { MeetImage.share(context, bmp, message, title) }.onSuccess { Telemetry.event("meet_share", mapOf("method" to "image")) }
-            }, Modifier.weight(1f))
-            Button2(stringResource(if (copied) R.string.common_link_copied else R.string.meet_copy_link), Look.GHOST, {
+            }
+            ShareIcon(if (copied) Icons.check else Icons.link, stringResource(if (copied) R.string.common_link_copied else R.string.meet_copy_link)) {
                 (context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager).setPrimaryClip(ClipData.newPlainText(title, link))
                 Telemetry.event("meet_share", mapOf("method" to "copy")); copied = true
-            }, Modifier.weight(1f))
+            }
+            ShareIcon(Icons.map, stringResource(R.string.meet_on_map), onClick = onOnMap)
         }
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            Button2(stringResource(R.string.meet_on_map), Look.GHOST, onOnMap, Modifier.weight(1f))
-            if (save != null) SaveButton(save, s, Meet.at(day, time), Modifier.weight(1f))
-        }
+        if (save != null) SaveButton(save, s, Meet.at(day, time), Modifier.fillMaxWidth())
+    }
+}
+
+/** One of the four share buttons (the canvas's .r20-ico): 48, an ink border; the first filled in ink. */
+@Composable
+private fun ShareIcon(icon: ImageVector, label: String, filled: Boolean = false, onClick: () -> Unit) {
+    val c = Ski.colors
+    Box(Modifier.size(48.dp).background(if (filled) c.ink else c.paper).border(1.5.dp, c.ink)
+        .clickable(role = Role.Button, onClick = onClick).semantics { contentDescription = label }, contentAlignment = Alignment.Center) {
+        Icon(icon, null, Modifier.size(22.dp), tint = if (filled) c.paper else c.ink)
+    }
+}
+
+/** "Other time" in the times row (the canvas's .r20-tother): a dashed block with a clock; a time picked there shows in it. */
+@Composable
+private fun OtherTime(label: String, picked: String?, modifier: Modifier, onClick: () -> Unit) {
+    val c = Ski.colors
+    if (picked != null) { Chip(picked, true, modifier.semantics { contentDescription = "$label $picked" }, big = true, onClick = onClick); return }
+    Box(modifier.heightIn(min = 48.dp).background(c.paper).drawBehind {
+        val w = 1.5.dp.toPx()
+        drawRect(c.ink, Offset(w / 2, w / 2), Size(size.width - w, size.height - w), style = Stroke(w, pathEffect = PathEffect.dashPathEffect(floatArrayOf(4.dp.toPx(), 3.dp.toPx()))))
+    }.clickable(role = Role.Button, onClick = onClick).semantics { contentDescription = label }, contentAlignment = Alignment.Center) {
+        Icon(Icons.clockOther, null, Modifier.size(22.dp), tint = c.ink)
     }
 }
 

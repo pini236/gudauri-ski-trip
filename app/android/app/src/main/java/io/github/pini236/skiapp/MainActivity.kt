@@ -691,6 +691,7 @@ class MainActivity : ComponentActivity() {
                         onLang = ::setLang,
                         onMode = ::nextMode,
                         account = account,
+                        onTrip = { t -> keepTrip(t); Qa.log("trip saved") },
                         go = { a ->
                             haptics.tick(.4f)
                             if (a == HomeAction.STATUS) statusSheet = true
@@ -764,14 +765,14 @@ class MainActivity : ComponentActivity() {
                     Route.Account -> AccountScreen(groupApi, onBack = { nav.back() }, signInGoogle = ::signInGoogle,
                         onGroup = { id -> nav.push(Route.Group(id, GroupTab.FLIGHTS.key)) }) { nav.toStart(); armReminders() }
                     // the games page (13.6, the site's #games, GP2), and the games the app has
-                    Route.Games -> GamesScreen(appGames(runs = 1), onOpen = { g -> haptics.tick(.4f); nav.push(Route.Game(g)) }) { nav.back() }
+                    Route.Games -> GamesScreen(appGames(), onOpen = { g -> haptics.tick(.4f); nav.push(Route.Game(g)) }) { nav.back() }
                     Route.Game("merge") -> MergeScreen(haptics, onBack = { nav.back() }) { sendBests() }
                     Route.Game("fresh") -> FreshSnowScreen(haptics, onBack = { nav.back() }) { sendBests() }
                     Route.Game("school") -> SchoolScreen(haptics, onBack = { nav.back() }) { sendBests() }
                     Route.Game("snowball") -> io.github.pini236.skiapp.game.SnowballScreen(haptics, onBack = { nav.back() }, onBest = { sendBests() })
                     Route.Game("descent") -> io.github.pini236.skiapp.game.DescentScreen(profiles, haptics, onBack = { nav.back() }, onBest = { sendBests() })
                     Route.About -> AboutScreen(BuildConfig.VERSION_NAME, onPrivacy = ::openPrivacy, account = account, mode = dnMode, onMode = ::nextMode,
-                        lang = Lang.current(resources), langManual = Lang.manual(this@MainActivity), onLang = ::setLang,
+                        lang = Lang.current(resources), onLang = ::setLang,
                         onResetBests = { Bests.reset(this@MainActivity); Qa.log("bests reset") }, onLicenses = { nav.push(Route.Licenses) }) { nav.back() }
                     Route.Licenses -> io.github.pini236.skiapp.home.LicensesScreen(onOpen = { nav.push(Route.License(it)) }) { nav.back() }
                     is Route.License -> io.github.pini236.skiapp.home.LicenseScreen(top.name) { nav.back() }

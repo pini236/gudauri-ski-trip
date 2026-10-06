@@ -50,6 +50,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.TransformOrigin
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
@@ -68,7 +69,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
@@ -77,11 +77,10 @@ import io.github.pini236.skiapp.R
 import io.github.pini236.skiapp.fx.Haptics
 import io.github.pini236.skiapp.fx.Sounds
 import io.github.pini236.skiapp.telemetry.Telemetry
+import io.github.pini236.skiapp.trip.PassEdit
 import io.github.pini236.skiapp.trip.Trip
 import io.github.pini236.skiapp.ui.Icons
 import io.github.pini236.skiapp.ui.Karantina
-import io.github.pini236.skiapp.ui.Note
-import io.github.pini236.skiapp.ui.PrimaryButton
 import io.github.pini236.skiapp.ui.Ski
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -141,8 +140,14 @@ val LocalPassenger = compositionLocalOf<Passenger?> { null }
         lineHeight = .8.em, shadow = p.glow, textDirection = TextDirection.Ltr), color = color, maxLines = 1, overflow = TextOverflow.Ellipsis)
 }
 
-@Composable private fun RowScope.Cell(label: String, p: PassInk, content: @Composable () -> Unit) =
-    Column(Modifier.weight(1f)) { Label(label, p); content() }
+@Composable private fun RowScope.Cell(label: String, p: PassInk, onClick: (() -> Unit)? = null, content: @Composable () -> Unit) =
+    Column(Modifier.weight(1f).let { if (onClick != null) it.heightIn(min = 44.dp).clickable(role = Role.Button, onClick = onClick) else it }) { Label(label, p); content() }
+
+/** An empty field of the pass that waits to be filled (round 20): "+ number", "+ time", dashed, in the accent. */
+@Composable private fun AddChip(text: String, p: PassInk) =
+    Text(text, Modifier.padding(top = 2.dp).drawBehind {
+        drawRect(p.acc, style = Stroke(1.5.dp.toPx(), pathEffect = PathEffect.dashPathEffect(floatArrayOf(4.dp.toPx(), 3.dp.toPx()))))
+    }.padding(horizontal = 6.dp, vertical = 2.dp), style = Ski.type.bodyBold.copy(fontSize = 12.5.sp, lineHeight = 1.2.em), color = p.acc, maxLines = 1)
 
 @Composable private fun Grid(p: PassInk, content: @Composable RowScope.() -> Unit) =
     Row(Modifier.fillMaxWidth().drawBehind { drawRect(p.rule, Offset.Zero, Size(size.width, 1.dp.toPx())) }.padding(top = 8.dp),
@@ -166,11 +171,12 @@ private fun RowScope.Main(p: PassInk, strip: String, date: String, body: @Compos
 
 /** The route: from, the plane, to. */
 @Composable
-private fun Route(p: PassInk, fromLabel: String, toLabel: String, from: @Composable () -> Unit, to: @Composable () -> Unit, planeColor: Color = p.acc) {
+private fun Route(p: PassInk, fromLabel: String, toLabel: String, from: @Composable () -> Unit, to: @Composable () -> Unit, planeColor: Color = p.acc,
+                  onFrom: (() -> Unit)? = null, onTo: (() -> Unit)? = null) {
     Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-        Column(Modifier.weight(1f)) { Label(fromLabel, p); from() }
+        Column(Modifier.weight(1f).let { m -> onFrom?.let { m.clickable(role = Role.Button, onClick = it) } ?: m }) { Label(fromLabel, p); from() }
         Icon(Icons.plane, null, Modifier.size(28.dp).align(Alignment.CenterVertically), tint = planeColor)
-        Column(Modifier.weight(1f), horizontalAlignment = Alignment.End) { Label(toLabel, p); to() }
+        Column(Modifier.weight(1f).let { m -> onTo?.let { m.clickable(role = Role.Button, onClick = it) } ?: m }, horizontalAlignment = Alignment.End) { Label(toLabel, p); to() }
     }
 }
 
@@ -223,7 +229,9 @@ val PASS_PEEK = 46.dp
  * the stub on the right, the card behind leaning the other way (LT1).
  */
 @Composable
-fun TripPass(trip: Trip, now: LocalDateTime, haptics: Haptics, sounds: Sounds, onEdit: () -> Unit) {
+fun TripPass(trip: Trip, now: LocalDateTime, haptics: Haptics, sounds: Sounds, onEdit: () -> Unit,
+             /** Round 20: a tap on a field of the front pass opens its own sheet (null: the pass is only shown). */
+             onField: ((PassEdit) -> Unit)? = null) {
     val p = passInk()
     val rtl = LocalLayoutDirection.current == LayoutDirection.Rtl
     val scope = rememberCoroutineScope()
@@ -301,7 +309,7 @@ fun TripPass(trip: Trip, now: LocalDateTime, haptics: Haptics, sounds: Sounds, o
                 // the card behind: one tap brings it forward (the whole card, under the one in front only its top shows)
                 .let { m -> if (!inFront) m.semantics { contentDescription = swapLabel; role = Role.Button }.clickable(onClick = { swap() }) else m },
         ) {
-            PassCard(trip, isRet, now, p, rtl, front = inFront,
+            PassCard(trip, isRet, now, p, rtl, front = inFront, onField = if (inFront) onField else null,
                 tearT = if (inFront) tear.value else 0f, fallT = if (inFront) fall.value else 0f,
                 onTap = { tearByTap() },
                 onTearDrag = { dy, h -> if (!busy) scope.launch { val v = (tear.value + dy / h).coerceIn(0f, 1f); tear.snapTo(v); onTear(v) } },
@@ -348,7 +356,9 @@ fun TripPass(trip: Trip, now: LocalDateTime, haptics: Haptics, sounds: Sounds, o
 /** One pass: the main part and the stub. Only the card in front takes touches on its stub. */
 @Composable
 private fun PassCard(trip: Trip, isRet: Boolean, now: LocalDateTime, p: PassInk, rtl: Boolean, front: Boolean, tearT: Float, fallT: Float,
-                     onTap: () -> Unit, onTearDrag: (dy: Float, height: Float) -> Unit, onTearEnd: () -> Unit) {
+                     onTap: () -> Unit, onTearDrag: (dy: Float, height: Float) -> Unit, onTearEnd: () -> Unit, onField: ((PassEdit) -> Unit)? = null) {
+    // round 20: each field opens its own sheet; the way back's airports are the way out's, reversed
+    fun on(e: PassEdit): (() -> Unit)? = onField?.let { f -> { f(e) } }
     val leg = if (isRet) trip.ret!! else trip.out
     Row(
         // the pass grows with its words (Georgian and large text are taller), never under the canvas's 230
@@ -359,11 +369,20 @@ private fun PassCard(trip: Trip, isRet: Boolean, now: LocalDateTime, p: PassInk,
         Main(p, stringResource(if (isRet) R.string.ticket_strip_mine_return else R.string.ticket_strip_mine_out, night), shortDate(leg.date)) {
             Route(p, stringResource(R.string.ticket_from), stringResource(R.string.ticket_to),
                 { Code(leg.fromCode, leg.fromCity, p); City(leg.fromCity, p) },
-                { Code(leg.toCode, leg.toCity, p); City(leg.toCity, p, end = true) })
+                { Code(leg.toCode, leg.toCity, p); City(leg.toCity, p, end = true) },
+                onFrom = on(PassEdit.Place(from = !isRet)), onTo = on(PassEdit.Place(from = isRet)))
+            // round 20: what is not filled in waits as "+ number" and "+ time" (on the front pass, when it can be filled)
+            val add = onField != null
             Grid(p) {
-                Cell(stringResource(R.string.ticket_flight), p) { Value(leg.flight.ifBlank { "—" }, p, ltr = true) }
-                Cell(stringResource(R.string.ticket_departs), p) { Value(leg.departs?.toString() ?: "—", p, ltr = true) }
-                Cell(stringResource(R.string.ticket_arrives), p) { Value(leg.arrives?.toString() ?: "—", p, ltr = true) }
+                Cell(stringResource(R.string.ticket_flight), p, on(PassEdit.Flight(isRet))) {
+                    if (leg.flight.isBlank() && add) AddChip(stringResource(R.string.trip_add_number), p) else Value(leg.flight.ifBlank { "—" }, p, ltr = true)
+                }
+                Cell(stringResource(R.string.ticket_departs), p, on(PassEdit.Time(isRet, departs = true))) {
+                    if (leg.departs == null && add) AddChip(stringResource(R.string.trip_add_time), p) else Value(leg.departs?.toString() ?: "—", p, ltr = true)
+                }
+                Cell(stringResource(R.string.ticket_arrives), p, on(PassEdit.Time(isRet, departs = false))) {
+                    if (leg.arrives == null && add) AddChip(stringResource(R.string.trip_add_time), p) else Value(leg.arrives?.toString() ?: "—", p, ltr = true)
+                }
             }
             Grid(p) {
                 Cell(stringResource(R.string.app_pass_traveller), p) {
@@ -375,9 +394,9 @@ private fun PassCard(trip: Trip, isRet: Boolean, now: LocalDateTime, p: PassInk,
                         style = Ski.type.bodyBold.copy(fontSize = 14.sp, lineHeight = 1.2.em, shadow = p.glow, textDecoration = TextDecoration.Underline),
                         color = if (who.name == null) p.acc else p.ink, maxLines = 1, overflow = TextOverflow.Ellipsis)
                 }
-                Cell(stringResource(R.string.ticket_ski_days), p) { Value(trip.skiDays()?.let { dayRange(it) } ?: "—", p, ltr = true) }
+                Cell(stringResource(R.string.ticket_ski_days), p, on(PassEdit.Dates)) { Value(trip.skiDays()?.let { dayRange(it) } ?: "—", p, ltr = true) }
                 val other = if (isRet) trip.out else trip.ret
-                Cell(stringResource(if (isRet) R.string.app_pass_out else R.string.app_pass_ret), p) {
+                Cell(stringResource(if (isRet) R.string.app_pass_out else R.string.app_pass_ret), p, on(PassEdit.Dates)) {
                     Value(other?.let { shortDate(it.date) } ?: "—", p)
                 }
             }
@@ -446,11 +465,11 @@ private fun PassCard(trip: Trip, isRet: Boolean, now: LocalDateTime, p: PassInk,
     Text(t, style = TextStyle(fontFamily = Karantina, fontWeight = FontWeight.Bold, fontSize = 60.sp, lineHeight = .8.em, shadow = p.glow), color = color)
 
 /**
- * No trip yet (H1): the same pass, blank, waiting to be filled in, with "add my flight" over it, and a line on where
- * it is kept (only on this phone).
+ * No trip yet (H1, round 20): the same pass, already from Tel Aviv to Tbilisi (dashed: not set yet), and one question,
+ * "when do you fly?", that opens the calendar. The rest waits on the pass once the dates are in.
  */
 @Composable
-fun EmptyPass(onAdd: () -> Unit) {
+fun EmptyPass(onWhen: () -> Unit) {
     // the site's .bp-empty (round 18): the page's own colours, not the printed pass's, with the strip in the run blue
     // (light with dark words at night) and the blanks in --rule
     val c = Ski.colors
@@ -461,11 +480,20 @@ fun EmptyPass(onAdd: () -> Unit) {
             Row(Modifier.fillMaxWidth().fillMaxHeight()) {
                 Main(p, stringResource(R.string.app_home_trip), stringResource(R.string.app_pass_not_set)) {
                     Route(p, stringResource(R.string.ticket_from), stringResource(R.string.ticket_to),
-                        { Code("???", "", p, faint, size = 46) }, { Code("???", "", p, faint, size = 46) }, planeColor = faint)
-                    Grid(p) {
-                        Cell(stringResource(R.string.ticket_flight), p) { Blank(54.dp, p) }
-                        Cell(stringResource(R.string.ticket_departs), p) { Blank(40.dp, p) }
-                        Cell(stringResource(R.string.ticket_ski_days), p) { Blank(50.dp, p) }
+                        { Dashed(c.blue) { Code("TLV", "", p, c.blue, size = 46) } },
+                        { Dashed(c.blue) { Code("TBS", "", p, c.blue, size = 46) } }, planeColor = faint)
+                    // the one question (the canvas's trip-1): a dashed button with the calendar
+                    val label = stringResource(R.string.trip_when_fly)
+                    Box(Modifier.fillMaxWidth().padding(top = 6.dp), contentAlignment = Alignment.Center) {
+                        Row(Modifier.heightIn(min = 52.dp).background(c.blue.copy(alpha = .08f)).drawBehind {
+                            val w = 2.dp.toPx()
+                            drawRect(c.blue, Offset(w / 2, w / 2), Size(size.width - w, size.height - w),
+                                style = Stroke(w, pathEffect = PathEffect.dashPathEffect(floatArrayOf(6.dp.toPx(), 4.dp.toPx()))))
+                        }.clickable(role = Role.Button, onClick = onWhen).semantics { contentDescription = label }.padding(horizontal = 18.dp),
+                            verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                            Icon(Icons.calendar, null, Modifier.size(24.dp), tint = c.blue)
+                            Text(label, style = Ski.type.title.copy(fontSize = Ski.type.title.fontSize * (30f / 44f)), color = c.blue, maxLines = 1)
+                        }
                     }
                 }
                 val notch = remember { PassShape(seamAtEnd = false, r = NOTCH) }
@@ -479,16 +507,14 @@ fun EmptyPass(onAdd: () -> Unit) {
                     }
                 }
             }
-            // over the main part, under the strip
-            Box(Modifier.matchParentSize().padding(top = 64.dp, end = STUB), contentAlignment = Alignment.Center) {
-                PrimaryButton(stringResource(R.string.app_home_add_trip), Icons.plus, onAdd, full = false)
-            }
         }
-        Note(stringResource(R.string.app_home_local_note), Icons.lock, Modifier.padding(top = 10.dp))
     }
 }
 
-@Composable private fun Blank(w: Dp, p: PassInk) = Box(Modifier.padding(top = 5.dp).width(w).height(12.dp).drawBehind {
-    drawLine(p.dash, Offset(0f, size.height), Offset(size.width, size.height), 2.dp.toPx(), pathEffect = PathEffect.dashPathEffect(floatArrayOf(5.dp.toPx(), 4.dp.toPx())))
-})
-
+/** A dashed frame around what is written but not set yet (the empty pass's TLV and TBS). */
+@Composable
+private fun Dashed(color: Color, content: @Composable () -> Unit) = Box(Modifier.drawBehind {
+    val w = 1.5.dp.toPx()
+    drawRect(color, Offset(w / 2, w / 2), Size(size.width - w, size.height - w),
+        style = Stroke(w, pathEffect = PathEffect.dashPathEffect(floatArrayOf(5.dp.toPx(), 4.dp.toPx()))))
+}.padding(horizontal = 8.dp, vertical = 6.dp)) { content() }

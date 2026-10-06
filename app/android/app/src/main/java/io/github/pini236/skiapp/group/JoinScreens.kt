@@ -16,6 +16,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
@@ -87,16 +89,12 @@ fun GroupEntryScreen(api: GroupApi, onBack: () -> Unit, onCode: (String) -> Unit
         Column(Modifier.fillMaxSize().statusBarsPadding()) {
             TopBar(stringResource(R.string.app_sign_group), stringResource(R.string.nav_home), onBack)
             Page {
-                Muted(stringResource(R.string.app_g_intro), size = 14f)
-                Spacer(Modifier.height(4.dp))
-                for (gid in pending) SnowCard(Color(0xFFF4B942), 61) {
-                    Text(stringResource(R.string.app_g_pending_title), style = Ski.type.bodyBold.copy(fontSize = 14.5.sp), color = c.ink)
-                    Muted(stringResource(R.string.app_g_pending_sub), size = 12.5f)
-                    QuietButton(stringResource(R.string.app_g_pending_cancel), { r.run { api.cancelRequest(gid); pending = pending - gid } })
-                }
+                // round 20: what a group holds, as three icons (the site's group.empty_lead as shapes)
+                IconTrio(listOf(Icons.plane to stringResource(R.string.group_empty_flights), Icons.pin to stringResource(R.string.group_tab_meetups),
+                    Icons.trophy to stringResource(R.string.group_tab_scores)))
+                for (gid in pending) PendingCard { r.run { api.cancelRequest(gid); pending = pending - gid } }
                 SnowCard(c.blue, 31) {
-                    Display(stringResource(R.string.app_g_have_code), 34f)
-                    Muted(stringResource(R.string.app_g_have_code_sub), Modifier.padding(top = 4.dp, bottom = 12.dp))
+                    Display(stringResource(R.string.app_g_have_code), 34f, Modifier.padding(bottom = 12.dp))
                     Row(verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         // a pasted invite link goes straight in (its token or code); anything else is typed letters
                         Field(stringResource(R.string.app_g_code_label), code, { v -> InviteCode.fromLink(v)?.let(onCode) ?: run { code = InviteCode.clean(v) } },
@@ -106,16 +104,17 @@ fun GroupEntryScreen(api: GroupApi, onBack: () -> Unit, onCode: (String) -> Unit
                 }
                 Spacer(Modifier.height(6.dp))
                 SnowCard(c.ink, 32) {
-                    Display(stringResource(R.string.app_g_create), 34f)
-                    Muted(stringResource(R.string.app_g_create_sub), Modifier.padding(top = 4.dp, bottom = 12.dp))
+                    Display(stringResource(R.string.app_g_create), 34f, Modifier.padding(bottom = 12.dp))
+                    // a guest gets the sign-in drawer (round 20), titled with why
                     Button2(stringResource(R.string.app_g_create), Look.INK, { if (api.me()?.registered == true) onCreate() else sheet = true }, icon = Icons.people)
                 }
-                Note(stringResource(R.string.app_g_rest_works), Icons.phone)
             }
         }
         if (sheet) Sheet({ sheet = false }) {
-            Display(stringResource(R.string.app_a_sign_in_title), 36f)
-            Muted(stringResource(R.string.app_a_sign_in_sub), Modifier.padding(top = 6.dp, bottom = 16.dp), 14f)
+            // round 20: one title, and what signing in does not ask for as three icons
+            Display(stringResource(R.string.group_create_signin_title), 30f)
+            IconTrio(listOf(Icons.noKey to stringResource(R.string.acct_why_no_password), Icons.noMail to stringResource(R.string.acct_why_no_email),
+                Icons.user to stringResource(R.string.acct_why_name_only)), Modifier.padding(top = 8.dp, bottom = 10.dp))
             Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 GoogleButton(stringResource(R.string.app_a_google), { r.run { signInGoogle(); sheet = false; onCreate() } }, enabled = !r.busy)
                 ErrorLine(r)
@@ -124,7 +123,6 @@ fun GroupEntryScreen(api: GroupApi, onBack: () -> Unit, onCode: (String) -> Unit
             Box(Modifier.padding(top = 16.dp).fillMaxWidth().height(1.dp).background(c.rule))
             Column(Modifier.padding(top = 14.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 Note(stringResource(R.string.app_a_moves_over), Icons.cloud)
-                Note(stringResource(R.string.app_a_delete_any_time), Icons.trash)
                 Text(stringResource(R.string.app_about_privacy), Modifier.heightIn(min = 44.dp).clickable(role = Role.Button, onClick = onPrivacy).padding(vertical = 12.dp),
                     style = Ski.type.bodyBold.copy(fontSize = 13.sp), color = c.glacier)
             }
@@ -218,58 +216,42 @@ fun InvitedScreen(api: GroupApi, code: String, frame: DayNight.Frame, mode: DayN
                                     Spacer(Modifier.height(10.dp))
                                     PrimaryButton(stringResource(R.string.app_g_retype), null, onTypeCode)
                                 }
-                                result == JoinStatus.PENDING -> {
-                                    Display(stringResource(R.string.app_g_pending_title), 30f)
-                                    Muted(stringResource(R.string.app_g_pending_sub), Modifier.padding(top = 6.dp))
-                                    p.groupId?.let { gid -> QuietButton(stringResource(R.string.app_g_pending_cancel), { r.run { api.cancelRequest(gid); onBack() } }) }
-                                }
-                                else -> {
-                                    Muted(stringResource(R.string.app_g_invited_to))
-                                    Display(p.name, 50f)
-                                    Row(Modifier.padding(top = 6.dp), horizontalArrangement = Arrangement.spacedBy(14.dp)) {
-                                        if (p.startsOn != null && p.endsOn != null) Text("${dayRange(p.startsOn..p.endsOn)}.${p.endsOn.year}",
-                                            style = Ski.type.small.copy(fontSize = 13.5.sp, textDirection = TextDirection.Ltr), color = c.muted)
-                                        // an invite that needs approval shows no names to who is not in yet (the server's rule)
-                                        if (p.members.isNotEmpty()) Muted(pluralStringResource(R.plurals.app_g_members, p.members.size, p.members.size))
-                                    }
-                                    Column(Modifier.padding(top = 16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                                        Field(stringResource(R.string.app_g_your_name), name, { name = it.take(40) }, hint = stringResource(R.string.app_g_your_name_hint))
-                                        PrimaryButton(stringResource(if (p.requiresApproval) R.string.app_g_ask_to_join else R.string.app_g_enter), null, {
-                                            if (name.isNotBlank()) r.run {
-                                                val j = api.join(code, name)
-                                                result = j.status
-                                                if ((j.status == JoinStatus.JOINED || j.status == JoinStatus.ALREADY_MEMBER) && j.groupId != null) onJoined(j.groupId, api.me()?.registered != true)
-                                            }
-                                        })
-                                        ErrorLine(r)
-                                        // the preview was fine, but joining was refused: the code changed meanwhile, or too many tries
-                                        when (result) {
-                                            JoinStatus.GROUP_FULL -> Text(stringResource(R.string.app_g_full), style = Ski.type.bodyBold, color = c.red)
-                                            JoinStatus.INVALID_CODE -> Column {
-                                                Text(stringResource(R.string.app_g_bad_code), style = Ski.type.bodyBold, color = c.red)
-                                                Muted(stringResource(R.string.app_g_bad_code_sub), size = 13f)
-                                            }
-                                            JoinStatus.RATE_LIMITED -> Column {
-                                                Text(stringResource(R.string.app_g_too_many_tries), style = Ski.type.bodyBold, color = c.red)
-                                                Muted(stringResource(R.string.app_g_too_many_tries_sub), size = 13f)
-                                            }
-                                            else -> {}
-                                        }
-                                    }
-                                }
+                                // round 20: the top shows which group (the link or code already set it), as shapes
+                                else -> JoinHead(p)
                             }
                         }
                     }
-                    if (preview?.status == JoinStatus.OK && result != JoinStatus.PENDING) Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                        Note(stringResource(R.string.app_g_no_signup), Icons.lock)
-                        // "I'm already in the group" needs the names to pick from; without them, joining asks the admin as usual
-                        if (preview?.members?.isNotEmpty() == true) Row(Modifier.fillMaxWidth().heightIn(min = 56.dp).background(c.paper).border(1.5.dp, c.rule).clickable(role = Role.Button, onClick = onReclaim).padding(horizontal = 14.dp),
-                            verticalAlignment = Alignment.CenterVertically) {
-                            Column(Modifier.weight(1f)) {
-                                Text(stringResource(R.string.app_g_already_in), style = Ski.type.bodyBold, color = c.ink)
-                                Muted(stringResource(R.string.app_g_already_in_sub), size = 12.5f)
+                    if (p != null && p.status == JoinStatus.OK) Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                        if (result == JoinStatus.PENDING) {
+                            PendingCard(p.groupId?.let { gid -> { r.run { api.cancelRequest(gid); onBack() } } })
+                        } else {
+                            Field(stringResource(R.string.app_g_your_name), name, { name = it.take(40) }, hint = stringResource(R.string.app_g_your_name_hint))
+                            PrimaryButton(stringResource(if (p.requiresApproval) R.string.app_g_ask_to_join else R.string.app_g_enter), Icons.people, {
+                                if (name.isNotBlank()) r.run {
+                                    val j = api.join(code, name)
+                                    result = j.status
+                                    if ((j.status == JoinStatus.JOINED || j.status == JoinStatus.ALREADY_MEMBER) && j.groupId != null) onJoined(j.groupId, api.me()?.registered != true)
+                                }
+                            })
+                            ErrorLine(r)
+                            // the preview was fine, but joining was refused: the code changed meanwhile, or too many tries
+                            when (result) {
+                                JoinStatus.GROUP_FULL -> Text(stringResource(R.string.app_g_full), style = Ski.type.bodyBold, color = c.red)
+                                JoinStatus.INVALID_CODE -> Column {
+                                    Text(stringResource(R.string.app_g_bad_code), style = Ski.type.bodyBold, color = c.red)
+                                    Muted(stringResource(R.string.app_g_bad_code_sub), size = 13f)
+                                }
+                                JoinStatus.RATE_LIMITED -> Column {
+                                    Text(stringResource(R.string.app_g_too_many_tries), style = Ski.type.bodyBold, color = c.red)
+                                    Muted(stringResource(R.string.app_g_too_many_tries_sub), size = 13f)
+                                }
+                                else -> {}
                             }
-                            Icon(Icons.forward, null, Modifier.size(20.dp), tint = c.glacier)
+                            // "I'm already in the group" needs the names to pick from; without them, joining asks the admin as usual
+                            if (p.members.isNotEmpty()) SnowCard(c.ink, 52) {
+                                Display(stringResource(R.string.app_g_already_in), 30f, Modifier.padding(bottom = 10.dp))
+                                Button2(stringResource(R.string.join_reclaim_pick), Look.GHOST, onReclaim)
+                            }
                         }
                     }
                     if (preview != null) Box(Modifier.padding(horizontal = 16.dp)) { QuietButton(stringResource(R.string.nav_home), onBack) }
@@ -315,11 +297,7 @@ fun ReclaimScreen(api: GroupApi, code: String, onBack: () -> Unit, signInGoogle:
                 }
             }
             when (status) {
-                JoinStatus.PENDING -> SnowCard(Color(0xFFF4B942), 61) {
-                    Text(stringResource(R.string.app_g_pending_title), style = Ski.type.bodyBold.copy(fontSize = 14.5.sp), color = c.ink)
-                    Muted(stringResource(R.string.app_g_pending_sub), size = 12.5f)
-                    p.groupId?.let { gid -> QuietButton(stringResource(R.string.app_g_pending_cancel), { r.run { api.cancelRequest(gid); onBack() } }) }
-                }
+                JoinStatus.PENDING -> PendingCard(p.groupId?.let { gid -> { r.run { api.cancelRequest(gid); onBack() } } })
                 JoinStatus.SIGN_IN_INSTEAD -> {
                     Text(stringResource(R.string.app_g_sign_in_instead), style = Ski.type.bodyBold, color = c.ink)
                     GoogleButton(stringResource(R.string.app_a_google), { r.run { signInGoogle(); p.groupId?.let(onDone) } })
@@ -339,6 +317,35 @@ fun ReclaimScreen(api: GroupApi, code: String, onBack: () -> Unit, signInGoogle:
                 }
             }
             ErrorLine(r)
+        }
+    }
+}
+
+/**
+ * The top of the invitation (round 20, the canvas's .r20-jh): "joining", the group's name big, then its dates by a
+ * calendar and its members as initials with how many (no names to who is not in yet, when an admin must approve).
+ */
+@Composable
+private fun JoinHead(p: Preview) {
+    val c = Ski.colors
+    Muted(stringResource(R.string.app_g_invited_to))
+    Display(p.name, 44f)
+    Row(Modifier.padding(top = 6.dp), horizontalArrangement = Arrangement.spacedBy(18.dp), verticalAlignment = Alignment.CenterVertically) {
+        if (p.startsOn != null && p.endsOn != null) Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+            Icon(Icons.calendar, null, Modifier.size(20.dp), tint = c.ink)
+            Text(dayRange(p.startsOn..p.endsOn), style = Ski.type.title.copy(fontSize = 22.sp, lineHeight = 22.sp, textDirection = TextDirection.Ltr), color = c.ink)
+        }
+        if (p.members.isNotEmpty()) {
+            val n = p.members.size
+            val label = pluralStringResource(R.plurals.app_g_members, n, n)
+            Row(Modifier.semantics(mergeDescendants = true) { contentDescription = label }, verticalAlignment = Alignment.CenterVertically) {
+                p.members.take(4).forEachIndexed { k, (_, name) ->
+                    Box(Modifier.offset(x = (-6 * k).dp).size(28.dp).border(2.dp, c.paper, CircleShape).padding(2.dp).background(c.glacier, CircleShape), contentAlignment = Alignment.Center) {
+                        Text(name.trim().take(1), style = Ski.type.bodyBold.copy(fontSize = 13.sp, lineHeight = 13.sp), color = Color.White)
+                    }
+                }
+                Text(n.toString(), Modifier.offset(x = (-6 * (minOf(n, 4) - 1)).dp).padding(start = 6.dp), style = Ski.type.title.copy(fontSize = 22.sp, lineHeight = 22.sp), color = c.ink)
+            }
         }
     }
 }

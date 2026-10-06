@@ -9,6 +9,12 @@ import android.net.Uri
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.ui.text.style.TextDirection
+import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
@@ -29,7 +35,6 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
@@ -59,7 +64,6 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
-import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
@@ -69,11 +73,8 @@ import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.semantics.progressBarRangeInfo
 import androidx.compose.ui.semantics.setProgress
 import androidx.compose.ui.semantics.stateDescription
-import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.TextLinkStyles
 import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
@@ -368,96 +369,8 @@ fun ColumnScope.RunBody(p: Piste, facts: RunFacts?, runs: Runs, terrain: Terrain
 
     if (facts != null && facts.points.size >= 4) RunProfile(p, facts, runs, terrain, a, flying)
 
-    // connections (the site's: lifts at the top and the bottom, runs it joins and comes from)
-    H3(stringResource(R.string.run_connections_heading))
-    Conn(stringResource(R.string.run_lift_at_top), p.fromLifts.mapNotNull { name -> runs.lifts.firstOrNull { it.name == name } }, emptyList(), runs, a)
-    Conn(stringResource(R.string.run_lift_at_bottom), p.toLifts.mapNotNull { name -> runs.lifts.firstOrNull { it.name == name } }, emptyList(), runs, a)
-    Conn(stringResource(R.string.run_joins_label), emptyList(), p.joins, runs, a)
-    Conn(stringResource(R.string.run_from_runs_label), emptyList(), p.fromPistes, runs, a)
-    Hint(stringResource(R.string.run_elevation_accuracy_hint))
-    Hint(stringResource(R.string.run_connections_hint))
-
-    // notes (the site's notesFor)
-    H3(stringResource(R.string.run_notes_heading))
-    val notes = notes(p)
-    if (notes.isEmpty()) Bullet(stringResource(R.string.run_notes_none)) else notes.forEach { Bullet(it) }
-
-    p.research?.let { Research(p, it) }
-    val ids = (p.research?.osmIds?.takeIf { it.isNotEmpty() } ?: p.osmIds).distinct()
-    if (ids.isNotEmpty()) Row(Modifier.padding(top = 10.dp), verticalAlignment = Alignment.CenterVertically) {
-        Text("OSM: ", style = Ski.type.small, color = c.muted)
-        CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
-            Tags { ids.forEach { id ->
-                Text(id.toString(), Modifier.heightIn(min = 32.dp).clickable { openLink(ctx, "https://www.openstreetmap.org/way/$id") }.padding(vertical = 6.dp, horizontal = 2.dp),
-                    style = Ski.type.small.copy(textDecoration = TextDecoration.Underline), color = c.glacier)
-            } }
-        }
-    }
+    // round 20 (decisions 64, 65): no connections, notes or source and certainty here; the source stays in the data
     if (p.named) Videos(p, Video.of(videos, p.key))
-}
-
-@Composable
-private fun Bullet(text: String) = Row(Modifier.padding(vertical = 3.dp)) {
-    Text("•  ", style = Ski.type.body, color = Ski.colors.muted)
-    Text(text, style = Ski.type.body.copy(fontSize = 14.sp), color = Ski.colors.ink)
-}
-
-@Composable
-private fun Conn(label: String, lifts: List<Lift>, keys: List<String>, runs: Runs, a: PanelActions) {
-    Kv(label) {
-        if (lifts.isEmpty() && keys.isEmpty()) Text("—", style = Ski.type.body, color = Ski.colors.ink)
-        else Tags {
-            lifts.forEach { l -> Tag(l.name, null) { a.goLift(l) } }
-            keys.forEach { k -> runs.pistes.firstOrNull { it.key == k }?.let { r -> Tag(runName(r), Ski.colors.run(r.color)) { a.goRun(k, "list") } } }
-        }
-    }
-}
-
-/** The site's notesFor(): what is odd about this run's line in the data. */
-@Composable
-private fun notes(p: Piste): List<String> {
-    val out = ArrayList<String>()
-    if (p.key == "Zuma") out += stringResource(R.string.run_note_zuma_two_lines)
-    val mism = p.osmDiff.filter { it != "—" }.mapNotNull { osmGrade(it) }.filter { it.second != p.color }
-    if (p.named && mism.isNotEmpty()) out += stringResource(R.string.run_note_osm_grade_mismatch, mism.joinToString(", ") { it.first }, colorName(p.color))
-    if (p.named && "—" in p.osmDiff) out += stringResource(R.string.run_note_osm_no_grade)
-    if (p.lines.size > 1) out += pluralStringResource(R.plurals.run_note_separate_segments, p.lines.size, nf().format(p.lines.size))
-    if (p.hasArea) out += stringResource(R.string.run_note_area_polygon)
-    if ("yes" in p.lit) out += stringResource(R.string.run_note_lit)
-    if (p.kind == "ski-way") out += stringResource(R.string.run_note_ski_way)
-    if (p.kind == "beginner-area") out += stringResource(R.string.run_note_beginner_area)
-    if (!p.named) out += stringResource(R.string.run_note_unnamed_osm)
-    return out
-}
-
-/** A text of the strings file by its name (the research notes, by run), or [fallback] when it has none. */
-@Composable
-private fun byName(name: String, fallback: String): String {
-    val ctx = LocalContext.current
-    @Suppress("DiscouragedApi")
-    val id = remember(name) { ctx.resources.getIdentifier(name, "string", ctx.packageName) }
-    return if (id != 0) stringResource(id) else fallback
-}
-
-/** Where the line comes from (the site's researchBlock): certainty, source, GPS tracks, what was found, notes, sources. */
-@Composable
-private fun Research(p: Piste, r: io.github.pini236.skiapp.data.Research) {
-    val c = Ski.colors
-    val k = "research_" + p.key.lowercase().replace(' ', '_')
-    H3(stringResource(R.string.run_source_heading))
-    KvText(stringResource(R.string.run_confidence_label), when (r.conf) {
-        "high" -> stringResource(R.string.run_confidence_high); "medium" -> stringResource(R.string.run_confidence_medium)
-        "low" -> stringResource(R.string.run_confidence_low); else -> r.conf
-    })
-    KvText(stringResource(R.string.run_source_label), when (r.status) {
-        "osm-named" -> stringResource(R.string.run_source_osm_named); "osm-unnamed-match" -> stringResource(R.string.run_source_osm_unnamed_match)
-        "gps" -> stringResource(R.string.run_source_gps); else -> r.status
-    } + if (r.historical) stringResource(R.string.run_source_historical) else "")
-    if (r.gps > 0) KvText(stringResource(R.string.run_gps_tracks_label), pluralStringResource(R.plurals.run_gps_tracks_value, r.gps, nf().format(r.gps)))
-    r.partial?.let { KvText(stringResource(R.string.run_coverage_label), byName(k + "_partial", it)) }
-    Hint(byName(k + "_notes", r.notes))
-    val mta = stringResource(R.string.research_source_mta)
-    r.sources.forEach { s -> Hint("•  " + if (s.any { it in '֐'..'׿' }) mta else s) }
 }
 
 /** The elevation profile (T2): drag along it and the dot moves on the mountain; then "what's ahead" and the comparison (T3). */
@@ -481,7 +394,16 @@ private fun RunProfile(p: Piste, f: RunFacts, runs: Runs, terrain: Terrain, a: P
     var scrubbed by remember(p.key) { mutableStateOf(false) }
     val hs = remember(f) { pts.map { it.h } }
     val hmax = hs.max(); val hmin = hs.min(); val dmax = f.length.coerceAtLeast(1f)
-    H3(stringResource(R.string.run_profile_heading))
+    // round 20: how the profile is worked out moves behind an (i) next to its heading
+    var info by remember { mutableStateOf(false) }
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        H3(stringResource(R.string.run_profile_heading))
+        InfoDot(stringResource(R.string.run_profile_info), info) { info = !info }
+    }
+    if (info) {
+        Hint(stringResource(R.string.run_profile_hint), Modifier.padding(bottom = 2.dp))
+        Hint(stringResource(R.string.run_elevation_accuracy_hint), Modifier.padding(bottom = 6.dp))
+    }
     val desc = stringResource(R.string.run_profile_range_aria)
     // the profile reads from the top of the run, at the left, in every language (as on the site)
     CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
@@ -556,68 +478,42 @@ private fun RunProfile(p: Piste, f: RunFacts, runs: Runs, terrain: Terrain, a: P
         }
     }
 
-    // what's ahead (T3): the start, the steep part, the finish; the lifts and runs in it are links, as on the site (A-15)
+    // what's ahead (T3, round 20): three big numbers, the start, the steep part and the end, with no line under them
     H3(stringResource(R.string.run_ahead_heading))
-    val lifts = { names: List<String> -> names.joinToString(", ") }
-    val liftLinks = { names: List<String> -> names.mapNotNull { nm -> runs.lifts.firstOrNull { it.name == nm }?.let { l -> nm to { a.goLift(l) } } } }
-    Ahead(stringResource(R.string.run_ahead_start_title, n.format(pts.first().h.roundToInt())),
-        stringResource(R.string.run_ahead_start_text, RunFacts.deg(f.g0.toDouble()).toString(),
-            if (p.fromLifts.isNotEmpty()) stringResource(R.string.run_start_from_lift, lifts(p.fromLifts)) else ""), false, liftLinks(p.fromLifts))
-    if (f.steepG > 0) Ahead(stringResource(R.string.run_ahead_steep_title, n.format(f.steepD.roundToInt())),
-        stringResource(R.string.run_ahead_steep_text, RunFacts.deg(f.maxG).toString(), n.format((f.maxG * 100).roundToInt())), true)
-    val end = when {
-        p.toLifts.isNotEmpty() -> stringResource(R.string.run_end_to_lift, lifts(p.toLifts))
-        p.joins.isNotEmpty() -> stringResource(R.string.run_end_continue_to, p.joins.joinToString(", "))
-        else -> ""
+    val m = stringResource(R.string.common_unit_m, "").trim()
+    Row(Modifier.fillMaxWidth().padding(top = 2.dp, bottom = 10.dp).height(IntrinsicSize.Min).drawBehind {
+        val w = 1.dp.toPx()
+        drawRect(c.rule, Offset.Zero, Size(size.width, w)); drawRect(c.rule, Offset(0f, size.height - w), Size(size.width, w))
+    }) {
+        Step(stringResource(R.string.run_ahead_start), n.format(pts.first().h.roundToInt()), m, null, Modifier.weight(1f), first = true)
+        if (f.steepG > 0) Step(stringResource(R.string.run_ahead_steep), RunFacts.deg(f.maxG).toString() + "°", null, Color(0xFFDC3B33), Modifier.weight(1f))
+        Step(stringResource(R.string.run_ahead_end), n.format(pts.last().h.roundToInt()), m, null, Modifier.weight(1f))
     }
-    val endLinks = if (p.toLifts.isNotEmpty()) liftLinks(p.toLifts)
-        else p.joins.mapNotNull { k -> runs.pistes.firstOrNull { it.key == k }?.let { k to { a.goRun(k, "list") } } }
-    Ahead(stringResource(R.string.run_ahead_end_title, n.format(pts.last().h.roundToInt())),
-        stringResource(R.string.run_ahead_end_text, n.format(f.length.roundToInt()), end), false, endLinks)
-    // the comparison: about as steep as, about as long as (T3)
-    val cmp = remember(p.key) { RunFacts.compare(terrain, runs.pistes, p.key, CMP) }
-    if (cmp != null) {
-        val (steep, long) = cmp
-        val line = stringResource(R.string.run_compare_line, "\u0000", "\u0001")
-        Column(Modifier.padding(top = 10.dp)) {
-            // the sentence with the two runs as buttons in it
-            val parts = line.split('\u0000', '\u0001')
-            Tags {
-                parts.forEachIndexed { k, s ->
-                    if (s.isNotBlank()) Text(s.trim(), Modifier.padding(vertical = 10.dp), style = Ski.type.body, color = c.ink)
-                    val key = when { k == 0 && parts.size > 1 -> if (line.indexOf('\u0000') < line.indexOf('\u0001')) steep else long
-                        k == 1 && parts.size > 2 -> if (line.indexOf('\u0000') < line.indexOf('\u0001')) long else steep; else -> null }
-                    key?.let { kk -> runs.pistes.firstOrNull { it.key == kk }?.let { r -> Tag(runName(r), c.run(r.color)) { a.goRun(kk, "list") } } }
-                }
-            }
-        }
-    }
-    Hint(stringResource(R.string.run_profile_hint))
 }
 
-/** The steepest stretch of every run, once (comparable()): the comparison of any run reads them. */
-private val CMP = java.util.concurrent.ConcurrentHashMap<String, Pair<Double, Int>>()
-
+/** One of "what's ahead"'s three numbers (the canvas's .r20-steps): its label small, then the number in the sign voice. */
 @Composable
-private fun Ahead(title: String, text: String, steep: Boolean, links: List<Pair<String, () -> Unit>> = emptyList()) {
+private fun Step(label: String, value: String, unit: String?, color: Color?, modifier: Modifier, first: Boolean = false) {
     val c = Ski.colors
-    // each name in the sentence, in order, opens its lift or run
-    val t = text.trim()
-    val linked = buildAnnotatedString {
-        append(t)
-        var from = 0
-        for ((name, go) in links) {
-            val i = t.indexOf(name, from)
-            if (i < 0) continue
-            addLink(LinkAnnotation.Clickable(name, TextLinkStyles(SpanStyle(color = c.glacier, fontWeight = FontWeight.Bold, textDecoration = TextDecoration.Underline))) { go() }, i, i + name.length)
-            from = i + name.length
-        }
+    Column(modifier.fillMaxHeight().drawBehind { if (!first) drawRect(c.rule, Offset(if (layoutDirection == LayoutDirection.Rtl) size.width - 1.dp.toPx() else 0f, 0f), Size(1.dp.toPx(), size.height)) }
+        .padding(start = if (first) 0.dp else 6.dp, end = 6.dp, top = 8.dp, bottom = 9.dp).semantics(mergeDescendants = true) {},
+        verticalArrangement = Arrangement.spacedBy(2.dp)) {
+        Text(label, style = Ski.type.small.copy(fontSize = 12.sp), color = c.muted, maxLines = 1)
+        Text(buildAnnotatedString {
+            append(value)
+            if (unit != null) withStyle(SpanStyle(fontSize = 16.sp)) { append("\u2009" + unit) }
+        }, style = Ski.type.title.copy(fontSize = 28.sp, lineHeight = 28.sp, textDirection = TextDirection.Ltr), color = color ?: c.ink, maxLines = 1)
     }
-    Row(Modifier.fillMaxWidth().padding(vertical = 5.dp)) {
-        Box(Modifier.padding(top = 5.dp, end = 10.dp).size(10.dp).background(if (steep) Color(0xFFDC3B33) else c.ink))
-        Column {
-            Text(title, style = Ski.type.bodyBold, color = c.ink)
-            Text(linked, style = Ski.type.body.copy(fontSize = 14.sp), color = c.muted)
+}
+
+/** The (i) of round 20 (the canvas's .r20-i): a small ring with an i, 44 to touch, that shows or hides a note. */
+@Composable
+internal fun InfoDot(label: String, open: Boolean, onClick: () -> Unit) {
+    val c = Ski.colors
+    Box(Modifier.size(44.dp).clickable(role = Role.Button, onClick = onClick).semantics { contentDescription = label; stateDescription = if (open) "+" else "" },
+        contentAlignment = Alignment.Center) {
+        Box(Modifier.size(22.dp).border(1.5.dp, if (open) c.ink else c.muted, CircleShape), contentAlignment = Alignment.Center) {
+            Text("i", style = Ski.type.bodyBold.copy(fontSize = 12.sp, lineHeight = 12.sp), color = if (open) c.ink else c.muted)
         }
     }
 }

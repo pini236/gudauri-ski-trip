@@ -37,6 +37,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
@@ -57,6 +58,7 @@ import io.github.pini236.skiapp.home.drawSnow
 import io.github.pini236.skiapp.home.snowCap
 import io.github.pini236.skiapp.home.SnowKind
 import io.github.pini236.skiapp.home.SnowPaint
+import io.github.pini236.skiapp.ui.Icons
 import io.github.pini236.skiapp.ui.Ski
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -267,4 +269,45 @@ fun ErrorLine(r: Runner) {
 fun Page(content: @Composable ColumnScope.() -> Unit) {
     Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).navigationBarsPadding().imePadding().padding(start = 16.dp, end = 16.dp, bottom = 24.dp),
         verticalArrangement = Arrangement.spacedBy(14.dp), content = content)
+}
+
+/**
+ * Three things as icons with a word under each (round 20, the canvas's .r20-why): what a group holds on its empty page,
+ * and what signing in does not ask for.
+ */
+@Composable
+fun IconTrio(items: List<Pair<ImageVector, String>>, modifier: Modifier = Modifier) {
+    val c = Ski.colors
+    Row(modifier.fillMaxWidth().padding(vertical = 8.dp), horizontalArrangement = Arrangement.spacedBy(18.dp)) {
+        for ((icon, word) in items) Column(Modifier.weight(1f).semantics(mergeDescendants = true) {}, horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(6.dp)) {
+            Icon(icon, null, Modifier.size(28.dp), tint = c.glacier)
+            Text(word, style = Ski.type.bodyBold.copy(fontSize = 13.sp, textAlign = TextAlign.Center), color = c.ink)
+        }
+    }
+}
+
+/**
+ * A request waiting for an admin (round 20, the canvas's .r20-pend): an hourglass, "waiting for the admin", and the
+ * way to withdraw it, on paper with a gold edge at the start side.
+ */
+@Composable
+fun PendingCard(onCancel: (() -> Unit)?) {
+    val c = Ski.colors
+    val gold = Color(0xFFF4B942)
+    val rtl = androidx.compose.ui.platform.LocalLayoutDirection.current == androidx.compose.ui.unit.LayoutDirection.Rtl
+    Row(
+        Modifier.fillMaxWidth().padding(vertical = 6.dp)
+            .shadow(4.dp, RectangleShape, ambientColor = Color(0x1A0D1522), spotColor = Color(0x1A0D1522)).background(c.paper)
+            .drawBehind { val w = 6.dp.toPx(); drawRect(gold, Offset(if (rtl) size.width - w else 0f, 0f), Size(w, size.height)) }
+            .padding(start = 22.dp, end = 16.dp, top = 14.dp, bottom = 14.dp),
+        verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(14.dp),
+    ) {
+        Icon(Icons.hourglass, null, Modifier.size(30.dp), tint = Color(0xFFC98A00))
+        Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            Display(stringResource(R.string.join_pending_title), 24f)
+            if (onCancel != null) Text(stringResource(R.string.join_cancel_request), Modifier.heightIn(min = 44.dp).clickable(role = Role.Button, onClick = onCancel).padding(vertical = 10.dp),
+                style = Ski.type.bodyBold.copy(fontSize = 14.sp), color = c.glacier)
+        }
+    }
 }

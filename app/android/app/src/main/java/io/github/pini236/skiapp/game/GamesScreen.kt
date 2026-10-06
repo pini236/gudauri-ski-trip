@@ -46,7 +46,6 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
-import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextOverflow
@@ -68,21 +67,16 @@ import io.github.pini236.skiapp.ui.TopBar
  * A game on the games page, as the site lists it (site/index.html, #gamesPage): its trail colour, dark words on the light
  * colours, its place in the site's order (which sets how far its sign reaches), and the first one wider.
  */
-class GameCard(val key: String, val order: Int, val color: Color, val ink: Boolean, val name: String, val tag: String, val meta: String, val thumb: String = key)
+class GameCard(val key: String, val order: Int, val color: Color, val ink: Boolean, val name: String, val thumb: String = key)
 
-/** The games the app has (13.6), in the site's order. The rest of the site's five arrive one by one. */
+/** The games the app has (13.6), in the site's order; round 20: their names and pictures, no tag or label. */
 @Composable
-fun appGames(runs: Int): List<GameCard> = listOf(
-    GameCard("descent", 0, SignColors.blue, false, stringResource(R.string.games_descent_name), stringResource(R.string.games_descent_tag),
-        pluralStringResource(R.plurals.games_descent_meta, runs, runs)),
-    GameCard("school", 1, SignColors.green, false, stringResource(R.string.games_school_name), stringResource(R.string.games_school_tag),
-        pluralStringResource(R.plurals.games_school_meta, LESSONS.size, LESSONS.size)),
-    GameCard("fresh", 2, Color(0xFF5B9BFF), true, stringResource(R.string.games_fresh_name), stringResource(R.string.games_fresh_tag),
-        stringResource(R.string.games_fresh_meta), thumb = "fresh-snow"),
-    GameCard("merge", 3, SignColors.gold, true, stringResource(R.string.games_merge_name), stringResource(R.string.games_merge_tag),
-        stringResource(R.string.games_merge_meta)),
-    GameCard("snowball", 4, Color(0xFF13233A), false, stringResource(R.string.games_snowball_name), stringResource(R.string.games_snowball_tag),
-        pluralStringResource(R.plurals.games_snowball_meta, COATS.size - 1, COATS.size - 1)),
+fun appGames(): List<GameCard> = listOf(
+    GameCard("descent", 0, SignColors.blue, false, stringResource(R.string.games_descent_name)),
+    GameCard("school", 1, SignColors.green, false, stringResource(R.string.games_school_name)),
+    GameCard("fresh", 2, Color(0xFF5B9BFF), true, stringResource(R.string.games_fresh_name), thumb = "fresh-snow"),
+    GameCard("merge", 3, SignColors.gold, true, stringResource(R.string.games_merge_name)),
+    GameCard("snowball", 4, Color(0xFF13233A), false, stringResource(R.string.games_snowball_name)),
 )
 
 // how far each sign reaches from the post, by its place in the site's list (.games-list li:nth-child)
@@ -98,7 +92,7 @@ fun GamesScreen(games: List<GameCard>, onOpen: (String) -> Unit, onBack: () -> U
     Column(Modifier.fillMaxSize().background(c.snow).statusBarsPadding()) {
         TopBar(stringResource(R.string.nav_games), stringResource(R.string.nav_home), onBack)
         Column(Modifier.verticalScroll(rememberScrollState()).navigationBarsPadding().padding(start = 12.dp, end = 12.dp, bottom = 32.dp)) {
-            Text(stringResource(R.string.app_games_intro), Modifier.padding(horizontal = 4.dp), style = Ski.type.small.copy(fontSize = 14.sp), color = c.muted)
+            // round 20: no opening line, only the signs and their pictures
             GamePost(games, onOpen)
         }
     }
@@ -155,20 +149,19 @@ private fun GameSign(g: GameCard, index: Int, feature: Boolean, onClick: () -> U
                 .background(g.color, shape)
                 .clickable(press, indication = null, role = Role.Button, onClick = onClick),
         ) {
-            Thumb(thumb, g.meta, if (feature) 124.dp else 96.dp, rtl)
+            Thumb(thumb, if (feature) 124.dp else 96.dp, rtl)
             Column(Modifier.weight(1f).fillMaxHeight().padding(start = 10.dp, end = 32.dp, top = 8.dp), verticalArrangement = Arrangement.Center) {
+                // round 20: the name only, no line under it
                 Text(g.name, style = Ski.type.title.copy(fontSize = if (feature) 29.sp else 25.sp, lineHeight = if (feature) 28.sp else 24.sp), color = fg,
                     maxLines = 2, overflow = TextOverflow.Ellipsis)
-                Text(g.tag, Modifier.padding(top = 3.dp), style = Ski.type.small.copy(fontSize = 11.5.sp, lineHeight = 15.sp), color = fg.copy(alpha = .92f),
-                    maxLines = 1, overflow = TextOverflow.Ellipsis)
             }
         }
     }
 }
 
-/** The game's picture, a play mark pointing the way of reading, and what is in it ("5 runs") at the bottom. */
+/** The game's picture and a play mark pointing the way of reading (round 20: no label on it). */
 @Composable
-private fun Thumb(img: ImageBitmap?, meta: String, w: androidx.compose.ui.unit.Dp, rtl: Boolean) {
+private fun Thumb(img: ImageBitmap?, w: androidx.compose.ui.unit.Dp, rtl: Boolean) {
     Box(Modifier.width(w).fillMaxHeight().background(Color(0xFFD5DFE8))
         .drawWithCache { onDrawWithContent { drawContent(); val x = if (rtl) 0f else size.width - 4.dp.toPx(); drawRect(Color(0x8CFFFFFF), Offset(x, 0f), Size(4.dp.toPx(), size.height)) } }) {
         if (img != null) Image(img, null, Modifier.fillMaxSize(), contentScale = ContentScale.Crop)
@@ -184,7 +177,5 @@ private fun Thumb(img: ImageBitmap?, meta: String, w: androidx.compose.ui.unit.D
             }
             drawPath(p, Color.White)
         }
-        Text(meta, Modifier.align(Alignment.BottomEnd).padding(bottom = 6.dp).background(Color(0xD613233A)).padding(horizontal = 8.dp, vertical = 2.dp),
-            style = Ski.type.bodyBold.copy(fontSize = 11.sp, lineHeight = 14.sp), color = Color.White, maxLines = 1)
     }
 }

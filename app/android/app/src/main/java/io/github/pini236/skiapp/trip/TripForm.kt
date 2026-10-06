@@ -111,7 +111,8 @@ fun TripForm(initial: Trip?, today: LocalDate, onSave: (Trip) -> Unit, onDelete:
             Column(Modifier.fillMaxWidth().verticalScroll(rememberScrollState()).navigationBarsPadding()) {
                 Column(Modifier.align(Alignment.CenterHorizontally).widthIn(max = 520.dp).padding(start = 16.dp, end = 16.dp, bottom = 24.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    Text(intro ?: stringResource(R.string.app_trip_intro), Modifier.padding(bottom = 2.dp), style = Ski.type.small.copy(fontSize = 13.5.sp), color = c.muted)
+                    // round 20: no opening line for my own trip (the site's trip.lead); a member's flight an admin fills still says whose
+                    if (intro != null) Text(intro, Modifier.padding(bottom = 2.dp), style = Ski.type.small.copy(fontSize = 13.5.sp), color = c.muted)
                     Section(stringResource(R.string.app_pass_out), stringResource(R.string.app_trip_out_note))
                     Pair2(
                         { PickField(stringResource(R.string.app_trip_date), day(oDate), pickDate, Icons.calendar, { pick = "oDate" }, it, ltr = false,

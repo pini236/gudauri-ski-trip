@@ -588,66 +588,6 @@
     "ka"
    ]
   },
-  "app.close": {
-   "he": "סגירה",
-   "en": "Close",
-   "ru": "Закрыть",
-   "ka": "დახურვა",
-   "where": "app/android",
-   "note": "accessibility label of the ✕ button",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "app.descent_done": {
-   "he": "הגעתם למטה!",
-   "en": "You made it down!",
-   "ru": "Вы внизу!",
-   "ka": "ქვემოთ ჩამოხვედით!",
-   "where": "app/android",
-   "note": "end title",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "app.descent_hint_ground": {
-   "he": "מחזיקים ומתכופפים, משחררים לקפיצה",
-   "en": "Hold to crouch, release to jump",
-   "ru": "Держите — присед, отпустите — прыжок",
-   "ka": "დააჭირეთ ჩასაჯდომად, გაუშვით ასახტომად",
-   "where": "app/android",
-   "note": "coach line at the bottom, on the snow",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "app.descent_hud": {
-   "he": "{run} · {dist} / {len} מ׳ · {kmh} קמ״ש · סלטות {flips}",
-   "en": "{run} · {dist} / {len} m · {kmh} km/h · flips {flips}",
-   "ru": "{run} · {dist} / {len} м · {kmh} км/ч · сальто {flips}",
-   "ka": "{run} · {dist} / {len} მ · {kmh} კმ/სთ · სალტო {flips}",
-   "where": "app/android",
-   "note": "descent game HUD: run, distance done / run length, speed, flips",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "app.descent_score": {
-   "he": "סלטות {flips} · נחיתות {landings} · נפילות {crashes}",
-   "en": "Flips {flips} · landings {landings} · falls {crashes}",
-   "ru": "Сальто {flips} · приземлений {landings} · падений {crashes}",
-   "ka": "სალტო {flips} · დაშვება {landings} · დაცემა {crashes}",
-   "where": "app/android",
-   "note": "end summary",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
   "app.edit": {
    "he": "עריכה",
    "en": "Edit",
@@ -655,30 +595,6 @@
    "ka": "შეცვლა",
    "where": "app/android",
    "note": "link under the pass to the trip form",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "app.home_add_trip": {
-   "he": "הוספת הטיסה שלי",
-   "en": "Add my flight",
-   "ru": "Добавить мой рейс",
-   "ka": "ჩემი რეისის დამატება",
-   "where": "app/android",
-   "note": "button over the empty pass (H1)",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "app.home_local_note": {
-   "he": "בלי הרשמה. נשמר רק בטלפון, ואפשר למחוק בכל רגע.",
-   "en": "No sign-up. Kept only on this phone, and you can delete it any time.",
-   "ru": "Без регистрации. Хранится только в телефоне, удалить можно в любой момент.",
-   "ka": "რეგისტრაციის გარეშე. ინახება მხოლოდ ტელეფონში და ნებისმიერ დროს შეგიძლიათ წაშალოთ.",
-   "where": "app/android",
-   "note": "under the empty pass (H1)",
    "check": [
     "ru",
     "ka"
@@ -1034,18 +950,6 @@
    "ka": "რეისის ნომერი",
    "where": "app/android",
    "note": "field label",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "app.trip_intro": {
-   "he": "הטיסות שלך לגודאורי. בלי הרשמה: נשמר רק בטלפון.",
-   "en": "Your flights to Gudauri. No sign-up: kept only on this phone.",
-   "ru": "Ваши рейсы в Гудаури. Без регистрации: хранится только в телефоне.",
-   "ka": "თქვენი რეისები გუდაურში. რეგისტრაციის გარეშე: ინახება მხოლოდ ტელეფონში.",
-   "where": "app/android",
-   "note": "trip form, under the title (H2)",
    "check": [
     "ru",
     "ka"
@@ -7996,6 +7900,42 @@
     "ka"
    ]
   },
+  "run.ahead_start": {
+   "he": "התחלה",
+   "en": "Start",
+   "ru": "Начало",
+   "ka": "დასაწყისი",
+   "where": "site/js/app.js, app/android",
+   "note": "round 20: label over the start altitude, one of three big numbers",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "run.ahead_steep": {
+   "he": "הקטע התלול",
+   "en": "Steepest part",
+   "ru": "Самый крутой участок",
+   "ka": "ყველაზე ციცაბო მონაკვეთი",
+   "where": "site/js/app.js, app/android",
+   "note": "round 20: label over the steepest gradient in degrees",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "run.ahead_end": {
+   "he": "סוף",
+   "en": "End",
+   "ru": "Конец",
+   "ka": "დასასრული",
+   "where": "site/js/app.js, app/android",
+   "note": "round 20: label over the end altitude",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
   "run.ahead_start_text": {
    "he": "{deg}° ב-150 המטרים הראשונים. {start}",
    "en": "{deg}° over the first 150 m. {start}",
@@ -8683,6 +8623,18 @@
    "ka": "სიმაღლის პროფილი",
    "where": "site/js/app.js",
    "note": "Section heading",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "run.profile_info": {
+   "he": "איך זה חושב",
+   "en": "How it's worked out",
+   "ru": "Как это посчитано",
+   "ka": "როგორ არის გამოთვლილი",
+   "where": "site/js/app.js, app/android",
+   "note": "round 20: label of the (i) next to the profile heading, which opens the profile and elevation notes",
    "check": [
     "ru",
     "ka"
@@ -9821,30 +9773,6 @@
     "ka"
    ]
   },
-  "app.a_sign_in_title": {
-   "he": "כניסה כדי ליצור קבוצה",
-   "en": "Sign in to create a group",
-   "ru": "Войдите, чтобы создать группу",
-   "ka": "შედით ჯგუფის შესაქმნელად",
-   "where": "app/android",
-   "note": "A2 sheet title",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "app.a_sign_in_sub": {
-   "he": "בלי סיסמה, ובלי מיילים מאיתנו. רק שם, ומה שגוגל מעבירה.",
-   "en": "No password, and no emails from us. Just a name, and what Google passes on.",
-   "ru": "Без пароля и без писем от нас. Только имя и то, что передаёт Google.",
-   "ka": "პაროლის გარეშე და ჩვენგან წერილების გარეშე. მხოლოდ სახელი და ის, რასაც Google გადმოგცემს.",
-   "where": "app/android",
-   "note": "A2",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
   "app.a_google": {
    "he": "גוגל",
    "en": "Google",
@@ -9894,22 +9822,10 @@
    ]
   },
   "app.a_moves_over": {
-   "he": "מה שכבר שמור בטלפון הזה (הטיול שלך) עובר לחשבון, ומופיע גם באתר.",
-   "en": "What is already saved on this phone (your trip) moves to the account, and shows on the site too.",
-   "ru": "То, что уже сохранено в этом телефоне (ваша поездка), перейдёт в аккаунт и появится на сайте.",
-   "ka": "რაც ამ ტელეფონში უკვე შენახულია (თქვენი მოგზაურობა), ანგარიშზე გადავა და საიტზეც გამოჩნდება.",
-   "where": "app/android",
-   "note": "A2",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "app.a_delete_any_time": {
-   "he": "אפשר למחוק את החשבון בכל רגע, מההגדרות.",
-   "en": "You can delete the account at any time, from the settings.",
-   "ru": "Аккаунт можно удалить в любой момент в настройках.",
-   "ka": "ანგარიშის წაშლა ნებისმიერ დროს შეგიძლიათ, პარამეტრებიდან.",
+   "he": "מה שכבר שמור בטלפון הזה עובר לחשבון, ומופיע גם באתר.",
+   "en": "What is already saved on this phone moves to the account, and shows on the site too.",
+   "ru": "То, что уже сохранено в этом телефоне, перейдёт в аккаунт и появится на сайте.",
+   "ka": "რაც ამ ტელეფონში უკვე შენახულია, ანგარიშზე გადავა და საიტზეც გამოჩნდება.",
    "where": "app/android",
    "note": "A2",
    "check": [
@@ -10301,18 +10217,6 @@
     "ka"
    ]
   },
-  "app.g_intro": {
-   "he": "בקבוצה רואים את הטיסות של כולם, קובעים מפגשים ומתחרים בשיאים.",
-   "en": "In a group you see everyone's flights, set meetups and compete for high scores.",
-   "ru": "В группе видны рейсы всех, можно назначать встречи и соревноваться в рекордах.",
-   "ka": "ჯგუფში ყველას ფრენები ჩანს, შეხვედრებს ნიშნავთ და რეკორდებში ეჯიბრებით.",
-   "where": "app/android",
-   "note": "A1",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
   "app.g_have_code": {
    "he": "יש לי קוד הזמנה",
    "en": "I have an invite code",
@@ -10320,18 +10224,6 @@
    "ka": "მაქვს მოწვევის კოდი",
    "where": "app/android",
    "note": "A1 card title",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "app.g_have_code_sub": {
-   "he": "שש אותיות, מהקישור שקיבלת. בלי הרשמה.",
-   "en": "Six letters, from the link you got. No sign-up.",
-   "ru": "Шесть букв из полученной ссылки. Без регистрации.",
-   "ka": "ექვსი ასო, მიღებული ბმულიდან. რეგისტრაციის გარეშე.",
-   "where": "app/android",
-   "note": "A1",
    "check": [
     "ru",
     "ka"
@@ -10368,18 +10260,6 @@
    "ka": "ჯგუფის შექმნა",
    "where": "app/android",
    "note": "A1 card title and button",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "app.g_create_sub": {
-   "he": "מי שמנהל קבוצה צריך חשבון, כדי שההזמנות יישארו שלו גם בטלפון חדש. כניסה בנגיעה, עם החשבון שכבר בטלפון.",
-   "en": "Whoever runs a group needs an account, so the invites stay theirs on a new phone too. One tap, with the account already on the phone.",
-   "ru": "Тому, кто ведёт группу, нужен аккаунт, чтобы приглашения остались за ним и на новом телефоне. Вход одним касанием, с аккаунтом, который уже есть в телефоне.",
-   "ka": "ჯგუფის მმართველს ანგარიში სჭირდება, რომ მოწვევები ახალ ტელეფონზეც მისი დარჩეს. შესვლა ერთი შეხებით, ტელეფონში უკვე არსებული ანგარიშით.",
-   "where": "app/android",
-   "note": "A1",
    "check": [
     "ru",
     "ka"
@@ -10722,12 +10602,12 @@
    ]
   },
   "app.g_invited_to": {
-   "he": "הוזמנת ל",
-   "en": "You are invited to",
-   "ru": "Вас пригласили в",
-   "ka": "მოწვეული ხართ",
+   "he": "מצטרפים ל",
+   "en": "Joining",
+   "ru": "Вступление в",
+   "ka": "უერთდებით",
    "where": "app/android",
-   "note": "Q3, over the group's name",
+   "note": "round 20: short, over the group's name (the site's join.invited_to the same)",
    "check": [
     "ru",
     "ka"
@@ -10757,18 +10637,6 @@
     "ka"
    ]
   },
-  "app.g_no_signup": {
-   "he": "בלי הרשמה ובלי סיסמה. אפשר לשמור חשבון אחר כך, אם רוצים.",
-   "en": "No sign-up and no password. You can keep an account later, if you like.",
-   "ru": "Без регистрации и пароля. Аккаунт можно сохранить позже, если захотите.",
-   "ka": "რეგისტრაციისა და პაროლის გარეშე. ანგარიშის შენახვა მოგვიანებითაც შეგიძლიათ, თუ მოისურვებთ.",
-   "where": "app/android",
-   "note": "Q3",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
   "app.g_already_in": {
    "he": "אני כבר בקבוצה",
    "en": "I'm already in the group",
@@ -10776,54 +10644,6 @@
    "ka": "მე უკვე ჯგუფში ვარ",
    "where": "app/android",
    "note": "Q3 link, Q5 title",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "app.g_already_in_sub": {
-   "he": "החלפתי טלפון, או מחקתי את האפליקציה",
-   "en": "I changed phone, or deleted the app",
-   "ru": "Я сменил телефон или удалил приложение",
-   "ka": "ტელეფონი შევცვალე ან აპლიკაცია წავშალე",
-   "where": "app/android",
-   "note": "Q3",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "app.g_pending_title": {
-   "he": "ממתין לאישור",
-   "en": "Waiting for approval",
-   "ru": "Ожидает подтверждения",
-   "ka": "დადასტურების მოლოდინში",
-   "where": "app/android",
-   "note": "Q3, Q5",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "app.g_pending_sub": {
-   "he": "המנהלים מקבלים בקשה בדף הקבוצה. בינתיים כל השאר עובד.",
-   "en": "The admins get a request on the group page. Meanwhile everything else works.",
-   "ru": "Администраторы получат запрос на странице группы. Пока всё остальное работает.",
-   "ka": "ადმინისტრატორები მოთხოვნას ჯგუფის გვერდზე მიიღებენ. მანამდე დანარჩენი ყველაფერი მუშაობს.",
-   "where": "app/android",
-   "note": "Q3, Q5",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "app.g_pending_cancel": {
-   "he": "ביטול הבקשה",
-   "en": "Withdraw the request",
-   "ru": "Отозвать запрос",
-   "ka": "მოთხოვნის გაუქმება",
-   "where": "app/android",
-   "note": "Q3/Q5, while a request waits for an admin (cancel_join_request)",
    "check": [
     "ru",
     "ka"
@@ -10901,30 +10721,6 @@
     "ka"
    ]
   },
-  "app.about_reset_sub": {
-   "he": "השיאים שנשמרו בטלפון הזה",
-   "en": "The high scores saved on this phone",
-   "ru": "Рекорды, сохранённые на этом телефоне",
-   "ka": "ამ ტელეფონზე შენახული რეკორდები",
-   "where": "app/android",
-   "note": "about (13.7): the site's about.reset_sub, on a phone",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "app.games_intro": {
-   "he": "על השלג של גודאורי. השיאים נשמרים בטלפון, ומי שבקבוצה רואה אותם גם בטבלת הקבוצה. מומלץ עם צליל.",
-   "en": "On Gudauri's snow. Best scores are saved on your phone, and if you're in a group they show in its table too. Sound is recommended.",
-   "ru": "На снегу Гудаури. Рекорды сохраняются на телефоне, а если вы в группе, они видны и в её таблице. Лучше играть со звуком.",
-   "ka": "გუდაურის თოვლზე. რეკორდები ტელეფონში ინახება, და თუ ჯგუფში ხართ, ჯგუფის ცხრილშიც ჩანს. გირჩევთ, ითამაშოთ ხმით.",
-   "where": "app/android",
-   "note": "the games page (13.6): the site's games.intro, on a phone",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
   "app.color_yellow": {
    "he": "צהוב",
    "en": "Yellow",
@@ -10956,18 +10752,6 @@
    "ka": "ნარინჯისფერი",
    "where": "app/android",
    "note": "a coat colour in the app's games, for a screen reader",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "app.about_lang_auto": {
-   "he": "נבחרה לפי הטלפון",
-   "en": "Chosen by the phone",
-   "ru": "Выбран по языку телефона",
-   "ka": "არჩეულია ტელეფონის მიხედვით",
-   "where": "app/android",
-   "note": "about (13.7): the site's about.language_auto, on a phone",
    "check": [
     "ru",
     "ka"
@@ -12715,6 +12499,30 @@
    },
    "where": "site/js/app.js, app/android",
    "note": "round 20: calendar legend, the shaded ski days between the flights",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "trip.month_prev": {
+   "he": "החודש הקודם",
+   "en": "Previous month",
+   "ru": "Предыдущий месяц",
+   "ka": "წინა თვე",
+   "where": "site/js/app.js, app/android",
+   "note": "round 20: the calendar's arrow, for a screen reader",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "trip.month_next": {
+   "he": "החודש הבא",
+   "en": "Next month",
+   "ru": "Следующий месяц",
+   "ka": "შემდეგი თვე",
+   "where": "site/js/app.js, app/android",
+   "note": "round 20: the calendar's arrow, for a screen reader",
    "check": [
     "ru",
     "ka"
