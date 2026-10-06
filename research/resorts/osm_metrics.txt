@@ -1,0 +1,35 @@
+resort                     runs named% ref% name_or_ref% diff%
+Gudauri                      48   81   18   81   89
+Bakuriani Didveli            24   50    0   50  100
+Bakuriani Kokhta             26   69    0   69  100
+Tetnuldi                     19   42    0   42   84
+Hatsvali                     11   45    0   45  100
+Goderdzi                      7   71    0   71  100
+Bansko                       41   78   85   85   97
+Borovets                     53   52    0   52   92
+Pamporovo                    30   60   60   60   96
+Hermon                       24    0   87   87   87
+Rosa Khutor                 131   79    0   79   99
+Sheregesh                   104   68    0   68   97
+Elbrus                       19    0    0    0  100
+Dombay                       31   61    0   61  100
+Shymbulak                    22   86    0   86   95
+Tsaghkadzor                  32   78    0   78  100
+Sölden                      204   98   76   99   99
+Ischgl                      512   32   35   39  100
+Saalbach                    656   54   59   64   95
+Mayrhofen                   221   65   75   77  100
+St Anton                    189   86   85   89  100
+Livigno                     191   51   14   51   98
+Val di Fassa                148   64   50   64   96
+Madonna di Campiglio         90   81   81   81   98
+Val Thorens                 349   42    1   42   99
+Tignes-Val d'Isère          415   71    0   71   97
+Alpe d'Huez                 350   68    0   68   93
+Grandvalira                 151   92    0   92  100
+Jasná                       250   71   74   75  100
+Kopaonik                     50   74   70   78   92
+Erciyes                      41   85    7   85   97
+Cerro Catedral              101   64    0   64   87
+Valle Nevado                 63   65    0   65  100
+Gazprom Krasnaya Polyana     48   79    0   79   95
