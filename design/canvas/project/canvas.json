@@ -2002,6 +2002,142 @@
       "h": 954,
       "page": "round18",
       "title": "פערי מראה · כרטיס ההזמנה, בכיוון ההפוך"
+    },
+    "R20-0-Decide.dc.html": {
+      "x": 0,
+      "y": 0,
+      "w": 600,
+      "h": 1300,
+      "page": "round20",
+      "title": "מה לאשר בסבב 20"
+    },
+    "R20-Inv-map.dc.html": {
+      "x": 680,
+      "y": 0,
+      "w": 848,
+      "h": 1730,
+      "page": "round20",
+      "title": "המלאי: המפה והמסלול"
+    },
+    "R20-Inv-rest.dc.html": {
+      "x": 1608,
+      "y": 0,
+      "w": 1266,
+      "h": 1074,
+      "page": "round20",
+      "title": "המלאי: החשבון והקבוצה"
+    },
+    "R20-BA-home.dc.html": {
+      "x": 680,
+      "y": 2150,
+      "w": 848,
+      "h": 1380,
+      "page": "round20",
+      "title": "דף הבית"
+    },
+    "R20-BA-run.dc.html": {
+      "x": 1608,
+      "y": 2150,
+      "w": 848,
+      "h": 1730,
+      "page": "round20",
+      "title": "פאנל המסלול"
+    },
+    "R20-BA-meet.dc.html": {
+      "x": 2536,
+      "y": 2150,
+      "w": 848,
+      "h": 2130,
+      "page": "round20",
+      "title": "נקודת המפגש"
+    },
+    "R20-BA-games.dc.html": {
+      "x": 3464,
+      "y": 2150,
+      "w": 848,
+      "h": 1074,
+      "page": "round20",
+      "title": "עמוד המשחקים"
+    },
+    "R20-BA-about.dc.html": {
+      "x": 4392,
+      "y": 2150,
+      "w": 848,
+      "h": 1230,
+      "page": "round20",
+      "title": "הגדרות"
+    },
+    "R20-BA-signin.dc.html": {
+      "x": 5320,
+      "y": 2150,
+      "w": 848,
+      "h": 1074,
+      "page": "round20",
+      "title": "כניסה"
+    },
+    "R20-BA-group.dc.html": {
+      "x": 6248,
+      "y": 2150,
+      "w": 1684,
+      "h": 1074,
+      "page": "round20",
+      "title": "קבוצה ריקה והצטרפות"
+    },
+    "R20-Trip-today.dc.html": {
+      "x": 680,
+      "y": 4700,
+      "w": 848,
+      "h": 1085,
+      "page": "round20",
+      "title": "הטיול שלך: היום"
+    },
+    "R20-Trip-new.dc.html": {
+      "x": 1608,
+      "y": 4700,
+      "w": 1684,
+      "h": 1046,
+      "page": "round20",
+      "title": "הטיול שלך: הכרטיס הוא הטופס"
+    },
+    "R20-Pano-today.dc.html": {
+      "x": 680,
+      "y": 6205,
+      "w": 1358,
+      "h": 1046,
+      "page": "round20",
+      "title": "המפה היום"
+    },
+    "R20-Pano-new.dc.html": {
+      "x": 2118,
+      "y": 6205,
+      "w": 2286,
+      "h": 1046,
+      "page": "round20",
+      "title": "פנורמה מהנתונים שלנו"
+    },
+    "R20-Numbers.dc.html": {
+      "x": 680,
+      "y": 7671,
+      "w": 620,
+      "h": 720,
+      "page": "round20",
+      "title": "המספרים"
+    },
+    "R20-Research.dc.html": {
+      "x": 1380,
+      "y": 7671,
+      "w": 620,
+      "h": 720,
+      "page": "round20",
+      "title": "איך מעבירים מידע בלי טקסט"
+    },
+    "R20-App.dc.html": {
+      "x": 2080,
+      "y": 7671,
+      "w": 620,
+      "h": 720,
+      "page": "round20",
+      "title": "באפליקציה"
     }
   },
   "createdOnFiles": {
@@ -2011,7 +2147,7 @@
   "designSystems": [],
   "launch": {
     "view": "canvas",
-    "page": "round18"
+    "page": "round20"
   },
   "notes": {
     "featRow1": {
@@ -2661,6 +2797,51 @@
       "w": 240,
       "x": 680,
       "y": 10039
+    },
+    "round20row0": {
+      "kind": "title1",
+      "maxW": 2194,
+      "page": "round20",
+      "text": "המלאי: כל טקסט מסומן",
+      "w": 240,
+      "x": 680,
+      "y": -300
+    },
+    "round20row1": {
+      "kind": "title1",
+      "maxW": 7252,
+      "page": "round20",
+      "text": "לפני ואחרי",
+      "w": 240,
+      "x": 680,
+      "y": 1850
+    },
+    "round20row2": {
+      "kind": "title1",
+      "maxW": 2612,
+      "page": "round20",
+      "text": "טופס \"הטיול שלך\"",
+      "w": 240,
+      "x": 680,
+      "y": 4400
+    },
+    "round20row3": {
+      "kind": "title1",
+      "maxW": 3724,
+      "page": "round20",
+      "text": "מפה פנורמית",
+      "w": 240,
+      "x": 680,
+      "y": 5905
+    },
+    "round20row4": {
+      "kind": "title1",
+      "maxW": 2020,
+      "page": "round20",
+      "text": "המספרים, המחקר והאפליקציה",
+      "w": 240,
+      "x": 680,
+      "y": 7371
     }
   },
   "order": [
@@ -2912,9 +3093,30 @@
     "R18-Gnight.dc.html",
     "R18-Gparts.dc.html",
     "R18-Ggroup.dc.html",
-    "R18-Ginvite.dc.html"
+    "R18-Ginvite.dc.html",
+    "R20-0-Decide.dc.html",
+    "R20-Inv-map.dc.html",
+    "R20-Inv-rest.dc.html",
+    "R20-BA-home.dc.html",
+    "R20-BA-run.dc.html",
+    "R20-BA-meet.dc.html",
+    "R20-BA-games.dc.html",
+    "R20-BA-about.dc.html",
+    "R20-BA-signin.dc.html",
+    "R20-BA-group.dc.html",
+    "R20-Trip-today.dc.html",
+    "R20-Trip-new.dc.html",
+    "R20-Pano-today.dc.html",
+    "R20-Pano-new.dc.html",
+    "R20-Numbers.dc.html",
+    "R20-Research.dc.html",
+    "R20-App.dc.html"
   ],
   "pages": [
+    {
+      "id": "round20",
+      "name": "סבב 20: פחות טקסט, טופס הטיול ומפה פנורמית"
+    },
     {
       "id": "round18",
       "name": "סבב 18: יישור קו בין האתר לאפליקציה"
