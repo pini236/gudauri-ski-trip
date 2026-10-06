@@ -113,9 +113,9 @@ fun MapScreen(view: MapView, scene: MapScene?, ms: MapStatus? = null, videos: Li
     val ov = remember { io.github.pini236.skiapp.meet.MeetView() }
     val scope = rememberCoroutineScope()
     val art = remember(scene) { scene?.let { OverviewArt(it.runs, it.terrain) } }
-    // "where am I" (round 19): only in the test build until Pini approves the privacy line (decision 58)
+    // "where am I" (round 19, m-7): in both builds since the privacy line was published (6.10.2026)
     val where = remember(scene) {
-        if (io.github.pini236.skiapp.BuildConfig.LOCATION && scene != null) WhereAmI(context.applicationContext, Locator(scene.runs, scene.terrain), scene.terrain) else null
+        if (scene != null) WhereAmI(context.applicationContext, Locator(scene.runs, scene.terrain), scene.terrain) else null
     }
     var asking by remember { mutableStateOf(false) }
     val askLocation = rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { r ->
