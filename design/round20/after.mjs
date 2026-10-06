@@ -49,6 +49,12 @@ const CSS = `
 .r20-pend{display:flex;align-items:center;gap:14px;margin:18px 0;padding:14px 16px;background:var(--paper);border-inline-start:6px solid #F4B942;box-shadow:0 2px 8px rgba(13,21,34,.08)}
 .r20-pend svg{flex:none;color:#C98A00}.r20-pend span{display:flex;flex-direction:column;align-items:flex-start;gap:4px}
 .r20-pend b{font-family:var(--f-display);font-size:24px;line-height:1}.r20-pend button{border:0;background:none;padding:6px 0;color:var(--glacier);font:inherit;font-weight:700;font-size:14px}
+.r20-jh{display:flex;flex-direction:column;gap:6px}.r20-jh>small{font-size:13px;color:var(--muted)}
+.r20-jh>b{font-family:var(--f-display);font-size:44px;line-height:1}
+.r20-jm{display:flex;gap:18px;align-items:center;margin-top:4px}.r20-jm>span{display:flex;align-items:center;gap:6px}
+.r20-jm b{font-family:var(--f-display);font-size:22px;line-height:1}
+.r20-av{display:flex;align-items:center}.r20-av i{display:grid;place-items:center;width:28px;height:28px;margin-inline-start:-6px;border-radius:50%;border:2px solid var(--paper);background:var(--glacier);color:#fff;font:700 13px/1 var(--f-body);font-style:normal}
+.r20-av i:first-child{margin-inline-start:0}.r20-av b{margin-inline-start:6px}
 .r20-app{display:flex;align-items:center;gap:12px;margin:14px 0;padding:10px 12px;background:var(--paper);border:1.5px solid var(--rule)}
 .r20-app svg{flex:none;color:var(--ink)}
 .r20-code{display:flex;gap:4px;flex:1}.r20-code i{display:grid;place-items:center;width:30px;height:38px;border:1.5px solid var(--ink);font:700 20px/1 var(--f-body);font-style:normal}
@@ -75,6 +81,7 @@ const I = {
   copy: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="8" y="8" width="12" height="12"/><path d="M4 16V4h12"/></svg>',
   g: '<svg width="20" height="20" viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.8 2.4 30.3 0 24 0 14.6 0 6.6 5.4 2.7 13.3l7.9 6.1C12.5 13.6 17.8 9.5 24 9.5z"/><path fill="#4285F4" d="M46.1 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.4c-.5 2.9-2.2 5.3-4.6 7l7.5 5.8c4.4-4 6.8-10 6.8-17.3z"/><path fill="#FBBC05" d="M10.6 28.6A14.5 14.5 0 0 1 9.5 24c0-1.6.3-3.2.8-4.6l-7.9-6.1A24 24 0 0 0 0 24c0 3.9.9 7.5 2.7 10.7z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.5-5.8c-2.1 1.4-4.9 2.3-8.4 2.3-6.2 0-11.5-4.1-13.4-9.8l-7.9 6.1C6.6 42.6 14.6 48 24 48z"/></svg>',
   apple: '<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M16.4 12.6c0-2.6 2.1-3.8 2.2-3.9-1.2-1.8-3.1-2-3.8-2-1.6-.2-3.1.9-3.9.9-.8 0-2-.9-3.4-.9-1.7 0-3.3 1-4.2 2.6-1.8 3.1-.5 7.7 1.3 10.2.9 1.2 1.9 2.6 3.2 2.6 1.3-.1 1.8-.8 3.3-.8 1.6 0 2 .8 3.4.8 1.4 0 2.3-1.3 3.1-2.5 1-1.4 1.4-2.8 1.4-2.9 0 0-2.6-1-2.6-4.1zM13.9 5c.7-.9 1.2-2 1.1-3.2-1 0-2.3.7-3 1.6-.7.8-1.2 2-1.1 3.1 1.1.1 2.3-.6 3-1.5z"/></svg>',
+  cal: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="5" width="18" height="16"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>',
   sync: '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M7 18h10a4 4 0 0 0 0-8 6 6 0 0 0-11.6 1.5A3.5 3.5 0 0 0 7 18z"/></svg>',
 };
 // in the page: hide the smallest element whose own text has the substring; put html in place of it
@@ -84,6 +91,21 @@ const helpers = () => {
   window.r20kill = sub => find(sub).forEach(el => { el.style.display = 'none'; });
   window.r20swap = (sub, html) => find(sub).forEach(el => { el.outerHTML = html; });
   window.r20after = (sub, html) => { const el = find(sub)[0]; if (el) el.insertAdjacentHTML('beforeend', html); };
+};
+
+// v3 (Pini: "it looked like someone joining an existing group must say which group"): the link or code already sets
+// the group, so the top of the page shows it as a ticket: the name, the dates and the members as shapes, then the name field
+const joinHead = () => {
+  const c = document.getElementById('joinCard'); if (!c) return;
+  const lines = c.innerText.split('\n').map(x => x.trim()).filter(Boolean);
+  const name = lines.find(l => /\d{4}|[א-ת]{3,}/.test(l) && !/הוזמנת|חברים/.test(l)) || lines[1] || '';
+  const meta = lines.find(l => /חברים/.test(l)) || '';
+  const n = (meta.match(/(\d+)\s*חברים/) || [, '4'])[1], dates = (meta.match(/(\d+\.\d+)\s*עד\s*(\d+\.\d+)/) || []).slice(1);
+  const av = ['נ', 'ע', 'ד', 'י'].slice(0, Math.min(4, +n)).map(x => `<i>${x}</i>`).join('');
+  c.querySelectorAll(':scope > :not(canvas):not(svg):not(.snowcap)').forEach(x => x.remove());
+  c.insertAdjacentHTML('beforeend', `<div class="r20-jh"><small>מצטרפים ל</small><b>${name}</b><span class="r20-jm">
+    <span>${window.I.cal}<b class="num" dir="ltr">${dates[0] || ''}–${dates[1] || ''}</b></span>
+    <span class="r20-av">${av}<b class="num">${n}</b></span></span></div>`);
 };
 const STATES = [
   // v2 (6.10.2026, Pini's comments): no badge and no lock line, no tally under the signs, and the season board reads
@@ -162,8 +184,20 @@ const STATES = [
       <button type="button" class="r20-abtn" disabled>${window.I.apple}המשך עם אפל <small>בקרוב</small></button></div>`);
   }],
   // v2: the pending request is a card (hourglass, title, cancel); the app code is a small card with the letters boxed
+  ['join-name', '/#join/KZBQRM', { wait: 1500 }, () => {
+    ['בלי הרשמה. הדפדפן הזה זוכר', 'החלפת טלפון או דפדפן'].forEach(r20kill);
+    window.joinHead();
+    const p = [...document.querySelectorAll('body *')].find(el => [...el.childNodes].some(t => t.nodeType === 3 && t.textContent.includes('הבקשה נשלחה למנהל')));
+    if (p && p.parentElement) p.parentElement.style.display = 'none';
+    const f = document.getElementById('joinForm'); if (f) f.hidden = false;
+    document.querySelectorAll('[data-err]').forEach(e => e.hidden = true);
+    const app = document.getElementById('joinApp');
+    if (app) app.outerHTML = `<div class="r20-app">${window.I.phone}<span class="r20-code" dir="ltr">${'KZBQRM'.split('').map(c => `<i>${c}</i>`).join('')}</span><button type="button" aria-label="העתקה">${window.I.copy}</button></div>`;
+    [...document.querySelectorAll('body *')].filter(el => el.offsetParent && !el.innerText.trim() && el.querySelector(':scope > svg') && !el.closest('button,a,header,.r20-app,.r20-jh')).forEach(el => el.style.display = 'none');
+  }],
   ['join', '/#join/KZBQRM', { wait: 1500 }, () => {
     ['בלי הרשמה. הדפדפן הזה זוכר', 'החלפת טלפון או דפדפן'].forEach(r20kill);
+    window.joinHead();
     [...document.querySelectorAll('body *')].filter(el => !el.children.length || el.querySelector('svg')).forEach(el => { if (el.offsetParent && !el.innerText.trim() && el.querySelector(':scope > svg') && !el.closest('button,a,header,.r20-app')) el.style.display = 'none'; });
     const p = [...document.querySelectorAll('body *')].find(el => [...el.childNodes].some(t => t.nodeType === 3 && t.textContent.includes('הבקשה נשלחה למנהל')));
     const box = p && p.parentElement;
@@ -180,6 +214,7 @@ for (const [name, url, opts, fn, click] of STATES) {
   await page.addStyleTag({ content: CSS });
   await page.evaluate(i => { window.I = i; }, I);
   await page.evaluate(helpers);
+  await page.evaluate(`window.joinHead = ${joinHead.toString()}`);
   await page.evaluate(fn);
   await page.waitForTimeout(400);
   await page.screenshot({ path: OUT + name + '.png', fullPage: true });
