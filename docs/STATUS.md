@@ -19,6 +19,7 @@
 | קנבס: סבב 18 | `design/round18/` והקנבס המשותף | פנוי (סבב 18 מוכן בקנבס, ממתין לפיני) | | |
 | קנבס: סבב 20 | `design/round20/` והקנבס המשותף | פנוי (סבב 20 מוכן בקנבס, ממתין לפיני) | | |
 | קנבס: סבב 21 | `design/round21/` והקנבס המשותף | פנוי (סבב 21 מוכן בקנבס, ממתין לפיני) | | |
+| קנבס: סבב 22 | `design/round22/` והקנבס המשותף | מעצב מוצר, חוויה ונגישות | `session_018WEovaqXC4kNabe89Cnwoj` | המפה כמסך הראשי: חלופות בקנבס, לבקשת פיני |
 | קנבס: שפה עיצובית חדשה | `design/language/` וקנבס נפרד (https://claude.ai/artifact/9yxrGgytb2Gmi4i1UqEhST) | פנוי (חמש השפות מוכנות, ממתין לבחירה של פיני) | | |
 | תשתיות ו-CI | `.github/workflows/`, `docs/OPERATIONS.md` | איש ה-DevOps (קבוע) | `session_01B7WsKFuWhyvYcU9VQLfMRW` | (החלטה 66) קודם: האצת ריצת האמולטור (אחרי אישור פיני). שירותים חיים: קריאה בלבד |
 | ארכיטקטורה | `docs/ARCHITECTURE.md`, `docs/ROLE-ARCHITECT.md` | ארכיטקט המערכת (קבוע) | `session_01JUxNys6FzfkFTAFyHbYdCe` | קו הבסיס הושלם (`docs/ARCHITECTURE.md`). מ-2, מ-6 ו-מ-7 אושרו (החלטה 58); החוזה של `/api/weather` ו-`/api/status` אושר עם תיקונים (5.10.2026). זמין לשאלות ולסקירות תכנון |
