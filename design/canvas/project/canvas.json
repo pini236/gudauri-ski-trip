@@ -2194,6 +2194,86 @@
       "h": 749,
       "page": "round21",
       "title": "קטע משותף: שתי אפשרויות"
+    },
+    "R22-0-Decide.dc.html": {
+      "x": 0,
+      "y": 0,
+      "w": 600,
+      "h": 700,
+      "page": "round22",
+      "title": "מה לאשר בסבב 22"
+    },
+    "R22-Today.dc.html": {
+      "x": 680,
+      "y": 0,
+      "w": 848,
+      "h": 1068,
+      "page": "round22",
+      "title": "היום"
+    },
+    "R22-A.dc.html": {
+      "x": 680,
+      "y": 1488,
+      "w": 2102,
+      "h": 1068,
+      "page": "round22",
+      "title": "א. ההר קודם (ההמלצה)"
+    },
+    "R22-B.dc.html": {
+      "x": 2862,
+      "y": 1488,
+      "w": 1266,
+      "h": 1068,
+      "page": "round22",
+      "title": "ב. חלון להר"
+    },
+    "R22-C.dc.html": {
+      "x": 4208,
+      "y": 1488,
+      "w": 1266,
+      "h": 1068,
+      "page": "round22",
+      "title": "ג. שלטים על ההר"
+    },
+    "R22-D.dc.html": {
+      "x": 5554,
+      "y": 1488,
+      "w": 1266,
+      "h": 1068,
+      "page": "round22",
+      "title": "ד. לשוניות"
+    },
+    "R22-Night.dc.html": {
+      "x": 680,
+      "y": 2976,
+      "w": 1266,
+      "h": 1068,
+      "page": "round22",
+      "title": "א ו-ב בלילה"
+    },
+    "R22-Desk.dc.html": {
+      "x": 2026,
+      "y": 2976,
+      "w": 1868,
+      "h": 787,
+      "page": "round22",
+      "title": "במחשב"
+    },
+    "R22-App.dc.html": {
+      "x": 3974,
+      "y": 2976,
+      "w": 1266,
+      "h": 1090,
+      "page": "round22",
+      "title": "באפליקציה (א)"
+    },
+    "R22-Moves.dc.html": {
+      "x": 680,
+      "y": 4486,
+      "w": 640,
+      "h": 900,
+      "page": "round22",
+      "title": "מה עובר לאן (בחלופה א)"
     }
   },
   "createdOnFiles": {
@@ -2203,7 +2283,7 @@
   "designSystems": [],
   "launch": {
     "view": "canvas",
-    "page": "round21"
+    "page": "round22"
   },
   "notes": {
     "featRow1": {
@@ -2916,6 +2996,42 @@
       "w": 240,
       "x": 680,
       "y": 2523
+    },
+    "round22row0": {
+      "kind": "title1",
+      "maxW": 860,
+      "page": "round22",
+      "text": "היום",
+      "w": 240,
+      "x": 680,
+      "y": -300
+    },
+    "round22row1": {
+      "kind": "title1",
+      "maxW": 6140,
+      "page": "round22",
+      "text": "ארבע חלופות",
+      "w": 240,
+      "x": 680,
+      "y": 1188
+    },
+    "round22row2": {
+      "kind": "title1",
+      "maxW": 4560,
+      "page": "round22",
+      "text": "לילה, מחשב ואפליקציה",
+      "w": 240,
+      "x": 680,
+      "y": 2676
+    },
+    "round22row3": {
+      "kind": "title1",
+      "maxW": 860,
+      "page": "round22",
+      "text": "מה עובר לאן",
+      "w": 240,
+      "x": 680,
+      "y": 4186
     }
   },
   "order": [
@@ -3191,9 +3307,23 @@
     "R21-BA-ends.dc.html",
     "R21-BA-sel.dc.html",
     "R21-Findings.dc.html",
-    "R21-BA-shared.dc.html"
+    "R21-BA-shared.dc.html",
+    "R22-0-Decide.dc.html",
+    "R22-Today.dc.html",
+    "R22-A.dc.html",
+    "R22-B.dc.html",
+    "R22-C.dc.html",
+    "R22-D.dc.html",
+    "R22-Night.dc.html",
+    "R22-Desk.dc.html",
+    "R22-App.dc.html",
+    "R22-Moves.dc.html"
   ],
   "pages": [
+    {
+      "id": "round22",
+      "name": "סבב 22: המפה כמסך הראשי"
+    },
     {
       "id": "round21",
       "name": "סבב 21: המפה"
