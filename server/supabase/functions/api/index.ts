@@ -96,6 +96,9 @@ Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: CORS });
   const started = Date.now();
   const action = new URL(req.url).pathname.split("/").filter(Boolean).pop() ?? "";
+  // R-13, temporary: only the NAMES of the request headers (never values), on the health check, to learn which header
+  // carries the caller's address. Removed once clientIp is fixed.
+  if (action === "keepalive") console.log(JSON.stringify({ header_names: [...req.headers.keys()].sort() }));
   const isRead = PUBLIC_READS.includes(action);
   if (req.method !== (isRead ? "GET" : "POST")) return reply(405, { error: isRead ? "use_get" : "use_post" });
 
