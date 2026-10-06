@@ -57,14 +57,11 @@ android {
             dimension = "channel"
             applicationIdSuffix = ".test"
             resValue("string", "app_name", "סקי בדיקה")
-            // the weather (round 19): here at once; in the store build once the server's /api/weather answers
-            buildConfigField("boolean", "WEATHER", "true")
             signingConfig = signingConfigs.findByName("test") ?: signingConfigs.getByName("debug")
         }
         create("store") {
             dimension = "channel"
             resValue("string", "app_name", "סקי")
-            buildConfigField("boolean", "WEATHER", "false")
             signingConfig = signingConfigs.findByName("upload") ?: signingConfigs.getByName("debug")
         }
     }

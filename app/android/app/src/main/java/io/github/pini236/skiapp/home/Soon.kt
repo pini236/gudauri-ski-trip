@@ -160,7 +160,7 @@ fun AboutScreen(
                 "https://www.openstreetmap.org/copyright")
             Credit(stringResource(R.string.about_credit_terrain_label), stringResource(R.string.about_credit_terrain))
             // the weather's source, as its licence asks (round 19, m-6 section 6)
-            if (io.github.pini236.skiapp.BuildConfig.WEATHER) Credit(stringResource(R.string.about_credit_weather_label), stringResource(R.string.about_credit_licensed, "Open-Meteo.com", "CC BY 4.0"), "https://open-meteo.com/")
+            Credit(stringResource(R.string.about_credit_weather_label), stringResource(R.string.about_credit_licensed, "Open-Meteo.com", "CC BY 4.0"), "https://open-meteo.com/")
             Credit(stringResource(R.string.about_credit_tear_label), stringResource(R.string.about_credit_licensed, stringResource(R.string.about_credit_tear_link), "CC BY 4.0"),
                 "https://freesound.org/people/everythingsounds/sounds/198233/")
             Credit(stringResource(R.string.about_credit_cards_label), stringResource(R.string.about_credit_licensed, "Kenney", "CC0"), "https://kenney.nl/assets/casino-audio")
