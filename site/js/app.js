@@ -1185,6 +1185,8 @@ const TRIPFORM=(()=>{
   return {open};})();
 // about and settings (#about): sound and vibration for the whole site and the games, and clearing the game records
 (function(){const P=window.GUD_PREFS||{sound:true,haptics:true};
+  // no vibration row where the device can't vibrate (round 20)
+  if(!navigator.vibrate)document.getElementById('abHaptics').hidden=true;
   const paint=()=>document.querySelectorAll('[data-pref]').forEach(b=>b.setAttribute('aria-pressed',String(!!P[b.dataset.pref])));paint();
   document.querySelectorAll('[data-pref]').forEach(b=>b.addEventListener('click',()=>{const k=b.dataset.pref;window.setGudPref(k,!P[k]);paint();if(k==='sound'||k==='haptics')track('settings_change',{setting:k,on:!!P[k]});
     if(k==='haptics'&&P.haptics)try{navigator.vibrate&&navigator.vibrate(20);}catch(e){}

@@ -120,7 +120,7 @@ test('the language row in settings opens the list, and choosing switches and rem
   await page.locator('#langSheet label[lang="en"]').click();
   await expect(page.locator('html')).toHaveAttribute('lang', 'en');
   await expect(page.locator('#abLangVal')).toHaveText('English');
-  await expect(page.locator('#abLangSub')).toHaveText('Chosen here, saved on this phone');
+  await expect(page.locator('#abLangSub')).toBeHidden(); // round 20: no line once chosen here
   await page.locator('#abLang').click();
   await page.locator('#langAuto').click();
   await expect(page.locator('html')).toHaveAttribute('lang', 'he');

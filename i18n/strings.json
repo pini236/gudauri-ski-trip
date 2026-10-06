@@ -11847,10 +11847,10 @@
    ]
   },
   "about.analytics_on": {
-   "he": "אנונימי ובלי עוגיות: באילו עמודים משתמשים ומה נשבר.",
-   "en": "Anonymous, no cookies: which pages are used and what breaks.",
-   "ru": "Анонимно и без cookie: какие страницы открывают и что ломается.",
-   "ka": "ანონიმურად და ქუქი-ფაილების გარეშე: რომელი გვერდები გამოიყენება და რა ფუჭდება.",
+   "he": "בלי שם ובלי עוגיות. עוזר לנו לתקן תקלות.",
+   "en": "No name and no cookies. It helps us fix problems.",
+   "ru": "Без имени и без cookie. Помогает нам исправлять сбои.",
+   "ka": "სახელის და ქუქი-ფაილების გარეშე. გვეხმარება ხარვეზების გასწორებაში.",
    "where": "site/index.html",
    "note": "settings row subtitle when on; followed by the link \"what is collected\"",
    "check": [
