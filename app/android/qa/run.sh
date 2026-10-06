@@ -151,7 +151,8 @@ map() {
 scrollDown() { drag $((W * 7 / 100)) $((H * 80 / 100)) $((W * 7 / 100)) $((H * 30 / 100)) 400; sleep .8; }
 # ---- the descent (13.6, the site's game): the coats and the runs, the count, jumps and a flip, the bottom, the result ----
 descent() {
-  qa "--es qa.group member --es qa.trip none --es qa.tab descent"; sleep 3; shot descent-menu
+  # the menu waits for the runs' profiles, seconds after the screen on a cold start (not a fixed wait)
+  qa "--es qa.group member --es qa.trip none --es qa.tab descent"; waitlog "descent menu" 40; sleep 1; shot descent-menu
   [ -n "$(where "המעיל שלך")" ] || fail "no coat picker in the descent's menu"
   [ -n "$(where "Tatra 2")" ] || fail "no runs in the descent's menu"
   scrollDown; shot descent-menu-bottom
@@ -172,7 +173,7 @@ descent() {
   [ -n "$(where "הירידה של החבר׳ה")" ] || fail "back from the descent is not the games page"
   # left to right: the run's sign and the time swap sides, the crew stays on the right
   adb shell cmd locale set-app-locales "$PKG" --locales en > /dev/null 2>&1; sleep 3
-  qa "--es qa.tab descent"; sleep 2; shot descent-menu-en
+  qa "--es qa.tab descent"; waitlog "descent menu" 40; sleep 1; shot descent-menu-en
   qa "--es qa.descent go"; sleep 6; shot descent-en
   adb shell cmd locale set-app-locales "$PKG" --locales he > /dev/null 2>&1; sleep 3
   qa "--es qa.tab home"; sleep 1
@@ -213,7 +214,9 @@ games() {
   tapText "קרום קפוא" && tapText "כדור" && { drag $((W * 30 / 100)) $((H * 30 / 100)) $((W * 60 / 100)) $((H * 50 / 100)) 900; sleep 0.5; shot fresh-crust; }
   tapText "שלג חדש" && { sleep 0.8; shot fresh-falling; sleep 2.5; shot fresh-new-snow; }
   mark; tapText "אגם קפוא" && { sleep 2; shot fresh-lake; }
-  local k; for k in 1 2 3 4 5 6 7 8; do tap $((W * (25 + (k * 37) % 50) / 100)) $((H * (28 + (k * 23) % 34) / 100)); sleep 0.25; done
+  # three hits on each spot: a plate holds 1.4 to 2.7 and a hit takes about 1 from the plate under it, so scattered single
+  # taps sometimes broke none and nothing was reported (main run for 5c8105b)
+  local k r; for k in 1 2 3; do for r in 1 2 3; do tap $((W * (20 + k * 17) / 100)) $((H * (30 + k * 9) / 100)); sleep 0.2; done; done
   shot fresh-lake-hits; sleep 1.5; shot fresh-lake-broken; waitlog "fresh lake" 5
   tapText "קפיאה מחדש" && { sleep 1.5; shot fresh-refreeze; }
   adb shell input keyevent KEYCODE_BACK; sleep 1.5
@@ -249,9 +252,13 @@ school() {
   qa "--es qa.tab home"; sleep 1
   qa "--es qa.school open --es qa.tab school"; sleep 2; shot school-menu-open
   tapText "פונים בפיצה" && tapText "לשלג!" && sleep 1.5
-  mark; tapText "מגלש שמאל"; waitlog "coach_wrong_right" 3
-  local xy; xy=$(where "מגלש ימין"); [ -n "$xy" ] && { hold $xy 1800; shot school-skis; }
-  waitlog "coach_correct_left" 3
+  # one look for the left ski, and the right one is its mirror (two equal buttons, the left one on the left): a second look
+  # at the screen took long enough for the skier to pass the first gate, so the right ski was wrong for the next one (main run for 0beb1e8)
+  local xy; xy=$(where "מגלש שמאל")
+  if [ -n "$xy" ]; then
+    set -- $xy; mark; tap "$1" "$2"; sleep 0.4; hold $((W - $1)) "$2" 1800; shot school-skis
+    waitlog "coach_wrong_right" 3; waitlog "coach_correct_left" 3
+  else fail "no 'מגלש שמאל' on screen"; fi
   adb shell input keyevent KEYCODE_BACK; sleep 1
   [ -n "$(where "פונים בפיצה")" ] || fail "back from a lesson is not the school's menu"
   # the beat: taps anywhere, graded
@@ -865,8 +872,9 @@ grep "SkiQa" "$OUT/logcat.txt" > "$OUT/qa-log.txt"
 grep -E "FATAL EXCEPTION|ANR in $PKG" -A 30 "$OUT/logcat.txt" > "$OUT/errors.txt"
 PID=$(adb shell pidof "$PKG" | tr -d '\r')
 # known noise, the framework's own lines in the app's process, not app errors: the map's surface changing size (the
-# bars appear), a slow emulator missing a window sync, and the keyboard's closing animation timing out
-if [ -n "$PID" ]; then adb logcat -d --pid="$PID" '*:E' | grep -v -E "^-+ beginning of|BLASTBufferQueue.*rejecting buffer|SurfaceSyncGroup: Failed to receive transaction|FrameTracker: force finish cuj" >> "$OUT/errors.txt"; else fail "the app is not running at the end"; fi
+# bars appear), a slow emulator missing a window sync, the keyboard's closing animation timing out, and the runtime's
+# debugger link losing adbd (the emulator's adb restarting; main run for 7b14748, the phone part)
+if [ -n "$PID" ]; then adb logcat -d --pid="$PID" '*:E' | grep -v -E "^-+ beginning of|BLASTBufferQueue.*rejecting buffer|SurfaceSyncGroup: Failed to receive transaction|FrameTracker: force finish cuj|failed to send app info to adbd" >> "$OUT/errors.txt"; else fail "the app is not running at the end"; fi
 [ -s "$OUT/errors.txt" ] && fail "errors in the log (errors.txt)"
 
 # ---- the release build (R8): only that it starts and draws ----

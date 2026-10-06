@@ -149,6 +149,8 @@ fun DescentScreen(profiles: List<Profile>, haptics: Haptics, onBack: () -> Unit,
     var copied by remember { mutableStateOf(false) }
     if (profiles.isEmpty()) { Box(Modifier.fillMaxSize().background(Color(0xFF5E9BD6))) { Text(stringResource(R.string.app_loading), Modifier.align(Alignment.Center), color = Color.White) }; return }
     runIdx = runIdx.coerceIn(0, profiles.size - 1)
+    // for the emulator run: the menu waits for the runs' profiles, which on a cold start come seconds after the screen
+    LaunchedEffect(profiles.size) { Qa.log("descent menu ${profiles.size} runs") }
     val view = remember {
         DescentView(context, still).apply {
             val l = Lang.current(context.resources)
