@@ -8,7 +8,7 @@
 
 **מדיניות פרטיות: Gudi: Gudauri Ski Map**
 
-בתוקף מ-5.10.2026
+בתוקף מ-6.10.2026
 
 Gudi: Gudauri Ski Map היא אפליקציה לאנדרואיד (המזהה `io.github.pini236.skiapp`) ואתר (`gudauri-ski-trip.vercel.app`) עם מפת הסקי של גודאורי, גאורגיה. פיני זולברג, אדם פרטי מישראל, פיתח אותם ואחראי עליהם. לכל שאלה או בקשה: pinisagent@gmail.com.
 
@@ -100,7 +100,7 @@ Gudi: Gudauri Ski Map היא אפליקציה לאנדרואיד (המזהה `io
 
 **Privacy Policy: Gudi: Gudauri Ski Map**
 
-Effective October 5, 2026
+Effective October 6, 2026
 
 Gudi: Gudauri Ski Map is an Android app (package `io.github.pini236.skiapp`) and a website (`gudauri-ski-trip.vercel.app`) with a ski map of Gudauri, Georgia. They are developed and run by Pini Zolberg, a private individual in Israel. For any question or request: pinisagent@gmail.com.
 
@@ -192,7 +192,7 @@ If this policy changes, we will update the date at the top. We will also announc
 
 **Политика конфиденциальности: Gudi: Gudauri Ski Map**
 
-Действует с 5 октября 2026 г.
+Действует с 6 октября 2026 г.
 
 Gudi: Gudauri Ski Map — это приложение для Android (пакет `io.github.pini236.skiapp`) и сайт (`gudauri-ski-trip.vercel.app`) с горнолыжной картой Гудаури, Грузия. Их разрабатывает и поддерживает Пини Зольберг, частное лицо в Израиле. По любым вопросам и просьбам: pinisagent@gmail.com.
 
@@ -284,7 +284,7 @@ Gudi: Gudauri Ski Map — это приложение для Android (пакет
 
 **კონფიდენციალურობის პოლიტიკა: Gudi: Gudauri Ski Map**
 
-ძალაშია 2026 წლის 5 ოქტომბრიდან
+ძალაშია 2026 წლის 6 ოქტომბრიდან
 
 Gudi: Gudauri Ski Map არის Android-ის აპლიკაცია (პაკეტი `io.github.pini236.skiapp`) და ვებსაიტი (`gudauri-ski-trip.vercel.app`) გუდაურის (საქართველო) სათხილამურო რუკით. მათ ქმნის და მართავს პინი ზოლბერგი, კერძო პირი ისრაელიდან. ნებისმიერი კითხვის ან თხოვნისთვის: pinisagent@gmail.com.
 

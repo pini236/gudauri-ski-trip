@@ -92,10 +92,14 @@ test('מזג אוויר: לפני הטיול הימים שבתחזית, ובלי
 test('מזג אוויר: בלי תשובה מהשרת', async ({ page }) => {
   const errors = watchErrors(page);
   await setup(page, trip('2027-01-10', '2027-01-15'), false);
-  // never an answer: no chip (before the server's first forecast it would only say "no data")
+  // never an answer (before the server's first forecast): the layer says "no data"
   await page.goto('/#map');
   await loaded(page);
-  await expect(page.locator('.wx-chip')).toBeHidden();
+  await expect(page.locator('#wxToday')).toBeHidden();
+  await page.locator('.wx-chip').click();
+  await expect(page.locator('.wx-list')).toContainText('אין מידע.');
+  await expect(page.locator('.wx-pin.none')).toHaveCount(3);
+  await page.locator('.wx-chip').click();
   // the last answer kept in this browser is three days old: no data, no guess
   await page.clock.setFixedTime(new Date('2027-01-15T09:00:00Z'));
   await page.evaluate(a => localStorage.setItem('gud-wx-last', a), JSON.stringify(fixture.answer));

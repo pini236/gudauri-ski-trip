@@ -5,7 +5,7 @@ import { join } from 'path';
 const fixture = JSON.parse(readFileSync(join(__dirname, '..', 'tools', 'fixtures', 'location-m7.json'), 'utf8'));
 
 // "Where am I" (round 19, decision 58; docs/ARCHITECTURE.md m-7). The rule is shared with the app through
-// tools/fixtures/location-m7.json; the position never leaves the browser. Hidden until the privacy line is approved (?loc=1).
+// tools/fixtures/location-m7.json; the position never leaves the browser.
 function watchErrors(page: Page) {
   const errors: string[] = [];
   page.on('pageerror', e => errors.push('pageerror: ' + e.message));
@@ -35,14 +35,11 @@ test('איפה אני: כלל ההצמדה זהה לערכי הבדיקה המש
 
 test.describe('איפה אני: הכפתור במפה', () => {
   test.use({ permissions: ['geolocation'], geolocation: { latitude: 42.482631, longitude: 44.483401, accuracy: 8 } });
-  test('מוסתר בלי ?loc=1; עם: הסבר, נקודה על Tatra 2, מחוץ להר, ובלי קואורדינטות ברשת', async ({ page, context }) => {
+  test('הסבר, נקודה על Tatra 2, מחוץ להר, ובלי קואורדינטות ברשת', async ({ page, context }) => {
     const errors = watchErrors(page);
     const sent: string[] = [];
     page.on('request', r => { const u = r.url() + ' ' + (r.postData() || ''); if (/42\.48|44\.48/.test(u)) sent.push(u); });
     await page.goto('/#map');
-    await loaded(page);
-    await expect(page.locator('.loc-btn')).toBeHidden();
-    await page.goto('/?loc=1#map');
     await loaded(page);
     const btn = page.locator('.loc-btn');
     await expect(btn).toBeEnabled();

@@ -1,5 +1,8 @@
 {
   "cleanUrls": true,
+  "rewrites": [
+    { "source": "/api/weather", "destination": "https://vanuhuzuhnljvcoihvys.supabase.co/functions/v1/api/weather" }
+  ],
   "headers": [
     {
       "source": "/(.*)",

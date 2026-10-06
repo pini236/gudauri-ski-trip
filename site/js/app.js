@@ -962,9 +962,9 @@ LSTAT.load();
 
 // ---- "where am I" (round 19, decision 58; docs/ARCHITECTURE.md m-7). The position stays in this browser: it is only
 // drawn, never sent, stored or measured. Off on every visit; it runs only while the map is open and the button is on.
-// Not published until Pini approves the line in the privacy policy: until then the button shows only with ?loc=1.
+// Published with its line in the privacy policy (Pini approved both, 6.10.2026).
 const LOC=(function(){
-  const on=/[?&]loc=1\b/.test(location.search);
+  const on=true;
   const ctrls=pgMap.querySelector('.ctrls'),wrap=pgMap.querySelector('.mapwrap');
   const btn=document.createElement('button');btn.type='button';btn.className='loc-btn';btn.hidden=!on;btn.disabled=true;
   btn.setAttribute('aria-pressed','false');btn.setAttribute('aria-label',T('loc.button'));
@@ -1041,8 +1041,6 @@ var WX=(function(){ // var: apply() and renderTicket() may run before this line
   const chip=document.createElement('button');chip.type='button';chip.className='wx-chip';chip.setAttribute('aria-pressed','false');
   chip.innerHTML=`<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 18h10a4 4 0 0 0 0-8 6 6 0 0 0-11.5 2A3 3 0 0 0 7 18z"/></svg><span>${E('weather.button')}</span>`;
   const filters=document.getElementById('filters');filters.parentNode.insertBefore(chip,filters);
-  // shown once a forecast has ever arrived in this browser: before the server's first answer it would only say "no data"
-  chip.hidden=!ans;
   const wrap=pgMap.querySelector('.mapwrap'),pins=document.createElement('div');pins.className='wx-pins';pins.hidden=true;wrap.append(pins);
   const list=document.createElement('section');list.className='wx-list';list.hidden=true;panel.parentNode.insertBefore(list,panel);
   function drawList(){const s=st(),ms=Date.now();
@@ -1112,7 +1110,7 @@ var WX=(function(){ // var: apply() and renderTicket() may run before this line
     board.setAttribute('aria-label',T(stg.k==='ski'?'today.title':'today.ahead_title'));board.hidden=false;seen('home');}
   // read: once now, and every ten minutes while the page is open (the answer changes once an hour)
   function load(){fetch('api/weather',{cache:'no-store'}).then(r=>r.status===200&&/json/.test(r.headers.get('content-type')||'')?r.json():null).catch(()=>null).then(j=>{
-    const had=G.state(ans,Date.now())!=='none';if(j&&j.schema===1&&j.updated&&Array.isArray(j.points)){ans=j;try{localStorage.setItem('gud-wx-last',JSON.stringify(j));}catch(e){}}chip.hidden=!ans;
+    const had=G.state(ans,Date.now())!=='none';if(j&&j.schema===1&&j.updated&&Array.isArray(j.points)){ans=j;try{localStorage.setItem('gud-wx-last',JSON.stringify(j));}catch(e){}}
     if(layer){drawList();layout();}home();if(!had&&current&&byKey[current]&&!flying)renderPiste(current);});}
   load();setInterval(()=>{if(!document.hidden)load();},10*6e4);
   return {cond,layout,home};
