@@ -880,8 +880,8 @@ const LSTAT=(function(){
     const f=fresh(),open=f?names.filter(n=>isOpen(n)).length:0;el.dataset.state=f?'live':'off';
     el.querySelector('.sb-dots').innerHTML=names.map(n=>`<i${f&&isOpen(n)?' class="on"':''}></i>`).join('');
     el.querySelector('.sb-f b').textContent=open+'/'+names.length;
-    el.querySelector('.sb-f small').textContent=f?ago(data.updated):T('home.lifts_no_report');
-    el.setAttribute('aria-label',T('status.heading_lift_status')+': '+(f?T('status.bar_summary',{open,total:names.length,ago:ago(data.updated)}):T('home.lifts_no_report')));
+    el.querySelector('.sb-f small').textContent=f?ago(data.updated):T('status.no_report');
+    el.setAttribute('aria-label',T('status.heading_lift_status')+': '+(f?T('status.bar_summary',{open,total:names.length,ago:ago(data.updated)}):T('status.no_report')));
   }
   applyHome();
   panel.addEventListener('click',e=>{const b=e.target.closest('[data-forme]');if(!b)return;forMe=!forMe;b.setAttribute('aria-pressed',String(forMe));applyMap();track('status_only_open',{on:forMe});});
@@ -1212,7 +1212,7 @@ const TRIPSHEET=(function(){
         h+=`<button type="button" class="num ${c}" data-d="${v}"${v<d0?' disabled':''} aria-pressed="${!!(v===a||v===b)}">${d}</button>`;}
       sh.querySelector('.ts-cal').innerHTML=h;
       const k=sd?Math.round((Date.parse(sd.to)-Date.parse(sd.from))/864e5)+1:0;
-      sh.querySelector('.ts-legend').innerHTML=`<span><i class="lg-f"></i>${E('trip.cal_flights')}</span>${k?`<span><i class="lg-s"></i>${E('trip.cal_ski',{n:k})}</span>`:''}`;
+      sh.querySelector('.ts-legend').innerHTML=`<span><i class="lg-f"></i>${E('trip.legend_flights')}</span>${k?`<span><i class="lg-s"></i>${E('trip.legend_ski',{n:k})}</span>`:''}`;
       sh.querySelector('[data-save]').disabled=!a;};
     sh.addEventListener('click',e=>{const bt=e.target.closest('button');if(!bt)return;
       if(bt.dataset.mon){m+=+bt.dataset.mon;if(m<0){m=11;y--;}if(m>11){m=0;y++;}draw();}
