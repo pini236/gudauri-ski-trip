@@ -647,8 +647,13 @@ phone() {
     adb shell setprop persist.sys.locale "$loc"; adb shell setprop ctl.restart zygote
     sleep 5; adb wait-for-device
     local i; for i in $(seq 1 60); do [ "$(adb shell getprop sys.boot_completed | tr -d '\r')" = 1 ] && break; sleep 2; done; sleep 10
+    # after the restart the whole system starts again, and is busy well past "booted": run 37484751167 opened the app
+    # at a load of 40 (the system's own UI skipped 721 frames), its window did not get the focus within 5 s, and the
+    # system called it not responding. Wait until the system settles (up to 2 minutes), and say at what load
+    local load=""; for i in $(seq 1 40); do load=$(adb shell cat /proc/loadavg 2> /dev/null | cut -d' ' -f1 | tr -d '\r')
+      awk -v l="${load:-99}" 'BEGIN { exit !(l < 8) }' && break; sleep 3; done
     kill "$LOGCAT" 2> /dev/null; logcat_on # the restart dropped the log stream
-    note "system language asked $loc: $(adb shell getprop persist.sys.locale | tr -d '\r'), the system says $(adb shell am get-config 2> /dev/null | grep -m1 -oE '^config: [^ ]+' | tr -d '\r')"
+    note "system language asked $loc (load $load): $(adb shell getprop persist.sys.locale | tr -d '\r'), the system says $(adb shell am get-config 2> /dev/null | grep -m1 -oE '^config: [^ ]+' | tr -d '\r')"
     # the system may still be coming back from the restart (its "booted" flag outlives it): start the app until it answers
     local opened=""
     for i in 1 2 3; do
@@ -726,8 +731,9 @@ status() {
   adb shell "am start -W -n $ACT --es qa.tab home --es qa.trip none --es qa.mode auto --es qa.group none --es qa.time 2026-10-03T11:00 --es qa.status none" > /dev/null
   waitlog "status pinned none" 30; waitlog "scene ready" 120
   sleep 2; drag $up; sleep 1; shot status-home-asleep
-  # round 20: the board on home is switched off and does not open anything; the map's bar opens the snowy signs
-  mark; qa "--es qa.sheet on"; waitlog "status board snowy" 10 && { sleep 2; shot status-snowy; drag $up; sleep 1; shot status-snowy-below; }
+  # round 20: the board on home is switched off and does not open anything; the map's bar opens the snowy signs.
+  # The steps after it are on the map, as when the board still led there
+  mark; qa "--es qa.tab map --es qa.sheet on"; waitlog "status board snowy" 10 && { sleep 2; shot status-snowy; drag $up; sleep 1; shot status-snowy-below; }
   # in season, a report two hours old: no current information, and the map as it is
   mark; qa "--es qa.sheet off --es qa.time 2027-01-12T11:00 --es qa.status stale"; waitlog "status pinned stale" 10; sleep 2; shot status-stale-bar
   mark; tapText "אין מידע עדכני על הרכבלים" && waitlog "status board snowy" 10 && { sleep 2; shot status-stale-board; }

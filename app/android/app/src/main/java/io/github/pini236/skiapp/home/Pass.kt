@@ -59,8 +59,10 @@ import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.CustomAccessibilityAction
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.customActions
+import androidx.compose.ui.semantics.onClick
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
@@ -306,8 +308,9 @@ fun TripPass(trip: Trip, now: LocalDateTime, haptics: Haptics, sounds: Sounds, o
                     transformOrigin = TransformOrigin(.5f, .6f)
                 }
                 .drawWithContent { drawContent(); if (pose.dim > .005f) drawRect(Color.Black, alpha = pose.dim) }
-                // the card behind: one tap brings it forward (the whole card, under the one in front only its top shows)
-                .let { m -> if (!inFront) m.semantics { contentDescription = swapLabel; role = Role.Button }.clickable(onClick = { swap() }) else m },
+                // the card behind: one tap brings it forward (the whole card, under the one in front only its top shows).
+                // To a screen reader it is that one button: its fields are hidden under the front card, so they are not read
+                .let { m -> if (!inFront) m.clearAndSetSemantics { contentDescription = swapLabel; role = Role.Button; onClick(swapLabel) { swap(); true } }.clickable(onClick = { swap() }) else m },
         ) {
             PassCard(trip, isRet, now, p, rtl, front = inFront, onField = if (inFront) onField else null,
                 tearT = if (inFront) tear.value else 0f, fallT = if (inFront) fall.value else 0f,
