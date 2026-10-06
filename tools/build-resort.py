@@ -214,10 +214,17 @@ LIFTS.sort(key=lambda l: (l['name'] is None, l['name'] or '', l['id']))
 def norm_number(v):
     v = (v or '').strip()
     return v if v and len(v) <= 4 and v[0].isdigit() else None
+OV = C.get('overrides', {})
 groups, skipped = collections.OrderedDict(), []
 for f in runs:
     p = f['properties']
     uses = set(p.get('uses') or [])
+    label = (p.get('name') or p.get('ref') or '').strip()
+    # a ski route (Skiroute: not prepared, not patrolled, no difficulty under the Tyrol rules) is not a run with a colour.
+    # Until the data has a kind for it (a decision for Pini, a canvas and the architect), it stays off the map
+    if p.get('grooming') == 'backcountry' or label in OV.get('ski_routes', []) or (p.get('ref') or '') in OV.get('ski_routes', []):
+        skipped.append((label, 'ski route (Skiroute), no difficulty: waiting for a kind of its own')); continue
+    if label in OV.get('exclude', []): skipped.append((label, 'a park, not a run (the ski expert)')); continue
     if not uses & {'downhill', 'connection'}: skipped.append((p.get('name') or p.get('ref'), 'not a downhill run (' + ','.join(sorted(uses)) + ')')); continue
     if not p.get('difficulty'): skipped.append((p.get('name') or p.get('ref'), 'no difficulty in OSM, so no colour')); continue
     name, ref = (p.get('name') or '').strip(), (p.get('ref') or '').strip()
@@ -225,6 +232,7 @@ for f in runs:
     nums = [norm_number(x) for x in name.replace(',', '/').split('/')] if name and norm_number(name.replace(',', '/').split('/')[0]) else []
     nums = [x for x in nums if x]
     if not nums and norm_number(ref): nums = [norm_number(ref)]
+    nums = [OV.get('swap_numbers', {}).get(x, x) for x in nums]  # numbers swapped in the open map, by the resort's own list
     gid = osm_id(f); poly = f['geometry']['type'] == 'Polygon'
     coords = f['geometry']['coordinates'][0] if poly else f['geometry']['coordinates']
     g = [ll(c) for c in coords]
@@ -239,7 +247,7 @@ for f in runs:
         if p.get('grooming'): G['groom'].add(p['grooming'])
         if p.get('lit') is not None: G['lit'].add('yes' if p['lit'] else 'no')
         if not poly and hl(*g[0]) < hl(*g[-1]): g = g[::-1]
-        G['segs'].append({'id': gid, 'area': poly, 'diff': p['difficulty'], 'g': g})
+        G['segs'].append({'id': gid, 'area': poly, 'diff': p['difficulty'], 'g': g, **({'tunnel': True} if p.get('tunnel') else {})})
 
 # ---------- checks (accuracy rule 4): every line descends, and starts and ends near lifts or runs ----------
 def climb(g):
@@ -255,6 +263,7 @@ lift_tops = [(l['name'], l['g'][-1]) for l in LIFTS]; lift_bots = [(l['name'], l
 pistes, report = [], []
 for G in groups.values():
     lines = [s['g'] for s in G['segs'] if not s['area']]
+    checked = [s['g'] for s in G['segs'] if not s['area'] and not s.get('tunnel')]  # a tunnel goes under the hill the model measures
     color = C['colors'][G['diff'].most_common(1)[0][0]] if G['diff'] else C['colors'][sorted(G['osmDiff'])[0]]
     tops = [L[0] for L in lines] or [G['segs'][0]['g'][0]]; bots = [L[-1] for L in lines] or tops
     P_ = {'key': G['key'], 'name': G['name'], 'osmNames': sorted(G['osmNames']), 'color': color, 'named': G['named'],
@@ -262,7 +271,7 @@ for G in groups.values():
           'groom': sorted(G['groom']), 'lit': sorted(G['lit']), 'segs': G['segs']}
     P_['fromLifts'] = sorted({nm for nm, q in lift_tops if nm and any(dist(q, t) <= 200 for t in tops)})
     P_['toLifts'] = sorted({nm for nm, q in lift_bots if nm and any(dist(q, b) <= 200 for b in bots)})
-    climbs = [climb(L) for L in lines]
+    climbs = [climb(L) for L in checked]
     P_['_climb'] = max(climbs) if climbs else 0
     pistes.append(P_)
 # joins / fromPistes: within 60 m of another run's line
@@ -279,12 +288,15 @@ for p in pistes:
     if not ok_bot: flags.append('הסוף רחוק מרכבל ומסלול')
     mixed = len({d for d in p['osmDiff']}) > 1
     if mixed: flags.append('דרגות קושי שונות בקטעים: ' + ', '.join(p['osmDiff']))
+    extra = []
+    if p['key'] in OV.get('swap_numbers', {}): extra.append('המספר הוחלף לפי הרשימה הרשמית של האתר (במפה הפתוחה ' + {v: k for k, v in OV['swap_numbers'].items()}[p['key']] + ')')
+    if p['key'] in OV.get('check_again', []): flags.append('המספר לא מופיע ברשימה הרשמית של האתר; לבדוק')
     p['kind'] = 'run'
     p['research'] = {'conf': 'medium' if not flags else 'low', 'status': 'osm-named' if p['named'] else 'osm-unnamed',
-                     'notes': 'מהמפה הפתוחה כמו שהיא. הצבע לפי דרגת הקושי במפה הפתוחה (אירופה: קל כחול, בינוני אדום, קשה שחור), לא נבדק מול המפה הרשמית.' + (' בדיקות: ' + '; '.join(flags) + '.' if flags else ''),
+                     'notes': 'מהמפה הפתוחה כמו שהיא. הצבע לפי דרגת הקושי במפה הפתוחה (אירופה: קל כחול, בינוני אדום, קשה שחור), ונבדק מול רשימת המסלולים הרשמית של האתר (research/resorts/soelden-audit.md).' + (' ' + '; '.join(extra) + '.' if extra else '') + (' בדיקות: ' + '; '.join(flags) + '.' if flags else ''),
                      'sources': ['OpenSkiMap ' + datetime.date.today().isoformat() + ' (OpenStreetMap, ODbL)'],
                      'osmIds': sorted({s['id'] for s in p['segs'] if s['id']}), 'checks': flags}
-    report.append((p['key'], p['color'], p['len'], p['_climb'], flags))
+    report.append((p['key'], p['color'], p['len'], p['_climb'], flags + extra))
     del p['_climb']
 order = {'green': 0, 'blue': 1, 'red': 2, 'black': 3}
 pistes.sort(key=lambda p: (not p['named'], order[p['color']], [int(x) if x.isdigit() else x for x in __import__('re').split(r'(\d+)', p['key'])]))
@@ -293,7 +305,7 @@ lats = [q[0] for p in pistes for s in p['segs'] for q in s['g']] + [q[0] for l i
 lons = [q[1] for p in pistes for s in p['segs'] for q in s['g']] + [q[1] for l in LIFTS for q in l['g']]
 LICENSE = ('Runs and lifts from OpenStreetMap through OpenSkiMap: © OpenStreetMap contributors, available under the Open Database '
            'License (ODbL 1.0, https://opendatacommons.org/licenses/odbl/). This file is a derived database and stays under the ODbL.')
-data = {'resort': RID, 'license': LICENSE, 'pistes': pistes, 'lifts': LIFTS, 'missing': [], 'fetched': datetime.date.today().isoformat(),
+data = {'resort': RID, 'license': LICENSE, 'pistes': pistes, 'lifts': LIFTS, 'missing': OV.get('missing', []), 'fetched': datetime.date.today().isoformat(),
         'bbox': [round(min(lats), 3), round(min(lons), 3), round(max(lats), 3), round(max(lons), 3)],
         'research': {'date': datetime.date.today().isoformat(),
                      'summary': 'נבנה אוטומטית מהמפה הפתוחה (OpenSkiMap) וממודל הגובה, בלי השלמות. נבדק מול מודל הגובה ומיקומי הרכבלים (tools/build-resort.py).'}}

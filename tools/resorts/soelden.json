@@ -46,5 +46,38 @@
     46.98,
     11.027
   ],
-  "dem_attribution": "© offene Daten Österreichs – Digitales Geländemodell (DGM) Österreich (CC BY 3.0 AT), through Terrain Tiles on AWS (Mapzen/Tilezen joerd)."
+  "dem_attribution": "© offene Daten Österreichs – Digitales Geländemodell (DGM) Österreich (CC BY 3.0 AT), through Terrain Tiles on AWS (Mapzen/Tilezen joerd).",
+  "overrides": {
+    "source": "research/resorts/soelden-audit.md (מומחה הסקי, 6.10.2026), לפי רשימת המסלולים הכתובה בדף המצב של Sölden",
+    "swap_numbers": {
+      "1a": "1b",
+      "1b": "1a"
+    },
+    "ski_routes": [
+      "61",
+      "62",
+      "70",
+      "71",
+      "72",
+      "80",
+      "Gaislachalm"
+    ],
+    "exclude": [
+      "Funslope"
+    ],
+    "missing": [
+      {
+        "name": "5a",
+        "color": "red"
+      },
+      {
+        "name": "21a",
+        "color": "red"
+      }
+    ],
+    "check_again": [
+      "7b",
+      "35"
+    ]
+  }
 }

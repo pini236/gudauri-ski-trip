@@ -58,17 +58,17 @@
       },
       "region": "Ötztal",
       "stats": {
-        "runs": 53,
+        "runs": 45,
         "lifts": 39,
-        "km": 104,
+        "km": 96,
         "alt": [
           1350,
           3250
         ],
         "byColor": {
-          "blue": 56366,
-          "red": 33240,
-          "black": 14333
+          "blue": 55542,
+          "red": 27946,
+          "black": 12459
         }
       },
       "pano": {
