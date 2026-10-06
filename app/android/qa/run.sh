@@ -402,11 +402,17 @@ home() {
   # nothing typed but flight numbers: the date from the calendar, a time from the clock, the airport from the list
   tapText "בחירת תאריך" && sleep 1.2 && shot trip-date-picker && tapText "מעבר לחודש הבא" && sleep 0.8 && tapText "~(?<!\d)20(?!\d)" && sleep 0.5 && shot trip-date-chosen && tapText "בחירה" && sleep 1
   tapText "בחירת שעה" && sleep 1.2 && shot trip-time-picker && tapText "בחירה" && sleep 1
-  # the airport: from the list or a three-letter code, no free names (K-5); a new trip starts from Tel Aviv, as on the site
+  # the airport: from the list or a three-letter code, no free names (K-5); a new trip starts from Tel Aviv, as on the site.
+  # The keyboard comes up slowly on the emulator: type only once it shows, and close the sheet if a step is missing
   tapText "TLV · תל אביב" && sleep 1.2 && shot trip-place-sheet
-  typeIn "חיפוש עיר או קוד שדה" "Berlin" && keyboardOff && shot trip-place-name
-  tapText "חיפוש עיר או קוד שדה" && sleep 0.4 && adb shell input keyevent KEYCODE_MOVE_END && for _ in 1 2 3 4 5 6; do adb shell input keyevent KEYCODE_DEL; done
-  adb shell input text "lca"; sleep 0.6; keyboardOff; shot trip-place-code && tapText "קוד אחר" && sleep 1
+  if focusField "חיפוש עיר או קוד שדה"; then
+    adb shell input text "Berlin"; sleep 0.8; keyboardOff; shot trip-place-name
+    if focusField "חיפוש עיר או קוד שדה"; then
+      adb shell input keyevent KEYCODE_MOVE_END; for _ in 1 2 3 4 5 6; do adb shell input keyevent KEYCODE_DEL; done
+      adb shell input text "lca"; sleep 0.8; keyboardOff; shot trip-place-code
+    fi
+  fi
+  tapText "קוד אחר" && sleep 1 || { adb shell input keyevent KEYCODE_BACK; sleep 1; }
   shot trip-form-picked
   mark; tapText "שמירה" && waitlog "trip saved" 10 && { sleep 1.5; shot home-trip-picked; }
 
@@ -468,6 +474,11 @@ home() {
 }
 
 # ---- accounts and the group (A1 to A5, Q1 to Q10), on the pretend server of debug builds (group/DevServer.kt) ----
+focusField() { # focusField <field text>: taps the field and waits up to 5 s for the keyboard (the emulator is slow to bring it up)
+  tapText "$1" || return 1
+  local i; for i in 1 2 3 4 5 6 7 8 9 10; do adb shell dumpsys input_method | grep -q "mInputShown=true" && return 0; sleep 0.5; done
+  fail "no keyboard for '$1'"; return 1
+}
 typeIn() { # typeIn <field text> <latin text>: adb types Latin only, so the run's names are Latin
   tapText "$1" && sleep 0.4 && adb shell input text "${2// /%s}" && sleep 0.4
 }
