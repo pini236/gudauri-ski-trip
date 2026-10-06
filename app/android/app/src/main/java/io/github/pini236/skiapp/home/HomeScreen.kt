@@ -75,8 +75,7 @@ import androidx.compose.runtime.getValue
 import io.github.pini236.skiapp.status.LiftStatus
 import io.github.pini236.skiapp.trip.PassEdit
 import io.github.pini236.skiapp.trip.PassEditor
-import io.github.pini236.skiapp.status.LiveDot
-import io.github.pini236.skiapp.status.summaryText
+import io.github.pini236.skiapp.status.agoText
 import java.time.LocalDateTime
 import kotlin.random.Random
 
@@ -218,42 +217,28 @@ private fun DayNightButton(mode: DayNight.Mode, label: String, onMode: () -> Uni
 private val SUN = Color(0xFFF4B942)
 
 /**
- * The lift status on home without a trip. With a fresh report (13.4): the green bar and how many lifts are open (S1's
- * line), and a tap opens the board over the map. Without one, in season or out of it (round 20, decision 65): the
- * lift-status widget switched off, greyed and not tappable: the lift, a dashed empty dot for every lift on the board,
- * "0/12" and "no report", as the round's canvas (design/round20/after.mjs, .r20-off).
+ * The lift status on home without a trip (round 20, decision 65; the site's #seasonBoard): a lift-status widget, one
+ * dot per lift on the board. Without a fresh report, in season or out of it, it is switched off: greyed, not tappable,
+ * the dots dashed and empty, "0/N" and "no report". With one (13.4), the same widget live: a green rule on top, the
+ * open lifts' dots filled in green, "open/N" and when it was updated; a tap opens the board over the map.
  */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun SeasonBoard(status: LiftStatus?, onClick: () -> Unit) {
     val c = Ski.colors
-    if (status != null && status.fresh) {
-        Column(
-            Modifier.fillMaxWidth()
-                .shadow(6.dp, RectangleShape, ambientColor = Color(0x1A13233A), spotColor = Color(0x1A13233A))
-                .background(c.paper)
-                .drawWithContent { drawContent(); drawRect(c.green, Offset.Zero, Size(size.width, 6.dp.toPx())) }
-                .clickable(role = Role.Button, onClick = onClick)
-                .padding(start = 14.dp, end = 14.dp, top = 18.dp, bottom = 12.dp),
-        ) {
-            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                LiveDot(true)
-                Text(stringResource(R.string.status_heading_lift_status), style = Ski.type.title.copy(fontSize = Ski.type.title.fontSize * (30f / 44f)), color = c.ink)
-            }
-            Text(summaryText(status), Modifier.padding(top = 4.dp), style = Ski.type.small, color = c.muted)
-        }
-        return
-    }
-    val lifts = status?.names?.size ?: 0
+    val live = status != null && status.fresh
+    val names = status?.names.orEmpty()
+    val open = if (live) status!!.open else 0
     val heading = stringResource(R.string.status_heading_lift_status)
-    val none = stringResource(R.string.status_no_report)
+    val foot = if (live) agoText(status!!) else stringResource(R.string.status_no_report)
+    val label = heading + ": " + if (live) stringResource(R.string.status_bar_summary, open.toString(), names.size.toString(), foot) else foot
     Column(
         Modifier.fillMaxWidth()
             .shadow(6.dp, RectangleShape, ambientColor = Color(0x1A13233A), spotColor = Color(0x1A13233A))
             .background(c.paper)
-            .drawBehind { drawRect(c.dash, Offset.Zero, Size(size.width, 6.dp.toPx())) }
-            .graphicsLayer { alpha = .62f }
-            .semantics(mergeDescendants = true) { contentDescription = "$heading: 0/$lifts, $none" }
+            .drawBehind { drawRect(if (live) c.green else c.dash, Offset.Zero, Size(size.width, 6.dp.toPx())) }
+            .let { if (live) it.clickable(role = Role.Button, onClick = onClick) else it.graphicsLayer { alpha = .62f } }
+            .semantics(mergeDescendants = true) { contentDescription = label }
             .padding(start = 14.dp, end = 14.dp, top = 18.dp, bottom = 14.dp),
         verticalArrangement = Arrangement.spacedBy(10.dp),
     ) {
@@ -261,16 +246,19 @@ private fun SeasonBoard(status: LiftStatus?, onClick: () -> Unit) {
             Icon(Icons.lift, null, Modifier.size(22.dp), tint = c.ink)
             Text(heading, style = Ski.type.bodyBold.copy(fontSize = 15.sp), color = c.ink)
         }
-        if (lifts > 0) {
-            // the dots run left to right in every language, as the site's .r20-lifts (direction: ltr)
+        if (names.isNotEmpty()) {
+            // the dots run left to right in every language, as the site's .sb-dots (direction: ltr)
             CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                    repeat(lifts) { Box(Modifier.size(16.dp).drawBehind { emptyDot(c.muted) }) }
+                    for (n in names) {
+                        val on = live && status!!.isOpen(n) == true
+                        Box(Modifier.size(16.dp).drawBehind { if (on) drawCircle(c.green) else emptyDot(c.muted) })
+                    }
                 }
             }
             Row(verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                Text("0/$lifts", style = Ski.type.title.copy(fontSize = 30.sp, lineHeight = 30.sp, textDirection = TextDirection.Ltr), color = c.ink)
-                Text(none, Modifier.padding(bottom = 3.dp), style = Ski.type.small.copy(fontSize = 13.sp), color = c.muted)
+                Text("$open/${names.size}", style = Ski.type.title.copy(fontSize = 30.sp, lineHeight = 30.sp, textDirection = TextDirection.Ltr), color = c.ink)
+                Text(foot, Modifier.padding(bottom = 3.dp), style = Ski.type.small.copy(fontSize = 13.sp), color = c.muted)
             }
         }
     }
