@@ -2274,6 +2274,54 @@
       "h": 900,
       "page": "round22",
       "title": "מה עובר לאן (בחלופה א)"
+    },
+    "R23-0-Decide.dc.html": {
+      "x": 0,
+      "y": 0,
+      "w": 600,
+      "h": 700,
+      "page": "round23",
+      "title": "ההחלטות בסבב 23"
+    },
+    "R23-Today.dc.html": {
+      "x": 680,
+      "y": 0,
+      "w": 848,
+      "h": 1068,
+      "page": "round23",
+      "title": "היום"
+    },
+    "R23-Picker.dc.html": {
+      "x": 680,
+      "y": 1488,
+      "w": 1776,
+      "h": 1068,
+      "page": "round23",
+      "title": "1. בורר אתר: שם המקום הוא הכפתור"
+    },
+    "R23-Home.dc.html": {
+      "x": 2536,
+      "y": 1488,
+      "w": 1776,
+      "h": 1068,
+      "page": "round23",
+      "title": "2. דף הבית של אתר בלי טיול"
+    },
+    "R23-Plates.dc.html": {
+      "x": 4392,
+      "y": 1488,
+      "w": 1776,
+      "h": 1068,
+      "page": "round23",
+      "title": "3. מסלול שהשם שלו מספר: לוחית"
+    },
+    "R23-Spec.dc.html": {
+      "x": 680,
+      "y": 2976,
+      "w": 640,
+      "h": 980,
+      "page": "round23",
+      "title": "פרטים למימוש"
     }
   },
   "createdOnFiles": {
@@ -2283,7 +2331,7 @@
   "designSystems": [],
   "launch": {
     "view": "canvas",
-    "page": "round22"
+    "page": "round23"
   },
   "notes": {
     "featRow1": {
@@ -3032,6 +3080,33 @@
       "w": 240,
       "x": 680,
       "y": 4186
+    },
+    "round23row0": {
+      "kind": "title1",
+      "maxW": 860,
+      "page": "round23",
+      "text": "היום",
+      "w": 240,
+      "x": 680,
+      "y": -300
+    },
+    "round23row1": {
+      "kind": "title1",
+      "maxW": 5488,
+      "page": "round23",
+      "text": "שלוש ההחלטות",
+      "w": 240,
+      "x": 680,
+      "y": 1188
+    },
+    "round23row2": {
+      "kind": "title1",
+      "maxW": 860,
+      "page": "round23",
+      "text": "פרטים למימוש",
+      "w": 240,
+      "x": 680,
+      "y": 2676
     }
   },
   "order": [
@@ -3317,9 +3392,19 @@
     "R22-Night.dc.html",
     "R22-Desk.dc.html",
     "R22-App.dc.html",
-    "R22-Moves.dc.html"
+    "R22-Moves.dc.html",
+    "R23-0-Decide.dc.html",
+    "R23-Today.dc.html",
+    "R23-Picker.dc.html",
+    "R23-Home.dc.html",
+    "R23-Plates.dc.html",
+    "R23-Spec.dc.html"
   ],
   "pages": [
+    {
+      "id": "round23",
+      "name": "סבב 23: כמה אתרי סקי"
+    },
     {
       "id": "round22",
       "name": "סבב 22: המפה כמסך הראשי"
