@@ -11314,7 +11314,7 @@
    "en": "Another flight",
    "ru": "Другой рейс",
    "ka": "სხვა ფრენა",
-   "where": "app/android",
+   "where": "app/android, site/js/account.js",
    "note": "Q7",
    "check": [
     "ru",
@@ -11470,7 +11470,7 @@
    "en": "No signal. Showing what the phone saved at {time}",
    "ru": "Нет связи. Показано то, что телефон сохранил в {time}",
    "ka": "კავშირი არ არის. ნაჩვენებია ტელეფონში {time}-ზე შენახული",
-   "where": "app/android",
+   "where": "app/android, site/js/account.js",
    "note": "group page, above the tabs, when the last read had no signal; {time} = HH:MM, or a date and time",
    "check": [
     "ru",

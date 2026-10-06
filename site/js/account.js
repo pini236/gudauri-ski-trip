@@ -11,7 +11,7 @@ window.ACCOUNT=(function(){
   const APPLE=false; // Sign in with Apple on the web: once the Apple developer account exists
   const SB_KEY='sb-vanuhuzuhnljvcoihvys-auth-token',CACHE='gud-acct',GAMES=['descent','school','fresh','snowball','merge'];
   const $=id=>document.getElementById(id);
-  const ICON={people:'<circle cx="9" cy="8" r="3.2"/><path d="M3 19c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5"/><circle cx="17" cy="9" r="2.5"/><path d="M16 13.6c2.8.3 5 2.2 5 5.4"/>',
+  const ICON={wifioff:'<path d="M2 8.5a15 15 0 0 1 20 0M5 12a10 10 0 0 1 14 0M8.5 15.5a5 5 0 0 1 7 0"/><path d="M3 3l18 18"/>',people:'<circle cx="9" cy="8" r="3.2"/><path d="M3 19c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5"/><circle cx="17" cy="9" r="2.5"/><path d="M16 13.6c2.8.3 5 2.2 5 5.4"/>',
     out:'<path d="M14 5h5v14h-5M10 8l-4 4 4 4M6 12h10"/>',check:'<path d="M5 12l5 5 9-10"/>',lock:'<rect x="5" y="11" width="14" height="9"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>',
     plus:'<path d="M12 5v14M5 12h14"/>',x:'<path d="M6 6l12 12M18 6L6 18"/>',cloud:'<path d="M7 18h10a4 4 0 0 0 0-8 6 6 0 0 0-11.6 1.5A3.5 3.5 0 0 0 7 18z"/>'};
   const ic=(n,s=20)=>`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">${ICON[n]}</svg>`;
@@ -282,7 +282,7 @@ window.ACCOUNT=(function(){
       if(!g){await refresh();location.replace('#group');return;}
       const members=await rest(c.from('group_members').select('user_id,role,display_name,trip_id,joined_at').eq('group_id',gid).order('joined_at'));
       const tids=members.map(m=>m.trip_id).filter(Boolean);
-      const trips=tids.length?await rest(c.from('trips').select('id,owner_id,out_date,out_flight,out_from,out_to,out_departs,ret_date,ret_flight,ret_departs,entered_by').in('id',tids)):[];
+      const trips=tids.length?await rest(c.from('trips').select('id,owner_id,out_date,out_flight,out_from,out_to,out_departs,ret_date,ret_flight,ret_from,ret_to,ret_departs,entered_by').in('id',tids)):[];
       const meetups=await rest(c.from('meetups').select('id,station,meet_at,note').eq('group_id',gid).order('meet_at'));
       const inv=await rest(c.from('invites').select('id,code,token,revoked_at,expires_at,requires_approval,max_uses,uses,created_at').eq('group_id',gid).is('revoked_at',null));
       // only an invite that still works is shown and shared (CONTRACT): not used up, and before it ends; with no end set,
@@ -293,8 +293,9 @@ window.ACCOUNT=(function(){
       const reqs=admin?await rest(c.from('join_requests').select('id,display_name,kind,reclaim_user_id,status').eq('group_id',gid).eq('status','pending')):[];
       G={g,members,trips,meetups,invite:live_[live_.length-1]||null,reqs,scores:G&&G.g&&G.g.id===gid?G.scores:null,at:Date.now()};
       try{localStorage.setItem(gKey(gid),JSON.stringify(G));}catch(e){}
-      clearErr(pg);draw();if(tab==='scores')loadScores();}
-    catch(e){if(G)draw();showErr(pg,e);}}
+      offlineAt=0;clearErr(pg);draw();if(tab==='scores')loadScores();}
+    catch(e){if(G&&e&&e.code==='offline'){offlineAt=G.at;draw();return;}if(G)draw();showErr(pg,e);}}
+  let offlineAt=0;
   function draw(){
     if(!G)return;const {g,members}=G;
     $('grTitle').textContent=g.name;
@@ -302,7 +303,9 @@ window.ACCOUNT=(function(){
     // tabs for a screen reader and the keyboard: one tab in the Tab order, the arrows move between them
     $('grTabs').setAttribute('role','tablist');$('grMain').setAttribute('role','tabpanel');$('grMain').setAttribute('aria-labelledby','grTab-'+tab);
     document.querySelectorAll('#grTabs [data-tab]').forEach(b=>{const on=b.dataset.tab===tab;b.id='grTab-'+b.dataset.tab;b.setAttribute('role','tab');b.setAttribute('aria-selected',String(on));b.setAttribute('aria-controls','grMain');b.tabIndex=on?0:-1;});
-    $('grMain').innerHTML=({flights:drawFlights,meetups:drawMeetups,scores:drawScores,members:drawMembers})[tab]();
+    // without the server: what was kept, with the time, as a note and not an error (K-3, as the app's g_offline)
+    const off=offlineAt?`<p class="ac-note ac-offline">${ic('wifioff',16)}<span>${esc(T('app.g_offline',{time:new Date(offlineAt).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})}))}</span></p>`:'';
+    $('grMain').innerHTML=off+({flights:drawFlights,meetups:drawMeetups,scores:drawScores,members:drawMembers})[tab]();
     $('grSide').innerHTML=drawInvite();}
   $('grTabs').addEventListener('click',e=>{const b=e.target.closest('[data-tab]');if(!b)return;tab=b.dataset.tab;draw();if(tab==='scores'&&!(G&&G.scores))loadScores();});
   $('grTabs').addEventListener('keydown',e=>{const all=[...$('grTabs').querySelectorAll('[data-tab]')].filter(b=>!b.hidden),i=all.indexOf(document.activeElement);if(i<0)return;
@@ -315,12 +318,15 @@ window.ACCOUNT=(function(){
     return [leg,t[leg+'_date'],n?'#'+n:'@'+up(t[leg+'_from'])+'>'+up(t[leg+'_to'])].join('|');}
   function drawFlights(){
     const {members,trips}=G,byId=Object.fromEntries(trips.map(t=>[t.id,t])),me=members.find(m=>m.user_id===state.uid)||{};
-    const groups=new Map();members.forEach(m=>{const t=byId[m.trip_id];if(!t)return;const k=flightKey(t);
-      if(!groups.has(k))groups.set(k,{t,people:[]});groups.get(k).people.push(m);});
-    const cards=[...groups.values()].sort((a,b)=>(a.t.out_date+(a.t.out_departs||'')).localeCompare(b.t.out_date+(b.t.out_departs||''))).map(({t,people},i)=>{
-      const mine=people.some(p=>p.user_id===state.uid);
-      return `<div class="ac-flight${i?' other':''}"><div class="fs"><span>${esc(T('trip.out'))}${t.out_flight?' · <span dir="ltr">'+esc(t.out_flight)+'</span>':''}</span><span dir="ltr">${esc(dm(t.out_date))}</span></div>
-        <div class="fb"><span><small>${esc(T('ticket.from'))}</small><b dir="ltr">${esc(t.out_from||'—')}</b></span><span class="mid"><small>${esc(T('trip.number'))}</small><b dir="ltr">${esc(t.out_flight||'—')}</b>${t.out_departs?`<small>${esc(T('group.departs',{t:t.out_departs.slice(0,5)}))}</small>`:''}</span><span style="text-align:end"><small>${esc(T('ticket.to'))}</small><b dir="ltr">${esc(t.out_to||'—')}</b></span></div>
+    // a card for every flight, out and back (K-2, decision 62, as the app's Flights): the outbound ones first, each in
+    // date order, with the people on it; the return is the outbound the other way round when its airports are not set
+    const groups=new Map();['out','ret'].forEach(leg=>members.forEach(m=>{const t=byId[m.trip_id];if(!t||!t[leg+'_date'])return;const k=flightKey(t,leg);
+      if(!groups.has(k))groups.set(k,{t,leg,people:[]});groups.get(k).people.push(m);}));
+    const leg_=(t,leg)=>({date:t[leg+'_date'],flight:t[leg+'_flight'],departs:t[leg+'_departs'],from:leg==='out'?t.out_from:t.ret_from||t.out_to,to:leg==='out'?t.out_to:t.ret_to||t.out_from});
+    const cards=[...groups.values()].sort((a,b)=>(a.leg===b.leg?0:a.leg==='out'?-1:1)||(a.t[a.leg+'_date']+(a.t[a.leg+'_departs']||'')).localeCompare(b.t[b.leg+'_date']+(b.t[b.leg+'_departs']||''))).map(({t,leg,people},i)=>{
+      const mine=people.some(p=>p.user_id===state.uid),f=leg_(t,leg);
+      return `<div class="ac-flight${i?' other':''}" data-leg="${leg}"><div class="fs"><span>${esc(T(leg==='out'?'trip.out':'trip.back'))}${f.flight?' · <span dir="ltr">'+esc(f.flight)+'</span>':''}</span><span dir="ltr">${esc(dm(f.date))}</span></div>
+        <div class="fb"><span><small>${esc(T('ticket.from'))}</small><b dir="ltr">${esc(f.from||'—')}</b></span><span class="mid"><small>${esc(T('trip.number'))}</small><b dir="ltr">${esc(f.flight||'—')}</b>${f.departs?`<small>${esc(T('group.departs',{t:f.departs.slice(0,5)}))}</small>`:''}</span><span style="text-align:end"><small>${esc(T('ticket.to'))}</small><b dir="ltr">${esc(f.to||'—')}</b></span></div>
         <div class="fp">${people.map(p=>`<span${p.user_id===state.uid?' class="me"':''}${byId[p.trip_id]&&byId[p.trip_id].entered_by&&byId[p.trip_id].entered_by!==p.user_id?` title="${esc(T('group.entered_by_admin'))}"`:''}>${esc(p.display_name)}</span>`).join('')}</div>
         ${mine?'':`<div class="fa"><button type="button" data-same="${esc(t.id)}">${esc(T('group.same_flight'))}</button></div>`}</div>`;}).join('');
     const none=members.filter(m=>!byId[m.trip_id]);
@@ -332,7 +338,9 @@ window.ACCOUNT=(function(){
   function dayName(iso){const d=new Date(iso+'T12:00:00Z');try{return (I18N.lang==='he'?new Intl.DateTimeFormat('he',{weekday:'narrow',timeZone:'UTC'}).format(d)+' ':I18N.date(d,{weekday:'short',timeZone:'UTC'})+' ')+dm(iso);}catch(e){return dm(iso);}}
   function drawMeetups(){
     const list=G.meetups.map(m=>{const {hm,day}=gTime(m.meet_at),name=(MEET&&MEET.station(m.station))||m.station;
-      return `<div class="ac-meet"><span class="mt num">${hm}</span><span style="flex:1"><b dir="auto">${esc(name)}</b>${esc(dayName(day))}${m.note?' · '+esc(m.note):''}</span><button type="button" class="ac-x" data-delmeet="${esc(m.id)}" aria-label="${esc(T('group.meetup_delete'))}" style="min-width:44px;min-height:44px;background:none;border:0;color:var(--muted);cursor:pointer">${ic('x',18)}</button></div>`;}).join('');
+      // the row opens the meet card (the same link the meet page shares); deleting for everyone takes two taps (K-3)
+      const on=armedMeet===m.id&&Date.now()-armedAt<4000,href=`#meet/${encodeURIComponent(m.station)}/${hm.replace(':','')}/${day.replace(/-/g,'')}`;
+      return `<div class="ac-meet${on?' armed':''}"><a class="ac-meet-go" href="${href}"><span class="mt num">${hm}</span><span style="flex:1"><b dir="auto">${esc(name)}</b>${esc(dayName(day))}${m.note?' · '+esc(m.note):''}${on?`<span class="ac-armed">${esc(T('trip.delete_confirm'))}</span>`:''}</span><span class="go" aria-hidden="true">${I18N.ltr?'›':'‹'}</span></a><button type="button" class="ac-x" data-delmeet="${esc(m.id)}" aria-label="${esc(T('group.meetup_delete'))}">${ic('x',18)}</button></div>`;}).join('');
     return (list||`<p class="ac-lead" style="margin:0">${esc(T('group.no_meetups'))}</p>`)+`<a class="ac-btn ghost" href="#meet">${ic('plus')}${esc(T('group.meetup_new'))}</a>`;}
   async function loadScores(){
     try{const out={};for(const game of GAMES)out[game]=await api('group_leaderboard',{group_id:gid,game});G.scores=out;try{localStorage.setItem(gKey(gid),JSON.stringify(G));}catch(e){}if(tab==='scores')draw();}
@@ -342,17 +350,20 @@ window.ACCOUNT=(function(){
     const boards=GAMES.filter(k=>(G.scores[k]||[]).length).map(k=>`<div class="ac-board"><h3>${esc(T('games.'+k+'_name'))}</h3><ol>${G.scores[k].map(s=>`<li${s.user_id===state.uid?' class="me"':''}><span>${esc(s.display_name)}</span><b class="num">${Number(s.best).toLocaleString('en-US')}</b></li>`).join('')}</ol></div>`).join('');
     return (boards||`<p class="ac-lead" style="margin:0">${esc(T('group.scores_none'))}</p>`)+`<p class="ac-note">${esc(T('group.scores_note'))}</p>`;}
   // the members tab (W8, and Q10 in the app): requests and admin actions for admins (round 14)
-  let adm={menu:'',panel:''},armed={};
+  let adm={menu:'',panel:''},armed={},armedMeet='',armedAt=0;
   const arm=(k)=>{if(Date.now()-(armed[k]||0)<6000)return true;armed[k]=Date.now();return false;};
   const fld=(label,inner)=>`<label class="ac-fld"><span>${esc(T(label))}</span>${inner}</label>`;
-  const AIR=['TLV','TBS','KUT'],airSel=(n,v)=>`<select name="${n}" class="ac-sel">${AIR.map(a=>`<option value="${a}"${a===v?' selected':''}>${a} · ${esc(T('ticket.city_'+a.toLowerCase()))}</option>`).join('')}</select>`;
-  function tripForm(m){
-    const t=G.trips.find(x=>x.id===m.trip_id)||{},hm=v=>v?String(v).slice(0,5):'';
-    return `<form class="ac-card ac-form ac-sub" data-mtripform="${esc(m.user_id)}"><h3>${esc(T('group.trip_for',{name:m.display_name}))}</h3>
-      <div class="ac-grid">${fld('trip.date',`<input type="date" name="od" required value="${esc(t.out_date||'')}">`)}${fld('trip.number',`<input type="text" name="of" dir="ltr" maxlength="12" autocapitalize="characters" value="${esc(t.out_flight||'')}">`)}</div>
-      <div class="ac-grid">${fld('ticket.from',airSel('ofr',t.out_from||'TLV'))}${fld('ticket.to',airSel('oto',t.out_to||'TBS'))}</div>
-      <div class="ac-grid">${fld('ticket.departs',`<input type="time" name="odp" value="${esc(hm(t.out_departs))}">`)}${fld('trip.back',`<input type="date" name="rd" value="${esc(t.ret_date||'')}">`)}</div>
-      <p class="ac-lead" style="margin:0">${esc(T('group.trip_for_note'))}</p><button type="submit" class="ac-btn">${esc(T('acct.save'))}</button></form>`;}
+  // filling a flight for a member (K-3, decision 62, as the app): first the flights already in the group, then "another
+  // flight" opens the trip form for them, "<name>'s flight"
+  const LEGF=['date','flight','from','to','departs'];
+  function pickFlight(m){
+    const byId=Object.fromEntries(G.trips.map(t=>[t.id,t])),seen=new Map();
+    G.members.forEach(x=>{const t=byId[x.trip_id];if(!t)return;const k=flightKey(t);if(!seen.has(k))seen.set(k,{t,people:[]});seen.get(k).people.push(x.display_name);});
+    const rows=[...seen.values()].sort((a,b)=>(a.t.out_date+(a.t.out_departs||'')).localeCompare(b.t.out_date+(b.t.out_departs||''))).map(({t,people})=>
+      `<button type="button" data-pickfor="${esc(m.user_id)}" data-trip="${esc(t.id)}"><span><b>${esc(T('trip.out'))} · ${esc(dm(t.out_date))}${t.out_flight?' · <span dir="ltr">'+esc(t.out_flight)+'</span>':''}</b><small><span dir="ltr">${esc((t.out_from||'—')+' › '+(t.out_to||'—'))}</span> · ${people.map(esc).join(', ')}</small></span><span class="go" aria-hidden="true">${I18N.ltr?'›':'‹'}</span></button>`).join('');
+    return `<div class="ac-card ac-form ac-sub"><h3>${esc(T('group.trip_for',{name:m.display_name}))}</h3><div class="ac-pick">${rows}
+      <button type="button" data-otherfor="${esc(m.user_id)}"><span><b class="oth">+ ${esc(T('app.g_other_flight'))}</b></span><span class="go" aria-hidden="true">${I18N.ltr?'›':'‹'}</span></button></div></div>`;}
+  const copyTrip=t=>{const o={};['out','ret'].forEach(l=>LEGF.forEach(k=>{const v=t[l+'_'+k];if(v!=null)o[l+'_'+k]=v;}));if(!o.ret_date)['ret_from','ret_to'].forEach(k=>delete o[k]);return o;};
   function drawMembers(){
     const me=G.members.find(m=>m.user_id===state.uid),admin=me&&me.role==='admin',reg=registered();
     const reqs=admin&&G.reqs.length?`<div class="ac-sec-box"><h2>${esc(T('group.requests'))}</h2>${G.reqs.map(r=>{const was=r.kind==='reclaim'&&G.members.find(m=>m.user_id===r.reclaim_user_id);
@@ -363,7 +374,7 @@ window.ACCOUNT=(function(){
       const menu=open?`<div class="ac-menu"><button type="button" data-role="${m.role==='admin'?'member':'admin'}" data-uid="${esc(m.user_id)}">${esc(T(m.role==='admin'?'group.make_member':'group.make_admin'))}</button>`
         +(own?'':`<button type="button" data-mtrip="${esc(m.user_id)}">${esc(T('group.fill_trip'))}</button>`)
         +`<button type="button" class="red" data-remove="${esc(m.user_id)}">${esc(armed['rm'+m.user_id]&&Date.now()-armed['rm'+m.user_id]<6000?T('group.remove_confirm',{name:m.display_name}):T('group.remove'))}</button></div>`:'';
-      return row+menu+(adm.panel==='trip:'+m.user_id?tripForm(m):'');}).join('');
+      return row+menu+(adm.panel==='trip:'+m.user_id?pickFlight(m):'');}).join('');
     const claim=!G.members.some(m=>m.role==='admin')&&reg?`<button type="button" class="ac-btn ghost" data-claim>${esc(T('group.claim_admin'))}</button>`:'';
     let tools='';
     if(admin){const g=G.g,v=G.invite;
@@ -382,18 +393,29 @@ window.ACCOUNT=(function(){
     const link=location.origin+'/j/'+v.token+'?utm_medium=share',msg=T('group.invite_msg',{name:G.g.name,link,code:v.code});
     return `<div class="ac-invite"><span><small style="display:block;font-size:12px;color:var(--muted);font-weight:600">${esc(T('group.invite_code'))}</small><b dir="ltr">${esc(v.code)}</b></span>
       <span class="ac-iv"><a href="https://wa.me/?text=${encodeURIComponent(msg)}" target="_blank" rel="noopener">${esc(T('group.invite_wa'))}</a><button type="button" data-copy="${esc(link)}">${esc(T('group.copy'))}</button></span></div>`;}
-  let leaveArm=0;
+  let leaveArm=0,forMember=null;
+  // the trip form filled for a member (K-3): the form asks, saving goes to the group as theirs, entered by an admin
+  async function saveTripFor(t){const f=forMember;if(!f)return;
+    const tm=v=>v?v.slice(0,5):null,row={out_date:t.out.date,out_flight:t.out.flight||null,out_from:t.out.from||null,out_to:t.out.to||null,out_departs:tm(t.out.departs),out_arrives:tm(t.out.arrives),
+      ret_date:t.ret&&t.ret.date||null,ret_flight:t.ret&&t.ret.flight||null,ret_from:t.ret?t.out.to||null:null,ret_to:t.ret?t.out.from||null:null,ret_departs:t.ret?tm(t.ret.departs):null,ret_arrives:t.ret?tm(t.ret.arrives):null};
+    await api('set_member_trip',{group_id:f.gid,user_id:f.uid,trip:row});forMember=null;await refresh();location.hash='#group/'+f.gid;}
+  const cancelTripFor=()=>{const f=forMember;forMember=null;return f?'#group/'+f.gid:null;};
   $('groupPage').addEventListener('click',async e=>{
     const pg=$('groupPage'),t=e.target;
     const run=async(fn)=>{clearErr(pg);try{await fn();await refresh();await reload();}catch(x){showErr(pg,x);}};
     const same=t.closest('[data-same]');if(same){run(async()=>{const mt=MYTRIP.get(),r=await api('same_flight',{group_id:gid,trip_id:same.dataset.same,my_trip_id:mt&&mt.sid||undefined});
       const c=await client(),[n]=await rest(c.from('trips').select('*').eq('id',r.trip_id));if(n)asMine(n);});return;}
     if(t.closest('[data-showtrip]')){run(async()=>{const sid=await pushTrip(true),g=(state.groups||[]).find(x=>x.id===gid);if(sid&&g)await api('set_my_membership',{group_id:gid,display_name:g.me,trip_id:sid});});return;}
-    const dm_=t.closest('[data-delmeet]');if(dm_){run(async()=>{const c=await client();await rest(c.from('meetups').delete().eq('id',dm_.dataset.delmeet));});return;}
+    const dm_=t.closest('[data-delmeet]');if(dm_){const id=dm_.dataset.delmeet;
+      if(armedMeet!==id||Date.now()-armedAt>=4000){armedMeet=id;armedAt=Date.now();draw();setTimeout(()=>{if(armedMeet===id&&Date.now()-armedAt>=4000){armedMeet='';draw();}},4050);return;}
+      armedMeet='';run(async()=>{const c=await client();await rest(c.from('meetups').delete().eq('id',id));});return;}
     const rq=t.closest('[data-req]');if(rq){run(()=>api('decide_join_request',{request_id:rq.dataset.req,approve:rq.dataset.ok==='1'}));return;}
     const cp=t.closest('[data-copy]');if(cp&&navigator.clipboard){navigator.clipboard.writeText(cp.dataset.copy).then(()=>{cp.textContent=T('common.link_copied');setTimeout(()=>{cp.textContent=T('group.copy');},2200);}).catch(()=>{});return;}
     const mm=t.closest('[data-mmenu]');if(mm){adm.menu=adm.menu===mm.dataset.mmenu?'':mm.dataset.mmenu;if(!adm.menu)adm.panel='';draw();return;}
     const pn=t.closest('[data-panel]');if(pn){adm.panel=adm.panel===pn.dataset.panel?'':pn.dataset.panel;draw();return;}
+    const pf=t.closest('[data-pickfor]');if(pf){const src=G.trips.find(x=>x.id===pf.dataset.trip);if(src){run(()=>api('set_member_trip',{group_id:gid,user_id:pf.dataset.pickfor,trip:copyTrip(src)}));adm={menu:'',panel:''};}return;}
+    const of=t.closest('[data-otherfor]');if(of){const m=G.members.find(x=>x.user_id===of.dataset.otherfor);if(m){const cur=G.trips.find(x=>x.id===m.trip_id);
+      forMember={gid,uid:m.user_id,name:m.display_name,trip:cur?copyTrip(cur):null};adm={menu:'',panel:''};location.hash='#trip';}return;}
     const mt=t.closest('[data-mtrip]');if(mt){adm.panel=adm.panel==='trip:'+mt.dataset.mtrip?'':'trip:'+mt.dataset.mtrip;draw();return;}
     const ro=t.closest('[data-role]');if(ro){run(()=>api('set_member_role',{group_id:gid,user_id:ro.dataset.uid,role:ro.dataset.role}));adm.menu='';return;}
     const rm=t.closest('[data-remove]');if(rm){if(!arm('rm'+rm.dataset.remove)){draw();return;}run(()=>api('remove_member',{group_id:gid,user_id:rm.dataset.remove}));adm.menu='';return;}
@@ -406,9 +428,7 @@ window.ACCOUNT=(function(){
   $('groupPage').addEventListener('submit',async e=>{const f=e.target,pg=$('groupPage');
     const done=async fn=>{e.preventDefault();clearErr(pg);const b=f.querySelector('[type=submit]');if(b)b.disabled=true;try{await fn();adm={menu:'',panel:''};await refresh();await reload();}catch(x){showErr(pg,x);if(b)b.disabled=false;}};
     if(f.matches('[data-nameform]'))return done(()=>api('update_group',{group_id:gid,name:f.n.value.trim(),starts_on:f.s.value||null,ends_on:f.e.value||null}));
-    if(f.matches('[data-mtripform]')){const ret=f.rd.value||null;
-      return done(()=>api('set_member_trip',{group_id:gid,user_id:f.dataset.mtripform,trip:{out_date:f.od.value,out_flight:f.of.value.trim().toUpperCase()||null,out_from:f.ofr.value,out_to:f.oto.value,out_departs:f.odp.value||null,
-        ret_date:ret,ret_from:ret?f.oto.value:null,ret_to:ret?f.ofr.value:null}}));}});
+});
   $('grCode').addEventListener('submit',e=>{e.preventDefault();let c=e.target.code.value.replace(/[\s-]/g,'');if(/^[a-z]{6}$/i.test(c))c=c.toUpperCase();if(c)location.hash='#join/'+encodeURIComponent(c);});
   $('grCreate').addEventListener('submit',async e=>{e.preventDefault();const f=e.target,pg=$('groupPage');clearErr(pg);
     const name=f.name.value.trim(),me=f.me.value.trim();if(!name){f.name.focus();return;}if(!me){f.me.focus();return;}
@@ -472,5 +492,5 @@ window.ACCOUNT=(function(){
   let started=false;
   function start(x){({MYTRIP,esc,MEET,renderTicket,countdown}=x);started=true;paint();refresh();}
   const ifStarted=f=>(...a)=>started?f(...a):undefined;
-  return {start,route:ifStarted(route),paint:ifStarted(paint),paintPass:ifStarted(paintPass),tripSaved:ifStarted(tripSaved),tripDeleted:ifStarted(tripDeleted),signedIn,state:()=>state,flightKey};
+  return {start,route:ifStarted(route),paint:ifStarted(paint),paintPass:ifStarted(paintPass),tripSaved:ifStarted(tripSaved),tripDeleted:ifStarted(tripDeleted),signedIn,state:()=>state,flightKey,tripFor:()=>forMember,saveTripFor,cancelTripFor,errText:e=>errText(e)};
 })();

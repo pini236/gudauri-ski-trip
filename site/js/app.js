@@ -1188,12 +1188,20 @@ const TRIPFORM=(()=>{
     if(sd){const n=Math.round((new Date(sd.to)-new Date(sd.from))/864e5)+1,sh=iso=>{const[,m,d]=iso.split('-');return +d+'.'+ +m;};
       b.innerHTML=`<span dir="ltr">${sh(sd.from)===sh(sd.to)?sh(sd.from):sh(sd.from).split('.')[0]+'–'+sh(sd.to)}</span> · ${esc(T('trip.ski_count',{n}))}`;}
     else b.textContent=T('trip.ski_unknown');};
-  const open=()=>{const t=MYTRIP.get(),o=t&&t.out||{},r=t&&t.ret||{};err.hidden=true;
+  // filled for a member by an admin (K-3, decision 62): the same form, "<name>'s flight", saved to the group as theirs
+  let fm=null;const head=f.querySelector('.tf-head h1'),lead=f.querySelector('.tf-lead'),cancel=f.querySelector('.tf-head a');
+  const fromRow=r=>r?{v:1,out:{date:r.out_date||'',flight:r.out_flight||'',from:r.out_from||'',to:r.out_to||'',departs:(r.out_departs||'').slice(0,5),arrives:(r.out_arrives||'').slice(0,5)},
+    ret:r.ret_date?{date:r.ret_date,flight:r.ret_flight||'',departs:(r.ret_departs||'').slice(0,5),arrives:(r.ret_arrives||'').slice(0,5)}:null,ski:null}:null;
+  cancel.addEventListener('click',e=>{if(fm&&window.ACCOUNT){e.preventDefault();location.hash=ACCOUNT.cancelTripFor()||'#home';}});
+  const open=()=>{fm=window.ACCOUNT&&ACCOUNT.tripFor?ACCOUNT.tripFor():null;
+    head.textContent=fm?T('group.trip_for',{name:fm.name}):T('trip.title');lead.textContent=T(fm?'group.trip_for_note':'trip.lead');
+    f.querySelector('.tf-ski').hidden=!!fm;
+    const t=fm?fromRow(fm.trip):MYTRIP.get(),o=t&&t.out||{},r=t&&t.ret||{};err.hidden=true;
     q('od').value=o.date||'';q('of').value=o.flight||'';q('odp').value=o.departs||'';q('oar').value=o.arrives||'';
     q('ofr').value=o.from||'TLV';q('oto').value=o.to||'TBS';
     q('rd').value=r.date||'';q('rf').value=r.flight||'';q('rdp').value=r.departs||'';q('rar').value=r.arrives||'';
     manual=!!(t&&t.ski);q('sf').value=manual?t.ski.from:'';q('sl').value=manual?t.ski.to:'';
-    const del=document.getElementById('tfDelete');del.hidden=!t;delArm=0;del.textContent=T('trip.delete');f.querySelectorAll('[aria-invalid]').forEach(e=>e.removeAttribute('aria-invalid'));paint();};
+    const del=document.getElementById('tfDelete');del.hidden=!t||!!fm;delArm=0;del.textContent=T('trip.delete');f.querySelectorAll('[aria-invalid]').forEach(e=>e.removeAttribute('aria-invalid'));paint();};
   const fail=(n,key)=>{err.textContent=T(key);err.hidden=false;if(n){q(n).setAttribute('aria-invalid','true');q(n).focus();}};
   f.addEventListener('input',e=>{if(e.target.name)e.target.removeAttribute('aria-invalid');paint();});
   f.addEventListener('change',paint);
@@ -1221,7 +1229,7 @@ const TRIPFORM=(()=>{
     const was=MYTRIP.get();MYTRIP.set(null);window.ACCOUNT&&ACCOUNT.tripDeleted(was&&was.sid);renderTicket();countdown(document.documentElement.dataset.theme==='dark');location.hash='#home';});
   f.addEventListener('submit',e=>{e.preventDefault();err.hidden=true;const t=read();
     if(!MYTRIP.ISO.test(t.out.date))return fail('od','trip.need_date');
-    const old=MYTRIP.get(),d0=today();
+    const old=fm?fromRow(fm.trip):MYTRIP.get(),d0=today();
     if(t.out.date<d0&&!(old&&old.out.date===t.out.date))return fail('od','trip.past_date');
     if(t.ret&&t.ret.date<d0&&!(old&&old.ret&&old.ret.date===t.ret.date))return fail('rd','trip.past_date');
     for(const n of ['ofr','oto'])if(!/^[A-Z]{3}$/.test(q(n).value))return fail(null,'trip.bad_code');
@@ -1229,6 +1237,7 @@ const TRIPFORM=(()=>{
     if(t.ski&&t.ski.to<t.ski.from)return fail('sl','trip.bad_order');
     if(t.ski&&t.ski.from<t.out.date)return fail('sf','trip.ski_outside');
     if(t.ski&&t.ret&&t.ski.to>t.ret.date)return fail('sl','trip.ski_outside');
+    if(fm){const b=f.querySelector('.tf-save');b.disabled=true;ACCOUNT.saveTripFor(t).catch(x=>{err.textContent=ACCOUNT.errText(x);err.hidden=false;}).finally(()=>{b.disabled=false;});return;}
     const was=MYTRIP.get();MYTRIP.set({v:1,...t,...(was&&was.sid?{sid:was.sid}:{})});window.ACCOUNT&&ACCOUNT.tripSaved();renderTicket();countdown(document.documentElement.dataset.theme==='dark');location.hash='#home';});
   return {open};})();
 // about and settings (#about): sound and vibration for the whole site and the games, and clearing the game records
