@@ -188,12 +188,6 @@ input{font:inherit;font-size:15px;color:var(--ink);background:var(--snow);border
 .app-how p{margin:0 0 6px}
 .board-group{background:var(--ink);color:var(--paper);width:84%;box-sizing:border-box}
 .board-group span{opacity:.85}
-.tally{margin-top:72px}
-.tally h2{margin:0 0 10px;font:400 13px var(--f-body);color:var(--muted)}
-.tally ul{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
-.tally li{display:flex;flex-direction:column;gap:4px;border-top:6px solid;padding-top:6px}
-.tally b{font-family:var(--f-display);font-size:38px;line-height:.9}
-.tally span{font-size:13px;color:var(--muted)}
 .crew{margin-top:48px}
 .crew h2{margin:0 0 10px;font:400 13px var(--f-body);color:var(--muted)}
 .crew ul{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:8px 10px}
@@ -202,7 +196,7 @@ input{font:inherit;font-size:15px;color:var(--ink);background:var(--snow);border
 @media (min-width:900px){
   .home-sky{height:380px}
   .home-inner{grid-template-columns:minmax(0,1fr) minmax(0,1fr);column-gap:64px;padding-top:30px}
-  .home-top,.tally,.crew{grid-column:1/-1}
+  .home-top,.crew{grid-column:1/-1}
   .ticket-wrap{margin-top:170px}
   .post{margin-top:260px;align-self:start}
 }
@@ -674,9 +668,9 @@ html[lang="ka"]{--f-display:"Noto Sans Georgian","Arial Narrow",sans-serif;--f-b
 html[lang="ka"] :is(.board b,.mhead h1,.tf-head h1,.ac-head h1,.gc-body b,.season>b,.mcard-empty b,.ac-card h2,.about h2,.tf-sec b){line-height:1.22}
 /* Georgian words are long: on a phone the page titles are smaller, so a word fits beside the link back and is not cut */
 @media (max-width:420px){html[lang="ka"] :is(.tf-head h1,.ac-head h1,.mhead h1){font-size:30px}}
-html[lang="ka"] :is(.tf-head h1,.tf-sec b,.ac-head h1,.ac-card h2,.ac-big,.ac-sec-box h2,.ac-tabs button,.ac-flight .fb b,.ac-meet .mt,.ac-invite b,.ac-board h3,.ac-who b,.ab-me .ab-pass-body b,.ab-me .ab-av,.ac-av,.tb-acct.me,.brand,.signs a,.tb-count b,.dn-clock b,.bp-code,.bp-big,.bp-mini,.board b,.tally b,.mhead h1,.north,.inset-head,#panel h2,#panel h3,.run-ref,.prof-read b,.mc-top b,.mcard-empty b,.meet-side h2,.meet-times button,.mp-sign span,.mc-head span:first-child,.mc-sign,.mc-time,.mc-stub b,.rt-run,.mstat b,.ls-face b,.bd-row span:first-child,.games-sign,.gc-body b,.about h2,.ab-pass-body b,.fh-name){font-stretch:62.5%;font-weight:800}
+html[lang="ka"] :is(.tf-head h1,.tf-sec b,.ac-head h1,.ac-card h2,.ac-big,.ac-sec-box h2,.ac-tabs button,.ac-flight .fb b,.ac-meet .mt,.ac-invite b,.ac-board h3,.ac-who b,.ab-me .ab-pass-body b,.ab-me .ab-av,.ac-av,.tb-acct.me,.brand,.signs a,.tb-count b,.dn-clock b,.bp-code,.bp-big,.bp-mini,.board b,.mhead h1,.north,.inset-head,#panel h2,#panel h3,.run-ref,.prof-read b,.mc-top b,.mcard-empty b,.meet-side h2,.meet-times button,.mp-sign span,.mc-head span:first-child,.mc-sign,.mc-time,.mc-stub b,.rt-run,.mstat b,.ls-face b,.bd-row span:first-child,.games-sign,.gc-body b,.about h2,.ab-pass-body b,.fh-name){font-stretch:62.5%;font-weight:800}
 /* Oswald is wider than Karantina: titles a little smaller, so the signs keep their size */
-html[lang="ru"] :is(.brand,.signs a,.tb-count b,.dn-clock b,.bp-code,.bp-big,.bp-mini,.board b,.tally b,.mhead h1,.north,.inset-head,#panel h2,#panel h3,.run-ref,.prof-read b,.mc-top b,.mcard-empty b,.meet-side h2,.meet-times button,.mp-sign span,.mc-head span:first-child,.mc-sign,.mc-time,.mc-stub b,.rt-run,.mstat b,.ls-face b,.bd-row span:first-child,.games-sign,.gc-body b,.about h2,.ab-pass-body b,.fh-name){font-weight:600;letter-spacing:-.01em}
+html[lang="ru"] :is(.brand,.signs a,.tb-count b,.dn-clock b,.bp-code,.bp-big,.bp-mini,.board b,.mhead h1,.north,.inset-head,#panel h2,#panel h3,.run-ref,.prof-read b,.mc-top b,.mcard-empty b,.meet-side h2,.meet-times button,.mp-sign span,.mc-head span:first-child,.mc-sign,.mc-time,.mc-stub b,.rt-run,.mstat b,.ls-face b,.bd-row span:first-child,.games-sign,.gc-body b,.about h2,.ab-pass-body b,.fh-name){font-weight:600;letter-spacing:-.01em}
 /* Longer words than Hebrew on the boarding pass: one line each, and cut with an ellipsis rather than overlap */
 [dir="ltr"] .bp-strip>span:first-child{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 [dir="ltr"] .bp-grid>span{min-width:0}
@@ -1118,3 +1112,12 @@ html[lang="ka"] .pv-doc h1{font-size:36px;overflow-wrap:anywhere}
 .ac-inv-link button{flex:none;min-width:44px;min-height:44px;display:grid;place-items:center;border:0;background:none;color:var(--glacier);font:inherit;font-size:12.5px;font-weight:700;cursor:pointer}
 .ac-inv-btns{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .ac-inv-btns .ac-btn{justify-content:center}
+
+/* round 20: the board on the home page is a lift-status widget, greyed out with "no report" until there is one */
+.season{display:flex;flex-direction:column;gap:10px}
+.season[data-state="off"]{opacity:.62;filter:grayscale(1)}
+.sb-h{display:flex;align-items:center;gap:8px}.sb-h em{float:none;font-style:normal;font-weight:700;font-size:15px;color:var(--ink)}
+.sb-dots{display:flex;gap:6px;flex-wrap:wrap;direction:ltr}.sb-dots i{flex:none;width:16px;height:16px;border-radius:50%;border:2px dashed var(--muted)}
+.sb-dots i.on{border:2px solid var(--p-green);background:var(--p-green)}
+.sb-f{display:flex;align-items:baseline;gap:10px}.sb-f b{font-family:var(--f-display);font-size:30px;line-height:1}.sb-f small{font-size:13px;color:var(--muted)}
+.season[data-state="live"] .sb-h em{color:var(--ink)}

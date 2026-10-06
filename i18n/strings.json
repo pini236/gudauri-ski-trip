@@ -15842,6 +15842,18 @@
     "ru",
     "ka"
    ]
+  },
+  "home.lifts_no_report": {
+   "where": "site/index.html, site/js/app.js",
+   "note": "Lift-status widget on the home page with no fresh report (round 20)",
+   "check": [
+    "ru",
+    "ka"
+   ],
+   "he": "אין דיווח",
+   "en": "No report",
+   "ru": "Нет данных",
+   "ka": "ინფორმაცია არ არის"
   }
  }
 }

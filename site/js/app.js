@@ -928,17 +928,15 @@ const LSTAT=(function(){
   // the season board on the home page (while there is no trip of your own): S3's snowy sign with no report, which in
   // season says there is no current information rather than that the mountain sleeps; with a fresh report the snow is
   // gone and it says how many lifts are open, in S1's words (as in the app, 13.4)
+  // the board on the home page (while there is no trip of your own; round 20): a lift-status widget, one dot per lift,
+  // switched off with "no report" until a fresh one, then the open lifts filled in and when it was updated (S1)
   function applyHome(){
     const el=document.getElementById('seasonBoard');if(!el)return;
-    const em=el.querySelector(':scope>em'),b=el.querySelector(':scope>b'),sp=el.querySelector(':scope>span');
-    if(fresh()){const open=names.filter(n=>isOpen(n)).length;el.dataset.state='live';
-      b.innerHTML=`<span class="ms-dot" aria-hidden="true"></span>${E('status.heading_lift_status')}`;
-      // the line breaks at the dot, between how many are open and when it was updated, as on the map
-      const parts=H('status.bar_summary',{ago:ago(data.updated)},{open:`<b class="num">${open}</b>`,total:`<b class="num">${names.length}</b>`}).split(' · ');
-      sp.innerHTML=parts.map(x=>`<span class="ms-part">${x}</span>`).join(' · ');return;}
-    const s=inSeason();el.dataset.state=s?'season':'off';
-    em.textContent=T('status.heading_lift_status');b.textContent=T(s?'status.no_recent_data':'status.mountain_asleep');
-    sp.textContent=T(s?'status.lead_in_season':'status.lead_off_season');
+    const f=fresh(),open=f?names.filter(n=>isOpen(n)).length:0;el.dataset.state=f?'live':'off';
+    el.querySelector('.sb-dots').innerHTML=names.map(n=>`<i${f&&isOpen(n)?' class="on"':''}></i>`).join('');
+    el.querySelector('.sb-f b').textContent=open+'/'+names.length;
+    el.querySelector('.sb-f small').textContent=f?ago(data.updated):T('home.lifts_no_report');
+    el.setAttribute('aria-label',T('status.heading_lift_status')+': '+(f?T('status.bar_summary',{open,total:names.length,ago:ago(data.updated)}):T('home.lifts_no_report')));
   }
   applyHome();
   panel.addEventListener('click',e=>{const b=e.target.closest('[data-forme]');if(!b)return;forMe=!forMe;b.setAttribute('aria-pressed',String(forMe));applyMap();track('status_only_open',{on:forMe});});
@@ -1121,7 +1119,7 @@ const fmtDate=iso=>{const[y,m,d]=iso.split('-');return +d+'.'+ +m+'.'+y;};
 function renderTicket(){
   const t=MYTRIP.get(),stack=document.getElementById('bpStack');
   stack.hidden=!t;document.getElementById('bpHint').hidden=!t;
-  ['bpEmpty','tripNote','seasonBoard'].forEach(id=>{document.getElementById(id).hidden=!!t;});
+  ['bpEmpty','seasonBoard'].forEach(id=>{document.getElementById(id).hidden=!!t;});
   if(typeof WX!=='undefined'&&WX)WX.home();
   if(!t)return;
   const short=iso=>{const[,m,d]=iso.split('-');return +d+'.'+ +m;};

@@ -98,7 +98,7 @@ test('אורח: האתר לא פונה לשרת, ושלט הקבוצה מזמי�
   await page.goto('/');
   await loaded(page);
   await expect(page.locator('#groupBoard')).toBeVisible();
-  await expect(page.locator('#groupBoardSub')).toHaveText('יצירת קבוצה, או הצטרפות בקוד');
+  await expect(page.locator('#groupBoardSub')).toBeHidden();
   await page.goto('/#signin');
   await expect(page.locator('#signinPage')).toBeVisible();
   // Google's own button (Google Identity Services, faked here), and Apple waits for its account
@@ -166,7 +166,7 @@ test('הצטרפות בקוד: אורח, הטיסה שלי בקבוצה, החש�
   await expect(page.locator('#delBtns')).toContainText('החשבון נמחק.');
   expect(server.calls).toContain('POST /functions/v1/api/delete_my_account');
   await page.goto('/#home');
-  await expect(page.locator('#groupBoardSub')).toHaveText('יצירת קבוצה, או הצטרפות בקוד');
+  await expect(page.locator('#groupBoardSub')).toBeHidden();
   // what is in this browser stays: the trip
   await expect(page.locator('#bpStack')).toBeVisible();
   const wide = await page.evaluate(() => document.documentElement.scrollWidth - innerWidth);

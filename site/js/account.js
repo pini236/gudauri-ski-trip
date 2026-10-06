@@ -86,7 +86,8 @@ window.ACCOUNT=(function(){
   // ---- the home page, the pass and the settings
   function paint(){
     const g=signedIn()&&state.groups&&state.groups[0];
-    const sub=$('groupBoardSub');if(sub)sub.textContent=g?`${g.name} · ${T('group.members_n',{n:g.count})}`:T('home.board_group_sub');
+    // the sign has no line under it (round 20), except the group's name and size once in a group
+    const sub=$('groupBoardSub');if(sub){sub.hidden=!g;sub.textContent=g?`${g.name} · ${T('group.members_n',{n:g.count})}`:'';}
     paintPass();paintTop();paintAbout();
     if(window.MEET_GROUP)window.MEET_GROUP();}
   function paintPass(){

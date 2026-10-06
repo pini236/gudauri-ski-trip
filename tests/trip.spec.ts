@@ -22,7 +22,10 @@ test('אורח: כרטיס ריק, מצב העונה, ובלי הכרטיס וה
   await expect(page.locator('#bpEmpty')).toBeVisible();
   await expect(page.locator('#bpStack')).toBeHidden();
   await expect(page.locator('#seasonBoard')).toBeVisible();
-  await expect(page.locator('#tripNote')).toBeVisible();
+  // round 20: no lock line, no tally, signs without a line under them
+  await expect(page.locator('#tripNote')).toHaveCount(0);
+  await expect(page.locator('section.tally')).toHaveCount(0);
+  await expect(page.locator('.board:visible > span:visible')).toHaveCount(0);
   await expect(page.locator('#tbCount')).toBeHidden();
   await expect(page.locator('body')).not.toContainText('שרוליק');
   await expect(page.locator('.crew')).toHaveCount(0);
@@ -33,31 +36,29 @@ test('אורח: כרטיס ריק, מצב העונה, ובלי הכרטיס וה
   expect(errors).toEqual([]);
 });
 
-test('לוח העונה: ההר ישן עד דצמבר, בעונה בלי דיווח "אין מידע עדכני", ועם דיווח עדכני כמה רכבלים פתוחים, בלי שלג', async ({ page }) => {
+test('מצב הרכבלים בדף הבית (סבב 20): כבוי עם "אין דיווח" בלי דיווח, ועם דיווח עדכני הרכבלים הפתוחים מתמלאים', async ({ page }) => {
   const errors = watchErrors(page);
   const board = page.locator('#seasonBoard');
-  await page.clock.setFixedTime(new Date('2026-10-20T09:00:00Z'));
-  await page.goto('/');
-  await loaded(page);
-  await expect(board).toHaveAttribute('data-state', 'off');
-  await expect(board).toContainText('ההר עוד ישן');
-  await expect(board.locator('.snowcap')).toBeVisible();
-  // in January, during the trip, with no report from the lift status function
-  await page.clock.setFixedTime(new Date('2027-01-12T09:00:00Z'));
-  await page.reload();
-  await loaded(page);
-  await expect(board).toHaveAttribute('data-state', 'season');
-  await expect(board).toContainText('אין מידע עדכני');
-  await expect(board).not.toContainText('ההר עוד ישן');
-  await expect(board.locator('.snowcap')).toBeVisible();
-  // a fresh report: the snow is gone and it says how many lifts are open
+  for (const t of ['2026-10-20T09:00:00Z', '2027-01-12T09:00:00Z']) {
+    await page.clock.setFixedTime(new Date(t));
+    await page.goto('/');
+    await loaded(page);
+    await expect(board).toHaveAttribute('data-state', 'off');
+    await expect(board).toContainText('מצב הרכבלים');
+    await expect(board).toContainText('אין דיווח');
+    await expect(board.locator('.sb-f b')).toHaveText(/^0\/\d+$/);
+    await expect(board.locator('.sb-dots i.on')).toHaveCount(0);
+    expect(await board.locator('.sb-dots i').count()).toBeGreaterThan(5);
+  }
+  // a fresh report: the open lifts fill in, and the snow is gone
   await page.route('**/api/status', r => r.fulfill({ contentType: 'application/json', body: JSON.stringify({
     updated: '2027-01-12T08:55:00Z', lifts: { Goodaura: { open: true }, Kudebi: { open: false, reason: 'wind' }, Sadzele: { open: true } }, pistes: {} }) }));
   await page.reload();
   await loaded(page);
   await expect(board).toHaveAttribute('data-state', 'live');
-  await expect(board).toContainText('מצב הרכבלים');
-  await expect(board).toContainText(/2\s*מתוך\s*\d+\s*רכבלים פתוחים/);
+  await expect(board.locator('.sb-f b')).toHaveText(/^2\/\d+$/);
+  await expect(board.locator('.sb-dots i.on')).toHaveCount(2);
+  await expect(board).not.toContainText('אין דיווח');
   await expect(board.locator('.snowcap')).toBeHidden();
   expect(errors).toEqual([]);
 });
