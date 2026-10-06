@@ -5,10 +5,6 @@ await I18N.ready; // the words of the chosen language (js/i18n.js); everything b
 const RS=await RESORT.ready,has=f=>RESORT.has(f),DIR=RS.dir;
 GudRelief.site={lat:RS.proj.lat0,lon:RS.proj.lon0,tz:RESORT.tzOffset()};
 document.querySelectorAll('[data-feature]').forEach(el=>{if(!el.dataset.feature.split(' ').every(has))el.hidden=true;});
-if(!RESORT.isDefault()){const n='resort.'+RS.id+'.';
-  document.querySelectorAll('[data-i18n="nav.gudauri_time"]').forEach(e=>{e.textContent=T(n+'time');});
-  const h1=document.querySelector('.home-top .loc'),w=document.querySelector('.home-top .when');if(h1)h1.textContent=T(n+'location');if(w)w.hidden=true;
-  document.getElementById('map').setAttribute('aria-label',T(n+'map_aria'));}
 const soft=(url,fallback)=>fetch(url).then(r=>r.ok?r.json():fallback).catch(()=>fallback);
 // the elevation model (terrain.json, the biggest file) does not hold up the home page (R-11): it loads alongside, and the
 // map, the meeting point and the 3D view are set up when it arrives (onTerrain below); a link to them waits for it
@@ -39,6 +35,62 @@ if(I18N.lang!=='he'){
   document.querySelectorAll('.bp-gone').forEach(el=>{el.innerHTML=E('ticket.torn')+'<br>'+E('ticket.see_you');});
 }
 const byKey=Object.fromEntries(D.pistes.map(p=>[p.key,p]));
+// ---- several resorts (round 23, decision 68) ----
+// a resort's name is the one used there, in its own letters (Sölden); Gudauri keeps its words in every language
+const rsName=r=>r.id==='gudauri'?T('map.place_gudauri'):r.name;
+const rsCountry=r=>T('resort.country_'+r.country.toLowerCase());
+if(!RESORT.isDefault()){ // the words that name Gudauri, for another resort
+  document.querySelectorAll('[data-i18n="nav.gudauri_time"]').forEach(e=>{e.innerHTML=esc(T('nav.resort_time',{place:'\uE000'})).replace('\uE000',`<bdi>${esc(RS.name)}</bdi>`);});
+  const w=document.querySelector('.home-top .when');if(w)w.hidden=true;
+  document.getElementById('map').setAttribute('aria-label',T('map.map_aria_resort',{place:RS.name}));
+  document.querySelector('.topbar .brand').textContent=RS.name;
+  // the resort's pass on the home page, in place of the trip's ticket: every number counted from its data (tools/build-resort.py)
+  const st=RS.stats||{},pass=document.getElementById('resortPass');
+  if(pass&&st.runs){const lo=num(st.alt[0].toLocaleString('en-US')),hi=num(st.alt[1].toLocaleString('en-US')),bc=st.byColor||{};
+    pass.setAttribute('aria-label',T('resort.pass_aria',{place:RS.name,runs:st.runs,lifts:st.lifts,lo:st.alt[0],hi:st.alt[1]}));
+    pass.innerHTML=`<div class="top"><span dir="ltr">${E('resort.pass_top',{place:RS.name.toUpperCase()})}</span><span>${esc(rsCountry(RS))}</span></div>
+      <div class="body"><div class="nm"><b dir="ltr">${esc(RS.name)}</b>${RS.region?`<span dir="ltr">${esc(RS.region)}</span>`:''}</div>
+      <div class="kv"><div><small>${E('resort.pass_runs')}</small><b class="num">${st.runs}</b></div><div><small>${E('resort.pass_lifts')}</small><b class="num">${st.lifts}</b></div><div><small>${E('resort.pass_alt')}</small><b>${lo}–${hi}</b></div></div>
+      <div class="chips" aria-hidden="true">${['green','blue','red','black'].filter(c=>bc[c]).map(c=>`<i style="background:var(--p-${c});flex:${bc[c]}"></i>`).join('')}</div></div>`;
+    pass.hidden=has('trip');}
+}
+// the picker: the place name is the button (the site's name in the top bar on a computer, the home page's place and the
+// map's title on a phone); a sheet from below on a phone, a list under the name on a computer; choosing loads the page again
+const PICKER=(function(){
+  if(RESORT.list.length<2)return null;
+  const chev='<svg class="rs-chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>';
+  const tick='<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg>';
+  const phone=matchMedia('(max-width:760px)');
+  let box=null,scrim=null,from=null;
+  const list=()=>`<div class="rs-list" role="list" aria-label="${E('resort.list_aria')}">${RESORT.list.map(r=>{const on=r.id===RS.id,st=r.stats||{};
+    return `<button type="button" role="listitem" class="rs-res ${on?'on':'off'}" data-resort="${esc(r.id)}"${on?' aria-current="true"':''}><span class="t"><b dir="auto">${esc(rsName(r))}</b><span>${esc([rsCountry(r),st.runs&&T('resort.runs_n',{n:st.runs}),st.lifts&&T('resort.lifts_n',{n:st.lifts})].filter(Boolean).join(' · '))}</span></span>${on?`<span class="ck">${tick}</span>`:''}</button>`;}).join('')}</div>`;
+  function close(){if(!box)return;box.remove();if(scrim)scrim.remove();box=scrim=null;removeEventListener('keydown',key);if(from)from.setAttribute('aria-expanded','false'),from.focus();}
+  function key(e){if(e.key==='Escape')close();}
+  function open(btn){
+    if(box)return close();from=btn;btn.setAttribute('aria-expanded','true');
+    box=document.createElement('div');box.setAttribute('role','dialog');box.setAttribute('aria-label',T('resort.list_aria'));
+    if(phone.matches){scrim=document.createElement('div');scrim.className='rs-scrim';scrim.onclick=close;document.body.append(scrim);box.className='rs-sheet';box.innerHTML='<div class="grab"></div>'+list();}
+    else{box.className='rs-pop';box.innerHTML=list();const r=btn.getBoundingClientRect();
+      if(document.dir==='rtl')box.style.right=Math.max(12,innerWidth-r.right)+'px';else box.style.left=Math.max(12,r.left)+'px';box.style.top=(r.bottom+6)+'px';
+      setTimeout(()=>addEventListener('click',function out(e){if(box&&!box.contains(e.target)&&e.target.closest('.rs-btn')!==from){close();}if(!box)removeEventListener('click',out);}),0);}
+    document.body.append(box);addEventListener('keydown',key);
+    box.addEventListener('click',e=>{const b=e.target.closest('[data-resort]');if(!b)return;const id=b.dataset.resort;
+      if(id===RS.id)return close();track('resort_set',{resort:id,from:RS.id});RESORT.go(id);});
+    (box.querySelector('.rs-res.on')||box.querySelector('button')).focus();
+  }
+  // turn a heading's text into the button (a computer: the home page's place stays plain text, one picker on the screen)
+  function asButton(node,text,cls){if(!node)return;const b=document.createElement('button');b.type='button';b.className='rs-btn'+(cls?' '+cls:'');
+    b.setAttribute('aria-haspopup','dialog');b.setAttribute('aria-expanded','false');b.setAttribute('aria-label',T('resort.picker_aria',{place:text}));
+    b.innerHTML=`<span>${esc(text)}</span>${chev}`;b.onclick=()=>open(b);node.textContent='';node.append(b);return b;}
+  const brand=document.querySelector('.topbar .brand');
+  if(brand){const b=document.createElement('button');b.type='button';b.className='brand rs-btn';b.setAttribute('aria-haspopup','dialog');b.setAttribute('aria-expanded','false');
+    b.setAttribute('aria-label',T('resort.picker_aria',{place:brand.textContent}));b.innerHTML=`<span>${esc(brand.textContent)}</span>${chev}`;b.onclick=()=>open(b);brand.replaceWith(b);}
+  const place=RESORT.isDefault()?T('home.location'):T('resort.location',{place:RS.name,country:rsCountry(RS)});
+  const loc=document.querySelector('.home-top .loc');
+  const homeTitle=()=>{if(phone.matches)asButton(loc,place);else if(loc)loc.textContent=place;};homeTitle();phone.addEventListener('change',homeTitle);
+  asButton(document.querySelector('#mapPage .mhead h1'),rsName(RS));
+  return {open,close};
+})();
 const reduceMotion=()=>matchMedia('(prefers-reduced-motion: reduce)').matches;
 // Kobi side = everything north of Kobi Pass (the top of Firni). Shown in its own inset.
 const KOBI_LAT=has('kobi')?42.5115:Infinity; // only Gudauri has a side of its own
@@ -119,6 +171,30 @@ let TM=null,terrainDone=false; // null until the model arrives, and for good if 
 const terrainReady=terrainP.then(t=>{TM=t&&window.GudRelief?GudRelief.load(t):null;try{onTerrain();}catch(e){console.error(e);}terrainDone=true;document.documentElement.dataset.model=TM?'ready':'none';});
 
 const pisteEls={},labels=[],stations=[];
+// number plates (round 23): a run whose name is a piste number, as at most Alpine resorts ("30", "7a")
+const isPlate=p=>/^\d{1,2}[a-z]?$/.test(p.key);
+const lineLen=L=>{let d=0;for(let i=1;i<L.length;i++)d+=Math.hypot(L[i][0]-L[i-1][0],L[i][1]-L[i-1][1]);return d;};
+const along=(L,step)=>{const o=[L[0]];let acc=0;for(let i=1;i<L.length;i++){const a=L[i-1],b=L[i],l=Math.hypot(b[0]-a[0],b[1]-a[1]);
+  for(let d=step-acc;d<l;d+=step)o.push([a[0]+(b[0]-a[0])*d/l,a[1]+(b[1]-a[1])*d/l]);acc=(acc+l)%step;}return o;};
+// the places a plate may sit: every 25 m along the run's longest line, from the middle outwards, never at its ends
+const plateSpots=L=>{const q=along(L,25),n=q.length,o=[];for(let s=0;s<n;s++){const i=Math.round(n/2+(s%2?1:-1)*Math.ceil(s/2));if(i>n*.1&&i<n*.9)o.push(q[i]);}return o;};
+// every run's line, sampled every 15 m, in 100 m cells: a plate never sits where another run passes
+const LINEIX=(()=>{const ix=new Map();D.pistes.forEach(p=>p.segs.forEach(s=>{if(s.area)return;along(s.g.map(P),15).forEach(([x,y])=>{const k=Math.floor(x/100)+','+Math.floor(y/100);
+  if(!ix.has(k))ix.set(k,[]);ix.get(k).push([x,y,p.key]);});}));return ix;})();
+function placePlate(t,u,kept,view){
+  const W=t._plate.w*u,H=20*u,m=3*u;
+  for(const [x,y] of t._plate.cand){
+    const r={a:x-W/2-m,b:y-H/2-m,c:x+W/2+m,d:y+H/2+m};
+    if(view&&(r.a<view.x+6*u||r.c>view.x+view.w-6*u||r.b<view.y+52*u||r.d>view.y+view.h-6*u))continue;
+    if(kept.some(k=>r.a<k.c&&r.c>k.a&&r.b<k.d&&r.d>k.b))continue;
+    let hit=false;
+    for(let cx=Math.floor(r.a/100);cx<=Math.floor(r.c/100)&&!hit;cx++)for(let cy=Math.floor(r.b/100);cy<=Math.floor(r.d/100)&&!hit;cy++)
+      for(const q of LINEIX.get(cx+','+cy)||[])if(q[2]!==t._plate.own&&q[0]>r.a&&q[0]<r.c&&q[1]>r.b&&q[1]<r.d){hit=true;break;}
+    if(hit)continue;
+    t.setAttribute('transform',`translate(${x.toFixed(1)} ${y.toFixed(1)}) scale(${u})`);return r;
+  }
+  return null;
+}
 const vs={'vector-effect':'non-scaling-stroke',fill:'none','stroke-linecap':'round','stroke-linejoin':'round'};
 function draw(root,pistes,lifts,store){
   const gAreas=mk('g',{},root),gP=mk('g',{},root),gL=mk('g',{},root),gLbl=mk('g',{},root),gHitL=mk('g',{},root),gHit=mk('g',{},root); // run hit-areas sit above lift hit-areas
@@ -132,7 +208,13 @@ function draw(root,pistes,lifts,store){
       mk('path',{d,...vs,stroke:`var(--p-${p.color})`,'stroke-width':p.named?(p.kind==='ski-way'?2.6:3.4):2,...(p.named?(p.kind==='ski-way'?{'stroke-dasharray':'8 5'}:{}):{'stroke-dasharray':'5 4'})},g);
       mk('path',{d,class:'hit','stroke-width':16,'vector-effect':'non-scaling-stroke','data-key':p.key,'stroke-linecap':'round'},gHit);
     });
-    if(p.named){
+    if(p.named&&isPlate(p)){ // a number: a plate in the run's colour, placed by layoutLabels where no other run passes (round 23)
+      const lin=p.segs.filter(s=>!s.area).map(s=>s.g.map(P)).sort((a,b)=>lineLen(b)-lineLen(a))[0];
+      if(lin){const t=mk('g',{class:'lbl plate pg '+p.color,'data-key':p.key},gLbl),w=p.key.length>1?30:22;
+        mk('rect',{x:-w/2,y:-10,width:w,height:20,fill:`var(--p-${p.color})`,'stroke-width':1.6},t);
+        const tx=mk('text',{x:0,y:1,'text-anchor':'middle','dominant-baseline':'central','font-size':17},t);tx.textContent=p.key;
+        t._plate={w,own:p.key,cand:plateSpots(lin)};store.labels.push(t);pisteEls[p.key].push(t);}
+    }else if(p.named){
       const lin=p.segs.filter(s=>!s.area).sort((a,b)=>b.g.length-a.g.length)[0];
       if(lin){const q=P(lin.g[Math.floor(lin.g.length/2)]);
         const t=mk('text',{x:q[0],y:q[1],class:'lbl pg '+p.color,fill:`var(--p-${p.color})`,'text-anchor':'middle','data-key':p.key},gLbl);t.textContent=dispName(p);store.labels.push(t);pisteEls[p.key].push(t);}
@@ -162,13 +244,15 @@ addRelief(svg,mainLbl,{labels,marks},true);
 if(has('kobi')){const[x,y]=P(PASS);const t=mk('text',{x,y,class:'lbl kobi-link','text-anchor':'middle','data-kobi':'1',role:'button',tabindex:'0','aria-label':T('map.kobi_side_aria')},mainLbl);t.textContent=T('map.kobi_side_label');labels.unshift(t);
   t.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();openInset();}});} // the keyboard reaches it too
 
-function layoutLabels(labels,stations,u,mks){
-  labels.forEach(t=>{const pk=t.classList.contains('peak');t.setAttribute('font-size',(t.classList.contains('lift')?11.5:pk?12:13)*u);t.setAttribute('stroke-width',3.2*u);t.setAttribute('dy',(pk?-11:-6)*u);});
+function layoutLabels(labels,stations,u,mks,view){
+  labels.forEach(t=>{if(t._plate)return;const pk=t.classList.contains('peak');t.setAttribute('font-size',(t.classList.contains('lift')?11.5:pk?12:13)*u);t.setAttribute('stroke-width',3.2*u);t.setAttribute('dy',(pk?-11:-6)*u);});
   labels=[...labels].sort((a,b)=>b.classList.contains('on')-a.classList.contains('on'));
   (mks||[]).forEach(m=>{const x=m._x,y=m._y;m.setAttribute('d',m._pass?`M${x-6*u} ${y+2*u}Q${x} ${y-5*u} ${x+6*u} ${y+2*u}`:`M${x} ${y-8*u}L${x+5.5*u} ${y+1.5*u}L${x-5.5*u} ${y+1.5*u}Z`);m.setAttribute('stroke-width',(m._pass?2.2:1.2)*u);});
   stations.forEach(c=>c.setAttribute('r',3.2*u));
   const kept=[];const pad=2*u;
-  labels.forEach(t=>{t.style.display='';const bb=t.getBBox();const r={a:bb.x-pad,b:bb.y-pad,c:bb.x+bb.width+pad,d:bb.y+bb.height+pad};
+  labels.forEach(t=>{t.style.display='';
+    if(t._plate){const r=placePlate(t,u,kept,view);if(r)kept.push(r);else t.style.display='none';return;}
+    const bb=t.getBBox();const r={a:bb.x-pad,b:bb.y-pad,c:bb.x+bb.width+pad,d:bb.y+bb.height+pad};
     if(kept.some(k=>r.a<k.c&&r.c>k.a&&r.b<k.d&&r.d>k.b)){t.style.display='none';}else kept.push(r);});
 }
 
@@ -179,7 +263,7 @@ function apply(){
   const[cw,ch]=sz();vb.h=vb.w*ch/cw;
   svg.setAttribute('viewBox',`${vb.x} ${vb.y} ${vb.w} ${vb.h}`);
   const u=vb.w/cw; // meters per px
-  layoutLabels(labels,stations,u,marks);svg.classList.toggle('far',u>9);svg.querySelectorAll('.chair').forEach(c=>c.setAttribute('r',3.6*u));runMark.setAttribute('r',7*u);if(typeof meDot!=='undefined')meDot.setAttribute('r',8*u);if(typeof WX!=='undefined'&&WX)WX.layout();
+  layoutLabels(labels,stations,u,marks,vb);svg.classList.toggle('far',u>9);svg.querySelectorAll('.chair').forEach(c=>c.setAttribute('r',3.6*u));runMark.setAttribute('r',7*u);if(typeof meDot!=='undefined')meDot.setAttribute('r',8*u);if(typeof WX!=='undefined'&&WX)WX.layout();
   const nice=[50,100,200,250,500,1000,2000];let m=nice.find(n=>n/u>=70)||2000;
   const sc=document.getElementById('scale');sc.querySelector('i').style.width=(m/u)+'px';sc.querySelector('span').textContent=m>=1000?m/1000+' km':m+' m';
 }
@@ -361,7 +445,7 @@ function renderPiste(key){
     return;}
   const c=p.color,label=p.named?(p.key==='Firni ?'?'Firni':p.key):'';
   panel.innerHTML=`<button class="back" data-back>${E('map.back_all_runs')}</button>
-  <div class="run-sign"><h2 class="c-${c}">${esc(dispName(p))}</h2>${p.refs.length?`<span class="run-ref num" title="${E('run.ref_title')}">${esc(p.refs[0])}</span>`:''}</div>
+  <div class="run-sign"><h2 class="c-${c}">${esc(dispName(p))}</h2>${p.refs.length&&p.refs[0]!==p.key?`<span class="run-ref num" title="${E('run.ref_title')}">${esc(p.refs[0])}</span>`:''}</div>
   ${runNav(key)}
   <dl class="kv">
     <dt>${E('common.length_label')}</dt><dd class="num">${esc(fmtLen(p.len))}</dd>

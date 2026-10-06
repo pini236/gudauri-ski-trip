@@ -15711,66 +15711,6 @@
     "ka"
    ]
   },
-  "resort.gudauri.name": {
-   "he": "גודאורי",
-   "en": "Gudauri",
-   "ru": "Гудаури",
-   "ka": "გუდაური",
-   "where": "site/js/app.js",
-   "note": "resort name (decision 68)",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "resort.soelden.name": {
-   "he": "זלדן",
-   "en": "Sölden",
-   "ru": "Зёльден",
-   "ka": "ზელდენი",
-   "where": "site/js/app.js",
-   "note": "resort name (decision 68)",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "resort.soelden.location": {
-   "he": "זלדן, אוסטריה",
-   "en": "Sölden, Austria",
-   "ru": "Зёльден, Австрия",
-   "ka": "ზელდენი, ავსტრია",
-   "where": "site/js/app.js",
-   "note": "home page heading, like home.location",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "resort.soelden.time": {
-   "he": "השעה בזלדן",
-   "en": "Time in Sölden",
-   "ru": "Время в Зёльдене",
-   "ka": "დრო ზელდენში",
-   "where": "site/js/app.js",
-   "note": "label before the clock, like nav.gudauri_time",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "resort.soelden.map_aria": {
-   "he": "מפת מסלולים ורכבלים בזלדן",
-   "en": "Map of runs and lifts in Sölden",
-   "ru": "Карта трасс и подъёмников Зёльдена",
-   "ka": "ზელდენის ტრასებისა და საბაგიროების რუკა",
-   "where": "site/js/app.js",
-   "note": "like map.map_aria",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
   "map.overview_lead_resort": {
    "he": "לחצו על מסלול במפה או ברשימה לפרטים. קו מקווקו דק הוא קטע בלי שם בנתונים.",
    "en": "Tap a run on the map or in the list for details. A thin dashed line is an unnamed section in the data.",
@@ -15790,6 +15730,204 @@
    "ka": "ხაზები: OpenStreetMap, OpenSkiMap-ის მეშვეობით, ჩამოტვირთულია {fetched}, როგორც არის, შევსების გარეშე. ფერები ღია რუკის სირთულის მიხედვითაა (მარტივი ლურჯი, საშუალო წითელი, რთული შავი) და ზელდენის ოფიციალურ რუკასთან ჯერ არ შემოწმებულა. ჰორიზონტალური სიგრძეები კოორდინატებიდანაა. რელიეფი და სიმაღლეები: © offene Daten Österreichs – Digitales Geländemodell (DGM) Österreich (CC BY 3.0 AT), AWS-ის სიმაღლის ფილების მეშვეობით. სოფლები, გზები, წყალი და მწვერვალები: OSM. © OpenStreetMap contributors, ODbL.",
    "where": "site/js/app.js",
    "note": "like map.overview_source_text, the sources of this resort",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "nav.resort_time": {
+   "he": "השעה ב-{place}",
+   "en": "Time in {place}",
+   "ru": "Время: {place}",
+   "ka": "დრო: {place}",
+   "where": "site/js/app.js",
+   "note": "label before the clock at a resort other than Gudauri; {place} is the resort name in its own letters (round 23)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "resort.location": {
+   "he": "{place}, {country}",
+   "en": "{place}, {country}",
+   "ru": "{place}, {country}",
+   "ka": "{place}, {country}",
+   "where": "site/js/app.js",
+   "note": "home page heading of a resort, like home.location",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "map.map_aria_resort": {
+   "he": "מפת מסלולים ורכבלים: {place}",
+   "en": "Map of runs and lifts: {place}",
+   "ru": "Карта трасс и подъёмников: {place}",
+   "ka": "ტრასებისა და საბაგიროების რუკა: {place}",
+   "where": "site/js/app.js",
+   "note": "like map.map_aria, any resort",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "resort.runs_n": {
+   "he": {
+    "one": "מסלול אחד",
+    "two": "2 מסלולים",
+    "other": "{n} מסלולים"
+   },
+   "en": {
+    "one": "{n} run",
+    "other": "{n} runs"
+   },
+   "ru": {
+    "one": "{n} трасса",
+    "few": "{n} трассы",
+    "many": "{n} трасс",
+    "other": "{n} трассы"
+   },
+   "ka": {
+    "one": "{n} ტრასა",
+    "other": "{n} ტრასა"
+   },
+   "where": "site/js/app.js",
+   "note": "in the resort picker, round 23",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "resort.lifts_n": {
+   "he": {
+    "one": "רכבל אחד",
+    "two": "2 רכבלים",
+    "other": "{n} רכבלים"
+   },
+   "en": {
+    "one": "{n} lift",
+    "other": "{n} lifts"
+   },
+   "ru": {
+    "one": "{n} подъёмник",
+    "few": "{n} подъёмника",
+    "many": "{n} подъёмников",
+    "other": "{n} подъёмника"
+   },
+   "ka": {
+    "one": "{n} საბაგირო",
+    "other": "{n} საბაგირო"
+   },
+   "where": "site/js/app.js",
+   "note": "in the resort picker, round 23",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "resort.picker_aria": {
+   "he": "{place}: בחירת אתר סקי",
+   "en": "{place}: choose a ski resort",
+   "ru": "{place}: выбор курорта",
+   "ka": "{place}: სათხილამურო კურორტის არჩევა",
+   "where": "site/js/app.js",
+   "note": "the place name is the button that opens the resort list (round 23)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "resort.list_aria": {
+   "he": "אתרי סקי",
+   "en": "Ski resorts",
+   "ru": "Горнолыжные курорты",
+   "ka": "სათხილამურო კურორტები",
+   "where": "site/js/app.js",
+   "note": "the open resort list",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "resort.pass_top": {
+   "he": "SKI AREA · {place}",
+   "en": "SKI AREA · {place}",
+   "ru": "SKI AREA · {place}",
+   "ka": "SKI AREA · {place}",
+   "where": "site/js/app.js",
+   "note": "'SKI AREA' stays in English, like about.pass_top (round 23)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "resort.pass_runs": {
+   "he": "מסלולים",
+   "en": "Runs",
+   "ru": "Трассы",
+   "ka": "ტრასები",
+   "where": "site/js/app.js",
+   "note": "label on the resort pass card",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "resort.pass_lifts": {
+   "he": "רכבלים",
+   "en": "Lifts",
+   "ru": "Подъёмники",
+   "ka": "საბაგიროები",
+   "where": "site/js/app.js",
+   "note": "label on the resort pass card",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "resort.pass_alt": {
+   "he": "גובה, מ׳",
+   "en": "Altitude, m",
+   "ru": "Высота, м",
+   "ka": "სიმაღლე, მ",
+   "where": "site/js/app.js",
+   "note": "label on the resort pass card",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "resort.pass_aria": {
+   "he": "{place}: {runs} מסלולים, {lifts} רכבלים, גובה {lo} עד {hi} מ׳",
+   "en": "{place}: {runs} runs, {lifts} lifts, from {lo} to {hi} m",
+   "ru": "{place}: трасс {runs}, подъёмников {lifts}, высота от {lo} до {hi} м",
+   "ka": "{place}: {runs} ტრასა, {lifts} საბაგირო, სიმაღლე {lo}–{hi} მ",
+   "where": "site/js/app.js",
+   "note": "screen reader label of the resort pass card",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "resort.country_at": {
+   "he": "אוסטריה",
+   "en": "Austria",
+   "ru": "Австрия",
+   "ka": "ავსტრია",
+   "where": "site/js/app.js",
+   "note": "country",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "resort.country_ge": {
+   "he": "גאורגיה",
+   "en": "Georgia",
+   "ru": "Грузия",
+   "ka": "საქართველო",
+   "where": "site/js/app.js",
+   "note": "country",
    "check": [
     "ru",
     "ka"

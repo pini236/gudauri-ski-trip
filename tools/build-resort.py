@@ -318,3 +318,29 @@ lines += ['', '## לא נכנסו', ''] + [f'- {nm or "(בלי שם)"}: {why}' f
 fail = sum(1 for r in report if r[4])
 print(f"{len(pistes)} runs ({len(named)} named), {len(LIFTS)} lifts, dem {nx}x{ny}, {fail} runs with notes", file=sys.stderr)
 for f_ in ('runs-and-lifts.json', 'terrain.json'): print(f_, (out / f_).stat().st_size, file=sys.stderr)
+
+# ---------- the list of resorts: numbers for the picker and the resort's pass card (round 23), from each resort's own data ----------
+def stats_of(r):
+    base = ROOT / 'site' / r['dir']
+    D = json.load(open(base / 'runs-and-lifts.json', encoding='utf-8')); T = json.load(open(base / 'terrain.json', encoding='utf-8'))
+    d = T['dem']; A = np.frombuffer(base64.b64decode(d['b64']), dtype='<i2').reshape(d['ny'], d['nx']).astype(float)
+    la0, lo0 = r['proj']['lat0'], r['proj']['lon0']; kx = 111320 * math.cos(math.radians(la0))
+    sx, sy = (d['x1'] - d['x0']) / (d['nx'] - 1), (d['y1'] - d['y0']) / (d['ny'] - 1)
+    def h(q):
+        x, y = (q[1] - lo0) * kx, -(q[0] - la0) * 111320
+        c = min(max((x - d['x0']) / sx, 0), d['nx'] - 1.0001); rr = min(max((y - d['y0']) / sy, 0), d['ny'] - 1.0001)
+        c0, r0 = int(c), int(rr); fc, fr = c - c0, rr - r0
+        return (A[r0, c0] * (1 - fc) + A[r0, c0 + 1] * fc) * (1 - fr) + (A[r0 + 1, c0] * (1 - fc) + A[r0 + 1, c0 + 1] * fc) * fr
+    named = [p for p in D['pistes'] if p['named']]
+    ends = [q for l in D['lifts'] for q in (l['g'][0], l['g'][-1])] + [q for p in named for s in p['segs'] if not s['area'] for q in (s['g'][0], s['g'][-1])]
+    hs = [h(q) for q in ends]
+    by = collections.Counter()
+    for p in named: by[p['color']] += p['len']
+    return {'runs': len(named), 'lifts': len(D['lifts']), 'km': round(sum(p['len'] for p in named) / 1000), 'alt': [int(round(min(hs), -1)), int(round(max(hs), -1))],
+            'byColor': {c: by[c] for c in ('green', 'blue', 'red', 'black') if by[c]}}
+RL = ROOT / 'site/data/resorts.json'
+reg = json.load(open(RL, encoding='utf-8'))
+for r in reg['resorts']:
+    r['stats'] = stats_of(r)
+RL.write_text(json.dumps(reg, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
+print('resorts.json:', {r['id']: r['stats'] for r in reg['resorts']}, file=sys.stderr)

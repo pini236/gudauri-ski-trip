@@ -22,7 +22,22 @@
         "group",
         "videos",
         "pano"
-      ]
+      ],
+      "stats": {
+        "runs": 27,
+        "lifts": 16,
+        "km": 42,
+        "alt": [
+          1980,
+          3240
+        ],
+        "byColor": {
+          "green": 3524,
+          "blue": 27560,
+          "red": 6677,
+          "black": 4019
+        }
+      }
     },
     {
       "id": "soelden",
@@ -40,6 +55,21 @@
         "dist": 9800,
         "az": 1.5708,
         "pol": 0.52
+      },
+      "region": "Ötztal",
+      "stats": {
+        "runs": 53,
+        "lifts": 39,
+        "km": 104,
+        "alt": [
+          1350,
+          3250
+        ],
+        "byColor": {
+          "blue": 56366,
+          "red": 33240,
+          "black": 14333
+        }
       }
     }
   ]
