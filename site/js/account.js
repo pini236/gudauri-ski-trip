@@ -11,7 +11,7 @@ window.ACCOUNT=(function(){
   const APPLE=false; // Sign in with Apple on the web: once the Apple developer account exists
   const SB_KEY='sb-vanuhuzuhnljvcoihvys-auth-token',CACHE='gud-acct',GAMES=['descent','school','fresh','snowball','merge'];
   const $=id=>document.getElementById(id);
-  const ICON={wifioff:'<path d="M2 8.5a15 15 0 0 1 20 0M5 12a10 10 0 0 1 14 0M8.5 15.5a5 5 0 0 1 7 0"/><path d="M3 3l18 18"/>',people:'<circle cx="9" cy="8" r="3.2"/><path d="M3 19c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5"/><circle cx="17" cy="9" r="2.5"/><path d="M16 13.6c2.8.3 5 2.2 5 5.4"/>',
+  const ICON={link:'<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/>',copy:'<rect x="9" y="9" width="11" height="11"/><path d="M5 15V4h11"/>',share:'<circle cx="18" cy="5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="19" r="2.5"/><path d="M8.2 10.8l7.6-4.4M8.2 13.2l7.6 4.4"/>',wifioff:'<path d="M2 8.5a15 15 0 0 1 20 0M5 12a10 10 0 0 1 14 0M8.5 15.5a5 5 0 0 1 7 0"/><path d="M3 3l18 18"/>',people:'<circle cx="9" cy="8" r="3.2"/><path d="M3 19c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5"/><circle cx="17" cy="9" r="2.5"/><path d="M16 13.6c2.8.3 5 2.2 5 5.4"/>',
     out:'<path d="M14 5h5v14h-5M10 8l-4 4 4 4M6 12h10"/>',check:'<path d="M5 12l5 5 9-10"/>',lock:'<rect x="5" y="11" width="14" height="9"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>',
     plus:'<path d="M12 5v14M5 12h14"/>',x:'<path d="M6 6l12 12M18 6L6 18"/>',cloud:'<path d="M7 18h10a4 4 0 0 0 0-8 6 6 0 0 0-11.6 1.5A3.5 3.5 0 0 0 7 18z"/>'};
   const ic=(n,s=20)=>`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">${ICON[n]}</svg>`;
@@ -309,7 +309,7 @@ window.ACCOUNT=(function(){
     // without the server: what was kept, with the time, as a note and not an error (K-3, as the app's g_offline)
     const off=offlineAt?`<p class="ac-note ac-offline">${ic('wifioff',16)}<span>${esc(T('app.g_offline',{time:new Date(offlineAt).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})}))}</span></p>`:'';
     $('grMain').innerHTML=off+({flights:drawFlights,meetups:drawMeetups,scores:drawScores,members:drawMembers})[tab]();
-    $('grSide').innerHTML=drawInvite();}
+    $('grSide').innerHTML=drawInvite();if(window.SNOW)SNOW.scan($('grSide'));}
   $('grTabs').addEventListener('click',e=>{const b=e.target.closest('[data-tab]');if(!b)return;tab=b.dataset.tab;draw();if(tab==='scores'&&!(G&&G.scores))loadScores();});
   $('grTabs').addEventListener('keydown',e=>{const all=[...$('grTabs').querySelectorAll('[data-tab]')].filter(b=>!b.hidden),i=all.indexOf(document.activeElement);if(i<0)return;
     const fwd=I18N.ltr?'ArrowRight':'ArrowLeft',back=I18N.ltr?'ArrowLeft':'ArrowRight';
@@ -391,11 +391,16 @@ window.ACCOUNT=(function(){
         <button type="button" class="ac-row ac-rowbtn" data-panel="invite" aria-expanded="${adm.panel==='invite'}"><span class="ac-txt"><b>${esc(T('group.invite_settings'))}</b><small>${v?esc(v.code)+(v.requires_approval?' · '+esc(T('group.approval')):''):esc(T('group.no_invite'))}</small></span></button>${inv}
         <button type="button" class="ac-row ac-rowbtn red" data-delgroup><span class="ac-txt"><b>${esc(armed.del&&Date.now()-armed.del<6000?T('group.delete_confirm'):T('group.delete'))}</b></span></button></div>`;}
     return reqs+`<div>${list}</div>`+claim+tools+`<button type="button" class="ac-btn danger" data-leave>${ic('out')}${esc(T('group.leave'))}</button>`;}
+  // the invite card (round 18, decision 62: the site follows the app's Q2): paper tilted a little with fresh snow, the
+  // group, the six letters in boxes, the link to copy, and WhatsApp and share
   function drawInvite(){
     const v=G.invite;if(!v){const me=G.members.find(m=>m.user_id===state.uid);return me&&me.role==='admin'?`<p class="ac-note">${esc(T('group.no_invite'))}</p>`:'';}
-    const link=location.origin+'/j/'+v.token+'?utm_medium=share',msg=T('group.invite_msg',{name:G.g.name,link,code:v.code});
-    return `<div class="ac-invite"><span><small style="display:block;font-size:12px;color:var(--muted);font-weight:600">${esc(T('group.invite_code'))}</small><b dir="ltr">${esc(v.code)}</b></span>
-      <span class="ac-iv"><a href="https://wa.me/?text=${encodeURIComponent(msg)}" target="_blank" rel="noopener">${esc(T('group.invite_wa'))}</a><button type="button" data-copy="${esc(link)}">${esc(T('group.copy'))}</button></span></div>`;}
+    const link=location.origin+'/j/'+v.token,shared=link+'?utm_medium=share',msg=T('app.g_invite_message',{group:G.g.name,link:shared,code:v.code});
+    return `<div class="ac-inv"><div class="ac-inv-card" data-snow="41" data-snow-pile><div class="ac-inv-strip"><span>${esc(T('app.g_invite_strip'))}</span><span dir="auto">${esc(G.g.name)}</span></div>
+      <p class="ac-inv-how">${esc(T('app.g_invite_how'))}</p>
+      <div class="ac-inv-code" dir="ltr" role="img" aria-label="${esc(T('app.g_code_aria',{code:v.code}))}">${[...v.code].map(ch=>`<b aria-hidden="true">${esc(ch)}</b>`).join('')}</div>
+      <div class="ac-inv-link">${ic('link',18)}<span dir="ltr">${esc(link.replace(/^https?:\/\//,''))}</span><button type="button" data-copy="${esc(shared)}" aria-label="${esc(T('app.g_copy_link'))}">${ic('copy',20)}</button></div></div>
+      <div class="ac-inv-btns"><a class="ac-btn" href="https://wa.me/?text=${encodeURIComponent(msg)}" target="_blank" rel="noopener">${ic('share',18)}${esc(T('app.g_whatsapp'))}</a><button type="button" class="ac-btn ghost" data-share="${esc(msg)}">${ic('share',18)}${esc(T('app.g_share'))}</button></div></div>`;}
   let leaveArm=0,forMember=null;
   // the trip form filled for a member (K-3): the form asks, saving goes to the group as theirs, entered by an admin
   async function saveTripFor(t){const f=forMember;if(!f)return;
@@ -413,7 +418,8 @@ window.ACCOUNT=(function(){
       if(armedMeet!==id||Date.now()-armedAt>=4000){armedMeet=id;armedAt=Date.now();draw();setTimeout(()=>{if(armedMeet===id&&Date.now()-armedAt>=4000){armedMeet='';draw();}},4050);return;}
       armedMeet='';run(async()=>{const c=await client();await rest(c.from('meetups').delete().eq('id',id));});return;}
     const rq=t.closest('[data-req]');if(rq){run(()=>api('decide_join_request',{request_id:rq.dataset.req,approve:rq.dataset.ok==='1'}));return;}
-    const cp=t.closest('[data-copy]');if(cp&&navigator.clipboard){navigator.clipboard.writeText(cp.dataset.copy).then(()=>{cp.textContent=T('common.link_copied');setTimeout(()=>{cp.textContent=T('group.copy');},2200);}).catch(()=>{});return;}
+    const cp=t.closest('[data-copy]');if(cp&&navigator.clipboard){navigator.clipboard.writeText(cp.dataset.copy).then(()=>{const was=cp.innerHTML;cp.textContent=T('common.link_copied');cp.classList.add('done');setTimeout(()=>{cp.innerHTML=was;cp.classList.remove('done');},2200);}).catch(()=>{});return;}
+    const sh=t.closest('[data-share]');if(sh){if(navigator.share)navigator.share({text:sh.dataset.share}).catch(()=>{});else if(navigator.clipboard)navigator.clipboard.writeText(sh.dataset.share).then(()=>{const was=sh.innerHTML;sh.textContent=T('common.link_copied');setTimeout(()=>{sh.innerHTML=was;},2200);}).catch(()=>{});return;}
     const mm=t.closest('[data-mmenu]');if(mm){adm.menu=adm.menu===mm.dataset.mmenu?'':mm.dataset.mmenu;if(!adm.menu)adm.panel='';draw();return;}
     const pn=t.closest('[data-panel]');if(pn){adm.panel=adm.panel===pn.dataset.panel?'':pn.dataset.panel;draw();return;}
     const pf=t.closest('[data-pickfor]');if(pf){const src=G.trips.find(x=>x.id===pf.dataset.trip);if(src){run(()=>api('set_member_trip',{group_id:gid,user_id:pf.dataset.pickfor,trip:copyTrip(src)}));adm={menu:'',panel:''};}return;}

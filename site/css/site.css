@@ -1105,3 +1105,16 @@ html[lang="ka"] .pv-doc h1{font-size:36px;overflow-wrap:anywhere}
 /* the switch inside the create-group card (S-1): the about page's switch, on the card's own colours */
 .ac-card .ac-swrow{width:100%;min-height:56px;padding:6px 0;color:inherit;border-top:1px solid currentColor;border-bottom:1px solid currentColor;border-color:color-mix(in srgb,currentColor 30%,transparent)}
 .ac-card .ac-swrow small{color:inherit;opacity:.75}
+/* the invite card (round 18, decision 62, the app's Q2) */
+.ac-inv{display:flex;flex-direction:column;gap:14px}
+.ac-inv-card{position:relative;margin-top:14px;padding:0 14px 14px;background:var(--bp-paper);color:var(--ink);box-shadow:0 6px 14px var(--shadow);transform:rotate(-1.2deg)}
+.ac-inv-strip{display:flex;justify-content:space-between;gap:10px;margin:0 -14px;padding:7px 16px;background:var(--accent);color:var(--on-accent);font-size:12px;font-weight:700;letter-spacing:.04em}
+.ac-inv-strip span:last-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ac-inv-how{margin:14px 0 12px;font-size:13px;line-height:1.5;color:var(--muted)}
+.ac-inv-code{display:grid;grid-template-columns:repeat(6,1fr);gap:6px}
+.ac-inv-code b{position:relative;display:grid;place-items:center;height:64px;background:var(--bp-paper2);font-family:var(--f-display);font-weight:700;font-size:46px;line-height:1;border-bottom:3px solid var(--accent)}
+.ac-inv-link{display:flex;align-items:center;gap:8px;margin-top:12px;padding-inline-start:12px;border:1.5px solid var(--dash);color:var(--muted)}
+.ac-inv-link span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13.5px;color:var(--ink)}
+.ac-inv-link button{flex:none;min-width:44px;min-height:44px;display:grid;place-items:center;border:0;background:none;color:var(--glacier);font:inherit;font-size:12.5px;font-weight:700;cursor:pointer}
+.ac-inv-btns{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.ac-inv-btns .ac-btn{justify-content:center}

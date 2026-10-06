@@ -10498,7 +10498,7 @@
    "en": "Invitation to a group",
    "ru": "Приглашение в группу",
    "ka": "მოწვევა ჯგუფში",
-   "where": "app/android",
+   "where": "app/android, site/js/account.js",
    "note": "Q2 card strip",
    "check": [
     "ru",
@@ -10510,7 +10510,7 @@
    "en": "The link opens the app, or the site for those without it. Whoever installs on the way types the code:",
    "ru": "Ссылка открывает приложение, а у кого его нет, сайт. Кто устанавливает по дороге, вводит код:",
    "ka": "ბმული აპლიკაციას ხსნის, ან საიტს, ვისაც არ აქვს. ვინც გზაში დააყენებს, კოდს აკრეფს:",
-   "where": "app/android",
+   "where": "app/android, site/js/account.js",
    "note": "Q2",
    "check": [
     "ru",
@@ -10522,7 +10522,7 @@
    "en": "Invite code {code}",
    "ru": "Код приглашения {code}",
    "ka": "მოწვევის კოდი {code}",
-   "where": "app/android",
+   "where": "app/android, site/js/account.js",
    "note": "Q2, read out",
    "check": [
     "ru",
@@ -10534,7 +10534,7 @@
    "en": "Copy link",
    "ru": "Скопировать ссылку",
    "ka": "ბმულის კოპირება",
-   "where": "app/android",
+   "where": "app/android, site/js/account.js",
    "note": "Q2, read out",
    "check": [
     "ru",
@@ -10546,7 +10546,7 @@
    "en": "WhatsApp",
    "ru": "WhatsApp",
    "ka": "WhatsApp",
-   "where": "app/android",
+   "where": "app/android, site/js/account.js",
    "note": "Q2 button",
    "check": [
     "ru",
@@ -10558,7 +10558,7 @@
    "en": "Share",
    "ru": "Поделиться",
    "ka": "გაზიარება",
-   "where": "app/android",
+   "where": "app/android, site/js/account.js",
    "note": "Q2 button",
    "check": [
     "ru",
@@ -10570,7 +10570,7 @@
    "en": "Join {group} in the Gudauri app: {link}\nInstalling from the store? Type the code {code}",
    "ru": "Присоединяйтесь к группе {group} в приложении Гудаури: {link}\nУстанавливаете из магазина? Введите код {code}",
    "ka": "შემოუერთდით ჯგუფს {group} გუდაურის აპლიკაციაში: {link}\nმაღაზიიდან აყენებთ? აკრიფეთ კოდი {code}",
-   "where": "app/android",
+   "where": "app/android, site/js/account.js",
    "note": "the message sent from Q2",
    "check": [
     "ru",

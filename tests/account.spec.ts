@@ -22,7 +22,7 @@ async function loaded(page: Page) {
 const b64 = (o: object) => Buffer.from(JSON.stringify(o)).toString('base64url');
 
 // a small fake of the server: one group, one other member, and whoever joins
-async function fakeServer(page: Page, opts: { admin?: boolean; meetFull?: boolean; approval?: boolean; tal?: boolean } = {}) {
+async function fakeServer(page: Page, opts: { admin?: boolean; meetFull?: boolean; approval?: boolean; tal?: boolean; invite?: boolean } = {}) {
   const calls: string[] = [];
   const bodies: Record<string, any> = {};
   const me = { id: 'u-me', aud: 'authenticated', role: 'authenticated', is_anonymous: true, identities: [], app_metadata: {}, user_metadata: {} };
@@ -81,6 +81,7 @@ async function fakeServer(page: Page, opts: { admin?: boolean; meetFull?: boolea
       }
       if (table === 'trips') { const id = q.get('id'); return json(r, id && id.startsWith('eq.') ? db.trips.filter(t => t.id === id.slice(3)) : db.trips); }
       if (table === 'meetups') return json(r, db.meetups);
+      if (table === 'invites') return json(r, opts.invite ? [{ id: 'i1', code: 'KZBQRM', token: 'tok123', revoked_at: null, expires_at: null, requires_approval: false, max_uses: null, uses: 0, created_at: new Date().toISOString() }] : []);
       if (table === 'join_requests') return json(r, db.requests.filter(x => 'eq.' + x.status === q.get('status') && (!q.get('user_id') || 'eq.' + x.user_id === q.get('user_id'))));
       return json(r, []);
     }
@@ -137,7 +138,7 @@ test('הצטרפות בקוד: אורח, הטיסה שלי בקבוצה, החש�
   await expect(page.locator('.ac-flight[data-leg="ret"] .fs').first()).toContainText('חזור');
   await expect(page.locator('.ac-flight[data-leg="ret"] .fp span.me')).toHaveText('נועה ניסיון');
   expect(server.db.members.find(m => m.display_name === 'נועה ניסיון').trip_id).toBe('t-me');
-  await expect(page.locator('.ac-invite')).toHaveCount(0);
+  await expect(page.locator('.ac-inv')).toHaveCount(0);
   await page.locator('#grTabs [data-tab="members"]').click();
   await expect(page.locator('#grMain .ac-row b')).toHaveText(['דנה בדיקה', 'נועה ניסיון']);
   await page.locator('#grTabs [data-tab="scores"]').click();
@@ -333,12 +334,16 @@ test('קיבוץ החברים לכרטיסי טיסה לפי כיוון, תאר�
 // card and deleting it takes two taps, and without the server the kept copy says when it was kept
 test('מנהל: טיסה לחבר מהטיסות שבקבוצה או מהטופס, מפגש בשתי נגיעות, ו"נשמר ב-" (סבב 18)', async ({ page }) => {
   const errors = watchErrors(page);
-  const server = await fakeServer(page, { admin: true, tal: true });
+  const server = await fakeServer(page, { admin: true, tal: true, invite: true });
   await page.goto('/#join/KZBQRM');
   await loaded(page);
   await page.locator('#joinForm input').fill('נועה ניסיון');
   await page.locator('#joinForm button').click();
   await expect(page).toHaveURL(/#group\/g1/);
+  // the invite card, as the app's (Q2): the six letters in boxes, the link, WhatsApp and share
+  await expect(page.locator('.ac-inv-code b')).toHaveText(['K', 'Z', 'B', 'Q', 'R', 'M']);
+  await expect(page.locator('.ac-inv-link')).toContainText('/j/tok123');
+  await expect(page.locator('.ac-inv-btns a')).toHaveAttribute('href', /wa\.me/);
   await page.locator('#grTabs [data-tab="members"]').click();
   await page.locator('[data-mmenu="u-tal"]').click();
   await page.locator('.ac-menu [data-mtrip="u-tal"]').click();
