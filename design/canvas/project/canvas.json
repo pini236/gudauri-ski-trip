@@ -2099,25 +2099,9 @@
       "page": "round20",
       "title": "הטיול שלך: הכרטיס הוא הטופס"
     },
-    "R20-Pano-today.dc.html": {
-      "x": 680,
-      "y": 6205,
-      "w": 1358,
-      "h": 1046,
-      "page": "round20",
-      "title": "המפה היום"
-    },
-    "R20-Pano-new.dc.html": {
-      "x": 2118,
-      "y": 6205,
-      "w": 2286,
-      "h": 1046,
-      "page": "round20",
-      "title": "פנורמה מהנתונים שלנו"
-    },
     "R20-Numbers.dc.html": {
       "x": 680,
-      "y": 7671,
+      "y": 6205,
       "w": 620,
       "h": 720,
       "page": "round20",
@@ -2125,7 +2109,7 @@
     },
     "R20-Research.dc.html": {
       "x": 1380,
-      "y": 7671,
+      "y": 6205,
       "w": 620,
       "h": 720,
       "page": "round20",
@@ -2133,7 +2117,7 @@
     },
     "R20-App.dc.html": {
       "x": 2080,
-      "y": 7671,
+      "y": 6205,
       "w": 620,
       "h": 720,
       "page": "round20",
@@ -2827,21 +2811,12 @@
     },
     "round20row3": {
       "kind": "title1",
-      "maxW": 3724,
-      "page": "round20",
-      "text": "מפה פנורמית",
-      "w": 240,
-      "x": 680,
-      "y": 5905
-    },
-    "round20row4": {
-      "kind": "title1",
       "maxW": 2020,
       "page": "round20",
       "text": "המספרים, המחקר והאפליקציה",
       "w": 240,
       "x": 680,
-      "y": 7371
+      "y": 5905
     }
   },
   "order": [
@@ -3106,8 +3081,6 @@
     "R20-BA-group.dc.html",
     "R20-Trip-today.dc.html",
     "R20-Trip-new.dc.html",
-    "R20-Pano-today.dc.html",
-    "R20-Pano-new.dc.html",
     "R20-Numbers.dc.html",
     "R20-Research.dc.html",
     "R20-App.dc.html"
@@ -3115,7 +3088,7 @@
   "pages": [
     {
       "id": "round20",
-      "name": "סבב 20: פחות טקסט, טופס הטיול ומפה פנורמית"
+      "name": "סבב 20: פחות טקסט וטופס הטיול"
     },
     {
       "id": "round18",
