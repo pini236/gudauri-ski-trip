@@ -32,12 +32,14 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
@@ -210,7 +212,10 @@ internal fun BoxScope.PlaceSheet(title: String, current: String, first: List<Str
     val shown = order.distinct().filter { code -> q.isBlank() || code.contains(q.trim(), true) || names.getValue(code).contains(q.trim(), true) }
     Sheet(onDismiss) {
         Text(title, style = Ski.type.title.copy(fontSize = Ski.type.title.fontSize * (32f / 44f)), color = c.ink)
-        Field(stringResource(R.string.app_trip_place_search), q, { q = it.take(40) }, Modifier.padding(top = 10.dp, bottom = 6.dp))
+        // as the site's sheet: the words inside the field, and the cursor in it once the sheet is up
+        val search = remember { FocusRequester() }
+        LaunchedEffect(Unit) { runCatching { search.requestFocus() } }
+        Field(stringResource(R.string.app_trip_place_search), q, { q = it.take(40) }, Modifier.padding(top = 10.dp, bottom = 6.dp), showLabel = false, focus = search)
         Column {
             for (code in shown.take(8)) {
                 val label = "$code · ${names.getValue(code)}"
@@ -232,9 +237,6 @@ internal fun BoxScope.PlaceSheet(title: String, current: String, first: List<Str
                 Text(stringResource(R.string.app_trip_place_other, code), Modifier.weight(1f), style = Ski.type.bodyBold, color = c.glacier)
                 Icon(Icons.plus, null, Modifier.size(20.dp), tint = c.glacier)
             }
-            // a name, or letters that are no code: what may go in, as the site says it
-            else if (typed.isNotEmpty() && shown.isEmpty()) Text(stringResource(R.string.trip_bad_code), Modifier.padding(horizontal = 12.dp, vertical = 14.dp),
-                style = Ski.type.small.copy(fontSize = 13.5.sp), color = c.muted)
         }
     }
 }

@@ -25,6 +25,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.SolidColor
@@ -100,17 +102,23 @@ fun BackLink(text: String, onBack: () -> Unit, color: Color = Ski.colors.glacier
     }
 }
 
-/** A labelled text field (the canvas's .fld): 48 high, a 1.5 border, square. Latin-only values (codes, numbers) read left to right. */
+/**
+ * A labelled text field (the canvas's .fld): 48 high, a 1.5 border, square. Latin-only values (codes, numbers) read left
+ * to right. [showLabel] false puts the label inside, as the hint (a search field, as the site's); [focus] lets the
+ * screen put the cursor in it.
+ */
 @Composable
 fun Field(label: String, value: String, onChange: (String) -> Unit, modifier: Modifier = Modifier, hint: String = "", ltr: Boolean = false,
-          keyboard: KeyboardType = KeyboardType.Text, error: String? = null, caps: Boolean = false) {
+          keyboard: KeyboardType = KeyboardType.Text, error: String? = null, caps: Boolean = false, showLabel: Boolean = true,
+          focus: FocusRequester? = null) {
     val c = Ski.colors
     var focused by remember { mutableStateOf(false) }
+    val hint = if (showLabel) hint else hint.ifEmpty { label }
     Column(modifier, verticalArrangement = Arrangement.spacedBy(5.dp)) {
-        Text(label, style = Ski.type.label.copy(fontSize = 13.sp), color = c.muted)
+        if (showLabel) Text(label, style = Ski.type.label.copy(fontSize = 13.sp), color = c.muted)
         BasicTextField(
             value, onChange,
-            Modifier.fillMaxWidth().height(48.dp).onFocusChanged { focused = it.isFocused }
+            Modifier.fillMaxWidth().height(48.dp).then(if (focus != null) Modifier.focusRequester(focus) else Modifier).onFocusChanged { focused = it.isFocused }
                 .semantics { contentDescription = label }
                 .background(c.paper).border(if (focused) 2.dp else 1.5.dp, if (error != null) c.red else if (focused) c.accent else c.rule),
             singleLine = true,
