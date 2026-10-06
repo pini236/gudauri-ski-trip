@@ -15710,6 +15710,90 @@
     "ru",
     "ka"
    ]
+  },
+  "resort.gudauri.name": {
+   "he": "גודאורי",
+   "en": "Gudauri",
+   "ru": "Гудаури",
+   "ka": "გუდაური",
+   "where": "site/js/app.js",
+   "note": "resort name (decision 68)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "resort.soelden.name": {
+   "he": "זלדן",
+   "en": "Sölden",
+   "ru": "Зёльден",
+   "ka": "ზელდენი",
+   "where": "site/js/app.js",
+   "note": "resort name (decision 68)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "resort.soelden.location": {
+   "he": "זלדן, אוסטריה",
+   "en": "Sölden, Austria",
+   "ru": "Зёльден, Австрия",
+   "ka": "ზელდენი, ავსტრია",
+   "where": "site/js/app.js",
+   "note": "home page heading, like home.location",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "resort.soelden.time": {
+   "he": "השעה בזלדן",
+   "en": "Time in Sölden",
+   "ru": "Время в Зёльдене",
+   "ka": "დრო ზელდენში",
+   "where": "site/js/app.js",
+   "note": "label before the clock, like nav.gudauri_time",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "resort.soelden.map_aria": {
+   "he": "מפת מסלולים ורכבלים בזלדן",
+   "en": "Map of runs and lifts in Sölden",
+   "ru": "Карта трасс и подъёмников Зёльдена",
+   "ka": "ზელდენის ტრასებისა და საბაგიროების რუკა",
+   "where": "site/js/app.js",
+   "note": "like map.map_aria",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "map.overview_lead_resort": {
+   "he": "לחצו על מסלול במפה או ברשימה לפרטים. קו מקווקו דק הוא קטע בלי שם בנתונים.",
+   "en": "Tap a run on the map or in the list for details. A thin dashed line is an unnamed section in the data.",
+   "ru": "Нажмите на трассу на карте или в списке, чтобы увидеть подробности. Тонкая пунктирная линия — участок без названия в данных.",
+   "ka": "დააჭირეთ ტრასას რუკაზე ან სიაში დეტალებისთვის. წვრილი წყვეტილი ხაზი მონაცემებში უსახელო მონაკვეთია.",
+   "where": "site/js/app.js",
+   "note": "like map.overview_lead, for a resort without the Kobi side and ski ways (decision 68)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "resort.soelden.sources": {
+   "he": "קווים: OpenStreetMap דרך OpenSkiMap, נמשך {fetched}, כמו שהם, בלי השלמות. הצבעים לפי דרגת הקושי במפה הפתוחה (קל כחול, בינוני אדום, קשה שחור), ועוד לא נבדקו מול המפה הרשמית של Sölden. אורכים אופקיים מהקואורדינטות. תבליט וגבהים: © offene Daten Österreichs – Digitales Geländemodell (DGM) Österreich (CC BY 3.0 AT), דרך אריחי הגובה של AWS. הכפרים, הכבישים, המים והפסגות: OSM. © OpenStreetMap contributors, ODbL.",
+   "en": "Lines: OpenStreetMap via OpenSkiMap, fetched {fetched}, as they are, nothing filled in. Colours follow the difficulty in the open map (easy blue, intermediate red, difficult black) and have not been checked against the official Sölden map yet. Horizontal lengths from the coordinates. Relief and altitudes: © offene Daten Österreichs – Digitales Geländemodell (DGM) Österreich (CC BY 3.0 AT), through the Terrain Tiles on AWS. Villages, roads, water and peaks: OSM. © OpenStreetMap contributors, ODbL.",
+   "ru": "Линии: OpenStreetMap через OpenSkiMap, загружено {fetched}, как есть, без дополнений. Цвета — по сложности в открытой карте (лёгкая синяя, средняя красная, сложная чёрная), с официальной картой Зёльдена ещё не сверены. Горизонтальные длины — по координатам. Рельеф и высоты: © offene Daten Österreichs – Digitales Geländemodell (DGM) Österreich (CC BY 3.0 AT), через тайлы высот на AWS. Посёлки, дороги, вода и вершины: OSM. © OpenStreetMap contributors, ODbL.",
+   "ka": "ხაზები: OpenStreetMap, OpenSkiMap-ის მეშვეობით, ჩამოტვირთულია {fetched}, როგორც არის, შევსების გარეშე. ფერები ღია რუკის სირთულის მიხედვითაა (მარტივი ლურჯი, საშუალო წითელი, რთული შავი) და ზელდენის ოფიციალურ რუკასთან ჯერ არ შემოწმებულა. ჰორიზონტალური სიგრძეები კოორდინატებიდანაა. რელიეფი და სიმაღლეები: © offene Daten Österreichs – Digitales Geländemodell (DGM) Österreich (CC BY 3.0 AT), AWS-ის სიმაღლის ფილების მეშვეობით. სოფლები, გზები, წყალი და მწვერვალები: OSM. © OpenStreetMap contributors, ODbL.",
+   "where": "site/js/app.js",
+   "note": "like map.overview_source_text, the sources of this resort",
+   "check": [
+    "ru",
+    "ka"
+   ]
   }
  }
 }

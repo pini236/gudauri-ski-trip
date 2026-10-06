@@ -1,12 +1,21 @@
 (async function main(){
 await I18N.ready; // the words of the chosen language (js/i18n.js); everything below draws with T()
+// which mountain (js/resort.js, decision 68): its data folder, projection and clock. Gudauri has everything; another
+// resort has only what its "features" list says (the map, the 3D view and the runs always)
+const RS=await RESORT.ready,has=f=>RESORT.has(f),DIR=RS.dir;
+GudRelief.site={lat:RS.proj.lat0,lon:RS.proj.lon0,tz:RESORT.tzOffset()};
+document.querySelectorAll('[data-feature]').forEach(el=>{if(!el.dataset.feature.split(' ').every(has))el.hidden=true;});
+if(!RESORT.isDefault()){const n='resort.'+RS.id+'.';
+  document.querySelectorAll('[data-i18n="nav.gudauri_time"]').forEach(e=>{e.textContent=T(n+'time');});
+  const h1=document.querySelector('.home-top .loc'),w=document.querySelector('.home-top .when');if(h1)h1.textContent=T(n+'location');if(w)w.hidden=true;
+  document.getElementById('map').setAttribute('aria-label',T(n+'map_aria'));}
 const soft=(url,fallback)=>fetch(url).then(r=>r.ok?r.json():fallback).catch(()=>fallback);
 // the elevation model (terrain.json, the biggest file) does not hold up the home page (R-11): it loads alongside, and the
 // map, the meeting point and the 3D view are set up when it arrives (onTerrain below); a link to them waits for it
-const terrainP=soft('data/terrain.json',null);
+const terrainP=soft(DIR+'terrain.json',null);
 const [D,vids]=await Promise.all([
-  fetch('data/runs-and-lifts.json').then(r=>{if(!r.ok)throw new Error('runs-and-lifts '+r.status);return r.json();}),
-  soft('data/videos-seed.json',[])
+  fetch(DIR+'runs-and-lifts.json').then(r=>{if(!r.ok)throw new Error('runs-and-lifts '+r.status);return r.json();}),
+  has('videos')?soft('data/videos-seed.json',[]):[]
 ]);
 const HEB=Object.fromEntries(['green','blue','red','black'].map(c=>[c,T('common.color_'+c)]));
 const RATE={green:[1,T('map.difficulty_beginner')],blue:[2,T('map.difficulty_easy')],red:[3,T('map.difficulty_intermediate')],black:[4,T('map.difficulty_hard')]};
@@ -32,7 +41,7 @@ if(I18N.lang!=='he'){
 const byKey=Object.fromEntries(D.pistes.map(p=>[p.key,p]));
 const reduceMotion=()=>matchMedia('(prefers-reduced-motion: reduce)').matches;
 // Kobi side = everything north of Kobi Pass (the top of Firni). Shown in its own inset.
-const KOBI_LAT=42.5115;
+const KOBI_LAT=has('kobi')?42.5115:Infinity; // only Gudauri has a side of its own
 const meanLat=gs=>{let t=0,n=0;gs.forEach(g=>g.forEach(q=>{t+=q[0];n++;}));return n?t/n:0;};
 const isKobiP=p=>meanLat(p.segs.map(s=>s.g))>KOBI_LAT;
 const isKobiL=l=>meanLat([l.g])>KOBI_LAT;
@@ -89,7 +98,7 @@ function countdown(dark){
 }
 
 // projection (meters, north up)
-const lat0=42.51,lon0=44.495,kx=111320*Math.cos(lat0*Math.PI/180),ky=111320;
+const lat0=RS.proj.lat0,lon0=RS.proj.lon0,kx=111320*Math.cos(lat0*Math.PI/180),ky=111320;
 const P=([la,lo])=>[(lo-lon0)*kx,-(la-lat0)*ky];
 const NS='http://www.w3.org/2000/svg';
 const svg=document.getElementById('map');
@@ -150,7 +159,7 @@ function addRelief(root,lblRoot,store,skipPass){
 }
 addRelief(svg,mainLbl,{labels,marks},true);
 // signpost at Kobi Pass: opens the Kobi-side inset. First in the list so it wins label collisions.
-{const[x,y]=P(PASS);const t=mk('text',{x,y,class:'lbl kobi-link','text-anchor':'middle','data-kobi':'1',role:'button',tabindex:'0','aria-label':T('map.kobi_side_aria')},mainLbl);t.textContent=T('map.kobi_side_label');labels.unshift(t);
+if(has('kobi')){const[x,y]=P(PASS);const t=mk('text',{x,y,class:'lbl kobi-link','text-anchor':'middle','data-kobi':'1',role:'button',tabindex:'0','aria-label':T('map.kobi_side_aria')},mainLbl);t.textContent=T('map.kobi_side_label');labels.unshift(t);
   t.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();openInset();}});} // the keyboard reaches it too
 
 function layoutLabels(labels,stations,u,mks){
@@ -286,7 +295,7 @@ function vidList(key){
 }
 function vidBlock(key,label){
   return `<h3>${E('run.videos_heading')}</h3>${vidList(key)}
-  <p class="hint"><a href="https://www.youtube.com/results?search_query=${encodeURIComponent('Gudauri '+label+' ski')}" target="_blank" rel="noopener">${E('run.videos_search_youtube',{name:label})}</a></p>`;
+  <p class="hint"><a href="https://www.youtube.com/results?search_query=${encodeURIComponent(RS.name+' '+label+' ski')}" target="_blank" rel="noopener">${E('run.videos_search_youtube',{name:label})}</a></p>`;
 }
 function elevRows(p){
   if(!TM)return'';const lines=p.segs.filter(s=>!s.area).map(s=>s.g.map(P));if(!lines.length)return'';
@@ -357,7 +366,7 @@ function renderPiste(key){
   <dl class="kv">
     <dt>${E('common.length_label')}</dt><dd class="num">${esc(fmtLen(p.len))}</dd>
     ${elevRows(p)}
-    <dt>${E('run.color_label')}</dt><dd><span class="sw ${c}"></span> ${esc(HEB[c])}${E(p.named?'run.color_official_suffix':'run.color_osm_suffix')}</dd>
+    <dt>${E('run.color_label')}</dt><dd><span class="sw ${c}"></span> ${esc(HEB[c])}${E(p.named&&RESORT.isDefault()?'run.color_official_suffix':'run.color_osm_suffix')}</dd>
     <dt>${E('run.difficulty_label')}</dt><dd>${pips(c)}${esc(RATE[c][1])}</dd>
     ${p.osmDiff.length?`<dt>${E('run.osm_grade_label')}</dt><dd>${esc(p.osmDiff.map(x=>OSMD[x]?OSMD[x][0]:T('run.osm_grade_none')).join(' / '))}</dd>`:''}
     ${p.refs.length?`<dt>${E('run.ref_label')}</dt><dd class="num">${esc(p.refs.join(', '))}</dd>`:''}
@@ -396,7 +405,7 @@ function overview(){
   panel.innerHTML=`
   <h2 class="ov">${E('map.overview_heading')}</h2>
   ${LSTAT.block()}
-  <p class="lead">${E('map.overview_lead')}</p>
+  <p class="lead">${E(has('kobi')?'map.overview_lead':'map.overview_lead_resort')}</p>
   <h3>${E('map.overview_on_map_count',{n:named.length})}</h3>
   <div class="index">${named.map(p=>`<button data-goto="${esc(p.key)}" data-zoom="1"><span class="sw ${p.color}"></span>${esc(dispName(p))}<span class="len">${fmtLen(p.len)}</span></button>`).join('')}</div>
   ${D.missing.length?`<h3>${E('map.overview_missing_count',{n:D.missing.length})}</h3>
@@ -405,7 +414,7 @@ function overview(){
   <div class="miss">${pr.map(p=>`<button class="chip" data-goto="${esc(p.key)}" data-zoom="1"><span class="sw ${p.color}"></span>${esc(p.key)}</button>`).join('')}</div>
   <p class="hint">${E('map.overview_partial_hint')}</p>`:''})()}
   <h3>${E('map.overview_source_heading')}</h3>
-  <p class="hint">${E('map.overview_source_text',{fetched:D.fetched,research_date:D.research?D.research.date:''})}</p>
+  <p class="hint">${RESORT.isDefault()?E('map.overview_source_text',{fetched:D.fetched,research_date:D.research?D.research.date:''}):E('resort.'+RS.id+'.sources',{fetched:D.fetched})}</p>
   <p class="hint">${E('map.overview_3d_controls_hint')}</p>`;
   SNOW.scan(panel);
 }
@@ -414,7 +423,7 @@ panel.addEventListener('click',e=>{
   const b=e.target.closest('button');if(!b)return;
   // the (i) by the profile heading opens how the numbers were worked out (round 20)
   if(b.dataset.info!==undefined){const pop=b.closest('h3').nextElementSibling,on=pop.hidden;pop.hidden=!on;b.setAttribute('aria-expanded',String(on));return;}
-  if(b.dataset.share!==undefined){const k=b.dataset.share,url=location.origin+location.pathname+'?utm_medium=share#map/run/'+encodeURIComponent(k);
+  if(b.dataset.share!==undefined){const k=b.dataset.share,url=RESORT.link('#map/run/'+encodeURIComponent(k),'utm_medium=share');
     if(navigator.share)navigator.share({title:T('run.share_title',{run:k}),url}).then(()=>track('run_share',{run:k,method:'native'})).catch(()=>{});
     else if(navigator.clipboard)navigator.clipboard.writeText(url).then(()=>{track('run_share',{run:k,method:'copy'});b.textContent=T('common.link_copied');setTimeout(()=>{b.textContent=T('run.share_button');},2200);}).catch(()=>{});return;}
   if(b.dataset.fly){if(flying){stopFly();return;}const pr=runProfile(b.dataset.fly);if(!pr)return;if(view!=='3d')setView('3d',false);if(!v3)return;
@@ -453,7 +462,7 @@ function ensure3d(){
   try{
     const kc=P([42.532,44.4945]);
     v3=GudRelief.View3D({model:TM,host:m3,pistes:D.pistes,lifts:D.lifts,P,dispName,colors:{green:'#1B8A4C',blue:'#1F5FC4',red:'#D1342B',black:'#13233A'},liftColor:'#3A4556',
-      center:[(minX+maxX)/2,(minY+maxY)/2+250],homeDist:7000,homeAz:0,homePol:0.44,
+      center:[(minX+maxX)/2,(minY+maxY)/2+250],homeDist:RS.view3d&&RS.view3d.dist||7000,homeAz:RS.view3d&&RS.view3d.az||0,homePol:RS.view3d&&RS.view3d.pol||0.44,
       onPick:k=>select(k,{via:'map'}),onLift:id=>showLift(id),
       onFly:f=>{flyProg=f;const k=document.getElementById('profRange');if(k){const i=Math.round(f*(+k.max));k.value=i;profAt(i);}},
       onHeading:az=>{compassSvg.style.transform=`rotate(${(az*180/Math.PI).toFixed(1)}deg)`;}});
@@ -516,10 +525,11 @@ addEventListener('hashchange',route);
 // sunrise and sunset there on today's date. The mountains are the real view above New Gudauri, rendered
 // from the elevation model in seven moments of the day (design/round3/panorama.py), and cross-faded.
 const DN=(function(){
-  const LAT=42.51,LON=44.495,TZ=4,rad=Math.PI/180;
-  // positions in the images, as fractions (design/round3/pano.json)
-  const PJ={phone:{w:390,pk:[['Sadzele',.6215,.3989],['Bidara',.3796,.4325]],vil:[.4525,.6926]},
-            wide:{w:1440,pk:[['Sadzele',.5659,.3989],['Bidara',.4347,.4325]],vil:[.4742,.6926]}};
+  const LAT=RS.proj.lat0,LON=RS.proj.lon0,TZ=RESORT.tzOffset(),rad=Math.PI/180;
+  // positions in the images, as fractions (design/round3/pano.json); another resort brings its own (resorts.json, "pano"),
+  // or has none, and then the home page is the sky without mountains
+  const PJ=RS.pano||(has('pano')?{phone:{w:390,pk:[['Sadzele',.6215,.3989],['Bidara',.3796,.4325]],vil:[.4525,.6926]},
+            wide:{w:1440,pk:[['Sadzele',.5659,.3989],['Bidara',.4347,.4325]],vil:[.4742,.6926]}}:null);
   const ele=()=>Object.fromEntries((TM?TM.peaks:[]).map(p=>[p.n,p.ele])); // the heights come with the model
   const gud=()=>{const g=new Date(Date.now()+TZ*36e5);return {h:g.getUTCHours()+g.getUTCMinutes()/60,g};};
   function sunTimes(g){
@@ -551,16 +561,18 @@ const DN=(function(){
   let variant=null,layer=null,shown='';
   function build(v){
     variant=v;shown='';pano.innerHTML='';layer=null;
+    if(!PJ){pano.innerHTML='<div class="lights"></div>';return;}
     const P=PJ[v],vx=P.vil[0]*100,vy=P.vil[1]*100;
     const lights=[[-44,6],[-35,2],[-28,9],[-19,4],[-12,11],[-5,1],[3,7],[9,13],[16,3],[24,10],[31,5],[39,12],[-23,15],[0,16],[20,17],[46,8]]
       .map(([dx,dy])=>`<i style="left:calc(${vx}% + ${dx}px);top:calc(${vy}% + ${dy}px)"></i>`).join('');
     const ELE=ele(),lbl=P.pk.map(([n,x,y])=>`<span class="pk-lbl" data-pk="${esc(n)}" style="left:${x*100}%;top:calc(${y*100}% - 6px)">${esc(n)}${ELE[n]?` <span class="e">${ELE[n]}</span>`:''}</span>`).join('');
     pano.insertAdjacentHTML('beforeend',`<div class="lights">${lights}</div>${lbl}`);
   }
-  const src=k=>`img/pano/pano-${variant==='wide'?'wide-':''}${k}.webp`;
+  const src=k=>`${PJ&&PJ.dir||'img/pano/'}pano-${variant==='wide'?'wide-':''}${k}.webp`;
   function layout(){
     const W=sky.clientWidth,H=sky.clientHeight;if(!W||!H)return;
     const v=W>560?'wide':'phone';if(v!==variant)build(v);
+    if(!PJ){paint(false);return;}
     const iw=PJ[v].w,s=Math.max(W/iw,H/400),w=iw*s,h=400*s;
     Object.assign(pano.style,{width:w+'px',height:h+'px',left:((W-w)/2)+'px',top:Math.min(0,H*.9-.75*h)+'px'});
     paint(false);
@@ -594,6 +606,7 @@ const DN=(function(){
     pano.querySelector('.lights').style.opacity=num('win');
     document.getElementById('skyPhase').textContent=s.phase;
     // the mountains: layer a, with b on top at opacity f. A new pair fades in over the old one.
+    if(!PJ)return;
     const want=a.img+'|'+b.img;
     if(want!==shown){
       const el=document.createElement('div');el.className='pl';
@@ -727,7 +740,7 @@ const makeMeet=()=>(function(){
   ui.querySelector('#meetTime').addEventListener('input',e=>{if(/^\d\d:\d\d$/.test(e.target.value)){S.time=e.target.value;S.preset='';render();}});
   function pick(id,preset,fly){S.sid=id;S.preset=preset||'';const s=byId[id];if(fly&&s)goTo(s.x,s.y,Math.max(1400,vb.w<1500?vb.w:1800),650);render();}
   const pad=n=>String(n).padStart(2,'0');
-  function link(){return location.origin+location.pathname+`?utm_medium=share#meet/${S.sid}/${S.time.replace(':','')}/${S.day.replace(/-/g,'')}`;}
+  function link(){return RESORT.link(`#meet/${S.sid}/${S.time.replace(':','')}/${S.day.replace(/-/g,'')}`,'utm_medium=share');}
   function dayLbl(){return (DAYS.find(d=>d[0]===S.day)||[0,dayName(S.day)])[1];}
   function message(){const s=byId[S.sid];return T('meet.share_message',{place:s.name,day:dayLbl(),time:S.time,where:s.where,alt:s.h?T('meet.share_alt_suffix',{n:s.h.toLocaleString('en-US')}):'',link:link()});}
   function countdown(){ // in Gudauri time (UTC+4)
@@ -821,6 +834,7 @@ document.querySelectorAll('.games-list .game-card').forEach((a,i)=>{a.dataset.sn
 // {updated:"ISO time", lifts:{"<lift name>":{open:true|false, reason?:"wind"}}, pistes:{"<run key>":{open:true|false}}}
 // No data, or data older than 30 minutes: "no current information", and the map stays as it is. We never guess.
 const LSTAT=(function(){
+  const ON=has('status'); // another resort has no report yet: nothing is asked and nothing is drawn
   let data=null,forMe=false;const STALE=30*6e4;
   const names=mainLifts.filter(l=>l.name&&l.status!=='inactive').map(l=>l.name);
   const fresh=()=>data&&data.updated&&Date.now()-Date.parse(data.updated)<STALE;
@@ -832,6 +846,7 @@ const LSTAT=(function(){
   const ago=t=>{const m=Math.round((Date.now()-Date.parse(t))/6e4);return m<1?T('status.ago_now'):m<60?T('status.ago_minutes',{n:m}):T('status.ago_hours',{n:Math.round(m/60)});};
   let prevSeen;
   function block(){
+    if(!ON)return '';
     if(!fresh()){const season=inSeason();
       return `<section class="lstat" aria-label="${E('status.heading_lift_status')}"><h3>${E(season?'status.no_recent_data':'status.mountain_asleep')}</h3>
       <p class="lead">${E(season?'status.lead_in_season':'status.lead_off_season')}</p>
@@ -853,7 +868,7 @@ const LSTAT=(function(){
   // the map: closed lifts grey and dashed, chairs moving on open ones, and "only what's open for me"
   const gChairs=mk('g',{class:'chairs','aria-hidden':'true'});svg.insertBefore(gChairs,mainLbl);
   function applyMap(){
-    const bar=document.getElementById('mstat');
+    const bar=document.getElementById('mstat');if(!ON)return;
     gChairs.innerHTML='';svg.classList.toggle('forme',forMe&&fresh());
     svg.querySelectorAll('g.lg[data-lid]').forEach(g=>g.classList.remove('closed'));
     if(!fresh()){bar.innerHTML=`<span class="ms-dot"></span><span class="ms-txt">${E(data?'status.bar_no_recent':'status.bar_no_data_yet')}</span>`;bar.dataset.state='none';
@@ -887,18 +902,18 @@ const LSTAT=(function(){
   panel.addEventListener('click',e=>{const b=e.target.closest('[data-forme]');if(!b)return;forMe=!forMe;b.setAttribute('aria-pressed',String(forMe));applyMap();track('status_only_open',{on:forMe});});
   // status_view: once per visit to the map; on the first visit it waits for the first answer from /api/status
   let loaded=false,pend=false;
-  function viewed(){if(!loaded){pend=true;return;}const f=fresh();track('status_view',f?{state:'fresh',open:names.filter(n=>isOpen(n)).length,total:names.length}:{state:data?'stale':'none'});}
+  function viewed(){if(!ON)return;if(!loaded){pend=true;return;}const f=fresh();track('status_view',f?{state:'fresh',open:names.filter(n=>isOpen(n)).length,total:names.length}:{state:data?'stale':'none'});}
   // how often (P-D14, as in the app's StatusSource): every five minutes December to April; out of season once a day at
   // most, so an early opening still shows within a day. Skipped asks use the report kept in this browser
   const DAY=864e5;
   function ask(){if(inSeason())return true;let t=0;try{t=+localStorage.getItem('gud-lstat-asked')||0;}catch(e){}
     const now=Date.now();if(now-t>=0&&now-t<DAY)return false;try{localStorage.setItem('gud-lstat-asked',String(now));}catch(e){}return true;}
-  function load(){return (ask()?fetch('api/status',{cache:'no-store'}):Promise.resolve(null)).then(r=>r.ok&&/json/.test(r.headers.get('content-type')||'')?r.json():null).catch(()=>null)
+  function load(){if(!ON){loaded=true;return Promise.resolve();}return (ask()?fetch('api/status',{cache:'no-store'}):Promise.resolve(null)).then(r=>r.ok&&/json/.test(r.headers.get('content-type')||'')?r.json():null).catch(()=>null)
     .then(j=>{j=j&&j.updated&&j.lifts?j:null;
       // the last report stays in this browser, as in the app (S-29): with no answer it is shown while it is fresh
       try{if(j)localStorage.setItem('gud-lstat-last',JSON.stringify(j));else j=JSON.parse(localStorage.getItem('gud-lstat-last')||'null');}catch(e){}
       data=j&&j.updated&&j.lifts?j:null;loaded=true;if(pend){pend=false;viewed();}applyMap();applyHome();if(typeof WX!=='undefined'&&WX)WX.home();if(!current&&!panel.querySelector('.back'))overview();});}
-  setInterval(load,5*6e4);
+  if(ON)setInterval(load,5*6e4);
   return {block,load,applyMap,viewed,fresh,isOpen,names,ago,updated:()=>data&&data.updated};
 })();
 LSTAT.load();
@@ -907,7 +922,7 @@ LSTAT.load();
 // drawn, never sent, stored or measured. Off on every visit; it runs only while the map is open and the button is on.
 // Published with its line in the privacy policy (Pini approved both, 6.10.2026).
 const LOC=(function(){
-  const on=true;
+  const on=has('locate');
   const ctrls=pgMap.querySelector('.ctrls'),wrap=pgMap.querySelector('.mapwrap');
   const btn=document.createElement('button');btn.type='button';btn.className='loc-btn';btn.hidden=!on;btn.disabled=true;
   btn.setAttribute('aria-pressed','false');btn.setAttribute('aria-label',T('loc.button'));
@@ -965,7 +980,7 @@ const LOC=(function(){
 // server fetches the forecast and decides the closure risk; this only reads /api/weather (the rule in js/weather.js).
 // The last good answer stays in this browser for the mountain without reception. Never a guess: no data says so.
 var WX=(function(){ // var: apply() and renderTicket() may run before this line
-  const G=window.GudWeather;if(!G)return {cond:()=>'',layout(){},home(){}};
+  const G=window.GudWeather;if(!G||!has('weather'))return {cond:()=>'',layout(){},home(){}};
   let ans=null,layer=false;try{ans=JSON.parse(localStorage.getItem('gud-wx-last')||'null');}catch(e){}
   // the three points (server/CONTRACT.md), for the pins before any answer: the lift ends in the data
   const WXPTS={village:{lat:42.471394,lon:44.49246},goodaura:{lat:42.492379,lon:44.494273},sadzele:{lat:42.508985,lon:44.503209}};
@@ -1333,6 +1348,6 @@ function onTerrain(){
     if(vb.w!==1)apply();if(!card.hidden)layoutInset();
     if(current&&byKey[current]){paint2d(current);renderPiste(current);}
   }
-  MEET=makeMeet();
+  if(has('meet'))MEET=makeMeet();
 }
 })().catch(e=>{console.error(e);const l=document.getElementById('loading');l.hidden=false;l.textContent=typeof T==='function'?T('home.load_error'):'Error';});

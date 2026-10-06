@@ -1,0 +1,46 @@
+{
+  "schema": 1,
+  "default": "gudauri",
+  "resorts": [
+    {
+      "id": "gudauri",
+      "name": "Gudauri",
+      "country": "GE",
+      "dir": "data/",
+      "proj": {
+        "lat0": 42.51,
+        "lon0": 44.495
+      },
+      "tz": "Asia/Tbilisi",
+      "features": [
+        "trip",
+        "meet",
+        "status",
+        "weather",
+        "kobi",
+        "locate",
+        "group",
+        "videos",
+        "pano"
+      ]
+    },
+    {
+      "id": "soelden",
+      "name": "Sölden",
+      "country": "AT",
+      "dir": "data/resorts/soelden/",
+      "proj": {
+        "lat0": 46.948,
+        "lon0": 10.972
+      },
+      "tz": "Europe/Vienna",
+      "features": [],
+      "license": "ODbL",
+      "view3d": {
+        "dist": 9800,
+        "az": 1.5708,
+        "pol": 0.52
+      }
+    }
+  ]
+}

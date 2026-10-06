@@ -25,6 +25,7 @@
 <link rel="stylesheet" href="css/site.css">
 <script src="js/i18n.js"></script>
 <script src="js/prefs.js"></script>
+<script src="js/resort.js"></script>
 <script src="js/telemetry.js"></script>
 </head>
 <body>
@@ -35,11 +36,11 @@
   <nav class="signs" aria-label="חלקי האתר" data-i18n-attr="aria-label:nav.sections">
     <a href="#home" data-nav="home" data-i18n="nav.home">בית</a>
     <a href="#map" data-nav="map" data-i18n="nav.map">מפת מסלולים</a>
-    <a href="#meet" data-nav="meet" data-i18n="nav.meet">נקודת מפגש</a>
+    <a href="#meet" data-nav="meet" data-feature="meet" data-i18n="nav.meet">נקודת מפגש</a>
     <a href="#games" data-nav="games" data-i18n="nav.games">משחקים</a>
     <a href="#about" data-nav="about" class="nav-about" aria-label="אודות והגדרות" data-i18n-attr="aria-label:common.about_settings"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M10.50 4.45 L10.70 1.68 L13.30 1.68 L13.50 4.45 L16.28 5.60 L18.37 3.78 L20.22 5.63 L18.40 7.72 L19.55 10.50 L22.32 10.70 L22.32 13.30 L19.55 13.50 L18.40 16.28 L20.22 18.37 L18.37 20.22 L16.28 18.40 L13.50 19.55 L13.30 22.32 L10.70 22.32 L10.50 19.55 L7.72 18.40 L5.63 20.22 L3.78 18.37 L5.60 16.28 L4.45 13.50 L1.68 13.30 L1.68 10.70 L4.45 10.50 L5.60 7.72 L3.78 5.63 L5.63 3.78 L7.72 5.60Z"/><circle cx="12" cy="12" r="3.2"/></svg></a>
   </nav>
-  <span class="tb-count" id="tbCount" data-i18n-js="common.days_to_flight;common.nights_to_flight"><b class="num" id="tbDays"></b> <span data-days-word>ימים</span> לטיסה</span>
+  <span class="tb-count" id="tbCount" data-feature="trip" data-i18n-js="common.days_to_flight;common.nights_to_flight"><b class="num" id="tbDays"></b> <span data-days-word>ימים</span> לטיסה</span>
   <div class="dn"><span class="dn-clock"><span data-i18n="nav.gudauri_time">השעה בגודאורי</span><b class="num" data-dn-clock>--:--</b></span><button type="button" class="dn-btn" data-dn aria-label="מצב תצוגה" data-i18n-attr="aria-label:nav.display_mode"><svg class="i-auto" width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 3a9 9 0 0 1 0 18z" fill="currentColor"/></svg><svg class="i-day" width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="5" fill="#F4B942"/><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8" stroke="#F4B942" stroke-width="2" stroke-linecap="round"/></svg><svg class="i-night" width="24" height="24" viewBox="0 0 34 34" aria-hidden="true"><path d="M17 3A14 14 0 0 1 17 31A7.5 14 0 0 0 17 3Z" fill="currentColor"/></svg><span class="dn-lbl" data-dn-lbl data-i18n="common.mode_auto">אוטומטי</span></button></div>
 </header>
 
@@ -55,7 +56,7 @@
   </div>
   <div class="home-inner">
     <div class="home-top"><h1 class="loc" data-i18n="home.location">גודאורי, גאורגיה</h1><span class="when" data-i18n="home.when">חופשת סקי, ינואר 2027</span><div class="dn dn-home"><span class="dn-clock"><span data-i18n="nav.gudauri_time">השעה בגודאורי</span><b class="num" data-dn-clock>--:--</b></span><button type="button" class="dn-btn" data-dn aria-label="מצב תצוגה" data-i18n-attr="aria-label:nav.display_mode"><svg class="i-auto" width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 3a9 9 0 0 1 0 18z" fill="currentColor"/></svg><svg class="i-day" width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="5" fill="#F4B942"/><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8" stroke="#F4B942" stroke-width="2" stroke-linecap="round"/></svg><svg class="i-night" width="24" height="24" viewBox="0 0 34 34" aria-hidden="true"><path d="M17 3A14 14 0 0 1 17 31A7.5 14 0 0 0 17 3Z" fill="currentColor"/></svg><span class="dn-lbl" data-dn-lbl data-i18n="common.mode_auto">אוטומטי</span></button></div></div>
-    <section class="ticket-wrap" aria-label="פרטי הטיסה" data-i18n-attr="aria-label:ticket.flight_details">
+    <section class="ticket-wrap" data-feature="trip" aria-label="פרטי הטיסה" data-i18n-attr="aria-label:ticket.flight_details">
       <div class="bp-empty" id="bpEmpty" hidden>
         <div class="be-main"><div class="be-strip"><span data-i18n="trip.empty_title">הטיול שלך</span><span data-i18n="trip.empty_unset">עוד לא הוגדר</span></div>
           <div class="be-row"><div><small data-i18n="ticket.from">מ</small><span class="be-code" dir="ltr">TLV</span></div><div class="be-to"><small data-i18n="ticket.to">אל</small><span class="be-code" dir="ltr">TBS</span></div></div>
@@ -107,7 +108,7 @@
     </section>
     <nav class="post" aria-label="חלקי האתר" data-i18n-attr="aria-label:nav.sections">
       <a class="board" href="#map"><b data-i18n="nav.map">מפת מסלולים</b></a>
-      <a class="board board-meet" href="#meet"><b data-i18n="nav.meet">נקודת מפגש</b></a>
+      <a class="board board-meet" href="#meet" data-feature="meet"><b data-i18n="nav.meet">נקודת מפגש</b></a>
       <a class="board board-games" href="#games"><b data-i18n="nav.games">משחקים</b></a>
       <a class="board board-app" id="appBoard" href="downloads/gudauri-2027.apk" download hidden><b data-i18n="home.app_board">אפליקציה לאנדרואיד</b><span id="appMeta" data-i18n="home.app_download">להורדה</span></a>
       <details class="app-how" id="appHow" hidden>
@@ -119,7 +120,7 @@
         </ol>
         <p data-i18n="home.app_req">מתאים ל-Android 8.0 ומעלה. האפליקציה בנויה על אותם נתונים כמו האתר.</p>
       </details>
-      <a class="board board-group" id="groupBoard" href="#group"><b data-i18n="group.empty_title">קבוצה</b><span id="groupBoardSub" hidden></span></a>
+      <a class="board board-group" id="groupBoard" href="#group" data-feature="group"><b data-i18n="group.empty_title">קבוצה</b><span id="groupBoardSub" hidden></span></a>
     </nav>
     <a class="home-about" href="#about" data-i18n="home.about_link">אודות, הגדרות וקרדיטים</a>
     <a class="home-privacy" href="privacy" data-i18n="home.privacy_link">מדיניות פרטיות</a>
@@ -282,7 +283,7 @@
         <div class="filters" id="filters" role="group" aria-label="סינון המפה" data-i18n-attr="aria-label:map.filter"><button type="button" class="fchip" data-filter="green" aria-pressed="true"><span class="sq green"></span><span data-i18n="common.color_green">ירוק</span></button><button type="button" class="fchip" data-filter="blue" aria-pressed="true"><span class="sq blue"></span><span data-i18n="common.color_blue">כחול</span></button><button type="button" class="fchip" data-filter="red" aria-pressed="true"><span class="sq red"></span><span data-i18n="common.color_red">אדום</span></button><button type="button" class="fchip" data-filter="black" aria-pressed="true"><span class="sq black"></span><span data-i18n="common.color_black">שחור</span></button><button type="button" class="fchip" data-filter="lifts" aria-pressed="true"><span class="sq lifts"></span><span data-i18n="map.lifts">רכבלים</span></button><button type="button" class="fchip" data-filter="unnamed" aria-pressed="true"><span class="sq unnamed"></span><span data-i18n="map.unnamed">ללא שם</span></button></div>
       </div>
       <div class="mapwrap">
-      <div class="mstat" id="mstat" role="status" data-state="none"></div>
+      <div class="mstat" id="mstat" role="status" data-state="none" data-feature="status"></div>
       <svg id="map" role="img" aria-label="מפת מסלולים ורכבלים בגודאורי" data-i18n-attr="aria-label:map.map_aria"></svg>
       <div id="map3d" hidden role="img" data-i18n-attr="aria-label:map.map3d_aria" aria-label="מודל תלת-ממדי של ההר עם המסלולים והרכבלים. גררו לסיבוב, גלגלת או צביטה לזום."></div>
       <div class="hint3d" id="hint3d"><span class="h-fine" data-i18n="map.hint_mouse">גרירה: סיבוב · גלגלת: זום · מקש ימני: הזזה</span><span class="h-touch" data-i18n="map.hint_touch">אצבע אחת: סיבוב · שתיים: זום והזזה</span></div>
@@ -294,7 +295,7 @@
       </div>
       <div class="north" aria-hidden="true">▲<br>N</div>
       <div class="scale" id="scale"><i></i><span></span></div>
-      <div class="inset" id="inset">
+      <div class="inset" id="inset" data-feature="kobi">
         <div class="inset-card" id="insetCard" hidden>
           <div class="inset-head"><span data-i18n="map.kobi_side">צד Kobi</span><button type="button" id="insetClose" aria-label="סגירת חלון צד Kobi" data-i18n-attr="aria-label:map.kobi_close">✕</button></div>
           <svg id="kobimap" role="img" data-i18n-attr="aria-label:map.kobi_map_aria" aria-label="מפת הצד הצפוני: מסלול Kobi ורכבלי Kobi"></svg>

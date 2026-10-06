@@ -1,0 +1,50 @@
+{
+  "id": "soelden",
+  "name": "Sölden",
+  "country": "AT",
+  "openskimap_id": "78e5f98d8527df7216b08962f372659abcd4f711",
+  "proj": {
+    "lat0": 46.948,
+    "lon0": 10.972
+  },
+  "dem_bbox": [
+    46.885,
+    10.87,
+    47.011,
+    11.075
+  ],
+  "dem_step_m": 40,
+  "tile_zoom": 14,
+  "hill_px_m": 12,
+  "colors": {
+    "novice": "blue",
+    "easy": "blue",
+    "intermediate": "red",
+    "advanced": "black",
+    "expert": "black"
+  },
+  "places": [
+    "Sölden",
+    "Hochsölden",
+    "Zwieselstein"
+  ],
+  "main_place": "Sölden",
+  "peaks": [
+    "Gaislachkogel",
+    "Innere Schwarze Schneide",
+    "Äußere Schwarze Schneide",
+    "Tiefenbachkogel",
+    "Karleskogel",
+    "Schwarzkogel",
+    "Rotkogel",
+    "Einzeiger",
+    "Gigijoch"
+  ],
+  "peak_box": [
+    46.916,
+    10.918,
+    46.98,
+    11.027
+  ],
+  "dem_attribution": "© offene Daten Österreichs – Digitales Geländemodell (DGM) Österreich (CC BY 3.0 AT), through Terrain Tiles on AWS (Mapzen/Tilezen joerd)."
+}

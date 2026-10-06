@@ -56,9 +56,11 @@ R.slopeCanvas=function(M,lines,opt){
   return {canvas:cv,x0:a,y0:b,x1:c,y1:e};
 };
 
-/* the sun in Gudauri (UTC+4) for a date and a local hour: {alt, az} in degrees, az from north, clockwise */
+/* the sun at the resort (R.site, set by app.js from js/resort.js; Gudauri, UTC+4, until then) for a date and a local
+   hour: {alt, az} in degrees, az from north, clockwise */
+R.site={lat:42.51,lon:44.495,tz:4};
 R.sun=function(date,hour){
-  const LAT=42.51,LON=44.495,TZ=4,rad=Math.PI/180;
+  const LAT=R.site.lat,LON=R.site.lon,TZ=R.site.tz,rad=Math.PI/180;
   const n=Math.floor((Date.UTC(date.getUTCFullYear(),date.getUTCMonth(),date.getUTCDate())-Date.UTC(date.getUTCFullYear(),0,1))/864e5)+1;
   const dec=-23.44*Math.cos(2*Math.PI/365*(n+10))*rad,b=2*Math.PI/364*(n-81),eot=9.87*Math.sin(2*b)-7.53*Math.cos(b)-1.5*Math.sin(b);
   const ha=15*(hour+(LON-TZ*15)/15+eot/60-12)*rad,phi=LAT*rad;
@@ -109,7 +111,8 @@ R.svgMarks=function(M,lblRoot,markRoot,store){
     const a=el('tspan',{},t);a.textContent=p.n;const b=el('tspan',{class:'ele'},t);b.textContent=' '+p.ele;
     t._below=true;peaks.push(t);
   });
-  const places=M.env.places.filter(p=>['Gudauri','Kobi'].includes(p.n)).map(p=>{const t=el('text',{x:p.x,y:p.y,class:'lbl place-v','text-anchor':'middle'},lblRoot);t.textContent=p.n==='Gudauri'?T('map.place_gudauri'):'Kobi';return t;});
+  // the villages named on the map: Gudauri and Kobi, or the ones another resort's data marks to show (tools/build-resort.py)
+  const places=M.env.places.filter(p=>p.show||['Gudauri','Kobi'].includes(p.n)).map(p=>{const t=el('text',{x:p.x,y:p.y,class:'lbl place-v','text-anchor':'middle'},lblRoot);t.textContent=p.n==='Gudauri'?T('map.place_gudauri'):p.n;return t;});
   return {peaks,places};
 };
 
@@ -263,7 +266,7 @@ R.View3D=function(opts){
   function addLabel(html,cls,xyz,pri,data){const e=document.createElement('div');e.className='r3-lbl '+cls;e.innerHTML=html;if(data)Object.assign(e.dataset,data);lay.appendChild(e);const o={e,v:new THREE.Vector3(...xyz),pri,w:0,h:0};labels.push(o);return o;}
   const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
   M.peaks.forEach(p=>addLabel(`<span class="pk-ico${p.pass?' pass':''}"></span><b>${esc(p.n)}</b> <span class="num">${p.ele}</span>`,'peak',[p.x,M.elev(p.x,p.y)+6,p.y],100));
-  M.env.places.filter(p=>['Gudauri','Kobi'].includes(p.n)).forEach(p=>addLabel(p.n==='Gudauri'?T('map.place_gudauri'):'Kobi','place',[p.x,M.elev(p.x,p.y)+10,p.y],60));
+  M.env.places.filter(p=>p.show||['Gudauri','Kobi'].includes(p.n)).forEach(p=>addLabel(p.n==='Gudauri'?T('map.place_gudauri'):p.n,'place',[p.x,M.elev(p.x,p.y)+10,p.y],60));
   Object.values(pisteObjs).forEach(o=>{if(!o.p.named)return;const L=o.lines.slice().sort((a,b)=>b.length-a.length)[0];const q=L[Math.floor(L.length*0.45)];
     o.label=addLabel(esc(opts.dispName(o.p)),'piste c-'+o.p.color,[q[0],q[1]+8,q[2]],40,{key:o.p.key});});
 
