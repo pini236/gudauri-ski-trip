@@ -1,7 +1,7 @@
 -- Who can reach what in the database directly: row level security on
 -- every table, nothing for the anon role, the internal schema closed,
 -- and no SQL actions left (they live in the server code, decision 40).
-select plan(16);
+select plan(17);
 
 select ok(bool_and(c.relrowsecurity), 'row level security is on for every table')
   from pg_class c join pg_namespace n on n.oid = c.relnamespace
@@ -29,6 +29,7 @@ select throws_ok($$select * from scores$$, '42501', null, 'anon cannot read scor
 select tests.as('dana');
 select throws_ok($$select * from private.invite_attempts$$, '42501', null, 'attempts are hidden');
 select throws_ok($$select * from private.audit_log$$, '42501', null, 'the audit log is hidden');
+select throws_ok($$select * from private.weather_cache$$, '42501', null, 'the stored weather is hidden');
 select throws_ok($$insert into profiles (id) values (gen_random_uuid())$$, '42501', null, 'cannot create profiles');
 select throws_ok($$update profiles set id = gen_random_uuid()$$, '42501', null, 'cannot change a profile id');
 select lives_ok($$update profiles set display_name = 'Dana B', lang = 'en'$$, 'can change own name and language');

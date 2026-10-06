@@ -155,24 +155,25 @@ function update(dt){
   else if(lv.mode==='rhythm'){ want=ctl.target; rateMax=1.6; }
   else if(lv.mode==='lean'){
     let e=S.edge; if(finger) e=Math.max(-1,Math.min(1,(finger.x-W/2)/(W*.32))); if(keys.ArrowLeft) e=-1; if(keys.ArrowRight) e=1; if(!finger&&!keys.ArrowLeft&&!keys.ArrowRight) e=S.edge*.98;
-    const de=(e-S.edge)/dt; S.jerk=Math.abs(de); S.edge+=Math.max(-3*dt,Math.min(3*dt,e-S.edge));
+    // how fast the skis really change edge (not the finger): smoothed, so touch events that come in bursts do not count
+    const e0=S.edge; S.edge+=Math.max(-3*dt,Math.min(3*dt,e-S.edge)); S.jerk=(S.jerk||0)+(Math.abs(S.edge-e0)/dt-(S.jerk||0))*Math.min(1,dt*10);
     want=null; }
   want = want==null? null : Math.max(-1.9,Math.min(1.9,want));
   S.wedge+=(wedge-S.wedge)*Math.min(1,dt*8);
   let rate=0;
   if(lv.mode==='lean'){ // the ski's shape turns you: more edge, tighter turn; snapping from edge to edge breaks the grip
-    rate = S.v*S.edge*.11; const sk = Math.max(0,(S.jerk||0)-1.6)/2.5; S.skid += (Math.min(1,sk) - S.skid)*Math.min(1,dt*8);
+    rate = S.v*S.edge*.11; const sk = Math.max(0,(S.jerk||0)-2.2)/.8; /* a full edge change in under ~0.9 s is a snap */ S.skid += (Math.min(1,sk) - S.skid)*Math.min(1,dt*8);
     if(S.h>1.9&&rate>0||S.h<-1.9&&rate<0) rate=0; }
   else { const d=want-S.h; rate=Math.max(-rateMax,Math.min(rateMax,d*3.2)); const carveRate=S.v/9+.25; const skid=lv.mode==='rhythm'?0:Math.max(0,Math.abs(rate)-carveRate); /* the rhythm lesson is about timing, not edging */ S.skid+=(Math.min(1,skid/1.2)-S.skid)*Math.min(1,dt*10); }
   S.h+=rate*dt;
   let acc = G*Math.sin(a)*Math.cos(S.h) - .05*G*Math.cos(a) - .0035*S.v*S.v - S.wedge*(2.6+S.v*.35) - S.skid*S.v*.9 - Math.abs(rate)*S.v*.06;
   if(S.crashT>0){ S.crashT-=dt; acc=-6; }
-  S.v=Math.max(lv.mode==='skis'&&state==='run'?1.2:0,S.v+acc*dt); /* in the turning lesson you never stall: a push with the poles */ if(state==='done') S.v=Math.max(0,S.v-6*dt);
+  S.v=Math.max((lv.mode==='skis'||lv.mode==='lean')&&state==='run'?1.2:0,S.v+acc*dt); /* in the turning and edging lessons you never stall: a push with the poles, so a skier who turned up the hill can turn back */ if(state==='done') S.v=Math.max(0,S.v-6*dt);
   S.x+=Math.sin(S.h)*S.v*dt; S.y+=Math.cos(S.h)*S.v*dt; S.x=Math.max(-14,Math.min(14,S.x));
   camY+=(S.y-camY)*Math.min(1,dt*6); camX+=(S.x*.55-camX)*Math.min(1,dt*3);
   const lt=tracks[tracks.length-1]; if(S.v>.3 && (!lt||Math.hypot(lt.x-S.x,lt.y-S.y)>.25)) tracks.push({x:S.x,y:S.y,h:S.h,sk:S.skid,wd:S.wedge}); if(tracks.length>2500) tracks.splice(0,500);
   if(state!=='run') return;
-  st.time+=dt; const kmh=S.v*KMH; st.maxV=Math.max(st.maxV,kmh); $('spd').textContent=Math.round(kmh);
+  st.time+=dt; const kmh=S.v*KMH; if(!(lv.demo && t<lv.demo+1.5)) st.maxV=Math.max(st.maxV,kmh); /* the top speed counts once you steer: not in the demo, nor the moment after it */ $('spd').textContent=Math.round(kmh);
   if(lv.limit){ if(kmh<=lv.limit) st.under+=dt; $('spdBox').classList.toggle('over',kmh>lv.limit); }
   if(AC&&hissG){ hissG.gain.value=Math.min(.22,S.v*.012+S.skid*.12+S.wedge*.05); hissF.frequency.value=900+S.v*80+S.skid*1500; }
   drills(dt,kmh);

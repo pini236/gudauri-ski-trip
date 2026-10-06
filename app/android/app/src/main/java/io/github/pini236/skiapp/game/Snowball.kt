@@ -37,8 +37,10 @@ val RUNGS = listOf(
     Rung(R.string.game_snowball_arena_hotel_yard, 1, 3, 0f, 1f, .9f, 1.8f, 2.4f, 1.6f, 2.6f, R.string.game_snowball_goal_win_untouched) { it.taken == 0 },
     Rung(R.string.game_snowball_arena_lift, 1, 3, -2f, 2f, .6f, 1.4f, 1.9f, 1.3f, 2.2f, R.string.game_snowball_goal_hat) { it.hats >= 1 },
     Rung(R.string.game_snowball_arena_deep_snow, 2, 2, -2f, 2f, .55f, 1.3f, 1.8f, 1.6f, 2.8f, R.string.game_snowball_goal_accuracy) { it.thrown > 0 && it.hits.toFloat() / it.thrown >= .5f },
-    Rung(R.string.game_snowball_arena_ridge, 2, 2, -4f, 4f, .42f, 1.1f, 1.6f, 1.3f, 2.4f, R.string.game_snowball_goal_two_hats) { it.hats >= 2 },
-    Rung(R.string.game_snowball_arena_summit, 3, 2, -5f, 5f, .36f, 1.0f, 1.4f, 1.5f, 2.8f, R.string.game_snowball_goal_win_untouched) { it.taken == 0 },
+    // the two top rungs aim a little wider than before (X-5, the site's fix): with the wind's lean below, the share of
+    // throws that hit you rises with every rung (46, 70, 76, 78, 81%), and nobody is a perfect shot
+    Rung(R.string.game_snowball_arena_ridge, 2, 2, -4f, 4f, .5f, 1.1f, 1.6f, 1.3f, 2.4f, R.string.game_snowball_goal_two_hats) { it.hats >= 2 },
+    Rung(R.string.game_snowball_arena_summit, 3, 2, -5f, 5f, .45f, 1.0f, 1.4f, 1.5f, 2.8f, R.string.game_snowball_goal_win_untouched) { it.taken == 0 },
 )
 
 /** Who stands behind the far wall on rung [i] when you wear coat [me] (the site's foesOf). */
@@ -147,16 +149,18 @@ class SnowballFight(val rungIndex: Int, val me: Int, private val out: Out, priva
             if (rnd.nextFloat() < .25f) { o.phase = PEEK; o.timer = r(.35f, .6f); o.want = .45f }
             else { o.phase = AIM; o.timer = r(rung.upA, rung.upB) * .6f; o.want = 1f }
         } else if (o.phase == PEEK && o.timer <= 0) { o.phase = HIDE; o.want = 0f; o.timer = r(.5f, 1.1f) }
-        else if (o.phase == AIM && o.timer <= 0) { throwFoe(o); o.phase = AFTER; o.timer = r(rung.upA, rung.upB) * .4f; o.throwT = .25f }
+        else if (o.phase == AIM && o.timer <= 0) { if (state == State.PLAY) throwFoe(o) /* no new throws once it is over */; o.phase = AFTER; o.timer = r(rung.upA, rung.upB) * .4f; o.throwT = .25f }
         else if (o.phase == AFTER && o.timer <= 0) { o.phase = HIDE; o.want = 0f; o.timer = r(rung.waitA, rung.waitB); if (rnd.nextFloat() < .5f) o.goal = o.home + r(-.8f, .8f) }
         if (o.phase == HIDE && !o.goal.isNaN()) o.x += (o.goal - o.x) * min(1f, dt * 2.5f)
         o.up += (o.want - o.up) * min(1f, dt * 9)
     }
     private fun throwFoe(o: Foe) {
         val x0 = o.x - .3f; val yy = 1.5f; val z0 = ZO - .4f; val tt = r(.85f, 1.1f)
-        // at your head when standing, with an error that shrinks up the ladder; better players lean into the wind
+        // at your head when standing, with an error that shrinks up the ladder; better players lean into the wind.
+        // The wind moves a ball by wind*T*T/4 over the flight (vx += wind * .5 * dt), so k = 1 would cancel it exactly;
+        // k < 1 leaves a little error (X-5: the lean was .5, twice the wind, and threw the ball off the other way)
         val tx = r(-1f, 1f) * rung.err; val ty = 1.55f + r(-1f, 1f) * rung.err * .6f; val tz = .3f; val k = 1 - rung.err * .5f
-        balls += Ball(x0, yy, z0, (tx - x0) / tt - .5f * wind * k * tt, (ty - yy + .5f * G * tt * tt) / tt, (tz - z0) / tt, false)
+        balls += Ball(x0, yy, z0, (tx - x0) / tt - .25f * wind * k * tt, (ty - yy + .5f * G * tt * tt) / tt, (tz - z0) / tt, false)
         out.noise(.08, .1f, 2000.0, Noise.HIGH)
     }
 
@@ -214,6 +218,7 @@ class SnowballFight(val rungIndex: Int, val me: Int, private val out: Out, priva
         for (k in -2..2) { val j = i + k; if (j in farWall.indices) farWall[j] = max(.55f, farWall[j] - .09f * (1 - abs(k) / 3f)) }
     }
     private fun hitFoe(o: Foe, b: Ball, head: Boolean) {
+        if (state != State.PLAY) return // after the end, nothing changes the result (X-5)
         o.hp--; o.hit = .5f; o.wob = 1f; stats.hits++
         splatAt(b.x, b.y, ZO, 22); out.buzz(head); out.noise(.2, .4f, 1200.0); out.tone(if (head) 520.0 else 380.0, .16, .3f, 1.5)
         if (head && o.hat) {
@@ -226,6 +231,7 @@ class SnowballFight(val rungIndex: Int, val me: Int, private val out: Out, priva
         if (foes.all { it.hp <= 0 }) { state = State.DONE; won = true; endT = 0f; wonPop = t + .7f }
     }
     private fun meHit(b: Ball) {
+        if (state != State.PLAY) return
         myHp--; stats.taken++; shake = if (still) 0f else 16f
         out.buzz(true); out.noise(.25, .5f, 1400.0); out.tone(140.0, .25, .35f, .6)
         // snow stuck on the screen, sliding down

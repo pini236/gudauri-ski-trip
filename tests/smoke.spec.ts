@@ -280,6 +280,8 @@ test('נקודת מפגש: בוחרים תחנה ושעה, כרטיס, איך מ
 
 test('מצב רכבלים: בלי מידע שלטים מושלגים, עם מידע לוח רכבלים וסיכום', async ({ page }) => {
   const errors = watchErrors(page);
+  // out of season the site asks once a day at most (P-D14); this test reloads to see each report, so every load asks
+  await page.addInitScript(() => localStorage.removeItem('gud-lstat-asked'));
   await page.goto('/#map');
   await loaded(page);
   await expect(page.locator('#mstat')).toHaveAttribute('data-state', 'none');
@@ -359,6 +361,8 @@ test('נקודת מפגש: מתחילים בלי בחירה, ומבטלים בכ
   await expect(page).toHaveURL(/#meet$/);
   // זום: הכפתור מקרב את המפה
   const vbw = async () => +((await page.locator('#meetMap').getAttribute('viewBox')) || '0 0 0 0').split(' ')[2];
+  // the map gets its frame in the frame after the elevation model arrives (R-11): wait for it
+  await expect.poll(vbw).toBeGreaterThan(1);
   const before = await vbw();
   await page.locator('#meetZin').click();
   await expect.poll(vbw).toBeLessThan(before * .8);
@@ -422,6 +426,28 @@ test('קובץ האימות לקישורים שפותחים את האפליקצ�
   const vercel = JSON.parse(require('fs').readFileSync(require('path').join(__dirname, '..', 'site', 'vercel.json'), 'utf8'));
   const h = vercel.headers.find((x: any) => x.source === '/.well-known/assetlinks.json');
   expect(h.headers).toContainEqual({ key: 'Content-Type', value: 'application/json' });
+});
+
+// how often the site asks (P-D14, as in the app): out of season once a day at most, in season on every load
+test('מצב רכבלים: מחוץ לעונה שואלים פעם ביום לכל היותר, בעונה כל פעם', async ({ page }) => {
+  let asks = 0;
+  await page.route('**/api/status', r => { asks++; return r.fulfill({ status: 404, body: '' }); });
+  await page.clock.setFixedTime(new Date('2026-10-20T09:00:00Z'));
+  await page.goto('/#map');
+  await loaded(page);
+  await page.reload();
+  await loaded(page);
+  expect(asks).toBe(1);
+  await page.clock.setFixedTime(new Date('2026-10-21T09:30:00Z')); // a day later
+  await page.reload();
+  await loaded(page);
+  expect(asks).toBe(2);
+  await page.clock.setFixedTime(new Date('2026-12-21T09:30:00Z')); // in season
+  await page.reload();
+  await loaded(page);
+  await page.reload();
+  await loaded(page);
+  expect(asks).toBe(4);
 });
 
 // "opened since you checked" (S-31): a lift the report says nothing about is not "closed", and drawing the panel

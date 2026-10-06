@@ -336,7 +336,10 @@ fun MergeScreen(haptics: Haptics, onBack: () -> Unit, onBest: (Int) -> Unit = {}
                 Text(stringResource(if (kind == "won") R.string.game_merge_won_title else R.string.game_merge_over_title), style = Ski.type.title.copy(fontSize = 56.sp, lineHeight = 52.sp), color = PAPER)
                 Text(if (kind == "won") stringResource(R.string.game_merge_won_text) else stringResource(R.string.game_merge_over_text, names[maxLv], score.toString()),
                     style = Ski.type.body.copy(fontSize = 14.sp), color = PAPER, textAlign = TextAlign.Center)
-                Box(Modifier.heightIn(min = 56.dp).widthIn(min = 200.dp).background(ACCENT).clickable(role = Role.Button) { if (kind == "won") over = null else newGame() }.padding(horizontal = 24.dp),
+                Box(Modifier.heightIn(min = 56.dp).widthIn(min = 200.dp).background(ACCENT).clickable(role = Role.Button) {
+                    // "continue" after the snowman, when that merge filled the board: the end (X-5, the site's noRoom)
+                    if (kind == "won") { over = null; if (!game.canMove()) scope.launch { gameEnd(); delay(400); over = "over"; Qa.log("merge over") } } else newGame()
+                }.padding(horizontal = 24.dp),
                     contentAlignment = Alignment.Center) {
                     Text(stringResource(if (kind == "won") R.string.game_merge_continue else R.string.game_merge_again), style = Ski.type.title.copy(fontSize = 30.sp), color = INK)
                 }
