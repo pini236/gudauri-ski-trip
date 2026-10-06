@@ -1161,12 +1161,17 @@ function renderTicket(){
 // the trip form (#trip, round 12 W2): the browser's own date and time pickers, the destination starts as Tbilisi,
 // and the return is the outbound the other way round
 const TRIPFORM=(()=>{
-  const f=document.getElementById('tripForm'),AIR=['TLV','TBS','KUT'],q=n=>f.elements[n],err=document.getElementById('tfErr');
+  const f=document.getElementById('tripForm'),q=n=>f.elements[n],err=document.getElementById('tfErr');
   let manual=false;
-  const city=code=>{const k='ticket.city_'+code.toLowerCase(),w=T(k);return w===k?code:code+' · '+w;};
-  ['ofr','oto'].forEach(n=>{q(n).innerHTML=AIR.map(c=>`<option value="${c}">${esc(city(c))}</option>`).join('')+`<option value="">${esc(T('trip.other_airport'))}</option>`;});
+  // the airports (K-5, decision 62; the same list and rule as the app's AIRPORTS): one from the list, or any other
+  // three-letter code; no free text
+  const AIRP=[['TBS','ticket.city_tbs'],['KUT','ticket.city_kut'],['BUS','app.city_bus'],['TLV','ticket.city_tlv'],['ETM','app.city_etm'],['IST','app.city_ist'],['SAW','app.city_ist'],['DXB','app.city_dxb'],
+    ['SVO','app.city_mow'],['VKO','app.city_mow'],['DME','app.city_mow'],['LED','app.city_led'],['WAW','app.city_waw'],['RIX','app.city_rix'],['VIE','app.city_vie'],['MUC','app.city_muc'],['LHR','app.city_lon']];
+  const cityOf=c=>{const a=AIRP.find(x=>x[0]===c);return a?T(a[1]):'';};
+  const city=c=>c?(cityOf(c)?c+' · '+cityOf(c):c):'—';
+  const showPlace=n=>{document.getElementById(n==='ofr'?'tfFromVal':'tfToVal').textContent=city(q(n).value);};
   q('of').placeholder=q('rf').placeholder=T('trip.number_hint',{example:'\u20686H 897\u2069'});
-  const code=n=>q(n).value||q(n+'x').value.trim().toUpperCase();
+  const code=n=>q(n).value;
   const read=()=>({out:{date:q('od').value,flight:q('of').value.trim().toUpperCase(),from:code('ofr'),to:code('oto'),departs:q('odp').value,arrives:q('oar').value},
     ret:q('rd').value?{date:q('rd').value,flight:q('rf').value.trim().toUpperCase(),departs:q('rdp').value,arrives:q('rar').value}:null,
     ski:manual&&q('sf').value&&q('sl').value?{from:q('sf').value,to:q('sl').value}:null});
@@ -1174,8 +1179,7 @@ const TRIPFORM=(()=>{
   const today=()=>new Date().toLocaleDateString('sv');
   const paint=()=>{const t=read(),d0=today(),was=MYTRIP.get();
     q('od').min=was&&was.out.date<d0?was.out.date:d0;q('rd').min=t.out.date||d0;q('sf').min=q('sl').min=t.out.date||'';q('sf').max=q('sl').max=t.ret&&t.ret.date||''; // the ski days within the trip, as in the app (S-34)
-    document.getElementById('tfOther').hidden=!!(q('ofr').value&&q('oto').value);
-    q('ofrx').parentElement.hidden=!!q('ofr').value;q('otox').parentElement.hidden=!!q('oto').value;
+    showPlace('ofr');showPlace('oto');
     const br=document.getElementById('tfBackRoute');br.textContent=t.out.from&&t.out.to?T('trip.back_auto',{route:t.out.to+' › '+t.out.from}):T('trip.back_optional');br.dir='auto';
     const sd=manual?t.ski:MYTRIP.skiAuto(t.out,t.ret),b=document.getElementById('tfSki');
     document.getElementById('tfSkiLbl').textContent=T(manual?'trip.ski_manual':'trip.ski_computed');
@@ -1186,14 +1190,30 @@ const TRIPFORM=(()=>{
     else b.textContent=T('trip.ski_unknown');};
   const open=()=>{const t=MYTRIP.get(),o=t&&t.out||{},r=t&&t.ret||{};err.hidden=true;
     q('od').value=o.date||'';q('of').value=o.flight||'';q('odp').value=o.departs||'';q('oar').value=o.arrives||'';
-    const pick=(n,c,def)=>{const v=c||def;q(n).value=AIR.includes(v)?v:'';q(n+'x').value=AIR.includes(v)?'':v;};
-    pick('ofr',o.from,'TLV');pick('oto',o.to,'TBS');
+    q('ofr').value=o.from||'TLV';q('oto').value=o.to||'TBS';
     q('rd').value=r.date||'';q('rf').value=r.flight||'';q('rdp').value=r.departs||'';q('rar').value=r.arrives||'';
     manual=!!(t&&t.ski);q('sf').value=manual?t.ski.from:'';q('sl').value=manual?t.ski.to:'';
     const del=document.getElementById('tfDelete');del.hidden=!t;delArm=0;del.textContent=T('trip.delete');f.querySelectorAll('[aria-invalid]').forEach(e=>e.removeAttribute('aria-invalid'));paint();};
   const fail=(n,key)=>{err.textContent=T(key);err.hidden=false;if(n){q(n).setAttribute('aria-invalid','true');q(n).focus();}};
   f.addEventListener('input',e=>{if(e.target.name)e.target.removeAttribute('aria-invalid');paint();});
   f.addEventListener('change',paint);
+  // the sheet: search by code or city; the field's first choices on top; a three-letter code that is not listed can be used
+  f.addEventListener('click',e=>{const b=e.target.closest('[data-place]');if(!b)return;const n=b.dataset.place;
+    const first=n==='ofr'?['TLV']:['TBS','KUT','BUS'],order=[...first,...AIRP.map(a=>a[0]).filter(c=>!first.includes(c))];
+    const shade=document.createElement('div');shade.className='tf-shade';
+    const sh=document.createElement('div');sh.className='tf-sheet';sh.setAttribute('role','dialog');sh.setAttribute('aria-modal','true');
+    const title=T(n==='ofr'?'app.trip_place_from':'app.trip_place_to');sh.setAttribute('aria-label',title);
+    sh.innerHTML=`<span class="grab" aria-hidden="true"></span><h2>${esc(title)}</h2><input type="search" dir="auto" autocomplete="off" placeholder="${esc(T('app.trip_place_search'))}" aria-label="${esc(T('app.trip_place_search'))}"><div class="tf-aps"></div>`;
+    const inp=sh.querySelector('input'),list=sh.querySelector('.tf-aps');
+    const close=()=>{shade.remove();sh.remove();b.focus();};
+    const draw=()=>{const t=inp.value.trim(),u=t.toUpperCase(),lt=t.toLowerCase();
+      const shown=order.filter(c=>!t||c.includes(u)||cityOf(c).toLowerCase().includes(lt)).slice(0,8);
+      list.innerHTML=shown.map(c=>`<button type="button" class="tf-ap" data-code="${c}"${c===q(n).value?' aria-current="true"':''}><b dir="ltr">${c}</b><span>${esc(cityOf(c))}</span></button>`).join('')+
+        (/^[A-Za-z]{3}$/.test(t)&&!shown.includes(u)?`<button type="button" class="tf-ap code" data-code="${u}"><b dir="ltr">${u}</b><span>${esc(T('app.trip_place_other',{text:u}))}</span></button>`:'');};
+    inp.addEventListener('input',draw);
+    list.addEventListener('click',ev=>{const a=ev.target.closest('[data-code]');if(!a)return;q(n).value=a.dataset.code;close();paint();});
+    shade.onclick=close;sh.addEventListener('keydown',ev=>{if(ev.key==='Escape')close();});
+    draw();document.body.append(shade,sh);inp.focus();});
   document.getElementById('tfSkiBtn').addEventListener('click',()=>{manual=!manual;if(manual&&!q('sf').value){const a=MYTRIP.skiAuto(read().out,read().ret);if(a){q('sf').value=a.from;q('sl').value=a.to;}}paint();});
   let delArm=0;
   document.getElementById('tfDelete').addEventListener('click',e=>{
@@ -1204,7 +1224,7 @@ const TRIPFORM=(()=>{
     const old=MYTRIP.get(),d0=today();
     if(t.out.date<d0&&!(old&&old.out.date===t.out.date))return fail('od','trip.past_date');
     if(t.ret&&t.ret.date<d0&&!(old&&old.ret&&old.ret.date===t.ret.date))return fail('rd','trip.past_date');
-    for(const n of ['ofr','oto'])if(!q(n).value&&!/^[A-Z]{3}$/.test(q(n+'x').value.trim().toUpperCase()))return fail(n+'x','trip.bad_code');
+    for(const n of ['ofr','oto'])if(!/^[A-Z]{3}$/.test(q(n).value))return fail(null,'trip.bad_code');
     if(t.ret&&t.ret.date<t.out.date)return fail('rd','trip.bad_order');
     if(t.ski&&t.ski.to<t.ski.from)return fail('sl','trip.bad_order');
     if(t.ski&&t.ski.from<t.out.date)return fail('sf','trip.ski_outside');

@@ -72,8 +72,9 @@ test('הטיול שלך: טופס, שמירה בדפדפן, הכרטיס, ערי
   const f = page.locator('#tripForm');
   await expect(f).toBeVisible();
   // the destination starts as Tbilisi, the origin as Tel Aviv
-  await expect(f.locator('select[name="ofr"]')).toHaveValue('TLV');
-  await expect(f.locator('select[name="oto"]')).toHaveValue('TBS');
+  await expect(f.locator('input[name="ofr"]')).toHaveValue('TLV');
+  await expect(f.locator('[data-place="ofr"]')).toContainText('TLV · תל אביב');
+  await expect(f.locator('input[name="oto"]')).toHaveValue('TBS');
   // saving without a date says what is missing
   await f.locator('.tf-save').click();
   await expect(page.locator('#tfErr')).toBeVisible();
@@ -135,8 +136,21 @@ test('הטיול שלך: ימי סקי ידניים, ושדה תעופה אחר'
   await page.goto('/#trip');
   await loaded(page);
   const f = page.locator('#tripForm');
-  await f.locator('select[name="ofr"]').selectOption('');
-  await f.locator('input[name="ofrx"]').fill('ist');
+  // the airport from the sheet (K-5): search by city, and a three-letter code that is not listed; no free text
+  await f.locator('[data-place="oto"]').click();
+  const sheet = page.locator('.tf-sheet');
+  await sheet.locator('input').fill('קוטא');
+  await expect(sheet.locator('.tf-ap')).toHaveCount(1);
+  await sheet.locator('.tf-ap').click();
+  await expect(f.locator('input[name="oto"]')).toHaveValue('KUT');
+  await f.locator('[data-place="ofr"]').click();
+  await sheet.locator('input').fill('lca');
+  await expect(sheet.locator('.tf-ap.code')).toContainText('LCA');
+  await sheet.locator('input').fill('לרנקה שלי');
+  await expect(sheet.locator('.tf-ap')).toHaveCount(0);
+  await sheet.locator('input').fill('ist');
+  await sheet.locator('.tf-ap[data-code="IST"]').click();
+  await expect(f.locator('[data-place="ofr"]')).toContainText('IST · איסטנבול');
   await f.locator('input[name="od"]').fill('2027-02-01');
   await f.locator('input[name="rd"]').fill('2027-02-06');
   await page.locator('#tfSkiBtn').click();

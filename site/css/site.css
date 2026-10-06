@@ -1072,3 +1072,17 @@ html[lang="ka"] .pv-doc h1{font-size:36px;overflow-wrap:anywhere}
 .wx-day .dw{font-size:13px;line-height:1.35}
 .wx-day .dt{font-family:var(--f-display);font-weight:700;font-size:26px;line-height:1}
 .wx-day.later .dw,.wx-day.later .dt{color:var(--muted)}
+
+/* the airport field and its sheet (round 18, K-5, decision 62; the app's PlaceSheet): a list with search, or a code */
+.tf-place{width:100%;height:48px;display:flex;align-items:center;padding:0 10px;box-sizing:border-box;font:inherit;font-size:16px;color:var(--ink);background:var(--paper);border:1.5px solid var(--rule);border-radius:0;text-align:start;cursor:pointer}
+.tf-place:focus-visible{outline:3px solid var(--accent);outline-offset:1px}
+.tf-place span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tf-shade{position:fixed;inset:0;z-index:60;background:rgba(13,21,34,.45)}
+.tf-sheet{position:fixed;left:0;right:0;bottom:0;z-index:61;max-width:560px;max-height:76vh;margin:0 auto;overflow:auto;display:flex;flex-direction:column;gap:8px;padding:10px 16px 20px;background:var(--paper);color:var(--ink);border-top:6px solid var(--ink)}
+.tf-sheet .grab{width:44px;height:4px;margin:0 auto;background:var(--rule)}
+.tf-sheet h2{margin:4px 0 0;font-family:var(--f-display);font-weight:700;font-size:34px;line-height:1}
+.tf-sheet input{height:48px;padding:0 12px;border:1.5px solid var(--rule);border-radius:0;background:var(--paper);color:var(--ink);font:inherit;font-size:16px}
+.tf-ap{display:flex;align-items:center;gap:14px;width:100%;min-height:52px;padding:0 4px;border:0;border-bottom:1px solid var(--rule);background:none;color:var(--ink);font:inherit;font-size:15px;text-align:start;cursor:pointer}
+.tf-ap[aria-current="true"]{background:var(--grid,var(--snow))}
+.tf-ap b{width:64px;flex:none;font-family:var(--f-display);font-weight:700;font-size:28px;line-height:1}
+.tf-ap.code,.tf-ap.code b{color:var(--glacier);font-weight:700}
