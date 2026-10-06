@@ -48,6 +48,8 @@ test('מצב הרכבלים בדף הבית (סבב 20): כבוי עם "אין �
     await expect(board).toContainText('אין דיווח');
     await expect(board.locator('.sb-f b')).toHaveText(/^0\/\d+$/);
     await expect(board.locator('.sb-dots i.on')).toHaveCount(0);
+    await expect(board).toHaveCSS('pointer-events', 'none');
+    await expect(board.locator('.snowcap')).toHaveCount(0);
     expect(await board.locator('.sb-dots i').count()).toBeGreaterThan(5);
   }
   // a fresh report: the open lifts fill in, and the snow is gone
@@ -58,6 +60,7 @@ test('מצב הרכבלים בדף הבית (סבב 20): כבוי עם "אין �
   await expect(board).toHaveAttribute('data-state', 'live');
   await expect(board.locator('.sb-f b')).toHaveText(/^2\/\d+$/);
   await expect(board.locator('.sb-dots i.on')).toHaveCount(2);
+  await expect(board.locator('.sb-h em')).toBeVisible();
   await expect(board).not.toContainText('אין דיווח');
   await expect(board.locator('.snowcap')).toBeHidden();
   expect(errors).toEqual([]);
