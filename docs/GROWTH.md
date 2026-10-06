@@ -74,8 +74,8 @@
 | `video_play` | ניגון סרטון בפרטי מסלול | `run`; `video` (מזהה הסרטון ביוטיוב, ציבורי) |
 | `status_view` | הצגת מצב הרכבלים (פעם אחת לכל כניסה למפה) | `state`: `none`, `stale`, `fresh`; `open`, `total` (מספרים, רק ב-`fresh`) |
 | `status_only_open` | "רק מה שפתוח בשבילי" | `on`: true/false |
-| `weather_view` | מזג האוויר הוצג (סבב 19, מ-6): השכבה במפה נפתחה, התנאים בפאנל מסלול, או לוח "היום על ההר" או ימי הסקי בדף הבית (פעם לכל הצגה) | `where`: `map`, `run`, `home`; `state`: `fresh`, `stale`, `none` |
-| `location_toggle` | "איפה אני" נדלק או כבה (סבב 19, מ-7) | `on`: true/false; `result` (רק בהדלקה): `granted`, `approximate`, `denied`, `unavailable`, `outside` (הקריאה הראשונה מחוץ להר). **בלי** מסלול, רכבל, גובה או כל פרט על המקום |
+| `location_toggle` | "איפה אני" נדלק (עם התוצאה הראשונה) או נכבה (סבב 19, מ-7) | `on`: true/false; `result` (כשנדלק): `granted`, `approximate`, `denied`, `unavailable`, `outside`. **בלי** שם מסלול, קואורדינטות או כל פרט על המקום |
+| `weather_view` | שכבת מזג האוויר, תנאי המסלול או לוח "היום" מוצגים (סבב 19, מ-6) | `where`: `map`, `run`, `home`; `state`: `fresh`, `stale`, `none` |
 | `meet_pick` | בחירת נקודה | `kind`: `station`, `preset`; `station` (שם התחנה) או `preset`: `morning`, `noon`, `end` |
 | `meet_clear` | ביטול הבחירה | `via`: `button`, `map`, `pin`, `card` |
 | `meet_undo` | "החזרה" אחרי ביטול | |
