@@ -232,6 +232,7 @@ test('תצוגת מסלול: קישור ישיר, צביעה לפי שיפוע, 
   // round 20: what's ahead is three big numbers; no compare line, connections, notes or source block (decision 64)
   await expect(page.locator('.steps > div')).toHaveCount(3);
   await expect(page.locator('.steps .st b')).toHaveText(/^\d+°$/);
+  await expect(page.locator('.steps > div').first().locator('b')).toHaveText(/^[\d,]+ מ׳$/);
   await expect(page.locator('#panel')).not.toContainText('חיבורים');
   await expect(page.locator('#panel')).not.toContainText('רמת ודאות');
   await expect(page.locator('#panel .info-pop')).toBeHidden();

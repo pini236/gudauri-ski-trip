@@ -322,9 +322,9 @@ function runViewBlock(key){
   ${fly}
   <h3>${E('run.ahead_heading')}</h3>
   <div class="steps">
-    <div><small>${E('run.step_start')}</small><b class="num">${H('common.unit_m',{},{n:`${num(Math.round(S[0].h))}`})}</b></div>
+    <div><small>${E('run.step_start')}</small><b class="num">${H('common.unit_m',{n:Math.round(S[0].h)},{n:num(Math.round(S[0].h))})}</b></div>
     <div class="st"><small>${E('run.step_steep')}</small><b class="num">${deg(maxG)}°</b></div>
-    <div><small>${E('run.step_end')}</small><b class="num">${H('common.unit_m',{},{n:`${num(Math.round(S[n-1].h))}`})}</b></div>
+    <div><small>${E('run.step_end')}</small><b class="num">${H('common.unit_m',{n:Math.round(S[n-1].h)},{n:num(Math.round(S[n-1].h))})}</b></div>
   </div>`;
 }
 function profAt(i){
@@ -1084,6 +1084,8 @@ function renderTicket(){
         baggage:f.other?short(f.other):'',pair:f.fromCode&&f.toCode?f.fromCode+' › '+f.toCode:'',note:f.departs&&+f.departs.split(':')[0]<6?T('ticket.note_overnight'):'',
         skiCount:skiCount?String(skiCount):'',skiRange:sd?short(sd.from).split('.')[0]+'–'+short(sd.to):'',skiPre:skiCount?skiPre:'',skiPost:skiCount?skiPost:''}[k]??f[k];
       if(k==='note'||k==='skiPre'||k==='skiPost'||k==='airline'){el.textContent=v||'';return;}
+      // round 20: the flight number and the times are optional slots on the ticket, each opening a small sheet
+      if(!v&&(k==='flight'||k==='departs'||k==='arrives')){el.innerHTML=`<button type="button" class="tk-slot" data-slot="${leg}">${E(k==='flight'?'trip.add_number':'trip.add_time')}</button>`;return;}
       el.textContent=v||(k==='from'?T('ticket.from_placeholder'):k==='to'?T('ticket.to_placeholder'):'—');
       if(k==='from'||k==='to')el.classList.toggle('ph',!v);
     });
@@ -1137,7 +1139,7 @@ const TRIPFORM=(()=>{
     ret:r.ret_date?{date:r.ret_date,flight:r.ret_flight||'',departs:(r.ret_departs||'').slice(0,5),arrives:(r.ret_arrives||'').slice(0,5)}:null,ski:null}:null;
   cancel.addEventListener('click',e=>{if(fm&&window.ACCOUNT){e.preventDefault();location.hash=ACCOUNT.cancelTripFor()||'#home';}});
   const open=()=>{fm=window.ACCOUNT&&ACCOUNT.tripFor?ACCOUNT.tripFor():null;
-    head.textContent=fm?T('group.trip_for',{name:fm.name}):T('trip.title');lead.textContent=T(fm?'group.trip_for_note':'trip.lead');
+    head.textContent=fm?T('group.trip_for',{name:fm.name}):T('trip.title');lead.textContent=fm?T('group.trip_for_note'):'';lead.hidden=!fm;
     f.querySelector('.tf-ski').hidden=!!fm;
     const t=fm?fromRow(fm.trip):MYTRIP.get(),o=t&&t.out||{},r=t&&t.ret||{};err.hidden=true;
     q('od').value=o.date||'';q('of').value=o.flight||'';q('odp').value=o.departs||'';q('oar').value=o.arrives||'';
@@ -1183,6 +1185,59 @@ const TRIPFORM=(()=>{
     if(fm){const b=f.querySelector('.tf-save');b.disabled=true;ACCOUNT.saveTripFor(t).catch(x=>{err.textContent=ACCOUNT.errText(x);err.hidden=false;}).finally(()=>{b.disabled=false;});return;}
     const was=MYTRIP.get();MYTRIP.set({v:1,...t,...(was&&was.sid?{sid:was.sid}:{})});window.ACCOUNT&&ACCOUNT.tripSaved();renderTicket();countdown(document.documentElement.dataset.theme==='dark');location.hash='#home';});
   return {open};})();
+// round 20: the ticket is the form. "When are you flying?" opens one calendar: the first tap is the way out, the second the
+// way back, and the ski days light up between them; TLV to TBS is already there. The flight number and the times are
+// optional slots on the ticket, each opening a sheet of its own; the full form (#trip) stays behind "edit".
+const TRIPSHEET=(function(){
+  let box=null;
+  const key=e=>{if(e.key==='Escape')close();};
+  function close(){if(!box)return;box.remove();document.getElementById('tsShade')?.remove();box=null;removeEventListener('keydown',key);}
+  function shell(title,body){close();
+    document.body.insertAdjacentHTML('beforeend',`<div class="ac-shade" id="tsShade"></div><div class="ac-sheet ts-sheet" id="tripSheet" role="dialog" aria-modal="true" aria-labelledby="tsTitle"><span class="grab" aria-hidden="true"></span><h2 id="tsTitle">${esc(title)}</h2>${body}</div>`);
+    box=document.getElementById('tripSheet');document.getElementById('tsShade').addEventListener('click',close);addEventListener('keydown',key);addEventListener('hashchange',close,{once:true});return box;}
+  const pad=n=>String(n).padStart(2,'0'),iso=(y,m,d)=>`${y}-${pad(m+1)}-${pad(d)}`;
+  const today=()=>{const n=new Date();return iso(n.getFullYear(),n.getMonth(),n.getDate());};
+  function save(t){const was=MYTRIP.get();MYTRIP.set({v:1,...t,...(was&&was.sid?{sid:was.sid}:{})});window.ACCOUNT&&ACCOUNT.tripSaved();
+    renderTicket();countdown(document.documentElement.dataset.theme==='dark');close();}
+  function dates(){
+    const t=MYTRIP.get(),o=t?t.out:{},r=t&&t.ret||{};let a=o.date||'',b=r.date||'';
+    const start=a||today();let y=+start.slice(0,4),m=+start.slice(5,7)-1;const d0=today(),lang=I18N.lang;
+    const wk=[...Array(7)].map((_,i)=>new Intl.DateTimeFormat(lang,{weekday:'narrow',timeZone:'UTC'}).format(new Date(Date.UTC(2023,0,1+i))));
+    const sh=shell('',`<div class="ts-mon"><button type="button" data-mon="-1" aria-label="${E('trip.month_prev')}">${I18N.ltr?'‹':'›'}</button><button type="button" data-mon="1" aria-label="${E('trip.month_next')}">${I18N.ltr?'›':'‹'}</button></div><div class="ts-cal" role="grid"></div><div class="ts-legend"></div><button type="button" class="ac-btn blue" data-save disabled>${E('trip.save')}</button>`);
+    const draw=()=>{
+      sh.querySelector('#tsTitle').textContent=new Intl.DateTimeFormat(lang,{month:'long',year:'numeric',timeZone:'UTC'}).format(new Date(Date.UTC(y,m,1)));
+      const sd=a&&b?MYTRIP.skiAuto({...o,date:a},{...r,date:b}):null,lead=new Date(Date.UTC(y,m,1)).getUTCDay(),n=new Date(Date.UTC(y,m+1,0)).getUTCDate();
+      let h=wk.map(w=>`<small aria-hidden="true">${esc(w)}</small>`).join('')+'<span></span>'.repeat(lead);
+      for(let d=1;d<=n;d++){const v=iso(y,m,d),c=v===a?'out':v===b?'ret':sd&&v>=sd.from&&v<=sd.to?'ski':'';
+        h+=`<button type="button" class="num ${c}" data-d="${v}"${v<d0?' disabled':''} aria-pressed="${!!(v===a||v===b)}">${d}</button>`;}
+      sh.querySelector('.ts-cal').innerHTML=h;
+      const k=sd?Math.round((Date.parse(sd.to)-Date.parse(sd.from))/864e5)+1:0;
+      sh.querySelector('.ts-legend').innerHTML=`<span><i class="lg-f"></i>${E('trip.cal_flights')}</span>${k?`<span><i class="lg-s"></i>${E('trip.cal_ski',{n:k})}</span>`:''}`;
+      sh.querySelector('[data-save]').disabled=!a;};
+    sh.addEventListener('click',e=>{const bt=e.target.closest('button');if(!bt)return;
+      if(bt.dataset.mon){m+=+bt.dataset.mon;if(m<0){m=11;y--;}if(m>11){m=0;y++;}draw();}
+      else if(bt.dataset.d){const v=bt.dataset.d;if(!a||b||v<a){a=v;b='';}else b=v;draw();}
+      else if(bt.dataset.save!==undefined&&a){const same=t&&t.out.date===a&&((t.ret&&t.ret.date)||'')===b;
+        save({out:{flight:'',from:'TLV',to:'TBS',departs:'',arrives:'',...o,date:a},ret:b?{flight:'',departs:'',arrives:'',...r,date:b}:null,ski:same?t.ski||null:null});}});
+    draw();sh.querySelector('[data-d]:not([disabled])')?.focus();}
+  // one leg's details: where you land (on the way out), the flight number and the times
+  function leg(which){const t=MYTRIP.get();if(!t)return dates();const L=which==='ret'?t.ret:t.out;if(!L)return dates();
+    const out=which!=='ret',DEST=['TBS','KUT','BUS'];
+    const route=out?`<div class="ts-route" role="group" aria-label="${E('trip.land_where')}">${DEST.map(c=>`<button type="button" data-to="${c}" aria-pressed="${t.out.to===c}"><b dir="ltr">${c}</b> ${E(c==='BUS'?'app.city_bus':'ticket.city_'+c.toLowerCase())}</button>`).join('')}<a href="#trip">${E('trip.other_airport')}</a></div>`:'';
+    const sh=shell(out?T('trip.land_where'):T('ticket.card_return'),`${route}
+      <label class="ac-fld"><span>${E('ticket.flight')}</span><input name="fl" dir="ltr" maxlength="8" autocapitalize="characters" autocomplete="off" value="${esc(L.flight||'')}"></label>
+      <div class="ts-times"><label class="ac-fld"><span>${E('ticket.departs')}</span><input type="time" name="dp" value="${esc(L.departs||'')}"></label><label class="ac-fld"><span>${E('ticket.arrives')}</span><input type="time" name="ar" value="${esc(L.arrives||'')}"></label></div>
+      <button type="button" class="ac-btn blue" data-save>${E('trip.save')}</button>`);
+    let to=t.out.to;
+    sh.addEventListener('click',e=>{const bt=e.target.closest('button');if(!bt)return;
+      if(bt.dataset.to){to=bt.dataset.to;sh.querySelectorAll('[data-to]').forEach(x=>x.setAttribute('aria-pressed',String(x===bt)));}
+      else if(bt.dataset.save!==undefined){const q=n=>sh.querySelector(`[name="${n}"]`).value.trim();
+        const nl={...L,flight:q('fl').toUpperCase(),departs:q('dp'),arrives:q('ar')};
+        save(out?{...t,out:{...nl,to}}:{...t,ret:nl});}});
+    sh.querySelector('[name="fl"]').focus();}
+  document.getElementById('bpEmpty').addEventListener('click',e=>{if(e.target.closest('[data-when]'))dates();});
+  document.getElementById('bpStack').addEventListener('click',e=>{const sl=e.target.closest('[data-slot]');if(!sl)return;e.stopPropagation();leg(sl.dataset.slot);},true);
+  return {dates,leg,close};})();
 // about and settings (#about): sound and vibration for the whole site and the games, and clearing the game records
 (function(){const P=window.GUD_PREFS||{sound:true,haptics:true};
   // no vibration row where the device can't vibrate (round 20)

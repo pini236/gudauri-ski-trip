@@ -68,8 +68,8 @@ test('הטיול שלך: טופס, שמירה בדפדפן, הכרטיס, ערי
   await page.clock.setFixedTime(new Date('2026-12-31T09:00:00Z'));
   await page.goto('/');
   await loaded(page);
-  await page.locator('#bpEmpty .btn-blue').click();
-  await expect(page).toHaveURL(/#trip$/);
+  // the full form stays behind "edit" (round 20: the empty ticket opens the calendar instead)
+  await page.evaluate(() => { location.hash = '#trip'; });
   const f = page.locator('#tripForm');
   await expect(f).toBeVisible();
   // the destination starts as Tbilisi, the origin as Tel Aviv
@@ -113,6 +113,45 @@ test('הטיול שלך: טופס, שמירה בדפדפן, הכרטיס, ערי
   await page.locator('#tfDelete').click();
   await expect(page.locator('#bpEmpty')).toBeVisible();
   expect(await page.evaluate(() => localStorage.getItem('gud-trip'))).toBeNull();
+  expect(errors).toEqual([]);
+});
+
+test('הכרטיס הוא הטופס (סבב 20): שתי נגיעות בלוח שנה, TLV ו-TBS כתובים, ומספר הטיסה מחריץ על הכרטיס', async ({ page }) => {
+  const errors = watchErrors(page);
+  await page.clock.setFixedTime(new Date('2026-12-01T09:00:00Z'));
+  await page.goto('/');
+  await loaded(page);
+  await expect(page.locator('#bpEmpty .be-code').first()).toHaveText('TLV');
+  await page.locator('#bpEmpty [data-when]').click();
+  const sh = page.locator('#tripSheet');
+  await expect(sh).toBeVisible();
+  await expect(sh.locator('[data-save]')).toBeDisabled();
+  await expect(sh.locator('[data-d="2026-11-30"]')).toHaveCount(0);
+  await sh.locator('[data-mon="1"]').click();
+  await sh.locator('[data-d="2027-01-10"]').click();
+  await sh.locator('[data-d="2027-01-15"]').click();
+  await expect(sh.locator('[data-d="2027-01-12"]')).toHaveClass(/ski/);
+  await expect(sh.locator('.ts-legend')).toContainText('4 ימי סקי');
+  await sh.locator('[data-save]').click();
+  await expect(sh).toHaveCount(0);
+  await expect(page.locator('#bpStack')).toBeVisible();
+  await expect(page.locator('.bp[data-leg="out"] [data-f="fromCode"]')).toHaveText('TLV');
+  await expect(page.locator('.bp[data-leg="out"] [data-f="toCode"]')).toHaveText('TBS');
+  await expect(page.locator('.bp[data-leg="out"] [data-f="skiRange"]')).toHaveText('11–14.1');
+  // the flight number is an optional slot on the ticket
+  await page.locator('#tFlight [data-slot="out"]').click();
+  await expect(sh).toBeVisible();
+  await sh.locator('[data-to="KUT"]').click();
+  await sh.locator('[name="fl"]').fill('6h 897');
+  await sh.locator('[name="dp"]').fill('16:00');
+  await sh.locator('[data-save]').click();
+  await expect(page.locator('#tFlight')).toHaveText('6H 897');
+  await expect(page.locator('#tDeparts')).toHaveText('16:00');
+  await expect(page.locator('#tArrives [data-slot]')).toBeVisible();
+  await expect(page.locator('.bp[data-leg="out"] [data-f="toCode"]')).toHaveText('KUT');
+  const t = await page.evaluate(() => JSON.parse(localStorage.getItem('gud-trip') || 'null'));
+  expect(t.out).toMatchObject({ date: '2027-01-10', from: 'TLV', to: 'KUT', flight: '6H 897', departs: '16:00' });
+  expect(t.ret.date).toBe('2027-01-15');
   expect(errors).toEqual([]);
 });
 

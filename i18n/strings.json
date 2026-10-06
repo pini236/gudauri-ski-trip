@@ -421,18 +421,6 @@
     "ka"
    ]
   },
-  "about.reset_sub": {
-   "he": "השיאים שנשמרו בדפדפן הזה",
-   "en": "The best scores saved in this browser",
-   "ru": "Рекорды, сохранённые в этом браузере",
-   "ka": "ამ ბრაუზერში შენახული რეკორდები",
-   "where": "site/index.html",
-   "note": "initial text; app.js changes it during reset",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
   "about.setting_saved": {
    "he": "ההגדרה נשמרה. במשחק פתוח היא תחול בכניסה הבאה",
    "en": "Setting saved. In a game that's already open, it applies next time you enter",
@@ -6121,17 +6109,6 @@
     "ka"
    ]
   },
-  "games.intro": {
-   "he": "על השלג של גודאורי. השיאים נשמרים בדפדפן, ומי שבקבוצה רואה אותם גם בטבלת הקבוצה. מומלץ עם צליל.",
-   "en": "On Gudauri's snow. Best scores are saved in your browser, and if you're in a group they show in its table too. Sound is recommended.",
-   "ru": "На снегу Гудаури. Рекорды сохраняются в браузере, а если вы в группе, они видны и в её таблице. Лучше играть со звуком.",
-   "ka": "გუდაურის თოვლზე. რეკორდები ბრაუზერში ინახება, და თუ ჯგუფში ხართ, ჯგუფის ცხრილშიც ჩანს. გირჩევთ, ითამაშოთ ხმით.",
-   "where": "site/index.html",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
   "games.merge_long": {
    "he": "מחליקים, ושני כדורים זהים מתאחדים לגדול יותר.",
    "en": "Swipe, and two identical balls merge into a bigger one.",
@@ -9325,7 +9302,7 @@
    "en": "Arrives",
    "ru": "Прилёт",
    "ka": "ჩაფრენა",
-   "where": "site/index.html",
+   "where": "site/index.html, site/js/app.js",
    "note": "short: field label",
    "check": [
     "ru",
@@ -9361,7 +9338,7 @@
    "en": "Return boarding pass",
    "ru": "Посадочный талон обратно",
    "ka": "დაბრუნების ჩასხდომის ბარათი",
-   "where": "site/index.html",
+   "where": "site/index.html, site/js/app.js",
    "note": "aria-label",
    "check": [
     "ru",
@@ -9397,7 +9374,7 @@
    "en": "Departs",
    "ru": "Вылет",
    "ka": "გაფრენა",
-   "where": "site/index.html",
+   "where": "site/index.html, site/js/app.js",
    "note": "short: field label",
    "check": [
     "ru",
@@ -9421,7 +9398,7 @@
    "en": "Flight",
    "ru": "Рейс",
    "ka": "რეისი",
-   "where": "site/index.html",
+   "where": "site/index.html, site/js/app.js",
    "note": "short: field label",
    "check": [
     "ru",
@@ -12218,18 +12195,6 @@
     "ka"
    ]
   },
-  "trip.add": {
-   "he": "הוספת הטיסה שלי",
-   "en": "Add my flight",
-   "ru": "Добавить мой рейс",
-   "ka": "ჩემი რეისის დამატება",
-   "where": "site/index.html",
-   "note": "button",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
   "trip.airport_code": {
    "he": "קוד שדה התעופה",
    "en": "Airport code",
@@ -12396,28 +12361,6 @@
     "ka"
    ]
   },
-  "trip.lead": {
-   "he": "רק תאריך ההלוך חובה. בלי הרשמה: נשמר רק בדפדפן הזה.",
-   "en": "Only the outbound date is required. No sign-up: saved only in this browser.",
-   "ru": "Обязательна только дата вылета туда. Без регистрации: хранится только в этом браузере.",
-   "ka": "სავალდებულოა მხოლოდ გამგზავრების თარიღი. რეგისტრაციის გარეშე: ინახება მხოლოდ ამ ბრაუზერში.",
-   "where": "site/index.html",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "trip.local_note": {
-   "he": "בלי הרשמה. נשמר רק בדפדפן הזה, ואפשר למחוק בכל רגע.",
-   "en": "No sign-up. Saved only in this browser, and you can delete it any time.",
-   "ru": "Без регистрации. Хранится только в этом браузере, удалить можно в любой момент.",
-   "ka": "რეგისტრაციის გარეშე. ინახება მხოლოდ ამ ბრაუზერში და ნებისმიერ დროს შეგიძლიათ წაშალოთ.",
-   "where": "site/index.html",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
   "trip.need_date": {
    "he": "צריך את תאריך ההלוך",
    "en": "The outbound date is needed",
@@ -12459,7 +12402,7 @@
    "en": "Other…",
    "ru": "Другой…",
    "ka": "სხვა…",
-   "where": "site/index.html",
+   "where": "site/index.html, site/js/app.js",
    "note": "option in the airport list",
    "check": [
     "ru",
@@ -12494,7 +12437,7 @@
    "en": "Save",
    "ru": "Сохранить",
    "ka": "შენახვა",
-   "where": "site/index.html",
+   "where": "site/index.html, site/js/app.js",
    "note": "button",
    "check": [
     "ru",
@@ -12644,17 +12587,6 @@
     "ka"
    ]
   },
-  "acct.signin_lead": {
-   "he": "בלי סיסמה, ובלי מיילים מאיתנו. רק השם, ומה שגוגל או אפל מעבירים.",
-   "en": "No password, and no emails from us. Just your name, and what Google or Apple pass on.",
-   "ru": "Без пароля и без писем от нас. Только имя и то, что передают Google или Apple.",
-   "ka": "პაროლის გარეშე და ჩვენგან წერილების გარეშე. მხოლოდ სახელი და ის, რასაც Google ან Apple გადმოგვცემს.",
-   "where": "site/index.html",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
   "acct.why_title": {
    "he": "למה להתחבר",
    "en": "Why sign in",
@@ -12682,17 +12614,6 @@
    "en": "In the app too",
    "ru": "И в приложении",
    "ka": "აპშიც",
-   "where": "site/index.html",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "acct.why_rest": {
-   "he": "כל השאר עובד בלי חשבון: המפה, הטיול שלך, המשחקים, וגם הצטרפות לקבוצה בקוד.",
-   "en": "Everything else works without an account: the map, your trip, the games, and joining a group with a code.",
-   "ru": "Всё остальное работает без аккаунта: карта, ваша поездка, игры и вступление в группу по коду.",
-   "ka": "დანარჩენი ყველაფერი ანგარიშის გარეშე მუშაობს: რუკა, თქვენი მოგზაურობა, თამაშები და ჯგუფში კოდით შესვლაც.",
    "where": "site/index.html",
    "check": [
     "ru",
@@ -13316,33 +13237,11 @@
     "ka"
    ]
   },
-  "join.no_signup": {
-   "he": "בלי הרשמה. הדפדפן הזה זוכר אותך; אפשר לשמור חשבון עם גוגל או אפל אחר כך.",
-   "en": "No sign-up. This browser remembers you; you can save an account with Google or Apple later.",
-   "ru": "Без регистрации. Этот браузер вас запомнит; аккаунт через Google или Apple можно сохранить позже.",
-   "ka": "რეგისტრაციის გარეშე. ეს ბრაუზერი დაგიმახსოვრებთ; ანგარიშის შენახვა Google-ით ან Apple-ით მოგვიანებითაც შეიძლება.",
-   "where": "site/index.html",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
   "join.reclaim_title": {
    "he": "אני כבר בקבוצה",
    "en": "I'm already in the group",
    "ru": "Я уже в группе",
    "ka": "მე უკვე ჯგუფში ვარ",
-   "where": "site/index.html",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "join.reclaim_lead": {
-   "he": "החלפת טלפון או דפדפן? בוחרים את השם שלך, והמנהל מאשר. הכל חוזר, בלי כפיל.",
-   "en": "New phone or browser? Pick your name and the admin approves. Everything comes back, with no duplicate.",
-   "ru": "Сменили телефон или браузер? Выберите своё имя, и администратор подтвердит. Всё вернётся, без дублей.",
-   "ka": "ტელეფონი ან ბრაუზერი შეცვალეთ? აირჩიეთ თქვენი სახელი და ადმინისტრატორი დაადასტურებს. ყველაფერი დაბრუნდება, დუბლიკატის გარეშე.",
    "where": "site/index.html",
    "check": [
     "ru",
@@ -13874,33 +13773,11 @@
     "ka"
    ]
   },
-  "group.empty_lead": {
-   "he": "קבוצה היא דף משותף לחבר׳ה: הטיסות של כולם, מפגשים ושיאים.",
-   "en": "A group is a shared page for your friends: everyone's flights, meetups and high scores.",
-   "ru": "Группа — общая страница для друзей: рейсы всех, встречи и рекорды.",
-   "ka": "ჯგუფი მეგობრების საერთო გვერდია: ყველას ფრენები, შეხვედრები და რეკორდები.",
-   "where": "site/index.html",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
   "group.create": {
    "he": "יצירת קבוצה",
    "en": "Create a group",
    "ru": "Создать группу",
    "ka": "ჯგუფის შექმნა",
-   "where": "site/index.html",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "group.create_needs": {
-   "he": "יצירת קבוצה דורשת חשבון גוגל או אפל.",
-   "en": "Creating a group needs a Google or Apple account.",
-   "ru": "Для создания группы нужен аккаунт Google или Apple.",
-   "ka": "ჯგუფის შესაქმნელად Google-ის ან Apple-ის ანგარიშია საჭირო.",
    "where": "site/index.html",
    "check": [
     "ru",
@@ -15982,6 +15859,117 @@
    "ka": "კოპირება",
    "where": "site/index.html",
    "note": "Screen reader label of a copy icon button",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "trip.when": {
+   "he": "מתי טסים?",
+   "en": "When are you flying?",
+   "ru": "Когда летите?",
+   "ka": "როდის მიფრინავთ?",
+   "where": "site/index.html",
+   "note": "The big slot on the empty ticket that opens the calendar (round 20)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "trip.add_number": {
+   "he": "+ מספר",
+   "en": "+ number",
+   "ru": "+ номер",
+   "ka": "+ ნომერი",
+   "where": "site/js/app.js",
+   "note": "Optional slot on the ticket for the flight number (round 20)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "trip.add_time": {
+   "he": "+ שעה",
+   "en": "+ time",
+   "ru": "+ время",
+   "ka": "+ დრო",
+   "where": "site/js/app.js",
+   "note": "Optional slot on the ticket for a time (round 20)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "trip.land_where": {
+   "he": "לאן נוחתים?",
+   "en": "Where do you land?",
+   "ru": "Куда прилетаете?",
+   "ka": "სად ჯდებით?",
+   "where": "site/js/app.js",
+   "note": "Title of the sheet for the way out: the destination, the flight number and the times",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "trip.cal_flights": {
+   "he": "טיסות",
+   "en": "Flights",
+   "ru": "Рейсы",
+   "ka": "ფრენები",
+   "where": "site/js/app.js",
+   "note": "Calendar legend: the two flight days",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "trip.cal_ski": {
+   "he": {
+    "one": "יום סקי אחד",
+    "two": "{n} ימי סקי",
+    "other": "{n} ימי סקי"
+   },
+   "en": {
+    "one": "{n} ski day",
+    "other": "{n} ski days"
+   },
+   "ru": {
+    "one": "{n} день катания",
+    "few": "{n} дня катания",
+    "many": "{n} дней катания",
+    "other": "{n} дня катания"
+   },
+   "ka": {
+    "one": "{n} სათხილამურო დღე",
+    "other": "{n} სათხილამურო დღე"
+   },
+   "where": "site/js/app.js",
+   "note": "Calendar legend: the ski days between the flights (plural)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "trip.month_prev": {
+   "he": "החודש הקודם",
+   "en": "Previous month",
+   "ru": "Предыдущий месяц",
+   "ka": "წინა თვე",
+   "where": "site/js/app.js",
+   "note": "aria-label of the calendar arrow",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "trip.month_next": {
+   "he": "החודש הבא",
+   "en": "Next month",
+   "ru": "Следующий месяц",
+   "ka": "შემდეგი თვე",
+   "where": "site/js/app.js",
+   "note": "aria-label of the calendar arrow",
    "check": [
     "ru",
     "ka"

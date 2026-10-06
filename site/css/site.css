@@ -1089,10 +1089,10 @@ html[lang="ka"] .pv-doc h1{font-size:36px;overflow-wrap:anywhere}
 /* round 20: the board on the home page is a lift-status widget, greyed out with "no report" until there is one */
 .season{display:flex;flex-direction:column;gap:10px}
 .season[data-state="off"]{opacity:.62;filter:grayscale(1)}
-.sb-h{display:flex;align-items:center;gap:8px}.sb-h em{float:none;font-style:normal;font-weight:700;font-size:15px;color:var(--ink)}
-.sb-dots{display:flex;gap:6px;flex-wrap:wrap;direction:ltr}.sb-dots i{flex:none;width:16px;height:16px;border-radius:50%;border:2px dashed var(--muted)}
+.season>.sb-h{display:flex;align-items:center;gap:8px;margin:0}.sb-h em{float:none;font-style:normal;font-weight:700;font-size:15px;color:var(--ink)}
+.season>.sb-dots{display:flex;gap:6px;flex-wrap:wrap;margin:0;direction:ltr}.sb-dots i{display:block;flex:none;width:16px;height:16px;box-sizing:border-box;border-radius:50%;border:2px dashed var(--muted)}
 .sb-dots i.on{border:2px solid var(--p-green);background:var(--p-green)}
-.sb-f{display:flex;align-items:baseline;gap:10px}.sb-f b{font-family:var(--f-display);font-size:30px;line-height:1}.sb-f small{font-size:13px;color:var(--muted)}
+.season>.sb-f{display:flex;align-items:baseline;gap:10px;margin:0}.sb-f b{font-family:var(--f-display);font-size:30px;line-height:1;color:var(--ink)}.sb-f small{font-size:13px;color:var(--muted)}
 .season[data-state="live"] .sb-h em{color:var(--ink)}
 /* round 20: what's ahead as three big numbers, and an (i) by the profile heading */
 .steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));margin:6px 0 14px;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule)}
@@ -1140,3 +1140,25 @@ html[lang="ka"] .pv-doc h1{font-size:36px;overflow-wrap:anywhere}
 .ac-sheet{position:fixed;left:0;right:0;bottom:0;z-index:51;display:flex;flex-direction:column;gap:12px;max-width:520px;margin:0 auto;padding:10px 16px calc(24px + env(safe-area-inset-bottom));background:var(--paper);color:var(--ink);border-top:6px solid var(--ink)}
 .ac-sheet .grab{width:44px;height:4px;margin:0 auto;background:var(--rule)}
 .ac-sheet h2{margin:4px 0;font-family:var(--f-display);font-weight:700;font-size:30px;line-height:1.05}
+/* round 20: the ticket is the form: "when are you flying?", optional slots on the ticket, and the sheets they open */
+.be-code{color:var(--glacier);border-bottom:2px dashed var(--glacier);padding-bottom:4px}
+.be-when{display:inline-flex;align-items:center;gap:10px;min-height:56px;padding:6px 16px;border:2px dashed var(--glacier);background:color-mix(in srgb,var(--glacier) 7%,var(--paper));color:var(--glacier);font-family:var(--f-display);font-weight:700;font-size:30px;line-height:1;cursor:pointer;box-shadow:0 0 0 4px color-mix(in srgb,var(--glacier) 22%,transparent)}
+.tk-slot{display:inline-flex;align-items:center;min-height:32px;padding:2px 8px;margin-block:-6px;border:1.5px dashed var(--rule);background:none;color:var(--muted);font:inherit;font-size:13px;font-weight:700;cursor:pointer;position:relative;z-index:2}
+.tk-slot::after{content:'';position:absolute;inset:-6px -2px}
+.ts-sheet{max-height:92vh;overflow:auto}
+.ts-mon{position:absolute;top:18px;inset-inline-end:12px;display:flex;gap:4px}
+.ts-mon button{width:44px;height:44px;border:1.5px solid var(--rule);background:var(--paper);color:var(--ink);font:700 22px/1 var(--f-body);cursor:pointer}
+.ts-cal{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:2px;text-align:center}
+.ts-cal small{font-size:12px;color:var(--muted);padding:4px 0}
+.ts-cal button{height:44px;border:0;background:none;color:var(--ink);font-size:15px;font-weight:600;padding:0;cursor:pointer}
+.ts-cal button:disabled{color:var(--rule);cursor:default}
+.ts-cal button.out,.ts-cal button.ret{background:var(--ink);color:var(--paper)}
+.ts-cal button.ski{background:color-mix(in srgb,var(--glacier) 18%,transparent);color:var(--glacier)}
+.ts-legend{display:flex;gap:14px;font-size:12.5px;color:var(--muted);align-items:center;min-height:18px}
+.ts-legend i{display:inline-block;width:14px;height:14px;margin-inline-end:5px;vertical-align:-2px}
+.ts-legend .lg-f{background:var(--ink)}.ts-legend .lg-s{background:color-mix(in srgb,var(--glacier) 18%,transparent)}
+.ts-route{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.ts-route button{min-height:44px;padding:0 14px;border:1.5px solid var(--rule);background:var(--paper);color:var(--ink);font:inherit;font-weight:600;cursor:pointer}
+.ts-route button[aria-pressed="true"]{border-color:var(--ink);background:var(--ink);color:var(--paper)}
+.ts-route a{display:inline-flex;align-items:center;min-height:44px;padding:0 6px;color:var(--glacier);font-weight:700}
+.ts-times{display:grid;grid-template-columns:1fr 1fr;gap:10px}

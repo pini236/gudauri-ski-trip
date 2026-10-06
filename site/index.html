@@ -58,10 +58,10 @@
     <section class="ticket-wrap" aria-label="פרטי הטיסה" data-i18n-attr="aria-label:ticket.flight_details">
       <div class="bp-empty" id="bpEmpty" hidden>
         <div class="be-main"><div class="be-strip"><span data-i18n="trip.empty_title">הטיול שלך</span><span data-i18n="trip.empty_unset">עוד לא הוגדר</span></div>
-          <div class="be-row"><div><small data-i18n="ticket.from">מ</small><span class="be-code" dir="ltr">???</span></div><div class="be-to"><small data-i18n="ticket.to">אל</small><span class="be-code" dir="ltr">???</span></div></div>
+          <div class="be-row"><div><small data-i18n="ticket.from">מ</small><span class="be-code" dir="ltr">TLV</span></div><div class="be-to"><small data-i18n="ticket.to">אל</small><span class="be-code" dir="ltr">TBS</span></div></div>
           <div class="be-grid"><div><small data-i18n="ticket.flight">טיסה</small><i></i></div><div><small data-i18n="ticket.departs">המראה</small><i></i></div><div><small data-i18n="ticket.ski_days">ימי סקי</small><i></i></div></div></div>
         <div class="be-stub"><small id="beStubPre"></small><b>?</b><small id="beStubPost"></small></div>
-        <div class="be-add"><a class="btn-blue" href="#trip"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span data-i18n="trip.add">הוספת הטיסה שלי</span></a></div>
+        <div class="be-add"><button type="button" class="be-when" data-when><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><rect x="3" y="5" width="18" height="16"/><path d="M3 10h18M8 3v4M16 3v4"/></svg><span data-i18n="trip.when">מתי טסים?</span></button></div>
       </div>
       <div class="bp-stack" id="bpStack">
       <article class="bp is-back" data-leg="ret" hidden aria-label="כרטיס חזור" data-i18n-attr="aria-label:ticket.card_return">
@@ -129,7 +129,7 @@
 <main class="page page-trip" id="tripPage" hidden>
   <form class="tf" id="tripForm" novalidate>
     <div class="tf-head"><h1 data-i18n="trip.title">הטיול שלך</h1><a href="#home"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg><span data-i18n="trip.cancel">ביטול</span></a></div>
-    <p class="tf-lead" data-i18n="trip.lead">רק תאריך ההלוך חובה. בלי הרשמה: נשמר רק בדפדפן הזה.</p>
+    <p class="tf-lead" hidden></p>
     <div class="tf-sec"><b data-i18n="trip.out">הלוך</b><i></i><span data-i18n="trip.out_required">חובה רק התאריך</span></div>
     <div class="tf-grid"><label class="tf-fld"><span data-i18n="trip.date">תאריך</span><input type="date" name="od" required></label><label class="tf-fld"><span data-i18n="trip.number">מספר טיסה</span><input type="text" name="of" dir="ltr" autocapitalize="characters" autocomplete="off" maxlength="9"></label></div>
     <div class="tf-grid"><div class="tf-fld"><span id="tfFromLbl" data-i18n="ticket.from">מ</span><input type="hidden" name="ofr"><button type="button" class="tf-place" data-place="ofr" aria-labelledby="tfFromLbl tfFromVal"><span id="tfFromVal"></span></button></div><div class="tf-fld"><span id="tfToLbl" data-i18n="ticket.to">אל</span><input type="hidden" name="oto"><button type="button" class="tf-place" data-place="oto" aria-labelledby="tfToLbl tfToVal"><span id="tfToVal"></span></button></div></div>
