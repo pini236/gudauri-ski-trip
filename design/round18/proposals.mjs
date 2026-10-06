@@ -34,7 +34,7 @@ const CSS = `
 .r18-pick{display:flex;flex-direction:column;gap:0;margin:0 0 4px}
 .r18-pick button{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:10px;min-height:56px;padding:8px 0;border:0;border-bottom:1px solid var(--rule);background:none;color:var(--ink);font:inherit;text-align:start;cursor:pointer}
 .r18-pick b{display:block;font-size:15px}.r18-pick small{display:block;font-size:12.5px;color:var(--muted)}
-.r18-pick .go{color:var(--glacier);font-size:13px;font-weight:700;white-space:nowrap}
+.r18-pick .go{color:var(--glacier);font-size:24px;font-weight:700;line-height:1}
 .r18-pick .oth{color:var(--glacier);font-weight:700}
 .r18-sw{display:flex;align-items:center;gap:12px;min-height:56px;padding:6px 0;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule)}
 .r18-sw>span{flex:1;display:flex;flex-direction:column}.r18-sw b{font-size:15px}.r18-sw small{font-size:12.5px;color:var(--muted)}
@@ -69,33 +69,31 @@ const STEPS = [
   // K-3: fill a flight for a member: first the flights already in the group, then "another flight" opens the trip form
   ['p-k3-pick', async p => { await group(p, 'members'); await inject(p); await p.locator('[data-mmenu="u-tal"]').click(); await p.waitForTimeout(200); await p.evaluate(() => {
     const menu = document.querySelector('.ac-menu'); const box = document.createElement('div'); box.className = 'ac-card ac-form ac-sub';
-    box.innerHTML = `<h3>הטיסה של טל דוגמה</h3><p class="ac-lead" style="margin:0">בוחרים טיסה שכבר בקבוצה. החבר רואה אותה, ויכול לשנות.</p>
-      <div class="r18-pick"><button type="button"><span><b>הלוך · 10.1 · <span dir="ltr">6H 897</span></b><small><span dir="ltr">TLV › TBS</span> · נועה ניסיון, דנה בדיקה</small></span><span class="go">בחירה</span></button>
-      <button type="button"><span><b>הלוך · 11.1 · <span dir="ltr">A9 691</span></b><small><span dir="ltr">TLV › KUT</span> · רון לדוגמה</small></span><span class="go">בחירה</span></button>
-      <button type="button"><span><b class="oth">+ טיסה אחרת</b><small>פותח את הטופס המלא, כמו "הטיול שלך"</small></span><span></span></button></div>`;
+    box.innerHTML = `<h3>הטיסה של טל דוגמה</h3>
+      <div class="r18-pick"><button type="button"><span><b>הלוך · 10.1 · <span dir="ltr">6H 897</span></b><small><span dir="ltr">TLV › TBS</span> · נועה ניסיון, דנה בדיקה</small></span><span class="go" aria-hidden="true">‹</span></button>
+      <button type="button"><span><b>הלוך · 11.1 · <span dir="ltr">A9 691</span></b><small><span dir="ltr">TLV › KUT</span> · רון לדוגמה</small></span><span class="go" aria-hidden="true">‹</span></button>
+      <button type="button"><span><b class="oth">+ טיסה אחרת</b></span><span class="go" aria-hidden="true">‹</span></button></div>`;
     menu.after(box); }); }],
   ['p-k3-form', async p => { await p.goto(p.url().split('#')[0] + '#trip'); await ready(p); await p.evaluate(() => {
     document.querySelector('#tripForm h1').textContent = 'הטיסה של טל דוגמה';
-    document.querySelector('#tripForm .tf-lead').textContent = 'הטיסה נשמרת בקבוצה, עם סימון שמנהל מילא אותה. החבר רואה אותה ויכול לשנות.'; }); }, { trip: null }],
+    document.querySelector('#tripForm .tf-lead').hidden = true; }); }, { trip: null }],
   // K-3: delete a meetup in two taps; the row opens its meet card; "saved at" as a note, not an error
   ['p-k3-meet', async p => { await group(p, 'meetups'); await inject(p); await p.evaluate(() => {
     const rows = [...document.querySelectorAll('#grMain .ac-meet')];
-    rows.forEach(r => { r.style.cursor = 'pointer'; const t = r.querySelector('span[style]'); t.insertAdjacentHTML('beforeend', '<small style="display:block;color:var(--glacier);font-weight:700;font-size:12.5px">לכרטיס המפגש ›</small>'); });
-    const a = rows[0]; a.style.outline = '2px solid var(--p-red)'; a.style.outlineOffset = '-2px'; const x = a.querySelector('.ac-x'); x.style.color = 'var(--p-red)';
-    a.querySelector('span[style] small').outerHTML = '<small style="display:block;color:var(--p-red);font-weight:700;font-size:13px">בטוח? לחיצה נוספת מוחקת</small>';
-    document.querySelector('#grMeta').insertAdjacentHTML('afterend', '<p class="r18-hint"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M2 8.5a15 15 0 0 1 20 0M5 12a10 10 0 0 1 14 0M8.5 15.5a5 5 0 0 1 7 0"/><path d="M3 3l18 18"/></svg>בלי קליטה. מוצג מה שנשמר בדפדפן ב-09:12</p>'); }); }],
+    rows.forEach(r => { r.style.cursor = 'pointer'; const t = r.querySelector('span[style]'); r.querySelector('.ac-x').insertAdjacentHTML('beforebegin', '<span aria-hidden="true" style="color:var(--glacier);font-size:26px;line-height:1;padding:0 6px">‹</span>'); });
+    const a = rows[0]; a.style.outline = '2px solid var(--p-red)'; a.style.outlineOffset = '-2px'; const x = a.querySelector('.ac-x'); x.style.cssText += ';background:var(--p-red);color:#fff;width:auto;padding:0 12px;gap:6px;display:flex;align-items:center;font:inherit;font-weight:700;font-size:14px'; x.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg>מחיקה';
+    document.querySelector('#grMeta').insertAdjacentHTML('afterend', '<p class="r18-hint"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M2 8.5a15 15 0 0 1 20 0M5 12a10 10 0 0 1 14 0M8.5 15.5a5 5 0 0 1 7 0"/><path d="M3 3l18 18"/></svg><span dir="ltr">09:12</span></p>'); }); }],
   ['t-k3-offline', async p => { await group(p, 'meetups'); await p.evaluate(() => { const e = document.querySelector('#groupPage [data-err]'); e.textContent = 'אין חיבור לשרת. מוצג מה שנשמר לאחרונה.'; e.hidden = false; }); }],
   // K-5: the airport field opens a sheet with search; a code that is not in the list is accepted, free text is not
   ['p-k5-sheet', async p => { await p.goto(p.url().split('#')[0] + '#trip'); await ready(p); await inject(p); await p.evaluate(() => {
     const L = [['TLV', 'תל אביב'], ['TBS', 'טביליסי'], ['KUT', 'קוטאיסי'], ['BUS', 'בטומי'], ['ETM', 'אילת'], ['IST', 'איסטנבול']];
     document.body.insertAdjacentHTML('beforeend', `<div class="r18-shade"></div><div class="r18-sheet" role="dialog"><span class="grab"></span><h2>מאיפה ממריאים?</h2>
-      <label class="tf-fld"><span>חיפוש עיר או קוד שדה</span><input type="text" value=""></label>
+      <input type="search" placeholder="עיר או קוד" aria-label="חיפוש עיר או קוד שדה">
       ${L.map(([c, n]) => `<div class="r18-ap"><b dir="ltr">${c}</b><span>${n}</span></div>`).join('')}</div>`); }); }, { trip: null }],
   ['p-k5-code', async p => { await p.goto(p.url().split('#')[0] + '#trip'); await ready(p); await inject(p); await p.evaluate(() => {
     document.body.insertAdjacentHTML('beforeend', `<div class="r18-shade"></div><div class="r18-sheet" role="dialog"><span class="grab"></span><h2>מאיפה ממריאים?</h2>
-      <label class="tf-fld"><span>חיפוש עיר או קוד שדה</span><input type="text" value="LCA" dir="ltr"></label>
-      <p class="r18-note">אין שדה כזה ברשימה.</p><div class="r18-ap code"><b dir="ltr">LCA</b><span>להשתמש בקוד הזה</span></div>
-      <p class="r18-note">קוד של שלוש אותיות, כמו שכתוב בכרטיס הטיסה. בלי שם חופשי, כדי שהכרטיס בדף הבית יישאר קריא.</p></div>`); }); }, { trip: null }],
+      <input type="search" value="LCA" dir="ltr" aria-label="חיפוש עיר או קוד שדה">
+      <div class="r18-ap code"><b dir="ltr">LCA</b><span>+ קוד אחר</span></div></div>`); }); }, { trip: null }],
   // the switch "show my flight in the group" (and the dates, filled from the trip) when creating a group
   ['p-s1-create', async p => { await noGroups(p); await inject(p); await p.evaluate(() => {
     const f = document.querySelector('#grCreate'), me = f.querySelector('[name=me]').closest('.ac-fld');

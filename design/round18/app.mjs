@@ -34,8 +34,7 @@ const ofl = fs.readFileSync(new URL('../../app/android/licenses/OFL-Karantina.tx
 const BOARDS = {
   // K-4: "my groups" on the account page, as on the site (between the ways in and "what syncs")
   'a-k4-account': () => slice('group-30-account.png', 0, 900) + `<section style="padding:6px 16px 14px;background:var(--snow)"><h2 style="margin:8px 0 4px;font-family:var(--f-display);font-weight:700;font-size:34px;line-height:1">הקבוצות שלי</h2>
-      ${ROW('ג', 'גודאורי 2027', '6 חברים · מנהל')}${ROW('ס', 'סקי עם המשפחה', '3 חברים')}
-      <p style="margin:8px 0 0;font-size:13px;color:var(--muted)">לפי תאריך ההתחלה, כמו באתר. השלט "קבוצה" בדף הבית פותח את הקבוצה הקרובה, ומכאן עוברים לאחרת.</p></section>` + slice('group-30-account.png', 940, 1500),
+      ${ROW('ג', 'גודאורי 2027', '6 חברים · מנהל')}${ROW('ס', 'סקי עם המשפחה', '3 חברים')}</section>` + slice('group-30-account.png', 940, 1500),
   // P-K2: the button shows the mode, with the site's three icons
   'a-pk2-auto': () => dn('home-10-home-trip-day.png', 'auto'),
   'a-pk2-day': () => dn('home-10-home-trip-day.png', 'day'),
@@ -47,10 +46,9 @@ const BOARDS = {
       <p style="margin:14px 0 0;font-size:13px;line-height:1.5;color:var(--muted)">האותיות הלטיניות כמעט זהות. ההבדל בעיקר ברוחב ובספרות, וכך שני הצדדים מציירים אותו טקסט באותו גופן.</p></div>`,
   // A-24: a "licenses" row at the end of the credits, a list, and the text of one license
   'a-a24-about': () => slice('home-34-home-about-3.png', 1220, 2330) + `<div style="padding:0 16px 22px;background:var(--snow)"><div style="display:flex;align-items:center;gap:12px;min-height:60px;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule)">
-      <span style="flex:1;display:flex;flex-direction:column"><b style="font-size:16px">רישיונות קוד פתוח</b><small style="font-size:13px;color:var(--muted)">הטקסט המלא של כל רישיון, כמו שהם דורשים</small></span><span style="font-size:22px;color:var(--glacier)">‹</span></div></div>`,
+      <span style="flex:1;display:flex;flex-direction:column"><b style="font-size:16px">רישיונות קוד פתוח</b></span><span style="font-size:22px;color:var(--glacier)">‹</span></div></div>`,
   'a-a24-list': () => `<div style="min-height:844px;background:var(--snow)">${TOP('רישיונות', 'אודות')}<div style="padding:0 16px">
-      ${LIC.map(([n, l]) => `<div style="display:flex;align-items:center;gap:10px;min-height:56px;border-bottom:1px solid var(--rule)"><span style="flex:1;display:flex;flex-direction:column"><b dir="ltr" style="font-size:15px;text-align:right">${n}</b><small style="font-size:12.5px;color:var(--muted)">${l}</small></span><span style="font-size:22px;color:var(--glacier)">‹</span></div>`).join('')}
-      <p style="margin:12px 0 0;font-size:13px;line-height:1.5;color:var(--muted)">הנתונים, הצלילים והסרטונים בקרדיטים באודות. הטקסטים כבר ארוזים באפליקציה (<span dir="ltr">assets/licenses</span>).</p></div></div>`,
+      ${LIC.map(([n, l]) => `<div style="display:flex;align-items:center;gap:10px;min-height:56px;border-bottom:1px solid var(--rule)"><span style="flex:1;display:flex;flex-direction:column"><b dir="ltr" style="font-size:15px;text-align:right">${n}</b><small style="font-size:12.5px;color:var(--muted)">${l}</small></span><span style="font-size:22px;color:var(--glacier)">‹</span></div>`).join('')}</div></div>`,
   'a-a24-text': () => `<div style="min-height:844px;background:var(--snow)">${TOP('Karantina', 'רישיונות')}<div style="padding:0 16px"><p style="margin:0 0 8px;font-size:13px;color:var(--muted)">SIL Open Font License 1.1</p>
       <pre dir="ltr" style="margin:0;white-space:pre-wrap;font-family:'IBM Plex Sans',sans-serif;font-size:12.5px;line-height:1.5;color:var(--ink)">${ofl.replace(/</g, '&lt;')}</pre></div></div>`,
 };
