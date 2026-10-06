@@ -766,7 +766,7 @@ html[lang="ka"] .pv-doc h1{font-size:36px;overflow-wrap:anywhere}
 .season em{float:inline-end;font-style:normal;font-size:12.5px;font-weight:700;color:var(--glacier)}
 /* with a fresh lift report (S1): no snow, the green of an open run on top, a live dot and how many lifts are open */
 .season[data-state="live"]{border-top-color:var(--p-green)}
-.season[data-state="live"] :is(.snowcap,em){display:none}
+.season[data-state="live"] .snowcap{display:none}
 .season>b .ms-dot{display:inline-block;width:11px;height:11px;margin-inline-end:9px;vertical-align:.12em;background:var(--p-green);box-shadow:0 0 0 0 var(--p-green);animation:live 2s ease-out infinite}
 .season>span .num{font-family:var(--f-display);font-size:20px;line-height:1;color:var(--ink)}
 @media (prefers-reduced-motion:reduce){.season>b .ms-dot{animation:none}}
@@ -1088,7 +1088,7 @@ html[lang="ka"] .pv-doc h1{font-size:36px;overflow-wrap:anywhere}
 
 /* round 20: the board on the home page is a lift-status widget, greyed out with "no report" until there is one */
 .season{display:flex;flex-direction:column;gap:10px}
-.season[data-state="off"]{opacity:.62;filter:grayscale(1)}
+.season[data-state="off"]{opacity:.62;filter:grayscale(1);pointer-events:none}
 .season>.sb-h{display:flex;align-items:center;gap:8px;margin:0}.sb-h em{float:none;font-style:normal;font-weight:700;font-size:15px;color:var(--ink)}
 .season>.sb-dots{display:flex;gap:6px;flex-wrap:wrap;margin:0;direction:ltr}.sb-dots i{display:block;flex:none;width:16px;height:16px;box-sizing:border-box;border-radius:50%;border:2px dashed var(--muted)}
 .sb-dots i.on{border:2px solid var(--p-green);background:var(--p-green)}
