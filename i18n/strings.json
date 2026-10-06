@@ -9166,6 +9166,18 @@
     "ka"
    ]
   },
+  "status.no_report": {
+   "he": "אין דיווח",
+   "en": "No report",
+   "ru": "Нет данных",
+   "ka": "მონაცემები არ არის",
+   "where": "site/js/app.js, app/android",
+   "note": "round 20: next to 0/12 on the switched-off lift status",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
   "status.lead_in_season": {
    "he": "כרגע אין דיווח עדכני מ-MTA על הרכבלים. המפה מוצגת כרגיל.",
    "en": "There's no recent lift report from MTA right now. The map is shown as usual.",
@@ -12633,6 +12645,81 @@
     "ka"
    ]
   },
+  "trip.when_fly": {
+   "he": "מתי טסים?",
+   "en": "When do you fly?",
+   "ru": "Когда летите?",
+   "ka": "როდის მიფრინავთ?",
+   "where": "site/js/app.js, app/android",
+   "note": "round 20: the button on the empty pass, opens one calendar",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "trip.add_number": {
+   "he": "+ מספר",
+   "en": "+ Number",
+   "ru": "+ Номер",
+   "ka": "+ ნომერი",
+   "where": "site/js/app.js, app/android",
+   "note": "round 20: dashed chip on the pass for the flight number (optional)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "trip.add_time": {
+   "he": "+ שעה",
+   "en": "+ Time",
+   "ru": "+ Время",
+   "ka": "+ დრო",
+   "where": "site/js/app.js, app/android",
+   "note": "round 20: dashed chip on the pass for a departure or arrival time (optional)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "trip.legend_flights": {
+   "he": "טיסות",
+   "en": "Flights",
+   "ru": "Рейсы",
+   "ka": "ფრენები",
+   "where": "site/js/app.js, app/android",
+   "note": "round 20: calendar legend, the two flight days",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "trip.legend_ski": {
+   "he": {
+    "one": "יום סקי אחד",
+    "two": "{n} ימי סקי",
+    "other": "{n} ימי סקי"
+   },
+   "en": {
+    "one": "{n} ski day",
+    "other": "{n} ski days"
+   },
+   "ru": {
+    "one": "{n} день катания",
+    "few": "{n} дня катания",
+    "many": "{n} дней катания",
+    "other": "{n} дня катания"
+   },
+   "ka": {
+    "one": "{n} სათხილამურო დღე",
+    "other": "{n} სათხილამურო დღე"
+   },
+   "where": "site/js/app.js, app/android",
+   "note": "round 20: calendar legend, the shaded ski days between the flights",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
   "acct.signin_title": {
    "he": "כניסה",
    "en": "Sign in",
@@ -12661,6 +12748,42 @@
    "ru": "Зачем входить",
    "ka": "რატომ შევიდეთ",
    "where": "site/index.html",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "acct.why_no_password": {
+   "he": "בלי סיסמה",
+   "en": "No password",
+   "ru": "Без пароля",
+   "ka": "პაროლის გარეშე",
+   "where": "site/index.html, app/android",
+   "note": "round 20: icon caption inside 'why sign in'",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "acct.why_no_email": {
+   "he": "בלי מיילים",
+   "en": "No emails",
+   "ru": "Без писем",
+   "ka": "წერილების გარეშე",
+   "where": "site/index.html, app/android",
+   "note": "round 20: icon caption inside 'why sign in'",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "acct.why_name_only": {
+   "he": "רק השם",
+   "en": "Just your name",
+   "ru": "Только имя",
+   "ka": "მხოლოდ სახელი",
+   "where": "site/index.html, app/android",
+   "note": "round 20: icon caption inside 'why sign in'",
    "check": [
     "ru",
     "ka"
@@ -13459,6 +13582,18 @@
     "ka"
    ]
   },
+  "join.pending_title": {
+   "he": "ממתין לאישור המנהל",
+   "en": "Waiting for the admin",
+   "ru": "Ждём подтверждения администратора",
+   "ka": "ადმინისტრატორის დადასტურებას ველოდებით",
+   "where": "site/js/account.js, app/android",
+   "note": "round 20: the pending request card, with an hourglass and join.cancel_request",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
   "join.st_already_member": {
    "he": "כבר בקבוצה.",
    "en": "Already in the group.",
@@ -13880,6 +14015,30 @@
    "ru": "Группа — общая страница для друзей: рейсы всех, встречи и рекорды.",
    "ka": "ჯგუფი მეგობრების საერთო გვერდია: ყველას ფრენები, შეხვედრები და რეკორდები.",
    "where": "site/index.html",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "group.empty_flights": {
+   "he": "הטיסות של כולם",
+   "en": "Everyone's flights",
+   "ru": "Рейсы всех",
+   "ka": "ყველას ფრენები",
+   "where": "site/index.html, app/android",
+   "note": "round 20: first of three icons on the empty group page (with group.tab_meetups, group.tab_scores)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "group.create_signin_title": {
+   "he": "יצירת קבוצה דורשת התחברות",
+   "en": "Creating a group needs signing in",
+   "ru": "Чтобы создать группу, нужно войти",
+   "ka": "ჯგუფის შესაქმნელად საჭიროა შესვლა",
+   "where": "site/index.html, app/android",
+   "note": "round 20: title of the sign-in drawer a guest gets on 'create group'",
    "check": [
     "ru",
     "ka"
