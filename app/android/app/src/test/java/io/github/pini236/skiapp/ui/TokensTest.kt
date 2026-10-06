@@ -30,8 +30,11 @@ class TokensTest {
             "water-edge" to c.waterEdge, "road-main" to c.roadMain, "vill" to c.village, "contour-i" to c.contourI,
             "bp-paper" to c.bpPaper, "bp-paper2" to c.bpPaper2, "bp-ink" to c.bpInk, "bp-muted" to c.bpMuted,
             "bp-strip" to c.bpStrip, "bp-on-strip" to c.bpOnStrip, "bp-acc" to c.bpAccent,
+            "ls-dark" to c.lsDark, "sn1" to c.sn1, "sn2" to c.sn2, "sn3" to c.sn3,
         )
         for ((name, color) in app) assertEquals("--$name", css.getValue(name), hex(color))
+        // the snow's outline: light by day, none at night (transparent on the site)
+        css["sn-edge"]?.let { assertEquals("--sn-edge", it, hex(c.snEdge)) } ?: assertEquals(0f, c.snEdge.alpha)
     }
 
     @Test fun dayMatchesTheSite() = check(block("\n:root{\n  --snow"), DayColors)

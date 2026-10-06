@@ -58,6 +58,8 @@ import io.github.pini236.skiapp.home.SignColors
 import io.github.pini236.skiapp.home.SignShape
 import io.github.pini236.skiapp.home.drawSnow
 import io.github.pini236.skiapp.home.snowCap
+import io.github.pini236.skiapp.home.SnowKind
+import io.github.pini236.skiapp.home.SnowPaint
 import io.github.pini236.skiapp.ui.Motion
 import io.github.pini236.skiapp.ui.Ski
 import io.github.pini236.skiapp.ui.TopBar
@@ -126,6 +128,7 @@ private fun GamePost(games: List<GameCard>, onOpen: (String) -> Unit) {
 @Composable
 private fun GameSign(g: GameCard, index: Int, feature: Boolean, onClick: () -> Unit) {
     val context = LocalContext.current
+    val snowColors = Ski.colors
     val still = remember { Motion.reduced(context) }
     val rtl = LocalLayoutDirection.current == LayoutDirection.Rtl
     val shape = remember { SignShape(30.dp) }
@@ -142,12 +145,8 @@ private fun GameSign(g: GameCard, index: Int, feature: Boolean, onClick: () -> U
             .graphicsLayer { rotationZ = tilt; transformOrigin = TransformOrigin(if (rtl) 1f else 0f, .5f) }
             // fresh snow on top, up to where the arrow starts (js/snow.js: data-snow, data-snow-arrow 30)
             .drawWithCache {
-                val arrow = 30.dp.toPx()
-                val snow = snowCap(index + 7, size.width - arrow, density)
-                onDrawWithContent {
-                    drawContent()
-                    translate(if (rtl) arrow else 0f, 0f) { drawSnow(snow, density) }
-                }
+                val snow = snowCap(index + 7, size.width, density, arrow = 30f, rtl = rtl); val paint = SnowPaint(snowColors, snow)
+                onDrawWithContent { drawContent(); drawSnow(snow, paint) }
             }
     ) {
         Row(

@@ -100,11 +100,11 @@ enum class GroupTab { FLIGHTS, MEETUPS, SCORES, MEMBERS;
 }
 
 /**
- * The group sign: my group if I am in one (the first, for now), otherwise the way in (A1). Watched live while it
+ * The group sign: my group if I am in one, "my groups" if in more (K-4), otherwise the way in (A1). Watched live while it
  * shows (A-19): an admin who lets me in opens the group, and a request decided meanwhile leaves the way in.
  */
 @Composable
-fun GroupHub(api: GroupApi, onGroup: (String) -> Unit, entry: @Composable (changes: Int) -> Unit) {
+fun GroupHub(api: GroupApi, onGroup: (String) -> Unit, onMany: () -> Unit, entry: @Composable (changes: Int) -> Unit) {
     var groups by remember { mutableStateOf<List<GroupSummary>?>(null) }
     var changes by remember { mutableStateOf(0) }
     val r = rememberRunner()
@@ -114,7 +114,8 @@ fun GroupHub(api: GroupApi, onGroup: (String) -> Unit, entry: @Composable (chang
     when {
         g == null && r.error == null -> Box(Modifier.fillMaxSize().background(Ski.colors.snow))
         g.isNullOrEmpty() -> entry(changes)
-        else -> LaunchedEffect(g) { onGroup(g.first().id) }
+        // in one group, its page; in more, "my groups" in the account, to pick (K-4)
+        else -> LaunchedEffect(g) { if (g.size == 1) onGroup(g.first().id) else onMany() }
     }
 }
 
@@ -182,10 +183,10 @@ fun GroupScreen(
                         ).joinToString(" · "), size = 13f)
                     }
                     val days = g?.startsOn?.let { s -> Duration.between(now, s.atStartOfDay()).toHours().let { h -> if (h <= 0) 0 else ((h + 23) / 24).toInt() } }
-                    if (days != null) Column(Modifier.width(84.dp).fillMaxHeight().background(c.accent), horizontalAlignment = Alignment.CenterHorizontally,
+                    if (days != null) Column(Modifier.width(84.dp).fillMaxHeight().background(c.blue), horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.Center) {
-                        Text(days.toString(), style = TextStyle(fontFamily = Karantina, fontWeight = FontWeight.Bold, fontSize = 44.sp, lineHeight = 40.sp), color = c.onAccent)
-                        Text(pluralStringResource(if (c.dark) R.plurals.app_pass_nights else R.plurals.app_pass_days, days), style = Ski.type.label.copy(fontSize = 11.sp), color = c.onAccent)
+                        Text(days.toString(), style = TextStyle(fontFamily = Karantina, fontWeight = FontWeight.Bold, fontSize = 44.sp, lineHeight = 40.sp), color = c.onBoard)
+                        Text(pluralStringResource(if (c.dark) R.plurals.app_pass_nights else R.plurals.app_pass_days, days), style = Ski.type.label.copy(fontSize = 11.sp), color = c.onBoard)
                     }
                 }
             }
@@ -249,7 +250,7 @@ fun GroupScreen(
                     for (m in trips) {
                         val t = m.trip!!; val sel = picked == m.tripId
                         val on = g.members.count { it.trip == t }
-                        Row(Modifier.fillMaxWidth().heightIn(min = 64.dp).background(c.bpPaper2).border(if (sel) 2.dp else 1.dp, if (sel) c.accent else c.rule)
+                        Row(Modifier.fillMaxWidth().heightIn(min = 64.dp).background(c.bpPaper2).border(if (sel) 2.dp else 1.dp, if (sel) c.blue else c.rule)
                             .clickable(role = A11y.RadioButton) { picked = m.tripId }.semantics { selected = sel }.padding(horizontal = 14.dp, vertical = 8.dp),
                             verticalAlignment = Alignment.CenterVertically) {
                             Column(Modifier.weight(1f)) {
@@ -302,12 +303,16 @@ fun GroupScreen(
 private fun Tabs(tab: GroupTab, onTab: (GroupTab) -> Unit) {
     val c = Ski.colors
     val names = listOf(R.string.app_g_tab_flights, R.string.app_g_tab_meetups, R.string.group_tab_scores, R.string.app_g_tab_members)
-    Row(Modifier.padding(horizontal = 16.dp).fillMaxWidth().drawBehind { drawRect(c.ink, Offset(0f, size.height - 2.dp.toPx()), androidx.compose.ui.geometry.Size(size.width, 2.dp.toPx())) }) {
+    // the site's .ac-tabs (round 18): each as wide as its word, in the sign voice at 24, a blue line under the chosen one
+    Row(Modifier.padding(horizontal = 16.dp).fillMaxWidth()
+        .drawBehind { drawRect(c.rule, Offset(0f, size.height - 2.dp.toPx()), androidx.compose.ui.geometry.Size(size.width, 2.dp.toPx())) }
+        .horizontalScroll(rememberScrollState())) {
         for ((i, t) in GroupTab.entries.withIndex()) {
             val on = t == tab
-            Box(Modifier.weight(1f).heightIn(min = 46.dp).background(if (on) c.ink else Color.Transparent).clickable(role = A11y.Tab) { onTab(t) }.semantics { selected = on },
-                contentAlignment = Alignment.Center) {
-                Text(stringResource(names[i]), style = Ski.type.bodyBold.copy(fontSize = 15.sp), color = if (on) c.snow else c.muted)
+            Box(Modifier.heightIn(min = 46.dp).clickable(role = A11y.Tab) { onTab(t) }.semantics { selected = on }
+                .drawBehind { if (on) drawRect(c.blue, Offset(0f, size.height - 4.dp.toPx()), androidx.compose.ui.geometry.Size(size.width, 4.dp.toPx())) }
+                .padding(horizontal = 14.dp), contentAlignment = Alignment.Center) {
+                Text(stringResource(names[i]), style = Ski.type.title.copy(fontSize = Ski.type.title.fontSize * (24f / 44f)), color = if (on) c.ink else c.muted, maxLines = 1)
             }
         }
     }
@@ -372,7 +377,7 @@ private fun Flights(g: Group, myTrip: Trip?, onSame: () -> Unit, onShowMine: () 
                 LegLine(leg, 30f)
                 Muted(legWhen(leg, key.ret), size = 12.5f)
                 FlowRow(Modifier.padding(top = 8.dp), horizontalArrangement = Arrangement.spacedBy(6.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                    for ((_, _, m) in rows) Row(Modifier.heightIn(min = 30.dp).background(c.bpPaper2).let { if (m.me) it.border(2.dp, c.accent) else it }.padding(horizontal = 10.dp),
+                    for ((_, _, m) in rows) Row(Modifier.heightIn(min = 30.dp).background(c.bpPaper2).let { if (m.me) it.border(2.dp, c.blue) else it }.padding(horizontal = 10.dp),
                         verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                         Text(m.name + if (m.me) " $me" else "", style = Ski.type.bodyBold.copy(fontSize = 13.sp), color = c.ink)
                         if (m.enteredByAdmin != null) Icon(Icons.edit, null, Modifier.size(13.dp), tint = c.muted)
@@ -446,7 +451,7 @@ private fun Meetups(g: Group, now: LocalDateTime, station: (String) -> Station?,
         for (m in list) {
             val at = m.at.atZone(zone)
             Row(Modifier.fillMaxWidth().height(IntrinsicSize.Min).shadow(6.dp, RectangleShape).background(c.bpPaper).paperGrain(c.dark)
-                .let { if (m == next) it.border(2.dp, c.accent) else it }.clickable(role = A11y.Button) { onOpen(m) }) {
+                .let { if (m == next) it.border(2.dp, c.blue) else it }.clickable(role = A11y.Button) { onOpen(m) }) {
                 Column(Modifier.width(76.dp).fillMaxHeight().padding(vertical = 8.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
                     Muted(shortDate(at.toLocalDate()), size = 12f)
                     Text("%02d:%02d".format(at.hour, at.minute), style = TextStyle(fontFamily = Karantina, fontWeight = FontWeight.Bold, fontSize = 36.sp, lineHeight = 32.sp), color = c.ink)
@@ -468,8 +473,8 @@ private fun Meetups(g: Group, now: LocalDateTime, station: (String) -> Station?,
                         val on = remember(m.id, toggled) { Reminders.isOn(context, m.id) }
                         Row(Modifier.heightIn(min = 44.dp).toggleable(on, role = A11y.Checkbox) { Reminders.set(context, m.id, it); toggled++; onReminders() },
                             verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            Box(Modifier.size(18.dp).background(if (on) c.accent else c.paper).border(2.dp, if (on) c.accent else c.ink), contentAlignment = Alignment.Center) {
-                                if (on) Icon(Icons.check, null, Modifier.size(14.dp), tint = c.onAccent)
+                            Box(Modifier.size(18.dp).background(if (on) c.blue else c.paper).border(2.dp, if (on) c.blue else c.ink), contentAlignment = Alignment.Center) {
+                                if (on) Icon(Icons.check, null, Modifier.size(14.dp), tint = c.onBoard)
                             }
                             Icon(Icons.bell, null, Modifier.size(16.dp), tint = c.ink)
                             Text(stringResource(R.string.app_g_remind), style = Ski.type.bodyBold.copy(fontSize = 13.sp, fontWeight = FontWeight.SemiBold), color = c.ink)
@@ -512,9 +517,9 @@ private fun Scores(api: GroupApi, g: Group) {
     Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
         for ((key, name) in GAMES) {
             val on = key == game
-            Box(Modifier.heightIn(min = 44.dp).background(if (on) c.accent else c.paper).let { if (on) it else it.border(1.dp, c.rule) }
+            Box(Modifier.heightIn(min = 44.dp).background(if (on) c.blue else c.paper).let { if (on) it else it.border(1.dp, c.rule) }
                 .clickable(role = A11y.Tab) { game = key }.semantics { selected = on }.padding(horizontal = 14.dp), contentAlignment = Alignment.Center) {
-                Text(stringResource(name), style = Ski.type.bodyBold.copy(fontSize = 14.sp), color = if (on) c.onAccent else c.ink)
+                Text(stringResource(name), style = Ski.type.bodyBold.copy(fontSize = 14.sp), color = if (on) c.onBoard else c.ink)
             }
         }
     }

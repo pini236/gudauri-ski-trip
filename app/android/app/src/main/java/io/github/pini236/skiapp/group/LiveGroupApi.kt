@@ -111,7 +111,7 @@ class LiveGroupApi(
             // no signal: the groups as the phone last saw them
             sync?.myGroups?.value?.groups?.takeIf { it.isNotEmpty() } ?: throw e
         }
-        list.map { g -> GroupSummary(g.id, g.name, g.startsOn, g.endsOn) }
+        list.map { g -> GroupSummary(g.id, g.name, g.startsOn, g.endsOn) }.byStart()
     }
 
     override fun watch(id: String): GroupWatch {

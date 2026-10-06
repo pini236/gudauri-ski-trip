@@ -17,6 +17,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -29,6 +30,7 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.unit.dp
@@ -42,6 +44,7 @@ import io.github.pini236.skiapp.group.GoogleButton
 import io.github.pini236.skiapp.group.GroupApi
 import io.github.pini236.skiapp.group.Look
 import io.github.pini236.skiapp.group.Me
+import io.github.pini236.skiapp.group.MyGroup
 import io.github.pini236.skiapp.group.Muted
 import io.github.pini236.skiapp.group.Page
 import io.github.pini236.skiapp.group.rememberRunner
@@ -58,9 +61,14 @@ import io.github.pini236.skiapp.ui.TopBar
  * to keep their place with Google instead.
  */
 @Composable
-fun AccountScreen(api: GroupApi, onBack: () -> Unit, signInGoogle: suspend () -> Unit, onGone: () -> Unit) {
+fun AccountScreen(api: GroupApi, onBack: () -> Unit, signInGoogle: suspend () -> Unit, onGroup: (String) -> Unit, onGone: () -> Unit) {
     val c = Ski.colors
     var me by remember { mutableStateOf<Me?>(api.me()) }
+    // "my groups" (K-4): read again when a group changes (joined, approved, left) while the page is open
+    var groups by remember { mutableStateOf<List<MyGroup>?>(null) }
+    var changes by remember { mutableStateOf(0) }
+    DisposableEffect(api) { val stop = api.watchMine { changes++ }; onDispose { stop() } }
+    LaunchedEffect(changes, me?.userId) { groups = runCatching { api.myGroupRows() }.getOrNull() ?: groups }
     var naming by rememberSaveable { mutableStateOf(false) }
     var name by rememberSaveable { mutableStateOf(me?.name ?: "") }
     var armed by remember { mutableStateOf(false) }
@@ -107,6 +115,16 @@ fun AccountScreen(api: GroupApi, onBack: () -> Unit, signInGoogle: suspend () ->
                     // on Android only Google (docs/USERS.md); Apple shows once it was linked on an iPhone
                     if (m.apple) Way(stringResource(R.string.app_a_apple), true, mark = { AppleMark() }, connect = null)
                 }
+            }
+            // my groups, as the site's list (K-4): by start date, and each opens its page
+            groups?.let { gs ->
+                Column {
+                    Display(stringResource(R.string.acct_my_groups), 28f)
+                    if (gs.isEmpty()) Muted(stringResource(R.string.acct_no_groups), size = 14f)
+                    gs.forEach { g -> GroupRow(g) { onGroup(g.id) } }
+                }
+            }
+            if (m.registered) {
                 Display(stringResource(R.string.app_a_what_syncs), 28f, Modifier.padding(top = 8.dp))
                 Note(stringResource(R.string.acct_sync_note), Icons.cloud)
             }
@@ -120,6 +138,26 @@ fun AccountScreen(api: GroupApi, onBack: () -> Unit, signInGoogle: suspend () ->
             }
             Muted(stringResource(R.string.app_a_delete_note, "gudauri-ski-trip.vercel.app/account"), size = 12.5f)
         }
+    }
+}
+
+/** One of my groups: its letter, name, size and my role, and "open" (the site's .ac-row in #acGroups). */
+@Composable
+private fun GroupRow(g: MyGroup, open: () -> Unit) {
+    val c = Ski.colors
+    val sub = listOfNotNull(g.members?.let { pluralStringResource(R.plurals.group_members_n, it, it) },
+        if (g.admin) stringResource(R.string.acct_role_admin) else null).joinToString(" · ")
+    Row(Modifier.fillMaxWidth().heightIn(min = 60.dp).clickable(onClick = open)
+        .drawBehind { drawRect(c.rule, Offset(0f, size.height - 1.dp.toPx()), Size(size.width, 1.dp.toPx())) },
+        verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+        Box(Modifier.size(36.dp).background(c.glacier), contentAlignment = Alignment.Center) {
+            Text(g.name.trim().take(1), style = Ski.type.title.copy(fontSize = 24.sp), color = Color.White)
+        }
+        Column(Modifier.weight(1f)) {
+            Text(g.name, style = Ski.type.bodyBold, color = c.ink)
+            if (sub.isNotEmpty()) Muted(sub, size = 12.5f)
+        }
+        Text(stringResource(R.string.acct_open), style = Ski.type.bodyBold.copy(fontSize = 14.sp), color = c.glacier)
     }
 }
 

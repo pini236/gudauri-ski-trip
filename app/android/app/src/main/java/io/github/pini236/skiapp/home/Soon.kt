@@ -59,6 +59,7 @@ import io.github.pini236.skiapp.R
 import io.github.pini236.skiapp.group.Toggle
 import io.github.pini236.skiapp.telemetry.Telemetry
 import io.github.pini236.skiapp.ui.Icons
+import androidx.compose.material3.Icon
 import io.github.pini236.skiapp.ui.Note
 import io.github.pini236.skiapp.ui.Ski
 import io.github.pini236.skiapp.ui.TopBar
@@ -85,7 +86,7 @@ fun SoonScreen(title: String, text: String, onBack: () -> Unit) {
 @Composable
 fun AboutScreen(
     version: String, onPrivacy: () -> Unit, account: Account?, mode: DayNight.Mode, onMode: () -> Unit,
-    lang: Lang.Language, langManual: Boolean, onLang: (String?) -> Unit, onResetBests: () -> Unit, onBack: () -> Unit,
+    lang: Lang.Language, langManual: Boolean, onLang: (String?) -> Unit, onResetBests: () -> Unit, onLicenses: () -> Unit, onBack: () -> Unit,
 ) {
     val c = Ski.colors
     val context = LocalContext.current
@@ -167,6 +168,15 @@ fun AboutScreen(
             Credit(stringResource(R.string.about_credit_fonts_label), stringResource(R.string.app_about_fonts))
             Credit(null, stringResource(R.string.app_about_libs))
             Credit(stringResource(R.string.about_credit_videos_label), stringResource(R.string.app_about_credit_videos))
+            // the full texts the fonts' and the libraries' licenses ask to show (A-24, round 18)
+            Column {
+                Box(Modifier.fillMaxWidth().height(1.dp).background(c.rule))
+                Row(Modifier.fillMaxWidth().heightIn(min = 56.dp).clickable(role = Role.Button, onClick = onLicenses), verticalAlignment = Alignment.CenterVertically) {
+                    Text(stringResource(R.string.app_licenses_row), Modifier.weight(1f), style = Ski.type.title.copy(fontSize = 24.sp), color = c.ink)
+                    Icon(Icons.forward, null, Modifier.size(18.dp), tint = c.glacier)
+                }
+                Box(Modifier.fillMaxWidth().height(1.dp).background(c.rule))
+            }
             Credit(null, stringResource(R.string.about_credit_mta))
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Link(stringResource(R.string.app_about_privacy), onPrivacy)

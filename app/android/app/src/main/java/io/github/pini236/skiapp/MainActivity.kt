@@ -662,7 +662,9 @@ class MainActivity : ComponentActivity() {
         // screen_view with the contract's screen names (docs/GROWTH.md); a chosen run is run_open, not a screen. The way
         // into the groups (A1) is "signin" when nobody is signed in on this phone.
         val screen = when (top) {
-            Route.Home -> "home"; is Route.Map -> "map"; is Route.Meet -> "meet"; Route.Games -> "games"; Route.About -> "about"; Route.Trip -> "trip"
+            Route.Home -> "home"; is Route.Map -> "map"; is Route.Meet -> "meet"; Route.Games -> "games"; Route.Trip -> "trip"
+            // the licenses are a part of about (the contract has no screen for them)
+            Route.About, Route.Licenses, is Route.License -> "about"
             is Route.Game -> "game:" + top.name
             is Route.Group -> if (top.id == null && groupApi.me() == null) "signin" else "group"
             Route.GroupNew, is Route.GroupInvite, is Route.TripFor -> "group"
@@ -719,7 +721,7 @@ class MainActivity : ComponentActivity() {
                             onBack = { nav.back() })
                     }
                     is Route.Group -> if (!groupApi.ready) SoonScreen(stringResource(R.string.app_sign_group), stringResource(R.string.app_soon_group)) { nav.back() }
-                        else if (top.id == null) GroupHub(groupApi, onGroup = { id -> nav.replaceTop(Route.Group(id, GroupTab.FLIGHTS.key)) }) { changes ->
+                        else if (top.id == null) GroupHub(groupApi, onGroup = { id -> nav.replaceTop(Route.Group(id, GroupTab.FLIGHTS.key)) }, onMany = { nav.replaceTop(Route.Account) }) { changes ->
                             GroupEntryScreen(groupApi, changes = changes, onBack = { nav.back() },
                                 onCode = { c -> nav.push(if (InviteCode.isCode(c) || InviteCode.isToken(c)) Route.Join(c) else Route.JoinCode) },
                                 onCreate = { nav.push(Route.GroupNew) }, signInGoogle = ::signInGoogle, onPrivacy = ::openPrivacy)
@@ -759,7 +761,8 @@ class MainActivity : ComponentActivity() {
                     is Route.Reclaim -> ReclaimScreen(groupApi, top.code, onBack = { nav.back() }, signInGoogle = ::signInGoogle) { id ->
                         nav.toStart(); nav.push(Route.Group(id, GroupTab.FLIGHTS.key))
                     }
-                    Route.Account -> AccountScreen(groupApi, onBack = { nav.back() }, signInGoogle = ::signInGoogle) { nav.toStart(); armReminders() }
+                    Route.Account -> AccountScreen(groupApi, onBack = { nav.back() }, signInGoogle = ::signInGoogle,
+                        onGroup = { id -> nav.push(Route.Group(id, GroupTab.FLIGHTS.key)) }) { nav.toStart(); armReminders() }
                     // the games page (13.6, the site's #games, GP2), and the games the app has
                     Route.Games -> GamesScreen(appGames(runs = 1), onOpen = { g -> haptics.tick(.4f); nav.push(Route.Game(g)) }) { nav.back() }
                     Route.Game("merge") -> MergeScreen(haptics, onBack = { nav.back() }) { sendBests() }
@@ -769,7 +772,9 @@ class MainActivity : ComponentActivity() {
                     Route.Game("descent") -> io.github.pini236.skiapp.game.DescentScreen(profiles, haptics, onBack = { nav.back() }, onBest = { sendBests() })
                     Route.About -> AboutScreen(BuildConfig.VERSION_NAME, onPrivacy = ::openPrivacy, account = account, mode = dnMode, onMode = ::nextMode,
                         lang = Lang.current(resources), langManual = Lang.manual(this@MainActivity), onLang = ::setLang,
-                        onResetBests = { Bests.reset(this@MainActivity); Qa.log("bests reset") }) { nav.back() }
+                        onResetBests = { Bests.reset(this@MainActivity); Qa.log("bests reset") }, onLicenses = { nav.push(Route.Licenses) }) { nav.back() }
+                    Route.Licenses -> io.github.pini236.skiapp.home.LicensesScreen(onOpen = { nav.push(Route.License(it)) }) { nav.back() }
+                    is Route.License -> io.github.pini236.skiapp.home.LicenseScreen(top.name) { nav.back() }
                     else -> {
                         MapScreen(mapView, scene, videos = videos, ms = MapStatus(lstat, changes, LiftStatus.inSeason(LocalDateTime.ofInstant(Instant.ofEpochMilli(tick), ZoneId.systemDefault()).monthValue),
                             forMe, { on -> forMe = on; Telemetry.event("status_only_open", mapOf("on" to on)); Qa.log("for me ${if (on) "on" else "off"}") },

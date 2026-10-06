@@ -78,12 +78,13 @@ object Lang {
         )
     }
 
-    /** Display sizes per language: Oswald and the narrow Georgian are bigger than Karantina at the same size (FT1, LT2, LT3). */
     /** The same faces as [display] and [body] (bold), for text drawn outside Compose: the map's labels. */
     fun typeface(context: Context, l: Language, display: Boolean): android.graphics.Typeface? {
         val res = when (l.script) {
             Script.CYRILLIC -> if (display) R.font.oswald else R.font.plex_sans
             Script.GEORGIAN -> R.font.noto_sans_georgian
+            // English text in IBM Plex Sans, as the site (A-28): the map's labels and the meetup picture too
+            Script.LATIN -> if (display) R.font.karantina_bold else R.font.plex_sans
             else -> if (display) R.font.karantina_bold else R.font.plex_hebrew_bold
         }
         val tf = androidx.core.content.res.ResourcesCompat.getFont(context, res) ?: return null
@@ -93,6 +94,7 @@ object Lang {
         else android.graphics.Typeface.create(tf, android.graphics.Typeface.BOLD)
     }
 
+    /** Display sizes per language: Oswald and the narrow Georgian are bigger than Karantina at the same size (FT1, LT2, LT3). */
     fun displayScale(l: Language): Float = when (l.script) { Script.CYRILLIC -> 0.85f; Script.GEORGIAN -> 0.9f; else -> 1f }
 
     private const val PREFS = "lang"

@@ -1,5 +1,8 @@
 package io.github.pini236.skiapp.group
 
+import androidx.compose.ui.BiasAlignment
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.ui.res.painterResource
 import androidx.compose.foundation.Image
 import androidx.activity.compose.BackHandler
@@ -52,6 +55,8 @@ import androidx.compose.ui.unit.sp
 import io.github.pini236.skiapp.R
 import io.github.pini236.skiapp.home.drawSnow
 import io.github.pini236.skiapp.home.snowCap
+import io.github.pini236.skiapp.home.SnowKind
+import io.github.pini236.skiapp.home.SnowPaint
 import io.github.pini236.skiapp.ui.Ski
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -70,11 +75,12 @@ fun SnowCard(edge: Color, seed: Int, modifier: Modifier = Modifier, content: @Co
             .shadow(6.dp, RectangleShape, ambientColor = Color(0x1A13233A), spotColor = Color(0x1A13233A))
             .background(c.paper)
             .drawWithCache {
-                val snow = snowCap(seed, size.width, density)
+                // the site's .ac-card with data-snow-pile: piles over the 6 top border
+                val snow = snowCap(seed, size.width, density, SnowKind.PILE, border = 6f); val paint = SnowPaint(c, snow)
                 onDrawWithContent {
                     drawContent()
                     drawRect(edge, Offset.Zero, Size(size.width, 6.dp.toPx()))
-                    drawSnow(snow, density)
+                    drawSnow(snow, paint)
                 }
             }
             .padding(start = 16.dp, end = 16.dp, top = 22.dp, bottom = 16.dp),
@@ -110,7 +116,10 @@ fun BoxScope.Sheet(onDismiss: () -> Unit, content: @Composable ColumnScope.() ->
     }
 }
 
-/** The square switch of the canvas (.sw): ink border, blue when on. */
+/**
+ * The switch of the site's settings (.ab-sw, round 18): 52 by 30, grey when off and green when on, a paper knob of 24
+ * that slides from the start of the row's end to its end when on.
+ */
 @Composable
 fun Toggle(label: String, sub: String?, on: Boolean, onChange: (Boolean) -> Unit, enabled: Boolean = true) {
     val c = Ski.colors
@@ -124,8 +133,10 @@ fun Toggle(label: String, sub: String?, on: Boolean, onChange: (Boolean) -> Unit
             Text(label, style = Ski.type.bodyBold.copy(fontSize = 15.5.sp), color = c.ink)
             if (sub != null) Text(sub, style = Ski.type.small, color = c.muted)
         }
-        Box(Modifier.width(46.dp).height(28.dp).background(if (on) c.accent else c.paper).border(2.dp, if (on) c.accent else c.ink)) {
-            Box(Modifier.align(if (on) Alignment.CenterStart else Alignment.CenterEnd).padding(horizontal = 3.dp).size(18.dp).background(if (on) c.onAccent else c.ink))
+        val slide by animateFloatAsState(if (on) 1f else -1f, tween(200), label = "switch")
+        Box(Modifier.width(52.dp).height(30.dp).background(if (on) c.green else c.rule)) {
+            Box(Modifier.align(BiasAlignment(slide, 0f)).padding(3.dp).size(24.dp)
+                .shadow(1.5.dp, RectangleShape, ambientColor = c.shadow, spotColor = c.shadow).background(c.paper))
         }
     }
     Box(Modifier.fillMaxWidth().height(1.dp).background(c.rule))
@@ -138,7 +149,8 @@ enum class Look { INK, GHOST, DANGER, GOLD }
 fun Button2(text: String, look: Look, onClick: () -> Unit, modifier: Modifier = Modifier, icon: ImageVector? = null, small: Boolean = false, full: Boolean = true, enabled: Boolean = true) {
     val c = Ski.colors
     val (bg, fg, line) = when (look) {
-        Look.INK -> Triple(if (c.dark) Color(0xFF2C3E5C) else c.ink, Color.White, null)
+        // the site's .ac-btn: ink with paper text, so the light one by night (round 18)
+        Look.INK -> Triple(c.ink, c.paper, null)
         Look.GHOST -> Triple(Color.Transparent, c.ink, c.ink)
         Look.DANGER -> Triple(Color.Transparent, c.red, c.red)
         Look.GOLD -> Triple(Color(0xFFF4B942), Color(0xFF13233A), null)

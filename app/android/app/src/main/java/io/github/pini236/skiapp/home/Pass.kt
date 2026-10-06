@@ -1,5 +1,6 @@
 package io.github.pini236.skiapp.home
 
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.LinearEasing
@@ -129,10 +130,14 @@ val LocalPassenger = compositionLocalOf<Passenger?> { null }
     Text(text, style = Ski.type.bodyBold.copy(fontSize = 14.sp, lineHeight = 1.2.em, shadow = p.glow, textDirection = if (ltr) TextDirection.Ltr else TextDirection.Content),
         color = p.ink, maxLines = 2, overflow = TextOverflow.Ellipsis)
 
-/** An airport code in the display face (Latin, so Karantina in every language); a place typed without a code shows smaller. */
-@Composable private fun Code(code: String?, place: String, p: PassInk, color: Color = p.ink) {
+/**
+ * An airport code in the display face (Latin, so Karantina in every language), at the site's size (.bp-code: 54, and 48
+ * on a phone up to 420 wide); a place saved without a code, from before K-5, shows smaller.
+ */
+@Composable private fun Code(code: String?, place: String, p: PassInk, color: Color = p.ink, size: Int? = null) {
     val t = code ?: place.ifBlank { "—" }
-    Text(t, style = TextStyle(fontFamily = if (code != null) Karantina else Ski.type.display, fontWeight = FontWeight.Bold, fontSize = if (code != null) 50.sp else 30.sp,
+    val big = size ?: if (LocalConfiguration.current.screenWidthDp <= 420) 48 else 54
+    Text(t, style = TextStyle(fontFamily = if (code != null) Karantina else Ski.type.display, fontWeight = FontWeight.Bold, fontSize = if (code != null) big.sp else 30.sp,
         lineHeight = .8.em, shadow = p.glow, textDirection = TextDirection.Ltr), color = color, maxLines = 1, overflow = TextOverflow.Ellipsis)
 }
 
@@ -446,14 +451,17 @@ private fun PassCard(trip: Trip, isRet: Boolean, now: LocalDateTime, p: PassInk,
  */
 @Composable
 fun EmptyPass(onAdd: () -> Unit) {
-    val p = passInk()
-    val faint = if (p.dark) Color(0xFF3A4A66) else Color(0xFFC3CEDA)
+    // the site's .bp-empty (round 18): the page's own colours, not the printed pass's, with the strip in the run blue
+    // (light with dark words at night) and the blanks in --rule
+    val c = Ski.colors
+    val p = PassInk(c.paper, c.paper, c.ink, c.muted, c.blue, c.onBoard, c.rule, c.rule, c.rule, null, c.dark)
+    val faint = c.rule
     Column {
         Box(Modifier.fillMaxWidth().heightIn(min = 216.dp).height(IntrinsicSize.Min)) {
             Row(Modifier.fillMaxWidth().fillMaxHeight()) {
                 Main(p, stringResource(R.string.app_home_trip), stringResource(R.string.app_pass_not_set)) {
                     Route(p, stringResource(R.string.ticket_from), stringResource(R.string.ticket_to),
-                        { Code("???", "", p, faint) }, { Code("???", "", p, faint) }, planeColor = faint)
+                        { Code("???", "", p, faint, size = 46) }, { Code("???", "", p, faint, size = 46) }, planeColor = faint)
                     Grid(p) {
                         Cell(stringResource(R.string.ticket_flight), p) { Blank(54.dp, p) }
                         Cell(stringResource(R.string.ticket_departs), p) { Blank(40.dp, p) }

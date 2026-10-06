@@ -24,6 +24,12 @@ data class Me(val userId: String, val registered: Boolean, val name: String?, va
 
 data class GroupSummary(val id: String, val name: String, val startsOn: LocalDate?, val endsOn: LocalDate?)
 
+/** My groups in the site's order (its account list, K-4): by start date, the undated last, ties as they came. */
+fun List<GroupSummary>.byStart(): List<GroupSummary> = sortedWith(compareBy(nullsLast()) { it.startsOn })
+
+/** A row of "my groups" in the account (K-4, as on the site): how many are in it (null: not known here) and whether I run it. */
+data class MyGroup(val id: String, val name: String, val members: Int?, val admin: Boolean)
+
 data class Member(
     val userId: String,
     val name: String,
@@ -157,6 +163,14 @@ interface GroupApi {
         val g = runCatching { myGroups() }.getOrNull()?.firstOrNull() ?: return null
         val n = watch(g.id).now.group?.members?.size ?: runCatching { group(g.id).members.size }.getOrNull() ?: 0
         return g.name to n
+    }
+    /** "My groups" (K-4), each one's size and my role from the phone's copy when there is one. */
+    suspend fun myGroupRows(): List<MyGroup> {
+        if (me() == null) return emptyList()
+        return myGroups().map { g ->
+            val full = watch(g.id).now.group ?: runCatching { group(g.id) }.getOrNull()
+            MyGroup(g.id, g.name, full?.members?.size, full?.admin == true)
+        }
     }
     /** The group as kept on the phone, for its page; the screens read the group only through this. */
     fun watch(id: String): GroupWatch = FetchedGroup(this, id)

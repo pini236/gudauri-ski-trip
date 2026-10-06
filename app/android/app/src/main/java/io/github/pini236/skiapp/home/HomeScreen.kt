@@ -1,6 +1,16 @@
 package io.github.pini236.skiapp.home
 
 import androidx.compose.foundation.background
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.CubicBezierEasing
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.border
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalContext
+import io.github.pini236.skiapp.ui.Motion
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -43,6 +53,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -124,12 +135,12 @@ fun HomeScreen(trip: Trip?, frame: DayNight.Frame, mode: DayNight.Mode, now: Loc
                 Spacer(Modifier.height(30.dp))
             }
             SignPost(listOf(
-                SignSpec(stringResource(R.string.nav_map), stringResource(R.string.home_board_map_sub), SignColors.blue, Color.White, .90f) { go(HomeAction.MAP) },
+                SignSpec(stringResource(R.string.nav_map), stringResource(R.string.home_board_map_sub), c.blue, c.onBoard, .90f) { go(HomeAction.MAP) },
                 SignSpec(stringResource(R.string.nav_meet), stringResource(R.string.home_board_meet_sub), SignColors.gold, SignColors.ink, .82f) { go(HomeAction.MEET) },
-                SignSpec(stringResource(R.string.nav_games), stringResource(R.string.home_board_games_sub), SignColors.green, Color.White, .86f) { go(HomeAction.GAMES) },
+                SignSpec(stringResource(R.string.nav_games), stringResource(R.string.home_board_games_sub), c.green, c.onBoard, .86f) { go(HomeAction.GAMES) },
                 // in a group: its name and how many are in it (the site's groupBoardSub); otherwise the way in
                 SignSpec(stringResource(R.string.app_sign_group), group?.let { (name, n) -> if (n > 0) name + " · " + pluralStringResource(R.plurals.group_members_n, n, n) else name }
-                    ?: stringResource(R.string.home_board_group_sub), if (c.dark) SignColors.inkNight else SignColors.ink, Color.White, .78f) { go(HomeAction.GROUP) },
+                    ?: stringResource(R.string.home_board_group_sub), c.ink, c.paper, .78f) { go(HomeAction.GROUP) },
             ))
             Tally()
             // the site's two links at the bottom of home
@@ -151,24 +162,50 @@ internal fun Head(frame: DayNight.Frame, mode: DayNight.Mode, onMode: () -> Unit
     val halo = Shadow(if (c.dark) Color(0x990D1522) else Color(0x99FFFFFF), blurRadius = 10f)
     val names = mapOf(DayNight.Mode.AUTO to R.string.daynight_mode_auto, DayNight.Mode.DAY to R.string.daynight_mode_day, DayNight.Mode.NIGHT to R.string.daynight_mode_night)
     val modeLabel = stringResource(R.string.daynight_button_aria, stringResource(names.getValue(mode)), stringResource(names.getValue(mode.next())))
+    // the site's phone head (.home-top, round 18): the place in the text face, then the time there in the sign voice
+    // under its words (.dn-clock), and the buttons together after it
     Row(Modifier.fillMaxWidth().padding(start = 16.dp, end = 10.dp, top = 18.dp), verticalAlignment = Alignment.CenterVertically) {
-        Column(Modifier.weight(1f)) {
-            Text(stringResource(R.string.home_location), style = Ski.type.brand.copy(shadow = halo), color = c.ink)
-            Row(verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                Text(stringResource(R.string.nav_gudauri_time), style = Ski.type.small.copy(fontSize = 12.sp, shadow = halo), color = c.ink)
-                Text(frame.clock, style = Ski.type.bodyBold.copy(fontSize = 15.sp, shadow = halo, textDirection = TextDirection.Ltr), color = c.ink)
-            }
+        Text(stringResource(R.string.home_location), Modifier.weight(1f), style = Ski.type.bodyBold.copy(fontSize = 15.sp, fontWeight = FontWeight.SemiBold, shadow = halo), color = c.ink)
+        Column(Modifier.padding(end = 6.dp), horizontalAlignment = Alignment.End) {
+            Text(stringResource(R.string.nav_gudauri_time), style = Ski.type.small.copy(fontSize = 11.sp, lineHeight = 13.sp, shadow = halo), color = c.muted)
+            Text(frame.clock, style = Ski.type.title.copy(fontSize = Ski.type.title.fontSize * (22f / 44f), shadow = halo, textDirection = TextDirection.Ltr), color = c.ink)
         }
         if (onLang != null) LangTag(halo, onLang)
-        Box(Modifier.size(44.dp).clickable(role = Role.Button, onClick = onMode).semantics { contentDescription = modeLabel }, contentAlignment = Alignment.Center) {
-            Icon(Icons.dayNight, null, Modifier.size(22.dp), tint = c.ink)
-        }
+        DayNightButton(mode, modeLabel, onMode)
         val about = stringResource(R.string.common_about_settings)
         Box(Modifier.size(44.dp).clickable(role = Role.Button, onClick = onAbout).semantics { contentDescription = about }, contentAlignment = Alignment.Center) {
             Icon(Icons.gear, null, Modifier.size(22.dp), tint = c.ink)
         }
     }
 }
+
+/**
+ * The day-and-night button as on the site (.dn-btn in the home head, P-K2): a round 44 in paper with an ink ring, and
+ * the mode it is in: half a circle for auto, the gold sun for day, the crescent for night. A new mode turns in, as the
+ * site's dnin, and simply shows with reduced motion.
+ */
+@Composable
+private fun DayNightButton(mode: DayNight.Mode, label: String, onMode: () -> Unit) {
+    val c = Ski.colors
+    val still = Motion.reduced(LocalContext.current)
+    val turn = remember { Animatable(1f) }
+    LaunchedEffect(mode) { if (!still) { turn.snapTo(0f); turn.animateTo(1f, tween(500, easing = CubicBezierEasing(.3f, 1.4f, .5f, 1f))) } }
+    Box(Modifier.padding(horizontal = 4.dp).size(44.dp).clip(CircleShape).background(c.paper).border(1.5.dp, c.ink, CircleShape)
+        .clickable(role = Role.Button, onClick = onMode).semantics { contentDescription = label }, contentAlignment = Alignment.Center) {
+        val (icon, tint) = when (mode) {
+            DayNight.Mode.AUTO -> Icons.dayNight to c.ink
+            DayNight.Mode.DAY -> Icons.sun to SUN
+            DayNight.Mode.NIGHT -> Icons.moon to c.ink
+        }
+        Icon(icon, null, Modifier.size(24.dp).graphicsLayer {
+            val t = turn.value
+            rotationZ = -90f * (1f - t); scaleX = .4f + .6f * t; scaleY = scaleX; alpha = t.coerceIn(0f, 1f)
+        }, tint = tint)
+    }
+}
+
+/** The sun's gold on the site's day button (#F4B942), the same by day and by night. */
+private val SUN = Color(0xFFF4B942)
 
 /**
  * The state of the season, as on the site when there is no report (S3): out of season the mountain sleeps under the
@@ -201,11 +238,12 @@ private fun SeasonBoard(now: LocalDateTime, status: LiftStatus?, onClick: () -> 
             .shadow(6.dp, RectangleShape, ambientColor = Color(0x1A13233A), spotColor = Color(0x1A13233A))
             .background(c.paper)
             .drawWithCache {
-                val snow = snowCap(7, size.width, density)
+                // the site's #seasonBoard: data-snow="7" data-snow-pile over its 6 top border
+                val snow = snowCap(7, size.width, density, SnowKind.PILE, border = 6f); val paint = SnowPaint(c, snow)
                 onDrawWithContent {
                     drawContent()
                     drawRect(c.dash, Offset.Zero, Size(size.width, 6.dp.toPx()))
-                    drawSnow(snow, density)
+                    drawSnow(snow, paint)
                 }
             }
             .clickable(role = Role.Button, onClick = onClick)
@@ -218,47 +256,6 @@ private fun SeasonBoard(now: LocalDateTime, status: LiftStatus?, onClick: () -> 
         }
         Text(stringResource(if (inSeason) R.string.status_lead_in_season else R.string.status_lead_off_season), Modifier.padding(top = 4.dp),
             style = Ski.type.small, color = c.muted)
-    }
-}
-
-/**
- * Fresh snow lying on a top edge, with a few drips (the canvas's cap(), the snowy signs of round 8): soft mounds along
- * the edge, white with a faint blue outline. Fixed by [seed], so it looks the same every time.
- */
-fun snowCap(seed: Int, w: Float, d: Float, height: Float = 22f): Path {
-    val h = height * d
-    val rnd = Random(seed)
-    val n = maxOf(4, (w / d / 34).toInt())
-    val pts = List(n + 1) { i -> Offset(i * w / n, (6 + rnd.nextFloat() * 8) * d) }
-    return Path().apply {
-        moveTo(0f, h); lineTo(0f, pts[0].y)
-        for (i in 0 until n) {
-            val a = pts[i]; val b = pts[i + 1]
-            quadraticTo((a.x + b.x) / 2, minOf(a.y, b.y) - (6 + rnd.nextFloat() * 6) * d, b.x, b.y)
-        }
-        lineTo(w, h - 6 * d)
-        var x = w
-        while (x > 0) {
-            val nx = maxOf(0f, x - (18 + rnd.nextFloat() * 30) * d)
-            if (rnd.nextFloat() < .35f && nx > 8 * d) {
-                val dx = (x + nx) / 2
-                lineTo(dx + 5 * d, h - 6 * d)
-                quadraticTo(dx + 4 * d, h + (6 + rnd.nextFloat() * 6) * d, dx, h + (8 + rnd.nextFloat() * 5) * d)
-                quadraticTo(dx - 4 * d, h + 6 * d, dx - 5 * d, h - 6 * d)
-            }
-            quadraticTo((x + nx) / 2, h + (-2 + rnd.nextFloat() * 4) * d, nx, h - 6 * d)
-            x = nx
-        }
-        close()
-    }
-}
-
-/** The cap sits on the edge: its bottom 8 over the board, the rest above it, with a little shadow. */
-fun DrawScope.drawSnow(p: Path, d: Float, height: Float = 22f) {
-    translate(0f, -(height - 8) * d) {
-        translate(0f, 2 * d) { drawPath(p, Color(0x2E13233A)) }
-        drawPath(p, Color.White)
-        drawPath(p, Color(0xFFC9D8E8), style = Stroke(1 * d))
     }
 }
 

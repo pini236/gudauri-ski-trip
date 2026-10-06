@@ -33,6 +33,10 @@ data class SkiColors(
     // the map drawn flat (the meeting point): the site's --water-edge, --road-main, --vill, --contour-i
     val waterEdge: Color, val roadMain: Color, val village: Color, val contourI: Color,
     val shadow: Color,
+    // the dark lift sign of the status board (--ls-dark)
+    val lsDark: Color,
+    // the snow on the signs and cards (--sn*): moonlit at night, with no outline (home/Snow.kt)
+    val sn1: Color, val sn2: Color, val sn3: Color, val snEdge: Color, val snShadow: Color,
     // the boarding pass (--bp-*)
     val bpPaper: Color, val bpPaper2: Color, val bpInk: Color, val bpMuted: Color, val bpStrip: Color, val bpOnStrip: Color, val bpAccent: Color,
     val dark: Boolean,
@@ -50,6 +54,8 @@ val DayColors = SkiColors(
     water = Color(0xFF8DB6D8), road = Color(0xFFA49A91), contour = Color(0xFF8193A8), peak = Color(0xFF3D4A5C),
     waterEdge = Color(0xFF5F8FBB), roadMain = Color(0xFF8A7C70), village = Color(0xFFE3D8CB), contourI = Color(0xFF62758C),
     shadow = Color(0x2E13233A),
+    lsDark = Color(0xFF13233A),
+    sn1 = Color(0xFFFFFFFF), sn2 = Color(0xFFF1F5F9), sn3 = Color(0xFFD3DFEB), snEdge = Color(0xFFC3D0DD), snShadow = Color(0x290D1522),
     bpPaper = Color(0xFFFFFFFF), bpPaper2 = Color(0xFFF4F7FA), bpInk = Color(0xFF13233A), bpMuted = Color(0xFF4B5A6F), bpStrip = Color(0xFF1F5FC4), bpOnStrip = Color(0xFFFFFFFF), bpAccent = Color(0xFF1F5FC4),
     dark = false,
 )
@@ -63,6 +69,8 @@ val NightColors = SkiColors(
     water = Color(0xFF2C5A82), road = Color(0xFF6D6760), contour = Color(0xFF5A6D85), peak = Color(0xFFC9D3E0),
     waterEdge = Color(0xFF4D82B3), roadMain = Color(0xFF8F857B), village = Color(0xFF3A352F), contourI = Color(0xFF7A90AA),
     shadow = Color(0x73000000),
+    lsDark = Color(0xFF34496E),
+    sn1 = Color(0xFFE8EEF6), sn2 = Color(0xFFCAD6E5), sn3 = Color(0xFF9EB1C9), snEdge = Color.Transparent, snShadow = Color(0x73000000),
     bpPaper = Color(0xFF16223A), bpPaper2 = Color(0xFF1B2944), bpInk = Color(0xFFFFD98A), bpMuted = Color(0xFFC9B98F), bpStrip = Color(0xFFF4B942), bpOnStrip = Color(0xFF0D1522), bpAccent = Color(0xFFFFD98A),
     dark = true,
 )

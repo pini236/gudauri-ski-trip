@@ -8,8 +8,8 @@ import java.net.URLEncoder
 /**
  * Where the user is, as the site says it (site/js/app.js route()): `home`, `map`, `map/run/<key>`, `meet`,
  * `meet/<station>/<HHMM>/<YYYYMMDD>`, `games`, `games/<name>`, `about`, the invite link `j/<code or token>`, and the
- * app's own `trip`, `group`, `group/<id>/<tab>`, `group/new`, `group/<id>/invite`, `join`, `j/<code>/reclaim` and
- * `account`. The same words make the saved state
+ * app's own `trip`, `group`, `group/<id>/<tab>`, `group/new`, `group/<id>/invite`, `join`, `j/<code>/reclaim`,
+ * `account` and `about/licenses[/<name>]`. The same words make the saved state
  * (the system may close the app in the background, and it must come back to the same place) and read the site's
  * shared links (a run, a meeting point), so a link from WhatsApp opens the same screen in the app.
  */
@@ -24,6 +24,9 @@ sealed interface Route {
     data object Games : Route { override val path = "games" }
     data class Game(val name: String) : Route { override val path = "games/$name" }
     data object About : Route { override val path = "about" }
+    /** The open-source licenses (A-24): the list, and one license's full text, from the end of the credits. */
+    data object Licenses : Route { override val path = "about/licenses" }
+    data class License(val name: String) : Route { override val path = "about/licenses/$name" }
     /** The app's own places, not on the site: the trip form (H2) and the group (13.5). */
     data object Trip : Route { override val path = "trip" }
     /** The group sign: without an id it decides (sign in and join, or my group); with one, that group on a tab. */
@@ -73,7 +76,12 @@ sealed interface Route {
                     parts.size == 2 && NAME.matches(parts[1]) -> Game(parts[1])
                     else -> null
                 }
-                "about" -> if (parts.size == 1) About else null
+                "about" -> when {
+                    parts.size == 1 -> About
+                    parts.size == 2 && parts[1] == "licenses" -> Licenses
+                    parts.size == 3 && parts[1] == "licenses" && NAME.matches(parts[2]) -> License(parts[2])
+                    else -> null
+                }
                 "trip" -> if (parts.size == 1) Trip else null
                 "group" -> when {
                     parts.size == 1 -> Group()

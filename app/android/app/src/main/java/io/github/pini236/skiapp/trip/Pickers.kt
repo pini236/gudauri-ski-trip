@@ -64,7 +64,16 @@ import java.time.format.DateTimeFormatter
  * Material's, dressed in the app's tokens: its colours, Plex for text, square corners.
  */
 
-/** The airports a Gudauri trip starts or ends at, and the hubs on the way; any other place can still be typed. */
+/** The rule for an airport (K-5, as the site's /^[A-Z]{3}$/): three Latin letters. */
+object Airports {
+    /** What was typed, as a code (upper case), or null if it is not three Latin letters. */
+    fun code(typed: String): String? = typed.trim().uppercase().takeIf { CODE.matches(it) }
+    /** A place the form may save: from the list ("TBS · Tbilisi") or a code alone. */
+    fun ok(place: String): Boolean = Leg(java.time.LocalDate.MIN, from = place).fromCode != null
+    private val CODE = Regex("^[A-Z]{3}$")
+}
+
+/** The airports a Gudauri trip starts or ends at, and the hubs on the way; any other one by its three-letter code. */
 internal class Airport(val code: String, val city: Int)
 
 internal val AIRPORTS = listOf(
@@ -187,7 +196,11 @@ internal fun PickField(label: String, value: String?, hint: String, icon: ImageV
     }
 }
 
-/** The airport, from the short list (with search), or any place typed in the search. Writes "TBS · Tbilisi". */
+/**
+ * The airport, from the short list (with search), or another three-letter code typed in the search: the same rule as
+ * the site (K-5, decision 62; its trip.bad_code). No free place names: the pass shows the code in giant letters, and
+ * "who flies together" groups by it. Writes "TBS · Tbilisi", or the code alone.
+ */
 @Composable
 internal fun BoxScope.PlaceSheet(title: String, current: String, first: List<String>, onPick: (String) -> Unit, onDismiss: () -> Unit) {
     val c = Ski.colors
@@ -211,10 +224,16 @@ internal fun BoxScope.PlaceSheet(title: String, current: String, first: List<Str
                 Box(Modifier.fillMaxWidth().height(1.dp).background(c.rule))
             }
             val typed = q.trim()
-            if (typed.length >= 2 && shown.none { it.equals(typed, true) }) Text(stringResource(R.string.app_trip_place_other, typed),
-                Modifier.fillMaxWidth().heightIn(min = 52.dp).clickable(role = Role.Button) { onPick(if (typed.length == 3 && typed.all(Char::isLetter)) typed.uppercase() else typed) }
-                    .padding(horizontal = 12.dp, vertical = 14.dp),
-                style = Ski.type.bodyBold, color = c.glacier)
+            val code = Airports.code(typed)
+            if (code != null && code !in shown) Row(Modifier.fillMaxWidth().heightIn(min = 52.dp).clickable(role = Role.Button) { onPick(code) }.padding(horizontal = 12.dp),
+                verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(14.dp)) {
+                Text(code, Modifier.width(56.dp), style = Ski.type.title.copy(fontSize = 26.sp, textDirection = TextDirection.Ltr), color = c.glacier)
+                Text(stringResource(R.string.app_trip_place_code), Modifier.weight(1f), style = Ski.type.bodyBold, color = c.glacier)
+                Icon(Icons.plus, null, Modifier.size(20.dp), tint = c.glacier)
+            }
+            // a name, or letters that are no code: what may go in, as the site says it
+            else if (typed.isNotEmpty() && shown.isEmpty()) Text(stringResource(R.string.trip_bad_code), Modifier.padding(horizontal = 12.dp, vertical = 14.dp),
+                style = Ski.type.small.copy(fontSize = 13.5.sp), color = c.muted)
         }
     }
 }

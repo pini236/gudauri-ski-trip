@@ -67,7 +67,9 @@ fun TripForm(initial: Trip?, today: LocalDate, onSave: (Trip) -> Unit, onDelete:
     val tbilisi = "TBS · " + stringResource(R.string.ticket_city_tbs)
     var oDate by rememberSaveable { mutableStateOf(o?.date) }
     var oFlight by rememberSaveable { mutableStateOf(o?.flight.orEmpty()) }
-    var oFrom by rememberSaveable { mutableStateOf(o?.from.orEmpty()) }
+    // as on the site, a new trip starts from Tel Aviv to Tbilisi
+    val telAviv = "TLV · " + stringResource(R.string.ticket_city_tlv)
+    var oFrom by rememberSaveable { mutableStateOf(if (initial == null) telAviv else o?.from.orEmpty()) }
     var oTo by rememberSaveable { mutableStateOf(if (initial == null) tbilisi else o?.to.orEmpty()) }
     var oDep by rememberSaveable { mutableStateOf(o?.departs) }
     var oArr by rememberSaveable { mutableStateOf(o?.arrives) }
@@ -91,7 +93,11 @@ fun TripForm(initial: Trip?, today: LocalDate, onSave: (Trip) -> Unit, onDelete:
     val flights = oDate?.let { d ->
         Trip(Leg(d, oFlight.trim(), oFrom.trim(), oTo.trim(), oDep, oArr), rDate?.let { Leg(it, rFlight.trim(), oTo.trim(), oFrom.trim(), rDep, rArr) })
     }
-    val trip = if (flights != null && !orderBad && skiOk) flights.copy(ski = if (manual) sFrom!!..sTo!! else null) else null
+    // both airports from the list or a three-letter code (K-5, the site's trip.bad_code): a trip saved before with a
+    // free place name asks for its code
+    val fromOk = Airports.ok(oFrom); val toOk = Airports.ok(oTo)
+    val badCode = stringResource(R.string.trip_bad_code)
+    val trip = if (flights != null && !orderBad && skiOk && fromOk && toOk) flights.copy(ski = if (manual) sFrom!!..sTo!! else null) else null
     val pickDate = stringResource(R.string.app_trip_pick_date)
     val pickTime = stringResource(R.string.app_trip_pick_time)
     val pickPlace = stringResource(R.string.app_trip_pick_place)
@@ -113,8 +119,10 @@ fun TripForm(initial: Trip?, today: LocalDate, onSave: (Trip) -> Unit, onDelete:
                         { Field(stringResource(R.string.app_trip_flight_no), oFlight, { oFlight = it.uppercase().take(12) }, it, stringResource(R.string.app_trip_flight_hint), ltr = true, caps = true) },
                     )
                     Pair2(
-                        { PickField(stringResource(R.string.ticket_from), oFrom.ifBlank { null }, pickPlace, Icons.plane, { pick = "oFrom" }, it, ltr = false) },
-                        { PickField(stringResource(R.string.ticket_to), oTo.ifBlank { null }, pickPlace, Icons.plane, { pick = "oTo" }, it, ltr = false) },
+                        { PickField(stringResource(R.string.ticket_from), oFrom.ifBlank { null }, pickPlace, Icons.plane, { pick = "oFrom" }, it, ltr = false,
+                            error = if (tried && !fromOk) badCode else null) },
+                        { PickField(stringResource(R.string.ticket_to), oTo.ifBlank { null }, pickPlace, Icons.plane, { pick = "oTo" }, it, ltr = false,
+                            error = if (tried && !toOk) badCode else null) },
                     )
                     Pair2(
                         { PickField(stringResource(R.string.ticket_departs), time(oDep), pickTime, Icons.clock, { pick = "oDep" }, it, onClear = { oDep = null }) },
@@ -194,7 +202,7 @@ private fun Pair2(a: @Composable (Modifier) -> Unit, b: @Composable (Modifier) -
 private fun SkiDays(trip: Trip?, manual: Boolean, onChange: () -> Unit, onAuto: () -> Unit) {
     val c = Ski.colors
     val days = trip?.skiDays()
-    Row(Modifier.fillMaxWidth().background(c.paper).drawBehind { drawRect(c.accent, Offset.Zero, Size(size.width, 6.dp.toPx())) }
+    Row(Modifier.fillMaxWidth().background(c.paper).drawBehind { drawRect(c.blue, Offset.Zero, Size(size.width, 6.dp.toPx())) }
         .padding(start = 14.dp, end = 8.dp, top = 12.dp, bottom = 6.dp), verticalAlignment = Alignment.CenterVertically) {
         Column(Modifier.weight(1f).padding(vertical = 6.dp)) {
             Text(stringResource(if (manual) R.string.trip_ski_manual else R.string.app_trip_ski_calc), style = Ski.type.label.copy(fontSize = 12.sp), color = c.muted)

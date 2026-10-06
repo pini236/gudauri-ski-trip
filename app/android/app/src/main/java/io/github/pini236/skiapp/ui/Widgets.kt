@@ -44,18 +44,21 @@ import androidx.compose.ui.unit.sp
  * Square corners everywhere, touch targets of at least 44.
  */
 
-/** The main action: glacier blue, white text (52 high). In a row, [full] = false keeps it to its text. */
+/**
+ * The main action, as the site's .tf-save and .ac-btn.blue: the run blue with the text on it (white by day; by night the
+ * light blue with dark text, round 18), 52 high. In a row, [full] = false keeps it to its text.
+ */
 @Composable
 fun PrimaryButton(text: String, icon: ImageVector?, onClick: () -> Unit, modifier: Modifier = Modifier, full: Boolean = true) {
     val c = Ski.colors
     Row(
         modifier.let { if (full) it.fillMaxWidth() else it }
             .shadow(if (full) 0.dp else 8.dp, RectangleShape, ambientColor = Color(0x591F5FC4), spotColor = Color(0x591F5FC4))
-            .background(c.accent).clickable(role = Role.Button, onClick = onClick).heightIn(min = 52.dp).padding(horizontal = 20.dp),
+            .background(c.blue).clickable(role = Role.Button, onClick = onClick).heightIn(min = 52.dp).padding(horizontal = 20.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally), verticalAlignment = Alignment.CenterVertically,
     ) {
-        if (icon != null) Icon(icon, null, Modifier.size(20.dp), tint = c.onAccent)
-        Text(text, style = Ski.type.bodyBold.copy(fontSize = 16.5.sp), color = c.onAccent)
+        if (icon != null) Icon(icon, null, Modifier.size(20.dp), tint = c.onBoard)
+        Text(text, style = Ski.type.bodyBold.copy(fontSize = 16.5.sp), color = c.onBoard)
     }
 }
 

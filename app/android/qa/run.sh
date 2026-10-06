@@ -402,7 +402,11 @@ home() {
   # nothing typed but flight numbers: the date from the calendar, a time from the clock, the airport from the list
   tapText "בחירת תאריך" && sleep 1.2 && shot trip-date-picker && tapText "מעבר לחודש הבא" && sleep 0.8 && tapText "~(?<!\d)20(?!\d)" && sleep 0.5 && shot trip-date-chosen && tapText "בחירה" && sleep 1
   tapText "בחירת שעה" && sleep 1.2 && shot trip-time-picker && tapText "בחירה" && sleep 1
-  tapText "בחירת שדה" && sleep 1.2 && shot trip-place-sheet && tapText "TLV" && sleep 1
+  # the airport: from the list or a three-letter code, no free names (K-5); a new trip starts from Tel Aviv, as on the site
+  tapText "TLV · תל אביב" && sleep 1.2 && shot trip-place-sheet
+  typeIn "חיפוש עיר או קוד שדה" "Berlin" && keyboardOff && shot trip-place-name
+  tapText "חיפוש עיר או קוד שדה" && sleep 0.4 && adb shell input keyevent KEYCODE_MOVE_END && for _ in 1 2 3 4 5 6; do adb shell input keyevent KEYCODE_DEL; done
+  adb shell input text "lca"; sleep 0.6; keyboardOff; shot trip-place-code && tapText "קוד אחר" && sleep 1
   shot trip-form-picked
   mark; tapText "שמירה" && waitlog "trip saved" 10 && { sleep 1.5; shot home-trip-picked; }
 
@@ -439,6 +443,13 @@ home() {
     # slow drags: a quick one from the edge flings the page to its end
     drag $((W * 7 / 100)) $((H * 80 / 100)) $((W * 7 / 100)) $((H * 45 / 100)) 1000; sleep 1; shot home-about-2
     drag $((W * 7 / 100)) $((H * 80 / 100)) $((W * 7 / 100)) $((H * 45 / 100)) 1000; sleep 1; shot home-about-3
+    # the licenses (A-24): the row at the end of the credits, the list, and one license's full text
+    drag $((W * 7 / 100)) $((H * 80 / 100)) $((W * 7 / 100)) $((H * 45 / 100)) 1000; sleep 1
+    if tapText "רישיונות קוד פתוח"; then
+      sleep 1.2; shot home-licenses
+      tapText "Karantina" && sleep 1.2 && shot home-license-text && adb shell input keyevent KEYCODE_BACK && sleep 0.8
+      adb shell input keyevent KEYCODE_BACK && sleep 0.8
+    fi
     adb shell input keyevent KEYCODE_BACK && sleep 1
   else fail "no way to about from home"; fi
 
@@ -516,6 +527,9 @@ group() {
   adb shell cmd locale set-app-locales "$PKG" --locales en > /dev/null 2>&1; sleep 3
   qa "--es qa.group admin --es qa.tab group"; sleep 2.5; shot group-en
   adb shell cmd locale set-app-locales "$PKG" --locales he > /dev/null 2>&1; sleep 3
+  # in two groups (K-4): the group sign leads to "my groups" in the account, by start date; a row opens its group
+  qa "--es qa.group two --es qa.tab group"; waitlog "group seed two" 20; sleep 2.5; shot account-groups
+  tapText "סקי עם המשפחה" && sleep 2.5 && shot account-groups-open
   qa "--es qa.group none --es qa.tab home --es qa.trip '$TRIP_HE'"; sleep 1
 }
 

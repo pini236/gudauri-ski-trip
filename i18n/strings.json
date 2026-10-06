@@ -516,6 +516,42 @@
     "ka"
    ]
   },
+  "app.licenses_row": {
+   "he": "רישיונות קוד פתוח",
+   "en": "Open-source licenses",
+   "ru": "Лицензии открытого ПО",
+   "ka": "ღია კოდის ლიცენზიები",
+   "where": "app/android",
+   "note": "the last row of the credits in about, opens the licenses (A-24, round 18)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.licenses_title": {
+   "he": "רישיונות",
+   "en": "Licenses",
+   "ru": "Лицензии",
+   "ka": "ლიცენზიები",
+   "where": "app/android",
+   "note": "title of the licenses page, and the way back to it from one license (A-24)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.licenses_android_sdk": {
+   "he": "תנאי ה-SDK של אנדרואיד",
+   "en": "Android SDK terms",
+   "ru": "Условия Android SDK",
+   "ka": "Android SDK-ის პირობები",
+   "where": "app/android",
+   "note": "what Sign in with Google and Install Referrer are under, in the licenses list (A-24)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
   "app.about_privacy": {
    "he": "מדיניות הפרטיות",
    "en": "Privacy policy",
@@ -11930,13 +11966,13 @@
     "ka"
    ]
   },
-  "app.trip_place_other": {
-   "he": "להשתמש ב: {text}",
-   "en": "Use: {text}",
-   "ru": "Использовать: {text}",
-   "ka": "გამოყენება: {text}",
+  "app.trip_place_code": {
+   "he": "קוד אחר",
+   "en": "Other code",
+   "ru": "Другой код",
+   "ka": "სხვა კოდი",
    "where": "app/android",
-   "note": "a place that is not in the list, as typed; {text} = what was typed",
+   "note": "next to three typed letters that are not in the airport list (K-5: from the list, or a three-letter code)",
    "check": [
     "ru",
     "ka"

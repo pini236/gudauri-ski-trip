@@ -20,7 +20,8 @@ object DevServer {
 
     /**
      * The emulator run's starting points: none (nobody, no group), invited (a group with its invite, and nobody on this
-     * phone yet), member (a guest in the group, without a flight), admin (a registered admin, with a request).
+     * phone yet), member (a guest in the group, without a flight), admin (a registered admin, with a request), two (the
+     * admin, also a member of a second group that starts later: "my groups", K-4).
      */
     fun seed(api: GroupApi, kind: String) { (api as? FakeGroupApi)?.seed(kind) }
 }
@@ -43,7 +44,7 @@ private class FakeGroupApi : GroupApi {
     fun seed(kind: String) {
         groups.clear(); trips.clear(); mine.clear(); meNow = null
         if (kind == "none") return
-        val admin = kind == "admin"
+        val admin = kind == "admin" || kind == "two"
         val me = Me("me", registered = admin, name = if (admin) "נועה כהן" else "איתי לוי", google = admin)
         meNow = me
         val t1 = id(); trips[t1] = flight
@@ -63,6 +64,14 @@ private class FakeGroupApi : GroupApi {
                 Meetup("m1", "158744075b", LocalDate.of(2027, 1, 11).atTime(9, 30).toInstant(ZoneOffset.ofHours(4)), null, "נועה כהן"),
                 Meetup("m2", "158744055b", LocalDate.of(2027, 1, 11).atTime(13, 0).toInstant(ZoneOffset.ofHours(4)), null, "דנה מזרחי"),
             ))
+        if (kind == "two") {
+            // added first, so the list's order comes from the start dates and not from the order they were made in
+            val g = groups.getValue(gid); groups.clear()
+            groups["g2"] = Group("g2", "סקי עם המשפחה", LocalDate.of(2027, 2, 14), LocalDate.of(2027, 2, 18),
+                listOf(Member("me", me.name ?: "", Role.MEMBER, true, registered = true), Member("u7", "רוני כהן", Role.ADMIN, false, registered = true),
+                    Member("u8", "גלי כהן", Role.MEMBER, false)), Invite("i2", "PMWHTD", "u".repeat(40), false, null), emptyList(), emptyList())
+            groups[gid] = g
+        }
         if (kind == "invited") { groups[gid] = groups.getValue(gid).let { g -> g.copy(members = g.members.filter { it.userId != "me" }) }; meNow = null }
     }
 
@@ -80,7 +89,7 @@ private class FakeGroupApi : GroupApi {
     override suspend fun myGroups(): List<GroupSummary> {
         wait(); val me = meNow ?: return emptyList()
         return groups.values.filter { g -> g.members.any { it.userId == me.userId } }
-            .map { GroupSummary(it.id, it.name, it.startsOn, it.endsOn) }
+            .map { GroupSummary(it.id, it.name, it.startsOn, it.endsOn) }.byStart()
     }
 
     override suspend fun group(id: String): Group {

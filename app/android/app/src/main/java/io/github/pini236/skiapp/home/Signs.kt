@@ -45,13 +45,15 @@ class SignShape(private val arrow: Dp) : Shape {
     }
 }
 
-/** The sign colours are fixed, day and night, as in the canvas (H3, H4): the trail colours, and the group in ink. */
+/**
+ * The trail colours of the day, for what keeps them at night too: the games' cards (GP2) and the meeting point's gold
+ * sign. The home signs follow the site's tokens by day and by night instead (.board, round 18).
+ */
 object SignColors {
     val blue = Color(0xFF1F5FC4)
     val gold = Color(0xFFF4B942)
     val green = Color(0xFF1B8A4C)
     val ink = Color(0xFF13233A)
-    val inkNight = Color(0xFF2C3E5C)
 }
 
 class SignSpec(val title: String, val sub: String, val color: Color, val fg: Color, val width: Float, val onClick: () -> Unit)
@@ -81,18 +83,19 @@ fun SignPost(signs: List<SignSpec>, modifier: Modifier = Modifier) {
 
 @Composable
 private fun Sign(s: SignSpec) {
-    val shape = remember { SignShape(26.dp) }
+    // the site's .board: an arrow of 22, at least 64 high, the title at 34 (round 18)
+    val shape = remember { SignShape(22.dp) }
     Box(
         Modifier.fillMaxWidth(s.width)
             .shadow(5.dp, shape, ambientColor = Color(0x2913233A), spotColor = Color(0x2913233A))
             .background(s.color, shape)
             .clickable(role = Role.Button, onClick = s.onClick)
-            .heightIn(min = 72.dp)
-            .padding(start = 20.dp, end = 40.dp, top = 8.dp, bottom = 8.dp),
+            .heightIn(min = 64.dp)
+            .padding(start = 18.dp, end = 34.dp, top = 10.dp, bottom = 10.dp),
     ) {
         Column {
-            Text(s.title, style = Ski.type.title.copy(fontSize = Ski.type.title.fontSize * (40f / 44f)), color = s.fg, maxLines = 1)
-            Text(s.sub, style = Ski.type.small.copy(fontSize = 13.sp), color = s.fg)
+            Text(s.title, style = Ski.type.title.copy(fontSize = Ski.type.title.fontSize * (34f / 44f)), color = s.fg, maxLines = 1)
+            Text(s.sub, style = Ski.type.small.copy(fontSize = 13.sp), color = s.fg.copy(alpha = .92f))
         }
     }
 }

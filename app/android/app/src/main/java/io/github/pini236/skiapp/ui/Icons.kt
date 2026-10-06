@@ -51,10 +51,22 @@ object Icons {
         for (y in listOf(5f, 12f, 19f)) addPath(PathParser().parsePathString(circle(12f, y, 1.6f)).toNodes(), fill = SolidColor(androidx.compose.ui.graphics.Color.Black))
     }.build()
 
-    /** Day and night: a circle, half of it filled (the canvas's button). */
+    /** Day and night on their own (auto): a circle, half of it filled (the site's .i-auto). */
     val dayNight = ImageVector.Builder("daynight", 24.dp, 24.dp, 24f, 24f).apply {
         addPath(PathParser().parsePathString(circle(12f, 12f, 9f)).toNodes(), stroke = SolidColor(androidx.compose.ui.graphics.Color.Black), strokeLineWidth = 1.8f)
         path(fill = SolidColor(androidx.compose.ui.graphics.Color.Black)) { moveTo(12f, 3f); arcTo(9f, 9f, 0f, false, true, 12f, 21f); close() }
+    }.build()
+
+    /** Day, as the site's button shows it (.i-day): a sun, tinted gold by the caller. */
+    val sun = ImageVector.Builder("sun", 24.dp, 24.dp, 24f, 24f).apply {
+        addPath(PathParser().parsePathString(circle(12f, 12f, 5f)).toNodes(), fill = SolidColor(androidx.compose.ui.graphics.Color.Black))
+        addPath(PathParser().parsePathString("M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8").toNodes(),
+            stroke = SolidColor(androidx.compose.ui.graphics.Color.Black), strokeLineWidth = 2f, strokeLineCap = StrokeCap.Round)
+    }.build()
+
+    /** Night, as the site's button shows it (.i-night): a crescent. */
+    val moon = ImageVector.Builder("moon", 24.dp, 24.dp, 34f, 34f).apply {
+        addPath(PathParser().parsePathString("M17 3A14 14 0 0 1 17 31A7.5 14 0 0 0 17 3Z").toNodes(), fill = SolidColor(androidx.compose.ui.graphics.Color.Black))
     }.build()
 
     /** The plane of the boarding pass, nose forward: right in English, left in Hebrew (from TLV to TBS). */

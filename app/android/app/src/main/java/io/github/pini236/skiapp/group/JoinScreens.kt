@@ -94,7 +94,7 @@ fun GroupEntryScreen(api: GroupApi, onBack: () -> Unit, onCode: (String) -> Unit
                     Muted(stringResource(R.string.app_g_pending_sub), size = 12.5f)
                     QuietButton(stringResource(R.string.app_g_pending_cancel), { r.run { api.cancelRequest(gid); pending = pending - gid } })
                 }
-                SnowCard(c.accent, 31) {
+                SnowCard(c.blue, 31) {
                     Display(stringResource(R.string.app_g_have_code), 34f)
                     Muted(stringResource(R.string.app_g_have_code_sub), Modifier.padding(top = 4.dp, bottom = 12.dp))
                     Row(verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -105,7 +105,7 @@ fun GroupEntryScreen(api: GroupApi, onBack: () -> Unit, onCode: (String) -> Unit
                     }
                 }
                 Spacer(Modifier.height(6.dp))
-                SnowCard(if (c.dark) Color(0xFF2C3E5C) else c.ink, 32) {
+                SnowCard(c.ink, 32) {
                     Display(stringResource(R.string.app_g_create), 34f)
                     Muted(stringResource(R.string.app_g_create_sub), Modifier.padding(top = 4.dp, bottom = 12.dp))
                     Button2(stringResource(R.string.app_g_create), Look.INK, { if (api.me()?.registered == true) onCreate() else sheet = true }, icon = Icons.people)
@@ -208,7 +208,7 @@ fun InvitedScreen(api: GroupApi, code: String, frame: DayNight.Frame, mode: DayN
                     Spacer(Modifier.height(60.dp))
                     val p = preview
                     Box(Modifier.padding(horizontal = 16.dp)) {
-                        SnowCard(c.accent, 51) {
+                        SnowCard(c.blue, 51) {
                             when {
                                 load.busy || (p == null && load.error == null) -> Muted(stringResource(R.string.app_loading))
                                 p == null -> { ErrorLine(load); QuietButton(stringResource(R.string.app_g_retype), onTypeCode) }
@@ -304,11 +304,11 @@ fun ReclaimScreen(api: GroupApi, code: String, onBack: () -> Unit, signInGoogle:
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 for ((id, n) in p.members) {
                     val sel = pick == id
-                    Row(Modifier.fillMaxWidth().heightIn(min = 52.dp).background(if (sel) c.grid else c.paper).border(if (sel) 2.dp else 1.dp, if (sel) c.accent else c.rule)
+                    Row(Modifier.fillMaxWidth().heightIn(min = 52.dp).background(if (sel) c.grid else c.paper).border(if (sel) 2.dp else 1.dp, if (sel) c.blue else c.rule)
                         .clickable(role = Role.RadioButton) { pick = id }.semantics { selected = sel }.padding(horizontal = 12.dp),
                         verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                        Box(Modifier.size(20.dp).border(2.dp, if (sel) c.accent else c.muted, androidx.compose.foundation.shape.CircleShape), contentAlignment = Alignment.Center) {
-                            if (sel) Box(Modifier.size(10.dp).background(c.accent, androidx.compose.foundation.shape.CircleShape))
+                        Box(Modifier.size(20.dp).border(2.dp, if (sel) c.blue else c.muted, androidx.compose.foundation.shape.CircleShape), contentAlignment = Alignment.Center) {
+                            if (sel) Box(Modifier.size(10.dp).background(c.blue, androidx.compose.foundation.shape.CircleShape))
                         }
                         Text(n, style = Ski.type.bodyBold.copy(fontSize = 15.5.sp), color = c.ink)
                     }

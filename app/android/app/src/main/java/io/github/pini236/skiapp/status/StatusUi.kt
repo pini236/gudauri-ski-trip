@@ -59,6 +59,8 @@ import io.github.pini236.skiapp.R
 import io.github.pini236.skiapp.home.SignShape
 import io.github.pini236.skiapp.home.drawSnow
 import io.github.pini236.skiapp.home.snowCap
+import io.github.pini236.skiapp.home.SnowKind
+import io.github.pini236.skiapp.home.SnowPaint
 import io.github.pini236.skiapp.meet.iso
 import io.github.pini236.skiapp.ui.Ski
 import kotlinx.coroutines.delay
@@ -170,6 +172,7 @@ fun ColumnScope.StatusBoard(s: LiftStatus, changes: List<Pair<String, Boolean>>,
 private fun SnowySigns(names: List<String>) {
     val ink = Color(0xFF13233A)
     val rtl = LocalLayoutDirection.current == LayoutDirection.Rtl
+    val snowColors = Ski.colors
     Column(
         Modifier.fillMaxWidth().padding(top = 34.dp, bottom = 30.dp)
             .drawBehind {
@@ -185,17 +188,20 @@ private fun SnowySigns(names: List<String>) {
             Box(
                 Modifier.fillMaxWidth().height(52.dp)
                     .drawWithCache {
-                        val snow = snowCap(i + 1, size.width, density)
-                        onDrawWithContent { drawContent(); drawSnow(snow, density) }
+                        // the site's .lsign: data-snow="<i>" data-snow-arrow="18" data-snow-low
+                        val snow = snowCap(i, size.width, density, SnowKind.LOW, arrow = 18f, rtl = rtl); val paint = SnowPaint(snowColors, snow)
+                        onDrawWithContent { drawContent(); drawSnow(snow, paint) }
                     },
             ) {
                 Row(
-                    Modifier.fillMaxWidth().height(52.dp).clip(shape).background(if (i % 2 == 0) Color(0xFF1F5FC4) else ink)
+                    // the site's .ls-face: the run blue and --ls-dark by turns, by day and by night
+                    Modifier.fillMaxWidth().height(52.dp).clip(shape).background(if (i % 2 == 0) snowColors.blue else snowColors.lsDark)
                         .padding(start = 14.dp, end = 30.dp, top = 12.dp), // the arrow's side is the end
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    Text(iso(n), Modifier.weight(1f), style = Ski.type.sign.copy(fontSize = (28 * Ski.type.displayScale).sp), color = Color.White.copy(alpha = .6f), maxLines = 1)
-                    Text("?", style = Ski.type.sign.copy(fontSize = (28 * Ski.type.displayScale).sp), color = Color.White.copy(alpha = .6f))
+                    val fg = if (i % 2 == 0) snowColors.onBoard.copy(alpha = .74f) else Color.White.copy(alpha = .74f)
+                    Text(iso(n), Modifier.weight(1f), style = Ski.type.sign.copy(fontSize = (28 * Ski.type.displayScale).sp), color = fg, maxLines = 1)
+                    Text("?", style = Ski.type.sign.copy(fontSize = (28 * Ski.type.displayScale).sp), color = fg)
                 }
             }
         }
