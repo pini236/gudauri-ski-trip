@@ -15854,6 +15854,54 @@
    "en": "No report",
    "ru": "Нет данных",
    "ka": "ინფორმაცია არ არის"
+  },
+  "run.step_start": {
+   "he": "התחלה",
+   "en": "Start",
+   "ru": "Начало",
+   "ka": "დასაწყისი",
+   "where": "site/js/app.js",
+   "note": "Run panel, round 20: altitude at the top of the run",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "run.step_steep": {
+   "he": "הקטע התלול",
+   "en": "Steepest part",
+   "ru": "Самый крутой участок",
+   "ka": "ყველაზე ციცაბო მონაკვეთი",
+   "where": "site/js/app.js",
+   "note": "Run panel, round 20: steepest slope in degrees",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "run.step_end": {
+   "he": "סוף",
+   "en": "End",
+   "ru": "Конец",
+   "ka": "დასასრული",
+   "where": "site/js/app.js",
+   "note": "Run panel, round 20: altitude at the bottom",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "run.profile_info_aria": {
+   "he": "איך זה חושב",
+   "en": "How this is worked out",
+   "ru": "Как это рассчитано",
+   "ka": "როგორ არის გამოთვლილი",
+   "where": "site/js/app.js",
+   "note": "Screen reader label of the (i) beside the elevation profile heading",
+   "check": [
+    "ru",
+    "ka"
+   ]
   }
  }
 }

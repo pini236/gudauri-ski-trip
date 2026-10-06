@@ -277,20 +277,6 @@ function select(key,{zoom=true,push=true,via=''}={}){
 function pips(c){const n=RATE[c][0];return `<span class="pips c-${c}">${[1,2,3,4].map(i=>`<i class="${i<=n?'on':''}"></i>`).join('')}</span>`;}
 function liftBtn(name){const l=D.lifts.find(x=>x.name===name);return l?`<button class="tag" data-lift="${l.id}">⇡ ${esc(name)}</button>`:esc(name);}
 function pisteBtn(k){const p=byKey[k];return p?`<button class="tag c-${p.color}" data-goto="${esc(k)}">${esc(dispName(p))}</button>`:'';}
-function notesFor(p){
-  const n=[];
-  if(p.key==='Zuma')n.push(T('run.note_zuma_two_lines'));
-  const mism=p.osmDiff.filter(x=>x!=='—'&&OSMD[x]&&OSMD[x][1]!==p.color);
-  if(p.named&&mism.length)n.push(T('run.note_osm_grade_mismatch',{grades:mism.map(x=>OSMD[x][0]).join(', '),color:HEB[p.color]}));
-  if(p.named&&p.osmDiff.includes('—'))n.push(T('run.note_osm_no_grade'));
-  const lin=p.segs.filter(s=>!s.area).length;if(lin>1)n.push(T('run.note_separate_segments',{n:lin}));
-  if(p.segs.some(s=>s.area))n.push(T('run.note_area_polygon'));
-  if(p.lit.includes('yes'))n.push(T('run.note_lit'));
-  if(p.kind==='ski-way')n.push(T('run.note_ski_way'));
-  if(p.kind==='beginner-area')n.push(T('run.note_beginner_area'));
-  if(!p.named)n.push(T('run.note_unnamed_osm'));
-  return n;
-}
 function hostOf(u){try{return new URL(u).hostname.replace(/^www\./,'')}catch{return u}}
 const ytId=u=>{try{const x=new URL(u);if(/(^|\.)youtube\.com$/.test(x.hostname))return(x.searchParams.get('v')||'').match(/^[\w-]{11}$/)?x.searchParams.get('v'):null;if(x.hostname==='youtu.be'){const i=x.pathname.slice(1);return/^[\w-]{11}$/.test(i)?i:null;}}catch{}return null;};
 function vidList(key){
@@ -309,30 +295,11 @@ function elevRows(p){
   <dt>${E('run.stat_drop_label')}</dt><dd>${H('common.unit_m',{n:s.drop},{n:num(s.drop)})}${lines.length===1&&p.len?' · '+H('run.stat_avg_gradient',{},{pct:num(Math.round(s.drop/p.len*100))}):''}</dd>
   <dt>${E('run.stat_steep_label')}</dt><dd>${num(Math.round(s.maxG*100)+'%')} <span class="hint">${E('run.stat_steep_hint')}</span></dd>`;
 }
-const CONFH={high:T('run.confidence_high'),medium:T('run.confidence_medium'),low:T('run.confidence_low')};
-const STATH={'osm-named':T('run.source_osm_named'),'osm-unnamed-match':T('run.source_osm_unnamed_match'),'gps':T('run.source_gps')};
-// the research notes are written in Hebrew in the data file; their translations live in the strings file (research.<run>.*),
-// and a note with no translation shows as written
-const RN=(key,he)=>{const v=T(key);return v===key?he:v;},rslug=p=>p.key.toLowerCase().replace(/ /g,'_');
-function researchBlock(p){const r=p.research,k='research.'+rslug(p);
-  return `<h3>${E('run.source_heading')}</h3>
-  <dl class="kv"><dt>${E('run.confidence_label')}</dt><dd>${esc(CONFH[r.conf]||r.conf)}</dd>
-  <dt>${E('run.source_label')}</dt><dd>${esc(STATH[r.status]||r.status)}${r.historical?E('run.source_historical'):''}</dd>
-  ${r.gps?`<dt>${E('run.gps_tracks_label')}</dt><dd>${H('run.gps_tracks_value',{n:r.gps},{n:num(r.gps)})}</dd>`:''}
-  ${r.partial?`<dt>${E('run.coverage_label')}</dt><dd>${esc(RN(k+'.partial',r.partial))}</dd>`:''}</dl>
-  <p class="hint">${esc(RN(k+'.notes',r.notes))}</p>
-  <ul class="notes">${r.sources.map(x=>`<li class="hint"><bdi>${esc(/[\u0590-\u05ff]/.test(x)?RN('research.source_mta',x):x)}</bdi></li>`).join('')}</ul>`;}
 const navList=()=>{const order=['green','blue','red','black'];return D.pistes.filter(p=>p.named).sort((a,b)=>order.indexOf(a.color)-order.indexOf(b.color)||a.key.localeCompare(b.key,undefined,{numeric:true})).map(p=>p.key);};
 function runNav(key){
   const L=navList(),i=L.indexOf(key);if(i<0)return `<div class="run-nav"><button type="button" class="rn-share" data-share="${esc(key)}">${E('run.share_button')}</button></div>`;
   const prev=L[(i-1+L.length)%L.length],next=L[(i+1)%L.length],[back,fwd]=I18N.ltr?['←','→']:['→','←'];
   return `<div class="run-nav" role="group" aria-label="${E('run.nav_group_aria')}"><button type="button" data-goto="${esc(prev)}" aria-label="${E('run.nav_prev_aria',{run:prev})}">${back} <span dir="ltr">${esc(prev)}</span></button><button type="button" class="rn-share" data-share="${esc(key)}">${E('run.share_button')}</button><button type="button" data-goto="${esc(next)}" aria-label="${E('run.nav_next_aria',{run:next})}"><span dir="ltr">${esc(next)}</span> ${fwd}</button></div>`;
-}
-let cmpStats=null;
-function comparable(){ // steepness and length of every named run, once
-  if(cmpStats)return cmpStats;cmpStats=[];
-  D.pistes.forEach(p=>{if(!p.named||(p.kind&&p.kind!=='run')||!TM)return;const Ls=runLines(p);if(!Ls.length)return;const s=GudRelief.stats(TM,Ls);cmpStats.push({key:p.key,g:s.maxG,len:p.len});});
-  return cmpStats;
 }
 function runViewBlock(key){
   const pr=runProfile(key),p=byKey[key];if(!pr||pr.S.length<4)return '';
@@ -341,15 +308,9 @@ function runViewBlock(key){
   const line=S.map(q=>X(q.d)+','+Y(q.h)).join(' ');
   let band='';for(let i=0,j=0;i<n-1;i=j){const c=GudRelief.slopeColor(S[i].a);j=i+1;while(j<n-1&&GudRelief.slopeColor(S[j].a)===c)j++;band+=`<rect x="${X(S[i].d)}" y="${Hc-14}" width="${(X(S[j].d)-X(S[i].d)+.6).toFixed(1)}" height="7" fill="${c}"/>`;}
   const st=pr.steep,deg=g=>Math.round(Math.atan(g)*180/Math.PI),maxG=GudRelief.stats(TM,runLines(p)).maxG; // the same number as in the details above
-  const first=S.find(q=>q.d>=150)||S[n-1],g0=(S[0].h-first.h)/(first.d||1);
-  const cmp=comparable(),me=cmp.find(x=>x.key===key);
-  let cmpHtml='';if(me&&cmp.length>2){const others=cmp.filter(x=>x.key!==key);
-    const bg=others.slice().sort((a,b)=>Math.abs(a.g-me.g)-Math.abs(b.g-me.g))[0],bl=others.slice().sort((a,b)=>Math.abs(a.len-me.len)-Math.abs(b.len-me.len))[0];
-    cmpHtml=`<p class="run-cmp">${H('run.compare_line',{},{steep_run:pisteBtn(bg.key),long_run:pisteBtn(bl.key)})}</p>`;}
-  const endTxt=p.toLifts.length?H('run.end_to_lift',{},{lifts:p.toLifts.map(liftBtn).join('')}):p.joins.length?H('run.end_continue_to',{},{runs:p.joins.map(pisteBtn).join('')}):'';
-  const startTxt=p.fromLifts.length?H('run.start_from_lift',{},{lifts:p.fromLifts.map(liftBtn).join('')}):'';
   const fly=can3d&&!reduceMotion()?`<button type="button" class="btn run-fly" data-fly="${esc(key)}">${E('run.fly_button')}</button>`:'';
-  return `<h3>${E('run.profile_heading')}</h3>
+  return `<h3>${E('run.profile_heading')}<button type="button" class="i-btn" data-info aria-expanded="false" aria-label="${E('run.profile_info_aria')}">i</button></h3>
+  <div class="info-pop hint" hidden><p>${E('run.profile_hint')}</p>${TM?`<p>${E('run.elevation_accuracy_hint')}</p>`:''}</div>
   <div class="prof"><svg viewBox="0 0 ${W} ${Hc}" preserveAspectRatio="none" aria-hidden="true">
     <polygon points="8,${Hc-16} ${line} ${W-8},${Hc-16}" class="pf-fill"/><polyline points="${line}" class="pf-line"/>${band}
     ${st.g?`<rect x="${X(st.d)}" y="0" width="${(X(S[st.j].d)-X(st.d)).toFixed(1)}" height="${Hc-16}" class="pf-steep"/>`:''}
@@ -360,13 +321,11 @@ function runViewBlock(key){
   <ul class="slope-key">${GudRelief.SLOPE.map(([,c,t],i,a)=>`<li><i style="background:${c}"></i>${esc(i===0?T('map.slope_upto15'):i===a.length-1?T('map.slope_over30'):t)}</li>`).join('')}</ul>
   ${fly}
   <h3>${E('run.ahead_heading')}</h3>
-  <ol class="brief">
-    <li><b>${H('run.ahead_start_title',{},{alt:num(Math.round(S[0].h))})}</b><span>${H('run.ahead_start_text',{deg:deg(g0)},{start:startTxt})}</span></li>
-    ${st.g?`<li class="b-steep"><b>${H('run.ahead_steep_title',{},{dist:num(Math.round(st.d))})}</b><span>${H('run.ahead_steep_text',{deg:deg(maxG)},{pct:num(Math.round(maxG*100))})}</span></li>`:''}
-    <li><b>${H('run.ahead_end_title',{},{alt:num(Math.round(S[n-1].h))})}</b><span>${H('run.ahead_end_text',{},{dist:num(Math.round(dmax)),end:endTxt})}</span></li>
-  </ol>
-  ${cmpHtml}
-  <p class="hint">${E('run.profile_hint')}</p>`;
+  <div class="steps">
+    <div><small>${E('run.step_start')}</small><b class="num">${H('common.unit_m',{},{n:`${num(Math.round(S[0].h))}`})}</b></div>
+    <div class="st"><small>${E('run.step_steep')}</small><b class="num">${deg(maxG)}°</b></div>
+    <div><small>${E('run.step_end')}</small><b class="num">${H('common.unit_m',{},{n:`${num(Math.round(S[n-1].h))}`})}</b></div>
+  </div>`;
 }
 function profAt(i){
   const k=document.getElementById('profRange');if(!k)return;const pr=runProfile(k.dataset.key);if(!pr)return;const S=pr.S,q=S[Math.max(0,Math.min(S.length-1,i))];
@@ -389,7 +348,7 @@ function renderPiste(key){
   if(!p){const m=D.missing.find(x=>x.name===key);if(!m)return overview();
     panel.innerHTML=`<button class="back" data-back>${E('map.back_all_runs')}</button><h2 class="c-${m.color}">${esc(m.name)}</h2>
     <dl class="kv"><dt>${E('run.official_color_label')}</dt><dd>${pips(m.color)}${esc(HEB[m.color])} · ${esc(RATE[m.color][1])}</dd><dt>${E('common.length_label')}</dt><dd>—</dd></dl>
-    <h3>${E('run.notes_heading')}</h3><div class="notice">${E('run.missing_notice')}</div>${vidBlock(key,m.name)}`;
+    <div class="notice">${E('run.missing_notice')}</div>${vidBlock(key,m.name)}`;
     return;}
   const c=p.color,label=p.named?(p.key==='Firni ?'?'Firni':p.key):'';
   panel.innerHTML=`<button class="back" data-back>${E('map.back_all_runs')}</button>
@@ -406,17 +365,6 @@ function renderPiste(key){
   </dl>
   ${typeof WX!=='undefined'&&WX?WX.cond(p):''}
   ${runViewBlock(key)}
-  <h3>${E('run.connections_heading')}</h3>
-  <dl class="kv">
-    <dt>${E('run.lift_at_top')}</dt><dd>${p.fromLifts.map(liftBtn).join('')||'—'}</dd>
-    <dt>${E('run.lift_at_bottom')}</dt><dd>${p.toLifts.map(liftBtn).join('')||'—'}</dd>
-    <dt>${E('run.joins_label')}</dt><dd>${p.joins.map(pisteBtn).join('')||'—'}</dd>
-    <dt>${E('run.from_runs_label')}</dt><dd>${p.fromPistes.map(pisteBtn).join('')||'—'}</dd>
-  </dl>
-  ${TM?`<p class="hint">${E('run.elevation_accuracy_hint')}</p>`:''}
-  <p class="hint">${E('run.connections_hint')}</p>
-  <h3>${E('run.notes_heading')}</h3><ul class="notes">${notesFor(p).map(x=>`<li>${esc(x)}</li>`).join('')||`<li>${E('run.notes_none')}</li>`}</ul>
-  ${p.research?researchBlock(p):''}
   <p class="hint">OSM: ${[...new Set(p.research&&p.research.osmIds.length?p.research.osmIds:p.segs.map(s=>s.id))].map(id=>`<a href="https://www.openstreetmap.org/way/${id}" target="_blank" rel="noopener">${id}</a>`).join(' · ')}</p>
   ${p.named?vidBlock(key,label):''}`;
 }
@@ -464,6 +412,8 @@ function overview(){
 panel.addEventListener('input',e=>{if(e.target.id==='profRange'){profAt(+e.target.value);if(scrubbed!==current){scrubbed=current;track('run_profile_scrub',{run:current});}}});
 panel.addEventListener('click',e=>{
   const b=e.target.closest('button');if(!b)return;
+  // the (i) by the profile heading opens how the numbers were worked out (round 20)
+  if(b.dataset.info!==undefined){const pop=b.closest('h3').nextElementSibling,on=pop.hidden;pop.hidden=!on;b.setAttribute('aria-expanded',String(on));return;}
   if(b.dataset.share!==undefined){const k=b.dataset.share,url=location.origin+location.pathname+'?utm_medium=share#map/run/'+encodeURIComponent(k);
     if(navigator.share)navigator.share({title:T('run.share_title',{run:k}),url}).then(()=>track('run_share',{run:k,method:'native'})).catch(()=>{});
     else if(navigator.clipboard)navigator.clipboard.writeText(url).then(()=>{track('run_share',{run:k,method:'copy'});b.textContent=T('common.link_copied');setTimeout(()=>{b.textContent=T('run.share_button');},2200);}).catch(()=>{});return;}

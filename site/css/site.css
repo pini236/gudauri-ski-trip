@@ -406,12 +406,6 @@ ul.notes li{margin-bottom:4px}
 .slope-key li{display:flex;align-items:center;gap:5px}
 .slope-key i{width:12px;height:4px}
 .run-fly{margin-top:12px;width:100%;justify-content:center}
-.brief{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
-.brief li{display:flex;flex-direction:column;gap:2px;padding:4px 0 4px 0;padding-inline-start:12px;border-inline-start:4px solid var(--rule)}
-.brief li:first-child{border-color:var(--p-green)}.brief li.b-steep{border-color:var(--p-red)}.brief li:last-child{border-color:var(--ink)}
-.brief b{font-size:14px}.brief span{font-size:13.5px;color:var(--muted)}
-.brief .tag{margin:4px 0 0!important;margin-inline-end:4px!important}
-.run-cmp{margin:12px 0 0;font-size:14px;line-height:2.2}
 
 /* meeting point (design round 3, M1 to M3) */
 .page-meet{display:flex;flex-direction:column;overflow:auto}
@@ -1121,3 +1115,13 @@ html[lang="ka"] .pv-doc h1{font-size:36px;overflow-wrap:anywhere}
 .sb-dots i.on{border:2px solid var(--p-green);background:var(--p-green)}
 .sb-f{display:flex;align-items:baseline;gap:10px}.sb-f b{font-family:var(--f-display);font-size:30px;line-height:1}.sb-f small{font-size:13px;color:var(--muted)}
 .season[data-state="live"] .sb-h em{color:var(--ink)}
+/* round 20: what's ahead as three big numbers, and an (i) by the profile heading */
+.steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));margin:6px 0 14px;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule)}
+.steps>div{display:flex;flex-direction:column;gap:2px;padding:8px 6px 9px;border-inline-start:1px solid var(--rule)}
+.steps>div:first-child{border-inline-start:0;padding-inline-start:0}
+.steps b{font-family:var(--f-display);font-size:28px;line-height:1;white-space:nowrap}
+.steps small{font-size:12px;color:var(--muted)}
+.steps .st b{color:var(--p-red)}
+.i-btn{position:relative;display:inline-grid;place-items:center;width:44px;height:44px;margin-block:-12px;padding:0;border:0;background:none;color:var(--muted);font:700 12px/1 var(--f-body);vertical-align:middle;cursor:pointer}
+.i-btn::before{content:'';position:absolute;width:22px;height:22px;border:1.5px solid currentColor;border-radius:50%;box-sizing:border-box}
+.info-pop{margin:-4px 0 10px}.info-pop p{margin:0 0 4px}

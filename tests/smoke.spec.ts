@@ -229,8 +229,15 @@ test('תצוגת מסלול: קישור ישיר, צביעה לפי שיפוע, 
   await range.evaluate((e: HTMLInputElement) => { e.value = String(Math.round(+e.max / 2)); e.dispatchEvent(new Event('input', { bubbles: true })); });
   await expect(page.locator('#pfD')).not.toHaveText('0 מ׳');
   await expect(page.locator('#map .runmark')).toBeVisible();
-  await expect(page.locator('.brief li')).toHaveCount(3);
-  await expect(page.locator('.run-cmp .tag')).toHaveCount(2);
+  // round 20: what's ahead is three big numbers; no compare line, connections, notes or source block (decision 64)
+  await expect(page.locator('.steps > div')).toHaveCount(3);
+  await expect(page.locator('.steps .st b')).toHaveText(/^\d+°$/);
+  await expect(page.locator('#panel')).not.toContainText('חיבורים');
+  await expect(page.locator('#panel')).not.toContainText('רמת ודאות');
+  await expect(page.locator('#panel .info-pop')).toBeHidden();
+  await page.locator('#panel [data-info]').click();
+  await expect(page.locator('#panel .info-pop')).toBeVisible();
+  await expect(page.locator('#panel [data-info]')).toHaveAttribute('aria-expanded', 'true');
   // המסלול הבא, וכפתור חזרה בדפדפן
   await page.locator('.run-nav button').last().click();
   await expect(page.locator('#panel h2')).not.toHaveText('Tatra 2');
