@@ -40,15 +40,8 @@
 
     // B. open end: where a partial run stops with no lift or run near it, the line fades out into a small open ring
     if (o.ends) {
-      // which end the source stops at (research.partial says it in words; a real build would carry it as a field)
-      const OPEN = { 'Soliko 2': 'low', 'Firni 1': 'low', 'Firni 2': 'high', 'Shino': 'west' };
-      L.filter(l => OPEN[l.key]).forEach(l => {
-        const A = [l.pts[0], l.pts[1]], B = [l.pts[l.pts.length - 1], l.pts[l.pts.length - 2]];
-        const eA = TM.elev(...A[0]), eB = TM.elev(...B[0]);
-        const pick = { low: eA < eB ? A : B, high: eA > eB ? A : B, west: A[0][0] < B[0][0] ? A : B }[OPEN[l.key]];
-        const [e, prev] = pick, c = color(l.key);
-        // direction from a point a little way back, so a wiggle at the very end does not swing it
-        const back = pick === A ? l.pts[Math.min(4, l.pts.length - 1)] : l.pts[Math.max(0, l.pts.length - 5)];
+      // one open end: the line goes on a little in fading dots and stops in a ring with a question mark
+      const openEnd = (e, back, c) => {
         const a = Math.atan2(e[1] - back[1], e[0] - back[0]);
         const tail = 40 * u, x2 = e[0] + Math.cos(a) * tail, y2 = e[1] + Math.sin(a) * tail;
         const gid = 'r21g' + Math.random().toString(36).slice(2, 7);
@@ -57,8 +50,29 @@
         mk('line', { x1: e[0], y1: e[1], x2, y2, stroke: `url(#${gid})`, 'stroke-width': 3.2, 'stroke-dasharray': '1 6', 'stroke-linecap': 'round', 'vector-effect': 'non-scaling-stroke' }, ends);
         const cx = x2 + Math.cos(a) * 9 * u, cy = y2 + Math.sin(a) * 9 * u;
         mk('circle', { cx, cy, r: 8 * u, fill: 'var(--casing)', stroke: `var(--p-${c})`, 'stroke-width': 1.6, 'vector-effect': 'non-scaling-stroke' }, ends);
-        R.rings = (R.rings || []).concat([[cx, cy]]);
+        R.rings.push([cx, cy]);
         const q = mk('text', { x: cx, y: cy, 'text-anchor': 'middle', 'dominant-baseline': 'central', 'font-size': 11 * u, 'font-weight': 700, fill: `var(--p-${c})`, style: 'font-family:var(--f-body)' }, ends); q.textContent = '?';
+      };
+      const tip = (l, first) => first ? [l.pts[0], l.pts[Math.min(4, l.pts.length - 1)]] : [l.pts[l.pts.length - 1], l.pts[Math.max(0, l.pts.length - 5)]];
+      // which end the source stops at (research.partial and research/map-audit.md say it in words; a real build would carry it as a field)
+      const OPEN = { 'Soliko 2': 'low', 'Firni 1': 'low', 'Firni 2': 'high', 'Shino': 'west', 'Sadzele 2': 'low', 'Sadzele 3': 'low' };
+      L.filter(l => OPEN[l.key]).forEach(l => {
+        const A = tip(l, true), B = tip(l, false);
+        const eA = TM.elev(...A[0]), eB = TM.elev(...B[0]);
+        const pick = { low: eA < eB ? A : B, high: eA > eB ? A : B, west: A[0][0] < B[0][0] ? A : B }[OPEN[l.key]];
+        // a run in several pieces: only the lowest piece's low end counts
+        if (L.filter(m => m.key === l.key).some(m => m !== l && Math.min(TM.elev(...m.pts[0]), TM.elev(...m.pts[m.pts.length - 1])) < Math.min(eA, eB)) && OPEN[l.key] === 'low') return;
+        openEnd(pick[0], pick[1], color(l.key));
+      });
+      // real holes inside a run (map-audit: Goodaura 2, 174 and 90 m; Sadzele 1, 196 m): both sides of the gap end open, nothing drawn across it
+      ['Goodaura 2', 'Sadzele 1'].forEach(k => {
+        const P = L.filter(l => l.key === k), d = (a, b) => Math.hypot(a[0] - b[0], a[1] - b[1]);
+        P.forEach((l, i) => [true, false].forEach(first => {
+          const [e, back] = tip(l, first);
+          const gap = Math.min(...P.filter((m, j) => j !== i).flatMap(m => [m.pts[0], m.pts[m.pts.length - 1]]).map(q => d(q, e)));
+          const nearOther = L.some(m => m.key !== k && m.pts.some(q => d(q, e) < 25));
+          if (gap > 60 && gap < 400 && !nearOther) openEnd(e, back, color(k));
+        }));
       });
     }
 
@@ -88,12 +102,33 @@
       // the label must sit inside the view, clear of the zoom buttons on the left and the status pill on top
       const inView = bx => boxPts(bx).every(([x, y]) => x > vb.x + 64 * u && x < vb.x + vb.width - 8 * u && y > vb.y + 52 * u && y < vb.y + vb.height - 8 * u);
       const runPts = k => { const r = []; L.forEach(l => { if (l.key !== k) r.push(...l.pts); }); return r; };
-      keys.forEach(k => {
+      // the four real crossings (research/map-audit.md): no name within 100 m of the point where the lines cross
+      const d2 = (a, b) => Math.hypot(a[0] - b[0], a[1] - b[1]);
+      const X = [['Snow Park', 'Goodaura 1'], ['Soliko 1', 'Goodaura 1'], ['Soliko 1', 'Shino'], ['Sportuli 1', 'Shino']].map(([a, b]) => {
+        let best = null; L.filter(l => l.key === a).forEach(la => L.filter(l => l.key === b).forEach(lb => la.pts.forEach(p => lb.pts.forEach(q => { const dd = d2(p, q); if (!best || dd < best.d) best = { d: dd, x: [(p[0] + q[0]) / 2, (p[1] + q[1]) / 2] }; }))));
+        return best && best.d < 20 ? best.x : null; }).filter(Boolean);
+      const nearCross = bx => X.some(x => d2(x, [bx.cx, bx.cy]) < 100 + bx.hw);
+      // a shared stretch (two runs on one line): one name there, either the main run's or both together
+      const done = new Set();
+      (o.shared || []).forEach(([a, b, text, skip]) => {
+        const la = L.filter(l => l.key === a).sort((x, y) => y.len - x.len)[0], lb = L.filter(l => l.key === b);
+        if (!la || !lb.length) return;
+        const on = la.pts.map(p => lb.some(m => m.pts.some(q => d2(p, q) < 15)));
+        let i0 = -1, best = [0, 0]; on.forEach((v, i) => { if (v && i0 < 0) i0 = i; if ((!v || i === on.length - 1) && i0 >= 0) { const e = v ? i : i - 1; if (e - i0 > best[1] - best[0]) best = [i0, e]; i0 = -1; } });
+        const i = Math.round((best[0] + best[1]) / 2); measure.textContent = text; const w = measure.getBBox().width;
+        const span = Math.ceil((w / 2 + pad) / 12) + 1; if (best[1] - best[0] < 2 * span) return;
+        const a0 = la.pts[i - span], a1 = la.pts[i + span]; let ang = Math.atan2(a1[1] - a0[1], a1[0] - a0[0]); if (ang > Math.PI / 2) ang -= Math.PI; if (ang < -Math.PI / 2) ang += Math.PI;
+        const bx = { cx: la.pts[i][0], cy: la.pts[i][1], c: Math.cos(ang), s: Math.sin(ang), hw: w / 2 + pad, hh: fs * 0.55 + pad, ang };
+        placed.push(bx); skip.forEach(k => done.add(k));
+        const t = mk('text', { x: 0, y: 0, transform: `translate(${bx.cx} ${bx.cy}) rotate(${ang * 180 / Math.PI})`, 'text-anchor': 'middle', 'dominant-baseline': 'central', 'font-size': fs, 'stroke-width': 5 * u, class: 'lbl', fill: `var(--p-${color(a)})` }, layer);
+        t.textContent = text;
+      });
+      keys.filter(k => !done.has(k)).forEach(k => {
         measure.textContent = k; const w = measure.getBBox().width;
         if (!w) return;
         const RP = runPts(k); let best = null;
         const judge = (bx, extra) => {
-          if (!inView(bx)) return;
+          if (!inView(bx) || nearCross(bx)) return;
           const bad = RP.filter(p => inBox(p, bx)).length + placed.reduce((t, q) => t + boxPts(bx).filter(p => inBox(p, q)).length + boxPts(q).filter(p => inBox(p, bx)).length, 0);
           if (bad) return; // never on another run or label
           const score = extra + LP.filter(p => inBox(p, bx)).length * 15; // a lift cable under the name is tolerable, but costs

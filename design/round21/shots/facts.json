@@ -16,7 +16,7 @@
   ]
  },
  "desk-zoom-after": {
-  "shown": 21,
+  "shown": 20,
   "onOther": 3,
   "which": [
    "Kikilo 2 ← Kikilo 1",
@@ -39,11 +39,10 @@
   ]
  },
  "phone-fit-after": {
-  "shown": 16,
-  "onOther": 3,
+  "shown": 12,
+  "onOther": 2,
   "which": [
    "Tatra 1 ← Tatra 2",
-   "Soliko 1 ← Tatra 2, Sportuli 1, Goodaura 1",
    "Sadzele 3 ← Sadzele 2"
   ]
  },
@@ -65,11 +64,12 @@
   ]
  },
  "phone-zoom-after": {
-  "shown": 15,
-  "onOther": 3,
+  "shown": 14,
+  "onOther": 4,
   "which": [
    "Goodaura 1 ← Sportuli 2, Goodaura 2",
    "Kikilo 2 ← Kikilo 1",
+   "Kudebi 1 ← u1259783829",
    "Kudebi 2 ← Kudebi 1, Khada"
   ]
  },
@@ -91,11 +91,12 @@
   ]
  },
  "phone-night-after": {
-  "shown": 15,
-  "onOther": 3,
+  "shown": 14,
+  "onOther": 4,
   "which": [
    "Goodaura 1 ← Sportuli 2, Goodaura 2",
    "Kikilo 2 ← Kikilo 1",
+   "Kudebi 1 ← u1259783829",
    "Kudebi 2 ← Kudebi 1, Khada"
   ]
  },
@@ -113,6 +114,38 @@
   "shown": 9,
   "onOther": 0,
   "which": []
+ },
+ "phone-tatra-combined-before": {
+  "shown": 25,
+  "onOther": 3,
+  "which": [
+   "Sportuli 1 ← Sportuli 2",
+   "Zuma ← Shino, Goodaura 1",
+   "Sportuli 2 ← Sportuli 1"
+  ]
+ },
+ "phone-tatra-combined-after": {
+  "shown": 9,
+  "onOther": 1,
+  "which": [
+   "Tatra 1 · 2 ← Tatra 2, Tatra 1"
+  ]
+ },
+ "phone-tatra-primary-before": {
+  "shown": 25,
+  "onOther": 3,
+  "which": [
+   "Sportuli 1 ← Sportuli 2",
+   "Zuma ← Shino, Goodaura 1",
+   "Sportuli 2 ← Sportuli 1"
+  ]
+ },
+ "phone-tatra-primary-after": {
+  "shown": 8,
+  "onOther": 1,
+  "which": [
+   "Tatra 1 ← Tatra 2"
+  ]
  },
  "phone-sel-before": {
   "shown": 23,

@@ -12,6 +12,8 @@ const S = [
   ['phone-zoom', '/#map', {}, 2, ALL],
   ['phone-night', '/#map', { theme: 'night' }, 2, ALL],
   ['phone-ends', '/#map', {}, 3, ALL, 'Soliko 2'],
+  ['phone-tatra-combined', '/#map', {}, 3, { ...ALL, shared: [['Tatra 1', 'Tatra 2', 'Tatra 1 · 2', []]] }, ['Tatra 1', 0.8]],
+  ['phone-tatra-primary', '/#map', {}, 3, { ...ALL, shared: [['Tatra 1', 'Tatra 2', 'Tatra 1', ['Tatra 1']]] }, ['Tatra 1', 0.8]],
   ['phone-sel', '/#map/run/Tatra%202', {}, 0, { along: true, onLine: true, unnamed: true, arrows: true, sel: 'Tatra 2' }],
 ];
 const b = await launch();
@@ -20,12 +22,16 @@ for (const [n, u, o, z, prop, center] of S) {
   for (const side of ['before', 'after']) {
     const { ctx, page } = await open(b, u, { theme: 'day', ...o, extraStorage: D2, wait: 2500 });
     for (let i = 0; i < z; i++) { await page.click('#zin'); await page.waitForTimeout(300); }
-    if (center) await page.evaluate(k => { // pan so the partial run's open end is in view
-      const p = document.querySelector(`path.hit[data-key="${k}"]`); const L = p.getTotalLength(); const q = p.getPointAtLength(L * 0.15);
+    if (center) await page.evaluate(([k, fr]) => { // pan so the partial run's open end is in view
+      const p = document.querySelector(`path.hit[data-key="${k}"]`); const L = p.getTotalLength(); const q = p.getPointAtLength(L * (fr ?? 0.15));
       const svg = document.getElementById('map'); const vb = svg.viewBox.baseVal; const r = svg.getBoundingClientRect();
       const sx = r.left + (q.x - vb.x) / vb.width * r.width, sy = r.top + (q.y - vb.y) / vb.height * r.height;
-      return [sx, sy]; }, center).then(async ([sx, sy]) => { const r = await page.locator('#map').boundingBox();
-        await page.mouse.move(sx, sy); await page.mouse.down(); await page.mouse.move(r.x + r.width / 2, r.y + r.height / 2, { steps: 8 }); await page.mouse.up(); await page.waitForTimeout(300); });
+      return [sx, sy]; }, Array.isArray(center) ? center : [center]).then(async ([sx, sy]) => { const r = await page.locator('#map').boundingBox();
+        // drag in short strokes from the middle of the map, so every stroke starts on the map
+        const cx = r.x + r.width / 2, cy = r.y + r.height / 2; let dx = sx - cx, dy = sy - cy;
+        while (Math.hypot(dx, dy) > 2) { const k = Math.min(1, 120 / Math.hypot(dx, dy)), mx = dx * k, my = dy * k;
+          await page.mouse.move(cx, cy); await page.mouse.down(); await page.mouse.move(cx - mx, cy - my, { steps: 6 }); await page.mouse.up(); dx -= mx; dy -= my; }
+        await page.evaluate(() => getSelection().removeAllRanges()); await page.waitForTimeout(300); });
     if (side === 'after') { await page.addScriptTag({ path: PROP }); await page.evaluate(p => window.R21.apply(p), prop); }
     await page.locator('.mapwrap, #map').first().screenshot({ path: `${OUT}${n}-${side}.png` }).catch(async () => page.screenshot({ path: `${OUT}${n}-${side}.png` }));
     facts[`${n}-${side}`] = await page.evaluate(() => {
