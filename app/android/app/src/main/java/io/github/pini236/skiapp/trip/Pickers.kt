@@ -228,7 +228,8 @@ internal fun BoxScope.PlaceSheet(title: String, current: String, first: List<Str
             if (code != null && code !in shown) Row(Modifier.fillMaxWidth().heightIn(min = 52.dp).clickable(role = Role.Button) { onPick(code) }.padding(horizontal = 12.dp),
                 verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(14.dp)) {
                 Text(code, Modifier.width(56.dp), style = Ski.type.title.copy(fontSize = 26.sp, textDirection = TextDirection.Ltr), color = c.glacier)
-                Text(stringResource(R.string.app_trip_place_code), Modifier.weight(1f), style = Ski.type.bodyBold, color = c.glacier)
+                // the site's sheet says the same (app.trip_place_other, shared)
+                Text(stringResource(R.string.app_trip_place_other, code), Modifier.weight(1f), style = Ski.type.bodyBold, color = c.glacier)
                 Icon(Icons.plus, null, Modifier.size(20.dp), tint = c.glacier)
             }
             // a name, or letters that are no code: what may go in, as the site says it

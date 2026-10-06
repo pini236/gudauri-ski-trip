@@ -4,7 +4,7 @@
 Writes site/i18n/<lang>.json for he, en, ru, ka: {"lang", "dir", "released", "strings": {key: value}}.
 "pending" counts the strings no native speaker has checked yet ("check"). Since decision 39 that is information
 only; the languages the site picks from the browser are listed in site/js/i18n.js (RELEASED).
-Keys of the native apps (app.*) are left out, and each game (game.<id>.*) gets its own file,
+Keys of the native apps (app.*) are left out, unless their "where" names the site (strings both share), and each game (game.<id>.*) gets its own file,
 site/i18n/game-<id>.<lang>.json, so the home page does not load the games' words. Run after every change to i18n/strings.json:
 
     python3 tools/build-site-strings.py
@@ -22,7 +22,8 @@ def main():
     langs = data["meta"]["languages"]
     groups = {"": {}}
     for k, v in data["strings"].items():
-        if k.startswith("app."):
+        # the apps' own strings stay out, except those the site shares with them (their "where" names the site)
+        if k.startswith("app.") and "site/" not in v.get("where", ""):
             continue
         g = k.split(".")[1] if k.startswith("game.") else ""
         groups.setdefault(g, {})[k] = v

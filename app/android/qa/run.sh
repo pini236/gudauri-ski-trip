@@ -412,7 +412,7 @@ home() {
       adb shell input text "lca"; sleep 0.8; keyboardOff; shot trip-place-code
     fi
   fi
-  tapText "קוד אחר" && sleep 1 || { adb shell input keyevent KEYCODE_BACK; sleep 1; }
+  tapText "~^להשתמש ב" && sleep 1 || { adb shell input keyevent KEYCODE_BACK; sleep 1; }
   shot trip-form-picked
   mark; tapText "שמירה" && waitlog "trip saved" 10 && { sleep 1.5; shot home-trip-picked; }
 

@@ -22,7 +22,7 @@ async function loaded(page: Page) {
 const b64 = (o: object) => Buffer.from(JSON.stringify(o)).toString('base64url');
 
 // a small fake of the server: one group, one other member, and whoever joins
-async function fakeServer(page: Page, opts: { admin?: boolean; meetFull?: boolean; approval?: boolean } = {}) {
+async function fakeServer(page: Page, opts: { admin?: boolean; meetFull?: boolean; approval?: boolean; tal?: boolean; invite?: boolean } = {}) {
   const calls: string[] = [];
   const bodies: Record<string, any> = {};
   const me = { id: 'u-me', aud: 'authenticated', role: 'authenticated', is_anonymous: true, identities: [], app_metadata: {}, user_metadata: {} };
@@ -35,6 +35,7 @@ async function fakeServer(page: Page, opts: { admin?: boolean; meetFull?: boolea
     requests: [] as any[],
     meetups: [{ id: 'm1', group_id: 'g1', station: 'x', meet_at: '2027-01-11T05:30:00+00:00', note: null }] as any[],
   };
+  if (opts.tal) db.members.push({ group_id: 'g1', user_id: 'u-tal', role: 'member', display_name: 'טל דוגמה', trip_id: null, joined_at: '2026-10-01T11:00:00Z' });
   const group = { id: 'g1', name: 'קבוצת בדיקה', starts_on: '2027-01-10', ends_on: '2027-01-15' };
   const json = (r: Route, body: unknown, status = 200) => r.fulfill({ status, contentType: 'application/json', headers: { 'access-control-allow-origin': '*', 'access-control-allow-headers': '*' }, body: JSON.stringify(body) });
   await page.routeWebSocket(/supabase\.co\/realtime/, () => {});
@@ -60,6 +61,8 @@ async function fakeServer(page: Page, opts: { admin?: boolean; meetFull?: boolea
       if (action === 'submit_score' || action === 'update_group') return json(r, {});
       if (action === 'same_flight') { const src = db.trips.find(t => t.id === body.trip_id); db.trips.push({ ...src, id: 't-copy', owner_id: me.id, entered_by: me.id }); db.members.find(x => x.user_id === me.id).trip_id = 't-copy'; return json(r, { trip_id: 't-copy' }); }
       if (action === 'set_member_role') { db.members.find(x => x.user_id === body.user_id).role = body.role; return json(r, {}); }
+      if (action === 'create_group') { db.members.push({ group_id: 'g1', user_id: me.id, role: 'admin', display_name: body.display_name, trip_id: body.trip_id || null, joined_at: '2026-10-02T10:00:00Z' }); return json(r, { group_id: 'g1' }); }
+      if (action === 'set_member_trip') { db.trips.push({ ...body.trip, id: 't-tal', owner_id: body.user_id, entered_by: me.id }); db.members.find(x => x.user_id === body.user_id).trip_id = 't-tal'; return json(r, { trip_id: 't-tal' }); }
       if (action === 'remove_member') { db.members = db.members.filter(x => x.user_id !== body.user_id); return json(r, {}); }
       if (action === 'delete_my_account') { db.members = db.members.filter(x => x.user_id !== me.id); return json(r, { deleted: true }); }
       return json(r, { error: 'unknown_action' }, 404);
@@ -78,6 +81,7 @@ async function fakeServer(page: Page, opts: { admin?: boolean; meetFull?: boolea
       }
       if (table === 'trips') { const id = q.get('id'); return json(r, id && id.startsWith('eq.') ? db.trips.filter(t => t.id === id.slice(3)) : db.trips); }
       if (table === 'meetups') return json(r, db.meetups);
+      if (table === 'invites') return json(r, opts.invite ? [{ id: 'i1', code: 'KZBQRM', token: 'tok123', revoked_at: null, expires_at: null, requires_approval: false, max_uses: null, uses: 0, created_at: new Date().toISOString() }] : []);
       if (table === 'join_requests') return json(r, db.requests.filter(x => 'eq.' + x.status === q.get('status') && (!q.get('user_id') || 'eq.' + x.user_id === q.get('user_id'))));
       return json(r, []);
     }
@@ -102,7 +106,7 @@ test('אורח: האתר לא פונה לשרת, ושלט הקבוצה מזמי�
   await expect(page.locator('#signinPage .ac-btn.apple')).toBeDisabled();
   await page.goto('/#group');
   await expect(page.locator('#grCode')).toBeVisible();
-  await expect(page.locator('#grCreate button')).toBeDisabled();
+  await expect(page.locator('#grCreate [type=submit]')).toBeDisabled();
   expect(server.calls).toEqual([]);
   expect(lib).toEqual([]);
   expect(errors).toEqual([]);
@@ -126,12 +130,15 @@ test('הצטרפות בקוד: אורח, הטיסה שלי בקבוצה, החש�
   // my trip went up, but the group shows it only once I choose it (CONTRACT, D1)
   expect(server.calls).toContain('POST /rest/v1/trips');
   expect(server.calls).not.toContain('POST /functions/v1/api/set_my_membership');
-  await expect(page.locator('.ac-flight .fp span')).toHaveText(['דנה בדיקה']);
+  await expect(page.locator('.ac-flight[data-leg="out"] .fp span')).toHaveText(['דנה בדיקה']);
   await page.locator('[data-showtrip]').click();
-  await expect(page.locator('.ac-flight .fp span')).toHaveText(['דנה בדיקה', 'נועה ניסיון']);
-  await expect(page.locator('.ac-flight .fp span.me')).toHaveText('נועה ניסיון');
+  await expect(page.locator('.ac-flight[data-leg="out"] .fp span')).toHaveText(['דנה בדיקה', 'נועה ניסיון']);
+  await expect(page.locator('.ac-flight[data-leg="out"] .fp span.me')).toHaveText('נועה ניסיון');
+  // the return flights have cards of their own (K-2), with the people on them
+  await expect(page.locator('.ac-flight[data-leg="ret"] .fs').first()).toContainText('חזור');
+  await expect(page.locator('.ac-flight[data-leg="ret"] .fp span.me')).toHaveText('נועה ניסיון');
   expect(server.db.members.find(m => m.display_name === 'נועה ניסיון').trip_id).toBe('t-me');
-  await expect(page.locator('.ac-invite')).toHaveCount(0);
+  await expect(page.locator('.ac-inv')).toHaveCount(0);
   await page.locator('#grTabs [data-tab="members"]').click();
   await expect(page.locator('#grMain .ac-row b')).toHaveText(['דנה בדיקה', 'נועה ניסיון']);
   await page.locator('#grTabs [data-tab="scores"]').click();
@@ -243,14 +250,14 @@ test('מחיקת "הטיול שלך" מוחקת גם את השורה בשרת, �
   await page.locator('#joinForm button').click();
   await expect(page).toHaveURL(/#group\/g1/);
   await page.locator('[data-showtrip]').click();
-  await expect(page.locator('.ac-flight .fp span.me')).toHaveText('נועה ניסיון');
+  await expect(page.locator('.ac-flight[data-leg="out"] .fp span.me')).toHaveText('נועה ניסיון');
   await page.goto('/#trip');
   await page.locator('#tfDelete').click();
   await page.locator('#tfDelete').click();
   await expect.poll(() => server.calls.includes('DELETE /rest/v1/trips')).toBe(true);
   expect(server.db.trips.map(t => t.id)).toEqual(['t-dan']);
   await page.goto('/#group/g1');
-  await expect(page.locator('.ac-flight .fp span')).toHaveText(['דנה בדיקה']);
+  await expect(page.locator('.ac-flight[data-leg="out"] .fp span')).toHaveText(['דנה בדיקה']);
   expect(errors).toEqual([]);
 });
 
@@ -321,4 +328,83 @@ test('קיבוץ החברים לכרטיסי טיסה לפי כיוון, תאר�
     ];
   });
   expect(same).toEqual([true, true, false, false]);
+});
+
+// round 18 (K-3, decision 62): a flight for a member from the group's flights or the trip form, the meetup row opens its
+// card and deleting it takes two taps, and without the server the kept copy says when it was kept
+test('מנהל: טיסה לחבר מהטיסות שבקבוצה או מהטופס, מפגש בשתי נגיעות, ו"נשמר ב-" (סבב 18)', async ({ page }) => {
+  const errors = watchErrors(page);
+  const server = await fakeServer(page, { admin: true, tal: true, invite: true });
+  await page.goto('/#join/KZBQRM');
+  await loaded(page);
+  await page.locator('#joinForm input').fill('נועה ניסיון');
+  await page.locator('#joinForm button').click();
+  await expect(page).toHaveURL(/#group\/g1/);
+  // the invite card, as the app's (Q2): the six letters in boxes, the link, WhatsApp and share
+  await expect(page.locator('.ac-inv-code b')).toHaveText(['K', 'Z', 'B', 'Q', 'R', 'M']);
+  await expect(page.locator('.ac-inv-link')).toContainText('/j/tok123');
+  await expect(page.locator('.ac-inv-btns a')).toHaveAttribute('href', /wa\.me/);
+  await page.locator('#grTabs [data-tab="members"]').click();
+  await page.locator('[data-mmenu="u-tal"]').click();
+  await page.locator('.ac-menu [data-mtrip="u-tal"]').click();
+  await expect(page.locator('.ac-pick h3, .ac-sub h3').first()).toHaveText('הטיסה של טל דוגמה');
+  await expect(page.locator('.ac-pick [data-trip]')).toHaveCount(1);
+  await page.locator('.ac-pick [data-trip="t-dan"]').click();
+  await expect.poll(() => server.bodies.set_member_trip?.trip?.out_flight).toBe('6H 897');
+  expect(server.bodies.set_member_trip.user_id).toBe('u-tal');
+  // another flight: the trip form, for her
+  await page.locator('[data-mmenu="u-tal"]').click();
+  await page.locator('.ac-menu [data-mtrip="u-tal"]').click();
+  await page.locator('[data-otherfor="u-tal"]').click();
+  await expect(page).toHaveURL(/#trip$/);
+  await expect(page.locator('#tripForm h1')).toHaveText('הטיסה של טל דוגמה');
+  await expect(page.locator('#tfDelete')).toBeHidden();
+  await page.locator('#tripForm input[name="od"]').fill('2027-01-11');
+  await page.locator('#tripForm input[name="of"]').fill('a9 691');
+  await page.locator('#tripForm .tf-save').click();
+  await expect(page).toHaveURL(/#group\/g1/);
+  expect(server.bodies.set_member_trip.trip).toMatchObject({ out_date: '2027-01-11', out_flight: 'A9 691', out_from: 'TLV' });
+  // my own trip in this browser was not touched
+  expect(await page.evaluate(() => localStorage.getItem('gud-trip'))).toBeNull();
+  // meetups: the row opens the meet card; the X asks once more, then deletes for everyone
+  await page.locator('#grTabs [data-tab="meetups"]').click();
+  await expect(page.locator('.ac-meet-go')).toHaveAttribute('href', /^#meet\/x\/0930\/20270111$/);
+  await page.locator('[data-delmeet="m1"]').click();
+  await expect(page.locator('.ac-meet.armed')).toContainText('לחיצה נוספת מוחקת');
+  expect(server.calls).not.toContain('DELETE /rest/v1/meetups');
+  await page.locator('[data-delmeet="m1"]').click();
+  await expect.poll(() => server.calls.includes('DELETE /rest/v1/meetups')).toBe(true);
+  // without the server: a note with the time it was kept, not an error
+  await page.route(`${SB}/rest/v1/**`, r => r.abort());
+  await page.reload();
+  await loaded(page);
+  await expect(page.locator('.ac-offline')).toContainText('בלי קליטה. מוצג מה שנשמר בטלפון ב-', { timeout: 20_000 });
+  await expect(page.locator('#groupPage [data-err]')).toBeHidden();
+  expect(errors).toEqual([]);
+});
+
+// round 18 (S-1, decision 62): creating a group shows my flight only when I choose it (on until switched off)
+test('יצירת קבוצה: המתג "להציג את הטיסה שלי בקבוצה" (סבב 18)', async ({ page }) => {
+  const errors = watchErrors(page);
+  const server = await fakeServer(page);
+  await page.addInitScript(() => localStorage.setItem('gud-trip', JSON.stringify({ v: 1, out: { date: '2027-01-10', flight: '6H 897', from: 'TLV', to: 'TBS', departs: '16:00', arrives: '20:35' },
+    ret: { date: '2027-01-15', flight: '6H 892', departs: '01:35', arrives: '02:15' }, ski: null })));
+  await page.goto('/#signin');
+  await loaded(page);
+  await expect(page.locator('#signinPage .ac-gsi [data-fake-gsi]')).toBeVisible();
+  await page.evaluate(() => (window as any).__gsi.callback({ credential: 'x.y.z' }));
+  await page.goto('/#group');
+  const sw = page.locator('#grShowFlight');
+  await expect(sw).toBeVisible();
+  await expect(sw).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.locator('#grShowFlightSub')).toContainText('6H 897');
+  await sw.click();
+  await expect(sw).toHaveAttribute('aria-pressed', 'false');
+  await sw.click();
+  await page.locator('#grCreate input[name="name"]').fill('קבוצה שלי');
+  await page.locator('#grCreate input[name="me"]').fill('נועה');
+  await page.locator('#grCreate [type=submit]').click();
+  await expect(page).toHaveURL(/#group\/g1/);
+  expect(server.bodies.create_group).toMatchObject({ name: 'קבוצה שלי', display_name: 'נועה', trip_id: 't-me', starts_on: '2027-01-10' });
+  expect(errors).toEqual([]);
 });

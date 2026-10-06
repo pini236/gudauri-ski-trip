@@ -10534,7 +10534,7 @@
    "en": "Invitation to a group",
    "ru": "Приглашение в группу",
    "ka": "მოწვევა ჯგუფში",
-   "where": "app/android",
+   "where": "app/android, site/js/account.js",
    "note": "Q2 card strip",
    "check": [
     "ru",
@@ -10546,7 +10546,7 @@
    "en": "The link opens the app, or the site for those without it. Whoever installs on the way types the code:",
    "ru": "Ссылка открывает приложение, а у кого его нет, сайт. Кто устанавливает по дороге, вводит код:",
    "ka": "ბმული აპლიკაციას ხსნის, ან საიტს, ვისაც არ აქვს. ვინც გზაში დააყენებს, კოდს აკრეფს:",
-   "where": "app/android",
+   "where": "app/android, site/js/account.js",
    "note": "Q2",
    "check": [
     "ru",
@@ -10558,7 +10558,7 @@
    "en": "Invite code {code}",
    "ru": "Код приглашения {code}",
    "ka": "მოწვევის კოდი {code}",
-   "where": "app/android",
+   "where": "app/android, site/js/account.js",
    "note": "Q2, read out",
    "check": [
     "ru",
@@ -10570,7 +10570,7 @@
    "en": "Copy link",
    "ru": "Скопировать ссылку",
    "ka": "ბმულის კოპირება",
-   "where": "app/android",
+   "where": "app/android, site/js/account.js",
    "note": "Q2, read out",
    "check": [
     "ru",
@@ -10582,7 +10582,7 @@
    "en": "WhatsApp",
    "ru": "WhatsApp",
    "ka": "WhatsApp",
-   "where": "app/android",
+   "where": "app/android, site/js/account.js",
    "note": "Q2 button",
    "check": [
     "ru",
@@ -10594,7 +10594,7 @@
    "en": "Share",
    "ru": "Поделиться",
    "ka": "გაზიარება",
-   "where": "app/android",
+   "where": "app/android, site/js/account.js",
    "note": "Q2 button",
    "check": [
     "ru",
@@ -10606,7 +10606,7 @@
    "en": "Join {group} in the Gudauri app: {link}\nInstalling from the store? Type the code {code}",
    "ru": "Присоединяйтесь к группе {group} в приложении Гудаури: {link}\nУстанавливаете из магазина? Введите код {code}",
    "ka": "შემოუერთდით ჯგუფს {group} გუდაურის აპლიკაციაში: {link}\nმაღაზიიდან აყენებთ? აკრიფეთ კოდი {code}",
-   "where": "app/android",
+   "where": "app/android, site/js/account.js",
    "note": "the message sent from Q2",
    "check": [
     "ru",
@@ -11350,7 +11350,7 @@
    "en": "Another flight",
    "ru": "Другой рейс",
    "ka": "სხვა ფრენა",
-   "where": "app/android",
+   "where": "app/android, site/js/account.js",
    "note": "Q7",
    "check": [
     "ru",
@@ -11506,7 +11506,7 @@
    "en": "No signal. Showing what the phone saved at {time}",
    "ru": "Нет связи. Показано то, что телефон сохранил в {time}",
    "ka": "კავშირი არ არის. ნაჩვენებია ტელეფონში {time}-ზე შენახული",
-   "where": "app/android",
+   "where": "app/android, site/js/account.js",
    "note": "group page, above the tabs, when the last read had no signal; {time} = HH:MM, or a date and time",
    "check": [
     "ru",
@@ -11935,7 +11935,7 @@
    "en": "Flying from?",
    "ru": "Откуда вылет?",
    "ka": "საიდან მიფრინავთ?",
-   "where": "app/android",
+   "where": "app/android, site/js/app.js",
    "note": "the airport list's title, outbound origin",
    "check": [
     "ru",
@@ -11947,7 +11947,7 @@
    "en": "Landing where?",
    "ru": "Куда прилёт?",
    "ka": "სად ჯდებით?",
-   "where": "app/android",
+   "where": "app/android, site/js/app.js",
    "note": "the airport list's title, destination",
    "check": [
     "ru",
@@ -11959,20 +11959,20 @@
    "en": "Search a city or airport code",
    "ru": "Поиск города или кода аэропорта",
    "ka": "ქალაქის ან აეროპორტის კოდის ძებნა",
-   "where": "app/android",
+   "where": "app/android, site/js/app.js",
    "note": "search field in the airport list",
    "check": [
     "ru",
     "ka"
    ]
   },
-  "app.trip_place_code": {
-   "he": "קוד אחר",
-   "en": "Other code",
-   "ru": "Другой код",
-   "ka": "სხვა კოდი",
-   "where": "app/android",
-   "note": "next to three typed letters that are not in the airport list (K-5: from the list, or a three-letter code)",
+  "app.trip_place_other": {
+   "he": "להשתמש ב: {text}",
+   "en": "Use: {text}",
+   "ru": "Использовать: {text}",
+   "ka": "გამოყენება: {text}",
+   "where": "app/android, site/js/app.js",
+   "note": "a place that is not in the list, as typed; {text} = what was typed",
    "check": [
     "ru",
     "ka"
@@ -12007,7 +12007,7 @@
    "en": "Batumi",
    "ru": "Батуми",
    "ka": "ბათუმი",
-   "where": "app/android",
+   "where": "app/android, site/js/app.js",
    "note": "a city in the airport list of the trip form",
    "check": [
     "ru",
@@ -12019,7 +12019,7 @@
    "en": "Eilat",
    "ru": "Эйлат",
    "ka": "ეილათი",
-   "where": "app/android",
+   "where": "app/android, site/js/app.js",
    "note": "a city in the airport list of the trip form",
    "check": [
     "ru",
@@ -12031,7 +12031,7 @@
    "en": "Istanbul",
    "ru": "Стамбул",
    "ka": "სტამბოლი",
-   "where": "app/android",
+   "where": "app/android, site/js/app.js",
    "note": "a city in the airport list of the trip form",
    "check": [
     "ru",
@@ -12043,7 +12043,7 @@
    "en": "Dubai",
    "ru": "Дубай",
    "ka": "დუბაი",
-   "where": "app/android",
+   "where": "app/android, site/js/app.js",
    "note": "a city in the airport list of the trip form",
    "check": [
     "ru",
@@ -12055,7 +12055,7 @@
    "en": "Moscow",
    "ru": "Москва",
    "ka": "მოსკოვი",
-   "where": "app/android",
+   "where": "app/android, site/js/app.js",
    "note": "a city in the airport list of the trip form",
    "check": [
     "ru",
@@ -12067,7 +12067,7 @@
    "en": "Saint Petersburg",
    "ru": "Санкт-Петербург",
    "ka": "სანქტ-პეტერბურგი",
-   "where": "app/android",
+   "where": "app/android, site/js/app.js",
    "note": "a city in the airport list of the trip form",
    "check": [
     "ru",
@@ -12079,7 +12079,7 @@
    "en": "Warsaw",
    "ru": "Варшава",
    "ka": "ვარშავა",
-   "where": "app/android",
+   "where": "app/android, site/js/app.js",
    "note": "a city in the airport list of the trip form",
    "check": [
     "ru",
@@ -12091,7 +12091,7 @@
    "en": "Riga",
    "ru": "Рига",
    "ka": "რიგა",
-   "where": "app/android",
+   "where": "app/android, site/js/app.js",
    "note": "a city in the airport list of the trip form",
    "check": [
     "ru",
@@ -12103,7 +12103,7 @@
    "en": "Vienna",
    "ru": "Вена",
    "ka": "ვენა",
-   "where": "app/android",
+   "where": "app/android, site/js/app.js",
    "note": "a city in the airport list of the trip form",
    "check": [
     "ru",
@@ -12115,7 +12115,7 @@
    "en": "Munich",
    "ru": "Мюнхен",
    "ka": "მიუნხენი",
-   "where": "app/android",
+   "where": "app/android, site/js/app.js",
    "note": "a city in the airport list of the trip form",
    "check": [
     "ru",
@@ -12127,7 +12127,7 @@
    "en": "London",
    "ru": "Лондон",
    "ka": "ლონდონი",
-   "where": "app/android",
+   "where": "app/android, site/js/app.js",
    "note": "a city in the airport list of the trip form",
    "check": [
     "ru",
