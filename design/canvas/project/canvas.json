@@ -2122,6 +2122,70 @@
       "h": 720,
       "page": "round20",
       "title": "באפליקציה"
+    },
+    "R21-0-Decide.dc.html": {
+      "x": 0,
+      "y": 0,
+      "w": 600,
+      "h": 820,
+      "page": "round21",
+      "title": "מה לאשר בסבב 21"
+    },
+    "R21-Audit-site.dc.html": {
+      "x": 680,
+      "y": 0,
+      "w": 1868,
+      "h": 787,
+      "page": "round21",
+      "title": "היום באתר"
+    },
+    "R21-Audit-app.dc.html": {
+      "x": 2628,
+      "y": 0,
+      "w": 848,
+      "h": 1091,
+      "page": "round21",
+      "title": "היום באפליקציה"
+    },
+    "R21-BA-names.dc.html": {
+      "x": 680,
+      "y": 1511,
+      "w": 1684,
+      "h": 749,
+      "page": "round21",
+      "title": "א. השם על הקו, בכיוון שלו"
+    },
+    "R21-BA-desk.dc.html": {
+      "x": 2444,
+      "y": 1511,
+      "w": 1828,
+      "h": 892,
+      "page": "round21",
+      "title": "א. במחשב"
+    },
+    "R21-BA-ends.dc.html": {
+      "x": 4352,
+      "y": 1511,
+      "w": 848,
+      "h": 749,
+      "page": "round21",
+      "title": "ב. קצה פתוח, ג. קטע בלי שם"
+    },
+    "R21-BA-sel.dc.html": {
+      "x": 5280,
+      "y": 1511,
+      "w": 1684,
+      "h": 749,
+      "page": "round21",
+      "title": "ד. מסלול נבחר, ובלילה"
+    },
+    "R21-Findings.dc.html": {
+      "x": 680,
+      "y": 2823,
+      "w": 640,
+      "h": 980,
+      "page": "round21",
+      "title": "הממצאים, לפי חומרה"
     }
   },
   "createdOnFiles": {
@@ -2131,7 +2195,7 @@
   "designSystems": [],
   "launch": {
     "view": "canvas",
-    "page": "round20"
+    "page": "round21"
   },
   "notes": {
     "featRow1": {
@@ -2817,6 +2881,33 @@
       "w": 240,
       "x": 680,
       "y": 5905
+    },
+    "round21row0": {
+      "kind": "title1",
+      "maxW": 2796,
+      "page": "round21",
+      "text": "היום: הביקורת",
+      "w": 240,
+      "x": 680,
+      "y": -300
+    },
+    "round21row1": {
+      "kind": "title1",
+      "maxW": 6284,
+      "page": "round21",
+      "text": "לפני ואחרי",
+      "w": 240,
+      "x": 680,
+      "y": 1211
+    },
+    "round21row2": {
+      "kind": "title1",
+      "maxW": 860,
+      "page": "round21",
+      "text": "הממצאים",
+      "w": 240,
+      "x": 680,
+      "y": 2523
     }
   },
   "order": [
@@ -3083,9 +3174,21 @@
     "R20-Trip-new.dc.html",
     "R20-Numbers.dc.html",
     "R20-Research.dc.html",
-    "R20-App.dc.html"
+    "R20-App.dc.html",
+    "R21-0-Decide.dc.html",
+    "R21-Audit-site.dc.html",
+    "R21-Audit-app.dc.html",
+    "R21-BA-names.dc.html",
+    "R21-BA-desk.dc.html",
+    "R21-BA-ends.dc.html",
+    "R21-BA-sel.dc.html",
+    "R21-Findings.dc.html"
   ],
   "pages": [
+    {
+      "id": "round21",
+      "name": "סבב 21: המפה"
+    },
     {
       "id": "round20",
       "name": "סבב 20: פחות טקסט וטופס הטיול (אושר)"
