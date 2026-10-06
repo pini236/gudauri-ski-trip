@@ -714,22 +714,18 @@ const makeMeet=()=>(function(){
   const ui=document.getElementById('meetUI');
   function drawDays(){ui.querySelector('[data-days]').innerHTML=DAYS.map(([v,l])=>`<button type="button" data-day="${v}">${esc(l)}</button>`).join('');}
   drawDays();
-  ui.querySelector('[data-times]').innerHTML=TIMES.map(t=>`<button type="button" class="num" data-time="${t}">${t}</button>`).join('');
+  // "another time" is a seventh block in the time row (round 20): a clock that opens the time picker, and shows the time once picked
+  const CLOCK='<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/><path d="M19 3v4M17 5h4"/></svg>';
+  ui.querySelector('[data-times]').innerHTML=TIMES.map(t=>`<button type="button" class="num" data-time="${t}">${t}</button>`).join('')+`<button type="button" class="num mt-other" data-other aria-label="${E('meet.other_time')}" title="${E('meet.other_time')}">${CLOCK}</button>`;
+  function otherTime(){const b=ui.querySelector('[data-other]'),own=!TIMES.includes(S.time);b.setAttribute('aria-pressed',String(own));b.innerHTML=own?esc(S.time):CLOCK;}
   ui.querySelector('[data-pre]').innerHTML=PRE.map(([k,l,s,t],i)=>`<button type="button" class="mp-sign mp-${k}" data-pre="${k}"><b>${esc(l)}</b><span dir="ltr">${esc(s.name)} ${t}</span></button>`).join('');
   ui.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;
-    if(b.dataset.day){S.day=b.dataset.day;S.preset='';render();}
+    if(b.dataset.other!==undefined){const t=ui.querySelector('#meetTime');try{t.showPicker();}catch(err){t.classList.add('show');t.focus();}}
+    else if(b.dataset.day){S.day=b.dataset.day;S.preset='';render();}
     else if(b.dataset.time){S.time=b.dataset.time;S.preset='';ui.querySelector('#meetTime').value=S.time;render();}
     else if(b.dataset.pre){const p=PRE.find(x=>x[0]===b.dataset.pre);S.time=p[3];ui.querySelector('#meetTime').value=S.time;pick(p[2].id,p[0],true);track('meet_pick',{kind:'preset',preset:{am:'morning',noon:'noon',pm:'end'}[p[0]]});}});
   ui.querySelector('#meetTime').addEventListener('input',e=>{if(/^\d\d:\d\d$/.test(e.target.value)){S.time=e.target.value;S.preset='';render();}});
   function pick(id,preset,fly){S.sid=id;S.preset=preset||'';const s=byId[id];if(fly&&s)goTo(s.x,s.y,Math.max(1400,vb.w<1500?vb.w:1800),650);render();}
-  // how to get there, from the connections in the data only
-  const chip=p=>`<span class="rt-run c-${p.color}" dir="ltr">${esc(dispName(p))}</span>`,liftChip=n=>`<span class="rt-lift" dir="ltr">⇡ ${esc(n)}</span>`,dot='<span class="rt-dot" aria-hidden="true"></span>',sep='<span class="rt-sep" aria-hidden="true"></span>';
-  function routes(s){const out=[];
-    s.ends.forEach(({l,end})=>{
-      if(end==='b')D.pistes.filter(p=>p.named&&p.toLifts.includes(l.name)).forEach(p=>{const pr=p.fromPistes.map(k=>byKey[k]).find(x=>x&&x.named&&x.key!==p.key);
-        out.push({from:pr?T('meet.route_from_run',{run:pr.key}):T('meet.route_from_top_of',{run:p.key}),html:[pr?chip(pr):'',chip(p),dot].filter(Boolean).join(sep)});});
-      else out.push({from:T('meet.route_from_bottom_station',{lift:l.name}),html:[liftChip(l.name),dot].join(sep)});});
-    return out.filter((r,i)=>out.findIndex(q=>q.html===r.html)===i).slice(0,4);}
   const pad=n=>String(n).padStart(2,'0');
   function link(){return location.origin+location.pathname+`?utm_medium=share#meet/${S.sid}/${S.time.replace(':','')}/${S.day.replace(/-/g,'')}`;}
   function dayLbl(){return (DAYS.find(d=>d[0]===S.day)||[0,dayName(S.day)])[1];}
@@ -744,23 +740,22 @@ const makeMeet=()=>(function(){
     // the empty state, and everything that only makes sense once a spot is picked
     document.getElementById('meetCallout').hidden=none;document.getElementById('meetClear').hidden=none;
     document.getElementById('meetEmpty').hidden=!none;document.getElementById('meetCard').hidden=none;document.getElementById('meetCardX').hidden=none;
-    document.getElementById('meetRoutesSec').hidden=none;document.getElementById('meetShareBox').hidden=none;
-    const hint=document.getElementById('meetHint');hint.classList.toggle('ask',none);
-    hint.textContent=none?T('meet.hint_pick',{n:st.length}):T('meet.hint_clear');
+    document.getElementById('meetShareBox').hidden=none;
+    const hint=document.getElementById('meetHint');hint.classList.toggle('ask',none);hint.hidden=!none;
+    hint.textContent=none?T('meet.hint_pick',{n:st.length}):'';
+    otherTime();
     if(none){ui.querySelectorAll('[data-pre]').forEach(b=>b.setAttribute('aria-pressed','false'));
       ui.querySelectorAll('[data-day]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.day===S.day)));
       ui.querySelectorAll('[data-time]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.time===S.time)));
       if(location.hash.startsWith('#meet')&&location.hash!=='#meet')history.replaceState(null,'','#meet');return;}
-    const c=document.getElementById('meetCallout');c.querySelector('b').textContent=s.name;c.querySelector('.mc-alt').textContent=s.h?T('common.unit_m',{n:s.h.toLocaleString('en-US')}):'';c.querySelector('.mc-where').textContent=s.where;
+    const c=document.getElementById('meetCallout');c.querySelector('b').textContent=s.name;
     ui.querySelectorAll('[data-day]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.day===S.day)));
     ui.querySelectorAll('[data-time]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.time===S.time)));
     ui.querySelectorAll('[data-pre]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.pre===S.preset)));
     const card=document.getElementById('meetCard'),[c1,c2,c3]=countdown();
     card.querySelector('[data-f="name"]').textContent=s.name;card.querySelector('[data-f="time"]').textContent=S.time;
-    card.querySelector('[data-f="where"]').textContent=s.where;card.querySelector('[data-f="alt"]').textContent=s.h?T('common.unit_m',{n:s.h.toLocaleString('en-US')}):'—';
     card.querySelector('[data-f="day"]').textContent=dayLbl();
     card.querySelector('[data-f="c1"]').textContent=c1;card.querySelector('[data-f="c2"]').textContent=c2;card.querySelector('[data-f="c3"]').textContent=c3;
-    const R=routes(s);document.getElementById('meetRoutes').innerHTML=R.length?R.map(r=>`<li><small>${esc(r.from)}</small><div class="rt">${r.html}</div></li>`).join(''):`<li class="hint">${E('meet.routes_empty')}</li>`;
     document.getElementById('meetWa').href='https://wa.me/?text='+encodeURIComponent(message());
     const want=`#meet/${S.sid}/${S.time.replace(':','')}/${S.day.replace(/-/g,'')}`;if(location.hash.startsWith('#meet')&&location.hash!==want)history.replaceState(null,'',want);
   }
@@ -803,7 +798,7 @@ const makeMeet=()=>(function(){
       if(navigator.share){await navigator.share({text:message(),title:T('meet.share_title',{place:s.name})});track('meet_share',{method:'image'});return;}
       const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='meet-'+s.name.replace(/\W+/g,'-')+'.png';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),4000);track('meet_share',{method:'image'});
     }catch(err){}});
-  document.getElementById('meetCopy').addEventListener('click',e=>{const b=e.currentTarget;if(!navigator.clipboard)return;navigator.clipboard.writeText(link()).then(()=>{track('meet_share',{method:'copy'});b.textContent=T('common.link_copied');setTimeout(()=>{b.textContent=T('meet.copy_link');},2200);}).catch(()=>{});});
+  document.getElementById('meetCopy').addEventListener('click',e=>{const b=e.currentTarget;if(!navigator.clipboard)return;navigator.clipboard.writeText(link()).then(()=>{track('meet_share',{method:'copy'});b.classList.add('done');b.setAttribute('aria-label',T('common.link_copied'));b.title=T('common.link_copied');setTimeout(()=>{b.classList.remove('done');b.setAttribute('aria-label',T('meet.copy_link'));b.title=T('meet.copy_link');},2200);}).catch(()=>{});});
   document.getElementById('meetWa').addEventListener('click',()=>track('meet_share',{method:'whatsapp'}));
   document.getElementById('meetOnMap').addEventListener('click',()=>{const s=byId[S.sid];location.hash='#map';requestAnimationFrame(()=>requestAnimationFrame(()=>{showLift(s.ends[0].l.id);if(view==='3d'&&v3)v3.focusLift(s.ends[0].l.id);else focusOn([s.ends[0].l.g]);}));});
   let shown=false;

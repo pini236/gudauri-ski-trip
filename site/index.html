@@ -328,7 +328,7 @@
   <div class="meet">
     <div class="meet-map">
       <svg id="meetMap" role="img" data-i18n-attr="aria-label:meet.map_aria" aria-label="מפת תחנות הרכבלים. לחיצה על סיכה בוחרת נקודת מפגש"></svg>
-      <div class="meet-callout" id="meetCallout" aria-live="polite"><span class="mc-top"><b dir="ltr"></b><span class="mc-alt num" dir="ltr"></span></span><span class="mc-where"></span></div>
+      <div class="meet-callout" id="meetCallout" aria-live="polite"><span class="mc-top"><b dir="ltr"></b></span></div>
       <button type="button" class="meet-all" id="meetAll" data-i18n="meet.whole_mountain">כל ההר</button>
       <div class="meet-zoom" role="group" aria-label="זום" data-i18n-attr="aria-label:meet.zoom"><button type="button" id="meetZin" aria-label="להתקרב" data-i18n-attr="aria-label:meet.zoom_in">+</button><button type="button" id="meetZout" aria-label="להתרחק" data-i18n-attr="aria-label:meet.zoom_out">−</button></div>
       <button type="button" class="meet-clear" id="meetClear" hidden><svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 3L13 13M13 3L3 13" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg><span data-i18n="meet.clear">ניקוי הבחירה</span></button>
@@ -340,7 +340,7 @@
         <h2 data-i18n="meet.when">מתי</h2>
         <div class="meet-days" role="group" aria-label="יום" data-i18n-attr="aria-label:meet.day" data-days></div>
         <div class="meet-times" role="group" aria-label="שעה" data-i18n-attr="aria-label:meet.time" data-times></div>
-        <label class="meet-own"><span data-i18n="meet.other_time">שעה אחרת</span> <input type="time" id="meetTime" step="300"></label>
+        <input type="time" id="meetTime" class="mt-input" step="300" tabindex="-1" aria-hidden="true">
       </section>
       <section aria-label="הנקודות של הקבוצה" data-i18n-attr="aria-label:meet.group_spots">
         <h2 data-i18n="meet.one_tap">או בלחיצה אחת</h2>
@@ -352,25 +352,20 @@
         <div class="mcard" id="meetCard" hidden>
           <div class="mc-head"><span data-i18n="meet.card">כרטיס מפגש</span><span data-i18n="meet.card_sub">גודאורי 2027</span></div>
           <div class="mc-main">
-            <div class="mc-row"><span class="mc-col"><small data-i18n="meet.meet_at">נפגשים ב</small><b class="mc-sign" dir="ltr" data-f="name"></b></span><span class="mc-col mc-end"><small data-i18n="meet.time">שעה</small><b class="mc-time num" data-f="time"></b></span></div>
-            <div class="mc-meta"><span><small data-i18n="meet.gate">שער</small><b data-f="where"></b></span><span><small data-i18n="meet.altitude">גובה</small><b class="num" data-f="alt"></b></span><span><small data-i18n="meet.day">יום</small><b data-f="day"></b></span></div>
+            <div class="mc-row"><b class="mc-sign" dir="ltr" data-f="name"></b><span class="mc-col mc-end"><small data-f="day"></small><b class="mc-time num" data-f="time"></b></span></div>
           </div>
           <div class="mc-stub"><span data-f="c1"></span><b class="num" data-f="c2"></b><span data-f="c3"></span></div>
         </div>
       </section>
-      <section aria-label="איך מגיעים" data-i18n-attr="aria-label:meet.routes" id="meetRoutesSec" hidden>
-        <h2 data-i18n="meet.routes">איך מגיעים</h2>
-        <ul class="meet-routes" id="meetRoutes"></ul>
-        <p class="hint" data-i18n="meet.routes_hint">לפי החיבורים בנתוני המסלולים. בלי זמנים ובלי תורים.</p>
-      </section>
       <div class="meet-share" id="meetShareBox" hidden>
-        <a class="btn mshare-wa" id="meetWa" href="#" target="_blank" rel="noopener" data-i18n="meet.send_wa">שליחה בוואטסאפ</a>
-        <button type="button" class="btn" id="meetShare" data-i18n="meet.share_image">שיתוף עם תמונה</button>
-        <button type="button" class="btn ghost" id="meetCopy" data-i18n="meet.copy_link">העתקת הקישור</button>
-        <button type="button" class="btn ghost" id="meetOnMap" data-i18n="meet.on_map">לראות במפת המסלולים</button>
+        <div class="ms-icons">
+          <a class="ms-ico ms-wa" id="meetWa" href="#" target="_blank" rel="noopener" aria-label="שליחה בוואטסאפ" title="שליחה בוואטסאפ" data-i18n-attr="aria-label:meet.send_wa;title:meet.send_wa"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 20l1.3-4A8 8 0 1 1 8 18.7z"/><path d="M9 9c0 3 3 6 6 6l1-1.5-2-1-1 1c-1-.5-2-1.5-2.5-2.5l1-1-1-2z"/></svg></a>
+          <button type="button" class="ms-ico" id="meetShare" aria-label="שיתוף עם תמונה" title="שיתוף עם תמונה" data-i18n-attr="aria-label:meet.share_image;title:meet.share_image"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="5" width="18" height="14"/><path d="M3 16l5-5 4 4 3-3 6 6"/><circle cx="16" cy="9" r="1.6"/></svg></button>
+          <button type="button" class="ms-ico" id="meetCopy" aria-label="העתקת הקישור" title="העתקת הקישור" data-i18n-attr="aria-label:meet.copy_link;title:meet.copy_link"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg></button>
+          <button type="button" class="ms-ico" id="meetOnMap" aria-label="לראות במפת המסלולים" title="לראות במפת המסלולים" data-i18n-attr="aria-label:meet.on_map;title:meet.on_map"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 6l6-2 6 2 6-2v14l-6 2-6-2-6 2z"/><path d="M9 4v14M15 6v14"/></svg></button>
+        </div>
         <button type="button" class="btn" id="meetGroup" hidden data-i18n="meet.save_group">שמירה בקבוצה</button>
       </div>
-      <p class="hint" data-i18n="meet.no_db">הקישור עובד בלי הרשמה: המקום, היום והשעה נמצאים בתוך הקישור עצמו.</p>
     </div>
   </div>
 </main>

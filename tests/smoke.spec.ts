@@ -250,7 +250,7 @@ test('תצוגת מסלול: קישור ישיר, צביעה לפי שיפוע, 
   expect(errors).toEqual([]);
 });
 
-test('נקודת מפגש: בוחרים תחנה ושעה, כרטיס, איך מגיעים וקישור לשיתוף', async ({ page }) => {
+test('נקודת מפגש: בוחרים תחנה ושעה, כרטיס וקישור לשיתוף (סבב 20: בלי איך מגיעים, שעה אחרת כבלוק, שיתוף בסמלים)', async ({ page }) => {
   const errors = watchErrors(page);
   await withTrip(page);
   await page.goto('/#meet');
@@ -262,7 +262,16 @@ test('נקודת מפגש: בוחרים תחנה ושעה, כרטיס, איך מ
   await expect(page.locator('[data-pre="am"]')).toHaveAttribute('aria-pressed', 'true');
   await expect(page.locator('#meetCard [data-f="name"]')).toHaveText('Goodaura');
   await expect(page.locator('#meetCard [data-f="time"]')).toHaveText('09:30');
-  await expect(page.locator('#meetRoutes li').first()).toBeVisible();
+  await expect(page.locator('#meetRoutes')).toHaveCount(0);
+  await expect(page.locator('#meetCallout')).toHaveText('Goodaura');
+  await expect(page.locator('[data-times] button')).toHaveCount(7);
+  await expect(page.locator('#meetShareBox .ms-ico')).toHaveCount(4);
+  await expect(page.locator('#meetCopy')).toHaveAttribute('aria-label', 'העתקת הקישור');
+  // another time: the seventh block shows the time once picked
+  await page.locator('#meetTime').fill('10:15');
+  await expect(page.locator('[data-other]')).toHaveText('10:15');
+  await expect(page.locator('[data-other]')).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.locator('#meetCard [data-f="time"]')).toHaveText('10:15');
   // יום ושעה
   // ימי הסקי של הטיול שלך: 11 עד 14 בינואר
   await expect(page.locator('[data-days] button')).toHaveCount(4);

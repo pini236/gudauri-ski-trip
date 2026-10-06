@@ -424,8 +424,6 @@ ul.notes li{margin-bottom:4px}
 .meet-callout::after{content:"";position:absolute;left:var(--tip,92px);bottom:-8px;width:16px;height:16px;background:#13233A;transform:rotate(45deg)}
 .mc-top{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
 .mc-top b{font-family:var(--f-display);font-size:30px;line-height:.9}
-.mc-alt{font-size:12px;font-weight:700;color:#F4B942;white-space:nowrap}
-.meet-callout .mc-where{font-size:12px;color:#A3B3C8;position:relative;z-index:1}
 .meet-all{position:absolute;top:12px;left:12px;min-height:44px;padding:0 14px;border:1.5px solid var(--rule);background:var(--paper);color:var(--ink);font:inherit;font-size:14px;font-weight:600;cursor:pointer}
 .meet-hint{position:absolute;bottom:12px;left:12px;padding:4px 10px;background:color-mix(in srgb,var(--paper) 94%,transparent);border:1px solid var(--rule);font-size:12.5px;font-weight:600;pointer-events:none}
 .meet-hint.ask{left:12px;right:12px;padding:10px 14px;background:#13233A;color:#fff;border:0;font-size:14px;font-weight:600;display:flex;align-items:center;gap:10px}
@@ -455,13 +453,11 @@ ul.notes li{margin-bottom:4px}
 .meet-side h2{margin:0 0 8px;font-family:var(--f-display);font-weight:700;font-size:26px;line-height:1}
 .meet-days,.meet-times{display:grid;gap:6px}
 .meet-days{grid-template-columns:repeat(4,minmax(0,1fr));margin-bottom:8px}
-.meet-times{grid-template-columns:repeat(6,minmax(0,1fr));direction:ltr}
+.meet-times{position:relative;grid-template-columns:repeat(7,minmax(0,1fr));direction:ltr}
 .meet-days button,.meet-times button{min-height:48px;border:1.5px solid var(--ink);background:var(--paper);color:var(--ink);font:inherit;cursor:pointer;transition:transform .2s,background-color .2s,box-shadow .2s}
 .meet-days button{font-size:13.5px;font-weight:700}
 .meet-times button{font-family:var(--f-display);font-weight:700;font-size:23px;line-height:1;padding:0}
 .meet-days button[aria-pressed="true"],.meet-times button[aria-pressed="true"]{background:#F4B942;color:#13233A;transform:translateY(-3px);box-shadow:0 4px 0 var(--ink)}
-.meet-own{display:flex;align-items:center;gap:10px;margin-top:10px;font-size:13px;color:var(--muted)}
-.meet-own input{width:130px}
 .meet-post{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:8px;padding-inline-start:14px}
 .meet-post::before{content:"";position:absolute;inset-inline-start:0;top:-8px;bottom:-12px;width:7px;background:var(--ink)}
 /* never shorter than its words (Russian, Georgian), and on a narrow phone the label breaks into two lines */
@@ -480,28 +476,15 @@ ul.notes li{margin-bottom:4px}
 .mc-main{padding:12px 16px 14px;display:flex;flex-direction:column;gap:10px;border:1px solid var(--rule);border-top:0;border-bottom:2px dashed var(--rule)}
 .mc-row{display:flex;align-items:flex-end;justify-content:space-between;gap:8px}
 .mc-col{display:flex;flex-direction:column;min-width:0}.mc-end{align-items:flex-end;flex:none}
-.mc-col small,.mc-meta small{font-size:12px;color:var(--muted)}
+.mc-col small{font-size:12px;color:var(--muted)}
 .mc-sign{align-self:flex-start;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:5px 14px 5px 28px;background:var(--p-blue);color:var(--on-board);font-family:var(--f-display);font-weight:700;font-size:40px;line-height:1;clip-path:polygon(0 50%,18px 0,100% 0,100% 100%,18px 100%)}
 .mc-time{font-family:var(--f-display);font-weight:700;font-size:52px;line-height:.85}
-.mc-meta{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr) minmax(0,1fr);gap:8px;border-top:1px solid var(--rule);padding-top:8px}
-.mc-meta span{display:flex;flex-direction:column;min-width:0}.mc-meta b{font-size:13.5px}
 .mc-stub{height:112px;box-sizing:border-box;margin:0;background:#F4B942;color:#13233A;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:13px;font-weight:700}
 .mc-stub b{font-family:var(--f-display);font-size:64px;line-height:.8}
-.meet-routes{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
-.meet-routes li{display:flex;flex-direction:column;gap:6px;padding:10px 0;border-bottom:1px solid var(--rule)}
-.meet-routes small{font-size:13px;font-weight:700}
 /* the way reads in the page's direction, from where you are to the yellow dot, the signs pointing along it */
 .rt{display:flex;align-items:center;flex-wrap:wrap;gap:4px}
-.rt-run{display:inline-flex;align-items:center;height:30px;padding:0 10px 0 20px;color:var(--on-board);font-family:var(--f-display);font-weight:700;font-size:21px;line-height:1;clip-path:polygon(0 50%,12px 0,100% 0,100% 100%,12px 100%)}
-.rt-run.c-green{background:var(--p-green)}.rt-run.c-blue{background:var(--p-blue)}.rt-run.c-red{background:var(--p-red)}.rt-run.c-black{background:var(--p-black);color:var(--paper)}
-.rt-lift{display:inline-flex;align-items:center;height:30px;padding:0 10px;background:var(--ink);color:var(--paper);font-size:13px;font-weight:700}
-.rt-sep{width:12px;border-top:2px dotted var(--muted)}
-.rt-dot{width:14px;height:14px;border-radius:50%;background:#F4B942;border:2px solid var(--ink)}
-.meet-share{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.meet-share .btn{justify-content:center;text-decoration:none;min-height:52px}
-.mshare-wa{grid-column:1/-1;background:var(--ink);color:var(--paper)}
+.meet-share{display:flex;flex-direction:column;gap:10px}
 /* a guest has no "save in the group": the last button takes the whole row */
-#meetOnMap:has(+ #meetGroup[hidden]){grid-column:1/-1}
 @media (max-width:760px){
   .meet{display:flex;flex-direction:column}
   .meet-map{order:-1;height:52svh;flex:none;border-bottom:1px solid var(--rule)}
@@ -642,7 +625,6 @@ html.i18n-wait body{visibility:hidden}
 [dir="ltr"] #panel h2{padding:6px 30px 6px 16px;clip-path:polygon(0 0,calc(100% - 16px) 0,100% 50%,calc(100% - 16px) 100%,0 100%)}
 [dir="ltr"] .mp-sign{padding:0 30px 0 16px;clip-path:polygon(0 0,calc(100% - 18px) 0,100% 50%,calc(100% - 18px) 100%,0 100%)}
 [dir="ltr"] .mc-sign{padding:5px 28px 5px 14px;clip-path:polygon(0 0,calc(100% - 18px) 0,100% 50%,calc(100% - 18px) 100%,0 100%)}
-[dir="ltr"] .rt-run{padding:0 20px 0 10px;clip-path:polygon(0 0,calc(100% - 12px) 0,100% 50%,calc(100% - 12px) 100%,0 100%)}
 [dir="ltr"] .ls-face{padding:12px 30px 0 14px;clip-path:polygon(0 0,calc(100% - 18px) 0,100% 50%,calc(100% - 18px) 100%,0 100%)}
 [dir="ltr"] .games-sign{padding:2px 30px 2px 16px;clip-path:polygon(0 0,calc(100% - 16px) 0,100% 50%,calc(100% - 16px) 100%,0 100%)}
 [dir="ltr"] .gc-face{clip-path:polygon(0 0,calc(100% - 30px) 0,100% 50%,calc(100% - 30px) 100%,0 100%)}
@@ -1125,3 +1107,13 @@ html[lang="ka"] .pv-doc h1{font-size:36px;overflow-wrap:anywhere}
 .i-btn{position:relative;display:inline-grid;place-items:center;width:44px;height:44px;margin-block:-12px;padding:0;border:0;background:none;color:var(--muted);font:700 12px/1 var(--f-body);vertical-align:middle;cursor:pointer}
 .i-btn::before{content:'';position:absolute;width:22px;height:22px;border:1.5px solid currentColor;border-radius:50%;box-sizing:border-box}
 .info-pop{margin:-4px 0 10px}.info-pop p{margin:0 0 4px}
+/* round 20: the meeting card is the station and the time (the day above it); another time is a clock block; sharing is four icons */
+.mc-end small{text-align:end}
+.mt-other{display:grid;place-items:center;border-style:dashed!important}
+.mt-other[aria-pressed="true"]{border-style:solid!important;font-size:17px!important}
+.mt-input{position:absolute;inset-inline-end:0;bottom:0;width:1px;height:1px;opacity:0;pointer-events:none}
+.mt-input.show{position:static;width:140px;height:auto;margin-top:10px;opacity:1;pointer-events:auto}
+.ms-icons{display:flex;gap:10px;justify-content:center}
+.ms-ico{display:grid;place-items:center;width:52px;height:52px;border:1.5px solid var(--ink);background:var(--paper);color:var(--ink);padding:0;cursor:pointer;text-decoration:none}
+.ms-ico.ms-wa{background:var(--ink);color:var(--paper)}
+.ms-ico.done{background:var(--p-green);border-color:var(--p-green);color:var(--on-board)}
