@@ -1,12 +1,12 @@
 {
- "a-about.webp": "/_blob/be3bd680623ef9ad2376e837bfd06041",
- "a-games.webp": "/_blob/8a65d121d7eb679a3cc794ef28d04990",
- "a-group-empty.webp": "/_blob/90db3f190df96bb779661efb4507d239",
- "a-home-guest.webp": "/_blob/3d68df2714965366a906cdee7be9831b",
- "a-join.webp": "/_blob/53fc951491bf779b26cf3b88b2ad20c2",
- "a-map-run.webp": "/_blob/f5060755eed1969c6deec2ed7c578613",
- "a-meet.webp": "/_blob/0e590dd95cbf73a58f69c5d55c89f21e",
- "a-signin.webp": "/_blob/d49997f432fddc29161e1376016a9c72",
+ "a-about.webp": "/_blob/305084245e9d0df66cd7552c77730618",
+ "a-games.webp": "/_blob/6502f9e3871c7d0779b825276a124d4f",
+ "a-group-empty.webp": "/_blob/e12d9a0ebf8f3ea9e98032a8f226312b",
+ "a-home-guest.webp": "/_blob/9d249b6486e5aebeefccec98ddf7c6bd",
+ "a-join.webp": "/_blob/51156944ce00b78a7030eb9deee17e79",
+ "a-map-run.webp": "/_blob/e4306c2161ef0a688282dcb224a165c0",
+ "a-meet.webp": "/_blob/2053bd54fc80dc7066bbe5840e896d51",
+ "a-signin.webp": "/_blob/19828de69d90c5804707aff013926c3b",
  "b-about.webp": "/_blob/5efaca175e317828cdb3866175213d5b",
  "b-account.webp": "/_blob/8ca6b0d427f0ff1239c47087734f81fb",
  "b-games.webp": "/_blob/3e0796b0931639323f72319f3b6dd319",
@@ -27,5 +27,6 @@
  "trip-3.webp": "/_blob/e20c378de08ec8d2aec0729ef05bede3",
  "trip-4.webp": "/_blob/17557e6d5a7c949acdbd6437901f6766",
  "trip-app.webp": "/_blob/d2d0827af279877ad25e7cc9910d9119",
- "trip-site.webp": "/_blob/e2211d13e1832cd77b9a9ab00e8291a1"
+ "trip-site.webp": "/_blob/e2211d13e1832cd77b9a9ab00e8291a1",
+ "a-group-signin.webp": "/_blob/6a4fb3bb698487bb3cea30b7d0b9eee6"
 }
