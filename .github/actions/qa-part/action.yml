@@ -1,0 +1,91 @@
+# One part of the emulator run on one emulator (.github/workflows/android-qa.yml). Steps only; the job sets
+# OUT, SCENARIO and FINAL. A composite action so that the part that checks the release build (which waits for it) and the
+# others (which do not) are the same steps.
+name: qa-part
+description: Run one group of emulator parts, with one more try if the emulator did not start
+inputs:
+  part:
+    description: The group of parts, with commas
+    required: true
+  api:
+    description: Android API level
+    required: true
+  release:
+    description: 'true when the release app is downloaded too (the part that checks it)'
+    default: 'false'
+runs:
+  using: composite
+  steps:
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          pattern: ${{ inputs.release == 'true' && 'apk-*' || 'apk-debug' }}
+          merge-multiple: true
+          path: apk-all
+      - name: The apps where the script looks for them
+        shell: bash
+        run: |
+          d=app/android/app/build/outputs/apk/preview
+          mkdir -p "$d/debug" "$d/release"
+          mv apk-all/app-preview-debug.apk "$d/debug/"
+          [ -f apk-all/app-preview-release.apk ] && mv apk-all/app-preview-release.apk "$d/release/" || true
+      - name: Hardware virtualisation for the emulator
+        shell: bash
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      # One try, and one more only if the emulator never started (no mark from the wrapper: boot, system image, adb). A
+      # failure inside a screen is not retried. The wrapper retries the script by itself when only the install failed.
+      - name: Run on the emulator
+        id: a1
+        continue-on-error: true
+        uses: reactivecircus/android-emulator-runner@a421e43855164a8197daf9d8d40fe71c6996bb0d # v2.38.0
+        with:
+          api-level: ${{ inputs.api }}
+          target: google_apis
+          arch: x86_64
+          profile: pixel_6
+          disable-animations: false
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -no-snapshot-save -camera-back none
+          script: bash .github/scripts/qa-attempt.sh
+      - name: Did the emulator start?
+        id: retry
+        if: steps.a1.outcome == 'failure'
+        shell: bash
+        run: |
+          if [ ! -f qa-out/.started ]; then echo "infra=1" >> "$GITHUB_OUTPUT"; rm -rf qa-out; echo "::warning::${{ inputs.part }}: the emulator did not start, trying once more"; fi
+      - name: Run on the emulator, second try
+        id: a2
+        if: steps.retry.outputs.infra == '1'
+        continue-on-error: true
+        uses: reactivecircus/android-emulator-runner@a421e43855164a8197daf9d8d40fe71c6996bb0d # v2.38.0
+        with:
+          api-level: ${{ inputs.api }}
+          target: google_apis
+          arch: x86_64
+          profile: pixel_6
+          disable-animations: false
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -no-snapshot-save -camera-back none
+          script: bash .github/scripts/qa-attempt.sh
+      - name: Mark an unstable part
+        if: steps.a2.outcome == 'success'
+        shell: bash
+        run: |
+          mkdir -p qa-out
+          echo "UNSTABLE: the emulator needed a second start (infrastructure)" | tee -a qa-out/summary.txt
+          echo "UNSTABLE: ${{ inputs.part }}, the emulator needed a second start" >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        if: always()
+        with:
+          name: android-qa-${{ inputs.part }}
+          path: qa-out
+          retention-days: 14
+          # "Re-run failed jobs" puts a part's new result over its old one
+          overwrite: true
+      - name: The part's result
+        if: always()
+        shell: bash
+        run: |
+          if [ "${{ steps.retry.outputs.infra }}" = 1 ]; then r="${{ steps.a2.outcome }}"; else r="${{ steps.a1.outcome }}"; fi
+          echo "part ${{ inputs.part }}: $r"
+          [ "$r" = success ]

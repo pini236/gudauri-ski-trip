@@ -14,7 +14,7 @@ SMOKE = "home"
 PAIRS = [("store", "lang"), ("status", "weather"), ("locate", "descent")]
 # a change in any of these runs everything
 EVERYTHING = ("app/android/", "site/data/", "i18n/", "tools/build-app-", ".github/workflows/android-qa.yml",
-              ".github/scripts/qa-", ".github/qa-parts.tsv")
+              ".github/scripts/qa-", ".github/actions/qa-", ".github/qa-parts.tsv")
 
 
 def changed():
@@ -68,3 +68,4 @@ g = groups(parts)
 final = next((x for x in g if x != "phone"), g[0])
 print("parts=" + json.dumps(g))
 print("final=" + final)
+print("others=" + json.dumps([x for x in g if x != final]))
