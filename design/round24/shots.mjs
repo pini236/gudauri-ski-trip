@@ -78,6 +78,27 @@ S.push(
   ['off-3d', '/?resort=soelden#map/run/61', { routes: 1, off: 1 }, { st: D3, inj: 1, back: 1, wait: 6000 }],
   ['off-desk', '/?resort=soelden#map/run/4', { routes: 1, areas: 'full', legend: 1, off: 1 }, { st: D2, inj: 1, back: 1, w: 1280, h: 800 }],
 );
+// the selected run's areas, projected like the site (site/js/app.js, P)
+const RES = JSON.parse(fs.readFileSync(ROOT + 'site/data/resorts.json', 'utf8')).resorts;
+function selPolys(resort, key) {
+  const r = RES.find(x => x.id === resort), d = JSON.parse(fs.readFileSync(ROOT + 'site/' + r.dir + 'runs-and-lifts.json', 'utf8'));
+  const p = d.pistes.find(x => x.key === key), lat0 = r.proj.lat0, lon0 = r.proj.lon0, kx = 111320 * Math.cos(lat0 * Math.PI / 180), ky = 111320;
+  return { color: p.color, polys: p.segs.filter(s => s.area).map(s => s.g.map(([la, lo]) => [(lo - lon0) * kx, -(la - lat0) * ky])) };
+}
+const SEL = (res, key, mode) => ({ ...selPolys(res, key), mode });
+S.push(
+  ['sel-today4', '/?resort=soelden#map/run/4', { areas: 'full' }, { st: D2 }],
+  ['sel-a4', '/?resort=soelden#map/run/4', { areas: 'full', sel: SEL('soelden', '4', 'run') }, { st: D2 }],
+  ['sel-b4', '/?resort=soelden#map/run/4', { areas: 'full', sel: SEL('soelden', '4', 'slope') }, { st: D2 }],
+  ['sel-today11', '/?resort=soelden#map/run/11', { areas: 'full' }, { st: D2 }],
+  ['sel-a11', '/?resort=soelden#map/run/11', { areas: 'full', sel: SEL('soelden', '11', 'run') }, { st: D2 }],
+  ['sel-b11', '/?resort=soelden#map/run/11', { areas: 'full', sel: SEL('soelden', '11', 'slope') }, { st: D2 }],
+  ['sel-b11-night', '/?resort=soelden#map/run/11', { areas: 'full', sel: SEL('soelden', '11', 'slope') }, { st: D2, theme: 'night' }],
+  ['sel-a11-night', '/?resort=soelden#map/run/11', { areas: 'full', sel: SEL('soelden', '11', 'run') }, { st: D2, theme: 'night' }],
+  ['sel-b4-desk', '/?resort=soelden#map/run/4', { areas: 'full', sel: SEL('soelden', '4', 'slope') }, { st: D2, w: 1280, h: 800 }],
+  ['sel-a-gud', '/#map/run/Pirveli', { areas: 'full', sel: SEL('gudauri', 'Pirveli', 'run') }, { st: D2 }],
+  ['sel-b-gud', '/#map/run/Pirveli', { areas: 'full', sel: SEL('gudauri', 'Pirveli', 'slope') }, { st: D2 }],
+);
 const only = process.argv[2];
 const b = await launch();
 for (const [n, u, p, o] of S) {
