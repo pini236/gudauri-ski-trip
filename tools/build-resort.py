@@ -31,6 +31,7 @@ args = ap.parse_args()
 C = json.load(open(args.config, encoding='utf-8'))
 RID = C['id']
 cache = pathlib.Path(args.cache); cache.mkdir(parents=True, exist_ok=True)
+FETCHED = lambda: datetime.date.fromtimestamp((cache / 'osk_runs.jsonl').stat().st_mtime).isoformat()  # the day the open map was read, not the day of the build
 out = ROOT / 'site/data/resorts' / RID; out.mkdir(parents=True, exist_ok=True)
 
 def curl(url, dest, data=None, timeout=900):
@@ -291,10 +292,11 @@ for p in pistes:
     extra = []
     if p['key'] in OV.get('swap_numbers', {}): extra.append('המספר הוחלף לפי הרשימה הרשמית של האתר (במפה הפתוחה ' + {v: k for k, v in OV['swap_numbers'].items()}[p['key']] + ')')
     if p['key'] in OV.get('check_again', []): flags.append('המספר לא מופיע ברשימה הרשמית של האתר; לבדוק')
-    p['kind'] = 'run'
+    p['kind'] = 'ski-way' if p['key'] in OV.get('ski_ways', []) else 'run'  # a road or link the resort's map draws as a ski way, not a slope
+    if p['kind'] == 'ski-way': extra.append('דרך מקשרת ולא מסלול, לפי המקרא של המפה הרשמית (סוג בלבד)')
     p['research'] = {'conf': 'medium' if not flags else 'low', 'status': 'osm-named' if p['named'] else 'osm-unnamed',
                      'notes': 'מהמפה הפתוחה כמו שהיא. הצבע לפי דרגת הקושי במפה הפתוחה (אירופה: קל כחול, בינוני אדום, קשה שחור), ונבדק מול רשימת המסלולים הרשמית של האתר (research/resorts/soelden-audit.md).' + (' ' + '; '.join(extra) + '.' if extra else '') + (' בדיקות: ' + '; '.join(flags) + '.' if flags else ''),
-                     'sources': ['OpenSkiMap ' + datetime.date.today().isoformat() + ' (OpenStreetMap, ODbL)'],
+                     'sources': ['OpenSkiMap ' + FETCHED() + ' (OpenStreetMap, ODbL)'],
                      'osmIds': sorted({s['id'] for s in p['segs'] if s['id']}), 'checks': flags}
     report.append((p['key'], p['color'], p['len'], p['_climb'], flags + extra))
     del p['_climb']
@@ -305,7 +307,7 @@ lats = [q[0] for p in pistes for s in p['segs'] for q in s['g']] + [q[0] for l i
 lons = [q[1] for p in pistes for s in p['segs'] for q in s['g']] + [q[1] for l in LIFTS for q in l['g']]
 LICENSE = ('Runs and lifts from OpenStreetMap through OpenSkiMap: © OpenStreetMap contributors, available under the Open Database '
            'License (ODbL 1.0, https://opendatacommons.org/licenses/odbl/). This file is a derived database and stays under the ODbL.')
-data = {'resort': RID, 'license': LICENSE, 'pistes': pistes, 'lifts': LIFTS, 'missing': OV.get('missing', []), 'fetched': datetime.date.today().isoformat(),
+data = {'resort': RID, 'license': LICENSE, 'pistes': pistes, 'lifts': LIFTS, 'missing': OV.get('missing', []), 'fetched': FETCHED(),
         'bbox': [round(min(lats), 3), round(min(lons), 3), round(max(lats), 3), round(max(lons), 3)],
         'research': {'date': datetime.date.today().isoformat(),
                      'summary': 'נבנה אוטומטית מהמפה הפתוחה (OpenSkiMap) וממודל הגובה, בלי השלמות. נבדק מול מודל הגובה ומיקומי הרכבלים (tools/build-resort.py).'}}
