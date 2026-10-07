@@ -262,9 +262,11 @@ for f in runs:
     nums = [x for x in nums if x]
     if not nums and norm_number(ref): nums = [norm_number(ref)]
     nums = [OV.get('swap_numbers', {}).get(x, x) for x in nums]  # numbers swapped in the open map, by the resort's own list
+    nums = [x for x in nums if x not in OV.get('unnumber', [])]  # a number the resort's own map does not have: the line stays, as an unnamed section
     gid = osm_id(f); poly = f['geometry']['type'] == 'Polygon'
     coords = f['geometry']['coordinates'][0] if poly else f['geometry']['coordinates']
     g = [ll(c) for c in coords]
+    if name in OV.get('unnumber', []) or ref in OV.get('unnumber', []): name = ''  # its only name was the number
     keys = nums or ([name] if name else ['u%d' % gid])
     for k in keys:
         G = groups.setdefault(k, {'key': k, 'name': k if (nums or name) else None, 'osmNames': set(), 'refs': set(), 'diff': collections.Counter(),
@@ -320,6 +322,7 @@ for p in pistes:
     extra = []
     if p['key'] in OV.get('swap_numbers', {}): extra.append('המספר הוחלף לפי הרשימה הרשמית של האתר (במפה הפתוחה ' + {v: k for k, v in OV['swap_numbers'].items()}[p['key']] + ')')
     if p['key'] in OV.get('check_again', []): flags.append('המספר לא מופיע ברשימה הרשמית של האתר; לבדוק')
+    if not p['named'] and set(p['refs']) & set(OV.get('unnumber', [])): extra.append('המספר במפה הפתוחה לא מופיע במפה הרשמית, ולכן הקו בלי מספר')
     p['kind'] = 'ski-way' if p['key'] in OV.get('ski_ways', []) else 'run'  # a road or link the resort's map draws as a ski way, not a slope
     if p['kind'] == 'ski-way': extra.append('דרך מקשרת ולא מסלול, לפי המקרא של המפה הרשמית (סוג בלבד)')
     p['research'] = {'conf': 'medium' if not flags else 'low', 'status': 'osm-named' if p['named'] else 'osm-unnamed',
