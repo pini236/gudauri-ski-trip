@@ -327,6 +327,7 @@ for p in pistes:
     if p['key'] in OV.get('swap_numbers', {}): extra.append('המספר הוחלף לפי הרשימה הרשמית של האתר (במפה הפתוחה ' + {v: k for k, v in OV['swap_numbers'].items()}[p['key']] + ')')
     if p['key'] in OV.get('check_again', []): flags.append('המספר לא מופיע ברשימה הרשמית של האתר; לבדוק')
     if not p['named'] and set(p['refs']) & set(OV.get('unnumber', [])): extra.append('המספר במפה הפתוחה לא מופיע במפה הרשמית, ולכן הקו בלי מספר')
+    if p.get('kind') == 'ski-route' and p['key'] in OV.get('private_routes', []): p['access'] = 'private'  # a private route to a hut (the resort's legend)
     p['kind'] = 'ski-route' if p.get('kind') == 'ski-route' else 'ski-way' if p['key'] in OV.get('ski_ways', []) else 'run'  # a road or link the resort's map draws as a ski way, not a slope
     if p['kind'] == 'ski-route': extra.append('דרך סקי (Skiroute): מאובטחת רק מפני מפולות, בלי הכשרה ובלי דרגת קושי; לפי piste:grooming=backcountry במפה הפתוחה או הרשימה הרשמית של האתר')
     if p['kind'] == 'ski-way': extra.append('דרך מקשרת ולא מסלול, לפי המקרא של המפה הרשמית (סוג בלבד)')

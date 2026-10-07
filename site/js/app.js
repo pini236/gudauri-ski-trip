@@ -371,7 +371,7 @@ function select(key,{zoom=true,push=true,via=''}={}){
   if(matchMedia('(max-width:760px)').matches&&!zoom)panel.scrollIntoView({behavior:'smooth',block:'start'});
 }
 // a ski route has a kind, not a colour or a difficulty (round 24)
-function routeRow(){return `<dt>${E('run.kind_label')}</dt><dd><span class="route-tag"><i></i>${E('run.kind_ski_route')}</span></dd>`;}
+function routeRow(p){return `<dt>${E('run.kind_label')}</dt><dd><span class="route-tag"><i></i>${E(p&&p.access==='private'?'run.kind_private_route':'run.kind_ski_route')}</span></dd>`;}
 function pips(c){const n=RATE[c][0];return `<span class="pips c-${c}">${[1,2,3,4].map(i=>`<i class="${i<=n?'on':''}"></i>`).join('')}</span>`;}
 function liftBtn(name){const l=D.lifts.find(x=>x.name===name);return l?`<button class="tag" data-lift="${l.id}">⇡ ${esc(name)}</button>`:esc(name);}
 function pisteBtn(k){const p=byKey[k];return p?`<button class="tag c-${ck(p)}" data-goto="${esc(k)}">${esc(dispName(p))}</button>`:'';}
@@ -384,7 +384,7 @@ function vidList(key){
 }
 function vidBlock(key,label){
   return `<h3>${E('run.videos_heading')}</h3>${vidList(key)}
-  <p class="hint"><a href="https://www.youtube.com/results?search_query=${encodeURIComponent(RS.name+' '+label+' ski')}" target="_blank" rel="noopener">${E('run.videos_search_youtube',{name:label})}</a></p>`;
+  <p class="hint"><a href="https://www.youtube.com/results?search_query=${encodeURIComponent(RS.name+' '+label+' ski')}" target="_blank" rel="noopener">${E('run.videos_search_youtube',{resort:RS.name,name:label})}</a></p>`;
 }
 function elevRows(p){
   if(!TM)return'';const lines=p.segs.filter(s=>!s.area).map(s=>s.g.map(P));if(!lines.length)return'';
@@ -455,7 +455,7 @@ function renderPiste(key){
   <dl class="kv">
     <dt>${E('common.length_label')}</dt><dd class="num">${esc(fmtLen(p.len))}</dd>
     ${elevRows(p)}
-    ${route?routeRow():`<dt>${E('run.color_label')}</dt><dd><span class="sw ${c}"></span> ${esc(HEB[c])}${E(p.named&&RESORT.isDefault()?'run.color_official_suffix':'run.color_osm_suffix')}</dd>
+    ${route?routeRow(p):`<dt>${E('run.color_label')}</dt><dd><span class="sw ${c}"></span> ${esc(HEB[c])}${E(p.named&&RESORT.isDefault()?'run.color_official_suffix':'run.color_osm_suffix')}</dd>
     <dt>${E('run.difficulty_label')}</dt><dd>${pips(c)}${esc(RATE[c][1])}</dd>`}
     ${p.osmDiff.length&&!route?`<dt>${E('run.osm_grade_label')}</dt><dd>${esc(p.osmDiff.map(x=>OSMD[x]?OSMD[x][0]:T('run.osm_grade_none')).join(' / '))}</dd>`:''}
     ${p.refs.length?`<dt>${E('run.ref_label')}</dt><dd class="num">${esc(p.refs.join(', '))}</dd>`:''}
@@ -499,8 +499,8 @@ function overview(){
   <div class="index">${named.map(p=>`<button data-goto="${esc(p.key)}" data-zoom="1"><span class="sw ${p.color}"></span>${esc(dispName(p))}<span class="len">${fmtLen(p.len)}</span></button>`).join('')}</div>
   ${routes.length?`<h3>${E('map.overview_routes_count',{n:routes.length})}</h3>
   <div class="index">${routes.map(p=>`<button data-goto="${esc(p.key)}" data-zoom="1"><span class="sw route"></span>${esc(dispName(p))}<span class="len">${fmtLen(p.len)}</span></button>`).join('')}</div>`:''}
-  ${D.missing.length?`<h3>${E('map.overview_missing_count',{n:D.missing.length})}</h3>
-  <div class="miss">${D.missing.map(m=>`<button class="chip" data-goto="${esc(m.name)}"><span class="sw ${ck(m)}"></span>${esc(m.name)}</button>`).join('')}</div>`:''}
+  ${(()=>{const mr=D.missing.filter(m=>ck(m)!=='route'),mx=D.missing.filter(m=>ck(m)==='route'),chips=a=>`<div class="miss">${a.map(m=>`<button class="chip" data-goto="${esc(m.name)}"><span class="sw ${ck(m)}"></span>${esc(m.name)}</button>`).join('')}</div>`;
+    return (mr.length?`<h3>${E('map.overview_missing_count',{n:mr.length})}</h3>${chips(mr)}`:'')+(mx.length?`<h3>${E('map.overview_missing_routes_count',{n:mx.length})}</h3>${chips(mx)}`:'');})()}
   ${(()=>{const pr=D.pistes.filter(p=>p.research&&p.research.partial);return pr.length?`<h3>${E('map.overview_partial_count',{n:pr.length})}</h3>
   <div class="miss">${pr.map(p=>`<button class="chip" data-goto="${esc(p.key)}" data-zoom="1"><span class="sw ${p.color}"></span>${esc(p.key)}</button>`).join('')}</div>
   <p class="hint">${E('map.overview_partial_hint')}</p>`:''})()}

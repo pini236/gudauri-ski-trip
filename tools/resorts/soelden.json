@@ -127,6 +127,9 @@
     "unnumber": [
       "7b",
       "35"
+    ],
+    "private_routes": [
+      "Gaislachalm"
     ]
   },
   "mesh_stride": 2

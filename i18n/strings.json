@@ -6919,10 +6919,10 @@
    ]
   },
   "map.overview_routes_count": {
-   "he": "דרכי סקי במפה · {n}",
-   "en": "Ski routes on the map · {n}",
-   "ru": "Лыжные маршруты на карте · {n}",
-   "ka": "სათხილამურო მარშრუტები რუკაზე · {n}",
+   "he": "דרכי סקי · {n}",
+   "en": "Ski routes · {n}",
+   "ru": "Лыжные маршруты · {n}",
+   "ka": "სათხილამურო მარშრუტები · {n}",
    "where": "site/js/app.js",
    "note": "Section heading, {n} = count; a ski route (Skiroute) is not prepared or patrolled and has no difficulty (round 24)",
    "check": [
@@ -8952,12 +8952,12 @@
    ]
   },
   "run.videos_search_youtube": {
-   "he": "חיפוש \"Gudauri {name}\" ביוטיוב ↗",
-   "en": "Search \"Gudauri {name}\" on YouTube ↗",
-   "ru": "Искать «Gudauri {name}» на YouTube ↗",
-   "ka": "„Gudauri {name}“: ძებნა YouTube-ზე ↗",
+   "he": "חיפוש \"{resort} {name}\" ביוטיוב ↗",
+   "en": "Search \"{resort} {name}\" on YouTube ↗",
+   "ru": "Искать «{resort} {name}» на YouTube ↗",
+   "ka": "„{resort} {name}“: ძებნა YouTube-ზე ↗",
    "where": "site/js/app.js",
-   "note": "{name} = run name (Latin). The quoted text is the literal search query, keep \"Gudauri\" in Latin",
+   "note": "{resort} = the resort name, {name} = run name (Latin). The quoted text is the literal search query",
    "check": [
     "ru",
     "ka"
@@ -16060,6 +16060,30 @@
    "ka": "გამტარუნარიანობა და აშენების წელი: Land Tirol, data.tirol.gv.at (Aufstiegshilfen), ლიცენზია CC BY 4.0.",
    "where": "site/index.html",
    "note": "the data provider's attribution; 'Land Tirol' and the layer name stay as they are",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "run.kind_private_route": {
+   "he": "דרך לבקתה · פרטית, לא מוכשרת",
+   "en": "Route to a hut · private, not groomed",
+   "ru": "Путь к хижине · частный, не подготовлен",
+   "ka": "გზა ქოხამდე · კერძო, დაუმუშავებელი",
+   "where": "site/js/app.js",
+   "note": "run panel tag for a private ski route to a hut (round 24, 1a)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "map.overview_missing_routes_count": {
+   "he": "דרכי סקי בלי קו במפה · {n}",
+   "en": "Ski routes with no line on the map · {n}",
+   "ru": "Лыжные маршруты без линии на карте · {n}",
+   "ka": "სათხილამურო მარშრუტები ხაზის გარეშე · {n}",
+   "where": "site/js/app.js",
+   "note": "Section heading, {n} = count (round 24, 1a)",
    "check": [
     "ru",
     "ka"
