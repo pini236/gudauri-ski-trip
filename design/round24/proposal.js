@@ -67,17 +67,37 @@
   // runs round the line and the area together and nothing marks where one ends and the other begins.
   function full(){
     let n=0;
-    const groups=new Set([...document.querySelectorAll('path[fill-opacity]')].filter(a=>/var\(--p-/.test(a.getAttribute('fill')||'')).map(a=>a.parentNode));
+    // the areas as the site draws them: path.pg-area since round 24 is on main, an inline fill-opacity before
+    const isArea=a=>a.classList.contains('pg-area')||(a.hasAttribute('fill-opacity')&&/var\(--p-/.test(a.getAttribute('fill')||''));
+    const groups=new Set([...document.querySelectorAll('svg path')].filter(isArea).map(a=>a.parentNode));
     groups.forEach(gA=>{
       const root=gA.parentNode,gP=gA.nextElementSibling;
       const gC=mk('g',{class:'r24-cas'},null);root.insertBefore(gC,gA);
       gP.querySelectorAll(':scope > g.pg').forEach(g=>g.querySelectorAll('path').forEach(c=>{if(!/casing/.test(c.getAttribute('stroke')||''))return;
         const k=c.cloneNode();k.setAttribute('class','pg '+[...g.classList].filter(x=>x!=='pg').join(' '));gC.appendChild(k);c.setAttribute('visibility','hidden');}));
-      gA.querySelectorAll('path[fill-opacity]').forEach(a=>{const col=a.getAttribute('fill');
-        const k=a.cloneNode();k.setAttribute('fill','none');k.removeAttribute('fill-opacity');k.setAttribute('stroke','var(--casing)');k.setAttribute('stroke-width',6.5);k.setAttribute('vector-effect','non-scaling-stroke');k.setAttribute('stroke-linejoin','round');gC.appendChild(k);
-        a.setAttribute('fill-opacity',1);a.setAttribute('stroke',col);a.setAttribute('stroke-width',3.4);a.setAttribute('vector-effect','non-scaling-stroke');a.setAttribute('stroke-linejoin','round');n++;});
+      [...gA.querySelectorAll('path')].filter(isArea).forEach(a=>{const col=a.getAttribute('fill');
+        const k=a.cloneNode();k.setAttribute('class','');k.setAttribute('fill','none');k.removeAttribute('fill-opacity');k.setAttribute('stroke','var(--casing)');k.setAttribute('stroke-width',6.5);k.setAttribute('vector-effect','non-scaling-stroke');k.setAttribute('stroke-linejoin','round');gC.appendChild(k);
+        a.style.fillOpacity=1;a.style.strokeOpacity=1;a.style.strokeWidth='3.4px';a.setAttribute('stroke',col);a.setAttribute('vector-effect','non-scaling-stroke');a.setAttribute('stroke-linejoin','round');n++;});
     });
     return n;
+  }
+  // the selected run with its wide parts (Pini, 7.10.2026): the area joins the run's paint layer, above the slope glow on
+  // the ground, under one white edge with the line. A: the area in the run's colour. B: the area in slope colours too.
+  function selArea(polys,color,mode){
+    const gP=document.querySelector('svg .runpaint');if(!gP||!polys.length)return 0;
+    const img=gP.querySelector('.rp-ground');const after=img?img.nextSibling:gP.firstChild;
+    const d=polys.map(L=>'M'+L.map(q=>q[0].toFixed(1)+' '+q[1].toFixed(1)).join('L')+'Z').join('');
+    const ins=e=>{gP.insertBefore(e,after);return e;};
+    ins(mk('path',{d,fill:'none',stroke:'#FFFFFF','stroke-width':10,'vector-effect':'non-scaling-stroke','stroke-linejoin':'round',class:'r24-sel'},null));
+    const fill=ins(mk('path',{d,fill:`var(--p-${color})`,stroke:`var(--p-${color})`,'stroke-width':6,'vector-effect':'non-scaling-stroke','stroke-linejoin':'round',class:'r24-sel'},null));
+    gP.querySelectorAll('.rp-cas').forEach(c=>gP.insertBefore(c,fill)); // every white edge under the colour: one outline round line and area
+    if(mode==='slope'&&img){
+      const svg=gP.ownerSVGElement,defs=svg.querySelector('defs')||mk('defs',{},svg);
+      const cp=mk('clipPath',{id:'r24clip'},defs);mk('path',{d},cp);
+      const f=mk('filter',{id:'r24opq',x:0,y:0,width:1,height:1},defs);const ct=mk('feComponentTransfer',{},f);mk('feFuncA',{type:'linear',slope:6,intercept:0},ct);
+      const im=img.cloneNode();im.setAttribute('clip-path','url(#r24clip)');im.setAttribute('filter','url(#r24opq)');im.setAttribute('class','');im.style.opacity=1;fill.after(im);
+    }
+    return polys.length;
   }
   function legend(f,off){
     const w=document.querySelector('.mapwrap');if(!w||w.querySelector('.r24-legend'))return;
@@ -121,6 +141,7 @@
   window.R24={apply(o){css();const r={};
     if(o.routes){r.routes=routes(o.routes,o.off,o.hutKey);r.list=list(o.routes,o.off);}
     if(o.areas==='full')r.areas=full();else if(o.areas)r.areas=areas(o.areas);
+    if(o.sel)r.sel=selArea(o.sel.polys,o.sel.color,o.sel.mode);
     if(o.legend)legend(o.areas==="full",o.off);
     if(o.panel)r.panel=panel(o.panel,o.hut,o.off);
     if(o.missing)r.missing=missing(o.missing,o.off);
