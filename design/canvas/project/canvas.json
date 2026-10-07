@@ -2444,7 +2444,7 @@
       "title": "2ג. בגודאורי ובמחשב"
     },
     "R24-Built.dc.html": {
-      "x": 3464,
+      "x": 7606,
       "y": 2976,
       "w": 4142,
       "h": 1068,
@@ -2476,12 +2476,20 @@
       "title": "המקרא במחשב"
     },
     "R24-BuiltLeg.dc.html": {
-      "x": 680,
+      "x": 4822,
       "y": 2976,
       "w": 2704,
       "h": 907,
       "page": "round24",
       "title": "באתר עכשיו: המקרא שמתקפל (מומש, 7.10.2026)"
+    },
+    "R24-Built3D.dc.html": {
+      "x": 680,
+      "y": 2976,
+      "w": 4062,
+      "h": 892,
+      "page": "round24",
+      "title": "באתר עכשיו: התלת-ממד (מומש, 7.10.2026)"
     }
   },
   "createdOnFiles": {
@@ -3297,7 +3305,7 @@
     },
     "round24row2": {
       "kind": "title1",
-      "maxW": 6926,
+      "maxW": 11068,
       "page": "round24",
       "text": "באתר עכשיו",
       "w": 240,
@@ -3659,7 +3667,8 @@
     "R24-Leg.dc.html",
     "R24-LegGud.dc.html",
     "R24-LegDesk.dc.html",
-    "R24-BuiltLeg.dc.html"
+    "R24-BuiltLeg.dc.html",
+    "R24-Built3D.dc.html"
   ],
   "pages": [
     {

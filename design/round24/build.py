@@ -33,10 +33,15 @@ for n in ['leg-today-desk', 'leg-closed-desk', 'leg-open-desk', 'leg-open-desk-n
     SRC[n] = ('shots/' + n + '.png', 900, 0, 0)
 for n in ['legend-soelden-phone-light', 'legend-gudauri-phone-light']:
     SRC['built-' + n] = ('built/' + n + '.png', 390, 0, 0)
+for n in ['3d-soelden-desk', '3d-soelden-close-desk', '3d-soelden-run11-desk', '3d-gudauri-desk']:
+    SRC['built-' + n] = ('built/' + n + '.png', 880, 0, 0)
+SRC['built-3d-soelden-phone'] = ('built/3d-soelden-phone.png', 390, 0, 0)
 for n in ['legend-soelden-desk-dark', 'legend-gudauri-desk-light']:
     SRC['built-' + n] = ('built/' + n + '.png', 900, 0, 0)
 N = lambda f: f + '.webp'
 BOARDS = [
+    ('built', 'Built3D', 'באתר עכשיו: התלת-ממד (מומש, 7.10.2026)', 'לבקשת פיני, התלת-ממד מצייר את מה שמבט העל מצייר, באותם ערכים שאושרו בסבבים 23 ו-24, בלי עיצוב חדש: מסלול רחב בצבע המסלול עם מסגרת לבנה אחת, ובבחירה לפי השיפוע; דרך סקי כרצועה עם שוליים מנוקדים, ודרך לבקתה מנוקדת; קווקוו לדרך מקשרת ולקטע בלי שם; ולוחיות מספר ומעוין אדום במקום טקסט. תואם. הערה אחת שלא קשורה לסבב: ההסבר על הגרירה כתוב לעכבר גם בטלפון, ובטלפון הוא בשתי שורות מעל המפה.',
+     [('Sölden', ['built-3d-soelden-desk']), ('מקרוב: 61 ו-62', ['built-3d-soelden-close-desk']), ('מסלול 11 נבחר', ['built-3d-soelden-run11-desk']), ('גודאורי', ['built-3d-gudauri-desk']), ('טלפון', ['built-3d-soelden-phone'])]),
     ('built', 'BuiltLeg', 'באתר עכשיו: המקרא שמתקפל (מומש, 7.10.2026)', 'צילומים מהאתר אחרי המימוש של סשן המנהל, באנגלית לפי הדפדפן, עם המקרא פתוח. סטייה אחת מהקנבס, והיא נכונה: המקום הוא left: 12px ולא inset-inline-end, כי הכפתורים, קנה המידה ו"צד Kobi" במפה לא מתהפכים בשפות משמאל לימין, ובאנגלית inline-end היה יושב על "צד Kobi". בתלת-ממד גם ההסבר עולה מעל הכפתור.',
      [('Sölden, טלפון', ['built-legend-soelden-phone-light']), ('גודאורי, טלפון', ['built-legend-gudauri-phone-light']), ('Sölden, מחשב', ['built-legend-soelden-desk-dark']), ('גודאורי, מחשב', ['built-legend-gudauri-desk-light'])]),
     ('leg', 'Leg', 'המקרא שמתקפל (אושר)', 'היום בטלפון המקרא מכסה כרבע מרוחב המפה, ובמחשב יושב על קנה המידה. בהצעה הוא אותו רכיב כמו "צד Kobi": כפתור של 44 עם סמל קטן ו"מקרא", בפינה השנייה של המפה. נגיעה פותחת את מה שיש היום כקלף מעל הכפתור, ונגיעה שנייה או ה-X סוגרות. קנה המידה עולה מעל הכפתור, ונעלם רק כשהמקרא פתוח. סגור כברירת מחדל.',
