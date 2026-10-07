@@ -225,7 +225,14 @@ descent() {
 # ---- the games page (13.6, the site's #games, GP2) and the merging game ----
 games() {
   # in a group on the pretend server, so a new best goes to the group's table
-  qa "--es qa.group member --es qa.tab home --es qa.trip none"; sleep 3
+  local cold=""
+  adb shell pidof "$PKG" > /dev/null || cold=1
+  qa "--es qa.group member --es qa.tab home --es qa.trip none"
+  waitlog "trip none" 20 || return 1
+  # As on home's cold start: a drag before the background scene is ready can tap the meeting sign instead.
+  # A running app already completed startup in the previous scenario; it will not emit this line again.
+  if [ -n "$cold" ]; then waitlog "shadow ready" 90 || return 1; fi
+  sleep 1
   drag $((W * 7 / 100)) $((H * 80 / 100)) $((W * 7 / 100)) $((H * 35 / 100)) 400; sleep 1
   if tapText "משחקים"; then sleep 2; shot games-page; else fail "no games sign on home"; fi
   tapText "איחוד כדורי שלג" && { sleep 2; shot merge-start; }
