@@ -55,12 +55,29 @@
     });
     return n;
   }
-  function legend(){
+  // round 24, second look (Pini, 7.10.2026): the area in the run's own colour, solid, as one shape with its line.
+  // Every casing (lines and the area edges) goes under, then the areas, then the line cores, so the white edge
+  // runs round the line and the area together and nothing marks where one ends and the other begins.
+  function full(){
+    let n=0;
+    const groups=new Set([...document.querySelectorAll('path[fill-opacity]')].filter(a=>/var\(--p-/.test(a.getAttribute('fill')||'')).map(a=>a.parentNode));
+    groups.forEach(gA=>{
+      const root=gA.parentNode,gP=gA.nextElementSibling;
+      const gC=mk('g',{class:'r24-cas'},null);root.insertBefore(gC,gA);
+      gP.querySelectorAll(':scope > g.pg').forEach(g=>g.querySelectorAll('path').forEach(c=>{if(!/casing/.test(c.getAttribute('stroke')||''))return;
+        const k=c.cloneNode();k.setAttribute('class','pg '+[...g.classList].filter(x=>x!=='pg').join(' '));gC.appendChild(k);c.setAttribute('visibility','hidden');}));
+      gA.querySelectorAll('path[fill-opacity]').forEach(a=>{const col=a.getAttribute('fill');
+        const k=a.cloneNode();k.setAttribute('fill','none');k.removeAttribute('fill-opacity');k.setAttribute('stroke','var(--casing)');k.setAttribute('stroke-width',6.5);k.setAttribute('vector-effect','non-scaling-stroke');k.setAttribute('stroke-linejoin','round');gC.appendChild(k);
+        a.setAttribute('fill-opacity',1);a.setAttribute('stroke',col);a.setAttribute('stroke-width',3.4);a.setAttribute('vector-effect','non-scaling-stroke');a.setAttribute('stroke-linejoin','round');n++;});
+    });
+    return n;
+  }
+  function legend(f){
     const w=document.querySelector('.mapwrap');if(!w||w.querySelector('.r24-legend'))return;
     const d=document.createElement('div');d.className='r24-legend';
     d.innerHTML=`<span><svg width="34" height="12"><path d="M2 6H32" stroke="var(--casing)" stroke-width="6" stroke-linecap="round"/><path d="M2 6H32" stroke="var(--p-route)" stroke-width="3" stroke-dasharray="7 5"/></svg>דרך סקי</span>
       <span><svg width="34" height="12"><path d="M2 6H32" stroke="var(--casing)" stroke-width="5" stroke-linecap="round"/><path d="M2 6H32" stroke="var(--p-blue)" stroke-width="2.6" stroke-dasharray="8 5"/></svg>דרך מקשרת</span>
-      <span><svg width="34" height="14"><rect x="2" y="2" width="30" height="10" fill="var(--p-red)" fill-opacity=".3" stroke="var(--p-red)" stroke-width="1.3"/></svg>מסלול רחב</span>`;
+      <span><svg width="34" height="14"><rect x="2" y="2" width="30" height="10" fill="var(--p-red)" fill-opacity="${f?1:.3}" stroke="var(--p-red)" stroke-width="1.3"/></svg>מסלול רחב</span>`;
     w.appendChild(d);
   }
   // the run panel of a route: the kind instead of colour and difficulty
@@ -96,8 +113,8 @@
   }
   window.R24={apply(o){css();const r={};
     if(o.routes){r.routes=routes(o.routes);r.list=list(o.routes);}
-    if(o.areas)r.areas=areas(o.areas);
-    if(o.legend)legend();
+    if(o.areas==='full')r.areas=full();else if(o.areas)r.areas=areas(o.areas);
+    if(o.legend)legend(o.areas==="full");
     if(o.panel)r.panel=panel(o.panel,o.hut);
     if(o.missing)r.missing=missing(o.missing);
     return r;}};

@@ -52,6 +52,19 @@ S.push(
   ['prop-missing63', '/?resort=soelden#map/run/63', { routes: 1, areas: 'solid', panel: '63' }, { st: D2, inj: 1, scroll: 1 }],
   ['prop-hut', '/?resort=soelden#map/run/Gaislachalm', { routes: 1, areas: 'solid', panel: 'Gaislachalm', hut: 1 }, { st: D2, inj: 1, scroll: 1 }],
 );
+// the area in the run's colour (Pini, 7.10.2026)
+S.push(
+  ['full-zoom', '/?resort=soelden#map/run/4', { routes: 1, areas: 'full', legend: 1 }, { st: D2, inj: 1, back: 1 }],
+  ['full-zoom-night', '/?resort=soelden#map/run/4', { routes: 1, areas: 'full', legend: 1 }, { st: D2, inj: 1, back: 1, theme: 'night' }],
+  ['today-zoom11', '/?resort=soelden#map/run/11', null, { st: D2, back: 1 }],
+  ['full-zoom11', '/?resort=soelden#map/run/11', { routes: 1, areas: 'full' }, { st: D2, inj: 1, back: 1 }],
+  ['full-zoom11-night', '/?resort=soelden#map/run/11', { routes: 1, areas: 'full' }, { st: D2, inj: 1, back: 1, theme: 'night' }],
+  ['full-run4', '/?resort=soelden#map/run/4', { routes: 1, areas: 'full' }, { st: D2, inj: 1 }],
+  ['full-map', '/?resort=soelden#map', { routes: 1, areas: 'full', legend: 1 }, { st: D2, inj: 1 }],
+  ['full-desk', '/?resort=soelden#map/run/4', { routes: 1, areas: 'full', legend: 1 }, { st: D2, inj: 1, back: 1, w: 1280, h: 800 }],
+  ['full-gud', '/#map/run/Pirveli', { areas: 'full' }, { st: D2, back: 1 }],
+  ['full-gud-night', '/#map/run/Pirveli', { areas: 'full' }, { st: D2, back: 1, theme: 'night' }],
+);
 const only = process.argv[2];
 const b = await launch();
 for (const [n, u, p, o] of S) {
