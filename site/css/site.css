@@ -342,6 +342,12 @@ ul.notes li{margin-bottom:4px}
 .r3-lbl.lift .lift-ico{color:var(--ink)}
 .r3-lbl.piste.c-black{color:var(--p-black)}
 .r3-lbl.piste.c-route{color:var(--p-route-edge)}
+/* number plates in 3D, as on the map from above (rounds 23 and 24): the run's colour, a white edge, the number in white; a ski route a red diamond */
+.r3-lbl.plate{text-shadow:none;line-height:0}
+.r3-lbl.plate i{display:inline-block;min-width:22px;height:20px;padding:0 4px;box-sizing:border-box;font:700 17px/20px var(--f-display);font-style:normal;text-align:center;color:#fff;background:var(--p-blue);box-shadow:0 0 0 1.6px var(--casing)}
+.r3-lbl.plate.c-green i{background:var(--p-green)}.r3-lbl.plate.c-red i{background:var(--p-red)}.r3-lbl.plate.c-black i{background:var(--p-black)}
+.r3-lbl.plate.c-route{width:40px;height:32px;background:var(--casing);clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%)}
+.r3-lbl.plate.c-route i{position:absolute;inset:2px;min-width:0;height:auto;padding:0;font-size:15px;line-height:28px;background:var(--p-red);box-shadow:none;clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%)}
 
 /* phones */
 @media (max-width:760px){

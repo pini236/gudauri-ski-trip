@@ -157,6 +157,29 @@ test('the legend folds into a chip, closed on every visit (round 24)', async ({ 
   expect(errors).toEqual([]);
 });
 
+test('3D draws what the map from above does: wide runs, ski-route bands, dashes and plates (round 24)', async ({ page }) => {
+  const errors = watchErrors(page);
+  await page.goto('/?resort=soelden#map/run/11');
+  await loaded(page);
+  if (!(await page.locator('#viewsw').isVisible())) test.skip(true, 'no WebGL here');
+  await page.click('#viewsw [data-view="3d"]');
+  await expect(page.locator('#viewsw [data-view="3d"]')).toHaveAttribute('aria-pressed', 'true');
+  const k = await page.evaluate(() => (Array.from(document.querySelectorAll('canvas')).find((c: any) => c.kinds) as any).kinds());
+  expect(k.areas).toBeGreaterThan(5);      // wide runs in their own colour
+  expect(k.bands).toBeGreaterThan(3);      // ski routes: the orange band with dotted red edges
+  expect(k.dashed).toBeGreaterThan(2);     // link ways, unnamed sections, the route to a hut
+  expect(k.plates).toBeGreaterThan(20);    // number plates
+  expect(k.selArea).toBe(true);            // the selected wide run's area, by slope
+  // Gudauri: its wide run (Pirveli) and the dashed link way (Shino)
+  await page.goto('/?resort=gudauri#map');
+  await loaded(page);
+  await page.click('#viewsw [data-view="3d"]');
+  const g = await page.evaluate(() => (Array.from(document.querySelectorAll('canvas')).find((c: any) => c.kinds) as any).kinds());
+  expect(g.areas).toBeGreaterThan(0);
+  expect(g.dashed).toBeGreaterThan(0);
+  expect(errors).toEqual([]);
+});
+
 test('Sölden 38: the slope numbers skip the glacier tunnel', async ({ page }) => {
   // the elevation model measures the hill above the tunnel; with it, a blue run showed a wall of about 48°
   await page.goto('/?resort=soelden#map/run/38');

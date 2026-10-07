@@ -56,6 +56,21 @@ R.slopeCanvas=function(M,lines,opt){
   return {canvas:cv,x0:a,y0:b,x1:c,y1:e};
 };
 
+// a wide run's area coloured by slope, opaque, clipped to its outline (round 24, 2c): the selected run, all of it
+R.slopeFill=function(M,rings,opt){
+  opt=opt||{};const d=M.dem,m=20;let a=1e9,b=1e9,c=-1e9,e=-1e9;
+  rings.forEach(L=>L.forEach(q=>{a=Math.min(a,q[0]);c=Math.max(c,q[0]);b=Math.min(b,q[1]);e=Math.max(e,q[1]);}));
+  a=Math.max(d.x0,a-m);b=Math.max(d.y0,b-m);c=Math.min(d.x1,c+m);e=Math.min(d.y1,e+m);
+  const px=Math.max(opt.px||6,Math.max(c-a,e-b)/1024),w=Math.max(2,Math.round((c-a)/px)),h=Math.max(2,Math.round((e-b)/px));
+  const cv=document.createElement('canvas');cv.width=w;cv.height=h;const g=cv.getContext('2d'),im=g.createImageData(w,h);
+  const hex=hc=>[1,3,5].map(i=>parseInt(hc.slice(i,i+2),16)),COL=R.SLOPE.map(z=>hex(z[1]));
+  for(let j=0;j<h;j++)for(let i=0;i<w;i++){const deg=R.groundSlope(M,a+(i+.5)*px,b+(j+.5)*px),k=R.SLOPE.findIndex(z=>deg<z[0]),o=(j*w+i)*4,cc=COL[k];
+    im.data[o]=cc[0];im.data[o+1]=cc[1];im.data[o+2]=cc[2];im.data[o+3]=255;}
+  g.putImageData(im,0,0);g.globalCompositeOperation='destination-in';g.fillStyle='#fff';g.beginPath();
+  rings.forEach(L=>L.forEach((q,i)=>i?g.lineTo((q[0]-a)/px,(q[1]-b)/px):g.moveTo((q[0]-a)/px,(q[1]-b)/px)));g.fill('evenodd');
+  return {canvas:cv,x0:a,y0:b,x1:c,y1:e};
+};
+
 /* the sun at the resort (R.site, set by app.js from js/resort.js; Gudauri, UTC+4, until then) for a date and a local
    hour: {alt, az} in degrees, az from north, clockwise */
 R.site={lat:42.51,lon:44.495,tz:4};
@@ -247,18 +262,46 @@ R.View3D=function(opts){
   }
   const css=getComputedStyle(document.documentElement);
   const col=n=>(css.getPropertyValue(n)||'').trim()||'#888';
-  const COL=Object.assign({green:'#1d9a52',blue:'#1f66d1',red:'#d4312a',black:'#11151c',route:'#EE8E1C'},opts.colors||{});
-  // a ski route (kind 'ski-route') has no difficulty colour: the light orange band of the official map (round 24, 1b)
-  const ckey=p=>p.kind==='ski-route'?'route':p.color,DASH=()=>0;
-  const pisteObjs={},liftObjs=[],pickables=[];
+  const COL=Object.assign({green:'#1d9a52',blue:'#1f66d1',red:'#d4312a',black:'#11151c',route:'#EE8E1C',routeEdge:'#D1342B'},opts.colors||{});
+  // the same kinds as on the map from above (round 24): a ski route is the light orange band of the official map with
+  // dotted red edges, a route to a hut a thin dotted red line, a link way and an unnamed section dashed. Widths are the
+  // map's pixels ×1.15; dashes are in screen pixels too, turned into metres at the camera's distance (place())
+  const ckey=p=>p.kind==='ski-route'?'route':p.color;
+  const style=p=>{const route=p.kind==='ski-route',hut=route&&p.access==='private';
+    return hut?{w:2.1,cas:4.6,color:COL.routeEdge,dash:7}:route?{w:4.2,cas:9.2,edge:7,color:COL.route,dash:0}
+      :p.kind==='ski-way'?{w:2.8,cas:6,color:COL[p.color],dash:p.named?13:9}:p.named?{w:4,cas:7.2,color:COL[p.color],dash:0}:{w:2.6,cas:5.2,color:COL[p.color],dash:9};};
+  const pisteObjs={},liftObjs=[],pickables=[],dashed=[];
+  const ringOf=s=>{const L=drape(s.g.map(opts.P),3);if(L.length>2)L.push(L[0]);return L;};
   (opts.noLines?[]:opts.pistes).forEach(p=>{
     const lines=p.segs.filter(s=>!s.area).map(s=>drape(s.g.map(opts.P),4));
-    if(!lines.length)return;
-    const w=p.kind==='ski-route'||p.kind==='ski-way'?2.8:p.named?4:2.6;
-    const cas=new THREE.Mesh(lineGeo(lines),lineMat('#ffffff',w+3.2,-2)),core=new THREE.Mesh(lineGeo(lines),lineMat(COL[ckey(p)],w,-4));core.material.uniforms.dash.value=DASH(p);
-    cas.renderOrder=2;core.renderOrder=3;scene.add(cas);scene.add(core);
-    pisteObjs[p.key]={cas,core,lines,p,w};pickables.push({kind:'piste',key:p.key,lines});
+    const areas=p.segs.filter(s=>s.area).map(s=>s.g.map(opts.P)).filter(r=>r.length>2);
+    if(!lines.length&&!areas.length)return;
+    const S=style(p),o={p,lines,S,w:S.w,shut:false};
+    if(lines.length){
+      o.cas=new THREE.Mesh(lineGeo(lines),lineMat('#ffffff',S.cas,-2));o.core=new THREE.Mesh(lineGeo(lines),lineMat(S.color,S.w,-4));
+      o.cas.renderOrder=2;o.core.renderOrder=3;scene.add(o.cas);scene.add(o.core);
+      if(S.edge){o.edge=new THREE.Mesh(lineGeo(lines),lineMat(COL.routeEdge,S.edge,-3));o.edge.renderOrder=2.8;scene.add(o.edge);dashed.push({mat:o.edge.material,px:()=>4.5});}
+      dashed.push({mat:o.core.material,px:()=>o.shut?11:S.dash});}
+    // a wide run (round 24, 2b): its area in the run's own colour, one white outline around the area and the line together
+    if(areas.length){const rings=p.segs.filter(s=>s.area&&s.g.length>2).map(ringOf);
+      o.areaCas=new THREE.Mesh(lineGeo(rings),lineMat('#ffffff',7.5,-2));o.areaCas.renderOrder=1.6;scene.add(o.areaCas);
+      o.areaFill=areaMesh(areas,1.5);o.areaFill.material.color.set(S.color);o.areaFill.renderOrder=2.4;scene.add(o.areaFill);
+      o.areaEdge=new THREE.Mesh(lineGeo(rings),lineMat(S.color,3.9,-3));o.areaEdge.renderOrder=2.45;scene.add(o.areaEdge);
+      o.areas=areas;o.rings=rings;}
+    pisteObjs[p.key]=o;pickables.push({kind:'piste',key:p.key,lines:lines.concat(o.rings||[]),areas});
   });
+  // an area laid on the ground: a grid over its box, draped, with the outline as a white mask that the colour tints
+  function areaMesh(rings,lift,tex){
+    let a=1e9,b=1e9,c=-1e9,e=-1e9;rings.forEach(L=>L.forEach(q=>{a=Math.min(a,q[0]);c=Math.max(c,q[0]);b=Math.min(b,q[1]);e=Math.max(e,q[1]);}));
+    if(tex){a=tex.x0;b=tex.y0;c=tex.x1;e=tex.y1;}else{a-=8;b-=8;c+=8;e+=8;}
+    let cv=tex&&tex.canvas;
+    if(!cv){const px=Math.max(3,Math.max(c-a,e-b)/1024);cv=document.createElement('canvas');cv.width=Math.max(2,Math.round((c-a)/px));cv.height=Math.max(2,Math.round((e-b)/px));
+      const g=cv.getContext('2d');g.fillStyle='#fff';g.beginPath();rings.forEach(L=>L.forEach((q,i)=>i?g.lineTo((q[0]-a)/px,(q[1]-b)/px):g.moveTo((q[0]-a)/px,(q[1]-b)/px)));g.fill('evenodd');}
+    const pg=new THREE.PlaneGeometry(c-a,e-b,Math.max(2,Math.round((c-a)/20)),Math.max(2,Math.round((e-b)/20)));pg.rotateX(-Math.PI/2);
+    const pp=pg.attributes.position;for(let i=0;i<pp.count;i++){const x=pp.getX(i)+(a+c)/2,z=pp.getZ(i)+(b+e)/2;pp.setXYZ(i,x,E3(x,z)+lift,z);}
+    const t=new THREE.CanvasTexture(cv);if('encoding' in t)t.encoding=THREE.sRGBEncoding;t.anisotropy=renderer.capabilities.getMaxAnisotropy();
+    return new THREE.Mesh(pg,new THREE.MeshBasicMaterial({map:t,transparent:true,depthWrite:false,fog:true,polygonOffset:true,polygonOffsetFactor:-2,polygonOffsetUnits:-2}));
+  }
   const liftCas=lineMat('#ffffff',4.4,-3);
   const stations=[];
   (opts.noLines?[]:opts.lifts).forEach(l=>{const L=cable(l.g.map(opts.P));const g=lineGeo([L]);
@@ -277,8 +320,10 @@ R.View3D=function(opts){
   const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
   M.peaks.forEach(p=>addLabel(`<span class="pk-ico${p.pass?' pass':''}"></span><b>${esc(p.n)}</b> <span class="num">${p.ele}</span>`,'peak',[p.x,E3(p.x,p.y)+6,p.y],100));
   M.env.places.filter(p=>p.show||['Gudauri','Kobi'].includes(p.n)).forEach(p=>addLabel(p.n==='Gudauri'?T('map.place_gudauri'):p.n,'place',[p.x,E3(p.x,p.y)+10,p.y],60));
-  Object.values(pisteObjs).forEach(o=>{if(!o.p.named)return;const L=o.lines.slice().sort((a,b)=>b.length-a.length)[0];const q=L[Math.floor(L.length*0.45)];
-    o.label=addLabel(esc(opts.dispName(o.p)),'piste c-'+ckey(o.p),[q[0],q[1]+8,q[2]],40,{key:o.p.key});});
+  // a run whose name is its number gets a plate, as on the map from above (round 23); a ski route a red diamond (round 24, 1b)
+  const isPlate=p=>/^\d{1,2}[a-z]?$/.test(p.key)&&p.access!=='private';
+  Object.values(pisteObjs).forEach(o=>{if(!o.p.named||!o.lines.length)return;const L=o.lines.slice().sort((a,b)=>b.length-a.length)[0];const q=L[Math.floor(L.length*0.45)];
+    const pl=isPlate(o.p);o.label=addLabel(pl?`<i>${esc(o.p.key)}</i>`:esc(opts.dispName(o.p)),'piste c-'+ckey(o.p)+(pl?' plate':''),[q[0],q[1]+(pl?4:8),q[2]],40,{key:o.p.key});o.label.mid=pl;});
 
   liftObjs.forEach(o=>{if(!o.l.name)return;const L=o.L,q=L[Math.floor(L.length/2)];
     addLabel(`<span class="lift-ico">⇡</span> ${esc(o.l.name)}`,'lift',[q[0],q[1]+12,q[2]],45,{lift:o.l.id});});
@@ -297,6 +342,7 @@ R.View3D=function(opts){
     camera.position.set(x,y,z);camera.lookAt(st.tx,y0,st.tz);
     camera.near=Math.max(10,st.dist/200);camera.far=st.dist*6+30000;camera.updateProjectionMatrix();
     fog.near=st.dist*1.1+2000;fog.far=st.dist*3.6+18000;
+    const mpp=2*Math.tan(camera.fov*Math.PI/360)*st.dist/Hh;dashed.forEach(k=>{const v=k.px();k.mat.uniforms.dash.value=v?v*mpp:0;});
     if(opts.onHeading)opts.onHeading(st.az);
   }
   let W=1,Hh=1;
@@ -333,9 +379,10 @@ R.View3D=function(opts){
     chairs.list.forEach((o,j)=>{const dur=Math.max(8,(o.l.len||1000)/60);for(let k=0;k<3;k++){const q=at(o,((now/dur)+k/3)%1);a.setXYZ(j*3+k,q[0],q[1],q[2]);}});
     a.needsUpdate=true;}
   const pst={m:null,forMe:false};
-  function runLook(o){const sel=R3.sel,on=!sel||o.p.key===sel,shut=pst.m&&pst.m[o.p.key]===false,dim=pst.forMe&&shut?.15:1;
-    o.core.material.uniforms.opacity.value=(on?1:.28)*dim;o.cas.material.uniforms.opacity.value=(on?1:.2)*dim;
-    o.core.material.uniforms.color.value.set(shut?SHUT:COL[ckey(o.p)]);o.core.material.uniforms.dash.value=shut?50:DASH(o.p);}
+  function runLook(o){const sel=R3.sel,on=!sel||o.p.key===sel,shut=!!(pst.m&&pst.m[o.p.key]===false),dim=pst.forMe&&shut?.15:1,c=shut?SHUT:o.S.color;o.shut=shut;
+    const set=(m,op,col)=>{if(!m)return;const u=m.material.uniforms;if(u){u.opacity.value=op;if(col)u.color.value.set(col);}else{m.material.opacity=op;if(col)m.material.color.set(col);}};
+    set(o.core,(on?1:.28)*dim,c);set(o.cas,(on?1:.2)*dim);set(o.edge,(on?1:.28)*dim,shut?SHUT:COL.routeEdge);
+    set(o.areaFill,(on?1:.28)*dim,c);set(o.areaEdge,(on?1:.28)*dim,c);set(o.areaCas,(on?1:.2)*dim);}
 
   /* rendering */
   let queued=false;const tmp=new THREE.Vector3();
@@ -353,12 +400,14 @@ R.View3D=function(opts){
       if(show&&!visible(o.v))show=false;
       if(show){if(!o.w){o.e.style.display='block';o.w=o.e.offsetWidth;o.h=o.e.offsetHeight;}
         const x=(tmp.x+1)/2*W,y=(1-tmp.y)/2*Hh;const r={a:x-o.w/2-3,b:y-o.h-10,c:x+o.w/2+3,d:y-4};
-        if(kept.some(k=>r.a<k.c&&r.c>k.a&&r.b<k.d&&r.d>k.b))show=false;else{kept.push(r);o.e.style.transform=`translate(${(x-o.w/2).toFixed(1)}px,${(y-o.h-6).toFixed(1)}px)`;}}
+        if(o.mid){r.b=y-o.h/2-2;r.d=y+o.h/2+2;}
+        if(kept.some(k=>r.a<k.c&&r.c>k.a&&r.b<k.d&&r.d>k.b))show=false;else{kept.push(r);o.e.style.transform=`translate(${(x-o.w/2).toFixed(1)}px,${(o.mid?y-o.h/2:y-o.h-6).toFixed(1)}px)`;}}
       o.e.style.display=show?'block':'none';
     });
   }
 
   /* picking in screen space */
+  function inPoly(x,y,r){let c=false;for(let i=0,j=r.length-1;i<r.length;j=i++){const a=r[i],b=r[j];if((a[1]>y)!==(b[1]>y)&&x<(b[0]-a[0])*(y-a[1])/(b[1]-a[1])+a[0])c=!c;}return c;}
   function pick(px,py){
     const g=groundAt(px,py);const gd=g?g.distanceTo(camera.position):Infinity;
     let best=null,bd=14;
@@ -367,6 +416,8 @@ R.View3D=function(opts){
         const cur=tmp.z<1?[(tmp.x+1)/2*W,(1-tmp.y)/2*Hh,dist]:null;
         if(cur&&prev){const dd=segD(px,py,prev,cur);const occl=Math.min(prev[2],cur[2])>gd+Math.max(60,gd*0.03);if(!occl&&dd<bd){bd=dd;best=k;}}
         prev=cur;}});});
+    // inside a wide run's area picks the run, as on the map from above
+    if(!best&&g)pickables.forEach(k=>{if(k.hidden||best||!k.areas)return;if(k.areas.some(r=>inPoly(g.x,g.z,r)))best=k;});
     return best;
   }
   function segD(x,y,a,b){const vx=b[0]-a[0],vy=b[1]-a[1],l=vx*vx+vy*vy;let t=l?((x-a[0])*vx+(y-a[1])*vy)/l:0;t=Math.max(0,Math.min(1,t));return Math.hypot(x-a[0]-vx*t,y-a[1]-vy*t);}
@@ -420,14 +471,15 @@ R.View3D=function(opts){
   const R3={sel:null};
   const api={
     select(key){R3.sel=key||null;selLabel=key&&pisteObjs[key]?pisteObjs[key].label:null;
-      Object.values(pisteObjs).forEach(o=>{runLook(o);
-        o.core.material.uniforms.width.value=o.p.key===key?o.w+2.4:o.w;o.cas.material.uniforms.width.value=o.p.key===key?o.w+7:o.w+3.2;
-        o.cas.material.uniforms.color.value.set(o.p.key===key?'#ffe38a':'#ffffff');});
+      Object.values(pisteObjs).forEach(o=>{runLook(o);if(!o.core)return;const me=o.p.key===key;
+        o.core.material.uniforms.width.value=me?o.w+2.4:o.w;o.cas.material.uniforms.width.value=me?o.S.cas+3.8:o.S.cas;
+        if(o.edge)o.edge.material.uniforms.width.value=me?o.S.edge+2.4:o.S.edge;
+        o.cas.material.uniforms.color.value.set(me?'#ffe38a':'#ffffff');});
       liftObjs.forEach(o=>{o.c2.material.uniforms.opacity.value=key?.45:1;});
       request();},
-    focus(key){const o=pisteObjs[key];if(o)focusLines(o.lines,{pol:0.5},1.75);}, // the camera settles low over the run
+    focus(key){const o=pisteObjs[key];if(o)focusLines(o.lines.concat(o.rings||[]),{pol:0.5},1.75);}, // the camera settles low over the run
     focusLift(id){const o=liftObjs.find(x=>x.l.id===id);if(o)focusLines([o.L]);},
-    filter(hidden){Object.values(pisteObjs).forEach(o=>{const h=hidden.has(ckey(o.p))||(!o.p.named&&hidden.has('unnamed'));o.core.visible=o.cas.visible=!h;if(o.label)o.label.hiddenByFilter=h;const pk=pickables.find(k=>k.key===o.p.key);if(pk)pk.hidden=h;});
+    filter(hidden){Object.values(pisteObjs).forEach(o=>{const h=hidden.has(ckey(o.p))||(!o.p.named&&hidden.has('unnamed'));['core','cas','edge','areaFill','areaEdge','areaCas'].forEach(n=>{if(o[n])o[n].visible=!h;});if(o.label)o.label.hiddenByFilter=h;const pk=pickables.find(k=>k.key===o.p.key);if(pk)pk.hidden=h;});
       liftObjs.forEach(o=>{o.c1.visible=o.c2.visible=!hidden.has('lifts');const pk=pickables.find(k=>k.id===o.l.id);if(pk)pk.hidden=hidden.has('lifts');});request();},
     // light by the time of day: the sun where it really is in Gudauri, shadows cast by other mountains
     // (marched over the elevation grid), warm light low in the sky, moonlight at night.
@@ -455,7 +507,7 @@ R.View3D=function(opts){
     // paint the selected run in slope colours, from its top to its bottom, over the ground coloured by slope
     paint(key,ms){
       if(groundObj){scene.remove(groundObj);groundObj.geometry.dispose();groundObj.material.map.dispose();groundObj.material.dispose();groundObj=null;}
-      if(paintObj){scene.remove(paintObj.mesh);paintObj.mesh.geometry.dispose();paintObj.mesh.material.dispose();cancelAnimationFrame(paintObj.raf);paintObj=null;}
+      if(paintObj){paintObj.meshes.forEach(m=>{scene.remove(m);m.geometry.dispose();if(m.material.map)m.material.map.dispose();m.material.dispose();});cancelAnimationFrame(paintObj.raf);paintObj=null;}
       const o=key&&pisteObjs[key];if(!o){request();return;}
       const lines=o.lines.map(L=>L[0][1]<L[L.length-1][1]?L.slice().reverse():L);
       const cols=[],progs=[];
@@ -464,20 +516,27 @@ R.View3D=function(opts){
         const hs=L.map(q=>q[1]);cols.push(L.map((q,i)=>new THREE.Color(R.slopeColor(R.lineSlope(cum,hs,i)))));});
       const mat=new THREE.ShaderMaterial({uniforms:THREE.UniformsUtils.merge([THREE.UniformsLib.fog,{opacity:{value:1},reveal:{value:0},width:{value:o.w+2.4},res:{value:new THREE.Vector2(W/2,Hh/2)}}]),
         vertexShader:vshP,fragmentShader:fshP,transparent:true,fog:true,side:THREE.DoubleSide,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-6,polygonOffsetUnits:-6});
-      const mesh=new THREE.Mesh(paintGeo(lines,cols,progs),mat);mesh.renderOrder=7;scene.add(mesh);
-      paintObj={mesh,raf:0};
+      paintObj={meshes:[],fade:[],raf:0};
+      if(lines.length){const mesh=new THREE.Mesh(paintGeo(lines,cols,progs),mat);mesh.renderOrder=7;scene.add(mesh);paintObj.meshes.push(mesh);}
+      // a wide run's area joins the paint, coloured by slope inside its own colour, in one white outline (round 24, 2c)
+      if(o.areas){const sf=R.slopeFill(M,o.areas),add=(m,r)=>{if(m.material.uniforms&&m.material.uniforms.res)m.material.uniforms.res.value.set(W/2,Hh/2);m.renderOrder=r;scene.add(m);paintObj.meshes.push(m);paintObj.fade.push(m);};
+        add(new THREE.Mesh(lineGeo(o.rings),lineMat('#ffffff',11.5,-5)),6.5);
+        const ce=new THREE.Mesh(lineGeo(o.rings),lineMat(o.S.color,7,-5));add(ce,6.6);
+        const fill=areaMesh(o.areas,3.5,sf);fill.material.polygonOffsetFactor=fill.material.polygonOffsetUnits=-5;add(fill,6.7);}
       // the ground around the run, coloured by slope, draped on the terrain
-      const sc=R.slopeCanvas(M,lines.map(L=>L.map(q=>[q[0],q[2]])));
+      const sc=R.slopeCanvas(M,(lines.length?lines:o.rings).map(L=>L.map(q=>[q[0],q[2]])));
       const gw=Math.max(2,Math.round((sc.x1-sc.x0)/25)),gh=Math.max(2,Math.round((sc.y1-sc.y0)/25));
       const pg=new THREE.PlaneGeometry(sc.x1-sc.x0,sc.y1-sc.y0,gw,gh);pg.rotateX(-Math.PI/2);
       const pp=pg.attributes.position;for(let i=0;i<pp.count;i++){const x=pp.getX(i)+(sc.x0+sc.x1)/2,zz=pp.getZ(i)+(sc.y0+sc.y1)/2;pp.setXYZ(i,x,E3(x,zz)+2.5,zz);}
       const gt=new THREE.CanvasTexture(sc.canvas);if('encoding' in gt)gt.encoding=THREE.sRGBEncoding;
       groundObj=new THREE.Mesh(pg,new THREE.MeshBasicMaterial({map:gt,transparent:true,opacity:0,depthWrite:false,fog:true,polygonOffset:true,polygonOffsetFactor:-1,polygonOffsetUnits:-1}));
       groundObj.renderOrder=1;scene.add(groundObj);
-      if(matchMedia('(prefers-reduced-motion: reduce)').matches||!ms){mat.uniforms.reveal.value=1.01;groundObj.material.opacity=1;request();return;}
-      const t0=performance.now(),step=()=>{const t=Math.min(1,(performance.now()-t0)/ms);mat.uniforms.reveal.value=t<1?(t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2):1.01;if(groundObj)groundObj.material.opacity=Math.min(1,t*1.6);
-        renderer.render(scene,camera);if(t<1&&paintObj)paintObj.raf=requestAnimationFrame(step);};
-      paintObj.raf=requestAnimationFrame(step);
+      const fadeTo=f=>{groundObj.material.opacity=f;paintObj.fade.forEach(m=>{if(m.material.uniforms)m.material.uniforms.opacity.value=f;else m.material.opacity=f;});};
+      if(matchMedia('(prefers-reduced-motion: reduce)').matches||!ms){mat.uniforms.reveal.value=1.01;fadeTo(1);request();return;}
+      fadeTo(0);
+      const po=paintObj,t0=performance.now(),step=()=>{if(paintObj!==po)return;const t=Math.min(1,(performance.now()-t0)/ms);mat.uniforms.reveal.value=t<1?(t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2):1.01;fadeTo(Math.min(1,t*1.6));
+        renderer.render(scene,camera);if(t<1)po.raf=requestAnimationFrame(step);};
+      po.raf=requestAnimationFrame(step);
     },
     // "where am I" (round 19): a blue dot on the terrain, apart from the profile's marker
     me(x,y){if(!meObj){const c=document.createElement('canvas');c.width=c.height=64;const k=c.getContext('2d');k.fillStyle='rgba(31,95,196,.25)';k.beginPath();k.arc(32,32,31,0,7);k.fill();k.fillStyle='#1F5FC4';k.strokeStyle='#fff';k.lineWidth=7;k.beginPath();k.arc(32,32,17,0,7);k.fill();k.stroke();
@@ -520,12 +579,15 @@ R.View3D=function(opts){
     zoom(f){zoomAt(f);},
     view(v){flyTo(v,900);},
     get state(){return {...st};},
-    get liftStatus(){return {chairs:chairs?chairs.list.length*3:0,closed:liftObjs.filter(o=>o.c2.material.uniforms.dash.value>0).length,shut:Object.values(pisteObjs).filter(o=>o.core.material.uniforms.dash.value>0).length,faded:Object.values(pisteObjs).filter(o=>o.core.material.uniforms.opacity.value<.2).length};},
+    get liftStatus(){return {chairs:chairs?chairs.list.length*3:0,closed:liftObjs.filter(o=>o.c2.material.uniforms.dash.value>0).length,shut:Object.values(pisteObjs).filter(o=>o.shut).length,faded:Object.values(pisteObjs).filter(o=>o.core?o.core.material.uniforms.opacity.value<.2:o.areaFill.material.opacity<.2).length};},
     setTheme(dark){const c=dark?0x16243a:0xdde7f0;fog.color.setHex(c);hemi.intensity=dark?0.5:0.62;request();},
     resize,request,canvas:cvs,renderer
   };
   resize();place();
   cvs.liftStatus=()=>api.liftStatus; // for the tests: what the lift status did to the view
+  // for the tests: the kinds the 3D view draws, as on the map from above (round 24)
+  cvs.kinds=()=>{const v=Object.values(pisteObjs);return {areas:v.filter(o=>o.areaFill).length,bands:v.filter(o=>o.edge).length,
+    dashed:v.filter(o=>o.core&&o.S.dash).length,plates:lay.querySelectorAll('.r3-lbl.plate').length,selArea:!!(paintObj&&paintObj.fade.length)};};
   return api;
 };
 window.GudRelief=R;
