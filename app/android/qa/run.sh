@@ -649,11 +649,14 @@ phone() {
     local i; for i in $(seq 1 60); do [ "$(adb shell getprop sys.boot_completed | tr -d '\r')" = 1 ] && break; sleep 2; done; sleep 10
     # after the restart the whole system starts again, and is busy well past "booted": run 37484751167 opened the app
     # at a load of 40 (the system's own UI skipped 721 frames), its window did not get the focus within 5 s, and the
-    # system called it not responding. Wait until the system settles (up to 2 minutes), and say at what load
-    local load=""; for i in $(seq 1 40); do load=$(adb shell cat /proc/loadavg 2> /dev/null | cut -d' ' -f1 | tr -d '\r')
-      awk -v l="${load:-99}" 'BEGIN { exit !(l < 8) }' && break; sleep 3; done
+    # system called it not responding. Wait until the load settles. The load is a one-minute average that decays by about
+    # 40% every 30 s, so waiting for "below 8" (added 6.10.2026) cost about 100 s a language, four times, and took this part
+    # from 4 minutes to 10 (the runs from a419686 on); below 16 is under half the load that failed, reached in about 40 s.
+    # Up to 75 s, and the seconds waited are noted, to tune it from the logs
+    local load="" waited=0; for i in $(seq 1 25); do load=$(adb shell cat /proc/loadavg 2> /dev/null | cut -d' ' -f1 | tr -d '\r')
+      awk -v l="${load:-99}" 'BEGIN { exit !(l < 16) }' && break; sleep 3; waited=$((waited + 3)); done
     kill "$LOGCAT" 2> /dev/null; logcat_on # the restart dropped the log stream
-    note "system language asked $loc (load $load): $(adb shell getprop persist.sys.locale | tr -d '\r'), the system says $(adb shell am get-config 2> /dev/null | grep -m1 -oE '^config: [^ ]+' | tr -d '\r')"
+    note "system language asked $loc (load $load after ${waited} s): $(adb shell getprop persist.sys.locale | tr -d '\r'), the system says $(adb shell am get-config 2> /dev/null | grep -m1 -oE '^config: [^ ]+' | tr -d '\r')"
     # the system may still be coming back from the restart (its "booted" flag outlives it): start the app until it answers
     local opened=""
     for i in 1 2 3; do
