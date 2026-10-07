@@ -14,6 +14,8 @@ const [D,vids]=await Promise.all([
   has('videos')?soft('data/videos-seed.json',[]):[]
 ]);
 const HEB=Object.fromEntries(['green','blue','red','black'].map(c=>[c,T('common.color_'+c)]));
+// a ski route (kind 'ski-route', colour 'none') has no difficulty: it is drawn in its own orange (round 24); every other run by its colour
+const ck=p=>p&&(p.kind==='ski-route'||p.color==='none')?'route':p.color;
 const RATE={green:[1,T('map.difficulty_beginner')],blue:[2,T('map.difficulty_easy')],red:[3,T('map.difficulty_intermediate')],black:[4,T('map.difficulty_hard')]};
 const OSMD={novice:[T('run.osm_grade_novice'),'green'],easy:[T('run.osm_grade_easy'),'blue'],intermediate:[T('run.osm_grade_intermediate'),'red'],advanced:[T('run.osm_grade_advanced'),'black'],expert:[T('run.osm_grade_expert'),'black']};
 const LK=Object.fromEntries(['chair_lift','gondola','platter','magic_carpet','drag_lift','t_bar'].map(k=>[k,T('lift.kind_'+k)]));
@@ -182,7 +184,7 @@ const plateSpots=L=>{const q=along(L,25),n=q.length,o=[];for(let s=0;s<n;s++){co
 const LINEIX=(()=>{const ix=new Map();D.pistes.forEach(p=>p.segs.forEach(s=>{if(s.area)return;along(s.g.map(P),15).forEach(([x,y])=>{const k=Math.floor(x/100)+','+Math.floor(y/100);
   if(!ix.has(k))ix.set(k,[]);ix.get(k).push([x,y,p.key]);});}));return ix;})();
 function placePlate(t,u,kept,view){
-  const W=t._plate.w*u,H=20*u,m=3*u;
+  const W=t._plate.w*u,H=(t._plate.h||20)*u,m=3*u;
   for(const [x,y] of t._plate.cand){
     const r={a:x-W/2-m,b:y-H/2-m,c:x+W/2+m,d:y+H/2+m};
     if(view&&(r.a<view.x+6*u||r.c>view.x+view.w-6*u||r.b<view.y+52*u||r.d>view.y+view.h-6*u))continue;
@@ -199,25 +201,26 @@ const vs={'vector-effect':'non-scaling-stroke',fill:'none','stroke-linecap':'rou
 function draw(root,pistes,lifts,store){
   const gAreas=mk('g',{},root),gP=mk('g',{},root),gL=mk('g',{},root),gLbl=mk('g',{},root),gHitL=mk('g',{},root),gHit=mk('g',{},root); // run hit-areas sit above lift hit-areas
   pistes.forEach(p=>{
-    const g=mk('g',{class:'pg '+p.color+(p.named?'':' unnamed'),'data-key':p.key},gP);
+    const g=mk('g',{class:'pg '+ck(p)+(p.named?'':' unnamed'),'data-key':p.key},gP),route=p.kind==='ski-route';
     (pisteEls[p.key]=pisteEls[p.key]||[]).push(g);
     p.segs.forEach(s=>{
-      if(s.area){const a=mk('path',{d:pathD(s.g,true),fill:`var(--p-${p.color})`,'fill-opacity':.14,stroke:'none',class:'pg '+p.color},gAreas);pisteEls[p.key].push(a);return;}
+      if(s.area){const a=mk('path',{d:pathD(s.g,true),fill:`var(--p-${ck(p)})`,stroke:`var(--p-${ck(p)})`,'vector-effect':'non-scaling-stroke',class:'pg pg-area '+ck(p)},gAreas);pisteEls[p.key].push(a);return;} // a wide run: its area at 30% (36% at night) with a thin edge (round 24)
       const d=pathD(s.g);
-      mk('path',{d,...vs,stroke:'var(--casing)','stroke-width':p.named?6.5:4.5},g);
-      mk('path',{d,...vs,stroke:`var(--p-${p.color})`,'stroke-width':p.named?(p.kind==='ski-way'?2.6:3.4):2,...(p.named?(p.kind==='ski-way'?{'stroke-dasharray':'8 5'}:{}):{'stroke-dasharray':'5 4'})},g);
+      mk('path',{d,...vs,stroke:'var(--casing)','stroke-width':route?5.5:p.named?6.5:4.5},g);
+      mk('path',{d,...vs,stroke:`var(--p-${ck(p)})`,'stroke-width':route?2.8:p.named?(p.kind==='ski-way'?2.6:3.4):2,...(route?{'stroke-dasharray':'7 5'}:p.named?(p.kind==='ski-way'?{'stroke-dasharray':'8 5'}:{}):{'stroke-dasharray':'5 4'})},g);
       mk('path',{d,class:'hit','stroke-width':16,'vector-effect':'non-scaling-stroke','data-key':p.key,'stroke-linecap':'round'},gHit);
     });
     if(p.named&&isPlate(p)){ // a number: a plate in the run's colour, placed by layoutLabels where no other run passes (round 23)
       const lin=p.segs.filter(s=>!s.area).map(s=>s.g.map(P)).sort((a,b)=>lineLen(b)-lineLen(a))[0];
-      if(lin){const t=mk('g',{class:'lbl plate pg '+p.color,'data-key':p.key},gLbl),w=p.key.length>1?30:22;
-        mk('rect',{x:-w/2,y:-10,width:w,height:20,fill:`var(--p-${p.color})`,'stroke-width':1.6},t);
-        const tx=mk('text',{x:0,y:1,'text-anchor':'middle','dominant-baseline':'central','font-size':17},t);tx.textContent=p.key;
-        t._plate={w,own:p.key,cand:plateSpots(lin)};store.labels.push(t);pisteEls[p.key].push(t);}
+      if(lin){const t=mk('g',{class:'lbl plate pg '+ck(p),'data-key':p.key},gLbl),w=route?(p.key.length>1?40:32):p.key.length>1?30:22;
+        if(route)mk('polygon',{points:`${-w/2},0 0,-16 ${w/2},0 0,16`,fill:'var(--p-route)','stroke-width':1.8},t); // a diamond: not a run, even without colour
+        else mk('rect',{x:-w/2,y:-10,width:w,height:20,fill:`var(--p-${p.color})`,'stroke-width':1.6},t);
+        const tx=mk('text',{x:0,y:1,'text-anchor':'middle','dominant-baseline':'central','font-size':route?15:17},t);tx.textContent=p.key;
+        t._plate={w,h:route?32:20,own:p.key,cand:plateSpots(lin)};store.labels.push(t);pisteEls[p.key].push(t);}
     }else if(p.named){
       const lin=p.segs.filter(s=>!s.area).sort((a,b)=>b.g.length-a.g.length)[0];
       if(lin){const q=P(lin.g[Math.floor(lin.g.length/2)]);
-        const t=mk('text',{x:q[0],y:q[1],class:'lbl pg '+p.color,fill:`var(--p-${p.color})`,'text-anchor':'middle','data-key':p.key},gLbl);t.textContent=dispName(p);store.labels.push(t);pisteEls[p.key].push(t);}
+        const t=mk('text',{x:q[0],y:q[1],class:'lbl pg '+ck(p),fill:`var(--p-${ck(p)})`,'text-anchor':'middle','data-key':p.key},gLbl);t.textContent=dispName(p);store.labels.push(t);pisteEls[p.key].push(t);}
     }
   });
   lifts.forEach(l=>{
@@ -304,8 +307,8 @@ kSvg.addEventListener('click',e=>{const el=e.target.closest('[data-key],[data-li
 
 // filters
 const hidden=new Set();
-function applyFilters(){['green','blue','red','black','unnamed','lifts'].forEach(k=>[svg,kSvg].forEach(m=>m.classList.toggle('hide-'+k,hidden.has(k))));if(v3)v3.filter(hidden);}
-const st=document.createElement('style');st.textContent='.hide-green .pg.green,.hide-blue .pg.blue,.hide-red .pg.red,.hide-black .pg.black,.hide-unnamed .pg.unnamed,.hide-lifts .lg{display:none}.has-sel .pg:not(.on){opacity:.28}.pg.on path{filter:drop-shadow(0 0 2.5px var(--glacier))}';document.head.appendChild(st);
+function applyFilters(){['green','blue','red','black','route','unnamed','lifts'].forEach(k=>[svg,kSvg].forEach(m=>m.classList.toggle('hide-'+k,hidden.has(k))));if(v3)v3.filter(hidden);}
+const st=document.createElement('style');st.textContent='.hide-green .pg.green,.hide-blue .pg.blue,.hide-red .pg.red,.hide-black .pg.black,.hide-route .pg.route,.hide-unnamed .pg.unnamed,.hide-lifts .lg{display:none}.has-sel .pg:not(.on){opacity:.28}.pg.on path{filter:drop-shadow(0 0 2.5px var(--glacier))}';document.head.appendChild(st);
 
 // selection + panel
 const panel=document.getElementById('panel');
@@ -367,9 +370,11 @@ function select(key,{zoom=true,push=true,via=''}={}){
   const want='#map/run/'+encodeURIComponent(key);if(push&&location.hash!==want)history.pushState(null,'',want);
   if(matchMedia('(max-width:760px)').matches&&!zoom)panel.scrollIntoView({behavior:'smooth',block:'start'});
 }
+// a ski route has a kind, not a colour or a difficulty (round 24)
+function routeRow(p){return `<dt>${E('run.kind_label')}</dt><dd><span class="route-tag"><i></i>${E(p&&p.access==='private'?'run.kind_private_route':'run.kind_ski_route')}</span></dd>`;}
 function pips(c){const n=RATE[c][0];return `<span class="pips c-${c}">${[1,2,3,4].map(i=>`<i class="${i<=n?'on':''}"></i>`).join('')}</span>`;}
 function liftBtn(name){const l=D.lifts.find(x=>x.name===name);return l?`<button class="tag" data-lift="${l.id}">⇡ ${esc(name)}</button>`:esc(name);}
-function pisteBtn(k){const p=byKey[k];return p?`<button class="tag c-${p.color}" data-goto="${esc(k)}">${esc(dispName(p))}</button>`:'';}
+function pisteBtn(k){const p=byKey[k];return p?`<button class="tag c-${ck(p)}" data-goto="${esc(k)}">${esc(dispName(p))}</button>`:'';}
 function hostOf(u){try{return new URL(u).hostname.replace(/^www\./,'')}catch{return u}}
 const ytId=u=>{try{const x=new URL(u);if(/(^|\.)youtube\.com$/.test(x.hostname))return(x.searchParams.get('v')||'').match(/^[\w-]{11}$/)?x.searchParams.get('v'):null;if(x.hostname==='youtu.be'){const i=x.pathname.slice(1);return/^[\w-]{11}$/.test(i)?i:null;}}catch{}return null;};
 function vidList(key){
@@ -379,7 +384,7 @@ function vidList(key){
 }
 function vidBlock(key,label){
   return `<h3>${E('run.videos_heading')}</h3>${vidList(key)}
-  <p class="hint"><a href="https://www.youtube.com/results?search_query=${encodeURIComponent(RS.name+' '+label+' ski')}" target="_blank" rel="noopener">${E('run.videos_search_youtube',{name:label})}</a></p>`;
+  <p class="hint"><a href="https://www.youtube.com/results?search_query=${encodeURIComponent(RS.name+' '+label+' ski')}" target="_blank" rel="noopener">${E('run.videos_search_youtube',{resort:RS.name,name:label})}</a></p>`;
 }
 function elevRows(p){
   if(!TM)return'';const lines=p.segs.filter(s=>!s.area).map(s=>s.g.map(P));if(!lines.length)return'';
@@ -388,7 +393,7 @@ function elevRows(p){
   <dt>${E('run.stat_drop_label')}</dt><dd>${H('common.unit_m',{n:s.drop},{n:num(s.drop)})}${lines.length===1&&p.len?' · '+H('run.stat_avg_gradient',{},{pct:num(Math.round(s.drop/p.len*100))}):''}</dd>
   <dt>${E('run.stat_steep_label')}</dt><dd>${num(Math.round(s.maxG*100)+'%')} <span class="hint">${E('run.stat_steep_hint')}</span></dd>`;
 }
-const navList=()=>{const order=['green','blue','red','black'];return D.pistes.filter(p=>p.named).sort((a,b)=>order.indexOf(a.color)-order.indexOf(b.color)||a.key.localeCompare(b.key,undefined,{numeric:true})).map(p=>p.key);};
+const navList=()=>{const order=['green','blue','red','black','none'];return D.pistes.filter(p=>p.named).sort((a,b)=>order.indexOf(a.color)-order.indexOf(b.color)||a.key.localeCompare(b.key,undefined,{numeric:true})).map(p=>p.key);};
 function runNav(key){
   const L=navList(),i=L.indexOf(key);if(i<0)return `<div class="run-nav"><button type="button" class="rn-share" data-share="${esc(key)}">${E('run.share_button')}</button></div>`;
   const prev=L[(i-1+L.length)%L.length],next=L[(i+1)%L.length],[back,fwd]=I18N.ltr?['←','→']:['→','←'];
@@ -439,22 +444,22 @@ function flyHudAt(q){const h=document.getElementById('flyHud');if(h&&!h.hidden)h
 function renderPiste(key){
   const p=byKey[key];
   if(!p){const m=D.missing.find(x=>x.name===key);if(!m)return overview();
-    panel.innerHTML=`<button class="back" data-back>${E('map.back_all_runs')}</button><h2 class="c-${m.color}">${esc(m.name)}</h2>
-    <dl class="kv"><dt>${E('run.official_color_label')}</dt><dd>${pips(m.color)}${esc(HEB[m.color])} · ${esc(RATE[m.color][1])}</dd><dt>${E('common.length_label')}</dt><dd>—</dd></dl>
+    panel.innerHTML=`<button class="back" data-back>${E('map.back_all_runs')}</button><h2 class="c-${ck(m)}">${esc(m.name)}</h2>
+    <dl class="kv">${ck(m)==='route'?routeRow():`<dt>${E('run.official_color_label')}</dt><dd>${pips(m.color)}${esc(HEB[m.color])} · ${esc(RATE[m.color][1])}</dd>`}<dt>${E('common.length_label')}</dt><dd>—</dd></dl>
     <div class="notice">${E('run.missing_notice')}</div>${vidBlock(key,m.name)}`;
     return;}
-  const c=p.color,label=p.named?(p.key==='Firni ?'?'Firni':p.key):'';
+  const c=ck(p),route=c==='route',label=p.named?(p.key==='Firni ?'?'Firni':p.key):'';
   panel.innerHTML=`<button class="back" data-back>${E('map.back_all_runs')}</button>
   <div class="run-sign"><h2 class="c-${c}">${esc(dispName(p))}</h2>${p.refs.length&&p.refs[0]!==p.key?`<span class="run-ref num" title="${E('run.ref_title')}">${esc(p.refs[0])}</span>`:''}</div>
   ${runNav(key)}
   <dl class="kv">
     <dt>${E('common.length_label')}</dt><dd class="num">${esc(fmtLen(p.len))}</dd>
     ${elevRows(p)}
-    <dt>${E('run.color_label')}</dt><dd><span class="sw ${c}"></span> ${esc(HEB[c])}${E(p.named&&RESORT.isDefault()?'run.color_official_suffix':'run.color_osm_suffix')}</dd>
-    <dt>${E('run.difficulty_label')}</dt><dd>${pips(c)}${esc(RATE[c][1])}</dd>
-    ${p.osmDiff.length?`<dt>${E('run.osm_grade_label')}</dt><dd>${esc(p.osmDiff.map(x=>OSMD[x]?OSMD[x][0]:T('run.osm_grade_none')).join(' / '))}</dd>`:''}
+    ${route?routeRow(p):`<dt>${E('run.color_label')}</dt><dd><span class="sw ${c}"></span> ${esc(HEB[c])}${E(p.named&&RESORT.isDefault()?'run.color_official_suffix':'run.color_osm_suffix')}</dd>
+    <dt>${E('run.difficulty_label')}</dt><dd>${pips(c)}${esc(RATE[c][1])}</dd>`}
+    ${p.osmDiff.length&&!route?`<dt>${E('run.osm_grade_label')}</dt><dd>${esc(p.osmDiff.map(x=>OSMD[x]?OSMD[x][0]:T('run.osm_grade_none')).join(' / '))}</dd>`:''}
     ${p.refs.length?`<dt>${E('run.ref_label')}</dt><dd class="num">${esc(p.refs.join(', '))}</dd>`:''}
-    ${p.groom.length?`<dt>${E('run.grooming_label')}</dt><dd>${p.groom.includes('classic')?E('run.groomed_value'):esc(p.groom.join(', '))}</dd>`:''}
+    ${p.groom.length&&!route?`<dt>${E('run.grooming_label')}</dt><dd>${p.groom.includes('classic')?E('run.groomed_value'):esc(p.groom.join(', '))}</dd>`:''}
   </dl>
   ${typeof WX!=='undefined'&&WX?WX.cond(p):''}
   ${runViewBlock(key)}
@@ -484,7 +489,7 @@ function showLift(id){
 }
 function overview(){
   clearSel();current=null;
-  const named=D.pistes.filter(p=>p.named);const order=['green','blue','red','black'];
+  const named=D.pistes.filter(p=>p.named&&p.kind!=='ski-route'),routes=D.pistes.filter(p=>p.kind==='ski-route');const order=['green','blue','red','black'];
   named.sort((a,b)=>order.indexOf(a.color)-order.indexOf(b.color)||a.key.localeCompare(b.key,undefined,{numeric:true}));
   panel.innerHTML=`
   <h2 class="ov">${E('map.overview_heading')}</h2>
@@ -492,8 +497,10 @@ function overview(){
   <p class="lead">${E(has('kobi')?'map.overview_lead':'map.overview_lead_resort')}</p>
   <h3>${E('map.overview_on_map_count',{n:named.length})}</h3>
   <div class="index">${named.map(p=>`<button data-goto="${esc(p.key)}" data-zoom="1"><span class="sw ${p.color}"></span>${esc(dispName(p))}<span class="len">${fmtLen(p.len)}</span></button>`).join('')}</div>
-  ${D.missing.length?`<h3>${E('map.overview_missing_count',{n:D.missing.length})}</h3>
-  <div class="miss">${D.missing.map(m=>`<button class="chip" data-goto="${esc(m.name)}"><span class="sw ${m.color}"></span>${esc(m.name)}</button>`).join('')}</div>`:''}
+  ${routes.length?`<h3>${E('map.overview_routes_count',{n:routes.length})}</h3>
+  <div class="index">${routes.map(p=>`<button data-goto="${esc(p.key)}" data-zoom="1"><span class="sw route"></span>${esc(dispName(p))}<span class="len">${fmtLen(p.len)}</span></button>`).join('')}</div>`:''}
+  ${(()=>{const mr=D.missing.filter(m=>ck(m)!=='route'),mx=D.missing.filter(m=>ck(m)==='route'),chips=a=>`<div class="miss">${a.map(m=>`<button class="chip" data-goto="${esc(m.name)}"><span class="sw ${ck(m)}"></span>${esc(m.name)}</button>`).join('')}</div>`;
+    return (mr.length?`<h3>${E('map.overview_missing_count',{n:mr.length})}</h3>${chips(mr)}`:'')+(mx.length?`<h3>${E('map.overview_missing_routes_count',{n:mx.length})}</h3>${chips(mx)}`:'');})()}
   ${(()=>{const pr=D.pistes.filter(p=>p.research&&p.research.partial);return pr.length?`<h3>${E('map.overview_partial_count',{n:pr.length})}</h3>
   <div class="miss">${pr.map(p=>`<button class="chip" data-goto="${esc(p.key)}" data-zoom="1"><span class="sw ${p.color}"></span>${esc(p.key)}</button>`).join('')}</div>
   <p class="hint">${E('map.overview_partial_hint')}</p>`:''})()}
@@ -545,7 +552,7 @@ function ensure3d(){
   if(v3)return true;if(!can3d())return false;
   try{
     const kc=P([42.532,44.4945]);
-    v3=GudRelief.View3D({model:TM,host:m3,pistes:D.pistes,lifts:D.lifts,P,dispName,colors:{green:'#1B8A4C',blue:'#1F5FC4',red:'#D1342B',black:'#13233A'},liftColor:'#3A4556',
+    v3=GudRelief.View3D({model:TM,host:m3,pistes:D.pistes,lifts:D.lifts,P,dispName,colors:{green:'#1B8A4C',blue:'#1F5FC4',red:'#D1342B',black:'#13233A',route:'#D96A00'},liftColor:'#3A4556',
       center:[(minX+maxX)/2,(minY+maxY)/2+250],homeDist:RS.view3d&&RS.view3d.dist||7000,homeAz:RS.view3d&&RS.view3d.az||0,homePol:RS.view3d&&RS.view3d.pol||0.44,
       onPick:k=>select(k,{via:'map'}),onLift:id=>showLift(id),
       onFly:f=>{flyProg=f;const k=document.getElementById('profRange');if(k){const i=Math.round(f*(+k.max));k.value=i;profAt(i);}},
@@ -573,7 +580,16 @@ document.getElementById('compass').onclick=()=>{if(v3)v3.north();};
 openBtn.onclick=()=>{if(view==='3d')v3.kobi();else openInset();};
 {const _up=up;} // keep 2D handlers
 wrap.classList.add('mode2d');
-// filters live in the toolbar above the map
+// filters live in the toolbar above the map; a resort with ski routes gets a chip for them, after the colours (round 24)
+if(D.pistes.some(p=>p.kind==='ski-route')){const b=document.createElement('button');b.type='button';b.className='fchip';b.dataset.filter='route';b.setAttribute('aria-pressed','true');
+  b.innerHTML=`<span class="sq route"></span><span>${E('map.filter_routes')}</span>`;const after=document.querySelector('#filters [data-filter="black"]');after.after(b);}
+// the legend, above the scale, in a resort with ski routes (in Gudauri it would sit on the Kobi button): the kinds this resort has
+{const k={route:D.pistes.some(p=>p.kind==='ski-route'),way:D.pistes.some(p=>p.kind==='ski-way'&&p.named),area:D.pistes.some(p=>p.segs.some(s=>s.area))};
+  if(k.route){const lg=document.createElement('div');lg.className='mlegend';lg.setAttribute('aria-hidden','true');
+    lg.innerHTML=(k.route?`<span><svg width="34" height="12"><path d="M2 6H32" stroke="var(--casing)" stroke-width="6" stroke-linecap="round"/><path d="M2 6H32" stroke="var(--p-route)" stroke-width="3" stroke-dasharray="7 5"/></svg>${E('map.legend_route')}</span>`:'')
+      +(k.way?`<span><svg width="34" height="12"><path d="M2 6H32" stroke="var(--casing)" stroke-width="5" stroke-linecap="round"/><path d="M2 6H32" stroke="var(--p-blue)" stroke-width="2.6" stroke-dasharray="8 5"/></svg>${E('map.legend_way')}</span>`:'')
+      +(k.area?`<span><svg width="34" height="14"><rect x="2" y="2" width="30" height="10" fill="var(--p-red)" fill-opacity=".3" stroke="var(--p-red)" stroke-width="1.3"/></svg>${E('map.legend_area')}</span>`:'');
+    wrap.appendChild(lg);}}
 document.getElementById('filters').addEventListener('click',e=>{const b=e.target.closest('button[data-filter]');if(!b)return;const k=b.dataset.filter;
   hidden.has(k)?hidden.delete(k):hidden.add(k);b.setAttribute('aria-pressed',String(!hidden.has(k)));applyFilters();track('map_filter',{filter:k,on:!hidden.has(k)});});
 // the map (and its 3D model) is set up the first time the map page is opened
@@ -750,7 +766,7 @@ const makeMeet=()=>(function(){
   const svgM=host;const m=(t,a,p)=>{const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);(p||svgM).appendChild(e);return e;};
   const gLines=m('g',{class:'mm-lines'}),gPins=m('g',{class:'mm-pins'});
   if(TM)GudRelief.svgRelief(TM,svgM,gLines);
-  mainPistes.filter(p=>p.named).forEach(p=>p.segs.filter(s=>!s.area).forEach(s=>m('path',{d:pathD(s.g),class:'mm-run','vector-effect':'non-scaling-stroke',stroke:`var(--p-${p.color})`},gLines)));
+  mainPistes.filter(p=>p.named).forEach(p=>p.segs.filter(s=>!s.area).forEach(s=>m('path',{d:pathD(s.g),class:'mm-run','vector-effect':'non-scaling-stroke',stroke:`var(--p-${ck(p)})`},gLines)));
   mainLifts.filter(l=>l.name).forEach(l=>m('path',{d:pathD(l.g),class:'mm-lift','vector-effect':'non-scaling-stroke'},gLines));
   const pins={};
   st.forEach(s=>{const g=m('g',{class:'mm-pin','data-sid':s.id},gPins);

@@ -58,18 +58,19 @@
       },
       "region": "Ötztal",
       "stats": {
-        "runs": 45,
+        "runs": 43,
         "lifts": 39,
-        "km": 96,
+        "km": 95,
         "alt": [
           1350,
           3250
         ],
         "byColor": {
-          "blue": 55542,
-          "red": 27946,
+          "blue": 54527,
+          "red": 27765,
           "black": 12459
-        }
+        },
+        "routes": 7
       },
       "pano": {
         "dir": "img/pano/soelden/",
