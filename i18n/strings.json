@@ -11724,12 +11724,16 @@
    "note": "Separate optional screen replay consent, off by default"
   },
   "app.replay_on": {
-   "he": "פעיל במסכי המשחקים בלבד. טקסט ותמונות מוסתרים.",
-   "en": "On for game screens only. Text and images are masked.",
-   "ru": "Включено только на экранах игр. Текст и изображения скрыты.",
-   "ka": "ჩართულია მხოლოდ თამაშების ეკრანებზე. ტექსტი და სურათები დამალულია.",
+   "he": "פעיל במסכי המשחקים בלבד. תוכן המשחק עשוי להופיע בהקלטה.",
+   "en": "On for game screens only. Game content may appear in recordings.",
+   "ru": "Включено только на экранах игр. Содержимое игры может быть видно в записи.",
+   "ka": "ჩართულია მხოლოდ თამაშების ეკრანებზე. თამაშის შიგთავსი ჩანაწერში შეიძლება გამოჩნდეს.",
    "where": "app/android",
-   "note": "Replay consent switch subtitle when consent and analytics are on"
+   "note": "Replay consent switch subtitle when consent and analytics are on",
+   "check": [
+    "ru",
+    "ka"
+   ]
   },
   "app.replay_off": {
    "he": "כבוי. המסך אינו מוקלט.",
@@ -11740,12 +11744,16 @@
    "note": "Replay consent switch subtitle when consent or analytics is off"
   },
   "app.replay_details": {
-   "he": "בהסכמתך, דגימות של מסכי המשחקים והנגיעות נשלחות לסנטרי כדי להבין שימוש ותקלות. המפה, המיקום, הטיול, החשבון והקבוצות אינם מוקלטים. אפשר לכבות בכל רגע. אין הקלטה שנשמרת לשליחה מאוחרת כשאין רשת.",
-   "en": "With your consent, samples of game screens and touches are sent to Sentry to understand usage and errors. The map, location, trip, account and groups are not recorded. You can turn this off at any time. Recordings are not saved for later upload when offline.",
-   "ru": "С вашего согласия образцы экранов игр и касаний отправляются в Sentry для анализа использования и ошибок. Карта, местоположение, поездка, аккаунт и группы не записываются. Можно отключить в любой момент. Записи не сохраняются для отправки после восстановления сети.",
-   "ka": "თქვენი თანხმობით თამაშების ეკრანებისა და შეხებების ნიმუშები იგზავნება Sentry-ში გამოყენებისა და შეცდომების გასაგებად. რუკა, მდებარეობა, მოგზაურობა, ანგარიში და ჯგუფები არ იწერება. გამორთვა ნებისმიერ დროს შეგიძლიათ. ქსელის გარეშე ჩანაწერები მოგვიანებით გასაგზავნად არ ინახება.",
+   "he": "ההקלטה כבויה כברירת מחדל. בהסכמתך הנפרדת, דגימות של מסכי המשחקים והנגיעות נשלחות לסנטרי כדי להבין שימוש ותקלות. מופעלת הסתרה אוטומטית של רכיבי ממשק, אך גרפיקה, ניקוד וטקסט מצויר במשחק עשויים להופיע בהקלטה. המפה, המיקום, דף הבית, הטיול, החשבון והקבוצות אינם מוקלטים. אפשר לכבות בכל רגע. אין הקלטה שנשמרת לשליחה מאוחרת כשאין רשת.",
+   "en": "Recording is off by default. With your separate consent, samples of game screens and touches are sent to Sentry to understand usage and errors. Automatic masking is enabled for interface elements, but game graphics, scores and drawn text may appear in recordings. The map, location, home, trip, account and groups are not recorded. You can turn this off at any time. Recordings are not saved for later upload when offline.",
+   "ru": "По умолчанию запись выключена. С вашего отдельного согласия образцы экранов игр и касаний отправляются в Sentry для анализа использования и ошибок. Для элементов интерфейса включено автоматическое скрытие, но графика игры, очки и нарисованный текст могут быть видны в записи. Карта, местоположение, главный экран, поездка, аккаунт и группы не записываются. Можно отключить в любой момент. Записи не сохраняются для отправки после восстановления сети.",
+   "ka": "ჩაწერა ნაგულისხმევად გამორთულია. თქვენი ცალკე თანხმობით თამაშების ეკრანებისა და შეხებების ნიმუშები იგზავნება Sentry-ში გამოყენებისა და შეცდომების გასაგებად. ჩართულია ინტერფეისის ელემენტების ავტომატური დამალვა, მაგრამ თამაშის გრაფიკა, ქულები და დახატული ტექსტი ჩანაწერში შეიძლება გამოჩნდეს. რუკა, მდებარეობა, მთავარი ეკრანი, მოგზაურობა, ანგარიში და ჯგუფები არ იწერება. გამორთვა ნებისმიერ დროს შეგიძლიათ. ქსელის გარეშე ჩანაწერები მოგვიანებით გასაგზავნად არ ინახება.",
    "where": "app/android",
-   "note": "Explain scope and controls before the user's separate replay opt-in"
+   "note": "Explain scope, masking limits and controls before the user's separate replay opt-in",
+   "check": [
+    "ru",
+    "ka"
+   ]
   },
   "app.pick_ok": {
    "he": "בחירה",
