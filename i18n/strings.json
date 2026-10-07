@@ -15887,6 +15887,18 @@
     "ka"
    ]
   },
+  "resort.sellaronda.sources": {
+   "he": "קווים: OpenStreetMap דרך OpenSkiMap, נמשך {fetched}, כמו שהם, בלי השלמות. הצבעים לפי רשימות המסלולים הכתובות של Val Gardena, Alta Badia ו-Val di Fassa, ובלעדיהן (בעיקר ב-Arabba) לפי דרגת הקושי במפה הפתוחה (קל כחול, בינוני אדום, קשה שחור). אורכים אופקיים מהקואורדינטות. תבליט וגבהים: TINITALY/1.1 – Tarquini S., Isola I., Favalli M., Battistini A., Dotta G. (2023), INGV, https://doi.org/10.13127/tinitaly/1.1 (CC BY 4.0). הכפרים, הכבישים, המים והפסגות: OSM. © OpenStreetMap contributors, ODbL.",
+   "en": "Lines: OpenStreetMap via OpenSkiMap, fetched {fetched}, as they are, nothing filled in. Colours follow the written lists of slopes of Val Gardena, Alta Badia and Val di Fassa, and without them (mostly in Arabba) the difficulty in the open map (easy blue, intermediate red, difficult black). Horizontal lengths from the coordinates. Relief and altitudes: TINITALY/1.1 – Tarquini S., Isola I., Favalli M., Battistini A., Dotta G. (2023), INGV, https://doi.org/10.13127/tinitaly/1.1 (CC BY 4.0). Villages, roads, water and peaks: OSM. © OpenStreetMap contributors, ODbL.",
+   "ru": "Линии: OpenStreetMap через OpenSkiMap, загружено {fetched}, как есть, без дополнений. Цвета — по письменным спискам трасс Валь-Гардены, Альта-Бадии и Валь-ди-Фассы, а без них (в основном в Араббе) — по сложности в открытой карте (лёгкая синяя, средняя красная, сложная чёрная). Горизонтальные длины — по координатам. Рельеф и высоты: TINITALY/1.1 – Tarquini S., Isola I., Favalli M., Battistini A., Dotta G. (2023), INGV, https://doi.org/10.13127/tinitaly/1.1 (CC BY 4.0). Посёлки, дороги, вода и вершины: OSM. © OpenStreetMap contributors, ODbL.",
+   "ka": "ხაზები: OpenStreetMap, OpenSkiMap-ის მეშვეობით, ჩამოტვირთულია {fetched}, როგორც არის, შევსების გარეშე. ფერები ვალ-გარდენას, ალტა-ბადიასა და ვალ-დი-ფასას ტრასების წერილობითი სიების მიხედვითაა, ხოლო მათ გარეშე (ძირითადად არაბაში) ღია რუკის სირთულის მიხედვით (მარტივი ლურჯი, საშუალო წითელი, რთული შავი). ჰორიზონტალური სიგრძეები კოორდინატებიდანაა. რელიეფი და სიმაღლეები: TINITALY/1.1 – Tarquini S., Isola I., Favalli M., Battistini A., Dotta G. (2023), INGV, https://doi.org/10.13127/tinitaly/1.1 (CC BY 4.0). სოფლები, გზები, წყალი და მწვერვალები: OSM. © OpenStreetMap contributors, ODbL.",
+   "where": "site/js/app.js",
+   "note": "like map.overview_source_text, the sources of this resort",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
   "nav.resort_time": {
    "he": "השעה ב-{place}",
    "en": "Time in {place}",
@@ -16073,6 +16085,18 @@
     "ka"
    ]
   },
+  "resort.country_it": {
+   "he": "איטליה",
+   "en": "Italy",
+   "ru": "Италия",
+   "ka": "იტალია",
+   "where": "site/js/app.js",
+   "note": "country",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
   "resort.country_ge": {
    "he": "גאורגיה",
    "en": "Georgia",
@@ -16104,6 +16128,30 @@
    "ka": "© offene Daten Österreichs – Digitales Geländemodell (DGM) Österreich, ლიცენზია CC BY 3.0 AT, AWS Terrain Tiles-ის მეშვეობით.",
    "where": "site/index.html",
    "note": "the exact attribution statement of the data provider; the German stays as it is",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "about.credit_terrain_it_label": {
+   "he": "גבהים ותבליט ב-Sella Ronda:",
+   "en": "Heights and relief at Sella Ronda:",
+   "ru": "Высоты и рельеф в Селла-Ронде:",
+   "ka": "სიმაღლეები და რელიეფი სელა-რონდაში:",
+   "where": "site/index.html",
+   "note": "credit line label (decision 68)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "about.credit_terrain_it": {
+   "he": "TINITALY/1.1 – Tarquini S., Isola I., Favalli M., Battistini A., Dotta G. (2023), INGV, https://doi.org/10.13127/tinitaly/1.1, ברישיון CC BY 4.0.",
+   "en": "TINITALY/1.1 – Tarquini S., Isola I., Favalli M., Battistini A., Dotta G. (2023), INGV, https://doi.org/10.13127/tinitaly/1.1, licensed CC BY 4.0.",
+   "ru": "TINITALY/1.1 – Tarquini S., Isola I., Favalli M., Battistini A., Dotta G. (2023), INGV, https://doi.org/10.13127/tinitaly/1.1, по лицензии CC BY 4.0.",
+   "ka": "TINITALY/1.1 – Tarquini S., Isola I., Favalli M., Battistini A., Dotta G. (2023), INGV, https://doi.org/10.13127/tinitaly/1.1, ლიცენზია CC BY 4.0.",
+   "where": "site/index.html",
+   "note": "the exact attribution statement of the data provider; stays as it is",
    "check": [
     "ru",
     "ka"

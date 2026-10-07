@@ -25,7 +25,13 @@
 
 | פריט קטן | הערות |
 |---|---|
-| \* אתר שלישי: הכלי `tools/build-resort.py` מקבל קובץ הגדרות; לבחור לפי `research/resorts.md` | **נבדק (7.10.2026):** Sella Ronda ו-3 Vallées, הכי נמכרים לישראלים (`research/resorts/sella-3vallees.md`); ההמלצה Sella Ronda. ממתין לפיני |
+| \* אתר שלישי: הכלי `tools/build-resort.py` מקבל קובץ הגדרות; לבחור לפי `research/resorts.md` | **בוצע (7.10.2026):** Sella Ronda, לפי התהליך ב-`.claude/skills/new-resort/` |
+| \* **סבב ה-Sellaronda על המפה** (כתום עם כיוון השעון, ירוק נגדו, והחלופה), ואולי גם סבב ה-Grande Guerra: קיימים במפה הפתוחה כ-route relations | רעיון (7.10.2026). סוג תצוגה חדש: קנבס וסקירת ארכיטקט. ההמלצה: כן |
+| \* Sella Ronda: המפות הרשמיות של Val Gardena ו-Arabba חסומות לקריאה (Dolomiti Superski), ול-Arabba אין רשימה כתובה פתוחה; הצבע שם מהמפה הפתוחה | לבקש מפיני קישור, כמו ב-Sölden |
+| \* Sella Ronda: כחולים תלולים לפי המודל (Variante Avoie, Plan Boè, Rutort, Due Baite, Dantercepies Variante, רובם ב-Arabba), ואדומים (Piz Sella 5, Ciampinoi 4) | למומחה הסקי (`research/resorts/sellaronda-official-compare.md`) |
+| \* Sella Ronda: `terrain.json` שוקל 5.8MB (3.2MB דחוס), פי שלושה מ-Sölden, כי השטח גדול פי שלושה; נטען ברקע ורק לאתר הזה | אם יאט בטלפון: רשת של 25 מ׳, או אריחים לפי אזור (ארכיטקט) |
+| \* Sella Ronda: Kids Fun Line La Crusc מצויר כמסלול כחול (כך במפה הפתוחה), והמקרא הרשמי מראה Family Fun כפארק | לבדוק, ואם צריך להוציא (`exclude`) |
+| \* שפות לאתר באיטליה: איטלקית וגרמנית (ולדינית), לפי החלטה 61 | החלטה של פיני |
 | \* כמה אתרים באפליקציה (אנדרואיד ואייפון): אותה רשימה (`site/data/resorts.json`, `schema: 1`) ואותן תיקיות | סקירת ארכיטקט לפני, `docs/PARITY.md` סעיף 12 |
 | \* לוחית מספר גם בתלת-ממד (היום טקסט שם) | **בוצע (7.10.2026):** כמו במבט על, ומעוין אדום לדרך סקי |
 | \* מצב הרכבלים של Sölden: לפי `research/resorts.md` הדף שלהם מחזיק JSON בתוך הדף | כמו מ-2, בשרת |

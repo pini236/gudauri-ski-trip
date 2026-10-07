@@ -71,7 +71,7 @@ test('the picker: the place name opens the list, and a choice loads the other re
   const btn = page.locator('.rs-btn:visible').first();
   await btn.click();
   const list = page.locator('.rs-list');
-  await expect(list.locator('.rs-res')).toHaveCount(2);
+  await expect(list.locator('.rs-res')).toHaveCount(3); // Gudauri, Sölden, Sella Ronda
   await expect(list.locator('.rs-res.on')).toHaveAttribute('data-resort', 'gudauri');
   await list.locator('[data-resort="soelden"]').click();
   await page.waitForURL(/resort=soelden/);
@@ -186,4 +186,33 @@ test('Sölden 38: the slope numbers skip the glacier tunnel', async ({ page }) =
   await loaded(page);
   const steep = await page.locator('#panel .steps .st b').innerText();
   expect(parseInt(steep, 10)).toBeLessThan(30);
+});
+
+// Sella Ronda (the third resort, built by .claude/skills/new-resort): runs keyed by name, colours from the valleys' own lists,
+// a name that starts with a number reads left to right, and no filter for a colour this resort has no run in.
+test('Sella Ronda: its own data, names on the lines, the official colour, no green filter', async ({ page }) => {
+  const errors = watchErrors(page);
+  const seen: string[] = [];
+  page.on('request', r => { const u = new URL(r.url()); if (/\/data\//.test(u.pathname)) seen.push(u.pathname); });
+  await page.goto('/?resort=sellaronda#map');
+  await loaded(page);
+  await expect(page.locator('html')).toHaveAttribute('data-resort', 'sellaronda');
+  expect(seen).toContain('/data/resorts/sellaronda/terrain.json');
+  expect(seen).not.toContain('/data/terrain.json');
+  expect(seen).not.toContain('/data/resorts/soelden/terrain.json');
+  await expect(page.locator('#filters [data-filter="green"]')).toBeHidden();
+  await expect(page.locator('#filters [data-filter="blue"]')).toBeVisible();
+  const top = page.locator('#viewsw button[data-view="2d"]');
+  if (await top.isVisible()) await top.click();
+  // names, not plates: in Italy the numbers repeat in every valley
+  await expect(page.locator('#map .lbl.plate')).toHaveCount(0);
+  await expect(page.locator('#map text.lbl.pg[data-key="3-Tre"]')).toHaveAttribute('direction', 'ltr');
+  // Charly is blue in the open map and red on Val Gardena's list: the list wins
+  await page.evaluate(() => { location.hash = '#map/run/Charly'; });
+  await expect(page.locator('#panel .run-sign h2')).toHaveText('Charly');
+  await expect(page.locator('#panel .run-sign h2')).toHaveClass(/c-red/);
+  // a name with a space, and the circuit's names stripped from it
+  await page.evaluate(() => { location.hash = '#map/run/' + encodeURIComponent('Gran Risa'); });
+  await expect(page.locator('#panel .run-sign h2')).toHaveText('Gran Risa');
+  expect(errors).toEqual([]);
 });

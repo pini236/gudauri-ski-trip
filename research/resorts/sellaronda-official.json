@@ -1,0 +1,1571 @@
+{
+ "about": "The written lists of runs that the resorts publish, read 7.10.2026: name, colour (difficulty), area, and the number where the list gives one. Lists, not the illustrated piste map (accuracy rule 2). Used by tools/build-resort.py for the colour and the official name. research/resorts/sellaronda-sources.md says where each list comes from.",
+ "sources": {
+  "vg": "https://www.valgardena.it/en/winter-holidays-dolomites/slopes-ski-lifts/open-slopes/ (Easy blue, Medium red, Hard black); without the areas Alpe di Siusi and Ortisei - Palmer - Furdenan, which belong to the Seiser Alm side",
+  "ab": "https://www.altabadia.org/en/open-lifts-snow-report-dolomites (Slope overview, all pages)",
+  "fa": "https://www.fassa.com/en/ski-lifts-slopes/ski-areas/belvedere-col-rodella"
+ },
+ "fetched": "2026-10-07",
+ "runs": [
+  {
+   "name": "Biancaneve",
+   "color": "blue",
+   "area": "Val Gardena: Selva - Dantercepies",
+   "src": "vg"
+  },
+  {
+   "name": "Cadepunt",
+   "color": "blue",
+   "area": "Val Gardena: Selva - Dantercepies",
+   "src": "vg"
+  },
+  {
+   "name": "Campo Freina",
+   "color": "red",
+   "area": "Val Gardena: Selva - Dantercepies",
+   "src": "vg"
+  },
+  {
+   "name": "Frea",
+   "color": "red",
+   "area": "Val Gardena: Selva - Dantercepies",
+   "src": "vg"
+  },
+  {
+   "name": "Val Setus",
+   "color": "red",
+   "area": "Val Gardena: Selva - Dantercepies",
+   "src": "vg"
+  },
+  {
+   "name": "Costabella",
+   "color": "red",
+   "area": "Val Gardena: Selva - Dantercepies",
+   "src": "vg"
+  },
+  {
+   "name": "Connection Slope Costabella",
+   "color": "blue",
+   "area": "Val Gardena: Selva - Dantercepies",
+   "src": "vg"
+  },
+  {
+   "name": "Dantercepies",
+   "color": "red",
+   "area": "Val Gardena: Selva - Dantercepies",
+   "src": "vg"
+  },
+  {
+   "name": "Dantercepies - Risaccia",
+   "color": "blue",
+   "area": "Val Gardena: Selva - Dantercepies",
+   "src": "vg"
+  },
+  {
+   "name": "Dantercepies",
+   "color": "blue",
+   "area": "Val Gardena: Selva - Dantercepies",
+   "src": "vg"
+  },
+  {
+   "name": "Dantercepies - Selva",
+   "color": "blue",
+   "area": "Val Gardena: Selva - Dantercepies",
+   "src": "vg"
+  },
+  {
+   "name": "Cir",
+   "color": "black",
+   "area": "Val Gardena: Selva - Dantercepies",
+   "src": "vg"
+  },
+  {
+   "name": "Frara - Val Setus",
+   "color": "red",
+   "area": "Val Gardena: Selva - Dantercepies",
+   "src": "vg"
+  },
+  {
+   "name": "Larciunei",
+   "color": "blue",
+   "area": "Val Gardena: Selva - Dantercepies",
+   "src": "vg"
+  },
+  {
+   "name": "Nives",
+   "color": "blue",
+   "area": "Val Gardena: Selva - Dantercepies",
+   "src": "vg"
+  },
+  {
+   "name": "Skiweg Skilift Nives - La Poza",
+   "color": "blue",
+   "area": "Val Gardena: Selva - Dantercepies",
+   "src": "vg"
+  },
+  {
+   "name": "Panorama",
+   "color": "red",
+   "area": "Val Gardena: Selva - Dantercepies",
+   "src": "vg"
+  },
+  {
+   "name": "Risaccia",
+   "color": "blue",
+   "area": "Val Gardena: Selva - Dantercepies",
+   "src": "vg"
+  },
+  {
+   "name": "Cir-Ria",
+   "color": "red",
+   "area": "Val Gardena: Selva - Dantercepies",
+   "src": "vg"
+  },
+  {
+   "name": "Bear Slope",
+   "color": "blue",
+   "area": "Val Gardena: Selva - Dantercepies",
+   "src": "vg"
+  },
+  {
+   "name": "Val",
+   "color": "blue",
+   "area": "Val Gardena: Selva - Dantercepies",
+   "src": "vg"
+  },
+  {
+   "name": "Vallelunga",
+   "color": "black",
+   "area": "Val Gardena: Selva - Dantercepies",
+   "src": "vg"
+  },
+  {
+   "name": "Val Setus",
+   "color": "red",
+   "area": "Val Gardena: Selva - Dantercepies",
+   "src": "vg"
+  },
+  {
+   "name": "Val Setus - Cir",
+   "color": "blue",
+   "area": "Val Gardena: Selva - Dantercepies",
+   "src": "vg"
+  },
+  {
+   "name": "Mickey Mouse",
+   "color": "blue",
+   "area": "Val Gardena: Selva - Dantercepies",
+   "src": "vg"
+  },
+  {
+   "name": "Frainella",
+   "color": "red",
+   "area": "Val Gardena: Selva - Dantercepies",
+   "src": "vg"
+  },
+  {
+   "name": "Dantercepies-connection",
+   "color": "red",
+   "area": "Val Gardena: Selva - Dantercepies",
+   "src": "vg"
+  },
+  {
+   "name": "Dantercepies-connection",
+   "color": "red",
+   "area": "Val Gardena: Selva - Dantercepies",
+   "src": "vg"
+  },
+  {
+   "name": "La Ria",
+   "color": "black",
+   "area": "Val Gardena: Selva - Dantercepies",
+   "src": "vg"
+  },
+  {
+   "name": "Pista del Lupo",
+   "color": "blue",
+   "area": "Val Gardena: Selva - Dantercepies",
+   "src": "vg"
+  },
+  {
+   "name": "connection slope - risaccia dantercepies",
+   "color": "blue",
+   "area": "Val Gardena: Selva - Dantercepies",
+   "src": "vg"
+  },
+  {
+   "name": "Ciampinoi - Piza Pranseies",
+   "color": "red",
+   "area": "Val Gardena: Selva - Plan de Gralba",
+   "src": "vg"
+  },
+  {
+   "name": "Sef",
+   "color": "red",
+   "area": "Val Gardena: Selva - Plan de Gralba",
+   "src": "vg"
+  },
+  {
+   "name": "Comici - Tramans",
+   "color": "red",
+   "area": "Val Gardena: Selva - Plan de Gralba",
+   "src": "vg"
+  },
+  {
+   "name": "Comici II",
+   "color": "red",
+   "area": "Val Gardena: Selva - Plan de Gralba",
+   "src": "vg"
+  },
+  {
+   "name": "Sef",
+   "color": "blue",
+   "area": "Val Gardena: Selva - Plan de Gralba",
+   "src": "vg"
+  },
+  {
+   "name": "Paprika",
+   "color": "black",
+   "area": "Val Gardena: Selva - Plan de Gralba",
+   "src": "vg"
+  },
+  {
+   "name": "Fungeia - Campo Freina",
+   "color": "blue",
+   "area": "Val Gardena: Selva - Plan de Gralba",
+   "src": "vg"
+  },
+  {
+   "name": "Gran Paradiso",
+   "color": "blue",
+   "area": "Val Gardena: Selva - Plan de Gralba",
+   "src": "vg"
+  },
+  {
+   "name": "Gran Paradiso - Piz Seteur",
+   "color": "blue",
+   "area": "Val Gardena: Selva - Plan de Gralba",
+   "src": "vg"
+  },
+  {
+   "name": "Piz Sella 5",
+   "color": "red",
+   "area": "Val Gardena: Selva - Plan de Gralba",
+   "src": "vg"
+  },
+  {
+   "name": "Piz Sella 5",
+   "color": "black",
+   "area": "Val Gardena: Selva - Plan de Gralba",
+   "src": "vg"
+  },
+  {
+   "name": "Schiappen - Sella",
+   "color": "blue",
+   "area": "Val Gardena: Selva - Plan de Gralba",
+   "src": "vg"
+  },
+  {
+   "name": "Falk",
+   "color": "red",
+   "area": "Val Gardena: Selva - Plan de Gralba",
+   "src": "vg"
+  },
+  {
+   "name": "Bones Braker / Funtanes",
+   "color": "red",
+   "area": "Val Gardena: Selva - Plan de Gralba",
+   "src": "vg"
+  },
+  {
+   "name": "Piz Seteur - Città dei Sassi",
+   "color": "blue",
+   "area": "Val Gardena: Selva - Plan de Gralba",
+   "src": "vg"
+  },
+  {
+   "name": "Plan de Gralba",
+   "color": "blue",
+   "area": "Val Gardena: Selva - Plan de Gralba",
+   "src": "vg"
+  },
+  {
+   "name": "Pudra",
+   "color": "blue",
+   "area": "Val Gardena: Selva - Plan de Gralba",
+   "src": "vg"
+  },
+  {
+   "name": "Sotsaslong",
+   "color": "blue",
+   "area": "Val Gardena: Selva - Plan de Gralba",
+   "src": "vg"
+  },
+  {
+   "name": "Tramans",
+   "color": "red",
+   "area": "Val Gardena: Selva - Plan de Gralba",
+   "src": "vg"
+  },
+  {
+   "name": "Piz Seteur - Comici",
+   "color": "red",
+   "area": "Val Gardena: Selva - Plan de Gralba",
+   "src": "vg"
+  },
+  {
+   "name": "Sole/Piz Seteur",
+   "color": "blue",
+   "area": "Val Gardena: Selva - Plan de Gralba",
+   "src": "vg"
+  },
+  {
+   "name": "Connection Gran Paradiso - Città dei Sassi",
+   "color": "blue",
+   "area": "Val Gardena: Selva - Plan de Gralba",
+   "src": "vg"
+  },
+  {
+   "name": "Paprika - Comici1",
+   "color": "red",
+   "area": "Val Gardena: Selva - Plan de Gralba",
+   "src": "vg"
+  },
+  {
+   "name": "Piz Seteur - Gran Paradiso",
+   "color": "red",
+   "area": "Val Gardena: Selva - Plan de Gralba",
+   "src": "vg"
+  },
+  {
+   "name": "Connecting slope Gran Paradiso - Sotsasslong",
+   "color": "red",
+   "area": "Val Gardena: Selva - Plan de Gralba",
+   "src": "vg"
+  },
+  {
+   "name": "Città dei Sassi",
+   "color": "blue",
+   "area": "Val Gardena: Selva - Passo Sella",
+   "src": "vg"
+  },
+  {
+   "name": "Martinelli",
+   "color": "red",
+   "area": "Val Gardena: Selva - Passo Sella",
+   "src": "vg"
+  },
+  {
+   "name": "Sas Betit",
+   "color": "blue",
+   "area": "Val Gardena: Selva - Passo Sella",
+   "src": "vg"
+  },
+  {
+   "name": "Passo Sella",
+   "color": "red",
+   "area": "Val Gardena: Selva - Passo Sella",
+   "src": "vg"
+  },
+  {
+   "name": "Sasso Levante",
+   "color": "red",
+   "area": "Val Gardena: Selva - Passo Sella",
+   "src": "vg"
+  },
+  {
+   "name": "Gabia",
+   "color": "blue",
+   "area": "Val Gardena: Selva - Passo Sella",
+   "src": "vg"
+  },
+  {
+   "name": "Rodella",
+   "color": "red",
+   "area": "Val Gardena: Selva - Passo Sella",
+   "src": "vg"
+  },
+  {
+   "name": "Cinque Dita",
+   "color": "red",
+   "area": "Val Gardena: Selva - Passo Sella",
+   "src": "vg"
+  },
+  {
+   "name": "Salei",
+   "color": "red",
+   "area": "Val Gardena: Selva - Passo Sella",
+   "src": "vg"
+  },
+  {
+   "name": "Grohmann",
+   "color": "red",
+   "area": "Val Gardena: Selva - Passo Sella",
+   "src": "vg"
+  },
+  {
+   "name": "Daniela",
+   "color": "red",
+   "area": "Val Gardena: Selva - Passo Sella",
+   "src": "vg"
+  },
+  {
+   "name": "Pradel-Salei-Grohmann",
+   "color": "red",
+   "area": "Val Gardena: Selva - Passo Sella",
+   "src": "vg"
+  },
+  {
+   "name": "Piz Seteur-Plan de Gralba",
+   "color": "red",
+   "area": "Val Gardena: Selva - Passo Sella",
+   "src": "vg"
+  },
+  {
+   "name": "Ciampinoi 3",
+   "color": "black",
+   "area": "Val Gardena: S. Cristina - Ciampinoi - Selva",
+   "src": "vg"
+  },
+  {
+   "name": "La Ciampinoi",
+   "color": "black",
+   "area": "Val Gardena: S. Cristina - Ciampinoi - Selva",
+   "src": "vg"
+  },
+  {
+   "name": "Ciampinoi 4",
+   "color": "red",
+   "area": "Val Gardena: S. Cristina - Ciampinoi - Selva",
+   "src": "vg"
+  },
+  {
+   "name": "Ciampinoi 5",
+   "color": "red",
+   "area": "Val Gardena: S. Cristina - Ciampinoi - Selva",
+   "src": "vg"
+  },
+  {
+   "name": "Ciampinoi 6",
+   "color": "red",
+   "area": "Val Gardena: S. Cristina - Ciampinoi - Selva",
+   "src": "vg"
+  },
+  {
+   "name": "Ciampinoi 5 - variant",
+   "color": "red",
+   "area": "Val Gardena: S. Cristina - Ciampinoi - Selva",
+   "src": "vg"
+  },
+  {
+   "name": "Piza Pranseies - Ciampinoi",
+   "color": "red",
+   "area": "Val Gardena: S. Cristina - Ciampinoi - Selva",
+   "src": "vg"
+  },
+  {
+   "name": "Connection Ciampinoi - Costabella",
+   "color": "red",
+   "area": "Val Gardena: S. Cristina - Ciampinoi - Selva",
+   "src": "vg"
+  },
+  {
+   "name": "Terza Punta",
+   "color": "red",
+   "area": "Val Gardena: S. Cristina - Ciampinoi - Selva",
+   "src": "vg"
+  },
+  {
+   "name": "Saslong",
+   "color": "black",
+   "area": "Val Gardena: S. Cristina - Ciampinoi - Selva",
+   "src": "vg"
+  },
+  {
+   "name": "Saslong B",
+   "color": "red",
+   "area": "Val Gardena: S. Cristina - Ciampinoi - Selva",
+   "src": "vg"
+  },
+  {
+   "name": "Sochers",
+   "color": "red",
+   "area": "Val Gardena: S. Cristina - Ciampinoi - Selva",
+   "src": "vg"
+  },
+  {
+   "name": "Sochers 2",
+   "color": "red",
+   "area": "Val Gardena: S. Cristina - Ciampinoi - Selva",
+   "src": "vg"
+  },
+  {
+   "name": "Connection Saslong - Slope B",
+   "color": "red",
+   "area": "Val Gardena: S. Cristina - Ciampinoi - Selva",
+   "src": "vg"
+  },
+  {
+   "name": "Connection Saslong - Sochers",
+   "color": "red",
+   "area": "Val Gardena: S. Cristina - Ciampinoi - Selva",
+   "src": "vg"
+  },
+  {
+   "name": "Connection Freina - Costabella",
+   "color": "red",
+   "area": "Val Gardena: S. Cristina - Ciampinoi - Selva",
+   "src": "vg"
+  },
+  {
+   "name": "Cendevaves 1",
+   "color": "blue",
+   "area": "Val Gardena: S. Cristina - Monte-Pana - Col Raiser",
+   "src": "vg"
+  },
+  {
+   "name": "Cendevaves 2",
+   "color": "blue",
+   "area": "Val Gardena: S. Cristina - Monte-Pana - Col Raiser",
+   "src": "vg"
+  },
+  {
+   "name": "Bravo",
+   "color": "red",
+   "area": "Val Gardena: S. Cristina - Monte-Pana - Col Raiser",
+   "src": "vg"
+  },
+  {
+   "name": "Alpha",
+   "color": "black",
+   "area": "Val Gardena: S. Cristina - Monte-Pana - Col Raiser",
+   "src": "vg"
+  },
+  {
+   "name": "Charly",
+   "color": "red",
+   "area": "Val Gardena: S. Cristina - Monte-Pana - Col Raiser",
+   "src": "vg"
+  },
+  {
+   "name": "Parallel 1",
+   "color": "blue",
+   "area": "Val Gardena: S. Cristina - Monte-Pana - Col Raiser",
+   "src": "vg"
+  },
+  {
+   "name": "Parallel 2",
+   "color": "blue",
+   "area": "Val Gardena: S. Cristina - Monte-Pana - Col Raiser",
+   "src": "vg"
+  },
+  {
+   "name": "Puntea 1",
+   "color": "blue",
+   "area": "Val Gardena: S. Cristina - Monte-Pana - Col Raiser",
+   "src": "vg"
+  },
+  {
+   "name": "Puntea 2",
+   "color": "blue",
+   "area": "Val Gardena: S. Cristina - Monte-Pana - Col Raiser",
+   "src": "vg"
+  },
+  {
+   "name": "Tschucky",
+   "color": "blue",
+   "area": "Val Gardena: S. Cristina - Monte-Pana - Col Raiser",
+   "src": "vg"
+  },
+  {
+   "name": "Connection Alpha - Bravo",
+   "color": "black",
+   "area": "Val Gardena: S. Cristina - Monte-Pana - Col Raiser",
+   "src": "vg"
+  },
+  {
+   "name": "Catores",
+   "color": "black",
+   "area": "Val Gardena: Ortisei - Resciesa - Seceda - Col Raiser - S. Cristina",
+   "src": "vg"
+  },
+  {
+   "name": "Catores - Fermeda",
+   "color": "red",
+   "area": "Val Gardena: Ortisei - Resciesa - Seceda - Col Raiser - S. Cristina",
+   "src": "vg"
+  },
+  {
+   "name": "Gran Pela",
+   "color": "black",
+   "area": "Val Gardena: Ortisei - Resciesa - Seceda - Col Raiser - S. Cristina",
+   "src": "vg"
+  },
+  {
+   "name": "Pitla Pela",
+   "color": "red",
+   "area": "Val Gardena: Ortisei - Resciesa - Seceda - Col Raiser - S. Cristina",
+   "src": "vg"
+  },
+  {
+   "name": "Pitla Pela Variant",
+   "color": "red",
+   "area": "Val Gardena: Ortisei - Resciesa - Seceda - Col Raiser - S. Cristina",
+   "src": "vg"
+  },
+  {
+   "name": "Colraiser",
+   "color": "red",
+   "area": "Val Gardena: Ortisei - Resciesa - Seceda - Col Raiser - S. Cristina",
+   "src": "vg"
+  },
+  {
+   "name": "Colraiser - Fermeda",
+   "color": "blue",
+   "area": "Val Gardena: Ortisei - Resciesa - Seceda - Col Raiser - S. Cristina",
+   "src": "vg"
+  },
+  {
+   "name": "Col Raiser - Plan Da Tieja",
+   "color": "blue",
+   "area": "Val Gardena: Ortisei - Resciesa - Seceda - Col Raiser - S. Cristina",
+   "src": "vg"
+  },
+  {
+   "name": "Fermeda 1",
+   "color": "red",
+   "area": "Val Gardena: Ortisei - Resciesa - Seceda - Col Raiser - S. Cristina",
+   "src": "vg"
+  },
+  {
+   "name": "Fermeda 2",
+   "color": "red",
+   "area": "Val Gardena: Ortisei - Resciesa - Seceda - Col Raiser - S. Cristina",
+   "src": "vg"
+  },
+  {
+   "name": "Mount Fermeda - Seceda topstation",
+   "color": "red",
+   "area": "Val Gardena: Ortisei - Resciesa - Seceda - Col Raiser - S. Cristina",
+   "src": "vg"
+  },
+  {
+   "name": "Fermeda - S.Cristina",
+   "color": "blue",
+   "area": "Val Gardena: Ortisei - Resciesa - Seceda - Col Raiser - S. Cristina",
+   "src": "vg"
+  },
+  {
+   "name": "Plan Da Tieja",
+   "color": "blue",
+   "area": "Val Gardena: Ortisei - Resciesa - Seceda - Col Raiser - S. Cristina",
+   "src": "vg"
+  },
+  {
+   "name": "Resciesa - Furnes",
+   "color": "red",
+   "area": "Val Gardena: Ortisei - Resciesa - Seceda - Col Raiser - S. Cristina",
+   "src": "vg"
+  },
+  {
+   "name": "Curona",
+   "color": "blue",
+   "area": "Val Gardena: Ortisei - Resciesa - Seceda - Col Raiser - S. Cristina",
+   "src": "vg"
+  },
+  {
+   "name": "Seceda - Fermeda",
+   "color": "red",
+   "area": "Val Gardena: Ortisei - Resciesa - Seceda - Col Raiser - S. Cristina",
+   "src": "vg"
+  },
+  {
+   "name": "La Longia",
+   "color": "red",
+   "area": "Val Gardena: Ortisei - Resciesa - Seceda - Col Raiser - S. Cristina",
+   "src": "vg"
+  },
+  {
+   "name": "La Longia - Furnes",
+   "color": "red",
+   "area": "Val Gardena: Ortisei - Resciesa - Seceda - Col Raiser - S. Cristina",
+   "src": "vg"
+  },
+  {
+   "name": "Armentarola",
+   "color": "red",
+   "area": "Alta Badia",
+   "src": "ab",
+   "nr": "1"
+  },
+  {
+   "name": "Lagazuoi",
+   "color": "red",
+   "area": "Alta Badia",
+   "src": "ab",
+   "nr": "2"
+  },
+  {
+   "name": "Abrusé",
+   "color": "blue",
+   "area": "Alta Badia",
+   "src": "ab",
+   "nr": "35"
+  },
+  {
+   "name": "Arlara",
+   "color": "blue",
+   "area": "Alta Badia",
+   "src": "ab",
+   "nr": "5"
+  },
+  {
+   "name": "Arlara - Pralongiá II",
+   "color": "blue",
+   "area": "Alta Badia",
+   "src": "ab",
+   "nr": "6A"
+  },
+  {
+   "name": "Biok - Pralongiá II",
+   "color": "blue",
+   "area": "Alta Badia",
+   "src": "ab",
+   "nr": "7"
+  },
+  {
+   "name": "Boé",
+   "color": "red",
+   "area": "Alta Badia",
+   "src": "ab",
+   "nr": "1"
+  },
+  {
+   "name": "Pista di collegamento Boé - Costoratta",
+   "color": "red",
+   "area": "Alta Badia",
+   "src": "ab"
+  },
+  {
+   "name": "Raccordo Boé - Crep de Mont",
+   "color": "red",
+   "area": "Alta Badia",
+   "src": "ab",
+   "nr": "2"
+  },
+  {
+   "name": "Braia Fraida",
+   "color": "blue",
+   "area": "Alta Badia",
+   "src": "ab",
+   "nr": "5 B"
+  },
+  {
+   "name": "Braia Fraida - Arlara",
+   "color": "blue",
+   "area": "Alta Badia",
+   "src": "ab",
+   "nr": "5"
+  },
+  {
+   "name": "Capanna Nera",
+   "color": "blue",
+   "area": "Alta Badia",
+   "src": "ab",
+   "nr": "8"
+  },
+  {
+   "name": "Costes da l'Ega",
+   "color": "blue",
+   "area": "Alta Badia",
+   "src": "ab",
+   "nr": "8"
+  },
+  {
+   "name": "Col Alt 4 1/2",
+   "color": "blue",
+   "area": "Alta Badia",
+   "src": "ab",
+   "nr": "4 1/2"
+  },
+  {
+   "name": "Raccordo Col Alt - Braia Fraida",
+   "color": "blue",
+   "area": "Alta Badia",
+   "src": "ab"
+  },
+  {
+   "name": "Col Alt 4",
+   "color": "red",
+   "area": "Alta Badia",
+   "src": "ab",
+   "nr": "4"
+  },
+  {
+   "name": "Crep De Mont",
+   "color": "blue",
+   "area": "Alta Badia",
+   "src": "ab",
+   "nr": "2"
+  },
+  {
+   "name": "Costoratta",
+   "color": "red",
+   "area": "Alta Badia",
+   "src": "ab",
+   "nr": "22 A"
+  },
+  {
+   "name": "La Baita - Pralongiá valle",
+   "color": "blue",
+   "area": "Alta Badia",
+   "src": "ab",
+   "nr": "8"
+  },
+  {
+   "name": "La Brancia - Pralongiá II",
+   "color": "blue",
+   "area": "Alta Badia",
+   "src": "ab",
+   "nr": "6"
+  },
+  {
+   "name": "Pralongiá I",
+   "color": "blue",
+   "area": "Alta Badia",
+   "src": "ab",
+   "nr": "31"
+  },
+  {
+   "name": "Pralongiá I - Arlara",
+   "color": "red",
+   "area": "Alta Badia",
+   "src": "ab",
+   "nr": "5A"
+  },
+  {
+   "name": "Pralongiá II",
+   "color": "blue",
+   "area": "Alta Badia",
+   "src": "ab",
+   "nr": "8"
+  },
+  {
+   "name": "Pralongiá - Punta Trieste",
+   "color": "blue",
+   "area": "Alta Badia",
+   "src": "ab",
+   "nr": "21B"
+  },
+  {
+   "name": "Seggiovia Pralongiá",
+   "color": "blue",
+   "area": "Alta Badia",
+   "src": "ab",
+   "nr": "21 B"
+  },
+  {
+   "name": "Seggiovia Pralongiá - Pralongiá II",
+   "color": "blue",
+   "area": "Alta Badia",
+   "src": "ab",
+   "nr": "8B"
+  },
+  {
+   "name": "Vallon",
+   "color": "black",
+   "area": "Alta Badia",
+   "src": "ab",
+   "nr": "1"
+  },
+  {
+   "name": "Boé - Campolongo",
+   "color": "red",
+   "area": "Alta Badia",
+   "src": "ab",
+   "nr": "22"
+  },
+  {
+   "name": "La Brancia 14",
+   "color": "blue",
+   "area": "Alta Badia",
+   "src": "ab",
+   "nr": "14"
+  },
+  {
+   "name": "Punta Trieste - La Baita",
+   "color": "blue",
+   "area": "Alta Badia",
+   "src": "ab",
+   "nr": "8 A"
+  },
+  {
+   "name": "Boé variante",
+   "color": "red",
+   "area": "Alta Badia",
+   "src": "ab",
+   "nr": "1 A"
+  },
+  {
+   "name": "Col Alt 5",
+   "color": "blue",
+   "area": "Alta Badia",
+   "src": "ab",
+   "nr": "5"
+  },
+  {
+   "name": "Seggiovia Pralongiá",
+   "color": "red",
+   "area": "Alta Badia",
+   "src": "ab",
+   "nr": "21 A"
+  },
+  {
+   "name": "Seggiovia Pralongiá",
+   "color": "red",
+   "area": "Alta Badia",
+   "src": "ab",
+   "nr": "21 B"
+  },
+  {
+   "name": "Connection Borest - Costes da l'Ega",
+   "color": "blue",
+   "area": "Alta Badia",
+   "src": "ab",
+   "nr": "35"
+  },
+  {
+   "name": "Collegamento Capanna Nera",
+   "color": "blue",
+   "area": "Alta Badia",
+   "src": "ab",
+   "nr": "35"
+  },
+  {
+   "name": "Collegamento Crep de Munt - Boé",
+   "color": "blue",
+   "area": "Alta Badia",
+   "src": "ab",
+   "nr": "35"
+  },
+  {
+   "name": "Collegamento Boé - Costes da l'Ega",
+   "color": "blue",
+   "area": "Alta Badia",
+   "src": "ab",
+   "nr": "25"
+  },
+  {
+   "name": "Connection slope Piz Arlara - Costes da l'Ega",
+   "color": "blue",
+   "area": "Alta Badia",
+   "src": "ab"
+  },
+  {
+   "name": "Altin",
+   "color": "red",
+   "area": "Alta Badia",
+   "src": "ab",
+   "nr": "17"
+  },
+  {
+   "name": "Bamby",
+   "color": "red",
+   "area": "Alta Badia",
+   "src": "ab",
+   "nr": "16A"
+  },
+  {
+   "name": "Bamby 2",
+   "color": "red",
+   "area": "Alta Badia",
+   "src": "ab",
+   "nr": "16B"
+  },
+  {
+   "name": "Braia Fraida - Roby",
+   "color": "blue",
+   "area": "Alta Badia",
+   "src": "ab",
+   "nr": "20"
+  },
+  {
+   "name": "Col d'Altin 1",
+   "color": "blue",
+   "area": "Alta Badia",
+   "src": "ab"
+  },
+  {
+   "name": "Col d'Altin 2",
+   "color": "blue",
+   "area": "Alta Badia",
+   "src": "ab"
+  },
+  {
+   "name": "Doninz - Colz",
+   "color": "blue",
+   "area": "Alta Badia",
+   "src": "ab",
+   "nr": "25"
+  },
+  {
+   "name": "Colz - Doninz",
+   "color": "blue",
+   "area": "Alta Badia",
+   "src": "ab"
+  },
+  {
+   "name": "Doninz",
+   "color": "blue",
+   "area": "Alta Badia",
+   "src": "ab",
+   "nr": "26"
+  },
+  {
+   "name": "Gardenaccia B",
+   "color": "blue",
+   "area": "Alta Badia",
+   "src": "ab",
+   "nr": "25"
+  },
+  {
+   "name": "Gardenaccia A",
+   "color": "red",
+   "area": "Alta Badia",
+   "src": "ab",
+   "nr": "26"
+  },
+  {
+   "name": "Gran Risa",
+   "color": "black",
+   "area": "Alta Badia",
+   "src": "ab",
+   "nr": "17"
+  },
+  {
+   "name": "Raccordo La Brancia - n.15",
+   "color": "blue",
+   "area": "Alta Badia",
+   "src": "ab",
+   "nr": "15 A"
+  },
+  {
+   "name": "La Fraina",
+   "color": "red",
+   "area": "Alta Badia",
+   "src": "ab",
+   "nr": "23"
+  },
+  {
+   "name": "Pre Dai Corf",
+   "color": "blue",
+   "area": "Alta Badia",
+   "src": "ab",
+   "nr": "18"
+  },
+  {
+   "name": "Roby",
+   "color": "blue",
+   "area": "Alta Badia",
+   "src": "ab",
+   "nr": "19"
+  },
+  {
+   "name": "Pista di collegamento Bamby",
+   "color": "blue",
+   "area": "Alta Badia",
+   "src": "ab",
+   "nr": "24"
+  },
+  {
+   "name": "Sponata",
+   "color": "red",
+   "area": "Alta Badia",
+   "src": "ab",
+   "nr": "27"
+  },
+  {
+   "name": "Braia Fraida intermedia - Roby",
+   "color": "blue",
+   "area": "Alta Badia",
+   "src": "ab",
+   "nr": "20"
+  },
+  {
+   "name": "Biok",
+   "color": "blue",
+   "area": "Alta Badia",
+   "src": "ab",
+   "nr": "13"
+  },
+  {
+   "name": "Biok - Saraghes",
+   "color": "blue",
+   "area": "Alta Badia",
+   "src": "ab",
+   "nr": "10"
+  },
+  {
+   "name": "Ciampai",
+   "color": "blue",
+   "area": "Alta Badia",
+   "src": "ab",
+   "nr": "28"
+  },
+  {
+   "name": "Raccordo Ciampai - La Fraina",
+   "color": "blue",
+   "area": "Alta Badia",
+   "src": "ab"
+  },
+  {
+   "name": "Raccordo Ciampai - n. 10",
+   "color": "blue",
+   "area": "Alta Badia",
+   "src": "ab",
+   "nr": "10 A"
+  },
+  {
+   "name": "La Para",
+   "color": "blue",
+   "area": "Alta Badia",
+   "src": "ab",
+   "nr": "29"
+  },
+  {
+   "name": "Bordercross La Para",
+   "color": "blue",
+   "area": "Alta Badia",
+   "src": "ab"
+  },
+  {
+   "name": "Pralongiá - San Cassiano",
+   "color": "blue",
+   "area": "Alta Badia",
+   "src": "ab",
+   "nr": "9"
+  },
+  {
+   "name": "Collegamento Armentarola - Piz Sorega",
+   "color": "blue",
+   "area": "Alta Badia",
+   "src": "ab"
+  },
+  {
+   "name": "Piz Sorega A",
+   "color": "red",
+   "area": "Alta Badia",
+   "src": "ab",
+   "nr": "12"
+  },
+  {
+   "name": "Piz Sorega B",
+   "color": "blue",
+   "area": "Alta Badia",
+   "src": "ab",
+   "nr": "11"
+  },
+  {
+   "name": "Roby - Bamby",
+   "color": "blue",
+   "area": "Alta Badia",
+   "src": "ab",
+   "nr": "15"
+  },
+  {
+   "name": "Raccordo Piz Sorega B - Armentarola",
+   "color": "blue",
+   "area": "Alta Badia",
+   "src": "ab",
+   "nr": "9"
+  },
+  {
+   "name": "Codes",
+   "color": "blue",
+   "area": "Alta Badia",
+   "src": "ab",
+   "nr": "30"
+  },
+  {
+   "name": "Baby La Crusc",
+   "color": "blue",
+   "area": "Alta Badia",
+   "src": "ab",
+   "nr": "51"
+  },
+  {
+   "name": "Baby La Crusc - La Crusc 1",
+   "color": "blue",
+   "area": "Alta Badia",
+   "src": "ab",
+   "nr": "51"
+  },
+  {
+   "name": "La Crusc 1",
+   "color": "blue",
+   "area": "Alta Badia",
+   "src": "ab",
+   "nr": "52"
+  },
+  {
+   "name": "La Crusc 1 variante",
+   "color": "red",
+   "area": "Alta Badia",
+   "src": "ab",
+   "nr": "52 A"
+  },
+  {
+   "name": "La Crusc 1 - Baby La Crusc",
+   "color": "blue",
+   "area": "Alta Badia",
+   "src": "ab",
+   "nr": "52"
+  },
+  {
+   "name": "La Crusc 2",
+   "color": "blue",
+   "area": "Alta Badia",
+   "src": "ab",
+   "nr": "53"
+  },
+  {
+   "name": "Col Pradat",
+   "color": "black",
+   "area": "Alta Badia",
+   "src": "ab",
+   "nr": "45"
+  },
+  {
+   "name": "Colfosco 1",
+   "color": "red",
+   "area": "Alta Badia",
+   "src": "ab",
+   "nr": "46"
+  },
+  {
+   "name": "Colfosco 2",
+   "color": "blue",
+   "area": "Alta Badia",
+   "src": "ab",
+   "nr": "46"
+  },
+  {
+   "name": "Collegamento Sodlisia - Frara",
+   "color": "blue",
+   "area": "Alta Badia",
+   "src": "ab",
+   "nr": "36 A"
+  },
+  {
+   "name": "Forcelles",
+   "color": "red",
+   "area": "Alta Badia",
+   "src": "ab",
+   "nr": "50"
+  },
+  {
+   "name": "Frara",
+   "color": "blue",
+   "area": "Alta Badia",
+   "src": "ab",
+   "nr": "40"
+  },
+  {
+   "name": "Frara - Sodlisia",
+   "color": "blue",
+   "area": "Alta Badia",
+   "src": "ab",
+   "nr": "40"
+  },
+  {
+   "name": "Frara - Val Setus",
+   "color": "red",
+   "area": "Alta Badia",
+   "src": "ab",
+   "nr": "41"
+  },
+  {
+   "name": "Pezzei",
+   "color": "blue",
+   "area": "Alta Badia",
+   "src": "ab",
+   "nr": "37"
+  },
+  {
+   "name": "Frara - variante",
+   "color": "blue",
+   "area": "Alta Badia",
+   "src": "ab",
+   "nr": "40 A"
+  },
+  {
+   "name": "Sodlisia",
+   "color": "blue",
+   "area": "Alta Badia",
+   "src": "ab",
+   "nr": "36"
+  },
+  {
+   "name": "Stella Alpina",
+   "color": "blue",
+   "area": "Alta Badia",
+   "src": "ab",
+   "nr": "49"
+  },
+  {
+   "name": "Gardena",
+   "color": "red",
+   "area": "Alta Badia",
+   "src": "ab",
+   "nr": "41"
+  },
+  {
+   "name": "Variante Col Pradat",
+   "color": "blue",
+   "area": "Alta Badia",
+   "src": "ab",
+   "nr": "45A"
+  },
+  {
+   "name": "Stella Alpina variante",
+   "color": "blue",
+   "area": "Alta Badia",
+   "src": "ab",
+   "nr": "49 A"
+  },
+  {
+   "name": "Val Setus",
+   "color": "red",
+   "area": "Alta Badia",
+   "src": "ab"
+  },
+  {
+   "name": "Val Setus - Cir",
+   "color": "blue",
+   "area": "Alta Badia",
+   "src": "ab"
+  },
+  {
+   "name": "Cherz 1",
+   "color": "blue",
+   "area": "Alta Badia",
+   "src": "ab",
+   "nr": "30"
+  },
+  {
+   "name": "Cherz 2",
+   "color": "red",
+   "area": "Alta Badia",
+   "src": "ab",
+   "nr": "31"
+  },
+  {
+   "name": "Incisa",
+   "color": "blue",
+   "area": "Alta Badia",
+   "src": "ab",
+   "nr": "33"
+  },
+  {
+   "name": "Variante Sole",
+   "color": "blue",
+   "area": "Alta Badia",
+   "src": "ab",
+   "nr": "35"
+  },
+  {
+   "name": "Pista del Sole",
+   "color": "blue",
+   "area": "Alta Badia",
+   "src": "ab",
+   "nr": "34"
+  },
+  {
+   "name": "La Vizza",
+   "color": "red",
+   "area": "Alta Badia",
+   "src": "ab",
+   "nr": "32"
+  },
+  {
+   "name": "Col dei Rossi",
+   "color": "red",
+   "area": "Belvedere - Col Rodella (Canazei)",
+   "src": "fa"
+  },
+  {
+   "name": "Diego",
+   "color": "black",
+   "area": "Belvedere - Col Rodella (Canazei)",
+   "src": "fa"
+  },
+  {
+   "name": "Variante Gare",
+   "color": "red",
+   "area": "Belvedere - Col Rodella (Canazei)",
+   "src": "fa"
+  },
+  {
+   "name": "Gherdecia",
+   "color": "red",
+   "area": "Belvedere - Col Rodella (Canazei)",
+   "src": "fa"
+  },
+  {
+   "name": "Pian Frataces",
+   "color": "red",
+   "area": "Belvedere - Col Rodella (Canazei)",
+   "src": "fa"
+  },
+  {
+   "name": "Canazei",
+   "color": "red",
+   "area": "Belvedere - Col Rodella (Canazei)",
+   "src": "fa"
+  },
+  {
+   "name": "Variante Super Red",
+   "color": "red",
+   "area": "Belvedere - Col Rodella (Canazei)",
+   "src": "fa"
+  },
+  {
+   "name": "Belvedere",
+   "color": "blue",
+   "area": "Belvedere - Col Rodella (Canazei)",
+   "src": "fa"
+  },
+  {
+   "name": "Sass Becè",
+   "color": "red",
+   "area": "Belvedere - Col Rodella (Canazei)",
+   "src": "fa"
+  },
+  {
+   "name": "Variante Marmotte",
+   "color": "red",
+   "area": "Belvedere - Col Rodella (Canazei)",
+   "src": "fa"
+  },
+  {
+   "name": "Vernel",
+   "color": "red",
+   "area": "Belvedere - Col Rodella (Canazei)",
+   "src": "fa"
+  },
+  {
+   "name": "Variante Il Muro",
+   "color": "black",
+   "area": "Belvedere - Col Rodella (Canazei)",
+   "src": "fa"
+  },
+  {
+   "name": "Belvedere 1",
+   "color": "red",
+   "area": "Belvedere - Col Rodella (Canazei)",
+   "src": "fa"
+  },
+  {
+   "name": "Belvedere 2",
+   "color": "red",
+   "area": "Belvedere - Col Rodella (Canazei)",
+   "src": "fa"
+  },
+  {
+   "name": "Arabba",
+   "color": "blue",
+   "area": "Belvedere - Col Rodella (Canazei)",
+   "src": "fa"
+  },
+  {
+   "name": "Pordoi",
+   "color": "red",
+   "area": "Belvedere - Col Rodella (Canazei)",
+   "src": "fa"
+  },
+  {
+   "name": "Maria",
+   "color": "blue",
+   "area": "Belvedere - Col Rodella (Canazei)",
+   "src": "fa"
+  },
+  {
+   "name": "Gonzaga",
+   "color": "red",
+   "area": "Belvedere - Col Rodella (Canazei)",
+   "src": "fa"
+  },
+  {
+   "name": "3-Tre",
+   "color": "red",
+   "area": "Belvedere - Col Rodella (Canazei)",
+   "src": "fa"
+  },
+  {
+   "name": "3-Tre var. agonistica",
+   "color": "red",
+   "area": "Belvedere - Col Rodella (Canazei)",
+   "src": "fa"
+  },
+  {
+   "name": "3-Tre - Mortic",
+   "color": "red",
+   "area": "Belvedere - Col Rodella (Canazei)",
+   "src": "fa"
+  },
+  {
+   "name": "Rodella",
+   "color": "red",
+   "area": "Belvedere - Col Rodella (Canazei)",
+   "src": "fa"
+  },
+  {
+   "name": "Salei",
+   "color": "red",
+   "area": "Belvedere - Col Rodella (Canazei)",
+   "src": "fa"
+  },
+  {
+   "name": "Grohmann",
+   "color": "red",
+   "area": "Belvedere - Col Rodella (Canazei)",
+   "src": "fa"
+  },
+  {
+   "name": "Cinque Dita",
+   "color": "red",
+   "area": "Belvedere - Col Rodella (Canazei)",
+   "src": "fa"
+  },
+  {
+   "name": "Martinelli",
+   "color": "red",
+   "area": "Belvedere - Col Rodella (Canazei)",
+   "src": "fa"
+  },
+  {
+   "name": "Gabia",
+   "color": "blue",
+   "area": "Belvedere - Col Rodella (Canazei)",
+   "src": "fa"
+  },
+  {
+   "name": "Col de Lin",
+   "color": "blue",
+   "area": "Belvedere - Col Rodella (Canazei)",
+   "src": "fa"
+  },
+  {
+   "name": "Campo scuola Col da Fae'",
+   "color": "blue",
+   "area": "Belvedere - Col Rodella (Canazei)",
+   "src": "fa"
+  },
+  {
+   "name": "Avisio Fraina",
+   "color": "blue",
+   "area": "Belvedere - Col Rodella (Canazei)",
+   "src": "fa"
+  }
+ ]
+}

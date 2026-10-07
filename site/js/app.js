@@ -225,7 +225,7 @@ function draw(root,pistes,lifts,store){
     }else if(p.named){
       const lin=p.segs.filter(s=>!s.area).sort((a,b)=>b.g.length-a.g.length)[0];
       if(lin){const q=P(lin.g[Math.floor(lin.g.length/2)]);
-        const t=mk('text',{x:q[0],y:q[1],class:'lbl pg '+ck(p),fill:route?'var(--p-route-edge)':`var(--p-${ck(p)})`,'text-anchor':'middle','data-key':p.key},gLbl);t.textContent=dispName(p);store.labels.push(t);pisteEls[p.key].push(t);}
+        const t=mk('text',{x:q[0],y:q[1],class:'lbl pg '+ck(p),fill:route?'var(--p-route-edge)':`var(--p-${ck(p)})`,'text-anchor':'middle',direction:'ltr','data-key':p.key},gLbl);t.textContent=dispName(p);store.labels.push(t);pisteEls[p.key].push(t);}
     }
   });
   lifts.forEach(l=>{
@@ -599,6 +599,8 @@ openBtn.onclick=()=>{if(view==='3d')v3.kobi();else openInset();};
 {const _up=up;} // keep 2D handlers
 wrap.classList.add('mode2d');
 // filters live in the toolbar above the map; a resort with ski routes gets a chip for them, after the colours (round 24)
+// a colour no run of this resort has is not a filter (no green in Sölden or Sella Ronda)
+['green','blue','red','black'].forEach(c=>{if(!D.pistes.some(p=>p.color===c)){const x=document.querySelector(`#filters [data-filter="${c}"]`);if(x)x.style.display='none';}});
 if(D.pistes.some(p=>p.kind==='ski-route')){const b=document.createElement('button');b.type='button';b.className='fchip';b.dataset.filter='route';b.setAttribute('aria-pressed','true');
   b.innerHTML=`<span class="sq route"></span><span>${E('map.filter_routes')}</span>`;const after=document.querySelector('#filters [data-filter="black"]');after.after(b);}
 // the legend folds into a chip in the scale's corner, like the Kobi one (round 24): closed on every visit, the kinds this resort has
