@@ -85,6 +85,8 @@
 | 27 | Shymbulak (KZ) | 7 | 4 | 3 | 11/20, 0.55 | 86% | באפליקציה | 2.4 | אין קשר | קזחית | Copernicus |
 | 28 | Cerro Catedral (AR) | 7 | 4 | 3 | 57/48, 1.18 | 64% | באפליקציה | 4.7 | אין נתון | ספרדית | מודל ארגנטינאי, רישיון לא ידוע |
 
+**הקהל הישראלי לפי מה שהחברות מוכרות (7.10.2026):** `research/resorts/israeli-market.md`. Sella Ronda (הראשון לפי סקי דיל), Paradiski ו-Avoriaz חסרים בטבלה הזו.
+
 **לא בטבלה, ושווה בדיקה:** Cervinia, Passo Tonale, Serre Chevalier, Montgenèvre ו-Les Arcs מוזכרים בכתבות בעיתונות הישראלית (`audience.md`), ולא נכנסו לרשימה המקורית. Val di Fassa ו-Madonna di Campiglio נבדקו ברשמי, אבל ההיקף במפה הפתוחה לא תואם להיקף שהאתר מפרסם (Dolomiti Superski חסם את הבדיקה), ולכן לא דורגו.
 
 ## ממצאים שחשובים להחלטה
