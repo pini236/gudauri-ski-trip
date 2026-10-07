@@ -6,6 +6,8 @@ const OUT = HERE + 'shots/'; fs.mkdirSync(OUT, { recursive: true });
 const PROP = HERE + 'proposal.js';
 const SR = JSON.parse(fs.readFileSync(HERE + 'data/skiroutes.json', 'utf8')).routes;
 const KEYS = SR.map(r => r.key);
+// ski routes on the official map with no line in the open map (research/resorts/soelden-official-compare.md)
+const MISS = ['60', '63', '64', '65', '73', '81'];
 const hav = (a, b) => { const k = 111320, x = (b[1] - a[1]) * k * Math.cos(a[0] * Math.PI / 180), y = (b[0] - a[0]) * k; return Math.hypot(x, y); };
 // the routes as runs of the site's schema, kind 'ski-route' (colour from OSM only so the site's panel can render; restyled)
 const asPistes = () => SR.map(r => ({ key: r.key, name: r.key, osmNames: [r.key], color: 'red', named: true, kind: 'ski-route',
@@ -45,13 +47,18 @@ S.push(
   ['today-gud-zoom', '/#map/run/Pirveli', null, { st: D2, back: 1 }],
   ['prop-gud-zoom', '/#map/run/Pirveli', { areas: 'solid' }, { st: D2, back: 1 }],
 );
+S.push(
+  ['prop-missing', '/?resort=soelden#map', { routes: 1, areas: 'solid', missing: 1 }, { st: D2, inj: 1, scrollTo: '#panel .miss' }],
+  ['prop-missing63', '/?resort=soelden#map/run/63', { routes: 1, areas: 'solid', panel: '63' }, { st: D2, inj: 1, scroll: 1 }],
+  ['prop-hut', '/?resort=soelden#map/run/Gaislachalm', { routes: 1, areas: 'solid', panel: 'Gaislachalm', hut: 1 }, { st: D2, inj: 1, scroll: 1 }],
+);
 const only = process.argv[2];
 const b = await launch();
 for (const [n, u, p, o] of S) {
   if (only && !n.startsWith(only)) continue;
   const { ctx, page } = await open(b, u, { theme: 'day', extraStorage: o.st, wait: o.wait || 3500, now: NOW, trip: null, w: o.w, h: o.h, theme: o.theme || 'day',
     pre: o.inj ? async (c) => {
-      await c.route(/\/data\/resorts\/soelden\/runs-and-lifts\.json/, async r => { const d = JSON.parse(fs.readFileSync(ROOT + 'site/data/resorts/soelden/runs-and-lifts.json', 'utf8')); d.pistes.push(...asPistes()); await r.fulfill({ contentType: 'application/json', body: JSON.stringify(d) }); });
+      await c.route(/\/data\/resorts\/soelden\/runs-and-lifts\.json/, async r => { const d = JSON.parse(fs.readFileSync(ROOT + 'site/data/resorts/soelden/runs-and-lifts.json', 'utf8')); d.pistes.push(...asPistes()); d.missing.push(...MISS.map(name => ({ name, color: 'red', kind: 'ski-route' }))); await r.fulfill({ contentType: 'application/json', body: JSON.stringify(d) }); });
       // 3D: the routes in orange, in dashes of 45 m (the site would dash them in the line shader)
       await c.addInitScript(keys => { let R; Object.defineProperty(window, 'GudRelief', { configurable: true, get: () => R, set(v) { R = v; const V = v.View3D;
         v.View3D = function (o) { const dash = g => { const out = []; let cur = [g[0]], acc = 0, on = true; const m = (a, b) => Math.hypot((b[1] - a[1]) * 76000, (b[0] - a[0]) * 111320);
@@ -62,7 +69,8 @@ for (const [n, u, p, o] of S) {
           return V.call(this, o); }; } }); }, KEYS);
     } : null });
   if (o.back) { await page.click('[data-back]').catch(e => console.log(n, 'no back')); await page.waitForTimeout(1200); await page.evaluate(() => window.scrollTo(0, 0)); }
-  if (p) { await page.addScriptTag({ path: PROP }); const c = await page.evaluate(([q, KEYS]) => window.R24.apply({ ...q, routes: q.routes ? KEYS : null }), [p, KEYS]); console.log(n, JSON.stringify(c)); await page.waitForTimeout(500); }
+  if (p) { await page.addScriptTag({ path: PROP }); const c = await page.evaluate(([q, KEYS, MISS]) => window.R24.apply({ ...q, routes: q.routes ? KEYS : null, missing: q.missing ? MISS : null }), [p, KEYS, MISS]); console.log(n, JSON.stringify(c)); await page.waitForTimeout(500); }
+  if (o.scrollTo) await page.evaluate(q => { const e = document.querySelector(q); e && e.scrollIntoView({ block: 'center' }); }, o.scrollTo);
   if (o.scroll) await page.evaluate(() => { const pn = document.getElementById('panel'); pn && pn.querySelector('dl.kv') && pn.querySelector('dl.kv').scrollIntoView({ block: 'center' }); });
   await page.screenshot({ path: OUT + n + '.png' });
   if (page._errors.length) console.log(n, page._errors);

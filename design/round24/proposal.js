@@ -12,6 +12,7 @@
       .r24-tag{display:inline-flex;align-items:center;gap:8px;min-height:30px;padding:3px 10px;border:2px solid var(--p-route);font-weight:700;font-size:.92rem;line-height:1.25}
       .r24-tag i{flex:none;width:14px;height:14px;background:var(--p-route);transform:rotate(45deg)}
       #panel h2.r24-h{--board:var(--p-route);color:var(--route-ink)}
+      .r24-dia{display:inline-block;flex:none;width:11px;height:11px;background:var(--p-route);transform:rotate(45deg);margin-inline-end:6px}
       .r24-legend{position:absolute;inset-inline-end:10px;bottom:34px;z-index:3;display:flex;flex-direction:column;gap:6px;padding:8px 10px;background:var(--paper,#fff);border:1px solid var(--grid);font-size:.8rem;font-weight:600}
       .r24-legend span{display:flex;align-items:center;gap:8px;white-space:nowrap}
       .r24-legend svg{flex:none}`;
@@ -63,21 +64,41 @@
     w.appendChild(d);
   }
   // the run panel of a route: the kind instead of colour and difficulty
-  function panel(k){
+  // the run list: ski routes out of the runs, in a section of their own, with the diamond
+  function list(keys){
+    const idx=document.querySelector('#panel .index');if(!idx)return 0;
+    const bs=[...idx.querySelectorAll('button[data-goto]')].filter(b=>keys.includes(b.dataset.goto));if(!bs.length)return 0;
+    const h3=document.createElement('h3');h3.textContent=`דרכי סקי · ${bs.length}`;
+    const nb=document.createElement('div');nb.className='index';
+    bs.forEach(b=>{const sw=b.querySelector('.sw');if(sw){const d=document.createElement('span');d.className='r24-dia';sw.replaceWith(d);}nb.appendChild(b);});
+    idx.after(h3,nb);return bs.length;
+  }
+  // ski routes without a line in the open map: their own row under the missing runs, with the diamond
+  function missing(keys){
+    const box=document.querySelector('#panel .miss');if(!box)return 0;
+    const bs=[...box.querySelectorAll('button[data-goto]')].filter(b=>keys.includes(b.dataset.goto));if(!bs.length)return 0;
+    const h=box.previousElementSibling;if(h&&h.tagName==='H3')h.textContent=h.textContent.replace(/\d+/,String(box.children.length-bs.length));
+    const h3=document.createElement('h3');h3.textContent=`דרכי סקי בלי קו במפה · ${bs.length}`;
+    const nb=document.createElement('div');nb.className='miss';
+    bs.forEach(b=>{const sw=b.querySelector('.sw');if(sw){const d=document.createElement('span');d.className='r24-dia';sw.replaceWith(d);}nb.appendChild(b);});
+    box.after(h3,nb);return bs.length;
+  }
+  function panel(k,hut){
     const pn=document.getElementById('panel');if(!pn)return false;
-    const h=pn.querySelector('.run-sign h2');if(!h)return false;h.className='r24-h';
+    const h=pn.querySelector('.run-sign h2')||pn.querySelector('h2');if(!h)return false;h.className='r24-h';
     const dl=pn.querySelector('dl.kv');if(!dl)return false;
     const dts=[...dl.querySelectorAll('dt')];
     const find=re=>dts.find(t=>re.test(t.textContent));
-    const color=find(/צבע/),diff=find(/^קושי|דרגת קושי/),osm=find(/OSM|במפה הפתוחה/),groom=find(/הכשר|הכנה/);
-    if(color){color.textContent='סוג';color.nextElementSibling.innerHTML='<span class="r24-tag"><i></i>דרך סקי · לא מוכשרת, לא נבדקת</span>';}
+    const color=find(/צבע/),diff=find(/קושי/),osm=find(/OSM|במפה הפתוחה/),groom=find(/הכשר|הכנה/);
+    if(color){color.textContent='סוג';color.nextElementSibling.innerHTML=(hut?'<span class="r24-tag"><i></i>דרך לבקתה · פרטית, לא מוכשרת</span>':'<span class="r24-tag"><i></i>דרך סקי · לא מוכשרת, לא נבדקת</span>');}
     [diff,osm,groom].forEach(t=>{if(t){t.nextElementSibling.remove();t.remove();}});
     return true;
   }
   window.R24={apply(o){css();const r={};
-    if(o.routes)r.routes=routes(o.routes);
+    if(o.routes){r.routes=routes(o.routes);r.list=list(o.routes);}
     if(o.areas)r.areas=areas(o.areas);
     if(o.legend)legend();
-    if(o.panel)r.panel=panel(o.panel);
+    if(o.panel)r.panel=panel(o.panel,o.hut);
+    if(o.missing)r.missing=missing(o.missing);
     return r;}};
 })();
