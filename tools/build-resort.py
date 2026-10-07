@@ -212,6 +212,34 @@ for f in lifts:
                   'year': None, 'status': None})
 LIFTS.sort(key=lambda l: (l['name'] is None, l['name'] or '', l['id']))
 
+# ---------- an official lift registry, when the resort's region publishes one (capacity and year only; the line stays the open map's) ----------
+REG = C.get('lift_registry')
+if REG:
+    rf = cache / f'registry_{RID}.geojson'
+    if not rf.exists():
+        b = C['dem_bbox']
+        curl(REG['url'] + '/query?where=1%3D1&geometry=' + f'{b[1]},{b[0]},{b[3]},{b[2]}' + '&geometryType=esriGeometryEnvelope&inSR=4326&outSR=4326&outFields=*&f=geojson', rf)
+    RL = []
+    for f in json.load(open(rf, encoding='utf-8'))['features']:
+        gg = f['geometry']; cs = gg['coordinates'] if gg['type'] == 'LineString' else [c for part in gg['coordinates'] for c in part]
+        RL.append((f['properties'], [ll(c) for c in cs]))
+    def mid_ends(g): return [g[0], g[-1]]
+    used = set()
+    for l in LIFTS:
+        best = None
+        for i, (pr, g) in enumerate(RL):
+            if i in used: continue
+            a, b = mid_ends(l['g']); c, d = mid_ends(g)
+            e = min(max(dist(a, c), dist(b, d)), max(dist(a, d), dist(b, c)))  # both ends, either direction
+            if e < REG.get('max_end_m', 120) and (best is None or e < best[0]): best = (e, i, pr)
+        if not best: continue
+        used.add(best[1]); pr = best[2]; F = REG['fields']
+        if pr.get(F['cap']): l['cap'] = int(pr[F['cap']])
+        if pr.get(F['year']): l['year'] = int(pr[F['year']])
+        l['reg'] = {'name': pr.get(F['name']), 'end_m': round(best[0])}
+    print('registry:', sum(1 for l in LIFTS if 'reg' in l), 'of', len(LIFTS), 'lifts matched;', len(RL) - len(used), 'registry lifts unmatched:',
+          [pr.get(REG['fields']['name']) for i, (pr, g) in enumerate(RL) if i not in used], file=sys.stderr)
+
 def norm_number(v):
     v = (v or '').strip()
     return v if v and len(v) <= 4 and v[0].isdigit() else None
@@ -306,7 +334,8 @@ pistes.sort(key=lambda p: (not p['named'], order[p['color']], [int(x) if x.isdig
 lats = [q[0] for p in pistes for s in p['segs'] for q in s['g']] + [q[0] for l in LIFTS for q in l['g']]
 lons = [q[1] for p in pistes for s in p['segs'] for q in s['g']] + [q[1] for l in LIFTS for q in l['g']]
 LICENSE = ('Runs and lifts from OpenStreetMap through OpenSkiMap: © OpenStreetMap contributors, available under the Open Database '
-           'License (ODbL 1.0, https://opendatacommons.org/licenses/odbl/). This file is a derived database and stays under the ODbL.')
+           'License (ODbL 1.0, https://opendatacommons.org/licenses/odbl/). This file is a derived database and stays under the ODbL.'
+           + (' Lift capacity and year of construction: ' + REG['attribution'] if REG else ''))
 data = {'resort': RID, 'license': LICENSE, 'pistes': pistes, 'lifts': LIFTS, 'missing': OV.get('missing', []), 'fetched': FETCHED(),
         'bbox': [round(min(lats), 3), round(min(lons), 3), round(max(lats), 3), round(max(lons), 3)],
         'research': {'date': datetime.date.today().isoformat(),

@@ -15724,10 +15724,10 @@
    ]
   },
   "resort.soelden.sources": {
-   "he": "קווים: OpenStreetMap דרך OpenSkiMap, נמשך {fetched}, כמו שהם, בלי השלמות. הצבעים לפי דרגת הקושי במפה הפתוחה (קל כחול, בינוני אדום, קשה שחור), ועוד לא נבדקו מול המפה הרשמית של Sölden. אורכים אופקיים מהקואורדינטות. תבליט וגבהים: © offene Daten Österreichs – Digitales Geländemodell (DGM) Österreich (CC BY 3.0 AT), דרך אריחי הגובה של AWS. הכפרים, הכבישים, המים והפסגות: OSM. © OpenStreetMap contributors, ODbL.",
-   "en": "Lines: OpenStreetMap via OpenSkiMap, fetched {fetched}, as they are, nothing filled in. Colours follow the difficulty in the open map (easy blue, intermediate red, difficult black) and have not been checked against the official Sölden map yet. Horizontal lengths from the coordinates. Relief and altitudes: © offene Daten Österreichs – Digitales Geländemodell (DGM) Österreich (CC BY 3.0 AT), through the Terrain Tiles on AWS. Villages, roads, water and peaks: OSM. © OpenStreetMap contributors, ODbL.",
-   "ru": "Линии: OpenStreetMap через OpenSkiMap, загружено {fetched}, как есть, без дополнений. Цвета — по сложности в открытой карте (лёгкая синяя, средняя красная, сложная чёрная), с официальной картой Зёльдена ещё не сверены. Горизонтальные длины — по координатам. Рельеф и высоты: © offene Daten Österreichs – Digitales Geländemodell (DGM) Österreich (CC BY 3.0 AT), через тайлы высот на AWS. Посёлки, дороги, вода и вершины: OSM. © OpenStreetMap contributors, ODbL.",
-   "ka": "ხაზები: OpenStreetMap, OpenSkiMap-ის მეშვეობით, ჩამოტვირთულია {fetched}, როგორც არის, შევსების გარეშე. ფერები ღია რუკის სირთულის მიხედვითაა (მარტივი ლურჯი, საშუალო წითელი, რთული შავი) და ზელდენის ოფიციალურ რუკასთან ჯერ არ შემოწმებულა. ჰორიზონტალური სიგრძეები კოორდინატებიდანაა. რელიეფი და სიმაღლეები: © offene Daten Österreichs – Digitales Geländemodell (DGM) Österreich (CC BY 3.0 AT), AWS-ის სიმაღლის ფილების მეშვეობით. სოფლები, გზები, წყალი და მწვერვალები: OSM. © OpenStreetMap contributors, ODbL.",
+   "he": "קווים: OpenStreetMap דרך OpenSkiMap, נמשך {fetched}, כמו שהם, בלי השלמות. הצבעים לפי דרגת הקושי במפה הפתוחה (קל כחול, בינוני אדום, קשה שחור), ונבדקו מול רשימת המסלולים הרשמית של Sölden. אורכים אופקיים מהקואורדינטות. קיבולת הרכבלים ושנת הבנייה: Land Tirol (CC BY 4.0). תבליט וגבהים: © offene Daten Österreichs – Digitales Geländemodell (DGM) Österreich (CC BY 3.0 AT), דרך אריחי הגובה של AWS. הכפרים, הכבישים, המים והפסגות: OSM. © OpenStreetMap contributors, ODbL.",
+   "en": "Lines: OpenStreetMap via OpenSkiMap, fetched {fetched}, as they are, nothing filled in. Colours follow the difficulty in the open map (easy blue, intermediate red, difficult black) and were checked against Sölden's official list of slopes. Horizontal lengths from the coordinates. Lift capacity and year built: Land Tirol (CC BY 4.0). Relief and altitudes: © offene Daten Österreichs – Digitales Geländemodell (DGM) Österreich (CC BY 3.0 AT), through the Terrain Tiles on AWS. Villages, roads, water and peaks: OSM. © OpenStreetMap contributors, ODbL.",
+   "ru": "Линии: OpenStreetMap через OpenSkiMap, загружено {fetched}, как есть, без дополнений. Цвета — по сложности в открытой карте (лёгкая синяя, средняя красная, сложная чёрная), сверены с официальным списком трасс Зёльдена. Горизонтальные длины — по координатам. Пропускная способность подъёмников и год постройки: Land Tirol (CC BY 4.0). Рельеф и высоты: © offene Daten Österreichs – Digitales Geländemodell (DGM) Österreich (CC BY 3.0 AT), через тайлы высот на AWS. Посёлки, дороги, вода и вершины: OSM. © OpenStreetMap contributors, ODbL.",
+   "ka": "ხაზები: OpenStreetMap, OpenSkiMap-ის მეშვეობით, ჩამოტვირთულია {fetched}, როგორც არის, შევსების გარეშე. ფერები ღია რუკის სირთულის მიხედვითაა (მარტივი ლურჯი, საშუალო წითელი, რთული შავი) და შემოწმებულია ზელდენის ტრასების ოფიციალურ სიასთან. ჰორიზონტალური სიგრძეები კოორდინატებიდანაა. საბაგიროების გამტარუნარიანობა და აშენების წელი: Land Tirol (CC BY 4.0). რელიეფი და სიმაღლეები: © offene Daten Österreichs – Digitales Geländemodell (DGM) Österreich (CC BY 3.0 AT), AWS-ის სიმაღლის ფილების მეშვეობით. სოფლები, გზები, წყალი და მწვერვალები: OSM. © OpenStreetMap contributors, ODbL.",
    "where": "site/js/app.js",
    "note": "like map.overview_source_text, the sources of this resort",
    "check": [
@@ -15952,6 +15952,30 @@
    "ka": "© offene Daten Österreichs – Digitales Geländemodell (DGM) Österreich, ლიცენზია CC BY 3.0 AT, AWS Terrain Tiles-ის მეშვეობით.",
    "where": "site/index.html",
    "note": "the exact attribution statement of the data provider; the German stays as it is",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "about.credit_lifts_tirol_label": {
+   "he": "רכבלים ב-Sölden:",
+   "en": "Lifts in Sölden:",
+   "ru": "Подъёмники в Зёльдене:",
+   "ka": "საბაგიროები ზელდენში:",
+   "where": "site/index.html",
+   "note": "like about.credit_terrain_at_label",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "about.credit_lifts_tirol": {
+   "he": "קיבולת ושנת בנייה: Land Tirol, data.tirol.gv.at (Aufstiegshilfen), ברישיון CC BY 4.0.",
+   "en": "Capacity and year built: Land Tirol, data.tirol.gv.at (Aufstiegshilfen), licensed CC BY 4.0.",
+   "ru": "Пропускная способность и год постройки: Land Tirol, data.tirol.gv.at (Aufstiegshilfen), по лицензии CC BY 4.0.",
+   "ka": "გამტარუნარიანობა და აშენების წელი: Land Tirol, data.tirol.gv.at (Aufstiegshilfen), ლიცენზია CC BY 4.0.",
+   "where": "site/index.html",
+   "note": "the data provider's attribution; 'Land Tirol' and the layer name stay as they are",
    "check": [
     "ru",
     "ka"
