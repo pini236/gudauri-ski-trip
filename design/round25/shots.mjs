@@ -66,6 +66,21 @@ const QC = { blue: '#1F5FC4', red: '#D1342B', black: '#13233A', green: '#1B8A4C'
 const V3ALL = D => ({ mode: 'all', runOf: D.runOf, vcol: Object.fromEntries(Object.keys(D.sectors).map(k => [k, VCOL[k]])), plates: Object.entries(D.sectors).map(([k, v]) => ({ name: v.name, x: v.label[0], y: v.label[1], col: VCOL[k], pts: v.lines.flat().filter((_, i) => i % 7 === 0),
   counts: ['blue', 'red', 'black', 'green'].filter(c => v.colors[c]).map(c => `<em><i style="background:${QC[c]}"></i>${v.colors[c]}</em>`).join('') })) });
 const V3VAL = (D, k) => ({ mode: 'valley', k, runOf: D.runOf, liftOf: D.liftOf, mute: '#AEB8C4' });
+
+// D2, the phone: go round the mountain. For the valley in front: its neighbours to the left and right (by the camera's own
+// right vector, the site's view maths: camera at target + dist*(sin az, cos az)), the one behind, and the ring.
+function orbitQ(id, k, behind = 'מאחורי ההר', hint = 'החלקה: לעמק הבא') {
+  const D = V[id], c = cam(id, k), ca = Math.cos(c.az), sa = Math.sin(c.az);
+  const m = id === 'sellaronda' ? D.P([46.512, 11.80]) : (() => { const L = Object.values(D.sectors).map(v => v.bbox); return [L.reduce((t, q) => t + (q[0] + q[2]) / 2, 0) / L.length, L.reduce((t, q) => t + (q[1] + q[3]) / 2, 0) / L.length]; })();
+  const ctr = v => [(v.bbox[0] + v.bbox[2]) / 2, (v.bbox[1] + v.bbox[3]) / 2];
+  const it = Object.entries(D.sectors).map(([kk, v]) => { const [x, z] = ctr(v), a = Math.atan2(x - m[0], z - m[1]), r = a - c.az;
+    return { k: kk, name: v.name, col: VCOL[kk], sx: Math.sin(r), near: Math.cos(r), r: Math.atan2(Math.sin(r), Math.cos(r)), cur: kk === k,
+      counts: ['blue', 'red', 'black', 'green'].filter(q => v.colors[q]).map(q => `<em><i style="background:var(--p-${q})"></i>${v.colors[q]}</em>`).join('') }; });
+  const others = it.filter(v => !v.cur), back = others.length > 2 ? others.reduce((b, v) => v.near < b.near ? v : b) : null, side = others.filter(v => v !== back);
+  const L = side.filter(v => v.sx < 0).sort((a, b) => b.near - a.near)[0] || null, R = side.filter(v => v.sx >= 0).sort((a, b) => b.near - a.near)[0] || null;
+  return { cur: it.find(v => v.cur), L, R, B: back, behind, hint, ring: it.map(v => ({ col: v.col, r: v.r, cur: v.cur })) };
+}
+const V3ORB = D => ({ ...V3ALL(D), plates: [] });
 export const S = [
   // [name, url, proposal, opts]
   ['today-sr', SR, null, { st: D2 }],
@@ -104,6 +119,11 @@ export const S = [
   ['d-sr-all', SR, { D: SRD, chips3d: 'all' }, { st: D3, wait: 7000, v3: V3ALL(SRD), cam: camAll('sellaronda', .95, Math.PI / 2) }],
   ['d-sr-all-desk', SR, { D: SRD, chips3d: 'all' }, { st: D3, wait: 7000, v3: V3ALL(SRD), cam: camAll('sellaronda'), ...DESK }],
   ['d-so-all', SO, { D: SOD, chips3d: 'all' }, { st: D3, wait: 7000, v3: V3ALL(SOD), cam: camAll('soelden', .95, Math.PI / 2) }],
+  // D2: the phone, round the mountain (whole-resort colours, the camera in one valley, the names on the screen's edges)
+  ['e-sr-badia', SR, { D: SRD, orbit: orbitQ('sellaronda', 'badia') }, { st: D3, wait: 7000, v3: V3ORB(SRD), cam: cam('sellaronda', 'badia', 1.05, .5) }],
+  ['e-sr-gardena', SR, { D: SRD, orbit: orbitQ('sellaronda', 'gardena', undefined, null) }, { st: D3, wait: 7000, v3: V3ORB(SRD), cam: cam('sellaronda', 'gardena', 1.05, .5) }],
+  ['e-sr-badia-night', SR, { D: SRD, orbit: orbitQ('sellaronda', 'badia', undefined, null) }, { st: D3, wait: 7000, v3: V3ORB(SRD), cam: cam('sellaronda', 'badia', 1.05, .5), theme: 'night' }],
+  ['e-so-b', SO, { D: SOD, orbit: orbitQ('soelden', 'b', 'מאחורי ההר', null) }, { st: D3, wait: 7000, v3: V3ORB(SOD), cam: cam('soelden', 'b', 1.3, .5) }],
 ];
 const only = process.argv[2];
 const b = await launch();
@@ -135,9 +155,11 @@ for (const [n, u, p, o] of S) {
           .r3-lbl.r25-v3 b{font:700 19px/1 Karantina,'Arial Narrow',sans-serif}.r3-lbl.r25-v3 span{display:flex;gap:6px;font:600 11.5px/1 'IBM Plex Sans',sans-serif;color:#13233A}
           .r3-lbl.r25-v3 span em{font-style:normal;display:flex;align-items:center;gap:3px}.r3-lbl.r25-v3 span em i{width:8px;height:8px;display:inline-block}`; document.head.appendChild(st);
         return api; }; } }); }, o.v3 || null) : null });
+  if (p && p.orbit) { await page.evaluate(fs.readFileSync(PROP, 'utf8')); }
   if (p && p.chips3d) { await page.evaluate(fs.readFileSync(PROP, 'utf8')); await page.evaluate(q => { const all = q.chips3d === 'all'; window.R25.chips(q.D, all ? null : q.chips3d); window.R25.apply({ D: q.D, k: all ? null : q.chips3d, list: all ? 'groups' : 'valley' }); }, p); }
   if (o.cam) { console.log(n, await page.evaluate(c => window.R25.view3d(c), o.cam)); await page.waitForTimeout(2500); }
-  if (p && !p.chips3d) { await page.evaluate(fs.readFileSync(PROP, 'utf8'));
+  if (p && p.orbit) console.log(n, await page.evaluate(q => window.R25.orbit(q), p.orbit));
+  if (p && !p.chips3d && !p.orbit) { await page.evaluate(fs.readFileSync(PROP, 'utf8'));
     // the chip row first: the map gets shorter, and the site lays its labels out again; then the rest
     if (p.chips) { await page.evaluate(q => window.R25.chips(q.D, q.mode === 'valley' ? q.k : null), p); if (p.mini) await page.evaluate(() => document.body.classList.add('r25-cmini')); await page.waitForTimeout(700); }
     console.log(n, JSON.stringify(await page.evaluate(q => window.R25.apply({ ...q, chips: 0 }), p))); await page.waitForTimeout(o.after || 600); }
