@@ -247,9 +247,9 @@ R.View3D=function(opts){
   }
   const css=getComputedStyle(document.documentElement);
   const col=n=>(css.getPropertyValue(n)||'').trim()||'#888';
-  const COL=Object.assign({green:'#1d9a52',blue:'#1f66d1',red:'#d4312a',black:'#11151c',route:'#D96A00'},opts.colors||{});
-  // a ski route (kind 'ski-route') has no difficulty colour: its own orange, dashed about 40 m line and 33 m gap (round 24)
-  const ckey=p=>p.kind==='ski-route'?'route':p.color,DASH=p=>p.kind==='ski-route'?73:0;
+  const COL=Object.assign({green:'#1d9a52',blue:'#1f66d1',red:'#d4312a',black:'#11151c',route:'#EE8E1C'},opts.colors||{});
+  // a ski route (kind 'ski-route') has no difficulty colour: the light orange band of the official map (round 24, 1b)
+  const ckey=p=>p.kind==='ski-route'?'route':p.color,DASH=()=>0;
   const pisteObjs={},liftObjs=[],pickables=[];
   (opts.noLines?[]:opts.pistes).forEach(p=>{
     const lines=p.segs.filter(s=>!s.area).map(s=>drape(s.g.map(opts.P),4));

@@ -6978,6 +6978,18 @@
     "ka"
    ]
   },
+  "map.legend_private_route": {
+   "he": "דרך לבקתה",
+   "en": "Route to a hut",
+   "ru": "Путь к хижине",
+   "ka": "გზა ქოხამდე",
+   "where": "site/js/app.js",
+   "note": "map legend (round 24, 1b)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
   "map.legend_way": {
    "he": "דרך מקשרת",
    "en": "Ski way",

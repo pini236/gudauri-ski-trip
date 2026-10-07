@@ -108,8 +108,17 @@ test('Sölden: ski routes are a kind of their own, with no colour or difficulty 
   await expect(page.locator('#map .pg.route').first()).toBeAttached();
   await chip.click();
   await expect(page.locator('#map .pg.route path').first()).toBeHidden();
-  // wide runs: the area shows, with an edge
-  await expect(page.locator('#map path.pg-area').first()).toHaveAttribute('stroke', /var\(--p-/);
+  // as on the official map (round 24, 1b): a light band with dotted red edges
+  await expect(page.locator('#map .pg.route path[stroke="var(--p-route-edge)"][stroke-dasharray="2 2.5"]').first()).toBeAttached();
+  // wide runs (2b): the area in the run's own colour, solid
+  const area = page.locator('#map path.pg-area').first();
+  await expect(area).toHaveAttribute('stroke', /var\(--p-/);
+  expect(await area.evaluate(e => getComputedStyle(e).fillOpacity)).toBe('1');
+  // a selected wide run (2c): its area joins the run's paint, in slope colours over its own colour
+  await page.evaluate(() => { location.hash = '#map/run/11'; });
+  await expect(page.locator('#panel .run-sign h2')).toHaveText('11');
+  await expect(page.locator('#map .runpaint path.rp-area')).toHaveCount(1);
+  await expect(page.locator('#map .runpaint image.rp-area')).toHaveCount(1);
   expect(errors).toEqual([]);
 });
 

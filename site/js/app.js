@@ -199,28 +199,33 @@ function placePlate(t,u,kept,view){
 }
 const vs={'vector-effect':'non-scaling-stroke',fill:'none','stroke-linecap':'round','stroke-linejoin':'round'};
 function draw(root,pistes,lifts,store){
-  const gAreas=mk('g',{},root),gP=mk('g',{},root),gL=mk('g',{},root),gLbl=mk('g',{},root),gHitL=mk('g',{},root),gHit=mk('g',{},root); // run hit-areas sit above lift hit-areas
+  // every white casing (lines and area edges) first, then the areas, then the line colours: a wide run's area and its
+  // line read as one shape with one white edge round it (round 24, 2b)
+  const gCas=mk('g',{},root),gAreas=mk('g',{},root),gP=mk('g',{},root),gL=mk('g',{},root),gLbl=mk('g',{},root),gHitL=mk('g',{},root),gHit=mk('g',{},root); // run hit-areas sit above lift hit-areas
   pistes.forEach(p=>{
-    const g=mk('g',{class:'pg '+ck(p)+(p.named?'':' unnamed'),'data-key':p.key},gP),route=p.kind==='ski-route';
-    (pisteEls[p.key]=pisteEls[p.key]||[]).push(g);
+    const cls='pg '+ck(p)+(p.named?'':' unnamed'),g=mk('g',{class:cls,'data-key':p.key},gP),gc=mk('g',{class:cls,'data-key':p.key},gCas),route=p.kind==='ski-route',hut=route&&p.access==='private';
+    (pisteEls[p.key]=pisteEls[p.key]||[]).push(g,gc);
     p.segs.forEach(s=>{
-      if(s.area){const a=mk('path',{d:pathD(s.g,true),fill:`var(--p-${ck(p)})`,stroke:`var(--p-${ck(p)})`,'vector-effect':'non-scaling-stroke',class:'pg pg-area '+ck(p)},gAreas);pisteEls[p.key].push(a);return;} // a wide run: its area at 30% (36% at night) with a thin edge (round 24)
+      if(s.area){const d=pathD(s.g,true);mk('path',{d,...vs,stroke:'var(--casing)','stroke-width':6.5},gc);
+        const a=mk('path',{d,fill:`var(--p-${ck(p)})`,stroke:`var(--p-${ck(p)})`,'vector-effect':'non-scaling-stroke',class:'pg pg-area '+ck(p)},gAreas);pisteEls[p.key].push(a);return;} // a wide run: its area in the run's own colour (round 24, 2b)
       const d=pathD(s.g);
-      mk('path',{d,...vs,stroke:'var(--casing)','stroke-width':route?5.5:p.named?6.5:4.5},g);
-      mk('path',{d,...vs,stroke:`var(--p-${ck(p)})`,'stroke-width':route?2.8:p.named?(p.kind==='ski-way'?2.6:3.4):2,...(route?{'stroke-dasharray':'7 5'}:p.named?(p.kind==='ski-way'?{'stroke-dasharray':'8 5'}:{}):{'stroke-dasharray':'5 4'})},g);
+      // a ski route as on the official map (round 24, 1b): a light orange band with dotted red edges; a private route to a hut, a thin dotted red line
+      mk('path',{d,...vs,stroke:'var(--casing)','stroke-width':hut?4:route?8:p.named?6.5:4.5},gc);
+      if(route&&!hut)mk('path',{d,...vs,stroke:'var(--p-route-edge)','stroke-width':6,'stroke-dasharray':'2 2.5','stroke-linecap':'butt'},g);
+      mk('path',{d,...vs,class:'core',stroke:hut?'var(--p-route-edge)':`var(--p-${ck(p)})`,'stroke-width':hut?1.8:route?3.6:p.named?(p.kind==='ski-way'?2.6:3.4):2,...(hut?{'stroke-dasharray':'4 3'}:route?{}:p.named?(p.kind==='ski-way'?{'stroke-dasharray':'8 5'}:{}):{'stroke-dasharray':'5 4'})},g);
       mk('path',{d,class:'hit','stroke-width':16,'vector-effect':'non-scaling-stroke','data-key':p.key,'stroke-linecap':'round'},gHit);
     });
-    if(p.named&&isPlate(p)){ // a number: a plate in the run's colour, placed by layoutLabels where no other run passes (round 23)
+    if(p.named&&isPlate(p)&&!hut){ // a number: a plate in the run's colour, placed by layoutLabels where no other run passes (round 23)
       const lin=p.segs.filter(s=>!s.area).map(s=>s.g.map(P)).sort((a,b)=>lineLen(b)-lineLen(a))[0];
       if(lin){const t=mk('g',{class:'lbl plate pg '+ck(p),'data-key':p.key},gLbl),w=route?(p.key.length>1?40:32):p.key.length>1?30:22;
-        if(route)mk('polygon',{points:`${-w/2},0 0,-16 ${w/2},0 0,16`,fill:'var(--p-route)','stroke-width':1.8},t); // a diamond: not a run, even without colour
+        if(route)mk('polygon',{points:`${-w/2},0 0,-16 ${w/2},0 0,16`,'stroke-width':1.8},t); // a red diamond with the number in white, as on the official map (round 24, 1b)
         else mk('rect',{x:-w/2,y:-10,width:w,height:20,fill:`var(--p-${p.color})`,'stroke-width':1.6},t);
         const tx=mk('text',{x:0,y:1,'text-anchor':'middle','dominant-baseline':'central','font-size':route?15:17},t);tx.textContent=p.key;
         t._plate={w,h:route?32:20,own:p.key,cand:plateSpots(lin)};store.labels.push(t);pisteEls[p.key].push(t);}
     }else if(p.named){
       const lin=p.segs.filter(s=>!s.area).sort((a,b)=>b.g.length-a.g.length)[0];
       if(lin){const q=P(lin.g[Math.floor(lin.g.length/2)]);
-        const t=mk('text',{x:q[0],y:q[1],class:'lbl pg '+ck(p),fill:`var(--p-${ck(p)})`,'text-anchor':'middle','data-key':p.key},gLbl);t.textContent=dispName(p);store.labels.push(t);pisteEls[p.key].push(t);}
+        const t=mk('text',{x:q[0],y:q[1],class:'lbl pg '+ck(p),fill:route?'var(--p-route-edge)':`var(--p-${ck(p)})`,'text-anchor':'middle','data-key':p.key},gLbl);t.textContent=dispName(p);store.labels.push(t);pisteEls[p.key].push(t);}
     }
   });
   lifts.forEach(l=>{
@@ -346,13 +351,24 @@ const runMark=mk('circle',{class:'runmark',r:10,cx:0,cy:0,'vector-effect':'non-s
 // "where am I" (round 19): the accuracy circle in metres and the dot in pixels; drawn by LOC below
 const meG=mk('g',{class:'me','aria-hidden':'true'});meG.style.display='none';
 const meAcc=mk('circle',{class:'me-acc',r:10,'vector-effect':'non-scaling-stroke'},meG),meDot=mk('circle',{class:'me-dot',r:10,'vector-effect':'non-scaling-stroke'},meG);
+let rpN=0;
 function paint2d(key){
   gPaint.classList.remove('on');gPaint.innerHTML='';
   const p=key&&byKey[key];if(!p||!TM||isKobiP(p))return;
-  const Ls=runLines(p),sc=GudRelief.slopeCanvas(TM,Ls);
-  mk('image',{href:sc.canvas.toDataURL(),x:sc.x0,y:sc.y0,width:sc.x1-sc.x0,height:sc.y1-sc.y0,preserveAspectRatio:'none',class:'rp-ground'},gPaint);
-  Ls.forEach(L=>{const S=sampleLine(L,12),tot=S[S.length-1].d||1,dur=1.3;
-    mk('path',{d:'M'+S.map(q=>q.x.toFixed(1)+' '+q.y.toFixed(1)).join('L'),...vs,stroke:'#FFFFFF','stroke-width':10,class:'rp-cas'},gPaint);
+  const Ls=runLines(p),sc=GudRelief.slopeCanvas(TM,Ls),href=sc.canvas.toDataURL(),box={x:sc.x0,y:sc.y0,width:sc.x1-sc.x0,height:sc.y1-sc.y0,preserveAspectRatio:'none'};
+  mk('image',{href,...box,class:'rp-ground'},gPaint);
+  // a wide run's area joins the selection (round 24, 2c, option b): under one white edge with the line, painted in the
+  // same slope colours (the slope picture cut to the area's shape and made opaque), over the run's own colour where the
+  // picture fades out
+  const SL=Ls.map(L=>sampleLine(L,12)),line=S=>'M'+S.map(q=>q.x.toFixed(1)+' '+q.y.toFixed(1)).join('L');
+  const ad=p.segs.filter(s=>s.area).map(s=>pathD(s.g,true)).join('');
+  if(ad)mk('path',{d:ad,...vs,stroke:'#FFFFFF','stroke-width':10,class:'rp-cas'},gPaint);
+  SL.forEach(S=>mk('path',{d:line(S),...vs,stroke:'#FFFFFF','stroke-width':10,class:'rp-cas'},gPaint));
+  if(ad){const id='rpclip'+(++rpN),defs=mk('defs',{},gPaint),cp=mk('clipPath',{id:id+'c'},defs);mk('path',{d:ad},cp);
+    const f=mk('filter',{id:id+'f',x:0,y:0,width:1,height:1},defs),ct=mk('feComponentTransfer',{},f);mk('feFuncA',{type:'linear',slope:6,intercept:0},ct);
+    mk('path',{d:ad,fill:`var(--p-${ck(p)})`,stroke:`var(--p-${ck(p)})`,'stroke-width':6,'vector-effect':'non-scaling-stroke','stroke-linejoin':'round',class:'rp-area'},gPaint);
+    mk('image',{href,...box,'clip-path':`url(#${id}c)`,filter:`url(#${id}f)`,class:'rp-area'},gPaint);}
+  SL.forEach(S=>{const tot=S[S.length-1].d||1,dur=1.3;
     for(let i=0;i<S.length-1;i++)mk('line',{x1:S[i].x.toFixed(1),y1:S[i].y.toFixed(1),x2:S[i+1].x.toFixed(1),y2:S[i+1].y.toFixed(1),stroke:GudRelief.slopeColor(S[i].a),'stroke-width':6,'stroke-linecap':'round','vector-effect':'non-scaling-stroke',style:`transition-delay:${(S[i].d/tot*dur).toFixed(2)}s`},gPaint);});
   requestAnimationFrame(()=>requestAnimationFrame(()=>gPaint.classList.add('on')));
 }
@@ -554,7 +570,7 @@ function ensure3d(){
   if(v3)return true;if(!can3d())return false;
   try{
     const kc=P([42.532,44.4945]);
-    v3=GudRelief.View3D({model:TM,host:m3,pistes:D.pistes,lifts:D.lifts,P,dispName,colors:{green:'#1B8A4C',blue:'#1F5FC4',red:'#D1342B',black:'#13233A',route:'#D96A00'},liftColor:'#3A4556',
+    v3=GudRelief.View3D({model:TM,host:m3,pistes:D.pistes,lifts:D.lifts,P,dispName,colors:{green:'#1B8A4C',blue:'#1F5FC4',red:'#D1342B',black:'#13233A',route:'#EE8E1C'},liftColor:'#3A4556',
       center:[(minX+maxX)/2,(minY+maxY)/2+250],homeDist:RS.view3d&&RS.view3d.dist||7000,homeAz:RS.view3d&&RS.view3d.az||0,homePol:RS.view3d&&RS.view3d.pol||0.44,
       onPick:k=>select(k,{via:'map'}),onLift:id=>showLift(id),
       onFly:f=>{flyProg=f;const k=document.getElementById('profRange');if(k){const i=Math.round(f*(+k.max));k.value=i;profAt(i);}},
@@ -586,11 +602,12 @@ wrap.classList.add('mode2d');
 if(D.pistes.some(p=>p.kind==='ski-route')){const b=document.createElement('button');b.type='button';b.className='fchip';b.dataset.filter='route';b.setAttribute('aria-pressed','true');
   b.innerHTML=`<span class="sq route"></span><span>${E('map.filter_routes')}</span>`;const after=document.querySelector('#filters [data-filter="black"]');after.after(b);}
 // the legend, above the scale, in a resort with ski routes (in Gudauri it would sit on the Kobi button): the kinds this resort has
-{const k={route:D.pistes.some(p=>p.kind==='ski-route'),way:D.pistes.some(p=>p.kind==='ski-way'&&p.named),area:D.pistes.some(p=>p.segs.some(s=>s.area))};
-  if(k.route){const lg=document.createElement('div');lg.className='mlegend';lg.setAttribute('aria-hidden','true');
-    lg.innerHTML=(k.route?`<span><svg width="34" height="12"><path d="M2 6H32" stroke="var(--casing)" stroke-width="6" stroke-linecap="round"/><path d="M2 6H32" stroke="var(--p-route)" stroke-width="3" stroke-dasharray="7 5"/></svg>${E('map.legend_route')}</span>`:'')
+{const k={route:D.pistes.some(p=>p.kind==='ski-route'&&p.access!=='private'),hut:D.pistes.some(p=>p.kind==='ski-route'&&p.access==='private'),way:D.pistes.some(p=>p.kind==='ski-way'&&p.named),area:D.pistes.some(p=>p.segs.some(s=>s.area))};
+  if(k.route||k.hut){const lg=document.createElement('div');lg.className='mlegend';lg.setAttribute('aria-hidden','true');
+    lg.innerHTML=(k.route?`<span><svg width="34" height="12"><path d="M2 6H32" stroke="var(--casing)" stroke-width="8" stroke-linecap="round"/><path d="M2 6H32" stroke="var(--p-route-edge)" stroke-width="6" stroke-dasharray="2 2.5"/><path d="M2 6H32" stroke="var(--p-route)" stroke-width="3.6"/></svg>${E('map.legend_route')}</span>`:'')
+      +(k.hut?`<span><svg width="34" height="12"><path d="M2 6H32" stroke="var(--casing)" stroke-width="4" stroke-linecap="round"/><path d="M2 6H32" stroke="var(--p-route-edge)" stroke-width="1.8" stroke-dasharray="4 3"/></svg>${E('map.legend_private_route')}</span>`:'')
       +(k.way?`<span><svg width="34" height="12"><path d="M2 6H32" stroke="var(--casing)" stroke-width="5" stroke-linecap="round"/><path d="M2 6H32" stroke="var(--p-blue)" stroke-width="2.6" stroke-dasharray="8 5"/></svg>${E('map.legend_way')}</span>`:'')
-      +(k.area?`<span><svg width="34" height="14"><rect x="2" y="2" width="30" height="10" fill="var(--p-red)" fill-opacity=".3" stroke="var(--p-red)" stroke-width="1.3"/></svg>${E('map.legend_area')}</span>`:'');
+      +(k.area?`<span><svg width="34" height="14"><rect x="2" y="2" width="30" height="10" fill="var(--p-red)" stroke="var(--casing)" stroke-width="1.5"/></svg>${E('map.legend_area')}</span>`:'');
     wrap.appendChild(lg);}}
 document.getElementById('filters').addEventListener('click',e=>{const b=e.target.closest('button[data-filter]');if(!b)return;const k=b.dataset.filter;
   hidden.has(k)?hidden.delete(k):hidden.add(k);b.setAttribute('aria-pressed',String(!hidden.has(k)));applyFilters();track('map_filter',{filter:k,on:!hidden.has(k)});});
