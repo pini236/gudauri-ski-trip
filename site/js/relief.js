@@ -247,13 +247,15 @@ R.View3D=function(opts){
   }
   const css=getComputedStyle(document.documentElement);
   const col=n=>(css.getPropertyValue(n)||'').trim()||'#888';
-  const COL=Object.assign({green:'#1d9a52',blue:'#1f66d1',red:'#d4312a',black:'#11151c'},opts.colors||{});
+  const COL=Object.assign({green:'#1d9a52',blue:'#1f66d1',red:'#d4312a',black:'#11151c',route:'#D96A00'},opts.colors||{});
+  // a ski route (kind 'ski-route') has no difficulty colour: its own orange, dashed about 40 m line and 33 m gap (round 24)
+  const ckey=p=>p.kind==='ski-route'?'route':p.color,DASH=p=>p.kind==='ski-route'?73:0;
   const pisteObjs={},liftObjs=[],pickables=[];
   (opts.noLines?[]:opts.pistes).forEach(p=>{
     const lines=p.segs.filter(s=>!s.area).map(s=>drape(s.g.map(opts.P),4));
     if(!lines.length)return;
-    const w=p.named?(p.kind==='ski-way'?2.8:4):2.6;
-    const cas=new THREE.Mesh(lineGeo(lines),lineMat('#ffffff',w+3.2,-2)),core=new THREE.Mesh(lineGeo(lines),lineMat(COL[p.color],w,-4));
+    const w=p.kind==='ski-route'||p.kind==='ski-way'?2.8:p.named?4:2.6;
+    const cas=new THREE.Mesh(lineGeo(lines),lineMat('#ffffff',w+3.2,-2)),core=new THREE.Mesh(lineGeo(lines),lineMat(COL[ckey(p)],w,-4));core.material.uniforms.dash.value=DASH(p);
     cas.renderOrder=2;core.renderOrder=3;scene.add(cas);scene.add(core);
     pisteObjs[p.key]={cas,core,lines,p,w};pickables.push({kind:'piste',key:p.key,lines});
   });
@@ -276,7 +278,7 @@ R.View3D=function(opts){
   M.peaks.forEach(p=>addLabel(`<span class="pk-ico${p.pass?' pass':''}"></span><b>${esc(p.n)}</b> <span class="num">${p.ele}</span>`,'peak',[p.x,E3(p.x,p.y)+6,p.y],100));
   M.env.places.filter(p=>p.show||['Gudauri','Kobi'].includes(p.n)).forEach(p=>addLabel(p.n==='Gudauri'?T('map.place_gudauri'):p.n,'place',[p.x,E3(p.x,p.y)+10,p.y],60));
   Object.values(pisteObjs).forEach(o=>{if(!o.p.named)return;const L=o.lines.slice().sort((a,b)=>b.length-a.length)[0];const q=L[Math.floor(L.length*0.45)];
-    o.label=addLabel(esc(opts.dispName(o.p)),'piste c-'+o.p.color,[q[0],q[1]+8,q[2]],40,{key:o.p.key});});
+    o.label=addLabel(esc(opts.dispName(o.p)),'piste c-'+ckey(o.p),[q[0],q[1]+8,q[2]],40,{key:o.p.key});});
 
   liftObjs.forEach(o=>{if(!o.l.name)return;const L=o.L,q=L[Math.floor(L.length/2)];
     addLabel(`<span class="lift-ico">⇡</span> ${esc(o.l.name)}`,'lift',[q[0],q[1]+12,q[2]],45,{lift:o.l.id});});
@@ -333,7 +335,7 @@ R.View3D=function(opts){
   const pst={m:null,forMe:false};
   function runLook(o){const sel=R3.sel,on=!sel||o.p.key===sel,shut=pst.m&&pst.m[o.p.key]===false,dim=pst.forMe&&shut?.15:1;
     o.core.material.uniforms.opacity.value=(on?1:.28)*dim;o.cas.material.uniforms.opacity.value=(on?1:.2)*dim;
-    o.core.material.uniforms.color.value.set(shut?SHUT:COL[o.p.color]);o.core.material.uniforms.dash.value=shut?50:0;}
+    o.core.material.uniforms.color.value.set(shut?SHUT:COL[ckey(o.p)]);o.core.material.uniforms.dash.value=shut?50:DASH(o.p);}
 
   /* rendering */
   let queued=false;const tmp=new THREE.Vector3();
@@ -425,7 +427,7 @@ R.View3D=function(opts){
       request();},
     focus(key){const o=pisteObjs[key];if(o)focusLines(o.lines,{pol:0.5},1.75);}, // the camera settles low over the run
     focusLift(id){const o=liftObjs.find(x=>x.l.id===id);if(o)focusLines([o.L]);},
-    filter(hidden){Object.values(pisteObjs).forEach(o=>{const h=hidden.has(o.p.color)||(!o.p.named&&hidden.has('unnamed'));o.core.visible=o.cas.visible=!h;if(o.label)o.label.hiddenByFilter=h;const pk=pickables.find(k=>k.key===o.p.key);if(pk)pk.hidden=h;});
+    filter(hidden){Object.values(pisteObjs).forEach(o=>{const h=hidden.has(ckey(o.p))||(!o.p.named&&hidden.has('unnamed'));o.core.visible=o.cas.visible=!h;if(o.label)o.label.hiddenByFilter=h;const pk=pickables.find(k=>k.key===o.p.key);if(pk)pk.hidden=h;});
       liftObjs.forEach(o=>{o.c1.visible=o.c2.visible=!hidden.has('lifts');const pk=pickables.find(k=>k.id===o.l.id);if(pk)pk.hidden=hidden.has('lifts');});request();},
     // light by the time of day: the sun where it really is in Gudauri, shadows cast by other mountains
     // (marched over the elevation grid), warm light low in the sky, moonlight at night.

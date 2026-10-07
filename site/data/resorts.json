@@ -69,7 +69,8 @@
           "blue": 54527,
           "red": 27765,
           "black": 12459
-        }
+        },
+        "routes": 7
       },
       "pano": {
         "dir": "img/pano/soelden/",

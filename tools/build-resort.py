@@ -253,13 +253,12 @@ for f in runs:
     p = f['properties']
     uses = set(p.get('uses') or [])
     label = (p.get('name') or p.get('ref') or '').strip()
-    # a ski route (Skiroute: not prepared, not patrolled, no difficulty under the Tyrol rules) is not a run with a colour.
-    # Until the data has a kind for it (a decision for Pini, a canvas and the architect), it stays off the map
-    if p.get('grooming') == 'backcountry' or label in OV.get('ski_routes', []) or (p.get('ref') or '') in OV.get('ski_routes', []):
-        skipped.append((label, 'ski route (Skiroute), no difficulty: waiting for a kind of its own')); continue
+    # a ski route (Skiroute: not prepared, not patrolled, no difficulty under the Tyrol rules) is not a run with a colour:
+    # kind 'ski-route', colour 'none' (Pini, round 24 and the architect, 7.10.2026). Only by the tag or the resort's own list, never a guess
+    route = p.get('grooming') == 'backcountry' or label in OV.get('ski_routes', []) or (p.get('ref') or '') in OV.get('ski_routes', [])
     if label in OV.get('exclude', []): skipped.append((label, 'a park, not a run (the ski expert)')); continue
     if not uses & {'downhill', 'connection'}: skipped.append((p.get('name') or p.get('ref'), 'not a downhill run (' + ','.join(sorted(uses)) + ')')); continue
-    if not p.get('difficulty'): skipped.append((p.get('name') or p.get('ref'), 'no difficulty in OSM, so no colour')); continue
+    if not p.get('difficulty') and not route: skipped.append((p.get('name') or p.get('ref'), 'no difficulty in OSM, so no colour')); continue
     name, ref = (p.get('name') or '').strip(), (p.get('ref') or '').strip()
     # one run per piste number; a segment shared by two numbers ("4 / 5", "50, 9") belongs to both
     nums = [norm_number(x) for x in name.replace(',', '/').split('/')] if name and norm_number(name.replace(',', '/').split('/')[0]) else []
@@ -274,11 +273,12 @@ for f in runs:
     keys = nums or ([name] if name else ['u%d' % gid])
     for k in keys:
         G = groups.setdefault(k, {'key': k, 'name': k if (nums or name) else None, 'osmNames': set(), 'refs': set(), 'diff': collections.Counter(),
-                                   'osmDiff': set(), 'groom': set(), 'lit': set(), 'segs': [], 'named': bool(nums or name)})
+                                   'osmDiff': set(), 'groom': set(), 'lit': set(), 'segs': [], 'named': bool(nums or name), 'route': route})
+        G['route'] = G['route'] and route  # a number that is a run somewhere stays a run
         if name: G['osmNames'].add(name)
         if ref: G['refs'].add(ref)
-        G['osmDiff'].add(p['difficulty'])
-        if not poly: G['diff'][p['difficulty']] += length(g)
+        if p.get('difficulty'): G['osmDiff'].add(p['difficulty'])
+        if not poly and p.get('difficulty'): G['diff'][p['difficulty']] += length(g)
         if p.get('grooming'): G['groom'].add(p['grooming'])
         if p.get('lit') is not None: G['lit'].add('yes' if p['lit'] else 'no')
         if not poly and hl(*g[0]) < hl(*g[-1]): g = g[::-1]
@@ -299,11 +299,11 @@ pistes, report = [], []
 for G in groups.values():
     lines = [s['g'] for s in G['segs'] if not s['area']]
     checked = [s['g'] for s in G['segs'] if not s['area'] and not s.get('tunnel')]  # a tunnel goes under the hill the model measures
-    color = C['colors'][G['diff'].most_common(1)[0][0]] if G['diff'] else C['colors'][sorted(G['osmDiff'])[0]]
+    color = 'none' if G['route'] else C['colors'][G['diff'].most_common(1)[0][0]] if G['diff'] else C['colors'][sorted(G['osmDiff'])[0]]
     tops = [L[0] for L in lines] or [G['segs'][0]['g'][0]]; bots = [L[-1] for L in lines] or tops
     P_ = {'key': G['key'], 'name': G['name'], 'osmNames': sorted(G['osmNames']), 'color': color, 'named': G['named'],
           'len': round(sum(length(L) for L in lines)), 'osmDiff': sorted(G['osmDiff']), 'refs': sorted(G['refs']),
-          'groom': sorted(G['groom']), 'lit': sorted(G['lit']), 'segs': G['segs']}
+          'groom': sorted(G['groom']), 'lit': sorted(G['lit']), 'segs': G['segs'], **({'kind': 'ski-route'} if G['route'] else {})}
     P_['fromLifts'] = sorted({nm for nm, q in lift_tops if nm and any(dist(q, t) <= 200 for t in tops)})
     P_['toLifts'] = sorted({nm for nm, q in lift_bots if nm and any(dist(q, b) <= 200 for b in bots)})
     climbs = [climb(L) for L in checked]
@@ -327,15 +327,16 @@ for p in pistes:
     if p['key'] in OV.get('swap_numbers', {}): extra.append('המספר הוחלף לפי הרשימה הרשמית של האתר (במפה הפתוחה ' + {v: k for k, v in OV['swap_numbers'].items()}[p['key']] + ')')
     if p['key'] in OV.get('check_again', []): flags.append('המספר לא מופיע ברשימה הרשמית של האתר; לבדוק')
     if not p['named'] and set(p['refs']) & set(OV.get('unnumber', [])): extra.append('המספר במפה הפתוחה לא מופיע במפה הרשמית, ולכן הקו בלי מספר')
-    p['kind'] = 'ski-way' if p['key'] in OV.get('ski_ways', []) else 'run'  # a road or link the resort's map draws as a ski way, not a slope
+    p['kind'] = 'ski-route' if p.get('kind') == 'ski-route' else 'ski-way' if p['key'] in OV.get('ski_ways', []) else 'run'  # a road or link the resort's map draws as a ski way, not a slope
+    if p['kind'] == 'ski-route': extra.append('דרך סקי (Skiroute): מאובטחת רק מפני מפולות, בלי הכשרה ובלי דרגת קושי; לפי piste:grooming=backcountry במפה הפתוחה או הרשימה הרשמית של האתר')
     if p['kind'] == 'ski-way': extra.append('דרך מקשרת ולא מסלול, לפי המקרא של המפה הרשמית (סוג בלבד)')
     p['research'] = {'conf': 'medium' if not flags else 'low', 'status': 'osm-named' if p['named'] else 'osm-unnamed',
-                     'notes': 'מהמפה הפתוחה כמו שהיא. הצבע לפי דרגת הקושי במפה הפתוחה (אירופה: קל כחול, בינוני אדום, קשה שחור), ונבדק מול רשימת המסלולים הרשמית של האתר (research/resorts/soelden-audit.md).' + (' ' + '; '.join(extra) + '.' if extra else '') + (' בדיקות: ' + '; '.join(flags) + '.' if flags else ''),
+                     'notes': ('מהמפה הפתוחה כמו שהיא, בלי צבע ובלי דרגת קושי.' if p['kind'] == 'ski-route' else 'מהמפה הפתוחה כמו שהיא. הצבע לפי דרגת הקושי במפה הפתוחה (אירופה: קל כחול, בינוני אדום, קשה שחור), ונבדק מול רשימת המסלולים הרשמית של האתר (research/resorts/soelden-audit.md).') + (' ' + '; '.join(extra) + '.' if extra else '') + (' בדיקות: ' + '; '.join(flags) + '.' if flags else ''),
                      'sources': ['OpenSkiMap ' + FETCHED() + ' (OpenStreetMap, ODbL)'],
                      'osmIds': sorted({s['id'] for s in p['segs'] if s['id']}), 'checks': flags}
     report.append((p['key'], p['color'], p['len'], p['_climb'], flags + extra))
     del p['_climb']
-order = {'green': 0, 'blue': 1, 'red': 2, 'black': 3}
+order = {'green': 0, 'blue': 1, 'red': 2, 'black': 3, 'none': 4}
 pistes.sort(key=lambda p: (not p['named'], order[p['color']], [int(x) if x.isdigit() else x for x in __import__('re').split(r'(\d+)', p['key'])]))
 
 lats = [q[0] for p in pistes for s in p['segs'] for q in s['g']] + [q[0] for l in LIFTS for q in l['g']]
@@ -389,13 +390,14 @@ def stats_of(r):
         c = min(max((x - d['x0']) / sx, 0), d['nx'] - 1.0001); rr = min(max((y - d['y0']) / sy, 0), d['ny'] - 1.0001)
         c0, r0 = int(c), int(rr); fc, fr = c - c0, rr - r0
         return (A[r0, c0] * (1 - fc) + A[r0, c0 + 1] * fc) * (1 - fr) + (A[r0 + 1, c0] * (1 - fc) + A[r0 + 1, c0 + 1] * fc) * fr
-    named = [p for p in D['pistes'] if p['named']]
+    named = [p for p in D['pistes'] if p['named'] and p.get('kind') != 'ski-route']
+    routes = [p for p in D['pistes'] if p.get('kind') == 'ski-route']
     ends = [q for l in D['lifts'] for q in (l['g'][0], l['g'][-1])] + [q for p in named for s in p['segs'] if not s['area'] for q in (s['g'][0], s['g'][-1])]
     hs = [h(q) for q in ends]
     by = collections.Counter()
     for p in named: by[p['color']] += p['len']
     return {'runs': len(named), 'lifts': len(D['lifts']), 'km': round(sum(p['len'] for p in named) / 1000), 'alt': [int(round(min(hs), -1)), int(round(max(hs), -1))],
-            'byColor': {c: by[c] for c in ('green', 'blue', 'red', 'black') if by[c]}}
+            'byColor': {c: by[c] for c in ('green', 'blue', 'red', 'black') if by[c]}, **({'routes': len(routes)} if routes else {})}
 RL = ROOT / 'site/data/resorts.json'
 reg = json.load(open(RL, encoding='utf-8'))
 for r in reg['resorts']:

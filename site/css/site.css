@@ -6,6 +6,7 @@
   --snow:#EEF2F5; --paper:#FFFFFF; --ink:#13233A; --muted:#4B5A6F; --rule:#CBD5DF; --glacier:#1F5FC4;
   --grid:#DCE4EC; --lift:#3A4556; --casing:#FFFFFF;
   --p-green:#1B8A4C; --p-blue:#1F5FC4; --p-red:#D1342B; --p-black:#13233A; --on-board:#FFFFFF;
+  --p-route:#D96A00; --route-ink:#1A1206; --area-op:.30;
   --accent:#1F5FC4; --on-accent:#FFFFFF; --dash:#8E9CAD;
   --sky1:#DCE8F1; --sky2:#EEF2F5;
   --water:#8db6d8; --water-edge:#5f8fbb; --road:#a49a91; --road-main:#8a7c70; --vill:#e3d8cb; --contour:#8193a8; --contour-i:#62758c; --peak:#3d4a5c;
@@ -22,6 +23,7 @@
   --snow:#0D1522; --paper:#16223A; --ink:#EAF0F7; --muted:#A3B3C8; --rule:#2A3B55; --glacier:#8DB9FF;
   --grid:#18263A; --lift:#C9D3E0; --casing:#0D1522;
   --p-green:#3CC47C; --p-blue:#5B9BFF; --p-red:#FF6A5F; --p-black:#EAF0F7; --on-board:#0D1522;
+  --p-route:#FF9A3D; --area-op:.36;
   --accent:#F4B942; --on-accent:#0D1522; --dash:#51627D;
   --sky1:#0B1320; --sky2:#16223A;
   --water:#2c5a82; --water-edge:#4d82b3; --road:#6d6760; --road-main:#8f857b; --vill:#3a352f; --contour:#5a6d85; --contour-i:#7a90aa; --peak:#c9d3e0;
@@ -35,6 +37,7 @@
   --snow:#0D1522; --paper:#16223A; --ink:#EAF0F7; --muted:#A3B3C8; --rule:#2A3B55; --glacier:#8DB9FF;
   --grid:#18263A; --lift:#C9D3E0; --casing:#0D1522;
   --p-green:#3CC47C; --p-blue:#5B9BFF; --p-red:#FF6A5F; --p-black:#EAF0F7; --on-board:#0D1522;
+  --p-route:#FF9A3D; --area-op:.36;
   --accent:#F4B942; --on-accent:#0D1522; --dash:#51627D;
   --sky1:#0B1320; --sky2:#16223A;
   --water:#2c5a82; --water-edge:#4d82b3; --road:#6d6760; --road-main:#8f857b; --vill:#3a352f; --contour:#5a6d85; --contour-i:#7a90aa; --peak:#c9d3e0;
@@ -244,7 +247,7 @@ svg#map.drag{cursor:grabbing}
 
 /* panel */
 #panel h2{display:inline-block;max-width:100%;box-sizing:border-box;margin:0 0 14px;padding:6px 16px 6px 30px;background:var(--board,var(--ink));color:var(--on-board);font-family:var(--f-display);font-weight:700;font-size:34px;line-height:1.05;clip-path:polygon(0 50%,16px 0,100% 0,100% 100%,16px 100%)}
-#panel h2.c-green{--board:var(--p-green)}#panel h2.c-blue{--board:var(--p-blue)}#panel h2.c-red{--board:var(--p-red)}#panel h2.c-black{--board:var(--p-black)}
+#panel h2.c-route{--board:var(--p-route);color:var(--route-ink)}#panel h2.c-green{--board:var(--p-green)}#panel h2.c-blue{--board:var(--p-blue)}#panel h2.c-red{--board:var(--p-red)}#panel h2.c-black{--board:var(--p-black)}
 #panel h2.ov{display:block;padding:0;background:none;color:var(--ink);clip-path:none;font-size:40px;margin:0 0 6px}
 #panel h3{font-family:var(--f-display);font-weight:700;font-size:25px;line-height:1.1;color:var(--ink);margin:22px 0 8px}
 .lead{margin:0 0 6px;color:var(--muted);font-size:14px}
@@ -255,10 +258,10 @@ svg#map.drag{cursor:grabbing}
 .pips{display:inline-flex;gap:3px;vertical-align:middle;margin-inline-end:6px}
 .pips i{width:10px;height:10px;background:var(--rule)}
 .pips i.on{background:currentColor}
-.c-green{color:var(--p-green)}.c-blue{color:var(--p-blue)}.c-red{color:var(--p-red)}.c-black{color:var(--p-black)}
+.c-route{color:var(--p-route)}.c-green{color:var(--p-green)}.c-blue{color:var(--p-blue)}.c-red{color:var(--p-red)}.c-black{color:var(--p-black)}
 .notice{border-inline-start:4px solid var(--p-blue);background:var(--snow);padding:10px 12px;font-size:.9rem}
 .sw{width:12px;height:12px;display:inline-block;flex:none}
-.sw.green{background:var(--p-green)}.sw.blue{background:var(--p-blue)}.sw.red{background:var(--p-red)}.sw.black{background:var(--p-black)}
+.sw.green{background:var(--p-green)}.sw.blue{background:var(--p-blue)}.sw.red{background:var(--p-red)}.sw.black{background:var(--p-black)}.sw.route{background:var(--p-route);transform:rotate(45deg) scale(.8)}
 .sw.lift{height:2px;background:var(--lift)}
 .sw.unnamed{height:0;border-top:2px dashed var(--muted)}
 .index{display:grid;grid-template-columns:1fr 1fr;column-gap:16px}
@@ -273,7 +276,7 @@ svg#map.drag{cursor:grabbing}
 #panel .tag[class*="c-"]::before{content:"";width:10px;height:10px;flex:none;background:var(--tc)}
 /* 40 pixels to the eye, 44 to the finger, without the rows of tags touching */
 #panel .tag::after{content:"";position:absolute;inset:-2px 0}
-.tag.c-green{--tc:var(--p-green)}.tag.c-blue{--tc:var(--p-blue)}.tag.c-red{--tc:var(--p-red)}.tag.c-black{--tc:var(--p-black)}
+.tag.c-route{--tc:var(--p-route)}.tag.c-green{--tc:var(--p-green)}.tag.c-blue{--tc:var(--p-blue)}.tag.c-red{--tc:var(--p-red)}.tag.c-black{--tc:var(--p-black)}
 ul.notes{margin:0;padding-inline-start:18px;font-size:.92rem}
 ul.notes li{margin-bottom:4px}
 .vids{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:8px}
@@ -325,7 +328,7 @@ ul.notes li{margin-bottom:4px}
 
 /* 3D */
 #map3d{position:absolute;inset:0;background:linear-gradient(180deg,var(--sky1),var(--sky2) 70%);overflow:hidden}
-.r3-labels{--ink:#13233A;--muted:#4B5A6F;--peak:#3d4a5c;--casing:#FFFFFF;--p-green:#1B8A4C;--p-blue:#1F5FC4;--p-red:#D1342B;--p-black:#13233A}
+.r3-labels{--ink:#13233A;--muted:#4B5A6F;--peak:#3d4a5c;--casing:#FFFFFF;--p-green:#1B8A4C;--p-blue:#1F5FC4;--p-red:#D1342B;--p-black:#13233A;--p-route:#D96A00}
 #map3d[hidden]{display:none}
 .r3-labels{position:absolute;inset:0;pointer-events:none;overflow:hidden}
 .r3-lbl{position:absolute;left:0;top:0;display:none;white-space:nowrap;font-size:12.5px;line-height:1.2;direction:ltr;color:var(--ink);text-shadow:0 0 3px var(--casing),0 0 3px var(--casing),0 0 2px var(--casing)}
@@ -338,6 +341,7 @@ ul.notes li{margin-bottom:4px}
 .r3-lbl.lift{font-size:11.5px;font-weight:600;font-style:italic;color:var(--ink)}
 .r3-lbl.lift .lift-ico{color:var(--ink)}
 .r3-lbl.piste.c-black{color:var(--p-black)}
+.r3-lbl.piste.c-route{color:var(--p-route)}
 
 /* phones */
 @media (max-width:760px){
@@ -1199,3 +1203,15 @@ html[lang="ka"] .pv-doc h1{font-size:36px;overflow-wrap:anywhere}
 @media (min-width:900px){.rpass{margin-top:170px;align-self:start}}
 .lbl.plate rect{stroke:var(--casing);vector-effect:non-scaling-stroke}
 .lbl.plate text{font-family:var(--f-display);font-weight:700;fill:var(--on-board);stroke:none}
+
+/* round 24: ski routes (a kind of their own, no difficulty) and wide runs that show */
+.pg-area{fill-opacity:var(--area-op);stroke-width:1.3;stroke-opacity:.9;stroke-linejoin:round}
+.lbl.plate.route polygon{stroke:var(--casing);vector-effect:non-scaling-stroke}
+.lbl.plate.route text{fill:var(--route-ink)}
+.route-tag{display:inline-flex;align-items:center;gap:8px;min-height:30px;padding:3px 10px;border:2px solid var(--p-route);font-weight:700;line-height:1.25}
+.route-tag i{flex:none;width:12px;height:12px;background:var(--p-route);transform:rotate(45deg)}
+.mlegend{position:absolute;inset-inline-end:10px;bottom:34px;z-index:3;display:flex;flex-direction:column;gap:6px;padding:8px 10px;background:var(--paper);border:1px solid var(--rule);font-size:.8rem;font-weight:600;color:var(--ink);pointer-events:none}
+.mlegend span{display:flex;align-items:center;gap:8px;white-space:nowrap}
+.mlegend svg{flex:none}
+.fchip .sw.route{width:10px;height:10px}
+.sq.route{background:var(--p-route);transform:rotate(45deg) scale(.8)}

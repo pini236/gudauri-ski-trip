@@ -92,6 +92,36 @@
       {
         "name": "19a",
         "color": "red"
+      },
+      {
+        "name": "60",
+        "color": "none",
+        "kind": "ski-route"
+      },
+      {
+        "name": "63",
+        "color": "none",
+        "kind": "ski-route"
+      },
+      {
+        "name": "64",
+        "color": "none",
+        "kind": "ski-route"
+      },
+      {
+        "name": "65",
+        "color": "none",
+        "kind": "ski-route"
+      },
+      {
+        "name": "73",
+        "color": "none",
+        "kind": "ski-route"
+      },
+      {
+        "name": "81",
+        "color": "none",
+        "kind": "ski-route"
       }
     ],
     "unnumber": [

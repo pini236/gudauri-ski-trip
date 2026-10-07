@@ -2,10 +2,10 @@
 
 נבנה ב-2026-10-07 בפקודה `python3 tools/build-resort.py tools/resorts/soelden.json --cache <dir>`. אל תערכו ביד; מריצים שוב.
 
-- **מסלולים:** 47 (43 עם מספר או שם), 194 קטעים מהמפה הפתוחה, 96.0 ק״מ של קו.
+- **מסלולים:** 54 (50 עם מספר או שם), 205 קטעים מהמפה הפתוחה, 103.2 ק״מ של קו.
 - **רכבלים:** 39 (33 עם שם).
 - **מודל גובה:** 779×702 נקודות כל 20 מ׳, מ-1258 עד 3662 מ׳. המקור: אריחי הגובה של AWS בזום 14 (באוסטריה, המודל הלאומי של 10 מ׳).
-- **לא נכנסו:** 35 קווים (מסלולי סקי קרוס־קאנטרי, הליכה ומזחלות, וקווים בלי דרגת קושי).
+- **לא נכנסו:** 24 קווים (מסלולי סקי קרוס־קאנטרי, הליכה ומזחלות, וקווים בלי דרגת קושי).
 
 ## בדיקות לכל מסלול
 
@@ -55,6 +55,13 @@
 | 40 | blue | 578 | 3 | תקין |
 | 41 | black | 906 | 3 | תקין |
 | 50 | blue | 751 | 0 | תקין |
+| 61 | none | 371 | 1 | דרך סקי (Skiroute): מאובטחת רק מפני מפולות, בלי הכשרה ובלי דרגת קושי; לפי piste:grooming=backcountry במפה הפתוחה או הרשימה הרשמית של האתר |
+| 62 | none | 277 | 0 | דרך סקי (Skiroute): מאובטחת רק מפני מפולות, בלי הכשרה ובלי דרגת קושי; לפי piste:grooming=backcountry במפה הפתוחה או הרשימה הרשמית של האתר |
+| 70 | none | 441 | 0 | דרך סקי (Skiroute): מאובטחת רק מפני מפולות, בלי הכשרה ובלי דרגת קושי; לפי piste:grooming=backcountry במפה הפתוחה או הרשימה הרשמית של האתר |
+| 71 | none | 785 | 0 | דרך סקי (Skiroute): מאובטחת רק מפני מפולות, בלי הכשרה ובלי דרגת קושי; לפי piste:grooming=backcountry במפה הפתוחה או הרשימה הרשמית של האתר |
+| 72 | none | 468 | 0 | דרך סקי (Skiroute): מאובטחת רק מפני מפולות, בלי הכשרה ובלי דרגת קושי; לפי piste:grooming=backcountry במפה הפתוחה או הרשימה הרשמית של האתר |
+| 80 | none | 654 | 0 | דרך סקי (Skiroute): מאובטחת רק מפני מפולות, בלי הכשרה ובלי דרגת קושי; לפי piste:grooming=backcountry במפה הפתוחה או הרשימה הרשמית של האתר |
+| Gaislachalm | none | 4172 | 10 | דרך סקי (Skiroute): מאובטחת רק מפני מפולות, בלי הכשרה ובלי דרגת קושי; לפי piste:grooming=backcountry במפה הפתוחה או הרשימה הרשמית של האתר |
 | Mini | blue | 205 | 0 | תקין |
 | u317765891 | red | 0 | 0 | תקין |
 | u432769135 | blue | 75 | 0 | תקין |
@@ -63,38 +70,27 @@
 
 ## לא נכנסו
 
-- Gaislachalm: ski route (Skiroute), no difficulty: waiting for a kind of its own
 - Höfer - Böden Loipe: not a downhill run (nordic)
 - Gaislachkogl: not a downhill run (sled)
-- 72: ski route (Skiroute), no difficulty: waiting for a kind of its own
 - Höfer - Böden - Windau Loipe: not a downhill run (nordic)
 - Funslope: a park, not a run (the ski expert)
 - Carvin: not a downhill run (snow_park)
 - Funslope: a park, not a run (the ski expert)
 - AREA 47 Snowpark Sölden: not a downhill run (snow_park)
-- Gaislachalm: ski route (Skiroute), no difficulty: waiting for a kind of its own
 - Panoramaweg: not a downhill run (hike)
 - Gaislachkogl: not a downhill run (sled)
-- 71: ski route (Skiroute), no difficulty: waiting for a kind of its own
 - Funslope: a park, not a run (the ski expert)
 - Sonneck/Gaislachalm/Silbertal: not a downhill run (hike)
 - Sonneck/Gaislachalm/Silbertal, Gaislachkogl, Gaislach: not a downhill run (hike,sled)
-- Gaislachalm: ski route (Skiroute), no difficulty: waiting for a kind of its own
-- 62: ski route (Skiroute), no difficulty: waiting for a kind of its own
 - Sonneck/Gaislachalm/Silbertal: not a downhill run (hike)
 - (בלי שם): not a downhill run (hike)
-- Gaislachalm: ski route (Skiroute), no difficulty: waiting for a kind of its own
 - Funslope: a park, not a run (the ski expert)
 - Flug: not a downhill run (snow_park)
-- Gaislachalm: ski route (Skiroute), no difficulty: waiting for a kind of its own
 - (בלי שם): not a downhill run (nordic)
 - Höfer - Böden - Windau Loipe: not a downhill run (nordic)
 - AREA 47 Snowpark Sölden: not a downhill run (snow_park)
-- 80: ski route (Skiroute), no difficulty: waiting for a kind of its own
-- 70: ski route (Skiroute), no difficulty: waiting for a kind of its own
-- 61: ski route (Skiroute), no difficulty: waiting for a kind of its own
 - Funslope: a park, not a run (the ski expert)
-- (בלי שם): ski route (Skiroute), no difficulty: waiting for a kind of its own
+- (בלי שם): not a downhill run (skitour)
 - Abfahrt zur Pension Waldesruh: no difficulty in OSM, so no colour
 - Giggijoch: not a downhill run (playground)
 - Giggijoch: not a downhill run (playground)

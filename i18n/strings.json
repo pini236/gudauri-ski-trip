@@ -6918,6 +6918,90 @@
     "ka"
    ]
   },
+  "map.overview_routes_count": {
+   "he": "דרכי סקי במפה · {n}",
+   "en": "Ski routes on the map · {n}",
+   "ru": "Лыжные маршруты на карте · {n}",
+   "ka": "სათხილამურო მარშრუტები რუკაზე · {n}",
+   "where": "site/js/app.js",
+   "note": "Section heading, {n} = count; a ski route (Skiroute) is not prepared or patrolled and has no difficulty (round 24)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "run.kind_label": {
+   "he": "סוג",
+   "en": "Type",
+   "ru": "Тип",
+   "ka": "ტიპი",
+   "where": "site/js/app.js",
+   "note": "Detail row label, in place of colour and difficulty for a ski route (round 24)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "run.kind_ski_route": {
+   "he": "דרך סקי · לא מוכשרת, לא נבדקת",
+   "en": "Ski route · not groomed, not patrolled",
+   "ru": "Лыжный маршрут · не подготовлен, не контролируется",
+   "ka": "სათხილამურო მარშრუტი · არ არის დამუშავებული და კონტროლირებადი",
+   "where": "site/js/app.js",
+   "note": "the tag in the run panel (round 24); Tyrol rules: secured against avalanches only",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "map.filter_routes": {
+   "he": "דרכי סקי",
+   "en": "Ski routes",
+   "ru": "Маршруты",
+   "ka": "მარშრუტები",
+   "where": "site/js/app.js",
+   "note": "filter chip after the colours, only where a resort has ski routes (round 24); short",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "map.legend_route": {
+   "he": "דרך סקי",
+   "en": "Ski route",
+   "ru": "Лыжный маршрут",
+   "ka": "სათხილამურო მარშრუტი",
+   "where": "site/js/app.js",
+   "note": "map legend (round 24)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "map.legend_way": {
+   "he": "דרך מקשרת",
+   "en": "Ski way",
+   "ru": "Соединительная трасса",
+   "ka": "დამაკავშირებელი გზა",
+   "where": "site/js/app.js",
+   "note": "map legend: a connecting ski way, like Shino (round 24)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "map.legend_area": {
+   "he": "מסלול רחב",
+   "en": "Wide slope",
+   "ru": "Широкая трасса",
+   "ka": "ფართო ტრასა",
+   "where": "site/js/app.js",
+   "note": "map legend: the area of a wide run (round 24)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
   "map.overview_on_map_count": {
    "he": "מסלולים במפה · {n}",
    "en": "Runs on the map · {n}",
