@@ -88,6 +88,11 @@ object Telemetry {
             }
             PostHogAndroid.setup(app, config)
             PostHog.optIn()
+            usage = true
+        }
+        // Activity recreation can change language/theme/device size without restarting the SDK or opening
+        // the app again. Refresh the event context, while preserving the user's existing opt-in state.
+        if (usage) {
             PostHog.register("platform", "android")
             PostHog.register("app_version", common.appVersion)
             // "build" is a key PostHog keeps for itself, and register() drops it without a word: it goes with each event
@@ -96,7 +101,6 @@ object Telemetry {
             PostHog.register("lang_source", common.langSource)
             PostHog.register("theme", common.theme)
             PostHog.register("device_class", common.deviceClass)
-            usage = true
         }
     }
 

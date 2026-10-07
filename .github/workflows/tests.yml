@@ -28,6 +28,7 @@ on:
           - tests/i18n.spec.ts
           - tests/locate.spec.ts
           - tests/privacy.spec.ts
+          - tests/resorts.spec.ts
           - tests/slope.spec.ts
           - tests/smoke.spec.ts
           - tests/snow.spec.ts
