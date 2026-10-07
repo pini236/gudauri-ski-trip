@@ -10,7 +10,7 @@ Sources (nothing is drawn by hand, CLAUDE.md, accuracy rule 1):
 - runs and lifts: OpenSkiMap export (OpenStreetMap, ODbL), only the features OpenSkiMap assigns to the ski area.
   Every segment keeps its OSM way id.
 - height: Terrain Tiles on AWS (terrarium PNG, zoom from the config). In Austria the source behind them is the
-  national 10 m model (data.gv.at, CC BY 4.0).
+  national 10 m model (data.gv.at, CC BY 3.0 AT).
 - villages, roads, water, peaks: OpenStreetMap through Overpass (ODbL).
 Colours come from piste:difficulty in the European convention (blue, red, black), unless the resort's own written
 list of runs (config 'official', a list kept in research/) gives the colour: then that one wins, as at Gudauri.

@@ -214,5 +214,13 @@ test('Sella Ronda: its own data, names on the lines, the official colour, no gre
   // a name with a space, and the circuit's names stripped from it
   await page.evaluate(() => { location.hash = '#map/run/' + encodeURIComponent('Gran Risa'); });
   await expect(page.locator('#panel .run-sign h2')).toHaveText('Gran Risa');
+  // the key is a contract: a link written in another Unicode form (decomposed è) finds the same run (the architect)
+  await page.evaluate(() => { location.hash = '#map/run/' + encodeURIComponent('Boè'); });
+  await expect(page.locator('#panel .run-sign h2')).toHaveText('Boè');
+  // one name, two valleys: Pordoi above Canazei (red, on the Fassa list) and above Arabba (blue in the open map)
+  await page.evaluate(() => { location.hash = '#map/run/' + encodeURIComponent('Pordoi (Arabba)'); });
+  await expect(page.locator('#panel .run-sign h2')).toHaveClass(/c-blue/);
+  await page.evaluate(() => { location.hash = '#map/run/Pordoi'; });
+  await expect(page.locator('#panel .run-sign h2')).toHaveClass(/c-red/);
   expect(errors).toEqual([]);
 });

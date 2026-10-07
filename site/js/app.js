@@ -631,7 +631,7 @@ function activateMap(){
 // pages: #map shows the map, anything else the home page
 const pgHome=document.getElementById('home'),pgMap=document.getElementById('mapPage'),pgMeet=document.getElementById('meetPage'),pgGames=document.getElementById('gamesPage'),pgAbout=document.getElementById('aboutPage'),pgTrip=document.getElementById('tripPage');
 function route(){
-  const h=location.hash,m=h.startsWith('#map'),mt=h.startsWith('#meet'),gm=h.startsWith('#games'),ab=h.startsWith('#about'),tr=h==='#trip',ac=/^#(signin|account|join|group)(\/|$)/.test(h),run=h.startsWith('#map/run/')?decodeURIComponent(h.slice(9)):null,wasMap=!pgMap.hidden;
+  const h=location.hash,m=h.startsWith('#map'),mt=h.startsWith('#meet'),gm=h.startsWith('#games'),ab=h.startsWith('#about'),tr=h==='#trip',ac=/^#(signin|account|join|group)(\/|$)/.test(h),run=h.startsWith('#map/run/')?decodeURIComponent(h.slice(9)).normalize('NFC'):null,wasMap=!pgMap.hidden;
   pgHome.hidden=m||mt||gm||ab||tr||ac;pgMap.hidden=!m;pgMeet.hidden=!mt;pgGames.hidden=!gm;pgAbout.hidden=!ab;pgTrip.hidden=!tr;if(tr)TRIPFORM.open();
   // accounts and groups: js/account.js shows its own pages (round 12)
   if(window.ACCOUNT)ACCOUNT.route(ac?h:'');
