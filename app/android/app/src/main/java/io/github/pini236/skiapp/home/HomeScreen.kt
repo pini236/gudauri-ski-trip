@@ -36,7 +36,6 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
@@ -57,6 +56,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.unit.LayoutDirection
 import io.github.pini236.skiapp.R
 import io.github.pini236.skiapp.fx.Haptics
 import io.github.pini236.skiapp.fx.Sounds
@@ -69,10 +73,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.getValue
 import io.github.pini236.skiapp.status.LiftStatus
-import io.github.pini236.skiapp.status.LiveDot
-import io.github.pini236.skiapp.status.summaryText
+import io.github.pini236.skiapp.trip.PassEdit
+import io.github.pini236.skiapp.trip.PassEditor
+import io.github.pini236.skiapp.status.agoText
 import java.time.LocalDateTime
-import java.time.Month
 import kotlin.random.Random
 
 /** Where the home page's signs and buttons lead (MainActivity turns them into routes). */
@@ -89,8 +93,12 @@ fun HomeScreen(trip: Trip?, frame: DayNight.Frame, mode: DayNight.Mode, now: Loc
                /** My first group's name and how many are in it (0: not known yet), for the group sign, as on the site. */
                group: Pair<String, Int>? = null,
                /** The account on the pass (A-32): null while accounts are not ready; else me (null when not signed in). */
-               account: Account? = null, go: (HomeAction) -> Unit) {
+               account: Account? = null,
+               /** Round 20: the pass is the form; a field filled on it saves the trip here (null: "edit" opens the form). */
+               onTrip: ((Trip) -> Unit)? = null, go: (HomeAction) -> Unit) {
     val c = Ski.colors
+    // the field of the pass being filled (round 20), its sheet over home
+    var edit by remember { mutableStateOf<PassEdit?>(null) }
     val top = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
     var langs by remember { mutableStateOf(false) }
     var who by remember { mutableStateOf(false) }
@@ -106,7 +114,7 @@ fun HomeScreen(trip: Trip?, frame: DayNight.Frame, mode: DayNight.Mode, now: Loc
                 // with a return pass, its top shows above the outbound one (PASS_PEEK), over the mountains
                 Spacer(Modifier.height(if (trip.ret != null) 0.dp else 30.dp))
                 Box(Modifier.padding(horizontal = 16.dp)) {
-                    CompositionLocalProvider(LocalPassenger provides passenger) { TripPass(trip, now, haptics, sounds) { go(HomeAction.TRIP) } }
+                    CompositionLocalProvider(LocalPassenger provides passenger) { TripPass(trip, now, haptics, sounds, onEdit = { go(HomeAction.TRIP) }, onField = onTrip?.let { { e -> edit = e } }) }
                 }
                 // tapping my name on the pass (P7): the account and signing out
                 val me = account?.me
@@ -129,20 +137,20 @@ fun HomeScreen(trip: Trip?, frame: DayNight.Frame, mode: DayNight.Mode, now: Loc
                 Spacer(Modifier.height(38.dp))
             } else {
                 Spacer(Modifier.height(32.dp))
-                Box(Modifier.padding(horizontal = 16.dp)) { EmptyPass { go(HomeAction.TRIP) } }
+                Box(Modifier.padding(horizontal = 16.dp)) { EmptyPass { if (onTrip != null) edit = PassEdit.Dates else go(HomeAction.TRIP) } }
                 Spacer(Modifier.height(40.dp))
-                Box(Modifier.padding(horizontal = 16.dp)) { SeasonBoard(now, status) { go(HomeAction.STATUS) } }
+                Box(Modifier.padding(horizontal = 16.dp)) { SeasonBoard(status) { go(HomeAction.STATUS) } }
                 Spacer(Modifier.height(30.dp))
             }
+            // round 20: the signs without a line under them; a member's group (its name and how many are in it, the
+            // site's groupBoardSub) is data and stays
             SignPost(listOf(
-                SignSpec(stringResource(R.string.nav_map), stringResource(R.string.home_board_map_sub), c.blue, c.onBoard, .90f) { go(HomeAction.MAP) },
-                SignSpec(stringResource(R.string.nav_meet), stringResource(R.string.home_board_meet_sub), SignColors.gold, SignColors.ink, .82f) { go(HomeAction.MEET) },
-                SignSpec(stringResource(R.string.nav_games), stringResource(R.string.home_board_games_sub), c.green, c.onBoard, .86f) { go(HomeAction.GAMES) },
-                // in a group: its name and how many are in it (the site's groupBoardSub); otherwise the way in
-                SignSpec(stringResource(R.string.app_sign_group), group?.let { (name, n) -> if (n > 0) name + " · " + pluralStringResource(R.plurals.group_members_n, n, n) else name }
-                    ?: stringResource(R.string.home_board_group_sub), c.ink, c.paper, .78f) { go(HomeAction.GROUP) },
+                SignSpec(stringResource(R.string.nav_map), null, c.blue, c.onBoard, .90f) { go(HomeAction.MAP) },
+                SignSpec(stringResource(R.string.nav_meet), null, SignColors.gold, SignColors.ink, .82f) { go(HomeAction.MEET) },
+                SignSpec(stringResource(R.string.nav_games), null, c.green, c.onBoard, .86f) { go(HomeAction.GAMES) },
+                SignSpec(stringResource(R.string.app_sign_group), group?.let { (name, n) -> if (n > 0) name + " · " + pluralStringResource(R.plurals.group_members_n, n, n) else name },
+                    c.ink, c.paper, .78f) { go(HomeAction.GROUP) },
             ))
-            Tally()
             // the site's two links at the bottom of home
             Column(Modifier.padding(start = 16.dp, end = 16.dp, top = 28.dp, bottom = 24.dp)) {
                 HomeLink(stringResource(R.string.home_about_link)) { go(HomeAction.ABOUT) }
@@ -151,6 +159,7 @@ fun HomeScreen(trip: Trip?, frame: DayNight.Frame, mode: DayNight.Mode, now: Loc
         }
     }
     if (langs && onLang != null) LangSheet({ tag -> langs = false; onLang(tag) }) { langs = false }
+    edit?.let { e -> if (onTrip != null) PassEditor(e, trip, now.toLocalDate(), onTrip) { edit = null } }
     }
 }
 
@@ -208,56 +217,60 @@ private fun DayNightButton(mode: DayNight.Mode, label: String, onMode: () -> Uni
 private val SUN = Color(0xFFF4B942)
 
 /**
- * The state of the season, as on the site when there is no report (S3): out of season the mountain sleeps under the
- * snow; in season with no fresh report it says so. With a fresh report (13.4) the snow is gone and it says how many
- * lifts are open (S1's line). A tap opens the board over the map.
+ * The lift status on home without a trip (round 20, decision 65; the site's #seasonBoard): a lift-status widget, one
+ * dot per lift on the board. Without a fresh report, in season or out of it, it is switched off: greyed, not tappable,
+ * the dots dashed and empty, "0/N" and "no report". With one (13.4), the same widget live: a green rule on top, the
+ * open lifts' dots filled in green, "open/N" and when it was updated; a tap opens the board over the map.
  */
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun SeasonBoard(now: LocalDateTime, status: LiftStatus?, onClick: () -> Unit) {
+private fun SeasonBoard(status: LiftStatus?, onClick: () -> Unit) {
     val c = Ski.colors
-    val inSeason = now.month in listOf(Month.DECEMBER, Month.JANUARY, Month.FEBRUARY, Month.MARCH, Month.APRIL)
-    if (status != null && status.fresh) {
-        Column(
-            Modifier.fillMaxWidth()
-                .shadow(6.dp, RectangleShape, ambientColor = Color(0x1A13233A), spotColor = Color(0x1A13233A))
-                .background(c.paper)
-                .drawWithContent { drawContent(); drawRect(c.green, Offset.Zero, Size(size.width, 6.dp.toPx())) }
-                .clickable(role = Role.Button, onClick = onClick)
-                .padding(start = 14.dp, end = 14.dp, top = 18.dp, bottom = 12.dp),
-        ) {
-            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                LiveDot(true)
-                Text(stringResource(R.string.status_heading_lift_status), style = Ski.type.title.copy(fontSize = Ski.type.title.fontSize * (30f / 44f)), color = c.ink)
-            }
-            Text(summaryText(status), Modifier.padding(top = 4.dp), style = Ski.type.small, color = c.muted)
-        }
-        return
-    }
+    val live = status != null && status.fresh
+    val names = status?.names.orEmpty()
+    val open = if (live) status!!.open else 0
+    val heading = stringResource(R.string.status_heading_lift_status)
+    val foot = if (live) agoText(status!!) else stringResource(R.string.status_no_report)
+    val label = heading + ": " + if (live) stringResource(R.string.status_bar_summary, open.toString(), names.size.toString(), foot) else foot
     Column(
         Modifier.fillMaxWidth()
             .shadow(6.dp, RectangleShape, ambientColor = Color(0x1A13233A), spotColor = Color(0x1A13233A))
             .background(c.paper)
-            .drawWithCache {
-                // the site's #seasonBoard: data-snow="7" data-snow-pile over its 6 top border
-                val snow = snowCap(7, size.width, density, SnowKind.PILE, border = 6f); val paint = SnowPaint(c, snow)
-                onDrawWithContent {
-                    drawContent()
-                    drawRect(c.dash, Offset.Zero, Size(size.width, 6.dp.toPx()))
-                    drawSnow(snow, paint)
+            .drawBehind { drawRect(if (live) c.green else c.dash, Offset.Zero, Size(size.width, 6.dp.toPx())) }
+            .let { if (live) it.clickable(role = Role.Button, onClick = onClick) else it.graphicsLayer { alpha = .62f } }
+            .semantics(mergeDescendants = true) { contentDescription = label }
+            .padding(start = 14.dp, end = 14.dp, top = 18.dp, bottom = 14.dp),
+        verticalArrangement = Arrangement.spacedBy(10.dp),
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            Icon(Icons.lift, null, Modifier.size(22.dp), tint = c.ink)
+            Text(heading, style = Ski.type.bodyBold.copy(fontSize = 15.sp), color = c.ink)
+        }
+        if (names.isNotEmpty()) {
+            // the dots run left to right in every language, as the site's .sb-dots (direction: ltr)
+            CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
+                FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    for (n in names) {
+                        val on = live && status!!.isOpen(n) == true
+                        Box(Modifier.size(16.dp).drawBehind { if (on) drawCircle(c.green) else emptyDot(c.muted) })
+                    }
                 }
             }
-            .clickable(role = Role.Button, onClick = onClick)
-            .padding(start = 14.dp, end = 14.dp, top = 18.dp, bottom = 12.dp),
-    ) {
-        Row(verticalAlignment = Alignment.Bottom) {
-            Text(stringResource(if (inSeason) R.string.status_no_recent_data else R.string.status_mountain_asleep), Modifier.weight(1f),
-                style = Ski.type.title.copy(fontSize = Ski.type.title.fontSize * (30f / 44f)), color = c.ink)
-            Text(stringResource(R.string.status_heading_lift_status), style = Ski.type.label, color = c.glacier)
+            Row(verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                Text("$open/${names.size}", style = Ski.type.title.copy(fontSize = 30.sp, lineHeight = 30.sp, textDirection = TextDirection.Ltr), color = c.ink)
+                Text(foot, Modifier.padding(bottom = 3.dp), style = Ski.type.small.copy(fontSize = 13.sp), color = c.muted)
+            }
         }
-        Text(stringResource(if (inSeason) R.string.status_lead_in_season else R.string.status_lead_off_season), Modifier.padding(top = 4.dp),
-            style = Ski.type.small, color = c.muted)
     }
 }
+
+/** A lift with no report: a dashed empty circle of 16, a 2 border (the site's .r20-lifts i). */
+private fun DrawScope.emptyDot(color: Color) {
+    val w = 2.dp.toPx()
+    drawCircle(color, size.minDimension / 2 - w / 2, style = Stroke(w, pathEffect = DOT_DASH))
+}
+
+private val DOT_DASH = PathEffect.dashPathEffect(floatArrayOf(5f, 4f))
 
 /** What home needs of the account (A-32): me (null: not signed in), and where the pass's name leads. */
 class Account(val me: io.github.pini236.skiapp.group.Me?, val onManage: () -> Unit, val onSignIn: () -> Unit, val onSignOut: () -> Unit)
@@ -272,25 +285,6 @@ private fun PhaseChip(frame: DayNight.Frame) {
     }
     Text(stringResource(res), Modifier.padding(start = 16.dp, top = 8.dp).background(if (c.dark) Color(0x8C0D1522) else Color(0x8CFFFFFF)).padding(horizontal = 10.dp, vertical = 3.dp),
         style = Ski.type.bodyBold.copy(fontSize = 12.5.sp), color = c.ink)
-}
-
-/** The runs on the official map by colour (the site's .tally): a coloured rule, the number, the colour. */
-@Composable
-private fun Tally() {
-    val c = Ski.colors
-    // the counts the site shows (site/index.html), from MTA's official map, not from the lines we have
-    val counts = listOf("green" to 5, "blue" to 16, "red" to 4, "black" to 2)
-    val names = mapOf("green" to R.string.common_color_green, "blue" to R.string.common_color_blue, "red" to R.string.common_color_red, "black" to R.string.common_color_black)
-    Column(Modifier.padding(start = 16.dp, end = 16.dp, top = 56.dp).semantics(mergeDescendants = true) {}) {
-        Text(stringResource(R.string.home_tally), Modifier.padding(bottom = 10.dp), style = Ski.type.small.copy(fontSize = 13.sp), color = c.muted)
-        Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            for ((col, n) in counts) Column(Modifier.weight(1f).drawBehind { drawRect(c.run(col), size = androidx.compose.ui.geometry.Size(size.width, 6.dp.toPx())) }.padding(top = 12.dp),
-                verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                Text(n.toString(), style = Ski.type.title.copy(fontSize = 38.sp, lineHeight = 34.sp), color = c.ink)
-                Text(stringResource(names.getValue(col)), style = Ski.type.small.copy(fontSize = 13.sp), color = c.muted)
-            }
-        }
-    }
 }
 
 @Composable

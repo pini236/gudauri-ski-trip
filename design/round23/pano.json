@@ -1,0 +1,92 @@
+{
+ "camera": [
+  2900.0,
+  -2000.0,
+  2353
+ ],
+ "horizon": 0.75,
+ "phone": {
+  "Innere Schwarze Schneide": [
+   0.1468,
+   0.4772
+  ],
+  "Tiefenbachkogel": [
+   0.1089,
+   0.5096
+  ],
+  "Äußere Schwarze Schneide": [
+   0.1309,
+   0.3834
+  ],
+  "Karleskogel": [
+   0.2881,
+   0.5314
+  ],
+  "Gaislachkogel": [
+   0.081,
+   0.3835
+  ],
+  "Schwarzkogel": [
+   0.6199,
+   0.4807
+  ],
+  "Einzeiger": [
+   0.4332,
+   0.5406
+  ],
+  "Rotkogel": [
+   0.7168,
+   0.4724
+  ],
+  "Gigijoch": [
+   0.8773,
+   0.6512
+  ],
+  "_village": [
+   0.9792,
+   3.7992
+  ]
+ },
+ "wide": {
+  "Innere Schwarze Schneide": [
+   0.3084,
+   0.4772
+  ],
+  "Tiefenbachkogel": [
+   0.2879,
+   0.5096
+  ],
+  "Äußere Schwarze Schneide": [
+   0.2998,
+   0.3834
+  ],
+  "Karleskogel": [
+   0.3851,
+   0.5314
+  ],
+  "Gaislachkogel": [
+   0.2727,
+   0.3835
+  ],
+  "Schwarzkogel": [
+   0.565,
+   0.4807
+  ],
+  "Einzeiger": [
+   0.4638,
+   0.5406
+  ],
+  "Rotkogel": [
+   0.6176,
+   0.4724
+  ],
+  "Gigijoch": [
+   0.7046,
+   0.6512
+  ],
+  "_village": [
+   0.7599,
+   3.7992
+  ]
+ }
+}

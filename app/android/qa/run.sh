@@ -442,14 +442,17 @@ home() {
   drag $((W / 2)) $((H * 3 / 4)) $((W / 2)) $((H / 4)) 400; sleep 1; shot home-guest-signs
   drag $((W / 2)) $((H / 4)) $((W / 2)) $((H * 3 / 4)) 300; sleep 0.5
 
-  # add a trip by hand: only the date is required (H2)
-  tapText "הוספת הטיסה שלי" && sleep 1.5 && shot trip-form-empty
-  # nothing typed but flight numbers: the date from the calendar, a time from the clock, the airport from the list
-  tapText "בחירת תאריך" && sleep 1.2 && shot trip-date-picker && tapText "מעבר לחודש הבא" && sleep 0.8 && tapText "~(?<!\d)20(?!\d)" && sleep 0.5 && shot trip-date-chosen && tapText "בחירה" && sleep 1
-  tapText "בחירת שעה" && sleep 1.2 && shot trip-time-picker && tapText "בחירה" && sleep 1
+  # round 20: the pass is the form. "When do you fly?" opens one calendar: two taps (out, back), the ski days shaded
+  mark; tapText "מתי טסים?" && sleep 1.2 && shot trip-calendar
+  tapText "~^20$" && sleep 0.5 && tapText "~^27$" && sleep 0.8 && shot trip-calendar-picked
+  tapText "שמירה" && waitlog "trip saved" 10 && { sleep 1.5; shot home-trip-new; }
+  # what is not filled waits on the pass: "+ number" opens its own small sheet
+  mark; tapText "+ מספר" && sleep 1.2 && { adb shell input text "GD101"; sleep 0.6; keyboardOff; shot trip-flight-sheet
+    tapText "שמירה" && waitlog "trip saved" 10 && sleep 1; }
+  mark; tapText "+ שעה" && sleep 1.2 && shot trip-time-picker && tapText "בחירה" && waitlog "trip saved" 10 && sleep 1
   # the airport: from the list or a three-letter code, no free names (K-5); a new trip starts from Tel Aviv, as on the site.
   # The keyboard comes up slowly on the emulator: type only once it shows, and close the sheet if a step is missing
-  tapText "TLV · תל אביב" && sleep 1.2 && shot trip-place-sheet
+  tapText "TLV" && sleep 1.2 && shot trip-place-sheet
   if focusField "חיפוש עיר או קוד שדה"; then
     adb shell input text "Berlin"; sleep 0.8; keyboardOff; shot trip-place-name
     if focusField "חיפוש עיר או קוד שדה"; then
@@ -457,9 +460,8 @@ home() {
       adb shell input text "lca"; sleep 0.8; keyboardOff; shot trip-place-code
     fi
   fi
-  tapText "~^להשתמש ב" && sleep 1 || { adb shell input keyevent KEYCODE_BACK; sleep 1; }
-  shot trip-form-picked
-  mark; tapText "שמירה" && waitlog "trip saved" 10 && { sleep 1.5; shot home-trip-picked; }
+  mark; tapText "~^להשתמש ב" && waitlog "trip saved" 10 || { adb shell input keyevent KEYCODE_BACK; sleep 1; }
+  sleep 1; shot home-trip-picked
 
   # the whole trip (H3), day and night (H4), the tear and the swipe to the return pass
   qa "--es qa.trip '$TRIP_HE'"; waitlog "trip set" 20; sleep 1.5; shot home-trip-day
@@ -483,7 +485,7 @@ home() {
   tapText "מפת מסלולים" && sleep 3 && shot home-sign-map
   tapText "בית" && sleep 1.5 && shot home-back
   tapText "נקודת מפגש" && sleep 1 && shot home-sign-meet && adb shell input keyevent KEYCODE_BACK && sleep 1
-  # home below the signs: the tally of runs and the two links (A-32)
+  # home below the signs: the two links (A-32; round 20: no tally)
   drag $((W * 7 / 100)) $((H * 80 / 100)) $((W * 7 / 100)) $((H * 20 / 100)) 400; sleep 1; shot home-bottom
   drag $((W / 2)) $((H * 20 / 100)) $((W / 2)) $((H * 80 / 100)) 300; drag $((W / 2)) $((H * 20 / 100)) $((W / 2)) $((H * 80 / 100)) 300; sleep 1
   # about and settings (13.7): the account's pass, the settings, who built it, the credits
@@ -513,7 +515,7 @@ home() {
   # a phone in a language the app does not have (French) gets English, not Hebrew (3.10.2026)
   adb shell cmd locale set-app-locales "$PKG" --locales fr > /dev/null 2>&1; sleep 3
   qa "--es qa.tab home --es qa.trip none"; sleep 2; shot home-fr-english
-  [ -n "$(where "Add my flight")" ] && note "a French phone: English" || fail "a French phone is not in English"
+  [ -n "$(where "When do you fly?")" ] && note "a French phone: English" || fail "a French phone is not in English"
   adb shell cmd locale set-app-locales "$PKG" --locales he > /dev/null 2>&1; sleep 3
   qa "--es qa.trip '$TRIP_HE'"; sleep 1
 }
@@ -552,7 +554,7 @@ group() {
   qa "--es qa.group invited --es qa.tab join"; sleep 1.5; shot group-code
   adb shell input text "KZBQRM"; sleep 0.5; keyboardOff; shot group-code-typed
   tapText "המשך" && sleep 2.5 && shot group-code-invited
-  tapText "אני כבר בקבוצה" && sleep 2 && shot group-reclaim
+  tapText "בחירת השם שלי" && sleep 2 && shot group-reclaim
   qa "--es qa.tab j/AAAAAA"; sleep 2.5; shot group-bad-code
 
   # a guest member without a flight: the flights (Q6), "I'm on the same flight" (Q7), meetups (Q8), scores (Q9)
@@ -687,8 +689,13 @@ phone() {
     adb shell setprop persist.sys.locale "$loc"; adb shell setprop ctl.restart zygote
     sleep 5; adb wait-for-device
     local i; for i in $(seq 1 60); do [ "$(adb shell getprop sys.boot_completed | tr -d '\r')" = 1 ] && break; sleep 2; done; sleep 10
+    # after the restart the whole system starts again, and is busy well past "booted": run 37484751167 opened the app
+    # at a load of 40 (the system's own UI skipped 721 frames), its window did not get the focus within 5 s, and the
+    # system called it not responding. Wait until the system settles (up to 2 minutes), and say at what load
+    local load=""; for i in $(seq 1 40); do load=$(adb shell cat /proc/loadavg 2> /dev/null | cut -d' ' -f1 | tr -d '\r')
+      awk -v l="${load:-99}" 'BEGIN { exit !(l < 8) }' && break; sleep 3; done
     kill "$LOGCAT" 2> /dev/null; logcat_on # the restart dropped the log stream
-    note "system language asked $loc: $(adb shell getprop persist.sys.locale | tr -d '\r'), the system says $(adb shell am get-config 2> /dev/null | grep -m1 -oE '^config: [^ ]+' | tr -d '\r')"
+    note "system language asked $loc (load $load): $(adb shell getprop persist.sys.locale | tr -d '\r'), the system says $(adb shell am get-config 2> /dev/null | grep -m1 -oE '^config: [^ ]+' | tr -d '\r')"
     # the system may still be coming back from the restart (its "booted" flag outlives it): start the app until it answers
     local opened=""
     for i in 1 2 3; do
@@ -699,7 +706,7 @@ phone() {
     sleep 3; shot "phone-$loc"
     tail -n +"$((MARK + 1))" "$OUT/logcat.txt" | grep -m1 "SkiQa.*language " | sed 's/.*SkiQa[^:]*: /  app: /' | tee -a "$OUT/summary.txt"
     # the screen reader of the test can be slow to come back after the restart: a few tries
-    local want="Add my flight" got=""; [ "$loc" = he-IL ] && want="הוספת הטיסה שלי"
+    local want="When do you fly?" got=""; [ "$loc" = he-IL ] && want="מתי טסים?"
     for i in 1 2 3 4 5; do got=$(where "$want"); [ -n "$got" ] && break
       # a system question over the page (notifications), in the phone's language: answered, and looked at again
       local w xy; for w in "Allow" "יש אישור" "Разрешить" "დაშვება"; do xy=$(where "$w"); [ -n "$xy" ] && { tap $xy; break; }; done
@@ -726,17 +733,16 @@ runview() {
   local k; for k in 1 2; do [ -n "$xy" ] && break; drag $((W * 7 / 100)) $((H * 80 / 100)) $((W * 7 / 100)) $((H * 60 / 100)) 600; sleep 1; xy=$(where "מיקום לאורך המסלול, מלמעלה למטה"); done
   if [ -n "$xy" ]; then set -- $xy; mark; drag $((W / 8)) "$2" $((W * 5 / 8)) "$2" 900; waitlog "profile scrub Tatra 2" 5; sleep 1.5; shot run-profile
   else fail "no elevation profile"; fi
+  # round 20: how the profile is worked out, behind the (i); "what's ahead" as three numbers, then the videos
+  tapText "איך זה חושב" && sleep 1 && shot run-profile-info
   drag $up; sleep 1; shot run-ahead
-  drag $up; sleep 1; shot run-connections
-  drag $up; sleep 1; shot run-research
   drag $up; sleep 1; shot run-videos
   # the next run: a swipe across the sign (as on the site, to the left is the next one)
   xy=$(where "המסלול הבא: Kudebi 1"); if [ -n "$xy" ]; then set -- $xy; mark; drag $((W * 3 / 4)) "$2" $((W / 6)) "$2" 300; waitlog "selected Kudebi 1" 10 && { sleep 3; shot run-next; }; else fail "no step to the next run"; fi
-  # a lift of the run: its panel
-  mark; tapText "הצגת כל הפרטים" && waitlog "panel open" 5; sleep 1
-  # the lift's tag among the connections (the name alone: "Kudebi 1" and "Kudebi 2" are runs)
-  for i in 1 2 3 4 5; do xy=$(where "~^Kudebi$"); [ -n "$xy" ] && break; drag $up; sleep 1; done
-  mark; tapText "~^Kudebi$" && waitlog "lift open Kudebi" 5 && { sleep 3; shot lift-panel; drag $up; sleep 1; shot lift-panel-runs; }
+  # a lift's panel (round 20: no connections in the run's panel): from the meeting point's "on the map"
+  mark; qa "--es qa.run none --es qa.tab meet/158744075b/0930/20270111"; waitlog "meet ready" 15; sleep 1.5
+  for i in 1 2 3 4 5; do xy=$(where "לראות במפת המסלולים"); [ -n "$xy" ] && break; drag $up; sleep 1; done
+  mark; tapText "לראות במפת המסלולים" && waitlog "lift open" 10 && { sleep 3; shot lift-panel; drag $up; sleep 1; shot lift-panel-runs; }
   # the list of all runs, and the filters (Back closes the lift's panel first)
   adb shell input keyevent KEYCODE_BACK; sleep 1; qa "--es qa.run none"; sleep 2
   mark; tapText "כל המסלולים" && waitlog "run list open" 5 && { sleep 1.5; shot run-list; }
@@ -767,7 +773,9 @@ status() {
   adb shell "am start -W -n $ACT --es qa.tab home --es qa.trip none --es qa.mode auto --es qa.group none --es qa.time 2026-10-03T11:00 --es qa.status none" > /dev/null
   waitlog "status pinned none" 30; waitlog "scene ready" 120
   sleep 2; drag $up; sleep 1; shot status-home-asleep
-  mark; tapText "ההר עוד ישן" && waitlog "status board snowy" 10 && { sleep 2; shot status-snowy; drag $up; sleep 1; shot status-snowy-below; }
+  # round 20: the board on home is switched off and does not open anything; the map's bar opens the snowy signs.
+  # The steps after it are on the map, as when the board still led there
+  mark; qa "--es qa.tab map --es qa.sheet on"; waitlog "status board snowy" 10 && { sleep 2; shot status-snowy; drag $up; sleep 1; shot status-snowy-below; }
   # in season, a report two hours old: no current information, and the map as it is
   mark; qa "--es qa.sheet off --es qa.time 2027-01-12T11:00 --es qa.status stale"; waitlog "status pinned stale" 10; sleep 2; shot status-stale-bar
   mark; tapText "אין מידע עדכני על הרכבלים" && waitlog "status board snowy" 10 && { sleep 2; shot status-stale-board; }

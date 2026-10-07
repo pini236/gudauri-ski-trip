@@ -6,6 +6,7 @@
   --snow:#EEF2F5; --paper:#FFFFFF; --ink:#13233A; --muted:#4B5A6F; --rule:#CBD5DF; --glacier:#1F5FC4;
   --grid:#DCE4EC; --lift:#3A4556; --casing:#FFFFFF;
   --p-green:#1B8A4C; --p-blue:#1F5FC4; --p-red:#D1342B; --p-black:#13233A; --on-board:#FFFFFF;
+  --p-route:#EE8E1C; --p-route-edge:#D1342B; --route-ink:#1A1206;
   --accent:#1F5FC4; --on-accent:#FFFFFF; --dash:#8E9CAD;
   --sky1:#DCE8F1; --sky2:#EEF2F5;
   --water:#8db6d8; --water-edge:#5f8fbb; --road:#a49a91; --road-main:#8a7c70; --vill:#e3d8cb; --contour:#8193a8; --contour-i:#62758c; --peak:#3d4a5c;
@@ -22,6 +23,7 @@
   --snow:#0D1522; --paper:#16223A; --ink:#EAF0F7; --muted:#A3B3C8; --rule:#2A3B55; --glacier:#8DB9FF;
   --grid:#18263A; --lift:#C9D3E0; --casing:#0D1522;
   --p-green:#3CC47C; --p-blue:#5B9BFF; --p-red:#FF6A5F; --p-black:#EAF0F7; --on-board:#0D1522;
+  --p-route:#F5A84B; --p-route-edge:#FF6A5F;
   --accent:#F4B942; --on-accent:#0D1522; --dash:#51627D;
   --sky1:#0B1320; --sky2:#16223A;
   --water:#2c5a82; --water-edge:#4d82b3; --road:#6d6760; --road-main:#8f857b; --vill:#3a352f; --contour:#5a6d85; --contour-i:#7a90aa; --peak:#c9d3e0;
@@ -35,6 +37,7 @@
   --snow:#0D1522; --paper:#16223A; --ink:#EAF0F7; --muted:#A3B3C8; --rule:#2A3B55; --glacier:#8DB9FF;
   --grid:#18263A; --lift:#C9D3E0; --casing:#0D1522;
   --p-green:#3CC47C; --p-blue:#5B9BFF; --p-red:#FF6A5F; --p-black:#EAF0F7; --on-board:#0D1522;
+  --p-route:#F5A84B; --p-route-edge:#FF6A5F;
   --accent:#F4B942; --on-accent:#0D1522; --dash:#51627D;
   --sky1:#0B1320; --sky2:#16223A;
   --water:#2c5a82; --water-edge:#4d82b3; --road:#6d6760; --road-main:#8f857b; --vill:#3a352f; --contour:#5a6d85; --contour-i:#7a90aa; --peak:#c9d3e0;
@@ -188,12 +191,6 @@ input{font:inherit;font-size:15px;color:var(--ink);background:var(--snow);border
 .app-how p{margin:0 0 6px}
 .board-group{background:var(--ink);color:var(--paper);width:84%;box-sizing:border-box}
 .board-group span{opacity:.85}
-.tally{margin-top:72px}
-.tally h2{margin:0 0 10px;font:400 13px var(--f-body);color:var(--muted)}
-.tally ul{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
-.tally li{display:flex;flex-direction:column;gap:4px;border-top:6px solid;padding-top:6px}
-.tally b{font-family:var(--f-display);font-size:38px;line-height:.9}
-.tally span{font-size:13px;color:var(--muted)}
 .crew{margin-top:48px}
 .crew h2{margin:0 0 10px;font:400 13px var(--f-body);color:var(--muted)}
 .crew ul{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:8px 10px}
@@ -202,7 +199,7 @@ input{font:inherit;font-size:15px;color:var(--ink);background:var(--snow);border
 @media (min-width:900px){
   .home-sky{height:380px}
   .home-inner{grid-template-columns:minmax(0,1fr) minmax(0,1fr);column-gap:64px;padding-top:30px}
-  .home-top,.tally,.crew{grid-column:1/-1}
+  .home-top,.crew{grid-column:1/-1}
   .ticket-wrap{margin-top:170px}
   .post{margin-top:260px;align-self:start}
 }
@@ -250,7 +247,7 @@ svg#map.drag{cursor:grabbing}
 
 /* panel */
 #panel h2{display:inline-block;max-width:100%;box-sizing:border-box;margin:0 0 14px;padding:6px 16px 6px 30px;background:var(--board,var(--ink));color:var(--on-board);font-family:var(--f-display);font-weight:700;font-size:34px;line-height:1.05;clip-path:polygon(0 50%,16px 0,100% 0,100% 100%,16px 100%)}
-#panel h2.c-green{--board:var(--p-green)}#panel h2.c-blue{--board:var(--p-blue)}#panel h2.c-red{--board:var(--p-red)}#panel h2.c-black{--board:var(--p-black)}
+#panel h2.c-route{--board:var(--p-route);color:var(--route-ink)}#panel h2.c-green{--board:var(--p-green)}#panel h2.c-blue{--board:var(--p-blue)}#panel h2.c-red{--board:var(--p-red)}#panel h2.c-black{--board:var(--p-black)}
 #panel h2.ov{display:block;padding:0;background:none;color:var(--ink);clip-path:none;font-size:40px;margin:0 0 6px}
 #panel h3{font-family:var(--f-display);font-weight:700;font-size:25px;line-height:1.1;color:var(--ink);margin:22px 0 8px}
 .lead{margin:0 0 6px;color:var(--muted);font-size:14px}
@@ -261,10 +258,10 @@ svg#map.drag{cursor:grabbing}
 .pips{display:inline-flex;gap:3px;vertical-align:middle;margin-inline-end:6px}
 .pips i{width:10px;height:10px;background:var(--rule)}
 .pips i.on{background:currentColor}
-.c-green{color:var(--p-green)}.c-blue{color:var(--p-blue)}.c-red{color:var(--p-red)}.c-black{color:var(--p-black)}
+.c-route{color:var(--p-route-edge)}.c-green{color:var(--p-green)}.c-blue{color:var(--p-blue)}.c-red{color:var(--p-red)}.c-black{color:var(--p-black)}
 .notice{border-inline-start:4px solid var(--p-blue);background:var(--snow);padding:10px 12px;font-size:.9rem}
 .sw{width:12px;height:12px;display:inline-block;flex:none}
-.sw.green{background:var(--p-green)}.sw.blue{background:var(--p-blue)}.sw.red{background:var(--p-red)}.sw.black{background:var(--p-black)}
+.sw.green{background:var(--p-green)}.sw.blue{background:var(--p-blue)}.sw.red{background:var(--p-red)}.sw.black{background:var(--p-black)}.sw.route{background:var(--p-red);transform:rotate(45deg) scale(.8)}
 .sw.lift{height:2px;background:var(--lift)}
 .sw.unnamed{height:0;border-top:2px dashed var(--muted)}
 .index{display:grid;grid-template-columns:1fr 1fr;column-gap:16px}
@@ -279,7 +276,7 @@ svg#map.drag{cursor:grabbing}
 #panel .tag[class*="c-"]::before{content:"";width:10px;height:10px;flex:none;background:var(--tc)}
 /* 40 pixels to the eye, 44 to the finger, without the rows of tags touching */
 #panel .tag::after{content:"";position:absolute;inset:-2px 0}
-.tag.c-green{--tc:var(--p-green)}.tag.c-blue{--tc:var(--p-blue)}.tag.c-red{--tc:var(--p-red)}.tag.c-black{--tc:var(--p-black)}
+.tag.c-route{--tc:var(--p-route)}.tag.c-green{--tc:var(--p-green)}.tag.c-blue{--tc:var(--p-blue)}.tag.c-red{--tc:var(--p-red)}.tag.c-black{--tc:var(--p-black)}
 ul.notes{margin:0;padding-inline-start:18px;font-size:.92rem}
 ul.notes li{margin-bottom:4px}
 .vids{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:8px}
@@ -331,7 +328,7 @@ ul.notes li{margin-bottom:4px}
 
 /* 3D */
 #map3d{position:absolute;inset:0;background:linear-gradient(180deg,var(--sky1),var(--sky2) 70%);overflow:hidden}
-.r3-labels{--ink:#13233A;--muted:#4B5A6F;--peak:#3d4a5c;--casing:#FFFFFF;--p-green:#1B8A4C;--p-blue:#1F5FC4;--p-red:#D1342B;--p-black:#13233A}
+.r3-labels{--ink:#13233A;--muted:#4B5A6F;--peak:#3d4a5c;--casing:#FFFFFF;--p-green:#1B8A4C;--p-blue:#1F5FC4;--p-red:#D1342B;--p-black:#13233A;--p-route:#EE8E1C;--p-route-edge:#D1342B}
 #map3d[hidden]{display:none}
 .r3-labels{position:absolute;inset:0;pointer-events:none;overflow:hidden}
 .r3-lbl{position:absolute;left:0;top:0;display:none;white-space:nowrap;font-size:12.5px;line-height:1.2;direction:ltr;color:var(--ink);text-shadow:0 0 3px var(--casing),0 0 3px var(--casing),0 0 2px var(--casing)}
@@ -344,6 +341,13 @@ ul.notes li{margin-bottom:4px}
 .r3-lbl.lift{font-size:11.5px;font-weight:600;font-style:italic;color:var(--ink)}
 .r3-lbl.lift .lift-ico{color:var(--ink)}
 .r3-lbl.piste.c-black{color:var(--p-black)}
+.r3-lbl.piste.c-route{color:var(--p-route-edge)}
+/* number plates in 3D, as on the map from above (rounds 23 and 24): the run's colour, a white edge, the number in white; a ski route a red diamond */
+.r3-lbl.plate{text-shadow:none;line-height:0}
+.r3-lbl.plate i{display:inline-block;min-width:22px;height:20px;padding:0 4px;box-sizing:border-box;font:700 17px/20px var(--f-display);font-style:normal;text-align:center;color:#fff;background:var(--p-blue);box-shadow:0 0 0 1.6px var(--casing)}
+.r3-lbl.plate.c-green i{background:var(--p-green)}.r3-lbl.plate.c-red i{background:var(--p-red)}.r3-lbl.plate.c-black i{background:var(--p-black)}
+.r3-lbl.plate.c-route{width:40px;height:32px;background:var(--casing);clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%)}
+.r3-lbl.plate.c-route i{position:absolute;inset:2px;min-width:0;height:auto;padding:0;font-size:15px;line-height:28px;background:var(--p-red);box-shadow:none;clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%)}
 
 /* phones */
 @media (max-width:760px){
@@ -383,6 +387,7 @@ ul.notes li{margin-bottom:4px}
 .runpaint path{transition-duration:.35s}
 .runpaint .rp-ground{opacity:0;transition:opacity .9s ease-out;image-rendering:auto}
 .runpaint.on .rp-ground{opacity:1}
+.runpaint image.rp-area{opacity:0;transition:opacity .9s ease-out}.runpaint.on image.rp-area{opacity:1}
 .runpaint.on line,.runpaint.on path{opacity:1}
 .runmark{fill:var(--ink);stroke:#fff;stroke-width:3;pointer-events:none}
 #map .relief{transition:opacity .5s}
@@ -412,12 +417,6 @@ ul.notes li{margin-bottom:4px}
 .slope-key li{display:flex;align-items:center;gap:5px}
 .slope-key i{width:12px;height:4px}
 .run-fly{margin-top:12px;width:100%;justify-content:center}
-.brief{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
-.brief li{display:flex;flex-direction:column;gap:2px;padding:4px 0 4px 0;padding-inline-start:12px;border-inline-start:4px solid var(--rule)}
-.brief li:first-child{border-color:var(--p-green)}.brief li.b-steep{border-color:var(--p-red)}.brief li:last-child{border-color:var(--ink)}
-.brief b{font-size:14px}.brief span{font-size:13.5px;color:var(--muted)}
-.brief .tag{margin:4px 0 0!important;margin-inline-end:4px!important}
-.run-cmp{margin:12px 0 0;font-size:14px;line-height:2.2}
 
 /* meeting point (design round 3, M1 to M3) */
 .page-meet{display:flex;flex-direction:column;overflow:auto}
@@ -436,8 +435,6 @@ ul.notes li{margin-bottom:4px}
 .meet-callout::after{content:"";position:absolute;left:var(--tip,92px);bottom:-8px;width:16px;height:16px;background:#13233A;transform:rotate(45deg)}
 .mc-top{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
 .mc-top b{font-family:var(--f-display);font-size:30px;line-height:.9}
-.mc-alt{font-size:12px;font-weight:700;color:#F4B942;white-space:nowrap}
-.meet-callout .mc-where{font-size:12px;color:#A3B3C8;position:relative;z-index:1}
 .meet-all{position:absolute;top:12px;left:12px;min-height:44px;padding:0 14px;border:1.5px solid var(--rule);background:var(--paper);color:var(--ink);font:inherit;font-size:14px;font-weight:600;cursor:pointer}
 .meet-hint{position:absolute;bottom:12px;left:12px;padding:4px 10px;background:color-mix(in srgb,var(--paper) 94%,transparent);border:1px solid var(--rule);font-size:12.5px;font-weight:600;pointer-events:none}
 .meet-hint.ask{left:12px;right:12px;padding:10px 14px;background:#13233A;color:#fff;border:0;font-size:14px;font-weight:600;display:flex;align-items:center;gap:10px}
@@ -467,13 +464,11 @@ ul.notes li{margin-bottom:4px}
 .meet-side h2{margin:0 0 8px;font-family:var(--f-display);font-weight:700;font-size:26px;line-height:1}
 .meet-days,.meet-times{display:grid;gap:6px}
 .meet-days{grid-template-columns:repeat(4,minmax(0,1fr));margin-bottom:8px}
-.meet-times{grid-template-columns:repeat(6,minmax(0,1fr));direction:ltr}
+.meet-times{position:relative;grid-template-columns:repeat(7,minmax(0,1fr));direction:ltr}
 .meet-days button,.meet-times button{min-height:48px;border:1.5px solid var(--ink);background:var(--paper);color:var(--ink);font:inherit;cursor:pointer;transition:transform .2s,background-color .2s,box-shadow .2s}
 .meet-days button{font-size:13.5px;font-weight:700}
 .meet-times button{font-family:var(--f-display);font-weight:700;font-size:23px;line-height:1;padding:0}
 .meet-days button[aria-pressed="true"],.meet-times button[aria-pressed="true"]{background:#F4B942;color:#13233A;transform:translateY(-3px);box-shadow:0 4px 0 var(--ink)}
-.meet-own{display:flex;align-items:center;gap:10px;margin-top:10px;font-size:13px;color:var(--muted)}
-.meet-own input{width:130px}
 .meet-post{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:8px;padding-inline-start:14px}
 .meet-post::before{content:"";position:absolute;inset-inline-start:0;top:-8px;bottom:-12px;width:7px;background:var(--ink)}
 /* never shorter than its words (Russian, Georgian), and on a narrow phone the label breaks into two lines */
@@ -492,28 +487,15 @@ ul.notes li{margin-bottom:4px}
 .mc-main{padding:12px 16px 14px;display:flex;flex-direction:column;gap:10px;border:1px solid var(--rule);border-top:0;border-bottom:2px dashed var(--rule)}
 .mc-row{display:flex;align-items:flex-end;justify-content:space-between;gap:8px}
 .mc-col{display:flex;flex-direction:column;min-width:0}.mc-end{align-items:flex-end;flex:none}
-.mc-col small,.mc-meta small{font-size:12px;color:var(--muted)}
+.mc-col small{font-size:12px;color:var(--muted)}
 .mc-sign{align-self:flex-start;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:5px 14px 5px 28px;background:var(--p-blue);color:var(--on-board);font-family:var(--f-display);font-weight:700;font-size:40px;line-height:1;clip-path:polygon(0 50%,18px 0,100% 0,100% 100%,18px 100%)}
 .mc-time{font-family:var(--f-display);font-weight:700;font-size:52px;line-height:.85}
-.mc-meta{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr) minmax(0,1fr);gap:8px;border-top:1px solid var(--rule);padding-top:8px}
-.mc-meta span{display:flex;flex-direction:column;min-width:0}.mc-meta b{font-size:13.5px}
 .mc-stub{height:112px;box-sizing:border-box;margin:0;background:#F4B942;color:#13233A;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:13px;font-weight:700}
 .mc-stub b{font-family:var(--f-display);font-size:64px;line-height:.8}
-.meet-routes{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
-.meet-routes li{display:flex;flex-direction:column;gap:6px;padding:10px 0;border-bottom:1px solid var(--rule)}
-.meet-routes small{font-size:13px;font-weight:700}
 /* the way reads in the page's direction, from where you are to the yellow dot, the signs pointing along it */
 .rt{display:flex;align-items:center;flex-wrap:wrap;gap:4px}
-.rt-run{display:inline-flex;align-items:center;height:30px;padding:0 10px 0 20px;color:var(--on-board);font-family:var(--f-display);font-weight:700;font-size:21px;line-height:1;clip-path:polygon(0 50%,12px 0,100% 0,100% 100%,12px 100%)}
-.rt-run.c-green{background:var(--p-green)}.rt-run.c-blue{background:var(--p-blue)}.rt-run.c-red{background:var(--p-red)}.rt-run.c-black{background:var(--p-black);color:var(--paper)}
-.rt-lift{display:inline-flex;align-items:center;height:30px;padding:0 10px;background:var(--ink);color:var(--paper);font-size:13px;font-weight:700}
-.rt-sep{width:12px;border-top:2px dotted var(--muted)}
-.rt-dot{width:14px;height:14px;border-radius:50%;background:#F4B942;border:2px solid var(--ink)}
-.meet-share{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.meet-share .btn{justify-content:center;text-decoration:none;min-height:52px}
-.mshare-wa{grid-column:1/-1;background:var(--ink);color:var(--paper)}
+.meet-share{display:flex;flex-direction:column;gap:10px}
 /* a guest has no "save in the group": the last button takes the whole row */
-#meetOnMap:has(+ #meetGroup[hidden]){grid-column:1/-1}
 @media (max-width:760px){
   .meet{display:flex;flex-direction:column}
   .meet-map{order:-1;height:52svh;flex:none;border-bottom:1px solid var(--rule)}
@@ -537,7 +519,7 @@ ul.notes li{margin-bottom:4px}
 #map .lg.closed path:nth-child(2){stroke:var(--dash);stroke-dasharray:4 4}
 #map .lg.closed circle{fill:var(--dash)}
 .chair{fill:#F4B942;stroke:var(--ink);stroke-width:1;vector-effect:non-scaling-stroke;pointer-events:none}
-.pg.shut path:nth-child(2){stroke:var(--dash)!important;stroke-dasharray:6 5}
+.pg.shut path.core{stroke:var(--dash)!important;stroke-dasharray:6 5}.pg-area.shut{fill:var(--dash);stroke:var(--dash)}
 .forme .pg.shut{opacity:.15}
 .lstat{margin:4px 0 18px}
 .lstat h3{margin-top:6px!important}
@@ -568,7 +550,6 @@ ul.notes li{margin-bottom:4px}
 .games{max-width:1040px;margin:0 auto;padding:24px 16px 40px;box-sizing:border-box}
 .games-head{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:0 0 16px}
 .games-sign{display:inline-flex;align-items:center;min-height:36px;padding:2px 16px 2px 30px;background:var(--ink);color:var(--paper);font-family:var(--f-display);font-weight:700;font-size:26px;line-height:1;clip-path:polygon(0 50%,16px 0,100% 0,100% 100%,16px 100%)}
-.games-intro{margin:0;color:var(--muted);font-size:14px;max-width:40em;flex:1 1 220px;min-width:0}
 /* round 8 (Pini chose GP2): every game is a trail sign on one post, with fresh snow on top of each sign */
 .page-games{background:radial-gradient(circle at 18px 26px,rgba(255,255,255,.9) 1.4px,transparent 2px) 0 0/97px 97px,radial-gradient(circle at 60px 70px,rgba(255,255,255,.75) 1px,transparent 1.6px) 0 0/131px 131px,linear-gradient(var(--sky1),var(--snow) 340px)}
 .games-list{position:relative;list-style:none;margin:0 auto;padding:30px 0 30px;padding-inline-start:40px;max-width:820px;display:flex;flex-direction:column;align-items:flex-start;gap:36px}
@@ -588,21 +569,19 @@ ul.notes li{margin-bottom:4px}
 .gc-feature .gc-thumb{width:180px}
 .gc-thumb img{display:block;width:100%;height:100%;object-fit:cover}
 .gc-play{position:absolute;inset:0;margin:auto;width:28px;height:28px}
-.gc-meta{position:absolute;inset-inline-end:0;bottom:6px;background:rgba(19,35,58,.84);color:#fff;font-size:11px;font-weight:700;padding:2px 8px}
 .gc-body{flex:1;display:flex;flex-direction:column;justify-content:center;gap:3px;padding:0 14px;padding-inline-end:36px;min-width:0}
 .gc-body b{font-family:var(--f-display);font-weight:700;font-size:30px;line-height:.95}
 .gc-feature .gc-body b{font-size:38px}
-.gc-tag{font-size:12.5px;line-height:1.35;opacity:.92}
 .gc-long{display:none;font-size:13.5px;line-height:1.45;opacity:.92}
 .game-card .snowcap{z-index:1}
 @media (min-width:761px){.game-card{height:132px}.gc-feature .game-card{height:200px}.gc-thumb{width:200px}.gc-feature .gc-thumb{width:300px}
-  .gc-body b{font-size:38px}.gc-feature .gc-body b{font-size:50px}.gc-feature .gc-long{display:block}.gc-tag{font-size:14px}}
+  .gc-body b{font-size:38px}.gc-feature .gc-body b{font-size:50px}.gc-feature .gc-long{display:block}}
 @media (max-width:760px){.games{padding:4px 12px 32px}.games-sign{display:none}.games-head{margin-bottom:6px}.games-list{padding-inline-start:34px;gap:34px}
   .games-list::before{inset-inline-start:10px}.games-list::after{inset-inline-start:5px}
   .game-card{height:96px}.gc-feature .game-card{height:122px}.gc-thumb{width:96px}.gc-feature .gc-thumb{width:124px}
   .gc-body{padding:8px 10px 0;padding-inline-end:32px}
   .gc-body b{font-size:25px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}.gc-feature .gc-body b{font-size:29px}
-  .gc-tag{font-size:11.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}}
+}
 @media (max-width:370px){.gc-thumb{width:84px}.gc-feature .gc-thumb{width:104px}.gc-body b{font-size:23px}}
 @media (prefers-reduced-motion:reduce){.game-card{transition:none}}
 
@@ -654,7 +633,6 @@ html.i18n-wait body{visibility:hidden}
 [dir="ltr"] #panel h2{padding:6px 30px 6px 16px;clip-path:polygon(0 0,calc(100% - 16px) 0,100% 50%,calc(100% - 16px) 100%,0 100%)}
 [dir="ltr"] .mp-sign{padding:0 30px 0 16px;clip-path:polygon(0 0,calc(100% - 18px) 0,100% 50%,calc(100% - 18px) 100%,0 100%)}
 [dir="ltr"] .mc-sign{padding:5px 28px 5px 14px;clip-path:polygon(0 0,calc(100% - 18px) 0,100% 50%,calc(100% - 18px) 100%,0 100%)}
-[dir="ltr"] .rt-run{padding:0 20px 0 10px;clip-path:polygon(0 0,calc(100% - 12px) 0,100% 50%,calc(100% - 12px) 100%,0 100%)}
 [dir="ltr"] .ls-face{padding:12px 30px 0 14px;clip-path:polygon(0 0,calc(100% - 18px) 0,100% 50%,calc(100% - 18px) 100%,0 100%)}
 [dir="ltr"] .games-sign{padding:2px 30px 2px 16px;clip-path:polygon(0 0,calc(100% - 16px) 0,100% 50%,calc(100% - 16px) 100%,0 100%)}
 [dir="ltr"] .gc-face{clip-path:polygon(0 0,calc(100% - 30px) 0,100% 50%,calc(100% - 30px) 100%,0 100%)}
@@ -674,9 +652,9 @@ html[lang="ka"]{--f-display:"Noto Sans Georgian","Arial Narrow",sans-serif;--f-b
 html[lang="ka"] :is(.board b,.mhead h1,.tf-head h1,.ac-head h1,.gc-body b,.season>b,.mcard-empty b,.ac-card h2,.about h2,.tf-sec b){line-height:1.22}
 /* Georgian words are long: on a phone the page titles are smaller, so a word fits beside the link back and is not cut */
 @media (max-width:420px){html[lang="ka"] :is(.tf-head h1,.ac-head h1,.mhead h1){font-size:30px}}
-html[lang="ka"] :is(.tf-head h1,.tf-sec b,.ac-head h1,.ac-card h2,.ac-big,.ac-sec-box h2,.ac-tabs button,.ac-flight .fb b,.ac-meet .mt,.ac-invite b,.ac-board h3,.ac-who b,.ab-me .ab-pass-body b,.ab-me .ab-av,.ac-av,.tb-acct.me,.brand,.signs a,.tb-count b,.dn-clock b,.bp-code,.bp-big,.bp-mini,.board b,.tally b,.mhead h1,.north,.inset-head,#panel h2,#panel h3,.run-ref,.prof-read b,.mc-top b,.mcard-empty b,.meet-side h2,.meet-times button,.mp-sign span,.mc-head span:first-child,.mc-sign,.mc-time,.mc-stub b,.rt-run,.mstat b,.ls-face b,.bd-row span:first-child,.games-sign,.gc-body b,.about h2,.ab-pass-body b,.fh-name){font-stretch:62.5%;font-weight:800}
+html[lang="ka"] :is(.tf-head h1,.tf-sec b,.ac-head h1,.ac-card h2,.ac-big,.ac-sec-box h2,.ac-tabs button,.ac-flight .fb b,.ac-meet .mt,.ac-invite b,.ac-board h3,.ac-who b,.ab-me .ab-pass-body b,.ab-me .ab-av,.ac-av,.tb-acct.me,.brand,.signs a,.tb-count b,.dn-clock b,.bp-code,.bp-big,.bp-mini,.board b,.mhead h1,.north,.inset-head,#panel h2,#panel h3,.run-ref,.prof-read b,.mc-top b,.mcard-empty b,.meet-side h2,.meet-times button,.mp-sign span,.mc-head span:first-child,.mc-sign,.mc-time,.mc-stub b,.rt-run,.mstat b,.ls-face b,.bd-row span:first-child,.games-sign,.gc-body b,.about h2,.ab-pass-body b,.fh-name){font-stretch:62.5%;font-weight:800}
 /* Oswald is wider than Karantina: titles a little smaller, so the signs keep their size */
-html[lang="ru"] :is(.brand,.signs a,.tb-count b,.dn-clock b,.bp-code,.bp-big,.bp-mini,.board b,.tally b,.mhead h1,.north,.inset-head,#panel h2,#panel h3,.run-ref,.prof-read b,.mc-top b,.mcard-empty b,.meet-side h2,.meet-times button,.mp-sign span,.mc-head span:first-child,.mc-sign,.mc-time,.mc-stub b,.rt-run,.mstat b,.ls-face b,.bd-row span:first-child,.games-sign,.gc-body b,.about h2,.ab-pass-body b,.fh-name){font-weight:600;letter-spacing:-.01em}
+html[lang="ru"] :is(.brand,.signs a,.tb-count b,.dn-clock b,.bp-code,.bp-big,.bp-mini,.board b,.mhead h1,.north,.inset-head,#panel h2,#panel h3,.run-ref,.prof-read b,.mc-top b,.mcard-empty b,.meet-side h2,.meet-times button,.mp-sign span,.mc-head span:first-child,.mc-sign,.mc-time,.mc-stub b,.rt-run,.mstat b,.ls-face b,.bd-row span:first-child,.games-sign,.gc-body b,.about h2,.ab-pass-body b,.fh-name){font-weight:600;letter-spacing:-.01em}
 /* Longer words than Hebrew on the boarding pass: one line each, and cut with an ellipsis rather than overlap */
 [dir="ltr"] .bp-strip>span:first-child{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 [dir="ltr"] .bp-grid>span{min-width:0}
@@ -799,7 +777,7 @@ html[lang="ka"] .pv-doc h1{font-size:36px;overflow-wrap:anywhere}
 .season em{float:inline-end;font-style:normal;font-size:12.5px;font-weight:700;color:var(--glacier)}
 /* with a fresh lift report (S1): no snow, the green of an open run on top, a live dot and how many lifts are open */
 .season[data-state="live"]{border-top-color:var(--p-green)}
-.season[data-state="live"] :is(.snowcap,em){display:none}
+.season[data-state="live"] .snowcap{display:none}
 .season>b .ms-dot{display:inline-block;width:11px;height:11px;margin-inline-end:9px;vertical-align:.12em;background:var(--p-green);box-shadow:0 0 0 0 var(--p-green);animation:live 2s ease-out infinite}
 .season>span .num{font-family:var(--f-display);font-size:20px;line-height:1;color:var(--ink)}
 @media (prefers-reduced-motion:reduce){.season>b .ms-dot{animation:none}}
@@ -1118,3 +1096,141 @@ html[lang="ka"] .pv-doc h1{font-size:36px;overflow-wrap:anywhere}
 .ac-inv-link button{flex:none;min-width:44px;min-height:44px;display:grid;place-items:center;border:0;background:none;color:var(--glacier);font:inherit;font-size:12.5px;font-weight:700;cursor:pointer}
 .ac-inv-btns{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .ac-inv-btns .ac-btn{justify-content:center}
+
+/* round 20: the board on the home page is a lift-status widget, greyed out with "no report" until there is one */
+.season{display:flex;flex-direction:column;gap:10px}
+.season[data-state="off"]{opacity:.62;filter:grayscale(1);pointer-events:none}
+.season>.sb-h{display:flex;align-items:center;gap:8px;margin:0}.sb-h em{float:none;font-style:normal;font-weight:700;font-size:15px;color:var(--ink)}
+.season>.sb-dots{display:flex;gap:6px;flex-wrap:wrap;margin:0;direction:ltr}.sb-dots i{display:block;flex:none;width:16px;height:16px;box-sizing:border-box;border-radius:50%;border:2px dashed var(--muted)}
+.sb-dots i.on{border:2px solid var(--p-green);background:var(--p-green)}
+.season>.sb-f{display:flex;align-items:baseline;gap:10px;margin:0}.sb-f b{font-family:var(--f-display);font-size:30px;line-height:1;color:var(--ink)}.sb-f small{font-size:13px;color:var(--muted)}
+.season[data-state="live"] .sb-h em{color:var(--ink)}
+/* round 20: what's ahead as three big numbers, and an (i) by the profile heading */
+.steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));margin:6px 0 14px;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule)}
+.steps>div{display:flex;flex-direction:column;gap:2px;padding:8px 6px 9px;border-inline-start:1px solid var(--rule)}
+.steps>div:first-child{border-inline-start:0;padding-inline-start:0}
+.steps b{font-family:var(--f-display);font-size:28px;line-height:1;white-space:nowrap}
+.steps small{font-size:12px;color:var(--muted)}
+.steps .st b{color:var(--p-red)}
+.i-btn{position:relative;display:inline-grid;place-items:center;width:44px;height:44px;margin-block:-12px;padding:0;border:0;background:none;color:var(--muted);font:700 12px/1 var(--f-body);vertical-align:middle;cursor:pointer}
+.i-btn::before{content:'';position:absolute;width:22px;height:22px;border:1.5px solid currentColor;border-radius:50%;box-sizing:border-box}
+.info-pop{margin:-4px 0 10px}.info-pop p{margin:0 0 4px}
+/* round 20: the meeting card is the station and the time (the day above it); another time is a clock block; sharing is four icons */
+.mc-end small{text-align:end}
+.mt-other{display:grid;place-items:center;border-style:dashed!important}
+.mt-other[aria-pressed="true"]{border-style:solid!important;font-size:17px!important}
+.mt-input{position:absolute;inset-inline-end:0;bottom:0;width:1px;height:1px;opacity:0;pointer-events:none}
+.mt-input.show{position:static;width:140px;height:auto;margin-top:10px;opacity:1;pointer-events:auto}
+.ms-icons{display:flex;gap:10px;justify-content:center}
+.ms-ico{display:grid;place-items:center;width:52px;height:52px;border:1.5px solid var(--ink);background:var(--paper);color:var(--ink);padding:0;cursor:pointer;text-decoration:none}
+.ms-ico.ms-wa{background:var(--ink);color:var(--paper)}
+.ms-ico.done{background:var(--p-green);border-color:var(--p-green);color:var(--on-board)}
+.ab-row small:empty{display:none}
+/* round 20: shapes instead of lines: three promises, the join ticket, the pending card, the app code, the sign-in sheet */
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.ac-why{display:flex;gap:14px;justify-content:space-between;margin:12px 0 2px;padding-top:12px;border-top:1px solid var(--rule)}
+.ac-why-top{margin:-4px 0 4px;padding-top:0;border-top:0}
+.ac-why>span{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;font-size:13px;font-weight:600;text-align:center;color:var(--ink)}
+.ac-why svg{color:var(--glacier)}
+.ac-card p.ac-jm{display:flex;gap:18px;align-items:center;flex-wrap:wrap;color:var(--ink)}
+.ac-jm>span{display:flex;align-items:center;gap:6px}.ac-jm b{font-family:var(--f-display);font-size:22px;line-height:1}
+.ac-avs i{display:grid;place-items:center;width:28px;height:28px;margin-inline-start:-6px;border-radius:50%;border:2px solid var(--paper);background:var(--glacier);color:#fff;font:700 13px/1 var(--f-body);font-style:normal}
+.ac-avs i:first-child{margin-inline-start:0}.ac-avs b{margin-inline-start:4px}
+.ac-pend{display:flex;align-items:center;gap:14px;padding:14px 16px;background:var(--paper);border-inline-start:6px solid #F4B942;box-shadow:0 2px 8px var(--shadow)}
+.ac-pend[hidden]{display:none}
+.ac-pend svg{flex:none;color:#C98A00}.ac-pend>span{display:flex;flex-direction:column;align-items:flex-start;gap:4px}
+.ac-pend b{font-family:var(--f-display);font-size:24px;line-height:1}
+.ac-pend button{min-height:44px;border:0;background:none;padding:0;color:var(--glacier);font:inherit;font-weight:700;font-size:14px;cursor:pointer}
+.ac-appcode{display:flex;align-items:center;gap:12px;padding:10px 12px;background:var(--paper);border:1.5px solid var(--rule)}
+.ac-appcode[hidden]{display:none}
+.ac-appcode>svg{flex:none;color:var(--ink)}
+.ac-code{display:flex;gap:4px;flex:1}.ac-code i{display:grid;place-items:center;width:30px;height:38px;border:1.5px solid var(--ink);font:700 20px/1 var(--f-body);font-style:normal;color:var(--ink)}
+.ac-appcode button{display:grid;place-items:center;width:44px;height:44px;border:0;background:none;color:var(--glacier);padding:0;cursor:pointer}
+.ac-appcode button.done{color:var(--p-green)}
+.ac-shade{position:fixed;inset:0;z-index:50;background:rgba(13,21,34,.42)}
+.ac-sheet{position:fixed;left:0;right:0;bottom:0;z-index:51;display:flex;flex-direction:column;gap:12px;max-width:520px;margin:0 auto;padding:10px 16px calc(24px + env(safe-area-inset-bottom));background:var(--paper);color:var(--ink);border-top:6px solid var(--ink)}
+.ac-sheet .grab{width:44px;height:4px;margin:0 auto;background:var(--rule)}
+.ac-sheet h2{margin:4px 0;font-family:var(--f-display);font-weight:700;font-size:30px;line-height:1.05}
+/* round 20: the ticket is the form: "when are you flying?", optional slots on the ticket, and the sheets they open */
+.be-code{color:var(--glacier);border-bottom:2px dashed var(--glacier);padding-bottom:4px}
+.be-when{display:inline-flex;align-items:center;gap:10px;min-height:56px;padding:6px 16px;border:2px dashed var(--glacier);background:color-mix(in srgb,var(--glacier) 7%,var(--paper));color:var(--glacier);font-family:var(--f-display);font-weight:700;font-size:30px;line-height:1;cursor:pointer;box-shadow:0 0 0 4px color-mix(in srgb,var(--glacier) 22%,transparent)}
+.tk-slot{display:inline-flex;align-items:center;min-height:32px;padding:2px 8px;margin-block:-6px;border:1.5px dashed var(--rule);background:none;color:var(--muted);font:inherit;font-size:13px;font-weight:700;cursor:pointer;position:relative;z-index:2}
+.tk-slot::after{content:'';position:absolute;inset:-6px -2px}
+.ts-sheet{max-height:92vh;overflow:auto}
+.ts-mon{position:absolute;top:18px;inset-inline-end:12px;display:flex;gap:4px}
+.ts-mon button{width:44px;height:44px;border:1.5px solid var(--rule);background:var(--paper);color:var(--ink);font:700 22px/1 var(--f-body);cursor:pointer}
+.ts-cal{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:2px;text-align:center}
+.ts-cal small{font-size:12px;color:var(--muted);padding:4px 0}
+.ts-cal button{height:44px;border:0;background:none;color:var(--ink);font-size:15px;font-weight:600;padding:0;cursor:pointer}
+.ts-cal button:disabled{color:var(--rule);cursor:default}
+.ts-cal button.out,.ts-cal button.ret{background:var(--ink);color:var(--paper)}
+.ts-cal button.ski{background:color-mix(in srgb,var(--glacier) 18%,transparent);color:var(--glacier)}
+.ts-legend{display:flex;gap:14px;font-size:12.5px;color:var(--muted);align-items:center;min-height:18px}
+.ts-legend i{display:inline-block;width:14px;height:14px;margin-inline-end:5px;vertical-align:-2px}
+.ts-legend .lg-f{background:var(--ink)}.ts-legend .lg-s{background:color-mix(in srgb,var(--glacier) 18%,transparent)}
+.ts-route{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.ts-route button{min-height:44px;padding:0 14px;border:1.5px solid var(--rule);background:var(--paper);color:var(--ink);font:inherit;font-weight:600;cursor:pointer}
+.ts-route button[aria-pressed="true"]{border-color:var(--ink);background:var(--ink);color:var(--paper)}
+.ts-route a{display:inline-flex;align-items:center;min-height:44px;padding:0 6px;color:var(--glacier);font-weight:700}
+.ts-times{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+/* round 23 (decision 68): several resorts. The place name is the picker; a resort with no trip shows its pass card;
+   a run whose name is a number gets a plate in its colour on the map */
+.rs-btn{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 10px;margin-inline-start:-10px;background:transparent;border:0;color:inherit;cursor:pointer;text-align:start}
+.rs-btn:not(.brand){font:inherit}
+.rs-btn .rs-chev{flex:none;opacity:.8}
+.topbar .brand.rs-btn{margin-inline-start:0;padding:0}
+.home-top .loc .rs-btn{text-shadow:inherit}
+.rs-scrim{position:fixed;inset:0;background:rgba(13,21,34,.42);z-index:90}
+.rs-sheet{position:fixed;inset-inline:0;bottom:0;z-index:91;background:var(--snow);padding:12px 16px calc(34px + env(safe-area-inset-bottom,0px));box-shadow:0 -6px 24px rgba(13,21,34,.25)}
+.rs-sheet .grab{width:44px;height:5px;margin:0 auto 14px;background:var(--rule)}
+.rs-pop{position:fixed;top:60px;z-index:91;width:360px;max-width:calc(100vw - 24px);box-sizing:border-box;background:var(--snow);padding:14px 14px 16px;border:1.5px solid var(--ink);box-shadow:0 10px 28px rgba(13,21,34,.22)}
+.rs-list{position:relative;display:flex;flex-direction:column;gap:12px;padding-inline-start:18px}
+.rs-list::before{content:"";position:absolute;inset-block:-6px -4px;inset-inline-start:6px;width:6px;border-radius:3px;background:var(--ink)}
+.rs-res{display:flex;align-items:center;gap:12px;min-height:64px;padding:8px 16px 8px 34px;border:0;background:var(--p-blue);color:var(--on-board);font:inherit;text-align:start;cursor:pointer;clip-path:polygon(0 50%,22px 0,100% 0,100% 100%,22px 100%)}
+[dir="ltr"] .rs-res{padding:8px 34px 8px 16px;clip-path:polygon(0 0,calc(100% - 22px) 0,100% 50%,calc(100% - 22px) 100%,0 100%)}
+.rs-res .t{flex:1;display:flex;flex-direction:column;gap:3px;min-width:0}
+.rs-res b{font:700 32px/1 var(--f-display)}
+.rs-res .t span{font:500 13px var(--f-body);opacity:.92}
+.rs-res.off{background:var(--ink);color:var(--paper);width:94%}
+.rs-res.on{box-shadow:inset 0 0 0 3px var(--on-board);cursor:default}
+.rs-res .ck{display:grid;place-items:center;flex:none;width:30px;height:30px;border-radius:50%;background:var(--on-board);color:var(--p-blue)}
+.rpass{max-width:440px;background:var(--paper);overflow:hidden;box-shadow:0 10px 24px var(--shadow);transform:rotate(-1.5deg);margin:22px 0 0;color:var(--ink)}
+.rpass .top{display:flex;justify-content:space-between;gap:10px;padding:8px 14px;background:var(--p-blue);color:var(--on-board);font:700 12px var(--f-body);letter-spacing:.06em}
+.rpass .body{padding:14px 16px 16px;display:flex;flex-direction:column;gap:12px}
+.rpass .nm{display:flex;align-items:baseline;justify-content:space-between;gap:10px}
+.rpass .nm b{font:700 54px/0.95 var(--f-display)}
+.rpass .nm span{font:600 14px var(--f-body);color:var(--muted)}
+.rpass .kv{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,.8fr) minmax(0,1.6fr);gap:8px;border-top:2px dashed var(--rule);padding-top:12px}
+.rpass .kv div{display:flex;flex-direction:column;gap:2px;min-width:0}
+.rpass .kv small{font:600 12px var(--f-body);color:var(--muted)}
+.rpass .kv b{font:700 26px/1 var(--f-display);direction:ltr;text-align:start;white-space:nowrap;overflow:hidden;text-overflow:clip}
+.rpass .chips{display:flex;gap:6px}
+.rpass .chips i{height:8px}
+@media (min-width:900px){.rpass{margin-top:170px;align-self:start}}
+.lbl.plate rect{stroke:var(--casing);vector-effect:non-scaling-stroke}
+.lbl.plate text{font-family:var(--f-display);font-weight:700;fill:var(--on-board);stroke:none}
+
+/* round 24: ski routes (a kind of their own, no difficulty) and wide runs that show */
+.pg-area{stroke-width:3.4;stroke-linejoin:round}
+.lbl.plate.route polygon{stroke:var(--casing);vector-effect:non-scaling-stroke}
+.lbl.plate.route polygon{fill:var(--p-red)}.lbl.plate.route text{fill:var(--on-board)}
+.route-tag{display:inline-flex;align-items:center;gap:8px;min-height:30px;padding:3px 10px;border:2px solid var(--p-route);font-weight:700;line-height:1.25}
+.route-tag i{flex:none;width:12px;height:12px;background:var(--p-red);transform:rotate(45deg)}
+/* the legend: a chip in the scale's corner that opens a card upward, like the Kobi one (round 24) */
+.mlegend{position:absolute;bottom:12px;left:12px;z-index:3;display:flex;flex-direction:column;align-items:flex-start;gap:6px;max-width:calc(100% - 24px)}
+.ml-chip{display:inline-flex;align-items:center;gap:7px;height:44px;padding:0 14px;font:inherit;font-weight:600;font-size:14px;border:1.5px solid var(--rule);background:var(--paper);color:var(--ink);cursor:pointer}
+.ml-chip[aria-expanded="true"]{border-color:var(--ink)}
+.ml-card{display:flex;flex-direction:column;gap:7px;padding:10px 12px 12px;background:var(--paper);border:1.5px solid var(--rule);font-size:.82rem;font-weight:600;color:var(--ink);min-width:150px;box-shadow:0 3px 12px var(--shadow)}
+.ml-card[hidden]{display:none}
+.ml-head{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:.9rem}
+.ml-head b{font-weight:700}
+.ml-x{width:44px;height:44px;margin-block:-12px -10px;margin-inline-end:-12px;border:0;background:none;color:var(--muted);font:inherit;font-size:1rem;cursor:pointer}
+.ml-card span{display:flex;align-items:center;gap:8px;white-space:nowrap}
+.ml-card svg{flex:none}
+.mapwrap.has-legend .scale,.mapwrap.has-legend .hint3d{bottom:64px}
+.mapwrap.legend-open .scale,.mapwrap.legend-open .hint3d{visibility:hidden}
+.mapwrap.has-where .mlegend{bottom:76px}
+.mapwrap.flying .mlegend{visibility:hidden}
+.fchip .sw.route{width:10px;height:10px}
+.sq.route{background:var(--p-red);transform:rotate(45deg) scale(.8)}

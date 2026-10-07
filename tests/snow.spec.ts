@@ -17,7 +17,6 @@ async function uncovered(page: Page, sel: string) {
 }
 
 for (const [name, url, sel] of [
-  ['לוח העונה בדף הבית', '/', '#seasonBoard'],
   ['הכרטיס "למה להתחבר"', '/#signin', '#signinPage .ac-card[data-snow]'],
   ['הכרטיס "הצטרפות בקוד"', '/#group', '#grCode'],
   ['"בקצרה" בדף הפרטיות', '/privacy.html', '.pv-short:visible'],

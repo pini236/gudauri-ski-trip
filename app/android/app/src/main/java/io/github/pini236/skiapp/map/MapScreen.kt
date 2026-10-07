@@ -193,7 +193,7 @@ fun MapScreen(view: MapView, scene: MapScene?, ms: MapStatus? = null, videos: Li
     DisposableEffect(view) {
         view.onSelect = { p -> selected = p; if (p != null) { lift = null; list = false }; expanded = false; view.unmark() }
         view.onFlying = { now -> flying = now } // run_fly_start and run_fly_end are sent by the map (MapView.flyDown)
-        view.onLift = { l -> if (lift?.id != l.id) { lift = l; list = false; Qa.log("lift open ${l.name}") } }
+        view.onLift = { l -> if (lift?.id != l.id) { lift = l; list = false } }
         onDispose { view.onSelect = null; view.onFlying = null; view.onLift = null }
     }
     // the filters: a colour hides its runs, "unnamed" the sections without a name, "lifts" the lifts
@@ -228,7 +228,7 @@ fun MapScreen(view: MapView, scene: MapScene?, ms: MapStatus? = null, videos: Li
         PanelActions(
             goRun = { key, via -> scene?.runs?.pistes?.firstOrNull { it.key == key }?.let { view.select(it, via = via) } },
             goLift = { l ->
-                view.select(null); lift = l; list = false; Qa.log("lift open ${l.name}")
+                view.select(null); lift = l; list = false
                 if (l.id.isNotBlank()) view.showLift(l.id) // which calls onLift: the panel is already this lift's
             },
             // the flight is the 3D map's: from above, the map turns to 3D first
@@ -241,7 +241,7 @@ fun MapScreen(view: MapView, scene: MapScene?, ms: MapStatus? = null, videos: Li
     }
     // a tap on a lift's line, as on a connection's tag; lift_open however the panel opened (a tap, a tag, the meeting point)
     DisposableEffect(view, actions) { view.onLiftTap = { l -> actions.goLift(l) }; onDispose { view.onLiftTap = null } }
-    LaunchedEffect(lift) { lift?.let { l -> Telemetry.event("lift_open", if (l.name.isBlank()) emptyMap() else mapOf("lift" to l.name)) } }
+    LaunchedEffect(lift) { lift?.let { l -> Qa.log("lift open ${l.name}"); Telemetry.event("lift_open", if (l.name.isBlank()) emptyMap() else mapOf("lift" to l.name)) } }
     // the part of the screen above the panel, where the camera frames the run or the lift
     val onPanel: (Int) -> Unit = remember(view) { { h -> if (view.height > 0) { view.setFreeBottom(1f - h.toFloat() / view.height - 0.03f); panelFrac = (h.toFloat() / view.height + .03f).coerceIn(0f, .7f) } } }
     LaunchedEffect(selected == null && lift == null && !list) { if (selected == null && lift == null && !list) { view.setFreeBottom(1f); panelFrac = 0f } }

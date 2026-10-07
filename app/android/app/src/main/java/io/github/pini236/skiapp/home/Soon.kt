@@ -87,7 +87,7 @@ fun SoonScreen(title: String, text: String, onBack: () -> Unit) {
 @Composable
 fun AboutScreen(
     version: String, onPrivacy: () -> Unit, account: Account?, mode: DayNight.Mode, onMode: () -> Unit,
-    lang: Lang.Language, langManual: Boolean, onLang: (String?) -> Unit, onResetBests: () -> Unit, onLicenses: () -> Unit, onBack: () -> Unit,
+    lang: Lang.Language, onLang: (String?) -> Unit, onResetBests: () -> Unit, onLicenses: () -> Unit, onBack: () -> Unit,
 ) {
     val c = Ski.colors
     val context = LocalContext.current
@@ -120,17 +120,18 @@ fun AboutScreen(
             H2(stringResource(R.string.about_settings))
             var sound by remember { mutableStateOf(FxPrefs.sound(context)) }
             var haptics by remember { mutableStateOf(FxPrefs.haptics(context)) }
+            val canVibrate = remember { runCatching { (context.getSystemService(android.os.Vibrator::class.java))?.hasVibrator() == true }.getOrDefault(true) }
             Column {
-                Toggle(stringResource(R.string.about_sound), stringResource(R.string.about_sound_sub), sound, {
+                // round 20: the settings without a line under them; a phone that cannot vibrate has no vibration row
+                Toggle(stringResource(R.string.about_sound), null, sound, {
                     sound = it; FxPrefs.set(context, "sound", it); Telemetry.event("settings_change", mapOf("setting" to "sound", "on" to it))
                 })
-                Toggle(stringResource(R.string.about_haptics), stringResource(R.string.about_haptics_sub), haptics, {
+                if (canVibrate) Toggle(stringResource(R.string.about_haptics), null, haptics, {
                     haptics = it; FxPrefs.set(context, "haptics", it); Telemetry.event("settings_change", mapOf("setting" to "haptics", "on" to it))
                 })
                 val modes = mapOf(DayNight.Mode.AUTO to R.string.daynight_mode_auto, DayNight.Mode.DAY to R.string.daynight_mode_day, DayNight.Mode.NIGHT to R.string.daynight_mode_night)
-                Row2(stringResource(R.string.about_display), stringResource(R.string.about_display_sub), stringResource(modes.getValue(mode)), onClick = onMode)
-                Row2(stringResource(R.string.about_language) + if (lang.tag != "en") " · Language" else "",
-                    stringResource(if (langManual) R.string.about_language_manual else R.string.app_about_lang_auto), lang.name) { langs = true }
+                Row2(stringResource(R.string.about_display), null, stringResource(modes.getValue(mode)), onClick = onMode)
+                Row2(stringResource(R.string.about_language) + if (lang.tag != "en") " · Language" else "", null, lang.name) { langs = true }
                 // the switch of the site's settings (round 11, AN1/AN2): off stops usage statistics and crash reports at once
                 var analytics by remember { mutableStateOf(Telemetry.enabled(context)) }
                 Toggle(stringResource(R.string.about_analytics), stringResource(if (analytics) R.string.about_analytics_on else R.string.about_analytics_off), analytics, {
@@ -149,7 +150,7 @@ fun AboutScreen(
                 var armed by remember { mutableStateOf(false) }
                 var done by remember { mutableStateOf(false) }
                 LaunchedEffect(armed) { if (armed) { kotlinx.coroutines.delay(4000); armed = false } }
-                Row2(stringResource(R.string.about_reset), stringResource(when { done -> R.string.about_reset_done; armed -> R.string.about_reset_confirm; else -> R.string.app_about_reset_sub }),
+                Row2(stringResource(R.string.about_reset), when { done -> stringResource(R.string.about_reset_done); armed -> stringResource(R.string.about_reset_confirm); else -> null },
                     null, danger = armed) {
                     if (armed) { armed = false; done = true; onResetBests(); Telemetry.event("best_reset") } else { armed = true; done = false }
                 }
@@ -209,13 +210,13 @@ private fun Link(text: String, onClick: () -> Unit, color: Color = Ski.colors.gl
 
 /** A settings row that is not a switch (the site's .ab-row button): its name and line, and the value at the end. */
 @Composable
-private fun Row2(title: String, sub: String, value: String?, danger: Boolean = false, onClick: () -> Unit) {
+private fun Row2(title: String, sub: String?, value: String?, danger: Boolean = false, onClick: () -> Unit) {
     val c = Ski.colors
     Row(Modifier.fillMaxWidth().heightIn(min = 60.dp).clickable(role = Role.Button, onClick = onClick).padding(vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(14.dp)) {
         Column(Modifier.weight(1f)) {
             Text(title, style = Ski.type.bodyBold.copy(fontSize = 15.5.sp), color = if (danger) c.red else c.ink)
-            Text(sub, style = Ski.type.small, color = if (danger) c.red else c.muted)
+            if (sub != null) Text(sub, style = Ski.type.small, color = if (danger) c.red else c.muted)
         }
         if (value != null) Text(value, style = Ski.type.bodyBold.copy(fontSize = 14.sp), color = c.glacier)
     }

@@ -79,4 +79,68 @@ class StringsTest {
         assertEquals("\\u0020ו-", entries(File(gen, "debug/values-iw/strings.xml"))["meet_lift_names_join"])
         assertEquals("\\u0020and\\u0020", entries(File(gen, "debug/values/strings.xml"))["meet_lift_names_join"])
     }
+
+    /**
+     * A shared string can gain a placeholder from the site's side (6.10.2026: `{resort}` in the YouTube search line), and a
+     * call that still passes fewer arguments crashes the screen at run time (MissingFormatArgumentException), where no
+     * compile step notices. Every `stringResource(R.string.x, ...)` and `getString(R.string.x, ...)` passes exactly as many
+     * arguments as the string has placeholders (a spread, `*list`, is skipped).
+     */
+    @Test fun everyCallPassesAsManyArgumentsAsThePlaceholders() {
+        val base = entries(File(gen, "debug/values/strings.xml"))
+        val bad = ArrayList<String>()
+        File("src/main/java").walkTopDown().filter { it.extension == "kt" }.forEach { f ->
+            val src = f.readText()
+            for (m in Regex("(stringResource|getString)\\(\\s*R\\.string\\.(\\w+)").findAll(src)) {
+                val text = base[m.groupValues[2]] ?: continue
+                val args = topLevelArguments(src, m.range.last + 1)?.drop(1) ?: continue // the first piece is the rest of the name
+                if (args.any { it.trim().startsWith("*") }) continue
+                val want = placeholders(text).size
+                if (args.size != want) bad.add("${f.name}:${src.substring(0, m.range.first).count { it == '\n' } + 1} ${m.groupValues[2]} passes ${args.size}, the string has $want")
+            }
+        }
+        assertTrue("string calls with the wrong number of arguments:\n" + bad.joinToString("\n"), bad.isEmpty())
+    }
+
+    /** The arguments after the string name, from [from] (just after the name) to the call's closing parenthesis; null if it never closes. */
+    private fun topLevelArguments(src: String, from: Int): List<String>? {
+        val out = ArrayList<String>()
+        var depth = 0
+        var start = from
+        var i = from
+        // reads a string literal starting at the opening quote i; returns the index of the closing quote (templates `${...}` may hold quotes)
+        fun skipString(open: Int): Int {
+            var j = open + 1
+            while (j < src.length) {
+                when {
+                    src[j] == '\\' -> j++
+                    src[j] == '"' -> return j
+                    src[j] == '$' && j + 1 < src.length && src[j + 1] == '{' -> {
+                        var d = 1
+                        j += 2
+                        while (j < src.length && d > 0) {
+                            when (src[j]) { '{' -> d++; '}' -> d--; '"' -> j = skipString(j) }
+                            j++
+                        }
+                        j--
+                    }
+                }
+                j++
+            }
+            return src.length
+        }
+        while (i < src.length) {
+            when (src[i]) {
+                '"' -> i = skipString(i)
+                '(', '[', '{' -> depth++
+                ')', ']', '}' -> {
+                    if (depth == 0) { val last = src.substring(start, i); if (last.isNotBlank()) out.add(last); return out }
+                    depth--
+                }
+                ',' -> if (depth == 0) { out.add(src.substring(start, i)); start = i + 1 }
+            }
+            i++
+        }
+        return null
+    }
 }

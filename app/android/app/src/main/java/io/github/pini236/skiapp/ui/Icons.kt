@@ -46,6 +46,18 @@ object Icons {
     val calendar = line("calendar", false, "M4 6h16v14H4z", "M4 10h16M8 3.5v4M16 3.5v4")
     val search = line("search", false, circle(10.5f, 10.5f, 6.5f), "M15.5 15.5L20 20")
     val trophy = line("trophy", false, "M8 4h8v5a4 4 0 0 1-8 0z", "M8 6H4.5a3 3 0 0 0 3.5 4M16 6h3.5a3 3 0 0 1-3.5 4M12 13v4M8.5 20.5h7M10 17h4")
+    // round 20's icons, the canvas's own (design/round20/after.mjs, I): share, the other time, the pending request,
+    // and the three things signing in does not ask for
+    val whatsapp = line("whatsapp", false, "M4 20l1.3-4A8 8 0 1 1 8 18.7z", "M9 9c0 3 3 6 6 6l1-1.5-2-1-1 1c-1-.5-2-1.5-2.5-2.5l1-1-1-2z")
+    val image = line("image", false, "M3 5h18v14H3z", "M3 16l5-5 4 4 3-3 6 6", circle(16f, 9f, 1.6f))
+    val map = line("map", false, "M3 6l6-2 6 2 6-2v14l-6 2-6-2-6 2z", "M9 4v14M15 6v14")
+    val clockOther = line("clockother", false, circle(12f, 12f, 9f), "M12 7v5l3 2", "M19 3v4M17 5h4")
+    val hourglass = line("hourglass", false, "M7 3h10M7 21h10M8 3c0 5 8 5 8 9s-8 4-8 9M16 3c0 5-8 5-8 9s8 4 8 9")
+    val noKey = line("nokey", false, circle(8f, 15f, 4f), "M11 12l9-9M17 6l3 3M15 8l2 2", "M3 3l18 18")
+    val noMail = line("nomail", false, "M3 5h18v14H3z", "M3 6l9 7 9-7", "M3 3l18 18")
+    val user = line("user", false, circle(12f, 8f, 4f), "M4 21c0-4 4-6 8-6s8 2 8 6")
+    // a gondola on its cable (round 20's switched-off lift status, the site's I.lift)
+    val lift = line("lift", false, "M2 5l20-3M12 3.5V8", "M6 8h12v10H6z", "M6 13h12")
     val x = line("x", false, "M6 6l12 12M18 6L6 18")
     val more = ImageVector.Builder("more", 24.dp, 24.dp, 24f, 24f).apply {
         for (y in listOf(5f, 12f, 19f)) addPath(PathParser().parsePathString(circle(12f, y, 1.6f)).toNodes(), fill = SolidColor(androidx.compose.ui.graphics.Color.Black))

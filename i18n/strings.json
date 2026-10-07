@@ -421,18 +421,6 @@
     "ka"
    ]
   },
-  "about.reset_sub": {
-   "he": "השיאים שנשמרו בדפדפן הזה",
-   "en": "The best scores saved in this browser",
-   "ru": "Рекорды, сохранённые в этом браузере",
-   "ka": "ამ ბრაუზერში შენახული რეკორდები",
-   "where": "site/index.html",
-   "note": "initial text; app.js changes it during reset",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
   "about.setting_saved": {
    "he": "ההגדרה נשמרה. במשחק פתוח היא תחול בכניסה הבאה",
    "en": "Setting saved. In a game that's already open, it applies next time you enter",
@@ -588,66 +576,6 @@
     "ka"
    ]
   },
-  "app.close": {
-   "he": "סגירה",
-   "en": "Close",
-   "ru": "Закрыть",
-   "ka": "დახურვა",
-   "where": "app/android",
-   "note": "accessibility label of the ✕ button",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "app.descent_done": {
-   "he": "הגעתם למטה!",
-   "en": "You made it down!",
-   "ru": "Вы внизу!",
-   "ka": "ქვემოთ ჩამოხვედით!",
-   "where": "app/android",
-   "note": "end title",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "app.descent_hint_ground": {
-   "he": "מחזיקים ומתכופפים, משחררים לקפיצה",
-   "en": "Hold to crouch, release to jump",
-   "ru": "Держите — присед, отпустите — прыжок",
-   "ka": "დააჭირეთ ჩასაჯდომად, გაუშვით ასახტომად",
-   "where": "app/android",
-   "note": "coach line at the bottom, on the snow",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "app.descent_hud": {
-   "he": "{run} · {dist} / {len} מ׳ · {kmh} קמ״ש · סלטות {flips}",
-   "en": "{run} · {dist} / {len} m · {kmh} km/h · flips {flips}",
-   "ru": "{run} · {dist} / {len} м · {kmh} км/ч · сальто {flips}",
-   "ka": "{run} · {dist} / {len} მ · {kmh} კმ/სთ · სალტო {flips}",
-   "where": "app/android",
-   "note": "descent game HUD: run, distance done / run length, speed, flips",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "app.descent_score": {
-   "he": "סלטות {flips} · נחיתות {landings} · נפילות {crashes}",
-   "en": "Flips {flips} · landings {landings} · falls {crashes}",
-   "ru": "Сальто {flips} · приземлений {landings} · падений {crashes}",
-   "ka": "სალტო {flips} · დაშვება {landings} · დაცემა {crashes}",
-   "where": "app/android",
-   "note": "end summary",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
   "app.edit": {
    "he": "עריכה",
    "en": "Edit",
@@ -655,30 +583,6 @@
    "ka": "შეცვლა",
    "where": "app/android",
    "note": "link under the pass to the trip form",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "app.home_add_trip": {
-   "he": "הוספת הטיסה שלי",
-   "en": "Add my flight",
-   "ru": "Добавить мой рейс",
-   "ka": "ჩემი რეისის დამატება",
-   "where": "app/android",
-   "note": "button over the empty pass (H1)",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "app.home_local_note": {
-   "he": "בלי הרשמה. נשמר רק בטלפון, ואפשר למחוק בכל רגע.",
-   "en": "No sign-up. Kept only on this phone, and you can delete it any time.",
-   "ru": "Без регистрации. Хранится только в телефоне, удалить можно в любой момент.",
-   "ka": "რეგისტრაციის გარეშე. ინახება მხოლოდ ტელეფონში და ნებისმიერ დროს შეგიძლიათ წაშალოთ.",
-   "where": "app/android",
-   "note": "under the empty pass (H1)",
    "check": [
     "ru",
     "ka"
@@ -1034,18 +938,6 @@
    "ka": "რეისის ნომერი",
    "where": "app/android",
    "note": "field label",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "app.trip_intro": {
-   "he": "הטיסות שלך לגודאורי. בלי הרשמה: נשמר רק בטלפון.",
-   "en": "Your flights to Gudauri. No sign-up: kept only on this phone.",
-   "ru": "Ваши рейсы в Гудаури. Без регистрации: хранится только в телефоне.",
-   "ka": "თქვენი რეისები გუდაურში. რეგისტრაციის გარეშე: ინახება მხოლოდ ტელეფონში.",
-   "where": "app/android",
-   "note": "trip form, under the title (H2)",
    "check": [
     "ru",
     "ka"
@@ -6121,17 +6013,6 @@
     "ka"
    ]
   },
-  "games.intro": {
-   "he": "על השלג של גודאורי. השיאים נשמרים בדפדפן, ומי שבקבוצה רואה אותם גם בטבלת הקבוצה. מומלץ עם צליל.",
-   "en": "On Gudauri's snow. Best scores are saved in your browser, and if you're in a group they show in its table too. Sound is recommended.",
-   "ru": "На снегу Гудаури. Рекорды сохраняются в браузере, а если вы в группе, они видны и в её таблице. Лучше играть со звуком.",
-   "ka": "გუდაურის თოვლზე. რეკორდები ბრაუზერში ინახება, და თუ ჯგუფში ხართ, ჯგუფის ცხრილშიც ჩანს. გირჩევთ, ითამაშოთ ხმით.",
-   "where": "site/index.html",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
   "games.merge_long": {
    "he": "מחליקים, ושני כדורים זהים מתאחדים לגדול יותר.",
    "en": "Swipe, and two identical balls merge into a bigger one.",
@@ -7032,6 +6913,126 @@
    "ka": "ოფიციალურ რუკაზეა, მონაცემებში არ არის · {n}",
    "where": "site/js/app.js",
    "note": "Section heading, {n} = count",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "map.overview_routes_count": {
+   "he": "דרכי סקי · {n}",
+   "en": "Ski routes · {n}",
+   "ru": "Лыжные маршруты · {n}",
+   "ka": "სათხილამურო მარშრუტები · {n}",
+   "where": "site/js/app.js",
+   "note": "Section heading, {n} = count; a ski route (Skiroute) is not prepared or patrolled and has no difficulty (round 24)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "run.kind_label": {
+   "he": "סוג",
+   "en": "Type",
+   "ru": "Тип",
+   "ka": "ტიპი",
+   "where": "site/js/app.js",
+   "note": "Detail row label, in place of colour and difficulty for a ski route (round 24)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "run.kind_ski_route": {
+   "he": "דרך סקי · לא מוכשרת, לא נבדקת",
+   "en": "Ski route · not groomed, not patrolled",
+   "ru": "Лыжный маршрут · не подготовлен, не контролируется",
+   "ka": "სათხილამურო მარშრუტი · არ არის დამუშავებული და კონტროლირებადი",
+   "where": "site/js/app.js",
+   "note": "the tag in the run panel (round 24); Tyrol rules: secured against avalanches only",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "map.filter_routes": {
+   "he": "דרכי סקי",
+   "en": "Ski routes",
+   "ru": "Маршруты",
+   "ka": "მარშრუტები",
+   "where": "site/js/app.js",
+   "note": "filter chip after the colours, only where a resort has ski routes (round 24); short",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "map.legend_route": {
+   "he": "דרך סקי",
+   "en": "Ski route",
+   "ru": "Лыжный маршрут",
+   "ka": "სათხილამურო მარშრუტი",
+   "where": "site/js/app.js",
+   "note": "map legend (round 24)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "map.legend_private_route": {
+   "he": "דרך לבקתה",
+   "en": "Route to a hut",
+   "ru": "Путь к хижине",
+   "ka": "გზა ქოხამდე",
+   "where": "site/js/app.js",
+   "note": "map legend (round 24, 1b)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "map.legend": {
+   "he": "מקרא",
+   "en": "Legend",
+   "ru": "Легенда",
+   "ka": "ლეგენდა",
+   "where": "site/js/app.js",
+   "note": "button that opens the map legend (round 24)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "map.legend_close": {
+   "he": "סגירת המקרא",
+   "en": "Close the legend",
+   "ru": "Закрыть легенду",
+   "ka": "ლეგენდის დახურვა",
+   "where": "site/js/app.js",
+   "note": "aria-label (round 24)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "map.legend_way": {
+   "he": "דרך מקשרת",
+   "en": "Ski way",
+   "ru": "Соединительная трасса",
+   "ka": "დამაკავშირებელი გზა",
+   "where": "site/js/app.js",
+   "note": "map legend: a connecting ski way, like Shino (round 24)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "map.legend_area": {
+   "he": "מסלול רחב",
+   "en": "Wide slope",
+   "ru": "Широкая трасса",
+   "ka": "ფართო ტრასა",
+   "where": "site/js/app.js",
+   "note": "map legend: the area of a wide run (round 24)",
    "check": [
     "ru",
     "ka"
@@ -7989,7 +7990,7 @@
    "en": "What's ahead",
    "ru": "Что впереди",
    "ka": "რა გელით",
-   "where": "site/js/app.js",
+   "where": "site/js/app.js, app/android",
    "note": "Section heading (glossary)",
    "check": [
     "ru",
@@ -8987,12 +8988,12 @@
    ]
   },
   "run.videos_search_youtube": {
-   "he": "חיפוש \"Gudauri {name}\" ביוטיוב ↗",
-   "en": "Search \"Gudauri {name}\" on YouTube ↗",
-   "ru": "Искать «Gudauri {name}» на YouTube ↗",
-   "ka": "„Gudauri {name}“: ძებნა YouTube-ზე ↗",
+   "he": "חיפוש \"{resort} {name}\" ביוטיוב ↗",
+   "en": "Search \"{resort} {name}\" on YouTube ↗",
+   "ru": "Искать «{resort} {name}» на YouTube ↗",
+   "ka": "„{resort} {name}“: ძებნა YouTube-ზე ↗",
    "where": "site/js/app.js",
-   "note": "{name} = run name (Latin). The quoted text is the literal search query, keep \"Gudauri\" in Latin",
+   "note": "{resort} = the resort name, {name} = run name (Latin). The quoted text is the literal search query",
    "check": [
     "ru",
     "ka"
@@ -9325,7 +9326,7 @@
    "en": "Arrives",
    "ru": "Прилёт",
    "ka": "ჩაფრენა",
-   "where": "site/index.html",
+   "where": "site/index.html, site/js/app.js",
    "note": "short: field label",
    "check": [
     "ru",
@@ -9361,7 +9362,7 @@
    "en": "Return boarding pass",
    "ru": "Посадочный талон обратно",
    "ka": "დაბრუნების ჩასხდომის ბარათი",
-   "where": "site/index.html",
+   "where": "site/index.html, site/js/app.js",
    "note": "aria-label",
    "check": [
     "ru",
@@ -9397,7 +9398,7 @@
    "en": "Departs",
    "ru": "Вылет",
    "ka": "გაფრენა",
-   "where": "site/index.html",
+   "where": "site/index.html, site/js/app.js",
    "note": "short: field label",
    "check": [
     "ru",
@@ -9421,7 +9422,7 @@
    "en": "Flight",
    "ru": "Рейс",
    "ka": "რეისი",
-   "where": "site/index.html",
+   "where": "site/index.html, site/js/app.js",
    "note": "short: field label",
    "check": [
     "ru",
@@ -9809,30 +9810,6 @@
     "ka"
    ]
   },
-  "app.a_sign_in_title": {
-   "he": "כניסה כדי ליצור קבוצה",
-   "en": "Sign in to create a group",
-   "ru": "Войдите, чтобы создать группу",
-   "ka": "შედით ჯგუფის შესაქმნელად",
-   "where": "app/android",
-   "note": "A2 sheet title",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "app.a_sign_in_sub": {
-   "he": "בלי סיסמה, ובלי מיילים מאיתנו. רק שם, ומה שגוגל מעבירה.",
-   "en": "No password, and no emails from us. Just a name, and what Google passes on.",
-   "ru": "Без пароля и без писем от нас. Только имя и то, что передаёт Google.",
-   "ka": "პაროლის გარეშე და ჩვენგან წერილების გარეშე. მხოლოდ სახელი და ის, რასაც Google გადმოგცემს.",
-   "where": "app/android",
-   "note": "A2",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
   "app.a_google": {
    "he": "גוגל",
    "en": "Google",
@@ -9882,22 +9859,10 @@
    ]
   },
   "app.a_moves_over": {
-   "he": "מה שכבר שמור בטלפון הזה (הטיול שלך) עובר לחשבון, ומופיע גם באתר.",
-   "en": "What is already saved on this phone (your trip) moves to the account, and shows on the site too.",
-   "ru": "То, что уже сохранено в этом телефоне (ваша поездка), перейдёт в аккаунт и появится на сайте.",
-   "ka": "რაც ამ ტელეფონში უკვე შენახულია (თქვენი მოგზაურობა), ანგარიშზე გადავა და საიტზეც გამოჩნდება.",
-   "where": "app/android",
-   "note": "A2",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "app.a_delete_any_time": {
-   "he": "אפשר למחוק את החשבון בכל רגע, מההגדרות.",
-   "en": "You can delete the account at any time, from the settings.",
-   "ru": "Аккаунт можно удалить в любой момент в настройках.",
-   "ka": "ანგარიშის წაშლა ნებისმიერ დროს შეგიძლიათ, პარამეტრებიდან.",
+   "he": "מה שכבר שמור בטלפון הזה עובר לחשבון, ומופיע גם באתר.",
+   "en": "What is already saved on this phone moves to the account, and shows on the site too.",
+   "ru": "То, что уже сохранено в этом телефоне, перейдёт в аккаунт и появится на сайте.",
+   "ka": "რაც ამ ტელეფონში უკვე შენახულია, ანგარიშზე გადავა და საიტზეც გამოჩნდება.",
    "where": "app/android",
    "note": "A2",
    "check": [
@@ -10289,18 +10254,6 @@
     "ka"
    ]
   },
-  "app.g_intro": {
-   "he": "בקבוצה רואים את הטיסות של כולם, קובעים מפגשים ומתחרים בשיאים.",
-   "en": "In a group you see everyone's flights, set meetups and compete for high scores.",
-   "ru": "В группе видны рейсы всех, можно назначать встречи и соревноваться в рекордах.",
-   "ka": "ჯგუფში ყველას ფრენები ჩანს, შეხვედრებს ნიშნავთ და რეკორდებში ეჯიბრებით.",
-   "where": "app/android",
-   "note": "A1",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
   "app.g_have_code": {
    "he": "יש לי קוד הזמנה",
    "en": "I have an invite code",
@@ -10308,18 +10261,6 @@
    "ka": "მაქვს მოწვევის კოდი",
    "where": "app/android",
    "note": "A1 card title",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "app.g_have_code_sub": {
-   "he": "שש אותיות, מהקישור שקיבלת. בלי הרשמה.",
-   "en": "Six letters, from the link you got. No sign-up.",
-   "ru": "Шесть букв из полученной ссылки. Без регистрации.",
-   "ka": "ექვსი ასო, მიღებული ბმულიდან. რეგისტრაციის გარეშე.",
-   "where": "app/android",
-   "note": "A1",
    "check": [
     "ru",
     "ka"
@@ -10356,18 +10297,6 @@
    "ka": "ჯგუფის შექმნა",
    "where": "app/android",
    "note": "A1 card title and button",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "app.g_create_sub": {
-   "he": "מי שמנהל קבוצה צריך חשבון, כדי שההזמנות יישארו שלו גם בטלפון חדש. כניסה בנגיעה, עם החשבון שכבר בטלפון.",
-   "en": "Whoever runs a group needs an account, so the invites stay theirs on a new phone too. One tap, with the account already on the phone.",
-   "ru": "Тому, кто ведёт группу, нужен аккаунт, чтобы приглашения остались за ним и на новом телефоне. Вход одним касанием, с аккаунтом, который уже есть в телефоне.",
-   "ka": "ჯგუფის მმართველს ანგარიში სჭირდება, რომ მოწვევები ახალ ტელეფონზეც მისი დარჩეს. შესვლა ერთი შეხებით, ტელეფონში უკვე არსებული ანგარიშით.",
-   "where": "app/android",
-   "note": "A1",
    "check": [
     "ru",
     "ka"
@@ -10710,12 +10639,12 @@
    ]
   },
   "app.g_invited_to": {
-   "he": "הוזמנת ל",
-   "en": "You are invited to",
-   "ru": "Вас пригласили в",
-   "ka": "მოწვეული ხართ",
+   "he": "מצטרפים ל",
+   "en": "Joining",
+   "ru": "Вступление в",
+   "ka": "უერთდებით",
    "where": "app/android",
-   "note": "Q3, over the group's name",
+   "note": "round 20: short, over the group's name (the site's join.invited_to the same)",
    "check": [
     "ru",
     "ka"
@@ -10745,18 +10674,6 @@
     "ka"
    ]
   },
-  "app.g_no_signup": {
-   "he": "בלי הרשמה ובלי סיסמה. אפשר לשמור חשבון אחר כך, אם רוצים.",
-   "en": "No sign-up and no password. You can keep an account later, if you like.",
-   "ru": "Без регистрации и пароля. Аккаунт можно сохранить позже, если захотите.",
-   "ka": "რეგისტრაციისა და პაროლის გარეშე. ანგარიშის შენახვა მოგვიანებითაც შეგიძლიათ, თუ მოისურვებთ.",
-   "where": "app/android",
-   "note": "Q3",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
   "app.g_already_in": {
    "he": "אני כבר בקבוצה",
    "en": "I'm already in the group",
@@ -10764,54 +10681,6 @@
    "ka": "მე უკვე ჯგუფში ვარ",
    "where": "app/android",
    "note": "Q3 link, Q5 title",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "app.g_already_in_sub": {
-   "he": "החלפתי טלפון, או מחקתי את האפליקציה",
-   "en": "I changed phone, or deleted the app",
-   "ru": "Я сменил телефон или удалил приложение",
-   "ka": "ტელეფონი შევცვალე ან აპლიკაცია წავშალე",
-   "where": "app/android",
-   "note": "Q3",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "app.g_pending_title": {
-   "he": "ממתין לאישור",
-   "en": "Waiting for approval",
-   "ru": "Ожидает подтверждения",
-   "ka": "დადასტურების მოლოდინში",
-   "where": "app/android",
-   "note": "Q3, Q5",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "app.g_pending_sub": {
-   "he": "המנהלים מקבלים בקשה בדף הקבוצה. בינתיים כל השאר עובד.",
-   "en": "The admins get a request on the group page. Meanwhile everything else works.",
-   "ru": "Администраторы получат запрос на странице группы. Пока всё остальное работает.",
-   "ka": "ადმინისტრატორები მოთხოვნას ჯგუფის გვერდზე მიიღებენ. მანამდე დანარჩენი ყველაფერი მუშაობს.",
-   "where": "app/android",
-   "note": "Q3, Q5",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "app.g_pending_cancel": {
-   "he": "ביטול הבקשה",
-   "en": "Withdraw the request",
-   "ru": "Отозвать запрос",
-   "ka": "მოთხოვნის გაუქმება",
-   "where": "app/android",
-   "note": "Q3/Q5, while a request waits for an admin (cancel_join_request)",
    "check": [
     "ru",
     "ka"
@@ -10889,30 +10758,6 @@
     "ka"
    ]
   },
-  "app.about_reset_sub": {
-   "he": "השיאים שנשמרו בטלפון הזה",
-   "en": "The high scores saved on this phone",
-   "ru": "Рекорды, сохранённые на этом телефоне",
-   "ka": "ამ ტელეფონზე შენახული რეკორდები",
-   "where": "app/android",
-   "note": "about (13.7): the site's about.reset_sub, on a phone",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "app.games_intro": {
-   "he": "על השלג של גודאורי. השיאים נשמרים בטלפון, ומי שבקבוצה רואה אותם גם בטבלת הקבוצה. מומלץ עם צליל.",
-   "en": "On Gudauri's snow. Best scores are saved on your phone, and if you're in a group they show in its table too. Sound is recommended.",
-   "ru": "На снегу Гудаури. Рекорды сохраняются на телефоне, а если вы в группе, они видны и в её таблице. Лучше играть со звуком.",
-   "ka": "გუდაურის თოვლზე. რეკორდები ტელეფონში ინახება, და თუ ჯგუფში ხართ, ჯგუფის ცხრილშიც ჩანს. გირჩევთ, ითამაშოთ ხმით.",
-   "where": "app/android",
-   "note": "the games page (13.6): the site's games.intro, on a phone",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
   "app.color_yellow": {
    "he": "צהוב",
    "en": "Yellow",
@@ -10944,18 +10789,6 @@
    "ka": "ნარინჯისფერი",
    "where": "app/android",
    "note": "a coat colour in the app's games, for a screen reader",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "app.about_lang_auto": {
-   "he": "נבחרה לפי הטלפון",
-   "en": "Chosen by the phone",
-   "ru": "Выбран по языку телефона",
-   "ka": "არჩეულია ტელეფონის მიხედვით",
-   "where": "app/android",
-   "note": "about (13.7): the site's about.language_auto, on a phone",
    "check": [
     "ru",
     "ka"
@@ -11847,10 +11680,10 @@
    ]
   },
   "about.analytics_on": {
-   "he": "אנונימי ובלי עוגיות: באילו עמודים משתמשים ומה נשבר.",
-   "en": "Anonymous, no cookies: which pages are used and what breaks.",
-   "ru": "Анонимно и без cookie: какие страницы открывают и что ломается.",
-   "ka": "ანონიმურად და ქუქი-ფაილების გარეშე: რომელი გვერდები გამოიყენება და რა ფუჭდება.",
+   "he": "בלי שם ובלי עוגיות. עוזר לנו לתקן תקלות.",
+   "en": "No name and no cookies. It helps us fix problems.",
+   "ru": "Без имени и без cookie. Помогает нам исправлять сбои.",
+   "ka": "სახელის და ქუქი-ფაილების გარეშე. გვეხმარება ხარვეზების გასწორებაში.",
    "where": "site/index.html",
    "note": "settings row subtitle when on; followed by the link \"what is collected\"",
    "check": [
@@ -12250,18 +12083,6 @@
     "ka"
    ]
   },
-  "trip.add": {
-   "he": "הוספת הטיסה שלי",
-   "en": "Add my flight",
-   "ru": "Добавить мой рейс",
-   "ka": "ჩემი რეისის დამატება",
-   "where": "site/index.html",
-   "note": "button",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
   "trip.airport_code": {
    "he": "קוד שדה התעופה",
    "en": "Airport code",
@@ -12428,28 +12249,6 @@
     "ka"
    ]
   },
-  "trip.lead": {
-   "he": "רק תאריך ההלוך חובה. בלי הרשמה: נשמר רק בדפדפן הזה.",
-   "en": "Only the outbound date is required. No sign-up: saved only in this browser.",
-   "ru": "Обязательна только дата вылета туда. Без регистрации: хранится только в этом браузере.",
-   "ka": "სავალდებულოა მხოლოდ გამგზავრების თარიღი. რეგისტრაციის გარეშე: ინახება მხოლოდ ამ ბრაუზერში.",
-   "where": "site/index.html",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "trip.local_note": {
-   "he": "בלי הרשמה. נשמר רק בדפדפן הזה, ואפשר למחוק בכל רגע.",
-   "en": "No sign-up. Saved only in this browser, and you can delete it any time.",
-   "ru": "Без регистрации. Хранится только в этом браузере, удалить можно в любой момент.",
-   "ka": "რეგისტრაციის გარეშე. ინახება მხოლოდ ამ ბრაუზერში და ნებისმიერ დროს შეგიძლიათ წაშალოთ.",
-   "where": "site/index.html",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
   "trip.need_date": {
    "he": "צריך את תאריך ההלוך",
    "en": "The outbound date is needed",
@@ -12491,7 +12290,7 @@
    "en": "Other…",
    "ru": "Другой…",
    "ka": "სხვა…",
-   "where": "site/index.html",
+   "where": "site/index.html, site/js/app.js",
    "note": "option in the airport list",
    "check": [
     "ru",
@@ -12526,7 +12325,7 @@
    "en": "Save",
    "ru": "Сохранить",
    "ka": "შენახვა",
-   "where": "site/index.html",
+   "where": "site/index.html, site/js/app.js",
    "note": "button",
    "check": [
     "ru",
@@ -12676,17 +12475,6 @@
     "ka"
    ]
   },
-  "acct.signin_lead": {
-   "he": "בלי סיסמה, ובלי מיילים מאיתנו. רק השם, ומה שגוגל או אפל מעבירים.",
-   "en": "No password, and no emails from us. Just your name, and what Google or Apple pass on.",
-   "ru": "Без пароля и без писем от нас. Только имя и то, что передают Google или Apple.",
-   "ka": "პაროლის გარეშე და ჩვენგან წერილების გარეშე. მხოლოდ სახელი და ის, რასაც Google ან Apple გადმოგვცემს.",
-   "where": "site/index.html",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
   "acct.why_title": {
    "he": "למה להתחבר",
    "en": "Why sign in",
@@ -12699,10 +12487,10 @@
    ]
   },
   "acct.why_group": {
-   "he": "ליצור קבוצה ולהזמין את החבר׳ה",
-   "en": "Create a group and invite your friends",
-   "ru": "Создать группу и пригласить друзей",
-   "ka": "შექმენით ჯგუფი და მოიწვიეთ მეგობრები",
+   "he": "קבוצה והזמנות",
+   "en": "Group and invitations",
+   "ru": "Группа и приглашения",
+   "ka": "ჯგუფი და მოწვევები",
    "where": "site/index.html",
    "check": [
     "ru",
@@ -12710,21 +12498,10 @@
    ]
   },
   "acct.why_sync": {
-   "he": "הטיול והקבוצה, גם באפליקציה ובמחשב אחר",
-   "en": "Your trip and group, in the app and on another computer too",
-   "ru": "Поездка и группа — и в приложении, и на другом компьютере",
-   "ka": "თქვენი მოგზაურობა და ჯგუფი, აპშიც და სხვა კომპიუტერზეც",
-   "where": "site/index.html",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "acct.why_rest": {
-   "he": "כל השאר עובד בלי חשבון: המפה, הטיול שלך, המשחקים, וגם הצטרפות לקבוצה בקוד.",
-   "en": "Everything else works without an account: the map, your trip, the games, and joining a group with a code.",
-   "ru": "Всё остальное работает без аккаунта: карта, ваша поездка, игры и вступление в группу по коду.",
-   "ka": "დანარჩენი ყველაფერი ანგარიშის გარეშე მუშაობს: რუკა, თქვენი მოგზაურობა, თამაშები და ჯგუფში კოდით შესვლაც.",
+   "he": "גם באפליקציה",
+   "en": "In the app too",
+   "ru": "И в приложении",
+   "ka": "აპშიც",
    "where": "site/index.html",
    "check": [
     "ru",
@@ -12776,10 +12553,10 @@
    ]
   },
   "acct.moves_note": {
-   "he": "מה שכבר שמור בדפדפן הזה (הטיול שלך) עובר לחשבון.",
-   "en": "What is already saved in this browser (your trip) moves to the account.",
-   "ru": "То, что уже сохранено в этом браузере (ваша поездка), перейдёт в аккаунт.",
-   "ka": "რაც ამ ბრაუზერში უკვე შენახულია (თქვენი მოგზაურობა), ანგარიშზე გადავა.",
+   "he": "מה שכבר שמור בדפדפן הזה עובר לחשבון.",
+   "en": "What is already saved in this browser moves to the account.",
+   "ru": "То, что уже сохранено в этом браузере, перейдёт в аккаунт.",
+   "ka": "რაც ამ ბრაუზერში უკვე შენახულია, ანგარიშზე გადავა.",
    "where": "site/index.html",
    "check": [
     "ru",
@@ -13305,10 +13082,10 @@
    ]
   },
   "join.invited_to": {
-   "he": "הוזמנת ל",
-   "en": "You are invited to",
-   "ru": "Вас пригласили в",
-   "ka": "მოწვეული ხართ",
+   "he": "מצטרפים ל",
+   "en": "Joining",
+   "ru": "Вступление в",
+   "ka": "უერთდებით",
    "where": "site/js/account.js",
    "check": [
     "ru",
@@ -13348,33 +13125,11 @@
     "ka"
    ]
   },
-  "join.no_signup": {
-   "he": "בלי הרשמה. הדפדפן הזה זוכר אותך; אפשר לשמור חשבון עם גוגל או אפל אחר כך.",
-   "en": "No sign-up. This browser remembers you; you can save an account with Google or Apple later.",
-   "ru": "Без регистрации. Этот браузер вас запомнит; аккаунт через Google или Apple можно сохранить позже.",
-   "ka": "რეგისტრაციის გარეშე. ეს ბრაუზერი დაგიმახსოვრებთ; ანგარიშის შენახვა Google-ით ან Apple-ით მოგვიანებითაც შეიძლება.",
-   "where": "site/index.html",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
   "join.reclaim_title": {
    "he": "אני כבר בקבוצה",
    "en": "I'm already in the group",
    "ru": "Я уже в группе",
    "ka": "მე უკვე ჯგუფში ვარ",
-   "where": "site/index.html",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "join.reclaim_lead": {
-   "he": "החלפת טלפון או דפדפן? בוחרים את השם שלך, והמנהל מאשר. הכל חוזר, בלי כפיל.",
-   "en": "New phone or browser? Pick your name and the admin approves. Everything comes back, with no duplicate.",
-   "ru": "Сменили телефон или браузер? Выберите своё имя, и администратор подтвердит. Всё вернётся, без дублей.",
-   "ka": "ტელეფონი ან ბრაუზერი შეცვალეთ? აირჩიეთ თქვენი სახელი და ადმინისტრატორი დაადასტურებს. ყველაფერი დაბრუნდება, დუბლიკატის გარეშე.",
    "where": "site/index.html",
    "check": [
     "ru",
@@ -13906,33 +13661,11 @@
     "ka"
    ]
   },
-  "group.empty_lead": {
-   "he": "קבוצה היא דף משותף לחבר׳ה: הטיסות של כולם, מפגשים ושיאים.",
-   "en": "A group is a shared page for your friends: everyone's flights, meetups and high scores.",
-   "ru": "Группа — общая страница для друзей: рейсы всех, встречи и рекорды.",
-   "ka": "ჯგუფი მეგობრების საერთო გვერდია: ყველას ფრენები, შეხვედრები და რეკორდები.",
-   "where": "site/index.html",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
   "group.create": {
    "he": "יצירת קבוצה",
    "en": "Create a group",
    "ru": "Создать группу",
    "ka": "ჯგუფის შექმნა",
-   "where": "site/index.html",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "group.create_needs": {
-   "he": "יצירת קבוצה דורשת חשבון גוגל או אפל.",
-   "en": "Creating a group needs a Google or Apple account.",
-   "ru": "Для создания группы нужен аккаунт Google или Apple.",
-   "ka": "ჯგუფის შესაქმნელად Google-ის ან Apple-ის ანგარიშია საჭირო.",
    "where": "site/index.html",
    "check": [
     "ru",
@@ -15870,6 +15603,555 @@
    "ka": "„გაგრძელების“ შემდეგ ტელეფონი ნებართვას იკითხავს. ნებისმიერ დროს შეგიძლიათ გამორთოთ ღილაკზე შეხებით.",
    "where": "site and app/android (round 19, decision 58)",
    "note": "app",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "run.step_start": {
+   "he": "התחלה",
+   "en": "Start",
+   "ru": "Начало",
+   "ka": "დასაწყისი",
+   "where": "site/js/app.js, app/android",
+   "note": "Run panel, round 20: altitude at the top of the run",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "run.step_steep": {
+   "he": "הקטע התלול",
+   "en": "Steepest part",
+   "ru": "Самый крутой участок",
+   "ka": "ყველაზე ციცაბო მონაკვეთი",
+   "where": "site/js/app.js, app/android",
+   "note": "Run panel, round 20: steepest slope in degrees",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "run.step_end": {
+   "he": "סוף",
+   "en": "End",
+   "ru": "Конец",
+   "ka": "დასასრული",
+   "where": "site/js/app.js, app/android",
+   "note": "Run panel, round 20: altitude at the bottom",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "run.profile_info_aria": {
+   "he": "איך זה חושב",
+   "en": "How this is worked out",
+   "ru": "Как это рассчитано",
+   "ka": "როგორ არის გამოთვლილი",
+   "where": "site/js/app.js, app/android",
+   "note": "Screen reader label of the (i) beside the elevation profile heading",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "group.create_signin_title": {
+   "he": "יצירת קבוצה דורשת התחברות",
+   "en": "Creating a group needs signing in",
+   "ru": "Чтобы создать группу, нужно войти",
+   "ka": "ჯგუფის შესაქმნელად საჭიროა შესვლა",
+   "where": "site/index.html, app/android, site/js/account.js",
+   "note": "round 20: title of the sign-in drawer a guest gets on 'create group'",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "join.pending_title": {
+   "he": "ממתין לאישור המנהל",
+   "en": "Waiting for the admin",
+   "ru": "Ждём подтверждения администратора",
+   "ka": "ადმინისტრატორის დადასტურებას ველოდებით",
+   "where": "site/js/account.js, app/android",
+   "note": "round 20: the pending request card, with an hourglass and join.cancel_request",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "common.copy": {
+   "he": "העתקה",
+   "en": "Copy",
+   "ru": "Скопировать",
+   "ka": "კოპირება",
+   "where": "site/index.html",
+   "note": "Screen reader label of a copy icon button",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "trip.add_number": {
+   "he": "+ מספר",
+   "en": "+ Number",
+   "ru": "+ Номер",
+   "ka": "+ ნომერი",
+   "where": "site/js/app.js, app/android",
+   "note": "round 20: dashed chip on the pass for the flight number (optional)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "trip.add_time": {
+   "he": "+ שעה",
+   "en": "+ Time",
+   "ru": "+ Время",
+   "ka": "+ დრო",
+   "where": "site/js/app.js, app/android",
+   "note": "round 20: dashed chip on the pass for a departure or arrival time (optional)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "trip.land_where": {
+   "he": "לאן נוחתים?",
+   "en": "Where do you land?",
+   "ru": "Куда прилетаете?",
+   "ka": "სად ჯდებით?",
+   "where": "site/js/app.js",
+   "note": "Title of the sheet for the way out: the destination, the flight number and the times",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "trip.month_prev": {
+   "he": "החודש הקודם",
+   "en": "Previous month",
+   "ru": "Предыдущий месяц",
+   "ka": "წინა თვე",
+   "where": "site/js/app.js, app/android",
+   "note": "aria-label of the calendar arrow",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "trip.month_next": {
+   "he": "החודש הבא",
+   "en": "Next month",
+   "ru": "Следующий месяц",
+   "ka": "შემდეგი თვე",
+   "where": "site/js/app.js, app/android",
+   "note": "aria-label of the calendar arrow",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "trip.legend_ski": {
+   "he": {
+    "one": "יום סקי אחד",
+    "two": "{n} ימי סקי",
+    "other": "{n} ימי סקי"
+   },
+   "en": {
+    "one": "{n} ski day",
+    "other": "{n} ski days"
+   },
+   "ru": {
+    "one": "{n} день катания",
+    "few": "{n} дня катания",
+    "many": "{n} дней катания",
+    "other": "{n} дня катания"
+   },
+   "ka": {
+    "one": "{n} სათხილამურო დღე",
+    "other": "{n} სათხილამურო დღე"
+   },
+   "where": "site/js/app.js, app/android",
+   "note": "round 20: calendar legend, the shaded ski days between the flights",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "acct.why_name_only": {
+   "he": "רק השם",
+   "en": "Just your name",
+   "ru": "Только имя",
+   "ka": "მხოლოდ სახელი",
+   "where": "site/index.html, app/android",
+   "note": "round 20: icon caption inside 'why sign in'",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "trip.legend_flights": {
+   "he": "טיסות",
+   "en": "Flights",
+   "ru": "Рейсы",
+   "ka": "ფრენები",
+   "where": "site/js/app.js, app/android",
+   "note": "round 20: calendar legend, the two flight days",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "acct.why_no_email": {
+   "he": "בלי מיילים",
+   "en": "No emails",
+   "ru": "Без писем",
+   "ka": "წერილების გარეშე",
+   "where": "site/index.html, app/android",
+   "note": "round 20: icon caption inside 'why sign in'",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "group.empty_flights": {
+   "he": "הטיסות של כולם",
+   "en": "Everyone's flights",
+   "ru": "Рейсы всех",
+   "ka": "ყველას ფრენები",
+   "where": "site/index.html, app/android",
+   "note": "round 20: first of three icons on the empty group page (with group.tab_meetups, group.tab_scores)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "acct.why_no_password": {
+   "he": "בלי סיסמה",
+   "en": "No password",
+   "ru": "Без пароля",
+   "ka": "პაროლის გარეშე",
+   "where": "site/index.html, app/android",
+   "note": "round 20: icon caption inside 'why sign in'",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "status.no_report": {
+   "he": "אין דיווח",
+   "en": "No report",
+   "ru": "Нет данных",
+   "ka": "მონაცემები არ არის",
+   "where": "site/js/app.js, app/android, site/index.html",
+   "note": "round 20: next to 0/12 on the switched-off lift status",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "trip.when_fly": {
+   "he": "מתי טסים?",
+   "en": "When do you fly?",
+   "ru": "Когда летите?",
+   "ka": "როდის მიფრინავთ?",
+   "where": "site/js/app.js, app/android",
+   "note": "round 20: the button on the empty pass, opens one calendar",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "map.overview_lead_resort": {
+   "he": "לחצו על מסלול במפה או ברשימה לפרטים. קו מקווקו דק הוא קטע בלי שם בנתונים.",
+   "en": "Tap a run on the map or in the list for details. A thin dashed line is an unnamed section in the data.",
+   "ru": "Нажмите на трассу на карте или в списке, чтобы увидеть подробности. Тонкая пунктирная линия — участок без названия в данных.",
+   "ka": "დააჭირეთ ტრასას რუკაზე ან სიაში დეტალებისთვის. წვრილი წყვეტილი ხაზი მონაცემებში უსახელო მონაკვეთია.",
+   "where": "site/js/app.js",
+   "note": "like map.overview_lead, for a resort without the Kobi side and ski ways (decision 68)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "resort.soelden.sources": {
+   "he": "קווים: OpenStreetMap דרך OpenSkiMap, נמשך {fetched}, כמו שהם, בלי השלמות. הצבעים לפי דרגת הקושי במפה הפתוחה (קל כחול, בינוני אדום, קשה שחור), ונבדקו מול רשימת המסלולים הרשמית של Sölden. אורכים אופקיים מהקואורדינטות. קיבולת הרכבלים ושנת הבנייה: Land Tirol (CC BY 4.0). תבליט וגבהים: © offene Daten Österreichs – Digitales Geländemodell (DGM) Österreich (CC BY 3.0 AT), דרך אריחי הגובה של AWS. הכפרים, הכבישים, המים והפסגות: OSM. © OpenStreetMap contributors, ODbL.",
+   "en": "Lines: OpenStreetMap via OpenSkiMap, fetched {fetched}, as they are, nothing filled in. Colours follow the difficulty in the open map (easy blue, intermediate red, difficult black) and were checked against Sölden's official list of slopes. Horizontal lengths from the coordinates. Lift capacity and year built: Land Tirol (CC BY 4.0). Relief and altitudes: © offene Daten Österreichs – Digitales Geländemodell (DGM) Österreich (CC BY 3.0 AT), through the Terrain Tiles on AWS. Villages, roads, water and peaks: OSM. © OpenStreetMap contributors, ODbL.",
+   "ru": "Линии: OpenStreetMap через OpenSkiMap, загружено {fetched}, как есть, без дополнений. Цвета — по сложности в открытой карте (лёгкая синяя, средняя красная, сложная чёрная), сверены с официальным списком трасс Зёльдена. Горизонтальные длины — по координатам. Пропускная способность подъёмников и год постройки: Land Tirol (CC BY 4.0). Рельеф и высоты: © offene Daten Österreichs – Digitales Geländemodell (DGM) Österreich (CC BY 3.0 AT), через тайлы высот на AWS. Посёлки, дороги, вода и вершины: OSM. © OpenStreetMap contributors, ODbL.",
+   "ka": "ხაზები: OpenStreetMap, OpenSkiMap-ის მეშვეობით, ჩამოტვირთულია {fetched}, როგორც არის, შევსების გარეშე. ფერები ღია რუკის სირთულის მიხედვითაა (მარტივი ლურჯი, საშუალო წითელი, რთული შავი) და შემოწმებულია ზელდენის ტრასების ოფიციალურ სიასთან. ჰორიზონტალური სიგრძეები კოორდინატებიდანაა. საბაგიროების გამტარუნარიანობა და აშენების წელი: Land Tirol (CC BY 4.0). რელიეფი და სიმაღლეები: © offene Daten Österreichs – Digitales Geländemodell (DGM) Österreich (CC BY 3.0 AT), AWS-ის სიმაღლის ფილების მეშვეობით. სოფლები, გზები, წყალი და მწვერვალები: OSM. © OpenStreetMap contributors, ODbL.",
+   "where": "site/js/app.js",
+   "note": "like map.overview_source_text, the sources of this resort",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "nav.resort_time": {
+   "he": "השעה ב-{place}",
+   "en": "Time in {place}",
+   "ru": "Время: {place}",
+   "ka": "დრო: {place}",
+   "where": "site/js/app.js",
+   "note": "label before the clock at a resort other than Gudauri; {place} is the resort name in its own letters (round 23)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "resort.location": {
+   "he": "{place}, {country}",
+   "en": "{place}, {country}",
+   "ru": "{place}, {country}",
+   "ka": "{place}, {country}",
+   "where": "site/js/app.js",
+   "note": "home page heading of a resort, like home.location",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "map.map_aria_resort": {
+   "he": "מפת מסלולים ורכבלים: {place}",
+   "en": "Map of runs and lifts: {place}",
+   "ru": "Карта трасс и подъёмников: {place}",
+   "ka": "ტრასებისა და საბაგიროების რუკა: {place}",
+   "where": "site/js/app.js",
+   "note": "like map.map_aria, any resort",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "resort.runs_n": {
+   "he": {
+    "one": "מסלול אחד",
+    "two": "2 מסלולים",
+    "other": "{n} מסלולים"
+   },
+   "en": {
+    "one": "{n} run",
+    "other": "{n} runs"
+   },
+   "ru": {
+    "one": "{n} трасса",
+    "few": "{n} трассы",
+    "many": "{n} трасс",
+    "other": "{n} трассы"
+   },
+   "ka": {
+    "one": "{n} ტრასა",
+    "other": "{n} ტრასა"
+   },
+   "where": "site/js/app.js",
+   "note": "in the resort picker, round 23",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "resort.lifts_n": {
+   "he": {
+    "one": "רכבל אחד",
+    "two": "2 רכבלים",
+    "other": "{n} רכבלים"
+   },
+   "en": {
+    "one": "{n} lift",
+    "other": "{n} lifts"
+   },
+   "ru": {
+    "one": "{n} подъёмник",
+    "few": "{n} подъёмника",
+    "many": "{n} подъёмников",
+    "other": "{n} подъёмника"
+   },
+   "ka": {
+    "one": "{n} საბაგირო",
+    "other": "{n} საბაგირო"
+   },
+   "where": "site/js/app.js",
+   "note": "in the resort picker, round 23",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "resort.picker_aria": {
+   "he": "{place}: בחירת אתר סקי",
+   "en": "{place}: choose a ski resort",
+   "ru": "{place}: выбор курорта",
+   "ka": "{place}: სათხილამურო კურორტის არჩევა",
+   "where": "site/js/app.js",
+   "note": "the place name is the button that opens the resort list (round 23)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "resort.list_aria": {
+   "he": "אתרי סקי",
+   "en": "Ski resorts",
+   "ru": "Горнолыжные курорты",
+   "ka": "სათხილამურო კურორტები",
+   "where": "site/js/app.js",
+   "note": "the open resort list",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "resort.pass_top": {
+   "he": "SKI AREA · {place}",
+   "en": "SKI AREA · {place}",
+   "ru": "SKI AREA · {place}",
+   "ka": "SKI AREA · {place}",
+   "where": "site/js/app.js",
+   "note": "'SKI AREA' stays in English, like about.pass_top (round 23)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "resort.pass_runs": {
+   "he": "מסלולים",
+   "en": "Runs",
+   "ru": "Трассы",
+   "ka": "ტრასები",
+   "where": "site/js/app.js",
+   "note": "label on the resort pass card",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "resort.pass_lifts": {
+   "he": "רכבלים",
+   "en": "Lifts",
+   "ru": "Подъёмники",
+   "ka": "საბაგიროები",
+   "where": "site/js/app.js",
+   "note": "label on the resort pass card",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "resort.pass_alt": {
+   "he": "גובה, מ׳",
+   "en": "Altitude, m",
+   "ru": "Высота, м",
+   "ka": "სიმაღლე, მ",
+   "where": "site/js/app.js",
+   "note": "label on the resort pass card",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "resort.pass_aria": {
+   "he": "{place}: {runs} מסלולים, {lifts} רכבלים, גובה {lo} עד {hi} מ׳",
+   "en": "{place}: {runs} runs, {lifts} lifts, from {lo} to {hi} m",
+   "ru": "{place}: трасс {runs}, подъёмников {lifts}, высота от {lo} до {hi} м",
+   "ka": "{place}: {runs} ტრასა, {lifts} საბაგირო, სიმაღლე {lo}–{hi} მ",
+   "where": "site/js/app.js",
+   "note": "screen reader label of the resort pass card",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "resort.country_at": {
+   "he": "אוסטריה",
+   "en": "Austria",
+   "ru": "Австрия",
+   "ka": "ავსტრია",
+   "where": "site/js/app.js",
+   "note": "country",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "resort.country_ge": {
+   "he": "גאורגיה",
+   "en": "Georgia",
+   "ru": "Грузия",
+   "ka": "საქართველო",
+   "where": "site/js/app.js",
+   "note": "country",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "about.credit_terrain_at_label": {
+   "he": "גבהים ותבליט ב-Sölden:",
+   "en": "Heights and relief at Sölden:",
+   "ru": "Высоты и рельеф в Зёльдене:",
+   "ka": "სიმაღლეები და რელიეფი ზელდენში:",
+   "where": "site/index.html",
+   "note": "credit line label (decision 68)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "about.credit_terrain_at": {
+   "he": "© offene Daten Österreichs – Digitales Geländemodell (DGM) Österreich, ברישיון CC BY 3.0 AT, דרך AWS Terrain Tiles.",
+   "en": "© offene Daten Österreichs – Digitales Geländemodell (DGM) Österreich, licensed CC BY 3.0 AT, through AWS Terrain Tiles.",
+   "ru": "© offene Daten Österreichs – Digitales Geländemodell (DGM) Österreich, по лицензии CC BY 3.0 AT, через AWS Terrain Tiles.",
+   "ka": "© offene Daten Österreichs – Digitales Geländemodell (DGM) Österreich, ლიცენზია CC BY 3.0 AT, AWS Terrain Tiles-ის მეშვეობით.",
+   "where": "site/index.html",
+   "note": "the exact attribution statement of the data provider; the German stays as it is",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "about.credit_lifts_tirol_label": {
+   "he": "רכבלים ב-Sölden:",
+   "en": "Lifts in Sölden:",
+   "ru": "Подъёмники в Зёльдене:",
+   "ka": "საბაგიროები ზელდენში:",
+   "where": "site/index.html",
+   "note": "like about.credit_terrain_at_label",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "about.credit_lifts_tirol": {
+   "he": "קיבולת ושנת בנייה: Land Tirol, data.tirol.gv.at (Aufstiegshilfen), ברישיון CC BY 4.0.",
+   "en": "Capacity and year built: Land Tirol, data.tirol.gv.at (Aufstiegshilfen), licensed CC BY 4.0.",
+   "ru": "Пропускная способность и год постройки: Land Tirol, data.tirol.gv.at (Aufstiegshilfen), по лицензии CC BY 4.0.",
+   "ka": "გამტარუნარიანობა და აშენების წელი: Land Tirol, data.tirol.gv.at (Aufstiegshilfen), ლიცენზია CC BY 4.0.",
+   "where": "site/index.html",
+   "note": "the data provider's attribution; 'Land Tirol' and the layer name stay as they are",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "run.kind_private_route": {
+   "he": "דרך לבקתה · פרטית, לא מוכשרת",
+   "en": "Route to a hut · private, not groomed",
+   "ru": "Путь к хижине · частный, не подготовлен",
+   "ka": "გზა ქოხამდე · კერძო, დაუმუშავებელი",
+   "where": "site/js/app.js",
+   "note": "run panel tag for a private ski route to a hut (round 24, 1a)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "map.overview_missing_routes_count": {
+   "he": "דרכי סקי בלי קו במפה · {n}",
+   "en": "Ski routes with no line on the map · {n}",
+   "ru": "Лыжные маршруты без линии на карте · {n}",
+   "ka": "სათხილამურო მარშრუტები ხაზის გარეშე · {n}",
+   "where": "site/js/app.js",
+   "note": "Section heading, {n} = count (round 24, 1a)",
    "check": [
     "ru",
     "ka"

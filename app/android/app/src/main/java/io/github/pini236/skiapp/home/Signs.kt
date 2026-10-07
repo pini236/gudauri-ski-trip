@@ -56,7 +56,7 @@ object SignColors {
     val ink = Color(0xFF13233A)
 }
 
-class SignSpec(val title: String, val sub: String, val color: Color, val fg: Color, val width: Float, val onClick: () -> Unit)
+class SignSpec(val title: String, val sub: String?, val color: Color, val fg: Color, val width: Float, val onClick: () -> Unit)
 
 /**
  * The post with its signs (the site's home, H1 and H3): a dark post at the start side, the signs hanging from it
@@ -95,7 +95,8 @@ private fun Sign(s: SignSpec) {
     ) {
         Column {
             Text(s.title, style = Ski.type.title.copy(fontSize = Ski.type.title.fontSize * (34f / 44f)), color = s.fg, maxLines = 1)
-            Text(s.sub, style = Ski.type.small.copy(fontSize = 13.sp), color = s.fg.copy(alpha = .92f))
+            // round 20: no line under the sign, only data (a member's group) stays
+            if (!s.sub.isNullOrEmpty()) Text(s.sub, style = Ski.type.small.copy(fontSize = 13.sp), color = s.fg.copy(alpha = .92f))
         }
     }
 }

@@ -1,0 +1,22 @@
+{
+ "total": 26,
+ "hidden": [
+  "Kudebi 2",
+  "Shino"
+ ],
+ "onOther": [
+  "Soliko 1 ← Shino",
+  "Kudebi 3 ← Kudebi 2",
+  "Kudebi 1 ← Sadzele 3",
+  "Snow Park ← Sadzele 1",
+  "Khada ← Kudebi 2, Kikilo 1",
+  "Sportuli 1 ← Sportuli 2",
+  "Goodaura 1 ← Sportuli 1, Sportuli 2",
+  "New Goodaura ← u1234557981, Goodaura 2",
+  "Sportuli 2 ← Sportuli 1, Goodaura 1",
+  "Baby ← Firni 2, Goodaura 1, Tatra 1",
+  "Bombora ← Soliko 1, Kudebi 2, Khada",
+  "Tatra 2 ← Tatra 1",
+  "Soliko 2 ← Soliko 1, Sportuli 1"
+ ]
+}

@@ -65,7 +65,8 @@
         if(p.has_opted_out_capturing&&p.has_opted_out_capturing())p.opt_in_capturing(); // the switch was turned back on
         var I=window.I18N||{};
         p.register({platform:'web',app_version:document.documentElement.getAttribute('data-version')||'web',build:'web',
-          lang:I.lang||'he',lang_source:I.chosen?'manual':'auto',theme:theme(),device_class:deviceClass()});
+          lang:I.lang||'he',lang_source:I.chosen?'manual':'auto',theme:theme(),device_class:deviceClass(),resort:(window.RESORT&&RESORT.id)||'gudauri'});
+        if(window.RESORT)RESORT.ready.then(function(c){p.register({resort:c.id});}); // decision 68: which mountain
         ph=p;queue.splice(0).forEach(function(e){p.capture(e[0],e[1]);});
       }});
   });

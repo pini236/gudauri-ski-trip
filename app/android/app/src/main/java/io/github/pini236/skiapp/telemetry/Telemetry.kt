@@ -1,6 +1,7 @@
 package io.github.pini236.skiapp.telemetry
 
 import android.content.Context
+import android.os.Build
 import android.provider.Settings
 import com.posthog.PostHog
 import com.posthog.PersonProfiles
@@ -26,6 +27,7 @@ import io.sentry.android.core.SentryAndroid
  * - Events and their properties are the contract in docs/GROWTH.md ("מדידת שימוש"), the same on the site and on the
  *   iPhone: only the events in that table, no autocapture. The properties every event carries are registered once
  *   ([start]): platform, app_version, build, lang, lang_source, theme, device_class.
+ * - The emulator run's crash reports go to Sentry under the environment "qa" ([qaRun]), not with the phones'.
  * - Google Play's test robots (the pre-launch report, on Firebase Test Lab's phones) are not people: no usage events
  *   from them, and their crashes go to Sentry under an environment of their own, "test-lab" (the analyst, 5.10.2026:
  *   five robots were counted as use).
@@ -44,6 +46,13 @@ object Telemetry {
     fun testLab(context: Context): Boolean =
         runCatching { Settings.System.getString(context.contentResolver, "firebase.test.lab") == "true" }.getOrDefault(false)
 
+    /**
+     * The emulator run on GitHub (a debug build, or any build on the emulator's ranchu/goldfish hardware): its crash
+     * reports go to Sentry under an environment of their own, "qa", so they do not mix with the test build on real
+     * phones (Pini, 6.10.2026, after GUDI-ANDROID-4). The run still checks that reports arrive (qa.sentry).
+     */
+    fun qaRun(): Boolean = BuildConfig.DEBUG || Build.HARDWARE in setOf("ranchu", "goldfish")
+
     fun enabled(context: Context): Boolean = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getBoolean("on", true)
 
     /** The properties every event carries (docs/GROWTH.md): what build, which language, what kind of screen. */
@@ -61,7 +70,7 @@ object Telemetry {
             SentryAndroid.init(app) { o ->
                 o.dsn = BuildConfig.SENTRY_DSN
                 o.isSendDefaultPii = false
-                o.environment = if (robot) "test-lab" else channel
+                o.environment = when { robot -> "test-lab"; qaRun() -> "qa"; else -> channel }
                 o.tracesSampleRate = 0.0
                 o.isAttachScreenshot = false
                 o.isAttachViewHierarchy = false

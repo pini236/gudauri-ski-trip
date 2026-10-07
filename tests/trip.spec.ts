@@ -22,7 +22,10 @@ test('אורח: כרטיס ריק, מצב העונה, ובלי הכרטיס וה
   await expect(page.locator('#bpEmpty')).toBeVisible();
   await expect(page.locator('#bpStack')).toBeHidden();
   await expect(page.locator('#seasonBoard')).toBeVisible();
-  await expect(page.locator('#tripNote')).toBeVisible();
+  // round 20: no lock line, no tally, signs without a line under them
+  await expect(page.locator('#tripNote')).toHaveCount(0);
+  await expect(page.locator('section.tally')).toHaveCount(0);
+  await expect(page.locator('.board:visible > span:visible')).toHaveCount(0);
   await expect(page.locator('#tbCount')).toBeHidden();
   await expect(page.locator('body')).not.toContainText('שרוליק');
   await expect(page.locator('.crew')).toHaveCount(0);
@@ -33,31 +36,32 @@ test('אורח: כרטיס ריק, מצב העונה, ובלי הכרטיס וה
   expect(errors).toEqual([]);
 });
 
-test('לוח העונה: ההר ישן עד דצמבר, בעונה בלי דיווח "אין מידע עדכני", ועם דיווח עדכני כמה רכבלים פתוחים, בלי שלג', async ({ page }) => {
+test('מצב הרכבלים בדף הבית (סבב 20): כבוי עם "אין דיווח" בלי דיווח, ועם דיווח עדכני הרכבלים הפתוחים מתמלאים', async ({ page }) => {
   const errors = watchErrors(page);
   const board = page.locator('#seasonBoard');
-  await page.clock.setFixedTime(new Date('2026-10-20T09:00:00Z'));
-  await page.goto('/');
-  await loaded(page);
-  await expect(board).toHaveAttribute('data-state', 'off');
-  await expect(board).toContainText('ההר עוד ישן');
-  await expect(board.locator('.snowcap')).toBeVisible();
-  // in January, during the trip, with no report from the lift status function
-  await page.clock.setFixedTime(new Date('2027-01-12T09:00:00Z'));
-  await page.reload();
-  await loaded(page);
-  await expect(board).toHaveAttribute('data-state', 'season');
-  await expect(board).toContainText('אין מידע עדכני');
-  await expect(board).not.toContainText('ההר עוד ישן');
-  await expect(board.locator('.snowcap')).toBeVisible();
-  // a fresh report: the snow is gone and it says how many lifts are open
+  for (const t of ['2026-10-20T09:00:00Z', '2027-01-12T09:00:00Z']) {
+    await page.clock.setFixedTime(new Date(t));
+    await page.goto('/');
+    await loaded(page);
+    await expect(board).toHaveAttribute('data-state', 'off');
+    await expect(board).toContainText('מצב הרכבלים');
+    await expect(board).toContainText('אין דיווח');
+    await expect(board.locator('.sb-f b')).toHaveText(/^0\/\d+$/);
+    await expect(board.locator('.sb-dots i.on')).toHaveCount(0);
+    await expect(board).toHaveCSS('pointer-events', 'none');
+    await expect(board.locator('.snowcap')).toHaveCount(0);
+    expect(await board.locator('.sb-dots i').count()).toBeGreaterThan(5);
+  }
+  // a fresh report: the open lifts fill in, and the snow is gone
   await page.route('**/api/status', r => r.fulfill({ contentType: 'application/json', body: JSON.stringify({
     updated: '2027-01-12T08:55:00Z', lifts: { Goodaura: { open: true }, Kudebi: { open: false, reason: 'wind' }, Sadzele: { open: true } }, pistes: {} }) }));
   await page.reload();
   await loaded(page);
   await expect(board).toHaveAttribute('data-state', 'live');
-  await expect(board).toContainText('מצב הרכבלים');
-  await expect(board).toContainText(/2\s*מתוך\s*\d+\s*רכבלים פתוחים/);
+  await expect(board.locator('.sb-f b')).toHaveText(/^2\/\d+$/);
+  await expect(board.locator('.sb-dots i.on')).toHaveCount(2);
+  await expect(board.locator('.sb-h em')).toBeVisible();
+  await expect(board).not.toContainText('אין דיווח');
   await expect(board.locator('.snowcap')).toBeHidden();
   expect(errors).toEqual([]);
 });
@@ -67,8 +71,8 @@ test('הטיול שלך: טופס, שמירה בדפדפן, הכרטיס, ערי
   await page.clock.setFixedTime(new Date('2026-12-31T09:00:00Z'));
   await page.goto('/');
   await loaded(page);
-  await page.locator('#bpEmpty .btn-blue').click();
-  await expect(page).toHaveURL(/#trip$/);
+  // the full form stays behind "edit" (round 20: the empty ticket opens the calendar instead)
+  await page.evaluate(() => { location.hash = '#trip'; });
   const f = page.locator('#tripForm');
   await expect(f).toBeVisible();
   // the destination starts as Tbilisi, the origin as Tel Aviv
@@ -112,6 +116,45 @@ test('הטיול שלך: טופס, שמירה בדפדפן, הכרטיס, ערי
   await page.locator('#tfDelete').click();
   await expect(page.locator('#bpEmpty')).toBeVisible();
   expect(await page.evaluate(() => localStorage.getItem('gud-trip'))).toBeNull();
+  expect(errors).toEqual([]);
+});
+
+test('הכרטיס הוא הטופס (סבב 20): שתי נגיעות בלוח שנה, TLV ו-TBS כתובים, ומספר הטיסה מחריץ על הכרטיס', async ({ page }) => {
+  const errors = watchErrors(page);
+  await page.clock.setFixedTime(new Date('2026-12-01T09:00:00Z'));
+  await page.goto('/');
+  await loaded(page);
+  await expect(page.locator('#bpEmpty .be-code').first()).toHaveText('TLV');
+  await page.locator('#bpEmpty [data-when]').click();
+  const sh = page.locator('#tripSheet');
+  await expect(sh).toBeVisible();
+  await expect(sh.locator('[data-save]')).toBeDisabled();
+  await expect(sh.locator('[data-d="2026-11-30"]')).toHaveCount(0);
+  await sh.locator('[data-mon="1"]').click();
+  await sh.locator('[data-d="2027-01-10"]').click();
+  await sh.locator('[data-d="2027-01-15"]').click();
+  await expect(sh.locator('[data-d="2027-01-12"]')).toHaveClass(/ski/);
+  await expect(sh.locator('.ts-legend')).toContainText('4 ימי סקי');
+  await sh.locator('[data-save]').click();
+  await expect(sh).toHaveCount(0);
+  await expect(page.locator('#bpStack')).toBeVisible();
+  await expect(page.locator('.bp[data-leg="out"] [data-f="fromCode"]')).toHaveText('TLV');
+  await expect(page.locator('.bp[data-leg="out"] [data-f="toCode"]')).toHaveText('TBS');
+  await expect(page.locator('.bp[data-leg="out"] [data-f="skiRange"]')).toHaveText('11–14.1');
+  // the flight number is an optional slot on the ticket
+  await page.locator('#tFlight [data-slot="out"]').click();
+  await expect(sh).toBeVisible();
+  await sh.locator('[data-to="KUT"]').click();
+  await sh.locator('[name="fl"]').fill('6h 897');
+  await sh.locator('[name="dp"]').fill('16:00');
+  await sh.locator('[data-save]').click();
+  await expect(page.locator('#tFlight')).toHaveText('6H 897');
+  await expect(page.locator('#tDeparts')).toHaveText('16:00');
+  await expect(page.locator('#tArrives [data-slot]')).toBeVisible();
+  await expect(page.locator('.bp[data-leg="out"] [data-f="toCode"]')).toHaveText('KUT');
+  const t = await page.evaluate(() => JSON.parse(localStorage.getItem('gud-trip') || 'null'));
+  expect(t.out).toMatchObject({ date: '2027-01-10', from: 'TLV', to: 'KUT', flight: '6H 897', departs: '16:00' });
+  expect(t.ret.date).toBe('2027-01-15');
   expect(errors).toEqual([]);
 });
 
