@@ -1211,8 +1211,20 @@ html[lang="ka"] .pv-doc h1{font-size:36px;overflow-wrap:anywhere}
 .lbl.plate.route polygon{fill:var(--p-red)}.lbl.plate.route text{fill:var(--on-board)}
 .route-tag{display:inline-flex;align-items:center;gap:8px;min-height:30px;padding:3px 10px;border:2px solid var(--p-route);font-weight:700;line-height:1.25}
 .route-tag i{flex:none;width:12px;height:12px;background:var(--p-red);transform:rotate(45deg)}
-.mlegend{position:absolute;inset-inline-end:10px;bottom:34px;z-index:3;display:flex;flex-direction:column;gap:6px;padding:8px 10px;background:var(--paper);border:1px solid var(--rule);font-size:.8rem;font-weight:600;color:var(--ink);pointer-events:none}
-.mlegend span{display:flex;align-items:center;gap:8px;white-space:nowrap}
-.mlegend svg{flex:none}
+/* the legend: a chip in the scale's corner that opens a card upward, like the Kobi one (round 24) */
+.mlegend{position:absolute;bottom:12px;left:12px;z-index:3;display:flex;flex-direction:column;align-items:flex-start;gap:6px;max-width:calc(100% - 24px)}
+.ml-chip{display:inline-flex;align-items:center;gap:7px;height:44px;padding:0 14px;font:inherit;font-weight:600;font-size:14px;border:1.5px solid var(--rule);background:var(--paper);color:var(--ink);cursor:pointer}
+.ml-chip[aria-expanded="true"]{border-color:var(--ink)}
+.ml-card{display:flex;flex-direction:column;gap:7px;padding:10px 12px 12px;background:var(--paper);border:1.5px solid var(--rule);font-size:.82rem;font-weight:600;color:var(--ink);min-width:150px;box-shadow:0 3px 12px var(--shadow)}
+.ml-card[hidden]{display:none}
+.ml-head{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:.9rem}
+.ml-head b{font-weight:700}
+.ml-x{width:44px;height:44px;margin-block:-12px -10px;margin-inline-end:-12px;border:0;background:none;color:var(--muted);font:inherit;font-size:1rem;cursor:pointer}
+.ml-card span{display:flex;align-items:center;gap:8px;white-space:nowrap}
+.ml-card svg{flex:none}
+.mapwrap.has-legend .scale,.mapwrap.has-legend .hint3d{bottom:64px}
+.mapwrap.legend-open .scale,.mapwrap.legend-open .hint3d{visibility:hidden}
+.mapwrap.has-where .mlegend{bottom:76px}
+.mapwrap.flying .mlegend{visibility:hidden}
 .fchip .sw.route{width:10px;height:10px}
 .sq.route{background:var(--p-red);transform:rotate(45deg) scale(.8)}

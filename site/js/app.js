@@ -601,14 +601,19 @@ wrap.classList.add('mode2d');
 // filters live in the toolbar above the map; a resort with ski routes gets a chip for them, after the colours (round 24)
 if(D.pistes.some(p=>p.kind==='ski-route')){const b=document.createElement('button');b.type='button';b.className='fchip';b.dataset.filter='route';b.setAttribute('aria-pressed','true');
   b.innerHTML=`<span class="sq route"></span><span>${E('map.filter_routes')}</span>`;const after=document.querySelector('#filters [data-filter="black"]');after.after(b);}
-// the legend, above the scale, in a resort with ski routes (in Gudauri it would sit on the Kobi button): the kinds this resort has
+// the legend folds into a chip in the scale's corner, like the Kobi one (round 24): closed on every visit, the kinds this resort has
 {const k={route:D.pistes.some(p=>p.kind==='ski-route'&&p.access!=='private'),hut:D.pistes.some(p=>p.kind==='ski-route'&&p.access==='private'),way:D.pistes.some(p=>p.kind==='ski-way'&&p.named),area:D.pistes.some(p=>p.segs.some(s=>s.area))};
-  if(k.route||k.hut){const lg=document.createElement('div');lg.className='mlegend';lg.setAttribute('aria-hidden','true');
-    lg.innerHTML=(k.route?`<span><svg width="34" height="12"><path d="M2 6H32" stroke="var(--casing)" stroke-width="8" stroke-linecap="round"/><path d="M2 6H32" stroke="var(--p-route-edge)" stroke-width="6" stroke-dasharray="2 2.5"/><path d="M2 6H32" stroke="var(--p-route)" stroke-width="3.6"/></svg>${E('map.legend_route')}</span>`:'')
-      +(k.hut?`<span><svg width="34" height="12"><path d="M2 6H32" stroke="var(--casing)" stroke-width="4" stroke-linecap="round"/><path d="M2 6H32" stroke="var(--p-route-edge)" stroke-width="1.8" stroke-dasharray="4 3"/></svg>${E('map.legend_private_route')}</span>`:'')
-      +(k.way?`<span><svg width="34" height="12"><path d="M2 6H32" stroke="var(--casing)" stroke-width="5" stroke-linecap="round"/><path d="M2 6H32" stroke="var(--p-blue)" stroke-width="2.6" stroke-dasharray="8 5"/></svg>${E('map.legend_way')}</span>`:'')
-      +(k.area?`<span><svg width="34" height="14"><rect x="2" y="2" width="30" height="10" fill="var(--p-red)" stroke="var(--casing)" stroke-width="1.5"/></svg>${E('map.legend_area')}</span>`:'');
-    wrap.appendChild(lg);}}
+  if(k.route||k.hut||k.way||k.area){const lg=document.createElement('div');lg.className='mlegend';
+    const rows=(k.route?`<span><svg width="34" height="12" aria-hidden="true"><path d="M2 6H32" stroke="var(--casing)" stroke-width="8" stroke-linecap="round"/><path d="M2 6H32" stroke="var(--p-route-edge)" stroke-width="6" stroke-dasharray="2 2.5"/><path d="M2 6H32" stroke="var(--p-route)" stroke-width="3.6"/></svg>${E('map.legend_route')}</span>`:'')
+      +(k.hut?`<span><svg width="34" height="12" aria-hidden="true"><path d="M2 6H32" stroke="var(--casing)" stroke-width="4" stroke-linecap="round"/><path d="M2 6H32" stroke="var(--p-route-edge)" stroke-width="1.8" stroke-dasharray="4 3"/></svg>${E('map.legend_private_route')}</span>`:'')
+      +(k.way?`<span><svg width="34" height="12" aria-hidden="true"><path d="M2 6H32" stroke="var(--casing)" stroke-width="5" stroke-linecap="round"/><path d="M2 6H32" stroke="var(--p-blue)" stroke-width="2.6" stroke-dasharray="8 5"/></svg>${E('map.legend_way')}</span>`:'')
+      +(k.area?`<span><svg width="34" height="14" aria-hidden="true"><rect x="2" y="2" width="30" height="10" fill="var(--p-red)" stroke="var(--casing)" stroke-width="1.5"/></svg>${E('map.legend_area')}</span>`:'');
+    lg.innerHTML=`<div class="ml-card" id="mlCard" hidden><div class="ml-head"><b>${E('map.legend')}</b><button type="button" class="ml-x" aria-label="${E('map.legend_close')}">✕</button></div>${rows}</div>`
+      +`<button type="button" class="ml-chip" aria-expanded="false" aria-controls="mlCard"><svg width="22" height="16" aria-hidden="true"><path d="M2 4H20" stroke="var(--p-route)" stroke-width="3"/><path d="M2 8H20" stroke="var(--p-blue)" stroke-width="2" stroke-dasharray="4 3"/><rect x="2" y="11" width="18" height="4" fill="var(--p-red)"/></svg><span>${E('map.legend')}</span></button>`;
+    const lcard=lg.querySelector('.ml-card'),chip=lg.querySelector('.ml-chip');
+    const setLeg=on=>{lcard.hidden=!on;chip.setAttribute('aria-expanded',String(on));wrap.classList.toggle('legend-open',on);};
+    chip.onclick=()=>setLeg(lcard.hidden);lg.querySelector('.ml-x').onclick=()=>{setLeg(false);chip.focus();};
+    wrap.appendChild(lg);wrap.classList.add('has-legend');}}
 document.getElementById('filters').addEventListener('click',e=>{const b=e.target.closest('button[data-filter]');if(!b)return;const k=b.dataset.filter;
   hidden.has(k)?hidden.delete(k):hidden.add(k);b.setAttribute('aria-pressed',String(!hidden.has(k)));applyFilters();track('map_filter',{filter:k,on:!hidden.has(k)});});
 // the map (and its 3D model) is set up the first time the map page is opened

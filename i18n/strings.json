@@ -6990,6 +6990,30 @@
     "ka"
    ]
   },
+  "map.legend": {
+   "he": "מקרא",
+   "en": "Legend",
+   "ru": "Легенда",
+   "ka": "ლეგენდა",
+   "where": "site/js/app.js",
+   "note": "button that opens the map legend (round 24)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "map.legend_close": {
+   "he": "סגירת המקרא",
+   "en": "Close the legend",
+   "ru": "Закрыть легенду",
+   "ka": "ლეგენდის დახურვა",
+   "where": "site/js/app.js",
+   "note": "aria-label (round 24)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
   "map.legend_way": {
    "he": "דרך מקשרת",
    "en": "Ski way",

@@ -99,10 +99,9 @@ test('Sölden: ski routes are a kind of their own, with no colour or difficulty 
   await expect(page.locator('#panel .run-sign h2')).toHaveClass(/c-route/);
   await expect(page.locator('#panel .route-tag')).toBeVisible();
   await expect(page.locator('#panel .pips')).toHaveCount(0);
-  // a chip for them, after the colours, and a legend; Gudauri has neither
+  // a chip for them, after the colours; Gudauri has none
   const chip = page.locator('#filters [data-filter="route"]');
   await expect(chip).toBeVisible();
-  await expect(page.locator('.mapwrap .mlegend')).toBeAttached();
   const top = page.locator('#viewsw button[data-view="2d"]');
   if (await top.isVisible()) await top.click();
   await expect(page.locator('#map .pg.route').first()).toBeAttached();
@@ -122,11 +121,40 @@ test('Sölden: ski routes are a kind of their own, with no colour or difficulty 
   expect(errors).toEqual([]);
 });
 
-test('Gudauri: no ski-route chip and no legend', async ({ page }) => {
+test('Gudauri: no ski-route chip', async ({ page }) => {
   await page.goto('/#map');
   await loaded(page);
   await expect(page.locator('#filters [data-filter="route"]')).toHaveCount(0);
-  await expect(page.locator('.mapwrap .mlegend')).toHaveCount(0);
+});
+
+test('the legend folds into a chip, closed on every visit (round 24)', async ({ page }) => {
+  const errors = watchErrors(page);
+  await page.goto('/?resort=soelden#map');
+  await loaded(page);
+  const chip = page.locator('.mlegend .ml-chip'), card = page.locator('.mlegend .ml-card');
+  await expect(chip).toBeVisible();
+  await expect(chip).toHaveAttribute('aria-expanded', 'false');
+  await expect(card).toBeHidden();
+  const box = await chip.boundingBox();
+  expect(box!.height).toBeGreaterThanOrEqual(44);
+  await chip.click();
+  await expect(card).toBeVisible();
+  await expect(chip).toHaveAttribute('aria-expanded', 'true');
+  await expect(card.locator('span')).toHaveCount(4);   // ski route, hut route, link way, wide run
+  await card.locator('.ml-x').click();
+  await expect(card).toBeHidden();
+  await chip.click();
+  await chip.click();
+  await expect(card).toBeHidden();
+  // Gudauri has it too now: a link way (Shino) and a wide run, across from the Kobi chip
+  await page.goto('/?resort=gudauri#map');
+  await loaded(page);
+  await expect(page.locator('.mlegend .ml-card')).toBeHidden();
+  await page.locator('.mlegend .ml-chip').click();
+  await expect(page.locator('.mlegend .ml-card span')).toHaveCount(2);
+  const kobi = await page.locator('#insetOpen').boundingBox(), leg = await page.locator('.mlegend .ml-chip').boundingBox();
+  expect(leg!.x + leg!.width).toBeLessThan(kobi!.x);
+  expect(errors).toEqual([]);
 });
 
 test('Sölden 38: the slope numbers skip the glacier tunnel', async ({ page }) => {
