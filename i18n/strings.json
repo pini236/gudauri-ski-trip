@@ -6918,6 +6918,90 @@
     "ka"
    ]
   },
+  "map.overview_routes_count": {
+   "he": "דרכי סקי · {n}",
+   "en": "Ski routes · {n}",
+   "ru": "Лыжные маршруты · {n}",
+   "ka": "სათხილამურო მარშრუტები · {n}",
+   "where": "site/js/app.js",
+   "note": "Section heading, {n} = count; a ski route (Skiroute) is not prepared or patrolled and has no difficulty (round 24)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "run.kind_label": {
+   "he": "סוג",
+   "en": "Type",
+   "ru": "Тип",
+   "ka": "ტიპი",
+   "where": "site/js/app.js",
+   "note": "Detail row label, in place of colour and difficulty for a ski route (round 24)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "run.kind_ski_route": {
+   "he": "דרך סקי · לא מוכשרת, לא נבדקת",
+   "en": "Ski route · not groomed, not patrolled",
+   "ru": "Лыжный маршрут · не подготовлен, не контролируется",
+   "ka": "სათხილამურო მარშრუტი · არ არის დამუშავებული და კონტროლირებადი",
+   "where": "site/js/app.js",
+   "note": "the tag in the run panel (round 24); Tyrol rules: secured against avalanches only",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "map.filter_routes": {
+   "he": "דרכי סקי",
+   "en": "Ski routes",
+   "ru": "Маршруты",
+   "ka": "მარშრუტები",
+   "where": "site/js/app.js",
+   "note": "filter chip after the colours, only where a resort has ski routes (round 24); short",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "map.legend_route": {
+   "he": "דרך סקי",
+   "en": "Ski route",
+   "ru": "Лыжный маршрут",
+   "ka": "სათხილამურო მარშრუტი",
+   "where": "site/js/app.js",
+   "note": "map legend (round 24)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "map.legend_way": {
+   "he": "דרך מקשרת",
+   "en": "Ski way",
+   "ru": "Соединительная трасса",
+   "ka": "დამაკავშირებელი გზა",
+   "where": "site/js/app.js",
+   "note": "map legend: a connecting ski way, like Shino (round 24)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "map.legend_area": {
+   "he": "מסלול רחב",
+   "en": "Wide slope",
+   "ru": "Широкая трасса",
+   "ka": "ფართო ტრასა",
+   "where": "site/js/app.js",
+   "note": "map legend: the area of a wide run (round 24)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
   "map.overview_on_map_count": {
    "he": "מסלולים במפה · {n}",
    "en": "Runs on the map · {n}",
@@ -8868,12 +8952,12 @@
    ]
   },
   "run.videos_search_youtube": {
-   "he": "חיפוש \"Gudauri {name}\" ביוטיוב ↗",
-   "en": "Search \"Gudauri {name}\" on YouTube ↗",
-   "ru": "Искать «Gudauri {name}» на YouTube ↗",
-   "ka": "„Gudauri {name}“: ძებნა YouTube-ზე ↗",
+   "he": "חיפוש \"{resort} {name}\" ביוטיוב ↗",
+   "en": "Search \"{resort} {name}\" on YouTube ↗",
+   "ru": "Искать «{resort} {name}» на YouTube ↗",
+   "ka": "„{resort} {name}“: ძებნა YouTube-ზე ↗",
    "where": "site/js/app.js",
-   "note": "{name} = run name (Latin). The quoted text is the literal search query, keep \"Gudauri\" in Latin",
+   "note": "{resort} = the resort name, {name} = run name (Latin). The quoted text is the literal search query",
    "check": [
     "ru",
     "ka"
@@ -15724,10 +15808,10 @@
    ]
   },
   "resort.soelden.sources": {
-   "he": "קווים: OpenStreetMap דרך OpenSkiMap, נמשך {fetched}, כמו שהם, בלי השלמות. הצבעים לפי דרגת הקושי במפה הפתוחה (קל כחול, בינוני אדום, קשה שחור), ועוד לא נבדקו מול המפה הרשמית של Sölden. אורכים אופקיים מהקואורדינטות. תבליט וגבהים: © offene Daten Österreichs – Digitales Geländemodell (DGM) Österreich (CC BY 3.0 AT), דרך אריחי הגובה של AWS. הכפרים, הכבישים, המים והפסגות: OSM. © OpenStreetMap contributors, ODbL.",
-   "en": "Lines: OpenStreetMap via OpenSkiMap, fetched {fetched}, as they are, nothing filled in. Colours follow the difficulty in the open map (easy blue, intermediate red, difficult black) and have not been checked against the official Sölden map yet. Horizontal lengths from the coordinates. Relief and altitudes: © offene Daten Österreichs – Digitales Geländemodell (DGM) Österreich (CC BY 3.0 AT), through the Terrain Tiles on AWS. Villages, roads, water and peaks: OSM. © OpenStreetMap contributors, ODbL.",
-   "ru": "Линии: OpenStreetMap через OpenSkiMap, загружено {fetched}, как есть, без дополнений. Цвета — по сложности в открытой карте (лёгкая синяя, средняя красная, сложная чёрная), с официальной картой Зёльдена ещё не сверены. Горизонтальные длины — по координатам. Рельеф и высоты: © offene Daten Österreichs – Digitales Geländemodell (DGM) Österreich (CC BY 3.0 AT), через тайлы высот на AWS. Посёлки, дороги, вода и вершины: OSM. © OpenStreetMap contributors, ODbL.",
-   "ka": "ხაზები: OpenStreetMap, OpenSkiMap-ის მეშვეობით, ჩამოტვირთულია {fetched}, როგორც არის, შევსების გარეშე. ფერები ღია რუკის სირთულის მიხედვითაა (მარტივი ლურჯი, საშუალო წითელი, რთული შავი) და ზელდენის ოფიციალურ რუკასთან ჯერ არ შემოწმებულა. ჰორიზონტალური სიგრძეები კოორდინატებიდანაა. რელიეფი და სიმაღლეები: © offene Daten Österreichs – Digitales Geländemodell (DGM) Österreich (CC BY 3.0 AT), AWS-ის სიმაღლის ფილების მეშვეობით. სოფლები, გზები, წყალი და მწვერვალები: OSM. © OpenStreetMap contributors, ODbL.",
+   "he": "קווים: OpenStreetMap דרך OpenSkiMap, נמשך {fetched}, כמו שהם, בלי השלמות. הצבעים לפי דרגת הקושי במפה הפתוחה (קל כחול, בינוני אדום, קשה שחור), ונבדקו מול רשימת המסלולים הרשמית של Sölden. אורכים אופקיים מהקואורדינטות. קיבולת הרכבלים ושנת הבנייה: Land Tirol (CC BY 4.0). תבליט וגבהים: © offene Daten Österreichs – Digitales Geländemodell (DGM) Österreich (CC BY 3.0 AT), דרך אריחי הגובה של AWS. הכפרים, הכבישים, המים והפסגות: OSM. © OpenStreetMap contributors, ODbL.",
+   "en": "Lines: OpenStreetMap via OpenSkiMap, fetched {fetched}, as they are, nothing filled in. Colours follow the difficulty in the open map (easy blue, intermediate red, difficult black) and were checked against Sölden's official list of slopes. Horizontal lengths from the coordinates. Lift capacity and year built: Land Tirol (CC BY 4.0). Relief and altitudes: © offene Daten Österreichs – Digitales Geländemodell (DGM) Österreich (CC BY 3.0 AT), through the Terrain Tiles on AWS. Villages, roads, water and peaks: OSM. © OpenStreetMap contributors, ODbL.",
+   "ru": "Линии: OpenStreetMap через OpenSkiMap, загружено {fetched}, как есть, без дополнений. Цвета — по сложности в открытой карте (лёгкая синяя, средняя красная, сложная чёрная), сверены с официальным списком трасс Зёльдена. Горизонтальные длины — по координатам. Пропускная способность подъёмников и год постройки: Land Tirol (CC BY 4.0). Рельеф и высоты: © offene Daten Österreichs – Digitales Geländemodell (DGM) Österreich (CC BY 3.0 AT), через тайлы высот на AWS. Посёлки, дороги, вода и вершины: OSM. © OpenStreetMap contributors, ODbL.",
+   "ka": "ხაზები: OpenStreetMap, OpenSkiMap-ის მეშვეობით, ჩამოტვირთულია {fetched}, როგორც არის, შევსების გარეშე. ფერები ღია რუკის სირთულის მიხედვითაა (მარტივი ლურჯი, საშუალო წითელი, რთული შავი) და შემოწმებულია ზელდენის ტრასების ოფიციალურ სიასთან. ჰორიზონტალური სიგრძეები კოორდინატებიდანაა. საბაგიროების გამტარუნარიანობა და აშენების წელი: Land Tirol (CC BY 4.0). რელიეფი და სიმაღლეები: © offene Daten Österreichs – Digitales Geländemodell (DGM) Österreich (CC BY 3.0 AT), AWS-ის სიმაღლის ფილების მეშვეობით. სოფლები, გზები, წყალი და მწვერვალები: OSM. © OpenStreetMap contributors, ODbL.",
    "where": "site/js/app.js",
    "note": "like map.overview_source_text, the sources of this resort",
    "check": [
@@ -15952,6 +16036,54 @@
    "ka": "© offene Daten Österreichs – Digitales Geländemodell (DGM) Österreich, ლიცენზია CC BY 3.0 AT, AWS Terrain Tiles-ის მეშვეობით.",
    "where": "site/index.html",
    "note": "the exact attribution statement of the data provider; the German stays as it is",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "about.credit_lifts_tirol_label": {
+   "he": "רכבלים ב-Sölden:",
+   "en": "Lifts in Sölden:",
+   "ru": "Подъёмники в Зёльдене:",
+   "ka": "საბაგიროები ზელდენში:",
+   "where": "site/index.html",
+   "note": "like about.credit_terrain_at_label",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "about.credit_lifts_tirol": {
+   "he": "קיבולת ושנת בנייה: Land Tirol, data.tirol.gv.at (Aufstiegshilfen), ברישיון CC BY 4.0.",
+   "en": "Capacity and year built: Land Tirol, data.tirol.gv.at (Aufstiegshilfen), licensed CC BY 4.0.",
+   "ru": "Пропускная способность и год постройки: Land Tirol, data.tirol.gv.at (Aufstiegshilfen), по лицензии CC BY 4.0.",
+   "ka": "გამტარუნარიანობა და აშენების წელი: Land Tirol, data.tirol.gv.at (Aufstiegshilfen), ლიცენზია CC BY 4.0.",
+   "where": "site/index.html",
+   "note": "the data provider's attribution; 'Land Tirol' and the layer name stay as they are",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "run.kind_private_route": {
+   "he": "דרך לבקתה · פרטית, לא מוכשרת",
+   "en": "Route to a hut · private, not groomed",
+   "ru": "Путь к хижине · частный, не подготовлен",
+   "ka": "გზა ქოხამდე · კერძო, დაუმუშავებელი",
+   "where": "site/js/app.js",
+   "note": "run panel tag for a private ski route to a hut (round 24, 1a)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "map.overview_missing_routes_count": {
+   "he": "דרכי סקי בלי קו במפה · {n}",
+   "en": "Ski routes with no line on the map · {n}",
+   "ru": "Лыжные маршруты без линии на карте · {n}",
+   "ka": "სათხილამურო მარშრუტები ხაზის გარეშე · {n}",
+   "where": "site/js/app.js",
+   "note": "Section heading, {n} = count (round 24, 1a)",
    "check": [
     "ru",
     "ka"

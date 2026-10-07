@@ -89,3 +89,33 @@ test('the picker: the place name opens the list, and a choice loads the other re
   await expect(page.locator('#panel .run-sign h2')).toHaveText('Tatra 1');
   expect(errors).toEqual([]);
 });
+
+test('Sölden: ski routes are a kind of their own, with no colour or difficulty (round 24)', async ({ page }) => {
+  const errors = watchErrors(page);
+  await page.goto('/?resort=soelden#map/run/62');
+  await loaded(page);
+  // the panel: a type tag in place of colour and difficulty
+  await expect(page.locator('#panel .run-sign h2')).toHaveText('62');
+  await expect(page.locator('#panel .run-sign h2')).toHaveClass(/c-route/);
+  await expect(page.locator('#panel .route-tag')).toBeVisible();
+  await expect(page.locator('#panel .pips')).toHaveCount(0);
+  // a chip for them, after the colours, and a legend; Gudauri has neither
+  const chip = page.locator('#filters [data-filter="route"]');
+  await expect(chip).toBeVisible();
+  await expect(page.locator('.mapwrap .mlegend')).toBeAttached();
+  const top = page.locator('#viewsw button[data-view="2d"]');
+  if (await top.isVisible()) await top.click();
+  await expect(page.locator('#map .pg.route').first()).toBeAttached();
+  await chip.click();
+  await expect(page.locator('#map .pg.route path').first()).toBeHidden();
+  // wide runs: the area shows, with an edge
+  await expect(page.locator('#map path.pg-area').first()).toHaveAttribute('stroke', /var\(--p-/);
+  expect(errors).toEqual([]);
+});
+
+test('Gudauri: no ski-route chip and no legend', async ({ page }) => {
+  await page.goto('/#map');
+  await loaded(page);
+  await expect(page.locator('#filters [data-filter="route"]')).toHaveCount(0);
+  await expect(page.locator('.mapwrap .mlegend')).toHaveCount(0);
+});
