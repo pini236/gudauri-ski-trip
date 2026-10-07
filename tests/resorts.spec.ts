@@ -119,3 +119,11 @@ test('Gudauri: no ski-route chip and no legend', async ({ page }) => {
   await expect(page.locator('#filters [data-filter="route"]')).toHaveCount(0);
   await expect(page.locator('.mapwrap .mlegend')).toHaveCount(0);
 });
+
+test('Sölden 38: the slope numbers skip the glacier tunnel', async ({ page }) => {
+  // the elevation model measures the hill above the tunnel; with it, a blue run showed a wall of about 48°
+  await page.goto('/?resort=soelden#map/run/38');
+  await loaded(page);
+  const steep = await page.locator('#panel .steps .st b').innerText();
+  expect(parseInt(steep, 10)).toBeLessThan(30);
+});

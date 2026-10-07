@@ -329,10 +329,12 @@ function sampleLine(L,step){
   return o;
 }
 const runLines=p=>p.segs.filter(s=>!s.area).map(s=>topDown(s.g.map(P)));
+// the slope numbers and the profile skip a tunnel: the model measures the hill above it, not the run (Sölden 38, 9, 30)
+const openLines=p=>p.segs.filter(s=>!s.area&&!s.tunnel).map(s=>topDown(s.g.map(P)));
 const profCache={};
 function runProfile(key){ // the longest line of the run, top to bottom
   if(profCache[key])return profCache[key];const p=byKey[key];if(!p||!TM)return null;
-  const Ls=runLines(p);if(!Ls.length)return null;
+  const Ls=openLines(p);if(!Ls.length)return null;
   const S=Ls.map(L=>sampleLine(L,10)).sort((a,b)=>b[b.length-1].d-a[a.length-1].d)[0];
   // the steepest 100 m, as a grade
   let best={g:0,d:0};for(let i=0;i<S.length;i++){let j=i;while(j<S.length-1&&S[j].d-S[i].d<100)j++;const dd=S[j].d-S[i].d;if(dd>=60){const g=(S[i].h-S[j].h)/dd;if(g>best.g)best={g,d:S[i].d,i,j};}}
@@ -388,7 +390,7 @@ function vidBlock(key,label){
 }
 function elevRows(p){
   if(!TM)return'';const lines=p.segs.filter(s=>!s.area).map(s=>s.g.map(P));if(!lines.length)return'';
-  const s=GudRelief.stats(TM,lines);
+  const s=GudRelief.stats(TM,lines),ol=p.segs.filter(x=>!x.area&&!x.tunnel).map(x=>x.g.map(P));s.maxG=ol.length?GudRelief.stats(TM,ol).maxG:0;
   return `<dt>${E('run.stat_altitude_label')}</dt><dd>${H('run.stat_altitude_value',{},{top:num(s.top),bot:num(s.bot)})}</dd>
   <dt>${E('run.stat_drop_label')}</dt><dd>${H('common.unit_m',{n:s.drop},{n:num(s.drop)})}${lines.length===1&&p.len?' · '+H('run.stat_avg_gradient',{},{pct:num(Math.round(s.drop/p.len*100))}):''}</dd>
   <dt>${E('run.stat_steep_label')}</dt><dd>${num(Math.round(s.maxG*100)+'%')} <span class="hint">${E('run.stat_steep_hint')}</span></dd>`;
@@ -405,7 +407,7 @@ function runViewBlock(key){
   const X=d=>(8+d/dmax*(W-16)).toFixed(1),Y=h=>(8+(hmax-h)/((hmax-hmin)||1)*(Hc-30)).toFixed(1);
   const line=S.map(q=>X(q.d)+','+Y(q.h)).join(' ');
   let band='';for(let i=0,j=0;i<n-1;i=j){const c=GudRelief.slopeColor(S[i].a);j=i+1;while(j<n-1&&GudRelief.slopeColor(S[j].a)===c)j++;band+=`<rect x="${X(S[i].d)}" y="${Hc-14}" width="${(X(S[j].d)-X(S[i].d)+.6).toFixed(1)}" height="7" fill="${c}"/>`;}
-  const st=pr.steep,deg=g=>Math.round(Math.atan(g)*180/Math.PI),maxG=GudRelief.stats(TM,runLines(p)).maxG; // the same number as in the details above
+  const st=pr.steep,deg=g=>Math.round(Math.atan(g)*180/Math.PI),maxG=GudRelief.stats(TM,openLines(p)).maxG; // the same number as in the details above
   const fly=can3d&&!reduceMotion()?`<button type="button" class="btn run-fly" data-fly="${esc(key)}">${E('run.fly_button')}</button>`:'';
   return `<h3>${E('run.profile_heading')}<button type="button" class="i-btn" data-info aria-expanded="false" aria-label="${E('run.profile_info_aria')}">i</button></h3>
   <div class="info-pop hint" hidden><p>${E('run.profile_hint')}</p>${TM?`<p>${E('run.elevation_accuracy_hint')}</p>`:''}</div>
