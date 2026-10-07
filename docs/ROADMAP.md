@@ -25,7 +25,7 @@
 
 | פריט קטן | הערות |
 |---|---|
-| \* אתר שלישי: הכלי `tools/build-resort.py` מקבל קובץ הגדרות; לבחור לפי `research/resorts.md` (Mayrhofen, Grandvalira) | אחרי שהמבנה יתייצב |
+| \* אתר שלישי: הכלי `tools/build-resort.py` מקבל קובץ הגדרות; לבחור לפי `research/resorts.md` | **נבדק (7.10.2026):** Sella Ronda ו-3 Vallées, הכי נמכרים לישראלים (`research/resorts/sella-3vallees.md`); ההמלצה Sella Ronda. ממתין לפיני |
 | \* כמה אתרים באפליקציה (אנדרואיד ואייפון): אותה רשימה (`site/data/resorts.json`, `schema: 1`) ואותן תיקיות | סקירת ארכיטקט לפני, `docs/PARITY.md` סעיף 12 |
 | \* לוחית מספר גם בתלת-ממד (היום טקסט שם) | **בוצע (7.10.2026):** כמו במבט על, ומעוין אדום לדרך סקי |
 | \* מצב הרכבלים של Sölden: לפי `research/resorts.md` הדף שלהם מחזיק JSON בתוך הדף | כמו מ-2, בשרת |
