@@ -58,6 +58,7 @@ import io.github.pini236.skiapp.BuildConfig
 import io.github.pini236.skiapp.R
 import io.github.pini236.skiapp.group.Toggle
 import io.github.pini236.skiapp.telemetry.Telemetry
+import io.github.pini236.skiapp.telemetry.ReplayController
 import io.github.pini236.skiapp.ui.Icons
 import androidx.compose.material3.Icon
 import io.github.pini236.skiapp.ui.Note
@@ -136,6 +137,14 @@ fun AboutScreen(
                     analytics = it
                     Telemetry.setEnabled(context, it, BuildConfig.FLAVOR)
                 })
+                // Consent to screen replay is separate from the existing anonymous event/crash switch.
+                var replay by remember { mutableStateOf(ReplayController.consent(context)) }
+                Toggle(stringResource(R.string.app_replay_title), stringResource(if (replay && analytics) R.string.app_replay_on else R.string.app_replay_off), replay && analytics, {
+                    ReplayController.setConsent(context, it)
+                    replay = ReplayController.consent(context)
+                }, enabled = analytics)
+                Text(stringResource(R.string.app_replay_details), style = Ski.type.small, color = c.muted,
+                    modifier = Modifier.padding(vertical = 8.dp))
                 // reset the high scores: twice, as on the site
                 var armed by remember { mutableStateOf(false) }
                 var done by remember { mutableStateOf(false) }

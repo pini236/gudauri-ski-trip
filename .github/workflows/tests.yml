@@ -1,17 +1,51 @@
-# Runs the Playwright tests on every push and pull request, one job per mode
-# (desktop and phone, light and dark), the same four modes as in CLAUDE.md.
+# Preserve all four modes and every test on push/pull_request.
+# Two file-based shards per mode reduce the work repeated when one job fails.
+# Focused manual runs are diagnostics and do not replace the complete checks.
 name: tests
 
 on:
-  # only when the site or its tests change (decision 34: each project builds and tests on its own)
   push:
     paths: ['site/**', 'tests/**', 'package.json', 'package-lock.json', 'playwright.config.ts', 'docs/PRIVACY.md', 'i18n/**', 'tools/check-site-i18n.py', 'tools/build-privacy.py', 'tools/build-site-strings.py', 'tools/build-games.py', 'design/games/**', 'design/round4/game/**', '.github/workflows/tests.yml']
   pull_request:
     paths: ['site/**', 'tests/**', 'package.json', 'package-lock.json', 'playwright.config.ts', 'docs/PRIVACY.md', 'i18n/**', 'tools/check-site-i18n.py', 'tools/build-privacy.py', 'tools/build-site-strings.py', 'tools/build-games.py', 'design/games/**', 'design/round4/game/**', '.github/workflows/tests.yml']
   workflow_dispatch:
+    inputs:
+      project:
+        description: Browser mode (all runs every mode)
+        type: choice
+        default: all
+        options: [all, desktop-light, desktop-dark, phone-light, phone-dark]
+      suite:
+        description: Test file (focused runs are diagnostic only)
+        type: choice
+        default: all
+        options:
+          - all
+          - tests/account.spec.ts
+          - tests/config.spec.ts
+          - tests/csp.spec.ts
+          - tests/games.spec.ts
+          - tests/i18n.spec.ts
+          - tests/locate.spec.ts
+          - tests/privacy.spec.ts
+          - tests/slope.spec.ts
+          - tests/smoke.spec.ts
+          - tests/snow.spec.ts
+          - tests/telemetry.spec.ts
+          - tests/trip.spec.ts
+          - tests/weather.spec.ts
+      grep:
+        description: Optional Playwright test-title regex (diagnostic only)
+        type: string
+        default: ''
+
+permissions:
+  contents: read
 
 concurrency:
-  group: tests-${{ github.ref }}
+  # A focused diagnostic must not cancel the mandatory full checks.
+  group: >-
+    tests-${{ github.ref }}-${{ github.event_name == 'workflow_dispatch' && ((inputs.project || 'all') != 'all' || (inputs.suite || 'all') != 'all' || inputs.grep != '') && 'diagnostic' || 'full' }}
   cancel-in-progress: true
 
 jobs:
@@ -23,7 +57,6 @@ jobs:
       - uses: actions/checkout@v4
       - run: python3 i18n/check.py
       - run: python3 tools/check-site-i18n.py
-      # the site's language files, the games and the privacy page are built from their sources; they must match (S-21)
       - name: built files match their sources
         run: |
           python3 tools/build-site-strings.py
@@ -32,13 +65,19 @@ jobs:
           git diff --exit-code -- site/ || { echo "::error::Run tools/build-site-strings.py, tools/build-games.py and tools/build-privacy.py, and commit what changed"; exit 1; }
 
   playwright:
-    name: ${{ matrix.project }}
-    runs-on: ubuntu-latest
+    name: >-
+      ${{ github.event_name == 'workflow_dispatch' && ((inputs.project || 'all') != 'all' || (inputs.suite || 'all') != 'all' || inputs.grep != '') && 'diagnostic' || 'full' }} / ${{ matrix.project }} / shard ${{ matrix.shard }}
+    runs-on: ubuntu-24.04
     timeout-minutes: 20
     strategy:
       fail-fast: false
       matrix:
-        project: [desktop-light, desktop-dark, phone-light, phone-dark]
+        project: >-
+          ${{ fromJSON(github.event_name == 'workflow_dispatch' && (inputs.project || 'all') != 'all' && format('["{0}"]', inputs.project) || '["desktop-light","desktop-dark","phone-light","phone-dark"]') }}
+        # Filtering to a file/title can leave a file-based shard empty. Run
+        # the focused selection once; complete suites retain both shards.
+        shard: >-
+          ${{ fromJSON(github.event_name == 'workflow_dispatch' && ((inputs.suite || 'all') != 'all' || inputs.grep != '') && '[1]' || '[1,2]') }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -46,11 +85,76 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
-      - run: npx playwright install --with-deps chromium
-      - run: npx playwright test --project=${{ matrix.project }} --reporter=line
-      - if: failure()
+      - name: Installed Playwright version
+        id: playwright-version
+        run: echo "version=$(node -p 'require("@playwright/test/package.json").version')" >> "$GITHUB_OUTPUT"
+      - name: Cache the pinned Chromium download
+        id: browser-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          # No restore-keys: another Playwright version needs its own browser.
+          key: playwright-${{ runner.os }}-${{ runner.arch }}-ubuntu24-chromium-${{ steps.playwright-version.outputs.version }}
+      - name: Install Linux browser dependencies
+        # These apt packages are not in the browser cache. Install on every
+        # runner, including a cache hit; preserve official package checks.
+        run: npx playwright install-deps chromium
+      - name: Install the pinned Chromium browser
+        if: steps.browser-cache.outputs.cache-hit != 'true'
+        run: npx playwright install chromium
+      - name: Run tests
+        env:
+          PW_PROJECT: ${{ matrix.project }}
+          PW_SHARD: ${{ matrix.shard }}
+          CI_EVENT: ${{ github.event_name }}
+          CI_SUITE: ${{ inputs.suite || 'all' }}
+          CI_GREP: ${{ inputs.grep || '' }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          args=(--project="$PW_PROJECT" --workers=2 --reporter=line --trace=retain-on-failure)
+          if [[ "$CI_EVENT" != "workflow_dispatch" || ( "$CI_SUITE" == "all" && -z "$CI_GREP" ) ]]; then
+            args+=(--shard="$PW_SHARD/2")
+          fi
+          if [[ "$CI_EVENT" == "workflow_dispatch" ]]; then
+            if [[ "$CI_SUITE" != "all" ]]; then
+              [[ "$CI_SUITE" == tests/*.spec.ts && -f "$CI_SUITE" ]] || { echo "::error::Invalid test file"; exit 1; }
+              args+=("$CI_SUITE")
+            fi
+            if [[ -n "$CI_GREP" ]]; then
+              args+=(--grep "$CI_GREP")
+            fi
+          fi
+          npx playwright test "${args[@]}"
+      - name: Save screenshots and failure traces
+        if: ${{ !cancelled() }}
         uses: actions/upload-artifact@v4
         with:
-          name: test-results-${{ matrix.project }}
+          name: test-results-${{ matrix.project }}-shard-${{ matrix.shard }}
           path: test-results/
           retention-days: 7
+          # Re-running a failed job replaces its earlier attempt's artifact.
+          overwrite: true
+          if-no-files-found: warn
+
+  playwright-checks:
+    # Keep the existing required-check names. A failed shard makes every
+    # full check fail; a targeted diagnostic never publishes those names.
+    name: >-
+      ${{ github.event_name == 'workflow_dispatch' && ((inputs.project || 'all') != 'all' || (inputs.suite || 'all') != 'all' || inputs.grep != '') && format('diagnostic / {0}', matrix.project) || matrix.project }}
+    needs: playwright
+    if: ${{ always() }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    strategy:
+      fail-fast: false
+      matrix:
+        project: >-
+          ${{ fromJSON(github.event_name == 'workflow_dispatch' && (inputs.project || 'all') != 'all' && format('["{0}"]', inputs.project) || '["desktop-light","desktop-dark","phone-light","phone-dark"]') }}
+    steps:
+      - name: Require every selected test job to pass
+        env:
+          TEST_RESULT: ${{ needs.playwright.result }}
+        shell: bash
+        run: |
+          [[ "$TEST_RESULT" == "success" ]] || { echo "::error::Test jobs did not all pass ($TEST_RESULT)"; exit 1; }

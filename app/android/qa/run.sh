@@ -6,6 +6,28 @@ set -uo pipefail
 
 OUT=${OUT:-qa-out}
 SCENARIO=${SCENARIO:-all}
+# Reject typos before touching the device. An unknown part used to run the entire suite.
+[[ "$SCENARIO" != *$'\n'* && "$SCENARIO" != *$'\r'* ]] || { echo "QA scenario must be a single line" >&2; exit 2; }
+ALL_SCENARIOS=(map descent games school snowball home group meet status run locate weather lang phone store)
+if [[ "$SCENARIO" == all ]]; then
+  SCENARIOS=("${ALL_SCENARIOS[@]}")
+else
+  case "$SCENARIO" in ,*|*,|*,,*) echo "Empty QA scenario" >&2; exit 2 ;; esac
+  IFS=, read -r -a SCENARIOS <<< "$SCENARIO"
+  declare -A selected=()
+  for i in "${!SCENARIOS[@]}"; do
+    part=${SCENARIOS[$i]}
+    part="${part#"${part%%[![:space:]]*}"}"
+    part="${part%"${part##*[![:space:]]}"}"
+    case "$part" in
+      map|descent|games|school|snowball|home|group|meet|status|run|locate|weather|lang|phone|store) ;;
+      *) echo "Unknown or empty QA scenario: '$part'" >&2; exit 2 ;;
+    esac
+    [[ -z "${selected[$part]+present}" ]] || { echo "Duplicate QA scenario: '$part'" >&2; exit 2; }
+    selected[$part]=1
+    SCENARIOS[$i]=$part
+  done
+fi
 PKG=io.github.pini236.skiapp.test
 ACT=$PKG/io.github.pini236.skiapp.MainActivity
 APK=app/android/app/build/outputs/apk/preview/debug/app-preview-debug.apk
@@ -13,9 +35,29 @@ RELEASE_APK=app/android/app/build/outputs/apk/preview/release/app-preview-releas
 mkdir -p "$OUT/shots"
 FAILS=0
 n=0
+START_SECONDS=$SECONDS
+printf 'step\tseconds\texit_status\tnew_failures\n' > "$OUT/timings.tsv"
 
 note() { echo "$*" | tee -a "$OUT/summary.txt"; }
 fail() { FAILS=$((FAILS + 1)); note "FAIL: $*"; }
+finish() {
+  local result=$?
+  trap - EXIT
+  [[ -z "${LOGCAT:-}" ]] || kill "$LOGCAT" 2> /dev/null || true
+  printf 'total\t%s\t%s\t%s\n' "$((SECONDS - START_SECONDS))" "$result" "$FAILS" >> "$OUT/timings.tsv"
+  note "total: $((SECONDS - START_SECONDS))s · exit: $result"
+  exit "$result"
+}
+trap finish EXIT
+timed() { # timed <step name> <command...>: record failures without hiding the command's result
+  local step=$1 started=$SECONDS before=$FAILS result
+  shift
+  "$@"; result=$?
+  if [[ "$result" -ne 0 && "$FAILS" -eq "$before" ]]; then fail "$step exited $result"; fi
+  printf '%s\t%s\t%s\t%s\n' "$step" "$((SECONDS - started))" "$result" "$((FAILS - before))" >> "$OUT/timings.tsv"
+  note "timing: $step · $((SECONDS - started))s · exit: $result · failures: $((FAILS - before))"
+  return "$result"
+}
 
 shot() { # shot <name>: a numbered screenshot
   n=$((n + 1))
@@ -75,7 +117,7 @@ note "gpu: $(adb shell dumpsys SurfaceFlinger | grep -m1 'GLES:' | tr -d '\r')"
 # no "isn't responding" dialogs from the system's own apps on the slow emulator (unblock() handles any that still show)
 adb shell settings put global hide_error_dialogs 1 > /dev/null 2>&1 || true
 
-adb install -r -g "$APK" > /dev/null || { fail "install"; exit 1; }
+timed install-debug adb install -r -g "$APK" > /dev/null || exit 1
 # the test build carries all four languages (tools/build-app-strings.py); the run, and the store screenshots, are in
 # Hebrew, the app's own language setting, whatever the emulator's language is
 adb shell cmd locale set-app-locales "$PKG" --locales he > /dev/null 2>&1 || note "could not set the app's language"
@@ -863,24 +905,10 @@ store() {
 }
 
 # one scenario, several with commas (home,group), or all
-for sc in ${SCENARIO//,/ }; do
+for sc in "${SCENARIOS[@]}"; do
   case "$sc" in
-    map) map ;;
-    descent) descent ;;
-    games) games ;;
-    school) school ;;
-    snowball) snowball ;;
-    home) home ;;
-    group) group ;;
-    meet) meet ;;
-    status) status ;;
-    lang) lang ;;
-    phone) phone ;;
-    store) store ;;
-    run) runview ;;
-    locate) locate ;;
-    weather) weather ;;
-    *) map; descent; games; school; snowball; home; group; meet; status; runview; locate; weather; lang; phone; store ;;
+    run) timed "$sc" runview ;;
+    *) timed "$sc" "$sc" ;;
   esac
 done
 
@@ -890,7 +918,10 @@ FINAL=${FINAL-1}
 
 # ---- usage and crash reporting: with the keys, a check message to Sentry and everything queued sent now ----
 if [ -n "$FINAL" ]; then
+FINAL_STARTED=$SECONDS
+FINAL_FAILURES=$FAILS
 qa "--es qa.sentry run-$(date +%s)"; waitlog "flushed" 20 && grep "SkiQa.*flushed" "$OUT/logcat.txt" | tail -1 | sed 's/.*SkiQa[^:]*: //' | tee -a "$OUT/summary.txt"; sleep 5
+printf 'sentry-flush\t%s\t%s\t%s\n' "$((SECONDS - FINAL_STARTED))" "$((FAILS > FINAL_FAILURES))" "$((FAILS - FINAL_FAILURES))" >> "$OUT/timings.tsv"
 fi
 
 # ---- what the run measured ----
@@ -907,6 +938,8 @@ if [ -n "$PID" ]; then adb logcat -d --pid="$PID" '*:E' | grep -v -E "^-+ beginn
 
 # ---- the release build (R8): only that it starts and draws ----
 if [ -n "$FINAL" ] && [ -f "$RELEASE_APK" ]; then
+  FINAL_STARTED=$SECONDS
+  FINAL_FAILURES=$FAILS
   adb uninstall "$PKG" > /dev/null
   if adb install -r "$RELEASE_APK" > /dev/null; then
     mark; adb shell am start -W -n "$ACT" > /dev/null; sleep 12; shot release-start
@@ -915,6 +948,7 @@ if [ -n "$FINAL" ] && [ -f "$RELEASE_APK" ]; then
   else
     fail "release install"
   fi
+  printf 'release-start\t%s\t%s\t%s\n' "$((SECONDS - FINAL_STARTED))" "$((FAILS > FINAL_FAILURES))" "$((FAILS - FINAL_FAILURES))" >> "$OUT/timings.tsv"
 fi
 
 kill "$LOGCAT" 2> /dev/null

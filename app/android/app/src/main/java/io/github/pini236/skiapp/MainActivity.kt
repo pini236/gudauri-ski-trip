@@ -3,6 +3,9 @@ package io.github.pini236.skiapp
 import android.content.Intent
 import io.github.pini236.skiapp.telemetry.OpenSource
 import io.github.pini236.skiapp.telemetry.Telemetry
+import io.github.pini236.skiapp.telemetry.ReplayController
+import io.github.pini236.skiapp.telemetry.InstallAnalytics
+import io.github.pini236.skiapp.telemetry.OpenLifecyclePolicy
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
@@ -140,6 +143,7 @@ class MainActivity : ComponentActivity() {
         const val OPEN = "open"
         /** The app went to the background (not a turn of the screen): coming back is a warm app_open. */
         @Volatile private var backgrounded = false
+        private val openLifecycle = OpenLifecyclePolicy()
     }
     /** How the app was brought back (onNewIntent), for the warm app_open. */
     private var warmSource: String? = null
@@ -241,7 +245,8 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        nav = Nav(Route.Home, savedInstanceState?.getStringArrayList("nav"))
+        ReplayController.enableQa(BuildConfig.DEBUG && intent?.getBooleanExtra("qa.replay", false) == true)
+        nav = Nav(Route.Home, savedInstanceState?.getStringArrayList("nav"), ReplayController::beforeNavigation)
         Qa.init(this)
         Qa.log("language ${Lang.current(resources).tag} · phone ${android.content.res.Resources.getSystem().configuration.locales.toLanguageTags()} · ${if (Lang.manual(this)) "chosen in the app" else "automatic"}")
         trips = TripStore(this)
@@ -289,6 +294,7 @@ class MainActivity : ComponentActivity() {
 
     /** Usage and crashes (telemetry/Telemetry.kt), with the properties every event carries, then app_open. */
     private fun startTelemetry() {
+        val firstOpen = InstallAnalytics.recordLaunch(this)
         val lang = Lang.current(resources)
         val manual = Lang.manual(this)
         Telemetry.start(this, BuildConfig.FLAVOR, Telemetry.Common(
@@ -299,12 +305,18 @@ class MainActivity : ComponentActivity() {
             theme = dnMode.name.lowercase(),
             deviceClass = if (resources.configuration.smallestScreenWidthDp >= 600) "tablet" else "phone",
         ))
+        // Locale/rotation recreates the Activity in this process; keep common properties fresh without a fake open.
+        // A recreated Activity returning from the background still goes through onResume's warm-open flag.
+        if (!openLifecycle.claimColdOpenOnce()) {
+            warmSource = OpenSource.of(intent, OPEN)
+            return
+        }
         // a notification, a link (shared from the app or the site: share_link), or the first open of a Play install
         backgrounded = false
         val source = OpenSource.of(intent, OPEN)
-        if (source != "direct") Telemetry.event("app_open", mapOf("source" to source, "cold" to true))
+        if (source != "direct") Telemetry.event("app_open", mapOf("source" to source, "cold" to true, "first_open" to firstOpen))
         else OpenSource.firstFromStore(this) { store ->
-            Telemetry.event("app_open", (if (store == null) mapOf("source" to "direct") else mapOf<String, Any>("source" to "store") + store) + ("cold" to true))
+            Telemetry.event("app_open", (if (store == null) mapOf("source" to "direct") else mapOf<String, Any>("source" to "store") + store) + mapOf("cold" to true, "first_open" to firstOpen))
         }
     }
 
@@ -581,10 +593,12 @@ class MainActivity : ComponentActivity() {
         i.getStringExtra("qa.gesture")?.let { GesturePlayer.play(mapView, it) }
     }
 
-    override fun onPause() { super.onPause(); mapView.onPause() }
+    override fun onPause() { ReplayController.foreground(false); super.onPause(); mapView.onPause() }
     override fun onResume() {
         super.onResume(); mapView.onResume()
-        if (backgrounded) { backgrounded = false; Telemetry.event("app_open", mapOf("source" to (warmSource ?: "direct"), "cold" to false)) }
+        ReplayController.foreground(true)
+        ReplayController.contentShown(nav.top.path, window.decorView)
+        if (backgrounded) { backgrounded = false; Telemetry.event("app_open", mapOf("source" to (warmSource ?: "direct"), "cold" to false, "first_open" to false)) }
         warmSource = null
     }
 
@@ -625,6 +639,8 @@ class MainActivity : ComponentActivity() {
         }
         val frame = remember(tick, dnMode) { DayNight.at(tick, dnMode) }
         val top = nav.top
+        // Nav revokes permission BEFORE its stack changes. Resume only after the new public content commits.
+        SideEffect { ReplayController.contentShown(top.path, window.decorView) }
         // the lift status now; on the mountain, closed lifts and runs (S1), and "only what's open for me"
         val lstat = remember(tick, report, liftNames) { LiftStatus(liftNames, report, tick) }
         val paint = remember(lstat.fresh, report, forMe, scene) {

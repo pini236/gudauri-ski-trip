@@ -137,7 +137,7 @@ sealed interface Route {
  * The back stack. Top-level places (the tabs) replace each other on top of the start place; inner places stack.
  * System back pops; at the start place it leaves the app. Saved and restored as a list of paths.
  */
-class Nav(start: Route, saved: List<String>? = null) {
+class Nav(start: Route, saved: List<String>? = null, private val beforeChange: () -> Unit = {}) {
     private val start = start
     private val stack = mutableStateListOf<Route>().apply {
         val restored = saved?.mapNotNull { Route.parse(it) }.orEmpty()
@@ -149,25 +149,26 @@ class Nav(start: Route, saved: List<String>? = null) {
 
     /** A top-level place: the stack becomes [start, place] (or just [start]). */
     fun switchTo(r: Route) {
+        beforeChange()
         while (stack.size > 1) stack.removeAt(stack.lastIndex)
         if (r::class != start::class) stack.add(r) else stack[0] = r
     }
 
     /** An inner place, on top of where the user is. */
-    fun push(r: Route) { if (r != top) stack.add(r) }
+    fun push(r: Route) { if (r != top) { beforeChange(); stack.add(r) } }
 
     /** The same place with new details (the chosen run), without a new back step. */
-    fun replaceTop(r: Route) { stack[stack.lastIndex] = r }
+    fun replaceTop(r: Route) { if (r != top) { beforeChange(); stack[stack.lastIndex] = r } }
 
     /** Back to the start place, keeping its details (the chosen run). */
-    fun toStart() { while (stack.size > 1) stack.removeAt(stack.lastIndex) }
+    fun toStart() { if (canBack) beforeChange(); while (stack.size > 1) stack.removeAt(stack.lastIndex) }
 
     /** The deepest place of this kind in the stack (the map under a game keeps its chosen run). */
     inline fun <reified T : Route> find(): T? = routes.lastOrNull { it is T } as T?
 
     val routes: List<Route> get() = stack
 
-    fun back(): Boolean = if (canBack) { stack.removeAt(stack.lastIndex); true } else false
+    fun back(): Boolean = if (canBack) { beforeChange(); stack.removeAt(stack.lastIndex); true } else false
 
     fun save(): ArrayList<String> = ArrayList(stack.map { it.path })
 }

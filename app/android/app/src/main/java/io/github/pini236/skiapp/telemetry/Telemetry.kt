@@ -17,7 +17,8 @@ import io.sentry.android.core.SentryAndroid
  * - The keys exist only in GitHub's secret store and reach the app when a build is made there (build.gradle.kts).
  *   A build without them (a local one) sends nothing at all. The emulator run has them, to check that events and
  *   crash reports arrive; its events say build=debug and the dashboards leave them out.
- * - Anonymous: no identify(), no person profiles, no screen recording, no default personal data in crash reports.
+ * - Anonymous: no identify(), no person profiles, no default personal data in crash reports. Replay is a separate,
+ *   explicit opt-in, with text/images masked and private/map screens excluded (ReplayController).
  *   The id is PostHog's random install id; it changes when the app is reinstalled. Dropping the IP address is a
  *   project setting on both services (docs/APP-NATIVE.md, "Usage and crashes").
  * - The switch (settings, 13.7) is kept on the phone; off means not started at all, and turning it off later stops
@@ -52,9 +53,10 @@ object Telemetry {
 
     fun start(context: Context, channel: String, common: Common) {
         this.common = common
-        if (!enabled(context)) return
         val app = context.applicationContext
         val robot = testLab(app)
+        ReplayController.prepare(app, enabled(context), robot)
+        if (!enabled(context)) return
         if (BuildConfig.SENTRY_DSN.isNotBlank() && !crashes) {
             SentryAndroid.init(app) { o ->
                 o.dsn = BuildConfig.SENTRY_DSN
@@ -63,6 +65,7 @@ object Telemetry {
                 o.tracesSampleRate = 0.0
                 o.isAttachScreenshot = false
                 o.isAttachViewHierarchy = false
+                ReplayController.configure(o)
             }
             crashes = true
         }
@@ -91,6 +94,7 @@ object Telemetry {
     /** The user's switch. Off stops both now and keeps them off on the next launches. */
     fun setEnabled(context: Context, on: Boolean, channel: String) {
         context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit().putBoolean("on", on).apply()
+        ReplayController.setAnalytics(on) // revoke video permission BEFORE closing/flushing the SDK
         if (on) {
             if (usage) PostHog.optIn()
             common?.let { start(context, channel, it) }
@@ -98,7 +102,7 @@ object Telemetry {
         } else {
             // off: nothing more is sent, not even this change (docs/GROWTH.md)
             if (usage) { PostHog.optOut(); PostHog.close(); usage = false }
-            if (crashes) { Sentry.close(); crashes = false }
+            if (crashes) { Sentry.close(); crashes = false; ReplayController.sdkClosed() }
         }
     }
 
