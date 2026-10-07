@@ -1,14 +1,21 @@
 (async function main(){
 await I18N.ready; // the words of the chosen language (js/i18n.js); everything below draws with T()
+// which mountain (js/resort.js, decision 68): its data folder, projection and clock. Gudauri has everything; another
+// resort has only what its "features" list says (the map, the 3D view and the runs always)
+const RS=await RESORT.ready,has=f=>RESORT.has(f),DIR=RS.dir;
+GudRelief.site={lat:RS.proj.lat0,lon:RS.proj.lon0,tz:RESORT.tzOffset()};
+document.querySelectorAll('[data-feature]').forEach(el=>{if(!el.dataset.feature.split(' ').every(has))el.hidden=true;});
 const soft=(url,fallback)=>fetch(url).then(r=>r.ok?r.json():fallback).catch(()=>fallback);
 // the elevation model (terrain.json, the biggest file) does not hold up the home page (R-11): it loads alongside, and the
 // map, the meeting point and the 3D view are set up when it arrives (onTerrain below); a link to them waits for it
-const terrainP=soft('data/terrain.json',null);
+const terrainP=soft(DIR+'terrain.json',null);
 const [D,vids]=await Promise.all([
-  fetch('data/runs-and-lifts.json').then(r=>{if(!r.ok)throw new Error('runs-and-lifts '+r.status);return r.json();}),
-  soft('data/videos-seed.json',[])
+  fetch(DIR+'runs-and-lifts.json').then(r=>{if(!r.ok)throw new Error('runs-and-lifts '+r.status);return r.json();}),
+  has('videos')?soft('data/videos-seed.json',[]):[]
 ]);
 const HEB=Object.fromEntries(['green','blue','red','black'].map(c=>[c,T('common.color_'+c)]));
+// a ski route (kind 'ski-route', colour 'none') has no difficulty: it is drawn in its own orange (round 24); every other run by its colour
+const ck=p=>p&&(p.kind==='ski-route'||p.color==='none')?'route':p.color;
 const RATE={green:[1,T('map.difficulty_beginner')],blue:[2,T('map.difficulty_easy')],red:[3,T('map.difficulty_intermediate')],black:[4,T('map.difficulty_hard')]};
 const OSMD={novice:[T('run.osm_grade_novice'),'green'],easy:[T('run.osm_grade_easy'),'blue'],intermediate:[T('run.osm_grade_intermediate'),'red'],advanced:[T('run.osm_grade_advanced'),'black'],expert:[T('run.osm_grade_expert'),'black']};
 const LK=Object.fromEntries(['chair_lift','gondola','platter','magic_carpet','drag_lift','t_bar'].map(k=>[k,T('lift.kind_'+k)]));
@@ -30,9 +37,65 @@ if(I18N.lang!=='he'){
   document.querySelectorAll('.bp-gone').forEach(el=>{el.innerHTML=E('ticket.torn')+'<br>'+E('ticket.see_you');});
 }
 const byKey=Object.fromEntries(D.pistes.map(p=>[p.key,p]));
+// ---- several resorts (round 23, decision 68) ----
+// a resort's name is the one used there, in its own letters (Sölden); Gudauri keeps its words in every language
+const rsName=r=>r.id==='gudauri'?T('map.place_gudauri'):r.name;
+const rsCountry=r=>T('resort.country_'+r.country.toLowerCase());
+if(!RESORT.isDefault()){ // the words that name Gudauri, for another resort
+  document.querySelectorAll('[data-i18n="nav.gudauri_time"]').forEach(e=>{e.innerHTML=esc(T('nav.resort_time',{place:'\uE000'})).replace('\uE000',`<bdi>${esc(RS.name)}</bdi>`);});
+  const w=document.querySelector('.home-top .when');if(w)w.hidden=true;
+  document.getElementById('map').setAttribute('aria-label',T('map.map_aria_resort',{place:RS.name}));
+  document.querySelector('.topbar .brand').textContent=RS.name;
+  // the resort's pass on the home page, in place of the trip's ticket: every number counted from its data (tools/build-resort.py)
+  const st=RS.stats||{},pass=document.getElementById('resortPass');
+  if(pass&&st.runs){const lo=num(st.alt[0].toLocaleString('en-US')),hi=num(st.alt[1].toLocaleString('en-US')),bc=st.byColor||{};
+    pass.setAttribute('aria-label',T('resort.pass_aria',{place:RS.name,runs:st.runs,lifts:st.lifts,lo:st.alt[0],hi:st.alt[1]}));
+    pass.innerHTML=`<div class="top"><span dir="ltr">${E('resort.pass_top',{place:RS.name.toUpperCase()})}</span><span>${esc(rsCountry(RS))}</span></div>
+      <div class="body"><div class="nm"><b dir="ltr">${esc(RS.name)}</b>${RS.region?`<span dir="ltr">${esc(RS.region)}</span>`:''}</div>
+      <div class="kv"><div><small>${E('resort.pass_runs')}</small><b class="num">${st.runs}</b></div><div><small>${E('resort.pass_lifts')}</small><b class="num">${st.lifts}</b></div><div><small>${E('resort.pass_alt')}</small><b>${lo}–${hi}</b></div></div>
+      <div class="chips" aria-hidden="true">${['green','blue','red','black'].filter(c=>bc[c]).map(c=>`<i style="background:var(--p-${c});flex:${bc[c]}"></i>`).join('')}</div></div>`;
+    pass.hidden=has('trip');}
+}
+// the picker: the place name is the button (the site's name in the top bar on a computer, the home page's place and the
+// map's title on a phone); a sheet from below on a phone, a list under the name on a computer; choosing loads the page again
+const PICKER=(function(){
+  if(RESORT.list.length<2)return null;
+  const chev='<svg class="rs-chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>';
+  const tick='<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg>';
+  const phone=matchMedia('(max-width:760px)');
+  let box=null,scrim=null,from=null;
+  const list=()=>`<div class="rs-list" role="list" aria-label="${E('resort.list_aria')}">${RESORT.list.map(r=>{const on=r.id===RS.id,st=r.stats||{};
+    return `<button type="button" role="listitem" class="rs-res ${on?'on':'off'}" data-resort="${esc(r.id)}"${on?' aria-current="true"':''}><span class="t"><b dir="auto">${esc(rsName(r))}</b><span>${esc([rsCountry(r),st.runs&&T('resort.runs_n',{n:st.runs}),st.lifts&&T('resort.lifts_n',{n:st.lifts})].filter(Boolean).join(' · '))}</span></span>${on?`<span class="ck">${tick}</span>`:''}</button>`;}).join('')}</div>`;
+  function close(){if(!box)return;box.remove();if(scrim)scrim.remove();box=scrim=null;removeEventListener('keydown',key);if(from)from.setAttribute('aria-expanded','false'),from.focus();}
+  function key(e){if(e.key==='Escape')close();}
+  function open(btn){
+    if(box)return close();from=btn;btn.setAttribute('aria-expanded','true');
+    box=document.createElement('div');box.setAttribute('role','dialog');box.setAttribute('aria-label',T('resort.list_aria'));
+    if(phone.matches){scrim=document.createElement('div');scrim.className='rs-scrim';scrim.onclick=close;document.body.append(scrim);box.className='rs-sheet';box.innerHTML='<div class="grab"></div>'+list();}
+    else{box.className='rs-pop';box.innerHTML=list();const r=btn.getBoundingClientRect();
+      if(document.dir==='rtl')box.style.right=Math.max(12,innerWidth-r.right)+'px';else box.style.left=Math.max(12,r.left)+'px';box.style.top=(r.bottom+6)+'px';
+      setTimeout(()=>addEventListener('click',function out(e){if(box&&!box.contains(e.target)&&e.target.closest('.rs-btn')!==from){close();}if(!box)removeEventListener('click',out);}),0);}
+    document.body.append(box);addEventListener('keydown',key);
+    box.addEventListener('click',e=>{const b=e.target.closest('[data-resort]');if(!b)return;const id=b.dataset.resort;
+      if(id===RS.id)return close();track('resort_set',{resort:id,from:RS.id});RESORT.go(id);});
+    (box.querySelector('.rs-res.on')||box.querySelector('button')).focus();
+  }
+  // turn a heading's text into the button (a computer: the home page's place stays plain text, one picker on the screen)
+  function asButton(node,text,cls){if(!node)return;const b=document.createElement('button');b.type='button';b.className='rs-btn'+(cls?' '+cls:'');
+    b.setAttribute('aria-haspopup','dialog');b.setAttribute('aria-expanded','false');b.setAttribute('aria-label',T('resort.picker_aria',{place:text}));
+    b.innerHTML=`<span>${esc(text)}</span>${chev}`;b.onclick=()=>open(b);node.textContent='';node.append(b);return b;}
+  const brand=document.querySelector('.topbar .brand');
+  if(brand){const b=document.createElement('button');b.type='button';b.className='brand rs-btn';b.setAttribute('aria-haspopup','dialog');b.setAttribute('aria-expanded','false');
+    b.setAttribute('aria-label',T('resort.picker_aria',{place:brand.textContent}));b.innerHTML=`<span>${esc(brand.textContent)}</span>${chev}`;b.onclick=()=>open(b);brand.replaceWith(b);}
+  const place=RESORT.isDefault()?T('home.location'):T('resort.location',{place:RS.name,country:rsCountry(RS)});
+  const loc=document.querySelector('.home-top .loc');
+  const homeTitle=()=>{if(phone.matches)asButton(loc,place);else if(loc)loc.textContent=place;};homeTitle();phone.addEventListener('change',homeTitle);
+  asButton(document.querySelector('#mapPage .mhead h1'),rsName(RS));
+  return {open,close};
+})();
 const reduceMotion=()=>matchMedia('(prefers-reduced-motion: reduce)').matches;
 // Kobi side = everything north of Kobi Pass (the top of Firni). Shown in its own inset.
-const KOBI_LAT=42.5115;
+const KOBI_LAT=has('kobi')?42.5115:Infinity; // only Gudauri has a side of its own
 const meanLat=gs=>{let t=0,n=0;gs.forEach(g=>g.forEach(q=>{t+=q[0];n++;}));return n?t/n:0;};
 const isKobiP=p=>meanLat(p.segs.map(s=>s.g))>KOBI_LAT;
 const isKobiL=l=>meanLat([l.g])>KOBI_LAT;
@@ -89,7 +152,7 @@ function countdown(dark){
 }
 
 // projection (meters, north up)
-const lat0=42.51,lon0=44.495,kx=111320*Math.cos(lat0*Math.PI/180),ky=111320;
+const lat0=RS.proj.lat0,lon0=RS.proj.lon0,kx=111320*Math.cos(lat0*Math.PI/180),ky=111320;
 const P=([la,lo])=>[(lo-lon0)*kx,-(la-lat0)*ky];
 const NS='http://www.w3.org/2000/svg';
 const svg=document.getElementById('map');
@@ -110,23 +173,59 @@ let TM=null,terrainDone=false; // null until the model arrives, and for good if 
 const terrainReady=terrainP.then(t=>{TM=t&&window.GudRelief?GudRelief.load(t):null;try{onTerrain();}catch(e){console.error(e);}terrainDone=true;document.documentElement.dataset.model=TM?'ready':'none';});
 
 const pisteEls={},labels=[],stations=[];
+// number plates (round 23): a run whose name is a piste number, as at most Alpine resorts ("30", "7a")
+const isPlate=p=>/^\d{1,2}[a-z]?$/.test(p.key);
+const lineLen=L=>{let d=0;for(let i=1;i<L.length;i++)d+=Math.hypot(L[i][0]-L[i-1][0],L[i][1]-L[i-1][1]);return d;};
+const along=(L,step)=>{const o=[L[0]];let acc=0;for(let i=1;i<L.length;i++){const a=L[i-1],b=L[i],l=Math.hypot(b[0]-a[0],b[1]-a[1]);
+  for(let d=step-acc;d<l;d+=step)o.push([a[0]+(b[0]-a[0])*d/l,a[1]+(b[1]-a[1])*d/l]);acc=(acc+l)%step;}return o;};
+// the places a plate may sit: every 25 m along the run's longest line, from the middle outwards, never at its ends
+const plateSpots=L=>{const q=along(L,25),n=q.length,o=[];for(let s=0;s<n;s++){const i=Math.round(n/2+(s%2?1:-1)*Math.ceil(s/2));if(i>n*.1&&i<n*.9)o.push(q[i]);}return o;};
+// every run's line, sampled every 15 m, in 100 m cells: a plate never sits where another run passes
+const LINEIX=(()=>{const ix=new Map();D.pistes.forEach(p=>p.segs.forEach(s=>{if(s.area)return;along(s.g.map(P),15).forEach(([x,y])=>{const k=Math.floor(x/100)+','+Math.floor(y/100);
+  if(!ix.has(k))ix.set(k,[]);ix.get(k).push([x,y,p.key]);});}));return ix;})();
+function placePlate(t,u,kept,view){
+  const W=t._plate.w*u,H=(t._plate.h||20)*u,m=3*u;
+  for(const [x,y] of t._plate.cand){
+    const r={a:x-W/2-m,b:y-H/2-m,c:x+W/2+m,d:y+H/2+m};
+    if(view&&(r.a<view.x+6*u||r.c>view.x+view.w-6*u||r.b<view.y+52*u||r.d>view.y+view.h-6*u))continue;
+    if(kept.some(k=>r.a<k.c&&r.c>k.a&&r.b<k.d&&r.d>k.b))continue;
+    let hit=false;
+    for(let cx=Math.floor(r.a/100);cx<=Math.floor(r.c/100)&&!hit;cx++)for(let cy=Math.floor(r.b/100);cy<=Math.floor(r.d/100)&&!hit;cy++)
+      for(const q of LINEIX.get(cx+','+cy)||[])if(q[2]!==t._plate.own&&q[0]>r.a&&q[0]<r.c&&q[1]>r.b&&q[1]<r.d){hit=true;break;}
+    if(hit)continue;
+    t.setAttribute('transform',`translate(${x.toFixed(1)} ${y.toFixed(1)}) scale(${u})`);return r;
+  }
+  return null;
+}
 const vs={'vector-effect':'non-scaling-stroke',fill:'none','stroke-linecap':'round','stroke-linejoin':'round'};
 function draw(root,pistes,lifts,store){
-  const gAreas=mk('g',{},root),gP=mk('g',{},root),gL=mk('g',{},root),gLbl=mk('g',{},root),gHitL=mk('g',{},root),gHit=mk('g',{},root); // run hit-areas sit above lift hit-areas
+  // every white casing (lines and area edges) first, then the areas, then the line colours: a wide run's area and its
+  // line read as one shape with one white edge round it (round 24, 2b)
+  const gCas=mk('g',{},root),gAreas=mk('g',{},root),gP=mk('g',{},root),gL=mk('g',{},root),gLbl=mk('g',{},root),gHitL=mk('g',{},root),gHit=mk('g',{},root); // run hit-areas sit above lift hit-areas
   pistes.forEach(p=>{
-    const g=mk('g',{class:'pg '+p.color+(p.named?'':' unnamed'),'data-key':p.key},gP);
-    (pisteEls[p.key]=pisteEls[p.key]||[]).push(g);
+    const cls='pg '+ck(p)+(p.named?'':' unnamed'),g=mk('g',{class:cls,'data-key':p.key},gP),gc=mk('g',{class:cls,'data-key':p.key},gCas),route=p.kind==='ski-route',hut=route&&p.access==='private';
+    (pisteEls[p.key]=pisteEls[p.key]||[]).push(g,gc);
     p.segs.forEach(s=>{
-      if(s.area){const a=mk('path',{d:pathD(s.g,true),fill:`var(--p-${p.color})`,'fill-opacity':.14,stroke:'none',class:'pg '+p.color},gAreas);pisteEls[p.key].push(a);return;}
+      if(s.area){const d=pathD(s.g,true);mk('path',{d,...vs,stroke:'var(--casing)','stroke-width':6.5},gc);
+        const a=mk('path',{d,fill:`var(--p-${ck(p)})`,stroke:`var(--p-${ck(p)})`,'vector-effect':'non-scaling-stroke',class:'pg pg-area '+ck(p)},gAreas);pisteEls[p.key].push(a);return;} // a wide run: its area in the run's own colour (round 24, 2b)
       const d=pathD(s.g);
-      mk('path',{d,...vs,stroke:'var(--casing)','stroke-width':p.named?6.5:4.5},g);
-      mk('path',{d,...vs,stroke:`var(--p-${p.color})`,'stroke-width':p.named?(p.kind==='ski-way'?2.6:3.4):2,...(p.named?(p.kind==='ski-way'?{'stroke-dasharray':'8 5'}:{}):{'stroke-dasharray':'5 4'})},g);
+      // a ski route as on the official map (round 24, 1b): a light orange band with dotted red edges; a private route to a hut, a thin dotted red line
+      mk('path',{d,...vs,stroke:'var(--casing)','stroke-width':hut?4:route?8:p.named?6.5:4.5},gc);
+      if(route&&!hut)mk('path',{d,...vs,stroke:'var(--p-route-edge)','stroke-width':6,'stroke-dasharray':'2 2.5','stroke-linecap':'butt'},g);
+      mk('path',{d,...vs,class:'core',stroke:hut?'var(--p-route-edge)':`var(--p-${ck(p)})`,'stroke-width':hut?1.8:route?3.6:p.named?(p.kind==='ski-way'?2.6:3.4):2,...(hut?{'stroke-dasharray':'4 3'}:route?{}:p.named?(p.kind==='ski-way'?{'stroke-dasharray':'8 5'}:{}):{'stroke-dasharray':'5 4'})},g);
       mk('path',{d,class:'hit','stroke-width':16,'vector-effect':'non-scaling-stroke','data-key':p.key,'stroke-linecap':'round'},gHit);
     });
-    if(p.named){
+    if(p.named&&isPlate(p)&&!hut){ // a number: a plate in the run's colour, placed by layoutLabels where no other run passes (round 23)
+      const lin=p.segs.filter(s=>!s.area).map(s=>s.g.map(P)).sort((a,b)=>lineLen(b)-lineLen(a))[0];
+      if(lin){const t=mk('g',{class:'lbl plate pg '+ck(p),'data-key':p.key},gLbl),w=route?(p.key.length>1?40:32):p.key.length>1?30:22;
+        if(route)mk('polygon',{points:`${-w/2},0 0,-16 ${w/2},0 0,16`,'stroke-width':1.8},t); // a red diamond with the number in white, as on the official map (round 24, 1b)
+        else mk('rect',{x:-w/2,y:-10,width:w,height:20,fill:`var(--p-${p.color})`,'stroke-width':1.6},t);
+        const tx=mk('text',{x:0,y:1,'text-anchor':'middle','dominant-baseline':'central','font-size':route?15:17},t);tx.textContent=p.key;
+        t._plate={w,h:route?32:20,own:p.key,cand:plateSpots(lin)};store.labels.push(t);pisteEls[p.key].push(t);}
+    }else if(p.named){
       const lin=p.segs.filter(s=>!s.area).sort((a,b)=>b.g.length-a.g.length)[0];
       if(lin){const q=P(lin.g[Math.floor(lin.g.length/2)]);
-        const t=mk('text',{x:q[0],y:q[1],class:'lbl pg '+p.color,fill:`var(--p-${p.color})`,'text-anchor':'middle','data-key':p.key},gLbl);t.textContent=dispName(p);store.labels.push(t);pisteEls[p.key].push(t);}
+        const t=mk('text',{x:q[0],y:q[1],class:'lbl pg '+ck(p),fill:route?'var(--p-route-edge)':`var(--p-${ck(p)})`,'text-anchor':'middle','data-key':p.key},gLbl);t.textContent=dispName(p);store.labels.push(t);pisteEls[p.key].push(t);}
     }
   });
   lifts.forEach(l=>{
@@ -150,16 +249,18 @@ function addRelief(root,lblRoot,store,skipPass){
 }
 addRelief(svg,mainLbl,{labels,marks},true);
 // signpost at Kobi Pass: opens the Kobi-side inset. First in the list so it wins label collisions.
-{const[x,y]=P(PASS);const t=mk('text',{x,y,class:'lbl kobi-link','text-anchor':'middle','data-kobi':'1',role:'button',tabindex:'0','aria-label':T('map.kobi_side_aria')},mainLbl);t.textContent=T('map.kobi_side_label');labels.unshift(t);
+if(has('kobi')){const[x,y]=P(PASS);const t=mk('text',{x,y,class:'lbl kobi-link','text-anchor':'middle','data-kobi':'1',role:'button',tabindex:'0','aria-label':T('map.kobi_side_aria')},mainLbl);t.textContent=T('map.kobi_side_label');labels.unshift(t);
   t.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();openInset();}});} // the keyboard reaches it too
 
-function layoutLabels(labels,stations,u,mks){
-  labels.forEach(t=>{const pk=t.classList.contains('peak');t.setAttribute('font-size',(t.classList.contains('lift')?11.5:pk?12:13)*u);t.setAttribute('stroke-width',3.2*u);t.setAttribute('dy',(pk?-11:-6)*u);});
+function layoutLabels(labels,stations,u,mks,view){
+  labels.forEach(t=>{if(t._plate)return;const pk=t.classList.contains('peak');t.setAttribute('font-size',(t.classList.contains('lift')?11.5:pk?12:13)*u);t.setAttribute('stroke-width',3.2*u);t.setAttribute('dy',(pk?-11:-6)*u);});
   labels=[...labels].sort((a,b)=>b.classList.contains('on')-a.classList.contains('on'));
   (mks||[]).forEach(m=>{const x=m._x,y=m._y;m.setAttribute('d',m._pass?`M${x-6*u} ${y+2*u}Q${x} ${y-5*u} ${x+6*u} ${y+2*u}`:`M${x} ${y-8*u}L${x+5.5*u} ${y+1.5*u}L${x-5.5*u} ${y+1.5*u}Z`);m.setAttribute('stroke-width',(m._pass?2.2:1.2)*u);});
   stations.forEach(c=>c.setAttribute('r',3.2*u));
   const kept=[];const pad=2*u;
-  labels.forEach(t=>{t.style.display='';const bb=t.getBBox();const r={a:bb.x-pad,b:bb.y-pad,c:bb.x+bb.width+pad,d:bb.y+bb.height+pad};
+  labels.forEach(t=>{t.style.display='';
+    if(t._plate){const r=placePlate(t,u,kept,view);if(r)kept.push(r);else t.style.display='none';return;}
+    const bb=t.getBBox();const r={a:bb.x-pad,b:bb.y-pad,c:bb.x+bb.width+pad,d:bb.y+bb.height+pad};
     if(kept.some(k=>r.a<k.c&&r.c>k.a&&r.b<k.d&&r.d>k.b)){t.style.display='none';}else kept.push(r);});
 }
 
@@ -170,7 +271,7 @@ function apply(){
   const[cw,ch]=sz();vb.h=vb.w*ch/cw;
   svg.setAttribute('viewBox',`${vb.x} ${vb.y} ${vb.w} ${vb.h}`);
   const u=vb.w/cw; // meters per px
-  layoutLabels(labels,stations,u,marks);svg.classList.toggle('far',u>9);svg.querySelectorAll('.chair').forEach(c=>c.setAttribute('r',3.6*u));runMark.setAttribute('r',7*u);if(typeof meDot!=='undefined')meDot.setAttribute('r',8*u);if(typeof WX!=='undefined'&&WX)WX.layout();
+  layoutLabels(labels,stations,u,marks,vb);svg.classList.toggle('far',u>9);svg.querySelectorAll('.chair').forEach(c=>c.setAttribute('r',3.6*u));runMark.setAttribute('r',7*u);if(typeof meDot!=='undefined')meDot.setAttribute('r',8*u);if(typeof WX!=='undefined'&&WX)WX.layout();
   const nice=[50,100,200,250,500,1000,2000];let m=nice.find(n=>n/u>=70)||2000;
   const sc=document.getElementById('scale');sc.querySelector('i').style.width=(m/u)+'px';sc.querySelector('span').textContent=m>=1000?m/1000+' km':m+' m';
 }
@@ -211,8 +312,8 @@ kSvg.addEventListener('click',e=>{const el=e.target.closest('[data-key],[data-li
 
 // filters
 const hidden=new Set();
-function applyFilters(){['green','blue','red','black','unnamed','lifts'].forEach(k=>[svg,kSvg].forEach(m=>m.classList.toggle('hide-'+k,hidden.has(k))));if(v3)v3.filter(hidden);}
-const st=document.createElement('style');st.textContent='.hide-green .pg.green,.hide-blue .pg.blue,.hide-red .pg.red,.hide-black .pg.black,.hide-unnamed .pg.unnamed,.hide-lifts .lg{display:none}.has-sel .pg:not(.on){opacity:.28}.pg.on path{filter:drop-shadow(0 0 2.5px var(--glacier))}';document.head.appendChild(st);
+function applyFilters(){['green','blue','red','black','route','unnamed','lifts'].forEach(k=>[svg,kSvg].forEach(m=>m.classList.toggle('hide-'+k,hidden.has(k))));if(v3)v3.filter(hidden);}
+const st=document.createElement('style');st.textContent='.hide-green .pg.green,.hide-blue .pg.blue,.hide-red .pg.red,.hide-black .pg.black,.hide-route .pg.route,.hide-unnamed .pg.unnamed,.hide-lifts .lg{display:none}.has-sel .pg:not(.on){opacity:.28}.pg.on path{filter:drop-shadow(0 0 2.5px var(--glacier))}';document.head.appendChild(st);
 
 // selection + panel
 const panel=document.getElementById('panel');
@@ -233,10 +334,12 @@ function sampleLine(L,step){
   return o;
 }
 const runLines=p=>p.segs.filter(s=>!s.area).map(s=>topDown(s.g.map(P)));
+// the slope numbers and the profile skip a tunnel: the model measures the hill above it, not the run (Sölden 38, 9, 30)
+const openLines=p=>p.segs.filter(s=>!s.area&&!s.tunnel).map(s=>topDown(s.g.map(P)));
 const profCache={};
 function runProfile(key){ // the longest line of the run, top to bottom
   if(profCache[key])return profCache[key];const p=byKey[key];if(!p||!TM)return null;
-  const Ls=runLines(p);if(!Ls.length)return null;
+  const Ls=openLines(p);if(!Ls.length)return null;
   const S=Ls.map(L=>sampleLine(L,10)).sort((a,b)=>b[b.length-1].d-a[a.length-1].d)[0];
   // the steepest 100 m, as a grade
   let best={g:0,d:0};for(let i=0;i<S.length;i++){let j=i;while(j<S.length-1&&S[j].d-S[i].d<100)j++;const dd=S[j].d-S[i].d;if(dd>=60){const g=(S[i].h-S[j].h)/dd;if(g>best.g)best={g,d:S[i].d,i,j};}}
@@ -248,13 +351,24 @@ const runMark=mk('circle',{class:'runmark',r:10,cx:0,cy:0,'vector-effect':'non-s
 // "where am I" (round 19): the accuracy circle in metres and the dot in pixels; drawn by LOC below
 const meG=mk('g',{class:'me','aria-hidden':'true'});meG.style.display='none';
 const meAcc=mk('circle',{class:'me-acc',r:10,'vector-effect':'non-scaling-stroke'},meG),meDot=mk('circle',{class:'me-dot',r:10,'vector-effect':'non-scaling-stroke'},meG);
+let rpN=0;
 function paint2d(key){
   gPaint.classList.remove('on');gPaint.innerHTML='';
   const p=key&&byKey[key];if(!p||!TM||isKobiP(p))return;
-  const Ls=runLines(p),sc=GudRelief.slopeCanvas(TM,Ls);
-  mk('image',{href:sc.canvas.toDataURL(),x:sc.x0,y:sc.y0,width:sc.x1-sc.x0,height:sc.y1-sc.y0,preserveAspectRatio:'none',class:'rp-ground'},gPaint);
-  Ls.forEach(L=>{const S=sampleLine(L,12),tot=S[S.length-1].d||1,dur=1.3;
-    mk('path',{d:'M'+S.map(q=>q.x.toFixed(1)+' '+q.y.toFixed(1)).join('L'),...vs,stroke:'#FFFFFF','stroke-width':10,class:'rp-cas'},gPaint);
+  const Ls=runLines(p),sc=GudRelief.slopeCanvas(TM,Ls),href=sc.canvas.toDataURL(),box={x:sc.x0,y:sc.y0,width:sc.x1-sc.x0,height:sc.y1-sc.y0,preserveAspectRatio:'none'};
+  mk('image',{href,...box,class:'rp-ground'},gPaint);
+  // a wide run's area joins the selection (round 24, 2c, option b): under one white edge with the line, painted in the
+  // same slope colours (the slope picture cut to the area's shape and made opaque), over the run's own colour where the
+  // picture fades out
+  const SL=Ls.map(L=>sampleLine(L,12)),line=S=>'M'+S.map(q=>q.x.toFixed(1)+' '+q.y.toFixed(1)).join('L');
+  const ad=p.segs.filter(s=>s.area).map(s=>pathD(s.g,true)).join('');
+  if(ad)mk('path',{d:ad,...vs,stroke:'#FFFFFF','stroke-width':10,class:'rp-cas'},gPaint);
+  SL.forEach(S=>mk('path',{d:line(S),...vs,stroke:'#FFFFFF','stroke-width':10,class:'rp-cas'},gPaint));
+  if(ad){const id='rpclip'+(++rpN),defs=mk('defs',{},gPaint),cp=mk('clipPath',{id:id+'c'},defs);mk('path',{d:ad},cp);
+    const f=mk('filter',{id:id+'f',x:0,y:0,width:1,height:1},defs),ct=mk('feComponentTransfer',{},f);mk('feFuncA',{type:'linear',slope:6,intercept:0},ct);
+    mk('path',{d:ad,fill:`var(--p-${ck(p)})`,stroke:`var(--p-${ck(p)})`,'stroke-width':6,'vector-effect':'non-scaling-stroke','stroke-linejoin':'round',class:'rp-area'},gPaint);
+    mk('image',{href,...box,'clip-path':`url(#${id}c)`,filter:`url(#${id}f)`,class:'rp-area'},gPaint);}
+  SL.forEach(S=>{const tot=S[S.length-1].d||1,dur=1.3;
     for(let i=0;i<S.length-1;i++)mk('line',{x1:S[i].x.toFixed(1),y1:S[i].y.toFixed(1),x2:S[i+1].x.toFixed(1),y2:S[i+1].y.toFixed(1),stroke:GudRelief.slopeColor(S[i].a),'stroke-width':6,'stroke-linecap':'round','vector-effect':'non-scaling-stroke',style:`transition-delay:${(S[i].d/tot*dur).toFixed(2)}s`},gPaint);});
   requestAnimationFrame(()=>requestAnimationFrame(()=>gPaint.classList.add('on')));
 }
@@ -274,9 +388,11 @@ function select(key,{zoom=true,push=true,via=''}={}){
   const want='#map/run/'+encodeURIComponent(key);if(push&&location.hash!==want)history.pushState(null,'',want);
   if(matchMedia('(max-width:760px)').matches&&!zoom)panel.scrollIntoView({behavior:'smooth',block:'start'});
 }
+// a ski route has a kind, not a colour or a difficulty (round 24)
+function routeRow(p){return `<dt>${E('run.kind_label')}</dt><dd><span class="route-tag"><i></i>${E(p&&p.access==='private'?'run.kind_private_route':'run.kind_ski_route')}</span></dd>`;}
 function pips(c){const n=RATE[c][0];return `<span class="pips c-${c}">${[1,2,3,4].map(i=>`<i class="${i<=n?'on':''}"></i>`).join('')}</span>`;}
 function liftBtn(name){const l=D.lifts.find(x=>x.name===name);return l?`<button class="tag" data-lift="${l.id}">⇡ ${esc(name)}</button>`:esc(name);}
-function pisteBtn(k){const p=byKey[k];return p?`<button class="tag c-${p.color}" data-goto="${esc(k)}">${esc(dispName(p))}</button>`:'';}
+function pisteBtn(k){const p=byKey[k];return p?`<button class="tag c-${ck(p)}" data-goto="${esc(k)}">${esc(dispName(p))}</button>`:'';}
 function hostOf(u){try{return new URL(u).hostname.replace(/^www\./,'')}catch{return u}}
 const ytId=u=>{try{const x=new URL(u);if(/(^|\.)youtube\.com$/.test(x.hostname))return(x.searchParams.get('v')||'').match(/^[\w-]{11}$/)?x.searchParams.get('v'):null;if(x.hostname==='youtu.be'){const i=x.pathname.slice(1);return/^[\w-]{11}$/.test(i)?i:null;}}catch{}return null;};
 function vidList(key){
@@ -286,16 +402,16 @@ function vidList(key){
 }
 function vidBlock(key,label){
   return `<h3>${E('run.videos_heading')}</h3>${vidList(key)}
-  <p class="hint"><a href="https://www.youtube.com/results?search_query=${encodeURIComponent('Gudauri '+label+' ski')}" target="_blank" rel="noopener">${E('run.videos_search_youtube',{name:label})}</a></p>`;
+  <p class="hint"><a href="https://www.youtube.com/results?search_query=${encodeURIComponent(RS.name+' '+label+' ski')}" target="_blank" rel="noopener">${E('run.videos_search_youtube',{resort:RS.name,name:label})}</a></p>`;
 }
 function elevRows(p){
   if(!TM)return'';const lines=p.segs.filter(s=>!s.area).map(s=>s.g.map(P));if(!lines.length)return'';
-  const s=GudRelief.stats(TM,lines);
+  const s=GudRelief.stats(TM,lines),ol=p.segs.filter(x=>!x.area&&!x.tunnel).map(x=>x.g.map(P));s.maxG=ol.length?GudRelief.stats(TM,ol).maxG:0;
   return `<dt>${E('run.stat_altitude_label')}</dt><dd>${H('run.stat_altitude_value',{},{top:num(s.top),bot:num(s.bot)})}</dd>
   <dt>${E('run.stat_drop_label')}</dt><dd>${H('common.unit_m',{n:s.drop},{n:num(s.drop)})}${lines.length===1&&p.len?' · '+H('run.stat_avg_gradient',{},{pct:num(Math.round(s.drop/p.len*100))}):''}</dd>
   <dt>${E('run.stat_steep_label')}</dt><dd>${num(Math.round(s.maxG*100)+'%')} <span class="hint">${E('run.stat_steep_hint')}</span></dd>`;
 }
-const navList=()=>{const order=['green','blue','red','black'];return D.pistes.filter(p=>p.named).sort((a,b)=>order.indexOf(a.color)-order.indexOf(b.color)||a.key.localeCompare(b.key,undefined,{numeric:true})).map(p=>p.key);};
+const navList=()=>{const order=['green','blue','red','black','none'];return D.pistes.filter(p=>p.named).sort((a,b)=>order.indexOf(a.color)-order.indexOf(b.color)||a.key.localeCompare(b.key,undefined,{numeric:true})).map(p=>p.key);};
 function runNav(key){
   const L=navList(),i=L.indexOf(key);if(i<0)return `<div class="run-nav"><button type="button" class="rn-share" data-share="${esc(key)}">${E('run.share_button')}</button></div>`;
   const prev=L[(i-1+L.length)%L.length],next=L[(i+1)%L.length],[back,fwd]=I18N.ltr?['←','→']:['→','←'];
@@ -307,7 +423,7 @@ function runViewBlock(key){
   const X=d=>(8+d/dmax*(W-16)).toFixed(1),Y=h=>(8+(hmax-h)/((hmax-hmin)||1)*(Hc-30)).toFixed(1);
   const line=S.map(q=>X(q.d)+','+Y(q.h)).join(' ');
   let band='';for(let i=0,j=0;i<n-1;i=j){const c=GudRelief.slopeColor(S[i].a);j=i+1;while(j<n-1&&GudRelief.slopeColor(S[j].a)===c)j++;band+=`<rect x="${X(S[i].d)}" y="${Hc-14}" width="${(X(S[j].d)-X(S[i].d)+.6).toFixed(1)}" height="7" fill="${c}"/>`;}
-  const st=pr.steep,deg=g=>Math.round(Math.atan(g)*180/Math.PI),maxG=GudRelief.stats(TM,runLines(p)).maxG; // the same number as in the details above
+  const st=pr.steep,deg=g=>Math.round(Math.atan(g)*180/Math.PI),maxG=GudRelief.stats(TM,openLines(p)).maxG; // the same number as in the details above
   const fly=can3d&&!reduceMotion()?`<button type="button" class="btn run-fly" data-fly="${esc(key)}">${E('run.fly_button')}</button>`:'';
   return `<h3>${E('run.profile_heading')}<button type="button" class="i-btn" data-info aria-expanded="false" aria-label="${E('run.profile_info_aria')}">i</button></h3>
   <div class="info-pop hint" hidden><p>${E('run.profile_hint')}</p>${TM?`<p>${E('run.elevation_accuracy_hint')}</p>`:''}</div>
@@ -346,22 +462,22 @@ function flyHudAt(q){const h=document.getElementById('flyHud');if(h&&!h.hidden)h
 function renderPiste(key){
   const p=byKey[key];
   if(!p){const m=D.missing.find(x=>x.name===key);if(!m)return overview();
-    panel.innerHTML=`<button class="back" data-back>${E('map.back_all_runs')}</button><h2 class="c-${m.color}">${esc(m.name)}</h2>
-    <dl class="kv"><dt>${E('run.official_color_label')}</dt><dd>${pips(m.color)}${esc(HEB[m.color])} · ${esc(RATE[m.color][1])}</dd><dt>${E('common.length_label')}</dt><dd>—</dd></dl>
+    panel.innerHTML=`<button class="back" data-back>${E('map.back_all_runs')}</button><h2 class="c-${ck(m)}">${esc(m.name)}</h2>
+    <dl class="kv">${ck(m)==='route'?routeRow():`<dt>${E('run.official_color_label')}</dt><dd>${pips(m.color)}${esc(HEB[m.color])} · ${esc(RATE[m.color][1])}</dd>`}<dt>${E('common.length_label')}</dt><dd>—</dd></dl>
     <div class="notice">${E('run.missing_notice')}</div>${vidBlock(key,m.name)}`;
     return;}
-  const c=p.color,label=p.named?(p.key==='Firni ?'?'Firni':p.key):'';
+  const c=ck(p),route=c==='route',label=p.named?(p.key==='Firni ?'?'Firni':p.key):'';
   panel.innerHTML=`<button class="back" data-back>${E('map.back_all_runs')}</button>
-  <div class="run-sign"><h2 class="c-${c}">${esc(dispName(p))}</h2>${p.refs.length?`<span class="run-ref num" title="${E('run.ref_title')}">${esc(p.refs[0])}</span>`:''}</div>
+  <div class="run-sign"><h2 class="c-${c}">${esc(dispName(p))}</h2>${p.refs.length&&p.refs[0]!==p.key?`<span class="run-ref num" title="${E('run.ref_title')}">${esc(p.refs[0])}</span>`:''}</div>
   ${runNav(key)}
   <dl class="kv">
     <dt>${E('common.length_label')}</dt><dd class="num">${esc(fmtLen(p.len))}</dd>
     ${elevRows(p)}
-    <dt>${E('run.color_label')}</dt><dd><span class="sw ${c}"></span> ${esc(HEB[c])}${E(p.named?'run.color_official_suffix':'run.color_osm_suffix')}</dd>
-    <dt>${E('run.difficulty_label')}</dt><dd>${pips(c)}${esc(RATE[c][1])}</dd>
-    ${p.osmDiff.length?`<dt>${E('run.osm_grade_label')}</dt><dd>${esc(p.osmDiff.map(x=>OSMD[x]?OSMD[x][0]:T('run.osm_grade_none')).join(' / '))}</dd>`:''}
+    ${route?routeRow(p):`<dt>${E('run.color_label')}</dt><dd><span class="sw ${c}"></span> ${esc(HEB[c])}${E(p.named&&RESORT.isDefault()?'run.color_official_suffix':'run.color_osm_suffix')}</dd>
+    <dt>${E('run.difficulty_label')}</dt><dd>${pips(c)}${esc(RATE[c][1])}</dd>`}
+    ${p.osmDiff.length&&!route?`<dt>${E('run.osm_grade_label')}</dt><dd>${esc(p.osmDiff.map(x=>OSMD[x]?OSMD[x][0]:T('run.osm_grade_none')).join(' / '))}</dd>`:''}
     ${p.refs.length?`<dt>${E('run.ref_label')}</dt><dd class="num">${esc(p.refs.join(', '))}</dd>`:''}
-    ${p.groom.length?`<dt>${E('run.grooming_label')}</dt><dd>${p.groom.includes('classic')?E('run.groomed_value'):esc(p.groom.join(', '))}</dd>`:''}
+    ${p.groom.length&&!route?`<dt>${E('run.grooming_label')}</dt><dd>${p.groom.includes('classic')?E('run.groomed_value'):esc(p.groom.join(', '))}</dd>`:''}
   </dl>
   ${typeof WX!=='undefined'&&WX?WX.cond(p):''}
   ${runViewBlock(key)}
@@ -391,21 +507,23 @@ function showLift(id){
 }
 function overview(){
   clearSel();current=null;
-  const named=D.pistes.filter(p=>p.named);const order=['green','blue','red','black'];
+  const named=D.pistes.filter(p=>p.named&&p.kind!=='ski-route'),routes=D.pistes.filter(p=>p.kind==='ski-route');const order=['green','blue','red','black'];
   named.sort((a,b)=>order.indexOf(a.color)-order.indexOf(b.color)||a.key.localeCompare(b.key,undefined,{numeric:true}));
   panel.innerHTML=`
   <h2 class="ov">${E('map.overview_heading')}</h2>
   ${LSTAT.block()}
-  <p class="lead">${E('map.overview_lead')}</p>
+  <p class="lead">${E(has('kobi')?'map.overview_lead':'map.overview_lead_resort')}</p>
   <h3>${E('map.overview_on_map_count',{n:named.length})}</h3>
   <div class="index">${named.map(p=>`<button data-goto="${esc(p.key)}" data-zoom="1"><span class="sw ${p.color}"></span>${esc(dispName(p))}<span class="len">${fmtLen(p.len)}</span></button>`).join('')}</div>
-  ${D.missing.length?`<h3>${E('map.overview_missing_count',{n:D.missing.length})}</h3>
-  <div class="miss">${D.missing.map(m=>`<button class="chip" data-goto="${esc(m.name)}"><span class="sw ${m.color}"></span>${esc(m.name)}</button>`).join('')}</div>`:''}
+  ${routes.length?`<h3>${E('map.overview_routes_count',{n:routes.length})}</h3>
+  <div class="index">${routes.map(p=>`<button data-goto="${esc(p.key)}" data-zoom="1"><span class="sw route"></span>${esc(dispName(p))}<span class="len">${fmtLen(p.len)}</span></button>`).join('')}</div>`:''}
+  ${(()=>{const mr=D.missing.filter(m=>ck(m)!=='route'),mx=D.missing.filter(m=>ck(m)==='route'),chips=a=>`<div class="miss">${a.map(m=>`<button class="chip" data-goto="${esc(m.name)}"><span class="sw ${ck(m)}"></span>${esc(m.name)}</button>`).join('')}</div>`;
+    return (mr.length?`<h3>${E('map.overview_missing_count',{n:mr.length})}</h3>${chips(mr)}`:'')+(mx.length?`<h3>${E('map.overview_missing_routes_count',{n:mx.length})}</h3>${chips(mx)}`:'');})()}
   ${(()=>{const pr=D.pistes.filter(p=>p.research&&p.research.partial);return pr.length?`<h3>${E('map.overview_partial_count',{n:pr.length})}</h3>
   <div class="miss">${pr.map(p=>`<button class="chip" data-goto="${esc(p.key)}" data-zoom="1"><span class="sw ${p.color}"></span>${esc(p.key)}</button>`).join('')}</div>
   <p class="hint">${E('map.overview_partial_hint')}</p>`:''})()}
   <h3>${E('map.overview_source_heading')}</h3>
-  <p class="hint">${E('map.overview_source_text',{fetched:D.fetched,research_date:D.research?D.research.date:''})}</p>
+  <p class="hint">${RESORT.isDefault()?E('map.overview_source_text',{fetched:D.fetched,research_date:D.research?D.research.date:''}):E('resort.'+RS.id+'.sources',{fetched:D.fetched})}</p>
   <p class="hint">${E('map.overview_3d_controls_hint')}</p>`;
   SNOW.scan(panel);
 }
@@ -414,7 +532,7 @@ panel.addEventListener('click',e=>{
   const b=e.target.closest('button');if(!b)return;
   // the (i) by the profile heading opens how the numbers were worked out (round 20)
   if(b.dataset.info!==undefined){const pop=b.closest('h3').nextElementSibling,on=pop.hidden;pop.hidden=!on;b.setAttribute('aria-expanded',String(on));return;}
-  if(b.dataset.share!==undefined){const k=b.dataset.share,url=location.origin+location.pathname+'?utm_medium=share#map/run/'+encodeURIComponent(k);
+  if(b.dataset.share!==undefined){const k=b.dataset.share,url=RESORT.link('#map/run/'+encodeURIComponent(k),'utm_medium=share');
     if(navigator.share)navigator.share({title:T('run.share_title',{run:k}),url}).then(()=>track('run_share',{run:k,method:'native'})).catch(()=>{});
     else if(navigator.clipboard)navigator.clipboard.writeText(url).then(()=>{track('run_share',{run:k,method:'copy'});b.textContent=T('common.link_copied');setTimeout(()=>{b.textContent=T('run.share_button');},2200);}).catch(()=>{});return;}
   if(b.dataset.fly){if(flying){stopFly();return;}const pr=runProfile(b.dataset.fly);if(!pr)return;if(view!=='3d')setView('3d',false);if(!v3)return;
@@ -452,8 +570,8 @@ function ensure3d(){
   if(v3)return true;if(!can3d())return false;
   try{
     const kc=P([42.532,44.4945]);
-    v3=GudRelief.View3D({model:TM,host:m3,pistes:D.pistes,lifts:D.lifts,P,dispName,colors:{green:'#1B8A4C',blue:'#1F5FC4',red:'#D1342B',black:'#13233A'},liftColor:'#3A4556',
-      center:[(minX+maxX)/2,(minY+maxY)/2+250],homeDist:7000,homeAz:0,homePol:0.44,
+    v3=GudRelief.View3D({model:TM,host:m3,pistes:D.pistes,lifts:D.lifts,P,dispName,colors:{green:'#1B8A4C',blue:'#1F5FC4',red:'#D1342B',black:'#13233A',route:'#EE8E1C'},liftColor:'#3A4556',
+      center:[(minX+maxX)/2,(minY+maxY)/2+250],homeDist:RS.view3d&&RS.view3d.dist||7000,homeAz:RS.view3d&&RS.view3d.az||0,homePol:RS.view3d&&RS.view3d.pol||0.44,
       onPick:k=>select(k,{via:'map'}),onLift:id=>showLift(id),
       onFly:f=>{flyProg=f;const k=document.getElementById('profRange');if(k){const i=Math.round(f*(+k.max));k.value=i;profAt(i);}},
       onHeading:az=>{compassSvg.style.transform=`rotate(${(az*180/Math.PI).toFixed(1)}deg)`;}});
@@ -480,7 +598,22 @@ document.getElementById('compass').onclick=()=>{if(v3)v3.north();};
 openBtn.onclick=()=>{if(view==='3d')v3.kobi();else openInset();};
 {const _up=up;} // keep 2D handlers
 wrap.classList.add('mode2d');
-// filters live in the toolbar above the map
+// filters live in the toolbar above the map; a resort with ski routes gets a chip for them, after the colours (round 24)
+if(D.pistes.some(p=>p.kind==='ski-route')){const b=document.createElement('button');b.type='button';b.className='fchip';b.dataset.filter='route';b.setAttribute('aria-pressed','true');
+  b.innerHTML=`<span class="sq route"></span><span>${E('map.filter_routes')}</span>`;const after=document.querySelector('#filters [data-filter="black"]');after.after(b);}
+// the legend folds into a chip in the scale's corner, like the Kobi one (round 24): closed on every visit, the kinds this resort has
+{const k={route:D.pistes.some(p=>p.kind==='ski-route'&&p.access!=='private'),hut:D.pistes.some(p=>p.kind==='ski-route'&&p.access==='private'),way:D.pistes.some(p=>p.kind==='ski-way'&&p.named),area:D.pistes.some(p=>p.segs.some(s=>s.area))};
+  if(k.route||k.hut||k.way||k.area){const lg=document.createElement('div');lg.className='mlegend';
+    const rows=(k.route?`<span><svg width="34" height="12" aria-hidden="true"><path d="M2 6H32" stroke="var(--casing)" stroke-width="8" stroke-linecap="round"/><path d="M2 6H32" stroke="var(--p-route-edge)" stroke-width="6" stroke-dasharray="2 2.5"/><path d="M2 6H32" stroke="var(--p-route)" stroke-width="3.6"/></svg>${E('map.legend_route')}</span>`:'')
+      +(k.hut?`<span><svg width="34" height="12" aria-hidden="true"><path d="M2 6H32" stroke="var(--casing)" stroke-width="4" stroke-linecap="round"/><path d="M2 6H32" stroke="var(--p-route-edge)" stroke-width="1.8" stroke-dasharray="4 3"/></svg>${E('map.legend_private_route')}</span>`:'')
+      +(k.way?`<span><svg width="34" height="12" aria-hidden="true"><path d="M2 6H32" stroke="var(--casing)" stroke-width="5" stroke-linecap="round"/><path d="M2 6H32" stroke="var(--p-blue)" stroke-width="2.6" stroke-dasharray="8 5"/></svg>${E('map.legend_way')}</span>`:'')
+      +(k.area?`<span><svg width="34" height="14" aria-hidden="true"><rect x="2" y="2" width="30" height="10" fill="var(--p-red)" stroke="var(--casing)" stroke-width="1.5"/></svg>${E('map.legend_area')}</span>`:'');
+    lg.innerHTML=`<div class="ml-card" id="mlCard" hidden><div class="ml-head"><b>${E('map.legend')}</b><button type="button" class="ml-x" aria-label="${E('map.legend_close')}">✕</button></div>${rows}</div>`
+      +`<button type="button" class="ml-chip" aria-expanded="false" aria-controls="mlCard"><svg width="22" height="16" aria-hidden="true"><path d="M2 4H20" stroke="var(--p-route)" stroke-width="3"/><path d="M2 8H20" stroke="var(--p-blue)" stroke-width="2" stroke-dasharray="4 3"/><rect x="2" y="11" width="18" height="4" fill="var(--p-red)"/></svg><span>${E('map.legend')}</span></button>`;
+    const lcard=lg.querySelector('.ml-card'),chip=lg.querySelector('.ml-chip');
+    const setLeg=on=>{lcard.hidden=!on;chip.setAttribute('aria-expanded',String(on));wrap.classList.toggle('legend-open',on);};
+    chip.onclick=()=>setLeg(lcard.hidden);lg.querySelector('.ml-x').onclick=()=>{setLeg(false);chip.focus();};
+    wrap.appendChild(lg);wrap.classList.add('has-legend');}}
 document.getElementById('filters').addEventListener('click',e=>{const b=e.target.closest('button[data-filter]');if(!b)return;const k=b.dataset.filter;
   hidden.has(k)?hidden.delete(k):hidden.add(k);b.setAttribute('aria-pressed',String(!hidden.has(k)));applyFilters();track('map_filter',{filter:k,on:!hidden.has(k)});});
 // the map (and its 3D model) is set up the first time the map page is opened
@@ -516,10 +649,11 @@ addEventListener('hashchange',route);
 // sunrise and sunset there on today's date. The mountains are the real view above New Gudauri, rendered
 // from the elevation model in seven moments of the day (design/round3/panorama.py), and cross-faded.
 const DN=(function(){
-  const LAT=42.51,LON=44.495,TZ=4,rad=Math.PI/180;
-  // positions in the images, as fractions (design/round3/pano.json)
-  const PJ={phone:{w:390,pk:[['Sadzele',.6215,.3989],['Bidara',.3796,.4325]],vil:[.4525,.6926]},
-            wide:{w:1440,pk:[['Sadzele',.5659,.3989],['Bidara',.4347,.4325]],vil:[.4742,.6926]}};
+  const LAT=RS.proj.lat0,LON=RS.proj.lon0,TZ=RESORT.tzOffset(),rad=Math.PI/180;
+  // positions in the images, as fractions (design/round3/pano.json); another resort brings its own (resorts.json, "pano"),
+  // or has none, and then the home page is the sky without mountains
+  const PJ=RS.pano||(has('pano')?{phone:{w:390,pk:[['Sadzele',.6215,.3989],['Bidara',.3796,.4325]],vil:[.4525,.6926]},
+            wide:{w:1440,pk:[['Sadzele',.5659,.3989],['Bidara',.4347,.4325]],vil:[.4742,.6926]}}:null);
   const ele=()=>Object.fromEntries((TM?TM.peaks:[]).map(p=>[p.n,p.ele])); // the heights come with the model
   const gud=()=>{const g=new Date(Date.now()+TZ*36e5);return {h:g.getUTCHours()+g.getUTCMinutes()/60,g};};
   function sunTimes(g){
@@ -551,16 +685,18 @@ const DN=(function(){
   let variant=null,layer=null,shown='';
   function build(v){
     variant=v;shown='';pano.innerHTML='';layer=null;
+    if(!PJ){pano.innerHTML='<div class="lights"></div>';return;}
     const P=PJ[v],vx=P.vil[0]*100,vy=P.vil[1]*100;
     const lights=[[-44,6],[-35,2],[-28,9],[-19,4],[-12,11],[-5,1],[3,7],[9,13],[16,3],[24,10],[31,5],[39,12],[-23,15],[0,16],[20,17],[46,8]]
       .map(([dx,dy])=>`<i style="left:calc(${vx}% + ${dx}px);top:calc(${vy}% + ${dy}px)"></i>`).join('');
     const ELE=ele(),lbl=P.pk.map(([n,x,y])=>`<span class="pk-lbl" data-pk="${esc(n)}" style="left:${x*100}%;top:calc(${y*100}% - 6px)">${esc(n)}${ELE[n]?` <span class="e">${ELE[n]}</span>`:''}</span>`).join('');
     pano.insertAdjacentHTML('beforeend',`<div class="lights">${lights}</div>${lbl}`);
   }
-  const src=k=>`img/pano/pano-${variant==='wide'?'wide-':''}${k}.webp`;
+  const src=k=>`${PJ&&PJ.dir||'img/pano/'}pano-${variant==='wide'?'wide-':''}${k}.webp`;
   function layout(){
     const W=sky.clientWidth,H=sky.clientHeight;if(!W||!H)return;
     const v=W>560?'wide':'phone';if(v!==variant)build(v);
+    if(!PJ){paint(false);return;}
     const iw=PJ[v].w,s=Math.max(W/iw,H/400),w=iw*s,h=400*s;
     Object.assign(pano.style,{width:w+'px',height:h+'px',left:((W-w)/2)+'px',top:Math.min(0,H*.9-.75*h)+'px'});
     paint(false);
@@ -594,6 +730,7 @@ const DN=(function(){
     pano.querySelector('.lights').style.opacity=num('win');
     document.getElementById('skyPhase').textContent=s.phase;
     // the mountains: layer a, with b on top at opacity f. A new pair fades in over the old one.
+    if(!PJ)return;
     const want=a.img+'|'+b.img;
     if(want!==shown){
       const el=document.createElement('div');el.className='pl';
@@ -653,7 +790,7 @@ const makeMeet=()=>(function(){
   const svgM=host;const m=(t,a,p)=>{const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);(p||svgM).appendChild(e);return e;};
   const gLines=m('g',{class:'mm-lines'}),gPins=m('g',{class:'mm-pins'});
   if(TM)GudRelief.svgRelief(TM,svgM,gLines);
-  mainPistes.filter(p=>p.named).forEach(p=>p.segs.filter(s=>!s.area).forEach(s=>m('path',{d:pathD(s.g),class:'mm-run','vector-effect':'non-scaling-stroke',stroke:`var(--p-${p.color})`},gLines)));
+  mainPistes.filter(p=>p.named).forEach(p=>p.segs.filter(s=>!s.area).forEach(s=>m('path',{d:pathD(s.g),class:'mm-run','vector-effect':'non-scaling-stroke',stroke:`var(--p-${ck(p)})`},gLines)));
   mainLifts.filter(l=>l.name).forEach(l=>m('path',{d:pathD(l.g),class:'mm-lift','vector-effect':'non-scaling-stroke'},gLines));
   const pins={};
   st.forEach(s=>{const g=m('g',{class:'mm-pin','data-sid':s.id},gPins);
@@ -727,7 +864,7 @@ const makeMeet=()=>(function(){
   ui.querySelector('#meetTime').addEventListener('input',e=>{if(/^\d\d:\d\d$/.test(e.target.value)){S.time=e.target.value;S.preset='';render();}});
   function pick(id,preset,fly){S.sid=id;S.preset=preset||'';const s=byId[id];if(fly&&s)goTo(s.x,s.y,Math.max(1400,vb.w<1500?vb.w:1800),650);render();}
   const pad=n=>String(n).padStart(2,'0');
-  function link(){return location.origin+location.pathname+`?utm_medium=share#meet/${S.sid}/${S.time.replace(':','')}/${S.day.replace(/-/g,'')}`;}
+  function link(){return RESORT.link(`#meet/${S.sid}/${S.time.replace(':','')}/${S.day.replace(/-/g,'')}`,'utm_medium=share');}
   function dayLbl(){return (DAYS.find(d=>d[0]===S.day)||[0,dayName(S.day)])[1];}
   function message(){const s=byId[S.sid];return T('meet.share_message',{place:s.name,day:dayLbl(),time:S.time,where:s.where,alt:s.h?T('meet.share_alt_suffix',{n:s.h.toLocaleString('en-US')}):'',link:link()});}
   function countdown(){ // in Gudauri time (UTC+4)
@@ -821,6 +958,7 @@ document.querySelectorAll('.games-list .game-card').forEach((a,i)=>{a.dataset.sn
 // {updated:"ISO time", lifts:{"<lift name>":{open:true|false, reason?:"wind"}}, pistes:{"<run key>":{open:true|false}}}
 // No data, or data older than 30 minutes: "no current information", and the map stays as it is. We never guess.
 const LSTAT=(function(){
+  const ON=has('status'); // another resort has no report yet: nothing is asked and nothing is drawn
   let data=null,forMe=false;const STALE=30*6e4;
   const names=mainLifts.filter(l=>l.name&&l.status!=='inactive').map(l=>l.name);
   const fresh=()=>data&&data.updated&&Date.now()-Date.parse(data.updated)<STALE;
@@ -832,6 +970,7 @@ const LSTAT=(function(){
   const ago=t=>{const m=Math.round((Date.now()-Date.parse(t))/6e4);return m<1?T('status.ago_now'):m<60?T('status.ago_minutes',{n:m}):T('status.ago_hours',{n:Math.round(m/60)});};
   let prevSeen;
   function block(){
+    if(!ON)return '';
     if(!fresh()){const season=inSeason();
       return `<section class="lstat" aria-label="${E('status.heading_lift_status')}"><h3>${E(season?'status.no_recent_data':'status.mountain_asleep')}</h3>
       <p class="lead">${E(season?'status.lead_in_season':'status.lead_off_season')}</p>
@@ -853,7 +992,7 @@ const LSTAT=(function(){
   // the map: closed lifts grey and dashed, chairs moving on open ones, and "only what's open for me"
   const gChairs=mk('g',{class:'chairs','aria-hidden':'true'});svg.insertBefore(gChairs,mainLbl);
   function applyMap(){
-    const bar=document.getElementById('mstat');
+    const bar=document.getElementById('mstat');if(!ON)return;
     gChairs.innerHTML='';svg.classList.toggle('forme',forMe&&fresh());
     svg.querySelectorAll('g.lg[data-lid]').forEach(g=>g.classList.remove('closed'));
     if(!fresh()){bar.innerHTML=`<span class="ms-dot"></span><span class="ms-txt">${E(data?'status.bar_no_recent':'status.bar_no_data_yet')}</span>`;bar.dataset.state='none';
@@ -887,18 +1026,18 @@ const LSTAT=(function(){
   panel.addEventListener('click',e=>{const b=e.target.closest('[data-forme]');if(!b)return;forMe=!forMe;b.setAttribute('aria-pressed',String(forMe));applyMap();track('status_only_open',{on:forMe});});
   // status_view: once per visit to the map; on the first visit it waits for the first answer from /api/status
   let loaded=false,pend=false;
-  function viewed(){if(!loaded){pend=true;return;}const f=fresh();track('status_view',f?{state:'fresh',open:names.filter(n=>isOpen(n)).length,total:names.length}:{state:data?'stale':'none'});}
+  function viewed(){if(!ON)return;if(!loaded){pend=true;return;}const f=fresh();track('status_view',f?{state:'fresh',open:names.filter(n=>isOpen(n)).length,total:names.length}:{state:data?'stale':'none'});}
   // how often (P-D14, as in the app's StatusSource): every five minutes December to April; out of season once a day at
   // most, so an early opening still shows within a day. Skipped asks use the report kept in this browser
   const DAY=864e5;
   function ask(){if(inSeason())return true;let t=0;try{t=+localStorage.getItem('gud-lstat-asked')||0;}catch(e){}
     const now=Date.now();if(now-t>=0&&now-t<DAY)return false;try{localStorage.setItem('gud-lstat-asked',String(now));}catch(e){}return true;}
-  function load(){return (ask()?fetch('api/status',{cache:'no-store'}):Promise.resolve(null)).then(r=>r.ok&&/json/.test(r.headers.get('content-type')||'')?r.json():null).catch(()=>null)
+  function load(){if(!ON){loaded=true;return Promise.resolve();}return (ask()?fetch('api/status',{cache:'no-store'}):Promise.resolve(null)).then(r=>r.ok&&/json/.test(r.headers.get('content-type')||'')?r.json():null).catch(()=>null)
     .then(j=>{j=j&&j.updated&&j.lifts?j:null;
       // the last report stays in this browser, as in the app (S-29): with no answer it is shown while it is fresh
       try{if(j)localStorage.setItem('gud-lstat-last',JSON.stringify(j));else j=JSON.parse(localStorage.getItem('gud-lstat-last')||'null');}catch(e){}
       data=j&&j.updated&&j.lifts?j:null;loaded=true;if(pend){pend=false;viewed();}applyMap();applyHome();if(typeof WX!=='undefined'&&WX)WX.home();if(!current&&!panel.querySelector('.back'))overview();});}
-  setInterval(load,5*6e4);
+  if(ON)setInterval(load,5*6e4);
   return {block,load,applyMap,viewed,fresh,isOpen,names,ago,updated:()=>data&&data.updated};
 })();
 LSTAT.load();
@@ -907,7 +1046,7 @@ LSTAT.load();
 // drawn, never sent, stored or measured. Off on every visit; it runs only while the map is open and the button is on.
 // Published with its line in the privacy policy (Pini approved both, 6.10.2026).
 const LOC=(function(){
-  const on=true;
+  const on=has('locate');
   const ctrls=pgMap.querySelector('.ctrls'),wrap=pgMap.querySelector('.mapwrap');
   const btn=document.createElement('button');btn.type='button';btn.className='loc-btn';btn.hidden=!on;btn.disabled=true;
   btn.setAttribute('aria-pressed','false');btn.setAttribute('aria-label',T('loc.button'));
@@ -965,7 +1104,7 @@ const LOC=(function(){
 // server fetches the forecast and decides the closure risk; this only reads /api/weather (the rule in js/weather.js).
 // The last good answer stays in this browser for the mountain without reception. Never a guess: no data says so.
 var WX=(function(){ // var: apply() and renderTicket() may run before this line
-  const G=window.GudWeather;if(!G)return {cond:()=>'',layout(){},home(){}};
+  const G=window.GudWeather;if(!G||!has('weather'))return {cond:()=>'',layout(){},home(){}};
   let ans=null,layer=false;try{ans=JSON.parse(localStorage.getItem('gud-wx-last')||'null');}catch(e){}
   // the three points (server/CONTRACT.md), for the pins before any answer: the lift ends in the data
   const WXPTS={village:{lat:42.471394,lon:44.49246},goodaura:{lat:42.492379,lon:44.494273},sadzele:{lat:42.508985,lon:44.503209}};
@@ -1333,6 +1472,6 @@ function onTerrain(){
     if(vb.w!==1)apply();if(!card.hidden)layoutInset();
     if(current&&byKey[current]){paint2d(current);renderPiste(current);}
   }
-  MEET=makeMeet();
+  if(has('meet'))MEET=makeMeet();
 }
 })().catch(e=>{console.error(e);const l=document.getElementById('loading');l.hidden=false;l.textContent=typeof T==='function'?T('home.load_error'):'Error';});

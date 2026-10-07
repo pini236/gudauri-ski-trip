@@ -81,7 +81,7 @@ test('נתונים נטענים מקבצים נפרדים', async ({ page }) => 
   page.on('response', r => { if (/\/data\/.*\.json$/.test(r.url())) seen.push(r.url().split('/').pop()!); });
   await page.goto('/');
   await loaded(page);
-  expect(seen.sort()).toEqual(['runs-and-lifts.json', 'terrain.json', 'videos-seed.json']);
+  expect(seen.sort()).toEqual(['resorts.json', 'runs-and-lifts.json', 'terrain.json', 'videos-seed.json']);
 });
 
 test('תגיות ה-head: שפה, noindex, וקישור לשיתוף', async ({ page }) => {

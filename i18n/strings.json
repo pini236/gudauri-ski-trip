@@ -6918,6 +6918,126 @@
     "ka"
    ]
   },
+  "map.overview_routes_count": {
+   "he": "דרכי סקי · {n}",
+   "en": "Ski routes · {n}",
+   "ru": "Лыжные маршруты · {n}",
+   "ka": "სათხილამურო მარშრუტები · {n}",
+   "where": "site/js/app.js",
+   "note": "Section heading, {n} = count; a ski route (Skiroute) is not prepared or patrolled and has no difficulty (round 24)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "run.kind_label": {
+   "he": "סוג",
+   "en": "Type",
+   "ru": "Тип",
+   "ka": "ტიპი",
+   "where": "site/js/app.js",
+   "note": "Detail row label, in place of colour and difficulty for a ski route (round 24)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "run.kind_ski_route": {
+   "he": "דרך סקי · לא מוכשרת, לא נבדקת",
+   "en": "Ski route · not groomed, not patrolled",
+   "ru": "Лыжный маршрут · не подготовлен, не контролируется",
+   "ka": "სათხილამურო მარშრუტი · არ არის დამუშავებული და კონტროლირებადი",
+   "where": "site/js/app.js",
+   "note": "the tag in the run panel (round 24); Tyrol rules: secured against avalanches only",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "map.filter_routes": {
+   "he": "דרכי סקי",
+   "en": "Ski routes",
+   "ru": "Маршруты",
+   "ka": "მარშრუტები",
+   "where": "site/js/app.js",
+   "note": "filter chip after the colours, only where a resort has ski routes (round 24); short",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "map.legend_route": {
+   "he": "דרך סקי",
+   "en": "Ski route",
+   "ru": "Лыжный маршрут",
+   "ka": "სათხილამურო მარშრუტი",
+   "where": "site/js/app.js",
+   "note": "map legend (round 24)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "map.legend_private_route": {
+   "he": "דרך לבקתה",
+   "en": "Route to a hut",
+   "ru": "Путь к хижине",
+   "ka": "გზა ქოხამდე",
+   "where": "site/js/app.js",
+   "note": "map legend (round 24, 1b)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "map.legend": {
+   "he": "מקרא",
+   "en": "Legend",
+   "ru": "Легенда",
+   "ka": "ლეგენდა",
+   "where": "site/js/app.js",
+   "note": "button that opens the map legend (round 24)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "map.legend_close": {
+   "he": "סגירת המקרא",
+   "en": "Close the legend",
+   "ru": "Закрыть легенду",
+   "ka": "ლეგენდის დახურვა",
+   "where": "site/js/app.js",
+   "note": "aria-label (round 24)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "map.legend_way": {
+   "he": "דרך מקשרת",
+   "en": "Ski way",
+   "ru": "Соединительная трасса",
+   "ka": "დამაკავშირებელი გზა",
+   "where": "site/js/app.js",
+   "note": "map legend: a connecting ski way, like Shino (round 24)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "map.legend_area": {
+   "he": "מסלול רחב",
+   "en": "Wide slope",
+   "ru": "Широкая трасса",
+   "ka": "ფართო ტრასა",
+   "where": "site/js/app.js",
+   "note": "map legend: the area of a wide run (round 24)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
   "map.overview_on_map_count": {
    "he": "מסלולים במפה · {n}",
    "en": "Runs on the map · {n}",
@@ -8868,12 +8988,12 @@
    ]
   },
   "run.videos_search_youtube": {
-   "he": "חיפוש \"Gudauri {name}\" ביוטיוב ↗",
-   "en": "Search \"Gudauri {name}\" on YouTube ↗",
-   "ru": "Искать «Gudauri {name}» на YouTube ↗",
-   "ka": "„Gudauri {name}“: ძებნა YouTube-ზე ↗",
+   "he": "חיפוש \"{resort} {name}\" ביוטיוב ↗",
+   "en": "Search \"{resort} {name}\" on YouTube ↗",
+   "ru": "Искать «{resort} {name}» на YouTube ↗",
+   "ka": "„{resort} {name}“: ძებნა YouTube-ზე ↗",
    "where": "site/js/app.js",
-   "note": "{name} = run name (Latin). The quoted text is the literal search query, keep \"Gudauri\" in Latin",
+   "note": "{resort} = the resort name, {name} = run name (Latin). The quoted text is the literal search query",
    "check": [
     "ru",
     "ka"
@@ -15706,6 +15826,300 @@
    "ka": "როდის მიფრინავთ?",
    "where": "site/js/app.js, app/android",
    "note": "round 20: the button on the empty pass, opens one calendar",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "map.overview_lead_resort": {
+   "he": "לחצו על מסלול במפה או ברשימה לפרטים. קו מקווקו דק הוא קטע בלי שם בנתונים.",
+   "en": "Tap a run on the map or in the list for details. A thin dashed line is an unnamed section in the data.",
+   "ru": "Нажмите на трассу на карте или в списке, чтобы увидеть подробности. Тонкая пунктирная линия — участок без названия в данных.",
+   "ka": "დააჭირეთ ტრასას რუკაზე ან სიაში დეტალებისთვის. წვრილი წყვეტილი ხაზი მონაცემებში უსახელო მონაკვეთია.",
+   "where": "site/js/app.js",
+   "note": "like map.overview_lead, for a resort without the Kobi side and ski ways (decision 68)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "resort.soelden.sources": {
+   "he": "קווים: OpenStreetMap דרך OpenSkiMap, נמשך {fetched}, כמו שהם, בלי השלמות. הצבעים לפי דרגת הקושי במפה הפתוחה (קל כחול, בינוני אדום, קשה שחור), ונבדקו מול רשימת המסלולים הרשמית של Sölden. אורכים אופקיים מהקואורדינטות. קיבולת הרכבלים ושנת הבנייה: Land Tirol (CC BY 4.0). תבליט וגבהים: © offene Daten Österreichs – Digitales Geländemodell (DGM) Österreich (CC BY 3.0 AT), דרך אריחי הגובה של AWS. הכפרים, הכבישים, המים והפסגות: OSM. © OpenStreetMap contributors, ODbL.",
+   "en": "Lines: OpenStreetMap via OpenSkiMap, fetched {fetched}, as they are, nothing filled in. Colours follow the difficulty in the open map (easy blue, intermediate red, difficult black) and were checked against Sölden's official list of slopes. Horizontal lengths from the coordinates. Lift capacity and year built: Land Tirol (CC BY 4.0). Relief and altitudes: © offene Daten Österreichs – Digitales Geländemodell (DGM) Österreich (CC BY 3.0 AT), through the Terrain Tiles on AWS. Villages, roads, water and peaks: OSM. © OpenStreetMap contributors, ODbL.",
+   "ru": "Линии: OpenStreetMap через OpenSkiMap, загружено {fetched}, как есть, без дополнений. Цвета — по сложности в открытой карте (лёгкая синяя, средняя красная, сложная чёрная), сверены с официальным списком трасс Зёльдена. Горизонтальные длины — по координатам. Пропускная способность подъёмников и год постройки: Land Tirol (CC BY 4.0). Рельеф и высоты: © offene Daten Österreichs – Digitales Geländemodell (DGM) Österreich (CC BY 3.0 AT), через тайлы высот на AWS. Посёлки, дороги, вода и вершины: OSM. © OpenStreetMap contributors, ODbL.",
+   "ka": "ხაზები: OpenStreetMap, OpenSkiMap-ის მეშვეობით, ჩამოტვირთულია {fetched}, როგორც არის, შევსების გარეშე. ფერები ღია რუკის სირთულის მიხედვითაა (მარტივი ლურჯი, საშუალო წითელი, რთული შავი) და შემოწმებულია ზელდენის ტრასების ოფიციალურ სიასთან. ჰორიზონტალური სიგრძეები კოორდინატებიდანაა. საბაგიროების გამტარუნარიანობა და აშენების წელი: Land Tirol (CC BY 4.0). რელიეფი და სიმაღლეები: © offene Daten Österreichs – Digitales Geländemodell (DGM) Österreich (CC BY 3.0 AT), AWS-ის სიმაღლის ფილების მეშვეობით. სოფლები, გზები, წყალი და მწვერვალები: OSM. © OpenStreetMap contributors, ODbL.",
+   "where": "site/js/app.js",
+   "note": "like map.overview_source_text, the sources of this resort",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "nav.resort_time": {
+   "he": "השעה ב-{place}",
+   "en": "Time in {place}",
+   "ru": "Время: {place}",
+   "ka": "დრო: {place}",
+   "where": "site/js/app.js",
+   "note": "label before the clock at a resort other than Gudauri; {place} is the resort name in its own letters (round 23)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "resort.location": {
+   "he": "{place}, {country}",
+   "en": "{place}, {country}",
+   "ru": "{place}, {country}",
+   "ka": "{place}, {country}",
+   "where": "site/js/app.js",
+   "note": "home page heading of a resort, like home.location",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "map.map_aria_resort": {
+   "he": "מפת מסלולים ורכבלים: {place}",
+   "en": "Map of runs and lifts: {place}",
+   "ru": "Карта трасс и подъёмников: {place}",
+   "ka": "ტრასებისა და საბაგიროების რუკა: {place}",
+   "where": "site/js/app.js",
+   "note": "like map.map_aria, any resort",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "resort.runs_n": {
+   "he": {
+    "one": "מסלול אחד",
+    "two": "2 מסלולים",
+    "other": "{n} מסלולים"
+   },
+   "en": {
+    "one": "{n} run",
+    "other": "{n} runs"
+   },
+   "ru": {
+    "one": "{n} трасса",
+    "few": "{n} трассы",
+    "many": "{n} трасс",
+    "other": "{n} трассы"
+   },
+   "ka": {
+    "one": "{n} ტრასა",
+    "other": "{n} ტრასა"
+   },
+   "where": "site/js/app.js",
+   "note": "in the resort picker, round 23",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "resort.lifts_n": {
+   "he": {
+    "one": "רכבל אחד",
+    "two": "2 רכבלים",
+    "other": "{n} רכבלים"
+   },
+   "en": {
+    "one": "{n} lift",
+    "other": "{n} lifts"
+   },
+   "ru": {
+    "one": "{n} подъёмник",
+    "few": "{n} подъёмника",
+    "many": "{n} подъёмников",
+    "other": "{n} подъёмника"
+   },
+   "ka": {
+    "one": "{n} საბაგირო",
+    "other": "{n} საბაგირო"
+   },
+   "where": "site/js/app.js",
+   "note": "in the resort picker, round 23",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "resort.picker_aria": {
+   "he": "{place}: בחירת אתר סקי",
+   "en": "{place}: choose a ski resort",
+   "ru": "{place}: выбор курорта",
+   "ka": "{place}: სათხილამურო კურორტის არჩევა",
+   "where": "site/js/app.js",
+   "note": "the place name is the button that opens the resort list (round 23)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "resort.list_aria": {
+   "he": "אתרי סקי",
+   "en": "Ski resorts",
+   "ru": "Горнолыжные курорты",
+   "ka": "სათხილამურო კურორტები",
+   "where": "site/js/app.js",
+   "note": "the open resort list",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "resort.pass_top": {
+   "he": "SKI AREA · {place}",
+   "en": "SKI AREA · {place}",
+   "ru": "SKI AREA · {place}",
+   "ka": "SKI AREA · {place}",
+   "where": "site/js/app.js",
+   "note": "'SKI AREA' stays in English, like about.pass_top (round 23)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "resort.pass_runs": {
+   "he": "מסלולים",
+   "en": "Runs",
+   "ru": "Трассы",
+   "ka": "ტრასები",
+   "where": "site/js/app.js",
+   "note": "label on the resort pass card",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "resort.pass_lifts": {
+   "he": "רכבלים",
+   "en": "Lifts",
+   "ru": "Подъёмники",
+   "ka": "საბაგიროები",
+   "where": "site/js/app.js",
+   "note": "label on the resort pass card",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "resort.pass_alt": {
+   "he": "גובה, מ׳",
+   "en": "Altitude, m",
+   "ru": "Высота, м",
+   "ka": "სიმაღლე, მ",
+   "where": "site/js/app.js",
+   "note": "label on the resort pass card",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "resort.pass_aria": {
+   "he": "{place}: {runs} מסלולים, {lifts} רכבלים, גובה {lo} עד {hi} מ׳",
+   "en": "{place}: {runs} runs, {lifts} lifts, from {lo} to {hi} m",
+   "ru": "{place}: трасс {runs}, подъёмников {lifts}, высота от {lo} до {hi} м",
+   "ka": "{place}: {runs} ტრასა, {lifts} საბაგირო, სიმაღლე {lo}–{hi} მ",
+   "where": "site/js/app.js",
+   "note": "screen reader label of the resort pass card",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "resort.country_at": {
+   "he": "אוסטריה",
+   "en": "Austria",
+   "ru": "Австрия",
+   "ka": "ავსტრია",
+   "where": "site/js/app.js",
+   "note": "country",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "resort.country_ge": {
+   "he": "גאורגיה",
+   "en": "Georgia",
+   "ru": "Грузия",
+   "ka": "საქართველო",
+   "where": "site/js/app.js",
+   "note": "country",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "about.credit_terrain_at_label": {
+   "he": "גבהים ותבליט ב-Sölden:",
+   "en": "Heights and relief at Sölden:",
+   "ru": "Высоты и рельеф в Зёльдене:",
+   "ka": "სიმაღლეები და რელიეფი ზელდენში:",
+   "where": "site/index.html",
+   "note": "credit line label (decision 68)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "about.credit_terrain_at": {
+   "he": "© offene Daten Österreichs – Digitales Geländemodell (DGM) Österreich, ברישיון CC BY 3.0 AT, דרך AWS Terrain Tiles.",
+   "en": "© offene Daten Österreichs – Digitales Geländemodell (DGM) Österreich, licensed CC BY 3.0 AT, through AWS Terrain Tiles.",
+   "ru": "© offene Daten Österreichs – Digitales Geländemodell (DGM) Österreich, по лицензии CC BY 3.0 AT, через AWS Terrain Tiles.",
+   "ka": "© offene Daten Österreichs – Digitales Geländemodell (DGM) Österreich, ლიცენზია CC BY 3.0 AT, AWS Terrain Tiles-ის მეშვეობით.",
+   "where": "site/index.html",
+   "note": "the exact attribution statement of the data provider; the German stays as it is",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "about.credit_lifts_tirol_label": {
+   "he": "רכבלים ב-Sölden:",
+   "en": "Lifts in Sölden:",
+   "ru": "Подъёмники в Зёльдене:",
+   "ka": "საბაგიროები ზელდენში:",
+   "where": "site/index.html",
+   "note": "like about.credit_terrain_at_label",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "about.credit_lifts_tirol": {
+   "he": "קיבולת ושנת בנייה: Land Tirol, data.tirol.gv.at (Aufstiegshilfen), ברישיון CC BY 4.0.",
+   "en": "Capacity and year built: Land Tirol, data.tirol.gv.at (Aufstiegshilfen), licensed CC BY 4.0.",
+   "ru": "Пропускная способность и год постройки: Land Tirol, data.tirol.gv.at (Aufstiegshilfen), по лицензии CC BY 4.0.",
+   "ka": "გამტარუნარიანობა და აშენების წელი: Land Tirol, data.tirol.gv.at (Aufstiegshilfen), ლიცენზია CC BY 4.0.",
+   "where": "site/index.html",
+   "note": "the data provider's attribution; 'Land Tirol' and the layer name stay as they are",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "run.kind_private_route": {
+   "he": "דרך לבקתה · פרטית, לא מוכשרת",
+   "en": "Route to a hut · private, not groomed",
+   "ru": "Путь к хижине · частный, не подготовлен",
+   "ka": "გზა ქოხამდე · კერძო, დაუმუშავებელი",
+   "where": "site/js/app.js",
+   "note": "run panel tag for a private ski route to a hut (round 24, 1a)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "map.overview_missing_routes_count": {
+   "he": "דרכי סקי בלי קו במפה · {n}",
+   "en": "Ski routes with no line on the map · {n}",
+   "ru": "Лыжные маршруты без линии на карте · {n}",
+   "ka": "სათხილამურო მარშრუტები ხაზის გარეშე · {n}",
+   "where": "site/js/app.js",
+   "note": "Section heading, {n} = count (round 24, 1a)",
    "check": [
     "ru",
     "ka"

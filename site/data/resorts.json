@@ -1,0 +1,123 @@
+{
+  "schema": 1,
+  "default": "gudauri",
+  "resorts": [
+    {
+      "id": "gudauri",
+      "name": "Gudauri",
+      "country": "GE",
+      "dir": "data/",
+      "proj": {
+        "lat0": 42.51,
+        "lon0": 44.495
+      },
+      "tz": "Asia/Tbilisi",
+      "features": [
+        "trip",
+        "meet",
+        "status",
+        "weather",
+        "kobi",
+        "locate",
+        "group",
+        "videos",
+        "pano"
+      ],
+      "stats": {
+        "runs": 27,
+        "lifts": 16,
+        "km": 42,
+        "alt": [
+          1980,
+          3240
+        ],
+        "byColor": {
+          "green": 3524,
+          "blue": 27560,
+          "red": 6677,
+          "black": 4019
+        }
+      }
+    },
+    {
+      "id": "soelden",
+      "name": "Sölden",
+      "country": "AT",
+      "dir": "data/resorts/soelden/",
+      "proj": {
+        "lat0": 46.948,
+        "lon0": 10.972
+      },
+      "tz": "Europe/Vienna",
+      "features": [],
+      "license": "ODbL",
+      "view3d": {
+        "dist": 9800,
+        "az": 1.5708,
+        "pol": 0.52
+      },
+      "region": "Ötztal",
+      "stats": {
+        "runs": 43,
+        "lifts": 39,
+        "km": 95,
+        "alt": [
+          1350,
+          3250
+        ],
+        "byColor": {
+          "blue": 54527,
+          "red": 27765,
+          "black": 12459
+        },
+        "routes": 7
+      },
+      "pano": {
+        "dir": "img/pano/soelden/",
+        "phone": {
+          "w": 390,
+          "pk": [
+            [
+              "Karleskogel",
+              0.2881,
+              0.5314
+            ],
+            [
+              "Schwarzkogel",
+              0.6199,
+              0.4807
+            ]
+          ],
+          "vil": [
+            0.98,
+            3.8
+          ]
+        },
+        "wide": {
+          "w": 1440,
+          "pk": [
+            [
+              "Gaislachkogel",
+              0.2727,
+              0.3835
+            ],
+            [
+              "Schwarzkogel",
+              0.565,
+              0.4807
+            ],
+            [
+              "Rotkogel",
+              0.6176,
+              0.4724
+            ]
+          ],
+          "vil": [
+            0.76,
+            3.8
+          ]
+        }
+      }
+    }
+  ]
+}

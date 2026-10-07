@@ -6,6 +6,7 @@
   --snow:#EEF2F5; --paper:#FFFFFF; --ink:#13233A; --muted:#4B5A6F; --rule:#CBD5DF; --glacier:#1F5FC4;
   --grid:#DCE4EC; --lift:#3A4556; --casing:#FFFFFF;
   --p-green:#1B8A4C; --p-blue:#1F5FC4; --p-red:#D1342B; --p-black:#13233A; --on-board:#FFFFFF;
+  --p-route:#EE8E1C; --p-route-edge:#D1342B; --route-ink:#1A1206;
   --accent:#1F5FC4; --on-accent:#FFFFFF; --dash:#8E9CAD;
   --sky1:#DCE8F1; --sky2:#EEF2F5;
   --water:#8db6d8; --water-edge:#5f8fbb; --road:#a49a91; --road-main:#8a7c70; --vill:#e3d8cb; --contour:#8193a8; --contour-i:#62758c; --peak:#3d4a5c;
@@ -22,6 +23,7 @@
   --snow:#0D1522; --paper:#16223A; --ink:#EAF0F7; --muted:#A3B3C8; --rule:#2A3B55; --glacier:#8DB9FF;
   --grid:#18263A; --lift:#C9D3E0; --casing:#0D1522;
   --p-green:#3CC47C; --p-blue:#5B9BFF; --p-red:#FF6A5F; --p-black:#EAF0F7; --on-board:#0D1522;
+  --p-route:#F5A84B; --p-route-edge:#FF6A5F;
   --accent:#F4B942; --on-accent:#0D1522; --dash:#51627D;
   --sky1:#0B1320; --sky2:#16223A;
   --water:#2c5a82; --water-edge:#4d82b3; --road:#6d6760; --road-main:#8f857b; --vill:#3a352f; --contour:#5a6d85; --contour-i:#7a90aa; --peak:#c9d3e0;
@@ -35,6 +37,7 @@
   --snow:#0D1522; --paper:#16223A; --ink:#EAF0F7; --muted:#A3B3C8; --rule:#2A3B55; --glacier:#8DB9FF;
   --grid:#18263A; --lift:#C9D3E0; --casing:#0D1522;
   --p-green:#3CC47C; --p-blue:#5B9BFF; --p-red:#FF6A5F; --p-black:#EAF0F7; --on-board:#0D1522;
+  --p-route:#F5A84B; --p-route-edge:#FF6A5F;
   --accent:#F4B942; --on-accent:#0D1522; --dash:#51627D;
   --sky1:#0B1320; --sky2:#16223A;
   --water:#2c5a82; --water-edge:#4d82b3; --road:#6d6760; --road-main:#8f857b; --vill:#3a352f; --contour:#5a6d85; --contour-i:#7a90aa; --peak:#c9d3e0;
@@ -244,7 +247,7 @@ svg#map.drag{cursor:grabbing}
 
 /* panel */
 #panel h2{display:inline-block;max-width:100%;box-sizing:border-box;margin:0 0 14px;padding:6px 16px 6px 30px;background:var(--board,var(--ink));color:var(--on-board);font-family:var(--f-display);font-weight:700;font-size:34px;line-height:1.05;clip-path:polygon(0 50%,16px 0,100% 0,100% 100%,16px 100%)}
-#panel h2.c-green{--board:var(--p-green)}#panel h2.c-blue{--board:var(--p-blue)}#panel h2.c-red{--board:var(--p-red)}#panel h2.c-black{--board:var(--p-black)}
+#panel h2.c-route{--board:var(--p-route);color:var(--route-ink)}#panel h2.c-green{--board:var(--p-green)}#panel h2.c-blue{--board:var(--p-blue)}#panel h2.c-red{--board:var(--p-red)}#panel h2.c-black{--board:var(--p-black)}
 #panel h2.ov{display:block;padding:0;background:none;color:var(--ink);clip-path:none;font-size:40px;margin:0 0 6px}
 #panel h3{font-family:var(--f-display);font-weight:700;font-size:25px;line-height:1.1;color:var(--ink);margin:22px 0 8px}
 .lead{margin:0 0 6px;color:var(--muted);font-size:14px}
@@ -255,10 +258,10 @@ svg#map.drag{cursor:grabbing}
 .pips{display:inline-flex;gap:3px;vertical-align:middle;margin-inline-end:6px}
 .pips i{width:10px;height:10px;background:var(--rule)}
 .pips i.on{background:currentColor}
-.c-green{color:var(--p-green)}.c-blue{color:var(--p-blue)}.c-red{color:var(--p-red)}.c-black{color:var(--p-black)}
+.c-route{color:var(--p-route-edge)}.c-green{color:var(--p-green)}.c-blue{color:var(--p-blue)}.c-red{color:var(--p-red)}.c-black{color:var(--p-black)}
 .notice{border-inline-start:4px solid var(--p-blue);background:var(--snow);padding:10px 12px;font-size:.9rem}
 .sw{width:12px;height:12px;display:inline-block;flex:none}
-.sw.green{background:var(--p-green)}.sw.blue{background:var(--p-blue)}.sw.red{background:var(--p-red)}.sw.black{background:var(--p-black)}
+.sw.green{background:var(--p-green)}.sw.blue{background:var(--p-blue)}.sw.red{background:var(--p-red)}.sw.black{background:var(--p-black)}.sw.route{background:var(--p-red);transform:rotate(45deg) scale(.8)}
 .sw.lift{height:2px;background:var(--lift)}
 .sw.unnamed{height:0;border-top:2px dashed var(--muted)}
 .index{display:grid;grid-template-columns:1fr 1fr;column-gap:16px}
@@ -273,7 +276,7 @@ svg#map.drag{cursor:grabbing}
 #panel .tag[class*="c-"]::before{content:"";width:10px;height:10px;flex:none;background:var(--tc)}
 /* 40 pixels to the eye, 44 to the finger, without the rows of tags touching */
 #panel .tag::after{content:"";position:absolute;inset:-2px 0}
-.tag.c-green{--tc:var(--p-green)}.tag.c-blue{--tc:var(--p-blue)}.tag.c-red{--tc:var(--p-red)}.tag.c-black{--tc:var(--p-black)}
+.tag.c-route{--tc:var(--p-route)}.tag.c-green{--tc:var(--p-green)}.tag.c-blue{--tc:var(--p-blue)}.tag.c-red{--tc:var(--p-red)}.tag.c-black{--tc:var(--p-black)}
 ul.notes{margin:0;padding-inline-start:18px;font-size:.92rem}
 ul.notes li{margin-bottom:4px}
 .vids{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:8px}
@@ -325,7 +328,7 @@ ul.notes li{margin-bottom:4px}
 
 /* 3D */
 #map3d{position:absolute;inset:0;background:linear-gradient(180deg,var(--sky1),var(--sky2) 70%);overflow:hidden}
-.r3-labels{--ink:#13233A;--muted:#4B5A6F;--peak:#3d4a5c;--casing:#FFFFFF;--p-green:#1B8A4C;--p-blue:#1F5FC4;--p-red:#D1342B;--p-black:#13233A}
+.r3-labels{--ink:#13233A;--muted:#4B5A6F;--peak:#3d4a5c;--casing:#FFFFFF;--p-green:#1B8A4C;--p-blue:#1F5FC4;--p-red:#D1342B;--p-black:#13233A;--p-route:#EE8E1C;--p-route-edge:#D1342B}
 #map3d[hidden]{display:none}
 .r3-labels{position:absolute;inset:0;pointer-events:none;overflow:hidden}
 .r3-lbl{position:absolute;left:0;top:0;display:none;white-space:nowrap;font-size:12.5px;line-height:1.2;direction:ltr;color:var(--ink);text-shadow:0 0 3px var(--casing),0 0 3px var(--casing),0 0 2px var(--casing)}
@@ -338,6 +341,13 @@ ul.notes li{margin-bottom:4px}
 .r3-lbl.lift{font-size:11.5px;font-weight:600;font-style:italic;color:var(--ink)}
 .r3-lbl.lift .lift-ico{color:var(--ink)}
 .r3-lbl.piste.c-black{color:var(--p-black)}
+.r3-lbl.piste.c-route{color:var(--p-route-edge)}
+/* number plates in 3D, as on the map from above (rounds 23 and 24): the run's colour, a white edge, the number in white; a ski route a red diamond */
+.r3-lbl.plate{text-shadow:none;line-height:0}
+.r3-lbl.plate i{display:inline-block;min-width:22px;height:20px;padding:0 4px;box-sizing:border-box;font:700 17px/20px var(--f-display);font-style:normal;text-align:center;color:#fff;background:var(--p-blue);box-shadow:0 0 0 1.6px var(--casing)}
+.r3-lbl.plate.c-green i{background:var(--p-green)}.r3-lbl.plate.c-red i{background:var(--p-red)}.r3-lbl.plate.c-black i{background:var(--p-black)}
+.r3-lbl.plate.c-route{width:40px;height:32px;background:var(--casing);clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%)}
+.r3-lbl.plate.c-route i{position:absolute;inset:2px;min-width:0;height:auto;padding:0;font-size:15px;line-height:28px;background:var(--p-red);box-shadow:none;clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%)}
 
 /* phones */
 @media (max-width:760px){
@@ -377,6 +387,7 @@ ul.notes li{margin-bottom:4px}
 .runpaint path{transition-duration:.35s}
 .runpaint .rp-ground{opacity:0;transition:opacity .9s ease-out;image-rendering:auto}
 .runpaint.on .rp-ground{opacity:1}
+.runpaint image.rp-area{opacity:0;transition:opacity .9s ease-out}.runpaint.on image.rp-area{opacity:1}
 .runpaint.on line,.runpaint.on path{opacity:1}
 .runmark{fill:var(--ink);stroke:#fff;stroke-width:3;pointer-events:none}
 #map .relief{transition:opacity .5s}
@@ -508,7 +519,7 @@ ul.notes li{margin-bottom:4px}
 #map .lg.closed path:nth-child(2){stroke:var(--dash);stroke-dasharray:4 4}
 #map .lg.closed circle{fill:var(--dash)}
 .chair{fill:#F4B942;stroke:var(--ink);stroke-width:1;vector-effect:non-scaling-stroke;pointer-events:none}
-.pg.shut path:nth-child(2){stroke:var(--dash)!important;stroke-dasharray:6 5}
+.pg.shut path.core{stroke:var(--dash)!important;stroke-dasharray:6 5}.pg-area.shut{fill:var(--dash);stroke:var(--dash)}
 .forme .pg.shut{opacity:.15}
 .lstat{margin:4px 0 18px}
 .lstat h3{margin-top:6px!important}
@@ -1162,3 +1173,64 @@ html[lang="ka"] .pv-doc h1{font-size:36px;overflow-wrap:anywhere}
 .ts-route button[aria-pressed="true"]{border-color:var(--ink);background:var(--ink);color:var(--paper)}
 .ts-route a{display:inline-flex;align-items:center;min-height:44px;padding:0 6px;color:var(--glacier);font-weight:700}
 .ts-times{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+/* round 23 (decision 68): several resorts. The place name is the picker; a resort with no trip shows its pass card;
+   a run whose name is a number gets a plate in its colour on the map */
+.rs-btn{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 10px;margin-inline-start:-10px;background:transparent;border:0;color:inherit;cursor:pointer;text-align:start}
+.rs-btn:not(.brand){font:inherit}
+.rs-btn .rs-chev{flex:none;opacity:.8}
+.topbar .brand.rs-btn{margin-inline-start:0;padding:0}
+.home-top .loc .rs-btn{text-shadow:inherit}
+.rs-scrim{position:fixed;inset:0;background:rgba(13,21,34,.42);z-index:90}
+.rs-sheet{position:fixed;inset-inline:0;bottom:0;z-index:91;background:var(--snow);padding:12px 16px calc(34px + env(safe-area-inset-bottom,0px));box-shadow:0 -6px 24px rgba(13,21,34,.25)}
+.rs-sheet .grab{width:44px;height:5px;margin:0 auto 14px;background:var(--rule)}
+.rs-pop{position:fixed;top:60px;z-index:91;width:360px;max-width:calc(100vw - 24px);box-sizing:border-box;background:var(--snow);padding:14px 14px 16px;border:1.5px solid var(--ink);box-shadow:0 10px 28px rgba(13,21,34,.22)}
+.rs-list{position:relative;display:flex;flex-direction:column;gap:12px;padding-inline-start:18px}
+.rs-list::before{content:"";position:absolute;inset-block:-6px -4px;inset-inline-start:6px;width:6px;border-radius:3px;background:var(--ink)}
+.rs-res{display:flex;align-items:center;gap:12px;min-height:64px;padding:8px 16px 8px 34px;border:0;background:var(--p-blue);color:var(--on-board);font:inherit;text-align:start;cursor:pointer;clip-path:polygon(0 50%,22px 0,100% 0,100% 100%,22px 100%)}
+[dir="ltr"] .rs-res{padding:8px 34px 8px 16px;clip-path:polygon(0 0,calc(100% - 22px) 0,100% 50%,calc(100% - 22px) 100%,0 100%)}
+.rs-res .t{flex:1;display:flex;flex-direction:column;gap:3px;min-width:0}
+.rs-res b{font:700 32px/1 var(--f-display)}
+.rs-res .t span{font:500 13px var(--f-body);opacity:.92}
+.rs-res.off{background:var(--ink);color:var(--paper);width:94%}
+.rs-res.on{box-shadow:inset 0 0 0 3px var(--on-board);cursor:default}
+.rs-res .ck{display:grid;place-items:center;flex:none;width:30px;height:30px;border-radius:50%;background:var(--on-board);color:var(--p-blue)}
+.rpass{max-width:440px;background:var(--paper);overflow:hidden;box-shadow:0 10px 24px var(--shadow);transform:rotate(-1.5deg);margin:22px 0 0;color:var(--ink)}
+.rpass .top{display:flex;justify-content:space-between;gap:10px;padding:8px 14px;background:var(--p-blue);color:var(--on-board);font:700 12px var(--f-body);letter-spacing:.06em}
+.rpass .body{padding:14px 16px 16px;display:flex;flex-direction:column;gap:12px}
+.rpass .nm{display:flex;align-items:baseline;justify-content:space-between;gap:10px}
+.rpass .nm b{font:700 54px/0.95 var(--f-display)}
+.rpass .nm span{font:600 14px var(--f-body);color:var(--muted)}
+.rpass .kv{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,.8fr) minmax(0,1.6fr);gap:8px;border-top:2px dashed var(--rule);padding-top:12px}
+.rpass .kv div{display:flex;flex-direction:column;gap:2px;min-width:0}
+.rpass .kv small{font:600 12px var(--f-body);color:var(--muted)}
+.rpass .kv b{font:700 26px/1 var(--f-display);direction:ltr;text-align:start;white-space:nowrap;overflow:hidden;text-overflow:clip}
+.rpass .chips{display:flex;gap:6px}
+.rpass .chips i{height:8px}
+@media (min-width:900px){.rpass{margin-top:170px;align-self:start}}
+.lbl.plate rect{stroke:var(--casing);vector-effect:non-scaling-stroke}
+.lbl.plate text{font-family:var(--f-display);font-weight:700;fill:var(--on-board);stroke:none}
+
+/* round 24: ski routes (a kind of their own, no difficulty) and wide runs that show */
+.pg-area{stroke-width:3.4;stroke-linejoin:round}
+.lbl.plate.route polygon{stroke:var(--casing);vector-effect:non-scaling-stroke}
+.lbl.plate.route polygon{fill:var(--p-red)}.lbl.plate.route text{fill:var(--on-board)}
+.route-tag{display:inline-flex;align-items:center;gap:8px;min-height:30px;padding:3px 10px;border:2px solid var(--p-route);font-weight:700;line-height:1.25}
+.route-tag i{flex:none;width:12px;height:12px;background:var(--p-red);transform:rotate(45deg)}
+/* the legend: a chip in the scale's corner that opens a card upward, like the Kobi one (round 24) */
+.mlegend{position:absolute;bottom:12px;left:12px;z-index:3;display:flex;flex-direction:column;align-items:flex-start;gap:6px;max-width:calc(100% - 24px)}
+.ml-chip{display:inline-flex;align-items:center;gap:7px;height:44px;padding:0 14px;font:inherit;font-weight:600;font-size:14px;border:1.5px solid var(--rule);background:var(--paper);color:var(--ink);cursor:pointer}
+.ml-chip[aria-expanded="true"]{border-color:var(--ink)}
+.ml-card{display:flex;flex-direction:column;gap:7px;padding:10px 12px 12px;background:var(--paper);border:1.5px solid var(--rule);font-size:.82rem;font-weight:600;color:var(--ink);min-width:150px;box-shadow:0 3px 12px var(--shadow)}
+.ml-card[hidden]{display:none}
+.ml-head{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:.9rem}
+.ml-head b{font-weight:700}
+.ml-x{width:44px;height:44px;margin-block:-12px -10px;margin-inline-end:-12px;border:0;background:none;color:var(--muted);font:inherit;font-size:1rem;cursor:pointer}
+.ml-card span{display:flex;align-items:center;gap:8px;white-space:nowrap}
+.ml-card svg{flex:none}
+.mapwrap.has-legend .scale,.mapwrap.has-legend .hint3d{bottom:64px}
+.mapwrap.legend-open .scale,.mapwrap.legend-open .hint3d{visibility:hidden}
+.mapwrap.has-where .mlegend{bottom:76px}
+.mapwrap.flying .mlegend{visibility:hidden}
+.fchip .sw.route{width:10px;height:10px}
+.sq.route{background:var(--p-red);transform:rotate(45deg) scale(.8)}
