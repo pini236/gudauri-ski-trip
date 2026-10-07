@@ -6,9 +6,12 @@
   function css(){
     if(document.getElementById('r24-css'))return;
     const s=document.createElement('style');s.id='r24-css';s.textContent=`
-      :root{--p-route:#D96A00;--route-ink:#1A1206}
-      @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--p-route:#FF9A3D;--route-ink:#1A1206}}
-      :root[data-theme="dark"]{--p-route:#FF9A3D}
+      :root{--p-route:#D96A00;--route-ink:#1A1206;--p-route-band:#EE8E1C;--p-route-edge:#D1342B}
+      @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--p-route:#FF9A3D;--route-ink:#1A1206;--p-route-band:#F5A84B;--p-route-edge:#FF6A5F}}
+      :root[data-theme="dark"]{--p-route:#FF9A3D;--p-route-band:#F5A84B;--p-route-edge:#FF6A5F}
+      #panel h2.r24-h.r24-off{--board:var(--p-route-band)}
+      .r24-tag.off{border-color:var(--p-route-band)} .r24-tag.off i{background:var(--p-red)}
+      .r24-dia.off{background:var(--p-red)}
       .r24-tag{display:inline-flex;align-items:center;gap:8px;min-height:30px;padding:3px 10px;border:2px solid var(--p-route);font-weight:700;font-size:.92rem;line-height:1.25}
       .r24-tag i{flex:none;width:14px;height:14px;background:var(--p-route);transform:rotate(45deg)}
       #panel h2.r24-h{--board:var(--p-route);color:var(--route-ink)}
@@ -20,24 +23,28 @@
   }
   const NS='http://www.w3.org/2000/svg';
   const mk=(n,a,p)=>{const e=document.createElementNS(NS,n);for(const k in a)e.setAttribute(k,a[k]);p&&p.appendChild(e);return e;};
-  function routes(keys){
+  function routes(keys,off,hut){
     let n=0;
     keys.forEach(k=>{
       document.querySelectorAll(`#map2d g.pg[data-key="${CSS.escape(k)}"], svg g.pg[data-key="${CSS.escape(k)}"]`).forEach(g=>{
         if(g.classList.contains('lbl'))return;
         const ps=g.querySelectorAll('path');
-        ps.forEach((p,i)=>{if(i%2===0){p.setAttribute('stroke-width',5.5);}else{p.setAttribute('stroke','var(--p-route)');p.setAttribute('stroke-width',2.8);p.setAttribute('stroke-dasharray','7 5');}});
+        const isHut=hut&&k===hut;
+        if(off&&isHut){ps.forEach((p,i)=>{if(i%2===0)p.setAttribute('stroke-width',4);else{p.setAttribute('stroke','var(--p-route-edge)');p.setAttribute('stroke-width',1.8);p.setAttribute('stroke-dasharray','4 3');}});}
+        else if(off){ps.forEach((p,i)=>{if(i%2===0){p.setAttribute('stroke-width',8);const e=p.cloneNode();e.setAttribute('stroke','var(--p-route-edge)');e.setAttribute('stroke-width',6);e.setAttribute('stroke-dasharray','2 2.5');e.setAttribute('stroke-linecap','butt');p.after(e);}else{p.setAttribute('stroke','var(--p-route-band)');p.setAttribute('stroke-width',3.6);}});}
+        else ps.forEach((p,i)=>{if(i%2===0){p.setAttribute('stroke-width',5.5);}else{p.setAttribute('stroke','var(--p-route)');p.setAttribute('stroke-width',2.8);p.setAttribute('stroke-dasharray','7 5');}});
         g.classList.remove('red','black','blue');n++;
       });
       // the plate: a diamond, so it reads as "not a run" even without colour
       document.querySelectorAll(`g.lbl.plate[data-key="${CSS.escape(k)}"]`).forEach(t=>{
         const r=t.querySelector('rect');if(!r)return;const w=k.length>1?40:32;
-        const d=mk('polygon',{points:`${-w/2},0 0,${-16} ${w/2},0 0,16`,fill:'var(--p-route)',stroke:'var(--casing)','stroke-width':1.8},null);
-        t.replaceChild(d,r);const tx=t.querySelector('text');tx.setAttribute("font-size",15);tx.style.fill='var(--route-ink)';
+        const d=mk('polygon',{points:`${-w/2},0 0,${-16} ${w/2},0 0,16`,fill:off?'var(--p-red)':'var(--p-route)',stroke:'var(--casing)','stroke-width':1.8},null);
+        t.replaceChild(d,r);const tx=t.querySelector('text');tx.setAttribute("font-size",15);tx.style.fill=off?'var(--on-board)':'var(--route-ink)';
+        if(off&&hut&&k===hut)t.style.display='none';
         t.classList.remove('red','black','blue');
       });
       // a name (Gaislachalm): the label in the route's colour
-      document.querySelectorAll(`text.lbl[data-key="${CSS.escape(k)}"]`).forEach(t=>{t.setAttribute('fill','var(--p-route)');t.classList.remove('red','black','blue');});
+      document.querySelectorAll(`text.lbl[data-key="${CSS.escape(k)}"]`).forEach(t=>{t.setAttribute('fill',off?'var(--p-route-edge)':'var(--p-route)');t.classList.remove('red','black','blue');});
     });
     return n;
   }
@@ -72,50 +79,50 @@
     });
     return n;
   }
-  function legend(f){
+  function legend(f,off){
     const w=document.querySelector('.mapwrap');if(!w||w.querySelector('.r24-legend'))return;
     const d=document.createElement('div');d.className='r24-legend';
-    d.innerHTML=`<span><svg width="34" height="12"><path d="M2 6H32" stroke="var(--casing)" stroke-width="6" stroke-linecap="round"/><path d="M2 6H32" stroke="var(--p-route)" stroke-width="3" stroke-dasharray="7 5"/></svg>דרך סקי</span>
+    d.innerHTML=`<span><svg width="34" height="12"><path d="M2 6H32" stroke="var(--casing)" stroke-width="6" stroke-linecap="round"/>${off?'<path d="M2 6H32" stroke="var(--p-route-edge)" stroke-width="6" stroke-dasharray="2 2.5"/><path d="M2 6H32" stroke="var(--p-route-band)" stroke-width="3.6"/>':'<path d="M2 6H32" stroke="var(--p-route)" stroke-width="3" stroke-dasharray="7 5"/>'}</svg>דרך סקי</span>${off?'<span><svg width="34" height="12"><path d="M2 6H32" stroke="var(--casing)" stroke-width="4" stroke-linecap="round"/><path d="M2 6H32" stroke="var(--p-route-edge)" stroke-width="1.8" stroke-dasharray="4 3"/></svg>דרך לבקתה</span>':''}
       <span><svg width="34" height="12"><path d="M2 6H32" stroke="var(--casing)" stroke-width="5" stroke-linecap="round"/><path d="M2 6H32" stroke="var(--p-blue)" stroke-width="2.6" stroke-dasharray="8 5"/></svg>דרך מקשרת</span>
       <span><svg width="34" height="14"><rect x="2" y="2" width="30" height="10" fill="var(--p-red)" fill-opacity="${f?1:.3}" stroke="var(--p-red)" stroke-width="1.3"/></svg>מסלול רחב</span>`;
     w.appendChild(d);
   }
   // the run panel of a route: the kind instead of colour and difficulty
   // the run list: ski routes out of the runs, in a section of their own, with the diamond
-  function list(keys){
+  function list(keys,off){
     const idx=document.querySelector('#panel .index');if(!idx)return 0;
     const bs=[...idx.querySelectorAll('button[data-goto]')].filter(b=>keys.includes(b.dataset.goto));if(!bs.length)return 0;
     const h3=document.createElement('h3');h3.textContent=`דרכי סקי · ${bs.length}`;
     const nb=document.createElement('div');nb.className='index';
-    bs.forEach(b=>{const sw=b.querySelector('.sw');if(sw){const d=document.createElement('span');d.className='r24-dia';sw.replaceWith(d);}nb.appendChild(b);});
+    bs.forEach(b=>{const sw=b.querySelector('.sw');if(sw){const d=document.createElement('span');d.className='r24-dia'+(off?' off':'');sw.replaceWith(d);}nb.appendChild(b);});
     idx.after(h3,nb);return bs.length;
   }
   // ski routes without a line in the open map: their own row under the missing runs, with the diamond
-  function missing(keys){
+  function missing(keys,off){
     const box=document.querySelector('#panel .miss');if(!box)return 0;
     const bs=[...box.querySelectorAll('button[data-goto]')].filter(b=>keys.includes(b.dataset.goto));if(!bs.length)return 0;
     const h=box.previousElementSibling;if(h&&h.tagName==='H3')h.textContent=h.textContent.replace(/\d+/,String(box.children.length-bs.length));
     const h3=document.createElement('h3');h3.textContent=`דרכי סקי בלי קו במפה · ${bs.length}`;
     const nb=document.createElement('div');nb.className='miss';
-    bs.forEach(b=>{const sw=b.querySelector('.sw');if(sw){const d=document.createElement('span');d.className='r24-dia';sw.replaceWith(d);}nb.appendChild(b);});
+    bs.forEach(b=>{const sw=b.querySelector('.sw');if(sw){const d=document.createElement('span');d.className='r24-dia'+(off?' off':'');sw.replaceWith(d);}nb.appendChild(b);});
     box.after(h3,nb);return bs.length;
   }
-  function panel(k,hut){
+  function panel(k,hut,off){
     const pn=document.getElementById('panel');if(!pn)return false;
-    const h=pn.querySelector('.run-sign h2')||pn.querySelector('h2');if(!h)return false;h.className='r24-h';
+    const h=pn.querySelector('.run-sign h2')||pn.querySelector('h2');if(!h)return false;h.className='r24-h'+(off?' r24-off':'');
     const dl=pn.querySelector('dl.kv');if(!dl)return false;
     const dts=[...dl.querySelectorAll('dt')];
     const find=re=>dts.find(t=>re.test(t.textContent));
     const color=find(/צבע/),diff=find(/קושי/),osm=find(/OSM|במפה הפתוחה/),groom=find(/הכשר|הכנה/);
-    if(color){color.textContent='סוג';color.nextElementSibling.innerHTML=(hut?'<span class="r24-tag"><i></i>דרך לבקתה · פרטית, לא מוכשרת</span>':'<span class="r24-tag"><i></i>דרך סקי · לא מוכשרת, לא נבדקת</span>');}
+    if(color){color.textContent='סוג';color.nextElementSibling.innerHTML=(hut?`<span class="r24-tag${off?' off':''}"><i></i>דרך לבקתה · פרטית, לא מוכשרת</span>`:`<span class="r24-tag${off?' off':''}"><i></i>דרך סקי · לא מוכשרת, לא נבדקת</span>`);}
     [diff,osm,groom].forEach(t=>{if(t){t.nextElementSibling.remove();t.remove();}});
     return true;
   }
   window.R24={apply(o){css();const r={};
-    if(o.routes){r.routes=routes(o.routes);r.list=list(o.routes);}
+    if(o.routes){r.routes=routes(o.routes,o.off,o.hutKey);r.list=list(o.routes,o.off);}
     if(o.areas==='full')r.areas=full();else if(o.areas)r.areas=areas(o.areas);
-    if(o.legend)legend(o.areas==="full");
-    if(o.panel)r.panel=panel(o.panel,o.hut);
-    if(o.missing)r.missing=missing(o.missing);
+    if(o.legend)legend(o.areas==="full",o.off);
+    if(o.panel)r.panel=panel(o.panel,o.hut,o.off);
+    if(o.missing)r.missing=missing(o.missing,o.off);
     return r;}};
 })();
