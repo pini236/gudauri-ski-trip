@@ -680,6 +680,46 @@ lang() {
 
 # ---- the phone's own language, with no choice in the app (decision 47): Hebrew only on a phone set to Hebrew ----
 # the emulator's whole system language changes (root, then the system restarts); a fresh install has no app choice
+phoneLocalesReset() {
+  local attempt actual set_status get_status
+  local expected="Locales for $PKG for user 0 are []"
+  for attempt in 1 2 3; do
+    # Quote the empty argument for the device shell, not just the host's adb argument list.
+    timeout 5s adb shell "cmd locale set-app-locales '$PKG' --user 0 --locales ''" >> "$OUT/phone-locales.txt" 2>&1
+    set_status=$?
+    actual=$(timeout 5s adb shell cmd locale get-app-locales "$PKG" --user 0 2>&1); get_status=$?
+    actual=${actual//$'\r'/}
+    printf 'reset attempt %s: set=%s get=%s read=%s\n' "$attempt" "$set_status" "$get_status" "$actual" >> "$OUT/phone-locales.txt"
+    # Android's shell command can print Unknown package/Remote Exception and still return zero.
+    if [[ "$set_status" == 0 && "$get_status" == 0 && "$actual" == "$expected" ]]; then
+      note "phone precondition: app locales verified empty for user 0"
+      return 0
+    fi
+    [[ "$attempt" == 3 ]] || sleep 1
+  done
+  fail "phone precondition: empty app locales not verified for user 0 (phone-locales.txt)"
+  return 1
+}
+phoneStartupAutomatic() {
+  local pid line="" deadline
+  if ! pid=$(timeout 5s adb shell pidof "$PKG" 2> /dev/null | tr -d '\r') || [[ ! "$pid" =~ ^[0-9]+$ ]]; then
+    fail "phone precondition: no app process for language check"; return 1
+  fi
+  deadline=$((SECONDS + 5))
+  # Match only this process: restarting logcat may backfill another language's old startup line.
+  while (( SECONDS < deadline )); do
+    kill -0 "$LOGCAT" 2> /dev/null || { note "log stream broke: started again"; logcat_on; }
+    line=$(grep "SkiQa.*[(][[:space:]]*$pid[)]: language " "$OUT/logcat.txt" | tail -1)
+    [ -n "$line" ] && break
+    sleep 0.5
+  done
+  [ -z "$line" ] || note "  app: ${line#*: }"
+  if [[ "$line" != *" · automatic" ]]; then
+    fail "phone precondition: startup did not confirm automatic language for process $pid"
+    return 1
+  fi
+  return 0
+}
 phone() {
   # root, to change the whole system's language; the emulator sometimes answers late, so a few tries
   local rooted="" r
@@ -691,7 +731,7 @@ phone() {
   adb shell pm grant "$PKG" android.permission.POST_NOTIFICATIONS > /dev/null 2>&1 || true
   # no language chosen in the app: the system keeps an app's choice across a quick reinstall (the run set Hebrew at its
   # start), and this part runs on an emulator of its own, with no "from the phone" before it (3.10.2026)
-  adb shell cmd locale set-app-locales "$PKG" > /dev/null 2>&1; sleep 1
+  phoneLocalesReset || return 1
   local loc
   for loc in he-IL ru-RU ka-GE en-US; do
     adb shell setprop persist.sys.locale "$loc"; adb shell setprop ctl.restart zygote
@@ -708,15 +748,18 @@ phone() {
       awk -v l="${load:-99}" 'BEGIN { exit !(l < 24) }' && break; sleep 3; waited=$((waited + 3)); done
     kill "$LOGCAT" 2> /dev/null; logcat_on # the restart dropped the log stream
     note "system language asked $loc (load $load after ${waited} s): $(adb shell getprop persist.sys.locale | tr -d '\r'), the system says $(adb shell am get-config 2> /dev/null | grep -m1 -oE '^config: [^ ]+' | tr -d '\r')"
+    phoneLocalesReset || return 1
+    # A fresh process must log its language after the verified reset, even if Android relaunched it during startup.
+    adb shell am force-stop "$PKG" > /dev/null
     # the system may still be coming back from the restart (its "booted" flag outlives it): start the app until it answers
     local opened=""
     for i in 1 2 3; do
       mark; adb shell am start -W -n "$ACT" --es qa.tab home --es qa.trip none --es qa.mode auto > /dev/null 2>&1
       seen "trip none" 30 && { opened=1; break; }; sleep 5
     done
-    [ -z "$opened" ] && fail "the app did not open on a phone in $loc"
+    if [ -z "$opened" ]; then fail "the app did not open on a phone in $loc"; return 1; fi
+    phoneStartupAutomatic || return 1
     sleep 3; shot "phone-$loc"
-    tail -n +"$((MARK + 1))" "$OUT/logcat.txt" | grep -m1 "SkiQa.*language " | sed 's/.*SkiQa[^:]*: /  app: /' | tee -a "$OUT/summary.txt"
     # the screen reader of the test can be slow to come back after the restart: a few tries
     local want="When do you fly?" got=""; [ "$loc" = he-IL ] && want="מתי טסים?"
     for i in 1 2 3 4 5; do got=$(where "$want"); [ -n "$got" ] && break
