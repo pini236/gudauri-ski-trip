@@ -267,15 +267,60 @@ jobs:
       GH_REPO: ${{ github.repository }}
       APP_VERSION_NAME: 0.1.${{ github.run_number }}
     steps:
-      - name: Check this is still the current main commit
+      - name: Check Android build inputs still match main
         id: current
         run: |
-          current=$(gh api "repos/$GH_REPO/branches/main" -q '.commit.sha')
-          if [ "$current" != "$GITHUB_SHA" ]; then
-            echo "Skipping publication: main has advanced beyond this run." >> "$GITHUB_STEP_SUMMARY"
-            echo 'ok=false' >> "$GITHUB_OUTPUT"
-          else
+          cat > "$RUNNER_TEMP/android-freshness.sh" <<'FRESHNESS'
+          SOURCE_GIT="$RUNNER_TEMP/android-release-source.git"
+          if [ ! -d "$SOURCE_GIT" ]; then
+            git -c init.defaultBranch=main init --bare "$SOURCE_GIT" > /dev/null
+            git --git-dir="$SOURCE_GIT" remote add origin "$GITHUB_SERVER_URL/$GH_REPO.git"
+          fi
+          fresh_inputs() {
+            local auth status
+            # Keep this list aligned with both workflow path filters. Compare trees, without checking out or running main.
+            local input_paths=(
+              ':(glob)app/android/**'
+              ':(glob)site/data/**'
+              ':(glob)site/audio/**'
+              ':(glob)site/games/descent/**'
+              ':(glob)site/games/thumbs/**'
+              ':(glob)site/img/pano/**'
+              ':(literal)site/css/site.css'
+              ':(literal)site/js/app.js'
+              ':(literal)site/js/relief.js'
+              ':(literal)server/CONTRACT.md'
+              ':(glob)tools/fixtures/**'
+              ':(literal)tools/build-app-data.py'
+              ':(literal)tools/build-app-strings.py'
+              ':(literal)i18n/strings.json'
+              ':(literal).github/workflows/android.yml'
+            )
+            auth=$(printf '%s' "x-access-token:$GH_TOKEN" | base64 -w 0) || return 2
+            printf '::add-mask::%s\n' "$auth"
+            # Authentication is scoped to this fetch and never saved in the repository. Fetch errors are not stale results.
+            GIT_CONFIG_COUNT=1 \
+              GIT_CONFIG_KEY_0="http.$GITHUB_SERVER_URL/.extraheader" \
+              GIT_CONFIG_VALUE_0="AUTHORIZATION: basic $auth" \
+              git --git-dir="$SOURCE_GIT" -c protocol.version=2 fetch --filter=blob:none --no-tags --depth=1 origin \
+                "$GITHUB_SHA:refs/source/build" '+refs/heads/main:refs/source/main' || return 2
+            if git --git-dir="$SOURCE_GIT" diff --quiet --no-renames --no-ext-diff refs/source/build refs/source/main -- "${input_paths[@]}"; then
+              return 0
+            else
+              status=$?
+              [ "$status" -eq 1 ] && return 1
+              return 2
+            fi
+          }
+          FRESHNESS
+          source "$RUNNER_TEMP/android-freshness.sh"
+          if fresh_inputs; then
             echo 'ok=true' >> "$GITHUB_OUTPUT"
+          else
+            status=$?
+            if [ "$status" -ne 1 ]; then exit "$status"; fi
+            echo "Skipping publication: Android build inputs changed on main." >> "$GITHUB_STEP_SUMMARY"
+            echo 'ok=false' >> "$GITHUB_OUTPUT"
           fi
       - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         if: steps.current.outputs.ok == 'true'
@@ -285,13 +330,17 @@ jobs:
       - name: Publish the preview
         if: steps.current.outputs.ok == 'true'
         run: |
+          source "$RUNNER_TEMP/android-freshness.sh"
           # Keep the release and upload first under a temporary name, then replace the fixed asset (R-10).
           put() {
             local tag=$1 file=$2 name=$3 tmp="next-$3" api="repos/$GH_REPO/releases"
-            local current published
-            current=$(gh api "repos/$GH_REPO/branches/main" -q '.commit.sha')
-            if [ "$current" != "$GITHUB_SHA" ]; then
-              echo "Skipping publication: main has advanced beyond this run." >> "$GITHUB_STEP_SUMMARY"
+            local published status
+            if fresh_inputs; then
+              :
+            else
+              status=$?
+              if [ "$status" -ne 1 ]; then return "$status"; fi
+              echo "Skipping publication: Android build inputs changed on main." >> "$GITHUB_STEP_SUMMARY"
               return 0
             fi
             gh release view "$tag" > /dev/null 2>&1 \
@@ -304,11 +353,14 @@ jobs:
             gh release delete-asset "$tag" "$tmp" --yes 2> /dev/null || true
             cp "$file" "$RUNNER_TEMP/$tmp"
             gh release upload "$tag" "$RUNNER_TEMP/$tmp"
-            # A push may arrive during upload: keep the existing download if this run is now stale.
-            current=$(gh api "repos/$GH_REPO/branches/main" -q '.commit.sha')
-            if [ "$current" != "$GITHUB_SHA" ]; then
+            # A push may arrive during upload: recheck the build inputs before replacing the existing download.
+            if fresh_inputs; then
+              :
+            else
+              status=$?
+              if [ "$status" -ne 1 ]; then return "$status"; fi
               gh release delete-asset "$tag" "$tmp" --yes
-              echo "Skipping replacement: main advanced during upload." >> "$GITHUB_STEP_SUMMARY"
+              echo "Skipping replacement: Android build inputs changed during upload." >> "$GITHUB_STEP_SUMMARY"
               return 0
             fi
             local ids old new
@@ -337,15 +389,60 @@ jobs:
       GH_REPO: ${{ github.repository }}
       APP_VERSION_NAME: 0.1.${{ github.run_number }}
     steps:
-      - name: Check this is still the current main commit
+      - name: Check Android build inputs still match main
         id: current
         run: |
-          current=$(gh api "repos/$GH_REPO/branches/main" -q '.commit.sha')
-          if [ "$current" != "$GITHUB_SHA" ]; then
-            echo "Skipping publication: main has advanced beyond this run." >> "$GITHUB_STEP_SUMMARY"
-            echo 'ok=false' >> "$GITHUB_OUTPUT"
-          else
+          cat > "$RUNNER_TEMP/android-freshness.sh" <<'FRESHNESS'
+          SOURCE_GIT="$RUNNER_TEMP/android-release-source.git"
+          if [ ! -d "$SOURCE_GIT" ]; then
+            git -c init.defaultBranch=main init --bare "$SOURCE_GIT" > /dev/null
+            git --git-dir="$SOURCE_GIT" remote add origin "$GITHUB_SERVER_URL/$GH_REPO.git"
+          fi
+          fresh_inputs() {
+            local auth status
+            # Keep this list aligned with both workflow path filters. Compare trees, without checking out or running main.
+            local input_paths=(
+              ':(glob)app/android/**'
+              ':(glob)site/data/**'
+              ':(glob)site/audio/**'
+              ':(glob)site/games/descent/**'
+              ':(glob)site/games/thumbs/**'
+              ':(glob)site/img/pano/**'
+              ':(literal)site/css/site.css'
+              ':(literal)site/js/app.js'
+              ':(literal)site/js/relief.js'
+              ':(literal)server/CONTRACT.md'
+              ':(glob)tools/fixtures/**'
+              ':(literal)tools/build-app-data.py'
+              ':(literal)tools/build-app-strings.py'
+              ':(literal)i18n/strings.json'
+              ':(literal).github/workflows/android.yml'
+            )
+            auth=$(printf '%s' "x-access-token:$GH_TOKEN" | base64 -w 0) || return 2
+            printf '::add-mask::%s\n' "$auth"
+            # Authentication is scoped to this fetch and never saved in the repository. Fetch errors are not stale results.
+            GIT_CONFIG_COUNT=1 \
+              GIT_CONFIG_KEY_0="http.$GITHUB_SERVER_URL/.extraheader" \
+              GIT_CONFIG_VALUE_0="AUTHORIZATION: basic $auth" \
+              git --git-dir="$SOURCE_GIT" -c protocol.version=2 fetch --filter=blob:none --no-tags --depth=1 origin \
+                "$GITHUB_SHA:refs/source/build" '+refs/heads/main:refs/source/main' || return 2
+            if git --git-dir="$SOURCE_GIT" diff --quiet --no-renames --no-ext-diff refs/source/build refs/source/main -- "${input_paths[@]}"; then
+              return 0
+            else
+              status=$?
+              [ "$status" -eq 1 ] && return 1
+              return 2
+            fi
+          }
+          FRESHNESS
+          source "$RUNNER_TEMP/android-freshness.sh"
+          if fresh_inputs; then
             echo 'ok=true' >> "$GITHUB_OUTPUT"
+          else
+            status=$?
+            if [ "$status" -ne 1 ]; then exit "$status"; fi
+            echo "Skipping publication: Android build inputs changed on main." >> "$GITHUB_STEP_SUMMARY"
+            echo 'ok=false' >> "$GITHUB_OUTPUT"
           fi
       - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         if: steps.current.outputs.ok == 'true'
@@ -355,12 +452,16 @@ jobs:
       - name: Publish the store bundle
         if: steps.current.outputs.ok == 'true'
         run: |
+          source "$RUNNER_TEMP/android-freshness.sh"
           put() {
             local tag=$1 file=$2 name=$3 tmp="next-$3" api="repos/$GH_REPO/releases"
-            local current published
-            current=$(gh api "repos/$GH_REPO/branches/main" -q '.commit.sha')
-            if [ "$current" != "$GITHUB_SHA" ]; then
-              echo "Skipping publication: main has advanced beyond this run." >> "$GITHUB_STEP_SUMMARY"
+            local published status
+            if fresh_inputs; then
+              :
+            else
+              status=$?
+              if [ "$status" -ne 1 ]; then return "$status"; fi
+              echo "Skipping publication: Android build inputs changed on main." >> "$GITHUB_STEP_SUMMARY"
               return 0
             fi
             gh release view "$tag" > /dev/null 2>&1 \
@@ -373,10 +474,13 @@ jobs:
             gh release delete-asset "$tag" "$tmp" --yes 2> /dev/null || true
             cp "$file" "$RUNNER_TEMP/$tmp"
             gh release upload "$tag" "$RUNNER_TEMP/$tmp"
-            current=$(gh api "repos/$GH_REPO/branches/main" -q '.commit.sha')
-            if [ "$current" != "$GITHUB_SHA" ]; then
+            if fresh_inputs; then
+              :
+            else
+              status=$?
+              if [ "$status" -ne 1 ]; then return "$status"; fi
               gh release delete-asset "$tag" "$tmp" --yes
-              echo "Skipping replacement: main advanced during upload." >> "$GITHUB_STEP_SUMMARY"
+              echo "Skipping replacement: Android build inputs changed during upload." >> "$GITHUB_STEP_SUMMARY"
               return 0
             fi
             local ids old new
