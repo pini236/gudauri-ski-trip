@@ -2330,6 +2330,62 @@
       "h": 1068,
       "page": "round23",
       "title": "באתר עכשיו (מומש, 6.10.2026)"
+    },
+    "R24-0-Decide.dc.html": {
+      "x": 0,
+      "y": 0,
+      "w": 600,
+      "h": 700,
+      "page": "round24",
+      "title": "ההחלטות בסבב 24"
+    },
+    "R24-Today.dc.html": {
+      "x": 680,
+      "y": 0,
+      "w": 1684,
+      "h": 1068,
+      "page": "round24",
+      "title": "היום"
+    },
+    "R24-Why.dc.html": {
+      "x": 2444,
+      "y": 0,
+      "w": 430,
+      "h": 1068,
+      "page": "round24",
+      "title": "למה לא בצבע של מסלול"
+    },
+    "R24-Routes.dc.html": {
+      "x": 680,
+      "y": 1488,
+      "w": 2102,
+      "h": 1068,
+      "page": "round24",
+      "title": "1. דרך סקי: סוג משלה"
+    },
+    "R24-Areas.dc.html": {
+      "x": 2862,
+      "y": 1488,
+      "w": 2102,
+      "h": 1068,
+      "page": "round24",
+      "title": "2. מסלול רחב: שטח שרואים"
+    },
+    "R24-Desk.dc.html": {
+      "x": 5044,
+      "y": 1488,
+      "w": 940,
+      "h": 787,
+      "page": "round24",
+      "title": "במחשב"
+    },
+    "R24-Spec.dc.html": {
+      "x": 680,
+      "y": 2976,
+      "w": 640,
+      "h": 1180,
+      "page": "round24",
+      "title": "ערכים למימוש"
     }
   },
   "createdOnFiles": {
@@ -2339,7 +2395,7 @@
   "designSystems": [],
   "launch": {
     "view": "canvas",
-    "page": "round23"
+    "page": "round24"
   },
   "notes": {
     "featRow1": {
@@ -3124,6 +3180,33 @@
       "w": 240,
       "x": 680,
       "y": 4164
+    },
+    "round24row0": {
+      "kind": "title1",
+      "maxW": 2194,
+      "page": "round24",
+      "text": "היום",
+      "w": 240,
+      "x": 680,
+      "y": -300
+    },
+    "round24row1": {
+      "kind": "title1",
+      "maxW": 5304,
+      "page": "round24",
+      "text": "שתי ההחלטות",
+      "w": 240,
+      "x": 680,
+      "y": 1188
+    },
+    "round24row2": {
+      "kind": "title1",
+      "maxW": 860,
+      "page": "round24",
+      "text": "ערכים למימוש",
+      "w": 240,
+      "x": 680,
+      "y": 2676
     }
   },
   "order": [
@@ -3416,9 +3499,20 @@
     "R23-Home.dc.html",
     "R23-Plates.dc.html",
     "R23-Spec.dc.html",
-    "R23-Built.dc.html"
+    "R23-Built.dc.html",
+    "R24-0-Decide.dc.html",
+    "R24-Today.dc.html",
+    "R24-Why.dc.html",
+    "R24-Routes.dc.html",
+    "R24-Areas.dc.html",
+    "R24-Desk.dc.html",
+    "R24-Spec.dc.html"
   ],
   "pages": [
+    {
+      "id": "round24",
+      "name": "סבב 24: דרכי סקי ומסלולים רחבים"
+    },
     {
       "id": "round23",
       "name": "סבב 23: כמה אתרי סקי"

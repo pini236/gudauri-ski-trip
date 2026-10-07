@@ -90,6 +90,7 @@ export async function open(browser, url, o = {}) {
     if (t === 'invites') return json(r, [{ id: 'i1', code: 'KZBQRM', token: 'tok', revoked_at: null, requires_approval: false, uses: 0, max_uses: null, expires_at: null, created_at: new Date().toISOString() }]);
     if (t === 'join_requests') return json(r, [{ id: 'q1', display_name: 'שי חדש', kind: 'approval', reclaim_user_id: null, status: 'pending' }]);
     return json(r, []); });
+  if (o.pre) await o.pre(ctx); // a hook for routes and init scripts of a round (round 24)
   const page = await ctx.newPage();
   page._errors = [];
   page.on('pageerror', e => page._errors.push('pageerror: ' + e.message));
