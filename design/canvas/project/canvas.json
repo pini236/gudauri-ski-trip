@@ -2569,12 +2569,12 @@
       "w": 2102,
       "h": 1068,
       "page": "round25",
-      "title": "ד. תלת-ממד לכל עמק (מומלץ)"
+      "title": "ד. תלת-ממד: גם כאן עמקים (מומלץ, עודכן לפי פיני)"
     },
     "R25-D3Desk.dc.html": {
-      "x": 2862,
+      "x": 3790,
       "y": 4464,
-      "w": 940,
+      "w": 1868,
       "h": 787,
       "page": "round25",
       "title": "ד. במחשב"
@@ -2602,6 +2602,14 @@
       "h": 2050,
       "page": "round25",
       "title": "ערכים למימוש"
+    },
+    "R25-D3So.dc.html": {
+      "x": 2862,
+      "y": 4464,
+      "w": 848,
+      "h": 1068,
+      "page": "round25",
+      "title": "ד. Sölden"
     }
   },
   "createdOnFiles": {
@@ -3498,7 +3506,7 @@
     },
     "round25row3": {
       "kind": "title1",
-      "maxW": 3122,
+      "maxW": 4978,
       "page": "round25",
       "text": "ד. תלת-ממד לכל עמק",
       "w": 240,
@@ -3848,7 +3856,8 @@
     "R25-D3Desk.dc.html",
     "R25-Alt.dc.html",
     "R25-Gud.dc.html",
-    "R25-Spec.dc.html"
+    "R25-Spec.dc.html",
+    "R25-D3So.dc.html"
   ],
   "pages": [
     {

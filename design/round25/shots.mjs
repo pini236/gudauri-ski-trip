@@ -46,6 +46,8 @@ function valleys(id) {
 }
 const V = { sellaronda: valleys('sellaronda'), soelden: valleys('soelden') };
 // 3D: low on the valley's side, looking in towards the massif in the middle (Sella group 46.51 N 11.80 E; Sölden: the middle of its areas)
+function camAll(id, pol = .95, az = 0) { const L = Object.values(V[id].sectors).map(v => v.bbox), a = Math.min(...L.map(q => q[0])), b = Math.min(...L.map(q => q[1])), c = Math.max(...L.map(q => q[2])), d = Math.max(...L.map(q => q[3]));
+  return { tx: (a + c) / 2, tz: (b + d) / 2 + 600, dist: Math.max(c - a, d - b) * (az ? 1.15 : 1.25), az, pol }; }
 function cam(id, k, f = 1.15, pol = .4) {
   const D = V[id], s = D.sectors[k], b = s.bbox, c = [(b[0] + b[2]) / 2, (b[1] + b[3]) / 2];
   const m = id === 'sellaronda' ? D.P([46.512, 11.80]) : (() => { const L = Object.values(D.sectors).map(v => v.bbox); return [L.reduce((t, q) => t + (q[0] + q[2]) / 2, 0) / L.length, L.reduce((t, q) => t + (q[1] + q[3]) / 2, 0) / L.length]; })();
@@ -59,6 +61,11 @@ const ALLB = D => { const L = Object.values(D.sectors).map(v => v.bbox); return 
 const ALL = (D, x = {}) => ({ D, mode: 'all', chips: 1, list: 'groups', frame: ALLB(D), pad: 1.05, ...x });
 const VAL = (D, k, x = {}) => ({ D, mode: 'valley', k, chips: 1, list: 'valley', frame: D.sectors[k].bbox, ...x });
 const DESK = { w: 1280, h: 800 };
+const VCOL = { gardena: '#C49A3A', badia: '#2F978B', arabba: '#8C6CC0', fassa: '#7E9136', a: '#C49A3A', b: '#2F978B', c: '#8C6CC0' };
+const QC = { blue: '#1F5FC4', red: '#D1342B', black: '#13233A', green: '#1B8A4C' };
+const V3ALL = D => ({ mode: 'all', runOf: D.runOf, vcol: Object.fromEntries(Object.keys(D.sectors).map(k => [k, VCOL[k]])), plates: Object.entries(D.sectors).map(([k, v]) => ({ name: v.name, x: v.label[0], y: v.label[1], col: VCOL[k], pts: v.lines.flat().filter((_, i) => i % 7 === 0),
+  counts: ['blue', 'red', 'black', 'green'].filter(c => v.colors[c]).map(c => `<em><i style="background:${QC[c]}"></i>${v.colors[c]}</em>`).join('') })) });
+const V3VAL = (D, k) => ({ mode: 'valley', k, runOf: D.runOf, liftOf: D.liftOf, mute: '#AEB8C4' });
 export const S = [
   // [name, url, proposal, opts]
   ['today-sr', SR, null, { st: D2 }],
@@ -89,26 +96,53 @@ export const S = [
   // C: the list first (Pini's idea): a short map strip, the valleys as rows
   ['c-sr', SR, ALL(SRD, { mini: 1, small: 1, pad: 1 }), { st: D2 }],
   // D: 3D, low on one valley's side
-  ['d-sr-badia', SR, { D: SRD, chips3d: 'badia' }, { st: D3, wait: 7000, cam: cam('sellaronda', 'badia') }],
-  ['d-sr-gardena', SR, { D: SRD, chips3d: 'gardena' }, { st: D3, wait: 7000, cam: cam('sellaronda', 'gardena') }],
-  ['d-sr-badia-night', SR, { D: SRD, chips3d: 'badia' }, { st: D3, wait: 7000, cam: cam('sellaronda', 'badia'), theme: 'night' }],
-  ['d-sr-badia-desk', SR, { D: SRD, chips3d: 'badia' }, { st: D3, wait: 7000, cam: cam('sellaronda', 'badia', 1), ...DESK }],
-  ['d-so-c', SO, { D: SOD, chips3d: 'c' }, { st: D3, wait: 7000, cam: cam('soelden', 'c', 1.3) }],
+  ['d-sr-badia', SR, { D: SRD, chips3d: 'badia' }, { st: D3, wait: 7000, cam: cam('sellaronda', 'badia'), v3: V3VAL(SRD, 'badia') }],
+  ['d-sr-gardena', SR, { D: SRD, chips3d: 'gardena' }, { st: D3, wait: 7000, cam: cam('sellaronda', 'gardena'), v3: V3VAL(SRD, 'gardena') }],
+  ['d-sr-badia-night', SR, { D: SRD, chips3d: 'badia' }, { st: D3, wait: 7000, cam: cam('sellaronda', 'badia'), v3: V3VAL(SRD, 'badia'), theme: 'night' }],
+  ['d-sr-badia-desk', SR, { D: SRD, chips3d: 'badia' }, { st: D3, wait: 7000, cam: cam('sellaronda', 'badia', 1), v3: V3VAL(SRD, 'badia'), ...DESK }],
+  ['d-so-c', SO, { D: SOD, chips3d: 'c' }, { st: D3, wait: 7000, cam: cam('soelden', 'c', 1.3), v3: V3VAL(SOD, 'c') }],
+  ['d-sr-all', SR, { D: SRD, chips3d: 'all' }, { st: D3, wait: 7000, v3: V3ALL(SRD), cam: camAll('sellaronda', .95, Math.PI / 2) }],
+  ['d-sr-all-desk', SR, { D: SRD, chips3d: 'all' }, { st: D3, wait: 7000, v3: V3ALL(SRD), cam: camAll('sellaronda'), ...DESK }],
+  ['d-so-all', SO, { D: SOD, chips3d: 'all' }, { st: D3, wait: 7000, v3: V3ALL(SOD), cam: camAll('soelden', .95, Math.PI / 2) }],
 ];
 const only = process.argv[2];
 const b = await launch();
 for (const [n, u, p, o] of S) {
   if (only && !n.startsWith(only)) continue;
   const { ctx, page } = await open(b, u, { extraStorage: o.st, wait: o.wait || 3500, now: NOW, trip: null, w: o.w, h: o.h, theme: o.theme || 'day',
-    pre: o.cam ? c => c.addInitScript(() => { let R; Object.defineProperty(window, 'GudRelief', { configurable: true, get: () => R, set(v) { R = v; const V3 = v.View3D;
-      v.View3D = function (...a) { const api = V3.apply(this, a); window.__v3 = api; return api; }; } }); }) : null });
-  if (p && p.chips3d) { await page.evaluate(fs.readFileSync(PROP, 'utf8')); await page.evaluate(q => { window.R25.chips(q.D, q.chips3d); window.R25.apply({ D: q.D, k: q.chips3d, list: 'valley' }); }, p); }
+    pre: o.v3 || o.cam ? c => c.addInitScript(cfg => { let R; Object.defineProperty(window, 'GudRelief', { configurable: true, get: () => R, set(v) { R = v; const V3 = v.View3D;
+      // round 25, D: the 3D view knows the valleys. Whole resort: a plate per valley (laid as a place label, then restyled), no run
+      // or lift names. One valley: its runs and lifts as today; the other valleys' runs thin grey and nameless, their lifts not drawn.
+      v.View3D = function (o) {
+        let added = [];
+        if (cfg && cfg.mode === 'all') { // in 3D a plate at the valley floor hides behind the next ridge: lay it on a high run point near the valley's middle instead
+          const sc = (q, t) => o.model.elev(t[0], t[1]) - .12 * Math.hypot(t[0] - q.x, t[1] - q.y), hi = q => (q.pts || [[q.x, q.y]]).reduce((b, t) => sc(q, t) > sc(q, b) ? t : b);
+          // laid as peaks (the first labels to place), at the front, so no peak or village pushes a plate off
+          added = cfg.plates.map(q => { const [x, y] = hi(q); return { n: '\u2063' + q.name, x, y, ele: '', _r25: 1 }; }); o.model.peaks.unshift(...added);
+          // the whole resort from higher up, each valley's runs in the valley's colour; the difficulty comes back when one valley is picked
+          o = { ...o, liftColor: '#8A96A6', colors: { ...o.colors, ...Object.fromEntries(Object.entries(cfg.vcol).map(([k, c]) => ['v_' + k, c])) },
+            pistes: o.pistes.map(p => cfg.runOf[p.key] ? { ...p, color: 'v_' + cfg.runOf[p.key] } : p) }; }
+        if (cfg && cfg.mode === 'valley') o = { ...o, colors: { ...o.colors, mute: cfg.mute },
+          pistes: o.pistes.map(p => cfg.runOf[p.key] === cfg.k ? p : { ...p, color: 'mute' }),
+          lifts: o.lifts.filter(l => cfg.liftOf[l.id] === cfg.k) };
+        const api = V3.call(this, o); window.__v3 = api;
+        if (added.length) { o.model.peaks.splice(0, added.length);
+          document.querySelectorAll('.r3-labels .r3-lbl.peak').forEach(e => { if (e.textContent[0] !== '\u2063') return; const q = cfg.plates.find(t => t.name === e.textContent.slice(1).trim()); if (!q) return;
+            e.classList.add('r25-v3'); e.classList.remove('peak'); e.style.setProperty('--vc', q.col); e.innerHTML = `<b>${q.name}</b><span>${q.counts}</span>`; });
+          document.querySelectorAll('.r3-labels .r3-lbl.piste, .r3-labels .r3-lbl.lift, .r3-labels .r3-lbl.place, .r3-labels .r3-lbl.peak').forEach(e => e.remove()); }
+        if (cfg && cfg.mode === 'valley') document.querySelectorAll('.r3-labels .r3-lbl.piste').forEach(e => { if (cfg.runOf[e.dataset.key] !== cfg.k) e.remove(); });
+        const st = document.createElement('style'); st.textContent = `.r3-lbl.r25-v3{display:flex;flex-direction:column;align-items:center;gap:3px;padding:5px 9px;background:#fff;border:1.5px solid #CBD5DF;border-top:4px solid var(--vc);box-shadow:0 2px 8px rgba(19,35,58,.22);text-shadow:none;letter-spacing:0;color:#13233A}
+          .r3-lbl.r25-v3 b{font:700 19px/1 Karantina,'Arial Narrow',sans-serif}.r3-lbl.r25-v3 span{display:flex;gap:6px;font:600 11.5px/1 'IBM Plex Sans',sans-serif;color:#13233A}
+          .r3-lbl.r25-v3 span em{font-style:normal;display:flex;align-items:center;gap:3px}.r3-lbl.r25-v3 span em i{width:8px;height:8px;display:inline-block}`; document.head.appendChild(st);
+        return api; }; } }); }, o.v3 || null) : null });
+  if (p && p.chips3d) { await page.evaluate(fs.readFileSync(PROP, 'utf8')); await page.evaluate(q => { const all = q.chips3d === 'all'; window.R25.chips(q.D, all ? null : q.chips3d); window.R25.apply({ D: q.D, k: all ? null : q.chips3d, list: all ? 'groups' : 'valley' }); }, p); }
   if (o.cam) { console.log(n, await page.evaluate(c => window.R25.view3d(c), o.cam)); await page.waitForTimeout(2500); }
   if (p && !p.chips3d) { await page.evaluate(fs.readFileSync(PROP, 'utf8'));
     // the chip row first: the map gets shorter, and the site lays its labels out again; then the rest
     if (p.chips) { await page.evaluate(q => window.R25.chips(q.D, q.mode === 'valley' ? q.k : null), p); if (p.mini) await page.evaluate(() => document.body.classList.add('r25-cmini')); await page.waitForTimeout(700); }
     console.log(n, JSON.stringify(await page.evaluate(q => window.R25.apply({ ...q, chips: 0 }), p))); await page.waitForTimeout(o.after || 600); }
   if (o.scrollTo) await page.evaluate(q => { const e = document.querySelector(q); e && e.scrollIntoView({ block: 'start' }); }, o.scrollTo);
+  if (process.env.DBG) console.log(n, JSON.stringify(await page.evaluate(() => [...document.querySelectorAll('.r25-v3')].map(e => [e.textContent, e.style.display, e.style.transform]))));
   await page.screenshot({ path: OUT + n + '.png', fullPage: !!o.full });
   if (page._errors && page._errors.length) console.log(n, page._errors);
   await ctx.close();
