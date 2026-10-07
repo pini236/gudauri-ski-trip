@@ -183,6 +183,7 @@ peaks.sort(key=lambda p: -p['ele'])
 terrain = {'license': 'Height: ' + C['dem_attribution'] + ' Villages, roads, water and peaks: © OpenStreetMap contributors, ODbL 1.0; this part is a derived database under the ODbL.',
            'proj': {'lat0': lat0, 'lon0': lon0},
            'dem': {'nx': nx, 'ny': ny, 'x0': round(X0, 2), 'y0': round(Y0, 2), 'x1': round(X1, 2), 'y1': round(Y1, 2),
+                   'cell': STEP, 'mesh': C.get('mesh_stride', 1),  # metres per cell, and the 3D mesh takes every mesh-th cell (the architect, 7.10.2026)
                    'b64': base64.b64encode(H16.tobytes()).decode()},
            'hill': hill, 'contours': contours,
            'env': {'roads': roads, 'water': water, 'village': village, 'rivers': rivers, 'places': places},
@@ -236,9 +237,12 @@ if REG:
         used.add(best[1]); pr = best[2]; F = REG['fields']
         if pr.get(F['cap']): l['cap'] = int(pr[F['cap']])
         if pr.get(F['year']): l['year'] = int(pr[F['year']])
+        if pr.get(F.get('slope')): l['lenSlope'] = int(pr[F['slope']])  # the registry's slope length; 'len' stays horizontal, like Gudauri
         l['reg'] = {'name': pr.get(F['name']), 'end_m': round(best[0])}
-    print('registry:', sum(1 for l in LIFTS if 'reg' in l), 'of', len(LIFTS), 'lifts matched;', len(RL) - len(used), 'registry lifts unmatched:',
-          [pr.get(REG['fields']['name']) for i, (pr, g) in enumerate(RL) if i not in used], file=sys.stderr)
+    REG_UNMATCHED = {'ours': [l['name'] or f"(no name, {l['kind']}, {l['len']} m)" for l in LIFTS if 'reg' not in l],
+                     'registry': [pr.get(REG['fields']['name']) for i, (pr, g) in enumerate(RL) if i not in used]}
+    REG_FETCHED = datetime.date.fromtimestamp(rf.stat().st_mtime).isoformat()
+    print('registry:', sum(1 for l in LIFTS if 'reg' in l), 'of', len(LIFTS), 'lifts matched; ours unmatched:', REG_UNMATCHED['ours'], file=sys.stderr)
 
 def norm_number(v):
     v = (v or '').strip()
@@ -340,6 +344,8 @@ LICENSE = ('Runs and lifts from OpenStreetMap through OpenSkiMap: © OpenStreetM
            'License (ODbL 1.0, https://opendatacommons.org/licenses/odbl/). This file is a derived database and stays under the ODbL.'
            + (' Lift capacity and year of construction: ' + REG['attribution'] if REG else ''))
 data = {'resort': RID, 'license': LICENSE, 'pistes': pistes, 'lifts': LIFTS, 'missing': OV.get('missing', []), 'fetched': FETCHED(),
+        'liftLen': 'len: horizontal metres along the line, from the coordinates (as in Gudauri). lenSlope: the slope length from the lift registry, when there is one.',
+        **({'registry': {'source': REG['attribution'], 'url': REG['url'], 'fetched': REG_FETCHED, 'fields': ['cap', 'year', 'lenSlope']}} if REG else {}),
         'bbox': [round(min(lats), 3), round(min(lons), 3), round(max(lats), 3), round(max(lons), 3)],
         'research': {'date': datetime.date.today().isoformat(),
                      'summary': 'נבנה אוטומטית מהמפה הפתוחה (OpenSkiMap) וממודל הגובה, בלי השלמות. נבדק מול מודל הגובה ומיקומי הרכבלים (tools/build-resort.py).'}}
@@ -360,6 +366,12 @@ lines = [f"# {C['name']}: בדיקת הנתונים", '',
          '| מסלול | צבע | אורך (מ׳) | עלייה נגדית (מ׳) | הערות |', '|---|---|---|---|---|']
 lines += [f"| {k} | {c} | {L} | {cl} | {'; '.join(fl) or 'תקין'} |" for k, c, L, cl, fl in sorted(report, key=lambda r: [int(x) if x.isdigit() else x for x in __import__('re').split(r'(\d+)', r[0])])]
 lines += ['', '## לא נכנסו', ''] + [f'- {nm or "(בלי שם)"}: {why}' for nm, why in skipped]
+if REG:
+    lines += ['', '## רכבלים מול המאגר הרשמי', '',
+              f"המקור: {REG['attribution']} השכבה: {REG['url']}, הורדה ב-{REG_FETCHED}. התאמה לפי שני הקצוות, עד {REG.get('max_end_m', 120)} מ׳. נלקחים רק קיבולת, שנת בנייה ואורך משופע; הקו נשאר מהמפה הפתוחה.", '',
+              f"- **הותאמו:** {sum(1 for l in LIFTS if 'reg' in l)} מתוך {len(LIFTS)}.",
+              '- **אצלנו, בלי התאמה (נשארים בלי הנתונים):** ' + (', '.join(REG_UNMATCHED['ours']) or 'אין') + '.',
+              '- **במאגר, בלי התאמה** (רוב הרשימה רכבלים של אתרים שכנים שבתוך התחום): ' + (', '.join(REG_UNMATCHED['registry']) or 'אין') + '.']
 (ROOT / 'research/resorts' / f'{RID}-data.md').write_text('\n'.join(lines) + '\n', encoding='utf-8')
 fail = sum(1 for r in report if r[4])
 print(f"{len(pistes)} runs ({len(named)} named), {len(LIFTS)} lifts, dem {nx}x{ny}, {fail} runs with notes", file=sys.stderr)

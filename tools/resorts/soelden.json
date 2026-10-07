@@ -13,7 +13,7 @@
     47.011,
     11.075
   ],
-  "dem_step_m": 40,
+  "dem_step_m": 20,
   "tile_zoom": 14,
   "hill_px_m": 12,
   "colors": {
@@ -49,11 +49,12 @@
   "dem_attribution": "© offene Daten Österreichs – Digitales Geländemodell (DGM) Österreich (CC BY 3.0 AT), through Terrain Tiles on AWS (Mapzen/Tilezen joerd).",
   "lift_registry": {
     "url": "https://services3.arcgis.com/hG7UfxX49PQ8XkXh/arcgis/rest/services/Aufstiegshilfen/FeatureServer/0",
-    "attribution": "Land Tirol, data.tirol.gv.at (Aufstiegshilfen), CC BY 4.0, https://creativecommons.org/licenses/by/4.0/.",
+    "attribution": "Datenquelle: Land Tirol, data.tirol.gv.at (Aufstiegshilfen), CC BY 4.0, https://creativecommons.org/licenses/by/4.0/.",
     "fields": {
       "name": "STAETTE_NAME",
       "cap": "ATTR_FOERDERLEISTUNG",
-      "year": "ATTR_BAUJAHR"
+      "year": "ATTR_BAUJAHR",
+      "slope": "ATTR_SCHRAEGELAENGE"
     },
     "max_end_m": 120
   },
@@ -97,5 +98,6 @@
       "7b",
       "35"
     ]
-  }
+  },
+  "mesh_stride": 2
 }

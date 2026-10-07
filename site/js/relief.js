@@ -129,9 +129,16 @@ R.View3D=function(opts){
   const fog=new THREE.Fog(0xdde7f0,14000,52000);scene.fog=fog;
 
   /* terrain mesh with a base, like a relief model on a table */
-  const nx=d.nx,ny=d.ny,base=Math.min(...(()=>{let m=1e9;for(let i=0;i<M.H.length;i+=7)m=Math.min(m,M.H[i]);return [m];})())-180;
+  const base=Math.min(...(()=>{let m=1e9;for(let i=0;i<M.H.length;i+=7)m=Math.min(m,M.H[i]);return [m];})())-180;
+  // the mesh takes every d.mesh-th cell (a finer model keeps the 3D view light; the texture below uses every cell), and always the edges
+  const mst=Math.max(1,d.mesh|0||1),meshIx=n=>{const a=[];for(let i=0;i<n;i+=mst)a.push(i);if(a[a.length-1]!==n-1)a.push(n-1);return a;};
+  const ci=meshIx(d.nx),ri=meshIx(d.ny),nx=ci.length,ny=ri.length,GH=new Float32Array(nx*ny);
+  for(let r=0;r<ny;r++)for(let c=0;c<nx;c++)GH[r*nx+c]=M.H[ri[r]*d.nx+ci[c]];
+  // things laid on the ground (lines, labels, the dot) follow the mesh, so a finer model does not hide them under it
+  const gsx=M.sx*mst,gsy=M.sy*mst,E3=mst===1?M.elev:(x,y)=>{let c=(x-d.x0)/gsx,r=(y-d.y0)/gsy;c=Math.max(0,Math.min(nx-1.0001,c));r=Math.max(0,Math.min(ny-1.0001,r));
+    const c0=c|0,r0=r|0,fc=c-c0,fr=r-r0,i=r0*nx+c0;return (GH[i]*(1-fc)+GH[i+1]*fc)*(1-fr)+(GH[i+nx]*(1-fc)+GH[i+nx+1]*fc)*fr;};
   const pos=new Float32Array(nx*ny*3),uv=new Float32Array(nx*ny*2);
-  for(let r=0;r<ny;r++)for(let c=0;c<nx;c++){const i=r*nx+c;pos[i*3]=d.x0+c*M.sx;pos[i*3+1]=M.H[i];pos[i*3+2]=d.y0+r*M.sy;uv[i*2]=c/(nx-1);uv[i*2+1]=1-r/(ny-1);}
+  for(let r=0;r<ny;r++)for(let c=0;c<nx;c++){const i=r*nx+c;pos[i*3]=d.x0+ci[c]*M.sx;pos[i*3+1]=GH[i];pos[i*3+2]=d.y0+ri[r]*M.sy;uv[i*2]=ci[c]/(d.nx-1);uv[i*2+1]=1-ri[r]/(d.ny-1);}
   const idx=new Uint32Array((nx-1)*(ny-1)*6);let k=0;
   for(let r=0;r<ny-1;r++)for(let c=0;c<nx-1;c++){const a=r*nx+c,b=a+1,e=a+nx,f=e+1;idx[k++]=a;idx[k++]=e;idx[k++]=b;idx[k++]=b;idx[k++]=e;idx[k++]=f;}
   const geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.BufferAttribute(pos,3));geo.setAttribute('uv',new THREE.BufferAttribute(uv,2));geo.setIndex(new THREE.BufferAttribute(idx,1));geo.computeVertexNormals();
@@ -140,6 +147,7 @@ R.View3D=function(opts){
   const TW=Math.min(renderer.capabilities.maxTextureSize,opts.texSize||2048),TH=Math.round(TW*M.Hm/M.W);
   const tex=document.createElement('canvas');tex.width=TW;tex.height=TH;const tc=tex.getContext('2d');
   (function paint(){
+    const nx=d.nx,ny=d.ny; // every cell of the model
     const small=document.createElement('canvas');small.width=nx;small.height=ny;const sc=small.getContext('2d'),im=sc.createImageData(nx,ny);
     for(let r=0;r<ny;r++)for(let c=0;c<nx;c++){const i=r*nx+c;
       const gx=(M.H[r*nx+Math.min(c+1,nx-1)]-M.H[r*nx+Math.max(c-1,0)])/(2*M.sx),gy=(M.H[Math.min(r+1,ny-1)*nx+c]-M.H[Math.max(r-1,0)*nx+c])/(2*M.sy);
@@ -226,12 +234,12 @@ R.View3D=function(opts){
   function drape(pts,lift){ // pts [[x,y]] → [[x,h,z]] densified
     const o=[];
     for(let i=0;i<pts.length;i++){
-      const a=pts[i];if(i){const b=pts[i-1],L=Math.hypot(a[0]-b[0],a[1]-b[1]),n=Math.ceil(L/18);for(let k=1;k<n;k++){const t=k/n,x=b[0]+(a[0]-b[0])*t,y=b[1]+(a[1]-b[1])*t;o.push([x,M.elev(x,y)+lift,y]);}}
-      o.push([a[0],M.elev(a[0],a[1])+lift,a[1]]);}
+      const a=pts[i];if(i){const b=pts[i-1],L=Math.hypot(a[0]-b[0],a[1]-b[1]),n=Math.ceil(L/18);for(let k=1;k<n;k++){const t=k/n,x=b[0]+(a[0]-b[0])*t,y=b[1]+(a[1]-b[1])*t;o.push([x,E3(x,y)+lift,y]);}}
+      o.push([a[0],E3(a[0],a[1])+lift,a[1]]);}
     return o;
   }
   function cable(pts){ // lift line: straight chord between stations, kept above the snow
-    const e0=M.elev(pts[0][0],pts[0][1])+10,e1=M.elev(pts[pts.length-1][0],pts[pts.length-1][1])+10;
+    const e0=E3(pts[0][0],pts[0][1])+10,e1=E3(pts[pts.length-1][0],pts[pts.length-1][1])+10;
     let tot=0;const cum=[0];for(let i=1;i<pts.length;i++){tot+=Math.hypot(pts[i][0]-pts[i-1][0],pts[i][1]-pts[i-1][1]);cum.push(tot);}
     const o=[];const dens=drape(pts,0);let acc=0;
     dens.forEach((q,i)=>{if(i)acc+=Math.hypot(q[0]-dens[i-1][0],q[2]-dens[i-1][2]);const t=tot?Math.min(1,acc/tot):0;o.push([q[0],Math.max(e0+(e1-e0)*t,q[1]+9),q[2]]);});
@@ -265,8 +273,8 @@ R.View3D=function(opts){
   const labels=[];
   function addLabel(html,cls,xyz,pri,data){const e=document.createElement('div');e.className='r3-lbl '+cls;e.innerHTML=html;if(data)Object.assign(e.dataset,data);lay.appendChild(e);const o={e,v:new THREE.Vector3(...xyz),pri,w:0,h:0};labels.push(o);return o;}
   const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-  M.peaks.forEach(p=>addLabel(`<span class="pk-ico${p.pass?' pass':''}"></span><b>${esc(p.n)}</b> <span class="num">${p.ele}</span>`,'peak',[p.x,M.elev(p.x,p.y)+6,p.y],100));
-  M.env.places.filter(p=>p.show||['Gudauri','Kobi'].includes(p.n)).forEach(p=>addLabel(p.n==='Gudauri'?T('map.place_gudauri'):p.n,'place',[p.x,M.elev(p.x,p.y)+10,p.y],60));
+  M.peaks.forEach(p=>addLabel(`<span class="pk-ico${p.pass?' pass':''}"></span><b>${esc(p.n)}</b> <span class="num">${p.ele}</span>`,'peak',[p.x,E3(p.x,p.y)+6,p.y],100));
+  M.env.places.filter(p=>p.show||['Gudauri','Kobi'].includes(p.n)).forEach(p=>addLabel(p.n==='Gudauri'?T('map.place_gudauri'):p.n,'place',[p.x,E3(p.x,p.y)+10,p.y],60));
   Object.values(pisteObjs).forEach(o=>{if(!o.p.named)return;const L=o.lines.slice().sort((a,b)=>b.length-a.length)[0];const q=L[Math.floor(L.length*0.45)];
     o.label=addLabel(esc(opts.dispName(o.p)),'piste c-'+o.p.color,[q[0],q[1]+8,q[2]],40,{key:o.p.key});});
 
@@ -433,11 +441,11 @@ R.View3D=function(opts){
       if(up){sun.color.copy(warm);sun.intensity=0.5+0.3*Math.min(1,l.alt/20);hemi.color.setHex(lowK>.5?0xb9b0d0:0xdde8f5);hemi.groundColor.setHex(0x7d879a);hemi.intensity=0.55-0.15*lowK;}
       else{sun.color.setHex(0x9fb4e0);sun.intensity=l.dark?0.22:0.3;hemi.color.setHex(0x4a5a86);hemi.groundColor.setHex(0x1c2438);hemi.intensity=l.dark?0.42:0.5;}
       // cast shadows on the grid: a cell is lit if nothing along the way to the light rises above its line
-      const tA=Math.tan(a),sx=Math.sin(z),sy=-Math.cos(z),H=M.H,step=M.sx;let Hmax=-1e9;for(let i=0;i<H.length;i++)if(H[i]>Hmax)Hmax=H[i];
+      const tA=Math.tan(a),sx=Math.sin(z),sy=-Math.cos(z),H=GH,step=M.sx*mst,stepY=M.sy*mst;let Hmax=-1e9;for(let i=0;i<H.length;i++)if(H[i]>Hmax)Hmax=H[i];
       const shadow=up||l.dark?(up?[0.62,0.68,0.84]:[0.7,0.74,0.86]):null;
       if(!shadow)shade.fill(1);else for(let r=0;r<ny;r++)for(let c=0;c<nx;c++){const i=r*nx+c,h0=H[i];let lit=true;
         for(let dd=1,k=1;k<110;k++,dd+=k<20?1:k<60?2:4){const top=h0+tA*dd*step+2;if(top>Hmax)break; // above every summit: nothing can block it
-          const cc=Math.round(c+sx*dd),rr=Math.round(r+sy*dd*step/M.sy);if(cc<0||rr<0||cc>=nx||rr>=ny)break;if(H[rr*nx+cc]>top){lit=false;break;}}
+          const cc=Math.round(c+sx*dd),rr=Math.round(r+sy*dd*step/stepY);if(cc<0||rr<0||cc>=nx||rr>=ny)break;if(H[rr*nx+cc]>top){lit=false;break;}}
         const f=lit?[1,1,1]:shadow;shade[i*3]=f[0];shade[i*3+1]=f[1];shade[i*3+2]=f[2];}
       geo.attributes.color.needsUpdate=true;
       if(l.sky){host.style.background=`linear-gradient(180deg,${l.sky[0]},${l.sky[1]} 70%)`;fog.color.set(l.sky[1]);}
@@ -460,7 +468,7 @@ R.View3D=function(opts){
       const sc=R.slopeCanvas(M,lines.map(L=>L.map(q=>[q[0],q[2]])));
       const gw=Math.max(2,Math.round((sc.x1-sc.x0)/25)),gh=Math.max(2,Math.round((sc.y1-sc.y0)/25));
       const pg=new THREE.PlaneGeometry(sc.x1-sc.x0,sc.y1-sc.y0,gw,gh);pg.rotateX(-Math.PI/2);
-      const pp=pg.attributes.position;for(let i=0;i<pp.count;i++){const x=pp.getX(i)+(sc.x0+sc.x1)/2,zz=pp.getZ(i)+(sc.y0+sc.y1)/2;pp.setXYZ(i,x,M.elev(x,zz)+2.5,zz);}
+      const pp=pg.attributes.position;for(let i=0;i<pp.count;i++){const x=pp.getX(i)+(sc.x0+sc.x1)/2,zz=pp.getZ(i)+(sc.y0+sc.y1)/2;pp.setXYZ(i,x,E3(x,zz)+2.5,zz);}
       const gt=new THREE.CanvasTexture(sc.canvas);if('encoding' in gt)gt.encoding=THREE.sRGBEncoding;
       groundObj=new THREE.Mesh(pg,new THREE.MeshBasicMaterial({map:gt,transparent:true,opacity:0,depthWrite:false,fog:true,polygonOffset:true,polygonOffsetFactor:-1,polygonOffsetUnits:-1}));
       groundObj.renderOrder=1;scene.add(groundObj);
@@ -474,13 +482,13 @@ R.View3D=function(opts){
         const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute([0,0,0],3));
         meObj=new THREE.Points(g,new THREE.PointsMaterial({size:30,sizeAttenuation:false,map:new THREE.CanvasTexture(c),transparent:true,depthTest:false,depthWrite:false}));meObj.renderOrder=10;meObj.frustumCulled=false;scene.add(meObj);}
       if(x==null){meObj.visible=false;request();return;}
-      meObj.visible=true;meObj.geometry.attributes.position.setXYZ(0,x,M.elev(x,y)+8,y);meObj.geometry.attributes.position.needsUpdate=true;request();},
+      meObj.visible=true;meObj.geometry.attributes.position.setXYZ(0,x,E3(x,y)+8,y);meObj.geometry.attributes.position.needsUpdate=true;request();},
     // a dot on the terrain, e.g. the point chosen on the elevation profile
     marker(x,y){if(!markObj){const c=document.createElement('canvas');c.width=c.height=64;const k=c.getContext('2d');k.fillStyle='rgba(255,255,255,.45)';k.beginPath();k.arc(32,32,31,0,7);k.fill();k.fillStyle='#13233A';k.strokeStyle='#fff';k.lineWidth=7;k.beginPath();k.arc(32,32,17,0,7);k.fill();k.stroke();
         const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute([0,0,0],3));
         markObj=new THREE.Points(g,new THREE.PointsMaterial({size:30,sizeAttenuation:false,map:new THREE.CanvasTexture(c),transparent:true,depthTest:false,depthWrite:false}));markObj.renderOrder=9;markObj.frustumCulled=false;scene.add(markObj);}
       if(x==null){markObj.visible=false;request();return;}
-      markObj.visible=true;markObj.geometry.attributes.position.setXYZ(0,x,M.elev(x,y)+8,y);markObj.geometry.attributes.position.needsUpdate=true;request();},
+      markObj.visible=true;markObj.geometry.attributes.position.setXYZ(0,x,E3(x,y)+8,y);markObj.geometry.attributes.position.needsUpdate=true;request();},
     // camera flies down a line (projected metres, from the top), behind and above it. Any touch on the map stops it.
     flyAlong(pts,onEnd){stopAnim();
       let tot=0;const cum=[0];for(let i=1;i<pts.length;i++){tot+=Math.hypot(pts[i][0]-pts[i-1][0],pts[i][1]-pts[i-1][1]);cum.push(tot);}
