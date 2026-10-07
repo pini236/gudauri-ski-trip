@@ -540,7 +540,8 @@ private fun Videos(p: Piste, list: List<Video>) {
         }
     }
     val q = "Gudauri " + (if (p.key == "Firni ?") "Firni" else p.key) + " ski"
-    Text(stringResource(R.string.run_videos_search_youtube, if (p.key == "Firni ?") "Firni" else p.key),
+    // {resort} first, then the run: the shared string names the resort since the multi-resort round; the app shows one resort for now
+    Text(stringResource(R.string.run_videos_search_youtube, "Gudauri", if (p.key == "Firni ?") "Firni" else p.key),
         Modifier.padding(top = 8.dp).heightIn(min = 44.dp).clickable { openLink(ctx, "https://www.youtube.com/results?search_query=" + Uri.encode(q)) }.padding(vertical = 10.dp),
         style = Ski.type.small.copy(textDecoration = TextDecoration.Underline), color = c.glacier)
 }
