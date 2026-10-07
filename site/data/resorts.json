@@ -118,6 +118,80 @@
           ]
         }
       }
+    },
+    {
+      "id": "sellaronda",
+      "name": "Sella Ronda",
+      "country": "IT",
+      "dir": "data/resorts/sellaronda/",
+      "proj": {
+        "lat0": 46.53,
+        "lon0": 11.8
+      },
+      "tz": "Europe/Rome",
+      "features": [],
+      "license": "ODbL",
+      "region": "Dolomiti",
+      "stats": {
+        "runs": 248,
+        "lifts": 153,
+        "km": 260,
+        "alt": [
+          1270,
+          2930
+        ],
+        "byColor": {
+          "blue": 110548,
+          "red": 122202,
+          "black": 27478
+        }
+      },
+      "view3d": {
+        "dist": 26000,
+        "az": 0,
+        "pol": 0.6
+      },
+      "pano": {
+        "dir": "img/pano/sellaronda/",
+        "phone": {
+          "w": 390,
+          "pk": [
+            [
+              "Piz Boè",
+              0.4149,
+              0.6642
+            ],
+            [
+              "Sassolungo",
+              0.9079,
+              0.6092
+            ]
+          ],
+          "vil": [
+            0.5,
+            3.8
+          ]
+        },
+        "wide": {
+          "w": 1440,
+          "pk": [
+            [
+              "Piz Boè",
+              0.4538,
+              0.6642
+            ],
+            [
+              "Sassolungo",
+              0.7212,
+              0.6092
+            ]
+          ],
+          "vil": [
+            0.5,
+            3.8
+          ]
+        }
+      }
     }
   ]
 }

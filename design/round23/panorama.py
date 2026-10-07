@@ -11,11 +11,16 @@ Vertical scale is exaggerated (2.6x on the phone, about 1.3x wide) so the ridge 
 in two widths, pano-<key>.webp (phone, 780x800) and pano-wide-<key>.webp (2880x800), transparent sky,
 in design/round3/assets/ and copied to site/img/pano/ for the home page. Run from the repo root:
 python3 design/round3/panorama.py"""
-import json, base64, math, datetime, pathlib
+import json, base64, math, datetime, pathlib, os
 import numpy as np
 from PIL import Image
 root = pathlib.Path(__file__).resolve().parent.parent.parent
-T = json.load(open(root / 'site/data/resorts/soelden/terrain.json', encoding='utf-8'))
+# RESORT=<id> renders another resort with its own camera (the new-resort process, .claude/skills/new-resort); Sölden is the default
+RES = os.environ.get('RESORT', 'soelden')
+CAM = {'soelden': dict(lat=46.948, lon=10.972, vx=2900, vy=-2000, lift=1000, azc=258, far=16000, out='design/round23/pano.json'),
+       # from above Seceda, looking south-east over Sassolungo to the Sella and Piz Boè
+       'sellaronda': dict(lat=46.53, lon=11.8, vx=-6100, vy=-7700, lift=500, azc=146, far=24000, out='design/sellaronda/pano.json')}[RES]
+T = json.load(open(root / f'site/data/resorts/{RES}/terrain.json', encoding='utf-8'))
 d = T['dem']
 H = np.frombuffer(base64.b64decode(d['b64']), dtype='<i2').reshape(d['ny'], d['nx']).astype(np.float64)
 CX = (d['x1'] - d['x0']) / (d['nx'] - 1); CY = (d['y1'] - d['y0']) / (d['ny'] - 1)
@@ -23,7 +28,7 @@ gy, gx = np.gradient(H, CY, CX)
 NRM = np.sqrt(gx**2 + gy**2 + 1)
 SLOPE = np.degrees(np.arctan(np.sqrt(gx**2 + gy**2)))
 LAP = (np.roll(H, 1, 0) + np.roll(H, -1, 0) + np.roll(H, 1, 1) + np.roll(H, -1, 1) - 4 * H)   # < 0 on ridges
-LAT, LON, TZ, DAY = 46.948, 10.972, 1.0, datetime.date(2027, 1, 12)
+LAT, LON, TZ, DAY = CAM['lat'], CAM['lon'], 1.0, datetime.date(2027, 1, 12)
 
 def sun(h):
     n = DAY.timetuple().tm_yday
@@ -55,9 +60,9 @@ def rgb(h): return np.array([int(h[i:i + 2], 16) / 255 for i in (1, 3, 5)])
 
 import sys
 import os
-VX, VY = float(os.environ.get('VX', 2900)), float(os.environ.get('VY', -2000))   # a kilometre above Sölden, looking west at the ski area
-LIFT = float(os.environ.get('LIFT', 1000))                      # camera height above the ground there, in metres
-AZC = float(os.environ.get('AZC', 258))  # centre of view, degrees from north
+VX, VY = float(os.environ.get('VX', CAM['vx'])), float(os.environ.get('VY', CAM['vy']))   # Sölden: a kilometre above the village, looking west
+LIFT = float(os.environ.get('LIFT', CAM['lift']))                      # camera height above the ground there, in metres
+AZC = float(os.environ.get('AZC', CAM['azc']))  # centre of view, degrees from north
 VCSS = 15.84                      # css px per degree vertically, the same in every variant
 HZC = 300                         # eye-level row in css px (image is 400 css px tall)
 VARIANTS = {                      # name: (output width px, field of view in degrees). Output is 2x css.
@@ -81,7 +86,7 @@ def bil(A, x, y):
 
 E0 = float(bil(H, np.array([VX]), np.array([VY]))[0]) + LIFT
 dist = [40.0]
-while dist[-1] < 16000: dist.append(dist[-1] + max(8.0, dist[-1] * 0.006))
+while dist[-1] < CAM['far']: dist.append(dist[-1] + max(8.0, dist[-1] * 0.006))
 dist = np.array(dist)
 SNOW, ROCK = rgb('#F7FAFD'), rgb('#5F5B5A')
 LIGHTS = {}
@@ -118,7 +123,7 @@ def render(name, OW, FOV):
             haze = (1 - np.exp(-SD / (fk * 1000)))[..., None] * 0.85
             col = np.clip(col * (1 - haze) + rgb(fc) * haze, 0, 1) ** 1.08
             out[key][cs] = np.concatenate([col, (~SKY)[..., None]], axis=2)
-    dst = root / 'site/img/pano/soelden'; dst.mkdir(parents=True, exist_ok=True)
+    dst = root / f'site/img/pano/{RES}'; dst.mkdir(parents=True, exist_ok=True)
     for key, arr in out.items():
         im = Image.fromarray((arr.transpose(1, 0, 2) * 255).astype(np.uint8), 'RGBA').resize((OW, 800), Image.LANCZOS)
         fn = dst / (f'pano-{key}.webp' if name == 'phone' else f'pano-{name}-{key}.webp')
@@ -138,5 +143,5 @@ for name, (ow, fov) in VARIANTS.items():
     if len(sys.argv) > 1 and name not in sys.argv[1:]: continue
     PJ[name] = render(name, ow, fov)
 # positions as fractions of the image: [x from the left, y from the top]
-json.dump({'camera': [VX, VY, round(E0)], 'horizon': HZC / 400, **PJ}, open(root / 'design/round23/pano.json', 'w'), ensure_ascii=False, indent=1)
+json.dump({'camera': [VX, VY, round(E0)], 'horizon': HZC / 400, **PJ}, open(root / CAM['out'], 'w'), ensure_ascii=False, indent=1)
 print(PJ)

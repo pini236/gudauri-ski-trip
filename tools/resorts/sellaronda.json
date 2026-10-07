@@ -1,0 +1,185 @@
+{
+  "id": "sellaronda",
+  "name": "Sella Ronda",
+  "country": "IT",
+  "openskimap_id": "9d84c79afd13915cb14c9e5fc3b63189e4f160fc",
+  "select": {
+    "bbox": [
+      46.455,
+      11.635,
+      46.62,
+      11.97
+    ],
+    "exclude_areas": {
+      "dcb15d6d8592e307e3cf6da3bc1dd4e759d75d90": "Seiser Alm (Alpe di Siusi): not on the Sella Ronda circuit; OpenSkiMap also puts the Ortisei - Furdenan runs under it",
+      "a848fe66f4aa22f54b96871f9b731c037c04a43f": "Marmolada: a separate area, reached from Arabba only by the Grande Guerra tour",
+      "3bfbf3fc95f82938cf30b2e4dcb3ffa5e5c0287c": "Buffaure - Ciampac: across the Val di Fassa from Canazei, not on the circuit",
+      "7382bc3c80658564db8fc3dc0e2f8d8f7c709fe0": "Lagazuoi: reached from Alta Badia by bus or taxi, not by skiing"
+    },
+    "note": "OpenSkiMap has one area for all of Dolomiti Superski. The four valleys around the Sella: Val Gardena, Alta Badia, Arabba and Canazei (Belvedere, Col Rodella, Pordoi). Out: Seiser Alm (and the Ortisei - Furdenan runs, which OpenSkiMap puts under it), Marmolada, Buffaure - Ciampac and Lagazuoi. A box at the south-west corner (Furdenan, Sanon, Mont Seuc) belongs to Seiser Alm, and the southern edge stops above Pera and Pozza (Vajolet).",
+    "exclude_boxes": [
+      [
+        46.5,
+        11.635,
+        46.572,
+        11.69,
+        "Furdenan, Sanon and Mont Seuc above Ortisei: OpenSkiMap puts them under Seiser Alm"
+      ]
+    ]
+  },
+  "proj": {
+    "lat0": 46.53,
+    "lon0": 11.8
+  },
+  "dem_bbox": [
+    46.425,
+    11.62,
+    46.635,
+    11.985
+  ],
+  "dem_step_m": 40,
+  "mesh_stride": 1,
+  "dem_source": {
+    "type": "tinitaly",
+    "tiles": [
+      "w51570",
+      "w51070"
+    ],
+    "url": "https://tinitaly.pi.ingv.it/Download_Area1_1.html"
+  },
+  "dem_note": "TINITALY/1.1 (INGV), מודל קרקע של 10 מ׳ לכל איטליה, CC BY 4.0, שני אריחים (w51570, w51070) שהורדו ב-7.10.2026.",
+  "tile_zoom": 13,
+  "hill_px_m": 12,
+  "colors": {
+    "novice": "blue",
+    "easy": "blue",
+    "intermediate": "red",
+    "advanced": "black",
+    "expert": "black"
+  },
+  "places": [
+    "Sëlva - Wolkenstein in Gröden - Selva di Val Gardena",
+    "Santa Crestina - Santa Cristina - Sankt Christina",
+    "Urtijëi - St. Ulrich - Ortisei",
+    "Corvara - Corvara in Badia",
+    "Calfosch - Kolfuschg - Colfosco",
+    "La Ila - Stern - La Villa",
+    "San Ćiascian - St. Kassian - San Cassiano",
+    "Arabba",
+    "Canazei - Cianacei",
+    "Campitello di Fassa - Ciampedel"
+  ],
+  "main_place": "",
+  "peaks": [
+    "Piz Boè",
+    "Saslonch - Langkofel - Sassolungo",
+    "Sas Rigais",
+    "Sas de Pordoi",
+    "Sasplat - Plattkofel - Sasso Piatto",
+    "Piz Pisciadù - Pisciadù-Spitze - Cima Pisciadù",
+    "Gran Vernel",
+    "Piz dles Cunturines",
+    "Col di Lana",
+    "Pralongiá",
+    "Secëda - Monte Seceda"
+  ],
+  "peak_box": [
+    46.44,
+    11.635,
+    46.62,
+    11.97
+  ],
+  "dem_attribution": "TINITALY/1.1 – Tarquini S., Isola I., Favalli M., Battistini A., Dotta G. (2023). TINITALY, a digital elevation model of Italy with a 10 meters cell size (Version 1.1). Istituto Nazionale di Geofisica e Vulcanologia (INGV). https://doi.org/10.13127/tinitaly/1.1 (CC BY 4.0).",
+  "route_names": [
+    "Sellaronda Arancione, Sellaronda orange",
+    "Sellaronda Arancione alternativa, Sellaronda orange Alternative",
+    "Sellaronda Verde, Sellaronda grün",
+    "Gebirgsjäger - Grande Guerra CCW, Gebirgsjäger-Skitour entgegen dem Uhrzeigersinn, First World War ski tour counterclockwise, Grande Guerra in senso antiorario",
+    "Gebirgsjäger - Grande Guerra CW, Gebirgsjäger-Skitour im Uhrzeigersinn, First World War ski tour clockwise, Grande Guerra in senso orario",
+    "Super8"
+  ],
+  "key_by_name": true,
+  "rename": {
+    "Plran de Gralba": "Plan de Gralba",
+    "Col Alta - Braia Fraida": "Col Alt - Braia Fraida",
+    "Bamby|24": "Pista di collegamento Bamby",
+    "Variante|45A": "Variante Col Pradat",
+    "Gardenaccia 1, Gardenaccia B": "Gardenaccia B",
+    "Gardenaccia 2, Gardenaccia A": "Gardenaccia A",
+    "Gardenaccia 2, Gardenaccia nera": "Gardenaccia nera",
+    "Gardenaccia 1, Doninz - Colz": "Doninz - Colz",
+    "Gardenaccia 1, Colz - Doninz": "Colz - Doninz",
+    "Gardenaccia 1, Doninz": "Doninz",
+    "Vallon, Collegamento Boè - Vallon": "Collegamento Boè - Vallon",
+    "Belvedere II, Sass Becè": "Sass Becè",
+    "Fermada 1": "Fermeda 1",
+    "La Crusc|31, 52": "La Crusc 1",
+    "La Crusc|31, 52A": "La Crusc 1 variante",
+    "Plan Boé": "Plan Boè",
+    "Sourasas": "Sourasass",
+    "Gardenaccia 1|25": "Gardenaccia B",
+    "Gardenaccia 2|26": "Gardenaccia A"
+  },
+  "official": {
+    "path": "research/resorts/sellaronda-official.json",
+    "out_of_scope": [
+      "Lagazuoi",
+      "Armentarola"
+    ],
+    "alias": {
+      "Bear Slope": "Pista dell'Orso",
+      "Bones Braker / Funtanes": "Spacca Ossi / Funtanes",
+      "Paprika - Comici1": "Paprika - Comici I",
+      "Connecting slope Gran Paradiso - Sotsasslong": "Gran Paradiso - Sotsaslong",
+      "Sole/Piz Seteur": "Sole",
+      "Arlara": "Arlara 1",
+      "Pista di collegamento Boé - Costoratta": "Boè - Costoratta",
+      "Raccordo Boé - Crep de Mont": "Boè - Crep de Mont",
+      "Col Alt 4 1/2": "Col Alt 4½",
+      "Raccordo Col Alt - Braia Fraida": "Col Alt - Braia Fraida",
+      "Collegamento Crep de Munt - Boé": "Crep de Mont - Boè",
+      "Raccordo La Brancia - n.15": "La Brancia 15",
+      "Bamby": "Bamby 1",
+      "Raccordo Ciampai - La Fraina": "Ciampai - La Fraina",
+      "Raccordo Ciampai - n. 10": "Ciampai - n.10",
+      "Collegamento Armentarola - Piz Sorega": "Armentarola - Piz Sorega",
+      "Raccordo Piz Sorega B - Armentarola": "Piz Sorega B - Armentarola",
+      "3-Tre - Mortic": "Mortic",
+      "Gherdecia": "Gardeccia",
+      "Plan Da Tieja": "Plan de Tieja",
+      "Col Raiser - Plan Da Tieja": "Col Raiser - Plan de Tieja",
+      "Connection Saslong - Slope B": "Collegamento Saslong B",
+      "Mount Fermeda - Seceda topstation": "Monte Fermeda"
+    }
+  },
+  "color_note": "מהמפה הפתוחה כמו שהיא. הצבע לפי הרשימה הכתובה של העמק (Val Gardena, Alta Badia, Val di Fassa), ובלעדיה לפי דרגת הקושי במפה הפתוחה (קל כחול, בינוני אדום, קשה שחור). research/resorts/sellaronda-official-compare.md.",
+  "overrides": {
+    "source": "research/resorts/sellaronda-official-compare.md",
+    "exclude": {
+      "Gardenissima": "the course of a race (Gardenissima), drawn over runs that are on the map already; not on the resort's list"
+    }
+  },
+  "label_tag": "name:it",
+  "name_fold": {
+    "Piz Secteur": "Piz Seteur"
+  },
+  "label_override": {
+    "Piz Pisciadù - Pisciadù-Spitze - Cima Pisciadù": "Piz Pisciadù",
+    "Piz dles Cunturines": "Piz dles Cunturines"
+  },
+  "key_suffix": {
+    "Pordoi": [
+      [
+        46.47,
+        11.83,
+        46.51,
+        11.9,
+        "Arabba"
+      ]
+    ]
+  },
+  "size": {
+    "gz_mb": 2.5,
+    "mesh_vertices": 500000
+  }
+}

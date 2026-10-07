@@ -10,14 +10,32 @@ Sources (nothing is drawn by hand, CLAUDE.md, accuracy rule 1):
 - runs and lifts: OpenSkiMap export (OpenStreetMap, ODbL), only the features OpenSkiMap assigns to the ski area.
   Every segment keeps its OSM way id.
 - height: Terrain Tiles on AWS (terrarium PNG, zoom from the config). In Austria the source behind them is the
-  national 10 m model (data.gv.at, CC BY 4.0).
+  national 10 m model (data.gv.at, CC BY 3.0 AT).
 - villages, roads, water, peaks: OpenStreetMap through Overpass (ODbL).
-Colours come from piste:difficulty in the European convention (blue, red, black), not from the official map:
-every run is research.conf "medium" until someone checks the colours against the official piste map.
+Colours come from piste:difficulty in the European convention (blue, red, black), unless the resort's own written
+list of runs (config 'official', a list kept in research/) gives the colour: then that one wins, as at Gudauri.
+The whole process, before and after this tool: .claude/skills/new-resort/SKILL.md.
 
-Needs numpy, Pillow and scikit-image (pip install numpy pillow scikit-image). Downloads go to --cache, not the repo.
+Config options beyond Sölden's (all optional):
+- select: {bbox: [s, w, n, e], exclude_areas: {OpenSkiMap id: "name: why"}}: when OpenSkiMap has one area for several valleys
+  (Dolomiti Superski), keep the runs and lifts whose middle is in the box and that are not in an excluded sub-area.
+  The report lists every excluded sub-area with its reason (the architect, 7.10.2026).
+- route_names: names of route relations (a circuit such as the Sellaronda) that OpenSkiMap glues in front of a run's
+  own name; they are stripped, and a feature that is only the route is left out (it repeats the runs under it).
+- rename: {"name as in the open map": "name"}, and "name|ref" for one of two runs with the same name; name_fold: {"spelling": "spelling"} inside names.
+- key_by_name: the run is its name; a ref is never the key (in Italy numbers repeat in every valley).
+  A key is a contract (#map/run/<key> links live outside): it is the name in Unicode NFC, so it does not change between
+  builds, and two runs far apart with one name stop the build. key_suffix: {name: [[s, w, n, e, "suffix"], ...]} splits
+  them, by where the line is ("Pordoi (Arabba)"); the number stays in refs.
+- size: {gz_mb, mesh_vertices}: the budget for terrain.json (the architect, 7.10.2026); over it the build stops.
+- official: {path, alias, out_of_scope}: the resort's written list [{name, color, area, nr}]; alias maps an official
+  name to the open map's, when they differ in spelling or language.
+- dem_source: {type: "tinitaly", tiles: [...], attribution}: a national 10 m model instead of the AWS tiles.
+- label_tag: the OSM tag for the names of villages and peaks on the map (name:it where the name is in three languages); label_override: {name: label} where that tag is missing.
+
+Needs numpy, Pillow and scikit-image (pip install numpy pillow scikit-image), and tifffile for a GeoTIFF height model. Downloads go to --cache, not the repo.
 """
-import argparse, base64, io, json, math, pathlib, subprocess, sys, datetime, collections
+import argparse, base64, io, json, math, pathlib, subprocess, sys, datetime, collections, unicodedata
 import numpy as np
 from PIL import Image
 
@@ -87,8 +105,56 @@ def mosaic():
     return np.vstack(rows), x0, y0
 
 runs, lifts, env = osk('runs'), osk('lifts'), overpass_env()
-M, TX0, TY0 = mosaic()
-print('mosaic', M.shape, 'height', round(M.min()), round(M.max()), file=sys.stderr)
+
+# ---------- one area out of a bigger OpenSkiMap area (several valleys under one name) ----------
+SEL = C.get('select')
+def mid(g):
+    c = g['coordinates']; t = g['type']
+    pts = c if t == 'LineString' else c[0] if t == 'Polygon' else [q for l in c for q in (l if isinstance(l[0][0], (int, float)) else l[0])]
+    return sum(q[1] for q in pts) / len(pts), sum(q[0] for q in pts) / len(pts)
+def area_ids(p): return {a['properties']['id'] if isinstance(a, dict) and 'properties' in a else a.get('id') if isinstance(a, dict) else a for a in p.get('skiAreas') or []}
+def selected(f):
+    if not SEL: return True
+    la, lo = mid(f['geometry']); b = SEL['bbox']
+    if any(x[0] <= la <= x[2] and x[1] <= lo <= x[3] for x in SEL.get('exclude_boxes', [])): return False  # a corner that belongs to a neighbour
+    return b[0] <= la <= b[2] and b[1] <= lo <= b[3] and not area_ids(f['properties']) & set(SEL.get('exclude_areas', []))
+runs = [f for f in runs if selected(f)]; lifts = [f for f in lifts if selected(f)]
+
+# ---------- height: AWS terrain tiles (default) or a national model in GeoTIFF ----------
+DEMS = C.get('dem_source')
+if DEMS and DEMS['type'] == 'tinitaly':
+    import tifffile
+    def utm32(la, lo):  # WGS84 to UTM 32N, Krueger series (the same as every GIS to well under a metre)
+        la, lo = np.radians(np.asarray(la, float)), np.radians(np.asarray(lo, float)) - math.radians(9)
+        a, f, k0 = 6378137.0, 1 / 298.257223563, 0.9996; n = f / (2 - f); A = a / (1 + n) * (1 + n * n / 4 + n ** 4 / 64)
+        al = [n / 2 - 2 * n * n / 3 + 5 * n ** 3 / 16, 13 * n * n / 48 - 3 * n ** 3 / 5, 61 * n ** 3 / 240]
+        e = 2 * math.sqrt(n) / (1 + n)
+        t = np.sinh(np.arctanh(np.sin(la)) - e * np.arctanh(e * np.sin(la)))
+        xi, eta = np.arctan(t / np.cos(lo)), np.arctanh(np.sin(lo) / np.sqrt(1 + t * t))
+        E = eta + sum(al[j] * np.cos(2 * (j + 1) * xi) * np.sinh(2 * (j + 1) * eta) for j in range(3))
+        N = xi + sum(al[j] * np.sin(2 * (j + 1) * xi) * np.cosh(2 * (j + 1) * eta) for j in range(3))
+        return 500000 + k0 * A * E, k0 * A * N
+    TILES = []
+    for name in DEMS['tiles']:
+        tf = tifffile.TiffFile(cache / 'dem' / f'{name}_s10' / f'{name}_s10.tif'); pg = tf.pages[0]
+        sx = pg.tags['ModelPixelScaleTag'].value[0]; tp = pg.tags['ModelTiepointTag'].value
+        TILES.append((tp[3], tp[4], sx, pg.asarray().astype(np.float64)))
+    print('dem tiles', [(t[0], t[1], t[3].shape) for t in TILES], file=sys.stderr)
+    def hv(la, lo):  # bilinear between the 10 m cell centres, in whichever tile holds the point
+        E, N = utm32(la, lo); out = np.full(np.shape(E), np.nan)
+        for e0, n0, sx, A in TILES:
+            px = (E - e0) / sx - .5; py = (n0 - N) / sx - .5
+            ok = (px >= 0) & (py >= 0) & (px < A.shape[1] - 1) & (py < A.shape[0] - 1) & np.isnan(out)
+            i = np.floor(px[ok]).astype(int); j = np.floor(py[ok]).astype(int); fx, fy = px[ok] - i, py[ok] - j
+            out[ok] = (A[j, i] * (1 - fx) + A[j, i + 1] * fx) * (1 - fy) + (A[j + 1, i] * (1 - fx) + A[j + 1, i + 1] * fx) * fy
+        if np.isnan(out).any() or (out < -1000).any(): sys.exit('height model: a point outside the tiles or on no-data')
+        return out
+    DEM_DESC = 'TINITALY/1.1 (INGV), 10 m'
+else:
+    M, TX0, TY0 = mosaic()
+    print('mosaic', M.shape, 'height', round(M.min()), round(M.max()), file=sys.stderr)
+    def hv(la, lo): return mos_hv(la, lo)
+    DEM_DESC = f'AWS terrain tiles, zoom {Z}'
 
 # ---------- projection: the site's own (app.js), metres east and south of proj ----------
 lat0, lon0 = C['proj']['lat0'], C['proj']['lon0']
@@ -112,7 +178,7 @@ X1 = X0 + (nx - 1) * STEP; Y1 = Y0 + (ny - 1) * STEP
 # average the 10 m source into each 40 m cell (a point sample would alias ridges): mean of a 4x4 sub-grid
 GX, GY = np.meshgrid(X0 + np.arange(nx) * STEP, Y0 + np.arange(ny) * STEP)
 sub = [(-.375 + k * .25) * STEP for k in range(4)]
-H = sum(mos_hv(*unPv(GX + dx, GY + dy)) for dx in sub for dy in sub) / 16
+H = sum(hv(*unPv(GX + dx, GY + dy)) for dx in sub for dy in sub) / 16
 H16 = np.round(H).astype('<i2'); HF = H16.astype(float)
 def elev(x, y):  # the same bilinear lookup as relief.js
     cx = min(max((x - X0) / STEP, 0), nx - 1.0001); ry = min(max((y - Y0) / STEP, 0), ny - 1.0001)
@@ -123,7 +189,7 @@ def elev(x, y):  # the same bilinear lookup as relief.js
 # ---------- hillshade (light from the north-west, like Gudauri's) ----------
 PXM = C['hill_px_m']; hw = int((X1 - X0) / PXM); hh = int((Y1 - Y0) / PXM)
 HX, HY = np.meshgrid(X0 + (np.arange(hw) + .5) * (X1 - X0) / hw, Y0 + (np.arange(hh) + .5) * (Y1 - Y0) / hh)
-HS = mos_hv(*unPv(HX, HY))
+HS = hv(*unPv(HX, HY))
 gy, gx = np.gradient(HS, (Y1 - Y0) / hh, (X1 - X0) / hw)
 az, alt = math.radians(315), math.radians(45)
 lx, ly, lz = math.cos(alt) * math.sin(az), -math.cos(alt) * math.cos(az), math.sin(alt)  # y grows south
@@ -172,13 +238,13 @@ for el in env['elements']:
     elif el['type'] == 'node':
         x, y = (round(v) for v in P(el['lat'], el['lon']))
         if t.get('place') and t.get('name') in C['places']:
-            places.append({'n': t['name'], 'x': x, 'y': y, 'ele': t.get('ele'), 'show': True, **({'main': True} if t['name'] == C['main_place'] else {})})
+            places.append({'n': C.get('label_override', {}).get(t['name']) or t.get(C.get('label_tag', 'name')) or t['name'], 'x': x, 'y': y, 'ele': t.get('ele'), 'show': True, **({'main': True} if t['name'] == C['main_place'] else {})})
         if t.get('natural') in ('peak', 'saddle') and t.get('name') in C['peaks']:
             pb = C['peak_box']
             if pb[0] <= el['lat'] <= pb[2] and pb[1] <= el['lon'] <= pb[3]:
                 try: ele = round(float(str(t.get('ele', '')).replace(',', '.')))
                 except ValueError: ele = round(elev(x, y))
-                peaks.append({'n': t['name'], 'ele': ele, 'x': x, 'y': y, 'pass': t['natural'] == 'saddle'})
+                peaks.append({'n': C.get('label_override', {}).get(t['name']) or t.get(C.get('label_tag', 'name')) or t['name'], 'ele': ele, 'x': x, 'y': y, 'pass': t['natural'] == 'saddle'})
 peaks.sort(key=lambda p: -p['ele'])
 terrain = {'license': 'Height: ' + C['dem_attribution'] + ' Villages, roads, water and peaks: © OpenStreetMap contributors, ODbL 1.0; this part is a derived database under the ODbL.',
            'proj': {'lat0': lat0, 'lon0': lon0},
@@ -211,6 +277,19 @@ for f in lifts:
                   'occ': str(p['occupancy']) if p.get('occupancy') else None,
                   'bubble': p.get('bubble'), 'cap': p.get('capacity'), 'rise': round(hl(*g[-1]) - hl(*g[0])),
                   'year': None, 'status': None})
+# one lift drawn as many ways (a funicular in 26 pieces): join pieces of the same name and kind that meet end to start
+def join_lifts(L):
+    out = []
+    for l in L:
+        for m in out:
+            if l['name'] and m['name'] == l['name'] and m['kind'] == l['kind']:
+                if dist(m['g'][-1], l['g'][0]) < 5: m['g'] = m['g'] + l['g'][1:]; break
+                if dist(l['g'][-1], m['g'][0]) < 5: m['g'] = l['g'] + m['g'][1:]; break
+        else: out.append(l); continue
+        m['len'] = round(length(m['g'])); m['rise'] = round(hl(*m['g'][-1]) - hl(*m['g'][0]))
+    return out
+n0 = 0
+while n0 != len(LIFTS): n0 = len(LIFTS); LIFTS = join_lifts(LIFTS)
 LIFTS.sort(key=lambda l: (l['name'] is None, l['name'] or '', l['id']))
 
 # ---------- an official lift registry, when the resort's region publishes one (capacity and year only; the line stays the open map's) ----------
@@ -248,28 +327,62 @@ def norm_number(v):
     v = (v or '').strip()
     return v if v and len(v) <= 4 and v[0].isdigit() else None
 OV = C.get('overrides', {})
+# ---------- names: route relations glued in front, renames, and the resort's written list ----------
+import re, unicodedata
+ROUTES = sorted(C.get('route_names', []), key=len, reverse=True)
+def strip_routes(n):
+    n, got, more = (n or '').strip(), [], True
+    while more:
+        more = False
+        for r in ROUTES:
+            if n == r or n.startswith(r + ', '): got.append(r); n = n[len(r) + 2:] if n != r else ''; more = True; break
+    return n, got
+ROM = {'i': '1', 'ii': '2', 'iii': '3', 'iv': '4', 'v': '5'}
+NOISE = {'collegamento': 'conn', 'connection': 'conn', 'connecting': 'conn', 'verbindung': 'conn', 'raccordo': 'conn', 'variante': 'var', 'variant': 'var'}
+def norm_name(v):  # for matching only: accents, case, roman numerals, "connection" in any of the languages
+    v = unicodedata.normalize('NFKD', v or '').encode('ascii', 'ignore').decode().lower()
+    return ' '.join(NOISE.get(ROM.get(w, w), ROM.get(w, w)) for w in re.split(r'[^a-z0-9]+', v) if w)
+def norm_ref(v): return re.sub(r'\s+', '', (v or '').lower())
+OFF = C.get('official')
+OFFICIAL = json.load(open(ROOT / OFF['path'], encoding='utf-8'))['runs'] if OFF else []
+route_only, route_runs = collections.Counter(), collections.defaultdict(set)
 groups, skipped = collections.OrderedDict(), []
 for f in runs:
     p = f['properties']
     uses = set(p.get('uses') or [])
+    if ROUTES:
+        own, got = strip_routes(p.get('name'))
+        rel_only = all(x['id'].startswith('relation/') for x in p.get('sources', []))
+        if rel_only and not own: route_only[', '.join(got) or '(no name)'] += 1; continue  # the route itself: its runs are there already
+        ref = (p.get('ref') or '').strip()
+        for x, y in C.get('name_fold', {}).items(): own = own.replace(x, y)  # one spelling for a name the open map spells two ways
+        own = C.get('rename', {}).get(own + '|' + ref, C.get('rename', {}).get(own, own))
+        p = dict(p, name=own, _rel=rel_only)
+        for r in got: route_runs[r].add(own or '(no name)')
     label = (p.get('name') or p.get('ref') or '').strip()
     # a ski route (Skiroute: not prepared, not patrolled, no difficulty under the Tyrol rules) is not a run with a colour:
     # kind 'ski-route', colour 'none' (Pini, round 24 and the architect, 7.10.2026). Only by the tag or the resort's own list, never a guess
     route = p.get('grooming') == 'backcountry' or label in OV.get('ski_routes', []) or (p.get('ref') or '') in OV.get('ski_routes', [])
-    if label in OV.get('exclude', []): skipped.append((label, 'a park, not a run (the ski expert)')); continue
+    if label in OV.get('exclude', []): skipped.append((label, OV['exclude'][label] if isinstance(OV['exclude'], dict) else 'a park, not a run (the ski expert)')); continue
     if not uses & {'downhill', 'connection'}: skipped.append((p.get('name') or p.get('ref'), 'not a downhill run (' + ','.join(sorted(uses)) + ')')); continue
     if not p.get('difficulty') and not route: skipped.append((p.get('name') or p.get('ref'), 'no difficulty in OSM, so no colour')); continue
     name, ref = (p.get('name') or '').strip(), (p.get('ref') or '').strip()
     # one run per piste number; a segment shared by two numbers ("4 / 5", "50, 9") belongs to both
     nums = [norm_number(x) for x in name.replace(',', '/').split('/')] if name and norm_number(name.replace(',', '/').split('/')[0]) else []
     nums = [x for x in nums if x]
-    if not nums and norm_number(ref): nums = [norm_number(ref)]
+    if not nums and norm_number(ref) and not (C.get('key_by_name') and name): nums = [norm_number(ref)]
+    if C.get('key_by_name') and not name: nums = []  # a number alone repeats in every valley: the line is an unnamed section
     nums = [OV.get('swap_numbers', {}).get(x, x) for x in nums]  # numbers swapped in the open map, by the resort's own list
     nums = [x for x in nums if x not in OV.get('unnumber', [])]  # a number the resort's own map does not have: the line stays, as an unnamed section
     gid = osm_id(f); poly = f['geometry']['type'] == 'Polygon'
     coords = f['geometry']['coordinates'][0] if poly else f['geometry']['coordinates']
     g = [ll(c) for c in coords]
     if name in OV.get('unnumber', []) or ref in OV.get('unnumber', []): name = ''  # its only name was the number
+    if C.get('key_by_name') and name:
+        name = unicodedata.normalize('NFC', name)
+        la_, lo_ = mid(f['geometry'])
+        sfx = [b[4] for b in C.get('key_suffix', {}).get(name, []) if b[0] <= la_ <= b[2] and b[1] <= lo_ <= b[3]]
+        if sfx: name = f'{name} ({sfx[0]})'
     keys = nums or ([name] if name else ['u%d' % gid])
     for k in keys:
         G = groups.setdefault(k, {'key': k, 'name': k if (nums or name) else None, 'osmNames': set(), 'refs': set(), 'diff': collections.Counter(),
@@ -282,7 +395,71 @@ for f in runs:
         if p.get('grooming'): G['groom'].add(p['grooming'])
         if p.get('lit') is not None: G['lit'].add('yes' if p['lit'] else 'no')
         if not poly and hl(*g[0]) < hl(*g[-1]): g = g[::-1]
-        G['segs'].append({'id': gid, 'area': poly, 'diff': p['difficulty'], 'g': g, **({'tunnel': True} if p.get('tunnel') else {})})
+        G['segs'].append({'id': gid, 'area': poly, 'diff': p['difficulty'], 'g': g, **({'tunnel': True} if p.get('tunnel') else {}), **({'_rel': True} if p.get('_rel') else {})})
+# a run drawn by a relation repeats the ways under it: keep it only when there is no way of that name, and it does not lie
+# on other runs' ways (a race course or a named group of runs, such as Gardenissima, over runs already on the map)
+WAYIX = collections.defaultdict(list)
+for G in groups.values():
+    for s_ in G['segs']:
+        if s_.get('_rel') or s_['area']: continue
+        for q in s_['g']:
+            x, y = P(*q); WAYIX[(int(x // 50), int(y // 50))].append((x, y))
+def on_ways(g):
+    pts = [P(*q) for q in g]; near = 0
+    for x, y in pts:
+        cx, cy = int(x // 50), int(y // 50)
+        if any(math.hypot(x - a, y - b) < 25 for i in (-1, 0, 1) for j in (-1, 0, 1) for a, b in WAYIX.get((cx + i, cy + j), ())): near += 1
+    return near >= .7 * len(pts)
+for k in list(groups):
+    G = groups[k]
+    if any(not s.get('_rel') for s in G['segs']): G['segs'] = [s for s in G['segs'] if not s.get('_rel')]
+    else:
+        dup = [s for s in G['segs'] if s.get('_rel') and not s['area'] and on_ways(s['g'])]
+        if dup: skipped.append((G['key'], 'a relation over runs already on the map (it repeats them)')); G['segs'] = [s for s in G['segs'] if s not in dup]
+    for s_ in G['segs']: s_.pop('_rel', None)
+    if not G['segs']: del groups[k]
+
+# one key, one run: two groups of lines with one name, far apart, are two runs (Pordoi above Arabba and above Canazei).
+# Merging them would draw one run in two valleys and give both one colour, so the build stops until key_suffix splits them.
+def pieces(G):
+    S = [[P(*q) for q in s_['g']] for s_ in G['segs']]
+    ends = [a[::4] + [a[-1]] for a in S]
+    par = list(range(len(S)))
+    def fd(i):
+        while par[i] != i: i = par[i]
+        return i
+    near = lambda a, b: min(math.hypot(x - u, y - v) for x, y in a for u, v in b)
+    for i in range(len(S)):
+        for j in range(i + 1, len(S)):
+            if fd(i) != fd(j) and near(ends[i], ends[j]) < 300: par[fd(i)] = fd(j)
+    cl = collections.defaultdict(list)
+    for i in range(len(S)): cl[fd(i)].append(i)
+    cl = list(cl.values())
+    gap = min((near(ends[a], ends[b]) for x in range(len(cl)) for y in range(x + 1, len(cl)) for a in cl[x] for b in cl[y]), default=0)
+    return len(cl), gap
+if C.get('key_by_name'):
+    clash = [(G['key'], *pieces(G)) for G in groups.values() if G['named']]
+    clash = [c for c in clash if c[1] > 1 and c[2] > 800]
+    if clash:
+        sys.exit('key collision: one name, runs far apart (add key_suffix in the config): '
+                 + '; '.join(f'{k}: {n} pieces, {round(g)} m apart' for k, n, g in clash))
+
+# the resort's written list (official names and colours), matched by name, and by number when both have one
+off_by = {}
+for o in OFFICIAL:
+    if o['name'] in OFF.get('out_of_scope', []): continue
+    off_by.setdefault(norm_name(OFF.get('alias', {}).get(o['name'], o['name'])), []).append(o)
+OFF_USED = set()
+def official_for(G, osm_color):
+    """all the official entries with this run's name: the same run in two lists (Val Gardena and Val di Fassa both list the
+    Passo Sella runs), or two runs with one name (Sef blue and Sef red). One line takes the one whose number, then colour,
+    agrees; the others count as found only when they are the same run (same colour)."""
+    c = off_by.get(norm_name(G['key']), [])
+    if not c: return None, []
+    refs = {norm_ref(r) for r in G['refs']}
+    best = sorted(c, key=lambda o: (not (o.get('nr') and norm_ref(o['nr']) in refs), o['color'] != osm_color))[0]
+    same = [o for o in c if o['color'] == best['color']]
+    return best, [o for o in c if o not in same]
 
 # ---------- checks (accuracy rule 4): every line descends, and starts and ends near lifts or runs ----------
 def climb(g):
@@ -300,10 +477,16 @@ for G in groups.values():
     lines = [s['g'] for s in G['segs'] if not s['area']]
     checked = [s['g'] for s in G['segs'] if not s['area'] and not s.get('tunnel')]  # a tunnel goes under the hill the model measures
     color = 'none' if G['route'] else C['colors'][G['diff'].most_common(1)[0][0]] if G['diff'] else C['colors'][sorted(G['osmDiff'])[0]]
+    O, other = official_for(G, color) if OFFICIAL and G['named'] else (None, [])
+    if O:
+        osm_color = color; color = O['color']; OFF_USED.update(id(o) for o in off_by[norm_name(G['key'])] if o['color'] == O['color'])
+        if other: G['twins'] = sorted({f"{o['name']} ({o['color']})" for o in other})
+        if O['name'] != G['key'] and not any(g2 is not G and g2['key'] == O['name'] for g2 in groups.values()): G['key'] = G['name'] = O['name']
+        G['official'] = {'name': O['name'], 'area': O.get('area'), 'osmColor': osm_color, 'twins': G.get('twins')}
     tops = [L[0] for L in lines] or [G['segs'][0]['g'][0]]; bots = [L[-1] for L in lines] or tops
     P_ = {'key': G['key'], 'name': G['name'], 'osmNames': sorted(G['osmNames']), 'color': color, 'named': G['named'],
           'len': round(sum(length(L) for L in lines)), 'osmDiff': sorted(G['osmDiff']), 'refs': sorted(G['refs']),
-          'groom': sorted(G['groom']), 'lit': sorted(G['lit']), 'segs': G['segs'], **({'kind': 'ski-route'} if G['route'] else {})}
+          'groom': sorted(G['groom']), 'lit': sorted(G['lit']), 'segs': G['segs'], **({'kind': 'ski-route'} if G['route'] else {}), '_off': G.get('official')}
     P_['fromLifts'] = sorted({nm for nm, q in lift_tops if nm and any(dist(q, t) <= 200 for t in tops)})
     P_['toLifts'] = sorted({nm for nm, q in lift_bots if nm and any(dist(q, b) <= 200 for b in bots)})
     climbs = [climb(L) for L in checked]
@@ -324,6 +507,12 @@ for p in pistes:
     mixed = len({d for d in p['osmDiff']}) > 1
     if mixed: flags.append('דרגות קושי שונות בקטעים: ' + ', '.join(p['osmDiff']))
     extra = []
+    O = p.pop('_off')
+    if OFFICIAL and p['named'] and p.get('kind') != 'ski-route':
+        if O and O['osmColor'] != p['color']: flags.append(f"הצבע במפה הפתוחה {O['osmColor']}, ברשימה הרשמית {p['color']}: לפי הרשמית")
+        if O and O['name'] not in p['osmNames']: extra.append('במפה הפתוחה: ' + ', '.join(p['osmNames']))
+        if O and O.get('twins'): flags.append('ברשימה הרשמית עוד מסלול בשם הזה, בצבע אחר, ואין לו קו נפרד במפה הפתוחה: ' + ', '.join(O['twins']))
+        if not O: extra.append('לא נמצא ברשימה הרשמית של האתר; הצבע מהמפה הפתוחה')
     if p['key'] in OV.get('swap_numbers', {}): extra.append('המספר הוחלף לפי הרשימה הרשמית של האתר (במפה הפתוחה ' + {v: k for k, v in OV['swap_numbers'].items()}[p['key']] + ')')
     if p['key'] in OV.get('check_again', []): flags.append('המספר לא מופיע ברשימה הרשמית של האתר; לבדוק')
     if not p['named'] and set(p['refs']) & set(OV.get('unnumber', [])): extra.append('המספר במפה הפתוחה לא מופיע במפה הרשמית, ולכן הקו בלי מספר')
@@ -332,7 +521,7 @@ for p in pistes:
     if p['kind'] == 'ski-route': extra.append('דרך סקי (Skiroute): מאובטחת רק מפני מפולות, בלי הכשרה ובלי דרגת קושי; לפי piste:grooming=backcountry במפה הפתוחה או הרשימה הרשמית של האתר')
     if p['kind'] == 'ski-way': extra.append('דרך מקשרת ולא מסלול, לפי המקרא של המפה הרשמית (סוג בלבד)')
     p['research'] = {'conf': 'medium' if not flags else 'low', 'status': 'osm-named' if p['named'] else 'osm-unnamed',
-                     'notes': ('מהמפה הפתוחה כמו שהיא, בלי צבע ובלי דרגת קושי.' if p['kind'] == 'ski-route' else 'מהמפה הפתוחה כמו שהיא. הצבע לפי דרגת הקושי במפה הפתוחה (אירופה: קל כחול, בינוני אדום, קשה שחור), ונבדק מול רשימת המסלולים הרשמית של האתר (research/resorts/soelden-audit.md).') + (' ' + '; '.join(extra) + '.' if extra else '') + (' בדיקות: ' + '; '.join(flags) + '.' if flags else ''),
+                     'notes': ('מהמפה הפתוחה כמו שהיא, בלי צבע ובלי דרגת קושי.' if p['kind'] == 'ski-route' else C.get('color_note', 'מהמפה הפתוחה כמו שהיא. הצבע לפי דרגת הקושי במפה הפתוחה (אירופה: קל כחול, בינוני אדום, קשה שחור).')) + (' ' + '; '.join(extra) + '.' if extra else '') + (' בדיקות: ' + '; '.join(flags) + '.' if flags else ''),
                      'sources': ['OpenSkiMap ' + FETCHED() + ' (OpenStreetMap, ODbL)'],
                      'osmIds': sorted({s['id'] for s in p['segs'] if s['id']}), 'checks': flags}
     report.append((p['key'], p['color'], p['len'], p['_climb'], flags + extra))
@@ -345,7 +534,9 @@ lons = [q[1] for p in pistes for s in p['segs'] for q in s['g']] + [q[1] for l i
 LICENSE = ('Runs and lifts from OpenStreetMap through OpenSkiMap: © OpenStreetMap contributors, available under the Open Database '
            'License (ODbL 1.0, https://opendatacommons.org/licenses/odbl/). This file is a derived database and stays under the ODbL.'
            + (' Lift capacity and year of construction: ' + REG['attribution'] if REG else ''))
-data = {'resort': RID, 'license': LICENSE, 'pistes': pistes, 'lifts': LIFTS, 'missing': OV.get('missing', []), 'fetched': FETCHED(),
+OFF_MISSING = [o for o in OFFICIAL if o['name'] not in OFF.get('out_of_scope', []) and id(o) not in OFF_USED] if OFFICIAL else []
+MISSING = OV.get('missing', []) + [{'name': o['name'], 'color': o['color'], **({'area': o['area']} if o.get('area') else {})} for o in OFF_MISSING]
+data = {'resort': RID, 'license': LICENSE, 'pistes': pistes, 'lifts': LIFTS, 'missing': MISSING, 'fetched': FETCHED(),
         'liftLen': 'len: horizontal metres along the line, from the coordinates (as in Gudauri). lenSlope: the slope length from the lift registry, when there is one.',
         **({'registry': {'source': REG['attribution'], 'url': REG['url'], 'fetched': REG_FETCHED, 'fields': ['cap', 'year', 'lenSlope']}} if REG else {}),
         'bbox': [round(min(lats), 3), round(min(lons), 3), round(max(lats), 3), round(max(lons), 3)],
@@ -354,6 +545,13 @@ data = {'resort': RID, 'license': LICENSE, 'pistes': pistes, 'lifts': LIFTS, 'mi
 
 json.dump(data, open(out / 'runs-and-lifts.json', 'w', encoding='utf-8'), ensure_ascii=False, separators=(',', ':'))
 json.dump(terrain, open(out / 'terrain.json', 'w', encoding='utf-8'), ensure_ascii=False, separators=(',', ':'))
+import gzip
+GZ = len(gzip.compress((out / 'terrain.json').read_bytes(), 6)) / 1e6
+MESHV = ((nx - 1) // terrain['dem']['mesh'] + 1) * ((ny - 1) // terrain['dem']['mesh'] + 1)
+BUDGET = C.get('size', {'gz_mb': 2.5, 'mesh_vertices': 500000})
+if GZ > BUDGET['gz_mb'] or MESHV > BUDGET['mesh_vertices']:
+    sys.exit(f'terrain.json over the size budget: {GZ:.2f} MB compressed (budget {BUDGET["gz_mb"]}), '
+             f'{MESHV} mesh vertices (budget {BUDGET["mesh_vertices"]}). A coarser dem_step_m, a bigger mesh_stride, or split the area.')
 
 # ---------- report ----------
 named = [p for p in pistes if p['named']]
@@ -361,13 +559,33 @@ lines = [f"# {C['name']}: בדיקת הנתונים", '',
          f"נבנה ב-{datetime.date.today().isoformat()} בפקודה `python3 tools/build-resort.py {args.config} --cache <dir>`. אל תערכו ביד; מריצים שוב.", '',
          f"- **מסלולים:** {len(pistes)} ({len(named)} עם מספר או שם), {sum(len(p['segs']) for p in pistes)} קטעים מהמפה הפתוחה, {round(sum(p['len'] for p in pistes)/1000,1)} ק״מ של קו.",
          f"- **רכבלים:** {len(LIFTS)} ({sum(1 for l in LIFTS if l['name'])} עם שם).",
-         f"- **מודל גובה:** {nx}×{ny} נקודות כל {STEP} מ׳, מ-{round(H.min())} עד {round(H.max())} מ׳. המקור: אריחי הגובה של AWS בזום {Z} (באוסטריה, המודל הלאומי של 10 מ׳).",
+         f"- **מודל גובה:** {nx}×{ny} נקודות כל {STEP} מ׳, מ-{round(H.min())} עד {round(H.max())} מ׳. המקור: " + (C.get('dem_note') or f"אריחי הגובה של AWS בזום {Z} (באוסטריה, המודל הלאומי של 10 מ׳).") ,
+         f"- **גודל:** `terrain.json` {(out / 'terrain.json').stat().st_size / 1e6:.2f}MB, {GZ:.2f}MB דחוס (התקציב: {BUDGET['gz_mb']}MB); ברשת התלת-ממד {MESHV:,} קודקודים (התקציב: {BUDGET['mesh_vertices']:,}).",
          f"- **לא נכנסו:** {len(skipped)} קווים (מסלולי סקי קרוס־קאנטרי, הליכה ומזחלות, וקווים בלי דרגת קושי).", '',
          '## בדיקות לכל מסלול', '',
          'עלייה נגדית: סכום העליות לאורך הקו, מלמעלה למטה, במודל שהאתר מצייר (כלל הדיוק 4: עד כ-10 מ׳). מסלול שנכשל בבדיקה מקבל ודאות `low`, ולא מוסתר: הקו עצמו מהמפה הפתוחה.', '',
          '| מסלול | צבע | אורך (מ׳) | עלייה נגדית (מ׳) | הערות |', '|---|---|---|---|---|']
+if SEL:
+    sel_lines = ['## התחום', '', f"- **המלבן:** {SEL['bbox']} (דרום, מערב, צפון, מזרח). רק מסלולים ורכבלים שאמצעם בתוכו."]
+    ea = SEL.get('exclude_areas', {})
+    sel_lines += ['- **אזורי משנה שהוצאו** (המזהה ב-OpenSkiMap, והסיבה):'] + [f'  - `{i}`: {ea[i] if isinstance(ea, dict) else "(בלי סיבה בקובץ ההגדרות)"}' for i in ea]
+    sel_lines += [f'- **פינות שהוצאו:** {x[:4]}' + (f': {x[4]}' if len(x) > 4 else '') for x in SEL.get('exclude_boxes', [])]
+    i_ = lines.index('## בדיקות לכל מסלול'); lines[i_:i_] = sel_lines + ['']
 lines += [f"| {k} | {c} | {L} | {cl} | {'; '.join(fl) or 'תקין'} |" for k, c, L, cl, fl in sorted(report, key=lambda r: [int(x) if x.isdigit() else x for x in __import__('re').split(r'(\d+)', r[0])])]
 lines += ['', '## לא נכנסו', ''] + [f'- {nm or "(בלי שם)"}: {why}' for nm, why in skipped]
+if ROUTES:
+    lines += ['', '## סבבים במפה הפתוחה (לא מצוירים)', '',
+              'קווים שהם רק הסבב עצמו (relation בלי דרך משלו) לא נכנסו, כי המסלולים שמתחתיהם כבר במפה. שמות הסבבים הוסרו משמות המסלולים.', '']
+    lines += [f'- **{r}:** {len(route_runs[r])} מסלולים עליו: ' + ', '.join(sorted(route_runs[r])) for r in sorted(route_runs)]
+    lines += [f'- קווים של הסבב בלבד שלא נכנסו: {sum(route_only.values())}']
+if OFFICIAL:
+    inscope = [o for o in OFFICIAL if o['name'] not in OFF.get('out_of_scope', [])]
+    lines += ['', '## מול הרשימה הרשמית', '',
+              f"- **ברשימות:** {len(inscope)} מסלולים בתחום, ועוד {len(OFFICIAL) - len(inscope)} מחוץ לתחום ({', '.join(OFF.get('out_of_scope', [])) or 'אין'}).",
+              f"- **יש להם קו:** {len(inscope) - len(OFF_MISSING)}. **אין להם קו במפה הפתוחה** (ברשימת החסרים, לא מצוירים): {len(OFF_MISSING)}.",
+              f"- **צבע שונה במפה הפתוחה, ותוקן לפי הרשמי:** " + (', '.join(f"{p['key']}" for p in pistes if any('ברשימה הרשמית' in c for c in p['research']['checks'])) or 'אין') + '.',
+              f"- **מסלולים אצלנו שאינם ברשימה הרשמית** (הצבע מהמפה הפתוחה): " + (', '.join(p['key'] for p in pistes if p['named'] and 'לא נמצא ברשימה הרשמית' in p['research']['notes']) or 'אין') + '.',
+              '', '### חסרים', ''] + [f"- {o['name']} ({o['color']}, {o.get('area') or ''})" for o in OFF_MISSING]
 if REG:
     lines += ['', '## רכבלים מול המאגר הרשמי', '',
               f"המקור: {REG['attribution']} השכבה: {REG['url']}, הורדה ב-{REG_FETCHED}. התאמה לפי שני הקצוות, עד {REG.get('max_end_m', 120)} מ׳. נלקחים רק קיבולת, שנת בנייה ואורך משופע; הקו נשאר מהמפה הפתוחה.", '',
