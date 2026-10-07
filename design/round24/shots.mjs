@@ -99,6 +99,25 @@ S.push(
   ['sel-a-gud', '/#map/run/Pirveli', { areas: 'full', sel: SEL('gudauri', 'Pirveli', 'run') }, { st: D2 }],
   ['sel-b-gud', '/#map/run/Pirveli', { areas: 'full', sel: SEL('gudauri', 'Pirveli', 'slope') }, { st: D2 }],
 );
+// the legend that folds (Pini approved going ahead, 7.10.2026): legend.js, over main as it is
+const LEG = HERE + 'legend.js', GK = ['way', 'area'];
+S.push(
+  ['leg-today', '/?resort=soelden#map', null, { st: D2 }],
+  ['leg-today-desk', '/?resort=soelden#map', null, { st: D2, w: 1280, h: 800 }],
+  ['leg-closed', '/?resort=soelden#map', null, { st: D2, leg: {} }],
+  ['leg-open', '/?resort=soelden#map', null, { st: D2, leg: { open: 1 } }],
+  ['leg-closed-night', '/?resort=soelden#map', null, { st: D2, leg: {}, theme: 'night' }],
+  ['leg-open-night', '/?resort=soelden#map', null, { st: D2, leg: { open: 1 }, theme: 'night' }],
+  ['leg-run11', '/?resort=soelden#map/run/11', null, { st: D2, leg: {}, back: 1 }],
+  ['leg-closed-desk', '/?resort=soelden#map', null, { st: D2, leg: {}, w: 1280, h: 800 }],
+  ['leg-open-desk', '/?resort=soelden#map', null, { st: D2, leg: { open: 1 }, w: 1280, h: 800 }],
+  ['leg-open-desk-night', '/?resort=soelden#map', null, { st: D2, leg: { open: 1 }, w: 1280, h: 800, theme: 'night' }],
+  ['leg-gud-today', '/#map', null, { st: D2 }],
+  ['leg-gud-closed', '/#map', null, { st: D2, leg: { kinds: GK } }],
+  ['leg-gud-open', '/#map', null, { st: D2, leg: { kinds: GK, open: 1 } }],
+  ['leg-gud-open-night', '/#map', null, { st: D2, leg: { kinds: GK, open: 1 }, theme: 'night' }],
+  ['leg-gud-open-desk', '/#map', null, { st: D2, leg: { kinds: GK, open: 1 }, w: 1280, h: 800 }],
+);
 const only = process.argv[2];
 const b = await launch();
 for (const [n, u, p, o] of S) {
@@ -117,6 +136,7 @@ for (const [n, u, p, o] of S) {
     } : null });
   if (o.back) { await page.click('[data-back]').catch(e => console.log(n, 'no back')); await page.waitForTimeout(1200); await page.evaluate(() => window.scrollTo(0, 0)); }
   if (p) { await page.addScriptTag({ path: PROP }); const c = await page.evaluate(([q, KEYS, MISS]) => window.R24.apply({ ...q, routes: q.routes ? KEYS : null, missing: q.missing ? MISS : null, hutKey: 'Gaislachalm' }), [p, KEYS, MISS]); console.log(n, JSON.stringify(c)); await page.waitForTimeout(500); }
+  if (o.leg) { await page.addScriptTag({ path: LEG }); console.log(n, JSON.stringify(await page.evaluate(q => window.R24L.apply(q), o.leg))); await page.waitForTimeout(300); }
   if (o.scrollTo) await page.evaluate(q => { const e = document.querySelector(q); e && e.scrollIntoView({ block: 'center' }); }, o.scrollTo);
   if (o.scroll) await page.evaluate(() => { const pn = document.getElementById('panel'); pn && pn.querySelector('dl.kv') && pn.querySelector('dl.kv').scrollIntoView({ block: 'center' }); });
   await page.screenshot({ path: OUT + n + '.png' });
