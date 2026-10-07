@@ -2,10 +2,21 @@
 
 נבנה ב-2026-10-07 בפקודה `python3 tools/build-resort.py tools/resorts/sellaronda.json --cache <dir>`. אל תערכו ביד; מריצים שוב.
 
-- **מסלולים:** 424 (247 עם מספר או שם), 600 קטעים מהמפה הפתוחה, 281.6 ק״מ של קו.
+- **מסלולים:** 425 (248 עם מספר או שם), 600 קטעים מהמפה הפתוחה, 281.6 ק״מ של קו.
 - **רכבלים:** 153 (135 עם שם).
-- **מודל גובה:** 1398×1169 נקודות כל 20 מ׳, מ-938 עד 3340 מ׳. המקור: TINITALY/1.1 (INGV), מודל קרקע של 10 מ׳ לכל איטליה, CC BY 4.0, שני אריחים (w51570, w51070) שהורדו ב-7.10.2026.
+- **מודל גובה:** 699×585 נקודות כל 40 מ׳, מ-943 עד 3338 מ׳. המקור: TINITALY/1.1 (INGV), מודל קרקע של 10 מ׳ לכל איטליה, CC BY 4.0, שני אריחים (w51570, w51070) שהורדו ב-7.10.2026.
+- **גודל:** `terrain.json` 2.43MB, 1.45MB דחוס (התקציב: 2.5MB); ברשת התלת-ממד 408,915 קודקודים (התקציב: 500,000).
 - **לא נכנסו:** 116 קווים (מסלולי סקי קרוס־קאנטרי, הליכה ומזחלות, וקווים בלי דרגת קושי).
+
+## התחום
+
+- **המלבן:** [46.455, 11.635, 46.62, 11.97] (דרום, מערב, צפון, מזרח). רק מסלולים ורכבלים שאמצעם בתוכו.
+- **אזורי משנה שהוצאו** (המזהה ב-OpenSkiMap, והסיבה):
+  - `dcb15d6d8592e307e3cf6da3bc1dd4e759d75d90`: Seiser Alm (Alpe di Siusi): not on the Sella Ronda circuit; OpenSkiMap also puts the Ortisei - Furdenan runs under it
+  - `a848fe66f4aa22f54b96871f9b731c037c04a43f`: Marmolada: a separate area, reached from Arabba only by the Grande Guerra tour
+  - `3bfbf3fc95f82938cf30b2e4dcb3ffa5e5c0287c`: Buffaure - Ciampac: across the Val di Fassa from Canazei, not on the circuit
+  - `7382bc3c80658564db8fc3dc0e2f8d8f7c709fe0`: Lagazuoi: reached from Alta Badia by bus or taxi, not by skiing
+- **פינות שהוצאו:** [46.5, 11.635, 46.572, 11.69]: Furdenan, Sanon and Mont Seuc above Ortisei: OpenSkiMap puts them under Seiser Alm
 
 ## בדיקות לכל מסלול
 
@@ -13,152 +24,152 @@
 
 | מסלול | צבע | אורך (מ׳) | עלייה נגדית (מ׳) | הערות |
 |---|---|---|---|---|
-| 3-Tre | red | 3439 | 1 | דרגות קושי שונות בקטעים: advanced, intermediate |
+| 3-Tre | red | 3439 | 2 | דרגות קושי שונות בקטעים: advanced, intermediate |
 | 3-Tre - Mortic | red | 962 | 0 | במפה הפתוחה: Mortic |
 | 3-Tre var. agonistica | red | 608 | 0 | במפה הפתוחה: 3-Tre variante Agonistica |
 | Abrusé | blue | 601 | 3 | תקין |
 | Alpenrose | blue | 1162 | 5 | לא נמצא ברשימה הרשמית של האתר; הצבע מהמפה הפתוחה |
-| Alpha | black | 1385 | 1 | תקין |
-| Altin | red | 3050 | 6 | תקין |
+| Alpha | black | 1385 | 0 | תקין |
+| Altin | red | 3050 | 5 | תקין |
 | Antercrëp | red | 1226 | 0 | לא נמצא ברשימה הרשמית של האתר; הצבע מהמפה הפתוחה |
-| Arabba | blue | 1875 | 1 | תקין |
-| Arlara | blue | 1843 | 2 | במפה הפתוחה: Arlara 1 |
-| Arlara - Pralongiá II | blue | 751 | 5 | במפה הפתוחה: Arlara - Pralongia II |
-| Armentarola | blue | 1466 | 2 | לא נמצא ברשימה הרשמית של האתר; הצבע מהמפה הפתוחה |
+| Arabba | blue | 1875 | 0 | תקין |
+| Arlara | blue | 1843 | 1 | במפה הפתוחה: Arlara 1 |
+| Arlara - Pralongiá II | blue | 751 | 4 | במפה הפתוחה: Arlara - Pralongia II |
+| Armentarola | blue | 1466 | 1 | לא נמצא ברשימה הרשמית של האתר; הצבע מהמפה הפתוחה |
 | Avoie | blue | 677 | 1 | לא נמצא ברשימה הרשמית של האתר; הצבע מהמפה הפתוחה |
 | Bamby | red | 1020 | 0 | במפה הפתוחה: Bamby 1 |
 | Bamby 2 | red | 919 | 0 | תקין |
-| Bear Slope | blue | 805 | 14 | עלייה נגדית 14 מ׳; במפה הפתוחה: Pista dell'Orso |
+| Bear Slope | blue | 805 | 10 | במפה הפתוחה: Pista dell'Orso |
 | Bec de Roces | red | 1152 | 0 | לא נמצא ברשימה הרשמית של האתר; הצבע מהמפה הפתוחה |
 | Belvedere | blue | 863 | 0 | תקין |
-| Belvedere 1 | red | 1997 | 7 | במפה הפתוחה: Belvedere I |
+| Belvedere 1 | red | 1997 | 8 | במפה הפתוחה: Belvedere I |
 | Belvedere 2 | red | 1230 | 0 | במפה הפתוחה: Belvedere II |
 | Biancaneve | blue | 322 | 0 | תקין |
 | Biok | blue | 1105 | 0 | תקין |
 | Biok - Pralongiá II | blue | 1361 | 1 | במפה הפתוחה: Biok - Pralongia II |
 | Biok - Saraghes | blue | 1794 | 0 | תקין |
 | Bones Braker / Funtanes | red | 1603 | 1 | במפה הפתוחה: Spacca Ossi / Funtanes |
-| Boè | red | 3132 | 2 | במפה הפתוחה: Boè |
+| Boè | red | 3132 | 4 | במפה הפתוחה: Boè |
 | Boé | red | 264 | 0 | דרגות קושי שונות בקטעים: easy, intermediate |
 | Boé - Campolongo | red | 1073 | 3 | במפה הפתוחה: Boe - Campolongo |
-| Braia Fraida | blue | 840 | 3 | תקין |
-| Braia Fraida - Arlara | blue | 438 | 6 | תקין |
-| Braia Fraida - Roby | blue | 734 | 2 | תקין |
-| Bravo | red | 2003 | 2 | תקין |
+| Braia Fraida | blue | 840 | 2 | תקין |
+| Braia Fraida - Arlara | blue | 438 | 4 | תקין |
+| Braia Fraida - Roby | blue | 734 | 1 | תקין |
+| Bravo | red | 2003 | 1 | תקין |
 | Burz | black | 999 | 1 | לא נמצא ברשימה הרשמית של האתר; הצבע מהמפה הפתוחה |
 | Cadepunt | blue | 335 | 0 | תקין |
 | Campo Freina | red | 331 | 0 | תקין |
 | Campolongo | red | 1359 | 2 | לא נמצא ברשימה הרשמית של האתר; הצבע מהמפה הפתוחה |
-| Canazei | red | 1675 | 0 | הסוף רחוק מרכבל ומסלול |
-| Capanna Nera | blue | 1517 | 1 | תקין |
-| Catores | black | 727 | 4 | תקין |
+| Canazei | red | 1675 | 1 | הסוף רחוק מרכבל ומסלול |
+| Capanna Nera | blue | 1517 | 0 | תקין |
+| Catores | black | 727 | 5 | תקין |
 | Catores - Fermeda | red | 472 | 0 | תקין |
 | Cendevaves 1 | blue | 338 | 0 | תקין |
-| Cendevaves 2 | blue | 342 | 1 | תקין |
-| Charly | red | 3746 | 9 | הצבע במפה הפתוחה blue, ברשימה הרשמית red: לפי הרשמית |
-| Cherz 1 | blue | 1221 | 1 | במפה הפתוחה: Cherz I |
+| Cendevaves 2 | blue | 342 | 0 | תקין |
+| Charly | red | 3746 | 3 | הצבע במפה הפתוחה blue, ברשימה הרשמית red: לפי הרשמית |
+| Cherz 1 | blue | 1221 | 2 | במפה הפתוחה: Cherz I |
 | Cherz 2 | red | 1124 | 3 | במפה הפתוחה: Cherz II |
-| Ciampai | blue | 726 | 6 | תקין |
+| Ciampai | blue | 726 | 4 | תקין |
 | Ciampinoi 3 | black | 1575 | 0 | תקין |
-| Ciampinoi 4 | red | 2613 | 0 | תקין |
-| Ciampinoi 5 | red | 716 | 2 | תקין |
-| Ciampinoi 6 | red | 961 | 1 | תקין |
+| Ciampinoi 4 | red | 2613 | 1 | תקין |
+| Ciampinoi 5 | red | 716 | 1 | תקין |
+| Ciampinoi 6 | red | 961 | 0 | תקין |
 | Ciampinoi - Piza Pranseies | red | 135 | 0 | תקין |
-| Cinque Dita | red | 1130 | 3 | תקין |
+| Cinque Dita | red | 1130 | 2 | תקין |
 | Cir | black | 2170 | 0 | תקין |
 | Cir-Ria | red | 235 | 0 | במפה הפתוחה: Cir - Ria |
-| Città dei Sassi | blue | 1367 | 5 | תקין |
+| Città dei Sassi | blue | 1367 | 4 | תקין |
 | Col Alt 4 | red | 1856 | 1 | תקין |
 | Col Alt 4 1/2 | blue | 638 | 0 | במפה הפתוחה: Col Alt 4½ |
 | Col Pradat | black | 1031 | 0 | תקין |
 | Col Raiser - Plan Da Tieja | blue | 608 | 0 | הצבע במפה הפתוחה red, ברשימה הרשמית blue: לפי הרשמית; במפה הפתוחה: Col Raiser - Plan de Tieja |
 | Col d'Altin 1 | blue | 188 | 1 | תקין |
 | Col d'Altin 2 | blue | 154 | 0 | תקין |
-| Col dei Rossi | red | 1694 | 5 | תקין |
-| Colfosco 1 | red | 883 | 4 | תקין |
+| Col dei Rossi | red | 1694 | 3 | תקין |
+| Colfosco 1 | red | 883 | 5 | תקין |
 | Colfosco 2 | blue | 2160 | 3 | תקין |
-| Collegamento Armentarola - Piz Sorega | blue | 590 | 2 | במפה הפתוחה: Armentarola - Piz Sorega |
+| Collegamento Armentarola - Piz Sorega | blue | 590 | 1 | במפה הפתוחה: Armentarola - Piz Sorega |
 | Collegamento Boè - Vallon | blue | 101 | 2 | לא נמצא ברשימה הרשמית של האתר; הצבע מהמפה הפתוחה |
 | Collegamento Carpazza | red | 264 | 0 | לא נמצא ברשימה הרשמית של האתר; הצבע מהמפה הפתוחה |
 | Collegamento Ciampinoi | red | 305 | 0 | לא נמצא ברשימה הרשמית של האתר; הצבע מהמפה הפתוחה |
-| Collegamento Crep de Munt - Boé | blue | 1814 | 0 | במפה הפתוחה: Crep de Mont - Boè |
-| Collegamento Piz Arlara - Costes da l'Ega | blue | 692 | 1 | לא נמצא ברשימה הרשמית של האתר; הצבע מהמפה הפתוחה |
+| Collegamento Crep de Munt - Boé | blue | 1814 | 2 | במפה הפתוחה: Crep de Mont - Boè |
+| Collegamento Piz Arlara - Costes da l'Ega | blue | 692 | 0 | לא נמצא ברשימה הרשמית של האתר; הצבע מהמפה הפתוחה |
 | Collegamento Pralongià II - Pralongià I | blue | 711 | 0 | לא נמצא ברשימה הרשמית של האתר; הצבע מהמפה הפתוחה |
 | Collegamento Sodlisia - Frara | blue | 311 | 3 | תקין |
-| Colraiser | red | 2338 | 1 | תקין |
-| Colraiser - Fermeda | blue | 1074 | 5 | תקין |
+| Colraiser | red | 2338 | 6 | תקין |
+| Colraiser - Fermeda | blue | 1074 | 7 | תקין |
 | Colz - Doninz | blue | 224 | 1 | תקין |
 | Comici - Tramans | red | 568 | 0 | תקין |
 | Comici II | red | 400 | 1 | תקין |
 | Connecting slope Gran Paradiso - Sotsasslong | red | 120 | 0 | הצבע במפה הפתוחה blue, ברשימה הרשמית red: לפי הרשמית; במפה הפתוחה: Gran Paradiso - Sotsaslong |
 | Connection Alpha - Bravo | black | 194 | 0 | דרגות קושי שונות בקטעים: advanced, intermediate; במפה הפתוחה: Collegamento Alpha - Bravo |
 | Connection Ciampinoi - Costabella | red | 626 | 1 | במפה הפתוחה: Collegamento Ciampinoi - Costabella |
-| Connection Saslong - Slope B | red | 697 | 4 | במפה הפתוחה: Collegamento Saslong B |
+| Connection Saslong - Slope B | red | 697 | 2 | במפה הפתוחה: Collegamento Saslong B |
 | Costabella | red | 638 | 2 | תקין |
 | Costabella Variante | blue | 204 | 1 | לא נמצא ברשימה הרשמית של האתר; הצבע מהמפה הפתוחה |
 | Costes da l'Ega | blue | 700 | 3 | תקין |
 | Costoratta | red | 884 | 5 | תקין |
 | Crep De Mont | blue | 1238 | 0 | במפה הפתוחה: Crep de Mont |
-| Curona | blue | 776 | 1 | תקין |
-| Dantercepies | red | 3187 | 0 | דרגות קושי שונות בקטעים: easy, intermediate; ברשימה הרשמית עוד מסלול בשם הזה, בצבע אחר, ואין לו קו נפרד במפה הפתוחה: Dantercepies (blue) |
+| Curona | blue | 776 | 0 | תקין |
+| Dantercepies | red | 3187 | 1 | דרגות קושי שונות בקטעים: easy, intermediate; ברשימה הרשמית עוד מסלול בשם הזה, בצבע אחר, ואין לו קו נפרד במפה הפתוחה: Dantercepies (blue) |
 | Dantercepies - Risaccia | blue | 260 | 0 | תקין |
-| Dantercepies - Selva | blue | 765 | 5 | תקין |
+| Dantercepies - Selva | blue | 765 | 4 | תקין |
 | Dantercepies Variante | blue | 1311 | 0 | דרגות קושי שונות בקטעים: easy, intermediate; לא נמצא ברשימה הרשמית של האתר; הצבע מהמפה הפתוחה |
-| Diego | black | 1486 | 1 | תקין |
+| Diego | black | 1486 | 2 | תקין |
 | Doninz | blue | 201 | 1 | תקין |
 | Doninz - Colz | blue | 278 | 0 | תקין |
 | Due Baite | blue | 673 | 0 | לא נמצא ברשימה הרשמית של האתר; הצבע מהמפה הפתוחה |
 | Due Baite I | blue | 383 | 3 | לא נמצא ברשימה הרשמית של האתר; הצבע מהמפה הפתוחה |
-| Falk | red | 1412 | 3 | תקין |
+| Falk | red | 1412 | 1 | תקין |
 | Fermeda 1 | red | 1949 | 0 | תקין |
-| Fermeda 2 | red | 1299 | 1 | תקין |
+| Fermeda 2 | red | 1299 | 0 | תקין |
 | Fermeda - S.Cristina | blue | 1487 | 0 | במפה הפתוחה: Fermeda - S. Cristina |
 | Fodoma | black | 2000 | 0 | לא נמצא ברשימה הרשמית של האתר; הצבע מהמפה הפתוחה |
 | Forcella Incisia | blue | 1467 | 0 | לא נמצא ברשימה הרשמית של האתר; הצבע מהמפה הפתוחה |
 | Forcelles | red | 1283 | 2 | תקין |
 | Frainella | red | 462 | 2 | תקין |
-| Frara | blue | 2505 | 1 | דרגות קושי שונות בקטעים: easy, intermediate |
+| Frara | blue | 2505 | 0 | דרגות קושי שונות בקטעים: easy, intermediate |
 | Frara - Sodlisia | blue | 869 | 0 | במפה הפתוחה: Frara Sodlisia |
-| Frara - Val Setus | red | 640 | 3 | תקין |
+| Frara - Val Setus | red | 640 | 6 | תקין |
 | Frara - variante | blue | 1095 | 0 | במפה הפתוחה: Frara Variante |
-| Frea | red | 1013 | 1 | תקין |
+| Frea | red | 1013 | 2 | תקין |
 | Fungeia | red | 199 | 0 | לא נמצא ברשימה הרשמית של האתר; הצבע מהמפה הפתוחה |
 | Fungeia - Campo Freina | blue | 774 | 12 | עלייה נגדית 12 מ׳ |
 | Gabia | blue | 578 | 0 | תקין |
 | Gardena | red | 1646 | 0 | תקין |
 | Gardenaccia A | red | 1393 | 0 | תקין |
-| Gardenaccia B | blue | 2327 | 8 | תקין |
+| Gardenaccia B | blue | 2327 | 6 | תקין |
 | Gardenaccia nera | black | 216 | 0 | לא נמצא ברשימה הרשמית של האתר; הצבע מהמפה הפתוחה |
 | Gherdecia | red | 452 | 0 | במפה הפתוחה: Gardeccia |
-| Gonzaga | red | 559 | 1 | תקין |
+| Gonzaga | red | 559 | 0 | תקין |
 | Gran Paradiso | blue | 1653 | 8 | תקין |
 | Gran Paradiso - Piz Seteur | blue | 333 | 0 | דרגות קושי שונות בקטעים: advanced, intermediate; הצבע במפה הפתוחה red, ברשימה הרשמית blue: לפי הרשמית |
-| Gran Pela | black | 512 | 2 | תקין |
-| Gran Risa | black | 2029 | 5 | תקין |
+| Gran Pela | black | 512 | 0 | תקין |
+| Gran Risa | black | 2029 | 3 | תקין |
 | Grohmann | red | 571 | 0 | תקין |
 | Incisa | blue | 1512 | 1 | תקין |
 | Kids Fun Line La Crusc | blue | 244 | 0 | לא נמצא ברשימה הרשמית של האתר; הצבע מהמפה הפתוחה |
-| La Baita - Pralongiá valle | blue | 762 | 9 | במפה הפתוחה: La Baita - Pralongià valle |
+| La Baita - Pralongiá valle | blue | 762 | 8 | במפה הפתוחה: La Baita - Pralongià valle |
 | La Brancia 14 | blue | 843 | 1 | תקין |
-| La Brancia - Pralongiá II | blue | 1586 | 4 | תקין |
+| La Brancia - Pralongiá II | blue | 1586 | 2 | תקין |
 | La Ciampinoi | black | 538 | 0 | תקין |
 | La Crusc 1 | blue | 2338 | 1 | תקין |
 | La Crusc 1 variante | red | 663 | 1 | תקין |
-| La Crusc 2 | blue | 1589 | 3 | תקין |
-| La Fraina | red | 944 | 4 | תקין |
+| La Crusc 2 | blue | 1589 | 4 | תקין |
+| La Fraina | red | 944 | 1 | תקין |
 | La Longia | red | 3360 | 3 | תקין |
-| La Longia - Furnes | red | 3133 | 29 | עלייה נגדית 29 מ׳ |
+| La Longia - Furnes | red | 3133 | 23 | עלייה נגדית 23 מ׳ |
 | La Para | blue | 429 | 0 | תקין |
 | La Ria | black | 1010 | 0 | תקין |
-| La Vizza | red | 2038 | 1 | דרגות קושי שונות בקטעים: easy, intermediate |
+| La Vizza | red | 2038 | 2 | דרגות קושי שונות בקטעים: easy, intermediate |
 | Larciunei | blue | 326 | 0 | תקין |
-| Maria | blue | 1087 | 1 | תקין |
+| Maria | blue | 1087 | 2 | תקין |
 | Martinelli | red | 1496 | 0 | תקין |
-| Mesola | blue | 1169 | 3 | לא נמצא ברשימה הרשמית של האתר; הצבע מהמפה הפתוחה |
+| Mesola | blue | 1169 | 4 | לא נמצא ברשימה הרשמית של האתר; הצבע מהמפה הפתוחה |
 | Mickey Mouse | blue | 97 | 0 | תקין |
-| Mount Fermeda - Seceda topstation | red | 400 | 1 | במפה הפתוחה: Monte Fermeda |
+| Mount Fermeda - Seceda topstation | red | 400 | 3 | במפה הפתוחה: Monte Fermeda |
 | Nives | blue | 311 | 0 | תקין |
-| Ornella | red | 4297 | 4 | לא נמצא ברשימה הרשמית של האתר; הצבע מהמפה הפתוחה |
+| Ornella | red | 4297 | 3 | לא נמצא ברשימה הרשמית של האתר; הצבע מהמפה הפתוחה |
 | Padon | red | 574 | 0 | הסוף רחוק מרכבל ומסלול; לא נמצא ברשימה הרשמית של האתר; הצבע מהמפה הפתוחה |
 | Padon A | red | 19 | 0 | לא נמצא ברשימה הרשמית של האתר; הצבע מהמפה הפתוחה |
 | Panorama | red | 489 | 3 | תקין |
@@ -167,15 +178,15 @@
 | Parallel 1 | blue | 640 | 0 | תקין |
 | Parallel 2 | blue | 622 | 0 | תקין |
 | Pezzei | blue | 419 | 0 | תקין |
-| Pian Frataces | red | 2941 | 4 | תקין |
-| Pista del Lupo | blue | 282 | 2 | תקין |
+| Pian Frataces | red | 2941 | 1 | תקין |
+| Pista del Lupo | blue | 282 | 1 | תקין |
 | Pista del Sole | blue | 2203 | 1 | במפה הפתוחה: Pista del sole |
 | Pista di collegamento Bamby | blue | 1910 | 2 | תקין |
 | Pista di collegamento Boé - Costoratta | red | 195 | 8 | במפה הפתוחה: Boè - Costoratta |
 | Pitla Pela | red | 794 | 0 | תקין |
 | Pitla Pela Variant | red | 419 | 0 | במפה הפתוחה: Pitla Pela Variante |
-| Piz Sella 5 | red | 2242 | 2 | דרגות קושי שונות בקטעים: advanced, intermediate; ברשימה הרשמית עוד מסלול בשם הזה, בצבע אחר, ואין לו קו נפרד במפה הפתוחה: Piz Sella 5 (black) |
-| Piz Seteur - Città dei Sassi | blue | 326 | 3 | תקין |
+| Piz Sella 5 | red | 2242 | 1 | דרגות קושי שונות בקטעים: advanced, intermediate; ברשימה הרשמית עוד מסלול בשם הזה, בצבע אחר, ואין לו קו נפרד במפה הפתוחה: Piz Sella 5 (black) |
+| Piz Seteur - Città dei Sassi | blue | 326 | 2 | תקין |
 | Piz Seteur - Comici | red | 340 | 1 | תקין |
 | Piz Seteur - Gran Paradiso | red | 362 | 0 | תקין |
 | Piz Seteur - Sotsaslong | red | 153 | 1 | לא נמצא ברשימה הרשמית של האתר; הצבע מהמפה הפתוחה |
@@ -186,64 +197,65 @@
 | Plan Boè | blue | 191 | 1 | לא נמצא ברשימה הרשמית של האתר; הצבע מהמפה הפתוחה |
 | Plan Da Tieja | blue | 210 | 0 | במפה הפתוחה: Plan de Tieja |
 | Plan de Gralba | blue | 1254 | 4 | תקין |
-| Pordoi | red | 3778 | 4 | דרגות קושי שונות בקטעים: easy, intermediate; הצבע במפה הפתוחה blue, ברשימה הרשמית red: לפי הרשמית |
-| Portados | red | 886 | 7 | לא נמצא ברשימה הרשמית של האתר; הצבע מהמפה הפתוחה |
-| Pralongiá - Punta Trieste | blue | 834 | 5 | במפה הפתוחה: Pralongiá  - Punta Trieste |
+| Pordoi | red | 975 | 0 | ההתחלה רחוקה מרכבל ומסלול |
+| Pordoi (Arabba) | blue | 2803 | 3 | לא נמצא ברשימה הרשמית של האתר; הצבע מהמפה הפתוחה |
+| Portados | red | 886 | 0 | לא נמצא ברשימה הרשמית של האתר; הצבע מהמפה הפתוחה |
+| Pralongiá - Punta Trieste | blue | 834 | 3 | במפה הפתוחה: Pralongiá  - Punta Trieste |
 | Pralongiá I | blue | 789 | 0 | במפה הפתוחה: Pralongià I |
-| Pralongiá I - Arlara | red | 310 | 1 | במפה הפתוחה: Pralongià I - Arlara |
+| Pralongiá I - Arlara | red | 310 | 0 | במפה הפתוחה: Pralongià I - Arlara |
 | Pralongiá II | blue | 1223 | 0 | במפה הפתוחה: Pralongià II |
-| Pre Dai Corf | blue | 1176 | 2 | במפה הפתוחה: Pre dai Corf |
+| Pre Dai Corf | blue | 1176 | 1 | במפה הפתוחה: Pre dai Corf |
 | Pudra | blue | 454 | 0 | תקין |
 | Punta Trieste - La Baita | blue | 854 | 5 | תקין |
-| Puntea 1 | blue | 380 | 0 | תקין |
+| Puntea 1 | blue | 380 | 1 | תקין |
 | Puntea 2 | blue | 389 | 3 | תקין |
 | Raccordo 1 | red | 452 | 0 | לא נמצא ברשימה הרשמית של האתר; הצבע מהמפה הפתוחה |
 | Raccordo Boé - Crep de Mont | red | 445 | 0 | במפה הפתוחה: Boè - Crep de Mont |
-| Raccordo Ciampai - La Fraina | blue | 272 | 4 | במפה הפתוחה: Ciampai - La Fraina |
+| Raccordo Ciampai - La Fraina | blue | 272 | 3 | במפה הפתוחה: Ciampai - La Fraina |
 | Raccordo Ciampai - n. 10 | blue | 353 | 0 | במפה הפתוחה: Ciampai - n.10 |
-| Raccordo Col Alt - Braia Fraida | blue | 608 | 0 | במפה הפתוחה: Col Alt - Braia Fraida |
+| Raccordo Col Alt - Braia Fraida | blue | 608 | 2 | במפה הפתוחה: Col Alt - Braia Fraida |
 | Raccordo La Brancia - n.15 | blue | 490 | 0 | במפה הפתוחה: La Brancia 15 |
 | Raccordo Piz Sorega B - Armentarola | blue | 3789 | 1 | במפה הפתוחה: Piz Sorega B - Armentarola |
 | Raccordo Salere - Alpenrose | red | 735 | 0 | לא נמצא ברשימה הרשמית של האתר; הצבע מהמפה הפתוחה |
-| Resciesa - Furnes | red | 2565 | 4 | תקין |
-| Rientro | blue | 1086 | 5 | לא נמצא ברשימה הרשמית של האתר; הצבע מהמפה הפתוחה |
+| Resciesa - Furnes | red | 2565 | 5 | תקין |
+| Rientro | blue | 1086 | 3 | לא נמצא ברשימה הרשמית של האתר; הצבע מהמפה הפתוחה |
 | Risaccia | blue | 456 | 0 | תקין |
 | Roby | blue | 673 | 0 | תקין |
 | Roby - Bamby | blue | 1281 | 0 | תקין |
 | Rodella | red | 844 | 0 | תקין |
-| Rodella 3 / Tre | red | 35 | 1 | לא נמצא ברשימה הרשמית של האתר; הצבע מהמפה הפתוחה |
+| Rodella 3 / Tre | red | 35 | 3 | לא נמצא ברשימה הרשמית של האתר; הצבע מהמפה הפתוחה |
 | Rutort | blue | 1031 | 0 | לא נמצא ברשימה הרשמית של האתר; הצבע מהמפה הפתוחה |
 | Salei | red | 654 | 0 | תקין |
-| Salere | red | 2838 | 8 | לא נמצא ברשימה הרשמית של האתר; הצבע מהמפה הפתוחה |
+| Salere | red | 2838 | 12 | עלייה נגדית 12 מ׳; לא נמצא ברשימה הרשמית של האתר; הצבע מהמפה הפתוחה |
 | Sas Betit | blue | 1802 | 3 | תקין |
 | Saslong | black | 3262 | 0 | תקין |
 | Saslong A | black | 0 | 0 | ההתחלה רחוקה מרכבל ומסלול; הסוף רחוק מרכבל ומסלול; לא נמצא ברשימה הרשמית של האתר; הצבע מהמפה הפתוחה |
-| Saslong B | red | 3778 | 4 | תקין |
+| Saslong B | red | 3778 | 6 | תקין |
 | Sass Becè | red | 1272 | 3 | תקין |
 | Sass Becé | red | 41 | 0 | במפה הפתוחה: Sass Becé |
-| Sass de la Vegla | blue | 948 | 2 | לא נמצא ברשימה הרשמית של האתר; הצבע מהמפה הפתוחה |
+| Sass de la Vegla | blue | 948 | 1 | לא נמצא ברשימה הרשמית של האתר; הצבע מהמפה הפתוחה |
 | Savinè | red | 1208 | 3 | לא נמצא ברשימה הרשמית של האתר; הצבע מהמפה הפתוחה |
 | Schiappen - Sella | blue | 1695 | 0 | במפה הפתוחה: Schiappen-Sella |
 | Seceda - Fermeda | red | 434 | 0 | תקין |
 | Sef | blue | 1787 | 3 | דרגות קושי שונות בקטעים: easy, intermediate; ברשימה הרשמית עוד מסלול בשם הזה, בצבע אחר, ואין לו קו נפרד במפה הפתוחה: Sef (red) |
 | Sef - Gran Paradiso | blue | 499 | 0 | לא נמצא ברשימה הרשמית של האתר; הצבע מהמפה הפתוחה |
-| Seggiovia Pralongià | red | 1384 | 8 | ברשימה הרשמית עוד מסלול בשם הזה, בצבע אחר, ואין לו קו נפרד במפה הפתוחה: Seggiovia Pralongiá (blue); במפה הפתוחה: Seggiovia Pralongià |
+| Seggiovia Pralongià | red | 1384 | 7 | ברשימה הרשמית עוד מסלול בשם הזה, בצבע אחר, ואין לו קו נפרד במפה הפתוחה: Seggiovia Pralongiá (blue); במפה הפתוחה: Seggiovia Pralongià |
 | Seggiovia Pralongiá | blue | 594 | 0 | ברשימה הרשמית עוד מסלול בשם הזה, בצבע אחר, ואין לו קו נפרד במפה הפתוחה: Seggiovia Pralongiá (red) |
 | Seggiovia Pralongiá - Pralongiá II | blue | 301 | 0 | תקין |
 | Skilift Armentarola | blue | 533 | 0 | לא נמצא ברשימה הרשמית של האתר; הצבע מהמפה הפתוחה |
 | Skiweg Skilift Nives - La Poza | blue | 1328 | 2 | תקין |
 | Sochers | red | 678 | 0 | תקין |
 | Sochers 2 | red | 614 | 0 | תקין |
-| Sodlisia | blue | 1388 | 4 | תקין |
-| Sole/Piz Seteur | blue | 648 | 4 | במפה הפתוחה: Sole |
+| Sodlisia | blue | 1388 | 5 | תקין |
+| Sole/Piz Seteur | blue | 648 | 3 | במפה הפתוחה: Sole |
 | Sotsaslong | blue | 1252 | 3 | תקין |
 | Sourasass | black | 2339 | 0 | לא נמצא ברשימה הרשמית של האתר; הצבע מהמפה הפתוחה |
 | Sponata | red | 1742 | 1 | תקין |
-| Stella Alpina | blue | 726 | 8 | תקין |
+| Stella Alpina | blue | 726 | 6 | תקין |
 | Stella Alpina variante | blue | 405 | 0 | במפה הפתוחה: Stella Alpina Variante |
 | Terza Punta | red | 308 | 0 | תקין |
-| Tramans | red | 1660 | 3 | תקין |
-| Tremor | black | 811 | 0 | לא נמצא ברשימה הרשמית של האתר; הצבע מהמפה הפתוחה |
+| Tramans | red | 1660 | 4 | תקין |
+| Tremor | black | 811 | 1 | לא נמצא ברשימה הרשמית של האתר; הצבע מהמפה הפתוחה |
 | Tschucky | blue | 298 | 0 | תקין |
 | Val Setus | red | 1010 | 2 | תקין |
 | Val Setus - Plans | red | 0 | 0 | ההתחלה רחוקה מרכבל ומסלול; הסוף רחוק מרכבל ומסלול; לא נמצא ברשימה הרשמית של האתר; הצבע מהמפה הפתוחה |
@@ -258,21 +270,21 @@
 | Variante Sole | blue | 235 | 0 | תקין |
 | Variante Super Red | red | 456 | 0 | תקין |
 | Verbindung Monte Pana-Saslong | black | 969 | 6 | לא נמצא ברשימה הרשמית של האתר; הצבע מהמפה הפתוחה |
-| Verbindung Saslong-Sesselbahn Monte Pana | red | 565 | 10 | לא נמצא ברשימה הרשמית של האתר; הצבע מהמפה הפתוחה |
+| Verbindung Saslong-Sesselbahn Monte Pana | red | 565 | 12 | עלייה נגדית 12 מ׳; לא נמצא ברשימה הרשמית של האתר; הצבע מהמפה הפתוחה |
 | Vernel | red | 2931 | 1 | תקין |
-| u20925570 | blue | 521 | 1 | תקין |
+| u20925570 | blue | 521 | 0 | תקין |
 | u20925990 | red | 67 | 0 | תקין |
-| u30005097 | red | 132 | 2 | תקין |
+| u30005097 | red | 132 | 1 | תקין |
 | u30007449 | red | 501 | 0 | תקין |
 | u30074454 | blue | 29 | 0 | תקין |
 | u30074462 | blue | 66 | 0 | תקין |
 | u30074478 | blue | 63 | 0 | תקין |
 | u30075933 | blue | 47 | 0 | תקין |
 | u30122436 | red | 234 | 0 | תקין |
-| u32126468 | red | 61 | 0 | תקין |
+| u32126468 | red | 61 | 1 | תקין |
 | u32200057 | red | 31 | 0 | תקין |
 | u32463010 | red | 34 | 0 | תקין |
-| u32479025 | red | 144 | 0 | תקין |
+| u32479025 | red | 144 | 2 | תקין |
 | u32479026 | red | 20 | 0 | תקין |
 | u32479027 | red | 110 | 0 | תקין |
 | u32479030 | red | 24 | 0 | תקין |
@@ -281,37 +293,37 @@
 | u42283595 | blue | 5 | 0 | תקין |
 | u44283176 | blue | 246 | 1 | תקין |
 | u48800924 | blue | 365 | 0 | תקין |
-| u49068271 | red | 285 | 8 | תקין |
-| u49068273 | red | 36 | 1 | תקין |
+| u49068271 | red | 285 | 5 | תקין |
+| u49068273 | red | 36 | 0 | תקין |
 | u49436046 | blue | 42 | 0 | תקין |
-| u49436056 | blue | 161 | 0 | ההתחלה רחוקה מרכבל ומסלול |
+| u49436056 | blue | 161 | 1 | ההתחלה רחוקה מרכבל ומסלול |
 | u52007132 | blue | 124 | 1 | תקין |
 | u52037873 | blue | 144 | 0 | תקין |
-| u95083109 | blue | 270 | 1 | תקין |
-| u135176804 | red | 34 | 1 | תקין |
+| u95083109 | blue | 270 | 0 | תקין |
+| u135176804 | red | 34 | 0 | תקין |
 | u135176811 | red | 277 | 0 | תקין |
 | u150974880 | red | 236 | 0 | תקין |
 | u199413986 | blue | 159 | 0 | תקין |
-| u208293533 | red | 85 | 3 | תקין |
+| u208293533 | red | 85 | 4 | תקין |
 | u208446672 | blue | 49 | 0 | תקין |
 | u208446676 | blue | 33 | 1 | תקין |
 | u208446681 | blue | 54 | 0 | תקין |
 | u208446683 | blue | 54 | 0 | תקין |
 | u208446686 | blue | 41 | 0 | תקין |
 | u208580618 | red | 103 | 1 | תקין |
-| u208719710 | blue | 98 | 1 | תקין |
+| u208719710 | blue | 98 | 0 | תקין |
 | u208719714 | blue | 20 | 0 | תקין |
 | u208719716 | blue | 67 | 1 | תקין |
 | u209187049 | red | 364 | 0 | תקין |
 | u240495380 | blue | 24 | 0 | תקין |
 | u246802319 | blue | 26 | 0 | תקין |
-| u261752047 | red | 35 | 1 | תקין |
-| u262565483 | blue | 27 | 2 | תקין |
+| u261752047 | red | 35 | 2 | תקין |
+| u262565483 | blue | 27 | 1 | תקין |
 | u262565486 | blue | 16 | 0 | תקין |
 | u262565487 | blue | 142 | 1 | תקין |
-| u262565491 | blue | 247 | 0 | תקין |
+| u262565491 | blue | 247 | 1 | תקין |
 | u262773704 | red | 75 | 0 | תקין |
-| u262804548 | red | 51 | 1 | תקין |
+| u262804548 | red | 51 | 2 | תקין |
 | u263014386 | red | 486 | 0 | תקין |
 | u263014394 | red | 217 | 0 | תקין |
 | u315940715 | blue | 110 | 0 | תקין |
@@ -325,14 +337,14 @@
 | u331964369 | red | 0 | 0 | הסוף רחוק מרכבל ומסלול |
 | u332290590 | red | 0 | 0 | ההתחלה רחוקה מרכבל ומסלול; הסוף רחוק מרכבל ומסלול |
 | u332290592 | red | 0 | 0 | תקין |
-| u402501555 | red | 349 | 1 | תקין |
+| u402501555 | red | 349 | 0 | תקין |
 | u402966406 | red | 358 | 0 | תקין |
 | u402966407 | blue | 48 | 0 | תקין |
 | u402966412 | red | 337 | 0 | תקין |
-| u444734366 | blue | 391 | 15 | עלייה נגדית 15 מ׳; הסוף רחוק מרכבל ומסלול |
-| u475335391 | red | 158 | 4 | תקין |
+| u444734366 | blue | 391 | 15 | עלייה נגדית 15 מ׳; ההתחלה רחוקה מרכבל ומסלול |
+| u475335391 | red | 158 | 3 | תקין |
 | u475335393 | blue | 173 | 0 | תקין |
-| u476055692 | red | 162 | 7 | תקין |
+| u476055692 | red | 162 | 5 | תקין |
 | u476055696 | blue | 80 | 0 | תקין |
 | u513412259 | red | 163 | 1 | תקין |
 | u673429273 | blue | 39 | 0 | תקין |
@@ -346,10 +358,10 @@
 | u673630272 | blue | 10 | 0 | תקין |
 | u673630273 | blue | 11 | 0 | תקין |
 | u673630274 | blue | 112 | 0 | תקין |
-| u673630277 | blue | 105 | 1 | תקין |
+| u673630277 | blue | 105 | 0 | תקין |
 | u674493145 | blue | 117 | 0 | תקין |
 | u688015899 | blue | 99 | 3 | תקין |
-| u688999697 | blue | 366 | 2 | תקין |
+| u688999697 | blue | 366 | 1 | תקין |
 | u689987513 | red | 0 | 0 | ההתחלה רחוקה מרכבל ומסלול |
 | u690153112 | black | 0 | 0 | הסוף רחוק מרכבל ומסלול |
 | u690155965 | red | 0 | 0 | הסוף רחוק מרכבל ומסלול |
@@ -363,8 +375,8 @@
 | u690465604 | red | 23 | 0 | תקין |
 | u690477113 | black | 0 | 0 | ההתחלה רחוקה מרכבל ומסלול; הסוף רחוק מרכבל ומסלול |
 | u690521795 | red | 0 | 0 | ההתחלה רחוקה מרכבל ומסלול; הסוף רחוק מרכבל ומסלול |
-| u690523951 | red | 334 | 5 | תקין |
-| u690523953 | red | 340 | 13 | עלייה נגדית 13 מ׳ |
+| u690523951 | red | 334 | 8 | תקין |
+| u690523953 | red | 340 | 14 | עלייה נגדית 14 מ׳ |
 | u690560430 | red | 0 | 0 | הסוף רחוק מרכבל ומסלול |
 | u690580214 | red | 0 | 0 | ההתחלה רחוקה מרכבל ומסלול |
 | u691055228 | blue | 42 | 0 | תקין |
@@ -382,10 +394,10 @@
 | u1038197323 | red | 81 | 4 | תקין |
 | u1038344810 | red | 156 | 0 | תקין |
 | u1107322383 | blue | 44 | 0 | תקין |
-| u1116902929 | blue | 121 | 1 | תקין |
+| u1116902929 | blue | 121 | 0 | תקין |
 | u1125405615 | red | 38 | 0 | תקין |
 | u1125517487 | blue | 34 | 0 | תקין |
-| u1131551145 | red | 37 | 0 | תקין |
+| u1131551145 | red | 37 | 2 | תקין |
 | u1137219286 | blue | 22 | 0 | תקין |
 | u1149687831 | red | 31 | 0 | תקין |
 | u1153962850 | red | 0 | 0 | ההתחלה רחוקה מרכבל ומסלול; הסוף רחוק מרכבל ומסלול |
@@ -394,7 +406,7 @@
 | u1210291742 | blue | 95 | 0 | תקין |
 | u1222219834 | red | 453 | 1 | תקין |
 | u1224058390 | blue | 54 | 0 | תקין |
-| u1225012919 | red | 311 | 6 | תקין |
+| u1225012919 | red | 311 | 4 | תקין |
 | u1237766482 | blue | 381 | 0 | תקין |
 | u1240699923 | black | 0 | 0 | הסוף רחוק מרכבל ומסלול |
 | u1249133105 | blue | 57 | 0 | תקין |
@@ -411,10 +423,10 @@
 | u1337115784 | red | 0 | 0 | תקין |
 | u1337140557 | red | 205 | 0 | תקין |
 | u1337140558 | red | 0 | 0 | ההתחלה רחוקה מרכבל ומסלול; הסוף רחוק מרכבל ומסלול |
-| u1361973851 | red | 348 | 6 | הסוף רחוק מרכבל ומסלול |
-| u1365100229 | blue | 113 | 4 | תקין |
+| u1361973851 | red | 348 | 9 | הסוף רחוק מרכבל ומסלול |
+| u1365100229 | blue | 113 | 2 | תקין |
 | u1383729389 | blue | 223 | 0 | תקין |
-| u1417548454 | blue | 248 | 3 | תקין |
+| u1417548454 | blue | 248 | 0 | תקין |
 | u1417549593 | blue | 144 | 0 | תקין |
 | u1417549595 | blue | 29 | 0 | תקין |
 | u1417549596 | blue | 16 | 0 | תקין |
@@ -422,11 +434,11 @@
 | u1417551117 | blue | 159 | 0 | תקין |
 | u1453352855 | blue | 56 | 0 | תקין |
 | u1453352856 | blue | 43 | 0 | תקין |
-| u1479527777 | red | 100 | 4 | תקין |
-| u1479527778 | red | 507 | 0 | הסוף רחוק מרכבל ומסלול |
+| u1479527777 | red | 100 | 5 | תקין |
+| u1479527778 | red | 507 | 1 | הסוף רחוק מרכבל ומסלול |
 | u1479527779 | blue | 259 | 0 | הסוף רחוק מרכבל ומסלול |
-| u1479527780 | blue | 874 | 4 | ההתחלה רחוקה מרכבל ומסלול |
-| u1479527781 | blue | 290 | 2 | תקין |
+| u1479527780 | blue | 874 | 16 | עלייה נגדית 16 מ׳; ההתחלה רחוקה מרכבל ומסלול |
+| u1479527781 | blue | 290 | 3 | תקין |
 | u1479530988 | red | 902 | 0 | תקין |
 | u1483654814 | red | 276 | 2 | תקין |
 | u1483731989 | red | 36 | 0 | תקין |
@@ -434,7 +446,7 @@
 | u1484632008 | blue | 9 | 0 | תקין |
 | u1488051359 | blue | 60 | 1 | תקין |
 | u1504248401 | blue | 81 | 1 | תקין |
-| u1504248402 | blue | 50 | 2 | תקין |
+| u1504248402 | blue | 50 | 0 | תקין |
 | u1504252890 | blue | 135 | 0 | תקין |
 | u1504498352 | blue | 219 | 0 | תקין |
 
@@ -573,8 +585,8 @@
 
 - **ברשימות:** 243 מסלולים בתחום, ועוד 2 מחוץ לתחום (Lagazuoi, Armentarola).
 - **יש להם קו:** 206. **אין להם קו במפה הפתוחה** (ברשימת החסרים, לא מצוירים): 37.
-- **צבע שונה במפה הפתוחה, ותוקן לפי הרשמי:** Col Raiser - Plan Da Tieja, Gran Paradiso - Piz Seteur, Sef, Seggiovia Pralongiá, Charly, Connecting slope Gran Paradiso - Sotsasslong, Dantercepies, Piz Sella 5, Pordoi, Seggiovia Pralongià.
-- **מסלולים אצלנו שאינם ברשימה הרשמית** (הצבע מהמפה הפתוחה): Alpenrose, Armentarola, Avoie, Collegamento Boè - Vallon, Collegamento Piz Arlara - Costes da l'Ega, Collegamento Pralongià II - Pralongià I, Costabella Variante, Dantercepies Variante, Due Baite, Due Baite I, Forcella Incisia, Kids Fun Line La Crusc, Mesola, Piz Sorega, Piz Sorega - Biok, Plan Boè, Rientro, Rutort, Sass de la Vegla, Sef - Gran Paradiso, Skilift Armentarola, Variante Avoie, Antercrëp, Bec de Roces, Campolongo, Collegamento Carpazza, Collegamento Ciampinoi, Fungeia, Ornella, Padon, Padon A, Piz Seteur - Sotsaslong, Portados, Raccordo 1, Raccordo Salere - Alpenrose, Rodella 3 / Tre, Salere, Savinè, Val Setus - Plans, Variante Bec, Verbindung Saslong-Sesselbahn Monte Pana, Burz, Fodoma, Gardenaccia nera, Saslong A, Sourasass, Tremor, Variante Ornella, Verbindung Monte Pana-Saslong.
+- **צבע שונה במפה הפתוחה, ותוקן לפי הרשמי:** Col Raiser - Plan Da Tieja, Gran Paradiso - Piz Seteur, Sef, Seggiovia Pralongiá, Charly, Connecting slope Gran Paradiso - Sotsasslong, Dantercepies, Piz Sella 5, Seggiovia Pralongià.
+- **מסלולים אצלנו שאינם ברשימה הרשמית** (הצבע מהמפה הפתוחה): Alpenrose, Armentarola, Avoie, Collegamento Boè - Vallon, Collegamento Piz Arlara - Costes da l'Ega, Collegamento Pralongià II - Pralongià I, Costabella Variante, Dantercepies Variante, Due Baite, Due Baite I, Forcella Incisia, Kids Fun Line La Crusc, Mesola, Piz Sorega, Piz Sorega - Biok, Plan Boè, Pordoi (Arabba), Rientro, Rutort, Sass de la Vegla, Sef - Gran Paradiso, Skilift Armentarola, Variante Avoie, Antercrëp, Bec de Roces, Campolongo, Collegamento Carpazza, Collegamento Ciampinoi, Fungeia, Ornella, Padon, Padon A, Piz Seteur - Sotsaslong, Portados, Raccordo 1, Raccordo Salere - Alpenrose, Rodella 3 / Tre, Salere, Savinè, Val Setus - Plans, Variante Bec, Verbindung Saslong-Sesselbahn Monte Pana, Burz, Fodoma, Gardenaccia nera, Saslong A, Sourasass, Tremor, Variante Ornella, Verbindung Monte Pana-Saslong.
 
 ### חסרים
 

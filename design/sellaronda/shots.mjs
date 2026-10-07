@@ -12,6 +12,7 @@ const S = [
   ['3d', '/?resort=sellaronda#map', { extraStorage: D3, wait: 9000 }],
   ['run-saslong', '/?resort=sellaronda#map/run/Saslong', { extraStorage: D2 }],
   ['run-granrisa', '/?resort=sellaronda#map/run/Gran%20Risa', { extraStorage: D2 }],
+  ['run-pordoi-arabba', '/?resort=sellaronda#map/run/Pordoi%20(Arabba)', { extraStorage: D2 }],
   ['desk-map', '/?resort=sellaronda#map', { extraStorage: D2, w: 1280, h: 800 }],
   ['desk-3d', '/?resort=sellaronda#map', { extraStorage: D3, w: 1280, h: 800, wait: 9000 }],
   ['desk-home', '/?resort=sellaronda', { w: 1280, h: 800 }],

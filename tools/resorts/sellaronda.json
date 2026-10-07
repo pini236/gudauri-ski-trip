@@ -10,19 +10,20 @@
       46.62,
       11.97
     ],
-    "exclude_areas": [
-      "dcb15d6d8592e307e3cf6da3bc1dd4e759d75d90",
-      "a848fe66f4aa22f54b96871f9b731c037c04a43f",
-      "3bfbf3fc95f82938cf30b2e4dcb3ffa5e5c0287c",
-      "7382bc3c80658564db8fc3dc0e2f8d8f7c709fe0"
-    ],
+    "exclude_areas": {
+      "dcb15d6d8592e307e3cf6da3bc1dd4e759d75d90": "Seiser Alm (Alpe di Siusi): not on the Sella Ronda circuit; OpenSkiMap also puts the Ortisei - Furdenan runs under it",
+      "a848fe66f4aa22f54b96871f9b731c037c04a43f": "Marmolada: a separate area, reached from Arabba only by the Grande Guerra tour",
+      "3bfbf3fc95f82938cf30b2e4dcb3ffa5e5c0287c": "Buffaure - Ciampac: across the Val di Fassa from Canazei, not on the circuit",
+      "7382bc3c80658564db8fc3dc0e2f8d8f7c709fe0": "Lagazuoi: reached from Alta Badia by bus or taxi, not by skiing"
+    },
     "note": "OpenSkiMap has one area for all of Dolomiti Superski. The four valleys around the Sella: Val Gardena, Alta Badia, Arabba and Canazei (Belvedere, Col Rodella, Pordoi). Out: Seiser Alm (and the Ortisei - Furdenan runs, which OpenSkiMap puts under it), Marmolada, Buffaure - Ciampac and Lagazuoi. A box at the south-west corner (Furdenan, Sanon, Mont Seuc) belongs to Seiser Alm, and the southern edge stops above Pera and Pozza (Vajolet).",
     "exclude_boxes": [
       [
         46.5,
         11.635,
         46.572,
-        11.69
+        11.69,
+        "Furdenan, Sanon and Mont Seuc above Ortisei: OpenSkiMap puts them under Seiser Alm"
       ]
     ]
   },
@@ -36,8 +37,8 @@
     46.635,
     11.985
   ],
-  "dem_step_m": 20,
-  "mesh_stride": 3,
+  "dem_step_m": 40,
+  "mesh_stride": 1,
   "dem_source": {
     "type": "tinitaly",
     "tiles": [
@@ -165,5 +166,20 @@
   "label_override": {
     "Piz Pisciadù - Pisciadù-Spitze - Cima Pisciadù": "Piz Pisciadù",
     "Piz dles Cunturines": "Piz dles Cunturines"
+  },
+  "key_suffix": {
+    "Pordoi": [
+      [
+        46.47,
+        11.83,
+        46.51,
+        11.9,
+        "Arabba"
+      ]
+    ]
+  },
+  "size": {
+    "gz_mb": 2.5,
+    "mesh_vertices": 500000
   }
 }

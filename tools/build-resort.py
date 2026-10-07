@@ -17,12 +17,17 @@ list of runs (config 'official', a list kept in research/) gives the colour: the
 The whole process, before and after this tool: .claude/skills/new-resort/SKILL.md.
 
 Config options beyond Sölden's (all optional):
-- select: {bbox: [s, w, n, e], exclude_areas: [OpenSkiMap ids]}: when OpenSkiMap has one area for several valleys
+- select: {bbox: [s, w, n, e], exclude_areas: {OpenSkiMap id: "name: why"}}: when OpenSkiMap has one area for several valleys
   (Dolomiti Superski), keep the runs and lifts whose middle is in the box and that are not in an excluded sub-area.
+  The report lists every excluded sub-area with its reason (the architect, 7.10.2026).
 - route_names: names of route relations (a circuit such as the Sellaronda) that OpenSkiMap glues in front of a run's
   own name; they are stripped, and a feature that is only the route is left out (it repeats the runs under it).
 - rename: {"name as in the open map": "name"}, and "name|ref" for one of two runs with the same name; name_fold: {"spelling": "spelling"} inside names.
 - key_by_name: the run is its name; a ref is never the key (in Italy numbers repeat in every valley).
+  A key is a contract (#map/run/<key> links live outside): it is the name in Unicode NFC, so it does not change between
+  builds, and two runs far apart with one name stop the build. key_suffix: {name: [[s, w, n, e, "suffix"], ...]} splits
+  them, by where the line is ("Pordoi (Arabba)"); the number stays in refs.
+- size: {gz_mb, mesh_vertices}: the budget for terrain.json (the architect, 7.10.2026); over it the build stops.
 - official: {path, alias, out_of_scope}: the resort's written list [{name, color, area, nr}]; alias maps an official
   name to the open map's, when they differ in spelling or language.
 - dem_source: {type: "tinitaly", tiles: [...], attribution}: a national 10 m model instead of the AWS tiles.
@@ -30,7 +35,7 @@ Config options beyond Sölden's (all optional):
 
 Needs numpy, Pillow and scikit-image (pip install numpy pillow scikit-image), and tifffile for a GeoTIFF height model. Downloads go to --cache, not the repo.
 """
-import argparse, base64, io, json, math, pathlib, subprocess, sys, datetime, collections
+import argparse, base64, io, json, math, pathlib, subprocess, sys, datetime, collections, unicodedata
 import numpy as np
 from PIL import Image
 
@@ -373,6 +378,11 @@ for f in runs:
     coords = f['geometry']['coordinates'][0] if poly else f['geometry']['coordinates']
     g = [ll(c) for c in coords]
     if name in OV.get('unnumber', []) or ref in OV.get('unnumber', []): name = ''  # its only name was the number
+    if C.get('key_by_name') and name:
+        name = unicodedata.normalize('NFC', name)
+        la_, lo_ = mid(f['geometry'])
+        sfx = [b[4] for b in C.get('key_suffix', {}).get(name, []) if b[0] <= la_ <= b[2] and b[1] <= lo_ <= b[3]]
+        if sfx: name = f'{name} ({sfx[0]})'
     keys = nums or ([name] if name else ['u%d' % gid])
     for k in keys:
         G = groups.setdefault(k, {'key': k, 'name': k if (nums or name) else None, 'osmNames': set(), 'refs': set(), 'diff': collections.Counter(),
@@ -408,6 +418,31 @@ for k in list(groups):
         if dup: skipped.append((G['key'], 'a relation over runs already on the map (it repeats them)')); G['segs'] = [s for s in G['segs'] if s not in dup]
     for s_ in G['segs']: s_.pop('_rel', None)
     if not G['segs']: del groups[k]
+
+# one key, one run: two groups of lines with one name, far apart, are two runs (Pordoi above Arabba and above Canazei).
+# Merging them would draw one run in two valleys and give both one colour, so the build stops until key_suffix splits them.
+def pieces(G):
+    S = [[P(*q) for q in s_['g']] for s_ in G['segs']]
+    ends = [a[::4] + [a[-1]] for a in S]
+    par = list(range(len(S)))
+    def fd(i):
+        while par[i] != i: i = par[i]
+        return i
+    near = lambda a, b: min(math.hypot(x - u, y - v) for x, y in a for u, v in b)
+    for i in range(len(S)):
+        for j in range(i + 1, len(S)):
+            if fd(i) != fd(j) and near(ends[i], ends[j]) < 300: par[fd(i)] = fd(j)
+    cl = collections.defaultdict(list)
+    for i in range(len(S)): cl[fd(i)].append(i)
+    cl = list(cl.values())
+    gap = min((near(ends[a], ends[b]) for x in range(len(cl)) for y in range(x + 1, len(cl)) for a in cl[x] for b in cl[y]), default=0)
+    return len(cl), gap
+if C.get('key_by_name'):
+    clash = [(G['key'], *pieces(G)) for G in groups.values() if G['named']]
+    clash = [c for c in clash if c[1] > 1 and c[2] > 800]
+    if clash:
+        sys.exit('key collision: one name, runs far apart (add key_suffix in the config): '
+                 + '; '.join(f'{k}: {n} pieces, {round(g)} m apart' for k, n, g in clash))
 
 # the resort's written list (official names and colours), matched by name, and by number when both have one
 off_by = {}
@@ -510,6 +545,13 @@ data = {'resort': RID, 'license': LICENSE, 'pistes': pistes, 'lifts': LIFTS, 'mi
 
 json.dump(data, open(out / 'runs-and-lifts.json', 'w', encoding='utf-8'), ensure_ascii=False, separators=(',', ':'))
 json.dump(terrain, open(out / 'terrain.json', 'w', encoding='utf-8'), ensure_ascii=False, separators=(',', ':'))
+import gzip
+GZ = len(gzip.compress((out / 'terrain.json').read_bytes(), 6)) / 1e6
+MESHV = ((nx - 1) // terrain['dem']['mesh'] + 1) * ((ny - 1) // terrain['dem']['mesh'] + 1)
+BUDGET = C.get('size', {'gz_mb': 2.5, 'mesh_vertices': 500000})
+if GZ > BUDGET['gz_mb'] or MESHV > BUDGET['mesh_vertices']:
+    sys.exit(f'terrain.json over the size budget: {GZ:.2f} MB compressed (budget {BUDGET["gz_mb"]}), '
+             f'{MESHV} mesh vertices (budget {BUDGET["mesh_vertices"]}). A coarser dem_step_m, a bigger mesh_stride, or split the area.')
 
 # ---------- report ----------
 named = [p for p in pistes if p['named']]
@@ -518,10 +560,17 @@ lines = [f"# {C['name']}: בדיקת הנתונים", '',
          f"- **מסלולים:** {len(pistes)} ({len(named)} עם מספר או שם), {sum(len(p['segs']) for p in pistes)} קטעים מהמפה הפתוחה, {round(sum(p['len'] for p in pistes)/1000,1)} ק״מ של קו.",
          f"- **רכבלים:** {len(LIFTS)} ({sum(1 for l in LIFTS if l['name'])} עם שם).",
          f"- **מודל גובה:** {nx}×{ny} נקודות כל {STEP} מ׳, מ-{round(H.min())} עד {round(H.max())} מ׳. המקור: " + (C.get('dem_note') or f"אריחי הגובה של AWS בזום {Z} (באוסטריה, המודל הלאומי של 10 מ׳).") ,
+         f"- **גודל:** `terrain.json` {(out / 'terrain.json').stat().st_size / 1e6:.2f}MB, {GZ:.2f}MB דחוס (התקציב: {BUDGET['gz_mb']}MB); ברשת התלת-ממד {MESHV:,} קודקודים (התקציב: {BUDGET['mesh_vertices']:,}).",
          f"- **לא נכנסו:** {len(skipped)} קווים (מסלולי סקי קרוס־קאנטרי, הליכה ומזחלות, וקווים בלי דרגת קושי).", '',
          '## בדיקות לכל מסלול', '',
          'עלייה נגדית: סכום העליות לאורך הקו, מלמעלה למטה, במודל שהאתר מצייר (כלל הדיוק 4: עד כ-10 מ׳). מסלול שנכשל בבדיקה מקבל ודאות `low`, ולא מוסתר: הקו עצמו מהמפה הפתוחה.', '',
          '| מסלול | צבע | אורך (מ׳) | עלייה נגדית (מ׳) | הערות |', '|---|---|---|---|---|']
+if SEL:
+    sel_lines = ['## התחום', '', f"- **המלבן:** {SEL['bbox']} (דרום, מערב, צפון, מזרח). רק מסלולים ורכבלים שאמצעם בתוכו."]
+    ea = SEL.get('exclude_areas', {})
+    sel_lines += ['- **אזורי משנה שהוצאו** (המזהה ב-OpenSkiMap, והסיבה):'] + [f'  - `{i}`: {ea[i] if isinstance(ea, dict) else "(בלי סיבה בקובץ ההגדרות)"}' for i in ea]
+    sel_lines += [f'- **פינות שהוצאו:** {x[:4]}' + (f': {x[4]}' if len(x) > 4 else '') for x in SEL.get('exclude_boxes', [])]
+    i_ = lines.index('## בדיקות לכל מסלול'); lines[i_:i_] = sel_lines + ['']
 lines += [f"| {k} | {c} | {L} | {cl} | {'; '.join(fl) or 'תקין'} |" for k, c, L, cl, fl in sorted(report, key=lambda r: [int(x) if x.isdigit() else x for x in __import__('re').split(r'(\d+)', r[0])])]
 lines += ['', '## לא נכנסו', ''] + [f'- {nm or "(בלי שם)"}: {why}' for nm, why in skipped]
 if ROUTES:
