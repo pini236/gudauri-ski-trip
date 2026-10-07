@@ -94,6 +94,7 @@ waitlog() { # waitlog <text> [seconds]
 seen() { # seen <text> [seconds]: as waitlog, but a miss is no failure (the caller tries again)
   local deadline=$((SECONDS + ${2:-30}))
   while (( SECONDS < deadline )); do
+    kill -0 "$LOGCAT" 2> /dev/null || { note "log stream broke: started again"; logcat_on; }
     tail -n +"$((MARK + 1))" "$OUT/logcat.txt" | grep "SkiQa.*$1" > /dev/null && return 0
     sleep 0.5
   done
