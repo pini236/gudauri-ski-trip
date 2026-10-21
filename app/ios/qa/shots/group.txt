@@ -1,0 +1,27 @@
+# The group and the account (13.5), with the pretend server and made-up people ("+group=<seed>": none, invited, member,
+# admin, two; "+gsheet=<sheet>": signin, save, same, fill, edit)
+group-entry-he he day 0 group+group=none
+group-signin-he he day 0 group+group=none+gsheet=signin
+group-signin-en en night 0 group+group=none+gsheet=signin
+group-code-he he day 0 grp:code+group=none
+group-join-he he day 0 grp:join:KZBQRM+group=invited
+group-join-en en night 0 grp:join:KZBQRM+group=invited
+group-reclaim-he he day 0 grp:reclaim:KZBQRM+group=invited
+group-flights-he he day 1 grp:page:g1:flights+group=admin
+group-flights-en en night 1 grp:page:g1:flights+group=admin
+group-flights-member-he he day 0 grp:page:g1:flights+group=member
+group-meetups-he he day 0 grp:page:g1:meetups+group=admin
+group-meetups-en en night 0 grp:page:g1:meetups+group=admin
+group-scores-he he day 0 grp:page:g1:scores+group=admin
+group-members-he he day 0 grp:page:g1:members+group=admin
+group-members-en en night 0 grp:page:g1:members+group=admin
+group-save-he he day 0 grp:page:g1:flights+group=member+gsheet=save
+group-same-he he day 0 grp:page:g1:flights+group=member+gsheet=same
+group-fill-en en day 0 grp:page:g1:flights+group=admin+gsheet=fill
+group-edit-he he night 0 grp:page:g1:members+group=admin+gsheet=edit
+group-new-he he day 1 grp:new+group=admin
+group-invite-he he day 0 grp:invite:g1+group=admin
+group-invite-en en night 0 grp:invite:g1+group=admin
+account-he he day 0 grp:account+group=two
+account-en en night 0 grp:account+group=two
+account-guest-he he day 0 grp:account+group=member

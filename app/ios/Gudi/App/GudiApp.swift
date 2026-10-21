@@ -61,6 +61,7 @@ struct RootView: View {
                         case .group: GroupScreen()
                         case .about: AboutScreen(mode: mode, onMode: { modeRaw = mode.next.rawValue }, onLang: { langRaw = $0?.rawValue ?? "" })
                         case .trip: TripFormScreen()
+                        case .groups(let g): GroupFlow(route: g)
                         }
                     }
                     .background(ski.colors.snow)
