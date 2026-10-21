@@ -41,6 +41,10 @@ targets:
         UILaunchScreen: {}
         UISupportedInterfaceOrientations: [UIInterfaceOrientationPortrait]
         UIRequiresFullScreen: true
+        # the app's own four languages, so the system's own texts follow them (decision 47)
+        CFBundleLocalizations: [en, he, ru, ka]
+        # "where am I" (round 19, m-7): only while the map is open, never sent or kept
+        NSLocationWhenInUseUsageDescription: "Shows where you are on the trail map. Your location stays on this iPhone: it is not sent, saved or measured."
         # the app's fonts (FT1, decision 36), the same files as Android's res/font; licences in app/ios/licenses
         UIAppFonts:
           - Fonts/karantina_bold.ttf
