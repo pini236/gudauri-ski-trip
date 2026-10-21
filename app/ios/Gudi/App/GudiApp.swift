@@ -28,7 +28,7 @@ struct RootView: View {
     /// The user's own trip, as JSON in Android's format (decision 27: only on the phone).
     @AppStorage("trip") private var tripData = Data()
     /// For the screenshots on GitHub only (a launch argument): a made-up trip, never the crew's flight.
-    @AppStorage("qaTrip") private var qaTrip = false
+    @AppStorage("qaTrip") private var qaTrip = ""
     private let runs: RunsAndLifts? = {
         guard let url = Bundle.main.url(forResource: "runs-and-lifts", withExtension: "json", subdirectory: "Data"),
               let data = try? Data(contentsOf: url) else { return nil }
@@ -44,7 +44,7 @@ struct RootView: View {
             let lang = Lang(rawValue: langRaw) ?? Lang.auto(Locale.preferredLanguages)
             let _ = { Strings.shared.lang = lang }()
             let names = runs.map { LiftStatus.names($0.mainLifts) } ?? []
-            let trip = qaTrip ? Self.sample : Trip.from(json: tripData)
+            let trip = qaTrip == "1" ? Self.sample : Trip.from(json: tripData)
             HomeView(frame: frame, mode: mode, trip: trip, now: LocalMoment.now(t.date), status: LiftStatus(names: names, report: nil, now: now),
                      onMode: { modeRaw = mode.next.rawValue }, onLang: { langRaw = $0?.rawValue ?? "" }, go: { _ in })
                 .id(lang)
