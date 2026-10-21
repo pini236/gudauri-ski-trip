@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 import GudiDomain
 
 /// A new group (Q1): its name, its own dates (its countdown, and how long its invite works), your name in it, and
@@ -62,7 +63,7 @@ struct GroupDates: View {
             field(S.appGToDate, to) { pick = "to" }
         }
         .sheet(item: Binding(get: { pick.map(Pick.init) }, set: { pick = $0?.id })) { p in
-            DateSheet(title: p.id == "from" ? S.appGFromDate : S.appGToDate,
+            GDateSheet(title: p.id == "from" ? S.appGFromDate : S.appGToDate,
                       value: p.id == "from" ? from : to,
                       min: p.id == "from" ? Day.gOf(Date()) : (from ?? Day.gOf(Date()))) { d in
                 if p.id == "from" { from = d; if let t = to, let d, t < d { to = nil } } else { to = d }
@@ -97,7 +98,7 @@ struct GroupDates: View {
 }
 
 /// A date from the system's calendar, with its title, a clear button, and today as the first day.
-struct DateSheet: View {
+struct GDateSheet: View {
     let title: String
     let value: Day?
     let min: Day

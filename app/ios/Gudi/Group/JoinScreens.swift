@@ -217,7 +217,8 @@ struct ReclaimScreen: View {
                 if let p = preview {
                     GMuted(S.appGReclaimIntro(group: p.name), 14)
                     VStack(spacing: 8) {
-                        ForEach(p.members, id: \.0) { m in
+                        ForEach(p.members.indices, id: \.self) { i in
+                            let m = p.members[i]
                             let sel = pick == m.0
                             Button { pick = m.0; Fx.shared.tick() } label: {
                                 HStack(spacing: 12) {

@@ -209,7 +209,7 @@ struct GroupPage: View {
 // MARK: - Flights (Q6, Q7)
 
 /// "TLV ✈ TBS", the plane pointing on.
-struct LegLine: View {
+struct GLegLine: View {
     let leg: Leg
     var size: CGFloat = 30
     @Environment(\.ski) private var ski
@@ -226,7 +226,7 @@ struct LegLine: View {
     }
 }
 
-func legWhen(_ l: Leg, ret: Bool) -> String {
+func gLegWhen(_ l: Leg, ret: Bool) -> String {
     var parts = [ret ? S.appPassRet : S.appPassOut, shortDate(l.date)]
     if let d = l.departs { parts.append(l.arrives.map { S.appGDepArr(dep: d.text, arr: $0.text) } ?? d.text) }
     return parts.joined(separator: " · ")
@@ -234,19 +234,19 @@ func legWhen(_ l: Leg, ret: Bool) -> String {
 
 /// Which members share one flight card (X-4, the same on the site and Android): the direction, the date and the flight
 /// number, normalised ("IZ 897" and "iz-897" are one flight); only without a number, the two airports.
-struct FlightKey: Hashable, Comparable {
+struct GFlightKey: Hashable, Comparable {
     let ret: Bool
     let date: Day
     let flight: String, from: String, to: String
 
-    static func of(_ l: Leg, ret: Bool) -> FlightKey {
+    static func of(_ l: Leg, ret: Bool) -> GFlightKey {
         let n = l.flight.uppercased().filter { !$0.isWhitespace && $0 != "-" }
-        if !n.isEmpty { return FlightKey(ret: ret, date: l.date, flight: n, from: "", to: "") }
-        return FlightKey(ret: ret, date: l.date, flight: "", from: (l.fromCode ?? l.from.trimmingCharacters(in: .whitespaces)).uppercased(),
+        if !n.isEmpty { return GFlightKey(ret: ret, date: l.date, flight: n, from: "", to: "") }
+        return GFlightKey(ret: ret, date: l.date, flight: "", from: (l.fromCode ?? l.from.trimmingCharacters(in: .whitespaces)).uppercased(),
                          to: (l.toCode ?? l.to.trimmingCharacters(in: .whitespaces)).uppercased())
     }
 
-    static func < (a: FlightKey, b: FlightKey) -> Bool { a.ret != b.ret ? !a.ret : a.date < b.date }
+    static func < (a: GFlightKey, b: GFlightKey) -> Bool { a.ret != b.ret ? !a.ret : a.date < b.date }
 }
 
 struct FlightsTab: View {
@@ -260,13 +260,13 @@ struct FlightsTab: View {
 
     var body: some View {
         let c = ski.colors
-        var legs: [FlightKey: [(Leg, Member)]] = [:]
+        var legs: [GFlightKey: [(Leg, Member)]] = [:]
         for m in g.members {
             guard let t = m.trip else { continue }
-            legs[FlightKey.of(t.out, ret: false), default: []].append((t.out, m))
-            if let r = t.ret { legs[FlightKey.of(r, ret: true), default: []].append((r, m)) }
+            legs[GFlightKey.of(t.out, ret: false), default: []].append((t.out, m))
+            if let r = t.ret { legs[GFlightKey.of(r, ret: true), default: []].append((r, m)) }
         }
-        func dep(_ k: FlightKey) -> Int { legs[k]?.first?.0.departs?.minutes ?? 9999 }
+        func dep(_ k: GFlightKey) -> Int { legs[k]?.first?.0.departs?.minutes ?? 9999 }
         let keys = legs.keys.sorted { a, b in
             if a.ret != b.ret || a.date != b.date { return a < b }
             return dep(a) < dep(b)
@@ -277,10 +277,11 @@ struct FlightsTab: View {
                 let leg = rows[0].0
                 HStack(spacing: 0) {
                     VStack(alignment: .leading, spacing: 4) {
-                        LegLine(leg: leg)
-                        GMuted(legWhen(leg, ret: key.ret), 12.5)
+                        GLegLine(leg: leg)
+                        GMuted(gLegWhen(leg, ret: key.ret), 12.5)
                         Flow(spacing: 6) {
-                            ForEach(rows, id: \.1.userId) { _, m in
+                            ForEach(rows.indices, id: \.self) { k in
+                                let m = rows[k].1
                                 HStack(spacing: 4) {
                                     Text(m.name + (m.me ? " " + S.appGMeSuffix : "")).font(ski.type.text(13, .bold)).foregroundStyle(c.ink)
                                     if m.enteredByAdmin != nil { Image(systemName: "pencil").font(.system(size: 11)).foregroundStyle(c.muted) }
@@ -291,7 +292,7 @@ struct FlightsTab: View {
                             }
                         }
                         .padding(.top, 4)
-                        if let m = rows.map(\.1).first(where: { $0.enteredByAdmin != nil }) {
+                        if let m = rows.map { $0.1 }.first(where: { $0.enteredByAdmin != nil }) {
                             GMuted(S.appGEnteredBy(admin: m.enteredByAdmin!, member: m.name), 12).padding(.top, 2)
                         }
                         // as on the site: on every outbound flight I am not on (the trip is copied whole, so not on a return)
@@ -308,7 +309,8 @@ struct FlightsTab: View {
                     .frame(width: 64).frame(maxHeight: .infinity)
                     .background(c.bpPaper2)
                     .overlay(alignment: .leading) {
-                        Rectangle().stroke(c.dash, style: StrokeStyle(lineWidth: 2, dash: [6, 4])).frame(width: 0.1)
+                        // the perforation on the seam with the pass, at its start side (PARITY A-39)
+                        GSeam().stroke(c.dash, style: StrokeStyle(lineWidth: 2, dash: [6, 4])).frame(width: 2)
                     }
                 }
                 .fixedSize(horizontal: false, vertical: true)
@@ -368,8 +370,8 @@ struct FlightPickSheet: View {
                     Button { picked = m.tripId; Fx.shared.tick() } label: {
                         HStack {
                             VStack(alignment: .leading, spacing: 2) {
-                                LegLine(leg: t.out, size: 28)
-                                GMuted(legWhen(t.out, ret: false) + " · " + S.appGFromGroup(count: on), 12.5)
+                                GLegLine(leg: t.out, size: 28)
+                                GMuted(gLegWhen(t.out, ret: false) + " · " + S.appGFromGroup(count: on), 12.5)
                             }
                             Spacer()
                             if sel { Image(systemName: "checkmark").foregroundStyle(c.glacier) }
@@ -712,4 +714,9 @@ struct MembersTab: View {
             }
         }
     }
+}
+
+/// A vertical line down the middle of its frame (the pass's perforation).
+struct GSeam: Shape {
+    func path(in r: CGRect) -> Path { var p = Path(); p.move(to: CGPoint(x: r.midX, y: r.minY)); p.addLine(to: CGPoint(x: r.midX, y: r.maxY)); return p }
 }
