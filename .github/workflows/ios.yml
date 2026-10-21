@@ -20,10 +20,10 @@ permissions:
 
 env:
   # the Mac image and Xcode are named, not "latest", so a run does not break when GitHub moves them
-  XCODE_PREFIX: Xcode_26
+  XCODE_PREFIX: Xcode_26.6
   XCODEGEN_VERSION: "2.44.1"
   # sha256 of xcodegen.zip for that version, checked before use (no curl | sh)
-  XCODEGEN_SHA256: ""
+  XCODEGEN_SHA256: a2e905fb68446e9bb4008cdfe2e13e3f176d0cbcca828b71770f8e53fca91b73
 
 jobs:
   core:
@@ -35,7 +35,7 @@ jobs:
       - name: Select Xcode
         run: |
           ls -d /Applications/Xcode*.app
-          X=$(ls -d /Applications/${XCODE_PREFIX}*.app | sort -V | tail -1)
+          X=$(ls -d /Applications/${XCODE_PREFIX}.app)
           sudo xcode-select -s "$X/Contents/Developer"
           xcodebuild -version
       - name: swift test
@@ -49,7 +49,7 @@ jobs:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
       - name: Select Xcode
         run: |
-          X=$(ls -d /Applications/${XCODE_PREFIX}*.app | sort -V | tail -1)
+          X=$(ls -d /Applications/${XCODE_PREFIX}.app)
           sudo xcode-select -s "$X/Contents/Developer"
           xcodebuild -version
       - name: XcodeGen (pinned, checked)
@@ -89,7 +89,7 @@ jobs:
           print(phones[-1]['udid'])")
           echo "simulator $UDID"
           xcrun simctl boot "$UDID"
-          xcrun simctl bootstatus "$UDID" -b
+          xcrun simctl bootstatus "$UDID" -b > /dev/null
           echo "booted after ${SECONDS}s"
           APP=$(ls -d "$RUNNER_TEMP"/dd/Build/Products/Debug-iphonesimulator/Gudi.app)
           xcrun simctl install "$UDID" "$APP"
