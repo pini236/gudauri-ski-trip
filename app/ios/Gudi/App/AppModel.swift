@@ -40,6 +40,8 @@ final class AppModel {
     let terrainURL: URL?
     var status: LiftStatus
     var path: [Route] = []
+    /// The lift board's sheet over the map (S2, S3), opened from home's board or the map's bar.
+    var statusSheet = false
 
     /// The user's own trip, as JSON in Android's format, in UserDefaults.
     var trip: Trip? {
@@ -51,18 +53,48 @@ final class AppModel {
         runs = data("runs-and-lifts").flatMap { try? Data(contentsOf: $0) }.flatMap { try? RunsAndLifts.decode($0) }
         terrainURL = data("terrain")
         let names = runs.map { LiftStatus.names($0.mainLifts) } ?? []
-        status = LiftStatus(names: names, report: nil, now: Int64(Date().timeIntervalSince1970 * 1000))
+        let now = Int64(Date().timeIntervalSince1970 * 1000)
+        // the screenshots' screen and switches, one launch argument: "map:Tatra_2+status=fresh+sheet=status"
+        let qa = (UserDefaults.standard.string(forKey: "qaRoute") ?? "").split(separator: "+").map(String.init)
+        var flags: [String: String] = [:]
+        for f in qa.dropFirst() { let kv = f.split(separator: "=", maxSplits: 1).map(String.init); flags[kv[0]] = kv.count > 1 ? kv[1] : "1" }
+        // a switch lives for one launch only: clear the last launch's
+        for k in UserDefaults.standard.dictionaryRepresentation().keys where k.hasPrefix("qa.") { UserDefaults.standard.removeObject(forKey: k) }
+        for (k, v) in flags where k != "status" && k != "sheet" { UserDefaults.standard.set(v, forKey: "qa." + k) }
+        // the screenshots' own report (fresh, old, none), never the site's
+        qaStatus = flags["status"]
+        status = LiftStatus(names: names, report: qaStatus.map { StatusSource.qa($0, now: now) } ?? StatusSource.cached(), now: now)
         // the screenshots on GitHub only (a launch argument): a made-up trip, never the crew's flight
         trip = UserDefaults.standard.string(forKey: "qaTrip") == "1" ? Self.sample : Trip.from(json: UserDefaults.standard.data(forKey: "trip"))
         // and the screen to open at start, for the screenshots (app/ios/qa/shots)
-        if let r = UserDefaults.standard.string(forKey: "qaRoute").flatMap(Route.init(qa:)) { path = [r] }
+        if let r = qa.first.flatMap(Route.init(qa:)) { path = [r] }
+        statusSheet = flags["sheet"] == "status"
     }
 
     /// A made-up trip for the screenshots (invented flight numbers, as Android's QA).
     static let sample = Trip(Leg(Day(2027, 1, 10)!, flight: "XX 101", from: "TLV", to: "TBS", departs: ClockTime(16, 0)!, arrives: ClockTime(20, 35)!),
                              Leg(Day(2027, 1, 15)!, flight: "XX 102", from: "TBS", to: "TLV", departs: ClockTime(1, 35)!, arrives: ClockTime(2, 15)!))
 
+    private let qaStatus: String?
+
     func go(_ r: Route) { path.append(r) }
+
+    /// Reads the lift report while the app is open: every five minutes in season, at most once a day out of it (the
+    /// site's and Android's rule); the status is also re-dated each minute, so a report goes stale on time.
+    func pollStatus() async {
+        var last: Int64 = 0
+        while !Task.isCancelled {
+            let now = Int64(Date().timeIntervalSince1970 * 1000)
+            var report = status.report
+            if qaStatus == nil, now - last >= LiftStatus.everyMs {
+                last = now
+                let month = Calendar(identifier: .gregorian).component(.month, from: Date())
+                report = await StatusSource.load(inSeason: LiftStatus.inSeason(month: month), now: now)
+            }
+            status = LiftStatus(names: status.names, report: report, now: now)
+            try? await Task.sleep(for: .seconds(60))
+        }
+    }
 }
 
 /// The site's address: data, links that open in the app, the privacy page.

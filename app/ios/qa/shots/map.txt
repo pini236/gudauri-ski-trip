@@ -1,0 +1,8 @@
+# the trail map (13.3): from above, a chosen run's panel, the list with the filters, the lift board
+map-he he day 0 map
+map-run-he he day 0 map:Tatra_2
+map-run-en en night 0 map:Kudebi_1
+map-list-he he day 0 map+list
+map-status-fresh-he he day 0 map+status=fresh
+map-board-fresh-en en day 0 map+status=fresh+sheet=status
+map-board-none-he he night 0 map+sheet=status
