@@ -29,16 +29,45 @@ public struct Piste: Decodable, Sendable, Identifiable {
     public let toLifts: [String]
     public let fromPistes: [String]
     public let joins: [String]
+    /// The run's panel (13.3): trail numbers, OSM's grades, grooming and lights, and where a filled-in run comes from.
+    public let refs: [String]
+    public let osmDiff: [String]
+    public let groom: [String]
+    public let lit: [String]
+    public let research: Research?
+
+    public struct Research: Decodable, Sendable {
+        public let conf: String
+        public let status: String
+        public let notes: String
+        public let sources: [String]
+        public let partial: String?
+        enum CodingKeys: String, CodingKey { case conf, status, notes, sources, partial }
+        public init(from d: Decoder) throws {
+            let c = try d.container(keyedBy: CodingKeys.self)
+            conf = (try? c.decodeIfPresent(String.self, forKey: .conf)) ?? ""
+            status = (try? c.decodeIfPresent(String.self, forKey: .status)) ?? ""
+            notes = (try? c.decodeIfPresent(String.self, forKey: .notes)) ?? ""
+            sources = (try? c.decodeIfPresent([String].self, forKey: .sources)) ?? []
+            partial = (try? c.decodeIfPresent(String.self, forKey: .partial)).flatMap { $0 }.flatMap { $0.isEmpty ? nil : $0 }
+        }
+    }
+
+    /// The OSM ways it is drawn from, and whether one of its parts is an area (a beginner zone).
+    public var osmIds: [Int64] { segs.compactMap(\.id) }
+    public var hasArea: Bool { segs.contains { $0.area } }
 
     public struct Segment: Decodable, Sendable {
         public let g: [[Double]]
         public let area: Bool
+        public let id: Int64?
 
-        enum CodingKeys: String, CodingKey { case g, area }
+        enum CodingKeys: String, CodingKey { case g, area, id }
         public init(from d: Decoder) throws {
             let c = try d.container(keyedBy: CodingKeys.self)
             g = try c.decodeIfPresent([[Double]].self, forKey: .g) ?? []
             area = try c.decodeIfPresent(Bool.self, forKey: .area) ?? false
+            id = try? c.decodeIfPresent(Int64.self, forKey: .id)
         }
     }
 
@@ -50,7 +79,7 @@ public struct Piste: Decodable, Sendable, Identifiable {
     /// The mean latitude of all its points, areas too (the site's meanLat, for the Kobi side).
     public var lat: Double { meanLat(segs.map(\.g)) }
 
-    enum CodingKeys: String, CodingKey { case key, name, color, named, len, kind, segs, fromLifts, toLifts, fromPistes, joins }
+    enum CodingKeys: String, CodingKey { case key, name, color, named, len, kind, segs, fromLifts, toLifts, fromPistes, joins, refs, osmDiff, groom, lit, research }
 
     public init(from d: Decoder) throws {
         let c = try d.container(keyedBy: CodingKeys.self)
@@ -65,12 +94,16 @@ public struct Piste: Decodable, Sendable, Identifiable {
         toLifts = try c.decodeIfPresent([String].self, forKey: .toLifts) ?? []
         fromPistes = try c.decodeIfPresent([String].self, forKey: .fromPistes) ?? []
         joins = try c.decodeIfPresent([String].self, forKey: .joins) ?? []
+        func strs(_ k: CodingKeys) -> [String] { (try? c.decodeIfPresent([String].self, forKey: k)) ?? [] }
+        refs = strs(.refs); osmDiff = strs(.osmDiff); groom = strs(.groom); lit = strs(.lit)
+        research = try? c.decodeIfPresent(Research.self, forKey: .research)
     }
 
     /// For tests and previews.
     public init(key: String, color: String = "blue", fromLifts: [String] = []) {
         self.key = key; name = key; self.color = color; named = true; len = 0; kind = "run"; segs = []
         self.fromLifts = fromLifts; toLifts = []; fromPistes = []; joins = []
+        refs = []; osmDiff = []; groom = []; lit = []; research = nil
     }
 }
 
@@ -83,13 +116,15 @@ public struct Lift: Decodable, Sendable, Identifiable {
     public let len: Double
     /// "inactive" for a lift that does not run.
     public let status: String?
+    /// The lift's panel (13.3), from OSM as text: ride minutes, seats, bubble, people an hour, rise and year.
+    public let dur: String?, occ: String?, bubble: String?, cap: String?, rise: String?, year: String?
 
     public var lat: Double { meanLat([g]) }
 
     /// Its cable in projected metres, from its first point.
     public var line: [(x: Double, y: Double)] { g.map { (Geo.x($0[1]), Geo.y($0[0])) } }
 
-    enum CodingKeys: String, CodingKey { case id, name, kind, g, len, status }
+    enum CodingKeys: String, CodingKey { case id, name, kind, g, len, status, dur, occ, bubble, cap, rise, year }
 
     public init(from d: Decoder) throws {
         let c = try d.container(keyedBy: CodingKeys.self)
@@ -99,6 +134,14 @@ public struct Lift: Decodable, Sendable, Identifiable {
         g = try c.decodeIfPresent([[Double]].self, forKey: .g) ?? []
         len = try c.decodeIfPresent(Double.self, forKey: .len) ?? 0
         status = try c.decodeIfPresent(String.self, forKey: .status)
+        // numbers or text in the file; blank is missing (Android's strOrNull)
+        func text(_ k: CodingKeys) -> String? {
+            if let s = try? c.decode(String.self, forKey: k) { return s.trimmingCharacters(in: .whitespaces).isEmpty ? nil : s }
+            if let n = try? c.decode(Double.self, forKey: k) { return n == n.rounded() ? String(Int(n)) : String(n) }
+            if let b = try? c.decode(Bool.self, forKey: k) { return String(b) }
+            return nil
+        }
+        dur = text(.dur); occ = text(.occ); bubble = text(.bubble); cap = text(.cap); rise = text(.rise); year = text(.year)
     }
 }
 
