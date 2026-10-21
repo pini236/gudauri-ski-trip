@@ -6,6 +6,9 @@ import GudiDomain
 @main
 struct GudiApp: App {
     @State private var model = AppModel()
+    @Environment(\.scenePhase) private var phase
+    /// The first app_open of this process is a cold one (docs/GROWTH.md).
+    @State private var opened = false
 
     init() {
         if let url = Bundle.main.url(forResource: "strings", withExtension: "json", subdirectory: "Data"),
@@ -16,6 +19,16 @@ struct GudiApp: App {
 
     var body: some Scene {
         WindowGroup { RootView(model: model).task { await model.pollStatus() } }
+            .onChange(of: phase) { _, p in
+                switch p {
+                case .active:
+                    Telemetry.shared.event("app_open", ["source": "direct", "cold": !opened])
+                    if !opened { Telemetry.shared.screen("home") }
+                    opened = true
+                case .background: Telemetry.shared.flush()
+                default: break
+                }
+            }
     }
 }
 
@@ -31,14 +44,17 @@ struct RootView: View {
         let mode = DayNight.Mode(rawValue: modeRaw) ?? .auto
         // the sky changes by the minute; the whole app goes dark with it (the site's data-theme)
         TimelineView(.periodic(from: .now, by: 60)) { t in
-            let now = Int64(t.date.timeIntervalSince1970 * 1000)
+            let date = model.clock(t.date)
+            let now = Int64(date.timeIntervalSince1970 * 1000)
             let frame = DayNight.at(now, mode)
             let lang = Lang(rawValue: langRaw) ?? Lang.auto(Locale.preferredLanguages)
             let _ = { Strings.shared.lang = lang }()
+            let _ = Telemetry.shared.set(lang: lang.rawValue, langSource: langRaw.isEmpty ? "auto" : "manual", theme: mode.rawValue)
             let ski = Ski(colors: SkiColors(p: frame.dark ? .night : .day), type: SkiType(lang: lang))
             NavigationStack(path: $model.path) {
-                HomeView(frame: frame, mode: mode, trip: model.trip, now: LocalMoment.now(t.date), status: model.status,
-                         onMode: { modeRaw = mode.next.rawValue }, onLang: { langRaw = $0?.rawValue ?? "" }) { a in
+                HomeView(frame: frame, mode: mode, trip: model.trip, now: LocalMoment.now(date), status: model.status, weather: model.weather(date),
+                         onMode: { modeRaw = mode.next.rawValue; Telemetry.shared.event("theme_set", ["mode": mode.next.rawValue]) },
+                         onLang: { setLang($0, lang) }) { a in
                     switch a {
                     case .map: model.go(.map())
                     case .meet: model.go(.meet())
@@ -59,12 +75,18 @@ struct RootView: View {
                         case .games: GamesScreen()
                         case .game(let id): GameScreen(id: id)
                         case .group: GroupScreen()
-                        case .about: AboutScreen(mode: mode, onMode: { modeRaw = mode.next.rawValue }, onLang: { langRaw = $0?.rawValue ?? "" })
+                        case .about: AboutScreen(mode: mode, onMode: { modeRaw = mode.next.rawValue; Telemetry.shared.event("theme_set", ["mode": mode.next.rawValue]) },
+                                                 onLang: { setLang($0, lang) })
                         case .trip: TripFormScreen()
                         }
                     }
                     .background(ski.colors.snow)
                 }
+            }
+            .onChange(of: model.path) { old, new in
+                if new.count > old.count, let r = new.last {
+                    if case .game(let g) = r { Telemetry.shared.screen("game", ["game": g]) } else { Telemetry.shared.screen(r.screenName) }
+                } else if new.isEmpty { Telemetry.shared.screen("home") }
             }
             .tint(ski.colors.ink)
             .id(lang)
@@ -73,5 +95,11 @@ struct RootView: View {
             .environment(\.layoutDirection, lang.rtl ? .rightToLeft : .leftToRight)
             .preferredColorScheme(frame.dark ? .dark : .light)
         }
+    }
+
+    private func setLang(_ l: Lang?, _ previous: Lang) {
+        langRaw = l?.rawValue ?? ""
+        let now = l ?? Lang.auto(Locale.preferredLanguages)
+        Telemetry.shared.event("lang_set", ["lang": now.rawValue, "previous": previous.rawValue])
     }
 }

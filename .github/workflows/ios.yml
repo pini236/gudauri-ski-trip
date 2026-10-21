@@ -84,8 +84,12 @@ jobs:
           cd app/ios
           xcodebuild -project Gudi.xcodeproj -scheme Gudi -configuration Debug \
             -destination 'generic/platform=iOS Simulator' -derivedDataPath "$RUNNER_TEMP/dd" \
-            CURRENT_PROJECT_VERSION=${{ github.run_number }} CODE_SIGNING_ALLOWED=NO build | tail -40
-          test "${PIPESTATUS[0]}" -eq 0
+            CURRENT_PROJECT_VERSION=${{ github.run_number }} CODE_SIGNING_ALLOWED=NO build > "$RUNNER_TEMP/build.log" 2>&1 || RC=$?
+          RC=${RC:-0}
+          tail -40 "$RUNNER_TEMP/build.log"
+          # the compiler's own errors, which the last 40 lines usually leave out
+          grep -E "error:|warning: .*will be an error" "$RUNNER_TEMP/build.log" | sort -u | head -60 || true
+          test "$RC" -eq 0
       - name: Run in a simulator and take a screenshot
         timeout-minutes: 30
         run: |

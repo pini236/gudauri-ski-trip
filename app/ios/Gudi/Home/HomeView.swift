@@ -15,12 +15,29 @@ struct HomeView: View {
     let trip: Trip?
     let now: LocalMoment
     let status: LiftStatus?
+    /// The forecast now (round 19): "today on the mountain" during the trip, the ski days ahead before it.
+    var weather: WeatherNow? = nil
     let onMode: () -> Void
     /// A language picked on the home's tag, or nil for the phone's (decision 47).
     let onLang: (Lang?) -> Void
     let go: (HomeAction) -> Void
     @Environment(\.ski) private var ski
     @State private var langs = false
+
+    /// During the trip "today on the mountain"; before it, once the first ski day is within 14 days, the days ahead.
+    @ViewBuilder private func board(_ trip: Trip, _ w: WeatherNow) -> some View {
+        switch trip.stage(now) {
+        case .skiDay(let n, let of):
+            TodayBoard(day: n, of: of, w: w, status: status ?? LiftStatus(names: [], report: nil, now: 0)) { go(.status) }
+                .padding(.horizontal, 16).padding(.top, 30)
+        case .before(let days):
+            if let ski = trip.skiDays(), ski.lowerBound <= now.day.plus(days: 14) {
+                AheadBoard(skiDays: (0...(ski.upperBound.epochDay - ski.lowerBound.epochDay)).map { ski.lowerBound.plus(days: $0) }, daysToFlight: days, w: w)
+                    .padding(.horizontal, 16).padding(.top, 30)
+            }
+        default: EmptyView()
+        }
+    }
 
     var body: some View {
         let c = ski.colors
@@ -35,6 +52,7 @@ struct HomeView: View {
                             // with a return pass, its top shows above the outbound one, over the mountains
                             Spacer().frame(height: trip.ret != nil ? 0 : 30)
                             TripPass(trip: trip, now: now) { go(.trip) }.padding(.horizontal, 16)
+                            if let weather { board(trip, weather) }
                             Spacer().frame(height: 38)
                         } else {
                             Spacer().frame(height: 32)
