@@ -1,0 +1,99 @@
+name: iOS
+
+# The iPhone app (decision 71): built and tested on GitHub's Macs, with no Apple account yet. No signing and no
+# secrets here; signing and TestFlight come later in an `ios-release` environment limited to main (docs/APPLE.md, 4).
+# Reviewed by the architect (docs/ARCHITECTURE.md, 21.10.2026) and DevOps (decision 66) before merge.
+on:
+  push:
+    paths: ['app/ios/**', 'site/data/**', 'site/js/relief.js', 'site/css/site.css', 'tools/fixtures/**', 'tools/build-ios-data.py', 'i18n/strings.json', '.github/workflows/ios.yml']
+  pull_request:
+    paths: ['app/ios/**', 'site/data/**', 'site/js/relief.js', 'site/css/site.css', 'tools/fixtures/**', 'tools/build-ios-data.py', 'i18n/strings.json', '.github/workflows/ios.yml']
+  workflow_dispatch:
+
+# a branch's newer push replaces its running build; main never cancels one halfway
+concurrency:
+  group: ios-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+permissions:
+  contents: read
+
+env:
+  # the Mac image and Xcode are named, not "latest", so a run does not break when GitHub moves them
+  XCODE_PREFIX: Xcode_26
+  XCODEGEN_VERSION: "2.44.1"
+  # sha256 of xcodegen.zip for that version, checked before use (no curl | sh)
+  XCODEGEN_SHA256: ""
+
+jobs:
+  core:
+    name: Logic (GudiCore) tests
+    runs-on: macos-26
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - name: Select Xcode
+        run: |
+          ls -d /Applications/Xcode*.app
+          X=$(ls -d /Applications/${XCODE_PREFIX}*.app | sort -V | tail -1)
+          sudo xcode-select -s "$X/Contents/Developer"
+          xcodebuild -version
+      - name: swift test
+        run: swift test --package-path app/ios/Packages/GudiCore
+
+  app:
+    name: App build and simulator screenshot
+    runs-on: macos-26
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - name: Select Xcode
+        run: |
+          X=$(ls -d /Applications/${XCODE_PREFIX}*.app | sort -V | tail -1)
+          sudo xcode-select -s "$X/Contents/Developer"
+          xcodebuild -version
+      - name: XcodeGen (pinned, checked)
+        run: |
+          curl -fsSL -o xcodegen.zip "https://github.com/yonaskolb/XcodeGen/releases/download/${XCODEGEN_VERSION}/xcodegen.zip"
+          SUM=$(shasum -a 256 xcodegen.zip | cut -d' ' -f1)
+          echo "xcodegen.zip sha256: $SUM"
+          if [ -n "$XCODEGEN_SHA256" ]; then
+            [ "$SUM" = "$XCODEGEN_SHA256" ] || { echo "::error::xcodegen.zip sha256 mismatch"; exit 1; }
+          else
+            echo "::warning::XCODEGEN_SHA256 not pinned yet; pin $SUM in ios.yml"
+          fi
+          unzip -q xcodegen.zip -d "$RUNNER_TEMP/xg"
+          echo "$RUNNER_TEMP/xg/xcodegen/bin" >> "$GITHUB_PATH"
+      - name: Data from the site, and the project
+        run: |
+          python3 tools/build-ios-data.py
+          cd app/ios && xcodegen generate
+      - name: Build for the simulator
+        run: |
+          cd app/ios
+          xcodebuild -project Gudi.xcodeproj -scheme Gudi -configuration Debug \
+            -destination 'generic/platform=iOS Simulator' -derivedDataPath "$RUNNER_TEMP/dd" \
+            CURRENT_PROJECT_VERSION=${{ github.run_number }} CODE_SIGNING_ALLOWED=NO build | tail -40
+          test "${PIPESTATUS[0]}" -eq 0
+      - name: Run in a simulator and take a screenshot
+        run: |
+          UDID=$(xcrun simctl list devices available -j | python3 -c "
+          import json,sys
+          d=json.load(sys.stdin)['devices']
+          ios=[(k,v) for k,v in d.items() if 'iOS' in k]
+          ios.sort()
+          phones=[x for x in ios[-1][1] if x['name'].startswith('iPhone')]
+          print(phones[-1]['udid'])")
+          echo "simulator $UDID"
+          xcrun simctl boot "$UDID"
+          xcrun simctl bootstatus "$UDID" -b
+          APP=$(ls -d "$RUNNER_TEMP"/dd/Build/Products/Debug-iphonesimulator/Gudi.app)
+          xcrun simctl install "$UDID" "$APP"
+          xcrun simctl launch "$UDID" io.github.pini236.skiapp
+          sleep 8
+          mkdir -p shots && xcrun simctl io "$UDID" screenshot shots/skeleton.png
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: ios-screenshots
+          path: shots/
+          retention-days: 14

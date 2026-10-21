@@ -1,0 +1,48 @@
+# The iPhone app's project, for XcodeGen (decision 71; docs/ARCHITECTURE.md, review of 21.10.2026).
+# Gudi.xcodeproj is generated from this file and is not in the repository: edit this file, never the project.
+#   python3 tools/build-ios-data.py && cd app/ios && xcodegen generate
+name: Gudi
+options:
+  bundleIdPrefix: io.github.pini236
+  deploymentTarget:
+    iOS: "17.0"
+  developmentLanguage: en
+packages:
+  GudiCore:
+    path: Packages/GudiCore
+targets:
+  Gudi:
+    type: application
+    platform: iOS
+    sources:
+      - path: Gudi
+        excludes: [Resources/Data]
+      - path: Gudi/Resources/Data
+        type: folder
+        buildPhase: resources
+    dependencies:
+      - package: GudiCore
+        product: GudiData
+      - package: GudiCore
+        product: GudiDomain
+    info:
+      path: Gudi/Info.plist
+      properties:
+        CFBundleDisplayName: Gudi
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        # HTTPS through the system only, so exempt (docs/APPLE.md, 5.5)
+        ITSAppUsesNonExemptEncryption: false
+        UILaunchScreen: {}
+        UISupportedInterfaceOrientations: [UIInterfaceOrientationPortrait]
+        UIRequiresFullScreen: true
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: io.github.pini236.skiapp
+        # iPhone only (docs/APPLE.md, 5.6)
+        TARGETED_DEVICE_FAMILY: "1"
+        SWIFT_VERSION: "6.0"
+        MARKETING_VERSION: "0.1"
+        # never resets (R-8); CI passes the run number
+        CURRENT_PROJECT_VERSION: "1"
+        GENERATE_INFOPLIST_FILE: false
