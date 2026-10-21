@@ -50,13 +50,12 @@ final class Map3DEngine: NSObject {
     @ObservationIgnored var still = false
     @ObservationIgnored private var light = Sky.at(Int64(Date().timeIntervalSince1970 * 1000))
     @ObservationIgnored private var lightMs: Int64 = 0
-    @ObservationIgnored private var shadowMs: Int64 = .min
+    @ObservationIgnored private var shadowMs: Int64?
     @ObservationIgnored private var reveal = 1.0, dim = 0.0, dimTarget = 0.0
     @ObservationIgnored private var hasSelection = false
     /// The line the camera frames (the chosen run, a lift), and the free part of the screen above the panel.
     @ObservationIgnored private var framed: [P3]?
     @ObservationIgnored private var freeBottom = Framing.Box().bottom
-    @ObservationIgnored private var pendingFrame: [P3]?
     @ObservationIgnored private var chairsTask: Task<Void, Never>?
 
     /// The view's size in points, and the last frame's matrix and eye (for the labels and the taps).
@@ -125,7 +124,7 @@ final class Map3DEngine: NSObject {
         light = Sky.at(ms)
         requestDraw()
         // the shadows again when the sun has moved (every few minutes), off the main thread
-        guard let s = scene, abs(ms - shadowMs) > 4 * 60_000 else { return }
+        guard let s = scene, shadowMs.map({ abs(ms - $0) > 4 * 60_000 }) ?? true else { return }
         shadowMs = ms
         let t = s.terrain, dir = light.dir
         Task {
@@ -147,7 +146,6 @@ final class Map3DEngine: NSObject {
     func select(_ key: String?) {
         if flying && key != flyKey { stopFly() }
         selected = key
-        marker = nil
         guard let s = scene else { return }
         guard let key else {
             framed = nil; hasSelection = false
