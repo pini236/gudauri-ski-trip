@@ -36,11 +36,15 @@ struct DescentScreen: View {
         .statusBarHidden(m.phase == .play)
         .onAppear {
             m.load()
-            switch qa {
-            case "play": m.start()
-            case "end": m.start(); m.game?.toBottom()
-            default: break
+            if !m.qaDone {
+                m.qaDone = true
+                switch qa {
+                case "play": m.start(); m.fastForward(4.5)
+                case "end": m.start(); m.game?.toBottom()
+                default: break
+                }
             }
+            m.resume()
         }
         .onDisappear { m.leave() }
     }
@@ -108,6 +112,16 @@ final class DescentModel {
         ticker.start()
     }
     func toMenu() { ticker.stop(); hiss?.stop(); hiss = nil; game = nil; phase = .menu; menuV += 1 }
+    @ObservationIgnored var qaDone = false
+    /// Back on the screen after it went away (a sheet, the app in the background): the clock goes on.
+    func resume() { if phase == .play, let g = game, g.state != .end { ticker.start() } }
+    /// For the screenshots: the run as if `seconds` went by (the count, then off down the run).
+    func fastForward(_ seconds: Float) {
+        guard let g = game else { return }
+        var t: Float = 0
+        while t < seconds && g.state != .end { g.step(1 / 60); t += 1 / 60 }
+        frame &+= 1
+    }
     func leave() { ticker.stop(); hiss?.stop(); hiss = nil }
 
     func down() { guard !pressed else { return }; pressed = true; game?.press(); ArcadeHaptics.tick(0.3) }

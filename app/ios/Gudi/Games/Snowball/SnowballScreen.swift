@@ -30,11 +30,15 @@ struct SnowballScreen: View {
         .statusBarHidden(m.phase == .play)
         .onAppear {
             m.load()
-            switch qa {
-            case "play": m.start(); m.qaAim = true
-            case "end": m.start(); m.fight?.knockOut()
-            default: break
+            if !m.qaDone {
+                m.qaDone = true
+                switch qa {
+                case "play": m.start(); m.qaAim = true
+                case "end": m.start(); m.fight?.knockOut()
+                default: break
+                }
             }
+            m.resume()
         }
         .onDisappear { m.leave() }
     }
@@ -82,6 +86,9 @@ final class SnowballModel {
         ticker.start()
     }
     func toMenu() { ticker.stop(); fight = nil; phase = .menu; starsV += 1 }
+    @ObservationIgnored var qaDone = false
+    /// Back on the screen after it went away: the clock goes on.
+    func resume() { if phase == .play || (phase == .end && fight != nil) { ticker.start() } }
     func leave() { ticker.stop() }
 
     func touch(_ p: CGPoint) {
