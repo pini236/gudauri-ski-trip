@@ -20,7 +20,12 @@ def main():
     out.mkdir(parents=True, exist_ok=True)
     for name in FILES:
         shutil.copyfile(SITE / "data" / name, out / name)
-    print(f"copied {len(FILES)} files to {out}")
+    # the real view from the village through the day, for the home page (site/img/pano; design/round3/panorama.py)
+    (out / "pano").mkdir(exist_ok=True)
+    panos = sorted((SITE / "img/pano").glob("*.webp"))
+    for img in panos:
+        shutil.copyfile(img, out / "pano" / img.name)
+    print(f"copied {len(FILES)} files and {len(panos)} views to {out}")
 
 
 if __name__ == "__main__":

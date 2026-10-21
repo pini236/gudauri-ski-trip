@@ -18,8 +18,11 @@ targets:
     platform: iOS
     sources:
       - path: Gudi
-        excludes: [Resources/Data]
+        excludes: [Resources/Data, Resources/Fonts]
       - path: Gudi/Resources/Data
+        type: folder
+        buildPhase: resources
+      - path: Gudi/Resources/Fonts
         type: folder
         buildPhase: resources
     dependencies:
@@ -38,6 +41,14 @@ targets:
         UILaunchScreen: {}
         UISupportedInterfaceOrientations: [UIInterfaceOrientationPortrait]
         UIRequiresFullScreen: true
+        # the app's fonts (FT1, decision 36), the same files as Android's res/font; licences in app/ios/licenses
+        UIAppFonts:
+          - Fonts/karantina_bold.ttf
+          - Fonts/plex_hebrew_regular.ttf
+          - Fonts/plex_hebrew_bold.ttf
+          - Fonts/plex_sans.ttf
+          - Fonts/oswald.ttf
+          - Fonts/noto_sans_georgian.ttf
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: io.github.pini236.skiapp
