@@ -1,6 +1,8 @@
 # The iPhone app's project, for XcodeGen (decision 71; docs/ARCHITECTURE.md, review of 21.10.2026).
 # Gudi.xcodeproj is generated from this file and is not in the repository: edit this file, never the project.
-#   python3 tools/build-ios-data.py && cd app/ios && xcodegen generate
+#   python3 tools/build-ios-data.py
+#   python3 tools/build-ios-strings.py app/ios/Gudi/Resources/Data/strings.json app/ios/Gudi/Generated/S.swift
+#   cd app/ios && xcodegen generate
 name: Gudi
 options:
   bundleIdPrefix: io.github.pini236

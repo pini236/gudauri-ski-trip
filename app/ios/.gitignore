@@ -2,6 +2,8 @@
 Gudi.xcodeproj/
 # copied from site/ at build time (tools/build-ios-data.py)
 Gudi/Resources/Data/
+# typed texts from i18n/strings.json (tools/build-ios-strings.py)
+Gudi/Generated/
 Gudi/Info.plist
 .build/
 DerivedData/

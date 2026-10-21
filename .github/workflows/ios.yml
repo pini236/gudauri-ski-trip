@@ -5,9 +5,9 @@ name: iOS
 # Reviewed by the architect (docs/ARCHITECTURE.md, 21.10.2026) and DevOps (decision 66) before merge.
 on:
   push:
-    paths: ['app/ios/**', 'site/data/**', 'site/js/relief.js', 'site/css/site.css', 'tools/fixtures/**', 'tools/build-ios-data.py', 'i18n/strings.json', '.github/workflows/ios.yml']
+    paths: ['app/ios/**', 'site/data/**', 'site/js/relief.js', 'site/css/site.css', 'tools/fixtures/**', 'tools/build-ios-data.py', 'tools/build-ios-strings.py', 'i18n/strings.json', '.github/workflows/ios.yml']
   pull_request:
-    paths: ['app/ios/**', 'site/data/**', 'site/js/relief.js', 'site/css/site.css', 'tools/fixtures/**', 'tools/build-ios-data.py', 'i18n/strings.json', '.github/workflows/ios.yml']
+    paths: ['app/ios/**', 'site/data/**', 'site/js/relief.js', 'site/css/site.css', 'tools/fixtures/**', 'tools/build-ios-data.py', 'tools/build-ios-strings.py', 'i18n/strings.json', '.github/workflows/ios.yml']
   workflow_dispatch:
 
 # a branch's newer push replaces its running build; main never cancels one halfway
@@ -67,6 +67,7 @@ jobs:
       - name: Data from the site, and the project
         run: |
           python3 tools/build-ios-data.py
+          python3 tools/build-ios-strings.py app/ios/Gudi/Resources/Data/strings.json app/ios/Gudi/Generated/S.swift
           cd app/ios && xcodegen generate
       - name: Build for the simulator
         run: |
