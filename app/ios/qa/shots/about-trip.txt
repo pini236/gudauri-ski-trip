@@ -13,3 +13,5 @@ trip-form-empty-en en day 0 trip:form
 trip-form-filled-he he day 1 trip
 trip-form-filled-en-night en night 1 trip
 trip-form-filled-ru ru day 1 trip
+trip-calendar-filled-he he day 1 trip:calendar
+trip-calendar-filled-en-night en night 1 trip:calendar

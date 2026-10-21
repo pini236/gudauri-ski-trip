@@ -31,7 +31,7 @@ struct AboutScreen: View {
     @Environment(\.openURL) private var openURL
     @AppStorage("sound") private var sound = true
     @AppStorage("haptics") private var haptics = true
-    @AppStorage("analytics") private var analytics = true
+    @State private var analytics = Telemetry.enabled
     @State private var langs = false
     @State private var armed = false
     @State private var done = false
@@ -47,13 +47,16 @@ struct AboutScreen: View {
                     AboutH2(text: S.aboutSettings)
                     VStack(spacing: 0) {
                         AboutToggle(title: S.aboutSound, sub: nil, on: $sound)
+                            .onChange(of: sound) { _, v in Telemetry.shared.event("settings_change", ["setting": "sound", "on": v]) }
                         // every iPhone can vibrate (Android hides the row on a phone that cannot)
                         AboutToggle(title: S.aboutHaptics, sub: nil, on: $haptics)
+                            .onChange(of: haptics) { _, v in Telemetry.shared.event("settings_change", ["setting": "haptics", "on": v]) }
                         AboutRow(title: S.aboutDisplay, sub: nil, value: modeName(mode), action: onMode)
                         AboutRow(title: S.aboutLanguage + (ski.type.lang == .en ? "" : " · \u{2068}Language\u{2069}"), sub: nil,
                                  value: ski.type.lang.name) { langs = true }
                         // the site's switch (round 11, AN1/AN2): off stops usage statistics and crash reports at once
                         AboutToggle(title: S.aboutAnalytics, sub: analytics ? S.aboutAnalyticsOn : S.aboutAnalyticsOff, on: $analytics)
+                            .onChange(of: analytics) { _, v in Telemetry.shared.setEnabled(v) }
                         // reset the best scores: twice, as on the site
                         AboutRow(title: S.aboutReset, sub: done ? S.aboutResetDone : armed ? S.aboutResetConfirm : nil, value: nil, danger: armed) { reset() }
                     }
@@ -118,7 +121,9 @@ struct AboutScreen: View {
         }
         .onAppear {
             // the screenshots open the licences page through the about page ("about:licenses")
-            if UserDefaults.standard.string(forKey: "qaRoute") == "about:licenses" { licenses = true }
+            if UserDefaults.standard.string(forKey: "qaRoute") == "about:licenses" {
+                Task { try? await Task.sleep(for: .seconds(1.2)); licenses = true }
+            }
         }
     }
 
@@ -148,6 +153,7 @@ struct AboutScreen: View {
         if armed {
             armed = false; done = true
             if let onResetBests { onResetBests() } else { Self.clearBests() }
+            Telemetry.shared.event("best_reset")
             Fx.shared.click(0.8)
         } else {
             armed = true; done = false
@@ -295,7 +301,7 @@ struct AboutAvatar: View {
     @Environment(\.ski) private var ski
     var body: some View {
         let c = ski.colors
-        Circle().fill(name != nil ? c.blue : Color(rgb: c.p.grid))
+        Circle().fill(name != nil ? c.blue : c.dark ? c.rule : Color(rgb: c.p.grid))
             .overlay(Text(name.flatMap { $0.first.map(String.init) } ?? "?").font(ski.type.display(size * 0.6))
                 .foregroundStyle(name != nil ? c.onBoard : c.muted))
             .frame(width: size, height: size)

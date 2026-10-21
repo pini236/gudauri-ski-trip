@@ -142,14 +142,19 @@ struct TripFormScreen: View {
             }
             .scrollDismissesKeyboard(.interactively)
         }
-        .sheet(item: $pick) { p in sheet(p).environment(\.ski, ski).presentationBackground(c.snow) }
+        .sheet(item: $pick) { p in
+            // a sheet is a new window: the app's look and direction go with it
+            sheet(p).environment(\.ski, ski).environment(\.layoutDirection, lang.rtl ? .rightToLeft : .leftToRight)
+                .presentationBackground(c.snow)
+        }
         .sheet(isPresented: $calendar, onDismiss: { if saved { dismiss() } }) {
-            CalendarSheet(trip: nil) { o, r in
+            CalendarSheet(trip: app.trip) { o, r in
                 // the pass fills in; back home once the calendar is down
-                app.trip = PassEdits.newTrip(out: o, ret: r, tlv: airportPlace("TLV"), tbs: airportPlace("TBS"))
+                app.trip = app.trip?.withDates(o, r) ?? PassEdits.newTrip(out: o, ret: r, tlv: airportPlace("TLV"), tbs: airportPlace("TBS"))
                 saved = true
             }
             .environment(\.ski, ski)
+            .environment(\.layoutDirection, lang.rtl ? .rightToLeft : .leftToRight)
             .presentationDetents([.large])
             .presentationBackground(c.snow)
         }
@@ -247,7 +252,10 @@ struct TripFormScreen: View {
         rDate = r?.date; rFlight = r?.flight ?? ""; rDep = r?.departs; rArr = r?.arrives
         manual = t?.ski != nil; sFrom = t?.ski?.lowerBound; sTo = t?.ski?.upperBound
         // round 20: "when do you fly?" opens the one calendar (the screenshots of the full form ask for "trip:form")
-        if t == nil, onSave == nil, UserDefaults.standard.string(forKey: "qaRoute") != "trip:form" { calendar = true }
+        let qa = UserDefaults.standard.string(forKey: "qaRoute")
+        if t == nil, onSave == nil, qa != "trip:form" { calendar = true }
+        // the screenshots of the calendar over a trip (its two flights in ink, the ski days shaded)
+        if qa == "trip:calendar", onSave == nil { calendar = true }
     }
 
     private func save() {

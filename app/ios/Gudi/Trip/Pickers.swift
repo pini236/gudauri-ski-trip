@@ -78,8 +78,10 @@ struct TripSection: View {
         let c = ski.colors
         HStack(spacing: 10) {
             Text(title).font(ski.type.display(30)).foregroundStyle(c.ink).accessibilityAddTraits(.isHeader)
-            Rectangle().fill(c.rule).frame(height: 1)
-            Text(note).font(ski.type.text(12)).foregroundStyle(c.muted).lineLimit(1)
+                .fixedSize().layoutPriority(2)
+            Rectangle().fill(c.rule).frame(minWidth: 12, maxHeight: 1)
+            Text(note).font(ski.type.text(12)).foregroundStyle(c.muted).lineLimit(2)
+                .multilineTextAlignment(.trailing).fixedSize(horizontal: false, vertical: true).layoutPriority(1)
         }
         .padding(.top, 6)
     }

@@ -62,6 +62,8 @@ struct PassEditor: View {
             }
         }
         .environment(\.ski, ski)
+        // a sheet is a new window: the app's direction goes with it
+        .environment(\.layoutDirection, ski.type.lang.rtl ? .rightToLeft : .leftToRight)
         .presentationBackground(ski.colors.snow)
     }
 }
@@ -107,7 +109,7 @@ struct CalendarSheet: View {
             ForEach(Array(weeks(cal).enumerated()), id: \.offset) { _, week in
                 HStack(spacing: 2) {
                     ForEach(0..<7, id: \.self) { i in
-                        if let d = week[i] { cell(d, today: today, ski: skiDays, lang: lang) } else { Color.clear.frame(maxWidth: .infinity, minHeight: 44) }
+                        if let d = week[i] { cell(d, today: today, ski: skiDays, lang: lang) } else { Color.clear.frame(maxWidth: .infinity).frame(height: 44) }
                     }
                 }
                 .padding(.vertical, 2)
@@ -152,7 +154,7 @@ struct CalendarSheet: View {
         } label: {
             Text(String(d.day)).font(ski.type.text(15, .bold))
                 .foregroundStyle(flight ? c.paper : shaded ? (c.dark ? c.ink : c.blue) : c.ink)
-                .frame(maxWidth: .infinity, minHeight: 44)
+                .frame(maxWidth: .infinity).frame(height: 44)
                 .background(flight ? c.ink : shaded ? shade : c.paper)
                 .opacity(past ? 0.35 : 1)
         }
