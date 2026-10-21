@@ -104,8 +104,8 @@ struct SnowCapView: View {
             // arrow, at the end of the reading direction, is at the drawing's left
             let cap = SnowCap(seed: seed, width: g.size.width, kind: kind, border: border, arrow: arrow, arrowAtStart: dir == .rightToLeft)
             let p = ski.colors.p
+            // the paths put the element's top edge at y = cap.top; the offset lifts the canvas by that much
             Canvas { c, _ in
-                c.translateBy(x: 0, y: -cap.top)
                 var s = c
                 s.translateBy(x: 0, y: cap.pile ? 2.2 : 1.6)
                 if cap.pile { s.addFilter(.blur(radius: 1.2)) }
