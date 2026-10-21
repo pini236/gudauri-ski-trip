@@ -27,6 +27,8 @@ struct MeetScreen: View {
     @State private var askTime = false
     @State private var started = false
     @State private var placed = false
+    /// The screenshots only: scrolled down to the card ("<station>...+card" as the launch route).
+    @State private var showCard = false
 
     var body: some View {
         let c = ski.colors
@@ -36,6 +38,7 @@ struct MeetScreen: View {
         let st = sid.flatMap { plan?.byId[$0] }
         Screen(title: S.navMeet) {
             GeometryReader { g in
+              ScrollViewReader { scroll in
                 ScrollView {
                     VStack(spacing: 0) {
                         mapBox(st).frame(height: max(300, g.size.height * 0.56))
@@ -62,8 +65,11 @@ struct MeetScreen: View {
                             }
                         }
                         .padding(.horizontal, 16).padding(.top, 16).padding(.bottom, 28)
+                        Color.clear.frame(height: 1).id("end")
                     }
                 }
+                .onChange(of: showCard) { if showCard { scroll.scrollTo("end", anchor: .bottom) } }
+              }
             }
         }
         .sheet(isPresented: $askTime) {
@@ -74,7 +80,10 @@ struct MeetScreen: View {
         .task {
             guard !started else { return }
             started = true
-            let link = MeetLink.parse(route: station)
+            var arg = station ?? ""
+            let qaCard = arg.hasSuffix("+card")
+            if qaCard { arg.removeLast(5) }
+            let link = MeetLink.parse(route: arg)
             sid = link.station
             day = Meet.day(link.day)
             if let t = Meet.time(link.time) { time = t }
@@ -84,6 +93,7 @@ struct MeetScreen: View {
             art = a
             if let a { plan = MeetPlan.build(runs, a.relief) }
             place()
+            if qaCard { try? await Task.sleep(nanoseconds: 300_000_000); showCard = true }
         }
         .onChange(of: view.ready) { place() }
         .onChange(of: toast) {

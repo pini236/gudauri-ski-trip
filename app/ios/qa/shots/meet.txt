@@ -7,3 +7,6 @@ meet-station-he-night he night 1 meet:1196532544t
 meet-link-en-night en night 0 meet:158744075b/0930/20270111
 meet-link-ru-day ru day 1 meet:158744055b/1300/20270112
 meet-ka-day ka day 0 meet:663639361t
+meet-card-he-day he day 1 meet:158744075b/0930/20270111+card
+meet-card-en-night en night 1 meet:1196532544t+card
+meet-card-ka-day ka day 0 meet:158744055b/1300/20270112+card
