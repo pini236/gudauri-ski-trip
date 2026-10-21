@@ -31,13 +31,14 @@ struct RootView: View {
         let mode = DayNight.Mode(rawValue: modeRaw) ?? .auto
         // the sky changes by the minute; the whole app goes dark with it (the site's data-theme)
         TimelineView(.periodic(from: .now, by: 60)) { t in
-            let now = Int64(t.date.timeIntervalSince1970 * 1000)
+            let date = model.clock(t.date)
+            let now = Int64(date.timeIntervalSince1970 * 1000)
             let frame = DayNight.at(now, mode)
             let lang = Lang(rawValue: langRaw) ?? Lang.auto(Locale.preferredLanguages)
             let _ = { Strings.shared.lang = lang }()
             let ski = Ski(colors: SkiColors(p: frame.dark ? .night : .day), type: SkiType(lang: lang))
             NavigationStack(path: $model.path) {
-                HomeView(frame: frame, mode: mode, trip: model.trip, now: LocalMoment.now(t.date), status: model.status,
+                HomeView(frame: frame, mode: mode, trip: model.trip, now: LocalMoment.now(date), status: model.status, weather: model.weather(date),
                          onMode: { modeRaw = mode.next.rawValue }, onLang: { langRaw = $0?.rawValue ?? "" }) { a in
                     switch a {
                     case .map: model.go(.map())

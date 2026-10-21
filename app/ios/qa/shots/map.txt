@@ -6,3 +6,5 @@ map-list-he he day 0 map+list
 map-status-fresh-he he day 0 map+status=fresh
 map-board-fresh-en en day 0 map+status=fresh+sheet=status
 map-board-none-he he night 0 map+sheet=status
+map-weather-he he day 0 map+weather=sample
+map-run-weather-en en day 0 map:Sadzele_1+weather=sample

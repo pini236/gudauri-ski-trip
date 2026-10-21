@@ -42,6 +42,8 @@ final class AppModel {
     var path: [Route] = []
     /// The lift board's sheet over the map (S2, S3), opened from home's board or the map's bar.
     var statusSheet = false
+    /// The last weather answer (round 19), kept on the phone.
+    var forecast: Forecast?
 
     /// The user's own trip, as JSON in Android's format, in UserDefaults.
     var trip: Trip? {
@@ -63,6 +65,10 @@ final class AppModel {
         for (k, v) in flags where k != "status" && k != "sheet" { UserDefaults.standard.set(v, forKey: "qa." + k) }
         // the screenshots' own report (fresh, old, none), never the site's
         qaStatus = flags["status"]
+        qaWeather = flags["weather"]
+        // a pinned moment in Gudauri time ("2027-01-12T10:00"), for the boards that depend on the trip's stage
+        qaNow = flags["now"].flatMap { Forecast.millis(local: $0) }.map { Date(timeIntervalSince1970: Double($0) / 1000) }
+        forecast = qaWeather == "sample" ? WeatherSource.sample(now: qaNow.map { Int64($0.timeIntervalSince1970 * 1000) } ?? now) : qaWeather != nil ? nil : WeatherSource.cached()
         status = LiftStatus(names: names, report: qaStatus.map { StatusSource.qa($0, now: now) } ?? StatusSource.cached(), now: now)
         // the screenshots on GitHub only (a launch argument): a made-up trip, never the crew's flight
         trip = UserDefaults.standard.string(forKey: "qaTrip") == "1" ? Self.sample : Trip.from(json: UserDefaults.standard.data(forKey: "trip"))
@@ -76,6 +82,13 @@ final class AppModel {
                              Leg(Day(2027, 1, 15)!, flight: "XX 102", from: "TBS", to: "TLV", departs: ClockTime(1, 35)!, arrives: ClockTime(2, 15)!))
 
     private let qaStatus: String?
+    private let qaWeather: String?
+    private let qaNow: Date?
+
+    /// Now, or the screenshots' pinned moment.
+    func clock(_ d: Date) -> Date { qaNow ?? d }
+
+    func weather(_ now: Date) -> WeatherNow { WeatherNow(forecast: forecast, now: Int64(now.timeIntervalSince1970 * 1000)) }
 
     func go(_ r: Route) { path.append(r) }
 
@@ -92,6 +105,7 @@ final class AppModel {
                 report = await StatusSource.load(inSeason: LiftStatus.inSeason(month: month), now: now)
             }
             status = LiftStatus(names: status.names, report: report, now: now)
+            if qaWeather == nil, let f = await WeatherSource.load(now: now) { forecast = f }
             try? await Task.sleep(for: .seconds(60))
         }
     }

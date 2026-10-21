@@ -29,7 +29,7 @@ struct MapScreen: View {
 
 /// What the sheet over the map shows.
 private enum Panel: String, Identifiable {
-    case run, lift, list, status
+    case run, lift, list, status, weather
     var id: String { rawValue }
 }
 
@@ -43,17 +43,21 @@ private struct MapContent: View {
     @State private var forMe = false
     @State private var changes: [(String, Bool)] = []
     @State private var detent: PresentationDetent = .height(250)
+    /// The weather layer (round 19): off until tapped; on, the three points on the map and the list.
+    @State private var weatherOn = false
+    @State private var weatherSheet = false
 
     private var panel: Binding<Panel?> {
         Binding {
             if app.statusSheet { return .status }
+            if weatherSheet { return .weather }
             if model.selected != nil { return .run }
             if model.lift != nil { return .lift }
             if model.list { return .list }
             return nil
         } set: { v in
             guard v == nil else { return }
-            app.statusSheet = false
+            app.statusSheet = false; weatherSheet = false
             model.selected = nil; model.lift = nil; model.list = false
         }
     }
@@ -69,6 +73,7 @@ private struct MapContent: View {
             ZStack(alignment: .top) {
                 OverviewMap(model: model, cam: $cam, status: app.status, forMe: forMe) { frameKobi() }
                     .ignoresSafeArea(edges: .bottom)
+                if weatherOn { pins(g.size) }
                 controls
                 StatusBar(s: app.status) { app.statusSheet = true }
                     .padding(.horizontal, 16).padding(.top, 56)
@@ -78,6 +83,13 @@ private struct MapContent: View {
         }
         .overlay(alignment: .bottom) {
             if panel.wrappedValue == nil {
+                VStack(spacing: 10) {
+                HStack {
+                    Spacer()
+                    WeatherKey(on: weatherOn) {
+                        weatherOn.toggle(); weatherSheet = weatherOn; Fx.shared.tick()
+                    }
+                }
                 HStack(alignment: .bottom, spacing: 8) {
                     Text(S.appMapHint).font(ski.type.text(13)).foregroundStyle(Color(rgb: 0x13233A))
                         .padding(10).frame(maxWidth: .infinity, alignment: .leading).background(Color.white.opacity(0.9))
@@ -86,6 +98,7 @@ private struct MapContent: View {
                             .padding(.horizontal, 16).frame(minHeight: 44).background(Color(rgb: 0x13233A))
                     }
                     .buttonStyle(.plain)
+                }
                 }
                 .padding(12)
             }
@@ -110,6 +123,7 @@ private struct MapContent: View {
         }
         .onChange(of: model.lift?.id) { _, id in if id != nil { detent = .medium; frameLift() } }
         .onChange(of: model.list) { _, on in if on { detent = .medium } }
+        .onChange(of: weatherSheet) { _, on in if on { detent = .medium } }
         .onChange(of: app.statusSheet) { _, on in
             if on { detent = .large; changes = app.status.changes(StatusSource.before()) }
             else if app.status.fresh { StatusSource.seen(app.status.snapshot()) }
@@ -124,13 +138,18 @@ private struct MapContent: View {
                 case .run:
                     if let r = model.selected {
                         RunHead(p: r, model: model, flying: false, canFly: false, onFly: {}, onStop: {})
-                        RunBody(p: r, model: model)
+                        RunBody(p: r, model: model, weather: app.weather(Date()))
                     }
                 case .lift:
                     if let l = model.lift { LiftHead(l: l); LiftBody(l: l, model: model) }
                 case .list:
                     Text(S.mapOverviewHeading).font(ski.type.display(32)).foregroundStyle(ski.colors.ink).accessibilityAddTraits(.isHeader)
                     RunList(model: model)
+                case .weather:
+                    WeatherList(w: app.weather(Date())) { id in
+                        weatherSheet = false
+                        if let ll = defaultLL[id] { let x = Geo.x(ll.lon), y = Geo.y(ll.lat); move(true) { $0.k = max($0.k, $0.size.width / 3000); $0.x = x - $0.size.width / $0.k / 2; $0.y = y - $0.size.height / $0.k / 2 } }
+                    }
                 case .status:
                     let month = Calendar(identifier: .gregorian).component(.month, from: Date())
                     StatusBoard(s: app.status, changes: changes, forMe: $forMe, inSeason: LiftStatus.inSeason(month: month))
@@ -140,6 +159,23 @@ private struct MapContent: View {
             .frame(maxWidth: .infinity, alignment: .leading)
         }
         .scrollBounceBehavior(.basedOnSize)
+    }
+
+    /// The weather points over the map from above: a dot at each, its card above it (below when it would go under the
+    /// map's own buttons and bar).
+    private func pins(_ size: CGSize) -> some View {
+        ZStack(alignment: .topLeading) {
+            ForEach(pinTexts(app.weather(Date()))) { p in
+                let x = cam.sx(p.x), y = cam.sy(p.y)
+                Circle().fill(ski.colors.ink).frame(width: 8, height: 8).overlay(Circle().stroke(ski.colors.paper, lineWidth: 2))
+                    .position(x: x, y: y)
+                PinCard(p: p).fixedSize()
+                    .position(x: min(max(x, 90), size.width - 90), y: y - 14 - 34 < 150 ? y + 14 + 34 : y - 14 - 34)
+            }
+        }
+        .frame(width: size.width, height: size.height)
+        .environment(\.layoutDirection, .leftToRight)
+        .allowsHitTesting(false)
     }
 
     // MARK: controls
