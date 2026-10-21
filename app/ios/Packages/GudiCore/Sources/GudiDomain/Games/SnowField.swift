@@ -1,7 +1,7 @@
 import Foundation
 
 /// The kinds of snow (the site's KINDS): how deep a press goes, how much rises around it, how rough, how soft.
-public enum SnowKind: CaseIterable, Sendable {
+public enum FreshSnowKind: CaseIterable, Sendable {
     case powder, crust, wet
     public var depth: Float { switch self { case .powder: 1.0; case .crust: 0.75; case .wet: 0.6 } }
     public var berm: Float { switch self { case .powder: 0.35; case .crust: 0.15; case .wet: 0.55 } }
@@ -20,7 +20,7 @@ public final class SnowField: @unchecked Sendable {
     /// 0 untouched; a track keeps the snow it was made in (1, or 2 for wet: X-5, the site's fix).
     public var touched: [UInt8]
     public var crack: [Bool]
-    public var kind = SnowKind.powder
+    public var kind = FreshSnowKind.powder
     private let rnd: GameRandom
     /// Tiny ice crystals that catch the sun.
     private let sparkle: [Float]
