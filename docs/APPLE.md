@@ -334,6 +334,19 @@ cd ~ && rm -rf ~/ski-app-keys
 
 היום `docs/PRIVACY.md` אומרת "an Android app (package ...)", ומזכירה רק כניסה עם גוגל. **לפני ההגשה (ופני הבודקים החיצוניים)** צריך להוסיף, בארבע השפות: האייפון והמזהה שלו; כניסה עם אפל (אפל נותנת שם ומייל, ואפשר מייל מוסווה; מה נשמר); וש"הקלטת מסך" (Session Replay) היא באנדרואיד בלבד, אם כך יישאר. **טקסט המדיניות משתנה רק באישור פיני** (`CLAUDE.md`); הטיוטה תוכן לסשן המשפטי ולאישור כשהאייפון קרוב.
 
+**המקומות שישתנו** (נמצאו ב-21.10.2026; בכל אחת מארבע השפות אותו מקום):
+
+| מקום במדיניות | היום | השינוי |
+|---|---|---|
+| הפתיחה | "an Android app (package `io.github.pini236.skiapp`)" | "an app for Android and iPhone (`io.github.pini236.skiapp`)" |
+| "Stored only with you" | "what it stores is not included in Android backups" | לפי מה שהאייפון יעשה בפועל: לכלול או להוציא מגיבוי iCloud (סשן האייפון מחליט, והמשפט נכתב לפי הקוד) |
+| "What we collect", סעיף 3 | "Android session replay" | נשאר "Android" אם באייפון אין הקלטה |
+| "Accounts and groups", זהות | רק כניסה עם גוגל | ועוד: "Signing in with Apple stores the name and email that Apple provides (you can choose to hide your email, and then Apple gives a private relay address)". רק השם עובר לפרופיל, כמו בגוגל |
+| "Services that process data for us" | Supabase וגוגל | ועוד אפל, לכניסה עם אפל (חלה מדיניות הפרטיות של אפל) |
+| האתר, "If you join a group or sign in with Google" | גוגל בלבד | ועוד אפל, כשהכניסה עם אפל תיכנס לאתר |
+
+**מתי כותבים את הנוסח:** כשהקוד של האייפון קיים, כי המדיניות חייבת לומר בדיוק מה הקוד עושה (הגיבוי, ההקלטה, מה נשמר מאפל). אז: טיוטה בארבע השפות בענף, לסשן המשפטי ולאישור פיני, ואז `python3 tools/build-privacy.py`.
+
 ### 5.3 תוויות הפרטיות (`App Privacy`)
 
 לפי מה שהאנדרואיד שולח בפועל (טופס הנתונים בגוגל, גרסה ג ב-`docs/PLAY.md`), ובהנחה שהאייפון זהה (יישור, החלטה 50). **לפני ההגשה בודקים מול הקוד של האייפון.** אפל סופרת גם מה שספריות של צד שלישי (PostHog, Sentry) אוספות.
@@ -374,13 +387,15 @@ cd ~ && rm -rf ~/ski-app-keys
 
 ### 5.6 דף החנות, צילומים ותמיכה
 
+**הטיוטות בשלוש השפות שאפל תומכת בהן (אנגלית, עברית ורוסית; גאורגית לא נתמכת ב-App Store):** `i18n/appstore-listing.md`.
+
 | שדה | מגבלה | טיוטה |
 |---|---|---|
 | `Name` | 30 תווים | `Gudi: Gudauri Ski Map` |
-| `Subtitle` | 30 תווים | `3D ski map, runs and lifts` |
-| `Promotional Text` | 170 תווים | מהתיאור הקצר של גוגל |
+| `Subtitle` | 30 תווים | `3D runs, lifts and snow games` |
+| `Promotional Text` | 170 תווים | ב-`i18n/appstore-listing.md` |
 | `Description` | 4,000 תווים | התיאור המלא מ-`i18n/store-listing.md`, עם "לא רשמית" (עיקרון 8) ורק מה שבאמת בגרסה |
-| `Keywords` | **100 בייטים** (לא תווים: בעברית כל אות היא שני בייטים) | `gudauri,ski,map,piste,georgia,snow,lift,slope,3d,kazbegi` |
+| `Keywords` | **100 בייטים** (לא תווים: בעברית כל אות היא שני בייטים) | ב-`i18n/appstore-listing.md` (בלי מילים שכבר בשם) |
 | `Support URL` | חובה, חייב להוביל לפרטי קשר אמיתיים | **אין דף כזה היום.** הצעה: עמוד `/support` באתר עם `pinisagent@gmail.com` (סשן האתר, דרך הקנבס), או בינתיים קישור לדף הפרטיות, שמופיעה בו הכתובת |
 | `Privacy Policy URL` | חובה | `https://gudauri-ski-trip.vercel.app/privacy` |
 | `Category` | | `Travel` (חלופה: `Navigation`) |
@@ -424,6 +439,7 @@ cd ~ && rm -rf ~/ski-app-keys
 
 ## יומן
 
+- 21.10.2026: טיוטות דף החנות באנגלית, בעברית וברוסית (`i18n/appstore-listing.md`; גאורגית לא נתמכת ב-App Store), ורשימת המקומות במדיניות הפרטיות שישתנו לאייפון (5.2).
 - 21.10.2026: המסמך נכתב ונבדק מול התיעוד הרשמי. הארכיטקט אישר את החתימה, הסודות והכניסה עם אפל עם תיקונים (סביבה מוגבלת ל-`main`, מפתח API בתפקיד `Developer`, `Skip nonce checks` כבוי, מחיקה בלי ביטול אסימונים בתנאי שלא נשמר אסימון של אפל), והם במסמך. **הבא:** פיני מתחיל את סעיפים 1 ו-2 בנתיב הקריטי.
 
 ## מקורות (נבדקו ב-21.10.2026)
