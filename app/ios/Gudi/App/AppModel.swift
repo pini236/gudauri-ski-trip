@@ -44,6 +44,9 @@ final class AppModel {
     var statusSheet = false
     /// The last weather answer (round 19), kept on the phone.
     var forecast: Forecast?
+    /// The lift the trail map should frame and open when it next opens ("see on the trail map" from the meeting point);
+    /// the map clears it once read.
+    var mapLift: String?
 
     /// The user's own trip, as JSON in Android's format, in UserDefaults.
     var trip: Trip? {
