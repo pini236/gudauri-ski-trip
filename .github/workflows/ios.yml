@@ -77,7 +77,9 @@ jobs:
             CURRENT_PROJECT_VERSION=${{ github.run_number }} CODE_SIGNING_ALLOWED=NO build | tail -40
           test "${PIPESTATUS[0]}" -eq 0
       - name: Run in a simulator and take a screenshot
+        timeout-minutes: 15
         run: |
+          set -x
           UDID=$(xcrun simctl list devices available -j | python3 -c "
           import json,sys
           d=json.load(sys.stdin)['devices']
@@ -88,6 +90,7 @@ jobs:
           echo "simulator $UDID"
           xcrun simctl boot "$UDID"
           xcrun simctl bootstatus "$UDID" -b
+          echo "booted after ${SECONDS}s"
           APP=$(ls -d "$RUNNER_TEMP"/dd/Build/Products/Debug-iphonesimulator/Gudi.app)
           xcrun simctl install "$UDID" "$APP"
           xcrun simctl launch "$UDID" io.github.pini236.skiapp
