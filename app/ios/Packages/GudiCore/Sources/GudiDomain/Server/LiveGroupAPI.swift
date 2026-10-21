@@ -118,9 +118,9 @@ public final class LiveGroupAPI: GroupAPI {
     /// The phone's copy of a group as the page shows it.
     nonisolated static func shown(_ s: Sync.Snapshot, me: String?) -> Shown {
         let names = Dictionary(s.members.map { ($0.userId, $0.name) }, uniquingKeysWith: { a, _ in a })
-        var g: Group? = nil
+        var g: TripGroup? = nil
         if let head = s.group, !s.members.isEmpty {
-            g = Group(id: head.id, name: head.name, startsOn: head.startsOn, endsOn: head.endsOn,
+            g = TripGroup(id: head.id, name: head.name, startsOn: head.startsOn, endsOn: head.endsOn,
                       members: s.members.map { m in
                           Member(userId: m.userId, name: m.name, role: m.admin ? .admin : .member, me: m.userId == me,
                                  trip: m.tripId.flatMap { s.flights[$0] }, tripId: m.tripId,
@@ -128,7 +128,7 @@ public final class LiveGroupAPI: GroupAPI {
                       },
                       invite: s.invite.flatMap(working),
                       requests: s.requests.map { JoinRequest(id: $0.id, userId: $0.userId, name: $0.name, reclaim: $0.kind == "reclaim") },
-                      meetups: s.meetups.map { Meetup(id: $0.id, station: $0.station, at: $0.at, note: $0.note, byName: $0.createdBy.flatMap { names[$0] }) })
+                      meetups: s.meetups.map { GroupMeetup(id: $0.id, station: $0.station, at: $0.at, note: $0.note, byName: $0.createdBy.flatMap { names[$0] }) })
         }
         return Shown(group: g, readAt: s.readAt, offline: s.offline, gone: s.gone, waiting: s.waiting > 0, refused: s.refused)
     }
@@ -139,7 +139,7 @@ public final class LiveGroupAPI: GroupAPI {
         return Invite(id: i.id, code: i.code, token: i.token, requiresApproval: i.requiresApproval, expiresAt: exp)
     }
 
-    public func group(_ id: String) async throws -> Group {
+    public func group(_ id: String) async throws -> TripGroup {
         let me = server.stored()?.userId
         return try await io {
             guard let me else { throw ServerError("no_session", 401) }
@@ -150,8 +150,8 @@ public final class LiveGroupAPI: GroupAPI {
             let admin = members.contains { $0.userId == me && $0.admin }
             let inv = (try? await groups.invite(id)).flatMap { $0 }.flatMap(Self.working)
             let reqs = admin ? try await groups.requests(id).map { JoinRequest(id: $0.id, userId: $0.userId, name: $0.name, reclaim: $0.kind == "reclaim") } : []
-            let meets = try await groups.meetups(id).map { Meetup(id: $0.id, station: $0.station, at: $0.at, note: $0.note, byName: $0.createdBy.flatMap { names[$0] }) }
-            return Group(id: id, name: head.name, startsOn: head.startsOn, endsOn: head.endsOn,
+            let meets = try await groups.meetups(id).map { GroupMeetup(id: $0.id, station: $0.station, at: $0.at, note: $0.note, byName: $0.createdBy.flatMap { names[$0] }) }
+            return TripGroup(id: id, name: head.name, startsOn: head.startsOn, endsOn: head.endsOn,
                          members: members.map { m in
                              let t = m.tripId.flatMap { trips[$0] }
                              let by = t.flatMap { $0.byAdmin ? $0.enteredBy : nil }
@@ -186,11 +186,11 @@ public final class LiveGroupAPI: GroupAPI {
         }
     }
 
-    public func preview(_ code: String) async throws -> Preview {
+    public func preview(_ code: String) async throws -> InvitePreview {
         try await io {
             let p = try await groups.preview(code)
-            guard let g = p.group else { return Preview(status: JoinStatus.of(p.status)) }
-            return Preview(status: .ok, groupId: g.id, name: g.name, startsOn: g.startsOn, endsOn: g.endsOn, requiresApproval: p.requiresApproval,
+            guard let g = p.group else { return InvitePreview(status: JoinStatus.of(p.status)) }
+            return InvitePreview(status: .ok, groupId: g.id, name: g.name, startsOn: g.startsOn, endsOn: g.endsOn, requiresApproval: p.requiresApproval,
                            alreadyMember: p.alreadyMember, members: p.members.map { ($0.userId, $0.name) })
         }
     }
@@ -241,7 +241,7 @@ public final class LiveGroupAPI: GroupAPI {
         await sync.refreshMine()
     }
     public func removeMember(_ groupId: String, userId: String) async throws { try await io { try await groups.remove(groupId, userId: userId) } }
-    public func setRole(_ groupId: String, userId: String, role: Role) async throws { try await io { try await groups.setRole(groupId, userId: userId, role: role.rawValue) } }
+    public func setRole(_ groupId: String, userId: String, role: MemberRole) async throws { try await io { try await groups.setRole(groupId, userId: userId, role: role.rawValue) } }
     public func claimAdmin(_ groupId: String) async throws { try await io { try await groups.claimAdmin(groupId) } }
     public func revokeInvite(_ inviteId: String) async throws { try await io { try await groups.revokeInvite(inviteId) } }
     public func cancelRequest(_ groupId: String) async throws {
@@ -282,7 +282,7 @@ public final class LiveGroupAPI: GroupAPI {
         }
     }
 
-    public func leaderboard(_ groupId: String, game: String) async throws -> [Score] {
+    public func leaderboard(_ groupId: String, game: String) async throws -> [GroupScore] {
         let me = server.stored()?.userId
         let rows: [Groups.Score]
         do {
@@ -294,7 +294,7 @@ public final class LiveGroupAPI: GroupAPI {
             guard let kept = await sync.snapshot(groupId).scores[game] else { throw ApiError("offline") }
             rows = kept
         }
-        return rows.map { Score(userId: $0.userId, name: $0.name, best: $0.best, me: $0.userId == me) }
+        return rows.map { GroupScore(userId: $0.userId, name: $0.name, best: $0.best, me: $0.userId == me) }
     }
 
     public func submitBest(game: String, score: Int) async -> Bool {

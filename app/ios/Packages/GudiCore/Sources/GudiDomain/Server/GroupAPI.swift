@@ -4,7 +4,7 @@ import Foundation
 // group/GroupApi.kt. The screens talk to the server only through [GroupAPI]: [LiveGroupAPI] over the client here, or
 // [FakeGroupAPI], the pretend server of the screenshots (made-up people only).
 
-public enum Role: String, Sendable { case admin, member }
+public enum MemberRole: String, Sendable { case admin, member }
 
 /// Who this phone is on the server: nobody yet (nil), a guest (an anonymous identity), or a registered account.
 public struct Me: Sendable, Equatable {
@@ -45,7 +45,7 @@ public struct MyGroup: Sendable, Equatable, Identifiable {
 public struct Member: Sendable, Equatable, Identifiable {
     public var userId: String
     public var name: String
-    public var role: Role
+    public var role: MemberRole
     public var me: Bool
     /// The trip this member shows in the group, and its id there (for "I'm on the same flight").
     public var trip: Trip?
@@ -54,7 +54,7 @@ public struct Member: Sendable, Equatable, Identifiable {
     public var enteredByAdmin: String?
     public var registered: Bool
     public var id: String { userId }
-    public init(userId: String, name: String, role: Role, me: Bool, trip: Trip? = nil, tripId: String? = nil, enteredByAdmin: String? = nil, registered: Bool = false) {
+    public init(userId: String, name: String, role: MemberRole, me: Bool, trip: Trip? = nil, tripId: String? = nil, enteredByAdmin: String? = nil, registered: Bool = false) {
         self.userId = userId; self.name = name; self.role = role; self.me = me; self.trip = trip; self.tripId = tripId
         self.enteredByAdmin = enteredByAdmin; self.registered = registered
     }
@@ -75,7 +75,7 @@ public struct JoinRequest: Sendable, Equatable, Identifiable {
     public init(id: String, userId: String, name: String, reclaim: Bool) { self.id = id; self.userId = userId; self.name = name; self.reclaim = reclaim }
 }
 
-public struct Meetup: Sendable, Equatable, Identifiable {
+public struct GroupMeetup: Sendable, Equatable, Identifiable {
     public var id, station: String
     public var at: Date
     public var note: String?
@@ -85,7 +85,7 @@ public struct Meetup: Sendable, Equatable, Identifiable {
     }
 }
 
-public struct Group: Sendable, Equatable, Identifiable {
+public struct TripGroup: Sendable, Equatable, Identifiable {
     public var id, name: String
     public var startsOn, endsOn: Day?
     public var members: [Member]
@@ -93,8 +93,8 @@ public struct Group: Sendable, Equatable, Identifiable {
     public var invite: Invite?
     /// Pending requests: only admins see them.
     public var requests: [JoinRequest]
-    public var meetups: [Meetup]
-    public init(id: String, name: String, startsOn: Day?, endsOn: Day?, members: [Member], invite: Invite?, requests: [JoinRequest], meetups: [Meetup]) {
+    public var meetups: [GroupMeetup]
+    public init(id: String, name: String, startsOn: Day?, endsOn: Day?, members: [Member], invite: Invite?, requests: [JoinRequest], meetups: [GroupMeetup]) {
         self.id = id; self.name = name; self.startsOn = startsOn; self.endsOn = endsOn; self.members = members
         self.invite = invite; self.requests = requests; self.meetups = meetups
     }
@@ -105,14 +105,14 @@ public struct Group: Sendable, Equatable, Identifiable {
 
 /// A group as its page shows it, from the phone first: [group] is nil until it was read once, [readAt] (ms) is when.
 public struct Shown: Sendable, Equatable {
-    public var group: Group?
+    public var group: TripGroup?
     public var readAt: Int64? = nil
     public var offline = false
     public var gone = false
     public var waiting = false
     /// A change made here that waited for signal, and the server refused: its code, until cleared.
     public var refused: String? = nil
-    public init(group: Group?, readAt: Int64? = nil, offline: Bool = false, gone: Bool = false, waiting: Bool = false, refused: String? = nil) {
+    public init(group: TripGroup?, readAt: Int64? = nil, offline: Bool = false, gone: Bool = false, waiting: Bool = false, refused: String? = nil) {
         self.group = group; self.readAt = readAt; self.offline = offline; self.gone = gone; self.waiting = waiting; self.refused = refused
     }
 }
@@ -130,7 +130,7 @@ public protocol GroupWatch: AnyObject {
 }
 
 /// What an invite opens (invite_preview): the group, and its members' names for "I'm already in the group".
-public struct Preview: Sendable, Equatable {
+public struct InvitePreview: Sendable, Equatable {
     public var status: JoinStatus
     public var groupId: String? = nil
     public var name = ""
@@ -145,7 +145,7 @@ public struct Preview: Sendable, Equatable {
         self.status = status; self.groupId = groupId; self.name = name; self.startsOn = startsOn; self.endsOn = endsOn
         self.requiresApproval = requiresApproval; self.alreadyMember = alreadyMember; self.members = members
     }
-    public static func == (a: Preview, b: Preview) -> Bool {
+    public static func == (a: InvitePreview, b: InvitePreview) -> Bool {
         a.status == b.status && a.groupId == b.groupId && a.name == b.name && a.members.map(\.0) == b.members.map(\.0)
     }
 }
@@ -162,7 +162,7 @@ public struct JoinResult: Sendable, Equatable {
     public init(_ status: JoinStatus, _ groupId: String? = nil) { self.status = status; self.groupId = groupId }
 }
 
-public struct Score: Sendable, Equatable, Identifiable {
+public struct GroupScore: Sendable, Equatable, Identifiable {
     public var userId, name: String
     public var best: Int
     public var me: Bool
@@ -190,7 +190,7 @@ public protocol GroupAPI: AnyObject {
     func rename(_ name: String) async throws
 
     func myGroups() async throws -> [GroupSummary]
-    func group(_ id: String) async throws -> Group
+    func group(_ id: String) async throws -> TripGroup
     func watch(_ id: String) -> GroupWatch
     func createGroup(name: String, myName: String, startsOn: Day?, endsOn: Day?, myTrip: Trip?) async throws -> String
     func updateGroup(_ id: String, name: String, startsOn: Day?, endsOn: Day?) async throws
@@ -198,13 +198,13 @@ public protocol GroupAPI: AnyObject {
     /// A new invite, replacing the working one (revoke and replace).
     func newInvite(_ groupId: String, requiresApproval: Bool) async throws -> Invite
 
-    func preview(_ code: String) async throws -> Preview
+    func preview(_ code: String) async throws -> InvitePreview
     func join(_ code: String, myName: String) async throws -> JoinResult
     func reclaim(_ code: String, memberId: String) async throws -> JoinResult
     func decide(_ requestId: String, approve: Bool) async throws
     func leave(_ groupId: String) async throws
     func removeMember(_ groupId: String, userId: String) async throws
-    func setRole(_ groupId: String, userId: String, role: Role) async throws
+    func setRole(_ groupId: String, userId: String, role: MemberRole) async throws
     /// "Be the admin" (claim_admin): only while the group has no admin, and only for a registered member.
     func claimAdmin(_ groupId: String) async throws
     func revokeInvite(_ inviteId: String) async throws
@@ -224,7 +224,7 @@ public protocol GroupAPI: AnyObject {
     func myTripOnServer() async throws -> Trip?
     func setMemberTrip(_ groupId: String, userId: String, trip: Trip) async throws
 
-    func leaderboard(_ groupId: String, game: String) async throws -> [Score]
+    func leaderboard(_ groupId: String, game: String) async throws -> [GroupScore]
     /// A game's high score goes to the groups' tables (through the queue). False when I am in no group.
     func submitBest(game: String, score: Int) async -> Bool
     func addMeetup(_ groupId: String, station: String, at: Date) async throws

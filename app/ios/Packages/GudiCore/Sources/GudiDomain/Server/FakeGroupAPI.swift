@@ -7,7 +7,7 @@ import Foundation
 @MainActor
 public final class FakeGroupAPI: GroupAPI {
     private var meNow: Me?
-    private var groups: [(String, Group)] = []
+    private var groups: [(String, TripGroup)] = []
     private var trips: [String: Trip] = [:]
     private var mine: [String: Int] = [:]
     private var watches: [String: FakeWatch] = [:]
@@ -23,8 +23,8 @@ public final class FakeGroupAPI: GroupAPI {
     private func id() -> String { UUID().uuidString.lowercased() }
     private func wait() async { if delay > 0 { try? await Task.sleep(nanoseconds: delay) } }
     private func meOrThrow() throws -> Me { guard let m = meNow else { throw ApiError("not_signed_in") }; return m }
-    private func get(_ gid: String) -> Group? { groups.first { $0.0 == gid }?.1 }
-    private func put(_ g: Group) {
+    private func get(_ gid: String) -> TripGroup? { groups.first { $0.0 == gid }?.1 }
+    private func put(_ g: TripGroup) {
         if let i = groups.firstIndex(where: { $0.0 == g.id }) { groups[i].1 = g } else { groups.append((g.id, g)) }
         watches[g.id]?.push()
     }
@@ -64,13 +64,13 @@ public final class FakeGroupAPI: GroupAPI {
             var cal = Calendar(identifier: .gregorian); cal.timeZone = gudauri
             return cal.date(from: c)!
         }
-        let g = Group(id: "g1", name: he ? "גודאורי 2027" : "Gudauri 2027", startsOn: Day(2027, 1, 10), endsOn: Day(2027, 1, 15), members: members,
+        let g = TripGroup(id: "g1", name: he ? "גודאורי 2027" : "Gudauri 2027", startsOn: Day(2027, 1, 10), endsOn: Day(2027, 1, 15), members: members,
                       invite: Invite(id: "i1", code: "KZBQRM", token: String(repeating: "t", count: 40), requiresApproval: false),
                       requests: admin ? [JoinRequest(id: "r1", userId: "u9", name: names[5], reclaim: true)] : [],
-                      meetups: [Meetup(id: "m1", station: "158744075b", at: at(11, 9, 30), byName: names[0]),
-                                Meetup(id: "m2", station: "158744055b", at: at(11, 13, 0), byName: names[2])])
+                      meetups: [GroupMeetup(id: "m1", station: "158744075b", at: at(11, 9, 30), byName: names[0]),
+                                GroupMeetup(id: "m2", station: "158744055b", at: at(11, 13, 0), byName: names[2])])
         if kind == "two" {
-            put(Group(id: "g2", name: he ? "סקי עם המשפחה" : "Family ski", startsOn: Day(2027, 2, 14), endsOn: Day(2027, 2, 18),
+            put(TripGroup(id: "g2", name: he ? "סקי עם המשפחה" : "Family ski", startsOn: Day(2027, 2, 14), endsOn: Day(2027, 2, 18),
                       members: [Member(userId: "me", name: me.name ?? "", role: .member, me: true, registered: true),
                                 Member(userId: "u7", name: he ? "רוני כהן" : "Roni Cohen", role: .admin, me: false, registered: true),
                                 Member(userId: "u8", name: he ? "גלי כהן" : "Gali Cohen", role: .member, me: false)],
@@ -115,14 +115,14 @@ public final class FakeGroupAPI: GroupAPI {
             .map { GroupSummary(id: $0.id, name: $0.name, startsOn: $0.startsOn, endsOn: $0.endsOn) }.byStart()
     }
 
-    func view(_ id: String) -> Group? {
+    func view(_ id: String) -> TripGroup? {
         guard let me = meNow, var g = get(id), let mine = g.members.first(where: { $0.userId == me.userId }) else { return nil }
         g.members = g.members.map { var m = $0; m.me = m.userId == me.userId; return m }
         if mine.role != .admin { g.requests = [] }
         return g
     }
 
-    public func group(_ id: String) async throws -> Group {
+    public func group(_ id: String) async throws -> TripGroup {
         await wait()
         _ = try meOrThrow()
         guard get(id) != nil else { throw ApiError("not_found") }
@@ -143,7 +143,7 @@ public final class FakeGroupAPI: GroupAPI {
         guard me.registered else { throw ApiError("must_register") }
         let gid = id()
         let tid = myTrip.map { t -> String in let k = id(); trips[k] = t; return k }
-        put(Group(id: gid, name: name.trimmingCharacters(in: .whitespaces), startsOn: startsOn, endsOn: endsOn,
+        put(TripGroup(id: gid, name: name.trimmingCharacters(in: .whitespaces), startsOn: startsOn, endsOn: endsOn,
                   members: [Member(userId: me.userId, name: myName.trimmingCharacters(in: .whitespaces), role: .admin, me: true, trip: myTrip, tripId: tid, registered: true)],
                   invite: Invite(id: id(), code: randomCode(), token: id() + id(), requiresApproval: false), requests: [], meetups: []))
         me.name = myName.trimmingCharacters(in: .whitespaces); meNow = me
@@ -152,7 +152,7 @@ public final class FakeGroupAPI: GroupAPI {
 
     private func randomCode() -> String { String((0..<6).map { _ in InviteCode.letters.randomElement()! }) }
 
-    private func admin(_ gid: String) throws -> Group {
+    private func admin(_ gid: String) throws -> TripGroup {
         let me = try meOrThrow()
         guard let g = get(gid) else { throw ApiError("not_found") }
         guard g.members.contains(where: { $0.userId == me.userId && $0.role == .admin }) else { throw ApiError("not_admin") }
@@ -174,19 +174,19 @@ public final class FakeGroupAPI: GroupAPI {
         return inv
     }
 
-    private func byCode(_ code: String) -> Group? {
+    private func byCode(_ code: String) -> TripGroup? {
         let c = Groups.normalizeCode(code)
         return groups.map(\.1).first { $0.invite?.code == c.uppercased() || $0.invite?.token == c }
     }
 
-    public func preview(_ code: String) async throws -> Preview {
+    public func preview(_ code: String) async throws -> InvitePreview {
         await wait()
         let me = try meOrThrow()
-        guard let g = byCode(code) else { return Preview(status: .invalid_code) }
+        guard let g = byCode(code) else { return InvitePreview(status: .invalid_code) }
         let member = g.members.contains { $0.userId == me.userId }
         let approval = g.invite?.requiresApproval == true
         // like the server: an invite that needs approval shows no names to who is not in the group
-        return Preview(status: .ok, groupId: g.id, name: g.name, startsOn: g.startsOn, endsOn: g.endsOn, requiresApproval: approval,
+        return InvitePreview(status: .ok, groupId: g.id, name: g.name, startsOn: g.startsOn, endsOn: g.endsOn, requiresApproval: approval,
                        alreadyMember: member, members: approval && !member ? [] : g.members.map { ($0.userId, $0.name) })
     }
 
@@ -237,7 +237,7 @@ public final class FakeGroupAPI: GroupAPI {
     public func leave(_ groupId: String) async throws { await wait(); remove(groupId, try meOrThrow().userId) }
     public func removeMember(_ groupId: String, userId: String) async throws { await wait(); _ = try admin(groupId); remove(groupId, userId) }
 
-    public func setRole(_ groupId: String, userId: String, role: Role) async throws {
+    public func setRole(_ groupId: String, userId: String, role: MemberRole) async throws {
         await wait()
         var g = try admin(groupId)
         guard let i = g.members.firstIndex(where: { $0.userId == userId }) else { throw ApiError("not_member") }
@@ -323,13 +323,13 @@ public final class FakeGroupAPI: GroupAPI {
         put(g)
     }
 
-    public func leaderboard(_ groupId: String, game: String) async throws -> [Score] {
+    public func leaderboard(_ groupId: String, game: String) async throws -> [GroupScore] {
         await wait()
         let me = try meOrThrow()
         guard let g = get(groupId) else { throw ApiError("not_found") }
         let best = [12480, 11920, 9310, 8775, 6040]
         return g.members.prefix(5).enumerated().map { i, m in
-            Score(userId: m.userId, name: m.name, best: m.userId == me.userId ? (mine[game] ?? best[i]) : best[i], me: m.userId == me.userId)
+            GroupScore(userId: m.userId, name: m.name, best: m.userId == me.userId ? (mine[game] ?? best[i]) : best[i], me: m.userId == me.userId)
         }.sorted { $0.best > $1.best }
     }
 
@@ -343,7 +343,7 @@ public final class FakeGroupAPI: GroupAPI {
         await wait()
         let me = try meOrThrow()
         guard var g = get(groupId) else { throw ApiError("not_found") }
-        g.meetups.append(Meetup(id: id(), station: station, at: at, byName: g.members.first { $0.userId == me.userId }?.name))
+        g.meetups.append(GroupMeetup(id: id(), station: station, at: at, byName: g.members.first { $0.userId == me.userId }?.name))
         g.meetups.sort { $0.at < $1.at }
         put(g)
     }
