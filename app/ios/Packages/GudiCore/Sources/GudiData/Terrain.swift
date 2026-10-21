@@ -9,6 +9,15 @@ public enum Geo {
 
     public static func x(_ lon: Double) -> Double { (lon - lon0) * kx }
     public static func y(_ lat: Double) -> Double { -(lat - lat0) * ky }
+    public static func x(lon: Double) -> Double { x(lon) }
+    public static func y(lat: Double) -> Double { y(lat) }
+    /// A line of the data ([lat, lon] points) as a flat [x, y, x, y, ...] in metres.
+    public static func line(_ g: [[Double]]) -> [Double] {
+        var out: [Double] = []
+        out.reserveCapacity(g.count * 2)
+        for p in g where p.count >= 2 { out.append(x(p[1])); out.append(y(p[0])) }
+        return out
+    }
 }
 
 public struct Peak: Sendable {

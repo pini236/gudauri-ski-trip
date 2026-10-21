@@ -40,18 +40,31 @@ enum WeatherSource {
         ]
         let dw = [15, 32, 10], dg = [22, 55, 16], ds = [4, 12, 0], dt = [-7, -10, -6], dd = [300, 300, 240]
         var pts: [[String: Any]] = []
+        let hours: [String] = (0..<72).map(hour)
+        let days: [String] = (0..<15).map(day)
         for b in base {
             let shift = Int(b.2 + 9)
-            pts.append(["id": b.0, "lat": b.7, "lon": b.8, "elevation": Int(b.1), "snow24": b.6,
-                        "hourly": ["time": (0..<72).map(hour), "temp": Array(repeating: b.2, count: 72), "wind": Array(repeating: b.3, count: 72),
-                                   "gust": Array(repeating: b.4, count: 72), "dir": Array(repeating: b.5, count: 72)],
-                        "daily": ["date": (0..<15).map(day), "tmin": (0..<15).map { dt[$0 % 3] - 4 + shift }, "tmax": (0..<15).map { dt[$0 % 3] + shift },
-                                  "snow": (0..<15).map { ds[$0 % 3] }, "wind": (0..<15).map { dw[$0 % 3] }, "gust": (0..<15).map { dg[$0 % 3] },
-                                  "dir": (0..<15).map { dd[$0 % 3] }]])
+            var tmin: [Int] = [], tmax: [Int] = [], snow: [Int] = [], wind: [Int] = [], gust: [Int] = [], dir: [Int] = []
+            for i in 0..<15 {
+                let k = i % 3
+                tmin.append(dt[k] - 4 + shift); tmax.append(dt[k] + shift)
+                snow.append(ds[k]); wind.append(dw[k]); gust.append(dg[k]); dir.append(dd[k])
+            }
+            var hourly: [String: Any] = ["time": hours]
+            hourly["temp"] = [Double](repeating: b.2, count: 72)
+            hourly["wind"] = [Double](repeating: b.3, count: 72)
+            hourly["gust"] = [Double](repeating: b.4, count: 72)
+            hourly["dir"] = [Double](repeating: b.5, count: 72)
+            var daily: [String: Any] = ["date": days, "tmin": tmin, "tmax": tmax]
+            daily["snow"] = snow; daily["wind"] = wind; daily["gust"] = gust; daily["dir"] = dir
+            var pt: [String: Any] = ["id": b.0, "lat": b.7, "lon": b.8, "elevation": Int(b.1), "snow24": b.6]
+            pt["hourly"] = hourly; pt["daily"] = daily
+            pts.append(pt)
         }
         let iso = ISO8601DateFormatter().string(from: Date(timeIntervalSince1970: Double(now) / 1000))
-        let o: [String: Any] = ["schema": 1, "updated": iso, "model": "sample", "points": pts,
-                                "ridge": ["daily": ["date": (0..<15).map(day), "risk": ["Sadzele": Array(repeating: "high", count: 15), "Kudebi": Array(repeating: "medium", count: 15)]]]]
+        let risk: [String: [String]] = ["Sadzele": [String](repeating: "high", count: 15), "Kudebi": [String](repeating: "medium", count: 15)]
+        let ridge: [String: Any] = ["daily": ["date": days, "risk": risk] as [String: Any]]
+        let o: [String: Any] = ["schema": 1, "updated": iso, "model": "sample", "points": pts, "ridge": ridge]
         return (try? JSONSerialization.data(withJSONObject: o)).flatMap(Forecast.parse)
     }
 }
