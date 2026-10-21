@@ -89,7 +89,7 @@ final class FreshSnowView: UIView {
         if still { field?.fresh(); dirty = true; report(); kick(); return }
         falling = 2.4
         for _ in 0..<90 {
-            flakes.append(Flake(x: .random(in: 0..<max(1, bounds.width)), y: -.random(in: 0..<max(1, bounds.height)), v: 40 + .random(in: 0..<60),
+            flakes.append(Flake(x: .random(in: 0..<max(1, bounds.width)), y: -CGFloat.random(in: 0..<max(1, bounds.height)), v: 40 + .random(in: 0..<60),
                                 r: 1 + .random(in: 0..<2.5), s: .random(in: 0..<6)))
         }
         kick()

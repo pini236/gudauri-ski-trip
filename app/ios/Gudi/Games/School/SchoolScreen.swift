@@ -19,9 +19,9 @@ private final class SchoolModel {
     var cur = 0
     var starsV = 0
     var result: SchoolRun.Result?
-    var coach: (Say, Int)?
-    var checks: [SchoolRun.Check] = []
-    var pop: Say?
+    var coachLine: (Say, Int)?
+    var checkList: [SchoolRun.Check] = []
+    var popSay: Say?
     var popN = 0
     var kmh = 0
     var over = false
@@ -53,7 +53,7 @@ private final class SchoolModel {
     func toMenu() { stopRun(); phase = .menu; starsV += 1 }
     func brief(_ i: Int) { stopRun(); cur = i; result = nil; phase = .brief }
     func start() {
-        result = nil; coach = nil; pop = nil; kmh = 0; over = false
+        result = nil; coachLine = nil; popSay = nil; kmh = 0; over = false
         let run = SchoolRun(LESSONS[cur], out: self)
         view.run = run
         hiss?.stop(); hiss = synth.hiss()
@@ -61,9 +61,9 @@ private final class SchoolModel {
     }
 
     // what the lesson says
-    func coach(_ say: Say, tone: Int) { coach = (say, tone) }
-    func pop(_ say: Say) { pop = say; popN += 1 }
-    func checks(_ items: [SchoolRun.Check]) { checks = items }
+    func coach(_ say: Say, tone: Int) { coachLine = (say, tone) }
+    func pop(_ say: Say) { popSay = say; popN += 1 }
+    func checks(_ items: [SchoolRun.Check]) { checkList = items }
     func ding(_ f: Double, _ d: Double, _ v: Float, square: Bool) { synth.ding(f, d, v, square: square) }
     func buzz(_ strength: Float) { if strength >= 1 { GameHaptics.thud(0.9) } else { GameHaptics.click(CGFloat(strength)) } }
     func finished(_ r: SchoolRun.Result) {
@@ -268,7 +268,7 @@ struct SchoolScreen: View {
     @ViewBuilder private func running(_ m: SchoolModel) -> some View {
         let l = LESSONS[m.cur]
         hud(m, l)
-        PopWord(say: m.pop, n: m.popN, still: still)
+        PopWord(say: m.popSay, n: m.popN, still: still)
         if l.mode == .wedge { slider(m.wedgePct) }
         if l.mode == .skis { skis(m) }
         if l.wedgeBtn { wedgeButton(m) }
@@ -308,7 +308,7 @@ struct SchoolScreen: View {
                 .background(inkC.opacity(0.15).offset(y: 2))
                 .padding(.top, 8)
             // the coach
-            if let c = m.coach {
+            if let c = m.coachLine {
                 let tone = c.1
                 Text(say(c.0)).font(ski.type.text(15, .bold)).foregroundStyle(.white).multilineTextAlignment(.center)
                     .padding(.horizontal, 12).padding(.vertical, 6).frame(maxWidth: 480)
@@ -320,7 +320,7 @@ struct SchoolScreen: View {
             HStack {
                 Spacer()
                 VStack(alignment: .trailing, spacing: 3) {
-                    ForEach(Array(m.checks.enumerated()), id: \.offset) { _, c in
+                    ForEach(Array(m.checkList.enumerated()), id: \.offset) { _, c in
                         let mark = c.mark == SchoolRun.ok ? "✓ " : c.mark == SchoolRun.no ? "✗ " : "☐ "
                         let col = c.mark == SchoolRun.ok ? greenC : c.mark == SchoolRun.no ? redC : mutedC
                         Text(mark + say(c.say)).font(ski.type.text(12.5, .bold)).foregroundStyle(col)
@@ -477,7 +477,7 @@ private struct Figure: View {
             .aspectRatio(220 / h, contentMode: .fit)
             .frame(maxWidth: 220)
             if !legend.isEmpty {
-                Flow(spacing: 14, lineSpacing: 6) {
+                CenteredFlow(spacing: 14, lineSpacing: 6) {
                     ForEach(0..<legend.count, id: \.self) { i in
                         let k = legend[i].0, col = legend[i].1
                         HStack(spacing: 6) {

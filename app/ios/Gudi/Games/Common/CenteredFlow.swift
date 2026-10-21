@@ -1,7 +1,7 @@
 import SwiftUI
 
 /// Rows that wrap (Compose's FlowRow): children left to right in the reading direction, each row centred.
-struct Flow: Layout {
+struct CenteredFlow: Layout {
     var spacing: CGFloat = 4
     var lineSpacing: CGFloat = 4
 

@@ -40,7 +40,7 @@ private final class MergeModel {
     let game = Merge()
     var tiles: [TileView] = []
     var score = 0
-    var best = Bests.get("merge")
+    var best = 0
     var maxLv = 0
     var undos = Merge.undosPerGame
     var canUndo = false
@@ -51,13 +51,14 @@ private final class MergeModel {
     var pluses: [Plus] = []
     var bump = false
     var nudge: CGSize = .zero
-    @ObservationIgnored let puffs = Puffs()
+    let puffs = Puffs()
     @ObservationIgnored var cs: CGFloat = 60
     @ObservationIgnored var gap: CGFloat = 8
     @ObservationIgnored var still = false
-    @ObservationIgnored let synth = Synth()
+    let synth = Synth()
 
     init() {
+        best = Bests.get("merge")
         if !game.restore(UserDefaults.standard.string(forKey: "merge.save")) { game.newGame() }
         wonShown = game.maxLv >= Merge.won
         sync()
@@ -289,7 +290,7 @@ struct MergeScreen: View {
 
     private var ladder: some View {
         let got = max(m.got, m.maxLv)
-        return Flow(spacing: 4, lineSpacing: 4) {
+        return CenteredFlow(spacing: 4, lineSpacing: 4) {
             ForEach(0..<Merge.levels, id: \.self) { i in
                 Text(mergeName(i)).font(ski.type.text(11)).foregroundStyle(i <= got ? inkC : Color(rgb: 0x7F98B2))
                     .padding(.horizontal, 6).padding(.vertical, 3)
@@ -397,7 +398,8 @@ private struct TileFace: View {
         let hat = lv >= 8, scarf = lv >= 9, big = lv >= 10, gold = lv >= 11
         if big { c.fill(circle(p(50, 50).x, p(50, 50).y, 48 * k), with: .color((gold ? accentC : paperC).opacity(0.25))) }
         let edge = Color(rgb: 0xB8CADB)
-        for (y, r, col) in [(CGFloat(74), CGFloat(22), Color(rgb: 0xEDF3F8)), (44, 16, paperC), (20, 12, .white)] {
+        let balls: [(CGFloat, CGFloat, Color)] = [(74, 22, Color(rgb: 0xEDF3F8)), (44, 16, paperC), (20, 12, Color.white)]
+        for (y, r, col) in balls {
             let q = p(50, y)
             c.fill(circle(q.x, q.y, r * k), with: .color(col)); c.stroke(circle(q.x, q.y, r * k), with: .color(edge), lineWidth: 2 * k)
         }
