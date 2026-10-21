@@ -24,7 +24,7 @@
 | קנבס: סבב 24 | `design/round24/` והקנבס המשותף | פנוי (סבב 24 והמקרא שמתקפל אושרו, מומשו ונסגרו בקנבס) | | |
 | קנבס: סבב 25 | `design/round25/` והקנבס המשותף | פנוי (סבב 25 בקנבס, ממתין לבחירה של פיני) | | |
 | קנבס: שפה עיצובית חדשה | `design/language/` וקנבס נפרד (https://claude.ai/artifact/9yxrGgytb2Gmi4i1UqEhST) | פנוי (חמש השפות מוכנות, ממתין לבחירה של פיני) | | |
-| אפל: חשבון ו-App Store | `docs/APPLE.md` | סשן ליווי החשבון | `session_01AjoD5yuhiyvk3kHGBuQVt1` | צעדים 1 עד 4 בוצעו (21.10.2026, Team ID `ZX5CTJ88UA`, DSA: לא סוחר); הבא: מזהה, אפליקציה, תעודה וסודות |
+| אפל: חשבון ו-App Store | `docs/APPLE.md` | סשן ליווי החשבון | `session_01AjoD5yuhiyvk3kHGBuQVt1` | צעדים 1 עד 5 בוצעו (21.10.2026, Team ID `ZX5CTJ88UA`, DSA: לא סוחר, המזהה והאפליקציה ב-App Store Connect); הבא: תעודה, פרופיל, מפתח API וסודות |
 | תשתיות ו-CI | `.github/workflows/`, `docs/OPERATIONS.md` | איש ה-DevOps (קבוע) | `session_01B7WsKFuWhyvYcU9VQLfMRW` | (החלטה 66) קודם: האצת ריצת האמולטור (אחרי אישור פיני). שירותים חיים: קריאה בלבד |
 | ארכיטקטורה | `docs/ARCHITECTURE.md`, `docs/ROLE-ARCHITECT.md` | ארכיטקט המערכת (קבוע) | `session_01JUxNys6FzfkFTAFyHbYdCe` | קו הבסיס הושלם (`docs/ARCHITECTURE.md`). מ-2, מ-6 ו-מ-7 אושרו (החלטה 58); החוזה של `/api/weather` ו-`/api/status` אושר עם תיקונים (5.10.2026). זמין לשאלות ולסקירות תכנון |
 | שפות | `i18n/` | משותף: כל סשן מוסיף רק מפתחות של התחום שלו | | |
@@ -324,7 +324,7 @@
 
 ## יומן
 
-- 21.10.2026: **אפל, צעד 5 (חלק א):** המזהה `io.github.pini236.skiapp` נרשם עם כניסה עם אפל, קישורים מהאתר והתראות (`docs/APPLE.md`). **הבא:** יצירת האפליקציה ב-App Store Connect.
+- 21.10.2026: **אפל, צעד 5:** המזהה `io.github.pini236.skiapp` נרשם (כניסה עם אפל, קישורים מהאתר והתראות), והאפליקציה `Gudi: Gudauri Ski Map` נוצרה ב-App Store Connect (`docs/APPLE.md`). **הבא:** תעודה, פרופיל, מפתח API והסודות בכספת (צעד 6).
 
 - 21.10.2026: **אפל, צעד 3:** ההסכם לאפליקציות חינמיות פעיל, ופיני בחר במעמד DSA "לא סוחר" (`docs/APPLE.md`). **הבא:** רישום המזהה ויצירת האפליקציה ב-App Store Connect.
 
