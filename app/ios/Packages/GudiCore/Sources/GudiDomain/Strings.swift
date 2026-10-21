@@ -6,6 +6,14 @@ public enum Lang: String, CaseIterable, Sendable {
 
     public var rtl: Bool { self == .he }
 
+    /// The language's own name, in its own script (the list of languages).
+    public var name: String {
+        switch self { case .he: "עברית"; case .en: "English"; case .ru: "Русский"; case .ka: "ქართული" }
+    }
+
+    /// The short mark on the home's language tag, as on the privacy page's buttons: עב, EN, RU, KA.
+    public var code: String { self == .he ? "עב" : rawValue.uppercased() }
+
     /// Decision 47: no choice in the app means Hebrew for a phone in Hebrew and English for every other phone, Russian
     /// and Georgian too. `preferred` is the phone's list of languages (Locale.preferredLanguages); only the first counts.
     public static func auto(_ preferred: [String]) -> Lang {

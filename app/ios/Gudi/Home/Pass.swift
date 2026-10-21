@@ -149,7 +149,7 @@ struct EmptyPass: View {
                 Button(action: onWhen) {
                     HStack(spacing: 10) {
                         Image(systemName: "calendar").font(.system(size: 20)).foregroundStyle(c.blue)
-                        Text(S.tripWhenFly).font(ski.type.display(30)).foregroundStyle(c.blue).lineLimit(1).minimumScaleFactor(0.7)
+                        Text(S.tripWhenFly).font(ski.type.display(30)).foregroundStyle(c.blue).lineLimit(1).minimumScaleFactor(0.55)
                     }
                     .padding(.horizontal, 18).frame(minHeight: 52)
                     .background(c.blue.opacity(0.08))

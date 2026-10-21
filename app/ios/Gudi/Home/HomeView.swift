@@ -13,8 +13,11 @@ struct HomeView: View {
     let mode: DayNight.Mode
     let status: LiftStatus?
     let onMode: () -> Void
+    /// A language picked on the home's tag, or nil for the phone's (decision 47).
+    let onLang: (Lang?) -> Void
     let go: (HomeAction) -> Void
     @Environment(\.ski) private var ski
+    @State private var langs = false
 
     var body: some View {
         let c = ski.colors
@@ -23,7 +26,7 @@ struct HomeView: View {
                 ZStack(alignment: .top) {
                     Hero(frame: frame, height: 250 + g.safeAreaInsets.top)
                     VStack(alignment: .leading, spacing: 0) {
-                        HomeHead(frame: frame, mode: mode, onMode: onMode) { go(.about) }
+                        HomeHead(frame: frame, mode: mode, onMode: onMode, onLang: { langs = true }) { go(.about) }
                         PhaseChip(frame: frame)
                         Spacer().frame(height: 32)
                         EmptyPass { go(.trip) }.padding(.horizontal, 16)
@@ -52,6 +55,11 @@ struct HomeView: View {
             .ignoresSafeArea(edges: .top)
             .background(c.snow)
         }
+        .sheet(isPresented: $langs) {
+            LangSheet { l in langs = false; onLang(l) }
+                .environment(\.ski, ski)
+                .presentationDetents([.medium, .large])
+        }
     }
 }
 
@@ -60,6 +68,7 @@ struct HomeHead: View {
     let frame: DayNight.Frame
     let mode: DayNight.Mode
     let onMode: () -> Void
+    let onLang: () -> Void
     let onAbout: () -> Void
     @Environment(\.ski) private var ski
 
@@ -76,6 +85,7 @@ struct HomeHead: View {
                     .environment(\.layoutDirection, .leftToRight)
             }
             .padding(.trailing, 6)
+            LangTag(action: onLang)
             DayNightButton(mode: mode, action: onMode)
             Button(action: onAbout) {
                 Image(systemName: "gearshape").font(.system(size: 20)).foregroundStyle(c.ink).frame(width: 44, height: 44)
