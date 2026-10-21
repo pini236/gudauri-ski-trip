@@ -19,6 +19,22 @@ struct SkiColors {
     var onBoard: Color { Color(rgb: p.onBoard) }
     var accent: Color { Color(rgb: p.accent) }
     var dash: Color { Color(rgb: p.dash) }
+    var black: Color { Color(rgb: p.black) }
+    var lift: Color { Color(rgb: p.lift) }
+    var casing: Color { Color(rgb: p.casing) }
+    var peak: Color { Color(rgb: p.peak) }
+    var grid: Color { Color(rgb: p.grid) }
+    var water: Color { Color(rgb: p.water) }
+    var waterEdge: Color { Color(rgb: p.waterEdge) }
+    var road: Color { Color(rgb: p.road) }
+    var roadMain: Color { Color(rgb: p.roadMain) }
+    var contour: Color { Color(rgb: p.contour) }
+    var contourI: Color { Color(rgb: p.contourI) }
+    var village: Color { Color(rgb: p.village) }
+    /// A run's colour by its name in the data (green, blue, red, black); black for anything else.
+    func run(_ c: String) -> Color {
+        switch c { case "green": green; case "blue": blue; case "red": red; default: black }
+    }
     // the boarding pass's own print (--bp-*)
     var bpPaper: Color { Color(rgb: p.bpPaper) }
     var bpPaper2: Color { Color(rgb: p.bpPaper2) }
