@@ -43,6 +43,18 @@ private struct MapContent: View {
     @State private var forMe = false
     @State private var changes: [(String, Bool)] = []
     @State private var detent: PresentationDetent = .height(250)
+    // the 3D map (Map3D/): its controls, whether it flies down a run, and the light of the app's day and night
+    @State private var map3d: Map3DController?
+    @State private var flying = false
+    @State private var now = Date()
+    @AppStorage("dayNight") private var dayNightRaw = DayNight.Mode.auto.rawValue
+
+    /// 3D when chosen and this phone has Metal; else the map from above, without the switch (as the site without three.js).
+    private var threeD: Bool { model.mode == "3d" && Map3DView.available }
+    private var lightTime: Date {
+        let ms = Int64(now.timeIntervalSince1970 * 1000)
+        return Date(timeIntervalSince1970: Double(DayNight.lightTime(ms, DayNight.Mode(rawValue: dayNightRaw) ?? .auto)) / 1000)
+    }
 
     private var panel: Binding<Panel?> {
         Binding {
@@ -67,9 +79,16 @@ private struct MapContent: View {
     var body: some View {
         GeometryReader { g in
             ZStack(alignment: .top) {
-                OverviewMap(model: model, cam: $cam, status: app.status, forMe: forMe) { frameKobi() }
-                    .ignoresSafeArea(edges: .bottom)
-                controls
+                if threeD {
+                    Map3DView(model: model, status: app.status, forMe: forMe, lightTime: lightTime, bottom: covered,
+                              controller: $map3d, onRun: { model.select($0); Fx.shared.tick() },
+                              onLift: { model.showLift($0); Fx.shared.tick() }, onFlying: { flying = $0 })
+                        .ignoresSafeArea(edges: .bottom)
+                } else {
+                    OverviewMap(model: model, cam: $cam, status: app.status, forMe: forMe) { frameKobi() }
+                        .ignoresSafeArea(edges: .bottom)
+                }
+                if !flying { controls }
                 StatusBar(s: app.status) { app.statusSheet = true }
                     .padding(.horizontal, 16).padding(.top, 56)
             }
@@ -115,6 +134,10 @@ private struct MapContent: View {
             else if app.status.fresh { StatusSource.seen(app.status.snapshot()) }
         }
         .onAppear { if app.statusSheet { detent = .large; changes = app.status.changes(StatusSource.before()) } }
+        .task {
+            // the light follows the clock in Gudauri (auto)
+            while !Task.isCancelled { try? await Task.sleep(for: .seconds(60)); now = Date() }
+        }
     }
 
     @ViewBuilder private func sheet(_ p: Panel) -> some View {
@@ -123,8 +146,9 @@ private struct MapContent: View {
                 switch p {
                 case .run:
                     if let r = model.selected {
-                        RunHead(p: r, model: model, flying: false, canFly: false, onFly: {}, onStop: {})
-                        RunBody(p: r, model: model)
+                        RunHead(p: r, model: model, flying: flying, canFly: threeD,
+                                onFly: { map3d?.flyDown() }, onStop: { map3d?.stopFly() })
+                        RunBody(p: r, model: model, flyAt: { map3d?.flyInfo()?.d })
                     }
                 case .lift:
                     if let l = model.lift { LiftHead(l: l); LiftBody(l: l, model: model) }
@@ -147,6 +171,65 @@ private struct MapContent: View {
     private var controls: some View {
         HStack(alignment: .top) {
             VStack(alignment: .leading, spacing: 8) {
+                if Map3DView.available { viewSwitch }
+                if !threeD { kobiKey; scale }
+            }
+            Spacer()
+            VStack(spacing: 6) {
+                if threeD {
+                    compass
+                } else {
+                    key("plus", S.mapZoomIn) { zoom(1.5) }
+                    key("minus", S.mapZoomOut) { zoom(1 / 1.5) }
+                    key("arrow.up.left.and.arrow.down.right", S.mapZoomFit) { fitMain(animated: true) }
+                }
+            }
+            .padding(.top, 56)
+        }
+        .padding(.horizontal, 12).padding(.top, 104)
+    }
+
+    /// The view switch (A-30), as the site's and Android's: 3D, from above.
+    private var viewSwitch: some View {
+        HStack(spacing: 0) {
+            ForEach([("3d", S.mapView3d), ("2d", S.mapViewTop)], id: \.0) { item in
+                let m = item.0, label = item.1
+                let on = (m == "2d") != threeD
+                Button {
+                    guard model.mode != m else { return }
+                    model.mode = m; Fx.shared.tick()
+                    if m == "2d" { fitMain() }
+                } label: {
+                    Text(label).font(ski.type.text(14, .bold)).foregroundStyle(on ? ski.colors.paper : ski.colors.ink)
+                        .padding(.horizontal, 14).frame(minHeight: 44)
+                        .background(on ? ski.colors.ink : .clear, in: RoundedRectangle(cornerRadius: 4))
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel(label).accessibilityAddTraits(on ? .isSelected : [])
+            }
+        }
+        .background(ski.colors.paper.opacity(0.94), in: RoundedRectangle(cornerRadius: 4))
+        .overlay(RoundedRectangle(cornerRadius: 4).stroke(ski.colors.rule, lineWidth: 1))
+        .accessibilityElement(children: .contain).accessibilityLabel(S.mapViewType)
+    }
+
+    /// The site's compass: red to the north, ink to the south; turns the camera back to look north.
+    private var compass: some View {
+        Button { map3d?.north(); Fx.shared.tick() } label: {
+            Canvas { c, s in
+                let w = s.width, h = s.height
+                var n = Path(); n.move(to: CGPoint(x: w / 2, y: h * 0.1)); n.addLine(to: CGPoint(x: w * 0.7, y: h / 2)); n.addLine(to: CGPoint(x: w * 0.3, y: h / 2)); n.closeSubpath()
+                var so = Path(); so.move(to: CGPoint(x: w / 2, y: h * 0.9)); so.addLine(to: CGPoint(x: w * 0.7, y: h / 2)); so.addLine(to: CGPoint(x: w * 0.3, y: h / 2)); so.closeSubpath()
+                c.fill(n, with: .color(ski.colors.red)); c.fill(so, with: .color(ski.colors.ink))
+            }
+            .frame(width: 20, height: 20)
+            .frame(width: 44, height: 44).background(ski.colors.paper.opacity(0.94), in: RoundedRectangle(cornerRadius: 4))
+            .overlay(RoundedRectangle(cornerRadius: 4).stroke(ski.colors.rule, lineWidth: 1))
+        }
+        .buttonStyle(.plain).accessibilityLabel(S.mapCompass)
+    }
+
+    private var kobiKey: some View {
                 Button { frameKobi() } label: {
                     HStack(spacing: 6) {
                         Rectangle().fill(ski.colors.blue).frame(width: 12, height: 12)
@@ -156,17 +239,6 @@ private struct MapContent: View {
                     .overlay(RoundedRectangle(cornerRadius: 4).stroke(ski.colors.rule, lineWidth: 1))
                 }
                 .buttonStyle(.plain).accessibilityLabel(S.mapKobiSideAria)
-                scale
-            }
-            Spacer()
-            VStack(spacing: 6) {
-                key("plus", S.mapZoomIn) { zoom(1.5) }
-                key("minus", S.mapZoomOut) { zoom(1 / 1.5) }
-                key("arrow.up.left.and.arrow.down.right", S.mapZoomFit) { fitMain(animated: true) }
-            }
-            .padding(.top, 56)
-        }
-        .padding(.horizontal, 12).padding(.top, 104)
     }
 
     private func key(_ icon: String, _ label: String, _ action: @escaping () -> Void) -> some View {
