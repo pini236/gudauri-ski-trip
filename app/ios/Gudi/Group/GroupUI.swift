@@ -384,6 +384,8 @@ struct GSheet<Content: View>: View {
         .background(ski.colors.paper)
         .presentationDragIndicator(.visible)
         .presentationBackground(ski.colors.paper)
+        // a sheet is a new hierarchy: the language's direction again
+        .environment(\.layoutDirection, ski.type.lang.rtl ? .rightToLeft : .leftToRight)
     }
 }
 
