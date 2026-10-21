@@ -40,6 +40,9 @@ final class AppModel {
     let terrainURL: URL?
     var status: LiftStatus
     var path: [Route] = []
+    /// The lift the trail map should frame and open when it next opens ("see on the trail map" from the meeting point);
+    /// the map clears it once read.
+    var mapLift: String?
 
     /// The user's own trip, as JSON in Android's format, in UserDefaults.
     var trip: Trip? {
