@@ -87,7 +87,7 @@ jobs:
             CURRENT_PROJECT_VERSION=${{ github.run_number }} CODE_SIGNING_ALLOWED=NO build | tail -40
           test "${PIPESTATUS[0]}" -eq 0
       - name: Run in a simulator and take a screenshot
-        timeout-minutes: 15
+        timeout-minutes: 30
         run: |
           set -x
           UDID=$(cat "$RUNNER_TEMP/udid")
@@ -96,13 +96,12 @@ jobs:
           APP=$(ls -d "$RUNNER_TEMP"/dd/Build/Products/Debug-iphonesimulator/Gudi.app)
           xcrun simctl install "$UDID" "$APP"
           mkdir -p shots
-          # the home page in each language, by day and by night (launch arguments land in UserDefaults)
-          # and with a made-up trip (-qaTrip), the boarding pass
-          for shot in "he day 0" "he night 0" "en day 0" "ru day 0" "ka night 0" "he day 1" "en night 1"; do
-            set -- $shot
-            xcrun simctl launch --terminate-running-process "$UDID" io.github.pini236.skiapp -lang "$1" -dayNight "$2" -qaTrip "$3"
+          # every part's screenshots (app/ios/qa/shots/*.txt): language, day or night, a made-up trip, a screen to open
+          cat app/ios/qa/shots/*.txt | grep -v '^#' | grep -v '^ *$' | while read -r name lang dn trip route; do
+            xcrun simctl launch --terminate-running-process "$UDID" io.github.pini236.skiapp \
+              -lang "$lang" -dayNight "$dn" -qaTrip "$trip" -qaRoute "$route" < /dev/null
             sleep 6
-            xcrun simctl io "$UDID" screenshot "shots/home-$1-$2$([ "$3" = 1 ] && echo -trip).png"
+            xcrun simctl io "$UDID" screenshot "shots/$name.png" < /dev/null
           done
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:

@@ -1,0 +1,10 @@
+# The screenshots of each run on GitHub (.github/workflows/ios.yml): one per line,
+#   <name> <lang> <day|night|auto> <qaTrip 0|1> <route|->
+# route is what the app opens at start (AppModel.qaRoute): map, map:<run>, meet, games, game:<id>, group, about, trip
+home-he-day he day 0 -
+home-he-night he night 0 -
+home-en-day en day 0 -
+home-ru-day ru day 0 -
+home-ka-night ka night 0 -
+home-he-day-trip he day 1 -
+home-en-night-trip en night 1 -

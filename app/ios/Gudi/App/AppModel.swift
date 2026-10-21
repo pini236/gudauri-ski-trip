@@ -11,6 +11,22 @@ enum Route: Hashable {
     case group
     case about
     case trip
+
+    /// "map", "map:Tatra 2", "meet", "games", "game:merge", "group", "about", "trip" (the screenshots' launch argument).
+    init?(qa: String) {
+        let parts = qa.split(separator: ":", maxSplits: 1).map(String.init)
+        let arg = parts.count > 1 ? parts[1] : nil
+        switch parts.first {
+        case "map": self = .map(run: arg)
+        case "meet": self = .meet(station: arg)
+        case "games": self = .games
+        case "game": guard let arg else { return nil }; self = .game(arg)
+        case "group": self = .group
+        case "about": self = .about
+        case "trip": self = .trip
+        default: return nil
+        }
+    }
 }
 
 /// What the whole app shares (the site's data, the user's trip, the lift status), kept by the root and read by screens
@@ -37,6 +53,8 @@ final class AppModel {
         status = LiftStatus(names: names, report: nil, now: Int64(Date().timeIntervalSince1970 * 1000))
         // the screenshots on GitHub only (a launch argument): a made-up trip, never the crew's flight
         trip = UserDefaults.standard.string(forKey: "qaTrip") == "1" ? Self.sample : Trip.from(json: UserDefaults.standard.data(forKey: "trip"))
+        // and the screen to open at start, for the screenshots (app/ios/qa/shots)
+        if let r = UserDefaults.standard.string(forKey: "qaRoute").flatMap(Route.init(qa:)) { path = [r] }
     }
 
     /// A made-up trip for the screenshots (invented flight numbers, as Android's QA).
