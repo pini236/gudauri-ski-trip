@@ -26,7 +26,9 @@ private final class SchoolModel {
     var kmh = 0
     var over = false
     var wedgePct = 15
-    var skiL = false, skiR = false, wedgeOn = false
+    var skiL = false
+    var skiR = false
+    var wedgeOn = false
     @ObservationIgnored var hiss: Synth.Hiss?
 
     init(still: Bool, lang: Lang) {
