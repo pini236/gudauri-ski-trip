@@ -22,6 +22,9 @@ struct MapScreen: View {
             guard model == nil, let runs = app.runs else { return }
             let m = MapModel(runs: runs, terrainURL: app.terrainURL)
             if let run { m.select(run) }
+            // "see on the trail map" from the meeting point: frame and open that lift, once
+            if let name = app.mapLift, let l = runs.lifts.first(where: { $0.name == name }) { m.showLift(l) }
+            app.mapLift = nil
             model = m
         }
     }
