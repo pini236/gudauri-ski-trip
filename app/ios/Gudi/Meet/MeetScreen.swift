@@ -466,7 +466,8 @@ private struct MeetCard: View {
                 HStack {
                     Text(S.meetCard).font(ski.type.display(24)).foregroundStyle(.white)
                     Spacer()
-                    Text(S.meetCardSub).font(ski.type.text(12)).foregroundStyle(MeetInk.fog)
+                    // clear of the X that sits on the card's corner
+                    Text(S.meetCardSub).font(ski.type.text(12)).foregroundStyle(MeetInk.fog).padding(.trailing, 30)
                 }
                 .padding(.horizontal, 16).padding(.vertical, 10).background(MeetInk.navy)
                 // round 20: only the station and the time, the day over the time
