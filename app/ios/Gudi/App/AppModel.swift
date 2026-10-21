@@ -15,7 +15,8 @@ enum Route: Hashable {
     /// "map", "map:Tatra 2", "meet", "games", "game:merge", "group", "about", "trip" (the screenshots' launch argument).
     init?(qa: String) {
         let parts = qa.split(separator: ":", maxSplits: 1).map(String.init)
-        let arg = parts.count > 1 ? parts[1] : nil
+        // "_" for a space, as the screenshot list splits on spaces ("map:Tatra_2")
+        let arg = parts.count > 1 ? parts[1].replacingOccurrences(of: "_", with: " ") : nil
         switch parts.first {
         case "map": self = .map(run: arg)
         case "meet": self = .meet(station: arg)
