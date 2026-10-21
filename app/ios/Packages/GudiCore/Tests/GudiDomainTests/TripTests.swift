@@ -93,3 +93,12 @@ final class TripTests: XCTestCase {
         for z in stride(from: -800, through: 30_000, by: 37) { XCTAssertEqual(Day(epochDay: z).epochDay, z) }
     }
 }
+
+final class PassTextTests: XCTestCase {
+    func testDatesAsTheSiteWritesThem() {
+        XCTAssertEqual(shortDate(Day(2027, 1, 10)!), "10.1")
+        XCTAssertEqual(dayRange(Day(2027, 1, 11)!...Day(2027, 1, 14)!), "11–14.1")
+        XCTAssertEqual(dayRange(Day(2026, 12, 30)!...Day(2027, 1, 2)!), "30.12–2.1")
+        XCTAssertEqual(dayRange(Day(2027, 1, 11)!...Day(2027, 1, 11)!), "11.1")
+    }
+}

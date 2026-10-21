@@ -1,3 +1,5 @@
+import Foundation
+
 /// A calendar day and a clock time with no time zone, like Kotlin's LocalDate and LocalTime on Android. The trip's
 /// rules (docs/PARITY.md, A-1, A-2) count in the phone's own days, so plain numbers keep them identical on every
 /// platform, without Calendar or Foundation differences between iOS and Linux.
@@ -91,3 +93,21 @@ public struct LocalMoment: Sendable {
 }
 
 func pad2(_ n: Int) -> String { n < 10 ? "0\(n)" : "\(n)" }
+
+/// "10.1", as the site writes short dates.
+public func shortDate(_ d: Day) -> String { "\(d.day).\(d.month)" }
+
+/// "11–14.1", or "30.12–2.1" across a month, or "11.1" for one day (Android's home/Pass.kt dayRange).
+public func dayRange(_ r: ClosedRange<Day>) -> String {
+    if r.lowerBound == r.upperBound { return shortDate(r.lowerBound) }
+    if r.lowerBound.month == r.upperBound.month { return "\(r.lowerBound.day)–\(shortDate(r.upperBound))" }
+    return "\(shortDate(r.lowerBound))–\(shortDate(r.upperBound))"
+}
+
+extension LocalMoment {
+    /// Now on the phone's own clock, as Android's LocalDateTime.now() for the trip's countdown.
+    public static func now(_ date: Date = Date(), calendar: Calendar = .current) -> LocalMoment {
+        let c = calendar.dateComponents([.year, .month, .day, .hour, .minute, .second], from: date)
+        return LocalMoment(Day(c.year!, c.month!, c.day!)!, c.hour!, c.minute!, c.second!)
+    }
+}

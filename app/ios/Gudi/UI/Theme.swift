@@ -19,6 +19,14 @@ struct SkiColors {
     var onBoard: Color { Color(rgb: p.onBoard) }
     var accent: Color { Color(rgb: p.accent) }
     var dash: Color { Color(rgb: p.dash) }
+    // the boarding pass's own print (--bp-*)
+    var bpPaper: Color { Color(rgb: p.bpPaper) }
+    var bpPaper2: Color { Color(rgb: p.bpPaper2) }
+    var bpInk: Color { Color(rgb: p.bpInk) }
+    var bpMuted: Color { Color(rgb: p.bpMuted) }
+    var bpStrip: Color { Color(rgb: p.bpStrip) }
+    var bpOnStrip: Color { Color(rgb: p.bpOnStrip) }
+    var bpAccent: Color { Color(rgb: p.bpAccent) }
 }
 
 /// Fonts per language, as approved in the canvas (FT1, decision 36) and as Android's i18n/Lang.kt: Hebrew and English

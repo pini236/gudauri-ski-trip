@@ -97,11 +97,12 @@ jobs:
           xcrun simctl install "$UDID" "$APP"
           mkdir -p shots
           # the home page in each language, by day and by night (launch arguments land in UserDefaults)
-          for shot in "he day" "he night" "en day" "ru day" "ka night"; do
+          # and with a made-up trip (-qaTrip), the boarding pass
+          for shot in "he day 0" "he night 0" "en day 0" "ru day 0" "ka night 0" "he day 1" "en night 1"; do
             set -- $shot
-            xcrun simctl launch --terminate-running-process "$UDID" io.github.pini236.skiapp -lang "$1" -dayNight "$2"
+            xcrun simctl launch --terminate-running-process "$UDID" io.github.pini236.skiapp -lang "$1" -dayNight "$2" -qaTrip "$3"
             sleep 6
-            xcrun simctl io "$UDID" screenshot "shots/home-$1-$2.png"
+            xcrun simctl io "$UDID" screenshot "shots/home-$1-$2$([ "$3" = 1 ] && echo -trip).png"
           done
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:

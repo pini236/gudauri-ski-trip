@@ -11,6 +11,9 @@ enum HomeAction { case map, meet, games, group, about, trip, status, privacy }
 struct HomeView: View {
     let frame: DayNight.Frame
     let mode: DayNight.Mode
+    /// The user's own trip, kept only on the phone (decision 27); nil: the empty pass.
+    let trip: Trip?
+    let now: LocalMoment
     let status: LiftStatus?
     let onMode: () -> Void
     /// A language picked on the home's tag, or nil for the phone's (decision 47).
@@ -28,11 +31,18 @@ struct HomeView: View {
                     VStack(alignment: .leading, spacing: 0) {
                         HomeHead(frame: frame, mode: mode, onMode: onMode, onLang: { langs = true }) { go(.about) }
                         PhaseChip(frame: frame)
-                        Spacer().frame(height: 32)
-                        EmptyPass { go(.trip) }.padding(.horizontal, 16)
-                        Spacer().frame(height: 40)
-                        SeasonBoard(status: status) { go(.status) }.padding(.horizontal, 16)
-                        Spacer().frame(height: 30)
+                        if let trip {
+                            // with a return pass, its top shows above the outbound one, over the mountains
+                            Spacer().frame(height: trip.ret != nil ? 0 : 30)
+                            TripPass(trip: trip, now: now) { go(.trip) }.padding(.horizontal, 16)
+                            Spacer().frame(height: 38)
+                        } else {
+                            Spacer().frame(height: 32)
+                            EmptyPass { go(.trip) }.padding(.horizontal, 16)
+                            Spacer().frame(height: 40)
+                            SeasonBoard(status: status) { go(.status) }.padding(.horizontal, 16)
+                            Spacer().frame(height: 30)
+                        }
                         // round 20: the signs without a line under them
                         SignPost(signs: [
                             SignSpec(title: S.navMap, sub: nil, color: c.blue, fg: c.onBoard, width: 0.90) { go(.map) },

@@ -25,6 +25,10 @@ def main():
     panos = sorted((SITE / "img/pano").glob("*.webp"))
     for img in panos:
         shutil.copyfile(img, out / "pano" / img.name)
+    # the pass's recorded sounds (site/audio; the tear is CC BY, credited in about)
+    (out / "audio").mkdir(exist_ok=True)
+    for snd in sorted((SITE / "audio").glob("*.wav")):
+        shutil.copyfile(snd, out / "audio" / snd.name)
     print(f"copied {len(FILES)} files and {len(panos)} views to {out}")
 
 
