@@ -59,6 +59,9 @@
 
 **הצעדים באפליקציה:**
 
+**תנאי שנמצא בפועל (21.10.2026):** במק, הכפתור `Enroll Now` אפור עד שהמק מחובר ל-iCloud עם אותו Apple ID, בהגדרות המערכת (ההודעה: "Before enrolling, sign in to iCloud in Settings"). אם המק מחובר לחשבון אחר, או שלא רוצים לחבר אותו, נרשמים באתר.
+
+
 1. מתקינים את Apple Developer מה-App Store (באייפון) או מה-Mac App Store, ונכנסים עם ה-Apple ID.
 2. `Account`, ואז `Enroll Now`.
 3. בוחרים **Individual** (אדם פרטי), לא Organization.
