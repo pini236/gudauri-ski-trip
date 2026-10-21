@@ -1,0 +1,15 @@
+# About and settings, the licences, and the trip form (13.7, H2, round 20)
+about-he-day he day 0 about
+about-he-night he night 0 about
+about-en-day en day 0 about
+about-en-night en night 0 about
+about-ka-day ka day 0 about
+licenses-he he day 0 about:licenses
+licenses-en-night en night 0 about:licenses
+trip-calendar-he he day 0 trip
+trip-calendar-en-night en night 0 trip
+trip-form-empty-he he day 0 trip:form
+trip-form-empty-en en day 0 trip:form
+trip-form-filled-he he day 1 trip
+trip-form-filled-en-night en night 1 trip
+trip-form-filled-ru ru day 1 trip
