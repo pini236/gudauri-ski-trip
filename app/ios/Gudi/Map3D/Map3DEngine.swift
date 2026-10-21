@@ -51,7 +51,9 @@ final class Map3DEngine: NSObject {
     @ObservationIgnored private var light = Sky.at(Int64(Date().timeIntervalSince1970 * 1000))
     @ObservationIgnored private var lightMs: Int64 = 0
     @ObservationIgnored private var shadowMs: Int64?
-    @ObservationIgnored private var reveal = 1.0, dim = 0.0, dimTarget = 0.0
+    @ObservationIgnored private var reveal = 1.0
+    @ObservationIgnored private var dim = 0.0
+    @ObservationIgnored private var dimTarget = 0.0
     @ObservationIgnored private var hasSelection = false
     /// The line the camera frames (the chosen run, a lift), and the free part of the screen above the panel.
     @ObservationIgnored private var framed: [P3]?
