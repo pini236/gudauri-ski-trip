@@ -42,6 +42,11 @@ public struct Piste: Decodable, Sendable, Identifiable {
         }
     }
 
+    /// Its lines (not the areas) in projected metres, [x, y] pairs as Geo projects them, for drawing.
+    public var lines: [[(x: Double, y: Double)]] {
+        segs.filter { !$0.area && $0.g.count >= 2 }.map { $0.g.map { (Geo.x($0[1]), Geo.y($0[0])) } }
+    }
+
     /// The mean latitude of all its points, areas too (the site's meanLat, for the Kobi side).
     public var lat: Double { meanLat(segs.map(\.g)) }
 
@@ -80,6 +85,9 @@ public struct Lift: Decodable, Sendable, Identifiable {
     public let status: String?
 
     public var lat: Double { meanLat([g]) }
+
+    /// Its cable in projected metres, from its first point.
+    public var line: [(x: Double, y: Double)] { g.map { (Geo.x($0[1]), Geo.y($0[0])) } }
 
     enum CodingKeys: String, CodingKey { case id, name, kind, g, len, status }
 
