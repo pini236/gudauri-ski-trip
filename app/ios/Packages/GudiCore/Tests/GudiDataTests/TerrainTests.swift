@@ -26,3 +26,14 @@ enum Repo {
         .deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
         .deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
 }
+
+final class VideosTests: XCTestCase {
+    func testTheSitesVideosReadWithTheirYouTubeIds() throws {
+        let all = Video.parse(try Data(contentsOf: Repo.root.appendingPathComponent("site/data/videos-seed.json")))
+        XCTAssertFalse(all.isEmpty)
+        XCTAssertTrue(all.allSatisfy { $0.youtubeId != nil }, "every seed video is a YouTube link")
+        let v = Video(piste: "x", url: "https://youtu.be/abcdefghijk", title: "", channel: "", length: "", by: "", at: 0)
+        XCTAssertEqual(v.youtubeId, "abcdefghijk")
+        XCTAssertNil(Video(piste: "x", url: "https://vimeo.com/1", title: "", channel: "", length: "", by: "", at: 0).youtubeId)
+    }
+}
