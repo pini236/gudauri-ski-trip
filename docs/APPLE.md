@@ -296,7 +296,7 @@ base64 -i AuthKey_*.p8 | pbcopy                    # ASC_KEY_P8_BASE64
 | `ASC_KEY_ID` | ה-Key ID |
 | `ASC_ISSUER_ID` | ה-Issuer ID |
 
-**ה. ניקוי:** מצרפים את שלושת הקבצים לרשומות במנהל הסיסמאות, מעתיקים משהו אחר ללוח, ואז:
+**ה. ניקוי:** מצרפים את שלושת הקבצים לרשומות במנהל הסיסמאות, מעתיקים משהו אחר ללוח, מוחקים ב-`Keychain Access` את `Apple Distribution: Pinchas Zolberg` (עם המפתח שלה), מוציאים את ה-Apple ID מ-Xcode (`Settings`, `Accounts`, מינוס), ואז:
 
 ```
 cd ~ && rm -rf ~/ski-app-keys
