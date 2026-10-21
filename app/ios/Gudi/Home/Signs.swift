@@ -67,7 +67,7 @@ private struct Sign: View {
         let shape = SignShape(rtl: dir == .rightToLeft)
         Button(action: s.action) {
             VStack(alignment: .leading, spacing: 0) {
-                Text(s.title).font(ski.type.display(34)).foregroundStyle(s.fg).lineLimit(1)
+                Text(s.title).font(ski.type.display(34)).foregroundStyle(s.fg).lineLimit(1).minimumScaleFactor(0.7)
                 if let sub = s.sub, !sub.isEmpty {
                     Text(sub).font(ski.type.text(13)).foregroundStyle(s.fg.opacity(0.92))
                 }

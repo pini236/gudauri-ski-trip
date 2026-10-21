@@ -18,10 +18,10 @@ struct PassInk {
 /// stub is on the left, in English on the right (LT1).
 struct PassShape: Shape {
     let seamAtEnd: Bool
-    let rtl: Bool
     var r: CGFloat = PassSize.notch
     func path(in rect: CGRect) -> Path {
-        let end = !rtl == seamAtEnd
+        // a clip shape is mirrored with the layout in right-to-left languages, so the path is drawn left to right
+        let end = seamAtEnd
         let x = end ? rect.maxX : rect.minX
         var p = Path(rect)
         p.addEllipse(in: CGRect(x: x - r, y: rect.minY - r, width: 2 * r, height: 2 * r))
@@ -62,7 +62,7 @@ struct PassMain<Content: View>: View {
     @Environment(\.layoutDirection) private var dir
 
     var body: some View {
-        let shape = PassShape(seamAtEnd: true, rtl: dir == .rightToLeft)
+        let shape = PassShape(seamAtEnd: true)
         VStack(alignment: .leading, spacing: 0) {
             HStack {
                 Text(strip).font(ski.type.text(12, .bold)).kerning(0.5).foregroundStyle(p.onStrip).lineLimit(1)
@@ -89,7 +89,7 @@ struct PassStub<Content: View>: View {
     @Environment(\.layoutDirection) private var dir
 
     var body: some View {
-        let shape = PassShape(seamAtEnd: false, rtl: dir == .rightToLeft)
+        let shape = PassShape(seamAtEnd: false)
         VStack(spacing: 4) { content }
             .padding(.horizontal, 6).padding(.top, 12).padding(.bottom, 10)
             .frame(width: PassSize.stub)
@@ -137,7 +137,7 @@ struct EmptyPass: View {
                     }
                     Spacer()
                     Image(systemName: "airplane").font(.system(size: 22)).foregroundStyle(c.rule)
-                        .scaleEffect(x: ski.type.lang.rtl ? -1 : 1).frame(maxHeight: .infinity, alignment: .center)
+                        .flipsForRightToLeftLayoutDirection(true).frame(maxHeight: .infinity, alignment: .center)
                     Spacer()
                     VStack(alignment: .trailing, spacing: 2) {
                         PassLabel(text: S.ticketTo, p: p)
@@ -149,7 +149,7 @@ struct EmptyPass: View {
                 Button(action: onWhen) {
                     HStack(spacing: 10) {
                         Image(systemName: "calendar").font(.system(size: 20)).foregroundStyle(c.blue)
-                        Text(S.tripWhenFly).font(ski.type.display(30)).foregroundStyle(c.blue).lineLimit(1)
+                        Text(S.tripWhenFly).font(ski.type.display(30)).foregroundStyle(c.blue).lineLimit(1).minimumScaleFactor(0.7)
                     }
                     .padding(.horizontal, 18).frame(minHeight: 52)
                     .background(c.blue.opacity(0.08))

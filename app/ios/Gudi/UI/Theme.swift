@@ -1,4 +1,6 @@
 import SwiftUI
+import UIKit
+import CoreText
 import GudiDomain
 
 /// The site's tokens as SwiftUI colours, by day or by night (GudiDomain's `Palette`, tested against site/css/site.css).
@@ -32,9 +34,18 @@ struct SkiType {
         let s = size * displayScale
         switch lang {
         case .he, .en: return .custom("Karantina-Bold", fixedSize: s)
-        case .ru: return .custom("Oswald", fixedSize: s).weight(.semibold)
-        case .ka: return .custom("Noto Sans Georgian", fixedSize: s).weight(.heavy)
+        case .ru: return variable("Oswald-Regular", s, weight: 600)
+        // narrow (width 62.5%) and 800 for headings, as Android
+        case .ka: return variable("NotoSansGeorgian-Regular", s, weight: 800, width: 62.5)
         }
+    }
+
+    /// A variable font at an exact weight (and width), through its axes ('wght', 'wdth'), as Android's FontVariation.
+    private func variable(_ name: String, _ size: CGFloat, weight: CGFloat, width: CGFloat? = nil) -> Font {
+        var axes: [NSNumber: CGFloat] = [0x7767_6874: weight] // 'wght'
+        if let width { axes[0x7764_7468] = width } // 'wdth'
+        let d = UIFontDescriptor(fontAttributes: [.name: name, UIFontDescriptor.AttributeName(rawValue: kCTFontVariationAttribute as String): axes])
+        return Font(UIFont(descriptor: d, size: size))
     }
 
     func text(_ size: CGFloat, _ weight: Font.Weight = .regular) -> Font {
