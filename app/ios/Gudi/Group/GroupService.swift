@@ -26,7 +26,8 @@ final class GroupService {
     private init() {
         let d = UserDefaults.standard
         if let seed = d.string(forKey: "qa.group") {
-            api = FakeGroupAPI(seed: seed)
+            let l = Lang(rawValue: d.string(forKey: "lang") ?? "") ?? Lang.auto(Locale.preferredLanguages)
+            api = FakeGroupAPI(seed: seed, hebrew: l == .he)
             fake = true
             return
         }

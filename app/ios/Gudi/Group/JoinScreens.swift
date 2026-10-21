@@ -74,7 +74,7 @@ struct InvitedScreen: View {
             ZStack(alignment: .top) {
                 Hero(frame: frame, height: 260)
                 VStack(alignment: .leading, spacing: 12) {
-                    Spacer().frame(height: 130)
+                    Spacer().frame(height: 150)
                     GSnowCard(edge: c.blue, seed: 51) {
                         if let p = preview {
                             if p.status != .ok {

@@ -23,6 +23,8 @@ struct GSnowCard<Content: View>: View {
             .overlay(alignment: .top) { Rectangle().fill(edge).frame(height: 6) }
             .snow(seed: seed, kind: .pile, border: 6)
             .shadow(color: Color(rgb: 0x13233A, opacity: 0.1), radius: 6, y: 2)
+            // the pile rises above the card: room for it, so it never covers what is above
+            .padding(.top, 26)
     }
 }
 

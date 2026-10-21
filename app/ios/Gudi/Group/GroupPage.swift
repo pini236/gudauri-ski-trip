@@ -49,7 +49,7 @@ struct GroupPage: View {
                         Image(systemName: "plus").font(.system(size: 15, weight: .bold))
                         Text(S.appGInviteShort).font(ski.type.text(14, .bold))
                     }
-                    .foregroundStyle(c.glacier).padding(.horizontal, 12).frame(minHeight: 36).background(c.paper)
+                    .foregroundStyle(c.glacier).padding(.horizontal, 4)
                 }
                 .accessibilityLabel(S.appGInviteTitle)
             }
@@ -293,7 +293,7 @@ struct FlightsTab: View {
                         }
                         .padding(.top, 4)
                         if let m = rows.map { $0.1 }.first(where: { $0.enteredByAdmin != nil }) {
-                            GMuted(S.appGEnteredBy(admin: m.enteredByAdmin!, member: m.name), 12).padding(.top, 2)
+                            GMuted(S.appGEnteredBy(admin: "\u{2068}\(m.enteredByAdmin!)\u{2069}", member: "\u{2068}\(m.name)\u{2069}"), 12).padding(.top, 2)
                         }
                         // as on the site: on every outbound flight I am not on (the trip is copied whole, so not on a return)
                         if !key.ret, !rows.contains(where: { $0.1.me }), let tid = rows[0].1.tripId {
@@ -314,7 +314,7 @@ struct FlightsTab: View {
                     }
                 }
                 .fixedSize(horizontal: false, vertical: true)
-                .background(c.bpPaper, in: PassShape(seamAtEnd: true))
+                .background(c.bpPaper)
                 .shadow(color: Color(rgb: 0x13233A, opacity: 0.15), radius: 5, y: 2)
             }
             ForEach(g.members.filter { $0.trip == nil }) { m in
@@ -646,7 +646,7 @@ struct MembersTab: View {
                 Text(S.appGRequests).font(ski.type.text(13, .semibold)).foregroundStyle(c.muted)
                 ForEach(g.requests) { q in
                     GSnowCard(edge: gGold, seed: abs(q.id.hashValue % 97)) {
-                        Text(q.reclaim ? S.appGRequestReclaim(name: q.name) : S.appGRequestJoin(name: q.name)).font(ski.type.text(15.5, .bold)).foregroundStyle(c.ink)
+                        Text(q.reclaim ? S.appGRequestReclaim(name: "\u{2068}\(q.name)\u{2069}") : S.appGRequestJoin(name: "\u{2068}\(q.name)\u{2069}")).font(ski.type.text(15.5, .bold)).foregroundStyle(c.ink)
                         GMuted(q.reclaim ? S.appGRequestReclaimSub : S.appGRequestJoinSub, 12.5)
                         HStack(spacing: 8) {
                             GPrimary(text: S.groupApprove, icon: "checkmark") { r.run { try await api.decide(q.id, approve: true); await reload() } }

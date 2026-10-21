@@ -15,8 +15,12 @@ public final class FakeGroupAPI: GroupAPI {
     /// How long each call takes (0 in the tests).
     private let delay: UInt64
 
-    public init(seed: String, delayMs: UInt64 = 120) {
+    /// Made-up names in Hebrew or in English (the screenshots' language).
+    private let hebrew: Bool
+
+    public init(seed: String, hebrew: Bool = true, delayMs: UInt64 = 120) {
         delay = delayMs * 1_000_000
+        self.hebrew = hebrew
         self.seed(seed)
     }
 
@@ -44,7 +48,7 @@ public final class FakeGroupAPI: GroupAPI {
         groups = []; trips = [:]; mine = [:]; meNow = nil
         if kind == "none" { return }
         let admin = kind == "admin" || kind == "two"
-        let he = Strings.shared.lang == .he
+        let he = hebrew
         let names = he ? ["נועה כהן", "איתי לוי", "דנה מזרחי", "עומר פרץ", "תמר אברהם", "יואב שחר"]
                        : ["Noa Cohen", "Itai Levi", "Dana Mizrahi", "Omer Peretz", "Tamar Avraham", "Yoav Shahar"]
         let me = Me(userId: "me", registered: admin, name: admin ? names[0] : names[1], google: admin)
