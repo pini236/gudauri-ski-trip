@@ -15,7 +15,7 @@ struct GudiApp: App {
     }
 
     var body: some Scene {
-        WindowGroup { RootView(model: model) }
+        WindowGroup { RootView(model: model).task { await model.pollStatus() } }
     }
 }
 
@@ -46,7 +46,7 @@ struct RootView: View {
                     case .group: model.go(.group)
                     case .about: model.go(.about)
                     case .trip: model.go(.trip)
-                    case .status: model.go(.map())
+                    case .status: model.statusSheet = true; model.go(.map())
                     case .privacy: openURL(Site.privacy(lang))
                     }
                 }
