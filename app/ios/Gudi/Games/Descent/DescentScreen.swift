@@ -520,7 +520,7 @@ private struct DescentBanner: View {
         GeometryReader { geo in
             if let b = banner {
                 HStack(spacing: 8) {
-                    if let big = b.dog ? "🐕" : b.big { Text(big).font(ski.type.display(24)).foregroundStyle(Arcade.ink).lineLimit(1) }
+                    if let big: String = b.dog ? Optional("🐕") : b.big { Text(big).font(ski.type.display(24)).foregroundStyle(Arcade.ink).lineLimit(1) }
                     Text(b.text).font(ski.type.text(15, .bold)).foregroundStyle(Arcade.ink).fixedSize(horizontal: false, vertical: true)
                 }
                 .padding(.leading, 30).padding(.trailing, 14).padding(.vertical, 6)
@@ -550,14 +550,19 @@ private struct DescentPad: View {
     @State private var coaching = false
     @State private var pulse = false
 
-    var body: some View {
-        let pad = g.air ? 1 : g.holding && g.loading ? 2 : 0
-        let load = pad == 2 ? CGFloat(min(1, g.loadT / 0.32)) : 0
-        let (big, small): (String, String) = switch pad {
+    private static func words(_ pad: Int) -> (String, String) {
+        switch pad {
         case 1: (S.gameDescentCoachFlip, S.gameDescentCoachFlipHint)
         case 2: (S.gameDescentCoachRelease, S.gameDescentCoachReleaseHint)
         default: (S.gameDescentJump, S.gameDescentCoachJumpHint)
         }
+    }
+
+    var body: some View {
+        let pad = g.air ? 1 : g.holding && g.loading ? 2 : 0
+        let load = pad == 2 ? CGFloat(min(1, g.loadT / 0.32)) : 0
+        let words = Self.words(pad)
+        let big = words.0, small = words.1
         let down = m.pressed
         let fg = down ? Arcade.ink : Color.white
         VStack(spacing: 10) {
