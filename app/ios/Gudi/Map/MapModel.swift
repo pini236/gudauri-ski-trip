@@ -9,6 +9,8 @@ import GudiDomain
 final class MapModel {
     let runs: RunsAndLifts
     var terrain: Terrain?
+    /// The shaded relief, contours, village, roads and water under the top view (UI/Relief2D, shared with the meeting point).
+    var art: ReliefArt?
     var videos: [Video] = []
     /// The named runs in the sign's order (colour, then name).
     let order: [String]
@@ -38,6 +40,10 @@ final class MapModel {
             Task.detached(priority: .userInitiated) {
                 let t = (try? Data(contentsOf: terrainURL)).flatMap { try? Terrain.parse($0) }
                 await MainActor.run { [weak self] in self?.terrain = t; self?.selectionChanged() }
+            }
+            Task { [weak self] in
+                let a = await ReliefArt.load(url: terrainURL)
+                self?.art = a
             }
         }
     }

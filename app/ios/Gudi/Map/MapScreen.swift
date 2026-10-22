@@ -142,6 +142,13 @@ private struct MapContent: View {
         .onChange(of: model.lift?.id) { _, id in if id != nil { detent = .medium; frameLift() } }
         .onChange(of: model.list) { _, on in if on { detent = .medium } }
         .onChange(of: weatherSheet) { _, on in if on { detent = .medium } }
+        // the screenshots' weather layer (qa flag weather=...): on, and its list when no run is open
+        .onAppear {
+            if UserDefaults.standard.string(forKey: "qa.weather") != nil, !weatherOn {
+                weatherOn = true
+                weatherSheet = model.selected == nil
+            }
+        }
         .onChange(of: where_?.asking) { _, on in if on == true { detent = .medium } }
         .onChange(of: model.terrain != nil, initial: true) { _, has in
             if has, where_ == nil, let t = model.terrain { where_ = WhereAmI(runs: model.runs, terrain: t) }
