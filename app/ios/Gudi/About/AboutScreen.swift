@@ -31,7 +31,7 @@ struct AboutScreen: View {
     @Environment(\.openURL) private var openURL
     @AppStorage("sound") private var sound = true
     @AppStorage("haptics") private var haptics = true
-    @State private var analytics = Telemetry.enabled
+    @State private var analytics = true
     @State private var langs = false
     @State private var armed = false
     @State private var done = false
@@ -120,6 +120,7 @@ struct AboutScreen: View {
             armed = false
         }
         .onAppear {
+            analytics = Telemetry.enabled
             // the screenshots open the licences page through the about page ("about:licenses")
             if UserDefaults.standard.string(forKey: "qaRoute") == "about:licenses" {
                 Task { try? await Task.sleep(for: .seconds(1.2)); licenses = true }
