@@ -116,6 +116,12 @@ extension Route {
         case .games: "games"
         case .game: "game"
         case .group: "group"
+        case .groups(let g):
+            switch g {
+            case .join, .code, .reclaim: "join"
+            case .account: "account"
+            case .page, .new, .invite: "group"
+            }
         case .about: "about"
         case .trip: "trip"
         }
