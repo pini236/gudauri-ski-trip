@@ -19,6 +19,8 @@ struct TripPass: View {
     @State private var tear: CGFloat = 0 // 0..1 down the perforation
     @State private var fall: CGFloat = 0 // then it falls
     @State private var busy = false
+    /// The field of the pass being edited (round 20).
+    @State private var edit: PassEdit?
 
     /// How far the card behind shows above the one in front (its strip).
     static let peek: CGFloat = 46
@@ -73,6 +75,7 @@ struct TripPass: View {
                 .buttonStyle(.plain)
             }
         }
+        .sheet(item: $edit) { PassEditor(edit: $0) }
     }
 
     // the site's shuffle: the front card slides down and out, the one behind comes forward, and they settle swapped
@@ -128,6 +131,7 @@ struct TripPass: View {
                         PassCode(code: leg.fromCode ?? leg.fromCity, color: p.ink, size: 48)
                         Text(leg.fromCity).font(ski.type.text(12.5, .semibold)).foregroundStyle(p.ink).lineLimit(1)
                     }
+                    .editing(front) { edit = .place(from: true) }
                     Spacer()
                     Image(systemName: "airplane").font(.system(size: 22)).foregroundStyle(p.acc)
                         .flipsForRightToLeftLayoutDirection(true).frame(maxHeight: .infinity)
@@ -137,18 +141,25 @@ struct TripPass: View {
                         PassCode(code: leg.toCode ?? leg.toCity, color: p.ink, size: 48)
                         Text(leg.toCity).font(ski.type.text(12.5, .semibold)).foregroundStyle(p.ink).lineLimit(1)
                     }
+                    .editing(front) { edit = .place(from: false) }
                 }
                 .fixedSize(horizontal: false, vertical: true)
                 grid(p) {
-                    cell(S.ticketFlight, p) { value(leg.flight.isEmpty ? "—" : leg.flight, p) }
-                    cell(S.ticketDeparts, p) { value(leg.departs?.text ?? "—", p) }
-                    cell(S.ticketArrives, p) { value(leg.arrives?.text ?? "—", p) }
+                    // round 20: the pass is the form; each field opens its own sheet (Trip/PassEditor), front card only
+                    cell(S.ticketFlight, p) { value(leg.flight.isEmpty ? S.tripAddNumber : leg.flight, p, add: leg.flight.isEmpty) }
+                        .editing(front) { edit = .flight(ret: isRet) }
+                    cell(S.ticketDeparts, p) { value(leg.departs?.text ?? S.tripAddTime, p, add: leg.departs == nil) }
+                        .editing(front) { edit = .time(ret: isRet, departs: true) }
+                    cell(S.ticketArrives, p) { value(leg.arrives?.text ?? S.tripAddTime, p, add: leg.arrives == nil) }
+                        .editing(front) { edit = .time(ret: isRet, departs: false) }
                 }
                 grid(p) {
                     cell(S.appPassTraveller, p) { value(S.appPassMe, p) }
                     cell(S.ticketSkiDays, p) { value(trip.skiDays().map(dayRange) ?? "—", p) }
+                        .editing(front) { edit = .dates }
                     let other = isRet ? trip.out : trip.ret
                     cell(isRet ? S.appPassOut : S.appPassRet, p) { value(other.map { shortDate($0.date) } ?? "—", p) }
+                        .editing(front) { edit = .dates }
                 }
             }
             ZStack {
@@ -220,8 +231,8 @@ struct TripPass: View {
             .frame(maxWidth: .infinity, alignment: .leading)
     }
 
-    private func value(_ t: String, _ p: PassInk) -> some View {
-        Text(t).font(ski.type.text(14, .bold)).foregroundStyle(p.ink).lineLimit(2)
+    private func value(_ t: String, _ p: PassInk, add: Bool = false) -> some View {
+        Text(t).font(ski.type.text(14, .bold)).foregroundStyle(add ? p.acc : p.ink).lineLimit(2)
             .shadow(color: p.dark ? Color(rgb: 0xFFC85A, opacity: 0.65) : .clear, radius: p.dark ? 7 : 0)
     }
 }
@@ -242,5 +253,13 @@ struct Ridge: View {
         .frame(width: 80, height: 28)
         .environment(\.layoutDirection, .leftToRight)
         .accessibilityHidden(true)
+    }
+}
+
+
+private extension View {
+    /// A field of the front pass that opens its editor (round 20, "the card is the form").
+    @ViewBuilder func editing(_ on: Bool, _ open: @escaping () -> Void) -> some View {
+        if on { contentShape(Rectangle()).onTapGesture { Fx.shared.tick(); open() }.accessibilityAddTraits(.isButton) } else { self }
     }
 }

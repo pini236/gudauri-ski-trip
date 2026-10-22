@@ -80,7 +80,7 @@ struct RootView: View {
                         case .game(let id): GameScreen(id: id)
                         case .group: GroupScreen()
                         case .about: AboutScreen(mode: mode, onMode: { modeRaw = mode.next.rawValue; Telemetry.shared.event("theme_set", ["mode": mode.next.rawValue]) },
-                                                 onLang: { setLang($0, lang) })
+                                                 onLang: { setLang($0, lang) }, onResetBests: { Bests.reset() })
                         case .trip: TripFormScreen()
                         }
                     }
