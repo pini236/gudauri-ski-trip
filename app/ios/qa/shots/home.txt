@@ -8,3 +8,5 @@ home-ru-day ru day 0 -
 home-ka-night ka night 0 -
 home-he-day-trip he day 1 -
 home-en-night-trip en night 1 -
+home-today-he he day 1 home+weather=sample+now=2027-01-12T10:00+status=fresh
+home-ahead-en en day 1 home+weather=sample+now=2027-01-02T10:00
