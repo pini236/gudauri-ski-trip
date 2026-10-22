@@ -112,12 +112,11 @@ jobs:
           cd app/ios
           # CFBundleVersion is this workflow's own run number. It only grows, and only uploaded builds are counted
           # (ios.yml's builds are never uploaded), so TestFlight never sees a repeat (docs/ARCHITECTURE.md, R-8).
-          # manual signing is set in the app target's Release settings in project.yml (the architect's condition):
-          # command-line signing settings would also reach the GudiCore package. project.yml reads these two.
-          export GUDI_PROFILE_NAME="$PROFILE_NAME" GUDI_TEAM_ID="$TEAM_ID"
+          # manual signing is set in the app target's Release settings in project.yml (the architect's condition);
+          # only the profile's name comes from here, as a build setting that nothing but that target reads
           xcodebuild -project Gudi.xcodeproj -scheme Gudi -configuration Release \
             -destination 'generic/platform=iOS' -archivePath "$RUNNER_TEMP/Gudi.xcarchive" \
-            CURRENT_PROJECT_VERSION=${{ github.run_number }} \
+            GUDI_PROFILE="$PROFILE_NAME" CURRENT_PROJECT_VERSION=${{ github.run_number }} \
             archive > "$RUNNER_TEMP/archive.log" 2>&1 || RC=$?
           RC=${RC:-0}
           tail -40 "$RUNNER_TEMP/archive.log"
