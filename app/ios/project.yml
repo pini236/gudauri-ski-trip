@@ -25,6 +25,13 @@ targets:
       - path: Gudi/Resources/Fonts
         type: folder
         buildPhase: resources
+    # the capabilities registered on the App ID (docs/APPLE.md, step 5): Sign in with Apple, and links from the site
+    # that open the app (the site's .well-known/apple-app-site-association, the twin of assetlinks.json)
+    entitlements:
+      path: Gudi/Gudi.entitlements
+      properties:
+        com.apple.developer.applesignin: [Default]
+        com.apple.developer.associated-domains: ["applinks:gudauri-ski-trip.vercel.app"]
     dependencies:
       - package: GudiCore
         product: GudiData
@@ -63,3 +70,12 @@ targets:
         # never resets (R-8); CI passes the run number
         CURRENT_PROJECT_VERSION: "1"
         GENERATE_INFOPLIST_FILE: false
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+      # signed by hand, for this target only (architect, 22.10.2026): ios-release.yml passes only GUDI_PROFILE,
+      # the profile's name from the secret, so the GudiCore package targets are never asked for a profile
+      configs:
+        Release:
+          CODE_SIGN_STYLE: Manual
+          DEVELOPMENT_TEAM: ZX5CTJ88UA
+          CODE_SIGN_IDENTITY: Apple Distribution
+          PROVISIONING_PROFILE_SPECIFIER: $(GUDI_PROFILE)
