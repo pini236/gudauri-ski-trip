@@ -232,18 +232,37 @@ private struct MapContent: View {
     /// The weather points over the map from above: a dot at each, its card above it (below when it would go under the
     /// map's own buttons and bar).
     private func pins(_ size: CGSize, at: @escaping (Double, Double) -> CGPoint?) -> some View {
-        ZStack(alignment: .topLeading) {
-            ForEach(pinTexts(app.weather(Date())).filter { at($0.x, $0.y) != nil }) { p in
-                let q = at(p.x, p.y) ?? .zero, x = q.x, y = q.y
+        let placed = Self.placePins(pinTexts(app.weather(Date())).compactMap { p in at(p.x, p.y).map { (p, $0) } }, size: size)
+        return ZStack(alignment: .topLeading) {
+            ForEach(placed) { e in
                 Circle().fill(ski.colors.ink).frame(width: 8, height: 8).overlay(Circle().stroke(ski.colors.paper, lineWidth: 2))
-                    .position(x: x, y: y)
-                PinCard(p: p).fixedSize()
-                    .position(x: min(max(x, 90), size.width - 90), y: y - 14 - 34 < 150 ? y + 14 + 34 : y - 14 - 34)
+                    .position(e.dot)
+                PinCard(p: e.p).fixedSize().position(e.card)
             }
         }
         .frame(width: size.width, height: size.height)
         .environment(\.layoutDirection, .leftToRight)
         .allowsHitTesting(false)
+    }
+
+    /// Where each card goes: above its dot, or below it when it would go under the map's own buttons and bar (the top
+    /// band, down to the view switcher and the Kobi key on a phone); and a card that would cover another one moves
+    /// down below it. A card is about 180 by 68.
+    struct PlacedPin: Identifiable { let p: PinText; let dot: CGPoint; let card: CGPoint; var id: String { p.id } }
+
+    static func placePins(_ pts: [(PinText, CGPoint)], size: CGSize) -> [PlacedPin] {
+        let band: CGFloat = 210, half = CGSize(width: 90, height: 34), gap: CGFloat = 14
+        var out: [PlacedPin] = []
+        for (p, q) in pts.sorted(by: { $0.1.y < $1.1.y }) {
+            let x = min(max(q.x, half.width + 8), size.width - half.width - 8)
+            var y = q.y - gap - half.height
+            if y - half.height < band { y = max(q.y + gap + half.height, band + half.height) }
+            for o in out where abs(o.card.x - x) < half.width * 2 && abs(o.card.y - y) < half.height * 2 + 4 {
+                y = o.card.y + half.height * 2 + 4
+            }
+            out.append(PlacedPin(p: p, dot: q, card: CGPoint(x: x, y: y)))
+        }
+        return out
     }
 
     /// Over the mountain in 3D: the weather points and where-am-I dot, on the snow where they are.
