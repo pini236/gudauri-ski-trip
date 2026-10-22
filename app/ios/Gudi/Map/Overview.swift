@@ -119,6 +119,7 @@ struct OverviewMap: View {
 
     private func draw(_ c: inout GraphicsContext, size: CGSize, t: TimeInterval, fresh: Bool, openLifts: [Lift]) {
         guard cam.k > 0 else { return }
+        if let art = model.art { drawRelief(in: c, art, k: cam.k, x: cam.x, y: cam.y, colors: ski.colors, far: cam.k < 0.12) }
         let u = 1 / cam.k // metres a point
         var m = c
         m.translateBy(x: -cam.x * cam.k, y: -cam.y * cam.k)

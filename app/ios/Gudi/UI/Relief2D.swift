@@ -76,11 +76,15 @@ final class ReliefArt: @unchecked Sendable {
 /// The widths are points on the screen and the alphas Android's (meet/MeetMap.kt, map/Overview.kt drawRelief).
 @MainActor
 func drawRelief(in ctx: GraphicsContext, _ art: ReliefArt, view: MapViewport, colors: SkiColors, far: Bool) {
+    drawRelief(in: ctx, art, k: view.k, x: view.x, y: view.y, colors: colors, far: far)
+}
+
+/// The same drawing for any camera: `k` points per metre, (x, y) the metres at the top-leading corner (the trail map's).
+func drawRelief(in ctx: GraphicsContext, _ art: ReliefArt, k: Double, x: Double, y: Double, colors: SkiColors, far: Bool) {
     let p = colors.p
-    let k = view.k
     var g = ctx
     g.scaleBy(x: k, y: k)
-    g.translateBy(x: -view.x, y: -view.y)
+    g.translateBy(x: -x, y: -y)
     func stroke(_ path: Path, _ rgb: UInt32, _ a: Double, _ px: Double) {
         g.stroke(path, with: .color(Color(rgb: rgb, opacity: a)), style: StrokeStyle(lineWidth: px / k, lineCap: .round, lineJoin: .round))
     }
