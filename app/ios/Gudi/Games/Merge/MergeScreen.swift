@@ -64,13 +64,24 @@ private final class MergeModel {
         sync()
     }
 
+    // usage statistics, as the site and Android: a game runs from the first move until the board is full, a new game, or leaving
+    @ObservationIgnored private var started: Date?
+    @ObservationIgnored private var bestAtStart = 0
+    func gameStart() { if started == nil { started = .now; bestAtStart = best; Telemetry.shared.event("game_start", ["game": "merge"]) } }
+    func gameEnd() {
+        guard let t = started else { return }
+        Telemetry.shared.event("game_end", ["game": "merge", "score": score, "seconds": Int((Date.now.timeIntervalSince(t) + 0.5).rounded(.down)),
+                                            "completed": maxLv >= Merge.won, "best": score > bestAtStart])
+        started = nil
+    }
+
     func save() { UserDefaults.standard.set(game.save(), forKey: "merge.save") }
     func sync() {
         tiles = game.tiles.map { TileView(id: $0.id, lv: $0.lv, r: $0.r, c: $0.c, kind: .plain) }
         score = game.score; maxLv = game.maxLv; undos = game.undos; canUndo = game.canUndo
     }
     func newGame() {
-        game.newGame(); wonShown = false; over = nil
+        gameEnd(); game.newGame(); wonShown = false; over = nil
         tiles = game.tiles.map { TileView(id: $0.id, lv: $0.lv, r: $0.r, c: $0.c, kind: .new) }
         score = 0; maxLv = 0; undos = game.undos; canUndo = false
         save()
@@ -98,6 +109,7 @@ private final class MergeModel {
             return
         }
         synth.swish()
+        gameStart()
         // 1. everything slides; the two halves of a merge slide into the same cell and go
         let slide = still ? 0.0 : 0.11
         var gone: [Int: (Int, Int)] = [:]
@@ -140,14 +152,14 @@ private final class MergeModel {
             }
             save()
             if maxLv >= Merge.won && !wonShown { wonShown = true; try? await Task.sleep(for: .seconds(0.5)); withAnimation { over = "won" } }
-            else if !game.canMove() { try? await Task.sleep(for: .seconds(0.4)); withAnimation { over = "over" } }
+            else if !game.canMove() { gameEnd(); try? await Task.sleep(for: .seconds(0.4)); withAnimation { over = "over" } }
         }
     }
 
     /// "Continue" after the snowman: when that merge filled the board, the end (X-5, the site's noRoom).
     func goOn() {
         over = nil
-        if !game.canMove() { Task { @MainActor in try? await Task.sleep(for: .seconds(0.4)); withAnimation { over = "over" } } }
+        if !game.canMove() { gameEnd(); Task { @MainActor in try? await Task.sleep(for: .seconds(0.4)); withAnimation { over = "over" } } }
     }
 }
 
@@ -189,7 +201,7 @@ struct MergeScreen: View {
         }.onEnded { _ in fired = false })
         .toolbar(.hidden, for: .navigationBar)
         .onAppear { m.still = still; m.synth.start() }
-        .onDisappear { m.synth.stop() }
+        .onDisappear { m.gameEnd(); m.synth.stop() }
     }
 
     private var header: some View {

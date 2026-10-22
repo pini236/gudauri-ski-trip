@@ -14,6 +14,7 @@ private final class FreshModel {
     var stat = 0
     var touched = false
     @ObservationIgnored var started = false
+    @ObservationIgnored var startedAt = Date.now
     @ObservationIgnored var level = "snow"
     @ObservationIgnored var lakePrev = UserDefaults.standard.integer(forKey: "fresh.lake_best")
 
@@ -27,7 +28,10 @@ private final class FreshModel {
         view.onTouched = { [weak self] in
             guard let self else { return }
             if !touched { withAnimation(.easeOut(duration: 0.6)) { self.touched = true } }
-            if !started { started = true; level = lake ? "lake" : "snow" }
+            if !started {
+                started = true; startedAt = .now; level = lake ? "lake" : "snow"
+                Telemetry.shared.event("game_start", ["game": "fresh", "level": level])
+            }
         }
         view.onChain = { n, _ in
             if n > UserDefaults.standard.integer(forKey: "fresh.lake_best") { UserDefaults.standard.set(n, forKey: "fresh.lake_best") }
@@ -39,6 +43,10 @@ private final class FreshModel {
     func gameEnd() {
         guard started else { return }
         Bests.ended("fresh", level: level, score: stat)
+        // game_end's best is the site's: a longer chain on the lake
+        Telemetry.shared.event("game_end", ["game": "fresh", "level": level, "score": stat,
+                                            "seconds": Int((Date.now.timeIntervalSince(startedAt) + 0.5).rounded(.down)),
+                                            "completed": true, "best": level == "lake" && view.bestChain > lakePrev])
         lakePrev = max(lakePrev, view.bestChain)
         started = false
     }

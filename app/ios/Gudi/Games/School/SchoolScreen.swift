@@ -52,13 +52,24 @@ private final class SchoolModel {
     }
 
     func stopRun() { hiss?.stop(); hiss = nil; view.run = nil; skiL = false; skiR = false; wedgeOn = false }
-    func toMenu() { stopRun(); phase = .menu; starsV += 1 }
-    func brief(_ i: Int) { stopRun(); cur = i; result = nil; phase = .brief }
+    // usage statistics, as the site: level = the lesson's number, score = its stars, completed = at least one star
+    @ObservationIgnored private var started: Date?
+    func gameEnd(_ n: Int, best: Bool) {
+        guard let t = started else { return }
+        Telemetry.shared.event("game_end", ["game": "school", "level": cur + 1, "score": n,
+                                            "seconds": Int((Date.now.timeIntervalSince(t) + 0.5).rounded(.down)), "completed": n > 0, "best": best])
+        started = nil
+    }
+    func quit() { if phase == .run && result == nil { gameEnd(0, best: false) } }
+    func toMenu() { quit(); stopRun(); phase = .menu; starsV += 1 }
+    func brief(_ i: Int) { quit(); stopRun(); cur = i; result = nil; phase = .brief }
     func start() {
         result = nil; coachLine = nil; popSay = nil; kmh = 0; over = false
         let run = SchoolRun(LESSONS[cur], out: self)
         view.run = run
         hiss?.stop(); hiss = synth.hiss()
+        started = .now
+        Telemetry.shared.event("game_start", ["game": "school", "level": cur + 1])
         phase = .run
     }
 
@@ -70,7 +81,8 @@ private final class SchoolModel {
     func buzz(_ strength: Float) { if strength >= 1 { GameHaptics.thud(0.9) } else { GameHaptics.click(CGFloat(strength)) } }
     func finished(_ r: SchoolRun.Result) {
         hiss?.gain = 0
-        Bests.ended("school", level: String(cur + 1), score: r.stars)
+        let best = Bests.ended("school", level: String(cur + 1), score: r.stars)
+        gameEnd(r.stars, best: best)
         result = r; starsV += 1
         Task { @MainActor in
             try? await Task.sleep(for: .seconds(0.9))
@@ -111,7 +123,7 @@ struct SchoolScreen: View {
             }
             m?.synth.start()
         }
-        .onDisappear { m?.stopRun(); m?.synth.stop() }
+        .onDisappear { m?.quit(); m?.stopRun(); m?.synth.stop() }
     }
 
     @ViewBuilder private func content(_ m: SchoolModel) -> some View {
