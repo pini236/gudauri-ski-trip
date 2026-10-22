@@ -212,6 +212,7 @@ struct RunBody: View {
     let p: Piste
     let model: MapModel
     var flyAt: (() -> Double?)? = nil
+    var weather: WeatherNow? = nil
     @Environment(\.ski) private var ski
 
     var body: some View {
@@ -231,6 +232,8 @@ struct RunBody: View {
             if !p.osmDiff.isEmpty { Kv(S.runOsmGradeLabel, p.osmDiff.map { osmGrade($0) ?? S.runOsmGradeNone }.joined(separator: " / ")) }
             if !p.refs.isEmpty { Kv(S.runRefLabel, p.refs.joined(separator: ", ")) }
             if !p.groom.isEmpty { Kv(S.runGroomingLabel, p.groom.contains("classic") ? S.runGroomedValue : p.groom.joined(separator: ", ")) }
+            // the forecast at the run's top and bottom (round 19), after the details and before the profile
+            if let f = model.facts, p.named, let weather { RunConditions(top: f.top, bottom: f.bot, w: weather) }
             if let f = model.facts, f.points.count >= 4 { RunProfile(p: p, f: f, model: model, flyAt: flyAt) }
             if p.named { Videos(p: p, list: Video.of(model.videos, key: p.key)) }
         }
