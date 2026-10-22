@@ -3,6 +3,8 @@
   design/round9/export/store-icon-512.png       Google Play icon (512x512, full bleed, Play rounds the corners)
   design/round9/export/feature-1024x500.png     Google Play feature graphic (text rendered to pixels)
   design/round9/export/masks.png                the launcher icon under the common masks, to check the crop
+  app/ios/Gudi/Assets.xcassets/AppIcon.appiconset/icon-1024.png   the iPhone icon (1024x1024, full bleed, no alpha:
+      the App Store refuses an icon with an alpha channel; iOS rounds the corners itself)
   app/android/app/src/main/res/drawable-nodpi/  the adaptive launcher icon layers (432x432 = 108dp at xxxhdpi):
       ic_launcher_bg.png, ic_launcher_fg.png, ic_launcher_mono.png
 The SVG sources are written next to them. Rendering uses the repo's Playwright and the preinstalled Chromium
@@ -115,4 +117,13 @@ if __name__ == '__main__':
     render(OUT / 'launcher-bg.svg', RES / 'ic_launcher_bg.png', 432, 432)
     render(OUT / 'launcher-fg.svg', RES / 'ic_launcher_fg.png', 432, 432, transparent=True)
     render(OUT / 'launcher-mono.svg', RES / 'ic_launcher_mono.png', 432, 432, transparent=True)
+    # the iPhone: the same full-bleed scene as the store icon, at 1024, then flattened to RGB
+    IOS = root / 'app/ios/Gudi/Assets.xcassets/AppIcon.appiconset'
+    IOS.mkdir(parents=True, exist_ok=True)
+    big = OUT / 'ios-icon.svg'
+    big.write_text(b.h1().replace('width="512" height="512"', 'width="1024" height="1024"', 1), encoding='utf-8')
+    render(big, IOS / 'icon-1024.png', 1024, 1024)
+    big.unlink()
+    from PIL import Image
+    Image.open(IOS / 'icon-1024.png').convert('RGB').save(IOS / 'icon-1024.png', optimize=True)
     print('ok')
