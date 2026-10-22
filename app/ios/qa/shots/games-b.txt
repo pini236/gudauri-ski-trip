@@ -1,0 +1,13 @@
+# The descent and the snowball fight (Games/Descent, Games/Snowball): the menus, a run or a fight, and the end
+descent-menu-he he day 0 game:descent
+descent-menu-en en night 0 game:descent
+descent-play-he he day 0 game:descent_play
+descent-play-en en day 0 game:descent_play
+descent-end-he he night 0 game:descent_end
+descent-end-en en day 0 game:descent_end
+snowball-menu-he he day 0 game:snowball
+snowball-menu-en en night 0 game:snowball
+snowball-play-he he day 0 game:snowball_play
+snowball-play-en en day 0 game:snowball_play
+snowball-end-he he night 0 game:snowball_end
+snowball-end-en en day 0 game:snowball_end
