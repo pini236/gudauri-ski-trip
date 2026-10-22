@@ -326,8 +326,8 @@ private struct Labels3D: View {
     @Environment(\.ski) private var ski
 
     var body: some View {
-        let _ = engine.tick
-        Canvas { c, size in draw(&c, size) }
+        let t = engine.tick
+        Canvas { c, size in _ = t; draw(&c, size) }
     }
 
     private func draw(_ c: inout GraphicsContext, _ size: CGSize) {

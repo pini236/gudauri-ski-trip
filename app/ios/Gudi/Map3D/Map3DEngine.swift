@@ -26,6 +26,7 @@ struct Label3D {
 final class Map3DEngine: NSObject {
     /// Bumped on every frame drawn, so the labels and the flight's bar follow the camera.
     private(set) var tick = 0
+    @ObservationIgnored private var tickPending = false
     private(set) var flying = false
     private(set) var ready = false
 
@@ -426,7 +427,17 @@ final class Map3DEngine: NSObject {
         inp.pulse = fly != nil ? Float(0.5 + 0.5 * sin(now * 4)) : 0.5
         inp.chairsAt = still ? nil : now.truncatingRemainder(dividingBy: 3600)
         renderer.draw(v, inp)
-        tick &+= 1
+        // the names, the weather points and the dot follow this frame. A draw asked for while the view is paused runs
+        // inside the display cycle, where SwiftUI drops a change made during its own update: so the tick moves just
+        // after it, once per frame
+        if !tickPending {
+            tickPending = true
+            Task { @MainActor [weak self] in
+                guard let self else { return }
+                self.tickPending = false
+                self.tick &+= 1
+            }
+        }
         run(moving || fly != nil)
     }
 
