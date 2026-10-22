@@ -107,6 +107,21 @@ public struct Scene3D: Sendable {
 
     public func elev(_ x: Double, _ z: Double) -> Double { terrain.elev(x, z) }
 
+    /// Kobi's side starts north of Kobi Pass (the site's KOBI_LAT): metres, y south.
+    public static let kobiZ = Geo.y(lat: 42.5115)
+
+    /// The main side's runs and lifts (all south of Kobi Pass), every few points: what the map opens on.
+    public func mainArea() -> [P3] {
+        func south(_ l: [P3]) -> Bool { !l.isEmpty && l.reduce(0) { $0 + $1.z } / Double(l.count) >= Scene3D.kobiZ }
+        var out: [P3] = []
+        for p in runs.pistes {
+            guard let ls = draped[p.key], south(ls.flatMap { $0 }) else { continue }
+            for l in ls { for (i, q) in l.enumerated() where i % 4 == 0 || i == l.count - 1 { out.append(q) } }
+        }
+        for c in cables where south(c) { out.append(c[0]); out.append(c[c.count - 1]) }
+        return out
+    }
+
     /// A line on the snow, a point every 18 m, `lift` metres above it.
     public static func drape(_ t: Terrain, _ xy: [(x: Double, y: Double)], lift: Double) -> [P3] {
         var out: [P3] = []
@@ -287,50 +302,5 @@ public struct Scene3D: Sendable {
         let seg = max(c[k] - c[k - 1], 0.01)
         let f = min(max((half - c[k - 1]) / seg, 0), 1)
         return l[k - 1] + (l[k] - l[k - 1]) * f
-    }
-}
-
-/// What lies on the snow in 3D, read from terrain.json (Android's Drape.kt draws it from the meeting point's
-/// Relief2D): the contours every 100 m and the stronger ones every 500 m, the village, rivers, lakes, roads and the
-/// named places. A minimal reader of its own: the meeting point's shared relief (GudiDomain/Relief) can replace it once
-/// both are merged. Lines are [x, y, x, y, ...] in the site's metres.
-public struct DrapeLines: Sendable {
-    public let x0: Double, y0: Double, x1: Double, y1: Double
-    public let c100: [[Double]], c500: [[Double]]
-    public let village: [[Double]], rivers: [[Double]], water: [[Double]]
-    public let roads: [[[Double]]]
-    public let places: [(name: String, x: Double, y: Double)]
-
-    public static func read(_ t: Terrain) -> DrapeLines {
-        var c100: [[Double]] = [], c500: [[Double]] = []
-        // contours: [level, n, x, y, dx, dy, ...] as little-endian int16 (relief.js)
-        if let cs = t.raw["contours"] as? String, let raw = Data(base64Encoded: cs) {
-            let bytes = [UInt8](raw)
-            let s: [Int16] = (0..<bytes.count / 2).map { k in Int16(bitPattern: UInt16(bytes[k * 2]) | UInt16(bytes[k * 2 + 1]) << 8) }
-            var i = 0
-            while i + 3 < s.count {
-                let lev = Int(s[i]), n = Int(s[i + 1])
-                var x = Double(s[i + 2]), y = Double(s[i + 3]); i += 4
-                var line = [x, y]
-                if n > 1 { for _ in 1..<n where i + 1 < s.count { x += Double(s[i]); y += Double(s[i + 1]); line += [x, y]; i += 2 } }
-                if lev % 500 == 0 { c500.append(line) } else if lev % 100 == 0 { c100.append(line) }
-            }
-        }
-        let env = t.raw["env"] as? [String: Any] ?? [:]
-        func flat(_ a: Any?) -> [Double] { (a as? [Any])?.compactMap { ($0 as? NSNumber)?.doubleValue } ?? [] }
-        let village: [[Double]] = ((env["village"] as? [Any]) ?? []).map { flat($0) }
-        let rivers: [[Double]] = ((env["rivers"] as? [Any]) ?? []).map { flat($0) }
-        let water: [[Double]] = ((env["water"] as? [Any]) ?? []).map { flat(($0 as? [String: Any])?["g"]) }
-        var roads: [[[Double]]] = Array(repeating: [], count: 5)
-        for r in env["roads"] as? [Any] ?? [] {
-            guard let r = r as? [Any], r.count >= 2, let k = (r[0] as? NSNumber)?.intValue else { continue }
-            roads[min(max(k, 0), 4)].append(flat(r[1]))
-        }
-        let places: [(name: String, x: Double, y: Double)] = (env["places"] as? [Any] ?? []).compactMap {
-            guard let o = $0 as? [String: Any], let n = o["n"] as? String, let x = o["x"] as? NSNumber, let y = o["y"] as? NSNumber else { return nil }
-            return (n, x.doubleValue, y.doubleValue)
-        }
-        return DrapeLines(x0: t.x0, y0: t.y0, x1: t.x1, y1: t.y1, c100: c100, c500: c500, village: village, rivers: rivers,
-                          water: water, roads: roads, places: places)
     }
 }

@@ -95,12 +95,13 @@ private struct MapContent: View {
                 if threeD {
                     Map3DView(model: model, status: app.status, forMe: forMe, lightTime: lightTime, bottom: covered,
                               controller: $map3d, onRun: { model.select($0); Fx.shared.tick() },
-                              onLift: { model.showLift($0); Fx.shared.tick() }, onFlying: { flying = $0 })
+                              onLift: { model.showLift($0); Fx.shared.tick() }, onFlying: { flying = $0 },
+                              overlay: { p in AnyView(over3D(p, g.size)) })
                         .ignoresSafeArea(edges: .bottom)
                 } else {
                     OverviewMap(model: model, cam: $cam, status: app.status, forMe: forMe) { frameKobi() }
                         .ignoresSafeArea(edges: .bottom)
-                    if weatherOn { pins(g.size) }
+                    if weatherOn { pins(g.size) { CGPoint(x: cam.sx($0), y: cam.sy($1)) } }
                     if case let .fixed(fix, x, y, acc, _, bearing)? = where_?.state, fix != .outside {
                         MeDot(x: cam.sx(x), y: cam.sy(y), radius: acc * cam.k, bearing: fix == .approx || fix == .low ? nil : bearing)
                             .frame(width: g.size.width, height: g.size.height)
@@ -230,10 +231,10 @@ private struct MapContent: View {
 
     /// The weather points over the map from above: a dot at each, its card above it (below when it would go under the
     /// map's own buttons and bar).
-    private func pins(_ size: CGSize) -> some View {
+    private func pins(_ size: CGSize, at: @escaping (Double, Double) -> CGPoint?) -> some View {
         ZStack(alignment: .topLeading) {
-            ForEach(pinTexts(app.weather(Date()))) { p in
-                let x = cam.sx(p.x), y = cam.sy(p.y)
+            ForEach(pinTexts(app.weather(Date())).filter { at($0.x, $0.y) != nil }) { p in
+                let q = at(p.x, p.y) ?? .zero, x = q.x, y = q.y
                 Circle().fill(ski.colors.ink).frame(width: 8, height: 8).overlay(Circle().stroke(ski.colors.paper, lineWidth: 2))
                     .position(x: x, y: y)
                 PinCard(p: p).fixedSize()
@@ -243,6 +244,19 @@ private struct MapContent: View {
         .frame(width: size.width, height: size.height)
         .environment(\.layoutDirection, .leftToRight)
         .allowsHitTesting(false)
+    }
+
+    /// Over the mountain in 3D: the weather points and where-am-I dot, on the snow where they are.
+    @ViewBuilder
+    private func over3D(_ p: Map3DProjector, _ size: CGSize) -> some View {
+        ZStack {
+            if weatherOn { pins(size) { p.point(x: $0, y: $1) } }
+            if case let .fixed(fix, x, y, acc, _, bearing)? = where_?.state, fix != .outside, let q = p.point(x: x, y: y) {
+                MeDot(x: q.x, y: q.y, radius: acc * p.pointsPerMetre(x: x, y: y), bearing: fix == .approx || fix == .low ? nil : bearing.map { $0 + p.heading })
+                    .frame(width: size.width, height: size.height)
+            }
+        }
+        .frame(width: size.width, height: size.height)
     }
 
     /// The line's action: the settings for a refusal, precise location, or location services that are off.

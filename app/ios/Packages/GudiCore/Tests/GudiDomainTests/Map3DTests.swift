@@ -224,10 +224,19 @@ final class Map3DSceneTests: XCTestCase {
         XCTAssertLessThan(noon.filter { $0 > 0.5 }.count, sh.count / 100, "the sun overhead casts almost no shade")
     }
 
-    func testTheDrapeLines() {
-        let d = DrapeLines.read(Self.terrain)
-        XCTAssertFalse(d.c100.isEmpty); XCTAssertFalse(d.c500.isEmpty)
-        XCTAssertFalse(d.village.isEmpty); XCTAssertFalse(d.roads[0].isEmpty)
-        XCTAssertTrue(d.places.contains { $0.name == "Gudauri" } || d.places.contains { $0.name == "Kobi" })
+    func testTheFirstViewHoldsTheWholeMainSide() {
+        let s = Scene3D(terrain: Self.terrain, runs: Self.runs)
+        let pts = s.mainArea()
+        XCTAssertGreaterThan(pts.count, 200)
+        XCTAssertTrue(pts.allSatisfy { $0.z >= Scene3D.kobiZ - 3000 }, "Kobi's side stays out")
+        let box = Framing.Box(top: 0.32, bottom: 0.78)
+        let o = Framing.fitArea(pts, w: 390, h: 844, ground: s.elev, box: box)
+        XCTAssertEqual(o.yaw, Orbit.start.yaw, accuracy: 1e-9); XCTAssertEqual(o.pitch, Orbit.start.pitch, accuracy: 1e-9)
+        let b = Framing.bounds(o, pts, stride: 1, w: 390, h: 844)!
+        XCTAssertGreaterThanOrEqual(b.minX, 0.08 * 390 - 1); XCTAssertLessThanOrEqual(b.maxX, 0.92 * 390 + 1)
+        XCTAssertGreaterThanOrEqual(b.minY, 0.32 * 844 - 1); XCTAssertLessThanOrEqual(b.maxY, 0.78 * 844 + 1)
+        // centred, and filling the band one way or the other
+        XCTAssertEqual((b.minX + b.maxX) / 2, 195, accuracy: 20)
+        XCTAssertTrue(b.maxX - b.minX > 0.7 * 0.84 * 390 || b.maxY - b.minY > 0.7 * 0.46 * 844)
     }
 }

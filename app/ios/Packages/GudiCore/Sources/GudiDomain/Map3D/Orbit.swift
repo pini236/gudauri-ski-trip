@@ -224,6 +224,15 @@ public enum Framing {
 
     /// `path` runs from the top to the bottom.
     public static func fit(_ path: [SIMD3<Double>], w: Double, h: Double, ground: (Double, Double) -> Double, pitch: Double = 0.8, box: Box = Box()) -> Orbit {
+        fit(path, w: w, h: h, ground: ground, pitch: pitch, yaw: nil, box: box)
+    }
+
+    /// A whole area (any set of points) at a fixed heading and tilt: the map's first view (the site's fitMain).
+    public static func fitArea(_ points: [SIMD3<Double>], w: Double, h: Double, ground: (Double, Double) -> Double, yaw: Double = Orbit.start.yaw, pitch: Double = Orbit.start.pitch, box: Box) -> Orbit {
+        fit(points, w: w, h: h, ground: ground, pitch: pitch, yaw: yaw, box: box)
+    }
+
+    static func fit(_ path: [SIMD3<Double>], w: Double, h: Double, ground: (Double, Double) -> Double, pitch: Double, yaw fixed: Double?, box: Box) -> Orbit {
         let n = path.count
         guard n >= 2 else {
             let p = path.first ?? SIMD3(0, 0, 0)
@@ -232,9 +241,10 @@ public enum Framing {
         let xs = path.map(\.x), zs = path.map(\.z)
         let cx = (xs.min()! + xs.max()!) / 2, cz = (zs.min()! + zs.max()!) / 2
         // look uphill: from the bottom towards the top
-        let yaw = atan2(-(path[0].x - path[n - 1].x), -(path[0].z - path[n - 1].z))
+        let yaw = fixed ?? atan2(-(path[0].x - path[n - 1].x), -(path[0].z - path[n - 1].z))
         var s = Orbit(tx: cx, ty: ground(cx, cz), tz: cz, dist: 3000, yaw: yaw, pitch: pitch)
-        let stride = max(1, n / 120)
+        // a run: every few points; an area: every point (its edge can be any of them)
+        let stride = fixed == nil ? max(1, n / 120) : max(1, n / 4000)
         for _ in 0..<3 {
             var lo = Moves.minDist, hi = Moves.maxDist
             for _ in 0..<28 {
@@ -248,6 +258,9 @@ public enum Framing {
             let mx = (box.left + box.right) / 2 * w, my = (box.top + box.bottom) / 2 * h
             s = Moves.pan(s, w: w, h: h, from: bx, by, to: mx, my, ground: ground)
         }
+        // the last centring can push an edge a point or two out: back off a little until it fits
+        var k = 0
+        while k < 20, s.dist < Moves.maxDist, !fits(s, path, stride, w, h, box) { s.dist *= 1.015; k += 1 }
         return s
     }
 

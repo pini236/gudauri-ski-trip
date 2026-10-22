@@ -38,6 +38,10 @@ final class Map3DEngine: NSObject {
     @ObservationIgnored private var anim: (from: Orbit, to: Orbit, t: Double, dur: Double)?
     @ObservationIgnored private var fly: FlyDown?
     @ObservationIgnored private var flyKey = ""
+    @ObservationIgnored private var flyT0 = 0.0
+    /// The first view is framed once the mountain and the view's size are known (unless a touch or a run came first).
+    @ObservationIgnored private var opened = false
+    @ObservationIgnored private var touched = false
     @ObservationIgnored private var lastTime: CFTimeInterval = 0
     @ObservationIgnored private var started = false
 
@@ -84,16 +88,16 @@ final class Map3DEngine: NSObject {
     // MARK: inputs
 
     /// The mountain: built once, off the main thread (the mesh, the lines, the shadows and the drape).
-    func load(terrain t: Terrain, runs: RunsAndLifts) {
+    func load(terrain t: Terrain, runs: RunsAndLifts, relief r: Relief) {
         guard scene == nil, !started else { return }
         started = true
         let dir = light.dir
         Task {
-            let made = await Task.detached(priority: .userInitiated) { () -> (Scene3D, TerrainMesh, [Float], DrapeLines, DrapePicture?) in
+            let made = await Task.detached(priority: .userInitiated) { () -> (Scene3D, TerrainMesh, [Float], Relief, DrapePicture?) in
                 let s = Scene3D(terrain: t, runs: runs)
                 let m = TerrainMesh.build(t)
                 let sh = Sun.shadows(t, toward: dir)
-                let d = DrapeLines.read(t)
+                let d = r
                 return (s, m, sh, d, DrapePicture.paint(d))
             }.value
             let (s, mesh, shadow, drape, pic) = made
@@ -204,7 +208,22 @@ final class Map3DEngine: NSObject {
     func north() { var to = cam; to.yaw = 0; animate(to, seconds: 0.6) }
 
     /// The whole main side, as when the map opens.
-    func frameMain() { framed = nil; animate(Orbit.start) }
+    func frameMain() { fitMain(seconds: 1.1) }
+
+    /// The free band for the whole area: below the title and the view switch, above the bottom keys.
+    static let areaTop = 0.32
+
+    /// All the runs south of Kobi Pass (the site's fitMain), centred in the free band, at the first view's heading and tilt.
+    private func fitMain(seconds: Double) {
+        framed = nil
+        guard let s = scene else { return }
+        let w = size.width, h = size.height, box = Framing.Box(top: Self.areaTop, bottom: freeBottom)
+        Task {
+            let to = await Task.detached(priority: .userInitiated) { Framing.fitArea(s.mainArea(), w: w, h: h, ground: s.elev, box: box) }.value
+            guard framed == nil, selected == nil, !flying, seconds > 0 || !touched else { return }
+            if seconds == 0 { anim = nil; cam = to; requestDraw() } else { animate(to, seconds: seconds) }
+        }
+    }
 
     /// The camera to a point (metres), keeping the heading, not farther than 2.6 km.
     func lookAt(x: Double, y: Double) {
@@ -216,16 +235,28 @@ final class Map3DEngine: NSObject {
 
     func flyDown() {
         guard let s = scene, let key = selected, let path = s.longest(key), path.count >= 2 else { return }
-        fly = FlyDown(path); flyKey = key; anim = nil; fling = Fling()
+        if flying { flyEnded(done: false) }
+        fly = FlyDown(path); flyKey = key; flyT0 = CACurrentMediaTime(); anim = nil; fling = Fling()
         flying = true; onFlying?(true)
+        Telemetry.shared.event("run_fly_start", ["run": key])
         requestDraw()
     }
 
+    /// Stopped by the person (the bar's key, another run, the panel closed, a touch on the map).
     func stopFly() {
         guard fly != nil || flying else { return }
         fly = nil
-        if flying { flying = false; onFlying?(false) }
+        flyEnded(done: false)
         requestDraw()
+    }
+
+    /// run_fly_end, as on the site and Android: `completed` when it reached the bottom.
+    private func flyEnded(done: Bool) {
+        guard flying else { return }
+        flying = false
+        Telemetry.shared.event("run_fly_end", ["run": flyKey, "completed": done,
+                                               "seconds": Int((CACurrentMediaTime() - flyT0 + 0.5).rounded(.down))])
+        onFlying?(false)
     }
 
     /// Metres along, the height and the slope where the skier is; nil when not flying.
@@ -239,6 +270,7 @@ final class Map3DEngine: NSObject {
     }
 
     func touchDown() {
+        touched = true
         if flying { stopFly() }
         anim = nil; fling = Fling()
     }
@@ -302,6 +334,9 @@ final class Map3DEngine: NSObject {
         return true
     }
 
+    /// The snow's height there (metres), or 0 before the mountain is read.
+    func ground(_ x: Double, _ y: Double) -> Double { scene?.elev(x, y) ?? 0 }
+
     var chosen: String? { selected }
     var hiddenRuns: Set<String> { hidden }
     var liftsOff: Bool { hideLifts }
@@ -338,7 +373,7 @@ final class Map3DEngine: NSObject {
         lastTime = now
         var moving = false
         if var f = fly {
-            if let next = f.step(dt) { cam = next; fly = f; moving = true } else { fly = nil; flying = false; onFlying?(false) }
+            if let next = f.step(dt) { cam = next; fly = f; moving = true } else { fly = nil; flyEnded(done: true) }
         }
         if let a = anim {
             let t = a.t + dt
@@ -362,6 +397,10 @@ final class Map3DEngine: NSObject {
 
         let w = max(Double(v.bounds.width), 1), h = max(Double(v.bounds.height), 1)
         size = CGSize(width: w, height: h)
+        if !opened, scene != nil, w > 50, h > 50 {
+            opened = true
+            if selected == nil && framed == nil && !touched { fitMain(seconds: 0) }
+        }
         let e = scene.map { s in cam.eye(above: s.elev) } ?? cam.eye
         eye = e
         mvp = Self.perspective(fovy: Orbit.fov * .pi / 180, aspect: w / h, near: cam.near, far: cam.far)
@@ -411,7 +450,7 @@ final class Map3DEngine: NSObject {
     // MARK: labels
 
     /// Peaks, the named lifts at mid-cable, Gudauri and Kobi, and the named runs 45% down their longest line.
-    static func buildLabels(_ s: Scene3D, _ d: DrapeLines) -> [Label3D] {
+    static func buildLabels(_ s: Scene3D, _ d: Relief) -> [Label3D] {
         func iso(_ n: String) -> String { "\u{2068}\(n)\u{2069}" }
         var out: [Label3D] = []
         for p in s.terrain.peaks {
@@ -449,7 +488,7 @@ struct DrapePicture: Sendable {
     /// The site's 2048, about 7 m a pixel on this mountain.
     static let width = 2048
 
-    static func paint(_ d: DrapeLines) -> DrapePicture? {
+    static func paint(_ d: Relief) -> DrapePicture? {
         let mw = d.x1 - d.x0, mh = d.y1 - d.y0
         let tw = width, th = Int((Double(width) * mh / mw).rounded())
         var px = [UInt8](repeating: 0, count: tw * th * 4)

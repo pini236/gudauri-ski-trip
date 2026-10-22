@@ -23,6 +23,27 @@ final class Map3DController {
     var flying: Bool { engine?.flying ?? false }
 }
 
+/// Places on the snow to the screen, for what the map screen draws over the mountain (the weather points, the
+/// where-am-I dot): the same projection as the frame on screen, refreshed with every frame.
+@MainActor
+struct Map3DProjector {
+    fileprivate let engine: Map3DEngine
+    /// A point on the snow (metres in the site's projection) on the screen, or nil when it is behind the camera.
+    func point(x: Double, y: Double) -> CGPoint? {
+        guard engine.ready else { return nil }
+        return engine.screen(P3(x, engine.ground(x, y), y))
+    }
+    /// The camera's heading (degrees from north, clockwise): a compass bearing turns by it on the screen.
+    var heading: Double { engine.cam.yaw * 180 / .pi }
+    /// Points per metre on the snow there (a radius in metres to the screen).
+    func pointsPerMetre(x: Double, y: Double) -> CGFloat {
+        guard let a = point(x: x, y: y) else { return 0 }
+        let m = engine.cam.metresPerPoint(viewHeight: engine.size.height)
+        guard let b = point(x: x + 50, y: y) else { return m > 0 ? 1 / m : 0 }
+        return max(hypot(b.x - a.x, b.y - a.y) / 50, m > 0 ? 0.5 / m : 0)
+    }
+}
+
 /// The trail map in 3D (13.3, A-30), Android's map/MapView.kt and MapRenderer.kt in Metal: the mountain lit by the
 /// real sun or moon of the moment, with its shadows, the sky, the contours, village, roads and water on the snow,
 /// every run and lift, the names that are not behind a ridge, the chosen run painted from the top in slope colours with
@@ -45,6 +66,8 @@ struct Map3DView: View {
     let onRun: (String) -> Void
     let onLift: (Lift) -> Void
     let onFlying: (Bool) -> Void
+    /// Drawn over the mountain (not over the names): the map screen's weather points and where-am-I dot.
+    var overlay: ((Map3DProjector) -> AnyView)? = nil
 
     @Environment(\.accessibilityReduceMotion) private var still
     @Environment(\.ski) private var ski
@@ -60,6 +83,7 @@ struct Map3DView: View {
                 if let engine {
                     MountainView(engine: engine).ignoresSafeArea()
                     Labels3D(engine: engine).allowsHitTesting(false).ignoresSafeArea()
+                    if let overlay { Over3D(engine: engine, draw: overlay).allowsHitTesting(false).ignoresSafeArea() }
                     if engine.flying, let p = model.selected {
                         FlyBar(engine: engine, name: runName(p))
                             .padding(.bottom, g.size.height * bottom + 8)
@@ -69,6 +93,7 @@ struct Map3DView: View {
         }
         .onAppear(perform: start)
         .onChange(of: model.terrain != nil) { load() }
+        .onChange(of: model.art != nil) { load() }
         .onChange(of: inputsKey) { push() }
         .onChange(of: lightTime) { engine?.setLight(qaTime ?? lightTime) }
         .onChange(of: bottom) { engine?.setCovered(bottom) }
@@ -93,8 +118,8 @@ struct Map3DView: View {
     }
 
     private func load() {
-        guard let e = engine, let t = model.terrain else { return }
-        e.load(terrain: t, runs: model.runs)
+        guard let e = engine, let t = model.terrain, let r = model.art?.relief else { return }
+        e.load(terrain: t, runs: model.runs, relief: r)
     }
 
     /// Everything the mountain shows, as one value to watch.
@@ -286,6 +311,16 @@ final class MapMTKView: MTKView {
 /// mid-cable, and the runs in their colours up close (or only the chosen one). Each on a small sign with a post, never
 /// over another, and hidden behind a ridge. The 3D map is always snowy, so its labels keep the day palette (the site's
 /// .r3-labels).
+/// The map screen's layer over the mountain, drawn again with every frame.
+private struct Over3D: View {
+    let engine: Map3DEngine
+    let draw: (Map3DProjector) -> AnyView
+    var body: some View {
+        let _ = engine.tick
+        draw(Map3DProjector(engine: engine))
+    }
+}
+
 private struct Labels3D: View {
     let engine: Map3DEngine
     @Environment(\.ski) private var ski
