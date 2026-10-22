@@ -18,7 +18,11 @@ struct GudiApp: App {
     }
 
     var body: some Scene {
-        WindowGroup { RootView(model: model).task { await model.pollStatus() } }
+        WindowGroup {
+            RootView(model: model)
+                .task { Reminders.attach(model); await model.pollStatus() }
+                .onOpenURL { model.open($0) }
+        }
             .onChange(of: phase) { _, p in
                 switch p {
                 case .active:

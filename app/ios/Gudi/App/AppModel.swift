@@ -44,6 +44,9 @@ final class AppModel {
     var statusSheet = false
     /// The last weather answer (round 19), kept on the phone.
     var forecast: Forecast?
+    /// The lift the trail map should frame and open when it next opens ("see on the trail map" from the meeting point);
+    /// the map clears it once read.
+    var mapLift: String?
 
     /// The user's own trip, as JSON in Android's format, in UserDefaults.
     var trip: Trip? {
@@ -89,6 +92,22 @@ final class AppModel {
     func clock(_ d: Date) -> Date { qaNow ?? d }
 
     func weather(_ now: Date) -> WeatherNow { WeatherNow(forecast: forecast, now: Int64(now.timeIntervalSince1970 * 1000)) }
+
+    /// A link of the site opened in the app (a universal link, once the site's apple-app-site-association exists):
+    /// a run (#map/run/<key>) or a meeting point (#meet/<station>/<HHMM>/<YYYYMMDD>); anything else stays home.
+    func open(_ url: URL) {
+        if let l = MeetLink.parse(url: url.absoluteString) {
+            let arg = [l.station, l.time, l.day].compactMap { $0 }.joined(separator: "/")
+            path = [.meet(station: arg.isEmpty ? nil : arg)]
+            return
+        }
+        guard let f = URLComponents(url: url, resolvingAgainstBaseURL: false)?.fragment else { return }
+        let parts = f.split(separator: "/", maxSplits: 2).map(String.init)
+        if parts.first == "map" {
+            let key = parts.count == 3 && parts[1] == "run" ? parts[2].removingPercentEncoding : nil
+            path = [.map(run: key.flatMap { k in runs?.pistes.contains { $0.key == k } == true ? k : nil })]
+        }
+    }
 
     func go(_ r: Route) { path.append(r) }
 
