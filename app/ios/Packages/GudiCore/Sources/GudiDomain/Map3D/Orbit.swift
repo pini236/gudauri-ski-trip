@@ -219,7 +219,7 @@ public enum Framing {
     /// Free screen area, as shares: the bars above, the panel below.
     public struct Box: Sendable {
         public var left = 0.08, right = 0.92, top = 0.16, bottom = 0.78
-        public init(bottom: Double = 0.78) { self.bottom = bottom }
+        public init(top: Double = 0.16, bottom: Double = 0.78) { self.top = top; self.bottom = bottom }
     }
 
     /// `path` runs from the top to the bottom.

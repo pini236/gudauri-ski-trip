@@ -317,6 +317,9 @@ private struct Labels3D: View {
             let txt = c.resolve(Text(l.text).font(font).foregroundColor(color))
             let z = txt.measure(in: CGSize(width: 400, height: 60))
             let r = CGRect(x: s.x - z.width / 2 - pad, y: s.y - z.height - pad * 2, width: z.width + pad * 2, height: z.height + pad * 2)
+            // clear of the map's controls at the top, and of the buttons or the panel at the bottom
+            let floor = size.height * (1 - engine.covered) - (engine.covered == 0 ? 150 : 8)
+            if r.minY < size.height * Map3DEngine.freeTop - 10 || r.maxY > floor { continue }
             if placed.contains(where: { $0.rect.intersects(r) }) { continue }
             placed.append((r, l.run, l.lift))
             let dark = l.kind == .lift

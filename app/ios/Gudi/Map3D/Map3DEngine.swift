@@ -58,6 +58,10 @@ final class Map3DEngine: NSObject {
     /// The line the camera frames (the chosen run, a lift), and the free part of the screen above the panel.
     @ObservationIgnored private var framed: [P3]?
     @ObservationIgnored private var freeBottom = Framing.Box().bottom
+    /// The share of the screen the panel covers, and the top of the screen the map's bar, switch and compass take
+    /// (deeper than Android's 0.16: the iPhone's status bar, title and controls), kept clear of framed lines and names.
+    @ObservationIgnored private(set) var covered = 0.0
+    static let freeTop = 0.38
     @ObservationIgnored private var chairsTask: Task<Void, Never>?
 
     /// The view's size in points, and the last frame's matrix and eye (for the labels and the taps).
@@ -137,7 +141,8 @@ final class Map3DEngine: NSObject {
 
     /// The panel covers the screen below `bottom` (a share of the height): the line in view moves above it.
     func setCovered(_ covered: Double) {
-        let b = min(max(1 - covered, 0.3), Framing.Box().bottom)
+        self.covered = covered
+        let b = min(max(1 - covered, 0.5), Framing.Box().bottom)
         guard abs(b - freeBottom) >= 0.02 else { return }
         freeBottom = b
         if let path = framed { frame(path, seconds: 0.6) }
@@ -181,7 +186,7 @@ final class Map3DEngine: NSObject {
     private func frame(_ path: [P3], seconds: Double) {
         framed = path
         guard let s = scene else { return }
-        let w = size.width, h = size.height, box = Framing.Box(bottom: freeBottom)
+        let w = size.width, h = size.height, box = Framing.Box(top: Self.freeTop, bottom: freeBottom)
         Task {
             let to = await Task.detached(priority: .userInitiated) { Framing.fit(path, w: w, h: h, ground: s.elev, box: box) }.value
             if framed == path { animate(to, seconds: seconds) }
