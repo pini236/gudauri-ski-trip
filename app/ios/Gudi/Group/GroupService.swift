@@ -1,5 +1,6 @@
 import Foundation
 import Security
+import GudiData
 import GudiDomain
 
 /// The app's one door to accounts and groups (13.5 on iPhone): the real server through GudiDomain's client (the
