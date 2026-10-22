@@ -84,7 +84,7 @@ jobs:
           cd app/ios
           xcodebuild -project Gudi.xcodeproj -scheme Gudi -configuration Debug \
             -destination 'generic/platform=iOS Simulator' -derivedDataPath "$RUNNER_TEMP/dd" \
-            CURRENT_PROJECT_VERSION=${{ github.run_number }} CODE_SIGNING_ALLOWED=NO build 2>&1 | grep -E "error:|error\b" | grep -v "^ *$" | head -60
+            CURRENT_PROJECT_VERSION=${{ github.run_number }} CODE_SIGNING_ALLOWED=NO build | tail -40
           test "${PIPESTATUS[0]}" -eq 0
       - name: Run in a simulator and take a screenshot
         timeout-minutes: 30
