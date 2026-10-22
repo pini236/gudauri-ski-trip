@@ -1,0 +1,27 @@
+# Which emulator parts a change needs (app/android/qa/README.md). Used by .github/scripts/qa-plan.py when the run is
+# started by hand on a branch with scenario "auto". main always runs every part.
+# Columns: path prefix (a file under it matches), then the parts, comma separated. A changed file under app/android,
+# site/data, i18n or the build tools that no line names runs every part; "none" means no part needs it (the smoke part runs).
+# Prefix for the app's code:
+# K = app/android/app/src/main/java/io/github/pini236/skiapp
+app/android/app/src/main/java/io/github/pini236/skiapp/map/	map,run,locate,weather,status,meet
+app/android/app/src/main/java/io/github/pini236/skiapp/meet/	meet
+app/android/app/src/main/java/io/github/pini236/skiapp/status/	status,map
+app/android/app/src/main/java/io/github/pini236/skiapp/weather/	weather,map,home
+app/android/app/src/main/java/io/github/pini236/skiapp/game/	games,school,snowball,descent
+app/android/app/src/main/java/io/github/pini236/skiapp/group/	group,home
+app/android/app/src/main/java/io/github/pini236/skiapp/account/	group,home
+app/android/app/src/main/java/io/github/pini236/skiapp/server/	group,home
+app/android/app/src/main/java/io/github/pini236/skiapp/home/	home,lang,phone
+app/android/app/src/main/java/io/github/pini236/skiapp/trip/	home
+app/android/app/src/main/java/io/github/pini236/skiapp/nav/	home,map,group
+app/android/app/src/main/java/io/github/pini236/skiapp/i18n/	lang,phone,home
+app/android/app/src/test/	none
+app/android/app/src/androidTest/	none
+app/android/README.md	none
+app/android/CLAUDE.md	none
+app/android/qa/README.md	none
+site/games/descent/	descent
+site/games/thumbs/	games
+site/img/pano/	home
+site/audio/	games,home
