@@ -6,6 +6,8 @@ group-signin-en en night 0 group+group=none+gsheet=signin
 group-code-he he day 0 grp:code+group=none
 group-join-he he day 0 grp:join:KZBQRM+group=invited
 group-join-en en night 0 grp:join:KZBQRM+group=invited
+group-join-he-night he night 0 grp:join:KZBQRM+group=invited
+group-join-en-day en day 0 grp:join:KZBQRM+group=invited
 group-reclaim-he he day 0 grp:reclaim:KZBQRM+group=invited
 group-flights-he he day 1 grp:page:g1:flights+group=admin
 group-flights-en en night 1 grp:page:g1:flights+group=admin
