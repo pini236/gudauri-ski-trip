@@ -11,6 +11,8 @@ enum Route: Hashable {
     case group
     case about
     case trip
+    /// The group's own screens: its page, joining, the account (Group/GroupRoute.swift)
+    case groups(GroupRoute)
 
     /// "map", "map:Tatra 2", "meet", "games", "game:merge", "group", "about", "trip" (the screenshots' launch argument).
     init?(qa: String) {
@@ -25,6 +27,7 @@ enum Route: Hashable {
         case "group": self = .group
         case "about": self = .about
         case "trip": self = .trip
+        case "grp": guard let r = arg.flatMap(GroupRoute.init(qa:)) else { return nil }; self = .groups(r)
         default: return nil
         }
     }
@@ -50,7 +53,11 @@ final class AppModel {
 
     /// The user's own trip, as JSON in Android's format, in UserDefaults.
     var trip: Trip? {
-        didSet { UserDefaults.standard.set(trip?.json(), forKey: "trip") }
+        didSet {
+            UserDefaults.standard.set(trip?.json(), forKey: "trip")
+            // a group shows it (Q7): to the server too, once this phone has a session there
+            GroupService.shared.tripSaved(trip)
+        }
     }
 
     init() {

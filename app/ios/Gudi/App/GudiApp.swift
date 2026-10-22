@@ -82,6 +82,7 @@ struct RootView: View {
                         case .about: AboutScreen(mode: mode, onMode: { modeRaw = mode.next.rawValue; Telemetry.shared.event("theme_set", ["mode": mode.next.rawValue]) },
                                                  onLang: { setLang($0, lang) }, onResetBests: { Bests.reset() })
                         case .trip: TripFormScreen()
+                        case .groups(let g): GroupFlow(route: g)
                         }
                     }
                     .background(ski.colors.snow)
