@@ -1,0 +1,10 @@
+# The games page and the merge, fresh snow and ski school games (Games A)
+games-he-day he day 0 games
+games-en-night en night 0 games
+games-ru-day ru day 0 games
+merge-he-day he day 0 game:merge
+merge-en-night en night 0 game:merge
+fresh-he-day he day 0 game:fresh
+fresh-en-night en night 0 game:fresh
+school-he-day he day 0 game:school
+school-en-night en night 0 game:school

@@ -24,7 +24,7 @@
 - [x] 2. **(פיני, 21.10.2026, באתר; החשבון הופעל באותו יום)** הרשמה לתוכנית באפליקציה Apple Developer באייפון, או באתר מהמק, כאדם פרטי, ותשלום. (סעיף 1)
 - [x] 3. **(פיני, 21.10.2026; `Free Apps Agreement` פעיל, DSA: לא סוחר)** הסכם התוכנית ב-App Store Connect, ומעמד הסוחר ב-DSA. (סעיף 2)
 - [x] 4. **(פיני, 21.10.2026)** Team ID: **`ZX5CTJ88UA`** (לא סוד). פותח את סעיפים 3 עד 5.
-- [ ] 5. **(פיני)** רישום המזהה `io.github.pini236.skiapp` עם היכולות, ויצירת האפליקציה ב-App Store Connect. (סעיף 2)
+- [x] 5. **(פיני, 21.10.2026; האפליקציה `Gudi: Gudauri Ski Map` נוצרה, `iOS 1.0 Prepare for Submission`)** רישום המזהה `io.github.pini236.skiapp` עם היכולות, ויצירת האפליקציה ב-App Store Connect. (סעיף 2)
 - [ ] 6. **(פיני)** תעודת הפצה ופרופיל, מפתח API, ושישה סודות בכספת של GitHub. (סעיף 4)
 - [ ] 7. **(פיני)** כניסה עם אפל: Services ID לאתר, מפתח, והגדרה בסופבייס. (סעיף 3)
 - [ ] 8. **(סשן האייפון)** בדיקת היתכנות (כמו 13.1 באנדרואיד), ובנייה ראשונה שעולה ל-TestFlight. **צריך אייפון לבדיקה** (סעיף 4.4).
@@ -113,7 +113,7 @@
    - `Push Notifications` (לתזכורות מהשרת בעתיד; תזכורות המפגש עצמן מקומיות, ולכן אפשר גם להדליק אחר כך).
 5. `Continue`, ואז `Register`.
 
-(לא אומת שכל שלוש היכולות מופיעות בדיוק בשמות האלה; אם השם שונה, לבחור את המקביל.)
+(נבדק בפועל, 21.10.2026: שלושתן בלשונית `Capabilities`, בשמות האלה, ברשימה אלפביתית ארוכה; הזכוכית המגדלת מחפשת. ליד `Push Notifications` משאירים את `Broadcast Capability` ריקה. יש גם לשונית `App Services`, ולא צריך אותה.)
 
 ### 2.4 יצירת האפליקציה ב-App Store Connect
 
@@ -259,6 +259,8 @@ rm -rf /tmp/asecret
 
 **א. תעודת הפצה (`Apple Distribution`):**
 
+**בלי Xcode (הדרך שנבחרה, 21.10.2026, כי זה מחשב העבודה):** ב-`Keychain Access`, בתפריט `Keychain Access`, `Certificate Assistant`, `Request a Certificate From a Certificate Authority`: המייל של ה-Apple ID, `Common Name` הוא `Pinchas Zolberg`, בלי מייל ל-CA, `Saved to disk`, לתיקייה `~/ski-app-keys`. אחר כך https://developer.apple.com/account/resources/certificates/add, `Apple Distribution`, להעלות את קובץ הבקשה, ולהוריד את `distribution.cer`. לחיצה כפולה עליו מכניסה אותו ל-`login`, ומשם ממשיכים בצעדים 2 ו-3 למטה. (הדרך דרך Xcode, בצעד 1, שקולה.)
+
 1. Xcode, הגדרות (`Settings`), `Accounts`, להוסיף את ה-Apple ID, לבחור את הצוות, `Manage Certificates`, `+`, ואז `Apple Distribution`.
 2. במנהל הסיסמאות: רשומה `ski-app-ios-dist`, עם סיסמה אקראית ארוכה (אותיות ומספרים בלבד).
 3. ב-`Keychain Access`: `My Certificates`, לחיצה ימנית על `Apple Distribution: Pini Zolberg (...)`, `Export`, פורמט `.p12`, עם הסיסמה מהרשומה. קובץ: `~/ski-app-keys/ios-dist.p12`.
@@ -294,7 +296,7 @@ base64 -i AuthKey_*.p8 | pbcopy                    # ASC_KEY_P8_BASE64
 | `ASC_KEY_ID` | ה-Key ID |
 | `ASC_ISSUER_ID` | ה-Issuer ID |
 
-**ה. ניקוי:** מצרפים את שלושת הקבצים לרשומות במנהל הסיסמאות, מעתיקים משהו אחר ללוח, ואז:
+**ה. ניקוי:** מצרפים את שלושת הקבצים לרשומות במנהל הסיסמאות, מעתיקים משהו אחר ללוח, מוחקים ב-`Keychain Access` את `Apple Distribution: Pinchas Zolberg` (עם המפתח שלה), מוציאים את ה-Apple ID מ-Xcode (`Settings`, `Accounts`, מינוס), ואז:
 
 ```
 cd ~ && rm -rf ~/ski-app-keys
@@ -446,6 +448,8 @@ cd ~ && rm -rf ~/ski-app-keys
 
 - 21.10.2026: טיוטות דף החנות באנגלית, בעברית וברוסית (`i18n/appstore-listing.md`; גאורגית לא נתמכת ב-App Store), ורשימת המקומות במדיניות הפרטיות שישתנו לאייפון (5.2).
 - 21.10.2026: המסמך נכתב ונבדק מול התיעוד הרשמי. הארכיטקט אישר את החתימה, הסודות והכניסה עם אפל עם תיקונים (סביבה מוגבלת ל-`main`, מפתח API בתפקיד `Developer`, `Skip nonce checks` כבוי, מחיקה בלי ביטול אסימונים בתנאי שלא נשמר אסימון של אפל), והם במסמך. **הבא:** פיני מתחיל את סעיפים 1 ו-2 בנתיב הקריטי.
+- 21.10.2026: **צעד 5 הושלם:** האפליקציה `Gudi: Gudauri Ski Map` נוצרה ב-App Store Connect. בדרך: הודעה של אפל שמאפריל 2027 צריך צילומי מסך ל-iPhone Duo לכל אפליקציה שנבנית עם iOS 27.1 ומעלה. **הבא:** התעודה, הפרופיל, מפתח ה-API והסודות (צעד 6), בלי Xcode.
+- 21.10.2026: **צעד 5, חלק א:** המזהה `io.github.pini236.skiapp` (`Gudi Ski App`) נרשם, עם `Sign In with Apple` כמזהה ראשי, `Associated Domains` ו-`Push Notifications`. **הבא:** יצירת האפליקציה ב-App Store Connect.
 - 21.10.2026: **צעד 3 הושלם:** `Free Apps Agreement` פעיל מההרשמה (את `Paid Apps Agreement` לא צריך, האפליקציה חינמית), ומעמד ה-DSA הוגש כלא סוחר (`Active`). **הבא:** רישום המזהה ויצירת האפליקציה (צעד 5).
 - 21.10.2026: **החשבון הופעל באותו יום, וצעד 4 הושלם:** Team ID `ZX5CTJ88UA`. **הבא:** ההסכם ב-App Store Connect ומעמד ה-DSA (צעד 3).
 - 21.10.2026: **צעד 2 הושלם:** ההרשמה כ-Individual באתר (בלי האפליקציה, כי היא דורשת iCloud במק, ופיני על מק העבודה), התשלום עבר, וממתינים למייל ההפעלה (עד שני ימי עסקים). **הבא:** ה-Team ID, ההסכם ב-App Store Connect ומעמד ה-DSA (צעדים 3 ו-4).
