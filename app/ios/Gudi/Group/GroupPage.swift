@@ -62,6 +62,7 @@ struct GroupPage: View {
             var qa = AppModel.qaFlag("gsheet").flatMap(Sheet.init(rawValue:))
             for await s in w.states() {
                 shown = s
+                if let g = s.group { GroupService.shared.meetupsSeen(g, runs: model.runs) }
                 // the screenshots' sheet, once the group is there
                 if let q = qa, s.group != nil { qa = nil; forMember = s.group?.members.first { $0.trip == nil && !$0.me }?.userId; sheet = q }
                 offerSave()
@@ -468,8 +469,12 @@ struct MeetupsTab: View {
     @Environment(AppModel.self) private var model
     @Environment(\.ski) private var ski
     @State private var armed: String?
+    /// A reminder turned on or off redraws its row (the choice itself is kept by `Reminders`).
+    @State private var flips = 0
 
     private static let gudauri = TimeZone(secondsFromGMT: 4 * 3600)!
+
+    private func remindOn(_ id: String) -> Bool { _ = flips; return Reminders.isOn(id) }
 
     var body: some View {
         let c = ski.colors
@@ -485,6 +490,7 @@ struct MeetupsTab: View {
                 Text(shortDate(day)).font(ski.type.text(13, .semibold)).foregroundStyle(c.muted)
                 ForEach(days[day]!) { m in
                     let t = cal.dateComponents([.hour, .minute], from: m.at)
+                    VStack(spacing: 0) {
                     HStack(spacing: 0) {
                         Button { onOpen(m) } label: {
                             HStack(spacing: 0) {
@@ -522,6 +528,27 @@ struct MeetupsTab: View {
                             .frame(minHeight: 44)
                         }
                         .accessibilityLabel(S.appGMeetupDelete)
+                    }
+                    // Q8: the reminder a quarter of an hour before, on unless turned off (kept on the phone)
+                    if m.at.timeIntervalSince(now) > Double(MeetReminders.beforeMin * 60) {
+                        let on = remindOn(m.id)
+                        Button {
+                            Reminders.set(m.id, on: !on); flips += 1; Fx.shared.tick()
+                            GroupService.shared.remindersChanged()
+                        } label: {
+                            HStack(spacing: 8) {
+                                Image(systemName: on ? "bell.fill" : "bell.slash").font(.system(size: 13)).foregroundStyle(on ? c.blue : c.muted)
+                                GMuted(S.appGRemind, 12.5)
+                                Spacer(minLength: 0)
+                                Image(systemName: on ? "checkmark.square.fill" : "square").font(.system(size: 18)).foregroundStyle(on ? c.blue : c.muted)
+                            }
+                            .padding(.horizontal, 14).frame(minHeight: 44).contentShape(Rectangle())
+                        }
+                        .buttonStyle(.plain)
+                        .accessibilityLabel(S.appGRemind)
+                        .accessibilityValue(on ? "✓" : "")
+                        .overlay(alignment: .top) { Rectangle().fill(c.rule).frame(height: 1) }
+                    }
                     }
                     .background(c.bpPaper)
                     .overlay { if m == next { Rectangle().inset(by: 1).stroke(c.blue, lineWidth: 2) } }

@@ -64,6 +64,63 @@ final class GroupService {
 
     func addMeetup(groupId: String, station: String, at: Date) async throws { try await api.addMeetup(groupId, station: station, at: at) }
 
+    // MARK: meetup reminders (Q8)
+
+    /// The meetups of each of my groups as last seen, kept on the phone, so the reminders know all of them (also with
+    /// no signal). Each group page updates its own; the hub drops the groups I left and reads the others again.
+    private var reminderItems: [String: [MeetReminders.Item]] = {
+        guard let d = UserDefaults.standard.data(forKey: "group.reminders"),
+              let v = try? JSONDecoder().decode([String: [MeetReminders.Item]].self, from: d) else { return [:] }
+        return v
+    }()
+
+    /// One group's meetups as the reminders take them: the station's name, the group, the time in Gudauri, the card.
+    func meetupsSeen(_ group: TripGroup, runs: RunsAndLifts?) {
+        guard !fake else { return }
+        var cal = Calendar(identifier: .gregorian)
+        cal.timeZone = TimeZone(secondsFromGMT: 4 * 3600)!
+        reminderItems[group.id] = group.meetups.compactMap { m in
+            let c = cal.dateComponents([.year, .month, .day, .hour, .minute], from: m.at)
+            guard let y = c.year, let mo = c.month, let d = c.day, let h = c.hour, let mi = c.minute,
+                  let day = Day(y, mo, d), let t = ClockTime(h, mi) else { return nil }
+            let time = String(format: "%02d:%02d", h, mi)
+            return MeetReminders.Item(id: m.id, at: Int64(m.at.timeIntervalSince1970 * 1000), place: Self.stationName(m.station, runs),
+                                      group: group.name, time: time, open: Meet.path(m.station, t, day))
+        }
+        armReminders()
+    }
+
+    /// After the list of my groups is known: groups I am no longer in lose their reminders, the others are read again.
+    func refreshReminders(_ groups: [GroupSummary], runs: RunsAndLifts?) async {
+        guard !fake else { return }
+        let ids = Set(groups.map(\.id))
+        reminderItems = reminderItems.filter { ids.contains($0.key) }
+        armReminders()
+        for g in groups { if let full = try? await api.group(g.id) { meetupsSeen(full, runs: runs) } }
+    }
+
+    /// Signed out or the account deleted: no reminders are left.
+    func forgetReminders() {
+        reminderItems = [:]
+        armReminders()
+    }
+
+    /// A meetup's reminder turned on or off: the scheduled ones follow.
+    func remindersChanged() { if !fake { armReminders() } }
+
+    private func armReminders() {
+        if let d = try? JSONEncoder().encode(reminderItems) { UserDefaults.standard.set(d, forKey: "group.reminders") }
+        Reminders.sync(meetups: reminderItems.values.flatMap { $0 })
+    }
+
+    /// The station's name as the meeting point gives it ("158744075b": the bottom station of Goodaura).
+    static func stationName(_ id: String, _ runs: RunsAndLifts?) -> String {
+        let top = id.hasSuffix("t")
+        guard let lift = runs?.lifts.first(where: { $0.id == String(id.dropLast()) }) else { return id }
+        let n = "\u{2068}\(lift.name)\u{2069}"
+        return top ? S.meetWhereTopStation(lifts: n) : S.meetWhereBottomStation(lifts: n)
+    }
+
     /// An invite link of the site that opens here (A-31): `/j/<token>` or `/join/<code>`, also `#join/<code>`.
     static func route(for url: URL) -> Route? {
         let s = url.absoluteString

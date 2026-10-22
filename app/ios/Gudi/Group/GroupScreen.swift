@@ -21,7 +21,13 @@ struct GroupScreen: View {
         .task(id: changes) {
             // what waits for signal goes out (the lead also calls this on launch)
             if changes == 0 { await GroupService.shared.flush() }
-            let g = api.me() == nil ? [] : ((try? await api.myGroups()) ?? [])
+            var g: [GroupSummary] = []
+            if api.me() != nil, let list = try? await api.myGroups() {
+                g = list
+                // the reminders know every group's meetups (Q8); a group I left loses them
+                let runs = model.runs
+                Task { await GroupService.shared.refreshReminders(list, runs: runs) }
+            }
             groups = g
             if g.count == 1 { model.replaceTop(.groups(.page(g[0].id, .flights))) }
             else if g.count > 1 { model.replaceTop(.groups(.account)) }
