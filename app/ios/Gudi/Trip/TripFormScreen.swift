@@ -79,22 +79,22 @@ struct TripFormScreen: View {
                     if let intro { Text(intro).font(ski.type.text(13.5)).foregroundStyle(c.muted) }
                     TripSection(title: S.appPassOut, note: S.appTripOutNote)
                     pair {
-                        PickField(label: S.appTripDate, value: dayText(oDate, lang), hint: S.appTripPickDate, icon: "calendar",
+                        TripPickField(label: S.appTripDate, value: tripDayText(oDate, lang), hint: S.appTripPickDate, icon: "calendar",
                                   error: oDate == nil && tried ? S.appTripErrDate : nil) { pick = .oDate }
                     } _: {
-                        FlightField(label: S.appTripFlightNo, text: $oFlight)
+                        TripFlightField(label: S.appTripFlightNo, text: $oFlight)
                     }
                     pair {
-                        PickField(label: S.ticketFrom, value: oFrom.isEmpty ? nil : oFrom, hint: S.appTripPickPlace, icon: "airplane.departure",
+                        TripPickField(label: S.ticketFrom, value: oFrom.isEmpty ? nil : oFrom, hint: S.appTripPickPlace, icon: "airplane.departure",
                                   error: tried && !fromOk ? S.tripBadCode : nil) { pick = .oFrom }
                     } _: {
-                        PickField(label: S.ticketTo, value: oTo.isEmpty ? nil : oTo, hint: S.appTripPickPlace, icon: "airplane.arrival",
+                        TripPickField(label: S.ticketTo, value: oTo.isEmpty ? nil : oTo, hint: S.appTripPickPlace, icon: "airplane.arrival",
                                   error: tried && !toOk ? S.tripBadCode : nil) { pick = .oTo }
                     }
                     pair {
-                        PickField(label: S.ticketDeparts, value: oDep?.text, hint: S.appTripPickTime, icon: "clock", onClear: { oDep = nil }) { pick = .oDep }
+                        TripPickField(label: S.ticketDeparts, value: oDep?.text, hint: S.appTripPickTime, icon: "clock", onClear: { oDep = nil }) { pick = .oDep }
                     } _: {
-                        PickField(label: S.ticketArrives, value: oArr?.text, hint: S.appTripPickTime, icon: "clock", onClear: { oArr = nil }) { pick = .oArr }
+                        TripPickField(label: S.ticketArrives, value: oArr?.text, hint: S.appTripPickTime, icon: "clock", onClear: { oArr = nil }) { pick = .oArr }
                     }
 
                     TripSection(title: S.appPassRet, note: S.appTripRetNote)
@@ -103,24 +103,24 @@ struct TripFormScreen: View {
                         Text(S.appTripRetRoute(from: back[0], to: back[1])).font(ski.type.text(13)).foregroundStyle(c.muted)
                     }
                     pair {
-                        PickField(label: S.appTripDate, value: dayText(rDate, lang), hint: S.appTripPickDate, icon: "calendar",
+                        TripPickField(label: S.appTripDate, value: tripDayText(rDate, lang), hint: S.appTripPickDate, icon: "calendar",
                                   error: orderBad ? S.appTripErrOrder : nil, onClear: { rDate = nil }) { pick = .rDate }
                     } _: {
-                        FlightField(label: S.appTripFlightNo, text: $rFlight)
+                        TripFlightField(label: S.appTripFlightNo, text: $rFlight)
                     }
                     pair {
-                        PickField(label: S.ticketDeparts, value: rDep?.text, hint: S.appTripPickTime, icon: "clock", onClear: { rDep = nil }) { pick = .rDep }
+                        TripPickField(label: S.ticketDeparts, value: rDep?.text, hint: S.appTripPickTime, icon: "clock", onClear: { rDep = nil }) { pick = .rDep }
                     } _: {
-                        PickField(label: S.ticketArrives, value: rArr?.text, hint: S.appTripPickTime, icon: "clock", onClear: { rArr = nil }) { pick = .rArr }
+                        TripPickField(label: S.ticketArrives, value: rArr?.text, hint: S.appTripPickTime, icon: "clock", onClear: { rArr = nil }) { pick = .rArr }
                     }
 
                     skiDays
                     if manual {
                         pair {
-                            PickField(label: S.appTripSkiFirst, value: dayText(sFrom, lang), hint: S.appTripPickDate, icon: "calendar",
+                            TripPickField(label: S.appTripSkiFirst, value: tripDayText(sFrom, lang), hint: S.appTripPickDate, icon: "calendar",
                                       error: sFrom == nil && tried ? S.appTripErrDate : nil) { pick = .sFrom }
                         } _: {
-                            PickField(label: S.appTripSkiLast, value: dayText(sTo, lang), hint: S.appTripPickDate, icon: "calendar",
+                            TripPickField(label: S.appTripSkiLast, value: tripDayText(sTo, lang), hint: S.appTripPickDate, icon: "calendar",
                                       error: sTo == nil && tried ? S.appTripErrDate
                                           : (sFrom != nil && sTo != nil && sTo! < sFrom!) ? S.appTripErrSkiOrder : nil) { pick = .sTo }
                         }
@@ -148,7 +148,7 @@ struct TripFormScreen: View {
                 .presentationBackground(c.snow)
         }
         .sheet(isPresented: $calendar, onDismiss: { if saved { dismiss() } }) {
-            CalendarSheet(trip: app.trip) { o, r in
+            TripCalendarSheet(trip: app.trip) { o, r in
                 // the pass fills in; back home once the calendar is down
                 app.trip = app.trip?.withDates(o, r) ?? PassEdits.newTrip(out: o, ret: r, tlv: airportPlace("TLV"), tbs: airportPlace("TBS"))
                 saved = true
@@ -214,25 +214,25 @@ struct TripFormScreen: View {
         switch p {
         // the outbound from today on; the return and the ski days within the trip
         case .oDate:
-            DateSheet(title: out + " · " + S.appTripDate, initial: oDate, open: today, min: today, max: nil) { d in
+            TripDateSheet(title: out + " · " + S.appTripDate, initial: oDate, open: today, min: today, max: nil) { d in
                 oDate = d
                 if let r = rDate, r < d { rDate = nil }
             }.presentationDetents([.large])
         case .rDate:
-            DateSheet(title: ret + " · " + S.appTripDate, initial: rDate, open: oDate, min: oDate ?? today, max: nil) { rDate = $0 }
+            TripDateSheet(title: ret + " · " + S.appTripDate, initial: rDate, open: oDate, min: oDate ?? today, max: nil) { rDate = $0 }
                 .presentationDetents([.large])
         case .sFrom:
-            DateSheet(title: S.appTripSkiFirst, initial: sFrom, open: oDate, min: oDate, max: rDate) { sFrom = $0 }
+            TripDateSheet(title: S.appTripSkiFirst, initial: sFrom, open: oDate, min: oDate, max: rDate) { sFrom = $0 }
                 .presentationDetents([.large])
         case .sTo:
-            DateSheet(title: S.appTripSkiLast, initial: sTo, open: sFrom ?? oDate, min: sFrom ?? oDate, max: rDate) { sTo = $0 }
+            TripDateSheet(title: S.appTripSkiLast, initial: sTo, open: sFrom ?? oDate, min: sFrom ?? oDate, max: rDate) { sTo = $0 }
                 .presentationDetents([.large])
-        case .oDep: TimeSheet(title: out + " · " + S.ticketDeparts, initial: oDep) { oDep = $0 }.presentationDetents([.height(400)])
-        case .oArr: TimeSheet(title: out + " · " + S.ticketArrives, initial: oArr ?? oDep) { oArr = $0 }.presentationDetents([.height(400)])
-        case .rDep: TimeSheet(title: ret + " · " + S.ticketDeparts, initial: rDep) { rDep = $0 }.presentationDetents([.height(400)])
-        case .rArr: TimeSheet(title: ret + " · " + S.ticketArrives, initial: rArr ?? rDep) { rArr = $0 }.presentationDetents([.height(400)])
-        case .oFrom: PlaceSheet(title: S.appTripPlaceFrom, current: oFrom, first: ["TLV"]) { oFrom = $0 }.presentationDetents([.large])
-        case .oTo: PlaceSheet(title: S.appTripPlaceTo, current: oTo, first: ["TBS", "KUT", "BUS"]) { oTo = $0 }.presentationDetents([.large])
+        case .oDep: TripTimeSheet(title: out + " · " + S.ticketDeparts, initial: oDep) { oDep = $0 }.presentationDetents([.height(400)])
+        case .oArr: TripTimeSheet(title: out + " · " + S.ticketArrives, initial: oArr ?? oDep) { oArr = $0 }.presentationDetents([.height(400)])
+        case .rDep: TripTimeSheet(title: ret + " · " + S.ticketDeparts, initial: rDep) { rDep = $0 }.presentationDetents([.height(400)])
+        case .rArr: TripTimeSheet(title: ret + " · " + S.ticketArrives, initial: rArr ?? rDep) { rArr = $0 }.presentationDetents([.height(400)])
+        case .oFrom: TripPlaceSheet(title: S.appTripPlaceFrom, current: oFrom, first: ["TLV"]) { oFrom = $0 }.presentationDetents([.large])
+        case .oTo: TripPlaceSheet(title: S.appTripPlaceTo, current: oTo, first: ["TBS", "KUT", "BUS"]) { oTo = $0 }.presentationDetents([.large])
         }
     }
 

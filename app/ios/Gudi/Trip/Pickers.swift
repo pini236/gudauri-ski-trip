@@ -48,7 +48,7 @@ extension Lang {
 }
 
 /// "Sun · 10.1.2027", in the app's language (Android's "EEE · d.M.yyyy").
-func dayText(_ d: Day?, _ lang: Lang) -> String? {
+func tripDayText(_ d: Day?, _ lang: Lang) -> String? {
     guard let d else { return nil }
     let f = DateFormatter()
     f.calendar = Day.calendar
@@ -89,7 +89,7 @@ struct TripSection: View {
 
 /// A field that opens a picker: the same look as a typed field (label, box, error), with the picker's icon, and never
 /// the keyboard. With [onClear], a set value gets an X.
-struct PickField: View {
+struct TripPickField: View {
     let label: String
     let value: String?
     let hint: String
@@ -136,7 +136,7 @@ struct PickField: View {
 }
 
 /// The flight number: the one thing typed, in capitals, Latin, left to right (12 characters at most).
-struct FlightField: View {
+struct TripFlightField: View {
     let label: String
     @Binding var text: String
     var showLabel = true
@@ -216,7 +216,7 @@ struct TripQuietButton: View {
 // MARK: - The sheets
 
 /// A sheet's head: what it fills, in the sign voice, and a close button.
-struct SheetHead: View {
+struct TripSheetHead: View {
     let title: String
     var sub: String? = nil
     @Environment(\.ski) private var ski
@@ -240,7 +240,7 @@ struct SheetHead: View {
 
 /// A day from the iPhone's calendar, between [min] and [max]; [title] says which day this is ("Outbound · Date"), and
 /// the chosen day shows big above the month.
-struct DateSheet: View {
+struct TripDateSheet: View {
     let title: String
     let initial: Day?
     let open: Day?
@@ -257,7 +257,7 @@ struct DateSheet: View {
         let lo = min?.date ?? Date.distantPast
         let hi = Swift.max(max?.date ?? Date.distantFuture, lo)
         VStack(alignment: .leading, spacing: 10) {
-            SheetHead(title: dayText(Day(date: chosen), lang) ?? S.appTripPickDate, sub: title)
+            TripSheetHead(title: tripDayText(Day(date: chosen), lang) ?? S.appTripPickDate, sub: title)
             DatePicker("", selection: $chosen, in: lo...hi, displayedComponents: .date)
                 .datePickerStyle(.graphical)
                 .labelsHidden()
@@ -273,7 +273,7 @@ struct DateSheet: View {
 }
 
 /// A time from the iPhone's wheel, in 24 hours; [title] says which time this is ("Outbound · Departs").
-struct TimeSheet: View {
+struct TripTimeSheet: View {
     let title: String
     let initial: ClockTime?
     let onPick: (ClockTime) -> Void
@@ -284,7 +284,7 @@ struct TimeSheet: View {
     var body: some View {
         let c = ski.colors
         VStack(alignment: .leading, spacing: 8) {
-            SheetHead(title: ClockTime(date: at).text, sub: title)
+            TripSheetHead(title: ClockTime(date: at).text, sub: title)
             DatePicker("", selection: $at, displayedComponents: .hourAndMinute)
                 .datePickerStyle(.wheel)
                 .labelsHidden()
@@ -302,7 +302,7 @@ struct TimeSheet: View {
 
 /// The airport, from the short list (with search), or another three-letter code typed in the search: the same rule as
 /// the site (K-5, decision 62; its trip.bad_code). Writes "TBS · Tbilisi", or the code alone.
-struct PlaceSheet: View {
+struct TripPlaceSheet: View {
     let title: String
     let current: String
     let first: [String]
@@ -316,7 +316,7 @@ struct PlaceSheet: View {
         let c = ski.colors
         let shown = Array(Airports.shown(first: first, query: q, city: airportCity).prefix(8))
         VStack(alignment: .leading, spacing: 10) {
-            SheetHead(title: title)
+            TripSheetHead(title: title)
             HStack(spacing: 8) {
                 Image(systemName: "magnifyingglass").foregroundStyle(c.muted)
                 TextField(S.appTripPlaceSearch, text: $q, prompt: Text(S.appTripPlaceSearch).foregroundColor(c.muted.opacity(0.75)))
@@ -333,7 +333,7 @@ struct PlaceSheet: View {
                         let on = current.hasPrefix(code)
                         Button { pick(airportPlace(code)) } label: {
                             HStack(spacing: 14) {
-                                PlaceCode(code: code, color: c.ink)
+                                TripPlaceCode(code: code, color: c.ink)
                                 Text(airportCity(code)).font(ski.type.text(16)).foregroundStyle(c.ink)
                                 Spacer()
                                 if on { Image(systemName: "checkmark").font(.system(size: 16, weight: .bold)).foregroundStyle(c.glacier) }
@@ -350,7 +350,7 @@ struct PlaceSheet: View {
                     if let code = Airports.code(q), !shown.contains(code) {
                         Button { pick(code) } label: {
                             HStack(spacing: 14) {
-                                PlaceCode(code: code, color: c.glacier)
+                                TripPlaceCode(code: code, color: c.glacier)
                                 Text(S.appTripPlaceOther(text: code)).font(ski.type.text(15, .bold)).foregroundStyle(c.glacier)
                                 Spacer()
                                 Image(systemName: "plus").font(.system(size: 16, weight: .bold)).foregroundStyle(c.glacier)
@@ -376,7 +376,7 @@ struct PlaceSheet: View {
 }
 
 /// An airport code in the display face, Latin, left to right.
-struct PlaceCode: View {
+struct TripPlaceCode: View {
     let code: String
     let color: Color
     var body: some View {
@@ -387,7 +387,7 @@ struct PlaceCode: View {
 }
 
 /// The flight number, its own small sheet (round 20): typed in capitals, saved as it is (empty clears it).
-struct FlightSheet: View {
+struct TripFlightSheet: View {
     let current: String
     let onSave: (String) -> Void
     @Environment(\.ski) private var ski
@@ -397,8 +397,8 @@ struct FlightSheet: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            SheetHead(title: S.appTripFlightNo)
-            FlightField(label: S.appTripFlightNo, text: $f, showLabel: false, focus: $focus)
+            TripSheetHead(title: S.appTripFlightNo)
+            TripFlightField(label: S.appTripFlightNo, text: $f, showLabel: false, focus: $focus)
             TripButton(title: S.appSave) { onSave(f.trimmingCharacters(in: .whitespaces)); dismiss() }
             Spacer(minLength: 0)
         }

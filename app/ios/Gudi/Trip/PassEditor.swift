@@ -31,14 +31,14 @@ struct PassEditor: View {
         Group {
             switch edit {
             case .dates:
-                CalendarSheet(trip: trip) { o, r in
+                TripCalendarSheet(trip: trip) { o, r in
                     app.trip = trip?.withDates(o, r) ?? PassEdits.newTrip(out: o, ret: r, tlv: tlv, tbs: tbs)
                 }
                 .presentationDetents([.large])
             case .place(let from):
                 if let trip {
                     let o = trip.out
-                    PlaceSheet(title: from ? S.appTripPlaceFrom : S.appTripPlaceTo, current: from ? o.from : o.to,
+                    TripPlaceSheet(title: from ? S.appTripPlaceFrom : S.appTripPlaceTo, current: from ? o.from : o.to,
                                first: from ? ["TLV"] : ["TBS", "KUT", "BUS"]) { p in
                         app.trip = from ? trip.withPlaces(from: p, to: o.to) : trip.withPlaces(from: o.from, to: p)
                     }
@@ -46,14 +46,14 @@ struct PassEditor: View {
                 }
             case .flight(let ret):
                 if let trip {
-                    FlightSheet(current: (ret ? trip.ret : trip.out)?.flight ?? "") { f in
+                    TripFlightSheet(current: (ret ? trip.ret : trip.out)?.flight ?? "") { f in
                         app.trip = trip.withLeg(ret: ret) { $0.flight = f }
                     }
                     .presentationDetents([.height(240)])
                 }
             case .time(let ret, let departs):
                 if let trip, let leg = ret ? trip.ret : trip.out {
-                    TimeSheet(title: (ret ? S.appPassRet : S.appPassOut) + " · " + (departs ? S.ticketDeparts : S.ticketArrives),
+                    TripTimeSheet(title: (ret ? S.appPassRet : S.appPassOut) + " · " + (departs ? S.ticketDeparts : S.ticketArrives),
                               initial: departs ? leg.departs : (leg.arrives ?? leg.departs)) { t in
                         app.trip = trip.withLeg(ret: ret) { if departs { $0.departs = t } else { $0.arrives = t } }
                     }
@@ -70,7 +70,7 @@ struct PassEditor: View {
 
 /// One calendar, two taps (round 20): the way out, then the way back, both in ink; the full ski days between them
 /// shaded, as the pass will count them. Days before today cannot be picked. Only the way out is required.
-struct CalendarSheet: View {
+struct TripCalendarSheet: View {
     let trip: Trip?
     let onSave: (Day, Day?) -> Void
     @Environment(\.ski) private var ski
