@@ -39,6 +39,8 @@ jobs:
     environment: ios-release
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
       - name: Are the secrets there
         id: gate
         env:
@@ -91,7 +93,7 @@ jobs:
           security create-keychain -p "$KC_PASSWORD" "$KC"
           security set-keychain-settings -lut 3600 "$KC"
           security unlock-keychain -p "$KC_PASSWORD" "$KC"
-          security import "$RUNNER_TEMP/dist.p12" -P "$CERT_PASSWORD" -A -t cert -f pkcs12 -k "$KC"
+          security import "$RUNNER_TEMP/dist.p12" -P "$CERT_PASSWORD" -T /usr/bin/codesign -t cert -f pkcs12 -k "$KC"
           security set-key-partition-list -S apple-tool:,apple: -k "$KC_PASSWORD" "$KC" > /dev/null
           # the temporary keychain first in the search list, the login keychain after it
           security list-keychains -d user -s "$KC" $(security list-keychains -d user | tr -d '"')
@@ -110,11 +112,12 @@ jobs:
           cd app/ios
           # CFBundleVersion is this workflow's own run number. It only grows, and only uploaded builds are counted
           # (ios.yml's builds are never uploaded), so TestFlight never sees a repeat (docs/ARCHITECTURE.md, R-8).
+          # manual signing is set in the app target's Release settings in project.yml (the architect's condition):
+          # command-line signing settings would also reach the GudiCore package. project.yml reads these two.
+          export GUDI_PROFILE_NAME="$PROFILE_NAME" GUDI_TEAM_ID="$TEAM_ID"
           xcodebuild -project Gudi.xcodeproj -scheme Gudi -configuration Release \
             -destination 'generic/platform=iOS' -archivePath "$RUNNER_TEMP/Gudi.xcarchive" \
-            CODE_SIGN_STYLE=Manual CODE_SIGN_IDENTITY="Apple Distribution" \
-            PROVISIONING_PROFILE_SPECIFIER="$PROFILE_NAME" DEVELOPMENT_TEAM="$TEAM_ID" \
-            PRODUCT_BUNDLE_IDENTIFIER="$BUNDLE_ID" CURRENT_PROJECT_VERSION=${{ github.run_number }} \
+            CURRENT_PROJECT_VERSION=${{ github.run_number }} \
             archive > "$RUNNER_TEMP/archive.log" 2>&1 || RC=$?
           RC=${RC:-0}
           tail -40 "$RUNNER_TEMP/archive.log"
