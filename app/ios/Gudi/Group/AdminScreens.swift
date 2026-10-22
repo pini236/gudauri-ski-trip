@@ -32,6 +32,7 @@ struct NewGroupScreen: View {
                 GPrimary(text: S.appGCreateIt, icon: "person.2.fill", enabled: ok && !r.busy) {
                     r.run {
                         let id = try await api.createGroup(name: name, myName: me, startsOn: from, endsOn: to, myTrip: showTrip ? trip : nil)
+                        Telemetry.shared.event("group_create")
                         Fx.shared.click()
                         model.replaceTop(.groups(.page(id, .flights)))
                     }

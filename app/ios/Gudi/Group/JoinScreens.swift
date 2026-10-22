@@ -103,6 +103,7 @@ struct InvitedScreen: View {
                                 r.run {
                                     let j = try await api.join(code, myName: name)
                                     result = j.status
+                                    if j.status == .joined { Telemetry.shared.event("group_join", ["via": InviteCode.via(code)]) }
                                     if j.status == .pending, let g = p.groupId { watchApproval(g) }
                                     if (j.status == .joined || j.status == .already_member), let g = j.groupId { joined(g) }
                                 }
@@ -142,7 +143,7 @@ struct InvitedScreen: View {
         .task {
             name = api.me()?.name ?? ""
             load.run {
-                if api.me() == nil { _ = try await api.signInGuest() }
+                if api.me() == nil { _ = try await api.signInGuest(); Telemetry.shared.event("sign_in", ["method": "guest"]) }
                 let p = try await api.preview(code)
                 preview = p
                 if p.alreadyMember, let g = p.groupId { joined(g) }
@@ -159,7 +160,7 @@ struct InvitedScreen: View {
 
     // waiting for an admin: the approval opens the group, live (A-19)
     private func watchApproval(_ g: String) {
-        stop = api.watchMine { approved in if approved.contains(g) { joined(g) } }
+        stop = api.watchMine { approved in if approved.contains(g) { Telemetry.shared.event("group_join", ["via": InviteCode.via(code)]); joined(g) } }
     }
 }
 
@@ -254,7 +255,7 @@ struct ReclaimScreen: View {
                                 status = j.status
                                 if j.status == .already_member, let g = j.groupId { done(g) }
                                 if j.status == .pending, let g = p.groupId {
-                                    stop = api.watchMine { approved in if approved.contains(g) { done(g) } }
+                                    stop = api.watchMine { approved in if approved.contains(g) { Telemetry.shared.event("group_join", ["via": InviteCode.via(code)]); done(g) } }
                                 }
                             }
                         }
@@ -278,7 +279,7 @@ struct ReclaimScreen: View {
         }
         .task {
             load.run {
-                if api.me() == nil { _ = try await api.signInGuest() }
+                if api.me() == nil { _ = try await api.signInGuest(); Telemetry.shared.event("sign_in", ["method": "guest"]) }
                 preview = try await api.preview(code)
             }
         }

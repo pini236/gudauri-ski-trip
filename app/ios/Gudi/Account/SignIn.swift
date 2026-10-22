@@ -130,6 +130,7 @@ enum SignIn {
         if GroupService.shared.fake { _ = try await api.signIn(provider: provider, idToken: "qa", nonce: nil); return }
         let t = provider == "apple" ? try await apple() : try await google()
         _ = try await api.signIn(provider: provider, idToken: t.idToken, nonce: t.nonce)
+        Telemetry.shared.event("sign_in", ["method": provider])
         if api.me()?.name == nil, let n = t.name { try? await api.rename(n) }
         if model.trip == nil, let back = try? await api.myTripOnServer() { model.trip = back }
     }

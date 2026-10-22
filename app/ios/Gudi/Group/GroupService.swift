@@ -63,7 +63,10 @@ final class GroupService {
 
     func myGroups() async -> [GroupSummary] { (try? await api.myGroups()) ?? [] }
 
-    func addMeetup(groupId: String, station: String, at: Date) async throws { try await api.addMeetup(groupId, station: station, at: at) }
+    func addMeetup(groupId: String, station: String, at: Date) async throws {
+        try await api.addMeetup(groupId, station: station, at: at)
+        Telemetry.shared.event("meetup_create", ["reminder": true])
+    }
 
     // MARK: meetup reminders (Q8)
 

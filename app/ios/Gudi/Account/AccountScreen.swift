@@ -79,11 +79,11 @@ struct AccountScreen: View {
                     VStack(spacing: 10) {
                         if m.registered {
                             GButton(text: S.appASignOut, look: .ghost, icon: "rectangle.portrait.and.arrow.right") {
-                                r.run { try await api.signOut(); GroupService.shared.forgetReminders(); model.fromHome(nil) }
+                                r.run { try await api.signOut(); Telemetry.shared.event("sign_out"); GroupService.shared.forgetReminders(); model.fromHome(nil) }
                             }
                         }
                         GButton(text: armed ? S.acctDeleteConfirm : S.appADelete, look: .danger, icon: "trash") {
-                            if armed { r.run { try await api.deleteAccount(); GroupService.shared.forgetReminders(); model.fromHome(nil) } } else { armed = true; Fx.shared.tick() }
+                            if armed { r.run { try await api.deleteAccount(); Telemetry.shared.event("account_delete"); GroupService.shared.forgetReminders(); model.fromHome(nil) } } else { armed = true; Fx.shared.tick() }
                         }
                     }
                     .padding(.top, 10)

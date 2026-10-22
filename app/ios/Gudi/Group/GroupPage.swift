@@ -723,7 +723,7 @@ struct MembersTab: View {
                 if g.admin { GQuiet(text: S.appGNameDates, action: onEdit) }
                 GQuiet(text: S.appGInviteSettingsLink, action: onInvite)
                 GQuiet(text: armed == "leave" ? S.groupLeaveConfirm : S.appGLeave, danger: armed == "leave") {
-                    if armed == "leave" { r.run { try await api.leave(g.id); onLeft() } } else { armed = "leave"; Fx.shared.tick() }
+                    if armed == "leave" { r.run { try await api.leave(g.id); Telemetry.shared.event("group_leave"); onLeft() } } else { armed = "leave"; Fx.shared.tick() }
                 }
                 if g.admin {
                     GButton(text: armed == "delete" ? S.groupDeleteConfirm : S.appGDelete, look: .danger, icon: "trash") {
