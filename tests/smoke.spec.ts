@@ -445,6 +445,16 @@ test('קובץ האימות לקישורים שפותחים את האפליקצ�
   expect(h.headers).toContainEqual({ key: 'Content-Type', value: 'application/json' });
 });
 
+test('קובץ האימות לקישורים שפותחים את האייפון (docs/APPLE.md, 3.4): נגיש, JSON, עם ה-Team ID והנתיבים של האנדרואיד', async ({ page }) => {
+  const r = await page.request.get('/.well-known/apple-app-site-association');
+  expect(r.status()).toBe(200);
+  expect(r.headers()['content-type']).toContain('application/json');
+  const d = (await r.json()).applinks.details;
+  expect(d).toHaveLength(1);
+  expect(d[0].appIDs).toEqual(['ZX5CTJ88UA.io.github.pini236.skiapp']);
+  expect(d[0].components.map((c: any) => c['/'])).toEqual(['/j/*', '/join/*', '/']);
+});
+
 // how often the site asks (P-D14, as in the app): out of season once a day at most, in season on every load
 test('מצב רכבלים: מחוץ לעונה שואלים פעם ביום לכל היותר, בעונה כל פעם', async ({ page }) => {
   let asks = 0;

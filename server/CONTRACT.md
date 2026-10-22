@@ -414,6 +414,6 @@ site/js/account.js
 
 ## באייפון
 
-- הספרייה הרשמית של סופבייס (`supabase-swift`), שמטפלת בחיבור, בחידוש ובזמן האמת.
+- **בלי ספרייה** (סקירת הארכיטקט, 21.10.2026): בקשות `URLSession` רגילות, וזמן אמת דרך `URLSessionWebSocketTask`. החיבור נשמר ב-Keychain, וחידוש האסימון רץ פעם אחת בכל רגע (`app/ios/Packages/GudiCore/Sources/GudiDomain/Server/`).
 - הכותרת `x-region: eu-central-1` בקריאות לקוד השרת (`functions.invoke` עם `region`).
 - אותם כללים, ועותק מקומי ותור לפי הטבלה למעלה.

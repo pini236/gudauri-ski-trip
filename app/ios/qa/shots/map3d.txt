@@ -1,0 +1,9 @@
+# the 3D trail map (Map3D/): the whole mountain by day (he) and by night (en), a chosen run, and the low sun
+map3d-he he day 0 map+view=3d
+map3d-night-en en night 0 map+view=3d
+map3d-run-he he day 0 map:Tatra_2+view=3d
+map3d-sunset-he he day 0 map+view=3d+time=17:40
+map3d-run-night-en en night 0 map:Kudebi_1+view=3d
+map3d-en en day 0 map+view=3d
+map3d-night-he he night 0 map+view=3d
+map3d-weather-he he day 0 map+view=3d+weather=sample

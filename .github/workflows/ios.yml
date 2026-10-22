@@ -5,9 +5,9 @@ name: iOS
 # Reviewed by the architect (docs/ARCHITECTURE.md, 21.10.2026) and DevOps (decision 66) before merge.
 on:
   push:
-    paths: ['app/ios/**', 'site/data/**', 'site/js/relief.js', 'site/css/site.css', 'tools/fixtures/**', 'tools/build-ios-data.py', 'tools/build-ios-strings.py', 'i18n/strings.json', '.github/workflows/ios.yml']
+    paths: ['app/ios/**', 'site/data/**', 'site/games/descent/**', 'site/games/thumbs/**', 'site/js/relief.js', 'site/css/site.css', 'tools/fixtures/**', 'tools/build-ios-data.py', 'tools/build-ios-strings.py', 'i18n/strings.json', '.github/workflows/ios.yml']
   pull_request:
-    paths: ['app/ios/**', 'site/data/**', 'site/js/relief.js', 'site/css/site.css', 'tools/fixtures/**', 'tools/build-ios-data.py', 'tools/build-ios-strings.py', 'i18n/strings.json', '.github/workflows/ios.yml']
+    paths: ['app/ios/**', 'site/data/**', 'site/games/descent/**', 'site/games/thumbs/**', 'site/js/relief.js', 'site/css/site.css', 'tools/fixtures/**', 'tools/build-ios-data.py', 'tools/build-ios-strings.py', 'i18n/strings.json', '.github/workflows/ios.yml']
   workflow_dispatch:
 
 # a branch's newer push replaces its running build; main never cancels one halfway
@@ -84,8 +84,12 @@ jobs:
           cd app/ios
           xcodebuild -project Gudi.xcodeproj -scheme Gudi -configuration Debug \
             -destination 'generic/platform=iOS Simulator' -derivedDataPath "$RUNNER_TEMP/dd" \
-            CURRENT_PROJECT_VERSION=${{ github.run_number }} CODE_SIGNING_ALLOWED=NO build | tail -40
-          test "${PIPESTATUS[0]}" -eq 0
+            CURRENT_PROJECT_VERSION=${{ github.run_number }} CODE_SIGNING_ALLOWED=NO build > "$RUNNER_TEMP/build.log" 2>&1 || RC=$?
+          RC=${RC:-0}
+          tail -40 "$RUNNER_TEMP/build.log"
+          # the compiler's own errors, which the last 40 lines usually leave out
+          grep -E "error:|warning: .*will be an error" "$RUNNER_TEMP/build.log" | sort -u | head -60 || true
+          test "$RC" -eq 0
       - name: Run in a simulator and take a screenshot
         timeout-minutes: 30
         run: |

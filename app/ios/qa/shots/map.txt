@@ -1,0 +1,10 @@
+# the trail map (13.3): from above, a chosen run's panel, the list with the filters, the lift board
+map-he he day 0 map+view=2d
+map-run-he he day 0 map:Tatra_2+view=2d
+map-run-en en night 0 map:Kudebi_1+view=2d
+map-list-he he day 0 map+list+view=2d
+map-status-fresh-he he day 0 map+status=fresh+view=2d
+map-board-fresh-en en day 0 map+status=fresh+sheet=status+view=2d
+map-board-none-he he night 0 map+sheet=status+view=2d
+map-weather-he he day 0 map+weather=sample+view=2d
+map-run-weather-en en day 0 map:Sadzele_1+weather=sample+view=2d
