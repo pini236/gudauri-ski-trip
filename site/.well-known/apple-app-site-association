@@ -1,0 +1,14 @@
+{
+  "applinks": {
+    "details": [
+      {
+        "appIDs": ["ZX5CTJ88UA.io.github.pini236.skiapp"],
+        "components": [
+          { "/": "/j/*" },
+          { "/": "/join/*" },
+          { "/": "/" }
+        ]
+      }
+    ]
+  }
+}
