@@ -61,6 +61,13 @@ final class GroupService {
     @discardableResult
     func submitBest(game: String, score: Int) async -> Bool { await api.submitBest(game: game, score: score) }
 
+    /// The records the group's table has not had yet, sent and then marked (only the best counts there, decision 44).
+    func sendBests() async {
+        for (game, score) in Bests.unsent() where score > 0 {
+            if await submitBest(game: game, score: score) { Bests.markSent(game, score) }
+        }
+    }
+
     func myGroups() async -> [GroupSummary] { (try? await api.myGroups()) ?? [] }
 
     func addMeetup(groupId: String, station: String, at: Date) async throws {

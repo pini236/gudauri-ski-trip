@@ -60,6 +60,7 @@ struct MeetScreen: View {
                                         app.go(.map())
                                     }
                                 }
+                                SaveToGroup(station: st.id, at: Date(timeIntervalSince1970: Double(Meet.at(pickedDay, time)) / 1000))
                             } else {
                                 EmptyCard()
                             }
@@ -624,6 +625,59 @@ private struct TimeSheet: View {
         .background(c.snow)
         .onAppear {
             date = Date(timeIntervalSince1970: Double(time.minutes * 60))
+        }
+    }
+}
+
+
+/// "Save in the group" (round 14, Android's SaveButton): only for someone in a group; to the only group, or a choice
+/// among mine. Offline it waits in the write queue on the phone, and the reminders follow from the group's meetups.
+private struct SaveToGroup: View {
+    let station: String
+    let at: Date
+    @Environment(\.ski) private var ski
+    @State private var groups: [GroupSummary] = []
+    @State private var choose = false
+    @State private var saved = false
+    @State private var error: String?
+
+    var body: some View {
+        if !groups.isEmpty {
+            VStack(spacing: 6) {
+                Button { tap() } label: {
+                    Text(saved ? S.meetSavedGroup : S.meetSaveGroup).font(ski.type.text(15, .bold)).foregroundStyle(ski.colors.snow)
+                        .frame(maxWidth: .infinity, minHeight: 48).background(ski.colors.ink)
+                }
+                .buttonStyle(.plain)
+                if choose {
+                    Text(S.meetPickGroup).font(ski.type.text(13)).foregroundStyle(ski.colors.muted).frame(maxWidth: .infinity, alignment: .leading)
+                    ForEach(groups) { g in
+                        Button { save(g.id) } label: {
+                            Text(g.name).font(ski.type.text(14, .bold)).foregroundStyle(ski.colors.ink)
+                                .frame(maxWidth: .infinity, minHeight: 44).overlay(Rectangle().stroke(ski.colors.ink, lineWidth: 1.5))
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+                if let error { Text(error).font(ski.type.text(13)).foregroundStyle(ski.colors.red) }
+            }
+            .padding(.top, 8)
+        } else {
+            Color.clear.frame(height: 0).task { groups = await GroupService.shared.myGroups() }
+        }
+    }
+
+    private func tap() {
+        if groups.count == 1 { save(groups[0].id) } else { choose.toggle() }
+    }
+
+    private func save(_ id: String) {
+        Task {
+            do {
+                try await GroupService.shared.addMeetup(groupId: id, station: station, at: at)
+                Fx.shared.tick(); saved = true; choose = false; error = nil
+                try? await Task.sleep(nanoseconds: 2_500_000_000); saved = false
+            } catch let e as ApiError { self.error = errorText(e.code) } catch { self.error = errorText("general") }
         }
     }
 }

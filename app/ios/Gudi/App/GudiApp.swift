@@ -20,12 +20,22 @@ struct GudiApp: App {
     var body: some Scene {
         WindowGroup {
             RootView(model: model)
-                .task { Reminders.attach(model); await model.pollStatus() }
-                .onOpenURL { model.open($0) }
+                .task {
+                    Reminders.attach(model)
+                    // a new record goes to the group's table (via the write queue when there is no signal)
+                    Bests.onRecord = { _, _ in Task { await GroupService.shared.sendBests() } }
+                    await GroupService.shared.sendBests()
+                    await model.pollStatus()
+                }
+                .onOpenURL { url in
+                    // an invitation (/j/<token>, /join/<code>, #join/<code>) opens the group's door; anything else the map or meeting point
+                    if let r = GroupService.route(for: url) { model.path = [r] } else { model.open(url) }
+                }
         }
             .onChange(of: phase) { _, p in
                 switch p {
                 case .active:
+                    Task { await GroupService.shared.flush() }
                     Telemetry.shared.event("app_open", ["source": "direct", "cold": !opened])
                     if !opened { Telemetry.shared.screen("home") }
                     opened = true
