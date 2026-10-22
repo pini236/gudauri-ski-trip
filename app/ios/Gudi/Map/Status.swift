@@ -141,7 +141,7 @@ private struct DepartureBoard: View {
         let head = Color(rgb: 0xA3B3C8), line = Color(rgb: 0x2A3B55), fg = Color(rgb: 0xEAF0F7)
         VStack(spacing: 0) {
             HStack(spacing: 8) {
-                Text(S.statusBoardColLift).frame(maxWidth: .infinity, alignment: .leading).layoutPriority(1.4)
+                Text(S.statusBoardColLift).frame(width: 132, alignment: .leading)
                 Text(S.statusBoardColState).frame(width: 70, alignment: .leading)
                 Text(S.statusBoardColNote).frame(maxWidth: .infinity, alignment: .leading)
             }
@@ -150,10 +150,11 @@ private struct DepartureBoard: View {
             ForEach(Array(s.names.enumerated()), id: \.offset) { i, n in
                 let o = s.isOpen(n)
                 HStack(spacing: 8) {
-                    Text(n).font(ski.type.display(22)).foregroundStyle(fg).lineLimit(1).frame(maxWidth: .infinity, alignment: .leading).layoutPriority(1.4)
+                    // the name in a fixed column (the longest, New Goodaura, fits), so the reason keeps the rest of the row
+                    Text(n).font(ski.type.display(22)).foregroundStyle(fg).lineLimit(1).minimumScaleFactor(0.7).frame(width: 132, alignment: .leading)
                     Text(o == true ? S.statusLiftOpen : o == false ? S.statusLiftClosed : "—").font(ski.type.text(14, .bold))
                         .foregroundStyle(o == true ? Color(rgb: 0x3CC47C) : o == false ? Color(rgb: 0xFF6A5F) : fg).frame(width: 70, alignment: .leading)
-                    Text(s.reason(n).map(reason) ?? "").font(ski.type.text(14)).foregroundStyle(fg).frame(maxWidth: .infinity, alignment: .leading)
+                    Text(s.reason(n).map(reason) ?? "").font(ski.type.text(13)).foregroundStyle(head).lineLimit(2).frame(maxWidth: .infinity, alignment: .leading)
                 }
                 .frame(minHeight: 36)
                 .overlay(alignment: .bottom) { Rectangle().fill(line).frame(height: 1) }
