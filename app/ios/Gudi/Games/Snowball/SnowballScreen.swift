@@ -9,7 +9,6 @@ import GudiDomain
 struct SnowballScreen: View {
     var qa: String? = nil
     @State private var m = SnowballModel()
-    @Environment(\.dismiss) private var dismiss
 
     var body: some View {
         ZStack {
@@ -20,7 +19,7 @@ struct SnowballScreen: View {
                     .onEnded { _ in m.release() }, including: m.phase == .play ? .all : .none)
                 .accessibilityLabel(S.gameSnowballCanvasLabel)
             switch m.phase {
-            case .menu: ArcadeShade(top: 0x9CC3E6) { SnowballMenu(m: m, onBack: { dismiss() }) }
+            case .menu: ArcadeShade(top: 0x9CC3E6) { SnowballMenu(m: m) }
             case .play: if let g = m.fight { SnowballPlay(m: m, g: g) }
             case .end: if let r = m.result { ArcadeShade(top: 0x9CC3E6) { SnowballEnd(m: m, r: r) } }
             }
@@ -64,16 +63,18 @@ final class SnowballModel {
     @ObservationIgnored var qaAim = false
     @ObservationIgnored let painter = SnowballPainter()
     @ObservationIgnored private let ticker = ArcadeTicker()
+    @ObservationIgnored let synth = Synth()
     @ObservationIgnored private var touching = false
 
     func load() {
+        synth.start()
         let d = UserDefaults.standard
         me = min(max(d.object(forKey: "snowball.me") as? Int ?? 5, 0), Coats.count - 1)
         rung = min(max(d.object(forKey: "snowball.rung") as? Int ?? 0, 0), Rung.all.count - 1)
         ticker.onTick = { [weak self] dt in self?.tick(dt) }
     }
 
-    func stars(_ i: Int) -> Int { ArcadeBests.level("snowball", i + 1) }
+    func stars(_ i: Int) -> Int { Bests.level("snowball", i + 1) }
     func open(_ i: Int) -> Bool { i == 0 || stars(i - 1) > 0 }
 
     private func place() { if size.width > 0 { fight?.place(Float(size.width), Float(size.height), 1) } }
@@ -99,7 +100,7 @@ final class SnowballModel {
     @ObservationIgnored var qaDone = false
     /// Back on the screen after it went away: the clock goes on.
     func resume() { if phase == .play || (phase == .end && fight != nil) { ticker.start() } }
-    func leave() { if phase == .play { gameEnd(false, best: false) }; ticker.stop() }
+    func leave() { if phase == .play { gameEnd(false, best: false) }; ticker.stop(); synth.stop() }
 
     func touch(_ p: CGPoint) {
         guard let g = fight else { return }
@@ -121,14 +122,14 @@ extension SnowballModel: @preconcurrency SnowballOut {
     func hp() { frame &+= 1 }
     func pop(_ w: SnowballWord) { popText = SnowballText.word(w); popN += 1 }
     func noise(_ d: Double, _ v: Float, _ f: Double, _ type: SnowballFight.Noise) {
-        ArcadeSynth.shared.grain(d, v, type == .low ? .low : type == .high ? .high : .band, f)
+        synth.grain(0, d, v, type == .low ? .low : type == .high ? .high : .band, f, 1)
     }
-    func tone(_ f: Double, _ d: Double, _ v: Float, _ e: Double) { ArcadeSynth.shared.tone(f, f * e, d, v, .tri) }
-    func buzz(_ strong: Bool) { if strong { ArcadeHaptics.thud(0.8) } else { ArcadeHaptics.click(0.6) } }
+    func tone(_ f: Double, _ d: Double, _ v: Float, _ e: Double) { synth.tone(0, f, f * e, d, v, tri: true) }
+    func buzz(_ strong: Bool) { if strong { GameHaptics.thud(0.8) } else { GameHaptics.click(0.6) } }
     func finished(_ r: SnowballFight.Result) {
-        ArcadeBests.setLevel("snowball", rung + 1, r.stars)
+        Bests.setLevel("snowball", rung + 1, r.stars)
         // the record for the group's table: the most hits (the site's, Android's)
-        let record = ArcadeBests.ended("snowball", r.hits)
+        let record = Bests.ended("snowball", level: nil, score: r.hits)
         gameEnd(r.won, best: record)
         result = r; starsV += 1; phase = .end
     }
@@ -193,12 +194,11 @@ private struct SnowballCharacters: View {
 
 private struct SnowballMenu: View {
     let m: SnowballModel
-    let onBack: () -> Void
     @Environment(\.ski) private var ski
 
     var body: some View {
         let _ = m.starsV
-        ArcadeBackLink(text: S.gameSnowballBackToGames.trimmingCharacters(in: CharacterSet(charactersIn: "→← ")), action: onBack)
+        GameBack(text: S.gameSnowballBackToGames, color: .white)
         ArcadeTitle(text: S.gameSnowballTitle)
         Text(S.gameSnowballIntro).font(ski.type.text(14)).foregroundStyle(.white).lineSpacing(4).fixedSize(horizontal: false, vertical: true)
         ArcadeH2(text: S.gameSnowballYourCoat)
@@ -362,7 +362,7 @@ private struct SnowballPlay: View {
             HStack {
                 ArcadeExitKey(label: S.gameSnowballToMenu) { m.toMenu() }
                 Spacer()
-                ArcadeSoundKey(label: S.gameSnowballSound)
+                SoundKey(label: S.gameSnowballSound)
             }
             .padding(.horizontal, 12).padding(.bottom, 14)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)

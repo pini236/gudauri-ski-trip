@@ -43,6 +43,10 @@ def main():
     (out / "audio").mkdir(exist_ok=True)
     for snd in sorted((SITE / "audio").glob("*.wav")):
         shutil.copyfile(snd, out / "audio" / snd.name)
+    # the games page's pictures (site/games/thumbs), as Android's assets/thumbs
+    (out / "thumbs").mkdir(exist_ok=True)
+    for img in sorted((SITE / "games/thumbs").glob("*.webp")):
+        shutil.copyfile(img, out / "thumbs" / img.name)
     print(f"copied {len(FILES)} files and {len(panos)} views to {out}")
 
 

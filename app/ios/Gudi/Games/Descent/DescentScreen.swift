@@ -11,7 +11,6 @@ struct DescentScreen: View {
     var qa: String? = nil
     @State private var m = DescentModel()
     @Environment(\.ski) private var ski
-    @Environment(\.dismiss) private var dismiss
 
     var body: some View {
         GeometryReader { geo in
@@ -23,7 +22,7 @@ struct DescentScreen: View {
                     .accessibilityLabel(S.gameDescentCanvasLabel)
                 switch m.phase {
                 case .menu:
-                    ArcadeShade(top: 0x5E9BD6) { DescentMenu(m: m, onBack: { dismiss() }) }
+                    ArcadeShade(top: 0x5E9BD6) { DescentMenu(m: m) }
                 case .play:
                     if let g = m.game { DescentPlay(m: m, g: g) }
                 case .end:
@@ -75,10 +74,12 @@ final class DescentModel {
 
     @ObservationIgnored let painter = DescentPainter()
     @ObservationIgnored private let ticker = ArcadeTicker()
-    @ObservationIgnored private var hiss: ArcadeSynth.Hiss?
+    @ObservationIgnored let synth = Synth()
+    @ObservationIgnored private var hiss: Synth.Hiss?
     @ObservationIgnored private var previewCache: (Int, Int, Course)?
 
     func load() {
+        synth.start()
         guard profiles.isEmpty else { return }
         if let url = Bundle.main.url(forResource: "profiles", withExtension: "json", subdirectory: "Data"),
            let data = try? Data(contentsOf: url), let p = try? DescentProfile.parse(data) { profiles = p }
@@ -97,7 +98,7 @@ final class DescentModel {
         let c = Course(profiles[run], index: run, me: me); previewCache = (run, me, c); return c
     }
 
-    func stars(_ i: Int) -> Int { ArcadeBests.level("descent", i + 1) }
+    func stars(_ i: Int) -> Int { Bests.level("descent", i + 1) }
     func bestTime(_ key: String) -> Float { UserDefaults.standard.object(forKey: "descent.best-\(key)") as? Float ?? -1 }
 
     func start() {
@@ -107,7 +108,7 @@ final class DescentModel {
         popText = nil; bannerNow = nil; tip = nil; comboNow = 1; newBest = false; copied = false; pressed = false
         game = DescentGame(c, me: me, out: self, avalancheOn: ava, ghost: ghost, still: Arcade.still)
         painter.reset()
-        hiss?.stop(); hiss = ArcadeSynth.shared.hiss(); hiss?.freq = 700
+        hiss?.stop(); hiss = synth.hiss(); hiss?.freq = 700
         phase = .play
         started = Date()
         Telemetry.shared.event("game_start", ["game": "descent", "level": c.key])
@@ -127,7 +128,11 @@ final class DescentModel {
     }
     @ObservationIgnored var qaDone = false
     /// Back on the screen after it went away (a sheet, the app in the background): the clock goes on.
-    func resume() { if phase == .play, let g = game, g.state != .end { ticker.start() } }
+    func resume() {
+        guard phase == .play, let g = game, g.state != .end else { return }
+        if hiss == nil { hiss = synth.hiss(); hiss?.freq = 700 }
+        ticker.start()
+    }
     /// For the screenshots: the run as if `seconds` went by (the count, then off down the run).
     func fastForward(_ seconds: Float) {
         guard let g = game else { return }
@@ -137,10 +142,10 @@ final class DescentModel {
     }
     func leave() {
         if phase == .play, let g = game, g.state != .end { gameEnd(g, false, best: false) }
-        ticker.stop(); hiss?.stop(); hiss = nil
+        ticker.stop(); hiss?.stop(); hiss = nil; synth.stop()
     }
 
-    func down() { guard !pressed else { return }; pressed = true; game?.press(); ArcadeHaptics.tick(0.3) }
+    func down() { guard !pressed else { return }; pressed = true; game?.press(); GameHaptics.tick(0.3) }
     func up() { guard pressed else { return }; pressed = false; game?.release() }
 
     private func tick(_ dt: Float) {
@@ -174,15 +179,15 @@ extension DescentModel: @preconcurrency DescentOut {
         UserDefaults.standard.set(true, forKey: key); tip = DescentText.word(w); tipN += 1
     }
     func tone(_ f: Double, _ d: Double, _ v: Float, wave: Int, end: Double) {
-        ArcadeSynth.shared.tone(f, f * end, d, v, wave == DescentGame.tri ? .tri : wave == DescentGame.square ? .square : .sine)
+        synth.tone(0, f, f * end, d, v, tri: wave == DescentGame.tri, square: wave == DescentGame.square)
     }
     func buzz(_ kind: Int) {
-        switch kind { case DescentGame.tick: ArcadeHaptics.tick(0.5); case DescentGame.click: ArcadeHaptics.click(0.6); default: ArcadeHaptics.thud(0.9) }
+        switch kind { case DescentGame.tick: GameHaptics.tick(0.5); case DescentGame.click: GameHaptics.click(0.6); default: GameHaptics.thud(0.9) }
     }
     func combo(_ n: Int) { comboNow = n; comboN += 1 }
     func finished(_ ok: Bool) {
         guard let g = game else { return }
-        ArcadeBests.setLevel("descent", run + 1, g.stars)
+        Bests.setLevel("descent", run + 1, g.stars)
         let prev = bestTime(g.c.key)
         let best = ok && (prev < 0 || g.t < prev)
         if best {
@@ -191,7 +196,7 @@ extension DescentModel: @preconcurrency DescentOut {
         }
         newBest = best
         // the record for the group's table is the most points (the contract; Android's Bests.ended)
-        let record = ArcadeBests.ended("descent", g.score)
+        let record = Bests.ended("descent", level: nil, score: g.score)
         gameEnd(g, ok, best: record)
         hiss?.gain = 0
         phase = .end; menuV += 1
@@ -223,13 +228,12 @@ private struct DescentField: View {
 
 private struct DescentMenu: View {
     let m: DescentModel
-    let onBack: () -> Void
     @Environment(\.ski) private var ski
     @Environment(\.layoutDirection) private var dir
 
     var body: some View {
         let _ = m.menuV
-        ArcadeBackLink(text: S.gameDescentBackToGames.trimmingCharacters(in: CharacterSet(charactersIn: "→← ")), action: onBack)
+        GameBack(text: S.gameDescentBackToGames, color: .white)
         ArcadeTitle(text: S.gameDescentTitle)
         Text(S.gameDescentIntro).font(ski.type.text(14)).foregroundStyle(.white).lineSpacing(4).fixedSize(horizontal: false, vertical: true)
         ArcadeH2(text: S.gameDescentYourCoat)
@@ -520,7 +524,7 @@ private struct DescentHud: View {
             .accessibilityHidden(true)
             // the combo beside the sound, and the way out, on the left in every language (the site's)
             ZStack(alignment: .topLeading) {
-                ArcadeSoundKey(label: S.gameDescentSound).padding(.top, 120).padding(.leading, 12)
+                SoundKey(label: S.gameDescentSound).padding(.top, 120).padding(.leading, 12)
                 ArcadeExitKey(label: S.gameDescentToMenu) { m.toMenu() }.padding(.top, 172).padding(.leading, 12)
                 Text(S.gameDescentCombo(n: "\(m.comboNow)")).font(ski.type.display(24)).foregroundStyle(Arcade.ink)
                     .padding(.horizontal, 10).padding(.vertical, 3).background(Arcade.accent)
