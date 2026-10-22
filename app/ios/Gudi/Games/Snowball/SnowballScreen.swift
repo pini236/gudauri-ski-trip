@@ -83,13 +83,23 @@ final class SnowballModel {
         fight = SnowballFight(rung: rung, me: me, out: self, still: Arcade.still)
         place()
         phase = .play
+        started = Date()
+        Telemetry.shared.event("game_start", ["game": "snowball", "level": rung + 1])
         ticker.start()
     }
-    func toMenu() { ticker.stop(); fight = nil; phase = .menu; starsV += 1 }
+    /// Usage statistics, as the site and Android: level = the rung, score = hits, completed = won.
+    @ObservationIgnored private var started: Date?
+    fileprivate func gameEnd(_ won: Bool, best: Bool) {
+        guard let s = started else { return }
+        started = nil
+        Telemetry.shared.event("game_end", ["game": "snowball", "level": rung + 1, "score": fight?.stats.hits ?? 0,
+            "seconds": Int(Date().timeIntervalSince(s).rounded()), "completed": won, "best": best])
+    }
+    func toMenu() { if phase == .play { gameEnd(false, best: false) }; ticker.stop(); fight = nil; phase = .menu; starsV += 1 }
     @ObservationIgnored var qaDone = false
     /// Back on the screen after it went away: the clock goes on.
     func resume() { if phase == .play || (phase == .end && fight != nil) { ticker.start() } }
-    func leave() { ticker.stop() }
+    func leave() { if phase == .play { gameEnd(false, best: false) }; ticker.stop() }
 
     func touch(_ p: CGPoint) {
         guard let g = fight else { return }
@@ -118,7 +128,8 @@ extension SnowballModel: @preconcurrency SnowballOut {
     func finished(_ r: SnowballFight.Result) {
         ArcadeBests.setLevel("snowball", rung + 1, r.stars)
         // the record for the group's table: the most hits (the site's, Android's)
-        ArcadeBests.ended("snowball", r.hits)
+        let record = ArcadeBests.ended("snowball", r.hits)
+        gameEnd(r.won, best: record)
         result = r; starsV += 1; phase = .end
     }
 }

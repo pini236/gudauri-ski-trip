@@ -109,9 +109,22 @@ final class DescentModel {
         painter.reset()
         hiss?.stop(); hiss = ArcadeSynth.shared.hiss(); hiss?.freq = 700
         phase = .play
+        started = Date()
+        Telemetry.shared.event("game_start", ["game": "descent", "level": c.key])
         ticker.start()
     }
-    func toMenu() { ticker.stop(); hiss?.stop(); hiss = nil; game = nil; phase = .menu; menuV += 1 }
+    /// Usage statistics (docs/GROWTH.md, as Android): level = the run, score = the points, best = a new record of them.
+    @ObservationIgnored private var started: Date?
+    private func gameEnd(_ g: DescentGame, _ ok: Bool, best: Bool) {
+        guard let s = started else { return }
+        started = nil
+        Telemetry.shared.event("game_end", ["game": "descent", "level": g.c.key, "score": g.score,
+            "seconds": Int(Date().timeIntervalSince(s).rounded()), "completed": ok, "best": best])
+    }
+    func toMenu() {
+        if phase == .play, let g = game, g.state != .end { gameEnd(g, false, best: false) }
+        ticker.stop(); hiss?.stop(); hiss = nil; game = nil; phase = .menu; menuV += 1
+    }
     @ObservationIgnored var qaDone = false
     /// Back on the screen after it went away (a sheet, the app in the background): the clock goes on.
     func resume() { if phase == .play, let g = game, g.state != .end { ticker.start() } }
@@ -122,7 +135,10 @@ final class DescentModel {
         while t < seconds && g.state != .end { g.step(1 / 60); t += 1 / 60 }
         frame &+= 1
     }
-    func leave() { ticker.stop(); hiss?.stop(); hiss = nil }
+    func leave() {
+        if phase == .play, let g = game, g.state != .end { gameEnd(g, false, best: false) }
+        ticker.stop(); hiss?.stop(); hiss = nil
+    }
 
     func down() { guard !pressed else { return }; pressed = true; game?.press(); ArcadeHaptics.tick(0.3) }
     func up() { guard pressed else { return }; pressed = false; game?.release() }
@@ -175,7 +191,8 @@ extension DescentModel: @preconcurrency DescentOut {
         }
         newBest = best
         // the record for the group's table is the most points (the contract; Android's Bests.ended)
-        ArcadeBests.ended("descent", g.score)
+        let record = ArcadeBests.ended("descent", g.score)
+        gameEnd(g, ok, best: record)
         hiss?.gain = 0
         phase = .end; menuV += 1
     }
