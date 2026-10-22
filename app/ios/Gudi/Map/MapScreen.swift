@@ -247,7 +247,7 @@ private struct MapContent: View {
 
     /// Where each card goes: above its dot, or below it when it would go under the map's own buttons and bar (the top
     /// band, down to the view switcher and the Kobi key on a phone); and a card that would cover another one moves
-    /// down below it. A card is about 180 by 68.
+    /// above it (or below, when the band leaves no room). A card is about 180 by 68.
     struct PlacedPin: Identifiable { let p: PinText; let dot: CGPoint; let card: CGPoint; var id: String { p.id } }
 
     static func placePins(_ pts: [(PinText, CGPoint)], size: CGSize) -> [PlacedPin] {
@@ -257,8 +257,11 @@ private struct MapContent: View {
             let x = min(max(q.x, half.width + 8), size.width - half.width - 8)
             var y = q.y - gap - half.height
             if y - half.height < band { y = max(q.y + gap + half.height, band + half.height) }
+            // a card on top of another goes above it when there is room under the band (the sheet covers the bottom),
+            // else below it
             for o in out where abs(o.card.x - x) < half.width * 2 && abs(o.card.y - y) < half.height * 2 + 4 {
-                y = o.card.y + half.height * 2 + 4
+                let up = o.card.y - half.height * 2 - 4
+                y = up - half.height >= band ? up : o.card.y + half.height * 2 + 4
             }
             out.append(PlacedPin(p: p, dot: q, card: CGPoint(x: x, y: y)))
         }
