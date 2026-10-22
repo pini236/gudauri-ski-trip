@@ -116,8 +116,9 @@ struct SchoolScreen: View {
             if let m { content(m) }
         }
         .toolbar(.hidden, for: .navigationBar)
-        // the school keeps the site's light page at night too, so the status bar stays dark on it
-        .preferredColorScheme(.light)
+        // the school keeps the site's light page at night too; the app's dark status bar text would vanish on it,
+        // so the bar is hidden here, as in the other games
+        .statusBarHidden(true)
         .onAppear {
             if m == nil {
                 m = SchoolModel(still: still, lang: ski.type.lang)
