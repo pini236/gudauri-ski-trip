@@ -189,7 +189,12 @@ input{font:inherit;font-size:15px;color:var(--ink);background:var(--snow);border
 .board-app .ext{margin-inline-start:6px;flex:none}
 .app-qr{display:flex;gap:16px;align-items:center;width:80%;box-sizing:border-box;padding:14px 16px;background:var(--paper);border:1.5px solid var(--rule);border-top:4px solid var(--ink);box-shadow:0 2px 8px var(--shadow);font:600 15px var(--f-body);color:var(--ink)}
 .app-qr[hidden]{display:none}
-.app-qr img{flex:none;width:112px;height:112px}
+.app-qr>img{flex:none;width:112px;height:112px}
+.app-qr-t{display:flex;flex-direction:column;align-items:flex-start;gap:4px}
+.app-qr-t span{font:400 14px var(--f-body);color:var(--muted)}
+/* the official badge: Google's file as is, at least 28px high with a quarter of its height clear around it (round 26) */
+#appBadge{display:block;padding:10px 0}
+#appBadge img{display:block;height:40px;width:auto}
 .board-group{background:var(--ink);color:var(--paper);width:84%;box-sizing:border-box}
 .board-group span{opacity:.85}
 .crew{margin-top:48px}

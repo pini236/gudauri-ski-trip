@@ -1459,7 +1459,10 @@ overview();applyFilters();
   board=document.getElementById('appBoard'),qr=document.getElementById('appQr');
  if(ios)board.hidden=true;
  else if(!/Android/.test(ua)&&matchMedia('(pointer:fine)').matches&&has('app'))qr.hidden=false;
- board.addEventListener('click',()=>track('app_download',{store:'play',placement:'home'}));}
+ board.addEventListener('click',()=>track('app_download',{store:'play',placement:'home'}));
+  // Google's badge in the page's language (site/img/badges/, from the Play badge page)
+  const bl=document.documentElement.lang;if(/^(en|ru|ka)$/.test(bl))document.getElementById('appBadgeImg').src='img/badges/play-'+bl+'.png';
+  document.getElementById('appBadge').addEventListener('click',()=>track('app_download',{store:'play',placement:'home_qr'}));}
 document.getElementById('loading').hidden=true;
 // the elevation model arrived (or failed, and then all of this stays without it): the relief and the peaks on both maps,
 // the heights on the home page, the meeting point, and a run open on the map drawn again with its profile

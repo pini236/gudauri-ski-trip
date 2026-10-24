@@ -6232,6 +6232,18 @@
     "ka"
    ]
   },
+  "home.app_or": {
+   "he": "או",
+   "en": "or",
+   "ru": "или",
+   "ka": "ან",
+   "where": "site/index.html",
+   "note": "before the official Google Play badge in the QR card, desktop only (round 26)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
   "home.board_games_sub": {
    "he": "הירידה, בית הספר לסקי, שלג טרי ועוד",
    "en": "The Descent, Ski School, Fresh Snow and more",

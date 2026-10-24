@@ -170,7 +170,18 @@ test('השלט "אפליקציה לאנדרואיד" מוביל לגוגל פל�
   expect(await page.locator('.post > :visible').last().evaluate(e => e.id)).toMatch(/^app(Board|Qr)$/);
   const fine = await page.evaluate(() => matchMedia('(pointer:fine)').matches);
   await expect(page.locator('#appQr')).toBeVisible({ visible: fine });
-  if (fine) expect(await page.locator('#appQr img').evaluate((i: HTMLImageElement) => i.complete && i.naturalWidth > 0)).toBe(true);
+  if (fine) {
+    expect(await page.locator('#appQr > img').evaluate((i: HTMLImageElement) => i.complete && i.naturalWidth > 0)).toBe(true);
+    // Google's badge, in the page's language, at least 28px high (round 26)
+    const badge = page.locator('#appBadgeImg');
+    await expect(badge).toHaveAttribute('src', 'img/badges/play-he.png');
+    await expect.poll(() => badge.evaluate((i: HTMLImageElement) => i.complete && i.naturalWidth > 0)).toBe(true);
+    expect((await badge.boundingBox())!.height).toBeGreaterThanOrEqual(28);
+    await expect(page.locator('#appBadge')).toHaveAttribute('href', /utm_medium%3Dhome_qr$/);
+    await page.goto('/?lang=en');
+    await loaded(page);
+    await expect(badge).toHaveAttribute('src', 'img/badges/play-en.png');
+  }
   expect(errors).toEqual([]);
 });
 
