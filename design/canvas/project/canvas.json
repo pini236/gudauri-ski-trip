@@ -2618,6 +2618,70 @@
       "h": 1068,
       "page": "round25",
       "title": "ד. בטלפון: מקיפים את ההר (מומלץ, חדש לפי פיני)"
+    },
+    "R26-0-Decide.dc.html": {
+      "x": 0,
+      "y": 0,
+      "w": 600,
+      "h": 1100,
+      "page": "round26",
+      "title": "מה לאשר בסבב 26"
+    },
+    "R26-Today.dc.html": {
+      "x": 680,
+      "y": 0,
+      "w": 1266,
+      "h": 1068,
+      "page": "round26",
+      "title": "היום: השלט מוסתר"
+    },
+    "R26-Sign.dc.html": {
+      "x": 680,
+      "y": 1488,
+      "w": 1684,
+      "h": 1068,
+      "page": "round26",
+      "title": "א. שלט על העמוד, לחנות (מומלץ)"
+    },
+    "R26-Who.dc.html": {
+      "x": 2444,
+      "y": 1488,
+      "w": 430,
+      "h": 1068,
+      "page": "round26",
+      "title": "מי רואה את השלט"
+    },
+    "R26-Desk.dc.html": {
+      "x": 2954,
+      "y": 1488,
+      "w": 1868,
+      "h": 787,
+      "page": "round26",
+      "title": "א. במחשב: השלט וקוד QR"
+    },
+    "R26-Badge.dc.html": {
+      "x": 680,
+      "y": 2976,
+      "w": 848,
+      "h": 1068,
+      "page": "round26",
+      "title": "ב. התג הרשמי במקום השלט (לא מומלץ)"
+    },
+    "R26-Future.dc.html": {
+      "x": 680,
+      "y": 4464,
+      "w": 1358,
+      "h": 1068,
+      "page": "round26",
+      "title": "בהמשך: App Store, בלי לעצב שוב"
+    },
+    "R26-Spec.dc.html": {
+      "x": 680,
+      "y": 5952,
+      "w": 600,
+      "h": 1420,
+      "page": "round26",
+      "title": "ערכים למימוש"
     }
   },
   "createdOnFiles": {
@@ -2627,7 +2691,7 @@
   "designSystems": [],
   "launch": {
     "view": "canvas",
-    "page": "round25"
+    "page": "round26"
   },
   "notes": {
     "featRow1": {
@@ -3538,6 +3602,51 @@
       "w": 240,
       "x": 680,
       "y": 7140
+    },
+    "round26row0": {
+      "kind": "title1",
+      "maxW": 1266,
+      "page": "round26",
+      "text": "היום",
+      "w": 240,
+      "x": 680,
+      "y": -300
+    },
+    "round26row1": {
+      "kind": "title1",
+      "maxW": 4142,
+      "page": "round26",
+      "text": "א. שלט לחנות, ובמחשב QR",
+      "w": 240,
+      "x": 680,
+      "y": 1188
+    },
+    "round26row2": {
+      "kind": "title1",
+      "maxW": 860,
+      "page": "round26",
+      "text": "ב. התג הרשמי",
+      "w": 240,
+      "x": 680,
+      "y": 2676
+    },
+    "round26row3": {
+      "kind": "title1",
+      "maxW": 1358,
+      "page": "round26",
+      "text": "בהמשך: App Store",
+      "w": 240,
+      "x": 680,
+      "y": 4164
+    },
+    "round26row4": {
+      "kind": "title1",
+      "maxW": 860,
+      "page": "round26",
+      "text": "ערכים למימוש",
+      "w": 240,
+      "x": 680,
+      "y": 5652
     }
   },
   "order": [
@@ -3866,9 +3975,21 @@
     "R25-Gud.dc.html",
     "R25-Spec.dc.html",
     "R25-D3So.dc.html",
-    "R25-Orbit.dc.html"
+    "R25-Orbit.dc.html",
+    "R26-0-Decide.dc.html",
+    "R26-Today.dc.html",
+    "R26-Sign.dc.html",
+    "R26-Who.dc.html",
+    "R26-Desk.dc.html",
+    "R26-Badge.dc.html",
+    "R26-Future.dc.html",
+    "R26-Spec.dc.html"
   ],
   "pages": [
+    {
+      "id": "round26",
+      "name": "סבב 26: האפליקציה בגוגל פליי"
+    },
     {
       "id": "round25",
       "name": "סבב 25: מפה קריאה באתר גדול"
