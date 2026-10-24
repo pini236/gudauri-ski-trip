@@ -21,7 +21,8 @@
         "locate",
         "group",
         "videos",
-        "pano"
+        "pano",
+        "app"
       ],
       "stats": {
         "runs": 27,

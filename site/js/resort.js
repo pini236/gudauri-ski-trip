@@ -6,7 +6,7 @@
   'use strict';
   const KEY='gud-resort';
   const FALLBACK={id:'gudauri',name:'Gudauri',country:'GE',dir:'data/',proj:{lat0:42.51,lon0:44.495},tz:'Asia/Tbilisi',
-    features:['trip','meet','status','weather','kobi','locate','group','videos','pano']};
+    features:['trip','meet','status','weather','kobi','locate','group','videos','pano','app']};
   const q=new URLSearchParams(location.search).get('resort');
   let saved=null;try{saved=localStorage.getItem(KEY);}catch(e){}
   const deep=/^#(map\/run|meet)\//.test(location.hash);

@@ -1454,13 +1454,12 @@ renderTicket();
 if(window.ACCOUNT)ACCOUNT.start({MYTRIP,esc,MEET:{station:id=>MEET?MEET.station(id):null,current:()=>MEET?MEET.current():null},renderTicket,countdown});
 route();
 overview();applyFilters();
-// the app download sign: shown only when the file really is on the server
-fetch('downloads/gudauri-2027.apk',{method:'HEAD'}).then(r=>{
-  if(!r.ok||/text\/html/.test(r.headers.get('content-type')||''))return;
-  const mb=+r.headers.get('content-length')/1048576;
-  document.getElementById('appMeta').textContent=mb>0?T('home.app_download_meta_size',{size:mb.toFixed(mb<10?1:0)}):T('home.app_download');
-  document.getElementById('appBoard').hidden=false;document.getElementById('appBoard').addEventListener('click',()=>track('app_download',{store:'apk',placement:'home'}));document.getElementById('appHow').hidden=false;
-}).catch(()=>{});
+// the app sign leads to Google Play (round 26, decision 72); not on an iPhone until the App Store, and the QR card only on a computer
+{const ua=navigator.userAgent,ios=/iPhone|iPad|iPod/.test(ua)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1),
+  board=document.getElementById('appBoard'),qr=document.getElementById('appQr');
+ if(ios)board.hidden=true;
+ else if(!/Android/.test(ua)&&matchMedia('(pointer:fine)').matches&&has('app'))qr.hidden=false;
+ board.addEventListener('click',()=>track('app_download',{store:'play',placement:'home'}));}
 document.getElementById('loading').hidden=true;
 // the elevation model arrived (or failed, and then all of this stays without it): the relief and the peaks on both maps,
 // the heights on the home page, the meeting point, and a run open on the map drawn again with its profile

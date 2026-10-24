@@ -157,22 +157,30 @@ test('טיסה במורד המסלול: המפה נגללת לתצוגה, פס �
   expect(errors).toEqual([]);
 });
 
-test('קישור להורדת האפליקציה מופיע רק כשהקובץ קיים', async ({ page }) => {
-  await page.route('**/downloads/gudauri-2027.apk', r => r.fulfill({ status: 404, body: 'no' }));
+test('השלט "אפליקציה לאנדרואיד" מוביל לגוגל פליי, וכרטיס ה-QR רק במחשב (סבב 26)', async ({ page }) => {
+  const errors = watchErrors(page);
+  await page.goto('/');
+  await loaded(page);
+  const board = page.locator('#appBoard');
+  await expect(board).toBeVisible();
+  await expect(board).toHaveAttribute('href', /^https:\/\/play\.google\.com\/store\/apps\/details\?id=io\.github\.pini236\.skiapp&referrer=utm_source%3Dsite%26utm_medium%3Dhome_board$/);
+  await expect(board).toHaveAttribute('target', '_blank');
+  await expect(board).toContainText('Google Play');
+  // after the group sign, at the end of the post
+  expect(await page.locator('.post > :visible').last().evaluate(e => e.id)).toMatch(/^app(Board|Qr)$/);
+  const fine = await page.evaluate(() => matchMedia('(pointer:fine)').matches);
+  await expect(page.locator('#appQr')).toBeVisible({ visible: fine });
+  if (fine) expect(await page.locator('#appQr img').evaluate((i: HTMLImageElement) => i.complete && i.naturalWidth > 0)).toBe(true);
+  expect(errors).toEqual([]);
+});
+
+test('באייפון השלט של האפליקציה לא מוצג עד App Store', async ({ page }) => {
+  await page.addInitScript(() => Object.defineProperty(Navigator.prototype, 'userAgent', { get: () => 'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1' }));
   await page.goto('/');
   await loaded(page);
   await expect(page.locator('#appBoard')).toBeHidden();
+  await expect(page.locator('#appQr')).toBeHidden();
   await expect(page.locator('#groupBoard')).toBeVisible();
-});
-
-test('כשהקובץ קיים מוצג שלט הורדה עם גודל והסבר התקנה', async ({ page }) => {
-  await page.route('**/downloads/gudauri-2027.apk', r => r.fulfill({ status: 200, contentType: 'application/vnd.android.package-archive', headers: { 'content-length': String(12 * 1048576) }, body: 'x' }));
-  await page.goto('/');
-  await loaded(page);
-  await expect(page.locator('#appBoard')).toBeVisible();
-  await expect(page.locator('#appBoard')).toHaveAttribute('href', 'downloads/gudauri-2027.apk');
-  await page.locator('#appHow summary').click();
-  await expect(page.locator('#appHow li')).toHaveCount(3);
 });
 
 test('יום ולילה: שלושה מצבים, שעון גודאורי והנוף מתחלף', async ({ page }) => {

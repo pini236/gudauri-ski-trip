@@ -6208,80 +6208,25 @@
     "ka"
    ]
   },
-  "home.app_download": {
-   "he": "להורדה",
-   "en": "Download",
-   "ru": "Скачать",
-   "ka": "ჩამოტვირთვა",
+  "home.app_store": {
+   "he": "ב-<bdi>Google Play</bdi>",
+   "en": "on Google Play",
+   "ru": "в Google Play",
+   "ka": "Google Play-ზე",
    "where": "site/index.html",
-   "note": "short: sign subtitle (initial; app.js may replace)",
+   "note": "short: sign subtitle under home.app_board; the store name, not its logo (round 26)",
    "check": [
     "ru",
     "ka"
    ]
   },
-  "home.app_download_meta_size": {
-   "he": "להורדה · {size} MB",
-   "en": "Download · {size} MB",
-   "ru": "Скачать · {size} МБ",
-   "ka": "ჩამოტვირთვა · {size} მბ",
-   "where": "site/js/app.js",
-   "note": "{size} = APK size in MB (one decimal under 10)",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "home.app_how": {
-   "he": "איך מתקינים?",
-   "en": "How to install?",
-   "ru": "Как установить?",
-   "ka": "როგორ დავაყენოთ?",
+  "home.app_scan": {
+   "he": "סורקים בטלפון אנדרואיד",
+   "en": "Scan with an Android phone",
+   "ru": "Отсканируйте телефоном Android",
+   "ka": "დაასკანერეთ Android ტელეფონით",
    "where": "site/index.html",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "home.app_req": {
-   "he": "מתאים ל-Android 8.0 ומעלה. האפליקציה בנויה על אותם נתונים כמו האתר.",
-   "en": "Works on Android 8.0 and up. The app uses the same data as the site.",
-   "ru": "Подходит для Android 8.0 и выше. Приложение работает на тех же данных, что и сайт.",
-   "ka": "მუშაობს Android 8.0-ზე და უფრო ახალზე. აპლიკაცია იმავე მონაცემებს იყენებს, რასაც საიტი.",
-   "where": "site/index.html",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "home.app_step1": {
-   "he": "מורידים את הקובץ בטלפון.",
-   "en": "Download the file on your phone.",
-   "ru": "Скачайте файл на телефон.",
-   "ka": "ჩამოტვირთეთ ფაილი ტელეფონში.",
-   "where": "site/index.html",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "home.app_step2": {
-   "he": "פותחים אותו, ומאשרים התקנה כשהטלפון שואל על התקנה ממקור לא ידוע.",
-   "en": "Open it, and allow the install when your phone asks about installing from an unknown source.",
-   "ru": "Откройте его и разрешите установку, когда телефон спросит об установке из неизвестного источника.",
-   "ka": "გახსენით და დაუშვით ინსტალაცია, როცა ტელეფონი უცნობი წყაროდან ინსტალაციის შესახებ გკითხავთ.",
-   "where": "site/index.html",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "home.app_step3": {
-   "he": "פותחים את האפליקציה \"גודאורי 2027\".",
-   "en": "Open the \"Gudauri 2027\" app.",
-   "ru": "Откройте приложение «Гудаури 2027».",
-   "ka": "გახსენით აპლიკაცია „გუდაური 2027“.",
-   "where": "site/index.html",
+   "note": "next to the QR code of the Play link, desktop only (round 26)",
    "check": [
     "ru",
     "ka"
