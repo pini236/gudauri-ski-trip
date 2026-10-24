@@ -22,10 +22,10 @@ test('אורח: כרטיס ריק, מצב העונה, ובלי הכרטיס וה
   await expect(page.locator('#bpEmpty')).toBeVisible();
   await expect(page.locator('#bpStack')).toBeHidden();
   await expect(page.locator('#seasonBoard')).toBeVisible();
-  // round 20: no lock line, no tally, signs without a line under them
+  // round 20: no lock line, no tally, signs without a line under them (but the app sign names its store, round 26)
   await expect(page.locator('#tripNote')).toHaveCount(0);
   await expect(page.locator('section.tally')).toHaveCount(0);
-  await expect(page.locator('.board:visible > span:visible')).toHaveCount(0);
+  await expect(page.locator('.board:not(.board-app):visible > span:visible')).toHaveCount(0);
   await expect(page.locator('#tbCount')).toBeHidden();
   await expect(page.locator('body')).not.toContainText('שרוליק');
   await expect(page.locator('.crew')).toHaveCount(0);
