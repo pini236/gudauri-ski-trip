@@ -52,12 +52,17 @@
       beforeSend:function(ev){if(ev.request){delete ev.request.cookies;delete ev.request.headers;delete ev.request.query_string;if(ev.request.url)ev.request.url=cleanUrl(ev.request.url);}if(ev.user)delete ev.user.ip_address;
         (ev.breadcrumbs||[]).forEach(function(b){var d=b&&b.data;if(!d)return;['from','to','url'].forEach(function(k){if(typeof d[k]==='string')d[k]=cleanUrl(d[k]);});});
         return ev;}});}
+  // a browser whose clock is set to Europe keeps no visitor id: every visit counts as new, and nothing that tells
+  // one visitor from another is stored there (docs/ARCHITECTURE.md, m-5; decision 37 left this for before going public)
+  function europe(){try{var z=Intl.DateTimeFormat().resolvedOptions().timeZone||'';
+      return /^Europe\//.test(z)||/^Atlantic\/(Azores|Canary|Faroe|Madeira|Reykjavik)$/.test(z)||/^Asia\/(Nicosia|Famagusta)$/.test(z);}catch(e){return false;}}
+  window.GUD_EUROPE=europe; // for the tests
   function start(){
   if(window.Sentry&&Sentry.init)sentry();else if(SENTRY_DSN)load(VENDOR+'sentry-8.38.0.min.js',function(){if(window.Sentry)sentry();});
   if(started)return;started=true;
   load(VENDOR+'posthog-1.436.1.no-external.js',function(){
     if(!window.posthog||!posthog.init)return;
-    posthog.init(POSTHOG_KEY,{api_host:'https://eu.i.posthog.com',persistence:'localStorage',person_profiles:'identified_only',
+    posthog.init(POSTHOG_KEY,{api_host:'https://eu.i.posthog.com',persistence:europe()?'memory':'localStorage',person_profiles:'identified_only',
       autocapture:false,capture_pageview:false,capture_pageleave:false,disable_session_recording:true,enable_heatmaps:false,
       disable_surveys:true,capture_performance:false,capture_dead_clicks:false,advanced_disable_flags:true,ip:false,
       before_send:function(ev){if(ev){cleanProps(ev.properties);cleanProps(ev.$set_once);cleanProps(ev.$set);}return ev;},

@@ -7,8 +7,12 @@
   const KEY='gud-resort';
   const FALLBACK={id:'gudauri',name:'Gudauri',country:'GE',dir:'data/',proj:{lat0:42.51,lon0:44.495},tz:'Asia/Tbilisi',
     features:['trip','meet','status','weather','kobi','locate','group','videos','pano','app']};
-  const q=new URLSearchParams(location.search).get('resort');
+  const qs0=new URLSearchParams(location.search),q=qs0.get('resort');
   let saved=null;try{saved=localStorage.getItem(KEY);}catch(e){}
+  // resorts marked hidden in the list are still in testing: a visitor from outside sees Gudauri only. ?resort=<id> still
+  // opens one, and ?preview=1 (kept in this browser, ?preview=0 forgets it) puts them all in the picker (Pini, 25.10.2026)
+  let preview=false;try{const pv=qs0.get('preview');if(pv==='1')localStorage.setItem('gud-preview','1');else if(pv==='0')localStorage.removeItem('gud-preview');
+    preview=localStorage.getItem('gud-preview')==='1';}catch(e){}
   const deep=/^#(map\/run|meet)\//.test(location.hash);
   const R={cur:FALLBACK,id:FALLBACK.id,list:[FALLBACK],def:FALLBACK.id};
   R.has=f=>R.cur.features.includes(f);
@@ -26,9 +30,12 @@
     location.href=location.pathname+(qs?'?'+qs:'')+h;if(location.hash===h)location.reload();};
   R.ready=fetch('data/resorts.json').then(r=>r.ok?r.json():null).catch(()=>null).then(j=>{
     if(!j||!Array.isArray(j.resorts)||!j.resorts.length)return R.cur;
-    R.list=j.resorts;R.def=j.default||j.resorts[0].id;
+    const all=j.resorts,shown=r=>!r.hidden||preview;R.def=j.default||all[0].id;
     const want=q||(deep?null:saved);
-    R.cur=R.list.find(r=>r.id===want)||R.list.find(r=>r.id===R.def)||R.list[0];R.id=R.cur.id;
+    R.cur=all.find(r=>r.id===want&&(r.id===q||shown(r)))||all.find(r=>r.id===R.def)||all[0];R.id=R.cur.id;
+    R.list=all.filter(r=>shown(r)||r.id===R.id);
+    // a resort still in testing stays out of the search engines
+    if(R.cur.hidden){const m=document.createElement('meta');m.name='robots';m.content='noindex';document.head.appendChild(m);}
     if(q&&R.cur.id===q)try{localStorage.setItem(KEY,q);}catch(e){}
     // a choice kept in this browser shows in the address, so a link copied from it opens the same resort
     if(!q&&!R.isDefault())try{const s=new URLSearchParams(location.search);s.set('resort',R.id);history.replaceState(history.state,'',location.pathname+'?'+s+location.hash);}catch(e){}

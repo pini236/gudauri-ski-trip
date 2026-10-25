@@ -66,9 +66,32 @@ test('Sölden map: number plates, a run panel, and a share link that keeps the r
   expect(errors).toEqual([]);
 });
 
-test('the picker: the place name opens the list, and a choice loads the other resort', async ({ page }) => {
+// the resorts in testing are hidden from a visitor from outside (Pini, 25.10.2026): Gudauri only, no picker.
+// ?resort=<id> still opens one (and keeps it out of the search engines), and ?preview=1 shows them all
+test('outside visitors see Gudauri only; the resorts in testing open by address or with ?preview=1', async ({ page }) => {
   const errors = watchErrors(page);
   await page.goto('/');
+  await loaded(page);
+  await expect(page.locator('html')).toHaveAttribute('data-resort', 'gudauri');
+  await expect(page.locator('.rs-btn')).toHaveCount(0);
+  const noindex = page.locator('meta[name="robots"][content="noindex"]');
+  const base = await noindex.count(); // the whole site until it opens to search engines
+  await page.goto('/?resort=soelden#home');
+  await loaded(page);
+  await expect(page.locator('html')).toHaveAttribute('data-resort', 'soelden');
+  await expect(noindex).toHaveCount(base + 1);
+  await page.locator('.rs-btn:visible').first().click();
+  await expect(page.locator('.rs-list .rs-res')).toHaveCount(2); // Gudauri, and the one in the address
+  // chosen by address and then the bare address: not kept for an outside visitor
+  await page.goto('/#home');
+  await loaded(page);
+  await expect(page.locator('html')).toHaveAttribute('data-resort', 'gudauri');
+  expect(errors).toEqual([]);
+});
+
+test('the picker: the place name opens the list, and a choice loads the other resort', async ({ page }) => {
+  const errors = watchErrors(page);
+  await page.goto('/?preview=1');
   await loaded(page);
   const btn = page.locator('.rs-btn:visible').first();
   await btn.click();

@@ -42,6 +42,7 @@
     },
     {
       "id": "soelden",
+      "hidden": true,
       "name": "Sölden",
       "country": "AT",
       "dir": "data/resorts/soelden/",
@@ -122,6 +123,7 @@
     },
     {
       "id": "sellaronda",
+      "hidden": true,
       "name": "Sella Ronda",
       "country": "IT",
       "dir": "data/resorts/sellaronda/",

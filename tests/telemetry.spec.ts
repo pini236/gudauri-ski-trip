@@ -37,3 +37,19 @@ test('מדידה: best ב-game_end הוא שיא חדש של הניקוד, גם 
   });
   expect(out).toEqual([true, false, true, true, true, false, false]);
 });
+
+// a browser whose clock is in Europe keeps no visitor id (docs/ARCHITECTURE.md, m-5): PostHog runs from memory there
+for (const [tz, eu] of [['Europe/Berlin', true], ['Europe/London', true], ['Atlantic/Canary', true], ['Asia/Nicosia', true],
+  ['Asia/Jerusalem', false], ['Asia/Tbilisi', false], ['America/New_York', false]] as const) {
+  test.describe(`מדידה: אזור הזמן ${tz}`, () => {
+    test.use({ timezoneId: tz });
+    test(`מזהה מבקר נשמר בדפדפן: ${eu ? 'לא' : 'כן'}`, async ({ page }) => {
+      await page.goto('/#home');
+      expect(await page.evaluate(() => (window as any).GUD_EUROPE())).toBe(eu);
+    });
+  });
+}
+test('מדידה: בדפדפן באירופה PostHog בלי שמירה בדפדפן', async () => {
+  const src = readFileSync(join(__dirname, '..', 'site', 'js', 'telemetry.js'), 'utf8');
+  expect(src).toMatch(/persistence:europe\(\)\?'memory':'localStorage'/);
+});
