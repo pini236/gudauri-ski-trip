@@ -2,7 +2,7 @@
 
 **הבקשה (פיני, 25.10.2026):** "שיתפתי לינק, למה אני לא רואה את התמונה של האפליקציה בשיתוף בוואצאפ?"
 
-בקנבס: https://claude.ai/artifact/TVdeDbFBhvFDZdhCKjcys4 , עמוד "סבב 28" (גרסה 84). **ממתין לאישור של פיני.**
+בקנבס: https://claude.ai/artifact/TVdeDbFBhvFDZdhCKjcys4 , עמוד "סבב 28" (גרסה 84). **אושר (פיני, 25.10.2026: "מאשר לפי ההמלצה, תממש", החלטה 75) ומומש באותו יום:** `site/app.html`, `site/css/app-link.css`, `site/js/app-link.js`, ו-`tests/applink.spec.ts`.
 
 ## הבעיה
 

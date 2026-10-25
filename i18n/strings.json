@@ -6244,6 +6244,102 @@
     "ka"
    ]
   },
+  "applink.sub": {
+   "he": "מפת הסקי של גודאורי",
+   "en": "Gudauri ski map",
+   "ru": "Горнолыжная карта Гудаури",
+   "ka": "გუდაურის სათხილამურო რუკა",
+   "where": "site/app.html",
+   "note": "under the name Gudi on the short app link page /app (round 28)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "applink.going": {
+   "he": "פותחים את <bdi>Google Play</bdi>…",
+   "en": "Opening Google Play…",
+   "ru": "Открываем Google Play…",
+   "ka": "ვხსნით Google Play-ს…",
+   "where": "site/app.html",
+   "note": "while /app hands over to Google Play (round 28)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "applink.badge_alt": {
+   "he": "להורדה מ-<bdi>Google Play</bdi>",
+   "en": "Get it on Google Play",
+   "ru": "Доступно в Google Play",
+   "ka": "ჩამოტვირთეთ Google Play-დან",
+   "where": "site/app.html",
+   "note": "alt of the official Google Play badge on /app (round 28)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "applink.site": {
+   "he": "או למפה באתר",
+   "en": "or open the map on the web",
+   "ru": "или карта на сайте",
+   "ka": "ან რუკა საიტზე",
+   "where": "site/app.html",
+   "note": "link to the map on the site, on /app (round 28)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "applink.ios_title": {
+   "he": "באייפון עוד אין אפליקציה",
+   "en": "No iPhone app yet",
+   "ru": "Приложения для iPhone пока нет",
+   "ka": "iPhone-ის აპლიკაცია ჯერ არ არის",
+   "where": "site/app.html",
+   "note": "/app on an iPhone: there is no App Store app yet (round 28)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "applink.ios_text": {
+   "he": "בינתיים כל המפה באתר, בלי התקנה.",
+   "en": "Meanwhile the whole map is on the web, nothing to install.",
+   "ru": "А пока вся карта на сайте, без установки.",
+   "ka": "მანამდე მთელი რუკა საიტზეა, ინსტალაციის გარეშე.",
+   "where": "site/app.html",
+   "note": "/app on an iPhone, under applink.ios_title (round 28)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "applink.ios_btn": {
+   "he": "למפה באתר",
+   "en": "Open the map",
+   "ru": "Карта на сайте",
+   "ka": "რუკა საიტზე",
+   "where": "site/app.html",
+   "note": "/app on an iPhone: button to the map on the site (round 28)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "applink.title": {
+   "he": "Gudi: מפת הסקי של גודאורי",
+   "en": "Gudi: Gudauri Ski Map",
+   "ru": "Gudi: карта трасс Гудаури",
+   "ka": "Gudi: გუდაურის რუკა",
+   "where": "site/app.html",
+   "note": "title of /app, the name in the store (round 28)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
   "home.board_games_sub": {
    "he": "הירידה, בית הספר לסקי, שלג טרי ועוד",
    "en": "The Descent, Ski School, Fresh Snow and more",

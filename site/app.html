@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<!-- /app: the short link to the app (round 28, decision 75). WhatsApp reads only the first 300KB of a page, and on the
+     Google Play page the preview tags come after about 1MB, so a Play link shows no picture. This page is small, starts
+     with its own preview tags (in Hebrew: WhatsApp runs no code), and js/app-link.js hands over to Google Play. -->
+<meta property="og:type" content="website">
+<meta property="og:locale" content="he_IL">
+<meta property="og:site_name" content="Gudi">
+<meta property="og:title" content="Gudi: מפת הסקי של גודאורי">
+<meta property="og:description" content="אפליקציה לאנדרואיד, בחינם: מפה בתלת-ממד, מסלולים, רכבלים ומזג אוויר לפי גובה">
+<meta property="og:url" content="https://gudauri-ski-trip.vercel.app/app">
+<meta property="og:image" content="https://gudauri-ski-trip.vercel.app/og.jpg?v=27">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="שלט GUDAURI מושלג מול ההרים">
+<meta name="twitter:card" content="summary_large_image">
+<title data-i18n="applink.title">Gudi: מפת הסקי של גודאורי</title>
+<meta name="description" content="אפליקציה לאנדרואיד, בחינם: מפה בתלת-ממד, מסלולים, רכבלים ומזג אוויר לפי גובה">
+<meta name="robots" content="noindex">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#DCE8F1" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0B1320" media="(prefers-color-scheme: dark)">
+<link rel="icon" href="favicon-32.png" type="image/png" sizes="32x32">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Karantina:wght@700&family=IBM+Plex+Sans+Hebrew:wght@400;600&display=swap">
+<link rel="stylesheet" href="css/app-link.css">
+<script src="js/i18n.js"></script>
+<script src="js/app-link.js" defer></script>
+</head>
+<body>
+<main class="al">
+  <img class="al-icon" src="apple-touch-icon.png" width="120" height="120" alt="">
+  <h1>Gudi</h1>
+  <p class="al-sub" data-i18n="applink.sub">מפת הסקי של גודאורי</p>
+  <div class="al-going" id="alGoing" role="status" hidden><span data-i18n-html="applink.going">פותחים את <bdi>Google Play</bdi>…</span><span class="al-bar" aria-hidden="true"><i></i></span></div>
+  <a class="al-badge" id="alBadge" href="https://play.google.com/store/apps/details?id=io.github.pini236.skiapp&amp;referrer=utm_source%3Dshare%26utm_medium%3Dapp_link"><img id="alBadgeImg" src="img/badges/play-he.png" height="52" alt="להורדה מ-Google Play" data-i18n-attr="alt:applink.badge_alt"></a>
+  <div class="al-ios" id="alIos" hidden><h2 data-i18n="applink.ios_title">באייפון עוד אין אפליקציה</h2><p data-i18n="applink.ios_text">בינתיים כל המפה באתר, בלי התקנה.</p></div>
+  <a class="al-btn" id="alBtn" href="/" hidden data-i18n="applink.ios_btn">למפה באתר</a>
+  <a class="al-site" id="alSite" href="/" data-i18n="applink.site">או למפה באתר</a>
+</main>
+</body>
+</html>
