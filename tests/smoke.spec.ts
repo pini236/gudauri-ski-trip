@@ -90,6 +90,8 @@ test('תגיות ה-head: שפה, פתוח למנועי חיפוש, וקישור
   // open to search engines (round 27): no noindex, one canonical address, robots.txt and a sitemap
   await expect(page.locator('meta[name="robots"]')).toHaveCount(0);
   await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', 'https://gudauri-ski-trip.vercel.app/');
+  // Google Search Console ownership: removing the tag drops the verification
+  await expect(page.locator('meta[name="google-site-verification"]')).toHaveAttribute('content', 'Gug1pbOYy6GSq7YIboKBZku9ckNssSUASa0k9w8auac');
   const robots = await (await page.request.get('/robots.txt')).text();
   expect(robots).toContain('Disallow: /*?resort=');
   expect(robots).toContain('Sitemap: https://gudauri-ski-trip.vercel.app/sitemap.xml');
