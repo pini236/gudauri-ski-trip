@@ -1,0 +1,46 @@
+{
+ "today": {
+  "he": {
+   "title": "גודאורי 2027: אתר ההיערכות",
+   "description": "אתר היערכות לחופשת סקי בגודאורי, גאורגיה: מפת מסלולים ורכבלים, מודל תלת-ממדי של ההר ופרטים על כל מסלול.",
+   "og_description": "מפת מסלולים ורכבלים, מודל תלת-ממדי של ההר ופרטים על כל מסלול.",
+   "site_name": "גודאורי 2027"
+  },
+  "en": {
+   "title": "Gudauri 2027: trip prep site",
+   "description": "Prep site for a ski trip to Gudauri, Georgia: run and lift map, a 3D model of the mountain and details on every run.",
+   "og_description": "Run and lift map, a 3D model of the mountain and details on every run.",
+   "site_name": "Gudauri 2027"
+  }
+ },
+ "new": {
+  "he": {
+   "title": "מפת הסקי של גודאורי: מסלולים, רכבלים ותלת-ממד | Gudi",
+   "description": "מפת המסלולים והרכבלים של גודאורי, גאורגיה, עם מודל תלת-ממדי של ההר: אורך, ירידה ושיפוע לכל מסלול, מזג אוויר לפי גובה ונקודת מפגש לקבוצה. בחינם.",
+   "og_description": "מפת המסלולים והרכבלים של גודאורי בתלת-ממד: שיפוע לכל מסלול, מזג אוויר לפי גובה ונקודת מפגש לקבוצה.",
+   "site_name": "Gudi",
+   "brand": "גודאורי"
+  },
+  "en": {
+   "title": "Gudauri Ski Map: Runs, Lifts and 3D Mountain | Gudi",
+   "description": "Run and lift map of Gudauri, Georgia, with a 3D mountain: length, drop and slope for every run, weather by altitude and a meeting point for your group. Free.",
+   "og_description": "Gudauri's runs and lifts in 3D: slope for every run, weather by altitude and a meeting point for your group.",
+   "site_name": "Gudi",
+   "brand": "Gudauri"
+  },
+  "ru": {
+   "title": "Карта трасс Гудаури: трассы, подъёмники и 3D | Gudi",
+   "description": "Карта трасс и подъёмников Гудаури (Грузия) с 3D-моделью горы: длина, перепад и уклон каждой трассы, погода по высотам и точка встречи для компании. Бесплатно.",
+   "og_description": "Трассы и подъёмники Гудаури в 3D: уклон каждой трассы, погода по высотам и точка встречи для компании.",
+   "site_name": "Gudi",
+   "brand": "Гудаури"
+  },
+  "ka": {
+   "title": "გუდაურის რუკა: ტრასები, საბაგიროები და 3D | Gudi",
+   "description": "გუდაურის ტრასებისა და საბაგიროების რუკა 3D მოდელით: ტრასის სიგრძე, ვარდნა და დახრილობა, ამინდი სიმაღლის მიხედვით და შეხვედრის ადგილი ჯგუფისთვის. უფასოდ.",
+   "og_description": "გუდაურის ტრასები და საბაგიროები 3D-ში: დახრილობა, ამინდი სიმაღლის მიხედვით და შეხვედრის ადგილი.",
+   "site_name": "Gudi",
+   "brand": "გუდაური"
+  }
+ }
+}
