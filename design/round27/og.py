@@ -48,7 +48,7 @@ def site_cap(x0, x1, T, seed=3, hi=19):
     return _curve(up + lo + [up[0]]) + 'Z', _curve(up)
 
 
-SNOW = 'thin'  # which snow the sign wears: 'old' (round 9's cap), 'none', 'thin' (the site's), 'drift' (thin + the post in a drift)
+SNOW = 'drift'  # approved (Pini, 25.10.2026: gold hour with the drift). which snow the sign wears: 'old' (round 9's cap), 'none', 'thin' (the site's), 'drift' (thin + the post in a drift)
 
 
 def sign(word='GUDAURI', s=1.1, sy=70, P=None):
@@ -196,7 +196,23 @@ def og2(name='day', word='GUDAURI'):
             % (W, H, W, H, ''.join(defs), ''.join(body), sgn))
 
 
-if __name__ == '__main__':
+def site_og():
+    """the approved share image (decision 73, third pass): gold hour, thin snow and the drift -> site/og.jpg"""
+    global SNOW
+    SNOW = 'drift'
+    tmp = here / 'shots'
+    tmp.mkdir(exist_ok=True)
+    (tmp / 'site-og.svg').write_text(og2('gold'), encoding='utf-8')
+    subprocess.run(['node', str(root / 'design/round9/render.js'), str(tmp / 'site-og.svg'), str(tmp / 'site-og.png'), str(W), str(H), '0'], check=True)
+    subprocess.run(['convert', str(tmp / 'site-og.png'), '-strip', '-quality', '86', '-interlace', 'JPEG', str(root / 'site/og.jpg')], check=True)
+    for f in ('site-og.svg', 'site-og.png'):
+        (tmp / f).unlink()
+    print('site/og.jpg')
+
+
+if __name__ == '__main__' and sys.argv[1:] == ['--site']:
+    site_og()
+elif __name__ == '__main__':
     out = here / 'shots'
     out.mkdir(exist_ok=True)
     jobs = [('og-a', og), ('og-b', og_pano)] + [('og-c-' + n, (lambda n=n: og2(n))) for n in ('day', 'gold', 'night')]
