@@ -2682,6 +2682,86 @@
       "h": 1420,
       "page": "round26",
       "title": "ערכים למימוש"
+    },
+    "R27-0-Decide.dc.html": {
+      "x": 0,
+      "y": 0,
+      "w": 600,
+      "h": 920,
+      "page": "round27",
+      "title": "מה לאשר בסבב 27"
+    },
+    "R27-Today.dc.html": {
+      "x": 680,
+      "y": 0,
+      "w": 1986,
+      "h": 842,
+      "page": "round27",
+      "title": "היום: מכוון לטיול שלנו"
+    },
+    "R27-Copy.dc.html": {
+      "x": 680,
+      "y": 1262,
+      "w": 760,
+      "h": 900,
+      "page": "round27",
+      "title": "הטקסטים בארבע השפות"
+    },
+    "R27-Google.dc.html": {
+      "x": 680,
+      "y": 2582,
+      "w": 1688,
+      "h": 642,
+      "page": "round27",
+      "title": "א. בגוגל"
+    },
+    "R27-WhatsApp.dc.html": {
+      "x": 2448,
+      "y": 2582,
+      "w": 1266,
+      "h": 594,
+      "page": "round27",
+      "title": "א. בוואטסאפ"
+    },
+    "R27-Image.dc.html": {
+      "x": 3794,
+      "y": 2582,
+      "w": 968,
+      "h": 539,
+      "page": "round27",
+      "title": "א. תמונת השיתוף: העולם של החנות (מומלץ)"
+    },
+    "R27-Brand.dc.html": {
+      "x": 4842,
+      "y": 2582,
+      "w": 1868,
+      "h": 524,
+      "page": "round27",
+      "title": "א. הסרגל: שם המקום"
+    },
+    "R27-ImageB.dc.html": {
+      "x": 680,
+      "y": 3644,
+      "w": 1058,
+      "h": 750,
+      "page": "round27",
+      "title": "ב. תמונת השיתוף: הנוף האמיתי מהכפר"
+    },
+    "R27-BrandB.dc.html": {
+      "x": 1818,
+      "y": 3644,
+      "w": 940,
+      "h": 524,
+      "page": "round27",
+      "title": "ב. הסרגל: Gudi"
+    },
+    "R27-Spec.dc.html": {
+      "x": 680,
+      "y": 4814,
+      "w": 640,
+      "h": 940,
+      "page": "round27",
+      "title": "ערכים למימוש"
     }
   },
   "createdOnFiles": {
@@ -2691,7 +2771,7 @@
   "designSystems": [],
   "launch": {
     "view": "canvas",
-    "page": "round26"
+    "page": "round27"
   },
   "notes": {
     "featRow1": {
@@ -3647,6 +3727,51 @@
       "w": 240,
       "x": 680,
       "y": 5652
+    },
+    "round27row0": {
+      "kind": "title1",
+      "maxW": 1986,
+      "page": "round27",
+      "text": "היום",
+      "w": 240,
+      "x": 680,
+      "y": -300
+    },
+    "round27row1": {
+      "kind": "title1",
+      "maxW": 860,
+      "page": "round27",
+      "text": "הטקסטים בארבע השפות",
+      "w": 240,
+      "x": 680,
+      "y": 962
+    },
+    "round27row2": {
+      "kind": "title1",
+      "maxW": 6030,
+      "page": "round27",
+      "text": "א. ההמלצה",
+      "w": 240,
+      "x": 680,
+      "y": 2282
+    },
+    "round27row3": {
+      "kind": "title1",
+      "maxW": 2078,
+      "page": "round27",
+      "text": "ב. חלופות",
+      "w": 240,
+      "x": 680,
+      "y": 3344
+    },
+    "round27row4": {
+      "kind": "title1",
+      "maxW": 860,
+      "page": "round27",
+      "text": "ערכים למימוש",
+      "w": 240,
+      "x": 680,
+      "y": 4514
     }
   },
   "order": [
@@ -3983,9 +4108,23 @@
     "R26-Desk.dc.html",
     "R26-Badge.dc.html",
     "R26-Future.dc.html",
-    "R26-Spec.dc.html"
+    "R26-Spec.dc.html",
+    "R27-0-Decide.dc.html",
+    "R27-Today.dc.html",
+    "R27-Copy.dc.html",
+    "R27-Google.dc.html",
+    "R27-WhatsApp.dc.html",
+    "R27-Image.dc.html",
+    "R27-Brand.dc.html",
+    "R27-ImageB.dc.html",
+    "R27-BrandB.dc.html",
+    "R27-Spec.dc.html"
   ],
   "pages": [
+    {
+      "id": "round27",
+      "name": "סבב 27: שם ותמונת שיתוף לכולם"
+    },
     {
       "id": "round26",
       "name": "סבב 26: האפליקציה בגוגל פליי"
