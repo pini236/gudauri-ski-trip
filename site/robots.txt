@@ -1,0 +1,7 @@
+# Gudi: the Gudauri ski map. Open to search engines since 25.10.2026 (round 27).
+# The ski resorts still in testing (?resort=) stay out of them.
+User-agent: *
+Disallow: /*?resort=
+Disallow: /*&resort=
+
+Sitemap: https://gudauri-ski-trip.vercel.app/sitemap.xml

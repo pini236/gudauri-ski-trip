@@ -103,7 +103,6 @@ def build():
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>מדיניות פרטיות · Privacy Policy · Gudi: Gudauri Ski Map</title>
 <meta name="description" content="מדיניות הפרטיות של האפליקציה והאתר. Privacy policy of the app and the website.">
-<meta name="robots" content="noindex">
 <meta name="theme-color" content="#EEF2F5" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#0D1522" media="(prefers-color-scheme: dark)">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -117,7 +116,7 @@ def build():
 </head>
 <body>
 <header class="pv-top">
-  <a class="pv-brand" href="/">גודאורי 2027</a>
+  <a class="pv-brand" href="/">גודאורי</a>
   <div class="pv-lang" role="group" aria-label="שפה · Language">
     {buttons}
   </div>

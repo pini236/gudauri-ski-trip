@@ -375,10 +375,10 @@
    ]
   },
   "about.pass_top": {
-   "he": "SKI PASS · גודאורי 2027",
-   "en": "SKI PASS · Gudauri 2027",
-   "ru": "SKI PASS · Гудаури 2027",
-   "ka": "SKI PASS · გუდაური 2027",
+   "he": "SKI PASS · Gudi",
+   "en": "SKI PASS · Gudi",
+   "ru": "SKI PASS · Gudi",
+   "ka": "SKI PASS · Gudi",
    "where": "site/index.html",
    "note": "'SKI PASS' stays in English (design)",
    "check": [
@@ -1240,10 +1240,10 @@
    ]
   },
   "common.site_name": {
-   "he": "גודאורי 2027",
-   "en": "Gudauri 2027",
-   "ru": "Гудаури 2027",
-   "ka": "გუდაური 2027",
+   "he": "גודאורי",
+   "en": "Gudauri",
+   "ru": "Гудаури",
+   "ka": "გუდაური",
    "where": "site/index.html, site/js/app.js",
    "note": "site name: og:site_name and brand in top bar",
    "check": [
@@ -6327,17 +6327,6 @@
     "ka"
    ]
   },
-  "home.when": {
-   "he": "חופשת סקי, ינואר 2027",
-   "en": "Ski trip, January 2027",
-   "ru": "Горнолыжная поездка, январь 2027",
-   "ka": "სათხილამურო მოგზაურობა, 2027 წლის იანვარი",
-   "where": "site/index.html",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
   "lift.bubble_suffix": {
    "he": " · עם כיפה",
    "en": " · with bubble",
@@ -7223,10 +7212,10 @@
    ]
   },
   "meet.card_sub": {
-   "he": "גודאורי 2027",
-   "en": "Gudauri 2027",
-   "ru": "Гудаури 2027",
-   "ka": "გუდაური 2027",
+   "he": "גודאורי",
+   "en": "Gudauri",
+   "ru": "Гудаури",
+   "ka": "გუდაური",
    "where": "site/index.html",
    "note": "card header, right side",
    "check": [
@@ -7799,10 +7788,10 @@
    ]
   },
   "meta.description": {
-   "he": "אתר היערכות לחופשת סקי בגודאורי, גאורגיה: מפת מסלולים ורכבלים, מודל תלת-ממדי של ההר ופרטים על כל מסלול.",
-   "en": "Prep site for a ski trip to Gudauri, Georgia: run and lift map, a 3D model of the mountain and details on every run.",
-   "ru": "Сайт для подготовки к горнолыжной поездке в Гудаури, Грузия: карта трасс и подъёмников, 3D-модель горы и подробности о каждой трассе.",
-   "ka": "გუდაურში (საქართველო) სათხილამურო მოგზაურობისთვის მოსამზადებელი საიტი: ტრასებისა და საბაგიროების რუკა, მთის 3D მოდელი და დეტალები ყველა ტრასაზე.",
+   "he": "מפת המסלולים והרכבלים של גודאורי, גאורגיה, עם מודל תלת-ממדי של ההר: אורך, ירידה ושיפוע לכל מסלול, מזג אוויר לפי גובה ונקודת מפגש לקבוצה. בחינם.",
+   "en": "Run and lift map of Gudauri, Georgia, with a 3D mountain: length, drop and slope for every run, weather by altitude and a meeting point for your group. Free.",
+   "ru": "Карта трасс и подъёмников Гудаури (Грузия) с 3D-моделью горы: длина, перепад и уклон каждой трассы, погода по высотам и точка встречи для компании. Бесплатно.",
+   "ka": "გუდაურის ტრასებისა და საბაგიროების რუკა 3D მოდელით: ტრასის სიგრძე, ვარდნა და დახრილობა, ამინდი სიმაღლის მიხედვით და შეხვედრის ადგილი ჯგუფისთვის. უფასოდ.",
    "where": "site/index.html",
    "note": "meta description",
    "check": [
@@ -7811,10 +7800,10 @@
    ]
   },
   "meta.og_description": {
-   "he": "מפת מסלולים ורכבלים, מודל תלת-ממדי של ההר ופרטים על כל מסלול.",
-   "en": "Run and lift map, a 3D model of the mountain and details on every run.",
-   "ru": "Карта трасс и подъёмников, 3D-модель горы и подробности о каждой трассе.",
-   "ka": "ტრასებისა და საბაგიროების რუკა, მთის 3D მოდელი და დეტალები ყველა ტრასაზე.",
+   "he": "מפת המסלולים והרכבלים של גודאורי בתלת-ממד: שיפוע לכל מסלול, מזג אוויר לפי גובה ונקודת מפגש לקבוצה.",
+   "en": "Gudauri's runs and lifts in 3D: slope for every run, weather by altitude and a meeting point for your group.",
+   "ru": "Трассы и подъёмники Гудаури в 3D: уклон каждой трассы, погода по высотам и точка встречи для компании.",
+   "ka": "გუდაურის ტრასები და საბაგიროები 3D-ში: დახრილობა, ამინდი სიმაღლის მიხედვით და შეხვედრის ადგილი.",
    "where": "site/index.html",
    "note": "og:description (WhatsApp preview)",
    "check": [
@@ -7822,11 +7811,19 @@
     "ka"
    ]
   },
+  "meta.site_name": {
+   "he": "Gudi",
+   "en": "Gudi",
+   "ru": "Gudi",
+   "ka": "Gudi",
+   "where": "site/index.html",
+   "note": "og:site_name, the name in the stores (round 27, decision 73)"
+  },
   "meta.title": {
-   "he": "גודאורי 2027: אתר ההיערכות",
-   "en": "Gudauri 2027: trip prep site",
-   "ru": "Гудаури 2027: всё для поездки",
-   "ka": "გუდაური 2027: მოგზაურობისთვის მზადება",
+   "he": "מפת הסקי של גודאורי: מסלולים, רכבלים ותלת-ממד | Gudi",
+   "en": "Gudauri Ski Map: Runs, Lifts and 3D Mountain | Gudi",
+   "ru": "Карта трасс Гудаури: трассы, подъёмники и 3D | Gudi",
+   "ka": "გუდაურის რუკა: ტრასები, საბაგიროები და 3D | Gudi",
    "where": "site/index.html",
    "note": "<title> and og:title",
    "check": [
@@ -8718,10 +8715,10 @@
    ]
   },
   "run.share_title": {
-   "he": "גודאורי 2027: {run}",
-   "en": "Gudauri 2027: {run}",
-   "ru": "Гудаури 2027: {run}",
-   "ka": "გუდაური 2027: {run}",
+   "he": "{run} · גודאורי",
+   "en": "{run} · Gudauri",
+   "ru": "{run} · Гудаури",
+   "ka": "{run} · გუდაური",
    "where": "site/js/app.js",
    "note": "Native share sheet title, {run} = run name",
    "check": [
