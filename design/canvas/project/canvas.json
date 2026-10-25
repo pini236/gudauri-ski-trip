@@ -2693,7 +2693,7 @@
     },
     "R27-Today.dc.html": {
       "x": 680,
-      "y": 1277,
+      "y": 2554,
       "w": 1986,
       "h": 842,
       "page": "round27",
@@ -2701,7 +2701,7 @@
     },
     "R27-Copy.dc.html": {
       "x": 680,
-      "y": 2539,
+      "y": 3816,
       "w": 760,
       "h": 900,
       "page": "round27",
@@ -2709,7 +2709,7 @@
     },
     "R27-Google.dc.html": {
       "x": 680,
-      "y": 3859,
+      "y": 5136,
       "w": 1688,
       "h": 642,
       "page": "round27",
@@ -2717,7 +2717,7 @@
     },
     "R27-WhatsApp.dc.html": {
       "x": 2448,
-      "y": 3859,
+      "y": 5136,
       "w": 1266,
       "h": 594,
       "page": "round27",
@@ -2725,7 +2725,7 @@
     },
     "R27-Image.dc.html": {
       "x": 3794,
-      "y": 3859,
+      "y": 5136,
       "w": 968,
       "h": 539,
       "page": "round27",
@@ -2733,7 +2733,7 @@
     },
     "R27-Brand.dc.html": {
       "x": 4842,
-      "y": 3859,
+      "y": 5136,
       "w": 1868,
       "h": 524,
       "page": "round27",
@@ -2741,7 +2741,7 @@
     },
     "R27-ImageB.dc.html": {
       "x": 680,
-      "y": 4921,
+      "y": 6198,
       "w": 1058,
       "h": 750,
       "page": "round27",
@@ -2749,7 +2749,7 @@
     },
     "R27-BrandB.dc.html": {
       "x": 1818,
-      "y": 4921,
+      "y": 6198,
       "w": 940,
       "h": 524,
       "page": "round27",
@@ -2757,7 +2757,7 @@
     },
     "R27-Spec.dc.html": {
       "x": 680,
-      "y": 6091,
+      "y": 7368,
       "w": 640,
       "h": 940,
       "page": "round27",
@@ -2765,7 +2765,7 @@
     },
     "R27-ImageC.dc.html": {
       "x": 680,
-      "y": 0,
+      "y": 1277,
       "w": 1896,
       "h": 857,
       "page": "round27",
@@ -2773,11 +2773,43 @@
     },
     "R27-WhatsAppC.dc.html": {
       "x": 2656,
-      "y": 0,
+      "y": 1277,
       "w": 1266,
       "h": 788,
       "page": "round27",
       "title": "בוואטסאפ: שעת זהב"
+    },
+    "R27-SnowWhy.dc.html": {
+      "x": 680,
+      "y": 0,
+      "w": 1724,
+      "h": 553,
+      "page": "round27",
+      "title": "השלג על השלט: מה לא התאים"
+    },
+    "R27-Snow-none.dc.html": {
+      "x": 2484,
+      "y": 0,
+      "w": 1896,
+      "h": 857,
+      "page": "round27",
+      "title": "א. בלי שלג"
+    },
+    "R27-Snow-thin.dc.html": {
+      "x": 4460,
+      "y": 0,
+      "w": 1896,
+      "h": 857,
+      "page": "round27",
+      "title": "ב. שכבה דקה, כמו באתר"
+    },
+    "R27-Snow-drift.dc.html": {
+      "x": 6436,
+      "y": 0,
+      "w": 1896,
+      "h": 857,
+      "page": "round27",
+      "title": "ג. שכבה דקה ושלג למרגלות העמוד (מומלץ)"
     }
   },
   "createdOnFiles": {
@@ -3746,57 +3778,66 @@
     },
     "round27row0": {
       "kind": "title1",
-      "maxW": 3242,
+      "maxW": 7652,
       "page": "round27",
-      "text": "תמונת השיתוף, סבב שני (בלי העצים)",
+      "text": "תמונת השיתוף, סבב שלישי: השלג על השלט",
       "w": 240,
       "x": 680,
       "y": -300
     },
     "round27row1": {
       "kind": "title1",
-      "maxW": 1986,
+      "maxW": 3242,
       "page": "round27",
-      "text": "היום",
+      "text": "תמונת השיתוף, סבב שני (בלי העצים, עם השלג הקודם)",
       "w": 240,
       "x": 680,
       "y": 977
     },
     "round27row2": {
       "kind": "title1",
+      "maxW": 1986,
+      "page": "round27",
+      "text": "היום",
+      "w": 240,
+      "x": 680,
+      "y": 2254
+    },
+    "round27row3": {
+      "kind": "title1",
       "maxW": 860,
       "page": "round27",
       "text": "הטקסטים בארבע השפות",
       "w": 240,
       "x": 680,
-      "y": 2239
+      "y": 3516
     },
-    "round27row3": {
+    "round27row4": {
       "kind": "title1",
       "maxW": 6030,
       "page": "round27",
       "text": "א. ההמלצה",
       "w": 240,
       "x": 680,
-      "y": 3559
+      "y": 4836
     },
-    "round27row4": {
+    "round27row5": {
       "kind": "title1",
       "maxW": 2078,
       "page": "round27",
       "text": "ב. חלופות",
       "w": 240,
       "x": 680,
-      "y": 4621
+      "y": 5898
     },
-    "round27row5": {
+    "round27row6": {
       "kind": "title1",
       "maxW": 860,
       "page": "round27",
       "text": "ערכים למימוש",
       "w": 240,
       "x": 680,
-      "y": 5791
+      "y": 7068
     }
   },
   "order": [
@@ -4145,7 +4186,11 @@
     "R27-BrandB.dc.html",
     "R27-Spec.dc.html",
     "R27-ImageC.dc.html",
-    "R27-WhatsAppC.dc.html"
+    "R27-WhatsAppC.dc.html",
+    "R27-SnowWhy.dc.html",
+    "R27-Snow-none.dc.html",
+    "R27-Snow-thin.dc.html",
+    "R27-Snow-drift.dc.html"
   ],
   "pages": [
     {

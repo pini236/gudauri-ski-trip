@@ -13,7 +13,45 @@ FONT = (root / 'app/android/app/src/main/res/font/karantina_bold.ttf').as_uri()
 W, H = 1200, 630
 
 
-def sign(word='GUDAURI', s=1.1, sy=70):
+def _rng(seed):
+    r = [(seed + 1) * 9301 % 233280]
+    def R(a, b):
+        r[0] = (r[0] * 9301 + 49297) % 233280
+        return a + (b - a) * r[0] / 233280
+    return R
+
+
+def _curve(p):
+    f = lambda v: '%.1f' % v
+    d = 'M%s,%s' % (f(p[0][0]), f(p[0][1]))
+    for k in range(len(p) - 1):
+        a, b_, c, e = p[max(k - 1, 0)], p[k], p[k + 1], p[min(k + 2, len(p) - 1)]
+        d += 'C%s,%s %s,%s %s,%s' % (f(b_[0] + (c[0] - a[0]) / 6), f(b_[1] + (c[1] - a[1]) / 6),
+                                     f(c[0] - (e[0] - b_[0]) / 6), f(c[1] - (e[1] - b_[1]) / 6), f(c[0]), f(c[1]))
+    return d
+
+
+def site_cap(x0, x1, T, seed=3, hi=19):
+    """The site's snow (site/js/snow.js, the drift kind) ported: low drifts with flat stretches between them, resting on
+    the top edge at T from x0 to x1, the ends rolling a little over the edge, a wavy lip just over the face, no drips."""
+    R = _rng(seed)
+    up = [(x0, T + 4), (x0 + 3, T - 2)]
+    x = x0 + R(14, 24); pk = True
+    while x < x1 - 18:
+        up.append((x, T - (R(hi * .6, hi) if R(0, 1) < .55 else R(2.5, hi * .45))) if pk else (x, T - R(1, 2.5)))
+        x += R(22, 40) if pk else R(18, 32); pk = not pk
+    up += [(x1 - 3, T - 2), (x1, T + 4)]
+    lo = []; xl = x1 - 5
+    while xl > x0 + 8:
+        lo.append((xl, T + R(3, 7))); xl -= R(24, 42)
+    lo.append((x0 + 3, T + 4))
+    return _curve(up + lo + [up[0]]) + 'Z', _curve(up)
+
+
+SNOW = 'thin'  # which snow the sign wears: 'old' (round 9's cap), 'none', 'thin' (the site's), 'drift' (thin + the post in a drift)
+
+
+def sign(word='GUDAURI', s=1.1, sy=70, P=None):
     """the sign of the store graphic, centred: 420 wide at scale 1.1 -> about 460 px, x 370 to 830"""
     sx = W / 2 - 230 * s
     return ('<g transform="translate(%s %s) scale(%s)">' % (sx, sy, s)
@@ -22,8 +60,32 @@ def sign(word='GUDAURI', s=1.1, sy=70):
             + '<path d="M0 176 L60 90 H420 V262 H60 Z" fill="#1F5FC4"></path>'
             + '<path d="M0 176 L60 90 H420 V100 H66 L10 182 Z" fill="#fff" opacity=".18"></path>'
             + '<text x="246" y="222" text-anchor="middle" font-family="K" font-size="112" fill="#fff" letter-spacing="4">%s</text>' % word
-            + '<path d="%s" fill="#fff"></path>' % b.snow_cap(24, 424, 92, 34, rnd=1.4, drips=[(.1, 24), (.36, 12), (.6, 30), (.88, 14)])
+            + cap(P)
             + '</g>')
+
+
+def cap(P):
+    if SNOW == 'old' or P is None:
+        return '<path d="%s" fill="#fff"></path>' % b.snow_cap(24, 424, 92, 34, rnd=1.4, drips=[(.1, 24), (.36, 12), (.6, 30), (.88, 14)])
+    if SNOW == 'none':
+        return ''
+    # on the flat top only (x 60 to 420, y 90): it stops where the arrow begins, as on the site
+    body, edge = site_cap(56, 423, 90)
+    sn = P['snow']
+    out = ('<linearGradient id="capg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="%s"></stop>'
+           '<stop offset=".55" stop-color="%s"></stop><stop offset="1" stop-color="%s"></stop></linearGradient>' % (sn[0], sn[0], sn[1]))
+    out += '<path d="%s" fill="#0D1522" opacity=".22" transform="translate(0 2)"></path>' % body
+    out += '<path d="%s" fill="url(#capg)"></path>' % body
+    out += '<path d="%s" fill="none" stroke="%s" stroke-width="1.2" opacity=".7"></path>' % (edge, sn[1])
+    return out
+
+
+def post_drift(P):
+    """the post stands in snow: a soft drift around its foot, in the field's colour"""
+    sn = P['snow']
+    return ('<path d="M%d 500 C 530 490, 560 480, 600 479 S 670 490, %d 500 Z" fill="%s"></path>'
+            '<path d="M530 490 C 560 481, 580 479, 600 479 S 640 481, 670 490" fill="none" stroke="%s" stroke-width="2" opacity=".5"></path>'
+            % (470, 730, sn[0], sn[1]))
 
 
 def og_pano(name='noon'):
@@ -125,7 +187,9 @@ def og2(name='day', word='GUDAURI'):
     tr = 'M30 500 C 230 512, 300 548, 450 560 S 720 586, 860 640'
     body.append('<path d="%s" fill="none" stroke="%s" stroke-width="3" stroke-linecap="round"></path>' % (tr, P['track']))
     body.append('<path d="%s" fill="none" stroke="%s" stroke-width="3" stroke-linecap="round" transform="translate(9 4)"></path>' % (tr, P['track']))
-    sgn = sign(word, s=1.1, sy=92)
+    sgn = sign(word, s=1.1, sy=92, P=P)
+    if SNOW == 'drift':
+        sgn += post_drift(P)
     if name == 'night':  # a warm light on the sign at night
         sgn = '<circle cx="600" cy="270" r="260" fill="url(#glow)" opacity=".35"></circle>' + sgn
     return ('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 %d %d" width="%d" height="%d"><defs>%s</defs>%s%s</svg>'
@@ -135,7 +199,13 @@ def og2(name='day', word='GUDAURI'):
 if __name__ == '__main__':
     out = here / 'shots'
     out.mkdir(exist_ok=True)
-    for n, svg in [('og-a', og()), ('og-b', og_pano()), ('og-c-day', og2('day')), ('og-c-gold', og2('gold')), ('og-c-night', og2('night'))]:
+    jobs = [('og-a', og), ('og-b', og_pano)] + [('og-c-' + n, (lambda n=n: og2(n))) for n in ('day', 'gold', 'night')]
+    # round 27, third pass (Pini: the snow on the sign doesn't fit): every variant in each snow option
+    for opt in ('none', 'thin', 'drift'):
+        jobs += [('og-c-%s-%s' % (n, opt), (lambda n=n, opt=opt: (globals().__setitem__('SNOW', opt), og2(n))[1])) for n in ('day', 'gold', 'night')]
+    for n, fn in jobs:
+        SNOW = 'old'
+        svg = fn()
         (out / (n + '.svg')).write_text(svg, encoding='utf-8')
         subprocess.run(['node', str(root / 'design/round9/render.js'), str(out / (n + '.svg')), str(out / (n + '.png')), str(W), str(H), '0'], check=True)
         subprocess.run(['convert', str(out / (n + '.png')), '-gravity', 'center', '-crop', '630x630+0+0', '+repage', str(out / (n + '-sq.png'))], check=True)
