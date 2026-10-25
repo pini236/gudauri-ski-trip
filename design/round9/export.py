@@ -8,7 +8,9 @@
   app/android/app/src/main/res/drawable-nodpi/  the adaptive launcher icon layers (432x432 = 108dp at xxxhdpi):
       ic_launcher_bg.png, ic_launcher_fg.png, ic_launcher_mono.png
 The SVG sources are written next to them. Rendering uses the repo's Playwright and the preinstalled Chromium
-(render.js). Run from the repo root: python3 design/round9/export.py"""
+(render.js). Run from the repo root: python3 design/round9/export.py
+  site/favicon.svg, site/favicon-32.png, site/apple-touch-icon.png   the site's tab and home-screen icons
+      (only these: python3 design/round9/export.py --site)"""
 import pathlib, subprocess, sys, json
 here = pathlib.Path(__file__).resolve().parent
 root = here.parent.parent
@@ -104,7 +106,28 @@ def render(svg_path, png_path, w, h, transparent=False):
     subprocess.run(['node', str(here / 'render.js'), str(svg_path), str(png_path), str(w), str(h), '1' if transparent else '0'], check=True)
 
 
-if __name__ == '__main__':
+def site_icons():
+    # the site (Pini, 25.10.2026: the same icon as the app in the browser tab): the store scene with rounded
+    # corners as the tab icon, a 32 px PNG for browsers without SVG icons, and the full-bleed 180 px icon that
+    # iOS rounds itself when the site is added to the home screen
+    SITE = root / 'site'
+    tab = b.h1().replace(' style="display: block"', '', 1).replace(' width="512" height="512"', '', 1)
+    tab = tab.replace('<defs>', '<defs><clipPath id="tab"><rect width="512" height="512" rx="96"></rect></clipPath>', 1)
+    tab = tab[:tab.index('</defs>') + 7] + '<g clip-path="url(#tab)">' + tab[tab.index('</defs>') + 7:tab.rindex('</svg>')] + '</g></svg>'
+    (SITE / 'favicon.svg').write_text(tab, encoding='utf-8')
+    render(SITE / 'favicon.svg', SITE / 'favicon-32.png', 32, 32, transparent=True)
+    touch = OUT / 'touch-icon.svg'
+    touch.write_text(b.h1().replace('width="512" height="512"', 'width="180" height="180"', 1), encoding='utf-8')
+    render(touch, SITE / 'apple-touch-icon.png', 180, 180)
+    touch.unlink()
+    from PIL import Image
+    Image.open(SITE / 'apple-touch-icon.png').convert('RGB').save(SITE / 'apple-touch-icon.png', optimize=True)
+
+
+if __name__ == '__main__' and sys.argv[1:] == ['--site']:
+    site_icons()
+    print('ok')
+elif __name__ == '__main__':
     OUT.mkdir(exist_ok=True)
     RES.mkdir(parents=True, exist_ok=True)
     (OUT / 'store-icon.svg').write_text(b.h1(), encoding='utf-8')
@@ -126,4 +149,5 @@ if __name__ == '__main__':
     big.unlink()
     from PIL import Image
     Image.open(IOS / 'icon-1024.png').convert('RGB').save(IOS / 'icon-1024.png', optimize=True)
+    site_icons()
     print('ok')

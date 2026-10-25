@@ -190,7 +190,7 @@
 | `Health` | אין פיצ'רים של בריאות | |
 | `Advertising ID` | `No` | **סשן האפליקציה:** לוודא שאין בקובץ ההרשאות `AD_ID` (ספריות מסוימות מוסיפות אותה מעצמן) |
 | `App category` | `Travel & Local` | חלופה: `Maps & Navigation` |
-| `Contact details` | ג׳ימייל התמיכה. אתר: **לא בינתיים** | קישור לאתר רק אחרי שהכרטיס והשמות של החבר׳ה יורדים מדף הבית הציבורי (13.9), כי דף החנות ציבורי |
+| `Contact details` | ג׳ימייל התמיכה. אתר: `https://gudauri-ski-trip.vercel.app` | הכרטיס והשמות של החבר׳ה ירדו מדף הבית (13.9), והאתר פתוח לכולם (החלטה 73), ולכן אפשר להוסיף אותו (פיני, בקונסולה) |
 
 ### טופס הנתונים (`Data safety`)
 
@@ -242,58 +242,72 @@
 
 **רוסית וגאורגית:** `i18n/store-listing.md` (לא נבדק על ידי דובר; לפי החלטה 39 זה לא מעכב).
 
-**בבדיקה הסגורה דף החנות נראה רק לבודקים.** לתאר רק מה שבאמת בגרסה; את התיאור המלא למטה מקצצים לפי מה שקיים.
+**עודכן 25.10.2026 (פיני: "תעדכן את דף החנות", החלטה 74):** מתאר את מה שיש בגרסה שבחנות: המפה במבט על, מזג האוויר לפי גובה, "איפה אני", הקבוצה וארבע השפות, בלי "מקור וודאות בכל השלמה" (החלטה 64). מחליף את "דף החנות בלי שינוי" של החלטה 60. **בקונסולה (פיני):** `Main store listing` באנגלית, ואז `Manage translations` להוסיף עברית (`iw-IL`), רוסית (`ru-RU`) וגאורגית (`ka-GE`); השם המתורגם הוא מה שמאפשר חיפוש בעברית ("גודאורי"). מתארים רק מה שבאמת בגרסה; מצב הרכבלים "כשיש מידע עדכני".
 
-**שם** (עד 30 תווים): `Gudi: Gudauri Ski Map` (הגיבוי; השם פתוח).
-
-**תיאור קצר באנגלית** (78 מתוך 80):
+**שם באנגלית** (21 מתוך 30):
 ```
-3D ski map of Gudauri, Georgia: runs, steepness, lifts, meetups and snow games
+Gudi: Gudauri Ski Map
 ```
 
-**תיאור קצר בעברית** (77 מתוך 80):
+**שם בעברית** (25 מתוך 30):
 ```
-מפת הסקי של גודאורי בתלת-ממד: מסלולים, שיפועים, רכבלים, נקודת מפגש ומשחקי שלג
+Gudi: מפת הסקי של גודאורי
 ```
 
-**תיאור מלא באנגלית** (לגרסה המלאה; שמות המשחקים באנגלית הם הצעה עד התרגום, החלטה 32):
+**תיאור קצר באנגלית** (77 מתוך 80):
+```
+3D ski map of Gudauri: runs, steepness, lifts, weather, groups and snow games
+```
+
+**תיאור קצר בעברית** (80 מתוך 80):
+```
+מפת הסקי של גודאורי בתלת-ממד: מסלולים, שיפועים, רכבלים, מזג אוויר, קבוצה ומשחקים
+```
+
+**תיאור מלא באנגלית** (1480 מתוך 4,000):
 ```
 A ski map of Gudauri, Georgia, built from real data.
 
-• The mountain in 3D, from a real elevation model, with every run and lift.
+• The mountain in 3D or from above, from a real elevation model, with every run and lift.
 • Pick a run and watch it paint itself by steepness, with an elevation profile, a "what's ahead" briefing and a fly-down.
-• Meeting point: pick a lift station, a day and a time, and send it to your group.
+• Weather by altitude, from the village to the peaks, with the wind on the ridge and an estimate of wind closures.
+• Where am I: your spot on the map and the run you're on. Your location never leaves your phone.
 • Lift status when fresh data is available. When it isn't, the app says so.
-• Your trip: a boarding pass with a countdown.
-• Snow games: The Crew's Descent, Ski School, Fresh Snow, Snowball Merge and Snowball Fight.
+• Your trip: a boarding pass with a countdown, then "Ski day 2 of 4" while you're there.
+• Groups: invite friends with a link or a code, see everyone's flights, set meeting points at lift stations with a reminder, and compare game scores. Joining needs no sign-up.
+• Five snow games: The Crew's Descent, Ski School, Fresh Snow, Snowball Merge and Snowball Fight.
 • Day and night, following the time in Gudauri.
-• Works without signal, except videos and lift status.
+• English, Hebrew, Russian and Georgian.
+• The map, the runs and the games work without signal.
 
-Accuracy first: every line on the map comes from a real source (OpenStreetMap, elevation data), and every gap that was filled shows its confidence level and source.
+Accuracy first: every line on the map comes from a real source (OpenStreetMap and elevation data). Where there is no source, the map doesn't guess.
 
 Unofficial app. Not affiliated with the Mountain Trails Agency (MTA), the Gudauri ski resort or any official body. Run names and colors follow the official map, for identification only.
 
-Map data © OpenStreetMap contributors (ODbL).
+Map data © OpenStreetMap contributors (ODbL). Weather: Open-Meteo.com (CC BY 4.0).
 ```
 
-**תיאור מלא בעברית:**
+**תיאור מלא בעברית** (1178 מתוך 4,000):
 ```
 מפת סקי לגודאורי, גאורגיה, שנבנתה מנתונים אמיתיים.
 
-• ההר בתלת-ממד, ממודל גובה אמיתי, עם כל המסלולים והרכבלים.
+• ההר בתלת-ממד או במבט מלמעלה, ממודל גובה אמיתי, עם כל המסלולים והרכבלים.
 • בוחרים מסלול, והוא נצבע לפי השיפוע, עם פרופיל גובה, "מה מחכה לך" וטיסה במורד המסלול.
-• נקודת מפגש: בוחרים תחנה, יום ושעה, ושולחים לחבר׳ה.
+• מזג אוויר לפי גובה, מהכפר ועד הפסגות, עם הרוח ברכס והערכה לסגירות בגלל רוח.
+• איפה אני: הנקודה שלך על המפה והמסלול שעליו נמצאים. המיקום לא יוצא מהטלפון.
 • מצב הרכבלים, כשיש מידע עדכני. כשאין, כתוב שאין.
-• הטיול שלך: כרטיס עלייה למטוס עם ספירה לאחור.
-• משחקי שלג: הירידה של החבר׳ה, בית הספר לסקי, שלג טרי, איחוד כדורי שלג וקרב כדורי שלג.
+• הטיול שלך: כרטיס עלייה למטוס עם ספירה לאחור, ובזמן הטיול "יום סקי 2 מתוך 4".
+• קבוצה: מזמינים בקישור או בקוד, רואים את הטיסות של כולם, קובעים נקודות מפגש בתחנות הרכבל עם תזכורת, ומשווים שיאים במשחקים. מצטרפים בלי הרשמה.
+• חמישה משחקי שלג: הירידה של החבר׳ה, בית הספר לסקי, שלג טרי, איחוד כדורי שלג וקרב כדורי שלג.
 • יום ולילה לפי השעה בגודאורי.
-• עובדת בלי קליטה, חוץ מסרטונים ומצב רכבלים.
+• עברית, אנגלית, רוסית וגאורגית.
+• המפה, המסלולים והמשחקים עובדים בלי קליטה.
 
-דיוק לפני יופי: כל קו במפה מגיע ממקור אמיתי (OpenStreetMap ומודל גובה), ולכל השלמה מוצגות רמת ודאות ומקור.
+דיוק לפני יופי: כל קו במפה מגיע ממקור אמיתי (OpenStreetMap ומודל גובה). איפה שאין מקור, המפה לא מנחשת.
 
 אפליקציה לא רשמית. אין לה קשר ל-Mountain Trails Agency (MTA), לאתר הסקי גודאורי או לגוף רשמי כלשהו. שמות המסלולים וצבעיהם לפי המפה הרשמית, לזיהוי בלבד.
 
-נתוני המפה © תורמי OpenStreetMap (ODbL).
+נתוני המפה © תורמי OpenStreetMap (ODbL). מזג אוויר: Open-Meteo.com (CC BY 4.0).
 ```
 
 **גרפיקה:**

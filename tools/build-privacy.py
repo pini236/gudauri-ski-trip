@@ -105,7 +105,9 @@ def build():
 <meta name="description" content="מדיניות הפרטיות של האפליקציה והאתר. Privacy policy of the app and the website.">
 <meta name="theme-color" content="#EEF2F5" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#0D1522" media="(prefers-color-scheme: dark)">
+<link rel="icon" href="favicon-32.png" type="image/png" sizes="32x32">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Karantina:wght@700&family=IBM+Plex+Sans+Hebrew:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;600;700&family=Oswald:wght@500;600;700&family=Noto+Sans+Georgian:wdth,wght@62.5..100,400..800&display=swap">

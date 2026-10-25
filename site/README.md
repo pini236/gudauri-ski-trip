@@ -9,7 +9,8 @@
 | `index.html` | המבנה של הדפים (בית, מפה, נקודת מפגש, משחקים, ואודות והגדרות) ושכבת טעינה |
 | `vercel.json` | כותרות אבטחה (כולל מדיניות אבטחת התוכן, R-3), `noindex` ומטמון לנתונים. Vercel קורא אותו מתיקיית ה-Root, שהיא `site`; השרת המקומי (`tools/serve.mjs`) שולח את אותן כותרות |
 | `privacy.html` | מדיניות הפרטיות (`/privacy`, באנגלית `/privacy#en`). **לא עורכים כאן:** נבנה מ-`docs/PRIVACY.md` בפקודה `python3 tools/build-privacy.py` |
-| `og.jpg`, `favicon.svg` | תמונת שיתוף (מקור ב-`../design/round27/og.py`, הפקודה `python3 design/round27/og.py --site`) ואייקון |
+| `og.jpg` | תמונת שיתוף (מקור ב-`../design/round27/og.py`, הפקודה `python3 design/round27/og.py --site`) |
+| `favicon.svg`, `favicon-32.png`, `apple-touch-icon.png` | הסמל בלשונית ובמסך הבית: סמל האפליקציה (סבב 9, מס׳ 10), מאותו מקור (`../design/round9/export.py`, הפקודה `python3 design/round9/export.py --site`) |
 | `css/site.css` | כל העיצוב. הצבעים מוגדרים כמשתנים ב-`:root` |
 | `js/relief.js` | הספרייה `GudRelief`: טעינת מודל הגובה, חישובי גובה ושיפוע, תבליט דו-ממדי ותצוגה תלת-ממדית (three.js) |
 | `js/i18n.js`, `js/lang-picker.js` | ארבע השפות: `i18n.js` בוחר שפה (קישור, בחירה שמורה, דפדפן), קובע כיוון וגופנים ומתרגם דף ומשחקים מ-`i18n/*.json`; `lang-picker.js` הוא הבורר בעמוד ההגדרות. הקבצים ב-`i18n/` נוצרים מ-`../i18n/strings.json` בפקודה `python3 tools/build-site-strings.py` (לא עורכים אותם) |

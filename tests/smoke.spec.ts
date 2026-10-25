@@ -100,8 +100,11 @@ test('תגיות ה-head: שפה, פתוח למנועי חיפוש, וקישור
   const img = await page.locator('meta[property="og:image"]').getAttribute('content');
   const res = await page.request.get('/' + img!.split('/').pop());
   expect(res.ok()).toBeTruthy();
-  const icon = await page.locator('link[rel="icon"]').getAttribute('href');
-  expect((await page.request.get('/' + icon)).ok()).toBeTruthy();
+  // the app icon in the tab and on the home screen (Pini, 25.10.2026): SVG, a PNG fallback and apple-touch-icon
+  const icons = await page.locator('link[rel="icon"], link[rel="apple-touch-icon"]').evaluateAll(
+    (ls) => ls.map((l) => l.getAttribute('href')));
+  expect(icons).toEqual(['favicon-32.png', 'favicon.svg', 'apple-touch-icon.png']);
+  for (const icon of icons) expect((await page.request.get('/' + icon)).ok()).toBeTruthy();
 });
 
 test('סרטונים מקובץ ההתחלה מוצגים בפרטי המסלול, בלי טופס הוספה', async ({ page }) => {
