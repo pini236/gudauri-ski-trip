@@ -7,7 +7,8 @@ const HERE = new URL('./', import.meta.url).pathname, OUT = HERE + 'shots/', ROO
 const C = JSON.parse(fs.readFileSync(HERE + 'copy.json', 'utf8'));
 const uri = (f, t) => `data:${t};base64,` + fs.readFileSync(f).toString('base64');
 const FAV = uri(ROOT + 'site/favicon.svg', 'image/svg+xml');
-const OG = { today: uri(ROOT + 'site/og.jpg', 'image/jpeg'), a: uri(OUT + 'og-a.png', 'image/png'), b: uri(OUT + 'og-b.png', 'image/png') };
+const OG = { today: uri(ROOT + 'site/og.jpg', 'image/jpeg'), a: uri(OUT + 'og-a.png', 'image/png'), b: uri(OUT + 'og-b.png', 'image/png'),
+  cday: uri(OUT + 'og-c-day.png', 'image/png'), cgold: uri(OUT + 'og-c-gold.png', 'image/png'), cnight: uri(OUT + 'og-c-night.png', 'image/png') };
 const URL_ = 'gudauri-ski-trip.vercel.app';
 const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;');
 const dir = l => l === 'he' ? 'rtl' : 'ltr';
@@ -45,6 +46,7 @@ const S = [
   ['w-today-he', wa(C.today.he, 'he', OG.today)], ['w-today-he-sm', wa(C.today.he, 'he', OG.today, 1)],
   ['w-he', wa(C.new.he, 'he', OG.a)], ['w-en', wa(C.new.en, 'en', OG.a)], ['w-he-sm', wa(C.new.he, 'he', OG.a, 1)], ['w-en-sm', wa(C.new.en, 'en', OG.a, 1)],
   ['w-he-b', wa(C.new.he, 'he', OG.b)], ['w-he-b-sm', wa(C.new.he, 'he', OG.b, 1)],
+  ...['cday', 'cgold', 'cnight'].flatMap(k => [['w-he-' + k, wa(C.new.he, 'he', OG[k])], ['w-he-' + k + '-sm', wa(C.new.he, 'he', OG[k], 1)], ['w-en-' + k, wa(C.new.en, 'en', OG[k])]]),
 ];
 const b = await chromium.launch({ executablePath: process.env.CHROMIUM || '/opt/pw-browsers/chromium', args: ['--no-sandbox'] });
 const p = await b.newPage({ viewport: { width: 640, height: 400 }, deviceScaleFactor: 1 });
