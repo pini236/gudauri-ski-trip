@@ -2810,6 +2810,70 @@
       "h": 857,
       "page": "round27",
       "title": "ג. שכבה דקה ושלג למרגלות העמוד (מומלץ)"
+    },
+    "R28-0-Decide.dc.html": {
+      "x": 0,
+      "y": 0,
+      "w": 600,
+      "h": 820,
+      "page": "round28",
+      "title": "מה לאשר בסבב 28"
+    },
+    "R28-Today.dc.html": {
+      "x": 680,
+      "y": 0,
+      "w": 785,
+      "h": 606,
+      "page": "round28",
+      "title": "היום: קישור לחנות בלי תמונה"
+    },
+    "R28-WhatsAppB.dc.html": {
+      "x": 680,
+      "y": 1026,
+      "w": 1396,
+      "h": 576,
+      "page": "round28",
+      "title": "ההצעה: הקישור הקצר, עם תמונת השיתוף של האתר (מומלץ)"
+    },
+    "R28-Page.dc.html": {
+      "x": 680,
+      "y": 2022,
+      "w": 1684,
+      "h": 1068,
+      "page": "round28",
+      "title": "הדף שנפתח לרגע: באנדרואיד"
+    },
+    "R28-PageIos.dc.html": {
+      "x": 2444,
+      "y": 2022,
+      "w": 848,
+      "h": 1068,
+      "page": "round28",
+      "title": "הדף שנפתח: באייפון"
+    },
+    "R28-WhatsAppA.dc.html": {
+      "x": 680,
+      "y": 3510,
+      "w": 1396,
+      "h": 576,
+      "page": "round28",
+      "title": "חלופה: התמונה הראשית מהחנות"
+    },
+    "R28-Spec.dc.html": {
+      "x": 680,
+      "y": 4506,
+      "w": 680,
+      "h": 1280,
+      "page": "round28",
+      "title": "ערכים למימוש"
+    },
+    "R28-Copy.dc.html": {
+      "x": 1440,
+      "y": 4506,
+      "w": 760,
+      "h": 760,
+      "page": "round28",
+      "title": "הטקסטים בארבע השפות"
     }
   },
   "createdOnFiles": {
@@ -2819,7 +2883,7 @@
   "designSystems": [],
   "launch": {
     "view": "canvas",
-    "page": "round27"
+    "page": "round28"
   },
   "notes": {
     "featRow1": {
@@ -3838,6 +3902,51 @@
       "w": 240,
       "x": 680,
       "y": 7068
+    },
+    "round28row0": {
+      "kind": "title1",
+      "maxW": 860,
+      "page": "round28",
+      "text": "היום",
+      "w": 240,
+      "x": 680,
+      "y": -300
+    },
+    "round28row1": {
+      "kind": "title1",
+      "maxW": 1396,
+      "page": "round28",
+      "text": "ההצעה",
+      "w": 240,
+      "x": 680,
+      "y": 726
+    },
+    "round28row2": {
+      "kind": "title1",
+      "maxW": 2612,
+      "page": "round28",
+      "text": "הדף עצמו",
+      "w": 240,
+      "x": 680,
+      "y": 1722
+    },
+    "round28row3": {
+      "kind": "title1",
+      "maxW": 1396,
+      "page": "round28",
+      "text": "חלופה",
+      "w": 240,
+      "x": 680,
+      "y": 3210
+    },
+    "round28row4": {
+      "kind": "title1",
+      "maxW": 1520,
+      "page": "round28",
+      "text": "ערכים למימוש",
+      "w": 240,
+      "x": 680,
+      "y": 4206
     }
   },
   "order": [
@@ -4190,9 +4299,21 @@
     "R27-SnowWhy.dc.html",
     "R27-Snow-none.dc.html",
     "R27-Snow-thin.dc.html",
-    "R27-Snow-drift.dc.html"
+    "R27-Snow-drift.dc.html",
+    "R28-0-Decide.dc.html",
+    "R28-Today.dc.html",
+    "R28-WhatsAppB.dc.html",
+    "R28-Page.dc.html",
+    "R28-PageIos.dc.html",
+    "R28-WhatsAppA.dc.html",
+    "R28-Spec.dc.html",
+    "R28-Copy.dc.html"
   ],
   "pages": [
+    {
+      "id": "round28",
+      "name": "סבב 28: קישור לאפליקציה עם תצוגה בוואטסאפ"
+    },
     {
       "id": "round27",
       "name": "סבב 27: שם ותמונת שיתוף לכולם"

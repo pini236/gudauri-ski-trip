@@ -1,0 +1,63 @@
+<!doctype html>
+<!-- Round 28: a prototype of /app, the short link to the app (not the site's code). ?s=android|iphone&theme=dark&lang=he|en|ru|ka -->
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+@font-face{font-family:Karantina;font-weight:700;src:url(../../app/ios/Gudi/Resources/Fonts/karantina_bold.ttf)}
+@font-face{font-family:"IBM Plex Sans Hebrew";font-weight:400;src:url(../../app/ios/Gudi/Resources/Fonts/plex_hebrew_regular.ttf)}
+@font-face{font-family:"IBM Plex Sans Hebrew";font-weight:600 700;src:url(../../app/ios/Gudi/Resources/Fonts/plex_hebrew_bold.ttf)}
+@font-face{font-family:"IBM Plex Sans";src:url(../../app/ios/Gudi/Resources/Fonts/plex_sans.ttf)}
+@font-face{font-family:Oswald;src:url(../../app/ios/Gudi/Resources/Fonts/oswald.ttf)}
+@font-face{font-family:"Noto Sans Georgian";src:url(../../app/ios/Gudi/Resources/Fonts/noto_sans_georgian.ttf)}
+:root{--snow:#EEF2F5;--paper:#FFFFFF;--ink:#13233A;--muted:#4B5A6F;--rule:#CBD5DF;--glacier:#1F5FC4;--sky1:#DCE8F1;--sky2:#EEF2F5;--on-board:#FFFFFF;--accent:#1F5FC4;
+  --f-display:"Karantina","Arial Narrow",sans-serif;--f-body:"IBM Plex Sans Hebrew",system-ui,sans-serif}
+:root[data-theme="dark"]{--snow:#0D1522;--paper:#16223A;--ink:#EAF0F7;--muted:#A3B3C8;--rule:#2A3B55;--glacier:#8DB9FF;--sky1:#0B1320;--sky2:#16223A;--on-board:#0D1522;--accent:#F4B942}
+:root[lang="en"]{--f-body:"IBM Plex Sans",system-ui,sans-serif}
+:root[lang="ru"]{--f-body:"IBM Plex Sans",system-ui,sans-serif;--f-display:"Oswald",sans-serif}
+:root[lang="ka"]{--f-body:"Noto Sans Georgian",system-ui,sans-serif;--f-display:"Noto Sans Georgian",sans-serif}
+html,body{margin:0;height:100%}
+body{background:linear-gradient(var(--sky1),var(--sky2) 55%,var(--snow));color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.5}
+main{min-height:100%;box-sizing:border-box;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;padding:48px 24px;text-align:center}
+.icon{width:120px;height:120px;border-radius:27px;box-shadow:0 6px 22px rgba(19,35,58,.22)}
+h1{margin:6px 0 0;font-family:var(--f-display);font-weight:700;font-size:64px;line-height:.9}
+.sub{margin:-6px 0 0;font-size:17px;color:var(--muted)}
+.going{display:flex;flex-direction:column;align-items:center;gap:10px;margin-top:10px;font-size:15px;color:var(--muted)}
+.bar{width:160px;height:4px;background:var(--rule);overflow:hidden}
+.bar i{display:block;width:45%;height:100%;background:var(--glacier)}
+.badge{display:block;margin-top:6px}
+.badge img{display:block;height:52px}
+.site{display:inline-flex;align-items:center;min-height:44px;color:var(--glacier);font-size:15px}
+.ios h2{margin:10px 0 6px;font-family:var(--f-display);font-weight:700;font-size:38px;line-height:1}
+.ios p{margin:0;max-width:280px;color:var(--muted)}
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:0 26px;background:var(--glacier);color:var(--on-board);font-weight:600;font-size:16px;text-decoration:none;margin-top:4px}
+:root[data-theme="dark"] .btn{background:var(--accent)}
+[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<main>
+  <img class="icon" src="../../site/apple-touch-icon.png" alt="">
+  <h1>Gudi</h1>
+  <p class="sub" data-t="sub"></p>
+  <div id="android">
+    <div class="going"><span data-t="going"></span><span class="bar"><i></i></span></div>
+  </div>
+  <a id="badge" class="badge" href="#"><img id="badgeImg" src="../../site/img/badges/play-he.png" alt=""></a>
+  <div id="ios" class="ios" hidden><h2 data-t="ios_title"></h2><p data-t="ios_text"></p></div>
+  <a id="btn" class="btn" href="#" hidden data-t="ios_btn"></a>
+  <a id="site" class="site" href="#" data-t="site"></a>
+</main>
+<script>
+const q = new URLSearchParams(location.search), lang = q.get('lang') || 'he', s = q.get('s') || 'android';
+const C = window.COPY.page[lang];
+document.documentElement.lang = lang; document.documentElement.dir = lang === 'he' ? 'rtl' : 'ltr';
+if (q.get('theme') === 'dark') document.documentElement.dataset.theme = 'dark';
+document.querySelectorAll('[data-t]').forEach(e => e.innerHTML = C[e.dataset.t].replace('Google Play', '<bdi>Google Play</bdi>'));
+document.getElementById('badgeImg').src = '../../site/img/badges/play-' + lang + '.png';
+document.getElementById('badgeImg').alt = C.badge_alt;
+if (s === 'iphone') { ['android', 'badge', 'site'].forEach(i => document.getElementById(i).hidden = true); ['ios', 'btn'].forEach(i => document.getElementById(i).hidden = false); }
+</script>
+</body>
+</html>

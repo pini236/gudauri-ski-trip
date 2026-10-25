@@ -1,0 +1,14 @@
+{
+  "share": {
+    "title": "Gudi: מפת הסקי של גודאורי",
+    "description": "אפליקציה לאנדרואיד, בחינם: מפה בתלת-ממד, מסלולים, רכבלים ומזג אוויר לפי גובה",
+    "site_name": "Gudi",
+    "image_alt": "שלט GUDAURI מושלג מול ההרים"
+  },
+  "page": {
+    "he": {"sub": "מפת הסקי של גודאורי", "going": "פותחים את Google Play…", "badge_alt": "להורדה מ-Google Play", "site": "או למפה באתר", "ios_title": "באייפון עוד אין אפליקציה", "ios_text": "בינתיים כל המפה באתר, בלי התקנה.", "ios_btn": "למפה באתר"},
+    "en": {"sub": "Gudauri ski map", "going": "Opening Google Play…", "badge_alt": "Get it on Google Play", "site": "or open the map on the web", "ios_title": "No iPhone app yet", "ios_text": "Meanwhile the whole map is on the web, nothing to install.", "ios_btn": "Open the map"},
+    "ru": {"sub": "Горнолыжная карта Гудаури", "going": "Открываем Google Play…", "badge_alt": "Доступно в Google Play", "site": "или карта на сайте", "ios_title": "Приложения для iPhone пока нет", "ios_text": "А пока вся карта на сайте, без установки.", "ios_btn": "Карта на сайте"},
+    "ka": {"sub": "გუდაურის სათხილამურო რუკა", "going": "ვხსნით Google Play-ს…", "badge_alt": "ჩამოტვირთეთ Google Play-დან", "site": "ან რუკა საიტზე", "ios_title": "iPhone-ის აპლიკაცია ჯერ არ არის", "ios_text": "მანამდე მთელი რუკა საიტზეა, ინსტალაციის გარეშე.", "ios_btn": "რუკა საიტზე"}
+  }
+}
