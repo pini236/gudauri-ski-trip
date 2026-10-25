@@ -43,7 +43,6 @@ const rsName=r=>r.id==='gudauri'?T('map.place_gudauri'):r.name;
 const rsCountry=r=>T('resort.country_'+r.country.toLowerCase());
 if(!RESORT.isDefault()){ // the words that name Gudauri, for another resort
   document.querySelectorAll('[data-i18n="nav.gudauri_time"]').forEach(e=>{e.innerHTML=esc(T('nav.resort_time',{place:'\uE000'})).replace('\uE000',`<bdi>${esc(RS.name)}</bdi>`);});
-  const w=document.querySelector('.home-top .when');if(w)w.hidden=true;
   document.getElementById('map').setAttribute('aria-label',T('map.map_aria_resort',{place:RS.name}));
   document.querySelector('.topbar .brand').textContent=RS.name;
   // the resort's pass on the home page, in place of the trip's ticket: every number counted from its data (tools/build-resort.py)

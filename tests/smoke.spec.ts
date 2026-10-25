@@ -84,10 +84,17 @@ test('נתונים נטענים מקבצים נפרדים', async ({ page }) => 
   expect(seen.sort()).toEqual(['resorts.json', 'runs-and-lifts.json', 'terrain.json', 'videos-seed.json']);
 });
 
-test('תגיות ה-head: שפה, noindex, וקישור לשיתוף', async ({ page }) => {
+test('תגיות ה-head: שפה, פתוח למנועי חיפוש, וקישור לשיתוף', async ({ page }) => {
   await page.goto('/');
   await expect(page.locator('html')).toHaveAttribute('lang', 'he');
-  await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', 'noindex');
+  // open to search engines (round 27): no noindex, one canonical address, robots.txt and a sitemap
+  await expect(page.locator('meta[name="robots"]')).toHaveCount(0);
+  await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', 'https://gudauri-ski-trip.vercel.app/');
+  const robots = await (await page.request.get('/robots.txt')).text();
+  expect(robots).toContain('Disallow: /*?resort=');
+  expect(robots).toContain('Sitemap: https://gudauri-ski-trip.vercel.app/sitemap.xml');
+  expect(await (await page.request.get('/sitemap.xml')).text()).toContain('<loc>https://gudauri-ski-trip.vercel.app/</loc>');
+  await expect(page.locator('meta[property="og:site_name"]')).toHaveAttribute('content', 'Gudi');
   await expect(page.locator('meta[name="viewport"]')).toHaveAttribute('content', /viewport-fit=cover/);
   await expect(page.locator('meta[property="og:title"]')).toHaveCount(1);
   const img = await page.locator('meta[property="og:image"]').getAttribute('content');

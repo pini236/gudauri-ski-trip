@@ -31,7 +31,7 @@ STYLE = ('<style>.back-site{display:inline-flex;align-items:center;gap:6px;min-h
          'html:not([lang="he"]) .back-site{font-family:var(--f-body)}</style>')
 HEAD = ('<!doctype html>\n<html lang="he" dir="rtl">\n<meta charset="utf-8">\n'
         '<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">\n'
-        '<meta name="robots" content="noindex">\n<meta name="theme-color" content="#13233A">\n'
+        '<meta name="theme-color" content="#13233A">\n'
         '<link rel="icon" href="../../favicon.svg" type="image/svg+xml">\n'
         '<style>[hidden]{{display:none!important}}</style>\n'
         '<script src="../../js/i18n.js" data-base="../../i18n/" data-file="game-{key}"></script>\n'

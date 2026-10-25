@@ -39,7 +39,6 @@ test('Sölden: its own data, the pass card, and nothing of Gudauri', async ({ pa
   await expect(page.locator('#groupBoard')).toBeHidden();
   await expect(page.locator('#appBoard')).toBeHidden(); // the app is Gudauri's
   await expect(page.locator('#appQr')).toBeHidden();
-  await expect(page.locator('.home-top .when')).toBeHidden();
   expect(errors).toEqual([]);
 });
 

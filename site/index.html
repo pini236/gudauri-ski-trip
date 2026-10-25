@@ -3,17 +3,17 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title data-i18n="meta.title">גודאורי 2027: אתר ההיערכות</title>
-<meta name="description" data-i18n-attr="content:meta.description" content="אתר היערכות לחופשת סקי בגודאורי, גאורגיה: מפת מסלולים ורכבלים, מודל תלת-ממדי של ההר ופרטים על כל מסלול.">
-<meta name="robots" content="noindex">
+<title data-i18n="meta.title">מפת הסקי של גודאורי: מסלולים, רכבלים ותלת-ממד | Gudi</title>
+<meta name="description" data-i18n-attr="content:meta.description" content="מפת המסלולים והרכבלים של גודאורי, גאורגיה, עם מודל תלת-ממדי של ההר: אורך, ירידה ושיפוע לכל מסלול, מזג אוויר לפי גובה ונקודת מפגש לקבוצה. בחינם.">
+<link rel="canonical" href="https://gudauri-ski-trip.vercel.app/">
 <meta name="theme-color" content="#EEF2F5" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#0D1522" media="(prefers-color-scheme: dark)">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <meta property="og:type" content="website">
 <meta property="og:locale" content="he_IL">
-<meta property="og:site_name" data-i18n-attr="content:common.site_name" content="גודאורי 2027">
-<meta property="og:title" data-i18n-attr="content:meta.title" content="גודאורי 2027: אתר ההיערכות">
-<meta property="og:description" data-i18n-attr="content:meta.og_description" content="מפת מסלולים ורכבלים, מודל תלת-ממדי של ההר ופרטים על כל מסלול.">
+<meta property="og:site_name" data-i18n-attr="content:meta.site_name" content="Gudi">
+<meta property="og:title" data-i18n-attr="content:meta.title" content="מפת הסקי של גודאורי: מסלולים, רכבלים ותלת-ממד | Gudi">
+<meta property="og:description" data-i18n-attr="content:meta.og_description" content="מפת המסלולים והרכבלים של גודאורי בתלת-ממד: שיפוע לכל מסלול, מזג אוויר לפי גובה ונקודת מפגש לקבוצה.">
 <meta property="og:url" content="https://gudauri-ski-trip.vercel.app/">
 <meta property="og:image" content="https://gudauri-ski-trip.vercel.app/og.jpg">
 <meta property="og:image:width" content="1200">
@@ -32,7 +32,7 @@
 <div id="loading" role="status" data-i18n="common.loading">טוען את האתר…</div>
 <div class="site">
 <header class="topbar">
-  <a class="brand" href="#home" data-i18n="common.site_name">גודאורי 2027</a>
+  <a class="brand" href="#home" data-i18n="common.site_name">גודאורי</a>
   <nav class="signs" aria-label="חלקי האתר" data-i18n-attr="aria-label:nav.sections">
     <a href="#home" data-nav="home" data-i18n="nav.home">בית</a>
     <a href="#map" data-nav="map" data-i18n="nav.map">מפת מסלולים</a>
@@ -55,7 +55,7 @@
     <span class="sky-phase" id="skyPhase"></span>
   </div>
   <div class="home-inner">
-    <div class="home-top"><h1 class="loc" data-i18n="home.location">גודאורי, גאורגיה</h1><span class="when" data-i18n="home.when">חופשת סקי, ינואר 2027</span><div class="dn dn-home"><span class="dn-clock"><span data-i18n="nav.gudauri_time">השעה בגודאורי</span><b class="num" data-dn-clock>--:--</b></span><button type="button" class="dn-btn" data-dn aria-label="מצב תצוגה" data-i18n-attr="aria-label:nav.display_mode"><svg class="i-auto" width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 3a9 9 0 0 1 0 18z" fill="currentColor"/></svg><svg class="i-day" width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="5" fill="#F4B942"/><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8" stroke="#F4B942" stroke-width="2" stroke-linecap="round"/></svg><svg class="i-night" width="24" height="24" viewBox="0 0 34 34" aria-hidden="true"><path d="M17 3A14 14 0 0 1 17 31A7.5 14 0 0 0 17 3Z" fill="currentColor"/></svg><span class="dn-lbl" data-dn-lbl data-i18n="common.mode_auto">אוטומטי</span></button></div></div>
+    <div class="home-top"><h1 class="loc" data-i18n="home.location">גודאורי, גאורגיה</h1><div class="dn dn-home"><span class="dn-clock"><span data-i18n="nav.gudauri_time">השעה בגודאורי</span><b class="num" data-dn-clock>--:--</b></span><button type="button" class="dn-btn" data-dn aria-label="מצב תצוגה" data-i18n-attr="aria-label:nav.display_mode"><svg class="i-auto" width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 3a9 9 0 0 1 0 18z" fill="currentColor"/></svg><svg class="i-day" width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="5" fill="#F4B942"/><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8" stroke="#F4B942" stroke-width="2" stroke-linecap="round"/></svg><svg class="i-night" width="24" height="24" viewBox="0 0 34 34" aria-hidden="true"><path d="M17 3A14 14 0 0 1 17 31A7.5 14 0 0 0 17 3Z" fill="currentColor"/></svg><span class="dn-lbl" data-dn-lbl data-i18n="common.mode_auto">אוטומטי</span></button></div></div>
     <section class="ticket-wrap" data-feature="trip" aria-label="פרטי הטיסה" data-i18n-attr="aria-label:ticket.flight_details">
       <div class="bp-empty" id="bpEmpty" hidden>
         <div class="be-main"><div class="be-strip"><span data-i18n="trip.empty_title">הטיול שלך</span><span data-i18n="trip.empty_unset">עוד לא הוגדר</span></div>
@@ -241,7 +241,7 @@
     <section class="ab-who" aria-label="מי בנה" data-i18n-attr="aria-label:about.who">
       <h2 data-i18n="about.who">מי בנה</h2>
       <div class="ab-pass">
-        <div class="ab-pass-top"><span data-i18n="about.pass_top">SKI PASS · גודאורי 2027</span><span data-i18n="about.builder">בונה האתר</span></div>
+        <div class="ab-pass-top"><span data-i18n="about.pass_top">SKI PASS · Gudi</span><span data-i18n="about.builder">בונה האתר</span></div>
         <div class="ab-pass-body">
           <img src="img/pini.png" alt="" width="88" height="88" loading="lazy">
           <div><b data-i18n="about.builder_name">פיני זולברג</b><span data-i18n="about.bio">תכנן ובנה את האתר לחופשת הסקי של החבר׳ה, ינואר 2027, יחד עם Claude.</span>
@@ -345,7 +345,7 @@
         <div class="mcard-empty" id="meetEmpty"><svg width="34" height="44" viewBox="-15 -44 30 46" aria-hidden="true"><path d="M0 0C0 0-14-17-14-28A14 14 0 0 1 14-28C14-17 0 0 0 0Z" fill="none" stroke="currentColor" stroke-width="2" stroke-dasharray="4 3"/></svg><span><b data-i18n="meet.empty_title">כרטיס המפגש מחכה</b><span data-i18n="meet.empty_body">בוחרים תחנה על המפה, או נקודה קבועה למעלה, והכרטיס יודפס כאן.</span></span></div>
         <button type="button" class="mcard-x" id="meetCardX" aria-label="לבטל את נקודת המפגש" data-i18n-attr="aria-label:meet.cancel" hidden><svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 3L13 13M13 3L3 13" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg></button>
         <div class="mcard" id="meetCard" hidden>
-          <div class="mc-head"><span data-i18n="meet.card">כרטיס מפגש</span><span data-i18n="meet.card_sub">גודאורי 2027</span></div>
+          <div class="mc-head"><span data-i18n="meet.card">כרטיס מפגש</span><span data-i18n="meet.card_sub">גודאורי</span></div>
           <div class="mc-main">
             <div class="mc-row"><b class="mc-sign" dir="ltr" data-f="name"></b><span class="mc-col mc-end"><small data-f="day"></small><b class="mc-time num" data-f="time"></b></span></div>
           </div>

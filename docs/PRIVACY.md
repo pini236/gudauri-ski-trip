@@ -8,7 +8,7 @@
 
 **מדיניות פרטיות: Gudi: Gudauri Ski Map**
 
-בתוקף מ-7.10.2026
+בתוקף מ-25.10.2026
 
 Gudi: Gudauri Ski Map היא אפליקציה לאנדרואיד (המזהה `io.github.pini236.skiapp`) ואתר (`gudauri-ski-trip.vercel.app`) עם מפת הסקי של גודאורי, גאורגיה. פיני זולברג, אדם פרטי מישראל, פיתח אותם ואחראי עליהם. לכל שאלה או בקשה: pinisagent@gmail.com.
 
@@ -73,7 +73,7 @@ Gudi: Gudauri Ski Map היא אפליקציה לאנדרואיד (המזהה `io
 
 **אם מצטרפים לקבוצה או נכנסים עם גוגל,** הדפדפן שומר גם את ההתחברות (בזיכרון הדפדפן, לא בעוגייה) ועותק של הקבוצה, והמידע נשמר בשרת כמתואר ב"חשבונות וקבוצות". כדי להציג את האתר ולאפשר כניסה, הדפדפן טוען גם את ספריית ההתחברות (supabase-js, מ-jsDelivr, רק כשיש חיבור לקבוצה), את הכניסה של גוגל (רק כשלוחצים על "כניסה עם גוגל"), ואת סקריפטי המדידה של PostHog ו-Sentry (אלא אם כיבית את המדידה). השירותים האלה רואים את כתובת ה-IP שלך.
 
-**מדידת שימוש ודיווח שגיאות באתר** (PostHog ו-Sentry, בשרתים באירופה): באילו עמודים ופעולות משתמשים, שפת הממשק, סוג המכשיר (טלפון, טאבלט או מחשב) ומאיזה קישור הגעת, ותיאור טכני של שגיאות. כדי לספור ביקורים חוזרים נשמר בדפדפן מזהה אקראי (לא עוגייה), שלא קשור לשם, למייל או לטלפון; מחיקת נתוני האתר בדפדפן מוחקת אותו. כתובת ה-IP לא נשמרת. אפשר לכבות את זה בעמוד ההגדרות של האתר, ואז לא נשלח דבר.
+**מדידת שימוש ודיווח שגיאות באתר** (PostHog ו-Sentry, בשרתים באירופה): באילו עמודים ופעולות משתמשים, שפת הממשק, סוג המכשיר (טלפון, טאבלט או מחשב) ומאיזה קישור הגעת, ותיאור טכני של שגיאות. כדי לספור ביקורים חוזרים נשמר בדפדפן מזהה אקראי (לא עוגייה), שלא קשור לשם, למייל או לטלפון; מחיקת נתוני האתר בדפדפן מוחקת אותו. בדפדפן שאזור הזמן שלו באירופה המזהה לא נשמר, וכל ביקור נספר כחדש. כתובת ה-IP לא נשמרת. אפשר לכבות את זה בעמוד ההגדרות של האתר, ואז לא נשלח דבר.
 
 כדי להציג את האתר, הדפדפן טוען גופנים מ-Google Fonts וסרטונים מיוטיוב (בגרסה שלא שומרת עוגיות עד שמפעילים סרטון). השירותים האלה רואים את כתובת ה-IP שלך.
 
@@ -101,7 +101,7 @@ Gudi: Gudauri Ski Map היא אפליקציה לאנדרואיד (המזהה `io
 
 **Privacy Policy: Gudi: Gudauri Ski Map**
 
-Effective October 7, 2026
+Effective October 25, 2026
 
 Gudi: Gudauri Ski Map is an Android app (package `io.github.pini236.skiapp`) and a website (`gudauri-ski-trip.vercel.app`) with a ski map of Gudauri, Georgia. They are developed and run by Pini Zolberg, a private individual in Israel. For any question or request: pinisagent@gmail.com.
 
@@ -166,7 +166,7 @@ The website requires no sign-up and uses no cookies. Settings, language, scores 
 
 **If you join a group or sign in with Google,** your browser also keeps the sign-in (in the browser's storage, not a cookie) and a copy of the group, and the data is stored on the server as described in "Accounts and groups". To display the site and allow sign-in, your browser also loads the sign-in library (supabase-js, from jsDelivr, only when connected to a group), Google's sign-in (only when you press "Sign in with Google"), and the PostHog and Sentry measurement scripts (unless you turned measurement off). These services see your IP address.
 
-**Usage statistics and error reports on the website** (PostHog and Sentry, servers in the EU): which pages and features are used, the interface language, the kind of device (phone, tablet or computer), which link you came from, and a technical description of errors. To count returning visits, a random ID is kept in your browser (not a cookie); it is not linked to your name, email or phone number, and clearing the site's data in your browser deletes it. IP addresses are not stored. You can turn this off on the site's settings page, and then nothing is sent.
+**Usage statistics and error reports on the website** (PostHog and Sentry, servers in the EU): which pages and features are used, the interface language, the kind of device (phone, tablet or computer), which link you came from, and a technical description of errors. To count returning visits, a random ID is kept in your browser (not a cookie); it is not linked to your name, email or phone number, and clearing the site's data in your browser deletes it. In a browser whose time zone is in Europe, the ID is not kept, and each visit counts as new. IP addresses are not stored. You can turn this off on the site's settings page, and then nothing is sent.
 
 To display the site, your browser loads fonts from Google Fonts and videos from YouTube (in the version that sets no cookies until you play a video). These services see your IP address.
 
@@ -194,7 +194,7 @@ If this policy changes, we will update the date at the top. We will also announc
 
 **Политика конфиденциальности: Gudi: Gudauri Ski Map**
 
-Действует с 7 октября 2026 г.
+Действует с 25 октября 2026 г.
 
 Gudi: Gudauri Ski Map — это приложение для Android (пакет `io.github.pini236.skiapp`) и сайт (`gudauri-ski-trip.vercel.app`) с горнолыжной картой Гудаури, Грузия. Их разрабатывает и поддерживает Пини Зольберг, частное лицо в Израиле. По любым вопросам и просьбам: pinisagent@gmail.com.
 
@@ -259,7 +259,7 @@ Gudi: Gudauri Ski Map — это приложение для Android (пакет
 
 **Если вы вступаете в группу или входите через Google,** ваш браузер также хранит вход (в хранилище браузера, не в cookie) и копию группы, а данные хранятся на сервере, как описано в разделе «Аккаунты и группы». Чтобы показать сайт и позволить войти, ваш браузер также загружает библиотеку входа (supabase-js, с jsDelivr, только при подключении к группе), вход Google (только когда вы нажимаете «Войти через Google») и скрипты измерений PostHog и Sentry (если вы не отключили измерения). Эти службы видят ваш IP-адрес.
 
-**Статистика использования и отчёты об ошибках на сайте** (PostHog и Sentry, серверы в ЕС): какие страницы и функции используются, язык интерфейса, тип устройства (телефон, планшет или компьютер), по какой ссылке вы пришли и техническое описание ошибок. Чтобы считать повторные посещения, в вашем браузере хранится случайный идентификатор (не cookie); он не связан с вашим именем, почтой или номером телефона, и очистка данных сайта в браузере удаляет его. IP-адреса не сохраняются. Это можно отключить на странице настроек сайта, и тогда ничего не отправляется.
+**Статистика использования и отчёты об ошибках на сайте** (PostHog и Sentry, серверы в ЕС): какие страницы и функции используются, язык интерфейса, тип устройства (телефон, планшет или компьютер), по какой ссылке вы пришли и техническое описание ошибок. Чтобы считать повторные посещения, в вашем браузере хранится случайный идентификатор (не cookie); он не связан с вашим именем, почтой или номером телефона, и очистка данных сайта в браузере удаляет его. В браузере с европейским часовым поясом идентификатор не сохраняется, и каждое посещение считается новым. IP-адреса не сохраняются. Это можно отключить на странице настроек сайта, и тогда ничего не отправляется.
 
 Чтобы показать сайт, ваш браузер загружает шрифты из Google Fonts и видео с YouTube (в версии, которая не ставит cookie, пока вы не запустите видео). Эти службы видят ваш IP-адрес.
 
@@ -287,7 +287,7 @@ Gudi: Gudauri Ski Map — это приложение для Android (пакет
 
 **კონფიდენციალურობის პოლიტიკა: Gudi: Gudauri Ski Map**
 
-ძალაშია 2026 წლის 7 ოქტომბრიდან
+ძალაშია 2026 წლის 25 ოქტომბრიდან
 
 Gudi: Gudauri Ski Map არის Android-ის აპლიკაცია (პაკეტი `io.github.pini236.skiapp`) და ვებსაიტი (`gudauri-ski-trip.vercel.app`) გუდაურის (საქართველო) სათხილამურო რუკით. მათ ქმნის და მართავს პინი ზოლბერგი, კერძო პირი ისრაელიდან. ნებისმიერი კითხვის ან თხოვნისთვის: pinisagent@gmail.com.
 
@@ -352,7 +352,7 @@ Gudi: Gudauri Ski Map არის Android-ის აპლიკაცია (�
 
 **თუ ჯგუფს შეუერთდებით ან Google-ით შეხვალთ,** თქვენი ბრაუზერი ასევე ინახავს შესვლას (ბრაუზერის საცავში, არა cookie-ში) და ჯგუფის ასლს, ხოლო მონაცემები სერვერზე ინახება, როგორც აღწერილია განყოფილებაში „ანგარიშები და ჯგუფები“. საიტის საჩვენებლად და შესვლის შესაძლებლად თქვენი ბრაუზერი ასევე ტვირთავს შესვლის ბიბლიოთეკას (supabase-js, jsDelivr-დან, მხოლოდ ჯგუფთან დაკავშირებისას), Google-ით შესვლას (მხოლოდ როცა დააჭერთ „Google-ით შესვლას“) და PostHog-ისა და Sentry-ის გაზომვის სკრიპტებს (თუ გაზომვა არ გამორთეთ). ეს სერვისები ხედავენ თქვენს IP მისამართს.
 
-**გამოყენების სტატისტიკა და შეცდომების ანგარიშები ვებსაიტზე** (PostHog და Sentry, სერვერები ევროკავშირში): რომელი გვერდები და ფუნქციები გამოიყენება, ინტერფეისის ენა, მოწყობილობის ტიპი (ტელეფონი, პლანშეტი თუ კომპიუტერი), რომელი ბმულიდან მოხვედით და შეცდომების ტექნიკური აღწერა. განმეორებითი ვიზიტების დასათვლელად თქვენს ბრაუზერში ინახება შემთხვევითი იდენტიფიკატორი (არა cookie); ის არ არის დაკავშირებული თქვენს სახელთან, ელფოსტასთან ან ტელეფონის ნომერთან, და ბრაუზერში საიტის მონაცემების გასუფთავება მას შლის. IP მისამართები არ ინახება. ამის გამორთვა შეგიძლიათ საიტის პარამეტრების გვერდზე, და მაშინ არაფერი იგზავნება.
+**გამოყენების სტატისტიკა და შეცდომების ანგარიშები ვებსაიტზე** (PostHog და Sentry, სერვერები ევროკავშირში): რომელი გვერდები და ფუნქციები გამოიყენება, ინტერფეისის ენა, მოწყობილობის ტიპი (ტელეფონი, პლანშეტი თუ კომპიუტერი), რომელი ბმულიდან მოხვედით და შეცდომების ტექნიკური აღწერა. განმეორებითი ვიზიტების დასათვლელად თქვენს ბრაუზერში ინახება შემთხვევითი იდენტიფიკატორი (არა cookie); ის არ არის დაკავშირებული თქვენს სახელთან, ელფოსტასთან ან ტელეფონის ნომერთან, და ბრაუზერში საიტის მონაცემების გასუფთავება მას შლის. ბრაუზერში, რომლის საათობრივი სარტყელი ევროპაშია, იდენტიფიკატორი არ ინახება და ყოველი ვიზიტი ახლად ითვლება. IP მისამართები არ ინახება. ამის გამორთვა შეგიძლიათ საიტის პარამეტრების გვერდზე, და მაშინ არაფერი იგზავნება.
 
 საიტის საჩვენებლად თქვენი ბრაუზერი ტვირთავს შრიფტებს Google Fonts-იდან და ვიდეოებს YouTube-იდან (ვერსიაში, რომელიც cookie-ებს არ აყენებს, სანამ ვიდეოს არ ჩართავთ). ეს სერვისები ხედავენ თქვენს IP მისამართს.
 
