@@ -32,7 +32,8 @@ final class DayJournalTests: XCTestCase {
     func testMissingValuesStayNil() throws {
         let p = DayJournal.Point(t: 1, lat: 42.5, lon: 44.5, hacc: 8)
         let line = String(decoding: DayJournal.encode(.point(p)), as: UTF8.self)
-        XCTAssertFalse(line.contains("spd"), "nothing the phone did not give is written, not even as zero")
+        XCTAssertFalse(line.contains(#""s""#), "nothing the phone did not give is written, not even as zero")
+        XCTAssertTrue(line.contains(#""la":42.5"#) && line.contains(#""ha":8"#), "the reference tool's short keys")
         var data = DayJournal.encode(.header(header)); data.append(DayJournal.encode(.point(p)))
         XCTAssertNil(DayJournal.read(data)?.points.first?.spd)
     }
@@ -49,10 +50,14 @@ final class DayJournalTests: XCTestCase {
 
     func testUnknownFieldsAndLinesAreIgnored() throws {
         var data = Data(#"{"v":1,"tz":"Asia/Tbilisi","resort":"gudauri","device":"x","start":5,"new":true}"#.utf8 + [0x0A])
-        data.append(Data(#"{"t":6,"lat":42.5,"lon":44.5,"hacc":4,"later":[1,2]}"#.utf8 + [0x0A]))
-        data.append(Data(#"{"kind":"something-new","t":7}"#.utf8 + [0x0A]))
+        data.append(Data(#"{"t":6,"la":42.5,"lo":44.5,"ha":4,"later":[1,2]}"#.utf8 + [0x0A]))
+        data.append(Data(#"{"t":6,"la":42.6,"lo":44.6,"ha":4}"#.utf8 + [0x0A]))          // the same second: the first stays
+        data.append(Data(#"not json"#.utf8 + [0x0A]))                                    // anywhere in the file
+        data.append(Data(#"{"t":7,"a":2000}"#.utf8 + [0x0A]))                            // no la, lo: dropped
+        data.append(Data(#"{"ev":"something-new","t":7}"#.utf8 + [0x0A]))
         let day = try XCTUnwrap(DayJournal.read(data))
         XCTAssertEqual(day.points.map(\.t), [6])
+        XCTAssertEqual(day.points.first?.lat, 42.5)
         XCTAssertFalse(day.cut)
     }
 
@@ -93,9 +98,34 @@ final class DayJournalTests: XCTestCase {
         try again.close(header.start + 601_000, reason: "user")
         let back = try XCTUnwrap(DayJournal.read(try Data(contentsOf: entry.url)))
         XCTAssertEqual(back.points.count, 2)
-        XCTAssertEqual(back.events.map(\.ev), [.resume, .stop])
+        XCTAssertEqual(back.events.map(\.ev), [.start, .resume, .stop])
         XCTAssertEqual(back.events.first?.reason, "crash_recovery")
         XCTAssertNil(store.interrupted())
+    }
+
+    func testResumeAfterACutLineStartsOnAFreshLine() throws {
+        let store = try DayStore(dir: dir)
+        var w: DayWriter? = try store.begin(header)
+        w?.append(.point(point(0)), now: header.start)
+        w = nil
+        let url = store.days()[0].url
+        let h = try FileHandle(forWritingTo: url); try h.seekToEnd(); try h.write(contentsOf: Data(#"{"t":17681"#.utf8)); try h.close()
+        let (entry, _) = try XCTUnwrap(store.interrupted())
+        try store.resume(entry, at: header.start + 9000).close(header.start + 9001, reason: "user")
+        let back = try XCTUnwrap(DayJournal.read(try Data(contentsOf: url)))
+        XCTAssertEqual(back.events.map(\.ev), [.start, .resume, .stop], "the resume line is not glued to the cut one")
+        XCTAssertEqual(back.points.count, 1)
+    }
+
+    /// Every journal the reference tool wrote for the shared cases reads here (tools/fixtures/dayrec-logs).
+    func testTheReferenceLogsRead() throws {
+        let logs = Repo.root.appendingPathComponent("tools/fixtures/dayrec-logs")
+        guard let names = try? FileManager.default.contentsOfDirectory(atPath: logs.path).filter({ $0.hasSuffix(".jsonl") }),
+              !names.isEmpty else { throw XCTSkip("the reference logs are not on this branch yet") }
+        for n in names {
+            let day = try XCTUnwrap(DayJournal.read(try Data(contentsOf: logs.appendingPathComponent(n))), n)
+            XCTAssertFalse(day.points.isEmpty, n)
+        }
     }
 
     func testTheCapStopsWriting() throws {

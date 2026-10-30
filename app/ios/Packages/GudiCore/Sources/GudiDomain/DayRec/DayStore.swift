@@ -54,6 +54,7 @@ public struct DayStore: Sendable {
         guard FileManager.default.createFile(atPath: url.path, contents: nil) else { throw CocoaError(.fileWriteUnknown) }
         let w = try DayWriter(url: url)
         w.append(.header(header))
+        w.append(.event(.init(.start, t: header.start)))
         try w.sync()
         return w
     }
@@ -61,6 +62,12 @@ public struct DayStore: Sendable {
     /// Goes on writing an interrupted day.
     public func resume(_ e: Entry, at t: Int64) throws -> DayWriter {
         let w = try DayWriter(url: e.url)
+        // a line the app was cut in the middle of stays broken (and is skipped), but the next one starts clean
+        if let h = try? FileHandle(forReadingFrom: e.url) {
+            let end = (try? h.seekToEnd()) ?? 0
+            if end > 0 { try? h.seek(toOffset: end - 1); if h.readData(ofLength: 1) != Data([0x0A]) { w.raw(Data([0x0A])) } }
+            try? h.close()
+        }
         w.append(.event(.init(.resume, t: t, reason: "crash_recovery")))
         try w.sync()
         return w
@@ -108,6 +115,8 @@ public final class DayWriter {
         if let now, now - lastSync >= Self.syncEvery { try? sync(now: now) }
         return true
     }
+
+    func raw(_ d: Data) { pending.append(d) }
 
     /// Everything pending to the disk, and fsync.
     public func sync(now: Int64? = nil) throws {

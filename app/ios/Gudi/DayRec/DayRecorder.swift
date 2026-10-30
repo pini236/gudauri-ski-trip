@@ -177,7 +177,7 @@ final class DayRecorder: NSObject, CLLocationManagerDelegate {
         guard let writer, !ps.isEmpty else { return }
         let mv = accel.drain()
         for var p in ps {
-            p.mv = mv
+            p.mv = mv.map { $0 * 9.80665 * 9.80665 }   // g² to (m/s²)², the reference tool's unit
             if !writer.append(.point(p), now: Self.ms(Date())) {
                 stop(reason: "user"); state = .full; return
             }

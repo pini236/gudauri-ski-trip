@@ -1,6 +1,7 @@
 import Foundation
 
-/// The ski day's raw journal (decision 76; docs/ARCHITECTURE.md m-8, answer 3): one file of JSON lines per day, in the
+/// The ski day's raw journal (decision 76; docs/ARCHITECTURE.md m-8, answer 3), in the field names of the reference
+/// tool (tools/dayrec/README.md, "the raw journal"), which writes the shared cases in it: one file of JSON lines per day, in the
 /// app's private folder. The first line is the header, then one line per reading (about one a second), and event lines
 /// (`ev`) for a stop, a resume or a full file. Appended to only; a crash loses at most the lines since the last sync,
 /// and a cut last line is dropped when read. Readers ignore fields they do not know, so `v` grows only on a break.
@@ -24,7 +25,7 @@ public enum DayJournal {
         }
     }
 
-    /// One reading. Anything the phone did not give is nil, never zero.
+    /// One reading. Anything the phone did not give is nil, never zero. The file's keys are the reference tool's short ones.
     public struct Point: Codable, Equatable, Sendable {
         /// Epoch ms UTC.
         public var t: Int64
@@ -32,21 +33,25 @@ public enum DayJournal {
         public var lon: Double
         /// GPS altitude, metres.
         public var alt: Double?
-        /// Barometer: air pressure, kPa (nil without the barometer, the default on iPhone; m-8 addition b).
+        /// Barometer: air pressure, hPa (nil without the barometer, the default on iPhone; m-8 addition b).
         public var p: Double?
         /// Doppler speed and its accuracy, m/s.
         public var spd: Double?
         public var sacc: Double?
         /// Horizontal and vertical accuracy, metres.
-        public var hacc: Double
+        public var hacc: Double?
         public var vacc: Double?
         /// Course over ground, degrees.
         public var crs: Double?
-        /// The variance of the acceleration's magnitude over the last second (g²), not the acceleration itself.
+        /// The variance of the acceleration's magnitude over the last second, (m/s²)², not the acceleration itself.
         public var mv: Double?
 
+        enum CodingKeys: String, CodingKey {
+            case t, lat = "la", lon = "lo", alt = "a", p, spd = "s", sacc = "sa", hacc = "ha", vacc = "va", crs = "b", mv = "m"
+        }
+
         public init(t: Int64, lat: Double, lon: Double, alt: Double? = nil, p: Double? = nil, spd: Double? = nil,
-                    sacc: Double? = nil, hacc: Double, vacc: Double? = nil, crs: Double? = nil, mv: Double? = nil) {
+                    sacc: Double? = nil, hacc: Double?, vacc: Double? = nil, crs: Double? = nil, mv: Double? = nil) {
             self.t = t; self.lat = lat; self.lon = lon; self.alt = alt; self.p = p; self.spd = spd; self.sacc = sacc
             self.hacc = hacc; self.vacc = vacc; self.crs = crs; self.mv = mv
         }
@@ -54,11 +59,13 @@ public enum DayJournal {
 
     public struct Event: Codable, Equatable, Sendable {
         public enum Kind: String, Codable, Sendable {
+            /// Right after the header.
+            case start
             /// The day ended; `reason` as in the measurement contract: user, idle, outside.
             case stop
             /// Recording went on after the app was gone (crash_recovery), or after a stop the user took back.
             case resume
-            /// The day reached the size cap; nothing after it is written.
+            /// The day reached the 10 MB cap; nothing after it is written (the reference tool skips kinds it does not know).
             case full
         }
         public var ev: Kind
@@ -119,6 +126,10 @@ public enum DayJournal {
             // only the last line can be cut short; a bad line elsewhere (a future kind) is skipped
             if i == lines.count - 2, !data.isEmpty, data.last != 0x0A { day.cut = true }
         }
+        // sorted by time, and a second that comes twice keeps its first reading (the reference tool's rule 4)
+        var seen = Set<Int64>()
+        day.points = day.points.enumerated().sorted { ($0.element.t, $0.offset) < ($1.element.t, $1.offset) }
+            .map(\.element).filter { seen.insert($0.t).inserted }
         return day
     }
 }
