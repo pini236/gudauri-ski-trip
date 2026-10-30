@@ -1,6 +1,6 @@
 {
  "about": "Test values of the day analysis (decision 76, docs/ARCHITECTURE.md m-8, condition 4). Each case: a raw log (tools/fixtures/dayrec-logs/<case>.jsonl), an optional network_patch to merge into lifts of site/data/runs-and-lifts.json (by lift id) before the analysis, and the expected final and live results of tools/dayrec (the reference). An app passes a case when tools/dayrec/compare.py rules hold: see tools/dayrec/README.md, \"Running the test values in an app\". The truth is what the synthetic skier did; it is for people, the comparison is with expected.",
- "analysis": 1,
+ "analysis": 2,
  "params": "tools/fixtures/dayrec-params.json",
  "data": "site/data/runs-and-lifts.json, site/data/terrain.json",
  "cases": [
@@ -21,7 +21,7 @@
    },
    "expected": {
     "final": {
-     "analysis": 1,
+     "analysis": 2,
      "v": 1,
      "resort": "gudauri",
      "mode": "day",
@@ -114,7 +114,7 @@
    },
    "expected": {
     "final": {
-     "analysis": 1,
+     "analysis": 2,
      "v": 1,
      "resort": "gudauri",
      "mode": "day",
@@ -241,7 +241,7 @@
    },
    "expected": {
     "final": {
-     "analysis": 1,
+     "analysis": 2,
      "v": 1,
      "resort": "gudauri",
      "mode": "day",
@@ -432,7 +432,7 @@
    },
    "expected": {
     "final": {
-     "analysis": 1,
+     "analysis": 2,
      "v": 1,
      "resort": "gudauri",
      "mode": "day",
@@ -610,7 +610,7 @@
    },
    "expected": {
     "final": {
-     "analysis": 1,
+     "analysis": 2,
      "v": 1,
      "resort": "gudauri",
      "mode": "day",
@@ -794,7 +794,7 @@
    },
    "expected": {
     "final": {
-     "analysis": 1,
+     "analysis": 2,
      "v": 1,
      "resort": "gudauri",
      "mode": "day",
@@ -985,7 +985,7 @@
    },
    "expected": {
     "final": {
-     "analysis": 1,
+     "analysis": 2,
      "v": 1,
      "resort": "gudauri",
      "mode": "day",
@@ -1199,7 +1199,7 @@
    },
    "expected": {
     "final": {
-     "analysis": 1,
+     "analysis": 2,
      "v": 1,
      "resort": "gudauri",
      "mode": "day",
@@ -1398,7 +1398,7 @@
    },
    "expected": {
     "final": {
-     "analysis": 1,
+     "analysis": 2,
      "v": 1,
      "resort": "gudauri",
      "mode": "day",
@@ -1679,7 +1679,7 @@
    },
    "expected": {
     "final": {
-     "analysis": 1,
+     "analysis": 2,
      "v": 1,
      "resort": "gudauri",
      "mode": "day",
@@ -1898,7 +1898,7 @@
    },
    "expected": {
     "final": {
-     "analysis": 1,
+     "analysis": 2,
      "v": 1,
      "resort": "gudauri",
      "mode": "day",
@@ -2118,7 +2118,7 @@
    },
    "expected": {
     "final": {
-     "analysis": 1,
+     "analysis": 2,
      "v": 1,
      "resort": "gudauri",
      "mode": "day",
@@ -2323,7 +2323,7 @@
    },
    "expected": {
     "final": {
-     "analysis": 1,
+     "analysis": 2,
      "v": 1,
      "resort": "gudauri",
      "mode": "run",
@@ -2500,7 +2500,7 @@
    },
    "expected": {
     "final": {
-     "analysis": 1,
+     "analysis": 2,
      "v": 1,
      "resort": "gudauri",
      "mode": "run",
@@ -2658,7 +2658,7 @@
    },
    "expected": {
     "final": {
-     "analysis": 1,
+     "analysis": 2,
      "v": 1,
      "resort": "gudauri",
      "mode": "run",
@@ -2819,7 +2819,7 @@
    },
    "expected": {
     "final": {
-     "analysis": 1,
+     "analysis": 2,
      "v": 1,
      "resort": "gudauri",
      "mode": "day",
@@ -3024,7 +3024,7 @@
    },
    "expected": {
     "final": {
-     "analysis": 1,
+     "analysis": 2,
      "v": 1,
      "resort": "gudauri",
      "mode": "day",
@@ -3224,7 +3224,7 @@
    },
    "expected": {
     "final": {
-     "analysis": 1,
+     "analysis": 2,
      "v": 1,
      "resort": "gudauri",
      "mode": "day",
@@ -3415,7 +3415,7 @@
    },
    "expected": {
     "final": {
-     "analysis": 1,
+     "analysis": 2,
      "v": 1,
      "resort": "gudauri",
      "mode": "day",
@@ -3642,7 +3642,7 @@
    },
    "expected": {
     "final": {
-     "analysis": 1,
+     "analysis": 2,
      "v": 1,
      "resort": "gudauri",
      "mode": "day",
@@ -3930,6 +3930,424 @@
    }
   },
   {
+   "name": "drive_down",
+   "about": "Down the main road by car with a stop on the way, then the Pirveli lift and one run: the car is \"drive\", not a descent.",
+   "log": "tools/fixtures/dayrec-logs/drive_down.jsonl",
+   "dropped_lines": 0,
+   "truth": {
+    "rides": [
+     {
+      "lift": "158744059",
+      "from": "bottom",
+      "to": "top"
+     }
+    ],
+    "descents": [
+     [
+      "Pirveli · Soliko 1 · Sportuli 1",
+      "Pirveli"
+     ]
+    ]
+   },
+   "expected": {
+    "final": {
+     "analysis": 2,
+     "v": 1,
+     "resort": "gudauri",
+     "mode": "day",
+     "points": 1615,
+     "start": 1799645400000,
+     "end": 1799647014000,
+     "baro": true,
+     "coverage": 1.0,
+     "gaps": [],
+     "falls": [],
+     "segments": [
+      {
+       "type": "stop",
+       "t0": 1799645400000,
+       "t1": 1799645430000,
+       "lat": 42.480751,
+       "lon": 44.474317,
+       "kind": "rest"
+      },
+      {
+       "type": "drive",
+       "t0": 1799645431000,
+       "t1": 1799645958000,
+       "dist_m": 4320.1,
+       "rise_m": -246.3
+      },
+      {
+       "type": "stop",
+       "t0": 1799645959000,
+       "t1": 1799646019000,
+       "lat": 42.460753,
+       "lon": 44.482332,
+       "kind": "rest"
+      },
+      {
+       "type": "walk",
+       "t0": 1799646020000,
+       "t1": 1799646248000,
+       "dist_m": 278.8
+      },
+      {
+       "type": "stop",
+       "t0": 1799646249000,
+       "t1": 1799646287000,
+       "lat": 42.462159,
+       "lon": 44.485164,
+       "kind": "queue"
+      },
+      {
+       "type": "lift",
+       "t0": 1799646288000,
+       "t1": 1799646828000,
+       "lift": "158744059",
+       "name": "Pirveli",
+       "from": {
+        "station": "bottom"
+       },
+       "to": {
+        "station": "top"
+       },
+       "rise_m": 153.0
+      },
+      {
+       "type": "stop",
+       "t0": 1799646829000,
+       "t1": 1799646847000,
+       "lat": 42.470883,
+       "lon": 44.487342,
+       "kind": "rest"
+      },
+      {
+       "type": "descent",
+       "t0": 1799646848000,
+       "t1": 1799646973000,
+       "legs": [
+        {
+         "t0": 1799646848000,
+         "t1": 1799646973000,
+         "kind": "run",
+         "runs": [
+          "Pirveli"
+         ],
+         "dist_m": 1242.9
+        }
+       ],
+       "dist_m": 1242.9,
+       "drop_m": 154.5,
+       "moving_s": 125,
+       "avg_kmh": 35.8,
+       "max_kmh": 59.65,
+       "max_at": {
+        "t": 1799646920000,
+        "lat": 42.465685,
+        "lon": 44.485055
+       },
+       "stops": [],
+       "offpiste": [],
+       "top_m": 2148.9,
+       "bottom_m": 1995.3
+      },
+      {
+       "type": "stop",
+       "t0": 1799646974000,
+       "t1": 1799647014000,
+       "lat": 42.462126,
+       "lon": 44.485171,
+       "kind": "rest"
+      }
+     ],
+     "stats": {
+      "descents": 1,
+      "lifts": 1,
+      "ski_dist_m": 1242.9,
+      "drop_m": 154.5,
+      "ski_s": 125,
+      "lift_s": 540,
+      "lift_rise_m": 153.0,
+      "max_kmh": 59.65,
+      "max_at": {
+       "t": 1799646920000,
+       "lat": 42.465685,
+       "lon": 44.485055
+      }
+     }
+    },
+    "live": {
+     "events": [
+      {
+       "t": 1799645400000,
+       "act": "stand"
+      },
+      {
+       "t": 1799645430000,
+       "act": "ski",
+       "runs": null
+      },
+      {
+       "t": 1799645479000,
+       "act": "drive"
+      },
+      {
+       "t": 1799645959000,
+       "act": "ski",
+       "runs": null
+      },
+      {
+       "t": 1799645961000,
+       "act": "stand"
+      },
+      {
+       "t": 1799646021000,
+       "act": "walk"
+      },
+      {
+       "t": 1799646251000,
+       "act": "stand"
+      },
+      {
+       "t": 1799646289000,
+       "act": "lift",
+       "lift": "158744059"
+      },
+      {
+       "t": 1799646841000,
+       "act": "stand"
+      },
+      {
+       "t": 1799646848000,
+       "act": "lift",
+       "lift": "158744059"
+      },
+      {
+       "t": 1799646849000,
+       "act": "ski",
+       "runs": [
+        "Pirveli"
+       ]
+      },
+      {
+       "t": 1799646976000,
+       "act": "stand"
+      }
+     ],
+     "max_kmh": 59.65,
+     "falls": []
+    }
+   }
+  },
+  {
+   "name": "drive_up",
+   "about": "One run on Pirveli, then up the main road by car: \"drive\", not an ascent.",
+   "log": "tools/fixtures/dayrec-logs/drive_up.jsonl",
+   "dropped_lines": 0,
+   "truth": {
+    "rides": [
+     {
+      "lift": "158744059",
+      "from": "bottom",
+      "to": "top"
+     }
+    ],
+    "descents": [
+     [
+      "Pirveli · Soliko 1 · Sportuli 1",
+      "Pirveli"
+     ]
+    ]
+   },
+   "expected": {
+    "final": {
+     "analysis": 2,
+     "v": 1,
+     "resort": "gudauri",
+     "mode": "day",
+     "points": 1557,
+     "start": 1799645400000,
+     "end": 1799646956000,
+     "baro": true,
+     "coverage": 1.0,
+     "gaps": [],
+     "falls": [],
+     "segments": [
+      {
+       "type": "stop",
+       "t0": 1799645400000,
+       "t1": 1799645428000,
+       "lat": 42.46216,
+       "lon": 44.485161,
+       "kind": "queue"
+      },
+      {
+       "type": "lift",
+       "t0": 1799645429000,
+       "t1": 1799645969000,
+       "lift": "158744059",
+       "name": "Pirveli",
+       "from": {
+        "station": "bottom"
+       },
+       "to": {
+        "station": "top"
+       },
+       "rise_m": 153.4
+      },
+      {
+       "type": "stop",
+       "t0": 1799645970000,
+       "t1": 1799645989000,
+       "lat": 42.470867,
+       "lon": 44.487368,
+       "kind": "rest"
+      },
+      {
+       "type": "descent",
+       "t0": 1799645990000,
+       "t1": 1799646112000,
+       "legs": [
+        {
+         "t0": 1799645990000,
+         "t1": 1799646112000,
+         "kind": "run",
+         "runs": [
+          "Pirveli"
+         ],
+         "dist_m": 1217.4
+        }
+       ],
+       "dist_m": 1217.4,
+       "drop_m": 155.2,
+       "moving_s": 122,
+       "avg_kmh": 35.92,
+       "max_kmh": 67.18,
+       "max_at": {
+        "t": 1799646061000,
+        "lat": 42.465514,
+        "lon": 44.48502
+       },
+       "stops": [],
+       "offpiste": [],
+       "top_m": 2149.2,
+       "bottom_m": 1995.3
+      },
+      {
+       "type": "walk",
+       "t0": 1799646113000,
+       "t1": 1799646372000,
+       "dist_m": 281.5
+      },
+      {
+       "type": "stop",
+       "t0": 1799646373000,
+       "t1": 1799646417000,
+       "lat": 42.460773,
+       "lon": 44.48232,
+       "kind": "rest"
+      },
+      {
+       "type": "drive",
+       "t0": 1799646418000,
+       "t1": 1799646914000,
+       "dist_m": 4307.0,
+       "rise_m": 247.3
+      },
+      {
+       "type": "stop",
+       "t0": 1799646915000,
+       "t1": 1799646956000,
+       "lat": 42.48075,
+       "lon": 44.47433,
+       "kind": "rest"
+      }
+     ],
+     "stats": {
+      "descents": 1,
+      "lifts": 1,
+      "ski_dist_m": 1217.4,
+      "drop_m": 155.2,
+      "ski_s": 122,
+      "lift_s": 540,
+      "lift_rise_m": 153.4,
+      "max_kmh": 67.18,
+      "max_at": {
+       "t": 1799646061000,
+       "lat": 42.465514,
+       "lon": 44.48502
+      }
+     }
+    },
+    "live": {
+     "events": [
+      {
+       "t": 1799645400000,
+       "act": "stand"
+      },
+      {
+       "t": 1799645430000,
+       "act": "lift",
+       "lift": "158744059"
+      },
+      {
+       "t": 1799645982000,
+       "act": "stand"
+      },
+      {
+       "t": 1799645989000,
+       "act": "lift",
+       "lift": "158744059"
+      },
+      {
+       "t": 1799645990000,
+       "act": "ski",
+       "runs": [
+        "Pirveli"
+       ]
+      },
+      {
+       "t": 1799646115000,
+       "act": "stand"
+      },
+      {
+       "t": 1799646145000,
+       "act": "walk"
+      },
+      {
+       "t": 1799646375000,
+       "act": "stand"
+      },
+      {
+       "t": 1799646418000,
+       "act": "ski",
+       "runs": null
+      },
+      {
+       "t": 1799646457000,
+       "act": "up"
+      },
+      {
+       "t": 1799646464000,
+       "act": "drive"
+      },
+      {
+       "t": 1799646915000,
+       "act": "ski",
+       "runs": null
+      },
+      {
+       "t": 1799646918000,
+       "act": "stand"
+      }
+     ],
+     "max_kmh": 67.18,
+     "falls": []
+    }
+   }
+  },
+  {
    "name": "full_day",
    "about": "A full day: 13 rides on 8 lifts (one slow, one stopped), Tatra 2 with the shared stretch, off-piste, Kobi, lunch, a minute without signal, and falls, jumps and bumps on the way.",
    "log": "tools/fixtures/dayrec-logs/full_day.jsonl",
@@ -4060,7 +4478,7 @@
    },
    "expected": {
     "final": {
-     "analysis": 1,
+     "analysis": 2,
      "v": 1,
      "resort": "gudauri",
      "mode": "day",

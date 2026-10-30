@@ -10,7 +10,7 @@ import json, os, random, sys, zlib
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.normpath(os.path.join(HERE, '..', '..'))
 sys.path.insert(0, HERE)
-import analyze, cases, net as netmod, rawlog, synth  # noqa: E402
+import analyze, cases, moments, net as netmod, rawlog, synth  # noqa: E402
 
 FIX = os.path.join(ROOT, 'tools', 'fixtures')
 LOGS = os.path.join(FIX, 'dayrec-logs')
@@ -110,6 +110,47 @@ def truth_summary(d):
     return out
 
 
+# the days, one after another, that grow a history: the second day has new runs, the third records and "the first red";
+# then one run (mode run) after them
+CHAIN = ('run_single', 'shared_tatra', 'full_day', 'run_from_middle')
+
+
+def moments_fixture(base, P, index):
+    """tools/fixtures/dayrec-moments.json: the moments engine on the expected final results of the cases. An app passes
+    when its engine, given the same final result and history, gives exactly the expected output (it is a function of
+    them, so no tolerance), and lift_card the same."""
+    M = P['moments']
+    ex = {c['name']: c['expected']['final'] for c in index['cases']}
+    out = {'about': 'Test values of the moments engine (tools/dayrec/moments.py, README "The moments"). Each case: the '
+                     'final result of a case of dayrec-cases.json (by name, expected.final), the history before it, and '
+                     'the expected output, to match exactly. chain: the same days one after another, each starting from '
+                     'the history the previous one returned. lift_cards: the card on the lift from the final analysis of '
+                     'the log so far (inline).',
+           'moments': M['version'], 'params': 'tools/fixtures/dayrec-params.json (moments)', 'cases': [], 'chain': [],
+           'lift_cards': []}
+    for c in index['cases']:
+        h = moments.empty_history()
+        out['cases'].append({'name': c['name'], 'final': c['name'], 'history': h,
+                             'expected': moments.moments(ex[c['name']], h, base.runs, M)})
+    h = moments.empty_history()
+    for n in CHAIN:
+        o = moments.moments(ex[n], h, base.runs, M)
+        out['chain'].append({'final': n, 'history': h, 'expected': o})
+        h = o['history']
+    # the card on the lift, during the 2nd and 6th rides of the full day, and on the first ride (no descent before it)
+    name, builder, _, opts = next(c for c in cases.CASES if c[0] == 'full_day')
+    text, patch, d = make(base, P, name, builder, opts)
+    hd, pts, evs, _ = rawlog.read(text)
+    a = analyze.Analyzer(base, P)
+    for k in (0, 1, 5):
+        r = d.rides[k]
+        until = r['t0'] + (r['t1'] - r['t0']) // 2
+        fin = a.final(hd, [q for q in pts if q['t'] <= until], [e for e in evs if e.get('t', 0) <= until])
+        out['lift_cards'].append({'name': 'full_day, ride %d, half way' % (k + 1), 'until': until, 'final': fin,
+                                  'expected': moments.lift_card(fin, M)})
+    return json.dumps(out, ensure_ascii=False, indent=1) + '\n'
+
+
 def load_base(P):
     rl = json.load(open(os.path.join(ROOT, 'site/data/runs-and-lifts.json'), encoding='utf-8'))
     tj = json.load(open(os.path.join(ROOT, 'site/data/terrain.json'), encoding='utf-8'))
@@ -146,6 +187,7 @@ def main(check=False):
         c['expected'] = {'final': fin, 'live': liv}
         index['cases'].append(c)
     files[os.path.join(FIX, 'dayrec-cases.json')] = json.dumps(index, ensure_ascii=False, indent=1) + '\n'
+    files[os.path.join(FIX, 'dayrec-moments.json')] = moments_fixture(base, P, index)
     if check:
         diff = [p for p, t in files.items() if not os.path.exists(p) or open(p, encoding='utf-8').read() != t]
         if diff:

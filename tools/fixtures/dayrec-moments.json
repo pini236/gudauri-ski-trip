@@ -1,0 +1,3020 @@
+{
+ "about": "Test values of the moments engine (tools/dayrec/moments.py, README \"The moments\"). Each case: the final result of a case of dayrec-cases.json (by name, expected.final), the history before it, and the expected output, to match exactly. chain: the same days one after another, each starting from the history the previous one returned. lift_cards: the card on the lift from the final analysis of the log so far (inline).",
+ "moments": 1,
+ "params": "tools/fixtures/dayrec-params.json (moments)",
+ "cases": [
+  {
+   "name": "lift_basic",
+   "final": "lift_basic",
+   "history": {
+    "v": 1,
+    "days": 0,
+    "runs": {},
+    "colors": {},
+    "best": {}
+   },
+   "expected": {
+    "moments": 1,
+    "items": [],
+    "story": [],
+    "share": null,
+    "history": {
+     "v": 1,
+     "days": 0,
+     "runs": {},
+     "colors": {},
+     "best": {}
+    }
+   }
+  },
+  {
+   "name": "lift_stopped",
+   "final": "lift_stopped",
+   "history": {
+    "v": 1,
+    "days": 0,
+    "runs": {},
+    "colors": {},
+    "best": {}
+   },
+   "expected": {
+    "moments": 1,
+    "items": [],
+    "story": [],
+    "share": null,
+    "history": {
+     "v": 1,
+     "days": 0,
+     "runs": {},
+     "colors": {},
+     "best": {}
+    }
+   }
+  },
+  {
+   "name": "lift_mid_station",
+   "final": "lift_mid_station",
+   "history": {
+    "v": 1,
+    "days": 0,
+    "runs": {},
+    "colors": {},
+    "best": {}
+   },
+   "expected": {
+    "moments": 1,
+    "items": [
+     {
+      "key": "longest_descent",
+      "t": 1799645716000,
+      "seed": 1203725226,
+      "p": {
+       "t1": 1799645863000,
+       "dist_m": 1721.5,
+       "drop_m": 283.6,
+       "moving_s": 147,
+       "runs": [
+        "Goodaura 1"
+       ]
+      }
+     },
+     {
+      "key": "fastest",
+      "t": 1799645745000,
+      "seed": 918797647,
+      "p": {
+       "kmh": 83.7,
+       "at": {
+        "lat": 42.481869,
+        "lon": 44.494724
+       },
+       "kind": "run",
+       "runs": [
+        "Goodaura 1"
+       ]
+      }
+     }
+    ],
+    "story": [
+     0,
+     1
+    ],
+    "share": 1,
+    "history": {
+     "v": 1,
+     "days": 1,
+     "runs": {
+      "Goodaura 1": 1799645716000
+     },
+     "colors": {
+      "blue": 1799645716000
+     },
+     "best": {
+      "max_kmh": 83.7,
+      "drop_m": 283.6,
+      "descents": 1,
+      "longest_m": 1721.5,
+      "ski_dist_m": 1721.5
+     }
+    }
+   }
+  },
+  {
+   "name": "lift_unmapped_stop",
+   "final": "lift_unmapped_stop",
+   "history": {
+    "v": 1,
+    "days": 0,
+    "runs": {},
+    "colors": {},
+    "best": {}
+   },
+   "expected": {
+    "moments": 1,
+    "items": [
+     {
+      "key": "longest_descent",
+      "t": 1799645715000,
+      "seed": 1426771012,
+      "p": {
+       "t1": 1799645863000,
+       "dist_m": 1675.0,
+       "drop_m": 284.7,
+       "moving_s": 148,
+       "runs": [
+        "Goodaura 1"
+       ]
+      }
+     },
+     {
+      "key": "fastest",
+      "t": 1799645745000,
+      "seed": 918797647,
+      "p": {
+       "kmh": 80.21,
+       "at": {
+        "lat": 42.481883,
+        "lon": 44.494708
+       },
+       "kind": "run",
+       "runs": [
+        "Goodaura 1"
+       ]
+      }
+     }
+    ],
+    "story": [
+     0,
+     1
+    ],
+    "share": 1,
+    "history": {
+     "v": 1,
+     "days": 1,
+     "runs": {
+      "Goodaura 1": 1799645715000
+     },
+     "colors": {
+      "blue": 1799645715000
+     },
+     "best": {
+      "max_kmh": 80.21,
+      "drop_m": 284.7,
+      "descents": 1,
+      "longest_m": 1675.0,
+      "ski_dist_m": 1675.0
+     }
+    }
+   }
+  },
+  {
+   "name": "run_single",
+   "final": "run_single",
+   "history": {
+    "v": 1,
+    "days": 0,
+    "runs": {},
+    "colors": {},
+    "best": {}
+   },
+   "expected": {
+    "moments": 1,
+    "items": [
+     {
+      "key": "longest_descent",
+      "t": 1799645870000,
+      "seed": 482507523,
+      "p": {
+       "t1": 1799646082000,
+       "dist_m": 2775.3,
+       "drop_m": 544.9,
+       "moving_s": 212,
+       "runs": [
+        "Goodaura 1"
+       ]
+      }
+     },
+     {
+      "key": "fastest",
+      "t": 1799645944000,
+      "seed": 880130906,
+      "p": {
+       "kmh": 71.03,
+       "at": {
+        "lat": 42.484418,
+        "lon": 44.492458
+       },
+       "kind": "run",
+       "runs": [
+        "Goodaura 1"
+       ]
+      }
+     },
+     {
+      "key": "drop_compare",
+      "t": 1799646123000,
+      "seed": 227289429,
+      "p": {
+       "ref": "azrieli",
+       "times": 2.9,
+       "drop_m": 544.9
+      }
+     }
+    ],
+    "story": [
+     0,
+     1,
+     2
+    ],
+    "share": 1,
+    "history": {
+     "v": 1,
+     "days": 1,
+     "runs": {
+      "Goodaura 1": 1799645870000
+     },
+     "colors": {
+      "blue": 1799645870000
+     },
+     "best": {
+      "max_kmh": 71.03,
+      "drop_m": 544.9,
+      "descents": 1,
+      "longest_m": 2775.3,
+      "ski_dist_m": 2775.3
+     }
+    }
+   }
+  },
+  {
+   "name": "run_single_nobaro",
+   "final": "run_single_nobaro",
+   "history": {
+    "v": 1,
+    "days": 0,
+    "runs": {},
+    "colors": {},
+    "best": {}
+   },
+   "expected": {
+    "moments": 1,
+    "items": [
+     {
+      "key": "longest_descent",
+      "t": 1799645870000,
+      "seed": 482507523,
+      "p": {
+       "t1": 1799646082000,
+       "dist_m": 2789.8,
+       "drop_m": 549.4,
+       "moving_s": 212,
+       "runs": [
+        "Goodaura 1"
+       ]
+      }
+     },
+     {
+      "key": "fastest",
+      "t": 1799645966000,
+      "seed": 1690050737,
+      "p": {
+       "kmh": 77.26,
+       "at": {
+        "lat": 42.481653,
+        "lon": 44.494778
+       },
+       "kind": "run",
+       "runs": [
+        "Goodaura 1"
+       ]
+      }
+     },
+     {
+      "key": "drop_compare",
+      "t": 1799646123000,
+      "seed": 227289429,
+      "p": {
+       "ref": "azrieli",
+       "times": 2.9,
+       "drop_m": 549.4
+      }
+     }
+    ],
+    "story": [
+     0,
+     1,
+     2
+    ],
+    "share": 1,
+    "history": {
+     "v": 1,
+     "days": 1,
+     "runs": {
+      "Goodaura 1": 1799645870000
+     },
+     "colors": {
+      "blue": 1799645870000
+     },
+     "best": {
+      "max_kmh": 77.26,
+      "drop_m": 549.4,
+      "descents": 1,
+      "longest_m": 2789.8,
+      "ski_dist_m": 2789.8
+     }
+    }
+   }
+  },
+  {
+   "name": "run_to_run",
+   "final": "run_to_run",
+   "history": {
+    "v": 1,
+    "days": 0,
+    "runs": {},
+    "colors": {},
+    "best": {}
+   },
+   "expected": {
+    "moments": 1,
+    "items": [
+     {
+      "key": "first_color",
+      "t": 1799645984000,
+      "seed": 96232799,
+      "p": {
+       "color": "red",
+       "run": "Kudebi 2",
+       "first_ever": true
+      }
+     },
+     {
+      "key": "longest_descent",
+      "t": 1799645984000,
+      "seed": 1521264672,
+      "p": {
+       "t1": 1799646295000,
+       "dist_m": 4036.7,
+       "drop_m": 832.6,
+       "moving_s": 311,
+       "runs": [
+        "Soliko 1",
+        "Kudebi 2"
+       ]
+      }
+     },
+     {
+      "key": "fastest",
+      "t": 1799646010000,
+      "seed": 1695606824,
+      "p": {
+       "kmh": 77.76,
+       "at": {
+        "lat": 42.496303,
+        "lon": 44.505644
+       },
+       "kind": "run",
+       "runs": [
+        "Kudebi 2"
+       ]
+      }
+     },
+     {
+      "key": "drop_compare",
+      "t": 1799646335000,
+      "seed": 1481637426,
+      "p": {
+       "ref": "azrieli",
+       "times": 4.5,
+       "drop_m": 832.6
+      }
+     }
+    ],
+    "story": [
+     0,
+     1,
+     2,
+     3
+    ],
+    "share": 0,
+    "history": {
+     "v": 1,
+     "days": 1,
+     "runs": {
+      "Kudebi 2": 1799645984000,
+      "Soliko 1": 1799646102000
+     },
+     "colors": {
+      "red": 1799645984000,
+      "blue": 1799646102000
+     },
+     "best": {
+      "max_kmh": 77.76,
+      "drop_m": 832.6,
+      "descents": 1,
+      "longest_m": 4036.7,
+      "ski_dist_m": 4036.7
+     }
+    }
+   }
+  },
+  {
+   "name": "shared_tatra",
+   "final": "shared_tatra",
+   "history": {
+    "v": 1,
+    "days": 0,
+    "runs": {},
+    "colors": {},
+    "best": {}
+   },
+   "expected": {
+    "moments": 1,
+    "items": [
+     {
+      "key": "longest_descent",
+      "t": 1799645925000,
+      "seed": 681629668,
+      "p": {
+       "t1": 1799646151000,
+       "dist_m": 2762.3,
+       "drop_m": 537.3,
+       "moving_s": 226,
+       "runs": [
+        "Tatra 2",
+        "Tatra 1"
+       ]
+      }
+     },
+     {
+      "key": "fastest",
+      "t": 1799646027000,
+      "seed": 1063758401,
+      "p": {
+       "kmh": 57.89,
+       "at": {
+        "lat": 42.4875,
+        "lon": 44.485393
+       },
+       "kind": "run",
+       "runs": [
+        "Tatra 2"
+       ]
+      }
+     },
+     {
+      "key": "drop_compare",
+      "t": 1799646192000,
+      "seed": 1122008865,
+      "p": {
+       "ref": "azrieli",
+       "times": 2.9,
+       "drop_m": 537.3
+      }
+     }
+    ],
+    "story": [
+     0,
+     1,
+     2
+    ],
+    "share": 1,
+    "history": {
+     "v": 1,
+     "days": 1,
+     "runs": {
+      "Tatra 1": 1799645925000,
+      "Tatra 2": 1799645977000
+     },
+     "colors": {
+      "blue": 1799645925000
+     },
+     "best": {
+      "max_kmh": 57.89,
+      "drop_m": 537.3,
+      "descents": 1,
+      "longest_m": 2762.3,
+      "ski_dist_m": 2762.3
+     }
+    }
+   }
+  },
+  {
+   "name": "offpiste",
+   "final": "offpiste",
+   "history": {
+    "v": 1,
+    "days": 0,
+    "runs": {},
+    "colors": {},
+    "best": {}
+   },
+   "expected": {
+    "moments": 1,
+    "items": [
+     {
+      "key": "longest_descent",
+      "t": 1799645865000,
+      "seed": 377266817,
+      "p": {
+       "t1": 1799646117000,
+       "dist_m": 3125.4,
+       "drop_m": 565.1,
+       "moving_s": 252,
+       "runs": [
+        "Goodaura 1",
+        "Goodaura 2"
+       ]
+      }
+     },
+     {
+      "key": "fastest",
+      "t": 1799645930000,
+      "seed": 154660893,
+      "p": {
+       "kmh": 71.75,
+       "at": {
+        "lat": 42.485995,
+        "lon": 44.492972
+       },
+       "kind": "run",
+       "runs": [
+        "Goodaura 1"
+       ]
+      }
+     },
+     {
+      "key": "offpiste",
+      "t": 1799645973000,
+      "seed": 914031986,
+      "p": {
+       "t1": 1799645998000,
+       "drop_m": 115.6,
+       "dist_m": 436.4
+      }
+     },
+     {
+      "key": "drop_compare",
+      "t": 1799646158000,
+      "seed": 1756197444,
+      "p": {
+       "ref": "azrieli",
+       "times": 3.0,
+       "drop_m": 565.1
+      }
+     }
+    ],
+    "story": [
+     0,
+     1,
+     2,
+     3
+    ],
+    "share": 1,
+    "history": {
+     "v": 1,
+     "days": 1,
+     "runs": {
+      "Goodaura 1": 1799645865000,
+      "Goodaura 2": 1799645939000
+     },
+     "colors": {
+      "blue": 1799645865000
+     },
+     "best": {
+      "max_kmh": 71.75,
+      "drop_m": 565.1,
+      "descents": 1,
+      "longest_m": 3125.4,
+      "ski_dist_m": 3125.4
+     }
+    }
+   }
+  },
+  {
+   "name": "offpiste_short",
+   "final": "offpiste_short",
+   "history": {
+    "v": 1,
+    "days": 0,
+    "runs": {},
+    "colors": {},
+    "best": {}
+   },
+   "expected": {
+    "moments": 1,
+    "items": [
+     {
+      "key": "longest_descent",
+      "t": 1799645865000,
+      "seed": 377266817,
+      "p": {
+       "t1": 1799646088000,
+       "dist_m": 2989.7,
+       "drop_m": 546.0,
+       "moving_s": 223,
+       "runs": [
+        "Goodaura 1"
+       ]
+      }
+     },
+     {
+      "key": "fastest",
+      "t": 1799645926000,
+      "seed": 289179249,
+      "p": {
+       "kmh": 68.69,
+       "at": {
+        "lat": 42.486653,
+        "lon": 44.493206
+       },
+       "kind": "run",
+       "runs": [
+        "Goodaura 1"
+       ]
+      }
+     },
+     {
+      "key": "drop_compare",
+      "t": 1799646129000,
+      "seed": 1647429937,
+      "p": {
+       "ref": "azrieli",
+       "times": 2.9,
+       "drop_m": 546.0
+      }
+     }
+    ],
+    "story": [
+     0,
+     1,
+     2
+    ],
+    "share": 1,
+    "history": {
+     "v": 1,
+     "days": 1,
+     "runs": {
+      "Goodaura 1": 1799645865000
+     },
+     "colors": {
+      "blue": 1799645865000
+     },
+     "best": {
+      "max_kmh": 68.69,
+      "drop_m": 546.0,
+      "descents": 1,
+      "longest_m": 2989.7,
+      "ski_dist_m": 2989.7
+     }
+    }
+   }
+  },
+  {
+   "name": "falls",
+   "final": "falls",
+   "history": {
+    "v": 1,
+    "days": 0,
+    "runs": {},
+    "colors": {},
+    "best": {}
+   },
+   "expected": {
+    "moments": 1,
+    "items": [
+     {
+      "key": "longest_descent",
+      "t": 1799645865000,
+      "seed": 377266817,
+      "p": {
+       "t1": 1799646121000,
+       "dist_m": 2824.0,
+       "drop_m": 546.2,
+       "moving_s": 225,
+       "runs": [
+        "Goodaura 1"
+       ]
+      }
+     },
+     {
+      "key": "fastest",
+      "t": 1799645925000,
+      "seed": 59320735,
+      "p": {
+       "kmh": 67.36,
+       "at": {
+        "lat": 42.486772,
+        "lon": 44.493272
+       },
+       "kind": "run",
+       "runs": [
+        "Goodaura 1"
+       ]
+      }
+     },
+     {
+      "key": "fall",
+      "t": 1799645933431,
+      "seed": 1493697967,
+      "p": {
+       "at": {
+        "lat": 42.485705,
+        "lon": 44.492616
+       },
+       "kind": "run",
+       "runs": [
+        "Goodaura 1"
+       ]
+      }
+     },
+     {
+      "key": "drop_compare",
+      "t": 1799646162000,
+      "seed": 1085335792,
+      "p": {
+       "ref": "azrieli",
+       "times": 2.9,
+       "drop_m": 546.2
+      }
+     }
+    ],
+    "story": [
+     0,
+     1,
+     2,
+     3
+    ],
+    "share": 1,
+    "history": {
+     "v": 1,
+     "days": 1,
+     "runs": {
+      "Goodaura 1": 1799645865000
+     },
+     "colors": {
+      "blue": 1799645865000
+     },
+     "best": {
+      "max_kmh": 67.36,
+      "drop_m": 546.2,
+      "descents": 1,
+      "longest_m": 2824.0,
+      "ski_dist_m": 2824.0
+     }
+    }
+   }
+  },
+  {
+   "name": "fall_dismissed",
+   "final": "fall_dismissed",
+   "history": {
+    "v": 1,
+    "days": 0,
+    "runs": {},
+    "colors": {},
+    "best": {}
+   },
+   "expected": {
+    "moments": 1,
+    "items": [
+     {
+      "key": "longest_descent",
+      "t": 1799645865000,
+      "seed": 377266817,
+      "p": {
+       "t1": 1799646108000,
+       "dist_m": 2805.3,
+       "drop_m": 546.1,
+       "moving_s": 222,
+       "runs": [
+        "Goodaura 1"
+       ]
+      }
+     },
+     {
+      "key": "fastest",
+      "t": 1799645990000,
+      "seed": 1132980412,
+      "p": {
+       "kmh": 67.03,
+       "at": {
+        "lat": 42.481758,
+        "lon": 44.494766
+       },
+       "kind": "run",
+       "runs": [
+        "Goodaura 1"
+       ]
+      }
+     },
+     {
+      "key": "drop_compare",
+      "t": 1799646149000,
+      "seed": 1836137617,
+      "p": {
+       "ref": "azrieli",
+       "times": 2.9,
+       "drop_m": 546.1
+      }
+     }
+    ],
+    "story": [
+     0,
+     1,
+     2
+    ],
+    "share": 1,
+    "history": {
+     "v": 1,
+     "days": 1,
+     "runs": {
+      "Goodaura 1": 1799645865000
+     },
+     "colors": {
+      "blue": 1799645865000
+     },
+     "best": {
+      "max_kmh": 67.03,
+      "drop_m": 546.1,
+      "descents": 1,
+      "longest_m": 2805.3,
+      "ski_dist_m": 2805.3
+     }
+    }
+   }
+  },
+  {
+   "name": "run_from_middle",
+   "final": "run_from_middle",
+   "history": {
+    "v": 1,
+    "days": 0,
+    "runs": {},
+    "colors": {},
+    "best": {}
+   },
+   "expected": {
+    "moments": 1,
+    "items": [
+     {
+      "key": "longest_descent",
+      "t": 1799645409000,
+      "seed": 606611682,
+      "p": {
+       "t1": 1799645545000,
+       "dist_m": 1670.9,
+       "drop_m": 301.3,
+       "moving_s": 136,
+       "runs": [
+        "Goodaura 1"
+       ]
+      }
+     },
+     {
+      "key": "fastest",
+      "t": 1799645430000,
+      "seed": 900326339,
+      "p": {
+       "kmh": 71.71,
+       "at": {
+        "lat": 42.481496,
+        "lon": 44.494639
+       },
+       "kind": "run",
+       "runs": [
+        "Goodaura 1"
+       ]
+      }
+     }
+    ],
+    "story": [
+     0,
+     1
+    ],
+    "share": 1,
+    "history": {
+     "v": 1,
+     "days": 0,
+     "runs": {
+      "Goodaura 1": 1799645409000
+     },
+     "colors": {
+      "blue": 1799645409000
+     },
+     "best": {
+      "max_kmh": 71.71,
+      "longest_m": 1670.9
+     }
+    }
+   }
+  },
+  {
+   "name": "run_short_stop",
+   "final": "run_short_stop",
+   "history": {
+    "v": 1,
+    "days": 0,
+    "runs": {},
+    "colors": {},
+    "best": {}
+   },
+   "expected": {
+    "moments": 1,
+    "items": [
+     {
+      "key": "longest_descent",
+      "t": 1799645409000,
+      "seed": 606611682,
+      "p": {
+       "t1": 1799645602000,
+       "dist_m": 2073.9,
+       "drop_m": 416.2,
+       "moving_s": 147,
+       "runs": [
+        "Tatra 1"
+       ]
+      }
+     },
+     {
+      "key": "fastest",
+      "t": 1799645448000,
+      "seed": 1111299900,
+      "p": {
+       "kmh": 76.79,
+       "at": {
+        "lat": 42.485317,
+        "lon": 44.479904
+       },
+       "kind": "run",
+       "runs": [
+        "Tatra 1"
+       ]
+      }
+     }
+    ],
+    "story": [
+     0,
+     1
+    ],
+    "share": 1,
+    "history": {
+     "v": 1,
+     "days": 0,
+     "runs": {
+      "Tatra 1": 1799645409000
+     },
+     "colors": {
+      "blue": 1799645409000
+     },
+     "best": {
+      "max_kmh": 76.79,
+      "longest_m": 2073.9
+     }
+    }
+   }
+  },
+  {
+   "name": "run_still",
+   "final": "run_still",
+   "history": {
+    "v": 1,
+    "days": 0,
+    "runs": {},
+    "colors": {},
+    "best": {}
+   },
+   "expected": {
+    "moments": 1,
+    "items": [
+     {
+      "key": "longest_descent",
+      "t": 1799645410000,
+      "seed": 1681936088,
+      "p": {
+       "t1": 1799645703000,
+       "dist_m": 2288.3,
+       "drop_m": 459.3,
+       "moving_s": 172,
+       "runs": [
+        "Goodaura 1"
+       ]
+      }
+     },
+     {
+      "key": "fastest",
+      "t": 1799645458000,
+      "seed": 2136817292,
+      "p": {
+       "kmh": 66.53,
+       "at": {
+        "lat": 42.482289,
+        "lon": 44.494528
+       },
+       "kind": "run",
+       "runs": [
+        "Goodaura 1"
+       ]
+      }
+     }
+    ],
+    "story": [
+     0,
+     1
+    ],
+    "share": 1,
+    "history": {
+     "v": 1,
+     "days": 0,
+     "runs": {
+      "Goodaura 1": 1799645410000
+     },
+     "colors": {
+      "blue": 1799645410000
+     },
+     "best": {
+      "max_kmh": 66.53,
+      "longest_m": 2288.3
+     }
+    }
+   }
+  },
+  {
+   "name": "fall_dismissed_closed",
+   "final": "fall_dismissed_closed",
+   "history": {
+    "v": 1,
+    "days": 0,
+    "runs": {},
+    "colors": {},
+    "best": {}
+   },
+   "expected": {
+    "moments": 1,
+    "items": [
+     {
+      "key": "longest_descent",
+      "t": 1799645865000,
+      "seed": 377266817,
+      "p": {
+       "t1": 1799646114000,
+       "dist_m": 2793.0,
+       "drop_m": 545.0,
+       "moving_s": 230,
+       "runs": [
+        "Goodaura 1"
+       ]
+      }
+     },
+     {
+      "key": "fastest",
+      "t": 1799645994000,
+      "seed": 1290108907,
+      "p": {
+       "kmh": 59.69,
+       "at": {
+        "lat": 42.481804,
+        "lon": 44.494681
+       },
+       "kind": "run",
+       "runs": [
+        "Goodaura 1"
+       ]
+      }
+     },
+     {
+      "key": "drop_compare",
+      "t": 1799646155000,
+      "seed": 449292953,
+      "p": {
+       "ref": "azrieli",
+       "times": 2.9,
+       "drop_m": 545.0
+      }
+     }
+    ],
+    "story": [
+     0,
+     1,
+     2
+    ],
+    "share": 1,
+    "history": {
+     "v": 1,
+     "days": 1,
+     "runs": {
+      "Goodaura 1": 1799645865000
+     },
+     "colors": {
+      "blue": 1799645865000
+     },
+     "best": {
+      "max_kmh": 59.69,
+      "drop_m": 545.0,
+      "descents": 1,
+      "longest_m": 2793.0,
+      "ski_dist_m": 2793.0
+     }
+    }
+   }
+  },
+  {
+   "name": "queue_and_hut",
+   "final": "queue_and_hut",
+   "history": {
+    "v": 1,
+    "days": 0,
+    "runs": {},
+    "colors": {},
+    "best": {}
+   },
+   "expected": {
+    "moments": 1,
+    "items": [
+     {
+      "key": "queue",
+      "t": 1799645400000,
+      "seed": 60599824,
+      "p": {
+       "s": 418,
+       "lift": "Goodaura",
+       "total_s": 418,
+       "count": 1
+      }
+     },
+     {
+      "key": "longest_descent",
+      "t": 1799647740000,
+      "seed": 1034658351,
+      "p": {
+       "t1": 1799648060000,
+       "dist_m": 2804.7,
+       "drop_m": 545.2,
+       "moving_s": 229,
+       "runs": [
+        "Goodaura 1"
+       ]
+      }
+     },
+     {
+      "key": "fastest",
+      "t": 1799647824000,
+      "seed": 1744211062,
+      "p": {
+       "kmh": 60.12,
+       "at": {
+        "lat": 42.483919,
+        "lon": 44.492498
+       },
+       "kind": "run",
+       "runs": [
+        "Goodaura 1"
+       ]
+      }
+     },
+     {
+      "key": "drop_compare",
+      "t": 1799648101000,
+      "seed": 226150883,
+      "p": {
+       "ref": "azrieli",
+       "times": 2.9,
+       "drop_m": 545.2
+      }
+     }
+    ],
+    "story": [
+     0,
+     1,
+     2,
+     3
+    ],
+    "share": 2,
+    "history": {
+     "v": 1,
+     "days": 1,
+     "runs": {
+      "Goodaura 1": 1799647740000
+     },
+     "colors": {
+      "blue": 1799647740000
+     },
+     "best": {
+      "max_kmh": 60.12,
+      "drop_m": 545.2,
+      "descents": 1,
+      "longest_m": 2804.7,
+      "ski_dist_m": 2804.7
+     }
+    }
+   }
+  },
+  {
+   "name": "gps_spike",
+   "final": "gps_spike",
+   "history": {
+    "v": 1,
+    "days": 0,
+    "runs": {},
+    "colors": {},
+    "best": {}
+   },
+   "expected": {
+    "moments": 1,
+    "items": [
+     {
+      "key": "longest_descent",
+      "t": 1799645870000,
+      "seed": 482507523,
+      "p": {
+       "t1": 1799646083000,
+       "dist_m": 2785.5,
+       "drop_m": 544.8,
+       "moving_s": 213,
+       "runs": [
+        "Goodaura 1"
+       ]
+      }
+     },
+     {
+      "key": "fastest",
+      "t": 1799645965000,
+      "seed": 1980338015,
+      "p": {
+       "kmh": 73.44,
+       "at": {
+        "lat": 42.481821,
+        "lon": 44.494659
+       },
+       "kind": "run",
+       "runs": [
+        "Goodaura 1"
+       ]
+      }
+     },
+     {
+      "key": "drop_compare",
+      "t": 1799646123000,
+      "seed": 227289429,
+      "p": {
+       "ref": "azrieli",
+       "times": 2.9,
+       "drop_m": 544.8
+      }
+     }
+    ],
+    "story": [
+     0,
+     1,
+     2
+    ],
+    "share": 1,
+    "history": {
+     "v": 1,
+     "days": 1,
+     "runs": {
+      "Goodaura 1": 1799645870000
+     },
+     "colors": {
+      "blue": 1799645870000
+     },
+     "best": {
+      "max_kmh": 73.44,
+      "drop_m": 544.8,
+      "descents": 1,
+      "longest_m": 2785.5,
+      "ski_dist_m": 2785.5
+     }
+    }
+   }
+  },
+  {
+   "name": "signal_loss",
+   "final": "signal_loss",
+   "history": {
+    "v": 1,
+    "days": 0,
+    "runs": {},
+    "colors": {},
+    "best": {}
+   },
+   "expected": {
+    "moments": 1,
+    "items": [
+     {
+      "key": "longest_descent",
+      "t": 1799645870000,
+      "seed": 482507523,
+      "p": {
+       "t1": 1799646079000,
+       "dist_m": 2978.1,
+       "drop_m": 543.0,
+       "moving_s": 209,
+       "runs": [
+        "Goodaura 1"
+       ]
+      }
+     },
+     {
+      "key": "fastest",
+      "t": 1799645936000,
+      "seed": 744271809,
+      "p": {
+       "kmh": 79.49,
+       "at": {
+        "lat": 42.485658,
+        "lon": 44.492645
+       },
+       "kind": "run",
+       "runs": [
+        "Goodaura 1"
+       ]
+      }
+     },
+     {
+      "key": "drop_compare",
+      "t": 1799646120000,
+      "seed": 523863739,
+      "p": {
+       "ref": "azrieli",
+       "times": 2.9,
+       "drop_m": 543.0
+      }
+     }
+    ],
+    "story": [
+     0,
+     1,
+     2
+    ],
+    "share": 1,
+    "history": {
+     "v": 1,
+     "days": 1,
+     "runs": {
+      "Goodaura 1": 1799645870000
+     },
+     "colors": {
+      "blue": 1799645870000
+     },
+     "best": {
+      "max_kmh": 79.49,
+      "drop_m": 543.0,
+      "descents": 1,
+      "longest_m": 2978.1,
+      "ski_dist_m": 2978.1
+     }
+    }
+   }
+  },
+  {
+   "name": "crash_resume",
+   "final": "crash_resume",
+   "history": {
+    "v": 1,
+    "days": 0,
+    "runs": {},
+    "colors": {},
+    "best": {}
+   },
+   "expected": {
+    "moments": 1,
+    "items": [
+     {
+      "key": "longest_descent",
+      "t": 1799645870000,
+      "seed": 482507523,
+      "p": {
+       "t1": 1799646079000,
+       "dist_m": 2784.3,
+       "drop_m": 544.9,
+       "moving_s": 209,
+       "runs": [
+        "Goodaura 1"
+       ]
+      }
+     },
+     {
+      "key": "fastest",
+      "t": 1799645961000,
+      "seed": 2037061640,
+      "p": {
+       "kmh": 81.47,
+       "at": {
+        "lat": 42.482133,
+        "lon": 44.494618
+       },
+       "kind": "run",
+       "runs": [
+        "Goodaura 1"
+       ]
+      }
+     },
+     {
+      "key": "drop_compare",
+      "t": 1799646791000,
+      "seed": 101462994,
+      "p": {
+       "ref": "azrieli",
+       "times": 5.8,
+       "drop_m": 1088.9
+      }
+     }
+    ],
+    "story": [
+     0,
+     1,
+     2
+    ],
+    "share": 1,
+    "history": {
+     "v": 1,
+     "days": 1,
+     "runs": {
+      "Goodaura 1": 1799645870000
+     },
+     "colors": {
+      "blue": 1799645870000
+     },
+     "best": {
+      "max_kmh": 81.47,
+      "drop_m": 1088.9,
+      "descents": 2,
+      "longest_m": 2784.3,
+      "ski_dist_m": 5562.6
+     }
+    }
+   }
+  },
+  {
+   "name": "drive_down",
+   "final": "drive_down",
+   "history": {
+    "v": 1,
+    "days": 0,
+    "runs": {},
+    "colors": {},
+    "best": {}
+   },
+   "expected": {
+    "moments": 1,
+    "items": [
+     {
+      "key": "longest_descent",
+      "t": 1799646848000,
+      "seed": 792605601,
+      "p": {
+       "t1": 1799646973000,
+       "dist_m": 1242.9,
+       "drop_m": 154.5,
+       "moving_s": 125,
+       "runs": [
+        "Pirveli"
+       ]
+      }
+     },
+     {
+      "key": "fastest",
+      "t": 1799646920000,
+      "seed": 96453424,
+      "p": {
+       "kmh": 59.65,
+       "at": {
+        "lat": 42.465685,
+        "lon": 44.485055
+       },
+       "kind": "run",
+       "runs": [
+        "Pirveli"
+       ]
+      }
+     }
+    ],
+    "story": [
+     0,
+     1
+    ],
+    "share": 1,
+    "history": {
+     "v": 1,
+     "days": 1,
+     "runs": {
+      "Pirveli": 1799646848000
+     },
+     "colors": {
+      "green": 1799646848000
+     },
+     "best": {
+      "max_kmh": 59.65,
+      "drop_m": 154.5,
+      "descents": 1,
+      "longest_m": 1242.9,
+      "ski_dist_m": 1242.9
+     }
+    }
+   }
+  },
+  {
+   "name": "drive_up",
+   "final": "drive_up",
+   "history": {
+    "v": 1,
+    "days": 0,
+    "runs": {},
+    "colors": {},
+    "best": {}
+   },
+   "expected": {
+    "moments": 1,
+    "items": [
+     {
+      "key": "longest_descent",
+      "t": 1799645990000,
+      "seed": 1756239559,
+      "p": {
+       "t1": 1799646112000,
+       "dist_m": 1217.4,
+       "drop_m": 155.2,
+       "moving_s": 122,
+       "runs": [
+        "Pirveli"
+       ]
+      }
+     },
+     {
+      "key": "fastest",
+      "t": 1799646061000,
+      "seed": 1871467357,
+      "p": {
+       "kmh": 67.18,
+       "at": {
+        "lat": 42.465514,
+        "lon": 44.48502
+       },
+       "kind": "run",
+       "runs": [
+        "Pirveli"
+       ]
+      }
+     }
+    ],
+    "story": [
+     0,
+     1
+    ],
+    "share": 1,
+    "history": {
+     "v": 1,
+     "days": 1,
+     "runs": {
+      "Pirveli": 1799645990000
+     },
+     "colors": {
+      "green": 1799645990000
+     },
+     "best": {
+      "max_kmh": 67.18,
+      "drop_m": 155.2,
+      "descents": 1,
+      "longest_m": 1217.4,
+      "ski_dist_m": 1217.4
+     }
+    }
+   }
+  },
+  {
+   "name": "full_day",
+   "final": "full_day",
+   "history": {
+    "v": 1,
+    "days": 0,
+    "runs": {},
+    "colors": {},
+    "best": {}
+   },
+   "expected": {
+    "moments": 1,
+    "items": [
+     {
+      "key": "queue",
+      "t": 1799645400000,
+      "seed": 60599824,
+      "p": {
+       "s": 198,
+       "lift": "Goodaura",
+       "total_s": 810,
+       "count": 11
+      }
+     },
+     {
+      "key": "offpiste",
+      "t": 1799646902000,
+      "seed": 219128986,
+      "p": {
+       "t1": 1799646928000,
+       "drop_m": 114.8,
+       "dist_m": 435.6
+      }
+     },
+     {
+      "key": "fall",
+      "t": 1799649472677,
+      "seed": 1635846655,
+      "p": {
+       "at": {
+        "lat": 42.477372,
+        "lon": 44.492288
+       },
+       "kind": "run",
+       "runs": [
+        "Goodaura 1"
+       ]
+      }
+     },
+     {
+      "key": "longest_descent",
+      "t": 1799655888000,
+      "seed": 395101347,
+      "p": {
+       "t1": 1799656548000,
+       "dist_m": 6102.0,
+       "drop_m": 1113.2,
+       "moving_s": 569,
+       "runs": [
+        "Goodaura 1",
+        "Sadzele 1",
+        "Snow Park"
+       ]
+      }
+     },
+     {
+      "key": "first_color",
+      "t": 1799655923000,
+      "seed": 510739929,
+      "p": {
+       "color": "black",
+       "run": "Sadzele 1",
+       "first_ever": true
+      }
+     },
+     {
+      "key": "fastest",
+      "t": 1799655944000,
+      "seed": 2027928516,
+      "p": {
+       "kmh": 69.84,
+       "at": {
+        "lat": 42.510409,
+        "lon": 44.499939
+       },
+       "kind": "run",
+       "runs": [
+        "Sadzele 1"
+       ]
+      }
+     },
+     {
+      "key": "first_color",
+      "t": 1799658400000,
+      "seed": 726518601,
+      "p": {
+       "color": "red",
+       "run": "Kudebi 2",
+       "first_ever": true
+      }
+     },
+     {
+      "key": "drop_compare",
+      "t": 1799658795000,
+      "seed": 368828230,
+      "p": {
+       "ref": "eiffel",
+       "times": 16.8,
+       "drop_m": 5542.2
+      }
+     }
+    ],
+    "story": [
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "share": 4,
+    "history": {
+     "v": 1,
+     "days": 1,
+     "runs": {
+      "Goodaura 1": 1799646040000,
+      "Goodaura 2": 1799646864000,
+      "Tatra 1": 1799647544000,
+      "Tatra 2": 1799648558000,
+      "Kobi": 1799650624000,
+      "Firni 1": 1799653403000,
+      "Firni 2": 1799653470000,
+      "Snow Park": 1799654305000,
+      "Sadzele 1": 1799655923000,
+      "Bombora": 1799657684000,
+      "Kudebi 2": 1799658400000,
+      "Soliko 1": 1799658535000
+     },
+     "colors": {
+      "blue": 1799646040000,
+      "green": 1799654305000,
+      "black": 1799655923000,
+      "red": 1799658400000
+     },
+     "best": {
+      "max_kmh": 69.84,
+      "drop_m": 5542.2,
+      "descents": 12,
+      "longest_m": 6102.0,
+      "ski_dist_m": 31185.9
+     }
+    }
+   }
+  }
+ ],
+ "chain": [
+  {
+   "final": "run_single",
+   "history": {
+    "v": 1,
+    "days": 0,
+    "runs": {},
+    "colors": {},
+    "best": {}
+   },
+   "expected": {
+    "moments": 1,
+    "items": [
+     {
+      "key": "longest_descent",
+      "t": 1799645870000,
+      "seed": 482507523,
+      "p": {
+       "t1": 1799646082000,
+       "dist_m": 2775.3,
+       "drop_m": 544.9,
+       "moving_s": 212,
+       "runs": [
+        "Goodaura 1"
+       ]
+      }
+     },
+     {
+      "key": "fastest",
+      "t": 1799645944000,
+      "seed": 880130906,
+      "p": {
+       "kmh": 71.03,
+       "at": {
+        "lat": 42.484418,
+        "lon": 44.492458
+       },
+       "kind": "run",
+       "runs": [
+        "Goodaura 1"
+       ]
+      }
+     },
+     {
+      "key": "drop_compare",
+      "t": 1799646123000,
+      "seed": 227289429,
+      "p": {
+       "ref": "azrieli",
+       "times": 2.9,
+       "drop_m": 544.9
+      }
+     }
+    ],
+    "story": [
+     0,
+     1,
+     2
+    ],
+    "share": 1,
+    "history": {
+     "v": 1,
+     "days": 1,
+     "runs": {
+      "Goodaura 1": 1799645870000
+     },
+     "colors": {
+      "blue": 1799645870000
+     },
+     "best": {
+      "max_kmh": 71.03,
+      "drop_m": 544.9,
+      "descents": 1,
+      "longest_m": 2775.3,
+      "ski_dist_m": 2775.3
+     }
+    }
+   }
+  },
+  {
+   "final": "shared_tatra",
+   "history": {
+    "v": 1,
+    "days": 1,
+    "runs": {
+     "Goodaura 1": 1799645870000
+    },
+    "colors": {
+     "blue": 1799645870000
+    },
+    "best": {
+     "max_kmh": 71.03,
+     "drop_m": 544.9,
+     "descents": 1,
+     "longest_m": 2775.3,
+     "ski_dist_m": 2775.3
+    }
+   },
+   "expected": {
+    "moments": 1,
+    "items": [
+     {
+      "key": "new_runs",
+      "t": 1799645925000,
+      "seed": 1462768693,
+      "p": {
+       "runs": [
+        "Tatra 1",
+        "Tatra 2"
+       ]
+      }
+     },
+     {
+      "key": "longest_descent",
+      "t": 1799645925000,
+      "seed": 681629668,
+      "p": {
+       "t1": 1799646151000,
+       "dist_m": 2762.3,
+       "drop_m": 537.3,
+       "moving_s": 226,
+       "runs": [
+        "Tatra 2",
+        "Tatra 1"
+       ]
+      }
+     },
+     {
+      "key": "fastest",
+      "t": 1799646027000,
+      "seed": 1063758401,
+      "p": {
+       "kmh": 57.89,
+       "at": {
+        "lat": 42.4875,
+        "lon": 44.485393
+       },
+       "kind": "run",
+       "runs": [
+        "Tatra 2"
+       ]
+      }
+     },
+     {
+      "key": "drop_compare",
+      "t": 1799646192000,
+      "seed": 1122008865,
+      "p": {
+       "ref": "azrieli",
+       "times": 2.9,
+       "drop_m": 537.3
+      }
+     }
+    ],
+    "story": [
+     0,
+     1,
+     2,
+     3
+    ],
+    "share": 2,
+    "history": {
+     "v": 1,
+     "days": 2,
+     "runs": {
+      "Goodaura 1": 1799645870000,
+      "Tatra 1": 1799645925000,
+      "Tatra 2": 1799645977000
+     },
+     "colors": {
+      "blue": 1799645870000
+     },
+     "best": {
+      "max_kmh": 71.03,
+      "drop_m": 544.9,
+      "descents": 1,
+      "longest_m": 2775.3,
+      "ski_dist_m": 2775.3
+     }
+    }
+   }
+  },
+  {
+   "final": "full_day",
+   "history": {
+    "v": 1,
+    "days": 2,
+    "runs": {
+     "Goodaura 1": 1799645870000,
+     "Tatra 1": 1799645925000,
+     "Tatra 2": 1799645977000
+    },
+    "colors": {
+     "blue": 1799645870000
+    },
+    "best": {
+     "max_kmh": 71.03,
+     "drop_m": 544.9,
+     "descents": 1,
+     "longest_m": 2775.3,
+     "ski_dist_m": 2775.3
+    }
+   },
+   "expected": {
+    "moments": 1,
+    "items": [
+     {
+      "key": "queue",
+      "t": 1799645400000,
+      "seed": 60599824,
+      "p": {
+       "s": 198,
+       "lift": "Goodaura",
+       "total_s": 810,
+       "count": 11
+      }
+     },
+     {
+      "key": "new_runs",
+      "t": 1799646864000,
+      "seed": 1622678696,
+      "p": {
+       "runs": [
+        "Goodaura 2",
+        "Kobi",
+        "Firni 1",
+        "Firni 2",
+        "Snow Park",
+        "Sadzele 1",
+        "Bombora",
+        "Kudebi 2",
+        "Soliko 1"
+       ]
+      }
+     },
+     {
+      "key": "offpiste",
+      "t": 1799646902000,
+      "seed": 219128986,
+      "p": {
+       "t1": 1799646928000,
+       "drop_m": 114.8,
+       "dist_m": 435.6
+      }
+     },
+     {
+      "key": "fall",
+      "t": 1799649472677,
+      "seed": 1635846655,
+      "p": {
+       "at": {
+        "lat": 42.477372,
+        "lon": 44.492288
+       },
+       "kind": "run",
+       "runs": [
+        "Goodaura 1"
+       ]
+      }
+     },
+     {
+      "key": "record",
+      "t": 1799655888000,
+      "seed": 825907260,
+      "p": {
+       "what": "longest_m",
+       "value": 6102.0,
+       "before": 2775.3
+      }
+     },
+     {
+      "key": "longest_descent",
+      "t": 1799655888000,
+      "seed": 395101347,
+      "p": {
+       "t1": 1799656548000,
+       "dist_m": 6102.0,
+       "drop_m": 1113.2,
+       "moving_s": 569,
+       "runs": [
+        "Goodaura 1",
+        "Sadzele 1",
+        "Snow Park"
+       ]
+      }
+     },
+     {
+      "key": "first_color",
+      "t": 1799655923000,
+      "seed": 510739929,
+      "p": {
+       "color": "black",
+       "run": "Sadzele 1",
+       "first_ever": true
+      }
+     },
+     {
+      "key": "fastest",
+      "t": 1799655944000,
+      "seed": 2027928516,
+      "p": {
+       "kmh": 69.84,
+       "at": {
+        "lat": 42.510409,
+        "lon": 44.499939
+       },
+       "kind": "run",
+       "runs": [
+        "Sadzele 1"
+       ]
+      }
+     },
+     {
+      "key": "first_color",
+      "t": 1799658400000,
+      "seed": 726518601,
+      "p": {
+       "color": "red",
+       "run": "Kudebi 2",
+       "first_ever": true
+      }
+     },
+     {
+      "key": "record",
+      "t": 1799658795000,
+      "seed": 1857124932,
+      "p": {
+       "what": "drop_m",
+       "value": 5542.2,
+       "before": 544.9
+      }
+     },
+     {
+      "key": "record",
+      "t": 1799658795000,
+      "seed": 1857124932,
+      "p": {
+       "what": "descents",
+       "value": 12,
+       "before": 1
+      }
+     },
+     {
+      "key": "record",
+      "t": 1799658795000,
+      "seed": 1857124932,
+      "p": {
+       "what": "ski_dist_m",
+       "value": 31185.9,
+       "before": 2775.3
+      }
+     },
+     {
+      "key": "drop_compare",
+      "t": 1799658795000,
+      "seed": 368828230,
+      "p": {
+       "ref": "eiffel",
+       "times": 16.8,
+       "drop_m": 5542.2
+      }
+     }
+    ],
+    "story": [
+     2,
+     3,
+     4,
+     6,
+     7
+    ],
+    "share": 6,
+    "history": {
+     "v": 1,
+     "days": 3,
+     "runs": {
+      "Goodaura 1": 1799645870000,
+      "Tatra 1": 1799645925000,
+      "Tatra 2": 1799645977000,
+      "Goodaura 2": 1799646864000,
+      "Kobi": 1799650624000,
+      "Firni 1": 1799653403000,
+      "Firni 2": 1799653470000,
+      "Snow Park": 1799654305000,
+      "Sadzele 1": 1799655923000,
+      "Bombora": 1799657684000,
+      "Kudebi 2": 1799658400000,
+      "Soliko 1": 1799658535000
+     },
+     "colors": {
+      "blue": 1799645870000,
+      "green": 1799654305000,
+      "black": 1799655923000,
+      "red": 1799658400000
+     },
+     "best": {
+      "max_kmh": 71.03,
+      "drop_m": 5542.2,
+      "descents": 12,
+      "longest_m": 6102.0,
+      "ski_dist_m": 31185.9
+     }
+    }
+   }
+  },
+  {
+   "final": "run_from_middle",
+   "history": {
+    "v": 1,
+    "days": 3,
+    "runs": {
+     "Goodaura 1": 1799645870000,
+     "Tatra 1": 1799645925000,
+     "Tatra 2": 1799645977000,
+     "Goodaura 2": 1799646864000,
+     "Kobi": 1799650624000,
+     "Firni 1": 1799653403000,
+     "Firni 2": 1799653470000,
+     "Snow Park": 1799654305000,
+     "Sadzele 1": 1799655923000,
+     "Bombora": 1799657684000,
+     "Kudebi 2": 1799658400000,
+     "Soliko 1": 1799658535000
+    },
+    "colors": {
+     "blue": 1799645870000,
+     "green": 1799654305000,
+     "black": 1799655923000,
+     "red": 1799658400000
+    },
+    "best": {
+     "max_kmh": 71.03,
+     "drop_m": 5542.2,
+     "descents": 12,
+     "longest_m": 6102.0,
+     "ski_dist_m": 31185.9
+    }
+   },
+   "expected": {
+    "moments": 1,
+    "items": [
+     {
+      "key": "longest_descent",
+      "t": 1799645409000,
+      "seed": 606611682,
+      "p": {
+       "t1": 1799645545000,
+       "dist_m": 1670.9,
+       "drop_m": 301.3,
+       "moving_s": 136,
+       "runs": [
+        "Goodaura 1"
+       ]
+      }
+     },
+     {
+      "key": "record",
+      "t": 1799645430000,
+      "seed": 943096103,
+      "p": {
+       "what": "max_kmh",
+       "value": 71.71,
+       "before": 71.03
+      }
+     },
+     {
+      "key": "fastest",
+      "t": 1799645430000,
+      "seed": 900326339,
+      "p": {
+       "kmh": 71.71,
+       "at": {
+        "lat": 42.481496,
+        "lon": 44.494639
+       },
+       "kind": "run",
+       "runs": [
+        "Goodaura 1"
+       ]
+      }
+     }
+    ],
+    "story": [
+     0,
+     1,
+     2
+    ],
+    "share": 1,
+    "history": {
+     "v": 1,
+     "days": 3,
+     "runs": {
+      "Goodaura 1": 1799645870000,
+      "Tatra 1": 1799645925000,
+      "Tatra 2": 1799645977000,
+      "Goodaura 2": 1799646864000,
+      "Kobi": 1799650624000,
+      "Firni 1": 1799653403000,
+      "Firni 2": 1799653470000,
+      "Snow Park": 1799654305000,
+      "Sadzele 1": 1799655923000,
+      "Bombora": 1799657684000,
+      "Kudebi 2": 1799658400000,
+      "Soliko 1": 1799658535000
+     },
+     "colors": {
+      "blue": 1799645409000,
+      "green": 1799654305000,
+      "black": 1799655923000,
+      "red": 1799658400000
+     },
+     "best": {
+      "max_kmh": 71.71,
+      "drop_m": 5542.2,
+      "descents": 12,
+      "longest_m": 6102.0,
+      "ski_dist_m": 31185.9
+     }
+    }
+   }
+  }
+ ],
+ "lift_cards": [
+  {
+   "name": "full_day, ride 1, half way",
+   "until": 1799645809500,
+   "final": {
+    "analysis": 2,
+    "v": 1,
+    "resort": "gudauri",
+    "mode": "day",
+    "points": 410,
+    "start": 1799645400000,
+    "end": 1799645809000,
+    "baro": true,
+    "coverage": 1.0,
+    "gaps": [],
+    "falls": [],
+    "segments": [
+     {
+      "type": "stop",
+      "t0": 1799645400000,
+      "t1": 1799645598000,
+      "lat": 42.471149,
+      "lon": 44.492193,
+      "kind": "queue"
+     },
+     {
+      "type": "lift",
+      "t0": 1799645599000,
+      "t1": 1799645809000,
+      "lift": "158744075",
+      "name": "Goodaura",
+      "from": {
+       "station": "bottom"
+      },
+      "to": {
+       "station": null,
+       "unmapped": true
+      },
+      "rise_m": 272.2
+     }
+    ],
+    "stats": {
+     "descents": 0,
+     "lifts": 1,
+     "ski_dist_m": 0,
+     "drop_m": 0,
+     "ski_s": 0,
+     "lift_s": 210,
+     "lift_rise_m": 272.2,
+     "max_kmh": null,
+     "max_at": null
+    }
+   },
+   "expected": null
+  },
+  {
+   "name": "full_day, ride 2, half way",
+   "until": 1799646558500,
+   "final": {
+    "analysis": 2,
+    "v": 1,
+    "resort": "gudauri",
+    "mode": "day",
+    "points": 1159,
+    "start": 1799645400000,
+    "end": 1799646558000,
+    "baro": true,
+    "coverage": 1.0,
+    "gaps": [],
+    "falls": [],
+    "segments": [
+     {
+      "type": "stop",
+      "t0": 1799645400000,
+      "t1": 1799645598000,
+      "lat": 42.471149,
+      "lon": 44.492193,
+      "kind": "queue"
+     },
+     {
+      "type": "lift",
+      "t0": 1799645599000,
+      "t1": 1799646019000,
+      "lift": "158744075",
+      "name": "Goodaura",
+      "from": {
+       "station": "bottom"
+      },
+      "to": {
+       "station": "top"
+      },
+      "rise_m": 544.3
+     },
+     {
+      "type": "stop",
+      "t0": 1799646020000,
+      "t1": 1799646039000,
+      "lat": 42.492405,
+      "lon": 44.494283,
+      "kind": "rest"
+     },
+     {
+      "type": "descent",
+      "t0": 1799646040000,
+      "t1": 1799646287000,
+      "legs": [
+       {
+        "t0": 1799646040000,
+        "t1": 1799646256000,
+        "kind": "run",
+        "runs": [
+         "Goodaura 1"
+        ],
+        "dist_m": 2607.0
+       },
+       {
+        "t0": 1799646257000,
+        "t1": 1799646264000,
+        "kind": "run",
+        "runs": [
+         "Goodaura 1",
+         "Shino"
+        ],
+        "dist_m": 102.1
+       },
+       {
+        "t0": 1799646265000,
+        "t1": 1799646287000,
+        "kind": "run",
+        "runs": [
+         "Goodaura 1"
+        ],
+        "dist_m": 187.7
+       }
+      ],
+      "dist_m": 2896.8,
+      "drop_m": 546.0,
+      "moving_s": 220,
+      "avg_kmh": 47.4,
+      "max_kmh": 68.15,
+      "max_at": {
+       "t": 1799646106000,
+       "lat": 42.486026,
+       "lon": 44.492472
+      },
+      "stops": [
+       {
+        "t0": 1799646175000,
+        "t1": 1799646200000
+       }
+      ],
+      "offpiste": [],
+      "top_m": 2705.7,
+      "bottom_m": 2161.3
+     },
+     {
+      "type": "stop",
+      "t0": 1799646288000,
+      "t1": 1799646348000,
+      "lat": 42.471119,
+      "lon": 44.492162,
+      "kind": "queue"
+     },
+     {
+      "type": "lift",
+      "t0": 1799646349000,
+      "t1": 1799646558000,
+      "lift": "158744075",
+      "name": "Goodaura",
+      "from": {
+       "station": "bottom"
+      },
+      "to": {
+       "station": null,
+       "unmapped": true
+      },
+      "rise_m": 272.9
+     }
+    ],
+    "stats": {
+     "descents": 1,
+     "lifts": 2,
+     "ski_dist_m": 2896.8,
+     "drop_m": 546.0,
+     "ski_s": 220,
+     "lift_s": 629,
+     "lift_rise_m": 817.2,
+     "max_kmh": 68.15,
+     "max_at": {
+      "t": 1799646106000,
+      "lat": 42.486026,
+      "lon": 44.492472
+     }
+    }
+   },
+   "expected": {
+    "key": "last_descent",
+    "t": 1799646040000,
+    "seed": 364274894,
+    "p": {
+     "t1": 1799646287000,
+     "runs": [
+      "Goodaura 1"
+     ],
+     "dist_m": 2896.8,
+     "drop_m": 546.0,
+     "moving_s": 220,
+     "max_kmh": 68.15,
+     "falls": 0
+    }
+   }
+  },
+  {
+   "name": "full_day, ride 6, half way",
+   "until": 1799649867500,
+   "final": {
+    "analysis": 2,
+    "v": 1,
+    "resort": "gudauri",
+    "mode": "day",
+    "points": 4468,
+    "start": 1799645400000,
+    "end": 1799649867000,
+    "baro": true,
+    "coverage": 1.0,
+    "gaps": [],
+    "falls": [
+     {
+      "t": 1799649472677,
+      "lat": 42.477372,
+      "lon": 44.492288
+     }
+    ],
+    "segments": [
+     {
+      "type": "stop",
+      "t0": 1799645400000,
+      "t1": 1799645598000,
+      "lat": 42.471149,
+      "lon": 44.492193,
+      "kind": "queue"
+     },
+     {
+      "type": "lift",
+      "t0": 1799645599000,
+      "t1": 1799646019000,
+      "lift": "158744075",
+      "name": "Goodaura",
+      "from": {
+       "station": "bottom"
+      },
+      "to": {
+       "station": "top"
+      },
+      "rise_m": 544.3
+     },
+     {
+      "type": "stop",
+      "t0": 1799646020000,
+      "t1": 1799646039000,
+      "lat": 42.492405,
+      "lon": 44.494283,
+      "kind": "rest"
+     },
+     {
+      "type": "descent",
+      "t0": 1799646040000,
+      "t1": 1799646287000,
+      "legs": [
+       {
+        "t0": 1799646040000,
+        "t1": 1799646256000,
+        "kind": "run",
+        "runs": [
+         "Goodaura 1"
+        ],
+        "dist_m": 2607.0
+       },
+       {
+        "t0": 1799646257000,
+        "t1": 1799646264000,
+        "kind": "run",
+        "runs": [
+         "Goodaura 1",
+         "Shino"
+        ],
+        "dist_m": 102.1
+       },
+       {
+        "t0": 1799646265000,
+        "t1": 1799646287000,
+        "kind": "run",
+        "runs": [
+         "Goodaura 1"
+        ],
+        "dist_m": 187.7
+       }
+      ],
+      "dist_m": 2896.8,
+      "drop_m": 546.0,
+      "moving_s": 220,
+      "avg_kmh": 47.4,
+      "max_kmh": 68.15,
+      "max_at": {
+       "t": 1799646106000,
+       "lat": 42.486026,
+       "lon": 44.492472
+      },
+      "stops": [
+       {
+        "t0": 1799646175000,
+        "t1": 1799646200000
+       }
+      ],
+      "offpiste": [],
+      "top_m": 2705.7,
+      "bottom_m": 2161.3
+     },
+     {
+      "type": "stop",
+      "t0": 1799646288000,
+      "t1": 1799646348000,
+      "lat": 42.471119,
+      "lon": 44.492162,
+      "kind": "queue"
+     },
+     {
+      "type": "lift",
+      "t0": 1799646349000,
+      "t1": 1799646768000,
+      "lift": "158744075",
+      "name": "Goodaura",
+      "from": {
+       "station": "bottom"
+      },
+      "to": {
+       "station": "top"
+      },
+      "rise_m": 544.2
+     },
+     {
+      "type": "stop",
+      "t0": 1799646769000,
+      "t1": 1799646788000,
+      "lat": 42.492389,
+      "lon": 44.494261,
+      "kind": "rest"
+     },
+     {
+      "type": "descent",
+      "t0": 1799646789000,
+      "t1": 1799647047000,
+      "legs": [
+       {
+        "t0": 1799646789000,
+        "t1": 1799646858000,
+        "kind": "run",
+        "runs": [
+         "Goodaura 1"
+        ],
+        "dist_m": 865.0
+       },
+       {
+        "t0": 1799646859000,
+        "t1": 1799646863000,
+        "kind": "off",
+        "runs": [],
+        "dist_m": 81.2
+       },
+       {
+        "t0": 1799646864000,
+        "t1": 1799646901000,
+        "kind": "run",
+        "runs": [
+         "Goodaura 2"
+        ],
+        "dist_m": 353.3
+       },
+       {
+        "t0": 1799646902000,
+        "t1": 1799646929000,
+        "kind": "off",
+        "runs": [],
+        "dist_m": 466.0
+       },
+       {
+        "t0": 1799646930000,
+        "t1": 1799646938000,
+        "kind": "run",
+        "runs": [
+         "Goodaura 2"
+        ],
+        "dist_m": 130.1
+       },
+       {
+        "t0": 1799646939000,
+        "t1": 1799647016000,
+        "kind": "run",
+        "runs": [
+         "Goodaura 1"
+        ],
+        "dist_m": 956.0
+       },
+       {
+        "t0": 1799647017000,
+        "t1": 1799647025000,
+        "kind": "run",
+        "runs": [
+         "Goodaura 1",
+         "Shino"
+        ],
+        "dist_m": 113.5
+       },
+       {
+        "t0": 1799647026000,
+        "t1": 1799647047000,
+        "kind": "run",
+        "runs": [
+         "Goodaura 1"
+        ],
+        "dist_m": 167.2
+       }
+      ],
+      "dist_m": 3132.5,
+      "drop_m": 567.9,
+      "moving_s": 258,
+      "avg_kmh": 43.71,
+      "max_kmh": 68.4,
+      "max_at": {
+       "t": 1799646841000,
+       "lat": 42.48768,
+       "lon": 44.494242
+      },
+      "stops": [],
+      "offpiste": [
+       {
+        "t0": 1799646902000,
+        "t1": 1799646928000,
+        "drop_m": 114.8,
+        "dist_m": 435.6
+       }
+      ],
+      "top_m": 2705.7,
+      "bottom_m": 2161.3
+     },
+     {
+      "type": "stop",
+      "t0": 1799647048000,
+      "t1": 1799647092000,
+      "lat": 42.471135,
+      "lon": 44.492158,
+      "kind": "queue"
+     },
+     {
+      "type": "lift",
+      "t0": 1799647093000,
+      "t1": 1799647512000,
+      "lift": "158744075",
+      "name": "Goodaura",
+      "from": {
+       "station": "bottom"
+      },
+      "to": {
+       "station": "top"
+      },
+      "rise_m": 544.2
+     },
+     {
+      "type": "stop",
+      "t0": 1799647513000,
+      "t1": 1799647543000,
+      "lat": 42.492404,
+      "lon": 44.494257,
+      "kind": "rest"
+     },
+     {
+      "type": "descent",
+      "t0": 1799647544000,
+      "t1": 1799647773000,
+      "legs": [
+       {
+        "t0": 1799647544000,
+        "t1": 1799647709000,
+        "kind": "run",
+        "runs": [
+         "Tatra 1"
+        ],
+        "dist_m": 2126.3
+       },
+       {
+        "t0": 1799647710000,
+        "t1": 1799647773000,
+        "kind": "run",
+        "runs": [
+         "Tatra 1",
+         "Tatra 2"
+        ],
+        "dist_m": 830.0
+       }
+      ],
+      "dist_m": 2956.3,
+      "drop_m": 531.5,
+      "moving_s": 229,
+      "avg_kmh": 46.47,
+      "max_kmh": 65.56,
+      "max_at": {
+       "t": 1799647634000,
+       "lat": 42.488951,
+       "lon": 44.483957
+      },
+      "stops": [],
+      "offpiste": [],
+      "top_m": 2705.9,
+      "bottom_m": 2172.9
+     },
+     {
+      "type": "stop",
+      "t0": 1799647774000,
+      "t1": 1799647802000,
+      "lat": 42.473587,
+      "lon": 44.48285,
+      "kind": "queue"
+     },
+     {
+      "type": "lift",
+      "t0": 1799647803000,
+      "t1": 1799648489000,
+      "lift": "472374253",
+      "name": "Shino",
+      "from": {
+       "station": "bottom"
+      },
+      "to": {
+       "station": "top"
+      },
+      "rise_m": 535.8
+     },
+     {
+      "type": "stop",
+      "t0": 1799648490000,
+      "t1": 1799648505000,
+      "lat": 42.492807,
+      "lon": 44.494113,
+      "kind": "rest"
+     },
+     {
+      "type": "descent",
+      "t0": 1799648506000,
+      "t1": 1799648725000,
+      "legs": [
+       {
+        "t0": 1799648506000,
+        "t1": 1799648557000,
+        "kind": "run",
+        "runs": [
+         "Tatra 1"
+        ],
+        "dist_m": 438.5
+       },
+       {
+        "t0": 1799648558000,
+        "t1": 1799648661000,
+        "kind": "run",
+        "runs": [
+         "Tatra 2"
+        ],
+        "dist_m": 1480.3
+       },
+       {
+        "t0": 1799648662000,
+        "t1": 1799648725000,
+        "kind": "run",
+        "runs": [
+         "Tatra 1",
+         "Tatra 2"
+        ],
+        "dist_m": 842.4
+       }
+      ],
+      "dist_m": 2761.2,
+      "drop_m": 534.9,
+      "moving_s": 219,
+      "avg_kmh": 45.39,
+      "max_kmh": 67.68,
+      "max_at": {
+       "t": 1799648623000,
+       "lat": 42.485204,
+       "lon": 44.484686
+      },
+      "stops": [],
+      "offpiste": [],
+      "top_m": 2709.2,
+      "bottom_m": 2173.0
+     },
+     {
+      "type": "stop",
+      "t0": 1799648726000,
+      "t1": 1799648755000,
+      "lat": 42.473562,
+      "lon": 44.482853,
+      "kind": "queue"
+     },
+     {
+      "type": "lift",
+      "t0": 1799648756000,
+      "t1": 1799649236000,
+      "lift": "472374253",
+      "name": "Shino",
+      "from": {
+       "station": "bottom"
+      },
+      "to": {
+       "station": "top"
+      },
+      "rise_m": 535.9
+     },
+     {
+      "type": "stop",
+      "t0": 1799649237000,
+      "t1": 1799649251000,
+      "lat": 42.492797,
+      "lon": 44.494123,
+      "kind": "rest"
+     },
+     {
+      "type": "descent",
+      "t0": 1799649252000,
+      "t1": 1799649566000,
+      "legs": [
+       {
+        "t0": 1799649252000,
+        "t1": 1799649535000,
+        "kind": "run",
+        "runs": [
+         "Goodaura 1"
+        ],
+        "dist_m": 2572.3
+       },
+       {
+        "t0": 1799649536000,
+        "t1": 1799649544000,
+        "kind": "run",
+        "runs": [
+         "Goodaura 1",
+         "Shino"
+        ],
+        "dist_m": 113.1
+       },
+       {
+        "t0": 1799649545000,
+        "t1": 1799649566000,
+        "kind": "run",
+        "runs": [
+         "Goodaura 1"
+        ],
+        "dist_m": 172.6
+       }
+      ],
+      "dist_m": 2858.0,
+      "drop_m": 547.0,
+      "moving_s": 232,
+      "avg_kmh": 44.35,
+      "max_kmh": 68.4,
+      "max_at": {
+       "t": 1799649430000,
+       "lat": 42.482438,
+       "lon": 44.494593
+      },
+      "stops": [
+       {
+        "t0": 1799649345000,
+        "t1": 1799649414000
+       },
+       {
+        "t0": 1799649474000,
+        "t1": 1799649483000
+       }
+      ],
+      "offpiste": [],
+      "top_m": 2709.0,
+      "bottom_m": 2161.5
+     },
+     {
+      "type": "stop",
+      "t0": 1799649567000,
+      "t1": 1799649656000,
+      "lat": 42.47113,
+      "lon": 44.492189,
+      "kind": "queue"
+     },
+     {
+      "type": "lift",
+      "t0": 1799649657000,
+      "t1": 1799649867000,
+      "lift": "158744075",
+      "name": "Goodaura",
+      "from": {
+       "station": "bottom"
+      },
+      "to": {
+       "station": null,
+       "unmapped": true
+      },
+      "rise_m": 269.7
+     }
+    ],
+    "stats": {
+     "descents": 5,
+     "lifts": 6,
+     "ski_dist_m": 14604.8,
+     "drop_m": 2727.3,
+     "ski_s": 1158,
+     "lift_s": 2634,
+     "lift_rise_m": 2974.1,
+     "max_kmh": 68.4,
+     "max_at": {
+      "t": 1799646841000,
+      "lat": 42.48768,
+      "lon": 44.494242
+     }
+    }
+   },
+   "expected": {
+    "key": "last_descent",
+    "t": 1799649252000,
+    "seed": 962548759,
+    "p": {
+     "t1": 1799649566000,
+     "runs": [
+      "Goodaura 1"
+     ],
+     "dist_m": 2858.0,
+     "drop_m": 547.0,
+     "moving_s": 232,
+     "max_kmh": 68.4,
+     "falls": 1
+    }
+   }
+  }
+ ]
+}

@@ -209,6 +209,45 @@ class Day:
             self.ski_line(ln, s0, s1, events=events)
         return self
 
+    def road(self, *parts):
+        """A road of the terrain model as one line: parts are (road index, reversed), joined end to end."""
+        import net as netmod
+        pts = []
+        for i, rev in parts:
+            p = list(self.net.roads[i].p)
+            if rev:
+                p.reverse()
+            pts += p if not pts else p[1:]
+        return netmod.Line(pts)
+
+    def drive(self, ln, vmax=13.0, stop=None):
+        """Drive a car along a road line: up to vmax, slower in the bends, from and to a standstill.
+        stop=(fraction, secs): a stop on the way (a junction, a car in front)."""
+        T = self.net.terrain
+        if self.pos and math.hypot(ln.p[0][0] - self.pos[0], ln.p[0][1] - self.pos[1]) > 3:
+            self.walk_to(*ln.p[0])
+        s, v = 0.0, 0.0
+        stopped = stop is None
+        while s < ln.length - 0.5:
+            (_, _), (ux, uy) = ln.at(s)
+            (_, _), (wx, wy) = ln.at(min(ln.length, s + 40))
+            bend = math.acos(max(-1.0, min(1.0, ux * wx + uy * wy)))
+            target = max(4.0, vmax * (1.0 - min(0.7, bend / 1.2)))
+            left = ln.length - s
+            if not stopped:
+                left = min(left, stop[0] * ln.length - s)
+            target = min(target, math.sqrt(max(0.0, 2 * 1.5 * left)) + 0.5)
+            v += max(-2.5, min(2.0, target - v))
+            s = min(ln.length, s + v)
+            (x, y), _ = ln.at(s)
+            self._emit(x, y, T.elev(x, y), 'drive')
+            if not stopped and s >= stop[0] * ln.length - 1:
+                stopped = True
+                v = 0.0
+                for _ in range(int(stop[1])):
+                    self._emit(x, y, T.elev(x, y), 'drive')
+        return self
+
     def offpiste(self, key, seg, a, b, dist):
         """Ski a run line from a to b (fractions), going `dist` metres to the side and back in between."""
         ln = self.run_line(key, seg)
@@ -270,7 +309,7 @@ def true_velocity(rows, i):
 EVENT_KINDS = ('fall', 'jump', 'pocket', 'bump', 'hockey')
 
 
-HACC = {'stand': 6.0, 'walk': 6.0, 'ski': 5.0, 'lift': 6.0}
+HACC = {'stand': 6.0, 'walk': 6.0, 'ski': 5.0, 'lift': 6.0, 'drive': 5.0}
 
 
 def sense(net, day, seed, baro=True, gondola_hacc=12.0, device='synthetic'):
@@ -301,7 +340,7 @@ def sense(net, day, seed, baro=True, gondola_hacc=12.0, device='synthetic'):
         if baro:
             drift = 8.0 * (r['t'] - day.t0) / 10800000.0
             p = 1013.25 * (1 - (r['z'] + drift) / 44330.77) ** (1 / 0.190263) + rng.gauss(0, 0.008)
-        mv = {'stand': 0.02, 'lift': 0.06, 'walk': 1.2, 'ski': 2.5}[r['act']] * math.exp(rng.gauss(0, 0.4))
+        mv = {'stand': 0.02, 'lift': 0.06, 'walk': 1.2, 'ski': 2.5, 'drive': 0.3}[r['act']] * math.exp(rng.gauss(0, 0.4))
         la, lo = net.proj.ll(r['x'] + ex, r['y'] + ey)
         out.append({'t': r['t'], 'la': round(la, 7), 'lo': round(lo, 7), 'a': round(alt, 1),
                     'p': round(p, 3) if p is not None else None, 's': round(s, 2), 'sa': sa,

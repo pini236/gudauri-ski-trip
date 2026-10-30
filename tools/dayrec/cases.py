@@ -19,6 +19,12 @@ SADZELE1 = ('Sadzele 1', 1478541348)
 KOBI = ('Kobi', 668794718)
 FIRNI1 = ('Firni 1', 668794719)
 FIRNI2 = ('Firni 2', 668794719)
+PIRVELI = ('Pirveli', 158744076)
+
+# the main road through Gudauri, from the terrain model (site/data/terrain.json env.roads): two ways joined at the
+# bend above the Pirveli lift; down is both backwards, 185 then 50, about 3.4 km and 250 m
+ROAD_DOWN = ((185, True), (50, True))
+ROAD_UP = ((50, False), (185, False))
 
 # a station that is NOT in the data: only to exercise lifts[].mid (docs/ARCHITECTURE.md m-8, answer 4)
 MID_PATCH_U = 0.55
@@ -130,6 +136,20 @@ def crash_resume(d):
     start(d, 'Goodaura').stand(30).ride('Goodaura').stand(20).ski(*G1).stand(30).ride('Goodaura').stand(20).ski(*G1).stand(30)
 
 
+def drive_down(d):
+    """Down the main road by car (a stop at a junction on the way), parked, walked to the Pirveli lift, one run."""
+    ln = d.road(*ROAD_DOWN)
+    d.at(*ln.p[0]).stand(30).drive(ln, stop=(0.5, 25)).stand(60)
+    d.walk_to_lift('Pirveli').stand(40).ride('Pirveli').stand(20).ski(*PIRVELI, frm='start').stand(40)
+
+
+def drive_up(d):
+    """One run on Pirveli, a walk to the car, and up the main road by car."""
+    start(d, 'Pirveli').stand(30).ride('Pirveli').stand(20).ski(*PIRVELI, frm='start').stand(30)
+    ln = d.road(*ROAD_UP)
+    d.walk_to(*ln.p[0]).stand(45).drive(ln).stand(40)
+
+
 def full_day(d):
     g = d.lift('Goodaura')
     d.at(*g.line.p[0]).stand(200)
@@ -177,5 +197,7 @@ CASES = [
     ('gps_spike', gps_spike, 'One reading of 100 km/h with a jump of the position, in the middle of the descent.', {'spike': 0.45}),
     ('signal_loss', signal_loss, 'No readings for a minute in the middle of the descent.', {'loss': (0.4, 60)}),
     ('crash_resume', crash_resume, 'The app was killed: the last line is cut in half, 90 seconds are missing, then a resume event.', {'crash': 0.5}),
+    ('drive_down', drive_down, 'Down the main road by car with a stop on the way, then the Pirveli lift and one run: the car is "drive", not a descent.', {}),
+    ('drive_up', drive_up, 'One run on Pirveli, then up the main road by car: "drive", not an ascent.', {}),
     ('full_day', full_day, 'A full day: 13 rides on 8 lifts (one slow, one stopped), Tatra 2 with the shared stretch, off-piste, Kobi, lunch, a minute without signal, and falls, jumps and bumps on the way.', {'events': True}),
 ]
