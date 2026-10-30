@@ -31,6 +31,7 @@
 | אפל: חשבון ו-App Store | `docs/APPLE.md` | סשן ליווי החשבון | `session_01AjoD5yuhiyvk3kHGBuQVt1` | צעדים 1 עד 5 בוצעו (21.10.2026, Team ID `ZX5CTJ88UA`, DSA: לא סוחר, המזהה והאפליקציה ב-App Store Connect); הבא: תעודה, פרופיל, מפתח API וסודות |
 | תשתיות ו-CI | `.github/workflows/`, `docs/OPERATIONS.md` | איש ה-DevOps (קבוע) | `session_01B7WsKFuWhyvYcU9VQLfMRW` | (החלטה 66) צנרת האמולטור (ניסיון חוזר, `auto`, זוגות חלקים) בענף `claude/ops-qa`; `ios-release.yml` ממוזג. שירותים חיים: קריאה בלבד |
 | ארכיטקטורה | `docs/ARCHITECTURE.md`, `docs/ROLE-ARCHITECT.md` | ארכיטקט המערכת (קבוע) | `session_01JUxNys6FzfkFTAFyHbYdCe` | קו הבסיס הושלם (`docs/ARCHITECTURE.md`). מ-2, מ-6 ו-מ-7 אושרו (החלטה 58); החוזה של `/api/weather` ו-`/api/status` אושר עם תיקונים (5.10.2026). זמין לשאלות ולסקירות תכנון |
+| יום הגלישה: אלגוריתם | `tools/dayrec/`, `tools/fixtures/dayrec-*` | סשן אלגוריתם הייחוס | `session_017QrNw79sojt4mVesBZ6HbJ` | (החלטה 76) המימוש הייחוס בפייתון, קובץ הפרמטרים וערכי הבדיקה, לפני קוד בלקוחות (מ-8, תנאי 4) |
 | שפות | `i18n/` | משותף: כל סשן מוסיף רק מפתחות של התחום שלו | | |
 | מסמכים | `docs/`, `README.md`, `CLAUDE.md` | משותף: ממזגים את הענף הראשי לפני כל דחיפה, ובהתנגשות שומרים את שני הצדדים | | |
 
