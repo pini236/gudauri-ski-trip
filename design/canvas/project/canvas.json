@@ -2879,7 +2879,7 @@
       "x": 0,
       "y": 0,
       "w": 600,
-      "h": 1280,
+      "h": 1340,
       "page": "round29",
       "title": "מה לאשר בסבב 29"
     },
@@ -2940,7 +2940,7 @@
       "title": "ד. הימים שלי: היסטוריה, מחיקה וייצוא"
     },
     "R29-Spec.dc.html": {
-      "x": 1620,
+      "x": 4336,
       "y": 5105,
       "w": 640,
       "h": 900,
@@ -2949,7 +2949,7 @@
     },
     "R29-States.dc.html": {
       "x": 680,
-      "y": 6489,
+      "y": 6573,
       "w": 4634,
       "h": 1004,
       "page": "round29",
@@ -2957,7 +2957,7 @@
     },
     "R29-Moat.dc.html": {
       "x": 680,
-      "y": 7913,
+      "y": 7997,
       "w": 2556,
       "h": 1026,
       "page": "round29",
@@ -2965,7 +2965,7 @@
     },
     "R29-Data.dc.html": {
       "x": 4036,
-      "y": 7913,
+      "y": 7997,
       "w": 640,
       "h": 1000,
       "page": "round29",
@@ -2973,7 +2973,7 @@
     },
     "R29-Market.dc.html": {
       "x": 3316,
-      "y": 7913,
+      "y": 7997,
       "w": 640,
       "h": 1000,
       "page": "round29",
@@ -2981,7 +2981,7 @@
     },
     "R29-OneRun.dc.html": {
       "x": 680,
-      "y": 9359,
+      "y": 9443,
       "w": 2126,
       "h": 1078,
       "page": "round29",
@@ -2989,7 +2989,7 @@
     },
     "R29-DayMap.dc.html": {
       "x": 680,
-      "y": 10857,
+      "y": 10941,
       "w": 1278,
       "h": 939,
       "page": "round29",
@@ -2997,7 +2997,7 @@
     },
     "R29-Tone.dc.html": {
       "x": 680,
-      "y": 12216,
+      "y": 12300,
       "w": 1696,
       "h": 1119,
       "page": "round29",
@@ -3042,6 +3042,110 @@
       "h": 1144,
       "page": "round31",
       "title": "ג. בנקודת המפגש: שורה אחת ליד התחנה"
+    },
+    "R29-Export.dc.html": {
+      "x": 1620,
+      "y": 5105,
+      "w": 860,
+      "h": 964,
+      "page": "round29",
+      "title": "ד. לפני ייצוא GPX: מה יש בקובץ"
+    },
+    "R29-Sample.dc.html": {
+      "x": 2560,
+      "y": 5105,
+      "w": 1696,
+      "h": 1048,
+      "page": "round29",
+      "title": "ד. יום לדוגמה ב\"הימים שלי\""
+    },
+    "R30-0-Decide.dc.html": {
+      "x": 0,
+      "y": 0,
+      "w": 600,
+      "h": 700,
+      "page": "round30",
+      "title": "מה לאשר בסבב 30"
+    },
+    "R30-Render.dc.html": {
+      "x": 680,
+      "y": 0,
+      "w": 2468,
+      "h": 954,
+      "page": "round30",
+      "title": "א. מה אפשר היום, מהנתונים"
+    },
+    "R30-Brief.dc.html": {
+      "x": 3228,
+      "y": 0,
+      "w": 640,
+      "h": 900,
+      "page": "round30",
+      "title": "בקצרה"
+    },
+    "R32-0-Decide.dc.html": {
+      "x": 0,
+      "y": 0,
+      "w": 600,
+      "h": 1000,
+      "page": "round32",
+      "title": "מה לאשר בסבב 32"
+    },
+    "R32-Directions.dc.html": {
+      "x": 680,
+      "y": 0,
+      "w": 1368,
+      "h": 971,
+      "page": "round32",
+      "title": "א. שלושה כיוונים"
+    },
+    "R32-Poses.dc.html": {
+      "x": 2128,
+      "y": 0,
+      "w": 1540,
+      "h": 1311,
+      "page": "round32",
+      "title": "א. עשר תנוחות, אותו שלד"
+    },
+    "R32-Home.dc.html": {
+      "x": 680,
+      "y": 1731,
+      "w": 1242,
+      "h": 768,
+      "page": "round32",
+      "title": "ב. דף הבית: כניסה אחת"
+    },
+    "R32-Empty.dc.html": {
+      "x": 2002,
+      "y": 1731,
+      "w": 1486,
+      "h": 662,
+      "page": "round32",
+      "title": "ב. מצבים ריקים"
+    },
+    "R32-SkiDay.dc.html": {
+      "x": 3568,
+      "y": 1731,
+      "w": 1196,
+      "h": 852,
+      "page": "round32",
+      "title": "ב. יום הגלישה: הבקתה וסוף היום"
+    },
+    "R32-Games.dc.html": {
+      "x": 4844,
+      "y": 1731,
+      "w": 1196,
+      "h": 832,
+      "page": "round32",
+      "title": "ב. המשחקים"
+    },
+    "R32-Fall.dc.html": {
+      "x": 680,
+      "y": 3003,
+      "w": 1488,
+      "h": 794,
+      "page": "round32",
+      "title": "ג. \"פה נפלת\" בשתי גרסאות"
     }
   },
   "createdOnFiles": {
@@ -3051,7 +3155,7 @@
   "designSystems": [],
   "launch": {
     "view": "canvas",
-    "page": "round31"
+    "page": "round32"
   },
   "notes": {
     "featRow1": {
@@ -4145,7 +4249,7 @@
     },
     "round29row3": {
       "kind": "title1",
-      "maxW": 1580,
+      "maxW": 4296,
       "page": "round29",
       "text": "ד. היסטוריה",
       "w": 240,
@@ -4159,7 +4263,7 @@
       "text": "ה. מצבים",
       "w": 240,
       "x": 680,
-      "y": 6189
+      "y": 6273
     },
     "round29row5": {
       "kind": "title1",
@@ -4168,7 +4272,7 @@
       "text": "ו. החוויה",
       "w": 240,
       "x": 680,
-      "y": 7613
+      "y": 7697
     },
     "round29row6": {
       "kind": "title1",
@@ -4177,7 +4281,7 @@
       "text": "ז. ירידה אחת",
       "w": 240,
       "x": 680,
-      "y": 9059
+      "y": 9143
     },
     "round29row7": {
       "kind": "title1",
@@ -4186,7 +4290,7 @@
       "text": "ח. מפת היום",
       "w": 240,
       "x": 680,
-      "y": 10557
+      "y": 10641
     },
     "round29row8": {
       "kind": "title1",
@@ -4195,7 +4299,43 @@
       "text": "ט. הטון",
       "w": 240,
       "x": 680,
-      "y": 11916
+      "y": 12000
+    },
+    "round30row0": {
+      "kind": "title1",
+      "maxW": 3188,
+      "page": "round30",
+      "text": "א. ההדמיה",
+      "w": 240,
+      "x": 680,
+      "y": -300
+    },
+    "round32row0": {
+      "kind": "title1",
+      "maxW": 2988,
+      "page": "round32",
+      "text": "א. כיוונים ותנוחות",
+      "w": 240,
+      "x": 680,
+      "y": -300
+    },
+    "round32row1": {
+      "kind": "title1",
+      "maxW": 5360,
+      "page": "round32",
+      "text": "ב. הרגעים",
+      "w": 240,
+      "x": 680,
+      "y": 1431
+    },
+    "round32row2": {
+      "kind": "title1",
+      "maxW": 1488,
+      "page": "round32",
+      "text": "ג. \"פה נפלת\"",
+      "w": 240,
+      "x": 680,
+      "y": 2703
     },
     "round31row0": {
       "kind": "title1",
@@ -4604,12 +4744,33 @@
     "R31-Map.dc.html",
     "R31-Lift.dc.html",
     "R31-Spec.dc.html",
-    "R31-Meet.dc.html"
+    "R31-Meet.dc.html",
+    "R29-Export.dc.html",
+    "R29-Sample.dc.html",
+    "R30-0-Decide.dc.html",
+    "R30-Render.dc.html",
+    "R30-Brief.dc.html",
+    "R32-0-Decide.dc.html",
+    "R32-Directions.dc.html",
+    "R32-Poses.dc.html",
+    "R32-Home.dc.html",
+    "R32-Empty.dc.html",
+    "R32-SkiDay.dc.html",
+    "R32-Games.dc.html",
+    "R32-Fall.dc.html"
   ],
   "pages": [
     {
+      "id": "round32",
+      "name": "סבב 32: דמות מלווה"
+    },
+    {
       "id": "round31",
       "name": "סבב 31: אוכל ומקומות בתחנות"
+    },
+    {
+      "id": "round30",
+      "name": "סבב 30: מבנים בתלת-ממד ב-New Gudauri"
     },
     {
       "id": "round29",

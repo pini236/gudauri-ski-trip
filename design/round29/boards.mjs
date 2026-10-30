@@ -607,6 +607,52 @@ Object.assign(BOARDS, {
   'p-and-meet': ['and', 'he', 'day', () => `${aS('meet-04-meet-card.png', 0, 2140)}${meetStrip('and', false, ST.base, 'ליד <bdi>Goodaura</bdi> · למטה')}${aS('meet-04-meet-card.png', 2140, 2400)}`],
 });
 
+
+// ---------- round 29, row D: a sample day in My days, and the warning before a GPX export ----------
+// In the apps the sample is built from the shared test log (tools/fixtures/dayrec-logs/full_day.jsonl); on the boards it
+// is the round's own sample day, so the list and the opened day show the same numbers.
+const SAMPLE = { runs: S.runs, km: S.skiKm, vmax: S.vmax };
+function sampleTag(en) { return `<span style="display:inline-flex;align-items:center;height:22px;padding:0 8px;border:1.5px dashed var(--muted);color:var(--muted);font-size:12px;font-weight:700">${en ? 'SAMPLE' : 'דוגמה'}</span>`; }
+function sampleRow(p, en, compact) {
+  if (compact) return `<div class="row" style="justify-content:space-between;padding:12px 0;border-top:1px solid var(--rule);margin-top:6px;color:var(--muted)"><span class="row" style="gap:8px">${sampleTag(en)}<span style="font-size:14px">${en ? 'Sample day' : 'יום לדוגמה'}</span></span><span style="font-weight:700;font-size:14px;color:var(--glacier)">${en ? 'Remove' : 'הסרה'}</span></div>`;
+  return `<div style="position:relative;padding:12px;margin-top:6px;border:1.5px dashed var(--rule);${p === 'ios' ? 'border-radius:14px;' : ''}">
+    <div class="row" style="gap:12px">${runMini(runs[3], 64, 52)}<div style="flex:1"><div class="row" style="gap:8px">${sampleTag(en)}<b style="font-size:16px">${en ? 'Sample day' : 'יום לדוגמה'}</b></div>
+      <div class="muted sm">${SAMPLE.runs} ${en ? 'runs' : 'ירידות'} · ${SAMPLE.km} ${en ? 'km' : 'ק״מ'} · ${en ? 'top' : 'מרבית'} ${SAMPLE.vmax}</div></div><span style="color:var(--muted)">${ic.dots(20)}</span></div>
+    <div style="font-size:13.5px;margin-top:8px">${en ? 'This is what a recorded day looks like. Tap to open the timeline, the map and the replay.' : 'כך ייראה יום שהוקלט. נגיעה פותחת את ציר הזמן, המפה והצפייה החוזרת.'}</div></div>`;
+}
+function historySample(p, en, after) {
+  const real = after ? `<div class="row" style="gap:12px;padding:12px 0;border-bottom:1px solid var(--rule)">${runMini(runs[6], 64, 52)}<div style="flex:1"><b style="font-size:16px">${en ? 'Mon 11 Jan' : 'שני 11.1'}</b><div class="muted sm">${S.runs} ${en ? 'runs' : 'ירידות'} · ${S.skiKm} ${en ? 'km' : 'ק״מ'} · ${en ? 'top' : 'מרבית'} ${S.vmax}</div></div><span style="color:var(--muted)">${ic.dots(20)}</span></div>` : '';
+  const empty = after ? '' : `<div style="text-align:center;padding:26px 0 8px;color:var(--muted)">${ic.mtn(34)}<div style="font-size:15px;margin-top:6px;color:var(--ink)">${en ? 'No days recorded yet' : 'עוד לא הוקלט יום'}</div><div style="font-size:13px">${en ? 'Start one on the mountain' : 'מתחילים ביום הראשון בהר'}</div></div>`;
+  return `<div style="height:${p === 'and' ? 640 : 680}px">${sbar(p, after ? '19:40' : '18:12', false)}<div style="padding:${p === 'and' ? 34 : 60}px 18px 6px"><b class="k" style="font-size:44px">${en ? 'My days' : 'הימים שלי'}</b><div class="muted" style="font-size:14px">${en ? 'Recorded days stay on this phone only' : 'הימים שהוקלטו נשמרים רק בטלפון'}</div></div>
+    <div style="padding:0 18px">${real}${empty}${sampleRow(p, en, after)}
+    ${after ? `<p class="note" style="margin-top:10px">${en ? 'After your first real day the sample moves to the bottom, one line.' : 'אחרי היום האמיתי הראשון הדוגמה יורדת לתחתית, בשורה אחת.'}</p>` : `<p class="note" style="margin-top:10px">${en ? 'Remove it from its menu. It never counts in your records.' : 'מסירים מהתפריט של השורה. היא אף פעם לא נספרת בשיאים.'}</p>`}</div></div>`;
+}
+function sampleOpen(p, en) {
+  return `<div style="position:relative">${summary(p, en)}<div style="position:absolute;z-index:40;top:${p === 'and' ? 30 : 56}px;inset-inline:12px;background:var(--ink);color:var(--paper);padding:10px 12px;display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:14px${p === 'ios' ? ';border-radius:12px' : ''}">
+    <span class="row" style="gap:8px"><span style="border:1.5px dashed currentColor;padding:1px 6px;font-size:12px;font-weight:700">${en ? 'SAMPLE' : 'דוגמה'}</span>${en ? 'Not your day: a sample, to show what you’ll get' : 'לא היום שלך: דוגמה, כדי לראות מה תקבל'}</span><span style="font-weight:700;white-space:nowrap">${en ? 'Remove' : 'הסרה'}</span></div></div>`;
+}
+function exportWarn(p, en) {
+  const t = en
+    ? { h: 'Export the day as GPX', b: 'The file has your locations and times for the whole day. Whoever gets it can see where you were, and when.', s: 'You choose where it goes. Nothing is uploaded, and we don’t get a copy.', ok: 'Share the file', no: 'Cancel' }
+    : { h: 'ייצוא היום כקובץ GPX', b: 'בקובץ יש את המקומות והשעות של כל היום. מי שיקבל אותו יוכל לראות איפה היית ומתי.', s: 'את היעד בוחרים לבד. שום דבר לא עולה לשרת, ואנחנו לא מקבלים עותק.', ok: 'שיתוף הקובץ', no: 'ביטול' };
+  const box = p === 'and'
+    ? `<div class="sheet" style="padding:0 20px 22px"><div class="grab"></div><div class="row" style="gap:10px;margin:10px 0 8px">${ic.file(24)}<b class="k" style="font-size:32px">${t.h}</b></div>
+        <div class="row" style="gap:10px;align-items:flex-start;font-size:15.5px;line-height:1.5">${ic.sat(22)}<span><b>${t.b}</b></span></div>
+        <p class="note" style="margin:10px 0 14px">${t.s}</p><div class="row" style="gap:8px"><span class="qb pri" style="flex:1">${ic.share(16)}${t.ok}</span><span class="qb" style="flex:none">${t.no}</span></div></div>`
+    : `<div style="position:absolute;z-index:30;left:50%;top:50%;transform:translate(-50%,-50%);width:290px;background:var(--paper);border-radius:16px;overflow:hidden;text-align:center">
+        <div style="padding:18px 16px 14px"><b style="font-size:17px;display:block;margin-bottom:6px">${t.h}</b><div style="font-size:13.5px;line-height:1.45">${t.b}</div><div style="font-size:12.5px;line-height:1.45;color:var(--muted);margin-top:6px">${t.s}</div></div>
+        <div style="display:flex;border-top:1px solid var(--rule)"><span style="flex:1;padding:12px;font-size:17px;color:var(--glacier)">${t.no}</span><span style="flex:1;padding:12px;font-size:17px;font-weight:600;color:var(--glacier);border-inline-start:1px solid var(--rule)">${t.ok}</span></div></div>`;
+  return `<div style="position:relative">${history(p, en).replace(/<div style="position:absolute;z-index:30;inset-inline-end:28px[\s\S]*$/, '</div>').replace(/<div style="position:absolute;z-index:30;inset-inline:8px;bottom:8px">[\s\S]*$/, '</div>')}<div style="position:absolute;inset:0;z-index:15;background:rgba(13,21,34,.35)"></div>${box}</div>`;
+}
+Object.assign(BOARDS, {
+  'd-and-sample': ['and', 'he', 'day', () => historySample('and', false, false)],
+  'd-ios-sample-en': ['ios', 'en', 'day', () => historySample('ios', true, false)],
+  'd-and-sample-open': ['and', 'he', 'day', () => sampleOpen('and', false)],
+  'd-and-sample-after': ['and', 'he', 'day', () => historySample('and', false, true)],
+  'd-and-export': ['and', 'he', 'day', () => exportWarn('and', false)],
+  'd-ios-export-en': ['ios', 'en', 'day', () => exportWarn('ios', true)],
+});
+
 // ---- photograph ----
 const b = await launch();
 const { ctx, page: p0 } = await open(b, '/', { w: 402, h: 874, wait: 300 });
