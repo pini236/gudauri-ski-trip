@@ -3,7 +3,7 @@ import json, math, os, sys, unittest
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
-import analyze, build, cases, net as netmod, rawlog, synth  # noqa: E402
+import analyze, build, cases, moments, net as netmod, rawlog, synth  # noqa: E402
 
 P = build.params()
 BASE = build.load_base(P)
@@ -233,11 +233,89 @@ class Day(unittest.TestCase):
             for o in ev:
                 self.assertGreaterEqual(o['drop_m'], P['offpiste']['drop_m'])
 
+    def test_driving_is_not_skiing(self):
+        for builder in (cases.drive_down, cases.drive_up):
+            d = synth.Day(BASE, 11)
+            builder(d)
+            fin, liv = self.analyse(d)
+            car = [r['t'] for r in d.rows if r['act'] == 'drive']
+            drv = [s for s in fin['segments'] if s['type'] == 'drive']
+            self.assertEqual(len(drv), 1, builder.__name__)
+            self.assertLessEqual(abs(drv[0]['t0'] - car[0]), 2000)
+            self.assertLessEqual(abs(drv[0]['t1'] - car[-1]), 2000)
+            self.assertGreater(drv[0]['dist_m'], 3000)
+            # nothing of the car in a descent or in the skiing figures: one descent, the run on Pirveli
+            ds = [s for s in fin['segments'] if s['type'] == 'descent']
+            self.assertEqual(len(ds), 1)
+            self.assertFalse(any(ds[0]['t0'] <= t <= ds[0]['t1'] for t in car))
+            self.assertEqual(fin['stats']['descents'], 1)
+            # the car is never the day's maximum speed, never in the drop, never off-piste (architect, 30.10.2026)
+            self.assertFalse(car[0] <= fin['stats']['max_at']['t'] <= car[-1])
+            self.assertEqual(fin['stats']['drop_m'], ds[0]['drop_m'])
+            self.assertEqual(ds[0]['offpiste'], [])
+            ski = [e for e in liv['events'] if e['act'] == 'ski' and car[0] + (P['drive']['min_s'] + 10) * 1000 <= e['t'] < car[-1] - 3000]
+            self.assertEqual(ski, [])
+            # live: "drive" once the stretch is long enough, and before the car stops
+            t = next(e['t'] for e in liv['events'] if e['act'] == 'drive')
+            self.assertLessEqual(t - car[0], (P['drive']['min_s'] + 10) * 1000)
+
     def test_empty_log(self):
         h, p, e, _ = rawlog.read('{"v":1}\n')
         a = analyze.Analyzer(BASE, P)
         self.assertEqual(a.final(h, p)['segments'], [])
         self.assertEqual(a.live(h, p)['events'], [])
+
+
+class Moments(unittest.TestCase):
+    M = P['moments']
+    EX = {c['name']: c['expected']['final'] for c in json.load(open(os.path.join(build.FIX, 'dayrec-cases.json')))['cases']}
+
+    def run_(self, name, h=None):
+        return moments.moments(self.EX[name], h, BASE.runs, self.M)
+
+    def test_no_text_and_keys_known(self):
+        for name in self.EX:
+            for m in self.run_(name)['items']:
+                self.assertIn(m['key'], self.M['priority'])
+                self.assertEqual(m['seed'], moments.seed(m['key'], m['t']))
+
+    def test_history_never_has_a_position(self):
+        h = None
+        for n in build.CHAIN:
+            h = self.run_(n, h)['history']
+        txt = json.dumps(h)
+        self.assertNotIn('lat', txt)
+        self.assertEqual(h['days'], 3)  # one run (mode run) is not a day
+
+    def test_dismissed_fall_is_no_moment_and_fall_never_shared(self):
+        self.assertFalse([m for m in self.run_('fall_dismissed')['items'] if m['key'] == 'fall'])
+        o = self.run_('falls')
+        self.assertTrue([m for m in o['items'] if m['key'] == 'fall'])
+        self.assertNotEqual(o['items'][o['share']]['key'], 'fall')
+
+    def test_records_against_the_history_only(self):
+        o = self.run_('full_day')
+        self.assertFalse([m for m in o['items'] if m['key'] in ('record', 'new_runs')])  # the first day: nothing to beat
+        h = self.run_('run_single')['history']
+        o = self.run_('full_day', h)
+        rec = [m for m in o['items'] if m['key'] == 'record']
+        self.assertTrue(rec)
+        self.assertEqual(len([i for i in o['story'] if o['items'][i]['key'] == 'record']), 1)
+        red = next(m for m in o['items'] if m['key'] == 'first_color' and m['p']['color'] == 'red')
+        self.assertTrue(red['p']['first_ever'])
+
+    def test_drive_is_not_a_moment(self):
+        o = self.run_('drive_down')
+        car = [s for s in self.EX['drive_down']['segments'] if s['type'] == 'drive'][0]
+        self.assertFalse([m for m in o['items'] if car['t0'] <= m['t'] <= car['t1']])
+
+    def test_lift_card(self):
+        self.assertIsNone(moments.lift_card(self.EX['run_single'], self.M))  # the day ends standing, not on a lift
+        k = max(i for i, s in enumerate(self.EX['full_day']['segments']) if s['type'] == 'lift')
+        res = dict(self.EX['full_day'], segments=self.EX['full_day']['segments'][:k + 1])
+        c = moments.lift_card(res, self.M)
+        self.assertEqual(c['key'], 'last_descent')
+        self.assertTrue(c['p']['runs'])
 
 
 def lift_top():

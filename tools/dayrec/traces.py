@@ -83,6 +83,9 @@ def run(folder):
         for s in res['segments']:
             if s['type'] == 'lift':
                 tot['lifts'] += 1
+            if s['type'] == 'drive':
+                tot['drives'] = tot.get('drives', 0) + 1
+                tot['drive_m'] = round(tot.get('drive_m', 0) + s['dist_m'])
             if s['type'] == 'descent':
                 tot['descents'] += 1
                 for lg in s['legs']:
