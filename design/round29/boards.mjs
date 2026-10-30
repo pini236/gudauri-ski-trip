@@ -287,6 +287,21 @@ const BOARDS = {
   'f-and-story': ['and', 'he', 'day', () => story('and', false)],
   'f-ios-story-en': ['ios', 'en', 'day', () => story('ios', true)],
 
+  // ---------- G. one run, measured on its own (FEATURES 1א) ----------
+  'g-and-start': ['and', 'he', 'day', () => `${aS('store-2-run.png', 0, 1920)}
+    <span class="qb rec" style="position:absolute;z-index:6;left:16px;top:${Math.round(1180 * AK)}px;height:48px;padding:0 16px;font-size:16px">${ic.rec(14)}מודדים ירידה</span>
+    <span class="bubble" style="left:16px;top:${Math.round(1180 * AK) - 44}px">רק הירידה הזו, בלי כל היום</span>`],
+  'g-ios-start-en': ['ios', 'en', 'day', () => `${iS('map3d-en.png', 0, 2622)}
+    <span class="qb rec" style="position:absolute;z-index:6;left:120px;bottom:${Math.round(510 * IK)}px;height:50px;padding:0 18px;font-size:17px">${ic.rec(16)}Measure a run</span>`],
+  'g-and-live': ['and', 'he', 'day', () => `<div style="height:844px">${mapFrame('and', false, false, 'm-one-live', 520, livePanel('and', false, { v: 52, vmax: 58, km: '0.6', desc: 160, runs: 1, clock: '0:41', where: `<span class="ico">${ic.ski(18)}</span>${sign('red', 'Kudebi 1')}<span class="muted" style="font-weight:400;font-size:13px">כנראה · ירידה אחת</span>`, note: 'נעצר לבד בתחתית.' }), '13:35')}</div>`],
+  'g-and-card': ['and', 'he', 'day', () => oneCard('and', false)],
+  'g-ios-card-night-en': ['ios', 'en', 'night', () => oneCard('ios', true)],
+
+  // ---------- H. the day's map: on the main map, or a map of its own ----------
+  'h-and-main': ['and', 'he', 'day', () => dayMap('and', false, 'm-cmp-main', 'א. על המפה הראשית', 'כל המסלולים בצבעים שלהם, והשובל מעליהם.')],
+  'h-and-day': ['and', 'he', 'day', () => dayMap('and', false, 'm-cmp-day', 'ב. מפת היום (מומלץ)', 'ההר והמסלולים באפור עמום; רק השובל שלך בצבע.')],
+  'h-ios-day-night-en': ['ios', 'en', 'night', () => dayMap('ios', true, 'm-cmp-day-night', 'Your day’s map', 'The runs in faded grey; only your trail in colour.')],
+
   // ---------- E. states, on the live panel ----------
   'e-and-gps': ['and', 'he', 'day', () => stateBoard('and', false, 'gps')],
   'e-and-denied': ['and', 'he', 'day', () => stateBoard('and', false, 'denied')],
@@ -402,6 +417,24 @@ function stateBoard(p, en, kind) {
   return `<div style="height:${p === 'and' ? 760 : 800}px">${mapFrame(p, en, false, png, 470, ban + live, kind === 'off' ? '11:52' : '10:19')}</div>`;
 }
 
+
+function oneCard(p, en) {
+  const r = runs.find(s => s.pistes.includes('Kudebi 1'));
+  const rows = (lab, val) => `<div class="row" style="justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--rule);font-size:15px"><span class="muted">${lab}</span><b>${val}</b></div>`;
+  return `${sbar(p, hm(r.t1 + 20), false, en)}<div style="padding:${p === 'and' ? 34 : 60}px 18px 0"><b class="k" style="display:block;font-size:44px">${en ? 'Your run' : 'הירידה שלך'}</b>
+      <div class="row" style="gap:8px;margin:6px 0 10px">${sign('red', 'Kudebi 1')}<span class="muted sm">${en ? 'stopped by itself at the bottom' : 'נעצר לבד בתחתית'} · <span dir="ltr">${hm(r.t1)}</span></span></div>
+      <div class="big3"><div><b>${r.vmax}</b><small>${en ? 'top, est. · km/h' : 'מרבית, הערכה · קמ״ש'}</small></div><div><b>${r.avg}</b><small>${en ? 'average · km/h' : 'ממוצע · קמ״ש'}</small></div><div><b>${dur(r.t1 - r.t0, en)}</b><small>${en ? 'time' : 'זמן'}</small></div></div></div>
+    <div style="position:relative;height:250px;overflow:hidden;border-block:1px solid var(--rule);margin-top:8px"><img src="${M(en ? 'm-one-night' : 'm-one')}" style="display:block;width:100%;margin-top:-90px">
+      <span class="bubble" style="top:12px;inset-inline-start:14px">${en ? 'You flew here' : 'פה טסת'} · ${r.vmax} · <span dir="ltr">${hm(r.vmaxAt.t)}</span></span></div>
+    <div style="padding:6px 18px 18px">${rows(en ? 'Descent' : 'ירידה', `${n(r.desc, en)} ${en ? 'm' : 'מ׳'}`)}${rows(en ? 'Length' : 'אורך', `${(r.len / 1000).toFixed(1)} ${en ? 'km' : 'ק״מ'}`)}
+      <div class="row" style="margin-top:14px;gap:8px"><span class="qb rec" style="flex:1">${ic.rec(14)}${en ? 'Measure another' : 'עוד ירידה'}</span><span class="qb" style="flex:none">${ic.share(18)}</span></div>
+      <p class="note" style="margin-top:10px">${en ? 'Saved in My days, like a short day.' : 'נשמר ב"הימים שלי", כמו יום קצר.'}</p></div>`;
+}
+function dayMap(p, en, png, title, sub) {
+  return `${sbar(p, '16:02', false, en)}<div style="padding:${p === 'and' ? 34 : 60}px 18px 8px"><b class="k" style="display:block;font-size:40px">${title}</b><div class="muted" style="font-size:14px;margin-top:2px">${sub}</div></div>
+    <div style="position:relative;height:560px;overflow:hidden;border-block:1px solid var(--rule)"><img src="${M(png)}" style="display:block;width:100%"></div>
+    <div style="padding:10px 18px 18px">${legend(en)}</div>`;
+}
 
 function fall(p, en) {
   // a likely fall, asked with a smile, with "I didn't fall" that deletes it; in the timeline and on the run card
