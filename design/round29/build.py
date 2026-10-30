@@ -13,7 +13,7 @@ sys.path.insert(0, str(root / 'design/round12'))
 from build import page  # the board shell of rounds 12 to 28
 
 PAGE = ('round29', 'סבב 29: יום הגלישה')
-NAMES = sorted(p.stem for p in (here / 'shots').glob('[a-h]-*.png'))
+NAMES = sorted(p.stem for p in (here / 'shots').glob('[a-ip]-*.png'))
 SRC = {n: ('shots/' + n + '.png', 0, 0, 0) for n in NAMES}
 N = lambda f: f + '.webp'
 A, I = 'אנדרואיד', 'אייפון'
@@ -40,8 +40,37 @@ BOARDS = [
      [(A + ' · בפאנל המסלול', ['g-and-start']), (I + ' · במפה, English', ['g-ios-start-en']), (A + ' · באמצע הירידה', ['g-and-live']), (A + ' · הכרטיס בתחתית', ['g-and-card']), (I + ' · הכרטיס, לילה, English', ['g-ios-card-night-en'])]),
     ('h', 'DayMap', 'ח. מפת היום: על המפה הראשית, או מפה משלה', 'א: השובל מעל המפה הראשית, עם כל צבעי המסלולים, ושני סולמות צבע מתנגשים. ב (מומלץ): אותו הר, המסלולים באפור עמום כמו בסבב 25, ורק השובל בצבע לפי מהירות. בזמן ההקלטה השובל בכחול אחד על המפה הרגילה (ב.), כדי שהמסלולים יישארו קריאים בהר.',
      [(A + ' · א. על המפה הראשית', ['h-and-main']), (A + ' · ב. מפת היום', ['h-and-day']), (I + ' · ב. לילה, English', ['h-ios-day-night-en'])]),
+    ('i', 'Tone', 'ט. הטון של "הסיפור של היום"', 'אותו יום לדוגמה, אותם רגעים, בשלושה טונים. מנוע הרגעים בוחר מה קרה; הטקסט בא מהטון שייבחר. א (מומלץ): שובב ולא לועג, אף פעם לא על הרמה או על הגוף. ב: יבש, משפטים קצרים בלי בדיחה. ג: נתונים בלבד, בלי רגעים. הומור נכתב לכל שפה לחוד, לא מתורגם.',
+     [(A + ' · א. שובב ולא לועג (מומלץ)', ['i-and-tone-play']), (A + ' · ב. יבש', ['i-and-tone-dry']), (A + ' · ג. נתונים בלבד', ['i-and-tone-data']), (I + ' · א. באנגלית, נכתב מחדש', ['i-ios-tone-play-en'])]),
 ]
-ROWS = [('a', 'א. ההתחלה'), ('b', 'ב. בזמן ההקלטה'), ('c', 'ג. סוף היום'), ('d', 'ד. היסטוריה'), ('e', 'ה. מצבים'), ('f', 'ו. החוויה'), ('g', 'ז. ירידה אחת'), ('h', 'ח. מפת היום')]
+P31 = [
+    ('a', 'Map', 'א. במפה: סימון ליד התחנה', 'צ׳יפ "אוכל" בשורת הסינון, כבוי כברירת מחדל (המפה כבר צפופה, סבב 25). כשהוא דולק: סימון אחד לכל תחנה, עם סכין ומזלג ומספר המקומות, והסימון מצביע על התחנה עצמה ולא על כל מקום. שני בתי הקפה העונתיים על המדרון בעיגול מקווקו. תחנה בלי מקומות: בלי סימון.',
+     [(A + ' · הצ׳יפ דלוק', ['p-and-map']), (I + ' · לילה, English', ['p-ios-map-night-en'])]),
+    ('b', 'Lift', 'ב. בפאנל הרכבל: "ליד התחנה"', 'סעיף חדש בפאנל הרכבל, למעלה ולמטה: עד שלושה מקומות לפי המרחק, שם וסוג, ו"כל ה-14" כשיש יותר. בלי שם: הסוג הוא השם. עמדת הצלה כן, בלי הבטחה. בלי שעות פתיחה, ולכן "כדאי לבדוק במקום". תחנה בלי כלום: "אין מידע על מקומות כאן", ולא "אין כלום".',
+     [('אתר · טלפון', ['p-web-lift']), (A + ' · Goodaura', ['p-and-lift']), (A + ' · תחנה בלי מידע', ['p-and-lift-empty']), (I + ' · Soliko, לילה, English', ['p-ios-lift-night-en'])]),
+    ('c', 'Meet', 'ג. בנקודת המפגש: שורה אחת ליד התחנה', 'כשבוחרים תחנה, שורה אחת: מה יש לידה. בבסיס רק הספירה, כי 14 שמות לא נכנסים בשורה. בתחנה בלי כלום: בלי שורה.',
+     [(I + ' · Snow Park נבחרה', ['p-ios-meet']), (A + ' · הכרטיס של Goodaura, למטה', ['p-and-meet'])]),
+]
+P31_TEXT = [
+    ('Spec', 'מה למימוש', 640, 1000, [
+        ('הנתונים', 'מ-`research/places.md` (מומחה הסקי), רק ודאות א או ב: במפה הפתוחה, ונערך ב-2025 או 2026 או מאושר במקור נוסף. פריט ישן (2013, 2017) או בלי שם בכפר הישן לא מוצג. לכל פריט מזהה במפה הפתוחה, כמו לכל קו.'),
+        ('לפי תחנה, לא לפי מקום', 'הסימון במפה יושב על התחנה (קצה הרכבל בנתונים) עם מספר, והרשימה בפאנל ממוינת לפי מרחק, עד 250 מ׳. כך לא מציירים מיקום שלא בדקנו בשטח.'),
+        ('"אין מידע", לא "אין כלום"', 'ייתכן שיש בתחנה משהו שלא מופה (כמו בקתה של 2013 שלא ברור אם עוד קיימת). המשפט השני אומר את זה בעדינות.'),
+        ('מה עוד חסר', 'שעות פתיחה ועונה (כמעט לאף מקום על ההר). מקור של המפעיל (MTA לא מפרסם רשימה). בראש Kudebi ייתכן שני רישומים של אותו מקום: מציגים אחד, Vitamin, עד בדיקה בשטח. Kobi: Green and White בראש Kobi 1, מחוץ למסגרת של הלוחות.'),
+        ('שכבה חדשה בנתונים', 'קובץ או שדה חדש לכל אתר, באתר ובשתי האפליקציות: סקירת ארכיטקט לפני קוד. כמו המסלולים, נבנה מהמפה הפתוחה בכלי (`tools/`), עם ייחוס ODbL.'),
+        ('מחרוזות', 'הנוסחים בלוחות, בעברית ובאנגלית; לסשן התוכן ול-`i18n/strings.json` אחרי האישור. שמות המקומות כמו במפה הפתוחה, בלי תרגום.'),
+    ], 'b'),
+]
+P31_DECIDE = [
+    ('ההמלצה', '**הכל כמו בלוחות:** במפה צ׳יפ "אוכל" כבוי כברירת מחדל וסימון אחד לכל תחנה; בפאנל הרכבל סעיף "ליד התחנה" למעלה ולמטה; בנקודת המפגש שורה אחת. רק ודאות א או ב, ובתחנה ריקה "אין מידע".'),
+    ('1. במפה: כבוי או דלוק?', 'צ׳יפ כבוי כברירת מחדל (ההמלצה), כי המפה צפופה; או סימונים תמיד, רק כשמתקרבים.'),
+    ('2. עמדות הצלה', 'להציג (ההמלצה), כפריט ברשימה בלבד, בלי הבטחה ובלי מספר טלפון. או רק אוכל ושירותים.'),
+    ('3. שירותים ישנים', 'השירותים על ההר מסומנים במפה רק מ-2017 (ודאות ג), ולכן לא מוצגים. להציג אותם בכל זאת עם "ייתכן שלא עדכני"? ההמלצה: לא, עד בדיקה בשטח בדצמבר.'),
+    ('4. איפה', 'אתר ושתי האפליקציות (ההמלצה), כמו כל מה שבמפה (החלטה 50).'),
+    ('אחרי האישור', 'סקירת ארכיטקט לשכבה החדשה, כלי שבונה אותה מהמפה הפתוחה, ואז האתר והאפליקציות במקביל. מומחה הסקי בודק בשטח בדצמבר.'),
+]
+ROWS = [('a', 'א. ההתחלה'), ('b', 'ב. בזמן ההקלטה'), ('c', 'ג. סוף היום'), ('d', 'ד. היסטוריה'), ('e', 'ה. מצבים'), ('f', 'ו. החוויה'), ('g', 'ז. ירידה אחת'), ('h', 'ח. מפת היום'), ('i', 'ט. הטון')]
+ROWS31 = [('a', 'א. במפה'), ('b', 'ב. בפאנל הרכבל'), ('c', 'ג. בנקודת המפגש')]
 TEXT_BOARDS = [
     ('Spec', 'מה למימוש', 640, 900, [
         ('אותו מסך בשתי האפליקציות', 'אותם מספרים ואותם שמות, כל אחת ברכיבים שלה (החלטה 35): באנדרואיד גיליון ברוחב מלא ופינות ישרות והתראה קבועה; באייפון גיליון מעוגל, Live Activity ו-Dynamic Island. הטוקנים של האתר.'),
@@ -82,9 +111,10 @@ DECIDE = [
     ('8. היום שלך', 'כרטיס אחד כמו כרטיס הטיסה, עם ציוני דרך מול עצמך בלבד, בלי דירוג (ההמלצה). "סרטון קצר" מהצפייה החוזרת לשיתוף.'),
     ('9. ירידה אחת', '"מודדים ירידה" בפאנל המסלול ובמפה, נעצר לבד בתחתית, וכרטיס מיד (ההמלצה).'),
     ('10. מפת היום', '**מפה משלה (ההמלצה):** בסיכום, בציר הזמן ובצפייה החוזרת המסלולים באפור עמום, ורק השובל צבוע לפי מהירות; על המפה הראשית שני סולמות צבע נלחמים זה בזה. בזמן ההקלטה השובל בכחול אחד על המפה הרגילה.'),
+    ('11. הטון של "הסיפור של היום"', 'שובב ולא לועג (ההמלצה): "נשיקות לשלג: 1. השלג סלח." אף פעם לא על הרמה או על הגוף, ובלי השוואה לאחרים. או יבש, או נתונים בלבד. הטקסט נכתב לכל שפה לחוד.'),
     ('אחרי האישור', 'סשני האנדרואיד והאייפון מממשים במקביל, אחרי סקירת הארכיטקט ושורת הפרטיות. שום דבר לא שונה באפליקציות.'),
 ]
-GAP, PAD, HEAD, CGAP, DW, DH = 18, 20, 130, 28, 600, 1180
+GAP, PAD, HEAD, CGAP, DW, DH = 18, 20, 130, 28, 600, 1280
 def webp():
     out = here / 'shots/web'
     out.mkdir(exist_ok=True)
@@ -135,47 +165,55 @@ def card(title, items, w, h, lead='', accent='#1F5FC4'):
             + f'<ol style="margin: 0; padding: 0; list-style: none">{lis}</ol></div>')
 
 
-def build(dst):
+def build_page(dst, page_id, page_name, prefix, cards, rows, texts, decide, lead, dh):
     urls = json.loads((here / 'shots/assets.json').read_text(encoding='utf-8'))
-    lead = ('יום הגלישה (החלטה 76): הקלטה, מהירות והמסלול היומי, באנדרואיד ובאייפון, ביום ובלילה, בעברית ובאנגלית, מעל צילומי שתי האפליקציות. יום לדוגמה: קווים וגבהים אמיתיים, שעות ומהירויות מומצאות.')
-    boards = [('R29-0-Decide.dc.html', 'מה לאשר בסבב 29', page('מה לאשר בסבב 29', card('מה לאשר בסבב 29', DECIDE, DW, DH, lead), DW, DH), DW, DH, None)]
-    for b in BOARDS:
+    title0 = 'מה לאשר ב' + page_name.split(':')[0]
+    boards = [(f'{prefix}-0-Decide.dc.html', title0, page(title0, card(title0, decide, DW, dh, lead), DW, dh), DW, dh, None)]
+    for b in cards:
         c, w, h = board(b, urls)
-        boards.append((f'R29-{b[1]}.dc.html', b[2], page(b[2], c, w, h), w, h, b[0]))
-    for key, title, w, h, items, g in TEXT_BOARDS:
-        boards.append((f'R29-{key}.dc.html', title, page(title, card(title, items, w, h, accent='#13233A'), w, h), w, h, g))
+        boards.append((f'{prefix}-{b[1]}.dc.html', b[2], page(b[2], c, w, h), w, h, b[0]))
+    for key, title, w, h, items, g in texts:
+        boards.append((f'{prefix}-{key}.dc.html', title, page(title, card(title, items, w, h, accent='#13233A'), w, h), w, h, g))
     for f, _, html_, *_ in boards:
         (dst / f).write_text(html_, encoding='utf-8')
     ip = dst / 'canvas.json'
     index = json.loads(ip.read_text(encoding='utf-8'))
-    if not any(pg['id'] == PAGE[0] for pg in index['pages']):
-        index['pages'].insert(0, {'id': PAGE[0], 'name': PAGE[1]})
+    if not any(pg['id'] == page_id for pg in index['pages']):
+        index['pages'].insert(0, {'id': page_id, 'name': page_name})
     names = {b[0] for b in boards}
-    for f in [f for f, b in index['boards'].items() if b.get('page') == PAGE[0] and f not in names]:
+    for f in [f for f, b in index['boards'].items() if b.get('page') == page_id and f not in names]:
         del index['boards'][f]
         if f in index['order']:
             index['order'].remove(f)
-    for n in [n for n in index['notes'] if n.startswith(PAGE[0] + 'row')]:
+    for n in [n for n in index['notes'] if n.startswith(page_id + 'row')]:
         del index['notes'][n]
-    index['boards'][boards[0][0]] = {'x': 0, 'y': 0, 'w': DW, 'h': DH, 'page': PAGE[0], 'title': boards[0][1]}
+    index['boards'][boards[0][0]] = {'x': 0, 'y': 0, 'w': DW, 'h': dh, 'page': page_id, 'title': boards[0][1]}
     if boards[0][0] not in index['order']:
         index['order'].append(boards[0][0])
     y = 0
-    for ri, (group, title) in enumerate(ROWS):
+    for ri, (group, title) in enumerate(rows):
         x, rowh = DW + 80, 0
         for f, t, _, w, h, g in boards:
             if g != group:
                 continue
-            index['boards'][f] = {'x': x, 'y': y, 'w': w, 'h': h, 'page': PAGE[0], 'title': t}
+            index['boards'][f] = {'x': x, 'y': y, 'w': w, 'h': h, 'page': page_id, 'title': t}
             if f not in index['order']:
                 index['order'].append(f)
             x += w + 80
             rowh = max(rowh, h)
-        index['notes'][f'{PAGE[0]}row{ri}'] = {'kind': 'title1', 'maxW': max(860, x - DW - 160), 'page': PAGE[0], 'text': title, 'w': 240, 'x': DW + 80, 'y': y - 300}
+        index['notes'][f'{page_id}row{ri}'] = {'kind': 'title1', 'maxW': max(860, x - DW - 160), 'page': page_id, 'text': title, 'w': 240, 'x': DW + 80, 'y': y - 300}
         y += rowh + 120 + 300
-    index['launch'] = {'view': 'canvas', 'page': PAGE[0]}
+    index['launch'] = {'view': 'canvas', 'page': page_id}
     ip.write_text(json.dumps(index, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
     return [b[0] for b in boards]
+
+
+def build(dst):
+    lead31 = ('אוכל, שתייה, שירותים ועמדות הצלה ליד תחנות הרכבל, מ-`research/places.md` (רק ודאות א או ב), באתר ובשתי האפליקציות. '
+              'המספרים והשמות אמיתיים, מהמפה הפתוחה ב-30.10.2026.')
+    lead = ('יום הגלישה (החלטה 76): הקלטה, מהירות והמסלול היומי, באנדרואיד ובאייפון, ביום ובלילה, בעברית ובאנגלית, מעל צילומי שתי האפליקציות. יום לדוגמה: קווים וגבהים אמיתיים, שעות ומהירויות מומצאות.')
+    n29 = build_page(dst, PAGE[0], PAGE[1], 'R29', BOARDS, ROWS, TEXT_BOARDS, DECIDE, lead, DH)
+    return n29 + build_page(dst, 'round31', 'סבב 31: אוכל ומקומות בתחנות', 'R31', P31, ROWS31, P31_TEXT, P31_DECIDE, md(lead31), 820)
 
 
 if __name__ == '__main__':
