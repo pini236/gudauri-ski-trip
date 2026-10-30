@@ -238,6 +238,81 @@
 - אינטראקציה בין משתמשים: `No` **עד שלב 13.5**. אז: כן (חברי קבוצה רואים שמות ומפגשים), ומעדכנים את השאלון. **שלב 13.5 כבר בגרסת החנות (3.10.2026), ולכן התשובה צריכה להיות כן; לוודא מול מה שפיני מילא בקונסולה (דירוג 3+) ולעדכן אם צריך.**
 - שיתוף מיקום: `No`. רכישות: `No`. גלישה חופשית באינטרנט: `No` (נגן יוטיוב מוטמע אינו דפדפן).
 
+### הצהרת השירות בחזית: יום הגלישה (`FOREGROUND_SERVICE_LOCATION`)
+
+**(30.10.2026, החלטה 76, `docs/FEATURES.md` סעיף י, `docs/ARCHITECTURE.md` מ-8.)** יום הגלישה ומדידת ירידה אחת רצים כשירות בחזית מסוג מיקום. **גרסה ראשונה שמכילה את ההרשאה לא תעבור בלי ההצהרה**, וההצהרה נבדקת אצל גוגל לפני שהגרסה יוצאת (גוגל לא מפרסמת כמה זמן). לכן, לפי תנאי 8 של הארכיטקט:
+- מגישים אותה **בגרסה נפרדת**, בלי תיקונים דחופים באותה גרסה, כדי שעיכוב בסקירה לא יעכב תיקון.
+- הפיצ'ר כבוי ביכולת `dayrec` בנתוני האתר, ולכן הגרסה יכולה לצאת לחנות לפני שהוא גלוי.
+
+**מה בדקתי בתיעוד (30.10.2026):**
+- בטופס ארבעה דברים לכל סוג שירות: תיאור של הפיצ'ר, מה קורה למשתמש אם המערכת דוחה את המשימה, מה קורה אם היא קוטעת אותה, וקישור לסרטון. בנוסף בוחרים מקרה שימוש מרשימה, ואם הוא לא ברשימה, כותבים אותו.
+- המדיניות מתירה שירות בחזית רק אם הוא חלק מהליבה של האפליקציה, מתחיל מהמשתמש או גלוי לו, המשתמש יכול לעצור אותו, הוא לא יכול להידחות בלי לפגוע, והוא רץ רק כל עוד צריך. **אצלנו כל החמישה מתקיימים:** הקלטה בנגיעה, התראה קבועה עם "עצירה", ועצירה לבד בסוף ירידה או אחרי זמן בלי תנועה.
+- **בלי הצהרת "מיקום ברקע":** הטופס הזה נפתח רק כשבקובץ ההרשאות יש `ACCESS_BACKGROUND_LOCATION`, ואצלנו אין (תנאי 2 של הארכיטקט). לפי המדיניות, שירות בחזית שהוא "שווה ערך" למיקום ברקע נבדק כמו מיקום ברקע; גוגל לא מגדירה "שווה ערך". מה שמגן עלינו: ההתחלה רק בנגיעה, ההתראה כל הזמן, והעצירה האוטומטית.
+- **מקרה השימוש:** ברשימה של גוגל, לסוג המיקום, יש שלושה: שיתוף מיקום שהמשתמש התחיל (עם הדוגמה "מעקב אחר פעילות של רכב"), ניווט (עם הדוגמה "מעקב נסיעה"), וגידור גאוגרפי. אף אחד לא מתאים בדיוק. **ההמלצה:** לכתוב מקרה שימוש בעצמנו (הנוסח למטה). אם הקונסולה לא מאפשרת, לבחור "ניווט", ולכתוב בתיאור שזה מעקב פעילות שהמשתמש התחיל.
+- **הסרטון:** גוגל מבקשת שיראה את הצעדים שהמשתמש עושה כדי להפעיל את הפיצ'ר. לטופס הזה גוגל לא כותבת אורך ומקום אירוח. בטופס של מיקום ברקע היא ממליצה עד 30 שניות, ומעדיפה קישור ליוטיוב או לגוגל דרייב. נלך לפי זה.
+
+**הנוסח לטופס (באנגלית, כמו בקונסולה):**
+
+מקרה שימוש, אם כותבים בעצמנו:
+```
+User-initiated activity tracking: recording the user's own ski day or a single ski run
+```
+
+תיאור הפיצ'ר:
+```
+Ski day recording. While the app is open, the user taps "Start a ski day" (or "Measure a run"). The app then starts a location foreground service that reads GPS location, speed and altitude once per second, including while the screen is off and the phone is in a pocket. This lets the app show live speed, recognise which lift and which ski run the user is on, and build a timeline and map of the day. A notification is shown the whole time, with the live numbers and a Stop button. Recording stops when the user taps Stop, when a single measured run ends, or automatically after 20 minutes without movement outside the ski resort (60 minutes inside it), with a warning first. Location is processed and stored only on the device. It is never sent to our servers or to anyone else. The app does not request background location (ACCESS_BACKGROUND_LOCATION) or a battery-optimisation exemption.
+```
+
+אם המערכת דוחה את המשימה:
+```
+The user taps Start at the top of a run or when boarding a lift, and expects recording to begin at once. If the start is deferred, the beginning of the run or ride is not recorded: the top speed, the lift and the first run are missing or wrong, and the result shown to the user is incorrect.
+```
+
+אם המערכת קוטעת את המשימה:
+```
+If recording is interrupted, the day has gaps: runs and lifts during the gap are missing from the timeline, and speed, distance and vertical drop are wrong. The app saves every reading as it goes and offers to resume, and it shows any gap longer than 10 seconds to the user, but the time while it was stopped cannot be recovered.
+```
+
+**תסריט הסרטון** (כ-30 שניות, מסך הטלפון בלבד, בלי קול; הקלטה אחת לשני המצבים):
+
+| זמן | מה רואים |
+|---|---|
+| 0 עד 4 | פתיחת האפליקציה, דף הבית, ואז המפה. המיקום המדומה בגודאורי |
+| 4 עד 9 | נגיעה ב"מתחילים יום". בהתקנה נקייה: ההסבר שלנו ואז שאלת ההרשאה של אנדרואיד, עם "בזמן השימוש" ומיקום מדויק |
+| 9 עד 14 | המסך החי: מהירות, מספר ירידות, "על הרכבל Goodaura" |
+| 14 עד 20 | מעבר למסך הבית של הטלפון ונעילה. ההתראה הקבועה מופיעה ומתעדכנת, וההקלטה ממשיכה (הנסיעה המדומה נמשכת) |
+| 20 עד 25 | נגיעה בהתראה, חזרה לאפליקציה, נגיעה ב"עצירה" |
+| 25 עד 30 | ציר הזמן של היום: הרכבל והירידה, עם שמות. ובסוף, בקצרה: "מודדים ירידה" בפאנל של מסלול, שמתחיל באותה דרך |
+
+**איך מקליטים** (סשן האנדרואיד, אחרי שהמסכים נבנים ומאושרים בסבב 29):
+- באמולטור, בגרסת שחרור, עם נסיעה מדומה מקובץ הבדיקה של יום הגלישה (`tools/fixtures/dayrec-*.json`, מומר למסלול שהאמולטור מנגן).
+- הקלטת המסך באמולטור, ולוודא שאין בה מידע אישי ושמות אמיתיים.
+- הקובץ עולה כקובץ של הריצה, ופיני מעלה אותו.
+- אם הסרטון צריך מכשיר אמיתי, אותו דבר בטלפון של פיני, עם אפליקציית מיקום מדומה.
+
+**הצעדים של פיני** (כשסשן האנדרואיד מוסר את הסרטון ואת הגרסה):
+1. להעלות את הסרטון ליוטיוב כ"לא רשום" (`Unlisted`), ולהעתיק את הקישור.
+   ```
+   https://studio.youtube.com
+   ```
+2. בקונסולה, באפליקציה: `Monitor and improve` (או `Policy and programs`), ואז `App content`, ואז `Foreground service permissions`, ואז `Start` (או `Manage`).
+   ```
+   https://play.google.com/console
+   ```
+3. לבחור את הסוג `Location`, את מקרה השימוש, ולהדביק את שלושת הנוסחים ואת הקישור. `Save`.
+4. ליצור גרסה חדשה במסלול `Production` עם הקובץ שמכיל את ההרשאה, **בלי תיקונים דחופים בה**, ולשלוח לסקירה (`Publishing overview`).
+5. לכתוב ביומן למטה את תאריך ההגשה ואת התשובה.
+
+**טופס הנתונים: בלי שינוי.** לפי ההגדרות של גוגל (נבדק 30.10.2026):
+- **"נאסף"** פירושו שהאפליקציה שולחת את הנתון מהטלפון. נתון שמעובד רק בטלפון לא מוצהר. ההקלטה, המהירות וחיישני התנועה נשארים בטלפון, ולכן **מיקום מדויק ומשוער לא נאספים** (כמו "איפה אני" בסעיף ב למעלה).
+- **ייצוא קובץ המסלול** בגיליון השיתוף: לפי גוגל, העברה לאפליקציה אחרת באותו טלפון היא "שיתוף". אבל העברה שהמשתמש ביקש במפורש, והוא מצפה לה, לא מוצהרת כשיתוף. אצלנו הקובץ יוצא רק בנגיעה, עם אזהרה לפני (תנאי 1 של הארכיטקט), ולכן לא מצהירים. הדף של גוגל לא מזכיר את גיליון השיתוף במפורש; זה פירוש שלנו, ולסשן המשפט לבדוק.
+- **המדידה:** `dayrec_start` ו-`dayrec_stop` שולחים זמן ומספרים בלבד, בלי מיקום, ונכנסים ב"אינטראקציות באפליקציה" שכבר מוצהרות.
+- **התנאי:** אם פעם יישלח מהטלפון מיקום, מהירות או שם מסלול (למשל שיתוף לקבוצה, השלב הבא), הטופס משתנה לפני אותה גרסה.
+
+**מדיניות הפרטיות:** השורה החדשה מחכה לאישור פיני (`docs/handoff/2026-10-30-dayrec-privacy/README.md`), ומתפרסמת עם הגרסה שבה הפיצ'ר נדלק. ההצהרה לגוגל לא מחכה לה, אבל **לפני שהפיצ'ר נדלק** חובה שהמדיניות תתאים.
+
+**דף החנות:** כל עוד הפיצ'ר כבוי, לא מתארים אותו (מתארים רק מה שיש). כשהוא נדלק: שורה בתיאור ובהערות הגרסה, וצילום מסך של ציר הזמן.
+
 ### דף החנות (`Grow users`, ואז `Store presence`, ואז `Main store listing`)
 
 **רוסית וגאורגית:** `i18n/store-listing.md` (לא נבדק על ידי דובר; לפי החלטה 39 זה לא מעכב).
@@ -407,6 +482,7 @@ Map data © OpenStreetMap contributors (ODbL). Weather: Open-Meteo.com (CC BY 4.
 3. **צילומי מסך** לדף החנות.
 4. **בתוך האפליקציה:** קישור למדיניות הפרטיות ומשפט "לא רשמית" בעמוד האודות; בלי ההרשאה `AD_ID`; ההגדרות של PostHog ו-Sentry מסעיף 5.
 5. **לפני כל העלאה:** רשימה קצרה של מה נוסף שנוגע לנתונים, כדי לעדכן את טופס הנתונים ואת המדיניות.
+6. **יום הגלישה (החלטה 76):** הסרטון להצהרת השירות בחזית, לפי התסריט בסעיף 5 ("הצהרת השירות בחזית"), וגרסה נפרדת שמכילה את ההרשאה בלי תיקונים דחופים. להודיע מראש מתי היא מוכנה, כי ההצהרה מוגשת לפניה.
 
 ## 9. אחרי 14 הימים: הבקשה לפרסום
 
@@ -459,3 +535,11 @@ Map data © OpenStreetMap contributors (ODbL). Weather: Open-Meteo.com (CC BY 4.
 - גרפיקה לדף החנות: https://support.google.com/googleplay/android-developer/answer/9866151
 - רמת מערכת יעד: https://developer.android.com/google/play/requirements/target-sdk
 - חתימה ומפתח העלאה: https://developer.android.com/studio/publish/app-signing
+
+**נבדקו ב-30.10.2026 (יום הגלישה):**
+- טופס השירות בחזית ומקרי השימוש: https://support.google.com/googleplay/android-developer/answer/13392821
+- מדיניות השירות בחזית (`Permissions for Foreground Services`): https://support.google.com/googleplay/android-developer/answer/13315670#foreground_service
+- סוגי השירות בחזית, סוג המיקום: https://developer.android.com/develop/background-work/services/fgs/service-types
+- מדיניות המיקום, מיקום ברקע וסרטון של עד 30 שניות: https://support.google.com/googleplay/android-developer/answer/9799150
+- טופס הנתונים, עיבוד בטלפון והעברה שהמשתמש ביקש: https://support.google.com/googleplay/android-developer/answer/10787469
+- **לא אומת:** כמה זמן גוגל בודקת את ההצהרה, ומגבלת התווים בשדות.

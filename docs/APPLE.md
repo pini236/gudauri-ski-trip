@@ -434,6 +434,80 @@ cd ~ && rm -rf ~/ski-app-keys
 - **תוויות נגישות** (`Accessibility Nutrition Labels`): וולונטרי היום, ואפל כותבת שבהמשך יהיה חובה. אפשר למלא כשהאייפון מוכן (VoiceOver, ניגודיות, הפחתת תנועה).
 - שאלון הגיל החדש הוא חובה מאז 31.1.2026 לכל אפליקציה.
 
+### 5.9 יום הגלישה: מיקום ברקע ו-Live Activity
+
+**(30.10.2026, החלטה 76, `docs/FEATURES.md` סעיף י, `docs/ARCHITECTURE.md` מ-8.)** באייפון ההקלטה רצה במצב רקע של מיקום, עם הרשאת "בזמן השימוש" בלבד, ומתחילה בנגיעה כשהאפליקציה פתוחה. Live Activity מגיע אחרי הליבה והמסכים, ושחרור הפיצ'ר לא מחכה לו.
+
+**מה בדקתי בתיעוד של אפל (30.10.2026):**
+- **הנחיה 2.5.4:** מותר להשתמש בשירותי רקע רק למטרה שלהם, ומיקום הוא אחת מהן. אצלנו המטרה היא בדיוק מיקום: הקלטת היום.
+- **הנחיה 2.3.1(a):** כל פיצ'ר חדש חייב להיות מתואר "בפירוט" בהערות לסוקר, ותיאור כללי נדחה. לכן ההערות למטה נכנסות **לגרסה שבה הפיצ'ר מופיע**, ולא רק לגרסה הראשונה.
+- **הנחיה 2.1:** הסוקר צריך גישה לכל פיצ'ר. אם הוא לא יכול לבדוק משהו, הסיכון הוא דחייה.
+- **"בזמן השימוש" מספיק:** לפי אפל, עדכוני מיקום ברקע מתחילים כשהאפליקציה בקדמה, עם הרשאת "בזמן השימוש" או "תמיד". אנחנו לא מבקשים "תמיד".
+- **Live Activity:** פעיל עד שמונה שעות, ונשאר במסך הנעילה עוד עד ארבע שעות, כלומר 12 לכל היותר. כל הנתונים שלו יחד עד 4 קילובייט. חובה לתמוך בכל התצוגות, כולל Dynamic Island. הוא לא יכול לקבל מיקום בעצמו, והאפליקציה מעדכנת אותו.
+
+**הבעיה העיקרית: הסוקר לא בגודאורי ולא על שלג.** שתי דרכים:
+1. **"מתחילים יום" עובד בכל מקום (כך בנוי, לפי סשן האייפון, 30.10.2026):** המקליט לא בודק איפה הוא. מהירות, מרחק, ירידה ושובל נמדדים בכל מקום, וחסרים רק שמות המסלולים והרכבלים ("מחוץ למסלולים", ו"עלייה" במקום "רכבל"). העצירה האוטומטית מחוץ לאזור קורית רק בלי תנועה, ולכן לא עוצרת סוקר שהולך או נוסע.
+2. **יום לדוגמה בהיסטוריה,** מסומן ככזה, מתוך יומני הבדיקה המשותפים (`tools/fixtures/dayrec-logs/full_day.jsonl`), כדי שהסוקר ומשתמש חדש יראו ציר זמן מלא. **המלצה שממתינה לקנבס** (סשן האייפון הציע אותה למעצב המוצר, סבב 29); עוד לא בנוי.
+
+**ההמלצה: שתיהן.** הראשונה מוכיחה את מצב הרקע, והשנייה מראה את הערך. יום לדוגמה הוא תוכן ולא "מצב הדגמה" במקום חשבון, ולכן לא צריך אישור מראש של אפל.
+
+**ההערות לסוקר** (`App Review Information`, ואז `Notes`; עד 4,000 בייטים; באנגלית):
+```
+Ski day (new in this version)
+
+What it does: the user taps "Start a ski day" (or "Measure a run") while the app is open. The app then records location once per second, including with the screen locked, to show live speed, recognise the lift and ski run the user is on, and build a timeline and map of the day.
+
+Why background location (UIBackgroundModes: location): skiers keep the phone in a pocket with the screen locked. Recording starts only from the user's tap in the foreground, uses "While Using the App" authorization only (we never ask for "Always"), shows the blue location indicator the whole time, and stops when the user taps Stop, when a measured run ends, or automatically after a period without movement. Location is processed and stored only on the device and is never sent to us or to anyone else.
+
+How to test without snow:
+1. Open the app, go to the map, tap "Start a ski day" and allow location ("While Using the App", Precise).
+2. Lock the phone and walk or drive for a few minutes. The recording continues: speed, distance and the route on the map update.
+3. Unlock, tap Stop, and open the day's timeline. Every number is measured anywhere. Outside Gudauri, Georgia, segments are shown without lift and run names ("off the runs", "climb"), because names come only from our map of that resort.
+4. To see a full day with lifts and runs, open History and choose the sample day (marked "Sample").
+```
+
+- **לפני ההגשה, מול הקוד:** שורה 4 נשארת רק אם היום לדוגמה נבנה, ושורה 3 כתובה לפי מה שהאפליקציה עושה בפועל מחוץ לגודאורי. אם הפיצ'ר מוצג רק באזור או רק עם היכולת `dayrec`, צריך דרך שהסוקר יראה אותו, אחרת אפל תדחה לפי 2.1.
+- **כשנכנס Live Activity:** להוסיף שורה: "A Live Activity on the Lock Screen and in the Dynamic Island shows the live numbers while recording; it is updated by the app only, without push notifications."
+
+**תווית הפרטיות (`App Privacy`): בלי שינוי.** לפי ההגדרה של אפל, "נאסף" הוא נתון שיוצא מהמכשיר, ונתון שמעובד רק במכשיר לא מוצהר. ההקלטה, המהירות, הגובה וחיישני התנועה נשארים בטלפון, ולכן מיקום מדויק, מיקום משוער ונתוני כושר **לא נאספים** (כמו "איפה אני", סעיף 5.3). אירועי המדידה של יום הגלישה (זמן ומספרים, בלי מיקום) נכנסים ב-`Product Interaction` שכבר מוצהר. **שני תנאים:**
+- **גיבוי:** התיקייה של הימים מחוץ לגיבוי של iCloud (תנאי 3 של הארכיטקט). אחרת המסלולים יוצאים מהטלפון, ואז זה כבר לא "רק במכשיר".
+- **ייצוא קובץ המסלול:** אפל לא מתייחסת בדף שלה לגיליון השיתוף. ייצוא שהמשתמש עושה בעצמו לאפליקציה שהוא בוחר לא עובר דרכנו, ולכן לפי ההגדרה הוא לא "איסוף". זה פירוש שלנו, ולסשן המשפט לבדוק.
+
+**מה סשן האייפון מוסיף לבנייה** (לא דורש את פיני; לפי המפרט ותוספת סשן האייפון ב-מ-8):
+- מצב רקע של מיקום (ב-Xcode: `Location updates`).
+- טקסט ההסבר למיקום בזמן השימוש (כבר קיים ל"איפה אני"), ועכשיו גם להקלטה.
+- בקשה למיקום מדויק זמני, למי שנתן מיקום משוער, עם טקסט ההסבר שלה.
+- **בלי "תנועה וכושר"** (סשן האייפון, 30.10.2026): הברומטר לא נכנס, וחיישני התנועה הגולמיים נקראים בלי הרשאה ובלי שאלה. לכן השאלות היחידות למשתמש הן מיקום "בזמן השימוש" ומיקום מדויק זמני, וההערות לסוקר מזכירות רק מיקום. אם הברומטר ייכנס אחר כך, נוסף טקסט הסבר ושורה בהערות.
+- `NSSupportsLiveActivities`, כשנכנס Live Activity.
+- סיבות במניפסט הפרטיות, אם קוראים חותמות זמן של קבצים או מקום פנוי בדיסק (תנאי 8).
+- כל הטקסטים בארבע השפות, מ-`i18n/strings.json`.
+
+**Live Activity: מה פיני עושה** (רק כשסשן האייפון מודיע שהיעד בנוי והארכיטקט אישר מחדש את `ios-release.yml`, תנאי 8):
+
+ב-App Store Connect עצמו **אין מה לעשות**: ההרחבה נארזת בתוך האפליקציה, בלי רשומה נפרדת. העבודה היא בחשבון המפתח וב-GitHub, באותה דרך כמו בסעיף 4.2:
+1. **מזהה שני** להרחבה, בלי יכולות נוספות (העדכונים מהאפליקציה בלבד, בלי התראות דחיפה, ובלי כניסה עם אפל). המזהה, לפי סשן האייפון (30.10.2026), באותיות קטנות כמו המזהה של האתר:
+   ```
+   io.github.pini236.skiapp.live
+   ```
+   ```
+   https://developer.apple.com/account/resources/identifiers/add/bundleId
+   ```
+2. **פרופיל שני** מסוג `App Store`, למזהה החדש, עם אותה תעודת הפצה. שם: `Gudi Live Activity App Store`.
+   ```
+   https://developer.apple.com/account/resources/profiles/add
+   ```
+3. **סוד שביעי** בסביבה `ios-release`, עם הפרופיל ב-base64 (כמו בסעיף 4.2 ד). ההצעה של סשן האייפון, ליד הסוד הקיים של הפרופיל; השם הסופי של DevOps ושל הארכיטקט, בסקירה החוזרת:
+   ```
+   IOS_PROFILE_LIVE_BASE64
+   ```
+   ```
+   https://github.com/pini236/gudauri-ski-trip/settings/environments
+   ```
+4. **ניקוי** כמו בסעיף 4.2 ה, ולהודיע לסשן האייפון.
+5. **תוקף:** הפרופיל השני פג יחד עם הראשון. בתזכורת השנתית מחליפים את שניהם.
+
+**מאיפה זה ידוע:** שהרחבה עם מזהה משלה צריכה מזהה ופרופיל משלה, כך החתימה ב-Xcode עובדת (סשן האייפון) וכך תנאי 8 של הארכיטקט; **בדף של אפל לא מצאתי את זה במפורש.** את Live Activity מדליקים במפתח בקובץ ההגדרות של האפליקציה, ולא ביכולת על המזהה; בלי התראות דחיפה אין צורך ביכולת נוספת (לפי סשן האייפון, לא אומת בדף של אפל). סשן האייפון מאמת בבנייה הראשונה.
+
 ## 6. מה סשן האייפון צריך לספק
 
 - בנייה ב-GitHub Actions (`macos-latest`, Xcode 26), חתימה והעלאה ל-TestFlight רק ב-`main`, לפי סעיף 4 ותנאי הארכיטקט שם. מספר בנייה שלא מתאפס (R-8). בדיקה שאסימון של אפל לא נשמר בשום מקום (סעיף 3.3).
@@ -443,6 +517,7 @@ cd ~ && rm -rf ~/ski-app-keys
 - `Associated Domains`: `applinks:gudauri-ski-trip.vercel.app`.
 - אייפון בלבד בגרסה הראשונה (בלי אייפד), iOS 26 לפחות אם הכלים הגרפיים דורשים (מעל הרף של אפל, iOS 13).
 - סמל 1024 וצילומי מסך מהסימולטור.
+- **יום הגלישה (סעיף 5.9):** מצב רקע של מיקום, טקסטי ההרשאות, דרך לסוקר לבדוק בלי שלג (הקלטה בכל מקום, ויום לדוגמה), ו-Live Activity עם המזהה והסוד שנקבעו. להודיע לפיני כשהיעד בנוי, ולארכיטקט לפני הפעלת החתימה הכפולה.
 
 ## יומן
 
@@ -503,5 +578,13 @@ cd ~ && rm -rf ~/ski-app-keys
 - מילות מפתח, תיאור, כתובת תמיכה: https://developer.apple.com/help/app-store-connect/reference/app-information/platform-version-information/
 - זמני סקירה: https://developer.apple.com/distribute/app-review/
 - תוויות נגישות: https://developer.apple.com/help/app-store-connect/manage-app-accessibility/overview-of-accessibility-nutrition-labels/
+
+**נבדקו ב-30.10.2026 (יום הגלישה, סעיף 5.9)**
+- הנחיות 2.1, 2.3.1(a) ו-2.5.4: https://developer.apple.com/app-store/review/guidelines/
+- Live Activity (הרחבה, `NSSupportsLiveActivities`, 8 ועוד 4 שעות, 4 קילובייט, כל התצוגות): https://developer.apple.com/documentation/activitykit/displaying-live-data-with-live-activities
+- עדכוני מיקום ברקע ו"בזמן השימוש": https://developer.apple.com/documentation/corelocation/handling-location-updates-in-the-background
+- ההגדרה של "נאסף" ושל מיקום מדויק ומשוער: https://developer.apple.com/app-store/app-privacy-details/
+- ההערות לסוקר, עד 4,000 בייטים: https://developer.apple.com/help/app-store-connect/reference/app-information/platform-version-information/
+- פרופיל `App Store`: https://developer.apple.com/help/account/provisioning-profiles/create-an-app-store-provisioning-profile/
 
 **לא אומת בדף רשמי:** המחיר בשקלים; שההרשמה באפליקציה פתוחה בישראל; שאין דרישת מס ובנק כלשהי לאפליקציה חינמית; השמות המדויקים של היכולות ברישום המזהה; כותרת `Content-Type` לקובץ הקישורים; תוקף של שנה לתעודת ההפצה; זמן האישור של הרשמה.
