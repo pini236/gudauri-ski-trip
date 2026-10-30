@@ -2964,12 +2964,20 @@
       "title": "ו. החוויה: הרגעים שרק לנו יש"
     },
     "R29-Data.dc.html": {
-      "x": 3316,
+      "x": 4036,
       "y": 7913,
       "w": 640,
       "h": 1000,
       "page": "round29",
       "title": "מה עוד לא קיים"
+    },
+    "R29-Market.dc.html": {
+      "x": 3316,
+      "y": 7913,
+      "w": 640,
+      "h": 1000,
+      "page": "round29",
+      "title": "מול המתחרים"
     }
   },
   "createdOnFiles": {
@@ -4091,7 +4099,7 @@
     },
     "round29row5": {
       "kind": "title1",
-      "maxW": 3276,
+      "maxW": 3996,
       "page": "round29",
       "text": "ו. החוויה",
       "w": 240,
@@ -4469,7 +4477,8 @@
     "R29-Spec.dc.html",
     "R29-States.dc.html",
     "R29-Moat.dc.html",
-    "R29-Data.dc.html"
+    "R29-Data.dc.html",
+    "R29-Market.dc.html"
   ],
   "pages": [
     {
