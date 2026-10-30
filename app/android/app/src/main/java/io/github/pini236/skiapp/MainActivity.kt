@@ -49,6 +49,7 @@ import io.github.pini236.skiapp.data.Runs
 import io.github.pini236.skiapp.data.SiteData
 import io.github.pini236.skiapp.dayrec.DayFeature
 import io.github.pini236.skiapp.dayrec.DayLog
+import io.github.pini236.skiapp.dayrec.DayParams
 import io.github.pini236.skiapp.dayrec.DayRec
 import io.github.pini236.skiapp.data.Terrain
 import io.github.pini236.skiapp.data.Video
@@ -566,7 +567,7 @@ class MainActivity : ComponentActivity() {
             "feature" -> Qa.log("dayrec feature ${DayFeature.enabled(siteData.read("resorts.json"))}")
             "report" -> DayRec.store(this).days().forEach { f ->
                 runCatching { DayLog.read(f) }.getOrNull()?.let { d ->
-                    Qa.log("dayrec day points=${d.points.size} gaps=${d.gaps.size} resumes=${d.resumes.size} cut=${d.cut} end=${d.endReason ?: "-"} " +
+                    Qa.log("dayrec day points=${d.points.size} holes=${d.points.zipWithNext().count { (a, b) -> b.t - a.t > DayParams.GAP_MS }} resumes=${d.resumes} impacts=${d.events.count { it.optString("ev") == "impact" }} dropped=${d.dropped} cut=${d.cut} end=${d.endReason ?: "-"} " +
                         "speed=${d.points.count { it.speed != null }} acc=${d.points.count { it.speedAcc != null }} motion=${d.points.count { it.motion != null }} bytes=${f.length()}")
                 }
             }

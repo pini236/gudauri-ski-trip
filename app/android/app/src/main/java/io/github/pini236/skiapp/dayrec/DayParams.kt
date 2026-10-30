@@ -17,7 +17,13 @@ object DayParams {
     /** Moving means getting farther than this from where the idle time started. */
     const val IDLE_MOVE_M = 30f
     /** Condition 3: a hole longer than this is written down. */
-    const val GAP_MS = DayLog.GAP_MS
+    const val GAP_MS = 10_000L
+    /** "Here you fell" (condition 10): fall.* in tools/fixtures/dayrec-params.json; a test pins these to that file. */
+    const val FALL_HZ = 50
+    const val FALL_PRE_S = 2.5
+    const val FALL_POST_S = 2.5
+    const val FALL_TRIGGER_G = 2.5
+    const val FALL_DEBOUNCE_S = 3.0
     /** The terrain model's extent, in metres from the resort's origin (site/data/terrain.json, dem.x0..y1). */
     const val AREA_X0 = -7795.76f
     const val AREA_Y0 = -7792.4f

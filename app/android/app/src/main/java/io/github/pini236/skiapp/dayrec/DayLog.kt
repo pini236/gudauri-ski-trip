@@ -1,5 +1,6 @@
 package io.github.pini236.skiapp.dayrec
 
+import org.json.JSONArray
 import org.json.JSONObject
 import java.io.File
 import java.io.FileOutputStream
@@ -7,18 +8,20 @@ import java.io.IOException
 import java.util.Locale
 
 /**
- * The raw log of one ski day (docs/ARCHITECTURE.md m-8, condition 3; docs/FEATURES.md section 10): one JSON object per
- * line, appended to the end of one file, so a crash loses at most the last seconds and never the day.
+ * The raw log of one ski day, in the format of the reference tool (tools/dayrec/README.md, "The raw log", and
+ * rawlog.py, which this reader follows rule by rule): one JSON object per line, appended to the end of one file, so a
+ * crash loses at most the last seconds and never the day.
  *
- * - First line: the header `{"v":1,"tz":..,"resort":..,"device":..}`. Then a point per second (see [Point]) and now and
- *   then an event line `{"e":"gap"|"resume"|"end",...}`.
- * - A reader skips a line it does not know (an unknown "e") and a field it does not know, so the format can only grow.
- *   A last line cut in half by a crash is thrown away.
+ * - First line, the header `{"v":1,"tz":..,"resort":..,"device":..,"start":ms,"mode":"day"}`. A point is a line with `t`
+ *   (the keys of [Point], a missing reading written as `null`); an event is a line with `ev`: `start`, `resume`,
+ *   `stop` (with a reason), `full`, and `impact` (a window of the motion sensors around a blow, and its dismissal).
+ * - A reader skips a line it does not parse, anywhere, and an event type or a field it does not know, so the format only
+ *   grows. The holes are not written: the analysis finds them in the time between points (`gap_s`).
  * - **The file never leaves the phone** (m-7): no code here sends, logs or measures a position.
  */
 class DayLog private constructor(val file: File, private val out: FileOutputStream, private val now: () -> Long) {
 
-    /** One second of sensors. The position and the speed come from the GPS; null is "this phone could not say". */
+    /** One second of sensors. The position comes from the GPS; null is "this phone could not say". */
     class Point(
         val t: Long, val lat: Double, val lon: Double,
         val alt: Double? = null, val pressure: Float? = null,
@@ -33,37 +36,65 @@ class DayLog private constructor(val file: File, private val out: FileOutputStre
 
     /** Size so far, so the recorder can stop at the day's limit ([MAX_BYTES]). */
     val bytes get() = file.length()
-    val full get() = bytes >= MAX_BYTES
+    val atLimit get() = bytes >= MAX_BYTES
 
     @Synchronized
     fun add(p: Point) {
         line(JSONObject().apply {
-            put("t", p.t); put("la", fix(p.lat, 6)); put("lo", fix(p.lon, 6))
-            p.alt?.let { put("al", fix(it, 1)) }; p.pressure?.let { put("p", fix(it.toDouble(), 2)) }
-            p.speed?.let { put("sp", fix(it.toDouble(), 2)) }; p.speedAcc?.let { put("spa", fix(it.toDouble(), 2)) }
-            p.hAcc?.let { put("ha", fix(it.toDouble(), 1)) }; p.vAcc?.let { put("va", fix(it.toDouble(), 1)) }
-            p.bearing?.let { put("br", fix(it.toDouble(), 1)) }; p.motion?.let { put("mv", fix(it.toDouble(), 3)) }
+            put("t", p.t); put("la", fix(p.lat, 7)); put("lo", fix(p.lon, 7))
+            put("a", p.alt?.let { fix(it, 1) } ?: JSONObject.NULL)
+            put("p", p.pressure?.let { fix(it.toDouble(), 3) } ?: JSONObject.NULL)
+            put("s", p.speed?.let { fix(it.toDouble(), 2) } ?: JSONObject.NULL)
+            put("sa", p.speedAcc?.let { fix(it.toDouble(), 2) } ?: JSONObject.NULL)
+            put("ha", p.hAcc?.let { fix(it.toDouble(), 1) } ?: JSONObject.NULL)
+            put("va", p.vAcc?.let { fix(it.toDouble(), 1) } ?: JSONObject.NULL)
+            put("b", p.bearing?.let { fix(it.toDouble(), 1) } ?: JSONObject.NULL)
+            put("m", p.motion?.let { fix(it.toDouble(), 3) } ?: JSONObject.NULL)
         })
         points++
     }
 
-    /** No reading between [from] and [to] (more than [GAP_MS]): the timeline shows it as a hole and does not hide it. */
-    @Synchronized fun gap(from: Long, to: Long) = line(JSONObject().put("e", "gap").put("from", from).put("to", to))
+    /** The day goes on from a file that was cut (after [reopen]). */
+    @Synchronized fun resumed(t: Long) = line(JSONObject().put("ev", "resume").put("t", t))
 
-    /** The day was cut (the process was killed) and goes on from the same file. */
-    @Synchronized fun resumed(t: Long) = line(JSONObject().put("e", "resume").put("t", t))
+    /** The day began (the second line of a new file). */
+    @Synchronized fun started(t: Long) = line(JSONObject().put("ev", "start").put("t", t))
 
-    /** The last line of a day that ended on purpose; a file without it is a day that was cut. */
+    /** The last line of a day that ended on purpose; a file without it (and without `full`) is a day that was cut. */
     @Synchronized
-    fun end(t: Long, reason: String) {
+    fun stop(t: Long, reason: String) {
         if (closed) return
-        line(JSONObject().put("e", "end").put("t", t).put("reason", reason))
-        sync(); closed = true; runCatching { out.close() }
+        line(JSONObject().put("ev", "stop").put("t", t).put("reason", reason))
+        finish()
     }
 
-    /** Closes the file as it is, without a closing line: the day stays "cut" and can be continued. */
+    /** The file reached its ceiling: nothing is written after this line. */
+    @Synchronized
+    fun full(t: Long) {
+        if (closed) return
+        line(JSONObject().put("ev", "full").put("t", t))
+        finish()
+    }
+
+    /**
+     * A blow, "here you fell" (m-8 condition 10): a window of the accelerometer (m/s^2, with gravity) and the gyroscope
+     * (rad/s), [hz] a second, interleaved x,y,z; the sample at exactly [t] is in it. Written after the window closes,
+     * so it may come after points later than [t].
+     */
+    @Synchronized
+    fun impact(t: Long, t0: Long, hz: Int, acc: DoubleArray, gyr: DoubleArray) {
+        fun arr(a: DoubleArray, decimals: Int) = JSONArray().also { j -> a.forEach { j.put(fix(it, decimals)) } }
+        line(JSONObject().put("ev", "impact").put("t", t).put("hz", hz).put("t0", t0).put("acc", arr(acc, 2)).put("gyr", arr(gyr, 3)))
+    }
+
+    /** "I did not fall": a second line with the same `t`; the window is deleted when the day is closed ([compact]). */
+    @Synchronized fun dismiss(t: Long) = line(JSONObject().put("ev", "impact").put("t", t).put("dismissed", true))
+
+    /** Closes the file as it is, without a closing line: the day stays "cut" and can be gone on with. */
     @Synchronized
     fun release() { if (closed) return; sync(); closed = true; runCatching { out.close() } }
+
+    private fun finish() { sync(); closed = true; runCatching { out.close() } }
 
     private fun line(o: JSONObject) {
         if (closed) return
@@ -78,26 +109,31 @@ class DayLog private constructor(val file: File, private val out: FileOutputStre
     companion object {
         const val VERSION = 1
         const val SYNC_MS = 30_000L
-        const val GAP_MS = 10_000L
         const val MAX_BYTES = 10L shl 20
 
+        /** Rounds a reading, as the reference tool writes it. */
         fun fix(v: Double, decimals: Int): Double {
             val f = Math.pow(10.0, decimals.toDouble())
             return Math.round(v * f) / f
         }
 
-        /** Starts a new day's file with its header. */
-        fun create(file: File, tz: String, resort: String, device: String, now: () -> Long = System::currentTimeMillis): DayLog {
+        /** Starts a new day's file with its header and its `start` event. */
+        fun create(file: File, tz: String, resort: String, device: String, startedAt: Long, mode: String = "day", now: () -> Long = System::currentTimeMillis): DayLog {
             file.parentFile?.mkdirs()
             val log = DayLog(file, FileOutputStream(file, false), now)
-            log.line(JSONObject().put("v", VERSION).put("tz", tz).put("resort", resort).put("device", device))
+            log.line(JSONObject().put("v", VERSION).put("tz", tz).put("resort", resort).put("device", device).put("start", startedAt).put("mode", mode))
+            log.started(startedAt)
             return log
         }
 
-        /** Goes on writing to the end of a day that was cut. */
+        /**
+         * Goes on writing to a day that was cut. First the file is rewritten without the windows of dismissed blows
+         * (recovery is one of the two moments for it) and without a line a crash cut; then, if it does not end with a
+         * newline, one is written before anything else (README rule 2).
+         */
         fun reopen(file: File, now: () -> Long = System::currentTimeMillis): DayLog {
             if (!file.isFile) throw IOException("no such day")
-            // a last line cut in half would be glued to the next one: start on a new line
+            compact(file)
             val tail = file.length() > 0 && lastBytes(file, 1).lastOrNull() != '\n'.code.toByte()
             val out = FileOutputStream(file, true)
             if (tail) out.write('\n'.code)
@@ -110,44 +146,67 @@ class DayLog private constructor(val file: File, private val out: FileOutputStre
             ByteArray(len).also { r.seek(r.length() - len); r.readFully(it) }
         }
 
-        fun read(file: File): Day = parse(file.readText(Charsets.UTF_8).lineSequence())
-
-        fun parse(lines: Sequence<String>): Day {
-            val all = lines.filter { it.isNotBlank() }.toList()
-            var header: JSONObject? = null
-            val points = ArrayList<Point>(); val gaps = ArrayList<LongArray>(); val resumes = ArrayList<Long>()
-            var end: JSONObject? = null
-            all.forEachIndexed { i, text ->
-                // only the last line can be cut; a bad line in the middle is a damaged file and is skipped too
-                val o = runCatching { JSONObject(text) }.getOrNull() ?: return@forEachIndexed
-                when {
-                    i == 0 && o.has("v") -> header = o
-                    o.has("e") -> when (o.optString("e")) {
-                        "gap" -> gaps += longArrayOf(o.optLong("from"), o.optLong("to"))
-                        "resume" -> resumes += o.optLong("t")
-                        "end" -> end = o
-                        else -> {} // an event from a newer version: ignored
-                    }
-                    o.has("t") && o.has("la") && o.has("lo") -> points += Point(
-                        o.getLong("t"), o.getDouble("la"), o.getDouble("lo"),
-                        o.dbl("al"), o.flt("p"), o.flt("sp"), o.flt("spa"), o.flt("ha"), o.flt("va"), o.flt("br"), o.flt("mv"),
-                    )
-                }
+        /**
+         * Closing a day, and recovering after a crash: the motion windows of dismissed blows are deleted for real
+         * (m-8 condition 10). Every other line stays as it was, in order; the dismissal line stays, without a window;
+         * a line that does not parse is dropped. The result replaces the file atomically (rawlog.compact).
+         */
+        fun compact(file: File) {
+            val lines = file.readText(Charsets.UTF_8).split('\n').filter { it.isNotBlank() }
+            val parsed = lines.map { runCatching { JSONObject(it) }.getOrNull() }
+            val gone = HashSet<Long>()
+            parsed.forEach { o -> if (o != null && o.optString("ev") == "impact" && o.optBoolean("dismissed", false)) gone += o.optLong("t") }
+            val kept = lines.filterIndexed { i, _ ->
+                val o = parsed[i] ?: return@filterIndexed false
+                !(o.optString("ev") == "impact" && !o.optBoolean("dismissed", false) && o.optLong("t") in gone)
             }
-            return Day(header?.optInt("v", 1) ?: 1, header?.optString("tz").orEmpty(), header?.optString("resort").orEmpty(),
-                points, gaps, resumes, end?.optLong("t"), end?.optString("reason"))
+            val tmp = File(file.parentFile, file.name + ".tmp")
+            tmp.writeText(kept.joinToString("\n", postfix = "\n"), Charsets.UTF_8)
+            if (!tmp.renameTo(file)) { file.delete(); if (!tmp.renameTo(file)) throw IOException("cannot replace ${file.name}") }
         }
 
-        private fun JSONObject.dbl(k: String): Double? = if (has(k)) optDouble(k) else null
-        private fun JSONObject.flt(k: String): Float? = if (has(k)) optDouble(k).toFloat() else null
+        fun read(file: File): Day = parse(file.readText(Charsets.UTF_8).lineSequence())
+
+        /** rawlog.read: a header, the points sorted by time (the same second twice: the first), the events, and how many lines were dropped. */
+        fun parse(lines: Sequence<String>): Day {
+            var header: JSONObject? = null
+            val points = ArrayList<Point>(); val events = ArrayList<JSONObject>(); var bad = 0
+            for (raw in lines) {
+                val text = raw.trim()
+                if (text.isEmpty()) continue
+                val o = runCatching { JSONObject(text) }.getOrNull()
+                if (o == null) { bad++; continue }
+                when {
+                    header == null && o.has("v") && !o.has("t") -> header = o
+                    o.has("ev") -> events += o
+                    o.has("t") && o.has("la") && o.has("lo") -> {
+                        if (o.isNull("la") || o.isNull("lo")) { bad++; continue }
+                        points += Point(o.getLong("t"), o.getDouble("la"), o.getDouble("lo"),
+                            o.dbl("a"), o.flt("p"), o.flt("s"), o.flt("sa"), o.flt("ha"), o.flt("va"), o.flt("b"), o.flt("m"))
+                    }
+                    else -> bad++
+                }
+            }
+            val sorted = points.sortedBy { it.t }
+            val unique = ArrayList<Point>(sorted.size)
+            for (p in sorted) if (unique.isEmpty() || p.t > unique.last().t) unique += p
+            return Day(header ?: JSONObject(), unique, events, bad)
+        }
+
+        private fun JSONObject.dbl(k: String): Double? = if (has(k) && !isNull(k)) optDouble(k) else null
+        private fun JSONObject.flt(k: String): Float? = if (has(k) && !isNull(k)) optDouble(k).toFloat() else null
     }
 
-    /** A day as read back: [endedAt] is null for a day that was cut. */
-    class Day(
-        val version: Int, val tz: String, val resort: String,
-        val points: List<Point>, val gaps: List<LongArray>, val resumes: List<Long>,
-        val endedAt: Long?, val endReason: String?,
-    ) {
+    /** A day as read back. */
+    class Day(val header: JSONObject, val points: List<Point>, val events: List<JSONObject>, val dropped: Int) {
+        val tz get() = header.optString("tz")
+        val resort get() = header.optString("resort")
+        val mode get() = header.optString("mode", "day")
+        val stop: JSONObject? get() = events.lastOrNull { it.optString("ev") == "stop" }
+        val endedAt: Long? get() = (stop ?: events.lastOrNull { it.optString("ev") == "full" })?.optLong("t")
+        val endReason: String? get() = stop?.optString("reason") ?: if (events.any { it.optString("ev") == "full" }) "full" else null
+        val resumes get() = events.count { it.optString("ev") == "resume" }
+        /** A day with neither a `stop` nor a `full` line: it was cut. */
         val cut get() = endedAt == null
     }
 }
@@ -166,8 +225,8 @@ class DayStore(private val root: File) {
 
     /** Only the tail of the file is read to know (the closing line is short). */
     fun isCut(f: File): Boolean = runCatching {
-        val last = String(DayLog.lastBytes(f, 256), Charsets.UTF_8).lineSequence().lastOrNull { it.isNotBlank() }
-        last == null || !last.contains("\"e\":\"end\"")
+        val tail = String(DayLog.lastBytes(f, 512), Charsets.UTF_8)
+        !(tail.contains("\"ev\":\"stop\"") || tail.contains("\"ev\":\"full\""))
     }.getOrDefault(true)
 
     fun totalBytes() = days().sumOf { it.length() }

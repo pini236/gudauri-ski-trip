@@ -72,7 +72,7 @@ object DayRec {
         val day = runCatching { DayLog.read(file) }.getOrNull() ?: return
         if (!day.cut) return
         val last = day.points.lastOrNull()?.t ?: System.currentTimeMillis()
-        runCatching { DayLog.reopen(file).end(last, REASON_CRASH) }
+        runCatching { DayLog.reopen(file).also { it.stop(last, REASON_CRASH) } }
         stopped(minutes = ((last - (day.points.firstOrNull()?.t ?: last)) / 60_000L).toInt(), reason = REASON_CRASH)
     }
 

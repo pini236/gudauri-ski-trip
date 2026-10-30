@@ -19,6 +19,7 @@ import android.os.Build
 import android.os.HandlerThread
 import android.os.IBinder
 import android.os.PowerManager
+import android.os.SystemClock
 import io.github.pini236.skiapp.MainActivity
 import io.github.pini236.skiapp.R
 import io.github.pini236.skiapp.data.Geo
@@ -29,7 +30,8 @@ import java.io.File
 /**
  * The recorder (docs/ARCHITECTURE.md m-8, conditions 1 to 3): a foreground service of type location with an always-on
  * notification, started by a tap. Every second it writes one line to the day's file ([DayLog]) and goes on with the
- * screen off, because it holds a partial wake lock; a hole of more than ten seconds is written down, not hidden.
+ * screen off, because it holds a partial wake lock. A hole in the points is not written: the analysis finds it in the time
+ * between two points (gap_s in dayrec-params.json). Around a blow (condition 10) a window of the motion sensors is written.
  *
  * - The GPS only, through the system's LocationManager (no library, no network location, no activity recognition).
  * - It stops by itself after a long stillness ([IdleWatch]), with a notice first, and when the day's file is full.
@@ -43,6 +45,8 @@ class DayRecService : Service() {
     private var lock: PowerManager.WakeLock? = null
     private var log: DayLog? = null
     private val motion = MotionMeter()
+    private var impacts: ImpactBuffer? = null
+    private var clockOffset = 0L
     private val idle = IdleWatch()
     @Volatile private var pressure: Float? = null
     private var firstAt = 0L
@@ -57,7 +61,11 @@ class DayRecService : Service() {
         override fun onSensorChanged(e: SensorEvent) {
             when (e.sensor.type) {
                 Sensor.TYPE_PRESSURE -> pressure = e.values[0]
-                Sensor.TYPE_ACCELEROMETER -> motion.feed(e.values[0], e.values[1], e.values[2])
+                Sensor.TYPE_ACCELEROMETER -> {
+                    motion.feed(e.values[0], e.values[1], e.values[2])
+                    impacts?.feedAcc(e.timestamp / 1_000_000L + clockOffset, e.values[0], e.values[1], e.values[2])
+                }
+                Sensor.TYPE_GYROSCOPE -> impacts?.feedGyro(e.values[0], e.values[1], e.values[2])
             }
         }
         override fun onAccuracyChanged(s: Sensor?, a: Int) {}
@@ -89,9 +97,13 @@ class DayRecService : Service() {
         val file = resume?.let { File(it) }?.takeIf { it.isFile && it.parentFile == store.dir }
         log = try {
             if (file != null) DayLog.reopen(file).also { it.resumed(now) }
-            else DayLog.create(store.newFile(now), DayParams.TZ, DayParams.RESORT, DayStore.device())
+            else DayLog.create(store.newFile(now), DayParams.TZ, DayParams.RESORT, DayStore.device(), now)
         } catch (e: Exception) { Qa.log("dayrec cannot write: ${e.javaClass.simpleName}"); abort(); return }
         DayRec.current = log!!.file
+        clockOffset = System.currentTimeMillis() - SystemClock.elapsedRealtime()
+        impacts = ImpactBuffer(DayParams.FALL_TRIGGER_G, DayParams.FALL_PRE_S, DayParams.FALL_POST_S, DayParams.FALL_DEBOUNCE_S, DayParams.FALL_HZ) { t, t0, hz, a, g ->
+            runCatching { log?.impact(t, t0, hz, a, g) }
+        }
         firstAt = now; lastAt = 0L
 
         // 14 hours is longer than any lift day: a lock that cannot be forgotten
@@ -103,8 +115,11 @@ class DayRecService : Service() {
             @Suppress("MissingPermission")
             lm!!.requestLocationUpdates(LocationManager.GPS_PROVIDER, DayParams.GPS_MIN_TIME_MS, 0f, gps, t.looper)
         } catch (e: Exception) { Qa.log("dayrec no gps: ${e.javaClass.simpleName}"); abort(); return }
-        // the accelerometer fast and batched (the hardware collects and hands over every second); the barometer slowly
-        sensors?.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)?.let { sensors?.registerListener(sensorListener, it, SensorManager.SENSOR_DELAY_GAME, 1_000_000) }
+        // the accelerometer and the gyroscope at 50 a second, batched (the hardware collects and hands over every
+        // second); the barometer slowly. The windows around a blow come from these two (condition 10).
+        val period = 1_000_000 / DayParams.FALL_HZ
+        sensors?.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)?.let { sensors?.registerListener(sensorListener, it, period, 1_000_000) }
+        sensors?.getDefaultSensor(Sensor.TYPE_GYROSCOPE)?.let { sensors?.registerListener(sensorListener, it, period, 1_000_000) }
         sensors?.getDefaultSensor(Sensor.TYPE_PRESSURE)?.let { sensors?.registerListener(sensorListener, it, 1_000_000) }
         DayRec.started()
     }
@@ -113,7 +128,7 @@ class DayRecService : Service() {
         val log = log ?: return
         val t = if (l.time > 0) l.time else System.currentTimeMillis()
         if (t <= lastAt) return // the same second twice, or the clock stepping back
-        if (lastAt != 0L && t - lastAt > DayParams.GAP_MS) log.gap(lastAt, t)
+        if (lastAt != 0L && t - lastAt > DayParams.GAP_MS) Qa.log("dayrec hole ${(t - lastAt) / 1000}s")
         if (lastAt == 0L) firstAt = t
         lastAt = t
         log.add(DayLog.Point(
@@ -125,7 +140,7 @@ class DayRecService : Service() {
             vAcc = if (Build.VERSION.SDK_INT >= 26 && l.hasVerticalAccuracy()) l.verticalAccuracyMeters else null,
             bearing = if (l.hasBearing()) l.bearing else null, motion = motion.take(),
         ))
-        if (log.full) { finish(DayRec.REASON_FULL); return }
+        if (log.atLimit) { finish(DayRec.REASON_FULL); return }
         when (val v = idle.feed(t, Geo.x(l.longitude), Geo.y(l.latitude))) {
             IdleWatch.Verdict.Fine -> if (warnedLeft >= 0) { warnedLeft = -1; refresh(t) }
             is IdleWatch.Verdict.Warn -> { warnedLeft = v.leftMs; refresh(t) }
@@ -166,7 +181,8 @@ class DayRecService : Service() {
         if (stopping) return
         stopping = true
         val minutes = if (lastAt > firstAt) ((lastAt - firstAt) / 60_000L).toInt() else 0
-        runCatching { log?.end(if (lastAt > 0) lastAt else System.currentTimeMillis(), reason) }
+        val at = if (lastAt > 0) lastAt else System.currentTimeMillis()
+        runCatching { if (reason == DayRec.REASON_FULL) log?.full(at) else log?.stop(at, reason) }
         if (log != null) DayRec.stopped(minutes, reason)
         log = null
         teardown()
@@ -184,6 +200,7 @@ class DayRecService : Service() {
     private fun teardown() {
         runCatching { lm?.removeUpdates(gps) }
         runCatching { sensors?.unregisterListener(sensorListener) }
+        impacts?.clear(); impacts = null
         runCatching { thread?.quitSafely() }; thread = null
         runCatching { lock?.takeIf { it.isHeld }?.release() }; lock = null
         DayRec.current = null
