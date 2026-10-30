@@ -59,7 +59,8 @@ extension DayRec {
         public var dropM: Double, distM: Double
     }
 
-    /// One piece of the day, in order. `type` is lift, descent, stop, walk or ascent; the fields are those of its type.
+    /// One piece of the day, in order. `type` is lift, descent, stop, walk, ascent or drive (a car on a road, not
+    /// in the skiing figures); the fields are those of its type. A client shows a type it does not know as unknown.
     public struct Segment: Codable, Equatable, Sendable {
         public var type: String
         public var t0: Int64, t1: Int64
@@ -68,11 +69,11 @@ extension DayRec {
         public var name: String?
         public var from: StationRef?
         public var to: StationRef?
-        /// lift and ascent
+        /// lift, ascent and drive (negative going down)
         public var riseM: Double?
         // descent
         public var legs: [Leg]?
-        /// descent and walk
+        /// descent, walk and drive
         public var distM: Double?
         public var dropM: Double?
         public var movingS: Int?
@@ -106,7 +107,7 @@ extension DayRec {
     public struct Live: Codable, Equatable, Sendable {
         public struct Change: Codable, Equatable, Sendable {
             public var t: Int64
-            /// stand, walk, ski, lift or up.
+            /// stand, walk, ski, lift, up or drive.
             public var act: String
             public var lift: String?
             /// While skiing: the run names, empty on a line without a name, nil off the runs.

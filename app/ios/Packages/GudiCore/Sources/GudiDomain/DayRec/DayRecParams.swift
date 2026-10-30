@@ -36,7 +36,13 @@ extension DayRec {
                 secs[k] = m
             }
             sections = secs; liftSpeeds = speeds
+            moments = try (o["moments"] as? [String: Any]).map {
+                try JSONDecoder().decode(MomentConfig.self, from: JSONSerialization.data(withJSONObject: $0))
+            }
         }
+
+        /// The moments engine's section (nil in a file from before it).
+        public let moments: MomentConfig?
 
         /// A number of a section; a missing one is a broken file, found by the tests, never in the field.
         subscript(_ section: String, _ key: String) -> Double {

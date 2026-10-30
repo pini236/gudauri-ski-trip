@@ -6,7 +6,9 @@ extension DayRec {
     typealias Pt = DayJournal.Point
 
     static let stand = 0, walk = 1, ski = 2, up = 3
-    static let acts = ["stand", "walk", "ski", "up"]
+    /// Set after the activity Viterbi, from the roads (step 4a); lifts are 4 and up.
+    static let drive = -1
+    static func actName(_ a: Int) -> String { a >= 4 ? "lift" : a == drive ? "drive" : ["stand", "walk", "ski", "up"][a] }
     static let neg = -1e9
 
     /// Python's round(x, n), half to even on the scaled value.
@@ -450,7 +452,7 @@ extension DayRec {
             let (pa, pw) = impactPeaks(e)
             if pa < trig || pw < rot { continue }
             let t = e.t, td = Double(t)
-            guard let i = ts.lastIndex(where: { $0 <= t }), act[i] < 4 else { continue }
+            guard let i = ts.lastIndex(where: { $0 <= t }), act[i] < 4, act[i] != drive else { continue }
             let bef = ts.indices.compactMap { k -> Double? in
                 td - before * 1000 <= Double(ts[k]) && ts[k] <= t ? pts[k].spd : nil
             }
@@ -460,6 +462,59 @@ extension DayRec {
             if Double(aft.count) < still - 1 || aft.contains(where: { $0 == nil || $0! > vAfter }) { continue }
             if let l = out.last, Double(t - l.t) < debounce * 1000 { continue }
             out.append((t, Int64(a1)))
+        }
+        return out
+    }
+
+    // MARK: 4a. A car on a road
+
+    /// Per reading: in a car. A stretch near a road of terrain.json (within road_m, gaps of up to bridge_s bridged,
+    /// never a lift), trimmed to the second where the speed crosses edge_mps (held edge_hold readings), at least min_s
+    /// long and min_m far, at mean_mps or more, near_frac of it near the road and at most piste_frac_max of it on a run
+    /// (a ski way on a road stays skiing). Live: a reading is a drive once the stretch up to it qualifies, to its end.
+    static func driveMask(_ net: Net, _ pts: [Pt], _ kf: [KF], _ ts: [Int64], _ act: [Int], _ P: Params, live: Bool) -> [Bool] {
+        let n = pts.count
+        var out = [Bool](repeating: false, count: n)
+        guard !net.roads.isEmpty, n > 0 else { return out }
+        let roadM = P["drive", "road_m"], bridge = P["drive", "bridge_s"] * 1000, edgeV = P["drive", "edge_mps"]
+        let m = P.int("drive", "edge_hold"), minS = P["drive", "min_s"], minM = P["drive", "min_m"], meanV = P["drive", "mean_mps"]
+        let nearFrac = P["drive", "near_frac"], pisteM = P["drive", "piste_m"], pisteMax = P["drive", "piste_frac_max"]
+        let road = (0..<n).map { act[$0] < 4 && net.nearestRoadDist(kf[$0].x, kf[$0].y, roadM + 1) <= roadM }
+        let sp = (0..<n).map { pts[$0].spd ?? hypot(kf[$0].vx, kf[$0].vy) }
+        // stretches of road readings, bridged across short gaps that are not a lift
+        var runs: [(Int, Int)] = []
+        var i = 0
+        while i < n {
+            if !road[i] { i += 1; continue }
+            var j = i
+            while true {
+                while j + 1 < n && road[j + 1] { j += 1 }
+                var k = j + 1
+                while k < n && !road[k] && act[k] < 4 && Double(ts[k] - ts[j]) <= bridge { k += 1 }
+                if k < n && road[k] && Double(ts[k] - ts[j]) <= bridge { j = k; continue }
+                break
+            }
+            runs.append((i, j)); i = j + 1
+        }
+        func fast(_ k: Int) -> Bool { sp[k] >= edgeV }
+        for (a, b) in runs {
+            var st: Int?, en: Int?
+            if b - m + 1 >= a { for k in a...(b - m + 1) where (k..<(k + m)).allSatisfy(fast) { st = k; break } }
+            if b >= a + m - 1 { for k in stride(from: b, through: a + m - 1, by: -1) where ((k - m + 1)...k).allSatisfy(fast) { en = k; break } }
+            guard let st, let en, en > st else { continue }
+            // the stretch st...e, grown one reading at a time (the distance summed in the same order as the reference)
+            var dist = 0.0, nRoad = 0, nRun = 0
+            var first: Int?
+            for e in st...en {
+                if e > st { dist += hypot(kf[e].x - kf[e - 1].x, kf[e].y - kf[e - 1].y) }
+                if road[e] { nRoad += 1 }
+                if net.nearestPisteDist(kf[e].x, kf[e].y, pisteM + 1) <= pisteM { nRun += 1 }
+                if !live && e < en { continue }
+                let dur = sec(ts[st], ts[e]), cnt = Double(e - st + 1)
+                if dur >= minS && dist >= minM && dist / dur >= meanV
+                    && Double(nRoad) / cnt >= nearFrac && Double(nRun) / cnt <= pisteMax { first = live ? e : st; break }
+            }
+            if let first { for q in first...en { out[q] = true } }
         }
         return out
     }

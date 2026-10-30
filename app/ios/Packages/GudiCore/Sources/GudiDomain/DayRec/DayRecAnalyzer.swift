@@ -32,12 +32,14 @@ extension DayRec {
             guard !pts.isEmpty else { return Live(events: [], maxKmh: nil, falls: [], autostop: nil) }
             let pr = prep(pts, live: true)
             let (E, feats) = emissions(pts, pr.kf, pr.vz)
-            let act = viterbiActivity(E, feats, live: true)
+            var act = viterbiActivity(E, feats, live: true)
+            let car = driveMask(net, pts, pr.kf, pr.ts, act, P, live: true)
+            for i in act.indices where car[i] { act[i] = drive }
             let mt = match(net, pts, pr.kf, Array(pts.indices), P, live: true)
             var evs: [Live.Change] = []
             var last: (String, String?, [String]?)?
             for (i, a) in act.enumerated() {
-                var ev = Live.Change(t: pr.ts[i], act: a >= 4 ? "lift" : acts[a])
+                var ev = Live.Change(t: pr.ts[i], act: actName(a))
                 if a >= 4 { ev.lift = net.lifts[a - 4].id }
                 if a == ski {
                     let s = mt[i].s
@@ -65,7 +67,9 @@ extension DayRec {
             let pr = prep(pts, live: false)
             let ts = pr.ts, kf = pr.kf
             let (E, feats) = emissions(pts, kf, pr.vz)
-            let path = viterbiActivity(E, feats, live: false)
+            var path = viterbiActivity(E, feats, live: false)
+            let car = driveMask(net, pts, kf, ts, path, P, live: false)
+            for i in path.indices where car[i] { path[i] = drive }
             let pcs = pieces(path, ts, kf, feats, pts, pr.h)
             var segs = segments(pcs, pts, pr.xy, kf, ts, pr.h)
             var state = [Int](repeating: 0, count: pts.count)
@@ -352,7 +356,8 @@ extension DayRec {
             let minDrop = P["segments", "min_descent_drop_m"], minDesc = P["segments", "min_descent_m"]
             let queueGap = P["segments", "queue_gap_s"], queueDist = P["segments", "queue_dist_m"], longBreak = P["segments", "long_break_s"]
             func dur(_ p: Pc) -> Double { sec(ts[p.i0], ts[p.i1]) }
-            // descents: ski pieces joined across short stands and walks (kind -1)
+            let descent = -99
+            // descents: ski pieces joined across short stands and walks
             var groups: [(kind: Int, ps: [Pc])] = []
             var j = 0
             while j < pcs.count {
@@ -366,17 +371,19 @@ extension DayRec {
                             && k + 1 < pcs.count && pcs[k + 1].s == ski { g.append(q); k += 1; continue }
                         break
                     }
-                    groups.append((-1, g)); j = k
+                    groups.append((descent, g)); j = k
                 } else { groups.append((p.s, [p])); j += 1 }
             }
             func work(_ type: String, _ i0: Int, _ i1: Int) -> Work { Work(out: Segment(type: type, t0: ts[i0], t1: ts[i1]), i0: i0, i1: i1) }
             var segs: [Work] = []
             for (kind, g) in groups {
                 let i0 = g[0].i0, i1 = g[g.count - 1].i1
-                if kind == -1 {
+                if kind == descent {
                     let idx = Array(i0...i1)
                     if drop(h, idx, P) < minDrop && dist(kf, ts, idx) < minDesc { segs.append(work("walk", i0, i1)); continue }
                     var w = work("descent", i0, i1); w.group = g; segs.append(w)
+                } else if kind == drive {
+                    segs.append(work("drive", i0, i1))
                 } else if kind >= 4 {
                     var w = work("lift", i0, i1); w.li = kind - 4; segs.append(w)
                 } else {
@@ -439,6 +446,9 @@ extension DayRec {
                 case "walk":
                     s.distM = round(dist(kf, ts, idx), 1)
                 case "ascent":
+                    s.riseM = round(h[i1] - h[i0], 1)
+                case "drive":
+                    s.distM = round(dist(kf, ts, idx), 1)
                     s.riseM = round(h[i1] - h[i0], 1)
                 default: break
                 }

@@ -156,6 +156,15 @@ extension DayRec {
         }
     }
 
+    public struct RunInfo: Sendable, Equatable {
+        public var color: String?
+        /// run, ski-way, beginner-area or ski-route.
+        public var kind: String
+        public var named: Bool
+
+        public init(color: String?, kind: String = "run", named: Bool) { self.color = color; self.kind = kind; self.named = named }
+    }
+
     public enum NetError: Error, Equatable {
         /// A mid station (lifts[].mid) further from the cable than `lift.mid_max_off_m`: a mistake in the data.
         case midStationOffCable(lift: String)
@@ -165,6 +174,8 @@ extension DayRec {
     /// runs-and-lifts.json and terrain.json.
     public struct Net: Sendable {
         public let proj: Proj
+        /// Every run by key, for the moments ("the first red", "all the blues").
+        public let runs: [String: RunInfo]
         let pistes: [Piste]
         let lifts: [Lift]
         let grid: Grid
@@ -187,10 +198,12 @@ extension DayRec {
                 return pts.isEmpty ? nil : Line(pts)
             }
             var pistes: [Piste] = []
+            var infos: [String: RunInfo] = [:]
             for run in rl["pistes"] as? [[String: Any]] ?? [] {
                 let key = text(run["key"]) ?? ""
                 let n = run["named"]
                 let named = (n as? Bool) == true || (n as? String) == "True" || (n as? String) == "true"
+                infos[key] = RunInfo(color: run["color"] as? String, kind: run["kind"] as? String ?? "run", named: named)
                 for s in run["segs"] as? [[String: Any]] ?? [] {
                     guard let ln = line(s["g"]) else { continue }
                     pistes.append(Piste(key: key, named: named, line: ln, area: truthy(s["area"])))
@@ -229,6 +242,7 @@ extension DayRec {
                 lifts.append(lift)
             }
             self.pistes = pistes
+            self.runs = infos
             self.lifts = lifts
             grid = Grid(pistes.map(\.line))
             // the terrain model's roads, in local metres already (as site/js/relief.js reads them)
