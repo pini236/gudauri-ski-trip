@@ -256,5 +256,47 @@ function boxOf(t0, t1, padM = 0) {
   const p = DAY.track.filter(q => q.t >= t0 && q.t <= t1), xs = p.map(q => q.x), ys = p.map(q => q.y);
   return [Math.min(...xs) - padM, Math.min(...ys) - padM, Math.max(...xs) + padM, Math.max(...ys) + padM];
 }
+
+/* Round 31: food and services near the lift stations (research/places.md, only certainty A or B), as badges on the
+   site's own top view: one badge per station (a fork and knife and how many places), a cup for the two seasonal slope
+   cafes. No places at a station means no badge on the map (the panel says "no information"). */
+const PLACES = [
+  { at: [42.471146, 44.492189], n: 14, wc: true },   // base, New Gudauri (bottom of Goodaura, New Goodaura, Zuma)
+  { at: [42.492379, 44.494273], n: 1, aid: true },   // top of Goodaura (also Shino, Firni, Snow Park)
+  { at: [42.48971, 44.498974], n: 1, aid: true },    // top of Soliko (Vitamin Cafe)
+  { at: [42.497037, 44.507485], n: 1, aid: true },   // top of Kudebi (Vitamin)
+  { at: [42.471099, 44.487723], n: 3, wc: true },    // bottom of Soliko, between the villages
+  { at: [42.462131, 44.485141], n: 2, wc: true },    // bottom of Pirveli, the old village
+  { at: [42.473577, 44.482861], n: 2 },              // bottom of Shino
+  { at: [42.4809, 44.5068], cup: true },             // 2300, seasonal
+  { at: [42.4752, 44.4893], cup: true },             // Soliko cafe, seasonal
+];
+async function places(o = {}) {
+  await data(); await topView();
+  const svg = $('#map');
+  svg.querySelectorAll('.r31').forEach(e => e.remove());
+  if (o.box) frame(...o.box, o.pad ?? 0.08);
+  await new Promise(r => setTimeout(r, 300));
+  const vb = svg.viewBox.baseVal, px = vb.width / svg.getBoundingClientRect().width;
+  const g = document.createElementNS(NS, 'g'); g.setAttribute('class', 'r31');
+  const add = (parent, tag, attrs, text) => { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); if (text != null) e.textContent = text; parent.appendChild(e); return e; };
+  const ink = o.night ? '#E8EEF5' : '#13233A', paper = o.night ? '#1B2638' : '#FFFFFF';
+  for (const q of PLACES) {
+    const [x, y] = P(q.at), s = px * (q.cup ? 1 : 1.1);
+    const b = add(g, 'g', { transform: `translate(${x} ${y}) scale(${s})` });
+    if (q.cup) {
+      add(b, 'circle', { r: 11, fill: paper, stroke: ink, 'stroke-width': 1.6, 'stroke-dasharray': '3 2' });
+      add(b, 'path', { d: 'M-5 -3h8v4a4 4 0 0 1-4 4h0a4 4 0 0 1-4-4z M3 -1.5h1.5a2 2 0 0 1 0 4H3', fill: 'none', stroke: ink, 'stroke-width': 1.6, 'stroke-linejoin': 'round' });
+      continue;
+    }
+    const wdt = q.n > 9 ? 48 : 36;
+    add(b, 'path', { d: `M0 13l-5 -5h${-(wdt / 2 - 5)}v-18h${wdt}v18h${-(wdt / 2 - 5)}z`, fill: paper, stroke: ink, 'stroke-width': 1.6, 'stroke-linejoin': 'round' });
+    add(b, 'path', { d: `M${-wdt / 2 + 7} -14v5a2 2 0 0 0 4 0v-5 M${-wdt / 2 + 9} -9v10 M${-wdt / 2 + 17} -14c-2 1-2.5 3.5-2.5 6h2.5v9`, fill: 'none', stroke: ink, 'stroke-width': 1.5, 'stroke-linecap': 'round', 'stroke-linejoin': 'round', transform: 'translate(0 3)' });
+    add(b, 'text', { x: wdt / 2 - 5, y: 0, 'text-anchor': 'end', direction: 'ltr', 'unicode-bidi': 'embed', 'font-family': 'IBM Plex Sans, sans-serif', 'font-weight': 700, 'font-size': 13, fill: ink }, q.n);
+  }
+  svg.appendChild(g);
+  return { px };
+}
+window.R31 = { places, P };
 window.R29 = { day, draw, boxOf, speedColor, get DAY() { return DAY; } };
 })();

@@ -1,6 +1,6 @@
 {
  "about": "Parameters of the day analysis (decision 76, docs/FEATURES.md section 10, docs/ARCHITECTURE.md m-8). Read by tools/dayrec (the reference) and by both apps. Every threshold and variance lives here, not in code; calibrating in the season is a change to this file. Units: metres, seconds, m/s, hPa.",
- "analysis": 1,
+ "analysis": 2,
  "gap_s": 10,
  "reset_gap_s": 120,
  "kalman": {
@@ -46,7 +46,17 @@
   "edge_hold": 3,
   "pause_max_s": 300,
   "min_progress_m": 150,
-  "default_speed_mps": {"gondola": 5.0, "cable_car": 8.0, "chair_lift": 2.5, "platter": 2.5, "t-bar": 2.5, "drag_lift": 2.5, "rope_tow": 2.0, "magic_carpet": 0.8, "other": 2.5}
+  "default_speed_mps": {
+   "gondola": 5.0,
+   "cable_car": 8.0,
+   "chair_lift": 2.5,
+   "platter": 2.5,
+   "t-bar": 2.5,
+   "drag_lift": 2.5,
+   "rope_tow": 2.0,
+   "magic_carpet": 0.8,
+   "other": 2.5
+  }
  },
  "activity": {
   "switch": 8.0,
@@ -104,6 +114,19 @@
   "drop_m": 100,
   "bridge_s": 20
  },
+ "drive": {
+  "about": "A car on a road (docs/FEATURES.md section 10): a stretch near a road of terrain.json, fast and long enough, is \"drive\", not skiing and not an ascent, and is not in the skiing figures.",
+  "road_m": 25,
+  "bridge_s": 20,
+  "edge_mps": 3.0,
+  "edge_hold": 3,
+  "min_s": 45,
+  "min_m": 500,
+  "mean_mps": 6.0,
+  "near_frac": 0.9,
+  "piste_m": 15,
+  "piste_frac_max": 0.5
+ },
  "fall": {
   "hz": 50,
   "pre_s": 2.5,
@@ -127,5 +150,72 @@
   "station_m": 80,
   "station_still_s": 5,
   "still_s": 90
+ },
+ "moments": {
+  "about": "The moments engine (tools/dayrec/moments.py): which moments, their priority for the story and the share picture, and the heights the drop is compared with. Each reference height is a number and a key with its source; the name shown comes from i18n/strings.json (moment.ref.<id>).",
+  "version": 1,
+  "story_max": 5,
+  "story_per_key": 1,
+  "color_min_m": 200,
+  "colors_first": [
+   "red",
+   "black"
+  ],
+  "colors_all": [
+   "green",
+   "blue",
+   "red",
+   "black"
+  ],
+  "records": [
+   "max_kmh",
+   "longest_m",
+   "drop_m",
+   "descents",
+   "ski_dist_m"
+  ],
+  "queue_min_s": 180,
+  "drop_min_m": 100,
+  "drop_times": [
+   2,
+   20
+  ],
+  "drop_refs": [
+   {
+    "id": "azrieli",
+    "m": 187,
+    "source": "https://en.wikipedia.org/wiki/Azrieli_Center (the Circular Tower, 187 m)"
+   },
+   {
+    "id": "eiffel",
+    "m": 330,
+    "source": "https://www.toureiffel.paris/en/the-monument/key-figures (330 m)"
+   },
+   {
+    "id": "kazbek",
+    "m": 5054,
+    "source": "https://en.wikipedia.org/wiki/Mount_Kazbek (5,054 m)"
+   },
+   {
+    "id": "everest",
+    "m": 8849,
+    "source": "https://en.wikipedia.org/wiki/Mount_Everest (8,848.86 m, 2020 survey)"
+   }
+  ],
+  "priority": {
+   "first_color": 90,
+   "all_color": 88,
+   "record": 85,
+   "fastest": 80,
+   "offpiste": 70,
+   "fall": 65,
+   "new_runs": 60,
+   "longest_descent": 50,
+   "queue": 40,
+   "drop_compare": 30
+  },
+  "share_exclude": [
+   "fall"
+  ]
  }
 }

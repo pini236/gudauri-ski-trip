@@ -10,7 +10,8 @@ import math
 
 NEG = -1e9
 STAND, WALK, SKI, UP = 0, 1, 2, 3
-ACT = {STAND: 'stand', WALK: 'walk', SKI: 'ski', UP: 'up'}
+DRIVE = -1  # set after the activity Viterbi, from the roads (drive_mask); lifts are 4 and up
+ACT = {STAND: 'stand', WALK: 'walk', SKI: 'ski', UP: 'up', DRIVE: 'drive'}
 
 
 def kmh(v):
@@ -568,7 +569,7 @@ def falls(pts, ts, events, act, P):
             continue
         t = e['t']
         i = max((k for k in range(len(ts)) if ts[k] <= t), default=None)
-        if i is None or act[i] >= 4:
+        if i is None or act[i] >= 4 or act[i] == DRIVE:
             continue
         before = [pts[k]['s'] for k in range(len(ts)) if t - F['before_s'] * 1000 <= ts[k] <= t and pts[k]['s'] is not None]
         a0, a1 = t + F['settle_s'] * 1000, t + (F['settle_s'] + F['still_s']) * 1000
@@ -604,6 +605,66 @@ def falls_doppler(pts, ts, act, P):
                     i = k + 1
                     continue
         i += 1
+    return out
+
+
+# ---------- 6b. A car on a road ----------
+
+def drive_mask(net, pts, kf, ts, act, P, live):
+    """Per reading: True when the skier is in a car. A drive is a stretch near a road of terrain.json (within road_m,
+    gaps of up to bridge_s bridged, never a lift), trimmed to the second where the speed crosses edge_mps (held
+    edge_hold readings), at least min_s long and min_m far, at mean_mps or more, near_frac of it near the road and at
+    most piste_frac_max of it on a run (a ski way on a road stays skiing). Live: a reading is a drive once the stretch
+    up to it already qualifies, and stays one to the end of the stretch."""
+    D = P['drive']
+    n = len(pts)
+    out = [False] * n
+    if not net.roads or not n:
+        return out
+    road = [act[i] < 4 and net.nearest_road_dist(kf[i][0], kf[i][1], D['road_m'] + 1) <= D['road_m'] for i in range(n)]
+    sp = [pts[i]['s'] if pts[i]['s'] is not None else math.hypot(kf[i][2], kf[i][3]) for i in range(n)]
+    # stretches of road readings, bridged across short gaps that are not a lift
+    runs, i = [], 0
+    while i < n:
+        if not road[i]:
+            i += 1; continue
+        j = i
+        while True:
+            while j + 1 < n and road[j + 1]:
+                j += 1
+            k = j + 1
+            while k < n and not road[k] and act[k] < 4 and ts[k] - ts[j] <= D['bridge_s'] * 1000:
+                k += 1
+            if k < n and road[k] and ts[k] - ts[j] <= D['bridge_s'] * 1000:
+                j = k; continue
+            break
+        runs.append((i, j)); i = j + 1
+    fast = lambda k: sp[k] >= D['edge_mps']
+    m = D['edge_hold']
+    for a, b in runs:
+        st = next((k for k in range(a, b - m + 2) if all(fast(q) for q in range(k, k + m))), None)
+        en = next((k for k in range(b, a + m - 2, -1) if all(fast(q) for q in range(k - m + 1, k + 1))), None)
+        if st is None or en is None or en <= st:
+            continue
+
+        def ok(e):
+            dur = (ts[e] - ts[st]) / 1000.0
+            if dur < D['min_s']:
+                return False
+            dist = sum(math.hypot(kf[q + 1][0] - kf[q][0], kf[q + 1][1] - kf[q][1]) for q in range(st, e))
+            if dist < D['min_m'] or dist / dur < D['mean_mps']:
+                return False
+            near = sum(road[q] for q in range(st, e + 1)) / (e - st + 1)
+            onrun = sum(net.nearest_piste_dist(kf[q][0], kf[q][1], D['piste_m'] + 1) <= D['piste_m'] for q in range(st, e + 1)) / (e - st + 1)
+            return near >= D['near_frac'] and onrun <= D['piste_frac_max']
+        if live:
+            first = next((e for e in range(st, en + 1) if ok(e)), None)
+            if first is not None:
+                for q in range(first, en + 1):
+                    out[q] = True
+        elif ok(en):
+            for q in range(st, en + 1):
+                out[q] = True
     return out
 
 
@@ -673,6 +734,7 @@ class Analyzer:
         xy, kf, ts, src, baro, h, vz = self._prep(pts, True)
         E, feats = emissions(net, pts, kf, vz, P)
         act = viterbi_activity(net, E, feats, P, live=True)
+        act = [DRIVE if d else a for a, d in zip(act, drive_mask(net, pts, kf, ts, act, P, live=True))]
         mt = match(net, pts, kf, list(range(len(pts))), P, live=True)
         evs, last = [], None
         for i, a in enumerate(act):
@@ -706,6 +768,7 @@ class Analyzer:
         xy, kf, ts, src, baro, h, vz = self._prep(pts, False)
         E, feats = emissions(net, pts, kf, vz, P)
         path = viterbi_activity(net, E, feats, P, live=False)
+        path = [DRIVE if d else a for a, d in zip(path, drive_mask(net, pts, kf, ts, path, P, live=False))]
         pieces = self._pieces(path, ts, kf, feats, pts, h)
         segs = self._segments(pieces, pts, xy, kf, ts, h)
         state = [0] * len(pts)
@@ -920,6 +983,8 @@ class Analyzer:
                 if dr < S['min_descent_drop_m'] and dist < S['min_descent_m']:
                     segs.append({'type': 'walk', 'i0': i0, 'i1': i1}); continue
                 segs.append({'type': 'descent', 'i0': i0, 'i1': i1, 'pieces': g})
+            elif kind == DRIVE:
+                segs.append({'type': 'drive', 'i0': i0, 'i1': i1})
             elif kind >= 4:
                 segs.append({'type': 'lift', 'i0': i0, 'i1': i1, 'li': kind - 4})
             elif kind == UP:
@@ -987,6 +1052,9 @@ class Analyzer:
             elif s['type'] == 'walk':
                 s['dist_m'] = round(self._dist(kf, ts, idx), 1)
             elif s['type'] == 'ascent':
+                s['rise_m'] = round(h[i1] - h[i0], 1)
+            elif s['type'] == 'drive':
+                s['dist_m'] = round(self._dist(kf, ts, idx), 1)
                 s['rise_m'] = round(h[i1] - h[i0], 1)
         return segs
 
