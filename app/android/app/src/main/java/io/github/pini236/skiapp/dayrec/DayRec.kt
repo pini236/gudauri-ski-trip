@@ -33,16 +33,27 @@ object DayRec {
 
     /** The day being recorded, or null. Set by the service. */
     @Volatile var current: File? = null; internal set
-    val recording get() = current != null
+    /** The day just stopped is still being analysed (its result is written before the service goes): no new start meanwhile. */
+    @Volatile internal var finishing = false
+    val recording get() = current != null || finishing
+
+    /** What the live view says now (the screens read it; see [DayEngine.live]), or null when nothing is recorded. */
+    @Volatile var live: DayEngine.Snapshot? = null; internal set
+    /** The descent that just ended, while the skier rides the lift. Null until the first one. */
+    @Volatile var ride: DayEngine.Ride? = null; internal set
+    /** The whole day so far, smoothed (every [DayRecService.FINAL_EVERY_MS]); the live view's numbers come from [live]. */
+    @Volatile var sofar: io.github.pini236.skiapp.dayrec.analysis.Analyzer.DayResult? = null; internal set
 
     fun store(ctx: Context) = DayStore(ctx.applicationContext.filesDir)
 
-    fun start(ctx: Context, resume: File? = null): Start {
+    /** [run]: a recording of one descent, which stops by itself at the bottom (docs/FEATURES.md section 10, 1a). */
+    fun start(ctx: Context, resume: File? = null, run: Boolean = false): Start {
         if (recording) return Start.Already
         val check = check(ctx)
         if (check != null) return check
         val i = Intent(ctx, DayRecService::class.java).setAction(DayRecService.START)
         resume?.let { i.putExtra(DayRecService.RESUME, it.absolutePath) }
+        if (run) i.putExtra(DayRecService.RUN, true)
         ContextCompat.startForegroundService(ctx, i)
         return Start.Started
     }
@@ -73,6 +84,7 @@ object DayRec {
         if (!day.cut) return
         val last = day.points.lastOrNull()?.t ?: System.currentTimeMillis()
         runCatching { DayLog.reopen(file).also { it.stop(last, REASON_CRASH) } }
+        runCatching { DayAnalysis.ensure(ctx, file) } // heavy for a long day: callers are off the main thread
         stopped(minutes = ((last - (day.points.firstOrNull()?.t ?: last)) / 60_000L).toInt(), reason = REASON_CRASH)
     }
 
@@ -88,4 +100,6 @@ object DayRec {
     const val REASON_OUTSIDE = "outside"
     const val REASON_CRASH = "crash_recovery"
     const val REASON_FULL = "full"
+    /** A single run that stopped by itself at the bottom. */
+    const val REASON_AUTO = "auto"
 }

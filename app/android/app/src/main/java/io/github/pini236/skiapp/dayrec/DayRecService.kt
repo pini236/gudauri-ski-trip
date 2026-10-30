@@ -16,7 +16,9 @@ import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
 import android.os.Build
+import android.os.Handler
 import android.os.HandlerThread
+import android.os.Looper
 import android.os.IBinder
 import android.os.PowerManager
 import android.os.SystemClock
@@ -26,6 +28,10 @@ import io.github.pini236.skiapp.data.Geo
 import io.github.pini236.skiapp.i18n.Lang
 import io.github.pini236.skiapp.qa.Qa
 import java.io.File
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
+import java.util.concurrent.atomic.AtomicBoolean
+import org.json.JSONObject
 
 /**
  * The recorder (docs/ARCHITECTURE.md m-8, conditions 1 to 3): a foreground service of type location with an always-on
@@ -55,6 +61,14 @@ class DayRecService : Service() {
     private var shownMinute = -1L
     private var stopping = false
     private var started = false
+    // the analysis (decision 76): fed on the recorder's own thread, so no lock
+    private var handler: Handler? = null
+    private var engine: DayEngine? = null
+    private var nextLiveAt = 0L
+    private var nextFinalAt = 0L
+    private var finals: ExecutorService? = null
+    private val finalBusy = AtomicBoolean(false)
+    private var runMode = false
 
     private val gps = LocationListener { onLocation(it) }
     private val sensorListener = object : SensorEventListener {
@@ -75,14 +89,14 @@ class DayRecService : Service() {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         when (intent?.action) {
-            START -> if (!started) begin(intent.getStringExtra(RESUME)) else Unit
+            START -> if (!started) begin(intent.getStringExtra(RESUME), intent.getBooleanExtra(RUN, false)) else Unit
             STOP -> finish(DayRec.REASON_USER)
             else -> if (!started) stopSelf() // a restart by the system with no tap behind it: nothing to record
         }
         return START_NOT_STICKY
     }
 
-    private fun begin(resume: String?) {
+    private fun begin(resume: String?, run: Boolean) {
         started = true
         val c = Lang.wrap(this)
         if (DayRec.check(this) != null) { abort(); return }
@@ -97,18 +111,36 @@ class DayRecService : Service() {
         val file = resume?.let { File(it) }?.takeIf { it.isFile && it.parentFile == store.dir }
         log = try {
             if (file != null) DayLog.reopen(file).also { it.resumed(now) }
-            else DayLog.create(store.newFile(now), DayParams.TZ, DayParams.RESORT, DayStore.device(), now)
+            else DayLog.create(store.newFile(now), DayParams.TZ, DayParams.RESORT, DayStore.device(), now, mode = if (run) "run" else "day")
         } catch (e: Exception) { Qa.log("dayrec cannot write: ${e.javaClass.simpleName}"); abort(); return }
         DayRec.current = log!!.file
+        DayRec.live = null; DayRec.ride = null; DayRec.sofar = null
         clockOffset = System.currentTimeMillis() - SystemClock.elapsedRealtime()
         impacts = ImpactBuffer(DayParams.FALL_TRIGGER_G, DayParams.FALL_PRE_S, DayParams.FALL_POST_S, DayParams.FALL_DEBOUNCE_S, DayParams.FALL_HZ) { t, t0, hz, a, g ->
             runCatching { log?.impact(t, t0, hz, a, g) }
+            // the sensors call on the main thread, the engine is the recorder thread's: the blow goes over as the log has it
+            handler?.post { engine?.addEvent(DayLog.impactJson(t, t0, hz, a, g)) }
         }
         firstAt = now; lastAt = 0L
 
         // 14 hours is longer than any lift day: a lock that cannot be forgotten
         lock = getSystemService(PowerManager::class.java).newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "skiapp:dayrec").apply { acquire(14 * 3600_000L) }
         val t = HandlerThread("dayrec").also { it.start() }; thread = t
+        handler = Handler(t.looper)
+        val before = file?.let { runCatching { DayLog.read(it) }.getOrNull() }
+        runMode = (before?.mode ?: if (run) "run" else "day") == "run"
+        // the network and the numbers are loaded on the recorder's thread, before the first reading is handled (the callbacks
+        // below queue behind this); a day that is gone on with brings its earlier readings in
+        val header = before?.header ?: JSONObject().put("v", DayLog.VERSION).put("tz", DayParams.TZ).put("resort", DayParams.RESORT).put("mode", if (runMode) "run" else "day")
+        handler!!.post {
+            runCatching {
+                val e = DayAnalysis.engine(this, header)
+                before?.let { d -> d.points.forEach(e::add); d.events.forEach(e::addEvent) }
+                e.onRide = { DayRec.ride = it; Qa.log("dayrec ride ${it.runs.size} runs") }
+                engine = e
+            }.onFailure { Qa.log("dayrec no analysis: ${it.javaClass.simpleName}") }
+        }
+        finals = Executors.newSingleThreadExecutor()
         lm = getSystemService(LocationManager::class.java)
         sensors = getSystemService(SensorManager::class.java)
         try {
@@ -131,7 +163,7 @@ class DayRecService : Service() {
         if (lastAt != 0L && t - lastAt > DayParams.GAP_MS) Qa.log("dayrec hole ${(t - lastAt) / 1000}s")
         if (lastAt == 0L) firstAt = t
         lastAt = t
-        log.add(DayLog.Point(
+        val point = DayLog.Point(
             t, l.latitude, l.longitude,
             alt = if (l.hasAltitude()) l.altitude else null, pressure = pressure?.toDouble(),
             speed = if (l.hasSpeed()) l.speed.toDouble() else null,
@@ -139,7 +171,10 @@ class DayRecService : Service() {
             hAcc = if (l.hasAccuracy()) l.accuracy.toDouble() else null,
             vAcc = if (Build.VERSION.SDK_INT >= 26 && l.hasVerticalAccuracy()) l.verticalAccuracyMeters.toDouble() else null,
             bearing = if (l.hasBearing()) l.bearing.toDouble() else null, motion = motion.take()?.toDouble(),
-        ))
+        )
+        log.add(point)
+        analyse(point)
+        if (stopping) return
         if (log.atLimit) { finish(DayRec.REASON_FULL); return }
         when (val v = idle.feed(t, Geo.x(l.longitude), Geo.y(l.latitude))) {
             IdleWatch.Verdict.Fine -> if (warnedLeft >= 0) { warnedLeft = -1; refresh(t) }
@@ -147,6 +182,27 @@ class DayRecService : Service() {
             is IdleWatch.Verdict.Stop -> { finish(if (v.outside) DayRec.REASON_OUTSIDE else DayRec.REASON_IDLE); return }
         }
         refresh(t)
+    }
+
+    /**
+     * The analysis of what was just written (decision 76): the live view every [LIVE_EVERY_S] seconds (every second in a
+     * single run, whose stop is decided from it), and the whole day smoothed now and then for the screens, on a thread of its
+     * own. A failure here never touches the recording: the log is the truth, and the result can be computed again from it.
+     */
+    private fun analyse(p: DayLog.Point) {
+        val e = engine ?: return
+        e.add(p)
+        if (p.t < nextLiveAt) return
+        nextLiveAt = p.t + (if (runMode) 1_000L else LIVE_EVERY_S * 1_000L)
+        val s = runCatching { e.live() }.onFailure { Qa.log("dayrec live failed: ${it.javaClass.simpleName}") }.getOrNull() ?: return
+        DayRec.live = s
+        s.autostop?.takeIf { runMode }?.let { Qa.log("dayrec autostop ${it.reason}"); finish(DayRec.REASON_AUTO); return }
+        if (!runMode && p.t >= nextFinalAt && finalBusy.compareAndSet(false, true)) {
+            nextFinalAt = p.t + FINAL_EVERY_MS
+            finals?.execute {
+                try { DayRec.sofar = e.final() } catch (x: Throwable) { Qa.log("dayrec final failed: ${x.javaClass.simpleName}") } finally { finalBusy.set(false) }
+            } ?: finalBusy.set(false)
+        }
     }
 
     /** The notification again, when the minute changes (and for the warning), not every second. */
@@ -176,17 +232,35 @@ class DayRecService : Service() {
             .build()
     }
 
-    /** Ends the day on purpose: the closing line, the event, and the service goes away. */
+    /**
+     * Ends the day on purpose: the closing line, the event, and the service goes away. Before it does, the day's result is
+     * written beside the log, on a thread of its own and with the notification still up (a day of eight hours takes a few
+     * seconds to analyse, too long for the main thread); if the system kills the process in between, the result is made the
+     * next time it is asked for ([DayAnalysis.ensure]).
+     */
     private fun finish(reason: String) {
         if (stopping) return
         stopping = true
         val minutes = if (lastAt > firstAt) ((lastAt - firstAt) / 60_000L).toInt() else 0
         val at = if (lastAt > 0) lastAt else System.currentTimeMillis()
+        val file = log?.file
         runCatching { if (reason == DayRec.REASON_FULL) log?.full(at) else log?.stop(at, reason) }
         if (log != null) DayRec.stopped(minutes, reason)
         log = null
+        DayRec.finishing = file != null
         teardown()
-        stopForeground(STOP_FOREGROUND_REMOVE); stopSelf()
+        val ctx = applicationContext
+        val done = {
+            DayRec.finishing = false
+            Handler(Looper.getMainLooper()).post { stopForeground(STOP_FOREGROUND_REMOVE); stopSelf() }
+            Unit
+        }
+        if (file == null) { done(); return }
+        Thread {
+            runCatching { DayAnalysis.ensure(ctx, file) }.onFailure { Qa.log("dayrec result failed: ${it.javaClass.simpleName}") }
+                .onSuccess { Qa.log("dayrec result ${if (it != null) "written" else "none"}") }
+            done()
+        }.start()
     }
 
     /** The service could not start: nothing was recorded, so nothing is reported. */
@@ -201,6 +275,8 @@ class DayRecService : Service() {
         runCatching { lm?.removeUpdates(gps) }
         runCatching { sensors?.unregisterListener(sensorListener) }
         impacts?.clear(); impacts = null
+        engine = null; handler = null
+        runCatching { finals?.shutdown() }; finals = null
         runCatching { thread?.quitSafely() }; thread = null
         runCatching { lock?.takeIf { it.isHeld }?.release() }; lock = null
         DayRec.current = null
@@ -216,6 +292,11 @@ class DayRecService : Service() {
         const val START = "io.github.pini236.skiapp.dayrec.START"
         const val STOP = "io.github.pini236.skiapp.dayrec.STOP"
         const val RESUME = "resume"
+        const val RUN = "run"
+        /** The live view is worked out this often in a day (in a single run, every second). */
+        const val LIVE_EVERY_S = 5L
+        /** The whole day so far, smoothed, for the screens. */
+        const val FINAL_EVERY_MS = 120_000L
         private const val CHANNEL = "dayrec"
         private const val ID = 7601
     }

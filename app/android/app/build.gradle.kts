@@ -96,6 +96,7 @@ val copySiteData by tasks.registering(Exec::class) {
     inputs.dir(File(repoRoot, "site/games/thumbs"))
     inputs.dir(File(repoRoot, "site/games/descent")) // the game's page or its own script: where the runs are
     inputs.file(File(repoRoot, "tools/build-app-data.py"))
+    inputs.file(File(repoRoot, "tools/fixtures/dayrec-params.json")) // the ski day's analysis numbers
     outputs.dir(out)
     commandLine("python3", File(repoRoot, "tools/build-app-data.py").path, out.path)
 }

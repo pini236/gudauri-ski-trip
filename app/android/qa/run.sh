@@ -884,13 +884,26 @@ dayrec_steps() {
   mark; adb shell cmd statusbar expand-notifications; sleep 2
   tapText "עצירה" && waitlog "dayrec stop user" 15
   adb shell cmd statusbar collapse; sleep 1
+  # the day's analysis is written beside the log before the service goes (the network and the numbers load on the phone)
+  waitlog "dayrec result written" 90
   qa "--es qa.dayrec report"; waitlog "dayrec day points=" 10
   local line; line=$(tail -n +"$((MARK + 1))" "$OUT/logcat.txt" | grep -m1 "SkiQa.*dayrec day points=" | sed 's/.*dayrec day //')
   note "dayrec day 1: $line"
   local pts; pts=$(sed -n 's/^points=\([0-9]*\).*/\1/p' <<< "$line")
   { [ -n "$pts" ] && [ "$pts" -ge 12 ]; } || fail "the recorded day has too few points: '$line'"
   grep -q "cut=false end=user" <<< "$line" || fail "the day did not end by the user's tap: '$line'"
+  grep -q "result=true" <<< "$line" || fail "the day has no analysis result beside it: '$line'"
   grep -q "speed=0 " <<< "$line" && note "dayrec: the emulator gives no speed (fine)"
+  # a whole recorded day of the reference tool's test values, through the analysis on the phone (the packaged numbers and
+  # terrain, the same code as the unit tests): the counts have to be the ones the tool wrote down
+  local fx; fx="$(cd "$(dirname "$0")/../../.." && pwd)/tools/fixtures"
+  adb push "$fx/dayrec-logs/full_day.jsonl" "/sdcard/Android/data/$PKG/files/replay.jsonl" > /dev/null
+  qa "--es qa.dayrec replay"; waitlog "dayrec replay analysis=" 180
+  local rep want; rep=$(tail -n +"$((MARK + 1))" "$OUT/logcat.txt" | grep -m1 "SkiQa.*dayrec replay analysis=" | sed 's/.*dayrec replay //')
+  want=$(python3 -c "import json,sys; c=json.load(open('$fx/dayrec-cases.json')); s=[x for x in c['cases'] if x['name']=='full_day'][0]['expected']['final']['stats']; print('descents=%d lifts=%d' % (s['descents'], s['lifts']))")
+  note "dayrec replay: $rep"
+  grep -q "$want" <<< "$rep" || fail "the replayed day differs from the reference ($want): '$rep'"
+  qa "--es qa.dayrec wipe"
   # the phone killed the app in the middle of a day: the file stays cut, and the next opening goes on with it
   qa "--es qa.dayrec start"; waitlog "dayrec start result Started" 10; dayrec_walk 6
   adb shell am force-stop "$PKG"; sleep 2

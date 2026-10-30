@@ -82,10 +82,7 @@ class DayLog private constructor(val file: File, private val out: FileOutputStre
      * so it may come after points later than [t].
      */
     @Synchronized
-    fun impact(t: Long, t0: Long, hz: Int, acc: DoubleArray, gyr: DoubleArray) {
-        fun arr(a: DoubleArray, decimals: Int) = JSONArray().also { j -> a.forEach { j.put(fix(it, decimals)) } }
-        line(JSONObject().put("ev", "impact").put("t", t).put("hz", hz).put("t0", t0).put("acc", arr(acc, 2)).put("gyr", arr(gyr, 3)))
-    }
+    fun impact(t: Long, t0: Long, hz: Int, acc: DoubleArray, gyr: DoubleArray) = line(impactJson(t, t0, hz, acc, gyr))
 
     /** "I did not fall": a second line with the same `t`; the window is deleted when the day is closed ([compact]). */
     @Synchronized fun dismiss(t: Long) = line(JSONObject().put("ev", "impact").put("t", t).put("dismissed", true))
@@ -110,6 +107,12 @@ class DayLog private constructor(val file: File, private val out: FileOutputStre
         const val VERSION = 1
         const val SYNC_MS = 30_000L
         const val MAX_BYTES = 10L shl 20
+
+        /** The line of a blow, as it is written and as the analysis reads it. */
+        fun impactJson(t: Long, t0: Long, hz: Int, acc: DoubleArray, gyr: DoubleArray): JSONObject {
+            fun arr(a: DoubleArray, decimals: Int) = JSONArray().also { j -> a.forEach { j.put(fix(it, decimals)) } }
+            return JSONObject().put("ev", "impact").put("t", t).put("hz", hz).put("t0", t0).put("acc", arr(acc, 2)).put("gyr", arr(gyr, 3))
+        }
 
         /** Rounds a reading, as the reference tool writes it. */
         fun fix(v: Double, decimals: Int): Double {
@@ -230,11 +233,13 @@ class DayStore(private val root: File) {
 
     fun totalBytes() = days().sumOf { it.length() }
 
-    fun delete(f: File) { f.delete() }
-    fun deleteAll() { days().forEach { it.delete() } }
+    fun delete(f: File) { f.delete(); resultOf(f).delete() }
+    fun deleteAll() { days().forEach { delete(it) } }
 
     companion object {
         const val DIR = "dayrec"
+        /** A day's analysis result, beside its log. It never matches the log's pattern, so it is not a day. */
+        fun resultOf(day: File) = File(day.parentFile, day.name.removeSuffix(".jsonl") + ".analysis.json")
         fun device(): String = "${android.os.Build.MANUFACTURER} ${android.os.Build.MODEL}".trim().lowercase(Locale.ROOT)
     }
 }

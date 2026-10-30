@@ -47,10 +47,12 @@ import androidx.compose.ui.unit.sp
 import io.github.pini236.skiapp.data.Profile
 import io.github.pini236.skiapp.data.Runs
 import io.github.pini236.skiapp.data.SiteData
+import io.github.pini236.skiapp.dayrec.DayAnalysis
 import io.github.pini236.skiapp.dayrec.DayFeature
 import io.github.pini236.skiapp.dayrec.DayLog
 import io.github.pini236.skiapp.dayrec.DayParams
 import io.github.pini236.skiapp.dayrec.DayRec
+import io.github.pini236.skiapp.dayrec.DayStore
 import io.github.pini236.skiapp.data.Terrain
 import io.github.pini236.skiapp.data.Video
 import io.github.pini236.skiapp.fx.Haptics
@@ -562,13 +564,17 @@ class MainActivity : ComponentActivity() {
         i.getStringExtra("qa.dayrec")?.let { a -> when (a) {
             "start" -> Qa.log("dayrec start result ${DayRec.start(this)}")
             "resume" -> Qa.log("dayrec resume result ${DayRec.store(this).unfinished()?.let { DayRec.start(this, it) } ?: "none"}")
+            "startrun" -> Qa.log("dayrec start result ${DayRec.start(this, run = true)}")
             "stop" -> DayRec.stop(this)
-            "finish" -> DayRec.store(this).unfinished()?.let { DayRec.finishCut(this, it) } ?: Qa.log("dayrec nothing cut")
+            "finish" -> inBackground { DayRec.store(this).unfinished()?.let { DayRec.finishCut(this, it) } ?: Qa.log("dayrec nothing cut") }
+            // a recorded day pushed to the app's folder (the test values of the reference tool), analysed as the service does at the end of a day
+            "replay" -> inBackground { replayDayQa() }
+            "live" -> DayRec.live.let { Qa.log("dayrec live ${if (it == null) "none" else "act=${it.act} runs=${it.runs?.size ?: 0} falls=${it.falls.size} max=${it.maxKmh != null}"}") }
             "feature" -> Qa.log("dayrec feature ${DayFeature.enabled(siteData.read("resorts.json"))}")
             "report" -> DayRec.store(this).days().forEach { f ->
                 runCatching { DayLog.read(f) }.getOrNull()?.let { d ->
                     Qa.log("dayrec day points=${d.points.size} holes=${d.points.zipWithNext().count { (a, b) -> b.t - a.t > DayParams.GAP_MS }} resumes=${d.resumes} impacts=${d.events.count { it.optString("ev") == "impact" }} dropped=${d.dropped} cut=${d.cut} end=${d.endReason ?: "-"} " +
-                        "speed=${d.points.count { it.speed != null }} acc=${d.points.count { it.speedAcc != null }} motion=${d.points.count { it.motion != null }} bytes=${f.length()}")
+                        "speed=${d.points.count { it.speed != null }} acc=${d.points.count { it.speedAcc != null }} motion=${d.points.count { it.motion != null }} bytes=${f.length()} result=${DayStore.resultOf(f).isFile}")
                 }
             }
             "wipe" -> DayRec.store(this).deleteAll()
@@ -580,6 +586,20 @@ class MainActivity : ComponentActivity() {
         i.getStringExtra("qa.trip")?.let { t -> if (t == "none") { trips.clear(); trip = null } else Trip.fromJson(t)?.let { trips.save(it); trip = it } ?: Qa.log("bad trip $t"); Qa.log("trip ${if (trip == null) "none" else "set"}") }
         Qa.log("intent ${keys.sorted()}")
         if (scene == null) qaPending = i else applyQaMap(i) // the rest needs the mountain
+    }
+
+    /** The emulator run's way to put a whole recorded day through the analysis: counts only, never a place (condition 1). */
+    private fun replayDayQa() {
+        val src = java.io.File(getExternalFilesDir(null), "replay.jsonl")
+        if (!src.isFile) { Qa.log("dayrec replay none"); return }
+        val dst = DayRec.store(this).newFile(System.currentTimeMillis())
+        src.copyTo(dst, true)
+        val t0 = android.os.SystemClock.elapsedRealtime()
+        val out = runCatching { DayAnalysis.ensure(this, dst) }.onFailure { Qa.log("dayrec replay failed: ${it.javaClass.simpleName} ${it.message}") }.getOrNull()
+        val r = out?.let { org.json.JSONObject(it.readText()) }
+        val st = r?.optJSONObject("stats")
+        Qa.log("dayrec replay analysis=${r?.optInt("analysis", -1)} segments=${r?.optJSONArray("segments")?.length()} descents=${st?.optInt("descents", -1)} " +
+            "lifts=${st?.optInt("lifts", -1)} falls=${r?.optJSONArray("falls")?.length()} max=${st?.optDouble("max_kmh")} ms=${android.os.SystemClock.elapsedRealtime() - t0}")
     }
 
     private fun applyQaMap(i: Intent, sunDone: Boolean = false) {
