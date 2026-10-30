@@ -22,6 +22,9 @@ class Day:
         self.rows = []
         self.rides = []
         self.marks = {}
+        self.impacts = []   # what the phone felt: {'t' (ms, not on the second), 'kind', 'peak_g', 'rot', 'act'}
+        self.falls = []     # the truth: times of real falls
+        self.random_events = False
         self.pos = None
         sk = skier or {}
         self.vmax = sk.get('vmax', 17.0)
@@ -69,7 +72,7 @@ class Day:
         l = self.lift(name)
         return self.walk_to(*l.line.p[0])
 
-    def ride(self, name, u0=None, u1=None, speed=1.0, pause=None):
+    def ride(self, name, u0=None, u1=None, speed=1.0, pause=None, bump_at=None):
         """Ride a lift from u0 to u1 (fractions). speed: the real speed against the data's. pause=(at, secs): the lift stops."""
         l = self.lift(name)
         u0 = 0.0 if u0 is None else u0 * l.length
@@ -84,14 +87,22 @@ class Day:
         tb = self.t
         n = max(1, int(round((u1 - u0) / sp)))
         paused = False
+        bump = (u0 + (u1 - u0) * self.rng.uniform(0.2, 0.8)) if (self.random_events and self.rng.random() < 0.35) or bump_at else None
+        if bump_at:
+            bump = u0 + (u1 - u0) * bump_at
         for k in range(1, n + 1):
             u = u0 + (u1 - u0) * k / n
             (x, y), _ = l.line.at(u)
-            self._emit(x, y, l.ele_at(u), 'lift', l.id)
+            # on the ground at the stations where one gets on and off, up to 12 m above it in between
+            z = self.net.terrain.elev(x, y) + 12.0 * math.sin(math.pi * (u - u0) / max(1.0, u1 - u0))
+            self._emit(x, y, z, 'lift', l.id)
+            if bump is not None and u >= bump:
+                self._impact('lift_bump', self.rng.uniform(2.6, 3.4), self.rng.uniform(0.5, 2.0), 'lift')
+                bump = None
             if pause and not paused and u >= u0 + (u1 - u0) * pause[0]:
                 paused = True
                 for _ in range(int(pause[1])):
-                    self._emit(x, y, l.ele_at(u), 'lift', l.id)
+                    self._emit(x, y, z, 'lift', l.id)
         self.rides.append({'lift': l.id, 't0': tb, 't1': self.t - 1000,
                            'from': self._st(l, u0), 'to': self._st(l, u1)})
         return self
@@ -100,7 +111,7 @@ class Day:
         st = min(l.stations, key=lambda q: abs(q['u'] - u))
         return st['id'] if abs(st['u'] - u) <= 60 else None
 
-    def ski_line(self, ln, s0=None, s1=None, act='ski'):
+    def ski_line(self, ln, s0=None, s1=None, act='ski', events=None):
         """Ski a line (oriented downhill) from s0 to s1, with turns and speed from the slope."""
         T = self.net.terrain
         if s0 is None:
@@ -113,6 +124,10 @@ class Day:
         lam = self.rng.uniform(45, 80) * max(1.0, amp / 7.0)
         v = max(2.0, getattr(self, '_v', 3.0))
         s = s0
+        evs = sorted((s0 + f * (s1 - s0), k) for f, k in (events or []))
+        if self.random_events and self.rng.random() < 0.7:
+            evs.append((s0 + self.rng.uniform(0.2, 0.8) * (s1 - s0), self.rng.choice(EVENT_KINDS)))
+            evs.sort()
         while s < s1 - 0.5:
             (px, py), _ = ln.at(s)
             (qx, qy), _ = ln.at(min(ln.length, s + 20))
@@ -125,8 +140,42 @@ class Day:
             off = amp * taper * math.sin(2 * math.pi * (s - s0) / lam)
             x, y = x - uy * off, y + ux * off
             self._emit(x, y, T.elev(x, y), act)
+            while evs and s >= evs[0][0]:
+                v, s = self._event(evs.pop(0)[1], ln, s, v)
         self._v = v
         return self
+
+    def _impact(self, kind, peak, rot, act='ski'):
+        t = self.t - 1000 + self.rng.randint(150, 850)  # during the second just written
+        self.impacts.append({'t': t, 'kind': kind, 'peak_g': peak, 'rot': rot, 'act': act})
+        return t
+
+    def _event(self, kind, ln, s, v):
+        """Something happens while skiing at s: a fall, a jump, the phone falling in the pocket, a bump, a hard stop."""
+        T = self.net.terrain
+        r = self.rng
+        if kind == 'fall':
+            self.falls.append(self._impact('fall', r.uniform(3.0, 6.0), r.uniform(4.0, 9.0)))
+            for f in (0.35, 0.08):  # sliding to a stop
+                s = min(ln.length, s + v * f)
+                (x, y), _ = ln.at(s)
+                self._emit(x, y, T.elev(x, y), 'ski')
+            self.stand(r.randint(8, 25))
+            return 1.5, s
+        if kind == 'hockey':  # a hard stop on purpose, as fast as a fall, but no blow
+            for f in (0.35, 0.08):
+                s = min(ln.length, s + v * f)
+                (x, y), _ = ln.at(s)
+                self._emit(x, y, T.elev(x, y), 'ski')
+            self.stand(r.randint(10, 25))
+            return 1.5, s
+        if kind == 'jump':
+            self._impact('jump', r.uniform(2.8, 4.8), r.uniform(0.8, 2.8))
+        elif kind == 'pocket':
+            self._impact('pocket', r.uniform(2.6, 3.6), r.uniform(5.0, 9.0))
+        elif kind == 'bump':
+            self._impact('bump', r.uniform(2.55, 3.3), r.uniform(0.4, 1.8))
+        return v, s
 
     def _glide(self, x1, y1):
         x0, y0 = self.pos
@@ -137,7 +186,7 @@ class Day:
             x, y = x0 + (x1 - x0) * k / n, y0 + (y1 - y0) * k / n
             self._emit(x, y, T.elev(x, y), 'ski')
 
-    def ski(self, key, seg, until=None, frm=None, stop=None):
+    def ski(self, key, seg, until=None, frm=None, stop=None, events=None):
         """Ski a run line. until=(key, seg): stop at the point nearest to that line's start.
         frm='start' starts at the top of the line instead of the nearest point. stop=(s, secs): a rest on the way."""
         ln = self.run_line(key, seg)
@@ -153,7 +202,7 @@ class Day:
             self.stand(secs)
             self.ski_line(ln, None, s1)
         else:
-            self.ski_line(ln, s0, s1)
+            self.ski_line(ln, s0, s1, events=events)
         return self
 
     def offpiste(self, key, seg, a, b, dist):
@@ -212,6 +261,9 @@ def true_velocity(rows, i):
     if n < 1e-9:
         return 0.0, 0.0, 0.0
     return dx / n * sp, dy / n * sp, sp
+
+
+EVENT_KINDS = ('fall', 'jump', 'pocket', 'bump', 'hockey')
 
 
 HACC = {'stand': 6.0, 'walk': 6.0, 'ski': 5.0, 'lift': 6.0}
@@ -283,3 +335,33 @@ def write_log(pts, header, events=(), cut_at=None):
     while ei < len(evs):
         lines.append(rawlog.line(evs[ei])); ei += 1
     return '\n'.join(lines) + '\n'
+
+
+def impact_window(ev, rng, P):
+    """The motion window the phone writes around a blow (docs/ARCHITECTURE.md m-8, condition 10): 50 Hz,
+    pre_s before and post_s after the peak, accelerometer (m/s², with gravity) and gyroscope (rad/s), flat x,y,z."""
+    F = P['fall']
+    hz, pre, post = F['hz'], F['pre_s'], F['post_s']
+    n = int(round((pre + post) * hz))
+    t0 = ev['t'] - int(pre * 1000)
+    ax, ay = rng.gauss(0, 1), rng.gauss(0, 1)
+    an = math.hypot(ax, ay) or 1.0
+    noise_a = 0.3 if ev['act'] == 'lift' else 2.2
+    noise_w = 0.1 if ev['act'] == 'lift' else 0.5
+    d = [rng.gauss(0, 1) for _ in range(3)]; dn = math.sqrt(sum(q * q for q in d)) or 1.0
+    d = [q / dn for q in d]
+    w = [rng.gauss(0, 1) for _ in range(3)]; wn = math.sqrt(sum(q * q for q in w)) or 1.0
+    w = [q / wn for q in w]
+    acc, gyr = [], []
+    for k in range(n):
+        tt = k / hz - pre
+        lying = ev['kind'] == 'fall' and tt > 0.8
+        na = 0.15 if lying else noise_a
+        nw = 0.05 if lying else noise_w
+        env = math.exp(-0.5 * (tt / 0.035) ** 2)  # the blow: its peak is a sample, at ev['t']
+        rot = ev['rot'] * math.exp(-0.5 * (tt / 0.15) ** 2)
+        g = [0.0, 0.0, 9.80665]
+        a = [g[i] * (1 - env) + d[i] * ev['peak_g'] * 9.80665 * env + rng.gauss(0, na) for i in range(3)]
+        acc += [round(q, 2) for q in a]
+        gyr += [round(w[i] * rot + rng.gauss(0, nw), 3) for i in range(3)]
+    return {'ev': 'impact', 't': int(ev['t']), 'hz': hz, 't0': t0, 'acc': acc, 'gyr': gyr}

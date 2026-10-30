@@ -161,10 +161,13 @@ class Day(unittest.TestCase):
             cases.run_single(d)
             fin, liv = self.analyse(d, baro=baro)
             types = [s['type'] for s in fin['segments']]
-            self.assertEqual(types[:2], ['lift', 'descent'], baro)  # the 30 s wait joins the ride (min_piece_s)
-            lift = fin['segments'][0]
+            # the wait, the ride, the stop at the top, the descent: each edge where it happened
+            self.assertEqual(types[:4], ['stop', 'lift', 'stop', 'descent'], baro)
+            lift = fin['segments'][1]
+            self.assertLessEqual(abs(lift['t0'] - d.rides[0]['t0']), 2000)
+            self.assertLessEqual(abs(lift['t1'] - d.rides[0]['t1']), 2000)
             self.assertEqual((lift['name'], lift['from'], lift['to']), ('Goodaura', {'station': 'bottom'}, {'station': 'top'}))
-            desc = fin['segments'][1]
+            desc = fin['segments'][3]
             self.assertIn('Goodaura 1', desc['legs'][0]['runs'])
             self.assertAlmostEqual(desc['drop_m'], 545, delta=25)
             self.assertAlmostEqual(desc['top_m'], lift_top(), delta=15)
@@ -186,6 +189,41 @@ class Day(unittest.TestCase):
         off = [lg for lg in desc['legs'] if lg['kind'] in ('off', 'unmatched')]
         self.assertTrue(off)
         self.assertGreater(sum(lg['dist_m'] for lg in off), 250)
+
+    def test_falls(self):
+        d = synth.Day(BASE, 6)
+        cases.falls(d)
+        synth.truth_labels(BASE, d.rows)
+        pts = synth.sense(BASE, d, 6)
+        import random
+        rng = random.Random(1)
+        evs = [synth.impact_window(i, rng, P) for i in d.impacts if i['peak_g'] >= P['fall']['trigger_g']]
+        txt = synth.write_log(pts, {'v': 1}, evs)
+        h, p, e, _ = rawlog.read(txt)
+        a = analyze.Analyzer(BASE, P)
+        fin = a.final(h, p, e)
+        # one real fall among a jump, the phone in the pocket, a bump, a hard stop and a bump on the gondola
+        self.assertEqual(len(d.falls), 1)
+        self.assertEqual(len(fin['falls']), 1)
+        self.assertLessEqual(abs(fin['falls'][0]['t'] - d.falls[0]), 3000)
+        live = a.live(h, p, e)['falls']
+        self.assertEqual([f['t'] for f in live], [f['t'] for f in fin['falls']])
+        self.assertGreater(live[0]['at'], live[0]['t'])
+        # "I did not fall": the window is gone, a summary line stays, and it never counts
+        e2 = [{'ev': 'impact', 't': x['t'], 'dismissed': True} if abs(x['t'] - d.falls[0]) < 1 else x for x in e]
+        self.assertEqual(a.final(h, p, e2)['falls'], [])
+        # the hard stop looks like a fall to the Doppler speed alone
+        self.assertGreaterEqual(len(analyze.falls_doppler(p, [q['t'] for q in p], a._state, P)), 2)
+
+    def test_offpiste_event(self):
+        for builder, n in ((cases.offpiste, 1), (cases.offpiste_short, 0)):
+            d = synth.Day(BASE, 8)
+            builder(d)
+            fin, _ = self.analyse(d)
+            ev = [o for s in fin['segments'] if s['type'] == 'descent' for o in s['offpiste']]
+            self.assertEqual(len(ev), n, builder.__name__)
+            for o in ev:
+                self.assertGreaterEqual(o['drop_m'], P['offpiste']['drop_m'])
 
     def test_empty_log(self):
         h, p, e, _ = rawlog.read('{"v":1}\n')

@@ -42,6 +42,8 @@
   "vz_sigma_mps": 0.5,
   "board_m": 150,
   "station_snap_m": 60,
+  "edge_mps": 0.8,
+  "edge_hold": 3,
   "pause_max_s": 300,
   "min_progress_m": 150,
   "default_speed_mps": {"gondola": 5.0, "cable_car": 8.0, "chair_lift": 2.5, "platter": 2.5, "t-bar": 2.5, "drag_lift": 2.5, "rope_tow": 2.0, "magic_carpet": 0.8, "other": 2.5}
@@ -83,11 +85,39 @@
  },
  "segments": {
   "min_piece_s": 30,
+  "flicker_s": 5,
+  "ski_min_s": 10,
+  "ski_edge_mps": 2.0,
+  "edge_hold": 3,
+  "edge_window_s": 20,
   "rest_min_s": 120,
+  "up_in_descent_s": 60,
   "long_break_s": 1200,
   "queue_gap_s": 60,
   "queue_dist_m": 80,
   "min_descent_drop_m": 20,
   "min_descent_m": 150
+ },
+ "offpiste": {
+  "far_m": 50,
+  "far_frac": 0.8,
+  "drop_m": 100,
+  "bridge_s": 20
+ },
+ "fall": {
+  "hz": 50,
+  "pre_s": 2.5,
+  "post_s": 2.5,
+  "trigger_g": 2.5,
+  "debounce_s": 3,
+  "rot_min_radps": 3.0,
+  "before_s": 3,
+  "v_before_mps": 3.0,
+  "settle_s": 3,
+  "still_s": 3,
+  "v_after_mps": 0.8,
+  "doppler_from_mps": 6.0,
+  "doppler_within_s": 3,
+  "doppler_still_s": 4
  }
 }

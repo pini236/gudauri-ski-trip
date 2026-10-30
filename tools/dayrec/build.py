@@ -5,7 +5,7 @@
     python3 tools/dayrec/build.py          write them
     python3 tools/dayrec/build.py --check  fail if the files differ from what the code makes now (CI)
 """
-import json, os, sys, zlib
+import json, os, random, sys, zlib
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.normpath(os.path.join(HERE, '..', '..'))
@@ -28,6 +28,7 @@ def make(base, P, name, builder, opts, salt=0):
     """(log text, network patch or None, the truth Day) for a case. salt != 0 makes a stress variant."""
     seed = seed_of(name, salt)
     d = synth.Day(base, seed, skier={'vmax': [15.0, 17.0, 19.0, 21.0][seed % 4], 'wander': opts.get('wander', 7.0)})
+    d.random_events = opts.get('events', False)
     builder(d)
     synth.truth_labels(base, d.rows)
     pts = synth.sense(base, d, seed + 1, baro=opts.get('baro', True))
@@ -52,6 +53,16 @@ def make(base, P, name, builder, opts, salt=0):
         pts = synth.drop_range(pts, cut + 1000, cut + 90000)
         events.append({'ev': 'resume', 't': cut + 91000})
         d.lost = (cut, cut + 90000)
+    # the motion windows the phone writes around a blow over trigger_g (condition 10); "I did not fall" leaves a line
+    rng = random.Random(seed + 2)
+    lost = getattr(d, 'lost', None)
+    for imp in d.impacts:
+        if imp['peak_g'] < P['fall']['trigger_g'] or (lost and lost[0] <= imp['t'] <= lost[1] + 1000):
+            continue
+        if opts.get('dismiss') and imp['kind'] == 'fall':
+            events.append({'ev': 'impact', 't': int(imp['t']), 'dismissed': True})
+        else:
+            events.append(synth.impact_window(imp, rng, P))
     events.append({'ev': 'stop', 't': pts[-1]['t'], 'reason': 'user'})
     d.recorded = sorted(q['t'] for q in pts)
     header = {'v': 1, 'tz': 'Asia/Tbilisi', 'resort': 'gudauri', 'device': 'synthetic', 'start': d.rows[0]['t']}

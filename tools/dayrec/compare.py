@@ -61,6 +61,13 @@ def final(exp, got):
                 _num(a['dist_m'], b['dist_m'], '%s.legs[%d].dist_m' % (p, m), errs)
             for k in ('dist_m', 'drop_m'):
                 _num(e[k], g[k], p + '.' + k, errs)
+            eo, go = e.get('offpiste', []), g.get('offpiste', [])
+            if len(eo) != len(go):
+                errs.append('%s.offpiste: %d != %d' % (p, len(eo), len(go)))
+            else:
+                for m, (a, b) in enumerate(zip(eo, go)):
+                    _t(a['t0'], b['t0'], '%s.offpiste[%d].t0' % (p, m), errs); _t(a['t1'], b['t1'], '%s.offpiste[%d].t1' % (p, m), errs)
+                    _num(a['drop_m'], b['drop_m'], '%s.offpiste[%d].drop_m' % (p, m), errs)
             _kmh(e.get('max_kmh'), g.get('max_kmh'), p + '.max_kmh', errs)
         if e['type'] in ('walk',):
             _num(e['dist_m'], g['dist_m'], p + '.dist_m', errs)
@@ -71,6 +78,7 @@ def final(exp, got):
     for k in ('ski_dist_m', 'drop_m'):
         _num(es_.get(k), gs_.get(k), 'stats.' + k, errs)
     _kmh(es_.get('max_kmh'), gs_.get('max_kmh'), 'stats.max_kmh', errs)
+    _events(exp.get('falls', []), got.get('falls', []), 'falls', errs)
     if len(exp.get('gaps', [])) != len(got.get('gaps', [])):
         errs.append('gaps: %d != %d' % (len(exp.get('gaps', [])), len(got.get('gaps', []))))
     return errs
@@ -85,4 +93,13 @@ def live(exp, got):
     for n, (a, b) in enumerate(zip(exp['events'], got['events'])):
         _t(a['t'], b['t'], 'live[%d]' % n, errs)
     _kmh(exp.get('max_kmh'), got.get('max_kmh'), 'live.max_kmh', errs)
+    _events(exp.get('falls', []), got.get('falls', []), 'live.falls', errs)
     return errs
+
+
+def _events(e, g, path, errs):
+    """Falls: the same number, each within 3 s."""
+    if len(e) != len(g):
+        errs.append('%s: %d != %d' % (path, len(e), len(g))); return
+    for n, (a, b) in enumerate(zip(e, g)):
+        _t(a['t'], b['t'], '%s[%d]' % (path, n), errs)

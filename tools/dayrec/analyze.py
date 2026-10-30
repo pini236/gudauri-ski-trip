@@ -271,6 +271,10 @@ def drop(h, idx, P):
     return tot
 
 
+def P_alt_hyst(P):
+    return P['alt']['hyst_m']
+
+
 def offsets(meas, A):
     """[(from time, offset)] from station measurements [(time, station altitude - source altitude)].
     A measurement is used if it is within cal_jump_max_m of the last one used, or of the last one refused
@@ -535,7 +539,73 @@ def legs(net, pts, kf, idx, mt, P):
     return res
 
 
-# ---------- 6. The day ----------
+# ---------- 6. "Here you fell" (docs/ARCHITECTURE.md m-8, condition 10): fun, not safety ----------
+
+G = 9.80665
+
+
+def impact_peaks(e):
+    """(peak acceleration in g, peak rotation in rad/s) of an impact window."""
+    a, w = e.get('acc') or [], e.get('gyr') or []
+    pa = max((math.sqrt(a[i] ** 2 + a[i + 1] ** 2 + a[i + 2] ** 2) for i in range(0, len(a) - 2, 3)), default=0.0) / G
+    pw = max((math.sqrt(w[i] ** 2 + w[i + 1] ** 2 + w[i + 2] ** 2) for i in range(0, len(w) - 2, 3)), default=0.0)
+    return pa, pw
+
+
+def falls(pts, ts, events, act, P):
+    """A fall: a blow (the impact window: at least trigger_g and rot_min_radps), while skiing (not on a lift), going at
+    least v_before_mps in the before_s before it, and at most v_after_mps through still_s after settle_s.
+    A dismissed impact ("I did not fall") never counts. [{t, at}]: at is when it is known (t + settle_s + still_s)."""
+    F = P['fall']
+    out = []
+    for e in sorted((e for e in events if e.get('ev') == 'impact' and 't' in e), key=lambda e: e['t']):
+        if e.get('dismissed') or 'acc' not in e:
+            continue
+        pa, pw = impact_peaks(e)
+        if pa < F['trigger_g'] or pw < F['rot_min_radps']:
+            continue
+        t = e['t']
+        i = max((k for k in range(len(ts)) if ts[k] <= t), default=None)
+        if i is None or act[i] >= 4:
+            continue
+        before = [pts[k]['s'] for k in range(len(ts)) if t - F['before_s'] * 1000 <= ts[k] <= t and pts[k]['s'] is not None]
+        a0, a1 = t + F['settle_s'] * 1000, t + (F['settle_s'] + F['still_s']) * 1000
+        after = [pts[k]['s'] for k in range(len(ts)) if a0 <= ts[k] <= a1]
+        if not before or max(before) < F['v_before_mps']:
+            continue
+        if len(after) < F['still_s'] - 1 or any(v is None or v > F['v_after_mps'] for v in after):
+            continue
+        if out and t - out[-1]['t'] < F['debounce_s'] * 1000:
+            continue
+        out.append({'t': t, 'at': int(a1)})
+    return out
+
+
+def falls_doppler(pts, ts, act, P):
+    """The cheaper alternative the architect asked to compare (no motion sensors): skiing at doppler_from_mps or more,
+    down to v_after_mps within doppler_within_s, and staying there doppler_still_s. Not in the result, only in the report."""
+    F = P['fall']
+    out, n, i = [], len(ts), 0
+    while i < n:
+        s = pts[i]['s']
+        if act[i] == SKI and s is not None and s >= F['doppler_from_mps']:
+            j = i + 1
+            while j < n and ts[j] - ts[i] <= F['doppler_within_s'] * 1000 and not (pts[j]['s'] is not None and pts[j]['s'] <= F['v_after_mps']):
+                j += 1
+            if j < n and ts[j] - ts[i] <= F['doppler_within_s'] * 1000:
+                k = j
+                while k + 1 < n and pts[k + 1]['s'] is not None and pts[k + 1]['s'] <= F['v_after_mps']:
+                    k += 1
+                if (ts[k] - ts[j]) / 1000.0 >= F['doppler_still_s']:
+                    if not out or ts[i] - out[-1]['t'] >= F['debounce_s'] * 1000:
+                        out.append({'t': ts[i] + 500, 'at': ts[k]})
+                    i = k + 1
+                    continue
+        i += 1
+    return out
+
+
+# ---------- 7. The day ----------
 
 class Analyzer:
     def __init__(self, net, params):
@@ -556,7 +626,7 @@ class Analyzer:
         """The live view as it changes: [{t, act, lift?, runs?}] at every change, and the live maximum speed."""
         net, P = self.net, self.P
         if not pts:
-            return {'events': [], 'max_kmh': None}
+            return {'events': [], 'max_kmh': None, 'falls': []}
         xy, kf, ts, src, baro, h, vz = self._prep(pts, True)
         E, feats = emissions(net, pts, kf, vz, P)
         act = viterbi_activity(net, E, feats, P, live=True)
@@ -577,7 +647,7 @@ class Analyzer:
         ok = valid_speeds(pts, xy, P)
         ski = [i for i, a in enumerate(act) if a == SKI]
         best = max_speed(pts, ok, ski, P)
-        return {'events': evs, 'max_kmh': kmh(best[0]) if best else None}
+        return {'events': evs, 'max_kmh': kmh(best[0]) if best else None, 'falls': falls(pts, ts, events, act, P)}
 
     # ----- final -----
     def final(self, header, pts, events=()):
@@ -585,23 +655,33 @@ class Analyzer:
         res = {'analysis': P['analysis'], 'v': header.get('v', 1), 'resort': header.get('resort'),
                'points': len(pts)}
         if not pts:
-            res.update({'segments': [], 'gaps': [], 'stats': {}})
+            res.update({'segments': [], 'gaps': [], 'falls': [], 'stats': {}})
             return res
         xy, kf, ts, src, baro, h, vz = self._prep(pts, False)
         E, feats = emissions(net, pts, kf, vz, P)
         path = viterbi_activity(net, E, feats, P, live=False)
-        pieces = self._pieces(path, ts, kf, feats)
+        pieces = self._pieces(path, ts, kf, feats, pts, h)
         segs = self._segments(pieces, pts, xy, kf, ts, h)
+        state = [0] * len(pts)
+        for p in pieces:
+            for i in range(p['i0'], p['i1'] + 1):
+                state[i] = p['s']
+        fl = []
+        for f in falls(pts, ts, events, state, P):
+            i = max(k for k in range(len(ts)) if ts[k] <= f['t'])
+            la, lo = net.proj.ll(kf[i][0], kf[i][1])
+            fl.append({'t': f['t'], 'lat': round(la, 6), 'lon': round(lo, 6)})
+        self._state = state
         self._calibrate(segs, ts, src)
         gaps = [{'t0': ts[i - 1], 't1': ts[i]} for i in range(1, len(ts)) if ts[i] - ts[i - 1] > P['gap_s'] * 1000]
         rec = len(pts)
         span = (ts[-1] - ts[0]) / 1000.0 + 1
-        res.update({'start': ts[0], 'end': ts[-1], 'baro': baro, 'coverage': round(rec / span, 4), 'gaps': gaps,
+        res.update({'start': ts[0], 'end': ts[-1], 'baro': baro, 'coverage': round(rec / span, 4), 'gaps': gaps, 'falls': fl,
                     'segments': [self._public(s) for s in segs]})
         res['stats'] = self._stats(res['segments'])
         return res
 
-    def _pieces(self, path, ts, kf, feats):
+    def _pieces(self, path, ts, kf, feats, pts, h):
         net, P = self.net, self.P
         S, L = P['segments'], P['lift']
         pcs = []
@@ -648,25 +728,119 @@ class Analyzer:
                     vh = sum(math.hypot(kf[i][2], kf[i][3]) for i in range(p['i0'], p['i1'] + 1)) / (p['i1'] - p['i0'] + 1)
                     p['s'] = STAND if vh < 0.5 else UP
         pcs = merge_equal(pcs)
-        # short stand, walk and up pieces join a neighbour that is not a lift
+        # the edges of a ride, to the second: it starts where the position along the cable starts to grow and
+        # ends where it stops growing (standing in the queue or at the top station is not riding)
+        out = []
+        for p in pcs:
+            if p['s'] < 4:
+                out.append(p); continue
+            line = self.net.lifts[p['s'] - 4].line
+            idx = list(range(p['i0'], p['i1'] + 1))
+            us = [line.nearest(kf[i][0], kf[i][1])[1] for i in idx]
+            # moving[k]: from reading k to k+1 the position along the cable grew at edge_mps or more
+            mv = [(us[k + 1] - us[k]) / max(0.001, (ts[idx[k + 1]] - ts[idx[k]]) / 1000.0) >= L['edge_mps'] for k in range(len(us) - 1)]
+            n = L['edge_hold']
+            starts = [k for k in range(len(mv) - n + 1) if all(mv[k:k + n])]
+            if not starts:
+                out.append(p); continue
+            kst = starts[0]
+            kend = max(k + n for k in range(len(mv) - n + 1) if all(mv[k:k + n]))
+            a, b = p['i0'] + kst, p['i0'] + kend
+            if a > p['i0']:
+                out.append(self._quiet(p['i0'], a - 1, kf))
+            out.append(dict(p, i0=a, i1=b))
+            if b < p['i1']:
+                out.append(self._quiet(b + 1, p['i1'], kf))
+        pcs = merge_equal(out)
+        # a few seconds of "ski" that do not go down are the filter slowing down (off a lift), not skiing
+        for p in pcs:
+            if p['s'] == SKI and dur(p) < S['ski_min_s'] and drop(h, range(p['i0'], p['i1'] + 1), self.P) < P_alt_hyst(self.P):
+                p['s'] = WALK
+        pcs = merge_equal(pcs)
+        # the edges of skiing, to the second: where the raw Doppler speed crosses ski_edge_mps (held edge_hold readings)
+        for j in range(len(pcs) - 1):
+            a, b = pcs[j], pcs[j + 1]
+            if a['s'] in (STAND, WALK) and b['s'] == SKI:
+                k = self._edge(pts, ts, b['i0'], a['i0'], b['i1'], up=True)
+                if k is not None:
+                    a['i1'], b['i0'] = k - 1, k
+            elif a['s'] == SKI and b['s'] in (STAND, WALK):
+                k = self._edge(pts, ts, a['i1'], a['i0'], b['i1'], up=False)
+                if k is not None:
+                    a['i1'], b['i0'] = k, k + 1
+        # skiing next to a lift (straight off it, or straight onto it): the slow seconds become a stop or a walk
+        out = []
+        for j, p in enumerate(pcs):
+            if p['s'] != SKI:
+                out.append(p); continue
+            if j > 0 and pcs[j - 1]['s'] >= 4:
+                k = self._edge(pts, ts, p['i0'], p['i0'] - 1, p['i1'], up=True)
+                if k is not None and k > p['i0']:
+                    out.append(self._quiet(p['i0'], k - 1, kf)); p = dict(p, i0=k)
+            tail = None
+            if j + 1 < len(pcs) and pcs[j + 1]['s'] >= 4:
+                k = self._edge(pts, ts, p['i1'], p['i0'], p['i1'], up=False)
+                if k is not None and k < p['i1']:
+                    tail = self._quiet(k + 1, p['i1'], kf); p = dict(p, i1=k)
+            out.append(p)
+            if tail:
+                out.append(tail)
+        pcs = [p for p in out if p['i1'] >= p['i0']]
+        pcs = merge_equal(pcs)
+        # short stand, walk and up pieces join a neighbouring stand, walk or up piece. Never a lift or a descent:
+        # their edges are the moments the state changed, to the second. Between a lift and a descent a short
+        # piece stays (a real stop at the top), unless it is a flicker shorter than flicker_s.
+        quiet = (STAND, WALK, UP)
         changed = True
         while changed and len(pcs) > 1:
             changed = False
             for j, p in enumerate(pcs):
-                if p['s'] in (STAND, WALK, UP) and dur(p) < S['min_piece_s']:
-                    prev = pcs[j - 1] if j > 0 else None
-                    nxt = pcs[j + 1] if j + 1 < len(pcs) else None
-                    if prev is not None and (prev['s'] < 4 or nxt is None or nxt['s'] >= 4):
-                        prev['i1'] = p['i1']
-                    elif nxt is not None:
-                        nxt['i0'] = p['i0']
-                    else:
-                        continue
-                    del pcs[j]
-                    pcs = merge_equal(pcs)
-                    changed = True
-                    break
+                if p['s'] not in quiet or dur(p) >= S['min_piece_s']:
+                    continue
+                prev = pcs[j - 1] if j > 0 else None
+                nxt = pcs[j + 1] if j + 1 < len(pcs) else None
+                if prev is not None and prev['s'] in quiet:
+                    if dur(p) > dur(prev):
+                        prev['s'] = p['s']  # the longer of the two names the joined piece
+                    prev['i1'] = p['i1']
+                elif nxt is not None and nxt['s'] in quiet:
+                    if dur(p) > dur(nxt):
+                        nxt['s'] = p['s']
+                    nxt['i0'] = p['i0']
+                elif dur(p) < S['flicker_s'] and prev is not None:
+                    prev['i1'] = p['i1']
+                elif dur(p) < S['flicker_s'] and nxt is not None:
+                    nxt['i0'] = p['i0']
+                else:
+                    continue
+                del pcs[j]
+                pcs = merge_equal(pcs)
+                changed = True
+                break
         return pcs
+
+    def _quiet(self, i0, i1, kf):
+        vh = sum(math.hypot(kf[i][2], kf[i][3]) for i in range(i0, i1 + 1)) / (i1 - i0 + 1)
+        return {'s': STAND if vh < self.P['activity']['walk_mean_mps'] / 2 else WALK, 'i0': i0, 'i1': i1}
+
+    def _edge(self, pts, ts, i, lo, hi, up):
+        """The first index (up: skiing starts) or the last index (down: skiing ends) near i, within edge_window_s,
+        where the raw Doppler speed is at least ski_edge_mps for edge_hold readings in a row. None if not found."""
+        S = self.P['segments']
+        w = S['edge_window_s'] * 1000
+        v, n = S['ski_edge_mps'], S['edge_hold']
+        fast = lambda k: pts[k]['s'] is not None and pts[k]['s'] >= v
+        rng = range(lo + 1, hi + 1)
+        cands = [k for k in rng if abs(ts[k] - ts[i]) <= w]
+        if up:
+            for k in cands:
+                if k + n - 1 <= hi and all(fast(m) for m in range(k, k + n)):
+                    return k
+        else:
+            for k in reversed(cands):
+                if k - n + 1 >= lo and all(fast(m) for m in range(k - n + 1, k + 1)):
+                    return k
+        return None
 
     def _segments(self, pcs, pts, xy, kf, ts, h):
         net, P = self.net, self.P
@@ -683,7 +857,8 @@ class Analyzer:
                     q = pcs[k]
                     if q['s'] == SKI:
                         g.append(q); k += 1; continue
-                    if q['s'] in (STAND, WALK) and dur(q) < S['rest_min_s'] and k + 1 < len(pcs) and pcs[k + 1]['s'] == SKI:
+                    if (q['s'] in (STAND, WALK) and dur(q) < S['rest_min_s'] or q['s'] == UP and dur(q) < S['up_in_descent_s']) \
+                            and k + 1 < len(pcs) and pcs[k + 1]['s'] == SKI:
                         g.append(q); k += 1; continue
                     break
                 groups.append(('descent', g)); j = k
@@ -745,6 +920,7 @@ class Analyzer:
                 else:
                     s['max_kmh'] = None
                 s['stops'] = [{'t0': ts[p['i0']], 't1': ts[p['i1']]} for p in s['pieces'] if p['s'] != SKI]
+                s['offpiste'] = self._offpiste(kf, ts, h, idx)
                 s['_h'] = (i0, i1)
             elif s['type'] == 'stop':
                 mx = sum(kf[i][0] for i in idx) / len(idx); my = sum(kf[i][1] for i in idx) / len(idx)
@@ -767,6 +943,34 @@ class Analyzer:
             elif s['type'] == 'ascent':
                 s['rise_m'] = round(h[i1] - h[i0], 1)
         return segs
+
+    def _offpiste(self, kf, ts, h, idx):
+        """Off-piste events in a descent: a stretch going down at least drop_m, of which at least far_frac of the
+        readings are more than far_m from every run and road. Stretches of far readings join across bridge_s."""
+        O = self.P['offpiste']
+        far = [self.net.nearest_piste_dist(kf[i][0], kf[i][1]) > O['far_m'] and
+               self.net.nearest_road_dist(kf[i][0], kf[i][1]) > O['far_m'] for i in idx]
+        runs, n = [], 0
+        while n < len(idx):
+            if far[n]:
+                m = n
+                while m + 1 < len(idx) and far[m + 1]:
+                    m += 1
+                if runs and (ts[idx[n]] - ts[idx[runs[-1][1]]]) / 1000.0 <= O['bridge_s']:
+                    runs[-1][1] = m
+                else:
+                    runs.append([n, m])
+                n = m + 1
+            else:
+                n += 1
+        out = []
+        for a, b in runs:
+            sub = idx[a:b + 1]
+            frac = sum(far[a:b + 1]) / len(sub)
+            dr = drop(h, sub, self.P)
+            if frac >= O['far_frac'] and dr >= O['drop_m']:
+                out.append({'t0': ts[sub[0]], 't1': ts[sub[-1]], 'drop_m': round(dr, 1), 'dist_m': round(self._dist(kf, ts, sub), 1)})
+        return out
 
     def _station(self, lift, u):
         st = min(lift.stations, key=lambda q: abs(q['u'] - u))

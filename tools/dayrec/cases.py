@@ -77,6 +77,24 @@ def offpiste(d):
     d.stand(40)
 
 
+def offpiste_short(d):
+    """A short trip 70 m to the side of the run, not an off-piste descent."""
+    start(d, 'Goodaura').stand(30).ride('Goodaura').stand(15)
+    d.offpiste(*G1, 0.3, 0.38, 70)
+    d.stand(40)
+
+
+def falls(d):
+    """A bump on the gondola, then on Goodaura 1: a jump, a fall, the phone falling in the pocket, a bump, a hard stop."""
+    start(d, 'Goodaura').stand(30).ride('Goodaura', bump_at=0.5).stand(15)
+    d.ski(*G1, events=[(0.15, 'jump'), (0.3, 'fall'), (0.5, 'pocket'), (0.65, 'bump'), (0.8, 'hockey')]).stand(40)
+
+
+def fall_dismissed(d):
+    start(d, 'Goodaura').stand(30).ride('Goodaura').stand(15)
+    d.ski(*G1, events=[(0.4, 'fall')]).stand(40)
+
+
 def queue_and_hut(d):
     """A long queue at the bottom, then a long break (a hut) at the top, then a descent with a rest on the way."""
     start(d, 'Goodaura').stand(420).ride('Goodaura').stand(25 * 60).ski(*G1, stop=(0.5, 90)).stand(40)
@@ -129,10 +147,13 @@ CASES = [
     ('run_single_nobaro', run_single, 'The same, without a barometer (iPhone without the motion permission, simulator).', {'baro': False}),
     ('run_to_run', run_to_run, 'From run to run: Kudebi 2 (two lines) into Soliko 1.', {}),
     ('shared_tatra', shared_tatra, 'Tatra 1 to the fork, then Tatra 2; the lower stretch is shared with Tatra 1 and is shown as both.', {}),
-    ('offpiste', offpiste, 'Goodaura 1, with 160 m off the runs and back.', {}),
+    ('offpiste', offpiste, 'Goodaura 1, with 160 m off the runs and back: an off-piste descent.', {}),
+    ('offpiste_short', offpiste_short, 'A short trip 70 m to the side of Goodaura 1 and back: not an off-piste descent.', {}),
+    ('falls', falls, 'Here you fell: one real fall among a jump, the phone falling in the pocket, a bump, a hard stop and a bump on the gondola.', {}),
+    ('fall_dismissed', fall_dismissed, 'A fall the skier dismissed ("I did not fall"): only the summary line is left, and it never counts.', {'dismiss': True}),
     ('queue_and_hut', queue_and_hut, 'A 7 minute queue, a 25 minute break at the top, and a rest in the middle of the run.', {}),
     ('gps_spike', gps_spike, 'One reading of 100 km/h with a jump of the position, in the middle of the descent.', {'spike': 0.45}),
     ('signal_loss', signal_loss, 'No readings for a minute in the middle of the descent.', {'loss': (0.4, 60)}),
     ('crash_resume', crash_resume, 'The app was killed: the last line is cut in half, 90 seconds are missing, then a resume event.', {'crash': 0.5}),
-    ('full_day', full_day, 'A full day: 13 rides on 8 lifts (one slow, one stopped), Tatra 2 with the shared stretch, off-piste, Kobi, lunch, a minute without signal.', {}),
+    ('full_day', full_day, 'A full day: 13 rides on 8 lifts (one slow, one stopped), Tatra 2 with the shared stretch, off-piste, Kobi, lunch, a minute without signal, and falls, jumps and bumps on the way.', {'events': True}),
 ]

@@ -204,6 +204,13 @@ class Net:
                 continue
             self.lifts.append(lift)
         self.grid = Grid([q.line for q in self.pistes])
+        # roads of the terrain model (local metres already, as site/js/relief.js reads them)
+        self.roads = []
+        for k, flat in terrain_json.get('env', {}).get('roads', []):
+            pts = [(flat[i], flat[i + 1]) for i in range(0, len(flat) - 1, 2)]
+            if len(pts) >= 2:
+                self.roads.append(Line(pts))
+        self.road_grid = Grid(self.roads)
         self._labels()
 
     def near_pistes(self, x, y, r):
@@ -214,6 +221,9 @@ class Net:
             if d <= r:
                 out.append((i, d))
         return out
+
+    def nearest_road_dist(self, x, y, r=400.0):
+        return min((self.roads[i].nearest(x, y)[0] for i in self.road_grid.near(x, y, r)), default=1e9)
 
     def nearest_piste_dist(self, x, y, r=400.0):
         n = self.near_pistes(x, y, r)
