@@ -22,7 +22,8 @@
         "group",
         "videos",
         "pano",
-        "app"
+        "app",
+        "dayrec"
       ],
       "stats": {
         "runs": 27,

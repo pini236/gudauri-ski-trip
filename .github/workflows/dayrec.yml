@@ -1,0 +1,29 @@
+# The day analysis reference (decision 76, docs/ARCHITECTURE.md m-8): unit tests, the test values are what the
+# code makes, and the targets of the synthetic days (lifts, stations, live delay, wrong names). Standard library only.
+name: dayrec
+
+on:
+  push:
+    paths: ['tools/dayrec/**', 'tools/fixtures/dayrec-*', 'tools/fixtures/dayrec-*/**', 'site/data/runs-and-lifts.json', 'site/data/terrain.json', '.github/workflows/dayrec.yml']
+  pull_request:
+    paths: ['tools/dayrec/**', 'tools/fixtures/dayrec-*', 'tools/fixtures/dayrec-*/**', 'site/data/runs-and-lifts.json', 'site/data/terrain.json', '.github/workflows/dayrec.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dayrec-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  dayrec:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
+      - run: python3 -m unittest discover -s tools/dayrec -v
+      - run: python3 tools/dayrec/build.py --check
+      - run: python3 tools/dayrec/check.py
