@@ -212,6 +212,14 @@ class Day(unittest.TestCase):
         # "I did not fall": the window is gone, a summary line stays, and it never counts
         e2 = e + [{'ev': 'impact', 't': int(d.falls[0]), 'dismissed': True}]  # a second line, append-only
         self.assertEqual(a.final(h, p, e2)['falls'], [])
+        # closing the day deletes the dismissed window for real, and nothing else
+        txt2 = txt + rawlog.line({'ev': 'impact', 't': int(d.falls[0]), 'dismissed': True}) + '\n'
+        closed = rawlog.compact(txt2)
+        h3, p3, e3, _ = rawlog.read(closed)
+        self.assertEqual(p3, p)
+        self.assertFalse(any(x.get('t') == int(d.falls[0]) and 'acc' in x for x in e3))
+        self.assertEqual(len([x for x in e3 if 'acc' in x]), len([x for x in e if 'acc' in x]) - 1)
+        self.assertEqual(a.final(h3, p3, e3)['falls'], [])
         # the hard stop looks like a fall to the Doppler speed alone
         self.assertGreaterEqual(len(analyze.falls_doppler(p, [q['t'] for q in p], a._state, P)), 2)
 

@@ -2799,6 +2799,211 @@
    }
   },
   {
+   "name": "fall_dismissed_closed",
+   "about": "The same day after it was closed: the dismissed window was deleted from the file, the dismissal line stays.",
+   "log": "tools/fixtures/dayrec-logs/fall_dismissed_closed.jsonl",
+   "dropped_lines": 0,
+   "truth": {
+    "rides": [
+     {
+      "lift": "158744075",
+      "from": "bottom",
+      "to": "top"
+     }
+    ],
+    "descents": [
+     [
+      "Goodaura 1"
+     ]
+    ]
+   },
+   "expected": {
+    "final": {
+     "analysis": 1,
+     "v": 1,
+     "resort": "gudauri",
+     "mode": "day",
+     "points": 756,
+     "start": 1799645400000,
+     "end": 1799646155000,
+     "baro": true,
+     "coverage": 1.0,
+     "gaps": [],
+     "falls": [],
+     "segments": [
+      {
+       "type": "stop",
+       "t0": 1799645400000,
+       "t1": 1799645427000,
+       "lat": 42.471139,
+       "lon": 44.492203,
+       "kind": "queue"
+      },
+      {
+       "type": "lift",
+       "t0": 1799645428000,
+       "t1": 1799645850000,
+       "lift": "158744075",
+       "name": "Goodaura",
+       "from": {
+        "station": "bottom"
+       },
+       "to": {
+        "station": "top"
+       },
+       "rise_m": 543.0
+      },
+      {
+       "type": "stop",
+       "t0": 1799645851000,
+       "t1": 1799645864000,
+       "lat": 42.492341,
+       "lon": 44.49427,
+       "kind": "rest"
+      },
+      {
+       "type": "descent",
+       "t0": 1799645865000,
+       "t1": 1799646114000,
+       "legs": [
+        {
+         "t0": 1799645865000,
+         "t1": 1799646082000,
+         "kind": "run",
+         "runs": [
+          "Goodaura 1"
+         ],
+         "dist_m": 2500.8
+        },
+        {
+         "t0": 1799646083000,
+         "t1": 1799646091000,
+         "kind": "run",
+         "runs": [
+          "Goodaura 1",
+          "Shino"
+         ],
+         "dist_m": 113.1
+        },
+        {
+         "t0": 1799646092000,
+         "t1": 1799646114000,
+         "kind": "run",
+         "runs": [
+          "Goodaura 1"
+         ],
+         "dist_m": 179.1
+        }
+       ],
+       "dist_m": 2793.0,
+       "drop_m": 545.0,
+       "moving_s": 230,
+       "avg_kmh": 43.72,
+       "max_kmh": 59.69,
+       "max_at": {
+        "t": 1799645994000,
+        "lat": 42.481804,
+        "lon": 44.494681
+       },
+       "stops": [
+        {
+         "t0": 1799645955000,
+         "t1": 1799645972000
+        }
+       ],
+       "offpiste": [],
+       "top_m": 2705.8,
+       "bottom_m": 2161.5
+      },
+      {
+       "type": "stop",
+       "t0": 1799646115000,
+       "t1": 1799646155000,
+       "lat": 42.471093,
+       "lon": 44.492174,
+       "kind": "rest"
+      }
+     ],
+     "stats": {
+      "descents": 1,
+      "lifts": 1,
+      "ski_dist_m": 2793.0,
+      "drop_m": 545.0,
+      "ski_s": 230,
+      "lift_s": 422,
+      "lift_rise_m": 543.0,
+      "max_kmh": 59.69,
+      "max_at": {
+       "t": 1799645994000,
+       "lat": 42.481804,
+       "lon": 44.494681
+      }
+     }
+    },
+    "live": {
+     "events": [
+      {
+       "t": 1799645400000,
+       "act": "stand"
+      },
+      {
+       "t": 1799645429000,
+       "act": "lift",
+       "lift": "158744075"
+      },
+      {
+       "t": 1799645862000,
+       "act": "stand"
+      },
+      {
+       "t": 1799645864000,
+       "act": "lift",
+       "lift": "158744075"
+      },
+      {
+       "t": 1799645866000,
+       "act": "ski",
+       "runs": [
+        "Goodaura 1"
+       ]
+      },
+      {
+       "t": 1799645964000,
+       "act": "stand"
+      },
+      {
+       "t": 1799645973000,
+       "act": "ski",
+       "runs": [
+        "Goodaura 1"
+       ]
+      },
+      {
+       "t": 1799646083000,
+       "act": "ski",
+       "runs": [
+        "Goodaura 1",
+        "Shino"
+       ]
+      },
+      {
+       "t": 1799646092000,
+       "act": "ski",
+       "runs": [
+        "Goodaura 1"
+       ]
+      },
+      {
+       "t": 1799646117000,
+       "act": "stand"
+      }
+     ],
+     "max_kmh": 59.69,
+     "falls": []
+    }
+   }
+  },
+  {
    "name": "queue_and_hut",
    "about": "A 7 minute queue, a 25 minute break at the top, and a rest in the middle of the run.",
    "log": "tools/fixtures/dayrec-logs/queue_and_hut.jsonl",

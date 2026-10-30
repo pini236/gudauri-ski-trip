@@ -67,6 +67,8 @@ def make(base, P, name, builder, opts, salt=0):
     header = {'v': 1, 'tz': 'Asia/Tbilisi', 'resort': 'gudauri', 'device': 'synthetic', 'start': d.rows[0]['t'],
               'mode': opts.get('mode', 'day')}
     text = synth.write_log(pts, header, events, cut_at=cut)
+    if opts.get('closed'):  # the day was closed: dismissed windows are gone from the file
+        text = rawlog.compact(text)
     patch = cases.mid_patch(base) if opts.get('patch') else None
     if patch:  # the truth of the stations, on the patched network
         pn = netmod.Net(base.raw_rl, base.raw_tj, P, patch)

@@ -172,6 +172,7 @@ CASES = [
     ('run_from_middle', run_from_middle, 'Measure one run (mode run), started half way down Goodaura 1: stops at the bottom station.', {'mode': 'run'}),
     ('run_short_stop', run_short_stop, 'Measure one run (mode run): a 45 s rest on Tatra 1 does not stop it; boarding the Shino lift does.', {'mode': 'run'}),
     ('run_still', run_still, 'Measure one run (mode run): two minutes standing in the middle of Goodaura 1 stop it.', {'mode': 'run'}),
+    ('fall_dismissed_closed', fall_dismissed, 'The same day after it was closed: the dismissed window was deleted from the file, the dismissal line stays.', {'dismiss': True, 'closed': True}),
     ('queue_and_hut', queue_and_hut, 'A 7 minute queue, a 25 minute break at the top, and a rest in the middle of the run.', {}),
     ('gps_spike', gps_spike, 'One reading of 100 km/h with a jump of the position, in the middle of the descent.', {'spike': 0.45}),
     ('signal_loss', signal_loss, 'No readings for a minute in the middle of the descent.', {'loss': (0.4, 60)}),

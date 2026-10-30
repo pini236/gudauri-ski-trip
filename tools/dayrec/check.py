@@ -124,6 +124,8 @@ def main(quick=False):
         hd, pts, evs, bad = rawlog.read(text)
         fin, liv = an.final(hd, pts, evs), an.live(hd, pts, evs)
         fd_ = analyze.falls_doppler(pts, [q['t'] for q in pts], an._state, P)
+        if opts.get('dismiss'):
+            d.falls = []  # the skier said "I did not fall": there is nothing to say
         for key, got in (('imp', fin['falls']), ('dop', fd_)):
             hit = set()
             for f in got:

@@ -44,3 +44,29 @@ def read(text):
 
 def line(o):
     return json.dumps(o, separators=(',', ':'), ensure_ascii=False)
+
+
+def compact(text):
+    """Closing a day (and recovering after a crash, at the next start): the motion windows of dismissed impacts are
+    deleted for real (docs/ARCHITECTURE.md m-8, condition 10). Every other line stays as it was, in order; the
+    dismissal line stays, without a window. The app writes the result to a temporary file and swaps it in atomically.
+    Cut lines are dropped too. Nothing that is exported (GPX) ever carries a window."""
+    lines = [ln for ln in text.split('\n') if ln.strip()]
+    gone = set()
+    for ln in lines:
+        try:
+            o = json.loads(ln)
+        except ValueError:
+            continue
+        if isinstance(o, dict) and o.get('ev') == 'impact' and o.get('dismissed'):
+            gone.add(o.get('t'))
+    out = []
+    for ln in lines:
+        try:
+            o = json.loads(ln)
+        except ValueError:
+            continue
+        if isinstance(o, dict) and o.get('ev') == 'impact' and not o.get('dismissed') and o.get('t') in gone:
+            continue
+        out.append(ln)
+    return '\n'.join(out) + '\n'
