@@ -41,6 +41,9 @@ final class AppModel {
     let runs: RunsAndLifts?
     /// The terrain model (site/data/terrain.json), parsed by the map when it first opens.
     let terrainURL: URL?
+    /// The ski day's recorder (decision 76), only when the site lists `dayrec` for Gudauri (m-8, answer 7), or for the
+    /// screenshots' `+dayrec` switch; no screen yet (round 29).
+    let dayRecorder: DayRecorder?
     var status: LiftStatus
     var path: [Route] = []
     /// The lift board's sheet over the map (S2, S3), opened from home's board or the map's bar.
@@ -78,6 +81,8 @@ final class AppModel {
         qaWeather = flags["weather"]
         // a pinned moment in Gudauri time ("2027-01-12T10:00"), for the boards that depend on the trip's stage
         qaNow = flags["now"].flatMap { Forecast.millis(local: $0) }.map { Date(timeIntervalSince1970: Double($0) / 1000) }
+        let resorts = data("resorts").flatMap { try? Data(contentsOf: $0) }.flatMap { try? Resorts.decode($0) }
+        dayRecorder = resorts?.has("dayrec") == true || flags["dayrec"] != nil ? DayRecorder() : nil
         forecast = qaWeather == "sample" ? WeatherSource.sample(now: qaNow.map { Int64($0.timeIntervalSince1970 * 1000) } ?? now) : qaWeather != nil ? nil : WeatherSource.cached()
         status = LiftStatus(names: names, report: qaStatus.map { StatusSource.qa($0, now: now) } ?? StatusSource.cached(), now: now)
         // the screenshots on GitHub only (a launch argument): a made-up trip, never the crew's flight
@@ -85,6 +90,8 @@ final class AppModel {
         // and the screen to open at start, for the screenshots (app/ios/qa/shots)
         if let r = qa.first.flatMap(Route.init(qa:)) { path = [r] }
         statusSheet = flags["sheet"] == "status"
+        // the simulator's end-to-end check: record a simulated route with no screen (simctl location)
+        if flags["dayrec"] == "start" { dayRecorder?.start() }
     }
 
     /// A made-up trip for the screenshots (invented flight numbers, as Android's QA).

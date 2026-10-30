@@ -13,7 +13,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 SITE = ROOT / "site"
-FILES = ("terrain.json", "runs-and-lifts.json", "videos-seed.json")
+FILES = ("terrain.json", "runs-and-lifts.json", "videos-seed.json", "resorts.json")
 
 
 def descent_profiles():

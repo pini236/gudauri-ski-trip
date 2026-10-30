@@ -51,6 +51,11 @@ targets:
         # the app's own four languages, so the system's own texts follow them (decision 47)
         CFBundleLocalizations: [en, he, ru, ka]
         # "where am I" (round 19, m-7): only while the map is open, never sent or kept
+        # the ski day (decision 76, m-8): records on after a tap, with the screen off (no "always"); the system's blue
+        # pill shows meanwhile. Precise location for that day only, when only the approximate one was allowed.
+        UIBackgroundModes: [location]
+        NSLocationTemporaryUsageDescriptionDictionary:
+          DayRecording: "Recording your ski day needs your precise location: speeds and runs cannot be told from an approximate one. The track stays on this iPhone."
         NSLocationWhenInUseUsageDescription: "Shows where you are on the trail map. Your location stays on this iPhone: it is not sent, saved or measured."
         # the app's fonts (FT1, decision 36), the same files as Android's res/font; licences in app/ios/licenses
         UIAppFonts:
