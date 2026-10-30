@@ -19,9 +19,11 @@ public enum DayJournal {
         public var device: String
         /// When the day began, epoch ms UTC.
         public var start: Int64
+        /// `day`, or `run` for timing one descent (section י 1a), which stops by itself (stop reason `auto`).
+        public var mode: String?
 
-        public init(tz: String, resort: String, device: String, start: Int64) {
-            v = DayJournal.version; self.tz = tz; self.resort = resort; self.device = device; self.start = start
+        public init(tz: String, resort: String, device: String, start: Int64, mode: String = "day") {
+            v = DayJournal.version; self.tz = tz; self.resort = resort; self.device = device; self.start = start; self.mode = mode
         }
     }
 
@@ -61,7 +63,7 @@ public enum DayJournal {
         public enum Kind: String, Codable, Sendable {
             /// Right after the header.
             case start
-            /// The day ended; `reason` as in the measurement contract: user, idle, outside.
+            /// The day ended; `reason` as in the measurement contract: user, idle, outside, crash_recovery, or auto (a timed run).
             case stop
             /// Recording went on after the app was gone (crash_recovery), or after a stop the user took back.
             case resume
