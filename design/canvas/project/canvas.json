@@ -2874,6 +2874,110 @@
       "h": 760,
       "page": "round28",
       "title": "הטקסטים בארבע השפות"
+    },
+    "R29-0-Decide.dc.html": {
+      "x": 0,
+      "y": 0,
+      "w": 600,
+      "h": 1000,
+      "page": "round29",
+      "title": "מה לאשר בסבב 29"
+    },
+    "R29-Start.dc.html": {
+      "x": 680,
+      "y": 0,
+      "w": 1708,
+      "h": 1154,
+      "page": "round29",
+      "title": "א. מתחילים יום"
+    },
+    "R29-Ask.dc.html": {
+      "x": 2468,
+      "y": 0,
+      "w": 1708,
+      "h": 1078,
+      "page": "round29",
+      "title": "א. ההצעה בתוך האתר, וההסבר לפני ההרשאה"
+    },
+    "R29-Live.dc.html": {
+      "x": 680,
+      "y": 1574,
+      "w": 1708,
+      "h": 1078,
+      "page": "round29",
+      "title": "ב. בזמן ההקלטה"
+    },
+    "R29-Outside.dc.html": {
+      "x": 2468,
+      "y": 1574,
+      "w": 860,
+      "h": 984,
+      "page": "round29",
+      "title": "ב. מחוץ לאפליקציה"
+    },
+    "R29-Summary.dc.html": {
+      "x": 680,
+      "y": 3072,
+      "w": 1708,
+      "h": 1613,
+      "page": "round29",
+      "title": "ג. סוף היום"
+    },
+    "R29-Replay.dc.html": {
+      "x": 2468,
+      "y": 3072,
+      "w": 2126,
+      "h": 1173,
+      "page": "round29",
+      "title": "ג. צפייה חוזרת, ירידה, שיאים ושיתוף"
+    },
+    "R29-History.dc.html": {
+      "x": 680,
+      "y": 5105,
+      "w": 860,
+      "h": 964,
+      "page": "round29",
+      "title": "ד. הימים שלי: היסטוריה, מחיקה וייצוא"
+    },
+    "R29-Spec.dc.html": {
+      "x": 1620,
+      "y": 5105,
+      "w": 640,
+      "h": 900,
+      "page": "round29",
+      "title": "מה למימוש"
+    },
+    "R29-States.dc.html": {
+      "x": 680,
+      "y": 6489,
+      "w": 4634,
+      "h": 1004,
+      "page": "round29",
+      "title": "ה. מצבים"
+    },
+    "R29-Moat.dc.html": {
+      "x": 680,
+      "y": 7913,
+      "w": 2556,
+      "h": 1026,
+      "page": "round29",
+      "title": "ו. החוויה: הרגעים שרק לנו יש"
+    },
+    "R29-Data.dc.html": {
+      "x": 4036,
+      "y": 7913,
+      "w": 640,
+      "h": 1000,
+      "page": "round29",
+      "title": "מה עוד לא קיים"
+    },
+    "R29-Market.dc.html": {
+      "x": 3316,
+      "y": 7913,
+      "w": 640,
+      "h": 1000,
+      "page": "round29",
+      "title": "מול המתחרים"
     }
   },
   "createdOnFiles": {
@@ -2883,7 +2987,7 @@
   "designSystems": [],
   "launch": {
     "view": "canvas",
-    "page": "round28"
+    "page": "round29"
   },
   "notes": {
     "featRow1": {
@@ -3947,6 +4051,60 @@
       "w": 240,
       "x": 680,
       "y": 4206
+    },
+    "round29row0": {
+      "kind": "title1",
+      "maxW": 3496,
+      "page": "round29",
+      "text": "א. ההתחלה",
+      "w": 240,
+      "x": 680,
+      "y": -300
+    },
+    "round29row1": {
+      "kind": "title1",
+      "maxW": 2648,
+      "page": "round29",
+      "text": "ב. בזמן ההקלטה",
+      "w": 240,
+      "x": 680,
+      "y": 1274
+    },
+    "round29row2": {
+      "kind": "title1",
+      "maxW": 3914,
+      "page": "round29",
+      "text": "ג. סוף היום",
+      "w": 240,
+      "x": 680,
+      "y": 2772
+    },
+    "round29row3": {
+      "kind": "title1",
+      "maxW": 1580,
+      "page": "round29",
+      "text": "ד. היסטוריה",
+      "w": 240,
+      "x": 680,
+      "y": 4805
+    },
+    "round29row4": {
+      "kind": "title1",
+      "maxW": 4634,
+      "page": "round29",
+      "text": "ה. מצבים",
+      "w": 240,
+      "x": 680,
+      "y": 6189
+    },
+    "round29row5": {
+      "kind": "title1",
+      "maxW": 3996,
+      "page": "round29",
+      "text": "ו. החוויה",
+      "w": 240,
+      "x": 680,
+      "y": 7613
     }
   },
   "order": [
@@ -4307,9 +4465,26 @@
     "R28-PageIos.dc.html",
     "R28-WhatsAppA.dc.html",
     "R28-Spec.dc.html",
-    "R28-Copy.dc.html"
+    "R28-Copy.dc.html",
+    "R29-0-Decide.dc.html",
+    "R29-Start.dc.html",
+    "R29-Ask.dc.html",
+    "R29-Live.dc.html",
+    "R29-Outside.dc.html",
+    "R29-Summary.dc.html",
+    "R29-Replay.dc.html",
+    "R29-History.dc.html",
+    "R29-Spec.dc.html",
+    "R29-States.dc.html",
+    "R29-Moat.dc.html",
+    "R29-Data.dc.html",
+    "R29-Market.dc.html"
   ],
   "pages": [
+    {
+      "id": "round29",
+      "name": "סבב 29: יום הגלישה"
+    },
     {
       "id": "round28",
       "name": "סבב 28: קישור לאפליקציה עם תצוגה בוואטסאפ"
