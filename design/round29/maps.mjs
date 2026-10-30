@@ -21,6 +21,14 @@ const MAPS = {
   'm-off-night': [402, 820, 'night', 'en', { mode: 'live', upto: T(11, 52) + 15, dot: true, offwin: true, pad: 0.6, night: true }],
   'm-share': [540, 470, 'day', 'he', { mode: 'speed', pad: 0.08, dimTo: '.3' }],
   'm-off': [402, 820, 'day', 'he', { mode: 'live', upto: T(11, 52) + 15, dot: true, offwin: true, pad: 0.6 }],
+  // the day on the main map (every run in its colour) against a day map of its own (the runs grey and faded)
+  'm-cmp-main': [402, 560, 'day', 'he', { mode: 'speed', pad: 0.1, dim: false }],
+  'm-cmp-day': [402, 560, 'day', 'he', { mode: 'speed', pad: 0.1, grey: true, dimTo: '.5' }],
+  'm-cmp-day-night': [402, 560, 'night', 'en', { mode: 'speed', pad: 0.1, grey: true, dimTo: '.5', night: true }],
+  // one run measured on its own: Kudebi 1, live halfway down, then its card
+  'm-one-live': [402, 820, 'day', 'he', { mode: 'live', run: 'Kudebi 1', part: 0.55, dot: true, grey: true, dimTo: '.5', pad: 0.02, scale: 5 }],
+  'm-one': [402, 470, 'day', 'he', { mode: 'speed', run: 'Kudebi 1', grey: true, dimTo: '.5', pad: 0.7 }],
+  'm-one-night': [402, 470, 'night', 'en', { mode: 'speed', run: 'Kudebi 1', grey: true, dimTo: '.5', pad: 0.7, night: true }],
 };
 const b = await launch();
 let saved = false;
@@ -33,6 +41,7 @@ for (const [name, [w, h, theme, lang, o]] of Object.entries(MAPS)) {
   const res = await page.evaluate(async o => {
     const day = await R29.day();
     if (o.win) o.box = R29.boxOf(o.win[0], o.win[1], 60);
+    if (o.run) { const r = day.segs.find(q => q.type === 'run' && q.pistes.includes(o.run)); o.from = r.t0; o.upto = o.part ? r.t0 + (r.t1 - r.t0) * o.part : r.t1; o.box = R29.boxOf(r.t0, r.t1, 60); }
     if (o.offwin) { const s = day.segs.find(q => q.offpiste); o.box = R29.boxOf(s.t0, s.t1, 40); }
     return { box: await R29.draw(o), day };
   }, o);
