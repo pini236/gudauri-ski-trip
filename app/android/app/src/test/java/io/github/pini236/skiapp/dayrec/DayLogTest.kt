@@ -22,8 +22,8 @@ class DayLogTest {
     @Before fun setUp() { root = Files.createTempDirectory("dayrec").toFile(); store = DayStore(root); clock = 1_000_000L }
 
     private fun log(file: File = store.newFile(1_000), mode: String = "day") = DayLog.create(file, "Asia/Tbilisi", "gudauri", "test phone", 1_000, mode) { clock }
-    private fun p(t: Long, speed: Float? = 5f) = DayLog.Point(t, 42.470395, 44.49234, alt = 2650.4, pressure = 740.12f, speed = speed, speedAcc = 0.4f,
-        hAcc = 3.5f, vAcc = 4f, bearing = 181f, motion = 0.25f)
+    private fun p(t: Long, speed: Double? = 5.0) = DayLog.Point(t, 42.470395, 44.49234, alt = 2650.4, pressure = 740.12, speed = speed, speedAcc = 0.4,
+        hAcc = 3.5, vAcc = 4.0, bearing = 181.0, motion = 0.25)
 
     @Test fun aDayIsWrittenAndReadBackLineByLine() {
         val f = store.newFile(1_000)
@@ -34,8 +34,8 @@ class DayLogTest {
         assertEquals(1_000L, d.header.getLong("start")) // the header carries the start, in ms
         assertEquals(2, d.points.size)
         assertEquals(42.470395, d.points[0].lat, 1e-9); assertEquals(44.49234, d.points[0].lon, 1e-9)
-        assertEquals(5f, d.points[0].speed!!, 1e-6f); assertNull(d.points[1].speed) // "this phone could not say" stays a missing field
-        assertEquals(0.4f, d.points[0].speedAcc!!, 1e-6f); assertEquals(740.12f, d.points[0].pressure!!, 1e-4f)
+        assertEquals(5.0, d.points[0].speed!!, 1e-9); assertNull(d.points[1].speed) // "this phone could not say" stays a missing field
+        assertEquals(0.4, d.points[0].speedAcc!!, 1e-9); assertEquals(740.12, d.points[0].pressure!!, 1e-9)
         assertEquals(12_000L, d.endedAt); assertEquals("user", d.endReason); assertFalse(d.cut)
     }
 
@@ -101,7 +101,7 @@ class DayLogTest {
             "{\"t\":1000,\"la\":42.4,\"lo\":44.4,\"s\":2.0}",
             "{\"t\":2000,\"la\":42.4,\"lo\":44.4,\"s\":9.0}",
         ))
-        assertEquals(listOf(1000L, 2000L), d.points.map { it.t }); assertEquals(1.0f, d.points[1].speed!!, 1e-6f)
+        assertEquals(listOf(1000L, 2000L), d.points.map { it.t }); assertEquals(1.0, d.points[1].speed!!, 1e-9)
     }
 
     @Test fun anEndedDayIsNotCutAndTheNewestCutDayWins() {

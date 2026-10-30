@@ -24,10 +24,10 @@ class DayLog private constructor(val file: File, private val out: FileOutputStre
     /** One second of sensors. The position comes from the GPS; null is "this phone could not say". */
     class Point(
         val t: Long, val lat: Double, val lon: Double,
-        val alt: Double? = null, val pressure: Float? = null,
-        val speed: Float? = null, val speedAcc: Float? = null,
-        val hAcc: Float? = null, val vAcc: Float? = null,
-        val bearing: Float? = null, val motion: Float? = null,
+        val alt: Double? = null, val pressure: Double? = null,
+        val speed: Double? = null, val speedAcc: Double? = null,
+        val hAcc: Double? = null, val vAcc: Double? = null,
+        val bearing: Double? = null, val motion: Double? = null,
     )
 
     private var lastSync = now()
@@ -43,13 +43,13 @@ class DayLog private constructor(val file: File, private val out: FileOutputStre
         line(JSONObject().apply {
             put("t", p.t); put("la", fix(p.lat, 7)); put("lo", fix(p.lon, 7))
             put("a", p.alt?.let { fix(it, 1) } ?: JSONObject.NULL)
-            put("p", p.pressure?.let { fix(it.toDouble(), 3) } ?: JSONObject.NULL)
-            put("s", p.speed?.let { fix(it.toDouble(), 2) } ?: JSONObject.NULL)
-            put("sa", p.speedAcc?.let { fix(it.toDouble(), 2) } ?: JSONObject.NULL)
-            put("ha", p.hAcc?.let { fix(it.toDouble(), 1) } ?: JSONObject.NULL)
-            put("va", p.vAcc?.let { fix(it.toDouble(), 1) } ?: JSONObject.NULL)
-            put("b", p.bearing?.let { fix(it.toDouble(), 1) } ?: JSONObject.NULL)
-            put("m", p.motion?.let { fix(it.toDouble(), 3) } ?: JSONObject.NULL)
+            put("p", p.pressure?.let { fix(it, 3) } ?: JSONObject.NULL)
+            put("s", p.speed?.let { fix(it, 2) } ?: JSONObject.NULL)
+            put("sa", p.speedAcc?.let { fix(it, 2) } ?: JSONObject.NULL)
+            put("ha", p.hAcc?.let { fix(it, 1) } ?: JSONObject.NULL)
+            put("va", p.vAcc?.let { fix(it, 1) } ?: JSONObject.NULL)
+            put("b", p.bearing?.let { fix(it, 1) } ?: JSONObject.NULL)
+            put("m", p.motion?.let { fix(it, 3) } ?: JSONObject.NULL)
         })
         points++
     }
@@ -182,7 +182,7 @@ class DayLog private constructor(val file: File, private val out: FileOutputStre
                     o.has("t") && o.has("la") && o.has("lo") -> {
                         if (o.isNull("la") || o.isNull("lo")) { bad++; continue }
                         points += Point(o.getLong("t"), o.getDouble("la"), o.getDouble("lo"),
-                            o.dbl("a"), o.flt("p"), o.flt("s"), o.flt("sa"), o.flt("ha"), o.flt("va"), o.flt("b"), o.flt("m"))
+                            o.dbl("a"), o.dbl("p"), o.dbl("s"), o.dbl("sa"), o.dbl("ha"), o.dbl("va"), o.dbl("b"), o.dbl("m"))
                     }
                     else -> bad++
                 }
@@ -194,7 +194,6 @@ class DayLog private constructor(val file: File, private val out: FileOutputStre
         }
 
         private fun JSONObject.dbl(k: String): Double? = if (has(k) && !isNull(k)) optDouble(k) else null
-        private fun JSONObject.flt(k: String): Float? = if (has(k) && !isNull(k)) optDouble(k).toFloat() else null
     }
 
     /** A day as read back. */

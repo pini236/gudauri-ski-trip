@@ -133,12 +133,12 @@ class DayRecService : Service() {
         lastAt = t
         log.add(DayLog.Point(
             t, l.latitude, l.longitude,
-            alt = if (l.hasAltitude()) l.altitude else null, pressure = pressure,
-            speed = if (l.hasSpeed()) l.speed else null,
-            speedAcc = if (Build.VERSION.SDK_INT >= 26 && l.hasSpeedAccuracy()) l.speedAccuracyMetersPerSecond else null,
-            hAcc = if (l.hasAccuracy()) l.accuracy else null,
-            vAcc = if (Build.VERSION.SDK_INT >= 26 && l.hasVerticalAccuracy()) l.verticalAccuracyMeters else null,
-            bearing = if (l.hasBearing()) l.bearing else null, motion = motion.take(),
+            alt = if (l.hasAltitude()) l.altitude else null, pressure = pressure?.toDouble(),
+            speed = if (l.hasSpeed()) l.speed.toDouble() else null,
+            speedAcc = if (Build.VERSION.SDK_INT >= 26 && l.hasSpeedAccuracy()) l.speedAccuracyMetersPerSecond.toDouble() else null,
+            hAcc = if (l.hasAccuracy()) l.accuracy.toDouble() else null,
+            vAcc = if (Build.VERSION.SDK_INT >= 26 && l.hasVerticalAccuracy()) l.verticalAccuracyMeters.toDouble() else null,
+            bearing = if (l.hasBearing()) l.bearing.toDouble() else null, motion = motion.take()?.toDouble(),
         ))
         if (log.atLimit) { finish(DayRec.REASON_FULL); return }
         when (val v = idle.feed(t, Geo.x(l.longitude), Geo.y(l.latitude))) {

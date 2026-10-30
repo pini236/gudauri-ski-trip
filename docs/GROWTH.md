@@ -85,7 +85,7 @@
 | `status_only_open` | "רק מה שפתוח בשבילי" | `on`: true/false |
 | `location_toggle` | "איפה אני" נדלק (עם התוצאה הראשונה) או נכבה (סבב 19, מ-7) | `on`: true/false; `result` (כשנדלק): `granted`, `approximate`, `denied`, `unavailable`, `outside`. **בלי** שם מסלול, קואורדינטות או כל פרט על המקום |
 | `dayrec_start` | יום גלישה מתחיל בנגיעה (החלטה 76, מ-8; אנדרואיד ואייפון בלבד) | **בלי מאפיינים** ובלי מיקום |
-| `dayrec_stop` | יום גלישה נגמר | `minutes` (מספר); `reason`: `user`, `idle`, `outside`, `crash_recovery`, `full` (היומן הגיע ל-10 מגה-בייט). `runs` ו-`lifts` יתווספו עם המנתח. **בלי** מיקום, שם מסלול ומהירות |
+| `dayrec_stop` | יום גלישה נגמר | `minutes` (מספר); `reason`: `user`, `idle`, `outside`, `crash_recovery`, `full` (היומן הגיע ל-10 מגה-בייט), `auto` (מדידת ירידה אחת שנעצרה לבד; כשהמסך הזה יבוא). `runs` ו-`lifts` יתווספו עם המנתח. **בלי** מיקום, שם מסלול ומהירות |
 | `weather_view` | שכבת מזג האוויר, תנאי המסלול או לוח "היום" מוצגים (סבב 19, מ-6) | `where`: `map`, `run`, `home`; `state`: `fresh`, `stale`, `none` |
 | `meet_pick` | בחירת נקודה | `kind`: `station`, `preset`; `station` (שם התחנה) או `preset`: `morning`, `noon`, `end` |
 | `meet_clear` | ביטול הבחירה | `via`: `button`, `map`, `pin`, `card` |
