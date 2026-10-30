@@ -99,7 +99,7 @@ final class DayJournalTests: XCTestCase {
         let back = try XCTUnwrap(DayJournal.read(try Data(contentsOf: entry.url)))
         XCTAssertEqual(back.points.count, 2)
         XCTAssertEqual(back.events.map(\.ev), [.start, .resume, .stop])
-        XCTAssertEqual(back.events.first?.reason, "crash_recovery")
+        XCTAssertEqual(back.events.first { $0.ev == .resume }?.reason, "crash_recovery")
         XCTAssertNil(store.interrupted())
     }
 
