@@ -871,8 +871,8 @@ dayrec_steps() {
   adb shell am force-stop "$PKG"; sleep 1; geo 42.482631 44.483401
   mark; adb shell "am start -W -n $ACT --es qa.tab map --es qa.trip none --es qa.time 2027-01-12T11:00 --es qa.dayrec wipe" > /dev/null
   waitlog "scene ready" 120
-  # the capability is the site's data: today resorts.json does not list "dayrec", so the entry stays hidden
-  qa "--es qa.dayrec feature"; waitlog "dayrec feature false" 10
+  # the capability is the site's data (resorts.json lists "dayrec" for Gudauri since the reference tool merged): the entry shows
+  qa "--es qa.dayrec feature"; waitlog "dayrec feature true" 10
   # a day: a tap starts the service (a notification stays), the readings go to the file, and the Stop button ends it
   qa "--es qa.dayrec start"; waitlog "dayrec start result Started" 10 && waitlog "dayrec start$" 20
   dayrec_walk 8
