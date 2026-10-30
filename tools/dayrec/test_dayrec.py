@@ -249,6 +249,12 @@ class Day(unittest.TestCase):
             self.assertEqual(len(ds), 1)
             self.assertFalse(any(ds[0]['t0'] <= t <= ds[0]['t1'] for t in car))
             self.assertEqual(fin['stats']['descents'], 1)
+            # the car is never the day's maximum speed, never in the drop, never off-piste (architect, 30.10.2026)
+            self.assertFalse(car[0] <= fin['stats']['max_at']['t'] <= car[-1])
+            self.assertEqual(fin['stats']['drop_m'], ds[0]['drop_m'])
+            self.assertEqual(ds[0]['offpiste'], [])
+            ski = [e for e in liv['events'] if e['act'] == 'ski' and car[0] + (P['drive']['min_s'] + 10) * 1000 <= e['t'] < car[-1] - 3000]
+            self.assertEqual(ski, [])
             # live: "drive" once the stretch is long enough, and before the car stops
             t = next(e['t'] for e in liv['events'] if e['act'] == 'drive')
             self.assertLessEqual(t - car[0], (P['drive']['min_s'] + 10) * 1000)
