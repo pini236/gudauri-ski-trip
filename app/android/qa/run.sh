@@ -851,6 +851,67 @@ locate() {
   waitlog "scene ready" 120; sleep 2
   mark; tapText "איפה אני" && waitlog "where on approximate" 10 && { geo 42.482631 44.483401; waitlog "where approx" 30 && { sleep 2.5; shot locate-approx; }; }
   adb shell pm grant "$PKG" "$perm"
+  dayrec_steps
+}
+
+# ---- the ski day's recorder (decision 76, docs/ARCHITECTURE.md m-8): the service, the log, the cut day. Made-up places
+# on the emulator's GPS; the app's log says counts and states, never a place (condition 1). It runs inside the "locate"
+# part, which already has the permission and the GPS steps (a new part would need the workflow's list) ----
+dayrec_walk() { # dayrec_walk <n>: n readings a second apart, walking down Tatra 2 (the shared test points)
+  local i lat=42.482631 lon=44.483401
+  for i in $(seq 1 "$1"); do
+    geo "$(awk -v a=$lat -v i=$i 'BEGIN { printf "%.6f", a - i * 0.00004 }')" "$(awk -v a=$lon -v i=$i 'BEGIN { printf "%.6f", a + i * 0.00002 }')"; sleep 1
+  done
+}
+dayrec_steps() {
+  local perm="android.permission.ACCESS_FINE_LOCATION" coarse="android.permission.ACCESS_COARSE_LOCATION"
+  adb shell pm grant "$PKG" android.permission.POST_NOTIFICATIONS > /dev/null 2>&1 || true
+  adb shell pm grant "$PKG" "$perm"; adb shell pm grant "$PKG" "$coarse"
+  adb shell cmd location set-location-enabled true 2> /dev/null
+  adb shell am force-stop "$PKG"; sleep 1; geo 42.482631 44.483401
+  mark; adb shell "am start -W -n $ACT --es qa.tab map --es qa.trip none --es qa.time 2027-01-12T11:00 --es qa.dayrec wipe" > /dev/null
+  waitlog "scene ready" 120
+  # the capability is the site's data: today resorts.json does not list "dayrec", so the entry stays hidden
+  qa "--es qa.dayrec feature"; waitlog "dayrec feature false" 10
+  # a day: a tap starts the service (a notification stays), the readings go to the file, and the Stop button ends it
+  qa "--es qa.dayrec start"; waitlog "dayrec start result Started" 10 && waitlog "dayrec start$" 20
+  dayrec_walk 8
+  adb shell cmd statusbar expand-notifications; sleep 2; shot dayrec-notification
+  # the app in the background and the screen off: the recording goes on (the wake lock), a hole of a few seconds is only a hole
+  adb shell cmd statusbar collapse; adb shell input keyevent KEYCODE_HOME; sleep 1
+  dayrec_walk 5
+  adb shell input keyevent KEYCODE_SLEEP; sleep 1; dayrec_walk 8; adb shell input keyevent KEYCODE_WAKEUP; adb shell wm dismiss-keyguard 2> /dev/null; sleep 1
+  mark; adb shell cmd statusbar expand-notifications; sleep 2
+  tapText "עצירה" && waitlog "dayrec stop user" 15
+  adb shell cmd statusbar collapse; sleep 1
+  qa "--es qa.dayrec report"; waitlog "dayrec day points=" 10
+  local line; line=$(tail -n +"$((MARK + 1))" "$OUT/logcat.txt" | grep -m1 "SkiQa.*dayrec day points=" | sed 's/.*dayrec day //')
+  note "dayrec day 1: $line"
+  local pts; pts=$(sed -n 's/^points=\([0-9]*\).*/\1/p' <<< "$line")
+  { [ -n "$pts" ] && [ "$pts" -ge 12 ]; } || fail "the recorded day has too few points: '$line'"
+  grep -q "cut=false end=user" <<< "$line" || fail "the day did not end by the user's tap: '$line'"
+  grep -q "speed=0 " <<< "$line" && note "dayrec: the emulator gives no speed (fine)"
+  # the phone killed the app in the middle of a day: the file stays cut, and the next opening goes on with it
+  qa "--es qa.dayrec start"; waitlog "dayrec start result Started" 10; dayrec_walk 6
+  adb shell am force-stop "$PKG"; sleep 2
+  mark; adb shell "am start -W -n $ACT --es qa.tab map --es qa.trip none --es qa.dayrec report" > /dev/null
+  waitlog "scene ready" 120
+  tail -n +"$((MARK + 1))" "$OUT/logcat.txt" | grep "SkiQa.*dayrec day" | grep -q "cut=true" || fail "the killed day is not found cut"
+  qa "--es qa.dayrec resume"; waitlog "dayrec resume result Started" 10; dayrec_walk 5
+  qa "--es qa.dayrec stop"; waitlog "dayrec stop user" 15
+  qa "--es qa.dayrec report"; waitlog "dayrec day points=" 10
+  tail -n +"$((MARK + 1))" "$OUT/logcat.txt" | grep "SkiQa.*dayrec day" | grep -q "resumes=1" || fail "the day that was gone on with has no resume line"
+  # a day that is not gone on with is closed by the next opening (reason crash_recovery)
+  qa "--es qa.dayrec start"; waitlog "dayrec start result Started" 10; dayrec_walk 4
+  adb shell am force-stop "$PKG"; sleep 2
+  mark; adb shell "am start -W -n $ACT --es qa.tab map --es qa.trip none --es qa.dayrec finish" > /dev/null
+  waitlog "dayrec stop crash_recovery" 60
+  # only the approximate location: no recording, and the answer says why
+  adb shell pm revoke "$PKG" "$perm"; sleep 1; mark
+  adb shell "am start -W -n $ACT --es qa.tab map --es qa.trip none --es qa.dayrec start" > /dev/null
+  waitlog "dayrec start result NeedPrecise" 60
+  adb shell pm grant "$PKG" "$perm"
+  qa "--es qa.dayrec wipe"
 }
 
 # ---- the weather by altitude (round 19, m-6): the app's own answers (qa.weather: fresh, stale, none), never the site ----

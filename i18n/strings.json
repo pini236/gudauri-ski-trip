@@ -16262,6 +16262,66 @@
     "ru",
     "ka"
    ]
+  },
+  "app.dayrec_channel": {
+   "he": "הקלטת יום הגלישה",
+   "en": "Ski day recording",
+   "ru": "Запись дня на склоне",
+   "ka": "სათხილამურო დღის ჩაწერა",
+   "where": "app/android",
+   "note": "יום הגלישה (החלטה 76): the notification channel, in the phone's settings",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.dayrec_title": {
+   "he": "מקליט את היום",
+   "en": "Recording your day",
+   "ru": "Идёт запись дня",
+   "ka": "დღე იწერება",
+   "where": "app/android",
+   "note": "יום הגלישה (החלטה 76): the title of the always-on notification while a day is recorded; provisional until round 29 is approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.dayrec_text": {
+   "he": "{min} דק׳ · מסלול ומהירות נשמרים בטלפון",
+   "en": "{min} min · route and speed are kept on the phone",
+   "ru": "{min} мин · маршрут и скорость хранятся в телефоне",
+   "ka": "{min} წთ · მარშრუტი და სიჩქარე ინახება ტელეფონში",
+   "where": "app/android",
+   "note": "יום הגלישה (החלטה 76): the notification's text; {min} is the minutes recorded so far",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.dayrec_stop": {
+   "he": "עצירה",
+   "en": "Stop",
+   "ru": "Стоп",
+   "ka": "შეჩერება",
+   "where": "app/android",
+   "note": "יום הגלישה (החלטה 76): the notification's button",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.dayrec_idle": {
+   "he": "ההקלטה תיעצר בעוד {min} דק׳ בלי תנועה",
+   "en": "Recording stops in {min} min without movement",
+   "ru": "Запись остановится через {min} мин без движения",
+   "ka": "ჩაწერა შეჩერდება {min} წთ-ში მოძრაობის გარეშე",
+   "where": "app/android",
+   "note": "יום הגלישה (החלטה 76): the notification's text when the phone has not moved for a long time; {min} minutes are left",
+   "check": [
+    "ru",
+    "ka"
+   ]
   }
  }
 }

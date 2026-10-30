@@ -13,6 +13,12 @@
          foreground service; the location never leaves the phone. A phone without GPS still installs the app. -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <!-- the ski day's recorder (decision 76; docs/ARCHITECTURE.md m-8, condition 2): started by a tap, with the app in front, so
+         "while in use" is enough: no background location and no request to skip battery saving. The foreground service
+         of type location keeps the GPS going with the screen off; the wake lock keeps the processor awake for it. -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-feature android:name="android.hardware.location" android:required="false" />
     <uses-feature android:name="android.hardware.location.gps" android:required="false" />
     <uses-feature android:name="android.hardware.location.network" android:required="false" />
@@ -25,6 +31,7 @@
         android:supportsRtl="true"
         android:localeConfig="@xml/locales_config"
         android:allowBackup="false"
+        android:dataExtractionRules="@xml/data_extraction_rules"
         android:theme="@android:style/Theme.Material.Light.NoActionBar">
         <!-- Sentry starts only from telemetry/Telemetry.kt, when there is a key and the user has not turned it off -->
         <meta-data android:name="io.sentry.auto-init" android:value="false" />
@@ -52,6 +59,11 @@
                 <data android:path="/" />
             </intent-filter>
         </activity>
+        <!-- the ski day's recorder (dayrec/DayRecService.kt): started only from the open app, never by the system -->
+        <service
+            android:name=".dayrec.DayRecService"
+            android:exported="false"
+            android:foregroundServiceType="location" />
         <receiver android:name=".meet.ReminderReceiver" android:exported="false">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />

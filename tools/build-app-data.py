@@ -2,7 +2,7 @@
 """Copy the site's data into the native apps (read-only: never writes into site/).
 
 Usage: python3 tools/build-app-data.py <out-dir>
-Writes <out-dir>/data/{terrain,runs-and-lifts,videos-seed,profiles}.json, <out-dir>/audio/*.wav and
+Writes <out-dir>/data/{terrain,runs-and-lifts,videos-seed,resorts,profiles}.json, <out-dir>/audio/*.wav and
 <out-dir>/pano/*.webp (the real view from the village through the day, for the home page) and <out-dir>/thumbs/*.webp
 (the games page's pictures).
 profiles.json is the elevation profile of each run in the descent game, taken from
@@ -42,7 +42,7 @@ def main():
     out = Path(sys.argv[1]).resolve()
     (out / "data").mkdir(parents=True, exist_ok=True)
     (out / "audio").mkdir(parents=True, exist_ok=True)
-    for name in ("terrain.json", "runs-and-lifts.json", "videos-seed.json"):
+    for name in ("terrain.json", "runs-and-lifts.json", "videos-seed.json", "resorts.json"):
         shutil.copyfile(SITE / "data" / name, out / "data" / name)
     (out / "data/profiles.json").write_text(json.dumps(profiles(), separators=(",", ":")), encoding="utf-8")
     for wav in sorted((SITE / "audio").glob("*.wav")):

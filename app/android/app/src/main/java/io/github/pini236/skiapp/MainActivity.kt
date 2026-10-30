@@ -47,6 +47,9 @@ import androidx.compose.ui.unit.sp
 import io.github.pini236.skiapp.data.Profile
 import io.github.pini236.skiapp.data.Runs
 import io.github.pini236.skiapp.data.SiteData
+import io.github.pini236.skiapp.dayrec.DayFeature
+import io.github.pini236.skiapp.dayrec.DayLog
+import io.github.pini236.skiapp.dayrec.DayRec
 import io.github.pini236.skiapp.data.Terrain
 import io.github.pini236.skiapp.data.Video
 import io.github.pini236.skiapp.fx.Haptics
@@ -554,6 +557,21 @@ class MainActivity : ComponentActivity() {
         i.getStringExtra("qa.sheet")?.let { statusSheet = it == "on"; Qa.log("status sheet ${if (statusSheet) "open" else "closed"}") }
         i.getStringExtra("qa.forme")?.let { forMe = it == "on"; Qa.log("for me ${if (forMe) "on" else "off"}") }
         // the next meetup's reminder, now (the run cannot wait for the real quarter of an hour before)
+        // the ski day's recorder (decision 76): the emulator run starts and stops it and reads back counts, never a place
+        i.getStringExtra("qa.dayrec")?.let { a -> when (a) {
+            "start" -> Qa.log("dayrec start result ${DayRec.start(this)}")
+            "resume" -> Qa.log("dayrec resume result ${DayRec.store(this).unfinished()?.let { DayRec.start(this, it) } ?: "none"}")
+            "stop" -> DayRec.stop(this)
+            "finish" -> DayRec.store(this).unfinished()?.let { DayRec.finishCut(this, it) } ?: Qa.log("dayrec nothing cut")
+            "feature" -> Qa.log("dayrec feature ${DayFeature.enabled(siteData.read("resorts.json"))}")
+            "report" -> DayRec.store(this).days().forEach { f ->
+                runCatching { DayLog.read(f) }.getOrNull()?.let { d ->
+                    Qa.log("dayrec day points=${d.points.size} gaps=${d.gaps.size} resumes=${d.resumes.size} cut=${d.cut} end=${d.endReason ?: "-"} " +
+                        "speed=${d.points.count { it.speed != null }} acc=${d.points.count { it.speedAcc != null }} motion=${d.points.count { it.motion != null }} bytes=${f.length()}")
+                }
+            }
+            "wipe" -> DayRec.store(this).deleteAll()
+        } }
         i.getStringExtra("qa.remind")?.let { Reminders.armed(this).minByOrNull { it.at }?.let { r -> Reminders.show(this, r) } ?: Qa.log("no reminder armed") }
         i.getStringExtra("qa.sentry")?.let { Telemetry.testCrashReport(it); inBackground { Telemetry.flush(); Qa.log("telemetry ${if (Telemetry.hasKeys) "keys" else "no keys"}, flushed") } }
         i.getStringExtra("qa.mode")?.let { m -> DayNight.Mode.entries.firstOrNull { it.name.equals(m, true) }?.let { dnMode = it } }
