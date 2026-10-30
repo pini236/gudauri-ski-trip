@@ -26,6 +26,7 @@
 | קנבס: סבב 26 | `design/round26/` והקנבס המשותף | פנוי (סבב 26 אושר ומומש, החלטה 72) | | |
 | קנבס: סבב 27 | `design/round27/` והקנבס המשותף | פנוי (סבב 27 אושר כולו ומומש, החלטה 73) | | |
 | קנבס: סבב 28 | `design/round28/` והקנבס המשותף | פנוי (סבב 28 אושר ומומש, החלטה 75) | | |
+| קנבס: סבב 29 | `design/round29/` והקנבס המשותף | מעצב המוצר | `session_018WEovaqXC4kNabe89Cnwoj` | יום הגלישה: הקלטה, מהירות והמסלול היומי (החלטה 76) |
 | קנבס: שפה עיצובית חדשה | `design/language/` וקנבס נפרד (https://claude.ai/artifact/9yxrGgytb2Gmi4i1UqEhST) | פנוי (חמש השפות מוכנות, ממתין לבחירה של פיני) | | |
 | אפל: חשבון ו-App Store | `docs/APPLE.md` | סשן ליווי החשבון | `session_01AjoD5yuhiyvk3kHGBuQVt1` | צעדים 1 עד 5 בוצעו (21.10.2026, Team ID `ZX5CTJ88UA`, DSA: לא סוחר, המזהה והאפליקציה ב-App Store Connect); הבא: תעודה, פרופיל, מפתח API וסודות |
 | תשתיות ו-CI | `.github/workflows/`, `docs/OPERATIONS.md` | איש ה-DevOps (קבוע) | `session_01B7WsKFuWhyvYcU9VQLfMRW` | (החלטה 66) צנרת האמולטור (ניסיון חוזר, `auto`, זוגות חלקים) בענף `claude/ops-qa`; `ios-release.yml` ממוזג. שירותים חיים: קריאה בלבד |
