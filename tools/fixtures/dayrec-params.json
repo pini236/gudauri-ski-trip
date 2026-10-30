@@ -1,0 +1,93 @@
+{
+ "about": "Parameters of the day analysis (decision 76, docs/FEATURES.md section 10, docs/ARCHITECTURE.md m-8). Read by tools/dayrec (the reference) and by both apps. Every threshold and variance lives here, not in code; calibrating in the season is a change to this file. Units: metres, seconds, m/s, hPa.",
+ "analysis": 1,
+ "gap_s": 10,
+ "reset_gap_s": 120,
+ "kalman": {
+  "q_acc": 2.0,
+  "pos_sigma_min_m": 3.0,
+  "vel_sigma_min_mps": 0.3,
+  "gate_chi2": 16.0,
+  "gate_reset_n": 5,
+  "still_mps": 0.5
+ },
+ "max_speed": {
+  "speed_acc_max_mps": 1.0,
+  "accel_max_mps2": 10.0,
+  "sustain_s": 2,
+  "pos_window_s": 2,
+  "pos_match_rel": 0.25,
+  "pos_match_abs_mps": 1.0,
+  "max_pair_dt_s": 1.5
+ },
+ "alt": {
+  "ma_s": 5,
+  "hyst_m": 3.0,
+  "vz_window_s": 10,
+  "cal_window_s": 5,
+  "cal_jump_max_m": 15.0,
+  "cal_median_n": 3,
+  "init_window_s": 60
+ },
+ "lift": {
+  "min_len_m": 100,
+  "mid_max_off_m": 60,
+  "max_dist_m": 60,
+  "sigma_m": 12,
+  "speed_lo": 0.4,
+  "speed_hi": 1.8,
+  "speed_rel_sigma": 0.35,
+  "cross_sigma_mps": 1.0,
+  "vz_min_mps": 0.1,
+  "vz_sigma_mps": 0.5,
+  "board_m": 150,
+  "station_snap_m": 60,
+  "pause_max_s": 300,
+  "min_progress_m": 150,
+  "default_speed_mps": {"gondola": 5.0, "cable_car": 8.0, "chair_lift": 2.5, "platter": 2.5, "t-bar": 2.5, "drag_lift": 2.5, "rope_tow": 2.0, "magic_carpet": 0.8, "other": 2.5}
+ },
+ "activity": {
+  "switch": 8.0,
+  "board_far": 25.0,
+  "stand_sigma_mps": 0.45,
+  "walk_mean_mps": 1.2,
+  "walk_sigma_mps": 0.5,
+  "ski_min_mps": 2.0,
+  "ski_sigma_mps": 0.7,
+  "ski_vz_sigma_mps": 0.4,
+  "up_vz_mps": 0.5,
+  "up_vz_sigma_mps": 0.3,
+  "up_cost": 3.0,
+  "level_vz_sigma_mps": 0.6,
+  "motion_low": 0.5,
+  "motion_high": 0.3,
+  "motion_sigma": 0.2,
+  "motion_cap": 3.0
+ },
+ "match": {
+  "cand_m": 150,
+  "sigma_min_m": 6,
+  "halfwidth_m": 15,
+  "off_z": 2.5,
+  "switch": 6.0,
+  "jump": 12.0,
+  "near_m": 40,
+  "off_switch": 4.0,
+  "sample_m": 10,
+  "shared_m": 15,
+  "shared_min_m": 100,
+  "min_leg_m": 60,
+  "leg_mean_max_m": 25,
+  "leg_in_frac": 0.7,
+  "off_min_m": 40
+ },
+ "segments": {
+  "min_piece_s": 30,
+  "rest_min_s": 120,
+  "long_break_s": 1200,
+  "queue_gap_s": 60,
+  "queue_dist_m": 80,
+  "min_descent_drop_m": 20,
+  "min_descent_m": 150
+ }
+}

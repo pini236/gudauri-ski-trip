@@ -1,0 +1,3910 @@
+{
+ "about": "Test values of the day analysis (decision 76, docs/ARCHITECTURE.md m-8, condition 4). Each case: a raw log (tools/fixtures/dayrec-logs/<case>.jsonl), an optional network_patch to merge into lifts of site/data/runs-and-lifts.json (by lift id) before the analysis, and the expected final and live results of tools/dayrec (the reference). An app passes a case when tools/dayrec/compare.py rules hold: see tools/dayrec/README.md, \"Running the test values in an app\". The truth is what the synthetic skier did; it is for people, the comparison is with expected.",
+ "analysis": 1,
+ "params": "tools/fixtures/dayrec-params.json",
+ "data": "site/data/runs-and-lifts.json, site/data/terrain.json",
+ "cases": [
+  {
+   "name": "lift_basic",
+   "about": "A long queue, then the Goodaura gondola from the bottom to the top station.",
+   "log": "tools/fixtures/dayrec-logs/lift_basic.jsonl",
+   "dropped_lines": 0,
+   "truth": {
+    "rides": [
+     {
+      "lift": "158744075",
+      "from": "bottom",
+      "to": "top"
+     }
+    ],
+    "descents": []
+   },
+   "expected": {
+    "final": {
+     "analysis": 1,
+     "v": 1,
+     "resort": "gudauri",
+     "points": 610,
+     "start": 1799645400000,
+     "end": 1799646009000,
+     "baro": true,
+     "coverage": 1.0,
+     "gaps": [],
+     "segments": [
+      {
+       "type": "stop",
+       "t0": 1799645400000,
+       "t1": 1799645547000,
+       "lat": 42.471148,
+       "lon": 44.492179,
+       "kind": "queue"
+      },
+      {
+       "type": "lift",
+       "t0": 1799645548000,
+       "t1": 1799645969000,
+       "lift": "158744075",
+       "name": "Goodaura",
+       "from": {
+        "station": "bottom"
+       },
+       "to": {
+        "station": "top"
+       },
+       "rise_m": 542.9
+      },
+      {
+       "type": "stop",
+       "t0": 1799645970000,
+       "t1": 1799646009000,
+       "lat": 42.492408,
+       "lon": 44.494233,
+       "kind": "rest"
+      }
+     ],
+     "stats": {
+      "descents": 0,
+      "lifts": 1,
+      "ski_dist_m": 0,
+      "drop_m": 0,
+      "ski_s": 0,
+      "lift_s": 421,
+      "lift_rise_m": 542.9,
+      "max_kmh": null,
+      "max_at": null
+     }
+    },
+    "live": {
+     "events": [
+      {
+       "t": 1799645400000,
+       "act": "stand"
+      },
+      {
+       "t": 1799645549000,
+       "act": "lift",
+       "lift": "158744075"
+      },
+      {
+       "t": 1799645985000,
+       "act": "stand"
+      }
+     ],
+     "max_kmh": null
+    }
+   }
+  },
+  {
+   "name": "lift_stopped",
+   "about": "The Soliko chair lift, 40 % faster than the data, stopped for two minutes half way: one ride.",
+   "log": "tools/fixtures/dayrec-logs/lift_stopped.jsonl",
+   "dropped_lines": 0,
+   "truth": {
+    "rides": [
+     {
+      "lift": "158744077",
+      "from": "bottom",
+      "to": "top"
+     }
+    ],
+    "descents": []
+   },
+   "expected": {
+    "final": {
+     "analysis": 1,
+     "v": 1,
+     "resort": "gudauri",
+     "points": 634,
+     "start": 1799645400000,
+     "end": 1799646033000,
+     "baro": true,
+     "coverage": 1.0,
+     "gaps": [],
+     "segments": [
+      {
+       "type": "stop",
+       "t0": 1799645400000,
+       "t1": 1799645443000,
+       "lat": 42.471094,
+       "lon": 44.487694,
+       "kind": "queue"
+      },
+      {
+       "type": "lift",
+       "t0": 1799645444000,
+       "t1": 1799645993000,
+       "lift": "158744077",
+       "name": "Soliko",
+       "from": {
+        "station": "bottom"
+       },
+       "to": {
+        "station": "top"
+       },
+       "rise_m": 539.4
+      },
+      {
+       "type": "stop",
+       "t0": 1799645994000,
+       "t1": 1799646033000,
+       "lat": 42.489683,
+       "lon": 44.498961,
+       "kind": "rest"
+      }
+     ],
+     "stats": {
+      "descents": 0,
+      "lifts": 1,
+      "ski_dist_m": 0,
+      "drop_m": 0,
+      "ski_s": 0,
+      "lift_s": 549,
+      "lift_rise_m": 539.4,
+      "max_kmh": null,
+      "max_at": null
+     }
+    },
+    "live": {
+     "events": [
+      {
+       "t": 1799645400000,
+       "act": "stand"
+      },
+      {
+       "t": 1799645444000,
+       "act": "lift",
+       "lift": "158744077"
+      },
+      {
+       "t": 1799645680000,
+       "act": "stand"
+      },
+      {
+       "t": 1799645779000,
+       "act": "ski",
+       "runs": null
+      },
+      {
+       "t": 1799645792000,
+       "act": "lift",
+       "lift": "158744077"
+      },
+      {
+       "t": 1799646013000,
+       "act": "stand"
+      }
+     ],
+     "max_kmh": 18.94
+    }
+   }
+  },
+  {
+   "name": "lift_mid_station",
+   "about": "Goodaura gondola, off at a middle station that exists only in this test (network_patch), then Goodaura 1.",
+   "log": "tools/fixtures/dayrec-logs/lift_mid_station.jsonl",
+   "network_patch": {
+    "lifts": {
+     "158744075": {
+      "mid": [
+       {
+        "pos": [
+         42.482827,
+         44.493284
+        ],
+        "osm": "node/0",
+        "name": "TEST ONLY"
+       }
+      ]
+     }
+    }
+   },
+   "dropped_lines": 0,
+   "truth": {
+    "rides": [
+     {
+      "lift": "158744075",
+      "from": "bottom",
+      "to": "mid1"
+     }
+    ],
+    "descents": [
+     [
+      "Goodaura 1"
+     ]
+    ]
+   },
+   "expected": {
+    "final": {
+     "analysis": 1,
+     "v": 1,
+     "resort": "gudauri",
+     "points": 464,
+     "start": 1799645400000,
+     "end": 1799645863000,
+     "baro": true,
+     "coverage": 1.0,
+     "gaps": [],
+     "segments": [
+      {
+       "type": "stop",
+       "t0": 1799645400000,
+       "t1": 1799645438000,
+       "lat": 42.471149,
+       "lon": 44.492208,
+       "kind": "queue"
+      },
+      {
+       "type": "lift",
+       "t0": 1799645439000,
+       "t1": 1799645666000,
+       "lift": "158744075",
+       "name": "Goodaura",
+       "from": {
+        "station": "bottom"
+       },
+       "to": {
+        "station": "mid1"
+       },
+       "rise_m": 271.5
+      },
+      {
+       "type": "descent",
+       "t0": 1799645667000,
+       "t1": 1799645863000,
+       "legs": [
+        {
+         "t0": 1799645667000,
+         "t1": 1799645831000,
+         "kind": "unmatched",
+         "runs": [],
+         "dist_m": 1456.1
+        },
+        {
+         "t0": 1799645832000,
+         "t1": 1799645840000,
+         "kind": "run",
+         "runs": [
+          "Goodaura 1",
+          "Shino"
+         ],
+         "dist_m": 114.5
+        },
+        {
+         "t0": 1799645841000,
+         "t1": 1799645863000,
+         "kind": "run",
+         "runs": [
+          "Goodaura 1"
+         ],
+         "dist_m": 179.6
+        }
+       ],
+       "dist_m": 1750.3,
+       "drop_m": 301.6,
+       "moving_s": 155,
+       "avg_kmh": 40.65,
+       "max_kmh": 83.7,
+       "max_at": {
+        "t": 1799645745000,
+        "lat": 42.481869,
+        "lon": 44.494724
+       },
+       "stops": [
+        {
+         "t0": 1799645675000,
+         "t1": 1799645714000
+        }
+       ],
+       "top_m": 2456.2,
+       "bottom_m": 2160.9
+      }
+     ],
+     "stats": {
+      "descents": 1,
+      "lifts": 1,
+      "ski_dist_m": 1750.3,
+      "drop_m": 301.6,
+      "ski_s": 155,
+      "lift_s": 227,
+      "lift_rise_m": 271.5,
+      "max_kmh": 83.7,
+      "max_at": {
+       "t": 1799645745000,
+       "lat": 42.481869,
+       "lon": 44.494724
+      }
+     }
+    },
+    "live": {
+     "events": [
+      {
+       "t": 1799645400000,
+       "act": "stand"
+      },
+      {
+       "t": 1799645439000,
+       "act": "lift",
+       "lift": "158744075"
+      },
+      {
+       "t": 1799645676000,
+       "act": "stand"
+      },
+      {
+       "t": 1799645716000,
+       "act": "ski",
+       "runs": null
+      },
+      {
+       "t": 1799645724000,
+       "act": "ski",
+       "runs": [
+        "Goodaura 1"
+       ]
+      },
+      {
+       "t": 1799645751000,
+       "act": "ski",
+       "runs": [
+        "Goodaura 2"
+       ]
+      },
+      {
+       "t": 1799645752000,
+       "act": "ski",
+       "runs": [
+        "Goodaura 1"
+       ]
+      },
+      {
+       "t": 1799645832000,
+       "act": "ski",
+       "runs": [
+        "Goodaura 1",
+        "Shino"
+       ]
+      },
+      {
+       "t": 1799645841000,
+       "act": "ski",
+       "runs": [
+        "Goodaura 1"
+       ]
+      }
+     ],
+     "max_kmh": 83.7
+    }
+   }
+  },
+  {
+   "name": "lift_unmapped_stop",
+   "about": "The same ride and descent, without the test station: the stop is not a mapped station.",
+   "log": "tools/fixtures/dayrec-logs/lift_unmapped_stop.jsonl",
+   "dropped_lines": 0,
+   "truth": {
+    "rides": [
+     {
+      "lift": "158744075",
+      "from": "bottom",
+      "to": null
+     }
+    ],
+    "descents": [
+     [
+      "Goodaura 1"
+     ]
+    ]
+   },
+   "expected": {
+    "final": {
+     "analysis": 1,
+     "v": 1,
+     "resort": "gudauri",
+     "points": 464,
+     "start": 1799645400000,
+     "end": 1799645863000,
+     "baro": true,
+     "coverage": 1.0,
+     "gaps": [],
+     "segments": [
+      {
+       "type": "stop",
+       "t0": 1799645400000,
+       "t1": 1799645438000,
+       "lat": 42.471126,
+       "lon": 44.492208,
+       "kind": "queue"
+      },
+      {
+       "type": "lift",
+       "t0": 1799645439000,
+       "t1": 1799645666000,
+       "lift": "158744075",
+       "name": "Goodaura",
+       "from": {
+        "station": "bottom"
+       },
+       "to": {
+        "station": null,
+        "unmapped": true
+       },
+       "rise_m": 295.1
+      },
+      {
+       "type": "descent",
+       "t0": 1799645667000,
+       "t1": 1799645863000,
+       "legs": [
+        {
+         "t0": 1799645667000,
+         "t1": 1799645831000,
+         "kind": "unmatched",
+         "runs": [],
+         "dist_m": 1413.7
+        },
+        {
+         "t0": 1799645832000,
+         "t1": 1799645840000,
+         "kind": "run",
+         "runs": [
+          "Goodaura 1",
+          "Shino"
+         ],
+         "dist_m": 112.7
+        },
+        {
+         "t0": 1799645841000,
+         "t1": 1799645863000,
+         "kind": "run",
+         "runs": [
+          "Goodaura 1"
+         ],
+         "dist_m": 169.5
+        }
+       ],
+       "dist_m": 1695.9,
+       "drop_m": 303.9,
+       "moving_s": 154,
+       "avg_kmh": 39.64,
+       "max_kmh": 80.21,
+       "max_at": {
+        "t": 1799645745000,
+        "lat": 42.481883,
+        "lon": 44.494708
+       },
+       "stops": [
+        {
+         "t0": 1799645674000,
+         "t1": 1799645714000
+        }
+       ],
+       "top_m": 2456.1,
+       "bottom_m": 2160.9
+      }
+     ],
+     "stats": {
+      "descents": 1,
+      "lifts": 1,
+      "ski_dist_m": 1695.9,
+      "drop_m": 303.9,
+      "ski_s": 154,
+      "lift_s": 227,
+      "lift_rise_m": 295.1,
+      "max_kmh": 80.21,
+      "max_at": {
+       "t": 1799645745000,
+       "lat": 42.481883,
+       "lon": 44.494708
+      }
+     }
+    },
+    "live": {
+     "events": [
+      {
+       "t": 1799645400000,
+       "act": "stand"
+      },
+      {
+       "t": 1799645439000,
+       "act": "lift",
+       "lift": "158744075"
+      },
+      {
+       "t": 1799645677000,
+       "act": "stand"
+      },
+      {
+       "t": 1799645715000,
+       "act": "ski",
+       "runs": null
+      },
+      {
+       "t": 1799645723000,
+       "act": "ski",
+       "runs": [
+        "Goodaura 1"
+       ]
+      },
+      {
+       "t": 1799645832000,
+       "act": "ski",
+       "runs": [
+        "Goodaura 1",
+        "Shino"
+       ]
+      },
+      {
+       "t": 1799645841000,
+       "act": "ski",
+       "runs": [
+        "Goodaura 1"
+       ]
+      }
+     ],
+     "max_kmh": 80.21
+    }
+   }
+  },
+  {
+   "name": "run_single",
+   "about": "One descent on one run: Goodaura 1.",
+   "log": "tools/fixtures/dayrec-logs/run_single.jsonl",
+   "dropped_lines": 0,
+   "truth": {
+    "rides": [
+     {
+      "lift": "158744075",
+      "from": "bottom",
+      "to": "top"
+     }
+    ],
+    "descents": [
+     [
+      "Goodaura 1"
+     ]
+    ]
+   },
+   "expected": {
+    "final": {
+     "analysis": 1,
+     "v": 1,
+     "resort": "gudauri",
+     "points": 724,
+     "start": 1799645400000,
+     "end": 1799646123000,
+     "baro": true,
+     "coverage": 1.0,
+     "gaps": [],
+     "segments": [
+      {
+       "type": "lift",
+       "t0": 1799645400000,
+       "t1": 1799645849000,
+       "lift": "158744075",
+       "name": "Goodaura",
+       "from": {
+        "station": "bottom"
+       },
+       "to": {
+        "station": "top"
+       },
+       "rise_m": 544.3
+      },
+      {
+       "type": "descent",
+       "t0": 1799645850000,
+       "t1": 1799646083000,
+       "legs": [
+        {
+         "t0": 1799645850000,
+         "t1": 1799646051000,
+         "kind": "run",
+         "runs": [
+          "Goodaura 1"
+         ],
+         "dist_m": 2503.4
+        },
+        {
+         "t0": 1799646052000,
+         "t1": 1799646060000,
+         "kind": "run",
+         "runs": [
+          "Goodaura 1",
+          "Shino"
+         ],
+         "dist_m": 114.1
+        },
+        {
+         "t0": 1799646061000,
+         "t1": 1799646083000,
+         "kind": "run",
+         "runs": [
+          "Goodaura 1"
+         ],
+         "dist_m": 168.7
+        }
+       ],
+       "dist_m": 2786.1,
+       "drop_m": 544.7,
+       "moving_s": 233,
+       "avg_kmh": 43.05,
+       "max_kmh": 71.03,
+       "max_at": {
+        "t": 1799645944000,
+        "lat": 42.484418,
+        "lon": 44.492458
+       },
+       "stops": [],
+       "top_m": 2706.2,
+       "bottom_m": 2162.0
+      },
+      {
+       "type": "stop",
+       "t0": 1799646084000,
+       "t1": 1799646123000,
+       "lat": 42.471161,
+       "lon": 44.492239,
+       "kind": "rest"
+      }
+     ],
+     "stats": {
+      "descents": 1,
+      "lifts": 1,
+      "ski_dist_m": 2786.1,
+      "drop_m": 544.7,
+      "ski_s": 233,
+      "lift_s": 449,
+      "lift_rise_m": 544.3,
+      "max_kmh": 71.03,
+      "max_at": {
+       "t": 1799645944000,
+       "lat": 42.484418,
+       "lon": 44.492458
+      }
+     }
+    },
+    "live": {
+     "events": [
+      {
+       "t": 1799645400000,
+       "act": "stand"
+      },
+      {
+       "t": 1799645429000,
+       "act": "lift",
+       "lift": "158744075"
+      },
+      {
+       "t": 1799645871000,
+       "act": "ski",
+       "runs": [
+        "Goodaura 1"
+       ]
+      },
+      {
+       "t": 1799646052000,
+       "act": "ski",
+       "runs": [
+        "Goodaura 1",
+        "Shino"
+       ]
+      },
+      {
+       "t": 1799646061000,
+       "act": "ski",
+       "runs": [
+        "Goodaura 1"
+       ]
+      },
+      {
+       "t": 1799646085000,
+       "act": "stand"
+      }
+     ],
+     "max_kmh": 71.03
+    }
+   }
+  },
+  {
+   "name": "run_single_nobaro",
+   "about": "The same, without a barometer (iPhone without the motion permission, simulator).",
+   "log": "tools/fixtures/dayrec-logs/run_single_nobaro.jsonl",
+   "dropped_lines": 0,
+   "truth": {
+    "rides": [
+     {
+      "lift": "158744075",
+      "from": "bottom",
+      "to": "top"
+     }
+    ],
+    "descents": [
+     [
+      "Goodaura 1"
+     ]
+    ]
+   },
+   "expected": {
+    "final": {
+     "analysis": 1,
+     "v": 1,
+     "resort": "gudauri",
+     "points": 724,
+     "start": 1799645400000,
+     "end": 1799646123000,
+     "baro": false,
+     "coverage": 1.0,
+     "gaps": [],
+     "segments": [
+      {
+       "type": "lift",
+       "t0": 1799645400000,
+       "t1": 1799645868000,
+       "lift": "158744075",
+       "name": "Goodaura",
+       "from": {
+        "station": "bottom"
+       },
+       "to": {
+        "station": "top"
+       },
+       "rise_m": 544.1
+      },
+      {
+       "type": "descent",
+       "t0": 1799645869000,
+       "t1": 1799646083000,
+       "legs": [
+        {
+         "t0": 1799645869000,
+         "t1": 1799646051000,
+         "kind": "run",
+         "runs": [
+          "Goodaura 1"
+         ],
+         "dist_m": 2510.1
+        },
+        {
+         "t0": 1799646052000,
+         "t1": 1799646060000,
+         "kind": "run",
+         "runs": [
+          "Goodaura 1",
+          "Shino"
+         ],
+         "dist_m": 117.3
+        },
+        {
+         "t0": 1799646061000,
+         "t1": 1799646083000,
+         "kind": "run",
+         "runs": [
+          "Goodaura 1"
+         ],
+         "dist_m": 167.6
+        }
+       ],
+       "dist_m": 2795.0,
+       "drop_m": 549.7,
+       "moving_s": 214,
+       "avg_kmh": 47.02,
+       "max_kmh": 77.26,
+       "max_at": {
+        "t": 1799645966000,
+        "lat": 42.481653,
+        "lon": 44.494778
+       },
+       "stops": [],
+       "top_m": 2704.6,
+       "bottom_m": 2159.7
+      },
+      {
+       "type": "stop",
+       "t0": 1799646084000,
+       "t1": 1799646123000,
+       "lat": 42.471106,
+       "lon": 44.492183,
+       "kind": "rest"
+      }
+     ],
+     "stats": {
+      "descents": 1,
+      "lifts": 1,
+      "ski_dist_m": 2795.0,
+      "drop_m": 549.7,
+      "ski_s": 214,
+      "lift_s": 468,
+      "lift_rise_m": 544.1,
+      "max_kmh": 77.26,
+      "max_at": {
+       "t": 1799645966000,
+       "lat": 42.481653,
+       "lon": 44.494778
+      }
+     }
+    },
+    "live": {
+     "events": [
+      {
+       "t": 1799645400000,
+       "act": "stand"
+      },
+      {
+       "t": 1799645429000,
+       "act": "lift",
+       "lift": "158744075"
+      },
+      {
+       "t": 1799645871000,
+       "act": "ski",
+       "runs": [
+        "Goodaura 1"
+       ]
+      },
+      {
+       "t": 1799646052000,
+       "act": "ski",
+       "runs": [
+        "Goodaura 1",
+        "Shino"
+       ]
+      },
+      {
+       "t": 1799646060000,
+       "act": "ski",
+       "runs": [
+        "Goodaura 1"
+       ]
+      },
+      {
+       "t": 1799646085000,
+       "act": "stand"
+      }
+     ],
+     "max_kmh": 77.26
+    }
+   }
+  },
+  {
+   "name": "run_to_run",
+   "about": "From run to run: Kudebi 2 (two lines) into Soliko 1.",
+   "log": "tools/fixtures/dayrec-logs/run_to_run.jsonl",
+   "dropped_lines": 0,
+   "truth": {
+    "rides": [
+     {
+      "lift": "663639361",
+      "from": "bottom",
+      "to": "top"
+     }
+    ],
+    "descents": [
+     [
+      "Kudebi 2",
+      "Soliko 1",
+      "Pirveli · Soliko 1"
+     ]
+    ]
+   },
+   "expected": {
+    "final": {
+     "analysis": 1,
+     "v": 1,
+     "resort": "gudauri",
+     "points": 936,
+     "start": 1799645400000,
+     "end": 1799646335000,
+     "baro": true,
+     "coverage": 1.0,
+     "gaps": [],
+     "segments": [
+      {
+       "type": "lift",
+       "t0": 1799645400000,
+       "t1": 1799645983000,
+       "lift": "663639361",
+       "name": "Kudebi",
+       "from": {
+        "station": "bottom"
+       },
+       "to": {
+        "station": "top"
+       },
+       "rise_m": 314.3
+      },
+      {
+       "type": "descent",
+       "t0": 1799645984000,
+       "t1": 1799646295000,
+       "legs": [
+        {
+         "t0": 1799645984000,
+         "t1": 1799646076000,
+         "kind": "run",
+         "runs": [
+          "Kudebi 2"
+         ],
+         "dist_m": 1184.4
+        },
+        {
+         "t0": 1799646077000,
+         "t1": 1799646090000,
+         "kind": "run",
+         "runs": [
+          "Soliko 1"
+         ],
+         "dist_m": 135.8
+        },
+        {
+         "t0": 1799646091000,
+         "t1": 1799646101000,
+         "kind": "run",
+         "runs": [
+          "Bombora",
+          "Soliko 1"
+         ],
+         "dist_m": 113.4
+        },
+        {
+         "t0": 1799646102000,
+         "t1": 1799646295000,
+         "kind": "run",
+         "runs": [
+          "Soliko 1"
+         ],
+         "dist_m": 2603.1
+        }
+       ],
+       "dist_m": 4036.7,
+       "drop_m": 832.6,
+       "moving_s": 311,
+       "avg_kmh": 46.73,
+       "max_kmh": 77.76,
+       "max_at": {
+        "t": 1799646010000,
+        "lat": 42.496303,
+        "lon": 44.505644
+       },
+       "stops": [],
+       "top_m": 2983.7,
+       "bottom_m": 2150.0
+      },
+      {
+       "type": "stop",
+       "t0": 1799646296000,
+       "t1": 1799646335000,
+       "lat": 42.47099,
+       "lon": 44.487635,
+       "kind": "rest"
+      }
+     ],
+     "stats": {
+      "descents": 1,
+      "lifts": 1,
+      "ski_dist_m": 4036.7,
+      "drop_m": 832.6,
+      "ski_s": 311,
+      "lift_s": 583,
+      "lift_rise_m": 314.3,
+      "max_kmh": 77.76,
+      "max_at": {
+       "t": 1799646010000,
+       "lat": 42.496303,
+       "lon": 44.505644
+      }
+     }
+    },
+    "live": {
+     "events": [
+      {
+       "t": 1799645400000,
+       "act": "stand"
+      },
+      {
+       "t": 1799645430000,
+       "act": "lift",
+       "lift": "663639361"
+      },
+      {
+       "t": 1799645985000,
+       "act": "ski",
+       "runs": [
+        "Kudebi 3"
+       ]
+      },
+      {
+       "t": 1799646004000,
+       "act": "ski",
+       "runs": [
+        "Kudebi 2"
+       ]
+      },
+      {
+       "t": 1799646081000,
+       "act": "ski",
+       "runs": [
+        "Soliko 1"
+       ]
+      },
+      {
+       "t": 1799646090000,
+       "act": "ski",
+       "runs": [
+        "Bombora",
+        "Soliko 1"
+       ]
+      },
+      {
+       "t": 1799646101000,
+       "act": "ski",
+       "runs": [
+        "Soliko 1"
+       ]
+      },
+      {
+       "t": 1799646297000,
+       "act": "stand"
+      }
+     ],
+     "max_kmh": 77.76
+    }
+   }
+  },
+  {
+   "name": "shared_tatra",
+   "about": "Tatra 1 to the fork, then Tatra 2; the lower stretch is shared with Tatra 1 and is shown as both.",
+   "log": "tools/fixtures/dayrec-logs/shared_tatra.jsonl",
+   "dropped_lines": 0,
+   "truth": {
+    "rides": [
+     {
+      "lift": "472374253",
+      "from": "bottom",
+      "to": "top"
+     }
+    ],
+    "descents": [
+     [
+      "Tatra 1",
+      "Tatra 2",
+      "Tatra 1 · Tatra 2"
+     ]
+    ]
+   },
+   "expected": {
+    "final": {
+     "analysis": 1,
+     "v": 1,
+     "resort": "gudauri",
+     "points": 793,
+     "start": 1799645400000,
+     "end": 1799646192000,
+     "baro": true,
+     "coverage": 1.0,
+     "gaps": [],
+     "segments": [
+      {
+       "type": "lift",
+       "t0": 1799645400000,
+       "t1": 1799645923000,
+       "lift": "472374253",
+       "name": "Shino",
+       "from": {
+        "station": "bottom"
+       },
+       "to": {
+        "station": "top"
+       },
+       "rise_m": 535.7
+      },
+      {
+       "type": "descent",
+       "t0": 1799645924000,
+       "t1": 1799646152000,
+       "legs": [
+        {
+         "t0": 1799645924000,
+         "t1": 1799645976000,
+         "kind": "run",
+         "runs": [
+          "Tatra 1"
+         ],
+         "dist_m": 445.8
+        },
+        {
+         "t0": 1799645977000,
+         "t1": 1799646086000,
+         "kind": "run",
+         "runs": [
+          "Tatra 2"
+         ],
+         "dist_m": 1472.9
+        },
+        {
+         "t0": 1799646087000,
+         "t1": 1799646152000,
+         "kind": "run",
+         "runs": [
+          "Tatra 1",
+          "Tatra 2"
+         ],
+         "dist_m": 848.0
+        }
+       ],
+       "dist_m": 2766.7,
+       "drop_m": 537.4,
+       "moving_s": 228,
+       "avg_kmh": 43.68,
+       "max_kmh": 57.89,
+       "max_at": {
+        "t": 1799646027000,
+        "lat": 42.4875,
+        "lon": 44.485393
+       },
+       "stops": [],
+       "top_m": 2709.0,
+       "bottom_m": 2173.1
+      },
+      {
+       "type": "stop",
+       "t0": 1799646153000,
+       "t1": 1799646192000,
+       "lat": 42.473578,
+       "lon": 44.482861,
+       "kind": "rest"
+      }
+     ],
+     "stats": {
+      "descents": 1,
+      "lifts": 1,
+      "ski_dist_m": 2766.7,
+      "drop_m": 537.4,
+      "ski_s": 228,
+      "lift_s": 523,
+      "lift_rise_m": 535.7,
+      "max_kmh": 57.89,
+      "max_at": {
+       "t": 1799646027000,
+       "lat": 42.4875,
+       "lon": 44.485393
+      }
+     }
+    },
+    "live": {
+     "events": [
+      {
+       "t": 1799645400000,
+       "act": "stand"
+      },
+      {
+       "t": 1799645429000,
+       "act": "lift",
+       "lift": "472374253"
+      },
+      {
+       "t": 1799645925000,
+       "act": "ski",
+       "runs": [
+        "Baby"
+       ]
+      },
+      {
+       "t": 1799645934000,
+       "act": "ski",
+       "runs": [
+        "Tatra 1"
+       ]
+      },
+      {
+       "t": 1799645982000,
+       "act": "ski",
+       "runs": [
+        "Tatra 2"
+       ]
+      },
+      {
+       "t": 1799646087000,
+       "act": "ski",
+       "runs": [
+        "Tatra 1",
+        "Tatra 2"
+       ]
+      },
+      {
+       "t": 1799646155000,
+       "act": "stand"
+      }
+     ],
+     "max_kmh": 57.89
+    }
+   }
+  },
+  {
+   "name": "offpiste",
+   "about": "Goodaura 1, with 160 m off the runs and back.",
+   "log": "tools/fixtures/dayrec-logs/offpiste.jsonl",
+   "dropped_lines": 0,
+   "truth": {
+    "rides": [
+     {
+      "lift": "158744075",
+      "from": "bottom",
+      "to": "top"
+     }
+    ],
+    "descents": [
+     [
+      "Goodaura 1",
+      "Goodaura 2",
+      "off",
+      "Goodaura 1"
+     ]
+    ]
+   },
+   "expected": {
+    "final": {
+     "analysis": 1,
+     "v": 1,
+     "resort": "gudauri",
+     "points": 759,
+     "start": 1799645400000,
+     "end": 1799646158000,
+     "baro": true,
+     "coverage": 1.0,
+     "gaps": [],
+     "segments": [
+      {
+       "type": "lift",
+       "t0": 1799645400000,
+       "t1": 1799645864000,
+       "lift": "158744075",
+       "name": "Goodaura",
+       "from": {
+        "station": "bottom"
+       },
+       "to": {
+        "station": "top"
+       },
+       "rise_m": 544.3
+      },
+      {
+       "type": "descent",
+       "t0": 1799645865000,
+       "t1": 1799646118000,
+       "legs": [
+        {
+         "t0": 1799645865000,
+         "t1": 1799645933000,
+         "kind": "run",
+         "runs": [
+          "Goodaura 1"
+         ],
+         "dist_m": 868.6
+        },
+        {
+         "t0": 1799645934000,
+         "t1": 1799645938000,
+         "kind": "off",
+         "runs": [],
+         "dist_m": 89.5
+        },
+        {
+         "t0": 1799645939000,
+         "t1": 1799645972000,
+         "kind": "run",
+         "runs": [
+          "Goodaura 2"
+         ],
+         "dist_m": 351.8
+        },
+        {
+         "t0": 1799645973000,
+         "t1": 1799645999000,
+         "kind": "off",
+         "runs": [],
+         "dist_m": 466.6
+        },
+        {
+         "t0": 1799646000000,
+         "t1": 1799646007000,
+         "kind": "run",
+         "runs": [
+          "Goodaura 2"
+         ],
+         "dist_m": 115.4
+        },
+        {
+         "t0": 1799646008000,
+         "t1": 1799646086000,
+         "kind": "run",
+         "runs": [
+          "Goodaura 1"
+         ],
+         "dist_m": 956.4
+        },
+        {
+         "t0": 1799646087000,
+         "t1": 1799646095000,
+         "kind": "run",
+         "runs": [
+          "Goodaura 1",
+          "Shino"
+         ],
+         "dist_m": 111.4
+        },
+        {
+         "t0": 1799646096000,
+         "t1": 1799646118000,
+         "kind": "run",
+         "runs": [
+          "Goodaura 1"
+         ],
+         "dist_m": 168.0
+        }
+       ],
+       "dist_m": 3127.7,
+       "drop_m": 565.1,
+       "moving_s": 253,
+       "avg_kmh": 44.5,
+       "max_kmh": 71.75,
+       "max_at": {
+        "t": 1799645930000,
+        "lat": 42.485995,
+        "lon": 44.492972
+       },
+       "stops": [],
+       "top_m": 2705.7,
+       "bottom_m": 2161.6
+      },
+      {
+       "type": "stop",
+       "t0": 1799646119000,
+       "t1": 1799646158000,
+       "lat": 42.471158,
+       "lon": 44.492182,
+       "kind": "rest"
+      }
+     ],
+     "stats": {
+      "descents": 1,
+      "lifts": 1,
+      "ski_dist_m": 3127.7,
+      "drop_m": 565.1,
+      "ski_s": 253,
+      "lift_s": 464,
+      "lift_rise_m": 544.3,
+      "max_kmh": 71.75,
+      "max_at": {
+       "t": 1799645930000,
+       "lat": 42.485995,
+       "lon": 44.492972
+      }
+     }
+    },
+    "live": {
+     "events": [
+      {
+       "t": 1799645400000,
+       "act": "stand"
+      },
+      {
+       "t": 1799645429000,
+       "act": "lift",
+       "lift": "158744075"
+      },
+      {
+       "t": 1799645866000,
+       "act": "ski",
+       "runs": [
+        "Goodaura 1"
+       ]
+      },
+      {
+       "t": 1799645935000,
+       "act": "ski",
+       "runs": null
+      },
+      {
+       "t": 1799645940000,
+       "act": "ski",
+       "runs": [
+        "Goodaura 2"
+       ]
+      },
+      {
+       "t": 1799645958000,
+       "act": "up"
+      },
+      {
+       "t": 1799645964000,
+       "act": "ski",
+       "runs": [
+        "Goodaura 2"
+       ]
+      },
+      {
+       "t": 1799645974000,
+       "act": "ski",
+       "runs": null
+      },
+      {
+       "t": 1799646002000,
+       "act": "ski",
+       "runs": [
+        "Goodaura 2"
+       ]
+      },
+      {
+       "t": 1799646011000,
+       "act": "ski",
+       "runs": [
+        "Goodaura 1"
+       ]
+      },
+      {
+       "t": 1799646086000,
+       "act": "ski",
+       "runs": [
+        "Goodaura 1",
+        "Shino"
+       ]
+      },
+      {
+       "t": 1799646095000,
+       "act": "ski",
+       "runs": [
+        "Goodaura 1"
+       ]
+      },
+      {
+       "t": 1799646120000,
+       "act": "stand"
+      }
+     ],
+     "max_kmh": 71.75
+    }
+   }
+  },
+  {
+   "name": "queue_and_hut",
+   "about": "A 7 minute queue, a 25 minute break at the top, and a rest in the middle of the run.",
+   "log": "tools/fixtures/dayrec-logs/queue_and_hut.jsonl",
+   "dropped_lines": 0,
+   "truth": {
+    "rides": [
+     {
+      "lift": "158744075",
+      "from": "bottom",
+      "to": "top"
+     }
+    ],
+    "descents": [
+     [
+      "Goodaura 1"
+     ]
+    ]
+   },
+   "expected": {
+    "final": {
+     "analysis": 1,
+     "v": 1,
+     "resort": "gudauri",
+     "points": 2702,
+     "start": 1799645400000,
+     "end": 1799648101000,
+     "baro": true,
+     "coverage": 1.0,
+     "gaps": [],
+     "segments": [
+      {
+       "type": "stop",
+       "t0": 1799645400000,
+       "t1": 1799645818000,
+       "lat": 42.471137,
+       "lon": 44.492192,
+       "kind": "queue"
+      },
+      {
+       "type": "lift",
+       "t0": 1799645819000,
+       "t1": 1799646239000,
+       "lift": "158744075",
+       "name": "Goodaura",
+       "from": {
+        "station": "bottom"
+       },
+       "to": {
+        "station": "top"
+       },
+       "rise_m": 543.1
+      },
+      {
+       "type": "stop",
+       "t0": 1799646240000,
+       "t1": 1799647738000,
+       "lat": 42.492378,
+       "lon": 44.494273,
+       "kind": "long"
+      },
+      {
+       "type": "descent",
+       "t0": 1799647739000,
+       "t1": 1799648061000,
+       "legs": [
+        {
+         "t0": 1799647739000,
+         "t1": 1799648028000,
+         "kind": "run",
+         "runs": [
+          "Goodaura 1"
+         ],
+         "dist_m": 2519.9
+        },
+        {
+         "t0": 1799648029000,
+         "t1": 1799648037000,
+         "kind": "run",
+         "runs": [
+          "Goodaura 1",
+          "Shino"
+         ],
+         "dist_m": 110.1
+        },
+        {
+         "t0": 1799648038000,
+         "t1": 1799648061000,
+         "kind": "run",
+         "runs": [
+          "Goodaura 1"
+         ],
+         "dist_m": 179.1
+        }
+       ],
+       "dist_m": 2809.2,
+       "drop_m": 545.2,
+       "moving_s": 232,
+       "avg_kmh": 43.59,
+       "max_kmh": 60.12,
+       "max_at": {
+        "t": 1799647824000,
+        "lat": 42.483919,
+        "lon": 44.492498
+       },
+       "stops": [
+        {
+         "t0": 1799647848000,
+         "t1": 1799647936000
+        }
+       ],
+       "top_m": 2706.8,
+       "bottom_m": 2162.7
+      },
+      {
+       "type": "stop",
+       "t0": 1799648062000,
+       "t1": 1799648101000,
+       "lat": 42.471141,
+       "lon": 44.492223,
+       "kind": "rest"
+      }
+     ],
+     "stats": {
+      "descents": 1,
+      "lifts": 1,
+      "ski_dist_m": 2809.2,
+      "drop_m": 545.2,
+      "ski_s": 232,
+      "lift_s": 420,
+      "lift_rise_m": 543.1,
+      "max_kmh": 60.12,
+      "max_at": {
+       "t": 1799647824000,
+       "lat": 42.483919,
+       "lon": 44.492498
+      }
+     }
+    },
+    "live": {
+     "events": [
+      {
+       "t": 1799645400000,
+       "act": "stand"
+      },
+      {
+       "t": 1799645819000,
+       "act": "lift",
+       "lift": "158744075"
+      },
+      {
+       "t": 1799646259000,
+       "act": "stand"
+      },
+      {
+       "t": 1799647740000,
+       "act": "ski",
+       "runs": [
+        "Goodaura 1"
+       ]
+      },
+      {
+       "t": 1799647858000,
+       "act": "stand"
+      },
+      {
+       "t": 1799647938000,
+       "act": "ski",
+       "runs": [
+        "Goodaura 1"
+       ]
+      },
+      {
+       "t": 1799648029000,
+       "act": "ski",
+       "runs": [
+        "Goodaura 1",
+        "Shino"
+       ]
+      },
+      {
+       "t": 1799648038000,
+       "act": "ski",
+       "runs": [
+        "Goodaura 1"
+       ]
+      },
+      {
+       "t": 1799648063000,
+       "act": "stand"
+      }
+     ],
+     "max_kmh": 60.12
+    }
+   }
+  },
+  {
+   "name": "gps_spike",
+   "about": "One reading of 100 km/h with a jump of the position, in the middle of the descent.",
+   "log": "tools/fixtures/dayrec-logs/gps_spike.jsonl",
+   "dropped_lines": 0,
+   "truth": {
+    "rides": [
+     {
+      "lift": "158744075",
+      "from": "bottom",
+      "to": "top"
+     }
+    ],
+    "descents": [
+     [
+      "Goodaura 1"
+     ]
+    ]
+   },
+   "expected": {
+    "final": {
+     "analysis": 1,
+     "v": 1,
+     "resort": "gudauri",
+     "points": 724,
+     "start": 1799645400000,
+     "end": 1799646123000,
+     "baro": true,
+     "coverage": 1.0,
+     "gaps": [],
+     "segments": [
+      {
+       "type": "lift",
+       "t0": 1799645400000,
+       "t1": 1799645868000,
+       "lift": "158744075",
+       "name": "Goodaura",
+       "from": {
+        "station": "bottom"
+       },
+       "to": {
+        "station": "top"
+       },
+       "rise_m": 542.6
+      },
+      {
+       "type": "descent",
+       "t0": 1799645869000,
+       "t1": 1799646083000,
+       "legs": [
+        {
+         "t0": 1799645869000,
+         "t1": 1799646051000,
+         "kind": "run",
+         "runs": [
+          "Goodaura 1"
+         ],
+         "dist_m": 2499.7
+        },
+        {
+         "t0": 1799646052000,
+         "t1": 1799646060000,
+         "kind": "run",
+         "runs": [
+          "Goodaura 1",
+          "Shino"
+         ],
+         "dist_m": 114.2
+        },
+        {
+         "t0": 1799646061000,
+         "t1": 1799646083000,
+         "kind": "run",
+         "runs": [
+          "Goodaura 1"
+         ],
+         "dist_m": 174.4
+        }
+       ],
+       "dist_m": 2788.3,
+       "drop_m": 544.8,
+       "moving_s": 214,
+       "avg_kmh": 46.91,
+       "max_kmh": 73.44,
+       "max_at": {
+        "t": 1799645965000,
+        "lat": 42.481821,
+        "lon": 44.494659
+       },
+       "stops": [],
+       "top_m": 2705.8,
+       "bottom_m": 2161.6
+      },
+      {
+       "type": "stop",
+       "t0": 1799646084000,
+       "t1": 1799646123000,
+       "lat": 42.4711,
+       "lon": 44.492178,
+       "kind": "rest"
+      }
+     ],
+     "stats": {
+      "descents": 1,
+      "lifts": 1,
+      "ski_dist_m": 2788.3,
+      "drop_m": 544.8,
+      "ski_s": 214,
+      "lift_s": 468,
+      "lift_rise_m": 542.6,
+      "max_kmh": 73.44,
+      "max_at": {
+       "t": 1799645965000,
+       "lat": 42.481821,
+       "lon": 44.494659
+      }
+     }
+    },
+    "live": {
+     "events": [
+      {
+       "t": 1799645400000,
+       "act": "stand"
+      },
+      {
+       "t": 1799645429000,
+       "act": "lift",
+       "lift": "158744075"
+      },
+      {
+       "t": 1799645871000,
+       "act": "ski",
+       "runs": [
+        "Tatra 1"
+       ]
+      },
+      {
+       "t": 1799645875000,
+       "act": "ski",
+       "runs": [
+        "Goodaura 1"
+       ]
+      },
+      {
+       "t": 1799646052000,
+       "act": "ski",
+       "runs": [
+        "Goodaura 1",
+        "Shino"
+       ]
+      },
+      {
+       "t": 1799646061000,
+       "act": "ski",
+       "runs": [
+        "Goodaura 1"
+       ]
+      },
+      {
+       "t": 1799646085000,
+       "act": "stand"
+      }
+     ],
+     "max_kmh": 73.44
+    }
+   }
+  },
+  {
+   "name": "signal_loss",
+   "about": "No readings for a minute in the middle of the descent.",
+   "log": "tools/fixtures/dayrec-logs/signal_loss.jsonl",
+   "dropped_lines": 0,
+   "truth": {
+    "rides": [
+     {
+      "lift": "158744075",
+      "from": "bottom",
+      "to": "top"
+     }
+    ],
+    "descents": [
+     [
+      "Goodaura 1"
+     ]
+    ]
+   },
+   "expected": {
+    "final": {
+     "analysis": 1,
+     "v": 1,
+     "resort": "gudauri",
+     "points": 661,
+     "start": 1799645400000,
+     "end": 1799646120000,
+     "baro": true,
+     "coverage": 0.9168,
+     "gaps": [
+      {
+       "t0": 1799645953000,
+       "t1": 1799646014000
+      }
+     ],
+     "segments": [
+      {
+       "type": "lift",
+       "t0": 1799645400000,
+       "t1": 1799645849000,
+       "lift": "158744075",
+       "name": "Goodaura",
+       "from": {
+        "station": "bottom"
+       },
+       "to": {
+        "station": "top"
+       },
+       "rise_m": 544.1
+      },
+      {
+       "type": "descent",
+       "t0": 1799645850000,
+       "t1": 1799646080000,
+       "legs": [
+        {
+         "t0": 1799645850000,
+         "t1": 1799646015000,
+         "kind": "run",
+         "runs": [
+          "Goodaura 1"
+         ],
+         "dist_m": 2055.4
+        },
+        {
+         "t0": 1799646016000,
+         "t1": 1799646019000,
+         "kind": "off",
+         "runs": [],
+         "dist_m": 134.8
+        },
+        {
+         "t0": 1799646020000,
+         "t1": 1799646048000,
+         "kind": "run",
+         "runs": [
+          "Goodaura 1"
+         ],
+         "dist_m": 516.4
+        },
+        {
+         "t0": 1799646049000,
+         "t1": 1799646057000,
+         "kind": "run",
+         "runs": [
+          "Goodaura 1",
+          "Shino"
+         ],
+         "dist_m": 114.8
+        },
+        {
+         "t0": 1799646058000,
+         "t1": 1799646080000,
+         "kind": "run",
+         "runs": [
+          "Goodaura 1"
+         ],
+         "dist_m": 166.4
+        }
+       ],
+       "dist_m": 2987.8,
+       "drop_m": 542.7,
+       "moving_s": 230,
+       "avg_kmh": 46.77,
+       "max_kmh": 79.49,
+       "max_at": {
+        "t": 1799645936000,
+        "lat": 42.485658,
+        "lon": 44.492645
+       },
+       "stops": [],
+       "top_m": 2706.1,
+       "bottom_m": 2162.0
+      },
+      {
+       "type": "stop",
+       "t0": 1799646081000,
+       "t1": 1799646120000,
+       "lat": 42.471159,
+       "lon": 44.492192,
+       "kind": "rest"
+      }
+     ],
+     "stats": {
+      "descents": 1,
+      "lifts": 1,
+      "ski_dist_m": 2987.8,
+      "drop_m": 542.7,
+      "ski_s": 230,
+      "lift_s": 449,
+      "lift_rise_m": 544.1,
+      "max_kmh": 79.49,
+      "max_at": {
+       "t": 1799645936000,
+       "lat": 42.485658,
+       "lon": 44.492645
+      }
+     }
+    },
+    "live": {
+     "events": [
+      {
+       "t": 1799645400000,
+       "act": "stand"
+      },
+      {
+       "t": 1799645429000,
+       "act": "lift",
+       "lift": "158744075"
+      },
+      {
+       "t": 1799645868000,
+       "act": "stand"
+      },
+      {
+       "t": 1799645869000,
+       "act": "lift",
+       "lift": "158744075"
+      },
+      {
+       "t": 1799645871000,
+       "act": "ski",
+       "runs": [
+        "Goodaura 1"
+       ]
+      },
+      {
+       "t": 1799646016000,
+       "act": "ski",
+       "runs": null
+      },
+      {
+       "t": 1799646021000,
+       "act": "ski",
+       "runs": [
+        "Goodaura 1"
+       ]
+      },
+      {
+       "t": 1799646049000,
+       "act": "ski",
+       "runs": [
+        "Goodaura 1",
+        "Shino"
+       ]
+      },
+      {
+       "t": 1799646058000,
+       "act": "ski",
+       "runs": [
+        "Goodaura 1"
+       ]
+      },
+      {
+       "t": 1799646082000,
+       "act": "stand"
+      }
+     ],
+     "max_kmh": 79.49
+    }
+   }
+  },
+  {
+   "name": "crash_resume",
+   "about": "The app was killed: the last line is cut in half, 90 seconds are missing, then a resume event.",
+   "log": "tools/fixtures/dayrec-logs/crash_resume.jsonl",
+   "dropped_lines": 1,
+   "truth": {
+    "rides": [
+     {
+      "lift": "158744075",
+      "from": "bottom",
+      "to": "top"
+     },
+     {
+      "lift": "158744075",
+      "from": "bottom",
+      "to": "top"
+     }
+    ],
+    "descents": [
+     [
+      "Goodaura 1"
+     ],
+     [
+      "Goodaura 1",
+      "Goodaura 1 · Sportuli 2",
+      "Goodaura 1"
+     ]
+    ]
+   },
+   "expected": {
+    "final": {
+     "analysis": 1,
+     "v": 1,
+     "resort": "gudauri",
+     "points": 1301,
+     "start": 1799645400000,
+     "end": 1799646791000,
+     "baro": true,
+     "coverage": 0.9346,
+     "gaps": [
+      {
+       "t0": 1799646095000,
+       "t1": 1799646187000
+      }
+     ],
+     "segments": [
+      {
+       "type": "lift",
+       "t0": 1799645400000,
+       "t1": 1799645849000,
+       "lift": "158744075",
+       "name": "Goodaura",
+       "from": {
+        "station": "bottom"
+       },
+       "to": {
+        "station": "top"
+       },
+       "rise_m": 544.3
+      },
+      {
+       "type": "descent",
+       "t0": 1799645850000,
+       "t1": 1799646094000,
+       "legs": [
+        {
+         "t0": 1799645850000,
+         "t1": 1799646048000,
+         "kind": "run",
+         "runs": [
+          "Goodaura 1"
+         ],
+         "dist_m": 2509.3
+        },
+        {
+         "t0": 1799646049000,
+         "t1": 1799646057000,
+         "kind": "run",
+         "runs": [
+          "Goodaura 1",
+          "Shino"
+         ],
+         "dist_m": 115.6
+        },
+        {
+         "t0": 1799646058000,
+         "t1": 1799646094000,
+         "kind": "run",
+         "runs": [
+          "Goodaura 1"
+         ],
+         "dist_m": 172.1
+        }
+       ],
+       "dist_m": 2797.1,
+       "drop_m": 544.6,
+       "moving_s": 244,
+       "avg_kmh": 41.27,
+       "max_kmh": 81.47,
+       "max_at": {
+        "t": 1799645961000,
+        "lat": 42.482133,
+        "lon": 44.494618
+       },
+       "stops": [],
+       "top_m": 2706.1,
+       "bottom_m": 2162.0
+      },
+      {
+       "type": "lift",
+       "t0": 1799646095000,
+       "t1": 1799646531000,
+       "lift": "158744075",
+       "name": "Goodaura",
+       "from": {
+        "station": "bottom"
+       },
+       "to": {
+        "station": "top"
+       },
+       "rise_m": 544.3
+      },
+      {
+       "type": "descent",
+       "t0": 1799646532000,
+       "t1": 1799646791000,
+       "legs": [
+        {
+         "t0": 1799646532000,
+         "t1": 1799646729000,
+         "kind": "run",
+         "runs": [
+          "Goodaura 1"
+         ],
+         "dist_m": 2496.8
+        },
+        {
+         "t0": 1799646730000,
+         "t1": 1799646738000,
+         "kind": "run",
+         "runs": [
+          "Goodaura 1",
+          "Shino"
+         ],
+         "dist_m": 114.5
+        },
+        {
+         "t0": 1799646739000,
+         "t1": 1799646791000,
+         "kind": "run",
+         "runs": [
+          "Goodaura 1"
+         ],
+         "dist_m": 178.9
+        }
+       ],
+       "dist_m": 2790.2,
+       "drop_m": 543.9,
+       "moving_s": 259,
+       "avg_kmh": 38.78,
+       "max_kmh": 81.29,
+       "max_at": {
+        "t": 1799646641000,
+        "lat": 42.482257,
+        "lon": 44.494538
+       },
+       "stops": [],
+       "top_m": 2705.9,
+       "bottom_m": 2161.8
+      }
+     ],
+     "stats": {
+      "descents": 2,
+      "lifts": 2,
+      "ski_dist_m": 5587.3,
+      "drop_m": 1088.5,
+      "ski_s": 503,
+      "lift_s": 885,
+      "lift_rise_m": 1088.6,
+      "max_kmh": 81.47,
+      "max_at": {
+       "t": 1799645961000,
+       "lat": 42.482133,
+       "lon": 44.494618
+      }
+     }
+    },
+    "live": {
+     "events": [
+      {
+       "t": 1799645400000,
+       "act": "stand"
+      },
+      {
+       "t": 1799645429000,
+       "act": "lift",
+       "lift": "158744075"
+      },
+      {
+       "t": 1799645871000,
+       "act": "ski",
+       "runs": [
+        "Goodaura 1"
+       ]
+      },
+      {
+       "t": 1799646049000,
+       "act": "ski",
+       "runs": [
+        "Goodaura 1",
+        "Shino"
+       ]
+      },
+      {
+       "t": 1799646057000,
+       "act": "ski",
+       "runs": [
+        "Goodaura 1"
+       ]
+      },
+      {
+       "t": 1799646082000,
+       "act": "stand"
+      },
+      {
+       "t": 1799646187000,
+       "act": "lift",
+       "lift": "158744075"
+      },
+      {
+       "t": 1799646552000,
+       "act": "ski",
+       "runs": [
+        "Goodaura 1"
+       ]
+      },
+      {
+       "t": 1799646730000,
+       "act": "ski",
+       "runs": [
+        "Goodaura 1",
+        "Shino"
+       ]
+      },
+      {
+       "t": 1799646738000,
+       "act": "ski",
+       "runs": [
+        "Goodaura 1"
+       ]
+      },
+      {
+       "t": 1799646763000,
+       "act": "stand"
+      }
+     ],
+     "max_kmh": 81.47
+    }
+   }
+  },
+  {
+   "name": "full_day",
+   "about": "A full day: 13 rides on 8 lifts (one slow, one stopped), Tatra 2 with the shared stretch, off-piste, Kobi, lunch, a minute without signal.",
+   "log": "tools/fixtures/dayrec-logs/full_day.jsonl",
+   "dropped_lines": 0,
+   "truth": {
+    "rides": [
+     {
+      "lift": "158744075",
+      "from": "bottom",
+      "to": "top"
+     },
+     {
+      "lift": "158744075",
+      "from": "bottom",
+      "to": "top"
+     },
+     {
+      "lift": "158744075",
+      "from": "bottom",
+      "to": "top"
+     },
+     {
+      "lift": "472374253",
+      "from": "bottom",
+      "to": "top"
+     },
+     {
+      "lift": "472374253",
+      "from": "bottom",
+      "to": "top"
+     },
+     {
+      "lift": "158744075",
+      "from": "bottom",
+      "to": "top"
+     },
+     {
+      "lift": "663643826",
+      "from": "bottom",
+      "to": "top"
+     },
+     {
+      "lift": "665084640",
+      "from": "bottom",
+      "to": "top"
+     },
+     {
+      "lift": "158744055",
+      "from": "bottom",
+      "to": "top"
+     },
+     {
+      "lift": "158744055",
+      "from": "bottom",
+      "to": "top"
+     },
+     {
+      "lift": "158744060",
+      "from": "bottom",
+      "to": "top"
+     },
+     {
+      "lift": "158744077",
+      "from": "bottom",
+      "to": "top"
+     },
+     {
+      "lift": "663639361",
+      "from": "bottom",
+      "to": "top"
+     }
+    ],
+    "descents": [
+     [
+      "Goodaura 1"
+     ],
+     [
+      "Goodaura 1",
+      "Goodaura 2",
+      "off",
+      "Goodaura 1",
+      "Goodaura 1 · Sportuli 2",
+      "Goodaura 1"
+     ],
+     [
+      "Tatra 1",
+      "Tatra 1 · Tatra 2"
+     ],
+     [
+      "Tatra 1",
+      "Tatra 2",
+      "Tatra 1 · Tatra 2"
+     ],
+     [
+      "Goodaura 1"
+     ],
+     [
+      "Kobi"
+     ],
+     [
+      "Firni 1",
+      "Firni 2"
+     ],
+     [
+      "Snow Park"
+     ],
+     [
+      "Snow Park"
+     ],
+     [
+      "Sadzele 3",
+      "Sadzele 1",
+      "Sadzele 1 · Snow Park",
+      "Snow Park",
+      "Goodaura 1"
+     ],
+     [
+      "Bombora",
+      "Bombora · Khada",
+      "Bombora"
+     ],
+     [
+      "Kudebi 2",
+      "Soliko 1",
+      "Pirveli · Soliko 1"
+     ]
+    ]
+   },
+   "expected": {
+    "final": {
+     "analysis": 1,
+     "v": 1,
+     "resort": "gudauri",
+     "points": 13276,
+     "start": 1799645400000,
+     "end": 1799658735000,
+     "baro": true,
+     "coverage": 0.9955,
+     "gaps": [
+      {
+       "t0": 1799656388000,
+       "t1": 1799656449000
+      }
+     ],
+     "segments": [
+      {
+       "type": "stop",
+       "t0": 1799645400000,
+       "t1": 1799645598000,
+       "lat": 42.471149,
+       "lon": 44.492193,
+       "kind": "queue"
+      },
+      {
+       "type": "lift",
+       "t0": 1799645599000,
+       "t1": 1799646020000,
+       "lift": "158744075",
+       "name": "Goodaura",
+       "from": {
+        "station": "bottom"
+       },
+       "to": {
+        "station": "top"
+       },
+       "rise_m": 544.3
+      },
+      {
+       "type": "descent",
+       "t0": 1799646021000,
+       "t1": 1799646258000,
+       "legs": [
+        {
+         "t0": 1799646021000,
+         "t1": 1799646225000,
+         "kind": "run",
+         "runs": [
+          "Goodaura 1"
+         ],
+         "dist_m": 2498.3
+        },
+        {
+         "t0": 1799646226000,
+         "t1": 1799646235000,
+         "kind": "run",
+         "runs": [
+          "Goodaura 1",
+          "Shino"
+         ],
+         "dist_m": 129.2
+        },
+        {
+         "t0": 1799646236000,
+         "t1": 1799646258000,
+         "kind": "run",
+         "runs": [
+          "Goodaura 1"
+         ],
+         "dist_m": 166.5
+        }
+       ],
+       "dist_m": 2794.0,
+       "drop_m": 546.1,
+       "moving_s": 237,
+       "avg_kmh": 42.44,
+       "max_kmh": 65.92,
+       "max_at": {
+        "t": 1799646121000,
+        "lat": 42.483702,
+        "lon": 44.492651
+       },
+       "stops": [],
+       "top_m": 2705.4,
+       "bottom_m": 2161.3
+      },
+      {
+       "type": "stop",
+       "t0": 1799646259000,
+       "t1": 1799646317000,
+       "lat": 42.471159,
+       "lon": 44.492203,
+       "kind": "queue"
+      },
+      {
+       "type": "lift",
+       "t0": 1799646318000,
+       "t1": 1799646738000,
+       "lift": "158744075",
+       "name": "Goodaura",
+       "from": {
+        "station": "bottom"
+       },
+       "to": {
+        "station": "top"
+       },
+       "rise_m": 543.7
+      },
+      {
+       "type": "descent",
+       "t0": 1799646739000,
+       "t1": 1799647018000,
+       "legs": [
+        {
+         "t0": 1799646739000,
+         "t1": 1799646828000,
+         "kind": "run",
+         "runs": [
+          "Goodaura 1"
+         ],
+         "dist_m": 878.8
+        },
+        {
+         "t0": 1799646829000,
+         "t1": 1799646833000,
+         "kind": "off",
+         "runs": [],
+         "dist_m": 82.6
+        },
+        {
+         "t0": 1799646834000,
+         "t1": 1799646871000,
+         "kind": "run",
+         "runs": [
+          "Goodaura 2"
+         ],
+         "dist_m": 342.3
+        },
+        {
+         "t0": 1799646872000,
+         "t1": 1799646899000,
+         "kind": "off",
+         "runs": [],
+         "dist_m": 466.3
+        },
+        {
+         "t0": 1799646900000,
+         "t1": 1799646908000,
+         "kind": "run",
+         "runs": [
+          "Goodaura 2"
+         ],
+         "dist_m": 131.3
+        },
+        {
+         "t0": 1799646909000,
+         "t1": 1799646986000,
+         "kind": "run",
+         "runs": [
+          "Goodaura 1"
+         ],
+         "dist_m": 961.6
+        },
+        {
+         "t0": 1799646987000,
+         "t1": 1799646995000,
+         "kind": "run",
+         "runs": [
+          "Goodaura 1",
+          "Shino"
+         ],
+         "dist_m": 112.0
+        },
+        {
+         "t0": 1799646996000,
+         "t1": 1799647018000,
+         "kind": "run",
+         "runs": [
+          "Goodaura 1"
+         ],
+         "dist_m": 177.6
+        }
+       ],
+       "dist_m": 3152.5,
+       "drop_m": 566.7,
+       "moving_s": 279,
+       "avg_kmh": 40.68,
+       "max_kmh": 65.56,
+       "max_at": {
+        "t": 1799646876000,
+        "lat": 42.484275,
+        "lon": 44.495268
+       },
+       "stops": [],
+       "top_m": 2706.2,
+       "bottom_m": 2162.4
+      },
+      {
+       "type": "stop",
+       "t0": 1799647019000,
+       "t1": 1799647061000,
+       "lat": 42.471152,
+       "lon": 44.492155,
+       "kind": "queue"
+      },
+      {
+       "type": "lift",
+       "t0": 1799647062000,
+       "t1": 1799647483000,
+       "lift": "158744075",
+       "name": "Goodaura",
+       "from": {
+        "station": "bottom"
+       },
+       "to": {
+        "station": "top"
+       },
+       "rise_m": 542.3
+      },
+      {
+       "type": "descent",
+       "t0": 1799647484000,
+       "t1": 1799647773000,
+       "legs": [
+        {
+         "t0": 1799647484000,
+         "t1": 1799647679000,
+         "kind": "run",
+         "runs": [
+          "Tatra 1"
+         ],
+         "dist_m": 2129.4
+        },
+        {
+         "t0": 1799647680000,
+         "t1": 1799647773000,
+         "kind": "run",
+         "runs": [
+          "Tatra 1",
+          "Tatra 2"
+         ],
+         "dist_m": 852.1
+        }
+       ],
+       "dist_m": 2981.5,
+       "drop_m": 532.3,
+       "moving_s": 289,
+       "avg_kmh": 37.14,
+       "max_kmh": 65.3,
+       "max_at": {
+        "t": 1799647632000,
+        "lat": 42.486012,
+        "lon": 44.480096
+       },
+       "stops": [],
+       "top_m": 2706.4,
+       "bottom_m": 2173.8
+      },
+      {
+       "type": "lift",
+       "t0": 1799647774000,
+       "t1": 1799648460000,
+       "lift": "472374253",
+       "name": "Shino",
+       "from": {
+        "station": "bottom"
+       },
+       "to": {
+        "station": "top"
+       },
+       "rise_m": 536.0
+      },
+      {
+       "type": "descent",
+       "t0": 1799648461000,
+       "t1": 1799648725000,
+       "legs": [
+        {
+         "t0": 1799648461000,
+         "t1": 1799648527000,
+         "kind": "run",
+         "runs": [
+          "Tatra 1"
+         ],
+         "dist_m": 455.4
+        },
+        {
+         "t0": 1799648528000,
+         "t1": 1799648631000,
+         "kind": "run",
+         "runs": [
+          "Tatra 2"
+         ],
+         "dist_m": 1471.5
+        },
+        {
+         "t0": 1799648632000,
+         "t1": 1799648725000,
+         "kind": "run",
+         "runs": [
+          "Tatra 1",
+          "Tatra 2"
+         ],
+         "dist_m": 887.7
+        }
+       ],
+       "dist_m": 2814.6,
+       "drop_m": 536.6,
+       "moving_s": 264,
+       "avg_kmh": 38.38,
+       "max_kmh": 64.66,
+       "max_at": {
+        "t": 1799648589000,
+        "lat": 42.485765,
+        "lon": 44.485029
+       },
+       "stops": [],
+       "top_m": 2709.1,
+       "bottom_m": 2173.4
+      },
+      {
+       "type": "lift",
+       "t0": 1799648726000,
+       "t1": 1799649206000,
+       "lift": "472374253",
+       "name": "Shino",
+       "from": {
+        "station": "bottom"
+       },
+       "to": {
+        "station": "top"
+       },
+       "rise_m": 534.9
+      },
+      {
+       "type": "descent",
+       "t0": 1799649207000,
+       "t1": 1799649523000,
+       "legs": [
+        {
+         "t0": 1799649207000,
+         "t1": 1799649491000,
+         "kind": "run",
+         "runs": [
+          "Goodaura 1"
+         ],
+         "dist_m": 2571.9
+        },
+        {
+         "t0": 1799649492000,
+         "t1": 1799649500000,
+         "kind": "run",
+         "runs": [
+          "Goodaura 1",
+          "Shino"
+         ],
+         "dist_m": 113.1
+        },
+        {
+         "t0": 1799649501000,
+         "t1": 1799649523000,
+         "kind": "run",
+         "runs": [
+          "Goodaura 1"
+         ],
+         "dist_m": 167.5
+        }
+       ],
+       "dist_m": 2852.5,
+       "drop_m": 545.9,
+       "moving_s": 247,
+       "avg_kmh": 41.57,
+       "max_kmh": 67.43,
+       "max_at": {
+        "t": 1799649311000,
+        "lat": 42.483712,
+        "lon": 44.492575
+       },
+       "stops": [
+        {
+         "t0": 1799649316000,
+         "t1": 1799649383000
+        }
+       ],
+       "top_m": 2709.4,
+       "bottom_m": 2162.3
+      },
+      {
+       "type": "stop",
+       "t0": 1799649524000,
+       "t1": 1799649612000,
+       "lat": 42.471167,
+       "lon": 44.492182,
+       "kind": "queue"
+      },
+      {
+       "type": "lift",
+       "t0": 1799649613000,
+       "t1": 1799650033000,
+       "lift": "158744075",
+       "name": "Goodaura",
+       "from": {
+        "station": "bottom"
+       },
+       "to": {
+        "station": "top"
+       },
+       "rise_m": 542.9
+      },
+      {
+       "type": "walk",
+       "t0": 1799650034000,
+       "t1": 1799650128000,
+       "dist_m": 96.4
+      },
+      {
+       "type": "lift",
+       "t0": 1799650129000,
+       "t1": 1799650549000,
+       "lift": "663643826",
+       "name": "Firni",
+       "from": {
+        "station": "bottom"
+       },
+       "to": {
+        "station": "top"
+       },
+       "rise_m": 245.1
+      },
+      {
+       "type": "descent",
+       "t0": 1799650550000,
+       "t1": 1799650789000,
+       "legs": [
+        {
+         "t0": 1799650550000,
+         "t1": 1799650789000,
+         "kind": "run",
+         "runs": [
+          "Kobi"
+         ],
+         "dist_m": 2455.3
+        }
+       ],
+       "dist_m": 2455.3,
+       "drop_m": 438.2,
+       "moving_s": 239,
+       "avg_kmh": 36.98,
+       "max_kmh": 66.13,
+       "max_at": {
+        "t": 1799650652000,
+        "lat": 42.517595,
+        "lon": 44.494431
+       },
+       "stops": [],
+       "top_m": 2952.5,
+       "bottom_m": 2513.1
+      },
+      {
+       "type": "lift",
+       "t0": 1799650790000,
+       "t1": 1799651247000,
+       "lift": "665084640",
+       "name": "Kobi 2",
+       "from": {
+        "station": "bottom"
+       },
+       "to": {
+        "station": "top"
+       },
+       "rise_m": 436.8
+      },
+      {
+       "type": "stop",
+       "t0": 1799651248000,
+       "t1": 1799653347000,
+       "lat": 42.511221,
+       "lon": 44.492779,
+       "kind": "long"
+      },
+      {
+       "type": "descent",
+       "t0": 1799653348000,
+       "t1": 1799653645000,
+       "legs": [
+        {
+         "t0": 1799653348000,
+         "t1": 1799653424000,
+         "kind": "run",
+         "runs": [
+          "Firni 1"
+         ],
+         "dist_m": 709.7
+        },
+        {
+         "t0": 1799653425000,
+         "t1": 1799653645000,
+         "kind": "run",
+         "runs": [
+          "Firni 2"
+         ],
+         "dist_m": 1755.6
+        }
+       ],
+       "dist_m": 2465.3,
+       "drop_m": 247.8,
+       "moving_s": 297,
+       "avg_kmh": 29.88,
+       "max_kmh": 66.64,
+       "max_at": {
+        "t": 1799653524000,
+        "lat": 42.499643,
+        "lon": 44.491669
+       },
+       "stops": [],
+       "top_m": 2952.7,
+       "bottom_m": 2710.8
+      },
+      {
+       "type": "walk",
+       "t0": 1799653646000,
+       "t1": 1799653766000,
+       "dist_m": 143.9
+      },
+      {
+       "type": "stop",
+       "t0": 1799653767000,
+       "t1": 1799653825000,
+       "lat": 42.491813,
+       "lon": 44.494623,
+       "kind": "queue"
+      },
+      {
+       "type": "lift",
+       "t0": 1799653826000,
+       "t1": 1799654261000,
+       "lift": "158744055",
+       "name": "Snow Park",
+       "from": {
+        "station": "bottom"
+       },
+       "to": {
+        "station": "top"
+       },
+       "rise_m": 126.2
+      },
+      {
+       "type": "descent",
+       "t0": 1799654262000,
+       "t1": 1799654351000,
+       "legs": [
+        {
+         "t0": 1799654262000,
+         "t1": 1799654351000,
+         "kind": "run",
+         "runs": [
+          "Snow Park"
+         ],
+         "dist_m": 969.0
+        }
+       ],
+       "dist_m": 969.0,
+       "drop_m": 126.5,
+       "moving_s": 89,
+       "avg_kmh": 39.2,
+       "max_kmh": 60.95,
+       "max_at": {
+        "t": 1799654314000,
+        "lat": 42.494101,
+        "lon": 44.497249
+       },
+       "stops": [],
+       "top_m": 2828.7,
+       "bottom_m": 2701.6
+      },
+      {
+       "type": "stop",
+       "t0": 1799654352000,
+       "t1": 1799654390000,
+       "lat": 42.491844,
+       "lon": 44.494581,
+       "kind": "queue"
+      },
+      {
+       "type": "lift",
+       "t0": 1799654391000,
+       "t1": 1799654811000,
+       "lift": "158744055",
+       "name": "Snow Park",
+       "from": {
+        "station": "bottom"
+       },
+       "to": {
+        "station": "top"
+       },
+       "rise_m": 126.5
+      },
+      {
+       "type": "descent",
+       "t0": 1799654812000,
+       "t1": 1799654851000,
+       "legs": [
+        {
+         "t0": 1799654812000,
+         "t1": 1799654851000,
+         "kind": "run",
+         "runs": [
+          "Snow Park"
+         ],
+         "dist_m": 267.6
+        }
+       ],
+       "dist_m": 267.6,
+       "drop_m": 41.2,
+       "moving_s": 39,
+       "avg_kmh": 24.7,
+       "max_kmh": 56.99,
+       "max_at": {
+        "t": 1799654842000,
+        "lat": 42.496452,
+        "lon": 44.500699
+       },
+       "stops": [],
+       "top_m": 2828.3,
+       "bottom_m": 2786.5
+      },
+      {
+       "type": "walk",
+       "t0": 1799654852000,
+       "t1": 1799654953000,
+       "dist_m": 118.0
+      },
+      {
+       "type": "stop",
+       "t0": 1799654954000,
+       "t1": 1799655042000,
+       "lat": 42.496645,
+       "lon": 44.49883,
+       "kind": "queue"
+      },
+      {
+       "type": "lift",
+       "t0": 1799655043000,
+       "t1": 1799655843000,
+       "lift": "158744060",
+       "name": "Sadzele",
+       "from": {
+        "station": "bottom"
+       },
+       "to": {
+        "station": "top"
+       },
+       "rise_m": 457.2
+      },
+      {
+       "type": "descent",
+       "t0": 1799655844000,
+       "t1": 1799656504000,
+       "legs": [
+        {
+         "t0": 1799655844000,
+         "t1": 1799655879000,
+         "kind": "run",
+         "runs": [
+          "Sadzele 3"
+         ],
+         "dist_m": 135.6
+        },
+        {
+         "t0": 1799655880000,
+         "t1": 1799656118000,
+         "kind": "run",
+         "runs": [
+          "Sadzele 1"
+         ],
+         "dist_m": 2260.6
+        },
+        {
+         "t0": 1799656119000,
+         "t1": 1799656210000,
+         "kind": "run",
+         "runs": [
+          "Snow Park"
+         ],
+         "dist_m": 877.1
+        },
+        {
+         "t0": 1799656211000,
+         "t1": 1799656472000,
+         "kind": "run",
+         "runs": [
+          "Goodaura 1"
+         ],
+         "dist_m": 2487.0
+        },
+        {
+         "t0": 1799656473000,
+         "t1": 1799656481000,
+         "kind": "run",
+         "runs": [
+          "Goodaura 1",
+          "Shino"
+         ],
+         "dist_m": 110.1
+        },
+        {
+         "t0": 1799656482000,
+         "t1": 1799656504000,
+         "kind": "run",
+         "runs": [
+          "Goodaura 1"
+         ],
+         "dist_m": 170.8
+        }
+       ],
+       "dist_m": 6041.2,
+       "drop_m": 1113.8,
+       "moving_s": 569,
+       "avg_kmh": 38.22,
+       "max_kmh": 65.27,
+       "max_at": {
+        "t": 1799656345000,
+        "lat": 42.486919,
+        "lon": 44.493311
+       },
+       "stops": [
+        {
+         "t0": 1799656198000,
+         "t1": 1799656287000
+        }
+       ],
+       "top_m": 3235.1,
+       "bottom_m": 2162.1
+      },
+      {
+       "type": "walk",
+       "t0": 1799656505000,
+       "t1": 1799656810000,
+       "dist_m": 365.3
+      },
+      {
+       "type": "stop",
+       "t0": 1799656811000,
+       "t1": 1799656929000,
+       "lat": 42.471097,
+       "lon": 44.487762,
+       "kind": "queue"
+      },
+      {
+       "type": "lift",
+       "t0": 1799656930000,
+       "t1": 1799657620000,
+       "lift": "158744077",
+       "name": "Soliko",
+       "from": {
+        "station": "bottom"
+       },
+       "to": {
+        "station": "top"
+       },
+       "rise_m": 538.8
+      },
+      {
+       "type": "descent",
+       "t0": 1799657621000,
+       "t1": 1799657699000,
+       "legs": [
+        {
+         "t0": 1799657621000,
+         "t1": 1799657699000,
+         "kind": "run",
+         "runs": [
+          "Bombora"
+         ],
+         "dist_m": 384.1
+        }
+       ],
+       "dist_m": 384.1,
+       "drop_m": 24.3,
+       "moving_s": 78,
+       "avg_kmh": 17.73,
+       "max_kmh": 48.78,
+       "max_at": {
+        "t": 1799657689000,
+        "lat": 42.48951,
+        "lon": 44.49722
+       },
+       "stops": [],
+       "top_m": 2690.7,
+       "bottom_m": 2664.7
+      },
+      {
+       "type": "walk",
+       "t0": 1799657700000,
+       "t1": 1799657735000,
+       "dist_m": 42.9
+      },
+      {
+       "type": "stop",
+       "t0": 1799657736000,
+       "t1": 1799657794000,
+       "lat": 42.489665,
+       "lon": 44.495895,
+       "kind": "queue"
+      },
+      {
+       "type": "lift",
+       "t0": 1799657795000,
+       "t1": 1799658335000,
+       "lift": "663639361",
+       "name": "Kudebi",
+       "from": {
+        "station": "bottom"
+       },
+       "to": {
+        "station": "top"
+       },
+       "rise_m": 314.0
+      },
+      {
+       "type": "descent",
+       "t0": 1799658336000,
+       "t1": 1799658675000,
+       "legs": [
+        {
+         "t0": 1799658336000,
+         "t1": 1799658449000,
+         "kind": "run",
+         "runs": [
+          "Kudebi 2"
+         ],
+         "dist_m": 1183.1
+        },
+        {
+         "t0": 1799658450000,
+         "t1": 1799658464000,
+         "kind": "run",
+         "runs": [
+          "Soliko 1"
+         ],
+         "dist_m": 140.8
+        },
+        {
+         "t0": 1799658465000,
+         "t1": 1799658474000,
+         "kind": "run",
+         "runs": [
+          "Bombora",
+          "Soliko 1"
+         ],
+         "dist_m": 108.9
+        },
+        {
+         "t0": 1799658475000,
+         "t1": 1799658675000,
+         "kind": "run",
+         "runs": [
+          "Soliko 1"
+         ],
+         "dist_m": 2636.7
+        }
+       ],
+       "dist_m": 4069.5,
+       "drop_m": 832.5,
+       "moving_s": 339,
+       "avg_kmh": 43.22,
+       "max_kmh": 66.71,
+       "max_at": {
+        "t": 1799658389000,
+        "lat": 42.495415,
+        "lon": 44.504127
+       },
+       "stops": [],
+       "top_m": 2983.7,
+       "bottom_m": 2150.1
+      },
+      {
+       "type": "stop",
+       "t0": 1799658676000,
+       "t1": 1799658735000,
+       "lat": 42.470994,
+       "lon": 44.487634,
+       "kind": "rest"
+      }
+     ],
+     "stats": {
+      "descents": 12,
+      "lifts": 13,
+      "ski_dist_m": 31247.1,
+      "drop_m": 5551.9,
+      "ski_s": 2966,
+      "lift_s": 6610,
+      "lift_rise_m": 5488.7,
+      "max_kmh": 67.43,
+      "max_at": {
+       "t": 1799649311000,
+       "lat": 42.483712,
+       "lon": 44.492575
+      }
+     }
+    },
+    "live": {
+     "events": [
+      {
+       "t": 1799645400000,
+       "act": "stand"
+      },
+      {
+       "t": 1799645599000,
+       "act": "lift",
+       "lift": "158744075"
+      },
+      {
+       "t": 1799646041000,
+       "act": "ski",
+       "runs": [
+        "Goodaura 1"
+       ]
+      },
+      {
+       "t": 1799646226000,
+       "act": "ski",
+       "runs": [
+        "Goodaura 1",
+        "Shino"
+       ]
+      },
+      {
+       "t": 1799646235000,
+       "act": "ski",
+       "runs": [
+        "Goodaura 1"
+       ]
+      },
+      {
+       "t": 1799646260000,
+       "act": "stand"
+      },
+      {
+       "t": 1799646318000,
+       "act": "lift",
+       "lift": "158744075"
+      },
+      {
+       "t": 1799646760000,
+       "act": "ski",
+       "runs": [
+        "Goodaura 1"
+       ]
+      },
+      {
+       "t": 1799646830000,
+       "act": "ski",
+       "runs": null
+      },
+      {
+       "t": 1799646836000,
+       "act": "ski",
+       "runs": [
+        "Goodaura 2"
+       ]
+      },
+      {
+       "t": 1799646855000,
+       "act": "up"
+      },
+      {
+       "t": 1799646856000,
+       "act": "ski",
+       "runs": [
+        "Goodaura 2"
+       ]
+      },
+      {
+       "t": 1799646873000,
+       "act": "ski",
+       "runs": null
+      },
+      {
+       "t": 1799646902000,
+       "act": "ski",
+       "runs": [
+        "Goodaura 2"
+       ]
+      },
+      {
+       "t": 1799646911000,
+       "act": "ski",
+       "runs": [
+        "Goodaura 1"
+       ]
+      },
+      {
+       "t": 1799646986000,
+       "act": "ski",
+       "runs": [
+        "Goodaura 1",
+        "Shino"
+       ]
+      },
+      {
+       "t": 1799646996000,
+       "act": "ski",
+       "runs": [
+        "Goodaura 1"
+       ]
+      },
+      {
+       "t": 1799647020000,
+       "act": "stand"
+      },
+      {
+       "t": 1799647063000,
+       "act": "lift",
+       "lift": "158744075"
+      },
+      {
+       "t": 1799647499000,
+       "act": "stand"
+      },
+      {
+       "t": 1799647514000,
+       "act": "ski",
+       "runs": [
+        "Goodaura 1"
+       ]
+      },
+      {
+       "t": 1799647521000,
+       "act": "ski",
+       "runs": [
+        "Tatra 1"
+       ]
+      },
+      {
+       "t": 1799647680000,
+       "act": "ski",
+       "runs": [
+        "Tatra 1",
+        "Tatra 2"
+       ]
+      },
+      {
+       "t": 1799647747000,
+       "act": "stand"
+      },
+      {
+       "t": 1799647775000,
+       "act": "lift",
+       "lift": "472374253"
+      },
+      {
+       "t": 1799648476000,
+       "act": "ski",
+       "runs": [
+        "Baby"
+       ]
+      },
+      {
+       "t": 1799648486000,
+       "act": "ski",
+       "runs": [
+        "Tatra 1"
+       ]
+      },
+      {
+       "t": 1799648533000,
+       "act": "ski",
+       "runs": [
+        "Tatra 2"
+       ]
+      },
+      {
+       "t": 1799648631000,
+       "act": "ski",
+       "runs": [
+        "Tatra 1",
+        "Tatra 2"
+       ]
+      },
+      {
+       "t": 1799648698000,
+       "act": "stand"
+      },
+      {
+       "t": 1799648726000,
+       "act": "lift",
+       "lift": "472374253"
+      },
+      {
+       "t": 1799649222000,
+       "act": "ski",
+       "runs": [
+        "Baby"
+       ]
+      },
+      {
+       "t": 1799649230000,
+       "act": "ski",
+       "runs": [
+        "Tatra 1"
+       ]
+      },
+      {
+       "t": 1799649234000,
+       "act": "ski",
+       "runs": [
+        "Goodaura 1"
+       ]
+      },
+      {
+       "t": 1799649324000,
+       "act": "stand"
+      },
+      {
+       "t": 1799649385000,
+       "act": "ski",
+       "runs": [
+        "Goodaura 1"
+       ]
+      },
+      {
+       "t": 1799649491000,
+       "act": "ski",
+       "runs": [
+        "Goodaura 1",
+        "Shino"
+       ]
+      },
+      {
+       "t": 1799649501000,
+       "act": "ski",
+       "runs": [
+        "Goodaura 1"
+       ]
+      },
+      {
+       "t": 1799649525000,
+       "act": "stand"
+      },
+      {
+       "t": 1799649613000,
+       "act": "lift",
+       "lift": "158744075"
+      },
+      {
+       "t": 1799650058000,
+       "act": "walk"
+      },
+      {
+       "t": 1799650130000,
+       "act": "ski",
+       "runs": [
+        "Firni 2"
+       ]
+      },
+      {
+       "t": 1799650134000,
+       "act": "lift",
+       "lift": "663643826"
+      },
+      {
+       "t": 1799650559000,
+       "act": "stand"
+      },
+      {
+       "t": 1799650580000,
+       "act": "ski",
+       "runs": [
+        "Firni 1"
+       ]
+      },
+      {
+       "t": 1799650587000,
+       "act": "ski",
+       "runs": [
+        "Kobi"
+       ]
+      },
+      {
+       "t": 1799650799000,
+       "act": "lift",
+       "lift": "665084640"
+      },
+      {
+       "t": 1799651264000,
+       "act": "stand"
+      },
+      {
+       "t": 1799653349000,
+       "act": "walk"
+      },
+      {
+       "t": 1799653360000,
+       "act": "ski",
+       "runs": [
+        "Kobi"
+       ]
+      },
+      {
+       "t": 1799653367000,
+       "act": "ski",
+       "runs": [
+        "Firni 1"
+       ]
+      },
+      {
+       "t": 1799653428000,
+       "act": "ski",
+       "runs": [
+        "Firni 2"
+       ]
+      },
+      {
+       "t": 1799653663000,
+       "act": "walk"
+      },
+      {
+       "t": 1799653769000,
+       "act": "stand"
+      },
+      {
+       "t": 1799653827000,
+       "act": "lift",
+       "lift": "158744055"
+      },
+      {
+       "t": 1799654260000,
+       "act": "stand"
+      },
+      {
+       "t": 1799654261000,
+       "act": "lift",
+       "lift": "158744055"
+      },
+      {
+       "t": 1799654263000,
+       "act": "ski",
+       "runs": [
+        "Snow Park"
+       ]
+      },
+      {
+       "t": 1799654353000,
+       "act": "stand"
+      },
+      {
+       "t": 1799654391000,
+       "act": "lift",
+       "lift": "158744055"
+      },
+      {
+       "t": 1799654824000,
+       "act": "stand"
+      },
+      {
+       "t": 1799654826000,
+       "act": "lift",
+       "lift": "158744055"
+      },
+      {
+       "t": 1799654828000,
+       "act": "ski",
+       "runs": [
+        "Snow Park"
+       ]
+      },
+      {
+       "t": 1799654873000,
+       "act": "walk"
+      },
+      {
+       "t": 1799654956000,
+       "act": "stand"
+      },
+      {
+       "t": 1799655044000,
+       "act": "lift",
+       "lift": "158744060"
+      },
+      {
+       "t": 1799655839000,
+       "act": "stand"
+      },
+      {
+       "t": 1799655843000,
+       "act": "lift",
+       "lift": "158744060"
+      },
+      {
+       "t": 1799655845000,
+       "act": "ski",
+       "runs": [
+        "Sadzele 2"
+       ]
+      },
+      {
+       "t": 1799655850000,
+       "act": "ski",
+       "runs": [
+        "Sadzele 3"
+       ]
+      },
+      {
+       "t": 1799655885000,
+       "act": "ski",
+       "runs": [
+        "Sadzele 1"
+       ]
+      },
+      {
+       "t": 1799656126000,
+       "act": "ski",
+       "runs": [
+        "Snow Park"
+       ]
+      },
+      {
+       "t": 1799656211000,
+       "act": "walk"
+      },
+      {
+       "t": 1799656261000,
+       "act": "stand"
+      },
+      {
+       "t": 1799656288000,
+       "act": "ski",
+       "runs": [
+        "Goodaura 1"
+       ]
+      },
+      {
+       "t": 1799656473000,
+       "act": "ski",
+       "runs": [
+        "Goodaura 1",
+        "Shino"
+       ]
+      },
+      {
+       "t": 1799656482000,
+       "act": "ski",
+       "runs": [
+        "Goodaura 1"
+       ]
+      },
+      {
+       "t": 1799656516000,
+       "act": "walk"
+      },
+      {
+       "t": 1799656813000,
+       "act": "stand"
+      },
+      {
+       "t": 1799656931000,
+       "act": "lift",
+       "lift": "158744077"
+      },
+      {
+       "t": 1799657309000,
+       "act": "stand"
+      },
+      {
+       "t": 1799657381000,
+       "act": "ski",
+       "runs": [
+        "Goodaura 1"
+       ]
+      },
+      {
+       "t": 1799657395000,
+       "act": "lift",
+       "lift": "158744077"
+      },
+      {
+       "t": 1799657639000,
+       "act": "stand"
+      },
+      {
+       "t": 1799657640000,
+       "act": "lift",
+       "lift": "158744077"
+      },
+      {
+       "t": 1799657641000,
+       "act": "ski",
+       "runs": [
+        "Kudebi 2"
+       ]
+      },
+      {
+       "t": 1799657648000,
+       "act": "ski",
+       "runs": [
+        "Bombora"
+       ]
+      },
+      {
+       "t": 1799657716000,
+       "act": "walk"
+      },
+      {
+       "t": 1799657738000,
+       "act": "stand"
+      },
+      {
+       "t": 1799657796000,
+       "act": "lift",
+       "lift": "663639361"
+      },
+      {
+       "t": 1799658350000,
+       "act": "stand"
+      },
+      {
+       "t": 1799658355000,
+       "act": "lift",
+       "lift": "663639361"
+      },
+      {
+       "t": 1799658356000,
+       "act": "ski",
+       "runs": [
+        "Kudebi 3"
+       ]
+      },
+      {
+       "t": 1799658374000,
+       "act": "ski",
+       "runs": [
+        "Kudebi 2"
+       ]
+      },
+      {
+       "t": 1799658455000,
+       "act": "ski",
+       "runs": [
+        "Soliko 1"
+       ]
+      },
+      {
+       "t": 1799658465000,
+       "act": "ski",
+       "runs": [
+        "Bombora",
+        "Soliko 1"
+       ]
+      },
+      {
+       "t": 1799658475000,
+       "act": "ski",
+       "runs": [
+        "Soliko 1"
+       ]
+      },
+      {
+       "t": 1799658677000,
+       "act": "stand"
+      }
+     ],
+     "max_kmh": 67.43
+    }
+   }
+  }
+ ]
+}

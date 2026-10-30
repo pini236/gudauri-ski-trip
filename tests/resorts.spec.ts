@@ -248,3 +248,23 @@ test('Sella Ronda: its own data, names on the lines, the official colour, no gre
   await expect(page.locator('#panel .run-sign h2')).toHaveClass(/c-red/);
   expect(errors).toEqual([]);
 });
+
+// Day recording (decision 76, docs/ARCHITECTURE.md m-8, answer 4 and 7): the data can grow a middle station for a lift
+// (lifts[].mid) and the "dayrec" feature, both for the apps. The site does not use them and must not break on them.
+test('the site ignores a middle station and the dayrec feature', async ({ page }) => {
+  const errors = watchErrors(page);
+  await page.route('**/data/runs-and-lifts.json', async r => {
+    const res = await r.fetch(); const d = await res.json();
+    const g = d.lifts.find((l: any) => l.name === 'Goodaura');
+    const m = g.g[Math.floor(g.g.length / 2)];
+    g.mid = [{ pos: m, ele: 2450, name: 'test', osm: 'node/0' }];
+    await r.fulfill({ response: res, json: d });
+  });
+  await page.goto('/#map');
+  await loaded(page);
+  const res = await page.evaluate(async () => (await (await fetch('/data/resorts.json')).json()).resorts.find((x: any) => x.id === 'gudauri').features);
+  expect(res).toContain('dayrec');
+  await page.evaluate(() => { location.hash = '#map/run/' + encodeURIComponent('Goodaura 1'); });
+  await expect(page.locator('#panel .run-sign h2')).toHaveText('Goodaura 1');
+  expect(errors).toEqual([]);
+});
