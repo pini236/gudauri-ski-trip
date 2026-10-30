@@ -2879,7 +2879,7 @@
       "x": 0,
       "y": 0,
       "w": 600,
-      "h": 900,
+      "h": 1000,
       "page": "round29",
       "title": "מה לאשר בסבב 29"
     },
@@ -2950,10 +2950,18 @@
     "R29-States.dc.html": {
       "x": 680,
       "y": 6489,
-      "w": 3380,
+      "w": 4634,
       "h": 1004,
       "page": "round29",
       "title": "ה. מצבים"
+    },
+    "R29-Moat.dc.html": {
+      "x": 680,
+      "y": 7913,
+      "w": 2556,
+      "h": 1026,
+      "page": "round29",
+      "title": "ו. החוויה: הרגעים שרק לנו יש"
     }
   },
   "createdOnFiles": {
@@ -4066,12 +4074,21 @@
     },
     "round29row4": {
       "kind": "title1",
-      "maxW": 3380,
+      "maxW": 4634,
       "page": "round29",
       "text": "ה. מצבים",
       "w": 240,
       "x": 680,
       "y": 6189
+    },
+    "round29row5": {
+      "kind": "title1",
+      "maxW": 2556,
+      "page": "round29",
+      "text": "ו. החוויה",
+      "w": 240,
+      "x": 680,
+      "y": 7613
     }
   },
   "order": [
@@ -4442,7 +4459,8 @@
     "R29-Replay.dc.html",
     "R29-History.dc.html",
     "R29-Spec.dc.html",
-    "R29-States.dc.html"
+    "R29-States.dc.html",
+    "R29-Moat.dc.html"
   ],
   "pages": [
     {
