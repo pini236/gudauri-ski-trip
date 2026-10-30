@@ -14,6 +14,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 SITE = ROOT / "site"
 FILES = ("terrain.json", "runs-and-lifts.json", "videos-seed.json", "resorts.json")
+# the ski day's analysis reads its thresholds from the reference tool's file, as it is (decision 76, m-8 condition 4)
+FIXTURES = ("dayrec-params.json",)
 
 
 def descent_profiles():
@@ -33,6 +35,8 @@ def main():
     out.mkdir(parents=True, exist_ok=True)
     for name in FILES:
         shutil.copyfile(SITE / "data" / name, out / name)
+    for name in FIXTURES:
+        shutil.copyfile(ROOT / "tools/fixtures" / name, out / name)
     (out / "profiles.json").write_text(json.dumps(descent_profiles(), separators=(",", ":")), encoding="utf-8")
     # the real view from the village through the day, for the home page (site/img/pano; design/round3/panorama.py)
     (out / "pano").mkdir(exist_ok=True)

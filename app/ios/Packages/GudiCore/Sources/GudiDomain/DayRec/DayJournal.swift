@@ -69,10 +69,20 @@ public enum DayJournal {
             case resume
             /// The day reached the 10 MB cap; nothing after it is written (the reference tool skips kinds it does not know).
             case full
+            /// A blow ("here you fell", m-8 condition 10): the motion sensors around it, or, with `dismissed`, the
+            /// user's "I did not fall" for the blow of the same `t` (the journal is append-only, so it is a second line).
+            case impact
         }
         public var ev: Kind
         public var t: Int64
         public var reason: String?
+        /// An impact's window: samples a second, the first sample's time, and x, y, z triples of the accelerometer
+        /// (m/s², with gravity) and the gyroscope (rad/s).
+        public var hz: Double?
+        public var t0: Int64?
+        public var acc: [Double]?
+        public var gyr: [Double]?
+        public var dismissed: Bool?
 
         public init(_ ev: Kind, t: Int64, reason: String? = nil) { self.ev = ev; self.t = t; self.reason = reason }
     }
@@ -88,6 +98,9 @@ public enum DayJournal {
         public var events: [Event]
         /// The last line was cut (the app died mid-write) and was dropped.
         public var cut: Bool
+        /// Lines dropped anywhere, as the reference reader counts them (tools/dayrec/rawlog.py): not JSON, or neither
+        /// an event nor a point with a position.
+        public var dropped = 0
 
         /// Ended by a stop with nothing after it: otherwise the day was interrupted, and can go on.
         public var closed: Bool {
@@ -122,9 +135,14 @@ public enum DayJournal {
         for (i, raw) in lines.dropFirst().enumerated() {
             let line = Data(raw)
             if let o = try? JSONSerialization.jsonObject(with: line) as? [String: Any] {
-                if o["ev"] != nil, let e = try? d.decode(Event.self, from: line) { day.events.append(e); continue }
+                if o["ev"] != nil {
+                    // a kind this version does not know is skipped, not dropped
+                    if let e = try? d.decode(Event.self, from: line) { day.events.append(e) }
+                    continue
+                }
                 if let p = try? d.decode(Point.self, from: line) { day.points.append(p); continue }
             }
+            day.dropped += 1
             // only the last line can be cut short; a bad line elsewhere (a future kind) is skipped
             if i == lines.count - 2, !data.isEmpty, data.last != 0x0A { day.cut = true }
         }
