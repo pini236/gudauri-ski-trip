@@ -12,6 +12,8 @@ internal const val STAND = 0
 internal const val WALK = 1
 internal const val SKI = 2
 internal const val UP = 3
+/** Set after the activity Viterbi, from the roads (driveMask); a lift is 4 and up. -1 is taken by the descent group of the segments. */
+internal const val DRIVE = -2
 
 /** A lift close enough to a point: its distance, the position along the cable and the cable's direction there. */
 internal class LiftFeature(val d: Double, val u: Double, val ux: Double, val uy: Double)

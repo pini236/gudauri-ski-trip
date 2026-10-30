@@ -903,6 +903,7 @@ dayrec_steps() {
   want=$(python3 -c "import json,sys; c=json.load(open('$fx/dayrec-cases.json')); s=[x for x in c['cases'] if x['name']=='full_day'][0]['expected']['final']['stats']; print('descents=%d lifts=%d' % (s['descents'], s['lifts']))")
   note "dayrec replay: $rep"
   grep -q "$want" <<< "$rep" || fail "the replayed day differs from the reference ($want): '$rep'"
+  grep -q "moments=true" <<< "$rep" || fail "the replayed day has no moments beside it: '$rep'"
   qa "--es qa.dayrec wipe"
   # the phone killed the app in the middle of a day: the file stays cut, and the next opening goes on with it
   qa "--es qa.dayrec start"; waitlog "dayrec start result Started" 10; dayrec_walk 6

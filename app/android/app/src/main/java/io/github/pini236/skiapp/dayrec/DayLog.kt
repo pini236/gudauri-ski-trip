@@ -233,13 +233,17 @@ class DayStore(private val root: File) {
 
     fun totalBytes() = days().sumOf { it.length() }
 
-    fun delete(f: File) { f.delete(); resultOf(f).delete() }
-    fun deleteAll() { days().forEach { delete(it) } }
+    /** One day goes with its result and its moments; the history of the skier is not recomputed (architect, 30.10.2026). */
+    fun delete(f: File) { f.delete(); resultOf(f).delete(); momentsOf(f).delete() }
+    /** "Delete everything" also deletes the history the moments are compared with. */
+    fun deleteAll() { days().forEach { delete(it) }; MomentsStore.clear(dir) }
 
     companion object {
         const val DIR = "dayrec"
         /** A day's analysis result, beside its log. It never matches the log's pattern, so it is not a day. */
         fun resultOf(day: File) = File(day.parentFile, day.name.removeSuffix(".jsonl") + ".analysis.json")
+        /** The moments of a day, picked once when the day was closed (the history of that moment is not kept), beside its log. */
+        fun momentsOf(day: File) = File(day.parentFile, day.name.removeSuffix(".jsonl") + ".moments.json")
         fun device(): String = "${android.os.Build.MANUFACTURER} ${android.os.Build.MODEL}".trim().lowercase(Locale.ROOT)
     }
 }

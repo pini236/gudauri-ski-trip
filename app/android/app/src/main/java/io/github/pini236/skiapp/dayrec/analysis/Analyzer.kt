@@ -112,7 +112,7 @@ class Analyzer(private val net: Net, private val P: Params) {
             if (pa < trigger || pw < rot) continue
             val t = e.getLong("t")
             val i = ts.indices.lastOrNull { ts[it] <= t } ?: continue
-            if (act[i] >= 4) continue
+            if (act[i] >= 4 || act[i] == DRIVE) continue
             val before = ts.indices.filter { t - beforeMs <= ts[it] && ts[it] <= t }.mapNotNull { pts[it].speed }
             val a0 = t + settleMs; val a1 = a0 + stillMs
             val after = ts.indices.filter { a0 <= ts[it] && ts[it] <= a1 }.map { pts[it].speed }
@@ -120,6 +120,74 @@ class Analyzer(private val net: Net, private val P: Params) {
             if (after.size < stillS - 1 || after.any { it == null || it > vAfter }) continue
             if (out.isNotEmpty() && t - out.last().t < debounceMs) continue
             out += Fall(t, a1)
+        }
+        return out
+    }
+
+    // ---------- 6b. A car on a road ----------
+
+    private fun withDrive(act: IntArray, p: Prep, pts: List<DayLog.Point>, live: Boolean): IntArray {
+        val m = driveMask(pts, p.kf, p.ts, act, live)
+        return IntArray(act.size) { if (m[it]) DRIVE else act[it] }
+    }
+
+    /**
+     * Per reading: true when the skier is in a car. A drive is a stretch near a road of the terrain model (within road_m, gaps
+     * of up to bridge_s bridged, never a lift), trimmed to the second where the speed crosses edge_mps (held edge_hold
+     * readings), at least min_s long and min_m far, at mean_mps or more, near_frac of it near the road and at most
+     * piste_frac_max of it on a run (a ski way on a road stays skiing). Live: a reading is a drive once the stretch up to it
+     * already qualifies, and stays one to the end of the stretch.
+     */
+    private fun driveMask(pts: List<DayLog.Point>, kf: List<DoubleArray>, ts: LongArray, act: IntArray, live: Boolean): BooleanArray {
+        val D = "drive"
+        val n = pts.size
+        val out = BooleanArray(n)
+        if (!net.hasRoads || n == 0) return out
+        val roadM = P.d(D, "road_m"); val bridgeMs = P.d(D, "bridge_s") * 1000
+        val road = BooleanArray(n) { act[it] < 4 && net.nearestRoadDist(kf[it][0], kf[it][1], roadM + 1) <= roadM }
+        val sp = DoubleArray(n) { pts[it].speed ?: hypot(kf[it][2], kf[it][3]) }
+        // stretches of road readings, bridged across short gaps that are not a lift
+        val runs = ArrayList<IntArray>()
+        var i = 0
+        while (i < n) {
+            if (!road[i]) { i++; continue }
+            var j = i
+            while (true) {
+                while (j + 1 < n && road[j + 1]) j++
+                var k = j + 1
+                while (k < n && !road[k] && act[k] < 4 && ts[k] - ts[j] <= bridgeMs) k++
+                if (k < n && road[k] && ts[k] - ts[j] <= bridgeMs) { j = k; continue }
+                break
+            }
+            runs += intArrayOf(i, j); i = j + 1
+        }
+        val edge = P.d(D, "edge_mps"); val m = P.i(D, "edge_hold")
+        val minS = P.d(D, "min_s"); val minM = P.d(D, "min_m"); val meanMps = P.d(D, "mean_mps")
+        val nearFrac = P.d(D, "near_frac"); val pisteM = P.d(D, "piste_m"); val pisteMax = P.d(D, "piste_frac_max")
+        fun fast(k: Int) = sp[k] >= edge
+        for ((a, b) in runs.map { it[0] to it[1] }) {
+            val st = (a..b - m + 1).firstOrNull { k -> (k until k + m).all { fast(it) } }
+            val en = (b downTo a + m - 1).firstOrNull { k -> (k - m + 1..k).all { fast(it) } }
+            if (st == null || en == null || en <= st) continue
+            // prefix sums from st, in the same order as a direct sum, so that every end is judged on the same numbers
+            val cum = DoubleArray(en - st + 1)
+            for (q in st until en) cum[q + 1 - st] = cum[q - st] + hypot(kf[q + 1][0] - kf[q][0], kf[q + 1][1] - kf[q][1])
+            val roadCum = IntArray(en - st + 2)
+            val onrun = BooleanArray(en - st + 1) { net.nearestPisteDist(kf[st + it][0], kf[st + it][1], pisteM + 1) <= pisteM }
+            val onrunCum = IntArray(en - st + 2)
+            for (q in 0..en - st) { roadCum[q + 1] = roadCum[q] + (if (road[st + q]) 1 else 0); onrunCum[q + 1] = onrunCum[q] + (if (onrun[q]) 1 else 0) }
+            fun ok(e: Int): Boolean {
+                val dur = (ts[e] - ts[st]) / 1000.0
+                if (dur < minS) return false
+                val dist = cum[e - st]
+                if (dist < minM || dist / dur < meanMps) return false
+                val cnt = (e - st + 1).toDouble()
+                return roadCum[e - st + 1] / cnt >= nearFrac && onrunCum[e - st + 1] / cnt <= pisteMax
+            }
+            if (live) {
+                val first = (st..en).firstOrNull { ok(it) }
+                if (first != null) for (q in first..en) out[q] = true
+            } else if (ok(en)) for (q in st..en) out[q] = true
         }
         return out
     }
@@ -165,12 +233,13 @@ class Analyzer(private val net: Net, private val P: Params) {
         if (pts.isEmpty()) return LiveResult(emptyList(), null, emptyList(), null)
         val p = prep(pts, true)
         val em = emissions(net, pts, p.kf, p.vz, P)
-        val act = viterbiActivity(net, em.e, em.feats, P, live = true)
+        val act0 = viterbiActivity(net, em.e, em.feats, P, live = true)
+        val act = withDrive(act0, p, pts, live = true)
         val mt = match(net, pts, p.kf, pts.indices.toList(), P, live = true)
         val evs = ArrayList<LiveEvent>()
         var last: Triple<String, String?, List<String>?>? = null
         for ((i, a) in act.withIndex()) {
-            val actName = if (a >= 4) "lift" else ACT[a]
+            val actName = actName(a)
             val lift = if (a >= 4) net.lifts[a - 4].id else null
             val runs: List<String>? = if (a == SKI) mt[i].piste.let { s -> if (s >= 0) net.labelAt(s, p.kf[i][0], p.kf[i][1]) else null } else null
             val key = Triple(actName, lift, runs)
@@ -190,7 +259,7 @@ class Analyzer(private val net: Net, private val P: Params) {
         if (pts.isEmpty()) return DayResult(0, 0, 0, false, 0.0, emptyList(), emptyList(), emptyList(), null)
         val p = prep(pts, false)
         val em = emissions(net, pts, p.kf, p.vz, P)
-        val path = viterbiActivity(net, em.e, em.feats, P, live = false)
+        val path = withDrive(viterbiActivity(net, em.e, em.feats, P, live = false), p, pts, live = false)
         val pieces = pieces(path, p.ts, p.kf, em.feats, pts, p.h)
         val segs = segments(pieces, pts, p.xy, p.kf, p.ts, p.h)
         val state = IntArray(pts.size)
@@ -398,7 +467,8 @@ class Analyzer(private val net: Net, private val P: Params) {
                 val d = dist(kf, ts, idx); val dr = drop(h, idx, P)
                 if (dr < P.d(S, "min_descent_drop_m") && d < P.d(S, "min_descent_m")) { segs += Seg("walk", i0, i1); continue }
                 segs += Seg("descent", i0, i1).also { it.pieces = g }
-            } else if (kind >= 4) segs += Seg("lift", i0, i1).also { it.li = kind - 4 }
+            } else if (kind == DRIVE) segs += Seg("drive", i0, i1)
+            else if (kind >= 4) segs += Seg("lift", i0, i1).also { it.li = kind - 4 }
             else if (kind == UP) segs += Seg("ascent", i0, i1)
             else if (kind == WALK) segs += Seg("walk", i0, i1)
             else segs += Seg("stop", i0, i1)
@@ -456,6 +526,7 @@ class Analyzer(private val net: Net, private val P: Params) {
                 }
                 "walk" -> s.distM = round1(dist(kf, ts, idx))
                 "ascent" -> s.riseM = round1(h[i1] - h[i0])
+                "drive" -> { s.distM = round1(dist(kf, ts, idx)); s.riseM = round1(h[i1] - h[i0]) }
             }
         }
         return segs
@@ -524,5 +595,6 @@ class Analyzer(private val net: Net, private val P: Params) {
     companion object {
         const val G = 9.80665
         private val ACT = arrayOf("stand", "walk", "ski", "up")
+        private fun actName(a: Int) = if (a >= 4) "lift" else if (a == DRIVE) "drive" else ACT[a]
     }
 }

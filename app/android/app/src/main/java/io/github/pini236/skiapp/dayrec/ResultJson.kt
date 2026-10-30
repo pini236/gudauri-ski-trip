@@ -14,8 +14,8 @@ object ResultJson {
         if (unmapped) JSONObject().put("station", JSONObject.NULL).put("unmapped", true) else JSONObject().put("station", id ?: JSONObject.NULL)
     private fun at(m: Analyzer.MaxAt?): Any = m?.let { JSONObject().put("t", it.t).put("lat", it.lat).put("lon", it.lon) } ?: JSONObject.NULL
 
-    fun of(r: Analyzer.DayResult, resort: String, analysis: Int): JSONObject {
-        val o = JSONObject().put("analysis", analysis).put("v", 1).put("resort", resort).put("points", r.points)
+    fun of(r: Analyzer.DayResult, resort: String, analysis: Int, mode: String = "day"): JSONObject {
+        val o = JSONObject().put("analysis", analysis).put("v", 1).put("resort", resort).put("mode", mode).put("points", r.points)
             .put("start", r.start).put("end", r.end).put("baro", r.baro).put("coverage", r.coverage)
         o.put("gaps", JSONArray().also { a -> r.gaps.forEach { a.put(JSONObject().put("t0", it.t0).put("t1", it.t1)) } })
         o.put("falls", JSONArray().also { a -> r.falls.forEach { a.put(JSONObject().put("t", it.t).put("lat", n(it.lat)).put("lon", n(it.lon))) } })
@@ -48,6 +48,7 @@ object ResultJson {
             "stop" -> o.put("lat", s.lat).put("lon", s.lon).put("kind", s.kind)
             "walk" -> o.put("dist_m", n(s.distM))
             "ascent" -> o.put("rise_m", n(s.riseM))
+            "drive" -> o.put("dist_m", n(s.distM)).put("rise_m", n(s.riseM))
         }
         return o
     }

@@ -82,6 +82,7 @@ internal object AnalysisJson {
             "lift" -> o.put("lift", s.lift).put("from", station(s.from)).put("to", station(s.to)).put("rise_m", n(s.riseM))
             "stop" -> o.put("kind", s.kind)
             "walk" -> o.put("dist_m", n(s.distM))
+            "drive" -> o.put("dist_m", n(s.distM)).put("rise_m", n(s.riseM))
             "descent" -> {
                 o.put("legs", JSONArray().also { a -> s.legs.forEach { l -> a.put(JSONObject().put("kind", l.kind).put("runs", JSONArray(l.runs)).put("t0", l.t0).put("t1", l.t1).put("dist_m", l.distM)) } })
                 o.put("dist_m", n(s.distM)).put("drop_m", n(s.dropM)).put("max_kmh", n(s.maxKmh))

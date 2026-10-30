@@ -40,7 +40,10 @@ object DayAnalysis {
     /** The result of [day] beside it, computed now if it is missing or of an older analysis. Heavy for a long day: not on the main thread. */
     fun ensure(ctx: Context, file: File): File? {
         val (a, p) = load(ctx)
-        return write(a, p.analysis, file)
+        val out = write(a, p.analysis, file) ?: return null
+        // the moments of the day, once per day (the history grows by one day at a time)
+        runCatching { MomentsStore.apply(ctx.applicationContext, file, out) }
+        return out
     }
 
     /** Pure part of [ensure], so a test can run it. */
@@ -50,7 +53,7 @@ object DayAnalysis {
         val day = runCatching { DayLog.read(file) }.getOrNull() ?: return null
         if (day.points.isEmpty()) return null
         val r = a.final(day.header, day.points, day.events)
-        val json = ResultJson.of(r, day.resort, analysis)
+        val json = ResultJson.of(r, day.resort, analysis, day.mode)
         val tmp = File(out.parentFile, out.name + ".tmp")
         tmp.writeText(json.toString())
         if (!tmp.renameTo(out)) { out.delete(); if (!tmp.renameTo(out)) return null }

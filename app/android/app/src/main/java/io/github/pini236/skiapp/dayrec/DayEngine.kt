@@ -31,6 +31,8 @@ class DayEngine(private val analyzer: Analyzer, val header: JSONObject) {
     class Ride(
         val t0: Long, val t1: Long, val runs: List<String>, val distM: Double, val dropM: Double,
         val maxKmh: Double?, val maxAt: Analyzer.MaxAt?, val movingS: Int, val avgKmh: Double?,
+        /** The same summary as the moments engine's card on the lift (key `last_descent`, with the seed of its wording). */
+        val card: JSONObject,
     )
 
     val isRun: Boolean get() = header.optString("mode", "day") == "run"
@@ -40,6 +42,7 @@ class DayEngine(private val analyzer: Analyzer, val header: JSONObject) {
     private val falls = LinkedHashMap<Long, Analyzer.Fall>()
     private var lastAct: String? = null
     private var lastRideT0 = -1L
+    private var pendingRide = 0
     @Volatile var snapshot: Snapshot? = null; private set
     @Volatile var lastRide: Ride? = null; private set
     /** Called when a descent ends and the lift begins. */
@@ -63,7 +66,10 @@ class DayEngine(private val analyzer: Analyzer, val header: JSONObject) {
         snapshot = s
         // between the descent and the lift there is usually a wait (a queue, a walk): so it is any arrival on a lift, and the
         // descent is the last one the final analysis of the stretch finds, once ([lastRideT0])
-        if (lastAct != "lift" && act == "lift") summarise()
+        // the card is made only once the lift is certain in the final analysis, so it is tried again on the next ticks
+        if (lastAct != "lift" && act == "lift") pendingRide = RIDE_TRIES
+        if (act != "lift") pendingRide = 0
+        if (pendingRide > 0) { pendingRide--; if (summarise()) pendingRide = 0 }
         lastAct = act
         return s
     }
@@ -84,19 +90,24 @@ class DayEngine(private val analyzer: Analyzer, val header: JSONObject) {
 
     private fun eventsFrom(t: Long) = events.filter { it.optLong("t", 0L) >= t }
 
-    /** The final analysis of the last stretch; its last descent is the one that just ended. */
-    private fun summarise() {
+    /**
+     * The final analysis of the last stretch; once the last thing in it is a lift, the descent before it is the one that just
+     * ended (the moments engine's card on the lift). True if a card was made.
+     */
+    private fun summarise(): Boolean {
         val cut = points.last().t - RIDE_LOOKBACK_MS
         val from = points.indexOfFirst { it.t >= cut }.coerceAtLeast(0)
         val r = analyzer.final(header, ArrayList(points.subList(from, points.size)), eventsFrom(points[from].t))
-        val d = r.segments.lastOrNull { it.type == "descent" } ?: return
-        if (d.t0 == lastRideT0) return
+        val card = Moments.liftCard(ResultJson.of(r, "", 0, header.optString("mode", "day"))) ?: return false
+        val d = r.segments.dropLast(1).lastOrNull { it.type == "descent" } ?: return false
+        if (d.t0 == lastRideT0) return true
         lastRideT0 = d.t0
         val runs = LinkedHashSet<String>()
         for (l in d.legs) if (l.kind == "run") runs += l.runs
-        val ride = Ride(d.t0, d.t1, runs.toList(), d.distM ?: 0.0, d.dropM ?: 0.0, d.maxKmh, d.maxAt, d.movingS, d.avgKmh)
+        val ride = Ride(d.t0, d.t1, runs.toList(), d.distM ?: 0.0, d.dropM ?: 0.0, d.maxKmh, d.maxAt, d.movingS, d.avgKmh, card)
         lastRide = ride
         onRide?.invoke(ride)
+        return true
     }
 
     companion object {
@@ -104,5 +115,7 @@ class DayEngine(private val analyzer: Analyzer, val header: JSONObject) {
         const val WINDOW_MS = 20 * 60_000L
         /** The final analysis for the ride summary: a long descent, and the lift before it. */
         const val RIDE_LOOKBACK_MS = 30 * 60_000L
+        /** Live ticks (5 s apart) to wait for the lift to be certain in the final analysis. */
+        const val RIDE_TRIES = 36
     }
 }

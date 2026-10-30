@@ -250,6 +250,8 @@ class Net(runsAndLifts: JSONObject, terrainJson: JSONObject, val params: Params,
         return out
     }
 
+    val hasRoads: Boolean get() = roads.isNotEmpty()
+
     fun nearestRoadDist(x: Double, y: Double, r: Double = 400.0): Double =
         roadGrid.near(x, y, r).minOfOrNull { roads[it].nearest(x, y).d } ?: 1e9
 

@@ -599,7 +599,7 @@ class MainActivity : ComponentActivity() {
         val r = out?.let { org.json.JSONObject(it.readText()) }
         val st = r?.optJSONObject("stats")
         Qa.log("dayrec replay analysis=${r?.optInt("analysis", -1)} segments=${r?.optJSONArray("segments")?.length()} descents=${st?.optInt("descents", -1)} " +
-            "lifts=${st?.optInt("lifts", -1)} falls=${r?.optJSONArray("falls")?.length()} max=${st?.optDouble("max_kmh")} ms=${android.os.SystemClock.elapsedRealtime() - t0}")
+            "lifts=${st?.optInt("lifts", -1)} moments=${DayStore.momentsOf(dst).isFile} falls=${r?.optJSONArray("falls")?.length()} max=${st?.optDouble("max_kmh")} ms=${android.os.SystemClock.elapsedRealtime() - t0}")
     }
 
     private fun applyQaMap(i: Intent, sunDone: Boolean = false) {
