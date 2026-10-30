@@ -144,7 +144,7 @@ function livePanel(p, en, o = {}) {
   const w = W[en ? 'en' : 'he'];
   const where = o.where ?? (o.lift
     ? `<span class="ico">${ic.lift(18)}</span><span>${w.onLift} <b dir="ltr">${o.lift}</b></span>`
-    : `<span class="ico">${ic.ski(18)}</span>${sign('blue', 'Tatra 2')}`);
+    : `<span class="ico">${ic.ski(18)}</span>${sign('blue', 'Tatra 2')}<span class="muted" style="font-weight:400;font-size:13px">${en ? 'probably' : 'כנראה'}</span>`);
   return `<div class="sheet"><div class="grab"></div><div class="live">
     <div class="top"><div class="v"><b class="k">${o.v ?? 41}</b><span>${w.kmh}</span></div>
       <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px;padding-bottom:12px"><span class="rdot">${w.rec} · <span dir="ltr">${o.clock ?? '1:01'}</span></span></div></div>
@@ -279,6 +279,14 @@ const BOARDS = {
   'd-and-history': ['and', 'he', 'day', () => history('and', false)],
   'd-ios-history-en': ['ios', 'en', 'day', () => history('ios', true)],
 
+  // ---------- F. the experience (FEATURES, "the experience is the moat") ----------
+  'f-and-fall': ['and', 'he', 'day', () => fall('and', false)],
+  'f-ios-fall-en': ['ios', 'en', 'day', () => fall('ios', true)],
+  'f-and-liftsum': ['and', 'he', 'night', () => liftSum('and', false)],
+  'f-ios-liftsum': ['ios', 'he', 'night', () => liftSum('ios', false)],
+  'f-and-story': ['and', 'he', 'day', () => story('and', false)],
+  'f-ios-story-en': ['ios', 'en', 'day', () => story('ios', true)],
+
   // ---------- E. states, on the live panel ----------
   'e-and-gps': ['and', 'he', 'day', () => stateBoard('and', false, 'gps')],
   'e-and-denied': ['and', 'he', 'day', () => stateBoard('and', false, 'denied')],
@@ -286,6 +294,9 @@ const BOARDS = {
   'e-and-auto': ['and', 'he', 'day', () => stateBoard('and', false, 'auto')],
   'e-and-off': ['and', 'he', 'day', () => stateBoard('and', false, 'off')],
   'e-and-climb': ['and', 'he', 'day', () => stateBoard('and', false, 'climb')],
+  'e-and-approx': ['and', 'he', 'day', () => stateBoard('and', false, 'approx')],
+  'e-and-resume': ['and', 'he', 'day', () => stateBoard('and', false, 'resume')],
+  'e-and-mid': ['and', 'he', 'day', () => stateBoard('and', false, 'mid')],
   'e-ios-gps-en': ['ios', 'en', 'day', () => stateBoard('ios', true, 'gps')],
   'e-ios-off-night-en': ['ios', 'en', 'night', () => stateBoard('ios', true, 'off')],
 };
@@ -298,10 +309,10 @@ function header(p, en, title, sub, t, dark) {
 function summary(p, en) {
   const w = W[en ? 'en' : 'he'];
   return `<div style="height:${p === 'and' ? 844 : 874}px">${header(p, en, en ? 'Tuesday on the mountain' : 'שלישי על ההר', `${w.day} · <span dir="ltr">${hm(S.start)}–${hm(S.end)}</span>`, '14:30', en)}
-    <div style="padding:0 18px"><div class="big3"><div><b>${S.vmax}</b><small>${en ? 'top speed km/h' : 'מהירות מרבית'}</small></div><div><b>${S.runs}</b><small>${w.runs}</small></div><div><b>${S.skiKm}</b><small>${en ? 'km skied' : 'ק״מ גלישה'}</small></div></div>
+    <div style="padding:0 18px"><div class="big3"><div><b>${S.vmax}</b><small>${en ? 'top speed, est.' : 'מרבית, הערכה'}</small></div><div><b>${S.runs}</b><small>${w.runs}</small></div><div><b>${S.skiKm}</b><small>${en ? 'km skied' : 'ק״מ גלישה'}</small></div></div>
       <div class="row muted sm" style="gap:14px;margin:6px 0 10px"><span>${n(S.desc, en)} ${en ? 'm descent' : 'מ׳ ירידה'}</span><span>${S.lifts} ${en ? 'lifts' : 'רכבלים'}</span><span>${en ? 'skiing' : 'גלישה'} ${dur(S.skiMin * 60, en)}</span></div></div>
     <div style="position:relative;height:330px;overflow:hidden;border-block:1px solid var(--rule)"><img src="${M(en ? 'm-day-night' : 'm-day')}" style="display:block;width:100%;margin-top:-60px">
-      <span class="bubble" style="top:14px;inset-inline-start:14px">${en ? 'Top speed' : 'המהירה ביותר'} · ${S.vmax} · <span dir="ltr">${S.vmaxRun}</span></span></div>
+      <span class="bubble" style="top:14px;inset-inline-start:14px">${en ? 'You flew here' : 'פה טסת'} · ${S.vmax} · <span dir="ltr">${S.vmaxRun} · ${hm(runs.find(r => r.vmax === S.vmax).vmaxAt.t)}</span></span></div>
     <div style="padding:10px 18px">${legend(en)}<div class="row" style="margin-top:12px;gap:8px"><span class="qb pri" style="flex:1">${ic.play(16)}${en ? 'Replay in 3D' : 'צפייה חוזרת בתלת-ממד'}</span><span class="qb" style="flex:none">${ic.share(18)}</span></div>
     <p class="note" style="margin-top:10px">${w.sample}: ${en ? 'real lift and run lines, invented times and speeds' : 'הקווים והגבהים אמיתיים, השעות והמהירויות מומצאות'}.</p></div></div>`;
 }
@@ -323,7 +334,7 @@ function replay(p, en) {
       <div class="row" style="justify-content:space-between;margin:4px 0 2px"><span class="row" style="gap:6px">${sign('blue', 'Tatra 1')}<i class="arr">←</i>${sign('blue', 'Tatra 2')}</span><span class="muted sm">ירידה 3 מתוך 10</span></div>
       <div class="scrub" dir="ltr"><span class="tr"></span>${segBars}<span class="kn" style="inset-inline-start:${pct}%"></span></div>
       <div class="row muted sm" style="justify-content:space-between;direction:ltr"><span>${hm(S.start)}</span><span>12:00</span><span>${hm(S.end)}</span></div>
-      <div class="row" style="justify-content:center;gap:10px;margin-top:10px"><span class="qb" style="width:48px;padding:0">${ic.play(16)}</span><span class="qb" style="padding:0 12px">×4</span><span class="qb" style="padding:0 12px">×16</span></div>
+      <div class="row" style="justify-content:center;gap:10px;margin-top:10px"><span class="qb" style="width:48px;padding:0">${ic.play(16)}</span><span class="qb" style="padding:0 12px">×4</span><span class="qb" style="padding:0 12px">×16</span><span class="qb pri" style="padding:0 12px">${ic.share(16)}סרטון</span></div>
       <p class="note" style="margin:8px 0 0;text-align:center">גרירה על הציר מזיזה את הנקודה לכל רגע ביום. הקווים הכהים הם הירידות.</p></div></div>`;
 }
 function runCard(p, en) {
@@ -374,18 +385,74 @@ function stateBoard(p, en, kind) {
     gps: [en ? 'Weak GPS · accuracy 40 m' : 'GPS חלש · דיוק 40 מ׳', en ? 'Recording goes on; speed is not counted until the signal is good.' : 'ההקלטה ממשיכה; מהירות לא נספרת עד שהקליטה טובה.', 'warn', ic.sat(20)],
     denied: [en ? 'No location permission' : 'אין הרשאה למיקום', en ? 'Settings → Location → While using.' : 'הגדרות ← מיקום ← בזמן השימוש באפליקציה.', 'warn', ic.sat(20), en ? 'Open settings' : 'פתיחת ההגדרות'],
     out: [en ? 'You are outside Gudauri' : 'מחוץ לגודאורי', en ? 'Paused. It goes on when you are back on the mountain.' : 'ההקלטה בהשהיה, וממשיכה כשחוזרים להר.', 'off', ic.mtn(20)],
-    auto: [en ? 'No movement for 45 min' : 'בלי תנועה 45 דק׳', en ? 'The day ends by itself in 15 min.' : 'היום ייסגר לבד בעוד 15 דק׳.', 'off', ic.pause(20), en ? 'Keep recording' : 'ממשיכים להקליט'],
+    auto: [en ? 'No movement for 55 min' : 'בלי תנועה 55 דק׳', en ? 'The day ends by itself in 5 min.' : 'היום ייסגר לבד בעוד 5 דק׳.', 'off', ic.pause(20), en ? 'Keep recording' : 'ממשיכים להקליט'],
     off: [en ? 'Off the runs' : 'מחוץ למסלולים', en ? 'No line on the map here, so no name.' : 'אין כאן קו במפה, ולכן אין שם.', 'off', ic.ski(20)],
+    approx: [en ? 'Precise location needed' : 'צריך מיקום מדויק', en ? 'With approximate location the day can’t be measured.' : 'עם מיקום משוער אי אפשר למדוד את היום.', 'warn', ic.sat(20), en ? 'Allow precise' : 'מיקום מדויק'],
+    resume: [en ? 'The day was cut off' : 'היום נקטע', en ? 'The phone closed the app at 12:41. Carry on from there?' : 'הטלפון סגר את האפליקציה ב-12:41. להמשיך מאותה נקודה?', 'warn', ic.pause(20), en ? 'Carry on' : 'להמשיך'],
+    mid: [en ? 'Off the lift at a point not on the map' : 'ירדת מהרכבל בנקודה שלא ממופה', en ? 'No mid station there in the map data.' : 'אין שם תחנת ביניים בנתוני המפה.', 'off', ic.lift(20)],
     climb: [en ? 'Going up, no lift known' : 'עלייה, בלי רכבל ידוע', en ? 'Marked as a climb, not as a lift.' : 'מסומן כעלייה, לא כרכבל.', 'off', ic.walk(20)],
   }[kind];
   const where = kind === 'off' ? `<span class="ico">${ic.ski(18)}</span><span class="row" style="gap:6px"><svg width="26" height="8"><path d="M0 4h26" stroke="var(--ink)" stroke-width="3" stroke-dasharray="6 4"/></svg>${en ? 'Off the runs' : 'מחוץ למסלולים'}</span>`
     : kind === 'climb' ? `<span class="ico">${ic.walk(18)}</span><span>${en ? 'Climbing · +18 m' : 'עלייה · +18 מ׳'}</span>`
-    : kind === 'out' ? `<span class="ico">${ic.pause(18)}</span><span class="muted">${en ? 'Paused' : 'בהשהיה'}</span>` : null;
+    : kind === 'out' || kind === 'resume' ? `<span class="ico">${ic.pause(18)}</span><span class="muted">${en ? 'Paused' : 'בהשהיה'}</span>` : kind === 'mid' ? `<span class="ico">${ic.lift(18)}</span><span>${en ? 'Off <b dir="ltr">Goodaura</b>, between stations' : 'ירדת מ-<b dir="ltr">Goodaura</b>, בין התחנות'}</span>` : null;
   const ban = `<div class="ban ${L[2]}" style="position:absolute;z-index:22;inset-inline:12px;top:${p === 'and' ? 90 : 124}px">${L[3]}<div style="flex:1"><div>${L[0]}</div><div class="note" style="font-weight:400">${L[1]}</div></div>${L[4] ? `<span class="qb" style="height:36px;padding:0 10px;font-size:13px">${L[4]}</span>` : ''}</div>`;
-  const live = kind === 'denied' ? `<div class="sheet" style="padding:0 18px 18px"><div class="grab"></div><b class="k" style="font-size:34px;display:block;margin:8px 0">${en ? 'Can’t record without location' : 'בלי מיקום אין הקלטה'}</b><p class="note" style="margin:0 0 12px;font-size:14px">${L[1]}</p><span class="qb pri" style="width:100%;box-sizing:border-box">${L[4]}</span></div>`
-    : livePanel(p, en, { v: kind === 'gps' ? '—' : kind === 'out' || kind === 'auto' ? 0 : kind === 'climb' ? 3 : 34, where, runs: kind === 'off' || kind === 'climb' ? 5 : 3 });
+  const live = kind === 'denied' || kind === 'approx' ? `<div class="sheet" style="padding:0 18px 18px"><div class="grab"></div><b class="k" style="font-size:34px;display:block;margin:8px 0">${kind === 'approx' ? (en ? 'Precise location, please' : 'צריך מיקום מדויק') : (en ? 'Can’t record without location' : 'בלי מיקום אין הקלטה')}</b><p class="note" style="margin:0 0 12px;font-size:14px">${L[1]}</p><span class="qb pri" style="width:100%;box-sizing:border-box">${L[4]}</span></div>`
+    : livePanel(p, en, { v: kind === 'gps' ? '—' : kind === 'out' || kind === 'auto' || kind === 'resume' || kind === 'mid' ? 0 : kind === 'climb' ? 3 : 34, where, runs: kind === 'off' || kind === 'climb' ? 5 : 3 });
   const png = kind === 'off' ? (en ? 'm-off-night' : 'm-off') : 'm-live';
   return `<div style="height:${p === 'and' ? 760 : 800}px">${mapFrame(p, en, false, png, 470, ban + live, kind === 'off' ? '11:52' : '10:19')}</div>`;
+}
+
+
+function fall(p, en) {
+  // a likely fall, asked with a smile, with "I didn't fall" that deletes it; in the timeline and on the run card
+  const r = runs.find(x => x.pistes.includes('Kikilo 2')), t = r.t0 + 50;
+  const snow = `<svg width="64" height="40" viewBox="0 0 64 40" aria-hidden="true">${[[8,30,3],[16,18,2.5],[24,8,3.5],[32,22,2],[40,6,3],[48,16,2.5],[56,28,3],[28,34,2],[44,32,2.2],[12,10,2]].map(([x,y,r]) => `<circle cx="${x}" cy="${y}" r="${r}" fill="var(--sn3)"/>`).join('')}<path d="M32 38c-6-8-2-16 0-20 2 4 6 12 0 20z" fill="var(--sn2)"/></svg>`;
+  const rows = DAY.segs.filter(x => x.t0 >= r.t0 - 700 && x.t0 <= r.t1 + 60).map(x => ROW(en, x)).join('');
+  const fallRow = `<li style="grid-template-columns:44px 30px 1fr;background:color-mix(in srgb,var(--glacier) 7%,var(--paper));min-height:auto;padding:10px 0"><span class="tm">${hm(t)}</span><span class="ico" style="color:var(--glacier)">${ic.ski(18)}</span>
+    <span class="what" style="gap:8px"><span class="row" style="gap:10px">${snow}<b style="font-size:16px">${en ? 'Did you kiss the snow here?' : 'נראה שנשקת לשלג כאן?'}</b></span>
+    <span class="row" style="gap:8px"><span class="qb" style="height:36px;padding:0 12px;font-size:14px">${en ? 'Yes, I fell' : 'כן, נפלתי'}</span><span class="qb" style="height:36px;padding:0 12px;font-size:14px;border-color:var(--rule)">${en ? 'I didn’t fall' : 'לא נפלתי'}</span></span>
+    <span class="note">${en ? 'A guess from the phone’s motion. Not a safety feature.' : 'ניחוש לפי תנועת הטלפון. לא כלי בטיחות.'}</span></span></li>`;
+  const html = rows.replace(/(<li><span class="tm">[^<]*<\/span><span class="ico" style="color:var\(--ink\)">[\s\S]*?Kikilo 2[\s\S]*?<\/li>)/, '$1' + fallRow);
+  return `${header(p, en, en ? 'The day, in order' : 'היום, לפי הסדר', W[en ? 'en' : 'he'].day, '14:31')}<div style="padding:4px 18px 18px"><ul class="tl">${html}</ul></div>`;
+}
+function liftSum(p, en) {
+  // the moment everyone takes the phone out: on the lift, the run you just did
+  const r = runs.find(x => x.pistes.includes('Kudebi 1'));
+  if (p === 'and') return `<div class="lock" style="height:560px;padding:34px 12px 0;direction:rtl">
+      <div style="text-align:center;font:300 64px/1 Roboto,system-ui;direction:ltr">${hm(r.t1 + 120)}</div><div style="text-align:center;font-size:15px;opacity:.8;margin:6px 0 26px">שלישי, 12 בינואר</div>
+      <div style="background:#26334b;border-radius:24px;padding:14px 16px">
+        <div class="row" style="justify-content:space-between;font-size:12.5px;opacity:.8"><span class="row" style="gap:6px"><span style="width:18px;height:18px;border-radius:50%;background:var(--rec);display:inline-block"></span>Gudi · על הרכבל Kudebi</span><span>${ic.chev(14)}</span></div>
+        <div style="font-size:13px;opacity:.75;margin-top:10px">הירידה שהרגע עשית</div>
+        <div class="row" style="justify-content:space-between;margin-top:4px">${sign('red', 'Kudebi 1')}<b class="k" style="font-size:40px">${r.vmax} קמ״ש</b></div>
+        <div style="font-size:14px;opacity:.9;margin-top:6px">${dur(r.t1 - r.t0)} · ${n(r.desc)} מ׳ ירידה · ירידה 7 היום</div>
+        <div style="font-size:14px;margin-top:8px;color:#FFD98A">המהירה ביותר שלך עד היום</div></div>
+      <p style="text-align:center;font-size:12px;opacity:.6;margin-top:18px">מופיע כשהאפליקציה מזהה שעלית לרכבל; בירידה רק המהירות.</p></div>`;
+  return `<div class="lock" style="height:560px;padding:60px 14px 0;direction:rtl">
+      <div style="position:absolute;left:50%;top:11px;margin-left:-62px;width:124px;height:36px;border-radius:20px;background:#000"></div>
+      <div style="text-align:center;font-size:16px;opacity:.85">שלישי, 12 בינואר</div><div style="text-align:center;font:700 86px/1 -apple-system,system-ui;direction:ltr;margin:2px 0 24px">${hm(r.t1 + 120)}</div>
+      <div style="background:rgba(30,40,60,.72);border-radius:24px;padding:14px 16px">
+        <div class="row" style="justify-content:space-between"><span class="row" style="gap:6px;font-size:14px">${ic.lift(16)}על הרכבל <b dir="ltr">Kudebi</b></span><span style="font-size:13px;opacity:.75">Gudi</span></div>
+        <div style="font-size:13px;opacity:.75;margin-top:10px">הירידה שהרגע עשית</div>
+        <div class="row" style="justify-content:space-between;align-items:flex-end;margin-top:4px">${sign('red', 'Kudebi 1')}<div class="row" style="align-items:baseline;gap:6px"><b class="k" style="font-size:56px">${r.vmax}</b><span style="opacity:.8">קמ״ש</span></div></div>
+        <div class="row" style="justify-content:space-between;font-size:13.5px;opacity:.9;margin-top:4px"><span>${dur(r.t1 - r.t0)}</span><span>${n(r.desc)} מ׳ ירידה</span><span style="color:#FFD98A">שיא חדש</span></div></div></div>`;
+}
+function story(p, en) {
+  // the day as one card, like the boarding pass: numbers, map, moments, ready for WhatsApp
+  const q = DAY.segs.filter(x => x.type === 'lift').reduce((a, b) => b.wait > a.wait ? b : a);
+  const azrieli = Math.round(S.desc / 187);
+  const moments = en
+    ? [['Your first red', '<span dir="ltr">Kudebi 1</span> · 13:34'], ['Longest run', `${(S.longest.len / 1000).toFixed(1)} km on <span dir="ltr">Tatra 1</span>`], ['Longest queue', `${q.wait} min for <span dir="ltr">${q.name}</span>`], [`${azrieli}× Azrieli Tower`, `${n(S.desc, true)} m down today`], ['Snow kisses', '1']]
+    : [['האדום הראשון שלך', '<span dir="ltr">Kudebi 1</span> · 13:34'], ['הירידה הארוכה', `${(S.longest.len / 1000).toFixed(1)} ק״מ ב-<span dir="ltr">Tatra 1</span>`], ['הכי הרבה בתור', `${q.wait} דק׳ ל-<span dir="ltr">${q.name}</span>`], [`פי ${azrieli} ממגדל עזריאלי`, `${n(S.desc)} מ׳ ירידה היום`], ['נשיקות לשלג', '1']];
+  const w = p === 'and' ? 354 : 366;
+  const card = `<div style="position:relative;width:${w}px;margin:0 auto;background:var(--bp-paper);color:var(--bp-ink);box-shadow:0 2px 14px var(--shadow);transform:rotate(-1.2deg)${p === 'ios' ? ';border-radius:16px;overflow:hidden' : ''}">
+    <div style="height:44px;background:var(--bp-strip);color:var(--bp-on-strip);display:flex;align-items:center;justify-content:space-between;padding:0 14px"><b class="k" style="font-size:26px">${en ? 'SKI DAY · GUDAURI' : 'יום סקי · גודאורי'}</b><span style="font-weight:700;font-size:13px;direction:ltr">Tue 12 Jan</span></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;padding:12px 14px 6px">${[[S.vmax, en ? 'top km/h' : 'מרבית קמ״ש'], [S.runs, en ? 'runs' : 'ירידות'], [S.skiKm, en ? 'km' : 'ק״מ']].map(([v, l]) => `<div><b class="k" style="font-size:44px;display:block">${v}</b><small style="font-size:12px;color:var(--bp-muted)">${l}</small></div>`).join('')}</div>
+    <img src="${M('m-share')}" style="display:block;width:100%;height:170px;object-fit:cover;border-block:1px dashed var(--rule)">
+    <ul style="list-style:none;margin:0;padding:6px 14px 12px">${moments.map(([a, b]) => `<li class="row" style="justify-content:space-between;padding:6px 0;border-bottom:1px dotted var(--rule);font-size:14px"><b>${a}</b><span style="color:var(--bp-muted)">${b}</span></li>`).join('')}</ul>
+    <div style="height:10px;background:radial-gradient(circle at 6px 0,transparent 5px,var(--bp-paper) 5.5px) 0 0/12px 10px repeat-x;transform:translateY(9px)"></div></div>`;
+  return `${header(p, en, en ? 'Your day' : 'היום שלך', en ? 'Ready for WhatsApp' : 'מוכן לוואטסאפ', '16:05')}<div style="padding:10px 18px 22px">${card}
+    <div class="row" style="margin-top:22px;gap:8px"><span class="qb pri" style="flex:1">${ic.share(16)}${en ? 'Share' : 'שיתוף'}</span><span class="qb" style="flex:1">${ic.play(16)}${en ? 'Short film' : 'סרטון קצר'}</span></div>
+    <p class="note" style="margin-top:10px">${en ? 'Milestones are against yourself only, no ranking between people.' : 'ציוני הדרך מול עצמך בלבד, בלי דירוג בין אנשים.'}</p></div>`;
 }
 
 // ---- photograph ----
