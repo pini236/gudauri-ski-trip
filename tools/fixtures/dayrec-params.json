@@ -150,5 +150,72 @@
   "station_m": 80,
   "station_still_s": 5,
   "still_s": 90
+ },
+ "moments": {
+  "about": "The moments engine (tools/dayrec/moments.py): which moments, their priority for the story and the share picture, and the heights the drop is compared with. Each reference height is a number and a key with its source; the name shown comes from i18n/strings.json (moment.ref.<id>).",
+  "version": 1,
+  "story_max": 5,
+  "story_per_key": 1,
+  "color_min_m": 200,
+  "colors_first": [
+   "red",
+   "black"
+  ],
+  "colors_all": [
+   "green",
+   "blue",
+   "red",
+   "black"
+  ],
+  "records": [
+   "max_kmh",
+   "longest_m",
+   "drop_m",
+   "descents",
+   "ski_dist_m"
+  ],
+  "queue_min_s": 180,
+  "drop_min_m": 100,
+  "drop_times": [
+   2,
+   20
+  ],
+  "drop_refs": [
+   {
+    "id": "azrieli",
+    "m": 187,
+    "source": "https://en.wikipedia.org/wiki/Azrieli_Center (the Circular Tower, 187 m)"
+   },
+   {
+    "id": "eiffel",
+    "m": 330,
+    "source": "https://www.toureiffel.paris/en/the-monument/key-figures (330 m)"
+   },
+   {
+    "id": "kazbek",
+    "m": 5054,
+    "source": "https://en.wikipedia.org/wiki/Mount_Kazbek (5,054 m)"
+   },
+   {
+    "id": "everest",
+    "m": 8849,
+    "source": "https://en.wikipedia.org/wiki/Mount_Everest (8,848.86 m, 2020 survey)"
+   }
+  ],
+  "priority": {
+   "first_color": 90,
+   "all_color": 88,
+   "record": 85,
+   "fastest": 80,
+   "offpiste": 70,
+   "fall": 65,
+   "new_runs": 60,
+   "longest_descent": 50,
+   "queue": 40,
+   "drop_compare": 30
+  },
+  "share_exclude": [
+   "fall"
+  ]
  }
 }

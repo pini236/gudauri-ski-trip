@@ -189,8 +189,10 @@ class Net:
         self.terrain = Terrain(terrain_json)
         self.params = params
         self.pistes = []
+        self.runs = {}  # key: color, kind, named (the moments: "the first red", "all the blues")
         for run in rl['pistes']:
             named = run.get('named') in (True, 'True', 'true')
+            self.runs[run['key']] = {'color': run.get('color'), 'kind': run.get('kind', 'run'), 'named': named}
             for s in run['segs']:
                 line = Line([self.proj.xy(la, lo) for la, lo in s['g']])
                 self.pistes.append(Piste(len(self.pistes), run['key'], named, s['id'], line, bool(s.get('area'))))
