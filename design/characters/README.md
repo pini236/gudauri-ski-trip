@@ -121,3 +121,21 @@
 - Headspace: [Advertising Week, "אין קמע רשמי"](https://advertisingweek.com/aw360/news/unlocking-headspaces-inner-brand-character/19717/); [Nexus Studios](https://nexusstudios.com/work/headspace-case-study/); [Blush, ראיון עם Karen Hong](https://blush.design/blog/post/headspace-mindfulness-app).
 - Clippy: [The New Stack](https://thenewstack.io/humanity-vs-clippy-lessons-from-microsofts-failed-virtual-assistant/); [Medium, חמישה לקחים](https://medium.com/twentybn/5-lessons-from-clippys-failure-efc69297eac1); [Raw Studio, עייפות מקמע](https://raw.studio/blog/how-mascots-improve-user-experience/).
 - Slopes: [Apple, מאחורי העיצוב](https://cur.at/D7CVoh5?m=web); [Slopes, העיצוב החדש](https://news.getslopes.com/slopes-app-comes-with-a-new-look-alongside-features-for-ios-18/).
+
+## שלב ב: סקיצות כיוון (30.10.2026)
+
+**פיני, דרך סשן המנהל (30.10.2026): "תן להם אישור לעבוד בצורה חופשית עד שאתם חייבים אותי".** סקיצות כיוון בלבד: בלי קוד, בלי ספריית תנועה, והציור הסופי מחכה לבחירת השפה העיצובית. שבע השאלות למעלה נשארות פתוחות; הסקיצות כדי שיהיה קל לענות עליהן.
+
+| לוח | מה בו |
+|---|---|
+| `shots/01-directions.png` | שלושה כיוונים: **א. הגולש של הירידה** (מומלץ: קסדה ומשקפי סקי, בלי פנים, האופי בגוף), ב. כובע גרב (ראש גדול ופנים), ג. פיקטוגרמה (כמו בשלטים של אתרי סקי). כל אחד ביום ובלילה |
+| `shots/02-poses.png` | עשר תנוחות בשלושת הכיוונים, באותו שלד: עומד, מנופף, גולש, מריע, מושך בכתפיים, יושב, ישן, תה, מנער שלג, מחכה עם תיק. וששת המעילים של המשחקים |
+| `shots/03-home.png` | הכניסה בדף הבית בארבעה שלבים (נכנס מלמעלה, קשת, בולם, מנופף ונשאר), הגרסה להפחתת תנועה, לילה, ונגיעה בו |
+| `shots/04-empty.png` | ההר עוד ישן (ישן על השלט, ביום ובלילה), בלי טיסה (מחכה עם תיק), קבוצה ריקה (לבד על כיסא הרכבל) |
+| `shots/05-skiday.png` | הפסקה בציר הזמן (תה), וסוף היום ("היום שלך", יושב על קצה הכרטיס) |
+| `shots/06-fall.png` | **"פה נפלת" בשתי הגרסאות:** א. בדיחה בטקסט ("נראה שנשקת לשלג כאן?"); ב. ניטרלי ("עצירה חדה כאן"), הדמות מנערת שלג בלי מילים (מומלץ). בשתיהן "לא נפלתי" |
+| `shots/07-games.png` | מסך הסיום: מריע לשלושה כוכבים; בהפסד מושך בכתפיים, והטיפ בקול המוצר; והדגמה בפעם הראשונה |
+
+**איך נבנה:** `python3 design/characters/sketch.py` כותב את הלוחות ל-`boards/` (שלד לכל תנוחה ושלושה "עורות", SVG בתוך HTML), ו-`node design/characters/render.mjs` מצלם אותם ל-`shots/`. הצבעים מהטוקנים של האתר ומששת המעילים של המשחקים. הנוף בדף הבית סכמטי; בפועל הנוף האמיתי מהכפר.
+
+**לקנבס:** הלוחות עוברים למעצב המוצר, שמכניס אותם לקנבס המשותף (סבב 30), לבחירה של פיני.
