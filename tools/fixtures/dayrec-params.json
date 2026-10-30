@@ -1,6 +1,6 @@
 {
  "about": "Parameters of the day analysis (decision 76, docs/FEATURES.md section 10, docs/ARCHITECTURE.md m-8). Read by tools/dayrec (the reference) and by both apps. Every threshold and variance lives here, not in code; calibrating in the season is a change to this file. Units: metres, seconds, m/s, hPa.",
- "analysis": 1,
+ "analysis": 2,
  "gap_s": 10,
  "reset_gap_s": 120,
  "kalman": {
@@ -46,7 +46,17 @@
   "edge_hold": 3,
   "pause_max_s": 300,
   "min_progress_m": 150,
-  "default_speed_mps": {"gondola": 5.0, "cable_car": 8.0, "chair_lift": 2.5, "platter": 2.5, "t-bar": 2.5, "drag_lift": 2.5, "rope_tow": 2.0, "magic_carpet": 0.8, "other": 2.5}
+  "default_speed_mps": {
+   "gondola": 5.0,
+   "cable_car": 8.0,
+   "chair_lift": 2.5,
+   "platter": 2.5,
+   "t-bar": 2.5,
+   "drag_lift": 2.5,
+   "rope_tow": 2.0,
+   "magic_carpet": 0.8,
+   "other": 2.5
+  }
  },
  "activity": {
   "switch": 8.0,
@@ -103,6 +113,19 @@
   "far_frac": 0.8,
   "drop_m": 100,
   "bridge_s": 20
+ },
+ "drive": {
+  "about": "A car on a road (docs/FEATURES.md section 10): a stretch near a road of terrain.json, fast and long enough, is \"drive\", not skiing and not an ascent, and is not in the skiing figures.",
+  "road_m": 25,
+  "bridge_s": 20,
+  "edge_mps": 3.0,
+  "edge_hold": 3,
+  "min_s": 45,
+  "min_m": 500,
+  "mean_mps": 6.0,
+  "near_frac": 0.9,
+  "piste_m": 15,
+  "piste_frac_max": 0.5
  },
  "fall": {
   "hz": 50,

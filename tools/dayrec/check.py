@@ -39,6 +39,27 @@ def metrics(d, fin, liv):
         first = next((t for t in d.recorded if t >= r['t0']), r['t0'])
         m['delays'].append(max(0.0, (dl[0] - first) / 1000.0) if dl else float('inf'))
     m['pred_ok'] = len(used)
+    # a car on a road: every drive found as one "drive" segment, with its edges; no drive where there was none, and no
+    # driving inside a descent (it would count in the skiing figures)
+    drv = [s for s in fin['segments'] if s['type'] == 'drive']
+    tr, i = [], 0
+    while i < len(d.rows):
+        if d.rows[i]['act'] == 'drive':
+            j = i
+            while j + 1 < len(d.rows) and d.rows[j + 1]['act'] == 'drive':
+                j += 1
+            tr.append((d.rows[i]['t'], d.rows[j]['t'])); i = j + 1
+        else:
+            i += 1
+    m['drives'], m['drives_found'], m['drive_edges'] = len(tr), 0, []
+    for t0, t1 in tr:
+        s = next((s for s in drv if min(t1, s['t1']) - max(t0, s['t0']) >= 0.8 * (t1 - t0)), None)
+        if s is not None:
+            m['drives_found'] += 1
+            m['drive_edges'] += [abs(t0 - s['t0']) / 1000.0, abs(t1 - s['t1']) / 1000.0]
+    m['drives_false'] = sum(1 for s in drv if not any(min(t1, s['t1']) - max(t0, s['t0']) > 0 for t0, t1 in tr))
+    car = {r['t'] for r in d.rows if r['act'] == 'drive'}
+    m['drive_in_descent_s'] = sum(1 for s in fin['segments'] if s['type'] == 'descent' for t in car if s['t0'] <= t <= s['t1'])
     # the edges, to the second (Pini, 30.10.2026): getting on and off, and the start and end of each descent
     lost = getattr(d, 'lost', None)
     near_lost = lambda t: lost is not None and lost[0] - 5000 <= t <= lost[1] + 5000
@@ -151,7 +172,7 @@ def main(quick=False):
                     fails.append('%s: differs from the test values: %s' % (name, '; '.join(errs[:3])))
         m = metrics(d, fin, liv)
         for k, v in m.items():
-            if k in ('delays', 'edges'):
+            if k in ('delays', 'edges', 'drive_edges'):
                 tot.setdefault(k, []).extend(v)
             else:
                 tot[k] = tot.get(k, 0) + v
@@ -209,6 +230,12 @@ def main(quick=False):
         100 * tot['right_m'] / max(1, tot['truth_named_m']), tot['truth_named_m'],
         100 * tot['off_ok_m'] / max(1, tot['off_m']), tot['off_m']))
     print('off-piste events: %d (the off-piste case and the full days; none in the short trip to the side)' % tot.get('offpiste_events', 0))
+    de = sorted(tot.get('drive_edges', [])) or [0.0]
+    print('by car: %d drives, found %d, edges max %.0f s; drives where there was none: %d; seconds of driving inside a descent: %d' % (
+        tot.get('drives', 0), tot.get('drives_found', 0), de[-1], tot.get('drives_false', 0), tot.get('drive_in_descent_s', 0)))
+    if tot.get('drives_found', 0) < tot.get('drives', 0) or tot.get('drives_false', 0) or tot.get('drive_in_descent_s', 0) or de[-1] > 2:
+        fails.append('driving: found %d of %d, %d false, %d s inside descents, edges max %.0f s' % (
+            tot.get('drives_found', 0), tot.get('drives', 0), tot.get('drives_false', 0), tot.get('drive_in_descent_s', 0), de[-1]))
     print('"here you fell": %d real falls, %d impact windows in the logs' % (tot.get('falls', 0), tot.get('impacts', 0)))
     for key, label in (('imp', 'blow + rotation + stop (in the result)'), ('dop', 'Doppler speed only (alternative)')):
         said, fal, fnd = tot.get(key + '_said', 0), tot.get(key + '_false', 0), tot.get(key + '_found', 0)

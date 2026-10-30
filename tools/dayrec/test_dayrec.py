@@ -233,6 +233,26 @@ class Day(unittest.TestCase):
             for o in ev:
                 self.assertGreaterEqual(o['drop_m'], P['offpiste']['drop_m'])
 
+    def test_driving_is_not_skiing(self):
+        for builder in (cases.drive_down, cases.drive_up):
+            d = synth.Day(BASE, 11)
+            builder(d)
+            fin, liv = self.analyse(d)
+            car = [r['t'] for r in d.rows if r['act'] == 'drive']
+            drv = [s for s in fin['segments'] if s['type'] == 'drive']
+            self.assertEqual(len(drv), 1, builder.__name__)
+            self.assertLessEqual(abs(drv[0]['t0'] - car[0]), 2000)
+            self.assertLessEqual(abs(drv[0]['t1'] - car[-1]), 2000)
+            self.assertGreater(drv[0]['dist_m'], 3000)
+            # nothing of the car in a descent or in the skiing figures: one descent, the run on Pirveli
+            ds = [s for s in fin['segments'] if s['type'] == 'descent']
+            self.assertEqual(len(ds), 1)
+            self.assertFalse(any(ds[0]['t0'] <= t <= ds[0]['t1'] for t in car))
+            self.assertEqual(fin['stats']['descents'], 1)
+            # live: "drive" once the stretch is long enough, and before the car stops
+            t = next(e['t'] for e in liv['events'] if e['act'] == 'drive')
+            self.assertLessEqual(t - car[0], (P['drive']['min_s'] + 10) * 1000)
+
     def test_empty_log(self):
         h, p, e, _ = rawlog.read('{"v":1}\n')
         a = analyze.Analyzer(BASE, P)
