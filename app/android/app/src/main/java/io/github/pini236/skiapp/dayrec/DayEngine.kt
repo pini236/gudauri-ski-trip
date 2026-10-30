@@ -10,7 +10,7 @@ import org.json.JSONObject
  * - [live]: what the skier is doing now ("probably": a causal view, only readings up to now), the maximum speed so far,
  *   the falls, and in a single-run recording the moment it stops by itself. Computed on the last [WINDOW_MS] of a day
  *   (a single run is short, and is computed whole), so its cost does not grow with the day.
- * - [ride]: the moment the skier goes from skiing onto a lift, the summary of the descent that just ended, to be shown
+ * - [ride]: the moment the skier gets on a lift after a descent, the summary of the descent that just ended, to be shown
  *   while there is time to look (the lift ride). It is computed by the final analysis on the last stretch, so its edges
  *   are exact to the second.
  *
@@ -61,7 +61,9 @@ class DayEngine(private val analyzer: Analyzer, val header: JSONObject) {
         val act = last?.act ?: "stand"
         val s = Snapshot(points.last().t, act, last?.lift, last?.runs, dayMax, falls.values.sortedBy { it.t }, r.autostop)
         snapshot = s
-        if (lastAct == "ski" && act == "lift") summarise()
+        // between the descent and the lift there is usually a wait (a queue, a walk): so it is any arrival on a lift, and the
+        // descent is the last one the final analysis of the stretch finds, once ([lastRideT0])
+        if (lastAct != "lift" && act == "lift") summarise()
         lastAct = act
         return s
     }
@@ -74,12 +76,10 @@ class DayEngine(private val analyzer: Analyzer, val header: JSONObject) {
 
     private fun windowStart(): Int {
         val cut = points.last().t - WINDOW_MS
-        var i = 0
         // the points are sorted: a binary search for the first one inside the window
         var lo = 0; var hi = points.size - 1
         while (lo < hi) { val mid = (lo + hi) / 2; if (points[mid].t < cut) lo = mid + 1 else hi = mid }
-        i = lo
-        return i
+        return lo
     }
 
     private fun eventsFrom(t: Long) = events.filter { it.optLong("t", 0L) >= t }
