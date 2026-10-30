@@ -24,6 +24,7 @@
      "analysis": 1,
      "v": 1,
      "resort": "gudauri",
+     "mode": "day",
      "points": 610,
      "start": 1799645400000,
      "end": 1799646009000,
@@ -116,6 +117,7 @@
      "analysis": 1,
      "v": 1,
      "resort": "gudauri",
+     "mode": "day",
      "points": 634,
      "start": 1799645400000,
      "end": 1799646033000,
@@ -242,6 +244,7 @@
      "analysis": 1,
      "v": 1,
      "resort": "gudauri",
+     "mode": "day",
      "points": 464,
      "start": 1799645400000,
      "end": 1799645863000,
@@ -432,6 +435,7 @@
      "analysis": 1,
      "v": 1,
      "resort": "gudauri",
+     "mode": "day",
      "points": 464,
      "start": 1799645400000,
      "end": 1799645863000,
@@ -609,6 +613,7 @@
      "analysis": 1,
      "v": 1,
      "resort": "gudauri",
+     "mode": "day",
      "points": 724,
      "start": 1799645400000,
      "end": 1799646123000,
@@ -792,6 +797,7 @@
      "analysis": 1,
      "v": 1,
      "resort": "gudauri",
+     "mode": "day",
      "points": 724,
      "start": 1799645400000,
      "end": 1799646123000,
@@ -982,6 +988,7 @@
      "analysis": 1,
      "v": 1,
      "resort": "gudauri",
+     "mode": "day",
      "points": 936,
      "start": 1799645400000,
      "end": 1799646335000,
@@ -1195,6 +1202,7 @@
      "analysis": 1,
      "v": 1,
      "resort": "gudauri",
+     "mode": "day",
      "points": 793,
      "start": 1799645400000,
      "end": 1799646192000,
@@ -1393,6 +1401,7 @@
      "analysis": 1,
      "v": 1,
      "resort": "gudauri",
+     "mode": "day",
      "points": 759,
      "start": 1799645400000,
      "end": 1799646158000,
@@ -1673,6 +1682,7 @@
      "analysis": 1,
      "v": 1,
      "resort": "gudauri",
+     "mode": "day",
      "points": 730,
      "start": 1799645400000,
      "end": 1799646129000,
@@ -1891,6 +1901,7 @@
      "analysis": 1,
      "v": 1,
      "resort": "gudauri",
+     "mode": "day",
      "points": 763,
      "start": 1799645400000,
      "end": 1799646162000,
@@ -2110,6 +2121,7 @@
      "analysis": 1,
      "v": 1,
      "resort": "gudauri",
+     "mode": "day",
      "points": 750,
      "start": 1799645400000,
      "end": 1799646149000,
@@ -2291,6 +2303,502 @@
    }
   },
   {
+   "name": "run_from_middle",
+   "about": "Measure one run (mode run), started half way down Goodaura 1: stops at the bottom station.",
+   "log": "tools/fixtures/dayrec-logs/run_from_middle.jsonl",
+   "dropped_lines": 0,
+   "truth": {
+    "rides": [
+     {
+      "lift": "158744075",
+      "from": "bottom",
+      "to": "top"
+     }
+    ],
+    "descents": [
+     [
+      "Goodaura 1"
+     ]
+    ]
+   },
+   "expected": {
+    "final": {
+     "analysis": 1,
+     "v": 1,
+     "resort": "gudauri",
+     "mode": "run",
+     "points": 627,
+     "start": 1799645400000,
+     "end": 1799646026000,
+     "baro": true,
+     "coverage": 1.0,
+     "gaps": [],
+     "falls": [],
+     "segments": [
+      {
+       "type": "stop",
+       "t0": 1799645400000,
+       "t1": 1799645408000,
+       "lat": 42.483562,
+       "lon": 44.492954,
+       "kind": "rest"
+      },
+      {
+       "type": "descent",
+       "t0": 1799645409000,
+       "t1": 1799645545000,
+       "legs": [
+        {
+         "t0": 1799645409000,
+         "t1": 1799645514000,
+         "kind": "run",
+         "runs": [
+          "Goodaura 1"
+         ],
+         "dist_m": 1384.9
+        },
+        {
+         "t0": 1799645515000,
+         "t1": 1799645523000,
+         "kind": "run",
+         "runs": [
+          "Goodaura 1",
+          "Shino"
+         ],
+         "dist_m": 112.8
+        },
+        {
+         "t0": 1799645524000,
+         "t1": 1799645545000,
+         "kind": "run",
+         "runs": [
+          "Goodaura 1"
+         ],
+         "dist_m": 173.2
+        }
+       ],
+       "dist_m": 1670.9,
+       "drop_m": 301.3,
+       "moving_s": 136,
+       "avg_kmh": 44.23,
+       "max_kmh": 71.71,
+       "max_at": {
+        "t": 1799645430000,
+        "lat": 42.481496,
+        "lon": 44.494639
+       },
+       "stops": [],
+       "offpiste": [],
+       "top_m": 2463.7,
+       "bottom_m": 2161.0
+      },
+      {
+       "type": "stop",
+       "t0": 1799645546000,
+       "t1": 1799645604000,
+       "lat": 42.471154,
+       "lon": 44.492192,
+       "kind": "queue"
+      },
+      {
+       "type": "lift",
+       "t0": 1799645605000,
+       "t1": 1799646026000,
+       "lift": "158744075",
+       "name": "Goodaura",
+       "from": {
+        "station": "bottom"
+       },
+       "to": {
+        "station": "top"
+       },
+       "rise_m": 543.8
+      }
+     ],
+     "stats": {
+      "descents": 1,
+      "lifts": 1,
+      "ski_dist_m": 1670.9,
+      "drop_m": 301.3,
+      "ski_s": 136,
+      "lift_s": 421,
+      "lift_rise_m": 543.8,
+      "max_kmh": 71.71,
+      "max_at": {
+       "t": 1799645430000,
+       "lat": 42.481496,
+       "lon": 44.494639
+      }
+     }
+    },
+    "live": {
+     "events": [
+      {
+       "t": 1799645400000,
+       "act": "stand"
+      },
+      {
+       "t": 1799645409000,
+       "act": "ski",
+       "runs": [
+        "Goodaura 1"
+       ]
+      },
+      {
+       "t": 1799645514000,
+       "act": "ski",
+       "runs": [
+        "Goodaura 1",
+        "Shino"
+       ]
+      },
+      {
+       "t": 1799645524000,
+       "act": "ski",
+       "runs": [
+        "Goodaura 1"
+       ]
+      },
+      {
+       "t": 1799645548000,
+       "act": "stand"
+      },
+      {
+       "t": 1799645606000,
+       "act": "lift",
+       "lift": "158744075"
+      }
+     ],
+     "max_kmh": 71.71,
+     "falls": [],
+     "autostop": {
+      "t": 1799645552000,
+      "reason": "station"
+     }
+    }
+   }
+  },
+  {
+   "name": "run_short_stop",
+   "about": "Measure one run (mode run): a 45 s rest on Tatra 1 does not stop it; boarding the Shino lift does.",
+   "log": "tools/fixtures/dayrec-logs/run_short_stop.jsonl",
+   "dropped_lines": 0,
+   "truth": {
+    "rides": [
+     {
+      "lift": "472374253",
+      "from": "bottom",
+      "to": "top"
+     }
+    ],
+    "descents": [
+     [
+      "Tatra 1",
+      "Tatra 1 · Tatra 2"
+     ]
+    ]
+   },
+   "expected": {
+    "final": {
+     "analysis": 1,
+     "v": 1,
+     "resort": "gudauri",
+     "mode": "run",
+     "points": 683,
+     "start": 1799645400000,
+     "end": 1799646082000,
+     "baro": true,
+     "coverage": 1.0,
+     "gaps": [],
+     "falls": [],
+     "segments": [
+      {
+       "type": "stop",
+       "t0": 1799645400000,
+       "t1": 1799645408000,
+       "lat": 42.489317,
+       "lon": 44.484674,
+       "kind": "rest"
+      },
+      {
+       "type": "descent",
+       "t0": 1799645409000,
+       "t1": 1799645602000,
+       "legs": [
+        {
+         "t0": 1799645409000,
+         "t1": 1799645537000,
+         "kind": "run",
+         "runs": [
+          "Tatra 1"
+         ],
+         "dist_m": 1233.3
+        },
+        {
+         "t0": 1799645538000,
+         "t1": 1799645602000,
+         "kind": "run",
+         "runs": [
+          "Tatra 1",
+          "Tatra 2"
+         ],
+         "dist_m": 840.6
+        }
+       ],
+       "dist_m": 2073.9,
+       "drop_m": 416.2,
+       "moving_s": 147,
+       "avg_kmh": 50.79,
+       "max_kmh": 76.79,
+       "max_at": {
+        "t": 1799645448000,
+        "lat": 42.485317,
+        "lon": 44.479904
+       },
+       "stops": [
+        {
+         "t0": 1799645467000,
+         "t1": 1799645511000
+        }
+       ],
+       "offpiste": [],
+       "top_m": 2589.4,
+       "bottom_m": 2171.9
+      },
+      {
+       "type": "lift",
+       "t0": 1799645603000,
+       "t1": 1799646082000,
+       "lift": "472374253",
+       "name": "Shino",
+       "from": {
+        "station": "bottom"
+       },
+       "to": {
+        "station": "top"
+       },
+       "rise_m": 534.7
+      }
+     ],
+     "stats": {
+      "descents": 1,
+      "lifts": 1,
+      "ski_dist_m": 2073.9,
+      "drop_m": 416.2,
+      "ski_s": 147,
+      "lift_s": 479,
+      "lift_rise_m": 534.7,
+      "max_kmh": 76.79,
+      "max_at": {
+       "t": 1799645448000,
+       "lat": 42.485317,
+       "lon": 44.479904
+      }
+     }
+    },
+    "live": {
+     "events": [
+      {
+       "t": 1799645400000,
+       "act": "stand"
+      },
+      {
+       "t": 1799645409000,
+       "act": "ski",
+       "runs": [
+        "Tatra 1"
+       ]
+      },
+      {
+       "t": 1799645476000,
+       "act": "stand"
+      },
+      {
+       "t": 1799645512000,
+       "act": "ski",
+       "runs": [
+        "Tatra 1"
+       ]
+      },
+      {
+       "t": 1799645538000,
+       "act": "ski",
+       "runs": [
+        "Tatra 1",
+        "Tatra 2"
+       ]
+      },
+      {
+       "t": 1799645613000,
+       "act": "lift",
+       "lift": "472374253"
+      }
+     ],
+     "max_kmh": 76.79,
+     "falls": [],
+     "autostop": {
+      "t": 1799645613000,
+      "reason": "lift"
+     }
+    }
+   }
+  },
+  {
+   "name": "run_still",
+   "about": "Measure one run (mode run): two minutes standing in the middle of Goodaura 1 stop it.",
+   "log": "tools/fixtures/dayrec-logs/run_still.jsonl",
+   "dropped_lines": 0,
+   "truth": {
+    "rides": [],
+    "descents": [
+     [
+      "Goodaura 1"
+     ]
+    ]
+   },
+   "expected": {
+    "final": {
+     "analysis": 1,
+     "v": 1,
+     "resort": "gudauri",
+     "mode": "run",
+     "points": 304,
+     "start": 1799645400000,
+     "end": 1799645703000,
+     "baro": true,
+     "coverage": 1.0,
+     "gaps": [],
+     "falls": [],
+     "segments": [
+      {
+       "type": "stop",
+       "t0": 1799645400000,
+       "t1": 1799645409000,
+       "lat": 42.487899,
+       "lon": 44.49445,
+       "kind": "rest"
+      },
+      {
+       "type": "descent",
+       "t0": 1799645410000,
+       "t1": 1799645703000,
+       "legs": [
+        {
+         "t0": 1799645410000,
+         "t1": 1799645670000,
+         "kind": "run",
+         "runs": [
+          "Goodaura 1"
+         ],
+         "dist_m": 1958.9
+        },
+        {
+         "t0": 1799645671000,
+         "t1": 1799645679000,
+         "kind": "run",
+         "runs": [
+          "Goodaura 1",
+          "Shino"
+         ],
+         "dist_m": 111.8
+        },
+        {
+         "t0": 1799645680000,
+         "t1": 1799645703000,
+         "kind": "run",
+         "runs": [
+          "Goodaura 1"
+         ],
+         "dist_m": 217.5
+        }
+       ],
+       "dist_m": 2288.3,
+       "drop_m": 459.3,
+       "moving_s": 172,
+       "avg_kmh": 47.89,
+       "max_kmh": 66.53,
+       "max_at": {
+        "t": 1799645458000,
+        "lat": 42.482289,
+        "lon": 44.494528
+       },
+       "stops": [
+        {
+         "t0": 1799645481000,
+         "t1": 1799645600000
+        }
+       ],
+       "offpiste": [],
+       "top_m": null,
+       "bottom_m": null
+      }
+     ],
+     "stats": {
+      "descents": 1,
+      "lifts": 0,
+      "ski_dist_m": 2288.3,
+      "drop_m": 459.3,
+      "ski_s": 172,
+      "lift_s": 0,
+      "lift_rise_m": 0,
+      "max_kmh": 66.53,
+      "max_at": {
+       "t": 1799645458000,
+       "lat": 42.482289,
+       "lon": 44.494528
+      }
+     }
+    },
+    "live": {
+     "events": [
+      {
+       "t": 1799645400000,
+       "act": "stand"
+      },
+      {
+       "t": 1799645410000,
+       "act": "ski",
+       "runs": [
+        "Goodaura 1"
+       ]
+      },
+      {
+       "t": 1799645489000,
+       "act": "stand"
+      },
+      {
+       "t": 1799645601000,
+       "act": "ski",
+       "runs": [
+        "Goodaura 1"
+       ]
+      },
+      {
+       "t": 1799645671000,
+       "act": "ski",
+       "runs": [
+        "Goodaura 1",
+        "Shino"
+       ]
+      },
+      {
+       "t": 1799645680000,
+       "act": "ski",
+       "runs": [
+        "Goodaura 1"
+       ]
+      }
+     ],
+     "max_kmh": 66.53,
+     "falls": [],
+     "autostop": {
+      "t": 1799645571000,
+      "reason": "still"
+     }
+    }
+   }
+  },
+  {
    "name": "queue_and_hut",
    "about": "A 7 minute queue, a 25 minute break at the top, and a rest in the middle of the run.",
    "log": "tools/fixtures/dayrec-logs/queue_and_hut.jsonl",
@@ -2314,6 +2822,7 @@
      "analysis": 1,
      "v": 1,
      "resort": "gudauri",
+     "mode": "day",
      "points": 2702,
      "start": 1799645400000,
      "end": 1799648101000,
@@ -2513,6 +3022,7 @@
      "analysis": 1,
      "v": 1,
      "resort": "gudauri",
+     "mode": "day",
      "points": 724,
      "start": 1799645400000,
      "end": 1799646123000,
@@ -2703,6 +3213,7 @@
      "analysis": 1,
      "v": 1,
      "resort": "gudauri",
+     "mode": "day",
      "points": 661,
      "start": 1799645400000,
      "end": 1799646120000,
@@ -2929,6 +3440,7 @@
      "analysis": 1,
      "v": 1,
      "resort": "gudauri",
+     "mode": "day",
      "points": 1301,
      "start": 1799645400000,
      "end": 1799646791000,
@@ -3346,6 +3858,7 @@
      "analysis": 1,
      "v": 1,
      "resort": "gudauri",
+     "mode": "day",
      "points": 13336,
      "start": 1799645400000,
      "end": 1799658795000,

@@ -52,7 +52,9 @@ class Day:
         return self
 
     # ----- moves -----
-    def stand(self, secs, act='stand'):
+    def stand(self, secs, act='stand', at=None):
+        if at is not None:
+            self.pos = at
         x, y = self.pos
         z = self.net.terrain.elev(x, y)
         for _ in range(int(secs)):
@@ -190,14 +192,16 @@ class Day:
         """Ski a run line. until=(key, seg): stop at the point nearest to that line's start.
         frm='start' starts at the top of the line instead of the nearest point. stop=(s, secs): a rest on the way."""
         ln = self.run_line(key, seg)
-        s0 = 0.0 if frm == 'start' else None
+        s0 = 0.0 if frm == 'start' else (frm * ln.length if isinstance(frm, float) else None)
+        if s0 is not None and self.pos is None:
+            self.pos = ln.at(s0)[0]
         s1 = None
         if until:
             o = self.run_line(*until)
             s1 = ln.nearest(*o.p[0])[1]
         if stop:
             at, secs = stop
-            self.ski_line(ln, s0, at * ln.length)
+            self.ski_line(ln, s0, at * ln.length, events=events)
             self._v = 2.0
             self.stand(secs)
             self.ski_line(ln, None, s1)
@@ -322,18 +326,19 @@ def drop_range(pts, t0, t1):
 def write_log(pts, header, events=(), cut_at=None):
     """The raw log text. cut_at=t: the line of that point is cut in the middle (a crash), then a resume event."""
     lines = [rawlog.line(header)]
-    evs = sorted(events, key=lambda e: e['t'])
+    # an event is written when it happens (_at): an impact after its window closes, a dismissal later still
+    evs = sorted(events, key=lambda e: e.get('_at', e['t']))
     ei = 0
     for q in pts:
-        while ei < len(evs) and evs[ei]['t'] <= q['t']:
-            lines.append(rawlog.line(evs[ei])); ei += 1
+        while ei < len(evs) and evs[ei].get('_at', evs[ei]['t']) <= q['t']:
+            lines.append(rawlog.line({k: v for k, v in evs[ei].items() if not k.startswith('_')})); ei += 1
         ln = rawlog.line(q)
         if cut_at is not None and q['t'] == cut_at:
             lines.append(ln[:len(ln) // 2])
             continue
         lines.append(ln)
     while ei < len(evs):
-        lines.append(rawlog.line(evs[ei])); ei += 1
+        lines.append(rawlog.line({k: v for k, v in evs[ei].items() if not k.startswith('_')})); ei += 1
     return '\n'.join(lines) + '\n'
 
 
@@ -364,4 +369,4 @@ def impact_window(ev, rng, P):
         a = [g[i] * (1 - env) + d[i] * ev['peak_g'] * 9.80665 * env + rng.gauss(0, na) for i in range(3)]
         acc += [round(q, 2) for q in a]
         gyr += [round(w[i] * rot + rng.gauss(0, nw), 3) for i in range(3)]
-    return {'ev': 'impact', 't': int(ev['t']), 'hz': hz, 't0': t0, 'acc': acc, 'gyr': gyr}
+    return {'ev': 'impact', 't': int(ev['t']), 'hz': hz, 't0': t0, 'acc': acc, 'gyr': gyr, '_at': int(ev['t'] + post * 1000)}

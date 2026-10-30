@@ -1,4 +1,4 @@
-{"v":1,"tz":"Asia/Tbilisi","resort":"gudauri","device":"synthetic","start":1799645400000}
+{"v":1,"tz":"Asia/Tbilisi","resort":"gudauri","device":"synthetic","start":1799645400000,"mode":"day"}
 {"ev":"start","t":1799645400000}
 {"t":1799645400000,"la":42.4711484,"lo":44.4921458,"a":2163.9,"p":779.159,"s":0.09,"sa":0.4,"ha":6.4,"va":8.0,"b":null,"m":0.027}
 {"t":1799645401000,"la":42.4711444,"lo":44.4921606,"a":2164.4,"p":779.176,"s":0.22,"sa":0.68,"ha":6.7,"va":8.0,"b":null,"m":0.03}

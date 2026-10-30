@@ -95,6 +95,24 @@ def fall_dismissed(d):
     d.ski(*G1, events=[(0.4, 'fall')]).stand(40)
 
 
+def run_from_middle(d):
+    """Measure one run: started half way down Goodaura 1, still at the gondola's bottom station (stops: station)."""
+    d.stand(10, at=d.run_line(*G1).at(d.run_line(*G1).length * 0.4)[0])
+    d.ski(*G1, frm=0.4).stand(60).ride('Goodaura')
+
+
+def run_short_stop(d):
+    """Measure one run: Tatra 1 with a 45 s rest on the way (does not stop), then straight onto the Shino lift (stops: lift)."""
+    d.stand(10, at=d.run_line(*T1).at(d.run_line(*T1).length * 0.3)[0])
+    d.ski(*T1, frm=0.3, stop=(0.6, 45)).ride('Shino')
+
+
+def run_still(d):
+    """Measure one run: standing for two minutes in the middle of Goodaura 1 (stops: still)."""
+    d.stand(10, at=d.run_line(*G1).at(d.run_line(*G1).length * 0.2)[0])
+    d.ski(*G1, frm=0.2, stop=(0.6, 120))
+
+
 def queue_and_hut(d):
     """A long queue at the bottom, then a long break (a hut) at the top, then a descent with a rest on the way."""
     start(d, 'Goodaura').stand(420).ride('Goodaura').stand(25 * 60).ski(*G1, stop=(0.5, 90)).stand(40)
@@ -151,6 +169,9 @@ CASES = [
     ('offpiste_short', offpiste_short, 'A short trip 70 m to the side of Goodaura 1 and back: not an off-piste descent.', {}),
     ('falls', falls, 'Here you fell: one real fall among a jump, the phone falling in the pocket, a bump, a hard stop and a bump on the gondola.', {}),
     ('fall_dismissed', fall_dismissed, 'A fall the skier dismissed ("I did not fall"): only the summary line is left, and it never counts.', {'dismiss': True}),
+    ('run_from_middle', run_from_middle, 'Measure one run (mode run), started half way down Goodaura 1: stops at the bottom station.', {'mode': 'run'}),
+    ('run_short_stop', run_short_stop, 'Measure one run (mode run): a 45 s rest on Tatra 1 does not stop it; boarding the Shino lift does.', {'mode': 'run'}),
+    ('run_still', run_still, 'Measure one run (mode run): two minutes standing in the middle of Goodaura 1 stop it.', {'mode': 'run'}),
     ('queue_and_hut', queue_and_hut, 'A 7 minute queue, a 25 minute break at the top, and a rest in the middle of the run.', {}),
     ('gps_spike', gps_spike, 'One reading of 100 km/h with a jump of the position, in the middle of the descent.', {'spike': 0.45}),
     ('signal_loss', signal_loss, 'No readings for a minute in the middle of the descent.', {'loss': (0.4, 60)}),

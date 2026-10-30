@@ -94,6 +94,11 @@ def live(exp, got):
         _t(a['t'], b['t'], 'live[%d]' % n, errs)
     _kmh(exp.get('max_kmh'), got.get('max_kmh'), 'live.max_kmh', errs)
     _events(exp.get('falls', []), got.get('falls', []), 'live.falls', errs)
+    ea, ga = exp.get('autostop'), got.get('autostop')
+    if (ea is None) != (ga is None) or ea and ea['reason'] != ga['reason']:
+        errs.append('live.autostop: %s != %s' % (ea, ga))
+    elif ea:
+        _t(ea['t'], ga['t'], 'live.autostop', errs)
     return errs
 
 

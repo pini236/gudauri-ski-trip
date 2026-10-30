@@ -160,6 +160,20 @@ def main(quick=False):
         print('%-22s %5d %5d %5d %7s %8.0f %8.0f %7s %7.1f' % (
             label, m['rides'], m['found'], m['station_ok'],
             ('%.0f' % max(m['delays'])) if m['delays'] else '-', m['named_m'], m['wrong_m'], mx, tm))
+        stop_want = {'run_from_middle': 'station', 'run_short_stop': 'lift', 'run_still': 'still'}.get(name) if not salt else None
+        if stop_want:
+            st = liv.get('autostop')
+            truth_t = {'station': next((r['t'] for r in d.rows[::-1] if r['act'] == 'ski'), 0) + 5000,
+                       'lift': d.rides[0]['t0'] if d.rides else 0,
+                       'still': 0}[stop_want]
+            if not st or st['reason'] != stop_want:
+                fails.append('%s: stopped by itself %s, expected %s' % (name, st, stop_want))
+            # the recording stops when it is known (a lift: the live delay, up to 30 s); the run's own edges come from
+            # the final analysis of what was recorded, to the second
+            elif stop_want != 'still' and not (0 <= st['t'] - truth_t <= (30000 if stop_want == 'lift' else 3000)):
+                fails.append('%s: stopped at %+.0f s from the moment expected' % (name, (st['t'] - truth_t) / 1000))
+            else:
+                print('  %s: stopped by itself (%s), %+.0f s' % (name, st['reason'], (st['t'] - truth_t) / 1000 if truth_t else 0))
         nop = sum(len(s.get('offpiste', [])) for s in fin['segments'] if s['type'] == 'descent')
         want = {'offpiste': 1, 'offpiste_short': 0, 'run_single': 0}.get(name) if not salt else None
         if want is not None and nop != want:

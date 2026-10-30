@@ -59,13 +59,13 @@ def make(base, P, name, builder, opts, salt=0):
     for imp in d.impacts:
         if imp['peak_g'] < P['fall']['trigger_g'] or (lost and lost[0] <= imp['t'] <= lost[1] + 1000):
             continue
-        if opts.get('dismiss') and imp['kind'] == 'fall':
-            events.append({'ev': 'impact', 't': int(imp['t']), 'dismissed': True})
-        else:
-            events.append(synth.impact_window(imp, rng, P))
+        events.append(synth.impact_window(imp, rng, P))
+        if opts.get('dismiss') and imp['kind'] == 'fall':  # "I did not fall", a few seconds later: a second line
+            events.append({'ev': 'impact', 't': int(imp['t']), 'dismissed': True, '_at': int(imp['t']) + 8000})
     events.append({'ev': 'stop', 't': pts[-1]['t'], 'reason': 'user'})
     d.recorded = sorted(q['t'] for q in pts)
-    header = {'v': 1, 'tz': 'Asia/Tbilisi', 'resort': 'gudauri', 'device': 'synthetic', 'start': d.rows[0]['t']}
+    header = {'v': 1, 'tz': 'Asia/Tbilisi', 'resort': 'gudauri', 'device': 'synthetic', 'start': d.rows[0]['t'],
+              'mode': opts.get('mode', 'day')}
     text = synth.write_log(pts, header, events, cut_at=cut)
     patch = cases.mid_patch(base) if opts.get('patch') else None
     if patch:  # the truth of the stations, on the patched network

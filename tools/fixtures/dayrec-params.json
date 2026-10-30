@@ -119,5 +119,13 @@
   "doppler_from_mps": 6.0,
   "doppler_within_s": 3,
   "doppler_still_s": 4
+ },
+ "autostop": {
+  "min_drop_m": 30,
+  "min_ski_s": 20,
+  "still_mps": 0.8,
+  "station_m": 80,
+  "station_still_s": 5,
+  "still_s": 90
  }
 }

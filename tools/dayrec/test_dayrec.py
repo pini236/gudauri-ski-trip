@@ -210,7 +210,7 @@ class Day(unittest.TestCase):
         self.assertEqual([f['t'] for f in live], [f['t'] for f in fin['falls']])
         self.assertGreater(live[0]['at'], live[0]['t'])
         # "I did not fall": the window is gone, a summary line stays, and it never counts
-        e2 = [{'ev': 'impact', 't': x['t'], 'dismissed': True} if abs(x['t'] - d.falls[0]) < 1 else x for x in e]
+        e2 = e + [{'ev': 'impact', 't': int(d.falls[0]), 'dismissed': True}]  # a second line, append-only
         self.assertEqual(a.final(h, p, e2)['falls'], [])
         # the hard stop looks like a fall to the Doppler speed alone
         self.assertGreaterEqual(len(analyze.falls_doppler(p, [q['t'] for q in p], a._state, P)), 2)

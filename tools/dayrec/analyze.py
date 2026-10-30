@@ -558,8 +558,10 @@ def falls(pts, ts, events, act, P):
     A dismissed impact ("I did not fall") never counts. [{t, at}]: at is when it is known (t + settle_s + still_s)."""
     F = P['fall']
     out = []
+    # "I did not fall" is a second line with the same t (the log is append-only); it cancels the blow
+    gone = {e['t'] for e in events if e.get('ev') == 'impact' and e.get('dismissed')}
     for e in sorted((e for e in events if e.get('ev') == 'impact' and 't' in e), key=lambda e: e['t']):
-        if e.get('dismissed') or 'acc' not in e:
+        if e.get('dismissed') or 'acc' not in e or e['t'] in gone:
             continue
         pa, pw = impact_peaks(e)
         if pa < F['trigger_g'] or pw < F['rot_min_radps']:
@@ -605,7 +607,48 @@ def falls_doppler(pts, ts, act, P):
     return out
 
 
-# ---------- 7. The day ----------
+# ---------- 7. One descent ("measure a run", docs/FEATURES.md section 10, 1a): when it stops by itself ----------
+
+def autostop(net, pts, ts, kf, act, P):
+    """In a recording of one descent (header mode "run"), the moment it stops by itself, from live values only:
+    on a lift; or still near a lift's boarding station for station_still_s; or still anywhere for still_s.
+    Only after the skier went down at least min_drop_m and skied at least min_ski_s. {t, reason} or None."""
+    A = P['autostop']
+    top, ski_s, still_from, prev = None, 0.0, None, None
+    h = None
+    for i in range(len(pts)):
+        a = act[i]
+        z = baro_alt(pts[i]['p']) if pts[i]['p'] is not None else pts[i]['a']
+        if z is not None:
+            top = z if top is None else max(top, z)
+            h = z
+        if prev is not None and act[prev] == SKI:
+            ski_s += (ts[i] - ts[prev]) / 1000.0
+        prev = i
+        went = top is not None and h is not None and top - h >= A['min_drop_m'] and ski_s >= A['min_ski_s']
+        if not went:
+            still_from = None
+            continue
+        if a >= 4:
+            return {'t': ts[i], 'reason': 'lift'}
+        s = pts[i]['s']
+        if s is not None and s <= A['still_mps']:
+            if still_from is None:
+                still_from = i
+            dur = (ts[i] - ts[still_from]) / 1000.0
+            x, y = kf[i][0], kf[i][1]
+            near = any(math.hypot(x - l.line.at(st['u'])[0][0], y - l.line.at(st['u'])[0][1]) <= A['station_m']
+                       for l in net.lifts for st in l.stations[:-1])
+            if near and dur >= A['station_still_s']:
+                return {'t': ts[i], 'reason': 'station'}
+            if dur >= A['still_s']:
+                return {'t': ts[i], 'reason': 'still'}
+        else:
+            still_from = None
+    return None
+
+
+# ---------- 8. The day ----------
 
 class Analyzer:
     def __init__(self, net, params):
@@ -647,13 +690,16 @@ class Analyzer:
         ok = valid_speeds(pts, xy, P)
         ski = [i for i, a in enumerate(act) if a == SKI]
         best = max_speed(pts, ok, ski, P)
-        return {'events': evs, 'max_kmh': kmh(best[0]) if best else None, 'falls': falls(pts, ts, events, act, P)}
+        out = {'events': evs, 'max_kmh': kmh(best[0]) if best else None, 'falls': falls(pts, ts, events, act, P)}
+        if header.get('mode') == 'run':
+            out['autostop'] = autostop(net, pts, ts, kf, act, P)
+        return out
 
     # ----- final -----
     def final(self, header, pts, events=()):
         net, P = self.net, self.P
         res = {'analysis': P['analysis'], 'v': header.get('v', 1), 'resort': header.get('resort'),
-               'points': len(pts)}
+               'mode': header.get('mode', 'day'), 'points': len(pts)}
         if not pts:
             res.update({'segments': [], 'gaps': [], 'falls': [], 'stats': {}})
             return res
