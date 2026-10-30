@@ -220,8 +220,8 @@ async function draw(o = {}) {
   await new Promise(r => setTimeout(r, 300));
   const vb = svg.viewBox.baseVal, px = vb.width / svg.getBoundingClientRect().width; // metres per css px
   const g = document.createElementNS(NS, 'g'); g.setAttribute('class', 'r29');
-  if (o.dim !== false) [...svg.children].forEach(c => { const cl = c.getAttribute('class') || ''; if (!/relief|r29/.test(cl)) c.style.opacity = o.dimTo ?? '.42'; });
-  const pts = DAY.track.filter(p => o.upto == null || p.t <= o.upto);
+  if (o.dim !== false) [...svg.children].forEach(c => { const cl = c.getAttribute('class') || ''; if (!/relief|r29/.test(cl)) c.style.opacity = o.dimTo ?? '.42'; if (o.grey) c.style.filter = 'grayscale(1)'; });
+  const pts = DAY.track.filter(p => (o.upto == null || p.t <= o.upto) && (o.from == null || p.t >= o.from));
   const W = (o.scale || 4) * px;
   const add = (tag, attrs) => { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); g.appendChild(e); return e; };
   // a white casing under the whole trail, so it reads over the runs
