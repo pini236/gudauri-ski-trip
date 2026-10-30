@@ -2879,7 +2879,7 @@
       "x": 0,
       "y": 0,
       "w": 600,
-      "h": 1180,
+      "h": 1280,
       "page": "round29",
       "title": "מה לאשר בסבב 29"
     },
@@ -2994,6 +2994,54 @@
       "h": 939,
       "page": "round29",
       "title": "ח. מפת היום: על המפה הראשית, או מפה משלה"
+    },
+    "R29-Tone.dc.html": {
+      "x": 680,
+      "y": 12216,
+      "w": 1696,
+      "h": 1119,
+      "page": "round29",
+      "title": "ט. הטון של \"הסיפור של היום\""
+    },
+    "R31-0-Decide.dc.html": {
+      "x": 0,
+      "y": 0,
+      "w": 600,
+      "h": 820,
+      "page": "round31",
+      "title": "מה לאשר בסבב 31"
+    },
+    "R31-Map.dc.html": {
+      "x": 680,
+      "y": 0,
+      "w": 860,
+      "h": 1078,
+      "page": "round31",
+      "title": "א. במפה: סימון ליד התחנה"
+    },
+    "R31-Lift.dc.html": {
+      "x": 680,
+      "y": 1498,
+      "w": 1696,
+      "h": 1145,
+      "page": "round31",
+      "title": "ב. בפאנל הרכבל: \"ליד התחנה\""
+    },
+    "R31-Spec.dc.html": {
+      "x": 2456,
+      "y": 1498,
+      "w": 640,
+      "h": 1000,
+      "page": "round31",
+      "title": "מה למימוש"
+    },
+    "R31-Meet.dc.html": {
+      "x": 680,
+      "y": 3063,
+      "w": 860,
+      "h": 1144,
+      "page": "round31",
+      "title": "ג. בנקודת המפגש: שורה אחת ליד התחנה"
     }
   },
   "createdOnFiles": {
@@ -3003,7 +3051,7 @@
   "designSystems": [],
   "launch": {
     "view": "canvas",
-    "page": "round29"
+    "page": "round31"
   },
   "notes": {
     "featRow1": {
@@ -4139,6 +4187,42 @@
       "w": 240,
       "x": 680,
       "y": 10557
+    },
+    "round29row8": {
+      "kind": "title1",
+      "maxW": 1696,
+      "page": "round29",
+      "text": "ט. הטון",
+      "w": 240,
+      "x": 680,
+      "y": 11916
+    },
+    "round31row0": {
+      "kind": "title1",
+      "maxW": 860,
+      "page": "round31",
+      "text": "א. במפה",
+      "w": 240,
+      "x": 680,
+      "y": -300
+    },
+    "round31row1": {
+      "kind": "title1",
+      "maxW": 2416,
+      "page": "round31",
+      "text": "ב. בפאנל הרכבל",
+      "w": 240,
+      "x": 680,
+      "y": 1198
+    },
+    "round31row2": {
+      "kind": "title1",
+      "maxW": 860,
+      "page": "round31",
+      "text": "ג. בנקודת המפגש",
+      "w": 240,
+      "x": 680,
+      "y": 2763
     }
   },
   "order": [
@@ -4514,9 +4598,19 @@
     "R29-Data.dc.html",
     "R29-Market.dc.html",
     "R29-OneRun.dc.html",
-    "R29-DayMap.dc.html"
+    "R29-DayMap.dc.html",
+    "R29-Tone.dc.html",
+    "R31-0-Decide.dc.html",
+    "R31-Map.dc.html",
+    "R31-Lift.dc.html",
+    "R31-Spec.dc.html",
+    "R31-Meet.dc.html"
   ],
   "pages": [
+    {
+      "id": "round31",
+      "name": "סבב 31: אוכל ומקומות בתחנות"
+    },
     {
       "id": "round29",
       "name": "סבב 29: יום הגלישה"

@@ -29,15 +29,28 @@ const MAPS = {
   'm-one-live': [402, 820, 'day', 'he', { mode: 'live', run: 'Kudebi 1', part: 0.55, dot: true, grey: true, dimTo: '.5', pad: 0.02, scale: 5 }],
   'm-one': [402, 470, 'day', 'he', { mode: 'speed', run: 'Kudebi 1', grey: true, dimTo: '.5', pad: 0.7 }],
   'm-one-night': [402, 470, 'night', 'en', { mode: 'speed', run: 'Kudebi 1', grey: true, dimTo: '.5', pad: 0.7, night: true }],
+  // round 31: food and services near the stations, on the plain top view (no day)
+  'm-places': [390, 818, 'day', 'he', { places: true }],
+  'm-places-web': [390, 620, 'day', 'he', { places: true }],
+  'm-places-night': [402, 820, 'night', 'en', { places: true, night: true }],
 };
 const b = await launch();
 let saved = false;
+const only = process.argv.slice(2);
 for (const [name, [w, h, theme, lang, o]] of Object.entries(MAPS)) {
+  if (only.length && !only.includes(name)) continue;
   const { ctx, page } = await open(b, '/#map', { w, h, theme, lang, wait: 2500, mobile: false });
   await page.addStyleTag({ content: CSS });
   await page.evaluate(JS);
   await page.evaluate(() => window.dispatchEvent(new Event('resize')));
   await page.waitForTimeout(600);
+  if (o.places) {
+    await page.evaluate(async o => { const xs = [], ys = []; for (const ll of [[42.4615, 44.4825], [42.4975, 44.5085]]) { const [x, y] = R31.P(ll); xs.push(x); ys.push(y); } return R31.places({ ...o, box: [Math.min(...xs), Math.min(...ys), Math.max(...xs), Math.max(...ys)], pad: 0.04 }); }, o);
+    await page.waitForTimeout(400);
+    await page.screenshot({ path: path.join(OUT, name + '.png') });
+    await ctx.close();
+    continue;
+  }
   const res = await page.evaluate(async o => {
     const day = await R29.day();
     if (o.win) o.box = R29.boxOf(o.win[0], o.win[1], 60);

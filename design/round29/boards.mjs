@@ -488,6 +488,125 @@ function story(p, en) {
     <p class="note" style="margin-top:10px">${en ? 'Milestones are against yourself only, no ranking between people.' : 'ציוני הדרך מול עצמך בלבד, בלי דירוג בין אנשים.'}</p></div>`;
 }
 
+
+// ---------- round 29, row I: the tone of "the story of the day" (docs/AI-PRODUCT.md, the moments engine) ----------
+// The same sample day in three tones; the engine picks the moments, the text comes from the tone Pini chooses.
+function storyTone(p, en, tone) {
+  const lifts = DAY.segs.filter(x => x.type === 'lift'), q = lifts.reduce((a, b) => b.wait > a.wait ? b : a);
+  const queue = lifts.reduce((s, l) => s + l.wait, 0), az = Math.round(S.desc / 187), L = (S.longest.len / 1000).toFixed(1);
+  const R = t => `<span dir="ltr">${t}</span>`;
+  const T = {
+    play: en ? { head: `${S.runs} runs, ${n(S.desc, true)} m down, and one kiss for the snow.`, m: [['Your first red', `${R('Kudebi 1')} at 13:34. It’s yours now.`], ['Longest run', `${L} km of ${R('Tatra 1')}, no shortcuts.`], ['Longest queue', `${q.wait} min for ${R(q.name)}. Worth it.`], [`${az}× Azrieli Tower`, `${n(S.desc, true)} m down, not one stair.`], ['Snow kisses', '1. The snow forgives you.']] }
+      : { head: `${S.runs} ירידות, ${n(S.desc)} מ׳ למטה, ונשיקה אחת לשלג.`, m: [['האדום הראשון שלך', `${R('Kudebi 1')} ב-13:34. מעכשיו הוא שלך.`], ['הירידה הארוכה', `${L} ק״מ של ${R('Tatra 1')}, בלי קיצורים.`], ['הכי הרבה בתור', `${q.wait} דק׳ ל-${R(q.name)}. היה שווה.`], [`פי ${az} ממגדל עזריאלי`, `${n(S.desc)} מ׳ למטה, ואף מדרגה.`], ['נשיקות לשלג', '1. השלג סלח.']] },
+    dry: { head: `יום סקי 2 בגודאורי: ${S.runs} ירידות.`, m: [['האדום הראשון', `${R('Kudebi 1')}, 13:34`], ['הירידה הארוכה', `${R('Tatra 1')}, ${L} ק״מ`], ['הכי הרבה בתור', `${q.wait} דק׳, ${R(q.name)}`], ['ירידה מצטברת', `${n(S.desc)} מ׳ (פי ${az} ממגדל עזריאלי)`], ['נפילות', '1']] },
+  }[tone];
+  const w = p === 'and' ? 354 : 366;
+  const nums = tone === 'data'
+    ? [[S.vmax, 'מרבית · קמ״ש'], [S.runs, 'ירידות'], [S.skiKm, 'ק״מ גלישה'], [n(S.desc), 'מ׳ ירידה'], [S.lifts, 'רכבלים'], [queue, 'דק׳ בתור']]
+    : [[S.vmax, en ? 'top km/h' : 'מרבית קמ״ש'], [S.runs, en ? 'runs' : 'ירידות'], [S.skiKm, en ? 'km' : 'ק״מ']];
+  const body = tone === 'data' ? '' : `<p style="margin:0;padding:10px 14px 0;font-family:var(--f-display);font-size:28px;line-height:1.02">${T.head}</p>`;
+  const list = tone === 'data' ? '' : `<ul style="list-style:none;margin:0;padding:6px 14px 12px">${T.m.map(([a, b]) => `<li style="display:flex;flex-direction:column;gap:1px;padding:6px 0;border-bottom:1px dotted var(--rule);font-size:14px"><b>${a}</b><span style="color:var(--bp-muted)">${b}</span></li>`).join('')}</ul>`;
+  const card = `<div style="position:relative;width:${w}px;margin:0 auto;background:var(--bp-paper);color:var(--bp-ink);box-shadow:0 2px 14px var(--shadow);transform:rotate(-1.2deg)${p === 'ios' ? ';border-radius:16px;overflow:hidden' : ''}">
+    <div style="height:44px;background:var(--bp-strip);color:var(--bp-on-strip);display:flex;align-items:center;justify-content:space-between;padding:0 14px"><b class="k" style="font-size:26px">${en ? 'SKI DAY · GUDAURI' : 'יום סקי · גודאורי'}</b><span style="font-weight:700;font-size:13px;direction:ltr">Tue 12 Jan</span></div>
+    ${body}
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;row-gap:6px;padding:10px 14px 8px">${nums.map(([v, l]) => `<div><b class="k" style="font-size:40px;display:block">${v}</b><small style="font-size:12px;color:var(--bp-muted)">${l}</small></div>`).join('')}</div>
+    <img src="${M('m-share')}" style="display:block;width:100%;height:${tone === 'data' ? 230 : 150}px;object-fit:cover;border-block:1px dashed var(--rule)">
+    ${list}<div style="height:10px;background:radial-gradient(circle at 6px 0,transparent 5px,var(--bp-paper) 5.5px) 0 0/12px 10px repeat-x;transform:translateY(9px)"></div></div>`;
+  return `${header(p, en, en ? 'Your day' : 'היום שלך', en ? 'Ready for WhatsApp' : 'מוכן לוואטסאפ', '16:05')}<div style="padding:10px 18px 22px">${card}
+    <div class="row" style="margin-top:22px;gap:8px"><span class="qb pri" style="flex:1">${ic.share(16)}${en ? 'Share' : 'שיתוף'}</span><span class="qb" style="flex:1">${ic.play(16)}${en ? 'Short film' : 'סרטון קצר'}</span></div></div>`;
+}
+
+// ---------- round 31: food and services near the stations (research/places.md, only certainty A or B) ----------
+const pic = {
+  food: (s = 18) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3v6a2 2 0 0 0 4 0V3M8 9v12"/><path d="M17 3c-2.5 1.5-3 4.5-3 8h3v10"/></svg>`,
+  cafe: (s = 18) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9h12v5a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5z"/><path d="M16 10h1.5a2.5 2.5 0 0 1 0 5H16"/><path d="M8 3v3M12 3v3"/></svg>`,
+  bar: (s = 18) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 3h10l-1 7a4 4 0 0 1-8 0z"/><path d="M12 14v6M8 21h8"/></svg>`,
+  wc: (s = 18) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="7" cy="4.5" r="1.8"/><circle cx="17" cy="4.5" r="1.8"/><path d="M5 9h4v6H8v6H6v-6H5z"/><path d="M17 8.5l3 7h-2v5.5h-2V15.5h-2z"/><path d="M12 7v14"/></svg>`,
+  aid: (s = 18) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 7v10M7 12h10" stroke="#D62828" stroke-width="3" stroke-linecap="round"/></svg>`,
+  none: (s = 18) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16.5v.5"/></svg>`,
+};
+const PL = {
+  he: { food: 'מזון מהיר', cafe: 'בית קפה', rest: 'מסעדה', bar: 'בר', stand: 'דוכן אוכל', aid: 'עמדת הצלה', wc: 'שירותים', m: 'מ׳',
+    near: 'ליד התחנה', top: 'למעלה', bottom: 'למטה', none: 'אין מידע על מקומות כאן', noneSub: 'אולי יש, ועוד לא במפה.', all: n => `כל ה-${n}`, more: n => `ועוד ${n}`,
+    src: 'מהמפה הפתוחה (OpenStreetMap). בלי שעות פתיחה: כדאי לבדוק במקום.', count: (n, wc) => `${n} מקומות אוכל ושתייה${wc ? ' · שירותים' : ''}` },
+  en: { food: 'Fast food', cafe: 'Café', rest: 'Restaurant', bar: 'Bar', stand: 'Food stand', aid: 'Rescue post', wc: 'Toilets', m: 'm',
+    near: 'Near the station', top: 'Top', bottom: 'Bottom', none: 'No information on places here', noneSub: 'There may be some, not yet on the map.', all: n => `All ${n}`, more: n => `${n} more`,
+    src: 'From OpenStreetMap. No opening hours: check when you get there.', count: (n, wc) => `${n} places to eat and drink${wc ? ' · toilets' : ''}` },
+};
+// a station's places: [icon, name (or null: the type is the name), type key, metres]
+const ST = {
+  gtop: { list: [['food', null, 'stand', 77], ['aid', null, 'aid', 37]] },
+  base: { n: 14, wc: true, list: [['food', "Dunkin' Donuts", 'food', 40], ['cafe', 'Ice Bar', 'cafe', 87], ['food', 'Friends', 'rest', 87]] },
+  soliko: { list: [['cafe', 'Vitamin Cafe', 'cafe', 66], ['aid', null, 'aid', 39]] },
+  none: { list: [] },
+};
+function placeRows(en, st, max = 3) {
+  const w = PL[en ? 'en' : 'he'];
+  if (!st.list.length) return `<div class="row" style="gap:10px;padding:10px 0;color:var(--muted)">${pic.none(20)}<div><div style="font-size:15px;color:var(--ink)">${w.none}</div><div style="font-size:13px">${w.noneSub}</div></div></div>`;
+  const rows = st.list.slice(0, max).map(([i, name, type, d]) => `<div class="row" style="justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--rule)">
+      <span class="row" style="gap:10px"><span style="width:32px;height:32px;display:grid;place-items:center;border:1.5px solid var(--ink)">${pic[i](18)}</span>
+      <span>${name ? `<b dir="ltr" style="font-size:15px">${name}</b><br>` : ''}<span style="font-size:${name ? 13 : 15}px;${name ? 'color:var(--muted)' : 'font-weight:700'}">${w[type]}</span></span></span><span style="font-size:14px;color:var(--muted)">${d} ${w.m}</span></div>`).join('');
+  const sum = st.n ? `<div class="row" style="gap:8px;margin:2px 0 4px;font-size:14px">${pic.food(16)}<b>${w.count(st.n, st.wc)}</b>${st.wc ? pic.wc(16) : ''}</div>` : '';
+  const more = st.n && st.n > max ? `<span class="qb" style="height:40px;margin-top:10px;font-size:14px">${w.all(st.n)}</span>` : '';
+  return sum + rows + more;
+}
+function placeSection(en, title, st, max) {
+  return `<div style="margin-top:12px"><div style="font-size:13px;font-weight:700;color:var(--muted);letter-spacing:.2px;margin-bottom:2px">${title}</div>${placeRows(en, st, max)}</div>`;
+}
+// the lift sheet, scrolled to the new section (the facts above it stay as in the app today)
+function liftSheet(p, en, dark, lift, facts, sections, mapSrc) {
+  const w = PL[en ? 'en' : 'he'];
+  const map = p === 'and' ? aS(mapSrc, 0, 700) : iS(mapSrc, 0, 1150);
+  return `${map}<div class="sheet" style="position:relative;padding:0 18px 18px;${p === 'ios' ? 'margin:-26px 8px 8px' : 'margin-top:-12px'}"><div class="grab"></div>
+    <div class="row" style="justify-content:space-between;margin:4px 0 2px"><b class="k" style="font-size:38px" dir="ltr">${lift} ↑</b><span style="color:var(--muted)">${ic.lift(22)}</span></div>
+    <div class="muted" style="font-size:13.5px;margin-bottom:4px">${facts}</div>
+    <div style="font-family:var(--f-display);font-size:26px;margin-top:10px">${w.near}</div>
+    ${sections}<p class="note" style="margin:12px 0 0">${w.src}</p></div>`;
+}
+function webPanel() {
+  const w = PL.he;
+  return `<div style="height:844px;background:var(--snow)"><div style="height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 16px;background:var(--paper);border-bottom:1px solid var(--rule)"><b class="k" style="font-size:30px">גודאורי</b><span class="muted" style="font-size:14px">מפה</span></div>
+    <div style="position:relative;height:330px;overflow:hidden"><img src="${M('m-places-web')}" style="display:block;width:100%;margin-top:-250px"></div>
+    <div style="background:var(--paper);border-top:3px solid var(--ink);padding:12px 16px 16px">
+      <div class="row" style="justify-content:space-between"><b class="k" style="font-size:36px" dir="ltr">Soliko ↑</b><span class="muted">${ic.lift(22)}</span></div>
+      <div class="muted" style="font-size:13.5px">רכבל כיסאות · 2.27 ק״מ · 10 דק׳</div>
+      <div style="font-family:var(--f-display);font-size:26px;margin-top:10px">${w.near}</div>
+      ${placeSection(false, 'למעלה · התחנה העליונה', ST.soliko)}${placeSection(false, 'למטה · בין הכפרים', { n: 3, wc: true, list: [['food', 'Gradus', 'rest', 30], ['food', 'Time Out', 'rest', 69]] }, 2)}
+      <p class="note" style="margin:10px 0 0">${w.src}</p></div></div>`;
+}
+function mapPlaces(p, en, dark) {
+  const w = PL[en ? 'en' : 'he'];
+  const chips = (en ? ['All', 'Blue', 'Red', 'Food'] : ['הכל', 'כחול', 'אדום', 'אוכל']).map((c, i) => `<span style="height:36px;padding:0 12px;display:inline-flex;align-items:center;gap:6px;border:1.5px solid var(--ink);font-size:14px;font-weight:700;${i === 3 ? 'background:var(--ink);color:var(--paper)' : 'background:var(--paper)'}">${i === 3 ? pic.food(15) : ''}${c}</span>`).join('');
+  return `${sbar(p, '11:40', false, dark)}<div style="position:absolute;top:${p === 'and' ? 26 : 54}px;left:0;right:0;bottom:0;overflow:hidden"><img src="${M(dark ? 'm-places-night' : 'm-places')}" style="display:block;width:100%;height:100%;object-fit:cover"></div>
+    <div style="position:absolute;top:${p === 'and' ? 40 : 66}px;inset-inline:12px;display:flex;gap:6px;z-index:5;direction:${en ? 'ltr' : 'rtl'}">${chips}</div>
+    <div style="position:absolute;bottom:${p === 'and' ? 18 : 30}px;inset-inline:12px;z-index:5;background:var(--paper);border:1.5px solid var(--ink);padding:10px 12px;font-size:13.5px;display:flex;gap:14px;align-items:center;${p === 'ios' ? 'border-radius:14px;border-color:var(--rule)' : ''}">
+      <span class="row" style="gap:6px">${pic.food(16)}${en ? 'places near the station' : 'מקומות ליד התחנה'}</span><span class="row" style="gap:6px">${pic.cafe(16)}${en ? 'seasonal, on the slope' : 'עונתי, על המדרון'}</span></div>`;
+}
+// a strip with the station's places, inserted into a screenshot of the meet-point screen
+function meetStrip(p, en, st, label) {
+  const w = PL[en ? 'en' : 'he'];
+  const items = st.n ? `${pic.food(16)}<b>${w.count(st.n, st.wc)}</b>` : st.list.map(([i, name, type, d]) => `<span class="row" style="gap:5px">${pic[i](16)}${name ? `<bdi>${name}</bdi>` : w[type]} · ${d} ${w.m}</span>`).join('<span class="muted">·</span>');
+  return `<div style="position:relative;z-index:3;background:var(--paper);border-block:1px solid var(--rule);padding:10px 16px;display:flex;flex-direction:column;gap:4px;font-size:14px">
+    <span class="muted" style="font-size:12.5px;font-weight:700">${label}</span><span class="row" style="gap:8px;flex-wrap:wrap">${items}</span></div>`;
+}
+Object.assign(BOARDS, {
+  'i-and-tone-play': ['and', 'he', 'day', () => storyTone('and', false, 'play')],
+  'i-and-tone-dry': ['and', 'he', 'day', () => storyTone('and', false, 'dry')],
+  'i-and-tone-data': ['and', 'he', 'day', () => storyTone('and', false, 'data')],
+  'i-ios-tone-play-en': ['ios', 'en', 'day', () => storyTone('ios', true, 'play')],
+  'p-web-lift': ['and', 'he', 'day', () => webPanel()],
+  'p-and-map': ['and', 'he', 'day', () => `<div style="height:844px">${mapPlaces('and', false, false)}</div>`],
+  'p-ios-map-night-en': ['ios', 'en', 'night', () => `<div style="height:874px">${mapPlaces('ios', true, true)}</div>`],
+  'p-and-lift': ['and', 'he', 'day', () => liftSheet('and', false, false, 'Goodaura', 'גונדולה · 2.37 ק״מ · 7 דק׳',
+    placeSection(false, 'למעלה · 2,706 מ׳', ST.gtop) + placeSection(false, 'למטה · New Gudauri', ST.base), 'store-1-map.png')],
+  'p-and-lift-empty': ['and', 'he', 'day', () => liftSheet('and', false, false, 'Sadzele', 'רכבל כיסאות · 1.42 ק״מ · 13 דק׳',
+    placeSection(false, 'למעלה', ST.none) + placeSection(false, 'למטה', ST.none), 'store-1-map.png')],
+  'p-ios-lift-night-en': ['ios', 'en', 'night', () => liftSheet('ios', true, true, 'Soliko', 'Chairlift · 2.27 km · 10 min',
+    placeSection(true, 'Top station', ST.soliko) + placeSection(true, 'Bottom · between the villages', { n: 3, wc: true, list: [['food', 'Gradus', 'rest', 30], ['food', 'Time Out', 'rest', 69]] }, 2), 'map3d-night-en.png')],
+  'p-ios-meet': ['ios', 'he', 'day', () => `${iS('meet-station-he-day.png', 0, 1580)}${meetStrip('ios', false, ST.gtop, 'ליד <bdi>Snow Park</bdi>')}${iS('meet-station-he-day.png', 1580, 2622)}`],
+  'p-and-meet': ['and', 'he', 'day', () => `${aS('meet-04-meet-card.png', 0, 2140)}${meetStrip('and', false, ST.base, 'ליד <bdi>Goodaura</bdi> · למטה')}${aS('meet-04-meet-card.png', 2140, 2400)}`],
+});
+
 // ---- photograph ----
 const b = await launch();
 const { ctx, page: p0 } = await open(b, '/', { w: 402, h: 874, wait: 300 });
