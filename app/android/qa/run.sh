@@ -45,6 +45,10 @@ finish() {
   trap - EXIT
   [[ -z "${LOGCAT:-}" ]] || kill "$LOGCAT" 2> /dev/null || true
   printf 'total\t%s\t%s\t%s\n' "$((SECONDS - START_SECONDS))" "$result" "$FAILS" >> "$OUT/timings.tsv"
+  if [[ -s "$OUT/a11y.txt" ]]; then
+    sort -u "$OUT/a11y.txt" -o "$OUT/a11y.txt"
+    note "a11y: $(grep -c '^small' "$OUT/a11y.txt") touch targets under 44 dp, $(grep -c '^unlabeled' "$OUT/a11y.txt") tappable without words (a11y.txt)"
+  fi
   note "total: $((SECONDS - START_SECONDS))s · exit: $result"
   exit "$result"
 }
@@ -59,10 +63,19 @@ timed() { # timed <step name> <command...>: record failures without hiding the c
   return "$result"
 }
 
-shot() { # shot <name>: a numbered screenshot
+shot() { # shot <name>: a numbered screenshot, and the screen's accessibility findings (qa-out/a11y.txt)
   n=$((n + 1))
   local f; f=$(printf "%s/shots/%02d-%s.png" "$OUT" "$n" "$1")
   adb exec-out screencap -p > "$f" || fail "screenshot $1"
+  audit "$1"
+}
+audit() { # audit <screen>: touch targets under 44 dp and tappable things with no words (report only, qa/a11y.py)
+  [[ -z "${QA_NO_A11Y:-}" ]] || return 0
+  [[ -n "${DPI:-}" ]] || DPI=$(adb shell wm density 2> /dev/null | grep -o '[0-9]*$' | tail -n 1)
+  adb shell rm -f /sdcard/a11y.xml
+  timeout 15 adb shell uiautomator dump /sdcard/a11y.xml 2>&1 | grep -q "dumped to" || return 0
+  adb pull /sdcard/a11y.xml "$OUT/a11y.xml" > /dev/null 2>&1 || return 0
+  python3 "$(dirname "${BASH_SOURCE[0]}")/a11y.py" "$OUT/a11y.xml" "${DPI:-420}" "$SCENARIO:$1" >> "$OUT/a11y.txt" 2> /dev/null || true
 }
 burst() { # burst <name> <count> <gap seconds>: frames of an animation
   for i in $(seq 1 "$2"); do shot "$1-$i"; sleep "$3"; done
