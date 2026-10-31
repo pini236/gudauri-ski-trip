@@ -138,6 +138,8 @@ struct WeatherList: View {
 struct RunConditions: View {
     let top: Int, bottom: Int
     let w: WeatherNow
+    /// The run's key: weather_view goes once for each run shown.
+    var run = ""
     @Environment(\.ski) private var ski
 
     var body: some View {
@@ -150,6 +152,8 @@ struct RunConditions: View {
             Text(f.map { S.runCondNote(ago: ago($0.updated, w.now)) } ?? S.weatherSubNone).font(ski.type.text(12.5)).foregroundStyle(ski.colors.muted).padding(.top, 8)
             Credit()
         }
+        // weather_view once per run shown (as Android's LaunchedEffect(run))
+        .task(id: run) { Telemetry.shared.event("weather_view", ["where": "run", "state": w.state.rawValue]) }
     }
 }
 
@@ -280,6 +284,7 @@ struct TodayBoard: View {
             .buttonStyle(.plain)
             Credit()
         }
+        .onAppear { Telemetry.shared.event("weather_view", ["where": "home", "state": w.state.rawValue]) }
     }
 }
 
@@ -343,6 +348,7 @@ struct AheadBoard: View {
             Text(S.todayAheadNote).font(ski.type.text(12.5)).foregroundStyle(c.muted).padding(.top, 8).fixedSize(horizontal: false, vertical: true)
             Credit()
         }
+        .onAppear { Telemetry.shared.event("weather_view", ["where": "home", "state": w.state.rawValue]) }
     }
 }
 
