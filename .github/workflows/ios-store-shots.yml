@@ -93,6 +93,15 @@ jobs:
               xcrun simctl io "$UDID" screenshot "$OUT/$name.png" < /dev/null
             done
             BAD=0
+            # Simulator PNGs carry an alpha channel and App Store Connect rejects it: flatten via BMP (lossless), fall back to JPEG at full quality.
+            for F in "$OUT"/*.png; do
+              T="$F.tmp"
+              sips -s format bmp "$F" --out "$T.bmp" >/dev/null && sips -s format png "$T.bmp" --out "$T.png" >/dev/null
+              if [ "$(sips -g hasAlpha "$T.png" | awk '/hasAlpha/{print $2}')" != "no" ]; then
+                sips -s format jpeg -s formatOptions 100 "$F" --out "$T.jpg" >/dev/null && sips -s format png "$T.jpg" --out "$T.png" >/dev/null
+              fi
+              mv "$T.png" "$F"; rm -f "$T.bmp" "$T.jpg"
+            done
             for F in "$OUT"/*.png; do
               GW=$(sips -g pixelWidth "$F" | awk '/pixelWidth/{print $2}')
               GH=$(sips -g pixelHeight "$F" | awk '/pixelHeight/{print $2}')
