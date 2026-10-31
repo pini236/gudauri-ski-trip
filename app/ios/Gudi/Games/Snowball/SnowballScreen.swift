@@ -33,6 +33,7 @@ struct SnowballScreen: View {
                 m.qaDone = true
                 switch qa {
                 case "play": m.start(); m.qaAim = true
+                case "foes": m.start(); m.qaFoes = true
                 case "end": m.start(); m.fight?.knockOut()
                 default: break
                 }
@@ -61,6 +62,8 @@ final class SnowballModel {
     var size: CGSize = .zero { didSet { place() } }
     /// For the screenshots: a finger held up in the middle, so the ring and the raised view show.
     @ObservationIgnored var qaAim = false
+    /// For the screenshots: the fight runs on (not aiming) until an opponent is up over the wall, then holds still.
+    @ObservationIgnored var qaFoes = false
     @ObservationIgnored let painter = SnowballPainter()
     @ObservationIgnored private let ticker = ArcadeTicker()
     @ObservationIgnored let synth = Synth()
@@ -111,6 +114,11 @@ final class SnowballModel {
     private func tick(_ dt: Float) {
         guard let g = fight else { return }
         if qaAim, g.aim == nil, size.width > 0 { g.down(Float(size.width * 0.5), Float(size.height * 0.5)) }
+        if qaFoes {
+            var n = 0
+            while n < 1500 && !g.foes.contains(where: { $0.up > 0.95 }) { g.update(1.0 / 60); n += 1 }
+            qaFoes = false; frame &+= 1; ticker.stop(); return
+        }
         g.update(dt)
         if hint && g.t > 7 { hint = false }
         frame &+= 1

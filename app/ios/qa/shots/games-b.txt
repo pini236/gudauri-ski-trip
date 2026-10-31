@@ -11,3 +11,5 @@ snowball-play-he he day 0 game:snowball_play
 snowball-play-en en day 0 game:snowball_play
 snowball-end-he he night 0 game:snowball_end
 snowball-end-en en day 0 game:snowball_end
+snowball-foes-en en day 0 game:snowball_foes
+snowball-foes-he he night 0 game:snowball_foes
