@@ -1,9 +1,9 @@
 """Unit tests of the day analysis: python3 -m unittest discover -s tools/dayrec"""
-import json, math, os, sys, unittest
+import copy, json, math, os, re, sys, tempfile, unittest
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
-import analyze, build, cases, moments, net as netmod, rawlog, synth  # noqa: E402
+import analyze, build, cases, field, moments, net as netmod, rawlog, synth  # noqa: E402
 
 P = build.params()
 BASE = build.load_base(P)
@@ -117,6 +117,18 @@ class Network(unittest.TestCase):
         la, lo = BASE.proj.ll(x - uy * 80, y + ux * 80)
         with self.assertRaises(ValueError):
             netmod.Net(BASE.raw_rl, BASE.raw_tj, P, {'lifts': {g.id: {'mid': [{'pos': [la, lo], 'osm': 'node/0'}]}}})
+
+    def test_lift_speed_from_the_data(self):
+        by = {l.name: l for l in BASE.lifts}
+        self.assertEqual((by['Kudebi'].speed, by['Kudebi'].speed_src), (5.0, 'speed'))
+        self.assertEqual(by['Firni'].speed_src, 'kind')  # no source of its own: the default of the kind
+        raw = {'lifts': [{'id': 1, 'name': 'x', 'len': 1000, 'speed': 5.0, 'dur': '5'}]}
+        self.assertEqual(netmod.speed_dur_gaps(raw['lifts']), [(1, 'x', 200, 300)])
+        raw['lifts'][0]['research'] = {'speed_dur': 'the source says so'}
+        self.assertEqual(netmod.speed_dur_gaps(raw['lifts']), [])
+        self.assertEqual(netmod.speed_dur_gaps(BASE.raw_rl['lifts']), [])
+        with self.assertRaises(ValueError):
+            netmod.Net(BASE.raw_rl, BASE.raw_tj, P, {'lifts': {by['Kudebi'].id: {'speed': 2.0}}})
 
     def test_mid_station_from_the_patch(self):
         n = netmod.Net(BASE.raw_rl, BASE.raw_tj, P, cases.mid_patch(BASE))
@@ -320,6 +332,118 @@ class Moments(unittest.TestCase):
 
 def lift_top():
     return next(l for l in BASE.lifts if l.name == 'Goodaura').stations[-1]['ele']
+
+
+class Field(unittest.TestCase):
+    """field.py: the reference on one raw log from the field, against the result the app saved (docs/QA.md)."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.log = os.path.join(build.LOGS, 'run_to_run.jsonl')
+        cls.h, cls.exp, cls.live, cls.bad = field.run(field._read(cls.log), P, BASE)
+
+    def no_position(self, text):
+        self.assertIsNone(re.search(r'4[24]\.\d{3}', text), 'a coordinate in the report')
+
+    def test_same_result_no_difference(self):
+        rep, n = field.report(self.h, self.exp, copy.deepcopy(self.exp), self.bad, self.live, copy.deepcopy(self.live))
+        self.assertEqual(n, 0)
+        self.assertIn('no difference', rep)
+        self.no_position(rep)
+        self.assertGreater(len(self.exp['segments']), 2)
+
+    def test_edge_beyond_three_seconds(self):
+        got = copy.deepcopy(self.exp)
+        k = next(i for i, s in enumerate(got['segments']) if s['type'] == 'lift')
+        got['segments'][k]['t1'] += 4000
+        rep, n = field.report(self.h, self.exp, got)
+        self.assertGreaterEqual(n, 1)
+        self.assertIn('+4 s', rep)
+        self.assertIn('DIFF: t1', rep)
+        got['segments'][k]['t1'] -= 2000  # 2 s: within the threshold
+        self.assertEqual(field.report(self.h, self.exp, got)[1], 0)
+
+    def test_missing_segment_is_aligned(self):
+        got = copy.deepcopy(self.exp)
+        k = next(i for i, s in enumerate(got['segments']) if s['type'] == 'lift')
+        del got['segments'][k]
+        rep, n = field.report(self.h, self.exp, got)
+        self.assertGreaterEqual(n, 1)
+        self.assertIn('only in the tool', rep)
+        # the rows after the gap are still matched one to one
+        self.assertGreater(rep.count('| ok |'), len(self.exp['segments']) // 2 - 1)
+        self.no_position(rep)
+
+    def test_live_and_speed(self):
+        got, lv = copy.deepcopy(self.exp), copy.deepcopy(self.live)
+        got['stats']['max_kmh'] = round(got['stats']['max_kmh'] + 0.3, 1)
+        lv['events'][1]['t'] += 5000
+        rep, n = field.report(self.h, self.exp, got, 0, self.live, lv)
+        self.assertGreaterEqual(n, 2)
+        self.assertIn('stats.max_kmh', rep)
+        self.assertIn('live[1]', rep)
+
+    def test_strip_and_repository(self):
+        out = json.dumps(field.strip(self.exp))
+        self.assertNotIn('"lat"', out); self.assertNotIn('"lon"', out)
+        self.no_position(out)
+        self.assertTrue(field.inside_repo(os.path.join(build.ROOT, 'tools', 'x.json')))
+        self.assertFalse(field.inside_repo(os.path.join(tempfile.gettempdir(), 'x.json')))
+        with tempfile.TemporaryDirectory() as d:
+            app = os.path.join(d, 'app.json')
+            field._write(app, json.dumps(self.exp))
+            self.assertEqual(field.main(['analyse', self.log, '-o', os.path.join(build.ROOT, 'tools', 'x.json')]), 2)
+            self.assertFalse(os.path.exists(os.path.join(build.ROOT, 'tools', 'x.json')))
+            rp = os.path.join(d, 'r.md')
+            self.assertEqual(field.main(['compare', self.log, app, '-o', rp]), 0)
+            self.no_position(field._read(rp))
+
+
+class TwoPhones(unittest.TestCase):
+    """field.phones: one skier, two phones (two receivers, the same truth), the architect's wider thresholds."""
+
+    @classmethod
+    def setUpClass(cls):
+        name, builder, _, opts = next(c for c in cases.CASES if c[0] == 'run_to_run')
+        d = synth.Day(BASE, 7, skier={'vmax': 17.0, 'wander': 7.0})
+        builder(d)
+        synth.truth_labels(BASE, d.rows)
+        a = analyze.Analyzer(BASE, P)
+        out = []
+        for seed, baro in ((11, True), (12, False)):
+            h = {'v': 1, 'tz': 'Asia/Tbilisi', 'resort': 'gudauri', 'device': 'phone%d' % seed, 'start': d.rows[0]['t']}
+            hd, pts, evs, _ = rawlog.read(synth.write_log(synth.sense(BASE, d, seed, baro=baro), h, []))
+            out.append((hd, a.final(hd, pts, evs), pts))
+        (cls.ha, cls.ra, cls.pa), (cls.hb, cls.rb, cls.pb) = out
+
+    def test_same_day_meets_the_thresholds(self):
+        rep, miss = field.phones(self.ha, self.ra, self.hb, self.rb, self.pa, self.pb)
+        self.assertEqual(miss, [], rep)
+        self.assertIn('barometer A yes, B no', rep)
+        self.assertIsNone(re.search(r'4[24]\.\d{3}', rep))
+
+    def test_clock_offset_is_taken_out(self):
+        rb = copy.deepcopy(self.rb)
+        for sg in rb['segments']:
+            sg['t0'] += 1500; sg['t1'] += 1500
+        rep, miss = field.phones(self.ha, self.ra, self.hb, rb)
+        self.assertEqual(miss, [])
+        self.assertRegex(rep, r'Clock offset taken out: \+(1\.[0-9]|2\.0) s')
+
+    def test_misses(self):
+        rb = copy.deepcopy(self.rb)
+        lift = next(sg for sg in rb['segments'] if sg['type'] == 'lift')
+        lift['lift'] = 'another'
+        rb['stats']['ski_dist_m'] *= 1.2
+        rb['stats']['max_kmh'] = round(self.ra['stats']['max_kmh'] + 6, 1)
+        rep, miss = field.phones(self.ha, self.ra, self.hb, rb, self.pa, self.pb)
+        joined = ' | '.join(miss)
+        self.assertIn('another lift', joined)
+        self.assertIn('ski_dist_m', joined)
+        self.assertIn('max speed', joined)
+        self.assertIn('check the Doppler accuracy first', rep)
+        rb['segments'] = [sg for sg in rb['segments'] if sg['type'] != 'lift']
+        self.assertTrue(any(m.startswith('sequence') for m in field.phones(self.ha, self.ra, self.hb, rb)[1]))
 
 
 if __name__ == '__main__':
