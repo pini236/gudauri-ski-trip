@@ -120,7 +120,7 @@ struct TripPickField: View {
                 if value != nil, let onClear {
                     Button(action: onClear) {
                         Image(systemName: "xmark").font(.system(size: 13, weight: .semibold)).foregroundStyle(c.muted)
-                            .frame(width: 40, height: 44).contentShape(Rectangle())
+                            .frame(width: 40, height: 44).contentShape(Rectangle().inset(by: -2)) // a 44-wide hit area, drawn as before
                     }
                     .buttonStyle(.plain)
                     .accessibilityLabel(S.appTripClear + ", " + label)
