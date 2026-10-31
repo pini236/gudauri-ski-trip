@@ -85,6 +85,10 @@ jobs:
               echo "::warning::status_bar override failed on $NAME, shots keep the default status bar"
             fi
             xcrun simctl install "$UDID" "$APP"
+            # A fresh simulator shows system banners (e.g. "Ready for Apple Intelligence") for a while after boot; let them pass before the first shot.
+            xcrun simctl launch "$UDID" io.github.pini236.skiapp < /dev/null
+            sleep 30
+            xcrun simctl terminate "$UDID" io.github.pini236.skiapp < /dev/null || true
             OUT="shots/${W}x${H}"; mkdir -p "$OUT"
             cat app/ios/qa/store/store.txt | grep -v '^#' | grep -v '^ *$' | while read -r name lang dn trip route; do
               xcrun simctl launch --terminate-running-process "$UDID" io.github.pini236.skiapp \
