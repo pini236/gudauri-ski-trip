@@ -118,6 +118,18 @@ class Network(unittest.TestCase):
         with self.assertRaises(ValueError):
             netmod.Net(BASE.raw_rl, BASE.raw_tj, P, {'lifts': {g.id: {'mid': [{'pos': [la, lo], 'osm': 'node/0'}]}}})
 
+    def test_lift_speed_from_the_data(self):
+        by = {l.name: l for l in BASE.lifts}
+        self.assertEqual((by['Kudebi'].speed, by['Kudebi'].speed_src), (5.0, 'speed'))
+        self.assertEqual(by['Firni'].speed_src, 'kind')  # no source of its own: the default of the kind
+        raw = {'lifts': [{'id': 1, 'name': 'x', 'len': 1000, 'speed': 5.0, 'dur': '5'}]}
+        self.assertEqual(netmod.speed_dur_gaps(raw['lifts']), [(1, 'x', 200, 300)])
+        raw['lifts'][0]['research'] = {'speed_dur': 'the source says so'}
+        self.assertEqual(netmod.speed_dur_gaps(raw['lifts']), [])
+        self.assertEqual(netmod.speed_dur_gaps(BASE.raw_rl['lifts']), [])
+        with self.assertRaises(ValueError):
+            netmod.Net(BASE.raw_rl, BASE.raw_tj, P, {'lifts': {by['Kudebi'].id: {'speed': 2.0}}})
+
     def test_mid_station_from_the_patch(self):
         n = netmod.Net(BASE.raw_rl, BASE.raw_tj, P, cases.mid_patch(BASE))
         g = next(l for l in n.lifts if l.name == 'Goodaura')
