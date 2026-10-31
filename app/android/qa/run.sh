@@ -48,6 +48,7 @@ finish() {
   if [[ -s "$OUT/a11y.txt" ]]; then
     sort -u "$OUT/a11y.txt" -o "$OUT/a11y.txt"
     note "a11y: $(grep -c '^small' "$OUT/a11y.txt") touch targets under 44 dp, $(grep -c '^unlabeled' "$OUT/a11y.txt") tappable without words (a11y.txt)"
+    head -n 80 "$OUT/a11y.txt" | while IFS= read -r line; do echo "A11Y $line"; done
   fi
   note "total: $((SECONDS - START_SECONDS))s · exit: $result"
   exit "$result"
