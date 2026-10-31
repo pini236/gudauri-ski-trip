@@ -91,7 +91,7 @@
       const old = [...svg.querySelectorAll('text.lbl.pg')];
       old.forEach(t => t.style.visibility = 'hidden');
       const placed = (R.rings || []).map(([cx, cy]) => ({ cx, cy, c: 1, s: 0, hw: 10 * u, hh: 10 * u, ang: 0 }));
-      const fs = 13 * u, gap = 8 * u, pad = 3 * u;
+      const fs = (o.fs || 13) * u, gap = (o.gap ?? 8) * u, pad = 3 * u, ST = o.style || 'line';
       const measure = mk('text', { 'font-size': fs, class: 'lbl', style: 'visibility:hidden' }, layer);
       const keys = [...new Set(L.map(l => l.key))].filter(named).filter(k => !o.sel || k === o.sel);
       // longest runs first: they have the most room
@@ -127,12 +127,12 @@
         measure.textContent = k; const w = measure.getBBox().width;
         if (!w) return;
         const RP = runPts(k); let best = null;
-        const judge = (bx, extra) => {
+        const judge = (bx, extra, at) => {
           if (!inView(bx) || nearCross(bx)) return;
           const bad = RP.filter(p => inBox(p, bx)).length + placed.reduce((t, q) => t + boxPts(bx).filter(p => inBox(p, q)).length + boxPts(q).filter(p => inBox(p, bx)).length, 0);
           if (bad) return; // never on another run or label
           const score = extra + LP.filter(p => inBox(p, bx)).length * 15; // a lift cable under the name is tolerable, but costs
-          if (!best || score < best.score) best = { score, b: bx };
+          if (!best || score < best.score) best = { score, b: bx, at };
         };
         L.filter(l => l.key === k).forEach(l => {
           const pts = l.pts, n = pts.length, span = Math.ceil((w / 2 + pad) / 12) + 1;
@@ -141,22 +141,37 @@
             let ang = Math.atan2(a1[1] - a0[1], a1[0] - a0[0]); if (ang > Math.PI / 2) ang -= Math.PI; if (ang < -Math.PI / 2) ang += Math.PI;
             let bend = 0; const dx = a1[0] - a0[0], dy = a1[1] - a0[1], dl = Math.hypot(dx, dy) || 1;
             for (let j = i - span; j <= i + span; j++) { const p = pts[j]; bend = Math.max(bend, Math.abs((p[0] - a0[0]) * dy - (p[1] - a0[1]) * dx) / dl); }
-            if (bend > 9 * u) continue; // the stretch under the name must be nearly straight
+            if (bend > (ST === 'curve' ? 26 : 9) * u) continue; // the stretch under the name must be nearly straight (a curved name may bend with it)
             const c = Math.cos(ang), sn = Math.sin(ang), f = i / (n - 1);
-            for (const side of (o.onLine ? [0, -1, 1] : [-1, 1])) {
+            for (const side of (ST === 'curve' ? [-1, 1] : ST === 'tag' ? [0] : o.onLine ? [0, -1, 1] : [-1, 1])) {
               const off = (gap + fs * 0.35) * side;
-              judge({ cx: pts[i][0] - sn * off, cy: pts[i][1] + c * off, c, s: sn, hw: w / 2 + pad, hh: fs * 0.55 + pad, ang }, bend / u * 2 + Math.abs(f - 0.5) * 20 + (side ? 40 : 0) - l.len / u * 0.01);
+              judge({ cx: pts[i][0] - sn * off, cy: pts[i][1] + c * off, c, s: sn, hw: w / 2 + pad + (ST === 'tag' ? 4 * u : 0), hh: fs * 0.55 + pad + (ST === 'tag' ? 2 * u : 0), ang }, (ST === 'curve' ? 0 : bend / u * 2) + Math.abs(f - 0.5) * 20 + (side && ST !== 'curve' ? 40 : 0) - l.len / u * 0.01, { pts, i, span, side, off });
             }
           }
           // short runs (beginner areas): a level name beside the middle
           const m = pts[Math.floor(n / 2)];
-          for (const [ddx, ddy] of [[0, -1], [0, 1], [1, 0], [-1, 0]]) judge({ cx: m[0] + ddx * (w / 2 + gap), cy: m[1] + ddy * (fs * 0.6 + gap), c: 1, s: 0, hw: w / 2 + pad, hh: fs * 0.55 + pad, ang: 0 }, 80);
+          if (ST !== 'curve') for (const [ddx, ddy] of [[0, -1], [0, 1], [1, 0], [-1, 0]]) judge({ cx: m[0] + ddx * (w / 2 + gap), cy: m[1] + ddy * (fs * 0.6 + gap), c: 1, s: 0, hw: w / 2 + pad, hh: fs * 0.55 + pad, ang: 0 }, 80);
         });
         if (!best) return; // no clean place in this view: the run stays unnamed rather than wear another run's name
         placed.push(best.b);
         const { b } = best, deg = b.ang * 180 / Math.PI;
-        const t = mk('text', { x: 0, y: 0, transform: `translate(${b.cx} ${b.cy}) rotate(${deg})`, 'text-anchor': 'middle', 'dominant-baseline': 'central', 'font-size': fs, 'stroke-width': (o.onLine ? 5 : 3.2) * u, class: 'lbl', fill: `var(--p-${color(k)})` }, layer);
-        t.textContent = k;
+        if (ST === 'curve' && best.at) {
+          // the name follows the line beside it: a path along the run, offset to one side, read left to right
+          const { pts, i, span, off } = best.at, q = [];
+          for (let j = i - span - 1; j <= i + span + 1; j++) { const a = pts[Math.max(0, j - 1)], c2 = pts[Math.min(pts.length - 1, j + 1)], p0 = pts[Math.max(0, Math.min(pts.length - 1, j))]; const an = Math.atan2(c2[1] - a[1], c2[0] - a[0]); q.push([p0[0] - Math.sin(an) * off, p0[1] + Math.cos(an) * off]); }
+          if (q[q.length - 1][0] < q[0][0]) q.reverse();
+          const id = 'r21p' + Math.random().toString(36).slice(2, 8);
+          mk('path', { id, d: 'M' + q.map(p => p.map(v => v.toFixed(2)).join(' ')).join('L'), fill: 'none', stroke: 'none' }, layer);
+          const t = mk('text', { 'font-size': fs, 'stroke-width': 3 * u, class: 'lbl', fill: `var(--p-${color(k)})`, 'dominant-baseline': 'central' }, layer);
+          const tp = mk('textPath', { href: '#' + id, startOffset: '50%', 'text-anchor': 'middle' }, t); tp.textContent = k;
+        } else if (ST === 'tag') {
+          const g = mk('g', { transform: `translate(${b.cx} ${b.cy}) rotate(${deg})` }, layer);
+          mk('rect', { x: -b.hw + pad, y: -b.hh + pad, width: 2 * (b.hw - pad), height: 2 * (b.hh - pad), rx: 2 * u, fill: `var(--p-${color(k)})`, stroke: 'var(--casing)', 'stroke-width': 1.2 * u }, g);
+          const t = mk('text', { x: 0, y: 0.5 * u, 'text-anchor': 'middle', 'dominant-baseline': 'central', 'font-size': fs, style: 'font-family:var(--f-body);font-weight:700;fill:var(--on-board)' }, g); t.textContent = k;
+        } else {
+          const t = mk('text', { x: 0, y: 0, transform: `translate(${b.cx} ${b.cy}) rotate(${deg})`, 'text-anchor': 'middle', 'dominant-baseline': 'central', 'font-size': fs, 'stroke-width': (o.onLine ? (o.fs ? 3.6 : 5) : 3.2) * u, class: 'lbl', fill: `var(--p-${color(k)})` }, layer);
+          t.textContent = k;
+        }
       });
       measure.remove();
       // lift and place labels that now sit under a run label give way
