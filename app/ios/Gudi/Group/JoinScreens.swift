@@ -176,7 +176,7 @@ struct JoinHead: View {
         HStack(spacing: 18) {
             if let a = p.startsOn, let b = p.endsOn {
                 HStack(spacing: 6) {
-                    Image(systemName: "calendar").font(.system(size: 17)).foregroundStyle(c.ink)
+                    Image(systemName: "calendar").font(.system(size: 17)).foregroundStyle(c.ink).accessibilityHidden(true)
                     Text(dayRange(a...max(a, b))).font(ski.type.display(22)).foregroundStyle(c.ink).environment(\.layoutDirection, .leftToRight)
                 }
             }

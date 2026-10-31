@@ -218,7 +218,7 @@ struct GLegLine: View {
         let c = ski.colors
         HStack(spacing: 6) {
             Text(leg.fromCode ?? (leg.fromCity.isEmpty ? "—" : leg.fromCity)).font(.custom("Karantina-Bold", fixedSize: size)).foregroundStyle(c.ink)
-            Image(systemName: "airplane").font(.system(size: size * 0.5)).foregroundStyle(c.glacier).flipsForRightToLeftLayoutDirection(true)
+            Image(systemName: "airplane").font(.system(size: size * 0.5)).foregroundStyle(c.glacier).flipsForRightToLeftLayoutDirection(true).accessibilityHidden(true)
             Text(leg.toCode ?? (leg.toCity.isEmpty ? "—" : leg.toCity)).font(.custom("Karantina-Bold", fixedSize: size)).foregroundStyle(c.ink)
             if !leg.flight.isEmpty {
                 Text(leg.flight).font(ski.type.text(12.5)).foregroundStyle(c.muted).environment(\.layoutDirection, .leftToRight).padding(.leading, 6)
@@ -285,7 +285,7 @@ struct FlightsTab: View {
                                 let m = rows[k].1
                                 HStack(spacing: 4) {
                                     Text(m.name + (m.me ? " " + S.appGMeSuffix : "")).font(ski.type.text(13, .bold)).foregroundStyle(c.ink)
-                                    if m.enteredByAdmin != nil { Image(systemName: "pencil").font(.system(size: 11)).foregroundStyle(c.muted) }
+                                    if m.enteredByAdmin != nil { Image(systemName: "pencil").font(.system(size: 11)).foregroundStyle(c.muted).accessibilityLabel(S.groupEnteredByAdmin) }
                                 }
                                 .padding(.horizontal, 10).frame(minHeight: 30)
                                 .background(c.bpPaper2)
@@ -537,16 +537,16 @@ struct MeetupsTab: View {
                             GroupService.shared.remindersChanged()
                         } label: {
                             HStack(spacing: 8) {
-                                Image(systemName: on ? "bell.fill" : "bell.slash").font(.system(size: 13)).foregroundStyle(on ? c.blue : c.muted)
+                                Image(systemName: on ? "bell.fill" : "bell.slash").font(.system(size: 13)).foregroundStyle(on ? c.blue : c.muted).accessibilityHidden(true)
                                 GMuted(S.appGRemind, 12.5)
                                 Spacer(minLength: 0)
-                                Image(systemName: on ? "checkmark.square.fill" : "square").font(.system(size: 18)).foregroundStyle(on ? c.blue : c.muted)
+                                Image(systemName: on ? "checkmark.square.fill" : "square").font(.system(size: 18)).foregroundStyle(on ? c.blue : c.muted).accessibilityHidden(true)
                             }
                             .padding(.horizontal, 14).frame(minHeight: 44).contentShape(Rectangle())
                         }
                         .buttonStyle(.plain)
                         .accessibilityLabel(S.appGRemind)
-                        .accessibilityValue(on ? "✓" : "")
+                        .accessibilityValue(on ? S.appOn : S.appOff).accessibilityAddTraits(.isToggle)
                         .overlay(alignment: .top) { Rectangle().fill(c.rule).frame(height: 1) }
                     }
                     }

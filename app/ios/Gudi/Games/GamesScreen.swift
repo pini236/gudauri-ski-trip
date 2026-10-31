@@ -123,7 +123,7 @@ private struct Thumb: View {
             }
             ZStack {
                 Circle().fill(Color(rgb: 0x13233A, opacity: 0.82))
-                Image(systemName: "play.fill").font(.system(size: 11, weight: .bold)).foregroundStyle(.white).offset(x: 1)
+                Image(systemName: "play.fill").font(.system(size: 11, weight: .bold)).foregroundStyle(.white).offset(x: 1).accessibilityHidden(true)
             }
             .frame(width: 28, height: 28)
         }

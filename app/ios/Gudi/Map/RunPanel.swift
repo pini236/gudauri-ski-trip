@@ -251,7 +251,7 @@ struct InfoDot: View {
                 .frame(width: 22, height: 22).overlay(Circle().stroke(open ? ski.colors.ink : ski.colors.muted, lineWidth: 1.5))
                 .frame(width: 44, height: 44)
         }
-        .buttonStyle(.plain).accessibilityLabel(label).accessibilityValue(open ? "+" : "")
+        .buttonStyle(.plain).accessibilityLabel(label).accessibilityAddTraits(open ? .isSelected : [])
     }
 }
 

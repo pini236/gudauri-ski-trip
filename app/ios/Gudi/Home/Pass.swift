@@ -136,7 +136,7 @@ struct EmptyPass: View {
                         Dashed(color: c.blue) { PassCode(code: "TLV", color: c.blue) }
                     }
                     Spacer()
-                    Image(systemName: "airplane").font(.system(size: 22)).foregroundStyle(c.rule)
+                    Image(systemName: "airplane").font(.system(size: 22)).foregroundStyle(c.rule).accessibilityHidden(true)
                         .flipsForRightToLeftLayoutDirection(true).frame(maxHeight: .infinity, alignment: .center)
                     Spacer()
                     VStack(alignment: .trailing, spacing: 2) {
@@ -148,7 +148,7 @@ struct EmptyPass: View {
                 // the one question: a dashed button with the calendar
                 Button(action: onWhen) {
                     HStack(spacing: 10) {
-                        Image(systemName: "calendar").font(.system(size: 20)).foregroundStyle(c.blue)
+                        Image(systemName: "calendar").font(.system(size: 20)).foregroundStyle(c.blue).accessibilityHidden(true)
                         Text(S.tripWhenFly).font(ski.type.display(30)).foregroundStyle(c.blue).lineLimit(1).minimumScaleFactor(0.55)
                     }
                     .padding(.horizontal, 18).frame(minHeight: 52)

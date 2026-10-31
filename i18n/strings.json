@@ -9860,6 +9860,66 @@
     "ka"
    ]
   },
+  "app.a11y_locked": {
+   "he": "נעול",
+   "en": "Locked",
+   "ru": "Закрыто",
+   "ka": "დაკეტილია",
+   "where": "app/ios (VoiceOver)",
+   "note": "state of a lesson or level not yet open, read out",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.a11y_move_up": {
+   "he": "הזזה למעלה",
+   "en": "Move up",
+   "ru": "Сдвинуть вверх",
+   "ka": "ზემოთ გადაწევა",
+   "where": "app/ios (VoiceOver)",
+   "note": "merge game: the swipe as a VoiceOver action",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.a11y_move_down": {
+   "he": "הזזה למטה",
+   "en": "Move down",
+   "ru": "Сдвинуть вниз",
+   "ka": "ქვემოთ გადაწევა",
+   "where": "app/ios (VoiceOver)",
+   "note": "merge game: the swipe as a VoiceOver action",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.a11y_move_left": {
+   "he": "הזזה שמאלה",
+   "en": "Move left",
+   "ru": "Сдвинуть влево",
+   "ka": "მარცხნივ გადაწევა",
+   "where": "app/ios (VoiceOver)",
+   "note": "merge game: the swipe as a VoiceOver action; the screen's left in every language",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.a11y_move_right": {
+   "he": "הזזה ימינה",
+   "en": "Move right",
+   "ru": "Сдвинуть вправо",
+   "ka": "მარჯვნივ გადაწევა",
+   "where": "app/ios (VoiceOver)",
+   "note": "merge game: the swipe as a VoiceOver action; the screen's right in every language",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
   "app.a_google": {
    "he": "גוגל",
    "en": "Google",

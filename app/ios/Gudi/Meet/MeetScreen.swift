@@ -41,7 +41,7 @@ struct MeetScreen: View {
               ScrollViewReader { scroll in
                 ScrollView {
                     VStack(spacing: 0) {
-                        mapBox(st).frame(height: max(300, g.size.height * 0.56))
+                        mapBox(st).frame(height: max(300, g.size.height * 0.56)).fixedType()
                         Rectangle().fill(c.rule).frame(height: 1)
                         VStack(alignment: .leading, spacing: 18) {
                             when(days, pickedDay)
@@ -53,7 +53,7 @@ struct MeetScreen: View {
                             }
                             if let st {
                                 MeetCard(station: st, time: time, day: dayLabel(pickedDay, ski.type.lang),
-                                         left: Meet.left(at: Meet.at(pickedDay, time), now: now)) { clear() }
+                                         left: Meet.left(at: Meet.at(pickedDay, time), now: now)) { clear() }.fixedType()
                                 if let lines {
                                     ShareBox(station: st, time: time, day: pickedDay, lines: lines, art: art) {
                                         app.mapLift = st.name
@@ -62,7 +62,7 @@ struct MeetScreen: View {
                                 }
                                 SaveToGroup(station: st.id, at: Date(timeIntervalSince1970: Double(Meet.at(pickedDay, time)) / 1000))
                             } else {
-                                EmptyCard()
+                                EmptyCard().fixedType()
                             }
                         }
                         .padding(.horizontal, 16).padding(.top, 16).padding(.bottom, 28)
@@ -323,9 +323,11 @@ struct MeetChip: View {
 
 /// The gold dot that asks where to meet (meet-hint .ask).
 private struct AskDot: View {
+    /// With reduced motion the dot stays still (as Android's Motion and the site's prefers-reduced-motion).
+    @Environment(\.accessibilityReduceMotion) private var still
     var body: some View {
-        TimelineView(.animation) { t in
-            let f = t.date.timeIntervalSinceReferenceDate.truncatingRemainder(dividingBy: 1.6) / 1.6
+        TimelineView(.animation(paused: still)) { t in
+            let f = still ? 0 : t.date.timeIntervalSinceReferenceDate.truncatingRemainder(dividingBy: 1.6) / 1.6
             ZStack {
                 Circle().fill(MeetInk.gold.opacity(0.3 * (1 - f))).frame(width: 10 + 12 * f, height: 10 + 12 * f)
                 Circle().fill(MeetInk.gold).frame(width: 10, height: 10)

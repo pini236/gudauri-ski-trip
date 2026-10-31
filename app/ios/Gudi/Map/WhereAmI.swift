@@ -231,7 +231,7 @@ struct AskSheet: View {
 
     private func bullet(_ icon: String, _ text: Text) -> some View {
         HStack(alignment: .top, spacing: 10) {
-            Image(systemName: icon).font(.system(size: 18)).foregroundStyle(ski.colors.glacier).frame(width: 22).padding(.top, 2)
+            Image(systemName: icon).font(.system(size: 18)).foregroundStyle(ski.colors.glacier).frame(width: 22).padding(.top, 2).accessibilityHidden(true)
             text.font(ski.type.text(14.5)).foregroundStyle(ski.colors.ink).fixedSize(horizontal: false, vertical: true)
         }
         .padding(.bottom, 10)

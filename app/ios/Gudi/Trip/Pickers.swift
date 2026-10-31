@@ -184,7 +184,7 @@ struct TripButton: View {
         let c = ski.colors
         Button(action: action) {
             HStack(spacing: 8) {
-                if let icon { Image(systemName: icon).font(.system(size: 16, weight: .bold)) }
+                if let icon { Image(systemName: icon).font(.system(size: 16, weight: .bold)).accessibilityHidden(true) }
                 Text(title).font(ski.type.text(16, .bold))
             }
             .foregroundStyle(Color(rgb: c.p.onAccent))
@@ -318,7 +318,7 @@ struct TripPlaceSheet: View {
         VStack(alignment: .leading, spacing: 10) {
             TripSheetHead(title: title)
             HStack(spacing: 8) {
-                Image(systemName: "magnifyingglass").foregroundStyle(c.muted)
+                Image(systemName: "magnifyingglass").foregroundStyle(c.muted).accessibilityHidden(true)
                 TextField(S.appTripPlaceSearch, text: $q, prompt: Text(S.appTripPlaceSearch).foregroundColor(c.muted.opacity(0.75)))
                     .font(ski.type.text(16)).foregroundStyle(c.ink)
                     .autocorrectionDisabled().focused($searching)
@@ -353,7 +353,7 @@ struct TripPlaceSheet: View {
                                 TripPlaceCode(code: code, color: c.glacier)
                                 Text(S.appTripPlaceOther(text: code)).font(ski.type.text(15, .bold)).foregroundStyle(c.glacier)
                                 Spacer()
-                                Image(systemName: "plus").font(.system(size: 16, weight: .bold)).foregroundStyle(c.glacier)
+                                Image(systemName: "plus").font(.system(size: 16, weight: .bold)).foregroundStyle(c.glacier).accessibilityHidden(true)
                             }
                             .padding(.horizontal, 12).frame(minHeight: 52).contentShape(Rectangle())
                         }

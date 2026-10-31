@@ -54,7 +54,7 @@ struct GNote: View {
     init(_ text: String, _ icon: String) { self.text = text; self.icon = icon }
     var body: some View {
         HStack(alignment: .top, spacing: 8) {
-            Image(systemName: icon).font(.system(size: 15)).foregroundStyle(ski.colors.muted).frame(width: 18)
+            Image(systemName: icon).font(.system(size: 15)).foregroundStyle(ski.colors.muted).frame(width: 18).accessibilityHidden(true)
             Text(text).font(ski.type.text(13)).foregroundStyle(ski.colors.muted).fixedSize(horizontal: false, vertical: true)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -72,7 +72,7 @@ struct GPrimary: View {
     var body: some View {
         Button(action: { Fx.shared.tick(); action() }) {
             HStack(spacing: 8) {
-                if let icon { Image(systemName: icon).font(.system(size: 18, weight: .semibold)) }
+                if let icon { Image(systemName: icon).font(.system(size: 18, weight: .semibold)).accessibilityHidden(true) }
                 Text(text).font(ski.type.text(16.5, .bold)).lineLimit(1).minimumScaleFactor(0.7)
             }
             .foregroundStyle(ski.colors.onBoard)
@@ -124,7 +124,7 @@ struct GButton: View {
         }
         Button(action: action) {
             HStack(spacing: 8) {
-                if let icon { Image(systemName: icon).font(.system(size: 17, weight: .semibold)) }
+                if let icon { Image(systemName: icon).font(.system(size: 17, weight: .semibold)).accessibilityHidden(true) }
                 Text(text).font(ski.type.text(small ? 15 : 16.5, .bold)).lineLimit(1).minimumScaleFactor(0.7)
             }
             .foregroundStyle(fg.opacity(enabled ? 1 : 0.5))
@@ -302,7 +302,7 @@ struct GPendingCard: View {
     var body: some View {
         let c = ski.colors
         HStack(spacing: 14) {
-            Image(systemName: "hourglass").font(.system(size: 26)).foregroundStyle(Color(rgb: 0xC98A00))
+            Image(systemName: "hourglass").font(.system(size: 26)).foregroundStyle(Color(rgb: 0xC98A00)).accessibilityHidden(true)
             VStack(alignment: .leading, spacing: 4) {
                 GDisplay(S.joinPendingTitle, 24)
                 if let onCancel {

@@ -80,14 +80,17 @@ struct RootView: View {
                     case .privacy: openURL(Site.privacy(lang))
                     }
                 }
+                // home is the sky, the boarding pass and the sign post, drawn at fixed sizes
+                .fixedType()
                 .toolbar(.hidden, for: .navigationBar)
                 .navigationDestination(for: Route.self) { r in
                     Group {
                         switch r {
                         case .map(let run): MapScreen(run: run)
                         case .meet(let station): MeetScreen(station: station)
-                        case .games: GamesScreen()
-                        case .game(let id): GameScreen(id: id)
+                        // the games page (signs on a post) and the games themselves: art and play fields at fixed sizes
+                        case .games: GamesScreen().fixedType()
+                        case .game(let id): GameScreen(id: id).fixedType()
                         case .group: GroupScreen()
                         case .about: AboutScreen(mode: mode, onMode: { modeRaw = mode.next.rawValue; Telemetry.shared.event("theme_set", ["mode": mode.next.rawValue]) },
                                                  onLang: { setLang($0, lang) }, onResetBests: { Bests.reset() })
@@ -109,6 +112,17 @@ struct RootView: View {
             .environment(\.ski, ski)
             .environment(\.layoutDirection, lang.rtl ? .rightToLeft : .leftToRight)
             .preferredColorScheme(frame.dark ? .dark : .light)
+            // body text follows the phone's text size up to the largest before the accessibility sizes, where the
+            // layouts still hold; the screenshots can pin one (qa flag text=xxxl)
+            .dynamicTypeSize(qaTextSize.map { $0...$0 } ?? (.xSmall ... .xxxLarge))
+        }
+    }
+
+    private var qaTextSize: DynamicTypeSize? {
+        switch UserDefaults.standard.string(forKey: "qa.text") {
+        case "xxxl": .xxxLarge
+        case "ax3": .accessibility3
+        default: nil
         }
     }
 

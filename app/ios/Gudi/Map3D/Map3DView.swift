@@ -82,8 +82,9 @@ struct Map3DView: View {
             ZStack(alignment: .bottom) {
                 if let engine {
                     MountainView(engine: engine).ignoresSafeArea()
-                    Labels3D(engine: engine).allowsHitTesting(false).ignoresSafeArea()
-                    if let overlay { Over3D(engine: engine, draw: overlay).allowsHitTesting(false).ignoresSafeArea() }
+                    // the names on the snow are part of the picture: VoiceOver gets the map element and the runs list
+                    Labels3D(engine: engine).allowsHitTesting(false).ignoresSafeArea().accessibilityHidden(true)
+                    if let overlay { Over3D(engine: engine, draw: overlay).allowsHitTesting(false).ignoresSafeArea().accessibilityHidden(true) }
                     if engine.flying, let p = model.selected {
                         FlyBar(engine: engine, name: runName(p))
                             .padding(.bottom, g.size.height * bottom + 8)
@@ -171,8 +172,9 @@ private struct MountainView: UIViewRepresentable {
         v.enableSetNeedsDisplay = true
         v.isMultipleTouchEnabled = true
         v.delegate = engine
-        v.isAccessibilityElement = true
-        v.accessibilityLabel = S.mapMapAria
+        // VoiceOver reads the map screen's element over the mountain, with its actions (MapScreen, MapActions)
+        v.isAccessibilityElement = false
+        v.accessibilityElementsHidden = true
         engine.view = v
         return v
     }

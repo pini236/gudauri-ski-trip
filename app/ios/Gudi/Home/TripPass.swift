@@ -105,10 +105,10 @@ struct TripPass: View {
                 Fx.shared.tick(0.35 + CGFloat(i % 3) * 0.1)
             }
         }
-        withAnimation(.linear(duration: 0.52)) { tear = 1 }
+        withAnimation(still ? nil : .linear(duration: 0.52)) { tear = 1 }
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.52) {
             Fx.shared.click(1)
-            withAnimation(.easeIn(duration: 0.62)) { fall = 1 }
+            withAnimation(still ? nil : .easeIn(duration: 0.62)) { fall = 1 }
             DispatchQueue.main.asyncAfter(deadline: .now() + 2.1) {
                 tear = 0; fall = 0
                 Fx.shared.play("ticket-land", volume: 0.6); Fx.shared.click(0.5)
@@ -133,7 +133,7 @@ struct TripPass: View {
                     }
                     .editing(front) { edit = .place(from: true) }
                     Spacer()
-                    Image(systemName: "airplane").font(.system(size: 22)).foregroundStyle(p.acc)
+                    Image(systemName: "airplane").font(.system(size: 22)).foregroundStyle(p.acc).accessibilityHidden(true)
                         .flipsForRightToLeftLayoutDirection(true).frame(maxHeight: .infinity)
                     Spacer()
                     VStack(alignment: .trailing, spacing: 2) {

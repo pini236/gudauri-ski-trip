@@ -83,7 +83,7 @@ struct GroupDates: View {
             Text(label).font(ski.type.text(13, .semibold)).foregroundStyle(c.muted)
             Button(action: action) {
                 HStack(spacing: 8) {
-                    Image(systemName: "calendar").foregroundStyle(c.muted)
+                    Image(systemName: "calendar").foregroundStyle(c.muted).accessibilityHidden(true)
                     Text(d.map(gDayText) ?? S.appTripPickDate).font(ski.type.text(15)).foregroundStyle(d == nil ? c.muted : c.ink).lineLimit(1).minimumScaleFactor(0.7)
                     Spacer(minLength: 0)
                 }
@@ -158,7 +158,7 @@ struct InviteScreen: View {
                         if let text {
                             ShareLink(item: text) {
                                 HStack(spacing: 8) {
-                                    Image(systemName: "square.and.arrow.up").font(.system(size: 17, weight: .semibold))
+                                    Image(systemName: "square.and.arrow.up").font(.system(size: 17, weight: .semibold)).accessibilityHidden(true)
                                     Text(S.appGShare).font(ski.type.text(16.5, .bold))
                                 }
                                 .foregroundStyle(c.ink).frame(maxWidth: .infinity, minHeight: 52)
