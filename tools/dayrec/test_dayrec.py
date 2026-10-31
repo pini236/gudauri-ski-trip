@@ -321,6 +321,69 @@ class Moments(unittest.TestCase):
         car = [s for s in self.EX['drive_down']['segments'] if s['type'] == 'drive'][0]
         self.assertFalse([m for m in o['items'] if car['t0'] <= m['t'] <= car['t1']])
 
+    def _fake(self, descents, queues=(), t0=1799640000000):
+        """A made-up final result: descents [(run, stops)], each 10 min apart, and queues [(minutes, lift, local hour)]."""
+        segs, t = [], t0
+        for run, stops in descents:
+            segs.append({'type': 'descent', 't0': t, 't1': t + 300000, 'dist_m': 2000.0, 'drop_m': 400.0, 'moving_s': 280,
+                         'legs': [{'t0': t, 't1': t + 300000, 'kind': 'run', 'runs': [run], 'dist_m': 2000.0}],
+                         'stops': [{'t0': t + 1000 * i, 't1': t + 1000 * i + 500} for i in range(stops)], 'offpiste': []})
+            segs.append({'type': 'lift', 't0': t + 300000, 't1': t + 600000, 'name': 'Goodaura', 'lift': '1'})
+            t += 600000
+        for m, lift, hour in queues:
+            q0 = 1799625600000 + int((hour - self.M['utc_offset_h']) * 3600000)  # 2027-01-11 00:00 local + hour
+            segs.append({'type': 'stop', 'kind': 'queue', 't0': q0, 't1': q0 + m * 60000})
+            segs.append({'type': 'lift', 't0': q0 + m * 60000, 't1': q0 + m * 60000 + 300000, 'name': lift, 'lift': '1'})
+        segs.sort(key=lambda s: s['t0'])
+        return {'mode': 'day', 'end': t, 'segments': segs, 'falls': [],
+                'stats': {'drop_m': 400.0 * len(descents), 'ski_dist_m': 2000.0 * len(descents), 'ski_s': 280 * len(descents),
+                          'lift_s': 300 * len(descents)}}
+
+    def keys(self, o):
+        return {m['key']: m['p'] for m in o['items']}
+
+    def test_insights_favorite_flow_and_the_previous_day(self):
+        ds = [('Goodaura 1', 3), ('Goodaura 1', 2), ('Tatra 1', 2), ('Goodaura 1', 0), ('Goodaura 1', 1), ('Tatra 1', 0)]
+        h = moments.update(moments.empty_history(), self._fake(ds[:4]), BASE.runs, self.M)
+        o = moments.moments(self._fake(ds), h, BASE.runs, self.M)
+        k = self.keys(o)
+        self.assertEqual(k['favorite'], {'run': 'Goodaura 1', 'n': 4, 'of': 6})
+        self.assertEqual(k['flow'], {'am': 7, 'am_n': 3, 'pm': 1, 'pm_n': 3})
+        self.assertEqual((k['vs_day']['vs'], k['vs_day']['times']), ('prev', 1.5))  # the first day is day 1: not yet
+        self.assertEqual(o['theme'], 'endurance')  # a record of descents, drop and distance
+        self.assertNotIn('lat', json.dumps(o['history']))
+
+    def test_insights_queue_pattern_and_tomorrow_never_harder(self):
+        q = [(2, 'Kudebi', 9), (1, 'Kudebi', 9.5), (9, 'Kudebi', 12), (8, 'Kudebi', 13)]
+        o = moments.moments(self._fake([('Goodaura 1', 0)] * 5, q), None, BASE.runs, self.M)
+        k = self.keys(o)
+        self.assertEqual(k['queue_pattern'], {'lift': 'Kudebi', 'split': 10, 'early': 2, 'late': 8})
+        t = k['tomorrow']
+        self.assertEqual(t['color'], 'blue')  # Goodaura 1 is blue: never a red or a black
+        self.assertIn('Goodaura', BASE.runs[t['run']]['from_lifts'])
+        self.assertEqual(o['story'][-1], next(i for i, m in enumerate(o['items']) if m['key'] == 'tomorrow'))
+        self.assertNotEqual(o['items'][o['share']]['key'], 'tomorrow')
+
+    def test_trip_on_its_last_day_and_at_most_three_insights(self):
+        fx = json.load(open(os.path.join(build.FIX, 'dayrec-moments.json')))
+        last = fx['trip_chain'][-1]['expected']
+        tr = next(m['p'] for m in last['items'] if m['key'] == 'trip')
+        self.assertEqual(tr['days'], 3)
+        self.assertEqual((tr['run'], tr['n']), ('Goodaura 1', 2))  # the run you came back to (a tie: the first by name)
+        self.assertNotIn('trip', [m['key'] for m in fx['trip_chain'][1]['expected']['items']])  # not the last day
+        self.assertEqual([last['items'][i]['key'] for i in last['story'][-2:]], ['trip', 'tomorrow'])
+        for c in fx['cases'] + fx['chain'] + fx['trip_chain']:
+            e = c['expected']
+            body = [i for i in e['story'] if e['items'][i]['key'] not in self.M['story_last']]
+            self.assertLessEqual(len(body), self.M['story_max'])
+            ks = {e['items'][i]['key'] for i in body}
+            if body and 'vs_day' not in ks and any(m['key'] in self.M['story_fallback'] for m in e['items']):
+                self.assertTrue(ks & set(self.M['story_fallback']), c.get('name') or c['final'])
+
+    def test_steepest_is_the_run_panel_number(self):
+        g = BASE.runs['Kudebi 1']['steep_g']
+        self.assertAlmostEqual(g, 0.38008, places=3)  # the site's number (RunFactsTest.kt)
+
     def test_lift_card(self):
         self.assertIsNone(moments.lift_card(self.EX['run_single'], self.M))  # the day ends standing, not on a lift
         k = max(i for i, s in enumerate(self.EX['full_day']['segments']) if s['type'] == 'lift')
