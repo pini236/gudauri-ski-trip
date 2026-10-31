@@ -83,6 +83,7 @@ struct TripPass: View {
         guard trip.ret != nil, !busy else { return }
         busy = true
         Fx.shared.play("ticket-slide", volume: 0.7); Fx.shared.tick(0.5)
+        Telemetry.shared.event("ticket_swap", ["to": showRet ? "out" : "ret"]) // the card coming forward
         if still {
             showRet.toggle(); drag = 0; busy = false; return
         }
@@ -99,6 +100,7 @@ struct TripPass: View {
         guard !busy else { return }
         busy = true
         Fx.shared.play("ticket-tear", volume: 0.85)
+        Telemetry.shared.event("ticket_tear", ["leg": showRet && trip.ret != nil ? "ret" : "out"])
         // a tick per hole as the tear runs down the perforation
         for i in 0..<Self.holes {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.52 * Double(i) / Double(Self.holes)) {
