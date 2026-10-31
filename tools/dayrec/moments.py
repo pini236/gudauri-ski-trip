@@ -13,13 +13,16 @@ the three surfaces: the story of the day, the card on the lift (lift_card) and t
 The history is kept on the phone, never with a position, and grows by one day at a time (update); it is not
 recomputed when a day is deleted (architect, 30.10.2026).
 """
+import math
 import zlib
 
-HISTORY_V = 1
+HISTORY_V = 2
+COLOR_ORDER = ('green', 'blue', 'red', 'black')
+DAY_SUM = ('drop_m', 'descents', 'ski_dist_m')  # what the history keeps of a day: numbers only, never a place
 
 
 def empty_history():
-    return {'v': HISTORY_V, 'days': 0, 'runs': {}, 'colors': {}, 'best': {}}
+    return {'v': HISTORY_V, 'days': 0, 'runs': {}, 'colors': {}, 'best': {}, 'first': None, 'prev': None}
 
 
 def seed(key, t):
@@ -85,6 +88,65 @@ def _day_bests(res):
     }
 
 
+def _deg(g):
+    return int(round(math.degrees(math.atan(g))))
+
+
+def _steepest(res, runs, M):
+    """The steepest run skied today (a leg of at least color_min_m on it), by its steepest ~100 m (the number of the
+    run panel). {run, deg, t} or None."""
+    best = None
+    for k, t in _done(res, runs, M):
+        d = _deg(runs[k].get('steep_g') or 0.0)
+        if best is None or d > best['deg']:
+            best = {'run': k, 'deg': d, 't': t}
+    return best
+
+
+def _desc_colors(s, runs, M):
+    """The colours of a descent: of each run it went on for at least color_min_m (legs on that one run)."""
+    d = {}
+    for lg in s['legs']:
+        if lg['kind'] == 'run' and len(lg['runs']) == 1:
+            d[lg['runs'][0]] = d.get(lg['runs'][0], 0.0) + lg['dist_m']
+    return {runs[k]['color'] for k, m in d.items() if k in runs and m >= M['color_min_m'] and runs[k]['color']}
+
+
+def _queues(res):
+    """[(seconds, t0, lift name)] of the queues: a queue stop and the lift after it."""
+    segs = res.get('segments', [])
+    qs = []
+    for i, s in enumerate(segs):
+        if s['type'] == 'stop' and s.get('kind') == 'queue':
+            nxt = next((x for x in segs[i + 1:] if x['type'] == 'lift'), None)
+            qs.append((round((s['t1'] - s['t0']) / 1000.0), s['t0'], nxt['name'] if nxt else None))
+    return qs
+
+
+def _queue_pattern(res, M):
+    """A lift whose queues were shorter on one side of an hour than on the other: {lift, split, early, late} (minutes,
+    split the local hour), the largest difference, or None."""
+    I = M['insights']
+    by = {}
+    for sec, t0, lift in _queues(res):
+        if lift:
+            by.setdefault(lift, []).append((t0, sec))
+    best = None
+    for lift in sorted(by):
+        q = sorted(by[lift])
+        hours = sorted({int(((t // 1000) / 3600.0 + M['utc_offset_h']) % 24) + 1 for t, _ in q})
+        for hsplit in hours:
+            cut = lambda t: ((t // 1000) / 3600.0 + M['utc_offset_h']) % 24 < hsplit
+            a = [sec for t, sec in q if cut(t)]
+            b = [sec for t, sec in q if not cut(t)]
+            if len(a) < I['queue_pattern_each'] or len(b) < I['queue_pattern_each']:
+                continue
+            e, l = round(sum(a) / len(a) / 60.0), round(sum(b) / len(b) / 60.0)
+            if abs(e - l) >= I['queue_pattern_min_min'] and (best is None or abs(e - l) > abs(best['early'] - best['late'])):
+                best = {'lift': lift, 'split': hsplit, 'early': e, 'late': l}
+    return best
+
+
 # a single-run recording (mode run) counts for these records only
 RUN_RECORDS = ('max_kmh', 'longest_m')
 
@@ -92,10 +154,18 @@ RUN_RECORDS = ('max_kmh', 'longest_m')
 def update(history, res, runs, M):
     """The history after this day: first time of each run and colour, and the personal bests. Never a position."""
     h = {'v': HISTORY_V, 'days': history.get('days', 0), 'runs': dict(history.get('runs', {})),
-         'colors': dict(history.get('colors', {})), 'best': dict(history.get('best', {}))}
+         'colors': dict(history.get('colors', {})), 'best': dict(history.get('best', {})),
+         'first': history.get('first'), 'prev': history.get('prev')}  # a v1 history has neither: none yet
     day = res.get('mode', 'day') == 'day'
     if day and _descents(res):
         h['days'] += 1
+        b = _day_bests(res)
+        h['prev'] = {k: b[k] for k in DAY_SUM}
+        if h['first'] is None:
+            h['first'] = dict(h['prev'])
+    st = _steepest(res, runs, M)
+    if st and st['deg'] > h['best'].get('steep_deg', -1):
+        h['best']['steep_deg'] = st['deg']
     for k, t in _done(res, runs, M):
         h['runs'].setdefault(k, t)
         c = runs[k]['color']
@@ -126,24 +196,35 @@ def moments(res, history, runs, M):
     # the fastest moment of the day ("here you flew")
     if st.get('max_kmh') is not None and st.get('max_at'):
         at = st['max_at']
-        add('fastest', at['t'], dict({'kmh': st['max_kmh'], 'at': {'lat': at['lat'], 'lon': at['lon']}},
-                                     **_where(_leg_at(res, at['t']))))
+        p = dict({'kmh': st['max_kmh'], 'at': {'lat': at['lat'], 'lon': at['lon']}}, **_where(_leg_at(res, at['t'])))
+        nth = next((i + 1 for i, s in enumerate(ds) if s['t0'] <= at['t'] <= s['t1']), None)
+        if nth:  # the how-manieth descent of the day, of how many, and (with two or more) in which half
+            p.update({'nth': nth, 'of': len(ds)})
+            if len(ds) >= 2:
+                p['when'] = 'early' if 2 * nth <= len(ds) else 'late'
+        add('fastest', at['t'], p)
     # the longest descent
     if ds:
         s = max(ds, key=lambda s: (s['dist_m'], -s['t0']))
         add('longest_descent', s['t0'], {'t1': s['t1'], 'dist_m': s['dist_m'], 'drop_m': s['drop_m'],
-                                         'moving_s': s['moving_s'], 'runs': _main_runs(s)})
+                                         'moving_s': s['moving_s'], 'runs': _main_runs(s),
+                                         'stops': len(s.get('stops', []))})
     # the first of each colour today, and whether it is the first ever
     done = _done(res, runs, M)
     for c in M['colors_first']:
         first = next(((k, t) for k, t in done if runs[k]['color'] == c), None)
         if first:
-            add('first_color', first[1], {'color': c, 'run': first[0], 'first_ever': c not in history.get('colors', {})})
+            add('first_color', first[1], {'color': c, 'run': first[0], 'first_ever': c not in history.get('colors', {}),
+                                          'day_n': history.get('days', 0) + 1,
+                                          'n': sum(1 for x in ds if c in _desc_colors(x, runs, M))})
     # runs skied for the first time (only against a history: on the first day everything is new)
     if known:
         new = [(k, t) for k, t in done if k not in history.get('runs', {})]
         if new:
-            add('new_runs', new[0][1], {'runs': [k for k, _ in new]})
+            ever = set(history.get('runs', {})) | {k for k, _ in done}
+            add('new_runs', new[0][1], {'runs': [k for k, _ in new], 'done': len(ever),
+                                        'total': sum(1 for r in runs.values() if r['named'] and r['kind'] == 'run'
+                                                     and r['color'])})
     # personal records against the history, and "all the blues"
     if known:
         best = history.get('best', {})
@@ -167,12 +248,7 @@ def moments(res, history, runs, M):
                 t = max(t for k, t in done if k in want and k not in had)
                 add('all_color', t, {'color': c, 'n': len(want)})
     # the queues
-    segs = res.get('segments', [])
-    qs = []
-    for i, s in enumerate(segs):
-        if s['type'] == 'stop' and s.get('kind') == 'queue':
-            nxt = next((x for x in segs[i + 1:] if x['type'] == 'lift'), None)
-            qs.append((round((s['t1'] - s['t0']) / 1000.0), s['t0'], nxt['name'] if nxt else None))
+    qs = _queues(res)
     if qs:
         q = max(qs, key=lambda q: (q[0], -q[1]))
         if q[0] >= M['queue_min_s']:
@@ -192,6 +268,61 @@ def moments(res, history, runs, M):
     for s in ds:
         for o in s.get('offpiste', []):
             add('offpiste', o['t0'], {'t1': o['t1'], 'drop_m': o['drop_m'], 'dist_m': o['dist_m']})
+    # insights (the content session, "the story of the day" as insights, 31.10.2026): against my own days only,
+    # never against other people, never praising speed
+    I = M['insights']
+    bests = _day_bests(res)
+    # against the day before, or the first day (from day 3): only a rise
+    if day and ds:
+        cands = []
+        for vs, ref, need in (('first', history.get('first'), I['vs_first_times']), ('prev', history.get('prev'), 1 + I['vs_prev_rise'])):
+            if not ref or (vs == 'first' and history.get('days', 0) < 2):
+                continue
+            for k in DAY_SUM:
+                if ref.get(k) and bests.get(k) and bests[k] / ref[k] >= need:
+                    cands.append((vs, k, bests[k] / ref[k], ref[k]))
+            if cands:
+                break  # the first day, when it says something, says more than the day before
+        if cands:
+            vs, k, r, before = max(cands, key=lambda c: (c[2], -DAY_SUM.index(c[1])))
+            add('vs_day', end, {'vs': vs, 'what': k, 'value': bests[k], 'before': before, 'times': round(r, 1)})
+    # flow: fewer stops inside descents in the second half of the day
+    if len(ds) >= 2 * I['flow_min_each']:
+        h = len(ds) // 2
+        am, pm = ds[:h], ds[h:]
+        a, b = sum(len(x.get('stops', [])) for x in am), sum(len(x.get('stops', [])) for x in pm)
+        if a - b >= I['flow_min_fewer']:
+            add('flow', pm[0]['t0'], {'am': a, 'am_n': len(am), 'pm': b, 'pm_n': len(pm)})
+    # the favourite run of the day
+    if ds:
+        cnt = {}
+        for x in ds:
+            m = _main_runs(x, 1)
+            if m:
+                cnt[m[0]] = cnt.get(m[0], 0) + 1
+        if cnt:
+            fav, n = min(cnt.items(), key=lambda kv: (-kv[1], kv[0]))
+            if n >= I['favorite_min'] and n >= I['favorite_share'] * len(ds):
+                t = next(x['t0'] for x in ds if _main_runs(x, 1)[:1] == [fav])
+                add('favorite', t, {'run': fav, 'n': n, 'of': len(ds)})
+    # where the day went: skiing, on lifts, in queues (minutes)
+    if day and len(ds) >= I['time_split_min_descents']:
+        add('time_split', end, {'ski': round(st.get('ski_s', 0) / 60.0), 'lift_min': round(st.get('lift_s', 0) / 60.0),
+                                'queue': round(sum(q[0] for q in qs) / 60.0)})
+    # the steepest stretch skied today, and whether it is the steepest ever
+    stp = _steepest(res, runs, M)
+    if stp and stp['deg'] >= I['steep_min_deg']:
+        prev = history.get('best', {}).get('steep_deg')
+        add('steepest', stp['t'], {'run': stp['run'], 'deg': stp['deg'], 'ever': known and prev is not None and stp['deg'] > prev})
+    # a lift whose queue is shorter at one time of the day
+    qp = _queue_pattern(res, M) if day else None
+    if qp:
+        add('queue_pattern', end, qp)
+    # one suggestion for tomorrow: never a colour harder than the hardest skied today
+    if day:
+        tm = _tomorrow(res, history, runs, M, done, qp)
+        if tm:
+            add('tomorrow', end, tm)
     items.sort(key=lambda m: (m['t'], M['priority'][m['key']] * -1, m['key']))
     def order(i):
         m = items[i]
@@ -202,12 +333,62 @@ def moments(res, history, runs, M):
     story, per = [], {}
     for i in rank:
         k = items[i]['key']
+        if k in M['story_last']:
+            continue
         if len(story) < M['story_max'] and per.get(k, 0) < M['story_per_key']:
             story.append(i); per[k] = per.get(k, 0) + 1
     story.sort()
+    story += [i for i, m in enumerate(items) if m['key'] in M['story_last']]  # the suggestion for tomorrow, at the end
     share = next((i for i in rank if items[i]['key'] not in M['share_exclude']), None)
     return {'moments': M['version'], 'items': items, 'story': story, 'share': share,
-            'history': update(history, res, runs, M)}
+            'theme': _theme(items, ds, M), 'history': update(history, res, runs, M)}
+
+
+def _theme(items, ds, M):
+    """The theme of the day, for the title of the story: progress (the first of a colour ever, or a record that is not
+    speed or a day total), explore (3 new runs or more), endurance (a record of descents, drop or distance),
+    favorite, easy (up to two descents), else steady. A speed record never sets the theme."""
+    if not ds:
+        return None
+    keys = [(m['key'], m['p']) for m in items]
+    if any(k == 'first_color' and p['first_ever'] for k, p in keys) or \
+            any(k == 'record' and p['what'] == 'longest_m' for k, p in keys):
+        return 'progress'
+    if any(k == 'new_runs' and len(p['runs']) >= M['insights']['explore_min_new'] for k, p in keys):
+        return 'explore'
+    if any(k == 'record' and p['what'] in DAY_SUM for k, p in keys):
+        return 'endurance'
+    if any(k == 'favorite' for k, _ in keys):
+        return 'favorite'
+    if len(ds) <= 2:
+        return 'easy'
+    return 'steady'
+
+
+def _tomorrow(res, history, runs, M, done, qp):
+    """One suggestion: new_run (a run never skied, of the hardest colour skied today, from the lift ridden most
+    today), finish_color (up to finish_max runs left of a colour skied today), or early_lift (the queue pattern)."""
+    today = {runs[k]['color'] for k, _ in done if runs[k]['color'] in COLOR_ORDER}
+    ever = set(history.get('runs', {})) | {k for k, _ in done}
+    if today:
+        hard = max(today, key=COLOR_ORDER.index)
+        rides = {}
+        for s in res.get('segments', []):
+            if s['type'] == 'lift' and s.get('name'):
+                rides.setdefault(s['name'], [0, s['t0']])[0] += 1
+        if rides:
+            lift = min(rides.items(), key=lambda kv: (-kv[1][0], kv[1][1]))[0]
+            cand = sorted(k for k, r in runs.items() if r['named'] and r['kind'] == 'run' and r['color'] == hard
+                          and k not in ever and lift in r.get('from_lifts', []))
+            if cand:
+                return {'kind': 'new_run', 'run': cand[0], 'color': hard, 'lift': lift}
+        for c in sorted(today, key=COLOR_ORDER.index, reverse=True):
+            left = sorted(k for k, r in runs.items() if r['named'] and r['kind'] == 'run' and r['color'] == c and k not in ever)
+            if 1 <= len(left) <= M['insights']['finish_max']:
+                return {'kind': 'finish_color', 'color': c, 'n': len(left), 'runs': left}
+    if qp and qp['early'] < qp['late']:
+        return {'kind': 'early_lift', 'lift': qp['lift'], 'split': qp['split']}
+    return None
 
 
 def lift_card(res, M):
@@ -221,5 +402,7 @@ def lift_card(res, M):
     if s is None:
         return None
     p = {'t1': s['t1'], 'runs': _main_runs(s), 'dist_m': s['dist_m'], 'drop_m': s['drop_m'], 'moving_s': s['moving_s'],
-         'max_kmh': s.get('max_kmh'), 'falls': sum(1 for f in res.get('falls', []) if s['t0'] <= f['t'] <= s['t1'])}
+         'max_kmh': s.get('max_kmh'), 'falls': sum(1 for f in res.get('falls', []) if s['t0'] <= f['t'] <= s['t1']),
+         'stops': len(s.get('stops', [])), 'nonstop': not s.get('stops'),
+         'longest_so_far': len(_descents(res)) > 1 and all(s['dist_m'] > x['dist_m'] for x in _descents(res) if x is not s)}
     return {'key': 'last_descent', 't': s['t0'], 'seed': seed('last_descent', s['t0']), 'p': p}
