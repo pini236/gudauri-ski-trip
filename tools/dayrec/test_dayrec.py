@@ -1,9 +1,9 @@
 """Unit tests of the day analysis: python3 -m unittest discover -s tools/dayrec"""
-import json, math, os, sys, unittest
+import copy, json, math, os, re, sys, tempfile, unittest
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
-import analyze, build, cases, moments, net as netmod, rawlog, synth  # noqa: E402
+import analyze, build, cases, field, moments, net as netmod, rawlog, synth  # noqa: E402
 
 P = build.params()
 BASE = build.load_base(P)
@@ -320,6 +320,71 @@ class Moments(unittest.TestCase):
 
 def lift_top():
     return next(l for l in BASE.lifts if l.name == 'Goodaura').stations[-1]['ele']
+
+
+class Field(unittest.TestCase):
+    """field.py: the reference on one raw log from the field, against the result the app saved (docs/QA.md)."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.log = os.path.join(build.LOGS, 'run_to_run.jsonl')
+        cls.h, cls.exp, cls.live, cls.bad = field.run(field._read(cls.log), P, BASE)
+
+    def no_position(self, text):
+        self.assertIsNone(re.search(r'4[24]\.\d{3}', text), 'a coordinate in the report')
+
+    def test_same_result_no_difference(self):
+        rep, n = field.report(self.h, self.exp, copy.deepcopy(self.exp), self.bad, self.live, copy.deepcopy(self.live))
+        self.assertEqual(n, 0)
+        self.assertIn('no difference', rep)
+        self.no_position(rep)
+        self.assertGreater(len(self.exp['segments']), 2)
+
+    def test_edge_beyond_three_seconds(self):
+        got = copy.deepcopy(self.exp)
+        k = next(i for i, s in enumerate(got['segments']) if s['type'] == 'lift')
+        got['segments'][k]['t1'] += 4000
+        rep, n = field.report(self.h, self.exp, got)
+        self.assertGreaterEqual(n, 1)
+        self.assertIn('+4 s', rep)
+        self.assertIn('DIFF: t1', rep)
+        got['segments'][k]['t1'] -= 2000  # 2 s: within the threshold
+        self.assertEqual(field.report(self.h, self.exp, got)[1], 0)
+
+    def test_missing_segment_is_aligned(self):
+        got = copy.deepcopy(self.exp)
+        k = next(i for i, s in enumerate(got['segments']) if s['type'] == 'lift')
+        del got['segments'][k]
+        rep, n = field.report(self.h, self.exp, got)
+        self.assertGreaterEqual(n, 1)
+        self.assertIn('only in the tool', rep)
+        # the rows after the gap are still matched one to one
+        self.assertGreater(rep.count('| ok |'), len(self.exp['segments']) // 2 - 1)
+        self.no_position(rep)
+
+    def test_live_and_speed(self):
+        got, lv = copy.deepcopy(self.exp), copy.deepcopy(self.live)
+        got['stats']['max_kmh'] = round(got['stats']['max_kmh'] + 0.3, 1)
+        lv['events'][1]['t'] += 5000
+        rep, n = field.report(self.h, self.exp, got, 0, self.live, lv)
+        self.assertGreaterEqual(n, 2)
+        self.assertIn('stats.max_kmh', rep)
+        self.assertIn('live[1]', rep)
+
+    def test_strip_and_repository(self):
+        out = json.dumps(field.strip(self.exp))
+        self.assertNotIn('"lat"', out); self.assertNotIn('"lon"', out)
+        self.no_position(out)
+        self.assertTrue(field.inside_repo(os.path.join(build.ROOT, 'tools', 'x.json')))
+        self.assertFalse(field.inside_repo(os.path.join(tempfile.gettempdir(), 'x.json')))
+        with tempfile.TemporaryDirectory() as d:
+            app = os.path.join(d, 'app.json')
+            field._write(app, json.dumps(self.exp))
+            self.assertEqual(field.main(['analyse', self.log, '-o', os.path.join(build.ROOT, 'tools', 'x.json')]), 2)
+            self.assertFalse(os.path.exists(os.path.join(build.ROOT, 'tools', 'x.json')))
+            rp = os.path.join(d, 'r.md')
+            self.assertEqual(field.main(['compare', self.log, app, '-o', rp]), 0)
+            self.no_position(field._read(rp))
 
 
 if __name__ == '__main__':
