@@ -491,18 +491,25 @@ function story(p, en) {
 
 // ---------- round 29, row I: the tone of "the story of the day" (docs/AI-PRODUCT.md, the moments engine) ----------
 // The same sample day in three tones; the engine picks the moments, the text comes from the tone Pini chooses.
+// The texts are the content session's draft (docs/handoff/2026-10-30-dayrec-moments-copy/moments-copy.json), the first
+// version of each key, so Pini picks a tone by the words that will ship. The fall moment is a question and never goes
+// into the share card (share_exclude), so the card shows the top speed in its place.
+const COPY = JSON.parse(fs.readFileSync(path.join(OUT, '../../../docs/handoff/2026-10-30-dayrec-moments-copy/moments-copy.json'), 'utf8'));
 function storyTone(p, en, tone) {
   const lifts = DAY.segs.filter(x => x.type === 'lift'), q = lifts.reduce((a, b) => b.wait > a.wait ? b : a);
   const queue = lifts.reduce((s, l) => s + l.wait, 0), az = Math.round(S.desc / 187), L = (S.longest.len / 1000).toFixed(1);
-  const R = t => `<span dir="ltr">${t}</span>`;
-  const T = {
-    play: en ? { head: `${S.runs} runs, ${n(S.desc, true)} m down, and one kiss for the snow.`, m: [['Your first red', `${R('Kudebi 1')} at 13:34. It’s yours now.`], ['Longest run', `${L} km of ${R('Tatra 1')}, no shortcuts.`], ['Longest queue', `${q.wait} min for ${R(q.name)}. Worth it.`], [`${az}× Azrieli Tower`, `${n(S.desc, true)} m down, not one stair.`], ['Snow kisses', '1. The snow forgives you.']] }
-      : { head: `${S.runs} ירידות, ${n(S.desc)} מ׳ למטה, ונשיקה אחת לשלג.`, m: [['האדום הראשון שלך', `${R('Kudebi 1')} ב-13:34. מעכשיו הוא שלך.`], ['הירידה הארוכה', `${L} ק״מ של ${R('Tatra 1')}, בלי קיצורים.`], ['הכי הרבה בתור', `${q.wait} דק׳ ל-${R(q.name)}. היה שווה.`], [`פי ${az} ממגדל עזריאלי`, `${n(S.desc)} מ׳ למטה, ואף מדרגה.`], ['נשיקות לשלג', '1. השלג סלח.']] },
-    dry: { head: `יום סקי 2 בגודאורי: ${S.runs} ירידות.`, m: [['האדום הראשון', `${R('Kudebi 1')}, 13:34`], ['הירידה הארוכה', `${R('Tatra 1')}, ${L} ק״מ`], ['הכי הרבה בתור', `${q.wait} דק׳, ${R(q.name)}`], ['ירידה מצטברת', `${n(S.desc)} מ׳ (פי ${az} ממגדל עזריאלי)`], ['נפילות', '1']] },
-  }[tone];
+  const R = t => `<bdi>${t}</bdi>`, lang = en ? 'en' : 'he', C = COPY.tones[tone];
+  const vt = R(hm(runs.find(r => r.vmax === S.vmax).vmaxAt.t));
+  const v = { kmh: S.vmax, run: R(S.vmaxRun), time: vt, drop: n(S.desc, en), n: S.runs, day: 2, km: L, min: q.wait, lift: R(q.name), times: az, ref: COPY.shared['moment.ref.azrieli'][lang] };
+  const pick = (key, o = {}) => { let x = C[key][lang]; x = Array.isArray(x) ? x[0] : x; if (typeof x === 'object') x = x.other; return x.replace(/\{(\w+)\}/g, (_, k) => (o[k] ?? v[k])); };
+  const pair = (key, o) => [pick(key + '.title', o), pick(key + '.line', o)];
+  const T = tone === 'data' ? null : {
+    head: pick('moment.story.head'),
+    m: [pair('moment.first_color.red.first', { run: R('Kudebi 1'), time: R('13:34') }), pair('moment.longest_descent.run', { run: R('Tatra 1') }), pair('moment.queue'), pair('moment.drop_compare'), pair('moment.fastest.run')],
+  };
   const w = p === 'and' ? 354 : 366;
   const nums = tone === 'data'
-    ? [[S.vmax, 'מרבית · קמ״ש'], [S.runs, 'ירידות'], [S.skiKm, 'ק״מ גלישה'], [n(S.desc), 'מ׳ ירידה'], [S.lifts, 'רכבלים'], [queue, 'דק׳ בתור']]
+    ? [[S.vmax, `${C['moment.fastest.title'].he[0]} <br>קמ״ש`], [S.runs, 'ירידות'], [L, `${C['moment.longest_descent.title'].he[0]} <br>ק״מ`], [n(S.desc), `${C['moment.drop_compare.title'].he[0]} <br>מ׳`], [S.lifts, 'רכבלים'], [q.wait, `${C['moment.queue.title'].he[0]} <br>דק׳`]]
     : [[S.vmax, en ? 'top km/h' : 'מרבית קמ״ש'], [S.runs, en ? 'runs' : 'ירידות'], [S.skiKm, en ? 'km' : 'ק״מ']];
   const body = tone === 'data' ? '' : `<p style="margin:0;padding:10px 14px 0;font-family:var(--f-display);font-size:28px;line-height:1.02">${T.head}</p>`;
   const list = tone === 'data' ? '' : `<ul style="list-style:none;margin:0;padding:6px 14px 12px">${T.m.map(([a, b]) => `<li style="display:flex;flex-direction:column;gap:1px;padding:6px 0;border-bottom:1px dotted var(--rule);font-size:14px"><b>${a}</b><span style="color:var(--bp-muted)">${b}</span></li>`).join('')}</ul>`;

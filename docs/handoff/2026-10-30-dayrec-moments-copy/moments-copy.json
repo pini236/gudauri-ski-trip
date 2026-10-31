@@ -1,0 +1,2000 @@
+{
+ "shared": {
+  "moment.ref.azrieli": {
+   "he": "מגדל עזריאלי",
+   "en": "the Azrieli Tower",
+   "ru": "башни Азриэли",
+   "ka": "აზრიელის კოშკის",
+   "note": "name of the height compared with; ru genitive, ka genitive (followed by \"სიმაღლე\")"
+  },
+  "moment.ref.eiffel": {
+   "he": "מגדל אייפל",
+   "en": "the Eiffel Tower",
+   "ru": "Эйфелевой башни",
+   "ka": "ეიფელის კოშკის",
+   "note": "as above"
+  },
+  "moment.ref.kazbek": {
+   "he": "הקזבק",
+   "en": "Mount Kazbek",
+   "ru": "Казбека",
+   "ka": "მყინვარწვერის",
+   "note": "as above; glossary: Mount Kazbek"
+  },
+  "moment.ref.everest": {
+   "he": "האוורסט",
+   "en": "Everest",
+   "ru": "Эвереста",
+   "ka": "ევერესტის",
+   "note": "as above"
+  },
+  "moment.fall.no": {
+   "he": "לא נפלתי",
+   "en": "I didn’t fall",
+   "ru": "Это не падение",
+   "ka": "არ წავქცეულვარ",
+   "note": "button on the fall question; removes the moment"
+  },
+  "moment.fall.yes": {
+   "he": "כן, היה",
+   "en": "Yes, that was me",
+   "ru": "Да, было",
+   "ka": "კი, ასე იყო",
+   "note": "button on the fall question; keeps it, only in the story"
+  }
+ },
+ "tones": {
+  "play": {
+   "moment.fastest.run.title": {
+    "he": [
+     "פה טסת"
+    ],
+    "en": [
+     "Your top speed"
+    ],
+    "ru": [
+     "Ваша максималка"
+    ],
+    "ka": [
+     "აქ ყველაზე სწრაფად იყავით"
+    ]
+   },
+   "moment.fastest.run.line": {
+    "he": [
+     "{kmh} קמ״ש ב-{run}, ב-{time}. רשום אצלך.",
+     "{kmh} קמ״ש ב-{run}. המגלשיים זוכרים את זה."
+    ],
+    "en": [
+     "{kmh} km/h on {run} at {time}. Logged.",
+     "{kmh} km/h on {run}. Your skis will remember this one."
+    ],
+    "ru": [
+     "{kmh} км/ч на {run} в {time}. Записано.",
+     "{kmh} км/ч на {run}. Лыжи это запомнят."
+    ],
+    "ka": [
+     "{kmh} კმ/სთ {run}-ზე, {time}-ზე. ჩაიწერა.",
+     "{kmh} კმ/სთ {run}-ზე. თხილამურებს ეს დაამახსოვრდებათ."
+    ]
+   },
+   "moment.fastest.off.title": {
+    "he": [
+     "פה טסת"
+    ],
+    "en": [
+     "Your top speed"
+    ],
+    "ru": [
+     "Ваша максималка"
+    ],
+    "ka": [
+     "აქ ყველაზე სწრაფად იყავით"
+    ]
+   },
+   "moment.fastest.off.line": {
+    "he": [
+     "{kmh} קמ״ש, ב-{time}. המקום מסומן במפה שלך.",
+     "{kmh} קמ״ש ב-{time}. רק המפה שלך יודעת איפה."
+    ],
+    "en": [
+     "{kmh} km/h at {time}. The spot is on your map.",
+     "{kmh} km/h at {time}. Only your map knows where."
+    ],
+    "ru": [
+     "{kmh} км/ч в {time}. Место отмечено на вашей карте.",
+     "{kmh} км/ч в {time}. Где именно, знает только ваша карта."
+    ],
+    "ka": [
+     "{kmh} კმ/სთ, {time}-ზე. ადგილი თქვენს რუკაზეა.",
+     "{kmh} კმ/სთ, {time}-ზე. სად, მხოლოდ თქვენმა რუკამ იცის."
+    ]
+   },
+   "moment.longest_descent.run.title": {
+    "he": [
+     "הירידה הארוכה"
+    ],
+    "en": [
+     "Longest run"
+    ],
+    "ru": [
+     "Самый длинный спуск"
+    ],
+    "ka": [
+     "ყველაზე გრძელი დაშვება"
+    ]
+   },
+   "moment.longest_descent.run.line": {
+    "he": [
+     "{km} ק״מ של {run}, בלי קיצורים.",
+     "{km} ק״מ ו-{drop} מ׳ למטה ב-{run}. הרגליים מרגישות את זה.",
+     "{min} דק׳ של {run}, מלמעלה עד הסוף."
+    ],
+    "en": [
+     "{km} km of {run}, no shortcuts.",
+     "{km} km and {drop} m down on {run}. Your legs know.",
+     "{min} minutes of {run}, top to bottom."
+    ],
+    "ru": [
+     "{km} км по {run}, без срезок.",
+     "{km} км и {drop} м вниз по {run}. Ноги в курсе.",
+     "{min} мин на {run}, сверху донизу."
+    ],
+    "ka": [
+     "{km} კმ {run}-ზე, მოკლე გზების გარეშე.",
+     "{km} კმ და {drop} მ დაღმა {run}-ზე. ფეხებმა ეს იციან.",
+     "{min} წუთი {run}-ზე, ზემოდან ბოლომდე."
+    ]
+   },
+   "moment.longest_descent.norun.title": {
+    "he": [
+     "הירידה הארוכה"
+    ],
+    "en": [
+     "Longest run"
+    ],
+    "ru": [
+     "Самый длинный спуск"
+    ],
+    "ka": [
+     "ყველაზე გრძელი დაშვება"
+    ]
+   },
+   "moment.longest_descent.norun.line": {
+    "he": [
+     "{km} ק״מ ו-{drop} מ׳ למטה, בלי לעצור לחשוב.",
+     "{min} דק׳ של ירידה אחת ארוכה."
+    ],
+    "en": [
+     "{km} km and {drop} m down, no stopping to think.",
+     "{min} minutes of one long run."
+    ],
+    "ru": [
+     "{km} км и {drop} м вниз, без остановок на раздумья.",
+     "{min} мин одного длинного спуска."
+    ],
+    "ka": [
+     "{km} კმ და {drop} მ დაღმა, ფიქრისთვის გაჩერების გარეშე.",
+     "{min} წუთი ერთი გრძელი დაშვებისა."
+    ]
+   },
+   "moment.first_color.red.first.title": {
+    "he": [
+     "האדום הראשון שלך"
+    ],
+    "en": [
+     "Your first red"
+    ],
+    "ru": [
+     "Ваша первая красная"
+    ],
+    "ka": [
+     "თქვენი პირველი წითელი"
+    ]
+   },
+   "moment.first_color.red.first.line": {
+    "he": [
+     "{run} ב-{time}. מעכשיו הוא שלך.",
+     "{run}, ב-{time}. את זה לא לוקחים ממך."
+    ],
+    "en": [
+     "{run} at {time}. It’s yours now.",
+     "{run}, {time}. Nobody can take that away."
+    ],
+    "ru": [
+     "{run} в {time}. Теперь она ваша.",
+     "{run}, {time}. Этого у вас уже не отнять."
+    ],
+    "ka": [
+     "{run}, {time}-ზე. ახლა ის თქვენია.",
+     "{run}, {time}. ამას ვეღარავინ წაგართმევთ."
+    ]
+   },
+   "moment.first_color.red.again.title": {
+    "he": [
+     "האדום הראשון היום"
+    ],
+    "en": [
+     "First red today"
+    ],
+    "ru": [
+     "Первая красная сегодня"
+    ],
+    "ka": [
+     "დღევანდელი პირველი წითელი"
+    ]
+   },
+   "moment.first_color.red.again.line": {
+    "he": [
+     "{run} ב-{time}. כבר מכירים.",
+     "{run}, ב-{time}. כמו חבר ותיק."
+    ],
+    "en": [
+     "{run} at {time}. Old friends by now.",
+     "{run}, {time}. Like an old friend."
+    ],
+    "ru": [
+     "{run} в {time}. Вы уже знакомы.",
+     "{run}, {time}. Как старая знакомая."
+    ],
+    "ka": [
+     "{run}, {time}-ზე. უკვე ნაცნობები ხართ.",
+     "{run}, {time}. როგორც ძველი მეგობარი."
+    ]
+   },
+   "moment.first_color.black.first.title": {
+    "he": [
+     "השחור הראשון שלך"
+    ],
+    "en": [
+     "Your first black"
+    ],
+    "ru": [
+     "Ваша первая чёрная"
+    ],
+    "ka": [
+     "თქვენი პირველი შავი"
+    ]
+   },
+   "moment.first_color.black.first.line": {
+    "he": [
+     "{run} ב-{time}. מעכשיו הוא שלך.",
+     "{run}, ב-{time}. את זה לא לוקחים ממך."
+    ],
+    "en": [
+     "{run} at {time}. It’s yours now.",
+     "{run}, {time}. Nobody can take that away."
+    ],
+    "ru": [
+     "{run} в {time}. Теперь она ваша.",
+     "{run}, {time}. Этого у вас уже не отнять."
+    ],
+    "ka": [
+     "{run}, {time}-ზე. ახლა ის თქვენია.",
+     "{run}, {time}. ამას ვეღარავინ წაგართმევთ."
+    ]
+   },
+   "moment.first_color.black.again.title": {
+    "he": [
+     "השחור הראשון היום"
+    ],
+    "en": [
+     "First black today"
+    ],
+    "ru": [
+     "Первая чёрная сегодня"
+    ],
+    "ka": [
+     "დღევანდელი პირველი შავი"
+    ]
+   },
+   "moment.first_color.black.again.line": {
+    "he": [
+     "{run} ב-{time}. כבר מכירים.",
+     "{run}, ב-{time}. כמו חבר ותיק."
+    ],
+    "en": [
+     "{run} at {time}. Old friends by now.",
+     "{run}, {time}. Like an old friend."
+    ],
+    "ru": [
+     "{run} в {time}. Вы уже знакомы.",
+     "{run}, {time}. Как старая знакомая."
+    ],
+    "ka": [
+     "{run}, {time}-ზე. უკვე ნაცნობები ხართ.",
+     "{run}, {time}. როგორც ძველი მეგობარი."
+    ]
+   },
+   "moment.new_runs.title": {
+    "he": [
+     "מסלולים חדשים"
+    ],
+    "en": [
+     "New runs"
+    ],
+    "ru": [
+     "Новые трассы"
+    ],
+    "ka": [
+     "ახალი ტრასები"
+    ]
+   },
+   "moment.new_runs.line": {
+    "he": [
+     {
+      "one": "מסלול חדש אחד באוסף: {run}.",
+      "two": "שני מסלולים חדשים באוסף: {runs}.",
+      "other": "{n} מסלולים חדשים באוסף: {runs}."
+     },
+     {
+      "one": "{run} נכנס היום לרשימה שלך.",
+      "two": "שני מסלולים נכנסו היום לרשימה שלך.",
+      "other": "{n} מסלולים נכנסו היום לרשימה שלך."
+     }
+    ],
+    "en": [
+     {
+      "one": "One new run in the collection: {run}.",
+      "other": "{n} new runs in the collection: {runs}."
+     },
+     {
+      "one": "{run} made your list today.",
+      "other": "{n} runs made your list today."
+     }
+    ],
+    "ru": [
+     {
+      "one": "Новая трасса в коллекции: {run}.",
+      "few": "{n} новые трассы в коллекции: {runs}.",
+      "many": "{n} новых трасс в коллекции: {runs}.",
+      "other": "{n} новой трассы в коллекции: {runs}."
+     },
+     {
+      "one": "Сегодня в вашем списке прибавилась {run}.",
+      "few": "Сегодня в вашем списке прибавилось {n} трассы.",
+      "many": "Сегодня в вашем списке прибавилось {n} трасс.",
+      "other": "Сегодня в вашем списке прибавилось {n} трассы."
+     }
+    ],
+    "ka": [
+     {
+      "one": "ერთი ახალი ტრასა კოლექციაში: {run}.",
+      "other": "{n} ახალი ტრასა კოლექციაში: {runs}."
+     },
+     {
+      "one": "{run} დღეს თქვენს სიაში მოხვდა.",
+      "other": "დღეს თქვენს სიაში {n} ტრასა მოხვდა."
+     }
+    ],
+    "note": "n = number of new runs; {run} the first, {runs} the list joined by the app"
+   },
+   "moment.record.max_kmh.title": {
+    "he": [
+     "שיא מהירות אישי"
+    ],
+    "en": [
+     "Personal speed record"
+    ],
+    "ru": [
+     "Личный рекорд скорости"
+    ],
+    "ka": [
+     "სიჩქარის პირადი რეკორდი"
+    ]
+   },
+   "moment.record.max_kmh.line": {
+    "he": [
+     "{value} קמ״ש. הקודם: {before}. השתפרת.",
+     "{value} קמ״ש. הקודם: {before}. מול עצמך בלבד, וניצחת."
+    ],
+    "en": [
+     "{value} km/h. Before: {before}. You beat yourself.",
+     "{value} km/h. Before: {before}. Only against yourself, and you won."
+    ],
+    "ru": [
+     "{value} км/ч. Раньше: {before}. Вы превзошли себя.",
+     "{value} км/ч. Раньше: {before}. Только против себя, и вы победили."
+    ],
+    "ka": [
+     "{value} კმ/სთ. აქამდე: {before}. საკუთარ თავს აჯობეთ.",
+     "{value} კმ/სთ. აქამდე: {before}. მხოლოდ საკუთარ თავთან, და მოიგეთ."
+    ],
+    "note": "records are personal only; value and before formatted by the app in the unit of the line"
+   },
+   "moment.record.longest_m.title": {
+    "he": [
+     "הירידה הארוכה אי פעם"
+    ],
+    "en": [
+     "Your longest run ever"
+    ],
+    "ru": [
+     "Самый длинный спуск за всё время"
+    ],
+    "ka": [
+     "ყველაზე გრძელი დაშვება ოდესმე"
+    ]
+   },
+   "moment.record.longest_m.line": {
+    "he": [
+     "{value} ק״מ. הקודם: {before}. השתפרת.",
+     "{value} ק״מ. הקודם: {before}. מול עצמך בלבד, וניצחת."
+    ],
+    "en": [
+     "{value} km. Before: {before}. You beat yourself.",
+     "{value} km. Before: {before}. Only against yourself, and you won."
+    ],
+    "ru": [
+     "{value} км. Раньше: {before}. Вы превзошли себя.",
+     "{value} км. Раньше: {before}. Только против себя, и вы победили."
+    ],
+    "ka": [
+     "{value} კმ. აქამდე: {before}. საკუთარ თავს აჯობეთ.",
+     "{value} კმ. აქამდე: {before}. მხოლოდ საკუთარ თავთან, და მოიგეთ."
+    ]
+   },
+   "moment.record.drop_m.title": {
+    "he": [
+     "הכי הרבה ירידה ביום"
+    ],
+    "en": [
+     "Most vertical in a day"
+    ],
+    "ru": [
+     "Больше всего перепада за день"
+    ],
+    "ka": [
+     "ყველაზე დიდი ვარდნა ერთ დღეში"
+    ]
+   },
+   "moment.record.drop_m.line": {
+    "he": [
+     "{value} מ׳ למטה. הקודם: {before}. השתפרת.",
+     "{value} מ׳ למטה. הקודם: {before}. מול עצמך בלבד, וניצחת."
+    ],
+    "en": [
+     "{value} m down. Before: {before}. You beat yourself.",
+     "{value} m down. Before: {before}. Only against yourself, and you won."
+    ],
+    "ru": [
+     "{value} м вниз. Раньше: {before}. Вы превзошли себя.",
+     "{value} м вниз. Раньше: {before}. Только против себя, и вы победили."
+    ],
+    "ka": [
+     "{value} მ დაღმა. აქამდე: {before}. საკუთარ თავს აჯობეთ.",
+     "{value} მ დაღმა. აქამდე: {before}. მხოლოდ საკუთარ თავთან, და მოიგეთ."
+    ]
+   },
+   "moment.record.descents.title": {
+    "he": [
+     "הכי הרבה ירידות ביום"
+    ],
+    "en": [
+     "Most runs in a day"
+    ],
+    "ru": [
+     "Больше всего спусков за день"
+    ],
+    "ka": [
+     "ყველაზე მეტი დაშვება ერთ დღეში"
+    ]
+   },
+   "moment.record.descents.line": {
+    "he": [
+     "{value} ירידות. הקודם: {before}. השתפרת.",
+     "{value} ירידות. הקודם: {before}. מול עצמך בלבד, וניצחת."
+    ],
+    "en": [
+     "{value} runs. Before: {before}. You beat yourself.",
+     "{value} runs. Before: {before}. Only against yourself, and you won."
+    ],
+    "ru": [
+     "Спусков: {value}. Раньше: {before}. Вы превзошли себя.",
+     "Спусков: {value}. Раньше: {before}. Только против себя, и вы победили."
+    ],
+    "ka": [
+     "{value} დაშვება. აქამდე: {before}. საკუთარ თავს აჯობეთ.",
+     "{value} დაშვება. აქამდე: {before}. მხოლოდ საკუთარ თავთან, და მოიგეთ."
+    ]
+   },
+   "moment.record.ski_dist_m.title": {
+    "he": [
+     "הכי הרבה גלישה ביום"
+    ],
+    "en": [
+     "Most skiing in a day"
+    ],
+    "ru": [
+     "Больше всего катания за день"
+    ],
+    "ka": [
+     "ყველაზე მეტი სრიალი ერთ დღეში"
+    ]
+   },
+   "moment.record.ski_dist_m.line": {
+    "he": [
+     "{value} ק״מ. הקודם: {before}. השתפרת.",
+     "{value} ק״מ. הקודם: {before}. מול עצמך בלבד, וניצחת."
+    ],
+    "en": [
+     "{value} km. Before: {before}. You beat yourself.",
+     "{value} km. Before: {before}. Only against yourself, and you won."
+    ],
+    "ru": [
+     "{value} км. Раньше: {before}. Вы превзошли себя.",
+     "{value} км. Раньше: {before}. Только против себя, и вы победили."
+    ],
+    "ka": [
+     "{value} კმ. აქამდე: {before}. საკუთარ თავს აჯობეთ.",
+     "{value} კმ. აქამდე: {before}. მხოლოდ საკუთარ თავთან, და მოიგეთ."
+    ]
+   },
+   "moment.all_color.green.title": {
+    "he": [
+     "כל הירוקים"
+    ],
+    "en": [
+     "All the greens"
+    ],
+    "ru": [
+     "Все зелёные"
+    ],
+    "ka": [
+     "ყველა მწვანე ტრასა"
+    ]
+   },
+   "moment.all_color.green.line": {
+    "he": [
+     "{n} מתוך {n}. אין יותר הירוקים לגלות פה.",
+     "כל {n} הירוקים בגודאורי, מסומנים."
+    ],
+    "en": [
+     "{n} out of {n}. No greens left to find here.",
+     "All {n} greens in Gudauri, ticked."
+    ],
+    "ru": [
+     "{n} из {n}. Все зелёные трассы Гудаури пройдены.",
+     "Все зелёные трассы Гудаури ({n}) — ваши."
+    ],
+    "ka": [
+     "{n}-დან {n}. აქ აღარ დარჩა მწვანე ტრასა აღმოსაჩენად.",
+     "გუდაურის ყველა მწვანე ტრასა ({n}) თქვენია."
+    ],
+    "note": "n = number of named runs of that colour; he/ru/ka no plural needed (n is always 2 or more)"
+   },
+   "moment.all_color.blue.title": {
+    "he": [
+     "כל הכחולים"
+    ],
+    "en": [
+     "All the blues"
+    ],
+    "ru": [
+     "Все синие"
+    ],
+    "ka": [
+     "ყველა ლურჯი ტრასა"
+    ]
+   },
+   "moment.all_color.blue.line": {
+    "he": [
+     "{n} מתוך {n}. אין יותר הכחולים לגלות פה.",
+     "כל {n} הכחולים בגודאורי, מסומנים."
+    ],
+    "en": [
+     "{n} out of {n}. No blues left to find here.",
+     "All {n} blues in Gudauri, ticked."
+    ],
+    "ru": [
+     "{n} из {n}. Все синие трассы Гудаури пройдены.",
+     "Все синие трассы Гудаури ({n}) — ваши."
+    ],
+    "ka": [
+     "{n}-დან {n}. აქ აღარ დარჩა ლურჯი ტრასა აღმოსაჩენად.",
+     "გუდაურის ყველა ლურჯი ტრასა ({n}) თქვენია."
+    ]
+   },
+   "moment.all_color.red.title": {
+    "he": [
+     "כל האדומים"
+    ],
+    "en": [
+     "All the reds"
+    ],
+    "ru": [
+     "Все красные"
+    ],
+    "ka": [
+     "ყველა წითელი ტრასა"
+    ]
+   },
+   "moment.all_color.red.line": {
+    "he": [
+     "{n} מתוך {n}. אין יותר האדומים לגלות פה.",
+     "כל {n} האדומים בגודאורי, מסומנים."
+    ],
+    "en": [
+     "{n} out of {n}. No reds left to find here.",
+     "All {n} reds in Gudauri, ticked."
+    ],
+    "ru": [
+     "{n} из {n}. Все красные трассы Гудаури пройдены.",
+     "Все красные трассы Гудаури ({n}) — ваши."
+    ],
+    "ka": [
+     "{n}-დან {n}. აქ აღარ დარჩა წითელი ტრასა აღმოსაჩენად.",
+     "გუდაურის ყველა წითელი ტრასა ({n}) თქვენია."
+    ]
+   },
+   "moment.all_color.black.title": {
+    "he": [
+     "כל השחורים"
+    ],
+    "en": [
+     "All the blacks"
+    ],
+    "ru": [
+     "Все чёрные"
+    ],
+    "ka": [
+     "ყველა შავი ტრასა"
+    ]
+   },
+   "moment.all_color.black.line": {
+    "he": [
+     "{n} מתוך {n}. אין יותר השחורים לגלות פה.",
+     "כל {n} השחורים בגודאורי, מסומנים."
+    ],
+    "en": [
+     "{n} out of {n}. No blacks left to find here.",
+     "All {n} blacks in Gudauri, ticked."
+    ],
+    "ru": [
+     "{n} из {n}. Все чёрные трассы Гудаури пройдены.",
+     "Все чёрные трассы Гудаури ({n}) — ваши."
+    ],
+    "ka": [
+     "{n}-დან {n}. აქ აღარ დარჩა შავი ტრასა აღმოსაჩენად.",
+     "გუდაურის ყველა შავი ტრასა ({n}) თქვენია."
+    ]
+   },
+   "moment.queue.title": {
+    "he": [
+     "הכי הרבה בתור"
+    ],
+    "en": [
+     "Longest queue"
+    ],
+    "ru": [
+     "Самая долгая очередь"
+    ],
+    "ka": [
+     "ყველაზე გრძელი რიგი"
+    ]
+   },
+   "moment.queue.line": {
+    "he": [
+     "{min} דק׳ ל-{lift}. היה שווה.",
+     "{min} דק׳ בתור ל-{lift}. מספיק זמן לחשוב על הירידה הבאה."
+    ],
+    "en": [
+     "{min} min for {lift}. Worth it.",
+     "{min} min in line for {lift}. Plenty of time to plan the next run."
+    ],
+    "ru": [
+     "{min} мин к {lift}. Оно того стоило.",
+     "{min} мин в очереди к {lift}. Хватило времени продумать следующий спуск."
+    ],
+    "ka": [
+     "{min} წთ {lift}-თან. ღირდა.",
+     "{min} წთ რიგში {lift}-თან. საკმარისი დრო შემდეგი დაშვების მოსაფიქრებლად."
+    ],
+    "note": "min = the longest queue in minutes; {lift} the lift name; total_min and count exist in p if wanted"
+   },
+   "moment.drop_compare.title": {
+    "he": [
+     "פי {times} מ{ref}"
+    ],
+    "en": [
+     {
+      "one": "{times}× {ref}",
+      "other": "{times}× {ref}"
+     }
+    ],
+    "ru": [
+     {
+      "one": "В {times} раз выше {ref}",
+      "few": "В {times} раза выше {ref}",
+      "many": "В {times} раз выше {ref}",
+      "other": "В {times} раза выше {ref}"
+     }
+    ],
+    "ka": [
+     "{times}-ჯერ მეტი, ვიდრე {ref} სიმაღლე"
+    ],
+    "note": "ref from moment.ref.<id>; ru plural by times (CLDR: fractions are other = \"раза\")"
+   },
+   "moment.drop_compare.line": {
+    "he": [
+     "{drop} מ׳ למטה, ואף מדרגה.",
+     "{drop} מ׳ למטה. המעלית בבניין מקנאת."
+    ],
+    "en": [
+     "{drop} m down, not one stair.",
+     "{drop} m down. The elevator is jealous."
+    ],
+    "ru": [
+     "{drop} м вниз, и ни одной ступеньки.",
+     "{drop} м вниз. Лифт завидует."
+    ],
+    "ka": [
+     "{drop} მ დაღმა, კიბის ერთი საფეხურის გარეშე.",
+     "{drop} მ დაღმა. ლიფტს შურს."
+    ]
+   },
+   "moment.fall.run.title": {
+    "he": [
+     "נשיקה לשלג?"
+    ],
+    "en": [
+     "A kiss for the snow?"
+    ],
+    "ru": [
+     "Поцелуй со снегом?"
+    ],
+    "ka": [
+     "თოვლს აკოცეთ?"
+    ]
+   },
+   "moment.fall.run.line": {
+    "he": [
+     "נראה שנשקת לשלג ב-{run}, ב-{time}?",
+     "משהו קרה ב-{run} ב-{time}. השלג סלח?"
+    ],
+    "en": [
+     "Looks like you kissed the snow on {run} at {time}?",
+     "Something happened on {run} at {time}. Did the snow forgive you?"
+    ],
+    "ru": [
+     "Похоже, вы поцеловали снег на {run} в {time}?",
+     "Что-то случилось на {run} в {time}. Снег простил?"
+    ],
+    "ka": [
+     "როგორც ჩანს, თოვლს აკოცეთ {run}-ზე, {time}-ზე?",
+     "{run}-ზე {time}-ზე რაღაც მოხდა. თოვლმა გაპატიათ?"
+    ],
+    "note": "always a question, with moment.fall.no and moment.fall.yes; never in the share picture; no safety wording"
+   },
+   "moment.fall.off.title": {
+    "he": [
+     "נשיקה לשלג?"
+    ],
+    "en": [
+     "A kiss for the snow?"
+    ],
+    "ru": [
+     "Поцелуй со снегом?"
+    ],
+    "ka": [
+     "თოვლს აკოცეთ?"
+    ]
+   },
+   "moment.fall.off.line": {
+    "he": [
+     "נראה שנשקת לשלג ב-{time}?",
+     "משהו קרה ב-{time}. השלג סלח?"
+    ],
+    "en": [
+     "Looks like you kissed the snow at {time}?",
+     "Something happened at {time}. Did the snow forgive you?"
+    ],
+    "ru": [
+     "Похоже, вы поцеловали снег в {time}?",
+     "В {time} что-то случилось. Снег простил?"
+    ],
+    "ka": [
+     "როგორც ჩანს, თოვლს აკოცეთ {time}-ზე?",
+     "{time}-ზე რაღაც მოხდა. თოვლმა გაპატიათ?"
+    ]
+   },
+   "moment.offpiste.title": {
+    "he": [
+     "מחוץ למסלולים"
+    ],
+    "en": [
+     "Off the marked runs"
+    ],
+    "ru": [
+     "Вне трасс"
+    ],
+    "ka": [
+     "მონიშნული ტრასების გარეთ"
+    ]
+   },
+   "moment.offpiste.line": {
+    "he": [
+     "{drop} מ׳ למטה מחוץ למסלולים המסומנים, ב-{time}. הקו הזה נשאר רק אצלך.",
+     "{km} ק״מ מחוץ למסלולים. הקו שמור רק בטלפון שלך."
+    ],
+    "en": [
+     "{drop} m down off the marked runs at {time}. This line stays with you.",
+     "{km} km off the marked runs. The line is kept on your phone only."
+    ],
+    "ru": [
+     "{drop} м вниз вне трасс в {time}. Эта линия остаётся только у вас.",
+     "{km} км вне трасс. Линия хранится только в вашем телефоне."
+    ],
+    "ka": [
+     "{drop} მ დაღმა მონიშნული ტრასების გარეთ, {time}-ზე. ეს ხაზი მხოლოდ თქვენთან რჩება.",
+     "{km} კმ მონიშნული ტრასების გარეთ. ხაზი მხოლოდ თქვენს ტელეფონშია."
+    ],
+    "note": "calm: no praise of off-piste, no route advice"
+   },
+   "moment.last_descent.title": {
+    "he": [
+     "הירידה שהרגע עשית"
+    ],
+    "en": [
+     "The run you just did"
+    ],
+    "ru": [
+     "Только что: ваш спуск"
+    ],
+    "ka": [
+     "ახლახან გაკეთებული დაშვება"
+    ]
+   },
+   "moment.last_descent.line": {
+    "he": [
+     "{run}: {km} ק״מ, {drop} מ׳ למטה, ב-{min} דק׳. עכשיו לנוח עד למעלה.",
+     "{run} מאחוריך: {km} ק״מ ב-{min} דק׳. הרכבל עושה את העבודה."
+    ],
+    "en": [
+     "{run}: {km} km, {drop} m down, in {min} min. Rest until the top.",
+     "{run} done: {km} km in {min} min. The lift does the work now."
+    ],
+    "ru": [
+     "{run}: {km} км, {drop} м вниз, за {min} мин. Отдыхайте до вершины.",
+     "{run} позади: {km} км за {min} мин. Теперь работает подъёмник."
+    ],
+    "ka": [
+     "{run}: {km} კმ, {drop} მ დაღმა, {min} წუთში. დაისვენეთ ზემოთ ასვლამდე.",
+     "{run} დასრულდა: {km} კმ {min} წუთში. ახლა საბაგირო მუშაობს."
+    ],
+    "note": "the card on the lift; max_kmh is shown as a number next to it, not in the line"
+   },
+   "moment.last_descent.falls": {
+    "he": [
+     {
+      "one": "ונשיקה אחת לשלג.",
+      "two": "ושתי נשיקות לשלג.",
+      "other": "ו-{n} נשיקות לשלג."
+     }
+    ],
+    "en": [
+     {
+      "one": "And one kiss for the snow.",
+      "other": "And {n} kisses for the snow."
+     }
+    ],
+    "ru": [
+     {
+      "one": "И {n} поцелуй со снегом.",
+      "few": "И {n} поцелуя со снегом.",
+      "many": "И {n} поцелуев со снегом.",
+      "other": "И {n} поцелуя со снегом."
+     }
+    ],
+    "ka": [
+     {
+      "one": "და თოვლისთვის ერთი კოცნა.",
+      "other": "და თოვლისთვის {n} კოცნა."
+     }
+    ],
+    "note": "only when falls > 0"
+   },
+   "moment.story.head": {
+    "he": [
+     {
+      "one": "ירידה אחת, {drop} מ׳ למטה, ויום שלם על ההר.",
+      "two": "שתי ירידות, {drop} מ׳ למטה, ויום שלם על ההר.",
+      "other": "{n} ירידות, {drop} מ׳ למטה, ויום שלם על ההר."
+     }
+    ],
+    "en": [
+     {
+      "one": "One run, {drop} m down, and a whole day on the mountain.",
+      "other": "{n} runs, {drop} m down, and a whole day on the mountain."
+     }
+    ],
+    "ru": [
+     {
+      "one": "{n} спуск, {drop} м вниз и целый день в горах.",
+      "few": "{n} спуска, {drop} м вниз и целый день в горах.",
+      "many": "{n} спусков, {drop} м вниз и целый день в горах.",
+      "other": "{n} спуска, {drop} м вниз и целый день в горах."
+     }
+    ],
+    "ka": [
+     {
+      "one": "ერთი დაშვება, {drop} მ დაღმა და მთელი დღე მთაზე.",
+      "other": "{n} დაშვება, {drop} მ დაღმა და მთელი დღე მთაზე."
+     }
+    ],
+    "note": "the headline of the story card; not from the engine: n = descents, drop = the day drop (stats)"
+   }
+  },
+  "dry": {
+   "moment.fastest.run.title": {
+    "he": [
+     "המהירות המרבית"
+    ],
+    "en": [
+     "Top speed"
+    ],
+    "ru": [
+     "Максимальная скорость"
+    ],
+    "ka": [
+     "მაქსიმალური სიჩქარე"
+    ]
+   },
+   "moment.fastest.run.line": {
+    "he": [
+     "{kmh} קמ״ש, {run}, {time}",
+     "{run}, {time}: {kmh} קמ״ש"
+    ],
+    "en": [
+     "{kmh} km/h, {run}, {time}",
+     "{run}, {time}: {kmh} km/h"
+    ],
+    "ru": [
+     "{kmh} км/ч, {run}, {time}",
+     "{run}, {time}: {kmh} км/ч"
+    ],
+    "ka": [
+     "{kmh} კმ/სთ, {run}, {time}",
+     "{run}, {time}: {kmh} კმ/სთ"
+    ],
+    "note": "speed shown as measured, an estimate (decision 76)"
+   },
+   "moment.fastest.off.title": {
+    "he": [
+     "המהירות המרבית"
+    ],
+    "en": [
+     "Top speed"
+    ],
+    "ru": [
+     "Максимальная скорость"
+    ],
+    "ka": [
+     "მაქსიმალური სიჩქარე"
+    ]
+   },
+   "moment.fastest.off.line": {
+    "he": [
+     "{kmh} קמ״ש, {time}"
+    ],
+    "en": [
+     "{kmh} km/h, {time}"
+    ],
+    "ru": [
+     "{kmh} км/ч, {time}"
+    ],
+    "ka": [
+     "{kmh} კმ/სთ, {time}"
+    ]
+   },
+   "moment.longest_descent.run.title": {
+    "he": [
+     "הירידה הארוכה"
+    ],
+    "en": [
+     "Longest run"
+    ],
+    "ru": [
+     "Самый длинный спуск"
+    ],
+    "ka": [
+     "ყველაზე გრძელი დაშვება"
+    ]
+   },
+   "moment.longest_descent.run.line": {
+    "he": [
+     "{run}, {km} ק״מ",
+     "{run}: {km} ק״מ, {drop} מ׳ ירידה"
+    ],
+    "en": [
+     "{run}, {km} km",
+     "{run}: {km} km, {drop} m drop"
+    ],
+    "ru": [
+     "{run}, {km} км",
+     "{run}: {km} км, перепад {drop} м"
+    ],
+    "ka": [
+     "{run}, {km} კმ",
+     "{run}: {km} კმ, {drop} მ ვარდნა"
+    ]
+   },
+   "moment.longest_descent.norun.title": {
+    "he": [
+     "הירידה הארוכה"
+    ],
+    "en": [
+     "Longest run"
+    ],
+    "ru": [
+     "Самый длинный спуск"
+    ],
+    "ka": [
+     "ყველაზე გრძელი დაშვება"
+    ]
+   },
+   "moment.longest_descent.norun.line": {
+    "he": [
+     "{km} ק״מ, {drop} מ׳ ירידה"
+    ],
+    "en": [
+     "{km} km, {drop} m drop"
+    ],
+    "ru": [
+     "{km} км, перепад {drop} м"
+    ],
+    "ka": [
+     "{km} კმ, {drop} მ ვარდნა"
+    ]
+   },
+   "moment.first_color.red.first.title": {
+    "he": [
+     "האדום הראשון"
+    ],
+    "en": [
+     "First red"
+    ],
+    "ru": [
+     "Первая красная"
+    ],
+    "ka": [
+     "პირველი წითელი"
+    ]
+   },
+   "moment.first_color.red.first.line": {
+    "he": [
+     "{run}, {time}",
+     "{run}, {time}. הראשון אי פעם."
+    ],
+    "en": [
+     "{run}, {time}",
+     "{run}, {time}. Your first ever."
+    ],
+    "ru": [
+     "{run}, {time}",
+     "{run}, {time}. Впервые."
+    ],
+    "ka": [
+     "{run}, {time}",
+     "{run}, {time}. პირველად."
+    ]
+   },
+   "moment.first_color.red.again.title": {
+    "he": [
+     "האדום הראשון היום"
+    ],
+    "en": [
+     "First red today"
+    ],
+    "ru": [
+     "Первая красная сегодня"
+    ],
+    "ka": [
+     "დღევანდელი პირველი წითელი"
+    ]
+   },
+   "moment.first_color.red.again.line": {
+    "he": [
+     "{run}, {time}"
+    ],
+    "en": [
+     "{run}, {time}"
+    ],
+    "ru": [
+     "{run}, {time}"
+    ],
+    "ka": [
+     "{run}, {time}"
+    ]
+   },
+   "moment.first_color.black.first.title": {
+    "he": [
+     "השחור הראשון"
+    ],
+    "en": [
+     "First black"
+    ],
+    "ru": [
+     "Первая чёрная"
+    ],
+    "ka": [
+     "პირველი შავი"
+    ]
+   },
+   "moment.first_color.black.first.line": {
+    "he": [
+     "{run}, {time}",
+     "{run}, {time}. הראשון אי פעם."
+    ],
+    "en": [
+     "{run}, {time}",
+     "{run}, {time}. Your first ever."
+    ],
+    "ru": [
+     "{run}, {time}",
+     "{run}, {time}. Впервые."
+    ],
+    "ka": [
+     "{run}, {time}",
+     "{run}, {time}. პირველად."
+    ]
+   },
+   "moment.first_color.black.again.title": {
+    "he": [
+     "השחור הראשון היום"
+    ],
+    "en": [
+     "First black today"
+    ],
+    "ru": [
+     "Первая чёрная сегодня"
+    ],
+    "ka": [
+     "დღევანდელი პირველი შავი"
+    ]
+   },
+   "moment.first_color.black.again.line": {
+    "he": [
+     "{run}, {time}"
+    ],
+    "en": [
+     "{run}, {time}"
+    ],
+    "ru": [
+     "{run}, {time}"
+    ],
+    "ka": [
+     "{run}, {time}"
+    ]
+   },
+   "moment.new_runs.title": {
+    "he": [
+     "מסלולים חדשים"
+    ],
+    "en": [
+     "New runs"
+    ],
+    "ru": [
+     "Новые трассы"
+    ],
+    "ka": [
+     "ახალი ტრასები"
+    ]
+   },
+   "moment.new_runs.line": {
+    "he": [
+     {
+      "one": "{run}",
+      "two": "{runs}",
+      "other": "{n}: {runs}"
+     }
+    ],
+    "en": [
+     {
+      "one": "{run}",
+      "other": "{n}: {runs}"
+     }
+    ],
+    "ru": [
+     {
+      "one": "{run}",
+      "few": "{n}: {runs}",
+      "many": "{n}: {runs}",
+      "other": "{n}: {runs}"
+     }
+    ],
+    "ka": [
+     {
+      "one": "{run}",
+      "other": "{n}: {runs}"
+     }
+    ]
+   },
+   "moment.record.max_kmh.title": {
+    "he": [
+     "שיא מהירות אישי"
+    ],
+    "en": [
+     "Personal speed record"
+    ],
+    "ru": [
+     "Личный рекорд скорости"
+    ],
+    "ka": [
+     "სიჩქარის პირადი რეკორდი"
+    ]
+   },
+   "moment.record.max_kmh.line": {
+    "he": [
+     "{value} קמ״ש. הקודם: {before}."
+    ],
+    "en": [
+     "{value} km/h. Before: {before}."
+    ],
+    "ru": [
+     "{value} км/ч. Раньше: {before}."
+    ],
+    "ka": [
+     "{value} კმ/სთ. აქამდე: {before}."
+    ]
+   },
+   "moment.record.longest_m.title": {
+    "he": [
+     "הירידה הארוכה אי פעם"
+    ],
+    "en": [
+     "Your longest run ever"
+    ],
+    "ru": [
+     "Самый длинный спуск за всё время"
+    ],
+    "ka": [
+     "ყველაზე გრძელი დაშვება ოდესმე"
+    ]
+   },
+   "moment.record.longest_m.line": {
+    "he": [
+     "{value} ק״מ. הקודם: {before}."
+    ],
+    "en": [
+     "{value} km. Before: {before}."
+    ],
+    "ru": [
+     "{value} км. Раньше: {before}."
+    ],
+    "ka": [
+     "{value} კმ. აქამდე: {before}."
+    ]
+   },
+   "moment.record.drop_m.title": {
+    "he": [
+     "הכי הרבה ירידה ביום"
+    ],
+    "en": [
+     "Most vertical in a day"
+    ],
+    "ru": [
+     "Больше всего перепада за день"
+    ],
+    "ka": [
+     "ყველაზე დიდი ვარდნა ერთ დღეში"
+    ]
+   },
+   "moment.record.drop_m.line": {
+    "he": [
+     "{value} מ׳ למטה. הקודם: {before}."
+    ],
+    "en": [
+     "{value} m down. Before: {before}."
+    ],
+    "ru": [
+     "{value} м вниз. Раньше: {before}."
+    ],
+    "ka": [
+     "{value} მ დაღმა. აქამდე: {before}."
+    ]
+   },
+   "moment.record.descents.title": {
+    "he": [
+     "הכי הרבה ירידות ביום"
+    ],
+    "en": [
+     "Most runs in a day"
+    ],
+    "ru": [
+     "Больше всего спусков за день"
+    ],
+    "ka": [
+     "ყველაზე მეტი დაშვება ერთ დღეში"
+    ]
+   },
+   "moment.record.descents.line": {
+    "he": [
+     "{value} ירידות. הקודם: {before}."
+    ],
+    "en": [
+     "{value} runs. Before: {before}."
+    ],
+    "ru": [
+     "Спусков: {value}. Раньше: {before}."
+    ],
+    "ka": [
+     "{value} დაშვება. აქამდე: {before}."
+    ]
+   },
+   "moment.record.ski_dist_m.title": {
+    "he": [
+     "הכי הרבה גלישה ביום"
+    ],
+    "en": [
+     "Most skiing in a day"
+    ],
+    "ru": [
+     "Больше всего катания за день"
+    ],
+    "ka": [
+     "ყველაზე მეტი სრიალი ერთ დღეში"
+    ]
+   },
+   "moment.record.ski_dist_m.line": {
+    "he": [
+     "{value} ק״מ. הקודם: {before}."
+    ],
+    "en": [
+     "{value} km. Before: {before}."
+    ],
+    "ru": [
+     "{value} км. Раньше: {before}."
+    ],
+    "ka": [
+     "{value} კმ. აქამდე: {before}."
+    ]
+   },
+   "moment.all_color.green.title": {
+    "he": [
+     "כל הירוקים"
+    ],
+    "en": [
+     "All the greens"
+    ],
+    "ru": [
+     "Все зелёные"
+    ],
+    "ka": [
+     "ყველა მწვანე ტრასა"
+    ]
+   },
+   "moment.all_color.green.line": {
+    "he": [
+     "{n} מתוך {n}"
+    ],
+    "en": [
+     "{n} of {n}"
+    ],
+    "ru": [
+     "{n} из {n}"
+    ],
+    "ka": [
+     "{n}-დან {n}"
+    ]
+   },
+   "moment.all_color.blue.title": {
+    "he": [
+     "כל הכחולים"
+    ],
+    "en": [
+     "All the blues"
+    ],
+    "ru": [
+     "Все синие"
+    ],
+    "ka": [
+     "ყველა ლურჯი ტრასა"
+    ]
+   },
+   "moment.all_color.blue.line": {
+    "he": [
+     "{n} מתוך {n}"
+    ],
+    "en": [
+     "{n} of {n}"
+    ],
+    "ru": [
+     "{n} из {n}"
+    ],
+    "ka": [
+     "{n}-დან {n}"
+    ]
+   },
+   "moment.all_color.red.title": {
+    "he": [
+     "כל האדומים"
+    ],
+    "en": [
+     "All the reds"
+    ],
+    "ru": [
+     "Все красные"
+    ],
+    "ka": [
+     "ყველა წითელი ტრასა"
+    ]
+   },
+   "moment.all_color.red.line": {
+    "he": [
+     "{n} מתוך {n}"
+    ],
+    "en": [
+     "{n} of {n}"
+    ],
+    "ru": [
+     "{n} из {n}"
+    ],
+    "ka": [
+     "{n}-დან {n}"
+    ]
+   },
+   "moment.all_color.black.title": {
+    "he": [
+     "כל השחורים"
+    ],
+    "en": [
+     "All the blacks"
+    ],
+    "ru": [
+     "Все чёрные"
+    ],
+    "ka": [
+     "ყველა შავი ტრასა"
+    ]
+   },
+   "moment.all_color.black.line": {
+    "he": [
+     "{n} מתוך {n}"
+    ],
+    "en": [
+     "{n} of {n}"
+    ],
+    "ru": [
+     "{n} из {n}"
+    ],
+    "ka": [
+     "{n}-დან {n}"
+    ]
+   },
+   "moment.queue.title": {
+    "he": [
+     "הכי הרבה בתור"
+    ],
+    "en": [
+     "Longest queue"
+    ],
+    "ru": [
+     "Самая долгая очередь"
+    ],
+    "ka": [
+     "ყველაზე გრძელი რიგი"
+    ]
+   },
+   "moment.queue.line": {
+    "he": [
+     "{min} דק׳, {lift}"
+    ],
+    "en": [
+     "{min} min, {lift}"
+    ],
+    "ru": [
+     "{min} мин, {lift}"
+    ],
+    "ka": [
+     "{min} წთ, {lift}"
+    ]
+   },
+   "moment.drop_compare.title": {
+    "he": [
+     "ירידה מצטברת"
+    ],
+    "en": [
+     "Total vertical"
+    ],
+    "ru": [
+     "Общий перепад"
+    ],
+    "ka": [
+     "ჯამური ვარდნა"
+    ]
+   },
+   "moment.drop_compare.line": {
+    "he": [
+     "{drop} מ׳ (פי {times} מ{ref})"
+    ],
+    "en": [
+     {
+      "one": "{drop} m ({times}× {ref})",
+      "other": "{drop} m ({times}× {ref})"
+     }
+    ],
+    "ru": [
+     {
+      "one": "{drop} м (в {times} раз выше {ref})",
+      "few": "{drop} м (в {times} раза выше {ref})",
+      "many": "{drop} м (в {times} раз выше {ref})",
+      "other": "{drop} м (в {times} раза выше {ref})"
+     }
+    ],
+    "ka": [
+     "{drop} მ ({times}-ჯერ მეტი, ვიდრე {ref} სიმაღლე)"
+    ]
+   },
+   "moment.fall.run.title": {
+    "he": [
+     "נפילה?"
+    ],
+    "en": [
+     "A fall?"
+    ],
+    "ru": [
+     "Падение?"
+    ],
+    "ka": [
+     "წაიქეცით?"
+    ]
+   },
+   "moment.fall.run.line": {
+    "he": [
+     "נראה כמו נפילה ב-{run}, {time}. נכון?"
+    ],
+    "en": [
+     "Looks like a fall on {run}, {time}. Right?"
+    ],
+    "ru": [
+     "Похоже на падение: {run}, {time}. Верно?"
+    ],
+    "ka": [
+     "ჰგავს წაქცევას: {run}, {time}. სწორია?"
+    ]
+   },
+   "moment.fall.off.title": {
+    "he": [
+     "נפילה?"
+    ],
+    "en": [
+     "A fall?"
+    ],
+    "ru": [
+     "Падение?"
+    ],
+    "ka": [
+     "წაიქეცით?"
+    ]
+   },
+   "moment.fall.off.line": {
+    "he": [
+     "נראה כמו נפילה ב-{time}. נכון?"
+    ],
+    "en": [
+     "Looks like a fall at {time}. Right?"
+    ],
+    "ru": [
+     "Похоже на падение в {time}. Верно?"
+    ],
+    "ka": [
+     "ჰგავს წაქცევას {time}-ზე. სწორია?"
+    ]
+   },
+   "moment.offpiste.title": {
+    "he": [
+     "מחוץ למסלולים"
+    ],
+    "en": [
+     "Off the marked runs"
+    ],
+    "ru": [
+     "Вне трасс"
+    ],
+    "ka": [
+     "მონიშნული ტრასების გარეთ"
+    ]
+   },
+   "moment.offpiste.line": {
+    "he": [
+     "{drop} מ׳ ירידה, {km} ק״מ, {time}"
+    ],
+    "en": [
+     "{drop} m drop, {km} km, {time}"
+    ],
+    "ru": [
+     "Перепад {drop} м, {km} км, {time}"
+    ],
+    "ka": [
+     "{drop} მ ვარდნა, {km} კმ, {time}"
+    ]
+   },
+   "moment.last_descent.title": {
+    "he": [
+     "הירידה האחרונה"
+    ],
+    "en": [
+     "Last run"
+    ],
+    "ru": [
+     "Последний спуск"
+    ],
+    "ka": [
+     "ბოლო დაშვება"
+    ]
+   },
+   "moment.last_descent.line": {
+    "he": [
+     "{run}: {km} ק״מ, {drop} מ׳, {min} דק׳"
+    ],
+    "en": [
+     "{run}: {km} km, {drop} m, {min} min"
+    ],
+    "ru": [
+     "{run}: {km} км, {drop} м, {min} мин"
+    ],
+    "ka": [
+     "{run}: {km} კმ, {drop} მ, {min} წთ"
+    ]
+   },
+   "moment.last_descent.falls": {
+    "he": [
+     {
+      "one": "נפילה אחת",
+      "two": "שתי נפילות",
+      "other": "{n} נפילות"
+     }
+    ],
+    "en": [
+     {
+      "one": "1 fall",
+      "other": "{n} falls"
+     }
+    ],
+    "ru": [
+     {
+      "one": "{n} падение",
+      "few": "{n} падения",
+      "many": "{n} падений",
+      "other": "{n} падения"
+     }
+    ],
+    "ka": [
+     {
+      "one": "1 წაქცევა",
+      "other": "{n} წაქცევა"
+     }
+    ]
+   },
+   "moment.story.head": {
+    "he": [
+     {
+      "one": "יום סקי {day} בגודאורי: ירידה אחת.",
+      "two": "יום סקי {day} בגודאורי: שתי ירידות.",
+      "other": "יום סקי {day} בגודאורי: {n} ירידות."
+     }
+    ],
+    "en": [
+     {
+      "one": "Ski day {day} in Gudauri: one run.",
+      "other": "Ski day {day} in Gudauri: {n} runs."
+     }
+    ],
+    "ru": [
+     {
+      "one": "День катания {day} в Гудаури: {n} спуск.",
+      "few": "День катания {day} в Гудаури: {n} спуска.",
+      "many": "День катания {day} в Гудаури: {n} спусков.",
+      "other": "День катания {day} в Гудаури: {n} спуска."
+     }
+    ],
+    "ka": [
+     {
+      "one": "სათხილამურო დღე {day} გუდაურში: ერთი დაშვება.",
+      "other": "სათხილამურო დღე {day} გუდაურში: {n} დაშვება."
+     }
+    ],
+    "note": "not from the engine: day = the ski day number of the trip (S-35), n = descents. Without a trip, use moment.story.head_nodate"
+   },
+   "moment.story.head_nodate": {
+    "he": [
+     {
+      "one": "יום בגודאורי: ירידה אחת.",
+      "two": "יום בגודאורי: שתי ירידות.",
+      "other": "יום בגודאורי: {n} ירידות."
+     }
+    ],
+    "en": [
+     {
+      "one": "A day in Gudauri: one run.",
+      "other": "A day in Gudauri: {n} runs."
+     }
+    ],
+    "ru": [
+     {
+      "one": "День в Гудаури: {n} спуск.",
+      "few": "День в Гудаури: {n} спуска.",
+      "many": "День в Гудаури: {n} спусков.",
+      "other": "День в Гудаури: {n} спуска."
+     }
+    ],
+    "ka": [
+     {
+      "one": "დღე გუდაურში: ერთი დაშვება.",
+      "other": "დღე გუდაურში: {n} დაშვება."
+     }
+    ]
+   }
+  },
+  "data": {
+   "moment.fastest.title": {
+    "he": [
+     "מרבית"
+    ],
+    "en": [
+     "Top speed"
+    ],
+    "ru": [
+     "Макс. скорость"
+    ],
+    "ka": [
+     "მაქს. სიჩქარე"
+    ],
+    "note": "label above the number; data tone has no lines"
+   },
+   "moment.longest_descent.title": {
+    "he": [
+     "הירידה הארוכה"
+    ],
+    "en": [
+     "Longest run"
+    ],
+    "ru": [
+     "Длинный спуск"
+    ],
+    "ka": [
+     "გრძელი დაშვება"
+    ]
+   },
+   "moment.first_color.red.title": {
+    "he": [
+     "אדום ראשון"
+    ],
+    "en": [
+     "First red"
+    ],
+    "ru": [
+     "Первая красная"
+    ],
+    "ka": [
+     "პირველი წითელი"
+    ]
+   },
+   "moment.first_color.black.title": {
+    "he": [
+     "שחור ראשון"
+    ],
+    "en": [
+     "First black"
+    ],
+    "ru": [
+     "Первая чёрная"
+    ],
+    "ka": [
+     "პირველი შავი"
+    ]
+   },
+   "moment.new_runs.title": {
+    "he": [
+     "מסלולים חדשים"
+    ],
+    "en": [
+     "New runs"
+    ],
+    "ru": [
+     "Новые трассы"
+    ],
+    "ka": [
+     "ახალი ტრასები"
+    ]
+   },
+   "moment.record.max_kmh.title": {
+    "he": [
+     "שיא מהירות אישי"
+    ],
+    "en": [
+     "Personal speed record"
+    ],
+    "ru": [
+     "Личный рекорд скорости"
+    ],
+    "ka": [
+     "სიჩქარის პირადი რეკორდი"
+    ]
+   },
+   "moment.record.longest_m.title": {
+    "he": [
+     "הירידה הארוכה אי פעם"
+    ],
+    "en": [
+     "Your longest run ever"
+    ],
+    "ru": [
+     "Самый длинный спуск за всё время"
+    ],
+    "ka": [
+     "ყველაზე გრძელი დაშვება ოდესმე"
+    ]
+   },
+   "moment.record.drop_m.title": {
+    "he": [
+     "הכי הרבה ירידה ביום"
+    ],
+    "en": [
+     "Most vertical in a day"
+    ],
+    "ru": [
+     "Больше всего перепада за день"
+    ],
+    "ka": [
+     "ყველაზე დიდი ვარდნა ერთ დღეში"
+    ]
+   },
+   "moment.record.descents.title": {
+    "he": [
+     "הכי הרבה ירידות ביום"
+    ],
+    "en": [
+     "Most runs in a day"
+    ],
+    "ru": [
+     "Больше всего спусков за день"
+    ],
+    "ka": [
+     "ყველაზე მეტი დაშვება ერთ დღეში"
+    ]
+   },
+   "moment.record.ski_dist_m.title": {
+    "he": [
+     "הכי הרבה גלישה ביום"
+    ],
+    "en": [
+     "Most skiing in a day"
+    ],
+    "ru": [
+     "Больше всего катания за день"
+    ],
+    "ka": [
+     "ყველაზე მეტი სრიალი ერთ დღეში"
+    ]
+   },
+   "moment.all_color.green.title": {
+    "he": [
+     "כל הירוקים"
+    ],
+    "en": [
+     "All greens"
+    ],
+    "ru": [
+     "Все зелёные"
+    ],
+    "ka": [
+     "ყველა მწვანე"
+    ]
+   },
+   "moment.all_color.blue.title": {
+    "he": [
+     "כל הכחולים"
+    ],
+    "en": [
+     "All blues"
+    ],
+    "ru": [
+     "Все синие"
+    ],
+    "ka": [
+     "ყველა ლურჯი"
+    ]
+   },
+   "moment.all_color.red.title": {
+    "he": [
+     "כל האדומים"
+    ],
+    "en": [
+     "All reds"
+    ],
+    "ru": [
+     "Все красные"
+    ],
+    "ka": [
+     "ყველა წითელი"
+    ]
+   },
+   "moment.all_color.black.title": {
+    "he": [
+     "כל השחורים"
+    ],
+    "en": [
+     "All blacks"
+    ],
+    "ru": [
+     "Все чёрные"
+    ],
+    "ka": [
+     "ყველა შავი"
+    ]
+   },
+   "moment.queue.title": {
+    "he": [
+     "תור ארוך"
+    ],
+    "en": [
+     "Longest queue"
+    ],
+    "ru": [
+     "Очередь"
+    ],
+    "ka": [
+     "რიგი"
+    ]
+   },
+   "moment.drop_compare.title": {
+    "he": [
+     "ירידה מצטברת"
+    ],
+    "en": [
+     "Total vertical"
+    ],
+    "ru": [
+     "Общий перепад"
+    ],
+    "ka": [
+     "ჯამური ვარდნა"
+    ]
+   },
+   "moment.fall.title": {
+    "he": [
+     "נפילה?"
+    ],
+    "en": [
+     "Fall?"
+    ],
+    "ru": [
+     "Падение?"
+    ],
+    "ka": [
+     "წაქცევა?"
+    ],
+    "note": "still a question with moment.fall.no"
+   },
+   "moment.offpiste.title": {
+    "he": [
+     "מחוץ למסלולים"
+    ],
+    "en": [
+     "Off-piste"
+    ],
+    "ru": [
+     "Вне трасс"
+    ],
+    "ka": [
+     "ტრასის გარეთ"
+    ]
+   },
+   "moment.last_descent.title": {
+    "he": [
+     "הירידה האחרונה"
+    ],
+    "en": [
+     "Last run"
+    ],
+    "ru": [
+     "Последний спуск"
+    ],
+    "ka": [
+     "ბოლო დაშვება"
+    ]
+   }
+  }
+ }
+}

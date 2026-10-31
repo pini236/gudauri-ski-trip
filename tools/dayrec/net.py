@@ -135,6 +135,22 @@ class Piste:
         return self.line.nearest(x, y)[0]
 
 
+SPEED_DUR_REL = 0.15
+
+
+def speed_dur_gaps(lifts, rel=SPEED_DUR_REL):
+    """The lifts whose len / speed and dur (minutes) differ by more than rel, without an explanation in
+    research.speed_dur (docs/ARCHITECTURE.md, design review of speed, condition a). [(id, name, seconds, seconds)]."""
+    out = []
+    for l in lifts:
+        if not l.get('speed') or not l.get('dur') or not l.get('len'):
+            continue
+        a, b = float(l['len']) / float(l['speed']), float(l['dur']) * 60.0
+        if abs(a - b) > rel * b and not (l.get('research') or {}).get('speed_dur'):
+            out.append((l.get('id'), l.get('name'), round(a), round(b)))
+    return out
+
+
 class Lift:
     """A lift oriented from its bottom to its top, with its stations along it."""
     def __init__(self, idx, raw, proj, terrain, params):
@@ -149,7 +165,10 @@ class Lift:
         self.line = line
         self.length = line.length
         dur = raw.get('dur')
-        if dur:
+        if raw.get('speed'):  # the cable speed from the sources (research/lifts.md, docs/ARCHITECTURE.md)
+            self.speed = float(raw['speed'])
+            self.speed_src = 'speed'
+        elif dur:
             self.speed = float(raw.get('len') or line.length) / (float(dur) * 60.0)
             self.speed_src = 'data'
         else:
@@ -184,6 +203,10 @@ class Net:
                 for l in rl['lifts']:
                     if str(l['id']) == lid:
                         l.update(extra)
+        gaps = speed_dur_gaps(rl['lifts'])
+        if gaps:
+            raise ValueError('lifts whose len / speed and dur differ by more than %d %% (explain in research.speed_dur): %s'
+                             % (round(SPEED_DUR_REL * 100), gaps))
         p = terrain_json['proj']
         self.proj = Proj(float(p['lat0']), float(p['lon0']))
         self.terrain = Terrain(terrain_json)
