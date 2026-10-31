@@ -71,6 +71,7 @@ shot() { # shot <name>: a numbered screenshot, and the screen's accessibility fi
 }
 audit() { # audit <screen>: touch targets under 44 dp and tappable things with no words (report only, qa/a11y.py)
   [[ -z "${QA_NO_A11Y:-}" ]] || return 0
+  [[ "$1" != *-sure ]] || return 0 # "tap again to delete" lasts a few seconds, and the next step taps it
   [[ -n "${DPI:-}" ]] || DPI=$(adb shell wm density 2> /dev/null | grep -o '[0-9]*$' | tail -n 1)
   adb shell rm -f /sdcard/a11y.xml
   timeout 15 adb shell uiautomator dump /sdcard/a11y.xml 2>&1 | grep -q "dumped to" || return 0
