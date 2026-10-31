@@ -43,16 +43,25 @@ final class WhereAmI: NSObject, CLLocationManagerDelegate {
         if on { off(); return }
         switch lm.authorizationStatus {
         case .notDetermined: asking = true
-        case .denied, .restricted: state = .denied
+        case .denied, .restricted: state = .denied; send("denied")
         default: start()
         }
+    }
+
+    /// location_toggle (docs/GROWTH.md, m-7): on, with the first result, once per turning on; off when it was on.
+    /// No run, no coordinates, nothing about the place.
+    @ObservationIgnored private var pending = false
+    private func send(_ result: String) {
+        pending = false
+        Telemetry.shared.event("location_toggle", ["on": true, "result": result])
     }
 
     /// After the explaining sheet: the system's question; the answer comes to the delegate.
     func ask() { asking = false; state = .waiting; lm.requestWhenInUseAuthorization() }
 
     private func start() {
-        guard CLLocationManager.locationServicesEnabled() else { state = .unavailable; return }
+        guard CLLocationManager.locationServicesEnabled() else { state = .unavailable; send("unavailable"); return }
+        pending = true
         locator.reset()
         state = .waiting
         lm.startUpdatingLocation()
@@ -60,6 +69,9 @@ final class WhereAmI: NSObject, CLLocationManagerDelegate {
     }
 
     func off() {
+        let was = on // only a button that was really on says so (not after a refusal or no location)
+        if was { Telemetry.shared.event("location_toggle", ["on": false]) }
+        pending = false
         lm.stopUpdatingLocation(); lm.stopUpdatingHeading()
         locator.reset()
         state = .off
@@ -71,7 +83,7 @@ final class WhereAmI: NSObject, CLLocationManagerDelegate {
             guard case .waiting = state else { return }
             switch s {
             case .authorizedWhenInUse, .authorizedAlways: start()
-            case .denied, .restricted: state = .denied
+            case .denied, .restricted: state = .denied; send("denied")
             default: break
             }
         }
@@ -89,12 +101,13 @@ final class WhereAmI: NSObject, CLLocationManagerDelegate {
             let fix = locator.feed(x: x, y: y, accuracy: acc, approximate: approx)
             let alt = Int((terrain.elev(x, y) / 10).rounded()) * 10
             state = .fixed(fix, x: x, y: y, accuracy: acc, alt: alt, bearing: bearing)
+            if pending { send(fix == .outside ? "outside" : approx ? "approximate" : "granted") }
         }
     }
 
     nonisolated func locationManager(_ m: CLLocationManager, didFailWithError error: Error) {
         let denied = (error as? CLError)?.code == .denied
-        Task { @MainActor in if denied { self.state = .denied; self.lm.stopUpdatingLocation() } }
+        Task { @MainActor in if denied { self.state = .denied; self.lm.stopUpdatingLocation(); if self.pending { self.send("denied") } } }
     }
 }
 

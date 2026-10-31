@@ -121,6 +121,15 @@ public enum Meet {
         return Day(epochDay: Int((Double(s) / 86_400).rounded(.down)))
     }
 
+    /// A saved meetup's card as the meeting point's route takes it ("<station>/<HHMM>/<YYYYMMDD>"), in Gudauri's
+    /// clock: a tap on a meetup in the group page opens it (K-3, as Android's Meet.route and the site's group page).
+    public static func card(_ station: String, atMs: Int64) -> String {
+        let s = atMs / 1000 + Int64(gudauriOffsetS)
+        let day = gudauriDay(atMs)
+        let inDay = Int(s - Int64(day.epochDay) * 86_400)
+        return "\(station)/\(pad2(inDay / 3600))\(pad2(inDay % 3600 / 60))/\(day.year)\(pad2(day.month))\(pad2(day.day))"
+    }
+
     /// The ski days of "your trip" (up to two weeks), or, with none, the next week from today in Gudauri.
     public static func days(_ trip: Trip?, nowMs: Int64) -> [Day] {
         var a: Day, b: Day
