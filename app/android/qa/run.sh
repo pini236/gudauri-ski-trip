@@ -8,7 +8,7 @@ OUT=${OUT:-qa-out}
 SCENARIO=${SCENARIO:-all}
 # Reject typos before touching the device. An unknown part used to run the entire suite.
 [[ "$SCENARIO" != *$'\n'* && "$SCENARIO" != *$'\r'* ]] || { echo "QA scenario must be a single line" >&2; exit 2; }
-ALL_SCENARIOS=(map descent games school snowball home group meet status run locate weather lang phone store)
+ALL_SCENARIOS=(map descent games school snowball home group meet status run locate weather lang phone store bigtext)
 if [[ "$SCENARIO" == all ]]; then
   SCENARIOS=("${ALL_SCENARIOS[@]}")
 else
@@ -20,7 +20,7 @@ else
     part="${part#"${part%%[![:space:]]*}"}"
     part="${part%"${part##*[![:space:]]}"}"
     case "$part" in
-      map|descent|games|school|snowball|home|group|meet|status|run|locate|weather|lang|phone|store) ;;
+      map|descent|games|school|snowball|home|group|meet|status|run|locate|weather|lang|phone|store|bigtext) ;;
       *) echo "Unknown or empty QA scenario: '$part'" >&2; exit 2 ;;
     esac
     [[ -z "${selected[$part]+present}" ]] || { echo "Duplicate QA scenario: '$part'" >&2; exit 2; }
@@ -937,6 +937,29 @@ store() {
   qa "--es qa.mode auto"
   adb shell am broadcast -a com.android.systemui.demo -e command exit > /dev/null
   adb shell wm size reset
+}
+
+# ---- the biggest text size (13.7): the system font at 2.0, the main screens must still show their words and work ----
+# Appearance is not judged here (the shots are for looking at); what is checked is that the words are there, the taps still land
+# and nothing crashes, and the a11y findings of each shot are in the report
+bigtext() {
+  adb shell settings put system font_scale 2.0; sleep 2
+  qa "--es qa.group none --es qa.tab home --es qa.trip none --es qa.mode auto --es qa.time 2026-12-01T13:35"; waitlog "trip none" 20
+  waitlog "shadow ready" 90; sleep 2; shot big-home-guest
+  [ -n "$(where "מתי טסים?")" ] && note "big text: the pass is on the screen" || fail "big text: no 'when do you fly' on the home page"
+  mark; tapText "מתי טסים?" && sleep 1.2 && shot big-trip-calendar
+  adb shell input keyevent KEYCODE_BACK; sleep 1
+  drag $((W / 2)) $((H * 3 / 4)) $((W / 2)) $((H / 4)) 400; sleep 1; shot big-home-signs
+  drag $((W / 2)) $((H / 4)) $((W / 2)) $((H * 3 / 4)) 300; sleep 0.5
+  # the page about the app and its settings: the toggles and their words
+  qa "--es qa.tab about"; sleep 2; shot big-about
+  drag $((W / 2)) $((H * 3 / 4)) $((W / 2)) $((H / 4)) 400; sleep 1; shot big-about-down
+  # a run's panel and the list of runs
+  qa "--es qa.tab map"; waitlog "shadow ready" 60; sleep 2; shot big-map
+  # joining a group by code
+  qa "--es qa.group invited --es qa.tab join"; sleep 2; shot big-group-code
+  qa "--es qa.mode night --es qa.tab home"; sleep 2; shot big-home-night
+  adb shell settings put system font_scale 1.0; sleep 2
 }
 
 # one scenario, several with commas (home,group), or all
