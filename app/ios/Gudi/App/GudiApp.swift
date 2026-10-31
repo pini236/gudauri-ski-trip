@@ -132,7 +132,9 @@ struct RootView: View {
         switch UserDefaults.standard.string(forKey: "qa.text") ?? "" {
         case "xxxl": .xxxLarge
         case "ax3": .accessibility3
-        default: nil
+        // the screenshots run (it has a qaRoute) draws at the default size ("Large") unless a flag says otherwise, so the
+        // shots do not depend on the simulator's own text size setting
+        default: UserDefaults.standard.string(forKey: "qaRoute") != nil ? .large : nil
         }
     }
 
