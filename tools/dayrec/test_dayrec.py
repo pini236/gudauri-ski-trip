@@ -364,6 +364,22 @@ class Moments(unittest.TestCase):
         self.assertEqual(o['story'][-1], next(i for i, m in enumerate(o['items']) if m['key'] == 'tomorrow'))
         self.assertNotEqual(o['items'][o['share']]['key'], 'tomorrow')
 
+    def test_trip_on_its_last_day_and_at_most_three_insights(self):
+        fx = json.load(open(os.path.join(build.FIX, 'dayrec-moments.json')))
+        last = fx['trip_chain'][-1]['expected']
+        tr = next(m['p'] for m in last['items'] if m['key'] == 'trip')
+        self.assertEqual(tr['days'], 3)
+        self.assertEqual((tr['run'], tr['n']), ('Goodaura 1', 2))  # the run you came back to (a tie: the first by name)
+        self.assertNotIn('trip', [m['key'] for m in fx['trip_chain'][1]['expected']['items']])  # not the last day
+        self.assertEqual([last['items'][i]['key'] for i in last['story'][-2:]], ['trip', 'tomorrow'])
+        for c in fx['cases'] + fx['chain'] + fx['trip_chain']:
+            e = c['expected']
+            body = [i for i in e['story'] if e['items'][i]['key'] not in self.M['story_last']]
+            self.assertLessEqual(len(body), self.M['story_max'])
+            ks = {e['items'][i]['key'] for i in body}
+            if body and 'vs_day' not in ks and any(m['key'] in self.M['story_fallback'] for m in e['items']):
+                self.assertTrue(ks & set(self.M['story_fallback']), c.get('name') or c['final'])
+
     def test_steepest_is_the_run_panel_number(self):
         g = BASE.runs['Kudebi 1']['steep_g']
         self.assertAlmostEqual(g, 0.38008, places=3)  # the site's number (RunFactsTest.kt)

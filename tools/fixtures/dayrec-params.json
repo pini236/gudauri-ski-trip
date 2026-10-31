@@ -154,7 +154,7 @@
  "moments": {
   "about": "The moments engine (tools/dayrec/moments.py): which moments, their priority for the story and the share picture, and the heights the drop is compared with. Each reference height is a number and a key with its source; the name shown comes from i18n/strings.json (moment.ref.<id>).",
   "version": 2,
-  "story_max": 5,
+  "story_max": 3,
   "story_per_key": 1,
   "color_min_m": 200,
   "colors_first": [
@@ -219,15 +219,18 @@
    "flow": 45,
    "queue_pattern": 35,
    "time_split": 20,
-   "tomorrow": 10
+   "tomorrow": 10,
+   "trip": 12
   },
   "share_exclude": [
    "fall",
    "time_split",
-   "tomorrow"
+   "tomorrow",
+   "trip"
   ],
   "utc_offset_h": 4,
   "story_last": [
+   "trip",
    "tomorrow"
   ],
   "insights": {
@@ -243,7 +246,13 @@
    "queue_pattern_each": 2,
    "queue_pattern_min_min": 3,
    "explore_min_new": 3,
-   "finish_max": 3
-  }
+   "finish_max": 3,
+   "trip_min_days": 2
+  },
+  "story_fallback": [
+   "favorite",
+   "steepest",
+   "time_split"
+  ]
  }
 }

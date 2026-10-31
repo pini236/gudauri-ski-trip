@@ -1,5 +1,5 @@
 {
- "about": "Test values of the moments engine (tools/dayrec/moments.py, README \"The moments\"). Each case: the final result of a case of dayrec-cases.json (by name, expected.final), the history before it, and the expected output, to match exactly. chain: the same days one after another, each starting from the history the previous one returned. lift_cards: the card on the lift from the final analysis of the log so far (inline).",
+ "about": "Test values of the moments engine (tools/dayrec/moments.py, README \"The moments\"). Each case: the final result of a case of dayrec-cases.json (by name, expected.final), the history before it, and the expected output, to match exactly. chain: the same days one after another, each starting from the history the previous one returned; trip_chain the same with \"your trip\". lift_cards: the card on the lift from the final analysis of the log so far (inline).",
  "moments": 2,
  "params": "tools/fixtures/dayrec-params.json (moments)",
  "cases": [
@@ -28,7 +28,8 @@
      "colors": {},
      "best": {},
      "first": null,
-     "prev": null
+     "prev": null,
+     "trip": null
     }
    }
   },
@@ -57,7 +58,8 @@
      "colors": {},
      "best": {},
      "first": null,
-     "prev": null
+     "prev": null,
+     "trip": null
     }
    }
   },
@@ -165,7 +167,8 @@
       "drop_m": 283.5,
       "descents": 1,
       "ski_dist_m": 1691.3
-     }
+     },
+     "trip": null
     }
    }
   },
@@ -273,7 +276,8 @@
       "drop_m": 282.3,
       "descents": 1,
       "ski_dist_m": 1676.5
-     }
+     },
+     "trip": null
     }
    }
   },
@@ -361,7 +365,6 @@
      0,
      1,
      2,
-     3,
      4
     ],
     "share": 2,
@@ -392,7 +395,8 @@
       "drop_m": 544.9,
       "descents": 1,
       "ski_dist_m": 2770.1
-     }
+     },
+     "trip": null
     }
    }
   },
@@ -480,7 +484,6 @@
      0,
      1,
      2,
-     3,
      4
     ],
     "share": 2,
@@ -511,7 +514,8 @@
       "drop_m": 552.2,
       "descents": 1,
       "ski_dist_m": 2788.3
-     }
+     },
+     "trip": null
     }
    }
   },
@@ -611,9 +615,7 @@
     "story": [
      0,
      1,
-     2,
      3,
-     4,
      5
     ],
     "share": 0,
@@ -646,7 +648,8 @@
       "drop_m": 832.5,
       "descents": 1,
       "ski_dist_m": 4037.3
-     }
+     },
+     "trip": null
     }
    }
   },
@@ -735,7 +738,6 @@
      0,
      1,
      2,
-     3,
      4
     ],
     "share": 2,
@@ -767,7 +769,8 @@
       "drop_m": 537.2,
       "descents": 1,
       "ski_dist_m": 2757.5
-     }
+     },
+     "trip": null
     }
    }
   },
@@ -863,11 +866,9 @@
      }
     ],
     "story": [
-     0,
      1,
      2,
      3,
-     4,
      5
     ],
     "share": 1,
@@ -899,7 +900,8 @@
       "drop_m": 567.0,
       "descents": 1,
       "ski_dist_m": 3133.3
-     }
+     },
+     "trip": null
     }
    }
   },
@@ -987,7 +989,6 @@
      0,
      1,
      2,
-     3,
      4
     ],
     "share": 2,
@@ -1018,7 +1019,8 @@
       "drop_m": 543.1,
       "descents": 1,
       "ski_dist_m": 2869.9
-     }
+     },
+     "trip": null
     }
    }
   },
@@ -1119,10 +1121,8 @@
     ],
     "story": [
      0,
-     1,
      2,
      3,
-     4,
      5
     ],
     "share": 2,
@@ -1153,7 +1153,8 @@
       "drop_m": 546.2,
       "descents": 1,
       "ski_dist_m": 2856.3
-     }
+     },
+     "trip": null
     }
    }
   },
@@ -1241,7 +1242,6 @@
      0,
      1,
      2,
-     3,
      4
     ],
     "share": 2,
@@ -1272,7 +1272,8 @@
       "drop_m": 546.2,
       "descents": 1,
       "ski_dist_m": 2796.7
-     }
+     },
+     "trip": null
     }
    }
   },
@@ -1357,7 +1358,8 @@
       "longest_m": 1670.9
      },
      "first": null,
-     "prev": null
+     "prev": null,
+     "trip": null
     }
    }
   },
@@ -1445,7 +1447,6 @@
      0,
      1,
      2,
-     3,
      4
     ],
     "share": 2,
@@ -1476,7 +1477,8 @@
       "drop_m": 546.2,
       "descents": 1,
       "ski_dist_m": 2770.8
-     }
+     },
+     "trip": null
     }
    }
   },
@@ -1585,7 +1587,8 @@
       "drop_m": 223.7,
       "descents": 1,
       "ski_dist_m": 1389.3
-     }
+     },
+     "trip": null
     }
    }
   },
@@ -1670,7 +1673,8 @@
       "longest_m": 2073.9
      },
      "first": null,
-     "prev": null
+     "prev": null,
+     "trip": null
     }
    }
   },
@@ -1755,7 +1759,8 @@
       "longest_m": 2288.3
      },
      "first": null,
-     "prev": null
+     "prev": null,
+     "trip": null
     }
    }
   },
@@ -1843,7 +1848,6 @@
      0,
      1,
      2,
-     3,
      4
     ],
     "share": 2,
@@ -1874,7 +1878,8 @@
       "drop_m": 545.0,
       "descents": 1,
       "ski_dist_m": 2801.0
-     }
+     },
+     "trip": null
     }
    }
   },
@@ -1970,11 +1975,9 @@
      }
     ],
     "story": [
-     0,
      1,
      2,
      3,
-     4,
      5
     ],
     "share": 3,
@@ -2005,7 +2008,8 @@
       "drop_m": 545.3,
       "descents": 1,
       "ski_dist_m": 2795.0
-     }
+     },
+     "trip": null
     }
    }
   },
@@ -2093,7 +2097,6 @@
      0,
      1,
      2,
-     3,
      4
     ],
     "share": 2,
@@ -2124,7 +2127,8 @@
       "drop_m": 544.7,
       "descents": 1,
       "ski_dist_m": 2782.1
-     }
+     },
+     "trip": null
     }
    }
   },
@@ -2212,7 +2216,6 @@
      0,
      1,
      2,
-     3,
      4
     ],
     "share": 2,
@@ -2243,7 +2246,8 @@
       "drop_m": 543.1,
       "descents": 1,
       "ski_dist_m": 2957.3
-     }
+     },
+     "trip": null
     }
    }
   },
@@ -2332,7 +2336,6 @@
      0,
      1,
      2,
-     3,
      4
     ],
     "share": 2,
@@ -2363,7 +2366,8 @@
       "drop_m": 1088.9,
       "descents": 2,
       "ski_dist_m": 5569.5
-     }
+     },
+     "trip": null
     }
    }
   },
@@ -2463,7 +2467,8 @@
       "drop_m": 154.6,
       "descents": 1,
       "ski_dist_m": 1235.7
-     }
+     },
+     "trip": null
     }
    }
   },
@@ -2563,7 +2568,8 @@
       "drop_m": 155.1,
       "descents": 1,
       "ski_dist_m": 1225.4
-     }
+     },
+     "trip": null
     }
    }
   },
@@ -2723,8 +2729,6 @@
      }
     ],
     "story": [
-     1,
-     2,
      4,
      5,
      6,
@@ -2772,7 +2776,8 @@
       "drop_m": 5544.3,
       "descents": 12,
       "ski_dist_m": 31325.9
-     }
+     },
+     "trip": null
     }
    }
   }
@@ -2861,7 +2866,6 @@
      0,
      1,
      2,
-     3,
      4
     ],
     "share": 2,
@@ -2892,7 +2896,8 @@
       "drop_m": 544.9,
       "descents": 1,
       "ski_dist_m": 2770.1
-     }
+     },
+     "trip": null
     }
    }
   },
@@ -2924,7 +2929,8 @@
      "drop_m": 544.9,
      "descents": 1,
      "ski_dist_m": 2770.1
-    }
+    },
+    "trip": null
    },
    "expected": {
     "moments": 2,
@@ -2999,10 +3005,8 @@
     ],
     "story": [
      0,
-     1,
      2,
-     3,
-     4
+     3
     ],
     "share": 3,
     "theme": "easy",
@@ -3034,7 +3038,8 @@
       "drop_m": 537.2,
       "descents": 1,
       "ski_dist_m": 2757.5
-     }
+     },
+     "trip": null
     }
    }
   },
@@ -3068,7 +3073,8 @@
      "drop_m": 537.2,
      "descents": 1,
      "ski_dist_m": 2757.5
-    }
+    },
+    "trip": null
    },
    "expected": {
     "moments": 2,
@@ -3289,8 +3295,6 @@
      4,
      6,
      7,
-     8,
-     13,
      16
     ],
     "share": 6,
@@ -3335,7 +3339,8 @@
       "drop_m": 5544.3,
       "descents": 12,
       "ski_dist_m": 31325.9
-     }
+     },
+     "trip": null
     }
    }
   },
@@ -3381,7 +3386,8 @@
      "drop_m": 5544.3,
      "descents": 12,
      "ski_dist_m": 31325.9
-    }
+    },
+    "trip": null
    },
    "expected": {
     "moments": 2,
@@ -3442,7 +3448,6 @@
     ],
     "story": [
      0,
-     1,
      2,
      3
     ],
@@ -3488,7 +3493,8 @@
       "drop_m": 5544.3,
       "descents": 12,
       "ski_dist_m": 31325.9
-     }
+     },
+     "trip": null
     }
    }
   }
@@ -4235,6 +4241,747 @@
      "stops": 2,
      "nonstop": false,
      "longest_so_far": false
+    }
+   }
+  }
+ ],
+ "trip_chain": [
+  {
+   "final": "shared_tatra",
+   "history": {
+    "v": 2,
+    "days": 0,
+    "runs": {},
+    "colors": {},
+    "best": {},
+    "first": null,
+    "prev": null
+   },
+   "trip": {
+    "start": "2027-01-11",
+    "last": false
+   },
+   "expected": {
+    "moments": 2,
+    "items": [
+     {
+      "key": "longest_descent",
+      "t": 1799645911000,
+      "seed": 1617050211,
+      "p": {
+       "t1": 1799646137000,
+       "dist_m": 2757.5,
+       "drop_m": 537.2,
+       "moving_s": 226,
+       "runs": [
+        "Tatra 2",
+        "Tatra 1"
+       ],
+       "stops": 0
+      }
+     },
+     {
+      "key": "steepest",
+      "t": 1799645964000,
+      "seed": 289265027,
+      "p": {
+       "run": "Tatra 2",
+       "deg": 20,
+       "ever": false
+      }
+     },
+     {
+      "key": "fastest",
+      "t": 1799646012000,
+      "seed": 1327046819,
+      "p": {
+       "kmh": 57.82,
+       "at": {
+        "lat": 42.48762,
+        "lon": 44.485495
+       },
+       "kind": "run",
+       "runs": [
+        "Tatra 2"
+       ],
+       "nth": 1,
+       "of": 1
+      }
+     },
+     {
+      "key": "drop_compare",
+      "t": 1799646178000,
+      "seed": 309141796,
+      "p": {
+       "ref": "azrieli",
+       "times": 2.9,
+       "drop_m": 537.2
+      }
+     },
+     {
+      "key": "tomorrow",
+      "t": 1799646178000,
+      "seed": 1228978206,
+      "p": {
+       "kind": "new_run",
+       "run": "Goodaura 1",
+       "color": "blue",
+       "lift": "Shino"
+      }
+     }
+    ],
+    "story": [
+     0,
+     1,
+     2,
+     4
+    ],
+    "share": 2,
+    "theme": "easy",
+    "history": {
+     "v": 2,
+     "days": 1,
+     "runs": {
+      "Tatra 1": 1799645911000,
+      "Tatra 2": 1799645964000
+     },
+     "colors": {
+      "blue": 1799645911000
+     },
+     "best": {
+      "steep_deg": 20,
+      "max_kmh": 57.82,
+      "drop_m": 537.2,
+      "descents": 1,
+      "longest_m": 2757.5,
+      "ski_dist_m": 2757.5
+     },
+     "first": {
+      "drop_m": 537.2,
+      "descents": 1,
+      "ski_dist_m": 2757.5
+     },
+     "prev": {
+      "drop_m": 537.2,
+      "descents": 1,
+      "ski_dist_m": 2757.5
+     },
+     "trip": {
+      "start": "2027-01-11",
+      "days": 1,
+      "drop_m": 537.2,
+      "runs": {
+       "Tatra 1": 1,
+       "Tatra 2": 1
+      },
+      "first": {
+       "blue": {
+        "run": "Tatra 1",
+        "day_n": 1
+       }
+      }
+     }
+    }
+   }
+  },
+  {
+   "final": "run_single",
+   "history": {
+    "v": 2,
+    "days": 1,
+    "runs": {
+     "Tatra 1": 1799645911000,
+     "Tatra 2": 1799645964000
+    },
+    "colors": {
+     "blue": 1799645911000
+    },
+    "best": {
+     "steep_deg": 20,
+     "max_kmh": 57.82,
+     "drop_m": 537.2,
+     "descents": 1,
+     "longest_m": 2757.5,
+     "ski_dist_m": 2757.5
+    },
+    "first": {
+     "drop_m": 537.2,
+     "descents": 1,
+     "ski_dist_m": 2757.5
+    },
+    "prev": {
+     "drop_m": 537.2,
+     "descents": 1,
+     "ski_dist_m": 2757.5
+    },
+    "trip": {
+     "start": "2027-01-11",
+     "days": 1,
+     "drop_m": 537.2,
+     "runs": {
+      "Tatra 1": 1,
+      "Tatra 2": 1
+     },
+     "first": {
+      "blue": {
+       "run": "Tatra 1",
+       "day_n": 1
+      }
+     }
+    }
+   },
+   "trip": {
+    "start": "2027-01-11",
+    "last": false
+   },
+   "expected": {
+    "moments": 2,
+    "items": [
+     {
+      "key": "record",
+      "t": 1799645845000,
+      "seed": 1242197374,
+      "p": {
+       "what": "longest_m",
+       "value": 2770.1,
+       "before": 2757.5
+      }
+     },
+     {
+      "key": "steepest",
+      "t": 1799645845000,
+      "seed": 404566563,
+      "p": {
+       "run": "Goodaura 1",
+       "deg": 18,
+       "ever": false
+      }
+     },
+     {
+      "key": "new_runs",
+      "t": 1799645845000,
+      "seed": 321663536,
+      "p": {
+       "runs": [
+        "Goodaura 1"
+       ],
+       "done": 3,
+       "total": 24
+      }
+     },
+     {
+      "key": "longest_descent",
+      "t": 1799645845000,
+      "seed": 1824322017,
+      "p": {
+       "t1": 1799646057000,
+       "dist_m": 2770.1,
+       "drop_m": 544.9,
+       "moving_s": 212,
+       "runs": [
+        "Goodaura 1"
+       ],
+       "stops": 0
+      }
+     },
+     {
+      "key": "record",
+      "t": 1799645920000,
+      "seed": 969456457,
+      "p": {
+       "what": "max_kmh",
+       "value": 71.03,
+       "before": 57.82
+      }
+     },
+     {
+      "key": "fastest",
+      "t": 1799645920000,
+      "seed": 878172589,
+      "p": {
+       "kmh": 71.03,
+       "at": {
+        "lat": 42.484255,
+        "lon": 44.492444
+       },
+       "kind": "run",
+       "runs": [
+        "Goodaura 1"
+       ],
+       "nth": 1,
+       "of": 1
+      }
+     },
+     {
+      "key": "record",
+      "t": 1799646098000,
+      "seed": 491514338,
+      "p": {
+       "what": "drop_m",
+       "value": 544.9,
+       "before": 537.2
+      }
+     },
+     {
+      "key": "record",
+      "t": 1799646098000,
+      "seed": 491514338,
+      "p": {
+       "what": "ski_dist_m",
+       "value": 2770.1,
+       "before": 2757.5
+      }
+     },
+     {
+      "key": "drop_compare",
+      "t": 1799646098000,
+      "seed": 1711361248,
+      "p": {
+       "ref": "azrieli",
+       "times": 2.9,
+       "drop_m": 544.9
+      }
+     }
+    ],
+    "story": [
+     1,
+     4,
+     5
+    ],
+    "share": 4,
+    "theme": "progress",
+    "history": {
+     "v": 2,
+     "days": 2,
+     "runs": {
+      "Tatra 1": 1799645911000,
+      "Tatra 2": 1799645964000,
+      "Goodaura 1": 1799645845000
+     },
+     "colors": {
+      "blue": 1799645845000
+     },
+     "best": {
+      "steep_deg": 20,
+      "max_kmh": 71.03,
+      "drop_m": 544.9,
+      "descents": 1,
+      "longest_m": 2770.1,
+      "ski_dist_m": 2770.1
+     },
+     "first": {
+      "drop_m": 537.2,
+      "descents": 1,
+      "ski_dist_m": 2757.5
+     },
+     "prev": {
+      "drop_m": 544.9,
+      "descents": 1,
+      "ski_dist_m": 2770.1
+     },
+     "trip": {
+      "start": "2027-01-11",
+      "days": 2,
+      "drop_m": 1082.1,
+      "runs": {
+       "Tatra 1": 1,
+       "Tatra 2": 1,
+       "Goodaura 1": 1
+      },
+      "first": {
+       "blue": {
+        "run": "Tatra 1",
+        "day_n": 1
+       }
+      }
+     }
+    }
+   }
+  },
+  {
+   "final": "full_day",
+   "history": {
+    "v": 2,
+    "days": 2,
+    "runs": {
+     "Tatra 1": 1799645911000,
+     "Tatra 2": 1799645964000,
+     "Goodaura 1": 1799645845000
+    },
+    "colors": {
+     "blue": 1799645845000
+    },
+    "best": {
+     "steep_deg": 20,
+     "max_kmh": 71.03,
+     "drop_m": 544.9,
+     "descents": 1,
+     "longest_m": 2770.1,
+     "ski_dist_m": 2770.1
+    },
+    "first": {
+     "drop_m": 537.2,
+     "descents": 1,
+     "ski_dist_m": 2757.5
+    },
+    "prev": {
+     "drop_m": 544.9,
+     "descents": 1,
+     "ski_dist_m": 2770.1
+    },
+    "trip": {
+     "start": "2027-01-11",
+     "days": 2,
+     "drop_m": 1082.1,
+     "runs": {
+      "Tatra 1": 1,
+      "Tatra 2": 1,
+      "Goodaura 1": 1
+     },
+     "first": {
+      "blue": {
+       "run": "Tatra 1",
+       "day_n": 1
+      }
+     }
+    }
+   },
+   "trip": {
+    "start": "2027-01-11",
+    "last": true
+   },
+   "expected": {
+    "moments": 2,
+    "items": [
+     {
+      "key": "queue",
+      "t": 1799645400000,
+      "seed": 60599824,
+      "p": {
+       "s": 198,
+       "lift": "Goodaura",
+       "total_s": 807,
+       "count": 11
+      }
+     },
+     {
+      "key": "new_runs",
+      "t": 1799646814000,
+      "seed": 1385742520,
+      "p": {
+       "runs": [
+        "Goodaura 2",
+        "Kobi",
+        "Firni 1",
+        "Firni 2",
+        "Snow Park",
+        "Sadzele 1",
+        "Bombora",
+        "Kudebi 2",
+        "Soliko 1"
+       ],
+       "done": 12,
+       "total": 24
+      }
+     },
+     {
+      "key": "offpiste",
+      "t": 1799646853000,
+      "seed": 906993450,
+      "p": {
+       "t1": 1799646878000,
+       "drop_m": 111.5,
+       "dist_m": 418.3
+      }
+     },
+     {
+      "key": "fall",
+      "t": 1799649362677,
+      "seed": 1105465591,
+      "p": {
+       "at": {
+        "lat": 42.477333,
+        "lon": 44.492234
+       },
+       "kind": "run",
+       "runs": [
+        "Goodaura 1"
+       ]
+      }
+     },
+     {
+      "key": "record",
+      "t": 1799655424000,
+      "seed": 1184776030,
+      "p": {
+       "what": "longest_m",
+       "value": 6116.0,
+       "before": 2770.1
+      }
+     },
+     {
+      "key": "longest_descent",
+      "t": 1799655424000,
+      "seed": 1613276097,
+      "p": {
+       "t1": 1799656085000,
+       "dist_m": 6116.0,
+       "drop_m": 1113.3,
+       "moving_s": 570,
+       "runs": [
+        "Goodaura 1",
+        "Sadzele 1",
+        "Snow Park"
+       ],
+       "stops": 1
+      }
+     },
+     {
+      "key": "first_color",
+      "t": 1799655461000,
+      "seed": 2103851084,
+      "p": {
+       "color": "black",
+       "run": "Sadzele 1",
+       "first_ever": true,
+       "day_n": 3,
+       "n": 1
+      }
+     },
+     {
+      "key": "steepest",
+      "t": 1799655461000,
+      "seed": 1456944881,
+      "p": {
+       "run": "Sadzele 1",
+       "deg": 28,
+       "ever": true
+      }
+     },
+     {
+      "key": "fastest",
+      "t": 1799655481000,
+      "seed": 913290537,
+      "p": {
+       "kmh": 68.9,
+       "at": {
+        "lat": 42.510412,
+        "lon": 44.499985
+       },
+       "kind": "run",
+       "runs": [
+        "Sadzele 1"
+       ],
+       "nth": 10,
+       "of": 12,
+       "when": "late"
+      }
+     },
+     {
+      "key": "first_color",
+      "t": 1799657503000,
+      "seed": 82626539,
+      "p": {
+       "color": "red",
+       "run": "Kudebi 2",
+       "first_ever": true,
+       "day_n": 3,
+       "n": 1
+      }
+     },
+     {
+      "key": "record",
+      "t": 1799657898000,
+      "seed": 465920165,
+      "p": {
+       "what": "drop_m",
+       "value": 5544.3,
+       "before": 544.9
+      }
+     },
+     {
+      "key": "record",
+      "t": 1799657898000,
+      "seed": 465920165,
+      "p": {
+       "what": "descents",
+       "value": 12,
+       "before": 1
+      }
+     },
+     {
+      "key": "record",
+      "t": 1799657898000,
+      "seed": 465920165,
+      "p": {
+       "what": "ski_dist_m",
+       "value": 31325.9,
+       "before": 2770.1
+      }
+     },
+     {
+      "key": "vs_day",
+      "t": 1799657898000,
+      "seed": 1990415858,
+      "p": {
+       "vs": "first",
+       "what": "descents",
+       "value": 12,
+       "before": 1,
+       "times": 12.0
+      }
+     },
+     {
+      "key": "drop_compare",
+      "t": 1799657898000,
+      "seed": 1620034983,
+      "p": {
+       "ref": "eiffel",
+       "times": 16.8,
+       "drop_m": 5544.3
+      }
+     },
+     {
+      "key": "time_split",
+      "t": 1799657898000,
+      "seed": 1985007898,
+      "p": {
+       "ski": 45,
+       "lift_min": 95,
+       "queue": 13
+      }
+     },
+     {
+      "key": "trip",
+      "t": 1799657898000,
+      "seed": 461475147,
+      "p": {
+       "days": 3,
+       "drop": 6626,
+       "done": 12,
+       "first": {
+        "blue": {
+         "run": "Tatra 1",
+         "day_n": 1
+        },
+        "green": {
+         "run": "Snow Park",
+         "day_n": 3
+        },
+        "black": {
+         "run": "Sadzele 1",
+         "day_n": 3
+        },
+        "red": {
+         "run": "Kudebi 2",
+         "day_n": 3
+        }
+       },
+       "run": "Goodaura 1",
+       "n": 2
+      }
+     },
+     {
+      "key": "tomorrow",
+      "t": 1799657898000,
+      "seed": 1000496285,
+      "p": {
+       "kind": "finish_color",
+       "color": "black",
+       "n": 1,
+       "runs": [
+        "Sadzele 2"
+       ]
+      }
+     }
+    ],
+    "story": [
+     4,
+     6,
+     7,
+     16,
+     17
+    ],
+    "share": 6,
+    "theme": "progress",
+    "history": {
+     "v": 2,
+     "days": 3,
+     "runs": {
+      "Tatra 1": 1799645911000,
+      "Tatra 2": 1799645964000,
+      "Goodaura 1": 1799645845000,
+      "Goodaura 2": 1799646814000,
+      "Kobi": 1799650471000,
+      "Firni 1": 1799653174000,
+      "Firni 2": 1799653240000,
+      "Snow Park": 1799654076000,
+      "Sadzele 1": 1799655461000,
+      "Bombora": 1799657076000,
+      "Kudebi 2": 1799657503000,
+      "Soliko 1": 1799657638000
+     },
+     "colors": {
+      "blue": 1799645845000,
+      "green": 1799654076000,
+      "black": 1799655461000,
+      "red": 1799657503000
+     },
+     "best": {
+      "steep_deg": 28,
+      "max_kmh": 71.03,
+      "drop_m": 5544.3,
+      "descents": 12,
+      "longest_m": 6116.0,
+      "ski_dist_m": 31325.9
+     },
+     "first": {
+      "drop_m": 537.2,
+      "descents": 1,
+      "ski_dist_m": 2757.5
+     },
+     "prev": {
+      "drop_m": 5544.3,
+      "descents": 12,
+      "ski_dist_m": 31325.9
+     },
+     "trip": {
+      "start": "2027-01-11",
+      "days": 3,
+      "drop_m": 6626.4,
+      "runs": {
+       "Tatra 1": 2,
+       "Tatra 2": 2,
+       "Goodaura 1": 2,
+       "Goodaura 2": 1,
+       "Kobi": 1,
+       "Firni 1": 1,
+       "Firni 2": 1,
+       "Snow Park": 1,
+       "Sadzele 1": 1,
+       "Bombora": 1,
+       "Kudebi 2": 1,
+       "Soliko 1": 1
+      },
+      "first": {
+       "blue": {
+        "run": "Tatra 1",
+        "day_n": 1
+       },
+       "green": {
+        "run": "Snow Park",
+        "day_n": 3
+       },
+       "black": {
+        "run": "Sadzele 1",
+        "day_n": 3
+       },
+       "red": {
+        "run": "Kudebi 2",
+        "day_n": 3
+       }
+      }
+     }
     }
    }
   }

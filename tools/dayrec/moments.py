@@ -151,12 +151,32 @@ def _queue_pattern(res, M):
 RUN_RECORDS = ('max_kmh', 'longest_m')
 
 
-def update(history, res, runs, M):
-    """The history after this day: first time of each run and colour, and the personal bests. Never a position."""
+def _trip_add(tr, history, res, runs, M):
+    """The trip so far after this day (a copy): ski days, drop, the days on each run, and the colours skied for the
+    first time ever during the trip ({run, day_n}). Numbers and run keys only."""
+    tr = {'start': tr['start'], 'days': tr['days'] + 1, 'drop_m': round(tr['drop_m'] + (res.get('stats', {}).get('drop_m') or 0), 1),
+          'runs': dict(tr['runs']), 'first': dict(tr['first'])}
+    for k, _ in _done(res, runs, M):
+        tr['runs'][k] = tr['runs'].get(k, 0) + 1
+        c = runs[k]['color']
+        if c and c not in history.get('colors', {}) and c not in tr['first']:
+            tr['first'][c] = {'run': k, 'day_n': tr['days']}
+    return tr
+
+
+def update(history, res, runs, M, trip=None):
+    """The history after this day: first time of each run and colour, and the personal bests. Never a position.
+    trip: {start, last} of "your trip" (the app knows it), or None; the trip totals restart when start changes."""
     h = {'v': HISTORY_V, 'days': history.get('days', 0), 'runs': dict(history.get('runs', {})),
          'colors': dict(history.get('colors', {})), 'best': dict(history.get('best', {})),
-         'first': history.get('first'), 'prev': history.get('prev')}  # a v1 history has neither: none yet
+         'first': history.get('first'), 'prev': history.get('prev'),  # a v1 history has neither: none yet
+         'trip': history.get('trip')}
     day = res.get('mode', 'day') == 'day'
+    if day and _descents(res) and trip:
+        tr = history.get('trip')
+        if not tr or tr['start'] != trip['start']:
+            tr = {'start': trip['start'], 'days': 0, 'drop_m': 0.0, 'runs': {}, 'first': {}}
+        h['trip'] = _trip_add(tr, history, res, runs, M)
     if day and _descents(res):
         h['days'] += 1
         b = _day_bests(res)
@@ -179,10 +199,12 @@ def update(history, res, runs, M):
     return h
 
 
-def moments(res, history, runs, M):
-    """{moments, items, story, share, history}. items: [{key, t, seed, p}], each p numbers and names only; the places
-    (fastest, fall) carry 'at' {lat, lon}, shown on the phone's own map and never in the share picture."""
+def moments(res, history, runs, M, trip=None):
+    """{moments, items, story, share, theme, history}. items: [{key, t, seed, p}], each p numbers and names only; the
+    places (fastest, fall) carry 'at' {lat, lon}, shown on the phone's own map and never in the share picture.
+    trip: {start, last} of "your trip" (start: its first ski day, a key; last: today is its last ski day), or None."""
     history = history or empty_history()
+    newh = update(history, res, runs, M, trip)
     items = []
     end = res.get('end') or 0
     ds = _descents(res)
@@ -323,6 +345,15 @@ def moments(res, history, runs, M):
         tm = _tomorrow(res, history, runs, M, done, qp)
         if tm:
             add('tomorrow', end, tm)
+    # the end of the trip, on its last ski day (from its second day)
+    tr = newh.get('trip')
+    if day and ds and trip and trip.get('last') and tr and tr['start'] == trip['start'] and tr['days'] >= I['trip_min_days']:
+        p = {'days': tr['days'], 'drop': int(round(tr['drop_m'])), 'done': len(tr['runs']), 'first': tr['first']}
+        if tr['runs']:
+            run, n = min(tr['runs'].items(), key=lambda kv: (-kv[1], kv[0]))
+            if n >= 2:
+                p.update({'run': run, 'n': n})
+        add('trip', end, p)
     items.sort(key=lambda m: (m['t'], M['priority'][m['key']] * -1, m['key']))
     def order(i):
         m = items[i]
@@ -337,11 +368,20 @@ def moments(res, history, runs, M):
             continue
         if len(story) < M['story_max'] and per.get(k, 0) < M['story_per_key']:
             story.append(i); per[k] = per.get(k, 0) + 1
+    # a day without a comparison against my own days gets an insight in its place (story_fallback, the first ranked)
+    keys = {items[i]['key'] for i in story}
+    if 'vs_day' not in keys and not keys & set(M['story_fallback']):
+        fb = next((i for i in rank if items[i]['key'] in M['story_fallback']), None)
+        if fb is not None:
+            if len(story) >= M['story_max']:
+                story.pop()  # the last ranked of the story
+            story.append(fb)
     story.sort()
-    story += [i for i, m in enumerate(items) if m['key'] in M['story_last']]  # the suggestion for tomorrow, at the end
+    for k in M['story_last']:  # the end of the trip, then the suggestion for tomorrow: outside story_max, at the end
+        story += [i for i, m in enumerate(items) if m['key'] == k]
     share = next((i for i in rank if items[i]['key'] not in M['share_exclude']), None)
     return {'moments': M['version'], 'items': items, 'story': story, 'share': share,
-            'theme': _theme(items, ds, M), 'history': update(history, res, runs, M)}
+            'theme': _theme(items, ds, M), 'history': newh}
 
 
 def _theme(items, ds, M):
