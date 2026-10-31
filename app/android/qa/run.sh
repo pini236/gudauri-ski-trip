@@ -955,7 +955,7 @@ bigtext() {
   qa "--es qa.tab about"; sleep 2; shot big-about
   drag $((W / 2)) $((H * 3 / 4)) $((W / 2)) $((H / 4)) 400; sleep 1; shot big-about-down
   # a run's panel and the list of runs
-  qa "--es qa.tab map"; waitlog "shadow ready" 60; sleep 2; shot big-map
+  qa "--es qa.tab map"; sleep 6; shot big-map
   # joining a group by code
   qa "--es qa.group invited --es qa.tab join"; sleep 2; shot big-group-code
   qa "--es qa.mode night --es qa.tab home"; sleep 2; shot big-home-night
