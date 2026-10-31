@@ -215,19 +215,17 @@ const BOARDS = {
       <div class="row" style="gap:12px;margin:10px 0 4px"><span style="width:44px;height:44px;border-radius:12px;display:grid;place-items:center;background:var(--rec);color:#fff">${ic.mtn(24)}</span><div><b class="k" style="font-size:34px">בגודאורי</b><div class="muted" style="font-size:15px">מקליטים את היום?</div></div></div>
       <div class="row" style="margin-top:14px"><span class="qb rec" style="flex:1">${ic.rec(14)}מתחילים יום</span><span class="qb" style="flex:none;border-color:var(--rule)">לא עכשיו</span></div></div>`],
   'a-and-perm': ['and', 'he', 'day', () => `${aS('store-1-map.png', 0, 1920)}<div style="position:absolute;inset:0;z-index:15;background:rgba(13,21,34,.28)"></div>
-    <div class="sheet" style="padding:0 20px 22px"><div class="grab"></div><b class="k" style="font-size:36px;display:block;margin:8px 0 6px">מקליטים את היום</b>
+    <div class="sheet" style="padding:0 20px 22px"><div class="grab"></div><b class="k" style="font-size:36px;display:block;margin:8px 0 6px">מקליטים</b>
       <ul class="perm" style="list-style:none;margin:0;padding:0">
         <li><span class="i">${ic.pocket(22)}</span><span>הטלפון בכיס, המסך כבוי</span></li>
-        <li><span class="i">${ic.phone(22)}</span><span>המסלול נשאר רק בטלפון</span></li>
-        <li><span class="i">${ic.batt(22)}</span><span>לוקח סוללה. מטען נייד עוזר</span></li></ul>
+        <li><span class="i">${ic.phone(22)}</span><span>המסלול נשאר רק בטלפון</span></li></ul>
       <p class="note" style="margin:6px 0 12px">הטלפון ישאל על המיקום. מספיק "בזמן השימוש באפליקציה".</p>
       <span class="qb pri" style="width:100%;box-sizing:border-box">המשך</span></div>`],
   'a-ios-perm-en': ['ios', 'en', 'day', () => `${iS('map3d-en.png', 0, 2622)}<div style="position:absolute;inset:0;z-index:15;background:rgba(13,21,34,.3)"></div>
-    <div class="sheet" style="padding:0 20px 22px"><div class="grab"></div><b class="k" style="font-size:36px;display:block;margin:8px 0 6px">Recording your day</b>
+    <div class="sheet" style="padding:0 20px 22px"><div class="grab"></div><b class="k" style="font-size:36px;display:block;margin:8px 0 6px">Recording</b>
       <ul class="perm" style="list-style:none;margin:0;padding:0">
         <li><span class="i">${ic.pocket(22)}</span><span>Phone in your pocket, screen off</span></li>
-        <li><span class="i">${ic.phone(22)}</span><span>Your track stays on this phone</span></li>
-        <li><span class="i">${ic.batt(22)}</span><span>It uses battery. A power bank helps</span></li></ul>
+        <li><span class="i">${ic.phone(22)}</span><span>Your track stays on this phone</span></li></ul>
       <p class="note" style="margin:6px 0 12px">Your iPhone will ask for location. "While Using the App" is enough.</p>
       <span class="qb pri" style="width:100%;box-sizing:border-box">Continue</span></div>`],
 
@@ -382,18 +380,17 @@ function history(p, en) {
   const it = (d, i) => i === 2 ? '' : `<div class="row" style="gap:12px;padding:12px 0;border-bottom:1px solid var(--rule)">${runMini(i ? runs[3] : runs[6], 64, 52)}<div style="flex:1"><b style="font-size:16px">${en ? d[1] : d[0]}</b><div class="muted sm">${d[2]} ${en ? 'runs' : 'ירידות'} · ${d[4]} ${en ? 'km' : 'ק״מ'} · ${en ? 'top' : 'מרבית'} ${d[3]}</div></div><span style="color:var(--muted)">${ic.dots(20)}</span></div>`;
   const menu = p === 'and'
     ? `<div style="position:absolute;z-index:30;inset-inline-end:28px;top:200px;width:230px;background:var(--paper);box-shadow:0 6px 24px var(--shadow);padding:6px 0">
-        <div class="row" style="padding:12px 16px">${ic.share(18)}שיתוף התמונה</div><div class="row" style="padding:12px 16px">${ic.file(18)}ייצוא GPX</div><div class="row" style="padding:12px 16px;color:var(--p-red)">${ic.trash(18)}מחיקת היום</div></div>`
+        <div class="row" style="padding:12px 16px">${ic.share(18)}שיתוף התמונה</div><div class="row" style="padding:12px 16px;color:var(--p-red)">${ic.trash(18)}מחיקת היום</div></div>`
     : `<div style="position:absolute;z-index:30;inset-inline:8px;bottom:8px"><div style="background:var(--paper);border-radius:14px;overflow:hidden">
         <div style="text-align:center;padding:12px;font-size:13px;color:var(--muted);border-bottom:1px solid var(--rule)">Tue 12 Jan</div>
         <div style="text-align:center;padding:16px;font-size:18px;color:var(--glacier);border-bottom:1px solid var(--rule)">Share picture</div>
-        <div style="text-align:center;padding:16px;font-size:18px;color:var(--glacier);border-bottom:1px solid var(--rule)">Export GPX</div>
         <div style="text-align:center;padding:16px;font-size:18px;color:var(--p-red)">Delete day</div></div>
         <div style="margin-top:8px;background:var(--paper);border-radius:14px;text-align:center;padding:16px;font-size:18px;font-weight:600;color:var(--glacier)">Cancel</div></div>
        <div style="position:absolute;inset:0;z-index:25;background:rgba(0,0,0,.3)"></div>`;
   return `<div style="height:${p === 'and' ? 700 : 760}px">${sbar(p, '19:40', false)}<div style="padding:${p === 'and' ? 34 : 60}px 18px 6px"><b class="k" style="font-size:44px">${en ? 'My days' : 'הימים שלי'}</b><div class="muted" style="font-size:14px">${en ? 'Recorded days stay on this phone only' : 'הימים שהוקלטו נשמרים רק בטלפון'}</div></div>
     <div style="padding:0 18px">${days.map(it).join('')}
     <div class="row" style="justify-content:space-between;margin-top:14px"><span class="muted sm">${en ? '2 days · 4.1 MB' : '2 ימים · 4.1MB'}</span><span style="color:var(--p-red);font-weight:700;font-size:14px">${en ? 'Delete all' : 'מחיקת הכל'}</span></div>
-    <p class="note" style="margin-top:10px">${en ? 'GPX is a file you choose where to send. Nothing is uploaded.' : 'GPX הוא קובץ, ובוחרים לאן לשלוח אותו. שום דבר לא עולה לשרת.'}</p></div>${menu}</div>`;
+    <p class="note" style="margin-top:10px">${en ? 'Nothing is uploaded. Delete a day, or all of them, any time.' : 'שום דבר לא עולה לשרת. אפשר למחוק יום, או את כולם, בכל רגע.'}</p></div>${menu}</div>`;
 }
 function stateBoard(p, en, kind) {
   const L = {
@@ -660,6 +657,147 @@ Object.assign(BOARDS, {
   'd-ios-export-en': ['ios', 'en', 'day', () => exportWarn('ios', true)],
 });
 
+// ---------- round 29, version 2 (Pini, 31.10.2026, decision 77) ----------
+// One way in: "record" on the home page and on the map, any time, from anywhere; what is recorded (the whole day or one
+// run) is a choice inside the live panel, not two buttons. The control is a ski pass with a record disc: the same idea on
+// both apps, each in its own finish (Android straight and solid, iPhone rounded glass). The timeline is a few coloured
+// cards, one per run, in chapters of the day, with the lifts and breaks as quiet connectors.
+const CSS2 = `
+.pass{--pk:#13233A;--pp:#fff;position:relative;display:flex;align-items:center;gap:16px;padding:16px 46px 16px 18px;background:var(--pk);color:var(--pp);overflow:hidden}
+:root[dir="rtl"] .pass{padding:16px 18px 16px 46px}
+:root[data-theme="dark"] .pass,:root[data-theme="dark"] .pill{--pk:#24395a}
+.ios .pass{border-radius:24px;background:linear-gradient(135deg,#2a4a7a,var(--pk) 60%);box-shadow:0 10px 30px rgba(19,35,58,.35)}
+.pass .hole{position:absolute;inset-block-start:10px;inset-inline-end:12px;width:12px;height:12px;border-radius:50%;background:var(--snow);opacity:.9}
+.pass .perf{position:absolute;inset-block:10px;inset-inline-end:34px;border-inline-start:2px dashed rgba(255,255,255,.28)}
+.pass .tx{display:flex;flex-direction:column;gap:4px;flex:1;min-width:0}
+.pass .tx b{font-family:var(--f-display);font-size:42px;line-height:.85;font-weight:700}
+.pass .tx small{font-size:13px;line-height:1.4;opacity:.8;white-space:nowrap}
+.pass .tag{font:700 10.5px/1 "IBM Plex Sans",sans-serif;letter-spacing:1.6px;opacity:.6;direction:ltr}
+.recd{position:relative;flex:none;width:64px;height:64px;border-radius:50%;display:grid;place-items:center;background:radial-gradient(circle,var(--rec) 0 24px,#fff 25px 29px,transparent 30px)}
+.recd:before{content:"";position:absolute;inset:-7px;border-radius:50%;border:2px solid color-mix(in srgb,var(--rec) 45%,transparent)}
+.recd:after{content:"";position:absolute;inset:-15px;border-radius:50%;border:2px solid color-mix(in srgb,var(--rec) 18%,transparent)}
+.recd.sm{width:44px;height:44px;background:radial-gradient(circle,var(--rec) 0 16px,#fff 17px 20px,transparent 21px)}
+.recd.sm:after{display:none} .recd.sm:before{inset:-5px}
+.pill{--pk:#13233A;position:absolute;z-index:6;display:flex;align-items:center;gap:12px;height:62px;padding:0 22px 0 10px;background:var(--pk);color:#fff;box-shadow:0 8px 24px rgba(19,35,58,.4);white-space:nowrap}
+:root[dir="rtl"] .pill{padding:0 10px 0 22px}
+.ios .pill{border-radius:31px}
+.pill b{font-family:var(--f-display);font-size:34px;line-height:1}
+.pill small{display:block;font-size:12px;opacity:.75;margin-top:-2px}
+.mode{display:flex;gap:0;margin:6px 0 10px;background:var(--snow);padding:3px}
+.ios .mode{border-radius:12px}
+.mode span{flex:1;height:38px;display:grid;place-items:center;font-weight:700;font-size:15px;color:var(--muted)}
+.mode span.on{background:var(--paper);color:var(--ink);box-shadow:0 1px 4px var(--shadow)}
+.ios .mode span.on{border-radius:9px}
+.strip{position:relative;height:16px;display:flex;overflow:hidden;background:var(--snow)}
+.ios .strip{border-radius:8px}
+.strip i{display:block;height:100%}
+.hours{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-top:4px;direction:ltr}
+.chap{display:flex;align-items:center;gap:10px;margin:16px 0 8px;font-family:var(--f-display);font-size:26px;line-height:1}
+.chap small{font-family:var(--f-body);font-size:12.5px;color:var(--muted)}
+.rc{position:relative;margin:7px 0;display:flex;align-items:center;gap:10px;min-height:58px;padding:0 12px;background:color-mix(in srgb,var(--rc) 13%,var(--paper));border-inline-start:6px solid var(--rc)}
+.ios .rc{border-radius:14px}
+.rc .tm{font-size:12px;color:var(--muted);font-weight:600;direction:ltr;width:34px;flex:none}
+.rc .nm{flex:1;display:flex;flex-wrap:wrap;gap:4px;align-items:center;min-width:0}
+.rc .sp{flex:none;display:flex;align-items:baseline;gap:3px;padding:4px 9px;color:#fff;font-family:var(--f-display);font-size:26px;line-height:1}
+.ios .rc .sp{border-radius:9px}
+.rc .sp small{font-family:var(--f-body);font-size:10.5px;opacity:.9}
+.rc.off{background:var(--paper);border:1.5px dashed var(--rc);border-inline-start-width:6px;border-inline-start-style:solid}
+.cx{display:flex;align-items:center;gap:7px;height:30px;padding-inline-start:20px;font-size:12.5px;color:var(--muted)}
+.cx:before{content:"";position:absolute}
+.cx .q{display:inline-flex;align-items:center;height:20px;padding:0 7px;background:color-mix(in srgb,var(--p-route) 22%,var(--paper));color:var(--ink);font-weight:700;font-size:11.5px}
+.ios .cx .q{border-radius:6px}
+.br{display:flex;align-items:center;gap:10px;height:42px;padding:0 12px;background:color-mix(in srgb,#E8A33A 18%,var(--paper));color:var(--ink);font-size:14px;font-weight:600}
+.ios .br{border-radius:14px}
+.slot{border:2px dashed var(--rule);padding:12px 14px;display:flex;gap:12px;align-items:center}
+.ios .slot{border-radius:16px}
+.slot .bars{flex:1;display:flex;flex-direction:column;gap:7px} .slot .bars i{display:block;height:9px;background:var(--rule)}
+.ios .slot .bars i{border-radius:5px}
+`;
+const spd = v => { const R = [[0, [255, 214, 120]], [20, [245, 150, 50]], [40, [220, 50, 70]], [60, [120, 30, 150]]];
+  for (let i = 1; i < R.length; i++) if (v <= R[i][0]) { const f = (v - R[i - 1][0]) / (R[i][0] - R[i - 1][0]); return `rgb(${R[i - 1][1].map((c, j) => Math.round(c + (R[i][1][j] - c) * f))})`; } return 'rgb(120,30,150)'; };
+const mtnLine = (w = 90, h = 40) => `<svg width="${w}" height="${h}" viewBox="0 0 90 40" aria-hidden="true" style="flex:none;opacity:.9"><path d="M0 38L22 12l10 10 14-18 16 20 8-6 20 20z" fill="rgba(255,255,255,.14)"/><path d="M40 8c4 6-6 9-2 15s-5 8 0 14" fill="none" stroke="var(--rec)" stroke-width="2.4" stroke-linecap="round" stroke-dasharray="1 4.5"/></svg>`;
+// the ski pass on the home page; live: the same pass while recording
+function recPass(p, en, live) {
+  const t = en ? { b: 'Record', s: 'Speed, runs and descent.<br>From anywhere, any time.', tag: 'SKI PASS · REC' } : { b: 'מקליטים', s: 'מהירות, מסלולים וירידות.<br>מכל מקום, בכל שעה.', tag: 'SKI PASS · REC' };
+  if (live) return `<div class="pass"><span class="perf"></span><span class="hole"></span><span class="recd sm"><span style="width:12px;height:12px;background:#fff;border-radius:2px"></span></span>
+    <div class="tx"><span class="tag">REC · <span>1:01</span></span><b>41 <span style="font-size:22px">${en ? 'km/h' : 'קמ״ש'}</span></b><small class="row" style="gap:8px;opacity:.95;margin-top:4px">${sign('blue', 'Tatra 2')}<span>${en ? 'top 45 · 3 runs' : 'מרבית 45 · 3 ירידות'}</span></small></div></div>`;
+  return `<div class="pass"><span class="perf"></span><span class="hole"></span><span class="recd"></span><div class="tx"><span class="tag">${t.tag}</span><b>${t.b}</b><small>${t.s}</small></div>${mtnLine(70, 32)}</div>`;
+}
+function homeV2(p, en, dark, live) {
+  const wrap = x => `<div style="padding:4px ${p === 'and' ? 18 : 22}px 10px">${x}</div>`;
+  if (p === 'and') { const f = dark ? 'store-8-home-night.png' : 'store-7-home.png'; return `${aS(f, 0, 1290)}${wrap(recPass(p, en, live))}${aS(f, 1290, 1920)}`; }
+  const f = dark ? 'home-he-night.png' : (en ? 'home-en-day.png' : 'home-he-day.png');
+  return `${iS(f, 0, 1545)}${wrap(recPass(p, en, live))}${iS(f, 1545, 2622)}`;
+}
+const recPill = (p, en, pos) => `<div class="pill" style="${pos}"><span class="recd sm"></span><div><b>${en ? 'Record' : 'מקליטים'}</b><small>${en ? 'a run or the whole day' : 'ירידה או את כל היום'}</small></div></div>`;
+// the live panel right after the tap: what to record is a choice here, the whole day by default
+function liveV2(p, en, mode) {
+  const seg = `<div class="mode"><span class="${mode === 'day' ? 'on' : ''}">${en ? 'The whole day' : 'כל היום'}</span><span class="${mode === 'one' ? 'on' : ''}">${en ? 'One run' : 'ירידה אחת'}</span></div>`;
+  const o = mode === 'one'
+    ? { v: 0, vmax: 0, km: '0.0', desc: 0, runs: 0, clock: '0:08', where: `<span class="ico">${ic.mtn(18)}</span><span>${en ? 'Top of' : 'בראש'} <b dir="ltr">Kudebi</b> · ${en ? 'go when you are ready' : 'יוצאים כשמוכנים'}</span>`, note: en ? 'Stops by itself at the bottom, then shows the run.' : 'נעצר לבד בתחתית, ומראה את הירידה.' }
+    : { v: 0, vmax: 0, km: '0.0', desc: 0, runs: 0, clock: '0:12', where: `<span class="ico">${ic.lift(18)}</span><span>${en ? 'Top of' : 'בראש'} <b dir="ltr">Shino</b> · ${en ? 'go when you are ready' : 'יוצאים כשמוכנים'}</span>`, note: en ? 'Until you finish, or the end of the day.' : 'עד שמסיימים, או עד סוף היום.' };
+  return livePanel(p, en, o).replace('<div class="live">', `<div class="live">${seg}`);
+}
+// the timeline, version 2
+function timelineV2(p, en) {
+  const t0 = 9 * 3600, t1 = 14.5 * 3600, W0 = t1 - t0;
+  const col = s => s.type === 'run' ? `var(--p-${s.colors[0]})` : s.type === 'pause' ? '#E8A33A' : s.type === 'climb' ? 'var(--muted)' : 'color-mix(in srgb,var(--muted) 35%,var(--snow))';
+  let strip = '', last = t0;
+  DAY.segs.forEach(s => { if (s.t0 > last) strip += `<i style="width:${(s.t0 - last) / W0 * 100}%"></i>`; strip += `<i style="width:${(s.t1 - s.t0) / W0 * 100}%;background:${col(s)}"></i>`; last = s.t1; });
+  const hours = ['9', '10', '11', '12', '13', '14'].map(h => `<span>${h}:00</span>`).join('');
+  const chap = (a, b) => `<div class="chap">${a}<small>${b}</small></div>`;
+  let body = '';
+  const segs = DAY.segs, li = segs.findIndex(s => s.name === 'lunch');
+  const nRuns = (a, b) => segs.slice(a, b).filter(s => s.type === 'run' && !s.connector).length;
+  body += chap(en ? 'Morning' : 'בוקר', en ? `${nRuns(0, li)} runs` : `${nRuns(0, li)} ירידות`);
+  segs.forEach((s, i) => {
+    if (i === li + 1) body += chap(en ? 'Afternoon' : 'אחר הצהריים', en ? `${nRuns(li, segs.length)} runs · the first red` : `${nRuns(li, segs.length)} ירידות · האדום הראשון`);
+    // a lift is only a line when its queue was long; every other ride shows when you open a run
+    if (s.type === 'lift') { if (s.wait >= 9) body += `<div class="cx">${ic.lift(15)}<span class="q">${en ? `queue ${s.wait} min` : `תור ${s.wait} דק׳`}</span><span dir="ltr">${s.name}</span></div>`; return; }
+    if (s.type === 'pause') { body += `<div class="br" style="margin:6px 0">${ic.pause(20)}<span style="flex:1">${en ? (s.name === 'lunch' ? 'Lunch' : 'Coffee') : (s.name === 'lunch' ? 'ארוחת צהריים' : 'הפסקת קפה')}</span><span class="muted" style="font-weight:400;font-size:13px">${dur(s.t1 - s.t0, en)}</span></div>`; return; }
+    if (s.type === 'climb') { body += `<div class="cx">${ic.walk(15)}<span>${en ? `on foot · +${s.rise} m` : `ברגל · +${s.rise} מ׳`}</span></div>`; return; }
+    if (s.connector) return;
+    body += `<div class="rc${s.offpiste ? ' off' : ''}" style="--rc:var(--p-${s.colors[0]});margin:6px 0"`.slice(0,0) + `<div class="rc${s.offpiste ? ' off' : ''}" style="--rc:var(--p-${s.colors[0]})"><span class="tm">${hm(s.t0)}</span><span class="nm">${s.pistes.map((k, j) => sign(s.colors[j], k)).join(`<i class="arr">${en ? '→' : '←'}</i>`)}${s.offpiste ? `<span class="muted" style="font-size:12px">${en ? 'part off the runs' : 'חלק מחוץ למסלולים'}</span>` : ''}</span><span class="sp" style="background:${spd(s.vmax)}">${s.vmax}<small>${en ? 'km/h' : 'קמ״ש'}</small></span></div>`;
+  });
+  const slot = `<div class="slot">${ic.mtn(26)}<div class="bars"><b style="font-size:13px;color:var(--muted)">${en ? 'The insight of the day' : 'התובנה של היום'}</b><i style="width:92%"></i><i style="width:64%"></i></div></div>`;
+  return `${header(p, en, en ? 'Your day, in order' : 'היום, לפי הסדר', W[en ? 'en' : 'he'].day, '14:31')}<div style="padding:4px 18px 20px">
+    <div class="strip">${strip}</div><div class="hours">${hours}</div>
+    <div style="margin-top:14px">${slot}</div>${body}
+    <p class="note" style="margin-top:12px">${en ? 'Tap a run: its map, speed and time. The colour of the number is the speed, as on the day map.' : 'נגיעה בירידה: המפה, המהירות והזמן שלה. צבע המספר הוא המהירות, כמו במפת היום.'}</p></div>`;
+}
+Object.assign(BOARDS, {
+  'n-and-home': ['and', 'he', 'day', () => homeV2('and', false, false)],
+  'n-ios-home-night': ['ios', 'he', 'night', () => homeV2('ios', false, true)],
+  'n-ios-home-en': ['ios', 'en', 'day', () => homeV2('ios', true, false)],
+  'n-and-home-rec': ['and', 'he', 'day', () => homeV2('and', false, false, true)],
+  'n-and-map': ['and', 'he', 'day', () => `${aS('store-1-map.png', 0, 1920)}${recPill('and', false, `left:50%;transform:translateX(-50%);bottom:${Math.round(470 * AK)}px`)}`],
+  'n-ios-map-en': ['ios', 'en', 'day', () => `${iS('map3d-en.png', 0, 2622)}${recPill('ios', true, `left:50%;transform:translateX(-50%);bottom:${Math.round(510 * IK)}px`)}`],
+  'n-and-live': ['and', 'he', 'day', () => `<div style="height:844px">${mapFrame('and', false, false, 'm-start', 520, liveV2('and', false, 'day'), '11:03')}</div>`],
+  'n-ios-live-one-en': ['ios', 'en', 'day', () => `<div style="height:874px">${mapFrame('ios', true, false, 'm-start-one', 520, liveV2('ios', true, 'one'), '13:34')}</div>`],
+  't-and-timeline': ['and', 'he', 'day', () => timelineV2('and', false)],
+  't-ios-timeline-en': ['ios', 'en', 'day', () => timelineV2('ios', true)],
+  't-and-timeline-night': ['and', 'he', 'night', () => timelineV2('and', false)],
+});
+
+// ---------- round 31, version 2 (Pini, 31.10.2026): the places stand out more, a colour per kind; two ways to show them ----------
+const K31 = { food: '#E8702A', cafe: '#8A5A33', aid: '#1E9E4A', wc: '#6A4FB5' };
+const kdot = (k, s = 18) => `<span style="width:${s}px;height:${s}px;border-radius:50%;background:${K31[k]};display:inline-grid;place-items:center;color:#fff;flex:none">${k === 'wc' ? `<b style="font:700 ${s * .38}px 'IBM Plex Sans',sans-serif">WC</b>` : k === 'aid' ? `<svg width="${s * .55}" height="${s * .55}" viewBox="-5 -5 10 10"><path fill="#fff" d="M-1.6 -5h3.2v3.4H5v3.2H1.6V5h-3.2V1.6H-5v-3.2h3.4z"/></svg>` : (k === 'food' ? pic.food(s * .62) : pic.cafe(s * .62))}</span>`;
+function mapPlaces2(p, en, dark, v) {
+  const on = v === 'full';
+  const chips = (en ? ['All', 'Blue', 'Red', 'Food'] : ['הכל', 'כחול', 'אדום', 'אוכל']).map((c, i) => `<span style="height:36px;padding:0 12px;display:inline-flex;align-items:center;gap:6px;border:1.5px solid var(--ink);font-size:14px;font-weight:700;${p === 'ios' ? 'border-radius:18px;' : ''}${i === 3 && on ? 'background:var(--ink);color:var(--paper)' : 'background:var(--paper)'}">${i === 3 ? `<span style="display:inline-flex;gap:2px">${kdot('food', 14)}${kdot('cafe', 14)}</span>` : ''}${c}</span>`).join('');
+  const L = en ? { food: 'food', cafe: 'café', aid: 'first aid', wc: 'toilets' } : { food: 'אוכל', cafe: 'קפה', aid: 'עזרה ראשונה', wc: 'שירותים' };
+  const legend = Object.keys(K31).map(k => `<span class="row" style="gap:5px">${kdot(k, 16)}${L[k]}</span>`).join('');
+  return `${sbar(p, '11:40', false, dark)}<div style="position:absolute;top:${p === 'and' ? 26 : 54}px;left:0;right:0;bottom:0;overflow:hidden"><img src="${M(`m-places2-${v}${dark ? '-night' : ''}`)}" style="display:block;width:100%;height:100%;object-fit:cover"></div>
+    <div style="position:absolute;top:${p === 'and' ? 40 : 66}px;inset-inline:12px;display:flex;gap:6px;z-index:5;direction:${en ? 'ltr' : 'rtl'}">${chips}</div>
+    <div style="position:absolute;bottom:${p === 'and' ? 18 : 30}px;inset-inline:12px;z-index:5;background:var(--paper);border:1.5px solid var(--ink);padding:9px 12px;font-size:13px;display:flex;gap:12px;align-items:center;flex-wrap:wrap;${p === 'ios' ? 'border-radius:14px;border-color:var(--rule)' : ''}">${legend}</div>`;
+}
+Object.assign(BOARDS, {
+  'q-and-map-small': ['and', 'he', 'day', () => `<div style="height:844px">${mapPlaces2('and', false, false, 'small')}</div>`],
+  'q-and-map-full': ['and', 'he', 'day', () => `<div style="height:844px">${mapPlaces2('and', false, false, 'full')}</div>`],
+  'q-ios-map-small-night-en': ['ios', 'en', 'night', () => `<div style="height:874px">${mapPlaces2('ios', true, true, 'small')}</div>`],
+  'q-ios-map-full-night-en': ['ios', 'en', 'night', () => `<div style="height:874px">${mapPlaces2('ios', true, true, 'full')}</div>`],
+});
+
 // ---- photograph ----
 const b = await launch();
 const { ctx, page: p0 } = await open(b, '/', { w: 402, h: 874, wait: 300 });
@@ -670,7 +808,7 @@ for (const [name, [p, lang, theme, fn]] of Object.entries(BOARDS)) {
   await page.setContent(`<!doctype html><html lang="${lang}" dir="${en ? 'ltr' : 'rtl'}" data-theme="${theme === 'night' ? 'dark' : 'light'}"><head><meta charset="utf-8">
 <link rel="stylesheet" href="http://127.0.0.1:4199/css/site.css">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Karantina:wght@700&family=IBM+Plex+Sans+Hebrew:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;600;700&display=swap">
-<style>${CSS}${en ? 'body,.qph{font-family:"IBM Plex Sans",system-ui,sans-serif}' : ''}</style></head><body><div class="qph ${p}">${fn()}</div></body></html>`, { waitUntil: 'networkidle' });
+<style>${CSS}${CSS2}${en ? 'body,.qph{font-family:"IBM Plex Sans",system-ui,sans-serif}' : ''}</style></head><body><div class="qph ${p}">${fn()}</div></body></html>`, { waitUntil: 'networkidle' });
   await page.evaluate(() => document.fonts.ready);
   await page.waitForTimeout(250);
   await page.locator('.qph').screenshot({ path: path.join(OUT, name + '.png') });
