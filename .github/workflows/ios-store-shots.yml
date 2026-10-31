@@ -5,7 +5,7 @@ name: iOS store screenshots
 # secrets, nothing is uploaded to App Store Connect. Same build and launch loop as ios.yml.
 on:
   push:
-    branches: [main, claude/ops-shots]
+    branches: [main]
     paths: ['app/ios/qa/store/store.txt', '.github/workflows/ios-store-shots.yml']
   workflow_dispatch:
 
