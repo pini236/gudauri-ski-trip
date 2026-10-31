@@ -47,17 +47,18 @@
  "keys": {
   "moment.story.head.progress": {
    "he": [
-    "יום שבו עלית מדרגה"
+    "יום של פעם ראשונה"
    ],
    "en": [
-    "The day you moved up a level"
+    "A day of firsts"
    ],
    "ru": [
-    "День, когда вы шагнули дальше"
+    "День первых раз"
    ],
    "ka": [
-    "დღე, როცა წინ გადადგით ნაბიჯი"
+    "პირველი გამოცდილებების დღე"
    ],
+   "note": "a first, not a level: never implies harder is better",
    "needs": [
     "theme"
    ]
@@ -1639,6 +1640,107 @@
    "note": "only a colour already skied today; n <= 3",
    "needs": [
     "tomorrow"
+   ]
+  },
+  "moment.trip.title": {
+   "he": [
+    "הטיול שלך על ההר"
+   ],
+   "en": [
+    "Your trip on the mountain"
+   ],
+   "ru": [
+    "Ваша поездка в горах"
+   ],
+   "ka": [
+    "თქვენი მოგზაურობა მთაზე"
+   ],
+   "needs": [
+    "trip"
+   ]
+  },
+  "moment.trip.line": {
+   "he": [
+    {
+     "one": "יום גלישה אחד, {drop} מ׳ למטה, {done} מסלולים.",
+     "two": "יומיים של גלישה, {drop} מ׳ למטה, {done} מסלולים.",
+     "other": "{days} ימי גלישה, {drop} מ׳ למטה, {done} מסלולים."
+    }
+   ],
+   "en": [
+    {
+     "one": "{days} ski day, {drop} m down, {done} runs.",
+     "other": "{days} ski days, {drop} m down, {done} runs."
+    }
+   ],
+   "ru": [
+    {
+     "one": "{days} день катания, {drop} м вниз, трасс: {done}.",
+     "few": "{days} дня катания, {drop} м вниз, трасс: {done}.",
+     "many": "{days} дней катания, {drop} м вниз, трасс: {done}.",
+     "other": "{days} дня катания, {drop} м вниз, трасс: {done}."
+    }
+   ],
+   "ka": [
+    {
+     "one": "სრიალის {days} დღე, {drop} მ დაღმა, {done} ტრასა.",
+     "other": "სრიალის {days} დღე, {drop} მ დაღმა, {done} ტრასა."
+    }
+   ],
+   "note": "plural by days; done = distinct named runs over the trip",
+   "needs": [
+    "trip"
+   ]
+  },
+  "moment.trip.favorite": {
+   "he": [
+    "המסלול שחזרת אליו הכי הרבה: {run}, {n} פעמים."
+   ],
+   "en": [
+    "The run you kept coming back to: {run}, {n} times."
+   ],
+   "ru": [
+    "Трасса, на которую вы возвращались чаще всего, — {run}. Сколько раз: {n}."
+   ],
+   "ka": [
+    "ტრასა, რომელზეც ყველაზე ხშირად ბრუნდებოდით: {run}, {n}-ჯერ."
+   ],
+   "needs": [
+    "trip"
+   ]
+  },
+  "moment.trip.first.red": {
+   "he": [
+    "וגם: {run}, האדום הראשון שלך, ביום {day_n}."
+   ],
+   "en": [
+    "And {run}, your first red, on day {day_n}."
+   ],
+   "ru": [
+    "А ещё {run} — вашу первую красную трассу — в {day_n}-й день."
+   ],
+   "ka": [
+    "და {run} — თქვენი პირველი წითელი ტრასა, მე-{day_n} დღეს."
+   ],
+   "needs": [
+    "trip"
+   ]
+  },
+  "moment.trip.first.black": {
+   "he": [
+    "וגם: {run}, השחור הראשון שלך, ביום {day_n}."
+   ],
+   "en": [
+    "And {run}, your first black, on day {day_n}."
+   ],
+   "ru": [
+    "А ещё {run} — вашу первую чёрную трассу — в {day_n}-й день."
+   ],
+   "ka": [
+    "და {run} — თქვენი პირველი შავი ტრასა, მე-{day_n} დღეს."
+   ],
+   "needs": [
+    "trip"
    ]
   }
  }
