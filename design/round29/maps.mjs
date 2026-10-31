@@ -29,10 +29,18 @@ const MAPS = {
   'm-one-live': [402, 820, 'day', 'he', { mode: 'live', run: 'Kudebi 1', part: 0.55, dot: true, grey: true, dimTo: '.5', pad: 0.02, scale: 5 }],
   'm-one': [402, 470, 'day', 'he', { mode: 'speed', run: 'Kudebi 1', grey: true, dimTo: '.5', pad: 0.7 }],
   'm-one-night': [402, 470, 'night', 'en', { mode: 'speed', run: 'Kudebi 1', grey: true, dimTo: '.5', pad: 0.7, night: true }],
+  // version 2: the moment after the tap (no trail yet): the day at the bottom of Goodaura, one run at the top of Kudebi 1
+  'm-start': [402, 820, 'day', 'he', { mode: 'live', from: 39805, upto: 39815, dot: true, win: [39805, 40108], pad: 0.5 }],
+  'm-start-one': [402, 820, 'day', 'en', { mode: 'live', run: 'Kudebi 1', part: 0.04, dot: true, grey: true, dimTo: '.5', pad: 0.5 }],
   // round 31: food and services near the stations, on the plain top view (no day)
   'm-places': [390, 818, 'day', 'he', { places: true }],
   'm-places-web': [390, 620, 'day', 'he', { places: true }],
   'm-places-night': [402, 820, 'night', 'en', { places: true, night: true }],
+  // round 31, version 2: a colour per kind; always on and small, or with the chip, large
+  'm-places2-small': [390, 818, 'day', 'he', { places: true, v2: 'small' }],
+  'm-places2-full': [390, 818, 'day', 'he', { places: true, v2: 'full' }],
+  'm-places2-small-night': [402, 820, 'night', 'en', { places: true, v2: 'small', night: true }],
+  'm-places2-full-night': [402, 820, 'night', 'en', { places: true, v2: 'full', night: true }],
 };
 const b = await launch();
 let saved = false;
