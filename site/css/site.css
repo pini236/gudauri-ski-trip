@@ -733,6 +733,26 @@ html.pv,html.pv body{height:auto}
 .home-privacy{grid-column:1/-1;justify-self:start;margin:0;min-height:44px;display:inline-flex;align-items:center;font-size:14px;font-weight:600;color:var(--muted)}
 .ab-privacy{margin:14px 0 0;font-size:14px;color:var(--muted)}.ab-privacy a{color:var(--glacier);font-weight:600}
 .pv-doc{scroll-margin-top:72px}
+/* Support page (/support, round 33). Built by tools/build-support.py from i18n/strings.json (support.*), in the privacy page's shell. */
+.sp-mail{position:relative;margin:26px 0 22px;padding:16px 16px 14px;background:var(--paper);border-top:6px solid var(--p-blue);box-shadow:0 6px 14px var(--shadow)}
+.sp-addr{display:block;margin:0 0 12px;font:600 21px/1.2 "IBM Plex Sans",var(--f-body);color:var(--ink)!important;text-decoration:none;direction:ltr;unicode-bidi:isolate;text-align:start;overflow-wrap:anywhere}
+.pv-doc[dir="rtl"] .sp-addr{text-align:right}
+.sp-btn{display:inline-flex;align-items:center;gap:10px;min-height:48px;padding:0 18px;background:var(--ink);color:var(--snow)!important;font:700 16px/1 var(--f-body);text-decoration:none}
+.pv-doc[lang="en"] .sp-btn{font-family:"IBM Plex Sans",var(--f-body)}
+.sp-tip{margin:12px 0 0!important;color:var(--muted);font-size:13.5px;line-height:1.5}
+.sp-faq{margin:28px 0 0}
+.sp-faq details{border-top:1px solid var(--rule)}
+.sp-faq details:last-child{border-bottom:1px solid var(--rule)}
+.sp-faq summary{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:54px;padding:6px 0;font-weight:700;font-size:16.5px;line-height:1.3;cursor:pointer;list-style:none}
+.sp-faq summary::-webkit-details-marker{display:none}
+.sp-faq summary svg{flex:none;transition:transform .2s}
+.sp-faq details[open] summary svg{transform:rotate(180deg)}
+.sp-faq details p{margin:0 0 14px}
+.sp-more{margin:30px 0 0}
+.sp-links{display:flex;flex-wrap:wrap;gap:10px;margin:10px 0 0}
+.sp-links a{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 14px;border:2px solid var(--ink);color:var(--ink)!important;font-weight:600;font-size:15px;text-decoration:none}
+@media (prefers-reduced-motion:reduce){.sp-faq summary svg{transition:none}}
+
 .pv-brand{white-space:nowrap}
 /* Russian and Georgian (decision 46): the brand stays in Hebrew letters, the back link on one line, and the titles in
    the fonts of round 10 (FT1) at a size that fits a phone: Oswald a little smaller, Georgian narrow and bold */

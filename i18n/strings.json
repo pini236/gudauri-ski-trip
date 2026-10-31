@@ -16262,6 +16262,282 @@
     "ru",
     "ka"
    ]
+  },
+  "support.title": {
+   "he": "תמיכה",
+   "en": "Support",
+   "ru": "Поддержка",
+   "ka": "მხარდაჭერა",
+   "where": "site/support.html (tools/build-support.py)",
+   "note": "Support page, round 33: page title (h1)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "support.intro": {
+   "he": "שאלה, תקלה או בקשה? כותבים לנו, ועונה מי שבנה את האפליקציה.",
+   "en": "A question, a problem or a request? Write to us. The person who built the app answers.",
+   "ru": "Вопрос, проблема или просьба? Напишите нам. Отвечает человек, который сделал приложение.",
+   "ka": "შეკითხვა, პრობლემა ან თხოვნა? მოგვწერეთ. გიპასუხებთ ის, ვინც აპლიკაცია შექმნა.",
+   "where": "site/support.html (tools/build-support.py)",
+   "note": "Support page, round 33: under the title",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "support.mail_title": {
+   "he": "כתבו לנו",
+   "en": "Write to us",
+   "ru": "Напишите нам",
+   "ka": "მოგვწერეთ",
+   "where": "site/support.html (tools/build-support.py)",
+   "note": "Support page, round 33: heading of the email card",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "support.mail_btn": {
+   "he": "שליחת מייל",
+   "en": "Send an email",
+   "ru": "Написать письмо",
+   "ka": "წერილის გაგზავნა",
+   "where": "site/support.html (tools/build-support.py)",
+   "note": "Support page, round 33: button, opens the mail app",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "support.mail_tip": {
+   "he": "כדאי לכתוב איזה טלפון, את גרסת האפליקציה אם ידוע לכם, ומה קרה. צילום מסך עוזר.",
+   "en": "It helps to include your phone, the app version if you know it, and what happened. A screenshot helps too.",
+   "ru": "Полезно указать телефон, версию приложения, если знаете, и что произошло. Скриншот тоже помогает.",
+   "ka": "კარგია, თუ მიუთითებთ ტელეფონს, აპლიკაციის ვერსიას (თუ იცით) და რა მოხდა. ეკრანის სურათიც გვეხმარება.",
+   "where": "site/support.html (tools/build-support.py)",
+   "note": "Support page, round 33: under the button",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "support.sign_title": {
+   "he": "אנחנו לא אתר הסקי",
+   "en": "We are not the ski resort",
+   "ru": "Мы не горнолыжный курорт",
+   "ka": "ჩვენ არ ვართ სათხილამურო კურორტი",
+   "where": "site/support.html (tools/build-support.py)",
+   "note": "Support page, round 33: red sign, short",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "support.sign_text": {
+   "he": "על כרטיסי סקי, רכבלים, שיעורים או ציוד שאבד, פונים לאתר הסקי גודאורי. האפליקציה לא רשמית.",
+   "en": "For ski passes, lifts, lessons or lost items, contact the Gudauri ski resort. This app is unofficial.",
+   "ru": "По вопросам ски-пассов, подъёмников, занятий или потерянных вещей обращайтесь на курорт Гудаури. Приложение неофициальное.",
+   "ka": "სკი-პასების, საბაგიროების, გაკვეთილების ან დაკარგული ნივთების შესახებ მიმართეთ გუდაურის სათხილამურო კურორტს. აპლიკაცია არაოფიციალურია.",
+   "where": "site/support.html (tools/build-support.py)",
+   "note": "Support page, round 33: on the red sign",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "support.faq_title": {
+   "he": "שאלות נפוצות",
+   "en": "Common questions",
+   "ru": "Частые вопросы",
+   "ka": "ხშირი კითხვები",
+   "where": "site/support.html (tools/build-support.py)",
+   "note": "Support page, round 33: section heading",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "support.links_title": {
+   "he": "עוד",
+   "en": "More",
+   "ru": "Ещё",
+   "ka": "კიდევ",
+   "where": "site/support.html (tools/build-support.py)",
+   "note": "Support page, round 33: section heading, short",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "support.link_privacy": {
+   "he": "מדיניות הפרטיות",
+   "en": "Privacy policy",
+   "ru": "Политика конфиденциальности",
+   "ka": "კონფიდენციალურობის პოლიტიკა",
+   "where": "site/support.html (tools/build-support.py)",
+   "note": "Support page, round 33: button to /privacy",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "support.link_delete": {
+   "he": "מחיקת החשבון",
+   "en": "Delete the account",
+   "ru": "Удалить аккаунт",
+   "ka": "ანგარიშის წაშლა",
+   "where": "site/support.html (tools/build-support.py)",
+   "note": "Support page, round 33: button to /account",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "support.faq1_q": {
+   "he": "איך נכנסים?",
+   "en": "How do I sign in?",
+   "ru": "Как войти?",
+   "ka": "როგორ შევიდე?",
+   "where": "site/support.html (tools/build-support.py)",
+   "note": "Support page, round 33: question 1",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "support.faq1_a": {
+   "he": "לא חייבים. המפה, המשחקים ו\"הטיול שלך\" עובדים בלי הרשמה. כניסה צריך רק כדי ליצור קבוצה: עם חשבון גוגל, ובאייפון גם עם אפל.",
+   "en": "You don't have to. The map, the games and Your trip work without signing up. You only need to sign in to create a group: with a Google account, and on iPhone also with Apple.",
+   "ru": "Входить не обязательно. Карта, игры и «Ваша поездка» работают без регистрации. Вход нужен только чтобы создать группу: через аккаунт Google, а на iPhone ещё и через Apple.",
+   "ka": "შესვლა აუცილებელი არ არის. რუკა, თამაშები და „თქვენი მოგზაურობა“ რეგისტრაციის გარეშე მუშაობს. შესვლა მხოლოდ ჯგუფის შესაქმნელად გჭირდებათ: Google-ის ანგარიშით, iPhone-ზე კი Apple-ითაც.",
+   "where": "site/support.html (tools/build-support.py)",
+   "note": "Support page, round 33: answer 1",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "support.faq2_q": {
+   "he": "איך מצטרפים לקבוצה?",
+   "en": "How do I join a group?",
+   "ru": "Как вступить в группу?",
+   "ka": "როგორ შევუერთდე ჯგუფს?",
+   "where": "site/support.html (tools/build-support.py)",
+   "note": "Support page, round 33: question 2",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "support.faq2_a": {
+   "he": "בקישור או בקוד של שש אותיות שמישהו מהקבוצה שלח לכם, בלי הרשמה. אם הקבוצה דורשת אישור, מנהל הקבוצה מאשר.",
+   "en": "With the link or the six-letter code that someone in the group sent you. No sign-up. If the group needs approval, an admin approves you.",
+   "ru": "По ссылке или по коду из шести букв, который прислал кто-то из группы. Без регистрации. Если группа требует одобрения, вас подтвердит администратор.",
+   "ka": "ბმულით ან ექვსასოიანი კოდით, რომელიც ჯგუფიდან ვინმემ გამოგიგზავნათ, რეგისტრაციის გარეშე. თუ ჯგუფი დადასტურებას მოითხოვს, ადმინისტრატორი დაგიდასტურებთ.",
+   "where": "site/support.html (tools/build-support.py)",
+   "note": "Support page, round 33: answer 2",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "support.faq3_q": {
+   "he": "החלפתי טלפון. איפה הקבוצה?",
+   "en": "New phone. Where is my group?",
+   "ru": "Новый телефон. Где моя группа?",
+   "ka": "ახალი ტელეფონი. სად არის ჩემი ჯგუფი?",
+   "where": "site/support.html (tools/build-support.py)",
+   "note": "Support page, round 33: question 3",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "support.faq3_a": {
+   "he": "אם נכנסתם עם גוגל או אפל, נכנסים שוב באותו חשבון והקבוצות חוזרות. אם הצטרפתם בלי כניסה, פותחים שוב את קישור ההזמנה, בוחרים \"אני כבר בקבוצה\" ואת השם שלכם, ומנהל הקבוצה מאשר.",
+   "en": "If you signed in with Google or Apple, sign in again with the same account and your groups come back. If you joined without signing in, open the invite link again, choose \"I'm already in the group\" and your name, and an admin approves.",
+   "ru": "Если вы входили через Google или Apple, войдите снова в тот же аккаунт, и группы вернутся. Если вы вступили без входа, снова откройте ссылку-приглашение, выберите «Я уже в группе» и своё имя, и администратор подтвердит.",
+   "ka": "თუ Google-ით ან Apple-ით შეხვედით, ხელახლა შედით იმავე ანგარიშით და ჯგუფები დაბრუნდება. თუ შესვლის გარეშე შეუერთდით, ხელახლა გახსენით მოწვევის ბმული, აირჩიეთ „მე უკვე ჯგუფში ვარ“ და თქვენი სახელი, ადმინისტრატორი კი დაადასტურებს.",
+   "where": "site/support.html (tools/build-support.py)",
+   "note": "Support page, round 33: answer 3",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "support.faq4_q": {
+   "he": "איך מוחקים את החשבון?",
+   "en": "How do I delete my account?",
+   "ru": "Как удалить аккаунт?",
+   "ka": "როგორ წავშალო ანგარიში?",
+   "where": "site/support.html (tools/build-support.py)",
+   "note": "Support page, round 33: question 4",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "support.faq4_a": {
+   "he": "באפליקציה: הגדרות, חשבון, מחיקת החשבון. באתר: {account}. המחיקה מוציאה מכל הקבוצות ומוחקת את מה שנשמר בשרת. לא צריך לפנות אלינו.",
+   "en": "In the app: Settings, Account, Delete the account. On the website: {account}. Deleting takes you out of every group and removes what is stored on our server. You don't need to contact us.",
+   "ru": "В приложении: Настройки, Аккаунт, Удалить аккаунт. На сайте: {account}. Удаление выводит вас из всех групп и стирает то, что хранится на нашем сервере. Писать нам не нужно.",
+   "ka": "აპლიკაციაში: პარამეტრები, ანგარიში, ანგარიშის წაშლა. ვებსაიტზე: {account}. წაშლა ყველა ჯგუფიდან გამოგიყვანთ და წაშლის იმას, რაც ჩვენს სერვერზე ინახება. ჩვენთან დაკავშირება საჭირო არ არის.",
+   "where": "site/support.html (tools/build-support.py)",
+   "note": "Support page, round 33: answer 4 ; {account} = link to the account deletion page",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "support.faq5_q": {
+   "he": "מצב הרכבלים אומר \"אין מידע עדכני\"",
+   "en": "Lift status says \"No recent data\"",
+   "ru": "Состояние подъёмников: «Нет свежих данных»",
+   "ka": "საბაგიროების მდგომარეობა: „ახალი მონაცემები არ არის“",
+   "where": "site/support.html (tools/build-support.py)",
+   "note": "Support page, round 33: question 5",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "support.faq5_a": {
+   "he": "הדיווח מגיע מאתר הסקי, ורק בעונה. כשאין דיווח עדכני, אנחנו לא מנחשים.",
+   "en": "The report comes from the ski resort, and only during the season. When there is no recent report, we don't guess.",
+   "ru": "Данные приходят от курорта, и только в сезон. Если свежих данных нет, мы не гадаем.",
+   "ka": "მონაცემები კურორტიდან მოდის, მხოლოდ სეზონზე. როცა ახალი მონაცემები არ არის, არ ვვარაუდობთ.",
+   "where": "site/support.html (tools/build-support.py)",
+   "note": "Support page, round 33: answer 5",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "about.support": {
+   "he": "תמיכה",
+   "en": "Support",
+   "ru": "Поддержка",
+   "ka": "მხარდაჭერა",
+   "where": "site/index.html; app/android, app/ios (about page, next to privacy)",
+   "note": "link to /support in about, shared by the site and both apps (round 33)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "support.meta_desc": {
+   "he": "תמיכה באפליקציה ובאתר: כתובת לפנייה ושאלות נפוצות.",
+   "en": "Support for the app and the website: how to reach us, and common questions.",
+   "ru": "Поддержка приложения и сайта: как с нами связаться и частые вопросы.",
+   "ka": "აპლიკაციისა და საიტის მხარდაჭერა: როგორ დაგვიკავშირდეთ და ხშირი კითხვები.",
+   "where": "site/support.html (tools/build-support.py)",
+   "note": "meta description of /support",
+   "check": [
+    "ru",
+    "ka"
+   ]
   }
  }
 }
