@@ -87,7 +87,8 @@ struct RootView: View {
                     Group {
                         switch r {
                         case .map(let run): MapScreen(run: run)
-                        case .meet(let station): MeetScreen(station: station)
+                        // the meeting point: a grid of day and hour blocks, signs and the meeting card, all at fixed sizes
+                        case .meet(let station): MeetScreen(station: station).fixedType()
                         // the games page (signs on a post) and the games themselves: art and play fields at fixed sizes
                         case .games: GamesScreen().fixedType()
                         case .game(let id): GameScreen(id: id).fixedType()
