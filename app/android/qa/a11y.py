@@ -38,6 +38,10 @@ try:
 except ET.ParseError:
     sys.exit(0)
 
+top = root.find("node")
+sw = sh = 10 ** 9
+if top is not None and box(top):
+    sw, sh = box(top)[2], box(top)[3]
 seen = set()
 for n in root.iter("node"):
     if n.get("package") in SKIP_PKG or n.get("enabled") == "false":
@@ -49,14 +53,16 @@ for n in root.iter("node"):
         continue
     x1, y1, x2, y2 = b
     w, h = (x2 - x1) * 160 / dpi, (y2 - y1) * 160 / dpi
-    if w <= 1 or h <= 1:
+    if w <= 8 or h <= 8:  # a sliver is the edge of something scrolled out, not a button
         continue
     said = " / ".join(dict.fromkeys(words(n)))[:60]
     # a screen-wide scroller or the map itself is "clickable" but is not a button
     if w > 360 and h > 360:
         continue
+    # a node that touches the edge of the screen is cut off by it (scrolled half out, under the bars): its size here is not its size
+    edge = x1 <= 0 or y1 <= 0 or x2 >= sw or y2 >= sh
     kinds = []
-    if min(w, h) < MIN_DP - 0.5:
+    if min(w, h) < MIN_DP - 0.5 and not edge:
         kinds.append("small")
     if not said and (n.get("class") or "") != "android.widget.EditText":
         kinds.append("unlabeled")
