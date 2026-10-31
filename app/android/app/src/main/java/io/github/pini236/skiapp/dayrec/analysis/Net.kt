@@ -159,7 +159,9 @@ class Lift(val idx: Int, raw: JSONObject, proj: Proj, dem: Dem, params: Params) 
         if (e1 < e0) { ln = ln.reversed(); val t = e0; e0 = e1; e1 = t }
         line = ln
         val dur = if (raw.has("dur") && !raw.isNull("dur")) raw.getDouble("dur") else 0.0
-        speed = if (dur != 0.0) {
+        // the cable speed from the sources (lifts[].speed, tools/dayrec/net.py), else len / dur, else a default by kind
+        val cable = if (raw.has("speed") && !raw.isNull("speed")) raw.getDouble("speed") else 0.0
+        speed = if (cable != 0.0) cable else if (dur != 0.0) {
             val len = if (raw.has("len") && !raw.isNull("len") && raw.getDouble("len") != 0.0) raw.getDouble("len") else ln.length
             len / (dur * 60.0)
         } else params.defaultLiftSpeed(kind)
