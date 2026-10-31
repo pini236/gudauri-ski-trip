@@ -24,4 +24,19 @@ final class SiteDataTests: XCTestCase {
         let rl = try RunsAndLifts.decode(Data(json.utf8))
         XCTAssertEqual(rl.pistes.first?.key, "A"); XCTAssertEqual(rl.lifts.first?.name, "L")
     }
+
+    /// The lifts are getting `speed` (the cable's m/s) and a `research` object, and `dur` is being fixed in five of them
+    /// (the architect's condition, 31.10.2026): a lift with them still decodes, and `dur` reads as a number or as text.
+    func testALiftWithSpeedResearchAndANumericDurDecodes() throws {
+        let json = #"""
+        {"pistes":[],"lifts":[
+          {"id":1,"name":"L","kind":"gondola","g":[[42.47,44.48],[42.48,44.49]],"len":1200,"dur":7.5,"speed":5,
+           "research":{"conf":"medium","status":"fixed","notes":"x","sources":[{"url":"https://example.org","what":"dur"}]}},
+          {"id":"2","name":"M","dur":"9","speed":null,"research":null}]}
+        """#
+        let rl = try RunsAndLifts.decode(Data(json.utf8))
+        XCTAssertEqual(rl.lifts.map(\.name), ["L", "M"])
+        XCTAssertEqual(rl.lifts[0].dur, "7.5"); XCTAssertEqual(rl.lifts[1].dur, "9")
+        XCTAssertEqual(rl.lifts[0].len, 1200)
+    }
 }

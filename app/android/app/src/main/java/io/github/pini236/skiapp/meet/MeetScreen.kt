@@ -186,8 +186,10 @@ fun MeetScreen(
             Box(Modifier.fillMaxWidth().height(mapH).clipToBounds().background(c.snow)) {
                 if (plan != null && runs != null) {
                     val lines = remember(runs) { MeetLines(runs) }
+                    val words = plan.stations.associate { it.id to stationWhere(it) }
                     MeetMap(view, plan, lines, relief, c, sid, stringResource(R.string.meet_map_aria),
-                        onPin = { id -> if (id == sid) clear("pin") else pick(id) }, onEmpty = { clear("map") }, modifier = Modifier.fillMaxSize())
+                        onPin = { id -> if (id == sid) clear("pin") else pick(id) }, onEmpty = { clear("map") }, modifier = Modifier.fillMaxSize(),
+                        stationWords = words)
                     station?.let { Callout(view, it) }
                 }
                 MapButton(stringResource(R.string.meet_whole_mountain), Modifier.align(AbsoluteAlignment.TopLeft).padding(12.dp)) { plan?.let { view.fitAll(scope, it.stations, 700) } }

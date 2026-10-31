@@ -56,15 +56,25 @@ final class MapModel {
 
     func piste(_ key: String) -> Piste? { runs.pistes.first { $0.key == key } }
 
-    func select(_ key: String?) {
+    /// Chooses a run; `via` is how (docs/GROWTH.md run_open: "map", "list", "swipe", "link"), as Android's
+    /// MapView.select: run_open goes when a run is chosen, not when the map draws it again.
+    func select(_ key: String?, via: String? = nil) {
         selected = key.flatMap(piste)
-        if selected != nil { lift = nil; list = false }
+        if let p = selected {
+            lift = nil; list = false
+            if let via { Telemetry.shared.event("run_open", ["run": p.key, "color": p.color, "via": via]) }
+        }
     }
 
-    func showLift(_ l: Lift) { selected = nil; lift = l; list = false }
+    /// Opens a lift's panel; lift_open with its name as in the data (Android's MapScreen, from any way in).
+    func showLift(_ l: Lift) {
+        selected = nil; lift = l; list = false
+        Telemetry.shared.event("lift_open", l.name.isEmpty ? [:] : ["lift": l.name])
+    }
 
     func toggle(_ filter: String) {
         if hidden.contains(filter) { hidden.remove(filter) } else { hidden.insert(filter) }
+        Telemetry.shared.event("map_filter", ["filter": filter, "on": !hidden.contains(filter)])
     }
 
     func compare(_ key: String) -> (steep: String, long: String)? {

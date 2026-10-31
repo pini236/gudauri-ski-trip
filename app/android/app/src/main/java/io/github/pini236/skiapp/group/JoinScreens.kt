@@ -45,6 +45,7 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
@@ -154,7 +155,9 @@ fun CodeScreen(initial: String, onBack: () -> Unit, onContinue: (String) -> Unit
                     keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Characters, keyboardType = KeyboardType.Ascii, autoCorrectEnabled = false))
                 // the boxes read left to right in every language (Latin letters)
                 androidx.compose.runtime.CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
-                    Row(Modifier.fillMaxWidth().clickable { runCatching { focus.requestFocus() } }, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                    Row(Modifier.fillMaxWidth().clickable { runCatching { focus.requestFocus() } }
+                        // the field above speaks for these boxes (its label and what was typed); a second, wordless button would only confuse TalkBack
+                        .clearAndSetSemantics { }, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                         for (i in 0 until 6) {
                             val ch = code.getOrNull(i)
                             Box(Modifier.weight(1f).height(64.dp).background(c.paper).border(2.dp, if (ch != null || i == code.length) c.ink else c.rule), contentAlignment = Alignment.Center) {

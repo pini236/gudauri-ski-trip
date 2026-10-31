@@ -3146,6 +3146,46 @@
       "h": 794,
       "page": "round32",
       "title": "ג. \"פה נפלת\" בשתי גרסאות"
+    },
+    "R33-0-Decide.dc.html": {
+      "x": 0,
+      "y": 0,
+      "w": 600,
+      "h": 760,
+      "page": "round33",
+      "title": "מה לאשר בסבב 33"
+    },
+    "R33-Phone.dc.html": {
+      "x": 680,
+      "y": 0,
+      "w": 1266,
+      "h": 1358,
+      "page": "round33",
+      "title": "א. בטלפון, בעברית"
+    },
+    "R33-Langs.dc.html": {
+      "x": 680,
+      "y": 1778,
+      "w": 1266,
+      "h": 1566,
+      "page": "round33",
+      "title": "ב. בשלוש השפות האחרות"
+    },
+    "R33-Desk.dc.html": {
+      "x": 680,
+      "y": 3764,
+      "w": 808,
+      "h": 879,
+      "page": "round33",
+      "title": "ג. במחשב"
+    },
+    "R33-Spec.dc.html": {
+      "x": 1568,
+      "y": 3764,
+      "w": 640,
+      "h": 900,
+      "page": "round33",
+      "title": "מה למימוש"
     }
   },
   "createdOnFiles": {
@@ -3155,7 +3195,7 @@
   "designSystems": [],
   "launch": {
     "view": "canvas",
-    "page": "round32"
+    "page": "round33"
   },
   "notes": {
     "featRow1": {
@@ -4363,6 +4403,33 @@
       "w": 240,
       "x": 680,
       "y": 2763
+    },
+    "round33row0": {
+      "kind": "title1",
+      "maxW": 1266,
+      "page": "round33",
+      "text": "א. בטלפון",
+      "w": 240,
+      "x": 680,
+      "y": -300
+    },
+    "round33row1": {
+      "kind": "title1",
+      "maxW": 1266,
+      "page": "round33",
+      "text": "ב. שפות",
+      "w": 240,
+      "x": 680,
+      "y": 1478
+    },
+    "round33row2": {
+      "kind": "title1",
+      "maxW": 1528,
+      "page": "round33",
+      "text": "ג. במחשב",
+      "w": 240,
+      "x": 680,
+      "y": 3464
     }
   },
   "order": [
@@ -4757,9 +4824,18 @@
     "R32-Empty.dc.html",
     "R32-SkiDay.dc.html",
     "R32-Games.dc.html",
-    "R32-Fall.dc.html"
+    "R32-Fall.dc.html",
+    "R33-0-Decide.dc.html",
+    "R33-Phone.dc.html",
+    "R33-Langs.dc.html",
+    "R33-Desk.dc.html",
+    "R33-Spec.dc.html"
   ],
   "pages": [
+    {
+      "id": "round33",
+      "name": "סבב 33: דף התמיכה"
+    },
     {
       "id": "round32",
       "name": "סבב 32: דמות מלווה"
