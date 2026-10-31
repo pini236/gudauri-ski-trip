@@ -1238,3 +1238,14 @@ html[lang="ka"] .pv-doc h1{font-size:36px;overflow-wrap:anywhere}
 .mapwrap.flying .mlegend{visibility:hidden}
 .fchip .sw.route{width:10px;height:10px}
 .sq.route{background:var(--p-red);transform:rotate(45deg) scale(.8)}
+
+/* the New Gudauri buildings in 3D, a POC behind ?b3d=1 (decision 77): the legend and the card of a tapped building */
+.b3d-legend{position:absolute;inset-inline-start:12px;top:58px;z-index:6;display:flex;align-items:center;gap:8px;max-width:calc(100% - 24px);
+  background:var(--paper);color:var(--ink);border:1px solid var(--rule);box-shadow:0 2px 8px var(--shadow);padding:6px 6px 6px 12px;font-size:13px}
+.b3d-legend button{min-height:44px;padding:0 12px;border:1px solid var(--rule);background:var(--snow);color:var(--ink);font:inherit;cursor:pointer}
+.b3d-legend button[aria-pressed="true"]{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
+.b3d-card{position:absolute;inset-inline-start:12px;bottom:64px;z-index:6;width:min(280px,calc(100% - 24px));background:var(--paper);color:var(--ink);
+  border:1px solid var(--rule);box-shadow:0 4px 14px var(--shadow);padding:12px 44px 10px 14px;font-size:14px;line-height:1.4}
+.b3d-card p{margin:4px 0 0}
+.b3d-card .b3d-note{color:var(--muted);font-size:12.5px}
+.b3d-card .b3d-x{position:absolute;inset-inline-end:0;top:0;width:44px;height:44px;border:0;background:none;color:var(--ink);font-size:22px;cursor:pointer}

@@ -331,10 +331,10 @@ R.View3D=function(opts){
   /* camera rig */
   const cx0=opts.center[0],cz0=opts.center[1];
   const home={tx:cx0,tz:cz0,dist:opts.homeDist||11500,az:opts.homeAz||0,pol:opts.homePol||0.52};
-  const st={...home};
+  const st={...home};let minDist=350;const extPick=[];
   function ty(){return M.elev(st.tx,st.tz);}
   function place(){
-    st.pol=Math.max(0.12,Math.min(1.45,st.pol));st.dist=Math.max(350,Math.min(32000,st.dist));
+    st.pol=Math.max(0.12,Math.min(1.45,st.pol));st.dist=Math.max(minDist,Math.min(32000,st.dist));
     st.tx=Math.max(d.x0,Math.min(d.x1,st.tx));st.tz=Math.max(d.y0,Math.min(d.y1,st.tz));
     const y0=ty();
     let cp=Math.cos(st.pol);let x=st.tx+st.dist*Math.sin(st.az)*cp,y=y0+st.dist*Math.sin(st.pol),z=st.tz+st.dist*Math.cos(st.az)*cp;
@@ -442,7 +442,9 @@ R.View3D=function(opts){
   function pan(dx,dy){const s=st.dist*0.0012*(700/Math.max(400,Hh));const ca=Math.cos(st.az),sa=Math.sin(st.az);
     st.tx+=-dx*s*ca-dy*s*sa/Math.max(.35,Math.sin(st.pol+.3));st.tz+=dx*s*sa-dy*s*ca/Math.max(.35,Math.sin(st.pol+.3));}
   function up(e){const was=ptrs.size;ptrs.delete(e.pointerId);if(ptrs.size<2)pinch=null;if(!ptrs.size)cvs.style.cursor='grab';
-    if(was===1&&moved<7&&e.type==='pointerup'){const r=cvs.getBoundingClientRect();const k=pick(e.clientX-r.left,e.clientY-r.top);
+    if(was===1&&moved<7&&e.type==='pointerup'){const r=cvs.getBoundingClientRect();
+      if(extPick.some(f=>f(e.clientX-r.left,e.clientY-r.top)))return; // a layer added from outside (the buildings, ?b3d=1) took the tap
+      const k=pick(e.clientX-r.left,e.clientY-r.top);
       if(k){if(k.kind==='piste')opts.onPick&&opts.onPick(k.key);else opts.onLift&&opts.onLift(k.id);}else opts.onEmpty&&opts.onEmpty();}}
   cvs.addEventListener('pointerup',up);cvs.addEventListener('pointercancel',up);
   cvs.addEventListener('wheel',e=>{e.preventDefault();stopAnim();const r=cvs.getBoundingClientRect();zoomAt(Math.exp(e.deltaY*0.0012),e.clientX-r.left,e.clientY-r.top);},{passive:false});
@@ -581,7 +583,12 @@ R.View3D=function(opts){
     get state(){return {...st};},
     get liftStatus(){return {chairs:chairs?chairs.list.length*3:0,closed:liftObjs.filter(o=>o.c2.material.uniforms.dash.value>0).length,shut:Object.values(pisteObjs).filter(o=>o.shut).length,faded:Object.values(pisteObjs).filter(o=>o.core?o.core.material.uniforms.opacity.value<.2:o.areaFill.material.opacity<.2).length};},
     setTheme(dark){const c=dark?0x16243a:0xdde7f0;fog.color.setHex(c);hemi.intensity=dark?0.5:0.62;request();},
-    resize,request,canvas:cvs,renderer
+    resize,request,canvas:cvs,renderer,
+    // for a layer added from outside (the New Gudauri buildings, ?b3d=1): the scene, the ground the mesh draws,
+    // a ray from a point on the screen, a tap handler that wins over runs and lifts, and how close the camera may come
+    ext:{THREE,scene,camera,ground:E3,host,
+      ray(px,py){const rc=new THREE.Raycaster();rc.setFromCamera(new THREE.Vector2((px/W)*2-1,-(py/Hh)*2+1),camera);return rc;},
+      onTap(f){extPick.push(f);},minDist(m){minDist=m;}}
   };
   resize();place();
   cvs.liftStatus=()=>api.liftStatus; // for the tests: what the lift status did to the view
