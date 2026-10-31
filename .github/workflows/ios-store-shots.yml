@@ -1,0 +1,113 @@
+name: iOS store screenshots
+
+# App Store screenshots for Pini to choose from (the list is app/ios/qa/store/store.txt, kept apart from the
+# regular shots in app/ios/qa/shots so the normal run does not take them). Screenshots only: no signing, no
+# secrets, nothing is uploaded to App Store Connect. Same build and launch loop as ios.yml.
+on:
+  push:
+    branches: [main]
+    paths: ['app/ios/qa/store/store.txt', '.github/workflows/ios-store-shots.yml']
+  workflow_dispatch:
+
+concurrency:
+  group: ios-store-shots-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+env:
+  XCODE_PREFIX: Xcode_26.6
+  XCODEGEN_VERSION: "2.44.1"
+  XCODEGEN_SHA256: a2e905fb68446e9bb4008cdfe2e13e3f176d0cbcca828b71770f8e53fca91b73
+
+jobs:
+  shots:
+    runs-on: macos-26
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
+      - name: Select Xcode
+        run: |
+          X=$(ls -d /Applications/${XCODE_PREFIX}.app)
+          sudo xcode-select -s "$X/Contents/Developer"
+          xcodebuild -version
+      - name: XcodeGen (pinned, checked)
+        run: |
+          curl -fsSL -o xcodegen.zip "https://github.com/yonaskolb/XcodeGen/releases/download/${XCODEGEN_VERSION}/xcodegen.zip"
+          SUM=$(shasum -a 256 xcodegen.zip | cut -d' ' -f1)
+          [ -n "$XCODEGEN_SHA256" ] && [ "$SUM" = "$XCODEGEN_SHA256" ] || { echo "::error::xcodegen.zip sha256 mismatch"; exit 1; }
+          unzip -q xcodegen.zip -d "$RUNNER_TEMP/xg"
+          echo "$RUNNER_TEMP/xg/xcodegen/bin" >> "$GITHUB_PATH"
+      - name: Data from the site, and the project
+        run: |
+          python3 tools/build-ios-data.py
+          python3 tools/build-ios-strings.py app/ios/Gudi/Resources/Data/strings.json app/ios/Gudi/Generated/S.swift
+          cd app/ios && xcodegen generate
+      - name: Build for the simulator
+        run: |
+          cd app/ios
+          xcodebuild -project Gudi.xcodeproj -scheme Gudi -configuration Debug \
+            -destination 'generic/platform=iOS Simulator' -derivedDataPath "$RUNNER_TEMP/dd" \
+            CURRENT_PROJECT_VERSION=${{ github.run_number }} CODE_SIGNING_ALLOWED=NO build > "$RUNNER_TEMP/build.log" 2>&1 || RC=$?
+          RC=${RC:-0}
+          tail -40 "$RUNNER_TEMP/build.log"
+          grep -E "error:" "$RUNNER_TEMP/build.log" | sort -u | head -60 || true
+          test "$RC" -eq 0
+      - name: Screenshots on the two App Store sizes
+        timeout-minutes: 40
+        run: |
+          set -u
+          APP=$(ls -d "$RUNNER_TEMP"/dd/Build/Products/Debug-iphonesimulator/Gudi.app)
+          mkdir -p shots
+          # "device name|width|height": the two sizes Apple asks for (App Store Connect, checked 31.10.2026)
+          for SPEC in "iPhone 17 Pro Max|1320|2868" "iPhone 17 Pro|1206|2622"; do
+            NAME="${SPEC%%|*}"; REST="${SPEC#*|}"; W="${REST%%|*}"; H="${REST#*|}"
+            UDID=$(NAME="$NAME" xcrun simctl list devices available -j | python3 -c "
+          import json,os,sys
+          d=json.load(sys.stdin)['devices']
+          ios=sorted(k for k in d if 'iOS' in k)
+          for k in reversed(ios):
+              for x in d[k]:
+                  if x['name']==os.environ['NAME']:
+                      print(x['udid']); sys.exit(0)")
+            if [ -z "$UDID" ]; then
+              echo "::error::no available simulator named '$NAME' in this Xcode"
+              xcrun simctl list devices available | grep iPhone || true
+              exit 1
+            fi
+            echo "== $NAME ($UDID), expecting ${W}x${H}"
+            xcrun simctl boot "$UDID"
+            xcrun simctl bootstatus "$UDID" -b > /dev/null
+            if ! xcrun simctl status_bar "$UDID" override --time 9:41 --dataNetwork wifi --wifiBars 3 --cellularBars 4 --batteryState charged --batteryLevel 100; then
+              echo "::warning::status_bar override failed on $NAME, shots keep the default status bar"
+            fi
+            xcrun simctl install "$UDID" "$APP"
+            OUT="shots/${W}x${H}"; mkdir -p "$OUT"
+            cat app/ios/qa/store/store.txt | grep -v '^#' | grep -v '^ *$' | while read -r name lang dn trip route; do
+              xcrun simctl launch --terminate-running-process "$UDID" io.github.pini236.skiapp \
+                -lang "$lang" -dayNight "$dn" -qaTrip "$trip" -qaRoute "$route" < /dev/null
+              sleep 6
+              xcrun simctl io "$UDID" screenshot "$OUT/$name.png" < /dev/null
+            done
+            BAD=0
+            for F in "$OUT"/*.png; do
+              GW=$(sips -g pixelWidth "$F" | awk '/pixelWidth/{print $2}')
+              GH=$(sips -g pixelHeight "$F" | awk '/pixelHeight/{print $2}')
+              ALPHA=$(sips -g hasAlpha "$F" | awk '/hasAlpha/{print $2}')
+              if [ "$GW" != "$W" ] || [ "$GH" != "$H" ]; then echo "::error::$F is ${GW}x${GH}, expected ${W}x${H}"; BAD=1; fi
+              if [ "$ALPHA" != "no" ]; then echo "::error::$F has an alpha channel (App Store rejects it)"; BAD=1; fi
+            done
+            COUNT=$(ls "$OUT"/*.png | wc -l | tr -d ' ')
+            EXPECT=$(grep -v '^#' app/ios/qa/store/store.txt | grep -v '^ *$' | wc -l | tr -d ' ')
+            [ "$COUNT" = "$EXPECT" ] || { echo "::error::$COUNT files, expected $EXPECT"; BAD=1; }
+            xcrun simctl shutdown "$UDID" || true
+            [ "$BAD" = 0 ] || exit 1
+          done
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: ios-store-shots
+          path: shots/
+          retention-days: 30
