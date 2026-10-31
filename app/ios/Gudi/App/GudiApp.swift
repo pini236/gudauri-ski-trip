@@ -119,7 +119,7 @@ struct RootView: View {
     }
 
     private var qaTextSize: DynamicTypeSize? {
-        switch UserDefaults.standard.string(forKey: "qa.text") {
+        switch UserDefaults.standard.string(forKey: "qa.text") ?? "" {
         case "xxxl": .xxxLarge
         case "ax3": .accessibility3
         default: nil

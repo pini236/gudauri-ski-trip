@@ -463,8 +463,8 @@ private struct MapActions: ViewModifier {
                     Button(S.runNavNextAria(run: next)) { model.select(next) }
                     Button(S.runNavPrevAria(run: prev)) { model.select(prev) }
                 }
-                ForEach(Array(extra.enumerated()), id: \.offset) { _, a in
-                    Button(a.0) { a.1() }
+                ForEach(Array(extra.enumerated()), id: \.offset) { item in
+                    Button(item.element.0) { item.element.1() }
                 }
             }
     }
