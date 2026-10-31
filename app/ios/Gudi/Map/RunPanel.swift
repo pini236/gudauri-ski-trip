@@ -160,9 +160,9 @@ struct RunHead: View {
             HStack(spacing: 6) {
                 if let i {
                     let prev = order[(i - 1 + order.count) % order.count], next = order[(i + 1) % order.count]
-                    nav("\(dir == .rightToLeft ? "→" : "←") \(prev)", S.runNavPrevAria(run: prev)) { model.select(prev) }
+                    nav("\(dir == .rightToLeft ? "→" : "←") \(prev)", S.runNavPrevAria(run: prev)) { model.select(prev, via: "swipe") }
                     share
-                    nav("\(next) \(dir == .rightToLeft ? "←" : "→")", S.runNavNextAria(run: next)) { model.select(next) }
+                    nav("\(next) \(dir == .rightToLeft ? "←" : "→")", S.runNavNextAria(run: next)) { model.select(next, via: "swipe") }
                 } else { share }
             }
             .padding(.top, 10)
@@ -182,7 +182,7 @@ struct RunHead: View {
         .gesture(DragGesture(minimumDistance: 30).onEnded { g in
             guard let i, abs(g.translation.width) > 70, abs(g.translation.width) > abs(g.translation.height) else { return }
             let step = g.translation.width < 0 ? 1 : -1
-            model.select(order[(i + step + order.count) % order.count])
+            model.select(order[(i + step + order.count) % order.count], via: "swipe")
             Fx.shared.tick()
         })
     }
@@ -203,6 +203,8 @@ struct RunHead: View {
                 .frame(maxWidth: .infinity, minHeight: 44).background(ski.colors.glacier)
         }
         .buttonStyle(.plain)
+        // the system's share sheet opens (Android's run_share with "native")
+        .simultaneousGesture(TapGesture().onEnded { Telemetry.shared.event("run_share", ["run": p.key, "method": "native"]) })
     }
 }
 
@@ -233,7 +235,7 @@ struct RunBody: View {
             if !p.refs.isEmpty { Kv(S.runRefLabel, p.refs.joined(separator: ", ")) }
             if !p.groom.isEmpty { Kv(S.runGroomingLabel, p.groom.contains("classic") ? S.runGroomedValue : p.groom.joined(separator: ", ")) }
             // the forecast at the run's top and bottom (round 19), after the details and before the profile
-            if let f = model.facts, p.named, let weather { RunConditions(top: f.top, bottom: f.bot, w: weather) }
+            if let f = model.facts, p.named, let weather { RunConditions(top: f.top, bottom: f.bot, w: weather, run: p.key) }
             if let f = model.facts, f.points.count >= 4 { RunProfile(p: p, f: f, model: model, flyAt: flyAt) }
             if p.named { Videos(p: p, list: Video.of(model.videos, key: p.key)) }
         }
@@ -265,7 +267,11 @@ private struct RunProfile: View {
     @State private var info = false
     @Environment(\.ski) private var ski
 
+    /// The run whose profile was dragged: run_profile_scrub goes once each time a run is opened (docs/GROWTH.md).
+    @State private var scrubbed: String?
+
     private func go(_ i: Int) {
+        if scrubbed != p.key { scrubbed = p.key; Telemetry.shared.event("run_profile_scrub", ["run": p.key]) }
         guard i != at else { return }
         at = i
         model.marker = (f.points[i].x, f.points[i].y)
@@ -408,7 +414,11 @@ private struct Videos: View {
             H3(S.runVideosHeading)
             if list.isEmpty { Hint(S.runVideosEmpty) }
             ForEach(list) { v in
-                Button { if let u = URL(string: v.url) { openURL(u) } } label: {
+                Button {
+                    // video_play only with a YouTube id (the contract's `video`), as Android
+                    if let id = v.youtubeId { Telemetry.shared.event("video_play", ["run": p.key, "video": id]) }
+                    if let u = URL(string: v.url) { openURL(u) }
+                } label: {
                     VStack(alignment: .leading, spacing: 2) {
                         if let id = v.youtubeId {
                             ZStack {

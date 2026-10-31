@@ -21,7 +21,7 @@ struct MapScreen: View {
         .onAppear {
             guard model == nil, let runs = app.runs else { return }
             let m = MapModel(runs: runs, terrainURL: app.terrainURL)
-            if let run { m.select(run) }
+            if let run { m.select(run, via: "link") }
             // "see on the trail map" from the meeting point: frame and open that lift, once
             if let name = app.mapLift, let l = runs.lifts.first(where: { $0.name == name }) { m.showLift(l) }
             app.mapLift = nil
@@ -44,6 +44,7 @@ private struct MapContent: View {
     @State private var cam = MapCamera()
     @State private var fitted = false
     @State private var forMe = false
+    @State private var statusViewed = false
     @State private var changes: [(String, Bool)] = []
     @State private var detent: PresentationDetent = .height(250)
     // the 3D map (Map3D/): its controls, whether it flies down a run, and the light of the app's day and night
@@ -94,7 +95,7 @@ private struct MapContent: View {
             ZStack(alignment: .top) {
                 if threeD {
                     Map3DView(model: model, status: app.status, forMe: forMe, lightTime: lightTime, bottom: covered,
-                              controller: $map3d, onRun: { model.select($0); Fx.shared.tick() },
+                              controller: $map3d, onRun: { model.select($0, via: "map"); Fx.shared.tick() },
                               onLift: { model.showLift($0); Fx.shared.tick() }, onFlying: { flying = $0 },
                               overlay: { p in AnyView(over3D(p, g.size)) })
                         .ignoresSafeArea(edges: .bottom)
@@ -211,6 +212,20 @@ private struct MapContent: View {
             else if app.status.fresh { StatusSource.seen(app.status.snapshot()) }
         }
         .onAppear { if app.statusSheet { detent = .large; changes = app.status.changes(StatusSource.before()) } }
+        // status_view: once per visit to the map, after the first answer (docs/GROWTH.md, as Android)
+        .onChange(of: app.statusLoaded, initial: true) { _, loaded in
+            guard loaded, !statusViewed else { return }
+            statusViewed = true
+            let s = app.status
+            let props: [String: Any] = s.fresh ? ["state": "fresh", "open": s.open, "total": s.names.count]
+                                               : ["state": s.report == nil ? "none" : "stale"]
+            Telemetry.shared.event("status_view", props)
+        }
+        .onChange(of: forMe) { _, on in Telemetry.shared.event("status_only_open", ["on": on]) }
+        // the weather layer turned on (round 19, m-6)
+        .onChange(of: weatherOn) { _, on in
+            if on { Telemetry.shared.event("weather_view", ["where": "map", "state": app.weather(Date()).state.rawValue]) }
+        }
         .task {
             // the light follows the clock in Gudauri (auto)
             while !Task.isCancelled { try? await Task.sleep(for: .seconds(60)); now = Date() }
@@ -339,6 +354,7 @@ private struct MapContent: View {
                 Button {
                     guard model.mode != m else { return }
                     model.mode = m; Fx.shared.tick()
+                    Telemetry.shared.event("map_view", ["view": m])
                     if m == "2d" { fitMain() }
                 } label: {
                     Text(label).font(ski.type.text(14, .bold)).foregroundStyle(on ? ski.colors.paper : ski.colors.ink)

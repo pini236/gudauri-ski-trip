@@ -598,7 +598,7 @@ fun ColumnScope.LiftBody(l: Lift, runs: Runs, terrain: Terrain, a: PanelActions)
     H3(stringResource(R.string.lift_runs_to_bottom_heading))
     LiftRuns(runs.pistes.filter { l.name.isNotBlank() && l.name in it.toLifts }, a)
     if (l.id.isNotBlank()) CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
-        Text("OSM: ${l.id}", Modifier.padding(top = 10.dp).heightIn(min = 32.dp).clickable { openLink(ctx, "https://www.openstreetmap.org/way/${l.id}") }.padding(vertical = 6.dp),
+        Text("OSM: ${l.id}", Modifier.padding(top = 4.dp).heightIn(min = 44.dp).clickable(role = Role.Button) { openLink(ctx, "https://www.openstreetmap.org/way/${l.id}") }.padding(vertical = 12.dp),
             style = Ski.type.small.copy(textDecoration = TextDecoration.Underline), color = c.glacier)
     }
 }

@@ -167,7 +167,7 @@ struct GroupPage: View {
                            onShowMine: { r.run { try await api.showMyTrip(g.id, myName: g.me?.name ?? "", trip: model.trip); await watch?.refresh() } },
                            onFillFor: { id in forMember = id; sheet = .fill })
             case .meetups:
-                MeetupsTab(g: g, onOpen: { m in model.go(.meet(station: m.station)) }, onNew: { model.go(.meet()) },
+                MeetupsTab(g: g, onOpen: { m in model.go(.meet(station: Meet.card(m.station, atMs: Int64(m.at.timeIntervalSince1970 * 1000)))) }, onNew: { model.go(.meet()) },
                            onDelete: { m in r.run { try await api.removeMeetup(g.id, meetupId: m.id); await watch?.refresh() } })
             case .scores:
                 ScoresTab(g: g)

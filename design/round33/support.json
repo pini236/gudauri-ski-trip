@@ -1,0 +1,83 @@
+{
+  "_note": "Round 33: the support page (/support), the text of the boards. Draft for the content session; Russian and Georgian without a speaker check (decision 39). Built into the real privacy page by shots.mjs.",
+  "he": {
+    "title": "תמיכה",
+    "intro": "שאלה, תקלה או בקשה? כותבים לנו, ועונה מי שבנה את האפליקציה.",
+    "mail_title": "כתבו לנו",
+    "mail_btn": "שליחת מייל",
+    "mail_tip": "כדאי לכתוב איזה טלפון, את גרסת האפליקציה אם ידוע לכם, ומה קרה. צילום מסך עוזר.",
+    "sign_title": "אנחנו לא אתר הסקי",
+    "sign_text": "על כרטיסי סקי, רכבלים, שיעורים או ציוד שאבד, פונים לאתר הסקי גודאורי. האפליקציה לא רשמית.",
+    "faq_title": "שאלות נפוצות",
+    "faq": [
+      ["איך נכנסים?", "לא חייבים. המפה, המשחקים ו\"הטיול שלך\" עובדים בלי הרשמה. כניסה צריך רק כדי ליצור קבוצה: עם חשבון גוגל, ובאייפון גם עם אפל."],
+      ["איך מצטרפים לקבוצה?", "בקישור או בקוד של שש אותיות שמישהו מהקבוצה שלח לכם, בלי הרשמה. אם הקבוצה דורשת אישור, מנהל הקבוצה מאשר."],
+      ["החלפתי טלפון. איפה הקבוצה?", "אם נכנסתם עם גוגל או אפל, נכנסים שוב באותו חשבון והקבוצות חוזרות. אם הצטרפתם בלי כניסה, פותחים שוב את קישור ההזמנה, בוחרים \"אני כבר בקבוצה\" ואת השם שלכם, ומנהל הקבוצה מאשר."],
+      ["איך מוחקים את החשבון?", "באפליקציה: הגדרות, חשבון, מחיקת החשבון. באתר: {account}. המחיקה מוציאה מכל הקבוצות ומוחקת את מה שנשמר בשרת. לא צריך לפנות אלינו."],
+      ["מצב הרכבלים אומר \"אין מידע עדכני\"", "הדיווח מגיע מאתר הסקי, ורק בעונה. כשאין דיווח עדכני, אנחנו לא מנחשים."]
+    ],
+    "links_title": "עוד",
+    "link_privacy": "מדיניות הפרטיות",
+    "link_delete": "מחיקת החשבון"
+  },
+  "en": {
+    "title": "Support",
+    "intro": "A question, a problem or a request? Write to us. The person who built the app answers.",
+    "mail_title": "Write to us",
+    "mail_btn": "Send an email",
+    "mail_tip": "It helps to include your phone, the app version if you know it, and what happened. A screenshot helps too.",
+    "sign_title": "We are not the ski resort",
+    "sign_text": "For ski passes, lifts, lessons or lost items, contact the Gudauri ski resort. This app is unofficial.",
+    "faq_title": "Common questions",
+    "faq": [
+      ["How do I sign in?", "You don't have to. The map, the games and Your trip work without signing up. You only need to sign in to create a group: with a Google account, and on iPhone also with Apple."],
+      ["How do I join a group?", "With the link or the six-letter code that someone in the group sent you. No sign-up. If the group needs approval, an admin approves you."],
+      ["New phone. Where is my group?", "If you signed in with Google or Apple, sign in again with the same account and your groups come back. If you joined without signing in, open the invite link again, choose \"I'm already in the group\" and your name, and an admin approves."],
+      ["How do I delete my account?", "In the app: Settings, Account, Delete the account. On the website: {account}. Deleting takes you out of every group and removes what is stored on our server. You don't need to contact us."],
+      ["Lift status says \"No recent data\"", "The report comes from the ski resort, and only during the season. When there is no recent report, we don't guess."]
+    ],
+    "links_title": "More",
+    "link_privacy": "Privacy policy",
+    "link_delete": "Delete the account"
+  },
+  "ru": {
+    "title": "Поддержка",
+    "intro": "Вопрос, проблема или просьба? Напишите нам. Отвечает человек, который сделал приложение.",
+    "mail_title": "Напишите нам",
+    "mail_btn": "Написать письмо",
+    "mail_tip": "Полезно указать телефон, версию приложения, если знаете, и что произошло. Скриншот тоже помогает.",
+    "sign_title": "Мы не горнолыжный курорт",
+    "sign_text": "По вопросам ски-пассов, подъёмников, занятий или потерянных вещей обращайтесь на курорт Гудаури. Приложение неофициальное.",
+    "faq_title": "Частые вопросы",
+    "faq": [
+      ["Как войти?", "Входить не обязательно. Карта, игры и «Ваша поездка» работают без регистрации. Вход нужен только чтобы создать группу: через аккаунт Google, а на iPhone ещё и через Apple."],
+      ["Как вступить в группу?", "По ссылке или по коду из шести букв, который прислал кто-то из группы. Без регистрации. Если группа требует одобрения, вас подтвердит администратор."],
+      ["Новый телефон. Где моя группа?", "Если вы входили через Google или Apple, войдите снова в тот же аккаунт, и группы вернутся. Если вы вступили без входа, снова откройте ссылку-приглашение, выберите «Я уже в группе» и своё имя, и администратор подтвердит."],
+      ["Как удалить аккаунт?", "В приложении: Настройки, Аккаунт, Удалить аккаунт. На сайте: {account}. Удаление выводит вас из всех групп и стирает то, что хранится на нашем сервере. Писать нам не нужно."],
+      ["Состояние подъёмников: «Нет свежих данных»", "Данные приходят от курорта, и только в сезон. Если свежих данных нет, мы не гадаем."]
+    ],
+    "links_title": "Ещё",
+    "link_privacy": "Политика конфиденциальности",
+    "link_delete": "Удалить аккаунт"
+  },
+  "ka": {
+    "title": "მხარდაჭერა",
+    "intro": "შეკითხვა, პრობლემა ან თხოვნა? მოგვწერეთ. გიპასუხებთ ის, ვინც აპლიკაცია შექმნა.",
+    "mail_title": "მოგვწერეთ",
+    "mail_btn": "წერილის გაგზავნა",
+    "mail_tip": "კარგია, თუ მიუთითებთ ტელეფონს, აპლიკაციის ვერსიას (თუ იცით) და რა მოხდა. ეკრანის სურათიც გვეხმარება.",
+    "sign_title": "ჩვენ არ ვართ სათხილამურო კურორტი",
+    "sign_text": "სკი-პასების, საბაგიროების, გაკვეთილების ან დაკარგული ნივთების შესახებ მიმართეთ გუდაურის სათხილამურო კურორტს. აპლიკაცია არაოფიციალურია.",
+    "faq_title": "ხშირი კითხვები",
+    "faq": [
+      ["როგორ შევიდე?", "შესვლა აუცილებელი არ არის. რუკა, თამაშები და „თქვენი მოგზაურობა“ რეგისტრაციის გარეშე მუშაობს. შესვლა მხოლოდ ჯგუფის შესაქმნელად გჭირდებათ: Google-ის ანგარიშით, iPhone-ზე კი Apple-ითაც."],
+      ["როგორ შევუერთდე ჯგუფს?", "ბმულით ან ექვსასოიანი კოდით, რომელიც ჯგუფიდან ვინმემ გამოგიგზავნათ, რეგისტრაციის გარეშე. თუ ჯგუფი დადასტურებას მოითხოვს, ადმინისტრატორი დაგიდასტურებთ."],
+      ["ახალი ტელეფონი. სად არის ჩემი ჯგუფი?", "თუ Google-ით ან Apple-ით შეხვედით, ხელახლა შედით იმავე ანგარიშით და ჯგუფები დაბრუნდება. თუ შესვლის გარეშე შეუერთდით, ხელახლა გახსენით მოწვევის ბმული, აირჩიეთ „მე უკვე ჯგუფში ვარ“ და თქვენი სახელი, ადმინისტრატორი კი დაადასტურებს."],
+      ["როგორ წავშალო ანგარიში?", "აპლიკაციაში: პარამეტრები, ანგარიში, ანგარიშის წაშლა. ვებსაიტზე: {account}. წაშლა ყველა ჯგუფიდან გამოგიყვანთ და წაშლის იმას, რაც ჩვენს სერვერზე ინახება. ჩვენთან დაკავშირება საჭირო არ არის."],
+      ["საბაგიროების მდგომარეობა: „ახალი მონაცემები არ არის“", "მონაცემები კურორტიდან მოდის, მხოლოდ სეზონზე. როცა ახალი მონაცემები არ არის, არ ვვარაუდობთ."]
+    ],
+    "links_title": "კიდევ",
+    "link_privacy": "კონფიდენციალურობის პოლიტიკა",
+    "link_delete": "ანგარიშის წაშლა"
+  }
+}

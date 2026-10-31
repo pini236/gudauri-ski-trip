@@ -53,7 +53,7 @@ struct MeetScreen: View {
                             }
                             if let st {
                                 MeetCard(station: st, time: time, day: dayLabel(pickedDay, ski.type.lang),
-                                         left: Meet.left(at: Meet.at(pickedDay, time), now: now)) { clear() }.fixedType()
+                                         left: Meet.left(at: Meet.at(pickedDay, time), now: now)) { clear("card") }.fixedType()
                                 if let lines {
                                     ShareBox(station: st, time: time, day: pickedDay, lines: lines, art: art) {
                                         app.mapLift = st.name
@@ -122,10 +122,14 @@ struct MeetScreen: View {
         Fx.shared.tick()
         guard let s = plan?.byId[id] else { return }
         view.goTo(s.x, s.y, span: max(1400, view.span < 1500 ? view.span : 1800), ms: 650)
+        let props: [String: Any] = p.map { ["kind": "preset", "preset": $0.rawValue] } ?? ["kind": "station", "station": s.name]
+        Telemetry.shared.event("meet_pick", props)
     }
 
-    private func clear() {
+    /// `via`: the button, the empty map, the pin again, or the card's X (meet_clear, docs/GROWTH.md).
+    private func clear(_ via: String) {
         guard let was = sid else { return }
+        Telemetry.shared.event("meet_clear", ["via": via])
         undo = (was, preset); sid = nil; preset = nil; toast += 1
         Fx.shared.tick(0.3)
     }
@@ -138,7 +142,7 @@ struct MeetScreen: View {
             c.snow
             if let plan, let lines {
                 MeetMap(view: view, plan: plan, lines: lines, art: art, selected: sid,
-                        onPin: { id in if id == sid { clear() } else { pick(id) } }, onEmpty: { clear() })
+                        onPin: { id in if id == sid { clear("pin") } else { pick(id) } }, onEmpty: { clear("map") })
                 if let st { Callout(view: view, station: st) }
             } else {
                 ProgressView().tint(c.muted)
@@ -158,7 +162,7 @@ struct MeetScreen: View {
                     }
                     Spacer()
                     if st != nil {
-                        Button { clear() } label: {
+                        Button { clear("button") } label: {
                             HStack(spacing: 8) {
                                 LineIcon(d: LineIcon.x, size: 14, color: c.ink)
                                 Text(S.meetClear).font(ski.type.text(14, .bold)).foregroundStyle(c.ink)
@@ -187,6 +191,7 @@ struct MeetScreen: View {
                 Spacer()
                 Button {
                     undo = nil
+                    Telemetry.shared.event("meet_undo")
                     pick(u.0, u.1)
                     if let p = u.1 { time = p.time }
                 } label: {
@@ -542,15 +547,16 @@ private struct ShareBox: View {
             icon(LineIcon.whatsapp, S.meetSendWa, filled: true) {
                 var cs = URLComponents(string: "https://wa.me/")!
                 cs.queryItems = [URLQueryItem(name: "text", value: message)]
-                if let u = cs.url { openURL(u) }
+                if let u = cs.url { openURL(u) { ok in if ok { Task { @MainActor in Telemetry.shared.event("meet_share", ["method": "whatsapp"]) } } } }
             }
             icon(LineIcon.image, S.meetShareImage) {
                 let v = MeetImageView(station: station, time: time.text, label: S.meetShareImageCardLabel(day: dayText), site: S.commonSiteName,
                                       lines: lines, art: art, type: ski.type)
-                if let img = MeetImageView.render(v) { sharing = [img, message] }
+                if let img = MeetImageView.render(v) { sharing = [img, message]; Telemetry.shared.event("meet_share", ["method": "image"]) }
             }
             icon(copied ? LineIcon.check : LineIcon.link, copied ? S.commonLinkCopied : S.meetCopyLink) {
                 UIPasteboard.general.string = link
+                Telemetry.shared.event("meet_share", ["method": "copy"])
                 Fx.shared.tick()
                 copied = true
                 Task { try? await Task.sleep(nanoseconds: 2_200_000_000); copied = false }
