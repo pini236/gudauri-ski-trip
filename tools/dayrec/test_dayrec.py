@@ -118,6 +118,18 @@ class Network(unittest.TestCase):
         with self.assertRaises(ValueError):
             netmod.Net(BASE.raw_rl, BASE.raw_tj, P, {'lifts': {g.id: {'mid': [{'pos': [la, lo], 'osm': 'node/0'}]}}})
 
+    def test_lift_speed_from_the_data(self):
+        by = {l.name: l for l in BASE.lifts}
+        self.assertEqual((by['Kudebi'].speed, by['Kudebi'].speed_src), (5.0, 'speed'))
+        self.assertEqual(by['Firni'].speed_src, 'kind')  # no source of its own: the default of the kind
+        raw = {'lifts': [{'id': 1, 'name': 'x', 'len': 1000, 'speed': 5.0, 'dur': '5'}]}
+        self.assertEqual(netmod.speed_dur_gaps(raw['lifts']), [(1, 'x', 200, 300)])
+        raw['lifts'][0]['research'] = {'speed_dur': 'the source says so'}
+        self.assertEqual(netmod.speed_dur_gaps(raw['lifts']), [])
+        self.assertEqual(netmod.speed_dur_gaps(BASE.raw_rl['lifts']), [])
+        with self.assertRaises(ValueError):
+            netmod.Net(BASE.raw_rl, BASE.raw_tj, P, {'lifts': {by['Kudebi'].id: {'speed': 2.0}}})
+
     def test_mid_station_from_the_patch(self):
         n = netmod.Net(BASE.raw_rl, BASE.raw_tj, P, cases.mid_patch(BASE))
         g = next(l for l in n.lifts if l.name == 'Goodaura')
@@ -385,6 +397,53 @@ class Field(unittest.TestCase):
             rp = os.path.join(d, 'r.md')
             self.assertEqual(field.main(['compare', self.log, app, '-o', rp]), 0)
             self.no_position(field._read(rp))
+
+
+class TwoPhones(unittest.TestCase):
+    """field.phones: one skier, two phones (two receivers, the same truth), the architect's wider thresholds."""
+
+    @classmethod
+    def setUpClass(cls):
+        name, builder, _, opts = next(c for c in cases.CASES if c[0] == 'run_to_run')
+        d = synth.Day(BASE, 7, skier={'vmax': 17.0, 'wander': 7.0})
+        builder(d)
+        synth.truth_labels(BASE, d.rows)
+        a = analyze.Analyzer(BASE, P)
+        out = []
+        for seed, baro in ((11, True), (12, False)):
+            h = {'v': 1, 'tz': 'Asia/Tbilisi', 'resort': 'gudauri', 'device': 'phone%d' % seed, 'start': d.rows[0]['t']}
+            hd, pts, evs, _ = rawlog.read(synth.write_log(synth.sense(BASE, d, seed, baro=baro), h, []))
+            out.append((hd, a.final(hd, pts, evs), pts))
+        (cls.ha, cls.ra, cls.pa), (cls.hb, cls.rb, cls.pb) = out
+
+    def test_same_day_meets_the_thresholds(self):
+        rep, miss = field.phones(self.ha, self.ra, self.hb, self.rb, self.pa, self.pb)
+        self.assertEqual(miss, [], rep)
+        self.assertIn('barometer A yes, B no', rep)
+        self.assertIsNone(re.search(r'4[24]\.\d{3}', rep))
+
+    def test_clock_offset_is_taken_out(self):
+        rb = copy.deepcopy(self.rb)
+        for sg in rb['segments']:
+            sg['t0'] += 1500; sg['t1'] += 1500
+        rep, miss = field.phones(self.ha, self.ra, self.hb, rb)
+        self.assertEqual(miss, [])
+        self.assertRegex(rep, r'Clock offset taken out: \+(1\.[0-9]|2\.0) s')
+
+    def test_misses(self):
+        rb = copy.deepcopy(self.rb)
+        lift = next(sg for sg in rb['segments'] if sg['type'] == 'lift')
+        lift['lift'] = 'another'
+        rb['stats']['ski_dist_m'] *= 1.2
+        rb['stats']['max_kmh'] = round(self.ra['stats']['max_kmh'] + 6, 1)
+        rep, miss = field.phones(self.ha, self.ra, self.hb, rb, self.pa, self.pb)
+        joined = ' | '.join(miss)
+        self.assertIn('another lift', joined)
+        self.assertIn('ski_dist_m', joined)
+        self.assertIn('max speed', joined)
+        self.assertIn('check the Doppler accuracy first', rep)
+        rb['segments'] = [sg for sg in rb['segments'] if sg['type'] != 'lift']
+        self.assertTrue(any(m.startswith('sequence') for m in field.phones(self.ha, self.ra, self.hb, rb)[1]))
 
 
 if __name__ == '__main__':

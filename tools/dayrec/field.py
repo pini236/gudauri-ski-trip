@@ -3,6 +3,7 @@
 
     python3 tools/dayrec/field.py analyse <log.jsonl> [-o result.json] [--strip]
     python3 tools/dayrec/field.py compare <log.jsonl> <app-result.json> [--live app-live.json] [-o report.md]
+    python3 tools/dayrec/field.py phones <log-a.jsonl> <log-b.jsonl> [-o report.md]
 
 analyse prints (or writes) the final result of the reference on the log. The result carries positions (stops,
 falls, the place of the maximum speed), so it may be written only outside the repository, unless --strip removes
@@ -14,6 +15,12 @@ sequence of segments and legs, times within 3 s, distances and drops within 3 %,
 with local times, the edges and the differences, and where the sequences part. The report never carries a
 position, so it may be kept in the repository. Exit code 0: no difference; 1: differences; 2: bad input.
 Every difference here is a bug in a platform, not a matter of calibration (docs/QA.md).
+
+phones compares two phones of one skier (docs/QA.md, section 2, step 3; docs/ARCHITECTURE.md, the two-phone
+thresholds of 31.10.2026, plane a): the reference runs on each log on its own, and the two results are compared
+with the wider thresholds of TWO_PHONES, after aligning the clocks (an offset of up to 2 s is allowed). A miss
+there is a signal for calibration, not a bug, as long as compare is clean. A fall found on one phone only is
+listed and does not fail. Same report rules: no position. Exit code 1 when a threshold is missed.
 """
 import argparse, difflib, json, os, sys
 from datetime import datetime, timedelta, timezone
@@ -230,6 +237,158 @@ def report(header, exp, got, bad=0, live_exp=None, live_got=None):
     return text, n
 
 
+# docs/ARCHITECTURE.md, design review of 31.10.2026 (2), plane a. Into the params file once the first field test
+# has confirmed them (docs/QA.md), not before.
+TWO_PHONES = {
+    'clock_s': 2.0,         # a clock offset between the phones of up to this is taken out
+    'sequence_min': 0.90,   # the share of lift and descent segments in the same sequence
+    'edge_median_s': 5.0, 'edge_p95_s': 10.0,
+    'names_min': 0.90,      # descents with the same run name ("unmatched" on one phone counts half)
+    'dist_rel': 0.05, 'dist_rel_nobaro': 0.10,
+    'kmh_abs': 2.0, 'kmh_rel': 0.05, 'kmh_doppler_check': 3.0,
+}
+
+
+def _main_run(s):
+    d = {}
+    for lg in s['legs']:
+        if lg['kind'] == 'run' and len(lg['runs']) == 1:
+            d[lg['runs'][0]] = d.get(lg['runs'][0], 0.0) + lg['dist_m']
+    return max(sorted(d), key=lambda k: d[k]) if d else None
+
+
+def _pct(xs, q):
+    xs = sorted(xs)
+    if not xs:
+        return None
+    k = (len(xs) - 1) * q
+    i = int(k)
+    return xs[i] if i + 1 >= len(xs) else xs[i] + (xs[i + 1] - xs[i]) * (k - i)
+
+
+def _sa_at(pts, t):
+    """The Doppler accuracy (m/s) of the reading at the time of the maximum speed, if the log has it."""
+    if t is None:
+        return None
+    q = min(pts, key=lambda q: abs(q['t'] - t), default=None)
+    return q.get('sa') if q else None
+
+
+def phones(ha, ra, hb, rb, pts_a=(), pts_b=(), T=TWO_PHONES):
+    """(markdown report, list of missed thresholds) for two phones of one skier. No position."""
+    tz = _tz(ha)
+    sa = [s for s in ra.get('segments', []) if s['type'] in ('lift', 'descent')]
+    sb = [s for s in rb.get('segments', []) if s['type'] in ('lift', 'descent')]
+    sm = difflib.SequenceMatcher(a=[s['type'] for s in sa], b=[s['type'] for s in sb], autojunk=False)
+    pairs = [(sa[i], sb[j]) for op, i0, i1, j0, j1 in sm.get_opcodes() if op == 'equal'
+             for i, j in zip(range(i0, i1), range(j0, j1))]
+    miss, rows = [], []
+    seq = 2.0 * len(pairs) / (len(sa) + len(sb)) if sa or sb else 1.0
+    if seq < T['sequence_min']:
+        miss.append('sequence %.0f %% < %.0f %%' % (seq * 100, T['sequence_min'] * 100))
+    # the clock: the median of the edge differences, taken out up to clock_s
+    raw = [b[k] - a[k] for a, b in pairs for k in ('t0', 't1')]
+    off = _pct(raw, 0.5) or 0.0
+    off = max(-T['clock_s'] * 1000, min(T['clock_s'] * 1000, off))
+    edges = [abs(d - off) / 1000.0 for d in raw]
+    med, p95 = _pct(edges, 0.5), _pct(edges, 0.95)
+    if med is not None and med > T['edge_median_s']:
+        miss.append('edges: median %.1f s > %.0f s' % (med, T['edge_median_s']))
+    if p95 is not None and p95 > T['edge_p95_s']:
+        miss.append('edges: 95th percentile %.1f s > %.0f s' % (p95, T['edge_p95_s']))
+    lifts = [(a, b) for a, b in pairs if a['type'] == 'lift']
+    wrong_lift = [(a, b) for a, b in lifts if a['lift'] != b['lift']]
+    if wrong_lift:
+        miss.append('another lift in %d of %d lifts' % (len(wrong_lift), len(lifts)))
+    score, n = 0.0, 0
+    for a, b in pairs:
+        if a['type'] != 'descent':
+            continue
+        x, y = _main_run(a), _main_run(b)
+        if x is None and y is None:
+            continue
+        n += 1
+        score += 1.0 if x == y else 0.5 if x is None or y is None else 0.0
+    names = score / n if n else 1.0
+    if names < T['names_min']:
+        miss.append('run names %.0f %% < %.0f %%' % (names * 100, T['names_min'] * 100))
+    A, B = ra.get('stats', {}), rb.get('stats', {})
+    rel = T['dist_rel'] if ra.get('baro') and rb.get('baro') else T['dist_rel_nobaro']
+    tot = []
+    for k in ('ski_dist_m', 'drop_m'):
+        x, y = A.get(k) or 0.0, B.get(k) or 0.0
+        d = abs(x - y) / max(x, y) if max(x, y) else 0.0
+        ok = d <= rel
+        if not ok:
+            miss.append('%s differs by %.1f %% > %.0f %%' % (k, d * 100, rel * 100))
+        tot.append((k, '%d m' % round(x), '%d m' % round(y), '%.1f %%' % (d * 100), 'ok' if ok else 'MISS'))
+    x, y = A.get('max_kmh'), B.get('max_kmh')
+    note = ''
+    if x is not None and y is not None:
+        d = abs(x - y)
+        lim = max(T['kmh_abs'], T['kmh_rel'] * max(x, y))
+        ok = d <= lim
+        if not ok:
+            miss.append('max speed differs by %.1f km/h > %.1f' % (d, lim))
+        if d > T['kmh_doppler_check']:
+            sa_, sb_ = _sa_at(pts_a, (A.get('max_at') or {}).get('t')), _sa_at(pts_b, (B.get('max_at') or {}).get('t'))
+            note = 'Over %.0f km/h apart: check the Doppler accuracy first (at the maximum: A %s m/s, B %s m/s).' % (
+                T['kmh_doppler_check'], sa_, sb_)
+        tot.append(('max_kmh', '%.1f' % x, '%.1f' % y, '%.1f km/h' % d, 'ok' if ok else 'MISS'))
+    elif x is not None or y is not None:
+        miss.append('max speed on one phone only')
+        tot.append(('max_kmh', x, y, '', 'MISS'))
+    for a, b in pairs:
+        tag = []
+        if a['type'] == 'lift' and a['lift'] != b['lift']:
+            tag.append('another lift')
+        if a['type'] == 'descent':
+            x, y = _main_run(a), _main_run(b)
+            if x != y:
+                tag.append('half' if x is None or y is None else 'another run')
+        da, db = (b['t0'] - a['t0'] - off) / 1000.0, (b['t1'] - a['t1'] - off) / 1000.0
+        rows.append((a['t0'], (_cell(a, tz), _cell(b, tz), '%+d s' % round(da), '%+d s' % round(db), ', '.join(tag) or 'ok')))
+    for op, i0, i1, j0, j1 in sm.get_opcodes():
+        if op != 'equal':
+            for s in sa[i0:i1]:
+                rows.append((s['t0'], (_cell(s, tz), '—', '', '', 'only on A')))
+            for s in sb[j0:j1]:
+                rows.append((s['t0'] - off, ('—', _cell(s, tz), '', '', 'only on B')))
+    rows = [r for _, r in sorted(rows, key=lambda r: r[0])]  # in the order of the day
+    day = datetime.fromtimestamp((ra.get('start') or 0) / 1000.0, tz).strftime('%d.%m.%Y')
+    L = ['# Two phones, one skier', '',
+         '- Day: %s; A `%s`, B `%s`; barometer A %s, B %s' % (day, ha.get('device'), hb.get('device'),
+                                                              'yes' if ra.get('baro') else 'no', 'yes' if rb.get('baro') else 'no'),
+         '- Clock offset taken out: %+.1f s (at most %.0f s)' % (off / 1000.0, T['clock_s']),
+         '- Thresholds: docs/ARCHITECTURE.md, design review of 31.10.2026, plane a. A miss is a signal for calibration, '
+         'not a bug, as long as `compare` on each log is clean.', '',
+         '**Result: %s.**' % ('all thresholds met' if not miss else '%d missed' % len(miss)), '',
+         '| | value | threshold | |', '|---|---|---|---|',
+         '| same sequence | %.0f %% | %.0f %% | %s |' % (seq * 100, T['sequence_min'] * 100, 'ok' if seq >= T['sequence_min'] else 'MISS'),
+         '| same lift | %d of %d | all | %s |' % (len(lifts) - len(wrong_lift), len(lifts), 'ok' if not wrong_lift else 'MISS'),
+         '| edges, median | %s | %.0f s | %s |' % ('—' if med is None else '%.1f s' % med, T['edge_median_s'],
+                                                  'ok' if med is None or med <= T['edge_median_s'] else 'MISS'),
+         '| edges, 95th percentile | %s | %.0f s | %s |' % ('—' if p95 is None else '%.1f s' % p95, T['edge_p95_s'],
+                                                          'ok' if p95 is None or p95 <= T['edge_p95_s'] else 'MISS'),
+         '| same run name | %.0f %% of %d descents | %.0f %% | %s |' % (names * 100, n, T['names_min'] * 100,
+                                                                   'ok' if names >= T['names_min'] else 'MISS'),
+         '', '## Totals', '']
+    L += _table(['', 'A', 'B', 'difference', ''], tot)
+    if note:
+        L += ['', note]
+    L += ['', '## Segments', '', 'Δ = B minus A, after the clock offset. Local times.', '']
+    L += _table(['A', 'B', 'Δ start', 'Δ end', ''], rows)
+    fa, fb = [f['t'] for f in ra.get('falls', [])], [f['t'] for f in rb.get('falls', [])]
+    one = [('A', t) for t in fa if not any(abs(t - u - (-off)) <= 3000 for u in fb)] + \
+          [('B', t) for t in fb if not any(abs(t - u - off) <= 3000 for u in fa)]
+    if fa or fb:
+        L += ['', '## Falls', '', '- A: %d, B: %d. On one phone only (listed, not a miss): %s' % (
+            len(fa), len(fb), ', '.join('%s %s' % (w, _clock(t, tz)) for w, t in one) or 'none')]
+    if miss:
+        L += ['', '## Missed', ''] + ['- ' + m for m in miss]
+    return '\n'.join(L) + '\n', miss
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__.split('\n')[0])
     sub = ap.add_subparsers(dest='cmd', required=True)
@@ -237,7 +396,24 @@ def main(argv=None):
     a.add_argument('log'); a.add_argument('-o', '--out'); a.add_argument('--strip', action='store_true')
     c = sub.add_parser('compare', help='the reference against the result an app saved')
     c.add_argument('log'); c.add_argument('app'); c.add_argument('--live'); c.add_argument('-o', '--out')
+    ph = sub.add_parser('phones', help='two phones of one skier, each log through the reference')
+    ph.add_argument('log'); ph.add_argument('log_b'); ph.add_argument('-o', '--out')
     args = ap.parse_args(argv)
+    if args.cmd == 'phones':
+        try:
+            ta, tb = _read(args.log), _read(args.log_b)
+        except OSError as e:
+            print('cannot read a log: %s' % e, file=sys.stderr); return 2
+        import build
+        P = build.params(); base = build.load_base(P)
+        ha, ra, _, _ = run(ta, P, base)
+        hb, rb, _, _ = run(tb, P, base)
+        rep, miss = phones(ha, ra, hb, rb, rawlog.read(ta)[1], rawlog.read(tb)[1])
+        if args.out:
+            _write(args.out, rep)
+        else:
+            sys.stdout.write(rep)
+        return 1 if miss else 0
     try:
         text = _read(args.log)
     except OSError as e:
