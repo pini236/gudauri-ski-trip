@@ -138,7 +138,7 @@ extension DayRec {
         let name: String?
         let kind: String?
         let line: Line
-        /// The expected cable speed, m/s: from the data (len / dur) or by kind.
+        /// The expected cable speed, m/s: the data's speed, else len / dur, else by kind (net.py).
         let speed: Double
         let stations: [Station]
         var length: Double { line.length }
@@ -219,7 +219,9 @@ extension DayRec {
                 if e1 < e0 { ln = ln.reversed(); swap(&e0, &e1) }
                 let kind = l["kind"] as? String
                 let speed: Double
-                if truthy(l["dur"]), let dur = num(l["dur"]) {
+                if truthy(l["speed"]), let v = num(l["speed"]) {  // the cable speed from the sources (net.py)
+                    speed = v
+                } else if truthy(l["dur"]), let dur = num(l["dur"]) {
                     let len = truthy(l["len"]) ? (num(l["len"]) ?? ln.length) : ln.length
                     speed = len / (dur * 60)
                 } else {
