@@ -708,6 +708,7 @@ const CSS2 = `
 .ios .cx .q{border-radius:6px}
 .br{display:flex;align-items:center;gap:10px;height:42px;padding:0 12px;background:color-mix(in srgb,#E8A33A 18%,var(--paper));color:var(--ink);font-size:14px;font-weight:600}
 .ios .br{border-radius:14px}
+.ins{display:flex;gap:12px;align-items:flex-start;padding:12px 14px;background:color-mix(in srgb,var(--p-blue) 10%,var(--snow));border-inline-start:4px solid var(--p-blue);font-size:14px;line-height:1.4}.ins b{display:block}.ins span{color:var(--muted)}.ios .ins{border-radius:14px}
 .slot{border:2px dashed var(--rule);padding:12px 14px;display:flex;gap:12px;align-items:center}
 .ios .slot{border-radius:16px}
 .slot .bars{flex:1;display:flex;flex-direction:column;gap:7px} .slot .bars i{display:block;height:9px;background:var(--rule)}
@@ -759,7 +760,8 @@ function timelineV2(p, en) {
     if (s.connector) return;
     body += `<div class="rc${s.offpiste ? ' off' : ''}" style="--rc:var(--p-${s.colors[0]});margin:6px 0"`.slice(0,0) + `<div class="rc${s.offpiste ? ' off' : ''}" style="--rc:var(--p-${s.colors[0]})"><span class="tm">${hm(s.t0)}</span><span class="nm">${s.pistes.map((k, j) => sign(s.colors[j], k)).join(`<i class="arr">${en ? '→' : '←'}</i>`)}${s.offpiste ? `<span class="muted" style="font-size:12px">${en ? 'part off the runs' : 'חלק מחוץ למסלולים'}</span>` : ''}</span><span class="sp" style="background:${spd(s.vmax)}">${s.vmax}<small>${en ? 'km/h' : 'קמ״ש'}</small></span></div>`;
   });
-  const slot = `<div class="slot">${ic.mtn(26)}<div class="bars"><b style="font-size:13px;color:var(--muted)">${en ? 'The insight of the day' : 'התובנה של היום'}</b><i style="width:92%"></i><i style="width:64%"></i></div></div>`;
+  const [ft, fl] = insight('moment.flow', en, FLOW, 'some');
+  const slot = `<div class="ins">${ic.mtn(26)}<div><b>${ft}</b><span>${fl}</span></div></div>`;
   return `${header(p, en, en ? 'Your day, in order' : 'היום, לפי הסדר', W[en ? 'en' : 'he'].day, '14:31')}<div style="padding:4px 18px 20px">
     <div class="strip">${strip}</div><div class="hours">${hours}</div>
     <div style="margin-top:14px">${slot}</div>${body}
@@ -798,6 +800,65 @@ Object.assign(BOARDS, {
   'q-ios-map-full-night-en': ['ios', 'en', 'night', () => `<div style="height:874px">${mapPlaces2('ios', true, true, 'full')}</div>`],
 });
 
+
+// ---------- round 29 v2, row I: the story of the day as insights, one voice (content session, insights.json) ----------
+// The numbers are illustrative until the engine computes the new insights. The sample day is ski day 2 of 4.
+const INS = JSON.parse(fs.readFileSync(path.join(OUT, '../../../docs/handoff/2026-10-30-dayrec-moments-copy/insights.json'), 'utf8')).keys;
+const FLOW = { am: 4, am_n: 6, pm: 1, pm_n: 4 };
+function ipick(key, en, v = {}, cnt) {
+  let x = INS[key][en ? 'en' : 'he']; x = Array.isArray(x) ? x[0] : x;
+  if (typeof x === 'object') x = en ? (cnt === 1 ? x.one : x.other) : (cnt === 1 ? x.one : cnt === 2 && x.two ? x.two : x.other);
+  return x.replace(/\{(\w+)\}/g, (_, k) => v[k] ?? `{${k}}`);
+}
+const B = t => `<bdi>${t}</bdi>`;
+function insight(base, en, v, variant) { return [ipick(base + '.title', en, v), ipick(`${base}.${variant}.line`, en, v)]; }
+function storyV2(p, en) {
+  const red = runs.find(r => r.pistes[0] === 'Kudebi 1');
+  const items = [
+    [ipick('moment.first_color.red.first.title', en), ipick('moment.first_color.red.first.line', en, { run: B('Kudebi 1'), time: hm(red.t0), day_n: 2 })],
+    [ipick('moment.new_runs.title', en), ipick('moment.new_runs.line', en, { n: 2, runs: B('Kikilo 1, Kikilo 2'), done: 11, total: 27 }, 2)],
+    insight('moment.flow', en, FLOW, 'some'),
+  ];
+  const tom = [ipick('moment.tomorrow.tomorrow.title', en), ipick('moment.tomorrow.finish_color.red.line', en, { n: 1, runs: B('Kudebi 3') }, 1)];
+  const w = p === 'and' ? 354 : 366, ios = p === 'ios';
+  const nums = [[S.vmax, en ? 'top km/h' : 'מרבית קמ״ש'], [S.runs, en ? 'runs' : 'ירידות'], [S.skiKm, en ? 'km' : 'ק״מ']];
+  const card = `<div style="position:relative;width:${w}px;margin:0 auto;background:var(--bp-paper);color:var(--bp-ink);box-shadow:0 2px 14px var(--shadow);transform:rotate(-1.2deg)${ios ? ';border-radius:16px;overflow:hidden' : ''}">
+    <div style="height:44px;background:var(--bp-strip);color:var(--bp-on-strip);display:flex;align-items:center;justify-content:space-between;padding:0 14px"><b class="k" style="font-size:26px">${en ? 'SKI DAY 2 · GUDAURI' : 'יום סקי 2 · גודאורי'}</b><span style="font-weight:700;font-size:13px;direction:ltr">Tue 12 Jan</span></div>
+    <p style="margin:0;padding:12px 14px 0;font-family:var(--f-display);font-size:34px;line-height:1">${ipick('moment.story.head.progress', en)}</p>
+    <p style="margin:2px 14px 0;font-size:13px;color:var(--bp-muted)">${ipick('moment.story.sub', en, { n: S.runs, drop: n(S.desc, en), km: S.skiKm }, S.runs)}</p>
+    <img src="${M('m-share')}" style="display:block;width:100%;height:140px;object-fit:cover;margin-top:10px;border-block:1px dashed var(--rule)">
+    <ul style="list-style:none;margin:0;padding:4px 14px 6px">${items.map(([a, b], i) => `<li style="display:flex;gap:10px;padding:8px 0;border-bottom:1px dotted var(--rule);font-size:14px;line-height:1.35"><span class="k" style="font-size:24px;line-height:.9;color:var(--p-${['red', 'blue', 'green'][i]})">${i + 1}</span><span style="display:flex;flex-direction:column;gap:2px"><b>${a}</b><span style="color:var(--bp-muted)">${b}</span></span></li>`).join('')}</ul>
+    <div style="margin:4px 14px 14px;padding:9px 12px;background:color-mix(in srgb,var(--p-blue) 12%,var(--bp-paper));font-size:14px;line-height:1.35${ios ? ';border-radius:10px' : ''}"><b>${tom[0]}:</b> ${tom[1]}</div>
+    <div style="height:10px;background:radial-gradient(circle at 6px 0,transparent 5px,var(--bp-paper) 5.5px) 0 0/12px 10px repeat-x;transform:translateY(9px)"></div></div>`;
+  return `${header(p, en, en ? 'Your day' : 'היום שלך', en ? 'Insights, against yourself only' : 'תובנות, מול עצמך בלבד', '16:05')}<div style="padding:10px 18px 22px">${card}
+    <div class="row" style="margin-top:22px;gap:8px"><span class="qb pri" style="flex:1">${ic.share(16)}${en ? 'Share' : 'שיתוף'}</span><span class="qb" style="flex:1">${ic.play(16)}${en ? 'Short film' : 'סרטון קצר'}</span></div>
+    <p class="note" style="margin-top:10px">${en ? 'The share image has the headline, the numbers and the map; the idea for tomorrow stays here.' : 'בתמונה לשיתוף הכותרת, המספרים והמפה; הרעיון למחר נשאר כאן.'}</p></div>`;
+}
+// the trip-end share card: the moment the friends share (moment.trip.*), after the last ski day
+function tripCard(p, en, dark) {
+  const days = 4, ios = p === 'ios', w = p === 'and' ? 354 : 366;
+  const dots = ['blue', 'red', 'red', 'red'].map((c, i) => `<div style="flex:1;text-align:center"><div style="height:${[46, 58, 74, 66][i]}px;background:var(--p-${c});${ios ? 'border-radius:6px 6px 0 0;' : ''}margin:0 6px"></div><small style="font-size:11px;color:var(--bp-muted)">${en ? `Day ${i + 1}` : `יום ${i + 1}`}</small></div>`).join('');
+  const card = `<div style="position:relative;width:${w}px;margin:0 auto;background:var(--bp-paper);color:var(--bp-ink);box-shadow:0 2px 14px var(--shadow);transform:rotate(1deg)${ios ? ';border-radius:16px;overflow:hidden' : ''}">
+    <div style="height:44px;background:var(--bp-strip);color:var(--bp-on-strip);display:flex;align-items:center;justify-content:space-between;padding:0 14px"><b class="k" style="font-size:26px">${en ? 'GUDAURI · 11–14 JAN' : 'גודאורי · <bdi dir="ltr">11–14.1</bdi>'}</b><span style="font-weight:700;font-size:13px">${en ? 'Trip summary' : 'סיכום הטיול'}</span></div>
+    <p style="margin:0;padding:12px 14px 0;font-family:var(--f-display);font-size:34px;line-height:1">${ipick('moment.trip.title', en)}</p>
+    <p style="margin:4px 14px 0;font-size:15px;font-weight:600">${ipick('moment.trip.line', en, { days, drop: n(17240, en), done: 14 }, days)}</p>
+    <div style="display:flex;align-items:flex-end;padding:14px 8px 4px;border-bottom:1px dashed var(--rule)">${dots}</div>
+    <p style="margin:0;padding:6px 14px 0;font-size:11.5px;color:var(--bp-muted)">${en ? 'Height: metres down each day. Colour: the hardest run that day.' : 'הגובה: מטרים למטה בכל יום. הצבע: המסלול הקשה של אותו יום.'}</p>
+    <img src="${M('m-share')}" style="display:block;width:100%;height:120px;object-fit:cover;margin-top:8px;border-block:1px dashed var(--rule)">
+    <ul style="list-style:none;margin:0;padding:6px 14px 14px;font-size:14px;line-height:1.35">
+      <li style="padding:6px 0;border-bottom:1px dotted var(--rule)">${ipick('moment.trip.favorite', en, { run: B('Goodaura 1'), n: 3, days })}</li>
+      <li style="padding:6px 0">${ipick('moment.trip.first.red', en, { run: B('Kudebi 1'), day_n: 2 })}</li></ul>
+    <div style="height:10px;background:radial-gradient(circle at 6px 0,transparent 5px,var(--bp-paper) 5.5px) 0 0/12px 10px repeat-x;transform:translateY(9px)"></div></div>`;
+  return `${header(p, en, en ? 'Your trip' : 'הטיול שלך', en ? 'After the last ski day' : 'אחרי יום הסקי האחרון', '19:40', dark)}<div style="padding:12px 18px 22px">${card}
+    <div class="row" style="margin-top:22px;gap:8px"><span class="qb pri" style="flex:1">${ic.share(16)}${en ? 'Share the trip' : 'שיתוף הטיול'}</span></div>
+    <p class="note" style="margin-top:10px">${en ? 'Appears once, the evening of the last ski day of Your trip, and stays in My days. No names, no falls.' : 'מופיע פעם אחת, בערב של יום הסקי האחרון ב"הטיול שלך", ונשאר ב"הימים שלי". בלי שם ובלי נפילות.'}</p></div>`;
+}
+Object.assign(BOARDS, {
+  'i-and-story': ['and', 'he', 'day', () => storyV2('and', false)],
+  'i-ios-story-en': ['ios', 'en', 'day', () => storyV2('ios', true)],
+  'i-and-trip': ['and', 'he', 'day', () => tripCard('and', false)],
+  'i-ios-trip-night-en': ['ios', 'en', 'night', () => tripCard('ios', true, true)],
+});
 // ---- photograph ----
 const b = await launch();
 const { ctx, page: p0 } = await open(b, '/', { w: 402, h: 874, wait: 300 });
