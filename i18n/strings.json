@@ -17313,6 +17313,54 @@
     "ru",
     "ka"
    ]
+  },
+  "app.rec_cut_title": {
+   "he": "היום נקטע",
+   "en": "The day was cut short",
+   "ru": "День был прерван",
+   "ka": "დღე შეწყდა",
+   "where": "app/android",
+   "note": "יום הגלישה (סבב 29, החלטה 77): shown when the phone closed the app in the middle of a recording",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.rec_cut_text": {
+   "he": "הטלפון סגר את האפליקציה באמצע הקלטה. להמשיך באותו יום?",
+   "en": "The phone closed the app in the middle of a recording. Go on with the same day?",
+   "ru": "Телефон закрыл приложение посреди записи. Продолжить тот же день?",
+   "ka": "ტელეფონმა აპლიკაცია ჩაწერის შუაში დახურა. გავაგრძელოთ იგივე დღე?",
+   "where": "app/android",
+   "note": "יום הגלישה (סבב 29, החלטה 77): ",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.rec_cut_go": {
+   "he": "להמשיך",
+   "en": "Go on",
+   "ru": "Продолжить",
+   "ka": "გაგრძელება",
+   "where": "app/android",
+   "note": "יום הגלישה (סבב 29, החלטה 77): ",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.rec_cut_close": {
+   "he": "לסגור את היום",
+   "en": "Close the day",
+   "ru": "Закрыть день",
+   "ka": "დღის დახურვა",
+   "where": "app/android",
+   "note": "יום הגלישה (סבב 29, החלטה 77): ",
+   "check": [
+    "ru",
+    "ka"
+   ]
   }
  }
 }

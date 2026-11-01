@@ -175,6 +175,8 @@ class MainActivity : ComponentActivity() {
     /** The ski day (round 29): the explainer before the system's location question, and what was asked of it. */
     private var recExplain by mutableStateOf(false)
     private var recSingle = false
+    /** A day the phone cut short, found when the app opened (round 29): asks whether to go on with it. */
+    private var cutDay by mutableStateOf<java.io.File?>(null)
     private val recPermissions = registerForActivityResult(androidx.activity.result.contract.ActivityResultContracts.RequestMultiplePermissions()) { r ->
         when {
             r[android.Manifest.permission.ACCESS_FINE_LOCATION] == true -> record(recSingle)
@@ -758,6 +760,9 @@ class MainActivity : ComponentActivity() {
         // into the groups (A1) is "signin" when nobody is signed in on this phone.
         // the ski day's entry points (round 29): only where the build and the site's data both allow it
         val dayUi = remember { DayFeature.visible(runCatching { siteData.read("resorts.json") }.getOrNull()) }
+        LaunchedEffect(dayUi) {
+            if (dayUi && !DayRec.recording) cutDay = withContext(kotlinx.coroutines.Dispatchers.IO) { DayRec.store(this@MainActivity).unfinished() }
+        }
         val screen = when (top) {
             Route.Home -> "home"; is Route.Map -> "map"; is Route.Meet -> "meet"; Route.Games -> "games"; Route.Trip -> "trip"
             // the licenses are a part of about (the contract has no screen for them)
@@ -785,6 +790,13 @@ class MainActivity : ComponentActivity() {
           androidx.compose.runtime.CompositionLocalProvider(io.github.pini236.skiapp.weather.LocalWeather provides
               remember(forecast, tick) { io.github.pini236.skiapp.weather.WeatherNow(forecast, Instant.ofEpochMilli(tick)) }) {
             Box(Modifier.fillMaxSize().background(if (spike) Palette.snow else Ski.colors.snow)) {
+                cutDay?.let { f -> io.github.pini236.skiapp.dayrec.ui.CutDayDialog(
+                    onResume = {
+                        cutDay = null
+                        val r = DayRec.start(this@MainActivity, resume = f)
+                        if (r == DayRec.Start.Started || r == DayRec.Start.Already) { if (nav.top !is Route.Day) nav.push(Route.Day) } else record(false)
+                    },
+                    onClose = { cutDay = null; inBackground { DayRec.finishCut(this@MainActivity, f) } }) }
                 if (recExplain) io.github.pini236.skiapp.dayrec.ui.PermissionSheet(
                     onGo = { recExplain = false; recPermissions.launch(arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION, android.Manifest.permission.ACCESS_COARSE_LOCATION)) },
                     onDismiss = { recExplain = false })

@@ -186,3 +186,21 @@ private fun what(live: io.github.pini236.skiapp.dayrec.DayEngine.Snapshot?, lift
         else -> stringResource(R.string.app_rec_standing)
     }
 }
+
+/** A day the phone cut short (it closed the app, or switched off) found on opening: go on with it, or close it (round 29, states). */
+@Composable
+fun CutDayDialog(onResume: () -> Unit, onClose: () -> Unit) {
+    val c = Ski.colors
+    Dialog(onDismissRequest = {}) {
+        Column(Modifier.fillMaxWidth().background(c.paper).padding(20.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
+            Text(stringResource(R.string.app_rec_cut_title), style = Ski.type.title.copy(fontSize = Ski.type.title.fontSize * (32f / 44f)), color = c.ink)
+            Text(stringResource(R.string.app_rec_cut_text), style = Ski.type.body, color = c.ink)
+            Row(Modifier.fillMaxWidth().background(c.blue).clickable(role = Role.Button, onClick = onResume).heightIn(min = 52.dp), horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
+                Text(stringResource(R.string.app_rec_cut_go), style = Ski.type.bodyBold.copy(fontSize = 16.5.sp), color = c.onBoard)
+            }
+            Row(Modifier.fillMaxWidth().clickable(role = Role.Button, onClick = onClose).heightIn(min = 52.dp), horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
+                Text(stringResource(R.string.app_rec_cut_close), style = Ski.type.bodyBold.copy(fontSize = 16.5.sp), color = c.glacier)
+            }
+        }
+    }
+}
