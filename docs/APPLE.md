@@ -327,7 +327,7 @@ cd ~ && rm -rf ~/ski-app-keys
 |---|---|---|---|
 | חשבון מאושר, הסכם, מעמד DSA | חובה | **בוצע** (21.10.2026) | סעיפים 1, 2 |
 | מדיניות פרטיות בכתובת, **וגם קישור בתוך האפליקציה** | חובה (5.1.1(i)) | **קיימת, והקישור באודות;** טיוטה לאייפון אצל פיני (31.10.2026) | סעיף 5.2 |
-| כתובת תמיכה (`Support URL`) עם פרטי קשר אמיתיים | חובה | אין דף תמיכה | סעיף 5.6 |
+| כתובת תמיכה (`Support URL`) עם פרטי קשר אמיתיים | חובה | `/support` באתר (31.10.2026, סבב 33) | סעיף 5.6 |
 | תוויות פרטיות (`App Privacy`) | חובה | **מוכן להקלדה** (31.10.2026) | סעיף 5.10 ד |
 | דירוג גיל (שאלון) | חובה; בלי דירוג אי אפשר לפרסם | **מוכן להקלדה** (31.10.2026) | סעיף 5.10 א |
 | מחיקת חשבון **מתוך האפליקציה** | חובה (5.1.1(v)) | **קיימת באייפון** (`AccountScreen`) | סשן האייפון |
@@ -403,7 +403,7 @@ cd ~ && rm -rf ~/ski-app-keys
 | `Promotional Text` | 170 תווים | ב-`i18n/appstore-listing.md` |
 | `Description` | 4,000 תווים | התיאור המלא מ-`i18n/store-listing.md`, עם "לא רשמית" (עיקרון 8) ורק מה שבאמת בגרסה |
 | `Keywords` | **100 בייטים** (לא תווים: בעברית כל אות היא שני בייטים) | ב-`i18n/appstore-listing.md` (בלי מילים שכבר בשם) |
-| `Support URL` | חובה, חייב להוביל לפרטי קשר אמיתיים | **אין דף כזה היום.** הצעה: עמוד `/support` באתר עם `pinisagent@gmail.com` (סשן האתר, דרך הקנבס), או בינתיים קישור לדף הפרטיות, שמופיעה בו הכתובת |
+| `Support URL` | חובה, חייב להוביל לפרטי קשר אמיתיים | **קיים מ-31.10.2026:** https://gudauri-ski-trip.vercel.app/support (סבב 33). קודם: הצעה: עמוד `/support` באתר עם `pinisagent@gmail.com` (סשן האתר, דרך הקנבס), או בינתיים קישור לדף הפרטיות, שמופיעה בו הכתובת |
 | `Privacy Policy URL` | חובה | `https://gudauri-ski-trip.vercel.app/privacy` |
 | `Category` | | `Travel` (חלופה: `Navigation`) |
 | `Copyright` | | `2026 Pini Zolberg` |
@@ -600,7 +600,7 @@ Contact: Pini Zolberg, pinisagent@gmail.com
 - [ ] **`App Privacy`** ב-App Store Connect: לפי הטבלה בסעיף ד, ו-`Privacy Policy URL`: `https://gudauri-ski-trip.vercel.app/privacy`.
 - [ ] **`Age Rating`:** לפי סעיף א.
 - [ ] **דף החנות** בשלוש השפות: הדבקה מ-`i18n/appstore-listing.md` (שם, כותרת משנה, טקסט קידום, מילות מפתח ותיאור). `Category`: `Travel`. `Copyright`: `2026 Pini Zolberg`.
-- [ ] **`Support URL`:** אין עדיין דף תמיכה. בינתיים כתובת דף הפרטיות, שבראשו כתובת המייל (5.6). דף `/support` אמיתי עובר דרך הקנבס.
+- [ ] **`Support URL`:** https://gudauri-ski-trip.vercel.app/support (סבב 33, מומש 31.10.2026). פיני מקליד ב-App Store Connect.
 - [ ] **`App Review Information`:** איש קשר והערות (סעיפים ג ו-ה), בלי לסמן `Sign-in required`.
 - [ ] **הצילומים** מסשן האייפון, ובחירת הבנייה מ-TestFlight.
 - [ ] **אפשרות השחרור:** ההמלצה `Manually release this version`, כדי לשחרר אחרי בדיקה אחרונה בטלפון.
