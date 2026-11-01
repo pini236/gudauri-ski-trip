@@ -2426,10 +2426,9 @@
       "p": {
        "kind": "finish_color",
        "color": "green",
-       "n": 2,
+       "n": 1,
        "runs": [
-        "Snow Park",
-        "Zuma"
+        "Snow Park"
        ]
       }
      }
@@ -2527,10 +2526,9 @@
       "p": {
        "kind": "finish_color",
        "color": "green",
-       "n": 2,
+       "n": 1,
        "runs": [
-        "Snow Park",
-        "Zuma"
+        "Snow Park"
        ]
       }
      }

@@ -170,7 +170,7 @@ def full_day(d):
     d.stand(30).ride('Shino').stand(15).ski(*G1, stop=(0.4, 70))             # 5, Goodaura 1 with a rest
     d.stand(90).ride('Goodaura').stand(20)                                   # 6
     d.walk_to_lift('Firni').ride('Firni').stand(30).ski(*KOBI)               # Kobi
-    d.ride('Kobi 2').stand(35 * 60)                                          # lunch at the top
+    d.ride('Kobi').stand(35 * 60)                                          # lunch at the top
     d.walk_to(*d.run_line(*FIRNI1).p[0]).ski(*FIRNI1, frm='start').ski(*FIRNI2)
     d.walk_to_lift('Snow Park').stand(60).ride('Snow Park').stand(15)
     d.marks['spike'] = d.t + 40000                                           # 7, one reading of 100 km/h

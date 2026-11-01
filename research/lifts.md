@@ -93,3 +93,10 @@
    - **`year`, `cap` ו-`bubble`:** לפי המקורות.
    - **`kind`:** Zuma היא `j-bar`.
    - **במפה הפתוחה:** ל-Firni הועתקו התגיות של Goodaura. אפשר לתקן גם שם, אבל רק בבחירה של פיני.
+
+### מה הוחל בנתונים (1.11.2026, באישור פיני, ענף `claude/data-official-fixes`)
+
+- **שמות רשמיים:** Kobi 2 הוא עכשיו Kobi, ו-Kobi 1 הוא Truso (המפה הרשמית ו-skiresort.info: [Truso](https://www.skiresort.info/ski-resort/gudauri/ski-lifts/l107261/), [Kobi](https://www.skiresort.info/ski-resort/gudauri/ski-lifts/l107260/), נקראו 1.11.2026). מזהה הרכבל (`id`) לא השתנה, ובמסלולים עודכנו שמות הרכבלים ב-`fromLifts` ו-`toLifts`.
+- **`rise`, `year`, `cap`, `bubble`:** לפי הטבלה למעלה, רק במקום שיש מקור ברור, ובכל רכבל ב-`research` נוסף משפט שאומר מה נוסף ומאיפה. Firni: 240 מ׳ ו-2018 (הערכים 547 ו-2011 הועתקו מ-Goodaura). Soliko ו-Kudebi: עם כיפה. Zuma: `kind` הוא `drag_lift` (J-bar), כי זה הסוג שהאתר והאפליקציות מכירים; `rise` 50 ו-`year` 2011.
+- **לא נכנס, כי המקורות סותרים:** השנה והקיבולת של Snow Park (1986 או 2015; 1,080 עד 1,500), `bubble` של Pirveli (המקורות לא אומרים), וקיבולת Shino נכנסה לפי RM (2,800) בלי SR (2,400).
+- **Zuma "לא פעיל" לפי RM:** לא הוחל `status`, כי מקור אחד חובבני; להשאיר לבדיקה בשטח.

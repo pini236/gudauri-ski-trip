@@ -492,7 +492,7 @@
   },
   {
    "id": "firni-top",
-   "label": "Firni top / Kobi 2 top",
+   "label": "Firni top / Kobi top",
    "ll": [
     42.511191,
     44.492742
@@ -504,7 +504,7 @@
      "end": "top"
     },
     {
-     "lift": "Kobi 2",
+     "lift": "Kobi",
      "liftId": 665084640,
      "end": "top"
     }
@@ -514,19 +514,19 @@
   },
   {
    "id": "kobi1-top",
-   "label": "Kobi 1 top / Kobi 2 bottom",
+   "label": "Truso top / Kobi bottom",
    "ll": [
     42.531783,
     44.493454
    ],
    "ends": [
     {
-     "lift": "Kobi 1",
+     "lift": "Truso",
      "liftId": 665084641,
      "end": "top"
     },
     {
-     "lift": "Kobi 2",
+     "lift": "Kobi",
      "liftId": 665084640,
      "end": "bottom"
     }
@@ -541,14 +541,14 @@
   },
   {
    "id": "kobi1-bottom",
-   "label": "Kobi 1 bottom",
+   "label": "Truso bottom",
    "ll": [
     42.556724,
     44.497523
    ],
    "ends": [
     {
-     "lift": "Kobi 1",
+     "lift": "Truso",
      "liftId": 665084641,
      "end": "bottom"
     }

@@ -427,7 +427,7 @@
   },
   {
    "id": "firni-top",
-   "label": "Firni top / Kobi 2 top",
+   "label": "Firni top / Kobi top",
    "ends": [
     "663643826:top",
     "665084640:top"
@@ -435,7 +435,7 @@
   },
   {
    "id": "kobi1-top",
-   "label": "Kobi 1 top / Kobi 2 bottom",
+   "label": "Truso top / Kobi bottom",
    "ends": [
     "665084641:top",
     "665084640:bottom"
@@ -443,7 +443,7 @@
   },
   {
    "id": "kobi1-bottom",
-   "label": "Kobi 1 bottom",
+   "label": "Truso bottom",
    "ends": [
     "665084641:bottom"
    ]
