@@ -80,7 +80,7 @@ import java.time.LocalDateTime
 import kotlin.random.Random
 
 /** Where the home page's signs and buttons lead (MainActivity turns them into routes). */
-enum class HomeAction { MAP, MEET, GAMES, GROUP, ABOUT, TRIP, STATUS, PRIVACY }
+enum class HomeAction { MAP, MEET, GAMES, GROUP, ABOUT, TRIP, STATUS, PRIVACY, RECORD }
 
 /**
  * The home page (round 10, H1 to H4; decision 36): the sky and the view from the village by the hour in Gudauri,
@@ -95,7 +95,9 @@ fun HomeScreen(trip: Trip?, frame: DayNight.Frame, mode: DayNight.Mode, now: Loc
                /** The account on the pass (A-32): null while accounts are not ready; else me (null when not signed in). */
                account: Account? = null,
                /** Round 20: the pass is the form; a field filled on it saves the trip here (null: "edit" opens the form). */
-               onTrip: ((Trip) -> Unit)? = null, go: (HomeAction) -> Unit) {
+               onTrip: ((Trip) -> Unit)? = null,
+               /** The ski day (round 29): the red "Record" sign at the top of the signs, where the build and the data allow it. */
+               record: Boolean = false, go: (HomeAction) -> Unit) {
     val c = Ski.colors
     // the field of the pass being filled (round 20), its sheet over home
     var edit by remember { mutableStateOf<PassEdit?>(null) }
@@ -144,7 +146,8 @@ fun HomeScreen(trip: Trip?, frame: DayNight.Frame, mode: DayNight.Mode, now: Loc
             }
             // round 20: the signs without a line under them; a member's group (its name and how many are in it, the
             // site's groupBoardSub) is data and stays
-            SignPost(listOf(
+            SignPost(listOfNotNull(
+                if (record) SignSpec(stringResource(R.string.app_rec_sign), stringResource(R.string.app_rec_sign_sub), Color(0xFFE5322D), Color.White, .94f) { go(HomeAction.RECORD) } else null,
                 SignSpec(stringResource(R.string.nav_map), null, c.blue, c.onBoard, .90f) { go(HomeAction.MAP) },
                 SignSpec(stringResource(R.string.nav_meet), null, SignColors.gold, SignColors.ink, .82f) { go(HomeAction.MEET) },
                 SignSpec(stringResource(R.string.nav_games), null, c.green, c.onBoard, .86f) { go(HomeAction.GAMES) },

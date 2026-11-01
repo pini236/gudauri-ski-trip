@@ -172,6 +172,39 @@ class MainActivity : ComponentActivity() {
     private lateinit var siteData: SiteData
 
     private var scene by mutableStateOf<MapScene?>(null)
+    /** The ski day (round 29): the explainer before the system's location question, and what was asked of it. */
+    private var recExplain by mutableStateOf(false)
+    private var recSingle = false
+    private val recPermissions = registerForActivityResult(androidx.activity.result.contract.ActivityResultContracts.RequestMultiplePermissions()) { r ->
+        when {
+            r[android.Manifest.permission.ACCESS_FINE_LOCATION] == true -> record(recSingle)
+            r[android.Manifest.permission.ACCESS_COARSE_LOCATION] == true -> android.widget.Toast.makeText(this, R.string.app_rec_err_precise, android.widget.Toast.LENGTH_LONG).show()
+            else -> android.widget.Toast.makeText(this, R.string.app_rec_err_perm, android.widget.Toast.LENGTH_LONG).show()
+        }
+    }
+
+    /** "Record": the ski day starts at once, from anywhere (round 29); the screen only has to say what is in the way. */
+    private fun record(single: Boolean) {
+        recSingle = single
+        when (DayRec.start(this, run = single)) {
+            DayRec.Start.Started, DayRec.Start.Already -> if (nav.top !is Route.Day) nav.push(Route.Day)
+            DayRec.Start.NeedPermission -> recExplain = true
+            DayRec.Start.NeedPrecise -> android.widget.Toast.makeText(this, R.string.app_rec_err_precise, android.widget.Toast.LENGTH_LONG).show()
+            DayRec.Start.NoLocation -> android.widget.Toast.makeText(this, R.string.app_rec_err_off, android.widget.Toast.LENGTH_LONG).show()
+        }
+    }
+
+    /** From all day to one descent, or back, in the first moments (the choice at the top of the live screen): a new recording. */
+    private fun switchRecording(single: Boolean) {
+        inBackground {
+            DayRec.stop(this)
+            var waited = 0
+            while (DayRec.recording && waited < 100) { Thread.sleep(100); waited++ }
+            // a day that was just begun and thrown away is not a day: nothing worth keeping in it
+            DayRec.store(this).days().lastOrNull()?.takeIf { f -> f.length() < 20_000 }?.let { DayRec.store(this).delete(it) }
+            runOnUiThread { record(single) }
+        }
+    }
     /** The meeting point's stations (from the same data as the map), and its top view, read the first time it opens. */
     private var meetPlan by mutableStateOf<MeetPlan?>(null)
     /** The runs' videos (site/data/videos-seed.json), for the run's panel (13.3). */
@@ -722,6 +755,8 @@ class MainActivity : ComponentActivity() {
         LaunchedEffect(statusSheet) { if (statusSheet) Qa.log("status board ${if (lstat.fresh) "live" else "snowy"}") }
         // screen_view with the contract's screen names (docs/GROWTH.md); a chosen run is run_open, not a screen. The way
         // into the groups (A1) is "signin" when nobody is signed in on this phone.
+        // the ski day's entry points (round 29): only where the build and the site's data both allow it
+        val dayUi = remember { DayFeature.visible(runCatching { siteData.read("resorts.json") }.getOrNull()) }
         val screen = when (top) {
             Route.Home -> "home"; is Route.Map -> "map"; is Route.Meet -> "meet"; Route.Games -> "games"; Route.Trip -> "trip"
             // the licenses are a part of about (the contract has no screen for them)
@@ -731,6 +766,7 @@ class MainActivity : ComponentActivity() {
             Route.GroupNew, is Route.GroupInvite, is Route.TripFor -> "group"
             is Route.Join, Route.JoinCode, is Route.Reclaim -> "join"
             Route.Account -> "account"
+            Route.Day -> "day"
             else -> null
         }
         LaunchedEffect(screen) {
@@ -747,16 +783,21 @@ class MainActivity : ComponentActivity() {
           androidx.compose.runtime.CompositionLocalProvider(io.github.pini236.skiapp.weather.LocalWeather provides
               remember(forecast, tick) { io.github.pini236.skiapp.weather.WeatherNow(forecast, Instant.ofEpochMilli(tick)) }) {
             Box(Modifier.fillMaxSize().background(if (spike) Palette.snow else Ski.colors.snow)) {
+                if (recExplain) io.github.pini236.skiapp.dayrec.ui.PermissionSheet(
+                    onGo = { recExplain = false; recPermissions.launch(arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION, android.Manifest.permission.ACCESS_COARSE_LOCATION)) },
+                    onDismiss = { recExplain = false })
                 when (top) {
                     Route.Home -> HomeScreen(trip, frame, dnMode, LocalDateTime.ofInstant(Instant.ofEpochMilli(tick), ZoneId.systemDefault()), haptics, sounds, status = lstat, group = firstGroup,
                         onLang = ::setLang,
                         onMode = ::nextMode,
+                        record = dayUi,
                         account = account,
                         onTrip = { t -> keepTrip(t); Qa.log("trip saved") },
                         go = { a ->
                             haptics.tick(.4f)
                             if (a == HomeAction.STATUS) statusSheet = true
                             if (a == HomeAction.PRIVACY) { openPrivacy(); return@HomeScreen }
+                            if (a == HomeAction.RECORD) { record(false); return@HomeScreen }
                             nav.push(when (a) {
                                 HomeAction.MAP, HomeAction.STATUS -> Route.Map(nav.find<Route.Map>()?.run)
                                 HomeAction.MEET -> Route.Meet()
@@ -764,7 +805,7 @@ class MainActivity : ComponentActivity() {
                                 HomeAction.GROUP -> Route.Group()
                                 HomeAction.ABOUT -> Route.About
                                 HomeAction.TRIP -> Route.Trip
-                                HomeAction.PRIVACY -> Route.Home
+                                HomeAction.PRIVACY, HomeAction.RECORD -> Route.Home
                             })
                         })
                     Route.Trip -> TripForm(trip, LocalDateTime.ofInstant(Instant.ofEpochMilli(tick), ZoneId.systemDefault()).toLocalDate(), onSave = { t -> keepTrip(t); Qa.log("trip saved"); nav.back() },
@@ -837,10 +878,14 @@ class MainActivity : ComponentActivity() {
                         onResetBests = { Bests.reset(this@MainActivity); Qa.log("bests reset") }, onLicenses = { nav.push(Route.Licenses) }) { nav.back() }
                     Route.Licenses -> io.github.pini236.skiapp.home.LicensesScreen(onOpen = { nav.push(Route.License(it)) }) { nav.back() }
                     is Route.License -> io.github.pini236.skiapp.home.LicenseScreen(top.name) { nav.back() }
+                    Route.Day -> io.github.pini236.skiapp.dayrec.ui.DayLiveScreen(
+                        liftName = { id -> scene?.runs?.lifts?.firstOrNull { it.id == id }?.name ?: id },
+                        onSwitch = ::switchRecording, onStop = { DayRec.stop(this@MainActivity); nav.back() }, onBack = { nav.back() })
                     else -> {
                         MapScreen(mapView, scene, videos = videos, ms = MapStatus(lstat, changes, LiftStatus.inSeason(LocalDateTime.ofInstant(Instant.ofEpochMilli(tick), ZoneId.systemDefault()).monthValue),
                             forMe, { on -> forMe = on; Telemetry.event("status_only_open", mapOf("on" to on)); Qa.log("for me ${if (on) "on" else "off"}") },
-                            statusSheet, { open -> statusSheet = open }), dark = frame.dark, relief = relief, askRelief = ::askRelief)
+                            statusSheet, { open -> statusSheet = open }), dark = frame.dark, relief = relief, askRelief = ::askRelief,
+                            onRecord = if (dayUi) ({ record(false) }) else null)
                         // on the map the counter sits under the bar of the view switch and the lift status, and from above
                         // (no 3D to count) it is not shown
                         if (showStats && (top is Route.Game || !io.github.pini236.skiapp.map.MapMode.top))

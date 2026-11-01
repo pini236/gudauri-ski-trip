@@ -43,6 +43,8 @@ sealed interface Route {
     /** Typing the code (Q4). */
     data object JoinCode : Route { override val path = "join" }
     data object Account : Route { override val path = "account" }
+    /** The ski day's live screen (round 29); the recording itself is the foreground service's. */
+    data object Day : Route { override val path = "day" }
 
     companion object {
         private val NAME = Regex("[a-z0-9-]{1,40}")
@@ -104,6 +106,7 @@ sealed interface Route {
                     else -> null
                 }
                 "account" -> if (parts.size == 1) Account else null
+                "day" -> if (parts.size == 1) Day else null
                 else -> null
             }
         }

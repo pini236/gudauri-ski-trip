@@ -114,7 +114,7 @@ class DayRecService : Service() {
             else DayLog.create(store.newFile(now), DayParams.TZ, DayParams.RESORT, DayStore.device(), now, mode = if (run) "run" else "day")
         } catch (e: Exception) { Qa.log("dayrec cannot write: ${e.javaClass.simpleName}"); abort(); return }
         DayRec.current = log!!.file
-        DayRec.live = null; DayRec.ride = null; DayRec.sofar = null
+        DayRec.live = null; DayRec.ride = null; DayRec.sofar = null; DayRec.speedNow = null; DayRec.since = 0L; DayRec.single = false
         clockOffset = System.currentTimeMillis() - SystemClock.elapsedRealtime()
         impacts = ImpactBuffer(DayParams.FALL_TRIGGER_G, DayParams.FALL_PRE_S, DayParams.FALL_POST_S, DayParams.FALL_DEBOUNCE_S, DayParams.FALL_HZ) { t, t0, hz, a, g ->
             runCatching { log?.impact(t, t0, hz, a, g) }
@@ -173,6 +173,7 @@ class DayRecService : Service() {
             bearing = if (l.hasBearing()) l.bearing.toDouble() else null, motion = motion.take()?.toDouble(),
         )
         log.add(point)
+        DayRec.speedNow = point.speed; DayRec.since = firstAt; DayRec.single = runMode
         analyse(point)
         if (stopping) return
         if (log.atLimit) { finish(DayRec.REASON_FULL); return }

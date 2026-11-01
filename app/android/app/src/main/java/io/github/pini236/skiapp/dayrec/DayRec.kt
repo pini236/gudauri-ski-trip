@@ -44,6 +44,12 @@ object DayRec {
     /** The whole day so far, smoothed (every [DayRecService.FINAL_EVERY_MS]); the live view's numbers come from [live]. */
     @Volatile var sofar: io.github.pini236.skiapp.dayrec.analysis.Analyzer.DayResult? = null; internal set
 
+    /** The speed of the last reading in m/s (null: none yet, or the phone could not say), for the live screen. */
+    @Volatile var speedNow: Double? = null; internal set
+    /** When the first reading of this recording came (epoch ms; 0: none yet), and whether it is a single descent. */
+    @Volatile var since = 0L; internal set
+    @Volatile var single = false; internal set
+
     fun store(ctx: Context) = DayStore(ctx.applicationContext.filesDir)
 
     /** [run]: a recording of one descent, which stops by itself at the bottom (docs/FEATURES.md section 10, 1a). */

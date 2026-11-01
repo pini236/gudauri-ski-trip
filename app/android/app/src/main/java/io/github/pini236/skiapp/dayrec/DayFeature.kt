@@ -1,5 +1,6 @@
 package io.github.pini236.skiapp.dayrec
 
+import io.github.pini236.skiapp.BuildConfig
 import org.json.JSONObject
 
 /**
@@ -14,4 +15,10 @@ object DayFeature {
         (0 until all.length()).map { all.getJSONObject(it) }.firstOrNull { it.optString("id") == resort }
             ?.optJSONArray("features")?.let { f -> (0 until f.length()).any { f.optString(it) == DayParams.FEATURE } } ?: false
     }.getOrDefault(false)
+
+    /**
+     * What the screens ask: the capability, and the build. The store build keeps the ski day's screens hidden even though the
+     * site's data lists the capability (that data is already on), until the Play declaration and the privacy line are out.
+     */
+    fun visible(resortsJson: String?): Boolean = BuildConfig.DAYREC_UI && enabled(resortsJson)
 }
