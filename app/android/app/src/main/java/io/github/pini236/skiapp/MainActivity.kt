@@ -180,7 +180,7 @@ class MainActivity : ComponentActivity() {
     private var cutDay by mutableStateOf<java.io.File?>(null)
     // the system's question, by the classic call (the new one needs a newer Fragment library than the app carries)
     @Deprecated("the platform's callback")
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode != REC_PERMISSION) return
         fun granted(p: String) = permissions.indexOf(p).let { it >= 0 && grantResults.getOrNull(it) == android.content.pm.PackageManager.PERMISSION_GRANTED }
