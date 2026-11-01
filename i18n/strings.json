@@ -17025,6 +17025,294 @@
     "ru",
     "ka"
    ]
+  },
+  "app.day_title": {
+   "he": "היום שלך",
+   "en": "Your day",
+   "ru": "Ваш день",
+   "ka": "თქვენი დღე",
+   "where": "app/android",
+   "note": "יום הגלישה (סבב 29, החלטה 77): title of the end-of-day screen",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.day_sum_descents": {
+   "he": "ירידות",
+   "en": "descents",
+   "ru": "спусков",
+   "ka": "დაშვება",
+   "where": "app/android",
+   "note": "יום הגלישה (סבב 29, החלטה 77): summary number",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.day_sum_drop": {
+   "he": "מ' ירידה",
+   "en": "m descent",
+   "ru": "м спуска",
+   "ka": "მ დაშვება",
+   "where": "app/android",
+   "note": "יום הגלישה (סבב 29, החלטה 77): summary number",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.day_sum_max": {
+   "he": "קמ\"ש מרבית, הערכה",
+   "en": "km/h top, estimate",
+   "ru": "км/ч макс., оценка",
+   "ka": "კმ/სთ მაქს., შეფასება",
+   "where": "app/android",
+   "note": "יום הגלישה (סבב 29, החלטה 77): summary number: the maximum is an estimate, never a promise",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.day_morning": {
+   "he": "בוקר",
+   "en": "Morning",
+   "ru": "Утро",
+   "ka": "დილა",
+   "where": "app/android",
+   "note": "יום הגלישה (סבב 29, החלטה 77): chapter of the timeline",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.day_afternoon": {
+   "he": "אחר הצהריים",
+   "en": "Afternoon",
+   "ru": "После обеда",
+   "ka": "შუადღის შემდეგ",
+   "where": "app/android",
+   "note": "יום הגלישה (סבב 29, החלטה 77): chapter of the timeline",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.day_n_descents": {
+   "he": "{n} ירידות",
+   "en": "{n} descents",
+   "ru": "спусков: {n}",
+   "ka": "დაშვებები: {n}",
+   "where": "app/android",
+   "note": "יום הגלישה (סבב 29, החלטה 77): count in a chapter head",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.day_queue": {
+   "he": "תור {min} דק'",
+   "en": "Queue {min} min",
+   "ru": "Очередь {min} мин",
+   "ka": "რიგი {min} წთ",
+   "where": "app/android",
+   "note": "יום הגלישה (סבב 29, החלטה 77): a wait for a lift of three minutes or more",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.day_rest": {
+   "he": "הפסקה · {min} דק'",
+   "en": "Break · {min} min",
+   "ru": "Перерыв · {min} мин",
+   "ka": "შესვენება · {min} წთ",
+   "where": "app/android",
+   "note": "יום הגלישה (סבב 29, החלטה 77): a rest of ten minutes or more",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.day_lunch": {
+   "he": "הפסקה ארוכה · {min} דק'",
+   "en": "Long break · {min} min",
+   "ru": "Долгий перерыв · {min} мин",
+   "ka": "გრძელი შესვენება · {min} წთ",
+   "where": "app/android",
+   "note": "יום הגלישה (סבב 29, החלטה 77): a long stop, a meal",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.day_walk": {
+   "he": "ברגל · {m} מ'",
+   "en": "On foot · {m} m",
+   "ru": "Пешком · {m} м",
+   "ka": "ფეხით · {m} მ",
+   "where": "app/android",
+   "note": "יום הגלישה (סבב 29, החלטה 77): a walk of 150 m or more",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.day_off": {
+   "he": "חלק מחוץ למסלולים",
+   "en": "Part off the runs",
+   "ru": "Часть вне трасс",
+   "ka": "ნაწილი ტრასებს გარეთ",
+   "where": "app/android",
+   "note": "יום הגלישה (סבב 29, החלטה 77): a descent that left the runs: no name is given",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.day_loading": {
+   "he": "מנתחים את היום…",
+   "en": "Working out your day…",
+   "ru": "Разбираем ваш день…",
+   "ka": "ვაანალიზებთ თქვენს დღეს…",
+   "where": "app/android",
+   "note": "יום הגלישה (סבב 29, החלטה 77): while the result is computed",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.day_empty": {
+   "he": "בהקלטה הזו אין ירידות.",
+   "en": "There are no descents in this recording.",
+   "ru": "В этой записи нет спусков.",
+   "ka": "ამ ჩანაწერში დაშვებები არ არის.",
+   "where": "app/android",
+   "note": "יום הגלישה (סבב 29, החלטה 77): a recording that was short or off the runs",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.day_pin": {
+   "he": "פה טסת",
+   "en": "Top speed",
+   "ru": "Здесь вы летели",
+   "ka": "აქ გაფრინდით",
+   "where": "app/android",
+   "note": "יום הגלישה (סבב 29, החלטה 77): pin on the map at the place of the top speed",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.day_note": {
+   "he": "צבע הקו הוא המהירות. המהירות המרבית היא הערכה.",
+   "en": "The colour of the line is the speed. The top speed is an estimate.",
+   "ru": "Цвет линии — скорость. Максимальная скорость — оценка.",
+   "ka": "ხაზის ფერი სიჩქარეა. მაქსიმალური სიჩქარე შეფასებაა.",
+   "where": "app/android",
+   "note": "יום הגלישה (סבב 29, החלטה 77): under the map",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.days_title": {
+   "he": "הימים שלי",
+   "en": "My days",
+   "ru": "Мои дни",
+   "ka": "ჩემი დღეები",
+   "where": "app/android",
+   "note": "יום הגלישה (סבב 29, החלטה 77): the history of recorded days, kept on the phone only",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.days_empty": {
+   "he": "עוד אין ימים. יום שמקליטים נשמר כאן, בטלפון בלבד.",
+   "en": "No days yet. A day you record is kept here, on the phone only.",
+   "ru": "Пока нет дней. Записанный день хранится здесь, только в телефоне.",
+   "ka": "ჯერ დღეები არ არის. ჩაწერილი დღე ინახება აქ, მხოლოდ ტელეფონში.",
+   "where": "app/android",
+   "note": "יום הגלישה (סבב 29, החלטה 77): empty history",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.days_item": {
+   "he": "{n} ירידות · {max} קמ\"ש",
+   "en": "{n} descents · {max} km/h",
+   "ru": "спусков: {n} · {max} км/ч",
+   "ka": "დაშვებები: {n} · {max} კმ/სთ",
+   "where": "app/android",
+   "note": "יום הגלישה (סבב 29, החלטה 77): a day in the list: how many descents, the top speed (an estimate)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.days_cut": {
+   "he": "היום נקטע",
+   "en": "The day was cut short",
+   "ru": "День был прерван",
+   "ka": "დღე შეწყდა",
+   "where": "app/android",
+   "note": "יום הגלישה (סבב 29, החלטה 77): a day without a result",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.days_delete": {
+   "he": "מחיקה",
+   "en": "Delete",
+   "ru": "Удалить",
+   "ka": "წაშლა",
+   "where": "app/android",
+   "note": "יום הגלישה (סבב 29, החלטה 77): delete one day",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.days_delete_sure": {
+   "he": "למחוק את היום? נגיעה נוספת מוחקת.",
+   "en": "Delete this day? Tap again to delete.",
+   "ru": "Удалить этот день? Нажмите ещё раз.",
+   "ka": "წავშალოთ ეს დღე? კიდევ ერთხელ შეეხეთ.",
+   "where": "app/android",
+   "note": "יום הגלישה (סבב 29, החלטה 77): second tap",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.days_delete_all": {
+   "he": "מחיקת הכל",
+   "en": "Delete everything",
+   "ru": "Удалить всё",
+   "ka": "ყველაფრის წაშლა",
+   "where": "app/android",
+   "note": "יום הגלישה (סבב 29, החלטה 77): delete all days and their history",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.days_delete_all_sure": {
+   "he": "למחוק את כל הימים וההיסטוריה? נגיעה נוספת מוחקת.",
+   "en": "Delete all days and the history? Tap again to delete.",
+   "ru": "Удалить все дни и историю? Нажмите ещё раз.",
+   "ka": "წავშალოთ ყველა დღე და ისტორია? კიდევ ერთხელ შეეხეთ.",
+   "where": "app/android",
+   "note": "יום הגלישה (סבב 29, החלטה 77): second tap",
+   "check": [
+    "ru",
+    "ka"
+   ]
   }
  }
 }

@@ -767,6 +767,7 @@ class MainActivity : ComponentActivity() {
             is Route.Join, Route.JoinCode, is Route.Reclaim -> "join"
             Route.Account -> "account"
             Route.Day -> "day"
+            is Route.DayOf, Route.Days -> "day"
             else -> null
         }
         LaunchedEffect(screen) {
@@ -798,6 +799,7 @@ class MainActivity : ComponentActivity() {
                             if (a == HomeAction.STATUS) statusSheet = true
                             if (a == HomeAction.PRIVACY) { openPrivacy(); return@HomeScreen }
                             if (a == HomeAction.RECORD) { record(false); return@HomeScreen }
+                            if (a == HomeAction.DAYS) { nav.push(Route.Days); return@HomeScreen }
                             nav.push(when (a) {
                                 HomeAction.MAP, HomeAction.STATUS -> Route.Map(nav.find<Route.Map>()?.run)
                                 HomeAction.MEET -> Route.Meet()
@@ -805,7 +807,7 @@ class MainActivity : ComponentActivity() {
                                 HomeAction.GROUP -> Route.Group()
                                 HomeAction.ABOUT -> Route.About
                                 HomeAction.TRIP -> Route.Trip
-                                HomeAction.PRIVACY, HomeAction.RECORD -> Route.Home
+                                HomeAction.PRIVACY, HomeAction.RECORD, HomeAction.DAYS -> Route.Home
                             })
                         })
                     Route.Trip -> TripForm(trip, LocalDateTime.ofInstant(Instant.ofEpochMilli(tick), ZoneId.systemDefault()).toLocalDate(), onSave = { t -> keepTrip(t); Qa.log("trip saved"); nav.back() },
@@ -880,7 +882,15 @@ class MainActivity : ComponentActivity() {
                     is Route.License -> io.github.pini236.skiapp.home.LicenseScreen(top.name) { nav.back() }
                     Route.Day -> io.github.pini236.skiapp.dayrec.ui.DayLiveScreen(
                         liftName = { id -> scene?.runs?.lifts?.firstOrNull { it.id == id }?.name ?: id },
-                        onSwitch = ::switchRecording, onStop = { DayRec.stop(this@MainActivity); nav.back() }, onBack = { nav.back() })
+                        onSwitch = ::switchRecording, onBack = { nav.back() },
+                        onStop = {
+                            // the day that ends is shown at once; its screen waits for the recorder to close it
+                            val id = DayRec.current?.name?.removePrefix("day-")?.removeSuffix(".jsonl")
+                            DayRec.stop(this@MainActivity)
+                            if (id != null) nav.replaceTop(Route.DayOf(id)) else nav.back()
+                        })
+                    Route.Days -> io.github.pini236.skiapp.dayrec.ui.DaysScreen(onOpen = { id -> nav.push(Route.DayOf(id)) }) { nav.back() }
+                    is Route.DayOf -> io.github.pini236.skiapp.dayrec.ui.DayViewScreen(DayRec.store(this@MainActivity).newFile(top.id.toLong()), scene?.runs) { nav.back() }
                     else -> {
                         MapScreen(mapView, scene, videos = videos, ms = MapStatus(lstat, changes, LiftStatus.inSeason(LocalDateTime.ofInstant(Instant.ofEpochMilli(tick), ZoneId.systemDefault()).monthValue),
                             forMe, { on -> forMe = on; Telemetry.event("status_only_open", mapOf("on" to on)); Qa.log("for me ${if (on) "on" else "off"}") },

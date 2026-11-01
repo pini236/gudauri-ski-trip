@@ -80,7 +80,7 @@ import java.time.LocalDateTime
 import kotlin.random.Random
 
 /** Where the home page's signs and buttons lead (MainActivity turns them into routes). */
-enum class HomeAction { MAP, MEET, GAMES, GROUP, ABOUT, TRIP, STATUS, PRIVACY, RECORD }
+enum class HomeAction { MAP, MEET, GAMES, GROUP, ABOUT, TRIP, STATUS, PRIVACY, RECORD, DAYS }
 
 /**
  * The home page (round 10, H1 to H4; decision 36): the sky and the view from the village by the hour in Gudauri,
@@ -156,6 +156,7 @@ fun HomeScreen(trip: Trip?, frame: DayNight.Frame, mode: DayNight.Mode, now: Loc
             ))
             // the site's two links at the bottom of home
             Column(Modifier.padding(start = 16.dp, end = 16.dp, top = 28.dp, bottom = 24.dp)) {
+                if (record) HomeLink(stringResource(R.string.app_days_title)) { go(HomeAction.DAYS) }
                 HomeLink(stringResource(R.string.home_about_link)) { go(HomeAction.ABOUT) }
                 HomeLink(stringResource(R.string.home_privacy_link)) { go(HomeAction.PRIVACY) }
             }
