@@ -64,7 +64,15 @@ final class AppModel {
 
     init() {
         let data = { (name: String) in Bundle.main.url(forResource: name, withExtension: "json", subdirectory: "Data") }
-        runs = data("runs-and-lifts").flatMap { try? Data(contentsOf: $0) }.flatMap { try? RunsAndLifts.decode($0) }
+        // the runs and lifts: a copy refreshed from the site if one passed the checks, else the packaged one
+        let appVersion = (Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "0") + "." + (Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "0")
+        let store = SiteDataStore(
+            dir: FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0].appendingPathComponent("sitedata", isDirectory: true),
+            appVersion: appVersion,
+            packaged: { name in Bundle.main.url(forResource: String(name.dropLast(5)), withExtension: "json", subdirectory: "Data").flatMap { try? Data(contentsOf: $0) } })
+        runs = store.read("runs-and-lifts.json").flatMap { try? RunsAndLifts.decode($0) }
+        // new data is read at the next launch, never swapped under the user's feet; nothing is fetched in the screenshots' runs
+        if UserDefaults.standard.string(forKey: "qaRoute") == nil { Task.detached { await store.refresh() } }
         terrainURL = data("terrain")
         let names = runs.map { LiftStatus.names($0.mainLifts) } ?? []
         let now = Int64(Date().timeIntervalSince1970 * 1000)
