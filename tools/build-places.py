@@ -29,6 +29,19 @@ CURATED = ROOT / "tools" / "places-curated.json"
 CACHE = ROOT / "tools" / "places-osm-cache.json"
 LIFTS = ROOT / "site" / "data" / "runs-and-lifts.json"
 DEFAULT_OUT = ROOT / "research" / "places" / "places.json"
+# The lean file is what clients get (architect, 1.11.2026). Until round 31 is approved it
+# stays here; on approval the target is site/data/places.json.
+DEFAULT_LEAN = ROOT / "research" / "places" / "places.lean.json"
+LEAN_DROP = ("sources", "note", "override", "alsoOsm", "nameLocal", "edited", "checked", "sub", "osm")
+
+
+def lean(out):
+    res = json.loads(json.dumps(out))
+    res.pop("notes", None)
+    for p in res["places"]:
+        for k in LEAN_DROP:
+            p.pop(k, None)
+    return res
 
 KEEP_TAGS = ("name", "name:en", "amenity", "cuisine", "seasonal", "check_date", "status", "building", "tourism")
 KIND_BY_AMENITY = {
@@ -204,16 +217,20 @@ def main():
         return refresh()
     out = build()
     text = json.dumps(out, ensure_ascii=False, indent=1) + "\n"
+    lean_text = json.dumps(lean(out), ensure_ascii=False, separators=(",", ":")) + "\n"
     dst = DEFAULT_OUT
     if "--out" in sys.argv:
         dst = Path(sys.argv[sys.argv.index("--out") + 1])
+    lean_dst = DEFAULT_LEAN if "--out" not in sys.argv else dst.with_name(dst.stem + ".lean.json")
     if "--check" in sys.argv:
-        if not dst.exists() or dst.read_text() != text:
-            fail("%s is out of date; run tools/build-places.py" % dst)
+        for f, t in ((dst, text), (lean_dst, lean_text)):
+            if not f.exists() or f.read_text() != t:
+                fail("%s is out of date; run tools/build-places.py" % f)
         print("ok")
         return
     dst.parent.mkdir(parents=True, exist_ok=True)
     dst.write_text(text)
+    lean_dst.write_text(lean_text)
     some = sum(1 for s in out["stations"] if s["info"] == "some")
     print("%d places, %d stations (%d with places, %d no information) -> %s"
           % (len(out["places"]), len(out["stations"]), some, len(out["stations"]) - some, dst))
