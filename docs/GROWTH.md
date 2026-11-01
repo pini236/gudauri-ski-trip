@@ -65,7 +65,7 @@
 | אירוע | מתי | מאפיינים |
 |---|---|---|
 | `app_open` | פתיחה (באתר: טעינה ראשונה של הדף; באנדרואיד, מ־7.10.2026: פתיחה קרה פעם אחת לתהליך, וגם חזרה מהרקע עם `cold: false`; יצירה מחדש של מסך בגלל סיבוב או שינוי שפה אינה פתיחה נוספת) | `source`: `direct`, `link`, `share_link` (קישור עם `utm_medium=share`, שהאפליקציה או האתר שיתפו), `store` (הפתיחה הראשונה של התקנה מגוגל פליי, עם `utm_source`, `utm_medium`, `utm_campaign` מהקישור לחנות, אם יש), `notification`; `cold`: true/false (באפליקציה); `first_open`: true/false (באנדרואיד, לפי הגדרת ההתקנה הטרייה למעלה) |
-| `screen_view` | כל מעבר מסך | `screen`: `home`, `map`, `meet`, `games`, `about`, `privacy`, `game`, `trip` (טופס "הטיול שלך", באפליקציה מ-2.10.2026 ובאתר מ-2.10.2026), `signin`, `account`, `join`, `group` (כניסה, חשבון, הזמנה וקבוצה; באתר ובאנדרואיד מ-2.10.2026); `game` כשהמסך הוא משחק |
+| `screen_view` | כל מעבר מסך | `screen`: `home`, `map`, `meet`, `games`, `about`, `privacy`, `support` (דף התמיכה, באתר מ-31.10.2026), `game`, `trip` (טופס "הטיול שלך", באפליקציה מ-2.10.2026 ובאתר מ-2.10.2026), `signin`, `account`, `join`, `group` (כניסה, חשבון, הזמנה וקבוצה; באתר ובאנדרואיד מ-2.10.2026); `game` כשהמסך הוא משחק |
 | `lang_set` | בחירת שפה בהגדרות | `lang`, `previous` |
 | `theme_set` | לחיצה על כפתור יום ולילה | `mode`: `auto`, `day`, `night` |
 | `resort_set` | בחירת אתר סקי אחר בבורר (סבב 23, החלטה 68; באתר) | `resort`, `from` |
@@ -104,6 +104,15 @@
 | `ad_request` | שליחת בקשה לפרסום | `category` (מהרשימה, לא טקסט חופשי) |
 
 **אחרי שלב 13.5 (חשבונות וקבוצה)** נוספים, בלי מזהים (באנדרואיד מ-2.10.2026, `group/MeasuredGroupApi.kt`, אחרי שהפעולה הצליחה; `group_join` רק כשנכנסים, לא כשהבקשה מחכה למנהל): `sign_in` (`method`: `google`, `apple`, `guest`), `sign_out`, `account_delete`, `group_create`, `group_join` (`via`: `code`, `link`), `group_leave`, `meetup_create` (`reminder`: true/false). לא נשלח מזהה קבוצה ולא מספר החברים המדויק.
+
+**מתוכנן: הסיפור של היום** (אנליסט הנתונים, 31.10.2026, לפי `docs/AI-PRODUCT.md`, הזדמנות 1, והקובץ `docs/handoff/2026-10-30-dayrec-moments-copy/README.md`). **עוד לא בקוד ועוד לא בלוח.** לפני המימוש: בדיקת פרטיות אצל התפקיד המשפטי, וסקירת הארכיטקט. הם נכנסים לקוד רק אחרי שפיני מאשר את מסכי הסיפור.
+
+| אירוע | מתי | מאפיינים |
+|---|---|---|
+| `story_view` | הסיפור של היום מוצג (מסך סוף היום, או פתיחה מהכרטיס על הרכבל) | `moments`: מספר הרגעים בסיפור (0 עד 3); `surface`: `end_of_day`, `lift_card` |
+| `story_share` | הסיפור יצא בשיתוף | `method`: `whatsapp`, `image`, `native`, `copy`; `top`: **סוג** הרגע הראשון בכרטיס, מתוך הרשימה הסגורה `fastest`, `longest_descent`, `first_color`, `new_runs`, `record`, `all_color`, `queue`, `queue_pattern`, `vs_day`, `flow`, `favorite`, `time_split`, `steepest`, `drop_compare`, `tomorrow`, `trip`, ובכל מקרה אחר `other` |
+
+**הגבולות של `top`:** רק שם סוג הרגע. **אף פעם** לא שם מסלול או רכבל, צבע, מהירות, מרחק, גובה, שעה או מיקום, גם לא כחלק מהערך: למשל `first_color` ולא `first_color.red`, ו-`record` ולא סוג השיא. נפילה ואוף-פיסט (`fall`, `offpiste`) לא נשלחים בשמם אלא כ-`other`, כי הם נשארים אצל הגולש (`docs/AI-PRODUCT.md`, שאלה 5). **המדד:** שיתופים מתוך הצפיות, לפי `top`, כדי ללמוד איזו תובנה אנשים משתפים (יעד ראשון 15 עד 20 אחוז, שם).
 
 **שגיאות וקריסות** הולכות ל-Sentry, לא ל-PostHog (אלא אם בשלד יוחלט על כלי אחד, `docs/APP-NATIVE.md`).
 

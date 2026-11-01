@@ -28,6 +28,9 @@ struct GudiApp: App {
                     await model.pollStatus()
                 }
                 .onOpenURL { url in
+                    // app_open's source: a link the app or the site shared (utm_medium=share), or any other link
+                    Telemetry.shared.opened(by: Measure.source(of: url))
+                    if MeetLink.parse(url: url.absoluteString)?.station != nil { Telemetry.shared.event("meet_link_open") }
                     // an invitation (/j/<token>, /join/<code>, #join/<code>) opens the group's door; anything else the map or meeting point
                     if let r = GroupService.route(for: url) { model.path = [r] } else { model.open(url) }
                 }
@@ -36,8 +39,14 @@ struct GudiApp: App {
                 switch p {
                 case .active:
                     Task { await GroupService.shared.flush() }
-                    Telemetry.shared.event("app_open", ["source": "direct", "cold": !opened])
-                    if !opened { Telemetry.shared.screen("home") }
+                    let cold = !opened
+                    // a moment later, so the link or the reminder that opened the app has arrived (onOpenURL, the
+                    // notification's delegate) and app_open carries it
+                    Task { @MainActor in
+                        try? await Task.sleep(for: .milliseconds(600))
+                        Telemetry.shared.appOpen(cold: cold)
+                    }
+                    if cold { Telemetry.shared.screen("home") }
                     opened = true
                 case .background: Telemetry.shared.flush()
                 default: break

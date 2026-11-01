@@ -282,7 +282,7 @@ struct OverviewMap: View {
         for p in model.runs.pistes where !hidden.contains(p.key) {
             for l in p.lines { let d = dist(l, mx, my); if d <= 12 * tol, d < (best?.1 ?? .infinity) { best = (p, d) } }
         }
-        if let best { model.select(best.0.key); Fx.shared.tick(); return }
+        if let best { model.select(best.0.key, via: "map"); Fx.shared.tick(); return }
         if !model.hideLifts {
             var bl: (Lift, Double)?
             for l in model.runs.lifts { let d = dist(l.line, mx, my); if d <= 10 * tol, d < (bl?.1 ?? .infinity) { bl = (l, d) } }

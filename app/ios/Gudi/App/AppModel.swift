@@ -47,6 +47,8 @@ final class AppModel {
     var statusSheet = false
     /// The last weather answer (round 19), kept on the phone.
     var forecast: Forecast?
+    /// The lift report was read at least once (status_view goes after the first answer, as on Android).
+    var statusLoaded = false
     /// The lift the trail map should frame and open when it next opens ("see on the trail map" from the meeting point);
     /// the map clears it once read.
     var mapLift: String?
@@ -131,6 +133,7 @@ final class AppModel {
                 report = await StatusSource.load(inSeason: LiftStatus.inSeason(month: month), now: now)
             }
             status = LiftStatus(names: status.names, report: report, now: now)
+            statusLoaded = true
             if qaWeather == nil, let f = await WeatherSource.load(now: now) { forecast = f }
             try? await Task.sleep(for: .seconds(60))
         }
