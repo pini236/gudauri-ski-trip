@@ -34,7 +34,7 @@
 | דמויות מלוות | `design/characters/` (סקיצות; לקנבס דרך מעצב המוצר) | פנוי (הסשן האחרון: `session_017QrNw86vUyxUKoiBbbEDcS`) | | שלב ב: סקיצות הכיוון בקנבס, עמוד "סבב 32: דמות מלווה" (גרסה 91), ממתין לפיני |
 | קנבס: שפה עיצובית חדשה | `design/language/` וקנבס נפרד (https://claude.ai/artifact/9yxrGgytb2Gmi4i1UqEhST) | פנוי (חמש השפות מוכנות, ממתין לבחירה של פיני) | | |
 | אפל: חשבון ו-App Store | `docs/APPLE.md` | סשן ליווי החשבון | `session_01AjoD5yuhiyvk3kHGBuQVt1` | צעדים 1 עד 5 בוצעו (21.10.2026, Team ID `ZX5CTJ88UA`, DSA: לא סוחר, המזהה והאפליקציה ב-App Store Connect); הבא: תעודה, פרופיל, מפתח API וסודות |
-| תשתיות ו-CI | `.github/workflows/`, `docs/OPERATIONS.md` | איש ה-DevOps (קבוע) | `session_01B7WsKFuWhyvYcU9VQLfMRW` | (החלטה 66) צנרת האמולטור (ניסיון חוזר, `auto`, זוגות חלקים) בענף `claude/ops-qa`; `ios-release.yml` ממוזג. שירותים חיים: קריאה בלבד |
+| תשתיות ו-CI | `.github/workflows/`, `docs/OPERATIONS.md` | איש ה-DevOps (קבוע) | `session_01B7WsKFuWhyvYcU9VQLfMRW` | (החלטה 66) צנרת האמולטור (ניסיון חוזר, `auto`, זוגות חלקים) ו-`ios-release.yml` ו-`ios-store-shots.yml` (צילומי App Store) ממוזגים. שירותים חיים: קריאה בלבד |
 | ארכיטקטורה | `docs/ARCHITECTURE.md`, `docs/ROLE-ARCHITECT.md` | ארכיטקט המערכת (קבוע) | `session_01JUxNys6FzfkFTAFyHbYdCe` | קו הבסיס הושלם (`docs/ARCHITECTURE.md`). מ-2, מ-6 ו-מ-7 אושרו (החלטה 58); החוזה של `/api/weather` ו-`/api/status` אושר עם תיקונים (5.10.2026). זמין לשאלות ולסקירות תכנון |
 | יום הגלישה: אלגוריתם | `tools/dayrec/`, `tools/fixtures/dayrec-*` | פנוי (הסשן האחרון: `session_017QrNw79sojt4mVesBZ6HbJ`) | | נסיעה ברכב, מנוע הרגעים (30.10.2026) ופקודת יום מהשטח (`field.py`, 31.10.2026) בענף הראשי; הבא: האנדרואיד והאייפון מממשים מול `dayrec-moments.json`, והנוסחים בקובץ השפות אחרי הטון של פיני |
 | מפה תלת-ממדית: מבנים | `research/3d-buildings.md`, `design/round30/`, `site/data/buildings.json` | סשן ההיתכנות | `session_017QrNwACAZiKEHHSCgbVj19` | (החלטה 77, 31.10.2026) ה-POC אושר בכיוון ריאליסטי: תמונות אמיתיות לכל בניין ממקורות פתוחים, צבעים, גגות, הרחבה ושלג; סקירה חוזרת אצל הארכיטקט לפני קוד |
@@ -459,6 +459,8 @@
 - `vercel.json` נמצא ב-`site/` ולא בשורש, כי ה-Root Directory ב-Vercel הוא `site`.
 
 ## יומן
+
+- 1.11.2026: **תשתיות: צנרת צילומי App Store לאייפון ושיפורי האמולטור ב-`main`.** `ios-store-shots.yml` מצלם את `app/ios/qa/store/store.txt` בשני הגדלים של אפל, בלי ערוץ אלפא, בלי סודות ובלי חתימה (הפירוט ב-`docs/OPERATIONS.md`, יומן). שיפורי האמולטור (`claude/ops-qa`) מוזגו אחרי ריצה ירוקה. הבא: סשן האייפון מריץ ובוחר צילומים לפיני.
 
 - 1.11.2026: **ארכיטקט: מנוע הרגעים גרסה 2 נסקר בדיעבד, מאושר** בלי תנאים חדשים (היסטוריה עם מספרים ומפתחות בלבד, `trip` כ-`{start, last}`, הקלטה שמתחילה באמצע). `docs/ARCHITECTURE.md`. לא שונה קוד.
 
