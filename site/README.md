@@ -10,6 +10,7 @@
 | `vercel.json` | כותרות אבטחה (כולל מדיניות אבטחת התוכן, R-3), `noindex` ומטמון לנתונים. Vercel קורא אותו מתיקיית ה-Root, שהיא `site`; השרת המקומי (`tools/serve.mjs`) שולח את אותן כותרות |
 | `app.html` | הקישור הקצר לאפליקציה (`/app`, סבב 28, החלטה 75), לשיתוף: בראשו תגיות התצוגה בעברית (וואטסאפ קורא רק את 300 הקילובייט הראשונים, ובדף של גוגל פליי הן מופיעות אחרי כמגה-בייט), ו-`js/app-link.js` מעביר לגוגל פליי עם `utm_medium=app_link` ו-`utm_source` מ-`?s=` (ברירת מחדל `share`). באייפון מציע את המפה באתר. עיצוב משלו, `css/app-link.css`, ו-`noindex` |
 | `privacy.html` | מדיניות הפרטיות (`/privacy`, באנגלית `/privacy#en`). **לא עורכים כאן:** נבנה מ-`docs/PRIVACY.md` בפקודה `python3 tools/build-privacy.py` |
+| `sitemap.xml` | **לא עורכים כאן:** נבנה בפקודה `python3 tools/build-sitemap.py` (כל שפה בכתובת משלה, `hreflang`; בדיקה ב-`tests/seo.spec.ts`) |
 | `support.html` | דף התמיכה (`/support`, סבב 33), באותה מעטפת של דף הפרטיות ועם `js/privacy.js`. **לא עורכים כאן:** נבנה מ-`support.*` ב-`i18n/strings.json` בפקודה `python3 tools/build-support.py` |
 | `og.jpg` | תמונת שיתוף (מקור ב-`../design/round27/og.py`, הפקודה `python3 design/round27/og.py --site`) |
 | `favicon.svg`, `favicon-32.png`, `apple-touch-icon.png` | הסמל בלשונית ובמסך הבית: סמל האפליקציה (סבב 9, מס׳ 10), מאותו מקור (`../design/round9/export.py`, הפקודה `python3 design/round9/export.py --site`) |

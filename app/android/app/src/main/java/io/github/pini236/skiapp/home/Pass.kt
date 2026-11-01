@@ -162,7 +162,7 @@ private fun RowScope.Main(p: PassInk, strip: String, date: String, body: @Compos
     Column(Modifier.weight(1f).fillMaxHeight().shadow(10.dp, shape, ambientColor = Color(0x33000000), spotColor = Color(0x33000000))
         .clip(shape).background(p.paper).paperGrain(p.dark)) {
         Row(Modifier.fillMaxWidth().background(p.strip).padding(horizontal = 16.dp, vertical = 7.dp), verticalAlignment = Alignment.CenterVertically) {
-            Text(strip, Modifier.weight(1f), style = Ski.type.label.copy(fontSize = 12.sp, letterSpacing = .04.em), color = p.onStrip, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            Text(strip, Modifier.weight(1f), style = Ski.type.label.copy(fontSize = 12.sp, letterSpacing = .04.em), color = p.onStrip, maxLines = 2, overflow = TextOverflow.Ellipsis)
             Text(date, style = Ski.type.label.copy(fontSize = 12.sp, letterSpacing = .04.em, textDirection = TextDirection.Ltr), color = p.onStrip)
         }
         Column(Modifier.padding(start = 16.dp, end = 16.dp, top = 10.dp, bottom = 12.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {

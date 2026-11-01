@@ -35,6 +35,7 @@ HEAD = ('<!doctype html>\n<html lang="he" dir="rtl">\n<meta charset="utf-8">\n'
         '<link rel="icon" href="../../favicon-32.png" type="image/png" sizes="32x32">\n'
         '<link rel="icon" href="../../favicon.svg" type="image/svg+xml">\n'
         '<link rel="apple-touch-icon" href="../../apple-touch-icon.png">\n'
+        '{search}'
         '<style>[hidden]{{display:none!important}}</style>\n'
         '<script src="../../js/i18n.js" data-base="../../i18n/" data-file="game-{key}"></script>\n'
         '<script src="../../js/prefs.js"></script>\n'
@@ -54,6 +55,17 @@ LABELS = {
 }
 
 
+SITE = 'https://gudauri-ski-trip.vercel.app'
+
+
+def search_links(slug):
+    """canonical and hreflang for search engines (1.11.2026): the plain address is the x-default and the canonical, and each
+    language has its own address, ?lang=xx (js/i18n.js points the canonical of those at themselves). Same as tools/build-sitemap.py."""
+    url = f'{SITE}/games/{slug}/'
+    alt = ''.join(f'<link rel="alternate" hreflang="{l}" href="{url}?lang={l}">\n' for l in ('he', 'en', 'ru', 'ka'))
+    return f'<link rel="canonical" href="{url}">\n{alt}<link rel="alternate" hreflang="x-default" href="{url}">\n'
+
+
 def build(slug, src, place):
     folder = root / src
     if (folder / 'build.py').exists():
@@ -71,7 +83,7 @@ def build(slug, src, place):
         assert html.count(tag) == 1, f'{slug}: {tag} was not found once'
         html = html.replace(tag, tag[:-1] + f' data-i18n-attr="aria-label:{k}">')
     # a full document head: the games were written for the artifact viewer, which adds these itself
-    html = HEAD.format(key=key) + html
+    html = HEAD.format(key=key, search=search_links(slug)) + html
     # the link's style goes right after the page's own styles, so the title stays in the first lines
     html = html.replace('</style>', '</style>\n' + STYLE, 1)
     dest = out / slug

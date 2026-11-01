@@ -1,6 +1,6 @@
 {
   "_doc": "The New Gudauri buildings POC (decision 77). Footprints come from OpenStreetMap only (osm-buildings.json). This file adds what the map does not have: height source, look (colours, roof, facade) and where each look came from. Photos are never stored; each source is a fact with a link and a date. 'fill' = completed from the village's style, no photo of this building. See research/3d-buildings.md, section 7.",
-  "center": [42.4695, 44.4915],
+  "center": [42.4697, 44.4906],
   "radius": 520,
   "sources": {
     "korter-alpic": {"what": "korter.ge, Alpic page: facade photos and drone photos of New Gudauri in snow (viewed only)", "url": "https://korter.ge/en/alpic-gudauri", "date": "2026-10-31"},
@@ -37,10 +37,12 @@
     "w545676995": {"style": "chalet-c", "hsrc": "estimate", "levels": 5, "lsrc": "photo", "src": "korter-aerial"},
     "w542272940": {"style": "station", "hsrc": "estimate", "levels": 2, "lsrc": "fill", "note": "Goodaura bottom station building"},
     "w1424986577": {"style": "kiosk", "hsrc": "estimate", "levels": 1, "lsrc": "fill"},
-    "w1424986579": {"style": "kiosk", "hsrc": "estimate", "levels": 1, "lsrc": "fill"},
     "w542272944": {"hsrc": "estimate", "levels": 2, "lsrc": "fill"}
   },
   "default_levels": 5,
+  "levels_by_area": [[60, 1], [180, 2], [450, 3]],
+  "small_area": 100,
+  "small_style": "kiosk",
   "road_widths": {"trunk": 9, "secondary": 8, "tertiary": 7, "unclassified": 6, "residential": 6.5, "living_street": 5, "service": 4.5},
   "lamps": {"classes": ["residential", "service", "unclassified"], "every": 32, "side": 5.5, "clear_building": 4, "clear_run": 15}
 }
