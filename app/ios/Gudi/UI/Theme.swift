@@ -72,15 +72,15 @@ struct SkiType {
         return Font(UIFont(descriptor: d, size: size))
     }
 
-    /// Body text follows the phone's text size (Dynamic Type) from the size the canvas drew at the default ("Large"),
+    /// TEMPORARILY fixed size (text growth with Dynamic Type made the group screen larger than main at the default size, cause unknown; see STATUS 1.11.2026). Intended: body text follows the phone's text size from the size the canvas drew at the default ("Large"),
     /// so nothing changes at the default. The app caps it at the largest size before the accessibility sizes, and the
     /// parts drawn as art (home, the boarding pass, the games, the maps) keep the default size (`fixedType()`).
     /// The display face (signs, big numbers) stays fixed.
     func text(_ size: CGFloat, _ weight: Font.Weight = .regular) -> Font {
         switch lang {
-        case .he: return .custom(weight == .regular ? "IBMPlexSansHebrew-Regular" : "IBMPlexSansHebrew-Bold", size: size, relativeTo: .body)
-        case .en, .ru: return .custom("IBM Plex Sans", size: size, relativeTo: .body).weight(weight)
-        case .ka: return .custom("Noto Sans Georgian", size: size, relativeTo: .body).weight(weight)
+        case .he: return .custom(weight == .regular ? "IBMPlexSansHebrew-Regular" : "IBMPlexSansHebrew-Bold", fixedSize: size)
+        case .en, .ru: return .custom("IBM Plex Sans", fixedSize: size).weight(weight)
+        case .ka: return .custom("Noto Sans Georgian", fixedSize: size).weight(weight)
         }
     }
 }
