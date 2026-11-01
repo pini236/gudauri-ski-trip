@@ -578,9 +578,14 @@ function ensure3d(){
     v3.setTheme(isDark());DN.paint(false); // the 3D light follows the time in Gudauri, like the home page
     v3.filter(hidden);if(current&&byKey[current]){v3.select(current);v3.paint(current,0);}
     try{LSTAT.applyMap();}catch(e){} // the lift status, if it came before the 3D view
+    if(RESORT.isDefault()&&new URLSearchParams(location.search).get('b3d')==='1')loadB3d(); // the New Gudauri buildings, a POC behind a flag (decision 77)
     return true;
   }catch(e){console.warn('3D unavailable',e);v3=null;if(!ensure3d.told){ensure3d.told=1;track('map_fallback',{reason:'no_webgl'});}return false;}
 }
+// the buildings POC: its code and data come only with ?b3d=1, and only when the 3D view exists (after the elevation model)
+function loadB3d(){const s=document.createElement('script');s.src='js/buildings3d.js';
+  s.onload=()=>{try{window.GudBuildings.attach(v3,{url:'data/buildings.json',T,dark:isDark});}catch(e){console.warn('buildings unavailable',e);}};
+  document.head.appendChild(s);}
 function setView(m,save){
   if(m==='3d'&&!ensure3d())m='2d';view=m;
   m3.hidden=m!=='3d';svg.style.visibility=m==='3d'?'hidden':'';

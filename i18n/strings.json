@@ -1066,6 +1066,121 @@
     "ka"
    ]
   },
+  "b3d.building": {
+   "he": "בניין",
+   "en": "Building",
+   "ru": "Здание",
+   "ka": "შენობა",
+   "where": "site/js/buildings3d.js",
+   "note": "a building without a name",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "b3d.close": {
+   "he": "סגירה",
+   "en": "Close",
+   "ru": "Закрыть",
+   "ka": "დახურვა",
+   "where": "site/js/buildings3d.js",
+   "note": "aria-label",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "b3d.h_estimate": {
+   "he": "גובה: משוער",
+   "en": "Height: estimated",
+   "ru": "Высота: оценка",
+   "ka": "სიმაღლე: შეფასებული",
+   "where": "site/js/buildings3d.js",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "b3d.h_osm": {
+   "he": "גובה: מהמפה הפתוחה",
+   "en": "Height: from OpenStreetMap",
+   "ru": "Высота: из OpenStreetMap",
+   "ka": "სიმაღლე: OpenStreetMap-იდან",
+   "where": "site/js/buildings3d.js",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "b3d.h_photo": {
+   "he": "גובה: {n} קומות, נספרו בתמונה",
+   "en": "Height: {n} storeys, counted on a photo",
+   "ru": "Высота: по фото, этажей: {n}",
+   "ka": "სიმაღლე: {n} სართული, ფოტოს მიხედვით",
+   "where": "site/js/buildings3d.js",
+   "note": "{n} = storeys",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "b3d.l_fill": {
+   "he": "מראה: השלמה לפי סגנון הכפר",
+   "en": "Look: completed in the village's style",
+   "ru": "Вид: дополнен в стиле посёлка",
+   "ka": "იერსახე: შევსებული სოფლის სტილით",
+   "where": "site/js/buildings3d.js",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "b3d.l_photo": {
+   "he": "מראה: לפי תמונה",
+   "en": "Look: from a photo",
+   "ru": "Вид: по фото",
+   "ka": "იერსახე: ფოტოს მიხედვით",
+   "where": "site/js/buildings3d.js",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "b3d.legend": {
+   "he": "מבנים: הדמיה, לא צילום",
+   "en": "Buildings: a rendering, not a photo",
+   "ru": "Здания: визуализация, а не фото",
+   "ka": "შენობები: ვიზუალიზაცია და არა ფოტო",
+   "where": "site/js/buildings3d.js",
+   "note": "legend line in the 3D map, ?b3d=1",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "b3d.note": {
+   "he": "הדמיה, לא צילום. קווי המתאר מהמפה הפתוחה",
+   "en": "A rendering, not a photo. Outlines from OpenStreetMap",
+   "ru": "Визуализация, а не фото. Контуры из OpenStreetMap",
+   "ka": "ვიზუალიზაცია და არა ფოტო. კონტურები OpenStreetMap-იდან",
+   "where": "site/js/buildings3d.js",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "b3d.show_estimated": {
+   "he": "מה משוער",
+   "en": "What is estimated",
+   "ru": "Что оценено",
+   "ka": "რა არის შეფასებული",
+   "where": "site/js/buildings3d.js",
+   "note": "toggle button, short",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
   "common.about_settings": {
    "he": "אודות והגדרות",
    "en": "About & settings",
