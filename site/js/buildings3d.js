@@ -15,7 +15,7 @@ const SNOW='#f5f8fb',SNOW_SHADE='#e7ecf2';
 function attach(view,opts){
   const X=view.ext,THREE=X.THREE,T=window.T||(k=>k);
   let data=null,loading=false,group=null,deco=null,decoOn=true,meta=[],card=null,legend=null,fadeOn=false,mats=[];
-  const tick=[];   // frame intervals, for the slow-frame fallback
+  const tick=[];let tapOn=false;   // frame intervals, for the slow-frame fallback
 
   X.minDist(140);  // the village needs a closer camera than the mountain
 
@@ -34,6 +34,13 @@ function attach(view,opts){
       // only while the camera moves (gaps over 200 ms are idle time, not slow frames)
       const m=d[15];if(m<200&&m>33){decoOn=false;deco.forEach(o=>o.visible=false);console.info('b3d: decorations off, median frame',m.toFixed(0),'ms');}}
   }
+  // leaving the map frees everything (the architect's condition: the canvas texture is disposed); it loads again on return
+  function dispose(){if(!group)return;X.scene.remove(group);
+    group.traverse(o=>{if(o.geometry)o.geometry.dispose();});
+    mats.forEach(m=>{if(m.map)m.map.dispose();m.dispose();});
+    if(legend)legend.remove();if(card)card.remove();
+    group=null;deco=null;data=null;loading=false;mats=[];meta=[];legend=card=null;decoOn=true;tick.length=0;delete X.host.dataset.b3dTriangles;}
+  window.addEventListener('hashchange',()=>{if(!/^#map/.test(location.hash))dispose();});
   function load(){loading=true;fetch(opts.url).then(r=>r.ok?r.json():null).then(j=>{if(!j||j.schema!==1)return;data=j;build();view.request();}).catch(e=>console.warn('b3d:',e));}
 
   /* ---------- the facade atlas ---------- */
@@ -136,7 +143,7 @@ function attach(view,opts){
     group.userData.tri=tri;
     X.host.dataset.b3dTriangles=String(Math.round(tri)); // for the tests and the frame budget
     if(tri>40000)console.warn('b3d: over the triangle budget',tri);
-    ui();X.onTap(tap);
+    ui();if(!tapOn){tapOn=true;X.onTap(tap);}
   }
   // a polygon moved inward by d (negative: outward), corners mitred and clamped
   function offset(P,d){const n=P.length,o=[];const ccw=area(P)>0?1:-1;

@@ -67,5 +67,9 @@ test('with ?b3d=1: the village in 3D, the legend, a building says its sources', 
   const fade = page.locator('.b3d-fade');
   await fade.click();
   await expect(fade).toHaveAttribute('aria-pressed', 'true');
+  // leaving the map frees it all (the texture is disposed); nothing stays on the page
+  await page.evaluate(() => { location.hash = '#home'; });
+  await expect(page.locator('.b3d-legend')).toHaveCount(0);
+  await expect(page.locator('#map3d')).not.toHaveAttribute('data-b3d-triangles', /\d/);
   expect(errors).toEqual([]);
 });
