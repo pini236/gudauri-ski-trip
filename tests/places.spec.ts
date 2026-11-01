@@ -34,11 +34,20 @@ async function loaded(page: Page) {
 const withFile = (page: Page, body: unknown = FILE) =>
   page.route('**/data/places.json', r => r.fulfill({ contentType: 'application/json', body: JSON.stringify(body) }));
 
+// the lift panel opens from the meeting card ("see on the routes map"): the run panel no longer lists lifts (round 20)
+async function openLift(page: Page) {
+  await page.goto('/?lang=en#meet/158744075b/0930/20270111');
+  await loaded(page);
+  await page.locator('#meetOnMap').click();
+  await expect(page.locator('#panel h2')).toContainText('Goodaura');
+}
+
 test('places: dots on the map, the chip turns them into tags, and a cafe on the slope gets its own ring', async ({ page }) => {
   const errors = watchErrors(page);
   await withFile(page);
   await page.goto('/?lang=en#map');
   await loaded(page);
+  await page.locator('#viewsw [data-view="2d"]').click(); // the map opens on the 3D view; the layer is drawn on the top view
   const station = page.locator('.pl-pins .pl-st:not(.slope)');
   await expect(station).toHaveCount(1); // the station with no information gets no dot
   await expect(station.locator('.pl-dot')).toHaveCount(4); // one dot for each kind that is there
@@ -50,7 +59,7 @@ test('places: dots on the map, the chip turns them into tags, and a cafe on the 
   await expect(chip).toHaveAttribute('aria-pressed', 'true');
   await expect(station.locator('b')).toHaveText('5');
   await expect(page.locator('.pl-pins .pl-st.slope bdi')).toHaveText('Slope Cafe');
-  // the 3D view draws no layer of its own
+  // the 3D view draws no layer of its own, and the chip brings the top view back
   await page.locator('#viewsw [data-view="3d"]').click();
   await expect(page.locator('.pl-pins')).toBeHidden();
   expect(errors).toEqual([]);
@@ -59,9 +68,7 @@ test('places: dots on the map, the chip turns them into tags, and a cafe on the 
 test('places: the lift panel tells what is near the top and the bottom, three first and then all of them', async ({ page }) => {
   const errors = watchErrors(page);
   await withFile(page);
-  await page.goto('/?lang=en#map/run/Tatra%202');
-  await loaded(page);
-  await page.locator('#panel [data-lift="158744075"]').first().click();
+  await openLift(page);
   const top = page.locator('#panel .pl-near').nth(0), bottom = page.locator('#panel .pl-near').nth(1);
   await expect(top).toContainText('Near the top station');
   await expect(top).toContainText('No information on places here'); // not "nothing here"
@@ -98,9 +105,8 @@ test('places: no file, no layer; and a kind this version does not know is ignore
   await expect(page.locator('.pl-pins')).toHaveCount(0);
   const odd = JSON.parse(JSON.stringify(FILE)); odd.places[0].kind = 'sauna';
   await page.unroute('**/data/places.json'); await withFile(page, odd);
-  await page.goto('/?lang=en#map/run/Tatra%202');
-  await loaded(page);
-  await page.locator('#panel [data-lift="158744075"]').first().click();
+  await page.goto('about:blank'); // a hash-only change would keep the page that has no file
+  await openLift(page);
   await expect(page.locator('#panel .pl-near').nth(1)).not.toContainText('Test Grill');
   expect(errors).toEqual([]);
 });

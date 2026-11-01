@@ -1263,7 +1263,9 @@ var PL=(function(){
     PLD.places.filter(q=>q.slope&&kindOf(q)).forEach(q=>{const[x,y]=at(q.ll[0],q.ll[1]);
       const g=document.createElement('div');g.className='pl-st slope';g.style.left=x+'px';g.style.top=y+'px';
       g.innerHTML=dot(q.kind);if(tags)g.insertAdjacentHTML('beforeend',`<bdi>${esc(label(q))}</bdi>`);pins.append(g);});}
-  chip.onclick=()=>{tags=!tags;chip.setAttribute('aria-pressed',String(tags));layout();};
+  chip.onclick=()=>{tags=!tags;chip.setAttribute('aria-pressed',String(tags));
+    if(tags){const b=document.querySelector('#viewsw [data-view="2d"]');if(b&&b.getAttribute('aria-pressed')!=='true')b.click();} // drawn on the top view, like the weather
+    layout();};
   document.getElementById('viewsw').addEventListener('click',()=>requestAnimationFrame(layout));
   return {liftBlock,meet,layout};
 })();

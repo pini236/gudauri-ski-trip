@@ -30,6 +30,7 @@ on:
           - tests/privacy.spec.ts
           - tests/resorts.spec.ts
           - tests/seo.spec.ts
+          - tests/places.spec.ts
           - tests/slope.spec.ts
           - tests/smoke.spec.ts
           - tests/snow.spec.ts
