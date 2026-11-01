@@ -57,7 +57,7 @@ jobs:
         run: |
           python3 - <<'PYTHON'
           import json, os, subprocess
-          allowed = "map,descent,games,school,snowball,home,group,meet,status,run,locate,weather,lang,phone,store".split(",")
+          allowed = "map,descent,games,school,snowball,home,group,meet,status,run,locate,weather,lang,phone,store,bigtext".split(",")
           scenario = os.environ["QA_SCENARIO"].strip()
           quick = os.environ["QA_QUICK_DEBUG"] == "true"
           if quick and scenario in ("all", "auto"):

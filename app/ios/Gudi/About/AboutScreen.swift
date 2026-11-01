@@ -98,6 +98,8 @@ struct AboutScreen: View {
                     AboutCredit(label: nil, text: S.aboutCreditMta)
                     HStack(spacing: 0) {
                         AboutLink(text: S.appAboutPrivacy) { openURL(Site.privacy(ski.type.lang)) }
+                        Text(" · ").font(ski.type.text(13)).foregroundStyle(c.muted)
+                        AboutLink(text: S.aboutSupport) { openURL(Site.support(ski.type.lang)) }
                         Text(" · " + S.aboutUnofficial).font(ski.type.text(13)).foregroundStyle(c.muted)
                     }
                     Text(S.appAboutVersion(v: Self.version)).font(ski.type.text(12)).foregroundStyle(c.muted)

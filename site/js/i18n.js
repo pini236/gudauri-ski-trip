@@ -47,6 +47,14 @@
   }
   function load(l){return fetch(BASE+(FILE?FILE+'.':'')+l+'.json').then(function(r){if(!r.ok)throw new Error('i18n '+l+' '+r.status);return r.json();});}
   var dom=new Promise(function(ok){if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',ok,{once:true});else ok();});
+  // Search engines (1.11.2026): the page opened with ?lang=xx is its own address in that language, listed in the pages' hreflang
+  // links and in sitemap.xml, so its canonical points to itself (the static one is the plain address, the x-default). A page
+  // of a ski resort in testing (?resort=) keeps the static one: robots.txt keeps those out of search.
+  dom.then(function(){
+    if(!LANGS[q]||/[?&]resort=/.test(location.search))return;
+    var cn=document.querySelector('link[rel="canonical"]');if(!cn)return;
+    try{var cu=new URL(cn.href);cu.search='?lang='+q;cn.href=cu.toString();}catch(e){}
+  });
   // Resolves after the page's own words are in place, so app.js can build on top of them.
   var ready=Promise.all([load(lang).catch(function(){return lang==='he'?{strings:{}}:load('he');}).catch(function(){return {strings:{}};}),dom]).then(function(r){
     S=r[0].strings||{};

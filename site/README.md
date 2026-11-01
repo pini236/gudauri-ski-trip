@@ -10,6 +10,8 @@
 | `vercel.json` | כותרות אבטחה (כולל מדיניות אבטחת התוכן, R-3), `noindex` ומטמון לנתונים. Vercel קורא אותו מתיקיית ה-Root, שהיא `site`; השרת המקומי (`tools/serve.mjs`) שולח את אותן כותרות |
 | `app.html` | הקישור הקצר לאפליקציה (`/app`, סבב 28, החלטה 75), לשיתוף: בראשו תגיות התצוגה בעברית (וואטסאפ קורא רק את 300 הקילובייט הראשונים, ובדף של גוגל פליי הן מופיעות אחרי כמגה-בייט), ו-`js/app-link.js` מעביר לגוגל פליי עם `utm_medium=app_link` ו-`utm_source` מ-`?s=` (ברירת מחדל `share`). באייפון מציע את המפה באתר. עיצוב משלו, `css/app-link.css`, ו-`noindex` |
 | `privacy.html` | מדיניות הפרטיות (`/privacy`, באנגלית `/privacy#en`). **לא עורכים כאן:** נבנה מ-`docs/PRIVACY.md` בפקודה `python3 tools/build-privacy.py` |
+| `sitemap.xml` | **לא עורכים כאן:** נבנה בפקודה `python3 tools/build-sitemap.py` (כל שפה בכתובת משלה, `hreflang`; בדיקה ב-`tests/seo.spec.ts`) |
+| `support.html` | דף התמיכה (`/support`, סבב 33), באותה מעטפת של דף הפרטיות ועם `js/privacy.js`. **לא עורכים כאן:** נבנה מ-`support.*` ב-`i18n/strings.json` בפקודה `python3 tools/build-support.py` |
 | `og.jpg` | תמונת שיתוף (מקור ב-`../design/round27/og.py`, הפקודה `python3 design/round27/og.py --site`) |
 | `favicon.svg`, `favicon-32.png`, `apple-touch-icon.png` | הסמל בלשונית ובמסך הבית: סמל האפליקציה (סבב 9, מס׳ 10), מאותו מקור (`../design/round9/export.py`, הפקודה `python3 design/round9/export.py --site`) |
 | `css/site.css` | כל העיצוב. הצבעים מוגדרים כמשתנים ב-`:root` |
@@ -19,6 +21,7 @@
 | `js/prefs.js` | ההגדרות של צליל ורטט (`gud-prefs` בזיכרון הדפדפן). נטען ראשון באתר ובכל משחק, ומשתיק צליל או רטט אם כובו |
 | `js/app.js` | הסקריפט הראשי: טעינת הנתונים (מודל הגובה ברקע, ו-three.js רק כשנכנסים למפה, R-11), הניווט בין הדפים, המפה הדו-ממדית, פאנל הפרטים, סינון, כרטיס הטיסה וסרטונים |
 | `js/account.js` | חשבונות וקבוצות (סבב 12): כניסה, חשבון, מחיקת חשבון, הזמנה וקבוצה, מול השרת (`server/CONTRACT.md`). אורח לא פונה לשרת |
+| `js/buildings3d.js` | מבנים בתלת-ממד ב-New Gudauri (POC, החלטה 77): נטען רק עם `?b3d=1`, ורק כשהמצלמה ליד הכפר. הנתונים ב-`data/buildings.json`, נבנים ב-`python3 tools/build-buildings.py` מ-`tools/buildings/`. הפירוט ב-`research/3d-buildings.md`, סעיף 8 |
 | `js/vendor/supabase-2.117.2.js` | הספרייה הרשמית של סופבייס (MIT), נטענת רק כשיש חיבור או כשמצטרפים |
 | `js/vendor/three-r128.min.js`, `posthog-1.436.1.no-external.js`, `sentry-8.38.0.min.js` | three.js (MIT), PostHog (MIT, הגרסה בלי תוספים חיצוניים) ו-Sentry (MIT), בגרסה נעוצה, מהאתר עצמו ולא משרת אחר (R-3). שדרוג: להחליף את הקובץ ואת השם בקוד |
 | `js/privacy.js`, `games/<שם>/game.js` | הסקריפטים של דף הפרטיות ושל כל משחק, בקובץ נפרד, כי המדיניות לא מריצה סקריפט שכתוב בתוך הדף. נבנים בכלים, לא עורכים כאן |

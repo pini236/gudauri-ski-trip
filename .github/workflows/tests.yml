@@ -5,9 +5,9 @@ name: tests
 
 on:
   push:
-    paths: ['site/**', 'tests/**', 'package.json', 'package-lock.json', 'playwright.config.ts', 'docs/PRIVACY.md', 'i18n/**', 'tools/check-site-i18n.py', 'tools/build-privacy.py', 'tools/build-site-strings.py', 'tools/build-games.py', 'design/games/**', 'design/round4/game/**', '.github/workflows/tests.yml']
+    paths: ['site/**', 'tests/**', 'package.json', 'package-lock.json', 'playwright.config.ts', 'docs/PRIVACY.md', 'i18n/**', 'tools/check-site-i18n.py', 'tools/build-privacy.py', 'tools/build-support.py', 'tools/build-sitemap.py', 'tools/build-site-strings.py', 'tools/build-games.py', 'design/games/**', 'design/round4/game/**', '.github/workflows/tests.yml']
   pull_request:
-    paths: ['site/**', 'tests/**', 'package.json', 'package-lock.json', 'playwright.config.ts', 'docs/PRIVACY.md', 'i18n/**', 'tools/check-site-i18n.py', 'tools/build-privacy.py', 'tools/build-site-strings.py', 'tools/build-games.py', 'design/games/**', 'design/round4/game/**', '.github/workflows/tests.yml']
+    paths: ['site/**', 'tests/**', 'package.json', 'package-lock.json', 'playwright.config.ts', 'docs/PRIVACY.md', 'i18n/**', 'tools/check-site-i18n.py', 'tools/build-privacy.py', 'tools/build-support.py', 'tools/build-sitemap.py', 'tools/build-site-strings.py', 'tools/build-games.py', 'design/games/**', 'design/round4/game/**', '.github/workflows/tests.yml']
   workflow_dispatch:
     inputs:
       project:
@@ -29,9 +29,11 @@ on:
           - tests/locate.spec.ts
           - tests/privacy.spec.ts
           - tests/resorts.spec.ts
+          - tests/seo.spec.ts
           - tests/slope.spec.ts
           - tests/smoke.spec.ts
           - tests/snow.spec.ts
+          - tests/support.spec.ts
           - tests/telemetry.spec.ts
           - tests/trip.spec.ts
           - tests/weather.spec.ts
@@ -63,7 +65,9 @@ jobs:
           python3 tools/build-site-strings.py
           python3 tools/build-games.py
           python3 tools/build-privacy.py
-          git diff --exit-code -- site/ || { echo "::error::Run tools/build-site-strings.py, tools/build-games.py and tools/build-privacy.py, and commit what changed"; exit 1; }
+          python3 tools/build-support.py
+          python3 tools/build-sitemap.py
+          git diff --exit-code -- site/ || { echo "::error::Run tools/build-site-strings.py, tools/build-games.py, tools/build-privacy.py, tools/build-support.py and tools/build-sitemap.py, and commit what changed"; exit 1; }
 
   playwright:
     name: >-

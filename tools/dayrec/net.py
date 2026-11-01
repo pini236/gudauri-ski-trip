@@ -215,7 +215,9 @@ class Net:
         self.runs = {}  # key: color, kind, named (the moments: "the first red", "all the blues")
         for run in rl['pistes']:
             named = run.get('named') in (True, 'True', 'true')
-            self.runs[run['key']] = {'color': run.get('color'), 'kind': run.get('kind', 'run'), 'named': named}
+            self.runs[run['key']] = {'color': run.get('color'), 'kind': run.get('kind', 'run'), 'named': named,
+                                     'from_lifts': list(run.get('fromLifts') or []),
+                                     'steep_g': self._steep_g(run)}
             for s in run['segs']:
                 line = Line([self.proj.xy(la, lo) for la, lo in s['g']])
                 self.pistes.append(Piste(len(self.pistes), run['key'], named, s['id'], line, bool(s.get('area'))))
@@ -237,6 +239,28 @@ class Net:
                 self.roads.append(Line(pts))
         self.road_grid = Grid(self.roads)
         self._labels()
+
+    def _steep_g(self, run):
+        """The steepest ~100 m stretch of a run as a grade: the rule of the run panel (site/js/relief.js R.stats, over
+        the lines that are not an area or a tunnel), so the moments show the same number as the run panel."""
+        best = 0.0
+        for seg in run['segs']:
+            if seg.get('area') or seg.get('tunnel') or len(seg['g']) < 2:
+                continue
+            s, acc, prev = [], 0.0, None
+            for la, lo in seg['g']:
+                x, y = self.proj.xy(la, lo)
+                if prev:
+                    acc += math.hypot(x - prev[0], y - prev[1])
+                s.append((acc, self.terrain.elev(x, y))); prev = (x, y)
+            j = 0
+            for i in range(len(s)):
+                while j < len(s) - 1 and s[j][0] - s[i][0] < 100:
+                    j += 1
+                dl = s[j][0] - s[i][0]
+                if dl >= 80:
+                    best = max(best, abs(s[j][1] - s[i][1]) / dl)
+        return best
 
     def near_pistes(self, x, y, r):
         """[(piste index, distance)] for the lines within r metres."""
