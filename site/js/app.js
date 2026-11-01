@@ -1239,7 +1239,7 @@ var PL=(function(){
     const it=items(st);el.hidden=false;
     el.textContent=it.length>3?T('places.meet_count',{n:it.length}):T('places.meet_names',{names:it.map(x=>label(x.q)).join(', ')});}
   // the map: an overlay like the weather pins, on the top view only
-  const chip=document.createElement('button');chip.type='button';chip.className='wx-chip pl-chip';chip.setAttribute('aria-pressed','false');
+  const chip=document.createElement('button');chip.type='button';chip.className='pl-chip';chip.setAttribute('aria-pressed','false');
   chip.setAttribute('aria-label',T('places.chip_aria'));
   chip.innerHTML=`<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M7 3v8M5 3v5a2 2 0 0 0 4 0V3M7 11v10M17 21V3c-2.5 1-4 4-4 8h4"/></svg><span>${E('places.chip')}</span>`;
   const filters=document.getElementById('filters');filters.parentNode.insertBefore(chip,filters);

@@ -1011,9 +1011,9 @@ html[lang="ka"] .pv-doc h1{font-size:36px;overflow-wrap:anywhere}
 /* weather by altitude (round 19, decision 58): a layer chip that reads like the filter chips but is off by default,
    pins in the meet callout's language, the same three places in a list, the run's conditions, and the home board.
    Wind risk is never green and red (those are piste colours here): ink, a word and a three-step meter */
-.wx-chip{display:flex;align-items:center;gap:7px;height:44px;padding:0 14px;border:1.5px solid var(--ink);background:var(--paper);color:var(--ink);font:inherit;font-size:14px;font-weight:600;white-space:nowrap;flex:none;cursor:pointer}
-.wx-chip[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
-.wx-chip svg{flex:none}
+.wx-chip,.pl-chip{display:flex;align-items:center;gap:7px;height:44px;padding:0 14px;border:1.5px solid var(--ink);background:var(--paper);color:var(--ink);font:inherit;font-size:14px;font-weight:600;white-space:nowrap;flex:none;cursor:pointer}
+.wx-chip[aria-pressed="true"],.pl-chip[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+.wx-chip svg,.pl-chip svg{flex:none}
 .wx-pins{position:absolute;inset:0;z-index:3;pointer-events:none}
 .wx-pin{position:absolute;display:flex;flex-direction:column;gap:2px;min-width:118px;padding:6px 9px 7px;background:var(--paper);border:1.5px solid var(--ink);box-shadow:0 4px 10px var(--shadow);color:var(--ink)}
 .wx-stem{position:absolute;width:1.5px;background:var(--ink)}
