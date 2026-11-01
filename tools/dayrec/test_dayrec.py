@@ -146,7 +146,8 @@ class Network(unittest.TestCase):
         t2 = next(q for q in BASE.pistes if q.key == 'Tatra 2')
         end = t2.samples[-20][1]
         self.assertEqual(end, ('Tatra 1', 'Tatra 2'))      # the lower stretch is shared
-        self.assertEqual(t2.samples[30][1], ('Tatra 2',))  # in the middle, Tatra 2 alone
+        self.assertEqual(t2.samples[0][1], ('Tatra 1', 'Tatra 2'))  # 1.11.2026: Tatra 2 starts on the shared top stretch
+        self.assertEqual(t2.samples[len(t2.samples) // 2][1], ('Tatra 2',))  # in the middle, Tatra 2 alone
 
     def test_lifts_bottom_to_top(self):
         for l in BASE.lifts:

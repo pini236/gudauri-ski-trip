@@ -674,20 +674,19 @@
       "seed": 1617050211,
       "p": {
        "t1": 1799646137000,
-       "dist_m": 2757.5,
+       "dist_m": 2757.3,
        "drop_m": 537.2,
        "moving_s": 226,
        "runs": [
-        "Tatra 2",
-        "Tatra 1"
+        "Tatra 2"
        ],
        "stops": 0
       }
      },
      {
       "key": "steepest",
-      "t": 1799645964000,
-      "seed": 289265027,
+      "t": 1799645965000,
+      "seed": 696365798,
       "p": {
        "run": "Tatra 2",
        "deg": 20,
@@ -699,10 +698,10 @@
       "t": 1799646012000,
       "seed": 1327046819,
       "p": {
-       "kmh": 57.82,
+       "kmh": 58.39,
        "at": {
-        "lat": 42.48762,
-        "lon": 44.485495
+        "lat": 42.487614,
+        "lon": 44.485492
        },
        "kind": "run",
        "runs": [
@@ -714,8 +713,8 @@
      },
      {
       "key": "drop_compare",
-      "t": 1799646178000,
-      "seed": 309141796,
+      "t": 1799646177000,
+      "seed": 1242444146,
       "p": {
        "ref": "azrieli",
        "times": 2.9,
@@ -724,8 +723,8 @@
      },
      {
       "key": "tomorrow",
-      "t": 1799646178000,
-      "seed": 1228978206,
+      "t": 1799646177000,
+      "seed": 287549512,
       "p": {
        "kind": "new_run",
        "run": "Goodaura 1",
@@ -746,29 +745,28 @@
      "v": 2,
      "days": 1,
      "runs": {
-      "Tatra 1": 1799645911000,
-      "Tatra 2": 1799645964000
+      "Tatra 2": 1799645965000
      },
      "colors": {
-      "blue": 1799645911000
+      "blue": 1799645965000
      },
      "best": {
       "steep_deg": 20,
-      "max_kmh": 57.82,
+      "max_kmh": 58.39,
       "drop_m": 537.2,
       "descents": 1,
-      "longest_m": 2757.5,
-      "ski_dist_m": 2757.5
+      "longest_m": 2757.3,
+      "ski_dist_m": 2757.3
      },
      "first": {
       "drop_m": 537.2,
       "descents": 1,
-      "ski_dist_m": 2757.5
+      "ski_dist_m": 2757.3
      },
      "prev": {
       "drop_m": 537.2,
       "descents": 1,
-      "ski_dist_m": 2757.5
+      "ski_dist_m": 2757.3
      },
      "trip": null
     }
@@ -2699,7 +2697,7 @@
       "p": {
        "ref": "eiffel",
        "times": 16.8,
-       "drop_m": 5544.3
+       "drop_m": 5544.8
       }
      },
      {
@@ -2740,8 +2738,8 @@
      "runs": {
       "Goodaura 1": 1799646015000,
       "Goodaura 2": 1799646814000,
-      "Tatra 1": 1799647469000,
-      "Tatra 2": 1799648462000,
+      "Tatra 1": 1799647516000,
+      "Tatra 2": 1799648463000,
       "Kobi": 1799650471000,
       "Firni 1": 1799653174000,
       "Firni 2": 1799653240000,
@@ -2760,20 +2758,20 @@
      "best": {
       "steep_deg": 28,
       "max_kmh": 68.9,
-      "drop_m": 5544.3,
+      "drop_m": 5544.8,
       "descents": 12,
       "longest_m": 6116.0,
-      "ski_dist_m": 31325.9
+      "ski_dist_m": 31344.5
      },
      "first": {
-      "drop_m": 5544.3,
+      "drop_m": 5544.8,
       "descents": 12,
-      "ski_dist_m": 31325.9
+      "ski_dist_m": 31344.5
      },
      "prev": {
-      "drop_m": 5544.3,
+      "drop_m": 5544.8,
       "descents": 12,
-      "ski_dist_m": 31325.9
+      "ski_dist_m": 31344.5
      },
      "trip": null
     }
@@ -2934,38 +2932,24 @@
     "moments": 2,
     "items": [
      {
-      "key": "new_runs",
-      "t": 1799645911000,
-      "seed": 536017330,
-      "p": {
-       "runs": [
-        "Tatra 1",
-        "Tatra 2"
-       ],
-       "done": 3,
-       "total": 24
-      }
-     },
-     {
       "key": "longest_descent",
       "t": 1799645911000,
       "seed": 1617050211,
       "p": {
        "t1": 1799646137000,
-       "dist_m": 2757.5,
+       "dist_m": 2757.3,
        "drop_m": 537.2,
        "moving_s": 226,
        "runs": [
-        "Tatra 2",
-        "Tatra 1"
+        "Tatra 2"
        ],
        "stops": 0
       }
      },
      {
       "key": "steepest",
-      "t": 1799645964000,
-      "seed": 289265027,
+      "t": 1799645965000,
+      "seed": 696365798,
       "p": {
        "run": "Tatra 2",
        "deg": 20,
@@ -2973,14 +2957,26 @@
       }
      },
      {
+      "key": "new_runs",
+      "t": 1799645965000,
+      "seed": 582005493,
+      "p": {
+       "runs": [
+        "Tatra 2"
+       ],
+       "done": 2,
+       "total": 24
+      }
+     },
+     {
       "key": "fastest",
       "t": 1799646012000,
       "seed": 1327046819,
       "p": {
-       "kmh": 57.82,
+       "kmh": 58.39,
        "at": {
-        "lat": 42.48762,
-        "lon": 44.485495
+        "lat": 42.487614,
+        "lon": 44.485492
        },
        "kind": "run",
        "runs": [
@@ -2992,19 +2988,31 @@
      },
      {
       "key": "drop_compare",
-      "t": 1799646178000,
-      "seed": 309141796,
+      "t": 1799646177000,
+      "seed": 1242444146,
       "p": {
        "ref": "azrieli",
        "times": 2.9,
        "drop_m": 537.2
       }
+     },
+     {
+      "key": "tomorrow",
+      "t": 1799646177000,
+      "seed": 287549512,
+      "p": {
+       "kind": "new_run",
+       "run": "Tatra 1",
+       "color": "blue",
+       "lift": "Shino"
+      }
      }
     ],
     "story": [
-     0,
+     1,
      2,
-     3
+     3,
+     5
     ],
     "share": 3,
     "theme": "easy",
@@ -3013,8 +3021,7 @@
      "days": 2,
      "runs": {
       "Goodaura 1": 1799645845000,
-      "Tatra 1": 1799645911000,
-      "Tatra 2": 1799645964000
+      "Tatra 2": 1799645965000
      },
      "colors": {
       "blue": 1799645845000
@@ -3035,7 +3042,7 @@
      "prev": {
       "drop_m": 537.2,
       "descents": 1,
-      "ski_dist_m": 2757.5
+      "ski_dist_m": 2757.3
      },
      "trip": null
     }
@@ -3048,8 +3055,7 @@
     "days": 2,
     "runs": {
      "Goodaura 1": 1799645845000,
-     "Tatra 1": 1799645911000,
-     "Tatra 2": 1799645964000
+     "Tatra 2": 1799645965000
     },
     "colors": {
      "blue": 1799645845000
@@ -3070,7 +3076,7 @@
     "prev": {
      "drop_m": 537.2,
      "descents": 1,
-     "ski_dist_m": 2757.5
+     "ski_dist_m": 2757.3
     },
     "trip": null
    },
@@ -3095,6 +3101,7 @@
       "p": {
        "runs": [
         "Goodaura 2",
+        "Tatra 1",
         "Kobi",
         "Firni 1",
         "Firni 2",
@@ -3219,7 +3226,7 @@
       "seed": 465920165,
       "p": {
        "what": "drop_m",
-       "value": 5544.3,
+       "value": 5544.8,
        "before": 544.9
       }
      },
@@ -3239,7 +3246,7 @@
       "seed": 465920165,
       "p": {
        "what": "ski_dist_m",
-       "value": 31325.9,
+       "value": 31344.5,
        "before": 2770.1
       }
      },
@@ -3262,7 +3269,7 @@
       "p": {
        "ref": "eiffel",
        "times": 16.8,
-       "drop_m": 5544.3
+       "drop_m": 5544.8
       }
      },
      {
@@ -3302,9 +3309,9 @@
      "days": 3,
      "runs": {
       "Goodaura 1": 1799645845000,
-      "Tatra 1": 1799645911000,
-      "Tatra 2": 1799645964000,
+      "Tatra 2": 1799645965000,
       "Goodaura 2": 1799646814000,
+      "Tatra 1": 1799647516000,
       "Kobi": 1799650471000,
       "Firni 1": 1799653174000,
       "Firni 2": 1799653240000,
@@ -3323,10 +3330,10 @@
      "best": {
       "steep_deg": 28,
       "max_kmh": 71.03,
-      "drop_m": 5544.3,
+      "drop_m": 5544.8,
       "descents": 12,
       "longest_m": 6116.0,
-      "ski_dist_m": 31325.9
+      "ski_dist_m": 31344.5
      },
      "first": {
       "drop_m": 544.9,
@@ -3334,9 +3341,9 @@
       "ski_dist_m": 2770.1
      },
      "prev": {
-      "drop_m": 5544.3,
+      "drop_m": 5544.8,
       "descents": 12,
-      "ski_dist_m": 31325.9
+      "ski_dist_m": 31344.5
      },
      "trip": null
     }
@@ -3349,9 +3356,9 @@
     "days": 3,
     "runs": {
      "Goodaura 1": 1799645845000,
-     "Tatra 1": 1799645911000,
-     "Tatra 2": 1799645964000,
+     "Tatra 2": 1799645965000,
      "Goodaura 2": 1799646814000,
+     "Tatra 1": 1799647516000,
      "Kobi": 1799650471000,
      "Firni 1": 1799653174000,
      "Firni 2": 1799653240000,
@@ -3370,10 +3377,10 @@
     "best": {
      "steep_deg": 28,
      "max_kmh": 71.03,
-     "drop_m": 5544.3,
+     "drop_m": 5544.8,
      "descents": 12,
      "longest_m": 6116.0,
-     "ski_dist_m": 31325.9
+     "ski_dist_m": 31344.5
     },
     "first": {
      "drop_m": 544.9,
@@ -3381,9 +3388,9 @@
      "ski_dist_m": 2770.1
     },
     "prev": {
-     "drop_m": 5544.3,
+     "drop_m": 5544.8,
      "descents": 12,
-     "ski_dist_m": 31325.9
+     "ski_dist_m": 31344.5
     },
     "trip": null
    },
@@ -3456,9 +3463,9 @@
      "days": 3,
      "runs": {
       "Goodaura 1": 1799645845000,
-      "Tatra 1": 1799645911000,
-      "Tatra 2": 1799645964000,
+      "Tatra 2": 1799645965000,
       "Goodaura 2": 1799646814000,
+      "Tatra 1": 1799647516000,
       "Kobi": 1799650471000,
       "Firni 1": 1799653174000,
       "Firni 2": 1799653240000,
@@ -3477,10 +3484,10 @@
      "best": {
       "steep_deg": 28,
       "max_kmh": 71.71,
-      "drop_m": 5544.3,
+      "drop_m": 5544.8,
       "descents": 12,
       "longest_m": 6116.0,
-      "ski_dist_m": 31325.9
+      "ski_dist_m": 31344.5
      },
      "first": {
       "drop_m": 544.9,
@@ -3488,9 +3495,9 @@
       "ski_dist_m": 2770.1
      },
      "prev": {
-      "drop_m": 5544.3,
+      "drop_m": 5544.8,
       "descents": 12,
-      "ski_dist_m": 31325.9
+      "ski_dist_m": 31344.5
      },
      "trip": null
     }
@@ -3982,12 +3989,22 @@
       "legs": [
        {
         "t0": 1799647469000,
+        "t1": 1799647515000,
+        "kind": "run",
+        "runs": [
+         "Tatra 1",
+         "Tatra 2"
+        ],
+        "dist_m": 425.7
+       },
+       {
+        "t0": 1799647516000,
         "t1": 1799647634000,
         "kind": "run",
         "runs": [
          "Tatra 1"
         ],
-        "dist_m": 2119.7
+        "dist_m": 1694.0
        },
        {
         "t0": 1799647635000,
@@ -4042,7 +4059,7 @@
       "t0": 1799648396000,
       "t1": 1799648409000,
       "lat": 42.49278,
-      "lon": 44.494123,
+      "lon": 44.494122,
       "kind": "rest"
      },
      {
@@ -4052,21 +4069,22 @@
       "legs": [
        {
         "t0": 1799648410000,
-        "t1": 1799648461000,
+        "t1": 1799648462000,
         "kind": "run",
         "runs": [
-         "Tatra 1"
+         "Tatra 1",
+         "Tatra 2"
         ],
-        "dist_m": 437.1
+        "dist_m": 460.8
        },
        {
-        "t0": 1799648462000,
+        "t0": 1799648463000,
         "t1": 1799648564000,
         "kind": "run",
         "runs": [
          "Tatra 2"
         ],
-        "dist_m": 1471.9
+        "dist_m": 1468.5
        },
        {
         "t0": 1799648565000,
@@ -4076,30 +4094,30 @@
          "Tatra 1",
          "Tatra 2"
         ],
-        "dist_m": 858.1
+        "dist_m": 856.4
        }
       ],
-      "dist_m": 2767.1,
-      "drop_m": 534.8,
+      "dist_m": 2785.7,
+      "drop_m": 535.3,
       "moving_s": 219,
-      "avg_kmh": 45.49,
-      "max_kmh": 66.92,
+      "avg_kmh": 45.79,
+      "max_kmh": 67.72,
       "max_at": {
-       "t": 1799648527000,
-       "lat": 42.485237,
-       "lon": 44.484673
+       "t": 1799648525000,
+       "lat": 42.485451,
+       "lon": 44.48476
       },
       "stops": [],
       "offpiste": [],
       "top_m": 2709.0,
-      "bottom_m": 2172.7
+      "bottom_m": 2172.9
      },
      {
       "type": "stop",
       "t0": 1799648630000,
       "t1": 1799648659000,
       "lat": 42.47356,
-      "lon": 44.482867,
+      "lon": 44.482866,
       "kind": "queue"
      },
      {
@@ -4209,8 +4227,8 @@
     "stats": {
      "descents": 5,
      "lifts": 6,
-     "ski_dist_m": 14698.0,
-     "drop_m": 2727.2,
+     "ski_dist_m": 14716.6,
+     "drop_m": 2727.7,
      "ski_s": 1158,
      "lift_s": 2516,
      "lift_rise_m": 2972.7,
@@ -4268,20 +4286,19 @@
       "seed": 1617050211,
       "p": {
        "t1": 1799646137000,
-       "dist_m": 2757.5,
+       "dist_m": 2757.3,
        "drop_m": 537.2,
        "moving_s": 226,
        "runs": [
-        "Tatra 2",
-        "Tatra 1"
+        "Tatra 2"
        ],
        "stops": 0
       }
      },
      {
       "key": "steepest",
-      "t": 1799645964000,
-      "seed": 289265027,
+      "t": 1799645965000,
+      "seed": 696365798,
       "p": {
        "run": "Tatra 2",
        "deg": 20,
@@ -4293,10 +4310,10 @@
       "t": 1799646012000,
       "seed": 1327046819,
       "p": {
-       "kmh": 57.82,
+       "kmh": 58.39,
        "at": {
-        "lat": 42.48762,
-        "lon": 44.485495
+        "lat": 42.487614,
+        "lon": 44.485492
        },
        "kind": "run",
        "runs": [
@@ -4308,8 +4325,8 @@
      },
      {
       "key": "drop_compare",
-      "t": 1799646178000,
-      "seed": 309141796,
+      "t": 1799646177000,
+      "seed": 1242444146,
       "p": {
        "ref": "azrieli",
        "times": 2.9,
@@ -4318,8 +4335,8 @@
      },
      {
       "key": "tomorrow",
-      "t": 1799646178000,
-      "seed": 1228978206,
+      "t": 1799646177000,
+      "seed": 287549512,
       "p": {
        "kind": "new_run",
        "run": "Goodaura 1",
@@ -4340,41 +4357,39 @@
      "v": 2,
      "days": 1,
      "runs": {
-      "Tatra 1": 1799645911000,
-      "Tatra 2": 1799645964000
+      "Tatra 2": 1799645965000
      },
      "colors": {
-      "blue": 1799645911000
+      "blue": 1799645965000
      },
      "best": {
       "steep_deg": 20,
-      "max_kmh": 57.82,
+      "max_kmh": 58.39,
       "drop_m": 537.2,
       "descents": 1,
-      "longest_m": 2757.5,
-      "ski_dist_m": 2757.5
+      "longest_m": 2757.3,
+      "ski_dist_m": 2757.3
      },
      "first": {
       "drop_m": 537.2,
       "descents": 1,
-      "ski_dist_m": 2757.5
+      "ski_dist_m": 2757.3
      },
      "prev": {
       "drop_m": 537.2,
       "descents": 1,
-      "ski_dist_m": 2757.5
+      "ski_dist_m": 2757.3
      },
      "trip": {
       "start": "2027-01-11",
       "days": 1,
       "drop_m": 537.2,
       "runs": {
-       "Tatra 1": 1,
        "Tatra 2": 1
       },
       "first": {
        "blue": {
-        "run": "Tatra 1",
+        "run": "Tatra 2",
         "day_n": 1
        }
       }
@@ -4388,41 +4403,39 @@
     "v": 2,
     "days": 1,
     "runs": {
-     "Tatra 1": 1799645911000,
-     "Tatra 2": 1799645964000
+     "Tatra 2": 1799645965000
     },
     "colors": {
-     "blue": 1799645911000
+     "blue": 1799645965000
     },
     "best": {
      "steep_deg": 20,
-     "max_kmh": 57.82,
+     "max_kmh": 58.39,
      "drop_m": 537.2,
      "descents": 1,
-     "longest_m": 2757.5,
-     "ski_dist_m": 2757.5
+     "longest_m": 2757.3,
+     "ski_dist_m": 2757.3
     },
     "first": {
      "drop_m": 537.2,
      "descents": 1,
-     "ski_dist_m": 2757.5
+     "ski_dist_m": 2757.3
     },
     "prev": {
      "drop_m": 537.2,
      "descents": 1,
-     "ski_dist_m": 2757.5
+     "ski_dist_m": 2757.3
     },
     "trip": {
      "start": "2027-01-11",
      "days": 1,
      "drop_m": 537.2,
      "runs": {
-      "Tatra 1": 1,
       "Tatra 2": 1
      },
      "first": {
       "blue": {
-       "run": "Tatra 1",
+       "run": "Tatra 2",
        "day_n": 1
       }
      }
@@ -4442,7 +4455,7 @@
       "p": {
        "what": "longest_m",
        "value": 2770.1,
-       "before": 2757.5
+       "before": 2757.3
       }
      },
      {
@@ -4463,7 +4476,7 @@
        "runs": [
         "Goodaura 1"
        ],
-       "done": 3,
+       "done": 2,
        "total": 24
       }
      },
@@ -4489,7 +4502,7 @@
       "p": {
        "what": "max_kmh",
        "value": 71.03,
-       "before": 57.82
+       "before": 58.39
       }
      },
      {
@@ -4527,7 +4540,7 @@
       "p": {
        "what": "ski_dist_m",
        "value": 2770.1,
-       "before": 2757.5
+       "before": 2757.3
       }
      },
      {
@@ -4539,12 +4552,24 @@
        "times": 2.9,
        "drop_m": 544.9
       }
+     },
+     {
+      "key": "tomorrow",
+      "t": 1799646098000,
+      "seed": 1026348506,
+      "p": {
+       "kind": "new_run",
+       "run": "Tatra 1",
+       "color": "blue",
+       "lift": "Goodaura"
+      }
      }
     ],
     "story": [
      1,
      4,
-     5
+     5,
+     9
     ],
     "share": 4,
     "theme": "progress",
@@ -4552,8 +4577,7 @@
      "v": 2,
      "days": 2,
      "runs": {
-      "Tatra 1": 1799645911000,
-      "Tatra 2": 1799645964000,
+      "Tatra 2": 1799645965000,
       "Goodaura 1": 1799645845000
      },
      "colors": {
@@ -4570,7 +4594,7 @@
      "first": {
       "drop_m": 537.2,
       "descents": 1,
-      "ski_dist_m": 2757.5
+      "ski_dist_m": 2757.3
      },
      "prev": {
       "drop_m": 544.9,
@@ -4582,13 +4606,12 @@
       "days": 2,
       "drop_m": 1082.1,
       "runs": {
-       "Tatra 1": 1,
        "Tatra 2": 1,
        "Goodaura 1": 1
       },
       "first": {
        "blue": {
-        "run": "Tatra 1",
+        "run": "Tatra 2",
         "day_n": 1
        }
       }
@@ -4602,8 +4625,7 @@
     "v": 2,
     "days": 2,
     "runs": {
-     "Tatra 1": 1799645911000,
-     "Tatra 2": 1799645964000,
+     "Tatra 2": 1799645965000,
      "Goodaura 1": 1799645845000
     },
     "colors": {
@@ -4620,7 +4642,7 @@
     "first": {
      "drop_m": 537.2,
      "descents": 1,
-     "ski_dist_m": 2757.5
+     "ski_dist_m": 2757.3
     },
     "prev": {
      "drop_m": 544.9,
@@ -4632,13 +4654,12 @@
      "days": 2,
      "drop_m": 1082.1,
      "runs": {
-      "Tatra 1": 1,
       "Tatra 2": 1,
       "Goodaura 1": 1
      },
      "first": {
       "blue": {
-       "run": "Tatra 1",
+       "run": "Tatra 2",
        "day_n": 1
       }
      }
@@ -4669,6 +4690,7 @@
       "p": {
        "runs": [
         "Goodaura 2",
+        "Tatra 1",
         "Kobi",
         "Firni 1",
         "Firni 2",
@@ -4793,7 +4815,7 @@
       "seed": 465920165,
       "p": {
        "what": "drop_m",
-       "value": 5544.3,
+       "value": 5544.8,
        "before": 544.9
       }
      },
@@ -4813,7 +4835,7 @@
       "seed": 465920165,
       "p": {
        "what": "ski_dist_m",
-       "value": 31325.9,
+       "value": 31344.5,
        "before": 2770.1
       }
      },
@@ -4836,7 +4858,7 @@
       "p": {
        "ref": "eiffel",
        "times": 16.8,
-       "drop_m": 5544.3
+       "drop_m": 5544.8
       }
      },
      {
@@ -4855,11 +4877,11 @@
       "seed": 461475147,
       "p": {
        "days": 3,
-       "drop": 6626,
+       "drop": 6627,
        "done": 12,
        "first": {
         "blue": {
-         "run": "Tatra 1",
+         "run": "Tatra 2",
          "day_n": 1
         },
         "green": {
@@ -4906,10 +4928,10 @@
      "v": 2,
      "days": 3,
      "runs": {
-      "Tatra 1": 1799645911000,
-      "Tatra 2": 1799645964000,
+      "Tatra 2": 1799645965000,
       "Goodaura 1": 1799645845000,
       "Goodaura 2": 1799646814000,
+      "Tatra 1": 1799647516000,
       "Kobi": 1799650471000,
       "Firni 1": 1799653174000,
       "Firni 2": 1799653240000,
@@ -4928,30 +4950,30 @@
      "best": {
       "steep_deg": 28,
       "max_kmh": 71.03,
-      "drop_m": 5544.3,
+      "drop_m": 5544.8,
       "descents": 12,
       "longest_m": 6116.0,
-      "ski_dist_m": 31325.9
+      "ski_dist_m": 31344.5
      },
      "first": {
       "drop_m": 537.2,
       "descents": 1,
-      "ski_dist_m": 2757.5
+      "ski_dist_m": 2757.3
      },
      "prev": {
-      "drop_m": 5544.3,
+      "drop_m": 5544.8,
       "descents": 12,
-      "ski_dist_m": 31325.9
+      "ski_dist_m": 31344.5
      },
      "trip": {
       "start": "2027-01-11",
       "days": 3,
-      "drop_m": 6626.4,
+      "drop_m": 6626.9,
       "runs": {
-       "Tatra 1": 2,
        "Tatra 2": 2,
        "Goodaura 1": 2,
        "Goodaura 2": 1,
+       "Tatra 1": 1,
        "Kobi": 1,
        "Firni 1": 1,
        "Firni 2": 1,
@@ -4963,7 +4985,7 @@
       },
       "first": {
        "blue": {
-        "run": "Tatra 1",
+        "run": "Tatra 2",
         "day_n": 1
        },
        "green": {
