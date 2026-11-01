@@ -21,7 +21,7 @@ class MomentsTest {
     private val fx = JSONObject(File(root, "tools/fixtures/dayrec-moments.json").readText())
     private val cases = JSONObject(File(root, "tools/fixtures/dayrec-cases.json").readText())
     private val M = JSONObject(File(root, "tools/fixtures/dayrec-params.json").readText()).getJSONObject("moments")
-    private val runs by lazy { Moments.runsOf(JSONObject(File(dir, "runs-and-lifts.json").readText())) }
+    private val runs by lazy { Moments.runsOf(JSONObject(File(dir, "runs-and-lifts.json").readText()), io.github.pini236.skiapp.data.Terrain.parse(File(dir, "terrain.json").readText())) }
 
     private fun finalOf(name: String): JSONObject {
         val a = cases.getJSONArray("cases")
@@ -83,6 +83,20 @@ class MomentsTest {
         assertTrue(failures.joinToString("\n"), failures.isEmpty())
     }
 
+    @Test fun aTripOfThreeDaysGivesTheSameMomentsAndHistory() {
+        val failures = ArrayList<String>()
+        val chain = fx.getJSONArray("trip_chain")
+        var prev: JSONObject? = null
+        for (i in 0 until chain.length()) {
+            val c = chain.getJSONObject(i)
+            val got = Moments.moments(finalOf(c.getString("final")), c.getJSONObject("history"), runs, M, c.getJSONObject("trip"))
+            check("trip_chain[$i] ${c.getString("final")}", got, c.getJSONObject("expected"), failures)
+            prev?.let { check("trip_chain[$i] history", c.getJSONObject("history"), it, failures) }
+            prev = got.getJSONObject("history")
+        }
+        assertTrue(failures.joinToString("\n"), failures.isEmpty())
+    }
+
     @Test fun theCardOnTheLiftIsTheSame() {
         val failures = ArrayList<String>()
         val list = fx.getJSONArray("lift_cards")
@@ -113,8 +127,18 @@ class MomentsTest {
         val c = fx.getJSONArray("chain")
         for (i in 0 until c.length()) {
             val h = c.getJSONObject(i).getJSONObject("expected").getJSONObject("history")
-            assertEquals(setOf("v", "days", "runs", "colors", "best"), h.keys().asSequence().toSet())
+            assertEquals(setOf("v", "days", "runs", "colors", "best", "first", "prev", "trip"), h.keys().asSequence().toSet())
             for (k in listOf("runs", "colors", "best")) for (x in h.getJSONObject(k).keys()) assertTrue(x, h.getJSONObject(k).get(x) is Number)
+            for (k in listOf("first", "prev")) h.optJSONObject(k)?.let { o -> for (x in o.keys()) assertTrue("$k.$x", o.get(x) is Number) }
+        }
+    }
+
+    @Test fun theTripHoldsNoPosition() {
+        val c = fx.getJSONArray("trip_chain")
+        for (i in 0 until c.length()) {
+            val tr = c.getJSONObject(i).getJSONObject("expected").getJSONObject("history").optJSONObject("trip") ?: continue
+            assertEquals(setOf("start", "days", "drop_m", "runs", "first"), tr.keys().asSequence().toSet())
+            for (x in tr.getJSONObject("runs").keys()) assertTrue(x, tr.getJSONObject("runs").get(x) is Number)
         }
     }
 }

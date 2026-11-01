@@ -2,6 +2,7 @@ package io.github.pini236.skiapp.dayrec
 
 import android.content.Context
 import io.github.pini236.skiapp.data.SiteData
+import io.github.pini236.skiapp.data.Terrain
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.File
@@ -45,10 +46,10 @@ object MomentsStore {
         val info = c.packageManager.getPackageInfo(c.packageName, 0)
         val version = if (android.os.Build.VERSION.SDK_INT >= 28) info.longVersionCode else info.versionCode.toLong()
         val site = SiteData(File(c.filesDir, "site-data"), version, read)
-        val runs = Moments.runsOf(JSONObject(site.read("runs-and-lifts.json")))
+        val runs = Moments.runsOf(JSONObject(site.read("runs-and-lifts.json")), Terrain.parse(site.read("terrain.json")))
         val out = Moments.moments(res, history(dir), runs, params)
         write(DayStore.momentsOf(day), JSONObject().put("moments", out.get("moments")).put("items", out.get("items"))
-            .put("story", out.get("story")).put("share", out.get("share")).toString())
+            .put("story", out.get("story")).put("share", out.get("share")).put("theme", out.get("theme")).toString())
         write(File(dir, HISTORY), out.getJSONObject("history").toString())
         done += start
         write(File(dir, APPLIED), JSONArray(done.toList()).toString())
