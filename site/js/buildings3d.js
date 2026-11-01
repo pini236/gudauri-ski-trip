@@ -24,7 +24,9 @@ function attach(view,opts){
   X.scene.onBeforeRender=function(){if(prev)prev.apply(this,arguments);frame();};
   function near(){const st=view.state;if(!data&&!opts.center)return st.dist<NEAR;const c=data?data.center:opts.center;
     return st.dist<NEAR&&Math.hypot(st.tx-c[0],st.tz-c[1])<NEAR;}
+  const onMap=()=>/^#map/.test(location.hash);let gen=0;   // gen: a response that comes back after leaving the map is dropped
   function frame(){
+    if(!onMap())return;
     if(!data){if(!loading&&view.state.dist<NEAR)load();return;}
     bounce.value=opts.dark&&opts.dark()?0.1:0.42; // less light off the snow at night
     const on=near();if(group.visible!==on){group.visible=on;if(legend)legend.hidden=!on;}
@@ -35,13 +37,13 @@ function attach(view,opts){
       const m=d[15];if(m<200&&m>33){decoOn=false;deco.forEach(o=>o.visible=false);console.info('b3d: decorations off, median frame',m.toFixed(0),'ms');}}
   }
   // leaving the map frees everything (the architect's condition: the canvas texture is disposed); it loads again on return
-  function dispose(){if(!group)return;X.scene.remove(group);
+  function dispose(){gen++;loading=false;if(!group)return;X.scene.remove(group);
     group.traverse(o=>{if(o.geometry)o.geometry.dispose();});
     mats.forEach(m=>{if(m.map)m.map.dispose();m.dispose();});
     if(legend)legend.remove();if(card)card.remove();
-    group=null;deco=null;data=null;loading=false;mats=[];meta=[];legend=card=null;decoOn=true;tick.length=0;delete X.host.dataset.b3dTriangles;}
-  window.addEventListener('hashchange',()=>{if(!/^#map/.test(location.hash))dispose();});
-  function load(){loading=true;fetch(opts.url).then(r=>r.ok?r.json():null).then(j=>{if(!j||j.schema!==1)return;data=j;build();view.request();}).catch(e=>console.warn('b3d:',e));}
+    group=null;deco=null;data=null;loading=false;mats=[];meta=[];legend=card=null;decoOn=true;gen++;tick.length=0;delete X.host.dataset.b3dTriangles;}
+  window.addEventListener('hashchange',()=>{if(!onMap())dispose();});
+  function load(){loading=true;const g=gen;fetch(opts.url).then(r=>r.ok?r.json():null).then(j=>{if(g!==gen||!onMap()){loading=false;return;}if(!j||j.schema!==1)return;data=j;build();view.request();}).catch(e=>console.warn('b3d:',e));}
 
   /* ---------- the facade atlas ---------- */
   function atlas(styles){
