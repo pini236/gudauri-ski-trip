@@ -30,7 +30,9 @@ import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.semantics.CustomAccessibilityAction
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.customActions
 import androidx.compose.ui.semantics.semantics
 import io.github.pini236.skiapp.data.Runs
 import io.github.pini236.skiapp.ui.SkiColors
@@ -166,12 +168,13 @@ private class Paints(c: SkiColors, density: Float) {
  * The map of the meeting point (M1, MP1): the mountain from above, the runs and lifts, and a pin on every station.
  * A tap near a pin reports it (44 dp around the whole pin, as on the site), a tap elsewhere reports the empty map;
  * the screen decides (a second tap on the picked pin clears it). Dragging moves the map, two fingers zoom (a drag is
- * not a tap).
+ * not a tap). For TalkBack every station is also a custom action of the map, named by [stationWords].
  */
 @Composable
 fun MeetMap(
     view: MeetView, plan: MeetPlan, lines: MeetLines, relief: Relief2D?, colors: SkiColors, selected: String?,
     label: String, onPin: (stationId: String) -> Unit, onEmpty: () -> Unit, modifier: Modifier = Modifier,
+    stationWords: Map<String, String> = emptyMap(),
 ) {
     val density = androidx.compose.ui.platform.LocalDensity.current.density
     val p = remember(colors, density) { Paints(colors, density) }
@@ -179,7 +182,11 @@ fun MeetMap(
     val pulse = if (selected != null) rememberInfiniteTransition(label = "pin").animateFloat(0f, 1f, infiniteRepeatable(tween(1600, easing = LinearEasing), RepeatMode.Restart), label = "ring") else null
     Canvas(
         modifier
-            .semantics { contentDescription = label }
+            // TalkBack cannot touch a pin: each station is an action of the map instead (the same pick as a tap)
+            .semantics {
+                contentDescription = label
+                customActions = plan.stations.mapNotNull { s -> stationWords[s.id]?.let { w -> CustomAccessibilityAction(w) { onPin(s.id); true } } }
+            }
             .onSizeChanged {
                 val first = !view.ready
                 view.w = it.width.toFloat().coerceAtLeast(1f); view.h = it.height.toFloat().coerceAtLeast(1f)

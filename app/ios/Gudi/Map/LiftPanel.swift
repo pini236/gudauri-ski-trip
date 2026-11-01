@@ -57,7 +57,7 @@ struct LiftBody: View {
     @ViewBuilder private func runs(_ list: [Piste]) -> some View {
         if list.isEmpty { KvText(text: "—") }
         else {
-            Flow(spacing: 6) { ForEach(list) { r in Tag(text: runName(r), color: ski.colors.run(r.color)) { model.select(r.key) } } }
+            Flow(spacing: 6) { ForEach(list) { r in Tag(text: runName(r), color: ski.colors.run(r.color)) { model.select(r.key, via: "list") } } }
         }
     }
 }
@@ -98,7 +98,7 @@ struct RunList: View {
             H3(S.mapOverviewOnMapCount(n: String(model.order.count)))
             ForEach(model.order, id: \.self) { k in
                 if let p = model.piste(k) {
-                    Button { model.select(k) } label: {
+                    Button { model.select(k, via: "list") } label: {
                         HStack(spacing: 10) {
                             Rectangle().fill(ski.colors.run(p.color)).frame(width: 14, height: 14)
                             Text(runName(p)).font(ski.type.text(16, .bold)).foregroundStyle(ski.colors.ink)
@@ -113,7 +113,7 @@ struct RunList: View {
             let partial = model.runs.pistes.filter { $0.research?.partial != nil }
             if !partial.isEmpty {
                 H3(S.mapOverviewPartialCount(n: String(partial.count)))
-                Flow(spacing: 6) { ForEach(partial) { p in Tag(text: p.key, color: ski.colors.run(p.color)) { model.select(p.key) } } }
+                Flow(spacing: 6) { ForEach(partial) { p in Tag(text: p.key, color: ski.colors.run(p.color)) { model.select(p.key, via: "list") } } }
                 Hint(S.mapOverviewPartialHint)
             }
         }

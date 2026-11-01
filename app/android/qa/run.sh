@@ -8,7 +8,7 @@ OUT=${OUT:-qa-out}
 SCENARIO=${SCENARIO:-all}
 # Reject typos before touching the device. An unknown part used to run the entire suite.
 [[ "$SCENARIO" != *$'\n'* && "$SCENARIO" != *$'\r'* ]] || { echo "QA scenario must be a single line" >&2; exit 2; }
-ALL_SCENARIOS=(map descent games school snowball home group meet status run locate weather lang phone store)
+ALL_SCENARIOS=(map descent games school snowball home group meet status run locate weather lang phone store bigtext)
 if [[ "$SCENARIO" == all ]]; then
   SCENARIOS=("${ALL_SCENARIOS[@]}")
 else
@@ -20,7 +20,7 @@ else
     part="${part#"${part%%[![:space:]]*}"}"
     part="${part%"${part##*[![:space:]]}"}"
     case "$part" in
-      map|descent|games|school|snowball|home|group|meet|status|run|locate|weather|lang|phone|store) ;;
+      map|descent|games|school|snowball|home|group|meet|status|run|locate|weather|lang|phone|store|bigtext) ;;
       *) echo "Unknown or empty QA scenario: '$part'" >&2; exit 2 ;;
     esac
     [[ -z "${selected[$part]+present}" ]] || { echo "Duplicate QA scenario: '$part'" >&2; exit 2; }
@@ -45,6 +45,11 @@ finish() {
   trap - EXIT
   [[ -z "${LOGCAT:-}" ]] || kill "$LOGCAT" 2> /dev/null || true
   printf 'total\t%s\t%s\t%s\n' "$((SECONDS - START_SECONDS))" "$result" "$FAILS" >> "$OUT/timings.tsv"
+  if [[ -s "$OUT/a11y.txt" ]]; then
+    sort -u "$OUT/a11y.txt" -o "$OUT/a11y.txt"
+    note "a11y: $(grep -c '^small' "$OUT/a11y.txt") touch targets under 44 dp, $(grep -c '^unlabeled' "$OUT/a11y.txt") tappable without words (a11y.txt)"
+    head -n 80 "$OUT/a11y.txt" | while IFS= read -r line; do echo "A11Y $line"; done
+  fi
   note "total: $((SECONDS - START_SECONDS))s · exit: $result"
   exit "$result"
 }
@@ -59,10 +64,20 @@ timed() { # timed <step name> <command...>: record failures without hiding the c
   return "$result"
 }
 
-shot() { # shot <name>: a numbered screenshot
+shot() { # shot <name>: a numbered screenshot, and the screen's accessibility findings (qa-out/a11y.txt)
   n=$((n + 1))
   local f; f=$(printf "%s/shots/%02d-%s.png" "$OUT" "$n" "$1")
   adb exec-out screencap -p > "$f" || fail "screenshot $1"
+  audit "$1"
+}
+audit() { # audit <screen>: touch targets under 44 dp and tappable things with no words (report only, qa/a11y.py)
+  [[ -z "${QA_NO_A11Y:-}" ]] || return 0
+  [[ "$1" != *-sure ]] || return 0 # "tap again to delete" lasts a few seconds, and the next step taps it
+  [[ -n "${DPI:-}" ]] || DPI=$(adb shell wm density 2> /dev/null | grep -o '[0-9]*$' | tail -n 1)
+  adb shell rm -f /sdcard/a11y.xml
+  timeout 15 adb shell uiautomator dump /sdcard/a11y.xml 2>&1 | grep -q "dumped to" || return 0
+  adb pull /sdcard/a11y.xml "$OUT/a11y.xml" > /dev/null 2>&1 || return 0
+  python3 "$(dirname "${BASH_SOURCE[0]}")/a11y.py" "$OUT/a11y.xml" "${DPI:-420}" "$SCENARIO:$1" >> "$OUT/a11y.txt" 2> /dev/null || true
 }
 burst() { # burst <name> <count> <gap seconds>: frames of an animation
   for i in $(seq 1 "$2"); do shot "$1-$i"; sleep "$3"; done
@@ -922,6 +937,29 @@ store() {
   qa "--es qa.mode auto"
   adb shell am broadcast -a com.android.systemui.demo -e command exit > /dev/null
   adb shell wm size reset
+}
+
+# ---- the biggest text size (13.7): the system font at 2.0, the main screens must still show their words and work ----
+# Appearance is not judged here (the shots are for looking at); what is checked is that the words are there, the taps still land
+# and nothing crashes, and the a11y findings of each shot are in the report
+bigtext() {
+  adb shell settings put system font_scale 2.0; sleep 2
+  qa "--es qa.group none --es qa.tab home --es qa.trip none --es qa.mode auto --es qa.time 2026-12-01T13:35"; waitlog "trip none" 20
+  waitlog "shadow ready" 90; sleep 2; shot big-home-guest
+  [ -n "$(where "מתי טסים?")" ] && note "big text: the pass is on the screen" || fail "big text: no 'when do you fly' on the home page"
+  mark; tapText "מתי טסים?" && sleep 1.2 && shot big-trip-calendar
+  adb shell input keyevent KEYCODE_BACK; sleep 1
+  drag $((W / 2)) $((H * 3 / 4)) $((W / 2)) $((H / 4)) 400; sleep 1; shot big-home-signs
+  drag $((W / 2)) $((H / 4)) $((W / 2)) $((H * 3 / 4)) 300; sleep 0.5
+  # the page about the app and its settings: the toggles and their words
+  qa "--es qa.tab about"; sleep 2; shot big-about
+  drag $((W / 2)) $((H * 3 / 4)) $((W / 2)) $((H / 4)) 400; sleep 1; shot big-about-down
+  # a run's panel and the list of runs
+  qa "--es qa.tab map"; sleep 6; shot big-map
+  # joining a group by code
+  qa "--es qa.group invited --es qa.tab join"; sleep 2; shot big-group-code
+  qa "--es qa.mode night --es qa.tab home"; sleep 2; shot big-home-night
+  adb shell settings put system font_scale 1.0; sleep 2
 }
 
 # one scenario, several with commas (home,group), or all

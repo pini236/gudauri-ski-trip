@@ -107,6 +107,16 @@ def run_from_middle(d):
     d.ski(*G1, frm=0.4).stand(60).ride('Goodaura')
 
 
+def start_on_lift(d):
+    """Recording started on the gondola, half way up (start anywhere, any time): the ride has no boarding station."""
+    d.ride('Goodaura', u0=0.45).stand(15).ski(*G1, frm='start').stand(40)
+
+
+def start_mid_descent(d):
+    """Recording started while skiing, half way down Goodaura 1, with no standing first; then the next ride."""
+    d.ski(*G1, frm=0.5).stand(60).ride('Goodaura').stand(15)
+
+
 def run_short_stop(d):
     """Measure one run: Tatra 1 with a 45 s rest on the way (does not stop), then straight onto the Shino lift (stops: lift)."""
     d.stand(10, at=d.run_line(*T1).at(d.run_line(*T1).length * 0.3)[0])
@@ -190,6 +200,8 @@ CASES = [
     ('falls', falls, 'Here you fell: one real fall among a jump, the phone falling in the pocket, a bump, a hard stop and a bump on the gondola.', {}),
     ('fall_dismissed', fall_dismissed, 'A fall the skier dismissed ("I did not fall"): only the summary line is left, and it never counts.', {'dismiss': True}),
     ('run_from_middle', run_from_middle, 'Measure one run (mode run), started half way down Goodaura 1: stops at the bottom station.', {'mode': 'run'}),
+    ('start_on_lift', start_on_lift, 'Recording started on the Goodaura gondola, half way up: the ride starts with the recording, from no station.', {}),
+    ('start_mid_descent', start_mid_descent, 'Recording started while skiing, half way down Goodaura 1: the descent starts with the recording.', {}),
     ('run_short_stop', run_short_stop, 'Measure one run (mode run): a 45 s rest on Tatra 1 does not stop it; boarding the Shino lift does.', {'mode': 'run'}),
     ('run_still', run_still, 'Measure one run (mode run): two minutes standing in the middle of Goodaura 1 stop it.', {'mode': 'run'}),
     ('fall_dismissed_closed', fall_dismissed, 'The same day after it was closed: the dismissed window was deleted from the file, the dismissal line stays.', {'dismiss': True, 'closed': True}),

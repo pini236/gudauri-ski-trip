@@ -50,6 +50,8 @@ final class AppModel {
     var statusSheet = false
     /// The last weather answer (round 19), kept on the phone.
     var forecast: Forecast?
+    /// The lift report was read at least once (status_view goes after the first answer, as on Android).
+    var statusLoaded = false
     /// The lift the trail map should frame and open when it next opens ("see on the trail map" from the meeting point);
     /// the map clears it once read.
     var mapLift: String?
@@ -138,6 +140,7 @@ final class AppModel {
                 report = await StatusSource.load(inSeason: LiftStatus.inSeason(month: month), now: now)
             }
             status = LiftStatus(names: status.names, report: report, now: now)
+            statusLoaded = true
             if qaWeather == nil, let f = await WeatherSource.load(now: now) { forecast = f }
             try? await Task.sleep(for: .seconds(60))
         }
@@ -148,4 +151,6 @@ final class AppModel {
 enum Site {
     static let base = URL(string: "https://gudauri-ski-trip.vercel.app")!
     static func privacy(_ lang: Lang) -> URL { URL(string: "https://gudauri-ski-trip.vercel.app/privacy#\(lang.rawValue)")! }
+    /// The support page (round 33), in the language of the app, like the privacy page.
+    static func support(_ lang: Lang) -> URL { URL(string: "https://gudauri-ski-trip.vercel.app/support#\(lang.rawValue)")! }
 }

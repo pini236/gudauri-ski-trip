@@ -87,6 +87,15 @@ final class MeetTests: XCTestCase {
         XCTAssertEqual(MeetLink.parse(route: "158744075b/0930/20270111"), r)
     }
 
+    /// K-3: a meetup in the group opens its card, at its station, day and time in Gudauri.
+    func testAGroupMeetupOpensItsCard() {
+        let at = Meet.at(Day(2027, 1, 11)!, ClockTime(9, 30)!)
+        XCTAssertEqual(Meet.card("158744075b", atMs: at), "158744075b/0930/20270111")
+        XCTAssertEqual(MeetLink.parse(route: Meet.card("158744075b", atMs: at)), MeetLink(station: "158744075b", time: "0930", day: "20270111"))
+        // 23:50 in Gudauri is still that day, though it is already the next day nowhere east of it
+        XCTAssertEqual(Meet.card("s", atMs: Meet.at(Day(2027, 1, 14)!, ClockTime(23, 50)!)), "s/2350/20270114")
+    }
+
     func testAReminderIsForAMeetupAheadThatIsNotTurnedOff() {
         let at = Meet.at(Day(2027, 1, 11)!, ClockTime(9, 30)!)
         func item(_ id: String, _ t: Int64) -> MeetReminders.Item {

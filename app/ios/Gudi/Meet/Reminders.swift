@@ -69,7 +69,7 @@ enum Reminders {
             guard let open = response.notification.request.content.userInfo["open"] as? String,
                   let l = MeetLink.parse(path: open), let s = l.station else { return }
             let arg = [s, l.time, l.day].compactMap { $0 }.joined(separator: "/")
-            await MainActor.run { app?.go(.meet(station: arg)) }
+            await MainActor.run { Telemetry.shared.opened(by: "notification"); app?.go(.meet(station: arg)) }
         }
 
         /// Shown as a banner even while the app is open.
