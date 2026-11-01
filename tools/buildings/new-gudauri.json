@@ -8,6 +8,7 @@
     "korter-twins": {"what": "korter.ge, Twins page: photo and renders (viewed only)", "url": "https://korter.ge/en/twins-gudauri", "date": "2026-10-31"},
     "korter-4s": {"what": "korter.ge, 4 Seasons page: renders and a construction photo (viewed only)", "url": "https://korter.ge/en/four-seasons-gudauri-gudauri", "date": "2026-10-31"},
     "commons-gudauri-10": {"what": "Wikimedia Commons, Gudauri (10).jpg, CC BY 2.0 (Twins under construction)", "url": "https://commons.wikimedia.org/wiki/File:Gudauri_(10).jpg", "date": "2026-10-31"},
+    "pini-atrium": {"what": "Pini's own photo of Atrium (sent through the manager session; not in the repo): dark grey facade, mustard and olive-gold vertical louvers, floor-to-ceiling windows, glass railings, black outside stairs", "url": "", "date": "2026-11-01"},
     "korter-aerial": {"what": "korter.ge, drone photos of New Gudauri from above and at an angle, matched to the OSM footprints (viewed only)", "url": "https://korter.ge/en/alpic-gudauri", "date": "2026-10-31"}
   },
   "styles": {
@@ -17,7 +18,7 @@
     "twins": {"facade": "chalet", "roof": "hip", "base": "#4d4b49", "wall": "#f2f0ea", "upper": "#8c8984", "bal": "#e07a2e", "eave": "#3a3633"},
     "alpic": {"facade": "modern", "roof": "hip", "base": "#3a3b3e", "wall": "#8a4a36", "upper": "#8a4a36", "bal": "#c8763b", "eave": "#2f3236"},
     "neo": {"facade": "modern", "roof": "flat", "base": "#2e3135", "wall": "#3d4147", "upper": "#3d4147", "bal": "#c27b3f", "eave": "#2a2c30"},
-    "atrium": {"facade": "glass", "roof": "flat", "base": "#3a3a36", "wall": "#8e8848", "upper": "#8e8848", "bal": "#5d6a72", "eave": "#4a4733"},
+    "atrium": {"facade": "louver", "roof": "flat", "base": "#2a2c2f", "wall": "#3c3f43", "upper": "#3c3f43", "bal": "#b3983c", "eave": "#26282b"},
     "four-seasons": {"facade": "modern", "roof": "hip", "base": "#2f3135", "wall": "#cdb48c", "upper": "#cdb48c", "bal": "#3f4247", "eave": "#33363b"},
     "kiosk": {"facade": "plain", "roof": "flat", "base": "#5c5550", "wall": "#b98a5a", "upper": "#b98a5a", "bal": "#8a5c38", "eave": "#4a3a2e"},
     "station": {"facade": "plain", "roof": "flat", "base": "#4a4f57", "wall": "#cfd5dc", "upper": "#cfd5dc", "bal": "#6f7a86", "eave": "#5a636e"}
@@ -26,7 +27,7 @@
   "buildings": {
     "w896491536": {"style": "alpic", "levels": 5, "hsrc": "photo", "lsrc": "photo", "src": "korter-alpic", "note": "red-brown brick, orange wood panels, glass atrium, dark steep gables; four storeys under a gabled attic"},
     "w566438436": {"style": "neo", "levels": 6, "hsrc": "photo", "lsrc": "photo", "src": "korter-neo", "note": "dark grey and orange wood bands, glass balconies, almost flat roof"},
-    "w566438437": {"style": "atrium", "levels": 6, "hsrc": "estimate", "lsrc": "photo", "src": "korter-aerial", "note": "olive-gold cladding with glass bands, flat roof; identified on the drone photo"},
+    "w566438437": {"style": "atrium", "levels": 6, "hsrc": "estimate", "lsrc": "photo", "src": "pini-atrium", "note": "from Pini's photo (1.11.2026); the black outside stairs are not modelled"},
     "w566438435": {"style": "four-seasons", "levels": 6, "hsrc": "estimate", "lsrc": "photo", "src": "korter-4s", "note": "probably 4 Seasons (no name on the map): sand cladding, dark vertical bands, dark ground floor, steep gables"},
     "w896491551": {"style": "twins", "levels": 6, "hsrc": "estimate", "lsrc": "photo", "src": "commons-gudauri-10", "note": "white render, orange balconies, grey wood top floor with a gable"},
     "w896491552": {"style": "twins", "levels": 6, "hsrc": "estimate", "lsrc": "photo", "src": "korter-twins"},

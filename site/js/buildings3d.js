@@ -65,6 +65,11 @@ function attach(view,opts){
         win(40,10,64,88,'#2b2e33');g.fillStyle='rgba(170,200,220,.55)';g.fillRect(34,84,76,24);g.fillStyle=SNOW;g.fillRect(34,80,76,4);}
       else if(S.facade==='glass'){g.fillStyle=S.wall;g.fillRect(0,0,TILE,TILE);const gr=g.createLinearGradient(0,40,0,100);gr.addColorStop(0,'#6f8597');gr.addColorStop(1,'#2a3846');
         g.fillStyle=gr;g.fillRect(0,40,TILE,62);g.fillStyle='rgba(0,0,0,.25)';for(let x=0;x<TILE;x+=32)g.fillRect(x,40,3,62);g.fillStyle=SNOW;g.fillRect(0,36,TILE,4);}
+      else if(S.facade==='louver'){g.fillStyle=S.wall;g.fillRect(0,0,TILE,TILE);   // Atrium, from Pini's photo: dark grey, floor-to-ceiling glass, a glass railing, vertical mustard louvers
+        const gr=g.createLinearGradient(0,8,0,112);gr.addColorStop(0,'#5f7384');gr.addColorStop(1,'#26323d');g.fillStyle=gr;g.fillRect(20,8,88,104);
+        g.fillStyle='rgba(180,210,225,.35)';g.fillRect(16,84,96,28);g.fillStyle='#1d1f22';g.fillRect(16,82,96,3);
+        g.fillStyle=S.bal;for(const x of [0,108])g.fillRect(x,0,20,TILE);g.fillStyle='rgba(0,0,0,.22)';for(const x of [6,13,114,121])g.fillRect(x,0,2,TILE);
+        g.fillStyle=SNOW;g.fillRect(16,79,96,3);}
       else{g.fillStyle=S.wall;g.fillRect(0,0,TILE,TILE);win(44,30,40,44,'#4a3a2e');}
       g.restore();slot[id].m=p;
       // the top storey: timber on a chalet, the same as the middle elsewhere
