@@ -3242,6 +3242,14 @@
       "h": 1056,
       "page": "round34",
       "title": "ג. ההמלצה: עדשה ארוכה יותר, בלי לגעת בעולם"
+    },
+    "R30-Poc.dc.html": {
+      "x": 680,
+      "y": 1374,
+      "w": 1872,
+      "h": 1022,
+      "page": "round30",
+      "title": "ב. ה-POC באתר (החלטה 77)"
     }
   },
   "createdOnFiles": {
@@ -4424,6 +4432,15 @@
       "x": 680,
       "y": -300
     },
+    "round30row1": {
+      "kind": "title1",
+      "maxW": 1872,
+      "page": "round30",
+      "text": "ב. ה-POC באתר",
+      "w": 240,
+      "x": 680,
+      "y": 1074
+    },
     "round32row0": {
       "kind": "title1",
       "maxW": 2988,
@@ -4928,7 +4945,8 @@
     "R34-0-Decide.dc.html",
     "R34-Now.dc.html",
     "R34-Three.dc.html",
-    "R34-Lens.dc.html"
+    "R34-Lens.dc.html",
+    "R30-Poc.dc.html"
   ],
   "pages": [
     {
