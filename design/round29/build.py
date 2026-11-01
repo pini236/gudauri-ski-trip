@@ -326,7 +326,7 @@ def build(dst):
     n32 = build_page(dst, 'round32', 'סבב 32: דמות מלווה', 'R32', P32, ROWS32, [], P32_DECIDE, md('סקיצות כיוון של מאייר ודמויות (`design/characters/`), בטוקנים, בלי ציור סופי ובלי קוד. הציור הסופי אחרי בחירת השפה העיצובית.'), 1000)
     n31 = build_page(dst, 'round31', 'סבב 31: אוכל ומקומות בתחנות', 'R31', P31, ROWS31, P31_TEXT, P31_DECIDE, md(lead31), 820)
     n33 = build_page(dst, 'round33', 'סבב 33: דף התמיכה', 'R33', P33, ROWS33, P33_TEXT, P33_DECIDE, md('לבקשת סשן המנהל: אפל דורשת `Support URL` ל-App Store. הדף מצויר בתוך דף הפרטיות האמיתי (`design/round33/shots.mjs`). שום דבר לא שונה באתר.'), 760)
-    n34 = build_page(dst, 'round34', 'סבב 34: קרב כדורי שלג, לראות את החבר׳ה', 'R34', P34, ROWS34, [], P34_DECIDE, md('לבקשת סשן המנהל וסשן האייפון: פיני לא רואה את הדמויות. מצויר מהמשחק של האתר (`design/round34/shots.mjs`), ורק מספרי המסגור משתנים. שום דבר לא שונה בקוד.'), 760)
+    n34 = build_page(dst, 'round34', 'סבב 34: קרב כדורי שלג, לראות את החבר׳ה', 'R34', P34, ROWS34, [], P34_DECIDE, md('**אושר: ד מתוקנת (פיני, 1.11.2026), ונמסר למימוש. הערכים ב-`design/round34/README.md`.** לבקשת סשן המנהל וסשן האייפון: פיני לא רואה את הדמויות. מצויר מהמשחק של האתר (`design/round34/shots.mjs`), ורק מספרי המסגור משתנים. שום דבר לא שונה בקוד.'), 760)
     ip = dst / 'canvas.json'
     index = json.loads(ip.read_text(encoding='utf-8'))
     ours = ['round34', 'round33', 'round32', 'round31', 'round30', 'round29']
