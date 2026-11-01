@@ -16653,6 +16653,174 @@
     "ru",
     "ka"
    ]
+  },
+  "places.chip": {
+   "he": "אוכל",
+   "en": "Food",
+   "ru": "Еда",
+   "ka": "საჭმელი",
+   "where": "site (round 31, places near the stations; the apps follow)",
+   "note": "chip on the map toolbar that turns the place tags on. one word",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "places.chip_aria": {
+   "he": "הצגת אוכל ושירותים ליד התחנות",
+   "en": "Show food and services near the stations",
+   "ru": "Показать еду и сервисы у станций",
+   "ka": "სადგურებთან საკვებისა და სერვისების ჩვენება",
+   "where": "site (round 31, places near the stations; the apps follow)",
+   "note": "aria-label of the chip",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "places.near_top": {
+   "he": "ליד התחנה העליונה",
+   "en": "Near the top station",
+   "ru": "Рядом с верхней станцией",
+   "ka": "ზედა სადგურთან",
+   "where": "site (round 31, places near the stations; the apps follow)",
+   "note": "heading in the lift panel",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "places.near_bottom": {
+   "he": "ליד התחנה התחתונה",
+   "en": "Near the bottom station",
+   "ru": "Рядом с нижней станцией",
+   "ka": "ქვედა სადგურთან",
+   "where": "site (round 31, places near the stations; the apps follow)",
+   "note": "heading in the lift panel",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "places.all_n": {
+   "he": "כל ה-{n}",
+   "en": "All {n}",
+   "ru": "Все {n}",
+   "ka": "ყველა {n}",
+   "where": "site (round 31, places near the stations; the apps follow)",
+   "note": "button that opens the whole list. {n} is more than three",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "places.none": {
+   "he": "אין מידע על מקומות כאן",
+   "en": "No information on places here",
+   "ru": "Нет данных о заведениях рядом",
+   "ka": "აქ ადგილების შესახებ ინფორმაცია არ არის",
+   "where": "site (round 31, places near the stations; the apps follow)",
+   "note": "a station with no data. not \"nothing here\"",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "places.check": {
+   "he": "כדאי לבדוק במקום",
+   "en": "Worth checking on the spot",
+   "ru": "Лучше уточнить на месте",
+   "ka": "სასურველია ადგილზე გადაამოწმოთ",
+   "where": "site (round 31, places near the stations; the apps follow)",
+   "note": "no opening hours in the data",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "places.kind_food": {
+   "he": "אוכל",
+   "en": "Food",
+   "ru": "Еда",
+   "ka": "საკვები",
+   "where": "site (round 31, places near the stations; the apps follow)",
+   "note": "kind of a place without a name",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "places.kind_cafe": {
+   "he": "בית קפה",
+   "en": "Cafe",
+   "ru": "Кафе",
+   "ka": "კაფე",
+   "where": "site (round 31, places near the stations; the apps follow)",
+   "note": "kind of a place without a name",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "places.kind_aid": {
+   "he": "עמדת הצלה",
+   "en": "Rescue post",
+   "ru": "Пост спасателей",
+   "ka": "სამაშველო პუნქტი",
+   "where": "site (round 31, places near the stations; the apps follow)",
+   "note": "kind of a place without a name. no promise of a service",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "places.kind_wc": {
+   "he": "שירותים",
+   "en": "Toilets",
+   "ru": "Туалет",
+   "ka": "საპირფარეშო",
+   "where": "site (round 31, places near the stations; the apps follow)",
+   "note": "kind of a place without a name",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "places.seasonal": {
+   "he": "עונתי",
+   "en": "Seasonal",
+   "ru": "Сезонно",
+   "ka": "სეზონური",
+   "where": "site (round 31, places near the stations; the apps follow)",
+   "note": "small tag next to a seasonal cafe",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "places.meet_count": {
+   "he": "מקומות ליד התחנה: {n}",
+   "en": "Places near the station: {n}",
+   "ru": "Заведений у станции: {n}",
+   "ka": "ადგილები სადგურთან: {n}",
+   "where": "site (round 31, places near the stations; the apps follow)",
+   "note": "one line under the meeting card",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "places.meet_names": {
+   "he": "ליד התחנה: {names}",
+   "en": "Near the station: {names}",
+   "ru": "Рядом со станцией: {names}",
+   "ka": "სადგურთან: {names}",
+   "where": "site (round 31, places near the stations; the apps follow)",
+   "note": "one line under the meeting card. {names} is a list of up to three",
+   "check": [
+    "ru",
+    "ka"
+   ]
   }
  }
 }
