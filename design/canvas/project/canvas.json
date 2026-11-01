@@ -3210,6 +3210,46 @@
       "h": 804,
       "page": "round29",
       "title": "י. ניגודיות: שלושה תיקונים לכל הפלטפורמות"
+    },
+    "R34-0-Decide.dc.html": {
+      "x": 0,
+      "y": 0,
+      "w": 600,
+      "h": 760,
+      "page": "round34",
+      "title": "מה לאשר בסבב 34"
+    },
+    "R34-Now.dc.html": {
+      "x": 680,
+      "y": 0,
+      "w": 1275,
+      "h": 1056,
+      "page": "round34",
+      "title": "א. היום: היריבים קטנים מדי"
+    },
+    "R34-Three.dc.html": {
+      "x": 2035,
+      "y": 0,
+      "w": 2538,
+      "h": 1056,
+      "page": "round34",
+      "title": "ב. שלוש החלופות של סשן האייפון"
+    },
+    "R34-Lens.dc.html": {
+      "x": 680,
+      "y": 1476,
+      "w": 1275,
+      "h": 1056,
+      "page": "round34",
+      "title": "ג. ההמלצה: עדשה ארוכה יותר, בלי לגעת בעולם"
+    },
+    "R30-Poc.dc.html": {
+      "x": 680,
+      "y": 1374,
+      "w": 1872,
+      "h": 1022,
+      "page": "round30",
+      "title": "ב. ה-POC באתר (החלטה 77)"
     }
   },
   "createdOnFiles": {
@@ -3219,7 +3259,7 @@
   "designSystems": [],
   "launch": {
     "view": "canvas",
-    "page": "round33"
+    "page": "round34"
   },
   "notes": {
     "featRow1": {
@@ -4392,6 +4432,15 @@
       "x": 680,
       "y": -300
     },
+    "round30row1": {
+      "kind": "title1",
+      "maxW": 1872,
+      "page": "round30",
+      "text": "ב. ה-POC באתר",
+      "w": 240,
+      "x": 680,
+      "y": 1074
+    },
     "round32row0": {
       "kind": "title1",
       "maxW": 2988,
@@ -4472,6 +4521,24 @@
       "w": 240,
       "x": 680,
       "y": 3464
+    },
+    "round34row0": {
+      "kind": "title1",
+      "maxW": 3893,
+      "page": "round34",
+      "text": "א. היום והחלופות",
+      "w": 240,
+      "x": 680,
+      "y": -300
+    },
+    "round34row1": {
+      "kind": "title1",
+      "maxW": 1275,
+      "page": "round34",
+      "text": "ב. ההמלצה",
+      "w": 240,
+      "x": 680,
+      "y": 1176
     }
   },
   "order": [
@@ -4874,9 +4941,18 @@
     "R21-V2-three.dc.html",
     "R21-V2-curve.dc.html",
     "R29-Trip.dc.html",
-    "R29-Contrast.dc.html"
+    "R29-Contrast.dc.html",
+    "R34-0-Decide.dc.html",
+    "R34-Now.dc.html",
+    "R34-Three.dc.html",
+    "R34-Lens.dc.html",
+    "R30-Poc.dc.html"
   ],
   "pages": [
+    {
+      "id": "round34",
+      "name": "סבב 34: קרב כדורי שלג, לראות את החבר׳ה"
+    },
     {
       "id": "round33",
       "name": "סבב 33: דף התמיכה"
