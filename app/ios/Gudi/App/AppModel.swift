@@ -144,4 +144,6 @@ final class AppModel {
 enum Site {
     static let base = URL(string: "https://gudauri-ski-trip.vercel.app")!
     static func privacy(_ lang: Lang) -> URL { URL(string: "https://gudauri-ski-trip.vercel.app/privacy#\(lang.rawValue)")! }
+    /// The support page (round 33), in the language of the app, like the privacy page.
+    static func support(_ lang: Lang) -> URL { URL(string: "https://gudauri-ski-trip.vercel.app/support#\(lang.rawValue)")! }
 }

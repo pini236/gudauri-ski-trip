@@ -1272,37 +1272,39 @@
   },
   "moment.flow.some.line": {
    "he": [
-    "בחצי הראשון של היום עצרת באמצע {am} מתוך {am_n} ירידות, ובחצי השני רק ב-{pm} מתוך {pm_n}. ההר נעשה מוכר."
+    "עצירות באמצע ירידה: {am} בחצי הראשון של היום ({am_n} ירידות), ורק {pm} בחצי השני ({pm_n} ירידות). ההר נעשה מוכר."
    ],
    "en": [
-    "In the first half of the day you stopped mid-run on {am} of {am_n} runs; in the second, on just {pm} of {pm_n}. The mountain is getting familiar."
+    "Stops mid-run: {am} in the first half of the day ({am_n} runs), just {pm} in the second ({pm_n} runs). The mountain is getting familiar."
    ],
    "ru": [
-    "Остановки посреди спуска: {am} из {am_n} в первой половине дня и только {pm} из {pm_n} во второй. Гора становится своей."
+    "Остановок посреди спуска: {am} в первой половине дня (спусков: {am_n}) и только {pm} во второй (спусков: {pm_n}). Гора становится своей."
    ],
    "ka": [
-    "დღის პირველ ნახევარში შუა გზაზე {am_n}-დან {am} დაშვებაზე გაჩერდით, მეორეში — მხოლოდ {pm_n}-დან {pm}-ზე. მთა ნაცნობი ხდება."
+    "გაჩერებები დაშვების შუაში: დღის პირველ ნახევარში {am} ({am_n} დაშვება), მეორეში — მხოლოდ {pm} ({pm_n} დაშვება). მთა ნაცნობი ხდება."
    ],
    "needs": [
     "flow"
-   ]
+   ],
+   "note": "am and pm are the number of stops in each half (a sum), am_n and pm_n the descents"
   },
   "moment.flow.none.line": {
    "he": [
-    "בחצי הראשון של היום עצרת באמצע {am} מתוך {am_n} ירידות, ובחצי השני באף אחת מ-{pm_n}. ההר נעשה מוכר."
+    "עצירות באמצע ירידה: {am} בחצי הראשון של היום ({am_n} ירידות), ובחצי השני אף אחת ({pm_n} ירידות). ההר נעשה מוכר."
    ],
    "en": [
-    "In the first half of the day you stopped mid-run on {am} of {am_n} runs; in the second, on none of {pm_n}. The mountain is getting familiar."
+    "Stops mid-run: {am} in the first half of the day ({am_n} runs), none in the second ({pm_n} runs). The mountain is getting familiar."
    ],
    "ru": [
-    "Остановки посреди спуска: {am} из {am_n} в первой половине дня и ни одной из {pm_n} во второй. Гора становится своей."
+    "Остановок посреди спуска: {am} в первой половине дня (спусков: {am_n}) и ни одной во второй (спусков: {pm_n}). Гора становится своей."
    ],
    "ka": [
-    "დღის პირველ ნახევარში შუა გზაზე {am_n}-დან {am} დაშვებაზე გაჩერდით, მეორეში — {pm_n}-დან არცერთზე. მთა ნაცნობი ხდება."
+    "გაჩერებები დაშვების შუაში: დღის პირველ ნახევარში {am} ({am_n} დაშვება), მეორეში — არცერთი ({pm_n} დაშვება). მთა ნაცნობი ხდება."
    ],
    "needs": [
     "flow"
-   ]
+   ],
+   "note": "pm = 0"
   },
   "moment.favorite.title": {
    "he": [
@@ -1391,16 +1393,16 @@
   },
   "moment.steepest.title": {
    "he": [
-    "הקטע הכי תלול"
+    "המסלול הכי תלול שלך"
    ],
    "en": [
-    "Your steepest stretch"
+    "Your steepest run"
    ],
    "ru": [
-    "Самый крутой участок"
+    "Ваша самая крутая трасса"
    ],
    "ka": [
-    "ყველაზე ციცაბო მონაკვეთი"
+    "თქვენი ყველაზე ციცაბო ტრასა"
    ],
    "needs": [
     "steepest"
@@ -1408,38 +1410,39 @@
   },
   "moment.steepest.ever.line": {
    "he": [
-    "כ-{deg}° ב-{run}. תלול יותר מכל מה שגלשת עד היום."
+    "{run}, עם קטע של כ-{deg}°. המסלול הכי תלול שגלשת עד היום."
    ],
    "en": [
-    "About {deg}° on {run}. Steeper than anything you have skied before."
+    "{run}, with a stretch of about {deg}°. The steepest run you have skied so far."
    ],
    "ru": [
-    "Около {deg}° на {run}. Круче всего, что вы проходили раньше."
+    "{run}, с участком около {deg}°. Самая крутая трасса из всех, что вы проходили."
    ],
    "ka": [
-    "დაახლოებით {deg}° {run}-ზე. უფრო ციცაბო, ვიდრე ყველაფერი, რაც აქამდე გაიარეთ."
+    "{run}, დაახლოებით {deg}°-იანი მონაკვეთით. ყველაზე ციცაბო ტრასა, რაც აქამდე გაიარეთ."
    ],
-   "note": "\"about\": the slope comes from the elevation model, which smooths short walls",
    "needs": [
     "steepest"
-   ]
+   ],
+   "note": "deg is the steepest section of the whole run (as in the run panel), not necessarily where the skier went"
   },
   "moment.steepest.today.line": {
    "he": [
-    "כ-{deg}° ב-{run}, הקטע הכי תלול של היום שלך."
+    "{run}, עם קטע של כ-{deg}°. המסלול הכי תלול של היום שלך."
    ],
    "en": [
-    "About {deg}° on {run}, the steepest bit of your day."
+    "{run}, with a stretch of about {deg}°. The steepest run of your day."
    ],
    "ru": [
-    "Около {deg}° на {run} — самый крутой участок дня."
+    "{run}, с участком около {deg}°. Самая крутая трасса вашего дня."
    ],
    "ka": [
-    "დაახლოებით {deg}° {run}-ზე — დღის ყველაზე ციცაბო მონაკვეთი."
+    "{run}, დაახლოებით {deg}°-იანი მონაკვეთით. თქვენი დღის ყველაზე ციცაბო ტრასა."
    ],
    "needs": [
     "steepest"
-   ]
+   ],
+   "note": "as above"
   },
   "moment.tomorrow.tomorrow.title": {
    "he": [
@@ -1694,17 +1697,18 @@
   },
   "moment.trip.favorite": {
    "he": [
-    "המסלול שחזרת אליו הכי הרבה: {run}, {n} פעמים."
+    "המסלול שחזרת אליו: {run}, ב-{n} מתוך {days} ימי הגלישה."
    ],
    "en": [
-    "The run you kept coming back to: {run}, {n} times."
+    "The run you kept coming back to: {run}, on {n} of your {days} ski days."
    ],
    "ru": [
-    "Трасса, на которую вы возвращались чаще всего, — {run}. Сколько раз: {n}."
+    "Трасса, к которой вы возвращались: {run} — в {n} из {days} дней катания."
    ],
    "ka": [
-    "ტრასა, რომელზეც ყველაზე ხშირად ბრუნდებოდით: {run}, {n}-ჯერ."
+    "ტრასა, რომელსაც უბრუნდებოდით: {run} — სრიალის {days} დღიდან {n}-ში."
    ],
+   "note": "n = days on which the run was skied (>= 2), not descents",
    "needs": [
     "trip"
    ]
@@ -1742,6 +1746,42 @@
    "needs": [
     "trip"
    ]
+  },
+  "moment.fastest.run.single.line": {
+   "he": [
+    "{kmh} קמ״ש ב-{run}, ב-{time}."
+   ],
+   "en": [
+    "{kmh} km/h on {run}, at {time}."
+   ],
+   "ru": [
+    "{kmh} км/ч на {run}, в {time}."
+   ],
+   "ka": [
+    "{kmh} კმ/სთ {run}-ზე, {time}-ზე."
+   ],
+   "needs": [
+    "nth"
+   ],
+   "note": "one descent only: the engine gives no when"
+  },
+  "moment.fastest.off.single.line": {
+   "he": [
+    "{kmh} קמ״ש, ב-{time}. המקום מסומן רק במפה שלך."
+   ],
+   "en": [
+    "{kmh} km/h at {time}. The spot is marked on your map only."
+   ],
+   "ru": [
+    "{kmh} км/ч в {time}. Место отмечено только на вашей карте."
+   ],
+   "ka": [
+    "{kmh} კმ/სთ {time}-ზე. ადგილი მხოლოდ თქვენს რუკაზეა მონიშნული."
+   ],
+   "needs": [
+    "nth"
+   ],
+   "note": "one descent only"
   }
  }
 }

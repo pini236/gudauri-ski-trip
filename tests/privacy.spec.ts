@@ -41,7 +41,7 @@ test('דף הפרטיות: עברית ואנגלית, בלי שגיאות ובל
 test('קישור לדף הפרטיות מדף הבית ומעמוד האודות', async ({ page }) => {
   await page.goto('/');
   await expect(page.locator('.home-privacy')).toHaveAttribute('href', 'privacy');
-  await expect(page.locator('.ab-privacy a')).toHaveAttribute('href', 'privacy');
+  await expect(page.locator('.ab-privacy a').first()).toHaveAttribute('href', 'privacy');
 });
 
 test('דף הפרטיות ברוסית ובגאורגית, ולפי השפה שנבחרה באתר', async ({ page }) => {

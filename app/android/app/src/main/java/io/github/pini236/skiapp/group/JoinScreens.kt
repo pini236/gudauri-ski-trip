@@ -45,7 +45,6 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
@@ -149,15 +148,9 @@ fun CodeScreen(initial: String, onBack: () -> Unit, onContinue: (String) -> Unit
             Spacer(Modifier.height(10.dp))
             Text(stringResource(R.string.app_g_six_letters), style = Ski.type.label.copy(fontSize = 13.sp), color = c.muted)
             Box {
-                BasicTextField(code, { v -> InviteCode.fromLink(v)?.let(onContinue) ?: run { code = InviteCode.clean(v) } },
-                    Modifier.matchParentSize().focusRequester(focus).semantics { contentDescription = label },
-                    textStyle = TextStyle(color = Color.Transparent), cursorBrush = androidx.compose.ui.graphics.SolidColor(Color.Transparent), singleLine = true,
-                    keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Characters, keyboardType = KeyboardType.Ascii, autoCorrectEnabled = false))
                 // the boxes read left to right in every language (Latin letters)
                 androidx.compose.runtime.CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
-                    Row(Modifier.fillMaxWidth().clickable { runCatching { focus.requestFocus() } }
-                        // the field above speaks for these boxes (its label and what was typed); a second, wordless button would only confuse TalkBack
-                        .clearAndSetSemantics { }, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                         for (i in 0 until 6) {
                             val ch = code.getOrNull(i)
                             Box(Modifier.weight(1f).height(64.dp).background(c.paper).border(2.dp, if (ch != null || i == code.length) c.ink else c.rule), contentAlignment = Alignment.Center) {
@@ -166,6 +159,11 @@ fun CodeScreen(initial: String, onBack: () -> Unit, onContinue: (String) -> Unit
                         }
                     }
                 }
+                // the field is on top of the boxes (it takes the taps, and speaks for them: its label and what was typed), so the boxes are not a second, wordless button for TalkBack
+                BasicTextField(code, { v -> InviteCode.fromLink(v)?.let(onContinue) ?: run { code = InviteCode.clean(v) } },
+                    Modifier.matchParentSize().focusRequester(focus).semantics { contentDescription = label },
+                    textStyle = TextStyle(color = Color.Transparent), cursorBrush = androidx.compose.ui.graphics.SolidColor(Color.Transparent), singleLine = true,
+                    keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Characters, keyboardType = KeyboardType.Ascii, autoCorrectEnabled = false))
             }
             PrimaryButton(stringResource(R.string.app_g_continue), null, { if (InviteCode.isCode(code)) onContinue(code) })
             Note(stringResource(R.string.app_g_code_letters), Icons.key)

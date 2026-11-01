@@ -261,16 +261,25 @@ function boxOf(t0, t1, padM = 0) {
    site's own top view: one badge per station (a fork and knife and how many places), a cup for the two seasonal slope
    cafes. No places at a station means no badge on the map (the panel says "no information"). */
 const PLACES = [
-  { at: [42.471146, 44.492189], n: 14, wc: true },   // base, New Gudauri (bottom of Goodaura, New Goodaura, Zuma)
-  { at: [42.492379, 44.494273], n: 1, aid: true },   // top of Goodaura (also Shino, Firni, Snow Park)
-  { at: [42.48971, 44.498974], n: 1, aid: true },    // top of Soliko (Vitamin Cafe)
-  { at: [42.497037, 44.507485], n: 1, aid: true },   // top of Kudebi (Vitamin)
-  { at: [42.471099, 44.487723], n: 3, wc: true },    // bottom of Soliko, between the villages
-  { at: [42.462131, 44.485141], n: 2, wc: true },    // bottom of Pirveli, the old village
-  { at: [42.473577, 44.482861], n: 2 },              // bottom of Shino
+  { at: [42.471146, 44.492189], n: 14, wc: true, k: ['food', 'wc'], dx: 16 },   // base, New Gudauri (bottom of Goodaura, New Goodaura, Zuma)
+  { at: [42.492379, 44.494273], n: 1, aid: true, k: ['food', 'aid'] },  // top of Goodaura (also Shino, Firni, Snow Park)
+  { at: [42.48971, 44.498974], n: 1, aid: true, k: ['cafe', 'aid'] },   // top of Soliko (Vitamin Cafe)
+  { at: [42.497037, 44.507485], n: 1, aid: true, k: ['cafe', 'aid'] },  // top of Kudebi (Vitamin)
+  { at: [42.471099, 44.487723], n: 3, wc: true, k: ['food', 'wc'], dx: -22 },    // bottom of Soliko, between the villages
+  { at: [42.462131, 44.485141], n: 2, wc: true, k: ['food', 'wc'] },    // bottom of Pirveli, the old village
+  { at: [42.473577, 44.482861], n: 2, k: ['food'] },                    // bottom of Shino
   { at: [42.4809, 44.5068], cup: true },             // 2300, seasonal
   { at: [42.4752, 44.4893], cup: true },             // Soliko cafe, seasonal
 ];
+// version 2 (Pini, 31.10.2026: more prominent, not all one colour): a colour per kind, kept clear of the run colours
+const KIND = { food: '#E8702A', cafe: '#8A5A33', aid: '#1E9E4A', wc: '#6A4FB5' };
+function kindIcon(add, g, k) {
+  const w = { fill: 'none', stroke: '#fff', 'stroke-width': 1.6, 'stroke-linecap': 'round', 'stroke-linejoin': 'round' };
+  if (k === 'food') add(g, 'path', { ...w, d: 'M-3 -5v4a1.5 1.5 0 0 0 3 0v-4 M-1.5 -1v6 M3 -5c-1.6.8-2 2.6-2 4.5h2V5' });
+  if (k === 'cafe') add(g, 'path', { ...w, d: 'M-4.5 -2.5h7v3a3.5 3.5 0 0 1-3.5 3.5h0a3.5 3.5 0 0 1-3.5-3.5z M2.5 -1.5h1.2a1.6 1.6 0 0 1 0 3.2H2.5' });
+  if (k === 'aid') add(g, 'path', { fill: '#fff', d: 'M-1.6 -5h3.2v3.4H5v3.2H1.6V5h-3.2V1.6H-5v-3.2h3.4z' });
+  if (k === 'wc') add(g, 'text', { x: 0, y: 0.5, 'text-anchor': 'middle', 'dominant-baseline': 'central', 'font-family': 'IBM Plex Sans, sans-serif', 'font-weight': 700, 'font-size': 6.5, fill: '#fff' }, 'WC');
+}
 async function places(o = {}) {
   await data(); await topView();
   const svg = $('#map');
@@ -281,6 +290,7 @@ async function places(o = {}) {
   const g = document.createElementNS(NS, 'g'); g.setAttribute('class', 'r31');
   const add = (parent, tag, attrs, text) => { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); if (text != null) e.textContent = text; parent.appendChild(e); return e; };
   const ink = o.night ? '#E8EEF5' : '#13233A', paper = o.night ? '#1B2638' : '#FFFFFF';
+  if (o.v2) { places2(o, g, add, px, ink, paper); svg.appendChild(g); return { px }; }
   for (const q of PLACES) {
     const [x, y] = P(q.at), s = px * (q.cup ? 1 : 1.1);
     const b = add(g, 'g', { transform: `translate(${x} ${y}) scale(${s})` });
@@ -297,6 +307,24 @@ async function places(o = {}) {
   svg.appendChild(g);
   return { px };
 }
-window.R31 = { places, P };
+function places2(o, g, add, px, ink, paper) {
+  for (const q of PLACES) {
+    const [x, y] = P(q.at);
+    if (o.v2 === 'small') {
+      // always on: a short row of coloured dots at the station, no numbers
+      const ks = q.cup ? ['cafe'] : q.k, s = px * 1.35, b = add(g, 'g', { transform: `translate(${x} ${y}) scale(${s})` });
+      ks.forEach((k, i) => { const cx = (i - (ks.length - 1) / 2) * 11; add(b, 'circle', { cx, cy: 0, r: 6, fill: KIND[k], stroke: paper, 'stroke-width': 1.6, ...(q.cup ? { 'stroke-dasharray': '2 1.5' } : {}) }); });
+      continue;
+    }
+    // the chip on: a pill with a disc per kind and the count, pointing at the station
+    const ks = q.cup ? ['cafe'] : q.k, s = px * 1.35, b = add(g, 'g', { transform: `translate(${x} ${y}) scale(${s})` });
+    const num = !q.cup && q.n > 1 ? String(q.n) : '', nw = num ? num.length * 7 + 4 : 0, w = ks.length * 17 + 6 + nw, h = 21;
+    const d = q.dx || 0;
+    add(b, 'path', { d: `M0 0L${d - 4.5} -6H${d - w / 2 + 4}a4 4 0 0 1-4-4v${-(h - 8)}a4 4 0 0 1 4-4H${d + w / 2 - 4}a4 4 0 0 1 4 4v${h - 8}a4 4 0 0 1-4 4H${d + 4.5}z`, fill: paper, stroke: q.cup ? ink : 'rgba(19,35,58,.18)', 'stroke-width': 1, ...(q.cup ? { 'stroke-dasharray': '3 2' } : {}), filter: 'drop-shadow(0 1.5px 2px rgba(0,0,0,.28))' });
+    ks.forEach((k, i) => { const cx = d - w / 2 + 3 + 8.5 + i * 17, gg = add(b, 'g', { transform: `translate(${cx} ${-6 - h / 2})` }); add(gg, 'circle', { r: 7.6, fill: KIND[k] }); kindIcon(add, gg, k); });
+    if (num) add(b, 'text', { x: d + w / 2 - 4, y: -6 - h / 2, 'text-anchor': 'end', 'dominant-baseline': 'central', direction: 'ltr', 'unicode-bidi': 'embed', 'font-family': 'IBM Plex Sans, sans-serif', 'font-weight': 700, 'font-size': 11.5, fill: ink }, num);
+  }
+}
+window.R31 = { places, P, KIND };
 window.R29 = { day, draw, boxOf, speedColor, get DAY() { return DAY; } };
 })();
