@@ -4,6 +4,7 @@
 Inputs (all in the repo):
   tools/buildings/osm-buildings.json   footprints, OpenStreetMap (ODbL)
   tools/buildings/overture-roads.json  road centrelines, Overture Maps (derived from OSM, ODbL)
+  tools/buildings/osm-mapped.json      what is mapped around them: signs, stops, parking (OSM, ODbL)
   tools/buildings/new-gudauri.json     heights, looks and where each look came from
   site/data/terrain.json               the projection (proj) shared with the 3D model
   site/data/runs-and-lifts.json        runs and lifts, so street lamps never land on them
@@ -38,6 +39,7 @@ def load(*a):
 cfg = load('tools', 'buildings', 'new-gudauri.json')
 osm = load('tools', 'buildings', 'osm-buildings.json')
 rds = load('tools', 'buildings', 'overture-roads.json')
+mapped = load('tools', 'buildings', 'osm-mapped.json')
 proj = load('site', 'data', 'terrain.json')['proj']
 runs = load('site', 'data', 'runs-and-lifts.json')
 
@@ -222,6 +224,20 @@ for k, line, wd in road_lines:
         side = -side
 deco = [{'t': 'lamp', 'x': r1(x), 'y': r1(y), 'fill': True} for x, y in lamps]
 
+# ---------- mapped objects: only what OSM has (the architect: signs only if mapped), with the OSM id ----------
+areas = []
+for m in mapped['elements']:
+    t = m['tags']
+    if 'pos' in m:
+        kind = 'bus_stop' if t.get('highway') == 'bus_stop' else ('sign' if 'traffic_sign' in t else t.get('highway'))
+        x, y = xy(*m['pos'])
+        deco.append({'t': kind, 'x': r1(x), 'y': r1(y), 'osm': m['id'], 'fill': False})
+    elif t.get('amenity') == 'parking':
+        ring = [xy(la, lo) for la, lo in m['geometry']]
+        if ring[0] == ring[-1]:
+            ring = ring[:-1]
+        areas.append({'k': 'parking', 'osm': m['id'], 'p': [[r1(x), r1(y)] for x, y in simplify_ring(ring, 0.3)]})
+
 data = {
     'schema': 1,
     'proj': proj,
@@ -238,6 +254,7 @@ data = {
     'b': out_b,
     'roads': out_r,
     'deco': deco,
+    'areas': areas,
 }
 txt = json.dumps(data, ensure_ascii=False, separators=(',', ':'))
 if len(txt.encode()) > MAX_BYTES:
@@ -250,4 +267,4 @@ if '--check' in sys.argv:
 else:
     with open(OUT, 'w', encoding='utf-8') as f:
         f.write(txt + '\n')
-    print(f'build-buildings: {len(out_b)} buildings, {len(out_r)} roads, {len(deco)} lamps, {len(txt.encode())} bytes')
+    print(f'build-buildings: {len(out_b)} buildings, {len(out_r)} roads, {len(lamps)} lamps, {len(deco)-len(lamps)} mapped objects, {len(areas)} areas, {len(txt.encode())} bytes')

@@ -169,6 +169,14 @@ function attach(view,opts){
       const v=[q(a,-1),q(b,-1),q(b,1),q(a,-1),q(b,1),q(a,1)];v.forEach(p=>{A.p.push(...p);A.c.push(c.r,c.g,c.b);});tri+=2;}};
     data.roads.forEach(r=>{ribbon(r.p,r.w+2.6,1.3,bank);});
     data.roads.forEach(r=>{ribbon(r.p,r.w,1.5,asphalt);});
+    // mapped parking (unpaved in OSM): ploughed, packed snow and gravel, cut into the ground snow
+    const yard=new THREE.Color('#9d968c');
+    (data.areas||[]).forEach(a=>{if(a.k!=='parking')return;const P=a.p;
+      // split until every edge is under 12 m (the ground grid step), so the surface follows the slope instead of cutting through it
+      const put=(a,b,c)=>{const L=Math.max(Math.hypot(a[0]-b[0],a[1]-b[1]),Math.hypot(b[0]-c[0],b[1]-c[1]),Math.hypot(c[0]-a[0],c[1]-a[1]));
+        if(L>12){const m=(u,v)=>[(u[0]+v[0])/2,(u[1]+v[1])/2],ab=m(a,b),bc=m(b,c),ca=m(c,a);put(a,ab,ca);put(ab,b,bc);put(ca,bc,c);put(ab,bc,ca);return;}
+        [a,b,c].forEach(q=>{A.p.push(q[0],G(q[0],q[1])+1.4,q[1]);A.c.push(yard.r,yard.g,yard.b);});tri++;};
+      THREE.ShapeUtils.triangulateShape(P.map(q=>new THREE.Vector2(q[0],q[1])),[]).forEach(t=>put(P[t[0]],P[t[2]],P[t[1]]));});
     const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(A.p,3));g.setAttribute('color',new THREE.Float32BufferAttribute(A.c,3));g.computeVertexNormals();
     const m=new THREE.MeshLambertMaterial({vertexColors:true,side:THREE.DoubleSide,polygonOffset:true,polygonOffsetFactor:-2,polygonOffsetUnits:-4});
     const mesh=new THREE.Mesh(g,m);mesh.renderOrder=1.5;group.add(mesh);mats.push(m);return tri;}
@@ -193,6 +201,11 @@ function attach(view,opts){
       const pg=mergeTwo(pole,head),pm=new THREE.MeshLambertMaterial({color:0x2c3036});const im=new THREE.InstancedMesh(pg,pm,lamps.length);
       lamps.forEach((o,i)=>{m4.compose(new THREE.Vector3(o.x,G(o.x,o.y)+0.5,o.y),q.setFromAxisAngle(up,(i*1.7)%6.28),s);im.setMatrixAt(i,m4);});
       group.add(im);objs.push(im);mats.push(pm);tri+=lamps.length*(pg.index?pg.index.count:pg.attributes.position.count)/3;}
+    // mapped objects (osm id in the data, never completed): a bus stop is a pole with the blue stop sign
+    data.deco.filter(o=>o.osm&&o.t==='bus_stop').forEach(o=>{const pole=new THREE.CylinderGeometry(0.06,0.06,2.6,6);pole.translate(0,1.3,0);
+      const sign=new THREE.BoxGeometry(0.6,0.6,0.05);sign.translate(0,2.6,0);const g=mergeTwo(pole,sign);
+      const m=new THREE.MeshLambertMaterial({color:0x1f5fa8,emissive:0x0b2440});const mesh=new THREE.Mesh(g,m);
+      mesh.position.set(o.x,G(o.x,o.y)+0.5,o.y);mesh.scale.setScalar(1.6);group.add(mesh);mats.push(m);tri+=g.attributes.position.count/3;});
     // dormers: a little gabled box on the roof edge, facing out, every 9 m on walls of 8 m and more
     const spots=[];
     meta.forEach(M=>{const b=M.b,st=data.styles[b.look];if(!b.rh||st.facade!=='chalet')return;const P=b.p,n=P.length,ccw=area(P)>0?1:-1;

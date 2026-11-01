@@ -35,7 +35,8 @@ test('the data: schema 1, a source for every height and look, inside the budget'
     if (b.lsrc === 'photo') expect(d.sources[b.src]).toBeTruthy();
     expect(d.styles[b.look]).toBeTruthy();
   }
-  for (const o of d.deco) expect(o.fill).toBe(true);
+  // completed decorations say so; anything else must be mapped (an OSM id)
+  for (const o of d.deco) expect(o.fill === true || /^[nwr]\d+$/.test(o.osm)).toBe(true);
 });
 
 test('without the flag, nothing of the buildings loads', async ({ page }) => {
