@@ -5,9 +5,9 @@
 :root{
   --snow:#EEF2F5; --paper:#FFFFFF; --ink:#13233A; --muted:#4B5A6F; --rule:#CBD5DF; --glacier:#1F5FC4;
   --grid:#DCE4EC; --lift:#3A4556; --casing:#FFFFFF;
-  --p-green:#1B8A4C; --p-blue:#1F5FC4; --p-red:#D1342B; --p-black:#13233A; --on-board:#FFFFFF;
+  --p-green:#198549; --p-blue:#1F5FC4; --p-red:#D1342B; --p-black:#13233A; --on-board:#FFFFFF;
   --p-route:#EE8E1C; --p-route-edge:#D1342B; --route-ink:#1A1206;
-  --accent:#1F5FC4; --on-accent:#FFFFFF; --dash:#8E9CAD;
+  --accent:#1F5FC4; --on-accent:#FFFFFF; --dash:#77869A;
   --sky1:#DCE8F1; --sky2:#EEF2F5;
   --water:#8db6d8; --water-edge:#5f8fbb; --road:#a49a91; --road-main:#8a7c70; --vill:#e3d8cb; --contour:#8193a8; --contour-i:#62758c; --peak:#3d4a5c;
   --shadow:rgba(19,35,58,.18);
@@ -24,7 +24,7 @@
   --grid:#18263A; --lift:#C9D3E0; --casing:#0D1522;
   --p-green:#3CC47C; --p-blue:#5B9BFF; --p-red:#FF6A5F; --p-black:#EAF0F7; --on-board:#0D1522;
   --p-route:#F5A84B; --p-route-edge:#FF6A5F;
-  --accent:#F4B942; --on-accent:#0D1522; --dash:#51627D;
+  --accent:#F4B942; --on-accent:#0D1522; --dash:#6A7C99;
   --sky1:#0B1320; --sky2:#16223A;
   --water:#2c5a82; --water-edge:#4d82b3; --road:#6d6760; --road-main:#8f857b; --vill:#3a352f; --contour:#5a6d85; --contour-i:#7a90aa; --peak:#c9d3e0;
   --shadow:rgba(0,0,0,.45);
@@ -38,7 +38,7 @@
   --grid:#18263A; --lift:#C9D3E0; --casing:#0D1522;
   --p-green:#3CC47C; --p-blue:#5B9BFF; --p-red:#FF6A5F; --p-black:#EAF0F7; --on-board:#0D1522;
   --p-route:#F5A84B; --p-route-edge:#FF6A5F;
-  --accent:#F4B942; --on-accent:#0D1522; --dash:#51627D;
+  --accent:#F4B942; --on-accent:#0D1522; --dash:#6A7C99;
   --sky1:#0B1320; --sky2:#16223A;
   --water:#2c5a82; --water-edge:#4d82b3; --road:#6d6760; --road-main:#8f857b; --vill:#3a352f; --contour:#5a6d85; --contour-i:#7a90aa; --peak:#c9d3e0;
   --shadow:rgba(0,0,0,.45);
@@ -333,7 +333,7 @@ ul.notes li{margin-bottom:4px}
 
 /* 3D */
 #map3d{position:absolute;inset:0;background:linear-gradient(180deg,var(--sky1),var(--sky2) 70%);overflow:hidden}
-.r3-labels{--ink:#13233A;--muted:#4B5A6F;--peak:#3d4a5c;--casing:#FFFFFF;--p-green:#1B8A4C;--p-blue:#1F5FC4;--p-red:#D1342B;--p-black:#13233A;--p-route:#EE8E1C;--p-route-edge:#D1342B}
+.r3-labels{--ink:#13233A;--muted:#4B5A6F;--peak:#3d4a5c;--casing:#FFFFFF;--p-green:#198549;--p-blue:#1F5FC4;--p-red:#D1342B;--p-black:#13233A;--p-route:#EE8E1C;--p-route-edge:#D1342B}
 #map3d[hidden]{display:none}
 .r3-labels{position:absolute;inset:0;pointer-events:none;overflow:hidden}
 .r3-lbl{position:absolute;left:0;top:0;display:none;white-space:nowrap;font-size:12.5px;line-height:1.2;direction:ltr;color:var(--ink);text-shadow:0 0 3px var(--casing),0 0 3px var(--casing),0 0 2px var(--casing)}
@@ -1011,9 +1011,9 @@ html[lang="ka"] .pv-doc h1{font-size:36px;overflow-wrap:anywhere}
 /* weather by altitude (round 19, decision 58): a layer chip that reads like the filter chips but is off by default,
    pins in the meet callout's language, the same three places in a list, the run's conditions, and the home board.
    Wind risk is never green and red (those are piste colours here): ink, a word and a three-step meter */
-.wx-chip{display:flex;align-items:center;gap:7px;height:44px;padding:0 14px;border:1.5px solid var(--ink);background:var(--paper);color:var(--ink);font:inherit;font-size:14px;font-weight:600;white-space:nowrap;flex:none;cursor:pointer}
-.wx-chip[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
-.wx-chip svg{flex:none}
+.wx-chip,.pl-chip{display:flex;align-items:center;gap:7px;height:44px;padding:0 14px;border:1.5px solid var(--ink);background:var(--paper);color:var(--ink);font:inherit;font-size:14px;font-weight:600;white-space:nowrap;flex:none;cursor:pointer}
+.wx-chip[aria-pressed="true"],.pl-chip[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+.wx-chip svg,.pl-chip svg{flex:none}
 .wx-pins{position:absolute;inset:0;z-index:3;pointer-events:none}
 .wx-pin{position:absolute;display:flex;flex-direction:column;gap:2px;min-width:118px;padding:6px 9px 7px;background:var(--paper);border:1.5px solid var(--ink);box-shadow:0 4px 10px var(--shadow);color:var(--ink)}
 .wx-stem{position:absolute;width:1.5px;background:var(--ink)}
@@ -1269,3 +1269,25 @@ html[lang="ka"] .pv-doc h1{font-size:36px;overflow-wrap:anywhere}
 .b3d-card p{margin:4px 0 0}
 .b3d-card .b3d-note{color:var(--muted);font-size:12.5px}
 .b3d-card .b3d-x{position:absolute;inset-inline-end:0;top:0;width:44px;height:44px;border:0;background:none;color:var(--ink);font-size:22px;cursor:pointer}
+
+/* food and services near the stations (round 31): one colour per kind, dots on the map at all times, tags with the chip */
+:root{--pl-food:#E8702A;--pl-cafe:#8A5A33;--pl-aid:#1E9E4A;--pl-wc:#6A4FB5}
+.pl-dot{display:inline-block;flex:none;width:10px;height:10px;border-radius:50%;box-shadow:0 0 0 1.5px var(--paper)}
+.pl-food{background:var(--pl-food)}.pl-cafe{background:var(--pl-cafe)}.pl-aid{background:var(--pl-aid)}.pl-wc{background:var(--pl-wc)}
+.pl-pins{position:absolute;inset:0;z-index:2;pointer-events:none}
+.pl-st{position:absolute;display:flex;align-items:center;gap:3px;transform:translate(0,-50%)}
+.pl-st.tag{gap:5px;padding:3px 7px;background:var(--paper);border:1.5px solid var(--ink);box-shadow:0 3px 8px var(--shadow);font-size:12px;color:var(--ink)}
+.pl-st.tag .pl-dot{box-shadow:none}
+.pl-st.slope{transform:translate(-50%,-50%)}
+.pl-st.slope .pl-dot{width:12px;height:12px;background:var(--paper);border:2px dashed currentColor;box-shadow:none;box-sizing:border-box}
+.pl-st.slope .pl-cafe{color:var(--pl-cafe)}.pl-st.slope .pl-food{color:var(--pl-food)}
+.pl-st.slope bdi{margin-inline-start:5px;padding:2px 6px;background:var(--paper);border:1.5px solid var(--ink);font-size:12px;white-space:nowrap;color:var(--ink)}
+.pl-near{margin:14px 0 0}.pl-near h3{margin:0 0 6px}
+.pl-near ul{list-style:none;margin:0;padding:0}
+.pl-near li{display:flex;align-items:center;gap:8px;min-height:30px;font-size:14px}
+.pl-near small{color:var(--muted);font-size:12px}
+.pl-near details{margin-top:4px}
+.pl-near summary{display:flex;align-items:center;min-height:44px;cursor:pointer;font-weight:600;font-size:14px}
+.pl-none,.pl-check{margin:0;font-size:13px;color:var(--muted)}
+.pl-check{margin-top:6px}
+.mcard-places{margin:8px 4px 0;font-size:13px;color:var(--muted)}
