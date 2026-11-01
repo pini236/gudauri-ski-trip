@@ -1,0 +1,640 @@
+{
+ "fetched": "2026-11-01",
+ "source": "api.openstreetmap.org/api/0.6",
+ "license": "ODbL 1.0, (c) OpenStreetMap contributors",
+ "objects": {
+  "node/10723872905": {
+   "v": 2,
+   "ts": "2026-06-19",
+   "ll": [
+    42.47057,
+    44.4930765
+   ],
+   "tags": {
+    "amenity": "fast_food",
+    "cuisine": "italian_pizza",
+    "name:en": "Posticino"
+   }
+  },
+  "node/11103888462": {
+   "v": 4,
+   "ts": "2025-06-10",
+   "ll": [
+    42.4623826,
+    44.4812071
+   ],
+   "tags": {
+    "amenity": "fast_food",
+    "cuisine": "donut;bagel;pizza;hot_dog;burger",
+    "name": "დანკინ დონათსი",
+    "name:en": "Dunkin' Donuts"
+   }
+  },
+  "node/11184488656": {
+   "v": 2,
+   "ts": "2025-12-17",
+   "ll": [
+    42.4969156,
+    44.5074835
+   ],
+   "tags": {
+    "amenity": "cafe",
+    "name": "ვიტამინი"
+   }
+  },
+  "node/1207164745": {
+   "v": 1,
+   "ts": "2011-03-18",
+   "ll": [
+    42.4604,
+    44.4837418
+   ],
+   "tags": {
+    "amenity": "drinking_water"
+   }
+  },
+  "node/1207165719": {
+   "v": 3,
+   "ts": "2025-06-18",
+   "ll": [
+    42.5561514,
+    44.4998479
+   ],
+   "tags": {
+    "check_date": "2025-06-18"
+   }
+  },
+  "node/12370404044": {
+   "v": 1,
+   "ts": "2024-11-24",
+   "ll": [
+    42.4602678,
+    44.4822398
+   ],
+   "tags": {
+    "amenity": "fast_food",
+    "check_date": "2024-09-07"
+   }
+  },
+  "node/12468535501": {
+   "v": 2,
+   "ts": "2025-01-02",
+   "ll": [
+    42.5310321,
+    44.494217
+   ],
+   "tags": {
+    "amenity": "restaurant",
+    "cuisine": "georgian",
+    "name": "Green and White"
+   }
+  },
+  "node/12483826807": {
+   "v": 2,
+   "ts": "2026-08-08",
+   "ll": [
+    42.4931415,
+    44.4942955
+   ],
+   "tags": {
+    "amenity": "rescue_station"
+   }
+  },
+  "node/12483826808": {
+   "v": 1,
+   "ts": "2025-01-08",
+   "ll": [
+    42.4973708,
+    44.5074002
+   ],
+   "tags": {
+    "amenity": "rescue_station"
+   }
+  },
+  "node/12520879906": {
+   "v": 7,
+   "ts": "2026-06-15",
+   "ll": [
+    42.4688525,
+    44.4912883
+   ],
+   "tags": {
+    "amenity": "restaurant",
+    "name": "Gondola"
+   }
+  },
+  "node/12922878463": {
+   "v": 1,
+   "ts": "2025-06-18",
+   "ll": [
+    42.4628803,
+    44.4815509
+   ],
+   "tags": {
+    "amenity": "fast_food",
+    "check_date": "2025-06-18"
+   }
+  },
+  "node/13097397531": {
+   "v": 4,
+   "ts": "2026-06-15",
+   "ll": [
+    42.4685926,
+    44.4911212
+   ],
+   "tags": {
+    "amenity": "bar",
+    "name": "Hee Haw Gastro-bar Gudauri",
+    "status": "inactive"
+   }
+  },
+  "node/13097397532": {
+   "v": 3,
+   "ts": "2025-10-11",
+   "ll": [
+    42.4687195,
+    44.4917605
+   ],
+   "tags": {
+    "amenity": "fast_food",
+    "name": "Goodaura"
+   }
+  },
+  "node/13097397713": {
+   "v": 7,
+   "ts": "2026-08-08",
+   "ll": [
+    42.4700353,
+    44.4910062
+   ],
+   "tags": {
+    "amenity": "restaurant",
+    "check_date": "2026-08-08",
+    "name": "მთვრალი ალუბალი",
+    "name:en": "Drunk Cherry"
+   }
+  },
+  "node/13382152683": {
+   "v": 3,
+   "ts": "2026-06-19",
+   "ll": [
+    42.470531,
+    44.4928499
+   ],
+   "tags": {
+    "amenity": "restaurant",
+    "check_date": "2026-06-14",
+    "name": "Friends",
+    "name:en": "Friends"
+   }
+  },
+  "node/13382152684": {
+   "v": 1,
+   "ts": "2025-12-16",
+   "ll": [
+    42.4746965,
+    44.4810301
+   ],
+   "tags": {
+    "amenity": "restaurant",
+    "check_date": "2025-06-18"
+   }
+  },
+  "node/13382159801": {
+   "v": 1,
+   "ts": "2025-12-16",
+   "ll": [
+    42.4715805,
+    44.4840972
+   ],
+   "tags": {
+    "amenity": "restaurant",
+    "check_date": "2025-06-18",
+    "name": "სნოუ რუმს",
+    "name:en": "Snow Rooms"
+   }
+  },
+  "node/13382159830": {
+   "v": 2,
+   "ts": "2026-06-13",
+   "ll": [
+    42.470527,
+    44.4850346
+   ],
+   "tags": {
+    "amenity": "restaurant",
+    "check_date": "2026-06-13",
+    "name": "მონტის",
+    "name:en": "Montis"
+   }
+  },
+  "node/13382159837": {
+   "v": 3,
+   "ts": "2026-06-15",
+   "ll": [
+    42.4701913,
+    44.4934228
+   ],
+   "tags": {
+    "amenity": "restaurant",
+    "check_date": "2026-06-13",
+    "name": "ვარცლა",
+    "name:en": "Vartsla"
+   }
+  },
+  "node/13936633745": {
+   "v": 2,
+   "ts": "2026-06-15",
+   "ll": [
+    42.469303,
+    44.4925016
+   ],
+   "tags": {
+    "amenity": "restaurant",
+    "check_date": "2026-06-13",
+    "cuisine": "georgian",
+    "name": "გამარჯობა გუდაური",
+    "name:en": "Gamarjoba Gudauri"
+   }
+  },
+  "node/13936809520": {
+   "v": 2,
+   "ts": "2026-06-15",
+   "ll": [
+    42.4700624,
+    44.4933503
+   ],
+   "tags": {
+    "amenity": "restaurant",
+    "check_date": "2026-06-13",
+    "name": "Grizzly",
+    "name:en": "Grizzly",
+    "seasonal": "winter"
+   }
+  },
+  "node/13936809522": {
+   "v": 2,
+   "ts": "2026-06-15",
+   "ll": [
+    42.4699557,
+    44.4932707
+   ],
+   "tags": {
+    "amenity": "restaurant",
+    "check_date": "2026-06-13",
+    "name": "მიქსი",
+    "name:en": "Mix",
+    "seasonal": "winter"
+   }
+  },
+  "node/13936809524": {
+   "v": 2,
+   "ts": "2026-06-15",
+   "ll": [
+    42.4695843,
+    44.4933
+   ],
+   "tags": {
+    "amenity": "restaurant",
+    "check_date": "2026-06-13",
+    "name": "ვერანდა",
+    "name:en": "Veranda",
+    "seasonal": "winter"
+   }
+  },
+  "node/13938566461": {
+   "v": 2,
+   "ts": "2026-06-14",
+   "ll": [
+    42.4809125,
+    44.5067787
+   ],
+   "tags": {
+    "amenity": "cafe",
+    "name": "2300",
+    "seasonal": "winter"
+   }
+  },
+  "node/13941722196": {
+   "v": 2,
+   "ts": "2026-06-15",
+   "ll": [
+    42.4706032,
+    44.4914336
+   ],
+   "tags": {
+    "amenity": "cafe",
+    "check_date": "2026-06-15",
+    "name": "ყინულის ბარი",
+    "name:en": "Ice Bar",
+    "seasonal": "yes"
+   }
+  },
+  "node/13942256515": {
+   "v": 2,
+   "ts": "2026-06-15",
+   "ll": [
+    42.4752049,
+    44.4893255
+   ],
+   "tags": {
+    "amenity": "cafe",
+    "check_date": "2026-06-15",
+    "name": "სოლიქო",
+    "name:en": "Soliko",
+    "seasonal": "winter"
+   }
+  },
+  "node/2153553593": {
+   "v": 2,
+   "ts": "2015-12-12",
+   "ll": [
+    42.4620317,
+    44.4822459
+   ],
+   "tags": {
+    "amenity": "restaurant",
+    "name": "Sadzele"
+   }
+  },
+  "node/2153562256": {
+   "v": 1,
+   "ts": "2013-02-13",
+   "ll": [
+    42.4608155,
+    44.4846325
+   ],
+   "tags": {
+    "amenity": "restaurant"
+   }
+  },
+  "node/2153562261": {
+   "v": 1,
+   "ts": "2013-02-13",
+   "ll": [
+    42.4609137,
+    44.4846841
+   ],
+   "tags": {
+    "amenity": "bar"
+   }
+  },
+  "node/2153562263": {
+   "v": 1,
+   "ts": "2013-02-13",
+   "ll": [
+    42.4609454,
+    44.4845509
+   ],
+   "tags": {
+    "amenity": "nightclub"
+   }
+  },
+  "node/2155270203": {
+   "v": 1,
+   "ts": "2013-02-14",
+   "ll": [
+    42.4616253,
+    44.4851277
+   ],
+   "tags": {
+    "amenity": "toilets"
+   }
+  },
+  "node/2155270205": {
+   "v": 2,
+   "ts": "2024-11-26",
+   "ll": [
+    42.4708375,
+    44.4874559
+   ],
+   "tags": {
+    "amenity": "toilets"
+   }
+  },
+  "node/2155270206": {
+   "v": 3,
+   "ts": "2025-02-24",
+   "ll": [
+    42.4705196,
+    44.4911956
+   ],
+   "tags": {
+    "amenity": "toilets"
+   }
+  },
+  "node/2155270211": {
+   "v": 2,
+   "ts": "2024-03-10",
+   "ll": [
+    42.4900409,
+    44.4991209
+   ],
+   "tags": {
+    "amenity": "mountain_rescue"
+   }
+  },
+  "node/4685037390": {
+   "v": 2,
+   "ts": "2025-10-11",
+   "ll": [
+    42.4902796,
+    44.4987637
+   ],
+   "tags": {
+    "amenity": "cafe",
+    "name": "Vitamin Cafe",
+    "name:en": "Vitamin Cafe"
+   }
+  },
+  "node/4685037391": {
+   "v": 1,
+   "ts": "2017-02-14",
+   "ll": [
+    42.4901689,
+    44.4989958
+   ],
+   "tags": {
+    "amenity": "toilets"
+   }
+  },
+  "node/4685037393": {
+   "v": 1,
+   "ts": "2017-02-14",
+   "ll": [
+    42.493012,
+    44.4948826
+   ],
+   "tags": {
+    "amenity": "toilets"
+   }
+  },
+  "node/4685037394": {
+   "v": 1,
+   "ts": "2017-02-14",
+   "ll": [
+    42.4929487,
+    44.4950194
+   ],
+   "tags": {
+    "amenity": "fast_food"
+   }
+  },
+  "node/5117718521": {
+   "v": 1,
+   "ts": "2017-09-20",
+   "ll": [
+    42.4744984,
+    44.480373
+   ],
+   "tags": {
+    "amenity": "restaurant",
+    "cuisine": "regional;georgian",
+    "name:en": "Dariali"
+   }
+  },
+  "node/5415086147": {
+   "v": 7,
+   "ts": "2026-02-25",
+   "ll": [
+    42.4970366,
+    44.5074848
+   ],
+   "tags": {
+    "amenity": "cafe",
+    "cuisine": "regional",
+    "name": "საბაგირო გზა \"კუდები - 2\"",
+    "name:en": "Kudebi upper station"
+   }
+  },
+  "node/5439943085": {
+   "v": 1,
+   "ts": "2018-02-27",
+   "ll": [
+    42.4614107,
+    44.4828171
+   ],
+   "tags": {
+    "amenity": "restaurant"
+   }
+  },
+  "node/6283789785": {
+   "v": 2,
+   "ts": "2025-10-11",
+   "ll": [
+    42.4619292,
+    44.4823318
+   ],
+   "tags": {
+    "amenity": "cafe",
+    "cuisine": "georgian",
+    "name:en": "AfterSkis"
+   }
+  },
+  "node/7085540886": {
+   "v": 11,
+   "ts": "2026-06-15",
+   "ll": [
+    42.4698223,
+    44.4932369
+   ],
+   "tags": {
+    "amenity": "bar",
+    "check_date": "2026-06-14",
+    "cuisine": "friture;burger;coffee_shop;international;fish_and_chips;diner;savory_pancakes;crepe;chicken;sandwich",
+    "name": "ესკიმოსი",
+    "name:en": "Еskimos",
+    "seasonal": "winter"
+   }
+  },
+  "node/7116989087": {
+   "v": 4,
+   "ts": "2026-06-15",
+   "ll": [
+    42.4703155,
+    44.4923818
+   ],
+   "tags": {
+    "amenity": "restaurant",
+    "check_date": "2026-06-14",
+    "cuisine": "georgian",
+    "name": "რედ ვაინ",
+    "name:en": "Red Wine",
+    "seasonal": "winter"
+   }
+  },
+  "node/8663542632": {
+   "v": 4,
+   "ts": "2025-07-28",
+   "ll": [
+    42.4621842,
+    44.4813393
+   ],
+   "tags": {
+    "amenity": "toilets",
+    "check_date": "2025-07-28"
+   }
+  },
+  "way/1424986577": {
+   "v": 2,
+   "ts": "2025-12-17",
+   "ll": [
+    42.470791,
+    44.492282
+   ],
+   "tags": {
+    "amenity": "fast_food",
+    "building": "yes",
+    "cuisine": "donut;bagel;pizza;hot_dog;burger",
+    "name": "დანკინ დონათსი",
+    "name:en": "Dunkin' Donuts"
+   },
+   "centroid": true
+  },
+  "way/170360688": {
+   "v": 5,
+   "ts": "2026-06-13",
+   "ll": [
+    42.470531,
+    44.487398
+   ],
+   "tags": {
+    "amenity": "restaurant",
+    "building": "yes",
+    "check_date": "2026-06-13",
+    "name": "ტაიმ აუტი",
+    "name:en": "Time Out"
+   },
+   "centroid": true
+  },
+  "way/170360798": {
+   "v": 4,
+   "ts": "2026-06-13",
+   "ll": [
+    42.470923,
+    44.487999
+   ],
+   "tags": {
+    "amenity": "restaurant",
+    "building": "yes",
+    "check_date": "2026-06-13",
+    "name": "Gradus"
+   },
+   "centroid": true
+  },
+  "way/170364891": {
+   "v": 2,
+   "ts": "2013-01-19",
+   "ll": [
+    42.488075,
+    44.500268
+   ],
+   "tags": {
+    "amenity": "restaurant",
+    "building": "yes",
+    "name": "Khada Hut"
+   },
+   "centroid": true
+  }
+ }
+}

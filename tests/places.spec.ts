@@ -120,3 +120,18 @@ test('places: only Gudauri has them', async ({ page }) => {
   expect(seen).toEqual([]);
   await expect(page.locator('.pl-chip')).toHaveCount(0);
 });
+
+test('places: the real file is read and every station end is a lift the site knows', async ({ page }) => {
+  const errors = watchErrors(page);
+  const file = await (await page.request.get('/data/places.json')).json();
+  const lifts = await (await page.request.get('/data/runs-and-lifts.json')).json();
+  const ids = new Set(lifts.lifts.map((l: any) => l.id));
+  expect(file.schema).toBe(1);
+  for (const s of file.stations) for (const e of s.ends) expect(ids.has(e.liftId), `${s.id}: ${e.liftId}`).toBe(true);
+  for (const s of file.stations) for (const r of s.places) expect(file.places.some((q: any) => q.id === r.p), `${s.id}: ${r.p}`).toBe(true);
+  await page.goto('/?lang=en#map');
+  await loaded(page);
+  await page.locator('#viewsw [data-view="2d"]').click();
+  await expect(page.locator('.pl-pins .pl-st:not(.slope)').first()).toBeAttached();
+  expect(errors).toEqual([]);
+});
