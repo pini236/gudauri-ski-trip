@@ -3250,6 +3250,14 @@
       "h": 1022,
       "page": "round30",
       "title": "ב. ה-POC באתר (החלטה 77)"
+    },
+    "R34-Edge.dc.html": {
+      "x": 2035,
+      "y": 1476,
+      "w": 1275,
+      "h": 1056,
+      "page": "round34",
+      "title": "ד. בדיקה: שלב 5, רוח 5, היריב בקצה"
     }
   },
   "createdOnFiles": {
@@ -4533,7 +4541,7 @@
     },
     "round34row1": {
       "kind": "title1",
-      "maxW": 1275,
+      "maxW": 2630,
       "page": "round34",
       "text": "ב. ההמלצה",
       "w": 240,
@@ -4946,7 +4954,8 @@
     "R34-Now.dc.html",
     "R34-Three.dc.html",
     "R34-Lens.dc.html",
-    "R30-Poc.dc.html"
+    "R30-Poc.dc.html",
+    "R34-Edge.dc.html"
   ],
   "pages": [
     {
