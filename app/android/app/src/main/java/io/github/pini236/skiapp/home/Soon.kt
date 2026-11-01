@@ -86,7 +86,7 @@ fun SoonScreen(title: String, text: String, onBack: () -> Unit) {
  */
 @Composable
 fun AboutScreen(
-    version: String, onPrivacy: () -> Unit, account: Account?, mode: DayNight.Mode, onMode: () -> Unit,
+    version: String, onPrivacy: () -> Unit, onSupport: () -> Unit, account: Account?, mode: DayNight.Mode, onMode: () -> Unit,
     lang: Lang.Language, onLang: (String?) -> Unit, onResetBests: () -> Unit, onLicenses: () -> Unit, onBack: () -> Unit,
 ) {
     val c = Ski.colors
@@ -190,6 +190,8 @@ fun AboutScreen(
             Credit(null, stringResource(R.string.about_credit_mta))
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Link(stringResource(R.string.app_about_privacy), onPrivacy)
+                Text(" · ", style = Ski.type.small.copy(fontSize = 13.sp), color = c.muted)
+                Link(stringResource(R.string.about_support), onSupport)
                 Text(" · " + stringResource(R.string.about_unofficial), Modifier.weight(1f), style = Ski.type.small.copy(fontSize = 13.sp), color = c.muted)
             }
             Text(stringResource(R.string.app_about_version, version), style = Ski.type.small, color = c.muted)

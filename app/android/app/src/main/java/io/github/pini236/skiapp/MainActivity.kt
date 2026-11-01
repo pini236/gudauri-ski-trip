@@ -243,6 +243,12 @@ class MainActivity : ComponentActivity() {
         startActivity(Intent(Intent.ACTION_VIEW, android.net.Uri.parse("https://${Route.SITE_HOST}/privacy?utm_source=app#$tag")))
     }
 
+    /** The support page (round 33), in the app's language like the privacy page; the site's own link carries the hash. */
+    private fun openSupport() {
+        val tag = Lang.current(resources).tag
+        startActivity(Intent(Intent.ACTION_VIEW, android.net.Uri.parse("https://${Route.SITE_HOST}/support?utm_source=app#$tag")))
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         ReplayController.enableQa(BuildConfig.DEBUG && intent?.getBooleanExtra("qa.replay", false) == true)
@@ -787,7 +793,7 @@ class MainActivity : ComponentActivity() {
                     Route.Game("school") -> SchoolScreen(haptics, onBack = { nav.back() }) { sendBests() }
                     Route.Game("snowball") -> io.github.pini236.skiapp.game.SnowballScreen(haptics, onBack = { nav.back() }, onBest = { sendBests() })
                     Route.Game("descent") -> io.github.pini236.skiapp.game.DescentScreen(profiles, haptics, onBack = { nav.back() }, onBest = { sendBests() })
-                    Route.About -> AboutScreen(BuildConfig.VERSION_NAME, onPrivacy = ::openPrivacy, account = account, mode = dnMode, onMode = ::nextMode,
+                    Route.About -> AboutScreen(BuildConfig.VERSION_NAME, onPrivacy = ::openPrivacy, onSupport = ::openSupport, account = account, mode = dnMode, onMode = ::nextMode,
                         lang = Lang.current(resources), onLang = ::setLang,
                         onResetBests = { Bests.reset(this@MainActivity); Qa.log("bests reset") }, onLicenses = { nav.push(Route.Licenses) }) { nav.back() }
                     Route.Licenses -> io.github.pini236.skiapp.home.LicensesScreen(onOpen = { nav.push(Route.License(it)) }) { nav.back() }
