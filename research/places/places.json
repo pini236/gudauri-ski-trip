@@ -1,0 +1,1428 @@
+{
+ "schema": 1,
+ "kinds": [
+  "food",
+  "cafe",
+  "aid",
+  "wc"
+ ],
+ "maxDistance": 250,
+ "osmFetched": "2026-11-01",
+ "attribution": "(c) OpenStreetMap contributors, ODbL 1.0, https://www.openstreetmap.org/copyright",
+ "notes": "aid = a rescue point as mapped; no hours, phone or promise of service. info=none means no information, not nothing there.",
+ "stations": [
+  {
+   "id": "goodaura-bottom",
+   "label": "Goodaura bottom",
+   "ll": [
+    42.471213,
+    44.492689
+   ],
+   "ends": [
+    {
+     "lift": "Goodaura",
+     "liftId": 158744075,
+     "end": "bottom"
+    },
+    {
+     "lift": "New Goodaura",
+     "liftId": 1196532544,
+     "end": "bottom"
+    },
+    {
+     "lift": null,
+     "liftId": 473280434,
+     "end": "bottom"
+    },
+    {
+     "lift": null,
+     "liftId": 473280434,
+     "end": "top"
+    }
+   ],
+   "places": [
+    {
+     "p": "w1424986577",
+     "d": 58
+    },
+    {
+     "p": "n13382152683",
+     "d": 77
+    },
+    {
+     "p": "n10723872905",
+     "d": 78
+    },
+    {
+     "p": "n7116989087",
+     "d": 103
+    },
+    {
+     "p": "n13941722196",
+     "d": 123
+    },
+    {
+     "p": "n13382159837",
+     "d": 129
+    },
+    {
+     "p": "n13936809520",
+     "d": 139
+    },
+    {
+     "p": "n2155270206",
+     "d": 145
+    },
+    {
+     "p": "n13936809522",
+     "d": 148
+    },
+    {
+     "p": "n7085540886",
+     "d": 161
+    },
+    {
+     "p": "n13936809524",
+     "d": 188
+    },
+    {
+     "p": "n13097397713",
+     "d": 190
+    },
+    {
+     "p": "n13936633745",
+     "d": 213
+    }
+   ],
+   "info": "some"
+  },
+  {
+   "id": "goodaura-top",
+   "label": "Goodaura top",
+   "ll": [
+    42.492531,
+    44.494212
+   ],
+   "ends": [
+    {
+     "lift": "Goodaura",
+     "liftId": 158744075,
+     "end": "top"
+    },
+    {
+     "lift": "Shino",
+     "liftId": 472374253,
+     "end": "top"
+    },
+    {
+     "lift": "Firni",
+     "liftId": 663643826,
+     "end": "bottom"
+    },
+    {
+     "lift": "Snow Park",
+     "liftId": 158744055,
+     "end": "bottom"
+    }
+   ],
+   "places": [
+    {
+     "p": "n12483826807",
+     "d": 68
+    }
+   ],
+   "info": "some"
+  },
+  {
+   "id": "zuma-bottom",
+   "label": "Zuma bottom",
+   "ll": [
+    42.47011,
+    44.489496
+   ],
+   "ends": [
+    {
+     "lift": "Zuma",
+     "liftId": 158817616,
+     "end": "bottom"
+    }
+   ],
+   "places": [
+    {
+     "p": "n13097397713",
+     "d": 124
+    },
+    {
+     "p": "n2155270206",
+     "d": 147
+    },
+    {
+     "p": "w170360798",
+     "d": 153
+    },
+    {
+     "p": "n13941722196",
+     "d": 168
+    },
+    {
+     "p": "w170360688",
+     "d": 178
+    },
+    {
+     "p": "n2155270205",
+     "d": 186
+    },
+    {
+     "p": "n12520879906",
+     "d": 203
+    },
+    {
+     "p": "n7116989087",
+     "d": 238
+    },
+    {
+     "p": "w1424986577",
+     "d": 241
+    },
+    {
+     "p": "n13097397532",
+     "d": 242
+    }
+   ],
+   "info": "some"
+  },
+  {
+   "id": "zuma-top",
+   "label": "Zuma top",
+   "ll": [
+    42.472641,
+    44.490668
+   ],
+   "ends": [
+    {
+     "lift": "Zuma",
+     "liftId": 158817616,
+     "end": "top"
+    }
+   ],
+   "places": [
+    {
+     "p": "n13941722196",
+     "d": 235
+    },
+    {
+     "p": "n2155270206",
+     "d": 240
+    },
+    {
+     "p": "w1424986577",
+     "d": 245
+    }
+   ],
+   "info": "some"
+  },
+  {
+   "id": "pirveli-bottom",
+   "label": "Pirveli bottom",
+   "ll": [
+    42.462131,
+    44.485141
+   ],
+   "ends": [
+    {
+     "lift": "Pirveli",
+     "liftId": 158744059,
+     "end": "bottom"
+    }
+   ],
+   "places": [
+    {
+     "p": "n6283789785",
+     "d": 232
+    }
+   ],
+   "info": "some"
+  },
+  {
+   "id": "old-village-conveyor",
+   "label": "Old village conveyor",
+   "ll": [
+    42.461994,
+    44.483649
+   ],
+   "ends": [
+    {
+     "lift": null,
+     "liftId": 205547600,
+     "end": "bottom"
+    },
+    {
+     "lift": null,
+     "liftId": 205547600,
+     "end": "top"
+    }
+   ],
+   "places": [
+    {
+     "p": "n6283789785",
+     "d": 108
+    },
+    {
+     "p": "n8663542632",
+     "d": 191
+    },
+    {
+     "p": "n11103888462",
+     "d": 205
+    }
+   ],
+   "info": "some"
+  },
+  {
+   "id": "pirveli-top",
+   "label": "Pirveli top / Soliko bottom",
+   "ll": [
+    42.470979,
+    44.487538
+   ],
+   "ends": [
+    {
+     "lift": "Pirveli",
+     "liftId": 158744059,
+     "end": "top"
+    },
+    {
+     "lift": "Soliko",
+     "liftId": 158744077,
+     "end": "bottom"
+    }
+   ],
+   "places": [
+    {
+     "p": "n2155270205",
+     "d": 17
+    },
+    {
+     "p": "w170360798",
+     "d": 38
+    },
+    {
+     "p": "w170360688",
+     "d": 51
+    },
+    {
+     "p": "n13382159830",
+     "d": 212
+    }
+   ],
+   "info": "some"
+  },
+  {
+   "id": "shino-bottom",
+   "label": "Shino bottom",
+   "ll": [
+    42.473577,
+    44.482861
+   ],
+   "ends": [
+    {
+     "lift": "Shino",
+     "liftId": 472374253,
+     "end": "bottom"
+    }
+   ],
+   "places": [
+    {
+     "p": "n13382159801",
+     "d": 244
+    }
+   ],
+   "info": "some"
+  },
+  {
+   "id": "soliko-top",
+   "label": "Soliko top / Khada bottom",
+   "ll": [
+    42.489626,
+    44.499424
+   ],
+   "ends": [
+    {
+     "lift": "Soliko",
+     "liftId": 158744077,
+     "end": "top"
+    },
+    {
+     "lift": "Khada",
+     "liftId": 158744063,
+     "end": "bottom"
+    }
+   ],
+   "places": [
+    {
+     "p": "n2155270211",
+     "d": 52
+    },
+    {
+     "p": "n4685037390",
+     "d": 91
+    },
+    {
+     "p": "w170364891",
+     "d": 186
+    }
+   ],
+   "info": "some"
+  },
+  {
+   "id": "khada-top",
+   "label": "Khada top",
+   "ll": [
+    42.493583,
+    44.504045
+   ],
+   "ends": [
+    {
+     "lift": "Khada",
+     "liftId": 158744063,
+     "end": "top"
+    }
+   ],
+   "places": [],
+   "info": "none"
+  },
+  {
+   "id": "kudebi-bottom",
+   "label": "Kudebi bottom",
+   "ll": [
+    42.489647,
+    44.495888
+   ],
+   "ends": [
+    {
+     "lift": "Kudebi",
+     "liftId": 663639361,
+     "end": "bottom"
+    }
+   ],
+   "places": [
+    {
+     "p": "n4685037390",
+     "d": 246
+    }
+   ],
+   "info": "some"
+  },
+  {
+   "id": "kudebi-top",
+   "label": "Kudebi top",
+   "ll": [
+    42.497037,
+    44.507485
+   ],
+   "ends": [
+    {
+     "lift": "Kudebi",
+     "liftId": 663639361,
+     "end": "top"
+    }
+   ],
+   "places": [
+    {
+     "p": "n11184488656",
+     "d": 13
+    },
+    {
+     "p": "n12483826808",
+     "d": 38
+    }
+   ],
+   "info": "some"
+  },
+  {
+   "id": "snow-park-top",
+   "label": "Snow Park top",
+   "ll": [
+    42.497073,
+    44.501971
+   ],
+   "ends": [
+    {
+     "lift": "Snow Park",
+     "liftId": 158744055,
+     "end": "top"
+    }
+   ],
+   "places": [],
+   "info": "none"
+  },
+  {
+   "id": "sadzele-bottom",
+   "label": "Sadzele bottom",
+   "ll": [
+    42.496658,
+    44.498815
+   ],
+   "ends": [
+    {
+     "lift": "Sadzele",
+     "liftId": 158744060,
+     "end": "bottom"
+    }
+   ],
+   "places": [],
+   "info": "none"
+  },
+  {
+   "id": "sadzele-top",
+   "label": "Sadzele top",
+   "ll": [
+    42.508985,
+    44.503209
+   ],
+   "ends": [
+    {
+     "lift": "Sadzele",
+     "liftId": 158744060,
+     "end": "top"
+    }
+   ],
+   "places": [],
+   "info": "none"
+  },
+  {
+   "id": "firni-top",
+   "label": "Firni top / Kobi 2 top",
+   "ll": [
+    42.511191,
+    44.492742
+   ],
+   "ends": [
+    {
+     "lift": "Firni",
+     "liftId": 663643826,
+     "end": "top"
+    },
+    {
+     "lift": "Kobi 2",
+     "liftId": 665084640,
+     "end": "top"
+    }
+   ],
+   "places": [],
+   "info": "none"
+  },
+  {
+   "id": "kobi1-top",
+   "label": "Kobi 1 top / Kobi 2 bottom",
+   "ll": [
+    42.531783,
+    44.493454
+   ],
+   "ends": [
+    {
+     "lift": "Kobi 1",
+     "liftId": 665084641,
+     "end": "top"
+    },
+    {
+     "lift": "Kobi 2",
+     "liftId": 665084640,
+     "end": "bottom"
+    }
+   ],
+   "places": [
+    {
+     "p": "n12468535501",
+     "d": 104
+    }
+   ],
+   "info": "some"
+  },
+  {
+   "id": "kobi1-bottom",
+   "label": "Kobi 1 bottom",
+   "ll": [
+    42.556724,
+    44.497523
+   ],
+   "ends": [
+    {
+     "lift": "Kobi 1",
+     "liftId": 665084641,
+     "end": "bottom"
+    }
+   ],
+   "places": [],
+   "info": "none"
+  },
+  {
+   "id": "kikilo-bottom",
+   "label": "Kikilo bottom",
+   "ll": [
+    42.480766,
+    44.50222
+   ],
+   "ends": [
+    {
+     "lift": "Kikilo",
+     "liftId": 1196532543,
+     "end": "bottom"
+    }
+   ],
+   "places": [],
+   "info": "none"
+  },
+  {
+   "id": "kikilo-top",
+   "label": "Kikilo top",
+   "ll": [
+    42.492362,
+    44.503421
+   ],
+   "ends": [
+    {
+     "lift": "Kikilo",
+     "liftId": 1196532543,
+     "end": "top"
+    }
+   ],
+   "places": [],
+   "info": "none"
+  },
+  {
+   "id": "new-goodaura-top",
+   "label": "New Goodaura top",
+   "ll": [
+    42.481689,
+    44.498077
+   ],
+   "ends": [
+    {
+     "lift": "New Goodaura",
+     "liftId": 1196532544,
+     "end": "top"
+    }
+   ],
+   "places": [],
+   "info": "none"
+  }
+ ],
+ "places": [
+  {
+   "id": "n10723872905",
+   "osm": "node/10723872905",
+   "kind": "food",
+   "sub": "fast_food",
+   "name": "Posticino",
+   "nameLocal": null,
+   "ll": [
+    42.47057,
+    44.493077
+   ],
+   "cert": "b",
+   "edited": "2026-06-19",
+   "seasonal": false,
+   "slope": false,
+   "sources": [
+    {
+     "t": "osm",
+     "url": "https://www.openstreetmap.org/node/10723872905",
+     "date": "2026-06-19"
+    },
+    {
+     "t": "guide",
+     "url": "https://skigeorgia.com/dining-apres-gudauri/",
+     "date": "2026-10-30",
+     "note": "skigeorgia: \"directly on the ski slopes\" (ציטוט מתוצאת חיפוש, לא נקרא בדף עצמו)"
+    }
+   ]
+  },
+  {
+   "id": "n11103888462",
+   "osm": "node/11103888462",
+   "kind": "food",
+   "sub": "fast_food",
+   "name": "Dunkin' Donuts",
+   "nameLocal": "დანკინ დონათსი",
+   "ll": [
+    42.462383,
+    44.481207
+   ],
+   "cert": "b",
+   "edited": "2025-06-10",
+   "seasonal": false,
+   "slope": false,
+   "sources": [
+    {
+     "t": "osm",
+     "url": "https://www.openstreetmap.org/node/11103888462",
+     "date": "2025-06-10"
+    }
+   ]
+  },
+  {
+   "id": "n11184488656",
+   "osm": "node/11184488656",
+   "kind": "cafe",
+   "sub": "cafe",
+   "name": "Vitamin (Kudebi)",
+   "nameLocal": "ვიტამინი",
+   "ll": [
+    42.496916,
+    44.507483
+   ],
+   "cert": "b",
+   "edited": "2025-12-17",
+   "seasonal": false,
+   "slope": false,
+   "sources": [
+    {
+     "t": "osm",
+     "url": "https://www.openstreetmap.org/node/11184488656",
+     "date": "2025-12-17"
+    },
+    {
+     "t": "guide",
+     "url": "https://skigeorgia.com/dining-apres-gudauri/",
+     "date": "2026-10-30",
+     "note": "skigeorgia: \"Vitamin Kudebi, the highest restaurant in the resort\" (ציטוט מתוצאת חיפוש, לא נקרא בדף עצמו)"
+    }
+   ],
+   "alsoOsm": [
+    "node/5415086147"
+   ],
+   "note": "ייתכן שהרישום השני (n5415086147, 'Kudebi upper station', 13 מ') הוא אותו מקום. מוצג אחד עד בדיקה בשטח. ב-OSM רק השם בגאורגית (ვიტამინი); האיות הלטיני לפי skigeorgia"
+  },
+  {
+   "id": "n12468535501",
+   "osm": "node/12468535501",
+   "kind": "food",
+   "sub": "restaurant",
+   "name": "Green and White",
+   "nameLocal": null,
+   "ll": [
+    42.531032,
+    44.494217
+   ],
+   "cert": "b",
+   "edited": "2025-01-02",
+   "seasonal": false,
+   "slope": false,
+   "sources": [
+    {
+     "t": "osm",
+     "url": "https://www.openstreetmap.org/node/12468535501",
+     "date": "2025-01-02"
+    }
+   ]
+  },
+  {
+   "id": "n12483826807",
+   "osm": "node/12483826807",
+   "kind": "aid",
+   "sub": "rescue_station",
+   "name": null,
+   "nameLocal": null,
+   "ll": [
+    42.493142,
+    44.494295
+   ],
+   "cert": "b",
+   "edited": "2026-08-08",
+   "seasonal": false,
+   "slope": false,
+   "sources": [
+    {
+     "t": "osm",
+     "url": "https://www.openstreetmap.org/node/12483826807",
+     "date": "2026-08-08"
+    }
+   ]
+  },
+  {
+   "id": "n12483826808",
+   "osm": "node/12483826808",
+   "kind": "aid",
+   "sub": "rescue_station",
+   "name": null,
+   "nameLocal": null,
+   "ll": [
+    42.497371,
+    44.5074
+   ],
+   "cert": "b",
+   "edited": "2025-01-08",
+   "seasonal": false,
+   "slope": false,
+   "sources": [
+    {
+     "t": "osm",
+     "url": "https://www.openstreetmap.org/node/12483826808",
+     "date": "2025-01-08"
+    }
+   ]
+  },
+  {
+   "id": "n12520879906",
+   "osm": "node/12520879906",
+   "kind": "food",
+   "sub": "restaurant",
+   "name": "Gondola",
+   "nameLocal": null,
+   "ll": [
+    42.468852,
+    44.491288
+   ],
+   "cert": "b",
+   "edited": "2026-06-15",
+   "seasonal": false,
+   "slope": false,
+   "sources": [
+    {
+     "t": "osm",
+     "url": "https://www.openstreetmap.org/node/12520879906",
+     "date": "2026-06-15"
+    },
+    {
+     "t": "operator",
+     "url": "https://gondolagudauri.com/",
+     "date": "2026-10-30",
+     "note": "אתר המקום, כפי שנרשם ב-research/places.md"
+    }
+   ]
+  },
+  {
+   "id": "n13097397532",
+   "osm": "node/13097397532",
+   "kind": "food",
+   "sub": "fast_food",
+   "name": "Goodaura",
+   "nameLocal": null,
+   "ll": [
+    42.468719,
+    44.49176
+   ],
+   "cert": "b",
+   "edited": "2025-10-11",
+   "seasonal": false,
+   "slope": false,
+   "sources": [
+    {
+     "t": "osm",
+     "url": "https://www.openstreetmap.org/node/13097397532",
+     "date": "2025-10-11"
+    }
+   ]
+  },
+  {
+   "id": "n13097397713",
+   "osm": "node/13097397713",
+   "kind": "food",
+   "sub": "restaurant",
+   "name": "Drunk Cherry",
+   "nameLocal": "მთვრალი ალუბალი",
+   "ll": [
+    42.470035,
+    44.491006
+   ],
+   "cert": "b",
+   "edited": "2026-08-08",
+   "seasonal": false,
+   "slope": false,
+   "sources": [
+    {
+     "t": "osm",
+     "url": "https://www.openstreetmap.org/node/13097397713",
+     "date": "2026-08-08"
+    },
+    {
+     "t": "guide",
+     "url": "https://skigeorgia.com/dining-apres-gudauri/",
+     "date": "2026-10-30",
+     "note": "skigeorgia: \"Block 4... at the bottom of the gondola\""
+    }
+   ],
+   "checked": "2026-08-08"
+  },
+  {
+   "id": "n13382152683",
+   "osm": "node/13382152683",
+   "kind": "food",
+   "sub": "restaurant",
+   "name": "Friends",
+   "nameLocal": null,
+   "ll": [
+    42.470531,
+    44.49285
+   ],
+   "cert": "b",
+   "edited": "2026-06-19",
+   "seasonal": false,
+   "slope": false,
+   "sources": [
+    {
+     "t": "osm",
+     "url": "https://www.openstreetmap.org/node/13382152683",
+     "date": "2026-06-19"
+    }
+   ],
+   "checked": "2026-06-14"
+  },
+  {
+   "id": "n13382159801",
+   "osm": "node/13382159801",
+   "kind": "food",
+   "sub": "restaurant",
+   "name": "Snow Rooms",
+   "nameLocal": "სნოუ რუმს",
+   "ll": [
+    42.471581,
+    44.484097
+   ],
+   "cert": "b",
+   "edited": "2025-12-16",
+   "seasonal": false,
+   "slope": false,
+   "sources": [
+    {
+     "t": "osm",
+     "url": "https://www.openstreetmap.org/node/13382159801",
+     "date": "2025-12-16"
+    }
+   ],
+   "checked": "2025-06-18"
+  },
+  {
+   "id": "n13382159830",
+   "osm": "node/13382159830",
+   "kind": "food",
+   "sub": "restaurant",
+   "name": "Montis",
+   "nameLocal": "მონტის",
+   "ll": [
+    42.470527,
+    44.485035
+   ],
+   "cert": "b",
+   "edited": "2026-06-13",
+   "seasonal": false,
+   "slope": false,
+   "sources": [
+    {
+     "t": "osm",
+     "url": "https://www.openstreetmap.org/node/13382159830",
+     "date": "2026-06-13"
+    }
+   ],
+   "checked": "2026-06-13"
+  },
+  {
+   "id": "n13382159837",
+   "osm": "node/13382159837",
+   "kind": "food",
+   "sub": "restaurant",
+   "name": "Vartsla",
+   "nameLocal": "ვარცლა",
+   "ll": [
+    42.470191,
+    44.493423
+   ],
+   "cert": "b",
+   "edited": "2026-06-15",
+   "seasonal": false,
+   "slope": false,
+   "sources": [
+    {
+     "t": "osm",
+     "url": "https://www.openstreetmap.org/node/13382159837",
+     "date": "2026-06-15"
+    }
+   ],
+   "checked": "2026-06-13"
+  },
+  {
+   "id": "n13936633745",
+   "osm": "node/13936633745",
+   "kind": "food",
+   "sub": "restaurant",
+   "name": "Gamarjoba Gudauri",
+   "nameLocal": "გამარჯობა გუდაური",
+   "ll": [
+    42.469303,
+    44.492502
+   ],
+   "cert": "b",
+   "edited": "2026-06-15",
+   "seasonal": false,
+   "slope": false,
+   "sources": [
+    {
+     "t": "osm",
+     "url": "https://www.openstreetmap.org/node/13936633745",
+     "date": "2026-06-15"
+    }
+   ],
+   "checked": "2026-06-13"
+  },
+  {
+   "id": "n13936809520",
+   "osm": "node/13936809520",
+   "kind": "food",
+   "sub": "restaurant",
+   "name": "Grizzly",
+   "nameLocal": null,
+   "ll": [
+    42.470062,
+    44.49335
+   ],
+   "cert": "b",
+   "edited": "2026-06-15",
+   "seasonal": true,
+   "slope": false,
+   "sources": [
+    {
+     "t": "osm",
+     "url": "https://www.openstreetmap.org/node/13936809520",
+     "date": "2026-06-15"
+    }
+   ],
+   "checked": "2026-06-13"
+  },
+  {
+   "id": "n13936809522",
+   "osm": "node/13936809522",
+   "kind": "food",
+   "sub": "restaurant",
+   "name": "Mix",
+   "nameLocal": "მიქსი",
+   "ll": [
+    42.469956,
+    44.493271
+   ],
+   "cert": "b",
+   "edited": "2026-06-15",
+   "seasonal": true,
+   "slope": false,
+   "sources": [
+    {
+     "t": "osm",
+     "url": "https://www.openstreetmap.org/node/13936809522",
+     "date": "2026-06-15"
+    }
+   ],
+   "checked": "2026-06-13"
+  },
+  {
+   "id": "n13936809524",
+   "osm": "node/13936809524",
+   "kind": "food",
+   "sub": "restaurant",
+   "name": "Veranda",
+   "nameLocal": "ვერანდა",
+   "ll": [
+    42.469584,
+    44.4933
+   ],
+   "cert": "b",
+   "edited": "2026-06-15",
+   "seasonal": true,
+   "slope": false,
+   "sources": [
+    {
+     "t": "osm",
+     "url": "https://www.openstreetmap.org/node/13936809524",
+     "date": "2026-06-15"
+    }
+   ],
+   "checked": "2026-06-13"
+  },
+  {
+   "id": "n13938566461",
+   "osm": "node/13938566461",
+   "kind": "cafe",
+   "sub": "cafe",
+   "name": "2300",
+   "nameLocal": null,
+   "ll": [
+    42.480913,
+    44.506779
+   ],
+   "cert": "b",
+   "edited": "2026-06-14",
+   "seasonal": true,
+   "slope": true,
+   "sources": [
+    {
+     "t": "osm",
+     "url": "https://www.openstreetmap.org/node/13938566461",
+     "date": "2026-06-14"
+    }
+   ],
+   "note": "בית קפה עונתי על המדרון ליד Kikilo, כ-375 מ׳ מתחתית Kikilo",
+   "liftId": 1196532543
+  },
+  {
+   "id": "n13941722196",
+   "osm": "node/13941722196",
+   "kind": "cafe",
+   "sub": "cafe",
+   "name": "Ice Bar",
+   "nameLocal": "ყინულის ბარი",
+   "ll": [
+    42.470603,
+    44.491434
+   ],
+   "cert": "b",
+   "edited": "2026-06-15",
+   "seasonal": true,
+   "slope": false,
+   "sources": [
+    {
+     "t": "osm",
+     "url": "https://www.openstreetmap.org/node/13941722196",
+     "date": "2026-06-15"
+    }
+   ],
+   "checked": "2026-06-15"
+  },
+  {
+   "id": "n13942256515",
+   "osm": "node/13942256515",
+   "kind": "cafe",
+   "sub": "cafe",
+   "name": "Soliko",
+   "nameLocal": "სოლიქო",
+   "ll": [
+    42.475205,
+    44.489325
+   ],
+   "cert": "b",
+   "edited": "2026-06-15",
+   "seasonal": true,
+   "slope": true,
+   "sources": [
+    {
+     "t": "osm",
+     "url": "https://www.openstreetmap.org/node/13942256515",
+     "date": "2026-06-15"
+    }
+   ],
+   "checked": "2026-06-15",
+   "note": "בית קפה עונתי לאורך הרכבל Soliko, כ-480 מ' מתחתיו",
+   "liftId": 158744077
+  },
+  {
+   "id": "n2155270205",
+   "osm": "node/2155270205",
+   "kind": "wc",
+   "sub": "toilets",
+   "name": null,
+   "nameLocal": null,
+   "ll": [
+    42.470838,
+    44.487456
+   ],
+   "cert": "b",
+   "edited": "2024-11-26",
+   "seasonal": false,
+   "slope": false,
+   "sources": [
+    {
+     "t": "osm",
+     "url": "https://www.openstreetmap.org/node/2155270205",
+     "date": "2024-11-26"
+    }
+   ]
+  },
+  {
+   "id": "n2155270206",
+   "osm": "node/2155270206",
+   "kind": "wc",
+   "sub": "toilets",
+   "name": null,
+   "nameLocal": null,
+   "ll": [
+    42.47052,
+    44.491196
+   ],
+   "cert": "b",
+   "edited": "2025-02-24",
+   "seasonal": false,
+   "slope": false,
+   "sources": [
+    {
+     "t": "osm",
+     "url": "https://www.openstreetmap.org/node/2155270206",
+     "date": "2025-02-24"
+    }
+   ]
+  },
+  {
+   "id": "n2155270211",
+   "osm": "node/2155270211",
+   "kind": "aid",
+   "sub": "mountain_rescue",
+   "name": null,
+   "nameLocal": null,
+   "ll": [
+    42.490041,
+    44.499121
+   ],
+   "cert": "b",
+   "edited": "2024-03-10",
+   "seasonal": false,
+   "slope": false,
+   "sources": [
+    {
+     "t": "osm",
+     "url": "https://www.openstreetmap.org/node/2155270211",
+     "date": "2024-03-10"
+    }
+   ]
+  },
+  {
+   "id": "n4685037390",
+   "osm": "node/4685037390",
+   "kind": "cafe",
+   "sub": "cafe",
+   "name": "Vitamin Cafe",
+   "nameLocal": null,
+   "ll": [
+    42.49028,
+    44.498764
+   ],
+   "cert": "a",
+   "edited": "2025-10-11",
+   "seasonal": false,
+   "slope": false,
+   "sources": [
+    {
+     "t": "osm",
+     "url": "https://www.openstreetmap.org/node/4685037390",
+     "date": "2025-10-11"
+    },
+    {
+     "t": "guide",
+     "url": "https://skigeorgia.com/dining-apres-gudauri/",
+     "date": "2026-10-30",
+     "note": "skigeorgia: \"at mid-station on the mountain\", \"Soliko Lift\""
+    },
+    {
+     "t": "guide",
+     "url": "https://www.tripadvisor.com/Restaurants-g1588192-Gudauri_Mtskheta_Mtianeti_Region.html",
+     "date": "2026-10-30",
+     "note": "טריפאדוויזור, דרך findskiholidays: \"at the end of the second lift\""
+    }
+   ]
+  },
+  {
+   "id": "n6283789785",
+   "osm": "node/6283789785",
+   "kind": "cafe",
+   "sub": "cafe",
+   "name": "AfterSkis",
+   "nameLocal": null,
+   "ll": [
+    42.461929,
+    44.482332
+   ],
+   "cert": "b",
+   "edited": "2025-10-11",
+   "seasonal": false,
+   "slope": false,
+   "sources": [
+    {
+     "t": "osm",
+     "url": "https://www.openstreetmap.org/node/6283789785",
+     "date": "2025-10-11"
+    }
+   ]
+  },
+  {
+   "id": "n7085540886",
+   "osm": "node/7085540886",
+   "kind": "food",
+   "sub": "bar",
+   "name": "Еskimos",
+   "nameLocal": "ესკიმოსი",
+   "ll": [
+    42.469822,
+    44.493237
+   ],
+   "cert": "b",
+   "edited": "2026-06-15",
+   "seasonal": true,
+   "slope": false,
+   "sources": [
+    {
+     "t": "osm",
+     "url": "https://www.openstreetmap.org/node/7085540886",
+     "date": "2026-06-15"
+    }
+   ],
+   "checked": "2026-06-14"
+  },
+  {
+   "id": "n7116989087",
+   "osm": "node/7116989087",
+   "kind": "food",
+   "sub": "restaurant",
+   "name": "Red Wine",
+   "nameLocal": "რედ ვაინ",
+   "ll": [
+    42.470315,
+    44.492382
+   ],
+   "cert": "b",
+   "edited": "2026-06-15",
+   "seasonal": true,
+   "slope": false,
+   "sources": [
+    {
+     "t": "osm",
+     "url": "https://www.openstreetmap.org/node/7116989087",
+     "date": "2026-06-15"
+    }
+   ],
+   "checked": "2026-06-14"
+  },
+  {
+   "id": "n8663542632",
+   "osm": "node/8663542632",
+   "kind": "wc",
+   "sub": "toilets",
+   "name": null,
+   "nameLocal": null,
+   "ll": [
+    42.462184,
+    44.481339
+   ],
+   "cert": "b",
+   "edited": "2025-07-28",
+   "seasonal": false,
+   "slope": false,
+   "sources": [
+    {
+     "t": "osm",
+     "url": "https://www.openstreetmap.org/node/8663542632",
+     "date": "2025-07-28"
+    }
+   ],
+   "checked": "2025-07-28"
+  },
+  {
+   "id": "w1424986577",
+   "osm": "way/1424986577",
+   "kind": "food",
+   "sub": "fast_food",
+   "name": "Dunkin' Donuts",
+   "nameLocal": "დანკინ დონათსი",
+   "ll": [
+    42.470791,
+    44.492282
+   ],
+   "cert": "b",
+   "edited": "2025-12-17",
+   "seasonal": false,
+   "slope": false,
+   "sources": [
+    {
+     "t": "osm",
+     "url": "https://www.openstreetmap.org/way/1424986577",
+     "date": "2025-12-17"
+    }
+   ]
+  },
+  {
+   "id": "w170360688",
+   "osm": "way/170360688",
+   "kind": "food",
+   "sub": "restaurant",
+   "name": "Time Out",
+   "nameLocal": "ტაიმ აუტი",
+   "ll": [
+    42.470531,
+    44.487398
+   ],
+   "cert": "b",
+   "edited": "2026-06-13",
+   "seasonal": false,
+   "slope": false,
+   "sources": [
+    {
+     "t": "osm",
+     "url": "https://www.openstreetmap.org/way/170360688",
+     "date": "2026-06-13"
+    }
+   ],
+   "checked": "2026-06-13"
+  },
+  {
+   "id": "w170360798",
+   "osm": "way/170360798",
+   "kind": "food",
+   "sub": "restaurant",
+   "name": "Gradus",
+   "nameLocal": null,
+   "ll": [
+    42.470923,
+    44.487999
+   ],
+   "cert": "b",
+   "edited": "2026-06-13",
+   "seasonal": false,
+   "slope": false,
+   "sources": [
+    {
+     "t": "osm",
+     "url": "https://www.openstreetmap.org/way/170360798",
+     "date": "2026-06-13"
+    }
+   ],
+   "checked": "2026-06-13"
+  },
+  {
+   "id": "w170364891",
+   "osm": "way/170364891",
+   "kind": "food",
+   "sub": "restaurant",
+   "name": "Khada Hut",
+   "nameLocal": null,
+   "ll": [
+    42.488075,
+    44.500268
+   ],
+   "cert": "b",
+   "edited": "2013-01-19",
+   "seasonal": false,
+   "slope": false,
+   "sources": [
+    {
+     "t": "osm",
+     "url": "https://www.openstreetmap.org/way/170364891",
+     "date": "2013-01-19"
+    },
+    {
+     "t": "guide",
+     "url": "https://wanderlog.com/place/details/2882172/khada-hut-khizhina",
+     "date": "2026-11-01",
+     "note": "נקרא דרך חיפוש; מגיעים ברכבל, כחמש דקות הליכה או גלישה מ-Soliko"
+    },
+    {
+     "t": "guide",
+     "url": "https://madloba.info/en/gudauri/restaurants/khada-hut-khizhina/",
+     "date": "2026-11-01",
+     "note": "רשימה במדריך"
+    },
+    {
+     "t": "guide",
+     "url": "https://gudauri.com/ru/directory/accommodation/hotels-gudauri/294.html",
+     "date": "2026-11-01",
+     "note": "מסעדת הר של אותה חברה של Khada Hostel"
+    }
+   ],
+   "override": "הנקודה במפה הפתוחה לא נערכה מ-1.2013. נשארת בוודאות ב לבקשת סשן המנהל (1.11.2026), על סמך מקורות משניים שמתארים אותה כפעילה, בבקתה כחמש דקות מ-Soliko. לבדוק בשטח."
+  }
+ ]
+}

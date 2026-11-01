@@ -113,19 +113,19 @@ final class SchoolView: UIView {
         if lv.mode == .wedge {
             for (i, sy0) in SchoolRun.stopLines.enumerated() {
                 let yy = Y(sy0)
-                let cc: UInt32 = i >= r.stops.count ? 0xF08A3C : r.stops[i] == nil ? 0xD1342B : 0x1B8A4C
+                let cc: UInt32 = i >= r.stops.count ? 0xF08A3C : r.stops[i] == nil ? 0xD1342B : 0x198549
                 c.setFillColor(col(cc)); c.fill(CGRect(x: left, y: yy - 3, width: right - left, height: 6))
                 c.setFillColor(rgba(27, 138, 76, 0.12)); c.fill(CGRect(x: left, y: yy, width: right - left, height: px * 1.5))
                 label(c, words(Say("game.school.canvas_line", ["n": .text(String(i + 1))])), left + 40, yy - 8, col(cc))
             }
             c.setFillColor(rgba(27, 138, 76, 0.13))
             c.fill(CGRect(x: left, y: Y(SchoolRun.band[1]), width: right - left, height: Y(SchoolRun.band[0]) - Y(SchoolRun.band[1])))
-            label(c, words(Say("game.school.canvas_band")), right - 90, Y(SchoolRun.band[0]) - 8, col(0x1B8A4C))
+            label(c, words(Say("game.school.canvas_band")), right - 90, Y(SchoolRun.band[0]) - 8, col(0x198549))
         }
         if let traps = lv.traps {
             for (i, ty) in traps.enumerated() {
                 let yy = Y(ty)
-                let cc: UInt32 = i >= r.traps.count ? 0x1F5FC4 : r.traps[i] ? 0x1B8A4C : 0xD1342B
+                let cc: UInt32 = i >= r.traps.count ? 0x1F5FC4 : r.traps[i] ? 0x198549 : 0xD1342B
                 c.setFillColor(col(cc, 0.18)); c.fill(CGRect(x: left, y: yy - px * 1.2, width: right - left, height: px * 1.2))
                 c.setFillColor(col(cc)); c.fill(CGRect(x: left, y: yy - 2, width: right - left, height: 4))
                 label(c, words(Say("game.school.canvas_trap", ["limit": .text(String(lv.trapLimit))])), X(0), yy - px * 1.3, col(cc))
@@ -162,7 +162,7 @@ final class SchoolView: UIView {
                 c.fill(CGRect(x: fx, y: yy - px * 1.4, width: px * 0.8, height: px * 0.5))
             }
             if g.done == true {
-                text(c, "✓", X(g.x), Y(g.y) - px * 1.5, UIColor(game: 0x1B8A4C, alpha: a), UIFont.boldSystemFont(ofSize: 14))
+                text(c, "✓", X(g.x), Y(g.y) - px * 1.5, UIColor(game: 0x198549, alpha: a), UIFont.boldSystemFont(ofSize: 14))
             }
         }
         // the finish line
@@ -220,7 +220,7 @@ final class SchoolView: UIView {
         c.setLineWidth(12); c.setStrokeColor(col(0xEEF2F5))
         c.addArc(center: CGPoint(x: x, y: y), radius: rr, startAngle: .pi * 1.15, endAngle: .pi * 1.85, clockwise: false); c.strokePath()
         let ang = CGFloat.pi * 1.5 + CGFloat(r.s.edge) * .pi * 0.35
-        c.setStrokeColor(r.s.skid > 0.25 ? col(0xD1342B) : col(0x1B8A4C))
+        c.setStrokeColor(r.s.skid > 0.25 ? col(0xD1342B) : col(0x198549))
         c.addArc(center: CGPoint(x: x, y: y), radius: rr, startAngle: min(.pi * 1.5, ang), endAngle: max(.pi * 1.5, ang), clockwise: false); c.strokePath()
         c.setFillColor(col(0x13233A))
         c.fillEllipse(in: CGRect(x: x + cos(ang) * rr - 9, y: y + sin(ang) * rr - 9, width: 18, height: 18))

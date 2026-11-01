@@ -5,9 +5,9 @@ name: tests
 
 on:
   push:
-    paths: ['site/**', 'tests/**', 'package.json', 'package-lock.json', 'playwright.config.ts', 'docs/PRIVACY.md', 'i18n/**', 'tools/check-site-i18n.py', 'tools/build-privacy.py', 'tools/build-support.py', 'tools/build-sitemap.py', 'tools/build-site-strings.py', 'tools/build-games.py', 'design/games/**', 'design/round4/game/**', '.github/workflows/tests.yml']
+    paths: ['site/**', 'tests/**', 'package.json', 'package-lock.json', 'playwright.config.ts', 'docs/PRIVACY.md', 'i18n/**', 'tools/check-site-i18n.py', 'tools/build-privacy.py', 'tools/build-support.py', 'tools/build-sitemap.py', 'tools/build-site-places.py', 'research/places/places.lean.json', 'tools/build-site-strings.py', 'tools/build-games.py', 'design/games/**', 'design/round4/game/**', '.github/workflows/tests.yml']
   pull_request:
-    paths: ['site/**', 'tests/**', 'package.json', 'package-lock.json', 'playwright.config.ts', 'docs/PRIVACY.md', 'i18n/**', 'tools/check-site-i18n.py', 'tools/build-privacy.py', 'tools/build-support.py', 'tools/build-sitemap.py', 'tools/build-site-strings.py', 'tools/build-games.py', 'design/games/**', 'design/round4/game/**', '.github/workflows/tests.yml']
+    paths: ['site/**', 'tests/**', 'package.json', 'package-lock.json', 'playwright.config.ts', 'docs/PRIVACY.md', 'i18n/**', 'tools/check-site-i18n.py', 'tools/build-privacy.py', 'tools/build-support.py', 'tools/build-sitemap.py', 'tools/build-site-places.py', 'research/places/places.lean.json', 'tools/build-site-strings.py', 'tools/build-games.py', 'design/games/**', 'design/round4/game/**', '.github/workflows/tests.yml']
   workflow_dispatch:
     inputs:
       project:
@@ -30,6 +30,7 @@ on:
           - tests/privacy.spec.ts
           - tests/resorts.spec.ts
           - tests/seo.spec.ts
+          - tests/places.spec.ts
           - tests/slope.spec.ts
           - tests/smoke.spec.ts
           - tests/snow.spec.ts
@@ -67,6 +68,7 @@ jobs:
           python3 tools/build-privacy.py
           python3 tools/build-support.py
           python3 tools/build-sitemap.py
+          python3 tools/build-site-places.py
           git diff --exit-code -- site/ || { echo "::error::Run tools/build-site-strings.py, tools/build-games.py, tools/build-privacy.py, tools/build-support.py and tools/build-sitemap.py, and commit what changed"; exit 1; }
 
   playwright:
