@@ -144,6 +144,7 @@ import java.util.concurrent.Executors
  */
 class MainActivity : ComponentActivity() {
     companion object {
+        private const val REC_PERMISSION = 4129
         private const val SKY_EVERY_MS = 5 * 60_000L
         /** A place to open (a path of nav/Nav.kt), from the app's own notifications: a meetup's reminder (meet/Reminders.kt). */
         const val OPEN = "open"
@@ -177,10 +178,15 @@ class MainActivity : ComponentActivity() {
     private var recSingle = false
     /** A day the phone cut short, found when the app opened (round 29): asks whether to go on with it. */
     private var cutDay by mutableStateOf<java.io.File?>(null)
-    private val recPermissions = registerForActivityResult(androidx.activity.result.contract.ActivityResultContracts.RequestMultiplePermissions()) { r ->
+    // the system's question, by the classic call (the new one needs a newer Fragment library than the app carries)
+    @Deprecated("the platform's callback")
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode != REC_PERMISSION) return
+        fun granted(p: String) = permissions.indexOf(p).let { it >= 0 && grantResults.getOrNull(it) == android.content.pm.PackageManager.PERMISSION_GRANTED }
         when {
-            r[android.Manifest.permission.ACCESS_FINE_LOCATION] == true -> record(recSingle)
-            r[android.Manifest.permission.ACCESS_COARSE_LOCATION] == true -> android.widget.Toast.makeText(this, R.string.app_rec_err_precise, android.widget.Toast.LENGTH_LONG).show()
+            granted(android.Manifest.permission.ACCESS_FINE_LOCATION) -> record(recSingle)
+            granted(android.Manifest.permission.ACCESS_COARSE_LOCATION) -> android.widget.Toast.makeText(this, R.string.app_rec_err_precise, android.widget.Toast.LENGTH_LONG).show()
             else -> android.widget.Toast.makeText(this, R.string.app_rec_err_perm, android.widget.Toast.LENGTH_LONG).show()
         }
     }
@@ -798,7 +804,7 @@ class MainActivity : ComponentActivity() {
                     },
                     onClose = { cutDay = null; inBackground { DayRec.finishCut(this@MainActivity, f) } }) }
                 if (recExplain) io.github.pini236.skiapp.dayrec.ui.PermissionSheet(
-                    onGo = { recExplain = false; recPermissions.launch(arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION, android.Manifest.permission.ACCESS_COARSE_LOCATION)) },
+                    onGo = { recExplain = false; requestPermissions(arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION, android.Manifest.permission.ACCESS_COARSE_LOCATION), REC_PERMISSION) },
                     onDismiss = { recExplain = false })
                 when (top) {
                     Route.Home -> HomeScreen(trip, frame, dnMode, LocalDateTime.ofInstant(Instant.ofEpochMilli(tick), ZoneId.systemDefault()), haptics, sounds, status = lstat, group = firstGroup,
