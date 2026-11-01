@@ -381,13 +381,13 @@ extension DayRec.Net {
     static func steepG(_ run: [String: Any], _ proj: DayRec.Proj, _ terrain: Terrain) -> Double {
         var best = 0.0
         for seg in run["segs"] as? [[String: Any]] ?? [] {
-            if truthy(seg["area"]) || truthy(seg["tunnel"]) { continue }
+            if DayRec.truthy(seg["area"]) || DayRec.truthy(seg["tunnel"]) { continue }
             guard let g = seg["g"] as? [Any], g.count >= 2 else { continue }
             var s: [(d: Double, e: Double)] = []
             var acc = 0.0
             var prev: (x: Double, y: Double)?
             for q in g {
-                guard let q = q as? [Any], q.count >= 2, let la = num(q[0]), let lo = num(q[1]) else { continue }
+                guard let q = q as? [Any], q.count >= 2, let la = DayRec.num(q[0]), let lo = DayRec.num(q[1]) else { continue }
                 let (x, y) = proj.xy(la, lo)
                 if let p = prev { acc += ((x - p.x) * (x - p.x) + (y - p.y) * (y - p.y)).squareRoot() }
                 s.append((acc, terrain.elev(x, y)))
