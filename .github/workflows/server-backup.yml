@@ -1,0 +1,89 @@
+# A daily encrypted copy of the server's database (R-1, docs/ARCHITECTURE.md "מ-1").
+# The free Supabase plan has no backup.
+#
+# OFF until Pini turns it on: the job runs only when the repository variable BACKUP_ENABLED is 'true'. To turn it on
+# (server/README.md, "גיבוי"):
+#   secret   BACKUP_DB_URL    the "Session pooler" connection string of the project (not the direct one: GitHub's
+#                             runners have no IPv6, and the direct address is IPv6 only)
+#   variable AGE_RECIPIENT    the PUBLIC key (age1...) made by Pini with `age-keygen`; the private key stays with Pini
+#                             only, so nothing in GitHub can read the copies
+#   variable BACKUP_ENABLED   true
+#
+# The repository is public and the files attached to a run of a public repository are open to anyone signed in to
+# GitHub, so a copy is never uploaded before it is encrypted, and the plain file is deleted at once.
+# Kept 14 days. Restoring is tried once on a local database before the first real need: server/README.md.
+name: server-backup
+
+on:
+  schedule:
+    - cron: '41 3 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  backup:
+    if: ${{ vars.BACKUP_ENABLED == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Tools (the client must be at least the server's version, 17)
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq postgresql-common age
+          sudo /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh -y
+          sudo apt-get install -y -qq postgresql-client-17
+
+      - name: Dump and encrypt
+        env:
+          BACKUP_DB_URL: ${{ secrets.BACKUP_DB_URL }}
+          AGE_RECIPIENT: ${{ vars.AGE_RECIPIENT }}
+        run: |
+          set -euo pipefail
+          if [ -z "$BACKUP_DB_URL" ] || [ -z "$AGE_RECIPIENT" ]; then
+            echo "::error::BACKUP_ENABLED is on, but the secret BACKUP_DB_URL or the variable AGE_RECIPIENT is missing"; exit 1
+          fi
+          case "$AGE_RECIPIENT" in age1*) ;; *) echo "::error::AGE_RECIPIENT must be a public key (age1...), never the private one"; exit 1;; esac
+          out="gudauri-db-$(date -u +%Y-%m-%d).sql.age"
+          # Structure and data of what the server owns: its tables (public, private) and the identities (auth) they refer to.
+          pg_dump "$BACKUP_DB_URL" --no-owner --no-privileges --schema=public --schema=private --schema=auth --file=dump.sql
+          size=$(stat -c %s dump.sql)
+          echo "dump: $size bytes"
+          # Smaller than expected means the dump is broken (a dump of an empty schema is already tens of kilobytes).
+          if [ "$size" -lt 20000 ]; then echo "::error::the dump is smaller than expected ($size bytes)"; exit 1; fi
+          grep -q 'CREATE TABLE public.groups' dump.sql || { echo "::error::the dump has no public.groups table"; exit 1; }
+          age -r "$AGE_RECIPIENT" -o "$out" dump.sql
+          rm -f dump.sql
+          head -c 22 "$out" | grep -q 'age-encryption.org' || { echo "::error::the file is not an age file"; exit 1; }
+          echo "OUT=$out" >> "$GITHUB_ENV"
+          ls -l "$out"
+
+      - name: Keep for 14 days
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: database-backup
+          path: ${{ env.OUT }}
+          retention-days: 14
+          if-no-files-found: error
+
+      - name: All good again, close the alert
+        if: success()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          title="The database backup failed"
+          n=$(gh issue list -R "$GITHUB_REPOSITORY" --state open --search "\"$title\" in:title" --json number -q '.[0].number')
+          if [ -n "$n" ]; then gh issue close "$n" -R "$GITHUB_REPOSITORY" -c "Passed again: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"; fi
+
+      - name: Tell Pini (one issue, commented on again each time)
+        if: failure()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          title="The database backup failed"
+          n=$(gh issue list -R "$GITHUB_REPOSITORY" --state open --search "\"$title\" in:title" --json number -q '.[0].number')
+          body="The daily encrypted database backup failed: $RUN. server/README.md, 'גיבוי'."
+          if [ -n "$n" ]; then gh issue comment "$n" -R "$GITHUB_REPOSITORY" -b "$body"; else gh issue create -R "$GITHUB_REPOSITORY" -t "$title" -b "$body"; fi
