@@ -23,7 +23,8 @@
         "videos",
         "pano",
         "app",
-        "dayrec"
+        "dayrec",
+        "places"
       ],
       "stats": {
         "runs": 27,

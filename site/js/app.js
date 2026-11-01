@@ -9,9 +9,10 @@ const soft=(url,fallback)=>fetch(url).then(r=>r.ok?r.json():fallback).catch(()=>
 // the elevation model (terrain.json, the biggest file) does not hold up the home page (R-11): it loads alongside, and the
 // map, the meeting point and the 3D view are set up when it arrives (onTerrain below); a link to them waits for it
 const terrainP=soft(DIR+'terrain.json',null);
-const [D,vids]=await Promise.all([
+const [D,vids,PLD]=await Promise.all([
   fetch(DIR+'runs-and-lifts.json').then(r=>{if(!r.ok)throw new Error('runs-and-lifts '+r.status);return r.json();}),
-  has('videos')?soft('data/videos-seed.json',[]):[]
+  has('videos')?soft('data/videos-seed.json',[]):[],
+  has('places')?soft(DIR+'places.json',null):null // food and services near the stations (round 31); Gudauri only
 ]);
 const HEB=Object.fromEntries(['green','blue','red','black'].map(c=>[c,T('common.color_'+c)]));
 // a ski route (kind 'ski-route', colour 'none') has no difficulty: it is drawn in its own orange (round 24); every other run by its colour
@@ -270,7 +271,7 @@ function apply(){
   const[cw,ch]=sz();vb.h=vb.w*ch/cw;
   svg.setAttribute('viewBox',`${vb.x} ${vb.y} ${vb.w} ${vb.h}`);
   const u=vb.w/cw; // meters per px
-  layoutLabels(labels,stations,u,marks,vb);svg.classList.toggle('far',u>9);svg.querySelectorAll('.chair').forEach(c=>c.setAttribute('r',3.6*u));runMark.setAttribute('r',7*u);if(typeof meDot!=='undefined')meDot.setAttribute('r',8*u);if(typeof WX!=='undefined'&&WX)WX.layout();
+  layoutLabels(labels,stations,u,marks,vb);svg.classList.toggle('far',u>9);svg.querySelectorAll('.chair').forEach(c=>c.setAttribute('r',3.6*u));runMark.setAttribute('r',7*u);if(typeof meDot!=='undefined')meDot.setAttribute('r',8*u);if(typeof WX!=='undefined'&&WX)WX.layout();if(typeof PL!=='undefined'&&PL)PL.layout();
   const nice=[50,100,200,250,500,1000,2000];let m=nice.find(n=>n/u>=70)||2000;
   const sc=document.getElementById('scale');sc.querySelector('i').style.width=(m/u)+'px';sc.querySelector('span').textContent=m>=1000?m/1000+' km':m+' m';
 }
@@ -502,6 +503,7 @@ function showLift(id){
   ${l.year?`<dt>${E('lift.built_label')}</dt><dd class="num">${esc(l.year)}</dd>`:''}</dl>
   <h3>${E('lift.runs_from_top_heading')}</h3><div>${top||'—'}</div>
   <h3>${E('lift.runs_to_bottom_heading')}</h3><div>${bot||'—'}</div>
+  ${typeof PL!=='undefined'&&PL?PL.liftBlock(l):''}
   <p class="hint">OSM: <a href="https://www.openstreetmap.org/way/${l.id}" target="_blank" rel="noopener">${l.id}</a></p>`;
 }
 function overview(){
@@ -899,6 +901,7 @@ const makeMeet=()=>(function(){
     card.querySelector('[data-f="name"]').textContent=s.name;card.querySelector('[data-f="time"]').textContent=S.time;
     card.querySelector('[data-f="day"]').textContent=dayLbl();
     card.querySelector('[data-f="c1"]').textContent=c1;card.querySelector('[data-f="c2"]').textContent=c2;card.querySelector('[data-f="c3"]').textContent=c3;
+    if(typeof PL!=='undefined'&&PL)PL.meet(s);
     document.getElementById('meetWa').href='https://wa.me/?text='+encodeURIComponent(message());
     const want=`#meet/${S.sid}/${S.time.replace(':','')}/${S.day.replace(/-/g,'')}`;if(location.hash.startsWith('#meet')&&location.hash!==want)history.replaceState(null,'',want);
   }
@@ -1202,6 +1205,67 @@ var WX=(function(){ // var: apply() and renderTicket() may run before this line
     if(layer){drawList();layout();}home();if(!had&&current&&byKey[current]&&!flying)renderPiste(current);});}
   load();setInterval(()=>{if(!document.hidden)load();},10*6e4);
   return {cond,layout,home};
+})();
+
+// Food and services near the stations (round 31, decision 77). places.json is the lean file the ski expert builds from the
+// open map (docs/ARCHITECTURE.md, "places"): stations[] (each with the places inside 250 m, nearest first, or info "none")
+// and places[]. "none" means there is no information, never "there is nothing here". Small coloured dots on the map at all
+// times, the chip turns them into tags, and the lift panel and the meeting card tell what is near a station.
+var PL=(function(){
+  if(!PLD||PLD.schema!==1||!has('places')||!Array.isArray(PLD.stations)||!Array.isArray(PLD.places))return null;
+  const KINDS=['food','cafe','aid','wc'],PBY=Object.fromEntries(PLD.places.map(q=>[q.id,q]));
+  const kindOf=q=>KINDS.includes(q.kind)?q.kind:null; // a kind this file does not know is ignored
+  const label=q=>q.name||T('places.kind_'+q.kind);
+  const stationOf=(liftId,end)=>PLD.stations.find(x=>x.ends.some(e=>e.liftId===liftId&&e.end===end))||null;
+  const items=st=>st.places.map(r=>({q:PBY[r.p],d:r.d})).filter(x=>x.q&&kindOf(x.q));
+  const dot=k=>`<i class="pl-dot pl-${k}" aria-hidden="true"></i>`;
+  const row=({q})=>`<li>${dot(q.kind)}<bdi>${esc(label(q))}</bdi>${q.name?` <small>${E('places.kind_'+q.kind)}</small>`:''}${q.seasonal?` <small>${E('places.seasonal')}</small>`:''}</li>`;
+  function block(st,head){
+    const it=st&&st.info==='some'?items(st):[];
+    if(!it.length)return `<section class="pl-near"><h3>${head}</h3><p class="pl-none">${E('places.none')}</p></section>`;
+    const more=it.slice(3);
+    return `<section class="pl-near"><h3>${head}</h3><ul>${it.slice(0,3).map(row).join('')}</ul>`+
+      (more.length?`<details><summary>${E('places.all_n',{n:it.length})}</summary><ul>${more.map(row).join('')}</ul></details>`:'')+
+      `<p class="pl-check">${E('places.check')}</p></section>`;}
+  // a lift that is on no station (the unnamed conveyor and the like) gets no section at all
+  function liftBlock(l){
+    const t=stationOf(l.id,'top'),b=stationOf(l.id,'bottom');if(!t&&!b)return '';
+    return block(t,E('places.near_top'))+block(b,E('places.near_bottom'));}
+  // the meeting card: one line. A base with many places gets only the count
+  function meet(s){
+    const el=document.getElementById('meetPlaces');if(!el)return;
+    const st=s&&s.ends.map(e=>stationOf(e.l.id,e.end==='b'?'bottom':'top')).find(x=>x&&x.info==='some'&&items(x).length);
+    if(!st){el.hidden=true;el.textContent='';return;}
+    const it=items(st);el.hidden=false;
+    el.textContent=it.length>3?T('places.meet_count',{n:it.length}):T('places.meet_names',{names:it.map(x=>label(x.q)).join(', ')});}
+  // the map: an overlay like the weather pins, on the top view only
+  const chip=document.createElement('button');chip.type='button';chip.className='wx-chip pl-chip';chip.setAttribute('aria-pressed','false');
+  chip.setAttribute('aria-label',T('places.chip_aria'));
+  chip.innerHTML=`<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M7 3v8M5 3v5a2 2 0 0 0 4 0V3M7 11v10M17 21V3c-2.5 1-4 4-4 8h4"/></svg><span>${E('places.chip')}</span>`;
+  const filters=document.getElementById('filters');filters.parentNode.insertBefore(chip,filters);
+  const wrap=pgMap.querySelector('.mapwrap'),pins=document.createElement('div');pins.className='pl-pins';wrap.append(pins);
+  let tags=false;
+  function layout(){
+    pins.innerHTML='';if(view==='3d'||!svg){pins.hidden=true;return;}pins.hidden=false;
+    const m=svg.getScreenCTM(),r=wrap.getBoundingClientRect();if(!m||!r.width)return;
+    const pt=svg.createSVGPoint(),at=(lat,lon)=>{const[x,y]=P([lat,lon]);pt.x=x;pt.y=y;const q=pt.matrixTransform(m);return [q.x-r.left,q.y-r.top];};
+    const placed=[];
+    PLD.stations.forEach(st=>{
+      if(st.info!=='some')return;const it=items(st);if(!it.length)return;
+      const[x,y]=at(st.ll[0],st.ll[1]),kinds=KINDS.filter(k=>it.some(i=>i.q.kind===k));
+      const g=document.createElement('div');g.className='pl-st'+(tags?' tag':'');g.style.left=(x+9)+'px';g.style.top=(y-9)+'px';
+      g.innerHTML=kinds.map(dot).join('')+(tags?`<b class="num">${it.length}</b>`:'');
+      pins.append(g);
+      const w=g.offsetWidth,h=g.offsetHeight,box={l:x+9,t:y-9-h,w,h};
+      if(tags&&placed.some(o=>box.l<o.l+o.w&&box.l+box.w>o.l&&box.t<o.t+o.h&&box.t+box.h>o.t)){g.classList.remove('tag');g.querySelector('b')?.remove();}
+      else placed.push(box);});
+    // a cafe on the slope belongs to no station: its own dashed ring
+    PLD.places.filter(q=>q.slope&&kindOf(q)).forEach(q=>{const[x,y]=at(q.ll[0],q.ll[1]);
+      const g=document.createElement('div');g.className='pl-st slope';g.style.left=x+'px';g.style.top=y+'px';
+      g.innerHTML=dot(q.kind);if(tags)g.insertAdjacentHTML('beforeend',`<bdi>${esc(label(q))}</bdi>`);pins.append(g);});}
+  chip.onclick=()=>{tags=!tags;chip.setAttribute('aria-pressed',String(tags));layout();};
+  document.getElementById('viewsw').addEventListener('click',()=>requestAnimationFrame(layout));
+  return {liftBlock,meet,layout};
 })();
 
 // flight ticket: one shared doc (trip/flight), editable by Contributors
