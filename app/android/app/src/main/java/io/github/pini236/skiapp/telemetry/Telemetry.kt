@@ -85,6 +85,8 @@ object Telemetry {
                 captureDeepLinks = false
                 sessionReplay = false
                 personProfiles = PersonProfiles.NEVER
+                // a phone set to Europe keeps no stored visitor id: the id lives in memory, new for each run (m-5, PARITY)
+                if (Measure.europe(java.util.TimeZone.getDefault().id)) preferences = com.posthog.internal.PostHogMemoryPreferences()
             }
             PostHogAndroid.setup(app, config)
             PostHog.optIn()
