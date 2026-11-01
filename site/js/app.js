@@ -569,7 +569,7 @@ function ensure3d(){
   if(v3)return true;if(!can3d())return false;
   try{
     const kc=P([42.532,44.4945]);
-    v3=GudRelief.View3D({model:TM,host:m3,pistes:D.pistes,lifts:D.lifts,P,dispName,colors:{green:'#1B8A4C',blue:'#1F5FC4',red:'#D1342B',black:'#13233A',route:'#EE8E1C'},liftColor:'#3A4556',
+    v3=GudRelief.View3D({model:TM,host:m3,pistes:D.pistes,lifts:D.lifts,P,dispName,colors:{green:'#198549',blue:'#1F5FC4',red:'#D1342B',black:'#13233A',route:'#EE8E1C'},liftColor:'#3A4556',
       center:[(minX+maxX)/2,(minY+maxY)/2+250],homeDist:RS.view3d&&RS.view3d.dist||7000,homeAz:RS.view3d&&RS.view3d.az||0,homePol:RS.view3d&&RS.view3d.pol||0.44,
       onPick:k=>select(k,{via:'map'}),onLift:id=>showLift(id),
       onFly:f=>{flyProg=f;const k=document.getElementById('profRange');if(k){const i=Math.round(f*(+k.max));k.value=i;profAt(i);}},
@@ -913,7 +913,7 @@ const makeMeet=()=>(function(){
     if(TM){const img=new Image();img.src=TM.hill.src;await img.decode().catch(()=>{});const d=TM.dem;x.globalAlpha=.55;x.drawImage(img,X(d.x0),Y(d.y0),TM.W*k,TM.Hm*k);x.globalAlpha=1;}
     x.lineCap=x.lineJoin='round';
     const line=(g,c,w)=>{x.strokeStyle=c;x.lineWidth=w;x.beginPath();g.forEach((q,i)=>{const[a,b]=P(q);i?x.lineTo(X(a),Y(b)):x.moveTo(X(a),Y(b));});x.stroke();};
-    const COLS={green:'#1B8A4C',blue:'#1F5FC4',red:'#D1342B',black:'#13233A'};
+    const COLS={green:'#198549',blue:'#1F5FC4',red:'#D1342B',black:'#13233A'};
     mainPistes.filter(p=>p.named).forEach(p=>p.segs.filter(z=>!z.area).forEach(z=>{line(z.g,'#fff',11);line(z.g,COLS[p.color],6);}));
     mainLifts.filter(l=>l.name).forEach(l=>{line(l.g,'#fff',6);line(l.g,'#3A4556',3);});
     const px=X(s.x),py=Y(s.y);x.fillStyle='#F4B942';x.strokeStyle='#13233A';x.lineWidth=6;
