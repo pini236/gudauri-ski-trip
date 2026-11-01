@@ -54,6 +54,9 @@ public struct SiteDataStore: Sendable {
 
     private func loadMeta() -> Meta {
         try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+        // re-fetchable, so out of the phone's backup
+        var skip = URLResourceValues(); skip.isExcludedFromBackup = true
+        var d = dir; try? d.setResourceValues(skip)
         if let d = try? Data(contentsOf: metaURL), let m = try? JSONDecoder().decode(Meta.self, from: d), m.app == appVersion { return m }
         // a new app version: its packaged files win, and the next refresh starts from them
         for n in Self.files { try? FileManager.default.removeItem(at: dir.appendingPathComponent(n)) }

@@ -65,5 +65,23 @@ final class SiteDataStoreTests: XCTestCase {
         XCTAssertEqual(newer.read(name), packaged, "the downloads belong to the app version that fetched them")
     }
 
+    func testUnknownFieldsLikeSpeedAndMidAreIgnored() throws {
+        var o = try XCTUnwrap(JSONSerialization.jsonObject(with: try site()) as? [String: Any])
+        var lifts = try XCTUnwrap(o["lifts"] as? [[String: Any]])
+        lifts[0]["speed"] = 5.0; lifts[0]["mid"] = [["pos": [42.5, 44.5], "name": "X"]]
+        o["lifts"] = lifts
+        let data = try JSONSerialization.data(withJSONObject: o)
+        XCTAssertTrue(SiteDataStore.valid(name, data))
+        XCTAssertEqual(try RunsAndLifts.decode(data).lifts.count, lifts.count)
+    }
+
+    func testTheDownloadsAreOutOfTheBackup() async throws {
+        let dir = tmp()
+        let s = store(dir, packaged: Data()) { _, _ in .init(code: 404, etag: nil, body: nil) }
+        _ = await s.refresh(force: true)
+        let v = try dir.resourceValues(forKeys: [.isExcludedFromBackupKey])
+        XCTAssertEqual(v.isExcludedFromBackup, true)
+    }
+
     final class Box: @unchecked Sendable { var etag: String? }
 }
