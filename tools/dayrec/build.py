@@ -113,6 +113,7 @@ def truth_summary(d):
 # the days, one after another, that grow a history: the second day has new runs, the third records and "the first red";
 # then one run (mode run) after them
 CHAIN = ('run_single', 'shared_tatra', 'full_day', 'run_from_middle')
+TRIP_CHAIN = ('shared_tatra', 'run_single', 'full_day')
 
 
 def moments_fixture(base, P, index):
@@ -124,10 +125,10 @@ def moments_fixture(base, P, index):
     out = {'about': 'Test values of the moments engine (tools/dayrec/moments.py, README "The moments"). Each case: the '
                      'final result of a case of dayrec-cases.json (by name, expected.final), the history before it, and '
                      'the expected output, to match exactly. chain: the same days one after another, each starting from '
-                     'the history the previous one returned. lift_cards: the card on the lift from the final analysis of '
+                     'the history the previous one returned; trip_chain the same with "your trip". lift_cards: the card on the lift from the final analysis of '
                      'the log so far (inline).',
            'moments': M['version'], 'params': 'tools/fixtures/dayrec-params.json (moments)', 'cases': [], 'chain': [],
-           'lift_cards': []}
+           'lift_cards': [], 'trip_chain': []}
     for c in index['cases']:
         h = moments.empty_history()
         out['cases'].append({'name': c['name'], 'final': c['name'], 'history': h,
@@ -136,6 +137,13 @@ def moments_fixture(base, P, index):
     for n in CHAIN:
         o = moments.moments(ex[n], h, base.runs, M)
         out['chain'].append({'final': n, 'history': h, 'expected': o})
+        h = o['history']
+    # a trip of three ski days (the app passes "your trip": its first ski day as the key, and whether today is the last)
+    h = moments.empty_history()
+    for i, n in enumerate(TRIP_CHAIN):
+        trip = {'start': '2027-01-11', 'last': i == len(TRIP_CHAIN) - 1}
+        o = moments.moments(ex[n], h, base.runs, M, trip)
+        out['trip_chain'].append({'final': n, 'history': h, 'trip': trip, 'expected': o})
         h = o['history']
     # the card on the lift, during the 2nd and 6th rides of the full day, and on the first ride (no descent before it)
     name, builder, _, opts = next(c for c in cases.CASES if c[0] == 'full_day')
