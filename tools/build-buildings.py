@@ -138,12 +138,14 @@ for e in osm['elements']:
             h_total, hsrc = float(tags['height'].split()[0]), 'osm-height'
         except ValueError:
             pass
-    if lv is None:
-        lv = cfg['default_levels']
+    if lv is None:  # no source: an estimate from the footprint, so a kiosk is not a five-storey block
+        a = abs(area(poly))
+        lv = next((l for lim, l in cfg['levels_by_area'] if a < lim), cfg['default_levels'])
         hsrc = hsrc or 'estimate'
     if hsrc not in HSRC:
         fail(f'{oid}: hsrc missing or unknown ({hsrc!r})')
-    style = c.get('style') or cfg['fill_styles'][pick(oid, len(cfg['fill_styles']))]
+    small = abs(area(poly)) < cfg['small_area']
+    style = c.get('style') or (cfg['small_style'] if small else cfg['fill_styles'][pick(oid, len(cfg['fill_styles']))])
     lsrc = c.get('lsrc') or ('fill' if oid not in cfg['buildings'] else None)
     if lsrc not in LSRC:
         fail(f'{oid}: lsrc missing or unknown ({lsrc!r})')
