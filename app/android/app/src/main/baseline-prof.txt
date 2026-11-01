@@ -1,0 +1,16 @@
+# Baseline profile (hand-written, 1.11.2026): classes and methods run at start, compiled ahead of time on install.
+# Broad on purpose: everything of the app's own and of Compose's runtime and UI, which the first screen and the map
+# both use. Not measured yet; the check is "first frame" in the logcat or the measuring strip on a real phone, before
+# and after (docs/ROADMAP.md, "פתיחה קרה").
+HSPLio/github/pini236/skiapp/**->**(**)**
+Lio/github/pini236/skiapp/**;
+HSPLandroidx/compose/runtime/**->**(**)**
+Landroidx/compose/runtime/**;
+HSPLandroidx/compose/ui/**->**(**)**
+Landroidx/compose/ui/**;
+HSPLandroidx/compose/foundation/**->**(**)**
+Landroidx/compose/foundation/**;
+HSPLandroidx/compose/material3/**->**(**)**
+Landroidx/compose/material3/**;
+HSPLandroidx/activity/**->**(**)**
+Landroidx/activity/**;

@@ -1,0 +1,87 @@
+import XCTest
+@testable import GudiData
+
+/// The refresh rules (like Android's SiteDataTest): a download is used only when valid, an ETag saves the download, an
+/// old app version starts again from the packaged copy, and a failure never breaks anything.
+final class SiteDataStoreTests: XCTestCase {
+    private let root = URL(fileURLWithPath: #filePath).deletingLastPathComponent()
+        .deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
+        .deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
+    private let file = "runs-and-lifts.json"
+
+    private func site() throws -> Data { try Data(contentsOf: root.appendingPathComponent("site/data/runs-and-lifts.json")) }
+    private func tmp() -> URL { FileManager.default.temporaryDirectory.appendingPathComponent("sd-" + UUID().uuidString) }
+
+    private func store(_ dir: URL, version: String = "1", packaged: Data, now: Double = 1_000,
+                       fetch: @escaping SiteDataStore.Fetcher) -> SiteDataStore {
+        SiteDataStore(dir: dir, appVersion: version, packaged: { _ in packaged }, fetch: fetch, now: { now })
+    }
+
+    func testTheSitesFileIsValidAndBrokenOnesAreNot() throws {
+        XCTAssertTrue(SiteDataStore.valid(file, try site()))
+        XCTAssertFalse(SiteDataStore.valid(file, Data("{}".utf8)))
+        XCTAssertFalse(SiteDataStore.valid(file, Data("not json".utf8)))
+        let json = String(decoding: try site(), as: UTF8.self)
+        let marked = Data(("{\"schema\":2," + json.dropFirst()).utf8)
+        XCTAssertFalse(SiteDataStore.valid(file, marked), "a newer schema is ignored by this app")
+    }
+
+    func testADownloadIsUsedAfterItPassesAndANotModifiedKeepsIt() async throws {
+        let dir = tmp(); let body = try site()
+        let first = store(dir, packaged: Data("old".utf8)) { _, _ in .init(code: 200, etag: "\"a\"", body: body) }
+        let r1 = await first.refresh(force: true)
+        XCTAssertEqual(r1[file], .updated)
+        XCTAssertEqual(first.read(file), body)
+        // the next ask carries the ETag and gets 304
+        let seen = Box()
+        let second = store(dir, packaged: Data("old".utf8)) { _, etag in seen.etag = etag; return .init(code: 304, etag: nil, body: nil) }
+        let r2 = await second.refresh(force: true)
+        XCTAssertEqual(r2[file], .unchanged)
+        XCTAssertEqual(seen.etag, "\"a\"")
+        XCTAssertEqual(second.read(file), body)
+    }
+
+    func testABrokenOrFailedDownloadKeepsThePackagedCopy() async throws {
+        let dir = tmp(); let packaged = Data("packaged".utf8)
+        let bad = store(dir, packaged: packaged) { _, _ in .init(code: 200, etag: "\"b\"", body: Data(#"{"pistes":[],"lifts":[]}"#.utf8)) }
+        let r = await bad.refresh(force: true)
+        XCTAssertEqual(r[file], .rejected)
+        XCTAssertEqual(bad.read(file), packaged)
+        struct Down: Error {}
+        let down = store(dir, packaged: packaged) { _, _ in throw Down() }
+        let r2 = await down.refresh(force: true)
+        XCTAssertEqual(r2[file], .failed)
+        XCTAssertEqual(down.read(file), packaged)
+    }
+
+    func testItAsksAtMostEverySixHoursAndANewAppVersionStartsOverFromThePackagedCopy() async throws {
+        let dir = tmp(); let body = try site(); let packaged = Data("packaged".utf8)
+        let a = store(dir, packaged: packaged, now: 1_000) { _, _ in .init(code: 200, etag: "\"a\"", body: body) }
+        _ = await a.refresh(force: true)
+        let soon = store(dir, packaged: packaged, now: 1_000 + 3600) { _, _ in .init(code: 200, etag: "\"z\"", body: body) }
+        let r = await soon.refresh()
+        XCTAssertEqual(r[file], .skipped)
+        let newer = store(dir, version: "2", packaged: packaged, now: 1_000) { _, _ in .init(code: 304, etag: nil, body: nil) }
+        XCTAssertEqual(newer.read(file), packaged, "the downloads belong to the app version that fetched them")
+    }
+
+    func testUnknownFieldsLikeSpeedAndMidAreIgnored() throws {
+        var o = try XCTUnwrap(JSONSerialization.jsonObject(with: try site()) as? [String: Any])
+        var lifts = try XCTUnwrap(o["lifts"] as? [[String: Any]])
+        lifts[0]["speed"] = 5.0; lifts[0]["mid"] = [["pos": [42.5, 44.5], "name": "X"]]
+        o["lifts"] = lifts
+        let data = try JSONSerialization.data(withJSONObject: o)
+        XCTAssertTrue(SiteDataStore.valid(file, data))
+        XCTAssertEqual(try RunsAndLifts.decode(data).lifts.count, lifts.count)
+    }
+
+    func testTheDownloadsAreOutOfTheBackup() async throws {
+        let dir = tmp()
+        let s = store(dir, packaged: Data()) { _, _ in .init(code: 404, etag: nil, body: nil) }
+        _ = await s.refresh(force: true)
+        let v = try dir.resourceValues(forKeys: [.isExcludedFromBackupKey])
+        XCTAssertEqual(v.isExcludedFromBackup, true)
+    }
+
+    final class Box: @unchecked Sendable { var etag: String? }
+}
