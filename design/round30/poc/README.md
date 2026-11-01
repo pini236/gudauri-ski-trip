@@ -6,7 +6,8 @@
 |---|---|
 | `desktop-overview.jpg` | כל New Gudauri מדרום-מערב, עם הכביש המתפתל והרכבלים |
 | `desktop-village.jpg` | הבלוקים בסגנון שאלה מהצפון-מזרח, עם ההר מאחור |
-| `desktop-neo-atrium.jpg` | Neo (אפור ועץ כתום) ו-Atrium (זית וזכוכית), לפי התמונות |
+| `desktop-neo-atrium.jpg` | Neo (אפור ועץ כתום) ו-Atrium (זית וזכוכית), לפי התמונות; Atrium הוחלף אחרי הצילום של פיני |
 | `desktop-twins-chalets.jpg` | Alpic, הבלוקים ו-Twins מקרוב |
 | `phone-card.jpg` | נגיעה בבניין: השם, מקור הגובה ומקור המראה, "הדמיה, לא צילום" |
 | `phone-what-is-estimated.jpg` | "מה משוער" דלוק: כל מה שלא ממקור מוחלש |
+| `desktop-atrium-from-photo.jpg` | Atrium לפי הצילום של פיני (1.11.2026): אפור כהה, רפפות חרדל אנכיות, זכוכית מהרצפה עד התקרה |
