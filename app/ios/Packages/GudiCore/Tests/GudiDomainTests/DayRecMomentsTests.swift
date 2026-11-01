@@ -39,7 +39,8 @@ final class DayRecMomentsTests: XCTestCase {
         let (fx, finals, runs, M) = try load()
         for c in fx["cases"] as! [[String: Any]] {
             let r = try analysis(finals[c["final"] as! String]!)
-            let got = DayRec.moments(r, history: try history(c["history"]!), runs: runs, M)
+            let trip = (c["trip"] as? [String: Any]).map { DayRec.TripKey(start: $0["start"] as! String, last: $0["last"] as! Bool) }
+            let got = DayRec.moments(r, history: try history(c["history"]!), runs: runs, M, trip: trip)
             let diff = Self.diff(c["expected"]!, try json(got), "")
             XCTAssertNil(diff, "\(c["name"]!): \(diff ?? "")")
         }
@@ -54,6 +55,22 @@ final class DayRecMomentsTests: XCTestCase {
             let got = DayRec.moments(try analysis(finals[c["final"] as! String]!), history: h ?? given, runs: runs, M)
             let diff = Self.diff(c["expected"]!, try json(got), "")
             XCTAssertNil(diff, "chain \(c["final"]!): \(diff ?? "")")
+            h = got.history
+        }
+    }
+
+    /// Three days of one trip, each from the history the one before returned, with "your trip" passed (README, trip_chain).
+    func testTheTripChain() throws {
+        let (fx, finals, runs, M) = try load()
+        var h: DayRec.History?
+        for c in fx["trip_chain"] as! [[String: Any]] {
+            let given = try history(c["history"]!)
+            if let h { XCTAssertEqual(h, given, "the trip chain's history") }
+            let t = c["trip"] as! [String: Any]
+            let trip = DayRec.TripKey(start: t["start"] as! String, last: t["last"] as! Bool)
+            let got = DayRec.moments(try analysis(finals[c["final"] as! String]!), history: h ?? given, runs: runs, M, trip: trip)
+            let diff = Self.diff(c["expected"]!, try json(got), "")
+            XCTAssertNil(diff, "trip chain \(c["final"]!): \(diff ?? "")")
             h = got.history
         }
     }

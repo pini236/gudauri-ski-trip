@@ -161,8 +161,14 @@ extension DayRec {
         /// run, ski-way, beginner-area or ski-route.
         public var kind: String
         public var named: Bool
+        /// The names of the lifts that reach the top of the run (`fromLifts`).
+        public var fromLifts: [String]
+        /// The steepest ~100 m stretch of the run as a grade (net.py `_steep_g`; the rule of the run panel).
+        public var steepG: Double
 
-        public init(color: String?, kind: String = "run", named: Bool) { self.color = color; self.kind = kind; self.named = named }
+        public init(color: String?, kind: String = "run", named: Bool, fromLifts: [String] = [], steepG: Double = 0) {
+            self.color = color; self.kind = kind; self.named = named; self.fromLifts = fromLifts; self.steepG = steepG
+        }
     }
 
     public enum NetError: Error, Equatable {
@@ -203,7 +209,9 @@ extension DayRec {
                 let key = text(run["key"]) ?? ""
                 let n = run["named"]
                 let named = (n as? Bool) == true || (n as? String) == "True" || (n as? String) == "true"
-                infos[key] = RunInfo(color: run["color"] as? String, kind: run["kind"] as? String ?? "run", named: named)
+                infos[key] = RunInfo(color: run["color"] as? String, kind: run["kind"] as? String ?? "run", named: named,
+                                     fromLifts: (run["fromLifts"] as? [Any] ?? []).compactMap { text($0) },
+                                     steepG: Self.steepG(run, proj, terrain))
                 for s in run["segs"] as? [[String: Any]] ?? [] {
                     guard let ln = line(s["g"]) else { continue }
                     pistes.append(Piste(key: key, named: named, line: ln, area: truthy(s["area"])))
@@ -364,5 +372,34 @@ extension DayRec {
         case let d as [String: Any]: return !d.isEmpty
         default: return true
         }
+    }
+}
+
+extension DayRec.Net {
+    /// The steepest ~100 m stretch of a run as a grade (net.py `_steep_g`): the rule of the run panel (site/js/relief.js
+    /// R.stats), over the lines that are not an area or a tunnel.
+    static func steepG(_ run: [String: Any], _ proj: DayRec.Proj, _ terrain: Terrain) -> Double {
+        var best = 0.0
+        for seg in run["segs"] as? [[String: Any]] ?? [] {
+            if truthy(seg["area"]) || truthy(seg["tunnel"]) { continue }
+            guard let g = seg["g"] as? [Any], g.count >= 2 else { continue }
+            var s: [(d: Double, e: Double)] = []
+            var acc = 0.0
+            var prev: (x: Double, y: Double)?
+            for q in g {
+                guard let q = q as? [Any], q.count >= 2, let la = num(q[0]), let lo = num(q[1]) else { continue }
+                let (x, y) = proj.xy(la, lo)
+                if let p = prev { acc += ((x - p.x) * (x - p.x) + (y - p.y) * (y - p.y)).squareRoot() }
+                s.append((acc, terrain.elev(x, y)))
+                prev = (x, y)
+            }
+            var j = 0
+            for i in s.indices {
+                while j < s.count - 1 && s[j].d - s[i].d < 100 { j += 1 }
+                let dl = s[j].d - s[i].d
+                if dl >= 80 { best = max(best, abs(s[j].e - s[i].e) / dl) }
+            }
+        }
+        return best
     }
 }
