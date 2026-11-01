@@ -633,6 +633,7 @@ class MainActivity : ComponentActivity() {
         if (!src.isFile) { Qa.log("dayrec replay none"); return }
         val dst = DayRec.store(this).newFile(System.currentTimeMillis())
         src.copyTo(dst, true)
+        Qa.log("dayrec replay id ${dst.name.removePrefix("day-").removeSuffix(".jsonl")}")
         val t0 = android.os.SystemClock.elapsedRealtime()
         val out = runCatching { DayAnalysis.ensure(this, dst) }.onFailure { Qa.log("dayrec replay failed: ${it.javaClass.simpleName} ${it.message}") }.getOrNull()
         val r = out?.let { org.json.JSONObject(it.readText()) }

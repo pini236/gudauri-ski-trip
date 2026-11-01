@@ -919,6 +919,15 @@ dayrec_steps() {
   note "dayrec replay: $rep"
   grep -q "$want" <<< "$rep" || fail "the replayed day differs from the reference ($want): '$rep'"
   grep -q "moments=true" <<< "$rep" || fail "the replayed day has no moments beside it: '$rep'"
+  # the screens of the day (round 29), in the test build: the entry on home and the map, the end of the day, "my days"
+  local did; did=$(tail -n +"$((MARK + 1))" "$OUT/logcat.txt" | grep -m1 "SkiQa.*dayrec replay id " | sed 's/.*dayrec replay id //' | tr -d '\r ')
+  qa "--es qa.tab home --es qa.time 2027-01-12T11:00"; sleep 3; shot dayrec-home
+  qa "--es qa.tab map"; sleep 5; shot dayrec-map-entry
+  if [ -n "$did" ]; then
+    qa "--es qa.tab days/$did"; sleep 6; shot dayrec-day
+    drag 540 1900 540 600 400; sleep 1; shot dayrec-day-timeline
+    qa "--es qa.tab days"; sleep 3; shot dayrec-days
+  else fail "the replayed day has no id to open"; fi
   qa "--es qa.dayrec wipe"
   # the phone killed the app in the middle of a day: the file stays cut, and the next opening goes on with it
   qa "--es qa.dayrec start"; waitlog "dayrec start result Started" 10; dayrec_walk 6
