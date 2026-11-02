@@ -1,0 +1,88 @@
+{
+  "_comment": "עובדות מדף המצב של MTA (status.mta.ski), עותק של ארכיון האינטרנט מ-8.6.2026, מחוץ לעונה: כל הפריטים כבויים. נשמרו רק שמות ומספרים, לא הדף. פיני הדביק את המקור ב-1.11.2026. לא ידוע עדיין איך נראה פריט פתוח.",
+  "source": {
+    "urls": [
+      "https://status.mta.ski/en/gudauri/gudauri",
+      "https://status.mta.ski/en/gudauri/kobi"
+    ],
+    "capturedAt": ["2026-06-08T07:52:39Z", "2026-06-08T08:17:32Z"],
+    "framework": "Next.js, הנתונים גם בטבלאות ה-HTML וגם בתוך self.__next_f.push (מערכים עם name, status, bottom, top, time, length, openTime, closeTime, openDate, closeDate)"
+  },
+  "statusMarkup": {
+    "offImage": "img alt=\"Off Status\" title=\"Status is Off\" src=\"/off.png\"",
+    "numericField": "status: 1 או 2 בשני המקרים מוצג Off; הערך של פתוח לא נצפה",
+    "unverified": "אין עדיין דוגמה של פתוח. אסור לנחש את הערכים או את שם התמונה"
+  },
+  "season": { "label": "27 December - 19 April", "hours": "09:00 - 16:00" },
+  "zones": {
+    "gudauri": {
+      "lifts": [
+        { "id": 16, "name": "Pirveli", "type": "chairlift", "status": 2, "bottom": 1989, "top": 2147, "time": 3, "length": 928 },
+        { "id": 17, "name": "Soliko", "type": "chairlift", "status": 2, "bottom": 2146, "top": 2689, "time": 7.4, "length": 2231 },
+        { "id": 9, "name": "Goodaura", "type": "gondola", "status": 2, "bottom": 2182, "top": 2728, "time": 7, "length": 2360 },
+        { "id": 43, "name": "New Goodaura", "type": "chairlift", "status": 2, "bottom": 2192, "top": 2560, "time": 5, "length": 1300 },
+        { "id": 44, "name": "Kikilo", "type": "chairlift", "status": 2, "bottom": 2500, "top": 2750, "time": 7, "length": 1400 },
+        { "id": 1, "name": "Kudebi", "type": "chairlift", "status": 2, "bottom": 2665, "top": 2993, "time": 4, "length": 1230 },
+        { "id": 2, "name": "Snow Park", "type": "chairlift", "status": 1, "bottom": 2720, "top": 2850, "time": 3.3, "length": 800, "closeDate": "2025-04-17" },
+        { "id": 19, "name": "Shino", "type": "chairlift", "status": 2, "bottom": 2187, "top": 2724, "time": 7.8, "length": 2352 },
+        { "id": 13, "name": "Zuma", "type": "tbar", "status": 2, "bottom": 2150, "top": 2210, "time": 3, "length": 317 },
+        { "id": 14, "name": "Alpina", "type": "tbar", "status": 2, "bottom": 2252, "top": 2298, "time": 1.6, "length": 220 },
+        { "id": 20, "name": "Baby", "type": "tbar", "status": 2, "bottom": 2750, "top": 2800, "time": 2, "length": 100 },
+        { "id": 15, "name": "Bombora", "type": "tbar", "status": 2, "bottom": 2700, "top": 2800, "time": 1.9, "length": 257 },
+        { "id": 18, "name": "Khada", "type": "chairlift", "status": 1, "bottom": 2680, "top": 2800, "time": 2.5, "length": 600, "closeDate": "2026-04-05" },
+        { "id": 7, "name": "Sadzele", "type": "chairlift", "status": 1, "bottom": 2788, "top": 3270, "time": 5.9, "length": 1410, "closeTime": "17:00:00", "closeDate": "2025-04-06" },
+        { "id": 34, "name": "Khalicha 1", "type": "carpet", "status": 2, "bottom": 2780, "top": 2810, "time": 1.25, "length": 60 },
+        { "id": 35, "name": "Khalicha 2", "type": "carpet", "status": 2, "bottom": 2182, "top": 2190, "time": 0.56, "length": 27 },
+        { "id": 36, "name": "Khalicha 3", "type": "carpet", "status": 2, "bottom": 2800, "top": 2750, "time": 1.9, "length": 90 }
+      ],
+      "trails": [
+        { "name": "Pirveli", "color": "green" },
+        { "name": "Snow park", "color": "green" },
+        { "name": "Bombora", "color": "green" },
+        { "name": "Carpet 90m", "color": "green", "note": "מופיע פעמיים באותו שם" },
+        { "name": "Carpet 27m", "color": "green" },
+        { "name": "Carpet 90m", "color": "green" },
+        { "name": "Baby", "color": "blue" },
+        { "name": "Tatra 1", "color": "blue" },
+        { "name": "Tatra", "color": "blue", "note": "אצלנו כנראה Tatra 2" },
+        { "name": "Soliko 1", "color": "blue" },
+        { "name": "Soliko 2", "color": "blue" },
+        { "name": "Sportuli 1", "color": "blue" },
+        { "name": "Kikilo 2", "color": "blue" },
+        { "name": "New Goodaura 1", "color": "blue" },
+        { "name": "Goodaura 2", "color": "blue" },
+        { "name": "Kikilo 1", "color": "blue" },
+        { "name": "Firni 1", "color": "blue" },
+        { "name": "Goodaura 1", "color": "blue" },
+        { "name": "New Goodaura 2", "color": "blue" },
+        { "name": "Shino", "color": "blue" },
+        { "name": "Sportuli 2", "color": "blue" },
+        { "name": "Khada", "color": "blue" },
+        { "name": "Firni 2", "color": "blue" },
+        { "name": "Kudebi 1", "color": "red" },
+        { "name": "Kudebi 3", "color": "red" },
+        { "name": "Sadzele 3", "color": "red" },
+        { "name": "Kudebi 2", "color": "red" },
+        { "name": "Sadzele 2", "color": "black" },
+        { "name": "Sadzele 1", "color": "black" }
+      ]
+    },
+    "kobi": {
+      "lifts": [
+        { "id": 11, "name": "Kobi", "type": "gondola", "status": 2, "bottom": 2512, "top": 2950, "time": 6.3, "length": 2271 },
+        { "id": 10, "name": "Firni", "type": "gondola", "status": 2, "bottom": 2720, "top": 2950, "time": 7, "length": 1992 },
+        { "id": 12, "name": "Truso", "type": "gondola", "status": 2, "bottom": 1974, "top": 2512, "time": 8, "length": 2837 }
+      ],
+      "trails": [
+        { "name": "Kobi", "color": "blue" },
+        { "name": "Kobi 2", "color": "blue" }
+      ]
+    }
+  },
+  "notes": [
+    "הדף מחולק לשני אזורים בכתובת: gudauri ו-kobi (נבדקו שניהם).",
+    "אין בדף שורת 'עודכן ב'. המנתח צריך לשים חותמת זמן של ההבאה, ולא להניח שהמצב עדכני.",
+    "תאריכי פתיחה וסגירה לכל רכבל כתובים בדף, ויש בהם שגיאות ברורות (Kudebi openDate 2025-01-02, Snow Park/Khada/Sadzele עם תאריכי עונה קודמת). לא להסתמך עליהם.",
+    "בטבלת הרכבלים הגבהים הם bottom ו-top, וזמן הנסיעה בדקות. Shino מגיע עם רווח בתחילת הערך של bottom."
+  ]
+}
