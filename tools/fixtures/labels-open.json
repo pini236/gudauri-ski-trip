@@ -1,0 +1,48 @@
+{
+ "note": "open ends of partial Gudauri runs (round 21): the shared values the apps must read; the client fades the line only from conf medium up (docs/ARCHITECTURE.md, 2.11.2026). Hand-set in tools/build-labels.py from research/map-open-ends.md.",
+ "draw_from": "medium",
+ "open": {
+  "New Goodaura": [
+   {
+    "at": "end",
+    "conf": "medium",
+    "src": "official-map"
+   }
+  ],
+  "u1234557981": [
+   {
+    "at": "end",
+    "conf": "low",
+    "src": "official-map"
+   }
+  ],
+  "Shino": [
+   {
+    "at": "start",
+    "conf": "medium",
+    "src": "official-map"
+   }
+  ],
+  "Firni 1": [
+   {
+    "at": "end",
+    "conf": "low",
+    "src": "official-map"
+   }
+  ],
+  "Firni 2": [
+   {
+    "at": "start",
+    "conf": "medium",
+    "src": "official-map"
+   }
+  ],
+  "Soliko 2": [
+   {
+    "at": "end",
+    "conf": "medium",
+    "src": "osm-history"
+   }
+  ]
+ }
+}

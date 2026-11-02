@@ -204,6 +204,7 @@ function placePlate(t,u,kept,view){
   return null;
 }
 const vs={'vector-effect':'non-scaling-stroke',fill:'none','stroke-linecap':'round','stroke-linejoin':'round'};
+var OPENQ=[]; // round 21, the open end: the line of a partial run fades out where it goes on beyond the data (applyOpenEnds, once the model is here)
 function draw(root,pistes,lifts,store){
   // every white casing (lines and area edges) first, then the areas, then the line colours: a wide run's area and its
   // line read as one shape with one white edge round it (round 24, 2b)
@@ -216,9 +217,10 @@ function draw(root,pistes,lifts,store){
         const a=mk('path',{d,fill:`var(--p-${ck(p)})`,stroke:`var(--p-${ck(p)})`,'vector-effect':'non-scaling-stroke',class:'pg pg-area '+ck(p)},gAreas);pisteEls[p.key].push(a);return;} // a wide run: its area in the run's own colour (round 24, 2b)
       const d=pathD(s.g);
       // a ski route as on the official map (round 24, 1b): a light orange band with dotted red edges; a private route to a hut, a thin dotted red line
-      mk('path',{d,...vs,stroke:'var(--casing)','stroke-width':hut?4:route?8:p.named?6.5:4.5},gc);
-      if(route&&!hut)mk('path',{d,...vs,stroke:'var(--p-route-edge)','stroke-width':6,'stroke-dasharray':'2 2.5','stroke-linecap':'butt'},g);
-      mk('path',{d,...vs,class:'core',stroke:hut?'var(--p-route-edge)':`var(--p-${ck(p)})`,'stroke-width':hut?1.8:route?3.6:p.named?(p.kind==='ski-way'?2.6:3.4):HASLBL?1.6:2,...(hut?{'stroke-dasharray':'4 3'}:route?{}:p.named?(p.kind==='ski-way'?{'stroke-dasharray':'8 5'}:{}):HASLBL?{opacity:.6}:{'stroke-dasharray':'5 4'})},g);
+      const fe=[mk('path',{d,...vs,stroke:'var(--casing)','stroke-width':hut?4:route?8:p.named?6.5:4.5},gc)];
+      if(route&&!hut)fe.push(mk('path',{d,...vs,stroke:'var(--p-route-edge)','stroke-width':6,'stroke-dasharray':'2 2.5','stroke-linecap':'butt'},g));
+      fe.push(mk('path',{d,...vs,class:'core',stroke:hut?'var(--p-route-edge)':`var(--p-${ck(p)})`,'stroke-width':hut?1.8:route?3.6:p.named?(p.kind==='ski-way'?2.6:3.4):HASLBL?1.6:2,...(hut?{'stroke-dasharray':'4 3'}:route?{}:p.named?(p.kind==='ski-way'?{'stroke-dasharray':'8 5'}:{}):HASLBL?{opacity:.6}:{'stroke-dasharray':'5 4'})},g));
+      if(p.open&&p.named)OPENQ.push({p,s,fe,root});
       mk('path',{d,class:'hit','stroke-width':16,'vector-effect':'non-scaling-stroke','data-key':p.key,'stroke-linecap':'round'},gHit);
     });
     if(p.named&&isPlate(p)&&!hut){ // a number: a plate in the run's colour, placed by layoutLabels where no other run passes (round 23)
@@ -402,6 +404,35 @@ function paint2d(key){
     ARR.push({g,x:S[i].x,y:S[i].y,a,k:ARR.length});}});
   layoutArrows(vb.w/sz()[0]);
   requestAnimationFrame(()=>requestAnimationFrame(()=>gPaint.classList.add('on')));
+}
+// The open end of a partial run (round 21, option A): the last stretch of the line fades to nothing, and nothing is drawn across the hole.
+// Only from conf medium up (docs/ARCHITECTURE.md); the data says which end (start/end by the descent), the elevation model which end of the
+// drawn line is the top. A fade says only that the map stops drawing here, not that the run is open or safe.
+const FADE_M=130;
+function applyOpenEnds(){
+  if(!TM)return;
+  const done={};
+  OPENQ.forEach(({p,s,fe,root})=>{
+    (p.open||[]).forEach(o=>{
+      if(o.conf!=='medium'&&o.conf!=='high')return;
+      if(o.at!=='start'&&o.at!=='end')return;
+      const ends=[];
+      p.segs.forEach(sg=>{if(sg.area)return;const L=sg.g.map(P);ends.push({sg,pts:L,first:true,h:TM.elev(L[0][0],L[0][1])},{sg,pts:L,first:false,h:TM.elev(L[L.length-1][0],L[L.length-1][1])});});
+      if(!ends.length)return;
+      const pick=ends.reduce((m,e)=>(o.at==='start'?e.h>m.h:e.h<m.h)?e:m);
+      if(pick.sg!==s)return;
+      const k=p.key+o.at+(root.id||'');if(done[k])return;done[k]=1;
+      const L=pick.first?pick.pts:pick.pts.slice().reverse(); // L[0] is the open end
+      let acc=0,i=1;while(i<L.length&&acc+Math.hypot(L[i][0]-L[i-1][0],L[i][1]-L[i-1][1])<FADE_M){acc+=Math.hypot(L[i][0]-L[i-1][0],L[i][1]-L[i-1][1]);i++;}
+      if(i>=L.length)i=L.length-1; // a short stretch: the whole of it fades
+      const A=L[0],B=L[i],id='op'+(++lblN),defs=mk('defs',{},root);
+      const gr=mk('linearGradient',{id:id+'g',gradientUnits:'userSpaceOnUse',x1:A[0].toFixed(1),y1:A[1].toFixed(1),x2:B[0].toFixed(1),y2:B[1].toFixed(1)},defs);
+      mk('stop',{offset:0,'stop-color':'#000'},gr);mk('stop',{offset:1,'stop-color':'#fff'},gr);
+      const m=mk('mask',{id,maskUnits:'userSpaceOnUse',x:-1e5,y:-1e5,width:2e5,height:2e5},defs);
+      mk('rect',{x:-1e5,y:-1e5,width:2e5,height:2e5,fill:`url(#${id}g)`},m);
+      fe.forEach(e=>{e.setAttribute('mask',`url(#${id})`);e.classList.add('open-end');});
+    });
+  });
 }
 function layoutArrows(u){
   const step=Math.max(1,Math.ceil(60*u/150));
@@ -1573,6 +1604,7 @@ document.getElementById('loading').hidden=true;
 // the heights on the home page, the meeting point, and a run open on the map drawn again with its profile
 function onTerrain(){
   if(TM){
+    applyOpenEnds();
     addRelief(svg,mainLbl,{labels,marks},true);
     const ki=labels.findIndex(t=>t.dataset&&t.dataset.kobi);if(ki>0)labels.unshift(...labels.splice(ki,1)); // the signpost wins label collisions
     const fb=kLbl.querySelector('[data-nomodel]');if(fb){K.labels.splice(K.labels.indexOf(fb),1);fb.remove();}

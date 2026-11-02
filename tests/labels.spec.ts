@@ -99,3 +99,13 @@ test('a run whose key is not its name shows the readable name', async ({ page })
   const h = page.locator('.run-sign h2');
   await expect(h).toHaveText('New Goodaura 2');
 });
+
+test('an open end fades the line out, only from medium confidence up', async ({ page }) => {
+  await page.goto('/#map'); await loaded(page);
+  const faded = await page.evaluate(() => [...document.querySelectorAll('#map-svg path.open-end, svg path.open-end')].map((e: any) => e.closest('g[data-key]')?.getAttribute('data-key')));
+  const keys = new Set(faded);
+  for (const k of ['Soliko 2', 'Firni 2', 'Shino', 'New Goodaura']) expect(keys.has(k), k + ' should fade').toBeTruthy();
+  for (const k of ['Firni 1', 'u1234557981', 'Sportuli 2']) expect(keys.has(k), k + ' should not').toBeFalsy(); // low confidence, or no entry
+  const masks = await page.evaluate(() => [...document.querySelectorAll('path.open-end')].every((e: any) => /^url\(#op\d+\)$/.test(e.getAttribute('mask') || '')));
+  expect(masks).toBeTruthy();
+});
