@@ -3079,13 +3079,13 @@
       "x": 0,
       "y": 0,
       "w": 600,
-      "h": 1000,
+      "h": 1200,
       "page": "round32",
       "title": "מה לאשר בסבב 32"
     },
     "R32-Directions.dc.html": {
       "x": 680,
-      "y": 0,
+      "y": 1161,
       "w": 1368,
       "h": 971,
       "page": "round32",
@@ -3093,7 +3093,7 @@
     },
     "R32-Poses.dc.html": {
       "x": 2128,
-      "y": 0,
+      "y": 1161,
       "w": 1540,
       "h": 1311,
       "page": "round32",
@@ -3101,7 +3101,7 @@
     },
     "R32-Home.dc.html": {
       "x": 680,
-      "y": 1731,
+      "y": 2892,
       "w": 1242,
       "h": 768,
       "page": "round32",
@@ -3109,7 +3109,7 @@
     },
     "R32-Empty.dc.html": {
       "x": 2002,
-      "y": 1731,
+      "y": 2892,
       "w": 1486,
       "h": 662,
       "page": "round32",
@@ -3117,7 +3117,7 @@
     },
     "R32-SkiDay.dc.html": {
       "x": 3568,
-      "y": 1731,
+      "y": 2892,
       "w": 1196,
       "h": 852,
       "page": "round32",
@@ -3125,7 +3125,7 @@
     },
     "R32-Games.dc.html": {
       "x": 4844,
-      "y": 1731,
+      "y": 2892,
       "w": 1196,
       "h": 832,
       "page": "round32",
@@ -3133,7 +3133,7 @@
     },
     "R32-Fall.dc.html": {
       "x": 680,
-      "y": 3003,
+      "y": 4164,
       "w": 1488,
       "h": 794,
       "page": "round32",
@@ -3274,6 +3274,46 @@
       "h": 892,
       "page": "round21",
       "title": "קצה פתוח, דעיכה, במחשב"
+    },
+    "R32-Pini.dc.html": {
+      "x": 680,
+      "y": 0,
+      "w": 1668,
+      "h": 741,
+      "page": "round32",
+      "title": "ד. הדף של פיני: איור שטוח מול צילום מצויר"
+    },
+    "R32-PiniDay.dc.html": {
+      "x": 2428,
+      "y": 0,
+      "w": 1684,
+      "h": 644,
+      "page": "round32",
+      "title": "ד. ליד האתר האמיתי, ביום"
+    },
+    "R32-PiniNight.dc.html": {
+      "x": 4192,
+      "y": 0,
+      "w": 2102,
+      "h": 644,
+      "page": "round32",
+      "title": "ד. בלילה: בלי מעטפת ועם מעטפת לבנה"
+    },
+    "R32-PiniSigns.dc.html": {
+      "x": 6374,
+      "y": 0,
+      "w": 1266,
+      "h": 704,
+      "page": "round32",
+      "title": "ד. עמוד השלטים והשלט הירוק בלילה"
+    },
+    "R32-PiniChecks.dc.html": {
+      "x": 7720,
+      "y": 0,
+      "w": 2074,
+      "h": 334,
+      "page": "round32",
+      "title": "ד. הבדיקות: קו דק, צבעים ופנים"
     }
   },
   "createdOnFiles": {
@@ -3283,7 +3323,7 @@
   "designSystems": [],
   "launch": {
     "view": "canvas",
-    "page": "round21"
+    "page": "round34"
   },
   "notes": {
     "featRow1": {
@@ -4321,6 +4361,51 @@
       "x": 680,
       "y": 4206
     },
+    "round21row0": {
+      "kind": "title1",
+      "maxW": 2684,
+      "page": "round21",
+      "text": "קצה פתוח, גרסה 2",
+      "w": 240,
+      "x": 680,
+      "y": -300
+    },
+    "round21row1": {
+      "kind": "title1",
+      "maxW": 3938,
+      "page": "round21",
+      "text": "גרסה 2: שמות קטנים",
+      "w": 240,
+      "x": 680,
+      "y": 1012
+    },
+    "round21row2": {
+      "kind": "title1",
+      "maxW": 2796,
+      "page": "round21",
+      "text": "היום: הביקורת",
+      "w": 240,
+      "x": 680,
+      "y": 2324
+    },
+    "round21row3": {
+      "kind": "title1",
+      "maxW": 7630,
+      "page": "round21",
+      "text": "גרסה 1: לפני ואחרי",
+      "w": 240,
+      "x": 680,
+      "y": 3835
+    },
+    "round21row4": {
+      "kind": "title1",
+      "maxW": 860,
+      "page": "round21",
+      "text": "הממצאים",
+      "w": 240,
+      "x": 680,
+      "y": 5147
+    },
     "round29row0": {
       "kind": "title1",
       "maxW": 4344,
@@ -4431,30 +4516,39 @@
     },
     "round32row0": {
       "kind": "title1",
-      "maxW": 2988,
+      "maxW": 9114,
       "page": "round32",
-      "text": "א. כיוונים ותנוחות",
+      "text": "ד. הדף של פיני (איור שטוח)",
       "w": 240,
       "x": 680,
       "y": -300
     },
     "round32row1": {
       "kind": "title1",
+      "maxW": 2988,
+      "page": "round32",
+      "text": "א. כיוונים ותנוחות",
+      "w": 240,
+      "x": 680,
+      "y": 861
+    },
+    "round32row2": {
+      "kind": "title1",
       "maxW": 5360,
       "page": "round32",
       "text": "ב. הרגעים",
       "w": 240,
       "x": 680,
-      "y": 1431
+      "y": 2592
     },
-    "round32row2": {
+    "round32row3": {
       "kind": "title1",
       "maxW": 1488,
       "page": "round32",
       "text": "ג. \"פה נפלת\"",
       "w": 240,
       "x": 680,
-      "y": 2703
+      "y": 3864
     },
     "round31row0": {
       "kind": "title1",
@@ -4527,51 +4621,6 @@
       "w": 240,
       "x": 680,
       "y": 1176
-    },
-    "round21row0": {
-      "kind": "title1",
-      "maxW": 2684,
-      "page": "round21",
-      "text": "קצה פתוח, גרסה 2",
-      "w": 240,
-      "x": 680,
-      "y": -300
-    },
-    "round21row1": {
-      "kind": "title1",
-      "maxW": 3938,
-      "page": "round21",
-      "text": "גרסה 2: שמות קטנים",
-      "w": 240,
-      "x": 680,
-      "y": 1012
-    },
-    "round21row2": {
-      "kind": "title1",
-      "maxW": 2796,
-      "page": "round21",
-      "text": "היום: הביקורת",
-      "w": 240,
-      "x": 680,
-      "y": 2324
-    },
-    "round21row3": {
-      "kind": "title1",
-      "maxW": 7630,
-      "page": "round21",
-      "text": "גרסה 1: לפני ואחרי",
-      "w": 240,
-      "x": 680,
-      "y": 3835
-    },
-    "round21row4": {
-      "kind": "title1",
-      "maxW": 860,
-      "page": "round21",
-      "text": "הממצאים",
-      "w": 240,
-      "x": 680,
-      "y": 5147
     }
   },
   "order": [
@@ -4982,7 +5031,12 @@
     "R30-Poc.dc.html",
     "R34-Edge.dc.html",
     "R21-E2-ends.dc.html",
-    "R21-E2-desk.dc.html"
+    "R21-E2-desk.dc.html",
+    "R32-Pini.dc.html",
+    "R32-PiniDay.dc.html",
+    "R32-PiniNight.dc.html",
+    "R32-PiniSigns.dc.html",
+    "R32-PiniChecks.dc.html"
   ],
   "pages": [
     {
