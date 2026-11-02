@@ -48,7 +48,8 @@ object MomentsStore {
         val res = JSONObject(result.readText())
         val start = res.optLong("start", 0L)
         if (start == 0L) return
-        val done = applied(dir)
+        val sample = SampleDay.isSample(day)
+        val done = if (sample) mutableSetOf() else applied(dir)
         if (start in done) return
         val c = ctx.applicationContext
         val read = { name: String -> c.assets.open("data/$name").bufferedReader().use { it.readText() } }
@@ -58,9 +59,11 @@ object MomentsStore {
         val version = if (android.os.Build.VERSION.SDK_INT >= 28) info.longVersionCode else info.versionCode.toLong()
         val site = SiteData(File(c.filesDir, "site-data"), version, read)
         val runs = Moments.runsOf(JSONObject(site.read("runs-and-lifts.json")), Terrain.parse(site.read("terrain.json")))
-        val out = Moments.moments(res, history(dir), runs, params, tripOf(c, start))
+        // the example day is read against an empty history, and leaves nothing in the real one
+        val out = Moments.moments(res, if (sample) Moments.emptyHistory() else history(dir), runs, params, if (sample) null else tripOf(c, start))
         write(DayStore.momentsOf(day), JSONObject().put("moments", out.get("moments")).put("items", out.get("items"))
             .put("story", out.get("story")).put("share", out.get("share")).put("theme", out.get("theme")).toString())
+        if (sample) return
         write(File(dir, HISTORY), out.getJSONObject("history").toString())
         done += start
         write(File(dir, APPLIED), JSONArray(done.toList()).toString())

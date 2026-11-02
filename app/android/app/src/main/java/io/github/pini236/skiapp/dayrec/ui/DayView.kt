@@ -77,7 +77,7 @@ internal fun readTrack(file: File, max: Int = 1800): Track {
 }
 
 @Composable
-fun DayViewScreen(file: File, runs: Runs?, onBack: () -> Unit) {
+fun DayViewScreen(file: File, runs: Runs?, sample: Boolean = false, onBack: () -> Unit) {
     val c = Ski.colors
     val ctx = LocalContext.current
     var loaded by remember(file) { mutableStateOf<Loaded?>(null) }
@@ -101,7 +101,7 @@ fun DayViewScreen(file: File, runs: Runs?, onBack: () -> Unit) {
         }
         val l = loaded
         when {
-            l != null -> DayBody(l, runs)
+            l != null -> DayBody(l, runs, sample)
             failed -> Text(stringResource(R.string.app_day_empty), Modifier.padding(16.dp), style = Ski.type.body, color = c.muted)
             else -> Text(stringResource(R.string.app_day_loading), Modifier.padding(16.dp), style = Ski.type.body, color = c.muted)
         }
@@ -109,12 +109,13 @@ fun DayViewScreen(file: File, runs: Runs?, onBack: () -> Unit) {
 }
 
 @Composable
-private fun DayBody(l: Loaded, runs: Runs?) {
+private fun DayBody(l: Loaded, runs: Runs?, sample: Boolean) {
     val c = Ski.colors
     val s = l.day.summary
     val zone = ZoneId.of(DayParams.TZ)
     Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = 16.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
-        Text(DateTimeFormatter.ofPattern("EEEE d.M", Locale.getDefault()).format(Instant.ofEpochMilli(s.start).atZone(zone)), style = Ski.type.body, color = c.muted)
+        if (sample) Text(stringResource(R.string.app_day_sample) + " · " + stringResource(R.string.app_day_sample_note), style = Ski.type.bodyBold, color = c.glacier)
+        else Text(DateTimeFormatter.ofPattern("EEEE d.M", Locale.getDefault()).format(Instant.ofEpochMilli(s.start).atZone(zone)), style = Ski.type.body, color = c.muted)
         Row(Modifier.fillMaxWidth().border(BorderStroke(1.dp, c.rule)).padding(vertical = 14.dp)) {
             Sum(s.descents.toString(), stringResource(R.string.app_day_sum_descents), Modifier.weight(1f))
             Sum(LiveNumbers.metres(s.dropM), stringResource(R.string.app_day_sum_drop), Modifier.weight(1f))

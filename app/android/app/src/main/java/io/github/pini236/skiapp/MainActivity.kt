@@ -915,7 +915,12 @@ class MainActivity : ComponentActivity() {
                             if (id != null) nav.replaceTop(Route.DayOf(id)) else nav.back()
                         })
                     Route.Days -> io.github.pini236.skiapp.dayrec.ui.DaysScreen(onOpen = { id -> nav.push(Route.DayOf(id)) }) { nav.back() }
-                    is Route.DayOf -> io.github.pini236.skiapp.dayrec.ui.DayViewScreen(DayRec.store(this@MainActivity).newFile(top.id.toLong()), scene?.runs) { nav.back() }
+                    is Route.DayOf -> {
+                        val sample = top.id == io.github.pini236.skiapp.dayrec.SampleDay.ID
+                        io.github.pini236.skiapp.dayrec.ui.DayViewScreen(
+                            if (sample) io.github.pini236.skiapp.dayrec.SampleDay.file(this@MainActivity) else DayRec.store(this@MainActivity).newFile(top.id.toLong()),
+                            scene?.runs, sample) { nav.back() }
+                    }
                     else -> {
                         MapScreen(mapView, scene, videos = videos, ms = MapStatus(lstat, changes, LiftStatus.inSeason(LocalDateTime.ofInstant(Instant.ofEpochMilli(tick), ZoneId.systemDefault()).monthValue),
                             forMe, { on -> forMe = on; Telemetry.event("status_only_open", mapOf("on" to on)); Qa.log("for me ${if (on) "on" else "off"}") },
