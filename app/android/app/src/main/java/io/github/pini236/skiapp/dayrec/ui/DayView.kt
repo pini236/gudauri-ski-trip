@@ -77,7 +77,7 @@ internal fun readTrack(file: File, max: Int = 1800): Track {
 }
 
 @Composable
-fun DayViewScreen(file: File, runs: Runs?, sample: Boolean = false, onBack: () -> Unit) {
+fun DayViewScreen(file: File, runs: Runs?, sample: Boolean = false, onReplay: (() -> Unit)? = null, onBack: () -> Unit) {
     val c = Ski.colors
     val ctx = LocalContext.current
     var loaded by remember(file) { mutableStateOf<Loaded?>(null) }
@@ -101,7 +101,7 @@ fun DayViewScreen(file: File, runs: Runs?, sample: Boolean = false, onBack: () -
         }
         val l = loaded
         when {
-            l != null -> DayBody(l, runs, sample)
+            l != null -> DayBody(l, runs, sample, onReplay)
             failed -> Text(stringResource(R.string.app_day_empty), Modifier.padding(16.dp), style = Ski.type.body, color = c.muted)
             else -> Text(stringResource(R.string.app_day_loading), Modifier.padding(16.dp), style = Ski.type.body, color = c.muted)
         }
@@ -109,7 +109,7 @@ fun DayViewScreen(file: File, runs: Runs?, sample: Boolean = false, onBack: () -
 }
 
 @Composable
-private fun DayBody(l: Loaded, runs: Runs?, sample: Boolean) {
+private fun DayBody(l: Loaded, runs: Runs?, sample: Boolean, onReplay: (() -> Unit)?) {
     val c = Ski.colors
     val s = l.day.summary
     val zone = ZoneId.of(DayParams.TZ)
@@ -125,6 +125,8 @@ private fun DayBody(l: Loaded, runs: Runs?, sample: Boolean) {
         else {
             l.story?.let { StoryCard(it, s, l.track, sample) { k -> titleOf(runs, k) } }
             DayMap(l.track, runs, s.maxLat, s.maxLon)
+            if (onReplay != null) Text(stringResource(R.string.app_day_replay), Modifier.fillMaxWidth().border(BorderStroke(1.5.dp, c.ink)).clickable(role = Role.Button, onClick = onReplay).heightIn(min = 48.dp).padding(vertical = 12.dp),
+                textAlign = TextAlign.Center, style = Ski.type.bodyBold, color = c.ink)
             Text(stringResource(R.string.app_day_note), style = Ski.type.small, color = c.muted)
             for (ch in l.day.chapters) Chapter(ch, runs, zone)
         }

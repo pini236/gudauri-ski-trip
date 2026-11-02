@@ -19185,6 +19185,42 @@
     "ru",
     "ka"
    ]
+  },
+  "app.rec_settings": {
+   "he": "פתיחת ההגדרות",
+   "en": "Open settings",
+   "ru": "Открыть настройки",
+   "ka": "პარამეტრების გახსნა",
+   "where": "app/android",
+   "note": "יום הגלישה (סבב 29): the button of the screen that says what is in the way of recording (permission, precise location, location off)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.day_replay": {
+   "he": "צפייה חוזרת",
+   "en": "Replay",
+   "ru": "Посмотреть заново",
+   "ka": "ხელახლა ნახვა",
+   "where": "app/android",
+   "note": "יום הגלישה (סבב 29): button of the end of the day: the day again on the 3D map",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.day_replay_play": {
+   "he": "הפעלה",
+   "en": "Play",
+   "ru": "Играть",
+   "ka": "დაკვრა",
+   "where": "app/android",
+   "note": "יום הגלישה (סבב 29): play the replay",
+   "check": [
+    "ru",
+    "ka"
+   ]
   }
  }
 }

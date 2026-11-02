@@ -33,3 +33,29 @@ class LiveNumbersTest {
         assertEquals(false, LiveNumbers.weakGps(99_000, 0, 0)) // not recording
     }
 }
+
+/** The replay of a day on the 3D map: where the dot is at a time. */
+class ReplayAtTest {
+    private val tr = Track(floatArrayOf(0f, 100f, 200f, 5000f), floatArrayOf(0f, 0f, 0f, 0f), doubleArrayOf(0.0, 20.0, 40.0, 10.0), longArrayOf(0, 10_000, 20_000, 400_000))
+
+    @org.junit.Test fun betweenTwoReadingsItIsBetweenThem() {
+        val s = ReplayAt.spot(tr, 5_000)!!
+        org.junit.Assert.assertEquals(50f, s.x, 0.001f)
+        org.junit.Assert.assertEquals(10.0, s.kmh, 0.001)
+    }
+
+    @org.junit.Test fun beforeAndAfterTheDayItStaysAtTheEnds() {
+        org.junit.Assert.assertEquals(0f, ReplayAt.spot(tr, -5)!!.x, 0.001f)
+        org.junit.Assert.assertEquals(5000f, ReplayAt.spot(tr, 999_999)!!.x, 0.001f)
+    }
+
+    @org.junit.Test fun aHoleInTheRecordingHoldsStillAndNothingIsDrawnAcrossIt() {
+        val s = ReplayAt.spot(tr, 100_000)!! // between the readings at 20 s and 400 s: a hole
+        org.junit.Assert.assertEquals(200f, s.x, 0.001f)
+        org.junit.Assert.assertEquals(0.0, s.kmh, 0.001)
+    }
+
+    @org.junit.Test fun noReadingsNoSpot() {
+        org.junit.Assert.assertNull(ReplayAt.spot(Track(FloatArray(0), FloatArray(0), DoubleArray(0), LongArray(0)), 5))
+    }
+}

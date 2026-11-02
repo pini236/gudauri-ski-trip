@@ -93,6 +93,25 @@ fun PermissionSheet(onGo: () -> Unit, onDismiss: () -> Unit) {
     }
 }
 
+/**
+ * What is in the way of recording (round 29, states), on a screen of its own and not a toast that is gone: no permission,
+ * only the approximate location, or the phone's location switched off; with the way to the settings where it is fixed.
+ */
+@Composable
+fun BlockedSheet(kind: String, onSettings: () -> Unit, onDismiss: () -> Unit) {
+    val c = Ski.colors
+    val text = when (kind) { "precise" -> R.string.app_rec_err_precise; "off" -> R.string.app_rec_err_off; else -> R.string.app_rec_err_perm }
+    Dialog(onDismissRequest = onDismiss) {
+        Column(Modifier.fillMaxWidth().background(c.paper).padding(20.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
+            Text(stringResource(R.string.app_rec_perm_title), style = Ski.type.title.copy(fontSize = Ski.type.title.fontSize * (32f / 44f)), color = c.ink)
+            PermRow(Icons.lock, stringResource(text))
+            Row(Modifier.fillMaxWidth().background(c.blue).clickable(role = Role.Button, onClick = onSettings).heightIn(min = 52.dp), horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
+                Text(stringResource(R.string.app_rec_settings), style = Ski.type.bodyBold.copy(fontSize = 16.5.sp), color = c.onBoard)
+            }
+        }
+    }
+}
+
 @Composable
 private fun PermRow(icon: ImageVector, text: String) {
     Row(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {

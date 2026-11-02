@@ -49,6 +49,8 @@ sealed interface Route {
     data object Days : Route { override val path = "days" }
     /** One recorded day, when it ends or from the history: [id] is the start of the recording (the file's name). */
     data class DayOf(val id: String) : Route { override val path = "days/$id" }
+    /** The day again on the 3D map (round 29). */
+    data class Replay(val id: String) : Route { override val path = "days/$id/replay" }
 
     companion object {
         private val NAME = Regex("[a-z0-9-]{1,40}")
@@ -111,7 +113,10 @@ sealed interface Route {
                 }
                 "account" -> if (parts.size == 1) Account else null
                 "day" -> if (parts.size == 1) Day else null
-                "days" -> if (parts.size == 1) Days else if (parts.size == 2 && (Regex("\\d{10,14}").matches(parts[1]) || parts[1] == "sample")) DayOf(parts[1]) else null
+                "days" -> {
+                    val dayId = parts.getOrNull(1)?.takeIf { Regex("\\d{10,14}").matches(it) || it == "sample" }
+                    when { parts.size == 1 -> Days; parts.size == 2 && dayId != null -> DayOf(dayId); parts.size == 3 && dayId != null && parts[2] == "replay" -> Replay(dayId); else -> null }
+                }
                 else -> null
             }
         }
