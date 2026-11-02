@@ -20,7 +20,7 @@ class Coat(val color: Long, val name: Int)
 
 val COATS = listOf(
     Coat(0xFFD1342B, R.string.common_color_red), Coat(0xFF1F5FC4, R.string.common_color_blue), Coat(0xFFF4B942, R.string.app_color_yellow),
-    Coat(0xFF1B8A4C, R.string.common_color_green), Coat(0xFF7B4FC4, R.string.app_color_purple), Coat(0xFFF07A2E, R.string.app_color_orange),
+    Coat(0xFF198549, R.string.common_color_green), Coat(0xFF7B4FC4, R.string.app_color_purple), Coat(0xFFF07A2E, R.string.app_color_orange),
 )
 
 /**

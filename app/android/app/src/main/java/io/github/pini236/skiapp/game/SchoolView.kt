@@ -103,17 +103,17 @@ class SchoolView(context: Context, private val still: Boolean) : View(context) {
         if (lv.mode == SchoolMode.WEDGE) {
             SchoolRun.STOPS.forEachIndexed { i, sy0 ->
                 val yy = r.sy(sy0)
-                val cc = if (i >= r.stops.size) 0xFFF08A3C else if (r.stops[i] == null) 0xFFD1342B else 0xFF1B8A4C
+                val cc = if (i >= r.stops.size) 0xFFF08A3C else if (r.stops[i] == null) 0xFFD1342B else 0xFF198549
                 fill.color = col(cc); c.drawRect(left, yy - 3 * d, right, yy + 3 * d, fill)
                 fill.color = Color.argb(31, 27, 138, 76); c.drawRect(left, yy, right, yy + px * 1.5f, fill)
                 label(c, words(Say(io.github.pini236.skiapp.R.string.game_school_canvas_line, listOf(i + 1))), left + 40 * d, yy - 8 * d, col(cc))
             }
             fill.color = Color.argb(33, 27, 138, 76); c.drawRect(left, r.sy(SchoolRun.BAND[1]), right, r.sy(SchoolRun.BAND[0]), fill)
-            label(c, words(Say(io.github.pini236.skiapp.R.string.game_school_canvas_band)), right - 90 * d, r.sy(SchoolRun.BAND[0]) - 8 * d, 0xFF1B8A4C.toInt())
+            label(c, words(Say(io.github.pini236.skiapp.R.string.game_school_canvas_band)), right - 90 * d, r.sy(SchoolRun.BAND[0]) - 8 * d, 0xFF198549.toInt())
         }
         lv.traps?.forEachIndexed { i, ty ->
             val yy = r.sy(ty)
-            val cc = if (i >= r.traps.size) 0xFF1F5FC4 else if (r.traps[i]) 0xFF1B8A4C else 0xFFD1342B
+            val cc = if (i >= r.traps.size) 0xFF1F5FC4 else if (r.traps[i]) 0xFF198549 else 0xFFD1342B
             fill.color = col(cc, .18f); c.drawRect(left, yy - px * 1.2f, right, yy, fill)
             fill.color = col(cc); c.drawRect(left, yy - 2 * d, right, yy + 2 * d, fill)
             label(c, words(Say(io.github.pini236.skiapp.R.string.game_school_canvas_trap, listOf(lv.trapLimit))), r.sx(0f), yy - px * 1.3f, col(cc))
@@ -141,7 +141,7 @@ class SchoolView(context: Context, private val still: Boolean) : View(context) {
                 val fx = xx - (if (k < 0) 0f else px * .8f)
                 c.drawRect(fx, yy - px * 1.4f, fx + px * .8f, yy - px * .9f, fill)
             }
-            if (g.done == true) { lbl.typeface = text; lbl.textSize = 14 * d; lbl.color = col(0xFF1B8A4C, a); c.drawText("✓", r.sx(g.x), r.sy(g.y) - px * 1.5f, lbl) }
+            if (g.done == true) { lbl.typeface = text; lbl.textSize = 14 * d; lbl.color = col(0xFF198549, a); c.drawText("✓", r.sx(g.x), r.sy(g.y) - px * 1.5f, lbl) }
         }
         // the finish line
         val fy = r.sy(lv.len); var fx = -edge
@@ -186,7 +186,7 @@ class SchoolView(context: Context, private val still: Boolean) : View(context) {
         line.strokeWidth = 12 * d; line.color = 0xFFEEF2F5.toInt()
         c.drawArc(oval, 180f * 1.15f, 180f * .7f, false, line)
         val ang = Math.PI * 1.5 + r.s.edge * Math.PI * .35
-        line.color = if (r.s.skid > .25f) 0xFFD1342B.toInt() else 0xFF1B8A4C.toInt()
+        line.color = if (r.s.skid > .25f) 0xFFD1342B.toInt() else 0xFF198549.toInt()
         val a0 = min(Math.PI * 1.5, ang); val a1 = max(Math.PI * 1.5, ang)
         c.drawArc(oval, Math.toDegrees(a0).toFloat(), Math.toDegrees(a1 - a0).toFloat(), false, line)
         fill.color = 0xFF13233A.toInt(); c.drawCircle(x + cos(ang).toFloat() * rr, y + sin(ang).toFloat() * rr, 9 * d, fill)
