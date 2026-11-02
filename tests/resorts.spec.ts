@@ -14,7 +14,15 @@ function watchErrors(page: Page) {
 async function loaded(page: Page) {
   await expect(page.locator('#loading')).toBeHidden({ timeout: 20_000 });
   await expect(page.locator('html[data-model]')).toBeAttached({ timeout: 20_000 });
-  if (/^#map/.test(new URL(page.url()).hash)) await expect(page.locator('.mapwrap[data-three]:not([data-three="loading"])')).toBeAttached({ timeout: 20_000 });
+  if (/^#map/.test(new URL(page.url()).hash)) {
+    // three.js is a 600 KB script plus a software WebGL context; on a loaded two-core runner (two workers, the heaviest
+    // resort test just before) that has taken longer than 20 s once. A long wait, and a failure that says what it saw.
+    try { await expect(page.locator('.mapwrap[data-three]:not([data-three="loading"])')).toBeAttached({ timeout: 60_000 }); }
+    catch (e) {
+      const seen = await page.evaluate(() => ({ three: document.querySelector('.mapwrap')?.getAttribute('data-three') ?? 'no attribute', lib: !!(window as any).THREE, hash: location.hash, model: document.documentElement.dataset.model, script: !!document.querySelector('script[src*="three"]') })).catch(() => 'page unavailable');
+      throw new Error('the map did not leave "loading": ' + JSON.stringify(seen) + '\n' + (e as Error).message);
+    }
+  }
 }
 
 test('Sölden: its own data, the pass card, and nothing of Gudauri', async ({ page }) => {
