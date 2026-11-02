@@ -766,6 +766,11 @@ class MainActivity : ComponentActivity() {
         // into the groups (A1) is "signin" when nobody is signed in on this phone.
         // the ski day's entry points (round 29): only where the build and the site's data both allow it
         val dayUi = remember { DayFeature.visible(runCatching { siteData.read("resorts.json") }.getOrNull()) }
+        // food and services near the stations (round 31): only when resorts.json lists "places" for the resort, and the file reads
+        val places = remember {
+            if (io.github.pini236.skiapp.places.Places.enabled(runCatching { siteData.read("resorts.json") }.getOrNull()))
+                io.github.pini236.skiapp.places.Places.parse(runCatching { siteData.read("places.json") }.getOrNull()) else null
+        }
         LaunchedEffect(dayUi) {
             if (dayUi && !DayRec.recording) cutDay = withContext(kotlinx.coroutines.Dispatchers.IO) { DayRec.store(this@MainActivity).unfinished() }
         }
@@ -794,7 +799,8 @@ class MainActivity : ComponentActivity() {
         SideEffect { WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = !evening && (spike || !frame.dark) }
         SkiTheme(dark = frame.dark) {
           androidx.compose.runtime.CompositionLocalProvider(io.github.pini236.skiapp.weather.LocalWeather provides
-              remember(forecast, tick) { io.github.pini236.skiapp.weather.WeatherNow(forecast, Instant.ofEpochMilli(tick)) }) {
+              remember(forecast, tick) { io.github.pini236.skiapp.weather.WeatherNow(forecast, Instant.ofEpochMilli(tick)) },
+              io.github.pini236.skiapp.places.LocalPlaces provides places) {
             Box(Modifier.fillMaxSize().background(if (spike) Palette.snow else Ski.colors.snow)) {
                 cutDay?.let { f -> io.github.pini236.skiapp.dayrec.ui.CutDayDialog(
                     onResume = {

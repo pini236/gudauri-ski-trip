@@ -174,6 +174,14 @@ fun MapScreen(view: MapView, scene: MapScene?, ms: MapStatus? = null, videos: Li
         if (weatherOn) Telemetry.event("weather_view", mapOf("where" to "map", "state" to weather.measure))
         Qa.log("weather layer ${if (weatherOn) "on " + weather.measure else "off"}")
     }
+    // food and services (round 31): small dots beside the stations on the top view at all times; the key grows them into tags
+    val places = io.github.pini236.skiapp.places.LocalPlaces.current
+    var placesOn by rememberSaveable { mutableStateOf(false) }
+    fun togglePlaces() {
+        placesOn = !placesOn
+        if (placesOn && mode != "2d") setMode("2d", true) // drawn on the top view, like the weather
+        Qa.log("places layer ${if (placesOn) "on" else "off"}")
+    }
     val pins = if (weatherOn) io.github.pini236.skiapp.weather.pinTexts(weather) else emptyList()
     val pinKey = pins.joinToString("|") { it.title + it.temp + it.wind + it.snow + it.dir }
     LaunchedEffect(pinKey, top, scene) {
@@ -274,6 +282,7 @@ fun MapScreen(view: MapView, scene: MapScene?, ms: MapStatus? = null, videos: Li
                     modifier = Modifier.fillMaxSize())
             }
         }
+        if (top && places != null && ov.ready) SkiTheme(dark = dark) { io.github.pini236.skiapp.places.PlacesLayer(ov, placesOn, Modifier.fillMaxSize()) }
         if (top && pins.isNotEmpty() && ov.ready) SkiTheme(dark = dark) { io.github.pini236.skiapp.weather.MapPins2D(ov, pins, Modifier.fillMaxSize(), top = 150.dp) }
         if (top && here != null && here.fix != Locator.Fix.Outside && ov.ready) SkiTheme(dark = dark) { MeDot2D(ov, here, Modifier.fillMaxSize()) }
         if (scene == null) {
@@ -308,7 +317,10 @@ fun MapScreen(view: MapView, scene: MapScene?, ms: MapStatus? = null, videos: Li
                         // "where am I" at the start and the weather at the end, above the line (and-map-buttons)
                         if (!flying) Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.SpaceBetween) {
                             if (where != null) LocateKey(where.on, ::locate) else Box(Modifier)
-                            io.github.pini236.skiapp.weather.WeatherKey(weatherOn, ::toggleWeather)
+                            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                if (places != null) io.github.pini236.skiapp.places.PlacesKey(placesOn, ::togglePlaces)
+                                io.github.pini236.skiapp.weather.WeatherKey(weatherOn, ::toggleWeather)
+                            }
                         }
                         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                             val words = where?.let { whereWords(it.state) }

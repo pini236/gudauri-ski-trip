@@ -597,6 +597,7 @@ fun ColumnScope.LiftBody(l: Lift, runs: Runs, terrain: Terrain, a: PanelActions)
     LiftRuns(runs.pistes.filter { l.name.isNotBlank() && l.name in it.fromLifts }, a)
     H3(stringResource(R.string.lift_runs_to_bottom_heading))
     LiftRuns(runs.pistes.filter { l.name.isNotBlank() && l.name in it.toLifts }, a)
+    io.github.pini236.skiapp.places.LiftPlaces(l) // food and services near the stations (round 31), Gudauri only
     if (l.id.isNotBlank()) CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
         Text("OSM: ${l.id}", Modifier.padding(top = 4.dp).heightIn(min = 44.dp).clickable(role = Role.Button) { openLink(ctx, "https://www.openstreetmap.org/way/${l.id}") }.padding(vertical = 12.dp),
             style = Ski.type.small.copy(textDecoration = TextDecoration.Underline), color = c.glacier)
