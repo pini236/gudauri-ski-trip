@@ -104,7 +104,7 @@ private fun PermRow(icon: ImageVector, text: String) {
  * recorder never waits for it. "Probably" on what you do (a causal guess); the timeline at the end of the day is the truth.
  */
 @Composable
-fun DayLiveScreen(liftName: (String) -> String, onSwitch: (single: Boolean) -> Unit, onStop: () -> Unit, onBack: () -> Unit) {
+fun DayLiveScreen(liftName: (String) -> String, runName: (String) -> String = { it }, onSwitch: (single: Boolean) -> Unit, onStop: () -> Unit, onBack: () -> Unit) {
     val c = Ski.colors
     var now by remember { mutableLongStateOf(System.currentTimeMillis()) }
     LaunchedEffect(Unit) { while (true) { now = System.currentTimeMillis(); delay(1000) } }
@@ -133,7 +133,8 @@ fun DayLiveScreen(liftName: (String) -> String, onSwitch: (single: Boolean) -> U
             Text(LiveNumbers.kmh(DayRec.speedNow), style = Ski.type.title.copy(fontSize = 120.sp), color = c.ink)
             Text(stringResource(R.string.app_rec_unit), Modifier.padding(bottom = 18.dp), style = Ski.type.number.copy(fontSize = 28.sp), color = c.ink)
         }
-        Text(what(live, liftName), style = Ski.type.bodyBold.copy(fontSize = 17.sp), color = c.ink, modifier = Modifier.heightIn(min = 44.dp))
+        Text(what(live, liftName, runName), style = Ski.type.bodyBold.copy(fontSize = 17.sp), color = c.ink, modifier = Modifier.heightIn(min = 44.dp))
+        if (recording && LiveNumbers.weakGps(now, DayRec.lastFixAt, DayRec.startedAt)) Text(stringResource(R.string.app_rec_gps_weak), style = Ski.type.small, color = red)
         Spacer(Modifier.height(16.dp))
         Row(Modifier.fillMaxWidth().border(BorderStroke(1.dp, c.rule)).padding(vertical = 14.dp)) {
             Num(LiveNumbers.maxKmh(live?.maxKmh ?: st?.maxKmh), stringResource(R.string.app_rec_max), Modifier.weight(1f))
@@ -173,14 +174,14 @@ private fun Num(value: String, label: String, modifier: Modifier) {
 
 /** What the live view says you are doing: a guess ("probably"), in words. */
 @Composable
-private fun what(live: io.github.pini236.skiapp.dayrec.DayEngine.Snapshot?, liftName: (String) -> String): String {
+private fun what(live: io.github.pini236.skiapp.dayrec.DayEngine.Snapshot?, liftName: (String) -> String, runName: (String) -> String): String {
     live ?: return ""
     val probably = stringResource(R.string.app_rec_probably)
     return when (live.act) {
         "lift" -> stringResource(R.string.app_rec_on_lift, live.lift?.let(liftName) ?: "")
         "ski" -> {
             val runs = live.runs.orEmpty()
-            if (runs.isEmpty()) stringResource(R.string.app_rec_off) else probably + " " + stringResource(R.string.app_rec_on_run, runs.joinToString(" · "))
+            if (runs.isEmpty()) stringResource(R.string.app_rec_off) else probably + " " + stringResource(R.string.app_rec_on_run, runs.joinToString(" · ") { runName(it) })
         }
         "walk", "up" -> stringResource(R.string.app_rec_walking)
         else -> stringResource(R.string.app_rec_standing)

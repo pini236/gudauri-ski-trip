@@ -907,6 +907,7 @@ class MainActivity : ComponentActivity() {
                     is Route.License -> io.github.pini236.skiapp.home.LicenseScreen(top.name) { nav.back() }
                     Route.Day -> io.github.pini236.skiapp.dayrec.ui.DayLiveScreen(
                         liftName = { id -> scene?.runs?.lifts?.firstOrNull { it.id == id }?.name ?: id },
+                        runName = { k -> scene?.runs?.pistes?.firstOrNull { it.key == k }?.title ?: k },
                         onSwitch = ::switchRecording, onBack = { nav.back() },
                         onStop = {
                             // the day that ends is shown at once; its screen waits for the recorder to close it

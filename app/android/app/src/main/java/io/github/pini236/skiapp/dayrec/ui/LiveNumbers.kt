@@ -21,4 +21,13 @@ object LiveNumbers {
         val h = s / 3600; val m = s % 3600 / 60; val ss = s % 60
         return if (h > 0) String.format(Locale.ROOT, "%d:%02d:%02d", h, m, ss) else String.format(Locale.ROOT, "%d:%02d", m, ss)
     }
+
+    /** No reading for this long while recording: the signal is weak (a valley, a tunnel, a pocket in the cold). */
+    const val WEAK_MS = 20_000L
+
+    /** Whether to say "weak GPS signal": [lastFix] is the last reading (0: none yet), [startedAt] when the recording began. */
+    fun weakGps(now: Long, lastFix: Long, startedAt: Long): Boolean {
+        val since = if (lastFix > 0L) lastFix else startedAt
+        return since > 0L && now - since > WEAK_MS
+    }
 }
