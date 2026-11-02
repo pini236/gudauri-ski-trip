@@ -51,6 +51,7 @@ struct MeetMap: View {
     let onPin: (String) -> Void
     let onEmpty: () -> Void
     @Environment(\.ski) private var ski
+    @Environment(\.accessibilityReduceMotion) private var still
 
     var body: some View {
         let c = ski.colors
@@ -73,10 +74,10 @@ struct MeetMap: View {
             }
             .drawingGroup()
             // the pins, at a fixed size on the screen, the picked one last (on top), bigger and with its pulsing ring
-            TimelineView(.animation(paused: selected == nil)) { t in
+            TimelineView(.animation(paused: selected == nil || still)) { t in
                 Canvas { ctx, _ in
                     guard view.ready else { return }
-                    let f = t.date.timeIntervalSinceReferenceDate.truncatingRemainder(dividingBy: 1.6) / 1.6
+                    let f = still ? 0 : t.date.timeIntervalSinceReferenceDate.truncatingRemainder(dividingBy: 1.6) / 1.6
                     for s in plan.stations where s.id != selected { pin(ctx, s, on: false, pulse: 0) }
                     if let sel = selected, let s = plan.byId[sel] { pin(ctx, s, on: true, pulse: f) }
                 }
@@ -89,6 +90,8 @@ struct MeetMap: View {
         .mapGestures(view)
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(S.meetMapAria)
+        // the map and the pin labels are drawn at fixed sizes
+        .fixedType()
     }
 
     static func run(_ p: Palette, _ color: String) -> UInt32 {

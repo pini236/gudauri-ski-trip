@@ -55,7 +55,7 @@ struct AccountScreen: View {
                         VStack(alignment: .leading, spacing: 0) {
                             GDisplay(S.appAWaysIn, 28)
                             GMuted(S.appAWaysInSub, 13).padding(.bottom, 6)
-                            way(S.appAApple, m.apple, mark: AnyView(Image(systemName: "applelogo").font(.system(size: 14)).foregroundStyle(.white)
+                            way(S.appAApple, m.apple, mark: AnyView(Image(systemName: "applelogo").font(.system(size: 14)).foregroundStyle(.white).accessibilityHidden(true)
                                 .frame(width: 28, height: 28).background(Color.black, in: Circle()))) { signIn("apple") }
                             if SignIn.googleReady || m.google || GroupService.shared.fake {
                                 way(S.appAGoogle, m.google, mark: AnyView(GoogleG().frame(width: 16, height: 16).frame(width: 28, height: 28)
@@ -139,7 +139,7 @@ struct AccountScreen: View {
                 GMuted(on ? S.acctConnected : S.appANotConnected, 12.5)
             }
             Spacer()
-            if on { Image(systemName: "checkmark").font(.system(size: 18, weight: .bold)).foregroundStyle(c.green) }
+            if on { Image(systemName: "checkmark").font(.system(size: 18, weight: .bold)).foregroundStyle(c.green).accessibilityHidden(true) }
             else { GButton(text: S.appAConnect, look: .ghost, small: true, full: false, action: connect) }
         }
         .frame(minHeight: 56)

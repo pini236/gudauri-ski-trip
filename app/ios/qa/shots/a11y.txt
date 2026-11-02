@@ -1,0 +1,18 @@
+# Accessibility: the largest text size before the accessibility sizes (flag text=xxxl), where body text scales and the
+# layouts must still hold; home, the games and the maps stay at the default size. ax3 checks that nothing breaks beyond.
+#   <name> <lang> <day|night|auto> <qaTrip 0|1> <route|->
+a11y-xxxl-home-en en day 1 -+text=xxxl
+a11y-xxxl-about-en en day 0 about+text=xxxl
+a11y-xxxl-about-he he night 0 about+text=xxxl
+a11y-xxxl-licenses-en en day 0 about:licenses+text=xxxl
+a11y-xxxl-trip-he he day 1 trip+text=xxxl
+a11y-xxxl-run-en en day 0 map:Tatra_2+view=2d+text=xxxl
+a11y-xxxl-list-he he day 0 map+list+view=2d+text=xxxl
+a11y-xxxl-status-en en day 0 map+status=fresh+sheet=status+view=2d+text=xxxl
+a11y-xxxl-weather-en en day 0 map+weather=sample+view=2d+text=xxxl
+a11y-xxxl-meet-en en day 1 meet:158744055b/1300/20270112+card+text=xxxl
+a11y-xxxl-flights-he he day 1 grp:page:g1:flights+group=admin+text=xxxl
+a11y-xxxl-account-en en day 0 grp:account+group=member+text=xxxl
+a11y-xxxl-join-ru ru day 0 grp:join:KZBQRM+group=invited+text=xxxl
+a11y-xxxl-games-en en day 0 games+text=xxxl
+a11y-ax3-about-ka ka day 0 about+text=ax3

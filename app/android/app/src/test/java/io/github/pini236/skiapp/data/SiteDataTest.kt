@@ -14,6 +14,7 @@ class SiteDataTest {
     private val runs = File(site, "runs-and-lifts.json").readText()
     private val videos = File(site, "videos-seed.json").readText()
     private val resorts = File(site, "resorts.json").readText()
+    private val places = File(site, "places.json").readText()
     private lateinit var dir: File
     private var clock = 1_000_000_000L
     private val calls = mutableListOf<Pair<String, String?>>()
@@ -22,6 +23,7 @@ class SiteDataTest {
         "runs-and-lifts.json" -> runs
         "videos-seed.json" -> videos
         "resorts.json" -> resorts
+        "places.json" -> places
         else -> error(name)
     }
 
@@ -30,7 +32,7 @@ class SiteDataTest {
         val name = url.substringAfterLast('/')
         calls += name to etag
         // a file a test does not talk about is the packaged one, unchanged
-        val (tag, body) = answers[name] ?: ("\"r\"" to resorts)
+        val (tag, body) = answers[name] ?: ("\"r\"" to packaged(name))
         if (etag == tag) SiteData.Response(304, tag, null) else SiteData.Response(200, tag, body.toByteArray())
     }
 
@@ -45,6 +47,7 @@ class SiteDataTest {
         assertTrue(SiteData.validRuns(runs))
         assertTrue(SiteData.validVideos(videos))
         assertTrue(SiteData.validResorts(resorts))
+        assertTrue(io.github.pini236.skiapp.places.Places.parse(places) != null)
     }
 
     @Test fun theResortsFileIsOnlyUsedWhenItHasResorts() {
@@ -73,7 +76,7 @@ class SiteDataTest {
         clock += SiteData.EVERY_MS
         calls.clear()
         assertTrue(d.refresh().values.all { it == SiteData.Outcome.UNCHANGED })
-        assertEquals(listOf("runs-and-lifts.json" to "\"a\"", "videos-seed.json" to "\"v\"", "resorts.json" to "\"r\""), calls)
+        assertEquals(listOf("runs-and-lifts.json" to "\"a\"", "videos-seed.json" to "\"v\"", "resorts.json" to "\"r\"", "places.json" to "\"r\""), calls)
         // a new process reads the same state from disk
         assertEquals(newerRuns, data(site(emptyMap())).read("runs-and-lifts.json"))
     }

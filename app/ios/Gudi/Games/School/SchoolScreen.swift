@@ -183,7 +183,7 @@ struct SchoolScreen: View {
         .buttonStyle(.plain)
         .disabled(!open)
         .accessibilityLabel("\(i + 1). \(text(l.title))")
-        .accessibilityValue(open ? "\(stars)/3" : "🔒")
+        .accessibilityValue(open ? S.gameDescentStarsLabel(count: stars) : S.appA11yLocked)
     }
 
     private func starsText(_ n: Int, _ size: CGFloat) -> some View {
@@ -264,7 +264,7 @@ struct SchoolScreen: View {
                     Text(String(repeating: "★", count: r.stars)).foregroundStyle(accentC)
                     Text(String(repeating: "★", count: 3 - r.stars)).foregroundStyle(ruleC)
                 }
-                .font(.system(size: 48)).accessibilityLabel("\(r.stars)/3")
+                .font(.system(size: 48)).accessibilityElement(children: .ignore).accessibilityLabel(S.gameDescentStarsLabel(count: r.stars))
                 Text(say(r.line)).font(ski.type.text(16)).foregroundStyle(inkC)
                 goals(l, r.goals)
                 box(nil, S.gameSchoolRemember(tip: text(l.tip)))

@@ -48,6 +48,8 @@ class SiteData(
             Spec("videos-seed.json", 1) { validVideos(it) },
             // the resorts' capabilities (features): a feature is switched on or off here without a new version (dayrec/DayFeature.kt)
             Spec("resorts.json", 1) { validResorts(it) },
+            // food and services near the stations (round 31): a file this app cannot read is not used, and there are no places
+            Spec("places.json", 1) { io.github.pini236.skiapp.places.Places.parse(it) != null },
         )
 
         /** The top-level "schema" of an object file, 1 when it has none. */

@@ -19,7 +19,7 @@ struct SoundKey: View {
         }
         .buttonStyle(.plain)
         .accessibilityLabel(label)
-        .accessibilityValue(on ? "on" : "off")
+        .accessibilityValue(on ? S.appOn : S.appOff).accessibilityAddTraits(.isToggle)
     }
 }
 
@@ -33,7 +33,7 @@ struct GameBack: View {
     var body: some View {
         Button { dismiss() } label: {
             HStack(spacing: 4) {
-                Image(systemName: "chevron.backward").font(.system(size: 16, weight: .semibold))
+                Image(systemName: "chevron.backward").font(.system(size: 16, weight: .semibold)).accessibilityHidden(true)
                 Text(text.trimmingCharacters(in: CharacterSet(charactersIn: "→← "))).font(ski.type.text(15, .bold))
             }
             .foregroundStyle(color)
