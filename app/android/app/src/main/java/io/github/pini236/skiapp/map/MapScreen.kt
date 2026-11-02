@@ -88,7 +88,9 @@ fun MapScreen(view: MapView, scene: MapScene?, ms: MapStatus? = null, videos: Li
               /** Night (the day and night switch): the panel, the bar and the board go dark, as on the site (A-11). */
               dark: Boolean = false,
               /** The map from above (A-30): the relief under it, read on demand ([askRelief]) as for the meeting point. */
-              relief: io.github.pini236.skiapp.meet.Relief2D? = null, askRelief: () -> Unit = {}) {
+              relief: io.github.pini236.skiapp.meet.Relief2D? = null, askRelief: () -> Unit = {},
+              /** The ski day's "Record" button (round 29); null where the build or the data does not allow it. */
+              onRecord: (() -> Unit)? = null) {
     var selected by remember { mutableStateOf<Piste?>(view.selected) }
     var flying by remember { mutableStateOf(view.flying) }
     var lift by remember { mutableStateOf<Lift?>(view.shownLift.also { view.shownLift = null }) }
@@ -328,6 +330,9 @@ fun MapScreen(view: MapView, scene: MapScene?, ms: MapStatus? = null, videos: Li
                     kobi = { art?.let { a -> ov.frame(scope, a.kobi.left, a.kobi.top, a.kobi.right, a.kobi.bottom, 1.3f, 900f, 1f - panelFrac, 700); Qa.log("overview kobi") } },
                     north = { view.north() }, metresPerDp = if (ov.ready) 1f / ov.k * context.resources.displayMetrics.density else 0f,
                     bottom = panelFrac)
+                // the ski day: one tap from the map, with no run chosen (round 29)
+                if (onRecord != null && !flying && p == null && l == null && !list)
+                    io.github.pini236.skiapp.dayrec.ui.RecordButton(onRecord, Modifier.align(Alignment.BottomCenter).navigationBarsPadding().padding(bottom = 92.dp))
                 if (ms != null) {
                     if (!flying) StatusBar(ms.status, { ms.onSheet(true) }, Modifier.align(Alignment.TopCenter).statusBarsPadding().padding(top = 56.dp, start = 16.dp, end = 16.dp))
                     if (ms.sheet) Sheet({ ms.onSheet(false) }) {

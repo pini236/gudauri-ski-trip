@@ -52,7 +52,7 @@ class SignShape(private val arrow: Dp) : Shape {
 object SignColors {
     val blue = Color(0xFF1F5FC4)
     val gold = Color(0xFFF4B942)
-    val green = Color(0xFF1B8A4C)
+    val green = Color(0xFF198549)
     val ink = Color(0xFF13233A)
 }
 

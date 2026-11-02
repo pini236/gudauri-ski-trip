@@ -29,7 +29,7 @@ val MISSIONS = mapOf(
 )
 
 /** The run colours on the signs (the site's RUNCOL). */
-fun runColor(c: String): Long = when (c) { "green" -> 0xFF1B8A4C; "blue" -> 0xFF1F5FC4; "red" -> 0xFFD1342B; else -> 0xFF13233A }
+fun runColor(c: String): Long = when (c) { "green" -> 0xFF198549; "blue" -> 0xFF1F5FC4; "red" -> 0xFFD1342B; else -> 0xFF13233A }
 
 /** The site's rng(): the same numbers from the same seed, so a run is laid out as on the site. */
 class SiteRng(private var seed: Int) {
