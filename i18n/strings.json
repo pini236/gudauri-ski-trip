@@ -14594,10 +14594,10 @@
    ]
   },
   "research.tatra_2.notes": {
-   "he": "קו פנימי מאזור התחנה העליונה עד תחנת Shino התחתונה (2282 מ'), כולל הגזע התחתון המשותף עם Tatra 1. הגיאומטריה היא שתי דרכי OSM היסטוריות ששתיהן נקראו Tatra 2 (668794706 ו-1018641392), מחוברות בצומת (42.4799,44.4818). זו אותה גיאומטריה כמו בחבילה של ChatGPT; בגרסה הקודמת שלי הסתיימה הדרך בצומת בלבד (1476 מ'). כל 12 ה-nodes של 1018641392 נמצאים גם ב-Tatra 1 הנוכחי, ולכן הגזע התחתון כבר מצויר באתר תחת Tatra 1. הענף התחתון 668794711 (221 מ') נקרא Tatra 2 ב-OSM בין מרץ 2023 למרץ 2024 ומאז Tatra 1, והוא מצורף כחלופה. שמות OSM היו הפוכים ב-2019 (הדרך 668794706 נקראה אז Tatra 1), ולכן ההכרעה נשענת גם על המפה ועל אישור המשתמש.",
-   "en": "An inner line from the upper station area to the lower Shino station (2282 m), including the lower trunk shared with Tatra 1. The geometry is two historical OSM ways that were both called Tatra 2 (668794706 and 1018641392), joined at a junction (42.4799,44.4818). This is the same geometry as in the ChatGPT package; in my earlier version the way ended at the junction only (1476 m). All 12 nodes of 1018641392 are also in the current Tatra 1, so the lower trunk is already drawn on the site under Tatra 1. The lower branch 668794711 (221 m) was called Tatra 2 in OSM between March 2023 and March 2024 and Tatra 1 since then, and it is attached as an alternative. The OSM names were reversed in 2019 (way 668794706 was then called Tatra 1), so the decision also rests on the map and on the user's confirmation.",
-   "ru": "Внутренняя линия от зоны верхней станции до нижней станции Shino (2282 м), включая нижний общий ствол с Tatra 1. Геометрия — две исторические линии OSM, обе назывались Tatra 2 (668794706 и 1018641392), соединённые в развилке (42.4799,44.4818). Это та же геометрия, что и в пакете ChatGPT; в моей прежней версии линия заканчивалась только у развилки (1476 м). Все 12 узлов 1018641392 есть и в нынешней Tatra 1, поэтому нижний ствол уже нарисован на сайте как Tatra 1. Нижняя ветка 668794711 (221 м) в OSM называлась Tatra 2 с марта 2023 по март 2024 года, а с тех пор — Tatra 1; она приложена как альтернатива. В 2019 году названия в OSM были перепутаны (линия 668794706 тогда называлась Tatra 1), поэтому решение опирается также на карту и на подтверждение пользователя.",
-   "ka": "შიდა ხაზი ზედა სადგურის ზონიდან Shino-ს ქვედა სადგურამდე (2282 მ), Tatra 1-თან საერთო ქვედა ღეროს ჩათვლით. გეომეტრია ორი ისტორიული OSM გზაა, რომლებსაც ორივეს Tatra 2 ერქვა (668794706 და 1018641392), შეერთებული გზაჯვარედინზე (42.4799,44.4818). ეს იგივე გეომეტრიაა, რაც ChatGPT-ის პაკეტში; ჩემს წინა ვერსიაში გზა მხოლოდ გზაჯვარედინზე მთავრდებოდა (1476 მ). 1018641392-ის ყველა 12 კვანძი ამჟამინდელ Tatra 1-შიცაა, ამიტომ ქვედა ღერო საიტზე უკვე დახატულია Tatra 1-ის სახით. ქვედა განშტოებას 668794711 (221 მ) OSM-ში 2023 წლის მარტიდან 2024 წლის მარტამდე Tatra 2 ერქვა, მას შემდეგ კი Tatra 1, და ის ალტერნატივად არის დართული. 2019 წელს OSM-ის სახელები შებრუნებული იყო (გზას 668794706 მაშინ Tatra 1 ერქვა), ამიტომ გადაწყვეტილება რუკასა და მომხმარებლის დადასტურებასაც ეყრდნობა.",
+   "he": "קו פנימי מאזור התחנה העליונה עד תחנת Shino התחתונה (2282 מ'), כולל הגזע התחתון המשותף עם Tatra 1. הגיאומטריה היא שתי דרכי OSM היסטוריות ששתיהן נקראו Tatra 2 (668794706 ו-1018641392), מחוברות בצומת (42.4799,44.4818). זו אותה גיאומטריה כמו בחבילה של ChatGPT; בגרסה הקודמת שלי הסתיימה הדרך בצומת בלבד (1476 מ'). כל 12 ה-nodes של 1018641392 נמצאים גם ב-Tatra 1 הנוכחי, ולכן הגזע התחתון כבר מצויר באתר תחת Tatra 1. הענף התחתון 668794711 (221 מ') נקרא Tatra 2 ב-OSM בין מרץ 2023 למרץ 2024 ומאז Tatra 1, והוא מצורף כחלופה. שמות OSM היו הפוכים ב-2019 (הדרך 668794706 נקראה אז Tatra 1), ולכן ההכרעה נשענת גם על המפה ועל אישור המשתמש. עדכון 1.11.2026: הקו מתחיל עכשיו בתחנה העליונה. נוספו בראשו נקודות 0 עד 9 של הדרך 472374255 במפה הפתוחה (כ-412 מ'), שהן גם ראש Tatra 1; Tatra 2 היה מתחיל בנקודה 9 בדיוק. לא הומצא קו, ולא נוסף שדה.",
+   "en": "An inner line from the upper station area to the lower Shino station (2282 m), including the lower trunk shared with Tatra 1. The geometry is two historical OSM ways that were both called Tatra 2 (668794706 and 1018641392), joined at a junction (42.4799,44.4818). This is the same geometry as in the ChatGPT package; in my earlier version the way ended at the junction only (1476 m). All 12 nodes of 1018641392 are also in the current Tatra 1, so the lower trunk is already drawn on the site under Tatra 1. The lower branch 668794711 (221 m) was called Tatra 2 in OSM between March 2023 and March 2024 and Tatra 1 since then, and it is attached as an alternative. The OSM names were reversed in 2019 (way 668794706 was then called Tatra 1), so the decision also rests on the map and on the user's confirmation. Update 1.11.2026: the line now starts at the upper station. Points 0 to 9 of way 472374255 in the open map (about 412 m), which are also the head of Tatra 1, were added at its head; Tatra 2 used to start exactly at point 9. No line was invented and no field was added.",
+   "ru": "Внутренняя линия от зоны верхней станции до нижней станции Shino (2282 м), включая нижний общий ствол с Tatra 1. Геометрия — две исторические линии OSM, обе назывались Tatra 2 (668794706 и 1018641392), соединённые в развилке (42.4799,44.4818). Это та же геометрия, что и в пакете ChatGPT; в моей прежней версии линия заканчивалась только у развилки (1476 м). Все 12 узлов 1018641392 есть и в нынешней Tatra 1, поэтому нижний ствол уже нарисован на сайте как Tatra 1. Нижняя ветка 668794711 (221 м) в OSM называлась Tatra 2 с марта 2023 по март 2024 года, а с тех пор — Tatra 1; она приложена как альтернатива. В 2019 году названия в OSM были перепутаны (линия 668794706 тогда называлась Tatra 1), поэтому решение опирается также на карту и на подтверждение пользователя. Обновление 1.11.2026: линия теперь начинается у верхней станции. В её начало добавлены точки 0–9 линии 472374255 в открытой карте (около 412 м), которые одновременно являются началом Tatra 1; Tatra 2 раньше начиналась ровно с точки 9. Линия не выдумывалась, поле не добавлялось.",
+   "ka": "შიდა ხაზი ზედა სადგურის ზონიდან Shino-ს ქვედა სადგურამდე (2282 მ), Tatra 1-თან საერთო ქვედა ღეროს ჩათვლით. გეომეტრია ორი ისტორიული OSM გზაა, რომლებსაც ორივეს Tatra 2 ერქვა (668794706 და 1018641392), შეერთებული გზაჯვარედინზე (42.4799,44.4818). ეს იგივე გეომეტრიაა, რაც ChatGPT-ის პაკეტში; ჩემს წინა ვერსიაში გზა მხოლოდ გზაჯვარედინზე მთავრდებოდა (1476 მ). 1018641392-ის ყველა 12 კვანძი ამჟამინდელ Tatra 1-შიცაა, ამიტომ ქვედა ღერო საიტზე უკვე დახატულია Tatra 1-ის სახით. ქვედა განშტოებას 668794711 (221 მ) OSM-ში 2023 წლის მარტიდან 2024 წლის მარტამდე Tatra 2 ერქვა, მას შემდეგ კი Tatra 1, და ის ალტერნატივად არის დართული. 2019 წელს OSM-ის სახელები შებრუნებული იყო (გზას 668794706 მაშინ Tatra 1 ერქვა), ამიტომ გადაწყვეტილება რუკასა და მომხმარებლის დადასტურებასაც ეყრდნობა. განახლება 1.11.2026: ხაზი ახლა ზედა სადგურიდან იწყება. თავში დაემატა ღია რუკაზე 472374255 გზის 0–9 წერტილები (დაახლოებით 412 მ), რომლებიც Tatra 1-ის თავიცაა; Tatra 2 ადრე ზუსტად მე-9 წერტილიდან იწყებოდა. ხაზი არ მოგონილა და ველი არ დამატებულა.",
    "where": "site/js/app.js (research notes from site/data/runs-and-lifts.json)",
    "note": "research.notes of Tatra 2: the Hebrew must stay identical to the data file (tools/check-site-i18n.py); numbers, OSM ids and names as in the source",
    "check": [
@@ -16649,6 +16649,78 @@
    "ka": "აპლიკაციისა და საიტის მხარდაჭერა: როგორ დაგვიკავშირდეთ და ხშირი კითხვები.",
    "where": "site/support.html (tools/build-support.py)",
    "note": "meta description of /support",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "research.zuma.notes": {
+   "he": "במפה הרשמית Zuma הוא אזור מתחילים ירוק עם מעלית גרירה, ולא מסלול. הקו נשאר קו מרכז בלבד (לא גבול אזור), ורק הסוג תוקן; מפתח המסלול לא השתנה.",
+   "en": "On the official map Zuma is a green beginner area with a drag lift, not a run. The line stays a centre line only (not an area boundary) and only the type was corrected; the run key did not change.",
+   "ru": "На официальной карте Zuma — зелёная зона для начинающих с бугельным подъёмником, а не трасса. Линия остаётся только осевой (не границей зоны), исправлен лишь тип; ключ трассы не изменился.",
+   "ka": "ოფიციალურ რუკაზე Zuma დამწყებთა მწვანე ზონაა ბუქსირით და არა ტრასა. ხაზი რჩება მხოლოდ ცენტრალურ ხაზად (არა ზონის საზღვრად) და მხოლოდ ტიპი შესწორდა; ტრასის გასაღები არ შეცვლილა.",
+   "where": "site/js/app.js (research notes from site/data/runs-and-lifts.json)",
+   "note": "research.notes of Zuma",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "research.new_goodaura.notes": {
+   "he": "במפה הרשמית שני מסלולים כחולים ממוספרים (1 ו-2) מגיעים לתחתית New Goodaura. הקו הזה (700 מ') הוא הקרוב ביותר ל-1 ונגמר באמצע ההר. רק השם נוסף; מפתח המסלול נשאר New Goodaura.",
+   "en": "On the official map two numbered blue runs (1 and 2) reach the bottom of New Goodaura. This line (700 m) is the closest to 1 and ends mid-mountain. Only the name was added; the run key stays New Goodaura.",
+   "ru": "На официальной карте две пронумерованные синие трассы (1 и 2) доходят до низа New Goodaura. Эта линия (700 м) ближе всего к 1 и обрывается на середине горы. Добавлено только название; ключ трассы остаётся New Goodaura.",
+   "ka": "ოფიციალურ რუკაზე ორი დანომრილი ლურჯი ტრასა (1 და 2) New Goodaura-ს ძირამდე აღწევს. ეს ხაზი (700 მ) 1-ს ყველაზე ახლოსაა და მთის შუაში მთავრდება. დაემატა მხოლოდ სახელი; ტრასის გასაღები რჩება New Goodaura.",
+   "where": "site/js/app.js (research notes from site/data/runs-and-lifts.json)",
+   "note": "research.notes of New Goodaura",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "research.new_goodaura.partial": {
+   "he": "נגמר באמצע ההר, והמסלול הרשמי מגיע לתחתית New Goodaura.",
+   "en": "Ends mid-mountain, while the official run reaches the bottom of New Goodaura.",
+   "ru": "Обрывается на середине горы, а официальная трасса доходит до низа New Goodaura.",
+   "ka": "მთის შუაში მთავრდება, ოფიციალური ტრასა კი New Goodaura-ს ძირამდე აღწევს.",
+   "where": "site/js/app.js (research notes from site/data/runs-and-lifts.json)",
+   "note": "research.partial of New Goodaura",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "research.u1234557981.notes": {
+   "he": "במפה הרשמית New Goodaura 2 יוצא מהתחנה העליונה של New Goodaura. הקטע הזה (501 מ') מתחיל שם ונגמר באמצע ההר. הזיהוי בוודאות נמוכה: אין לקטע שם ב-OSM והאיור הרשמי מעוות. רק השם נוסף; מפתח המסלול לא השתנה.",
+   "en": "On the official map New Goodaura 2 starts at the upper New Goodaura station. This segment (501 m) starts there and ends mid-mountain. The identification has low confidence: the segment has no name in OSM and the official illustration is distorted. Only the name was added; the run key did not change.",
+   "ru": "На официальной карте New Goodaura 2 начинается у верхней станции New Goodaura. Этот отрезок (501 м) начинается там и обрывается на середине горы. Опознание с низкой уверенностью: у отрезка нет названия в OSM, а официальная иллюстрация искажена. Добавлено только название; ключ трассы не изменился.",
+   "ka": "ოფიციალურ რუკაზე New Goodaura 2 New Goodaura-ს ზედა სადგურიდან იწყება. ეს მონაკვეთი (501 მ) იქვე იწყება და მთის შუაში მთავრდება. იდენტიფიკაცია დაბალი სანდოობისაა: მონაკვეთს OSM-ში სახელი არ აქვს, ოფიციალური ილუსტრაცია კი დამახინჯებულია. დაემატა მხოლოდ სახელი; ტრასის გასაღები არ შეცვლილა.",
+   "where": "site/js/app.js (research notes from site/data/runs-and-lifts.json)",
+   "note": "research.notes of u1234557981",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "research.u1234557981.partial": {
+   "he": "נגמר באמצע ההר.",
+   "en": "Ends mid-mountain.",
+   "ru": "Обрывается на середине горы.",
+   "ka": "მთის შუაში მთავრდება.",
+   "where": "site/js/app.js (research notes from site/data/runs-and-lifts.json)",
+   "note": "research.partial of u1234557981",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "research.u1217683225.notes": {
+   "he": "במפה הרשמית דרך מקשרת (Ski Way) מהתחנה העליונה של New Goodaura לתחתית Kikilo, באותו מקום של הקטע הזה (371 מ'). רק הסוג תוקן, ממסלול כחול לדרך מקשרת; הצבע נשאר כחול, כמו Shino.",
+   "en": "On the official map a link route (Ski Way) runs from the upper New Goodaura station to the bottom of Kikilo, in the same place as this segment (371 m). Only the type was corrected, from a blue run to a link route; the colour stays blue, like Shino.",
+   "ru": "На официальной карте соединительная дорога (Ski Way) идёт от верхней станции New Goodaura к низу Kikilo, на месте этого отрезка (371 м). Исправлен только тип — с синей трассы на соединительную дорогу; цвет остаётся синим, как у Shino.",
+   "ka": "ოფიციალურ რუკაზე დამაკავშირებელი გზა (Ski Way) New Goodaura-ს ზედა სადგურიდან Kikilo-ს ძირამდე გადის, ამ მონაკვეთის (371 მ) იმავე ადგილას. შესწორდა მხოლოდ ტიპი, ლურჯი ტრასიდან დამაკავშირებელ გზად; ფერი რჩება ლურჯი, Shino-სავით.",
+   "where": "site/js/app.js (research notes from site/data/runs-and-lifts.json)",
+   "note": "research.notes of u1217683225",
    "check": [
     "ru",
     "ka"
