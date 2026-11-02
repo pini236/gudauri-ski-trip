@@ -152,6 +152,38 @@ def build(data, P):
             if a: shared_out.setdefault(p['key'], {'v': 1, 'a': []})['a'] += [w + [q['key']] for w in a]
     return result, shared_out
 
+# Open ends (round 21, docs/ARCHITECTURE.md, 2.11.2026): a partial run that continues beyond its data at one end. Set by hand, from a source
+# (research/map-open-ends.md); never derived. at: "start"|"end" by the direction of descent; conf: high|medium|low; src: one of OPEN_SRC.
+# The client fades the line only from medium up; low is kept as a record. No geometry, no length.
+OPEN_ENDS = {
+    'Soliko 2':     [{'at': 'end',   'conf': 'medium', 'src': 'osm-history'}],
+    'Firni 2':      [{'at': 'start', 'conf': 'medium', 'src': 'official-map'}],
+    'Shino':        [{'at': 'start', 'conf': 'medium', 'src': 'official-map'}],
+    'New Goodaura': [{'at': 'end',   'conf': 'medium', 'src': 'official-map'}],
+    'Firni 1':      [{'at': 'end',   'conf': 'low',    'src': 'official-map'}],
+    'u1234557981':  [{'at': 'end',   'conf': 'low',    'src': 'official-map'}],
+}
+# each src must be found in the run's research.sources (the full source stays there, precision rule 5)
+OPEN_SRC = {'osm-history': 'way history', 'official-map': 'המפה הרשמית של MTA', 'gps': 'GPS traces', 'guide': 'third-party guide', 'data': None}
+def check_open(data, table):
+    """Returns a list of problems: every entry must point to a run that has research.sources, with the src found in them."""
+    bad = []; by = {p['key']: p for p in data['pistes']}
+    for key, lst in table.items():
+        p = by.get(key)
+        if not p: bad.append('%s: no such run' % key); continue
+        srcs = (p.get('research') or {}).get('sources') or []
+        if not srcs: bad.append('%s: no research.sources' % key)
+        seen = set()
+        for o in lst:
+            if set(o) != {'at', 'conf', 'src'}: bad.append('%s: unexpected fields %s' % (key, sorted(o)))
+            if o['at'] not in ('start', 'end'): bad.append('%s: bad at' % key)
+            if o['at'] in seen: bad.append('%s: at %s twice' % (key, o['at']))
+            seen.add(o['at'])
+            if o['conf'] not in ('high', 'medium', 'low'): bad.append('%s: bad conf' % key)
+            if o['src'] not in OPEN_SRC: bad.append('%s: bad src' % key)
+            elif OPEN_SRC[o['src']] and not any(OPEN_SRC[o['src']] in x for x in srcs): bad.append('%s: src %s not in research.sources' % (key, o['src']))
+    return bad
+
 def dump(d): return json.dumps(d, ensure_ascii=False, separators=(',', ':'))
 
 def main():
@@ -167,12 +199,17 @@ def main():
         r = next(x for x in rs if path.resolve().parent == (ROOT / 'site' / x['dir']).resolve())
         lat0, lon0 = r['proj']['lat0'], r['proj']['lon0']
     stripped = json.loads(raw)
-    for p in stripped['pistes']: p.pop('label', None); p.pop('shared', None)
+    for p in stripped['pistes']: p.pop('label', None); p.pop('shared', None); p.pop('open', None)
     labels, shared = build(stripped, proj(lat0, lon0))
     out = json.loads(dump(stripped))
     for p in out['pistes']:
         if p['key'] in labels: p['label'] = labels[p['key']]
         if p['key'] in shared: p['shared'] = shared[p['key']]
+    if path.resolve() == (ROOT / 'site/data/runs-and-lifts.json').resolve():
+        bad = check_open(out, OPEN_ENDS)
+        if bad: print('open ends:\n  ' + '\n  '.join(bad)); sys.exit(1)
+        for p in out['pistes']:
+            if p['key'] in OPEN_ENDS: p['open'] = OPEN_ENDS[p['key']]
     if a.check:
         ok = dump(out) == dump(data)
         print('labels up to date' if ok else 'labels differ: run python3 tools/build-labels.py'); sys.exit(0 if ok else 1)
