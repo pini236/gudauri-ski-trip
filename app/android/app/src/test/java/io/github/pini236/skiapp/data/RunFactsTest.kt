@@ -81,7 +81,16 @@ class RunFactsTest {
     }
 
     @Test fun theSignStepsThroughTheRunsAsOnTheSite() {
-        assertEquals(listOf("Baby", "Bombora", "Pirveli", "Snow Park", "Zuma", "Firni 1", "Firni 2", "Goodaura 1", "Goodaura 2", "Khada", "Kikilo 1", "Kikilo 2", "Kobi", "New Goodaura", "Shino", "Soliko 1", "Soliko 2", "Sportuli 1", "Sportuli 2", "Tatra 1", "Tatra 2", "u1234557981", "Kudebi 1", "Kudebi 2", "Kudebi 3", "Sadzele 3", "Sadzele 1", "Sadzele 2"), RunFacts.order(runs.pistes))
+        assertEquals(listOf("Baby", "Bombora", "Pirveli", "Snow Park", "Zuma", "Firni 1", "Firni 2", "Goodaura 1", "Goodaura 2", "Khada", "Kikilo 1", "Kikilo 2", "Kobi", "New Goodaura", "u1234557981", "Shino", "Soliko 1", "Soliko 2", "Sportuli 1", "Sportuli 2", "Tatra 1", "Tatra 2", "Kudebi 1", "Kudebi 2", "Kudebi 3", "Sadzele 3", "Sadzele 1", "Sadzele 2"), RunFacts.order(runs.pistes))
+    }
+
+    @Test fun aRunIsCalledByItsNameAndNotByItsKey() {
+        // the key is a stable id and may be a raw OSM id (the site's pname): the second New Goodaura run's key is one
+        val byKey = runs.pistes.associateBy { it.key }
+        assertEquals("New Goodaura 1", byKey.getValue("New Goodaura").title)
+        assertEquals("New Goodaura 2", byKey.getValue("u1234557981").title)
+        assertEquals("Tatra 1", byKey.getValue("Tatra 1").title)
+        assertEquals("only a run without a name falls back to its key", "k", Piste("k", "", "blue", true, "run", emptyList()).title)
     }
 
     @Test fun numbersSortAsNumbers() {

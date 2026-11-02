@@ -18,7 +18,10 @@ class Piste(
     val groom: List<String> = emptyList(), val lit: List<String> = emptyList(), val joins: List<String> = emptyList(),
     /** The OSM ways it is drawn from, and whether one of its parts is an area (a beginner zone). */
     val osmIds: List<Long> = emptyList(), val hasArea: Boolean = false, val research: Research? = null,
-)
+) {
+    /** What the run is called on screen (the site's pname): `name`, and the key when there is none. The key is a stable id and may be a raw OSM id. */
+    val title: String get() = name.ifBlank { key }
+}
 
 /** Where a filled-in run comes from (site/data/runs-and-lifts.json, research); the notes are in Hebrew in the data. */
 class Research(

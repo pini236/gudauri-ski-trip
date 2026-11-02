@@ -111,7 +111,7 @@ import kotlin.math.roundToInt
 
 /** A run's name as the site shows it (dispName). */
 @Composable
-fun runName(p: Piste): String = if (!p.named) stringResource(R.string.map_unnamed_segment) else if (p.key == "Firni ?") "Firni (1/2?)" else p.key
+fun runName(p: Piste): String = if (!p.named) stringResource(R.string.map_unnamed_segment) else if (p.key == "Firni ?") "Firni (1/2?)" else p.title
 
 @Composable
 private fun colorName(c: String) = stringResource(when (c) { "green" -> R.string.common_color_green; "blue" -> R.string.common_color_blue; "red" -> R.string.common_color_red; else -> R.string.common_color_black })
@@ -254,7 +254,7 @@ class PanelActions(
 
 /** The head of a run's panel: the sign (T4), its number, the steps to the run before and after, share, and the numbers. */
 @Composable
-fun ColumnScope.RunHead(p: Piste, facts: RunFacts?, order: List<String>, flying: Boolean, canFly: Boolean, a: PanelActions) {
+fun ColumnScope.RunHead(p: Piste, facts: RunFacts?, order: List<String>, flying: Boolean, canFly: Boolean, a: PanelActions, titles: Map<String, String> = emptyMap()) {
     val c = Ski.colors
     val ctx = LocalContext.current
     val i = order.indexOf(p.key)
@@ -297,11 +297,12 @@ fun ColumnScope.RunHead(p: Piste, facts: RunFacts?, order: List<String>, flying:
             if (i >= 0) {
                 val prev = order[(i - 1 + order.size) % order.size]; val next = order[(i + 1) % order.size]
                 val back = if (ltr) "←" else "→"; val fwd = if (ltr) "→" else "←"
-                val prevDesc = stringResource(R.string.run_nav_prev_aria, prev)
-                NavButton("$back $prev", prevDesc, Modifier.weight(1f)) { a.goRun(prev, "swipe") }
+                val prevName = titles[prev] ?: prev; val nextName = titles[next] ?: next
+                val prevDesc = stringResource(R.string.run_nav_prev_aria, prevName)
+                NavButton("$back $prevName", prevDesc, Modifier.weight(1f)) { a.goRun(prev, "swipe") }
                 ShareButton(p, Modifier.weight(1f))
-                val nextDesc = stringResource(R.string.run_nav_next_aria, next)
-                NavButton("$next $fwd", nextDesc, Modifier.weight(1f)) { a.goRun(next, "swipe") }
+                val nextDesc = stringResource(R.string.run_nav_next_aria, nextName)
+                NavButton("$nextName $fwd", nextDesc, Modifier.weight(1f)) { a.goRun(next, "swipe") }
             } else ShareButton(p, Modifier.weight(1f))
         }
         // with reduced motion there is no fly down, as on the site (A-12)
@@ -338,7 +339,7 @@ private fun NavButton(text: String, description: String, modifier: Modifier, onC
 private fun ShareButton(p: Piste, modifier: Modifier) {
     val c = Ski.colors
     val ctx = LocalContext.current
-    val title = stringResource(R.string.run_share_title, p.key)
+    val title = stringResource(R.string.run_share_title, p.title)
     Box(modifier.heightIn(min = 44.dp).background(c.glacier).clickable(role = Role.Button) {
         val send = Intent(Intent.ACTION_SEND).setType("text/plain").putExtra(Intent.EXTRA_SUBJECT, title).putExtra(Intent.EXTRA_TEXT, title + "\n" + runLink(p.key))
         runCatching { ctx.startActivity(Intent.createChooser(send, title)) }
@@ -552,9 +553,9 @@ private fun Videos(p: Piste, list: List<Video>) {
             if (sub.isNotBlank()) Text(sub, style = Ski.type.small, color = c.muted)
         }
     }
-    val q = "Gudauri " + (if (p.key == "Firni ?") "Firni" else p.key) + " ski"
+    val q = "Gudauri " + (if (p.key == "Firni ?") "Firni" else p.title) + " ski"
     // {resort} first, then the run: the shared string names the resort since the multi-resort round; the app shows one resort for now
-    Text(stringResource(R.string.run_videos_search_youtube, "Gudauri", if (p.key == "Firni ?") "Firni" else p.key),
+    Text(stringResource(R.string.run_videos_search_youtube, "Gudauri", if (p.key == "Firni ?") "Firni" else p.title),
         Modifier.padding(top = 8.dp).heightIn(min = 44.dp).clickable { openLink(ctx, "https://www.youtube.com/results?search_query=" + Uri.encode(q)) }.padding(vertical = 10.dp),
         style = Ski.type.small.copy(textDecoration = TextDecoration.Underline), color = c.glacier)
 }
@@ -659,7 +660,7 @@ fun ColumnScope.RunList(runs: Runs, order: List<String>, hidden: Set<String>, on
     val partial = runs.pistes.filter { it.research?.partial != null }
     if (partial.isNotEmpty()) {
         H3(stringResource(R.string.map_overview_partial_count, partial.size.toString()))
-        Tags { partial.forEach { p -> Tag(p.key, c.run(p.color)) { a.goRun(p.key, "list") } } }
+        Tags { partial.forEach { p -> Tag(p.title, c.run(p.color)) { a.goRun(p.key, "list") } } }
         Hint(stringResource(R.string.map_overview_partial_hint))
     }
     H3(stringResource(R.string.map_overview_source_heading))

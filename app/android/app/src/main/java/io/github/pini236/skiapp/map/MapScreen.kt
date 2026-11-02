@@ -212,6 +212,7 @@ fun MapScreen(view: MapView, scene: MapScene?, ms: MapStatus? = null, videos: Li
         view.setHidden(runs.pistes.filter { it.color in hidden || (!it.named && "unnamed" in hidden) }.map { it.key }.toSet(), "lifts" !in hidden)
     }
     val order = remember(scene) { scene?.runs?.pistes?.let { RunFacts.order(it) } ?: emptyList() }
+    val titles = remember(scene) { scene?.runs?.pistes?.associate { it.key to it.title } ?: emptyMap() }
     val ovPaint by produceState<OverviewPaint?>(null, selected?.key, scene, top) {
         val p = selected; val s = scene
         value = if (!top || p == null || s == null) null else withContext(Dispatchers.Default) { OverviewPaint.of(s, p) }
@@ -269,7 +270,7 @@ fun MapScreen(view: MapView, scene: MapScene?, ms: MapStatus? = null, videos: Li
                 val nf = NumberFormat.getIntegerInstance(lang.locale)
                 OverviewWords(res.getString(R.string.map_kobi_side_label), res.getString(R.string.map_place_gudauri),
                     { n, e -> res.getString(R.string.app_peak_label, "\u2068$n\u2069", nf.format(e)) },
-                    { p -> if (p.key == "Firni ?") "Firni (1/2?)" else p.key }, res.getString(R.string.map_map_aria))
+                    { p -> if (p.key == "Firni ?") "Firni (1/2?)" else p.title }, res.getString(R.string.map_map_aria))
             }
             val hiddenKeys = remember(hidden, scene) { scene.runs.pistes.filter { it.color in hidden || (!it.named && "unnamed" in hidden) }.map { it.key }.toSet() }
             SkiTheme(dark = dark) {
@@ -297,7 +298,7 @@ fun MapScreen(view: MapView, scene: MapScene?, ms: MapStatus? = null, videos: Li
                         MapPanel(expanded, { expanded = it; Qa.log("panel ${if (it) "open" else "closed"}") }, { view.select(null) }, onHeight = onPanel,
                             head = {
                                 if (flying) Box(Modifier.padding(bottom = 8.dp)) { FlyBar(view, runName(p)) }
-                                RunHead(p, facts, order, flying, true, actions)
+                                RunHead(p, facts, order, flying, true, actions, titles)
                             },
                             body = { RunBody(p, facts, scene.runs, scene.terrain, videos, actions, flying) })
                     }

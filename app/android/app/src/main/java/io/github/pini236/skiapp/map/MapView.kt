@@ -380,7 +380,7 @@ class MapView(context: Context, refreshHz: Float, val stats: FrameStats) : Frame
             if (!p.named) continue
             val line = s.draped[p.key]?.maxByOrNull { it.size } ?: continue
             val k = (line.size / 3 * 0.45f).toInt().coerceAtMost(line.size / 3 - 1)
-            val name = if (p.key == "Firni ?") "Firni (1/2?)" else p.key
+            val name = if (p.key == "Firni ?") "Firni (1/2?)" else p.title
             out += MapLabel(line[k * 3], line[k * 3 + 1] + 8, line[k * 3 + 2], layout(iso(name), body, 13f, io.github.pini236.skiapp.ui.DayColors.run(p.color).toArgb(), bold = true), 40, false, run = p.key)
         }
         return out.sortedByDescending { it.priority }
