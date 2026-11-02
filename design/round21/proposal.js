@@ -43,6 +43,16 @@
       // one open end: the line goes on a little in fading dots and stops in a ring with a question mark
       const openEnd = (e, back, c) => {
         const a = Math.atan2(e[1] - back[1], e[0] - back[0]);
+        if (o.endStyle) { // version 2: nothing that looks like a fault, and no line drawn over the hole
+          const w = 3.2, tail = (o.endStyle === 'fade' ? 46 : o.endStyle === 'dots' ? 34 : 0) * u, x2 = e[0] + Math.cos(a) * tail, y2 = e[1] + Math.sin(a) * tail;
+          if (o.endStyle === 'cap') { const nx = -Math.sin(a) * 6 * u, ny = Math.cos(a) * 6 * u;
+            mk('line', { x1: e[0] - nx, y1: e[1] - ny, x2: e[0] + nx, y2: e[1] + ny, stroke: `var(--p-${c})`, 'stroke-width': 2.4, 'stroke-linecap': 'butt', 'vector-effect': 'non-scaling-stroke' }, ends); return; }
+          const gid = 'r21g' + Math.random().toString(36).slice(2, 7);
+          const gr = mk('linearGradient', { id: gid, gradientUnits: 'userSpaceOnUse', x1: e[0], y1: e[1], x2, y2 }, ends);
+          mk('stop', { offset: 0, 'stop-color': `var(--p-${c})`, 'stop-opacity': .95 }, gr); mk('stop', { offset: 1, 'stop-color': `var(--p-${c})`, 'stop-opacity': 0 }, gr);
+          mk('line', { x1: e[0], y1: e[1], x2, y2, stroke: `url(#${gid})`, 'stroke-width': w, 'stroke-linecap': 'round', ...(o.endStyle === 'dots' ? { 'stroke-dasharray': '1 5' } : {}), 'vector-effect': 'non-scaling-stroke' }, ends);
+          return;
+        }
         const tail = 40 * u, x2 = e[0] + Math.cos(a) * tail, y2 = e[1] + Math.sin(a) * tail;
         const gid = 'r21g' + Math.random().toString(36).slice(2, 7);
         const gr = mk('linearGradient', { id: gid, gradientUnits: 'userSpaceOnUse', x1: e[0], y1: e[1], x2, y2 }, ends);

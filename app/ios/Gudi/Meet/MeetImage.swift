@@ -30,7 +30,7 @@ struct MeetImageView: View {
                     var l = g; l.opacity = 0.55
                     l.draw(Image(decorative: img, scale: 1), in: art.box)
                 }
-                let cols: [String: UInt32] = ["green": 0x1B8A4C, "blue": 0x1F5FC4, "red": 0xD1342B, "black": 0x13233A]
+                let cols: [String: UInt32] = ["green": 0x198549, "blue": 0x1F5FC4, "red": 0xD1342B, "black": 0x13233A]
                 for (color, path) in lines.runs {
                     g.stroke(path, with: .color(.white), style: StrokeStyle(lineWidth: 11 / k, lineCap: .round, lineJoin: .round))
                     g.stroke(path, with: .color(Color(rgb: cols[color] ?? 0x13233A)), style: StrokeStyle(lineWidth: 6 / k, lineCap: .round, lineJoin: .round))

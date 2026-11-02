@@ -5,9 +5,9 @@ const PANO = "data:image/webp;base64,UklGRvTxAABXRUJQVlA4WAoAAAAQAAAAPwsAHwMAQUx
 const RUNGS = [
   {name:()=>L('game.snowball.arena_hotel_yard','בחצר המלון'), n:1, hp:3, wind:[0,1],  err:.9,  up:[1.8,2.4], wait:[1.6,2.6], goal:{t:()=>L('game.snowball.goal_win_untouched','לנצח בלי לחטוף'), ok:s=>s.taken===0}},
   {name:()=>L('game.snowball.arena_lift','ליד הרכבל'),  n:1, hp:3, wind:[-2,2], err:.6,  up:[1.4,1.9], wait:[1.3,2.2], goal:{t:()=>L('game.snowball.goal_hat','להעיף כובע'), ok:s=>s.hats>=1}},
-  {name:()=>L('game.snowball.arena_deep_snow','בשלג העמוק'), n:2, hp:2, wind:[-2,2], err:.55, up:[1.3,1.8], wait:[1.6,2.8], goal:{t:()=>L('game.snowball.goal_accuracy','דיוק של 50%'), ok:s=>s.thrown>0&&s.hits/s.thrown>=.5}},
-  {name:()=>L('game.snowball.arena_ridge','על הרכס'),    n:2, hp:2, wind:[-4,4], err:.5,  up:[1.1,1.6], wait:[1.3,2.4], goal:{t:()=>L('game.snowball.goal_two_hats','שני כובעים'), ok:s=>s.hats>=2}},
-  {name:()=>L('game.snowball.arena_summit','בפסגה, ברוח'),n:3, hp:2, wind:[-5,5], err:.45, up:[1.0,1.4], wait:[1.5,2.8], goal:{t:()=>L('game.snowball.goal_win_untouched','לנצח בלי לחטוף'), ok:s=>s.taken===0}}];
+  {name:()=>L('game.snowball.arena_deep_snow','בשלג העמוק'), n:2, hp:2, wind:[-2,2], err:.55, up:[1.1,1.55], wait:[1.6,2.8], goal:{t:()=>L('game.snowball.goal_accuracy','דיוק של 50%'), ok:s=>s.thrown>0&&s.hits/s.thrown>=.5}},
+  {name:()=>L('game.snowball.arena_ridge','על הרכס'),    n:2, hp:2, wind:[-4,4], err:.5,  up:[1.05,1.5], wait:[1.3,2.4], goal:{t:()=>L('game.snowball.goal_two_hats','שני כובעים'), ok:s=>s.hats>=2}},
+  {name:()=>L('game.snowball.arena_summit','בפסגה, ברוח'),n:3, hp:2, wind:[-5,5], err:.45, up:[.95,1.35], wait:[1.5,2.8], goal:{t:()=>L('game.snowball.goal_win_untouched','לנצח בלי לחטוף'), ok:s=>s.taken===0}}];
 const store={get(k,d){try{const v=localStorage.getItem('snw2-'+k);return v==null?d:JSON.parse(v);}catch(e){return d;}},set(k,v){try{localStorage.setItem('snw2-'+k,JSON.stringify(v));}catch(e){}}};
 const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
 const $=id=>document.getElementById(id);
@@ -38,17 +38,18 @@ function buzz(ms){ try{ navigator.vibrate&&navigator.vibrate(ms); }catch(_){} }
 /* ---------- the world, seen from behind your own wall ---------- */
 // metres: x to the side, y up, z away from you. Your wall at z=1.4, theirs at z=10.
 const BASE=o=>FWALL-1.95+o.up*.95; // feet: hidden below the wall top when crouched, standing when up
+const ZOOM=1.4, XS=1/ZOOM, LEAN=.75; // round 34: a longer lens (the friends look 1.4x bigger), same distances and flight times
 const G=9.81, ZW=1.4, ZF=10, ZO=10.6, WALL=1.0, FWALL=1.05, HAND_Z=.5, FLIGHT=.85;
 const cv=$('game'), cx=cv.getContext('2d'); let W=0,H=0,f=600,Y0=300;
 function resize(){ const dpr=Math.min(2,devicePixelRatio||1); W=innerWidth; H=innerHeight; cv.width=W*dpr; cv.height=H*dpr; cx.setTransform(dpr,0,0,dpr,0,0);
-  f=Math.min(W*1.75, H*1.15); Y0=H*.42; }
+  f=Math.min(W*1.75, H*1.15)*ZOOM; Y0=H*.5; }
 addEventListener('resize',resize); resize();
 const pano=new Image(); pano.src=PANO;
 let camH=.98, camX=0, state='menu', t=0, cfg, stats, foes=[], balls=[], parts=[], hats=[], splats=[], wind=0, aim=null, reload=0, myHp=3, shake=0, endT=0, won=false, farWall=[];
 const P=(x,y,z)=>{ const s=f/Math.max(.05,z); return [W/2+(x-camX)*s, Y0-(y-camH)*s, s]; };
 function farWallTop(x){ const i=Math.round((x+6)/.25); return farWall[Math.max(0,Math.min(farWall.length-1,i))]; }
 function start(){
-  cfg=RUNGS[rung]; const ids=foesOf(rung), xs=cfg.n===1?[0]:cfg.n===2?[-1.5,1.5]:[-2,0,2];
+  cfg=RUNGS[rung]; const ids=foesOf(rung), xs=(cfg.n===1?[0]:cfg.n===2?[-1.5,1.5]:[-2,0,2]).map(x=>x*XS);
   foes=ids.map((fi,i)=>({fi, x:xs[i], home:xs[i], hp:cfg.hp, up:0, want:0, timer:rnd(1.2,2.4)+i*.9, phase:'hide', hat:true, hit:0, wob:0, throwT:0}));
   farWall=Array.from({length:49},(_,i)=>FWALL+.06*Math.sin(i*1.7)); // the far wall wears down where it is hit
   balls=[]; parts=[]; hats=[]; splats=[]; aim=null; reload=0; myHp=3; shake=0; endT=0; t=0; camH=.98; camX=0;
@@ -73,7 +74,7 @@ function popText(s){ const p=$('pop'); p.textContent=s; p.classList.remove('go')
 /* ---------- aiming: drag up from anywhere, a ring shows where the ball lands without wind ---------- */
 const OFF=70; // the ring sits above the finger, so the finger never hides it
 function ringTarget(a){ // the screen point → a point on the plane of the far friends, as seen when standing
-  const s=f/ZO, ch=1.75; return [ (a.x-W/2)/s, ch-((a.y-OFF)-Y0)/s ]; }
+  const s=f/ZO, ch=1.75; return [ (a.x-W/2)/s+camX, ch-((a.y-OFF)-Y0)/s ]; }
 cv.addEventListener('pointerdown',e=>{ if(state!=='play') return; e.preventDefault(); try{ cv.setPointerCapture(e.pointerId);}catch(_){} aim={x:e.clientX,y:e.clientY,y0:e.clientY}; });
 cv.addEventListener('pointermove',e=>{ if(aim){ aim.x=e.clientX; aim.y=e.clientY; } });
 function letGo(){ if(!aim) return; const a=aim; aim=null; if(state!=='play') return;
@@ -93,7 +94,7 @@ function foeStep(o,dt){
     else { o.phase='aim'; o.timer=rnd(...cfg.up)*.6; o.want=1; } }
   else if(o.phase==='peek' && o.timer<=0){ o.phase='hide'; o.want=0; o.timer=rnd(.5,1.1); }
   else if(o.phase==='aim' && o.timer<=0){ if(state==='play') throwFoe(o); /* no new throws once it is over */ o.phase='after'; o.timer=rnd(...cfg.up)*.4; o.throwT=.25; }
-  else if(o.phase==='after' && o.timer<=0){ o.phase='hide'; o.want=0; o.timer=rnd(...cfg.wait); if(Math.random()<.5) o.goal=o.home+rnd(-.8,.8); }
+  else if(o.phase==='after' && o.timer<=0){ o.phase='hide'; o.want=0; o.timer=rnd(...cfg.wait); if(Math.random()<.5) o.goal=o.home+rnd(-.8,.8)*XS; }
   if(o.phase==='hide' && o.goal!=null){ o.x+=(o.goal-o.x)*Math.min(1,dt*2.5); }
   o.up+=(o.want-o.up)*Math.min(1,dt*9);
 }
@@ -101,7 +102,7 @@ function throwFoe(o){ const x0=o.x-.3, y0=1.5, z0=ZO-.4, T=rnd(.85,1.1);
   // aim at your head when standing, with an error that shrinks up the ladder; better players lean into the wind.
   // The wind moves a ball by wind*T*T/4 over the flight (b.vx+=wind*.5*dt), so k=1 would cancel it exactly; k<1 leaves
   // a little error, and err is set so the share of throws that hit you rises with every rung (46, 70, 76, 78, 81%)
-  const tx=rnd(-1,1)*cfg.err, ty=1.55+rnd(-1,1)*cfg.err*.6, tz=.3, k=1-cfg.err*.5;
+  const tx=camX+rnd(-1,1)*cfg.err, ty=1.55+rnd(-1,1)*cfg.err*.6, tz=.3, k=1-cfg.err*.5;
   balls.push({x:x0,y:y0,z:z0,vx:(tx-x0)/T - .25*wind*k*T,vy:(ty-y0+.5*G*T*T)/T,vz:(tz-z0)/T,mine:false,trail:[],from:o}); noise(.08,.1,2000,'highpass'); }
 
 /* ---------- step ---------- */
@@ -111,7 +112,7 @@ function update(dt){
   t+=dt; if(t>7) $('hint').style.opacity=0;
   reload=Math.max(0,reload-dt);
   const want = (aim && state==='play') ? 1.75 : .98; /* ducked, you still see their heads over your wall */ camH+=(want-camH)*Math.min(1,dt*11);
-  camX+=((aim?(aim.x-W/2)/W*.6:0)-camX)*Math.min(1,dt*4); // lean a little toward where you aim
+  camX+=((aim?(aim.x-W/2)/W*2*LEAN:0)-camX)*Math.min(1,dt*4); // lean a little toward where you aim
   for(const o of foes) foeStep(o,dt);
   for(const b of balls){ if(b.dead) continue; const pz=b.z;
     b.vx+=wind*.5*dt; b.vy-=G*dt; b.x+=b.vx*dt; b.y+=b.vy*dt; b.z+=b.vz*dt; b.trail.push([b.x,b.y,b.z]); if(b.trail.length>8) b.trail.shift();
