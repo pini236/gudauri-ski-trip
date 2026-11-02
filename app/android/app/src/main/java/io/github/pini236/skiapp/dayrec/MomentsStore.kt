@@ -31,6 +31,17 @@ object MomentsStore {
         if (!tmp.renameTo(f)) { f.delete(); tmp.renameTo(f) }
     }
 
+    /**
+     * "Your trip" for the moments: {start, last}, where start is the key of the trip (its first ski day) and last says this is its
+     * last ski day. Null when there is no trip or the day is outside its ski days (the trip moments then do not appear).
+     */
+    internal fun tripOf(c: Context, start: Long): JSONObject? {
+        val days = io.github.pini236.skiapp.trip.TripStore(c).load()?.skiDays() ?: return null
+        val day = java.time.Instant.ofEpochMilli(start).atZone(java.time.ZoneId.of(DayParams.TZ)).toLocalDate()
+        if (day < days.start || day > days.endInclusive) return null
+        return JSONObject().put("start", days.start.toString()).put("last", day == days.endInclusive)
+    }
+
     @Synchronized
     fun apply(ctx: Context, day: File, result: File) {
         val dir = day.parentFile ?: return
@@ -47,7 +58,7 @@ object MomentsStore {
         val version = if (android.os.Build.VERSION.SDK_INT >= 28) info.longVersionCode else info.versionCode.toLong()
         val site = SiteData(File(c.filesDir, "site-data"), version, read)
         val runs = Moments.runsOf(JSONObject(site.read("runs-and-lifts.json")), Terrain.parse(site.read("terrain.json")))
-        val out = Moments.moments(res, history(dir), runs, params)
+        val out = Moments.moments(res, history(dir), runs, params, tripOf(c, start))
         write(DayStore.momentsOf(day), JSONObject().put("moments", out.get("moments")).put("items", out.get("items"))
             .put("story", out.get("story")).put("share", out.get("share")).put("theme", out.get("theme")).toString())
         write(File(dir, HISTORY), out.getJSONObject("history").toString())

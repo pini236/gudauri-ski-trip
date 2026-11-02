@@ -43,6 +43,7 @@ import io.github.pini236.skiapp.dayrec.DayAnalysis
 import io.github.pini236.skiapp.dayrec.DayLog
 import io.github.pini236.skiapp.dayrec.DayParams
 import io.github.pini236.skiapp.dayrec.DayRec
+import io.github.pini236.skiapp.dayrec.DayStore
 import io.github.pini236.skiapp.ui.BackLink
 import io.github.pini236.skiapp.ui.Ski
 import kotlinx.coroutines.Dispatchers
@@ -60,7 +61,7 @@ import java.util.Locale
  * colour, by speed), and the timeline, which is the truth. Computed from the log on the phone, off the main thread; nothing
  * leaves the phone.
  */
-private class Loaded(val day: DayModel.Day, val track: Track)
+private class Loaded(val day: DayModel.Day, val track: Track, val story: StoryData?)
 
 /** The day's line, thinned for drawing: projected metres (as the map's runs), and the speed of each point in km/h. */
 class Track(val x: FloatArray, val y: FloatArray, val kmh: DoubleArray, val t: LongArray)
@@ -88,7 +89,7 @@ fun DayViewScreen(file: File, runs: Runs?, onBack: () -> Unit) {
             val result = out?.let { runCatching { JSONObject(it.readText()) }.getOrNull() }
             if (result == null) { failed = true; return@withContext }
             val day = DayModel.build(result, ZoneId.of(DayParams.TZ))
-            loaded = Loaded(day, readTrack(file))
+            loaded = Loaded(day, readTrack(file), StoryData.read(DayStore.momentsOf(file)))
         }
     }
     Column(Modifier.fillMaxSize().background(c.snow).statusBarsPadding().navigationBarsPadding()) {
@@ -119,6 +120,7 @@ private fun DayBody(l: Loaded, runs: Runs?) {
         }
         if (l.day.chapters.isEmpty()) Text(stringResource(R.string.app_day_empty), style = Ski.type.body, color = c.muted)
         else {
+            l.story?.let { StoryCard(it, s) }
             DayMap(l.track, runs, s.maxLat, s.maxLon)
             Text(stringResource(R.string.app_day_note), style = Ski.type.small, color = c.muted)
             for (ch in l.day.chapters) Chapter(ch, runs, zone)
