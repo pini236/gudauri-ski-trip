@@ -131,6 +131,9 @@ class OverviewArt(val runs: Runs, terrain: Terrain) {
 
 /** The chosen run on the map from above: its ground in slope colours (X-3), and its lines in slope colours, top first. */
 class OverviewPaint(val key: String, val ground: Bitmap?, val box: RectF?, val segs: FloatArray, val colors: IntArray, val at: FloatArray) {
+    /** The arrows down the run, x, y and angle each (map/RunArrows.kt). */
+    val arrows: FloatArray by lazy { RunArrows.along(segs) }
+
     companion object {
         /** From the 3D scene's draped lines (top first) and their slopes, and its ground layer. Off the main thread. */
         fun of(scene: MapScene, p: Piste): OverviewPaint {
@@ -186,6 +189,8 @@ private class OverviewPaints(c: SkiColors, val d: Float, body: Typeface?) {
     val ptext = Paint(text).apply { textAlign = Paint.Align.LEFT }
     val phalo = Paint(halo).apply { textAlign = Paint.Align.LEFT }
     val pathScreen = Path()
+    val arrow = Path()
+    val arrowEdge = stroke(Color.White); val arrowInk = stroke(c.ink)
     // keeps only what the gradient leaves: clear at the open end, whole from the end of the fade on
     val fadeMask = Paint().apply { xfermode = android.graphics.PorterDuffXfermode(android.graphics.PorterDuff.Mode.DST_IN) }
     val colors = c
@@ -310,9 +315,11 @@ fun Overview(
                 val shut = fresh && status!!.runOpen(q) == false
                 val alpha = when { sel != null && q.key != sel -> .28f; shut && forMe -> .15f; else -> 1f }
                 val cas = w(p.casing, if (q.named) 6.5f else 4.5f).apply { this.alpha = (255 * alpha).toInt(); pathEffect = null }
-                val col = w(p.run, if (q.named) (if (q.kind == "ski-way") 2.6f else 3.4f) else 2f).apply {
-                    color = if (shut) p.dash else (p.runs[q.color] ?: colors.black).toArgb(); this.alpha = (255 * alpha).toInt()
-                    pathEffect = when { shut -> dShut; !q.named -> dUnnamed; q.kind == "ski-way" -> dWay; else -> null }
+                // a stretch without a name: thin and continuous in a resort with name windows (round 21), dashed elsewhere
+                val quiet = !q.named && art.hasLabels
+                val col = w(p.run, if (q.named) (if (q.kind == "ski-way") 2.6f else 3.4f) else if (quiet) 1.6f else 2f).apply {
+                    color = if (shut) p.dash else (p.runs[q.color] ?: colors.black).toArgb(); this.alpha = (255 * alpha * (if (quiet) .6f else 1f)).toInt()
+                    pathEffect = when { shut -> dShut; quiet -> null; !q.named -> dUnnamed; q.kind == "ski-way" -> dWay; else -> null }
                 }
                 for ((pi, path) in r.paths.withIndex()) {
                     val fade = r.fades.firstOrNull { it.line == pi }
@@ -340,6 +347,22 @@ fun Overview(
                 for (i in pt.colors.indices) {
                     if (pt.at[i] > shownTo) break
                     n.drawLine(pt.segs[i * 4], pt.segs[i * 4 + 1], pt.segs[i * 4 + 2], pt.segs[i * 4 + 3], seg.apply { color = pt.colors[i] })
+                }
+            }
+            // the arrows down the chosen run, thinned by the zoom to about 60 px apart (round 21); a chevron with a white edge
+            paint?.let { pt ->
+                val a = pt.arrows
+                if (a.isNotEmpty() && reveal.value >= 1f) {
+                    val every = RunArrows.step(u, density)
+                    val sc = density * u * 1.15f // the site draws them 1.15 x the size of a px
+                    for (i in 0 until a.size / 3) {
+                        if (i % every != 0) continue
+                        n.save(); n.translate(a[i * 3], a[i * 3 + 1]); n.rotate(a[i * 3 + 2]); n.scale(sc, sc)
+                        p.arrow.reset(); p.arrow.moveTo(-3.5f, -3.2f); p.arrow.lineTo(2.5f, 0f); p.arrow.lineTo(-3.5f, 3.2f)
+                        n.drawPath(p.arrow, p.arrowEdge.apply { strokeWidth = 4.2f / 1.15f })
+                        n.drawPath(p.arrow, p.arrowInk.apply { strokeWidth = 2f / 1.15f })
+                        n.restore()
+                    }
                 }
             }
             // the lifts: casing, the line (a gondola thicker; one out of use dashed 2 3; a closed one grey, dashed 4 4), stations
