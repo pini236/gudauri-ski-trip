@@ -63,6 +63,9 @@ class OverviewArt(val runs: Runs, terrain: Terrain) {
         fun centerY() = (top + bottom) / 2
     }
 
+    /** A resort whose data carries name windows (round 21): its names are written beside the line, or not at all (the site's HASLBL). */
+    val hasLabels = runs.pistes.any { it.label.isNotEmpty() }
+
     val pistes: List<RunArt> = runs.pistes.map { p ->
         // the name halfway along its longest line, at a point of the line (the site's middle point)
         RunArt(p, if (!p.named) null else p.lines.maxByOrNull { it.size }?.let { l -> val m = l.size / 2 / 2; floatArrayOf(l[m * 2], l[m * 2 + 1]) })
@@ -178,6 +181,10 @@ private class OverviewPaints(c: SkiColors, val d: Float, body: Typeface?) {
     val peakMk = fill(c.peak)
     val text = Paint(Paint.ANTI_ALIAS_FLAG).apply { typeface = Typeface.create(body, Typeface.BOLD); textAlign = Paint.Align.CENTER }
     val halo = Paint(text).apply { style = Paint.Style.STROKE; strokeJoin = Paint.Join.ROUND; color = c.casing.toArgb() }
+    // the names along a line start at an offset, so they are written from the left
+    val ptext = Paint(text).apply { textAlign = Paint.Align.LEFT }
+    val phalo = Paint(halo).apply { textAlign = Paint.Align.LEFT }
+    val pathScreen = Path()
     val colors = c
     // the relief (meet/MeetMap.kt's), its widths set each frame
     fun relief(color: Color, a: Float) = stroke(color.copy(alpha = color.alpha * a))
@@ -198,7 +205,8 @@ private class OverviewPaints(c: SkiColors, val d: Float, body: Typeface?) {
 }
 
 /** A name on the map: where (metres), what, its size and colour, and what a tap on it does (the Kobi signpost). */
-private class Lbl(val x: Float, val y: Float, val text: String, val size: Float, val color: Int, val dy: Float, val run: Piste? = null, val kobi: Boolean = false)
+private class Lbl(val x: Float, val y: Float, val text: String, val size: Float, val color: Int, val dy: Float, val run: Piste? = null, val kobi: Boolean = false,
+                 val windows: List<DoubleArray>? = null, val segs: List<FloatArray?> = emptyList())
 
 /**
  * The map from above. [view] is its window (the meeting point's, in metres); [paint] the chosen run's; [marker] the
@@ -225,7 +233,21 @@ fun Overview(
         buildList {
             art.pass?.let { add(Lbl(it[0], it[1], words.kobi, 13f, colors.glacier.toArgb(), -6f, kobi = true)) }
             for (pk in art.peaks) add(Lbl(pk.x, pk.y, words.peak(pk.name, pk.ele), 12f, colors.peak.toArgb(), -11f))
-            for (r in art.pistes) r.label?.let { add(Lbl(it[0], it[1], words.run(r.p), 13f, colors.run(r.p.color).toArgb(), -6f, run = r.p)) }
+            if (!art.hasLabels) for (r in art.pistes) r.label?.let { add(Lbl(it[0], it[1], words.run(r.p), 13f, colors.run(r.p.color).toArgb(), -6f, run = r.p)) }
+            else {
+                // round 21: the name beside the line, where a window has room; a stretch two runs share gets one name for both
+                val byKey = art.pistes.associateBy { it.p.key }
+                for (r in art.pistes) {
+                    val q = r.p
+                    if (!q.named) continue
+                    if (q.label.isNotEmpty()) add(Lbl(0f, 0f, words.run(q), 10f, colors.run(q.color).toArgb(), 0f, run = q, windows = q.label, segs = q.segLines))
+                    for ((other, ws) in q.shared.groupBy { it.other }) {
+                        val o = byKey[other]?.p
+                        add(Lbl(0f, 0f, if (o != null) LabelFit.sharedName(words.run(q), words.run(o)) else words.run(q), 10f, colors.run(q.color).toArgb(), 0f, run = q,
+                            windows = ws.map { it.w }, segs = q.segLines))
+                    }
+                }
+            }
             for (l in art.lifts) l.label?.let { add(Lbl(it[0], it[1], "⇡ " + l.l.name, 11.5f, colors.lift.toArgb(), -6f)) }
             relief?.places?.filter { it.first == "Gudauri" || it.first == "Kobi" }?.forEach { (n, x, y) ->
                 add(Lbl(x, y, if (n == "Gudauri") words.gudauri else n, 13f, colors.muted.toArgb(), -6f))
@@ -347,6 +369,24 @@ fun Overview(
             for (l in order) {
                 if (l.run != null && l.run.key in hidden) continue
                 if (hideLifts && l.text.startsWith("⇡")) continue
+                if (l.windows != null) { // a name beside its line (round 21): the first window with room, never over another name
+                    p.ptext.textSize = l.size * density
+                    val em = p.ptext.measureText(l.text)
+                    val f = LabelFit.fit(l.windows, l.segs, em * u * 1.08f, l.size * density * u, 6f * density * u) ?: continue
+                    val sp = p.pathScreen.apply { reset() }
+                    for (i in 0 until f.pts.size / 2) { val x = view.sx(f.pts[i * 2]); val y = view.sy(f.pts[i * 2 + 1]); if (i == 0) sp.moveTo(x, y) else sp.lineTo(x, y) }
+                    val r = RectF(); sp.computeBounds(r, true)
+                    r.inset(-(pad + l.size * density), -(pad + l.size * density))
+                    if (r.right < -50 || r.bottom < -50 || r.left > size.width + 50 || r.top > size.height + 50) continue
+                    if (list.any { RectF.intersects(it.second, r) }) continue
+                    list += l to r
+                    val dim = sel != null && l.run != null && l.run.key != sel
+                    val off = (android.graphics.PathMeasure(sp, false).length - em) / 2f
+                    p.phalo.textSize = l.size * density; p.phalo.strokeWidth = 3f * density; p.phalo.alpha = if (dim) 72 else 255
+                    p.ptext.color = l.color; p.ptext.alpha = if (dim) 72 else 255
+                    n.drawTextOnPath(l.text, sp, off, 0f, p.phalo); n.drawTextOnPath(l.text, sp, off, 0f, p.ptext)
+                    continue
+                }
                 val sx = view.sx(l.x); val sy = view.sy(l.y) + l.dy * density
                 if (sx < -200 || sy < -50 || sx > size.width + 200 || sy > size.height + 50) continue
                 p.text.textSize = l.size * density; val wpx = p.text.measureText(l.text)
