@@ -4,6 +4,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -33,6 +34,7 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -120,7 +122,7 @@ private fun DayBody(l: Loaded, runs: Runs?) {
         }
         if (l.day.chapters.isEmpty()) Text(stringResource(R.string.app_day_empty), style = Ski.type.body, color = c.muted)
         else {
-            l.story?.let { StoryCard(it, s) }
+            l.story?.let { StoryCard(it, s) { k -> titleOf(runs, k) } }
             DayMap(l.track, runs, s.maxLat, s.maxLon)
             Text(stringResource(R.string.app_day_note), style = Ski.type.small, color = c.muted)
             for (ch in l.day.chapters) Chapter(ch, runs, zone)
@@ -130,10 +132,10 @@ private fun DayBody(l: Loaded, runs: Runs?) {
 }
 
 @Composable
-private fun Sum(value: String, label: String, modifier: Modifier) {
+private fun Sum(value: String, label: String, modifier: Modifier, size: androidx.compose.ui.unit.TextUnit = 40.sp) {
     val c = Ski.colors
     Column(modifier, horizontalAlignment = Alignment.CenterHorizontally) {
-        Text(value, style = Ski.type.title.copy(fontSize = 40.sp), color = c.ink, maxLines = 1)
+        Text(value, style = Ski.type.title.copy(fontSize = size), color = c.ink, maxLines = 1)
         Text(label, style = Ski.type.small.copy(fontSize = 11.5.sp), color = c.muted, textAlign = TextAlign.Center)
     }
 }
@@ -192,7 +194,7 @@ private fun Chapter(ch: DayModel.Chapter, runs: Runs?, zone: ZoneId) {
     for (it in ch.items) {
         val at = hhmm.format(Instant.ofEpochMilli(it.t0).atZone(zone))
         when (it) {
-            is DayModel.Descent -> DescentCard(it, at, runs)
+            is DayModel.Descent -> DescentCard(it, at, runs, zone)
             is DayModel.Queue -> Line(stringResource(R.string.app_day_queue, it.minutes) + (it.lift?.let { l -> " · $l" } ?: ""), at, Color(0xFFFCEBD0))
             is DayModel.Rest -> Line(stringResource(if (it.long) R.string.app_day_lunch else R.string.app_day_rest, it.minutes), at, Color(0xFFFCEBD0))
             is DayModel.Walk -> Line(stringResource(R.string.app_day_walk, Math.round(it.distM)), at, null)
@@ -210,24 +212,44 @@ private fun Line(text: String, at: String, bg: Color?) {
 }
 
 @Composable
-private fun DescentCard(d: DayModel.Descent, at: String, runs: Runs?) {
+private fun DescentCard(d: DayModel.Descent, at: String, runs: Runs?, zone: ZoneId) {
     val c = Ski.colors
-    val shown = d.runs.map { shortRuns(it) }
-    val color = d.runs.firstOrNull()?.substringBefore(" · ")?.let { n -> runs?.pistes?.firstOrNull { it.name == n }?.color }
+    var open by remember(d.t0) { mutableStateOf(false) }
+    // the analysis speaks in keys of runs; the skier reads their names (PARITY 17)
+    val shown = d.runs.map { shortRuns(it.split(" · ").joinToString(" · ") { k -> titleOf(runs, k) }) }
+    val color = d.runs.firstOrNull()?.substringBefore(" · ")?.let { k -> runs?.pistes?.firstOrNull { it.key == k }?.color }
         ?.let { col -> when (col) { "green" -> c.green; "red" -> c.red; "black" -> c.black; else -> c.blue } } ?: c.muted
-    Row(Modifier.fillMaxWidth().background(color.copy(alpha = .10f)).heightIn(min = 64.dp).padding(horizontal = 12.dp, vertical = 8.dp),
-        verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-        Box(Modifier.background(Color(SpeedScale.argb(d.maxKmh))).padding(horizontal = 8.dp, vertical = 6.dp)) {
-            Text(LiveNumbers.maxKmh(d.maxKmh) + " " + stringResource(R.string.app_rec_unit), style = Ski.type.bodyBold.copy(fontSize = 15.sp), color = if ((d.maxKmh ?: 0.0) >= 25) Color.White else Color(0xFF13233A))
+    Column(Modifier.fillMaxWidth().background(color.copy(alpha = .10f)).clickable(role = Role.Button) { open = !open }) {
+        Row(Modifier.fillMaxWidth().heightIn(min = 64.dp).padding(horizontal = 12.dp, vertical = 8.dp),
+            verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            Box(Modifier.background(Color(SpeedScale.argb(d.maxKmh))).padding(horizontal = 8.dp, vertical = 6.dp)) {
+                Text(LiveNumbers.maxKmh(d.maxKmh) + " " + stringResource(R.string.app_rec_unit), style = Ski.type.bodyBold.copy(fontSize = 15.sp), color = if ((d.maxKmh ?: 0.0) >= 25) Color.White else Color(0xFF13233A))
+            }
+            Column(Modifier.weight(1f)) {
+                if (shown.isEmpty()) Text(stringResource(R.string.app_day_off), style = Ski.type.bodyBold, color = c.ink)
+                else for (n in shown) Text(n, style = Ski.type.title.copy(fontSize = 22.sp), color = c.ink)
+                if (shown.isNotEmpty() && d.offRuns) Text(stringResource(R.string.app_day_off), style = Ski.type.small, color = c.muted)
+            }
+            Text(at, style = Ski.type.small, color = c.muted)
         }
-        Column(Modifier.weight(1f)) {
-            if (shown.isEmpty()) Text(stringResource(R.string.app_day_off), style = Ski.type.bodyBold, color = c.ink)
-            else for (n in shown) Text(n, style = Ski.type.title.copy(fontSize = 22.sp), color = c.ink)
-            if (shown.isNotEmpty() && d.offRuns) Text(stringResource(R.string.app_day_off), style = Ski.type.small, color = c.muted)
+        if (open) {
+            // the card of the descent: the four numbers and when the top speed was (round 29; a number is a fact, not a goal)
+            Row(Modifier.fillMaxWidth().padding(horizontal = 12.dp).padding(bottom = 4.dp)) {
+                Sum(LiveNumbers.maxKmh(d.avgKmh), stringResource(R.string.app_day_avg), Modifier.weight(1f), 28.sp)
+                Sum(Math.round(d.movingS / 60.0).toString(), stringResource(R.string.app_day_time), Modifier.weight(1f), 28.sp)
+                Sum(String.format(Locale.ROOT, "%.1f", d.distM / 1000.0), stringResource(R.string.app_rec_dist), Modifier.weight(1f), 28.sp)
+                Sum(Math.round(d.dropM).toString(), stringResource(R.string.app_rec_drop), Modifier.weight(1f), 28.sp)
+            }
+            d.maxAt?.let { m ->
+                Text(stringResource(R.string.app_day_top_at, DateTimeFormatter.ofPattern("HH:mm", Locale.ROOT).format(Instant.ofEpochMilli(m).atZone(zone))),
+                    Modifier.padding(horizontal = 12.dp).padding(bottom = 10.dp), style = Ski.type.small, color = c.muted)
+            }
         }
-        Text(at, style = Ski.type.small, color = c.muted)
     }
 }
+
+/** The name of a run by its key (the key when the run is not in the data). */
+internal fun titleOf(runs: Runs?, key: String): String = runs?.pistes?.firstOrNull { it.key == key }?.title ?: key
 
 /** "Tatra 1 · Tatra 2" as the map says it: "Tatra 1 · 2". */
 internal fun shortRuns(names: String): String {

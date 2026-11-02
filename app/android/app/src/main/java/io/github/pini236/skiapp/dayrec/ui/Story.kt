@@ -48,7 +48,7 @@ private val KINDS = setOf("fastest", "longest_descent", "first_color", "new_runs
  * the skier's own days, and one idea for tomorrow. Words from the language file; no position, no name of anyone else.
  */
 @Composable
-fun StoryCard(d: StoryData, s: DayModel.Summary) {
+fun StoryCard(d: StoryData, s: DayModel.Summary, name: (String) -> String = { it }) {
     val c = Ski.colors
     val ctx = LocalContext.current
     val locale = ctx.resources.configuration.locales[0]
@@ -62,7 +62,7 @@ fun StoryCard(d: StoryData, s: DayModel.Summary) {
         title?.let { Text(it, style = Ski.type.title.copy(fontSize = 32.sp), color = c.ink) }
         lines.forEach { Text(it, style = Ski.type.small.copy(fontSize = 13.sp), color = c.muted) }
         for (it in cards) {
-            val plan = MomentText.plan(it, zone, locale) ?: continue
+            val plan = MomentText.plan(it, zone, locale, name = name) ?: continue
             val seed = it.optLong("seed")
             val (t, ls) = words.render(plan, seed)
             if (t == null && ls.isEmpty()) continue

@@ -109,7 +109,7 @@ object MomentText {
     /** "2.9" and "3" (a whole number has no ".0"), as the copy README says for {times}. */
     internal fun times(v: Double, locale: Locale): String = if (v == Math.rint(v)) v.toInt().toString() else dec(v, locale)
 
-    private fun runs(p: JSONObject): List<String> = p.optJSONArray("runs")?.let { a -> (0 until a.length()).map { a.getString(it) } } ?: emptyList()
+    private fun keys(p: JSONObject): List<String> = p.optJSONArray("runs")?.let { a -> (0 until a.length()).map { a.getString(it) } } ?: emptyList()
 
     /** The value of a record or a day sum in the unit its line says: kilometres for a distance, a whole number otherwise. */
     private fun unit(what: String, v: Double, locale: Locale): String = when (what) {
@@ -118,10 +118,12 @@ object MomentText {
     }
 
     /** The key of an item's story card: title and lines, from the engine's key and parameters. Null for a key with no words. */
-    fun plan(item: JSONObject, zone: ZoneId, locale: Locale, nextIsTomorrowNext: Boolean = false): Plan? {
+    fun plan(item: JSONObject, zone: ZoneId, locale: Locale, nextIsTomorrowNext: Boolean = false, name: (String) -> String = { it }): Plan? {
         val key = item.getString("key")
         val p = item.getJSONObject("p")
         val t = item.optLong("t")
+        // the engine speaks in keys of runs (a stable id); the skier reads names (PARITY 17)
+        fun runs(q: JSONObject) = keys(q).map(name)
         fun part(k: String, args: Map<String, Any> = emptyMap(), qty: Int? = null) = Part("moment.$k", args, qty)
         return when (key) {
             "fastest" -> {
@@ -145,7 +147,7 @@ object MomentText {
             }
             "first_color" -> {
                 val color = p.getString("color"); val first = p.optBoolean("first_ever", false)
-                val run = p.optString("run"); val time = zonedTime(t, zone)
+                val run = name(p.optString("run")); val time = zonedTime(t, zone)
                 if (first) Plan(part("first_color.$color.first.title"), listOf(part("first_color.$color.first.line", mapOf("run" to run, "time" to time, "day_n" to p.optInt("day_n", 1)))))
                 else {
                     val n = p.optInt("n", 1)
@@ -189,15 +191,15 @@ object MomentText {
             }
             "favorite" -> {
                 val n = p.optInt("n", 1)
-                Plan(part("favorite.title"), listOf(part("favorite.line", mapOf("run" to p.optString("run"), "n" to n), n)))
+                Plan(part("favorite.title"), listOf(part("favorite.line", mapOf("run" to name(p.optString("run")), "n" to n), n)))
             }
             "time_split" -> Plan(part("time_split.title"), listOf(part("time_split.line", mapOf("ski" to int(p, "ski"), "lift_min" to int(p, "lift_min"), "queue" to int(p, "queue")))))
-            "steepest" -> Plan(part("steepest.title"), listOf(part("steepest.${if (p.optBoolean("ever", false)) "ever" else "today"}.line", mapOf("run" to p.optString("run"), "deg" to int(p, "deg")))))
+            "steepest" -> Plan(part("steepest.title"), listOf(part("steepest.${if (p.optBoolean("ever", false)) "ever" else "today"}.line", mapOf("run" to name(p.optString("run")), "deg" to int(p, "deg")))))
             "tomorrow" -> {
                 val kind = p.optString("kind")
                 val title = part(if (nextIsTomorrowNext) "tomorrow.next.title" else "tomorrow.tomorrow.title")
                 val line = when (kind) {
-                    "new_run" -> part("tomorrow.new_run.line", mapOf("run" to p.optString("run"), "lift" to p.optString("lift")))
+                    "new_run" -> part("tomorrow.new_run.line", mapOf("run" to name(p.optString("run")), "lift" to p.optString("lift")))
                     "early_lift" -> part("tomorrow.early_lift.line", mapOf("lift" to p.optString("lift"), "split" to "%02d:00".format(p.optInt("split"))))
                     "finish_color" -> {
                         val rs = runs(p); val n = p.optInt("n", rs.size)
@@ -211,9 +213,9 @@ object MomentText {
                 val days = p.optInt("days", 1)
                 val lines = ArrayList<Part>()
                 lines += part("trip.line", mapOf("drop" to p.optInt("drop"), "done" to p.optInt("done"), "days" to days), days)
-                if (p.has("run") && !p.isNull("run")) lines += part("trip.favorite", mapOf("run" to p.optString("run"), "n" to p.optInt("n"), "days" to days))
+                if (p.has("run") && !p.isNull("run")) lines += part("trip.favorite", mapOf("run" to name(p.optString("run")), "n" to p.optInt("n"), "days" to days))
                 p.optJSONObject("first")?.let { f ->
-                    for (c in listOf("red", "black")) f.optJSONObject(c)?.let { lines += part("trip.first.$c", mapOf("run" to it.optString("run"), "day_n" to it.optInt("day_n"))) }
+                    for (c in listOf("red", "black")) f.optJSONObject(c)?.let { lines += part("trip.first.$c", mapOf("run" to name(it.optString("run")), "day_n" to it.optInt("day_n"))) }
                 }
                 Plan(part("trip.title"), lines)
             }
