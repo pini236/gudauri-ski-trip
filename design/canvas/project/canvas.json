@@ -1710,7 +1710,7 @@
     },
     "R21-Audit-app.dc.html": {
       "x": 2628,
-      "y": 1312,
+      "y": 2624,
       "w": 848,
       "h": 1091,
       "page": "round21",
@@ -1718,7 +1718,7 @@
     },
     "R21-Audit-site.dc.html": {
       "x": 680,
-      "y": 1312,
+      "y": 2624,
       "w": 1868,
       "h": 787,
       "page": "round21",
@@ -1726,7 +1726,7 @@
     },
     "R21-BA-desk.dc.html": {
       "x": 2444,
-      "y": 2823,
+      "y": 4135,
       "w": 1828,
       "h": 892,
       "page": "round21",
@@ -1734,7 +1734,7 @@
     },
     "R21-BA-ends.dc.html": {
       "x": 4352,
-      "y": 2823,
+      "y": 4135,
       "w": 848,
       "h": 749,
       "page": "round21",
@@ -1742,7 +1742,7 @@
     },
     "R21-BA-names.dc.html": {
       "x": 680,
-      "y": 2823,
+      "y": 4135,
       "w": 1684,
       "h": 749,
       "page": "round21",
@@ -1750,7 +1750,7 @@
     },
     "R21-BA-sel.dc.html": {
       "x": 6626,
-      "y": 2823,
+      "y": 4135,
       "w": 1684,
       "h": 749,
       "page": "round21",
@@ -1758,7 +1758,7 @@
     },
     "R21-BA-shared.dc.html": {
       "x": 5280,
-      "y": 2823,
+      "y": 4135,
       "w": 1266,
       "h": 749,
       "page": "round21",
@@ -1766,7 +1766,7 @@
     },
     "R21-Findings.dc.html": {
       "x": 680,
-      "y": 4135,
+      "y": 5447,
       "w": 640,
       "h": 980,
       "page": "round21",
@@ -3181,7 +3181,7 @@
     },
     "R21-V2-three.dc.html": {
       "x": 680,
-      "y": 0,
+      "y": 1312,
       "w": 2520,
       "h": 749,
       "page": "round21",
@@ -3189,7 +3189,7 @@
     },
     "R21-V2-curve.dc.html": {
       "x": 3280,
-      "y": 0,
+      "y": 1312,
       "w": 1338,
       "h": 892,
       "page": "round21",
@@ -3258,6 +3258,22 @@
       "h": 1056,
       "page": "round34",
       "title": "ד. בדיקה: שלב 5, רוח 5, היריב בקצה"
+    },
+    "R21-E2-ends.dc.html": {
+      "x": 680,
+      "y": 0,
+      "w": 1684,
+      "h": 749,
+      "page": "round21",
+      "title": "קצה פתוח, גרסה 2: בלי סימן שאלה"
+    },
+    "R21-E2-desk.dc.html": {
+      "x": 2444,
+      "y": 0,
+      "w": 920,
+      "h": 892,
+      "page": "round21",
+      "title": "קצה פתוח, דעיכה, במחשב"
     }
   },
   "createdOnFiles": {
@@ -3267,7 +3283,7 @@
   "designSystems": [],
   "launch": {
     "view": "canvas",
-    "page": "round34"
+    "page": "round21"
   },
   "notes": {
     "featRow1": {
@@ -4305,42 +4321,6 @@
       "x": 680,
       "y": 4206
     },
-    "round21row0": {
-      "kind": "title1",
-      "maxW": 3938,
-      "page": "round21",
-      "text": "גרסה 2: שמות קטנים",
-      "w": 240,
-      "x": 680,
-      "y": -300
-    },
-    "round21row1": {
-      "kind": "title1",
-      "maxW": 2796,
-      "page": "round21",
-      "text": "היום: הביקורת",
-      "w": 240,
-      "x": 680,
-      "y": 1012
-    },
-    "round21row2": {
-      "kind": "title1",
-      "maxW": 7630,
-      "page": "round21",
-      "text": "גרסה 1: לפני ואחרי",
-      "w": 240,
-      "x": 680,
-      "y": 2523
-    },
-    "round21row3": {
-      "kind": "title1",
-      "maxW": 860,
-      "page": "round21",
-      "text": "הממצאים",
-      "w": 240,
-      "x": 680,
-      "y": 3835
-    },
     "round29row0": {
       "kind": "title1",
       "maxW": 4344,
@@ -4547,6 +4527,51 @@
       "w": 240,
       "x": 680,
       "y": 1176
+    },
+    "round21row0": {
+      "kind": "title1",
+      "maxW": 2684,
+      "page": "round21",
+      "text": "קצה פתוח, גרסה 2",
+      "w": 240,
+      "x": 680,
+      "y": -300
+    },
+    "round21row1": {
+      "kind": "title1",
+      "maxW": 3938,
+      "page": "round21",
+      "text": "גרסה 2: שמות קטנים",
+      "w": 240,
+      "x": 680,
+      "y": 1012
+    },
+    "round21row2": {
+      "kind": "title1",
+      "maxW": 2796,
+      "page": "round21",
+      "text": "היום: הביקורת",
+      "w": 240,
+      "x": 680,
+      "y": 2324
+    },
+    "round21row3": {
+      "kind": "title1",
+      "maxW": 7630,
+      "page": "round21",
+      "text": "גרסה 1: לפני ואחרי",
+      "w": 240,
+      "x": 680,
+      "y": 3835
+    },
+    "round21row4": {
+      "kind": "title1",
+      "maxW": 860,
+      "page": "round21",
+      "text": "הממצאים",
+      "w": 240,
+      "x": 680,
+      "y": 5147
     }
   },
   "order": [
@@ -4955,7 +4980,9 @@
     "R34-Three.dc.html",
     "R34-Lens.dc.html",
     "R30-Poc.dc.html",
-    "R34-Edge.dc.html"
+    "R34-Edge.dc.html",
+    "R21-E2-ends.dc.html",
+    "R21-E2-desk.dc.html"
   ],
   "pages": [
     {
