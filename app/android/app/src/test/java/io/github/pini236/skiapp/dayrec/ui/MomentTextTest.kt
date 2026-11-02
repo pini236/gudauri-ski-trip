@@ -23,7 +23,9 @@ class MomentTextTest {
 
     private fun hebrewOrder(key: String): List<String> {
         val he = strings.getJSONObject(key).get("he")
-        val forms = if (he is JSONObject) he.keys().asSequence().map { he.getString(it) }.toList() else listOf(he as String)
+        // the forms in the file's order (zero, one, two, few, many, other): org.json keeps its keys in no order
+        val cldr = listOf("zero", "one", "two", "few", "many", "other")
+        val forms = if (he is JSONObject) cldr.filter { he.has(it) }.map { he.getString(it) } else listOf(he as String)
         val out = ArrayList<String>()
         for (f in forms) for (m in ph.findAll(f)) if (m.groupValues[1] !in out) out += m.groupValues[1]
         return out

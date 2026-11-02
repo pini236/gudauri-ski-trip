@@ -40,7 +40,7 @@ class LabelFitTest {
         // the data's left (of travel) is 60 clear, the right 5: reading west-to-east flips them, so the room is below
         val f = LabelFit.fit(listOf(doubleArrayOf(0.0, 0.0, 1000.0, 60.0, 5.0)), listOf(west), 100f, 10f, 6f)
         assertEquals('R', f!!.side)
-        assertTrue(f.pts.first() < f.pts.last())
+        assertTrue("the baseline runs from the west end to the east end", f.pts[0] < f.pts[f.pts.size - 2])
     }
 
     @Test fun theDatasWindowsReadAndPointAtRealSegments() {
