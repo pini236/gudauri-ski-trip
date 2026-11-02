@@ -1011,9 +1011,9 @@ html[lang="ka"] .pv-doc h1{font-size:36px;overflow-wrap:anywhere}
 /* weather by altitude (round 19, decision 58): a layer chip that reads like the filter chips but is off by default,
    pins in the meet callout's language, the same three places in a list, the run's conditions, and the home board.
    Wind risk is never green and red (those are piste colours here): ink, a word and a three-step meter */
-.wx-chip{display:flex;align-items:center;gap:7px;height:44px;padding:0 14px;border:1.5px solid var(--ink);background:var(--paper);color:var(--ink);font:inherit;font-size:14px;font-weight:600;white-space:nowrap;flex:none;cursor:pointer}
-.wx-chip[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
-.wx-chip svg{flex:none}
+.wx-chip,.pl-chip{display:flex;align-items:center;gap:7px;height:44px;padding:0 14px;border:1.5px solid var(--ink);background:var(--paper);color:var(--ink);font:inherit;font-size:14px;font-weight:600;white-space:nowrap;flex:none;cursor:pointer}
+.wx-chip[aria-pressed="true"],.pl-chip[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+.wx-chip svg,.pl-chip svg{flex:none}
 .wx-pins{position:absolute;inset:0;z-index:3;pointer-events:none}
 .wx-pin{position:absolute;display:flex;flex-direction:column;gap:2px;min-width:118px;padding:6px 9px 7px;background:var(--paper);border:1.5px solid var(--ink);box-shadow:0 4px 10px var(--shadow);color:var(--ink)}
 .wx-stem{position:absolute;width:1.5px;background:var(--ink)}
@@ -1269,3 +1269,25 @@ html[lang="ka"] .pv-doc h1{font-size:36px;overflow-wrap:anywhere}
 .b3d-card p{margin:4px 0 0}
 .b3d-card .b3d-note{color:var(--muted);font-size:12.5px}
 .b3d-card .b3d-x{position:absolute;inset-inline-end:0;top:0;width:44px;height:44px;border:0;background:none;color:var(--ink);font-size:22px;cursor:pointer}
+
+/* food and services near the stations (round 31): one colour per kind, dots on the map at all times, tags with the chip */
+:root{--pl-food:#E8702A;--pl-cafe:#8A5A33;--pl-aid:#1E9E4A;--pl-wc:#6A4FB5}
+.pl-dot{display:inline-block;flex:none;width:10px;height:10px;border-radius:50%;box-shadow:0 0 0 1.5px var(--paper)}
+.pl-food{background:var(--pl-food)}.pl-cafe{background:var(--pl-cafe)}.pl-aid{background:var(--pl-aid)}.pl-wc{background:var(--pl-wc)}
+.pl-pins{position:absolute;inset:0;z-index:2;pointer-events:none}
+.pl-st{position:absolute;display:flex;align-items:center;gap:3px;transform:translate(0,-50%)}
+.pl-st.tag{gap:5px;padding:3px 7px;background:var(--paper);border:1.5px solid var(--ink);box-shadow:0 3px 8px var(--shadow);font-size:12px;color:var(--ink)}
+.pl-st.tag .pl-dot{box-shadow:none}
+.pl-st.slope{transform:translate(-50%,-50%)}
+.pl-st.slope .pl-dot{width:12px;height:12px;background:var(--paper);border:2px dashed currentColor;box-shadow:none;box-sizing:border-box}
+.pl-st.slope .pl-cafe{color:var(--pl-cafe)}.pl-st.slope .pl-food{color:var(--pl-food)}
+.pl-st.slope bdi{margin-inline-start:5px;padding:2px 6px;background:var(--paper);border:1.5px solid var(--ink);font-size:12px;white-space:nowrap;color:var(--ink)}
+.pl-near{margin:14px 0 0}.pl-near h3{margin:0 0 6px}
+.pl-near ul{list-style:none;margin:0;padding:0}
+.pl-near li{display:flex;align-items:center;gap:8px;min-height:30px;font-size:14px}
+.pl-near small{color:var(--muted);font-size:12px}
+.pl-near details{margin-top:4px}
+.pl-near summary{display:flex;align-items:center;min-height:44px;cursor:pointer;font-weight:600;font-size:14px}
+.pl-none,.pl-check{margin:0;font-size:13px;color:var(--muted)}
+.pl-check{margin-top:6px}
+.mcard-places{margin:8px 4px 0;font-size:13px;color:var(--muted)}
