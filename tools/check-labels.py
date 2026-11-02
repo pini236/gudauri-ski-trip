@@ -13,6 +13,13 @@ if got != fx['expected']:
     print('fixture mismatch\n got      %s\n expected %s' % (json.dumps(got), json.dumps(fx['expected']))); bad += 1
 if got_shared != fx['expected_shared']:
     print('shared mismatch\n got      %s\n expected %s' % (json.dumps(got_shared), json.dumps(fx['expected_shared']))); bad += 1
+fo = json.load(open(ROOT / 'tools/fixtures/labels-open.json'))
+real = json.load(open(ROOT / 'site/data/runs-and-lifts.json'))
+got_open = {p['key']: p['open'] for p in real['pistes'] if 'open' in p}
+if got_open != fo['open']:
+    print('open-ends mismatch\n got      %s\n expected %s' % (json.dumps(got_open), json.dumps(fo['open']))); bad += 1
+problems = ns['check_open'](real, fo['open'])
+if problems: print('\n'.join(problems)); bad += 1
 r = subprocess.run([sys.executable, str(ROOT / 'tools/build-labels.py'), '--check'], capture_output=True, text=True)
 print(r.stdout.strip() or r.stderr.strip())
 bad += r.returncode != 0
