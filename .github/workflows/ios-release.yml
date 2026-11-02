@@ -12,8 +12,14 @@ name: iOS release
 on:
   push:
     branches: [main]
-    paths: ['app/ios/**', 'site/data/**', 'site/games/descent/**', 'site/games/thumbs/**', 'site/js/relief.js', 'site/css/site.css', 'tools/fixtures/**', 'tools/build-ios-data.py', 'tools/build-ios-strings.py', 'i18n/strings.json', '.github/workflows/ios-release.yml']
+    paths: ['app/ios/**', 'site/data/**', 'site/games/descent/**', 'site/games/thumbs/**', 'site/js/relief.js', 'site/css/site.css', 'tools/fixtures/**', 'tools/build-ios-data.py', 'tools/build-ios-strings.py', 'i18n/strings.json', '.github/workflows/ios-release.yml', 'tools/check-ios-variant.sh']
   workflow_dispatch:
+    inputs:
+      variant:
+        description: "standard = 1.0 (no background location). dayrec = 1.1 with surf-day recording; only on purpose, never from a push (ARCHITECTURE m-13)"
+        type: choice
+        options: [standard, dayrec]
+        default: standard
 
 # a build that is already uploading is never cancelled halfway; the newest waiting push goes next
 concurrency:
@@ -29,6 +35,8 @@ env:
   XCODEGEN_SHA256: a2e905fb68446e9bb4008cdfe2e13e3f176d0cbcca828b71770f8e53fca91b73
   BUNDLE_ID: io.github.pini236.skiapp
   TEAM_ID: ZX5CTJ88UA
+  # a push has no input, so it is always the standard 1.0 build
+  VARIANT: ${{ inputs.variant || 'standard' }}
 
 jobs:
   testflight:
@@ -76,7 +84,13 @@ jobs:
         run: |
           python3 tools/build-ios-data.py
           python3 tools/build-ios-strings.py app/ios/Gudi/Resources/Data/strings.json app/ios/Gudi/Generated/S.swift
-          cd app/ios && xcodegen generate
+          cd app/ios
+          if [ "$VARIANT" = dayrec ]; then
+            test -f project-dayrec.yml || { echo "::error::project-dayrec.yml is missing"; exit 1; }
+            xcodegen generate --spec project-dayrec.yml
+          else
+            xcodegen generate
+          fi
       - name: Temporary keychain, certificate and profile
         if: steps.gate.outputs.ready == 'true'
         env:
@@ -122,6 +136,9 @@ jobs:
           tail -40 "$RUNNER_TEMP/archive.log"
           grep -E "error:" "$RUNNER_TEMP/archive.log" | sort -u | head -60 || true
           test "$RC" -eq 0
+      - name: Gate, the compiled app's Info.plist matches the variant
+        if: steps.gate.outputs.ready == 'true'
+        run: sh tools/check-ios-variant.sh "$RUNNER_TEMP/Gudi.xcarchive/Products/Applications/Gudi.app/Info.plist" "$VARIANT"
       - name: Export and upload to TestFlight
         if: steps.gate.outputs.ready == 'true'
         env:
