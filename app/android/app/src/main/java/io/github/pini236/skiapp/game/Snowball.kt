@@ -36,11 +36,11 @@ class Rung(val arena: Int, val n: Int, val hp: Int, val windA: Float, val windB:
 val RUNGS = listOf(
     Rung(R.string.game_snowball_arena_hotel_yard, 1, 3, 0f, 1f, .9f, 1.8f, 2.4f, 1.6f, 2.6f, R.string.game_snowball_goal_win_untouched) { it.taken == 0 },
     Rung(R.string.game_snowball_arena_lift, 1, 3, -2f, 2f, .6f, 1.4f, 1.9f, 1.3f, 2.2f, R.string.game_snowball_goal_hat) { it.hats >= 1 },
-    Rung(R.string.game_snowball_arena_deep_snow, 2, 2, -2f, 2f, .55f, 1.3f, 1.8f, 1.6f, 2.8f, R.string.game_snowball_goal_accuracy) { it.thrown > 0 && it.hits.toFloat() / it.thrown >= .5f },
+    Rung(R.string.game_snowball_arena_deep_snow, 2, 2, -2f, 2f, .55f, 1.1f, 1.55f, 1.6f, 2.8f, R.string.game_snowball_goal_accuracy) { it.thrown > 0 && it.hits.toFloat() / it.thrown >= .5f },
     // the two top rungs aim a little wider than before (X-5, the site's fix): with the wind's lean below, the share of
     // throws that hit you rises with every rung (46, 70, 76, 78, 81%), and nobody is a perfect shot
-    Rung(R.string.game_snowball_arena_ridge, 2, 2, -4f, 4f, .5f, 1.1f, 1.6f, 1.3f, 2.4f, R.string.game_snowball_goal_two_hats) { it.hats >= 2 },
-    Rung(R.string.game_snowball_arena_summit, 3, 2, -5f, 5f, .45f, 1.0f, 1.4f, 1.5f, 2.8f, R.string.game_snowball_goal_win_untouched) { it.taken == 0 },
+    Rung(R.string.game_snowball_arena_ridge, 2, 2, -4f, 4f, .5f, 1.05f, 1.5f, 1.3f, 2.4f, R.string.game_snowball_goal_two_hats) { it.hats >= 2 },
+    Rung(R.string.game_snowball_arena_summit, 3, 2, -5f, 5f, .45f, .95f, 1.35f, 1.5f, 2.8f, R.string.game_snowball_goal_win_untouched) { it.taken == 0 },
 )
 
 /** Who stands behind the far wall on rung [i] when you wear coat [me] (the site's foesOf). */
@@ -90,7 +90,7 @@ class SnowballFight(val rungIndex: Int, val me: Int, private val out: Out, priva
     var w = 390f; var h = 844f; var dp = 1f
     /** Focal length and the horizon's height, from the screen (the site's resize). */
     var f = 600f; var y0 = 300f
-    fun place(width: Float, height: Float, density: Float) { w = width; h = height; dp = density; f = min(w * 1.75f, h * 1.15f); y0 = h * .42f }
+    fun place(width: Float, height: Float, density: Float) { w = width; h = height; dp = density; f = min(w * 1.75f, h * 1.15f) * ZOOM; y0 = h * .5f }
 
     var state = State.PLAY; private set
     var t = 0f; private set
@@ -111,7 +111,7 @@ class SnowballFight(val rungIndex: Int, val me: Int, private val out: Out, priva
     private var wonPop = -1f
 
     init {
-        val xs = when (rung.n) { 1 -> floatArrayOf(0f); 2 -> floatArrayOf(-1.5f, 1.5f); else -> floatArrayOf(-2f, 0f, 2f) }
+        val xs = when (rung.n) { 1 -> floatArrayOf(0f); 2 -> floatArrayOf(-1.5f, 1.5f); else -> floatArrayOf(-2f, 0f, 2f) }.map { it * XS }
         foes = foesOf(rungIndex, me).mapIndexed { i, c -> Foe(c, xs[i], xs[i], rung.hp, r(1.2f, 2.4f) + i * .9f) }
         wind = (r(rung.windA, rung.windB) * 2).roundToInt() / 2f
     }
@@ -122,7 +122,7 @@ class SnowballFight(val rungIndex: Int, val me: Int, private val out: Out, priva
 
     // ---------- aiming: a finger anywhere, the ring above it; letting go throws when you are up ----------
     /** The ring's point on the plane of the far characters, as seen when standing (the site's ringTarget). */
-    fun ringX(a: Aim) = (a.x - w / 2) / (f / ZO)
+    fun ringX(a: Aim) = (a.x - w / 2) / (f / ZO) + camX
     fun ringY(a: Aim) = 1.75f - ((a.y - OFF * dp) - y0) / (f / ZO)
     fun down(x: Float, y: Float) { if (state == State.PLAY) aim = Aim(x, y) }
     fun move(x: Float, y: Float) { aim?.let { it.x = x; it.y = y } }
@@ -150,7 +150,7 @@ class SnowballFight(val rungIndex: Int, val me: Int, private val out: Out, priva
             else { o.phase = AIM; o.timer = r(rung.upA, rung.upB) * .6f; o.want = 1f }
         } else if (o.phase == PEEK && o.timer <= 0) { o.phase = HIDE; o.want = 0f; o.timer = r(.5f, 1.1f) }
         else if (o.phase == AIM && o.timer <= 0) { if (state == State.PLAY) throwFoe(o) /* no new throws once it is over */; o.phase = AFTER; o.timer = r(rung.upA, rung.upB) * .4f; o.throwT = .25f }
-        else if (o.phase == AFTER && o.timer <= 0) { o.phase = HIDE; o.want = 0f; o.timer = r(rung.waitA, rung.waitB); if (rnd.nextFloat() < .5f) o.goal = o.home + r(-.8f, .8f) }
+        else if (o.phase == AFTER && o.timer <= 0) { o.phase = HIDE; o.want = 0f; o.timer = r(rung.waitA, rung.waitB); if (rnd.nextFloat() < .5f) o.goal = o.home + r(-.8f, .8f) * XS }
         if (o.phase == HIDE && !o.goal.isNaN()) o.x += (o.goal - o.x) * min(1f, dt * 2.5f)
         o.up += (o.want - o.up) * min(1f, dt * 9)
     }
@@ -159,7 +159,7 @@ class SnowballFight(val rungIndex: Int, val me: Int, private val out: Out, priva
         // at your head when standing, with an error that shrinks up the ladder; better players lean into the wind.
         // The wind moves a ball by wind*T*T/4 over the flight (vx += wind * .5 * dt), so k = 1 would cancel it exactly;
         // k < 1 leaves a little error (X-5: the lean was .5, twice the wind, and threw the ball off the other way)
-        val tx = r(-1f, 1f) * rung.err; val ty = 1.55f + r(-1f, 1f) * rung.err * .6f; val tz = .3f; val k = 1 - rung.err * .5f
+        val tx = camX + r(-1f, 1f) * rung.err; val ty = 1.55f + r(-1f, 1f) * rung.err * .6f; val tz = .3f; val k = 1 - rung.err * .5f
         balls += Ball(x0, yy, z0, (tx - x0) / tt - .25f * wind * k * tt, (ty - yy + .5f * G * tt * tt) / tt, (tz - z0) / tt, false)
         out.noise(.08, .1f, 2000.0, Noise.HIGH)
     }
@@ -171,7 +171,7 @@ class SnowballFight(val rungIndex: Int, val me: Int, private val out: Out, priva
         reload = max(0f, reload - dt)
         val want = if (aim != null && state == State.PLAY) 1.75f else .98f // ducked, you still see their heads over your wall
         camH += (want - camH) * min(1f, dt * 11)
-        camX += ((aim?.let { (it.x - w / 2) / w * .6f } ?: 0f) - camX) * min(1f, dt * 4) // lean a little toward the aim
+        camX += ((aim?.let { (it.x - w / 2) / w * 2f * LEAN } ?: 0f) - camX) * min(1f, dt * 4) // lean a little toward the aim
         for (o in foes) foeStep(o, dt)
         for (b in balls) {
             if (b.dead) continue
@@ -251,6 +251,9 @@ class SnowballFight(val rungIndex: Int, val me: Int, private val out: Out, priva
     internal fun knockOut() { for (o in foes) o.hp = 0; out.hp(); state = State.DONE; won = true; endT = 0f; wonPop = t + .7f }
 
     companion object {
+        // round 34 ("ד מתוקנת", the site's values): a longer lens, so the friends look 1.4 times bigger at the same distances
+        // and flight times; they stand 1.4 times closer together sideways, and the view leans with the finger up to LEAN metres
+        const val ZOOM = 1.4f; const val XS = 1f / ZOOM; const val LEAN = .75f
         const val G = 9.81f; const val ZW = 1.4f; const val ZF = 10f; const val ZO = 10.6f; const val WALL = 1f; const val FWALL = 1.05f
         const val HAND_Z = .5f; const val FLIGHT = .85f
         /** The ring sits this far above the finger (CSS pixels), so the finger never hides it. */

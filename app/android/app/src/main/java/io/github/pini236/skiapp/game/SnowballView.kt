@@ -59,7 +59,7 @@ class SnowballView(context: Context, private val still: Boolean) : View(context)
     // the screen's projection when there is no fight (the menu): as at the start of one
     private var f0 = 600f; private var y00 = 300f
     override fun onSizeChanged(w: Int, h: Int, ow: Int, oh: Int) {
-        f0 = min(w * 1.75f, h * 1.15f); y00 = h * .42f
+        f0 = min(w * 1.75f, h * 1.15f) * SnowballFight.ZOOM; y00 = h * .5f
         fight?.place(w.toFloat(), h.toFloat(), d)
         sky.shader = LinearGradient(0f, 0f, 0f, y00 + 80 * d, 0xFF4F8FCF.toInt(), 0xFFD6E6F4.toInt(), Shader.TileMode.CLAMP)
     }
