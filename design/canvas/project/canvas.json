@@ -3370,6 +3370,38 @@
       "h": 1500,
       "page": "round32",
       "title": "ה. ריכוז התנוחות לפיני: מה לבקש מהכלי"
+    },
+    "R35-0-Decide.dc.html": {
+      "x": 0,
+      "y": 0,
+      "w": 600,
+      "h": 560,
+      "page": "round35",
+      "title": "מה לאשר בסבב 35"
+    },
+    "R35-Float.dc.html": {
+      "x": 680,
+      "y": 0,
+      "w": 1852,
+      "h": 1164,
+      "page": "round35",
+      "title": "א. המגירה המרחפת של המפה: שלושה גבהים"
+    },
+    "R35-Lift.dc.html": {
+      "x": 2612,
+      "y": 0,
+      "w": 1392,
+      "h": 1164,
+      "page": "round35",
+      "title": "ב. אותו דבר בפאנל הרכבל"
+    },
+    "R35-Round.dc.html": {
+      "x": 680,
+      "y": 1584,
+      "w": 2772,
+      "h": 1164,
+      "page": "round35",
+      "title": "ג. גיליונות תחתונים רגילים: פינות עליונות 20 dp"
     }
   },
   "createdOnFiles": {
@@ -3379,7 +3411,7 @@
   "designSystems": [],
   "launch": {
     "view": "canvas",
-    "page": "round34"
+    "page": "round35"
   },
   "notes": {
     "featRow1": {
@@ -4686,6 +4718,24 @@
       "w": 240,
       "x": 680,
       "y": 1176
+    },
+    "round35row0": {
+      "kind": "title1",
+      "maxW": 3324,
+      "page": "round35",
+      "text": "א. מגירת המפה",
+      "w": 240,
+      "x": 680,
+      "y": -300
+    },
+    "round35row1": {
+      "kind": "title1",
+      "maxW": 2772,
+      "page": "round35",
+      "text": "ב. גיליונות רגילים",
+      "w": 240,
+      "x": 680,
+      "y": 1284
     }
   },
   "order": [
@@ -5108,9 +5158,17 @@
     "R32-Never.dc.html",
     "R32-Ask.dc.html",
     "R32-Anchors.dc.html",
-    "R32-PosesAsk.dc.html"
+    "R32-PosesAsk.dc.html",
+    "R35-0-Decide.dc.html",
+    "R35-Float.dc.html",
+    "R35-Lift.dc.html",
+    "R35-Round.dc.html"
   ],
   "pages": [
+    {
+      "id": "round35",
+      "name": "סבב 35: האנדרואיד קרוב יותר לאייפון"
+    },
     {
       "id": "round34",
       "name": "סבב 34: קרב כדורי שלג, לראות את החבר׳ה"

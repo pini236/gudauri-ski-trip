@@ -47,7 +47,7 @@ struct LicensesScreen: View {
                                     Text(l.license).font(ski.type.text(13)).foregroundStyle(c.muted)
                                 }
                                 Spacer()
-                                Image(systemName: "chevron.forward").font(.system(size: 15, weight: .semibold)).foregroundStyle(c.glacier)
+                                Image(systemName: "chevron.forward").font(.system(size: 15, weight: .semibold)).foregroundStyle(c.glacier).accessibilityHidden(true)
                             }
                             .padding(.vertical, 6).frame(minHeight: 56).contentShape(Rectangle())
                         }

@@ -276,7 +276,12 @@ private struct SnowballRungRow: View {
         }
         .buttonStyle(.plain)
         .disabled(!open)
-        .accessibilityAddTraits(on ? [.isSelected] : [])
+        // read as one: "2. <arena>", its stars or locked, and the wind (not the stars and boxes as signs)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("\(i + 1). \(SnowballText.word(r.arena))")
+        .accessibilityValue(open ? S.gameDescentStarsLabel(count: stars) : S.appA11yLocked)
+        .accessibilityHint(S.gameSnowballRungWind(n: "\(r.windMax)"))
+        .accessibilityAddTraits(on ? [.isButton, .isSelected] : [.isButton])
     }
 }
 
@@ -293,7 +298,7 @@ private struct SnowballEnd: View {
             // hits : taken, as on the site (numbers read left to right in every language)
             Text("\(r.hits) : \(r.taken)").font(ski.type.display(58)).foregroundStyle(Arcade.ink).environment(\.layoutDirection, .leftToRight)
             HStack(spacing: 4) { ForEach(0..<3, id: \.self) { k in Text("★").font(.system(size: 30)).foregroundStyle(r.goals[k] ? Arcade.accent : Arcade.rule) } }
-                .accessibilityElement().accessibilityLabel("\(r.stars) ★")
+                .accessibilityElement().accessibilityLabel(S.gameDescentStarsLabel(count: r.stars))
             HStack(spacing: 6) {
                 ArcadeStat(label: S.gameSnowballStatHits, value: "\(r.hits)")
                 ArcadeStat(label: S.gameSnowballStatHats, value: "\(r.hats)")

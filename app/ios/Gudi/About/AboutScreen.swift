@@ -88,7 +88,7 @@ struct AboutScreen: View {
                         HStack {
                             Text(S.appLicensesRow).font(ski.type.display(24)).foregroundStyle(c.ink)
                             Spacer()
-                            Image(systemName: "chevron.forward").font(.system(size: 15, weight: .semibold)).foregroundStyle(c.glacier)
+                            Image(systemName: "chevron.forward").font(.system(size: 15, weight: .semibold)).foregroundStyle(c.glacier).accessibilityHidden(true)
                         }
                         .frame(minHeight: 56).contentShape(Rectangle())
                     }
