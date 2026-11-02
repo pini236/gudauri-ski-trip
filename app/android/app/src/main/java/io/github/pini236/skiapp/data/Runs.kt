@@ -24,10 +24,15 @@ class Piste(
      * name, and [shared] the windows of a stretch it shares with another run (the other's key). All empty when the data has none.
      */
     val segLines: List<FloatArray?> = emptyList(), val label: List<DoubleArray> = emptyList(), val shared: List<SharedWin> = emptyList(),
+    /** Round 21: where the data of a partial run stops and goes on beyond what is mapped (the line fades there; see map/OpenEnds.kt). */
+    val open: List<OpenEnd> = emptyList(),
 ) {
     /** What the run is called on screen (the site's pname): `name`, and the key when there is none. The key is a stable id and may be a raw OSM id. */
     val title: String get() = name.ifBlank { key }
 }
+
+/** An open end of a partial run: [at] "start" or "end" by the direction of the descent, [conf] high, medium or low (docs/ARCHITECTURE.md). */
+class OpenEnd(val at: String, val conf: String)
 
 /** A name window of a stretch two runs share: `[s, t0, t1, cL, cR]` and the key of the other run (tools/build-labels.py). */
 class SharedWin(val w: DoubleArray, val other: String)
@@ -87,6 +92,12 @@ class Runs(val pistes: List<Piste>, val lifts: List<Lift>, val fetched: String =
             }
         }.getOrDefault(emptyList())
 
+        /** The `open` field, `[{at, conf, src}]`; one that does not read is none (a reader meets a new field without breaking). */
+        internal fun openEnds(a: JSONArray?): List<OpenEnd> = runCatching {
+            if (a == null) return@runCatching emptyList()
+            (0 until a.length()).mapNotNull { i -> a.getJSONObject(i).let { o -> val at = o.getString("at"); if (at == "start" || at == "end") OpenEnd(at, o.optString("conf", "low")) else null } }
+        }.getOrDefault(emptyList())
+
         private fun line(g: JSONArray): FloatArray {
             val out = FloatArray(g.length() * 2)
             for (i in 0 until g.length()) {
@@ -111,7 +122,8 @@ class Runs(val pistes: List<Piste>, val lifts: List<Lift>, val fetched: String =
                     p.strings("toLifts"), p.strings("fromPistes"), meanLat(all.map { it.getJSONArray("g") }), p.strings("fromLifts"),
                     p.optInt("len", 0), p.strings("refs"), p.strings("osmDiff"), p.strings("groom"), p.strings("lit"), p.strings("joins"),
                     all.map { it.optLong("id") }, all.any { it.optBoolean("area", false) }, research(p.optJSONObject("research")),
-                    segLines, windows(p.optJSONObject("label")).map { it.first }, windows(p.optJSONObject("shared")).mapNotNull { (w, o) -> o?.let { SharedWin(w, it) } })
+                    segLines, windows(p.optJSONObject("label")).map { it.first }, windows(p.optJSONObject("shared")).mapNotNull { (w, o) -> o?.let { SharedWin(w, it) } },
+                    openEnds(p.optJSONArray("open")))
             }
             val ls = o.getJSONArray("lifts")
             val lifts = (0 until ls.length()).map { i ->

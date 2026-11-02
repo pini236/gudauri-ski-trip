@@ -55,7 +55,7 @@ import kotlin.math.min
  */
 class OverviewArt(val runs: Runs, terrain: Terrain) {
     /** A run: its lines as paths (made at the first drawing), and where its name goes. */
-    class RunArt(val p: Piste, val label: FloatArray?) { val paths: List<Path> by lazy { p.lines.map { path(it) } } }
+    class RunArt(val p: Piste, val label: FloatArray?, val fades: List<OpenEnds.Fade> = emptyList()) { val paths: List<Path> by lazy { p.lines.map { path(it) } } }
     class LiftArt(val l: Lift, val ends: FloatArray, val label: FloatArray?, val len: Float) { val path: Path by lazy { path(l.pts) } }
     /** A box in metres (x east, y south). */
     class Area(val left: Float, var top: Float, val right: Float, val bottom: Float) {
@@ -68,7 +68,8 @@ class OverviewArt(val runs: Runs, terrain: Terrain) {
 
     val pistes: List<RunArt> = runs.pistes.map { p ->
         // the name halfway along its longest line, at a point of the line (the site's middle point)
-        RunArt(p, if (!p.named) null else p.lines.maxByOrNull { it.size }?.let { l -> val m = l.size / 2 / 2; floatArrayOf(l[m * 2], l[m * 2 + 1]) })
+        RunArt(p, if (!p.named) null else p.lines.maxByOrNull { it.size }?.let { l -> val m = l.size / 2 / 2; floatArrayOf(l[m * 2], l[m * 2 + 1]) },
+            OpenEnds.fades(p) { x, y -> terrain.elev(x, y) })
     }
     val lifts: List<LiftArt> = runs.lifts.map { l ->
         val n = l.pts.size / 2
@@ -185,6 +186,8 @@ private class OverviewPaints(c: SkiColors, val d: Float, body: Typeface?) {
     val ptext = Paint(text).apply { textAlign = Paint.Align.LEFT }
     val phalo = Paint(halo).apply { textAlign = Paint.Align.LEFT }
     val pathScreen = Path()
+    // keeps only what the gradient leaves: clear at the open end, whole from the end of the fade on
+    val fadeMask = Paint().apply { xfermode = android.graphics.PorterDuffXfermode(android.graphics.PorterDuff.Mode.DST_IN) }
     val colors = c
     // the relief (meet/MeetMap.kt's), its widths set each frame
     fun relief(color: Color, a: Float) = stroke(color.copy(alpha = color.alpha * a))
@@ -311,7 +314,19 @@ fun Overview(
                     color = if (shut) p.dash else (p.runs[q.color] ?: colors.black).toArgb(); this.alpha = (255 * alpha).toInt()
                     pathEffect = when { shut -> dShut; !q.named -> dUnnamed; q.kind == "ski-way" -> dWay; else -> null }
                 }
-                for (path in r.paths) { n.drawPath(path, cas); n.drawPath(path, col) }
+                for ((pi, path) in r.paths.withIndex()) {
+                    val fade = r.fades.firstOrNull { it.line == pi }
+                    if (fade == null) { n.drawPath(path, cas); n.drawPath(path, col); continue }
+                    // the open end (round 21): this line is drawn in a layer of its own and the layer fades out toward the open end
+                    path.computeBounds(p.rect, true)
+                    val grow = 8f * density * u
+                    p.rect.inset(-grow, -grow)
+                    val layer = n.saveLayer(p.rect, null)
+                    n.drawPath(path, cas); n.drawPath(path, col)
+                    p.fadeMask.shader = android.graphics.LinearGradient(fade.ax, fade.ay, fade.bx, fade.by, 0x00000000, -0x1000000, android.graphics.Shader.TileMode.CLAMP)
+                    n.drawRect(p.rect, p.fadeMask)
+                    n.restoreToCount(layer)
+                }
             }
             // the chosen run, from the top down in slope colours over a white casing
             paint?.let { pt ->
