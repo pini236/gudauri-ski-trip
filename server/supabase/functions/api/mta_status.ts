@@ -33,10 +33,10 @@ export const MTA_TO_OURS: Record<Zone, Record<string, string>> = {
     "Sadzele": "Sadzele",
   },
   kobi: {
-    // MTA "Kobi" is 2271 m and 6.3 min; our Kobi 2 is 2285 m and 6.3 min. MTA "Truso" is 2837 m and 8 min; our Kobi 1
-    // (which research/lifts.md records as Truso) is 2790 m. Medium confidence, from the numbers and the record.
-    "Kobi": "Kobi 2",
-    "Truso": "Kobi 1",
+    // Since the 1.11.2026 data fix our lift names equal the MTA names. MTA "Kobi" is 2271 m and 6.3 min; ours is
+    // 2285 m and 6.3 min. MTA "Truso" is 2837 m and 8 min; ours is 2790 m (research/lifts.md). Medium confidence.
+    "Kobi": "Kobi",
+    "Truso": "Truso",
     "Firni": "Firni",
   },
 };
