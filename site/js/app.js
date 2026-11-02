@@ -175,6 +175,8 @@ const terrainReady=terrainP.then(t=>{TM=t&&window.GudRelief?GudRelief.load(t):nu
 const pisteEls={},labels=[],stations=[];
 // number plates (round 23): a run whose name is a piste number, as at most Alpine resorts ("30", "7a")
 const isPlate=p=>/^\d{1,2}[a-z]?$/.test(p.key);
+const HASLBL=D.pistes.some(p=>p.label); // a resort whose data carries label windows (tools/build-labels.py)
+let lblN=0;
 const lineLen=L=>{let d=0;for(let i=1;i<L.length;i++)d+=Math.hypot(L[i][0]-L[i-1][0],L[i][1]-L[i-1][1]);return d;};
 const along=(L,step)=>{const o=[L[0]];let acc=0;for(let i=1;i<L.length;i++){const a=L[i-1],b=L[i],l=Math.hypot(b[0]-a[0],b[1]-a[1]);
   for(let d=step-acc;d<l;d+=step)o.push([a[0]+(b[0]-a[0])*d/l,a[1]+(b[1]-a[1])*d/l]);acc=(acc+l)%step;}return o;};
@@ -212,7 +214,7 @@ function draw(root,pistes,lifts,store){
       // a ski route as on the official map (round 24, 1b): a light orange band with dotted red edges; a private route to a hut, a thin dotted red line
       mk('path',{d,...vs,stroke:'var(--casing)','stroke-width':hut?4:route?8:p.named?6.5:4.5},gc);
       if(route&&!hut)mk('path',{d,...vs,stroke:'var(--p-route-edge)','stroke-width':6,'stroke-dasharray':'2 2.5','stroke-linecap':'butt'},g);
-      mk('path',{d,...vs,class:'core',stroke:hut?'var(--p-route-edge)':`var(--p-${ck(p)})`,'stroke-width':hut?1.8:route?3.6:p.named?(p.kind==='ski-way'?2.6:3.4):2,...(hut?{'stroke-dasharray':'4 3'}:route?{}:p.named?(p.kind==='ski-way'?{'stroke-dasharray':'8 5'}:{}):{'stroke-dasharray':'5 4'})},g);
+      mk('path',{d,...vs,class:'core',stroke:hut?'var(--p-route-edge)':`var(--p-${ck(p)})`,'stroke-width':hut?1.8:route?3.6:p.named?(p.kind==='ski-way'?2.6:3.4):HASLBL?1.6:2,...(hut?{'stroke-dasharray':'4 3'}:route?{}:p.named?(p.kind==='ski-way'?{'stroke-dasharray':'8 5'}:{}):HASLBL?{opacity:.6}:{'stroke-dasharray':'5 4'})},g);
       mk('path',{d,class:'hit','stroke-width':16,'vector-effect':'non-scaling-stroke','data-key':p.key,'stroke-linecap':'round'},gHit);
     });
     if(p.named&&isPlate(p)&&!hut){ // a number: a plate in the run's colour, placed by layoutLabels where no other run passes (round 23)
@@ -222,6 +224,13 @@ function draw(root,pistes,lifts,store){
         else mk('rect',{x:-w/2,y:-10,width:w,height:20,fill:`var(--p-${p.color})`,'stroke-width':1.6},t);
         const tx=mk('text',{x:0,y:1,'text-anchor':'middle','dominant-baseline':'central','font-size':route?15:17},t);tx.textContent=p.key;
         t._plate={w,h:route?32:20,own:p.key,cand:plateSpots(lin)};store.labels.push(t);pisteEls[p.key].push(t);}
+    }else if(p.named&&HASLBL){ // round 21: the name beside the line, curving with it, only where a window has room (never on another run)
+      if(p.label&&window.GudLabelFit){
+        const id='lp'+(++lblN),pa=mk('path',{id,fill:'none',stroke:'none'},gLbl);
+        const t=mk('text',{class:'lbl pg lblp '+ck(p),fill:route?'var(--p-route-edge)':`var(--p-${ck(p)})`,direction:'ltr','text-anchor':'middle','data-key':p.key},gLbl);
+        const tp=mk('textPath',{href:'#'+id,startOffset:'50%'},t);tp.textContent=dispName(p);
+        t._lb={a:p.label.a,segs:p.segs.map(s=>s.g.map(P)),path:pa};t._name=dispName(p);store.labels.push(t);pisteEls[p.key].push(t);
+      }
     }else if(p.named){
       const lin=p.segs.filter(s=>!s.area).sort((a,b)=>b.g.length-a.g.length)[0];
       if(lin){const q=P(lin.g[Math.floor(lin.g.length/2)]);
@@ -252,14 +261,20 @@ addRelief(svg,mainLbl,{labels,marks},true);
 if(has('kobi')){const[x,y]=P(PASS);const t=mk('text',{x,y,class:'lbl kobi-link','text-anchor':'middle','data-kobi':'1',role:'button',tabindex:'0','aria-label':T('map.kobi_side_aria')},mainLbl);t.textContent=T('map.kobi_side_label');labels.unshift(t);
   t.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();openInset();}});} // the keyboard reaches it too
 
+const TW=new Map();let twEl=null; // a name's width in em, measured once with the label font
+function textW(name){let w=TW.get(name);if(w)return w;
+  if(!twEl){twEl=mk('text',{class:'lbl','font-size':100,x:0,y:0,visibility:'hidden'},svg);}
+  twEl.textContent=name;w=twEl.getComputedTextLength()/100||name.length*.6;if(document.fonts&&document.fonts.status==='loaded')TW.set(name,w);return w;}
 function layoutLabels(labels,stations,u,mks,view){
-  labels.forEach(t=>{if(t._plate)return;const pk=t.classList.contains('peak');t.setAttribute('font-size',(t.classList.contains('lift')?11.5:pk?12:13)*u);t.setAttribute('stroke-width',3.2*u);t.setAttribute('dy',(pk?-11:-6)*u);});
+  labels.forEach(t=>{if(t._plate)return;if(t._lb){t.setAttribute('font-size',10*u);t.setAttribute('stroke-width',3*u);return;}const pk=t.classList.contains('peak');t.setAttribute('font-size',(t.classList.contains('lift')?11.5:pk?12:13)*u);t.setAttribute('stroke-width',3.2*u);t.setAttribute('dy',(pk?-11:-6)*u);});
   labels=[...labels].sort((a,b)=>b.classList.contains('on')-a.classList.contains('on'));
   (mks||[]).forEach(m=>{const x=m._x,y=m._y;m.setAttribute('d',m._pass?`M${x-6*u} ${y+2*u}Q${x} ${y-5*u} ${x+6*u} ${y+2*u}`:`M${x} ${y-8*u}L${x+5.5*u} ${y+1.5*u}L${x-5.5*u} ${y+1.5*u}Z`);m.setAttribute('stroke-width',(m._pass?2.2:1.2)*u);});
   stations.forEach(c=>c.setAttribute('r',3.2*u));
   const kept=[];const pad=2*u;
   labels.forEach(t=>{t.style.display='';
     if(t._plate){const r=placePlate(t,u,kept,view);if(r)kept.push(r);else t.style.display='none';return;}
+    if(t._lb){const em=textW(t._name),f=GudLabelFit.fit(t._lb.a,t._lb.segs,em*10*u*1.08,10*u,6*u);
+      if(!f){t.style.display='none';return;}t._lb.path.setAttribute('d',f.d);}
     const bb=t.getBBox();const r={a:bb.x-pad,b:bb.y-pad,c:bb.x+bb.width+pad,d:bb.y+bb.height+pad};
     if(kept.some(k=>r.a<k.c&&r.c>k.a&&r.b<k.d&&r.d>k.b)){t.style.display='none';}else kept.push(r);});
 }

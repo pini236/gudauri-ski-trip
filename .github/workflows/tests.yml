@@ -5,9 +5,9 @@ name: tests
 
 on:
   push:
-    paths: ['site/**', 'tests/**', 'package.json', 'package-lock.json', 'playwright.config.ts', 'docs/PRIVACY.md', 'i18n/**', 'tools/check-site-i18n.py', 'tools/build-privacy.py', 'tools/build-support.py', 'tools/build-sitemap.py', 'tools/build-site-places.py', 'research/places/places.lean.json', 'tools/build-site-strings.py', 'tools/build-games.py', 'design/games/**', 'design/round4/game/**', '.github/workflows/tests.yml']
+    paths: ['site/**', 'tests/**', 'package.json', 'package-lock.json', 'playwright.config.ts', 'docs/PRIVACY.md', 'i18n/**', 'tools/check-site-i18n.py', 'tools/build-privacy.py', 'tools/build-support.py', 'tools/build-sitemap.py', 'tools/build-site-places.py', 'tools/build-labels.py', 'tools/check-labels.py', 'tools/fixtures/labels-build.json', 'research/places/places.lean.json', 'tools/build-site-strings.py', 'tools/build-games.py', 'design/games/**', 'design/round4/game/**', '.github/workflows/tests.yml']
   pull_request:
-    paths: ['site/**', 'tests/**', 'package.json', 'package-lock.json', 'playwright.config.ts', 'docs/PRIVACY.md', 'i18n/**', 'tools/check-site-i18n.py', 'tools/build-privacy.py', 'tools/build-support.py', 'tools/build-sitemap.py', 'tools/build-site-places.py', 'research/places/places.lean.json', 'tools/build-site-strings.py', 'tools/build-games.py', 'design/games/**', 'design/round4/game/**', '.github/workflows/tests.yml']
+    paths: ['site/**', 'tests/**', 'package.json', 'package-lock.json', 'playwright.config.ts', 'docs/PRIVACY.md', 'i18n/**', 'tools/check-site-i18n.py', 'tools/build-privacy.py', 'tools/build-support.py', 'tools/build-sitemap.py', 'tools/build-site-places.py', 'tools/build-labels.py', 'tools/check-labels.py', 'tools/fixtures/labels-build.json', 'research/places/places.lean.json', 'tools/build-site-strings.py', 'tools/build-games.py', 'design/games/**', 'design/round4/game/**', '.github/workflows/tests.yml']
   workflow_dispatch:
     inputs:
       project:
@@ -61,6 +61,7 @@ jobs:
       - uses: actions/checkout@v4
       - run: python3 i18n/check.py
       - run: python3 tools/check-site-i18n.py
+      - run: python3 tools/check-labels.py
       - name: built files match their sources
         run: |
           python3 tools/build-site-strings.py
