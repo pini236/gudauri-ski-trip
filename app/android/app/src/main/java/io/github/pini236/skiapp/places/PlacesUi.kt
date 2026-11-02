@@ -93,18 +93,18 @@ private fun PlaceRow(n: Near) {
 private fun Block(places: Places, s: Station?, head: String) {
     val c = Ski.colors
     var all by remember { mutableStateOf(false) }
-    val it = s?.let { places.near(it) }.orEmpty()
+    val near = s?.let { places.near(it) }.orEmpty()
     Column(Modifier.fillMaxWidth().padding(top = 14.dp)) {
         Text(head, Modifier.padding(bottom = 6.dp), style = Ski.type.bodyBold, color = c.ink)
-        if (it.isEmpty()) {
+        if (near.isEmpty()) {
             Text(stringResource(R.string.places_none), style = Ski.type.small, color = c.muted)
             return
         }
-        for (n in it.take(3)) PlaceRow(n)
-        if (it.size > 3) {
-            Text(stringResource(R.string.places_all_n, it.size), Modifier.fillMaxWidth().heightIn(min = 44.dp).clickable(role = Role.Button) { all = !all }
+        for (n in near.take(3)) PlaceRow(n)
+        if (near.size > 3) {
+            Text(stringResource(R.string.places_all_n, near.size), Modifier.fillMaxWidth().heightIn(min = 44.dp).clickable(role = Role.Button) { all = !all }
                 .semantics { stateDescription = if (all) "✓" else "" }.padding(top = 12.dp), style = Ski.type.bodyBold.copy(fontSize = 14.sp), color = c.glacier)
-            if (all) for (n in it.drop(3)) PlaceRow(n)
+            if (all) for (n in near.drop(3)) PlaceRow(n)
         }
         Text(stringResource(R.string.places_check), Modifier.padding(top = 6.dp), style = Ski.type.small, color = c.muted)
     }
