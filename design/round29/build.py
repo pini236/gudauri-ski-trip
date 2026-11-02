@@ -22,6 +22,7 @@ EXT.update({'k-' + f.stem: ('../characters/shots/' + f.name, 0.5) for f in sorte
 EXT.update({'cc-' + f.stem: ('../characters/compare/shots/' + f.name, 0.5 if not f.stem.startswith(('lw', 'faces')) else 0.5) for f in sorted((here.parent / 'characters/compare/shots').glob('*.png'))})
 EXT.update({'cc-ref2': ('../characters/ref/pini-sheet-2-flat.jpg', 0.4), 'cc-ref1': ('../characters/ref/pini-sheet-1-painterly.jpg', 0.4)})
 EXT.update({'cl-frames': ('../characters/ref/loop-1/frames-sheet.jpg', 0.5), 'cl-white': ('../characters/ref/loop-1/on-white.jpg', 0.5), 'cl-dark': ('../characters/ref/loop-1/on-dark.jpg', 0.5)})
+EXT.update({f.stem: ('../round35/shots/' + f.name, 0.4) for f in sorted((here.parent / 'round35/shots').glob('m-*.png'))})
 EXT.update({f.stem: ('../round34/shots/' + f.name, 0.5) for f in sorted((here.parent / 'round34/shots').glob('s-*.png'))})
 EXT.update({f.stem: ('../round33/shots/' + f.name, 0.5 if 'desk' not in f.stem else 0.6) for f in sorted((here.parent / 'round33/shots').glob('y-*.png'))})
 EXT.update({'poc-' + f.stem: ('../round30/poc/' + f.name, 0.5 if f.stem.startswith('desktop') else 0.3) for f in sorted((here.parent / 'round30/poc').glob('*.jpg'))})
@@ -243,6 +244,23 @@ P34_DECIDE = [
     ('2. ההתכופפות', 'כשמתכופפים, החומה שלך מכסה את חצי המסך. זה המשחק (מסתתרים), ולכן נשאר.'),
     ('לילה', 'במשחק אין מצב לילה, ולכן אין לוח לילה.'),
 ]
+P35 = [
+    ('a', 'Float', 'א. המגירה המרחפת של המפה: שלושה גבהים', 'פיני רוצה שהאנדרואיד יהיה דומה יותר לאייפון, כולל מגירה מרחפת: כרטיס שצף מעל המפה, עם מרווח של 24 dp מהשוליים, פינות של 20 dp וצל. **הלוחות הם הדמיה על צילום האמולטור (אותו מסך אמיתי, אחרי עיבוד), לא מימוש:** המפה שמתחת לכרטיס מטושטשת כי הצילום לא כולל אותה. משיכה למעלה פותחת ולמטה סוגרת (כבר תוקן בקוד, בלי שינוי מראה). ההמלצה: שלושה גבהים, **קטן** (שלט, שלושת המספרים, הכפתורים), **חצי** (עם הפרטים) ו**מלא**, והמפה נשארת נראית ונגישה מעליו.',
+     [('היום: גיליון ברוחב מלא', ['m-run-before']), ('קטן', ['m-run-float-peek']), ('חצי', ['m-run-float-half']), ('מלא', ['m-run-float-full'])]),
+    ('a', 'Lift', 'ב. אותו דבר בפאנל הרכבל', 'הפאנל של רכבל הוא אותו רכיב, ולכן מקבל אותו מראה. מרווח של 24 dp, פינות של 20 dp וצל.',
+     [('היום', ['m-lift-before']), ('מרחף, מלא', ['m-lift-float-full']), ('עם פינות מעוגלות, ברוחב מלא (חלופה)', ['m-lift-round'])]),
+    ('b', 'Round', 'ג. גיליונות תחתונים רגילים: פינות עליונות 20 dp', 'שפה, לוח שנה, בחירת שדה תעופה והגשות הכניסה נשארים ברוחב מלא (הם מחליפים את המסך ולא צפים מעל תוכן שרוצים לראות), אבל עם פינות עליונות מעוגלות כמו באייפון. לוח שנה וחלונות: 16 dp.',
+     [('שפה, יום: היום', ['m-langday-before']), ('שפה, יום: מוצע', ['m-langday-round']), ('שפה, לילה: היום', ['m-langnight-before']), ('שפה, לילה: מוצע', ['m-langnight-round']), ('לוח שנה: היום', ['m-cal-before']), ('לוח שנה: מוצע', ['m-cal-round'])]),
+]
+P35_DECIDE = [
+    ('ההמלצה', '**מגירה מרחפת למפה בלבד** (פאנל מסלול ורכבל), בשלושה גבהים, כי שם רוצים לראות את המפה מעל; **גיליונות רגילים** ברוחב מלא עם פינות עליונות של 20 dp. שלט המסלול, כרטיס הטיסה, הספח, העמוד והשלג נשארים ישרים: זו הזהות של המוצר, והיא זהה באייפון.'),
+    ('מה מצוייר כאן', 'הדמיה על צילומי האמולטור האמיתיים, ביום ובלילה, בעברית ובאנגלית, לא מימוש. המפה מתחת לכרטיס המרחף מטושטשת כי הצילום לא כולל אותה.'),
+    ('1. מגירה מרחפת למפה', 'כן, בשלושה גבהים (ההמלצה), או גיליון ברוחב מלא כמו היום עם פינות מעוגלות.'),
+    ('2. גיליונות רגילים', 'פינות 20 dp ברוחב מלא (ההמלצה), או גם הם מרחפים.'),
+    ('3. שאר הרכיבים', 'כפתורי פעולה ושדות 12 dp, צ׳יפים 12 dp וכפתורי סמל עגולים, כמו בהצעה הכתובה ב-`design/round35/README.md` (ההמלצה: כן). שלטים וכרטיסים נשארים ישרים.'),
+    ('4. האתר', 'לא עכשיו (ההמלצה): הוא הבסיס של שפת השלטים.'),
+]
+ROWS35 = [('a', 'א. מגירת המפה'), ('b', 'ב. גיליונות רגילים')]
 ROWS34 = [('a', 'א. היום והחלופות'), ('b', 'ב. ההמלצה')]
 ROWS33 = [('a', 'א. בטלפון'), ('b', 'ב. שפות'), ('c', 'ג. במחשב')]
 ROWS30 = [('a', 'א. ההדמיה'), ('b', 'ב. ה-POC באתר')]
@@ -401,13 +419,14 @@ def build(dst):
     n31 = build_page(dst, 'round31', 'סבב 31: אוכל ומקומות בתחנות', 'R31', P31, ROWS31, P31_TEXT, P31_DECIDE, md(lead31), 820)
     n33 = build_page(dst, 'round33', 'סבב 33: דף התמיכה', 'R33', P33, ROWS33, P33_TEXT, P33_DECIDE, md('לבקשת סשן המנהל: אפל דורשת `Support URL` ל-App Store. הדף מצויר בתוך דף הפרטיות האמיתי (`design/round33/shots.mjs`). שום דבר לא שונה באתר.'), 760)
     n34 = build_page(dst, 'round34', 'סבב 34: קרב כדורי שלג, לראות את החבר׳ה', 'R34', P34, ROWS34, [], P34_DECIDE, md('**אושר: ד מתוקנת (פיני, 1.11.2026), ונמסר למימוש. הערכים ב-`design/round34/README.md`.** לבקשת סשן המנהל וסשן האייפון: פיני לא רואה את הדמויות. מצויר מהמשחק של האתר (`design/round34/shots.mjs`), ורק מספרי המסגור משתנים. שום דבר לא שונה בקוד.'), 760)
+    n35 = build_page(dst, 'round35', 'סבב 35: האנדרואיד קרוב יותר לאייפון', 'R35', P35, ROWS35, [], P35_DECIDE, md('לבקשת פיני דרך סשן המנהל. **הדמיות על צילומי האמולטור (`qa.zip` של `android-qa`), לא מימוש** (`design/round35/shots.mjs`). ההצעה הכתובה ב-`design/round35/README.md`. שום דבר לא שונה בקוד.'), 560)
     ip = dst / 'canvas.json'
     index = json.loads(ip.read_text(encoding='utf-8'))
-    ours = ['round34', 'round33', 'round32', 'round31', 'round30', 'round29']
+    ours = ['round35', 'round34', 'round33', 'round32', 'round31', 'round30', 'round29']
     index['pages'] = sorted([pg for pg in index['pages'] if pg['id'] in ours], key=lambda pg: ours.index(pg['id'])) + [pg for pg in index['pages'] if pg['id'] not in ours]
-    index['launch'] = {'view': 'canvas', 'page': 'round34'}
+    index['launch'] = {'view': 'canvas', 'page': 'round35'}
     ip.write_text(json.dumps(index, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
-    return n29 + n30 + n32 + n31 + n33 + n34
+    return n29 + n30 + n32 + n31 + n33 + n34 + n35
 
 
 if __name__ == '__main__':
