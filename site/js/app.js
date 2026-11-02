@@ -102,7 +102,8 @@ const isKobiL=l=>meanLat([l.g])>KOBI_LAT;
 const mainPistes=D.pistes.filter(p=>!isKobiP(p)),kobiPistes=D.pistes.filter(isKobiP);
 const mainLifts=D.lifts.filter(l=>!isKobiL(l)),kobiLifts=D.lifts.filter(isKobiL);
 const kobiRun=byKey['Kobi'];const PASS=kobiRun?kobiRun.segs[0].g[0]:[42.5111,44.4929];
-const dispName=p=>p.named?(p.key==='Firni ?'?'Firni (1/2?)':p.key):T('map.unnamed_segment');
+const pname=p=>p.name||p.key; // the key is a stable id (it may be a raw OSM id); the readable name is `name`
+const dispName=p=>p.named?(p.key==='Firni ?'?'Firni (1/2?)':pname(p)):T('map.unnamed_segment');
 
 // countdown (top bar + ticket stub). Drawn again by the day and night switch: in the dark the days are nights.
 // your trip (round 12, stage 13.9): kept only in this browser, never sent anywhere. {v:1, out:{date,flight,from,to,departs,arrives},
@@ -179,7 +180,7 @@ const HASLBL=D.pistes.some(p=>p.label); // a resort whose data carries label win
 let lblN=0;
 var ARR=[]; // round 21: downhill arrows on the selected run (placed per zoom by layoutArrows)
 const famNum=k=>{const m=/^(.*\S)\s+(\d+)$/.exec(k);return m?[m[1],+m[2]]:null;};
-function sharedName(a,b){const x=famNum(a),y=famNum(b);return x&&y&&x[0]===y[0]?x[0]+' '+Math.min(x[1],y[1])+' · '+Math.max(x[1],y[1]):a;}
+function sharedName(a,b){const nm=k=>byKey[k]?pname(byKey[k]):k,x=famNum(nm(a)),y=famNum(nm(b));return x&&y&&x[0]===y[0]?x[0]+' '+Math.min(x[1],y[1])+' · '+Math.max(x[1],y[1]):nm(a);}
 const lineLen=L=>{let d=0;for(let i=1;i<L.length;i++)d+=Math.hypot(L[i][0]-L[i-1][0],L[i][1]-L[i-1][1]);return d;};
 const along=(L,step)=>{const o=[L[0]];let acc=0;for(let i=1;i<L.length;i++){const a=L[i-1],b=L[i],l=Math.hypot(b[0]-a[0],b[1]-a[1]);
   for(let d=step-acc;d<l;d+=step)o.push([a[0]+(b[0]-a[0])*d/l,a[1]+(b[1]-a[1])*d/l]);acc=(acc+l)%step;}return o;};
@@ -445,11 +446,11 @@ function elevRows(p){
   <dt>${E('run.stat_drop_label')}</dt><dd>${H('common.unit_m',{n:s.drop},{n:num(s.drop)})}${lines.length===1&&p.len?' · '+H('run.stat_avg_gradient',{},{pct:num(Math.round(s.drop/p.len*100))}):''}</dd>
   <dt>${E('run.stat_steep_label')}</dt><dd>${num(Math.round(s.maxG*100)+'%')} <span class="hint">${E('run.stat_steep_hint')}</span></dd>`;
 }
-const navList=()=>{const order=['green','blue','red','black','none'];return D.pistes.filter(p=>p.named).sort((a,b)=>order.indexOf(a.color)-order.indexOf(b.color)||a.key.localeCompare(b.key,undefined,{numeric:true})).map(p=>p.key);};
+const navList=()=>{const order=['green','blue','red','black','none'];return D.pistes.filter(p=>p.named).sort((a,b)=>order.indexOf(a.color)-order.indexOf(b.color)||pname(a).localeCompare(pname(b),undefined,{numeric:true})).map(p=>p.key);};
 function runNav(key){
   const L=navList(),i=L.indexOf(key);if(i<0)return `<div class="run-nav"><button type="button" class="rn-share" data-share="${esc(key)}">${E('run.share_button')}</button></div>`;
   const prev=L[(i-1+L.length)%L.length],next=L[(i+1)%L.length],[back,fwd]=I18N.ltr?['←','→']:['→','←'];
-  return `<div class="run-nav" role="group" aria-label="${E('run.nav_group_aria')}"><button type="button" data-goto="${esc(prev)}" aria-label="${E('run.nav_prev_aria',{run:prev})}">${back} <span dir="ltr">${esc(prev)}</span></button><button type="button" class="rn-share" data-share="${esc(key)}">${E('run.share_button')}</button><button type="button" data-goto="${esc(next)}" aria-label="${E('run.nav_next_aria',{run:next})}"><span dir="ltr">${esc(next)}</span> ${fwd}</button></div>`;
+  return `<div class="run-nav" role="group" aria-label="${E('run.nav_group_aria')}"><button type="button" data-goto="${esc(prev)}" aria-label="${E('run.nav_prev_aria',{run:(byKey[prev]?pname(byKey[prev]):prev)})}">${back} <span dir="ltr">${esc((byKey[prev]?pname(byKey[prev]):prev))}</span></button><button type="button" class="rn-share" data-share="${esc(key)}">${E('run.share_button')}</button><button type="button" data-goto="${esc(next)}" aria-label="${E('run.nav_next_aria',{run:(byKey[next]?pname(byKey[next]):next)})}"><span dir="ltr">${esc((byKey[next]?pname(byKey[next]):next))}</span> ${fwd}</button></div>`;
 }
 function runViewBlock(key){
   const pr=runProfile(key),p=byKey[key];if(!pr||pr.S.length<4)return '';
@@ -500,7 +501,7 @@ function renderPiste(key){
     <dl class="kv">${ck(m)==='route'?routeRow():`<dt>${E('run.official_color_label')}</dt><dd>${pips(m.color)}${esc(HEB[m.color])} · ${esc(RATE[m.color][1])}</dd>`}<dt>${E('common.length_label')}</dt><dd>—</dd></dl>
     <div class="notice">${E('run.missing_notice')}</div>${vidBlock(key,m.name)}`;
     return;}
-  const c=ck(p),route=c==='route',label=p.named?(p.key==='Firni ?'?'Firni':p.key):'';
+  const c=ck(p),route=c==='route',label=p.named?(p.key==='Firni ?'?'Firni':pname(p)):'';
   panel.innerHTML=`<button class="back" data-back>${E('map.back_all_runs')}</button>
   <div class="run-sign"><h2 class="c-${c}">${esc(dispName(p))}</h2>${p.refs.length&&p.refs[0]!==p.key?`<span class="run-ref num" title="${E('run.ref_title')}">${esc(p.refs[0])}</span>`:''}</div>
   ${runNav(key)}
@@ -543,7 +544,7 @@ function showLift(id){
 function overview(){
   clearSel();current=null;
   const named=D.pistes.filter(p=>p.named&&p.kind!=='ski-route'),routes=D.pistes.filter(p=>p.kind==='ski-route');const order=['green','blue','red','black'];
-  named.sort((a,b)=>order.indexOf(a.color)-order.indexOf(b.color)||a.key.localeCompare(b.key,undefined,{numeric:true}));
+  named.sort((a,b)=>order.indexOf(a.color)-order.indexOf(b.color)||pname(a).localeCompare(pname(b),undefined,{numeric:true}));
   panel.innerHTML=`
   <h2 class="ov">${E('map.overview_heading')}</h2>
   ${LSTAT.block()}
@@ -555,7 +556,7 @@ function overview(){
   ${(()=>{const mr=D.missing.filter(m=>ck(m)!=='route'),mx=D.missing.filter(m=>ck(m)==='route'),chips=a=>`<div class="miss">${a.map(m=>`<button class="chip" data-goto="${esc(m.name)}"><span class="sw ${ck(m)}"></span>${esc(m.name)}</button>`).join('')}</div>`;
     return (mr.length?`<h3>${E('map.overview_missing_count',{n:mr.length})}</h3>${chips(mr)}`:'')+(mx.length?`<h3>${E('map.overview_missing_routes_count',{n:mx.length})}</h3>${chips(mx)}`:'');})()}
   ${(()=>{const pr=D.pistes.filter(p=>p.research&&p.research.partial);return pr.length?`<h3>${E('map.overview_partial_count',{n:pr.length})}</h3>
-  <div class="miss">${pr.map(p=>`<button class="chip" data-goto="${esc(p.key)}" data-zoom="1"><span class="sw ${p.color}"></span>${esc(p.key)}</button>`).join('')}</div>
+  <div class="miss">${pr.map(p=>`<button class="chip" data-goto="${esc(p.key)}" data-zoom="1"><span class="sw ${p.color}"></span>${esc(pname(p))}</button>`).join('')}</div>
   <p class="hint">${E('map.overview_partial_hint')}</p>`:''})()}
   <h3>${E('map.overview_source_heading')}</h3>
   <p class="hint">${RESORT.isDefault()?E('map.overview_source_text',{fetched:D.fetched,research_date:D.research?D.research.date:''}):E('resort.'+RS.id+'.sources',{fetched:D.fetched})}</p>
@@ -568,7 +569,7 @@ panel.addEventListener('click',e=>{
   // the (i) by the profile heading opens how the numbers were worked out (round 20)
   if(b.dataset.info!==undefined){const pop=b.closest('h3').nextElementSibling,on=pop.hidden;pop.hidden=!on;b.setAttribute('aria-expanded',String(on));return;}
   if(b.dataset.share!==undefined){const k=b.dataset.share,url=RESORT.link('#map/run/'+encodeURIComponent(k),'utm_medium=share');
-    if(navigator.share)navigator.share({title:T('run.share_title',{run:k}),url}).then(()=>track('run_share',{run:k,method:'native'})).catch(()=>{});
+    if(navigator.share)navigator.share({title:T('run.share_title',{run:(byKey[k]?pname(byKey[k]):k)}),url}).then(()=>track('run_share',{run:k,method:'native'})).catch(()=>{});
     else if(navigator.clipboard)navigator.clipboard.writeText(url).then(()=>{track('run_share',{run:k,method:'copy'});b.textContent=T('common.link_copied');setTimeout(()=>{b.textContent=T('run.share_button');},2200);}).catch(()=>{});return;}
   if(b.dataset.fly){if(flying){stopFly();return;}const pr=runProfile(b.dataset.fly);if(!pr)return;if(view!=='3d')setView('3d',false);if(!v3)return;
     flying=true;b.textContent=T('run.fly_stop');b.setAttribute('aria-pressed','true');
@@ -1109,7 +1110,7 @@ const LOC=(function(){
     if(first){first=false;if(view==='3d'&&v3)v3.view({tx:r.x,tz:r.y});else{const w=Math.min(vb.w,2600);vb.w=w;const[cw,ch]=sz();vb.h=w*ch/cw;vb.x=r.x-w/2;vb.y=r.y-vb.h/2;apply();}}
     if(r.state==='low'||r.state==='approx')return say(false,T(r.state==='low'?'loc.low_title':'loc.approx_title',{n:acc}),T(r.state==='low'?'loc.low_sub':'loc.approx_sub'));
     if(r.state==='lift')return say(false,T('loc.on_lift',{lift:r.lift}),T('loc.going_up')+' · '+T('loc.accuracy',{n:acc}));
-    if(r.state==='run')return say(false,T('loc.on_run',{run:r.run,color:T('common.color_'+r.color)}),alt());
+    if(r.state==='run')return say(false,T('loc.on_run',{run:(byKey[r.run]?pname(byKey[r.run]):r.run),color:T('common.color_'+r.color)}),alt());
     say(false,T('loc.free'),alt());}
   let told=false;const tell=result=>{if(!told){told=true;track('location_toggle',{on:true,result});}};
   function stop(byUser){if(watch!=null){navigator.geolocation.clearWatch(watch);if(byUser)track('location_toggle',{on:false});}watch=null;btn.setAttribute('aria-pressed','false');bar.hidden=true;wrap.classList.remove('has-where');dot(null);}

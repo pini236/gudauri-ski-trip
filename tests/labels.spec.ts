@@ -91,3 +91,11 @@ test('map: a selected run gets small arrows down its fall', async ({ page }) => 
   expect(down).toBe(true);
   expect(errors).toEqual([]);
 });
+
+test('a run whose key is not its name shows the readable name', async ({ page }) => {
+  await page.goto('/#map');
+  await loaded(page);
+  await page.evaluate(() => { location.hash = '#map/run/u1234557981'; });
+  const h = page.locator('.run-sign h2');
+  await expect(h).toHaveText('New Goodaura 2');
+});
