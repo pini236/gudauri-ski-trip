@@ -942,6 +942,9 @@ dayrec_steps() {
     # the example day (never counted): a whole day with the story over it, and the timeline
     qa "--es qa.tab days/sample"; sleep 8; shot dayrec-sample
     drag 540 1900 540 600 400; sleep 1; shot dayrec-sample-timeline
+    # the day again on the 3D map: the dot goes along the line (the shared 3D map needs its scene first)
+    qa "--es qa.tab days/sample/replay"; sleep 12; shot dayrec-replay
+    tapText "הפעלה" && { sleep 4; shot dayrec-replay-play; }
   else fail "the replayed day has no id to open"; fi
   qa "--es qa.dayrec wipe"
   # the phone killed the app in the middle of a day: the file stays cut, and the next opening goes on with it
@@ -963,6 +966,8 @@ dayrec_steps() {
   adb shell pm revoke "$PKG" "$perm"; sleep 1; mark
   adb shell "am start -W -n $ACT --es qa.tab map --es qa.trip none --es qa.dayrec start" > /dev/null
   waitlog "dayrec start result NeedPrecise" 60
+  # the same answer by the entry on home: a screen that says what is in the way, with the way to the settings (not a toast)
+  qa "--es qa.tab home"; sleep 3; tapText "מקליטים" && { sleep 2; shot dayrec-blocked; adb shell input keyevent KEYCODE_BACK; sleep 1; }
   adb shell pm grant "$PKG" "$perm"
   qa "--es qa.dayrec wipe"
 }
