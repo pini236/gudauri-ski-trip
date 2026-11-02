@@ -48,7 +48,7 @@ struct GudiApp: App {
                     }
                     if cold { Telemetry.shared.screen("home") }
                     opened = true
-                case .background: Telemetry.shared.flush()
+                case .background: Telemetry.shared.flush(); model.dayRecorder?.flush()
                 default: break
                 }
             }

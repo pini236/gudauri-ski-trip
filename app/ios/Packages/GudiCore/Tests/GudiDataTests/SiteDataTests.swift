@@ -40,3 +40,13 @@ final class SiteDataTests: XCTestCase {
         XCTAssertEqual(rl.lifts[0].len, 1200)
     }
 }
+
+/// The features behind which a new ability waits (docs/ARCHITECTURE.md m-8, answer 7).
+final class ResortsTests: XCTestCase {
+    func testFeatures() throws {
+        let r = try Resorts.decode(Data(contentsOf: Repo.root.appendingPathComponent("site/data/resorts.json")))
+        XCTAssertTrue(r.has("locate"))
+        XCTAssertFalse(r.has("no-such-feature"))
+        XCTAssertFalse(r.has("locate", in: "no-such-resort"))
+    }
+}
