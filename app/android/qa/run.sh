@@ -446,10 +446,22 @@ if found:
     x1, y1, x2, y2 = min(found)[3]; print((x1 + x2) // 2, (y1 + y2) // 2)
 PY
 }
+seen_texts() { # what is on the screen, for the log when a step finds nothing (so a failure can be read without the screenshots)
+  python3 - "$OUT/ui.xml" <<'PY' 2>/dev/null | head -c 700
+import sys, xml.etree.ElementTree as ET
+t = []
+for n in ET.parse(sys.argv[1]).iter("node"):
+    for g in (n.get("text") or "", n.get("content-desc") or ""):
+        g = g.strip()
+        if g and g not in t: t.append(g)
+print("  on screen:", " | ".join(t[:40]))
+PY
+}
+
 tapText() { # waits up to about 3 s for the words to show
   local xy i
   for i in 1 2 3; do xy=$(where "$1"); [ -n "$xy" ] && break; sleep 1; done
-  if [ -z "$xy" ]; then fail "no '$1' on screen"; return 1; fi
+  if [ -z "$xy" ]; then fail "no '$1' on screen"; seen_texts; return 1; fi
   tap $xy
 }
 
@@ -765,7 +777,7 @@ runview() {
   drag $up; sleep 1; shot run-ahead
   drag $up; sleep 1; shot run-videos
   # the next run: a swipe across the sign (as on the site, to the left is the next one)
-  xy=$(where "המסלול הבא: Kudebi 1"); if [ -n "$xy" ]; then set -- $xy; mark; drag $((W * 3 / 4)) "$2" $((W / 6)) "$2" 300; waitlog "selected Kudebi 1" 10 && { sleep 3; shot run-next; }; else fail "no step to the next run"; fi
+  xy=$(where "~^המסלול הבא: "); if [ -n "$xy" ]; then set -- $xy; mark; drag $((W * 3 / 4)) "$2" $((W / 6)) "$2" 300; waitlog "selected " 10 && { sleep 3; shot run-next; }; else fail "no step to the next run"; fi
   # a lift's panel (round 20: no connections in the run's panel): from the meeting point's "on the map"
   mark; qa "--es qa.run none --es qa.tab meet/158744075b/0930/20270111"; waitlog "meet ready" 15; sleep 1.5
   for i in 1 2 3 4 5; do xy=$(where "לראות במפת המסלולים"); [ -n "$xy" ] && break; drag $up; sleep 1; done
