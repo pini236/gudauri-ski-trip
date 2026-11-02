@@ -1096,7 +1096,7 @@ PID=$(adb shell pidof "$PKG" | tr -d '\r')
 # bars appear), a slow emulator missing a window sync, the keyboard's closing animation timing out, and the runtime's
 # debugger link losing adbd (the emulator's adb restarting; main run for 7b14748, the phone part)
 if [ -n "$PID" ]; then adb logcat -d --pid="$PID" '*:E' | grep -v -E "^-+ beginning of|BLASTBufferQueue.*rejecting buffer|SurfaceSyncGroup: Failed to receive transaction|FrameTracker: force finish cuj|failed to send app info to adbd" >> "$OUT/errors.txt"; else fail "the app is not running at the end"; fi
-[ -s "$OUT/errors.txt" ] && fail "errors in the log (errors.txt)"
+[ -s "$OUT/errors.txt" ] && { fail "errors in the log (errors.txt)"; head -60 "$OUT/errors.txt" | sed "s/^/ERRLOG /"; } # the lines in the job log too: the artifacts are not always reachable
 
 # ---- the release build (R8): only that it starts and draws ----
 if [ -n "$FINAL" ] && [ -f "$RELEASE_APK" ]; then
