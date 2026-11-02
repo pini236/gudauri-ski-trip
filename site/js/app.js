@@ -177,6 +177,9 @@ const pisteEls={},labels=[],stations=[];
 const isPlate=p=>/^\d{1,2}[a-z]?$/.test(p.key);
 const HASLBL=D.pistes.some(p=>p.label); // a resort whose data carries label windows (tools/build-labels.py)
 let lblN=0;
+var ARR=[]; // round 21: downhill arrows on the selected run (placed per zoom by layoutArrows)
+const famNum=k=>{const m=/^(.*\S)\s+(\d+)$/.exec(k);return m?[m[1],+m[2]]:null;};
+function sharedName(a,b){const x=famNum(a),y=famNum(b);return x&&y&&x[0]===y[0]?x[0]+' '+Math.min(x[1],y[1])+' · '+Math.max(x[1],y[1]):a;}
 const lineLen=L=>{let d=0;for(let i=1;i<L.length;i++)d+=Math.hypot(L[i][0]-L[i-1][0],L[i][1]-L[i-1][1]);return d;};
 const along=(L,step)=>{const o=[L[0]];let acc=0;for(let i=1;i<L.length;i++){const a=L[i-1],b=L[i],l=Math.hypot(b[0]-a[0],b[1]-a[1]);
   for(let d=step-acc;d<l;d+=step)o.push([a[0]+(b[0]-a[0])*d/l,a[1]+(b[1]-a[1])*d/l]);acc=(acc+l)%step;}return o;};
@@ -231,6 +234,12 @@ function draw(root,pistes,lifts,store){
         const tp=mk('textPath',{href:'#'+id,startOffset:'50%'},t);tp.textContent=dispName(p);
         t._lb={a:p.label.a,segs:p.segs.map(s=>s.g.map(P)),path:pa};t._name=dispName(p);store.labels.push(t);pisteEls[p.key].push(t);
       }
+      // a stretch two runs share (round 21): one name for both when they are of one family ("Tatra 1 · 2"), else the main run's own
+      if(p.shared&&window.GudLabelFit){const by={};p.shared.a.forEach(w=>(by[w[5]]=by[w[5]]||[]).push(w.slice(0,5)));
+        for(const o in by){const id='lp'+(++lblN),pa=mk('path',{id,fill:'none',stroke:'none'},gLbl),name=sharedName(p.key,o);
+          const t=mk('text',{class:'lbl pg lblp '+ck(p),fill:route?'var(--p-route-edge)':`var(--p-${ck(p)})`,direction:'ltr','text-anchor':'middle','data-key':p.key},gLbl);
+          const tp=mk('textPath',{href:'#'+id,startOffset:'50%'},t);tp.textContent=name;
+          t._lb={a:by[o],segs:p.segs.map(s=>s.g.map(P)),path:pa};t._name=name;store.labels.push(t);pisteEls[p.key].push(t);}}
     }else if(p.named){
       const lin=p.segs.filter(s=>!s.area).sort((a,b)=>b.g.length-a.g.length)[0];
       if(lin){const q=P(lin.g[Math.floor(lin.g.length/2)]);
@@ -286,7 +295,7 @@ function apply(){
   const[cw,ch]=sz();vb.h=vb.w*ch/cw;
   svg.setAttribute('viewBox',`${vb.x} ${vb.y} ${vb.w} ${vb.h}`);
   const u=vb.w/cw; // meters per px
-  layoutLabels(labels,stations,u,marks,vb);svg.classList.toggle('far',u>9);svg.querySelectorAll('.chair').forEach(c=>c.setAttribute('r',3.6*u));runMark.setAttribute('r',7*u);if(typeof meDot!=='undefined')meDot.setAttribute('r',8*u);if(typeof WX!=='undefined'&&WX)WX.layout();if(typeof PL!=='undefined'&&PL)PL.layout();
+  layoutLabels(labels,stations,u,marks,vb);layoutArrows(u);svg.classList.toggle('far',u>9);svg.querySelectorAll('.chair').forEach(c=>c.setAttribute('r',3.6*u));runMark.setAttribute('r',7*u);if(typeof meDot!=='undefined')meDot.setAttribute('r',8*u);if(typeof WX!=='undefined'&&WX)WX.layout();if(typeof PL!=='undefined'&&PL)PL.layout();
   const nice=[50,100,200,250,500,1000,2000];let m=nice.find(n=>n/u>=70)||2000;
   const sc=document.getElementById('scale');sc.querySelector('i').style.width=(m/u)+'px';sc.querySelector('span').textContent=m>=1000?m/1000+' km':m+' m';
 }
@@ -368,7 +377,7 @@ const meG=mk('g',{class:'me','aria-hidden':'true'});meG.style.display='none';
 const meAcc=mk('circle',{class:'me-acc',r:10,'vector-effect':'non-scaling-stroke'},meG),meDot=mk('circle',{class:'me-dot',r:10,'vector-effect':'non-scaling-stroke'},meG);
 let rpN=0;
 function paint2d(key){
-  gPaint.classList.remove('on');gPaint.innerHTML='';
+  gPaint.classList.remove('on');gPaint.innerHTML='';ARR=[];
   const p=key&&byKey[key];if(!p||!TM||isKobiP(p))return;
   const Ls=runLines(p),sc=GudRelief.slopeCanvas(TM,Ls),href=sc.canvas.toDataURL(),box={x:sc.x0,y:sc.y0,width:sc.x1-sc.x0,height:sc.y1-sc.y0,preserveAspectRatio:'none'};
   mk('image',{href,...box,class:'rp-ground'},gPaint);
@@ -385,7 +394,17 @@ function paint2d(key){
     mk('image',{href,...box,'clip-path':`url(#${id}c)`,filter:`url(#${id}f)`,class:'rp-area'},gPaint);}
   SL.forEach(S=>{const tot=S[S.length-1].d||1,dur=1.3;
     for(let i=0;i<S.length-1;i++)mk('line',{x1:S[i].x.toFixed(1),y1:S[i].y.toFixed(1),x2:S[i+1].x.toFixed(1),y2:S[i+1].y.toFixed(1),stroke:GudRelief.slopeColor(S[i].a),'stroke-width':6,'stroke-linecap':'round','vector-effect':'non-scaling-stroke',style:`transition-delay:${(S[i].d/tot*dur).toFixed(2)}s`},gPaint);});
+  // small arrows down the run, every 150 m, thinned to about 60 px apart; the direction is the fall of the elevation model
+  SL.forEach(S=>{let next=90;for(let i=1;i<S.length-1;i++)if(S[i].d>=next){next+=150;
+    const dx=S[i+1].x-S[i-1].x,dy=S[i+1].y-S[i-1].y,a=Math.atan2(dy,dx)*180/Math.PI;
+    const g=mk('g',{class:'rp-arr','aria-hidden':'true'},gPaint);mk('path',{d:'M-3.5 -3.2L2.5 0L-3.5 3.2',...vs,stroke:'#FFFFFF','stroke-width':4.2},g);mk('path',{d:'M-3.5 -3.2L2.5 0L-3.5 3.2',...vs,stroke:'var(--ink)','stroke-width':2},g);
+    ARR.push({g,x:S[i].x,y:S[i].y,a,k:ARR.length});}});
+  layoutArrows(vb.w/sz()[0]);
   requestAnimationFrame(()=>requestAnimationFrame(()=>gPaint.classList.add('on')));
+}
+function layoutArrows(u){
+  const step=Math.max(1,Math.ceil(60*u/150));
+  ARR.forEach((q,i)=>{const on=i%step===0;q.g.style.display=on?'':'none';if(on)q.g.setAttribute('transform',`translate(${q.x.toFixed(1)} ${q.y.toFixed(1)}) rotate(${q.a.toFixed(0)}) scale(${(u*1.15).toFixed(3)})`);});
 }
 function setMarker(q){
   if(!q){runMark.style.display='none';if(v3)v3.marker(null);return;}

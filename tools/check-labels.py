@@ -7,10 +7,12 @@ src = (ROOT / 'tools/build-labels.py').read_text().replace('\nmain()\n', '\n')
 ns = {'__file__': str(ROOT / 'tools/build-labels.py')}
 exec(compile(src, 'build-labels', 'exec'), ns)
 fx = json.load(open(ROOT / 'tools/fixtures/labels-build.json'))
-got = ns['build'](fx['data'], ns['proj'](fx['lat0'], fx['lon0']))
+got, got_shared = ns['build'](fx['data'], ns['proj'](fx['lat0'], fx['lon0']))
 bad = 0
 if got != fx['expected']:
     print('fixture mismatch\n got      %s\n expected %s' % (json.dumps(got), json.dumps(fx['expected']))); bad += 1
+if got_shared != fx['expected_shared']:
+    print('shared mismatch\n got      %s\n expected %s' % (json.dumps(got_shared), json.dumps(fx['expected_shared']))); bad += 1
 r = subprocess.run([sys.executable, str(ROOT / 'tools/build-labels.py'), '--check'], capture_output=True, text=True)
 print(r.stdout.strip() or r.stderr.strip())
 bad += r.returncode != 0

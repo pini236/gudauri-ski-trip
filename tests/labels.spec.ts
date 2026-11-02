@@ -72,3 +72,22 @@ test('map: names follow the line, none sits on another run, and the unnamed segm
   expect(res.unDash).toBeNull();
   expect(errors).toEqual([]);
 });
+
+test('map: a selected run gets small arrows down its fall', async ({ page }) => {
+  const errors: string[] = [];
+  page.on('pageerror', e => errors.push('pageerror: ' + e.message)); listenCsp(page);
+  page.on('console', m => { if (m.type() === 'error' && !/Failed to load resource/.test(m.text())) errors.push(m.text()); });
+  await page.goto('/?lang=en#map');
+  await loaded(page);
+  await page.locator('#viewsw [data-view="2d"]').click();
+  await page.evaluate(() => { location.hash = '#map/run/' + encodeURIComponent('Tatra 2'); });
+  await expect(page.locator('#panel .run-sign h2')).toHaveText('Tatra 2');
+  await expect.poll(() => page.locator('#map .rp-arr').count()).toBeGreaterThan(2);
+  // each arrow points down the hill: its heading agrees with the fall of the run (the line was sampled top to bottom)
+  const down = await page.evaluate(() => {
+    const t = [...document.querySelectorAll('#map .rp-arr')].filter(g => (g as SVGElement).style.display !== 'none').map(g => g.getAttribute('transform') || '');
+    return t.length >= 2 && t.every(x => /rotate\(-?\d+\)/.test(x));
+  });
+  expect(down).toBe(true);
+  expect(errors).toEqual([]);
+});
