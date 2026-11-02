@@ -16,10 +16,10 @@ on:
   workflow_dispatch:
     inputs:
       variant:
-        description: "standard = 1.0 (no background location). dayrec = 1.1 with surf-day recording; only on purpose, never from a push (ARCHITECTURE m-13)"
+        description: "plain = 1.0 (no background location). dayrec = 1.1 with surf-day recording; only on purpose, never from a push (ARCHITECTURE m-13)"
         type: choice
-        options: [standard, dayrec]
-        default: standard
+        options: [plain, dayrec]
+        default: plain
 
 # a build that is already uploading is never cancelled halfway; the newest waiting push goes next
 concurrency:
@@ -35,8 +35,8 @@ env:
   XCODEGEN_SHA256: a2e905fb68446e9bb4008cdfe2e13e3f176d0cbcca828b71770f8e53fca91b73
   BUNDLE_ID: io.github.pini236.skiapp
   TEAM_ID: ZX5CTJ88UA
-  # a push has no input, so it is always the standard 1.0 build
-  VARIANT: ${{ inputs.variant || 'standard' }}
+  # a push has no input, so it is always the plain 1.0 build
+  VARIANT: ${{ inputs.variant || 'plain' }}
 
 jobs:
   testflight:

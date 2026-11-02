@@ -90,8 +90,8 @@ jobs:
           # the compiler's own errors, which the last 40 lines usually leave out
           grep -E "error:|warning: .*will be an error" "$RUNNER_TEMP/build.log" | sort -u | head -60 || true
           test "$RC" -eq 0
-      - name: Gate, the compiled app is a standard (1.0) build
-        run: sh tools/check-ios-variant.sh "$RUNNER_TEMP/dd/Build/Products/Debug-iphonesimulator/Gudi.app/Info.plist" standard
+      - name: Gate, the compiled app is a plain (1.0) build
+        run: sh tools/check-ios-variant.sh "$RUNNER_TEMP/dd/Build/Products/Debug-iphonesimulator/Gudi.app/Info.plist" plain
       - name: Run in a simulator and take a screenshot
         timeout-minutes: 30
         run: |
