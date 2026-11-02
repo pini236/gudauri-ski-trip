@@ -46,6 +46,8 @@ class SiteData(
         val FILES = listOf(
             Spec("runs-and-lifts.json", 1) { validRuns(it) },
             Spec("videos-seed.json", 1) { validVideos(it) },
+            // the resorts' capabilities (features): a feature is switched on or off here without a new version (dayrec/DayFeature.kt)
+            Spec("resorts.json", 1) { validResorts(it) },
         )
 
         /** The top-level "schema" of an object file, 1 when it has none. */
@@ -58,6 +60,12 @@ class SiteData(
             if (schemaOf(json) > 1) return false
             val r = Runs.parse(json)
             r.pistes.size >= 10 && r.lifts.size >= 5 && r.pistes.all { it.key.isNotBlank() } && r.pistes.count { it.lines.isNotEmpty() } >= 10
+        }.getOrDefault(false)
+
+        fun validResorts(json: String): Boolean = runCatching {
+            if (schemaOf(json) > 1) return false
+            val all = JSONObject(json).getJSONArray("resorts")
+            all.length() >= 1 && (0 until all.length()).all { i -> all.getJSONObject(i).optString("id").isNotBlank() }
         }.getOrDefault(false)
 
         fun validVideos(json: String): Boolean = runCatching {

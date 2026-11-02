@@ -1,0 +1,10 @@
+import { launch, open, MYTRIP } from '../../round16/lib.mjs';
+const b = await launch();
+let { ctx, page } = await open(b, '/', { theme: 'day', wait: 1200 });
+console.log(await page.evaluate(() => { const r = s => { const e = document.querySelector(s); if (!e) return s + ': none'; const q = e.getBoundingClientRect(); return `${s}: ${Math.round(q.x)},${Math.round(q.y + scrollY)} ${Math.round(q.width)}x${Math.round(q.height)}`; };
+  return ['.ab-pass', '.pass', '#pass', '.hero', '.board', '.lift-board', '.signs', '.post', '.snow-sign', '.bd'].map(r).join('\n') + '\n' + [...document.querySelectorAll('#home *')].filter(e => e.children.length > 2 && e.getBoundingClientRect().width > 300).slice(0, 15).map(e => e.tagName + '.' + e.className + '#' + e.id).join('\n'); }));
+await ctx.close();
+({ ctx, page } = await open(b, '/#map/run/Kudebi%201', { theme: 'day', wait: 2500, extraStorage: { 'gud-view': '2d' } }));
+console.log(await page.evaluate(() => [...document.querySelectorAll('body *')].filter(e => { const q = e.getBoundingClientRect(); return q.width > 200 && q.y > 450 && e.children.length > 1; }).slice(0, 12).map(e => { const q = e.getBoundingClientRect(); return e.tagName + '.' + e.className + '#' + e.id + ' ' + Math.round(q.x) + ',' + Math.round(q.y) + ' ' + Math.round(q.width) + 'x' + Math.round(q.height); }).join('\n')));
+await page.screenshot({ path: '/tmp/run-red.png' });
+await ctx.close(); await b.close();
