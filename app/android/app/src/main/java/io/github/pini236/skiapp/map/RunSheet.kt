@@ -18,6 +18,7 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
+import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -152,7 +153,7 @@ fun openLink(ctx: Context, url: String) {
 /** The run's link on the site (#map/run/<key>), which opens the same run in the app or on the site. */
 fun runLink(key: String) = "https://${Route.SITE_HOST}/?${Route.SHARED}#map/run/" + java.net.URLEncoder.encode(key, "UTF-8").replace("+", "%20")
 
-/** The panel's frame: paper over the map's bottom, a handle that shows all of it or only its head. */
+/** The panel's frame: paper over the map's bottom, a handle that shows all of it or only its head, by a tap or by pulling it. */
 @Composable
 fun BoxScope.MapPanel(
     expanded: Boolean, onExpand: (Boolean) -> Unit, onClose: () -> Unit,
@@ -168,6 +169,16 @@ fun BoxScope.MapPanel(
             .clickable(remember { androidx.compose.foundation.interaction.MutableInteractionSource() }, null) {}
             .navigationBarsPadding(),
     ) {
+        // the panel's top (handle and head) is pulled like a drawer: up shows all of it, down shows only its head
+        val pull = Modifier.pointerInput(expanded) {
+            var total = 0f
+            detectVerticalDragGestures(
+                onDragStart = { total = 0f },
+                onDragEnd = { if (total < -24.dp.toPx() && !expanded) onExpand(true) else if (total > 24.dp.toPx() && expanded) onExpand(false) },
+                onDragCancel = { total = 0f },
+            ) { _, dy -> total += dy }
+        }
+        Column(pull) {
         Row(Modifier.fillMaxWidth().padding(start = 8.dp, end = 4.dp), verticalAlignment = Alignment.CenterVertically) {
             val more = stringResource(if (expanded) R.string.app_panel_less else R.string.app_panel_more)
             Box(Modifier.weight(1f).heightIn(min = 30.dp).clickable(role = Role.Button) { onExpand(!expanded) }.semantics { contentDescription = more },
@@ -180,6 +191,7 @@ fun BoxScope.MapPanel(
             }
         }
         Column(Modifier.padding(horizontal = 16.dp)) { head() }
+        }
         if (expanded) Column(Modifier.heightIn(max = max).verticalScroll(rememberScrollState()).padding(start = 16.dp, end = 16.dp, bottom = 20.dp)) { body() }
         else Box(Modifier.height(12.dp))
     }
