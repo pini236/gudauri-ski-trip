@@ -302,11 +302,7 @@ struct GPendingCard: View {
     var body: some View {
         let c = ski.colors
         HStack(spacing: 14) {
-<<<<<<< HEAD
-            Image(systemName: "hourglass").font(.system(size: 26)).foregroundStyle(Color(rgb: 0xC98A00)).accessibilityHidden(true)
-=======
-            Image(systemName: "hourglass").font(.system(size: 26)).foregroundStyle(Color(rgb: 0xA87300))
->>>>>>> origin/main
+            Image(systemName: "hourglass").font(.system(size: 26)).foregroundStyle(Color(rgb: 0xA87300)).accessibilityHidden(true)
             VStack(alignment: .leading, spacing: 4) {
                 GDisplay(S.joinPendingTitle, 24)
                 if let onCancel {
