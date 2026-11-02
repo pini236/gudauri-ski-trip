@@ -49,7 +49,7 @@ object MomentsStore {
         val start = res.optLong("start", 0L)
         if (start == 0L) return
         val sample = SampleDay.isSample(day)
-        val done = if (sample) mutableSetOf() else applied(dir)
+        val done: MutableSet<Long> = if (sample) mutableSetOf() else applied(dir)
         if (start in done) return
         val c = ctx.applicationContext
         val read = { name: String -> c.assets.open("data/$name").bufferedReader().use { it.readText() } }

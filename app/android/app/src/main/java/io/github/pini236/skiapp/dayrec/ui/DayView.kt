@@ -123,7 +123,7 @@ private fun DayBody(l: Loaded, runs: Runs?, sample: Boolean) {
         }
         if (l.day.chapters.isEmpty()) Text(stringResource(R.string.app_day_empty), style = Ski.type.body, color = c.muted)
         else {
-            l.story?.let { StoryCard(it, s) { k -> titleOf(runs, k) } }
+            l.story?.let { StoryCard(it, s, l.track, sample) { k -> titleOf(runs, k) } }
             DayMap(l.track, runs, s.maxLat, s.maxLon)
             Text(stringResource(R.string.app_day_note), style = Ski.type.small, color = c.muted)
             for (ch in l.day.chapters) Chapter(ch, runs, zone)
@@ -143,10 +143,10 @@ private fun Sum(value: String, label: String, modifier: Modifier, size: androidx
 
 /** The day on a map of its own: the runs and lifts dim, your line over them in the colours of the speed (round 29, 10 b). */
 @Composable
-private fun DayMap(t: Track, runs: Runs?, maxLat: Double?, maxLon: Double?) {
+internal fun DayMap(t: Track, runs: Runs?, maxLat: Double?, maxLon: Double?, height: androidx.compose.ui.unit.Dp = 340.dp, showPin: Boolean = true) {
     val c = Ski.colors
     val pin = stringResource(R.string.app_day_pin)
-    Box(Modifier.fillMaxWidth().height(340.dp).background(c.glacier.copy(alpha = .10f)).border(BorderStroke(1.dp, c.rule))) {
+    Box(Modifier.fillMaxWidth().height(height).background(c.glacier.copy(alpha = .10f)).border(BorderStroke(1.dp, c.rule))) {
         Canvas(Modifier.fillMaxSize()) {
             if (t.x.isEmpty()) return@Canvas
             var x0 = t.x.min(); var x1 = t.x.max(); var y0 = t.y.min(); var y1 = t.y.max()
@@ -180,7 +180,7 @@ private fun DayMap(t: Track, runs: Runs?, maxLat: Double?, maxLon: Double?) {
                 drawCircle(Color.White, 9.dp.toPx(), c0); drawCircle(Color(0xFF7B2D9B), 6.dp.toPx(), c0, style = Stroke(3.dp.toPx()))
             }
         }
-        Text(pin, Modifier.align(Alignment.TopStart).padding(8.dp), style = Ski.type.small, color = c.muted)
+        if (showPin) Text(pin, Modifier.align(Alignment.TopStart).padding(8.dp), style = Ski.type.small, color = c.muted)
     }
 }
 

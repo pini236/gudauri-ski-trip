@@ -43,7 +43,9 @@ import io.github.pini236.skiapp.dayrec.DayRec
 import io.github.pini236.skiapp.ui.BackLink
 import io.github.pini236.skiapp.ui.Icons
 import io.github.pini236.skiapp.ui.Ski
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.withContext
 
 /**
  * The ski day's entry and live screen (round 29, approved 1.11.2026: one entry, "Record", from anywhere at any time; at the
@@ -104,7 +106,7 @@ private fun PermRow(icon: ImageVector, text: String) {
  * recorder never waits for it. "Probably" on what you do (a causal guess); the timeline at the end of the day is the truth.
  */
 @Composable
-fun DayLiveScreen(liftName: (String) -> String, runName: (String) -> String = { it }, onSwitch: (single: Boolean) -> Unit, onStop: () -> Unit, onBack: () -> Unit) {
+fun DayLiveScreen(liftName: (String) -> String, runName: (String) -> String = { it }, runs: io.github.pini236.skiapp.data.Runs? = null, onSwitch: (single: Boolean) -> Unit, onStop: () -> Unit, onBack: () -> Unit) {
     val c = Ski.colors
     var now by remember { mutableLongStateOf(System.currentTimeMillis()) }
     LaunchedEffect(Unit) { while (true) { now = System.currentTimeMillis(); delay(1000) } }
@@ -115,6 +117,14 @@ fun DayLiveScreen(liftName: (String) -> String, runName: (String) -> String = { 
     val since = DayRec.since
     val elapsed = if (since > 0) now - since else 0L
     val red = Color(0xFFE5322D)
+    // the day so far under the numbers (round 29, "the map under the live screen"): read from the log every few seconds, off the main thread
+    var track by remember { mutableStateOf<Track?>(null) }
+    LaunchedEffect(Unit) {
+        while (true) {
+            DayRec.current?.let { f -> track = withContext(Dispatchers.IO) { runCatching { readTrack(f, 900) }.getOrNull() } }
+            delay(5000)
+        }
+    }
     Column(Modifier.fillMaxSize().background(c.snow).statusBarsPadding().navigationBarsPadding().padding(horizontal = 16.dp)) {
         Row(Modifier.fillMaxWidth().padding(top = 8.dp), verticalAlignment = Alignment.CenterVertically) {
             Spacer(Modifier.weight(1f))
@@ -142,6 +152,7 @@ fun DayLiveScreen(liftName: (String) -> String, runName: (String) -> String = { 
             Num(LiveNumbers.metres(st?.dropM), stringResource(R.string.app_rec_drop), Modifier.weight(1f))
             Num((st?.descents ?: 0).toString(), stringResource(R.string.app_rec_runs), Modifier.weight(1f))
         }
+        track?.takeIf { it.x.size > 1 }?.let { t -> Spacer(Modifier.height(12.dp)); DayMap(t, runs, null, null, height = 200.dp, showPin = false) }
         Spacer(Modifier.weight(1f))
         Row(Modifier.fillMaxWidth().padding(bottom = 20.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             Row(Modifier.border(BorderStroke(1.5.dp, c.ink), RectangleShape).clickable(role = Role.Button, onClick = onStop).heightIn(min = 52.dp).padding(horizontal = 24.dp),

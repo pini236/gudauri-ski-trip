@@ -111,7 +111,7 @@ sealed interface Route {
                 }
                 "account" -> if (parts.size == 1) Account else null
                 "day" -> if (parts.size == 1) Day else null
-                "days" -> if (parts.size == 1) Days else if (parts.size == 2 && Regex("\\d{10,14}").matches(parts[1])) DayOf(parts[1]) else null
+                "days" -> if (parts.size == 1) Days else if (parts.size == 2 && (Regex("\\d{10,14}").matches(parts[1]) || parts[1] == "sample")) DayOf(parts[1]) else null
                 else -> null
             }
         }

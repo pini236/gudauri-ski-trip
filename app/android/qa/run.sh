@@ -939,6 +939,9 @@ dayrec_steps() {
     qa "--es qa.tab days/$did"; sleep 6; shot dayrec-day
     drag 540 1900 540 600 400; sleep 1; shot dayrec-day-timeline
     qa "--es qa.tab days"; sleep 3; shot dayrec-days
+    # the example day (never counted): a whole day with the story over it, and the timeline
+    qa "--es qa.tab days/sample"; sleep 8; shot dayrec-sample
+    drag 540 1900 540 600 400; sleep 1; shot dayrec-sample-timeline
   else fail "the replayed day has no id to open"; fi
   qa "--es qa.dayrec wipe"
   # the phone killed the app in the middle of a day: the file stays cut, and the next opening goes on with it
