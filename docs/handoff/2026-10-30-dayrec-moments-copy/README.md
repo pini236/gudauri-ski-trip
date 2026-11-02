@@ -97,7 +97,7 @@ docs/handoff/2026-10-30-dayrec-moments-copy/insights.json
 python3 docs/handoff/2026-10-30-dayrec-moments-copy/check.py docs/handoff/2026-10-30-dayrec-moments-copy/insights.json
 ```
 
-**כשמוכן במנוע:** מעתיקים את `keys` ואת `shared` ל-`i18n/strings.json`, כמו בסעיף "מה עושים כשפיני בוחר" למטה (בלי לבחור טון).
+**בוצע (2.11.2026):** `keys` ו-`shared` הועתקו ל-`i18n/strings.json` (103 מפתחות; כל גרסה כמפתח `<מפתח>.N`). שינוי נוסח נעשה שם, בכל ארבע השפות יחד.
 
 ---
 
