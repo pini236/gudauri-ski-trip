@@ -1710,7 +1710,7 @@
     },
     "R21-Audit-app.dc.html": {
       "x": 2628,
-      "y": 1312,
+      "y": 2624,
       "w": 848,
       "h": 1091,
       "page": "round21",
@@ -1718,7 +1718,7 @@
     },
     "R21-Audit-site.dc.html": {
       "x": 680,
-      "y": 1312,
+      "y": 2624,
       "w": 1868,
       "h": 787,
       "page": "round21",
@@ -1726,7 +1726,7 @@
     },
     "R21-BA-desk.dc.html": {
       "x": 2444,
-      "y": 2823,
+      "y": 4135,
       "w": 1828,
       "h": 892,
       "page": "round21",
@@ -1734,7 +1734,7 @@
     },
     "R21-BA-ends.dc.html": {
       "x": 4352,
-      "y": 2823,
+      "y": 4135,
       "w": 848,
       "h": 749,
       "page": "round21",
@@ -1742,7 +1742,7 @@
     },
     "R21-BA-names.dc.html": {
       "x": 680,
-      "y": 2823,
+      "y": 4135,
       "w": 1684,
       "h": 749,
       "page": "round21",
@@ -1750,7 +1750,7 @@
     },
     "R21-BA-sel.dc.html": {
       "x": 6626,
-      "y": 2823,
+      "y": 4135,
       "w": 1684,
       "h": 749,
       "page": "round21",
@@ -1758,7 +1758,7 @@
     },
     "R21-BA-shared.dc.html": {
       "x": 5280,
-      "y": 2823,
+      "y": 4135,
       "w": 1266,
       "h": 749,
       "page": "round21",
@@ -1766,7 +1766,7 @@
     },
     "R21-Findings.dc.html": {
       "x": 680,
-      "y": 4135,
+      "y": 5447,
       "w": 640,
       "h": 980,
       "page": "round21",
@@ -3079,13 +3079,13 @@
       "x": 0,
       "y": 0,
       "w": 600,
-      "h": 1000,
+      "h": 1400,
       "page": "round32",
       "title": "מה לאשר בסבב 32"
     },
     "R32-Directions.dc.html": {
       "x": 680,
-      "y": 0,
+      "y": 3281,
       "w": 1368,
       "h": 971,
       "page": "round32",
@@ -3093,7 +3093,7 @@
     },
     "R32-Poses.dc.html": {
       "x": 2128,
-      "y": 0,
+      "y": 3281,
       "w": 1540,
       "h": 1311,
       "page": "round32",
@@ -3101,7 +3101,7 @@
     },
     "R32-Home.dc.html": {
       "x": 680,
-      "y": 1731,
+      "y": 5012,
       "w": 1242,
       "h": 768,
       "page": "round32",
@@ -3109,7 +3109,7 @@
     },
     "R32-Empty.dc.html": {
       "x": 2002,
-      "y": 1731,
+      "y": 5012,
       "w": 1486,
       "h": 662,
       "page": "round32",
@@ -3117,7 +3117,7 @@
     },
     "R32-SkiDay.dc.html": {
       "x": 3568,
-      "y": 1731,
+      "y": 5012,
       "w": 1196,
       "h": 852,
       "page": "round32",
@@ -3125,7 +3125,7 @@
     },
     "R32-Games.dc.html": {
       "x": 4844,
-      "y": 1731,
+      "y": 5012,
       "w": 1196,
       "h": 832,
       "page": "round32",
@@ -3133,7 +3133,7 @@
     },
     "R32-Fall.dc.html": {
       "x": 680,
-      "y": 3003,
+      "y": 6284,
       "w": 1488,
       "h": 794,
       "page": "round32",
@@ -3181,7 +3181,7 @@
     },
     "R21-V2-three.dc.html": {
       "x": 680,
-      "y": 0,
+      "y": 1312,
       "w": 2520,
       "h": 749,
       "page": "round21",
@@ -3189,7 +3189,7 @@
     },
     "R21-V2-curve.dc.html": {
       "x": 3280,
-      "y": 0,
+      "y": 1312,
       "w": 1338,
       "h": 892,
       "page": "round21",
@@ -3258,6 +3258,150 @@
       "h": 1056,
       "page": "round34",
       "title": "ד. בדיקה: שלב 5, רוח 5, היריב בקצה"
+    },
+    "R21-E2-ends.dc.html": {
+      "x": 680,
+      "y": 0,
+      "w": 1684,
+      "h": 749,
+      "page": "round21",
+      "title": "קצה פתוח, גרסה 2: בלי סימן שאלה"
+    },
+    "R21-E2-desk.dc.html": {
+      "x": 2444,
+      "y": 0,
+      "w": 920,
+      "h": 892,
+      "page": "round21",
+      "title": "קצה פתוח, דעיכה, במחשב"
+    },
+    "R32-Pini.dc.html": {
+      "x": 680,
+      "y": 2120,
+      "w": 1668,
+      "h": 741,
+      "page": "round32",
+      "title": "ד. הדף של פיני: איור שטוח מול צילום מצויר"
+    },
+    "R32-PiniDay.dc.html": {
+      "x": 2428,
+      "y": 2120,
+      "w": 1684,
+      "h": 644,
+      "page": "round32",
+      "title": "ד. ליד האתר האמיתי, ביום"
+    },
+    "R32-PiniNight.dc.html": {
+      "x": 4192,
+      "y": 2120,
+      "w": 2102,
+      "h": 644,
+      "page": "round32",
+      "title": "ד. בלילה: בלי מעטפת ועם מעטפת לבנה"
+    },
+    "R32-PiniSigns.dc.html": {
+      "x": 6374,
+      "y": 2120,
+      "w": 1266,
+      "h": 704,
+      "page": "round32",
+      "title": "ד. עמוד השלטים והשלט הירוק בלילה"
+    },
+    "R32-PiniChecks.dc.html": {
+      "x": 7720,
+      "y": 2120,
+      "w": 2074,
+      "h": 334,
+      "page": "round32",
+      "title": "ד. הבדיקות: קו דק, צבעים ופנים"
+    },
+    "R32-Loop1.dc.html": {
+      "x": 680,
+      "y": 0,
+      "w": 1182,
+      "h": 476,
+      "page": "round32",
+      "title": "ה. הלופ הראשון מהכלי: מה יש ומה חסר"
+    },
+    "R32-Where.dc.html": {
+      "x": 1942,
+      "y": 0,
+      "w": 1684,
+      "h": 644,
+      "page": "round32",
+      "title": "ה. איפה היא גרה: ארבעה מקומות"
+    },
+    "R32-Lives.dc.html": {
+      "x": 5066,
+      "y": 0,
+      "w": 600,
+      "h": 1330,
+      "page": "round32",
+      "title": "ה. מה היא עושה בכל מקום"
+    },
+    "R32-Never.dc.html": {
+      "x": 5746,
+      "y": 0,
+      "w": 600,
+      "h": 880,
+      "page": "round32",
+      "title": "ה. מה היא לעולם לא עושה"
+    },
+    "R32-Ask.dc.html": {
+      "x": 6426,
+      "y": 0,
+      "w": 600,
+      "h": 1180,
+      "page": "round32",
+      "title": "ה. מה צריך מהכלי של פיני"
+    },
+    "R32-Anchors.dc.html": {
+      "x": 3706,
+      "y": 0,
+      "w": 600,
+      "h": 1700,
+      "page": "round32",
+      "title": "ה. על מה היא נשענת: מקום אחר מקום"
+    },
+    "R32-PosesAsk.dc.html": {
+      "x": 4386,
+      "y": 0,
+      "w": 600,
+      "h": 1500,
+      "page": "round32",
+      "title": "ה. ריכוז התנוחות לפיני: מה לבקש מהכלי"
+    },
+    "R35-0-Decide.dc.html": {
+      "x": 0,
+      "y": 0,
+      "w": 600,
+      "h": 560,
+      "page": "round35",
+      "title": "מה לאשר בסבב 35"
+    },
+    "R35-Float.dc.html": {
+      "x": 680,
+      "y": 0,
+      "w": 1852,
+      "h": 1164,
+      "page": "round35",
+      "title": "א. המגירה המרחפת של המפה: שלושה גבהים"
+    },
+    "R35-Lift.dc.html": {
+      "x": 2612,
+      "y": 0,
+      "w": 1392,
+      "h": 1164,
+      "page": "round35",
+      "title": "ב. אותו דבר בפאנל הרכבל"
+    },
+    "R35-Round.dc.html": {
+      "x": 680,
+      "y": 1584,
+      "w": 2772,
+      "h": 1164,
+      "page": "round35",
+      "title": "ג. גיליונות תחתונים רגילים: פינות עליונות 20 dp"
     }
   },
   "createdOnFiles": {
@@ -3267,7 +3411,7 @@
   "designSystems": [],
   "launch": {
     "view": "canvas",
-    "page": "round34"
+    "page": "round35"
   },
   "notes": {
     "featRow1": {
@@ -4307,39 +4451,48 @@
     },
     "round21row0": {
       "kind": "title1",
-      "maxW": 3938,
+      "maxW": 2684,
       "page": "round21",
-      "text": "גרסה 2: שמות קטנים",
+      "text": "קצה פתוח, גרסה 2",
       "w": 240,
       "x": 680,
       "y": -300
     },
     "round21row1": {
       "kind": "title1",
-      "maxW": 2796,
+      "maxW": 3938,
       "page": "round21",
-      "text": "היום: הביקורת",
+      "text": "גרסה 2: שמות קטנים",
       "w": 240,
       "x": 680,
       "y": 1012
     },
     "round21row2": {
       "kind": "title1",
+      "maxW": 2796,
+      "page": "round21",
+      "text": "היום: הביקורת",
+      "w": 240,
+      "x": 680,
+      "y": 2324
+    },
+    "round21row3": {
+      "kind": "title1",
       "maxW": 7630,
       "page": "round21",
       "text": "גרסה 1: לפני ואחרי",
       "w": 240,
       "x": 680,
-      "y": 2523
+      "y": 3835
     },
-    "round21row3": {
+    "round21row4": {
       "kind": "title1",
       "maxW": 860,
       "page": "round21",
       "text": "הממצאים",
       "w": 240,
       "x": 680,
-      "y": 3835
+      "y": 5147
     },
     "round29row0": {
       "kind": "title1",
@@ -4451,30 +4604,48 @@
     },
     "round32row0": {
       "kind": "title1",
-      "maxW": 2988,
+      "maxW": 6346,
       "page": "round32",
-      "text": "א. כיוונים ותנוחות",
+      "text": "ה. הדמות החיה",
       "w": 240,
       "x": 680,
       "y": -300
     },
     "round32row1": {
       "kind": "title1",
+      "maxW": 9114,
+      "page": "round32",
+      "text": "ד. הדף של פיני (איור שטוח)",
+      "w": 240,
+      "x": 680,
+      "y": 1820
+    },
+    "round32row2": {
+      "kind": "title1",
+      "maxW": 2988,
+      "page": "round32",
+      "text": "א. כיוונים ותנוחות",
+      "w": 240,
+      "x": 680,
+      "y": 2981
+    },
+    "round32row3": {
+      "kind": "title1",
       "maxW": 5360,
       "page": "round32",
       "text": "ב. הרגעים",
       "w": 240,
       "x": 680,
-      "y": 1431
+      "y": 4712
     },
-    "round32row2": {
+    "round32row4": {
       "kind": "title1",
       "maxW": 1488,
       "page": "round32",
       "text": "ג. \"פה נפלת\"",
       "w": 240,
       "x": 680,
-      "y": 2703
+      "y": 5984
     },
     "round31row0": {
       "kind": "title1",
@@ -4547,6 +4718,24 @@
       "w": 240,
       "x": 680,
       "y": 1176
+    },
+    "round35row0": {
+      "kind": "title1",
+      "maxW": 3324,
+      "page": "round35",
+      "text": "א. מגירת המפה",
+      "w": 240,
+      "x": 680,
+      "y": -300
+    },
+    "round35row1": {
+      "kind": "title1",
+      "maxW": 2772,
+      "page": "round35",
+      "text": "ב. גיליונות רגילים",
+      "w": 240,
+      "x": 680,
+      "y": 1284
     }
   },
   "order": [
@@ -4955,9 +5144,31 @@
     "R34-Three.dc.html",
     "R34-Lens.dc.html",
     "R30-Poc.dc.html",
-    "R34-Edge.dc.html"
+    "R34-Edge.dc.html",
+    "R21-E2-ends.dc.html",
+    "R21-E2-desk.dc.html",
+    "R32-Pini.dc.html",
+    "R32-PiniDay.dc.html",
+    "R32-PiniNight.dc.html",
+    "R32-PiniSigns.dc.html",
+    "R32-PiniChecks.dc.html",
+    "R32-Loop1.dc.html",
+    "R32-Where.dc.html",
+    "R32-Lives.dc.html",
+    "R32-Never.dc.html",
+    "R32-Ask.dc.html",
+    "R32-Anchors.dc.html",
+    "R32-PosesAsk.dc.html",
+    "R35-0-Decide.dc.html",
+    "R35-Float.dc.html",
+    "R35-Lift.dc.html",
+    "R35-Round.dc.html"
   ],
   "pages": [
+    {
+      "id": "round35",
+      "name": "סבב 35: האנדרואיד קרוב יותר לאייפון"
+    },
     {
       "id": "round34",
       "name": "סבב 34: קרב כדורי שלג, לראות את החבר׳ה"

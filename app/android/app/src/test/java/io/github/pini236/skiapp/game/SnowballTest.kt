@@ -89,6 +89,21 @@ class SnowballTest {
         q.finish(); assertEquals(l, ear2.done) // once
     }
 
+    /** Round 34 ("ד מתוקנת"): the site's values, a longer lens at the same distances, the friends closer together, the view leaning with the finger. */
+    @Test fun round34TheFriendsLookBiggerAtTheSameDistances() {
+        val g = standing(4)
+        assertEquals(listOf(-2f, 0f, 2f).map { it * SnowballFight.XS }, g.foes.map { it.x }.sorted())
+        assertEquals(1f / 1.4f, SnowballFight.XS, 1e-6f)
+        assertEquals(minOf(390f * 1.75f, 844f * 1.15f) * 1.4f, g.f, .01f)
+        assertEquals(844f * .5f, g.y0, .01f)
+        // the peeks of the top three rungs, as on the site; the first two are as before
+        assertEquals(listOf(1.8f to 2.4f, 1.4f to 1.9f, 1.1f to 1.55f, 1.05f to 1.5f, .95f to 1.35f), RUNGS.map { it.upA to it.upB })
+        // the finger to the right leans the view toward it, and the ring includes the lean, so the ball goes where the ring is
+        g.down(390f, 400f); g.go(2f)
+        assertEquals(.75f, g.camX, .01f)
+        assertEquals((390f - 195f) / (g.f / SnowballFight.ZO) + g.camX, g.ringX(g.aim!!), .001f)
+    }
+
     @Test fun theRungGoals() {
         val s = SnowballFight.Stats()
         assertTrue(RUNGS[0].ok(s)); s.taken = 1; assertFalse(RUNGS[0].ok(s))

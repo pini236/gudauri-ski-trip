@@ -254,6 +254,7 @@ fun MeetScreen(
                 }
                 // ---- the card (M3; MP2 the waiting card, MP3 the X) ----
                 if (station == null) EmptyCard() else MeetCard(station, time, dayLabel(day, lang.tag), Meet.left(Meet.at(day, time), now)) { clear("card") }
+                if (station != null) io.github.pini236.skiapp.places.MeetPlaces(station)
 
                 // round 20: no "how to get there" and no note under the share
                 if (station != null && plan != null && runs != null) ShareBox(station, time, day, dayLabel(day, lang.tag), runs, relief, lang, save) { onOnMap(station) }

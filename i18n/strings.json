@@ -16714,6 +16714,18 @@
     "ka"
    ]
   },
+  "app.dayrec_channel": {
+   "he": "הקלטת יום הגלישה",
+   "en": "Ski day recording",
+   "ru": "Запись дня на склоне",
+   "ka": "სათხილამურო დღის ჩაწერა",
+   "where": "app/android",
+   "note": "יום הגלישה (החלטה 76): the notification channel, in the phone's settings",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
   "places.chip": {
    "he": "אוכל",
    "en": "Food",
@@ -16721,6 +16733,18 @@
    "ka": "საჭმელი",
    "where": "site (round 31, places near the stations; the apps follow)",
    "note": "chip on the map toolbar that turns the place tags on. one word",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.dayrec_title": {
+   "he": "מקליט את היום",
+   "en": "Recording your day",
+   "ru": "Идёт запись дня",
+   "ka": "დღე იწერება",
+   "where": "app/android",
+   "note": "יום הגלישה (החלטה 76): the title of the always-on notification while a day is recorded; provisional until round 29 is approved",
    "check": [
     "ru",
     "ka"
@@ -16738,6 +16762,18 @@
     "ka"
    ]
   },
+  "app.dayrec_text": {
+   "he": "{min} דק׳ · מסלול ומהירות נשמרים בטלפון",
+   "en": "{min} min · route and speed are kept on the phone",
+   "ru": "{min} мин · маршрут и скорость хранятся в телефоне",
+   "ka": "{min} წთ · მარშრუტი და სიჩქარე ინახება ტელეფონში",
+   "where": "app/android",
+   "note": "יום הגלישה (החלטה 76): the notification's text; {min} is the minutes recorded so far",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
   "places.near_top": {
    "he": "ליד התחנה העליונה",
    "en": "Near the top station",
@@ -16745,6 +16781,18 @@
    "ka": "ზედა სადგურთან",
    "where": "site (round 31, places near the stations; the apps follow)",
    "note": "heading in the lift panel",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.dayrec_stop": {
+   "he": "עצירה",
+   "en": "Stop",
+   "ru": "Стоп",
+   "ka": "შეჩერება",
+   "where": "app/android",
+   "note": "יום הגלישה (החלטה 76): the notification's button",
    "check": [
     "ru",
     "ka"
@@ -16762,6 +16810,18 @@
     "ka"
    ]
   },
+  "app.dayrec_idle": {
+   "he": "ההקלטה תיעצר בעוד {min} דק׳ בלי תנועה",
+   "en": "Recording stops in {min} min without movement",
+   "ru": "Запись остановится через {min} мин без движения",
+   "ka": "ჩაწერა შეჩერდება {min} წთ-ში მოძრაობის გარეშე",
+   "where": "app/android",
+   "note": "יום הגלישה (החלטה 76): the notification's text when the phone has not moved for a long time; {min} minutes are left",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
   "places.all_n": {
    "he": "כל ה-{n}",
    "en": "All {n}",
@@ -16769,6 +16829,18 @@
    "ka": "ყველა {n}",
    "where": "site (round 31, places near the stations; the apps follow)",
    "note": "button that opens the whole list. {n} is more than three",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.rec_sign": {
+   "he": "מקליטים",
+   "en": "Record",
+   "ru": "Запись",
+   "ka": "ჩაწერა",
+   "where": "app/android",
+   "note": "יום הגלישה (סבב 29, החלטה 77): the red sign at the top of the signs and the round button on the map",
    "check": [
     "ru",
     "ka"
@@ -16786,6 +16858,18 @@
     "ka"
    ]
   },
+  "app.rec_sign_sub": {
+   "he": "מהירות, מסלולים וירידות. מכל מקום, בכל שעה.",
+   "en": "Speed, runs and descents. From anywhere, at any time.",
+   "ru": "Скорость, трассы и спуски. Откуда угодно, в любое время.",
+   "ka": "სიჩქარე, ტრასები და დაშვებები. ნებისმიერი ადგილიდან, ნებისმიერ დროს.",
+   "where": "app/android",
+   "note": "יום הגלישה (סבב 29, החלטה 77): sub line of the sign",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
   "places.check": {
    "he": "כדאי לבדוק במקום",
    "en": "Worth checking on the spot",
@@ -16793,6 +16877,18 @@
    "ka": "სასურველია ადგილზე გადაამოწმოთ",
    "where": "site (round 31, places near the stations; the apps follow)",
    "note": "no opening hours in the data",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.rec_perm_title": {
+   "he": "לפני שמקליטים",
+   "en": "Before you record",
+   "ru": "Перед записью",
+   "ka": "ჩაწერამდე",
+   "where": "app/android",
+   "note": "יום הגלישה (סבב 29, החלטה 77): title of the sheet that explains the location question",
    "check": [
     "ru",
     "ka"
@@ -16810,6 +16906,18 @@
     "ka"
    ]
   },
+  "app.rec_perm_pocket": {
+   "he": "הטלפון בכיס, ההקלטה ממשיכה",
+   "en": "Phone in your pocket, the recording goes on",
+   "ru": "Телефон в кармане, запись продолжается",
+   "ka": "ტელეფონი ჯიბეშია, ჩაწერა გრძელდება",
+   "where": "app/android",
+   "note": "יום הגלישה (סבב 29, החלטה 77): row 1 with an icon",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
   "places.kind_cafe": {
    "he": "בית קפה",
    "en": "Cafe",
@@ -16817,6 +16925,18 @@
    "ka": "კაფე",
    "where": "site (round 31, places near the stations; the apps follow)",
    "note": "kind of a place without a name",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.rec_perm_local": {
+   "he": "הכל נשאר בטלפון",
+   "en": "Everything stays on the phone",
+   "ru": "Всё остаётся в телефоне",
+   "ka": "ყველაფერი ტელეფონში რჩება",
+   "where": "app/android",
+   "note": "יום הגלישה (סבב 29, החלטה 77): row 2 with an icon",
    "check": [
     "ru",
     "ka"
@@ -16834,6 +16954,18 @@
     "ka"
    ]
   },
+  "app.rec_perm_ok": {
+   "he": "מספיק \"בזמן השימוש באפליקציה\"",
+   "en": "\"While using the app\" is enough",
+   "ru": "Достаточно «Пока приложение используется»",
+   "ka": "საკმარისია „აპლიკაციის გამოყენებისას“",
+   "where": "app/android",
+   "note": "יום הגלישה (סבב 29, החלטה 77): row 3: what to answer to the system question",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
   "places.kind_wc": {
    "he": "שירותים",
    "en": "Toilets",
@@ -16841,6 +16973,18 @@
    "ka": "საპირფარეშო",
    "where": "site (round 31, places near the stations; the apps follow)",
    "note": "kind of a place without a name",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.rec_perm_go": {
+   "he": "המשך",
+   "en": "Continue",
+   "ru": "Продолжить",
+   "ka": "გაგრძელება",
+   "where": "app/android",
+   "note": "יום הגלישה (סבב 29, החלטה 77): the sheet's button, then the system asks",
    "check": [
     "ru",
     "ka"
@@ -16858,6 +17002,18 @@
     "ka"
    ]
   },
+  "app.rec_all": {
+   "he": "כל היום",
+   "en": "All day",
+   "ru": "Весь день",
+   "ka": "მთელი დღე",
+   "where": "app/android",
+   "note": "יום הגלישה (סבב 29, החלטה 77): choice at the top of the live sheet",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
   "places.meet_count": {
    "he": "מקומות ליד התחנה: {n}",
    "en": "Places near the station: {n}",
@@ -16865,6 +17021,558 @@
    "ka": "ადგილები სადგურთან: {n}",
    "where": "site (round 31, places near the stations; the apps follow)",
    "note": "one line under the meeting card",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.rec_one": {
+   "he": "ירידה אחת",
+   "en": "One descent",
+   "ru": "Один спуск",
+   "ka": "ერთი დაშვება",
+   "where": "app/android",
+   "note": "יום הגלישה (סבב 29, החלטה 77): choice at the top of the live sheet; stops by itself at the bottom",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.rec_unit": {
+   "he": "קמ\"ש",
+   "en": "km/h",
+   "ru": "км/ч",
+   "ka": "კმ/სთ",
+   "where": "app/android",
+   "note": "יום הגלישה (סבב 29, החלטה 77): speed unit",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.rec_max": {
+   "he": "מרבית · קמ\"ש",
+   "en": "top · km/h",
+   "ru": "макс. · км/ч",
+   "ka": "მაქს. · კმ/სთ",
+   "where": "app/android",
+   "note": "יום הגלישה (סבב 29, החלטה 77): label of a number; the maximum is an estimate",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.rec_dist": {
+   "he": "גלישה · ק\"מ",
+   "en": "skied · km",
+   "ru": "спуск · км",
+   "ka": "დაშვება · კმ",
+   "where": "app/android",
+   "note": "יום הגלישה (סבב 29, החלטה 77): label of a number",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.rec_drop": {
+   "he": "ירידה · מ'",
+   "en": "drop · m",
+   "ru": "спуск · м",
+   "ka": "დაშვება · მ",
+   "where": "app/android",
+   "note": "יום הגלישה (סבב 29, החלטה 77): label of a number",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.rec_runs": {
+   "he": "ירידות",
+   "en": "descents",
+   "ru": "спусков",
+   "ka": "დაშვებები",
+   "where": "app/android",
+   "note": "יום הגלישה (סבב 29, החלטה 77): label of a number",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.rec_now": {
+   "he": "מקליטים · {time}",
+   "en": "Recording · {time}",
+   "ru": "Запись · {time}",
+   "ka": "ჩაწერა · {time}",
+   "where": "app/android",
+   "note": "יום הגלישה (סבב 29, החלטה 77): the red line above the speed; {time} is how long",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.rec_stop": {
+   "he": "סיום",
+   "en": "Finish",
+   "ru": "Завершить",
+   "ka": "დასრულება",
+   "where": "app/android",
+   "note": "יום הגלישה (סבב 29, החלטה 77): the live sheet's button",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.rec_probably": {
+   "he": "כנראה",
+   "en": "probably",
+   "ru": "вероятно",
+   "ka": "სავარაუდოდ",
+   "where": "app/android",
+   "note": "יום הגלישה (סבב 29, החלטה 77): the live view guesses; the timeline at the end of the day is the truth",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.rec_on_lift": {
+   "he": "על הרכבל {lift}",
+   "en": "On the {lift} lift",
+   "ru": "На подъёмнике {lift}",
+   "ka": "{lift}-ის ბაგირზე",
+   "where": "app/android",
+   "note": "יום הגלישה (סבב 29, החלטה 77): what you are doing now",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.rec_on_run": {
+   "he": "ב-{run}",
+   "en": "On {run}",
+   "ru": "На трассе {run}",
+   "ka": "ტრასაზე {run}",
+   "where": "app/android",
+   "note": "יום הגלישה (סבב 29, החלטה 77): what you are doing now",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.rec_standing": {
+   "he": "עומדים",
+   "en": "Standing",
+   "ru": "Стоим",
+   "ka": "ვდგავართ",
+   "where": "app/android",
+   "note": "יום הגלישה (סבב 29, החלטה 77): what you are doing now",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.rec_walking": {
+   "he": "הולכים",
+   "en": "Walking",
+   "ru": "Идём",
+   "ka": "ვიარებით",
+   "where": "app/android",
+   "note": "יום הגלישה (סבב 29, החלטה 77): what you are doing now",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.rec_off": {
+   "he": "מחוץ למסלולים",
+   "en": "Off the runs",
+   "ru": "Вне трасс",
+   "ka": "ტრასებს გარეთ",
+   "where": "app/android",
+   "note": "יום הגלישה (סבב 29, החלטה 77): what you are doing now",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.rec_soon": {
+   "he": "עד שמסיימים, או עד סוף היום.",
+   "en": "Until you finish, or the end of the day.",
+   "ru": "Пока не завершите, или до конца дня.",
+   "ka": "სანამ არ დაასრულებთ, ან დღის ბოლომდე.",
+   "where": "app/android",
+   "note": "יום הגלישה (סבב 29, החלטה 77): hint next to the finish button",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.rec_err_precise": {
+   "he": "צריך מיקום מדויק. בהגדרות האפליקציה מאשרים \"מיקום מדויק\".",
+   "en": "Precise location is needed. Allow \"Precise location\" in the app settings.",
+   "ru": "Нужна точная геолокация. Разрешите «Точное местоположение» в настройках приложения.",
+   "ka": "საჭიროა ზუსტი ადგილმდებარეობა. აპლიკაციის პარამეტრებში ჩართეთ „ზუსტი ადგილმდებარეობა“.",
+   "where": "app/android",
+   "note": "יום הגלישה (סבב 29, החלטה 77): no recording with an approximate location",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.rec_err_perm": {
+   "he": "בלי הרשאת מיקום אי אפשר להקליט.",
+   "en": "Recording needs the location permission.",
+   "ru": "Для записи нужно разрешение на геолокацию.",
+   "ka": "ჩასაწერად საჭიროა ადგილმდებარეობის ნებართვა.",
+   "where": "app/android",
+   "note": "יום הגלישה (סבב 29, החלטה 77): the system question was refused",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.rec_err_off": {
+   "he": "המיקום בטלפון כבוי. מדליקים אותו בהגדרות.",
+   "en": "Location is off on the phone. Switch it on in the settings.",
+   "ru": "Геолокация на телефоне выключена. Включите её в настройках.",
+   "ka": "ტელეფონზე ადგილმდებარეობა გამორთულია. ჩართეთ პარამეტრებში.",
+   "where": "app/android",
+   "note": "יום הגלישה (סבב 29, החלטה 77): ",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.day_title": {
+   "he": "היום שלך",
+   "en": "Your day",
+   "ru": "Ваш день",
+   "ka": "თქვენი დღე",
+   "where": "app/android",
+   "note": "יום הגלישה (סבב 29, החלטה 77): title of the end-of-day screen",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.day_sum_descents": {
+   "he": "ירידות",
+   "en": "descents",
+   "ru": "спусков",
+   "ka": "დაშვება",
+   "where": "app/android",
+   "note": "יום הגלישה (סבב 29, החלטה 77): summary number",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.day_sum_drop": {
+   "he": "מ' ירידה",
+   "en": "m descent",
+   "ru": "м спуска",
+   "ka": "მ დაშვება",
+   "where": "app/android",
+   "note": "יום הגלישה (סבב 29, החלטה 77): summary number",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.day_sum_max": {
+   "he": "קמ\"ש מרבית, הערכה",
+   "en": "km/h top, estimate",
+   "ru": "км/ч макс., оценка",
+   "ka": "კმ/სთ მაქს., შეფასება",
+   "where": "app/android",
+   "note": "יום הגלישה (סבב 29, החלטה 77): summary number: the maximum is an estimate, never a promise",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.day_morning": {
+   "he": "בוקר",
+   "en": "Morning",
+   "ru": "Утро",
+   "ka": "დილა",
+   "where": "app/android",
+   "note": "יום הגלישה (סבב 29, החלטה 77): chapter of the timeline",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.day_afternoon": {
+   "he": "אחר הצהריים",
+   "en": "Afternoon",
+   "ru": "После обеда",
+   "ka": "შუადღის შემდეგ",
+   "where": "app/android",
+   "note": "יום הגלישה (סבב 29, החלטה 77): chapter of the timeline",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.day_n_descents": {
+   "he": "{n} ירידות",
+   "en": "{n} descents",
+   "ru": "спусков: {n}",
+   "ka": "დაშვებები: {n}",
+   "where": "app/android",
+   "note": "יום הגלישה (סבב 29, החלטה 77): count in a chapter head",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.day_queue": {
+   "he": "תור {min} דק'",
+   "en": "Queue {min} min",
+   "ru": "Очередь {min} мин",
+   "ka": "რიგი {min} წთ",
+   "where": "app/android",
+   "note": "יום הגלישה (סבב 29, החלטה 77): a wait for a lift of three minutes or more",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.day_rest": {
+   "he": "הפסקה · {min} דק'",
+   "en": "Break · {min} min",
+   "ru": "Перерыв · {min} мин",
+   "ka": "შესვენება · {min} წთ",
+   "where": "app/android",
+   "note": "יום הגלישה (סבב 29, החלטה 77): a rest of ten minutes or more",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.day_lunch": {
+   "he": "הפסקה ארוכה · {min} דק'",
+   "en": "Long break · {min} min",
+   "ru": "Долгий перерыв · {min} мин",
+   "ka": "გრძელი შესვენება · {min} წთ",
+   "where": "app/android",
+   "note": "יום הגלישה (סבב 29, החלטה 77): a long stop, a meal",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.day_walk": {
+   "he": "ברגל · {m} מ'",
+   "en": "On foot · {m} m",
+   "ru": "Пешком · {m} м",
+   "ka": "ფეხით · {m} მ",
+   "where": "app/android",
+   "note": "יום הגלישה (סבב 29, החלטה 77): a walk of 150 m or more",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.day_off": {
+   "he": "חלק מחוץ למסלולים",
+   "en": "Part off the runs",
+   "ru": "Часть вне трасс",
+   "ka": "ნაწილი ტრასებს გარეთ",
+   "where": "app/android",
+   "note": "יום הגלישה (סבב 29, החלטה 77): a descent that left the runs: no name is given",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.day_loading": {
+   "he": "מנתחים את היום…",
+   "en": "Working out your day…",
+   "ru": "Разбираем ваш день…",
+   "ka": "ვაანალიზებთ თქვენს დღეს…",
+   "where": "app/android",
+   "note": "יום הגלישה (סבב 29, החלטה 77): while the result is computed",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.day_empty": {
+   "he": "בהקלטה הזו אין ירידות.",
+   "en": "There are no descents in this recording.",
+   "ru": "В этой записи нет спусков.",
+   "ka": "ამ ჩანაწერში დაშვებები არ არის.",
+   "where": "app/android",
+   "note": "יום הגלישה (סבב 29, החלטה 77): a recording that was short or off the runs",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.day_pin": {
+   "he": "פה טסת",
+   "en": "Top speed",
+   "ru": "Здесь вы летели",
+   "ka": "აქ გაფრინდით",
+   "where": "app/android",
+   "note": "יום הגלישה (סבב 29, החלטה 77): pin on the map at the place of the top speed",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.day_note": {
+   "he": "צבע הקו הוא המהירות. המהירות המרבית היא הערכה.",
+   "en": "The colour of the line is the speed. The top speed is an estimate.",
+   "ru": "Цвет линии — скорость. Максимальная скорость — оценка.",
+   "ka": "ხაზის ფერი სიჩქარეა. მაქსიმალური სიჩქარე შეფასებაა.",
+   "where": "app/android",
+   "note": "יום הגלישה (סבב 29, החלטה 77): under the map",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.days_title": {
+   "he": "הימים שלי",
+   "en": "My days",
+   "ru": "Мои дни",
+   "ka": "ჩემი დღეები",
+   "where": "app/android",
+   "note": "יום הגלישה (סבב 29, החלטה 77): the history of recorded days, kept on the phone only",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.days_empty": {
+   "he": "עוד אין ימים. יום שמקליטים נשמר כאן, בטלפון בלבד.",
+   "en": "No days yet. A day you record is kept here, on the phone only.",
+   "ru": "Пока нет дней. Записанный день хранится здесь, только в телефоне.",
+   "ka": "ჯერ დღეები არ არის. ჩაწერილი დღე ინახება აქ, მხოლოდ ტელეფონში.",
+   "where": "app/android",
+   "note": "יום הגלישה (סבב 29, החלטה 77): empty history",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.days_item": {
+   "he": "{n} ירידות · {max} קמ\"ש",
+   "en": "{n} descents · {max} km/h",
+   "ru": "спусков: {n} · {max} км/ч",
+   "ka": "დაშვებები: {n} · {max} კმ/სთ",
+   "where": "app/android",
+   "note": "יום הגלישה (סבב 29, החלטה 77): a day in the list: how many descents, the top speed (an estimate)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.days_cut": {
+   "he": "היום נקטע",
+   "en": "The day was cut short",
+   "ru": "День был прерван",
+   "ka": "დღე შეწყდა",
+   "where": "app/android",
+   "note": "יום הגלישה (סבב 29, החלטה 77): a day without a result",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.days_delete": {
+   "he": "מחיקה",
+   "en": "Delete",
+   "ru": "Удалить",
+   "ka": "წაშლა",
+   "where": "app/android",
+   "note": "יום הגלישה (סבב 29, החלטה 77): delete one day",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.days_delete_sure": {
+   "he": "למחוק את היום? נגיעה נוספת מוחקת.",
+   "en": "Delete this day? Tap again to delete.",
+   "ru": "Удалить этот день? Нажмите ещё раз.",
+   "ka": "წავშალოთ ეს დღე? კიდევ ერთხელ შეეხეთ.",
+   "where": "app/android",
+   "note": "יום הגלישה (סבב 29, החלטה 77): second tap",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.days_delete_all": {
+   "he": "מחיקת הכל",
+   "en": "Delete everything",
+   "ru": "Удалить всё",
+   "ka": "ყველაფრის წაშლა",
+   "where": "app/android",
+   "note": "יום הגלישה (סבב 29, החלטה 77): delete all days and their history",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.days_delete_all_sure": {
+   "he": "למחוק את כל הימים וההיסטוריה? נגיעה נוספת מוחקת.",
+   "en": "Delete all days and the history? Tap again to delete.",
+   "ru": "Удалить все дни и историю? Нажмите ещё раз.",
+   "ka": "წავშალოთ ყველა დღე და ისტორია? კიდევ ერთხელ შეეხეთ.",
+   "where": "app/android",
+   "note": "יום הגלישה (סבב 29, החלטה 77): second tap",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.rec_cut_title": {
+   "he": "היום נקטע",
+   "en": "The day was cut short",
+   "ru": "День был прерван",
+   "ka": "დღე შეწყდა",
+   "where": "app/android",
+   "note": "יום הגלישה (סבב 29, החלטה 77): shown when the phone closed the app in the middle of a recording",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.rec_cut_text": {
+   "he": "הטלפון סגר את האפליקציה באמצע הקלטה. להמשיך באותו יום?",
+   "en": "The phone closed the app in the middle of a recording. Go on with the same day?",
+   "ru": "Телефон закрыл приложение посреди записи. Продолжить тот же день?",
+   "ka": "ტელეფონმა აპლიკაცია ჩაწერის შუაში დახურა. გავაგრძელოთ იგივე დღე?",
+   "where": "app/android",
+   "note": "יום הגלישה (סבב 29, החלטה 77): ",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.rec_cut_go": {
+   "he": "להמשיך",
+   "en": "Go on",
+   "ru": "Продолжить",
+   "ka": "გაგრძელება",
+   "where": "app/android",
+   "note": "יום הגלישה (סבב 29, החלטה 77): ",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.rec_cut_close": {
+   "he": "לסגור את היום",
+   "en": "Close the day",
+   "ru": "Закрыть день",
+   "ka": "დღის დახურვა",
+   "where": "app/android",
+   "note": "יום הגלישה (סבב 29, החלטה 77): ",
    "check": [
     "ru",
     "ka"

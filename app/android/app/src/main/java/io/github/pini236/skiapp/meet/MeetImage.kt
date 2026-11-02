@@ -35,7 +35,7 @@ object MeetImage {
             line.color = col; line.strokeWidth = w
             c.drawPath(p, line)
         }
-        val cols = mapOf("green" to 0xFF1B8A4C.toInt(), "blue" to 0xFF1F5FC4.toInt(), "red" to 0xFFD1342B.toInt(), "black" to 0xFF13233A.toInt())
+        val cols = mapOf("green" to 0xFF198549.toInt(), "blue" to 0xFF1F5FC4.toInt(), "red" to 0xFFD1342B.toInt(), "black" to 0xFF13233A.toInt())
         for (p in runs.mainPistes) if (p.named) for (l in p.lines) { stroke(l, 0xFFFFFFFF.toInt(), 11f); stroke(l, cols[p.color] ?: cols.getValue("black"), 6f) }
         for (l in runs.mainLifts) if (l.name.isNotEmpty()) { stroke(l.pts, 0xFFFFFFFF.toInt(), 6f); stroke(l.pts, 0xFF3A4556.toInt(), 3f) }
 

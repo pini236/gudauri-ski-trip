@@ -34,7 +34,7 @@ class Lesson(
     val beat: Float = 0f, val traffic: Boolean = false, val fade: Boolean = false, val wedgeBtn: Boolean = false, val limit: Int = 0,
 )
 
-private const val GREEN = 0xFF1B8A4C
+private const val GREEN = 0xFF198549
 private const val BLUE = 0xFF1F5FC4
 private const val RED = 0xFFD1342B
 
@@ -105,7 +105,7 @@ class SchoolRun(val lv: Lesson, private val out: Out) {
     val gates = lv.gates.map { Gate(it[0], it[1], it[2]) }
     val people = if (!lv.traffic) emptyList() else List(6) { k ->
         Person((if (k % 2 == 1) 1 else -1) * (2f + (k * 37) % 6), 45 + k * (lv.len - 70) / 6, 2 + (k % 3) * .8f, k * 1.3f, 2.5f + k % 3,
-            longArrayOf(0xFF1B8A4C, 0xFF7B4FC4, 0xFFF4B942, 0xFF1F5FC4)[k % 4])
+            longArrayOf(0xFF198549, 0xFF7B4FC4, 0xFFF4B942, 0xFF1F5FC4)[k % 4])
     }
     val tracks = ArrayList<Track>()
     var finger: Finger? = null

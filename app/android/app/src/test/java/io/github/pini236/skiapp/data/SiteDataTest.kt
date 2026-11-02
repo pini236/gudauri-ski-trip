@@ -13,6 +13,8 @@ class SiteDataTest {
     private val site = File(System.getProperty("site.data") ?: "../../../site/data")
     private val runs = File(site, "runs-and-lifts.json").readText()
     private val videos = File(site, "videos-seed.json").readText()
+    private val resorts = File(site, "resorts.json").readText()
+    private val places = File(site, "places.json").readText()
     private lateinit var dir: File
     private var clock = 1_000_000_000L
     private val calls = mutableListOf<Pair<String, String?>>()
@@ -20,6 +22,8 @@ class SiteDataTest {
     private fun packaged(name: String) = when (name) {
         "runs-and-lifts.json" -> runs
         "videos-seed.json" -> videos
+        "resorts.json" -> resorts
+        "places.json" -> places
         else -> error(name)
     }
 
@@ -27,7 +31,8 @@ class SiteDataTest {
     private fun site(answers: Map<String, Pair<String, String>>) = SiteData.Fetcher { url, etag ->
         val name = url.substringAfterLast('/')
         calls += name to etag
-        val (tag, body) = answers.getValue(name)
+        // a file a test does not talk about is the packaged one, unchanged
+        val (tag, body) = answers[name] ?: ("\"r\"" to packaged(name))
         if (etag == tag) SiteData.Response(304, tag, null) else SiteData.Response(200, tag, body.toByteArray())
     }
 
@@ -41,6 +46,15 @@ class SiteDataTest {
     @Test fun packagedFilesAreValid() {
         assertTrue(SiteData.validRuns(runs))
         assertTrue(SiteData.validVideos(videos))
+        assertTrue(SiteData.validResorts(resorts))
+        assertTrue(io.github.pini236.skiapp.places.Places.parse(places) != null)
+    }
+
+    @Test fun theResortsFileIsOnlyUsedWhenItHasResorts() {
+        assertFalse(SiteData.validResorts("{\"resorts\":[]}"))
+        assertFalse(SiteData.validResorts("{\"schema\":2,\"resorts\":[{\"id\":\"a\"}]}")) // a newer structure than this app knows
+        assertFalse(SiteData.validResorts("[]"))
+        assertTrue(SiteData.validResorts("{\"schema\":1,\"resorts\":[{\"id\":\"gudauri\"}]}"))
     }
 
     @Test fun noNetworkKeepsThePackagedCopy() {
@@ -62,7 +76,7 @@ class SiteDataTest {
         clock += SiteData.EVERY_MS
         calls.clear()
         assertTrue(d.refresh().values.all { it == SiteData.Outcome.UNCHANGED })
-        assertEquals(listOf("runs-and-lifts.json" to "\"a\"", "videos-seed.json" to "\"v\""), calls)
+        assertEquals(listOf("runs-and-lifts.json" to "\"a\"", "videos-seed.json" to "\"v\"", "resorts.json" to "\"r\"", "places.json" to "\"r\""), calls)
         // a new process reads the same state from disk
         assertEquals(newerRuns, data(site(emptyMap())).read("runs-and-lifts.json"))
     }
