@@ -92,7 +92,8 @@ class SnowballTest {
     /** Round 34 ("ד מתוקנת"): the site's values, a longer lens at the same distances, the friends closer together, the view leaning with the finger. */
     @Test fun round34TheFriendsLookBiggerAtTheSameDistances() {
         val g = standing(4)
-        assertEquals(listOf(-2f / 1.4f, 0f, 2f / 1.4f), g.foes.map { it.x }.sorted())
+        assertEquals(listOf(-2f, 0f, 2f).map { it * SnowballFight.XS }, g.foes.map { it.x }.sorted())
+        assertEquals(1f / 1.4f, SnowballFight.XS, 1e-6f)
         assertEquals(minOf(390f * 1.75f, 844f * 1.15f) * 1.4f, g.f, .01f)
         assertEquals(844f * .5f, g.y0, .01f)
         // the peeks of the top three rungs, as on the site; the first two are as before

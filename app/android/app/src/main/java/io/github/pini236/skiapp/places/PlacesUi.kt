@@ -126,7 +126,7 @@ fun MeetPlaces(s: MeetStation, modifier: Modifier = Modifier) {
     val places = LocalPlaces.current ?: return
     val near = s.ends.mapNotNull { places.stationOf(it.lift.id, bottom = !it.top) }.firstOrNull { places.near(it).isNotEmpty() }?.let { places.near(it) } ?: return
     val text = if (near.size > 3) stringResource(R.string.places_meet_count, near.size)
-    else stringResource(R.string.places_meet_names, near.joinToString(", ") { label(it.place) })
+    else stringResource(R.string.places_meet_names, near.map { label(it.place) }.joinToString(", "))
     Text(text, modifier.padding(start = 4.dp, end = 4.dp, top = 8.dp), style = Ski.type.small, color = Ski.colors.muted)
 }
 
