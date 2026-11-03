@@ -1,3 +1,4 @@
+#if DAYREC
 import Foundation
 import CoreLocation
 import CoreMotion
@@ -216,3 +217,11 @@ private final class AccelWindow: @unchecked Sendable {
         return max(0, sq / n - mean * mean)
     }
 }
+#else
+/// Plain (1.0) build: the recorder is not compiled at all (architect, decision 76, condition 1).
+/// This empty stand-in only keeps `AppModel` and `GudiApp` compiling; it holds no location code.
+final class DayRecorder {
+    func start() {}
+    func flush() {}
+}
+#endif
