@@ -9,6 +9,12 @@ on:
   pull_request:
     paths: ['app/ios/**', 'site/data/**', 'site/games/descent/**', 'site/games/thumbs/**', 'site/js/relief.js', 'site/css/site.css', 'tools/fixtures/**', 'tools/build-ios-data.py', 'tools/build-ios-strings.py', 'i18n/strings.json', '.github/workflows/ios.yml', 'tools/check-ios-variant.sh']
   workflow_dispatch:
+    inputs:
+      variant:
+        description: 'plain = 1.0 (default). dayrec = 1.1 with day recording: simulator only, no signing, no upload'
+        type: choice
+        options: [plain, dayrec]
+        default: plain
 
 # a branch's newer push replaces its running build; main never cancels one halfway
 concurrency:
@@ -19,6 +25,7 @@ permissions:
   contents: read
 
 env:
+  VARIANT: ${{ inputs.variant || 'plain' }}
   # the Mac image and Xcode are named, not "latest", so a run does not break when GitHub moves them
   XCODE_PREFIX: Xcode_26.6
   XCODEGEN_VERSION: "2.44.1"
@@ -78,7 +85,14 @@ jobs:
         run: |
           python3 tools/build-ios-data.py
           python3 tools/build-ios-strings.py app/ios/Gudi/Resources/Data/strings.json app/ios/Gudi/Generated/S.swift
-          cd app/ios && xcodegen generate
+          cd app/ios
+          # a push or pull request is always plain; dayrec only by a manual run, and this workflow never signs or uploads
+          if [ "$VARIANT" = dayrec ]; then
+            test -f project-dayrec.yml || { echo "::error::project-dayrec.yml is missing"; exit 1; }
+            xcodegen generate --spec project-dayrec.yml
+          else
+            xcodegen generate
+          fi
       - name: Build for the simulator
         run: |
           cd app/ios
@@ -90,8 +104,8 @@ jobs:
           # the compiler's own errors, which the last 40 lines usually leave out
           grep -E "error:|warning: .*will be an error" "$RUNNER_TEMP/build.log" | sort -u | head -60 || true
           test "$RC" -eq 0
-      - name: Gate, the compiled app is a plain (1.0) build
-        run: sh tools/check-ios-variant.sh "$RUNNER_TEMP/dd/Build/Products/Debug-iphonesimulator/Gudi.app/Info.plist" plain
+      - name: Gate, the compiled app matches the variant
+        run: sh tools/check-ios-variant.sh "$RUNNER_TEMP/dd/Build/Products/Debug-iphonesimulator/Gudi.app/Info.plist" "$VARIANT"
       - name: Run in a simulator and take a screenshot
         timeout-minutes: 30
         run: |
