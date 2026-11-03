@@ -18,6 +18,21 @@ final class SnowballTests: XCTestCase {
         return g
     }
 
+    /// Round 34 ("ד מתוקנת"): the site's values, a longer lens at the same distances, the friends closer together, the view leaning with the finger.
+    func testRound34TheFriendsLookBiggerAtTheSameDistances() {
+        let g = standing(4, Ear())
+        XCTAssertEqual(g.foes.map(\.x).sorted(), [-2 / 1.4, 0, 2 / 1.4].map { Float($0) })
+        XCTAssertEqual(g.f, min(390 * 1.75, 844 * 1.15) * 1.4, accuracy: 0.01)
+        XCTAssertEqual(g.y0, 844 * 0.5, accuracy: 0.01)
+        // the peeks of the top three rungs, as on the site; the first two are as before
+        XCTAssertEqual(Rung.all.map(\.upA), [1.8, 1.4, 1.1, 1.05, 0.95])
+        XCTAssertEqual(Rung.all.map(\.upB), [2.4, 1.9, 1.55, 1.5, 1.35])
+        // the finger to the right leans the view toward it, and the ring includes the lean, so the ball goes where the ring is
+        g.down(390, 400); go(g, 2)
+        XCTAssertEqual(g.camX, 0.75, accuracy: 0.01)
+        XCTAssertEqual(g.ringX(g.aim!), (390 - 195) / (g.f / SnowballFight.zo) + g.camX, accuracy: 0.001)
+    }
+
     func testTheFoesAreTheOtherCoatsAndMoreUpTheLadder() {
         XCTAssertEqual(Rung.all.indices.map { Rung.foes($0, me: 5).count }, [1, 1, 2, 2, 3])
         for me in 0..<Coats.count { for i in Rung.all.indices { let f = Rung.foes(i, me: me); XCTAssertFalse(f.contains(me)); XCTAssertEqual(f.count, Set(f).count) } }
