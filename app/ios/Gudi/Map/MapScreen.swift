@@ -476,8 +476,8 @@ private struct MapActions: ViewModifier {
             .accessibilityActions {
                 if let i, !order.isEmpty {
                     let prev = order[(i - 1 + order.count) % order.count], next = order[(i + 1) % order.count]
-                    Button(S.runNavNextAria(run: next)) { model.select(next) }
-                    Button(S.runNavPrevAria(run: prev)) { model.select(prev) }
+                    Button(S.runNavNextAria(run: model.title(next))) { model.select(next) }
+                    Button(S.runNavPrevAria(run: model.title(prev))) { model.select(prev) }
                 }
                 ForEach(Array(extra.enumerated()), id: \.offset) { item in
                     Button(item.element.0) { item.element.1() }

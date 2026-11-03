@@ -136,7 +136,7 @@ public struct RunFacts: Sendable {
         return pistes.filter(\.named).enumerated().sorted { a, b in
             let ra = rank(a.element.color), rb = rank(b.element.color)
             if ra != rb { return ra < rb }
-            let c = natural(a.element.key, b.element.key)
+            let c = natural(a.element.name, b.element.name)
             return c != 0 ? c < 0 : a.offset < b.offset
         }.map(\.element.key)
     }

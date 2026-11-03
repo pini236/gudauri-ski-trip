@@ -113,7 +113,7 @@ struct RunList: View {
             let partial = model.runs.pistes.filter { $0.research?.partial != nil }
             if !partial.isEmpty {
                 H3(S.mapOverviewPartialCount(n: String(partial.count)))
-                Flow(spacing: 6) { ForEach(partial) { p in Tag(text: p.key, color: ski.colors.run(p.color)) { model.select(p.key, via: "list") } } }
+                Flow(spacing: 6) { ForEach(partial) { p in Tag(text: p.name, color: ski.colors.run(p.color)) { model.select(p.key, via: "list") } } }
                 Hint(S.mapOverviewPartialHint)
             }
         }

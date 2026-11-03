@@ -160,9 +160,9 @@ struct RunHead: View {
             HStack(spacing: 6) {
                 if let i {
                     let prev = order[(i - 1 + order.count) % order.count], next = order[(i + 1) % order.count]
-                    nav("\(dir == .rightToLeft ? "→" : "←") \(prev)", S.runNavPrevAria(run: prev)) { model.select(prev, via: "swipe") }
+                    nav("\(dir == .rightToLeft ? "→" : "←") \(model.title(prev))", S.runNavPrevAria(run: model.title(prev))) { model.select(prev, via: "swipe") }
                     share
-                    nav("\(next) \(dir == .rightToLeft ? "←" : "→")", S.runNavNextAria(run: next)) { model.select(next, via: "swipe") }
+                    nav("\(model.title(next)) \(dir == .rightToLeft ? "←" : "→")", S.runNavNextAria(run: model.title(next))) { model.select(next, via: "swipe") }
                 } else { share }
             }
             .padding(.top, 10)
@@ -198,7 +198,7 @@ struct RunHead: View {
     }
 
     private var share: some View {
-        ShareLink(item: runLink(p.key), subject: Text(S.runShareTitle(run: p.key)), message: Text(S.runShareTitle(run: p.key))) {
+        ShareLink(item: runLink(p.key), subject: Text(S.runShareTitle(run: p.name)), message: Text(S.runShareTitle(run: p.name))) {
             Text(S.runShareButton).font(ski.type.text(14, .bold)).foregroundStyle(ski.colors.snow)
                 .frame(maxWidth: .infinity, minHeight: 44).background(ski.colors.glacier)
         }
@@ -439,7 +439,7 @@ private struct Videos: View {
                 }
                 .buttonStyle(.plain)
             }
-            let name = p.key == "Firni ?" ? "Firni" : p.key
+            let name = p.key == "Firni ?" ? "Firni" : p.name
             Button {
                 let q = ("Gudauri " + name + " ski").addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
                 if let u = URL(string: "https://www.youtube.com/results?search_query=" + q) { openURL(u) }

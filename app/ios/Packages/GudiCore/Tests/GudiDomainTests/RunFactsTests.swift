@@ -77,7 +77,7 @@ final class RunFactsTests: XCTestCase {
 
     func testTheSignStepsThroughTheRunsAsOnTheSite() throws {
         let (runs, _) = try load()
-        XCTAssertEqual(RunFacts.order(runs.pistes), ["Baby", "Bombora", "Pirveli", "Snow Park", "Zuma", "Firni 1", "Firni 2", "Goodaura 1", "Goodaura 2", "Khada", "Kikilo 1", "Kikilo 2", "Kobi", "New Goodaura", "Shino", "Soliko 1", "Soliko 2", "Sportuli 1", "Sportuli 2", "Tatra 1", "Tatra 2", "u1234557981", "Kudebi 1", "Kudebi 2", "Kudebi 3", "Sadzele 3", "Sadzele 1", "Sadzele 2"])
+        XCTAssertEqual(RunFacts.order(runs.pistes), ["Baby", "Bombora", "Pirveli", "Snow Park", "Zuma", "Firni 1", "Firni 2", "Goodaura 1", "Goodaura 2", "Khada", "Kikilo 1", "Kikilo 2", "Kobi", "New Goodaura", "u1234557981", "Shino", "Soliko 1", "Soliko 2", "Sportuli 1", "Sportuli 2", "Tatra 1", "Tatra 2", "Kudebi 1", "Kudebi 2", "Kudebi 3", "Sadzele 3", "Sadzele 1", "Sadzele 2"])
     }
 
     func testNumbersSortAsNumbers() {
