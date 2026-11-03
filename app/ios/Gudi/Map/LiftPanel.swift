@@ -45,6 +45,7 @@ struct LiftBody: View {
             runs(model.runs.pistes.filter { !l.name.isEmpty && $0.fromLifts.contains(l.name) })
             H3(S.liftRunsToBottomHeading)
             runs(model.runs.pistes.filter { !l.name.isEmpty && $0.toLifts.contains(l.name) })
+            LiftPlaces(lift: l)
             if !l.id.isEmpty {
                 Button { if let u = URL(string: "https://www.openstreetmap.org/way/\(l.id)") { openURL(u) } } label: {
                     Text("OSM: \(l.id)").font(ski.type.text(13)).underline().foregroundStyle(ski.colors.glacier).frame(minHeight: 44)

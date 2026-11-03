@@ -44,6 +44,8 @@ final class AppModel {
     /// The ski day's recorder (decision 76): made only by a build with the `DAYREC` flag (1.1, project-dayrec.yml),
     /// whatever the site lists; nil in 1.0. No screen yet (round 29).
     let dayRecorder: DayRecorder?
+    /// Food and services near the stations (round 31); nil where the site does not list the feature.
+    let places: Places?
     var status: LiftStatus
     var path: [Route] = []
     /// The lift board's sheet over the map (S2, S3), opened from home's board or the map's bar.
@@ -91,8 +93,10 @@ final class AppModel {
         qaWeather = flags["weather"]
         // a pinned moment in Gudauri time ("2027-01-12T10:00"), for the boards that depend on the trip's stage
         qaNow = flags["now"].flatMap { Forecast.millis(local: $0) }.map { Date(timeIntervalSince1970: Double($0) / 1000) }
-        #if DAYREC
+        // food and services near the stations (round 31): only where the site lists the feature, and only a file this app knows
         let resorts = data("resorts").flatMap { try? Data(contentsOf: $0) }.flatMap { try? Resorts.decode($0) }
+        places = resorts?.has(Places.feature) == true ? data("places").flatMap { try? Data(contentsOf: $0) }.flatMap(Places.parse) : nil
+        #if DAYREC
         dayRecorder = resorts?.has("dayrec") == true || flags["dayrec"] != nil ? DayRecorder() : nil
         #else
         dayRecorder = nil
