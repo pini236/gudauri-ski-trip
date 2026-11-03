@@ -20,7 +20,7 @@ final class SnowballPainter {
     func draw(_ ctx: inout GraphicsContext, _ size: CGSize, fight g: SnowballFight?, pano: Image?, panoAspect: CGFloat, still: Bool) {
         W = size.width; H = size.height
         if let g { f = CGFloat(g.f); y0 = CGFloat(g.y0); camX = CGFloat(g.camX); camH = CGFloat(g.camH) }
-        else { f = min(W * 1.75, H * 1.15); y0 = H * 0.42; camX = 0; camH = 0.98 }
+        else { f = min(W * 1.75, H * 1.15) * CGFloat(SnowballFight.zoom); y0 = H * 0.5; camX = 0; camH = 0.98 }
         let G = SnowballFight.g, ZF = SnowballFight.zf, ZO = SnowballFight.zo, ZW = SnowballFight.zw, FLIGHT = SnowballFight.flight
         var c = ctx
         if let g, g.shake > 0 { c.translateBy(x: (rnd() * 2 - 1) * CGFloat(g.shake), y: (rnd() * 2 - 1) * CGFloat(g.shake)) }
