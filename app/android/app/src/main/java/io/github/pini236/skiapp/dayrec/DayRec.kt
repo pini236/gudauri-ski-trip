@@ -48,6 +48,9 @@ object DayRec {
     @Volatile var speedNow: Double? = null; internal set
     /** When the first reading of this recording came (epoch ms; 0: none yet), and whether it is a single descent. */
     @Volatile var since = 0L; internal set
+    /** When this recording began and when the last reading came (epoch ms; 0: none), for "weak GPS signal" on the live screen. */
+    @Volatile var startedAt = 0L; internal set
+    @Volatile var lastFixAt = 0L; internal set
     @Volatile var single = false; internal set
 
     fun store(ctx: Context) = DayStore(ctx.applicationContext.filesDir)

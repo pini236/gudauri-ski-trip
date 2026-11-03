@@ -43,7 +43,9 @@ import io.github.pini236.skiapp.dayrec.DayRec
 import io.github.pini236.skiapp.ui.BackLink
 import io.github.pini236.skiapp.ui.Icons
 import io.github.pini236.skiapp.ui.Ski
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.withContext
 
 /**
  * The ski day's entry and live screen (round 29, approved 1.11.2026: one entry, "Record", from anywhere at any time; at the
@@ -91,6 +93,25 @@ fun PermissionSheet(onGo: () -> Unit, onDismiss: () -> Unit) {
     }
 }
 
+/**
+ * What is in the way of recording (round 29, states), on a screen of its own and not a toast that is gone: no permission,
+ * only the approximate location, or the phone's location switched off; with the way to the settings where it is fixed.
+ */
+@Composable
+fun BlockedSheet(kind: String, onSettings: () -> Unit, onDismiss: () -> Unit) {
+    val c = Ski.colors
+    val text = when (kind) { "precise" -> R.string.app_rec_err_precise; "off" -> R.string.app_rec_err_off; else -> R.string.app_rec_err_perm }
+    Dialog(onDismissRequest = onDismiss) {
+        Column(Modifier.fillMaxWidth().background(c.paper).padding(20.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
+            Text(stringResource(R.string.app_rec_perm_title), style = Ski.type.title.copy(fontSize = Ski.type.title.fontSize * (32f / 44f)), color = c.ink)
+            PermRow(Icons.lock, stringResource(text))
+            Row(Modifier.fillMaxWidth().background(c.blue).clickable(role = Role.Button, onClick = onSettings).heightIn(min = 52.dp), horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
+                Text(stringResource(R.string.app_rec_settings), style = Ski.type.bodyBold.copy(fontSize = 16.5.sp), color = c.onBoard)
+            }
+        }
+    }
+}
+
 @Composable
 private fun PermRow(icon: ImageVector, text: String) {
     Row(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
@@ -104,7 +125,7 @@ private fun PermRow(icon: ImageVector, text: String) {
  * recorder never waits for it. "Probably" on what you do (a causal guess); the timeline at the end of the day is the truth.
  */
 @Composable
-fun DayLiveScreen(liftName: (String) -> String, onSwitch: (single: Boolean) -> Unit, onStop: () -> Unit, onBack: () -> Unit) {
+fun DayLiveScreen(liftName: (String) -> String, runName: (String) -> String = { it }, runs: io.github.pini236.skiapp.data.Runs? = null, onSwitch: (single: Boolean) -> Unit, onStop: () -> Unit, onBack: () -> Unit) {
     val c = Ski.colors
     var now by remember { mutableLongStateOf(System.currentTimeMillis()) }
     LaunchedEffect(Unit) { while (true) { now = System.currentTimeMillis(); delay(1000) } }
@@ -115,6 +136,14 @@ fun DayLiveScreen(liftName: (String) -> String, onSwitch: (single: Boolean) -> U
     val since = DayRec.since
     val elapsed = if (since > 0) now - since else 0L
     val red = Color(0xFFE5322D)
+    // the day so far under the numbers (round 29, "the map under the live screen"): read from the log every few seconds, off the main thread
+    var track by remember { mutableStateOf<Track?>(null) }
+    LaunchedEffect(Unit) {
+        while (true) {
+            DayRec.current?.let { f -> track = withContext(Dispatchers.IO) { runCatching { readTrack(f, 900) }.getOrNull() } }
+            delay(5000)
+        }
+    }
     Column(Modifier.fillMaxSize().background(c.snow).statusBarsPadding().navigationBarsPadding().padding(horizontal = 16.dp)) {
         Row(Modifier.fillMaxWidth().padding(top = 8.dp), verticalAlignment = Alignment.CenterVertically) {
             Spacer(Modifier.weight(1f))
@@ -133,7 +162,8 @@ fun DayLiveScreen(liftName: (String) -> String, onSwitch: (single: Boolean) -> U
             Text(LiveNumbers.kmh(DayRec.speedNow), style = Ski.type.title.copy(fontSize = 120.sp), color = c.ink)
             Text(stringResource(R.string.app_rec_unit), Modifier.padding(bottom = 18.dp), style = Ski.type.number.copy(fontSize = 28.sp), color = c.ink)
         }
-        Text(what(live, liftName), style = Ski.type.bodyBold.copy(fontSize = 17.sp), color = c.ink, modifier = Modifier.heightIn(min = 44.dp))
+        Text(what(live, liftName, runName), style = Ski.type.bodyBold.copy(fontSize = 17.sp), color = c.ink, modifier = Modifier.heightIn(min = 44.dp))
+        if (recording && LiveNumbers.weakGps(now, DayRec.lastFixAt, DayRec.startedAt)) Text(stringResource(R.string.app_rec_gps_weak), style = Ski.type.small, color = red)
         Spacer(Modifier.height(16.dp))
         Row(Modifier.fillMaxWidth().border(BorderStroke(1.dp, c.rule)).padding(vertical = 14.dp)) {
             Num(LiveNumbers.maxKmh(live?.maxKmh ?: st?.maxKmh), stringResource(R.string.app_rec_max), Modifier.weight(1f))
@@ -141,6 +171,7 @@ fun DayLiveScreen(liftName: (String) -> String, onSwitch: (single: Boolean) -> U
             Num(LiveNumbers.metres(st?.dropM), stringResource(R.string.app_rec_drop), Modifier.weight(1f))
             Num((st?.descents ?: 0).toString(), stringResource(R.string.app_rec_runs), Modifier.weight(1f))
         }
+        track?.takeIf { it.x.size > 1 }?.let { t -> Spacer(Modifier.height(12.dp)); DayMap(t, runs, null, null, height = 200.dp, showPin = false) }
         Spacer(Modifier.weight(1f))
         Row(Modifier.fillMaxWidth().padding(bottom = 20.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             Row(Modifier.border(BorderStroke(1.5.dp, c.ink), RectangleShape).clickable(role = Role.Button, onClick = onStop).heightIn(min = 52.dp).padding(horizontal = 24.dp),
@@ -173,14 +204,14 @@ private fun Num(value: String, label: String, modifier: Modifier) {
 
 /** What the live view says you are doing: a guess ("probably"), in words. */
 @Composable
-private fun what(live: io.github.pini236.skiapp.dayrec.DayEngine.Snapshot?, liftName: (String) -> String): String {
+private fun what(live: io.github.pini236.skiapp.dayrec.DayEngine.Snapshot?, liftName: (String) -> String, runName: (String) -> String): String {
     live ?: return ""
     val probably = stringResource(R.string.app_rec_probably)
     return when (live.act) {
         "lift" -> stringResource(R.string.app_rec_on_lift, live.lift?.let(liftName) ?: "")
         "ski" -> {
             val runs = live.runs.orEmpty()
-            if (runs.isEmpty()) stringResource(R.string.app_rec_off) else probably + " " + stringResource(R.string.app_rec_on_run, runs.joinToString(" · "))
+            if (runs.isEmpty()) stringResource(R.string.app_rec_off) else probably + " " + stringResource(R.string.app_rec_on_run, runs.joinToString(" · ") { runName(it) })
         }
         "walk", "up" -> stringResource(R.string.app_rec_walking)
         else -> stringResource(R.string.app_rec_standing)

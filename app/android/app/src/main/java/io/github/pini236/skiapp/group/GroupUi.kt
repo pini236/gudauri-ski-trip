@@ -303,7 +303,7 @@ fun PendingCard(onCancel: (() -> Unit)?) {
             .padding(start = 22.dp, end = 16.dp, top = 14.dp, bottom = 14.dp),
         verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(14.dp),
     ) {
-        Icon(Icons.hourglass, null, Modifier.size(30.dp), tint = Color(0xFFC98A00))
+        Icon(Icons.hourglass, null, Modifier.size(30.dp), tint = Color(0xFFA87300))
         Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
             Display(stringResource(R.string.join_pending_title), 24f)
             if (onCancel != null) Text(stringResource(R.string.join_cancel_request), Modifier.heightIn(min = 44.dp).clickable(role = Role.Button, onClick = onCancel).padding(vertical = 10.dp),

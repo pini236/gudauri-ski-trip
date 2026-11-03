@@ -14,7 +14,9 @@ import java.time.ZoneId
  */
 object DayModel {
     sealed interface Item { val t0: Long }
-    data class Descent(override val t0: Long, val runs: List<String>, val maxKmh: Double?, val offRuns: Boolean, val dropM: Double, val distM: Double) : Item
+    data class Descent(override val t0: Long, val runs: List<String>, val maxKmh: Double?, val offRuns: Boolean, val dropM: Double, val distM: Double,
+        /** The card of a descent (round 29): its end, the time it moved, its average, and when the top speed was. */
+        val t1: Long = t0, val movingS: Double = 0.0, val avgKmh: Double? = null, val maxAt: Long? = null) : Item
     /** A wait for a lift of at least [QUEUE_MIN] minutes; [lift] is the name of the lift after it, when there was one. */
     data class Queue(override val t0: Long, val minutes: Int, val lift: String?) : Item
     data class Rest(override val t0: Long, val minutes: Int, val long: Boolean) : Item
@@ -56,7 +58,8 @@ object DayModel {
                         }
                     }
                     if (s.optJSONArray("offpiste")?.length()?.let { it > 0 } == true) off = true
-                    items += Descent(t0, runs.toList(), s.dbl("max_kmh"), off, s.optDouble("drop_m", 0.0), s.optDouble("dist_m", 0.0))
+                    items += Descent(t0, runs.toList(), s.dbl("max_kmh"), off, s.optDouble("drop_m", 0.0), s.optDouble("dist_m", 0.0),
+                        s.optLong("t1", t0), s.optDouble("moving_s", 0.0), s.dbl("avg_kmh"), s.optJSONObject("max_at")?.let { m -> if (m.has("t") && !m.isNull("t")) m.optLong("t") else null })
                 }
                 "stop" -> {
                     val min = ((s.optLong("t1") - t0) / 60_000L).toInt()

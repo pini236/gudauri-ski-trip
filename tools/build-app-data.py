@@ -2,13 +2,14 @@
 """Copy the site's data into the native apps (read-only: never writes into site/).
 
 Usage: python3 tools/build-app-data.py <out-dir>
-Writes <out-dir>/data/{terrain,runs-and-lifts,videos-seed,resorts,places,profiles,dayrec-params}.json, <out-dir>/audio/*.wav and
+Writes <out-dir>/data/{terrain,runs-and-lifts,videos-seed,resorts,places,profiles,dayrec-params}.json and sample-day.bin, <out-dir>/audio/*.wav and
 <out-dir>/pano/*.webp (the real view from the village through the day, for the home page) and <out-dir>/thumbs/*.webp
 (the games page's pictures).
 profiles.json is the elevation profile of each run in the descent game, taken from
 the site's game (site/games/descent, its page or its script) so the app plays the exact same runs as the site.
 trip.json (the group's flight and names) is never copied: see docs/USERS.md.
 """
+import gzip
 import json
 import shutil
 import sys
@@ -46,6 +47,9 @@ def main():
         shutil.copyfile(SITE / "data" / name, out / "data" / name)
     # the ski day's analysis numbers, the same file the reference tool and the iPhone read (decision 76, m-8 condition 4)
     shutil.copyfile(ROOT / "tools/fixtures/dayrec-params.json", out / "data/dayrec-params.json")
+    # the example day of My days (round 29, "example"): a synthetic day from the real lines, packed (the apps read it gzipped)
+    with open(ROOT / "tools/fixtures/dayrec-logs/full_day.jsonl", "rb") as src, gzip.GzipFile(out / "data/sample-day.bin", "wb", 9, mtime=0) as dst:
+        shutil.copyfileobj(src, dst)
     (out / "data/profiles.json").write_text(json.dumps(profiles(), separators=(",", ":")), encoding="utf-8")
     for wav in sorted((SITE / "audio").glob("*.wav")):
         shutil.copyfile(wav, out / "audio" / wav.name)

@@ -19089,6 +19089,138 @@
     "ru",
     "ka"
    ]
+  },
+  "app.day_avg": {
+   "he": "ממוצע · קמ\"ש",
+   "en": "average · km/h",
+   "ru": "средняя · км/ч",
+   "ka": "საშუალო · კმ/სთ",
+   "where": "app/android",
+   "note": "יום הגלישה (סבב 29, החלטה 77): card of a descent: average speed label",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.day_time": {
+   "he": "זמן · דק'",
+   "en": "time · min",
+   "ru": "время · мин",
+   "ka": "დრო · წთ",
+   "where": "app/android",
+   "note": "יום הגלישה (סבב 29, החלטה 77): card of a descent: time label",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.day_top_at": {
+   "he": "המהירות המרבית ב-{time}",
+   "en": "Top speed at {time}",
+   "ru": "Максимум в {time}",
+   "ka": "მაქსიმუმი {time}-ზე",
+   "where": "app/android",
+   "note": "יום הגלישה (סבב 29, החלטה 77): card of a descent: when the top speed was",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.day_records": {
+   "he": "השיאים שלך",
+   "en": "Your records",
+   "ru": "Ваши рекорды",
+   "ka": "თქვენი რეკორდები",
+   "where": "app/android",
+   "note": "יום הגלישה (סבב 29, החלטה 77): heading of the personal records, in My days",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.day_sample": {
+   "he": "דוגמה",
+   "en": "Example",
+   "ru": "Пример",
+   "ka": "მაგალითი",
+   "where": "app/android",
+   "note": "יום הגלישה (סבב 29, החלטה 77): tag on the example day",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.day_sample_note": {
+   "he": "זה יום לדוגמה, לא היום שלך. הוא לא נספר בשיאים.",
+   "en": "This is an example day, not yours. It does not count in your records.",
+   "ru": "Это пример дня, а не ваш. В рекордах он не учитывается.",
+   "ka": "ეს მაგალითია და არა თქვენი დღე. რეკორდებში არ ითვლება.",
+   "where": "app/android",
+   "note": "יום הגלישה (סבב 29, החלטה 77): note on the example day",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.day_share": {
+   "he": "שיתוף",
+   "en": "Share",
+   "ru": "Поделиться",
+   "ka": "გაზიარება",
+   "where": "app/android",
+   "note": "יום הגלישה (סבב 29, החלטה 77): share the story of the day",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.rec_gps_weak": {
+   "he": "אות GPS חלש. ההקלטה ממשיכה, ויהיה חור בקו.",
+   "en": "Weak GPS signal. Recording goes on, with a gap in the line.",
+   "ru": "Слабый сигнал GPS. Запись продолжается, на линии будет разрыв.",
+   "ka": "GPS სიგნალი სუსტია. ჩაწერა გრძელდება, ხაზში ხარვეზი იქნება.",
+   "where": "app/android",
+   "note": "יום הגלישה (סבב 29, החלטה 77): live screen: no fix for a while",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.rec_settings": {
+   "he": "פתיחת ההגדרות",
+   "en": "Open settings",
+   "ru": "Открыть настройки",
+   "ka": "პარამეტრების გახსნა",
+   "where": "app/android",
+   "note": "יום הגלישה (סבב 29): the button of the screen that says what is in the way of recording (permission, precise location, location off)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.day_replay": {
+   "he": "צפייה חוזרת",
+   "en": "Replay",
+   "ru": "Посмотреть заново",
+   "ka": "ხელახლა ნახვა",
+   "where": "app/android",
+   "note": "יום הגלישה (סבב 29): button of the end of the day: the day again on the 3D map",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.day_replay_play": {
+   "he": "הפעלה",
+   "en": "Play",
+   "ru": "Играть",
+   "ka": "დაკვრა",
+   "where": "app/android",
+   "note": "יום הגלישה (סבב 29): play the replay",
+   "check": [
+    "ru",
+    "ka"
+   ]
   }
  }
 }

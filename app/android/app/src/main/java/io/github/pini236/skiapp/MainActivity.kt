@@ -176,6 +176,8 @@ class MainActivity : ComponentActivity() {
     /** The ski day (round 29): the explainer before the system's location question, and what was asked of it. */
     private var recExplain by mutableStateOf(false)
     private var recSingle = false
+    /** What is in the way of recording, said on a screen of its own with the way to the settings: "perm", "precise" or "off". */
+    private var recBlocked by mutableStateOf<String?>(null)
     /** A day the phone cut short, found when the app opened (round 29): asks whether to go on with it. */
     private var cutDay by mutableStateOf<java.io.File?>(null)
     // the system's question, by the classic call (the new one needs a newer Fragment library than the app carries)
@@ -186,8 +188,8 @@ class MainActivity : ComponentActivity() {
         fun granted(p: String) = permissions.indexOf(p).let { it >= 0 && grantResults.getOrNull(it) == android.content.pm.PackageManager.PERMISSION_GRANTED }
         when {
             granted(android.Manifest.permission.ACCESS_FINE_LOCATION) -> record(recSingle)
-            granted(android.Manifest.permission.ACCESS_COARSE_LOCATION) -> android.widget.Toast.makeText(this, R.string.app_rec_err_precise, android.widget.Toast.LENGTH_LONG).show()
-            else -> android.widget.Toast.makeText(this, R.string.app_rec_err_perm, android.widget.Toast.LENGTH_LONG).show()
+            granted(android.Manifest.permission.ACCESS_COARSE_LOCATION) -> recBlocked = "precise"
+            else -> recBlocked = "perm"
         }
     }
 
@@ -197,8 +199,8 @@ class MainActivity : ComponentActivity() {
         when (DayRec.start(this, run = single)) {
             DayRec.Start.Started, DayRec.Start.Already -> if (nav.top !is Route.Day) nav.push(Route.Day)
             DayRec.Start.NeedPermission -> recExplain = true
-            DayRec.Start.NeedPrecise -> android.widget.Toast.makeText(this, R.string.app_rec_err_precise, android.widget.Toast.LENGTH_LONG).show()
-            DayRec.Start.NoLocation -> android.widget.Toast.makeText(this, R.string.app_rec_err_off, android.widget.Toast.LENGTH_LONG).show()
+            DayRec.Start.NeedPrecise -> recBlocked = "precise"
+            DayRec.Start.NoLocation -> recBlocked = "off"
         }
     }
 
@@ -784,7 +786,7 @@ class MainActivity : ComponentActivity() {
             is Route.Join, Route.JoinCode, is Route.Reclaim -> "join"
             Route.Account -> "account"
             Route.Day -> "day"
-            is Route.DayOf, Route.Days -> "day"
+            is Route.DayOf, is Route.Replay, Route.Days -> "day"
             else -> null
         }
         LaunchedEffect(screen) {
@@ -809,6 +811,16 @@ class MainActivity : ComponentActivity() {
                         if (r == DayRec.Start.Started || r == DayRec.Start.Already) { if (nav.top !is Route.Day) nav.push(Route.Day) } else record(false)
                     },
                     onClose = { cutDay = null; inBackground { DayRec.finishCut(this@MainActivity, f) } }) }
+                recBlocked?.let { kind ->
+                    io.github.pini236.skiapp.dayrec.ui.BlockedSheet(kind,
+                        onSettings = {
+                            recBlocked = null
+                            val i = if (kind == "off") android.content.Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS)
+                            else android.content.Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS, android.net.Uri.fromParts("package", packageName, null))
+                            runCatching { startActivity(i) }
+                        },
+                        onDismiss = { recBlocked = null })
+                }
                 if (recExplain) io.github.pini236.skiapp.dayrec.ui.PermissionSheet(
                     onGo = { recExplain = false; requestPermissions(arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION, android.Manifest.permission.ACCESS_COARSE_LOCATION), REC_PERMISSION) },
                     onDismiss = { recExplain = false })
@@ -907,6 +919,7 @@ class MainActivity : ComponentActivity() {
                     is Route.License -> io.github.pini236.skiapp.home.LicenseScreen(top.name) { nav.back() }
                     Route.Day -> io.github.pini236.skiapp.dayrec.ui.DayLiveScreen(
                         liftName = { id -> scene?.runs?.lifts?.firstOrNull { it.id == id }?.name ?: id },
+                        runName = { k -> scene?.runs?.pistes?.firstOrNull { it.key == k }?.title ?: k }, runs = scene?.runs,
                         onSwitch = ::switchRecording, onBack = { nav.back() },
                         onStop = {
                             // the day that ends is shown at once; its screen waits for the recorder to close it
@@ -915,7 +928,14 @@ class MainActivity : ComponentActivity() {
                             if (id != null) nav.replaceTop(Route.DayOf(id)) else nav.back()
                         })
                     Route.Days -> io.github.pini236.skiapp.dayrec.ui.DaysScreen(onOpen = { id -> nav.push(Route.DayOf(id)) }) { nav.back() }
-                    is Route.DayOf -> io.github.pini236.skiapp.dayrec.ui.DayViewScreen(DayRec.store(this@MainActivity).newFile(top.id.toLong()), scene?.runs) { nav.back() }
+                    is Route.DayOf -> {
+                        val sample = top.id == io.github.pini236.skiapp.dayrec.SampleDay.ID
+                        io.github.pini236.skiapp.dayrec.ui.DayViewScreen(
+                            if (sample) io.github.pini236.skiapp.dayrec.SampleDay.file(this@MainActivity) else DayRec.store(this@MainActivity).newFile(top.id.toLong()),
+                            scene?.runs, sample, onReplay = { nav.push(Route.Replay(top.id)) }) { nav.back() }
+                    }
+                    is Route.Replay -> io.github.pini236.skiapp.dayrec.ui.ReplayScreen(mapView,
+                        if (top.id == io.github.pini236.skiapp.dayrec.SampleDay.ID) io.github.pini236.skiapp.dayrec.SampleDay.file(this@MainActivity) else DayRec.store(this@MainActivity).newFile(top.id.toLong())) { nav.back() }
                     else -> {
                         MapScreen(mapView, scene, videos = videos, ms = MapStatus(lstat, changes, LiftStatus.inSeason(LocalDateTime.ofInstant(Instant.ofEpochMilli(tick), ZoneId.systemDefault()).monthValue),
                             forMe, { on -> forMe = on; Telemetry.event("status_only_open", mapOf("on" to on)); Qa.log("for me ${if (on) "on" else "off"}") },

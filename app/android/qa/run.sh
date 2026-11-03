@@ -939,6 +939,12 @@ dayrec_steps() {
     qa "--es qa.tab days/$did"; sleep 6; shot dayrec-day
     drag 540 1900 540 600 400; sleep 1; shot dayrec-day-timeline
     qa "--es qa.tab days"; sleep 3; shot dayrec-days
+    # the example day (never counted): a whole day with the story over it, and the timeline
+    qa "--es qa.tab days/sample"; sleep 8; shot dayrec-sample
+    drag 540 1900 540 600 400; sleep 1; shot dayrec-sample-timeline
+    # the day again on the 3D map: the dot goes along the line (the shared 3D map needs its scene first)
+    qa "--es qa.tab days/sample/replay"; sleep 12; shot dayrec-replay
+    tapText "הפעלה" && { sleep 4; shot dayrec-replay-play; }
   else fail "the replayed day has no id to open"; fi
   qa "--es qa.dayrec wipe"
   # the phone killed the app in the middle of a day: the file stays cut, and the next opening goes on with it
@@ -960,6 +966,8 @@ dayrec_steps() {
   adb shell pm revoke "$PKG" "$perm"; sleep 1; mark
   adb shell "am start -W -n $ACT --es qa.tab map --es qa.trip none --es qa.dayrec start" > /dev/null
   waitlog "dayrec start result NeedPrecise" 60
+  # the same answer by the entry on home: a screen that says what is in the way, with the way to the settings (not a toast)
+  qa "--es qa.tab home"; sleep 3; tapText "מקליטים" && { sleep 2; shot dayrec-blocked; adb shell input keyevent KEYCODE_BACK; sleep 1; }
   adb shell pm grant "$PKG" "$perm"
   qa "--es qa.dayrec wipe"
 }
@@ -1088,7 +1096,7 @@ PID=$(adb shell pidof "$PKG" | tr -d '\r')
 # bars appear), a slow emulator missing a window sync, the keyboard's closing animation timing out, and the runtime's
 # debugger link losing adbd (the emulator's adb restarting; main run for 7b14748, the phone part)
 if [ -n "$PID" ]; then adb logcat -d --pid="$PID" '*:E' | grep -v -E "^-+ beginning of|BLASTBufferQueue.*rejecting buffer|SurfaceSyncGroup: Failed to receive transaction|FrameTracker: force finish cuj|failed to send app info to adbd" >> "$OUT/errors.txt"; else fail "the app is not running at the end"; fi
-[ -s "$OUT/errors.txt" ] && fail "errors in the log (errors.txt)"
+[ -s "$OUT/errors.txt" ] && { fail "errors in the log (errors.txt)"; head -60 "$OUT/errors.txt" | sed "s/^/ERRLOG /"; } # the lines in the job log too: the artifacts are not always reachable
 
 # ---- the release build (R8): only that it starts and draws ----
 if [ -n "$FINAL" ] && [ -f "$RELEASE_APK" ]; then

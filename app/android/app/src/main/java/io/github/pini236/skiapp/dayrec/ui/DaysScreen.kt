@@ -28,10 +28,13 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import io.github.pini236.skiapp.R
 import io.github.pini236.skiapp.dayrec.DayParams
 import io.github.pini236.skiapp.dayrec.DayRec
 import io.github.pini236.skiapp.dayrec.DayStore
+import io.github.pini236.skiapp.dayrec.MomentsStore
+import io.github.pini236.skiapp.dayrec.SampleDay
 import io.github.pini236.skiapp.ui.BackLink
 import io.github.pini236.skiapp.ui.Ski
 import kotlinx.coroutines.Dispatchers
@@ -54,9 +57,11 @@ fun DaysScreen(onOpen: (String) -> Unit, onBack: () -> Unit) {
     val c = Ski.colors
     val ctx = LocalContext.current
     var rows by remember { mutableStateOf<List<Row2>?>(null) }
+    var records by remember { mutableStateOf<List<Pair<String, String>>>(emptyList()) }
     var version by remember { mutableStateOf(0) }
     var sure by remember { mutableStateOf<String?>(null) }
     LaunchedEffect(version) {
+        records = withContext(Dispatchers.IO) { recordsOf(ctx, MomentsStore.history(DayRec.store(ctx).dir)) }
         rows = withContext(Dispatchers.IO) {
             DayRec.store(ctx).days().asReversed().map { f ->
                 val id = f.name.removePrefix("day-").removeSuffix(".jsonl")
@@ -75,6 +80,7 @@ fun DaysScreen(onOpen: (String) -> Unit, onBack: () -> Unit) {
         val list = rows
         Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = 16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
             if (list != null && list.isEmpty()) Text(stringResource(R.string.app_days_empty), style = Ski.type.body, color = c.muted)
+            if (records.isNotEmpty()) RecordsCard(records)
             val zone = ZoneId.of(DayParams.TZ)
             val fmt = DateTimeFormatter.ofPattern("EEEE d.M · HH:mm", Locale.getDefault())
             for (r in list.orEmpty()) {
@@ -91,6 +97,14 @@ fun DaysScreen(onOpen: (String) -> Unit, onBack: () -> Unit) {
                         style = Ski.type.bodyBold, color = c.red)
                 }
             }
+            // the example day, last: a whole timeline for a skier with no snow yet (it never counts in the records)
+            if (list != null) Row(Modifier.fillMaxWidth().background(c.paper).border(BorderStroke(1.dp, c.rule)).clickable(role = Role.Button) { onOpen(SampleDay.ID) }.heightIn(min = 64.dp).padding(horizontal = 14.dp, vertical = 10.dp),
+                verticalAlignment = Alignment.CenterVertically) {
+                Column(Modifier.weight(1f)) {
+                    Text(stringResource(R.string.app_day_sample), style = Ski.type.bodyBold, color = c.glacier)
+                    Text(stringResource(R.string.app_day_sample_note), style = Ski.type.small, color = c.muted)
+                }
+            }
             if (!list.isNullOrEmpty()) {
                 val all = sure == ALL
                 Text(stringResource(if (all) R.string.app_days_delete_all_sure else R.string.app_days_delete_all),
@@ -103,3 +117,35 @@ fun DaysScreen(onOpen: (String) -> Unit, onBack: () -> Unit) {
 }
 
 private const val ALL = "*"
+
+/** The personal records, as the title the moments use and the value in its unit (only what the history has). Never a place. */
+private fun recordsOf(ctx: android.content.Context, history: JSONObject): List<Pair<String, String>> {
+    val best = history.optJSONObject("best") ?: return emptyList()
+    val words = MomentText.Words(ctx, ctx.resources.configuration.locales[0])
+    val out = ArrayList<Pair<String, String>>()
+    for (what in listOf("max_kmh", "longest_m", "drop_m", "descents", "ski_dist_m")) {
+        if (!best.has(what) || best.isNull(what)) continue
+        val v = best.optDouble(what)
+        val title = words.render(MomentText.Part("moment.record.$what.title"), 0) ?: continue
+        val value = when (what) {
+            "max_kmh" -> Math.round(v).toString() + " " + ctx.getString(R.string.app_rec_unit)
+            "longest_m", "ski_dist_m" -> ctx.getString(R.string.common_unit_km, MomentText.dec(v / 1000.0, ctx.resources.configuration.locales[0]))
+            "drop_m" -> ctx.getString(R.string.common_unit_m, Math.round(v).toString())
+            else -> Math.round(v).toString()
+        }
+        out += title to value
+    }
+    return out
+}
+
+@Composable
+private fun RecordsCard(rows: List<Pair<String, String>>) {
+    val c = Ski.colors
+    Column(Modifier.fillMaxWidth().background(c.paper).border(BorderStroke(1.dp, c.rule)).padding(14.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        Text(stringResource(R.string.app_day_records), style = Ski.type.title.copy(fontSize = 26.sp), color = c.ink)
+        for ((t, v) in rows) Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+            Text(t, Modifier.weight(1f), style = Ski.type.body, color = c.ink)
+            Text(v, style = Ski.type.bodyBold, color = c.ink)
+        }
+    }
+}
