@@ -19,9 +19,12 @@ object SampleDay {
         val dir = File(ctx.cacheDir, DIR).also { it.mkdirs() }
         val f = File(dir, "day-0.jsonl")
         if (!f.isFile || f.length() == 0L) {
-            val tmp = File(dir, "day-0.jsonl.tmp")
-            ctx.assets.open("data/sample-day.jsonl.gz").use { a -> GZIPInputStream(a).use { g -> tmp.outputStream().use { o -> g.copyTo(o) } } }
-            if (!tmp.renameTo(f)) { f.delete(); tmp.renameTo(f) }
+            // never a crash for an example: without the file the day screen says there is nothing in it
+            runCatching {
+                val tmp = File(dir, "day-0.jsonl.tmp")
+                ctx.assets.open("data/sample-day.bin").use { a -> GZIPInputStream(a).use { g -> tmp.outputStream().use { o -> g.copyTo(o) } } }
+                if (!tmp.renameTo(f)) { f.delete(); tmp.renameTo(f) }
+            }
         }
         return f
     }
