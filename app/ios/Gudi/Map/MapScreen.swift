@@ -62,6 +62,8 @@ private struct MapContent: View {
     /// The weather layer (round 19): off until tapped; on, the three points on the map and the list.
     @State private var weatherOn = false
     @State private var weatherSheet = false
+    /// The food key (round 31): off on every opening; on, the dots over the top view become tags.
+    @State private var placesOn = false
     /// "Where am I" (round 19): made once the elevation model is read; off on every opening.
     @State private var where_: WhereAmI?
     @State private var looked = false
@@ -121,6 +123,7 @@ private struct MapContent: View {
                             (S.mapKobiSideAria, { frameKobi() }),
                         ]))
                     if weatherOn { pins(g.size) { CGPoint(x: cam.sx($0), y: cam.sy($1)) } }
+                    if let places = app.places { PlacesLayer(places: places, tags: placesOn, size: g.size) { CGPoint(x: cam.sx($0), y: cam.sy($1)) } }
                     if case let .fixed(fix, x, y, acc, _, bearing)? = where_?.state, fix != .outside {
                         MeDot(x: cam.sx(x), y: cam.sy(y), radius: acc * cam.k, bearing: fix == .approx || fix == .low ? nil : bearing)
                             .frame(width: g.size.width, height: g.size.height)
@@ -141,6 +144,13 @@ private struct MapContent: View {
                 HStack(alignment: .bottom) {
                     if let w = where_ { LocateKey(on: w.on) { w.toggle(); Fx.shared.tick() } }
                     Spacer()
+                    if app.places != nil {
+                        PlacesKey(on: placesOn) {
+                            placesOn.toggle(); Fx.shared.tick()
+                            // the tags are drawn on the top view, like the weather
+                            if placesOn, model.mode != "2d" { model.mode = "2d" }
+                        }
+                    }
                     WeatherKey(on: weatherOn) {
                         weatherOn.toggle(); weatherSheet = weatherOn; Fx.shared.tick()
                     }

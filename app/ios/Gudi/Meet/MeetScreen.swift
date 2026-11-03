@@ -54,6 +54,7 @@ struct MeetScreen: View {
                             if let st {
                                 MeetCard(station: st, time: time, day: dayLabel(pickedDay, ski.type.lang),
                                          left: Meet.left(at: Meet.at(pickedDay, time), now: now)) { clear("card") }.fixedType()
+                                MeetPlacesLine(station: st)
                                 if let lines {
                                     ShareBox(station: st, time: time, day: pickedDay, lines: lines, art: art) {
                                         app.mapLift = st.name
