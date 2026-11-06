@@ -6359,6 +6359,66 @@
     "ka"
    ]
   },
+  "home.ios_board": {
+   "he": "אפליקציה לאייפון",
+   "en": "iPhone app",
+   "ru": "Приложение для iPhone",
+   "ka": "აპლიკაცია iPhone-ისთვის",
+   "where": "site/index.html",
+   "note": "short: sign, next to home.app_board (round 37)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "home.ios_store": {
+   "he": "ב-<bdi>App Store</bdi>",
+   "en": "on the App Store",
+   "ru": "в App Store",
+   "ka": "App Store-ზე",
+   "where": "site/index.html",
+   "note": "short: sign subtitle under home.ios_board; the store name, not its logo (round 37)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "home.app_scan_ios": {
+   "he": "סורקים באייפון",
+   "en": "Scan with an iPhone",
+   "ru": "Отсканируйте iPhone",
+   "ka": "დაასკანერეთ iPhone-ით",
+   "where": "site/index.html",
+   "note": "next to the QR code of the App Store link, desktop only (round 37)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "applink.going_ios": {
+   "he": "פותחים את <bdi>App Store</bdi>…",
+   "en": "Opening the App Store…",
+   "ru": "Открываем App Store…",
+   "ka": "იხსნება App Store…",
+   "where": "site/app.html",
+   "note": "while /app hands over to the App Store (round 37)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "applink.badge_alt_ios": {
+   "he": "להורדה ב-<bdi>App Store</bdi>",
+   "en": "Download on the App Store",
+   "ru": "Загрузите в App Store",
+   "ka": "ჩამოტვირთეთ App Store-ში",
+   "where": "site/app.html",
+   "note": "alt of the App Store badge on /app (round 37)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
   "applink.sub": {
    "he": "מפת הסקי של גודאורי",
    "en": "Gudauri ski map",
@@ -6402,42 +6462,6 @@
    "ka": "ან რუკა საიტზე",
    "where": "site/app.html",
    "note": "link to the map on the site, on /app (round 28)",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "applink.ios_title": {
-   "he": "באייפון עוד אין אפליקציה",
-   "en": "No iPhone app yet",
-   "ru": "Приложения для iPhone пока нет",
-   "ka": "iPhone-ის აპლიკაცია ჯერ არ არის",
-   "where": "site/app.html",
-   "note": "/app on an iPhone: there is no App Store app yet (round 28)",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "applink.ios_text": {
-   "he": "בינתיים כל המפה באתר, בלי התקנה.",
-   "en": "Meanwhile the whole map is on the web, nothing to install.",
-   "ru": "А пока вся карта на сайте, без установки.",
-   "ka": "მანამდე მთელი რუკა საიტზეა, ინსტალაციის გარეშე.",
-   "where": "site/app.html",
-   "note": "/app on an iPhone, under applink.ios_title (round 28)",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "applink.ios_btn": {
-   "he": "למפה באתר",
-   "en": "Open the map",
-   "ru": "Карта на сайте",
-   "ka": "რუკა საიტზე",
-   "where": "site/app.html",
-   "note": "/app on an iPhone: button to the map on the site (round 28)",
    "check": [
     "ru",
     "ka"
