@@ -62,7 +62,7 @@ final class LabelFitTests: XCTestCase {
     func testArrowsStartAt90MetresThenEvery150() {
         let segs = (0..<100).map { i in (a: (x: Double(i) * 10, y: 0.0), b: (x: Double(i + 1) * 10, y: 0.0)) }
         let a = RunArrows.along(segs)
-        XCTAssertEqual(a.map { Int($0.x) }, [90, 240, 390, 540, 690, 840])
+        XCTAssertEqual(a.map { Int($0.x) }, [90, 240, 390, 540, 690, 840, 990])
         XCTAssertEqual(a[0].angle, 0, accuracy: 1e-9)
         XCTAssertEqual(RunArrows.step(metresPerPx: 5), 2)
     }
