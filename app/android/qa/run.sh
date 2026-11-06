@@ -20,7 +20,7 @@ else
     part="${part#"${part%%[![:space:]]*}"}"
     part="${part%"${part##*[![:space:]]}"}"
     case "$part" in
-      map|descent|games|school|snowball|home|group|meet|status|run|locate|weather|lang|phone|store|bigtext) ;;
+      map|descent|games|school|snowball|home|group|meet|status|run|locate|weather|lang|phone|store|bigtext|fgsvideo) ;;
       *) echo "Unknown or empty QA scenario: '$part'" >&2; exit 2 ;;
     esac
     [[ -z "${selected[$part]+present}" ]] || { echo "Duplicate QA scenario: '$part'" >&2; exit 2; }
@@ -978,6 +978,44 @@ dayrec_steps() {
     sleep 24; shot dayrec-live-weak
     [ -n "$(where 'סיום')" ] && { tapText "סיום"; sleep 3; }
   fi
+  qa "--es qa.dayrec wipe"
+}
+
+# ---- the video for Google Play's foreground-service declaration (docs/PLAY.md, section 5): one recording, about 45 s ----
+# Not part of "all": started by hand (scenario fgsvideo). The screen of the emulator is recorded while the ski day starts from
+# the entry on home, the system asks for the location, the live screen shows, the phone is locked, the notification shows and is
+# tapped, the day is stopped and its timeline shows. The simulated drive is the shared test walk; no name, account or real place
+# but the resort's own map. The file is $OUT/fgs-declaration.mp4 (the run's artifact). Every tap is conditional: a screen that
+# is not there is skipped, and the recording shows what happened.
+fgsvideo() {
+  local perm="android.permission.ACCESS_FINE_LOCATION" coarse="android.permission.ACCESS_COARSE_LOCATION"
+  adb shell am force-stop "$PKG"; adb shell pm revoke "$PKG" "$perm" 2> /dev/null; adb shell pm revoke "$PKG" "$coarse" 2> /dev/null
+  adb shell pm grant "$PKG" android.permission.POST_NOTIFICATIONS > /dev/null 2>&1 || true
+  adb shell cmd location set-location-enabled true 2> /dev/null; geo 42.482631 44.483401
+  adb shell rm -f /sdcard/fgs.mp4
+  adb shell "screenrecord --time-limit 80 /sdcard/fgs.mp4" > /dev/null 2>&1 &
+  local rec=$!
+  sleep 2
+  qa "--es qa.tab home --es qa.trip none --es qa.time 2027-01-12T11:00 --es qa.dayrec wipe"; sleep 4
+  qa "--es qa.tab map"; sleep 4
+  qa "--es qa.tab home"; sleep 2
+  if [ -n "$(where 'מקליטים')" ]; then
+    tapText "מקליטים"; sleep 3
+    [ -n "$(where 'המשך')" ] && { tapText "המשך"; sleep 3; }
+    # the system's own question: "while using the app", with the precise location
+    local ask; ask=$(where '~While using|בזמן השימוש'); [ -n "$ask" ] && { tap $ask; sleep 2; }
+    [ -n "$(where 'כל היום')" ] && { tapText "כל היום"; sleep 3; }
+    dayrec_walk 6; shot fgs-live
+    adb shell input keyevent KEYCODE_HOME; sleep 2; dayrec_walk 3
+    adb shell input keyevent KEYCODE_SLEEP; sleep 2; dayrec_walk 3
+    adb shell input keyevent KEYCODE_WAKEUP; sleep 1; adb shell wm dismiss-keyguard > /dev/null 2>&1 || true
+    adb shell cmd statusbar expand-notifications; sleep 2; shot fgs-notification
+    local note; note=$(where 'סקי בדיקה'); [ -n "$note" ] && { tap $note; sleep 3; } || adb shell cmd statusbar collapse
+    dayrec_walk 3
+    [ -n "$(where 'סיום')" ] && { tapText "סיום"; sleep 4; }
+  else fail "the entry 'מקליטים' is not on the home screen"; fi
+  wait "$rec" 2> /dev/null || true
+  adb pull /sdcard/fgs.mp4 "$OUT/fgs-declaration.mp4" > /dev/null 2>&1 && note "declaration video: $(du -k "$OUT/fgs-declaration.mp4" | cut -f1) KB" || fail "no screen recording to pull"
   qa "--es qa.dayrec wipe"
 }
 
