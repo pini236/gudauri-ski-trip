@@ -10,7 +10,7 @@ import json, os, random, sys, zlib
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.normpath(os.path.join(HERE, '..', '..'))
 sys.path.insert(0, HERE)
-import analyze, cases, moments, net as netmod, rawlog, synth  # noqa: E402
+import analyze, cases, export, moments, net as netmod, rawlog, synth  # noqa: E402
 
 FIX = os.path.join(ROOT, 'tools', 'fixtures')
 LOGS = os.path.join(FIX, 'dayrec-logs')
@@ -196,6 +196,7 @@ def main(check=False):
         index['cases'].append(c)
     files[os.path.join(FIX, 'dayrec-cases.json')] = json.dumps(index, ensure_ascii=False, indent=1) + '\n'
     files[os.path.join(FIX, 'dayrec-moments.json')] = moments_fixture(base, P, index)
+    files[os.path.join(FIX, 'dayrec-export.json')] = export.fixture(ROOT)
     if check:
         diff = [p for p, t in files.items() if not os.path.exists(p) or open(p, encoding='utf-8').read() != t]
         if diff:
