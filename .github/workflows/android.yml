@@ -209,7 +209,11 @@ jobs:
           ANDROID_UPLOAD_KEY_ALIAS: ${{ secrets.ANDROID_UPLOAD_KEY_ALIAS }}
         run: ./gradlew --no-daemon --build-cache :app:bundleStoreRelease
       - name: Gate, the ski day and the tester export are off in the store build
-        run: sh ../../tools/check-android-store.sh "$(find app/build/generated/source/buildConfig/storeRelease -name BuildConfig.java | head -1)"
+        run: |
+          # AGP puts a flavor+type BuildConfig in store/release (older: storeRelease); check every file found
+          FILES=$(find app/build/generated/source/buildConfig \( -path '*/store/release/*' -o -path '*/storeRelease/*' \) -name BuildConfig.java)
+          [ -n "$FILES" ] || { echo "::error::no store release BuildConfig under app/build/generated/source/buildConfig"; find app/build/generated/source/buildConfig -name BuildConfig.java; exit 1; }
+          for f in $FILES; do echo "gate: $f"; sh ../../tools/check-android-store.sh "$f" || exit 1; done
       - name: Sentry, upload the store build's mapping
         if: env.SENTRY_MAP_ID != '' && steps.sentry-cli.outcome == 'success'
         continue-on-error: true
