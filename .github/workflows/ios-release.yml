@@ -20,6 +20,10 @@ on:
         type: choice
         options: [plain, dayrec]
         default: plain
+      archive_only:
+        description: "true = sign and archive, run the gates, then stop: no export, nothing is uploaded to App Store Connect or TestFlight. Manual runs only; a push never sets it"
+        type: boolean
+        default: false
 
 # a build that is already uploading is never cancelled halfway; the newest waiting push goes next
 concurrency:
@@ -159,7 +163,7 @@ jobs:
         if: steps.gate.outputs.ready == 'true' && env.VARIANT == 'plain'
         run: sh tools/check-ios-store-binary.sh "$RUNNER_TEMP/Gudi.xcarchive/Products/Applications/Gudi.app/Gudi"
       - name: Export and upload to TestFlight
-        if: steps.gate.outputs.ready == 'true'
+        if: steps.gate.outputs.ready == 'true' && !inputs.archive_only
         env:
           KEY: ${{ secrets.ASC_KEY_P8_BASE64 }}
           KEY_ID: ${{ secrets.ASC_KEY_ID }}
