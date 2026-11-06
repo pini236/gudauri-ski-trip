@@ -46,6 +46,8 @@ final class DayRecorder: NSObject, CLLocationManagerDelegate {
     /// The acceleration's magnitudes since the last reading: their variance goes into the point (m-8, answer 3).
     @ObservationIgnored private let accel = AccelWindow()
     @ObservationIgnored private var pendingStart = false
+    /// The Live Activity on the lock screen and in the Dynamic Island (1.1).
+    @ObservationIgnored private let live = DayLive()
 
     static var folder: URL {
         FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0].appendingPathComponent("Days", isDirectory: true)
@@ -139,6 +141,7 @@ final class DayRecorder: NSObject, CLLocationManagerDelegate {
             }
         }
         state = .recording(since: since, points: points)
+        live.begin(since: since)
     }
 
     /// The stop: user, idle or outside (the measurement contract's reasons).
@@ -148,6 +151,7 @@ final class DayRecorder: NSObject, CLLocationManagerDelegate {
         motion.stopAccelerometerUpdates()
         try? writer?.close(Self.ms(Date()), reason: reason)
         writer = nil; last = nil
+        live.end()
         state = .idle
     }
 
@@ -189,6 +193,7 @@ final class DayRecorder: NSObject, CLLocationManagerDelegate {
             }
             points += 1
             last = p
+            live.add(p)
         }
         state = .recording(since: since, points: points)
     }

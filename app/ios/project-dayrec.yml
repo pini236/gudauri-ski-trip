@@ -16,3 +16,44 @@ targets:
         UIBackgroundModes: [location]
         NSLocationTemporaryUsageDescriptionDictionary:
           DayRecording: "Recording your ski day needs your precise location: speeds and runs cannot be told from an approximate one. The track stays on this iPhone."
+        NSSupportsLiveActivities: true
+    # the app lists its dependencies again, with the Live Activity's extension to embed: an array in this file replaces
+    # project.yml's, it is not added to it
+    dependencies:
+      - package: GudiCore
+        product: GudiData
+      - package: GudiCore
+        product: GudiDomain
+      - target: GudiLive
+        embed: true
+  # The Live Activity extension (docs/APPLE.md 5.9): its own bundle id and profile (GUDI_PROFILE_LIVE, the name of the
+  # secret IOS_PROFILE_LIVE_BASE64's profile). Only the dayrec build has it; main's build and 1.0 do not.
+  GudiLive:
+    type: app-extension
+    platform: iOS
+    sources:
+      - path: LiveActivity
+      - path: Gudi/DayRec/DayLiveAttributes.swift
+    info:
+      path: LiveActivity/Info.plist
+      properties:
+        CFBundleDisplayName: Gudi
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.widgetkit-extension
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: io.github.pini236.skiapp.live
+        TARGETED_DEVICE_FAMILY: "1"
+        SWIFT_VERSION: "6.0"
+        MARKETING_VERSION: "1.1"
+        CURRENT_PROJECT_VERSION: "1"
+        GENERATE_INFOPLIST_FILE: false
+        SKIP_INSTALL: true
+      configs:
+        Release:
+          CODE_SIGN_STYLE: Manual
+          DEVELOPMENT_TEAM: ZX5CTJ88UA
+          CODE_SIGN_IDENTITY: Apple Distribution
+          PROVISIONING_PROFILE_SPECIFIER: $(GUDI_PROFILE_LIVE)
