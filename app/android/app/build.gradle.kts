@@ -58,12 +58,15 @@ android {
             applicationIdSuffix = ".test"
             // the ski day's screens (round 29) show in the test build only, until the Play declaration and the privacy line go out with it
             buildConfigField("boolean", "DAYREC_UI", "true")
+            // the field testers' export (src/preview): the store pipeline's gate (tools/check-android-store.sh) reads this name
+            buildConfigField("boolean", "TESTER_EXPORT", "true")
             resValue("string", "app_name", "סקי בדיקה")
             signingConfig = signingConfigs.findByName("test") ?: signingConfigs.getByName("debug")
         }
         create("store") {
             dimension = "channel"
             buildConfigField("boolean", "DAYREC_UI", "false")
+            buildConfigField("boolean", "TESTER_EXPORT", "false")
             resValue("string", "app_name", "סקי")
             signingConfig = signingConfigs.findByName("upload") ?: signingConfigs.getByName("debug")
         }
@@ -86,6 +89,9 @@ android {
     // released ones in store builds
     sourceSets["debug"].res.directories.add(layout.buildDirectory.dir("generated/i18n/debug").get().asFile.path)
     sourceSets["release"].res.directories.add(layout.buildDirectory.dir("generated/i18n/release").get().asFile.path)
+    // the field testers' export (docs/handoff/2026-10-31-tester-log-consent): its words and its code exist in the test
+    // build only (src/preview); the store build has neither
+    sourceSets["preview"].res.directories.add(layout.buildDirectory.dir("generated/i18n/tester").get().asFile.path)
 }
 
 kotlin { jvmToolchain(21) }
@@ -129,7 +135,15 @@ fun stringsTask(name: String, langs: String) = tasks.registering(Exec::class) {
 }
 val debugStrings by stringsTask("debug", debugLanguages)
 val releaseStrings by stringsTask("release", releaseLanguages)
-tasks.named("preBuild") { dependsOn(debugStrings, releaseStrings) }
+val testerStrings by tasks.registering(Exec::class) {
+    val out = layout.buildDirectory.dir("generated/i18n/tester").get().asFile
+    inputs.file(File(repoRoot, "i18n/strings.json"))
+    inputs.file(File(repoRoot, "tools/build-app-strings.py"))
+    outputs.dir(out)
+    doFirst { out.deleteRecursively() }
+    commandLine("python3", File(repoRoot, "tools/build-app-strings.py").path, out.path, debugLanguages, "--tester")
+}
+tasks.named("preBuild") { dependsOn(debugStrings, releaseStrings, testerStrings) }
 
 dependencies {
     implementation(platform("androidx.compose:compose-bom:2026.09.00"))

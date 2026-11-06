@@ -12,7 +12,7 @@ name: iOS release
 on:
   push:
     branches: [main]
-    paths: ['app/ios/**', 'site/data/**', 'site/games/descent/**', 'site/games/thumbs/**', 'site/js/relief.js', 'site/css/site.css', 'tools/fixtures/**', 'tools/build-ios-data.py', 'tools/build-ios-strings.py', 'i18n/strings.json', '.github/workflows/ios-release.yml', 'tools/check-ios-variant.sh']
+    paths: ['app/ios/**', 'site/data/**', 'site/games/descent/**', 'site/games/thumbs/**', 'site/js/relief.js', 'site/css/site.css', 'tools/fixtures/**', 'tools/build-ios-data.py', 'tools/build-ios-strings.py', 'i18n/strings.json', '.github/workflows/ios-release.yml', 'tools/check-ios-variant.sh', 'tools/check-ios-store-binary.sh']
   workflow_dispatch:
     inputs:
       variant:
@@ -141,9 +141,12 @@ jobs:
           # (ios.yml's builds are never uploaded), so TestFlight never sees a repeat (docs/ARCHITECTURE.md, R-8).
           # manual signing is set in the app target's Release settings in project.yml (the architect's condition);
           # only the profile's name comes from here, as a build setting that nothing but that target reads
+          # the Live Activity extension's profile name (dayrec only; the plain build has no such target)
+          LIVE_ARG=""
+          [ "$VARIANT" = dayrec ] && LIVE_ARG="GUDI_PROFILE_LIVE=$PROFILE_LIVE_NAME"
           xcodebuild -project Gudi.xcodeproj -scheme Gudi -configuration Release \
             -destination 'generic/platform=iOS' -archivePath "$RUNNER_TEMP/Gudi.xcarchive" \
-            GUDI_PROFILE="$PROFILE_NAME" CURRENT_PROJECT_VERSION=${{ github.run_number }} \
+            GUDI_PROFILE="$PROFILE_NAME" ${LIVE_ARG:+"$LIVE_ARG"} CURRENT_PROJECT_VERSION=${{ github.run_number }} \
             archive > "$RUNNER_TEMP/archive.log" 2>&1 || RC=$?
           RC=${RC:-0}
           tail -40 "$RUNNER_TEMP/archive.log"

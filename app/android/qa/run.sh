@@ -969,6 +969,15 @@ dayrec_steps() {
   # the same answer by the entry on home: a screen that says what is in the way, with the way to the settings (not a toast)
   qa "--es qa.tab home"; sleep 3; tapText "מקליטים" && { sleep 2; shot dayrec-blocked; adb shell input keyevent KEYCODE_BACK; sleep 1; }
   adb shell pm grant "$PKG" "$perm"
+  # the live screen (round 29): the map under the numbers, then the signal-lost message when the readings stop for a while
+  qa "--es qa.tab home"; sleep 3
+  if [ -n "$(where 'מקליטים')" ]; then
+    tapText "מקליטים"; sleep 2
+    for w in "המשך" "כל היום"; do [ -n "$(where "$w")" ] && { tapText "$w"; sleep 3; }; done
+    dayrec_walk 4; sleep 2; shot dayrec-live
+    sleep 24; shot dayrec-live-weak
+    [ -n "$(where 'סיום')" ] && { tapText "סיום"; sleep 3; }
+  fi
   qa "--es qa.dayrec wipe"
 }
 
@@ -1089,6 +1098,15 @@ dayrecvideo() {
   adb shell cmd statusbar expand-notifications; sleep 3; dayrec_walk 3      # the permanent notification
   tapText "עצירה" && waitlog "dayrec stop user" 15                          # Stop in the notification
   adb shell cmd statusbar collapse; sleep 1
+  # the single run: the same entry on home, then "one run" instead of "the whole day" (the declaration names both)
+  qa "--es qa.tab home"; sleep 3
+  if [ -n "$(where 'מקליטים')" ]; then
+    tapText "מקליטים"; sleep 2
+    [ -n "$(where 'המשך')" ] && { tapText "המשך"; sleep 3; }
+    [ -n "$(where 'ירידה אחת')" ] && { tapText "ירידה אחת"; sleep 3; }
+    dayrec_walk 6
+    [ -n "$(where 'סיום')" ] && { tapText "סיום"; sleep 3; }
+  fi
   qa "--es qa.tab days/sample"; sleep 8                                     # the day's timeline
   drag 540 1900 540 600 400; sleep 4
   adb shell pkill -2 screenrecord 2> /dev/null; sleep 3; kill "$REC" 2> /dev/null
