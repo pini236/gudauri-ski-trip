@@ -19221,6 +19221,246 @@
     "ru",
     "ka"
    ]
+  },
+  "tester.about_row": {
+   "he": "מצב בודק שטח",
+   "en": "Field tester mode",
+   "ru": "Режим полевого тестера",
+   "ka": "საველე ტესტერის რეჟიმი",
+   "where": "app/android (test build only)",
+   "note": "Field tester export of the raw ski-day log (docs/handoff/2026-10-31-tester-log-consent). Only in the test build (src/preview), never in the store build",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "tester.unlock_title": {
+   "he": "קוד בודק",
+   "en": "Tester code",
+   "ru": "Код тестера",
+   "ka": "ტესტერის კოდი",
+   "where": "app/android (test build only)",
+   "note": "Field tester export of the raw ski-day log (docs/handoff/2026-10-31-tester-log-consent). Only in the test build (src/preview), never in the store build",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "tester.unlock_hint": {
+   "he": "הקוד נמסר לך בנפרד, מפיני.",
+   "en": "The code was given to you separately, by Pini.",
+   "ru": "Код вам передали отдельно, Пини.",
+   "ka": "კოდი ცალკე გადაგეცათ, პინისგან.",
+   "where": "app/android (test build only)",
+   "note": "Field tester export of the raw ski-day log (docs/handoff/2026-10-31-tester-log-consent). Only in the test build (src/preview), never in the store build",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "tester.unlock_go": {
+   "he": "פתיחה",
+   "en": "Unlock",
+   "ru": "Открыть",
+   "ka": "გახსნა",
+   "where": "app/android (test build only)",
+   "note": "Field tester export of the raw ski-day log (docs/handoff/2026-10-31-tester-log-consent). Only in the test build (src/preview), never in the store build",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "tester.unlock_bad": {
+   "he": "הקוד לא נכון.",
+   "en": "That code is not right.",
+   "ru": "Код неверный.",
+   "ka": "კოდი არასწორია.",
+   "where": "app/android (test build only)",
+   "note": "Field tester export of the raw ski-day log (docs/handoff/2026-10-31-tester-log-consent). Only in the test build (src/preview), never in the store build",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "tester.turn_off": {
+   "he": "כיבוי המצב",
+   "en": "Turn the mode off",
+   "ru": "Выключить режим",
+   "ka": "რეჟიმის გამორთვა",
+   "where": "app/android (test build only)",
+   "note": "Field tester export of the raw ski-day log (docs/handoff/2026-10-31-tester-log-consent). Only in the test build (src/preview), never in the store build",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "tester.on": {
+   "he": "פעיל",
+   "en": "On",
+   "ru": "Включён",
+   "ka": "ჩართულია",
+   "where": "app/android (test build only)",
+   "note": "Field tester export of the raw ski-day log (docs/handoff/2026-10-31-tester-log-consent). Only in the test build (src/preview), never in the store build",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "tester.export": {
+   "he": "שליחת היומן הגולמי של היום לפיני",
+   "en": "Send this day's raw log to Pini",
+   "ru": "Отправить сырой журнал этого дня Пини",
+   "ka": "დღის ნედლი ჟურნალის გაგზავნა პინისთვის",
+   "where": "app/android (test build only)",
+   "note": "Field tester export of the raw ski-day log (docs/handoff/2026-10-31-tester-log-consent). Only in the test build (src/preview), never in the store build",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "tester.consent_title": {
+   "he": "הסכמה לשליחת הקלטות של יום גלישה, לבודקי שטח",
+   "en": "Consent to send ski-day recordings, for field testers",
+   "ru": "Согласие на отправку записей дня катания, для полевых тестеров",
+   "ka": "თხილამურებით დღის ჩანაწერების გაგზავნაზე თანხმობა, საველე ტესტერებისთვის",
+   "where": "app/android (test build only)",
+   "note": "Field tester export of the raw ski-day log (docs/handoff/2026-10-31-tester-log-consent). Only in the test build (src/preview), never in the store build",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "tester.consent_body": {
+   "he": "אני מסכים/ה לשלוח לפיני זולברג (אדם פרטי בישראל, המפתח של Gudi, pinisagent@gmail.com) קבצים של יום הגלישה שהקלטתי באפליקציה, לפי מה שכתוב כאן.\n\nמה בקובץ: המיקום המדויק שלי בכל שנייה של היום שהקלטתי, בתוך אזור האתר ועוד 500 מטר מסביבו (מה שמחוץ לו נחתך), השעה, המהירות, הגובה ודיוק המדידה, נתוני לחץ אוויר, ומעט נתונים מחיישני התנועה של הטלפון. מהקובץ אפשר לדעת איפה הייתי בכל רגע באותו יום. אין בו שם, מספר טלפון או תוכן אחר מהטלפון.\n\nלמה: רק כדי לבדוק ולשפר את הזיהוי של יום הגלישה באפליקציה (רכבלים, מסלולים, מהירות). לא לפרסום, לא למודעות, ולא לשום מטרה אחרת.\n\nמי רואה: פיני בלבד. כדי לנתח את הקבצים, פיני עשוי להיעזר בכלי בינה מלאכותית (Claude של Anthropic), שפועלים בשבילו ולא משתמשים בקבצים למטרה משלהם. הקבצים לא נמסרים לאף אחד אחר ולא מתפרסמים. מה שמתפרסם, אם בכלל, הוא רק מספרים מצטברים מכל הבודקים יחד, שמהם אי אפשר לדעת איפה הייתי.\n\nכמה זמן: עד 31.3.2027 לכל המאוחר, ואז הקבצים נמחקים.\n\nהזכויות שלי: השליחה מרצון. אני בוחר/ת אילו ימים לשלוח, ויכול/ה לחזור בי בכל רגע ולבקש למחוק קבצים ששלחתי, בהודעה לפיני. אחרי מחיקה, הקבצים לא ישמשו יותר.",
+   "en": "I agree to send Pini Zolberg (a private individual in Israel, the developer of Gudi, pinisagent@gmail.com) files of ski days I recorded in the app, as described here.\n\nWhat the file contains: my precise location for every second of the day I recorded, inside the site's area plus 500 metres around it (what is outside is cut off), the time, speed, altitude and measurement accuracy, air-pressure readings, and a small amount of data from the phone's motion sensors. The file shows where I was at every moment of that day. It contains no name, phone number or other content from my phone.\n\nWhy: only to test and improve how the app detects a ski day (lifts, runs, speed). Not for publication, advertising or any other purpose.\n\nWho sees it: only Pini. To analyse the files, Pini may use AI tools (Anthropic's Claude), which act on his behalf and do not use the files for their own purposes. The files are not given to anyone else and are not published. Anything published, if at all, is only aggregate numbers across all testers, from which my locations cannot be identified.\n\nFor how long: until 31 March 2027 at the latest, and then the files are deleted.\n\nMy rights: sending is voluntary. I choose which days to send, and I can withdraw at any time and ask for files I sent to be deleted, by messaging Pini. After deletion, the files will not be used again.",
+   "ru": "Я согласен(на) отправлять Пини Зольбергу (частному лицу в Израиле, разработчику Gudi, pinisagent@gmail.com) файлы дней катания, которые я записал(а) в приложении, на условиях, описанных здесь.\n\nЧто в файле: моё точное местоположение в каждую секунду записанного дня, внутри зоны курорта и ещё 500 метров вокруг неё (всё, что за её пределами, вырезается), время, скорость, высота и точность измерения, данные об атмосферном давлении и немного данных датчиков движения телефона. По файлу можно узнать, где я был(а) в каждый момент этого дня. В нём нет имени, номера телефона и другого содержимого телефона.\n\nЗачем: только чтобы проверять и улучшать распознавание дня катания в приложении (подъёмники, трассы, скорость). Не для публикации, не для рекламы и не для каких-либо других целей.\n\nКто видит: только Пини. Для анализа файлов Пини может пользоваться инструментами искусственного интеллекта (Claude от Anthropic), которые работают от его имени и не используют файлы для собственных целей. Файлы никому больше не передаются и не публикуются. Публиковаться могут, если вообще, только сводные числа по всем тестерам, по которым нельзя определить, где я был(а).\n\nКак долго: не позже 31.3.2027, затем файлы удаляются.\n\nМои права: отправка добровольная. Я выбираю, какие дни отправлять, и могу в любой момент отказаться и попросить удалить отправленные файлы, написав Пини. После удаления файлы больше не будут использоваться.",
+   "ka": "ვთანხმდები, პინი ზოლბერგს (ისრაელის კერძო პირს, Gudi-ს დეველოპერს, pinisagent@gmail.com) გავუგზავნო აპლიკაციაში ჩაწერილი თხილამურებით სრიალის დღეების ფაილები, აქ აღწერილი პირობებით.\n\nრა არის ფაილში: ჩემი ზუსტი მდებარეობა ჩაწერილი დღის ყოველ წამს, კურორტის ზონის შიგნით და მის გარშემო კიდევ 500 მეტრის ფარგლებში (რაც მის გარეთაა, იჭრება), დრო, სიჩქარე, სიმაღლე და გაზომვის სიზუსტე, ატმოსფერული წნევის მონაცემები და ტელეფონის მოძრაობის სენსორების მცირე მონაცემები. ფაილიდან შეიძლება გაიგო, სად ვიყავი იმ დღის ყოველ მომენტში. მასში არ არის სახელი, ტელეფონის ნომერი ან ტელეფონის სხვა შიგთავსი.\n\nრატომ: მხოლოდ იმისთვის, რომ შემოწმდეს და გაუმჯობესდეს აპლიკაციაში სრიალის დღის ამოცნობა (საბაგიროები, ტრასები, სიჩქარე). არა გამოქვეყნებისთვის, არა რეკლამისთვის და არა სხვა რაიმე მიზნით.\n\nვინ ხედავს: მხოლოდ პინი. ფაილების გასაანალიზებლად პინიმ შეიძლება გამოიყენოს ხელოვნური ინტელექტის ინსტრუმენტები (Anthropic-ის Claude), რომლებიც მისი სახელით მუშაობენ და ფაილებს საკუთარი მიზნებისთვის არ იყენებენ. ფაილები არავის გადაეცემა და არ ქვეყნდება. თუ რამე გამოქვეყნდება, ეს იქნება მხოლოდ ყველა ტესტერის ჯამური რიცხვები, რომლებითაც ჩემი მდებარეობის გაგება შეუძლებელია.\n\nრამდენ ხანს: არაუგვიანეს 31.3.2027-ისა, შემდეგ ფაილები იშლება.\n\nჩემი უფლებები: გაგზავნა ნებაყოფლობითია. მე ვირჩევ, რომელი დღეები გავგზავნო, და ნებისმიერ დროს შემიძლია უარი ვთქვა და მოვითხოვო გაგზავნილი ფაილების წაშლა, პინისთვის შეტყობინებით. წაშლის შემდეგ ფაილები აღარ გამოიყენება.",
+   "where": "app/android (test build only)",
+   "note": "Field tester export of the raw ski-day log (docs/handoff/2026-10-31-tester-log-consent). Only in the test build (src/preview), never in the store build. The approved wording of the legal session, plus the cut-off sentence the architect required",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "tester.consent_age": {
+   "he": "אני בן/בת 18 לפחות, ואני מסכים/ה לאמור למעלה",
+   "en": "I am at least 18 years old, and I agree to the above",
+   "ru": "Мне не меньше 18 лет, и я согласен(на) с написанным выше",
+   "ka": "ჩემი ასაკი მინიმუმ 18 წელია და ვეთანხმები ზემოთ დაწერილს",
+   "where": "app/android (test build only)",
+   "note": "Field tester export of the raw ski-day log (docs/handoff/2026-10-31-tester-log-consent). Only in the test build (src/preview), never in the store build",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "tester.consent_impacts": {
+   "he": "אני מסכים/ה שיישלחו גם נתוני חיישני התנועה סביב מכה (למשל נפילה) שלא סימנתי \"לא נפלתי\". בלי זה אי אפשר לכייל את זיהוי הנפילה. (לא חובה)",
+   "en": "I also agree to send the motion-sensor data around a blow (a fall, for example) that I did not mark \"I did not fall\". Without it the fall detection cannot be calibrated. (Optional)",
+   "ru": "Я также согласен(на) отправлять данные датчиков движения вокруг удара (например, падения), который я не отметил(а) как «не падал(а)». Без этого нельзя откалибровать распознавание падений. (Необязательно)",
+   "ka": "ასევე ვთანხმდები, გაიგზავნოს მოძრაობის სენსორების მონაცემები დარტყმის (მაგალითად, დაცემის) გარშემო, რომელიც არ მიმიჩნევია „არ დავვარდნილვარ“. ამის გარეშე დაცემის ამოცნობის დაკალიბრება შეუძლებელია. (არასავალდებულო)",
+   "where": "app/android (test build only)",
+   "note": "Field tester export of the raw ski-day log (docs/handoff/2026-10-31-tester-log-consent). Only in the test build (src/preview), never in the store build",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "tester.consent_agree": {
+   "he": "אני מסכים/ה",
+   "en": "I agree",
+   "ru": "Согласен(на)",
+   "ka": "ვეთანხმები",
+   "where": "app/android (test build only)",
+   "note": "Field tester export of the raw ski-day log (docs/handoff/2026-10-31-tester-log-consent). Only in the test build (src/preview), never in the store build",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "tester.consent_withdraw": {
+   "he": "ביטול ההסכמה",
+   "en": "Withdraw my consent",
+   "ru": "Отозвать согласие",
+   "ka": "თანხმობის გაუქმება",
+   "where": "app/android (test build only)",
+   "note": "Field tester export of the raw ski-day log (docs/handoff/2026-10-31-tester-log-consent). Only in the test build (src/preview), never in the store build",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "tester.warn_title": {
+   "he": "לפני השליחה",
+   "en": "Before you send",
+   "ru": "Перед отправкой",
+   "ka": "გაგზავნამდე",
+   "where": "app/android (test build only)",
+   "note": "Field tester export of the raw ski-day log (docs/handoff/2026-10-31-tester-log-consent). Only in the test build (src/preview), never in the store build",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "tester.warn_body": {
+   "he": "הקובץ כולל את המיקום המדויק שלך בכל שנייה של היום, בתוך אזור האתר, ושעות ומהירות. הוא נשלח רק לפיני, לפי ההסכמה שנתת. איפה לשלוח בוחרים אתה, בגיליון השיתוף.",
+   "en": "The file has your precise location for every second of the day, inside the site's area, with the times and speeds. It goes to Pini only, as you agreed. You choose where to send it in the share sheet.",
+   "ru": "В файле ваше точное местоположение в каждую секунду дня, внутри зоны курорта, со временем и скоростью. Он предназначен только Пини, как вы согласились. Куда отправить, вы выбираете сами в меню «Поделиться».",
+   "ka": "ფაილში არის თქვენი ზუსტი მდებარეობა დღის ყოველ წამს, კურორტის ზონის შიგნით, დროებითა და სიჩქარეებით. ის მხოლოდ პინის ეგზავნება, როგორც დათანხმდით. სად გააგზავნოთ, თავად ირჩევთ გაზიარების მენიუში.",
+   "where": "app/android (test build only)",
+   "note": "Field tester export of the raw ski-day log (docs/handoff/2026-10-31-tester-log-consent). Only in the test build (src/preview), never in the store build",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "tester.send": {
+   "he": "שליחה",
+   "en": "Send",
+   "ru": "Отправить",
+   "ka": "გაგზავნა",
+   "where": "app/android (test build only)",
+   "note": "Field tester export of the raw ski-day log (docs/handoff/2026-10-31-tester-log-consent). Only in the test build (src/preview), never in the store build",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "tester.cancel": {
+   "he": "ביטול",
+   "en": "Cancel",
+   "ru": "Отмена",
+   "ka": "გაუქმება",
+   "where": "app/android (test build only)",
+   "note": "Field tester export of the raw ski-day log (docs/handoff/2026-10-31-tester-log-consent). Only in the test build (src/preview), never in the store build",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "tester.empty": {
+   "he": "אין ביומן נקודות בתוך אזור האתר, ואין מה לשלוח.",
+   "en": "The log has no points inside the site's area, so there is nothing to send.",
+   "ru": "В журнале нет точек внутри зоны курорта, отправлять нечего.",
+   "ka": "ჟურნალში არ არის წერტილები კურორტის ზონაში, გასაგზავნი არაფერია.",
+   "where": "app/android (test build only)",
+   "note": "Field tester export of the raw ski-day log (docs/handoff/2026-10-31-tester-log-consent). Only in the test build (src/preview), never in the store build",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "tester.share_title": {
+   "he": "יומן גולמי ל-Gudi",
+   "en": "Raw log for Gudi",
+   "ru": "Сырой журнал для Gudi",
+   "ka": "ნედლი ჟურნალი Gudi-სთვის",
+   "where": "app/android (test build only)",
+   "note": "Field tester export of the raw ski-day log (docs/handoff/2026-10-31-tester-log-consent). Only in the test build (src/preview), never in the store build",
+   "check": [
+    "ru",
+    "ka"
+   ]
   }
  }
 }

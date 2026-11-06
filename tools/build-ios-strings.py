@@ -17,7 +17,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 LANGS = ["he", "en", "ru", "ka"]
 # The crew's real first names in the games are the website's (decisions 27 and 55)
-SKIP = re.compile(r"^game\.[a-z]+\.friend_")
+SKIP = re.compile(r"^(game\.[a-z]+\.friend_|tester\.)")  # tester.*: the Android test build's export (the iPhone has its own words)
 PH = re.compile(r"\{([a-zA-Z_][a-zA-Z0-9_]*)\}")
 
 

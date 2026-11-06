@@ -969,6 +969,15 @@ dayrec_steps() {
   # the same answer by the entry on home: a screen that says what is in the way, with the way to the settings (not a toast)
   qa "--es qa.tab home"; sleep 3; tapText "מקליטים" && { sleep 2; shot dayrec-blocked; adb shell input keyevent KEYCODE_BACK; sleep 1; }
   adb shell pm grant "$PKG" "$perm"
+  # the live screen (round 29): the map under the numbers, then the signal-lost message when the readings stop for a while
+  qa "--es qa.tab home"; sleep 3
+  if [ -n "$(where 'מקליטים')" ]; then
+    tapText "מקליטים"; sleep 2
+    for w in "המשך" "כל היום"; do [ -n "$(where "$w")" ] && { tapText "$w"; sleep 3; }; done
+    dayrec_walk 4; sleep 2; shot dayrec-live
+    sleep 24; shot dayrec-live-weak
+    [ -n "$(where 'סיום')" ] && { tapText "סיום"; sleep 3; }
+  fi
   qa "--es qa.dayrec wipe"
 }
 

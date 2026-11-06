@@ -32,6 +32,9 @@ def main():
         # the support page is static: tools/build-support.py writes its words into site/support.html
         if k.startswith("support."):
             continue
+        # the field testers' export is a test build of the Android app only (docs/handoff/2026-10-31-tester-log-consent)
+        if k.startswith("tester."):
+            continue
         g = k.split(".")[1] if k.startswith("game.") else ""
         groups.setdefault(g, {})[k] = v
     OUT.mkdir(parents=True, exist_ok=True)
