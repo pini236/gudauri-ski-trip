@@ -101,7 +101,7 @@ fun DayViewScreen(file: File, runs: Runs?, sample: Boolean = false, onReplay: ((
         }
         val l = loaded
         when {
-            l != null -> DayBody(l, runs, sample, onReplay)
+            l != null -> DayBody(l, runs, sample, onReplay, file)
             failed -> Text(stringResource(R.string.app_day_empty), Modifier.padding(16.dp), style = Ski.type.body, color = c.muted)
             else -> Text(stringResource(R.string.app_day_loading), Modifier.padding(16.dp), style = Ski.type.body, color = c.muted)
         }
@@ -109,7 +109,7 @@ fun DayViewScreen(file: File, runs: Runs?, sample: Boolean = false, onReplay: ((
 }
 
 @Composable
-private fun DayBody(l: Loaded, runs: Runs?, sample: Boolean, onReplay: (() -> Unit)?) {
+private fun DayBody(l: Loaded, runs: Runs?, sample: Boolean, onReplay: (() -> Unit)?, file: File) {
     val c = Ski.colors
     val s = l.day.summary
     val zone = ZoneId.of(DayParams.TZ)
@@ -128,6 +128,8 @@ private fun DayBody(l: Loaded, runs: Runs?, sample: Boolean, onReplay: (() -> Un
             if (onReplay != null) Text(stringResource(R.string.app_day_replay), Modifier.fillMaxWidth().border(BorderStroke(1.5.dp, c.ink)).clickable(role = Role.Button, onClick = onReplay).heightIn(min = 48.dp).padding(vertical = 12.dp),
                 textAlign = TextAlign.Center, style = Ski.type.bodyBold, color = c.ink)
             Text(stringResource(R.string.app_day_note), style = Ski.type.small, color = c.muted)
+            // the test build's field-tester tools; an empty stand-in in the store build
+            if (!sample) io.github.pini236.skiapp.fieldtools.FieldTools.DayExtras(file)
             for (ch in l.day.chapters) Chapter(ch, runs, zone)
         }
         Spacer(Modifier.height(24.dp))

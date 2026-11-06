@@ -254,5 +254,9 @@
    "steepest",
    "time_split"
   ]
+ },
+ "export": {
+  "_about": "The raw log a field tester sends (docs/handoff/2026-10-31-tester-log-consent/README.md, docs/ARCHITECTURE.md 31.10.2026): only what is inside the rectangle of the terrain model (site/data/terrain.json dem) plus margin_m.",
+  "margin_m": 500
  }
 }

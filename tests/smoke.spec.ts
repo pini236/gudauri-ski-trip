@@ -179,17 +179,25 @@ test('השלט "אפליקציה לאנדרואיד" מוביל לגוגל פל�
   await expect(board).toHaveAttribute('target', '_blank');
   await expect(board).toContainText('Google Play');
   // after the group sign, at the end of the post
-  expect(await page.locator('.post > :visible').last().evaluate(e => e.id)).toMatch(/^app(Board|Qr)$/);
+  expect(await page.locator('.post > :visible').last().evaluate(e => e.id)).toMatch(/^(app|ios)Board$|^appQr$/);
   const fine = await page.evaluate(() => matchMedia('(pointer:fine)').matches);
   await expect(page.locator('#appQr')).toBeVisible({ visible: fine });
   if (fine) {
-    expect(await page.locator('#appQr > img').evaluate((i: HTMLImageElement) => i.complete && i.naturalWidth > 0)).toBe(true);
     // Google's badge, in the page's language, at least 28px high (round 26)
     const badge = page.locator('#appBadgeImg');
     await expect(badge).toHaveAttribute('src', 'img/badges/play-he.png');
     await expect.poll(() => badge.evaluate((i: HTMLImageElement) => i.complete && i.naturalWidth > 0)).toBe(true);
     expect((await badge.boundingBox())!.height).toBeGreaterThanOrEqual(28);
     await expect(page.locator('#appBadge')).toHaveAttribute('href', /utm_medium%3Dhome_qr$/);
+    // round 37: the second code and the App Store badge, both 44 high; on a computer both signs
+    const ios = page.locator('#iosBoard');
+    await expect(ios).toBeVisible();
+    await expect(ios).toHaveAttribute('href', 'https://apps.apple.com/app/gudi-gudauri-ski-map/id6825506333');
+    await expect(ios).toContainText('App Store');
+    await expect(page.locator('#iosBadge')).toHaveAttribute('href', 'https://apps.apple.com/app/gudi-gudauri-ski-map/id6825506333?ct=home_qr');
+    expect(await page.locator('#appQr .app-qr-c > img').evaluateAll(a => a.map((i: HTMLImageElement) => i.complete && i.naturalWidth > 0))).toEqual([true, true]);
+    expect((await page.locator('#iosBadgeImg').boundingBox())!.height).toBeCloseTo(44, 0);
+    expect((await badge.boundingBox())!.height).toBeCloseTo(44, 0);
     await page.goto('/?lang=en');
     await loaded(page);
     await expect(badge).toHaveAttribute('src', 'img/badges/play-en.png');
@@ -197,13 +205,43 @@ test('השלט "אפליקציה לאנדרואיד" מוביל לגוגל פל�
   expect(errors).toEqual([]);
 });
 
-test('באייפון השלט של האפליקציה לא מוצג עד App Store', async ({ page }) => {
-  await page.addInitScript(() => Object.defineProperty(Navigator.prototype, 'userAgent', { get: () => 'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1' }));
+const IPHONE = 'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1';
+const ANDROID = 'Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0 Mobile Safari/537.36';
+
+test('באייפון רואים רק את השלט של App Store (סבב 37)', async ({ page }) => {
+  await page.addInitScript(ua => Object.defineProperty(Navigator.prototype, 'userAgent', { get: () => ua }), IPHONE);
   await page.goto('/');
   await loaded(page);
   await expect(page.locator('#appBoard')).toBeHidden();
   await expect(page.locator('#appQr')).toBeHidden();
+  const ios = page.locator('#iosBoard');
+  await expect(ios).toBeVisible();
+  await expect(ios).toHaveAttribute('href', 'https://apps.apple.com/app/gudi-gudauri-ski-map/id6825506333');
+  await expect(ios).not.toHaveAttribute('target', /.+/); // the App Store app opens in place
+  await expect(ios.locator('b')).toHaveText('אפליקציה לאייפון');
   await expect(page.locator('#groupBoard')).toBeVisible();
+});
+
+test('באנדרואיד רואים רק את השלט של גוגל פליי (סבב 37)', async ({ page }) => {
+  await page.addInitScript(ua => Object.defineProperty(Navigator.prototype, 'userAgent', { get: () => ua }), ANDROID);
+  await page.goto('/');
+  await loaded(page);
+  await expect(page.locator('#iosBoard')).toBeHidden();
+  await expect(page.locator('#appBoard')).toBeVisible();
+  await expect(page.locator('#appQr')).toBeHidden();
+});
+
+test('מדידה: app_download עם store appstore, לחיצה על השלט של האייפון (סבב 37)', async ({ page }) => {
+  await page.addInitScript(ua => Object.defineProperty(Navigator.prototype, 'userAgent', { get: () => ua }), IPHONE);
+  await page.goto('/');
+  await loaded(page);
+  await page.evaluate(() => {
+    (window as any).__ev = [];
+    (window as any).track = (n: string, p: unknown) => (window as any).__ev.push([n, p]);
+    document.addEventListener('click', e => e.preventDefault(), true); // do not leave for apple.com
+  });
+  await page.locator('#iosBoard').click();
+  expect(await page.evaluate(() => (window as any).__ev)).toEqual([['app_download', { store: 'appstore', placement: 'home' }]]);
 });
 
 test('יום ולילה: שלושה מצבים, שעון גודאורי והנוף מתחלף', async ({ page }) => {

@@ -20,10 +20,8 @@ body{background:linear-gradient(var(--sky1),var(--sky2) 55%,var(--snow)) fixed;c
 @keyframes al-run{from{transform:translateX(0)}to{transform:translateX(122%)}}
 :root[dir="rtl"] .al-bar i{animation-direction:alternate-reverse}
 @media (prefers-reduced-motion: reduce){.al-bar i{animation:none;width:100%}}
-.al-badge{display:block;margin-top:6px}
+.al-badges{display:flex;flex-wrap:wrap;justify-content:center;gap:12px;margin-top:6px}
+.al-badge{display:block}
 .al-badge img{display:block;height:52px;width:auto}
 .al-site{display:inline-flex;align-items:center;min-height:44px;color:var(--glacier)}
-.al-ios h2{margin:10px 0 6px;font-family:var(--f-display);font-weight:700;font-size:38px;line-height:1}
-.al-ios p{margin:0;max-width:280px;color:var(--muted)}
-.al-btn{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:0 26px;margin-top:4px;background:var(--btn);color:var(--on-btn);font-weight:600;font-size:16px;text-decoration:none}
 a:focus-visible{outline:2px solid var(--glacier);outline-offset:2px}

@@ -97,6 +97,7 @@ jobs:
           CERT: ${{ secrets.IOS_DIST_CERT_P12_BASE64 }}
           CERT_PASSWORD: ${{ secrets.IOS_DIST_CERT_PASSWORD }}
           PROFILE: ${{ secrets.IOS_PROFILE_BASE64 }}
+          PROFILE_LIVE: ${{ secrets.IOS_PROFILE_LIVE_BASE64 }}
         run: |
           umask 077
           KC="$RUNNER_TEMP/release.keychain-db"
@@ -120,6 +121,18 @@ jobs:
           echo "PROFILE_UUID=$PROFILE_UUID" >> "$GITHUB_ENV"
           echo "PROFILE_NAME=$PROFILE_NAME" >> "$GITHUB_ENV"
           rm -f "$RUNNER_TEMP/dist.p12" "$RUNNER_TEMP/profile.plist"
+          # the Live Activity extension's own profile (docs/APPLE.md 5.9): only the ski-day build (dayrec) installs it
+          if [ "$VARIANT" = dayrec ]; then
+            test -n "$PROFILE_LIVE" || { echo "::error::variant dayrec needs the secret IOS_PROFILE_LIVE_BASE64"; exit 1; }
+            printf '%s' "$PROFILE_LIVE" | base64 -d > "$RUNNER_TEMP/profile-live.mobileprovision"
+            security cms -D -i "$RUNNER_TEMP/profile-live.mobileprovision" > "$RUNNER_TEMP/profile-live.plist"
+            PROFILE_LIVE_UUID=$(/usr/libexec/PlistBuddy -c 'Print :UUID' "$RUNNER_TEMP/profile-live.plist")
+            PROFILE_LIVE_NAME=$(/usr/libexec/PlistBuddy -c 'Print :Name' "$RUNNER_TEMP/profile-live.plist")
+            cp "$RUNNER_TEMP/profile-live.mobileprovision" "$HOME/Library/MobileDevice/Provisioning Profiles/$PROFILE_LIVE_UUID.mobileprovision"
+            echo "PROFILE_LIVE_UUID=$PROFILE_LIVE_UUID" >> "$GITHUB_ENV"
+            echo "PROFILE_LIVE_NAME=$PROFILE_LIVE_NAME" >> "$GITHUB_ENV"
+            rm -f "$RUNNER_TEMP/profile-live.plist"
+          fi
       - name: Archive, signed by hand
         if: steps.gate.outputs.ready == 'true'
         run: |
@@ -128,9 +141,12 @@ jobs:
           # (ios.yml's builds are never uploaded), so TestFlight never sees a repeat (docs/ARCHITECTURE.md, R-8).
           # manual signing is set in the app target's Release settings in project.yml (the architect's condition);
           # only the profile's name comes from here, as a build setting that nothing but that target reads
+          # the Live Activity extension's profile name (dayrec only; the plain build has no such target)
+          LIVE_ARG=""
+          [ "$VARIANT" = dayrec ] && LIVE_ARG="GUDI_PROFILE_LIVE=$PROFILE_LIVE_NAME"
           xcodebuild -project Gudi.xcodeproj -scheme Gudi -configuration Release \
             -destination 'generic/platform=iOS' -archivePath "$RUNNER_TEMP/Gudi.xcarchive" \
-            GUDI_PROFILE="$PROFILE_NAME" CURRENT_PROJECT_VERSION=${{ github.run_number }} \
+            GUDI_PROFILE="$PROFILE_NAME" ${LIVE_ARG:+"$LIVE_ARG"} CURRENT_PROJECT_VERSION=${{ github.run_number }} \
             archive > "$RUNNER_TEMP/archive.log" 2>&1 || RC=$?
           RC=${RC:-0}
           tail -40 "$RUNNER_TEMP/archive.log"
@@ -139,6 +155,9 @@ jobs:
       - name: Gate, the compiled app's Info.plist matches the variant
         if: steps.gate.outputs.ready == 'true'
         run: sh tools/check-ios-variant.sh "$RUNNER_TEMP/Gudi.xcarchive/Products/Applications/Gudi.app/Info.plist" "$VARIANT"
+      - name: Gate, the plain build has no ski-day code and no tester export
+        if: steps.gate.outputs.ready == 'true' && env.VARIANT == 'plain'
+        run: sh tools/check-ios-store-binary.sh "$RUNNER_TEMP/Gudi.xcarchive/Products/Applications/Gudi.app/Gudi"
       - name: Export and upload to TestFlight
         if: steps.gate.outputs.ready == 'true'
         env:
@@ -148,6 +167,8 @@ jobs:
         run: |
           umask 077
           printf '%s' "$KEY" | base64 -d > "$RUNNER_TEMP/AuthKey.p8"
+          LIVE_ENTRY=""
+          [ "$VARIANT" = dayrec ] && LIVE_ENTRY="<key>${BUNDLE_ID}.live</key><string>${PROFILE_LIVE_NAME}</string>"
           cat > "$RUNNER_TEMP/ExportOptions.plist" <<PLIST
           <?xml version="1.0" encoding="UTF-8"?>
           <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -157,7 +178,7 @@ jobs:
             <key>signingStyle</key><string>manual</string>
             <key>teamID</key><string>${TEAM_ID}</string>
             <key>signingCertificate</key><string>Apple Distribution</string>
-            <key>provisioningProfiles</key><dict><key>${BUNDLE_ID}</key><string>${PROFILE_NAME}</string></dict>
+            <key>provisioningProfiles</key><dict><key>${BUNDLE_ID}</key><string>${PROFILE_NAME}</string>${LIVE_ENTRY}</dict>
             <key>uploadSymbols</key><true/>
           </dict></plist>
           PLIST
@@ -175,3 +196,5 @@ jobs:
           [ -n "$KC" ] && security delete-keychain "$KC" || true
           rm -f "$RUNNER_TEMP"/AuthKey.p8 "$RUNNER_TEMP"/dist.p12 "$RUNNER_TEMP"/profile.mobileprovision "$RUNNER_TEMP"/ExportOptions.plist
           [ -n "$PROFILE_UUID" ] && rm -f "$HOME/Library/MobileDevice/Provisioning Profiles/$PROFILE_UUID.mobileprovision" || true
+          [ -n "$PROFILE_LIVE_UUID" ] && rm -f "$HOME/Library/MobileDevice/Provisioning Profiles/$PROFILE_LIVE_UUID.mobileprovision" || true
+          rm -f "$RUNNER_TEMP/profile-live.mobileprovision"
