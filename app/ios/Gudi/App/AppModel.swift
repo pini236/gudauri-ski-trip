@@ -41,6 +41,11 @@ final class AppModel {
     let runs: RunsAndLifts?
     /// The terrain model (site/data/terrain.json), parsed by the map when it first opens.
     let terrainURL: URL?
+    /// The ski day's recorder (decision 76): made only by a build with the `DAYREC` flag (1.1, project-dayrec.yml),
+    /// whatever the site lists; nil in 1.0. No screen yet (round 29).
+    let dayRecorder: DayRecorder?
+    /// Food and services near the stations (round 31); nil where the site does not list the feature.
+    let places: Places?
     var status: LiftStatus
     var path: [Route] = []
     /// The lift board's sheet over the map (S2, S3), opened from home's board or the map's bar.
@@ -64,7 +69,15 @@ final class AppModel {
 
     init() {
         let data = { (name: String) in Bundle.main.url(forResource: name, withExtension: "json", subdirectory: "Data") }
-        runs = data("runs-and-lifts").flatMap { try? Data(contentsOf: $0) }.flatMap { try? RunsAndLifts.decode($0) }
+        // the runs and lifts: a copy refreshed from the site if one passed the checks, else the packaged one
+        let appVersion = (Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "0") + "." + (Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "0")
+        let store = SiteDataStore(
+            dir: FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0].appendingPathComponent("sitedata", isDirectory: true),
+            appVersion: appVersion,
+            packaged: { name in Bundle.main.url(forResource: String(name.dropLast(5)), withExtension: "json", subdirectory: "Data").flatMap { try? Data(contentsOf: $0) } })
+        runs = store.read("runs-and-lifts.json").flatMap { try? RunsAndLifts.decode($0) }
+        // new data is read at the next launch, never swapped under the user's feet; nothing is fetched in the screenshots' runs
+        if UserDefaults.standard.string(forKey: "qaRoute") == nil { Task.detached { await store.refresh() } }
         terrainURL = data("terrain")
         let names = runs.map { LiftStatus.names($0.mainLifts) } ?? []
         let now = Int64(Date().timeIntervalSince1970 * 1000)
@@ -80,6 +93,14 @@ final class AppModel {
         qaWeather = flags["weather"]
         // a pinned moment in Gudauri time ("2027-01-12T10:00"), for the boards that depend on the trip's stage
         qaNow = flags["now"].flatMap { Forecast.millis(local: $0) }.map { Date(timeIntervalSince1970: Double($0) / 1000) }
+        // food and services near the stations (round 31): only where the site lists the feature, and only a file this app knows
+        let resorts = data("resorts").flatMap { try? Data(contentsOf: $0) }.flatMap { try? Resorts.decode($0) }
+        places = resorts?.has(Places.feature) == true ? data("places").flatMap { try? Data(contentsOf: $0) }.flatMap(Places.parse) : nil
+        #if DAYREC
+        dayRecorder = resorts?.has("dayrec") == true || flags["dayrec"] != nil ? DayRecorder() : nil
+        #else
+        dayRecorder = nil
+        #endif
         forecast = qaWeather == "sample" ? WeatherSource.sample(now: qaNow.map { Int64($0.timeIntervalSince1970 * 1000) } ?? now) : qaWeather != nil ? nil : WeatherSource.cached()
         status = LiftStatus(names: names, report: qaStatus.map { StatusSource.qa($0, now: now) } ?? StatusSource.cached(), now: now)
         // the screenshots on GitHub only (a launch argument): a made-up trip, never the crew's flight
@@ -87,6 +108,10 @@ final class AppModel {
         // and the screen to open at start, for the screenshots (app/ios/qa/shots)
         if let r = qa.first.flatMap(Route.init(qa:)) { path = [r] }
         statusSheet = flags["sheet"] == "status"
+        #if DAYREC
+        // the simulator's end-to-end check: record a simulated route with no screen (simctl location)
+        if flags["dayrec"] == "start" { dayRecorder?.start() }
+        #endif
     }
 
     /// A made-up trip for the screenshots (invented flight numbers, as Android's QA).
@@ -144,4 +169,6 @@ final class AppModel {
 enum Site {
     static let base = URL(string: "https://gudauri-ski-trip.vercel.app")!
     static func privacy(_ lang: Lang) -> URL { URL(string: "https://gudauri-ski-trip.vercel.app/privacy#\(lang.rawValue)")! }
+    /// The support page (round 33), in the language of the app, like the privacy page.
+    static func support(_ lang: Lang) -> URL { URL(string: "https://gudauri-ski-trip.vercel.app/support#\(lang.rawValue)")! }
 }

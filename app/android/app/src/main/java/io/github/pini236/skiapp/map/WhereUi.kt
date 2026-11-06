@@ -89,7 +89,7 @@ fun whereWords(s: WhereAmI.State): WhereWords? {
                 Locator.Fix.Approx -> WhereWords(stringResource(R.string.loc_approx_title, acc), stringResource(R.string.loc_approx_sub), false, stringResource(R.string.loc_approx_action))
                 Locator.Fix.Low -> WhereWords(stringResource(R.string.loc_low_title, acc), stringResource(R.string.loc_low_sub), false)
                 Locator.Fix.Free -> WhereWords(stringResource(R.string.loc_free), where, false)
-                is Locator.Fix.OnRun -> WhereWords(stringResource(R.string.loc_on_run, "⁨${f.piste.key}⁩", stringResource(colorName(f.piste.color))), where, false)
+                is Locator.Fix.OnRun -> WhereWords(stringResource(R.string.loc_on_run, "⁨${f.piste.title}⁩", stringResource(colorName(f.piste.color))), where, false)
                 is Locator.Fix.OnLift -> WhereWords(stringResource(R.string.loc_on_lift, "⁨${f.lift.name}⁩"),
                     stringResource(R.string.loc_going_up) + " · " + stringResource(R.string.loc_accuracy, acc), false)
             }

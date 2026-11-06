@@ -88,7 +88,9 @@ fun MapScreen(view: MapView, scene: MapScene?, ms: MapStatus? = null, videos: Li
               /** Night (the day and night switch): the panel, the bar and the board go dark, as on the site (A-11). */
               dark: Boolean = false,
               /** The map from above (A-30): the relief under it, read on demand ([askRelief]) as for the meeting point. */
-              relief: io.github.pini236.skiapp.meet.Relief2D? = null, askRelief: () -> Unit = {}) {
+              relief: io.github.pini236.skiapp.meet.Relief2D? = null, askRelief: () -> Unit = {},
+              /** The ski day's "Record" button (round 29); null where the build or the data does not allow it. */
+              onRecord: (() -> Unit)? = null) {
     var selected by remember { mutableStateOf<Piste?>(view.selected) }
     var flying by remember { mutableStateOf(view.flying) }
     var lift by remember { mutableStateOf<Lift?>(view.shownLift.also { view.shownLift = null }) }
@@ -172,6 +174,14 @@ fun MapScreen(view: MapView, scene: MapScene?, ms: MapStatus? = null, videos: Li
         if (weatherOn) Telemetry.event("weather_view", mapOf("where" to "map", "state" to weather.measure))
         Qa.log("weather layer ${if (weatherOn) "on " + weather.measure else "off"}")
     }
+    // food and services (round 31): small dots beside the stations on the top view at all times; the key grows them into tags
+    val places = io.github.pini236.skiapp.places.LocalPlaces.current
+    var placesOn by rememberSaveable { mutableStateOf(false) }
+    fun togglePlaces() {
+        placesOn = !placesOn
+        if (placesOn && mode != "2d") setMode("2d", true) // drawn on the top view, like the weather
+        Qa.log("places layer ${if (placesOn) "on" else "off"}")
+    }
     val pins = if (weatherOn) io.github.pini236.skiapp.weather.pinTexts(weather) else emptyList()
     val pinKey = pins.joinToString("|") { it.title + it.temp + it.wind + it.snow + it.dir }
     LaunchedEffect(pinKey, top, scene) {
@@ -202,6 +212,7 @@ fun MapScreen(view: MapView, scene: MapScene?, ms: MapStatus? = null, videos: Li
         view.setHidden(runs.pistes.filter { it.color in hidden || (!it.named && "unnamed" in hidden) }.map { it.key }.toSet(), "lifts" !in hidden)
     }
     val order = remember(scene) { scene?.runs?.pistes?.let { RunFacts.order(it) } ?: emptyList() }
+    val titles = remember(scene) { scene?.runs?.pistes?.associate { it.key to it.title } ?: emptyMap() }
     val ovPaint by produceState<OverviewPaint?>(null, selected?.key, scene, top) {
         val p = selected; val s = scene
         value = if (!top || p == null || s == null) null else withContext(Dispatchers.Default) { OverviewPaint.of(s, p) }
@@ -259,7 +270,7 @@ fun MapScreen(view: MapView, scene: MapScene?, ms: MapStatus? = null, videos: Li
                 val nf = NumberFormat.getIntegerInstance(lang.locale)
                 OverviewWords(res.getString(R.string.map_kobi_side_label), res.getString(R.string.map_place_gudauri),
                     { n, e -> res.getString(R.string.app_peak_label, "\u2068$n\u2069", nf.format(e)) },
-                    { p -> if (p.key == "Firni ?") "Firni (1/2?)" else p.key }, res.getString(R.string.map_map_aria))
+                    { p -> if (p.key == "Firni ?") "Firni (1/2?)" else p.title }, res.getString(R.string.map_map_aria))
             }
             val hiddenKeys = remember(hidden, scene) { scene.runs.pistes.filter { it.color in hidden || (!it.named && "unnamed" in hidden) }.map { it.key }.toSet() }
             SkiTheme(dark = dark) {
@@ -272,6 +283,7 @@ fun MapScreen(view: MapView, scene: MapScene?, ms: MapStatus? = null, videos: Li
                     modifier = Modifier.fillMaxSize())
             }
         }
+        if (top && places != null && ov.ready) SkiTheme(dark = dark) { io.github.pini236.skiapp.places.PlacesLayer(ov, placesOn, Modifier.fillMaxSize()) }
         if (top && pins.isNotEmpty() && ov.ready) SkiTheme(dark = dark) { io.github.pini236.skiapp.weather.MapPins2D(ov, pins, Modifier.fillMaxSize(), top = 150.dp) }
         if (top && here != null && here.fix != Locator.Fix.Outside && ov.ready) SkiTheme(dark = dark) { MeDot2D(ov, here, Modifier.fillMaxSize()) }
         if (scene == null) {
@@ -286,7 +298,7 @@ fun MapScreen(view: MapView, scene: MapScene?, ms: MapStatus? = null, videos: Li
                         MapPanel(expanded, { expanded = it; Qa.log("panel ${if (it) "open" else "closed"}") }, { view.select(null) }, onHeight = onPanel,
                             head = {
                                 if (flying) Box(Modifier.padding(bottom = 8.dp)) { FlyBar(view, runName(p)) }
-                                RunHead(p, facts, order, flying, true, actions)
+                                RunHead(p, facts, order, flying, true, actions, titles)
                             },
                             body = { RunBody(p, facts, scene.runs, scene.terrain, videos, actions, flying) })
                     }
@@ -306,7 +318,10 @@ fun MapScreen(view: MapView, scene: MapScene?, ms: MapStatus? = null, videos: Li
                         // "where am I" at the start and the weather at the end, above the line (and-map-buttons)
                         if (!flying) Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.SpaceBetween) {
                             if (where != null) LocateKey(where.on, ::locate) else Box(Modifier)
-                            io.github.pini236.skiapp.weather.WeatherKey(weatherOn, ::toggleWeather)
+                            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                if (places != null) io.github.pini236.skiapp.places.PlacesKey(placesOn, ::togglePlaces)
+                                io.github.pini236.skiapp.weather.WeatherKey(weatherOn, ::toggleWeather)
+                            }
                         }
                         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                             val words = where?.let { whereWords(it.state) }
@@ -328,6 +343,9 @@ fun MapScreen(view: MapView, scene: MapScene?, ms: MapStatus? = null, videos: Li
                     kobi = { art?.let { a -> ov.frame(scope, a.kobi.left, a.kobi.top, a.kobi.right, a.kobi.bottom, 1.3f, 900f, 1f - panelFrac, 700); Qa.log("overview kobi") } },
                     north = { view.north() }, metresPerDp = if (ov.ready) 1f / ov.k * context.resources.displayMetrics.density else 0f,
                     bottom = panelFrac)
+                // the ski day: one tap from the map, with no run chosen (round 29)
+                if (onRecord != null && !flying && p == null && l == null && !list)
+                    io.github.pini236.skiapp.dayrec.ui.RecordButton(onRecord, Modifier.align(Alignment.BottomCenter).navigationBarsPadding().padding(bottom = 92.dp))
                 if (ms != null) {
                     if (!flying) StatusBar(ms.status, { ms.onSheet(true) }, Modifier.align(Alignment.TopCenter).statusBarsPadding().padding(top = 56.dp, start = 16.dp, end = 16.dp))
                     if (ms.sheet) Sheet({ ms.onSheet(false) }) {

@@ -1,7 +1,7 @@
 import json,re,sys
 d=json.load(open(sys.argv[1]))
 CAT={'he':{'one','two','other'},'en':{'one','other'},'ru':{'one','few','many','other'},'ka':{'one','other'}}
-BAD={'he':['אתה ','בטוח?','בטיחות','הצלה','חירום','מהר יותר','מסוכן'],'en':['faster','safe','rescue'],'ru':['быстрее','безопас'],'ka':[]}
+BAD={'he':['אתה ','בטוח?','בטיחות','הצלה','חירום','מהר יותר','מסוכן','תנסה','נסה '],'en':['faster','safe','rescue'],'ru':['быстрее','безопас'],'ka':[]}
 err=0
 def ph(v): return set(re.findall(r'\{(\w+)\}',v if isinstance(v,str) else ' '.join(v.values())))
 def chk(name,e,lists):
@@ -20,6 +20,8 @@ def chk(name,e,lists):
             for b in BAD[L]:
                 if b in txt: print('word',name,L,b); err+=1
 for k,e in d['shared'].items(): chk(k,e,False)
-for t,ks in d['tones'].items():
+for t,ks in d.get('tones',{}).items():
     for k,e in ks.items(): chk(t+':'+k,e,True)
+BAD['en']+=['beat ','won','push ']; BAD['ru']+=['победил']
+for k,e in d.get('keys',{}).items(): chk(k,e,True)
 print('errors',err)

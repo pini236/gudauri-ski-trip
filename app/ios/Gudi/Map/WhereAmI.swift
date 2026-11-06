@@ -132,9 +132,10 @@ struct WhereWords { let title: String; let sub: String; let dotOff: Bool; var ac
         case .low: return WhereWords(title: S.locLowTitle(n: acc), sub: S.locLowSub, dotOff: false)
         case .free: return WhereWords(title: S.locFree, sub: where_, dotOff: false)
         case .onRun(let key):
-            let color = runs.pistes.first { $0.key == key }?.color ?? "black"
+            let piste = runs.pistes.first { $0.key == key }
+            let color = piste?.color ?? "black"
             let name = color == "green" ? S.commonColorGreen : color == "blue" ? S.commonColorBlue : color == "red" ? S.commonColorRed : S.commonColorBlack
-            return WhereWords(title: S.locOnRun(run: "\u{2068}\(key)\u{2069}", color: name), sub: where_, dotOff: false)
+            return WhereWords(title: S.locOnRun(run: "\u{2068}\(piste?.name ?? key)\u{2069}", color: name), sub: where_, dotOff: false)
         case .onLift(let name):
             return WhereWords(title: S.locOnLift(lift: "\u{2068}\(name)\u{2069}"), sub: S.locGoingUp + " · " + S.locAccuracy(n: acc), dotOff: false)
         }
@@ -244,7 +245,7 @@ struct AskSheet: View {
 
     private func bullet(_ icon: String, _ text: Text) -> some View {
         HStack(alignment: .top, spacing: 10) {
-            Image(systemName: icon).font(.system(size: 18)).foregroundStyle(ski.colors.glacier).frame(width: 22).padding(.top, 2)
+            Image(systemName: icon).font(.system(size: 18)).foregroundStyle(ski.colors.glacier).frame(width: 22).padding(.top, 2).accessibilityHidden(true)
             text.font(ski.type.text(14.5)).foregroundStyle(ski.colors.ink).fixedSize(horizontal: false, vertical: true)
         }
         .padding(.bottom, 10)

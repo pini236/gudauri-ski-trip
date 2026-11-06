@@ -28,10 +28,10 @@ public struct Rung: Sendable {
     public static let all: [Rung] = [
         Rung(arena: .arenaHotelYard, n: 1, hp: 3, windA: 0, windB: 1, err: 0.9, upA: 1.8, upB: 2.4, waitA: 1.6, waitB: 2.6, goal: .goalWinUntouched),
         Rung(arena: .arenaLift, n: 1, hp: 3, windA: -2, windB: 2, err: 0.6, upA: 1.4, upB: 1.9, waitA: 1.3, waitB: 2.2, goal: .goalHat),
-        Rung(arena: .arenaDeepSnow, n: 2, hp: 2, windA: -2, windB: 2, err: 0.55, upA: 1.3, upB: 1.8, waitA: 1.6, waitB: 2.8, goal: .goalAccuracy),
+        Rung(arena: .arenaDeepSnow, n: 2, hp: 2, windA: -2, windB: 2, err: 0.55, upA: 1.1, upB: 1.55, waitA: 1.6, waitB: 2.8, goal: .goalAccuracy),
         // the two top rungs aim a little wider (X-5, the site's fix): nobody is a perfect shot
-        Rung(arena: .arenaRidge, n: 2, hp: 2, windA: -4, windB: 4, err: 0.5, upA: 1.1, upB: 1.6, waitA: 1.3, waitB: 2.4, goal: .goalTwoHats),
-        Rung(arena: .arenaSummit, n: 3, hp: 2, windA: -5, windB: 5, err: 0.45, upA: 1.0, upB: 1.4, waitA: 1.5, waitB: 2.8, goal: .goalWinUntouched),
+        Rung(arena: .arenaRidge, n: 2, hp: 2, windA: -4, windB: 4, err: 0.5, upA: 1.05, upB: 1.5, waitA: 1.3, waitB: 2.4, goal: .goalTwoHats),
+        Rung(arena: .arenaSummit, n: 3, hp: 2, windA: -5, windB: 5, err: 0.45, upA: 0.95, upB: 1.35, waitA: 1.5, waitB: 2.8, goal: .goalWinUntouched),
     ]
 
     /// Who stands behind the far wall on rung `i` when you wear coat `me` (the site's foesOf).
@@ -71,6 +71,9 @@ public final class SnowballFight {
     public enum State { case play, done, end }
 
     public static let hide = 0, peek = 1, aimPhase = 2, after = 3, outPhase = 4
+    /// Round 34 ("ד מתוקנת", the site's values): a longer lens, so the friends look 1.4 times bigger at the same distances and
+    /// flight times; they stand 1.4 times closer together sideways, and the view leans with the finger up to `lean` metres.
+    public static let zoom: Float = 1.4, xs: Float = 1 / 1.4, lean: Float = 0.75
     public static let g: Float = 9.81, zw: Float = 1.4, zf: Float = 10, zo: Float = 10.6, wall: Float = 1, fwall: Float = 1.05
     public static let handZ: Float = 0.5, flight: Float = 0.85
     /// The ring sits this far above the finger (CSS pixels), so the finger never hides it.
@@ -102,7 +105,7 @@ public final class SnowballFight {
 
     public private(set) var w: Float = 390, h: Float = 844, dp: Float = 1
     public private(set) var f: Float = 600, y0: Float = 300
-    public func place(_ width: Float, _ height: Float, _ density: Float) { w = width; h = height; dp = density; f = min(w * 1.75, h * 1.15); y0 = h * 0.42 }
+    public func place(_ width: Float, _ height: Float, _ density: Float) { w = width; h = height; dp = density; f = min(w * 1.75, h * 1.15) * Self.zoom; y0 = h * 0.5 }
 
     public private(set) var state = State.play
     public private(set) var t: Float = 0
@@ -125,7 +128,7 @@ public final class SnowballFight {
 
     public init(rung: Int, me: Int, out: SnowballOut?, dice: SeededDice = SeededDice(), still: Bool = false) {
         rungIndex = rung; self.me = me; self.rung = Rung.all[rung]; outEar = out; self.dice = dice; self.still = still
-        let xs: [Float] = self.rung.n == 1 ? [0] : self.rung.n == 2 ? [-1.5, 1.5] : [-2, 0, 2]
+        let xs: [Float] = (self.rung.n == 1 ? [0] : self.rung.n == 2 ? [-1.5, 1.5] : [-2, 0, 2]).map { $0 * Self.xs }
         foes = Rung.foes(rung, me: me).enumerated().map { i, c in Foe(c, xs[i], self.rung.hp, r(1.2, 2.4) + Float(i) * 0.9) }
         wind = (r(self.rung.windA, self.rung.windB) * 2).rounded() / 2
     }
@@ -136,7 +139,7 @@ public final class SnowballFight {
     public func farWallTop(_ x: Float) -> Float { farWall[min(max(Int(((x + 6) / 0.25).rounded()), 0), farWall.count - 1)] }
 
     // ---------- aiming: a finger anywhere, the ring above it; letting go throws when you are up ----------
-    public func ringX(_ a: Aim) -> Float { (a.x - w / 2) / (f / Self.zo) }
+    public func ringX(_ a: Aim) -> Float { (a.x - w / 2) / (f / Self.zo) + camX }
     public func ringY(_ a: Aim) -> Float { 1.75 - ((a.y - Self.off * dp) - y0) / (f / Self.zo) }
     public func down(_ x: Float, _ y: Float) { if state == .play { aim = Aim(x: x, y: y) } }
     public func move(_ x: Float, _ y: Float) { if aim != nil { aim = Aim(x: x, y: y) } }
@@ -164,7 +167,7 @@ public final class SnowballFight {
             else { o.phase = Self.aimPhase; o.timer = r(rung.upA, rung.upB) * 0.6; o.want = 1 }
         } else if o.phase == Self.peek && o.timer <= 0 { o.phase = Self.hide; o.want = 0; o.timer = r(0.5, 1.1) }
         else if o.phase == Self.aimPhase && o.timer <= 0 { if state == .play { throwFoe(o) }; o.phase = Self.after; o.timer = r(rung.upA, rung.upB) * 0.4; o.throwT = 0.25 }
-        else if o.phase == Self.after && o.timer <= 0 { o.phase = Self.hide; o.want = 0; o.timer = r(rung.waitA, rung.waitB); if dice.float() < 0.5 { o.goal = o.home + r(-0.8, 0.8) } }
+        else if o.phase == Self.after && o.timer <= 0 { o.phase = Self.hide; o.want = 0; o.timer = r(rung.waitA, rung.waitB); if dice.float() < 0.5 { o.goal = o.home + r(-0.8, 0.8) * Self.xs } }
         if o.phase == Self.hide && !o.goal.isNaN { o.x += (o.goal - o.x) * min(1, dt * 2.5) }
         o.up += (o.want - o.up) * min(1, dt * 9)
     }
@@ -172,7 +175,7 @@ public final class SnowballFight {
         let x0 = o.x - 0.3, yy: Float = 1.5, z0 = Self.zo - 0.4, tt = r(0.85, 1.1), G = Self.g
         // at your head when standing, with an error that shrinks up the ladder; better players lean into the wind
         // (k < 1 leaves a little error, X-5)
-        let tx = r(-1, 1) * rung.err, ty = 1.55 + r(-1, 1) * rung.err * 0.6, tz: Float = 0.3, k = 1 - rung.err * 0.5
+        let tx = camX + r(-1, 1) * rung.err, ty = 1.55 + r(-1, 1) * rung.err * 0.6, tz: Float = 0.3, k = 1 - rung.err * 0.5
         balls.append(Ball(x0, yy, z0, (tx - x0) / tt - 0.25 * wind * k * tt, (ty - yy + 0.5 * G * tt * tt) / tt, (tz - z0) / tt, false))
         out?.noise(0.08, 0.1, 2000, .high)
     }
@@ -184,7 +187,7 @@ public final class SnowballFight {
         reload = max(0, reload - dt)
         let want: Float = aim != nil && state == .play ? 1.75 : 0.98 // ducked, you still see their heads over your wall
         camH += (want - camH) * min(1, dt * 11)
-        camX += ((aim.map { ($0.x - w / 2) / w * 0.6 } ?? 0) - camX) * min(1, dt * 4) // lean a little toward the aim
+        camX += ((aim.map { ($0.x - w / 2) / w * 2 * Self.lean } ?? 0) - camX) * min(1, dt * 4) // lean a little toward the aim
         for o in foes { foeStep(o, dt) }
         let G = Self.g
         for b in balls where !b.dead {

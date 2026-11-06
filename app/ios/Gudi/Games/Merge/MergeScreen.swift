@@ -278,6 +278,11 @@ struct MergeScreen: View {
             .accessibilityElement(children: .ignore)
             .accessibilityLabel(S.gameMergeBoardLabel)
             .accessibilityValue(m.tiles.filter { $0.kind != .gone }.sorted { ($0.r, $0.c) < ($1.r, $1.c) }.map { mergeName($0.lv) }.joined(separator: ", "))
+            // VoiceOver cannot swipe the board: the four moves as actions (the screen's left and right in every language)
+            .accessibilityAction(named: S.appA11yMoveUp) { m.move(.up) }
+            .accessibilityAction(named: S.appA11yMoveDown) { m.move(.down) }
+            .accessibilityAction(named: S.appA11yMoveLeft) { m.move(.left) }
+            .accessibilityAction(named: S.appA11yMoveRight) { m.move(.right) }
         }
         // column 0 is on the left of the screen in every language
         .environment(\.layoutDirection, .leftToRight)

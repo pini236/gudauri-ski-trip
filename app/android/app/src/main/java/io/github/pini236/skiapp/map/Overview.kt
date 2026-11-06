@@ -55,7 +55,7 @@ import kotlin.math.min
  */
 class OverviewArt(val runs: Runs, terrain: Terrain) {
     /** A run: its lines as paths (made at the first drawing), and where its name goes. */
-    class RunArt(val p: Piste, val label: FloatArray?) { val paths: List<Path> by lazy { p.lines.map { path(it) } } }
+    class RunArt(val p: Piste, val label: FloatArray?, val fades: List<OpenEnds.Fade> = emptyList()) { val paths: List<Path> by lazy { p.lines.map { path(it) } } }
     class LiftArt(val l: Lift, val ends: FloatArray, val label: FloatArray?, val len: Float) { val path: Path by lazy { path(l.pts) } }
     /** A box in metres (x east, y south). */
     class Area(val left: Float, var top: Float, val right: Float, val bottom: Float) {
@@ -63,9 +63,13 @@ class OverviewArt(val runs: Runs, terrain: Terrain) {
         fun centerY() = (top + bottom) / 2
     }
 
+    /** A resort whose data carries name windows (round 21): its names are written beside the line, or not at all (the site's HASLBL). */
+    val hasLabels = runs.pistes.any { it.label.isNotEmpty() }
+
     val pistes: List<RunArt> = runs.pistes.map { p ->
         // the name halfway along its longest line, at a point of the line (the site's middle point)
-        RunArt(p, if (!p.named) null else p.lines.maxByOrNull { it.size }?.let { l -> val m = l.size / 2 / 2; floatArrayOf(l[m * 2], l[m * 2 + 1]) })
+        RunArt(p, if (!p.named) null else p.lines.maxByOrNull { it.size }?.let { l -> val m = l.size / 2 / 2; floatArrayOf(l[m * 2], l[m * 2 + 1]) },
+            OpenEnds.fades(p) { x, y -> terrain.elev(x, y) })
     }
     val lifts: List<LiftArt> = runs.lifts.map { l ->
         val n = l.pts.size / 2
@@ -127,6 +131,9 @@ class OverviewArt(val runs: Runs, terrain: Terrain) {
 
 /** The chosen run on the map from above: its ground in slope colours (X-3), and its lines in slope colours, top first. */
 class OverviewPaint(val key: String, val ground: Bitmap?, val box: RectF?, val segs: FloatArray, val colors: IntArray, val at: FloatArray) {
+    /** The arrows down the run, x, y and angle each (map/RunArrows.kt). */
+    val arrows: FloatArray by lazy { RunArrows.along(segs) }
+
     companion object {
         /** From the 3D scene's draped lines (top first) and their slopes, and its ground layer. Off the main thread. */
         fun of(scene: MapScene, p: Piste): OverviewPaint {
@@ -178,6 +185,14 @@ private class OverviewPaints(c: SkiColors, val d: Float, body: Typeface?) {
     val peakMk = fill(c.peak)
     val text = Paint(Paint.ANTI_ALIAS_FLAG).apply { typeface = Typeface.create(body, Typeface.BOLD); textAlign = Paint.Align.CENTER }
     val halo = Paint(text).apply { style = Paint.Style.STROKE; strokeJoin = Paint.Join.ROUND; color = c.casing.toArgb() }
+    // the names along a line start at an offset, so they are written from the left
+    val ptext = Paint(text).apply { textAlign = Paint.Align.LEFT }
+    val phalo = Paint(halo).apply { textAlign = Paint.Align.LEFT }
+    val pathScreen = Path()
+    val arrow = Path()
+    val arrowEdge = stroke(Color.White); val arrowInk = stroke(c.ink)
+    // keeps only what the gradient leaves: clear at the open end, whole from the end of the fade on
+    val fadeMask = Paint().apply { xfermode = android.graphics.PorterDuffXfermode(android.graphics.PorterDuff.Mode.DST_IN) }
     val colors = c
     // the relief (meet/MeetMap.kt's), its widths set each frame
     fun relief(color: Color, a: Float) = stroke(color.copy(alpha = color.alpha * a))
@@ -198,7 +213,8 @@ private class OverviewPaints(c: SkiColors, val d: Float, body: Typeface?) {
 }
 
 /** A name on the map: where (metres), what, its size and colour, and what a tap on it does (the Kobi signpost). */
-private class Lbl(val x: Float, val y: Float, val text: String, val size: Float, val color: Int, val dy: Float, val run: Piste? = null, val kobi: Boolean = false)
+private class Lbl(val x: Float, val y: Float, val text: String, val size: Float, val color: Int, val dy: Float, val run: Piste? = null, val kobi: Boolean = false,
+                 val windows: List<DoubleArray>? = null, val segs: List<FloatArray?> = emptyList())
 
 /**
  * The map from above. [view] is its window (the meeting point's, in metres); [paint] the chosen run's; [marker] the
@@ -225,7 +241,21 @@ fun Overview(
         buildList {
             art.pass?.let { add(Lbl(it[0], it[1], words.kobi, 13f, colors.glacier.toArgb(), -6f, kobi = true)) }
             for (pk in art.peaks) add(Lbl(pk.x, pk.y, words.peak(pk.name, pk.ele), 12f, colors.peak.toArgb(), -11f))
-            for (r in art.pistes) r.label?.let { add(Lbl(it[0], it[1], words.run(r.p), 13f, colors.run(r.p.color).toArgb(), -6f, run = r.p)) }
+            if (!art.hasLabels) for (r in art.pistes) r.label?.let { add(Lbl(it[0], it[1], words.run(r.p), 13f, colors.run(r.p.color).toArgb(), -6f, run = r.p)) }
+            else {
+                // round 21: the name beside the line, where a window has room; a stretch two runs share gets one name for both
+                val byKey = art.pistes.associateBy { it.p.key }
+                for (r in art.pistes) {
+                    val q = r.p
+                    if (!q.named) continue
+                    if (q.label.isNotEmpty()) add(Lbl(0f, 0f, words.run(q), 10f, colors.run(q.color).toArgb(), 0f, run = q, windows = q.label, segs = q.segLines))
+                    for ((other, ws) in q.shared.groupBy { it.other }) {
+                        val o = byKey[other]?.p
+                        add(Lbl(0f, 0f, if (o != null) LabelFit.sharedName(words.run(q), words.run(o)) else words.run(q), 10f, colors.run(q.color).toArgb(), 0f, run = q,
+                            windows = ws.map { it.w }, segs = q.segLines))
+                    }
+                }
+            }
             for (l in art.lifts) l.label?.let { add(Lbl(it[0], it[1], "⇡ " + l.l.name, 11.5f, colors.lift.toArgb(), -6f)) }
             relief?.places?.filter { it.first == "Gudauri" || it.first == "Kobi" }?.forEach { (n, x, y) ->
                 add(Lbl(x, y, if (n == "Gudauri") words.gudauri else n, 13f, colors.muted.toArgb(), -6f))
@@ -285,11 +315,25 @@ fun Overview(
                 val shut = fresh && status!!.runOpen(q) == false
                 val alpha = when { sel != null && q.key != sel -> .28f; shut && forMe -> .15f; else -> 1f }
                 val cas = w(p.casing, if (q.named) 6.5f else 4.5f).apply { this.alpha = (255 * alpha).toInt(); pathEffect = null }
-                val col = w(p.run, if (q.named) (if (q.kind == "ski-way") 2.6f else 3.4f) else 2f).apply {
-                    color = if (shut) p.dash else (p.runs[q.color] ?: colors.black).toArgb(); this.alpha = (255 * alpha).toInt()
-                    pathEffect = when { shut -> dShut; !q.named -> dUnnamed; q.kind == "ski-way" -> dWay; else -> null }
+                // a stretch without a name: thin and continuous in a resort with name windows (round 21), dashed elsewhere
+                val quiet = !q.named && art.hasLabels
+                val col = w(p.run, if (q.named) (if (q.kind == "ski-way") 2.6f else 3.4f) else if (quiet) 1.6f else 2f).apply {
+                    color = if (shut) p.dash else (p.runs[q.color] ?: colors.black).toArgb(); this.alpha = (255 * alpha * (if (quiet) .6f else 1f)).toInt()
+                    pathEffect = when { shut -> dShut; quiet -> null; !q.named -> dUnnamed; q.kind == "ski-way" -> dWay; else -> null }
                 }
-                for (path in r.paths) { n.drawPath(path, cas); n.drawPath(path, col) }
+                for ((pi, path) in r.paths.withIndex()) {
+                    val fade = r.fades.firstOrNull { it.line == pi }
+                    if (fade == null) { n.drawPath(path, cas); n.drawPath(path, col); continue }
+                    // the open end (round 21): this line is drawn in a layer of its own and the layer fades out toward the open end
+                    path.computeBounds(p.rect, true)
+                    val grow = 8f * density * u
+                    p.rect.inset(-grow, -grow)
+                    val layer = n.saveLayer(p.rect, null)
+                    n.drawPath(path, cas); n.drawPath(path, col)
+                    p.fadeMask.shader = android.graphics.LinearGradient(fade.ax, fade.ay, fade.bx, fade.by, 0x00000000, -0x1000000, android.graphics.Shader.TileMode.CLAMP)
+                    n.drawRect(p.rect, p.fadeMask)
+                    n.restoreToCount(layer)
+                }
             }
             // the chosen run, from the top down in slope colours over a white casing
             paint?.let { pt ->
@@ -303,6 +347,22 @@ fun Overview(
                 for (i in pt.colors.indices) {
                     if (pt.at[i] > shownTo) break
                     n.drawLine(pt.segs[i * 4], pt.segs[i * 4 + 1], pt.segs[i * 4 + 2], pt.segs[i * 4 + 3], seg.apply { color = pt.colors[i] })
+                }
+            }
+            // the arrows down the chosen run, thinned by the zoom to about 60 px apart (round 21); a chevron with a white edge
+            paint?.let { pt ->
+                val a = pt.arrows
+                if (a.isNotEmpty() && reveal.value >= 1f) {
+                    val every = RunArrows.step(u, density)
+                    val sc = density * u * 1.15f // the site draws them 1.15 x the size of a px
+                    for (i in 0 until a.size / 3) {
+                        if (i % every != 0) continue
+                        n.save(); n.translate(a[i * 3], a[i * 3 + 1]); n.rotate(a[i * 3 + 2]); n.scale(sc, sc)
+                        p.arrow.reset(); p.arrow.moveTo(-3.5f, -3.2f); p.arrow.lineTo(2.5f, 0f); p.arrow.lineTo(-3.5f, 3.2f)
+                        n.drawPath(p.arrow, p.arrowEdge.apply { strokeWidth = 4.2f / 1.15f })
+                        n.drawPath(p.arrow, p.arrowInk.apply { strokeWidth = 2f / 1.15f })
+                        n.restore()
+                    }
                 }
             }
             // the lifts: casing, the line (a gondola thicker; one out of use dashed 2 3; a closed one grey, dashed 4 4), stations
@@ -347,6 +407,24 @@ fun Overview(
             for (l in order) {
                 if (l.run != null && l.run.key in hidden) continue
                 if (hideLifts && l.text.startsWith("⇡")) continue
+                if (l.windows != null) { // a name beside its line (round 21): the first window with room, never over another name
+                    p.ptext.textSize = l.size * density
+                    val em = p.ptext.measureText(l.text)
+                    val f = LabelFit.fit(l.windows, l.segs, em * u * 1.08f, l.size * density * u, 6f * density * u) ?: continue
+                    val sp = p.pathScreen.apply { reset() }
+                    for (i in 0 until f.pts.size / 2) { val x = view.sx(f.pts[i * 2]); val y = view.sy(f.pts[i * 2 + 1]); if (i == 0) sp.moveTo(x, y) else sp.lineTo(x, y) }
+                    val r = RectF(); sp.computeBounds(r, true)
+                    r.inset(-(pad + l.size * density), -(pad + l.size * density))
+                    if (r.right < -50 || r.bottom < -50 || r.left > size.width + 50 || r.top > size.height + 50) continue
+                    if (list.any { RectF.intersects(it.second, r) }) continue
+                    list += l to r
+                    val dim = sel != null && l.run != null && l.run.key != sel
+                    val off = (android.graphics.PathMeasure(sp, false).length - em) / 2f
+                    p.phalo.textSize = l.size * density; p.phalo.strokeWidth = 3f * density; p.phalo.alpha = if (dim) 72 else 255
+                    p.ptext.color = l.color; p.ptext.alpha = if (dim) 72 else 255
+                    n.drawTextOnPath(l.text, sp, off, 0f, p.phalo); n.drawTextOnPath(l.text, sp, off, 0f, p.ptext)
+                    continue
+                }
                 val sx = view.sx(l.x); val sy = view.sy(l.y) + l.dy * density
                 if (sx < -200 || sy < -50 || sx > size.width + 200 || sy > size.height + 50) continue
                 p.text.textSize = l.size * density; val wpx = p.text.measureText(l.text)

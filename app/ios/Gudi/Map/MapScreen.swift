@@ -62,6 +62,8 @@ private struct MapContent: View {
     /// The weather layer (round 19): off until tapped; on, the three points on the map and the list.
     @State private var weatherOn = false
     @State private var weatherSheet = false
+    /// The food key (round 31): off on every opening; on, the dots over the top view become tags.
+    @State private var placesOn = false
     /// "Where am I" (round 19): made once the elevation model is read; off on every opening.
     @State private var where_: WhereAmI?
     @State private var looked = false
@@ -99,10 +101,29 @@ private struct MapContent: View {
                               onLift: { model.showLift($0); Fx.shared.tick() }, onFlying: { flying = $0 },
                               overlay: { p in AnyView(over3D(p, g.size)) })
                         .ignoresSafeArea(edges: .bottom)
+                        // VoiceOver: the mountain as one element with its main actions (the Metal view itself is not one)
+                        .overlay {
+                            Rectangle().fill(Color.clear).allowsHitTesting(false)
+                                .accessibilityElement()
+                                .accessibilityLabel(S.mapMapAria)
+                                .accessibilityValue(model.selected.map(runName) ?? "")
+                                .modifier(MapActions(model: model, extra: [
+                                    (S.mapZoomFit, { map3d?.frameMain() }),
+                                    (S.mapCompass, { map3d?.north() }),
+                                ]))
+                        }
                 } else {
                     OverviewMap(model: model, cam: $cam, status: app.status, forMe: forMe) { frameKobi() }
                         .ignoresSafeArea(edges: .bottom)
+                        .accessibilityValue(model.selected.map(runName) ?? "")
+                        .modifier(MapActions(model: model, extra: [
+                            (S.mapZoomIn, { zoom(1.5) }),
+                            (S.mapZoomOut, { zoom(1 / 1.5) }),
+                            (S.mapZoomFit, { fitMain(animated: true) }),
+                            (S.mapKobiSideAria, { frameKobi() }),
+                        ]))
                     if weatherOn { pins(g.size) { CGPoint(x: cam.sx($0), y: cam.sy($1)) } }
+                    if let places = app.places { PlacesLayer(places: places, tags: placesOn, size: g.size) { CGPoint(x: cam.sx($0), y: cam.sy($1)) } }
                     if case let .fixed(fix, x, y, acc, _, bearing)? = where_?.state, fix != .outside {
                         MeDot(x: cam.sx(x), y: cam.sy(y), radius: acc * cam.k, bearing: fix == .approx || fix == .low ? nil : bearing)
                             .frame(width: g.size.width, height: g.size.height)
@@ -114,6 +135,8 @@ private struct MapContent: View {
             }
             .onAppear { cam.size = g.size; fitMain() }
             .onChange(of: g.size) { cam.size = g.size }
+            // the map, its labels and its keys are drawn at fixed sizes (the sheets follow the phone's text size)
+            .fixedType()
         }
         .overlay(alignment: .bottom) {
             if panel.wrappedValue == nil {
@@ -121,6 +144,13 @@ private struct MapContent: View {
                 HStack(alignment: .bottom) {
                     if let w = where_ { LocateKey(on: w.on) { w.toggle(); Fx.shared.tick() } }
                     Spacer()
+                    if app.places != nil {
+                        PlacesKey(on: placesOn) {
+                            placesOn.toggle(); Fx.shared.tick()
+                            // the tags are drawn on the top view, like the weather
+                            if placesOn, model.mode != "2d" { model.mode = "2d" }
+                        }
+                    }
                     WeatherKey(on: weatherOn) {
                         weatherOn.toggle(); weatherSheet = weatherOn; Fx.shared.tick()
                     }
@@ -140,6 +170,7 @@ private struct MapContent: View {
                 }
                 }
                 .padding(12)
+                .fixedType()
             }
         }
         .navigationBarTitleDisplayMode(.inline)
@@ -438,5 +469,29 @@ private struct MapContent: View {
 
     private func zoom(_ f: Double) {
         move(true) { $0.zoom(f, at: CGPoint(x: $0.size.width / 2, y: $0.size.height / 2)) }
+    }
+}
+
+/// VoiceOver's actions on the map (the canvases cannot be explored by touch): the runs list, the next and previous
+/// run when one is chosen (the run panel's order), and the screen's own keys (zoom, show all, Kobi, compass).
+private struct MapActions: ViewModifier {
+    let model: MapModel
+    let extra: [(String, () -> Void)]
+
+    func body(content: Content) -> some View {
+        let order = model.order
+        let i = model.selected.flatMap { p in order.firstIndex(of: p.key) }
+        content
+            .accessibilityAction(named: S.mapOverviewHeading) { model.list = true }
+            .accessibilityActions {
+                if let i, !order.isEmpty {
+                    let prev = order[(i - 1 + order.count) % order.count], next = order[(i + 1) % order.count]
+                    Button(S.runNavNextAria(run: model.title(next))) { model.select(next) }
+                    Button(S.runNavPrevAria(run: model.title(prev))) { model.select(prev) }
+                }
+                ForEach(Array(extra.enumerated()), id: \.offset) { item in
+                    Button(item.element.0) { item.element.1() }
+                }
+            }
     }
 }

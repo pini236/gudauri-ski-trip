@@ -478,7 +478,7 @@ final class Map3DEngine: NSObject {
             guard let line = (s.draped[p.key] ?? []).max(by: { $0.count < $1.count }), !line.isEmpty else { continue }
             let k = min(Int(Double(line.count) * 0.45), line.count - 1)
             let col: UInt32 = switch p.color { case "green": Palette.day.green; case "blue": Palette.day.blue; case "red": Palette.day.red; default: Palette.day.black }
-            out.append(Label3D(p: line[k] + P3(0, 8, 0), text: iso(p.key == "Firni ?" ? "Firni (1/2?)" : p.key), kind: .run, priority: 40, run: p.key, color: col))
+            out.append(Label3D(p: line[k] + P3(0, 8, 0), text: iso(p.key == "Firni ?" ? "Firni (1/2?)" : p.name), kind: .run, priority: 40, run: p.key, color: col))
         }
         return out.sorted { $0.priority > $1.priority }
     }

@@ -16,7 +16,7 @@ struct GameCard: Identifiable {
     /// The games the app has (13.6), in the site's order; round 20: their names and pictures, no tag or label.
     static var all: [GameCard] { [
         GameCard(key: "descent", order: 0, color: Color(rgb: 0x1F5FC4), ink: false, name: S.gamesDescentName, thumb: "descent"),
-        GameCard(key: "school", order: 1, color: Color(rgb: 0x1B8A4C), ink: false, name: S.gamesSchoolName, thumb: "school"),
+        GameCard(key: "school", order: 1, color: Color(rgb: 0x198549), ink: false, name: S.gamesSchoolName, thumb: "school"),
         GameCard(key: "fresh", order: 2, color: Color(rgb: 0x5B9BFF), ink: true, name: S.gamesFreshName, thumb: "fresh-snow"),
         GameCard(key: "merge", order: 3, color: SignColors.gold, ink: true, name: S.gamesMergeName, thumb: "merge"),
         GameCard(key: "snowball", order: 4, color: Color(rgb: 0x13233A), ink: false, name: S.gamesSnowballName, thumb: "snowball"),
@@ -123,7 +123,7 @@ private struct Thumb: View {
             }
             ZStack {
                 Circle().fill(Color(rgb: 0x13233A, opacity: 0.82))
-                Image(systemName: "play.fill").font(.system(size: 11, weight: .bold)).foregroundStyle(.white).offset(x: 1)
+                Image(systemName: "play.fill").font(.system(size: 11, weight: .bold)).foregroundStyle(.white).offset(x: 1).accessibilityHidden(true)
             }
             .frame(width: 28, height: 28)
         }

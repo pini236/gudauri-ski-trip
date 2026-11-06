@@ -607,7 +607,7 @@ private struct DescentPad: View {
                     .padding(.horizontal, 10).padding(.vertical, 6).background(Color.white).shadow(radius: 4)
             }
             HStack(spacing: 10) {
-                Image(systemName: "arrow.up").font(.system(size: 22, weight: .bold)).foregroundStyle(fg)
+                Image(systemName: "arrow.up").font(.system(size: 22, weight: .bold)).foregroundStyle(fg).accessibilityHidden(true)
                 VStack(alignment: .leading, spacing: 0) {
                     Text(big).font(ski.type.display(28)).foregroundStyle(fg).lineLimit(1)
                     Text(small).font(ski.type.text(12)).foregroundStyle(fg.opacity(0.85)).lineLimit(1)

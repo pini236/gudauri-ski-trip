@@ -57,7 +57,7 @@ public struct Lesson: Sendable {
     public var tip: String { "game.school.tip_\(n)" }
 }
 
-private let green: UInt32 = 0x1B8A4C, blue: UInt32 = 0x1F5FC4, red: UInt32 = 0xD1342B
+private let green: UInt32 = 0x198549, blue: UInt32 = 0x1F5FC4, red: UInt32 = 0xD1342B
 
 /// The site's seven lessons (site/games/school; Android's game/School.kt), in its order.
 public let LESSONS: [Lesson] = {
@@ -208,7 +208,7 @@ public final class SchoolRun: @unchecked Sendable {
         camY = s.y
         wedgeCtl = lv.mode == .wedge ? 0.15 : 0
         gates = lv.gates.map { Gate($0.x, $0.y, $0.w) }
-        let colors: [UInt32] = [0x1B8A4C, 0x7B4FC4, 0xF4B942, 0x1F5FC4]
+        let colors: [UInt32] = [0x198549, 0x7B4FC4, 0xF4B942, 0x1F5FC4]
         var ps: [Person] = []
         if lv.traffic {
             for k in 0..<6 {

@@ -56,11 +56,14 @@ android {
         create("preview") {
             dimension = "channel"
             applicationIdSuffix = ".test"
+            // the ski day's screens (round 29) show in the test build only, until the Play declaration and the privacy line go out with it
+            buildConfigField("boolean", "DAYREC_UI", "true")
             resValue("string", "app_name", "סקי בדיקה")
             signingConfig = signingConfigs.findByName("test") ?: signingConfigs.getByName("debug")
         }
         create("store") {
             dimension = "channel"
+            buildConfigField("boolean", "DAYREC_UI", "false")
             resValue("string", "app_name", "סקי")
             signingConfig = signingConfigs.findByName("upload") ?: signingConfigs.getByName("debug")
         }
@@ -96,6 +99,8 @@ val copySiteData by tasks.registering(Exec::class) {
     inputs.dir(File(repoRoot, "site/games/thumbs"))
     inputs.dir(File(repoRoot, "site/games/descent")) // the game's page or its own script: where the runs are
     inputs.file(File(repoRoot, "tools/build-app-data.py"))
+    inputs.file(File(repoRoot, "tools/fixtures/dayrec-params.json")) // the ski day's analysis numbers
+    inputs.file(File(repoRoot, "tools/fixtures/dayrec-logs/full_day.jsonl")) // the example day in My days
     outputs.dir(out)
     commandLine("python3", File(repoRoot, "tools/build-app-data.py").path, out.path)
 }

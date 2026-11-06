@@ -1,0 +1,474 @@
+{
+ "places": [
+  {
+   "osm": "way/1424986577",
+   "kind": "food",
+   "cert": "b"
+  },
+  {
+   "osm": "node/13941722196",
+   "kind": "cafe",
+   "cert": "b"
+  },
+  {
+   "osm": "node/13382152683",
+   "kind": "food",
+   "cert": "b"
+  },
+  {
+   "osm": "node/7116989087",
+   "kind": "food",
+   "cert": "b"
+  },
+  {
+   "osm": "node/10723872905",
+   "kind": "food",
+   "cert": "b",
+   "sec": [
+    {
+     "t": "guide",
+     "url": "https://skigeorgia.com/dining-apres-gudauri/",
+     "date": "2026-10-30",
+     "note": "skigeorgia: \"directly on the ski slopes\" (ציטוט מתוצאת חיפוש, לא נקרא בדף עצמו)"
+    }
+   ]
+  },
+  {
+   "osm": "node/2155270206",
+   "kind": "wc",
+   "cert": "b"
+  },
+  {
+   "osm": "node/13382159837",
+   "kind": "food",
+   "cert": "b"
+  },
+  {
+   "osm": "node/13936809520",
+   "kind": "food",
+   "cert": "b"
+  },
+  {
+   "osm": "node/13097397713",
+   "kind": "food",
+   "cert": "b",
+   "sec": [
+    {
+     "t": "guide",
+     "url": "https://skigeorgia.com/dining-apres-gudauri/",
+     "date": "2026-10-30",
+     "note": "skigeorgia: \"Block 4... at the bottom of the gondola\""
+    }
+   ]
+  },
+  {
+   "osm": "node/13936809522",
+   "kind": "food",
+   "cert": "b"
+  },
+  {
+   "osm": "node/7085540886",
+   "kind": "food",
+   "cert": "b"
+  },
+  {
+   "osm": "node/13936809524",
+   "kind": "food",
+   "cert": "b"
+  },
+  {
+   "osm": "node/13936633745",
+   "kind": "food",
+   "cert": "b"
+  },
+  {
+   "osm": "node/12520879906",
+   "kind": "food",
+   "cert": "b",
+   "sec": [
+    {
+     "t": "operator",
+     "url": "https://gondolagudauri.com/",
+     "date": "2026-10-30",
+     "note": "אתר המקום, כפי שנרשם ב-research/places.md"
+    }
+   ]
+  },
+  {
+   "osm": "node/13097397532",
+   "kind": "food",
+   "cert": "b"
+  },
+  {
+   "osm": "node/6283789785",
+   "kind": "cafe",
+   "cert": "b"
+  },
+  {
+   "osm": "node/8663542632",
+   "kind": "wc",
+   "cert": "b"
+  },
+  {
+   "osm": "node/11103888462",
+   "kind": "food",
+   "cert": "b"
+  },
+  {
+   "osm": "way/170360798",
+   "kind": "food",
+   "cert": "b"
+  },
+  {
+   "osm": "node/2155270205",
+   "kind": "wc",
+   "cert": "b"
+  },
+  {
+   "osm": "way/170360688",
+   "kind": "food",
+   "cert": "b"
+  },
+  {
+   "osm": "node/13382159830",
+   "kind": "food",
+   "cert": "b"
+  },
+  {
+   "osm": "node/13382159801",
+   "kind": "food",
+   "cert": "b"
+  },
+  {
+   "osm": "node/12483826807",
+   "kind": "aid",
+   "cert": "b"
+  },
+  {
+   "osm": "node/4685037390",
+   "kind": "cafe",
+   "cert": "a",
+   "sec": [
+    {
+     "t": "guide",
+     "url": "https://skigeorgia.com/dining-apres-gudauri/",
+     "date": "2026-10-30",
+     "note": "skigeorgia: \"at mid-station on the mountain\", \"Soliko Lift\""
+    },
+    {
+     "t": "guide",
+     "url": "https://www.tripadvisor.com/Restaurants-g1588192-Gudauri_Mtskheta_Mtianeti_Region.html",
+     "date": "2026-10-30",
+     "note": "טריפאדוויזור, דרך findskiholidays: \"at the end of the second lift\""
+    }
+   ]
+  },
+  {
+   "osm": "node/2155270211",
+   "kind": "aid",
+   "cert": "b"
+  },
+  {
+   "osm": "way/170364891",
+   "kind": "food",
+   "cert": "b",
+   "override": "הנקודה במפה הפתוחה לא נערכה מ-1.2013. נשארת בוודאות ב לבקשת סשן המנהל (1.11.2026), על סמך מקורות משניים שמתארים אותה כפעילה, בבקתה כחמש דקות מ-Soliko. לבדוק בשטח.",
+   "sec": [
+    {
+     "t": "guide",
+     "url": "https://wanderlog.com/place/details/2882172/khada-hut-khizhina",
+     "date": "2026-11-01",
+     "note": "נקרא דרך חיפוש; מגיעים ברכבל, כחמש דקות הליכה או גלישה מ-Soliko"
+    },
+    {
+     "t": "guide",
+     "url": "https://madloba.info/en/gudauri/restaurants/khada-hut-khizhina/",
+     "date": "2026-11-01",
+     "note": "רשימה במדריך"
+    },
+    {
+     "t": "guide",
+     "url": "https://gudauri.com/ru/directory/accommodation/hotels-gudauri/294.html",
+     "date": "2026-11-01",
+     "note": "מסעדת הר של אותה חברה של Khada Hostel"
+    }
+   ]
+  },
+  {
+   "osm": "node/11184488656",
+   "kind": "cafe",
+   "cert": "b",
+   "alsoOsm": [
+    "node/5415086147"
+   ],
+   "sec": [
+    {
+     "t": "guide",
+     "url": "https://skigeorgia.com/dining-apres-gudauri/",
+     "date": "2026-10-30",
+     "note": "skigeorgia: \"Vitamin Kudebi, the highest restaurant in the resort\" (ציטוט מתוצאת חיפוש, לא נקרא בדף עצמו)"
+    }
+   ],
+   "note": "ייתכן שהרישום השני (n5415086147, 'Kudebi upper station', 13 מ') הוא אותו מקום. מוצג אחד עד בדיקה בשטח.",
+   "name": "Vitamin (Kudebi)",
+   "nameNote": "ב-OSM רק השם בגאורגית (ვიტამინი); האיות הלטיני לפי skigeorgia"
+  },
+  {
+   "osm": "node/12483826808",
+   "kind": "aid",
+   "cert": "b"
+  },
+  {
+   "osm": "node/12468535501",
+   "kind": "food",
+   "cert": "b"
+  },
+  {
+   "osm": "node/13938566461",
+   "kind": "cafe",
+   "cert": "b",
+   "slope": true,
+   "note": "בית קפה עונתי על המדרון ליד Kikilo, כ-375 מ׳ מתחתית Kikilo",
+   "lift": "1196532543"
+  },
+  {
+   "osm": "node/13942256515",
+   "kind": "cafe",
+   "cert": "b",
+   "slope": true,
+   "lift": "158744077",
+   "note": "בית קפה עונתי לאורך הרכבל Soliko, כ-480 מ' מתחתיו"
+  }
+ ],
+ "excluded": [
+  {
+   "osm": "node/4685037394",
+   "why": "דוכן בלי שם בראש Goodaura, נערך 2.2017. ודאות א לפי מקור משני אבל ישן ובלי שם; ייתכן שכבר הוחלף במסעדות אחרות. לא נכלל."
+  },
+  {
+   "osm": "node/4685037393",
+   "why": "שירותים בראש Goodaura, 2.2017, ודאות ג. לא נכללו (החלטת פיני בסבב 31, שאלה 3, בהמלצה)."
+  },
+  {
+   "osm": "node/4685037391",
+   "why": "שירותים בראש Soliko, 2.2017, ודאות ג. לא נכללו."
+  },
+  {
+   "osm": "node/13097397531",
+   "why": "Hee Haw Gastro-bar, מסומן במפה status=inactive."
+  },
+  {
+   "osm": "node/5415086147",
+   "why": "נכלל כ-alsoOsm של Vitamin בראש Kudebi (אותו מקום, כנראה)."
+  },
+  {
+   "osm": "node/2155270203",
+   "why": "שירותים בכפר הישן, 2.2013, ודאות ג."
+  },
+  {
+   "osm": "node/2153562261",
+   "why": "בר בלי שם, 2.2013, ודאות ג."
+  },
+  {
+   "osm": "node/2153562263",
+   "why": "מועדון לילה בלי שם, 2.2013, ודאות ג."
+  },
+  {
+   "osm": "node/2153562256",
+   "why": "מסעדה בלי שם, 2.2013, ודאות ג."
+  },
+  {
+   "osm": "node/5439943085",
+   "why": "מסעדה בלי שם, 2.2018, ודאות ג."
+  },
+  {
+   "osm": "node/1207164745",
+   "why": "מים לשתייה, 3.2011, ודאות ג; סוג שלא נכלל בסבב 31."
+  },
+  {
+   "osm": "node/2153553593",
+   "why": "Sadzele (מסעדה בכפר הישן), 12.2015, ודאות ג."
+  },
+  {
+   "osm": "node/12922878463",
+   "why": "דוכן מזון מהיר בלי שם, ודאות ג (בלי שם)."
+  },
+  {
+   "osm": "node/12370404044",
+   "why": "דוכן מזון מהיר בלי שם, ודאות ג (בלי שם)."
+  },
+  {
+   "osm": "node/13382152684",
+   "why": "מסעדה בלי שם ליד תחתית Shino, 12.2025: אין שם, ולכן לא נכללה (המדיניות: א או ב עם שם)."
+  },
+  {
+   "osm": "node/5117718521",
+   "why": "Dariali, 9.2017, ודאות ג."
+  },
+  {
+   "osm": "node/1207165719",
+   "why": "ליד תחתית Kobi 1 (בכפר Kobi), בלי שם ובלי סוג מסחרי ברור (מאפייה לפי places.md); לא נכלל."
+  }
+ ],
+ "hubs": [
+  {
+   "id": "goodaura-bottom",
+   "label": "Goodaura bottom",
+   "ends": [
+    "158744075:bottom",
+    "1196532544:bottom",
+    "473280434:bottom",
+    "473280434:top"
+   ]
+  },
+  {
+   "id": "goodaura-top",
+   "label": "Goodaura top",
+   "ends": [
+    "158744075:top",
+    "472374253:top",
+    "663643826:bottom",
+    "158744055:bottom"
+   ]
+  },
+  {
+   "id": "zuma-bottom",
+   "label": "Zuma bottom",
+   "ends": [
+    "158817616:bottom"
+   ]
+  },
+  {
+   "id": "zuma-top",
+   "label": "Zuma top",
+   "ends": [
+    "158817616:top"
+   ]
+  },
+  {
+   "id": "pirveli-bottom",
+   "label": "Pirveli bottom",
+   "ends": [
+    "158744059:bottom"
+   ]
+  },
+  {
+   "id": "old-village-conveyor",
+   "label": "Old village conveyor",
+   "ends": [
+    "205547600:bottom",
+    "205547600:top"
+   ]
+  },
+  {
+   "id": "pirveli-top",
+   "label": "Pirveli top / Soliko bottom",
+   "ends": [
+    "158744059:top",
+    "158744077:bottom"
+   ]
+  },
+  {
+   "id": "shino-bottom",
+   "label": "Shino bottom",
+   "ends": [
+    "472374253:bottom"
+   ]
+  },
+  {
+   "id": "soliko-top",
+   "label": "Soliko top / Khada bottom",
+   "ends": [
+    "158744077:top",
+    "158744063:bottom"
+   ]
+  },
+  {
+   "id": "khada-top",
+   "label": "Khada top",
+   "ends": [
+    "158744063:top"
+   ]
+  },
+  {
+   "id": "kudebi-bottom",
+   "label": "Kudebi bottom",
+   "ends": [
+    "663639361:bottom"
+   ]
+  },
+  {
+   "id": "kudebi-top",
+   "label": "Kudebi top",
+   "ends": [
+    "663639361:top"
+   ]
+  },
+  {
+   "id": "snow-park-top",
+   "label": "Snow Park top",
+   "ends": [
+    "158744055:top"
+   ]
+  },
+  {
+   "id": "sadzele-bottom",
+   "label": "Sadzele bottom",
+   "ends": [
+    "158744060:bottom"
+   ]
+  },
+  {
+   "id": "sadzele-top",
+   "label": "Sadzele top",
+   "ends": [
+    "158744060:top"
+   ]
+  },
+  {
+   "id": "firni-top",
+   "label": "Firni top / Kobi top",
+   "ends": [
+    "663643826:top",
+    "665084640:top"
+   ]
+  },
+  {
+   "id": "kobi1-top",
+   "label": "Truso top / Kobi bottom",
+   "ends": [
+    "665084641:top",
+    "665084640:bottom"
+   ]
+  },
+  {
+   "id": "kobi1-bottom",
+   "label": "Truso bottom",
+   "ends": [
+    "665084641:bottom"
+   ]
+  },
+  {
+   "id": "kikilo-bottom",
+   "label": "Kikilo bottom",
+   "ends": [
+    "1196532543:bottom"
+   ]
+  },
+  {
+   "id": "kikilo-top",
+   "label": "Kikilo top",
+   "ends": [
+    "1196532543:top"
+   ]
+  },
+  {
+   "id": "new-goodaura-top",
+   "label": "New Goodaura top",
+   "ends": [
+    "1196532544:top"
+   ]
+  }
+ ],
+ "maxDistance": 250
+}

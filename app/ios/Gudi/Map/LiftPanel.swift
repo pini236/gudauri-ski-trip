@@ -45,6 +45,7 @@ struct LiftBody: View {
             runs(model.runs.pistes.filter { !l.name.isEmpty && $0.fromLifts.contains(l.name) })
             H3(S.liftRunsToBottomHeading)
             runs(model.runs.pistes.filter { !l.name.isEmpty && $0.toLifts.contains(l.name) })
+            LiftPlaces(lift: l)
             if !l.id.isEmpty {
                 Button { if let u = URL(string: "https://www.openstreetmap.org/way/\(l.id)") { openURL(u) } } label: {
                     Text("OSM: \(l.id)").font(ski.type.text(13)).underline().foregroundStyle(ski.colors.glacier).frame(minHeight: 44)
@@ -113,7 +114,7 @@ struct RunList: View {
             let partial = model.runs.pistes.filter { $0.research?.partial != nil }
             if !partial.isEmpty {
                 H3(S.mapOverviewPartialCount(n: String(partial.count)))
-                Flow(spacing: 6) { ForEach(partial) { p in Tag(text: p.key, color: ski.colors.run(p.color)) { model.select(p.key, via: "list") } } }
+                Flow(spacing: 6) { ForEach(partial) { p in Tag(text: p.name, color: ski.colors.run(p.color)) { model.select(p.key, via: "list") } } }
                 Hint(S.mapOverviewPartialHint)
             }
         }

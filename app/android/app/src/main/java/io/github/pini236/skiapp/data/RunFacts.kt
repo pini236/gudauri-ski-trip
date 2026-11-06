@@ -118,7 +118,7 @@ class RunFacts(
         /** The named runs in the order the run sign steps through them: by colour, then by name (numbers as numbers). */
         fun order(pistes: List<Piste>): List<String> {
             val colors = listOf("green", "blue", "red", "black")
-            return pistes.filter { it.named }.sortedWith(compareBy<Piste> { colors.indexOf(it.color) }.then { a, b -> natural(a.key, b.key) }).map { it.key }
+            return pistes.filter { it.named }.sortedWith(compareBy<Piste> { colors.indexOf(it.color) }.then { a, b -> natural(a.title, b.title) }).map { it.key }
         }
 
         /** "Kudebi 2" before "Kudebi 10": letters without case, runs of digits by their value (localeCompare, numeric). */

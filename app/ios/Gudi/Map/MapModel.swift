@@ -55,6 +55,8 @@ final class MapModel {
     var hideLifts: Bool { hidden.contains("lifts") }
 
     func piste(_ key: String) -> Piste? { runs.pistes.first { $0.key == key } }
+    /// The name to show for a run key: `name`, the key is only an id (it may be a raw OSM id), as the site's pname.
+    func title(_ key: String) -> String { piste(key)?.name ?? key }
 
     /// Chooses a run; `via` is how (docs/GROWTH.md run_open: "map", "list", "swipe", "link"), as Android's
     /// MapView.select: run_open goes when a run is chosen, not when the map draws it again.
@@ -108,7 +110,7 @@ enum Fmt {
 }
 
 /// A run's name as the site shows it (dispName).
-func runName(_ p: Piste) -> String { !p.named ? S.mapUnnamedSegment : p.key == "Firni ?" ? "Firni (1/2?)" : p.key }
+func runName(_ p: Piste) -> String { !p.named ? S.mapUnnamedSegment : p.key == "Firni ?" ? "Firni (1/2?)" : p.name }
 
 /// The run's link on the site (#map/run/<key>), which opens the same run in the app or on the site.
 func runLink(_ key: String) -> URL {

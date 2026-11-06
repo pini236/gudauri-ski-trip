@@ -1,6 +1,6 @@
 # מדיניות פרטיות
 
-המדיניות של האפליקציה והאתר, בעברית, באנגלית, ברוסית ובגאורגית (הרוסית והגאורגית תורגמו מהאנגלית ב-2.10.2026, לבקשת פיני, החלטה 46; התוכן זהה). אושרה על ידי פיני ב-1.10.2026 (החלטה 33), והסעיף על המדידה באתר ב-2.10.2026 (החלטה 37), והעדכון לחשבונות, קבוצות ושרת ב-2.10.2026 (פיני אישר לפרסם את הטיוטה כמו שהיא), והשורה על חסימת ניחוש קודים ב-5.10.2026 (פיני אישר, דרך סשן המנהל, D41), והורדת הספרייה מ-cdnjs ב-5.10.2026 (החלטה 58), ומתפרסמת באתר: https://gudauri-ski-trip.vercel.app/privacy (באנגלית: `/privacy#en`). עודכנה ב־7.10.2026 להקלטה נפרדת בהסכמה באפליקציה, בעקבות בקשת פיני להתקדם עם Session Replay. **הקובץ הזה הוא המקור:** הדף נבנה ממנו בפקודה `python3 tools/build-privacy.py`, ובדיקה בגיטהאב נכשלת אם הם לא תואמים.
+המדיניות של האפליקציה והאתר, בעברית, באנגלית, ברוסית ובגאורגית (הרוסית והגאורגית תורגמו מהאנגלית ב-2.10.2026, לבקשת פיני, החלטה 46; התוכן זהה). אושרה על ידי פיני ב-1.10.2026 (החלטה 33), והסעיף על המדידה באתר ב-2.10.2026 (החלטה 37), והעדכון לחשבונות, קבוצות ושרת ב-2.10.2026 (פיני אישר לפרסם את הטיוטה כמו שהיא), והשורה על חסימת ניחוש קודים ב-5.10.2026 (פיני אישר, דרך סשן המנהל, D41), והורדת הספרייה מ-cdnjs ב-5.10.2026 (החלטה 58), ומתפרסמת באתר: https://gudauri-ski-trip.vercel.app/privacy (באנגלית: `/privacy#en`). עודכנה ב־7.10.2026 להקלטה נפרדת בהסכמה באפליקציה, בעקבות בקשת פיני להתקדם עם Session Replay. עודכנה ב-1.11.2026 לאייפון ולכניסה עם אפל (פיני אישר את הנוסח בעברית ובאנגלית ב-31.10.2026, והרוסית והגאורגית תורגמו מהאנגלית; בלי שורת יום הגלישה). **הקובץ הזה הוא המקור:** הדף נבנה ממנו בפקודה `python3 tools/build-privacy.py`, ובדיקה בגיטהאב נכשלת אם הם לא תואמים.
 
 ---
 
@@ -8,9 +8,9 @@
 
 **מדיניות פרטיות: Gudi: Gudauri Ski Map**
 
-בתוקף מ-25.10.2026
+בתוקף מ-6.11.2026
 
-Gudi: Gudauri Ski Map היא אפליקציה לאנדרואיד (המזהה `io.github.pini236.skiapp`) ואתר (`gudauri-ski-trip.vercel.app`) עם מפת הסקי של גודאורי, גאורגיה. פיני זולברג, אדם פרטי מישראל, פיתח אותם ואחראי עליהם. לכל שאלה או בקשה: pinisagent@gmail.com.
+Gudi: Gudauri Ski Map היא אפליקציה לאנדרואיד ולאייפון (המזהה `io.github.pini236.skiapp`) ואתר (`gudauri-ski-trip.vercel.app`) עם מפת הסקי של גודאורי, גאורגיה. פיני זולברג, אדם פרטי מישראל, פיתח אותם ואחראי עליהם. לכל שאלה או בקשה: pinisagent@gmail.com.
 
 **אפליקציה לא רשמית.** אין לה קשר ל-Mountain Trails Agency (MTA), לאתר הסקי גודאורי או לגוף רשמי אחר.
 
@@ -24,17 +24,17 @@ Gudi: Gudauri Ski Map היא אפליקציה לאנדרואיד (המזהה `io
 
 ### מה נשמר רק אצלך
 
-ההגדרות והמועדפים נשמרים בטלפון (או בדפדפן) בלבד, ולא נשלחים אלינו. השיאים במשחקים ו"הטיול שלך" (טיסה ותאריכים) נשמרים כך גם הם, **עד שאתה מצטרף לקבוצה**: אז עותק של הטיול והשיא הכי גבוה שלך בכל משחק נשמרים גם בשרת, כדי שחברי הקבוצה יראו את הטיסה שלך ואת טבלת השיאים (ראו "חשבונות וקבוצות"). גיבוי המכשיר כבוי באפליקציה: מה שנשמר בה לא עובר לגיבוי של אנדרואיד.
+ההגדרות והמועדפים נשמרים בטלפון (או בדפדפן) בלבד, ולא נשלחים אלינו. השיאים במשחקים ו"הטיול שלך" (טיסה ותאריכים) נשמרים כך גם הם, **עד שאתה מצטרף לקבוצה**: אז עותק של הטיול והשיא הכי גבוה שלך בכל משחק נשמרים גם בשרת, כדי שחברי הקבוצה יראו את הטיסה שלך ואת טבלת השיאים (ראו "חשבונות וקבוצות"). באנדרואיד הגיבוי כבוי באפליקציה, ולכן מה שהיא שומרת לא נכלל בגיבויים. באייפון ההגדרות, השיאים במשחקים, "הטיול שלך" והמזהה האקראי של המדידה עשויים להיכלל בגיבוי של האייפון (ב-iCloud או במחשב), שאפל שומרת תחת חשבון האפל שלך ואין לנו גישה אליו. העותק של הקבוצות שלך והכניסה לחשבון לא נכללים בגיבוי אף פעם. התזכורות למפגשים נקבעות בטלפון ולא עוברות דרך השרת שלנו.
 
 **מיקום.** כשנוגעים ב"איפה אני", האפליקציה והאתר מבקשים גישה למיקום. המיקום משמש רק להצגת הנקודה על המפה, בתוך המכשיר. הוא לא נשלח אלינו או לאף אחד אחר, ולא נשמר. אפשר לבטל את ההרשאה בכל רגע בהגדרות של הטלפון או של הדפדפן.
 
-**הקלטת גלישה (באפליקציה בלבד).** כשמתחילים הקלטה, של יום שלם, של חלק ממנו או של ירידה אחת, האפליקציה מקליטה את המיקום, את הגובה ואת תנועת הטלפון (מחיישני התנועה שבו) כל עוד ההקלטה פועלת, גם כשהמסך כבוי, ומציגה התראה כל הזמן הזה. ההקלטה משמשת רק להצגת המהירות, המסלולים, הרכבלים והמסלול שהוקלט, והיא נשמרת רק בטלפון: היא לא נשלחת אלינו או לאף אחד אחר, ולא נכנסת לגיבוי בענן. אפשר למחוק הקלטה אחת או את כולן בכל רגע, והכל נמחק גם כשמוחקים את האפליקציה. במדידת השימוש (אם היא פועלת) נשלחים רק אירועים על השימוש בהקלטה, למשל שהקלטה התחילה והסתיימה, כמה ירידות היו, ואיזה סוג סיכום נפתח או שותף; אף פעם לא מיקום, מהירות, שם מסלול או שעה.
+**הקלטת גלישה (באפליקציה בלבד; תיכנס בגרסה הבאה).** כשמתחילים הקלטה, של יום שלם, של חלק ממנו או של ירידה אחת, האפליקציה מקליטה את המיקום, את הגובה ואת תנועת הטלפון (מחיישני התנועה שבו) כל עוד ההקלטה פועלת, גם כשהמסך כבוי, ומציגה התראה כל הזמן הזה. ההקלטה משמשת רק להצגת המהירות, המסלולים, הרכבלים והמסלול שהוקלט, והיא נשמרת רק בטלפון: היא לא נשלחת אלינו או לאף אחד אחר, ולא נכנסת לגיבוי בענן. אפשר למחוק הקלטה אחת או את כולן בכל רגע, והכל נמחק גם כשמוחקים את האפליקציה. במדידת השימוש (אם היא פועלת) נשלחים רק אירועים על השימוש בהקלטה, למשל שהקלטה התחילה והסתיימה, כמה ירידות היו, ואיזה סוג סיכום נפתח או שותף; אף פעם לא מיקום, מהירות, שם מסלול או שעה.
 
 ### מה אנחנו אוספים
 
-1. **מדידת שימוש** (בשירות PostHog, בשרתים באירופה): באילו מסכים ופעולות משתמשים, גרסת האפליקציה, דגם הטלפון, גרסת מערכת ההפעלה ושפת הממשק, ומזהה אקראי שנוצר בהתקנה. המזהה לא קשור לשם, למייל או לטלפון, ומתחלף בהתקנה מחדש. כתובת ה-IP לא נשמרת.
-2. **דיווח קריסות** (בשירות Sentry, בשרתים באירופה): כשהאפליקציה קורסת או נתקלת בשגיאה, נשלח תיאור טכני של התקלה, עם דגם הטלפון, גרסת מערכת ההפעלה, גרסת האפליקציה והשעה. הדיווח לא כולל תוכן אישי. כתובת ה-IP לא נשמרת.
-3. **הקלטת שימוש באפליקציית אנדרואיד** (Sentry, שרתים באירופה): רק אם תפעיל בנפרד את ההסכמה להקלטה בהגדרות, נשלחות דגימות של מסכי המשחקים והנגיעות כדי להבין שימוש ותקלות. ההקלטה כבויה כברירת מחדל. מופעלת הסתרה אוטומטית של רכיבי ממשק, אך תוכן המשחק, כולל גרפיקה, ניקוד וטקסט מצויר, עשוי להופיע בהקלטה. המפה והמיקום, דף הבית והטיול, החשבון והקבוצות אינם מוקלטים. אפשר לכבות את ההקלטה או את המדידה בכל רגע; הכיבוי מפסיק צילום ושליחת מקטעים נוספים, ואינו מוחק הקלטות שכבר התקבלו ב־Sentry. אין שמירת הקלטות לשליחה מאוחרת לאחר ניתוק רשת. זמן השמירה של הקלטות שהתקבלו נקבע בהגדרות חשבון Sentry. האתר אינו מקליט את המסך.
+1. **מדידת שימוש** (בשירות PostHog, בשרתים באירופה): באילו מסכים ופעולות משתמשים, גרסת האפליקציה, דגם הטלפון, גרסת מערכת ההפעלה ושפת הממשק, ומזהה אקראי שנוצר בהתקנה. המזהה לא קשור לשם, למייל או לטלפון, ומתחלף בהתקנה מחדש (באייפון, שחזור מגיבוי עשוי להחזיר את אותו מזהה). כתובת ה-IP לא נשמרת.
+2. **דיווח קריסות** (בשירות Sentry, בשרתים באירופה): כשהאפליקציה קורסת או נתקלת בשגיאה, נשלח תיאור טכני של התקלה, עם דגם הטלפון, גרסת מערכת ההפעלה, גרסת האפליקציה והשעה. הדיווח לא כולל תוכן אישי. כתובת ה-IP לא נשמרת. אפליקציית האייפון עוד לא שולחת דיווחי קריסה.
+3. **הקלטת שימוש באפליקציית אנדרואיד** (Sentry, שרתים באירופה): רק אם תפעיל בנפרד את ההסכמה להקלטה בהגדרות, נשלחות דגימות של מסכי המשחקים והנגיעות כדי להבין שימוש ותקלות. ההקלטה כבויה כברירת מחדל. מופעלת הסתרה אוטומטית של רכיבי ממשק, אך תוכן המשחק, כולל גרפיקה, ניקוד וטקסט מצויר, עשוי להופיע בהקלטה. המפה והמיקום, דף הבית והטיול, החשבון והקבוצות אינם מוקלטים. אפשר לכבות את ההקלטה או את המדידה בכל רגע; הכיבוי מפסיק צילום ושליחת מקטעים נוספים, ואינו מוחק הקלטות שכבר התקבלו ב־Sentry. אין שמירת הקלטות לשליחה מאוחרת לאחר ניתוק רשת. זמן השמירה של הקלטות שהתקבלו נקבע בהגדרות חשבון Sentry. אפליקציית האייפון והאתר לא מקליטים את המסך.
 
 את שניהם אפשר לכבות בכל רגע במסך ההגדרות, ואז לא נשלח דבר. המידע משמש רק כדי להבין מה עובד, מה לא ומה לתקן. נתוני השימוש נשמרים עד שנה, ודיווחי הקריסות עד 90 יום.
 
@@ -44,7 +44,7 @@ Gudi: Gudauri Ski Map היא אפליקציה לאנדרואיד (המזהה `io
 
 **מה נשמר בשרת:**
 
-1. **זהות.** הצטרפות לקבוצה בקישור או בקוד יוצרת זהות אנונימית: מזהה אקראי, בלי שם ובלי מייל. כניסה עם חשבון גוגל שומרת בשירות ההתחברות את כתובת המייל, השם והתמונה שגוגל מוסרת, ואת המזהה של החשבון. אנחנו מעתיקים לפרופיל רק את השם, כברירת מחדל לשם בקבוצה; לא מציגים את המייל או את התמונה לאף אחד, ולא משתמשים בהם לשום דבר אחר.
+1. **זהות.** הצטרפות לקבוצה בקישור או בקוד יוצרת זהות אנונימית: מזהה אקראי, בלי שם ובלי מייל. כניסה עם חשבון גוגל שומרת בשירות ההתחברות את כתובת המייל, השם והתמונה שגוגל מוסרת, ואת המזהה של החשבון. אנחנו מעתיקים לפרופיל רק את השם, כברירת מחדל לשם בקבוצה; לא מציגים את המייל או את התמונה לאף אחד, ולא משתמשים בהם לשום דבר אחר. כניסה עם אפל (באייפון) שומרת בשירות הכניסה את המזהה של החשבון מאפל, וכתובת מייל רק אם אפל מוסרת אותה; אם בחרת "הסתרת המייל שלי", זו כתובת ממסרת פרטית שאפל מעבירה אליך. האפליקציה מבקשת מאפל רק את השם, שאפל מוסרת רק בכניסה הראשונה, ואנחנו מעתיקים אותו לפרופיל רק אם עוד לא בחרת שם. אנחנו לא מראים את המייל לאף אחד ולא משתמשים בו לשום דבר אחר.
 2. **פרופיל:** השם שבחרת בקבוצה (עד 40 תווים) ושפת הממשק.
 3. **קבוצות:** שם הקבוצה ותאריכי הטיול שלה, מי חבר בה ובאיזה תפקיד (חבר או מנהל), הזמנות (קוד וקישור), ובקשות הצטרפות.
 4. **טיסות:** אם בחרת לשתף את הטיול שלך עם קבוצה, העותק שלו (תאריכים, מספרי טיסה, שדות תעופה ושעות) נראה לחברי הקבוצה. מנהל קבוצה יכול להזין טיסה בשם חבר, וזה מסומן.
@@ -56,9 +56,9 @@ Gudi: Gudauri Ski Map היא אפליקציה לאנדרואיד (המזהה `io
 
 **כמה זמן:** המידע נשמר כל עוד החשבון והקבוצה קיימים. זהות אנונימית שאינה חברה באף קבוצה נמחקת מהשרת אחרי 30 יום. קבוצה ללא חברים נמחקת. מי שעוזב קבוצה, הטיסה שלו מפסיקה להופיע בה.
 
-**מחיקה:** אפשר למחוק את החשבון בכל רגע, בלי לפנות אלינו: באפליקציה (הגדרות, חשבון), או באתר בכתובת `gudauri-ski-trip.vercel.app/account`. המחיקה מוציאה אותך מכל הקבוצות (אם היית המנהל, חבר רשום ותיק מתמנה במקומך), ומוחקת את הפרופיל, הטיולים, השיאים וזהות ההתחברות. מפגשים שקבעת נשארים בקבוצה בלי שמך. השם שלך נמחק גם מיומן הפעולות.
+**מחיקה:** אפשר למחוק את החשבון בכל רגע, בלי לפנות אלינו: באפליקציה (הגדרות, חשבון), או באתר בכתובת `gudauri-ski-trip.vercel.app/account`. המחיקה מוציאה אותך מכל הקבוצות (אם היית המנהל, חבר רשום ותיק מתמנה במקומך), ומוחקת את הפרופיל, הטיולים, השיאים וזהות ההתחברות. מפגשים שקבעת נשארים בקבוצה בלי שמך. השם שלך נמחק גם מיומן הפעולות. אם נכנסת עם אפל, אפשר גם להפסיק את הכניסה עם אפל לאפליקציה בהגדרות האייפון (השם שלך, "התחברות עם Apple").
 
-**שירותים שמעבדים בשבילנו:** Supabase (מסד הנתונים, ההתחברות וזמן אמת; שרתים בפרנקפורט), וגוגל, לכניסה עם חשבון גוגל (חלה עליה מדיניות הפרטיות של גוגל). אנחנו לא מוכרים ולא מעבירים את המידע הזה לאף אחד אחר.
+**שירותים שמעבדים בשבילנו:** Supabase (מסד הנתונים, ההתחברות וזמן אמת; שרתים בפרנקפורט), וגוגל ואפל, לכניסה עם חשבון גוגל או אפל (חלות מדיניות הפרטיות שלהן). אנחנו לא מוכרים ולא מעבירים את המידע הזה לאף אחד אחר.
 
 ### תוכן מהרשת
 
@@ -103,9 +103,9 @@ Gudi: Gudauri Ski Map היא אפליקציה לאנדרואיד (המזהה `io
 
 **Privacy Policy: Gudi: Gudauri Ski Map**
 
-Effective October 25, 2026
+Effective November 6, 2026
 
-Gudi: Gudauri Ski Map is an Android app (package `io.github.pini236.skiapp`) and a website (`gudauri-ski-trip.vercel.app`) with a ski map of Gudauri, Georgia. They are developed and run by Pini Zolberg, a private individual in Israel. For any question or request: pinisagent@gmail.com.
+Gudi: Gudauri Ski Map is an app for Android and iPhone (package `io.github.pini236.skiapp`) and a website (`gudauri-ski-trip.vercel.app`) with a ski map of Gudauri, Georgia. They are developed and run by Pini Zolberg, a private individual in Israel. For any question or request: pinisagent@gmail.com.
 
 **Unofficial app.** It is not affiliated with the Mountain Trails Agency (MTA), the Gudauri ski resort or any other official body.
 
@@ -119,17 +119,17 @@ Gudi: Gudauri Ski Map is an Android app (package `io.github.pini236.skiapp`) and
 
 ### Stored only with you
 
-Your settings and favorites are stored only on your phone (or in your browser) and are never sent to us. Your game high scores and "Your trip" (flights and dates) are kept that way too, **until you join a group**: then a copy of the trip and your best score in each game are also kept on our server, so the group's members can see your flight and the score table (see "Accounts and groups"). Device backup is turned off in the app: what it stores is not included in Android backups.
+Your settings and favorites are stored only on your phone (or in your browser) and are never sent to us. Your game high scores and "Your trip" (flights and dates) are kept that way too, **until you join a group**: then a copy of the trip and your best score in each game are also kept on our server, so the group's members can see your flight and the score table (see "Accounts and groups"). On Android, device backup is turned off in the app, so what it stores is not included in backups. On iPhone, your settings, game scores, "Your trip" and the random usage ID may be included in your iPhone's backup (iCloud or a computer), which Apple keeps under your Apple account and we cannot access; the copy of your groups and your sign-in are never included in backups. Meetup reminders are scheduled on your phone and do not go through our server.
 
 **Location.** When you tap "Where am I", the app and the website ask for access to your location. It is used only to show your dot on the map, on your device. It is not sent to us or to anyone else, and it is not stored. You can withdraw the permission at any time in your phone's or browser's settings.
 
-**Ski recording (app only).** When you start a recording, of a whole ski day, part of one, or a single run, the app records your location, altitude and the phone's movement (from its motion sensors) for as long as recording is on, including with the screen off, and shows a notification the whole time. The recording is used only to show your speed, runs, lifts and route you recorded, and it is stored only on your phone: it is not sent to us or to anyone else, and it is not included in cloud backups. You can delete one recording or all of them at any time, and everything is deleted when you delete the app. If analytics is on, we only receive events about how you use recordings, for example that a recording started and ended, how many runs there were, and which kind of summary was viewed or shared; never your location, speed, run names or times.
+**Ski recording (app only; coming in the next version).** When you start a recording, of a whole ski day, part of one, or a single run, the app records your location, altitude and the phone's movement (from its motion sensors) for as long as recording is on, including with the screen off, and shows a notification the whole time. The recording is used only to show your speed, runs, lifts and route you recorded, and it is stored only on your phone: it is not sent to us or to anyone else, and it is not included in cloud backups. You can delete one recording or all of them at any time, and everything is deleted when you delete the app. If analytics is on, we only receive events about how you use recordings, for example that a recording started and ended, how many runs there were, and which kind of summary was viewed or shared; never your location, speed, run names or times.
 
 ### What we collect
 
-1. **Usage statistics** (PostHog, servers in the EU): which screens and features are used, app version, phone model, OS version, interface language, and a random ID created at installation. The ID is not linked to your name, email or phone number, and changes if you reinstall. IP addresses are not stored.
-2. **Crash reports** (Sentry, servers in the EU): when the app crashes or hits an error, a technical description of the problem is sent, with phone model, OS version, app version and time. Reports contain no personal content. IP addresses are not stored.
-3. **Android session replay** (Sentry, servers in the EU): only if you separately enable recording consent in Settings, samples of game screens and touches are sent to understand usage and errors. Recording is off by default. Automatic masking is enabled for interface elements, but game content, including graphics, scores and drawn text, may appear in recordings. The map and location, home and trip, account and groups are not recorded. You can disable recording or analytics at any time; this stops capture and further segment uploads and does not delete recordings already received by Sentry. Recordings are not retained for later upload after a network outage. Retention of received recordings follows the Sentry account settings. The website does not record your screen.
+1. **Usage statistics** (PostHog, servers in the EU): which screens and features are used, app version, phone model, OS version, interface language, and a random ID created at installation. The ID is not linked to your name, email or phone number, and changes if you reinstall (on iPhone, restoring a backup may bring the same ID back). IP addresses are not stored.
+2. **Crash reports** (Sentry, servers in the EU): when the app crashes or hits an error, a technical description of the problem is sent, with phone model, OS version, app version and time. Reports contain no personal content. IP addresses are not stored. The iPhone app does not send crash reports yet.
+3. **Android session replay** (Sentry, servers in the EU): only if you separately enable recording consent in Settings, samples of game screens and touches are sent to understand usage and errors. Recording is off by default. Automatic masking is enabled for interface elements, but game content, including graphics, scores and drawn text, may appear in recordings. The map and location, home and trip, account and groups are not recorded. You can disable recording or analytics at any time; this stops capture and further segment uploads and does not delete recordings already received by Sentry. Recordings are not retained for later upload after a network outage. Retention of received recordings follows the Sentry account settings. The iPhone app and the website do not record your screen.
 
 You can turn both off at any time in Settings, and nothing is sent. The data is used only to understand what works, what doesn't and what to fix. Usage data is kept for up to one year and crash reports for up to 90 days.
 
@@ -139,7 +139,7 @@ You can use the map, the games and the boarding pass without signing up. To join
 
 **What is stored on the server:**
 
-1. **Identity.** Joining a group by link or code creates an anonymous identity: a random ID, with no name and no email. Signing in with a Google account stores, in the sign-in service, the email address, name and picture that Google provides, and the account's ID. We copy only the name into the profile, as the default for your name in a group; we do not show your email or picture to anyone and do not use them for anything else.
+1. **Identity.** Joining a group by link or code creates an anonymous identity: a random ID, with no name and no email. Signing in with a Google account stores, in the sign-in service, the email address, name and picture that Google provides, and the account's ID. We copy only the name into the profile, as the default for your name in a group; we do not show your email or picture to anyone and do not use them for anything else. Signing in with Apple (on iPhone) stores, in the sign-in service, the account's ID from Apple, and an email address only if Apple provides one; if you chose "Hide My Email", it is a private relay address that Apple forwards to you. The app asks Apple only for your name, which Apple shares only the first time you sign in, and we copy it into the profile only if you have not chosen a name yet. We do not show the email to anyone and do not use it for anything else.
 2. **Profile:** the name you chose in the group (up to 40 characters) and the interface language.
 3. **Groups:** the group's name and trip dates, who is a member and in what role (member or admin), invitations (code and link), and join requests.
 4. **Flights:** if you chose to share your trip with a group, its copy (dates, flight numbers, airports and times) is visible to the group's members. A group admin can enter a flight on a member's behalf, and this is marked.
@@ -151,9 +151,9 @@ You can use the map, the games and the boarding pass without signing up. To join
 
 **How long:** data is kept as long as the account and the group exist. An anonymous identity that is in no group is deleted from the server after 30 days. A group with no members is deleted. When you leave a group, your flight stops showing in it.
 
-**Deletion:** you can delete your account at any time, without contacting us: in the app (Settings, Account), or on the website at `gudauri-ski-trip.vercel.app/account`. Deletion removes you from every group (if you were the admin, a long-standing registered member becomes admin), and deletes your profile, trips, scores and sign-in identity. Meetups you set stay in the group without your name. Your name is also removed from the action log.
+**Deletion:** you can delete your account at any time, without contacting us: in the app (Settings, Account), or on the website at `gudauri-ski-trip.vercel.app/account`. Deletion removes you from every group (if you were the admin, a long-standing registered member becomes admin), and deletes your profile, trips, scores and sign-in identity. Meetups you set stay in the group without your name. Your name is also removed from the action log. If you signed in with Apple, you can also stop using Apple sign-in for the app in your iPhone's settings (your name, Sign in with Apple).
 
-**Services that process data for us:** Supabase (database, sign-in and realtime; servers in Frankfurt), and Google, for signing in with a Google account (Google's privacy policy applies). We do not sell this data or pass it to anyone else.
+**Services that process data for us:** Supabase (database, sign-in and realtime; servers in Frankfurt), and Google and Apple, for signing in with a Google or Apple account (their privacy policies apply). We do not sell this data or pass it to anyone else.
 
 ### Content from the internet
 
@@ -198,9 +198,9 @@ If this policy changes, we will update the date at the top. We will also announc
 
 **Политика конфиденциальности: Gudi: Gudauri Ski Map**
 
-Действует с 25 октября 2026 г.
+Действует с 6 ноября 2026 г.
 
-Gudi: Gudauri Ski Map — это приложение для Android (пакет `io.github.pini236.skiapp`) и сайт (`gudauri-ski-trip.vercel.app`) с горнолыжной картой Гудаури, Грузия. Их разрабатывает и поддерживает Пини Зольберг, частное лицо в Израиле. По любым вопросам и просьбам: pinisagent@gmail.com.
+Gudi: Gudauri Ski Map — это приложение для Android и iPhone (пакет `io.github.pini236.skiapp`) и сайт (`gudauri-ski-trip.vercel.app`) с горнолыжной картой Гудаури, Грузия. Их разрабатывает и поддерживает Пини Зольберг, частное лицо в Израиле. По любым вопросам и просьбам: pinisagent@gmail.com.
 
 **Неофициальное приложение.** Оно не связано с Mountain Trails Agency (MTA), горнолыжным курортом Гудаури или любой другой официальной организацией.
 
@@ -214,17 +214,17 @@ Gudi: Gudauri Ski Map — это приложение для Android (пакет
 
 ### Хранится только у вас
 
-Ваши настройки и избранное хранятся только на вашем телефоне (или в вашем браузере) и никогда нам не отправляются. Ваши рекорды в играх и «Ваша поездка» (рейсы и даты) тоже хранятся так, **пока вы не вступите в группу**: тогда копия поездки и ваш лучший результат в каждой игре хранятся и на нашем сервере, чтобы участники группы видели ваш рейс и таблицу рекордов (см. «Аккаунты и группы»). Резервное копирование устройства в приложении отключено: то, что оно хранит, не попадает в резервные копии Android.
+Ваши настройки и избранное хранятся только на вашем телефоне (или в вашем браузере) и никогда нам не отправляются. Ваши рекорды в играх и «Ваша поездка» (рейсы и даты) тоже хранятся так, **пока вы не вступите в группу**: тогда копия поездки и ваш лучший результат в каждой игре хранятся и на нашем сервере, чтобы участники группы видели ваш рейс и таблицу рекордов (см. «Аккаунты и группы»). В приложении для Android резервное копирование устройства отключено, поэтому то, что оно хранит, не попадает в резервные копии. На iPhone ваши настройки, рекорды в играх, «Ваша поездка» и случайный идентификатор статистики могут попасть в резервную копию iPhone (iCloud или компьютер), которую Apple хранит в вашем аккаунте Apple и к которой у нас нет доступа; копия ваших групп и данные для входа в резервные копии не попадают никогда. Напоминания о встречах назначаются на вашем телефоне и не проходят через наш сервер.
 
 **Местоположение.** Когда вы нажимаете «Где я», приложение и сайт запрашивают доступ к местоположению. Оно используется только для того, чтобы показать вашу точку на карте, на вашем устройстве. Оно не отправляется ни нам, ни кому-либо ещё и не сохраняется. Вы можете в любой момент отозвать разрешение в настройках телефона или браузера.
 
-**Запись катания (только в приложении).** Когда вы начинаете запись — всего дня катания, его части или одного спуска, — приложение записывает ваше местоположение, высоту и движение телефона (с его датчиков движения), пока идёт запись, в том числе при выключенном экране, и всё это время показывает уведомление. Запись используется только для того, чтобы показать вашу скорость, трассы, подъёмники и записанный маршрут, и хранится только на вашем телефоне: она не отправляется ни нам, ни кому-либо ещё и не попадает в облачные резервные копии. Вы можете в любой момент удалить одну запись или все записи, и всё удаляется, когда вы удаляете приложение. Если статистика использования включена, мы получаем только события об использовании записи, например что запись началась и закончилась, сколько было спусков и какой тип сводки был открыт или отправлен; никогда не местоположение, скорость, названия трасс или время.
+**Запись катания (только в приложении; появится в следующей версии).** Когда вы начинаете запись — всего дня катания, его части или одного спуска, — приложение записывает ваше местоположение, высоту и движение телефона (с его датчиков движения), пока идёт запись, в том числе при выключенном экране, и всё это время показывает уведомление. Запись используется только для того, чтобы показать вашу скорость, трассы, подъёмники и записанный маршрут, и хранится только на вашем телефоне: она не отправляется ни нам, ни кому-либо ещё и не попадает в облачные резервные копии. Вы можете в любой момент удалить одну запись или все записи, и всё удаляется, когда вы удаляете приложение. Если статистика использования включена, мы получаем только события об использовании записи, например что запись началась и закончилась, сколько было спусков и какой тип сводки был открыт или отправлен; никогда не местоположение, скорость, названия трасс или время.
 
 ### Что мы собираем
 
-1. **Статистика использования** (PostHog, серверы в ЕС): какие экраны и функции используются, версия приложения, модель телефона, версия ОС, язык интерфейса и случайный идентификатор, созданный при установке. Идентификатор не связан с вашим именем, почтой или номером телефона и меняется при переустановке. IP-адреса не сохраняются.
-2. **Отчёты о сбоях** (Sentry, серверы в ЕС): когда приложение падает или сталкивается с ошибкой, отправляется техническое описание проблемы с моделью телефона, версией ОС, версией приложения и временем. Отчёты не содержат личного контента. IP-адреса не сохраняются.
-3. **Запись сеансов в Android** (Sentry, серверы в ЕС): только если вы отдельно включите согласие на запись в настройках, образцы экранов игр и касаний отправляются для анализа использования и ошибок. По умолчанию запись выключена. Для элементов интерфейса включено автоматическое скрытие, но содержимое игры, включая графику, очки и нарисованный текст, может быть видно в записи. Карта и местоположение, главный экран и поездка, аккаунт и группы не записываются. Запись или аналитику можно отключить в любой момент: это останавливает запись и дальнейшую отправку фрагментов, но не удаляет записи, уже полученные Sentry. Записи не сохраняются для отправки после восстановления сети. Срок хранения полученных записей определяется настройками аккаунта Sentry. Сайт не записывает ваш экран.
+1. **Статистика использования** (PostHog, серверы в ЕС): какие экраны и функции используются, версия приложения, модель телефона, версия ОС, язык интерфейса и случайный идентификатор, созданный при установке. Идентификатор не связан с вашим именем, почтой или номером телефона и меняется при переустановке (на iPhone восстановление из резервной копии может вернуть тот же идентификатор). IP-адреса не сохраняются.
+2. **Отчёты о сбоях** (Sentry, серверы в ЕС): когда приложение падает или сталкивается с ошибкой, отправляется техническое описание проблемы с моделью телефона, версией ОС, версией приложения и временем. Отчёты не содержат личного контента. IP-адреса не сохраняются. Приложение для iPhone пока не отправляет отчёты о сбоях.
+3. **Запись сеансов в Android** (Sentry, серверы в ЕС): только если вы отдельно включите согласие на запись в настройках, образцы экранов игр и касаний отправляются для анализа использования и ошибок. По умолчанию запись выключена. Для элементов интерфейса включено автоматическое скрытие, но содержимое игры, включая графику, очки и нарисованный текст, может быть видно в записи. Карта и местоположение, главный экран и поездка, аккаунт и группы не записываются. Запись или аналитику можно отключить в любой момент: это останавливает запись и дальнейшую отправку фрагментов, но не удаляет записи, уже полученные Sentry. Записи не сохраняются для отправки после восстановления сети. Срок хранения полученных записей определяется настройками аккаунта Sentry. Приложение для iPhone и сайт не записывают ваш экран.
 
 И то и другое можно в любой момент отключить в настройках, и тогда ничего не отправляется. Данные используются только для того, чтобы понять, что работает, что нет и что исправить. Данные об использовании хранятся до одного года, отчёты о сбоях — до 90 дней.
 
@@ -234,7 +234,7 @@ Gudi: Gudauri Ski Map — это приложение для Android (пакет
 
 **Что хранится на сервере:**
 
-1. **Личность.** При вступлении в группу по ссылке или коду создаётся анонимная личность: случайный идентификатор, без имени и без почты. При входе через аккаунт Google в службе входа сохраняются адрес почты, имя и фото, которые передаёт Google, и идентификатор аккаунта. В профиль мы копируем только имя, как имя по умолчанию для вас в группе; вашу почту и фото мы никому не показываем и ни для чего другого не используем.
+1. **Личность.** При вступлении в группу по ссылке или коду создаётся анонимная личность: случайный идентификатор, без имени и без почты. При входе через аккаунт Google в службе входа сохраняются адрес почты, имя и фото, которые передаёт Google, и идентификатор аккаунта. В профиль мы копируем только имя, как имя по умолчанию для вас в группе; вашу почту и фото мы никому не показываем и ни для чего другого не используем. Вход через Apple (на iPhone) сохраняет в службе входа идентификатор аккаунта от Apple и адрес почты только в том случае, если его передаёт Apple; если вы выбрали «Скрыть e-mail», это закрытый адрес-ретранслятор, с которого Apple пересылает письма вам. Приложение запрашивает у Apple только имя, которое Apple передаёт лишь при первом входе, и мы копируем его в профиль, только если вы ещё не выбрали имя. Мы не показываем почту никому и ни для чего другого не используем.
 2. **Профиль:** имя, которое вы выбрали в группе (до 40 символов), и язык интерфейса.
 3. **Группы:** название группы и даты поездки, кто в ней состоит и в какой роли (участник или администратор), приглашения (код и ссылка) и заявки на вступление.
 4. **Рейсы:** если вы решили поделиться поездкой с группой, её копию (даты, номера рейсов, аэропорты и время) видят участники группы. Администратор группы может ввести рейс за участника, и это отмечается.
@@ -246,9 +246,9 @@ Gudi: Gudauri Ski Map — это приложение для Android (пакет
 
 **Как долго:** данные хранятся, пока существуют аккаунт и группа. Анонимная личность, не состоящая ни в одной группе, удаляется с сервера через 30 дней. Группа без участников удаляется. Когда вы выходите из группы, ваш рейс перестаёт в ней отображаться.
 
-**Удаление:** вы можете удалить аккаунт в любой момент, не обращаясь к нам: в приложении (Настройки, Аккаунт) или на сайте по адресу `gudauri-ski-trip.vercel.app/account`. Удаление убирает вас из всех групп (если вы были администратором, администратором становится зарегистрированный участник с самым долгим стажем) и удаляет ваш профиль, поездки, рекорды и личность для входа. Встречи, которые вы назначили, остаются в группе без вашего имени. Ваше имя также удаляется из журнала действий.
+**Удаление:** вы можете удалить аккаунт в любой момент, не обращаясь к нам: в приложении (Настройки, Аккаунт) или на сайте по адресу `gudauri-ski-trip.vercel.app/account`. Удаление убирает вас из всех групп (если вы были администратором, администратором становится зарегистрированный участник с самым долгим стажем) и удаляет ваш профиль, поездки, рекорды и личность для входа. Встречи, которые вы назначили, остаются в группе без вашего имени. Ваше имя также удаляется из журнала действий. Если вы входили через Apple, можно также прекратить использование входа через Apple для этого приложения в настройках iPhone (ваше имя, «Вход с Apple»).
 
-**Службы, которые обрабатывают данные для нас:** Supabase (база данных, вход и обновления в реальном времени; серверы во Франкфурте) и Google — для входа через аккаунт Google (действует политика конфиденциальности Google). Мы не продаём эти данные и никому их не передаём.
+**Службы, которые обрабатывают данные для нас:** Supabase (база данных, вход и обновления в реальном времени; серверы во Франкфурте) а также Google и Apple — для входа через аккаунт Google или Apple (действуют их политики конфиденциальности). Мы не продаём эти данные и никому их не передаём.
 
 ### Контент из интернета
 
@@ -293,9 +293,9 @@ Gudi: Gudauri Ski Map — это приложение для Android (пакет
 
 **კონფიდენციალურობის პოლიტიკა: Gudi: Gudauri Ski Map**
 
-ძალაშია 2026 წლის 25 ოქტომბრიდან
+ძალაშია 2026 წლის 6 ნოემბრიდან
 
-Gudi: Gudauri Ski Map არის Android-ის აპლიკაცია (პაკეტი `io.github.pini236.skiapp`) და ვებსაიტი (`gudauri-ski-trip.vercel.app`) გუდაურის (საქართველო) სათხილამურო რუკით. მათ ქმნის და მართავს პინი ზოლბერგი, კერძო პირი ისრაელიდან. ნებისმიერი კითხვის ან თხოვნისთვის: pinisagent@gmail.com.
+Gudi: Gudauri Ski Map არის Android-ისა და iPhone-ის აპლიკაცია (პაკეტი `io.github.pini236.skiapp`) და ვებსაიტი (`gudauri-ski-trip.vercel.app`) გუდაურის (საქართველო) სათხილამურო რუკით. მათ ქმნის და მართავს პინი ზოლბერგი, კერძო პირი ისრაელიდან. ნებისმიერი კითხვის ან თხოვნისთვის: pinisagent@gmail.com.
 
 **არაოფიციალური აპლიკაცია.** ის არ არის დაკავშირებული Mountain Trails Agency-სთან (MTA), გუდაურის სათხილამურო კურორტთან ან სხვა ოფიციალურ ორგანოსთან.
 
@@ -309,17 +309,17 @@ Gudi: Gudauri Ski Map არის Android-ის აპლიკაცია (�
 
 ### ინახება მხოლოდ თქვენთან
 
-თქვენი პარამეტრები და რჩეულები ინახება მხოლოდ თქვენს ტელეფონზე (ან თქვენს ბრაუზერში) და ჩვენთან არასდროს იგზავნება. თქვენი რეკორდები თამაშებში და „თქვენი მოგზაურობა“ (ფრენები და თარიღები) ასევე ასე ინახება, **სანამ ჯგუფს არ შეუერთდებით**: მაშინ მოგზაურობის ასლი და თქვენი საუკეთესო შედეგი თითოეულ თამაშში ჩვენს სერვერზეც ინახება, რათა ჯგუფის წევრებმა დაინახონ თქვენი ფრენა და რეკორდების ცხრილი (იხ. „ანგარიშები და ჯგუფები“). მოწყობილობის სარეზერვო ასლი აპლიკაციაში გამორთულია: რასაც ის ინახავს, Android-ის სარეზერვო ასლებში არ ხვდება.
+თქვენი პარამეტრები და რჩეულები ინახება მხოლოდ თქვენს ტელეფონზე (ან თქვენს ბრაუზერში) და ჩვენთან არასდროს იგზავნება. თქვენი რეკორდები თამაშებში და „თქვენი მოგზაურობა“ (ფრენები და თარიღები) ასევე ასე ინახება, **სანამ ჯგუფს არ შეუერთდებით**: მაშინ მოგზაურობის ასლი და თქვენი საუკეთესო შედეგი თითოეულ თამაშში ჩვენს სერვერზეც ინახება, რათა ჯგუფის წევრებმა დაინახონ თქვენი ფრენა და რეკორდების ცხრილი (იხ. „ანგარიშები და ჯგუფები“). Android-ზე მოწყობილობის სარეზერვო ასლი აპლიკაციაში გამორთულია, ამიტომ რასაც ის ინახავს, სარეზერვო ასლებში არ ხვდება. iPhone-ზე თქვენი პარამეტრები, რეკორდები თამაშებში, „თქვენი მოგზაურობა“ და სტატისტიკის შემთხვევითი იდენტიფიკატორი შეიძლება მოხვდეს თქვენი iPhone-ის სარეზერვო ასლში (iCloud ან კომპიუტერი), რომელსაც Apple ინახავს თქვენს Apple-ის ანგარიშში და რომელზეც ჩვენ წვდომა არ გვაქვს; თქვენი ჯგუფების ასლი და შესვლის მონაცემები სარეზერვო ასლებში არასდროს ხვდება. შეხვედრების შეხსენებები ინიშნება თქვენს ტელეფონზე და ჩვენს სერვერზე არ გადის.
 
 **მდებარეობა.** როცა „სად ვარ“-ს შეეხებით, აპლიკაცია და ვებსაიტი მდებარეობაზე წვდომას ითხოვს. ის მხოლოდ რუკაზე თქვენი წერტილის საჩვენებლად გამოიყენება, თქვენს მოწყობილობაში. ის არ იგზავნება არც ჩვენთან და არც სხვასთან, და არ ინახება. ნებართვის გაუქმება ნებისმიერ დროს შეგიძლიათ ტელეფონის ან ბრაუზერის პარამეტრებში.
 
-**სათხილამურო დღის ჩაწერა (მხოლოდ აპლიკაციაში).** როცა ჩაწერას იწყებთ, მთელი სათხილამურო დღისა, მისი ნაწილის ან ერთი დაშვების, აპლიკაცია იწერს თქვენს მდებარეობას, სიმაღლესა და ტელეფონის მოძრაობას (მისი მოძრაობის სენსორებიდან), სანამ ჩაწერა ჩართულია, მათ შორის ჩამქრალი ეკრანით, და მთელი ამ დროის განმავლობაში შეტყობინებას აჩვენებს. ჩანაწერი მხოლოდ ჩაწერილი სიჩქარის, ტრასების, საბაგიროებისა და მარშრუტის საჩვენებლად გამოიყენება და ინახება მხოლოდ თქვენს ტელეფონში: ის არ იგზავნება არც ჩვენთან და არც სხვასთან, და ღრუბლოვან სარეზერვო ასლებში არ ხვდება. ერთი ჩანაწერის ან ყველა ჩანაწერის წაშლა ნებისმიერ დროს შეგიძლიათ, და აპლიკაციის წაშლისას ყველაფერი იშლება. თუ გამოყენების სტატისტიკა ჩართულია, ვიღებთ მხოლოდ მოვლენებს ჩაწერის გამოყენებაზე, მაგალითად რომ ჩაწერა დაიწყო და დასრულდა, რამდენი დაშვება იყო და რა ტიპის შეჯამება გაიხსნა ან გაზიარდა; არასდროს მდებარეობას, სიჩქარეს, ტრასების სახელებს ან დროს.
+**სათხილამურო დღის ჩაწერა (მხოლოდ აპლიკაციაში); შემდეგ ვერსიაში დაემატება).** როცა ჩაწერას იწყებთ, მთელი სათხილამურო დღისა, მისი ნაწილის ან ერთი დაშვების, აპლიკაცია იწერს თქვენს მდებარეობას, სიმაღლესა და ტელეფონის მოძრაობას (მისი მოძრაობის სენსორებიდან), სანამ ჩაწერა ჩართულია, მათ შორის ჩამქრალი ეკრანით, და მთელი ამ დროის განმავლობაში შეტყობინებას აჩვენებს. ჩანაწერი მხოლოდ ჩაწერილი სიჩქარის, ტრასების, საბაგიროებისა და მარშრუტის საჩვენებლად გამოიყენება და ინახება მხოლოდ თქვენს ტელეფონში: ის არ იგზავნება არც ჩვენთან და არც სხვასთან, და ღრუბლოვან სარეზერვო ასლებში არ ხვდება. ერთი ჩანაწერის ან ყველა ჩანაწერის წაშლა ნებისმიერ დროს შეგიძლიათ, და აპლიკაციის წაშლისას ყველაფერი იშლება. თუ გამოყენების სტატისტიკა ჩართულია, ვიღებთ მხოლოდ მოვლენებს ჩაწერის გამოყენებაზე, მაგალითად რომ ჩაწერა დაიწყო და დასრულდა, რამდენი დაშვება იყო და რა ტიპის შეჯამება გაიხსნა ან გაზიარდა; არასდროს მდებარეობას, სიჩქარეს, ტრასების სახელებს ან დროს.
 
 ### რას ვაგროვებთ
 
-1. **გამოყენების სტატისტიკა** (PostHog, სერვერები ევროკავშირში): რომელი ეკრანები და ფუნქციები გამოიყენება, აპლიკაციის ვერსია, ტელეფონის მოდელი, ოპერაციული სისტემის ვერსია, ინტერფეისის ენა და ინსტალაციისას შექმნილი შემთხვევითი იდენტიფიკატორი. იდენტიფიკატორი არ არის დაკავშირებული თქვენს სახელთან, ელფოსტასთან ან ტელეფონის ნომერთან და ხელახალი ინსტალაციისას იცვლება. IP მისამართები არ ინახება.
-2. **შეცდომების ანგარიშები** (Sentry, სერვერები ევროკავშირში): როცა აპლიკაცია ითიშება ან შეცდომას აწყდება, იგზავნება პრობლემის ტექნიკური აღწერა ტელეფონის მოდელით, ოპერაციული სისტემის ვერსიით, აპლიკაციის ვერსიითა და დროით. ანგარიშები პირად შინაარსს არ შეიცავს. IP მისამართები არ ინახება.
-3. **Android-ის სესიების ჩანაწერები** (Sentry, სერვერები ევროკავშირში): მხოლოდ თუ პარამეტრებში ცალკე ჩართავთ ჩაწერის თანხმობას, თამაშების ეკრანებისა და შეხებების ნიმუშები იგზავნება გამოყენებისა და შეცდომების გასაგებად. ჩაწერა ნაგულისხმევად გამორთულია. ჩართულია ინტერფეისის ელემენტების ავტომატური დამალვა, მაგრამ თამაშის შიგთავსი, მათ შორის გრაფიკა, ქულები და დახატული ტექსტი, ჩანაწერში შეიძლება გამოჩნდეს. რუკა და მდებარეობა, მთავარი ეკრანი და მოგზაურობა, ანგარიში და ჯგუფები არ იწერება. ჩაწერის ან სტატისტიკის გამორთვა ნებისმიერ დროს შეგიძლიათ: ეს აჩერებს ჩაწერასა და ახალი ნაწილების გაგზავნას, მაგრამ არ შლის Sentry-ში უკვე მიღებულ ჩანაწერებს. ქსელის გათიშვის შემდეგ ჩანაწერები მოგვიანებით გასაგზავნად არ ინახება. მიღებული ჩანაწერების შენახვის ვადა Sentry-ის ანგარიშის პარამეტრებზეა დამოკიდებული. ვებსაიტი თქვენს ეკრანს არ იწერს.
+1. **გამოყენების სტატისტიკა** (PostHog, სერვერები ევროკავშირში): რომელი ეკრანები და ფუნქციები გამოიყენება, აპლიკაციის ვერსია, ტელეფონის მოდელი, ოპერაციული სისტემის ვერსია, ინტერფეისის ენა და ინსტალაციისას შექმნილი შემთხვევითი იდენტიფიკატორი. იდენტიფიკატორი არ არის დაკავშირებული თქვენს სახელთან, ელფოსტასთან ან ტელეფონის ნომერთან და ხელახალი ინსტალაციისას იცვლება (iPhone-ზე სარეზერვო ასლიდან აღდგენამ შეიძლება იგივე იდენტიფიკატორი დააბრუნოს). IP მისამართები არ ინახება.
+2. **შეცდომების ანგარიშები** (Sentry, სერვერები ევროკავშირში): როცა აპლიკაცია ითიშება ან შეცდომას აწყდება, იგზავნება პრობლემის ტექნიკური აღწერა ტელეფონის მოდელით, ოპერაციული სისტემის ვერსიით, აპლიკაციის ვერსიითა და დროით. ანგარიშები პირად შინაარსს არ შეიცავს. IP მისამართები არ ინახება. iPhone-ის აპლიკაცია შეცდომების ანგარიშებს ჯერ არ აგზავნის.
+3. **Android-ის სესიების ჩანაწერები** (Sentry, სერვერები ევროკავშირში): მხოლოდ თუ პარამეტრებში ცალკე ჩართავთ ჩაწერის თანხმობას, თამაშების ეკრანებისა და შეხებების ნიმუშები იგზავნება გამოყენებისა და შეცდომების გასაგებად. ჩაწერა ნაგულისხმევად გამორთულია. ჩართულია ინტერფეისის ელემენტების ავტომატური დამალვა, მაგრამ თამაშის შიგთავსი, მათ შორის გრაფიკა, ქულები და დახატული ტექსტი, ჩანაწერში შეიძლება გამოჩნდეს. რუკა და მდებარეობა, მთავარი ეკრანი და მოგზაურობა, ანგარიში და ჯგუფები არ იწერება. ჩაწერის ან სტატისტიკის გამორთვა ნებისმიერ დროს შეგიძლიათ: ეს აჩერებს ჩაწერასა და ახალი ნაწილების გაგზავნას, მაგრამ არ შლის Sentry-ში უკვე მიღებულ ჩანაწერებს. ქსელის გათიშვის შემდეგ ჩანაწერები მოგვიანებით გასაგზავნად არ ინახება. მიღებული ჩანაწერების შენახვის ვადა Sentry-ის ანგარიშის პარამეტრებზეა დამოკიდებული. iPhone-ის აპლიკაცია და ვებსაიტი თქვენს ეკრანს არ იწერენ.
 
 ორივეს გამორთვა ნებისმიერ დროს შეგიძლიათ პარამეტრებში, და მაშინ არაფერი იგზავნება. მონაცემები გამოიყენება მხოლოდ იმის გასაგებად, რა მუშაობს, რა არა და რა უნდა გასწორდეს. გამოყენების მონაცემები ინახება ერთ წლამდე, შეცდომების ანგარიშები კი 90 დღემდე.
 
@@ -329,7 +329,7 @@ Gudi: Gudauri Ski Map არის Android-ის აპლიკაცია (�
 
 **რა ინახება სერვერზე:**
 
-1. **იდენტობა.** ჯგუფთან ბმულით ან კოდით შეერთებისას იქმნება ანონიმური იდენტობა: შემთხვევითი იდენტიფიკატორი, სახელისა და ელფოსტის გარეშე. Google-ის ანგარიშით შესვლისას შესვლის სერვისში ინახება ელფოსტის მისამართი, სახელი და სურათი, რომლებსაც Google გადმოსცემს, და ანგარიშის იდენტიფიკატორი. პროფილში მხოლოდ სახელს ვაკოპირებთ, როგორც ჯგუფში თქვენი სახელის ნაგულისხმევ მნიშვნელობას; თქვენს ელფოსტასა და სურათს არავის ვაჩვენებთ და სხვა არაფრისთვის ვიყენებთ.
+1. **იდენტობა.** ჯგუფთან ბმულით ან კოდით შეერთებისას იქმნება ანონიმური იდენტობა: შემთხვევითი იდენტიფიკატორი, სახელისა და ელფოსტის გარეშე. Google-ის ანგარიშით შესვლისას შესვლის სერვისში ინახება ელფოსტის მისამართი, სახელი და სურათი, რომლებსაც Google გადმოსცემს, და ანგარიშის იდენტიფიკატორი. პროფილში მხოლოდ სახელს ვაკოპირებთ, როგორც ჯგუფში თქვენი სახელის ნაგულისხმევ მნიშვნელობას; თქვენს ელფოსტასა და სურათს არავის ვაჩვენებთ და სხვა არაფრისთვის ვიყენებთ. Apple-ით შესვლისას (iPhone-ზე) შესვლის სერვისში ინახება Apple-ისგან მიღებული ანგარიშის იდენტიფიკატორი და ელფოსტის მისამართი მხოლოდ იმ შემთხვევაში, თუ Apple მას გადმოსცემს; თუ აირჩიეთ „ჩემი ელფოსტის დამალვა“, ეს არის პირადი გადამგზავნი მისამართი, საიდანაც Apple წერილებს თქვენთან გადმოგიგზავნით. აპლიკაცია Apple-ისგან მხოლოდ სახელს ითხოვს, რომელსაც Apple მხოლოდ პირველი შესვლისას გადმოსცემს, და ჩვენ მას პროფილში ვაკოპირებთ მხოლოდ იმ შემთხვევაში, თუ სახელი ჯერ არ გაქვთ არჩეული. ელფოსტას არავის ვაჩვენებთ და სხვა არაფრისთვის ვიყენებთ.
 2. **პროფილი:** სახელი, რომელიც ჯგუფში აირჩიეთ (40 სიმბოლომდე), და ინტერფეისის ენა.
 3. **ჯგუფები:** ჯგუფის სახელი და მოგზაურობის თარიღები, ვინ არის წევრი და რა როლით (წევრი თუ ადმინისტრატორი), მოწვევები (კოდი და ბმული) და შეერთების მოთხოვნები.
 4. **ფრენები:** თუ გადაწყვიტეთ თქვენი მოგზაურობის გაზიარება ჯგუფთან, მის ასლს (თარიღები, ფრენების ნომრები, აეროპორტები და დრო) ჯგუფის წევრები ხედავენ. ჯგუფის ადმინისტრატორს შეუძლია წევრის ნაცვლად ფრენის შეყვანა, და ეს აღინიშნება.
@@ -341,9 +341,9 @@ Gudi: Gudauri Ski Map არის Android-ის აპლიკაცია (�
 
 **რამდენ ხანს:** მონაცემები ინახება, სანამ ანგარიში და ჯგუფი არსებობს. ანონიმური იდენტობა, რომელიც არცერთ ჯგუფში არ არის, სერვერიდან 30 დღის შემდეგ იშლება. ჯგუფი წევრების გარეშე იშლება. როცა ჯგუფს ტოვებთ, თქვენი ფრენა მასში აღარ ჩანს.
 
-**წაშლა:** ანგარიშის წაშლა ნებისმიერ დროს შეგიძლიათ, ჩვენთან დაკავშირების გარეშე: აპლიკაციაში (პარამეტრები, ანგარიში) ან ვებსაიტზე მისამართზე `gudauri-ski-trip.vercel.app/account`. წაშლა გამოგიყვანთ ყველა ჯგუფიდან (თუ ადმინისტრატორი იყავით, ადმინისტრატორი ხდება ყველაზე ხანგრძლივი სტაჟის მქონე რეგისტრირებული წევრი) და შლის თქვენს პროფილს, მოგზაურობებს, რეკორდებსა და შესვლის იდენტობას. თქვენ მიერ დანიშნული შეხვედრები ჯგუფში რჩება თქვენი სახელის გარეშე. თქვენი სახელი მოქმედებების ჟურნალიდანაც იშლება.
+**წაშლა:** ანგარიშის წაშლა ნებისმიერ დროს შეგიძლიათ, ჩვენთან დაკავშირების გარეშე: აპლიკაციაში (პარამეტრები, ანგარიში) ან ვებსაიტზე მისამართზე `gudauri-ski-trip.vercel.app/account`. წაშლა გამოგიყვანთ ყველა ჯგუფიდან (თუ ადმინისტრატორი იყავით, ადმინისტრატორი ხდება ყველაზე ხანგრძლივი სტაჟის მქონე რეგისტრირებული წევრი) და შლის თქვენს პროფილს, მოგზაურობებს, რეკორდებსა და შესვლის იდენტობას. თქვენ მიერ დანიშნული შეხვედრები ჯგუფში რჩება თქვენი სახელის გარეშე. თქვენი სახელი მოქმედებების ჟურნალიდანაც იშლება. თუ Apple-ით შეხვედით, შეგიძლიათ აპლიკაციისთვის Apple-ით შესვლა iPhone-ის პარამეტრებშიც შეწყვიტოთ (თქვენი სახელი, „Apple-ით შესვლა“).
 
-**სერვისები, რომლებიც ჩვენთვის ამუშავებენ მონაცემებს:** Supabase (მონაცემთა ბაზა, შესვლა და რეალურ დროში განახლება; სერვერები ფრანკფურტში) და Google — Google-ის ანგარიშით შესასვლელად (მოქმედებს Google-ის კონფიდენციალურობის პოლიტიკა). ამ მონაცემებს არ ვყიდით და არავის გადავცემთ.
+**სერვისები, რომლებიც ჩვენთვის ამუშავებენ მონაცემებს:** Supabase (მონაცემთა ბაზა, შესვლა და რეალურ დროში განახლება; სერვერები ფრანკფურტში) ასევე Google და Apple — Google-ის ან Apple-ის ანგარიშით შესასვლელად (მოქმედებს მათი კონფიდენციალურობის პოლიტიკა). ამ მონაცემებს არ ვყიდით და არავის გადავცემთ.
 
 ### კონტენტი ინტერნეტიდან
 

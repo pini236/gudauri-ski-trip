@@ -1,0 +1,18 @@
+# The ski-day build (decision 76; docs/ARCHITECTURE.md m-13): project.yml plus the DAYREC flag and the two Info.plist
+# keys the recorder needs. Only the 1.1 release uses it (ios-release.yml, workflow_dispatch variant dayrec); every other
+# build, including main's, uses project.yml and has neither.
+#   cd app/ios && xcodegen generate --spec project-dayrec.yml
+include:
+  - project.yml
+targets:
+  Gudi:
+    settings:
+      base:
+        SWIFT_ACTIVE_COMPILATION_CONDITIONS: "$(inherited) DAYREC"
+        MARKETING_VERSION: "1.1"
+    info:
+      path: Gudi/Info.plist
+      properties:
+        UIBackgroundModes: [location]
+        NSLocationTemporaryUsageDescriptionDictionary:
+          DayRecording: "Recording your ski day needs your precise location: speeds and runs cannot be told from an approximate one. The track stays on this iPhone."

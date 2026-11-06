@@ -3,7 +3,7 @@ import GudiDomain
 
 // one look: a bright training slope, the same in both themes (the site's school page)
 private let inkC = Color(rgb: 0x13233A), mutedC = Color(rgb: 0x4B5A6F), ruleC = Color(rgb: 0xCBD5DF), accentC = Color(rgb: 0xF4B942)
-private let greenC = Color(rgb: 0x1B8A4C), redC = Color(rgb: 0xD1342B), blueC = Color(rgb: 0x1F5FC4), pageC = Color(rgb: 0xF4F8FB)
+private let greenC = Color(rgb: 0x198549), redC = Color(rgb: 0xD1342B), blueC = Color(rgb: 0x1F5FC4), pageC = Color(rgb: 0xF4F8FB)
 
 private func say(_ s: Say) -> String { s.text() }
 private func text(_ key: String) -> String { Strings.shared.text(key) }
@@ -183,7 +183,7 @@ struct SchoolScreen: View {
         .buttonStyle(.plain)
         .disabled(!open)
         .accessibilityLabel("\(i + 1). \(text(l.title))")
-        .accessibilityValue(open ? "\(stars)/3" : "🔒")
+        .accessibilityValue(open ? S.gameDescentStarsLabel(count: stars) : S.appA11yLocked)
     }
 
     private func starsText(_ n: Int, _ size: CGFloat) -> some View {
@@ -264,7 +264,7 @@ struct SchoolScreen: View {
                     Text(String(repeating: "★", count: r.stars)).foregroundStyle(accentC)
                     Text(String(repeating: "★", count: 3 - r.stars)).foregroundStyle(ruleC)
                 }
-                .font(.system(size: 48)).accessibilityLabel("\(r.stars)/3")
+                .font(.system(size: 48)).accessibilityElement(children: .ignore).accessibilityLabel(S.gameDescentStarsLabel(count: r.stars))
                 Text(say(r.line)).font(ski.type.text(16)).foregroundStyle(inkC)
                 goals(l, r.goals)
                 box(nil, S.gameSchoolRemember(tip: text(l.tip)))

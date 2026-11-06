@@ -9,9 +9,10 @@ const soft=(url,fallback)=>fetch(url).then(r=>r.ok?r.json():fallback).catch(()=>
 // the elevation model (terrain.json, the biggest file) does not hold up the home page (R-11): it loads alongside, and the
 // map, the meeting point and the 3D view are set up when it arrives (onTerrain below); a link to them waits for it
 const terrainP=soft(DIR+'terrain.json',null);
-const [D,vids]=await Promise.all([
+const [D,vids,PLD]=await Promise.all([
   fetch(DIR+'runs-and-lifts.json').then(r=>{if(!r.ok)throw new Error('runs-and-lifts '+r.status);return r.json();}),
-  has('videos')?soft('data/videos-seed.json',[]):[]
+  has('videos')?soft('data/videos-seed.json',[]):[],
+  has('places')?soft(DIR+'places.json',null):null // food and services near the stations (round 31); Gudauri only
 ]);
 const HEB=Object.fromEntries(['green','blue','red','black'].map(c=>[c,T('common.color_'+c)]));
 // a ski route (kind 'ski-route', colour 'none') has no difficulty: it is drawn in its own orange (round 24); every other run by its colour
@@ -101,7 +102,8 @@ const isKobiL=l=>meanLat([l.g])>KOBI_LAT;
 const mainPistes=D.pistes.filter(p=>!isKobiP(p)),kobiPistes=D.pistes.filter(isKobiP);
 const mainLifts=D.lifts.filter(l=>!isKobiL(l)),kobiLifts=D.lifts.filter(isKobiL);
 const kobiRun=byKey['Kobi'];const PASS=kobiRun?kobiRun.segs[0].g[0]:[42.5111,44.4929];
-const dispName=p=>p.named?(p.key==='Firni ?'?'Firni (1/2?)':p.key):T('map.unnamed_segment');
+const pname=p=>p.name||p.key; // the key is a stable id (it may be a raw OSM id); the readable name is `name`
+const dispName=p=>p.named?(p.key==='Firni ?'?'Firni (1/2?)':pname(p)):T('map.unnamed_segment');
 
 // countdown (top bar + ticket stub). Drawn again by the day and night switch: in the dark the days are nights.
 // your trip (round 12, stage 13.9): kept only in this browser, never sent anywhere. {v:1, out:{date,flight,from,to,departs,arrives},
@@ -174,6 +176,11 @@ const terrainReady=terrainP.then(t=>{TM=t&&window.GudRelief?GudRelief.load(t):nu
 const pisteEls={},labels=[],stations=[];
 // number plates (round 23): a run whose name is a piste number, as at most Alpine resorts ("30", "7a")
 const isPlate=p=>/^\d{1,2}[a-z]?$/.test(p.key);
+const HASLBL=D.pistes.some(p=>p.label); // a resort whose data carries label windows (tools/build-labels.py)
+let lblN=0;
+var ARR=[]; // round 21: downhill arrows on the selected run (placed per zoom by layoutArrows)
+const famNum=k=>{const m=/^(.*\S)\s+(\d+)$/.exec(k);return m?[m[1],+m[2]]:null;};
+function sharedName(a,b){const nm=k=>byKey[k]?pname(byKey[k]):k,x=famNum(nm(a)),y=famNum(nm(b));return x&&y&&x[0]===y[0]?x[0]+' '+Math.min(x[1],y[1])+' · '+Math.max(x[1],y[1]):nm(a);}
 const lineLen=L=>{let d=0;for(let i=1;i<L.length;i++)d+=Math.hypot(L[i][0]-L[i-1][0],L[i][1]-L[i-1][1]);return d;};
 const along=(L,step)=>{const o=[L[0]];let acc=0;for(let i=1;i<L.length;i++){const a=L[i-1],b=L[i],l=Math.hypot(b[0]-a[0],b[1]-a[1]);
   for(let d=step-acc;d<l;d+=step)o.push([a[0]+(b[0]-a[0])*d/l,a[1]+(b[1]-a[1])*d/l]);acc=(acc+l)%step;}return o;};
@@ -197,6 +204,7 @@ function placePlate(t,u,kept,view){
   return null;
 }
 const vs={'vector-effect':'non-scaling-stroke',fill:'none','stroke-linecap':'round','stroke-linejoin':'round'};
+var OPENQ=[]; // round 21, the open end: the line of a partial run fades out where it goes on beyond the data (applyOpenEnds, once the model is here)
 function draw(root,pistes,lifts,store){
   // every white casing (lines and area edges) first, then the areas, then the line colours: a wide run's area and its
   // line read as one shape with one white edge round it (round 24, 2b)
@@ -209,9 +217,10 @@ function draw(root,pistes,lifts,store){
         const a=mk('path',{d,fill:`var(--p-${ck(p)})`,stroke:`var(--p-${ck(p)})`,'vector-effect':'non-scaling-stroke',class:'pg pg-area '+ck(p)},gAreas);pisteEls[p.key].push(a);return;} // a wide run: its area in the run's own colour (round 24, 2b)
       const d=pathD(s.g);
       // a ski route as on the official map (round 24, 1b): a light orange band with dotted red edges; a private route to a hut, a thin dotted red line
-      mk('path',{d,...vs,stroke:'var(--casing)','stroke-width':hut?4:route?8:p.named?6.5:4.5},gc);
-      if(route&&!hut)mk('path',{d,...vs,stroke:'var(--p-route-edge)','stroke-width':6,'stroke-dasharray':'2 2.5','stroke-linecap':'butt'},g);
-      mk('path',{d,...vs,class:'core',stroke:hut?'var(--p-route-edge)':`var(--p-${ck(p)})`,'stroke-width':hut?1.8:route?3.6:p.named?(p.kind==='ski-way'?2.6:3.4):2,...(hut?{'stroke-dasharray':'4 3'}:route?{}:p.named?(p.kind==='ski-way'?{'stroke-dasharray':'8 5'}:{}):{'stroke-dasharray':'5 4'})},g);
+      const fe=[mk('path',{d,...vs,stroke:'var(--casing)','stroke-width':hut?4:route?8:p.named?6.5:4.5},gc)];
+      if(route&&!hut)fe.push(mk('path',{d,...vs,stroke:'var(--p-route-edge)','stroke-width':6,'stroke-dasharray':'2 2.5','stroke-linecap':'butt'},g));
+      fe.push(mk('path',{d,...vs,class:'core',stroke:hut?'var(--p-route-edge)':`var(--p-${ck(p)})`,'stroke-width':hut?1.8:route?3.6:p.named?(p.kind==='ski-way'?2.6:3.4):HASLBL?1.6:2,...(hut?{'stroke-dasharray':'4 3'}:route?{}:p.named?(p.kind==='ski-way'?{'stroke-dasharray':'8 5'}:{}):HASLBL?{opacity:.6}:{'stroke-dasharray':'5 4'})},g));
+      if(p.open&&p.named)OPENQ.push({p,s,fe,root});
       mk('path',{d,class:'hit','stroke-width':16,'vector-effect':'non-scaling-stroke','data-key':p.key,'stroke-linecap':'round'},gHit);
     });
     if(p.named&&isPlate(p)&&!hut){ // a number: a plate in the run's colour, placed by layoutLabels where no other run passes (round 23)
@@ -221,6 +230,19 @@ function draw(root,pistes,lifts,store){
         else mk('rect',{x:-w/2,y:-10,width:w,height:20,fill:`var(--p-${p.color})`,'stroke-width':1.6},t);
         const tx=mk('text',{x:0,y:1,'text-anchor':'middle','dominant-baseline':'central','font-size':route?15:17},t);tx.textContent=p.key;
         t._plate={w,h:route?32:20,own:p.key,cand:plateSpots(lin)};store.labels.push(t);pisteEls[p.key].push(t);}
+    }else if(p.named&&HASLBL){ // round 21: the name beside the line, curving with it, only where a window has room (never on another run)
+      if(p.label&&window.GudLabelFit){
+        const id='lp'+(++lblN),pa=mk('path',{id,fill:'none',stroke:'none'},gLbl);
+        const t=mk('text',{class:'lbl pg lblp '+ck(p),fill:route?'var(--p-route-edge)':`var(--p-${ck(p)})`,direction:'ltr','text-anchor':'middle','data-key':p.key},gLbl);
+        const tp=mk('textPath',{href:'#'+id,startOffset:'50%'},t);tp.textContent=dispName(p);
+        t._lb={a:p.label.a,segs:p.segs.map(s=>s.g.map(P)),path:pa};t._name=dispName(p);store.labels.push(t);pisteEls[p.key].push(t);
+      }
+      // a stretch two runs share (round 21): one name for both when they are of one family ("Tatra 1 · 2"), else the main run's own
+      if(p.shared&&window.GudLabelFit){const by={};p.shared.a.forEach(w=>(by[w[5]]=by[w[5]]||[]).push(w.slice(0,5)));
+        for(const o in by){const id='lp'+(++lblN),pa=mk('path',{id,fill:'none',stroke:'none'},gLbl),name=sharedName(p.key,o);
+          const t=mk('text',{class:'lbl pg lblp '+ck(p),fill:route?'var(--p-route-edge)':`var(--p-${ck(p)})`,direction:'ltr','text-anchor':'middle','data-key':p.key},gLbl);
+          const tp=mk('textPath',{href:'#'+id,startOffset:'50%'},t);tp.textContent=name;
+          t._lb={a:by[o],segs:p.segs.map(s=>s.g.map(P)),path:pa};t._name=name;store.labels.push(t);pisteEls[p.key].push(t);}}
     }else if(p.named){
       const lin=p.segs.filter(s=>!s.area).sort((a,b)=>b.g.length-a.g.length)[0];
       if(lin){const q=P(lin.g[Math.floor(lin.g.length/2)]);
@@ -251,14 +273,20 @@ addRelief(svg,mainLbl,{labels,marks},true);
 if(has('kobi')){const[x,y]=P(PASS);const t=mk('text',{x,y,class:'lbl kobi-link','text-anchor':'middle','data-kobi':'1',role:'button',tabindex:'0','aria-label':T('map.kobi_side_aria')},mainLbl);t.textContent=T('map.kobi_side_label');labels.unshift(t);
   t.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();openInset();}});} // the keyboard reaches it too
 
+const TW=new Map();let twEl=null; // a name's width in em, measured once with the label font
+function textW(name){let w=TW.get(name);if(w)return w;
+  if(!twEl){twEl=mk('text',{class:'lbl','font-size':100,x:0,y:0,visibility:'hidden'},svg);}
+  twEl.textContent=name;w=twEl.getComputedTextLength()/100||name.length*.6;if(document.fonts&&document.fonts.status==='loaded')TW.set(name,w);return w;}
 function layoutLabels(labels,stations,u,mks,view){
-  labels.forEach(t=>{if(t._plate)return;const pk=t.classList.contains('peak');t.setAttribute('font-size',(t.classList.contains('lift')?11.5:pk?12:13)*u);t.setAttribute('stroke-width',3.2*u);t.setAttribute('dy',(pk?-11:-6)*u);});
+  labels.forEach(t=>{if(t._plate)return;if(t._lb){t.setAttribute('font-size',10*u);t.setAttribute('stroke-width',3*u);return;}const pk=t.classList.contains('peak');t.setAttribute('font-size',(t.classList.contains('lift')?11.5:pk?12:13)*u);t.setAttribute('stroke-width',3.2*u);t.setAttribute('dy',(pk?-11:-6)*u);});
   labels=[...labels].sort((a,b)=>b.classList.contains('on')-a.classList.contains('on'));
   (mks||[]).forEach(m=>{const x=m._x,y=m._y;m.setAttribute('d',m._pass?`M${x-6*u} ${y+2*u}Q${x} ${y-5*u} ${x+6*u} ${y+2*u}`:`M${x} ${y-8*u}L${x+5.5*u} ${y+1.5*u}L${x-5.5*u} ${y+1.5*u}Z`);m.setAttribute('stroke-width',(m._pass?2.2:1.2)*u);});
   stations.forEach(c=>c.setAttribute('r',3.2*u));
   const kept=[];const pad=2*u;
   labels.forEach(t=>{t.style.display='';
     if(t._plate){const r=placePlate(t,u,kept,view);if(r)kept.push(r);else t.style.display='none';return;}
+    if(t._lb){const em=textW(t._name),f=GudLabelFit.fit(t._lb.a,t._lb.segs,em*10*u*1.08,10*u,6*u);
+      if(!f){t.style.display='none';return;}t._lb.path.setAttribute('d',f.d);}
     const bb=t.getBBox();const r={a:bb.x-pad,b:bb.y-pad,c:bb.x+bb.width+pad,d:bb.y+bb.height+pad};
     if(kept.some(k=>r.a<k.c&&r.c>k.a&&r.b<k.d&&r.d>k.b)){t.style.display='none';}else kept.push(r);});
 }
@@ -270,7 +298,7 @@ function apply(){
   const[cw,ch]=sz();vb.h=vb.w*ch/cw;
   svg.setAttribute('viewBox',`${vb.x} ${vb.y} ${vb.w} ${vb.h}`);
   const u=vb.w/cw; // meters per px
-  layoutLabels(labels,stations,u,marks,vb);svg.classList.toggle('far',u>9);svg.querySelectorAll('.chair').forEach(c=>c.setAttribute('r',3.6*u));runMark.setAttribute('r',7*u);if(typeof meDot!=='undefined')meDot.setAttribute('r',8*u);if(typeof WX!=='undefined'&&WX)WX.layout();
+  layoutLabels(labels,stations,u,marks,vb);layoutArrows(u);svg.classList.toggle('far',u>9);svg.querySelectorAll('.chair').forEach(c=>c.setAttribute('r',3.6*u));runMark.setAttribute('r',7*u);if(typeof meDot!=='undefined')meDot.setAttribute('r',8*u);if(typeof WX!=='undefined'&&WX)WX.layout();if(typeof PL!=='undefined'&&PL)PL.layout();
   const nice=[50,100,200,250,500,1000,2000];let m=nice.find(n=>n/u>=70)||2000;
   const sc=document.getElementById('scale');sc.querySelector('i').style.width=(m/u)+'px';sc.querySelector('span').textContent=m>=1000?m/1000+' km':m+' m';
 }
@@ -352,7 +380,7 @@ const meG=mk('g',{class:'me','aria-hidden':'true'});meG.style.display='none';
 const meAcc=mk('circle',{class:'me-acc',r:10,'vector-effect':'non-scaling-stroke'},meG),meDot=mk('circle',{class:'me-dot',r:10,'vector-effect':'non-scaling-stroke'},meG);
 let rpN=0;
 function paint2d(key){
-  gPaint.classList.remove('on');gPaint.innerHTML='';
+  gPaint.classList.remove('on');gPaint.innerHTML='';ARR=[];
   const p=key&&byKey[key];if(!p||!TM||isKobiP(p))return;
   const Ls=runLines(p),sc=GudRelief.slopeCanvas(TM,Ls),href=sc.canvas.toDataURL(),box={x:sc.x0,y:sc.y0,width:sc.x1-sc.x0,height:sc.y1-sc.y0,preserveAspectRatio:'none'};
   mk('image',{href,...box,class:'rp-ground'},gPaint);
@@ -369,7 +397,46 @@ function paint2d(key){
     mk('image',{href,...box,'clip-path':`url(#${id}c)`,filter:`url(#${id}f)`,class:'rp-area'},gPaint);}
   SL.forEach(S=>{const tot=S[S.length-1].d||1,dur=1.3;
     for(let i=0;i<S.length-1;i++)mk('line',{x1:S[i].x.toFixed(1),y1:S[i].y.toFixed(1),x2:S[i+1].x.toFixed(1),y2:S[i+1].y.toFixed(1),stroke:GudRelief.slopeColor(S[i].a),'stroke-width':6,'stroke-linecap':'round','vector-effect':'non-scaling-stroke',style:`transition-delay:${(S[i].d/tot*dur).toFixed(2)}s`},gPaint);});
+  // small arrows down the run, every 150 m, thinned to about 60 px apart; the direction is the fall of the elevation model
+  SL.forEach(S=>{let next=90;for(let i=1;i<S.length-1;i++)if(S[i].d>=next){next+=150;
+    const dx=S[i+1].x-S[i-1].x,dy=S[i+1].y-S[i-1].y,a=Math.atan2(dy,dx)*180/Math.PI;
+    const g=mk('g',{class:'rp-arr','aria-hidden':'true'},gPaint);mk('path',{d:'M-3.5 -3.2L2.5 0L-3.5 3.2',...vs,stroke:'#FFFFFF','stroke-width':4.2},g);mk('path',{d:'M-3.5 -3.2L2.5 0L-3.5 3.2',...vs,stroke:'var(--ink)','stroke-width':2},g);
+    ARR.push({g,x:S[i].x,y:S[i].y,a,k:ARR.length});}});
+  layoutArrows(vb.w/sz()[0]);
   requestAnimationFrame(()=>requestAnimationFrame(()=>gPaint.classList.add('on')));
+}
+// The open end of a partial run (round 21, option A): the last stretch of the line fades to nothing, and nothing is drawn across the hole.
+// Only from conf medium up (docs/ARCHITECTURE.md); the data says which end (start/end by the descent), the elevation model which end of the
+// drawn line is the top. A fade says only that the map stops drawing here, not that the run is open or safe.
+const FADE_M=130;
+function applyOpenEnds(){
+  if(!TM)return;
+  const done={};
+  OPENQ.forEach(({p,s,fe,root})=>{
+    (p.open||[]).forEach(o=>{
+      if(o.conf!=='medium'&&o.conf!=='high')return;
+      if(o.at!=='start'&&o.at!=='end')return;
+      const ends=[];
+      p.segs.forEach(sg=>{if(sg.area)return;const L=sg.g.map(P);ends.push({sg,pts:L,first:true,h:TM.elev(L[0][0],L[0][1])},{sg,pts:L,first:false,h:TM.elev(L[L.length-1][0],L[L.length-1][1])});});
+      if(!ends.length)return;
+      const pick=ends.reduce((m,e)=>(o.at==='start'?e.h>m.h:e.h<m.h)?e:m);
+      if(pick.sg!==s)return;
+      const k=p.key+o.at+(root.id||'');if(done[k])return;done[k]=1;
+      const L=pick.first?pick.pts:pick.pts.slice().reverse(); // L[0] is the open end
+      let acc=0,i=1;while(i<L.length&&acc+Math.hypot(L[i][0]-L[i-1][0],L[i][1]-L[i-1][1])<FADE_M){acc+=Math.hypot(L[i][0]-L[i-1][0],L[i][1]-L[i-1][1]);i++;}
+      if(i>=L.length)i=L.length-1; // a short stretch: the whole of it fades
+      const A=L[0],B=L[i],id='op'+(++lblN),defs=mk('defs',{},root);
+      const gr=mk('linearGradient',{id:id+'g',gradientUnits:'userSpaceOnUse',x1:A[0].toFixed(1),y1:A[1].toFixed(1),x2:B[0].toFixed(1),y2:B[1].toFixed(1)},defs);
+      mk('stop',{offset:0,'stop-color':'#000'},gr);mk('stop',{offset:1,'stop-color':'#fff'},gr);
+      const m=mk('mask',{id,maskUnits:'userSpaceOnUse',x:-1e5,y:-1e5,width:2e5,height:2e5},defs);
+      mk('rect',{x:-1e5,y:-1e5,width:2e5,height:2e5,fill:`url(#${id}g)`},m);
+      fe.forEach(e=>{e.setAttribute('mask',`url(#${id})`);e.classList.add('open-end');});
+    });
+  });
+}
+function layoutArrows(u){
+  const step=Math.max(1,Math.ceil(60*u/150));
+  ARR.forEach((q,i)=>{const on=i%step===0;q.g.style.display=on?'':'none';if(on)q.g.setAttribute('transform',`translate(${q.x.toFixed(1)} ${q.y.toFixed(1)}) rotate(${q.a.toFixed(0)}) scale(${(u*1.15).toFixed(3)})`);});
 }
 function setMarker(q){
   if(!q){runMark.style.display='none';if(v3)v3.marker(null);return;}
@@ -410,11 +477,11 @@ function elevRows(p){
   <dt>${E('run.stat_drop_label')}</dt><dd>${H('common.unit_m',{n:s.drop},{n:num(s.drop)})}${lines.length===1&&p.len?' · '+H('run.stat_avg_gradient',{},{pct:num(Math.round(s.drop/p.len*100))}):''}</dd>
   <dt>${E('run.stat_steep_label')}</dt><dd>${num(Math.round(s.maxG*100)+'%')} <span class="hint">${E('run.stat_steep_hint')}</span></dd>`;
 }
-const navList=()=>{const order=['green','blue','red','black','none'];return D.pistes.filter(p=>p.named).sort((a,b)=>order.indexOf(a.color)-order.indexOf(b.color)||a.key.localeCompare(b.key,undefined,{numeric:true})).map(p=>p.key);};
+const navList=()=>{const order=['green','blue','red','black','none'];return D.pistes.filter(p=>p.named).sort((a,b)=>order.indexOf(a.color)-order.indexOf(b.color)||pname(a).localeCompare(pname(b),undefined,{numeric:true})).map(p=>p.key);};
 function runNav(key){
   const L=navList(),i=L.indexOf(key);if(i<0)return `<div class="run-nav"><button type="button" class="rn-share" data-share="${esc(key)}">${E('run.share_button')}</button></div>`;
   const prev=L[(i-1+L.length)%L.length],next=L[(i+1)%L.length],[back,fwd]=I18N.ltr?['←','→']:['→','←'];
-  return `<div class="run-nav" role="group" aria-label="${E('run.nav_group_aria')}"><button type="button" data-goto="${esc(prev)}" aria-label="${E('run.nav_prev_aria',{run:prev})}">${back} <span dir="ltr">${esc(prev)}</span></button><button type="button" class="rn-share" data-share="${esc(key)}">${E('run.share_button')}</button><button type="button" data-goto="${esc(next)}" aria-label="${E('run.nav_next_aria',{run:next})}"><span dir="ltr">${esc(next)}</span> ${fwd}</button></div>`;
+  return `<div class="run-nav" role="group" aria-label="${E('run.nav_group_aria')}"><button type="button" data-goto="${esc(prev)}" aria-label="${E('run.nav_prev_aria',{run:(byKey[prev]?pname(byKey[prev]):prev)})}">${back} <span dir="ltr">${esc((byKey[prev]?pname(byKey[prev]):prev))}</span></button><button type="button" class="rn-share" data-share="${esc(key)}">${E('run.share_button')}</button><button type="button" data-goto="${esc(next)}" aria-label="${E('run.nav_next_aria',{run:(byKey[next]?pname(byKey[next]):next)})}"><span dir="ltr">${esc((byKey[next]?pname(byKey[next]):next))}</span> ${fwd}</button></div>`;
 }
 function runViewBlock(key){
   const pr=runProfile(key),p=byKey[key];if(!pr||pr.S.length<4)return '';
@@ -465,7 +532,7 @@ function renderPiste(key){
     <dl class="kv">${ck(m)==='route'?routeRow():`<dt>${E('run.official_color_label')}</dt><dd>${pips(m.color)}${esc(HEB[m.color])} · ${esc(RATE[m.color][1])}</dd>`}<dt>${E('common.length_label')}</dt><dd>—</dd></dl>
     <div class="notice">${E('run.missing_notice')}</div>${vidBlock(key,m.name)}`;
     return;}
-  const c=ck(p),route=c==='route',label=p.named?(p.key==='Firni ?'?'Firni':p.key):'';
+  const c=ck(p),route=c==='route',label=p.named?(p.key==='Firni ?'?'Firni':pname(p)):'';
   panel.innerHTML=`<button class="back" data-back>${E('map.back_all_runs')}</button>
   <div class="run-sign"><h2 class="c-${c}">${esc(dispName(p))}</h2>${p.refs.length&&p.refs[0]!==p.key?`<span class="run-ref num" title="${E('run.ref_title')}">${esc(p.refs[0])}</span>`:''}</div>
   ${runNav(key)}
@@ -502,12 +569,13 @@ function showLift(id){
   ${l.year?`<dt>${E('lift.built_label')}</dt><dd class="num">${esc(l.year)}</dd>`:''}</dl>
   <h3>${E('lift.runs_from_top_heading')}</h3><div>${top||'—'}</div>
   <h3>${E('lift.runs_to_bottom_heading')}</h3><div>${bot||'—'}</div>
+  ${typeof PL!=='undefined'&&PL?PL.liftBlock(l):''}
   <p class="hint">OSM: <a href="https://www.openstreetmap.org/way/${l.id}" target="_blank" rel="noopener">${l.id}</a></p>`;
 }
 function overview(){
   clearSel();current=null;
   const named=D.pistes.filter(p=>p.named&&p.kind!=='ski-route'),routes=D.pistes.filter(p=>p.kind==='ski-route');const order=['green','blue','red','black'];
-  named.sort((a,b)=>order.indexOf(a.color)-order.indexOf(b.color)||a.key.localeCompare(b.key,undefined,{numeric:true}));
+  named.sort((a,b)=>order.indexOf(a.color)-order.indexOf(b.color)||pname(a).localeCompare(pname(b),undefined,{numeric:true}));
   panel.innerHTML=`
   <h2 class="ov">${E('map.overview_heading')}</h2>
   ${LSTAT.block()}
@@ -519,7 +587,7 @@ function overview(){
   ${(()=>{const mr=D.missing.filter(m=>ck(m)!=='route'),mx=D.missing.filter(m=>ck(m)==='route'),chips=a=>`<div class="miss">${a.map(m=>`<button class="chip" data-goto="${esc(m.name)}"><span class="sw ${ck(m)}"></span>${esc(m.name)}</button>`).join('')}</div>`;
     return (mr.length?`<h3>${E('map.overview_missing_count',{n:mr.length})}</h3>${chips(mr)}`:'')+(mx.length?`<h3>${E('map.overview_missing_routes_count',{n:mx.length})}</h3>${chips(mx)}`:'');})()}
   ${(()=>{const pr=D.pistes.filter(p=>p.research&&p.research.partial);return pr.length?`<h3>${E('map.overview_partial_count',{n:pr.length})}</h3>
-  <div class="miss">${pr.map(p=>`<button class="chip" data-goto="${esc(p.key)}" data-zoom="1"><span class="sw ${p.color}"></span>${esc(p.key)}</button>`).join('')}</div>
+  <div class="miss">${pr.map(p=>`<button class="chip" data-goto="${esc(p.key)}" data-zoom="1"><span class="sw ${p.color}"></span>${esc(pname(p))}</button>`).join('')}</div>
   <p class="hint">${E('map.overview_partial_hint')}</p>`:''})()}
   <h3>${E('map.overview_source_heading')}</h3>
   <p class="hint">${RESORT.isDefault()?E('map.overview_source_text',{fetched:D.fetched,research_date:D.research?D.research.date:''}):E('resort.'+RS.id+'.sources',{fetched:D.fetched})}</p>
@@ -532,7 +600,7 @@ panel.addEventListener('click',e=>{
   // the (i) by the profile heading opens how the numbers were worked out (round 20)
   if(b.dataset.info!==undefined){const pop=b.closest('h3').nextElementSibling,on=pop.hidden;pop.hidden=!on;b.setAttribute('aria-expanded',String(on));return;}
   if(b.dataset.share!==undefined){const k=b.dataset.share,url=RESORT.link('#map/run/'+encodeURIComponent(k),'utm_medium=share');
-    if(navigator.share)navigator.share({title:T('run.share_title',{run:k}),url}).then(()=>track('run_share',{run:k,method:'native'})).catch(()=>{});
+    if(navigator.share)navigator.share({title:T('run.share_title',{run:(byKey[k]?pname(byKey[k]):k)}),url}).then(()=>track('run_share',{run:k,method:'native'})).catch(()=>{});
     else if(navigator.clipboard)navigator.clipboard.writeText(url).then(()=>{track('run_share',{run:k,method:'copy'});b.textContent=T('common.link_copied');setTimeout(()=>{b.textContent=T('run.share_button');},2200);}).catch(()=>{});return;}
   if(b.dataset.fly){if(flying){stopFly();return;}const pr=runProfile(b.dataset.fly);if(!pr)return;if(view!=='3d')setView('3d',false);if(!v3)return;
     flying=true;b.textContent=T('run.fly_stop');b.setAttribute('aria-pressed','true');
@@ -569,7 +637,7 @@ function ensure3d(){
   if(v3)return true;if(!can3d())return false;
   try{
     const kc=P([42.532,44.4945]);
-    v3=GudRelief.View3D({model:TM,host:m3,pistes:D.pistes,lifts:D.lifts,P,dispName,colors:{green:'#1B8A4C',blue:'#1F5FC4',red:'#D1342B',black:'#13233A',route:'#EE8E1C'},liftColor:'#3A4556',
+    v3=GudRelief.View3D({model:TM,host:m3,pistes:D.pistes,lifts:D.lifts,P,dispName,colors:{green:'#198549',blue:'#1F5FC4',red:'#D1342B',black:'#13233A',route:'#EE8E1C'},liftColor:'#3A4556',
       center:[(minX+maxX)/2,(minY+maxY)/2+250],homeDist:RS.view3d&&RS.view3d.dist||7000,homeAz:RS.view3d&&RS.view3d.az||0,homePol:RS.view3d&&RS.view3d.pol||0.44,
       onPick:k=>select(k,{via:'map'}),onLift:id=>showLift(id),
       onFly:f=>{flyProg=f;const k=document.getElementById('profRange');if(k){const i=Math.round(f*(+k.max));k.value=i;profAt(i);}},
@@ -578,9 +646,14 @@ function ensure3d(){
     v3.setTheme(isDark());DN.paint(false); // the 3D light follows the time in Gudauri, like the home page
     v3.filter(hidden);if(current&&byKey[current]){v3.select(current);v3.paint(current,0);}
     try{LSTAT.applyMap();}catch(e){} // the lift status, if it came before the 3D view
+    if(RESORT.isDefault()&&new URLSearchParams(location.search).get('b3d')==='1')loadB3d(); // the New Gudauri buildings, a POC behind a flag (decision 77)
     return true;
   }catch(e){console.warn('3D unavailable',e);v3=null;if(!ensure3d.told){ensure3d.told=1;track('map_fallback',{reason:'no_webgl'});}return false;}
 }
+// the buildings POC: its code and data come only with ?b3d=1, and only when the 3D view exists (after the elevation model)
+function loadB3d(){const s=document.createElement('script');s.src='js/buildings3d.js';
+  s.onload=()=>{try{window.GudBuildings.attach(v3,{url:'data/buildings.json',T,dark:isDark});}catch(e){console.warn('buildings unavailable',e);}};
+  document.head.appendChild(s);}
 function setView(m,save){
   if(m==='3d'&&!ensure3d())m='2d';view=m;
   m3.hidden=m!=='3d';svg.style.visibility=m==='3d'?'hidden':'';
@@ -894,6 +967,7 @@ const makeMeet=()=>(function(){
     card.querySelector('[data-f="name"]').textContent=s.name;card.querySelector('[data-f="time"]').textContent=S.time;
     card.querySelector('[data-f="day"]').textContent=dayLbl();
     card.querySelector('[data-f="c1"]').textContent=c1;card.querySelector('[data-f="c2"]').textContent=c2;card.querySelector('[data-f="c3"]').textContent=c3;
+    if(typeof PL!=='undefined'&&PL)PL.meet(s);
     document.getElementById('meetWa').href='https://wa.me/?text='+encodeURIComponent(message());
     const want=`#meet/${S.sid}/${S.time.replace(':','')}/${S.day.replace(/-/g,'')}`;if(location.hash.startsWith('#meet')&&location.hash!==want)history.replaceState(null,'',want);
   }
@@ -908,7 +982,7 @@ const makeMeet=()=>(function(){
     if(TM){const img=new Image();img.src=TM.hill.src;await img.decode().catch(()=>{});const d=TM.dem;x.globalAlpha=.55;x.drawImage(img,X(d.x0),Y(d.y0),TM.W*k,TM.Hm*k);x.globalAlpha=1;}
     x.lineCap=x.lineJoin='round';
     const line=(g,c,w)=>{x.strokeStyle=c;x.lineWidth=w;x.beginPath();g.forEach((q,i)=>{const[a,b]=P(q);i?x.lineTo(X(a),Y(b)):x.moveTo(X(a),Y(b));});x.stroke();};
-    const COLS={green:'#1B8A4C',blue:'#1F5FC4',red:'#D1342B',black:'#13233A'};
+    const COLS={green:'#198549',blue:'#1F5FC4',red:'#D1342B',black:'#13233A'};
     mainPistes.filter(p=>p.named).forEach(p=>p.segs.filter(z=>!z.area).forEach(z=>{line(z.g,'#fff',11);line(z.g,COLS[p.color],6);}));
     mainLifts.filter(l=>l.name).forEach(l=>{line(l.g,'#fff',6);line(l.g,'#3A4556',3);});
     const px=X(s.x),py=Y(s.y);x.fillStyle='#F4B942';x.strokeStyle='#13233A';x.lineWidth=6;
@@ -1067,7 +1141,7 @@ const LOC=(function(){
     if(first){first=false;if(view==='3d'&&v3)v3.view({tx:r.x,tz:r.y});else{const w=Math.min(vb.w,2600);vb.w=w;const[cw,ch]=sz();vb.h=w*ch/cw;vb.x=r.x-w/2;vb.y=r.y-vb.h/2;apply();}}
     if(r.state==='low'||r.state==='approx')return say(false,T(r.state==='low'?'loc.low_title':'loc.approx_title',{n:acc}),T(r.state==='low'?'loc.low_sub':'loc.approx_sub'));
     if(r.state==='lift')return say(false,T('loc.on_lift',{lift:r.lift}),T('loc.going_up')+' · '+T('loc.accuracy',{n:acc}));
-    if(r.state==='run')return say(false,T('loc.on_run',{run:r.run,color:T('common.color_'+r.color)}),alt());
+    if(r.state==='run')return say(false,T('loc.on_run',{run:(byKey[r.run]?pname(byKey[r.run]):r.run),color:T('common.color_'+r.color)}),alt());
     say(false,T('loc.free'),alt());}
   let told=false;const tell=result=>{if(!told){told=true;track('location_toggle',{on:true,result});}};
   function stop(byUser){if(watch!=null){navigator.geolocation.clearWatch(watch);if(byUser)track('location_toggle',{on:false});}watch=null;btn.setAttribute('aria-pressed','false');bar.hidden=true;wrap.classList.remove('has-where');dot(null);}
@@ -1197,6 +1271,69 @@ var WX=(function(){ // var: apply() and renderTicket() may run before this line
     if(layer){drawList();layout();}home();if(!had&&current&&byKey[current]&&!flying)renderPiste(current);});}
   load();setInterval(()=>{if(!document.hidden)load();},10*6e4);
   return {cond,layout,home};
+})();
+
+// Food and services near the stations (round 31, decision 77). places.json is the lean file the ski expert builds from the
+// open map (docs/ARCHITECTURE.md, "places"): stations[] (each with the places inside 250 m, nearest first, or info "none")
+// and places[]. "none" means there is no information, never "there is nothing here". Small coloured dots on the map at all
+// times, the chip turns them into tags, and the lift panel and the meeting card tell what is near a station.
+var PL=(function(){
+  if(!PLD||PLD.schema!==1||!has('places')||!Array.isArray(PLD.stations)||!Array.isArray(PLD.places))return null;
+  const KINDS=['food','cafe','aid','wc'],PBY=Object.fromEntries(PLD.places.map(q=>[q.id,q]));
+  const kindOf=q=>KINDS.includes(q.kind)?q.kind:null; // a kind this file does not know is ignored
+  const label=q=>q.name||T('places.kind_'+q.kind);
+  const stationOf=(liftId,end)=>PLD.stations.find(x=>x.ends.some(e=>e.liftId===liftId&&e.end===end))||null;
+  const items=st=>st.places.map(r=>({q:PBY[r.p],d:r.d})).filter(x=>x.q&&kindOf(x.q));
+  const dot=k=>`<i class="pl-dot pl-${k}" aria-hidden="true"></i>`;
+  const row=({q})=>`<li>${dot(q.kind)}<bdi>${esc(label(q))}</bdi>${q.name?` <small>${E('places.kind_'+q.kind)}</small>`:''}${q.seasonal?` <small>${E('places.seasonal')}</small>`:''}</li>`;
+  function block(st,head){
+    const it=st&&st.info==='some'?items(st):[];
+    if(!it.length)return `<section class="pl-near"><h3>${head}</h3><p class="pl-none">${E('places.none')}</p></section>`;
+    const more=it.slice(3);
+    return `<section class="pl-near"><h3>${head}</h3><ul>${it.slice(0,3).map(row).join('')}</ul>`+
+      (more.length?`<details><summary>${E('places.all_n',{n:it.length})}</summary><ul>${more.map(row).join('')}</ul></details>`:'')+
+      `<p class="pl-check">${E('places.check')}</p></section>`;}
+  // a lift that is on no station (the unnamed conveyor and the like) gets no section at all
+  function liftBlock(l){
+    const t=stationOf(l.id,'top'),b=stationOf(l.id,'bottom');if(!t&&!b)return '';
+    return block(t,E('places.near_top'))+block(b,E('places.near_bottom'));}
+  // the meeting card: one line. A base with many places gets only the count
+  function meet(s){
+    const el=document.getElementById('meetPlaces');if(!el)return;
+    const st=s&&s.ends.map(e=>stationOf(e.l.id,e.end==='b'?'bottom':'top')).find(x=>x&&x.info==='some'&&items(x).length);
+    if(!st){el.hidden=true;el.textContent='';return;}
+    const it=items(st);el.hidden=false;
+    el.textContent=it.length>3?T('places.meet_count',{n:it.length}):T('places.meet_names',{names:it.map(x=>label(x.q)).join(', ')});}
+  // the map: an overlay like the weather pins, on the top view only
+  const chip=document.createElement('button');chip.type='button';chip.className='pl-chip';chip.setAttribute('aria-pressed','false');
+  chip.setAttribute('aria-label',T('places.chip_aria'));
+  chip.innerHTML=`<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M7 3v8M5 3v5a2 2 0 0 0 4 0V3M7 11v10M17 21V3c-2.5 1-4 4-4 8h4"/></svg><span>${E('places.chip')}</span>`;
+  const filters=document.getElementById('filters');filters.parentNode.insertBefore(chip,filters);
+  const wrap=pgMap.querySelector('.mapwrap'),pins=document.createElement('div');pins.className='pl-pins';wrap.append(pins);
+  let tags=false;
+  function layout(){
+    pins.innerHTML='';if(view==='3d'||!svg){pins.hidden=true;return;}pins.hidden=false;
+    const m=svg.getScreenCTM(),r=wrap.getBoundingClientRect();if(!m||!r.width)return;
+    const pt=svg.createSVGPoint(),at=(lat,lon)=>{const[x,y]=P([lat,lon]);pt.x=x;pt.y=y;const q=pt.matrixTransform(m);return [q.x-r.left,q.y-r.top];};
+    const placed=[];
+    PLD.stations.forEach(st=>{
+      if(st.info!=='some')return;const it=items(st);if(!it.length)return;
+      const[x,y]=at(st.ll[0],st.ll[1]),kinds=KINDS.filter(k=>it.some(i=>i.q.kind===k));
+      const g=document.createElement('div');g.className='pl-st'+(tags?' tag':'');g.style.left=(x+9)+'px';g.style.top=(y-9)+'px';
+      g.innerHTML=kinds.map(dot).join('')+(tags?`<b class="num">${it.length}</b>`:'');
+      pins.append(g);
+      const w=g.offsetWidth,h=g.offsetHeight,box={l:x+9,t:y-9-h,w,h};
+      if(tags&&placed.some(o=>box.l<o.l+o.w&&box.l+box.w>o.l&&box.t<o.t+o.h&&box.t+box.h>o.t)){g.classList.remove('tag');g.querySelector('b')?.remove();}
+      else placed.push(box);});
+    // a cafe on the slope belongs to no station: its own dashed ring
+    PLD.places.filter(q=>q.slope&&kindOf(q)).forEach(q=>{const[x,y]=at(q.ll[0],q.ll[1]);
+      const g=document.createElement('div');g.className='pl-st slope';g.style.left=x+'px';g.style.top=y+'px';
+      g.innerHTML=dot(q.kind);if(tags)g.insertAdjacentHTML('beforeend',`<bdi>${esc(label(q))}</bdi>`);pins.append(g);});}
+  chip.onclick=()=>{tags=!tags;chip.setAttribute('aria-pressed',String(tags));
+    if(tags){const b=document.querySelector('#viewsw [data-view="2d"]');if(b&&b.getAttribute('aria-pressed')!=='true')b.click();} // drawn on the top view, like the weather
+    layout();};
+  document.getElementById('viewsw').addEventListener('click',()=>requestAnimationFrame(layout));
+  return {liftBlock,meet,layout};
 })();
 
 // flight ticket: one shared doc (trip/flight), editable by Contributors
@@ -1467,6 +1604,7 @@ document.getElementById('loading').hidden=true;
 // the heights on the home page, the meeting point, and a run open on the map drawn again with its profile
 function onTerrain(){
   if(TM){
+    applyOpenEnds();
     addRelief(svg,mainLbl,{labels,marks},true);
     const ki=labels.findIndex(t=>t.dataset&&t.dataset.kobi);if(ki>0)labels.unshift(...labels.splice(ki,1)); // the signpost wins label collisions
     const fb=kLbl.querySelector('[data-nomodel]');if(fb){K.labels.splice(K.labels.indexOf(fb),1);fb.remove();}

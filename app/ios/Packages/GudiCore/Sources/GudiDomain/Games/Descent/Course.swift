@@ -28,13 +28,13 @@ public struct DescentProfile: Decodable, Sendable {
 /// The coats of the six characters (the site's FR), the same colours in both games. In the app they have no names
 /// (decision 55), only the coat (and in the snowball fight the hat); the name is the colour, for a screen reader.
 public enum Coats {
-    public static let colors: [UInt32] = [0xD1342B, 0x1F5FC4, 0xF4B942, 0x1B8A4C, 0x7B4FC4, 0xF07A2E]
+    public static let colors: [UInt32] = [0xD1342B, 0x1F5FC4, 0xF4B942, 0x198549, 0x7B4FC4, 0xF07A2E]
     public static var count: Int { colors.count }
 }
 
 /// The run colours on the signs (the site's RUNCOL).
 public func descentRunColor(_ c: String) -> UInt32 {
-    switch c { case "green": 0x1B8A4C; case "blue": 0x1F5FC4; case "red": 0xD1342B; default: 0x13233A }
+    switch c { case "green": 0x198549; case "blue": 0x1F5FC4; case "red": 0xD1342B; default: 0x13233A }
 }
 
 /// The site's rng() (mulberry32): the same numbers from the same seed, so a run is laid out as on the site.

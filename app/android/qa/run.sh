@@ -8,7 +8,7 @@ OUT=${OUT:-qa-out}
 SCENARIO=${SCENARIO:-all}
 # Reject typos before touching the device. An unknown part used to run the entire suite.
 [[ "$SCENARIO" != *$'\n'* && "$SCENARIO" != *$'\r'* ]] || { echo "QA scenario must be a single line" >&2; exit 2; }
-ALL_SCENARIOS=(map descent games school snowball home group meet status run locate weather lang phone store)
+ALL_SCENARIOS=(map descent games school snowball home group meet status run locate weather lang phone store bigtext)
 if [[ "$SCENARIO" == all ]]; then
   SCENARIOS=("${ALL_SCENARIOS[@]}")
 else
@@ -20,7 +20,7 @@ else
     part="${part#"${part%%[![:space:]]*}"}"
     part="${part%"${part##*[![:space:]]}"}"
     case "$part" in
-      map|descent|games|school|snowball|home|group|meet|status|run|locate|weather|lang|phone|store) ;;
+      map|descent|games|school|snowball|home|group|meet|status|run|locate|weather|lang|phone|store|bigtext) ;;
       *) echo "Unknown or empty QA scenario: '$part'" >&2; exit 2 ;;
     esac
     [[ -z "${selected[$part]+present}" ]] || { echo "Duplicate QA scenario: '$part'" >&2; exit 2; }
@@ -446,10 +446,22 @@ if found:
     x1, y1, x2, y2 = min(found)[3]; print((x1 + x2) // 2, (y1 + y2) // 2)
 PY
 }
+seen_texts() { # what is on the screen, for the log when a step finds nothing (so a failure can be read without the screenshots)
+  python3 - "$OUT/ui.xml" <<'PY' 2>/dev/null | head -c 700
+import sys, xml.etree.ElementTree as ET
+t = []
+for n in ET.parse(sys.argv[1]).iter("node"):
+    for g in (n.get("text") or "", n.get("content-desc") or ""):
+        g = g.strip()
+        if g and g not in t: t.append(g)
+print("  on screen:", " | ".join(t[:40]))
+PY
+}
+
 tapText() { # waits up to about 3 s for the words to show
   local xy i
   for i in 1 2 3; do xy=$(where "$1"); [ -n "$xy" ] && break; sleep 1; done
-  if [ -z "$xy" ]; then fail "no '$1' on screen"; return 1; fi
+  if [ -z "$xy" ]; then fail "no '$1' on screen"; seen_texts; return 1; fi
   tap $xy
 }
 
@@ -765,7 +777,7 @@ runview() {
   drag $up; sleep 1; shot run-ahead
   drag $up; sleep 1; shot run-videos
   # the next run: a swipe across the sign (as on the site, to the left is the next one)
-  xy=$(where "המסלול הבא: Kudebi 1"); if [ -n "$xy" ]; then set -- $xy; mark; drag $((W * 3 / 4)) "$2" $((W / 6)) "$2" 300; waitlog "selected Kudebi 1" 10 && { sleep 3; shot run-next; }; else fail "no step to the next run"; fi
+  xy=$(where "~^המסלול הבא: "); if [ -n "$xy" ]; then set -- $xy; mark; drag $((W * 3 / 4)) "$2" $((W / 6)) "$2" 300; waitlog "selected " 10 && { sleep 3; shot run-next; }; else fail "no step to the next run"; fi
   # a lift's panel (round 20: no connections in the run's panel): from the meeting point's "on the map"
   mark; qa "--es qa.run none --es qa.tab meet/158744075b/0930/20270111"; waitlog "meet ready" 15; sleep 1.5
   for i in 1 2 3 4 5; do xy=$(where "לראות במפת המסלולים"); [ -n "$xy" ] && break; drag $up; sleep 1; done
@@ -866,6 +878,98 @@ locate() {
   waitlog "scene ready" 120; sleep 2
   mark; tapText "איפה אני" && waitlog "where on approximate" 10 && { geo 42.482631 44.483401; waitlog "where approx" 30 && { sleep 2.5; shot locate-approx; }; }
   adb shell pm grant "$PKG" "$perm"
+  dayrec_steps
+}
+
+# ---- the ski day's recorder (decision 76, docs/ARCHITECTURE.md m-8): the service, the log, the cut day. Made-up places
+# on the emulator's GPS; the app's log says counts and states, never a place (condition 1). It runs inside the "locate"
+# part, which already has the permission and the GPS steps (a new part would need the workflow's list) ----
+dayrec_walk() { # dayrec_walk <n>: n readings a second apart, walking down Tatra 2 (the shared test points)
+  local i lat=42.482631 lon=44.483401
+  for i in $(seq 1 "$1"); do
+    geo "$(awk -v a=$lat -v i=$i 'BEGIN { printf "%.6f", a - i * 0.00004 }')" "$(awk -v a=$lon -v i=$i 'BEGIN { printf "%.6f", a + i * 0.00002 }')"; sleep 1
+  done
+}
+dayrec_steps() {
+  local perm="android.permission.ACCESS_FINE_LOCATION" coarse="android.permission.ACCESS_COARSE_LOCATION"
+  adb shell pm grant "$PKG" android.permission.POST_NOTIFICATIONS > /dev/null 2>&1 || true
+  adb shell pm grant "$PKG" "$perm"; adb shell pm grant "$PKG" "$coarse"
+  adb shell cmd location set-location-enabled true 2> /dev/null
+  adb shell am force-stop "$PKG"; sleep 1; geo 42.482631 44.483401
+  mark; adb shell "am start -W -n $ACT --es qa.tab map --es qa.trip none --es qa.time 2027-01-12T11:00 --es qa.dayrec wipe" > /dev/null
+  waitlog "scene ready" 120
+  # the capability is the site's data (resorts.json lists "dayrec" for Gudauri since the reference tool merged): the entry shows
+  qa "--es qa.dayrec feature"; waitlog "dayrec feature true" 10
+  # a day: a tap starts the service (a notification stays), the readings go to the file, and the Stop button ends it
+  qa "--es qa.dayrec start"; waitlog "dayrec start result Started" 10 && waitlog "dayrec start$" 20
+  dayrec_walk 8
+  adb shell cmd statusbar expand-notifications; sleep 2; shot dayrec-notification
+  # the app in the background and the screen off: the recording goes on (the wake lock), a hole of a few seconds is only a hole
+  adb shell cmd statusbar collapse; adb shell input keyevent KEYCODE_HOME; sleep 1
+  dayrec_walk 5
+  adb shell input keyevent KEYCODE_SLEEP; sleep 1; dayrec_walk 8; adb shell input keyevent KEYCODE_WAKEUP; adb shell wm dismiss-keyguard 2> /dev/null; sleep 1
+  mark; adb shell cmd statusbar expand-notifications; sleep 2
+  tapText "עצירה" && waitlog "dayrec stop user" 15
+  adb shell cmd statusbar collapse; sleep 1
+  # the day's analysis is written beside the log before the service goes (the network and the numbers load on the phone)
+  waitlog "dayrec result written" 90
+  qa "--es qa.dayrec report"; waitlog "dayrec day points=" 10
+  local line; line=$(tail -n +"$((MARK + 1))" "$OUT/logcat.txt" | grep -m1 "SkiQa.*dayrec day points=" | sed 's/.*dayrec day //')
+  note "dayrec day 1: $line"
+  local pts; pts=$(sed -n 's/^points=\([0-9]*\).*/\1/p' <<< "$line")
+  { [ -n "$pts" ] && [ "$pts" -ge 12 ]; } || fail "the recorded day has too few points: '$line'"
+  grep -q "cut=false end=user" <<< "$line" || fail "the day did not end by the user's tap: '$line'"
+  grep -q "result=true" <<< "$line" || fail "the day has no analysis result beside it: '$line'"
+  grep -q "speed=0 " <<< "$line" && note "dayrec: the emulator gives no speed (fine)"
+  # a whole recorded day of the reference tool's test values, through the analysis on the phone (the packaged numbers and
+  # terrain, the same code as the unit tests): the counts have to be the ones the tool wrote down
+  local fx; fx="$(cd "$(dirname "$0")/../../.." && pwd)/tools/fixtures"
+  adb push "$fx/dayrec-logs/full_day.jsonl" "/sdcard/Android/data/$PKG/files/replay.jsonl" > /dev/null
+  qa "--es qa.dayrec replay"; waitlog "dayrec replay analysis=" 180
+  local rep want; rep=$(tail -n +"$((MARK + 1))" "$OUT/logcat.txt" | grep -m1 "SkiQa.*dayrec replay analysis=" | sed 's/.*dayrec replay //')
+  want=$(python3 -c "import json,sys; c=json.load(open('$fx/dayrec-cases.json')); s=[x for x in c['cases'] if x['name']=='full_day'][0]['expected']['final']['stats']; print('descents=%d lifts=%d' % (s['descents'], s['lifts']))")
+  note "dayrec replay: $rep"
+  grep -q "$want" <<< "$rep" || fail "the replayed day differs from the reference ($want): '$rep'"
+  grep -q "moments=true" <<< "$rep" || fail "the replayed day has no moments beside it: '$rep'"
+  # the screens of the day (round 29), in the test build: the entry on home and the map, the end of the day, "my days"
+  local did; did=$(tail -n +"$((MARK + 1))" "$OUT/logcat.txt" | grep -m1 "SkiQa.*dayrec replay id " | sed 's/.*dayrec replay id //' | tr -d '\r ')
+  qa "--es qa.tab home --es qa.time 2027-01-12T11:00"; sleep 3; shot dayrec-home
+  qa "--es qa.tab map"; sleep 5; shot dayrec-map-entry
+  if [ -n "$did" ]; then
+    qa "--es qa.tab days/$did"; sleep 6; shot dayrec-day
+    drag 540 1900 540 600 400; sleep 1; shot dayrec-day-timeline
+    qa "--es qa.tab days"; sleep 3; shot dayrec-days
+    # the example day (never counted): a whole day with the story over it, and the timeline
+    qa "--es qa.tab days/sample"; sleep 8; shot dayrec-sample
+    drag 540 1900 540 600 400; sleep 1; shot dayrec-sample-timeline
+    # the day again on the 3D map: the dot goes along the line (the shared 3D map needs its scene first)
+    qa "--es qa.tab days/sample/replay"; sleep 12; shot dayrec-replay
+    tapText "הפעלה" && { sleep 4; shot dayrec-replay-play; }
+  else fail "the replayed day has no id to open"; fi
+  qa "--es qa.dayrec wipe"
+  # the phone killed the app in the middle of a day: the file stays cut, and the next opening goes on with it
+  qa "--es qa.dayrec start"; waitlog "dayrec start result Started" 10; dayrec_walk 6
+  adb shell am force-stop "$PKG"; sleep 2
+  mark; adb shell "am start -W -n $ACT --es qa.tab map --es qa.trip none --es qa.dayrec report" > /dev/null
+  waitlog "scene ready" 120
+  tail -n +"$((MARK + 1))" "$OUT/logcat.txt" | grep "SkiQa.*dayrec day" | grep -q "cut=true" || fail "the killed day is not found cut"
+  qa "--es qa.dayrec resume"; waitlog "dayrec resume result Started" 10; dayrec_walk 5
+  qa "--es qa.dayrec stop"; waitlog "dayrec stop user" 15
+  qa "--es qa.dayrec report"; waitlog "dayrec day points=" 10
+  tail -n +"$((MARK + 1))" "$OUT/logcat.txt" | grep "SkiQa.*dayrec day" | grep -q "resumes=1" || fail "the day that was gone on with has no resume line"
+  # a day that is not gone on with is closed by the next opening (reason crash_recovery)
+  qa "--es qa.dayrec start"; waitlog "dayrec start result Started" 10; dayrec_walk 4
+  adb shell am force-stop "$PKG"; sleep 2
+  mark; adb shell "am start -W -n $ACT --es qa.tab map --es qa.trip none --es qa.dayrec finish" > /dev/null
+  waitlog "dayrec stop crash_recovery" 60
+  # only the approximate location: no recording, and the answer says why
+  adb shell pm revoke "$PKG" "$perm"; sleep 1; mark
+  adb shell "am start -W -n $ACT --es qa.tab map --es qa.trip none --es qa.dayrec start" > /dev/null
+  waitlog "dayrec start result NeedPrecise" 60
+  # the same answer by the entry on home: a screen that says what is in the way, with the way to the settings (not a toast)
+  qa "--es qa.tab home"; sleep 3; tapText "מקליטים" && { sleep 2; shot dayrec-blocked; adb shell input keyevent KEYCODE_BACK; sleep 1; }
+  adb shell pm grant "$PKG" "$perm"
+  qa "--es qa.dayrec wipe"
 }
 
 # ---- the weather by altitude (round 19, m-6): the app's own answers (qa.weather: fresh, stale, none), never the site ----
@@ -939,6 +1043,29 @@ store() {
   adb shell wm size reset
 }
 
+# ---- the biggest text size (13.7): the system font at 2.0, the main screens must still show their words and work ----
+# Appearance is not judged here (the shots are for looking at); what is checked is that the words are there, the taps still land
+# and nothing crashes, and the a11y findings of each shot are in the report
+bigtext() {
+  adb shell settings put system font_scale 2.0; sleep 2
+  qa "--es qa.group none --es qa.tab home --es qa.trip none --es qa.mode auto --es qa.time 2026-12-01T13:35"; waitlog "trip none" 20
+  waitlog "shadow ready" 90; sleep 2; shot big-home-guest
+  [ -n "$(where "מתי טסים?")" ] && note "big text: the pass is on the screen" || fail "big text: no 'when do you fly' on the home page"
+  mark; tapText "מתי טסים?" && sleep 1.2 && shot big-trip-calendar
+  adb shell input keyevent KEYCODE_BACK; sleep 1
+  drag $((W / 2)) $((H * 3 / 4)) $((W / 2)) $((H / 4)) 400; sleep 1; shot big-home-signs
+  drag $((W / 2)) $((H / 4)) $((W / 2)) $((H * 3 / 4)) 300; sleep 0.5
+  # the page about the app and its settings: the toggles and their words
+  qa "--es qa.tab about"; sleep 2; shot big-about
+  drag $((W / 2)) $((H * 3 / 4)) $((W / 2)) $((H / 4)) 400; sleep 1; shot big-about-down
+  # a run's panel and the list of runs
+  qa "--es qa.tab map"; sleep 6; shot big-map
+  # joining a group by code
+  qa "--es qa.group invited --es qa.tab join"; sleep 2; shot big-group-code
+  qa "--es qa.mode night --es qa.tab home"; sleep 2; shot big-home-night
+  adb shell settings put system font_scale 1.0; sleep 2
+}
+
 # one scenario, several with commas (home,group), or all
 for sc in "${SCENARIOS[@]}"; do
   case "$sc" in
@@ -969,7 +1096,7 @@ PID=$(adb shell pidof "$PKG" | tr -d '\r')
 # bars appear), a slow emulator missing a window sync, the keyboard's closing animation timing out, and the runtime's
 # debugger link losing adbd (the emulator's adb restarting; main run for 7b14748, the phone part)
 if [ -n "$PID" ]; then adb logcat -d --pid="$PID" '*:E' | grep -v -E "^-+ beginning of|BLASTBufferQueue.*rejecting buffer|SurfaceSyncGroup: Failed to receive transaction|FrameTracker: force finish cuj|failed to send app info to adbd" >> "$OUT/errors.txt"; else fail "the app is not running at the end"; fi
-[ -s "$OUT/errors.txt" ] && fail "errors in the log (errors.txt)"
+[ -s "$OUT/errors.txt" ] && { fail "errors in the log (errors.txt)"; head -60 "$OUT/errors.txt" | sed "s/^/ERRLOG /"; } # the lines in the job log too: the artifacts are not always reachable
 
 # ---- the release build (R8): only that it starts and draws ----
 if [ -n "$FINAL" ] && [ -f "$RELEASE_APK" ]; then
