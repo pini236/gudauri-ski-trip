@@ -505,6 +505,8 @@
 
 ## יומן
 
+- 6.11.2026: **ארכיטקט: קלט `archive_only` ל-`ios-release.yml` (`ops-archive-only`) מאושר** (ארכיון בלי export והעלאה; בלי סוד חדש; הניקוי והגבלת `main` נשמרים). לא שונה קוד.
+
 - 6.11.2026: **תשתיות: בניית האייפון הרגילה עלתה ל-TestFlight.** ריצה 48 על `main` (`bbd501d9`, `MARKETING_VERSION` 1.0.1) ירוקה: שער הבנייה הרגילה עבר וההעלאה הצליחה. ריצה 47 נכשלה מאותה סיבה כמו 46 (ה-train 0.1 סגור). ארכיון `variant=dayrec` בלי העלאה: ממתין לאישור פיני, והוא לא יורץ לפני שערי יום הגלישה.
 - 6.11.2026: **אייפון: גרסה 1.0.1, יעד Live Activity ושכבת הערכים של סבב 29 ממוזגים ל-`main`** (סשן האייפון, החלטה 82). `MARKETING_VERSION` של הבנייה הרגילה עלה ל-1.0.1 (ה-train של 0.1 נסגר אצל אפל; `project-dayrec.yml` נשאר 1.1), כדי ש-`ios-release` יגיע ל-TestFlight. יעד `GudiLive` (Live Activity, Dynamic Island) ו-`DayLive` מאחורי `#if DAYREC`; תיקון Swift 6 (`@preconcurrency import ActivityKit`); `ios.yml` עם `variant=dayrec` (סימולטור בלבד, ריצה 278) ירוק. שכבת הערכים `DayUI` (מספרים חיים, סולם מהירות, ציר זמן) עם בדיקות. לא הורצה `ios-release` עם `dayrec` ולא נשלח דבר לאפל. **נשאר:** אימות שה-`ios-release` על `main` מעלה ל-TestFlight; ארכיון dayrec אחד בלי העלאה (DevOps); מסכי סבב 29 מאחורי `DAYREC`; `TesterExport`/`RawLogExport` בבנייה נפרדת; Sentry לאייפון כבוי.
 - 6.11.2026: **תשתיות: שער האייפון הרגיל עובר, והריצה אדומה מסיבה אחרת.** `ios-release.yml` לא רץ על תיקון השער כי `tools/check-ios-store-binary.sh` לא היה ב-`paths`; נוסף (`83e56033`). ריצה 46 עברה את השער והגיעה לייצוא, ושם נכשלה: אפל סגרה את ה-train של 0.1 אחרי שחרור 1.0, ו-`MARKETING_VERSION` בבנייה הרגילה עדיין "0.1" (`app/ios/project.yml`). **הבא:** סשן האייפון מעלה גרסה (למשל 1.0.1); הודעה נשלחה לו ולסשן המנהל.
