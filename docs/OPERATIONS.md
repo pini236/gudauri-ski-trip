@@ -119,6 +119,10 @@
 
 ## יומן
 
+- 6.11.2026: **תשתיות: `ios-release.yml` מתקין את פרופיל ה-Live Activity (סוד שביעי)** (באישור הארכיטקט). רק `variant=dayrec` קורא את `IOS_PROFILE_LIVE_BASE64` (נכשל בלעדיו), מתקין את הפרופיל, מוסיף ל-`ExportOptions` את `${BUNDLE_ID}.live` ומוחק בסוף; בנייה רגילה זהה. **נשאר:** יעד ההרחבה והחתימה הידנית שלו ב-`project-dayrec.yml` (סשן האייפון); אחריו ריצה אחת של `variant=dayrec` עד הארכיון בלי העלאה; לא להפעיל `dayrec` לפני שערי פיני (הצהרות, מזהה `.live`, הסוד).
+
+- 6.11.2026: **תשתיות: סרטון להצהרת השירות בחזית ושני שערי חנות** (באישור הארכיטקט, בלי סודות חדשים). הסצנה `dayrecvideo` ב-`android-qa.yml` (הפעלה ידנית בלבד, GPS מומצא) מקליטה מהאמולטור ומפרסמת את התוצר `dayrec-service-video` ל-30 יום; ריצה 221 ירוקה, 1.4MB, להורדה מדף הריצה ב-Actions. שער אנדרואיד (`tools/check-android-store.sh` ב-`android.yml`): נכשל אם `DAYREC_UI` לא כבוי בגרסת החנות או אם `TESTER_EXPORT`/`RAW_LOG_EXPORT` דולקים. שער אייפון (`tools/check-ios-store-binary.sh` ב-`ios-release.yml`, בנייה רגילה): נכשל על `TesterExport`, `RawLogExport`, `DayRecorder` או `allowsBackgroundLocationUpdates` בקובץ. **שמות מוסכמים:** אנדרואיד `TESTER_EXPORT` ו-`RAW_LOG_EXPORT`; אייפון `TesterExport` ו-`RawLogExport`. **נשאר:** בסרטון אין קטע 'מודדים ירידה' (אין נקודת כניסה לבדיקה); השער באנדרואיד ירוץ לראשונה בדחיפה ל-`main`.
+
 מהחדש לישן. מדידות ותקלות. בלי סודות, בלי מזהים של משתמשים ובלי שמות.
 
 - **3.11.2026, `ios.yml` מקבל קלט `variant` (ידני בלבד; `plain` ברירת מחדל), לתנאי 2 של הארכיטקט (מ-13).** ב-`dayrec` XcodeGen רץ עם `project-dayrec.yml`, והשער בודק את ה-`Info.plist` בכיוון `dayrec`. סימולטור בלבד: בלי חתימה, בלי העלאה, בלי שליחה לאפל. נבדק: ריצה 41561100546 (ענף `claude/ops-dayrec-sim`, `variant=dayrec`) ירוקה: בנייה עם `project-dayrec.yml`, שער `dayrec` ובדיקות לוגיקה עברו, וההרצה בסימולטור הסתיימה (18 דקות).
