@@ -17,13 +17,8 @@ targets:
         NSLocationTemporaryUsageDescriptionDictionary:
           DayRecording: "Recording your ski day needs your precise location: speeds and runs cannot be told from an approximate one. The track stays on this iPhone."
         NSSupportsLiveActivities: true
-    # the app lists its dependencies again, with the Live Activity's extension to embed: an array in this file replaces
-    # project.yml's, it is not added to it
+    # an array in this file is added to project.yml's (XcodeGen appends), so only the extension is listed
     dependencies:
-      - package: GudiCore
-        product: GudiData
-      - package: GudiCore
-        product: GudiDomain
       - target: GudiLive
         embed: true
   # The Live Activity extension (docs/APPLE.md 5.9): its own bundle id and profile (GUDI_PROFILE_LIVE, the name of the
