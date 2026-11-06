@@ -139,6 +139,9 @@ jobs:
       - name: Gate, the compiled app's Info.plist matches the variant
         if: steps.gate.outputs.ready == 'true'
         run: sh tools/check-ios-variant.sh "$RUNNER_TEMP/Gudi.xcarchive/Products/Applications/Gudi.app/Info.plist" "$VARIANT"
+      - name: Gate, the plain build has no ski-day code and no tester export
+        if: steps.gate.outputs.ready == 'true' && env.VARIANT == 'plain'
+        run: sh tools/check-ios-store-binary.sh "$RUNNER_TEMP/Gudi.xcarchive/Products/Applications/Gudi.app/Gudi"
       - name: Export and upload to TestFlight
         if: steps.gate.outputs.ready == 'true'
         env:

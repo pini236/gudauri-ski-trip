@@ -20,7 +20,7 @@ else
     part="${part#"${part%%[![:space:]]*}"}"
     part="${part%"${part##*[![:space:]]}"}"
     case "$part" in
-      map|descent|games|school|snowball|home|group|meet|status|run|locate|weather|lang|phone|store|bigtext|fgsvideo) ;;
+      map|descent|games|school|snowball|home|group|meet|status|run|locate|weather|lang|phone|store|bigtext|dayrecvideo) ;;
       *) echo "Unknown or empty QA scenario: '$part'" >&2; exit 2 ;;
     esac
     [[ -z "${selected[$part]+present}" ]] || { echo "Duplicate QA scenario: '$part'" >&2; exit 2; }
@@ -981,44 +981,6 @@ dayrec_steps() {
   qa "--es qa.dayrec wipe"
 }
 
-# ---- the video for Google Play's foreground-service declaration (docs/PLAY.md, section 5): one recording, about 45 s ----
-# Not part of "all": started by hand (scenario fgsvideo). The screen of the emulator is recorded while the ski day starts from
-# the entry on home, the system asks for the location, the live screen shows, the phone is locked, the notification shows and is
-# tapped, the day is stopped and its timeline shows. The simulated drive is the shared test walk; no name, account or real place
-# but the resort's own map. The file is $OUT/fgs-declaration.mp4 (the run's artifact). Every tap is conditional: a screen that
-# is not there is skipped, and the recording shows what happened.
-fgsvideo() {
-  local perm="android.permission.ACCESS_FINE_LOCATION" coarse="android.permission.ACCESS_COARSE_LOCATION"
-  adb shell am force-stop "$PKG"; adb shell pm revoke "$PKG" "$perm" 2> /dev/null; adb shell pm revoke "$PKG" "$coarse" 2> /dev/null
-  adb shell pm grant "$PKG" android.permission.POST_NOTIFICATIONS > /dev/null 2>&1 || true
-  adb shell cmd location set-location-enabled true 2> /dev/null; geo 42.482631 44.483401
-  adb shell rm -f /sdcard/fgs.mp4
-  adb shell "screenrecord --time-limit 80 /sdcard/fgs.mp4" > /dev/null 2>&1 &
-  local rec=$!
-  sleep 2
-  qa "--es qa.tab home --es qa.trip none --es qa.time 2027-01-12T11:00 --es qa.dayrec wipe"; sleep 4
-  qa "--es qa.tab map"; sleep 4
-  qa "--es qa.tab home"; sleep 2
-  if [ -n "$(where 'מקליטים')" ]; then
-    tapText "מקליטים"; sleep 3
-    [ -n "$(where 'המשך')" ] && { tapText "המשך"; sleep 3; }
-    # the system's own question: "while using the app", with the precise location
-    local ask; ask=$(where '~While using|בזמן השימוש'); [ -n "$ask" ] && { tap $ask; sleep 2; }
-    [ -n "$(where 'כל היום')" ] && { tapText "כל היום"; sleep 3; }
-    dayrec_walk 6; shot fgs-live
-    adb shell input keyevent KEYCODE_HOME; sleep 2; dayrec_walk 3
-    adb shell input keyevent KEYCODE_SLEEP; sleep 2; dayrec_walk 3
-    adb shell input keyevent KEYCODE_WAKEUP; sleep 1; adb shell wm dismiss-keyguard > /dev/null 2>&1 || true
-    adb shell cmd statusbar expand-notifications; sleep 2; shot fgs-notification
-    local note; note=$(where 'סקי בדיקה'); [ -n "$note" ] && { tap $note; sleep 3; } || adb shell cmd statusbar collapse
-    dayrec_walk 3
-    [ -n "$(where 'סיום')" ] && { tapText "סיום"; sleep 4; }
-  else fail "the entry 'מקליטים' is not on the home screen"; fi
-  wait "$rec" 2> /dev/null || true
-  adb pull /sdcard/fgs.mp4 "$OUT/fgs-declaration.mp4" > /dev/null 2>&1 && note "declaration video: $(du -k "$OUT/fgs-declaration.mp4" | cut -f1) KB" || fail "no screen recording to pull"
-  qa "--es qa.dayrec wipe"
-}
-
 # ---- the weather by altitude (round 19, m-6): the app's own answers (qa.weather: fresh, stale, none), never the site ----
 weather() {
   local up="$((W * 7 / 100)) $((H * 85 / 100)) $((W * 7 / 100)) $((H * 40 / 100)) 500"
@@ -1111,6 +1073,45 @@ bigtext() {
   qa "--es qa.group invited --es qa.tab join"; sleep 2; shot big-group-code
   qa "--es qa.mode night --es qa.tab home"; sleep 2; shot big-home-night
   adb shell settings put system font_scale 1.0; sleep 2
+}
+
+# ---- the short video for Google Play's foreground-service declaration (docs/PLAY.md, section 5, "the video script"):
+# about 30 seconds of the phone's screen, no sound. Not in ALL_SCENARIOS (the main run does not pay for it): started by hand,
+# scenario dayrecvideo. The emulator's GPS walks down Tatra 2 (made-up readings, no real person or place); the file goes to
+# $OUT/video/ and the workflow keeps it for 30 days as a run artifact, nowhere else ----
+dayrecvideo() {
+  mkdir -p "$OUT/video"
+  local perm="android.permission.ACCESS_FINE_LOCATION" coarse="android.permission.ACCESS_COARSE_LOCATION"
+  adb shell pm grant "$PKG" android.permission.POST_NOTIFICATIONS > /dev/null 2>&1 || true
+  adb shell pm grant "$PKG" "$perm"; adb shell pm grant "$PKG" "$coarse"
+  adb shell cmd location set-location-enabled true 2> /dev/null
+  adb shell am force-stop "$PKG"; sleep 1; geo 42.482631 44.483401
+  mark; adb shell "am start -W -n $ACT --es qa.tab home --es qa.trip none --es qa.time 2027-01-12T11:00 --es qa.dayrec wipe" > /dev/null
+  waitlog "scene ready" 120 || sleep 6
+  adb shell rm -f /sdcard/dayrec-video.mp4
+  adb shell "screenrecord --time-limit 120 --bit-rate 4000000 --size 720x1560 /sdcard/dayrec-video.mp4" > /dev/null 2>&1 &
+  local REC=$!; sleep 2
+  sleep 3; qa "--es qa.tab map"; sleep 4                                   # 0-9 s: home, then the map
+  qa "--es qa.dayrec start"; waitlog "dayrec start result Started" 10      # the tap that starts the day
+  dayrec_walk 8; sleep 1                                                    # the live reading
+  adb shell input keyevent KEYCODE_HOME; sleep 1; dayrec_walk 4             # to the phone's home: the recording goes on
+  adb shell cmd statusbar expand-notifications; sleep 3; dayrec_walk 3      # the permanent notification
+  tapText "עצירה" && waitlog "dayrec stop user" 15                          # Stop in the notification
+  adb shell cmd statusbar collapse; sleep 1
+  # the single run: the same entry on home, then "one run" instead of "the whole day" (the declaration names both)
+  qa "--es qa.tab home"; sleep 3
+  if [ -n "$(where 'מקליטים')" ]; then
+    tapText "מקליטים"; sleep 2
+    [ -n "$(where 'המשך')" ] && { tapText "המשך"; sleep 3; }
+    [ -n "$(where 'ירידה אחת')" ] && { tapText "ירידה אחת"; sleep 3; }
+    dayrec_walk 6
+    [ -n "$(where 'סיום')" ] && { tapText "סיום"; sleep 3; }
+  fi
+  qa "--es qa.tab days/sample"; sleep 8                                     # the day's timeline
+  drag 540 1900 540 600 400; sleep 4
+  adb shell pkill -2 screenrecord 2> /dev/null; sleep 3; kill "$REC" 2> /dev/null
+  adb pull /sdcard/dayrec-video.mp4 "$OUT/video/dayrec-service-declaration.mp4" > /dev/null 2>&1 || fail "the video was not recorded"
+  [ -s "$OUT/video/dayrec-service-declaration.mp4" ] && note "video: $(stat -c %s "$OUT/video/dayrec-service-declaration.mp4") bytes"
 }
 
 # one scenario, several with commas (home,group), or all

@@ -58,12 +58,15 @@ android {
             applicationIdSuffix = ".test"
             // the ski day's screens (round 29) show in the test build only, until the Play declaration and the privacy line go out with it
             buildConfigField("boolean", "DAYREC_UI", "true")
+            // the field testers' export (src/preview): the store pipeline's gate (tools/check-android-store.sh) reads this name
+            buildConfigField("boolean", "TESTER_EXPORT", "true")
             resValue("string", "app_name", "סקי בדיקה")
             signingConfig = signingConfigs.findByName("test") ?: signingConfigs.getByName("debug")
         }
         create("store") {
             dimension = "channel"
             buildConfigField("boolean", "DAYREC_UI", "false")
+            buildConfigField("boolean", "TESTER_EXPORT", "false")
             resValue("string", "app_name", "סקי")
             signingConfig = signingConfigs.findByName("upload") ?: signingConfigs.getByName("debug")
         }
