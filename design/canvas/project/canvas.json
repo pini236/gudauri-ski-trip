@@ -3402,6 +3402,54 @@
       "h": 1164,
       "page": "round35",
       "title": "ג. גיליונות תחתונים רגילים: פינות עליונות 20 dp"
+    },
+    "R37-0-Decide.dc.html": {
+      "x": 0,
+      "y": 0,
+      "w": 600,
+      "h": 1100,
+      "page": "round37",
+      "title": "מה לאשר בסבב 37"
+    },
+    "R37-Today.dc.html": {
+      "x": 680,
+      "y": 0,
+      "w": 848,
+      "h": 1068,
+      "page": "round37",
+      "title": "היום: באייפון אין שלט"
+    },
+    "R37-Sign.dc.html": {
+      "x": 680,
+      "y": 1488,
+      "w": 1684,
+      "h": 1068,
+      "page": "round37",
+      "title": "א. באייפון: שלט App Store (מומלץ)"
+    },
+    "R37-Desk.dc.html": {
+      "x": 680,
+      "y": 2976,
+      "w": 1868,
+      "h": 787,
+      "page": "round37",
+      "title": "ב. במחשב: שני שלטים וכרטיס אחד עם שני קודי QR"
+    },
+    "R37-Page.dc.html": {
+      "x": 680,
+      "y": 4183,
+      "w": 2102,
+      "h": 864,
+      "page": "round37",
+      "title": "ג. הדף הקצר /app: כל טלפון לחנות שלו"
+    },
+    "R37-Spec.dc.html": {
+      "x": 680,
+      "y": 5467,
+      "w": 600,
+      "h": 1500,
+      "page": "round37",
+      "title": "ערכים למימוש"
     }
   },
   "createdOnFiles": {
@@ -3411,7 +3459,7 @@
   "designSystems": [],
   "launch": {
     "view": "canvas",
-    "page": "round35"
+    "page": "round37"
   },
   "notes": {
     "featRow1": {
@@ -4736,6 +4784,51 @@
       "w": 240,
       "x": 680,
       "y": 1284
+    },
+    "round37row0": {
+      "kind": "title1",
+      "maxW": 860,
+      "page": "round37",
+      "text": "היום",
+      "w": 240,
+      "x": 680,
+      "y": -300
+    },
+    "round37row1": {
+      "kind": "title1",
+      "maxW": 1684,
+      "page": "round37",
+      "text": "א. שלט App Store",
+      "w": 240,
+      "x": 680,
+      "y": 1188
+    },
+    "round37row2": {
+      "kind": "title1",
+      "maxW": 1868,
+      "page": "round37",
+      "text": "ב. מחשב: שני קודים",
+      "w": 240,
+      "x": 680,
+      "y": 2676
+    },
+    "round37row3": {
+      "kind": "title1",
+      "maxW": 2102,
+      "page": "round37",
+      "text": "ג. הדף /app",
+      "w": 240,
+      "x": 680,
+      "y": 3883
+    },
+    "round37row4": {
+      "kind": "title1",
+      "maxW": 860,
+      "page": "round37",
+      "text": "ערכים למימוש",
+      "w": 240,
+      "x": 680,
+      "y": 5167
     }
   },
   "order": [
@@ -5162,9 +5255,19 @@
     "R35-0-Decide.dc.html",
     "R35-Float.dc.html",
     "R35-Lift.dc.html",
-    "R35-Round.dc.html"
+    "R35-Round.dc.html",
+    "R37-0-Decide.dc.html",
+    "R37-Today.dc.html",
+    "R37-Sign.dc.html",
+    "R37-Desk.dc.html",
+    "R37-Page.dc.html",
+    "R37-Spec.dc.html"
   ],
   "pages": [
+    {
+      "id": "round37",
+      "name": "סבב 37: האפליקציה לאייפון ב-App Store"
+    },
     {
       "id": "round35",
       "name": "סבב 35 (נדחה): האנדרואיד קרוב יותר לאייפון"
