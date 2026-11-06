@@ -208,6 +208,8 @@ jobs:
           ANDROID_UPLOAD_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_UPLOAD_KEYSTORE_PASSWORD }}
           ANDROID_UPLOAD_KEY_ALIAS: ${{ secrets.ANDROID_UPLOAD_KEY_ALIAS }}
         run: ./gradlew --no-daemon --build-cache :app:bundleStoreRelease
+      - name: Gate, the ski day and the tester export are off in the store build
+        run: sh ../../tools/check-android-store.sh "$(find app/build/generated/source/buildConfig/storeRelease -name BuildConfig.java | head -1)"
       - name: Sentry, upload the store build's mapping
         if: env.SENTRY_MAP_ID != '' && steps.sentry-cli.outcome == 'success'
         continue-on-error: true

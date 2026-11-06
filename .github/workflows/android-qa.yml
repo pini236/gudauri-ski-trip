@@ -13,7 +13,7 @@ on:
   workflow_dispatch:
     inputs:
       scenario:
-        description: 'auto (the parts the changed files need, .github/qa-parts.tsv; every part on main), all, one part, or several with commas: map, descent, games, school, snowball, home, group, meet, status, run, locate, weather, lang, phone, store'
+        description: 'auto (the parts the changed files need, .github/qa-parts.tsv; every part on main), all, one part, or several with commas: map, descent, games, school, snowball, home, group, meet, status, run, locate, weather, lang, phone, store, dayrecvideo (the short video for the foreground-service declaration; by hand only, kept 30 days)'
         default: auto
       quick_debug:
         description: 'Diagnostic only: debug APK; skip final Sentry and release checks (choose a specific scenario) '
@@ -57,7 +57,7 @@ jobs:
         run: |
           python3 - <<'PYTHON'
           import json, os, subprocess
-          allowed = "map,descent,games,school,snowball,home,group,meet,status,run,locate,weather,lang,phone,store,bigtext".split(",")
+          allowed = "map,descent,games,school,snowball,home,group,meet,status,run,locate,weather,lang,phone,store,bigtext,dayrecvideo".split(",")
           scenario = os.environ["QA_SCENARIO"].strip()
           quick = os.environ["QA_QUICK_DEBUG"] == "true"
           if quick and scenario in ("all", "auto"):
@@ -327,6 +327,14 @@ jobs:
           overwrite: true
           path: qa-out
           retention-days: 14
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        if: always() && matrix.part == 'dayrecvideo'
+        with:
+          name: dayrec-service-video
+          overwrite: true
+          path: qa-out/video
+          retention-days: 30
+          if-no-files-found: warn
       - name: The part's result
         if: always()
         run: |
