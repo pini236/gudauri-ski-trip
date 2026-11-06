@@ -7,7 +7,7 @@ set -u
 B="$1"
 [ -f "$B" ] || { echo "::error::no executable at $B"; exit 1; }
 bad=0
-for pat in TesterExport RawLogExport; do
+for pat in TesterExport RawLogExport DayRecorder; do
   if strings -a "$B" | grep -q "$pat"; then echo "::error::the plain build carries $pat"; bad=1; fi
 done
 # DayRecorder is allowed only as the empty stand-in: it must not reference the background-location switch
