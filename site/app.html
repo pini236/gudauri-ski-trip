@@ -9,7 +9,7 @@
 <meta property="og:locale" content="he_IL">
 <meta property="og:site_name" content="Gudi">
 <meta property="og:title" content="Gudi: מפת הסקי של גודאורי">
-<meta property="og:description" content="אפליקציה לאנדרואיד, בחינם: מפה בתלת-ממד, מסלולים, רכבלים ומזג אוויר לפי גובה">
+<meta property="og:description" content="אפליקציה לאנדרואיד ולאייפון, בחינם: מפה בתלת-ממד, מסלולים, רכבלים ומזג אוויר לפי גובה">
 <meta property="og:url" content="https://gudauri-ski-trip.vercel.app/app">
 <meta property="og:image" content="https://gudauri-ski-trip.vercel.app/og.jpg?v=27">
 <meta property="og:image:width" content="1200">
@@ -17,7 +17,7 @@
 <meta property="og:image:alt" content="שלט GUDAURI מושלג מול ההרים">
 <meta name="twitter:card" content="summary_large_image">
 <title data-i18n="applink.title">Gudi: מפת הסקי של גודאורי</title>
-<meta name="description" content="אפליקציה לאנדרואיד, בחינם: מפה בתלת-ממד, מסלולים, רכבלים ומזג אוויר לפי גובה">
+<meta name="description" content="אפליקציה לאנדרואיד ולאייפון, בחינם: מפה בתלת-ממד, מסלולים, רכבלים ומזג אוויר לפי גובה">
 <meta name="robots" content="noindex">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#DCE8F1" media="(prefers-color-scheme: light)">
@@ -35,10 +35,11 @@
   <img class="al-icon" src="apple-touch-icon.png" width="120" height="120" alt="">
   <h1>Gudi</h1>
   <p class="al-sub" data-i18n="applink.sub">מפת הסקי של גודאורי</p>
-  <div class="al-going" id="alGoing" role="status" hidden><span data-i18n-html="applink.going">פותחים את <bdi>Google Play</bdi>…</span><span class="al-bar" aria-hidden="true"><i></i></span></div>
-  <a class="al-badge" id="alBadge" href="https://play.google.com/store/apps/details?id=io.github.pini236.skiapp&amp;referrer=utm_source%3Dshare%26utm_medium%3Dapp_link"><img id="alBadgeImg" src="img/badges/play-he.png" height="52" alt="להורדה מ-Google Play" data-i18n-attr="alt:applink.badge_alt"></a>
-  <div class="al-ios" id="alIos" hidden><h2 data-i18n="applink.ios_title">באייפון עוד אין אפליקציה</h2><p data-i18n="applink.ios_text">בינתיים כל המפה באתר, בלי התקנה.</p></div>
-  <a class="al-btn" id="alBtn" href="/" hidden data-i18n="applink.ios_btn">למפה באתר</a>
+  <div class="al-going" id="alGoing" role="status" hidden><span id="alGoingPlay" data-i18n-html="applink.going">פותחים את <bdi>Google Play</bdi>…</span><span id="alGoingIos" data-i18n-html="applink.going_ios" hidden>פותחים את <bdi>App Store</bdi>…</span><span class="al-bar" aria-hidden="true"><i></i></span></div>
+  <div class="al-badges">
+    <a class="al-badge" id="alBadge" href="https://play.google.com/store/apps/details?id=io.github.pini236.skiapp&amp;referrer=utm_source%3Dshare%26utm_medium%3Dapp_link"><img id="alBadgeImg" src="img/badges/play-he.png" height="52" alt="להורדה מ-Google Play" data-i18n-attr="alt:applink.badge_alt"></a>
+    <a class="al-badge" id="alBadgeIos" href="https://apps.apple.com/app/gudi-gudauri-ski-map/id6825506333"><img id="alBadgeIosImg" src="img/badges/appstore-placeholder.svg" height="52" alt="להורדה ב-App Store" data-i18n-attr="alt:applink.badge_alt_ios"></a>
+  </div>
   <a class="al-site" id="alSite" href="/" data-i18n="applink.site">או למפה באתר</a>
 </main>
 </body>
