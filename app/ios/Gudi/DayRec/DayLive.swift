@@ -32,12 +32,12 @@ final class DayLive {
         guard now.timeIntervalSince(lastUpdate) >= 5 else { return }
         lastUpdate = now
         let state = DayLiveAttributes.ContentState(speedKmh: Int(((p.spd ?? 0) * 3.6).rounded()), maxKmh: Int((maxMs * 3.6).rounded()), distanceKm: metres / 1000)
-        let a = activity
+        nonisolated(unsafe) let a = activity
         Task { await a?.update(.init(state: state, staleDate: nil)) }
     }
 
     func end() {
-        let a = activity
+        nonisolated(unsafe) let a = activity
         activity = nil; prev = nil
         Task { await a?.end(nil, dismissalPolicy: .immediate) }
     }
