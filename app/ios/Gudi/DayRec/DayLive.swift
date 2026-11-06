@@ -1,6 +1,6 @@
 #if DAYREC
 import Foundation
-import ActivityKit
+@preconcurrency import ActivityKit
 import GudiDomain
 
 /// Feeds the ski day's Live Activity from the recorder's readings (docs/APPLE.md 5.9). The app updates it, every few
@@ -32,12 +32,12 @@ final class DayLive {
         guard now.timeIntervalSince(lastUpdate) >= 5 else { return }
         lastUpdate = now
         let state = DayLiveAttributes.ContentState(speedKmh: Int(((p.spd ?? 0) * 3.6).rounded()), maxKmh: Int((maxMs * 3.6).rounded()), distanceKm: metres / 1000)
-        nonisolated(unsafe) let a = activity
+        let a = activity
         Task { await a?.update(.init(state: state, staleDate: nil)) }
     }
 
     func end() {
-        nonisolated(unsafe) let a = activity
+        let a = activity
         activity = nil; prev = nil
         Task { await a?.end(nil, dismissalPolicy: .immediate) }
     }
