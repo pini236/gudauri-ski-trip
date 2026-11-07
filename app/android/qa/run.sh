@@ -1085,31 +1085,44 @@ dayrecvideo() {
   adb shell pm grant "$PKG" android.permission.POST_NOTIFICATIONS > /dev/null 2>&1 || true
   adb shell pm grant "$PKG" "$perm"; adb shell pm grant "$PKG" "$coarse"
   adb shell cmd location set-location-enabled true 2> /dev/null
+  # English, the reviewers' language (7.11.2026): the app's own language, so the permanent notification, the live screen and
+  # both entries read in English (the texts tapped below are the English ones in i18n/strings.json)
+  adb shell cmd locale set-app-locales "$PKG" --locales en-US > /dev/null 2>&1; sleep 3
   adb shell am force-stop "$PKG"; sleep 1; geo 42.482631 44.483401
-  mark; adb shell "am start -W -n $ACT --es qa.tab home --es qa.trip none --es qa.time 2027-01-12T11:00 --es qa.dayrec wipe" > /dev/null
+  # a clean picture (7.11.2026, after run 226 showed the launcher's "isn't responding" box and the test build's meter bar):
+  # wait for the emulator's load to settle before recording, hide the meter bar (qa.stats off, a debug-build hook only,
+  # the store build is untouched), and look at the screen between the steps (vguard) so a system box is closed at once
+  local load="" i; for i in $(seq 1 40); do load=$(adb shell cat /proc/loadavg 2> /dev/null | cut -d' ' -f1 | tr -d '\r')
+    awk -v l="${load:-99}" 'BEGIN { exit !(l < 12) }' && break; sleep 3; done; note "video: load $load before recording"
+  vguard() { uidump; if grep -q "responding" "$OUT/ui.xml" 2> /dev/null; then VIDEO_DIALOG=1; note "video: a system box was on screen"; fi; }
+  VIDEO_DIALOG=""
+  mark; adb shell "am start -W -n $ACT --es qa.tab home --es qa.trip none --es qa.time 2027-01-12T11:00 --es qa.dayrec wipe --es qa.stats off" > /dev/null
   waitlog "scene ready" 120 || sleep 6
+  vguard
   adb shell rm -f /sdcard/dayrec-video.mp4
   adb shell "screenrecord --time-limit 120 --bit-rate 4000000 --size 720x1560 /sdcard/dayrec-video.mp4" > /dev/null 2>&1 &
   local REC=$!; sleep 2
   sleep 3; qa "--es qa.tab map"; sleep 4                                   # 0-9 s: home, then the map
-  qa "--es qa.dayrec start"; waitlog "dayrec start result Started" 10      # the tap that starts the day
-  dayrec_walk 8; sleep 1                                                    # the live reading
+  vguard; qa "--es qa.dayrec start"; waitlog "dayrec start result Started" 10 # the tap that starts the day
+  dayrec_walk 8; vguard; sleep 1                                                    # the live reading
   adb shell input keyevent KEYCODE_HOME; sleep 1; dayrec_walk 4             # to the phone's home: the recording goes on
   adb shell cmd statusbar expand-notifications; sleep 3; dayrec_walk 3      # the permanent notification
-  tapText "עצירה" && waitlog "dayrec stop user" 15                          # Stop in the notification
+  tapText "Stop" && waitlog "dayrec stop user" 15                          # Stop in the notification
   adb shell cmd statusbar collapse; sleep 1
-  # the single run: the same entry on home, then "one run" instead of "the whole day" (the declaration names both)
+  # the single run: the same entry on home, then "One descent" instead of "the whole day" (the declaration names both)
   qa "--es qa.tab home"; sleep 3
-  if [ -n "$(where 'מקליטים')" ]; then
-    tapText "מקליטים"; sleep 2
-    [ -n "$(where 'המשך')" ] && { tapText "המשך"; sleep 3; }
-    [ -n "$(where 'ירידה אחת')" ] && { tapText "ירידה אחת"; sleep 3; }
+  if [ -n "$(where 'Record')" ]; then
+    tapText "Record"; sleep 2
+    [ -n "$(where 'Continue')" ] && { tapText "Continue"; sleep 3; }
+    [ -n "$(where 'One descent')" ] && { tapText "One descent"; sleep 3; }
     dayrec_walk 6
-    [ -n "$(where 'סיום')" ] && { tapText "סיום"; sleep 3; }
+    [ -n "$(where 'Finish')" ] && { tapText "Finish"; sleep 3; }
   fi
   qa "--es qa.tab days/sample"; sleep 8                                     # the day's timeline
   drag 540 1900 540 600 400; sleep 4
+  vguard
   adb shell pkill -2 screenrecord 2> /dev/null; sleep 3; kill "$REC" 2> /dev/null
+  [ -n "$VIDEO_DIALOG" ] && fail "the video has a system box in it (see the notes above); run it again"
   adb pull /sdcard/dayrec-video.mp4 "$OUT/video/dayrec-service-declaration.mp4" > /dev/null 2>&1 || fail "the video was not recorded"
   [ -s "$OUT/video/dayrec-service-declaration.mp4" ] && note "video: $(stat -c %s "$OUT/video/dayrec-service-declaration.mp4") bytes"
 }
