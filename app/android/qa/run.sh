@@ -1085,6 +1085,9 @@ dayrecvideo() {
   adb shell pm grant "$PKG" android.permission.POST_NOTIFICATIONS > /dev/null 2>&1 || true
   adb shell pm grant "$PKG" "$perm"; adb shell pm grant "$PKG" "$coarse"
   adb shell cmd location set-location-enabled true 2> /dev/null
+  # English, the reviewers' language (7.11.2026): the app's own language, so the permanent notification, the live screen and
+  # both entries read in English (the texts tapped below are the English ones in i18n/strings.json)
+  adb shell cmd locale set-app-locales "$PKG" --locales en-US > /dev/null 2>&1; sleep 3
   adb shell am force-stop "$PKG"; sleep 1; geo 42.482631 44.483401
   mark; adb shell "am start -W -n $ACT --es qa.tab home --es qa.trip none --es qa.time 2027-01-12T11:00 --es qa.dayrec wipe" > /dev/null
   waitlog "scene ready" 120 || sleep 6
@@ -1096,16 +1099,16 @@ dayrecvideo() {
   dayrec_walk 8; sleep 1                                                    # the live reading
   adb shell input keyevent KEYCODE_HOME; sleep 1; dayrec_walk 4             # to the phone's home: the recording goes on
   adb shell cmd statusbar expand-notifications; sleep 3; dayrec_walk 3      # the permanent notification
-  tapText "עצירה" && waitlog "dayrec stop user" 15                          # Stop in the notification
+  tapText "Stop" && waitlog "dayrec stop user" 15                          # Stop in the notification
   adb shell cmd statusbar collapse; sleep 1
-  # the single run: the same entry on home, then "one run" instead of "the whole day" (the declaration names both)
+  # the single run: the same entry on home, then "One descent" instead of "the whole day" (the declaration names both)
   qa "--es qa.tab home"; sleep 3
-  if [ -n "$(where 'מקליטים')" ]; then
-    tapText "מקליטים"; sleep 2
-    [ -n "$(where 'המשך')" ] && { tapText "המשך"; sleep 3; }
-    [ -n "$(where 'ירידה אחת')" ] && { tapText "ירידה אחת"; sleep 3; }
+  if [ -n "$(where 'Record')" ]; then
+    tapText "Record"; sleep 2
+    [ -n "$(where 'Continue')" ] && { tapText "Continue"; sleep 3; }
+    [ -n "$(where 'One descent')" ] && { tapText "One descent"; sleep 3; }
     dayrec_walk 6
-    [ -n "$(where 'סיום')" ] && { tapText "סיום"; sleep 3; }
+    [ -n "$(where 'Finish')" ] && { tapText "Finish"; sleep 3; }
   fi
   qa "--es qa.tab days/sample"; sleep 8                                     # the day's timeline
   drag 540 1900 540 600 400; sleep 4
