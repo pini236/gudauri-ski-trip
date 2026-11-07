@@ -46,6 +46,8 @@ final class DayRecorder: NSObject, CLLocationManagerDelegate {
     /// The acceleration's magnitudes since the last reading: their variance goes into the point (m-8, answer 3).
     @ObservationIgnored private let accel = AccelWindow()
     @ObservationIgnored private var pendingStart = false
+    /// `day`, or `run` (timing one descent): the journal's header says which.
+    @ObservationIgnored private var runMode = "day"
     /// The Live Activity on the lock screen and in the Dynamic Island (1.1).
     @ObservationIgnored private let live = DayLive()
 
@@ -76,7 +78,8 @@ final class DayRecorder: NSObject, CLLocationManagerDelegate {
     var recording: Bool { if case .recording = state { return true }; return false }
 
     /// "Starting the day": asks first when it must; the answer comes back to the delegate.
-    func start() {
+    func start(oneDescent: Bool = false) {
+        runMode = oneDescent ? "run" : "day"
         guard writer == nil, store != nil, Self.canRecordInBackground else { return }
         switch lm.authorizationStatus {
         case .notDetermined: state = .asking
@@ -102,7 +105,7 @@ final class DayRecorder: NSObject, CLLocationManagerDelegate {
     private func begin() {
         guard let store else { return }
         let now = Date()
-        let header = DayJournal.Header(tz: "Asia/Tbilisi", resort: "gudauri", device: Self.model, start: Self.ms(now))
+        let header = DayJournal.Header(tz: "Asia/Tbilisi", resort: "gudauri", device: Self.model, start: Self.ms(now), mode: runMode)
         guard let w = try? store.begin(header) else { return }
         writer = w; points = 0; since = now
         run()
@@ -226,7 +229,7 @@ private final class AccelWindow: @unchecked Sendable {
 /// Plain (1.0) build: the recorder is not compiled at all (architect, decision 76, condition 1).
 /// This empty stand-in only keeps `AppModel` and `GudiApp` compiling; it holds no location code.
 final class DayRecorder {
-    func start() {}
+    func start(oneDescent: Bool = false) {}
     func flush() {}
 }
 #endif

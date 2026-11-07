@@ -75,7 +75,7 @@ struct RootView: View {
             let _ = Telemetry.shared.set(lang: lang.rawValue, langSource: langRaw.isEmpty ? "auto" : "manual", theme: mode.rawValue)
             let ski = Ski(colors: SkiColors(p: frame.dark ? .night : .day), type: SkiType(lang: lang))
             NavigationStack(path: $model.path) {
-                HomeView(frame: frame, mode: mode, trip: model.trip, now: LocalMoment.now(date), status: model.status, weather: model.weather(date),
+                HomeView(recording: model.dayRecorder != nil, frame: frame, mode: mode, trip: model.trip, now: LocalMoment.now(date), status: model.status, weather: model.weather(date),
                          onMode: { modeRaw = mode.next.rawValue; Telemetry.shared.event("theme_set", ["mode": mode.next.rawValue]) },
                          onLang: { setLang($0, lang) }) { a in
                     switch a {
@@ -87,6 +87,7 @@ struct RootView: View {
                     case .trip: model.go(.trip)
                     case .status: model.statusSheet = true; model.go(.map())
                     case .privacy: openURL(Site.privacy(lang))
+                    case .record: model.go(.record)
                     }
                 }
                 // home is the sky, the boarding pass and the sign post, drawn at fixed sizes
@@ -105,6 +106,7 @@ struct RootView: View {
                         case .about: AboutScreen(mode: mode, onMode: { modeRaw = mode.next.rawValue; Telemetry.shared.event("theme_set", ["mode": mode.next.rawValue]) },
                                                  onLang: { setLang($0, lang) }, onResetBests: { Bests.reset() })
                         case .trip: TripFormScreen()
+                        case .record, .days, .day: dayRecScreen(r)
                         case .groups(let g): GroupFlow(route: g)
                         }
                     }
@@ -113,6 +115,7 @@ struct RootView: View {
             }
             .onChange(of: model.path) { old, new in
                 if new.count > old.count, let r = new.last {
+                    if r.isDayRec { return }
                     if case .game(let g) = r { Telemetry.shared.screen("game", ["game": g]) } else { Telemetry.shared.screen(r.screenName) }
                 } else if new.isEmpty { Telemetry.shared.screen("home") }
             }

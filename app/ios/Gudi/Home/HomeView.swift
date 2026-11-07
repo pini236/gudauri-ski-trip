@@ -9,6 +9,8 @@ enum HomeAction { case map, meet, games, group, about, trip, status, privacy }
 /// village by the hour in Gudauri, the user's own boarding pass (or an empty one inviting to add it), the lift status
 /// when there is no trip, and the post of signs. Left-to-right languages mirror it (LT1 to LT3).
 struct HomeView: View {
+    /// The recording sign (round 29): only the build that has the recorder.
+    var recording = false
     let frame: DayNight.Frame
     let mode: DayNight.Mode
     /// The user's own trip, kept only on the phone (decision 27); nil: the empty pass.
@@ -62,7 +64,7 @@ struct HomeView: View {
                             Spacer().frame(height: 30)
                         }
                         // round 20: the signs without a line under them
-                        SignPost(signs: [
+                        SignPost(signs: (recording ? [SignSpec(title: S.appRecSign, sub: S.appRecSignSub, color: c.red, fg: c.onBoard, width: 0.92) { go(.record) }] : []) + [
                             SignSpec(title: S.navMap, sub: nil, color: c.blue, fg: c.onBoard, width: 0.90) { go(.map) },
                             SignSpec(title: S.navMeet, sub: nil, color: SignColors.gold, fg: SignColors.ink, width: 0.82) { go(.meet) },
                             SignSpec(title: S.navGames, sub: nil, color: c.green, fg: c.onBoard, width: 0.86) { go(.games) },
