@@ -103,7 +103,7 @@ struct RootView: View {
                         case .games: GamesScreen().fixedType()
                         case .game(let id): GameScreen(id: id).fixedType()
                         case .group: GroupScreen()
-                        case .about: aboutScreen
+                        case .about: aboutScreen(mode, lang)
                         case .trip: TripFormScreen()
                         case .record, .days, .day: dayRecScreen(r)
                         case .groups(let g): GroupFlow(route: g)
@@ -140,7 +140,7 @@ struct RootView: View {
         }
     }
 
-    private var aboutScreen: some View {
+    private func aboutScreen(_ mode: DayNight.Mode, _ lang: Lang) -> some View {
         AboutScreen(mode: mode, onMode: { modeRaw = mode.next.rawValue; Telemetry.shared.event("theme_set", ["mode": mode.next.rawValue]) },
                     onLang: { setLang($0, lang) }, onResetBests: { Bests.reset() })
     }
