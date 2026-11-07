@@ -107,16 +107,16 @@ private struct RecordScreen: View {
         let c = ski.colors
         switch rec.state {
         case .recording(let since, _):
-            Text(S.appRecNow(time: LiveNumbers.elapsed(ms: Int64(Date().timeIntervalSince(since) * 1000)))).font(ski.type.text(14)).foregroundStyle(c.muted)
-            Text(LiveNumbers.kmh(rec.last?.spd)).font(ski.type.display(120)).monospacedDigit()
+            Text(S.appRecNow(time: DayRec.LiveNumbers.elapsed(ms: Int64(Date().timeIntervalSince(since) * 1000)))).font(ski.type.text(14)).foregroundStyle(c.muted)
+            Text(DayRec.LiveNumbers.kmh(rec.last?.spd)).font(ski.type.display(120)).monospacedDigit()
             Text(S.appRecUnit).font(ski.type.text(14)).foregroundStyle(c.muted)
             Text(whatNow()).font(ski.type.text(16, .bold)).multilineTextAlignment(.center)
             if weak(rec) { Text(S.appRecGpsWeak).font(ski.type.text(14)).foregroundStyle(c.red) }
             HStack(spacing: 10) {
-                Num(value: LiveNumbers.maxKmh(live?.maxKmh ?? sofar?.stats?.maxKmh), label: S.appRecMax)
+                Num(value: DayRec.LiveNumbers.maxKmh(live?.maxKmh ?? sofar?.stats?.maxKmh), label: S.appRecMax)
                 Num(value: String(sofar?.stats?.descents ?? 0), label: S.appRecRuns)
-                Num(value: LiveNumbers.km(sofar?.stats?.skiDistM), label: S.appRecDist)
-                Num(value: LiveNumbers.metres(sofar?.stats?.dropM), label: S.appRecDrop)
+                Num(value: DayRec.LiveNumbers.km(sofar?.stats?.skiDistM), label: S.appRecDist)
+                Num(value: DayRec.LiveNumbers.metres(sofar?.stats?.dropM), label: S.appRecDrop)
             }
             Text(S.appRecPermPocket).font(ski.type.text(13)).foregroundStyle(c.muted)
             Button { rec.stop(); if let e = DayStore.latest() { model.go(.day(e.start)) } } label: {
@@ -165,7 +165,7 @@ private struct RecordScreen: View {
 
     private func weak(_ rec: DayRecorder) -> Bool {
         guard case .recording(let since, _) = rec.state else { return false }
-        return LiveNumbers.weakGps(now: DayRecorder.ms(Date()), lastFix: rec.last?.t ?? 0, startedAt: DayRecorder.ms(since))
+        return DayRec.LiveNumbers.weakGps(now: DayRecorder.ms(Date()), lastFix: rec.last?.t ?? 0, startedAt: DayRecorder.ms(since))
     }
 }
 
@@ -205,7 +205,7 @@ private struct PermissionSheet: View {
 
 extension DayStore {
     /// The newest day's entry on the phone, whatever its state.
-    static func latest() -> Entry? { (try? DayStore(dir: DayRecorder.folder))?.days().last }
+    @MainActor static func latest() -> Entry? { (try? DayStore(dir: DayRecorder.folder))?.days().last }
 }
 
 // MARK: my days
@@ -229,7 +229,7 @@ private struct DaysScreen: View {
                             Button { model.go(.day(e.start)) } label: {
                                 VStack(alignment: .leading, spacing: 2) {
                                     Text(dayName(e.start)).font(ski.type.text(17, .bold))
-                                    Text(stats[e.start].map { S.appDaysItem(n: String($0.descents), max: LiveNumbers.maxKmh($0.maxKmh)) } ?? "…")
+                                    Text(stats[e.start].map { S.appDaysItem(n: String($0.descents), max: DayRec.LiveNumbers.maxKmh($0.maxKmh)) } ?? "…")
                                         .font(ski.type.text(14)).foregroundStyle(c.muted)
                                 }
                                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -265,8 +265,8 @@ private struct DaysScreen: View {
 }
 
 extension DayStore {
-    static func deleteDay(_ e: Entry) { (try? DayStore(dir: DayRecorder.folder))?.delete(e) }
-    static func deleteAll() { (try? DayStore(dir: DayRecorder.folder))?.deleteAll() }
+    @MainActor static func deleteDay(_ e: Entry) { (try? DayStore(dir: DayRecorder.folder))?.delete(e) }
+    @MainActor static func deleteAll() { (try? DayStore(dir: DayRecorder.folder))?.deleteAll() }
 }
 
 // MARK: the end of the day
@@ -286,8 +286,8 @@ private struct DayScreen: View {
                         let s = day.summary
                         HStack(spacing: 10) {
                             Num(value: String(s.descents), label: S.appDaySumDescents)
-                            Num(value: LiveNumbers.metres(s.dropM), label: S.appDaySumDrop)
-                            Num(value: LiveNumbers.maxKmh(s.maxKmh), label: S.appDaySumMax)
+                            Num(value: DayRec.LiveNumbers.metres(s.dropM), label: S.appDaySumDrop)
+                            Num(value: DayRec.LiveNumbers.maxKmh(s.maxKmh), label: S.appDaySumMax)
                         }
                         if let at = s.maxAt { Text(S.appDayTopAt(time: clock(at))).font(ski.type.text(14)).foregroundStyle(c.muted) }
                         if day.chapters.isEmpty { Text(S.appDayEmpty).font(ski.type.text(16)) }
@@ -322,8 +322,8 @@ private struct DayScreen: View {
                     Text(d.runs.isEmpty ? S.appRecOff : d.runs.joined(separator: " · ")).font(ski.type.text(17, .bold))
                 }
                 HStack(spacing: 14) {
-                    Text("\(LiveNumbers.maxKmh(d.maxKmh)) \(S.appRecUnit)")
-                    Text("\(LiveNumbers.metres(d.dropM)) m")
+                    Text("\(DayRec.LiveNumbers.maxKmh(d.maxKmh)) \(S.appRecUnit)")
+                    Text("\(DayRec.LiveNumbers.metres(d.dropM)) m")
                     Text("\(Int(d.movingS / 60)):\(String(format: "%02d", Int(d.movingS) % 60))")
                 }
                 .font(ski.type.text(14))
@@ -334,7 +334,7 @@ private struct DayScreen: View {
             .overlay(alignment: .leading) { Rectangle().fill(Color(rgb: DayRec.SpeedScale.rgb(d.maxKmh))).frame(width: 5) }
         case .queue(_, let m, _): Text(S.appDayQueue(min: String(m))).font(ski.type.text(13)).foregroundStyle(c.muted)
         case .rest(_, let m, let long): Text(long ? S.appDayLunch(min: String(m)) : S.appDayRest(min: String(m))).font(ski.type.text(13)).foregroundStyle(c.muted)
-        case .walk(_, let dist): Text(S.appDayWalk(m: LiveNumbers.metres(dist))).font(ski.type.text(13)).foregroundStyle(c.muted)
+        case .walk(_, let dist): Text(S.appDayWalk(m: DayRec.LiveNumbers.metres(dist))).font(ski.type.text(13)).foregroundStyle(c.muted)
         }
     }
 }
