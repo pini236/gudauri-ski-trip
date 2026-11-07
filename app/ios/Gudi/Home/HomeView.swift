@@ -3,7 +3,7 @@ import GudiData
 import GudiDomain
 
 /// Where the home page's signs and buttons lead.
-enum HomeAction { case map, meet, games, group, about, trip, status, privacy }
+enum HomeAction { case map, meet, games, group, about, trip, status, privacy, record }
 
 /// The home page (round 10, H1 to H4; decision 36), as Android's home/HomeScreen.kt: the sky and the view from the
 /// village by the hour in Gudauri, the user's own boarding pass (or an empty one inviting to add it), the lift status

@@ -103,8 +103,7 @@ struct RootView: View {
                         case .games: GamesScreen().fixedType()
                         case .game(let id): GameScreen(id: id).fixedType()
                         case .group: GroupScreen()
-                        case .about: AboutScreen(mode: mode, onMode: { modeRaw = mode.next.rawValue; Telemetry.shared.event("theme_set", ["mode": mode.next.rawValue]) },
-                                                 onLang: { setLang($0, lang) }, onResetBests: { Bests.reset() })
+                        case .about: aboutScreen
                         case .trip: TripFormScreen()
                         case .record, .days, .day: dayRecScreen(r)
                         case .groups(let g): GroupFlow(route: g)
@@ -139,6 +138,11 @@ struct RootView: View {
         // shots do not depend on the simulator's own text size setting
         default: UserDefaults.standard.string(forKey: "qaRoute") != nil ? .large : nil
         }
+    }
+
+    private var aboutScreen: some View {
+        AboutScreen(mode: mode, onMode: { modeRaw = mode.next.rawValue; Telemetry.shared.event("theme_set", ["mode": mode.next.rawValue]) },
+                    onLang: { setLang($0, lang) }, onResetBests: { Bests.reset() })
     }
 
     private func setLang(_ l: Lang?, _ previous: Lang) {
