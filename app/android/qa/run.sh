@@ -1148,7 +1148,7 @@ dayrecvideo() {
   vguard
   recstop dayrec-video-2 dayrec-service-declaration-2-descent
   adb shell settings put system show_touches 0
-  [ -n "$VIDEO_DIALOG" ] && fail "the video has a system box or emulator noise in it (see the notes above); run it again"
+  if [ -n "$VIDEO_DIALOG" ]; then fail "the video has a system box or emulator noise in it (see the notes above); run it again"; fi
 }
 
 # one scenario, several with commas (home,group), or all
