@@ -19485,6 +19485,18 @@
     "ru",
     "ka"
    ]
+  },
+  "tester.app_name": {
+   "he": "סקי בדיקה",
+   "en": "Gudi Test",
+   "ru": "Gudi Тест",
+   "ka": "Gudi ტესტი",
+   "where": "app/android (test build only): the launcher label and the notification shade",
+   "note": "The test build's name under the icon, per language (decision 47), so it no longer reads Hebrew on an English phone. Only in the test build (src/preview); the store build keeps its own name",
+   "check": [
+    "ru",
+    "ka"
+   ]
   }
  }
 }
