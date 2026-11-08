@@ -1114,7 +1114,7 @@ dayrecvideo() {
   shade_check() { adb shell cmd statusbar expand-notifications; sleep 2; uidump
     [ -n "$(where 'Clear all')" ] && tapText "Clear all"
     uidump
-    if grep -q -i -E "keyboard configured|Serial console|Performance is impacted" "$OUT/ui.xml" 2> /dev/null; then VIDEO_DIALOG=1; note "video: emulator noise in the notification shade"; fi
+    if grep -q -i -E "keyboard configured|Serial console|Performance is impacted" "$OUT/ui.xml" 2> /dev/null; then VIDEO_DIALOG=1; note "video: emulator noise in the notification shade: $(grep -o -i -E '(text|content-desc)="[^"]*(keyboard configured|Serial console|Performance is impacted)[^"]*"' "$OUT/ui.xml" | head -3 | tr '\n' ' ')"; fi
     adb shell cmd statusbar collapse; sleep 1; }
   shade_check
   # ---- recording 1: the whole day ----
@@ -1124,13 +1124,13 @@ dayrecvideo() {
   dayrec_walk 8; vguard                                                      # the live reading
   adb shell input keyevent KEYCODE_HOME; sleep 1; dayrec_walk 4              # the phone's home: the recording goes on
   adb shell cmd statusbar expand-notifications; sleep 2; dayrec_walk 3       # the permanent notification
-  uidump; grep -q -P "[\x{0590}-\x{05FF}]" "$OUT/ui.xml" 2> /dev/null && note "video: Hebrew text in the notification shade (the app name?)"
+  uidump; grep -q -P "[\x{0590}-\x{05FF}]" "$OUT/ui.xml" 2> /dev/null && note "video: Hebrew text in the notification shade: $(grep -o -P 'text="[^"]*[\x{0590}-\x{05FF}][^"]*"' "$OUT/ui.xml" | head -4 | tr '\n' ' ')"
   tapText "Stop" && waitlog "dayrec stop user" 15                            # Stop in the notification
   adb shell cmd statusbar collapse; sleep 1
   recstop dayrec-video-1 dayrec-service-declaration-1-day
   # ---- recording 2: one descent, from the start ----
   mark; adb shell "am start -W -n $ACT --es qa.tab home --es qa.trip none --es qa.time 2027-01-12T11:00 --es qa.stats off" > /dev/null
-  waitlog "scene ready" 60 || sleep 4
+  sleep 4                                                                    # the process is alive: no "scene ready" comes again
   vguard
   recstart dayrec-video-2
   if waitwhere "Record" 15; then
