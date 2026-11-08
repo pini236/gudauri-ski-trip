@@ -25,9 +25,14 @@ object LiveNumbers {
     /** No reading for this long while recording: the signal is weak (a valley, a tunnel, a pocket in the cold). */
     const val WEAK_MS = 20_000L
 
-    /** Whether to say "weak GPS signal": [lastFix] is the last reading (0: none yet), [startedAt] when the recording began. */
-    fun weakGps(now: Long, lastFix: Long, startedAt: Long): Boolean {
-        val since = if (lastFix > 0L) lastFix else startedAt
-        return since > 0L && now - since > WEAK_MS
-    }
+    /** The first reading of a recording can take a minute or more (a cold start, a phone indoors or under a roof): the warning waits longer for it than for a gap in a recording that is going. */
+    const val WEAK_FIRST_MS = 90_000L
+
+    /**
+     * Whether to say "weak GPS signal": [lastFix] is the last reading (0: none yet), [startedAt] when the recording began.
+     * With no reading yet it is [WEAK_FIRST_MS] from the start (a normal wait for satellites is not a weak signal); once
+     * readings have come, [WEAK_MS] from the last one.
+     */
+    fun weakGps(now: Long, lastFix: Long, startedAt: Long): Boolean =
+        if (lastFix > 0L) now - lastFix > WEAK_MS else startedAt > 0L && now - startedAt > WEAK_FIRST_MS
 }

@@ -109,6 +109,33 @@ class DayEngineTest {
         }
     }
 
+    @Test fun theChoiceMadeWhileRecordingGivesTheSameStopAsOneMadeAtTheStart() {
+        // all day first, then "one descent" from the first reading on: in the same recording, with the same stop
+        for (name in listOf("run_from_middle", "run_short_stop", "run_still")) {
+            val c = case(name)
+            val d = day(c)
+            val want = c.getJSONObject("expected").getJSONObject("live").getJSONObject("autostop")
+            val h = JSONObject(d.header.toString()).put("mode", "day")
+            val e = DayEngine(analyzer, h)
+            assertTrue(name, !e.isRun)
+            e.setRun(true, d.points.first().t)
+            assertTrue(name, e.isRun)
+            val s = replay(e, d, 1) { it.autostop != null }
+            assertNotNull(name, s?.autostop)
+            assertEquals(name, want.getString("reason"), s!!.autostop!!.reason)
+            assertTrue(name, abs(s.autostop!!.t - want.getLong("t")) <= 3_000)
+        }
+    }
+
+    @Test fun backToAllDayTheEngineNeverStopsByItself() {
+        val d = day(case("run_still"))
+        val e = DayEngine(analyzer, JSONObject(d.header.toString()))
+        e.setRun(true, d.points.first().t)
+        e.setRun(false, d.points.first().t)
+        assertTrue(!e.isRun)
+        assertNull(replay(e, d, 5)!!.autostop)
+    }
+
     @Test fun aDayNeverStopsByItself() {
         val d = day(case("full_day"))
         val e = DayEngine(analyzer, d.header)

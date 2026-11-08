@@ -1114,7 +1114,13 @@ dayrecvideo() {
   if [ -n "$(where 'Record')" ]; then
     tapText "Record"; sleep 2
     [ -n "$(where 'Continue')" ] && { tapText "Continue"; sleep 3; }
-    [ -n "$(where 'One descent')" ] && { tapText "One descent"; sleep 3; }
+    # the choice is made inside the same recording (8.11.2026): no stop and no new start, the counter does not begin again
+    if [ -n "$(where 'One descent')" ]; then
+      local starts_before; starts_before=$(grep -c "SkiQa.*dayrec start" "$OUT/logcat.txt" 2> /dev/null)
+      tapText "One descent"; waitlog "dayrec mode run" 10 || fail "video: the switch to one descent did not reach the recorder"
+      sleep 3
+      [ "$(grep -c "SkiQa.*dayrec start" "$OUT/logcat.txt" 2> /dev/null)" = "$starts_before" ] || fail "video: switching to one descent started a new recording"
+    fi
     dayrec_walk 6
     [ -n "$(where 'Finish')" ] && { tapText "Finish"; sleep 3; }
   fi
