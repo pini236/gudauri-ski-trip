@@ -1,0 +1,114 @@
+# A signed preview APK from a branch, by hand, for a phone test before the merge (8.11.2026, architect-approved with
+# conditions, docs/ARCHITECTURE.md). Nothing here touches android-preview or android-store, and the store gate is unchanged.
+# Needs a one-time setup by Pini: the environment android-branch-preview (deployment branches: the exact branch name)
+# holding ONLY the test-key secrets (ANDROID_TEST_KEYSTORE_BASE64, ANDROID_TEST_KEYSTORE_PASSWORD, ANDROID_TEST_KEY_ALIAS).
+name: android-branch-preview
+
+on:
+  workflow_dispatch:
+    inputs:
+      commit:
+        description: 'the full commit sha of the branch tip to build (the run fails if the checkout differs)'
+        required: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: android-branch-preview
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment: android-branch-preview
+    defaults:
+      run:
+        working-directory: app/android
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+    steps:
+      - name: Only the repository owner, only the commit that was asked for
+        working-directory: .
+        env:
+          WANT: ${{ inputs.commit }}
+        run: |
+          [ "$GITHUB_ACTOR" = "$GITHUB_REPOSITORY_OWNER" ] || { echo "::error::only the repository owner runs this"; exit 1; }
+          [ "$GITHUB_SHA" = "$WANT" ] || { echo "::error::the branch tip is $GITHUB_SHA, not $WANT"; exit 1; }
+          [ "$GITHUB_REF" != "refs/heads/main" ] || { echo "::error::main publishes through android.yml"; exit 1; }
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
+      - uses: actions/setup-java@cf277c60eb25467037889841efdb72551f06f6c3 # v4.9.1
+        with:
+          distribution: temurin
+          java-version: 21
+      - uses: gradle/actions/setup-gradle@ed408507eac070d1f99cc633dbcf757c94c7933a # v4.4.3
+      - name: Android SDK
+        run: |
+          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses > /dev/null || true
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "platforms;android-37.2" "build-tools;36.0.0" > /dev/null
+      # a version code above what main has published, so the phone accepts the update (Android refuses a lower one)
+      - name: Version code
+        run: |
+          main_run=$(gh api "repos/$GH_REPO/actions/workflows/android.yml/runs?branch=main&per_page=1" -q '.workflow_runs[0].run_number')
+          test -n "$main_run"
+          echo "APP_VERSION_CODE=$((main_run + 1))" >> "$GITHUB_ENV"
+          echo "APP_VERSION_NAME=0.1.$((main_run + 1))-branch" >> "$GITHUB_ENV"
+      - name: Test key
+        env:
+          KEYSTORE_BASE64: ${{ secrets.ANDROID_TEST_KEYSTORE_BASE64 }}
+        run: |
+          test -n "$KEYSTORE_BASE64"
+          umask 077
+          printf '%s' "$KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/test.jks"
+          echo "ANDROID_TEST_KEYSTORE_PATH=$RUNNER_TEMP/test.jks" >> "$GITHUB_ENV"
+      # the test key only: no upload key, no POSTHOG_KEY, no SENTRY_DSN (the build sends nothing)
+      - name: Build the preview APK
+        env:
+          ANDROID_TEST_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_TEST_KEYSTORE_PASSWORD }}
+          ANDROID_TEST_KEY_ALIAS: ${{ secrets.ANDROID_TEST_KEY_ALIAS }}
+        run: ./gradlew --no-daemon --build-cache :app:assemblePreviewRelease
+      - name: Check the signature is the registered test key
+        run: |
+          cert=$("$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --print-certs app/build/outputs/apk/preview/release/app-preview-release.apk | grep -i "SHA-256 digest" | head -1 | awk '{print toupper($NF)}')
+          want=$(echo "BA:09:08:B5:CB:5E:48:36:C7:78:70:B2:25:8E:5A:7B:43:13:45:34:81:4F:37:47:67:1D:6A:37:7C:E8:B3:06" | tr -d ':')
+          echo "signed with $cert"
+          test "$cert" = "$want"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: branch-preview
+          path: app/android/app/build/outputs/apk/preview/release/app-preview-release.apk
+          retention-days: 7
+          overwrite: true
+          if-no-files-found: error
+      - name: Remove the test key
+        if: always()
+        run: rm -f "$RUNNER_TEMP/test.jks"
+
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+    steps:
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: branch-preview
+          path: out
+      - name: Publish to android-preview-branch only
+        run: |
+          tag=android-preview-branch
+          gh release view "$tag" > /dev/null 2>&1 \
+            || gh release create "$tag" --prerelease --target "$GITHUB_SHA" --title "אנדרואיד: גרסת בדיקה מענף" --notes "x"
+          cp out/app-preview-release.apk "$RUNNER_TEMP/ski-preview-branch.apk"
+          gh release upload "$tag" "$RUNNER_TEMP/ski-preview-branch.apk" --clobber
+          gh release edit "$tag" --title "אנדרואיד: גרסת בדיקה מענף (${GITHUB_REF_NAME})" \
+            --notes "נבנתה מ-${GITHUB_SHA::7} בענף ${GITHUB_REF_NAME}, בהרצה ידנית, לבדיקה בטלפון לפני מיזוג. הקישור: https://github.com/${GH_REPO}/releases/download/${tag}/ski-preview-branch.apk"
+          echo "https://github.com/${GH_REPO}/releases/download/${tag}/ski-preview-branch.apk" >> "$GITHUB_STEP_SUMMARY"
