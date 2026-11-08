@@ -68,7 +68,7 @@ class DayRecService : Service() {
     private var nextFinalAt = 0L
     private var finals: ExecutorService? = null
     private val finalBusy = AtomicBoolean(false)
-    private var runMode = false
+    @Volatile private var runMode = false
 
     private val gps = LocationListener { onLocation(it) }
     private val sensorListener = object : SensorEventListener {
@@ -91,9 +91,25 @@ class DayRecService : Service() {
         when (intent?.action) {
             START -> if (!started) begin(intent.getStringExtra(RESUME), intent.getBooleanExtra(RUN, false)) else Unit
             STOP -> finish(DayRec.REASON_USER)
+            SWITCH -> if (started && !stopping) switchMode(intent.getBooleanExtra(RUN, false))
             else -> if (!started) stopSelf() // a restart by the system with no tap behind it: nothing to record
         }
         return START_NOT_STICKY
+    }
+
+    /**
+     * All day to one descent or back, inside the same recording: nothing is stopped, the counter and the map go on, and
+     * the earlier readings stay in the log. One descent counts from now (the choice is made in the first moments).
+     */
+    private fun switchMode(run: Boolean) {
+        handler?.post {
+            if (runMode == run) return@post
+            runMode = run
+            engine?.setRun(run, if (lastAt > 0) lastAt else System.currentTimeMillis())
+            nextLiveAt = 0L
+            DayRec.single = run
+            Qa.log("dayrec mode ${if (run) "run" else "day"}")
+        }
     }
 
     private fun begin(resume: String?, run: Boolean) {
@@ -114,7 +130,7 @@ class DayRecService : Service() {
             else DayLog.create(store.newFile(now), DayParams.TZ, DayParams.RESORT, DayStore.device(), now, mode = if (run) "run" else "day")
         } catch (e: Exception) { Qa.log("dayrec cannot write: ${e.javaClass.simpleName}"); abort(); return }
         DayRec.current = log!!.file
-        DayRec.live = null; DayRec.ride = null; DayRec.sofar = null; DayRec.speedNow = null; DayRec.since = 0L; DayRec.single = false; DayRec.startedAt = System.currentTimeMillis(); DayRec.lastFixAt = 0L
+        DayRec.live = null; DayRec.ride = null; DayRec.sofar = null; DayRec.speedNow = null; DayRec.since = 0L; DayRec.single = run; DayRec.startedAt = DayRec.tapAt.takeIf { it > 0 && System.currentTimeMillis() - it < 15_000L } ?: System.currentTimeMillis(); DayRec.lastFixAt = 0L
         clockOffset = System.currentTimeMillis() - SystemClock.elapsedRealtime()
         impacts = ImpactBuffer(DayParams.FALL_TRIGGER_G, DayParams.FALL_PRE_S, DayParams.FALL_POST_S, DayParams.FALL_DEBOUNCE_S, DayParams.FALL_HZ) { t, t0, hz, a, g ->
             runCatching { log?.impact(t, t0, hz, a, g) }
@@ -149,11 +165,17 @@ class DayRecService : Service() {
         } catch (e: Exception) { Qa.log("dayrec no gps: ${e.javaClass.simpleName}"); abort(); return }
         // the accelerometer and the gyroscope at 50 a second, batched (the hardware collects and hands over every
         // second); the barometer slowly. The windows around a blow come from these two (condition 10).
+        // registered on the recorder's thread: the three registrations are calls to the sensor service that the main thread
+        // (which is also drawing the live screen the tap just opened) need not wait for. The listener itself still calls on the main thread.
         val period = 1_000_000 / DayParams.FALL_HZ
-        sensors?.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)?.let { sensors?.registerListener(sensorListener, it, period, 1_000_000) }
-        sensors?.getDefaultSensor(Sensor.TYPE_GYROSCOPE)?.let { sensors?.registerListener(sensorListener, it, period, 1_000_000) }
-        sensors?.getDefaultSensor(Sensor.TYPE_PRESSURE)?.let { sensors?.registerListener(sensorListener, it, 1_000_000) }
+        handler?.post {
+            if (stopping) return@post
+            sensors?.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)?.let { sensors?.registerListener(sensorListener, it, period, 1_000_000) }
+            sensors?.getDefaultSensor(Sensor.TYPE_GYROSCOPE)?.let { sensors?.registerListener(sensorListener, it, period, 1_000_000) }
+            sensors?.getDefaultSensor(Sensor.TYPE_PRESSURE)?.let { sensors?.registerListener(sensorListener, it, 1_000_000) }
+        }
         DayRec.started()
+        Qa.log("dayrec ready ${System.currentTimeMillis() - DayRec.startedAt}ms after the tap")
     }
 
     private fun onLocation(l: Location) {
@@ -267,6 +289,7 @@ class DayRecService : Service() {
     /** The service could not start: nothing was recorded, so nothing is reported. */
     private fun abort() {
         stopping = true
+        DayRec.tapAt = 0L
         runCatching { log?.release() }; log = null
         teardown()
         runCatching { stopForeground(STOP_FOREGROUND_REMOVE) }; stopSelf()
@@ -294,6 +317,7 @@ class DayRecService : Service() {
         const val STOP = "io.github.pini236.skiapp.dayrec.STOP"
         const val RESUME = "resume"
         const val RUN = "run"
+        const val SWITCH = "switch"
         /** The live view is worked out this often in a day (in a single run, every second). */
         const val LIVE_EVERY_S = 5L
         /** The whole day so far, smoothed, for the screens. */

@@ -131,10 +131,14 @@ fun DayLiveScreen(liftName: (String) -> String, runName: (String) -> String = { 
     LaunchedEffect(Unit) { while (true) { now = System.currentTimeMillis(); delay(1000) } }
     val live = DayRec.live
     val st = DayRec.sofar?.stats
-    val single = DayRec.single
+    // the recorder's fields are plain ones, read when the second ticks: the choice just tapped is shown at once, and the recorder's word takes over when it agrees
+    var picked by remember { mutableStateOf<Boolean?>(null) }
+    val single = picked ?: DayRec.single
+    LaunchedEffect(now) { if (picked == DayRec.single) picked = null }
     val recording = DayRec.recording
     val since = DayRec.since
-    val elapsed = if (since > 0) now - since else 0L
+    // from the tap, not from the first reading: the counter never sits on 0:00 while the phone finds its satellites
+    val elapsed = (now - (if (since > 0) since else DayRec.startedAt)).coerceAtLeast(0L).takeIf { DayRec.startedAt > 0 } ?: 0L
     val red = Color(0xFFE5322D)
     // the day so far under the numbers (round 29, "the map under the live screen"): read from the log every few seconds, off the main thread
     var track by remember { mutableStateOf<Track?>(null) }
@@ -150,8 +154,8 @@ fun DayLiveScreen(liftName: (String) -> String, runName: (String) -> String = { 
             BackLink(stringResource(R.string.nav_home), onBack)
         }
         Row(Modifier.fillMaxWidth().padding(top = 8.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            Choice(stringResource(R.string.app_rec_all), !single, Modifier.weight(1f)) { if (single) onSwitch(false) }
-            Choice(stringResource(R.string.app_rec_one), single, Modifier.weight(1f)) { if (!single) onSwitch(true) }
+            Choice(stringResource(R.string.app_rec_all), !single, Modifier.weight(1f)) { if (single) { picked = false; onSwitch(false) } }
+            Choice(stringResource(R.string.app_rec_one), single, Modifier.weight(1f)) { if (!single) { picked = true; onSwitch(true) } }
         }
         Spacer(Modifier.height(24.dp))
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {

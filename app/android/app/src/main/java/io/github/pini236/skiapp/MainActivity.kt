@@ -204,17 +204,8 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    /** From all day to one descent, or back, in the first moments (the choice at the top of the live screen): a new recording. */
-    private fun switchRecording(single: Boolean) {
-        inBackground {
-            DayRec.stop(this)
-            var waited = 0
-            while (DayRec.recording && waited < 100) { Thread.sleep(100); waited++ }
-            // a day that was just begun and thrown away is not a day: nothing worth keeping in it
-            DayRec.store(this).days().lastOrNull()?.takeIf { f -> f.length() < 20_000 }?.let { DayRec.store(this).delete(it) }
-            runOnUiThread { record(single) }
-        }
-    }
+    /** From all day to one descent, or back (the choice at the top of the live screen): the same recording goes on, nothing restarts. */
+    private fun switchRecording(single: Boolean) { recSingle = single; DayRec.switchMode(this, single) }
     /** The meeting point's stations (from the same data as the map), and its top view, read the first time it opens. */
     private var meetPlan by mutableStateOf<MeetPlan?>(null)
     /** The runs' videos (site/data/videos-seed.json), for the run's panel (13.3). */
