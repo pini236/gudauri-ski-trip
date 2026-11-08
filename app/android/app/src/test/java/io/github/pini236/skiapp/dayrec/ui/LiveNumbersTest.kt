@@ -28,7 +28,9 @@ class LiveNumbersTest {
     @Test fun weakGpsAfterTwentySecondsWithoutAReading() {
         assertEquals(false, LiveNumbers.weakGps(30_000, 20_000, 1_000)) // a reading 10 s ago
         assertEquals(true, LiveNumbers.weakGps(50_000, 20_000, 1_000)) // 30 s ago
-        assertEquals(true, LiveNumbers.weakGps(30_000, 0, 1_000)) // no reading at all since the start
+        assertEquals(false, LiveNumbers.weakGps(30_000, 0, 1_000)) // no reading yet: waiting for the satellites is not a weak signal
+        assertEquals(false, LiveNumbers.weakGps(80_000, 0, 1_000)) // still within the first wait
+        assertEquals(true, LiveNumbers.weakGps(100_000, 0, 1_000)) // no reading at all for over a minute and a half
         assertEquals(false, LiveNumbers.weakGps(10_000, 0, 1_000)) // just started
         assertEquals(false, LiveNumbers.weakGps(99_000, 0, 0)) // not recording
     }
