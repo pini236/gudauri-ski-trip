@@ -35,7 +35,10 @@ object DayRec {
     @Volatile var current: File? = null; internal set
     /** The day just stopped is still being analysed (its result is written before the service goes): no new start meanwhile. */
     @Volatile internal var finishing = false
-    val recording get() = current != null || finishing
+    /** When the user tapped "Record" (epoch ms; 0: none). The screen counts from the tap and shows the red dot at once, while the service is still starting. */
+    @Volatile internal var tapAt = 0L
+    private val starting get() = tapAt > 0 && current == null && System.currentTimeMillis() - tapAt < 8_000L
+    val recording get() = current != null || finishing || starting
 
     /** What the live view says now (the screens read it; see [DayEngine.live]), or null when nothing is recorded. */
     @Volatile var live: DayEngine.Snapshot? = null; internal set
@@ -63,13 +66,26 @@ object DayRec {
         val i = Intent(ctx, DayRecService::class.java).setAction(DayRecService.START)
         resume?.let { i.putExtra(DayRecService.RESUME, it.absolutePath) }
         if (run) i.putExtra(DayRecService.RUN, true)
+        tapAt = System.currentTimeMillis()
+        single = run
         ContextCompat.startForegroundService(ctx, i)
         return Start.Started
+    }
+
+    /**
+     * The choice between all day and one descent, while recording: the same recording goes on (nothing stops or restarts, so
+     * the counter does not start again). The screen shows the choice at once.
+     */
+    fun switchMode(ctx: Context, single: Boolean) {
+        if (current == null || finishing) return
+        this.single = single
+        ctx.startService(Intent(ctx, DayRecService::class.java).setAction(DayRecService.SWITCH).putExtra(DayRecService.RUN, single))
     }
 
     /** Stops by the user's tap. */
     fun stop(ctx: Context) {
         if (!recording) return
+        tapAt = 0L
         ctx.startService(Intent(ctx, DayRecService::class.java).setAction(DayRecService.STOP))
     }
 

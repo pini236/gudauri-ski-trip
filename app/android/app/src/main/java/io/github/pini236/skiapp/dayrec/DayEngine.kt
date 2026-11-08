@@ -36,6 +36,18 @@ class DayEngine(private val analyzer: Analyzer, val header: JSONObject) {
     )
 
     val isRun: Boolean get() = header.optString("mode", "day") == "run"
+    /** From when a single-descent recording counts (a switch from the whole day starts it from the switch, not from the day's first reading). */
+    private var runFrom = 0L
+
+    /**
+     * The choice at the top of the live screen, made while recording: all day or one descent, in the same recording. One
+     * descent counts from [t] on (the earlier readings stay in the log and in the day). Called on the recorder's thread.
+     */
+    fun setRun(on: Boolean, t: Long) {
+        header.put("mode", if (on) "run" else "day")
+        runFrom = if (on) t else 0L
+        snapshot = null
+    }
     val size: Int get() = points.size
 
     private var dayMax: Double? = null
@@ -56,7 +68,7 @@ class DayEngine(private val analyzer: Analyzer, val header: JSONObject) {
     /** The live view, from the points so far. */
     fun live(): Snapshot? {
         if (points.isEmpty()) return null
-        val from = if (isRun) 0 else windowStart()
+        val from = if (isRun) points.indexOfFirst { it.t >= runFrom }.coerceAtLeast(0) else windowStart()
         val r = analyzer.live(header, points.subList(from, points.size), eventsFrom(points[from].t))
         r.maxKmh?.let { m -> dayMax = dayMax?.let { maxOf(it, m) } ?: m }
         for (f in r.falls) falls.putIfAbsent(f.t, f)

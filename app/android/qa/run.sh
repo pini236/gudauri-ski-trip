@@ -1136,7 +1136,7 @@ dayrecvideo() {
   if waitwhere "Record" 15; then
     tapText "Record"; sleep 1
     [ -n "$(where 'Continue')" ] && tapText "Continue"
-    waitwhere "One descent" 10 && { tapText "One descent"; waitlog "dayrec start result Started" 15; dayrec_walk 6; vguard
+    waitwhere "One descent" 10 && { tapText "One descent"; waitlog "dayrec mode run" 15 || fail "video: the switch to one descent did not reach the recorder"; dayrec_walk 6; vguard
       waitwhere "Finish" 10 && tapText "Finish"; sleep 2; }
   else fail "the entry 'Record' never showed"; fi
   qa "--es qa.tab days/sample"; sleep 6                                      # the day's timeline

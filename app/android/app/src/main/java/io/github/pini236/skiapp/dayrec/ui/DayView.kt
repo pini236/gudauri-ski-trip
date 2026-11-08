@@ -65,6 +65,18 @@ import java.util.Locale
  */
 private class Loaded(val day: DayModel.Day, val track: Track, val story: StoryData?)
 
+/**
+ * The last day shown, and how far it was scrolled: coming back from the replay (or from the history) the day is there at
+ * once and where it was, instead of "loading" and the top of the page. Keyed by the file and when it last changed (a day
+ * that is analysed again is a different one); one day only, in the process's memory.
+ */
+private object LastDay {
+    var key: String? = null
+    var loaded: Loaded? = null
+    var scroll = 0
+    fun keyOf(f: File) = f.absolutePath + "@" + f.lastModified() + "/" + f.length()
+}
+
 /** The day's line, thinned for drawing: projected metres (as the map's runs), and the speed of each point in km/h. */
 class Track(val x: FloatArray, val y: FloatArray, val kmh: DoubleArray, val t: LongArray)
 
@@ -80,9 +92,11 @@ internal fun readTrack(file: File, max: Int = 1800): Track {
 fun DayViewScreen(file: File, runs: Runs?, sample: Boolean = false, onReplay: (() -> Unit)? = null, onBack: () -> Unit) {
     val c = Ski.colors
     val ctx = LocalContext.current
-    var loaded by remember(file) { mutableStateOf<Loaded?>(null) }
+    val key = LastDay.keyOf(file)
+    var loaded by remember(file) { mutableStateOf<Loaded?>(if (LastDay.key == key) LastDay.loaded else null) }
     var failed by remember(file) { mutableStateOf(false) }
     LaunchedEffect(file) {
+        if (loaded != null) return@LaunchedEffect
         withContext(Dispatchers.Default) {
             // the recorder closes the day (and writes the result) after the tap; wait for it, up to a minute
             var waited = 0
@@ -91,7 +105,7 @@ fun DayViewScreen(file: File, runs: Runs?, sample: Boolean = false, onReplay: ((
             val result = out?.let { runCatching { JSONObject(it.readText()) }.getOrNull() }
             if (result == null) { failed = true; return@withContext }
             val day = DayModel.build(result, ZoneId.of(DayParams.TZ))
-            loaded = Loaded(day, readTrack(file), StoryData.read(DayStore.momentsOf(file)))
+            loaded = Loaded(day, readTrack(file), StoryData.read(DayStore.momentsOf(file))).also { LastDay.key = LastDay.keyOf(file); LastDay.loaded = it; LastDay.scroll = 0 }
         }
     }
     Column(Modifier.fillMaxSize().background(c.snow).statusBarsPadding().navigationBarsPadding()) {
@@ -113,7 +127,9 @@ private fun DayBody(l: Loaded, runs: Runs?, sample: Boolean, onReplay: (() -> Un
     val c = Ski.colors
     val s = l.day.summary
     val zone = ZoneId.of(DayParams.TZ)
-    Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = 16.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
+    val scroll = rememberScrollState(if (LastDay.loaded === l) LastDay.scroll else 0)
+    androidx.compose.runtime.DisposableEffect(l) { onDispose { if (LastDay.loaded === l) LastDay.scroll = scroll.value } }
+    Column(Modifier.fillMaxSize().verticalScroll(scroll).padding(horizontal = 16.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
         if (sample) Text(stringResource(R.string.app_day_sample) + " · " + stringResource(R.string.app_day_sample_note), style = Ski.type.bodyBold, color = c.glacier)
         else Text(DateTimeFormatter.ofPattern("EEEE d.M", Locale.getDefault()).format(Instant.ofEpochMilli(s.start).atZone(zone)), style = Ski.type.body, color = c.muted)
         Row(Modifier.fillMaxWidth().border(BorderStroke(1.dp, c.rule)).padding(vertical = 14.dp)) {
