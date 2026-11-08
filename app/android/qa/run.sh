@@ -1114,7 +1114,7 @@ dayrecvideo() {
   shade_check() {
     # the emulator's own notifications (keyboard, serial console, performance): snoozed for an hour by their keys, which Clear all does not remove (run 234)
     for k in $(adb shell dumpsys notification --noredact 2> /dev/null | tr -d '\r' | grep -o -E 'key=[^ ]*\|android\|[^ ]*' | sed 's/^key=//' | sort -u); do
-      note "video: snoozing system notification $k: $(adb shell cmd notification snooze --for 3600000 "$k" 2>&1 | head -1)"; done
+      note "video: snoozing system notification $k: $(adb shell "cmd notification snooze --for 3600000 '$k'" 2>&1 | head -1)"; done
     adb shell cmd statusbar expand-notifications; sleep 2; uidump
     [ -n "$(where 'Clear all')" ] && tapText "Clear all"
     uidump
