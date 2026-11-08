@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The test build's name under the icon and in the notification shade comes from i18n/strings.json (tester.app_name), so it
+     follows the app's language (decision 47) instead of staying in Hebrew. The store build does not have this file. -->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+    <application android:label="@string/tester_app_name" tools:replace="android:label" />
+</manifest>
