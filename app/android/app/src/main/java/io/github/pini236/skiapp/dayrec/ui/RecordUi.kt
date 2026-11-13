@@ -152,7 +152,7 @@ private fun searchPulse(searching: Boolean): () -> Float {
  * recorder never waits for it. "Probably" on what you do (a causal guess); the timeline at the end of the day is the truth.
  */
 @Composable
-fun DayLiveScreen(liftName: (String) -> String, runName: (String) -> String = { it }, runs: io.github.pini236.skiapp.data.Runs? = null, onSwitch: (single: Boolean) -> Unit, onStop: () -> Unit, onBack: () -> Unit) {
+fun DayLiveScreen(liftName: (String) -> String, runName: (String) -> String = { it }, runs: io.github.pini236.skiapp.data.Runs? = null, onSwitch: (single: Boolean) -> Unit, onStop: () -> Unit, onEnded: (java.io.File?) -> Unit = {}, onBack: () -> Unit) {
     val c = Ski.colors
     var now by remember { mutableLongStateOf(System.currentTimeMillis()) }
     LaunchedEffect(Unit) { while (true) { now = System.currentTimeMillis(); delay(1000) } }
@@ -163,6 +163,14 @@ fun DayLiveScreen(liftName: (String) -> String, runName: (String) -> String = { 
     val single = picked ?: DayRec.single
     LaunchedEffect(now) { if (picked == DayRec.single) picked = null }
     val recording = DayRec.recording
+    // Stop in the notification (or anything else that ends the day outside this screen): the screen goes to the day that ended, as its own Stop does
+    var wasRecording by remember { mutableStateOf(false) }
+    var dayFile by remember { mutableStateOf<java.io.File?>(null) }
+    DayRec.current?.let { dayFile = it }
+    LaunchedEffect(recording) {
+        if (LiveNumbers.endedOutside(wasRecording, recording, dayFile != null)) { wasRecording = false; onEnded(dayFile) }
+        else if (recording) wasRecording = true
+    }
     val pulse = searchPulse(LiveNumbers.searching(recording, DayRec.lastFixAt))
     // from the tap, not from the first reading: the counter neither sits on 0:00 while the phone finds its satellites nor goes back to it when they are found
     val elapsed = LiveNumbers.sinceTap(now, DayRec.startedAt)

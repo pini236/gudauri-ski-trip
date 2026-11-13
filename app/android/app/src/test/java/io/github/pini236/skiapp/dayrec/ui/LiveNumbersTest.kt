@@ -1,6 +1,7 @@
 package io.github.pini236.skiapp.dayrec.ui
 
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -80,5 +81,13 @@ class ReplayAtTest {
         assertTrue(LiveNumbers.searching(true, 0L))
         assertTrue(!LiveNumbers.searching(true, 5L))
         assertTrue(!LiveNumbers.searching(false, 0L))
+    }
+
+    @Test fun anEndFromOutsideIsOnlyAnEndOfARecordingThatHadItsFile() {
+        assertTrue(LiveNumbers.endedOutside(wasRecording = true, recording = false, sawFile = true))
+        // a slow start that has not made its file yet is not an end
+        assertFalse(LiveNumbers.endedOutside(wasRecording = true, recording = false, sawFile = false))
+        assertFalse(LiveNumbers.endedOutside(wasRecording = true, recording = true, sawFile = true))
+        assertFalse(LiveNumbers.endedOutside(wasRecording = false, recording = false, sawFile = true))
     }
 }

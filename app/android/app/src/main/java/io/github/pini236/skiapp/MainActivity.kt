@@ -915,6 +915,13 @@ class MainActivity : ComponentActivity() {
                         liftName = { id -> scene?.runs?.lifts?.firstOrNull { it.id == id }?.name ?: id },
                         runName = { k -> scene?.runs?.pistes?.firstOrNull { it.key == k }?.title ?: k }, runs = scene?.runs,
                         onSwitch = ::switchRecording, onBack = { nav.back() },
+                        onEnded = { f ->
+                            // the day ended outside this screen (Stop in the notification): the same place as the screen's own Stop
+                            if (nav.top == Route.Day) {
+                                val id = f?.name?.removePrefix("day-")?.removeSuffix(".jsonl")
+                                if (id != null) nav.replaceTop(Route.DayOf(id)) else nav.back()
+                            }
+                        },
                         onStop = {
                             // the day that ends is shown at once; its screen waits for the recorder to close it
                             val id = DayRec.current?.name?.removePrefix("day-")?.removeSuffix(".jsonl")

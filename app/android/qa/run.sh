@@ -890,6 +890,9 @@ dayrec_walk() { # dayrec_walk <n>: n readings a second apart, walking down Tatra
     geo "$(awk -v a=$lat -v i=$i 'BEGIN { printf "%.6f", a - i * 0.00004 }')" "$(awk -v a=$lon -v i=$i 'BEGIN { printf "%.6f", a + i * 0.00002 }')"; sleep 1
   done
 }
+# the recorder service is not among the running services of the app (it has really gone, not only logged its end)
+dayrec_service_gone() { ! adb shell dumpsys activity services "$PKG" 2> /dev/null | grep -q "DayRecService"; }
+
 dayrec_steps() {
   local perm="android.permission.ACCESS_FINE_LOCATION" coarse="android.permission.ACCESS_COARSE_LOCATION"
   adb shell pm grant "$PKG" android.permission.POST_NOTIFICATIONS > /dev/null 2>&1 || true
@@ -980,7 +983,18 @@ dayrec_steps() {
     tapText "ירידה אחת" && { waitlog "dayrec mode run applied" 10; dayrec_walk 3; shot dayrec-live-one; }
     tapText "כל היום" && { waitlog "dayrec mode day applied" 10; dayrec_walk 3; }
     sleep 24; shot dayrec-live-weak
-    [ -n "$(where 'סיום')" ] && { tapText "סיום"; sleep 3; }
+    # Stop in the notification while the live screen is open (13.11.2026, Pini: "Stop in the notification does not stop"): the service
+    # stops, and the screen goes to the day that ended instead of staying on a counter that goes on
+    adb shell cmd statusbar expand-notifications; sleep 3; shot dayrec-notification
+    if tapText "עצירה"; then
+      waitlog "dayrec stop user" 15 || fail "Stop in the notification did not stop the recording"
+      sleep 4; dayrec_service_gone || fail "the recorder service is still running after Stop in the notification"
+      adb shell cmd statusbar collapse; sleep 6; shot dayrec-live-stopped-outside
+      [ -n "$(where 'היום שלך')" ] || fail "after Stop in the notification the live screen did not go to the day that ended"
+    else
+      adb shell cmd statusbar collapse; fail "no Stop button in the recording's notification"
+      [ -n "$(where 'סיום')" ] && { tapText "סיום"; sleep 3; }
+    fi
   fi
   qa "--es qa.dayrec wipe"
 }
@@ -1111,7 +1125,8 @@ dayrecvideo() {
   dayrec_walk 8; vguard; sleep 1                                                    # the live reading
   adb shell input keyevent KEYCODE_HOME; sleep 1; dayrec_walk 4             # to the phone's home: the recording goes on
   adb shell cmd statusbar expand-notifications; sleep 3; dayrec_walk 3      # the permanent notification
-  tapText "Stop" && waitlog "dayrec stop user" 15                          # Stop in the notification
+  tapText "Stop" && waitlog "dayrec stop user" 15 || fail "video: Stop in the notification did not stop the recording" # Stop in the notification
+  sleep 4; dayrec_service_gone || fail "video: the recorder service is still running after Stop in the notification"
   adb shell cmd statusbar collapse; sleep 1
   # the single run: the same entry on home, then "One descent" instead of "the whole day" (the declaration names both)
   qa "--es qa.tab home"; sleep 3
