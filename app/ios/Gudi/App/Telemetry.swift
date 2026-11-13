@@ -162,12 +162,12 @@ extension Route {
         case .about: "about"
         case .trip: "trip"
         // the ski day's screens are not in the contract's list of screen names: they send no screen_view
-        case .record, .days, .day, .daySample: "home"
+        case .record, .days, .day, .daySample, .replay, .replaySample: "home"
         }
     }
 
     /// The screens of the ski day (no screen_view for them).
     var isDayRec: Bool {
-        switch self { case .record, .days, .day, .daySample: true; default: false }
+        switch self { case .record, .days, .day, .daySample, .replay, .replaySample: true; default: false }
     }
 }

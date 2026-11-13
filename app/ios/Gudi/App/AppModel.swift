@@ -16,6 +16,9 @@ enum Route: Hashable {
     case day(Int64)
     /// The example day of My days (round 29, "דוגמה"): a whole day for a new skier and for the App Store reviewer.
     case daySample
+    /// The day again on the 3D map (round 29): a dot along your line, with the time and the speed.
+    case replay(Int64)
+    case replaySample
     /// The group's own screens: its page, joining, the account (Group/GroupRoute.swift)
     case groups(GroupRoute)
 
@@ -35,6 +38,7 @@ enum Route: Hashable {
         case "record": self = .record
         case "days": self = .days
         case "daysample": self = .daySample
+        case "replaysample": self = .replaySample
         case "grp": guard let r = arg.flatMap(GroupRoute.init(qa:)) else { return nil }; self = .groups(r)
         default: return nil
         }

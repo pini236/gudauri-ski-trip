@@ -11,6 +11,8 @@ import GudiDomain
     case .days: DaysScreen()
     case .day(let start): DayScreen(start: start)
     case .daySample: DayScreen(start: 0, sample: true)
+    case .replay(let start): ReplayScreen(start: start)
+    case .replaySample: ReplayScreen(start: 0, sample: true)
     default: EmptyView()
     }
 }
@@ -55,7 +57,7 @@ actor DayEngine {
 /// The resort's clock (UTC+4), the one the whole ski day counts in.
 let tbilisi = TimeZone(identifier: "Asia/Tbilisi") ?? .gmt
 
-private func clock(_ ms: Int64) -> String {
+func clock(_ ms: Int64) -> String {
     var c = Calendar(identifier: .gregorian); c.timeZone = tbilisi
     let d = Date(timeIntervalSince1970: Double(ms) / 1000)
     return String(format: "%02d:%02d", c.component(.hour, from: d), c.component(.minute, from: d))
@@ -440,6 +442,14 @@ private struct DayScreen: View {
                         ForEach(Array(day.chapters.enumerated()), id: \.offset) { _, ch in
                             Text(ch.afternoon ? S.appDayAfternoon : S.appDayMorning).font(ski.type.display(28)).padding(.top, 8)
                             ForEach(Array(ch.items.enumerated()), id: \.offset) { _, it in row(it) }
+                        }
+                        if Map3DView.available {
+                            Button { model.go(sample ? .replaySample : .replay(start)) } label: {
+                                Text(S.appDayReplay).font(ski.type.text(16, .bold)).foregroundStyle(c.ink)
+                                    .frame(maxWidth: .infinity, minHeight: 48)
+                                    .overlay(Rectangle().stroke(c.ink, lineWidth: 1.5))
+                            }
+                            .buttonStyle(.plain)
                         }
                         Text(S.appDayNote).font(ski.type.text(12)).foregroundStyle(c.muted).padding(.top, 8)
                     } else if failed {

@@ -141,6 +141,10 @@ private struct MapContent: View {
         .overlay(alignment: .bottom) {
             if panel.wrappedValue == nil {
                 VStack(spacing: 10) {
+                #if DAYREC
+                // the ski day: one tap from the map, with nothing else open (round 29)
+                if app.dayRecorder != nil, !flying { RecordSign { app.go(.record) } }
+                #endif
                 HStack(alignment: .bottom) {
                     if let w = where_ { LocateKey(on: w.on) { w.toggle(); Fx.shared.tick() } }
                     Spacer()
