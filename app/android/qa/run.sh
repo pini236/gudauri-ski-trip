@@ -1215,11 +1215,16 @@ dayrecvideo() {
       ctr; for k in 1 2 3; do dayrec_walk 2; ctr; done; vguard
       vt "tap Finish"; waitwhere "Finish" 10 && tapText "Finish"; sleep 2; }
   else fail "the entry 'Record' never showed"; fi
+  vt "open the day's timeline"
   qa "--es qa.tab days/sample"; sleep 6                                      # the day's timeline
   drag 540 1900 540 600 400; sleep 3
   vguard
   recstop dayrec-video-2 dayrec-service-declaration-2-descent
   adb shell settings put system show_touches 0
+  if command -v ffmpeg > /dev/null 2>&1; then
+    bash "$(dirname "$0")/cut30.sh" "$OUT/video" 2>&1 | while read -r l; do note "video: $l"; done
+    [ -s "$OUT/video/dayrec-service-30s.mp4" ] || fail "the 30 s cut was not made"
+  fi
   printf 'The touch circles were drawn on the video after recording (qa/touches.py), at the place and time of each tap the script made;\nthe app and the emulator are untouched. The recordings without circles are the *-original.mp4 files. touches-*.txt says, per tap,\nwhether the circle was found in the frame (pixel check). timeline-*.txt: what the script did and what the counter on screen read.\n' > "$OUT/video/README.txt"
   if [ -n "$VIDEO_DIALOG" ]; then fail "the video has a system box or emulator noise in it (see the notes above); run it again"; fi
 }
