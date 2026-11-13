@@ -65,7 +65,7 @@
 
 ### הכנה בחשבון המפתח וב-GitHub (פעם אחת, לפי הסדר)
 
-1. **מזהה שני** להרחבה (Live Activity), בלי יכולות נוספות. ב-`Identifiers` ללחוץ `+`, `App IDs`, `App`, ולהקליד:
+1. **(בוצע, לפני 7.11.2026; אומת 13.11.2026 ביומן הבנייה, ריצה 50)** **מזהה שני** להרחבה (Live Activity), בלי יכולות נוספות. ב-`Identifiers` ללחוץ `+`, `App IDs`, `App`, ולהקליד:
    ```
    io.github.pini236.skiapp.live
    ```
@@ -73,7 +73,7 @@
    ```
    https://developer.apple.com/account/resources/identifiers/add/bundleId
    ```
-2. **פרופיל שני.** `Profiles`, `+`, סוג `App Store` (תחת `Distribution`), המזהה החדש `.live`, **אותה תעודת הפצה** כמו הפרופיל הראשון. שם:
+2. **(בוצע, לפני 7.11.2026; אומת 13.11.2026 ביומן הבנייה, ריצה 50)** **פרופיל שני.** `Profiles`, `+`, סוג `App Store` (תחת `Distribution`), המזהה החדש `.live`, **אותה תעודת הפצה** כמו הפרופיל הראשון. שם:
    ```
    Gudi Live Activity App Store
    ```
@@ -81,7 +81,7 @@
    ```
    https://developer.apple.com/account/resources/profiles/add
    ```
-3. **סוד שביעי ב-GitHub.** בסביבה `ios-release`, `Add environment secret`. שם:
+3. **(בוצע, לפני 7.11.2026; אומת 13.11.2026 ביומן הבנייה, ריצה 50)** **סוד שביעי ב-GitHub.** בסביבה `ios-release`, `Add environment secret`. שם:
    ```
    IOS_PROFILE_LIVE_BASE64
    ```
