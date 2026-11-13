@@ -22,6 +22,12 @@ object LiveNumbers {
         return if (h > 0) String.format(Locale.ROOT, "%d:%02d:%02d", h, m, ss) else String.format(Locale.ROOT, "%d:%02d", m, ss)
     }
 
+    /**
+     * The counter's time: always from the tap ([startedAt]), never from the first reading. The first reading comes later (a cold
+     * GPS can take a minute), and counting from it would send the counter back to 0:00 at that moment. Zero before the recording began.
+     */
+    fun sinceTap(now: Long, startedAt: Long): Long = if (startedAt > 0L) (now - startedAt).coerceAtLeast(0L) else 0L
+
     /** No reading for this long while recording: the signal is weak (a valley, a tunnel, a pocket in the cold). */
     const val WEAK_MS = 20_000L
 

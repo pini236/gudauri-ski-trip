@@ -136,9 +136,8 @@ fun DayLiveScreen(liftName: (String) -> String, runName: (String) -> String = { 
     val single = picked ?: DayRec.single
     LaunchedEffect(now) { if (picked == DayRec.single) picked = null }
     val recording = DayRec.recording
-    val since = DayRec.since
-    // from the tap, not from the first reading: the counter never sits on 0:00 while the phone finds its satellites
-    val elapsed = (now - (if (since > 0) since else DayRec.startedAt)).coerceAtLeast(0L).takeIf { DayRec.startedAt > 0 } ?: 0L
+    // from the tap, not from the first reading: the counter neither sits on 0:00 while the phone finds its satellites nor goes back to it when they are found
+    val elapsed = LiveNumbers.sinceTap(now, DayRec.startedAt)
     val red = Color(0xFFE5322D)
     // the day so far under the numbers (round 29, "the map under the live screen"): read from the log every few seconds, off the main thread
     var track by remember { mutableStateOf<Track?>(null) }

@@ -1,6 +1,7 @@
 package io.github.pini236.skiapp.dayrec.ui
 
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class LiveNumbersTest {
@@ -59,5 +60,19 @@ class ReplayAtTest {
 
     @org.junit.Test fun noReadingsNoSpot() {
         org.junit.Assert.assertNull(ReplayAt.spot(Track(FloatArray(0), FloatArray(0), DoubleArray(0), LongArray(0)), 5))
+    }
+
+    @Test fun counterNeverGoesBackWhenTheFirstReadingComesLate() {
+        val tap = 1_000_000L
+        // 8 s after the tap the counter says 8 s; the first reading (at 8.5 s) must not change what the counter counts from
+        val before = LiveNumbers.sinceTap(tap + 8_000L, tap)
+        val after = LiveNumbers.sinceTap(tap + 8_500L, tap)
+        assertEquals(8_000L, before)
+        assertTrue(after >= before)
+    }
+
+    @Test fun counterIsZeroBeforeTheRecordingBegan() {
+        assertEquals(0L, LiveNumbers.sinceTap(5_000L, 0L))
+        assertEquals(0L, LiveNumbers.sinceTap(1_000L, 2_000L))
     }
 }
