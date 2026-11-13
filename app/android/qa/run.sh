@@ -1120,39 +1120,122 @@ dayrecvideo() {
   mark; adb shell "am start -W -n $ACT --es qa.tab home --es qa.trip none --es qa.time 2027-01-12T11:00 --es qa.dayrec wipe --es qa.stats off" > /dev/null
   waitlog "scene ready" 120 || sleep 6
   vguard
-  adb shell rm -f /sdcard/dayrec-video.mp4
-  adb shell "screenrecord --time-limit 120 --bit-rate 4000000 --size 720x1560 /sdcard/dayrec-video.mp4" > /dev/null 2>&1 &
-  local REC=$!; sleep 2
-  sleep 3; qa "--es qa.tab map"; sleep 4                                   # 0-9 s: home, then the map
-  vguard; qa "--es qa.dayrec start"; waitlog "dayrec start result Started" 10 # the tap that starts the day
-  dayrec_walk 8; vguard; sleep 1                                                    # the live reading
-  adb shell input keyevent KEYCODE_HOME; sleep 1; dayrec_walk 4             # to the phone's home: the recording goes on
-  adb shell cmd statusbar expand-notifications; sleep 3; dayrec_walk 3      # the permanent notification
-  tapText "Stop" && waitlog "dayrec stop user" 15 || fail "video: Stop in the notification did not stop the recording" # Stop in the notification
-  sleep 4; dayrec_service_gone || fail "video: the recorder service is still running after Stop in the notification"
-  adb shell cmd statusbar collapse; sleep 1
-  # the single run: the same entry on home, then "One descent" instead of "the whole day" (the declaration names both)
-  qa "--es qa.tab home"; sleep 3
-  if [ -n "$(where 'Record')" ]; then
-    tapText "Record"; sleep 2
-    [ -n "$(where 'Continue')" ] && { tapText "Continue"; sleep 3; }
-    # the choice is made inside the same recording (8.11.2026): no stop and no new start, the counter does not begin again
-    if [ -n "$(where 'One descent')" ]; then
-      local starts_before; starts_before=$(grep -c "SkiQa.*dayrec start" "$OUT/logcat.txt" 2> /dev/null)
-      tapText "One descent"; waitlog "dayrec mode run" 10 || fail "video: the switch to one descent did not reach the recorder"
-      sleep 3
-      [ "$(grep -c "SkiQa.*dayrec start" "$OUT/logcat.txt" 2> /dev/null)" = "$starts_before" ] || fail "video: switching to one descent started a new recording"
+  # taps drawn on the screen (8.11.2026, Pini: the taps were invisible in run 228); switched off again at the end
+  adb shell settings put system show_touches 1
+  note "video: show_touches is $(adb shell settings get system show_touches | tr -d '\r')"
+  # a held tap (300 ms) so the touch circle stays on screen long enough to be seen (13.11.2026, Pini: no taps were visible)
+  # the emulator's own "show touches" does not reach the recording (run 242), so each tap is logged (time, place) and the
+  # circle is drawn on the video afterwards by qa/touches.py
+  tap() { echo "$(awk -v n="$(date +%s.%N)" -v s="$REC_T" 'BEGIN { printf "%.2f", n - s }') $1 $2" >> "$OUT/video/taps-$REC_NAME.txt"
+    adb shell input swipe "$1" "$2" "$1" "$2" 300; sleep 0.7; }
+  # one continuous walk down Tatra 2 for the whole video (13.11.2026): every call used to start again from the first
+  # point, so each call began with a jump back up the slope, which drew the cutting trail on the map
+  # the phone's GPS for the whole video is a real-shaped descent with speed and altitude (13.11.2026, the manager: the
+  # live screen showed 0 km/h and "Standing"): qa/gpsreplay.py feeds NMEA once a second in the background, so the walk
+  # no longer stops while the script reads the screen
+  python3 -I "$(dirname "$0")/gpsreplay.py" "$(cd "$(dirname "$0")/../../.." && pwd)/tools/fixtures/dayrec-logs/full_day.jsonl" &
+  GPSR=$!
+  dayrec_walk() { sleep "$1"; }
+  # a timeline per recording: seconds since the recording started (about, +-1 s) with what the script did and what the
+  # counter on screen read, to be read against the frames and against the app's log (13.11.2026, note 3)
+  REC_T=0; REC_NAME=x
+  vt() { mkdir -p "$OUT/video"; echo "+$(awk -v n="$(date +%s.%N)" -v s="$REC_T" 'BEGIN { printf "%.1f", n - s }')s $*" >> "$OUT/video/timeline-$REC_NAME.txt"; }
+  ctr() { uidump; vt "counter on screen: $(grep -o -E 'text="[0-9]+:[0-9]{2}(:[0-9]{2})?"' "$OUT/ui.xml" | tr '\n' ' ')"; }
+  # a wait for a real answer of the screen (a word showing), not a fixed sleep
+  waitwhere() { local w=$1 t=${2:-15} k; for k in $(seq 1 "$t"); do [ -n "$(where "$w")" ] && return 0; sleep 1; done; note "video: '$w' never showed"; return 1; }
+  # two clean recordings (8.11.2026): the whole day from start to stop, then one descent from its start; the mode is never
+  # switched in the middle of a recording (that showed the counter going back to 0:00 and the map flickering)
+  recstart() { adb shell rm -f "/sdcard/$1.mp4"; adb shell "screenrecord --time-limit 120 --bit-rate 4000000 --size 720x1560 /sdcard/$1.mp4" > /dev/null 2>&1 &
+    REC=$!; REC_NAME=$1; rm -f "$OUT/video/timeline-$1.txt" "$OUT/video/taps-$1.txt"
+    # the clock starts when the file shows on the device (the recording's first frame is at most a moment later)
+    for k in 1 2 3 4 5 6 7 8 9 10; do adb shell "[ -e /sdcard/$1.mp4 ]" 2> /dev/null && break; sleep 0.3; done
+    REC_T=$(date +%s.%N); sleep 2; }
+  recstop() { adb shell pkill -2 screenrecord 2> /dev/null; sleep 3; kill "$REC" 2> /dev/null
+    adb pull "/sdcard/$1.mp4" "$OUT/video/$2.mp4" > /dev/null 2>&1 || fail "the video $2 was not recorded"
+    [ -s "$OUT/video/$2.mp4" ] && note "video: $2 $(stat -c %s "$OUT/video/$2.mp4") bytes"
+    # the touch circles (13.11.2026): the original is kept as <name>-original.mp4, the one with circles is the main one
+    if [ -s "$OUT/video/taps-$1.txt" ] && command -v ffmpeg > /dev/null 2>&1; then
+      local wh; wh=$(adb shell wm size | tr -d '\r' | grep -o -E '[0-9]+x[0-9]+' | tail -1)
+      mv "$OUT/video/$2.mp4" "$OUT/video/$2-original.mp4"
+      if python3 -I "$(dirname "$0")/touches.py" "$OUT/video/$2-original.mp4" "$OUT/video/taps-$1.txt" "${wh%x*}" "${wh#*x}" "$OUT/video/$2.mp4" "$OUT/video/touches-$2.txt" > "$OUT/video/touches-$2.log" 2>&1
+      then note "video: touch circles on $2: all seen ($(wc -l < "$OUT/video/touches-$2.txt") taps)"
+      else cat "$OUT/video/touches-$2.log" | head -8 | while read -r l; do note "video: touches: $l"; done; fail "the touch circles were not all seen in $2"; fi
     fi
-    dayrec_walk 6
-    [ -n "$(where 'Finish')" ] && { tapText "Finish"; sleep 3; }
-  fi
-  qa "--es qa.tab days/sample"; sleep 8                                     # the day's timeline
-  drag 540 1900 540 600 400; sleep 4
+    # frames for whoever watches: a contact sheet (a frame every half second, left to right, top to bottom) and the frames
+    if command -v ffmpeg > /dev/null 2>&1; then
+      ffmpeg -loglevel error -y -i "$OUT/video/$2.mp4" -vf "fps=2,scale=216:-1,tile=10x8" -frames:v 1 "$OUT/video/$2-contact.jpg" 2>&1 | head -2
+      mkdir -p "$OUT/video/frames-$2"; ffmpeg -loglevel error -y -i "$OUT/video/$2.mp4" -vf "fps=2,scale=360:-1" -q:v 4 "$OUT/video/frames-$2/f%03d.jpg" 2>&1 | head -2
+    fi
+    adb logcat -d -v epoch 2> /dev/null | grep -i -E "dayrec|SkiQa" | grep -v -i "latitude\|longitude" > "$OUT/video/logcat-$2.txt"; }
+  # the notification shade before recording: clear what can be cleared, and say what is left that is not ours
+  shade_check() {
+    # the emulator's own notifications (keyboard, serial console, performance): snoozed for an hour by their keys, which Clear all does not remove (run 234)
+    for k in $(adb shell dumpsys notification --noredact 2> /dev/null | tr -d '\r' | grep -o -E 'key=[^ ]*\|android\|[^ ]*' | sed 's/^key=//' | sort -u); do
+      note "video: snoozing system notification $k: $(adb shell "cmd notification snooze --for 3600000 '$k'" 2>&1 | head -1)"; done
+    adb shell cmd statusbar expand-notifications; sleep 2; uidump
+    [ -n "$(where 'Clear all')" ] && tapText "Clear all"
+    uidump
+    if grep -q -i -E "keyboard configured|Serial console|Performance is impacted" "$OUT/ui.xml" 2> /dev/null; then VIDEO_DIALOG=1; note "video: emulator noise in the notification shade: $(grep -o -i -E '(text|content-desc)="[^"]*(keyboard configured|Serial console|Performance is impacted)[^"]*"' "$OUT/ui.xml" | head -3 | tr '\n' ' ')"; fi
+    adb shell cmd statusbar collapse; sleep 1; }
+  shade_check
+  # ---- recording 1: the whole day ----
+  recstart dayrec-video-1
+  vt "recording starts on the home screen"
   vguard
-  adb shell pkill -2 screenrecord 2> /dev/null; sleep 3; kill "$REC" 2> /dev/null
-  [ -n "$VIDEO_DIALOG" ] && fail "the video has a system box in it (see the notes above); run it again"
-  adb pull /sdcard/dayrec-video.mp4 "$OUT/video/dayrec-service-declaration.mp4" > /dev/null 2>&1 || fail "the video was not recorded"
-  [ -s "$OUT/video/dayrec-service-declaration.mp4" ] && note "video: $(stat -c %s "$OUT/video/dayrec-service-declaration.mp4") bytes"
+  # the start is a real tap on the entry "Record" (13.11.2026, Pini: the script started it by an extra and nothing on screen showed it)
+  waitwhere "Record" 15 || fail "the entry 'Record' never showed"
+  vt "tap Record"; tapText "Record"; sleep 1
+  [ -n "$(where 'Continue')" ] && { vt "tap Continue"; tapText "Continue"; }
+  waitwhere "One descent" 15 || fail "the live screen never showed after the tap on Record"
+  vt "the live screen is up"
+  sleep 8; note "video: the phone's last GPS fix: $(adb shell dumpsys location 2> /dev/null | grep -i -m2 'last location' | tr -d '\r' | cut -c1-260)"
+  for k in 1 2 3 4; do dayrec_walk 3; ctr; done; vguard                      # about 15 s on the live screen: the counter runs and rises
+  vt "press Home"; adb shell input keyevent KEYCODE_HOME; sleep 1; dayrec_walk 4   # the phone's home: the recording goes on
+  vt "open the notification shade"; adb shell cmd statusbar expand-notifications; sleep 2; dayrec_walk 3   # the permanent notification
+  uidump; grep -q -P "[\x{0590}-\x{05FF}]" "$OUT/ui.xml" 2> /dev/null && note "video: Hebrew text in the notification shade: $(grep -o -P 'text="[^"]*[\x{0590}-\x{05FF}][^"]*"' "$OUT/ui.xml" | head -4 | tr '\n' ' ')"
+  vt "tap Stop in the notification"
+  tapText "Stop" || fail "no 'Stop' button in the notification"
+  waitlog "dayrec stop user" 15 || fail "Stop in the notification: the app never logged a user stop"
+  sleep 3
+  # real proof of the stop (13.11.2026): the service is gone from the running services, and no notification is left
+  dayrec_service_gone || fail "Stop in the notification: DayRecService still runs"
+  adb shell dumpsys notification --noredact 2> /dev/null | grep -q "pkg=$PKG.*DayRec" && fail "Stop in the notification: the recording notification is still there"
+  note "video: DayRecService is not running after Stop (verified by dumpsys)"
+  adb shell cmd statusbar collapse; sleep 1
+  # back to the app, to show it did not crash
+  vt "back to the app"; adb shell "am start -W -n $ACT" > /dev/null; sleep 4; ctr; vguard; sleep 2
+  note "video: the app process after Stop: $(adb shell pidof "$PKG" | tr -d '\r')"
+  recstop dayrec-video-1 dayrec-service-declaration-1-day
+  # ---- recording 2: one descent, from the start ----
+  mark; adb shell "am start -W -n $ACT --es qa.tab home --es qa.trip none --es qa.time 2027-01-12T11:00 --es qa.stats off" > /dev/null
+  sleep 4                                                                    # the process is alive: no "scene ready" comes again
+  vguard
+  recstart dayrec-video-2
+  vt "recording starts on the home screen"
+  if waitwhere "Record" 15; then
+    vt "tap Record"; tapText "Record"; sleep 1
+    [ -n "$(where 'Continue')" ] && { vt "tap Continue"; tapText "Continue"; }
+    waitwhere "One descent" 10 && {
+      dayrec_walk 3; ctr; dayrec_walk 3; ctr
+      vt "tap One descent"; tapText "One descent"; waitlog "dayrec mode run" 15 || fail "video: the switch to one descent did not reach the recorder"
+      vt "the switch reached the recorder"
+      ctr; for k in 1 2 3; do dayrec_walk 2; ctr; done; vguard
+      vt "tap Finish"; waitwhere "Finish" 10 && tapText "Finish"; sleep 2; }
+  else fail "the entry 'Record' never showed"; fi
+  # Finish opens the recorded day itself (the day of this recording, not the example day: the manager saw "Example" when the script
+  # opened days/sample here), so the video ends on the real summary
+  vt "open the day's timeline"; sleep 6
+  drag 540 1900 540 600 400; sleep 3
+  vguard
+  recstop dayrec-video-2 dayrec-service-declaration-2-descent
+  kill "$GPSR" 2> /dev/null
+  adb shell settings put system show_touches 0
+  if command -v ffmpeg > /dev/null 2>&1; then
+    bash "$(dirname "$0")/cut30.sh" "$OUT/video" 2>&1 | while read -r l; do note "video: $l"; done
+    [ -s "$OUT/video/dayrec-service-30s.mp4" ] || fail "the 30 s cut was not made"
+  fi
+  printf 'The touch circles were drawn on the video after recording (qa/touches.py), at the place and time of each tap the script made;\nthe app and the emulator are untouched. The recordings without circles are the *-original.mp4 files. touches-*.txt says, per tap,\nwhether the circle was found in the frame (pixel check). timeline-*.txt: what the script did and what the counter on screen read.\n' > "$OUT/video/README.txt"
+  if [ -n "$VIDEO_DIALOG" ]; then fail "the video has a system box or emulator noise in it (see the notes above); run it again"; fi
 }
 
 # one scenario, several with commas (home,group), or all

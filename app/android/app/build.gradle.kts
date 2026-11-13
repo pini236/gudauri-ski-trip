@@ -56,7 +56,7 @@ android {
         create("preview") {
             dimension = "channel"
             applicationIdSuffix = ".test"
-            // the ski day's screens (round 29) show in the test build only, until the Play declaration and the privacy line go out with it
+            // the ski day's screens (round 29); on in both flavors since 13.11.2026 (Pini: release everything)
             buildConfigField("boolean", "DAYREC_UI", "true")
             // the field testers' export (src/preview): the store pipeline's gate (tools/check-android-store.sh) reads this name
             buildConfigField("boolean", "TESTER_EXPORT", "true")
@@ -65,7 +65,8 @@ android {
         }
         create("store") {
             dimension = "channel"
-            buildConfigField("boolean", "DAYREC_UI", "false")
+            // on in the store build too (Pini, 13.11.2026), with the Play foreground-service declaration and the privacy line
+            buildConfigField("boolean", "DAYREC_UI", "true")
             buildConfigField("boolean", "TESTER_EXPORT", "false")
             resValue("string", "app_name", "סקי")
             signingConfig = signingConfigs.findByName("upload") ?: signingConfigs.getByName("debug")
