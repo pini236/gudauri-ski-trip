@@ -90,4 +90,18 @@ class ReplayAtTest {
         assertFalse(LiveNumbers.endedOutside(wasRecording = true, recording = true, sawFile = true))
         assertFalse(LiveNumbers.endedOutside(wasRecording = false, recording = false, sawFile = true))
     }
+
+    @Test fun theCounterGoesByTheTapUntilTheRecorderHasItsOwnStartTime() {
+        // no start time yet (the first recording, or the service is slow to start): the tap
+        assertEquals(1_000L, LiveNumbers.began(tapAt = 1_000L, startedAt = 0L))
+        // the last recording's start time is still there: older than the tap, so not this recording's
+        assertEquals(50_000L, LiveNumbers.began(tapAt = 50_000L, startedAt = 10_000L))
+        // the recorder's own time, a moment after the tap
+        assertEquals(1_120L, LiveNumbers.began(tapAt = 1_000L, startedAt = 1_120L))
+        assertEquals(1_000L, LiveNumbers.began(tapAt = 1_000L, startedAt = 1_000L))
+        // no tap (a recording that began some other way)
+        assertEquals(7_000L, LiveNumbers.began(tapAt = 0L, startedAt = 7_000L))
+        // the counter is never negative or past the tap
+        assertEquals(0L, LiveNumbers.sinceTap(900L, LiveNumbers.began(1_000L, 0L)))
+    }
 }

@@ -173,7 +173,8 @@ fun DayLiveScreen(liftName: (String) -> String, runName: (String) -> String = { 
     }
     val pulse = searchPulse(LiveNumbers.searching(recording, DayRec.lastFixAt))
     // from the tap, not from the first reading: the counter neither sits on 0:00 while the phone finds its satellites nor goes back to it when they are found
-    val elapsed = LiveNumbers.sinceTap(now, DayRec.startedAt)
+    val began = LiveNumbers.began(DayRec.tapAt, DayRec.startedAt)
+    val elapsed = LiveNumbers.sinceTap(now, began)
     val red = Color(0xFFE5322D)
     // the day so far under the numbers (round 29, "the map under the live screen"): read from the log every few seconds, off the main thread
     var track by remember { mutableStateOf<Track?>(null) }
@@ -202,7 +203,7 @@ fun DayLiveScreen(liftName: (String) -> String, runName: (String) -> String = { 
             Text(stringResource(R.string.app_rec_unit), Modifier.padding(bottom = 18.dp), style = Ski.type.number.copy(fontSize = 28.sp), color = c.ink)
         }
         Text(what(live, liftName, runName), style = Ski.type.bodyBold.copy(fontSize = 17.sp), color = c.ink, modifier = Modifier.heightIn(min = 44.dp))
-        if (recording && LiveNumbers.weakGps(now, DayRec.lastFixAt, DayRec.startedAt)) Text(stringResource(R.string.app_rec_gps_weak), style = Ski.type.small, color = red)
+        if (recording && LiveNumbers.weakGps(now, DayRec.lastFixAt, began)) Text(stringResource(R.string.app_rec_gps_weak), style = Ski.type.small, color = red)
         Spacer(Modifier.height(16.dp))
         Row(Modifier.fillMaxWidth().graphicsLayer { alpha = pulse() }.border(BorderStroke(1.dp, c.rule)).padding(vertical = 14.dp)) {
             Num(LiveNumbers.maxKmh(live?.maxKmh ?: st?.maxKmh), stringResource(R.string.app_rec_max), Modifier.weight(1f))
