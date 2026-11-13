@@ -1103,7 +1103,10 @@ dayrecvideo() {
   adb shell settings put system show_touches 1
   note "video: show_touches is $(adb shell settings get system show_touches | tr -d '\r')"
   # a held tap (300 ms) so the touch circle stays on screen long enough to be seen (13.11.2026, Pini: no taps were visible)
-  tap() { adb shell input swipe "$1" "$2" "$1" "$2" 300; sleep 0.7; }
+  # the emulator's own "show touches" does not reach the recording (run 242), so each tap is logged (time, place) and the
+  # circle is drawn on the video afterwards by qa/touches.py
+  tap() { echo "$(awk -v n="$(date +%s.%N)" -v s="$REC_T" 'BEGIN { printf "%.2f", n - s }') $1 $2" >> "$OUT/video/taps-$REC_NAME.txt"
+    adb shell input swipe "$1" "$2" "$1" "$2" 300; sleep 0.7; }
   # one continuous walk down Tatra 2 for the whole video (13.11.2026): every call used to start again from the first
   # point, so each call began with a jump back up the slope, which drew the cutting trail on the map
   DW=0
@@ -1119,10 +1122,21 @@ dayrecvideo() {
   # two clean recordings (8.11.2026): the whole day from start to stop, then one descent from its start; the mode is never
   # switched in the middle of a recording (that showed the counter going back to 0:00 and the map flickering)
   recstart() { adb shell rm -f "/sdcard/$1.mp4"; adb shell "screenrecord --time-limit 120 --bit-rate 4000000 --size 720x1560 /sdcard/$1.mp4" > /dev/null 2>&1 &
-    REC=$!; REC_T=$(date +%s.%N); REC_NAME=$1; rm -f "$OUT/video/timeline-$1.txt"; sleep 2; }
+    REC=$!; REC_NAME=$1; rm -f "$OUT/video/timeline-$1.txt" "$OUT/video/taps-$1.txt"
+    # the clock starts when the file shows on the device (the recording's first frame is at most a moment later)
+    for k in 1 2 3 4 5 6 7 8 9 10; do adb shell "[ -e /sdcard/$1.mp4 ]" 2> /dev/null && break; sleep 0.3; done
+    REC_T=$(date +%s.%N); sleep 2; }
   recstop() { adb shell pkill -2 screenrecord 2> /dev/null; sleep 3; kill "$REC" 2> /dev/null
     adb pull "/sdcard/$1.mp4" "$OUT/video/$2.mp4" > /dev/null 2>&1 || fail "the video $2 was not recorded"
     [ -s "$OUT/video/$2.mp4" ] && note "video: $2 $(stat -c %s "$OUT/video/$2.mp4") bytes"
+    # the touch circles (13.11.2026): the original is kept as <name>-original.mp4, the one with circles is the main one
+    if [ -s "$OUT/video/taps-$1.txt" ] && command -v ffmpeg > /dev/null 2>&1; then
+      local wh; wh=$(adb shell wm size | tr -d '\r' | grep -o -E '[0-9]+x[0-9]+' | tail -1)
+      mv "$OUT/video/$2.mp4" "$OUT/video/$2-original.mp4"
+      if python3 -I "$(dirname "$0")/touches.py" "$OUT/video/$2-original.mp4" "$OUT/video/taps-$1.txt" "${wh%x*}" "${wh#*x}" "$OUT/video/$2.mp4" "$OUT/video/touches-$2.txt" > "$OUT/video/touches-$2.log" 2>&1
+      then note "video: touch circles on $2: all seen ($(wc -l < "$OUT/video/touches-$2.txt") taps)"
+      else cat "$OUT/video/touches-$2.log" | head -8 | while read -r l; do note "video: touches: $l"; done; fail "the touch circles were not all seen in $2"; fi
+    fi
     # frames for whoever watches: a contact sheet (a frame every half second, left to right, top to bottom) and the frames
     if command -v ffmpeg > /dev/null 2>&1; then
       ffmpeg -loglevel error -y -i "$OUT/video/$2.mp4" -vf "fps=2,scale=216:-1,tile=10x8" -frames:v 1 "$OUT/video/$2-contact.jpg" 2>&1 | head -2
@@ -1181,6 +1195,7 @@ dayrecvideo() {
   vguard
   recstop dayrec-video-2 dayrec-service-declaration-2-descent
   adb shell settings put system show_touches 0
+  printf 'The touch circles were drawn on the video after recording (qa/touches.py), at the place and time of each tap the script made;\nthe app and the emulator are untouched. The recordings without circles are the *-original.mp4 files. touches-*.txt says, per tap,\nwhether the circle was found in the frame (pixel check). timeline-*.txt: what the script did and what the counter on screen read.\n' > "$OUT/video/README.txt"
   if [ -n "$VIDEO_DIALOG" ]; then fail "the video has a system box or emulator noise in it (see the notes above); run it again"; fi
 }
 
