@@ -141,8 +141,41 @@ Deno.test("status: 404 until the parser exists (December); its fetch says not im
   const d = deps(async () => raw());
   const r = await handle(d, null, "status", {});
   eq([r.status, r.cache], [404, undefined], "no data is a 404, not an empty 200");
-  eq((await handle(d, null, "fetch_status", {}, { fetchAuthorized: true })).status, 501, "no parser yet");
   eq((await handle(d, null, "fetch_status", {})).status, 401, "and not without the secret");
+});
+
+const mtaPage = (lifts: unknown[]) => {
+  const body = `{"children":["$","div",null,{"lifts":${JSON.stringify(lifts)}}]}`;
+  return `<html><script>self.__next_f.push([1,${JSON.stringify(body)}])</script></html>`;
+};
+const liftRow = (name: string, status: unknown) => ({ id: 1, name, type: "chair", status, bottom: 2000, top: 2500, time: 5, length: 1000 });
+
+Deno.test("fetch_status: stores only what was seen, never guesses open, keeps the old answer on failure", async () => {
+  await sql`delete from private.lift_status_cache`;
+  const t = new Date("2026-12-01T06:00:00Z");
+  const d = (f: (u: string) => Promise<string>) => ({ ...deps(async () => raw()), fetchText: f, now: () => t });
+  const fx = { fetchAuthorized: true };
+
+  // nothing readable (the page is an error page): 502, nothing stored, public read stays 404
+  const bad = d(async () => "<html>500</html>");
+  eq((await handle(bad, null, "fetch_status", {}, fx)).status, 502, "unreadable page");
+  eq((await handle(bad, null, "status", {})).status, 404, "still no data");
+
+  // an unknown status value is left out, not turned into open
+  const odd = d(async (u) => u.endsWith("/gudauri") ? mtaPage([liftRow("Goodaura", 7)]) : "<html></html>");
+  eq((await handle(odd, null, "fetch_status", {}, fx)).status, 502, "unknown value is no information");
+  eq((await handle(odd, null, "status", {})).status, 404, "and nothing stored");
+
+  // a closed lift is stored, with the time we fetched; the other zone being down does not matter
+  const okd = d(async (u) => { if (u.endsWith("/kobi")) throw new Error("offline"); return mtaPage([liftRow("Goodaura", 1)]); });
+  eq((await handle(okd, null, "fetch_status", {}, fx)).status, 200, "stored");
+  const r = await handle(okd, null, "status", {});
+  eq([r.status, r.cache], [200, "public, s-maxage=60"], "public read");
+  eq(r.body, { lifts: { Goodaura: { open: false } }, pistes: {}, updated: t.toISOString() }, "only what was seen");
+
+  // a later failure keeps the stored answer
+  eq((await handle(bad, null, "fetch_status", {}, fx)).status, 502, "later failure");
+  eq((await handle(bad, null, "status", {})).status, 200, "old answer kept");
 });
 
 Deno.test("a threshold change is written to the audit log", async () => {

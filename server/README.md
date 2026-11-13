@@ -220,14 +220,24 @@ commit;
 
 ## מצב הרכבלים: חיבור בדצמבר (S-20)
 
-**מוכן ומכובה:** `functions/api/mta_status.ts` (`extractLifts`, `buildStatus`, טבלת `MTA_TO_OURS`) ו-`tests/mta_status.test.ts`. `fetch_status` ב-`actions.ts` עדיין מחזיר 501, ו-`/api/status` מחזיר 404 עד שיש נתון. **רק מה שנצפה:** המצבים 1 ו-2 הם "סגור"; כל ערך אחר נשמט (לא פתוח ולא סגור), כי לא ראינו איך נראה רכבל פתוח.
+**מוכן ומכובה:** `functions/api/mta_status.ts` (`extractLifts`, `buildStatus`, טבלת `MTA_TO_OURS`) ו-`tests/mta_status.test.ts`. **מ-13.11.2026 `fetch_status` מחובר** (צעד 4 למטה בוצע, עם בדיקות ב-`tests/weather.test.ts`), **ועדיין לא נפרס**; `/api/status` מחזיר 404 עד שיש נתון. **רק מה שנצפה:** המצבים 1 ו-2 הם "סגור"; כל ערך אחר נשמט (לא פתוח ולא סגור), כי לא ראינו איך נראה רכבל פתוח.
 
 **כשהעונה פתוחה, בסדר הזה (פריסה וסודות רק באישור פיני):**
 1. **לתפוס דף ביום פעיל:** שני העמודים, `https://status.mta.ski/en/gudauri/gudauri` ו-`https://status.mta.ski/en/gudauri/kobi`, בשעות שרכבל אחד לפחות פתוח. לשמור עובדות בלבד (שם, סוג, מצב, גבהים) ב-`tools/fixtures/` כמו הקובץ מ-8.6.2026.
 2. **לעדכן את המנתח לפי מה שנצפה:** איזה ערך `status` מופיע לרכבל פתוח; להוסיף אותו ל-`isClosed` ולצד ה"פתוח" (`open: true`), עם בדיקה מהקובץ האמיתי. אם ב-HTML יש שורת עדכון או סיבת סגירה (רוח), לקרוא אותה ל-`updated` ול-`reason`; בלעדיה `updated` הוא זמן ההבאה.
 3. **טבלת ההתאמה:** לבדוק ש-`unknown` ריק. שישה רכבלים בדף בלי התאמה (`MTA_GAPS`: Alpina, Baby, Bombora, Khalicha 1 עד 3): לבדוק מול הנתונים אם שני המסועים הבלתי מוסברים שלנו הם הם. בלי מקור לא מוסיפים התאמה.
 4. **לחבר ל-`fetch_status`:** כמו `fetchWeather`: הבאת שני העמודים (`AbortSignal.timeout`, כל עמוד בנפרד, כשל באחד לא פוסל את השני), `buildStatus`, ו-`insert ... on conflict` ל-`private.lift_status_cache`. `null` או כשל משאירים את התשובה הקודמת (502 `fetch_failed`), כמו במזג האוויר. בדיקת שרת עם דף מדומה, ו-`npm test` ירוק.
-5. **פריסה (באישור פיני):** הפונקציה `api`, ואז משימה ב-`pg_cron` לפי המשימה של מזג האוויר (הסוד מ-Vault), כל 10 דקות בשעות הרכבלים (בגודאורי UTC+4, כלומר 04:00 עד 13:00 UTC), והרצה ידנית ראשונה.
+5. **פריסה (באישור פיני):** הפונקציה `api`, ואז משימה ב-`pg_cron` לפי המשימה של מזג האוויר (הסוד מ-Vault), כל 10 דקות בין 08:00 ל-18:00 בגודאורי (UTC+4, כלומר 04:00 עד 13:50 UTC), **רק בחודשים דצמבר עד אפריל**, והרצה ידנית ראשונה. מחוץ לעונה הדף מסמן את כל הרכבלים כבויים, וכל הלקוחות מציגים לוח עם "0 מתוך 12 פתוחים" ברגע שיש דיווח עדכני, במקום "ההר עוד ישן"; לכן המשימה לא רצה מחוץ לעונה. ההרצה הידנית הראשונה רק כשבודקים שהדף נקרא, ואחריה מוחקים את השורה אם זה עדיין לא דצמבר:
+
+```sql
+select cron.schedule('fetch-status-10min', '*/10 4-13 * 12,1-4 *', $$
+  select net.http_post(
+    url := 'https://vanuhuzuhnljvcoihvys.supabase.co/functions/v1/api/fetch_status',
+    headers := jsonb_build_object('content-type','application/json','x-fetch-secret',
+      (select decrypted_secret from vault.decrypted_secrets where name = 'fetch_secret')),
+    body := '{}'::jsonb)
+$$);
+```
 6. **האתר והלקוחות:** הפניה `/api/status` ב-`site/vercel.json` (סשן האתר; היום רק `/api/weather` מופנה). הלקוחות כבר קוראים את הכתובת.
 7. **התרעה:** `updated` ישן ביותר מ-30 דקות בשעות הרכבלים (`docs/OPERATIONS.md`).
 

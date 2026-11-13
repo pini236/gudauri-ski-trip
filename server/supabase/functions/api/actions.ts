@@ -15,6 +15,7 @@
 // answer and error code) is server/CONTRACT.md.
 
 import type postgres from "postgres";
+import { buildStatus, type Zone } from "./mta_status.ts";
 import { buildAnswer, openMeteoUrl, type Thresholds } from "./weather.ts";
 
 type Sql = postgres.Sql;
@@ -29,6 +30,8 @@ export interface Deps {
   log?: (entry: Record<string, unknown>) => void;
   // Fetches JSON from the outside (Open-Meteo). Missing: the real network. The tests give a stand-in.
   fetchJson?: (url: string) => Promise<unknown>;
+  // Fetches a page as text (the MTA status pages). Missing: the real network.
+  fetchText?: (url: string) => Promise<string>;
   now?: () => Date;
 }
 
@@ -818,6 +821,44 @@ async function fetchWeather(d: Deps): Promise<Result> {
   }
 }
 
+const MTA_PAGES: Record<Zone, string> = {
+  gudauri: "https://status.mta.ski/en/gudauri/gudauri",
+  kobi: "https://status.mta.ski/en/gudauri/kobi",
+};
+
+// Fetch both MTA pages and replace the stored answer (S-20). Only what was observed is stored: a lift the page marks
+// closed. Nothing readable, or a failed fetch of every page, leaves the previous answer and says 502.
+async function fetchStatus(d: Deps): Promise<Result> {
+  try {
+    const get = d.fetchText ?? defaultFetchText;
+    const pages: Partial<Record<Zone, string>> = {};
+    for (const zone of Object.keys(MTA_PAGES) as Zone[]) {
+      try {
+        pages[zone] = await get(MTA_PAGES[zone]);
+      } catch (e) {
+        console.error(JSON.stringify({ action: "fetch_status", zone, error: String(e) }));
+      }
+    }
+    const now = d.now?.() ?? new Date();
+    const { status, unknown } = buildStatus(pages, now);
+    if (unknown.length) console.error(JSON.stringify({ action: "fetch_status", unknown }));
+    if (!status) throw new Error("nothing readable");
+    await d.sql`
+      insert into private.lift_status_cache (id, body, fetched_at) values (1, ${d.sql.json(status as unknown as postgres.JSONValue)}, ${now})
+      on conflict (id) do update set body = excluded.body, fetched_at = excluded.fetched_at`;
+    return { status: 200, body: { ok: true, updated: status.updated } };
+  } catch (e) {
+    console.error(JSON.stringify({ action: "fetch_status", error: String(e) }));
+    return { status: 502, body: { error: "fetch_failed" } };
+  }
+}
+
+async function defaultFetchText(url: string): Promise<string> {
+  const r = await fetch(url, { signal: AbortSignal.timeout(20000) });
+  if (!r.ok) throw new Error(`mta answered ${r.status}`);
+  return await r.text();
+}
+
 async function defaultFetchJson(url: string): Promise<unknown> {
   const r = await fetch(url, { signal: AbortSignal.timeout(20000) });
   if (!r.ok) throw new Error(`open-meteo answered ${r.status}`);
@@ -894,7 +935,7 @@ export async function handle(d: Deps, user: string | null, action: string, body:
   // yet (December, when the page works): the fetch says 501 and the stored answer stays empty, so reads are 404.
   if (action === "fetch_weather" || action === "fetch_status") {
     if (!meta.fetchAuthorized) return { status: 401, body: { error: "not_signed_in" } };
-    return action === "fetch_weather" ? await fetchWeather(d) : { status: 501, body: { error: "not_implemented" } };
+    return action === "fetch_weather" ? await fetchWeather(d) : await fetchStatus(d);
   }
   const fn = Object.hasOwn(actions, action) ? actions[action] : undefined;
   if (!fn) return { status: 404, body: { error: "unknown_action" } };
