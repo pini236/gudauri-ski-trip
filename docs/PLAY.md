@@ -260,12 +260,12 @@ User-initiated activity tracking: recording the user's own ski day or a single s
 
 תיאור הפיצ'ר:
 ```
-Ski day recording. While the app is open, the user taps "Start a ski day" (or "Measure a run"). The app then starts a location foreground service that reads GPS location, speed and altitude once per second, including while the screen is off and the phone is in a pocket. This lets the app show live speed, recognise which lift and which ski run the user is on, and build a timeline and map of the day. A notification is shown the whole time, with the live numbers and a Stop button. Recording stops when the user taps Stop, when a single measured run ends, or automatically after 20 minutes without movement outside the ski resort (60 minutes inside it), with a warning first. Location is processed and stored only on the device. It is never sent to our servers or to anyone else. The app does not request background location (ACCESS_BACKGROUND_LOCATION) or a battery-optimisation exemption.
+Ski day recording. While the app is open, the user taps "Record" and chooses "All day" or "One descent". The app then starts a location foreground service that reads GPS location, speed and altitude once per second, including while the screen is off and the phone is in a pocket. This lets the app show live speed, recognise which lift and which ski run the user is on, and build a timeline and map of the day. A notification is shown the whole time, with a Stop button. Recording stops when the user taps Stop, when a single measured run ends, or automatically after 20 minutes without movement outside the ski resort (60 minutes inside it), with a warning first. Location is processed and stored only on the device. It is never sent to our servers or to anyone else. The app does not request background location (ACCESS_BACKGROUND_LOCATION) or a battery-optimisation exemption.
 ```
 
 אם המערכת דוחה את המשימה:
 ```
-The user taps Start at the top of a run or when boarding a lift, and expects recording to begin at once. If the start is deferred, the beginning of the run or ride is not recorded: the top speed, the lift and the first run are missing or wrong, and the result shown to the user is incorrect.
+The user taps Record at the top of a run or when boarding a lift, and expects recording to begin at once. If the start is deferred, the beginning of the run or ride is not recorded: the top speed, the lift and the first run are missing or wrong, and the result shown to the user is incorrect.
 ```
 
 אם המערכת קוטעת את המשימה:
