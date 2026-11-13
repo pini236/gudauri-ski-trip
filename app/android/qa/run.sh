@@ -1185,6 +1185,7 @@ dayrecvideo() {
   [ -n "$(where 'Continue')" ] && { vt "tap Continue"; tapText "Continue"; }
   waitwhere "One descent" 15 || fail "the live screen never showed after the tap on Record"
   vt "the live screen is up"
+  sleep 8; note "video: the phone's last GPS fix: $(adb shell dumpsys location 2> /dev/null | grep -i -m2 'last location' | tr -d '\r' | cut -c1-260)"
   for k in 1 2 3 4; do dayrec_walk 3; ctr; done; vguard                      # about 15 s on the live screen: the counter runs and rises
   vt "press Home"; adb shell input keyevent KEYCODE_HOME; sleep 1; dayrec_walk 4   # the phone's home: the recording goes on
   vt "open the notification shade"; adb shell cmd statusbar expand-notifications; sleep 2; dayrec_walk 3   # the permanent notification

@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Feeds the emulator's GPS with one real-shaped descent, once a second, with speed and altitude (13.11.2026).
-The emulator's "geo fix" has no speed, so the live screen showed 0 km/h. Here the longest fast stretch of the reference
+The emulator's plain "geo fix" has no speed, so the live screen showed 0 km/h. Here the longest fast stretch of the reference
 tool's synthetic day (tools/fixtures/dayrec-logs/full_day.jsonl: made from the real Tatra lines, made-up times) goes out as
-NMEA (GGA with the altitude, RMC with speed and course). Usage: gpsreplay.py <full_day.jsonl>. Runs until killed."""
+"geo fix" with altitude, satellites and speed. Usage: gpsreplay.py <full_day.jsonl>. Runs until killed."""
 import json, subprocess, sys, time, math
 from datetime import datetime, timezone
 
@@ -39,7 +39,9 @@ while True:
     dx = (nxt["lo"] - r["lo"]) * 111000.0 * math.cos(math.radians(r["la"]))
     course = (math.degrees(math.atan2(dx, dy)) + 360) % 360 if (dx or dy) else 0.0
     kn = (r.get("s") or 0) * 1.943844
-    send(sent("GPGGA,%s,%s,%s,%s,%s,1,10,0.8,%.1f,M,0.0,M,," % (hms, la, ns, lo, ew, r["a"])))
-    send(sent("GPRMC,%s,A,%s,%s,%s,%s,%.2f,%.1f,%s,,,A" % (hms, la, ns, lo, ew, kn, course, now.strftime("%d%m%y"))))
+    # geo fix <lon> <lat> <altitude> <satellites> <velocity in knots>: the emulator's own fix with speed (the NMEA
+    # sentences of run 257 gave the app no speed and no movement)
+    subprocess.run(["adb", "emu", "geo", "fix", "%.7f" % r["lo"], "%.7f" % r["la"], "%.1f" % r["a"], "10", "%.2f" % kn],
+                   stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     i += 1
     time.sleep(1)
