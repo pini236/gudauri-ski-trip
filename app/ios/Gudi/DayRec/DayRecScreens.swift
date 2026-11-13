@@ -403,6 +403,7 @@ private struct DayScreen: View {
     @Environment(\.ski) private var ski
     @State private var day: DayRec.DayModel.Day?
     @State private var story: DayRec.Moments?
+    @State private var track: DayTrack?
     @State private var failed = false
 
     /// The name to show for a run key, as the map shows it (PARITY 17).
@@ -428,7 +429,7 @@ private struct DayScreen: View {
                     }
                     if let day {
                         let s = day.summary
-                        if let story { StoryCard(story: story, summary: s, sample: sample, name: runTitle) }
+                        if let story { StoryCard(story: story, summary: s, sample: sample, track: track, name: runTitle) }
                         HStack(spacing: 10) {
                             Num(value: String(s.descents), label: S.appDaySumDescents)
                             Num(value: DayRec.LiveNumbers.metres(s.dropM), label: S.appDaySumDrop)
@@ -457,6 +458,8 @@ private struct DayScreen: View {
             day = DayRec.DayModel.build(r, zone: tbilisi)
             let trip = MomentsStore.tripKey(model.trip, start: entry.start, utcOffsetH: 4)
             story = await DayEngine.shared.story(entry, dir: dir, sample: sample, trip: trip)
+            let url = entry.url
+            track = await Task.detached { DayTrack.read(url) }.value
         }
     }
 
