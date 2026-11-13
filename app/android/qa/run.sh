@@ -980,7 +980,17 @@ dayrec_steps() {
     tapText "ירידה אחת" && { waitlog "dayrec mode run applied" 10; dayrec_walk 3; shot dayrec-live-one; }
     tapText "כל היום" && { waitlog "dayrec mode day applied" 10; dayrec_walk 3; }
     sleep 24; shot dayrec-live-weak
-    [ -n "$(where 'סיום')" ] && { tapText "סיום"; sleep 3; }
+    # Stop in the notification while the live screen is open (13.11.2026, Pini: "Stop in the notification does not stop"): the service
+    # stops, and the screen goes to the day that ended instead of staying on a counter that goes on
+    adb shell cmd statusbar expand-notifications; sleep 3; shot dayrec-notification
+    if tapText "עצירה"; then
+      waitlog "dayrec stop user" 15 || fail "Stop in the notification did not stop the recording"
+      adb shell cmd statusbar collapse; sleep 6; shot dayrec-live-stopped-outside
+      [ -n "$(where 'היום שלך')" ] || fail "after Stop in the notification the live screen did not go to the day that ended"
+    else
+      adb shell cmd statusbar collapse; fail "no Stop button in the recording's notification"
+      [ -n "$(where 'סיום')" ] && { tapText "סיום"; sleep 3; }
+    fi
   fi
   qa "--es qa.dayrec wipe"
 }

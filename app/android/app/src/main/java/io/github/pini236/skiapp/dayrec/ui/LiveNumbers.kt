@@ -31,6 +31,13 @@ object LiveNumbers {
     /** Waiting for the first reading: recording, and none has come yet (the screen breathes meanwhile, see DayLiveScreen). */
     fun searching(recording: Boolean, lastFix: Long): Boolean = recording && lastFix == 0L
 
+    /**
+     * The recording ended from outside the screen (Stop in the notification, the system, the one-descent run reaching the bottom):
+     * it was going, the day's file had been seen, and now it is not. A start that has not made its file yet does not count, so a
+     * slow start is never taken for an end.
+     */
+    fun endedOutside(wasRecording: Boolean, recording: Boolean, sawFile: Boolean): Boolean = wasRecording && !recording && sawFile
+
     /** No reading for this long while recording: the signal is weak (a valley, a tunnel, a pocket in the cold). */
     const val WEAK_MS = 20_000L
 
