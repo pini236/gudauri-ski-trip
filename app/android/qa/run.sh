@@ -1108,7 +1108,7 @@ dayrecvideo() {
   # point, so each call began with a jump back up the slope, which drew the cutting trail on the map
   DW=0
   dayrec_walk() { local i; for i in $(seq 1 "$1"); do DW=$((DW + 1))
-      geo "$(awk -v a=42.482631 -v i=$DW 'BEGIN { printf "%.6f", a - i * 0.00004 }')" "$(awk -v a=44.483401 -v i=$DW 'BEGIN { printf "%.6f", a + i * 0.00002 }')"; sleep 1; done; }
+      geo "$(awk -v a=42.482631 -v i=$DW 'BEGIN { printf "%.6f", a - i * 0.00009 }')" "$(awk -v a=44.483401 -v i=$DW 'BEGIN { printf "%.6f", a + i * 0.00004 }')"; sleep 1; done; }
   # a timeline per recording: seconds since the recording started (about, +-1 s) with what the script did and what the
   # counter on screen read, to be read against the frames and against the app's log (13.11.2026, note 3)
   REC_T=0; REC_NAME=x
