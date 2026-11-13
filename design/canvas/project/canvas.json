@@ -3450,6 +3450,46 @@
       "h": 1500,
       "page": "round37",
       "title": "ערכים למימוש"
+    },
+    "R38-0-Decide.dc.html": {
+      "x": 0,
+      "y": 0,
+      "w": 600,
+      "h": 1000,
+      "page": "round38",
+      "title": "סבב 38: נדחה"
+    },
+    "R38-Map.dc.html": {
+      "x": 680,
+      "y": 2976,
+      "w": 1140,
+      "h": 1324,
+      "page": "round38",
+      "title": "א. גודל המפה מתחת למספרים: היום, 400 מ׳, 800 מ׳"
+    },
+    "R38-Search.dc.html": {
+      "x": 680,
+      "y": 4720,
+      "w": 1040,
+      "h": 944,
+      "page": "round38",
+      "title": "ב. הרגעים שבין הנגיעה לקריאה הראשונה"
+    },
+    "R38-V2.dc.html": {
+      "x": 680,
+      "y": 0,
+      "w": 2102,
+      "h": 1068,
+      "page": "round38",
+      "title": "גרסה 2 של המסך החי: ארבעת המצבים, בעברית ביום"
+    },
+    "R38-Night.dc.html": {
+      "x": 680,
+      "y": 1488,
+      "w": 2938,
+      "h": 1068,
+      "page": "round38",
+      "title": "בלילה (עברית) ובאנגלית"
     }
   },
   "createdOnFiles": {
@@ -3459,7 +3499,7 @@
   "designSystems": [],
   "launch": {
     "view": "canvas",
-    "page": "round37"
+    "page": "round38"
   },
   "notes": {
     "featRow1": {
@@ -4829,6 +4869,42 @@
       "w": 240,
       "x": 680,
       "y": 5167
+    },
+    "round38row0": {
+      "kind": "title1",
+      "maxW": 2102,
+      "page": "round38",
+      "text": "גרסה 2: המצבים",
+      "w": 240,
+      "x": 680,
+      "y": -300
+    },
+    "round38row1": {
+      "kind": "title1",
+      "maxW": 2938,
+      "page": "round38",
+      "text": "לילה ואנגלית",
+      "w": 240,
+      "x": 680,
+      "y": 1188
+    },
+    "round38row2": {
+      "kind": "title1",
+      "maxW": 1140,
+      "page": "round38",
+      "text": "א. גודל המפה",
+      "w": 240,
+      "x": 680,
+      "y": 2676
+    },
+    "round38row3": {
+      "kind": "title1",
+      "maxW": 1040,
+      "page": "round38",
+      "text": "ב. מחפשים מיקום",
+      "w": 240,
+      "x": 680,
+      "y": 4420
     }
   },
   "order": [
@@ -5261,9 +5337,18 @@
     "R37-Sign.dc.html",
     "R37-Desk.dc.html",
     "R37-Page.dc.html",
-    "R37-Spec.dc.html"
+    "R37-Spec.dc.html",
+    "R38-0-Decide.dc.html",
+    "R38-Map.dc.html",
+    "R38-Search.dc.html",
+    "R38-V2.dc.html",
+    "R38-Night.dc.html"
   ],
   "pages": [
+    {
+      "id": "round38",
+      "name": "סבב 38: המסך החי ביום הגלישה, המפה והרגעים הראשונים"
+    },
     {
       "id": "round37",
       "name": "סבב 37: האפליקציה לאייפון ב-App Store"
