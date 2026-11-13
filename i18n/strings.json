@@ -19330,6 +19330,24 @@
     "ka"
    ]
   },
+  "tester.diag_row": {
+   "he": "שליחת יומן אבחון של ההקלטה",
+   "en": "Send the recording's diagnostic log",
+   "ru": "Отправить диагностический журнал записи",
+   "ka": "ჩაწერის დიაგნოსტიკური ჟურნალის გაგზავნა",
+   "where": "app/android (test build only): the about page",
+   "note": "Test build only. A short log of how the ski day's recording behaved on this phone (permission and location state, whether the service started, readings counted, mode switches, the screen's frame figures). No position, no place, no name",
+   "check": ["ru","ka"]
+  },
+  "tester.diag_empty": {
+   "he": "עוד אין יומן אבחון",
+   "en": "No diagnostic log yet",
+   "ru": "Диагностического журнала пока нет",
+   "ka": "დიაგნოსტიკური ჟურნალი ჯერ არ არის",
+   "where": "app/android (test build only): shown when the log is empty",
+   "note": "Test build only",
+   "check": ["ru","ka"]
+  },
   "tester.export": {
    "he": "שליחת היומן הגולמי של היום לפיני",
    "en": "Send this day's raw log to Pini",

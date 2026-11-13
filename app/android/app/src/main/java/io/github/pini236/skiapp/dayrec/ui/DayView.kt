@@ -78,6 +78,7 @@ private object LastDay {
 }
 
 /** The day's line, thinned for drawing: projected metres (as the map's runs), and the speed of each point in km/h. */
+@androidx.compose.runtime.Immutable
 class Track(val x: FloatArray, val y: FloatArray, val kmh: DoubleArray, val t: LongArray)
 
 internal fun readTrack(file: File, max: Int = 1800): Track {

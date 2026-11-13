@@ -7,6 +7,7 @@ import android.content.pm.PackageManager
 import android.location.LocationManager
 import android.os.Build
 import androidx.core.content.ContextCompat
+import io.github.pini236.skiapp.qa.Diag
 import io.github.pini236.skiapp.qa.Qa
 import io.github.pini236.skiapp.telemetry.Telemetry
 import java.io.File
@@ -55,13 +56,16 @@ object DayRec {
     @Volatile var startedAt = 0L; internal set
     @Volatile var lastFixAt = 0L; internal set
     @Volatile var single = false; internal set
+    /** How many readings this recording has had (for the test build's counter and diagnostic log; a number, never a position). */
+    @Volatile var fixCount = 0; internal set
 
     fun store(ctx: Context) = DayStore(ctx.applicationContext.filesDir)
 
     /** [run]: a recording of one descent, which stops by itself at the bottom (docs/FEATURES.md section 10, 1a). */
     fun start(ctx: Context, resume: File? = null, run: Boolean = false): Start {
-        if (recording) return Start.Already
+        if (recording) { Diag.log("dayrec tap: already recording"); return Start.Already }
         val check = check(ctx)
+        Diag.log("dayrec tap: ${check ?: "ok"} · ${permissions(ctx)}${if (run) " · one descent" else ""}")
         if (check != null) return check
         val i = Intent(ctx, DayRecService::class.java).setAction(DayRecService.START)
         resume?.let { i.putExtra(DayRecService.RESUME, it.absolutePath) }
@@ -77,9 +81,11 @@ object DayRec {
      * the counter does not start again). The screen shows the choice at once.
      */
     fun switchMode(ctx: Context, single: Boolean) {
-        if (current == null || finishing) return
+        // while the service is still setting up the day's file `current` is not there yet; the switch queues behind the setup
+        if (!recording || finishing) { Diag.log("dayrec switch tap ignored: recording=$recording finishing=$finishing"); return }
         this.single = single
-        ctx.startService(Intent(ctx, DayRecService::class.java).setAction(DayRecService.SWITCH).putExtra(DayRecService.RUN, single))
+        Diag.log("dayrec switch tap -> ${if (single) "one descent" else "all day"}")
+        ctx.startService(Intent(ctx, DayRecService::class.java).setAction(DayRecService.SWITCH).putExtra(DayRecService.RUN, single).putExtra(DayRecService.AT, System.currentTimeMillis()))
     }
 
     /** Stops by the user's tap. */
@@ -87,6 +93,15 @@ object DayRec {
         if (!recording) return
         tapAt = 0L
         ctx.startService(Intent(ctx, DayRecService::class.java).setAction(DayRecService.STOP))
+    }
+
+    /** The location permission as the phone has it now, for the diagnostic log: fine (precise) and coarse (approximate). */
+    private fun permissions(ctx: Context): String {
+        val fine = ctx.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+        val coarse = ctx.checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
+        val lm = ctx.getSystemService(LocationManager::class.java)
+        val gps = runCatching { lm.isProviderEnabled(LocationManager.GPS_PROVIDER) }.getOrNull()
+        return "fine=$fine coarse=$coarse gpsProvider=$gps"
     }
 
     internal fun check(ctx: Context): Start? {

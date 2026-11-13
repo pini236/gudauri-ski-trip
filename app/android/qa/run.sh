@@ -975,6 +975,9 @@ dayrec_steps() {
     tapText "מקליטים"; sleep 2
     for w in "המשך" "כל היום"; do [ -n "$(where "$w")" ] && { tapText "$w"; sleep 3; }; done
     dayrec_walk 4; sleep 2; shot dayrec-live
+    # the choice at the top of the screen: the same recording goes on, the service applies the switch (Diag logs it) and the choice shows
+    tapText "ירידה אחת" && { waitlog "dayrec mode run applied" 10; dayrec_walk 3; shot dayrec-live-one; }
+    tapText "כל היום" && { waitlog "dayrec mode day applied" 10; dayrec_walk 3; }
     sleep 24; shot dayrec-live-weak
     [ -n "$(where 'סיום')" ] && { tapText "סיום"; sleep 3; }
   fi

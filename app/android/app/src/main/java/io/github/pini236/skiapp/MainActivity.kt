@@ -77,6 +77,7 @@ import io.github.pini236.skiapp.nav.Route
 import io.github.pini236.skiapp.perf.FrameStats
 import io.github.pini236.skiapp.perf.Startup
 import io.github.pini236.skiapp.qa.GesturePlayer
+import io.github.pini236.skiapp.qa.Diag
 import io.github.pini236.skiapp.qa.Qa
 import io.github.pini236.skiapp.home.AboutScreen
 import io.github.pini236.skiapp.home.DayNight
@@ -294,6 +295,8 @@ class MainActivity : ComponentActivity() {
         ReplayController.enableQa(BuildConfig.DEBUG && intent?.getBooleanExtra("qa.replay", false) == true)
         nav = Nav(Route.Home, savedInstanceState?.getStringArrayList("nav"), ReplayController::beforeNavigation)
         Qa.init(this)
+        Diag.init(this)
+        Diag.startup(this, BuildConfig.VERSION_NAME)
         Qa.log("language ${Lang.current(resources).tag} · phone ${android.content.res.Resources.getSystem().configuration.locales.toLanguageTags()} · ${if (Lang.manual(this)) "chosen in the app" else "automatic"}")
         trips = TripStore(this)
         trip = trips.load()
@@ -908,7 +911,7 @@ class MainActivity : ComponentActivity() {
                         onResetBests = { Bests.reset(this@MainActivity); Qa.log("bests reset") }, onLicenses = { nav.push(Route.Licenses) }) { nav.back() }
                     Route.Licenses -> io.github.pini236.skiapp.home.LicensesScreen(onOpen = { nav.push(Route.License(it)) }) { nav.back() }
                     is Route.License -> io.github.pini236.skiapp.home.LicenseScreen(top.name) { nav.back() }
-                    Route.Day -> io.github.pini236.skiapp.dayrec.ui.DayLiveScreen(
+                    Route.Day -> { io.github.pini236.skiapp.dayrec.ui.DayLiveScreen(
                         liftName = { id -> scene?.runs?.lifts?.firstOrNull { it.id == id }?.name ?: id },
                         runName = { k -> scene?.runs?.pistes?.firstOrNull { it.key == k }?.title ?: k }, runs = scene?.runs,
                         onSwitch = ::switchRecording, onBack = { nav.back() },
@@ -918,6 +921,9 @@ class MainActivity : ComponentActivity() {
                             DayRec.stop(this@MainActivity)
                             if (id != null) nav.replaceTop(Route.DayOf(id)) else nav.back()
                         })
+                        // the test build's counter (frames, missed frames) and the recorder's pulse, over the live screen, for a screenshot
+                        if (showStats) StatsBar(false, Modifier.align(Alignment.BottomStart).padding(bottom = 100.dp))
+                    }
                     Route.Days -> io.github.pini236.skiapp.dayrec.ui.DaysScreen(onOpen = { id -> nav.push(Route.DayOf(id)) }) { nav.back() }
                     is Route.DayOf -> {
                         val sample = top.id == io.github.pini236.skiapp.dayrec.SampleDay.ID
@@ -958,8 +964,14 @@ class MainActivity : ComponentActivity() {
                 val st = (if (gl) glStats else uiStats).snapshot(refreshHz, now)
                 val frames = if (st.active) "${st.fps.toInt()} פריימים · החמצות ${"%.1f".format(st.jankPct)}% · הגרוע ${st.worstMs.toInt()} מ״ש" else "במנוחה"
                 val extra = if (gl) " · ${if (mapView.msaa) "החלקה 4×" else "בלי החלקה"} · $sunNote" else ""
-                line = "${refreshHz.toInt()}Hz · $frames$extra\nפתיחה ${Startup.firstFrameMs} · נתונים ${Startup.dataMs} · רשת ${Startup.meshMs} · צל ${Startup.shadowMs} מ״ש · ${haptics.level}"
+                val rec = if (DayRec.recording) {
+                    val last = DayRec.lastFixAt
+                    "\nהקלטה: ${if (last > 0) "קריאה אחרונה לפני ${(System.currentTimeMillis() - last) / 1000} שנ׳" else "עוד אין קריאה"} · ${DayRec.fixCount} קריאות · ${if (DayRec.single) "ירידה אחת" else "כל היום"}"
+                } else ""
+                line = "${refreshHz.toInt()}Hz · $frames$extra\nפתיחה ${Startup.firstFrameMs} · נתונים ${Startup.dataMs} · רשת ${Startup.meshMs} · צל ${Startup.shadowMs} מ״ש · ${haptics.level}$rec"
                 if (n++ % 4 == 0) Qa.log("stats ${if (gl) "map" else "ui"} · ${line.replace('\n', ' ')}")
+                // while recording, the screen's figures go to the diagnostic log every 10 seconds (what the live screen costs on this phone)
+                if (n % 20 == 0 && DayRec.recording) Diag.log("dayrec screen ${if (st.active) "${st.fps.toInt()}fps jank ${"%.1f".format(st.jankPct)}% worst ${st.worstMs.toInt()}ms" else "idle"} · route ${nav.top.let { it::class.simpleName }}")
                 delay(500)
             }
         }
