@@ -172,12 +172,81 @@ private struct RecordScreen: View {
     }
 }
 
+/// A descent in the day's timeline (round 29): the speed on its own colour, the runs and the time, and a tap opens the
+/// card with the four numbers. Android's `DescentCard`.
+private struct DescentCard: View {
+    let d: DayRec.DayModel.Descent
+    let at: String
+    let name: (String) -> String
+    let color: (String) -> Color?
+    @Environment(\.ski) private var ski
+    @State private var open = false
+
+    /// The analysis speaks in keys of runs; the skier reads their names (PARITY 17).
+    private var shown: [String] { d.runs.map { shortRuns($0.split(separator: " · ").map { name(String($0)) }) } }
+
+    var body: some View {
+        let c = ski.colors
+        let tint = d.runs.first.flatMap { color(String($0.split(separator: " · ").first ?? "")) } ?? c.muted
+        let fast = (d.maxKmh ?? 0) >= 25
+        VStack(alignment: .leading, spacing: 0) {
+            HStack(spacing: 12) {
+                Text("\(DayRec.LiveNumbers.maxKmh(d.maxKmh)) \(S.appRecUnit)")
+                    .font(ski.type.text(15, .bold)).foregroundStyle(fast ? .white : Color(rgb: 0x13233A))
+                    .padding(.horizontal, 8).padding(.vertical, 6)
+                    .background(Color(rgb: DayRec.SpeedScale.rgb(d.maxKmh)))
+                VStack(alignment: .leading, spacing: 2) {
+                    if shown.isEmpty {
+                        Text(S.appDayOff).font(ski.type.text(17, .bold))
+                    } else {
+                        ForEach(Array(shown.enumerated()), id: \.offset) { _, n in Text(n).font(ski.type.display(22)) }
+                        if d.offRuns { Text(S.appDayOff).font(ski.type.text(12)).foregroundStyle(c.muted) }
+                    }
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                Text(at).font(ski.type.text(12)).foregroundStyle(c.muted)
+            }
+            .frame(minHeight: 64)
+            .padding(.horizontal, 12).padding(.vertical, 8)
+            if open {
+                // the four numbers of the descent, and when the top speed was (a number is a fact, not a goal)
+                HStack(spacing: 8) {
+                    Num(value: DayRec.LiveNumbers.maxKmh(d.avgKmh), label: S.appDayAvg, size: 28)
+                    Num(value: String(Int((d.movingS / 60).rounded())), label: S.appDayTime, size: 28)
+                    Num(value: String(format: "%.1f", d.distM / 1000), label: S.appRecDist, size: 28)
+                    Num(value: String(Int(d.dropM.rounded())), label: S.appRecDrop, size: 28)
+                }
+                .padding(.horizontal, 12).padding(.bottom, 4)
+                if let m = d.maxAt {
+                    Text(S.appDayTopAt(time: clock(m))).font(ski.type.text(12)).foregroundStyle(c.muted)
+                        .padding(.horizontal, 12).padding(.bottom, 10)
+                }
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(tint.opacity(0.10))
+        .contentShape(Rectangle())
+        .onTapGesture { open.toggle() }
+        .accessibilityAddTraits(.isButton)
+    }
+}
+
+/// "Tatra 1 · Tatra 2" as the map says it: "Tatra 1 · 2" (Android's `shortRuns`).
+func shortRuns(_ names: [String]) -> String {
+    let all = names.joined(separator: " · ")
+    guard names.count > 1, let first = names.first, let cut = first.lastIndex(of: " ") else { return all }
+    let stem = String(first[first.startIndex..<cut])
+    guard !stem.isEmpty, names.dropFirst().allSatisfy({ $0.hasPrefix(stem + " ") }) else { return all }
+    return ([first] + names.dropFirst().map { String($0.dropFirst(stem.count + 1)) }).joined(separator: " · ")
+}
+
 private struct Num: View {
     let value: String, label: String
+    var size: CGFloat = 34
     @Environment(\.ski) private var ski
     var body: some View {
         VStack(spacing: 2) {
-            Text(value).font(ski.type.display(34)).monospacedDigit().minimumScaleFactor(0.6).lineLimit(1)
+            Text(value).font(ski.type.display(size)).monospacedDigit().minimumScaleFactor(0.6).lineLimit(1)
             Text(label).font(ski.type.text(11)).foregroundStyle(ski.colors.muted).multilineTextAlignment(.center)
         }
         .frame(maxWidth: .infinity)
@@ -218,6 +287,8 @@ private struct DaysScreen: View {
     @Environment(\.ski) private var ski
     @State private var days: [DayStore.Entry] = []
     @State private var stats: [Int64: DayRec.Stats] = [:]
+    /// The personal records, as the moments title them (the history's numbers only, never a place).
+    @State private var records: [DayRecord] = []
     /// The day (or 0: everything) waiting for its second tap.
     @State private var sure: Int64?
 
@@ -227,6 +298,20 @@ private struct DaysScreen: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 12) {
                     if days.isEmpty { Text(S.appDaysEmpty).font(ski.type.text(16)).foregroundStyle(c.muted) }
+                    if !records.isEmpty {
+                        VStack(alignment: .leading, spacing: 6) {
+                            Text(S.appDayRecords).font(ski.type.display(26))
+                            ForEach(records) { r in
+                                HStack {
+                                    Text(r.title).font(ski.type.text(16)).frame(maxWidth: .infinity, alignment: .leading)
+                                    Text(r.value).font(ski.type.text(16, .bold))
+                                }
+                            }
+                        }
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(14).background(c.paper)
+                        .overlay(Rectangle().strokeBorder(c.rule, lineWidth: 1))
+                    }
                     ForEach(days.reversed(), id: \.start) { e in
                         HStack {
                             Button { model.go(.day(e.start)) } label: {
@@ -268,11 +353,38 @@ private struct DaysScreen: View {
 
     private func load() {
         days = (try? DayStore(dir: DayRecorder.folder))?.days() ?? []
+        records = DaysScreen.records(MomentsStore.history(DayRecorder.folder))
         Task {
             for e in days {
                 if let r = await DayEngine.shared.final(e, dir: DayRecorder.folder), let s = r.stats { stats[e.start] = s }
             }
         }
+    }
+}
+
+/// One personal record on the "My days" card.
+struct DayRecord: Identifiable {
+    let id: String, title: String, value: String
+}
+
+extension DaysScreen {
+    /// The personal records the history holds, in the order of the moments, each in the unit its line says.
+    static func records(_ history: DayRec.History?) -> [DayRecord] {
+        guard let best = history?.best else { return [] }
+        var out: [DayRecord] = []
+        for what in ["max_kmh", "longest_m", "drop_m", "descents", "ski_dist_m"] {
+            guard let v = best[what],
+                  let title = MomentText.render(MomentText.Part(key: "moment.record.\(what).title"), seed: 0) else { continue }
+            let value: String
+            switch what {
+            case "max_kmh": value = "\(Int(v.rounded())) \(S.appRecUnit)"
+            case "longest_m", "ski_dist_m": value = S.commonUnitKm(n: MomentText.dec(v / 1000))
+            case "drop_m": value = S.commonUnitM(n: String(Int(v.rounded())))
+            default: value = String(Int(v.rounded()))
+            }
+            out.append(DayRecord(id: what, title: title, value: value))
+        }
+        return out
     }
 }
 
@@ -296,6 +408,11 @@ private struct DayScreen: View {
     /// The name to show for a run key, as the map shows it (PARITY 17).
     private func runTitle(_ key: String) -> String {
         model.runs?.pistes.first { $0.key == key }.map(runName(_:)) ?? key
+    }
+
+    /// The colour of a run by its key, for the descent's card.
+    private func runColor(_ key: String) -> Color? {
+        model.runs?.pistes.first { $0.key == key }.map { ski.colors.run($0.color) }
     }
 
     var body: some View {
@@ -347,22 +464,7 @@ private struct DayScreen: View {
         let c = ski.colors
         switch it {
         case .descent(let d):
-            VStack(alignment: .leading, spacing: 4) {
-                HStack {
-                    Text(clock(d.t0)).font(ski.type.text(13)).foregroundStyle(c.muted)
-                    Text(d.runs.isEmpty ? S.appRecOff : d.runs.joined(separator: " · ")).font(ski.type.text(17, .bold))
-                }
-                HStack(spacing: 14) {
-                    Text("\(DayRec.LiveNumbers.maxKmh(d.maxKmh)) \(S.appRecUnit)")
-                    Text("\(DayRec.LiveNumbers.metres(d.dropM)) m")
-                    Text("\(Int(d.movingS / 60)):\(String(format: "%02d", Int(d.movingS) % 60))")
-                }
-                .font(ski.type.text(14))
-                if d.offRuns { Text(S.appDayOff).font(ski.type.text(12)).foregroundStyle(c.muted) }
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(12).background(c.paper)
-            .overlay(alignment: .leading) { Rectangle().fill(Color(rgb: DayRec.SpeedScale.rgb(d.maxKmh))).frame(width: 5) }
+            DescentCard(d: d, at: clock(d.t0), name: runTitle, color: runColor)
         case .queue(_, let m, _): Text(S.appDayQueue(min: String(m))).font(ski.type.text(13)).foregroundStyle(c.muted)
         case .rest(_, let m, let long): Text(long ? S.appDayLunch(min: String(m)) : S.appDayRest(min: String(m))).font(ski.type.text(13)).foregroundStyle(c.muted)
         case .walk(_, let dist): Text(S.appDayWalk(m: DayRec.LiveNumbers.metres(dist))).font(ski.type.text(13)).foregroundStyle(c.muted)
