@@ -44,23 +44,11 @@ struct StoryImageView: View {
     let type: SkiType
 
     var body: some View {
-        let rtl = type.lang.rtl
+        let rtl: Bool = type.lang.rtl
         VStack(alignment: rtl ? .trailing : .leading, spacing: 0) {
-            if let title {
-                Text(title).font(type.display(110)).foregroundStyle(.white).lineLimit(2).minimumScaleFactor(0.5)
-            }
-            if let sub {
-                Text(sub).font(type.text(38)).foregroundStyle(Color(rgb: 0xC9D6E6)).lineLimit(2).padding(.top, 6)
-            }
+            headText
             trackBox.padding(.top, 20)
-            ForEach(cards) { card in
-                VStack(alignment: rtl ? .trailing : .leading, spacing: 4) {
-                    if let t = card.title { Text(t).font(type.text(40, .bold)).foregroundStyle(Color(rgb: 0xF4B942)).lineLimit(1) }
-                    if let l = card.line { Text(l).font(type.text(40)).foregroundStyle(.white).lineLimit(3) }
-                }
-                .frame(maxWidth: .infinity, alignment: rtl ? .trailing : .leading)
-                .padding(.top, 24)
-            }
+            ForEach(cards) { card in cardText(card, rtl: rtl) }
             Spacer(minLength: 0)
             Text(site).font(type.text(34)).foregroundStyle(Color(rgb: 0x8DA2BD))
                 .frame(maxWidth: .infinity, alignment: .center).padding(.bottom, 20)
@@ -70,6 +58,30 @@ struct StoryImageView: View {
         .frame(width: Self.W, height: Self.H, alignment: .topLeading)
         .background(Color(rgb: 0x13233A))
         .environment(\.layoutDirection, rtl ? .rightToLeft : .leftToRight)
+    }
+
+    /// The head: the kind of day over its numbers.
+    @ViewBuilder private var headText: some View {
+        if let title {
+            Text(title).font(type.display(110)).foregroundStyle(.white).lineLimit(2).minimumScaleFactor(0.5)
+        }
+        if let sub {
+            Text(sub).font(type.text(38)).foregroundStyle(Color(rgb: 0xC9D6E6)).lineLimit(2).padding(.top, 6)
+        }
+    }
+
+    /// One insight: its title in gold, its line in white.
+    @ViewBuilder private func cardText(_ card: Card, rtl: Bool) -> some View {
+        VStack(alignment: rtl ? .trailing : .leading, spacing: 4) {
+            if let t = card.title {
+                Text(t).font(type.text(40, .bold)).foregroundStyle(Color(rgb: 0xF4B942)).lineLimit(1)
+            }
+            if let l = card.line {
+                Text(l).font(type.text(40)).foregroundStyle(.white).lineLimit(3)
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: rtl ? .trailing : .leading)
+        .padding(.top, 24)
     }
 
     /// The day's line, in a box of its own; a hole in the recording is not a line.

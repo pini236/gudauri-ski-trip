@@ -191,23 +191,43 @@ private struct DescentCard: View {
     @State private var open = false
 
     /// The analysis speaks in keys of runs; the skier reads their names (PARITY 17).
-    private var shown: [String] { d.runs.map { shortRuns($0.split(separator: " · ").map { name(String($0)) }) } }
+    private var shown: [String] {
+        var out: [String] = []
+        for leg in d.runs {
+            var names: [String] = []
+            for key in keys(leg) { names.append(name(key)) }
+            out.append(shortRuns(names))
+        }
+        return out
+    }
+
+    /// The keys of one leg ("Tatra 1 · Tatra 2" is a shared one).
+    private func keys(_ leg: String) -> [String] {
+        leg.components(separatedBy: " · ")
+    }
+
+    /// The colour of the descent: its first run's.
+    private var tint: Color {
+        guard let leg = d.runs.first, let key = keys(leg).first, let c = color(key) else { return ski.colors.muted }
+        return c
+    }
 
     var body: some View {
         let c = ski.colors
-        let tint = d.runs.first.flatMap { color(String($0.split(separator: " · ").first ?? "")) } ?? c.muted
-        let fast = (d.maxKmh ?? 0) >= 25
+        let fast: Bool = (d.maxKmh ?? 0) >= 25
+        let speed: String = DayRec.LiveNumbers.maxKmh(d.maxKmh)
+        let names: [String] = shown
         VStack(alignment: .leading, spacing: 0) {
             HStack(spacing: 12) {
-                Text("\(DayRec.LiveNumbers.maxKmh(d.maxKmh)) \(S.appRecUnit)")
-                    .font(ski.type.text(15, .bold)).foregroundStyle(fast ? .white : Color(rgb: 0x13233A))
+                Text(speed + " " + S.appRecUnit)
+                    .font(ski.type.text(15, .bold)).foregroundStyle(fast ? Color.white : Color(rgb: 0x13233A))
                     .padding(.horizontal, 8).padding(.vertical, 6)
                     .background(Color(rgb: DayRec.SpeedScale.rgb(d.maxKmh)))
                 VStack(alignment: .leading, spacing: 2) {
-                    if shown.isEmpty {
+                    if names.isEmpty {
                         Text(S.appDayOff).font(ski.type.text(17, .bold))
                     } else {
-                        ForEach(Array(shown.enumerated()), id: \.offset) { _, n in Text(n).font(ski.type.display(22)) }
+                        ForEach(Array(names.enumerated()), id: \.offset) { _, n in Text(n).font(ski.type.display(22)) }
                         if d.offRuns { Text(S.appDayOff).font(ski.type.text(12)).foregroundStyle(c.muted) }
                     }
                 }
@@ -218,12 +238,7 @@ private struct DescentCard: View {
             .padding(.horizontal, 12).padding(.vertical, 8)
             if open {
                 // the four numbers of the descent, and when the top speed was (a number is a fact, not a goal)
-                HStack(spacing: 8) {
-                    Num(value: DayRec.LiveNumbers.maxKmh(d.avgKmh), label: S.appDayAvg, size: 28)
-                    Num(value: String(Int((d.movingS / 60).rounded())), label: S.appDayTime, size: 28)
-                    Num(value: String(format: "%.1f", d.distM / 1000), label: S.appRecDist, size: 28)
-                    Num(value: String(Int(d.dropM.rounded())), label: S.appRecDrop, size: 28)
-                }
+                numbers
                 .padding(.horizontal, 12).padding(.bottom, 4)
                 if let m = d.maxAt {
                     Text(S.appDayTopAt(time: clock(m))).font(ski.type.text(12)).foregroundStyle(c.muted)
@@ -236,6 +251,20 @@ private struct DescentCard: View {
         .contentShape(Rectangle())
         .onTapGesture { open.toggle() }
         .accessibilityAddTraits(.isButton)
+    }
+
+    /// The four numbers of the descent.
+    private var numbers: some View {
+        let avg: String = DayRec.LiveNumbers.maxKmh(d.avgKmh)
+        let minutes: String = String(Int((d.movingS / 60).rounded()))
+        let km: String = String(format: "%.1f", d.distM / 1000)
+        let drop: String = String(Int(d.dropM.rounded()))
+        return HStack(spacing: 8) {
+            Num(value: avg, label: S.appDayAvg, size: 28)
+            Num(value: minutes, label: S.appDayTime, size: 28)
+            Num(value: km, label: S.appRecDist, size: 28)
+            Num(value: drop, label: S.appRecDrop, size: 28)
+        }
     }
 }
 

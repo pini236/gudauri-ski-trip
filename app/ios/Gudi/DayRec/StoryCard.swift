@@ -28,7 +28,7 @@ struct StoryCard: View {
 
     var body: some View {
         let c = ski.colors
-        let headWords = MomentText.render(head, seed: DayRec.seed("story.head", summary.start))
+        let headWords: (title: String?, lines: [String]) = MomentText.render(head, seed: DayRec.seed("story.head", summary.start))
         VStack(alignment: .leading, spacing: 12) {
             if let title = headWords.title { Text(title).font(ski.type.display(32)).foregroundStyle(c.ink) }
             ForEach(Array(headWords.lines.enumerated()), id: \.offset) { _, line in
