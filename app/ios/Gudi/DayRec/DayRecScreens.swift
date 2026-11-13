@@ -20,7 +20,8 @@ actor DayEngine {
     static let shared = DayEngine()
     private var analyzer: DayRec.Analyzer?
 
-    private func ready() -> DayRec.Analyzer? {
+    /// The analyser, built once from the packaged data (the moments read its network and thresholds too).
+    func analyzer() -> DayRec.Analyzer? {
         if let analyzer { return analyzer }
         func data(_ n: String) -> Data? { Bundle.main.url(forResource: n, withExtension: "json", subdirectory: "Data").flatMap { try? Data(contentsOf: $0) } }
         guard let p = data("dayrec-params"), let rl = data("runs-and-lifts"), let t = data("terrain"),
@@ -32,7 +33,7 @@ actor DayEngine {
 
     /// The truth of a day: the saved result if it is of this algorithm, else worked out from the journal (and saved).
     func final(_ e: DayStore.Entry, dir: URL) -> DayRec.Analysis? {
-        guard let a = ready() else { return nil }
+        guard let a = analyzer() else { return nil }
         let file = dir.appendingPathComponent("\(e.start).json")
         let open = (try? Data(contentsOf: e.url)).flatMap(DayJournal.read)
         if let d = try? Data(contentsOf: file), let r = try? JSONDecoder().decode(DayRec.Analysis.self, from: d),
@@ -45,13 +46,14 @@ actor DayEngine {
 
     /// What the phone is doing now, from the last 20 minutes of the open journal.
     func live(_ e: DayStore.Entry) -> DayRec.Live? {
-        guard let a = ready(), var day = (try? Data(contentsOf: e.url)).flatMap(DayJournal.read), let last = day.points.last?.t else { return nil }
+        guard let a = analyzer(), var day = (try? Data(contentsOf: e.url)).flatMap(DayJournal.read), let last = day.points.last?.t else { return nil }
         day.points = day.points.filter { $0.t > last - 1_200_000 }
         return a.live(day)
     }
 }
 
-private let tbilisi = TimeZone(identifier: "Asia/Tbilisi") ?? .gmt
+/// The resort's clock (UTC+4), the one the whole ski day counts in.
+let tbilisi = TimeZone(identifier: "Asia/Tbilisi") ?? .gmt
 
 private func clock(_ ms: Int64) -> String {
     var c = Calendar(identifier: .gregorian); c.timeZone = tbilisi
@@ -253,7 +255,7 @@ private struct DaysScreen: View {
                     .padding(14).background(c.paper)
                     if !days.isEmpty {
                         Button(sure == 0 ? S.appDaysDeleteAllSure : S.appDaysDeleteAll) {
-                            if sure == 0 { DayStore.deleteAll(); sure = nil; load() } else { sure = 0 }
+                            if sure == 0 { DayStore.deleteAll(); MomentsStore.clear(DayRecorder.folder); sure = nil; load() } else { sure = 0 }
                         }
                         .font(ski.type.text(14, .bold)).foregroundStyle(c.red).padding(.top, 8)
                     }
@@ -285,9 +287,16 @@ private struct DayScreen: View {
     let start: Int64
     /// The example day (round 29): it lives in the caches, not in the days' folder, and is never counted.
     var sample = false
+    @Environment(AppModel.self) private var model
     @Environment(\.ski) private var ski
     @State private var day: DayRec.DayModel.Day?
+    @State private var story: DayRec.Moments?
     @State private var failed = false
+
+    /// The name to show for a run key, as the map shows it (PARITY 17).
+    private func runTitle(_ key: String) -> String {
+        model.runs?.pistes.first { $0.key == key }.map(runName(_:)) ?? key
+    }
 
     var body: some View {
         let c = ski.colors
@@ -302,6 +311,7 @@ private struct DayScreen: View {
                     }
                     if let day {
                         let s = day.summary
+                        if let story { StoryCard(story: story, summary: s, sample: sample, name: runTitle) }
                         HStack(spacing: 10) {
                             Num(value: String(s.descents), label: S.appDaySumDescents)
                             Num(value: DayRec.LiveNumbers.metres(s.dropM), label: S.appDaySumDrop)
@@ -328,6 +338,8 @@ private struct DayScreen: View {
             let entry = sample ? SampleDay.entry() : (try? DayStore(dir: dir))?.days().first { $0.start == start }
             guard let entry, let r = await DayEngine.shared.final(entry, dir: dir) else { failed = true; return }
             day = DayRec.DayModel.build(r, zone: tbilisi)
+            let trip = MomentsStore.tripKey(model.trip, start: entry.start, utcOffsetH: 4)
+            story = await DayEngine.shared.story(entry, dir: dir, sample: sample, trip: trip)
         }
     }
 

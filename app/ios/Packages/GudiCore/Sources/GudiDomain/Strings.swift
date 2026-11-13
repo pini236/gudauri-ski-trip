@@ -65,6 +65,10 @@ public final class Strings: @unchecked Sendable {
         set { lock.withLock { current = newValue } }
     }
 
+    /// Whether a key has a text at all. The ski day's moments pick a variant (`<key>.1`, `.2`, …) by the seed, and
+    /// count them with this (decision 76); every other text goes through the generated accessors.
+    public func has(_ key: String) -> Bool { lock.withLock { table[key] != nil } }
+
     /// The text of `key` in the current language, with {name} placeholders filled; a missing translation falls back
     /// to Hebrew, the source, and a missing key shows the key (never an empty label).
     public func text(_ key: String, count: Int? = nil, _ args: [String: String] = [:]) -> String {
