@@ -197,17 +197,19 @@ class DayRecService : Service() {
             @Suppress("MissingPermission")
             lm!!.requestLocationUpdates(LocationManager.GPS_PROVIDER, DayParams.GPS_MIN_TIME_MS, 0f, gps, handler!!.looper)
         } catch (e: Exception) { fail("no gps ${e.javaClass.simpleName}"); return }
+        val gpsAt = SystemClock.elapsedRealtime()
         if (Build.VERSION.SDK_INT >= 24) runCatching {
             @Suppress("MissingPermission", "DEPRECATION")
             gnssOn = lm!!.registerGnssStatusCallback(gnss, handler)
         }
-        Diag.log("dayrec gps asked for after ${SystemClock.elapsedRealtime() - begun}ms (satellite status ${if (gnssOn) "on" else "off"})")
+        Diag.log("dayrec gps asked for after ${gpsAt - begun}ms, satellite status ${if (gnssOn) "on" else "off"} took ${SystemClock.elapsedRealtime() - gpsAt}ms")
         // the accelerometer and the gyroscope at 50 a second, batched (the hardware collects and hands over every second); the
         // barometer slowly. The windows around a blow come from these two (condition 10). They call on this thread, not the main one.
         val period = 1_000_000 / DayParams.FALL_HZ
         sensors?.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)?.let { sensors?.registerListener(sensorListener, it, period, 1_000_000, handler) }
         sensors?.getDefaultSensor(Sensor.TYPE_GYROSCOPE)?.let { sensors?.registerListener(sensorListener, it, period, 1_000_000, handler) }
         sensors?.getDefaultSensor(Sensor.TYPE_PRESSURE)?.let { sensors?.registerListener(sensorListener, it, 1_000_000, handler) }
+        Diag.log("dayrec sensors registered after ${SystemClock.elapsedRealtime() - begun}ms")
         DayRec.started()
         Diag.log("dayrec ready ${System.currentTimeMillis() - DayRec.startedAt}ms after the tap (setup ${SystemClock.elapsedRealtime() - begun}ms) mode=${if (runMode) "run" else "day"}")
         handler?.postDelayed(pulse, PULSE_MS)

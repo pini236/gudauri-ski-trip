@@ -669,9 +669,9 @@ Contact: Pini Zolberg, pinisagent@gmail.com
 
 | # | מה | איפה |
 |---|---|---|
-| 1 | מזהה שני `io.github.pini236.skiapp.live`, בלי יכולות נוספות | https://developer.apple.com/account/resources/identifiers/add/bundleId |
-| 2 | פרופיל שני `Gudi Live Activity App Store`, מסוג `App Store`, עם אותה תעודת הפצה | https://developer.apple.com/account/resources/profiles/add |
-| 3 | סוד שביעי `IOS_PROFILE_LIVE_BASE64` (הפרופיל ב-base64) בסביבה `ios-release` | https://github.com/pini236/gudauri-ski-trip/settings/environments |
+| 1 | **(בוצע, לפני 7.11.2026; אומת 13.11.2026 ביומן הבנייה, ריצה 50)** מזהה שני `io.github.pini236.skiapp.live`, בלי יכולות נוספות | https://developer.apple.com/account/resources/identifiers/add/bundleId |
+| 2 | **(בוצע, לפני 7.11.2026; אומת 13.11.2026 ביומן הבנייה, ריצה 50)** פרופיל שני `Gudi Live Activity App Store`, מסוג `App Store`, עם אותה תעודת הפצה | https://developer.apple.com/account/resources/profiles/add |
+| 3 | **(בוצע, לפני 7.11.2026; אומת 13.11.2026 ביומן הבנייה, ריצה 50)** סוד שביעי `IOS_PROFILE_LIVE_BASE64` (הפרופיל ב-base64) בסביבה `ios-release` | https://github.com/pini236/gudauri-ski-trip/settings/environments |
 | 4 | ניקוי המק (כמו 4.2 ה) והודעה לסשן האייפון | `docs/APPLE.md` 4.2 |
 | 5 | עם הבנייה: להעלות ל-TestFlight (`variant=dayrec`), לבדוק בטלפון | https://appstoreconnect.apple.com/apps/6825506333/testflight/ios |
 | 6 | ליצור גרסה `1.1` ב-App Store Connect, לבחור בנייה, להדביק "מה חדש" והערות לסוקר (למטה), ולשלוח לסקירה | https://appstoreconnect.apple.com/apps/6825506333/distribution/ios/version/inflight |

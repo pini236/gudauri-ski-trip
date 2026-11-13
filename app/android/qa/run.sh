@@ -978,6 +978,9 @@ dayrec_steps() {
     tapText "מקליטים"; sleep 2
     for w in "המשך" "כל היום"; do [ -n "$(where "$w")" ] && { tapText "$w"; sleep 3; }; done
     sleep 1; shot dayrec-live-search # before the first reading: the numbers breathe
+    # the counter goes by the tap whatever the GPS does (13.11.2026, Pini's phone: nothing moved while it waited for a first reading)
+    uidump; c1=$(grep -oE 'text="[^"]*[0-9]:[0-9]{2}[^"]*"' "$OUT/ui.xml" | head -1); sleep 4; uidump; c2=$(grep -oE 'text="[^"]*[0-9]:[0-9]{2}[^"]*"' "$OUT/ui.xml" | head -1)
+    note "live counter: '$c1' then '$c2'"; { [ -n "$c1" ] && [ "$c1" != "$c2" ]; } || fail "the live counter did not count (first '$c1', then '$c2')"
     dayrec_walk 4; sleep 2; shot dayrec-live
     # the choice at the top of the screen: the same recording goes on, the service applies the switch (Diag logs it) and the choice shows
     tapText "ירידה אחת" && { waitlog "dayrec mode run applied" 10; dayrec_walk 3; shot dayrec-live-one; }

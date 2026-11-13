@@ -14,6 +14,8 @@
 
 ## חלק א: גוגל פליי, הצהרת שירות בחזית
 
+**סדר בפועל (13.11.2026):** השורה `Foreground service permissions` מופיעה ב-`App content` רק אחרי שמעלים קובץ עם ההרשאה. לכן קודם צעד 9 עד "שמירה" (בלי שליחה), אחר כך צעדים 2 עד 8, ורק אז שליחה לסקירה.
+
 **כלל:** מגישים אותה **בגרסה נפרדת**, בלי שום תיקון אחר בה. גוגל בודקת את ההצהרה לפני שהגרסה יוצאת, ולא מפרסמת כמה זמן זה לוקח.
 
 1. **הסרטון ליוטיוב.** להעלות כ"לא רשום" (`Unlisted`), בלי שמות אמיתיים בסרטון, ולהעתיק את הקישור.
@@ -32,11 +34,11 @@
    אם לא מאפשרת: לבחור `Navigation`, ובתיאור שבצעד הבא כבר כתוב שזה מעקב פעילות שהמשתמש התחיל.
 5. **תיאור הפיצ'ר** (`Describe the feature`), להדביק:
    ```
-   Ski day recording. While the app is open, the user taps "Start a ski day" (or "Measure a run"). The app then starts a location foreground service that reads GPS location, speed and altitude once per second, including while the screen is off and the phone is in a pocket. This lets the app show live speed, recognise which lift and which ski run the user is on, and build a timeline and map of the day. A notification is shown the whole time, with the live numbers and a Stop button. Recording stops when the user taps Stop, when a single measured run ends, or automatically after 20 minutes without movement outside the ski resort (60 minutes inside it), with a warning first. Location is processed and stored only on the device. It is never sent to our servers or to anyone else. The app does not request background location (ACCESS_BACKGROUND_LOCATION) or a battery-optimisation exemption.
+   Ski day recording. While the app is open, the user taps "Record" and chooses "All day" or "One descent". The app then starts a location foreground service that reads GPS location, speed and altitude once per second, including while the screen is off and the phone is in a pocket. This lets the app show live speed, recognise which lift and which ski run the user is on, and build a timeline and map of the day. A notification is shown the whole time, with a Stop button. Recording stops when the user taps Stop, when a single measured run ends, or automatically after 20 minutes without movement outside the ski resort (60 minutes inside it), with a warning first. Location is processed and stored only on the device. It is never sent to our servers or to anyone else. The app does not request background location (ACCESS_BACKGROUND_LOCATION) or a battery-optimisation exemption.
    ```
 6. **אם המערכת דוחה את המשימה** (`If deferred`), להדביק:
    ```
-   The user taps Start at the top of a run or when boarding a lift, and expects recording to begin at once. If the start is deferred, the beginning of the run or ride is not recorded: the top speed, the lift and the first run are missing or wrong, and the result shown to the user is incorrect.
+   The user taps Record at the top of a run or when boarding a lift, and expects recording to begin at once. If the start is deferred, the beginning of the run or ride is not recorded: the top speed, the lift and the first run are missing or wrong, and the result shown to the user is incorrect.
    ```
 7. **אם המערכת קוטעת את המשימה** (`If interrupted`), להדביק:
    ```
@@ -63,7 +65,7 @@
 
 ### הכנה בחשבון המפתח וב-GitHub (פעם אחת, לפי הסדר)
 
-1. **מזהה שני** להרחבה (Live Activity), בלי יכולות נוספות. ב-`Identifiers` ללחוץ `+`, `App IDs`, `App`, ולהקליד:
+1. **(בוצע, לפני 7.11.2026; אומת 13.11.2026 ביומן הבנייה, ריצה 50)** **מזהה שני** להרחבה (Live Activity), בלי יכולות נוספות. ב-`Identifiers` ללחוץ `+`, `App IDs`, `App`, ולהקליד:
    ```
    io.github.pini236.skiapp.live
    ```
@@ -71,7 +73,7 @@
    ```
    https://developer.apple.com/account/resources/identifiers/add/bundleId
    ```
-2. **פרופיל שני.** `Profiles`, `+`, סוג `App Store` (תחת `Distribution`), המזהה החדש `.live`, **אותה תעודת הפצה** כמו הפרופיל הראשון. שם:
+2. **(בוצע, לפני 7.11.2026; אומת 13.11.2026 ביומן הבנייה, ריצה 50)** **פרופיל שני.** `Profiles`, `+`, סוג `App Store` (תחת `Distribution`), המזהה החדש `.live`, **אותה תעודת הפצה** כמו הפרופיל הראשון. שם:
    ```
    Gudi Live Activity App Store
    ```
@@ -79,7 +81,7 @@
    ```
    https://developer.apple.com/account/resources/profiles/add
    ```
-3. **סוד שביעי ב-GitHub.** בסביבה `ios-release`, `Add environment secret`. שם:
+3. **(בוצע, לפני 7.11.2026; אומת 13.11.2026 ביומן הבנייה, ריצה 50)** **סוד שביעי ב-GitHub.** בסביבה `ios-release`, `Add environment secret`. שם:
    ```
    IOS_PROFILE_LIVE_BASE64
    ```
