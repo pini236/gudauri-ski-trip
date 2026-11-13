@@ -1101,15 +1101,34 @@ dayrecvideo() {
   vguard
   # taps drawn on the screen (8.11.2026, Pini: the taps were invisible in run 228); switched off again at the end
   adb shell settings put system show_touches 1
+  note "video: show_touches is $(adb shell settings get system show_touches | tr -d '\r')"
+  # a held tap (300 ms) so the touch circle stays on screen long enough to be seen (13.11.2026, Pini: no taps were visible)
+  tap() { adb shell input swipe "$1" "$2" "$1" "$2" 300; sleep 0.7; }
+  # one continuous walk down Tatra 2 for the whole video (13.11.2026): every call used to start again from the first
+  # point, so each call began with a jump back up the slope, which drew the cutting trail on the map
+  DW=0
+  dayrec_walk() { local i; for i in $(seq 1 "$1"); do DW=$((DW + 1))
+      geo "$(awk -v a=42.482631 -v i=$DW 'BEGIN { printf "%.6f", a - i * 0.00004 }')" "$(awk -v a=44.483401 -v i=$DW 'BEGIN { printf "%.6f", a + i * 0.00002 }')"; sleep 1; done; }
+  # a timeline per recording: seconds since the recording started (about, +-1 s) with what the script did and what the
+  # counter on screen read, to be read against the frames and against the app's log (13.11.2026, note 3)
+  REC_T=0; REC_NAME=x
+  vt() { mkdir -p "$OUT/video"; echo "+$(awk -v n="$(date +%s.%N)" -v s="$REC_T" 'BEGIN { printf "%.1f", n - s }')s $*" >> "$OUT/video/timeline-$REC_NAME.txt"; }
+  ctr() { uidump; vt "counter on screen: $(grep -o -E 'text="[0-9]+:[0-9]{2}(:[0-9]{2})?"' "$OUT/ui.xml" | tr '\n' ' ')"; }
   # a wait for a real answer of the screen (a word showing), not a fixed sleep
   waitwhere() { local w=$1 t=${2:-15} k; for k in $(seq 1 "$t"); do [ -n "$(where "$w")" ] && return 0; sleep 1; done; note "video: '$w' never showed"; return 1; }
   # two clean recordings (8.11.2026): the whole day from start to stop, then one descent from its start; the mode is never
   # switched in the middle of a recording (that showed the counter going back to 0:00 and the map flickering)
   recstart() { adb shell rm -f "/sdcard/$1.mp4"; adb shell "screenrecord --time-limit 120 --bit-rate 4000000 --size 720x1560 /sdcard/$1.mp4" > /dev/null 2>&1 &
-    REC=$!; sleep 2; }
+    REC=$!; REC_T=$(date +%s.%N); REC_NAME=$1; rm -f "$OUT/video/timeline-$1.txt"; sleep 2; }
   recstop() { adb shell pkill -2 screenrecord 2> /dev/null; sleep 3; kill "$REC" 2> /dev/null
     adb pull "/sdcard/$1.mp4" "$OUT/video/$2.mp4" > /dev/null 2>&1 || fail "the video $2 was not recorded"
-    [ -s "$OUT/video/$2.mp4" ] && note "video: $2 $(stat -c %s "$OUT/video/$2.mp4") bytes"; }
+    [ -s "$OUT/video/$2.mp4" ] && note "video: $2 $(stat -c %s "$OUT/video/$2.mp4") bytes"
+    # frames for whoever watches: a contact sheet (a frame every half second, left to right, top to bottom) and the frames
+    if command -v ffmpeg > /dev/null 2>&1; then
+      ffmpeg -loglevel error -y -i "$OUT/video/$2.mp4" -vf "fps=2,scale=216:-1,tile=10x8" -frames:v 1 "$OUT/video/$2-contact.jpg" 2>&1 | head -2
+      mkdir -p "$OUT/video/frames-$2"; ffmpeg -loglevel error -y -i "$OUT/video/$2.mp4" -vf "fps=2,scale=360:-1" -q:v 4 "$OUT/video/frames-$2/f%03d.jpg" 2>&1 | head -2
+    fi
+    adb logcat -d -v epoch 2> /dev/null | grep -i -E "dayrec|SkiQa" | grep -v -i "latitude\|longitude" > "$OUT/video/logcat-$2.txt"; }
   # the notification shade before recording: clear what can be cleared, and say what is left that is not ours
   shade_check() {
     # the emulator's own notifications (keyboard, serial console, performance): snoozed for an hour by their keys, which Clear all does not remove (run 234)
@@ -1123,25 +1142,39 @@ dayrecvideo() {
   shade_check
   # ---- recording 1: the whole day ----
   recstart dayrec-video-1
-  qa "--es qa.tab map"; sleep 3                                              # home, then the map
-  vguard; qa "--es qa.dayrec start"; waitlog "dayrec start result Started" 15
-  dayrec_walk 8; vguard                                                      # the live reading
-  adb shell input keyevent KEYCODE_HOME; sleep 1; dayrec_walk 4              # the phone's home: the recording goes on
-  adb shell cmd statusbar expand-notifications; sleep 2; dayrec_walk 3       # the permanent notification
+  vt "recording starts on the home screen"
+  vguard
+  # the start is a real tap on the entry "Record" (13.11.2026, Pini: the script started it by an extra and nothing on screen showed it)
+  waitwhere "Record" 15 || fail "the entry 'Record' never showed"
+  vt "tap Record"; tapText "Record"; sleep 1
+  [ -n "$(where 'Continue')" ] && { vt "tap Continue"; tapText "Continue"; }
+  waitwhere "One descent" 15 || fail "the live screen never showed after the tap on Record"
+  vt "the live screen is up"
+  for k in 1 2 3 4; do dayrec_walk 3; ctr; done; vguard                      # about 15 s on the live screen: the counter runs and rises
+  vt "press Home"; adb shell input keyevent KEYCODE_HOME; sleep 1; dayrec_walk 4   # the phone's home: the recording goes on
+  vt "open the notification shade"; adb shell cmd statusbar expand-notifications; sleep 2; dayrec_walk 3   # the permanent notification
   uidump; grep -q -P "[\x{0590}-\x{05FF}]" "$OUT/ui.xml" 2> /dev/null && note "video: Hebrew text in the notification shade: $(grep -o -P 'text="[^"]*[\x{0590}-\x{05FF}][^"]*"' "$OUT/ui.xml" | head -4 | tr '\n' ' ')"
-  tapText "Stop" && waitlog "dayrec stop user" 15                            # Stop in the notification
+  vt "tap Stop in the notification"; tapText "Stop" && waitlog "dayrec stop user" 15
   adb shell cmd statusbar collapse; sleep 1
+  # back to the app, to show it did not crash
+  vt "back to the app"; adb shell "am start -W -n $ACT" > /dev/null; sleep 4; ctr; vguard; sleep 2
+  note "video: the app process after Stop: $(adb shell pidof "$PKG" | tr -d '\r')"
   recstop dayrec-video-1 dayrec-service-declaration-1-day
   # ---- recording 2: one descent, from the start ----
   mark; adb shell "am start -W -n $ACT --es qa.tab home --es qa.trip none --es qa.time 2027-01-12T11:00 --es qa.stats off" > /dev/null
   sleep 4                                                                    # the process is alive: no "scene ready" comes again
   vguard
   recstart dayrec-video-2
+  vt "recording starts on the home screen"
   if waitwhere "Record" 15; then
-    tapText "Record"; sleep 1
-    [ -n "$(where 'Continue')" ] && tapText "Continue"
-    waitwhere "One descent" 10 && { tapText "One descent"; waitlog "dayrec mode run" 15 || fail "video: the switch to one descent did not reach the recorder"; dayrec_walk 6; vguard
-      waitwhere "Finish" 10 && tapText "Finish"; sleep 2; }
+    vt "tap Record"; tapText "Record"; sleep 1
+    [ -n "$(where 'Continue')" ] && { vt "tap Continue"; tapText "Continue"; }
+    waitwhere "One descent" 10 && {
+      dayrec_walk 3; ctr; dayrec_walk 3; ctr
+      vt "tap One descent"; tapText "One descent"; waitlog "dayrec mode run" 15 || fail "video: the switch to one descent did not reach the recorder"
+      vt "the switch reached the recorder"
+      ctr; for k in 1 2 3; do dayrec_walk 2; ctr; done; vguard
+      vt "tap Finish"; waitwhere "Finish" 10 && tapText "Finish"; sleep 2; }
   else fail "the entry 'Record' never showed"; fi
   qa "--es qa.tab days/sample"; sleep 6                                      # the day's timeline
   drag 540 1900 540 600 400; sleep 3
