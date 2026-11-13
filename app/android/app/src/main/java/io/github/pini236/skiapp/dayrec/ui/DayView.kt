@@ -28,6 +28,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
@@ -167,7 +168,8 @@ private fun Sum(value: String, label: String, modifier: Modifier, size: androidx
 internal fun DayMap(t: Track, runs: Runs?, maxLat: Double?, maxLon: Double?, height: androidx.compose.ui.unit.Dp = 340.dp, showPin: Boolean = true) {
     val c = Ski.colors
     val pin = stringResource(R.string.app_day_pin)
-    Box(Modifier.fillMaxWidth().height(height).background(c.glacier.copy(alpha = .10f)).border(BorderStroke(1.dp, c.rule))) {
+    // clipped to its frame: a canvas draws outside its own bounds unless told not to, and the lines of the runs near a short track are long
+    Box(Modifier.fillMaxWidth().height(height).clipToBounds().background(c.glacier.copy(alpha = .10f)).border(BorderStroke(1.dp, c.rule))) {
         Canvas(Modifier.fillMaxSize()) {
             if (t.x.isEmpty()) return@Canvas
             var x0 = t.x.min(); var x1 = t.x.max(); var y0 = t.y.min(); var y1 = t.y.max()
