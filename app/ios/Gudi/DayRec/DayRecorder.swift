@@ -108,6 +108,8 @@ final class DayRecorder: NSObject, CLLocationManagerDelegate {
         let header = DayJournal.Header(tz: "Asia/Tbilisi", resort: "gudauri", device: Self.model, start: Self.ms(now), mode: runMode)
         guard let w = try? store.begin(header) else { return }
         writer = w; points = 0; since = now
+        // the measurement: that a day began, nothing else (no position, no speed, no run)
+        Telemetry.shared.event("dayrec_start")
         run()
     }
 
@@ -153,6 +155,10 @@ final class DayRecorder: NSObject, CLLocationManagerDelegate {
         lm.allowsBackgroundLocationUpdates = false
         motion.stopAccelerometerUpdates()
         try? writer?.close(Self.ms(Date()), reason: reason)
+        if writer != nil {
+            // minutes and the reason, by the contract (docs/GROWTH.md): never a position, a run or a speed
+            Telemetry.shared.event("dayrec_stop", ["minutes": Int((Date().timeIntervalSince(since) / 60).rounded()), "reason": reason])
+        }
         writer = nil; last = nil
         live.end()
         state = .idle
