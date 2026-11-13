@@ -101,6 +101,8 @@ private struct RecordScreen: View {
                 if let e = DayStore.latest() {
                     live = await DayEngine.shared.live(e)
                     if ticks % 24 == 0 { sofar = await DayEngine.shared.final(e, dir: DayRecorder.folder) }
+                    // one descent (section י 1a): it stops by itself the moment the analyser says the descent is over
+                    if rec.runMode == "run", live?.autostop != nil { rec.stop(reason: "auto") }
                 }
                 ticks += 1
                 try? await Task.sleep(for: .seconds(5))
@@ -110,6 +112,10 @@ private struct RecordScreen: View {
 
     @ViewBuilder private func content(_ rec: DayRecorder) -> some View {
         let c = ski.colors
+        if let m = rec.idleWarnMin {
+            Text(S.appDayrecIdle(min: String(m))).font(ski.type.text(13)).foregroundStyle(c.muted)
+                .frame(maxWidth: .infinity, alignment: .leading)
+        }
         switch rec.state {
         case .recording(let since, _):
             Text(S.appRecNow(time: DayRec.LiveNumbers.elapsed(ms: Int64(Date().timeIntervalSince(since) * 1000)))).font(ski.type.text(14)).foregroundStyle(c.muted)

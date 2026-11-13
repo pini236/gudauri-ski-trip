@@ -2,6 +2,7 @@
 import Foundation
 import CoreLocation
 import CoreMotion
+import GudiData
 import GudiDomain
 
 /// The ski day's recorder on iPhone (decision 76; docs/ARCHITECTURE.md m-8): the GPS and the accelerometer into the
@@ -40,6 +41,10 @@ final class DayRecorder: NSObject, CLLocationManagerDelegate {
     @ObservationIgnored private var writer: DayWriter?
     @ObservationIgnored private var points = 0
     @ObservationIgnored private var since = Date()
+    /// The day stops on its own: 20 minutes still outside the resort, 60 inside (m-8, condition 2).
+    @ObservationIgnored private var idle = DayRec.IdleWatch()
+    /// Minutes left before the day stops on its own, for the live screen; nil while it is going.
+    private(set) var idleWarnMin: Int?
     @ObservationIgnored private let lm = CLLocationManager()
     @ObservationIgnored private let motion = CMMotionManager()
     @ObservationIgnored private let motionQueue = OperationQueue()
@@ -47,7 +52,8 @@ final class DayRecorder: NSObject, CLLocationManagerDelegate {
     @ObservationIgnored private let accel = AccelWindow()
     @ObservationIgnored private var pendingStart = false
     /// `day`, or `run` (timing one descent): the journal's header says which.
-    @ObservationIgnored private var runMode = "day"
+    /// `day`, or `run` for timing one descent (section י 1a), which stops by itself.
+    @ObservationIgnored private(set) var runMode = "day"
     /// The Live Activity on the lock screen and in the Dynamic Island (1.1).
     @ObservationIgnored private let live = DayLive()
 
@@ -107,7 +113,7 @@ final class DayRecorder: NSObject, CLLocationManagerDelegate {
         let now = Date()
         let header = DayJournal.Header(tz: "Asia/Tbilisi", resort: "gudauri", device: Self.model, start: Self.ms(now), mode: runMode)
         guard let w = try? store.begin(header) else { return }
-        writer = w; points = 0; since = now
+        writer = w; points = 0; since = now; idle.reset(); idleWarnMin = nil
         // the measurement: that a day began, nothing else (no position, no speed, no run)
         Telemetry.shared.event("dayrec_start")
         run()
@@ -203,6 +209,12 @@ final class DayRecorder: NSObject, CLLocationManagerDelegate {
             points += 1
             last = p
             live.add(p)
+            // the day that stops on its own (the same rule as Android's IdleWatch)
+            switch idle.feed(p.t, Geo.x(p.lon), Geo.y(p.lat)) {
+            case .fine: idleWarnMin = nil
+            case .warn(let left): idleWarnMin = Int((left + 59_999) / 60_000)
+            case .stop(let outside): idleWarnMin = nil; stop(reason: outside ? "outside" : "idle"); return
+            }
         }
         state = .recording(since: since, points: points)
     }
