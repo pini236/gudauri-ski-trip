@@ -75,4 +75,10 @@ class ReplayAtTest {
         assertEquals(0L, LiveNumbers.sinceTap(5_000L, 0L))
         assertEquals(0L, LiveNumbers.sinceTap(1_000L, 2_000L))
     }
+
+    @Test fun searchingOnlyWhileRecordingWithoutAReading() {
+        assertTrue(LiveNumbers.searching(true, 0L))
+        assertTrue(!LiveNumbers.searching(true, 5L))
+        assertTrue(!LiveNumbers.searching(false, 0L))
+    }
 }

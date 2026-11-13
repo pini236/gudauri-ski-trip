@@ -1,5 +1,12 @@
 package io.github.pini236.skiapp.dayrec.ui
 
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -21,6 +28,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
@@ -30,6 +38,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
@@ -121,6 +131,23 @@ private fun PermRow(icon: ImageVector, text: String) {
 }
 
 /**
+ * While the phone looks for its first reading (between the tap and the first dot) the numbers breathe: a soft pulse of their
+ * opacity, so the screen is seen to be waiting and not to be saying "0". No new text, no change of layout or colour; it
+ * stops (without a jump: a short fade to full) when the reading comes, and it is still when the phone asks for reduced
+ * motion. Read inside the graphics layer, so it redraws the two blocks and recomposes nothing.
+ */
+@Composable
+private fun searchPulse(searching: Boolean): () -> Float {
+    val still = io.github.pini236.skiapp.ui.Motion.reduced(LocalContext.current)
+    val settle = animateFloatAsState(if (searching || still) 0f else 1f, tween(250), label = "settle")
+    val running = !still && (searching || settle.value < 1f)
+    val pulse: State<Float> = if (running) rememberInfiniteTransition(label = "search").animateFloat(
+        initialValue = .35f, targetValue = 1f, animationSpec = infiniteRepeatable(tween(900, easing = LinearEasing), RepeatMode.Reverse), label = "pulse",
+    ) else remember { mutableStateOf(1f) }
+    return { if (searching) pulse.value else pulse.value + (1f - pulse.value) * settle.value }
+}
+
+/**
  * The live screen: the speed now, what you are doing, four numbers, and "Finish". Read from [DayRec] once a second; the
  * recorder never waits for it. "Probably" on what you do (a causal guess); the timeline at the end of the day is the truth.
  */
@@ -136,6 +163,7 @@ fun DayLiveScreen(liftName: (String) -> String, runName: (String) -> String = { 
     val single = picked ?: DayRec.single
     LaunchedEffect(now) { if (picked == DayRec.single) picked = null }
     val recording = DayRec.recording
+    val pulse = searchPulse(LiveNumbers.searching(recording, DayRec.lastFixAt))
     // from the tap, not from the first reading: the counter neither sits on 0:00 while the phone finds its satellites nor goes back to it when they are found
     val elapsed = LiveNumbers.sinceTap(now, DayRec.startedAt)
     val red = Color(0xFFE5322D)
@@ -161,14 +189,14 @@ fun DayLiveScreen(liftName: (String) -> String, runName: (String) -> String = { 
             if (recording) RecDot(Modifier.size(14.dp))
             Text(stringResource(R.string.app_rec_now, LiveNumbers.elapsed(elapsed)), style = Ski.type.bodyBold, color = red)
         }
-        Row(verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+        Row(Modifier.graphicsLayer { alpha = pulse() }, verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
             Text(LiveNumbers.kmh(DayRec.speedNow), style = Ski.type.title.copy(fontSize = 120.sp), color = c.ink)
             Text(stringResource(R.string.app_rec_unit), Modifier.padding(bottom = 18.dp), style = Ski.type.number.copy(fontSize = 28.sp), color = c.ink)
         }
         Text(what(live, liftName, runName), style = Ski.type.bodyBold.copy(fontSize = 17.sp), color = c.ink, modifier = Modifier.heightIn(min = 44.dp))
         if (recording && LiveNumbers.weakGps(now, DayRec.lastFixAt, DayRec.startedAt)) Text(stringResource(R.string.app_rec_gps_weak), style = Ski.type.small, color = red)
         Spacer(Modifier.height(16.dp))
-        Row(Modifier.fillMaxWidth().border(BorderStroke(1.dp, c.rule)).padding(vertical = 14.dp)) {
+        Row(Modifier.fillMaxWidth().graphicsLayer { alpha = pulse() }.border(BorderStroke(1.dp, c.rule)).padding(vertical = 14.dp)) {
             Num(LiveNumbers.maxKmh(live?.maxKmh ?: st?.maxKmh), stringResource(R.string.app_rec_max), Modifier.weight(1f))
             Num(LiveNumbers.km(st?.skiDistM), stringResource(R.string.app_rec_dist), Modifier.weight(1f))
             Num(LiveNumbers.metres(st?.dropM), stringResource(R.string.app_rec_drop), Modifier.weight(1f))

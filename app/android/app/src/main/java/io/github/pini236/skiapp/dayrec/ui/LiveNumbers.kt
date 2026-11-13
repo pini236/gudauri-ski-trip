@@ -28,6 +28,9 @@ object LiveNumbers {
      */
     fun sinceTap(now: Long, startedAt: Long): Long = if (startedAt > 0L) (now - startedAt).coerceAtLeast(0L) else 0L
 
+    /** Waiting for the first reading: recording, and none has come yet (the screen breathes meanwhile, see DayLiveScreen). */
+    fun searching(recording: Boolean, lastFix: Long): Boolean = recording && lastFix == 0L
+
     /** No reading for this long while recording: the signal is weak (a valley, a tunnel, a pocket in the cold). */
     const val WEAK_MS = 20_000L
 
