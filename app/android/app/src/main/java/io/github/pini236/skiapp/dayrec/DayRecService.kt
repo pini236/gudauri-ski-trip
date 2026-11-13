@@ -89,9 +89,20 @@ class DayRecService : Service() {
             if (stopping) return
             val last = DayRec.lastFixAt
             Diag.log("dayrec pulse fixes=$fixes lastFix=${if (last > 0) "${(System.currentTimeMillis() - last) / 1000}s ago" else "none"} sats=$satsUsed/$satsSeen mode=${if (runMode) "run" else "day"} live=${DayRec.live != null} engine=${engine != null}")
+            // no reading at all this long after the start: ask the GPS again (some phones leave the first request unanswered), a few times
+            if (fixes == 0 && kicks < MAX_KICKS && System.currentTimeMillis() - DayRec.startedAt >= KICK_AFTER_MS) {
+                kicks++
+                runCatching {
+                    lm?.removeUpdates(gps)
+                    @Suppress("MissingPermission")
+                    lm?.requestLocationUpdates(LocationManager.GPS_PROVIDER, DayParams.GPS_MIN_TIME_MS, 0f, gps, handler!!.looper)
+                    Diag.log("dayrec no reading yet: the GPS asked again ($kicks)")
+                }.onFailure { Diag.log("dayrec the GPS could not be asked again: ${it.javaClass.simpleName}") }
+            }
             handler?.postDelayed(this, PULSE_MS)
         }
     }
+    private var kicks = 0
 
     private val gps = LocationListener { onLocation(it) }
     private val sensorListener = object : SensorEventListener {
@@ -163,7 +174,7 @@ class DayRecService : Service() {
             // the sensors and the engine are the recorder thread's: the blow goes over as the log has it
             handler?.post { engine?.addEvent(DayLog.impactJson(t, t0, hz, a, g)) }
         }
-        firstAt = System.currentTimeMillis(); lastAt = 0L; fixes = 0; DayRec.fixCount = 0
+        firstAt = System.currentTimeMillis(); lastAt = 0L; fixes = 0; kicks = 0; DayRec.fixCount = 0
 
         // 14 hours is longer than any lift day: a lock that cannot be forgotten
         lock = getSystemService(PowerManager::class.java).newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "skiapp:dayrec").apply { acquire(14 * 3600_000L) }
@@ -197,17 +208,19 @@ class DayRecService : Service() {
             @Suppress("MissingPermission")
             lm!!.requestLocationUpdates(LocationManager.GPS_PROVIDER, DayParams.GPS_MIN_TIME_MS, 0f, gps, handler!!.looper)
         } catch (e: Exception) { fail("no gps ${e.javaClass.simpleName}"); return }
+        val gpsAt = SystemClock.elapsedRealtime()
         if (Build.VERSION.SDK_INT >= 24) runCatching {
             @Suppress("MissingPermission", "DEPRECATION")
             gnssOn = lm!!.registerGnssStatusCallback(gnss, handler)
         }
-        Diag.log("dayrec gps asked for after ${SystemClock.elapsedRealtime() - begun}ms (satellite status ${if (gnssOn) "on" else "off"})")
+        Diag.log("dayrec gps asked for after ${gpsAt - begun}ms, satellite status ${if (gnssOn) "on" else "off"} took ${SystemClock.elapsedRealtime() - gpsAt}ms")
         // the accelerometer and the gyroscope at 50 a second, batched (the hardware collects and hands over every second); the
         // barometer slowly. The windows around a blow come from these two (condition 10). They call on this thread, not the main one.
         val period = 1_000_000 / DayParams.FALL_HZ
         sensors?.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)?.let { sensors?.registerListener(sensorListener, it, period, 1_000_000, handler) }
         sensors?.getDefaultSensor(Sensor.TYPE_GYROSCOPE)?.let { sensors?.registerListener(sensorListener, it, period, 1_000_000, handler) }
         sensors?.getDefaultSensor(Sensor.TYPE_PRESSURE)?.let { sensors?.registerListener(sensorListener, it, 1_000_000, handler) }
+        Diag.log("dayrec sensors registered after ${SystemClock.elapsedRealtime() - begun}ms")
         DayRec.started()
         Diag.log("dayrec ready ${System.currentTimeMillis() - DayRec.startedAt}ms after the tap (setup ${SystemClock.elapsedRealtime() - begun}ms) mode=${if (runMode) "run" else "day"}")
         handler?.postDelayed(pulse, PULSE_MS)
@@ -372,6 +385,8 @@ class DayRecService : Service() {
         /** When the switch was tapped (epoch ms), so the diagnostic log can say how long the service took to apply it. */
         const val AT = "at"
         private const val PULSE_MS = 15_000L
+        private const val KICK_AFTER_MS = 20_000L
+        private const val MAX_KICKS = 4
         /** The live view is worked out this often in a day (in a single run, every second). */
         const val LIVE_EVERY_S = 5L
         /** The whole day so far, smoothed, for the screens. */

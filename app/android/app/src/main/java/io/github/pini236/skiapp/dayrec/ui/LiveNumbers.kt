@@ -28,6 +28,14 @@ object LiveNumbers {
      */
     fun sinceTap(now: Long, startedAt: Long): Long = if (startedAt > 0L) (now - startedAt).coerceAtLeast(0L) else 0L
 
+    /**
+     * When the counter starts counting from: the tap, as soon as there is one. The recorder writes its own start time a moment
+     * later (and a start that is slow, or a phone that is slow to start the service, leaves the last recording's time there), so
+     * a start time older than the tap is not this recording's: the counter then goes by the tap and never sits on 0:00 or shows
+     * the last day's hours.
+     */
+    fun began(tapAt: Long, startedAt: Long): Long = if (tapAt > 0L && startedAt < tapAt) tapAt else startedAt
+
     /** Waiting for the first reading: recording, and none has come yet (the screen breathes meanwhile, see DayLiveScreen). */
     fun searching(recording: Boolean, lastFix: Long): Boolean = recording && lastFix == 0L
 
