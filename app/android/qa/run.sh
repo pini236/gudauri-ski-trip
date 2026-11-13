@@ -1172,7 +1172,14 @@ dayrecvideo() {
   vt "press Home"; adb shell input keyevent KEYCODE_HOME; sleep 1; dayrec_walk 4   # the phone's home: the recording goes on
   vt "open the notification shade"; adb shell cmd statusbar expand-notifications; sleep 2; dayrec_walk 3   # the permanent notification
   uidump; grep -q -P "[\x{0590}-\x{05FF}]" "$OUT/ui.xml" 2> /dev/null && note "video: Hebrew text in the notification shade: $(grep -o -P 'text="[^"]*[\x{0590}-\x{05FF}][^"]*"' "$OUT/ui.xml" | head -4 | tr '\n' ' ')"
-  vt "tap Stop in the notification"; tapText "Stop" && waitlog "dayrec stop user" 15
+  vt "tap Stop in the notification"
+  tapText "Stop" || fail "no 'Stop' button in the notification"
+  waitlog "dayrec stop user" 15 || fail "Stop in the notification: the app never logged a user stop"
+  sleep 3
+  # real proof of the stop (13.11.2026): the service is gone from the running services, and no notification is left
+  adb shell dumpsys activity services "$PKG" 2> /dev/null | grep -q 'DayRecService' && fail "Stop in the notification: DayRecService still runs"
+  adb shell dumpsys notification --noredact 2> /dev/null | grep -q "pkg=$PKG.*DayRec" && fail "Stop in the notification: the recording notification is still there"
+  note "video: DayRecService is not running after Stop (verified by dumpsys)"
   adb shell cmd statusbar collapse; sleep 1
   # back to the app, to show it did not crash
   vt "back to the app"; adb shell "am start -W -n $ACT" > /dev/null; sleep 4; ctr; vguard; sleep 2
