@@ -9,5 +9,6 @@ import java.io.File
  */
 object FieldTools {
     @Composable fun AboutRow() {}
+    @Composable fun DiagRow() {}
     @Composable fun DayExtras(@Suppress("UNUSED_PARAMETER") file: File) {}
 }
