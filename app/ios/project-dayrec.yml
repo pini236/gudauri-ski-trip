@@ -17,7 +17,12 @@ targets:
         NSLocationTemporaryUsageDescriptionDictionary:
           DayRecording: "Recording your ski day needs your precise location: speeds and runs cannot be told from an approximate one. The track stays on this iPhone."
         NSSupportsLiveActivities: true
-    # an array in this file is added to project.yml's (XcodeGen appends), so only the extension is listed
+    # an array in this file is added to project.yml's (XcodeGen appends), so only what the ski day adds is listed
+    sources:
+      # the example day of My days (`tools/build-ios-data.py`): only this build carries it
+      - path: Gudi/Resources/DayRec
+        type: folder
+        buildPhase: resources
     dependencies:
       - target: GudiLive
         embed: true

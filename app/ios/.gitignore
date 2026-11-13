@@ -2,6 +2,8 @@
 Gudi.xcodeproj/
 # copied from site/ at build time (tools/build-ios-data.py)
 Gudi/Resources/Data/
+# the example day, packed at build time (tools/build-ios-data.py), only in the ski-day build
+Gudi/Resources/DayRec/
 # typed texts from i18n/strings.json (tools/build-ios-strings.py)
 Gudi/Generated/
 Gudi/Info.plist

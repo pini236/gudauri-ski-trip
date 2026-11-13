@@ -105,7 +105,7 @@ struct RootView: View {
                         case .group: GroupScreen()
                         case .about: aboutScreen(mode, lang)
                         case .trip: TripFormScreen()
-                        case .record, .days, .day: dayRecScreen(r)
+                        case .record, .days, .day, .daySample: dayRecScreen(r)
                         case .groups(let g): GroupFlow(route: g)
                         }
                     }

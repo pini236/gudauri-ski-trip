@@ -10,6 +10,7 @@ import GudiDomain
     case .record: RecordScreen()
     case .days: DaysScreen()
     case .day(let start): DayScreen(start: start)
+    case .daySample: DayScreen(start: 0, sample: true)
     default: EmptyView()
     }
 }
@@ -241,6 +242,15 @@ private struct DaysScreen: View {
                         }
                         .padding(14).background(c.paper)
                     }
+                    // the example day (round 29): always there, after the real days, and never counted
+                    Button { model.go(.daySample) } label: {
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(S.appDaySample).font(ski.type.text(17, .bold)).foregroundStyle(c.glacier)
+                            Text(S.appDaySampleNote).font(ski.type.text(14)).foregroundStyle(c.muted)
+                        }
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                    }
+                    .padding(14).background(c.paper)
                     if !days.isEmpty {
                         Button(sure == 0 ? S.appDaysDeleteAllSure : S.appDaysDeleteAll) {
                             if sure == 0 { DayStore.deleteAll(); sure = nil; load() } else { sure = 0 }
@@ -273,6 +283,8 @@ extension DayStore {
 
 private struct DayScreen: View {
     let start: Int64
+    /// The example day (round 29): it lives in the caches, not in the days' folder, and is never counted.
+    var sample = false
     @Environment(\.ski) private var ski
     @State private var day: DayRec.DayModel.Day?
     @State private var failed = false
@@ -282,6 +294,12 @@ private struct DayScreen: View {
         Screen(title: S.appDayTitle) {
             ScrollView {
                 VStack(alignment: .leading, spacing: 14) {
+                    if sample {
+                        Text(S.appDaySampleNote)
+                            .font(ski.type.text(14, .bold)).foregroundStyle(c.glacier)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(12).background(c.paper)
+                    }
                     if let day {
                         let s = day.summary
                         HStack(spacing: 10) {
@@ -306,8 +324,9 @@ private struct DayScreen: View {
             }
         }
         .task {
-            let entry = (try? DayStore(dir: DayRecorder.folder))?.days().first { $0.start == start }
-            guard let entry, let r = await DayEngine.shared.final(entry, dir: DayRecorder.folder) else { failed = true; return }
+            let dir = sample ? SampleDay.folder : DayRecorder.folder
+            let entry = sample ? SampleDay.entry() : (try? DayStore(dir: dir))?.days().first { $0.start == start }
+            guard let entry, let r = await DayEngine.shared.final(entry, dir: dir) else { failed = true; return }
             day = DayRec.DayModel.build(r, zone: tbilisi)
         }
     }

@@ -18,7 +18,7 @@ targets:
     platform: iOS
     sources:
       - path: Gudi
-        excludes: [Resources/Data, Resources/Fonts]
+        excludes: [Resources/Data, Resources/DayRec, Resources/Fonts]
       - path: Gudi/Resources/Data
         type: folder
         buildPhase: resources
