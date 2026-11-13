@@ -23,7 +23,8 @@ actor DayEngine {
     private var analyzer: DayRec.Analyzer?
 
     /// The analyser, built once from the packaged data (the moments read its network and thresholds too).
-    func analyzer() -> DayRec.Analyzer? {
+    /// Not `analyzer()`: that name is the stored property's.
+    func ready() -> DayRec.Analyzer? {
         if let analyzer { return analyzer }
         func data(_ n: String) -> Data? { Bundle.main.url(forResource: n, withExtension: "json", subdirectory: "Data").flatMap { try? Data(contentsOf: $0) } }
         guard let p = data("dayrec-params"), let rl = data("runs-and-lifts"), let t = data("terrain"),
@@ -35,7 +36,7 @@ actor DayEngine {
 
     /// The truth of a day: the saved result if it is of this algorithm, else worked out from the journal (and saved).
     func final(_ e: DayStore.Entry, dir: URL) -> DayRec.Analysis? {
-        guard let a = analyzer() else { return nil }
+        guard let a = ready() else { return nil }
         let file = dir.appendingPathComponent("\(e.start).json")
         let open = (try? Data(contentsOf: e.url)).flatMap(DayJournal.read)
         if let d = try? Data(contentsOf: file), let r = try? JSONDecoder().decode(DayRec.Analysis.self, from: d),
@@ -48,7 +49,7 @@ actor DayEngine {
 
     /// What the phone is doing now, from the last 20 minutes of the open journal.
     func live(_ e: DayStore.Entry) -> DayRec.Live? {
-        guard let a = analyzer(), var day = (try? Data(contentsOf: e.url)).flatMap(DayJournal.read), let last = day.points.last?.t else { return nil }
+        guard let a = ready(), var day = (try? Data(contentsOf: e.url)).flatMap(DayJournal.read), let last = day.points.last?.t else { return nil }
         day.points = day.points.filter { $0.t > last - 1_200_000 }
         return a.live(day)
     }

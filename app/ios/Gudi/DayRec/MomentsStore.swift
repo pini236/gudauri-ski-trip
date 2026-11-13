@@ -47,7 +47,7 @@ extension DayEngine {
     /// The story of a day: what the engine chose, worked out once and kept beside the journal. The example day never
     /// touches the real history.
     func story(_ e: DayStore.Entry, dir: URL, sample: Bool, trip: DayRec.TripKey?) -> DayRec.Moments? {
-        guard let a = analyzer(), let config = a.params.moments, let r = final(e, dir: dir) else { return nil }
+        guard let a = ready(), let config = a.params.moments, let r = final(e, dir: dir) else { return nil }
         let start = e.start
         let saved = MomentsStore.momentsURL(dir, start)
         let counted = sample ? [] : MomentsStore.applied(dir)
