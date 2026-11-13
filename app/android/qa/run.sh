@@ -1127,9 +1127,12 @@ dayrecvideo() {
     adb shell input swipe "$1" "$2" "$1" "$2" 300; sleep 0.7; }
   # one continuous walk down Tatra 2 for the whole video (13.11.2026): every call used to start again from the first
   # point, so each call began with a jump back up the slope, which drew the cutting trail on the map
-  DW=0
-  dayrec_walk() { local i; for i in $(seq 1 "$1"); do DW=$((DW + 1))
-      geo "$(awk -v a=42.482631 -v i=$DW 'BEGIN { printf "%.6f", a - i * 0.00009 }')" "$(awk -v a=44.483401 -v i=$DW 'BEGIN { printf "%.6f", a + i * 0.00004 }')"; sleep 1; done; }
+  # the phone's GPS for the whole video is a real-shaped descent with speed and altitude (13.11.2026, the manager: the
+  # live screen showed 0 km/h and "Standing"): qa/gpsreplay.py feeds NMEA once a second in the background, so the walk
+  # no longer stops while the script reads the screen
+  python3 -I "$(dirname "$0")/gpsreplay.py" "$(cd "$(dirname "$0")/../../.." && pwd)/tools/fixtures/dayrec-logs/full_day.jsonl" &
+  GPSR=$!
+  dayrec_walk() { sleep "$1"; }
   # a timeline per recording: seconds since the recording started (about, +-1 s) with what the script did and what the
   # counter on screen read, to be read against the frames and against the app's log (13.11.2026, note 3)
   REC_T=0; REC_NAME=x
@@ -1215,11 +1218,13 @@ dayrecvideo() {
       ctr; for k in 1 2 3; do dayrec_walk 2; ctr; done; vguard
       vt "tap Finish"; waitwhere "Finish" 10 && tapText "Finish"; sleep 2; }
   else fail "the entry 'Record' never showed"; fi
-  vt "open the day's timeline"
-  qa "--es qa.tab days/sample"; sleep 6                                      # the day's timeline
+  # Finish opens the recorded day itself (the day of this recording, not the example day: the manager saw "Example" when the script
+  # opened days/sample here), so the video ends on the real summary
+  vt "open the day's timeline"; sleep 6
   drag 540 1900 540 600 400; sleep 3
   vguard
   recstop dayrec-video-2 dayrec-service-declaration-2-descent
+  kill "$GPSR" 2> /dev/null
   adb shell settings put system show_touches 0
   if command -v ffmpeg > /dev/null 2>&1; then
     bash "$(dirname "$0")/cut30.sh" "$OUT/video" 2>&1 | while read -r l; do note "video: $l"; done
