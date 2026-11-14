@@ -6,6 +6,7 @@
 # Fails on: startAccelerometerUpdates(to:, startDeviceMotionUpdates(to:, startGyroUpdates(to:, startMagnetometerUpdates(to:,
 #   startUpdates(to:, requestTemporaryFullAccuracyAuthorization, addObserver(forName:..queue: other than .main),
 #   dataTask(with:, with a closure literal or a trailing closure.
+# Every isolation-ok needs a written reason next to it and review approval. Pattern check only, not a replacement for the compiler.
 # Allowed: the closure comes from a function call such as Self.handler(x). A deliberate exception: put "isolation-ok" in a comment on the line.
 # usage: check-ios-isolation.sh [dir ...]   (default: app/ios/Gudi)
 set -u
@@ -26,7 +27,7 @@ for root in sys.argv[1:]:
                 depth += (src[j] == '(') - (src[j] == ')')
                 j += 1
             args = src[i:j - 1]
-            tail = src[j:j + 3].lstrip(' ')
+            tail = src[j:j + 40].lstrip()
             line_no = src.count('\n', 0, m.start()) + 1
             line = src.splitlines()[line_no - 1]
             if 'isolation-ok' in line:
