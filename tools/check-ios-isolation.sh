@@ -55,14 +55,5 @@ for f in sorted(p for r in sys.argv[1:] for p in pathlib.Path(r).rglob('*.swift'
         print(f'::error file={f},line={line_no}::closure literal assigned to {m.group(1)} in a @MainActor file; build it in a nonisolated static function')
 for f in sorted(p for r in sys.argv[1:] for p in pathlib.Path(r).rglob('*.swift')):
     src = f.read_text(encoding='utf-8')
-    if '@MainActor' not in src:
-        continue
-    for m in ASSIGN.finditer(src):
-        line_no = src.count('\n', 0, m.start()) + 1
-        if 'isolation-ok' in src.splitlines()[line_no - 1]:
-            continue
-        bad = 1
-        print(f'::error file={f},line={line_no}::closure literal assigned to {m.group(1)} in a @MainActor file; build it in a nonisolated static function')
-print('isolation gate: ' + ('FAILED' if bad else 'ok'))
 sys.exit(bad)
 PY
