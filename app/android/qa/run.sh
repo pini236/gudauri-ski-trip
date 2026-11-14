@@ -220,8 +220,14 @@ descent() {
   for i in 1 2 3; do hold $((W / 2)) $((H / 2)) 700; sleep 0.6; shot "descent-jump-$i"; done
   hold $((W / 2)) $((H / 2)) 300; sleep 0.15; hold $((W / 2)) $((H / 2)) 1600; shot descent-flip
   sleep 6; shot descent-later
-  # straight to the bottom: the lift, the result, the copy for the group
-  mark; qa "--es qa.descent bottom"; sleep 4.5; shot descent-end
+  # straight to the bottom: the lift, the result, the copy for the group. The count is from the game's start (the mark above),
+  # not from here: on a slow emulator the shots above take so long that the avalanche may catch the skier first ("descent
+  # done ... caught", 14.11.2026, run 263), and then the run is over already: the shortcut would only revive it
+  if tail -n +"$((MARK + 1))" "$OUT/logcat.txt" | grep "SkiQa.*descent done" > /dev/null; then
+    note "the run ended by itself before the shortcut to the bottom (a slow emulator)"; sleep 1; shot descent-end
+  else
+    qa "--es qa.descent bottom"; sleep 4.5; shot descent-end
+  fi
   waitlog "descent done" 6
   [ -n "$(where "עוד ירידה")" ] || fail "no 'another run' after the descent"
   tapText "העתקת התוצאה לקבוצה" && { sleep .8; shot descent-copied; waitlog "descent copied" 3; }
