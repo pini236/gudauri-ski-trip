@@ -108,7 +108,7 @@ final class DayRecorder: NSObject, CLLocationManagerDelegate {
     nonisolated private static func accelHandler(_ w: AccelWindow) -> CMAccelerometerHandler {
         { d, _ in
             guard let a = d?.acceleration else { return }
-            w.add((a.x * a.x + a.y * a.y + a.z * a.z).squareRoot())
+            w.add(x: a.x, y: a.y, z: a.z)
         }
     }
 
@@ -234,22 +234,6 @@ final class DayRecorder: NSObject, CLLocationManagerDelegate {
     static var model: String {
         var s = utsname(); uname(&s)
         return withUnsafeBytes(of: &s.machine) { String(decoding: $0.prefix { $0 != 0 }, as: UTF8.self) }
-    }
-}
-
-/// The accelerometer's magnitudes between two readings, filled on the motion queue and drained on the main actor.
-private final class AccelWindow: @unchecked Sendable {
-    private let lock = NSLock()
-    private var n = 0.0, sum = 0.0, sq = 0.0
-
-    func add(_ g: Double) { lock.lock(); n += 1; sum += g; sq += g * g; lock.unlock() }
-
-    /// The variance since the last drain (g²), nil without samples.
-    func drain() -> Double? {
-        lock.lock(); defer { n = 0; sum = 0; sq = 0; lock.unlock() }
-        guard n > 1 else { return nil }
-        let mean = sum / n
-        return max(0, sq / n - mean * mean)
     }
 }
 #else
