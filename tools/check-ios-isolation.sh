@@ -53,7 +53,6 @@ for f in sorted(p for r in sys.argv[1:] for p in pathlib.Path(r).rglob('*.swift'
             continue
         bad = 1
         print(f'::error file={f},line={line_no}::closure literal assigned to {m.group(1)} in a @MainActor file; build it in a nonisolated static function')
-for f in sorted(p for r in sys.argv[1:] for p in pathlib.Path(r).rglob('*.swift')):
-    src = f.read_text(encoding='utf-8')
+print('isolation gate: ' + ('FAILED' if bad else 'ok'))
 sys.exit(bad)
 PY
