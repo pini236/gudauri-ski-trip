@@ -73,7 +73,7 @@ class SystemBoundariesTest {
         }
         val err = together(3) { i ->
             when (i) {
-                0 -> { var t = 100_000L; repeat(6_000) { val a = if (it % 997 == 0) 5f * ImpactBuffer.G else 9.8f; b.feedAcc(t, 0f, 0f, a); t += 20 } }
+                0 -> { var t = 100_000L; repeat(6_000) { val a = if (it % 997 == 0) (5.0 * ImpactBuffer.G).toFloat() else 9.8f; b.feedAcc(t, 0f, 0f, a); t += 20 } }
                 1 -> repeat(6_000) { b.feedGyro(0.1f, 0.2f, 0.3f) }
                 else -> repeat(200) { b.clear(); Thread.yield() }
             }
