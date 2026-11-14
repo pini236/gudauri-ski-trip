@@ -26,6 +26,7 @@ import android.os.SystemClock
 import io.github.pini236.skiapp.MainActivity
 import io.github.pini236.skiapp.R
 import io.github.pini236.skiapp.data.Geo
+import io.github.pini236.skiapp.dayrec.ui.LiveNumbers
 import io.github.pini236.skiapp.i18n.Lang
 import io.github.pini236.skiapp.qa.Diag
 import io.github.pini236.skiapp.qa.Qa
@@ -63,6 +64,7 @@ class DayRecService : Service() {
     @Volatile private var pressure: Float? = null
     @Volatile private var firstAt = 0L
     @Volatile private var lastAt = 0L
+    private var prevFix: LiveNumbers.Fix? = null // the last reading, for the live screen's big number only
     private var warnedLeft = -1L
     private var shownMinute = -1L
     private val stoppingFlag = AtomicBoolean(false)
@@ -174,7 +176,7 @@ class DayRecService : Service() {
         Diag.log("dayrec foreground up after ${SystemClock.elapsedRealtime() - begun}ms")
 
         runMode = run
-        DayRec.live = null; DayRec.ride = null; DayRec.sofar = null; DayRec.speedNow = null; DayRec.since = 0L; DayRec.single = run; DayRec.startedAt = DayRec.tapAt.takeIf { it > 0 && System.currentTimeMillis() - it < 15_000L } ?: System.currentTimeMillis(); DayRec.lastFixAt = 0L
+        DayRec.live = null; DayRec.ride = null; DayRec.sofar = null; DayRec.speedNow = null; DayRec.liveSpeed = null; prevFix = null; DayRec.since = 0L; DayRec.single = run; DayRec.startedAt = DayRec.tapAt.takeIf { it > 0 && System.currentTimeMillis() - it < 15_000L } ?: System.currentTimeMillis(); DayRec.lastFixAt = 0L
         clockOffset = System.currentTimeMillis() - SystemClock.elapsedRealtime()
         impacts = ImpactBuffer(DayParams.FALL_TRIGGER_G, DayParams.FALL_PRE_S, DayParams.FALL_POST_S, DayParams.FALL_DEBOUNCE_S, DayParams.FALL_HZ) { t, t0, hz, a, g ->
             runCatching { log?.impact(t, t0, hz, a, g) }
@@ -263,6 +265,8 @@ class DayRecService : Service() {
             bearing = if (l.hasBearing()) l.bearing.toDouble() else null, motion = motion.take()?.toDouble(),
         )
         log.add(point)
+        val cur = LiveNumbers.Fix(t, Geo.x(l.longitude).toDouble(), Geo.y(l.latitude).toDouble(), point.hAcc)
+        DayRec.liveSpeed = LiveNumbers.displaySpeed(point.speed, prevFix, cur, DayRec.liveSpeed); prevFix = cur // the big number only
         DayRec.speedNow = point.speed; DayRec.lastFixAt = System.currentTimeMillis(); DayRec.since = firstAt // (DayRec.single is the screens' word and the switch's: a reading must not put it back before the switch is applied)
         analyse(point)
         if (stopping) return

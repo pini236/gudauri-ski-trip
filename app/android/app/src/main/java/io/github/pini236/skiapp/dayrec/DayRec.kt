@@ -50,6 +50,8 @@ object DayRec {
 
     /** The speed of the last reading in m/s (null: none yet, or the phone could not say), for the live screen. */
     @Volatile var speedNow: Double? = null; internal set
+    /** The speed for the live screen's big number (m/s; display only, see [io.github.pini236.skiapp.dayrec.ui.LiveNumbers.displaySpeed]); null: no honest speed, shown as a dash. */
+    @Volatile var liveSpeed: Double? = null; internal set
     /** When the first reading of this recording came (epoch ms; 0: none yet), and whether it is a single descent. */
     @Volatile var since = 0L; internal set
     /** When this recording began and when the last reading came (epoch ms; 0: none), for "weak GPS signal" on the live screen. */
