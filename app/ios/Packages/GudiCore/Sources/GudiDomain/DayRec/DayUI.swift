@@ -7,6 +7,19 @@ extension DayRec {
     public enum LiveNumbers {
         /// A speed in m/s as whole km/h; "0" while there is none.
         public static func kmh(_ ms: Double?) -> String { guard let ms, ms >= 0 else { return "0" }; return String(Int((ms * 3.6).rounded())) }
+        /// The big number's speed, for display only (never in the journal, never in the max speed, which stays the Doppler's).
+        /// iOS gives `speed = -1` while walking slowly or before the fix settles; then the speed comes from the distance between
+        /// the last two readings (metres in the plane, ms), smoothed half and half with what was shown. nil: nothing to show yet.
+        public static func displaySpeed(doppler: Double?, prev: (t: Int64, x: Double, y: Double)?,
+                                        cur: (t: Int64, x: Double, y: Double), shown: Double?) -> Double? {
+            if let d = doppler, d >= 0 { return d }
+            guard let p = prev else { return shown }
+            let dt = Double(cur.t - p.t) / 1000
+            guard dt >= 0.5, dt <= 10 else { return shown }
+            let v = hypot(cur.x - p.x, cur.y - p.y) / dt
+            guard v.isFinite, v < 60 else { return shown }
+            return shown.map { ($0 + v) / 2 } ?? v
+        }
         /// A maximum in km/h, rounded.
         public static func maxKmh(_ kmh: Double?) -> String { guard let kmh else { return "0" }; return String(Int(kmh.rounded())) }
         /// Metres as kilometres with one decimal, a dot in every language (the digits of the site).

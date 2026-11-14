@@ -10,6 +10,18 @@ final class DayUITests: XCTestCase {
         XCTAssertEqual(L.kmh(10), "36"); XCTAssertEqual(L.kmh(17.5), "63")
     }
 
+    /// iOS gives speed -1 while walking: the big number comes from the distance, smoothed, and never shows a false 0.
+    func testDisplaySpeedFallsBackToDistanceWhenThereIsNoDoppler() {
+        let a = (t: Int64(0), x: 0.0, y: 0.0), b = (t: Int64(2000), x: 3.0, y: 0.0), c = (t: Int64(4000), x: 9.0, y: 0.0)
+        XCTAssertEqual(L.displaySpeed(doppler: 4.2, prev: a, cur: b, shown: nil), 4.2)
+        XCTAssertNil(L.displaySpeed(doppler: nil, prev: nil, cur: a, shown: nil))
+        let v1 = L.displaySpeed(doppler: nil, prev: a, cur: b, shown: nil)
+        XCTAssertEqual(v1 ?? -1, 1.5, accuracy: 1e-9)
+        XCTAssertEqual(L.displaySpeed(doppler: nil, prev: b, cur: c, shown: v1) ?? -1, 2.25, accuracy: 1e-9)
+        // a gap of more than 10 s keeps what was shown
+        XCTAssertEqual(L.displaySpeed(doppler: nil, prev: a, cur: (t: 60_000, x: 50, y: 0), shown: 1.5), 1.5)
+    }
+
     func testDistanceAndDrop() {
         XCTAssertEqual(L.km(nil), "0.0"); XCTAssertEqual(L.km(12_400), "12.4"); XCTAssertEqual(L.km(960), "1.0")
         XCTAssertEqual(L.metres(547.6), "548")
