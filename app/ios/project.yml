@@ -94,12 +94,3 @@ targets:
         GENERATE_INFOPLIST_FILE: true
         SWIFT_VERSION: "6.0"
         PRODUCT_BUNDLE_IDENTIFIER: io.github.pini236.skiapp.tests
-schemes:
-  GudiAppTests:
-    build:
-      targets:
-        Gudi: [test]
-        GudiAppTests: [test]
-    test:
-      targets: [GudiAppTests]
-      config: Debug
