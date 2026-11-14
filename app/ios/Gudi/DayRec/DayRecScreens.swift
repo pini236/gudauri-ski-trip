@@ -119,7 +119,11 @@ private struct RecordScreen: View {
         }
         switch rec.state {
         case .recording(let since, _):
-            Text(S.appRecNow(time: DayRec.LiveNumbers.elapsed(ms: Int64(Date().timeIntervalSince(since) * 1000)))).font(ski.type.text(14)).foregroundStyle(c.muted)
+            // the counter ticks every second from the tap, not only when something else redraws the screen
+            TimelineView(.periodic(from: .now, by: 1)) { ctx in
+                Text(S.appRecNow(time: DayRec.LiveNumbers.elapsed(ms: Int64(max(0, ctx.date.timeIntervalSince(since)) * 1000))))
+                    .font(ski.type.text(14)).foregroundStyle(c.muted).monospacedDigit()
+            }
             Text(DayRec.LiveNumbers.kmh(rec.last?.spd)).font(ski.type.display(120)).monospacedDigit()
             Text(S.appRecUnit).font(ski.type.text(14)).foregroundStyle(c.muted)
             Text(whatNow()).font(ski.type.text(16, .bold)).multilineTextAlignment(.center)
@@ -132,7 +136,8 @@ private struct RecordScreen: View {
             }
             Text(S.appRecPermPocket).font(ski.type.text(13)).foregroundStyle(c.muted)
             Button { rec.stop(); if let e = DayStore.latest() { model.go(.day(e.start)) } } label: {
-                Text(S.appRecStop).font(ski.type.display(26)).frame(maxWidth: .infinity, minHeight: 56)
+                // an explicit label colour: the screen's ink would make it the same as the tint (an empty bar)
+                Text(S.appRecStop).font(ski.type.display(26)).foregroundStyle(c.snow).frame(maxWidth: .infinity, minHeight: 56)
             }
             .buttonStyle(.borderedProminent).tint(c.ink)
         case .denied:
@@ -144,7 +149,10 @@ private struct RecordScreen: View {
         case .interrupted:
             Text(S.appRecCutTitle).font(ski.type.display(32))
             Text(S.appRecCutText).font(ski.type.text(16))
-            Button(S.appRecCutGo) { rec.resume() }.buttonStyle(.borderedProminent).tint(c.ink)
+            Button { rec.resume() } label: {
+                Text(S.appRecCutGo).font(ski.type.text(17, .bold)).foregroundStyle(c.snow).frame(maxWidth: .infinity, minHeight: 48)
+            }
+            .buttonStyle(.borderedProminent).tint(c.ink)
             Button(S.appRecCutClose) { rec.dismissInterrupted() }
         case .idle, .asking, .full:
             Text(S.appRecSoon).font(ski.type.text(14)).foregroundStyle(c.muted)
@@ -305,7 +313,7 @@ private struct PermissionSheet: View {
             Text(S.appRecPermPocket).font(ski.type.text(16))
             Text(S.appRecPermLocal).font(ski.type.text(16, .bold))
             Spacer()
-            Button(action: go) { Text(S.appRecPermGo).font(ski.type.display(26)).frame(maxWidth: .infinity, minHeight: 52) }
+            Button(action: go) { Text(S.appRecPermGo).font(ski.type.display(26)).foregroundStyle(ski.colors.snow).frame(maxWidth: .infinity, minHeight: 52) }
                 .buttonStyle(.borderedProminent).tint(ski.colors.ink)
         }
         .padding(24)
