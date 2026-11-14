@@ -112,6 +112,7 @@ class WhereAmI(private val context: Context, private val locator: Locator, priva
             if (p !in all) continue
             if (p != LocationManager.PASSIVE_PROVIDER && runCatching { lm.isProviderEnabled(p) }.getOrDefault(false).not()) continue
             // approximate: every provider the phone allows (a phone or an emulator may have no network location at all)
+            // main-thread-ok: the listener only moves the dot on the map (UI state) and touches no recorder file or shared engine
             any = runCatching { lm.requestLocationUpdates(p, 2000L, 5f, listener, Looper.getMainLooper()); true }.getOrDefault(false) || any
         }
         if (!any) { state = State.Unavailable; send("unavailable"); listening = false; return }
