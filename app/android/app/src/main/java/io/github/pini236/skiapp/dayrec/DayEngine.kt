@@ -14,12 +14,14 @@ import org.json.JSONObject
  *   while there is time to look (the lift ride). It is computed by the final analysis on the last stretch, so its edges
  *   are exact to the second.
  *
- * Not thread-safe: one thread feeds it and asks it. [final] works on a copy of what was fed, so it may run on another
- * thread while the feeding goes on. Nothing in here leaves the phone.
+ * One thread feeds it and asks it ([add], [addEvent], [live]). [final] works on a copy of what was fed, so it may run on
+ * another thread while the feeding goes on: the lists are only changed and copied under [lock] (an unsynchronised copy of a
+ * list that is growing can hand over empty slots). Nothing in here leaves the phone.
  */
 class DayEngine(private val analyzer: Analyzer, val header: JSONObject) {
     private val points = ArrayList<DayLog.Point>()
     private val events = ArrayList<JSONObject>()
+    private val lock = Any()
 
     /** What the live view says. [act] is stand, walk, ski, up or lift; [lift] and [runs] by the act. */
     class Snapshot(
@@ -60,10 +62,10 @@ class DayEngine(private val analyzer: Analyzer, val header: JSONObject) {
     /** Called when a descent ends and the lift begins. */
     var onRide: ((Ride) -> Unit)? = null
 
-    fun add(p: DayLog.Point) { if (points.isEmpty() || p.t > points.last().t) points += p }
+    fun add(p: DayLog.Point) { synchronized(lock) { if (points.isEmpty() || p.t > points.last().t) points += p } }
 
     /** A blow from the motion sensors, or the dismissal of one, as the log has it. */
-    fun addEvent(e: JSONObject) { events += e }
+    fun addEvent(e: JSONObject) { synchronized(lock) { events += e } }
 
     /** The live view, from the points so far. */
     fun live(): Snapshot? {
@@ -88,7 +90,8 @@ class DayEngine(private val analyzer: Analyzer, val header: JSONObject) {
 
     /** The whole day, smoothed backwards: the truth. Takes a copy, so it may run on another thread. */
     fun final(): Analyzer.DayResult {
-        val p = ArrayList(points); val e = ArrayList(events)
+        val p: ArrayList<DayLog.Point>; val e: ArrayList<JSONObject>
+        synchronized(lock) { p = ArrayList(points); e = ArrayList(events) }
         return analyzer.final(header, p, e)
     }
 

@@ -53,10 +53,10 @@ object OpenSource {
         }.getOrDefault(false)
         if (!fromPlay) return done(null)
         val client = InstallReferrerClient.newBuilder(context.applicationContext).build()
-        var answered = false
+        // the referrer's callbacks come on the main thread, but it is the library's thread to choose: the answer is given once
+        val answered = java.util.concurrent.atomic.AtomicBoolean(false)
         fun answer(props: Map<String, Any>?) {
-            if (answered) return
-            answered = true
+            if (!answered.compareAndSet(false, true)) return
             runCatching { client.endConnection() }
             done(props)
         }

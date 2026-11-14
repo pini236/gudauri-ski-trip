@@ -982,6 +982,14 @@ dayrec_steps() {
     uidump; c1=$(grep -oE 'text="[^"]*[0-9]:[0-9]{2}[^"]*"' "$OUT/ui.xml" | head -1); sleep 4; uidump; c2=$(grep -oE 'text="[^"]*[0-9]:[0-9]{2}[^"]*"' "$OUT/ui.xml" | head -1)
     note "live counter: '$c1' then '$c2'"; { [ -n "$c1" ] && [ "$c1" != "$c2" ]; } || fail "the live counter did not count (first '$c1', then '$c2')"
     dayrec_walk 4; sleep 2; shot dayrec-live
+    # the sensors' callbacks arrive on the recorder's own thread (qa/system-boundaries.md): the emulator simulates the accelerometer,
+    # so a quiet phone, a blow of about 5 g and quiet again are fed while recording. A handler that touched something of the main
+    # thread would crash here (the run's errors.txt fails on it); the blow's window written to the log is the proof it ran (a note
+    # only if the emulator did not deliver it, as its sensor batching differs from phone to phone)
+    mark
+    for g in 9.8 9.8 49 9.8 9.8; do adb emu sensor set acceleration "0:0:$g" > /dev/null 2>&1; sleep 1; done
+    adb emu sensor set gyroscope "0.3:0.2:0.1" > /dev/null 2>&1; sleep 7
+    waitlog "dayrec blow window written" 20 || note "the emulator did not deliver a blow (no window written): the sensor handler ran quietly, nothing crashed"
     # the choice at the top of the screen: the same recording goes on, the service applies the switch (Diag logs it) and the choice shows
     tapText "ירידה אחת" && { waitlog "dayrec mode run applied" 10; dayrec_walk 3; shot dayrec-live-one; }
     tapText "כל היום" && { waitlog "dayrec mode day applied" 10; dayrec_walk 3; }

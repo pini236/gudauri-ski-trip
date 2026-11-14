@@ -4,6 +4,8 @@ import android.content.Context
 import io.github.pini236.skiapp.trip.Trip
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.updateAndGet
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.File
@@ -138,11 +140,11 @@ class Sync(
             mine.value = m
             write(File(dir, "mine.json"), mineJson(m))
         } catch (_: Offline) {
-            mine.value = mine.value.copy(offline = true)
+            mine.update { it.copy(offline = true) }
         } catch (_: org.json.JSONException) {
-            mine.value = mine.value.copy(offline = true) // an answer that is not what it should be: shown as not fresh
+            mine.update { it.copy(offline = true) } // an answer that is not what it should be: shown as not fresh
         } catch (_: ServerError) {
-            mine.value = mine.value.copy(offline = false)
+            mine.update { it.copy(offline = false) }
         }
     }
 
@@ -300,23 +302,24 @@ class Sync(
                 )
                 // what waits in the queue still shows, on top of what the server sent
                 outbox.forGroup(groupId).forEach { s = applyLocal(s, it, me) }
-                s = s.copy(waiting = outbox.forGroup(groupId).size, refused = flow.value.refused)
-                flow.value = s
+                // the refusal shown meanwhile (the screens may dismiss it, a flush may set it) is kept as it is at the swap
+                val waiting = outbox.forGroup(groupId).size
+                s = flow.updateAndGet { cur -> s.copy(waiting = waiting, refused = cur.refused) }
                 write(file, Codec.snapshot(s))
             } catch (_: Offline) {
-                flow.value = flow.value.copy(offline = true)
+                flow.update { it.copy(offline = true) }
             } catch (_: org.json.JSONException) {
-                flow.value = flow.value.copy(offline = true) // an answer that is not what it should be: kept, marked as not fresh
+                flow.update { it.copy(offline = true) } // an answer that is not what it should be: kept, marked as not fresh
             } catch (e: ServerError) {
                 // not mine any more, or the session is gone: keep what is shown, it is marked as not fresh
-                flow.value = flow.value.copy(offline = e.code == "no_session")
+                flow.update { it.copy(offline = e.code == "no_session") }
             }
         }
 
-        internal fun refused(code: String) { flow.value = flow.value.copy(refused = code) }
+        internal fun refused(code: String) { flow.update { it.copy(refused = code) } }
 
         /** The page showed the refusal, and the person closed it. */
-        fun clearRefused() { flow.value = flow.value.copy(refused = null) }
+        fun clearRefused() { flow.update { it.copy(refused = null) } }
 
         // --- Writes that wait for signal ---
 
@@ -336,7 +339,7 @@ class Sync(
             val body = JSONObject().put("station", station).put("at", at.toString()).put("note", note ?: "")
             // a meetup not sent yet: change what will be sent
             if (id.startsWith("local:") && outbox.update(id) { it.put("station", station).put("at", at.toString()).put("note", note ?: "") }) {
-                flow.value = applyLocal(flow.value, Op("", "meetup_add", groupId, body.put("local", id)), server.auth.userId())
+                flow.update { applyLocal(it, Op("", "meetup_add", groupId, body.put("local", id)), server.auth.userId()) }
                 return
             }
             queue("meetup_change", body.put("id", id))
@@ -344,22 +347,22 @@ class Sync(
 
         fun removeMeetup(id: String) {
             if (id.startsWith("local:")) outbox.dropMeetup(id) else queue("meetup_remove", JSONObject().put("id", id))
-            flow.value = flow.value.copy(meetups = flow.value.meetups.filterNot { it.id == id })
+            flow.update { s -> s.copy(meetups = s.meetups.filterNot { it.id == id }) }
             countWaiting()
         }
 
         private fun queue(kind: String, body: JSONObject) {
             val op = outbox.add(kind, groupId, body)
-            flow.value = applyLocal(flow.value, op, server.auth.userId()).copy(waiting = outbox.forGroup(groupId).size)
+            flow.update { applyLocal(it, op, server.auth.userId()).copy(waiting = outbox.forGroup(groupId).size) }
             flush()
         }
 
         internal fun renamed(local: String, m: Groups.Meetup) {
-            flow.value = flow.value.copy(meetups = flow.value.meetups.map { if (it.id == local) m else it })
+            flow.update { s -> s.copy(meetups = s.meetups.map { if (it.id == local) m else it }) }
         }
 
         internal fun countWaiting() {
-            flow.value = flow.value.copy(waiting = outbox.forGroup(groupId).size)
+            flow.update { it.copy(waiting = outbox.forGroup(groupId).size) }
         }
 
         private fun load(): Snapshot = runCatching { Codec.snapshot(JSONObject(file.readText())) }.getOrNull() ?: Snapshot(groupId)
