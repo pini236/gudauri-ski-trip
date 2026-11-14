@@ -5,9 +5,9 @@ name: iOS
 # Reviewed by the architect (docs/ARCHITECTURE.md, 21.10.2026) and DevOps (decision 66) before merge.
 on:
   push:
-    paths: ['app/ios/**', 'site/data/**', 'site/games/descent/**', 'site/games/thumbs/**', 'site/js/relief.js', 'site/css/site.css', 'tools/fixtures/**', 'tools/build-ios-data.py', 'tools/build-ios-strings.py', 'i18n/strings.json', '.github/workflows/ios.yml', 'tools/check-ios-variant.sh']
+    paths: ['app/ios/**', 'site/data/**', 'site/games/descent/**', 'site/games/thumbs/**', 'site/js/relief.js', 'site/css/site.css', 'tools/fixtures/**', 'tools/build-ios-data.py', 'tools/build-ios-strings.py', 'i18n/strings.json', '.github/workflows/ios.yml', 'tools/check-ios-variant.sh', 'tools/check-ios-isolation.sh']
   pull_request:
-    paths: ['app/ios/**', 'site/data/**', 'site/games/descent/**', 'site/games/thumbs/**', 'site/js/relief.js', 'site/css/site.css', 'tools/fixtures/**', 'tools/build-ios-data.py', 'tools/build-ios-strings.py', 'i18n/strings.json', '.github/workflows/ios.yml', 'tools/check-ios-variant.sh']
+    paths: ['app/ios/**', 'site/data/**', 'site/games/descent/**', 'site/games/thumbs/**', 'site/js/relief.js', 'site/css/site.css', 'tools/fixtures/**', 'tools/build-ios-data.py', 'tools/build-ios-strings.py', 'i18n/strings.json', '.github/workflows/ios.yml', 'tools/check-ios-variant.sh', 'tools/check-ios-isolation.sh']
   workflow_dispatch:
     inputs:
       variant:
@@ -39,6 +39,8 @@ jobs:
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - name: Gate, no closure literal handed to a background-queue system API from a @MainActor file
+        run: sh tools/check-ios-isolation.sh
       - name: Select Xcode
         run: |
           ls -d /Applications/Xcode*.app
