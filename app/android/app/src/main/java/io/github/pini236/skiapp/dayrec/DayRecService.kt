@@ -47,32 +47,39 @@ import org.json.JSONObject
  *   ([DayStore.unfinished]). It does not restart by itself: a start from the background is not allowed anyway.
  */
 class DayRecService : Service() {
-    private var thread: HandlerThread? = null
-    private var lm: LocationManager? = null
-    private var sensors: SensorManager? = null
-    private var lock: PowerManager.WakeLock? = null
+    // Threads (docs: qa/system-boundaries.md): the system calls onStartCommand and onDestroy on the MAIN thread, and the
+    // location, satellite and sensor callbacks on the recorder's own thread ([thread]). Everything that is changed while
+    // recording is changed on the recorder's thread only: a stop from the notification is posted there ([requestFinish]).
+    // What the two threads both touch is volatile or atomic.
+    @Volatile private var thread: HandlerThread? = null
+    @Volatile private var lm: LocationManager? = null
+    @Volatile private var sensors: SensorManager? = null
+    @Volatile private var lock: PowerManager.WakeLock? = null
     @Volatile private var log: DayLog? = null
     private val motion = MotionMeter()
     @Volatile private var impacts: ImpactBuffer? = null
     private var clockOffset = 0L
     private val idle = IdleWatch()
     @Volatile private var pressure: Float? = null
-    private var firstAt = 0L
-    private var lastAt = 0L
+    @Volatile private var firstAt = 0L
+    @Volatile private var lastAt = 0L
     private var warnedLeft = -1L
     private var shownMinute = -1L
-    private var stopping = false
-    private var started = false
+    private val stoppingFlag = AtomicBoolean(false)
+    /** Set once, by the first of [finish] and [abort] (and by [onDestroy]); read by the callbacks to go quiet. */
+    private val stopping: Boolean get() = stoppingFlag.get()
+    private val torn = AtomicBoolean(false)
+    @Volatile private var started = false
     // the analysis (decision 76): fed on the recorder's own thread, so no lock
-    private var handler: Handler? = null
-    private var engine: DayEngine? = null
+    @Volatile private var handler: Handler? = null
+    @Volatile private var engine: DayEngine? = null
     private var nextLiveAt = 0L
     private var nextFinalAt = 0L
-    private var finals: ExecutorService? = null
+    @Volatile private var finals: ExecutorService? = null
     private val finalBusy = AtomicBoolean(false)
     @Volatile private var runMode = false
     // for the test build's diagnostic log (qa/Diag): counts and states only, never a position
-    private var fixes = 0
+    @Volatile private var fixes = 0
     @Volatile private var satsUsed = 0
     @Volatile private var satsSeen = 0
     private var gnssOn = false
@@ -114,11 +121,22 @@ class DayRecService : Service() {
         Diag.log("dayrec service command ${intent?.action?.substringAfterLast('.') ?: "none"} started=$started stopping=$stopping")
         when (intent?.action) {
             START -> if (!started) begin(intent.getStringExtra(RESUME), intent.getBooleanExtra(RUN, false)) else Unit
-            STOP -> finish(DayRec.REASON_USER)
+            STOP -> requestFinish(DayRec.REASON_USER)
             SWITCH -> if (started && !stopping) switchMode(intent.getBooleanExtra(RUN, false), intent.getLongExtra(AT, 0L))
             else -> if (!started) stopSelf() // a restart by the system with no tap behind it: nothing to record
         }
         return START_NOT_STICKY
+    }
+
+    /**
+     * A stop that comes from the main thread (the notification's button, the screen's button): it is run on the recorder's
+     * thread, behind the readings already queued, so it cannot meet a reading in the middle of the day's file or the engine.
+     * With no recorder thread (a stop before the start, or after the end) it is run here; [finish] is a no-op the second time.
+     */
+    private fun requestFinish(reason: String) {
+        val h = handler
+        if (h != null && h.post { finish(reason) }) return
+        finish(reason)
     }
 
     /**
@@ -160,6 +178,7 @@ class DayRecService : Service() {
         clockOffset = System.currentTimeMillis() - SystemClock.elapsedRealtime()
         impacts = ImpactBuffer(DayParams.FALL_TRIGGER_G, DayParams.FALL_PRE_S, DayParams.FALL_POST_S, DayParams.FALL_DEBOUNCE_S, DayParams.FALL_HZ) { t, t0, hz, a, g ->
             runCatching { log?.impact(t, t0, hz, a, g) }
+            Qa.log("dayrec blow window written") // the emulator run reads it: the sensors' handler ran on the recorder's thread
             // the sensors and the engine are the recorder thread's: the blow goes over as the log has it
             handler?.post { engine?.addEvent(DayLog.impactJson(t, t0, hz, a, g)) }
         }
@@ -311,8 +330,7 @@ class DayRecService : Service() {
      * next time it is asked for ([DayAnalysis.ensure]).
      */
     private fun finish(reason: String) {
-        if (stopping) return
-        stopping = true
+        if (!stoppingFlag.compareAndSet(false, true)) return
         val minutes = if (lastAt > firstAt) ((lastAt - firstAt) / 60_000L).toInt() else 0
         val at = if (lastAt > 0) lastAt else System.currentTimeMillis()
         val file = log?.file
@@ -338,7 +356,7 @@ class DayRecService : Service() {
 
     /** The service could not start: nothing was recorded, so nothing is reported. */
     private fun abort() {
-        stopping = true
+        stoppingFlag.set(true)
         DayRec.tapAt = 0L
         runCatching { log?.release() }; log = null
         teardown()
@@ -346,6 +364,7 @@ class DayRecService : Service() {
     }
 
     private fun teardown() {
+        if (!torn.compareAndSet(false, true)) return // the main thread (onDestroy) and the recorder's can both get here
         runCatching { handler?.removeCallbacks(pulse) }
         if (Build.VERSION.SDK_INT >= 24) runCatching { lm?.unregisterGnssStatusCallback(gnss) }
         runCatching { lm?.removeUpdates(gps) }
@@ -361,7 +380,7 @@ class DayRecService : Service() {
     /** Killed by the system, or the app was closed: the file stays as it is, cut, and can be gone on with. */
     override fun onDestroy() {
         Diag.log("dayrec service destroyed stopping=$stopping fixes=$fixes")
-        if (!stopping) { runCatching { log?.release() }; log = null; teardown() }
+        if (stoppingFlag.compareAndSet(false, true)) { runCatching { log?.release() }; log = null; teardown() }
         super.onDestroy()
     }
 

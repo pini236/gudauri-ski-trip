@@ -119,8 +119,12 @@ final class Telemetry {
         queue.append(["event": name, "properties": p, "timestamp": ISO8601DateFormatter().string(from: Date())])
         if queue.count > 100 { queue.removeFirst(queue.count - 100) }
         if timer == nil {
-            timer = Timer.scheduledTimer(withTimeInterval: 30, repeats: true) { _ in Task { @MainActor in Telemetry.shared.flush() } }
+            timer = Timer.scheduledTimer(withTimeInterval: 30, repeats: true, block: Self.tick())
         }
+    }
+
+    nonisolated private static func tick() -> @Sendable (Timer) -> Void {
+        { _ in Task { @MainActor in Telemetry.shared.flush() } }
     }
 
     func screen(_ name: String, _ extra: [String: Any] = [:]) { event("screen_view", extra.merging(["screen": name]) { a, _ in a }) }
