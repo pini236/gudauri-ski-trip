@@ -108,6 +108,19 @@ jobs:
           test "$RC" -eq 0
       - name: Gate, the compiled app matches the variant
         run: sh tools/check-ios-variant.sh "$RUNNER_TEMP/dd/Build/Products/Debug-iphonesimulator/Gudi.app/Info.plist" "$VARIANT"
+      - name: App tests, the system-boundary handlers called from a side queue
+        timeout-minutes: 20
+        run: |
+          UDID=$(cat "$RUNNER_TEMP/udid")
+          xcrun simctl bootstatus "$UDID" -b > /dev/null
+          cd app/ios
+          # its own derived data, so the app built above (and checked by the gate) is not touched; no signing
+          xcodebuild test -project Gudi.xcodeproj -scheme GudiAppTests -destination "id=$UDID" \
+            -derivedDataPath "$RUNNER_TEMP/ddt" CODE_SIGNING_ALLOWED=NO > "$RUNNER_TEMP/test.log" 2>&1 || RC=$?
+          RC=${RC:-0}
+          tail -40 "$RUNNER_TEMP/test.log"
+          grep -E "error:|Test Case .* failed" "$RUNNER_TEMP/test.log" | sort -u | head -40 || true
+          test "$RC" -eq 0
       - name: Run in a simulator and take a screenshot
         timeout-minutes: 30
         run: |
