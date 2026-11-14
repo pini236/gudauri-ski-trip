@@ -12,7 +12,7 @@ name: iOS release
 on:
   push:
     branches: [main]
-    paths: ['app/ios/**', 'site/data/**', 'site/games/descent/**', 'site/games/thumbs/**', 'site/js/relief.js', 'site/css/site.css', 'tools/fixtures/**', 'tools/build-ios-data.py', 'tools/build-ios-strings.py', 'i18n/strings.json', '.github/workflows/ios-release.yml', 'tools/check-ios-variant.sh', 'tools/check-ios-store-binary.sh']
+    paths: ['app/ios/**', 'site/data/**', 'site/games/descent/**', 'site/games/thumbs/**', 'site/js/relief.js', 'site/css/site.css', 'tools/fixtures/**', 'tools/build-ios-data.py', 'tools/build-ios-strings.py', 'i18n/strings.json', '.github/workflows/ios-release.yml', 'tools/check-ios-variant.sh', 'tools/check-ios-store-binary.sh', 'tools/check-ios-no-tests.sh']
   workflow_dispatch:
     inputs:
       variant:
@@ -162,6 +162,8 @@ jobs:
       - name: Gate, the plain build has no ski-day code and no tester export
         if: steps.gate.outputs.ready == 'true' && env.VARIANT == 'plain'
         run: sh tools/check-ios-store-binary.sh "$RUNNER_TEMP/Gudi.xcarchive/Products/Applications/Gudi.app/Gudi"
+      - name: Gate, the archived app carries no test bundle
+        run: sh tools/check-ios-no-tests.sh "$RUNNER_TEMP/Gudi.xcarchive/Products/Applications/Gudi.app"
       - name: Export and upload to TestFlight
         if: steps.gate.outputs.ready == 'true' && !inputs.archive_only
         env:
