@@ -39,7 +39,7 @@ final class DayRecorder: NSObject, CLLocationManagerDelegate {
 
     /// The speed for the live screen's big number (display only, in m/s).
     private(set) var liveSpeed: Double?
-    @ObservationIgnored private var prevFix: (t: Int64, x: Double, y: Double)?
+    @ObservationIgnored private var prevFix: (t: Int64, x: Double, y: Double, hacc: Double?)?
     @ObservationIgnored private let store: DayStore?
     @ObservationIgnored private var writer: DayWriter?
     @ObservationIgnored private var points = 0
@@ -220,7 +220,7 @@ final class DayRecorder: NSObject, CLLocationManagerDelegate {
             }
             points += 1
             // the big number only: a speed from the distance when the Doppler gives none (iOS: -1 while walking)
-            let cur = (t: p.t, x: Geo.x(p.lon), y: Geo.y(p.lat))
+            let cur = (t: p.t, x: Geo.x(p.lon), y: Geo.y(p.lat), hacc: p.hacc)
             liveSpeed = DayRec.LiveNumbers.displaySpeed(doppler: p.spd, prev: prevFix, cur: cur, shown: liveSpeed)
             prevFix = cur
             last = p

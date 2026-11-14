@@ -124,7 +124,7 @@ private struct RecordScreen: View {
                 Text(S.appRecNow(time: DayRec.LiveNumbers.elapsed(ms: Int64(max(0, ctx.date.timeIntervalSince(since)) * 1000))))
                     .font(ski.type.text(14)).foregroundStyle(c.muted).monospacedDigit()
             }
-            Text(DayRec.LiveNumbers.kmh(rec.liveSpeed)).font(ski.type.display(120)).monospacedDigit()
+            Text(DayRec.LiveNumbers.speedText(rec.liveSpeed)).font(ski.type.display(120)).monospacedDigit()
             Text(S.appRecUnit).font(ski.type.text(14)).foregroundStyle(c.muted)
             Text(whatNow()).font(ski.type.text(16, .bold)).multilineTextAlignment(.center)
             if weak(rec) { Text(S.appRecGpsWeak).font(ski.type.text(14)).foregroundStyle(c.red) }
