@@ -100,23 +100,10 @@ final class DayRecorder: NSObject, CLLocationManagerDelegate {
     /// Precise location for this day, or no recording.
     private func precise() {
         guard lm.accuracyAuthorization == .reducedAccuracy else { begin(); return }
-        lm.requestTemporaryFullAccuracyAuthorization(withPurposeKey: "DayRecording", completion: Self.accuracyDone(self))
-    }
-
-    // System callbacks arrive off the main actor. A closure built inside this @MainActor class
-    // would inherit the isolation and trap at run time (build 55), so they are built outside it.
-    nonisolated private static func accelHandler(_ w: AccelWindow) -> CMAccelerometerHandler {
-        { d, _ in
-            guard let a = d?.acceleration else { return }
-            w.add((a.x * a.x + a.y * a.y + a.z * a.z).squareRoot())
-        }
-    }
-
-    nonisolated private static func accuracyDone(_ rec: DayRecorder) -> @Sendable (Error?) -> Void {
-        { [weak rec] _ in
+        lm.requestTemporaryFullAccuracyAuthorization(withPurposeKey: "DayRecording") { [weak self] _ in
             Task { @MainActor in
-                guard let rec else { return }
-                if rec.lm.accuracyAuthorization == .fullAccuracy { rec.begin() } else { rec.state = .approximate }
+                guard let self else { return }
+                if self.lm.accuracyAuthorization == .fullAccuracy { self.begin() } else { self.state = .approximate }
             }
         }
     }
@@ -158,7 +145,11 @@ final class DayRecorder: NSObject, CLLocationManagerDelegate {
         lm.startUpdatingLocation()
         if motion.isAccelerometerAvailable {
             motion.accelerometerUpdateInterval = 1.0 / 25
-            motion.startAccelerometerUpdates(to: motionQueue, withHandler: Self.accelHandler(accel))
+            let w = accel
+            motion.startAccelerometerUpdates(to: motionQueue) { d, _ in
+                guard let a = d?.acceleration else { return }
+                w.add((a.x * a.x + a.y * a.y + a.z * a.z).squareRoot())
+            }
         }
         state = .recording(since: since, points: points)
         live.begin(since: since)
