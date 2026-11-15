@@ -3490,6 +3490,54 @@
       "h": 1068,
       "page": "round38",
       "title": "בלילה (עברית) ובאנגלית"
+    },
+    "R39-0-Decide.dc.html": {
+      "x": 0,
+      "y": 0,
+      "w": 600,
+      "h": 1000,
+      "page": "round39",
+      "title": "סבב 39: נדחה"
+    },
+    "R39-A.dc.html": {
+      "x": 680,
+      "y": 0,
+      "w": 1684,
+      "h": 1068,
+      "page": "round39",
+      "title": "א. השלט מונה: המספר על השלט המושלג"
+    },
+    "R39-B.dc.html": {
+      "x": 680,
+      "y": 1488,
+      "w": 1684,
+      "h": 1068,
+      "page": "round39",
+      "title": "ב. הרכבל עולה: המספר ומתחתיו הרכבל שמתקדם לפסגה (מומלץ)"
+    },
+    "R39-C.dc.html": {
+      "x": 680,
+      "y": 2976,
+      "w": 1684,
+      "h": 1068,
+      "page": "round39",
+      "title": "ג. פס הימים: 53 ימים כפס ניקוב"
+    },
+    "R39-States.dc.html": {
+      "x": 680,
+      "y": 4464,
+      "w": 2520,
+      "h": 1930,
+      "page": "round39",
+      "title": "ב (המומלצת): מה קורה לאורך הדרך, באייפון בעברית וב-Android באנגלית"
+    },
+    "R39-Trip.dc.html": {
+      "x": 680,
+      "y": 6814,
+      "w": 848,
+      "h": 1068,
+      "page": "round39",
+      "title": "וכשאין טיול: אותו לוח, בלי כרטיס הטיסה"
     }
   },
   "createdOnFiles": {
@@ -3499,7 +3547,7 @@
   "designSystems": [],
   "launch": {
     "view": "canvas",
-    "page": "round38"
+    "page": "round39"
   },
   "notes": {
     "featRow1": {
@@ -4905,6 +4953,51 @@
       "w": 240,
       "x": 680,
       "y": 4420
+    },
+    "round39row0": {
+      "kind": "title1",
+      "maxW": 1684,
+      "page": "round39",
+      "text": "א. השלט מונה",
+      "w": 240,
+      "x": 680,
+      "y": -300
+    },
+    "round39row1": {
+      "kind": "title1",
+      "maxW": 1684,
+      "page": "round39",
+      "text": "ב. הרכבל עולה",
+      "w": 240,
+      "x": 680,
+      "y": 1188
+    },
+    "round39row2": {
+      "kind": "title1",
+      "maxW": 1684,
+      "page": "round39",
+      "text": "ג. פס הימים",
+      "w": 240,
+      "x": 680,
+      "y": 2676
+    },
+    "round39row3": {
+      "kind": "title1",
+      "maxW": 2520,
+      "page": "round39",
+      "text": "מצבים לאורך הדרך",
+      "w": 240,
+      "x": 680,
+      "y": 4164
+    },
+    "round39row4": {
+      "kind": "title1",
+      "maxW": 860,
+      "page": "round39",
+      "text": "עם טיול ובלי",
+      "w": 240,
+      "x": 680,
+      "y": 6514
     }
   },
   "order": [
@@ -5342,9 +5435,19 @@
     "R38-Map.dc.html",
     "R38-Search.dc.html",
     "R38-V2.dc.html",
-    "R38-Night.dc.html"
+    "R38-Night.dc.html",
+    "R39-0-Decide.dc.html",
+    "R39-A.dc.html",
+    "R39-B.dc.html",
+    "R39-C.dc.html",
+    "R39-States.dc.html",
+    "R39-Trip.dc.html"
   ],
   "pages": [
+    {
+      "id": "round39",
+      "name": "סבב 39: ספירה לאחור לפתיחת העונה"
+    },
     {
       "id": "round38",
       "name": "סבב 38: המסך החי ביום הגלישה, המפה והרגעים הראשונים"
