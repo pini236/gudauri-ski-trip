@@ -156,6 +156,8 @@ fun DayLiveScreen(liftName: (String) -> String, runName: (String) -> String = { 
     val c = Ski.colors
     var now by remember { mutableLongStateOf(System.currentTimeMillis()) }
     LaunchedEffect(Unit) { while (true) { now = System.currentTimeMillis(); delay(1000) } }
+    val ctx = androidx.compose.ui.platform.LocalContext.current
+    val noNotif = remember(now / 5000) { !io.github.pini236.skiapp.meet.Reminders.allowed(ctx) }
     val live = DayRec.live
     val st = DayRec.sofar?.stats
     // the recorder's fields are plain ones, read when the second ticks: the choice just tapped is shown at once, and the recorder's word takes over when it agrees
@@ -204,6 +206,8 @@ fun DayLiveScreen(liftName: (String) -> String, runName: (String) -> String = { 
         }
         Text(what(live, liftName, runName), style = Ski.type.bodyBold.copy(fontSize = 17.sp), color = c.ink, modifier = Modifier.heightIn(min = 44.dp))
         if (recording && LiveNumbers.weakGps(now, DayRec.lastFixAt, began)) Text(stringResource(R.string.app_rec_gps_weak), style = Ski.type.small, color = red)
+        // notifications off: the recording goes on, but the stop button outside the app is not there (15.11.2026)
+        if (recording && noNotif) Text(stringResource(R.string.app_rec_no_notif), style = Ski.type.small, color = c.muted)
         Spacer(Modifier.height(16.dp))
         Row(Modifier.fillMaxWidth().graphicsLayer { alpha = pulse() }.border(BorderStroke(1.dp, c.rule)).padding(vertical = 14.dp)) {
             Num(LiveNumbers.maxKmh(live?.maxKmh ?: st?.maxKmh), stringResource(R.string.app_rec_max), Modifier.weight(1f))

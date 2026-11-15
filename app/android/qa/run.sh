@@ -676,13 +676,20 @@ meet() {
   qa "--es qa.tab group/g1/meetups"; sleep 2
   tapText "~התחנה" && sleep 2 && shot meet-from-group
   qa "--es qa.group none --es qa.tab home"; sleep 1
-  # the notification permission is asked when the app first opens (the run installs with it granted): taken away, the
-  # next open asks, and "Allow" gives it back
+  # the notification permission is no longer asked when the app opens (15.11.2026): it is asked at the first tap on "Record"
+  # (and at the first meetup ahead). Taken away, an open asks nothing; the tap on the entry asks, and "Allow" gives it back
   adb shell pm revoke "$PKG" android.permission.POST_NOTIFICATIONS > /dev/null 2>&1
   adb shell pm clear-permission-flags "$PKG" android.permission.POST_NOTIFICATIONS user-set user-fixed > /dev/null 2>&1 || true
+  adb shell pm revoke "$PKG" android.permission.ACCESS_FINE_LOCATION > /dev/null 2>&1 || true
+  adb shell pm revoke "$PKG" android.permission.ACCESS_COARSE_LOCATION > /dev/null 2>&1 || true
   adb shell am force-stop "$PKG"; sleep 1
-  mark; adb shell am start -n "$ACT" > /dev/null; waitlog "notifications asked" 30 && { sleep 2; shot first-open-notifications
-    tapText "Allow" && waitlog "notifications allowed" 10 && { sleep 1; shot first-open-allowed; }; }
+  mark; adb shell am start -n "$ACT" > /dev/null; waitlog "scene ready" 60
+  waitlog "notifications asked" 6 && fail "the app asked about notifications when it opened"
+  if [ -n "$(where 'מקליטים')" ]; then
+    mark; tapText "מקליטים"; waitlog "notifications asked" 15 && { sleep 2; shot record-asks-notifications
+      tapText "Allow" && waitlog "notifications allowed" 10 && { sleep 1; shot record-notifications-allowed; }; }
+    adb shell input keyevent KEYCODE_BACK; sleep 1
+  else note "no record entry on home: the notification ask at the first tap was not tried"; fi
   adb shell pm grant "$PKG" android.permission.POST_NOTIFICATIONS > /dev/null 2>&1 || true
 }
 

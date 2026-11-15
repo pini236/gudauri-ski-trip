@@ -55,10 +55,10 @@ object Reminders {
 
     /**
      * The notification permission (Android 13 and later), asked at most twice: when the app first opens (Pini,
-     * 2.10.2026), and once more the first time a meetup ahead would remind (Q8). Android itself shows it twice at most.
+     * 2.10.2026; since 15.11.2026 at the first tap on "Record" instead), and once more the first time a meetup ahead would remind (Q8). Android itself shows it twice at most.
      */
     fun allowed(c: Context) = Build.VERSION.SDK_INT < 33 || c.checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED
-    enum class Ask { OPEN, MEETUPS }
+    enum class Ask { RECORD, MEETUPS }
     fun shouldAsk(c: Context, at: Ask) = Build.VERSION.SDK_INT >= 33 && !allowed(c) && !prefs(c).getBoolean("asked_" + at.name.lowercase(), false)
     fun markAsked(c: Context, at: Ask) = prefs(c).edit().putBoolean("asked_" + at.name.lowercase(), true).apply()
 

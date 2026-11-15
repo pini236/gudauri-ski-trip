@@ -223,7 +223,7 @@ private val SUN = Color(0xFFF4B942)
 /**
  * The lift status on home without a trip (round 20, decision 65; the site's #seasonBoard): a lift-status widget, one
  * dot per lift on the board. Without a fresh report, in season or out of it, it is switched off: greyed, not tappable,
- * the dots dashed and empty, "0/N" and "no report". With one (13.4), the same widget live: a green rule on top, the
+ * the dots dashed and empty, a dash instead of "0/N" (a new user must not read it as all closed) and "no report". With one (13.4), the same widget live: a green rule on top, the
  * open lifts' dots filled in green, "open/N" and when it was updated; a tap opens the board over the map.
  */
 @OptIn(ExperimentalLayoutApi::class)
@@ -261,7 +261,7 @@ private fun SeasonBoard(status: LiftStatus?, onClick: () -> Unit) {
                 }
             }
             Row(verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                Text("$open/${names.size}", style = Ski.type.title.copy(fontSize = 30.sp, lineHeight = 30.sp, textDirection = TextDirection.Ltr), color = c.ink)
+                Text(if (live) "$open/${names.size}" else "—", style = Ski.type.title.copy(fontSize = 30.sp, lineHeight = 30.sp, textDirection = TextDirection.Ltr), color = c.ink)
                 Text(foot, Modifier.padding(bottom = 3.dp), style = Ski.type.small.copy(fontSize = 13.sp), color = c.muted)
             }
         }
