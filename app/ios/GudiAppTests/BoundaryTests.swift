@@ -46,13 +46,14 @@ final class BoundaryTests: XCTestCase {
     #if DAYREC
     func testAccelHandlerFromSideQueue() {
         let w = AccelWindow()
-        let h = DayRecorder.accelHandler(w)
+        nonisolated(unsafe) let h = DayRecorder.accelHandler(w)
         onSideQueue { h(nil, nil) }
     }
 
+    @MainActor
     func testAccuracyDoneFromSideQueue() {
         let rec = DayRecorder()
-        let h = DayRecorder.accuracyDone(rec)
+        nonisolated(unsafe) let h = DayRecorder.accuracyDone(rec)
         onSideQueue { h(nil) }
         RunLoop.main.run(until: Date().addingTimeInterval(0.3))
     }
