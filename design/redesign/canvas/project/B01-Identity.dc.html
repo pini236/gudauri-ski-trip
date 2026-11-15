@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="he">
+<head>
+<meta charset="utf-8">
+<title>היום: שפה ומבנה</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@400;500;700;900&amp;family=Assistant:wght@400;600;700&amp;family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,900&amp;family=PT+Serif:wght@400;700&amp;family=PT+Sans:wght@400;700&amp;family=Noto+Serif+Georgian:wght@500;700&amp;family=Noto+Sans+Georgian:wght@400;600&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+.B{--bg:#FFFFFF;--sf:#F4F5F6;--ink:#0B0B0C;--ink2:#55585E;--ac:#0A7E8C;--onac:#FFFFFF;--hair:#CFD2D6;--ok:#157A3F;--bad:#B3261E;--pg:#198549;--pb:#1F6FD0;--pr:#D1342B;--pk:#111111;font-family:'Assistant',system-ui,sans-serif;color:var(--ink);background:var(--bg)}
+.B .night{--bg:#0E1011;--sf:#1A1D1F;--ink:#F2F2F0;--ink2:#A3A7AD;--ac:#5CC8D6;--onac:#06262B;--hair:#3A3E43;--ok:#46D08A;--bad:#FF7468;--pg:#46D08A;--pb:#62AEFF;--pr:#FF7468;--pk:#F2F2F0}
+.B .scr{position:absolute;inset:0;background:var(--bg);color:var(--ink);display:flex;flex-direction:column;font-size:16px;line-height:1.4}
+.B .n{display:none}.B .night .n{display:block}.B .night .d{display:none}
+.B button{font:inherit;color:inherit;border:0;background:none;padding:0;cursor:pointer}
+.B a{color:inherit;text-decoration:none}
+.B h1,.B h2,.B h3,.B p{margin:0;font-weight:inherit;font-size:inherit}
+.B .se,.B .tab{font-family:'Frank Ruhl Libre','Fraunces',serif}
+.B .en .se,.B .en .tab{font-family:'Fraunces','Frank Ruhl Libre',serif}
+.B .k{font-size:12.5px;font-weight:700;letter-spacing:.06em;color:var(--ink2)}
+.B .s{font-size:14px;color:var(--ink2)}
+.B .r1{border-top:1px solid var(--ink)}.B .r3{border-top:3px solid var(--ink)}.B .rh{border-top:1px solid var(--hair)}
+.B .tabs{display:flex;flex:none;border-top:1px solid var(--ink);padding-bottom:22px}
+.B .tab{flex:1;height:60px;display:flex;align-items:center;justify-content:center;font-size:17px;color:var(--ink2);border-top:3px solid transparent;margin-top:-1px}
+.B .tab.on{color:var(--ink);font-weight:700;border-top-color:var(--ink)}
+.B .btn{display:flex;align-items:center;justify-content:center;height:52px;padding:0 20px;background:var(--ink);color:var(--bg);font-weight:700}
+.B .btn2{display:flex;align-items:center;justify-content:center;height:52px;padding:0 18px;border:1px solid var(--ink);font-weight:600}
+.B .pill{display:inline-flex;align-items:center;height:26px;padding:0 10px;border:1px solid var(--ink);border-radius:999px;font-size:13px;font-weight:600}
+.B .dot{display:inline-block;width:10px;height:10px;border-radius:50%;flex:none}
+.B .row{display:flex;align-items:center;gap:10px;min-height:46px;border-bottom:1px solid var(--hair)}
+.B .figs{display:flex}
+.B .fig{flex:1;padding:10px 12px;border-inline-start:1px solid var(--hair)}
+.B .fig:first-child{border-inline-start:0;padding-inline-start:0}
+.B .fig b{display:block;font-family:'Frank Ruhl Libre','Fraunces',serif;font-size:30px;font-weight:700;line-height:1.1}
+.B .en .fig b{font-family:'Fraunces','Frank Ruhl Libre',serif}
+.B .q{font-size:23px;line-height:1.25;padding:12px 0;border-top:1px solid var(--ink);border-bottom:1px solid var(--ink)}
+.B .rail{display:grid;grid-template-columns:58px minmax(0,1fr)}
+.B .rail>.t{padding-top:16px;font-size:13px;font-weight:700;color:var(--ink2)}
+.B .rail>.c{padding:14px 0 16px;padding-inline-start:16px;border-inline-start:1px solid var(--ink);border-bottom:1px solid var(--hair)}
+</style>
+</helmet>
+<div class="B" style="width: 1200px; height: 900px; position: relative; overflow: hidden">
+<div class="scr" dir="rtl" style="padding: 26px 44px; box-sizing: border-box; gap: 16px">
+
+<div style="display: grid; grid-template-columns: minmax(0, 1fr) 420px; gap: 44px">
+<div>
+<p class="k">כיוון ב · היום</p>
+<h1 class="se" style="font-size: 46px; font-weight: 900; line-height: 1.05; margin-top: 4px">האפליקציה היא ציר הזמן של הטיול</h1>
+<p style="font-size: 16px; line-height: 1.45; margin-top: 8px; max-width: 660px">גולש בגודאורי פותח את האפליקציה בארבעה רגעים שונים לגמרי: שבועות לפני הטיול, בבוקר מול הרכבלים, על המדרון, ובערב. במקום דף בית קבוע, המסך הראשון הוא "עכשיו": מה שחשוב ברגע הזה למעלה, ומה שלפניו ואחריו מתחתיו.</p>
+</div>
+<div>
+<p class="k">המבנה: "עכשיו" מתחלף לפי השלב</p>
+<div class="figs r3" style="margin-top: 6px">
+<div class="fig" style="padding: 8px 8px 8px 0"><p class="k">לפני העונה</p><p class="se" style="font-size: 16px; font-weight: 500">ספירה ומחירים</p></div>
+<div class="fig" style="padding: 8px"><p class="k">בוקר</p><p class="se" style="font-size: 16px; font-weight: 500">רכבלים ומזג אוויר</p></div>
+<div class="fig" style="padding: 8px"><p class="k">על ההר</p><p class="se" style="font-size: 16px; font-weight: 500">ההקלטה</p></div>
+<div class="fig" style="padding: 8px 8px 8px 0"><p class="k">ערב</p><p class="se" style="font-size: 16px; font-weight: 500">הסיפור של היום</p></div>
+</div>
+<div class="figs r1">
+<div class="fig" style="padding: 8px 8px 0 0"><p class="se" style="font-weight: 700">עכשיו</p><p class="s" style="font-size: 13px">ציר הזמן</p></div>
+<div class="fig" style="padding: 8px 8px 0"><p class="se" style="font-weight: 700">ההר</p><p class="s" style="font-size: 13px">מפה, מסלולים, רכבלים</p></div>
+<div class="fig" style="padding: 8px 8px 0"><p class="se" style="font-weight: 700">החבר׳ה</p><p class="s" style="font-size: 13px">מפגש, קבוצה, שיאים</p></div>
+<div class="fig" style="padding: 8px 8px 0"><p class="se" style="font-weight: 700">אני</p><p class="s" style="font-size: 13px">ימים, משחקים, הגדרות</p></div>
+</div>
+</div>
+</div>
+
+<div style="display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1.2fr) minmax(0, 0.95fr); gap: 36px">
+<div class="r3" style="padding-top: 8px; display: flex; flex-direction: column; gap: 8px">
+<p class="k">צבעים · יום</p>
+<div style="display: flex; gap: 8px">
+<div style="flex: 1"><div style="height: 38px; background: #FFFFFF; border: 1px solid var(--hair)"></div><p class="s" dir="ltr" style="font-size: 11.5px">#FFFFFF</p></div>
+<div style="flex: 1"><div style="height: 38px; background: #F4F5F6; border: 1px solid var(--hair)"></div><p class="s" dir="ltr" style="font-size: 11.5px">#F4F5F6</p></div>
+<div style="flex: 1"><div style="height: 38px; background: #0B0B0C; border: 1px solid var(--hair)"></div><p class="s" dir="ltr" style="font-size: 11.5px">#0B0B0C</p></div>
+<div style="flex: 1"><div style="height: 38px; background: #55585E; border: 1px solid var(--hair)"></div><p class="s" dir="ltr" style="font-size: 11.5px">#55585E</p></div>
+<div style="flex: 1"><div style="height: 38px; background: #0A7E8C; border: 1px solid var(--hair)"></div><p class="s" dir="ltr" style="font-size: 11.5px">#0A7E8C</p></div>
+</div>
+<p class="k">לילה</p>
+<div style="display: flex; gap: 8px">
+<div style="flex: 1"><div style="height: 38px; background: #0E1011; border: 1px solid var(--hair)"></div><p class="s" dir="ltr" style="font-size: 11.5px">#0E1011</p></div>
+<div style="flex: 1"><div style="height: 38px; background: #1A1D1F; border: 1px solid var(--hair)"></div><p class="s" dir="ltr" style="font-size: 11.5px">#1A1D1F</p></div>
+<div style="flex: 1"><div style="height: 38px; background: #F2F2F0; border: 1px solid var(--hair)"></div><p class="s" dir="ltr" style="font-size: 11.5px">#F2F2F0</p></div>
+<div style="flex: 1"><div style="height: 38px; background: #A3A7AD; border: 1px solid var(--hair)"></div><p class="s" dir="ltr" style="font-size: 11.5px">#A3A7AD</p></div>
+<div style="flex: 1"><div style="height: 38px; background: #5CC8D6; border: 1px solid var(--hair)"></div><p class="s" dir="ltr" style="font-size: 11.5px">#5CC8D6</p></div>
+</div>
+<p class="s" style="font-size: 13px">רקע, משטח, דיו, דיו משני, מבטא טורקיז. צבעי המסלולים <span class="dot" style="background: var(--pg)"></span> <span class="dot" style="background: var(--pb)"></span> <span class="dot" style="background: var(--pr)"></span> <span class="dot" style="background: var(--pk)"></span> נשארים, כי הם מידע.</p>
+</div>
+
+<div class="r3" style="padding-top: 8px; display: flex; flex-direction: column; gap: 5px">
+<p class="k">גופנים</p>
+<div><p class="se" style="font-size: 30px; font-weight: 900; line-height: 1.2">גודאורי, פתיחת העונה</p><p class="s" dir="ltr" style="text-align: right; font-size: 12.5px">Frank Ruhl Libre · Assistant</p></div>
+<div><p dir="ltr" style="text-align: right; font-family: 'Fraunces', serif; font-size: 27px; font-weight: 900; line-height: 1.2">Gudauri, season opening</p><p class="s" dir="ltr" style="text-align: right; font-size: 12.5px">Fraunces · Assistant</p></div>
+<div><p dir="ltr" lang="ru" style="text-align: right; font-family: 'PT Serif', serif; font-size: 25px; font-weight: 700; line-height: 1.2">Гудаури, открытие сезона</p><p class="s" dir="ltr" style="text-align: right; font-size: 12.5px">PT Serif · PT Sans</p></div>
+<div><p dir="ltr" lang="ka" style="text-align: right; font-family: 'Noto Serif Georgian', serif; font-size: 23px; font-weight: 700; line-height: 1.25">გუდაური, სეზონის გახსნა</p><p class="s" dir="ltr" style="text-align: right; font-size: 12.5px">Noto Serif Georgian · Noto Sans Georgian</p></div>
+</div>
+
+<div class="r3" style="padding-top: 8px; display: flex; flex-direction: column; gap: 6px">
+<p class="k">תנועה</p>
+<p style="font-size: 14.5px">גוללים לאורך הזמן, ופס התאריכים והשעות נשאר דביק בצד.</p>
+<p style="font-size: 14.5px">פרקים נצמדים למקומם; מספר גדול נספר עד הערך שלו.</p>
+<p style="font-size: 14.5px">בהפחתת תנועה: בלי ספירה ובלי הצמדה.</p>
+<p class="k rh" style="padding-top: 8px; margin-top: 4px">מה אמיתי ומה דוגמה</p>
+<p style="font-size: 13.5px; line-height: 1.4">מהקבצים: מסלולים, רכבלים, גבהים, זמני נסיעה, פרופיל, מחירי הכרטיס ותאריך הפתיחה. נתוני דוגמה: מצב הרכבלים, מזג האוויר, יום הגלישה, המפגש והקבוצה.</p>
+</div>
+</div>
+
+<div class="r3" style="padding-top: 8px">
+<p class="k">רכיבים · יום ולילה</p>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; margin-top: 8px">
+
+<div style="border: 1px solid var(--hair); padding: 12px 16px 0">
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px">
+<div>
+<div class="rail">
+<div class="t" style="padding-top: 6px">20.12</div>
+<div class="c" style="padding-top: 4px; padding-bottom: 8px"><p class="k">פתיחת העונה</p><p class="se" style="font-size: 44px; font-weight: 900; line-height: 1">35 <span style="font-size: 18px; font-weight: 500">ימים</span></p></div>
+</div>
+<div class="figs">
+<div class="fig" style="padding: 8px 8px 8px 0"><b style="font-size: 20px">2,694 מ׳</b><span class="s" style="font-size: 13px">אורך</span></div>
+<div class="fig" style="padding: 8px"><b style="font-size: 20px">536 מ׳</b><span class="s" style="font-size: 13px">ירידה</span></div>
+<div class="fig" style="padding: 8px"><b style="font-size: 20px">28°</b><span class="s" style="font-size: 13px">תלול</span></div>
+</div>
+</div>
+<div>
+<div class="row" style="min-height: 38px"><span class="dot" style="background: var(--ok)"></span><span dir="ltr" style="flex: 1; text-align: right; font-weight: 600">Soliko</span><span class="s">7.5</span></div>
+<div class="row" style="min-height: 38px"><span class="dot" style="background: none; border: 2px solid var(--bad); box-sizing: border-box"></span><span dir="ltr" style="flex: 1; text-align: right; font-weight: 600">Sadzele</span><span style="font-size: 14px; font-weight: 700; color: var(--bad)">סגור · רוח</span></div>
+<p class="se q" style="font-size: 18px; padding: 8px 0; margin-top: 10px">ירדת היום 2,601 מ׳</p>
+<div style="display: flex; align-items: center; gap: 8px; margin-top: 10px">
+<button class="btn" style="height: 44px; padding: 0 14px; font-size: 15px">עצירה</button>
+<button class="btn2" style="height: 44px; padding: 0 14px; font-size: 15px">שיתוף</button>
+<span class="pill">כנראה</span>
+</div>
+</div>
+</div>
+<nav class="tabs" style="padding-bottom: 0; margin-top: 12px">
+<button class="tab on" style="height: 46px">עכשיו</button><button class="tab" style="height: 46px">ההר</button><button class="tab" style="height: 46px">החבר׳ה</button><button class="tab" style="height: 46px">אני</button>
+</nav>
+</div>
+
+<div class="night" style="background: var(--bg); color: var(--ink); border: 1px solid var(--hair); padding: 12px 16px 0">
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px">
+<div>
+<div class="rail">
+<div class="t" style="padding-top: 6px">20.12</div>
+<div class="c" style="padding-top: 4px; padding-bottom: 8px"><p class="k">פתיחת העונה</p><p class="se" style="font-size: 44px; font-weight: 900; line-height: 1">35 <span style="font-size: 18px; font-weight: 500">ימים</span></p></div>
+</div>
+<div class="figs">
+<div class="fig" style="padding: 8px 8px 8px 0"><b style="font-size: 20px">2,694 מ׳</b><span class="s" style="font-size: 13px">אורך</span></div>
+<div class="fig" style="padding: 8px"><b style="font-size: 20px">536 מ׳</b><span class="s" style="font-size: 13px">ירידה</span></div>
+<div class="fig" style="padding: 8px"><b style="font-size: 20px">28°</b><span class="s" style="font-size: 13px">תלול</span></div>
+</div>
+</div>
+<div>
+<div class="row" style="min-height: 38px"><span class="dot" style="background: var(--ok)"></span><span dir="ltr" style="flex: 1; text-align: right; font-weight: 600">Soliko</span><span class="s">7.5</span></div>
+<div class="row" style="min-height: 38px"><span class="dot" style="background: none; border: 2px solid var(--bad); box-sizing: border-box"></span><span dir="ltr" style="flex: 1; text-align: right; font-weight: 600">Sadzele</span><span style="font-size: 14px; font-weight: 700; color: var(--bad)">סגור · רוח</span></div>
+<p class="se q" style="font-size: 18px; padding: 8px 0; margin-top: 10px">ירדת היום 2,601 מ׳</p>
+<div style="display: flex; align-items: center; gap: 8px; margin-top: 10px">
+<button class="btn" style="height: 44px; padding: 0 14px; font-size: 15px">עצירה</button>
+<button class="btn2" style="height: 44px; padding: 0 14px; font-size: 15px">שיתוף</button>
+<span class="pill">כנראה</span>
+</div>
+</div>
+</div>
+<nav class="tabs" style="padding-bottom: 0; margin-top: 12px">
+<button class="tab on" style="height: 46px">עכשיו</button><button class="tab" style="height: 46px">ההר</button><button class="tab" style="height: 46px">החבר׳ה</button><button class="tab" style="height: 46px">אני</button>
+</nav>
+</div>
+
+</div>
+</div>
+
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1200,"height":900}}'>
+class Component extends DCLogic {
+renderVals() {
+return {};
+}
+}
+</script>
+</body>
+</html>
