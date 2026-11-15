@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="he">
+<head>
+<meta charset="utf-8">
+<title>ההר: אנדרואיד מול אייפון</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+.A{--bg:#EEF3F8;--panel:rgba(255,255,255,.88);--solid:#FFFFFF;--ink:#0E2233;--ink2:#4A5D70;--line:rgba(14,34,51,.14);--acc:#6B3FD4;--onacc:#FFFFFF;--accsoft:rgba(107,63,212,.12);--ok:#198549;--warn:#B25E00;--bad:#C4261D;--shade:0 10px 30px rgba(14,34,51,.16);--veil:rgba(238,243,248,.74);--pg:#198549;--pb:#1F6FD0;--pr:#D1342B;--pk:#15181C;font-family:'Heebo',system-ui,sans-serif;color:var(--ink);background:var(--bg)}
+.A .night{--bg:#0B1220;--panel:rgba(17,27,44,.86);--solid:#111B2C;--ink:#EAF1F8;--ink2:#9FB0C4;--line:rgba(234,241,248,.16);--acc:#B79CFF;--onacc:#1A0B3D;--accsoft:rgba(183,156,255,.16);--ok:#46D08A;--warn:#F5B14C;--bad:#FF7468;--shade:0 10px 30px rgba(0,0,0,.5);--veil:rgba(11,18,32,.76);--pg:#46D08A;--pb:#62AEFF;--pr:#FF7468;--pk:#DCE4EC;color:var(--ink)}
+.A .scr{position:absolute;inset:0;background:var(--bg);color:var(--ink);overflow:hidden}
+.A .n{display:none}.A .night .n{display:block}.A .night .d{display:none}
+.A button{font:inherit;color:inherit;border:0;background:none;padding:0;cursor:pointer;text-align:start}
+.A a{color:inherit;text-decoration:none}
+.A p,.A h1,.A h2,.A h3{margin:0}
+.A .map{position:absolute;left:0;top:0;width:390px;height:844px}
+.A .veil{position:absolute;inset:0;background:var(--veil)}
+.A .glass{background:var(--panel);-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px);border:1px solid var(--line);box-shadow:var(--shade)}
+.A .pulse{position:absolute;top:58px;left:16px;right:16px;min-height:48px;border-radius:999px;display:flex;align-items:center;gap:10px;padding:0 18px;font-size:15px;font-weight:500;box-sizing:border-box}
+.A .dot{width:9px;height:9px;border-radius:50%;background:var(--ink2);flex:none;display:inline-block}
+.A .dot.ok{background:var(--ok)}.A .dot.warn{background:var(--warn)}.A .dot.bad{background:var(--bad)}
+.A .sheet{position:absolute;left:0;right:0;bottom:0;border-radius:28px 28px 0 0;padding:10px 20px 28px;box-sizing:border-box;display:flex;flex-direction:column;gap:16px}
+.A .grab{width:40px;height:5px;border-radius:3px;background:var(--ink2);opacity:.5;align-self:center;flex:none}
+.A .where{height:48px;border-radius:999px;background:var(--accsoft);display:flex;align-items:center;gap:10px;padding:0 18px;font-size:16px;color:var(--ink2);width:100%;box-sizing:border-box}
+.A .layers{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.A .layer{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;font-size:13px;font-weight:500;min-height:72px;text-align:center}
+.A .ic{width:48px;height:48px;border-radius:50%;border:1px solid var(--line);background:var(--solid);display:flex;align-items:center;justify-content:center;flex:none;box-sizing:border-box}
+.A .on .ic,.A .ic.on{background:var(--acc);color:var(--onacc);border-color:var(--acc)}
+.A .rec{position:absolute;width:64px;height:64px;border-radius:50%;background:var(--acc);color:var(--onacc);display:flex;align-items:center;justify-content:center;box-shadow:var(--shade)}
+.A .chip{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:0 16px;border-radius:999px;border:1px solid var(--line);background:var(--solid);font-size:14px;font-weight:500;box-sizing:border-box;white-space:nowrap}
+.A .chip.on{background:var(--acc);color:var(--onacc);border-color:var(--acc)}
+.A .big{font-weight:300;line-height:.9;letter-spacing:-.02em}
+.A .k{font-size:13px;color:var(--ink2);font-weight:500;line-height:1.35}
+.A .row{display:flex;align-items:center;gap:12px;min-height:52px;border-bottom:1px solid var(--line);width:100%;box-sizing:border-box}
+.A .tag{position:absolute;transform:translate(-50%,-50%);font-size:11px;font-weight:700;padding:3px 8px;border-radius:999px;background:var(--panel);border:1px solid var(--line);white-space:nowrap;color:var(--ink)}
+.A .cta{min-height:52px;border-radius:999px;background:var(--acc);color:var(--onacc);font-size:16px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:10px;padding:0 22px;box-sizing:border-box}
+.A .ghost{min-height:52px;border-radius:999px;border:1px solid var(--line);background:var(--solid);font-size:16px;font-weight:500;display:flex;align-items:center;justify-content:center;gap:10px;padding:0 22px;box-sizing:border-box}
+.A .round{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;box-sizing:border-box}
+.A .pd{width:12px;height:12px;border-radius:50%;flex:none;display:inline-block}
+</style>
+</helmet>
+<div class="A" style="width: 860px; height: 844px; position: relative; overflow: hidden">
+<div class="{{mode}}">
+<div class="scr" dir="rtl" style="padding: 20px 0; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; gap: 12px">
+<div style="display: flex; gap: 80px; direction: ltr">
+
+<div style="width: 390px; display: flex; flex-direction: column; align-items: center; gap: 10px">
+<p style="font-size: 15px; font-weight: 700; line-height: 24px">iPhone</p>
+<div style="width: 304px; height: 658px; position: relative">
+<div dir="rtl" style="position: absolute; left: 0; top: 0; width: 390px; height: 844px; transform: scale(.78); transform-origin: 0 0; border-radius: 48px; overflow: hidden; border: 1.5px solid var(--ink2); box-sizing: border-box; background: var(--bg)">
+<img class="map d" src="/_blob/c2e6538c15f646530aa5b98ba06ca0e4" alt="" style="top: -45px">
+<img class="map n" src="/_blob/4963d9a7301c708df02401cab4cd673c" alt="" style="top: -45px">
+<img class="map d" src="/_blob/728e69d5a329fc93475d7cee722073f0" alt="מפת גודאורי" style="top: -45px">
+<img class="map n" src="/_blob/2043caf19106cea06b2238a443a20b82" alt="מפת גודאורי" style="top: -45px">
+<div role="img" aria-label="Live Activity ב-Dynamic Island: מקליטים, 47 קמ״ש, Tatra 2" style="position: absolute; top: 12px; left: 70px; width: 250px; height: 38px; border-radius: 19px; background: #000000; color: #FFFFFF; display: flex; align-items: center; gap: 8px; padding: 0 14px; box-sizing: border-box; font-size: 14px; font-weight: 700">
+<span style="width: 9px; height: 9px; border-radius: 50%; background: #B79CFF"></span>
+<span style="flex: 1">47 קמ"ש</span>
+<span style="font-weight: 500" dir="ltr">Tatra 2</span>
+</div>
+<div class="pulse glass">
+<span class="dot ok"></span>
+<span style="flex: 1">10/12 רכבלים · <bdi>-9°</bdi> למעלה</span>
+<span class="k">לפני 6 דק׳</span>
+</div>
+<span class="rec" style="right: 20px; bottom: 212px">
+<svg width="26" height="26" viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="2.5" fill="currentColor"/></svg>
+</span>
+<div class="sheet glass">
+<span class="grab"></span>
+<div class="where">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg>
+לאן?
+</div>
+<div class="layers">
+<div class="layer"><span class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 5l18-2M12 4v5M7 9h10a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-6a2 2 0 0 1 2-2zM5 14h14"/></svg></span>רכבלים</div>
+<div class="layer"><span class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 16a4 4 0 1 1 1.2-7.8A5 5 0 0 1 18 10a3 3 0 0 1 0 6H7zM9 20v.01M13 20v.01M17 20v.01"/></svg></span>מזג אוויר</div>
+<div class="layer"><span class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s7-6.2 7-11a7 7 0 1 0-14 0c0 4.8 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/></svg></span>מפגש</div>
+<div class="layer"><span class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="6" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="18" cy="12" r="1.6"/></svg></span>עוד</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<div style="width: 390px; display: flex; flex-direction: column; align-items: center; gap: 10px">
+<p style="font-size: 15px; font-weight: 700; line-height: 24px">Android</p>
+<div style="width: 304px; height: 658px; position: relative">
+<div dir="rtl" style="position: absolute; left: 0; top: 0; width: 390px; height: 844px; transform: scale(.78); transform-origin: 0 0; border-radius: 36px; overflow: hidden; border: 1.5px solid var(--ink2); box-sizing: border-box; background: var(--bg)">
+<img class="map d" src="/_blob/c2e6538c15f646530aa5b98ba06ca0e4" alt="" style="top: -45px">
+<img class="map n" src="/_blob/4963d9a7301c708df02401cab4cd673c" alt="" style="top: -45px">
+<img class="map d" src="/_blob/728e69d5a329fc93475d7cee722073f0" alt="מפת גודאורי" style="top: -45px">
+<img class="map n" src="/_blob/2043caf19106cea06b2238a443a20b82" alt="מפת גודאורי" style="top: -45px">
+<div role="img" aria-label="התראה קבועה: מקליטים, 47 קמ״ש, Tatra 2, עם כפתור עצירה" style="position: absolute; top: 50px; left: 12px; right: 12px; border-radius: 24px; background: var(--solid); border: 1px solid var(--line); box-shadow: var(--shade); padding: 14px 18px; box-sizing: border-box; display: flex; flex-direction: column; gap: 6px">
+<p class="k"><span class="dot bad" style="width: 7px; height: 7px; margin-inline-end: 6px"></span>Gudi · מקליטים · 2:41</p>
+<div style="display: flex; align-items: center; gap: 10px">
+<p style="font-size: 20px; font-weight: 500; flex: 1">47 קמ"ש · ב-<bdi>Tatra 2</bdi></p>
+<span style="font-size: 15px; font-weight: 700; color: var(--acc); min-height: 44px; display: flex; align-items: center">עצירה</span>
+</div>
+</div>
+<div class="pulse" style="top: 162px; background: var(--solid); border: 1px solid var(--line); border-radius: 16px">
+<span class="dot ok"></span>
+<span style="flex: 1">10/12 רכבלים · <bdi>-9°</bdi> למעלה</span>
+<span class="k">לפני 6 דק׳</span>
+</div>
+<span class="rec" style="right: 20px; bottom: 212px; border-radius: 18px">
+<svg width="26" height="26" viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="2.5" fill="currentColor"/></svg>
+</span>
+<div class="sheet" style="background: var(--solid); border-top: 1px solid var(--line)">
+<span class="grab" style="width: 32px; height: 4px"></span>
+<div class="where" style="border-radius: 28px; height: 56px; margin-top: -4px">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg>
+לאן?
+</div>
+<div class="layers">
+<div class="layer"><span class="ic" style="border-radius: 16px; width: 64px; height: 36px; border: 0; background: var(--accsoft)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 5l18-2M12 4v5M7 9h10a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-6a2 2 0 0 1 2-2zM5 14h14"/></svg></span>רכבלים</div>
+<div class="layer"><span class="ic" style="border-radius: 16px; width: 64px; height: 36px; border: 0; background: var(--accsoft)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 16a4 4 0 1 1 1.2-7.8A5 5 0 0 1 18 10a3 3 0 0 1 0 6H7zM9 20v.01M13 20v.01M17 20v.01"/></svg></span>מזג אוויר</div>
+<div class="layer"><span class="ic" style="border-radius: 16px; width: 64px; height: 36px; border: 0; background: var(--accsoft)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s7-6.2 7-11a7 7 0 1 0-14 0c0 4.8 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/></svg></span>מפגש</div>
+<div class="layer"><span class="ic" style="border-radius: 16px; width: 64px; height: 36px; border: 0; background: var(--accsoft)"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="6" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="18" cy="12" r="1.6"/></svg></span>עוד</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+</div>
+<div style="width: 780px; display: flex; flex-direction: column; gap: 4px">
+<p style="font-size: 14.5px; line-height: 1.5"><span style="font-weight: 700">אייפון:</span> גיליון המערכת בשלושה גבהים, חומר זכוכית, ו-Live Activity ב-Dynamic Island ובמסך הנעילה בזמן הקלטה.</p>
+<p style="font-size: 14.5px; line-height: 1.5"><span style="font-weight: 700">אנדרואיד:</span> גיליון Material 3 אטום, כפתור ההקלטה כ-FAB, מחוות החזרה סוגרת שכבה, והתראה קבועה עם "עצירה".</p>
+<p style="font-size: 14.5px; line-height: 1.5"><span style="font-weight: 700">בשניהם:</span> אותו מבנה, אותם טקסטים ואותם צבעים. רק רכיבי המערכת שונים.</p>
+</div>
+</div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"night":{"editor":"boolean","default":false},"$preview":{"width":860,"height":844}}'>
+class Component extends DCLogic {
+renderVals() {
+return { mode: (this.props.night ?? false) ? 'night' : 'day' };
+}
+}
+</script>
+</body>
+</html>
