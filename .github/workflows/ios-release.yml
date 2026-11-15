@@ -163,6 +163,7 @@ jobs:
         if: steps.gate.outputs.ready == 'true' && env.VARIANT == 'plain'
         run: sh tools/check-ios-store-binary.sh "$RUNNER_TEMP/Gudi.xcarchive/Products/Applications/Gudi.app/Gudi"
       - name: Gate, the archived app carries no test bundle
+        if: steps.gate.outputs.ready == 'true'
         run: sh tools/check-ios-no-tests.sh "$RUNNER_TEMP/Gudi.xcarchive/Products/Applications/Gudi.app"
       - name: Export and upload to TestFlight
         if: steps.gate.outputs.ready == 'true' && !inputs.archive_only
