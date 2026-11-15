@@ -199,7 +199,7 @@ fun DayLiveScreen(liftName: (String) -> String, runName: (String) -> String = { 
             Text(stringResource(R.string.app_rec_now, LiveNumbers.elapsed(elapsed)), style = Ski.type.bodyBold, color = red)
         }
         Row(Modifier.graphicsLayer { alpha = pulse() }, verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            Text(LiveNumbers.kmh(DayRec.speedNow), style = Ski.type.title.copy(fontSize = 120.sp), color = c.ink)
+            Text(LiveNumbers.speedText(DayRec.liveSpeed), style = Ski.type.title.copy(fontSize = 120.sp), color = c.ink)
             Text(stringResource(R.string.app_rec_unit), Modifier.padding(bottom = 18.dp), style = Ski.type.number.copy(fontSize = 28.sp), color = c.ink)
         }
         Text(what(live, liftName, runName), style = Ski.type.bodyBold.copy(fontSize = 17.sp), color = c.ink, modifier = Modifier.heightIn(min = 44.dp))

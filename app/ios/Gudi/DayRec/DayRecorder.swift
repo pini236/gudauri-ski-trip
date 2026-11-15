@@ -37,6 +37,9 @@ final class DayRecorder: NSObject, CLLocationManagerDelegate {
     /// The last reading, for the live screen (in memory only).
     private(set) var last: DayJournal.Point?
 
+    /// The speed for the live screen's big number (display only, in m/s).
+    private(set) var liveSpeed: Double?
+    @ObservationIgnored private var prevFix: (t: Int64, x: Double, y: Double, hacc: Double?)?
     @ObservationIgnored private let store: DayStore?
     @ObservationIgnored private var writer: DayWriter?
     @ObservationIgnored private var points = 0
@@ -174,7 +177,7 @@ final class DayRecorder: NSObject, CLLocationManagerDelegate {
             // minutes and the reason, by the contract (docs/GROWTH.md): never a position, a run or a speed
             Telemetry.shared.event("dayrec_stop", ["minutes": Int((Date().timeIntervalSince(since) / 60).rounded()), "reason": reason])
         }
-        writer = nil; last = nil
+        writer = nil; last = nil; liveSpeed = nil; prevFix = nil
         live.end()
         state = .idle
     }
@@ -216,6 +219,10 @@ final class DayRecorder: NSObject, CLLocationManagerDelegate {
                 stop(reason: "user"); state = .full; return
             }
             points += 1
+            // the big number only: a speed from the distance when the Doppler gives none (iOS: -1 while walking)
+            let cur = (t: p.t, x: Geo.x(p.lon), y: Geo.y(p.lat), hacc: p.hacc)
+            liveSpeed = DayRec.LiveNumbers.displaySpeed(doppler: p.spd, prev: prevFix, cur: cur, shown: liveSpeed)
+            prevFix = cur
             last = p
             live.add(p)
             // the day that stops on its own (the same rule as Android's IdleWatch)

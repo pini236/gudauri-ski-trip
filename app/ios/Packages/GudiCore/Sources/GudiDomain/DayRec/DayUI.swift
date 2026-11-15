@@ -7,6 +7,25 @@ extension DayRec {
     public enum LiveNumbers {
         /// A speed in m/s as whole km/h; "0" while there is none.
         public static func kmh(_ ms: Double?) -> String { guard let ms, ms >= 0 else { return "0" }; return String(Int((ms * 3.6).rounded())) }
+        /// A reading this far off (metres) is too coarse to take a speed from: indoors iOS gives Wi-Fi positions of tens of metres.
+        /// A display threshold only (not in dayrec-params.json: the analyser has its own sigma from `hacc`).
+        public static let displayMaxHacc = 15.0
+        /// The big number's speed, for display only (never in the journal, never in the max speed, which stays the Doppler's).
+        /// iOS gives `speed = -1` while walking slowly, indoors or before the fix settles. Then the speed comes from the distance
+        /// between the last two readings (metres in the plane, ms), smoothed half and half with what was shown, but only while both
+        /// readings are accurate (<= 15 m) and close in time. nil: no honest speed, shown as a dash and never as 0.
+        public static func displaySpeed(doppler: Double?, prev: (t: Int64, x: Double, y: Double, hacc: Double?)?,
+                                        cur: (t: Int64, x: Double, y: Double, hacc: Double?), shown: Double?) -> Double? {
+            if let d = doppler, d >= 0 { return d }
+            guard let p = prev, let h0 = p.hacc, let h1 = cur.hacc, h0 <= displayMaxHacc, h1 <= displayMaxHacc else { return nil }
+            let dt = Double(cur.t - p.t) / 1000
+            guard dt >= 0.5, dt <= 10 else { return nil }
+            let v = hypot(cur.x - p.x, cur.y - p.y) / dt
+            guard v.isFinite, v < 60 else { return nil }
+            return shown.map { ($0 + v) / 2 } ?? v
+        }
+        /// The big number as text: a dash while there is no honest speed.
+        public static func speedText(_ ms: Double?) -> String { ms.map { kmh($0) } ?? "\u{2014}" }
         /// A maximum in km/h, rounded.
         public static func maxKmh(_ kmh: Double?) -> String { guard let kmh else { return "0" }; return String(Int(kmh.rounded())) }
         /// Metres as kilometres with one decimal, a dot in every language (the digits of the site).

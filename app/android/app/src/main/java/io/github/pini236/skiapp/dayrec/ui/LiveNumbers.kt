@@ -7,6 +7,34 @@ object LiveNumbers {
     /** A speed in m/s as whole km/h; null while there is none. */
     fun kmh(ms: Double?): String = if (ms == null || ms < 0) "0" else Math.round(ms * 3.6).toString()
 
+    /** One reading, for the big number only: when (ms), where (metres in the plane, [io.github.pini236.skiapp.dayrec.Geo]) and how sure (m; null: the phone did not say). */
+    class Fix(val t: Long, val x: Double, val y: Double, val hAcc: Double?)
+
+    /** A reading this far off (metres) is too coarse to take a speed from. A display threshold only (not in dayrec-params.json). */
+    const val DISPLAY_MAX_HACC = 15.0
+
+    /**
+     * The big number's speed in m/s, for display only (never in the log, never in the maximum speed, which stays the Doppler's).
+     * A valid Doppler speed wins. Without one the speed comes from the distance between the last two readings, smoothed half and
+     * half with what was shown, but only while both are accurate (<= 15 m) and 0.5 to 10 s apart. Null: no honest speed, shown as a dash and never as 0
+     * (the same rule as the iPhone's).
+     */
+    fun displaySpeed(doppler: Double?, prev: Fix?, cur: Fix, shown: Double?): Double? {
+        if (doppler != null && doppler >= 0) return doppler
+        val p = prev ?: return null
+        val h0 = p.hAcc ?: return null
+        val h1 = cur.hAcc ?: return null
+        if (h0 > DISPLAY_MAX_HACC || h1 > DISPLAY_MAX_HACC) return null
+        val dt = (cur.t - p.t) / 1000.0
+        if (dt < 0.5 || dt > 10.0) return null
+        val v = Math.hypot(cur.x - p.x, cur.y - p.y) / dt
+        if (!v.isFinite() || v >= 60.0) return null
+        return if (shown != null) (shown + v) / 2 else v
+    }
+
+    /** The big number as text: a dash while there is no honest speed. */
+    fun speedText(ms: Double?): String = if (ms == null) "\u2014" else kmh(ms)
+
     /** A maximum in km/h, rounded. */
     fun maxKmh(kmh: Double?): String = if (kmh == null) "0" else Math.round(kmh).toString()
 
