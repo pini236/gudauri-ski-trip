@@ -690,8 +690,39 @@ Ski day: record your day on the mountain with one tap, even with the screen lock
 - אפל: תווית הפרטיות **בלי שינוי** למיקום (נשאר במכשיר, סעיף 5.9); ההערות לסוקר; סיבה למצב רקע לא נדרשת בטופס, אלא בהערות.
 - גוגל פליי (אנדרואיד, לא האייפון, אבל אותה גרסת מוצר): הצהרת שירות בחזית עם סרטון (`docs/PLAY.md`, סעיף 5).
 
+### ד. הנוסח הסופי להגשת 1.1 עם בנייה 62 (15.11.2026)
+
+**פיני בדק את בנייה 62 בטלפון ואישר ("אפשר להתקדם עם 62").** הנוסח נבדק מול הקוד של הבנייה: הכפתורים באנגלית ("Record", "All day", "One descent", "Finish", "My days"), היום לדוגמה מסומן "Example" ונמצא בבנייה, ו-Live Activity בבנייה (`GudiLive.appex`). הוא מחליף את הנוסח הישן בסעיף 5.9, שנכתב לפני שהכפתורים נקבעו ("Start a ski day", "Measure a run").
+
+**הסדר ב-App Store Connect:**
+1. גרסה חדשה `1.1` (הכפתור `+` ליד הגרסאות של iOS).
+2. בנייה: **62** (גרסה 1.1). לא 1.0.1 (59, 61 ומה שאחריהן): הן בלי יום הגלישה.
+3. `What's New` באנגלית, בעברית וברוסית: מ-`i18n/store-listing-1.1.md`, סעיף 2.
+4. התיאור (רצוי): השורה מסעיף 1 שם, אחרי השורה על "איפה אני", ובסופה משפט התובנות מסעיף 4. מילות מפתח באנגלית: `tracker` במקום `meetup`.
+5. `App Review Information`, `Notes`: **הפסקה למטה בראש השדה, ומתחתיה ההערות הקיימות של 1.0** (עם קוד קבוצת "App Review"). יחד כ-3,400 בייטים, מתחת ל-4,000.
+6. `App Privacy`: בלי שינוי (סעיף 5.9). צילומי מסך: בלי שינוי.
+7. שחרור ידני (`Manually release this version`), ושליחה לסקירה.
+
+```
+Ski day (new in version 1.1)
+
+What it does: on the home screen the user taps the red "Record" sign, chooses "All day" or "One descent", and taps "Record". The app then records location once per second, including with the screen locked, to show live speed, recognise the lift and ski run the user is on, and build a timeline and map of the day.
+
+Why background location (UIBackgroundModes: location): skiers keep the phone in a pocket with the screen locked. Recording starts only from the user's tap in the foreground, uses "While Using the App" authorization only (we never ask for "Always"), shows the blue location indicator the whole time, and stops when the user taps "Finish", when a measured descent ends, or automatically after a period without movement. Location is processed and stored only on the device and is never sent to us or to anyone else.
+
+A Live Activity on the Lock Screen and in the Dynamic Island shows the live numbers while recording. It is updated by the app only, without push notifications.
+
+How to test without snow:
+1. On the home screen tap "Record", keep "All day", tap "Record" and allow location ("While Using the App", Precise).
+2. Lock the phone and walk or drive outdoors for a few minutes. The recording continues, and the Live Activity updates.
+3. Unlock, tap "Finish" and open the day. Every number is measured anywhere. Outside Gudauri, Georgia, segments are shown without lift and run names ("Off the runs"), because names come only from our map of that resort.
+4. To see a full day with lifts and runs, tap "My days" on the Record screen and open the day marked "Example".
+```
+
 ## יומן
 
+- 15.11.2026: **גרסה 1.1 (בנייה 62) נשלחה לסקירה** (פיני), לפי סעיף 7 ד. שחרור ידני. ממתינים לתשובת אפל.
+- 15.11.2026: **הנוסח הסופי להגשת 1.1 עם בנייה 62** (סעיף 7 ד): פיני בדק את הבנייה בטלפון ואישר להתקדם. ההערות לסוקר עודכנו לשמות הכפתורים בבנייה, עם Live Activity והיום לדוגמה. ממתין להגשה של פיני.
 - 6.11.2026: **חבילות מוכנות אחרי שחרור 1.0** (סעיף 7): Sentry לאייפון (פרויקט, מה משתנה בתווית, במניפסט ובמדיניות), כניסה עם אפל באתר (רשימה עם קישורים), וחבילת ההגשה ל-1.1 (פעולות פיני, מה חדש, הערות לסוקר, שלושה שערים). בלי נגיעה בקונסולות.
 - 31.10.2026: **החלטות להגשה (פיני):** גיבוי א בלי שינוי בקוד, כיבוי ההעשרה הגיאוגרפית ב-PostHog (ולכן בלי הצהרה על מיקום משוער), הנוסח של שורות הפרטיות לאייפון בעברית ובאנגלית, וגרסה 1.0 בלי יום הגלישה. נוקה המק, חוץ מ-Xcode. **תיקון לסעיף 5.3:** `Crash Data` ו-`Performance Data` מסומנים רק אחרי ש-Sentry נכנס לאייפון (בהצהרה ב-App Store Connect לא לסמן אותם עכשיו).
 - 31.10.2026: **חבילת ההגשה ל-App Store** (אחראי החנויות, סעיף 5.10): תשובות לשאלון הדירוג (צפוי 9+), הצפנה (כבר בקובץ), גישה לסוקר (בלי חשבון לדוגמה, קבוצת בדיקה עם קוד), התאמה בין התווית, המניפסט והקוד (בלי קריסות כי אין Sentry באייפון; `Gameplay Content` לשיאים), ההערות לסוקר באנגלית, והרשימה של פיני. דף החנות בשלוש השפות נבדק מול האייפון (`i18n/appstore-listing.md`). מה שתלוי ביום הגלישה מסומן בנפרד.
