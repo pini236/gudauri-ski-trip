@@ -196,6 +196,9 @@ class MainActivity : ComponentActivity() {
 
     /** The notification permission (Android 13+), asked when it is first needed: the first tap on "Record" (15.11.2026), as on the iPhone. */
     private var recAfterAsk: Boolean? = null
+
+    // The activity is a ComponentActivity with no fragments, so the lint warning about an old Fragment version does not apply.
+    @android.annotation.SuppressLint("InvalidFragmentVersionForActivityResult")
     private val askNotifications = registerForActivityResult(ActivityResultContracts.RequestPermission()) { ok ->
         Qa.log("notifications ${if (ok) "allowed" else "refused"}"); armReminders()
         recAfterAsk?.let { recAfterAsk = null; recordNow(it) }
