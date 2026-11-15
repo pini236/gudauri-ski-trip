@@ -1,8 +1,10 @@
 # מידע מעשי לגולשים בגודאורי, ואפליקציות קיימות
 
-**נאסף ב-15.11.2026.** מחקר בלבד, בלי שינוי בקוד.
+**נאסף ב-15.11.2026, ואומת באותו יום מול הדפים הרשמיים.** מחקר בלבד, בלי שינוי בקוד.
 
-**שיטה ומגבלה חשובה:** בסביבת הענן הגישה הישירה ל-`apps.apple.com`, ל-`agenda.ge` ולשאר האתרים חסומה (הדומיינים לא ברשימת הרשת של הסשן). כל מה שכאן נאסף דרך מנוע חיפוש, מהתקצירים של הדפים ולא מקריאה מלאה שלהם. לכן כל מספר מסומן במקור שלו, ומספר שמופיע רק במקור אחד מסומן "מקור יחיד". **לפני שמשהו מזה נכנס למוצר, לפתוח את הדף בעצמנו** (או להוסיף את הדומיינים לרשת של הסביבה).
+**שיטה:** הגרסה הראשונה נכתבה מתקצירי חיפוש בלבד. באימות נפתחו ישירות (בכלי שורת הפקודה, 15.11.2026) דפי החנויות של אפל ושל גוגל, האתר הרשמי של MTA והאתר gudauri.info. מה שנפתח ונמצא מסומן **"אומת"** עם הכתובת והתאריך. האתרים `agenda.ge`, `status.mta.ski` ו-`georoad.ge` לא נפתחו (תקלה בצד שלהם), ושאר האתרים חסומים ברשת של הסביבה; מה שנשען עליהם נשאר מסומן "לא אומת".
+
+**שינוי חשוב שנמצא באימות:** ל-MTA יש אתר חדש (`mta.ski`, כתוב בראשו "האתר במצב ניסיון"). כל הכתובות הישנות שצוטטו בגרסה הראשונה (`/en/presscenter/...`, כולל דף השאלות הנפוצות הישן) מחזירות היום 404. לכן הטענות שנשענו רק עליהן כבר לא ניתנות לאימות, ובמקומן נכנס מה שכתוב באתר החדש.
 
 סימון העונה: **25/26** = עונת 2025/2026, **26/27** = עונת 2026/2027.
 
@@ -10,110 +12,133 @@
 
 | אפליקציה | מה היא נותנת | פלטפורמות ומחיר | דירוג ועדכון | שפות | מצב רכבלים חי | קניית כרטיס | מפה | מחירים ושעות | מקור (תאריך) |
 |---|---|---|---|---|---|---|---|---|---|
-| **SKIPASS – Gudauri & Beyond** (המפתח: Lemondo Business; App Store `id6698866856`, Google Play `com.lemondo.skipass`) | קניית כרטיס חדש (משלוח "תוך כשעה" לפי הדף) וטעינה של כרטיס קיים בהצמדה לטלפון, ב-Apple Pay, Google Pay או כרטיס אשראי; לגודאורי, בקוריאני, גודרדזי וסוונטי. לפי כתבת ההשקה, גם מצב האתר: שלג, תחזית ומצב רכבלים | iPhone (iOS 15.5 ומעלה) ואנדרואיד; חינם | App Store: 4.9 מ-188 עד 192 דירוגים (אתרי מעקב, לא נבדק בחנות). Google Play: כ-7.4 אלף התקנות, 4.6 מ-145 דירוגים, עדכון אחרון 21.1.2026, יצאה בנובמבר 2024 (AppGoblin, תמונת מצב) | לא נמצא | **כן, לפי כתבת ההשקה** (לא נבדק בפועל) | **כן**, זה העיקר | לא ידוע | לא ידוע | [App Store](https://apps.apple.com/app/id6698866856), [AppGoblin](https://appgoblin.info/apps/com.lemondo.skipass), [AppPricingLab](https://apppricinglab.com/app/apple/6698866856), [Agenda.ge, 21.12.2024](https://agenda.ge/en/news/2024/42241) |
-| **Gudauri Guide** (Velocidev GmbH, זכויות: Artem Ustimov; App Store `id6741057087`) | מפה, שעות פתיחה, מחירי כרטיס והוראות הגעה לגודאורי | iPhone, iPad ו-visionOS; iOS 15 ומעלה; 34.8MB; חינם; "לא אוסף נתונים" | לא נמצא דירוג; תאריך עדכון לא נמצא | אנגלית, גרמנית, רוסית | לא מוזכר | לא | כן | כן (מחירים ושעות סטטיים, לא ידוע מאיזו עונה) | [App Store](https://apps.apple.com/app/id6741057087) (דרך תקציר חיפוש, 15.11.2026) |
-| **Mountain Resorts of Georgia** (`ge.gov.mrg`, פותחה על ידי Intermaps האוסטרית, לפי כתבה מ-2018) | מדריך "בזמן אמת": מיקום על מפת הסקי, אילו רכבלים ומסלולים פתוחים, מזג אוויר, עבודה בלי קליטה | אנדרואיד ו-iOS (2018) | **לא נמצא רישום עדכני בגוגל פליי**; ייתכן שהוחלפה או לא מתוחזקת | לא נמצא | כן, לפי התיאור מ-2018 | לא | כן | לא ידוע | [BlueStacks](https://www.bluestacks.com/campaign/ge.gov.mrg/es), [The Messenger, 14.3.2018](https://mail.messenger.com.ge/issues/4098_march_14_2018/4098_mariam.html) |
-| **status.mta.ski** (אתר המצב הרשמי של MTA, לא אפליקציה) | מצב רכבלים לכל אזור; לפי תקציר החיפוש מציג גם את חלון העונה (27.12 עד 19.4) ושעות 09:00 עד 16:00 (כנראה שעות האביב או נתון ישן) | אתר | — | אנגלית וגאורגית לפחות | כן | לא | לא | חלקי | [status.mta.ski](https://status.mta.ski/en/gudauri/gudauri) (תקציר חיפוש, 15.11.2026) |
-| **mta.ski** (האתר הרשמי של Mountain Trails Agency) | הודעות פתיחה, שאלות נפוצות, מחירים, מצלמות שלג | אתר | — | אנגלית, גאורגית | דרך status.mta.ski | דרך משווקים רשמיים | — | כן | [mta.ski](https://mta.ski/en), [FAQ, 11.1.2026](https://mta.ski/en/presscenter/FAQ_eng) |
-| **אתרים כלליים** (skiresort.info, snow-forecast, OnTheSnow, PeakVisor) | מפות, תחזית, נתוני אתר; מצב רכבלים לא אמין (skiresort.info עודכן לאחרונה ב-25.4.2024 לגבי גודאורי) | אתרים ואפליקציות כלליות | — | רבות | לא אמין | לא | כן | ישן או חסר | [skiresort.info](https://www.skiresort.info/ski-resort/gudauri/snow-report/), [snow-online](https://www.snow-online.com/snow-report/ski-resort/gudauri-ski-resort.html) |
+| **SKIPASS – Gudauri & Beyond** (המפתח: Lemondo Business; App Store `id6698866856`, Google Play `com.lemondo.skipass`) | **אומת:** לפי התיאור בשתי החנויות, טעינה של כרטיס קיים או הזמנת כרטיס חדש עם משלוח "תוך שעה", תשלום בכל כרטיס או ב-Apple Pay, ומבצעים; לגודאורי, בקוריאני, גודרדזי וסוונטי. **התיאור בחנויות לא מזכיר מצב רכבלים, שלג או תחזית** (הטענה הזו רק בכתבת ההשקה) | iPhone (iOS 15.5 ומעלה, 119.3MB) ואנדרואיד; חינם. בגוגל פליי מסומנת "רכישות בתוך האפליקציה". שתי החנויות: "לא נאספים נתונים" | **אומת:** App Store בארה"ב 4.9 מ-193 דירוגים; App Store בגאורגיה 4.8 מ-317 דירוגים; גרסה 1.2.5 מ-15.1.2026; הגרסה הראשונה 1.0 ב-3.12.2024. Google Play: 4.6 מ-155 ביקורות, יותר מ-5,000 הורדות, עדכון אחרון 21.1.2026, גרסה 1.2.6. בביקורות האחרונות תלונות על באגים ועל עדכון שלא נטען | אנגלית בלבד (App Store) | **לא לפי החנויות.** כתבת ההשקה טוענת שכן; לא אומת | **כן**, זה העיקר | לא מוזכרת | לא מוזכרים | [App Store](https://apps.apple.com/us/app/id6698866856) ו-[גאורגיה](https://apps.apple.com/ge/app/id6698866856), [Google Play](https://play.google.com/store/apps/details?id=com.lemondo.skipass&hl=en) (15.11.2026); כתבת ההשקה [Agenda.ge, 21.12.2024](https://agenda.ge/en/news/2024/42241) לא נפתחה |
+| **Gudauri Guide** (Velocidev GmbH, זכויות: Artem Ustimov; App Store `id6741057087`) | **אומת:** "מפה, שעות פתיחה, מחירי כרטיס והוראות הגעה". לפי היסטוריית הגרסאות נוספו גם תאריכי פתיחת העונה וסיומה, מידע על חניה ומחירי הסעות | iPhone, iPad, Mac ו-Vision; iOS 15 ומעלה; 34.8MB; חינם; "לא נאספים נתונים"; קטגוריה: נסיעות | **אומת:** אין מספיק דירוגים להצגה (גם בארה"ב וגם בגאורגיה). גרסה 0.4.3 מ-2.4.2026 ("נוסף תאריך סיום העונה"); הגרסה הראשונה 0.1 ב-30.1.2025 | אנגלית, גרמנית, רוסית | לא מוזכר | לא | כן | כן (מעודכנים ידנית בכל גרסה; האחרונה מאפריל 2026, כלומר נתוני 25/26) | [App Store](https://apps.apple.com/us/app/id6741057087) (15.11.2026) |
+| **Gudauri Map** (של האתר gudauri.info, מ-2016; App Store `id1187318312`, Google Play `info.gudauri.map`) | לפי דף האתר: מפה טופוגרפית ולוויין, עבודה בלי קליטה, מיקום, מקומות, תחזית | — | **הוסרה משתי החנויות:** הדפים מחזירים 404 בארה"ב ובגאורגיה | — | — | — | — | — | [gudauri.info/mobile_app](https://www.gudauri.info/mobile_app/) (עודכן לאחרונה 20.12.2016), ובדיקת החנויות 15.11.2026 |
+| **Mountain Resorts of Georgia** (`ge.gov.mrg`, פותחה על ידי Intermaps לפי כתבה מ-2018) | מדריך "בזמן אמת": מיקום על מפת הסקי, רכבלים ומסלולים פתוחים, מזג אוויר, עבודה בלי קליטה (לפי 2018) | אנדרואיד ו-iOS (2018) | **אומת שלא קיימת בגוגל פליי:** הדף מחזיר 404 בארה"ב ובגאורגיה | — | לפי 2018 | לא | כן | — | [BlueStacks](https://www.bluestacks.com/campaign/ge.gov.mrg/es), [The Messenger, 14.3.2018](https://mail.messenger.com.ge/issues/4098_march_14_2018/4098_mariam.html); בדיקת גוגל פליי 15.11.2026 |
+| **mta.ski** (האתר הרשמי החדש של MTA, לא אפליקציה) | **אומת:** מחירון רשמי, שאלות נפוצות, חדשות, מצלמות, מפות, ו**מצב רכבלים ומסלולים חי לכל רכבל** (מקטע "Mountain Live" ודף האתר). היום כל 21 הרכבלים בגודאורי מסומנים "לא מאושר", ובראש הדף "אין מידע" (`? / 21` רכבלים, `? / 41` מסלולים), עם "נבדק לאחרונה" מ-4.11 ו-11.11.2026 | אתר, במצב ניסיון | — | גאורגית ואנגלית (אומת) | כן, בבנייה | מ-20.11.2026 מכירה באתר עצמו (מבצע העונתי) | כן | כן | [mta.ski](https://mta.ski/en), [דף גודאורי](https://mta.ski/en/resorts/gudauri-kobi), [מחירון](https://mta.ski/en/prices) (15.11.2026) |
+| **status.mta.ski** (אתר המצב הקודם) | לפי תקציר חיפוש: מצב רכבלים לכל אזור, חלון העונה (27.12 עד 19.4) ושעות 09:00 עד 16:00 | אתר | — | — | כן | לא | לא | חלקי | [status.mta.ski](https://status.mta.ski/en/gudauri/gudauri) **לא נפתח (תקלה בצד שלהם), לא אומת** |
+| **אתרים כלליים** (skiresort.info, snow-forecast, OnTheSnow, PeakVisor) | מפות, תחזית, נתוני אתר; מצב רכבלים לא אמין (skiresort.info עודכן לאחרונה ב-25.4.2024 לגבי גודאורי) | אתרים ואפליקציות כלליות | — | רבות | לא אמין | לא | כן | ישן או חסר | [skiresort.info](https://www.skiresort.info/ski-resort/gudauri/snow-report/), [snow-online](https://www.snow-online.com/snow-report/ski-resort/gudauri-ski-resort.html) (תקצירי חיפוש, לא אומת) |
+
+**חיפוש בגוגל פליי** (15.11.2026, "gudauri", "gudauri ski", "ski georgia", "mta ski georgia", "mountain resorts of georgia"): האפליקציה היחידה שמיועדת לגודאורי היא SKIPASS. השאר אפליקציות סקי כלליות.
 
 **מה זה אומר לנו:**
-- **אין אפליקציה אחת שעושה את מה שאנחנו עושים** (מפה תלת-ממדית מדויקת, שמות מסלולים, יום הגלישה, קבוצה). SKIPASS היא אפליקציית תשלום; Gudauri Guide היא מדריך סטטי.
-- **מצב רכבלים חי:** המקור הרשמי היחיד שנמצא הוא `status.mta.ski` (שכבר מתוכנן אצלנו, S-20). לא נמצא ממשק פתוח (API) מתועד, לא של MTA ולא של SKIPASS. אין להסיק מהאפליקציות האחרות שיש ממשק שמותר לנו להשתמש בו; לבדוק מול MTA.
-- **שמות להבחנה:** הגוף שמפעיל את האתרים נקרא בתקצירים בשני שמות: Mountain Trails Agency (MTA) ו-Mountain Resorts Development Company. לא ברור אם אחד החליף את השני.
+- **אין אפליקציה אחת שעושה את מה שאנחנו עושים** (מפה תלת-ממדית מדויקת, שמות מסלולים, יום הגלישה, קבוצה). SKIPASS היא אפליקציית תשלום בלבד; Gudauri Guide היא מדריך סטטי שמתעדכן ידנית; שתי אפליקציות המפה הוותיקות (Gudauri Map, Mountain Resorts of Georgia) כבר לא בחנויות.
+- **מצב רכבלים חי:** MTA בונה עכשיו מצב לכל רכבל ולכל מסלול בתוך `mta.ski` עצמו, עם "נבדק לאחרונה" וסיבת סגירה. זה רלוונטי לתכנון S-20 (היום מתוכנן מול `status.mta.ski`): ייתכן שהמקור יעבור לאתר החדש. לא נמצא ממשק פתוח מתועד, ואין להסיק שמותר לנו להשתמש בנתונים בלי לבדוק מול MTA.
+- **רשימת המסלולים והרכבלים הרשמית באתר החדש** כוללת שמות שכדאי לבדוק מול הנתונים שלנו (בלי לשנות דבר בלי מקור, לפי כללי הדיוק): שני רכבלים בשם KOBI ורכבל בשם TRUSO; מסלולים בשם Tatra 3, Kobi 3, New Goodaura 3, Kudebi 3, Kikilo 1 ו-Kikilo 2. בדף כתוב גם 21 רכבלים, 36 מסלולים בסיכום ו-41 ברשימה, ו-86 ק״מ.
+- **שם המפעיל:** האתר הרשמי חותם "MTA LLC — Mountain Trails Agency". gudauri.info קורא לו "Mountain Resorts Development Agency". לא ברור אם זה שם ישן או תרגום אחר.
 
 ## כרטיס סקי
 
-### מחירים, עונת 25/26 (המקור האחרון שיש לו הסכמה בין מקורות)
+### מחירים רשמיים, עונת 26/27 (אומת)
 
-| מוצר | מבוגר | ילד (6 עד 12) | מקור |
-|---|---|---|---|
-| יום אחד | 70 GEL | 35 GEL | [gotogeorgia.info](https://gotogeorgia.info/places/gudauri-ski-resort/), [thegeorgianguide.com](https://thegeorgianguide.com/destinations/gudauri-ski-guide/), [madloba.info](https://madloba.info/en/blog/economy-of-georgia/ski-pass-in-gudauri/) (25/26) |
-| 2 ימים | 140 GEL | 70 GEL | gotogeorgia.info (25/26) |
-| 3 ימים | 200 GEL | 100 GEL | gotogeorgia.info (25/26) |
-| 4 ימים | 260 GEL | 130 GEL | gotogeorgia.info (25/26) |
-| 5 ימים | 300 GEL | 150 GEL | gotogeorgia.info (25/26) |
-| 6 ימים | 340 GEL | 170 GEL | gotogeorgia.info, thegeorgianguide.com (25/26) |
-| 7 ימים | 370 GEL (מקור אחר: 296 GEL) | 185 GEL | gotogeorgia.info; הסתירה ממקור אחר בתקציר החיפוש, לא אותר איזה |
-| 10 ימים | 460 GEL | 230 GEL | gotogeorgia.info (25/26) |
-| עונתי לארבעת האתרים | 650 GEL | 325 GEL | thegeorgianguide.com (25/26) |
-| ערב (סקי לילה) | 30 GEL | 15 GEL | תקציר חיפוש מ-gotogeorgia.info ו-wander-lush; **לא אומת** (25/26) |
-| מתחת לגיל 6 | חינם | — | thegeorgianguide.com, madloba.info |
-| פיקדון ה-Multicard | 5 GEL, מוחזר כשמחזירים את הכרטיס | — | thegeorgianguide.com (25/26) |
+**מקור:** [המחירון הרשמי של MTA](https://mta.ski/en/prices), 15.11.2026. בכללי המחירון כתוב שהחזר הכרטיס הוא ל-"Winter 2026/27 MultiCard", ולכן אלה מחירי 26/27. המחירים בלארי, כולל מע"מ 18 אחוז. **לראשונה יש מחיר לתושב גאורגיה ומחיר לזר**; תעריף התושב דורש תעודה מזהה או אישור תושבות. התיירים משלמים את מחיר הזר.
 
-- **הנחת סטודנטים ותלמידים 50%** לפי madloba.info; סכום לא פורסם בתקצירים. מחיר לגמלאים לא נמצא.
-- מקור ישן (sunnygeorgia.travel) כתב 50 עד 60 GEL ליום; כנראה עונה קודמת ([sunnygeorgia.travel](https://sunnygeorgia.travel/blog/en/gudauri-ski-resort-georgia)).
+| מוצר | זר, מבוגר | זר, ילד (6 עד 12) | תושב, מבוגר | תושב, ילד | תקף ב |
+|---|---|---|---|---|---|
+| יום אחד | 120 | 60 | 90 | 45 | גודאורי בלבד |
+| 2 ימים | 215 | 108 | 160 | 80 | גודאורי בלבד |
+| 3 ימים | 305 | 153 | 230 | 115 | גודאורי בלבד |
+| 4 ימים | 390 | 195 | 290 | 145 | גודאורי בלבד |
+| 5 ימים | 470 | 235 | 350 | 175 | גודאורי בלבד |
+| 6 ימים | 545 | 273 | 410 | 205 | גודאורי בלבד |
+| 7 ימים (MultiSki) | 630 | 315 | 470 | 235 | כל ארבעת האתרים |
+| 10 ימים (MultiSki) | 865 | 435 | 650 | 325 | כל ארבעת האתרים |
+| עונתי (MultiSki) | 1,000 | 500 | 1,000 | 500 | כל ארבעת האתרים; נוער (13 עד 18) 650 |
+| סקי לילה | 80 | 40 | 60 | 30 | גודאורי בלבד |
+| תצפית Kobi (להולכי רגל בלבד, אסור לגולשים) | 90 | 45 | 60 | 30 | גודאורי בלבד |
 
-### עונת 26/27: אין עדיין מחיר רשמי מאומת
+כללים מהמחירון ומהשאלות הנפוצות ([mta.ski/en/faq](https://mta.ski/en/faq), 15.11.2026):
+- **מתחת לגיל 6** חינם בכל הרכבלים. **גמלאי תושב:** כרטיס יומי בחינם (0 לארי). לזרים אין תעריף גמלאים.
+- **כרטיס סטודנט** (500 לארי, 20 ימים בעונה) רק לאזרחי גאורגיה שלומדים בגאורגיה. כלומר **הנחת הסטודנטים של 50 אחוז מהגרסה הקודמת לא חלה על תיירים**.
+- **ה-MultiCard** עולה 5 לארי, נטען מחדש בכל עונה, ו-5 הלארי מוחזרים כשמחזירים אותו בקופה עם תעודה מזהה. כרטיסי 7 ימים, 10 ימים ועונתי **רשומים על שם המחזיק** ואסור להעביר אותם. סקי הלילה ותצפית Kobi על כרטיס נייר חד-פעמי (MultiPass).
+- **חובה להחזיק את הכרטיס הפיזי** במעבר לרכבל; כרטיס אלקטרוני או קוד QR לא מתקבלים.
+- **כרטיס יומי לא כולל סקי לילה**; רק כרטיסים עונתיים כוללים.
+- **תשלום בכרטיס:** במחירון מופיעות עמלות מסוף (2 לארי לעסקה במסוף של בנק גאורגיה, 1.25 אחוז במסוף של TBC), כלומר אפשר לשלם בכרטיס. לא כתוב במפורש באילו קופות.
 
-| טענה | מקור | מצב |
-|---|---|---|
-| מחיר נפרד לתושבים ולזרים לראשונה: זר מבוגר 120 GEL ליום, 545 GEL לשישה ימים; תושב 90 GEL; ילד זר 60 GEL, ילד תושב 45 GEL | [pvd-club.com](https://pvd-club.com/gudauri-ski-pass-prices-2026-27/) ([רוסית](https://pvd-club.com/gudauri-ski-pass-2026-27/)) | **מקור יחיד, לא אומת מול MTA.** אם נכון, זו עלייה של כ-70 אחוז לזרים |
-| המחירים ל-26/27 לא פורסמו (נכון ל-10.11.2026) | [thegeorgianguide.com](https://thegeorgianguide.com/guides/skiing-in-georgia/), [madloba.info](https://madloba.info/en/blog/economy-of-georgia/ski-pass-in-gudauri/), [wander-lush.org](https://wander-lush.org/visit-gudauri-travel-tips/) | סותר את pvd-club |
-| MTA מכריזה לחורף 26/27 על "Premium Skipass" חדש | תקציר מ-[mta.ski/presscenter](https://mta.ski/en/presscenter) | לא נמצאו פרטים |
+**איפה קונים (אומת):** בקופות האתרים. קישורים רשמיים לקנייה באונליין "יפורסמו בנפרד" (השאלות הנפוצות, 15.11.2026). **מבצע 26/27:** מ-20.11.2026, הנחה של 30 אחוז על המנה הראשונה של כרטיסים עונתיים MultiSki למבוגרים, בתשלום בכרטיס TBC Concept Visa Premium, עד שני כרטיסים לכרטיס אשראי, רק באתר `mta.ski`, עם משלוח חינם בטביליסי ([mta.ski, 12.11.2026](https://mta.ski/en/news/visa-discount)).
 
-**איפה קונים:** בקופות באתר, באונליין דרך משווקים רשמיים של MTA ([FAQ של MTA, 11.1.2026](https://mta.ski/en/presscenter/FAQ_eng)), ובאפליקציית SKIPASS (טעינה בהצמדה לטלפון, [Agenda.ge, 21.12.2024](https://agenda.ge/en/news/2024/42241)). ה-Multicard נטען מחדש ועובד בגודאורי, בקוריאני ומסטיה ([goderdzi.ski](https://goderdzi.ski/skipass)). מבצעים: 30 אחוז הנחה אונליין על הכרטיס העונתי בדצמבר וינואר 25/26 (thegeorgianguide.com); מבצע 2025 על כרטיסי 7 ו-10 ימים אונליין בלבד, עד שני כרטיסים לכרטיס אשראי ([mta.ski](https://mta.ski/en/presscenter/Discount7-10)).
+**Premium Skipass (אומת):** מי שקונה כרטיס עונתי MultiSki במבצע מקבל Premium Skipass: כניסה מהירה (Fast Track) ללא הגבלה בארבעה רכבלים: Pirveli, Soliko, Goodaura ו-New Goodaura. כדי לשמור על המעמד בעונה הבאה, טוענים עונתי מאותה קטגוריה על אותו כרטיס; כרטיס שאבד לא מוחלף ([mta.ski, 12.11.2026](https://mta.ski/en/news/premium-skipass)).
 
-### השכרה ובית ספר (טווחים, לא מחירון רשמי)
+**אימות של מקור שהיה יחיד:** הטבלה של [pvd-club.com](https://pvd-club.com/gudauri-ski-pass-prices-2026-27/) (זר 120, שישה ימים 545, תושב 90, ילד זר 60, ילד תושב 45) **תואמת בדיוק את המחירון הרשמי**. המקורות שכתבו שמחירי 26/27 עוד לא פורסמו (נכון ל-10.11.2026) כבר לא מעודכנים; גם gudauri.info מדווח ב-13.11.2026 שהמחירים פורסמו ([gudauri.info](https://www.gudauri.info/blog/gudauri_2027_ski_pass_prices/)).
+
+### מחירים, עונת 25/26 (היסטוריה, ממקורות משניים, לא אומת)
+
+האתר הרשמי מציג היום רק את 26/27, ולכן אי אפשר לאמת את המחירים הקודמים. נשמרים להשוואה בלבד: יום אחד 70 לארי (ילד 35), שישה ימים 340, עשרה ימים 460, עונתי לארבעת האתרים 650, ערב 30 ([gotogeorgia.info](https://gotogeorgia.info/places/gudauri-ski-resort/), [thegeorgianguide.com](https://thegeorgianguide.com/destinations/gudauri-ski-guide/), [madloba.info](https://madloba.info/en/blog/economy-of-georgia/ski-pass-in-gudauri/)). מחיר שבעה ימים היה שנוי במחלוקת (370 או 296). **בהשוואה, כרטיס יומי לזר עלה מ-70 ל-120 לארי (כ-70 אחוז).**
+
+### השכרה ובית ספר (טווחים, לא מחירון רשמי, לא אומת)
 
 | מה | טווח | מקור (עונה) |
 |---|---|---|
-| ערכת סקי מלאה ליום | 40 עד 70 GEL; קסדה עוד 10 עד 15 GEL; בבית ספר אחד 60 GEL ליום, 50 GEL מארבעה ימים | [friendly.ge](https://friendly.ge/en/gudauri-ski-resort-guide) (25/26), [gudauri.school](https://gudauri.school/en/rental), [skigeorgia.com](https://skigeorgia.com/ski-board-rental-gudauri/) |
-| מדריך פרטי לשעה | 80 עד 120 GEL; מקורות אחרים 100 עד 200 GEL, ובבית ספר אחד "מ-315 GEL" (כנראה לשיעור ארוך יותר; לא ברור) | friendly.ge (25/26), [madloba.info](https://madloba.info/en/blog/sport-in-georgia/ski-instructor-in-gudauri/), [skyatlantida.com](https://skyatlantida.com/gudauri-ski-school-and-gear-rentals/) |
-| שיעור קבוצתי לשעה | 40 עד 60 GEL | friendly.ge (25/26) |
+| ערכת סקי מלאה ליום | 40 עד 70 לארי; קסדה עוד 10 עד 15; בבית ספר אחד 60 ליום, 50 מארבעה ימים | [friendly.ge](https://friendly.ge/en/gudauri-ski-resort-guide) (25/26), [gudauri.school](https://gudauri.school/en/rental), [skigeorgia.com](https://skigeorgia.com/ski-board-rental-gudauri/) |
+| מדריך פרטי לשעה | 80 עד 120 לארי; מקורות אחרים 100 עד 200, ובבית ספר אחד "מ-315" (כנראה לשיעור ארוך יותר) | friendly.ge (25/26), [madloba.info](https://madloba.info/en/blog/sport-in-georgia/ski-instructor-in-gudauri/), [skyatlantida.com](https://skyatlantida.com/gudauri-ski-school-and-gear-rentals/) |
+| שיעור קבוצתי לשעה | 40 עד 60 לארי | friendly.ge (25/26) |
 
 ## שעות ועונה
 
 | נתון | ערך | מקור (תאריך) |
 |---|---|---|
-| עונת 25/26 | 27.12.2025 עד 19.4.2026 | [wander-lush.org](https://wander-lush.org/skiing-in-georgia-best-ski-resorts/), תקציר [status.mta.ski](https://status.mta.ski/en/gudauri/gudauri) |
-| עונת 24/25 | פתיחה 21.12.2024 | [mta.ski, הודעה מ-18.12.2024](https://mta.ski/en/presscenter/GudauriOpening2025) |
-| **פתיחת 26/27** | **20.12.2026** בארבעת האתרים, לפי הודעת MTA מ-28.10.2026 (כך מצטטים; ההודעה עצמה לא נמצאה) | [thegeorgianguide.com](https://thegeorgianguide.com/guides/skiing-in-georgia/), [wander-lush.org](https://wander-lush.org/skiing-in-georgia-best-ski-resorts/), pvd-club.com. סותרים: where-to-ski.com (12.12.2026, נתון מובנה בדף, לא אמין), OnTheSnow (תחזית 2.1.2027) |
-| שעות רכבלים (גודאורי ו-Kobi) | **10:00 עד 17:00 כל יום** | [FAQ של MTA, 11.1.2026](https://mta.ski/en/presscenter/FAQ_eng); גם בהודעת הפתיחה מ-18.12.2024 |
-| שעות אביב | 09:00 עד 16:00 (מרץ ואפריל), לפי מדריך; גם תקציר status.mta.ski מראה 09:00 עד 16:00 | [wander-lush.org](https://wander-lush.org/visit-gudauri-travel-tips/) (25/26) |
-| הרכבל האחרון | לא נמצא מקור שאומר מתי עולה הכיסא האחרון (מעבר ל"עד 17:00") | — |
-| סקי לילה | **סתירה בתוך ה-FAQ של MTA עצמו:** במקום אחד שישי ושבת 20:00 עד 22:00, ובמקום אחר כל יום 17:00 עד 21:30. כרטיס יומי לא כולל לילה; עונתי כולל; "Night Skiing" נמכר בנפרד | [FAQ של MTA, 11.1.2026](https://mta.ski/en/presscenter/FAQ_eng) |
-| מסלול מואר | Pirveli, כ-1 ק״מ | [madloba.info](https://madloba.info/en/blog/georgian-cities/gudauri), [skiresort.info](https://skiresort.info/ski-resort/gudauri/night-skiing) |
-| חדש ל-26/27 (מתוכנן) | שתי מעליות גרירה, מסוע מקורה, ושני מסלולים חדשים: **Kobi 3 ו-Tatra 3** | [wander-lush.org](https://wander-lush.org/skiing-in-georgia-best-ski-resorts/) (26/27). **לנתוני המפה: לבדוק כשייפתחו; אין לנו גאומטריה** |
+| **פתיחת 26/27** | **20.12.2026** בגודאורי, בקוריאני, גודרדזי ומסטיה. **אומת** | [הודעת MTA מ-28.10.2026](https://mta.ski/en/news/skiseason2027) (15.11.2026). המקורות הסותרים (where-to-ski.com: 12.12.2026; OnTheSnow: 2.1.2027) שגויים |
+| סיום העונה | "דצמבר עד אפריל", בלי תאריך | [דף גודאורי ב-mta.ski](https://mta.ski/en/resorts/gudauri-kobi) (15.11.2026) |
+| עונת 25/26 | 27.12.2025 עד 19.4.2026 | [wander-lush.org](https://wander-lush.org/skiing-in-georgia-best-ski-resorts/), תקציר status.mta.ski. **לא אומת** |
+| עונת 24/25 | פתיחה 21.12.2024 | הודעת MTA מ-18.12.2024; **הדף הוסר מהאתר החדש (404), לא ניתן לאמת** |
+| **שעות רכבלים בחורף** | **10:00 עד 17:00**, לכל אחד מ-21 הרכבלים בגודאורי, בלי שעות סוף שבוע שונות. **אומת** | [דף גודאורי ב-mta.ski](https://mta.ski/en/resorts/gudauri-kobi) ("Working hours" ו"Winter hours" לכל רכבל, 15.11.2026). השאלות הנפוצות: "השעות עשויות להשתנות לפי מזג האוויר והתפעול" |
+| שעות אביב | 09:00 עד 16:00 (מרץ ואפריל), לפי מדריך ותקציר status.mta.ski | [wander-lush.org](https://wander-lush.org/visit-gudauri-travel-tips/) (25/26). **לא אומת**; באתר הרשמי אין שעות אביב |
+| הרכבל האחרון | לא מופיע באתר הרשמי (רק "עד 17:00") | — |
+| סקי לילה | **מחיר אומת** (זר 80, תושב 60, טבלה למעלה). **השעות לא מופיעות באתר החדש.** דף השאלות הנפוצות הישן, שבו היו שתי גרסאות סותרות (שישי ושבת 20:00 עד 22:00, או כל יום 17:00 עד 21:30), הוסר | [mta.ski/en/prices](https://mta.ski/en/prices) (15.11.2026) |
+| מסלול מואר | **אומת לגבי 26/27:** מסלול New Goodaura מקבל תאורת לילה, "להרחבת אפשרויות סקי הלילה". המסלול המואר הקודם (Pirveli, כ-1 ק״מ) לפי מדריכים בלבד, **לא אומת** | [mta.ski, 18.9.2026](https://mta.ski/en/news/gudauri-prepares-for-winter-season); [madloba.info](https://madloba.info/en/blog/georgian-cities/gudauri), [skiresort.info](https://skiresort.info/ski-resort/gudauri/night-skiing) |
+| **חדש ל-26/27** | **אומת:** שני מסלולים חדשים, **Tatra 3 ו-Kobi 3**, באורך כולל של 6 ק״מ (סך הכל 86 ק״מ); **הרכבלים Khada ו-Snowpark מפורקים**, ובמקומם באזור Snowpark שתי מעליות גרירה (1,400 מ׳ יחד) ומסוע מקורה של 200 מ׳; ייצור שלג על Soliko ו-Kikilo (7,500 מ׳); תאורה ל-New Goodaura. הסיום מתוכנן לדצמבר 2026 | [mta.ski, 18.9.2026](https://mta.ski/en/news/gudauri-prepares-for-winter-season), [mta.ski, 28.10.2026](https://mta.ski/en/news/skiseason2027). **לנתוני המפה: אין לנו גאומטריה למסלולים החדשים, ופירוק Khada משנה את נתוני הרכבלים. לבדוק בשטח ובמפה הפתוחה לפני כל שינוי (כללי הדיוק)** |
 
 ## הגעה
 
 | מסלול | אפשרות | זמן | מחיר | מקור (תאריך) |
 |---|---|---|---|---|
-| נמל התעופה טביליסי לגודאורי (כ-138 ק״מ) | הסעה פרטית | כשעתיים וחצי (תלוי בדרך) | מכ-262 GEL לרכב (OrbiTrip, 25.9.2026); אחרים €60 (כ-165 GEL) עד 80–130 USD | [orbitrip.ge](https://orbitrip.ge/guide/tbilisi-to-gudauri-transfer-guide), [welcomepickups.com](https://www.welcomepickups.com/tbilisi/airport-to-gudauri/), [kiwitaxi.com](https://kiwitaxi.com/en/georgia/taxi-from-tbilisi-airport-to-gudauri) |
-| נמל התעופה לתחנת Didube | אוטובוס 337 לכיכר התחנה (1 GEL) ואז רכבת תחתית, או מונית (כ-40 GEL ב-Bolt) | — | — | [orbitrip.ge](https://orbitrip.ge/guide/tbilisi-to-gudauri-transfer-guide), [wander-lush.org](https://wander-lush.org/tbilisi-to-gudauri/) |
-| Didube לגודאורי | מרשרוטקה, יוצאת כשמתמלאת, מזומן בלבד; להגיע לפני 10:00 בחורף | שעתיים עד שעתיים וחצי ועוד המתנה | כ-15 GEL לאדם | orbitrip.ge (26/27), [wander-lush.org](https://wander-lush.org/didube-bus-station-tbilisi/). **קורא שאל בפברואר 2026 אם המרשרוטקות עוד מורשות בקו; לא נמצאה תשובה** |
-| Didube לגודאורי | מונית משותפת | מהירה יותר | 25 עד 35 GEL לאדם | תקציר חיפוש, מקור לא מזוהה; לא אומת |
-| נמל התעופה קוטאיסי לגודאורי (כ-300 ק״מ) | הסעה פרטית | 3.5 עד 4.5 שעות | 112 עד 180 USD/EUR לרכב, לפי ספק | [safetrip.ge](https://safetrip.ge/transfer/from-kutaisi-airport-to-gudauri) (מ-120 USD), [elitetransfer.ge](https://elitetransfer.ge/kutaisiairport) (€180), [gudauri.info](https://www.gudauri.info/blog/transfer/) (112–400 USD) |
-| קוטאיסי לגודאורי | אוטובוס (Georgian Bus לטביליסי, ומעבר לוואן לפני העיר) | כ-6 שעות | כ-60 GEL (wander-lush, 2026); Rome2rio כ-26 USD | [wander-lush.org](https://wander-lush.org/tbilisi-to-gudauri/), [rome2rio](https://www.rome2rio.com/s/Kutaisi-Airport-KUT/Gudauri). לא נבדק מול georgianbus.com |
+| נמל התעופה טביליסי לגודאורי (כ-120 עד 138 ק״מ) | הסעה פרטית | כשעתיים עד שעתיים וחצי | ב-gudauri.info: "מ-68 דולר לרכב", ואצל מפרסמים אחרים שם 70 עד 300 דולר לפי הרכב (רכב VIP עד 600). מקורות אחרים: מכ-262 לארי (OrbiTrip, 25.9.2026), 60 אירו | **gudauri.info אומת** ([gudauri.info/transfer](https://www.gudauri.info/blog/transfer/), עודכן 9.11.2026; מחירי מפרסמים); [orbitrip.ge](https://orbitrip.ge/guide/tbilisi-to-gudauri-transfer-guide), [welcomepickups.com](https://www.welcomepickups.com/tbilisi/airport-to-gudauri/), [kiwitaxi.com](https://kiwitaxi.com/en/georgia/taxi-from-tbilisi-airport-to-gudauri) לא אומתו |
+| נמל התעופה לתחנת Didube | אוטובוס 337 לכיכר התחנה (1 לארי) ואז רכבת תחתית, או מונית (כ-40 לארי ב-Bolt) | — | — | [orbitrip.ge](https://orbitrip.ge/guide/tbilisi-to-gudauri-transfer-guide), [wander-lush.org](https://wander-lush.org/tbilisi-to-gudauri/). לא אומת |
+| Didube לגודאורי | מרשרוטקה, יוצאת כשמתמלאת, מזומן בלבד; להגיע לפני 10:00 בחורף | שעתיים עד שעתיים וחצי ועוד המתנה | כ-15 לארי לאדם | orbitrip.ge (26/27), [wander-lush.org](https://wander-lush.org/didube-bus-station-tbilisi/). **לא אומת.** קורא שאל בפברואר 2026 אם המרשרוטקות עוד מורשות בקו; לא נמצאה תשובה. (ב-gudauri.info יש הסבר ישן, עם מחיר של 3 עד 4 דולר, ולא שימושי) |
+| Didube לגודאורי | מונית משותפת | מהירה יותר | 25 עד 35 לארי לאדם | תקציר חיפוש, מקור לא מזוהה; לא אומת |
+| נמל התעופה קוטאיסי לגודאורי (כ-300 ק״מ) | הסעה פרטית | 3.5 עד 4.5 שעות | ב-gudauri.info: "מ-112 דולר לרכב", ואצל מפרסמים אחרים שם 180 עד 400 דולר לפי הרכב (VIP עד 750). מקורות אחרים: מ-120 דולר, 180 אירו | **gudauri.info אומת** (עודכן 9.11.2026; התיקון: הטווח שם 112 עד 750 ולא 112 עד 400); [safetrip.ge](https://safetrip.ge/transfer/from-kutaisi-airport-to-gudauri), [elitetransfer.ge](https://elitetransfer.ge/kutaisiairport) לא אומתו |
+| קוטאיסי לגודאורי | אוטובוס (Georgian Bus לטביליסי, ומעבר לוואן לפני העיר) | כ-6 שעות | כ-60 לארי (wander-lush, 2026); Rome2rio כ-26 דולר | [wander-lush.org](https://wander-lush.org/tbilisi-to-gudauri/), [rome2rio](https://www.rome2rio.com/s/Kutaisi-Airport-KUT/Gudauri). לא אומת |
 
-**הכביש:** גודאורי נמצאת על הכביש הצבאי (Mtskheta–Stepantsminda–Larsi). הקטע **שנסגר** הוא **גודאורי–קובי**, דרך מעבר Jvari (2,379 מ׳), בעיקר בגלל סכנת מפולות. גודאורי עצמה מטביליסי בדרך כלל לא בקטע הזה.
-- **מי מכריז:** מחלקת הדרכים של גאורגיה (Roads Department), בדף ההגבלות שלה; המקורות לא מסכימים על הכתובת (`georoad.ge` מול `georoad.gov.ge`). ההודעות מופיעות גם באתרי חדשות ([1tv.ge](https://1tv.ge/lang/en/news/gudauri-kobi-road-section-temporarily-closed-to-all-types-of-transport/)).
-- **כמה פעמים:** בינואר עד אפריל 2026 הוכרזה סגירה מלאה של הקטע 13 פעמים, 12 מהן בגלל מפולות; הארוכה מ-10.4.2026 09:00 עד 14.4.2026 20:05 ([autohub.rent](https://autohub.rent/en/journal/georgia-mountain-passes-winter-closures), מקור משני). יש גם סגירות רק למשאיות, וחובת שרשראות.
-- **חלופה כשהכביש סגור:** הרכבל Gudauri–Kobi (כ-7.5 ק״מ) ([autohub.rent](https://autohub.rent/en/journal/georgia-mountain-passes-winter-closures), [wander-lush.org](https://wander-lush.org/kobi-gudauri-cable-car/)). הכביש העוקף בבנייה; תאריכי סיום סותרים (2027 או 2028).
+**חניה בגודאורי (אומת, [שאלות נפוצות של MTA](https://mta.ski/en/faq), 15.11.2026):** חניה חינם ליד הרכבל First (50 מקומות), Shino (50), ליד Axis Gudauri (30), מימין אחרי המנהרה (50), ליד מלון Carpe Diem (500), ליד Atrium ו-Neo (100) וליד Truso (50). חניה מקורה בתשלום של Redco Gudauri: Neo (100), Loft 1 ו-Loft 2 (200), Four Season (100).
+
+**הכביש:** גודאורי נמצאת על הכביש הצבאי (Mtskheta–Stepantsminda–Larsi). הקטע שנסגר בחורף הוא גודאורי–קובי, דרך מעבר Jvari; גודאורי עצמה מטביליסי בדרך כלל לא בקטע הזה. ההודעות על סגירה של מחלקת הדרכים של גאורגיה; הכתובת שלה (`georoad.ge` מול `georoad.gov.ge`) **לא אומתה** (האתר לא נפתח). הכביש העוקף בבנייה; תאריכי סיום סותרים (2027 או 2028), לא אומת.
+- **כמה פעמים:** בינואר עד אפריל 2026 הוכרזה סגירה מלאה של הקטע 13 פעמים, הארוכה מ-10.4.2026 09:00 עד 14.4.2026 20:05; יש גם סגירות רק למשאיות וחובת שרשראות ([autohub.rent](https://autohub.rent/en/journal/georgia-mountain-passes-winter-closures), מקור משני, לא אומת).
+- **חלופה כשהכביש סגור:** הרכבל Gudauri–Kobi (כ-7.5 ק״מ) ([wander-lush.org](https://wander-lush.org/kobi-gudauri-cable-car/), לא אומת). להולכי רגל יש כרטיס "תצפית Kobi" במחירון הרשמי (טבלת הכרטיס למעלה).
 
 ## כסף ותקשורת
 
 | נושא | מה נמצא | מקור (תאריך) |
 |---|---|---|
-| כספומטים בגודאורי | ב-New Gudauri: מול Travel Bar וב-Gudmarket; בגודאורי המרכזית: Smart, ליד קפה Gagieti, ובמלון Marco Polo; המרת כסף בסניף TBC במלון Marco Polo (10:00 עד 17:00, בלי סופי שבוע) | [gudauri.com](https://gudauri.com/about-gudauri/) — **מדריך ישן, לא אומת שהם עדיין שם** |
-| כרטיסים | Visa ו-Mastercard מתקבלים בכספומטים; Amex ו-Diners בדרך כלל לא; העמלה תלויה בבנק | [atmfeesaver.com](https://atmfeesaver.com/cash-atms-in-georgia/), [wise.com](https://wise.com/us/blog/money-and-banks-in-georgia) (2026) |
-| קופות הרכבלים | לא נמצא אם מקבלים כרטיס אשראי. המרשרוטקה מזומן בלבד. ההמלצה: להחזיק מזומן ב-GEL | — |
-| Magti | eSIM בהפעלה של 10 GEL; גלישה ללא הגבלה 10 GEL לשבוע או 35 GEL ל-30 יום; דוכן 24 שעות בנמלי התעופה טביליסי וקוטאיסי; 4G על המסלולים, 3G ברכבלים העליונים, בלי קליטה מחוץ למסלולים | [thegeorgianguide.com](https://thegeorgianguide.com/practical-info/sim-cards-internet/) (12.11.2026), [triplinkhub.com](https://www.triplinkhub.com/en/blog/mobile-internet-georgia-mountains-svaneti-kazbegi) (2026) |
-| Silknet | חבילת תיירים ללא הגבלה 30 GEL ל-15 יום; מחירי ה-eSIM סותרים (5 GEL ועוד 4 למספר, או 35 GEL ל-15 יום); כיסוי בגודאורי: 4G לפי מקור אחד, 3G לפי אחר | [driftasia.com](https://driftasia.com/georgia-esim-guide.html), [thegeorgianguide.com](https://thegeorgianguide.com/practical-info/best-esim-georgia/) (2026) |
-| Cellfie | 30GB ב-25 GEL ל-30 יום; כיסוי חלש מחוץ לערים | [driftasia.com](https://driftasia.com/georgia-4g-coverage-2026.html) (2026) |
+| כספומטים בגודאורי | ב-New Gudauri: מול Travel Bar וב-Gudmarket; בגודאורי המרכזית: Smart, ליד קפה Gagieti, ובמלון Marco Polo | [gudauri.com](https://gudauri.com/about-gudauri/) — **מדריך ישן, לא אומת.** (דף הכסף ב-gudauri.info עודכן לאחרונה ב-2013 ולא שימושי) |
+| כרטיסים | Visa ו-Mastercard מתקבלים בכספומטים; Amex ו-Diners בדרך כלל לא | [atmfeesaver.com](https://atmfeesaver.com/cash-atms-in-georgia/), [wise.com](https://wise.com/us/blog/money-and-banks-in-georgia) (2026). לא אומת |
+| קופות הרכבלים | **אומת בעקיפין:** המחירון הרשמי מפרט עמלת מסוף לתשלום בכרטיס (טבלת הכרטיס למעלה). המרשרוטקה מזומן בלבד (לא אומת) | [mta.ski/en/prices](https://mta.ski/en/prices) (15.11.2026) |
+| Magti | eSIM בהפעלה של 10 לארי; גלישה ללא הגבלה 10 לארי לשבוע או 35 ל-30 יום; דוכן 24 שעות בנמלי התעופה; 4G על המסלולים, 3G ברכבלים העליונים | [thegeorgianguide.com](https://thegeorgianguide.com/practical-info/sim-cards-internet/) (12.11.2026), [triplinkhub.com](https://www.triplinkhub.com/en/blog/mobile-internet-georgia-mountains-svaneti-kazbegi) (2026). לא אומת |
+| Silknet | חבילת תיירים ללא הגבלה 30 לארי ל-15 יום; מחירי ה-eSIM סותרים; כיסוי בגודאורי 4G או 3G לפי המקור | [driftasia.com](https://driftasia.com/georgia-esim-guide.html), [thegeorgianguide.com](https://thegeorgianguide.com/practical-info/best-esim-georgia/) (2026). לא אומת |
+| Cellfie | 30GB ב-25 לארי ל-30 יום; כיסוי חלש מחוץ לערים | [driftasia.com](https://driftasia.com/georgia-4g-coverage-2026.html) (2026). לא אומת |
 | המלצה חוזרת במקורות | Magti לכיסוי בהר | אותם מקורות |
+
+## מה אומת ב-15.11.2026
+
+- **SKIPASS:** התיאור, הדירוגים (App Store בארה"ב ובגאורגיה, Google Play), ההורדות, הגרסאות ותאריכי העדכון, השפה, המחיר והגודל.
+- **Gudauri Guide:** התיאור, השפות, הגרסה האחרונה, שאין דירוגים.
+- **אפליקציות שהוסרו:** Gudauri Map ו-Mountain Resorts of Georgia לא בחנויות.
+- **MTA:** המחירון המלא של 26/27 (תושב וזר), כללי הכרטיס, Premium Skipass והמבצע, תאריך הפתיחה 20.12.2026, שעות הרכבלים 10:00 עד 17:00, מחיר סקי הלילה, המסלולים והרכבלים החדשים ל-26/27, החניה, ושיש באתר מצב רכבלים בבנייה.
+- **gudauri.info:** מחירי ההסעות של המפרסמים שם.
 
 ## מה לא אומת
 
-1. **שום דבר מדפי App Store, Google Play ו-agenda.ge לא נקרא ישירות** (הדומיינים חסומים בסביבה). הדירוגים, ההתקנות ותאריכי העדכון מאתרי מעקב (AppGoblin, AppPricingLab), ותיאור "מצב רכבלים חי" ב-SKIPASS מכתבת ההשקה בלבד.
-2. **מחירי 26/27:** הטבלה של pvd-club (120 GEL לזר, 90 לתושב) היא מקור יחיד; מקורות אחרים אומרים שעוד לא פורסם. ה-"Premium Skipass" בלי פרטים.
-3. **תאריך הפתיחה 20.12.2026** מצוטט כהודעת MTA מ-28.10.2026, אבל ההודעה עצמה לא נמצאה.
-4. **סקי לילה:** ה-FAQ של MTA סותר את עצמו (שישי ושבת 20:00–22:00 מול כל יום 17:00–21:30). מחיר הערב (30 GEL) לא אומת. **שעת הרכבל האחרון** לא נמצאה.
-5. **מחיר 7 ימים ב-25/26:** 370 GEL מול 296 GEL.
-6. **כתובת ההגבלות של מחלקת הדרכים** (`georoad.ge` או `georoad.gov.ge`) לא אומתה.
-7. **הכספומטים בגודאורי** ממדריך ישן; קבלת כרטיס אשראי בקופות הרכבלים לא נמצאה.
-8. **המרשרוטקה מ-Didube:** לא אומת שהקו עדיין פעיל בחורף 26/27.
-9. **Kobi 3 ו-Tatra 3:** מסלולים חדשים מתוכננים לפי בלוג; לבדוק בשטח ובמפה הפתוחה לפני כל שינוי בנתונים (כללי הדיוק).
-10. **מי מפעיל את האתרים:** Mountain Trails Agency מול Mountain Resorts Development Company, לא הוכרע.
-11. **ממשק פתוח למצב רכבלים:** לא נמצא אצל אף אחד. לא נסרק כלום.
+1. **SKIPASS, מצב רכבלים חי:** רק כתבת ההשקה ב-Agenda.ge (לא נפתחה) טוענת זאת; בתיאור בחנויות אין זכר לזה.
+2. **status.mta.ski:** לא נפתח; חלון העונה 25/26 ושעות 09:00 עד 16:00 שצוטטו ממנו לא אומתו.
+3. **שעות סקי הלילה והרכבל האחרון:** לא מופיעים באתר הרשמי החדש. השעות הסותרות מהדף הישן כבר לא ניתנות לבדיקה.
+4. **שעות אביב (09:00 עד 16:00):** רק ממדריך.
+5. **מחירי 25/26:** האתר הרשמי מציג רק את 26/27.
+6. **פתיחת עונת 24/25 ומבצעים קודמים:** הדפים הוסרו מהאתר הרשמי.
+7. **כתובת ההגבלות של מחלקת הדרכים** (`georoad.ge` או `georoad.gov.ge`): האתר לא נפתח.
+8. **הכספומטים בגודאורי:** ממדריך ישן.
+9. **המרשרוטקה מ-Didube** והמונית המשותפת: לא אומת שהקו פעיל בחורף 26/27.
+10. **השכרה, בית ספר, כרטיסי SIM ואוטובוסים מקוטאיסי:** ממקורות משניים בלבד.
+11. **המסלול המואר Pirveli:** רק ממדריכים; האתר הרשמי מזכיר רק את התאורה החדשה ב-New Goodaura.
+12. **מי מפעיל את האתרים:** האתר הרשמי חותם Mountain Trails Agency; השם Mountain Resorts Development Agency מופיע במקורות אחרים. לא הוכרע אם זה אותו גוף.
+13. **ממשק פתוח למצב רכבלים:** לא נמצא. האתר החדש של MTA מציג מצב לכל רכבל, אבל לא נבדק אם יש ממשק או תנאי שימוש. לא נסרק כלום.
+14. **המסלולים והרכבלים החדשים** (Tatra 3, Kobi 3, מעליות הגרירה, פירוק Khada): אומתו כתוכנית רשמית, לא בשטח; אין להם גאומטריה.
