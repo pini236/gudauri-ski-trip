@@ -3538,6 +3538,46 @@
       "h": 1068,
       "page": "round39",
       "title": "וכשאין טיול: אותו לוח, בלי כרטיס הטיסה"
+    },
+    "R40-0-Decide.dc.html": {
+      "x": 0,
+      "y": 0,
+      "w": 600,
+      "h": 1000,
+      "page": "round40",
+      "title": "סבב 40: נדחה"
+    },
+    "R40-A.dc.html": {
+      "x": 680,
+      "y": 0,
+      "w": 1684,
+      "h": 1068,
+      "page": "round40",
+      "title": "א. שורת מחיר בלוח הבית, ליד הספירה לפתיחה"
+    },
+    "R40-B.dc.html": {
+      "x": 680,
+      "y": 1488,
+      "w": 1684,
+      "h": 1068,
+      "page": "round40",
+      "title": "ב. מסך \"כרטיס סקי\": כמה עולה לך (מומלץ)"
+    },
+    "R40-C.dc.html": {
+      "x": 680,
+      "y": 2976,
+      "w": 1684,
+      "h": 1068,
+      "page": "round40",
+      "title": "ג. כרטיס הטיול: ספח עם ימי הסקי מנוקבים"
+    },
+    "R40-States.dc.html": {
+      "x": 680,
+      "y": 4464,
+      "w": 2102,
+      "h": 1068,
+      "page": "round40",
+      "title": "ב (המומלץ): מצבים"
     }
   },
   "createdOnFiles": {
@@ -3547,7 +3587,7 @@
   "designSystems": [],
   "launch": {
     "view": "canvas",
-    "page": "round39"
+    "page": "round40"
   },
   "notes": {
     "featRow1": {
@@ -4998,6 +5038,42 @@
       "w": 240,
       "x": 680,
       "y": 6514
+    },
+    "round40row0": {
+      "kind": "title1",
+      "maxW": 1684,
+      "page": "round40",
+      "text": "א. שורה בבית",
+      "w": 240,
+      "x": 680,
+      "y": -300
+    },
+    "round40row1": {
+      "kind": "title1",
+      "maxW": 1684,
+      "page": "round40",
+      "text": "ב. מסך כרטיס סקי",
+      "w": 240,
+      "x": 680,
+      "y": 1188
+    },
+    "round40row2": {
+      "kind": "title1",
+      "maxW": 1684,
+      "page": "round40",
+      "text": "ג. כרטיס הטיול",
+      "w": 240,
+      "x": 680,
+      "y": 2676
+    },
+    "round40row3": {
+      "kind": "title1",
+      "maxW": 2102,
+      "page": "round40",
+      "text": "מצבים",
+      "w": 240,
+      "x": 680,
+      "y": 4164
     }
   },
   "order": [
@@ -5441,9 +5517,18 @@
     "R39-B.dc.html",
     "R39-C.dc.html",
     "R39-States.dc.html",
-    "R39-Trip.dc.html"
+    "R39-Trip.dc.html",
+    "R40-0-Decide.dc.html",
+    "R40-A.dc.html",
+    "R40-B.dc.html",
+    "R40-C.dc.html",
+    "R40-States.dc.html"
   ],
   "pages": [
+    {
+      "id": "round40",
+      "name": "סבב 40: מחירי כרטיס הסקי"
+    },
     {
       "id": "round39",
       "name": "סבב 39: ספירה לאחור לפתיחת העונה"
