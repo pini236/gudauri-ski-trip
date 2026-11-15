@@ -684,7 +684,7 @@ meet() {
   adb shell pm revoke "$PKG" android.permission.ACCESS_COARSE_LOCATION > /dev/null 2>&1 || true
   adb shell am force-stop "$PKG"; sleep 1
   mark; adb shell am start -n "$ACT" > /dev/null; waitlog "scene ready" 60
-  waitlog "notifications asked" 6 && fail "the app asked about notifications when it opened"
+  seen "notifications asked" 6 && fail "the app asked about notifications when it opened"
   if [ -n "$(where 'מקליטים')" ]; then
     mark; tapText "מקליטים"; waitlog "notifications asked" 15 && { sleep 2; shot record-asks-notifications
       tapText "Allow" && waitlog "notifications allowed" 10 && { sleep 1; shot record-notifications-allowed; }; }
