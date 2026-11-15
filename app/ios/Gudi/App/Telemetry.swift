@@ -123,7 +123,7 @@ final class Telemetry {
         }
     }
 
-    nonisolated private static func tick() -> @Sendable (Timer) -> Void {
+    nonisolated static func tick() -> @Sendable (Timer) -> Void {
         { _ in Task { @MainActor in Telemetry.shared.flush() } }
     }
 

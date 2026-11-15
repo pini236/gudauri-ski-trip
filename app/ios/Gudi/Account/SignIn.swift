@@ -27,11 +27,11 @@ enum SignIn {
 
     // System callbacks (ASAuthorization, ASWebAuthenticationSession) are built here, outside the main actor, so they
     // do not inherit its isolation (build 55 crash; app/ios/qa/system-boundaries.md).
-    nonisolated private static func resumer(_ k: CheckedContinuation<ASAuthorizationAppleIDCredential, Error>) -> (Result<ASAuthorizationAppleIDCredential, Error>) -> Void {
+    nonisolated static func resumer(_ k: CheckedContinuation<ASAuthorizationAppleIDCredential, Error>) -> (Result<ASAuthorizationAppleIDCredential, Error>) -> Void {
         { k.resume(with: $0) }
     }
 
-    nonisolated private static func webDone(_ k: CheckedContinuation<URL, Error>) -> ASWebAuthenticationSession.CompletionHandler {
+    nonisolated static func webDone(_ k: CheckedContinuation<URL, Error>) -> ASWebAuthenticationSession.CompletionHandler {
         { url, err in
             if let url { k.resume(returning: url) }
             else { k.resume(throwing: ApiError((err as? ASWebAuthenticationSessionError)?.code == .canceledLogin ? "cancelled" : "google_failed")) }

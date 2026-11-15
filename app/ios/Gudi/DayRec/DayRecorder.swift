@@ -108,14 +108,14 @@ final class DayRecorder: NSObject, CLLocationManagerDelegate {
 
     // System callbacks arrive off the main actor. A closure built inside this @MainActor class
     // would inherit the isolation and trap at run time (build 55), so they are built outside it.
-    nonisolated private static func accelHandler(_ w: AccelWindow) -> CMAccelerometerHandler {
+    nonisolated static func accelHandler(_ w: AccelWindow) -> CMAccelerometerHandler {
         { d, _ in
             guard let a = d?.acceleration else { return }
             w.add(x: a.x, y: a.y, z: a.z)
         }
     }
 
-    nonisolated private static func accuracyDone(_ rec: DayRecorder) -> @Sendable (Error?) -> Void {
+    nonisolated static func accuracyDone(_ rec: DayRecorder) -> @Sendable (Error?) -> Void {
         { [weak rec] _ in
             Task { @MainActor in
                 guard let rec else { return }
