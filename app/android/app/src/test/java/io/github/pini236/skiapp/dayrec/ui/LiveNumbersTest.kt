@@ -2,6 +2,7 @@ package io.github.pini236.skiapp.dayrec.ui
 
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -11,6 +12,31 @@ class LiveNumbersTest {
         assertEquals("0", LiveNumbers.kmh(-1.0))
         assertEquals("36", LiveNumbers.kmh(10.0))
         assertEquals("63", LiveNumbers.kmh(17.5))
+    }
+
+    /** The big number (A-47): a valid Doppler wins; else the distance between two accurate readings; else a dash, never a false 0. */
+    @Test fun displaySpeedUsesDistanceOnlyWithAccurateReadings() {
+        val a = LiveNumbers.Fix(0, 0.0, 0.0, 5.0)
+        val b = LiveNumbers.Fix(2000, 3.0, 0.0, 5.0)
+        val c = LiveNumbers.Fix(4000, 9.0, 0.0, 5.0)
+        assertEquals(4.2, LiveNumbers.displaySpeed(4.2, a, b, null)!!, 1e-9)
+        assertEquals(0.0, LiveNumbers.displaySpeed(0.0, a, b, 3.0)!!, 1e-9) // a real standing still is a real 0
+        assertNull(LiveNumbers.displaySpeed(null, null, a, null))
+        val v1 = LiveNumbers.displaySpeed(null, a, b, null)
+        assertEquals(1.5, v1!!, 1e-9)
+        assertEquals(2.25, LiveNumbers.displaySpeed(null, b, c, v1)!!, 1e-9) // half and half with what was shown
+        assertEquals(1.5, LiveNumbers.displaySpeed(-1.0, a, b, null)!!, 1e-9) // a negative Doppler is none
+        // a coarse position (indoors, a valley): no speed from the jumps
+        assertNull(LiveNumbers.displaySpeed(null, a, LiveNumbers.Fix(2000, 30.0, 0.0, 40.0), 1.5))
+        assertNull(LiveNumbers.displaySpeed(null, LiveNumbers.Fix(0, 0.0, 0.0, null), b, 1.5))
+        // too far apart in time, or too close
+        assertNull(LiveNumbers.displaySpeed(null, a, LiveNumbers.Fix(60_000, 50.0, 0.0, 5.0), 1.5))
+        assertNull(LiveNumbers.displaySpeed(null, a, LiveNumbers.Fix(200, 1.0, 0.0, 5.0), 1.5))
+        // a jump that no skier makes
+        assertNull(LiveNumbers.displaySpeed(null, a, LiveNumbers.Fix(1000, 500.0, 0.0, 5.0), null))
+        assertEquals("\u2014", LiveNumbers.speedText(null))
+        assertEquals("5", LiveNumbers.speedText(1.5))
+        assertEquals("0", LiveNumbers.speedText(0.0))
     }
 
     @Test fun distanceAndDrop() {
