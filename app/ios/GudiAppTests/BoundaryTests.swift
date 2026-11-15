@@ -13,12 +13,6 @@ final class BoundaryTests: XCTestCase {
         wait(for: [done], timeout: 10)
     }
 
-    func testAccelHandlerFromSideQueue() {
-        let w = AccelWindow()
-        let h = DayRecorder.accelHandler(w)
-        onSideQueue { h(nil, nil) }
-    }
-
     func testTelemetryTickFromSideQueue() {
         let tick = Telemetry.tick()
         let t = Timer(timeInterval: 60, repeats: false) { _ in }
@@ -50,6 +44,12 @@ final class BoundaryTests: XCTestCase {
     }
 
     #if DAYREC
+    func testAccelHandlerFromSideQueue() {
+        let w = AccelWindow()
+        let h = DayRecorder.accelHandler(w)
+        onSideQueue { h(nil, nil) }
+    }
+
     func testAccuracyDoneFromSideQueue() {
         let rec = DayRecorder()
         let h = DayRecorder.accuracyDone(rec)
