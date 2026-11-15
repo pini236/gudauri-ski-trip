@@ -26,7 +26,7 @@ struct SeasonBoard: View {
                 FlowDots(names: names, isOn: { live && status!.isOpen($0) == true }, on: c.green, off: c.muted)
                     .environment(\.layoutDirection, .leftToRight)
                 HStack(alignment: .lastTextBaseline, spacing: 10) {
-                    Text("\(open)/\(names.count)").font(ski.type.display(30)).foregroundStyle(c.ink)
+                    Text(live ? "\(open)/\(names.count)" : "—").font(ski.type.display(30)).foregroundStyle(c.ink)
                         .environment(\.layoutDirection, .leftToRight)
                     Text(foot).font(ski.type.text(13)).foregroundStyle(c.muted)
                 }

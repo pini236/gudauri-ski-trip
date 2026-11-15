@@ -66,6 +66,8 @@ final class AppModel {
     var forecast: Forecast?
     /// The lift report was read at least once (status_view goes after the first answer, as on Android).
     var statusLoaded = false
+    /// False while the app is in the background: the polling and the clock tick then wait (battery, ski day with the screen off).
+    var isActive = true
     /// The lift the trail map should frame and open when it next opens ("see on the trail map" from the meeting point);
     /// the map clears it once read.
     var mapLift: String?
@@ -162,6 +164,7 @@ final class AppModel {
     func pollStatus() async {
         var last: Int64 = 0
         while !Task.isCancelled {
+            if !isActive { try? await Task.sleep(for: .seconds(5)); continue }
             let now = Int64(Date().timeIntervalSince1970 * 1000)
             var report = status.report
             if qaStatus == nil, now - last >= LiftStatus.everyMs {

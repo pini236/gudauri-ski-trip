@@ -36,6 +36,7 @@ struct GudiApp: App {
                 }
         }
             .onChange(of: phase) { _, p in
+                model.isActive = p == .active
                 switch p {
                 case .active:
                     Task { await GroupService.shared.flush() }

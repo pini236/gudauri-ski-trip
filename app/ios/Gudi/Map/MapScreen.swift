@@ -242,7 +242,7 @@ private struct MapContent: View {
         }
         .task {
             // the light follows the clock in Gudauri (auto)
-            while !Task.isCancelled { try? await Task.sleep(for: .seconds(60)); now = Date() }
+            while !Task.isCancelled { try? await Task.sleep(for: .seconds(60)); if phase == .active { now = Date() } }
         }
     }
 
