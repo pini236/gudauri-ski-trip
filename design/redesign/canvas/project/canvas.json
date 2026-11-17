@@ -1,0 +1,605 @@
+{
+ "v": 3,
+ "createdOnFiles": {
+  "at": "2026-11-15T22:44:54.657Z",
+  "v": 1
+ },
+ "title": "Gudi: עיצוב מחדש, כיוונים",
+ "launch": {
+  "view": "canvas",
+  "page": "intro"
+ },
+ "pages": [
+  {
+   "id": "intro",
+   "name": "פתיחה והמלצה"
+  },
+  {
+   "id": "a",
+   "name": "א · ההר"
+  },
+  {
+   "id": "b",
+   "name": "ב · היום"
+  },
+  {
+   "id": "c",
+   "name": "ג · המכשיר"
+  },
+  {
+   "id": "d",
+   "name": "ד · התחנה"
+  },
+  {
+   "id": "page-1",
+   "name": "Page 1"
+  },
+  {
+   "id": "page-guva2w",
+   "name": "Page 2"
+  }
+ ],
+ "boards": {
+  "Main.dc.html": {
+   "x": 0,
+   "y": 0,
+   "w": 1280,
+   "h": 1560,
+   "title": "הכיוונים, ההמלצה והשאלות",
+   "page": "intro"
+  },
+  "A01-Identity.dc.html": {
+   "x": 0,
+   "y": 0,
+   "w": 1200,
+   "h": 900,
+   "title": "שפה ומבנה",
+   "page": "a"
+  },
+  "A02-Open.dc.html": {
+   "x": 0,
+   "y": 1020,
+   "w": 390,
+   "h": 844,
+   "title": "הפתיחה (היום, 15.11)",
+   "page": "a"
+  },
+  "A03-Map.dc.html": {
+   "x": 470,
+   "y": 1020,
+   "w": 390,
+   "h": 844,
+   "title": "המפה",
+   "page": "a"
+  },
+  "A04-Run.dc.html": {
+   "x": 940,
+   "y": 1020,
+   "w": 390,
+   "h": 844,
+   "title": "מסלול שנבחר",
+   "page": "a"
+  },
+  "A05-Live.dc.html": {
+   "x": 1410,
+   "y": 1020,
+   "w": 390,
+   "h": 844,
+   "title": "יום הגלישה: חי",
+   "page": "a"
+  },
+  "A06-Story.dc.html": {
+   "x": 1880,
+   "y": 1020,
+   "w": 390,
+   "h": 844,
+   "title": "סוף היום והסיפור",
+   "page": "a"
+  },
+  "A07-Lifts.dc.html": {
+   "x": 2350,
+   "y": 1020,
+   "w": 390,
+   "h": 844,
+   "title": "רכבלים ומזג אוויר",
+   "page": "a"
+  },
+  "A08-Meet.dc.html": {
+   "x": 2820,
+   "y": 1020,
+   "w": 390,
+   "h": 844,
+   "title": "מפגש וקבוצה",
+   "page": "a"
+  },
+  "A09-Games.dc.html": {
+   "x": 3290,
+   "y": 1020,
+   "w": 390,
+   "h": 844,
+   "title": "משחקים ועוד",
+   "page": "a"
+  },
+  "A10-Season.dc.html": {
+   "x": 3760,
+   "y": 1020,
+   "w": 390,
+   "h": 844,
+   "title": "פתיחת העונה ומחירים",
+   "page": "a"
+  },
+  "A11-OpenEn.dc.html": {
+   "x": 0,
+   "y": 1984,
+   "w": 390,
+   "h": 844,
+   "title": "Opening (EN)",
+   "page": "a"
+  },
+  "A12-RunEn.dc.html": {
+   "x": 470,
+   "y": 1984,
+   "w": 390,
+   "h": 844,
+   "title": "Run (EN, night)",
+   "page": "a"
+  },
+  "A13-StoryEn.dc.html": {
+   "x": 940,
+   "y": 1984,
+   "w": 390,
+   "h": 844,
+   "title": "Story (EN)",
+   "page": "a"
+  },
+  "A14-Platforms.dc.html": {
+   "x": 1410,
+   "y": 1984,
+   "w": 860,
+   "h": 844,
+   "title": "אנדרואיד מול אייפון",
+   "page": "a"
+  },
+  "B01-Identity.dc.html": {
+   "x": 0,
+   "y": 0,
+   "w": 1200,
+   "h": 900,
+   "title": "שפה ומבנה",
+   "page": "b"
+  },
+  "B02-Open.dc.html": {
+   "x": 0,
+   "y": 1020,
+   "w": 390,
+   "h": 844,
+   "title": "הפתיחה (היום, 15.11)",
+   "page": "b"
+  },
+  "B03-Map.dc.html": {
+   "x": 470,
+   "y": 1020,
+   "w": 390,
+   "h": 844,
+   "title": "המפה",
+   "page": "b"
+  },
+  "B04-Run.dc.html": {
+   "x": 940,
+   "y": 1020,
+   "w": 390,
+   "h": 844,
+   "title": "מסלול שנבחר",
+   "page": "b"
+  },
+  "B05-Live.dc.html": {
+   "x": 1410,
+   "y": 1020,
+   "w": 390,
+   "h": 844,
+   "title": "יום הגלישה: חי",
+   "page": "b"
+  },
+  "B06-Story.dc.html": {
+   "x": 1880,
+   "y": 1020,
+   "w": 390,
+   "h": 844,
+   "title": "סוף היום והסיפור",
+   "page": "b"
+  },
+  "B07-Lifts.dc.html": {
+   "x": 2350,
+   "y": 1020,
+   "w": 390,
+   "h": 844,
+   "title": "רכבלים ומזג אוויר",
+   "page": "b"
+  },
+  "B08-Meet.dc.html": {
+   "x": 2820,
+   "y": 1020,
+   "w": 390,
+   "h": 844,
+   "title": "מפגש וקבוצה",
+   "page": "b"
+  },
+  "B09-Games.dc.html": {
+   "x": 3290,
+   "y": 1020,
+   "w": 390,
+   "h": 844,
+   "title": "משחקים ועוד",
+   "page": "b"
+  },
+  "B10-Season.dc.html": {
+   "x": 3760,
+   "y": 1020,
+   "w": 390,
+   "h": 844,
+   "title": "פתיחת העונה ומחירים",
+   "page": "b"
+  },
+  "B11-OpenEn.dc.html": {
+   "x": 0,
+   "y": 1984,
+   "w": 390,
+   "h": 844,
+   "title": "Opening (EN)",
+   "page": "b"
+  },
+  "B12-RunEn.dc.html": {
+   "x": 470,
+   "y": 1984,
+   "w": 390,
+   "h": 844,
+   "title": "Run (EN, night)",
+   "page": "b"
+  },
+  "B13-StoryEn.dc.html": {
+   "x": 940,
+   "y": 1984,
+   "w": 390,
+   "h": 844,
+   "title": "Story (EN)",
+   "page": "b"
+  },
+  "B14-Platforms.dc.html": {
+   "x": 1410,
+   "y": 1984,
+   "w": 860,
+   "h": 844,
+   "title": "אנדרואיד מול אייפון",
+   "page": "b"
+  },
+  "C01-Identity.dc.html": {
+   "x": 0,
+   "y": 0,
+   "w": 1200,
+   "h": 900,
+   "title": "שפה ומבנה",
+   "page": "c"
+  },
+  "C02-Open.dc.html": {
+   "x": 0,
+   "y": 1020,
+   "w": 390,
+   "h": 844,
+   "title": "הפתיחה (היום, 15.11)",
+   "page": "c"
+  },
+  "C03-Map.dc.html": {
+   "x": 470,
+   "y": 1020,
+   "w": 390,
+   "h": 844,
+   "title": "המפה",
+   "page": "c"
+  },
+  "C04-Run.dc.html": {
+   "x": 940,
+   "y": 1020,
+   "w": 390,
+   "h": 844,
+   "title": "מסלול שנבחר",
+   "page": "c"
+  },
+  "C05-Live.dc.html": {
+   "x": 1410,
+   "y": 1020,
+   "w": 390,
+   "h": 844,
+   "title": "יום הגלישה: חי",
+   "page": "c"
+  },
+  "C06-Story.dc.html": {
+   "x": 1880,
+   "y": 1020,
+   "w": 390,
+   "h": 844,
+   "title": "סוף היום והסיפור",
+   "page": "c"
+  },
+  "C07-Lifts.dc.html": {
+   "x": 2350,
+   "y": 1020,
+   "w": 390,
+   "h": 844,
+   "title": "רכבלים ומזג אוויר",
+   "page": "c"
+  },
+  "C08-Meet.dc.html": {
+   "x": 2820,
+   "y": 1020,
+   "w": 390,
+   "h": 844,
+   "title": "מפגש וקבוצה",
+   "page": "c"
+  },
+  "C09-Games.dc.html": {
+   "x": 3290,
+   "y": 1020,
+   "w": 390,
+   "h": 844,
+   "title": "משחקים ועוד",
+   "page": "c"
+  },
+  "C10-Season.dc.html": {
+   "x": 3760,
+   "y": 1020,
+   "w": 390,
+   "h": 844,
+   "title": "פתיחת העונה ומחירים",
+   "page": "c"
+  },
+  "C11-OpenEn.dc.html": {
+   "x": 0,
+   "y": 1984,
+   "w": 390,
+   "h": 844,
+   "title": "Opening (EN)",
+   "page": "c"
+  },
+  "C12-RunEn.dc.html": {
+   "x": 470,
+   "y": 1984,
+   "w": 390,
+   "h": 844,
+   "title": "Run (EN, night)",
+   "page": "c"
+  },
+  "C13-StoryEn.dc.html": {
+   "x": 940,
+   "y": 1984,
+   "w": 390,
+   "h": 844,
+   "title": "Story (EN)",
+   "page": "c"
+  },
+  "C14-Platforms.dc.html": {
+   "x": 1410,
+   "y": 1984,
+   "w": 860,
+   "h": 844,
+   "title": "אנדרואיד מול אייפון",
+   "page": "c"
+  },
+  "D01-Identity.dc.html": {
+   "x": 0,
+   "y": 0,
+   "w": 1200,
+   "h": 900,
+   "title": "שפה ומבנה",
+   "page": "d"
+  },
+  "D02-Open.dc.html": {
+   "x": 0,
+   "y": 1020,
+   "w": 390,
+   "h": 844,
+   "title": "הפתיחה (היום, 15.11)",
+   "page": "d"
+  },
+  "D03-Map.dc.html": {
+   "x": 470,
+   "y": 1020,
+   "w": 390,
+   "h": 844,
+   "title": "המפה",
+   "page": "d"
+  },
+  "D04-Run.dc.html": {
+   "x": 940,
+   "y": 1020,
+   "w": 390,
+   "h": 844,
+   "title": "מסלול שנבחר",
+   "page": "d"
+  },
+  "D05-Live.dc.html": {
+   "x": 1410,
+   "y": 1020,
+   "w": 390,
+   "h": 844,
+   "title": "יום הגלישה: חי",
+   "page": "d"
+  },
+  "D06-Story.dc.html": {
+   "x": 1880,
+   "y": 1020,
+   "w": 390,
+   "h": 844,
+   "title": "סוף היום והסיפור",
+   "page": "d"
+  },
+  "D07-Lifts.dc.html": {
+   "x": 2350,
+   "y": 1020,
+   "w": 390,
+   "h": 844,
+   "title": "רכבלים ומזג אוויר",
+   "page": "d"
+  },
+  "D08-Meet.dc.html": {
+   "x": 2820,
+   "y": 1020,
+   "w": 390,
+   "h": 844,
+   "title": "מפגש וקבוצה",
+   "page": "d"
+  },
+  "D09-Games.dc.html": {
+   "x": 3290,
+   "y": 1020,
+   "w": 390,
+   "h": 844,
+   "title": "משחקים ועוד",
+   "page": "d"
+  },
+  "D10-Season.dc.html": {
+   "x": 3760,
+   "y": 1020,
+   "w": 390,
+   "h": 844,
+   "title": "פתיחת העונה ומחירים",
+   "page": "d"
+  },
+  "D11-OpenEn.dc.html": {
+   "x": 0,
+   "y": 1984,
+   "w": 390,
+   "h": 844,
+   "title": "Opening (EN)",
+   "page": "d"
+  },
+  "D12-RunEn.dc.html": {
+   "x": 470,
+   "y": 1984,
+   "w": 390,
+   "h": 844,
+   "title": "Run (EN, night)",
+   "page": "d"
+  },
+  "D13-StoryEn.dc.html": {
+   "x": 940,
+   "y": 1984,
+   "w": 390,
+   "h": 844,
+   "title": "Story (EN)",
+   "page": "d"
+  },
+  "D14-Platforms.dc.html": {
+   "x": 1410,
+   "y": 1984,
+   "w": 860,
+   "h": 844,
+   "title": "אנדרואיד מול אייפון",
+   "page": "d"
+  },
+  "Artboard-iupu.dc.html": {
+   "h": 600,
+   "handmade": true,
+   "page": "page-guva2w",
+   "title": "Artboard 1",
+   "w": 800,
+   "x": 0,
+   "y": 0
+  }
+ },
+ "order": [
+  "Main.dc.html",
+  "A01-Identity.dc.html",
+  "A02-Open.dc.html",
+  "A03-Map.dc.html",
+  "A04-Run.dc.html",
+  "A05-Live.dc.html",
+  "A06-Story.dc.html",
+  "A07-Lifts.dc.html",
+  "A08-Meet.dc.html",
+  "A09-Games.dc.html",
+  "A10-Season.dc.html",
+  "A11-OpenEn.dc.html",
+  "A12-RunEn.dc.html",
+  "A13-StoryEn.dc.html",
+  "A14-Platforms.dc.html",
+  "B01-Identity.dc.html",
+  "B02-Open.dc.html",
+  "B03-Map.dc.html",
+  "B04-Run.dc.html",
+  "B05-Live.dc.html",
+  "B06-Story.dc.html",
+  "B07-Lifts.dc.html",
+  "B08-Meet.dc.html",
+  "B09-Games.dc.html",
+  "B10-Season.dc.html",
+  "B11-OpenEn.dc.html",
+  "B12-RunEn.dc.html",
+  "B13-StoryEn.dc.html",
+  "B14-Platforms.dc.html",
+  "C01-Identity.dc.html",
+  "C02-Open.dc.html",
+  "C03-Map.dc.html",
+  "C04-Run.dc.html",
+  "C05-Live.dc.html",
+  "C06-Story.dc.html",
+  "C07-Lifts.dc.html",
+  "C08-Meet.dc.html",
+  "C09-Games.dc.html",
+  "C10-Season.dc.html",
+  "C11-OpenEn.dc.html",
+  "C12-RunEn.dc.html",
+  "C13-StoryEn.dc.html",
+  "C14-Platforms.dc.html",
+  "D01-Identity.dc.html",
+  "D02-Open.dc.html",
+  "D03-Map.dc.html",
+  "D04-Run.dc.html",
+  "D05-Live.dc.html",
+  "D06-Story.dc.html",
+  "D07-Lifts.dc.html",
+  "D08-Meet.dc.html",
+  "D09-Games.dc.html",
+  "D10-Season.dc.html",
+  "D11-OpenEn.dc.html",
+  "D12-RunEn.dc.html",
+  "D13-StoryEn.dc.html",
+  "D14-Platforms.dc.html",
+  "Artboard-iupu.dc.html"
+ ],
+ "notes": {
+  "tA": {
+   "x": 0,
+   "y": -300,
+   "text": "א · ההר",
+   "kind": "title1",
+   "maxW": 1200,
+   "page": "a"
+  },
+  "tB": {
+   "x": 0,
+   "y": -300,
+   "text": "ב · היום",
+   "kind": "title1",
+   "maxW": 1200,
+   "page": "b"
+  },
+  "tC": {
+   "x": 0,
+   "y": -300,
+   "text": "ג · המכשיר",
+   "kind": "title1",
+   "maxW": 1200,
+   "page": "c"
+  },
+  "tD": {
+   "x": 0,
+   "y": -300,
+   "text": "ד · התחנה",
+   "kind": "title1",
+   "maxW": 1200,
+   "page": "d"
+  }
+ },
+ "designSystems": [],
+ "attachments": {}
+}

@@ -1,0 +1,66 @@
+<!doctype html><meta charset=utf-8><style>
+:root{--ink:#13233A;--paper:#fff;--rule:#CBD5DF;--mut:#4B5A6F;--bg:#EEF2F5;--sign:#1F5FC4;--on:#fff;--acc:#1F5FC4;--grn:#1B8A4C;--sky:#DCE8F5;--ridge:#9FB4CC;--snow:#fff}
+.night{--ink:#E8EEF6;--paper:#16243A;--rule:#334862;--mut:#A9B8CC;--bg:#0D1522;--sign:#2C4F86;--on:#fff;--acc:#7FB0FF;--grn:#4CC37E;--sky:#101C30;--ridge:#33507A;--snow:#DCE6F5}
+*{box-sizing:border-box}body{margin:0;width:390px;height:844px;font-family:'IBM Plex Sans Hebrew',system-ui,sans-serif;color:var(--ink);background:var(--bg);overflow:hidden;padding:0 16px}
+[dir=ltr] body,[dir=ltr] .n{font-family:'IBM Plex Sans',system-ui,sans-serif}
+.k{font-family:Karantina,'Arial Narrow',sans-serif;font-weight:700}
+.top{height:44px;display:flex;justify-content:space-between;align-items:center;font-size:12px;color:var(--mut)}
+h1{margin:6px 0 12px;font-size:44px;line-height:1}
+.trip{background:var(--paper);border:1px solid var(--rule);padding:12px 14px;display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;transform:rotate(-2deg)}
+.ios .trip{border-radius:14px;box-shadow:0 4px 14px rgba(19,35,58,.12);border:0}
+.trip b{font-size:22px}.trip small{font-size:12px;color:var(--mut);display:block}
+.trip .d{font-size:13px;color:var(--mut);text-align:end}.trip .d b{font-size:26px;color:var(--ink);display:block;line-height:1}
+.board{background:var(--paper);border:1px solid var(--rule);padding:14px 14px 16px;position:relative}
+.ios .board{border-radius:20px;border:0;box-shadow:0 6px 20px rgba(19,35,58,.14)}
+.cap{font-size:13px;color:var(--mut);margin-bottom:6px;display:flex;justify-content:space-between}
+.sign{background:var(--sign);color:var(--on);position:relative;padding:16px 38px 14px 18px;margin-top:10px}
+[dir=ltr] .sign{padding:16px 18px 14px 38px}
+.sign.a{clip-path:polygon(22px 0,100% 0,100% 100%,22px 100%,0 50%)}
+[dir=ltr] .sign.a{clip-path:polygon(0 0,calc(100% - 22px) 0,100% 50%,calc(100% - 22px) 100%,0 100%)}
+.ios .sign{border-radius:0}
+.snow{position:absolute;top:-9px;inset-inline:6px;height:16px;background:var(--snow);border-radius:10px 10px 4px 4px;box-shadow:0 2px 0 rgba(0,0,0,.08)}
+.big{font-size:96px;line-height:.85}.lbl{font-size:18px}.dt{font-size:13px;opacity:.9;margin-top:6px}
+.bigrow{display:flex;align-items:flex-end;gap:12px}
+.sm{font-size:13px;color:var(--mut);margin-top:10px;display:flex;gap:8px;align-items:center}
+svg{display:block;width:100%;height:auto}
+[dir=rtl] .flip{transform:scaleX(-1)}
+.gond{animation:sw 3s ease-in-out infinite;transform-origin:50% 0;transform-box:fill-box}
+@keyframes sw{50%{transform:rotate(4deg)}}
+.row12{display:flex;gap:5px;margin:8px 0}.row12 i{flex:1;height:22px;background:var(--rule)}.row12 i.o{background:var(--grn)}
+.ios .row12 i{border-radius:6px}
+.tk{display:flex;gap:2px;margin:12px 0 4px;direction:ltr}.tk i{flex:1;height:18px;background:var(--rule)}.tk i.p{background:var(--acc)}.tk i.now{background:var(--ink);transform:scaleY(1.4)}
+[dir=rtl] .tk{direction:rtl}
+.ios .tk i{border-radius:3px}
+.tkl{display:flex;justify-content:space-between;font-size:12px;color:var(--mut)}
+.pill{display:inline-block;background:var(--grn);color:#fff;padding:3px 10px;font-size:13px}.ios .pill{border-radius:99px}
+.stub{display:flex;gap:10px;margin-top:14px}.stub div{flex:1;height:56px;background:var(--paper);border:1px solid var(--rule);opacity:.55;display:flex;align-items:center;justify-content:center;font-size:14px}.ios .stub div{border-radius:14px;border:0}
+.note{position:absolute;bottom:8px;inset-inline:16px;font-size:10px;color:var(--mut);text-align:center}
+@media (prefers-reduced-motion:reduce){.gond{animation:none}}
+</style><body><script>
+const q=new URLSearchParams(location.search),A=q.get('a')||'b',S=q.get('s')||'far',P=q.get('p')||'ios',L=q.get('l')||'he',TH=q.get('t')||'day',trip=q.get('trip')!=='0';
+document.documentElement.dir=L=='he'?'rtl':'ltr';document.documentElement.lang=L;
+document.body.className=(TH=='night'?'night ':'')+P;
+const T={he:{app:'גודאורי',flight:'הטיול שלך · TLV ← TBS',fd:'ימים לטיסה',days:'ימים לפתיחה',daysB:'ימים עד שהרכבלים עולים',open:'פתיחה מתוכננת 20.12',old:'ההר עוד ישן',eve:'מחר פותחים',eveS:'הרכבלים עולים ב-20.12',today:'היום פותחים',todayS:'ממתינים לדיווח מהרכבלים',live:'הרכבלים עובדים',liveS:'10 מתוך 12 פתוחים · עודכן לפני 6 דק׳',late:'הפתיחה הייתה מתוכננת ל-20.12',lateS:'אין עדיין דיווח מהרכבלים',moved:'הפתיחה נדחתה ל-27.12',movedS:'לפי הודעת MTA · 7 ימים',after:'העונה נגמרה',afterS:'נתראה בחורף הבא',stage:'מהכרזה (28.10) עד פתיחה',maps:'מפה',games:'משחקים',src:'לפי MTA · מתוכננת, יכולה להשתנות עם השלג',one:'יום אחד',n:'35'},
+en:{app:'Gudauri',flight:'Your trip · TLV → TBS',fd:'days to flight',days:'days to opening',daysB:'days until the lifts run',open:'Planned opening Dec 20',old:'The mountain is still asleep',eve:'Opens tomorrow',eveS:'Lifts start Dec 20',today:'Opening day',todayS:'Waiting for the lift report',live:'The lifts are running',liveS:'10 of 12 open · updated 6 min ago',late:'Opening was planned for Dec 20',lateS:'No lift report yet',moved:'Opening moved to Dec 27',movedS:'Per MTA · 7 days',after:'Season is over',afterS:'See you next winter',stage:'From announcement (Oct 28) to opening',maps:'Map',games:'Games',src:'Per MTA · planned, may change with snow',one:'1 day',n:'35'}}[L];
+const days=S=='eve'?1:S=='moved'?42:35, prog=S=='far'?.34:S=='moved'?.22:S=='eve'?.98:1;
+const ridge=(t)=>{const x=24+t*270,y=128-t*104;return `<svg viewBox="0 0 340 150" class=flip><path d="M0 150 L0 118 L60 96 L110 108 L170 56 L215 78 L270 22 L340 70 L340 150Z" fill="var(--ridge)"/><path d="M270 22 L252 40 L270 36 L284 42Z" fill="var(--snow)"/><path d="M170 56 L156 70 L172 66 L184 72Z" fill="var(--snow)"/><line x1="24" y1="128" x2="294" y2="24" stroke="var(--ink)" stroke-width="1.5"/><line x1="24" y1="128" x2="${x}" y2="${y}" stroke="var(--acc)" stroke-width="3.5" stroke-linecap="round"/><circle cx="24" cy="128" r="5" fill="var(--ink)"/><circle cx="294" cy="24" r="5" fill="var(--ink)"/><g class=gond><line x1="${x}" y1="${y}" x2="${x}" y2="${y+12}" stroke="var(--ink)" stroke-width="1.5"/><rect x="${x-10}" y="${y+12}" width="20" height="15" rx="${P=='ios'?4:0}" fill="#FFC62B" stroke="var(--ink)" stroke-width="1.5"/></g></svg>`};
+const sign=(t1,t2,t3,cls='')=>`<div class="sign a ${cls}"><div class=snow></div><div class="k" style="font-size:24px">${t1}</div>${t2}<div class=dt>${t3||''}</div></div>`;
+const lifts=(o)=>`<div class=row12>${Array.from({length:12},(_,i)=>`<i class="${i<o?'o':''}"></i>`).join('')}</div>`;
+let b='';
+if(S=='live'){b=`<div class=cap><span>${T.old.length?'':''}</span><span class=pill>● ${T.live}</span></div>${A=='b'?ridge(1):''}${lifts(10)}<div class=sm>${T.liveS}</div>`;}
+else if(S=='today'){b=sign(T.today,`<div class="big k">20.12</div>`,T.todayS)+(A=='b'?ridge(1):'')+lifts(0).replace(/class="o"/g,'')+`<div class=sm>—</div>`;}
+else if(S=='late'){b=sign(T.old,`<div class=lbl style="margin-top:8px">${T.late}</div>`,T.lateS)+`<div class=sm>${T.lateS}</div>`;}
+else if(S=='after'){b=sign(T.after,`<div class=lbl style="margin-top:8px">${T.afterS}</div>`,'')+`<div class=sm>${L=='he'?'הרכבלים נסגרו · הנתונים נשמרים עד הפתיחה הבאה':'Lifts closed · data kept until next opening'}</div>`;}
+else {
+ const head=S=='eve'?T.eve:S=='moved'?T.moved:T.old, subtxt=S=='eve'?'':S=='moved'?T.movedS:T.open;
+ const num=S=='eve'?'1':String(days);
+ if(A=='a') b=sign(head,`<div class=bigrow><span class="big k n">${num}</span><span class=lbl style="padding-bottom:6px">${S=='eve'?'':T.days}</span></div>`,subtxt)+`<div class=sm>${T.src}</div>`;
+ else if(A=='b') b=`<div class=cap><span>${head}</span><span>${subtxt}</span></div><div class=bigrow style="margin:2px 0 4px"><span class="big k n" style="font-size:84px">${num}</span><span class=lbl style="padding-bottom:4px">${S=='eve'?T.eveS:T.daysB}</span></div>${ridge(prog)}<div class=sm>${T.src}</div>`;
+ else {const N=53,e=Math.round(prog*N);b=`<div class=cap><span>${head}</span><span>${subtxt}</span></div><div class=bigrow><span class="big k n" style="font-size:72px">${num}</span><span class=lbl style="padding-bottom:4px">${T.days}</span></div><div class=tk>${Array.from({length:N},(_,i)=>`<i class="${i<e?'p':''} ${i==e-1?'now':''}"></i>`).join('')}</div><div class=tkl><span>28.10</span><span>20.12</span></div><div class=sm>${T.src}</div>`;}
+}
+const tripDays=S=='far'||S=='eve'||S=='moved'?(S=='far'?56:S=='eve'?21:49):(S=='after'?'—':'21');
+document.body.innerHTML=`<div class=top><span>9:41</span><span>●●●</span></div><h1 class=k>${T.app}</h1>
+${trip?`<div class=trip><div><b class=k>TLV → TBS</b><small>${L=='he'?'10.1.2027 · הלוך':'Jan 10, 2027 · outbound'}</small></div><div class=d><b class="k n">${S=='after'?'—':tripDays}</b>${T.fd}</div></div>`:''}
+<div class=board>${b}</div>
+<div class=stub><div>${T.maps}</div><div>${T.games}</div></div>`;
+</script>

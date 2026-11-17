@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="he">
+<head>
+<meta charset="utf-8">
+<title>ההר: רכבלים ומזג אוויר</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+.A{--bg:#EEF3F8;--panel:rgba(255,255,255,.88);--solid:#FFFFFF;--ink:#0E2233;--ink2:#4A5D70;--line:rgba(14,34,51,.14);--acc:#6B3FD4;--onacc:#FFFFFF;--accsoft:rgba(107,63,212,.12);--ok:#198549;--warn:#B25E00;--bad:#C4261D;--shade:0 10px 30px rgba(14,34,51,.16);--veil:rgba(238,243,248,.74);--pg:#198549;--pb:#1F6FD0;--pr:#D1342B;--pk:#15181C;font-family:'Heebo',system-ui,sans-serif;color:var(--ink);background:var(--bg)}
+.A .night{--bg:#0B1220;--panel:rgba(17,27,44,.86);--solid:#111B2C;--ink:#EAF1F8;--ink2:#9FB0C4;--line:rgba(234,241,248,.16);--acc:#B79CFF;--onacc:#1A0B3D;--accsoft:rgba(183,156,255,.16);--ok:#46D08A;--warn:#F5B14C;--bad:#FF7468;--shade:0 10px 30px rgba(0,0,0,.5);--veil:rgba(11,18,32,.76);--pg:#46D08A;--pb:#62AEFF;--pr:#FF7468;--pk:#DCE4EC;color:var(--ink)}
+.A .scr{position:absolute;inset:0;background:var(--bg);color:var(--ink);overflow:hidden}
+.A .n{display:none}.A .night .n{display:block}.A .night .d{display:none}
+.A button{font:inherit;color:inherit;border:0;background:none;padding:0;cursor:pointer;text-align:start}
+.A a{color:inherit;text-decoration:none}
+.A p,.A h1,.A h2,.A h3{margin:0}
+.A .map{position:absolute;left:0;top:0;width:390px;height:844px}
+.A .veil{position:absolute;inset:0;background:var(--veil)}
+.A .glass{background:var(--panel);-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px);border:1px solid var(--line);box-shadow:var(--shade)}
+.A .pulse{position:absolute;top:58px;left:16px;right:16px;min-height:48px;border-radius:999px;display:flex;align-items:center;gap:10px;padding:0 18px;font-size:15px;font-weight:500;box-sizing:border-box}
+.A .dot{width:9px;height:9px;border-radius:50%;background:var(--ink2);flex:none;display:inline-block}
+.A .dot.ok{background:var(--ok)}.A .dot.warn{background:var(--warn)}.A .dot.bad{background:var(--bad)}
+.A .sheet{position:absolute;left:0;right:0;bottom:0;border-radius:28px 28px 0 0;padding:10px 20px 28px;box-sizing:border-box;display:flex;flex-direction:column;gap:16px}
+.A .grab{width:40px;height:5px;border-radius:3px;background:var(--ink2);opacity:.5;align-self:center;flex:none}
+.A .where{height:48px;border-radius:999px;background:var(--accsoft);display:flex;align-items:center;gap:10px;padding:0 18px;font-size:16px;color:var(--ink2);width:100%;box-sizing:border-box}
+.A .layers{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.A .layer{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;font-size:13px;font-weight:500;min-height:72px;text-align:center}
+.A .ic{width:48px;height:48px;border-radius:50%;border:1px solid var(--line);background:var(--solid);display:flex;align-items:center;justify-content:center;flex:none;box-sizing:border-box}
+.A .on .ic,.A .ic.on{background:var(--acc);color:var(--onacc);border-color:var(--acc)}
+.A .rec{position:absolute;width:64px;height:64px;border-radius:50%;background:var(--acc);color:var(--onacc);display:flex;align-items:center;justify-content:center;box-shadow:var(--shade)}
+.A .chip{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:0 16px;border-radius:999px;border:1px solid var(--line);background:var(--solid);font-size:14px;font-weight:500;box-sizing:border-box;white-space:nowrap}
+.A .chip.on{background:var(--acc);color:var(--onacc);border-color:var(--acc)}
+.A .big{font-weight:300;line-height:.9;letter-spacing:-.02em}
+.A .k{font-size:13px;color:var(--ink2);font-weight:500;line-height:1.35}
+.A .row{display:flex;align-items:center;gap:12px;min-height:52px;border-bottom:1px solid var(--line);width:100%;box-sizing:border-box}
+.A .tag{position:absolute;transform:translate(-50%,-50%);font-size:11px;font-weight:700;padding:3px 8px;border-radius:999px;background:var(--panel);border:1px solid var(--line);white-space:nowrap;color:var(--ink)}
+.A .cta{min-height:52px;border-radius:999px;background:var(--acc);color:var(--onacc);font-size:16px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:10px;padding:0 22px;box-sizing:border-box}
+.A .ghost{min-height:52px;border-radius:999px;border:1px solid var(--line);background:var(--solid);font-size:16px;font-weight:500;display:flex;align-items:center;justify-content:center;gap:10px;padding:0 22px;box-sizing:border-box}
+.A .round{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;box-sizing:border-box}
+.A .pd{width:12px;height:12px;border-radius:50%;flex:none;display:inline-block}
+</style>
+</helmet>
+<div class="A" style="width: 390px; height: 844px; position: relative; overflow: hidden">
+<div class="{{mode}}">
+<div class="scr" dir="rtl">
+<img class="map d" src="/_blob/c2e6538c15f646530aa5b98ba06ca0e4" alt="" style="top: -30px">
+<img class="map n" src="/_blob/4963d9a7301c708df02401cab4cd673c" alt="" style="top: -30px">
+<img class="map d" src="/_blob/728e69d5a329fc93475d7cee722073f0" alt="מפת המסלולים והרכבלים של גודאורי" style="top: -30px">
+<img class="map n" src="/_blob/2043caf19106cea06b2238a443a20b82" alt="מפת המסלולים והרכבלים של גודאורי" style="top: -30px">
+
+<div class="glass" style="position: absolute; left: 286px; top: 142px; transform: translate(-50%, 0); border-radius: 16px; padding: 8px 12px; text-align: center; white-space: nowrap">
+<p style="font-size: 20px; font-weight: 300; line-height: 1"><bdi>-14°</bdi> <span style="font-size: 13px; font-weight: 500">· רוח 46</span></p>
+<p style="font-size: 11px; font-weight: 700; margin-top: 4px">Sadzele · 3,235 מ׳</p>
+<p style="font-size: 11px; font-weight: 700; color: var(--bad); margin-top: 2px">סיכון לסגירה גבוה (הערכה)</p>
+</div>
+<div class="glass" style="position: absolute; left: 106px; top: 286px; transform: translate(-50%, 0); border-radius: 16px; padding: 8px 12px; text-align: center; white-space: nowrap">
+<p style="font-size: 20px; font-weight: 300; line-height: 1"><bdi>-9°</bdi> <span style="font-size: 13px; font-weight: 500">· רוח 28</span></p>
+<p style="font-size: 11px; font-weight: 700; margin-top: 4px">Goodaura · 2,706 מ׳</p>
+</div>
+<span style="position: absolute; left: 187px; top: 309px; width: 12px; height: 12px; border-radius: 50%; background: var(--acc); border: 2px solid var(--solid); box-sizing: border-box"></span>
+<span style="position: absolute; left: 264px; top: 117px; width: 12px; height: 12px; border-radius: 50%; background: var(--acc); border: 2px solid var(--solid); box-sizing: border-box"></span>
+
+<button class="pulse glass" aria-label="מצב ההר: 10 מתוך 12 רכבלים פתוחים, מינוס 9 מעלות למעלה">
+<span class="dot ok"></span>
+<span style="flex: 1">10/12 רכבלים · <bdi>-9°</bdi> למעלה</span>
+<span class="k">לפני 6 דק׳</span>
+</button>
+
+<div class="sheet glass" style="gap: 12px">
+<span class="grab"></span>
+<div style="display: flex; align-items: center; gap: 10px">
+<h1 style="font-size: 26px; font-weight: 300; line-height: 1; flex: 1">רכבלים <span style="font-weight: 700">10/12</span></h1>
+<button class="chip">רק פתוחים</button>
+<button class="round" style="border: 1px solid var(--line); background: var(--solid)" aria-label="סגירה">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+</button>
+</div>
+<div style="display: flex; align-items: center; gap: 10px; min-height: 44px; padding: 0 14px; border-radius: 16px; background: var(--accsoft)">
+<p style="font-size: 14px; flex: 1">הכפר · 2,196 מ׳</p>
+<p style="font-size: 14px; font-weight: 700"><bdi>-4°</bdi> · רוח 12 · 8 ס"מ שלג חדש</p>
+</div>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 16px">
+<button class="row" style="min-height: 46px"><span class="dot ok"></span><span style="font-size: 14.5px; font-weight: 500; flex: 1">Goodaura</span><span class="k">6.6 דק׳</span></button>
+<button class="row" style="min-height: 46px"><span class="dot ok"></span><span style="font-size: 14.5px; font-weight: 500; flex: 1">Shino</span><span class="k">7.8 דק׳</span></button>
+<button class="row" style="min-height: 46px"><span class="dot ok"></span><span style="font-size: 14.5px; font-weight: 500; flex: 1">Soliko</span><span class="k">7.5 דק׳</span></button>
+<button class="row" style="min-height: 46px"><span class="dot ok"></span><span style="font-size: 14.5px; font-weight: 500; flex: 1">Pirveli</span><span class="k">3 דק׳</span></button>
+<button class="row" style="min-height: 46px"><span class="dot ok"></span><span style="font-size: 14.5px; font-weight: 500; flex: 1">Kudebi</span><span class="k">4.7 דק׳</span></button>
+<button class="row" style="min-height: 46px"><span class="dot ok"></span><span style="font-size: 14.5px; font-weight: 500; flex: 1">Kikilo</span><span class="k">5 דק׳</span></button>
+<button class="row" style="min-height: 46px"><span class="dot ok"></span><span style="font-size: 14.5px; font-weight: 500; flex: 1">New Goodaura</span><span class="k">4.2 דק׳</span></button>
+<button class="row" style="min-height: 46px"><span class="dot ok"></span><span style="font-size: 14.5px; font-weight: 500; flex: 1">Snow Park</span><span class="k">7 דק׳</span></button>
+<button class="row" style="min-height: 46px"><span class="dot ok"></span><span style="font-size: 14.5px; font-weight: 500; flex: 1">Khada</span><span class="k">4.3 דק׳</span></button>
+<button class="row" style="min-height: 46px"><span class="dot ok"></span><span style="font-size: 14.5px; font-weight: 500; flex: 1">Zuma</span><span class="k">פתוח</span></button>
+<button class="row" style="min-height: 46px; border-bottom: 0"><span class="dot bad"></span><span style="font-size: 14.5px; font-weight: 500; flex: 1">Sadzele</span><span style="font-size: 13px; font-weight: 700; color: var(--bad)">סגור · רוח</span></button>
+<button class="row" style="min-height: 46px; border-bottom: 0"><span class="dot bad"></span><span style="font-size: 14.5px; font-weight: 500; flex: 1">Firni</span><span style="font-size: 13px; font-weight: 700; color: var(--bad)">סגור</span></button>
+</div>
+<p class="k">המצב מ-MTA. התחזית מ-Open-Meteo, והסיכון לסגירה הוא הערכה.</p>
+</div>
+</div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"night":{"editor":"boolean","default":false},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+renderVals() {
+return { mode: (this.props.night ?? false) ? 'night' : 'day' };
+}
+}
+</script>
+</body>
+</html>

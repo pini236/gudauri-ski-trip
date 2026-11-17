@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="he">
+<head>
+<meta charset="utf-8">
+<title>ההר: יום הגלישה, חי</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+.A{--bg:#EEF3F8;--panel:rgba(255,255,255,.88);--solid:#FFFFFF;--ink:#0E2233;--ink2:#4A5D70;--line:rgba(14,34,51,.14);--acc:#6B3FD4;--onacc:#FFFFFF;--accsoft:rgba(107,63,212,.12);--ok:#198549;--warn:#B25E00;--bad:#C4261D;--shade:0 10px 30px rgba(14,34,51,.16);--veil:rgba(238,243,248,.74);--pg:#198549;--pb:#1F6FD0;--pr:#D1342B;--pk:#15181C;font-family:'Heebo',system-ui,sans-serif;color:var(--ink);background:var(--bg)}
+.A .night{--bg:#0B1220;--panel:rgba(17,27,44,.86);--solid:#111B2C;--ink:#EAF1F8;--ink2:#9FB0C4;--line:rgba(234,241,248,.16);--acc:#B79CFF;--onacc:#1A0B3D;--accsoft:rgba(183,156,255,.16);--ok:#46D08A;--warn:#F5B14C;--bad:#FF7468;--shade:0 10px 30px rgba(0,0,0,.5);--veil:rgba(11,18,32,.76);--pg:#46D08A;--pb:#62AEFF;--pr:#FF7468;--pk:#DCE4EC;color:var(--ink)}
+.A .scr{position:absolute;inset:0;background:var(--bg);color:var(--ink);overflow:hidden}
+.A .n{display:none}.A .night .n{display:block}.A .night .d{display:none}
+.A button{font:inherit;color:inherit;border:0;background:none;padding:0;cursor:pointer;text-align:start}
+.A a{color:inherit;text-decoration:none}
+.A p,.A h1,.A h2,.A h3{margin:0}
+.A .map{position:absolute;left:0;top:0;width:390px;height:844px}
+.A .veil{position:absolute;inset:0;background:var(--veil)}
+.A .glass{background:var(--panel);-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px);border:1px solid var(--line);box-shadow:var(--shade)}
+.A .pulse{position:absolute;top:58px;left:16px;right:16px;min-height:48px;border-radius:999px;display:flex;align-items:center;gap:10px;padding:0 18px;font-size:15px;font-weight:500;box-sizing:border-box}
+.A .dot{width:9px;height:9px;border-radius:50%;background:var(--ink2);flex:none;display:inline-block}
+.A .dot.ok{background:var(--ok)}.A .dot.warn{background:var(--warn)}.A .dot.bad{background:var(--bad)}
+.A .sheet{position:absolute;left:0;right:0;bottom:0;border-radius:28px 28px 0 0;padding:10px 20px 28px;box-sizing:border-box;display:flex;flex-direction:column;gap:16px}
+.A .grab{width:40px;height:5px;border-radius:3px;background:var(--ink2);opacity:.5;align-self:center;flex:none}
+.A .where{height:48px;border-radius:999px;background:var(--accsoft);display:flex;align-items:center;gap:10px;padding:0 18px;font-size:16px;color:var(--ink2);width:100%;box-sizing:border-box}
+.A .layers{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.A .layer{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;font-size:13px;font-weight:500;min-height:72px;text-align:center}
+.A .ic{width:48px;height:48px;border-radius:50%;border:1px solid var(--line);background:var(--solid);display:flex;align-items:center;justify-content:center;flex:none;box-sizing:border-box}
+.A .on .ic,.A .ic.on{background:var(--acc);color:var(--onacc);border-color:var(--acc)}
+.A .rec{position:absolute;width:64px;height:64px;border-radius:50%;background:var(--acc);color:var(--onacc);display:flex;align-items:center;justify-content:center;box-shadow:var(--shade)}
+.A .chip{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:0 16px;border-radius:999px;border:1px solid var(--line);background:var(--solid);font-size:14px;font-weight:500;box-sizing:border-box;white-space:nowrap}
+.A .chip.on{background:var(--acc);color:var(--onacc);border-color:var(--acc)}
+.A .big{font-weight:300;line-height:.9;letter-spacing:-.02em}
+.A .k{font-size:13px;color:var(--ink2);font-weight:500;line-height:1.35}
+.A .row{display:flex;align-items:center;gap:12px;min-height:52px;border-bottom:1px solid var(--line);width:100%;box-sizing:border-box}
+.A .tag{position:absolute;transform:translate(-50%,-50%);font-size:11px;font-weight:700;padding:3px 8px;border-radius:999px;background:var(--panel);border:1px solid var(--line);white-space:nowrap;color:var(--ink)}
+.A .cta{min-height:52px;border-radius:999px;background:var(--acc);color:var(--onacc);font-size:16px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:10px;padding:0 22px;box-sizing:border-box}
+.A .ghost{min-height:52px;border-radius:999px;border:1px solid var(--line);background:var(--solid);font-size:16px;font-weight:500;display:flex;align-items:center;justify-content:center;gap:10px;padding:0 22px;box-sizing:border-box}
+.A .round{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;box-sizing:border-box}
+.A .pd{width:12px;height:12px;border-radius:50%;flex:none;display:inline-block}
+</style>
+</helmet>
+<div class="A" style="width: 390px; height: 844px; position: relative; overflow: hidden">
+<div class="{{mode}}">
+<div class="scr" dir="rtl">
+<img class="map d" src="/_blob/c2e6538c15f646530aa5b98ba06ca0e4" alt="">
+<img class="map n" src="/_blob/4963d9a7301c708df02401cab4cd673c" alt="">
+<img class="map d" src="/_blob/9d440f167af83098dcc7e13ce6c25823" alt="הקו של היום עד עכשיו על המפה">
+<img class="map n" src="/_blob/82ceec0ceb8ea9ee8caa3318db6fb1d8" alt="הקו של היום עד עכשיו על המפה">
+<div class="veil" style="opacity: .55"></div>
+<span role="img" aria-label="המיקום שלך, על Tatra 2" style="position: absolute; left: 91px; top: 428px; width: 26px; height: 26px; border-radius: 50%; background: var(--acc); border: 4px solid var(--solid); box-sizing: border-box; box-shadow: 0 0 0 9px var(--accsoft)"></span>
+
+<div class="glass" style="position: absolute; top: 58px; left: 16px; right: 16px; border-radius: 28px; padding: 16px 18px 18px; box-sizing: border-box; display: flex; flex-direction: column; gap: 10px">
+<div style="display: flex; align-items: center; gap: 10px">
+<span class="dot bad"></span>
+<span style="font-size: 15px; font-weight: 500; flex: 1">מקליטים · 2:41</span>
+<div style="display: flex; background: var(--accsoft); border-radius: 999px; padding: 3px" role="group" aria-label="מה מקליטים">
+<button style="min-height: 44px; padding: 0 14px; border-radius: 999px; background: var(--acc); color: var(--onacc); font-size: 14px; font-weight: 700">כל היום</button>
+<button style="min-height: 44px; padding: 0 14px; border-radius: 999px; font-size: 14px; font-weight: 500">ירידה אחת</button>
+</div>
+</div>
+<div style="display: flex; align-items: baseline; gap: 10px">
+<p class="big" style="font-size: 112px">47</p>
+<p style="font-size: 18px; font-weight: 500; color: var(--ink2)">קמ"ש</p>
+</div>
+<div style="display: flex; align-items: center; gap: 10px; min-height: 32px">
+<span class="pd" style="background: var(--pb)"></span>
+<p style="font-size: 20px; font-weight: 500">ב-<bdi>Tatra 2</bdi></p>
+<span style="font-size: 12px; font-weight: 700; padding: 2px 10px; border-radius: 999px; border: 1px solid var(--line); color: var(--ink2)">כנראה</span>
+</div>
+<div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; border-top: 1px solid var(--line); padding-top: 12px">
+<div><p style="font-size: 24px; font-weight: 300; line-height: 1">61</p><p class="k" style="margin-top: 4px">מרבית</p></div>
+<div><p style="font-size: 24px; font-weight: 300; line-height: 1">4</p><p class="k" style="margin-top: 4px">ירידות</p></div>
+<div><p style="font-size: 24px; font-weight: 300; line-height: 1">9.9</p><p class="k" style="margin-top: 4px">ק"מ</p></div>
+<div><p style="font-size: 24px; font-weight: 300; line-height: 1">1,938</p><p class="k" style="margin-top: 4px">מ׳ ירידה</p></div>
+</div>
+</div>
+
+<div class="glass" style="position: absolute; left: 16px; right: 16px; bottom: 28px; border-radius: 999px; padding: 8px; display: flex; gap: 8px; box-sizing: border-box">
+<button class="cta" style="flex: 1; min-height: 60px; background: var(--ink); color: var(--bg); font-size: 18px">
+<svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="2.5" fill="currentColor"/></svg>
+עצירה
+</button>
+<button class="ghost" style="width: 60px; min-height: 60px; padding: 0" aria-label="להגדיל את המפה">
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 4l-6 2v14l6-2 6 2 6-2V4l-6 2-6-2zM9 4v14M15 6v14"/></svg>
+</button>
+</div>
+</div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"night":{"editor":"boolean","default":false},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+renderVals() {
+return { mode: (this.props.night ?? false) ? 'night' : 'day' };
+}
+}
+</script>
+</body>
+</html>

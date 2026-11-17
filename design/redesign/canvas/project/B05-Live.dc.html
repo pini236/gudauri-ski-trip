@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="he">
+<head>
+<meta charset="utf-8">
+<title>היום: יום הגלישה, המסך החי</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@400;500;700;900&amp;family=Assistant:wght@400;600;700&amp;family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,900&amp;family=PT+Serif:wght@400;700&amp;family=PT+Sans:wght@400;700&amp;family=Noto+Serif+Georgian:wght@500;700&amp;family=Noto+Sans+Georgian:wght@400;600&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+.B{--bg:#FFFFFF;--sf:#F4F5F6;--ink:#0B0B0C;--ink2:#55585E;--ac:#0A7E8C;--onac:#FFFFFF;--hair:#CFD2D6;--ok:#157A3F;--bad:#B3261E;--pg:#198549;--pb:#1F6FD0;--pr:#D1342B;--pk:#111111;font-family:'Assistant',system-ui,sans-serif;color:var(--ink);background:var(--bg)}
+.B .night{--bg:#0E1011;--sf:#1A1D1F;--ink:#F2F2F0;--ink2:#A3A7AD;--ac:#5CC8D6;--onac:#06262B;--hair:#3A3E43;--ok:#46D08A;--bad:#FF7468;--pg:#46D08A;--pb:#62AEFF;--pr:#FF7468;--pk:#F2F2F0}
+.B .scr{position:absolute;inset:0;background:var(--bg);color:var(--ink);display:flex;flex-direction:column;font-size:16px;line-height:1.4}
+.B .n{display:none}.B .night .n{display:block}.B .night .d{display:none}
+.B button{font:inherit;color:inherit;border:0;background:none;padding:0;cursor:pointer}
+.B a{color:inherit;text-decoration:none}
+.B h1,.B h2,.B h3,.B p{margin:0;font-weight:inherit;font-size:inherit}
+.B .se,.B .tab{font-family:'Frank Ruhl Libre','Fraunces',serif}
+.B .en .se,.B .en .tab{font-family:'Fraunces','Frank Ruhl Libre',serif}
+.B .k{font-size:12.5px;font-weight:700;letter-spacing:.06em;color:var(--ink2)}
+.B .s{font-size:14px;color:var(--ink2)}
+.B .r1{border-top:1px solid var(--ink)}.B .r3{border-top:3px solid var(--ink)}.B .rh{border-top:1px solid var(--hair)}
+.B .tabs{display:flex;flex:none;border-top:1px solid var(--ink);padding-bottom:22px}
+.B .tab{flex:1;height:60px;display:flex;align-items:center;justify-content:center;font-size:17px;color:var(--ink2);border-top:3px solid transparent;margin-top:-1px}
+.B .tab.on{color:var(--ink);font-weight:700;border-top-color:var(--ink)}
+.B .btn{display:flex;align-items:center;justify-content:center;height:52px;padding:0 20px;background:var(--ink);color:var(--bg);font-weight:700}
+.B .btn2{display:flex;align-items:center;justify-content:center;height:52px;padding:0 18px;border:1px solid var(--ink);font-weight:600}
+.B .pill{display:inline-flex;align-items:center;height:26px;padding:0 10px;border:1px solid var(--ink);border-radius:999px;font-size:13px;font-weight:600}
+.B .dot{display:inline-block;width:10px;height:10px;border-radius:50%;flex:none}
+.B .row{display:flex;align-items:center;gap:10px;min-height:46px;border-bottom:1px solid var(--hair)}
+.B .figs{display:flex}
+.B .fig{flex:1;padding:10px 12px;border-inline-start:1px solid var(--hair)}
+.B .fig:first-child{border-inline-start:0;padding-inline-start:0}
+.B .fig b{display:block;font-family:'Frank Ruhl Libre','Fraunces',serif;font-size:30px;font-weight:700;line-height:1.1}
+.B .en .fig b{font-family:'Fraunces','Frank Ruhl Libre',serif}
+.B .q{font-size:23px;line-height:1.25;padding:12px 0;border-top:1px solid var(--ink);border-bottom:1px solid var(--ink)}
+.B .rail{display:grid;grid-template-columns:58px minmax(0,1fr)}
+.B .rail>.t{padding-top:16px;font-size:13px;font-weight:700;color:var(--ink2)}
+.B .rail>.c{padding:14px 0 16px;padding-inline-start:16px;border-inline-start:1px solid var(--ink);border-bottom:1px solid var(--hair)}
+</style>
+</helmet>
+<div class="B" style="width: 390px; height: 844px; position: relative; overflow: hidden">
+<div class="{{mode}}">
+<div class="scr" dir="rtl">
+<div style="flex: 1; min-height: 0; padding: 50px 20px 30px; display: flex; flex-direction: column">
+<div style="display: flex; justify-content: space-between; align-items: center">
+<p class="k" style="display: flex; align-items: center; gap: 8px; color: var(--ink)"><span class="dot" style="background: var(--bad)"></span>מקליטים <bdi>2:41</bdi></p>
+<div role="group" aria-label="מה מקליטים" style="display: flex; gap: 14px">
+<button aria-pressed="true" style="height: 44px; font-size: 14px; font-weight: 700; box-shadow: inset 0 -3px 0 var(--ink)">כל היום</button>
+<button style="height: 44px; font-size: 14px; color: var(--ink2)">ירידה אחת</button>
+</div>
+</div>
+<div class="r3"></div>
+<p class="k" style="margin-top: 22px">ירידה 4 · 11.1.2027</p>
+<div style="display: flex; align-items: baseline; gap: 12px; margin-top: 6px">
+<p class="se" style="font-size: 236px; font-weight: 900; line-height: 0.8; letter-spacing: -0.03em">47</p>
+<p class="se" style="font-size: 26px; font-weight: 500">קמ״ש</p>
+</div>
+<div style="display: flex; align-items: center; gap: 10px; margin-top: 34px">
+<span class="dot" style="width: 14px; height: 14px; background: var(--pb)"></span>
+<h1 class="se" dir="ltr" style="font-size: 36px; font-weight: 700; line-height: 1">Tatra 2</h1>
+<span class="pill">כנראה</span>
+</div>
+<div class="figs r1" style="margin-top: 22px">
+<div class="fig"><b>61</b><span class="s">קמ״ש, מרבית</span></div>
+<div class="fig"><b>9.9</b><span class="s">ק״מ גלישה</span></div>
+<div class="fig"><b>1,938</b><span class="s">מ׳ ירידה</span></div>
+</div>
+<p class="s rh" style="padding-top: 8px">המהירות המרבית שנמדדה היא הערכה.</p>
+<div style="margin-top: auto; display: flex; flex-direction: column; gap: 10px">
+<button class="btn" style="height: 64px; font-size: 20px">עצירה</button>
+<p class="s" style="text-align: center">ההקלטה ממשיכה גם כשהמסך כבוי</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"night":{"editor":"boolean","default":false},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+renderVals() {
+return { mode: (this.props.night ?? false) ? 'night' : 'day' };
+}
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,65 @@
+<!doctype html><meta charset=utf-8><style>
+:root{--ink:#13233A;--paper:#fff;--rule:#CBD5DF;--mut:#4B5A6F;--bg:#EEF2F5;--sign:#1F5FC4;--on:#fff;--acc:#1F5FC4;--grn:#1B8A4C;--amb:#8A5A00;--ambbg:#FFF3D6;--bar:#9FB4CC}
+.night{--ink:#E8EEF6;--paper:#16243A;--rule:#334862;--mut:#A9B8CC;--bg:#0D1522;--sign:#2C4F86;--acc:#7FB0FF;--grn:#4CC37E;--amb:#FFD27A;--ambbg:#3A2E10;--bar:#33507A}
+*{box-sizing:border-box}body{margin:0;width:390px;height:844px;font-family:'IBM Plex Sans Hebrew',system-ui,sans-serif;color:var(--ink);background:var(--bg);overflow:hidden;padding:0 16px}
+[dir=ltr] body,[dir=ltr] .n{font-family:'IBM Plex Sans',system-ui,sans-serif}
+.k{font-family:Karantina,'Arial Narrow',sans-serif;font-weight:700}
+.top{height:44px;display:flex;justify-content:space-between;align-items:center;font-size:12px;color:var(--mut)}
+h1{margin:6px 0 12px;font-size:44px;line-height:1}
+.card{background:var(--paper);border:1px solid var(--rule);padding:14px;margin-bottom:12px}
+.ios .card{border-radius:20px;border:0;box-shadow:0 6px 20px rgba(19,35,58,.14)}
+.trip{padding:12px 14px;display:flex;justify-content:space-between;align-items:center;transform:rotate(-2deg)}
+.ios .trip{border-radius:14px;box-shadow:0 4px 14px rgba(19,35,58,.12)}
+.trip b{font-size:22px}.trip small{font-size:12px;color:var(--mut);display:block}.trip .d{font-size:13px;color:var(--mut);text-align:end}.trip .d b{display:block;font-size:26px;color:var(--ink);line-height:1}
+.mini{display:flex;align-items:center;gap:12px}.mini .k{font-size:60px;line-height:.85}.mini span{font-size:14px;color:var(--mut)}
+.row{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.cap{font-size:13px;color:var(--mut)}
+.pr{display:flex;justify-content:space-between;align-items:center;margin-top:10px;padding-top:10px;border-top:1px solid var(--rule);font-size:15px}
+.pr b{font-size:20px;font-variant-numeric:tabular-nums}.pr s{color:var(--mut);font-size:13px}
+.go{color:var(--acc);font-size:20px}[dir=rtl] .go{transform:scaleX(-1)}
+.pass{display:flex;gap:6px;margin:10px 0;direction:ltr}.pass i{flex:1;height:44px;border:2px dashed var(--rule);display:flex;align-items:center;justify-content:center;font-style:normal;font-size:13px;color:var(--mut)}.pass i.p{background:var(--sign);border:2px solid var(--sign);color:#fff}
+.ios .pass i{border-radius:8px}
+.big{font-size:68px;line-height:.9;white-space:nowrap}.bars b,.pr b,.save,.n{white-space:nowrap}
+.seg{display:flex;border:1px solid var(--rule);height:44px;background:var(--bg);margin-bottom:10px}.seg b{flex:1;display:flex;align-items:center;justify-content:center;font-size:14px;color:var(--mut)}.seg b.on{background:var(--ink);color:var(--paper)}.ios .seg{border-radius:12px;overflow:hidden}
+.step{display:flex;align-items:center;justify-content:space-between;margin:6px 0 10px}.step u{width:48px;height:48px;border:1.5px solid var(--ink);display:flex;align-items:center;justify-content:center;font-size:24px;text-decoration:none}.ios .step u{border-radius:50%}
+.step .v{text-align:center;font-size:40px;line-height:1}.step .v small{display:block;font-size:13px;color:var(--mut);font-family:inherit}
+.bars div{display:flex;align-items:center;gap:8px;margin:6px 0;font-size:13px}.bars span{width:96px;color:var(--mut)}.bars i{display:block;height:24px;background:var(--bar)}.bars i.w{background:var(--grn)}.bars b{font-variant-numeric:tabular-nums}
+.save{color:var(--grn);font-weight:700;font-size:16px;margin-top:4px}
+.note{font-size:12.5px;color:var(--mut);line-height:1.5;margin-top:8px}
+.warn{background:var(--ambbg);color:var(--amb);border:1px solid var(--amb);padding:8px 10px;font-size:13px;margin-top:8px;display:flex;gap:8px}.ios .warn{border-radius:10px}
+.btn{margin-top:10px;height:52px;background:var(--ink);color:var(--paper);display:flex;align-items:center;justify-content:center;font-weight:600}.ios .btn{border-radius:14px}
+.btn2{margin-top:8px;height:48px;border:1.5px solid var(--ink);display:flex;align-items:center;justify-content:center;font-size:14px}.ios .btn2{border-radius:14px}
+.src{font-size:11.5px;color:var(--mut);margin-top:10px}
+.sign{background:var(--sign);color:#fff;padding:12px 30px 12px 16px;clip-path:polygon(18px 0,100% 0,100% 100%,18px 100%,0 50%);font-size:15px}
+[dir=ltr] .sign{padding:12px 16px 12px 30px;clip-path:polygon(0 0,calc(100% - 18px) 0,100% 50%,calc(100% - 18px) 100%,0 100%)}
+</style><body><script>
+const q=new URLSearchParams(location.search),V=q.get('v')||'b',P=q.get('p')||'ios',L=q.get('l')||'he',TH=q.get('t')||'day',D=+(q.get('d')||4),KID=q.get('kid')==='1',ST=q.get('s')||'';
+document.documentElement.dir=L=='he'?'rtl':'ltr';document.documentElement.lang=L;document.body.className=(TH=='night'?'night ':'')+P;
+const ADULT={1:120,2:215,3:305,4:390,5:470,6:545,7:630,10:865},CHILD={1:60,2:108,3:153,4:195,5:235,6:273,7:315,10:435};
+const tbl=KID?CHILD:ADULT, day=tbl[1];
+let price=tbl[D],note='';
+if(!price){const c=[[7,D-7]].filter(x=>x[1]>0&&tbl[x[1]]).map(x=>tbl[7]+tbl[x[1]]);price=c[0];note=L=='he'?'אין כרטיס ל-8 ימים: 7 ימים + יום אחד זול מ-10 ימים ('+tbl[10]+')':'No 8-day pass: 7 days + 1 day is cheaper than 10 days ('+tbl[10]+')';}
+const daily=day*D,save=daily-price,pc=Math.round(save/daily*100);
+const T={he:{app:'גודאורי',h:'כרטיס סקי',trip:'4 ימי סקי מ"הטיול שלך"',adult:'מבוגר',kid:'ילד 6 עד 12',days:'ימי סקי',pd:'ליום',vs:'יומי × '+D,pass:D+' ימים',save:'חוסכים',night:'סקי לילה: 80 ₾ לערב, כרטיס נפרד',card:'כרטיס פיזי חובה ב-5 ₾ פיקדון, מוחזר בקופה. QR לא מתקבל.',foreign:'מחיר לזר. לתושבי גאורגיה מחיר אחר.',buy:'איפה קונים: בקופות האתרים',buy2:'SKIPASS · האפליקציה הרשמית',src:'MTA · mta.ski/en/prices · עודכן 15.11.2026',stale:'אין מידע: המחירון לא נבדק מאז 15.11.2026',stale2:'המחירים עלולים להשתנות. בדקו ב-mta.ski.',tripN:'4 ימי סקי',cost:'כמה עולה הטיול',fd:'ימים לטיסה',gel:'₾',fromd:'מ-120 ₾ ליום',pk:'כרטיס 4 ימים',ofs:'על פני 4 ימים',hint:'לא כולל לילה',ticket:'כרטיס הטיול',sp:'מבצע 30% על עונתי מ-20.11 (TBC Visa Premium)'},
+en:{app:'Gudauri',h:'Ski pass',trip:'4 ski days from Your trip',adult:'Adult',kid:'Child 6–12',days:'ski days',pd:'per day',vs:'Daily × '+D,pass:D+'-day pass',save:'You save',night:'Night skiing: 80 ₾ per evening, separate ticket',card:'Physical card required, 5 ₾ deposit refunded at the desk. QR codes not accepted.',foreign:'Foreign-visitor price. Georgian residents pay a different price.',buy:'Where to buy: at the resort ticket offices',buy2:'SKIPASS · the official app',src:'MTA · mta.ski/en/prices · updated Nov 15, 2026',stale:'No data: prices not checked since Nov 15, 2026',stale2:'Prices may have changed. Check mta.ski.',tripN:'4 ski days',cost:'What the trip costs',fd:'days to flight',gel:'₾',fromd:'From 120 ₾ a day',pk:'4-day pass',ofs:'over 4 days',hint:'Night not included',ticket:'Trip ticket',sp:'30% off season pass from Nov 20 (TBC Visa Premium)'}}[L];
+const g=x=>x.toLocaleString('en-US')+' ₾';
+const tp=`<div class=top><span>9:41</span><span>●●●</span></div>`;
+const tripcard=`<div class="card trip"><div><b class=k>TLV → TBS</b><small>${L=='he'?'10.1.2027 · הלוך':'Jan 10, 2027 · outbound'}</small></div><div class=d><b class="k n">56</b>${T.fd}</div></div>`;
+const countdown=`<div class=card><div class=mini><span class="k n">35</span><span>${L=='he'?'ימים לפתיחה · 20.12':'days to opening · Dec 20'}</span></div>`;
+let h='';
+if(V=='a'){h=tp+`<h1 class=k>${T.app}</h1>`+tripcard+countdown+`<div class=pr><span>${L=='he'?'כרטיס 4 ימים':'4-day pass'}<br><s>${L=='he'?'יומי: 120 ₾':'Daily: 120 ₾'}</s></span><span><b class=n>${g(390)}</b> <span class=go>›</span></span></div></div>`;}
+else if(V=='c'){const cells=Array.from({length:4},(_,i)=>`<i class=p>${i+1}</i>`).join('');h=tp+`<h1 class=k>${T.app}</h1>`+tripcard+`<div class=card><div class=row><b class=k style="font-size:26px">${T.ticket}</b><span class=cap>${T.src.split('·')[0]}</span></div><div class=pass>${cells}</div><div class=row><div><div class="k big n" style="font-size:64px">${g(390)}</div><div class=cap>${T.pass} · ${g(97.5).replace('97.5','97.5')} ${T.pd}</div></div><div class=save>${T.save}<br><span class=n>${g(90)}</span></div></div><div class=note>${T.hint} · ${T.card}</div></div>`+countdown+`</div>`;}
+else {
+ const tripPre=!ST.includes('free');
+ const mx=daily,w1=200,w2=Math.round(price/mx*w1);
+ h=tp+`<div class=sign><b class=k style="font-size:26px">${T.h}</b></div><div style="height:12px"></div><div class=seg><b class="${KID?'':'on'}">${T.adult}</b><b class="${KID?'on':''}">${T.kid}</b></div>`;
+ if(ST=='stale'){h+=`<div class=card><div class=cap>${T.days}: ${D}</div><div class="k big n" style="color:var(--mut)">—</div><div class=warn><span>⚠</span><span>${T.stale}<br>${T.stale2}</span></div></div>`;}
+ else{
+ h+=`<div class=card><div class=cap>${tripPre?T.trip:T.days}</div><div class=step><u>−</u><div class="v k n">${D}<small>${T.days}</small></div><u>+</u></div>
+ <div class=row style="align-items:flex-end"><div class="k big n">${g(price)}</div><div class=cap style="text-align:end">${g(Math.round(price/D*10)/10)} ${T.pd}</div></div>
+ <div class=bars><div><span>${T.vs}</span><i style="width:${w1}px"></i><b class=n>${g(daily)}</b></div><div><span>${note?'7 + 1':T.pass}</span><i class=w style="width:${w2}px"></i><b class=n>${g(price)}</b></div></div>
+ ${save>0?`<div class=save>${T.save} <span class=n>${g(save)}</span> (${pc}%)</div>`:''}${note?`<div class=note>${note}</div>`:''}</div>`;}
+ h+=`<div class=note>${T.night}<br>${T.card}<br>${T.foreign}</div><div class=btn>${T.buy}</div><div class=btn2>${T.buy2} ↗</div><div class=src>${T.src}</div>`;
+}
+document.body.innerHTML=h;
+</script>
