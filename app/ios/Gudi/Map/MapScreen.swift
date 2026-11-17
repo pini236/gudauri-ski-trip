@@ -240,13 +240,15 @@ private struct MapContent: View {
         .onChange(of: weatherOn) { _, on in
             if on { Telemetry.shared.event("weather_view", ["where": "map", "state": app.weather(Date()).state.rawValue]) }
         }
-        .task {
-            // the light follows the clock in Gudauri (auto)
-            while !Task.isCancelled {
-                try? await Task.sleep(for: .seconds(60))
-                let active: Bool = (phase == .active)
-                if active { now = Date() }
-            }
+        .task { await tickSky() }
+    }
+
+    /// the light follows the clock in Gudauri (auto); paused while not active
+    private func tickSky() async {
+        let step: Duration = .seconds(60)
+        while !Task.isCancelled {
+            try? await Task.sleep(for: step)
+            if phase == .active { now = Date() }
         }
     }
 
