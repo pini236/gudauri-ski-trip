@@ -194,8 +194,29 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    /** "Record": the ski day starts at once, from anywhere (round 29); the screen only has to say what is in the way. */
+    /** The notification permission (Android 13+), asked when it is first needed: the first tap on "Record" (15.11.2026), as on the iPhone. */
+    private var recAfterAsk: Boolean? = null
+
+    // The activity is a ComponentActivity with no fragments, so the lint warning about an old Fragment version does not apply.
+    @android.annotation.SuppressLint("InvalidFragmentVersionForActivityResult")
+    private val askNotifications = registerForActivityResult(ActivityResultContracts.RequestPermission()) { ok ->
+        Qa.log("notifications ${if (ok) "allowed" else "refused"}"); armReminders()
+        recAfterAsk?.let { recAfterAsk = null; recordNow(it) }
+    }
+
+    /** "Record": the first time, the phone is asked about notifications first (the stop button outside the app needs them); then as before. */
     private fun record(single: Boolean) {
+        if (Reminders.shouldAsk(this, Reminders.Ask.RECORD)) {
+            Reminders.markAsked(this, Reminders.Ask.RECORD); Qa.log("notifications asked")
+            recAfterAsk = single
+            askNotifications.launch(android.Manifest.permission.POST_NOTIFICATIONS)
+            return
+        }
+        recordNow(single)
+    }
+
+    /** "Record": the ski day starts at once, from anywhere (round 29); the screen only has to say what is in the way. */
+    private fun recordNow(single: Boolean) {
         recSingle = single
         when (DayRec.start(this, run = single)) {
             DayRec.Start.Started, DayRec.Start.Already -> if (nav.top !is Route.Day) nav.push(Route.Day)
@@ -529,7 +550,7 @@ class MainActivity : ComponentActivity() {
             Qa.log("scene ready")
         }
         castShadows(s)
-        runOnUiThread { if (isDestroyed) return@runOnUiThread; qaPending?.let { qaPending = null; applyQaMap(it, sunDone = true) }; ui.postDelayed(skyTick, SKY_EVERY_MS) }
+        runOnUiThread { if (isDestroyed) return@runOnUiThread; qaPending?.let { qaPending = null; applyQaMap(it, sunDone = true) }; lastSkyMs = SystemClock.uptimeMillis(); ui.removeCallbacks(skyTick); ui.postDelayed(skyTick, SKY_EVERY_MS) }
         // new runs, lifts and videos from the site, if there are any: read at the next launch (data/SiteData.kt)
         // whatever goes wrong with a refresh, the app keeps the data it has (it never crashes over it)
         val refreshed = runCatching { siteData.refresh() }.getOrElse { Telemetry.handled(it); emptyMap() }
@@ -541,9 +562,30 @@ class MainActivity : ComponentActivity() {
         override fun run() {
             val s = scene ?: return
             if (isDestroyed) return
-            if (clockMs == null) inBackground { val note = placeSun(s, System.currentTimeMillis()); runOnUiThread { sunNote = note }; castShadows(s) }
+            lastSkyMs = SystemClock.uptimeMillis()
+            if (clockMs == null) {
+                // light and shadows are the map's: with the map not on screen they wait for its next visit (refreshSkyOnMap)
+                if (nav.top is Route.Map) refreshSky(s) else skyStale = true
+            }
             ui.postDelayed(this, SKY_EVERY_MS)
         }
+    }
+
+    private var lastSkyMs = 0L
+    /** The light and shadows are older than a tick: the map brings them up to date when it is next shown. */
+    private var skyStale = false
+
+    private fun refreshSky(s: MapScene) {
+        skyStale = false
+        inBackground { val note = placeSun(s, System.currentTimeMillis()); runOnUiThread { sunNote = note }; castShadows(s) }
+    }
+
+    /** The tick runs only while the app is on screen (15.11.2026): a phone in a pocket does not work out the sun. */
+    override fun onStart() {
+        super.onStart()
+        if (scene == null || clockMs != null) return
+        ui.removeCallbacks(skyTick)
+        ui.postDelayed(skyTick, (SKY_EVERY_MS - (SystemClock.uptimeMillis() - lastSkyMs)).coerceIn(0L, SKY_EVERY_MS))
     }
 
     /** Light: the sky over Gudauri at that time, as on the site: the sun by day, the moon at night (map/Sky.kt). */
@@ -685,7 +727,7 @@ class MainActivity : ComponentActivity() {
         warmSource = null
     }
 
-    override fun onStop() { super.onStop(); if (!isChangingConfigurations) backgrounded = true }
+    override fun onStop() { super.onStop(); ui.removeCallbacks(skyTick); if (!isChangingConfigurations) backgrounded = true }
 
     /** A language from the sheet (home or settings; null: by the phone): the app comes back in it (the phone recreates the screen). */
     private fun setLang(tag: String?) {
@@ -709,19 +751,13 @@ class MainActivity : ComponentActivity() {
     private fun App() {
         BackHandler(enabled = nav.canBack) { nav.back() }
         // the clock: Gudauri's hour for the sky and the countdown, once every half minute (or pinned by the QA run)
-        LaunchedEffect(Unit) { while (true) { delay(30_000); tick = nowMs() } }
-        // the notification permission for the meetups' reminders, asked when the app first opens (Pini, 2.10.2026)
-        val askNotifications = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { ok ->
-            Qa.log("notifications ${if (ok) "allowed" else "refused"}"); armReminders()
-        }
-        LaunchedEffect(Unit) {
-            if (Reminders.shouldAsk(this@MainActivity, Reminders.Ask.OPEN)) {
-                Reminders.markAsked(this@MainActivity, Reminders.Ask.OPEN); Qa.log("notifications asked")
-                askNotifications.launch(android.Manifest.permission.POST_NOTIFICATIONS)
-            }
-        }
+        LaunchedEffect(Unit) { repeatOnLifecycle(Lifecycle.State.STARTED) { tick = nowMs(); while (true) { delay(30_000); tick = nowMs() } } }
+        // the notification permission is no longer asked when the app opens (15.11.2026): at the first "Record" (record()),
+        // and at the first meetup ahead (group/GroupScreen.kt)
         val frame = remember(tick, dnMode) { DayNight.at(tick, dnMode) }
         val top = nav.top
+        // the map is shown after a while without it: the light and shadows of the last ticks are brought up to date (the old ones stay until then)
+        LaunchedEffect(top is Route.Map, scene) { val s = scene; if (top is Route.Map && s != null && skyStale && clockMs == null) refreshSky(s) }
         // Nav revokes permission BEFORE its stack changes. Resume only after the new public content commits.
         SideEffect { ReplayController.contentShown(top.path, window.decorView) }
         // the lift status now; on the mountain, closed lifts and runs (S1), and "only what's open for me"

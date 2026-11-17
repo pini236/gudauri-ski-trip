@@ -19210,6 +19210,18 @@
     "ka"
    ]
   },
+  "app.rec_no_notif": {
+   "he": "ההתראות כבויות, ולכן אין כפתור עצירה מחוץ לאפליקציה. עוצרים כאן, ב\"סיום\".",
+   "en": "Notifications are off, so there is no stop button outside the app. Stop here, with \"Finish\".",
+   "ru": "Уведомления отключены, поэтому кнопки остановки вне приложения нет. Останавливайте здесь, кнопкой «Завершить».",
+   "ka": "შეტყობინებები გამორთულია, ამიტომ აპლიკაციის გარეთ გაჩერების ღილაკი არ არის. გააჩერეთ აქ, ღილაკით „დასრულება“.",
+   "where": "app/android",
+   "note": "יום הגלისה: live screen, only when notifications are off (15.11.2026): the stop button of the recording notification is not there",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
   "app.rec_settings": {
    "he": "פתיחת ההגדרות",
    "en": "Open settings",

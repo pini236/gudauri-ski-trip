@@ -307,7 +307,24 @@ class DayRecService : Service() {
         if (key == shownMinute) return
         shownMinute = key
         val c = Lang.wrap(this)
-        getSystemService(NotificationManager::class.java)?.notify(ID, notification(c, minutes.toInt(), warnedLeft))
+        val nm = getSystemService(NotificationManager::class.java) ?: return
+        nm.notify(ID, notification(c, minutes.toInt(), warnedLeft))
+        // the warning before the automatic stop is a notification of its own, on a channel that makes a sound (the permanent one stays silent)
+        if (warnedLeft >= 0) nm.notify(WARN_ID, warning(c, warnedLeft)) else nm.cancel(WARN_ID)
+    }
+
+    /** "Recording will stop in N min without movement": a normal-importance channel, one sound, then it only updates. */
+    private fun warning(c: Context, leftMs: Long): Notification {
+        val nm = c.getSystemService(NotificationManager::class.java)
+        nm.createNotificationChannel(NotificationChannel(WARN_CHANNEL, c.getString(R.string.app_dayrec_channel), NotificationManager.IMPORTANCE_DEFAULT))
+        val flags = PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        val open = PendingIntent.getActivity(c, 1, Intent(c, MainActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP), flags)
+        return Notification.Builder(c, WARN_CHANNEL)
+            .setSmallIcon(R.drawable.ic_notify)
+            .setContentTitle(c.getString(R.string.app_dayrec_title)).setContentText(c.getString(R.string.app_dayrec_idle, ((leftMs + 59_999) / 60_000).toInt()))
+            .setCategory(Notification.CATEGORY_STATUS).setOnlyAlertOnce(true).setShowWhen(false).setAutoCancel(true)
+            .setContentIntent(open)
+            .build()
     }
 
     private fun notification(c: Context, minutes: Int, warnLeftMs: Long): Notification {
@@ -378,6 +395,7 @@ class DayRecService : Service() {
         runCatching { finals?.shutdown() }; finals = null
         runCatching { thread?.quitSafely() }; thread = null
         runCatching { lock?.takeIf { it.isHeld }?.release() }; lock = null
+        runCatching { getSystemService(NotificationManager::class.java)?.cancel(WARN_ID) }
         DayRec.current = null
     }
 
@@ -403,5 +421,7 @@ class DayRecService : Service() {
         const val FINAL_EVERY_MS = 120_000L
         private const val CHANNEL = "dayrec"
         private const val ID = 7601
+        private const val WARN_CHANNEL = "dayrec_warn"
+        private const val WARN_ID = 7602
     }
 }
