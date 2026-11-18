@@ -803,6 +803,24 @@ class MainActivity : ComponentActivity() {
             if (io.github.pini236.skiapp.places.Places.enabled(runCatching { siteData.read("resorts.json") }.getOrNull()))
                 io.github.pini236.skiapp.places.Places.parse(runCatching { siteData.read("places.json") }.getOrNull()) else null
         }
+        // the countdown to the opening and the ski-pass prices (rounds 39 and 40): the resort's own date and price list, read from the site's files
+        val resortsJson = remember { runCatching { siteData.read("resorts.json") }.getOrNull() }
+        val season = remember { io.github.pini236.skiapp.season.Season.parse(resortsJson) }
+        val seasonSeen = remember { io.github.pini236.skiapp.season.SeasonSeen(this@MainActivity) }
+        val seenOpen = remember { seasonSeen.open() } // what this phone saw before this launch: the move is told against it
+        val seasonToday = Instant.ofEpochMilli(tick).atZone(season?.tz ?: io.github.pini236.skiapp.season.Season.DEFAULT_TZ).toLocalDate()
+        val seasonState = remember(season, seasonToday, lstat.fresh) { io.github.pini236.skiapp.season.Season.decide(season, seasonToday, lstat.fresh, seenOpen) }
+        LaunchedEffect(season, seasonState.kind) { if (season != null && seasonState.kind == io.github.pini236.skiapp.season.Season.Kind.COUNTDOWN) seasonSeen.remember(season.open) }
+        val prices = remember {
+            if (io.github.pini236.skiapp.skipass.Prices.enabled(resortsJson)) io.github.pini236.skiapp.skipass.Prices.parse(runCatching { siteData.read("prices.json") }.getOrNull()) else null
+        }
+        val skipDays = trip?.skiDayCount()?.takeIf { it > 0 }
+        val skipEntry = remember(prices, seasonToday, skipDays) {
+            if (prices == null || !prices.valid(seasonToday)) null else prices.daily(false)?.let { d ->
+                val q = skipDays?.let { prices.price(it, false) }
+                io.github.pini236.skiapp.season.SkipassEntry(if (q != null) skipDays else null, q?.total, d)
+            }
+        }
         LaunchedEffect(dayUi) {
             if (dayUi && !DayRec.recording) cutDay = withContext(kotlinx.coroutines.Dispatchers.IO) { DayRec.store(this@MainActivity).unfinished() }
         }
@@ -859,6 +877,9 @@ class MainActivity : ComponentActivity() {
                         onLang = ::setLang,
                         onMode = ::nextMode,
                         record = dayUi,
+                        opening = io.github.pini236.skiapp.season.OpeningView.of(season, seasonState, seasonToday),
+                        lateOpen = if (seasonState.kind == io.github.pini236.skiapp.season.Season.Kind.NO_INFO) season?.open else null,
+                        skipass = skipEntry,
                         account = account,
                         onTrip = { t -> keepTrip(t); Qa.log("trip saved") },
                         go = { a ->
@@ -874,6 +895,7 @@ class MainActivity : ComponentActivity() {
                                 HomeAction.GROUP -> Route.Group()
                                 HomeAction.ABOUT -> Route.About
                                 HomeAction.TRIP -> Route.Trip
+                                HomeAction.SKIPASS -> Route.Skipass
                                 HomeAction.PRIVACY, HomeAction.RECORD, HomeAction.DAYS -> Route.Home
                             })
                         })
@@ -967,6 +989,7 @@ class MainActivity : ComponentActivity() {
                         // the test build's counter (frames, missed frames) and the recorder's pulse, over the live screen, for a screenshot
                         if (showStats) StatsBar(false, Modifier.align(Alignment.BottomStart).padding(bottom = 100.dp))
                     }
+                    Route.Skipass -> io.github.pini236.skiapp.skipass.SkipassScreen(prices, skipDays, seasonToday) { nav.back() }
                     Route.Days -> io.github.pini236.skiapp.dayrec.ui.DaysScreen(onOpen = { id -> nav.push(Route.DayOf(id)) }) { nav.back() }
                     is Route.DayOf -> {
                         val sample = top.id == io.github.pini236.skiapp.dayrec.SampleDay.ID

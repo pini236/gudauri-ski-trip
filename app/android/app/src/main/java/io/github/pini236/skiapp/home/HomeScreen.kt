@@ -80,7 +80,7 @@ import java.time.LocalDateTime
 import kotlin.random.Random
 
 /** Where the home page's signs and buttons lead (MainActivity turns them into routes). */
-enum class HomeAction { MAP, MEET, GAMES, GROUP, ABOUT, TRIP, STATUS, PRIVACY, RECORD, DAYS }
+enum class HomeAction { MAP, MEET, GAMES, GROUP, ABOUT, TRIP, STATUS, PRIVACY, RECORD, DAYS, SKIPASS }
 
 /**
  * The home page (round 10, H1 to H4; decision 36): the sky and the view from the village by the hour in Gudauri,
@@ -97,7 +97,14 @@ fun HomeScreen(trip: Trip?, frame: DayNight.Frame, mode: DayNight.Mode, now: Loc
                /** Round 20: the pass is the form; a field filled on it saves the trip here (null: "edit" opens the form). */
                onTrip: ((Trip) -> Unit)? = null,
                /** The ski day (round 29): the red "Record" sign at the top of the signs, where the build and the data allow it. */
-               record: Boolean = false, go: (HomeAction) -> Unit) {
+               record: Boolean = false,
+               /** Round 39: before the opening, the countdown (null: no date, or a fresh lift report, which is the lift board). */
+               opening: io.github.pini236.skiapp.season.OpeningView? = null,
+               /** The planned opening date when it has passed and the lifts report nothing: "it was planned for...". */
+               lateOpen: java.time.LocalDate? = null,
+               /** Round 40: the ski-pass row (null: no price list, or it is out of date). */
+               skipass: io.github.pini236.skiapp.season.SkipassEntry? = null,
+               go: (HomeAction) -> Unit) {
     val c = Ski.colors
     // the field of the pass being filled (round 20), its sheet over home
     var edit by remember { mutableStateOf<PassEdit?>(null) }
@@ -135,13 +142,17 @@ fun HomeScreen(trip: Trip?, frame: DayNight.Frame, mode: DayNight.Mode, now: Loc
                     Spacer(Modifier.height(30.dp))
                     val days = generateSequence(ski.start) { it.plusDays(1) }.takeWhile { !it.isAfter(ski.endInclusive) }.toList()
                     Box(Modifier.padding(horizontal = 16.dp)) { io.github.pini236.skiapp.weather.AheadBoard(days, stage.days) }
+                } else if (stage !is Trip.Stage.SkiDay && (opening != null || skipass != null || lateOpen != null)) {
+                    // the opening and the ski-pass row under the pass (rounds 39 and 40), until the ski days have the forecast
+                    Spacer(Modifier.height(30.dp))
+                    Box(Modifier.padding(horizontal = 16.dp)) { OpeningBlock(status, opening, lateOpen, skipass, go) }
                 }
                 Spacer(Modifier.height(38.dp))
             } else {
                 Spacer(Modifier.height(32.dp))
                 Box(Modifier.padding(horizontal = 16.dp)) { EmptyPass { if (onTrip != null) edit = PassEdit.Dates else go(HomeAction.TRIP) } }
                 Spacer(Modifier.height(40.dp))
-                Box(Modifier.padding(horizontal = 16.dp)) { SeasonBoard(status) { go(HomeAction.STATUS) } }
+                Box(Modifier.padding(horizontal = 16.dp)) { OpeningBlock(status, opening, lateOpen, skipass, go) }
                 Spacer(Modifier.height(30.dp))
             }
             // round 20: the signs without a line under them; a member's group (its name and how many are in it, the
@@ -228,7 +239,7 @@ private val SUN = Color(0xFFF4B942)
  */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun SeasonBoard(status: LiftStatus?, onClick: () -> Unit) {
+private fun SeasonBoard(status: LiftStatus?, lateOpen: java.time.LocalDate? = null, onClick: () -> Unit) {
     val c = Ski.colors
     val live = status != null && status.fresh
     val names = status?.names.orEmpty()
@@ -265,6 +276,25 @@ private fun SeasonBoard(status: LiftStatus?, onClick: () -> Unit) {
                 Text(foot, Modifier.padding(bottom = 3.dp), style = Ski.type.small.copy(fontSize = 13.sp), color = c.muted)
             }
         }
+        // the planned date has passed and the lifts say nothing: what was planned, never "delayed" (round 39)
+        if (!live && lateOpen != null) Text(stringResource(R.string.app_season_late, io.github.pini236.skiapp.season.shortDate(lateOpen)), style = Ski.type.small.copy(fontSize = 13.sp), color = c.muted)
+    }
+}
+
+/**
+ * The season's board on home (rounds 39 and 40): the countdown to the opening while it is ahead, otherwise the lift board
+ * (live with a report; without one, off, and after a missed date it says what was planned), and the ski-pass row, inside the
+ * countdown or on its own under the lift board.
+ */
+@Composable
+private fun OpeningBlock(status: LiftStatus?, opening: io.github.pini236.skiapp.season.OpeningView?, lateOpen: java.time.LocalDate?,
+                         skipass: io.github.pini236.skiapp.season.SkipassEntry?, go: (HomeAction) -> Unit) {
+    val skip = { go(HomeAction.SKIPASS) }
+    if (opening != null) io.github.pini236.skiapp.season.OpeningBoard(opening, skipass, skip)
+    else Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        SeasonBoard(status, lateOpen) { go(HomeAction.STATUS) }
+        if (skipass != null) Box(Modifier.fillMaxWidth().shadow(6.dp, RectangleShape, ambientColor = Color(0x1A13233A), spotColor = Color(0x1A13233A))
+            .background(Ski.colors.paper).padding(horizontal = 14.dp, vertical = 6.dp)) { io.github.pini236.skiapp.season.SkipassRow(skipass, skip) }
     }
 }
 
