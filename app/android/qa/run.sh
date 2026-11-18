@@ -536,8 +536,11 @@ home() {
   tapText "עריכה" && sleep 1.5 && shot trip-form-filled && adb shell input keyevent KEYCODE_BACK && sleep 1
 
   # the signs lead on, and back home
+  # (the season board under the pass pushes the signs below the fold: scroll to them first)
+  drag $((W / 2)) $((H * 3 / 4)) $((W / 2)) $((H / 4)) 400; sleep 1
   tapText "מפת מסלולים" && sleep 3 && shot home-sign-map
   tapText "בית" && sleep 1.5 && shot home-back
+  drag $((W / 2)) $((H * 3 / 4)) $((W / 2)) $((H / 4)) 400; sleep 1
   tapText "נקודת מפגש" && sleep 1 && shot home-sign-meet && adb shell input keyevent KEYCODE_BACK && sleep 1
   # home below the signs: the two links (A-32; round 20: no tally)
   drag $((W * 7 / 100)) $((H * 80 / 100)) $((W * 7 / 100)) $((H * 20 / 100)) 400; sleep 1; shot home-bottom
