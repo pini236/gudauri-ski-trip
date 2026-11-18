@@ -3,7 +3,7 @@ import GudiData
 import GudiDomain
 
 /// Where the home page's signs and buttons lead.
-enum HomeAction { case map, meet, games, group, about, trip, status, privacy, record }
+enum HomeAction { case map, meet, games, group, about, trip, status, privacy, record, skipass }
 
 /// The home page (round 10, H1 to H4; decision 36), as Android's home/HomeScreen.kt: the sky and the view from the
 /// village by the hour in Gudauri, the user's own boarding pass (or an empty one inviting to add it), the lift status
@@ -19,6 +19,12 @@ struct HomeView: View {
     let status: LiftStatus?
     /// The forecast now (round 19): "today on the mountain" during the trip, the ski days ahead before it.
     var weather: WeatherNow? = nil
+    /// The countdown to the opening (round 39) while it is ahead; nil with a fresh lift report, no date, or a date that has passed.
+    var opening: OpeningView? = nil
+    /// The planned date when it has passed and the lifts say nothing: what was planned, never "delayed".
+    var lateOpen: Day? = nil
+    /// The ski-pass row (round 40); nil where the site lists no prices, or the list is out of date.
+    var skipass: SkipassEntry? = nil
     let onMode: () -> Void
     /// A language picked on the home's tag, or nil for the phone's (decision 47).
     let onLang: (Lang?) -> Void
@@ -41,6 +47,36 @@ struct HomeView: View {
         }
     }
 
+    /// The season's board on home (rounds 39 and 40): the countdown while it is ahead, otherwise the lift board (live with a
+    /// report; without one, off, and after a missed date it says what was planned), and the ski-pass row, inside the countdown
+    /// or on its own under the lift board.
+    @ViewBuilder private var openingBlock: some View {
+        if let opening { OpeningBoard(v: opening, skip: skipass) { go(.skipass) } }
+        else {
+            VStack(spacing: 12) {
+                SeasonBoard(status: status, lateOpen: lateOpen) { go(.status) }
+                if let skipass {
+                    SkipassRow(entry: skipass) { go(.skipass) }
+                        .padding(.horizontal, 14).padding(.vertical, 6)
+                        .background(ski.colors.paper)
+                        .shadow(color: Color(rgb: 0x13233A, opacity: 0.1), radius: 6, y: 2)
+                }
+            }
+        }
+    }
+
+    /// Whether the weather's own board (today on the mountain, or the days ahead) takes the place under the pass.
+    private func weatherBoardShown(_ trip: Trip) -> Bool {
+        guard weather != nil else { return false }
+        switch trip.stage(now) {
+        case .skiDay: return true
+        case .before(let days): return trip.skiDays().map { $0.lowerBound <= now.day.plus(days: 14) } ?? false
+        default: return false
+        }
+    }
+
+    private func isSkiDay(_ trip: Trip) -> Bool { if case .skiDay = trip.stage(now) { return true } else { return false } }
+
     var body: some View {
         let c = ski.colors
         GeometryReader { g in
@@ -55,12 +91,16 @@ struct HomeView: View {
                             Spacer().frame(height: trip.ret != nil ? 0 : 30)
                             TripPass(trip: trip, now: now) { go(.trip) }.padding(.horizontal, 16)
                             if let weather { board(trip, weather) }
+                            // the opening and the ski-pass row under the pass (rounds 39 and 40), until the ski days have the forecast
+                            if !isSkiDay(trip) && !weatherBoardShown(trip) && (opening != nil || skipass != nil || lateOpen != nil) {
+                                openingBlock.padding(.horizontal, 16).padding(.top, 30)
+                            }
                             Spacer().frame(height: 38)
                         } else {
                             Spacer().frame(height: 32)
                             EmptyPass { go(.trip) }.padding(.horizontal, 16)
                             Spacer().frame(height: 40)
-                            SeasonBoard(status: status) { go(.status) }.padding(.horizontal, 16)
+                            openingBlock.padding(.horizontal, 16)
                             Spacer().frame(height: 30)
                         }
                         // round 20: the signs without a line under them

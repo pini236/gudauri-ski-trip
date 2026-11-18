@@ -165,6 +165,8 @@ extension Route {
             }
         case .about: "about"
         case .trip: "trip"
+        // the ski-pass screen is not in the contract's list of screen names either
+        case .skipass: "home"
         // the ski day's screens are not in the contract's list of screen names: they send no screen_view
         case .record, .days, .day, .daySample, .replay, .replaySample: "home"
         }

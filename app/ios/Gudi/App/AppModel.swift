@@ -11,6 +11,8 @@ enum Route: Hashable {
     case group
     case about
     case trip
+    /// The ski-pass prices (round 40): what the trip's ski days cost on a pass.
+    case skipass
     /// The ski day's screens (round 29, decision 76): recording, my days, one day. Only the `DAYREC` build ever shows them.
     case record, days
     case day(Int64)
@@ -35,6 +37,7 @@ enum Route: Hashable {
         case "group": self = .group
         case "about": self = .about
         case "trip": self = .trip
+        case "skipass": self = .skipass
         case "record": self = .record
         case "days": self = .days
         case "daysample": self = .daySample
@@ -58,6 +61,11 @@ final class AppModel {
     let dayRecorder: DayRecorder?
     /// Food and services near the stations (round 31); nil where the site does not list the feature.
     let places: Places?
+    /// The opening date (round 39) and the ski-pass prices (round 40), from the site's files; nil where there is none or the file is not one this app knows.
+    let season: Season?
+    let prices: Prices?
+    /// The opening date this phone saw before this launch: a move later is told against it (a new user sees the date only).
+    let seenOpen: Day?
     var status: LiftStatus
     var path: [Route] = []
     /// The lift board's sheet over the map (S2, S3), opened from home's board or the map's bar.
@@ -110,6 +118,9 @@ final class AppModel {
         // food and services near the stations (round 31): only where the site lists the feature, and only a file this app knows
         let resorts = store.read("resorts.json").flatMap { try? Resorts.decode($0) }
         places = resorts?.has(Places.feature) == true ? data("places").flatMap { try? Data(contentsOf: $0) }.flatMap(Places.parse) : nil
+        season = Season.parse(resorts)
+        seenOpen = flags["seenopen"].flatMap(Season.localDate) ?? Season.localDate(UserDefaults.standard.string(forKey: "season.seen_open"))
+        prices = resorts?.has(Prices.feature) == true ? store.read("prices.json").flatMap(Prices.parse) : nil
         #if DAYREC
         dayRecorder = resorts?.has("dayrec") == true || flags["dayrec"] != nil ? DayRecorder() : nil
         #else
@@ -138,6 +149,33 @@ final class AppModel {
 
     /// Now, or the screenshots' pinned moment.
     func clock(_ d: Date) -> Date { qaNow ?? d }
+
+    /// Today in the resort's own calendar (round 39): the opening is counted by its clock, never the phone's.
+    func seasonToday(_ d: Date) -> Day { Season.today(d, tz: season?.tz ?? Season.defaultTZ) }
+
+    func seasonState(_ d: Date) -> Season.State { Season.decide(season, today: seasonToday(d), fresh: status.fresh, seenOpen: seenOpen) }
+
+    func opening(_ d: Date) -> OpeningView? { OpeningView.of(season, seasonState(d), today: seasonToday(d)) }
+
+    /// The planned date when it has passed and the lifts say nothing.
+    func lateOpen(_ d: Date) -> Day? { seasonState(d).kind == .noInfo ? season?.open : nil }
+
+    /// Remembers the date once the countdown is shown, and never lets a date seen earlier be replaced by an earlier one (a rollback would hide a move).
+    func rememberSeason(_ d: Date) {
+        guard let season, seasonState(d).kind == .countdown else { return }
+        if let was = Season.localDate(UserDefaults.standard.string(forKey: "season.seen_open")), !(was < season.open) { return }
+        UserDefaults.standard.set(season.open.iso, forKey: "season.seen_open")
+    }
+
+    /// The ski days of the trip, when there are some.
+    var skiDays: Int? { trip.map { $0.skiDayCount() }.flatMap { $0 > 0 ? $0 : nil } }
+
+    /// The ski-pass row on home: the trip's days and what they cost on a pass, or the day ticket; nil with no prices or a list past its date.
+    func skipassEntry(_ d: Date) -> SkipassEntry? {
+        guard let prices, prices.valid(seasonToday(d)), let daily = prices.daily(child: false) else { return nil }
+        let q = skiDays.flatMap { prices.price(days: $0, child: false) }
+        return SkipassEntry(days: q != nil ? skiDays : nil, total: q?.total, daily: daily)
+    }
 
     func weather(_ now: Date) -> WeatherNow { WeatherNow(forecast: forecast, now: Int64(now.timeIntervalSince1970 * 1000)) }
 

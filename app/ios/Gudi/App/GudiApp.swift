@@ -77,6 +77,7 @@ struct RootView: View {
             let ski = Ski(colors: SkiColors(p: frame.dark ? .night : .day), type: SkiType(lang: lang))
             NavigationStack(path: $model.path) {
                 HomeView(recording: model.dayRecorder != nil, frame: frame, mode: mode, trip: model.trip, now: LocalMoment.now(date), status: model.status, weather: model.weather(date),
+                         opening: model.opening(date), lateOpen: model.lateOpen(date), skipass: model.skipassEntry(date),
                          onMode: { modeRaw = mode.next.rawValue; Telemetry.shared.event("theme_set", ["mode": mode.next.rawValue]) },
                          onLang: { setLang($0, lang) }) { a in
                     switch a {
@@ -89,6 +90,7 @@ struct RootView: View {
                     case .status: model.statusSheet = true; model.go(.map())
                     case .privacy: openURL(Site.privacy(lang))
                     case .record: model.go(.record)
+                    case .skipass: model.go(.skipass)
                     }
                 }
                 // home is the sky, the boarding pass and the sign post, drawn at fixed sizes
@@ -106,6 +108,7 @@ struct RootView: View {
                         case .group: GroupScreen()
                         case .about: aboutScreen(mode, lang)
                         case .trip: TripFormScreen()
+                        case .skipass: SkipassScreen(prices: model.prices, tripDays: model.skiDays, today: model.seasonToday(date))
                         case .record, .days, .day, .daySample, .replay, .replaySample: dayRecScreen(r)
                         case .groups(let g): GroupFlow(route: g)
                         }
@@ -115,12 +118,13 @@ struct RootView: View {
             }
             .onChange(of: model.path) { old, new in
                 if new.count > old.count, let r = new.last {
-                    if r.isDayRec { return }
+                    if r.isDayRec || r == .skipass { return }
                     if case .game(let g) = r { Telemetry.shared.screen("game", ["game": g]) } else { Telemetry.shared.screen(r.screenName) }
                 } else if new.isEmpty { Telemetry.shared.screen("home") }
             }
             .tint(ski.colors.ink)
             .id(lang)
+            .onAppear { model.rememberSeason(date) }
             .environment(model)
             .environment(\.ski, ski)
             .environment(\.layoutDirection, lang.rtl ? .rightToLeft : .leftToRight)
