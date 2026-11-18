@@ -19527,6 +19527,546 @@
     "ru",
     "ka"
    ]
+  },
+  "app.season_days_caption": {
+   "he": {
+    "one": "יום לפתיחה",
+    "two": "ימים לפתיחה",
+    "other": "ימים לפתיחה"
+   },
+   "en": {
+    "one": "day to opening",
+    "other": "days to opening"
+   },
+   "ru": {
+    "one": "день до открытия",
+    "few": "дня до открытия",
+    "many": "дней до открытия",
+    "other": "дней до открытия"
+   },
+   "ka": {
+    "one": "დღე გახსნამდე",
+    "other": "დღე გახსნამდე"
+   },
+   "where": "app/android, app/ios",
+   "note": "Round 39 (season opening, the home board): stub under the big number (the number is shown apart); n is at least 2, 'tomorrow' has its own text",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.season_days_a11y": {
+   "he": {
+    "one": "{n} יום לפתיחה המתוכננת, {date}",
+    "two": "{n} ימים לפתיחה המתוכננת, {date}",
+    "other": "{n} ימים לפתיחה המתוכננת, {date}"
+   },
+   "en": {
+    "one": "{n} day to the planned opening, {date}",
+    "other": "{n} days to the planned opening, {date}"
+   },
+   "ru": {
+    "one": "{n} день до запланированного открытия, {date}",
+    "few": "{n} дня до запланированного открытия, {date}",
+    "many": "{n} дней до запланированного открытия, {date}",
+    "other": "{n} дней до запланированного открытия, {date}"
+   },
+   "ka": {
+    "one": "დაგეგმილ გახსნამდე {n} დღე, {date}",
+    "other": "დაგეგმილ გახსნამდე {n} დღე, {date}"
+   },
+   "where": "app/android, app/ios",
+   "note": "Round 39 (season opening, the home board): screen reader text for the countdown; {date} is a written date such as '20 בדצמבר'",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.season_planned": {
+   "he": "פתיחה מתוכננת {date}",
+   "en": "Planned opening {date}",
+   "ru": "Открытие по плану: {date}",
+   "ka": "დაგეგმილი გახსნა: {date}",
+   "where": "app/android, app/ios",
+   "note": "Round 39 (season opening, the home board): {date} is short, like 20.12",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.season_source": {
+   "he": "לפי MTA · מתוכננת, יכולה להשתנות עם השלג",
+   "en": "Per MTA · planned, may change with snow",
+   "ru": "По данным MTA · плановая дата, может измениться из-за снега",
+   "ka": "MTA-ს მონაცემით · დაგეგმილია, თოვლის გამო შეიძლება შეიცვალოს",
+   "where": "app/android, app/ios",
+   "note": "Round 39 (season opening, the home board): small source line under the countdown; MTA is the ski resort operator",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.season_tomorrow": {
+   "he": "מחר פותחים",
+   "en": "Opens tomorrow",
+   "ru": "Завтра открытие",
+   "ka": "ხვალ იხსნება",
+   "where": "app/android, app/ios",
+   "note": "Round 39 (season opening, the home board): opening is the next calendar day (resort clock)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.season_tomorrow_sub": {
+   "he": "הרכבלים עולים ב-{date}",
+   "en": "Lifts start {date}",
+   "ru": "Подъёмники заработают {date}",
+   "ka": "საბაგიროები {date} ამუშავდება",
+   "where": "app/android, app/ios",
+   "note": "Round 39 (season opening, the home board): {date} short, like 20.12",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.season_today": {
+   "he": "היום פותחים",
+   "en": "Opening day",
+   "ru": "Сегодня открытие",
+   "ka": "დღეს იხსნება",
+   "where": "app/android, app/ios",
+   "note": "Round 39 (season opening, the home board): opening day, no lift report yet",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.season_today_sub": {
+   "he": "ממתינים לדיווח מהרכבלים",
+   "en": "Waiting for the lift report",
+   "ru": "Ждём отчёт по подъёмникам",
+   "ka": "საბაგიროების მონაცემებს ველოდებით",
+   "where": "app/android, app/ios",
+   "note": "Round 39 (season opening, the home board): opening day, no lift report yet",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.season_late": {
+   "he": "הפתיחה הייתה מתוכננת ל-{date}",
+   "en": "Opening was planned for {date}",
+   "ru": "Открытие планировалось на {date}",
+   "ka": "გახსნა დაგეგმილი იყო {date}-ზე",
+   "where": "app/android, app/ios",
+   "note": "Round 39 (season opening, the home board): the date passed and there is no fresh report; never says 'delayed'",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.season_late_sub": {
+   "he": "אין עדיין דיווח מהרכבלים",
+   "en": "No lift report yet",
+   "ru": "Отчёта по подъёмникам пока нет",
+   "ka": "საბაგიროების მონაცემები ჯერ არ არის",
+   "where": "app/android, app/ios",
+   "note": "Round 39 (season opening, the home board): under the line above",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.season_moved": {
+   "he": "הפתיחה נדחתה ל-{date}",
+   "en": "Opening moved to {date}",
+   "ru": "Открытие перенесено на {date}",
+   "ka": "გახსნა გადაიდო {date}-ზე",
+   "where": "app/android, app/ios",
+   "note": "Round 39 (season opening, the home board): only when this phone saw an earlier date before; {date} short",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.season_moved_sub": {
+   "he": "לפי הודעת MTA",
+   "en": "Per MTA's announcement",
+   "ru": "По объявлению MTA",
+   "ka": "MTA-ს განცხადებით",
+   "where": "app/android, app/ios",
+   "note": "Round 39 (season opening, the home board): under the line above",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.skipass_title": {
+   "he": "כרטיס סקי",
+   "en": "Ski pass",
+   "ru": "Ски-пасс",
+   "ka": "სკი-პასი",
+   "where": "app/android, app/ios",
+   "note": "Round 40 (ski pass screen): screen title (a sign) and the row on the home board",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.skipass_from_trip": {
+   "he": "לפי \"הטיול שלך\"",
+   "en": "From \"Your trip\"",
+   "ru": "Из «Вашей поездки»",
+   "ka": "თქვენი მოგზაურობიდან",
+   "where": "app/android, app/ios",
+   "note": "Round 40 (ski pass screen): caption above the number of days when it comes from the trip (the trip's ski days)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.skipass_days": {
+   "he": "ימי סקי",
+   "en": "ski days",
+   "ru": "дней катания",
+   "ka": "სათხილამურო დღე",
+   "where": "app/android, app/ios",
+   "note": "Round 40 (ski pass screen): label under the stepper's number",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.skipass_days_more": {
+   "he": "עוד יום סקי",
+   "en": "One more ski day",
+   "ru": "Ещё один день катания",
+   "ka": "კიდევ ერთი სათხილამურო დღე",
+   "where": "app/android, app/ios",
+   "note": "Round 40 (ski pass screen): stepper plus, for screen readers",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.skipass_days_less": {
+   "he": "פחות יום סקי",
+   "en": "One less ski day",
+   "ru": "Одним днём катания меньше",
+   "ka": "ერთით ნაკლები სათხილამურო დღე",
+   "where": "app/android, app/ios",
+   "note": "Round 40 (ski pass screen): stepper minus, for screen readers",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.skipass_adult": {
+   "he": "מבוגר",
+   "en": "Adult",
+   "ru": "Взрослый",
+   "ka": "მოზრდილი",
+   "where": "app/android, app/ios",
+   "note": "Round 40 (ski pass screen): segmented control",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.skipass_child": {
+   "he": "ילד {from} עד {to}",
+   "en": "Child {from}–{to}",
+   "ru": "Ребёнок {from}–{to}",
+   "ka": "ბავშვი {from}–{to}",
+   "where": "app/android, app/ios",
+   "note": "Round 40 (ski pass screen): segmented control; ages come from the data",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.skipass_price": {
+   "he": "{n} ₾",
+   "en": "{n} ₾",
+   "ru": "{n} ₾",
+   "ka": "{n} ₾",
+   "where": "app/android, app/ios",
+   "note": "Round 40 (ski pass screen): a price in lari; {n} is a whole number with a thousands separator, like 1,255",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.skipass_per_day": {
+   "he": "{price} ליום",
+   "en": "{price} per day",
+   "ru": "{price} в день",
+   "ka": "{price} დღეში",
+   "where": "app/android, app/ios",
+   "note": "Round 40 (ski pass screen): beside the total; {price} already has the lari sign",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.skipass_daily_x": {
+   "he": "יומי × {n}",
+   "en": "Daily × {n}",
+   "ru": "Дневной × {n}",
+   "ka": "დღიური × {n}",
+   "where": "app/android, app/ios",
+   "note": "Round 40 (ski pass screen): label of the bar that is the daily pass times the days",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.skipass_daily": {
+   "he": "יומי: {price}",
+   "en": "Daily: {price}",
+   "ru": "Дневной: {price}",
+   "ka": "დღიური: {price}",
+   "where": "app/android, app/ios",
+   "note": "Round 40 (ski pass screen): small line on the home row",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.skipass_pass_days": {
+   "he": {
+    "one": "כרטיס יום",
+    "two": "כרטיס יומיים",
+    "other": "כרטיס {n} ימים"
+   },
+   "en": {
+    "one": "{n}-day pass",
+    "other": "{n}-day pass"
+   },
+   "ru": {
+    "one": "Ски-пасс на {n} день",
+    "few": "Ски-пасс на {n} дня",
+    "many": "Ски-пасс на {n} дней",
+    "other": "Ски-пасс на {n} дней"
+   },
+   "ka": {
+    "one": "{n}-დღიანი სკი-პასი",
+    "other": "{n}-დღიანი სკი-პასი"
+   },
+   "where": "app/android, app/ios",
+   "note": "Round 40 (ski pass screen): label of the bar that is the pass, and the home row",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.skipass_part": {
+   "he": {
+    "one": "יום אחד",
+    "two": "יומיים",
+    "other": "{n} ימים"
+   },
+   "en": {
+    "one": "{n} day",
+    "other": "{n} days"
+   },
+   "ru": {
+    "one": "{n} день",
+    "few": "{n} дня",
+    "many": "{n} дней",
+    "other": "{n} дней"
+   },
+   "ka": {
+    "one": "{n} დღე",
+    "other": "{n} დღე"
+   },
+   "where": "app/android, app/ios",
+   "note": "Round 40 (ski pass screen): a number of days inside a sentence, for the 'no such pass' combination",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.skipass_and": {
+   "he": "{a} ועוד {b}",
+   "en": "{a} plus {b}",
+   "ru": "{a} и ещё {b}",
+   "ka": "{a} პლუს {b}",
+   "where": "app/android, app/ios",
+   "note": "Round 40 (ski pass screen): two tickets in words, like '7 days plus 1 day'; {a} and {b} come from app.skipass_part",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.skipass_no_pass": {
+   "he": "אין כרטיס ל-{n} ימים. הכי זול: {combo}",
+   "en": "There is no {n}-day pass. Cheapest: {combo}",
+   "ru": "Абонемента на {n} дней нет. Дешевле всего: {combo}",
+   "ka": "{n}-დღიანი ბილეთი არ არსებობს. ყველაზე იაფი: {combo}",
+   "where": "app/android, app/ios",
+   "note": "Round 40 (ski pass screen): shown when the days are not in the table (8, 9, 11 to 14); {combo} is app.skipass_and",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.skipass_two_tickets": {
+   "he": "שני כרטיסים, כי לא ידוע אם הקופה טוענת שניים על כרטיס אחד.",
+   "en": "Two tickets: it is not known whether the desk loads two passes on one card.",
+   "ru": "Два билета: неизвестно, загружает ли касса два абонемента на одну карту.",
+   "ka": "ორი ბილეთი: უცნობია, კასა ერთ ბარათზე ორ ბილეთს ტვირთავს თუ არა.",
+   "where": "app/android, app/ios",
+   "note": "Round 40 (ski pass screen): small note under the combination",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.skipass_save": {
+   "he": "חוסכים {amount} ({pct}%)",
+   "en": "You save {amount} ({pct}%)",
+   "ru": "Экономия {amount} ({pct}%)",
+   "ka": "დაზოგავთ {amount} ({pct}%)",
+   "where": "app/android, app/ios",
+   "note": "Round 40 (ski pass screen): against buying a daily pass every day; only when positive",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.skipass_night": {
+   "he": "סקי לילה: {price} לערב, כרטיס נפרד",
+   "en": "Night skiing: {price} per evening, separate ticket",
+   "ru": "Ночное катание: {price} за вечер, отдельный билет",
+   "ka": "ღამის სრიალი: {price} საღამოში, ცალკე ბილეთი",
+   "where": "app/android, app/ios",
+   "note": "Round 40 (ski pass screen): small line; the daily pass does not include the night",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.skipass_card": {
+   "he": "כרטיס פיזי חובה, פיקדון {deposit} שמוחזר בקופה. QR לא מתקבל.",
+   "en": "A physical card is required, {deposit} deposit refunded at the desk. QR codes are not accepted.",
+   "ru": "Нужна физическая карта, залог {deposit} возвращается в кассе. QR-коды не принимаются.",
+   "ka": "საჭიროა ფიზიკური ბარათი, {deposit} გირაო კასაში უბრუნდება. QR კოდი არ მიიღება.",
+   "where": "app/android, app/ios",
+   "note": "Round 40 (ski pass screen): small line, from MTA's price list and FAQ",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.skipass_foreign": {
+   "he": "מחיר לזר. לתושבי גאורגיה מחיר אחר.",
+   "en": "Foreign-visitor price. Georgian residents pay a different price.",
+   "ru": "Цена для иностранцев. Для жителей Грузии цена другая.",
+   "ka": "ფასი უცხოელებისთვის. საქართველოს მაცხოვრებლებისთვის ფასი სხვაა.",
+   "where": "app/android, app/ios",
+   "note": "Round 40 (ski pass screen): small line",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.skipass_named": {
+   "he": "כרטיסי 7 ו-10 ימים תקפים בכל ארבעת האתרים ורשומים על שם המחזיק.",
+   "en": "7 and 10 day passes are valid at all four resorts and are registered to the holder.",
+   "ru": "Абонементы на 7 и 10 дней действуют на всех четырёх курортах и оформляются на имя владельца.",
+   "ka": "7 და 10 დღიანი ბილეთები მოქმედებს ოთხივე კურორტზე და რეგისტრირდება მფლობელის სახელზე.",
+   "where": "app/android, app/ios",
+   "note": "Round 40 (ski pass screen): shown when the chosen tickets include a 7 or 10 day pass",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.skipass_buy": {
+   "he": "איפה קונים: בקופות האתרים",
+   "en": "Where to buy: at the resort ticket offices",
+   "ru": "Где купить: в кассах курорта",
+   "ka": "სად ვიყიდოთ: კურორტის სალაროებში",
+   "where": "app/android, app/ios",
+   "note": "Round 40 (ski pass screen): we do not sell; no link",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.skipass_app": {
+   "he": "SKIPASS של Lemondo ב-{store}",
+   "en": "SKIPASS by Lemondo in {store}",
+   "ru": "SKIPASS от Lemondo в {store}",
+   "ka": "Lemondo-ს SKIPASS: {store}",
+   "where": "app/android, app/ios",
+   "note": "Round 40 (ski pass screen): secondary button: opens the store page of the system; {store} is App Store or Google Play. Not called official",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.skipass_checked": {
+   "he": "נבדק {date}, {src}",
+   "en": "Checked {date}, {src}",
+   "ru": "Проверено {date}, {src}",
+   "ka": "შემოწმებულია {date}, {src}",
+   "where": "app/android, app/ios",
+   "note": "Round 40 (ski pass screen): source line under the screen; {date} is a written date, {src} is MTA",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.skipass_no_info": {
+   "he": "אין מידע: המחירון לא בתוקף",
+   "en": "No information: the price list is no longer valid",
+   "ru": "Нет данных: прейскурант утратил силу",
+   "ka": "ინფორმაცია არ არის: ფასების სია აღარ მოქმედებს",
+   "where": "app/android, app/ios",
+   "note": "Round 40 (ski pass screen): after the 'until' date, or the file is missing or unreadable; never old prices",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.skipass_check_site": {
+   "he": "בדקו ב-mta.ski.",
+   "en": "Check mta.ski.",
+   "ru": "Проверьте на mta.ski.",
+   "ka": "შეამოწმეთ mta.ski-ზე.",
+   "where": "app/android, app/ios",
+   "note": "Round 40 (ski pass screen): under the no-information text",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.skipass_too_long": {
+   "he": "אין מידע על כרטיס ל-{n} ימים. בדקו בקופה.",
+   "en": "No price for {n} days. Ask at the ticket office.",
+   "ru": "Цены на {n} дней нет. Уточните в кассе.",
+   "ka": "{n} დღის ფასი არ არის. დაინტერესდით სალაროში.",
+   "where": "app/android, app/ios",
+   "note": "Round 40 (ski pass screen): more than 14 days, or no combination: no estimate",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.skipass_child_free": {
+   "he": "מתחת לגיל {age} חינם",
+   "en": "Under {age} is free",
+   "ru": "До {age} лет бесплатно",
+   "ka": "{age} წლამდე უფასოა",
+   "where": "app/android, app/ios",
+   "note": "Round 40 (ski pass screen): small line in the child tab",
+   "check": [
+    "ru",
+    "ka"
+   ]
   }
  }
 }

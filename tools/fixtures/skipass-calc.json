@@ -1,0 +1,279 @@
+{
+ "about": "Round 40: shared cases for the ski-pass price. The rule is in tools/check-skipass.py; passes are copied from site/data/prices.json (the check fails if they drift). 'parts' are the tickets, in days; null means no price ('no info'), never an estimate.",
+ "passes": [
+  {
+   "days": 1,
+   "adult": 120,
+   "child": 60
+  },
+  {
+   "days": 2,
+   "adult": 215,
+   "child": 108
+  },
+  {
+   "days": 3,
+   "adult": 305,
+   "child": 153
+  },
+  {
+   "days": 4,
+   "adult": 390,
+   "child": 195
+  },
+  {
+   "days": 5,
+   "adult": 470,
+   "child": 235
+  },
+  {
+   "days": 6,
+   "adult": 545,
+   "child": 273
+  },
+  {
+   "days": 7,
+   "adult": 630,
+   "child": 315
+  },
+  {
+   "days": 10,
+   "adult": 865,
+   "child": 435
+  }
+ ],
+ "cases": [
+  {
+   "days": 1,
+   "adult": {
+    "total": 120,
+    "parts": [
+     1
+    ]
+   },
+   "child": {
+    "total": 60,
+    "parts": [
+     1
+    ]
+   }
+  },
+  {
+   "days": 2,
+   "adult": {
+    "total": 215,
+    "parts": [
+     2
+    ]
+   },
+   "child": {
+    "total": 108,
+    "parts": [
+     2
+    ]
+   }
+  },
+  {
+   "days": 3,
+   "adult": {
+    "total": 305,
+    "parts": [
+     3
+    ]
+   },
+   "child": {
+    "total": 153,
+    "parts": [
+     3
+    ]
+   }
+  },
+  {
+   "days": 4,
+   "adult": {
+    "total": 390,
+    "parts": [
+     4
+    ]
+   },
+   "child": {
+    "total": 195,
+    "parts": [
+     4
+    ]
+   }
+  },
+  {
+   "days": 5,
+   "adult": {
+    "total": 470,
+    "parts": [
+     5
+    ]
+   },
+   "child": {
+    "total": 235,
+    "parts": [
+     5
+    ]
+   }
+  },
+  {
+   "days": 6,
+   "adult": {
+    "total": 545,
+    "parts": [
+     6
+    ]
+   },
+   "child": {
+    "total": 273,
+    "parts": [
+     6
+    ]
+   }
+  },
+  {
+   "days": 7,
+   "adult": {
+    "total": 630,
+    "parts": [
+     7
+    ]
+   },
+   "child": {
+    "total": 315,
+    "parts": [
+     7
+    ]
+   }
+  },
+  {
+   "days": 8,
+   "adult": {
+    "total": 750,
+    "parts": [
+     7,
+     1
+    ]
+   },
+   "child": {
+    "total": 375,
+    "parts": [
+     7,
+     1
+    ]
+   }
+  },
+  {
+   "days": 9,
+   "adult": {
+    "total": 845,
+    "parts": [
+     7,
+     2
+    ]
+   },
+   "child": {
+    "total": 423,
+    "parts": [
+     7,
+     2
+    ]
+   }
+  },
+  {
+   "days": 10,
+   "adult": {
+    "total": 865,
+    "parts": [
+     10
+    ]
+   },
+   "child": {
+    "total": 435,
+    "parts": [
+     10
+    ]
+   }
+  },
+  {
+   "days": 11,
+   "adult": {
+    "total": 985,
+    "parts": [
+     10,
+     1
+    ]
+   },
+   "child": {
+    "total": 495,
+    "parts": [
+     10,
+     1
+    ]
+   }
+  },
+  {
+   "days": 12,
+   "adult": {
+    "total": 1080,
+    "parts": [
+     10,
+     2
+    ]
+   },
+   "child": {
+    "total": 543,
+    "parts": [
+     10,
+     2
+    ]
+   }
+  },
+  {
+   "days": 13,
+   "adult": {
+    "total": 1170,
+    "parts": [
+     10,
+     3
+    ]
+   },
+   "child": {
+    "total": 588,
+    "parts": [
+     10,
+     3
+    ]
+   }
+  },
+  {
+   "days": 14,
+   "adult": {
+    "total": 1255,
+    "parts": [
+     10,
+     4
+    ]
+   },
+   "child": {
+    "total": 630,
+    "parts": [
+     10,
+     4
+    ]
+   }
+  },
+  {
+   "days": 15,
+   "adult": null,
+   "child": null
+  },
+  {
+   "days": 16,
+   "adult": null,
+   "child": null
+  }
+ ]
+}
