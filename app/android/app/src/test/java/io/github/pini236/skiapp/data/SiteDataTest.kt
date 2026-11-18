@@ -15,6 +15,7 @@ class SiteDataTest {
     private val videos = File(site, "videos-seed.json").readText()
     private val resorts = File(site, "resorts.json").readText()
     private val places = File(site, "places.json").readText()
+    private val prices = File(site, "prices.json").readText()
     private lateinit var dir: File
     private var clock = 1_000_000_000L
     private val calls = mutableListOf<Pair<String, String?>>()
@@ -24,6 +25,7 @@ class SiteDataTest {
         "videos-seed.json" -> videos
         "resorts.json" -> resorts
         "places.json" -> places
+        "prices.json" -> prices
         else -> error(name)
     }
 
@@ -48,6 +50,7 @@ class SiteDataTest {
         assertTrue(SiteData.validVideos(videos))
         assertTrue(SiteData.validResorts(resorts))
         assertTrue(io.github.pini236.skiapp.places.Places.parse(places) != null)
+        assertTrue(io.github.pini236.skiapp.skipass.Prices.parse(prices) != null)
     }
 
     @Test fun theResortsFileIsOnlyUsedWhenItHasResorts() {
@@ -76,7 +79,7 @@ class SiteDataTest {
         clock += SiteData.EVERY_MS
         calls.clear()
         assertTrue(d.refresh().values.all { it == SiteData.Outcome.UNCHANGED })
-        assertEquals(listOf("runs-and-lifts.json" to "\"a\"", "videos-seed.json" to "\"v\"", "resorts.json" to "\"r\"", "places.json" to "\"r\""), calls)
+        assertEquals(listOf("runs-and-lifts.json" to "\"a\"", "videos-seed.json" to "\"v\"", "resorts.json" to "\"r\"", "places.json" to "\"r\"", "prices.json" to "\"r\""), calls)
         // a new process reads the same state from disk
         assertEquals(newerRuns, data(site(emptyMap())).read("runs-and-lifts.json"))
     }

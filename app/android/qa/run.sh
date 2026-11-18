@@ -483,6 +483,19 @@ home() {
   drag $((W / 2)) $((H * 3 / 4)) $((W / 2)) $((H / 4)) 400; sleep 1; shot home-guest-signs
   drag $((W / 2)) $((H / 4)) $((W / 2)) $((H * 3 / 4)) 300; sleep 0.5
 
+  # round 39: the countdown to the opening (the shot above is 19 days out), the day before, the day itself, and after it
+  # with no lift report: what was planned, never "delayed". The clock is the resort's own (Asia/Tbilisi)
+  qa "--es qa.time 2026-12-19T10:00"; sleep 1.5; shot home-season-tomorrow
+  qa "--es qa.time 2026-12-20T10:00"; sleep 1.5; shot home-season-today
+  qa "--es qa.time 2026-12-22T10:00"; sleep 1.5; shot home-season-late
+  qa "--es qa.time 2026-12-01T13:35"; sleep 1.5
+  # round 40: the ski-pass row opens the screen; five days and a child; eight days have no ticket (7 + 1), and the screen says so
+  tapText "כרטיס סקי" && sleep 1.5 && shot skipass-day
+  tapText "עוד יום סקי" && sleep 0.5 && shot skipass-five
+  tapText "~^ילד" && sleep 0.5 && shot skipass-child
+  tapText "עוד יום סקי" && tapText "עוד יום סקי" && tapText "עוד יום סקי" && sleep 0.5 && shot skipass-eight
+  adb shell input keyevent KEYCODE_BACK; sleep 1
+
   # round 20: the pass is the form. "When do you fly?" opens one calendar: two taps (out, back), the ski days shaded
   mark; tapText "מתי טסים?" && sleep 1.2 && shot trip-calendar
   tapText "~^20$" && sleep 0.5 && tapText "~^27$" && sleep 0.8 && shot trip-calendar-picked
