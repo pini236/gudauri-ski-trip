@@ -31,9 +31,9 @@ final class SiteDataStoreTests: XCTestCase {
         XCTAssertTrue(SiteDataStore.valid("resorts.json", resorts))
         XCTAssertFalse(SiteDataStore.valid("resorts.json", Data("{\"resorts\":[]}".utf8)))
         XCTAssertFalse(SiteDataStore.valid("resorts.json", try site()))
-        XCTAssertTrue(SiteDataStore.valid("skipass.json", Data("{\"schema\":1,\"x\":1}".utf8)))
-        XCTAssertFalse(SiteDataStore.valid("skipass.json", Data("{\"schema\":2,\"x\":1}".utf8)))
-        XCTAssertFalse(SiteDataStore.valid("skipass.json", Data("[]".utf8)))
+        XCTAssertTrue(SiteDataStore.valid("prices.json", Data("{\"schema\":1,\"x\":1}".utf8)))
+        XCTAssertFalse(SiteDataStore.valid("prices.json", Data("{\"schema\":2,\"x\":1}".utf8)))
+        XCTAssertFalse(SiteDataStore.valid("prices.json", Data("[]".utf8)))
         XCTAssertFalse(SiteDataStore.valid("other.json", resorts), "an unknown file is never used")
     }
 

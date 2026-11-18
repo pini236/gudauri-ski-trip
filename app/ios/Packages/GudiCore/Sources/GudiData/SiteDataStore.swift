@@ -23,7 +23,7 @@ public struct SiteDataStore: Sendable {
     public static let base = "https://gudauri-ski-trip.vercel.app/data/"
     public static let everySeconds: Double = 6 * 3600
     public static let maxBytes = 4 << 20
-    public static let files = ["runs-and-lifts.json", "resorts.json", "skipass.json"]
+    public static let files = ["runs-and-lifts.json", "resorts.json", "prices.json"]
 
     private struct Entry: Codable { var etag: String?; var checked: Double }
     private struct Meta: Codable { var app: String; var files: [String: Entry] }
@@ -53,7 +53,7 @@ public struct SiteDataStore: Sendable {
         case "resorts.json":
             guard let r = try? Resorts.decode(data) else { return false }
             return !r.resorts.isEmpty && r.resorts.allSatisfy { !$0.id.isEmpty }
-        case "skipass.json":
+        case "prices.json":
             // the prices file: its structure is checked by the screen that reads it; here only "a non-empty object"
             guard let o = obj as? [String: Any] else { return false }
             return !o.isEmpty
