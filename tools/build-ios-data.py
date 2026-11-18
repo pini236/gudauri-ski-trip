@@ -14,7 +14,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 SITE = ROOT / "site"
-FILES = ("terrain.json", "runs-and-lifts.json", "videos-seed.json", "resorts.json", "places.json")
+FILES = ("terrain.json", "runs-and-lifts.json", "videos-seed.json", "resorts.json", "places.json", "prices.json")
 # the ski day's analysis reads its thresholds from the reference tool's file, as it is (decision 76, m-8 condition 4)
 FIXTURES = ("dayrec-params.json",)
 
