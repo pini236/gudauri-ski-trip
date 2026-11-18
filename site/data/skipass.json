@@ -1,0 +1,74 @@
+{
+  "schema": 1,
+  "resort": "gudauri",
+  "season": "2026/27",
+  "currency": "GEL",
+  "vat": true,
+  "audience": "foreign",
+  "src": "MTA",
+  "url": "https://mta.ski/en/prices",
+  "checked": "2026-11-15",
+  "until": "2027-04-30",
+  "child": [
+    6,
+    12
+  ],
+  "free_under": 6,
+  "card_deposit": 5,
+  "passes": [
+    {
+      "days": 1,
+      "adult": 120,
+      "child": 60,
+      "scope": "gudauri"
+    },
+    {
+      "days": 2,
+      "adult": 215,
+      "child": 108,
+      "scope": "gudauri"
+    },
+    {
+      "days": 3,
+      "adult": 305,
+      "child": 153,
+      "scope": "gudauri"
+    },
+    {
+      "days": 4,
+      "adult": 390,
+      "child": 195,
+      "scope": "gudauri"
+    },
+    {
+      "days": 5,
+      "adult": 470,
+      "child": 235,
+      "scope": "gudauri"
+    },
+    {
+      "days": 6,
+      "adult": 545,
+      "child": 273,
+      "scope": "gudauri"
+    },
+    {
+      "days": 7,
+      "adult": 630,
+      "child": 315,
+      "scope": "multiski",
+      "named": true
+    },
+    {
+      "days": 10,
+      "adult": 865,
+      "child": 435,
+      "scope": "multiski",
+      "named": true
+    }
+  ],
+  "night": {
+    "adult": 80,
+    "child": 40
+  }
+}
