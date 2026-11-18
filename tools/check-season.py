@@ -49,8 +49,12 @@ for r in resorts['resorts']:
         print('FAIL %s: season.open is not a YYYY-MM-DD date' % r['id']); bad += 1
     if 'close' in s and local_date(s['close']) is None:
         print('FAIL %s: season.close must be a real date or absent (never null)' % r['id']); bad += 1
-    if not str(s.get('url', '')).startswith('https://') or local_date(s.get('checked')) is None or not s.get('src'):
-        print('FAIL %s: season needs src, an https url and a checked date' % r['id']); bad += 1
+    if not str(s.get('url', '')).startswith('https://') or local_date(s.get('updated')) is None or not s.get('src'):
+        print('FAIL %s: season needs src, an https url and an updated date' % r['id']); bad += 1
+    if 'announced' in s and local_date(s['announced']) is None:
+        print('FAIL %s: season.announced must be a real date or absent' % r['id']); bad += 1
+    if 'note' in s and s['note'] not in json.load(open(ROOT / 'i18n/strings.json'))['strings']:
+        print('FAIL %s: season.note must be a key of i18n/strings.json' % r['id']); bad += 1
     if r.get('tz') != fx['tz']:
         print('FAIL %s: the fixtures assume %s, the resort has %s' % (r['id'], fx['tz'], r.get('tz'))); bad += 1
 print('season: %d cases, %s' % (len(fx['cases']), 'FAIL' if bad else 'ok'))

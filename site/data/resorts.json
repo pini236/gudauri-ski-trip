@@ -29,9 +29,10 @@
       ],
       "season": {
         "open": "2026-12-20",
+        "announced": "2026-10-28",
         "src": "MTA",
         "url": "https://mta.ski/en/news/skiseason2027",
-        "checked": "2026-11-15"
+        "updated": "2026-11-15"
       },
       "stats": {
         "runs": 27,

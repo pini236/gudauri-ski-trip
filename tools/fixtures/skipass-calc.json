@@ -1,5 +1,5 @@
 {
- "about": "Round 40: shared cases for the ski-pass price. The rule is in tools/check-skipass.py; passes are copied from site/data/skipass.json (the check fails if they drift). 'parts' are the tickets, in days; null means no price ('no info'), never an estimate.",
+ "about": "Round 40: shared cases for the ski-pass price. The rule is in tools/check-skipass.py; passes are copied from site/data/prices.json (the check fails if they drift). 'parts' are the tickets, in days; null means no price ('no info'), never an estimate.",
  "passes": [
   {
    "days": 1,

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Checks the ski-pass prices (round 40): that site/data/skipass.json is well formed, and the shared price calculation
+"""Checks the ski-pass prices (round 40): that site/data/prices.json is well formed, and the shared price calculation
 (tools/fixtures/skipass-calc.json) against the reference rule below. The apps implement the same rule and test against the same file.
 Rule: a number of days that is in the table costs the table's price. Any other number (8, 9, 11 to 14) is the cheapest way to cover it
 with at most two tickets from the table; on a tie fewer tickets, then the bigger ticket first. More than 14 days, or no way: no price (never an estimate)."""
@@ -40,7 +40,7 @@ def fail(msg):
     print('FAIL ' + msg); bad += 1
 
 
-doc = json.load(open(ROOT / 'site/data/skipass.json'))
+doc = json.load(open(ROOT / 'site/data/prices.json'))
 if doc.get('schema') != 1: fail('schema must be 1')
 if doc.get('currency') != 'GEL': fail('currency must be GEL (no conversions)')
 if doc.get('audience') != 'foreign': fail('version 1 carries only the price for foreigners')
@@ -64,6 +64,18 @@ for p in ps:
     if isinstance(p.get('adult'), int):
         if p['adult'] <= prev: fail('%s: a longer pass must cost more than a shorter one' % p['days'])
         prev = p['adult']
+ids = [p.get('id') for p in ps]
+if not all(isinstance(i, str) and i for i in ids) or len(set(ids)) != len(ids): fail('every pass needs a unique id')
+if not (isinstance(doc.get('rules'), list) and all(isinstance(k, str) and k.startswith('app.') for k in doc['rules'])):
+    fail('rules must be a list of i18n keys (app.*); a key the app does not know is skipped')
+i18n = json.load(open(ROOT / 'i18n/strings.json'))['strings']
+for k in doc.get('rules', []):
+    if k not in i18n: fail('rule %s is not in i18n/strings.json' % k)
+APPLE = re.compile(r'^https://apps\.apple\.com/[A-Za-z0-9_./-]+(\?hl=[A-Za-z-]+)?$')
+PLAY = re.compile(r'^https://play\.google\.com/store/apps/details\?id=[A-Za-z0-9_.]+(&hl=[A-Za-z-]+)?$')
+for k, rx in (('ios', APPLE), ('android', PLAY)):
+    u = doc.get('buy', {}).get(k)
+    if u is not None and not rx.match(u): fail('buy.%s must be a plain store link (only hl is allowed as a parameter): %s' % (k, u))
 n = doc.get('night', {})
 if not all(isinstance(n.get(k), int) and n[k] > 0 for k in ('adult', 'child')): fail('night needs whole adult and child prices')
 if not (isinstance(doc.get('child'), list) and len(doc['child']) == 2 and doc['child'][0] == doc.get('free_under')):
@@ -71,7 +83,7 @@ if not (isinstance(doc.get('child'), list) and len(doc['child']) == 2 and doc['c
 
 fx = json.load(open(ROOT / 'tools/fixtures/skipass-calc.json'))
 if fx['passes'] != [{k: p[k] for k in ('days', 'adult', 'child')} for p in ps]:
-    fail('the fixture prices differ from site/data/skipass.json: rebuild tools/fixtures/skipass-calc.json')
+    fail('the fixture prices differ from site/data/prices.json: rebuild tools/fixtures/skipass-calc.json')
 for c in fx['cases']:
     for who in ('adult', 'child'):
         got = price(fx['passes'], c['days'], who)

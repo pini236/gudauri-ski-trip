@@ -17,42 +17,49 @@
   "card_deposit": 5,
   "passes": [
     {
+      "id": "d1",
       "days": 1,
       "adult": 120,
       "child": 60,
       "scope": "gudauri"
     },
     {
+      "id": "d2",
       "days": 2,
       "adult": 215,
       "child": 108,
       "scope": "gudauri"
     },
     {
+      "id": "d3",
       "days": 3,
       "adult": 305,
       "child": 153,
       "scope": "gudauri"
     },
     {
+      "id": "d4",
       "days": 4,
       "adult": 390,
       "child": 195,
       "scope": "gudauri"
     },
     {
+      "id": "d5",
       "days": 5,
       "adult": 470,
       "child": 235,
       "scope": "gudauri"
     },
     {
+      "id": "d6",
       "days": 6,
       "adult": 545,
       "child": 273,
       "scope": "gudauri"
     },
     {
+      "id": "d7",
       "days": 7,
       "adult": 630,
       "child": 315,
@@ -60,6 +67,7 @@
       "named": true
     },
     {
+      "id": "d10",
       "days": 10,
       "adult": 865,
       "child": 435,
@@ -70,5 +78,14 @@
   "night": {
     "adult": 80,
     "child": 40
+  },
+  "rules": [
+    "app.skipass_card",
+    "app.skipass_foreign",
+    "app.skipass_named"
+  ],
+  "buy": {
+    "ios": "https://apps.apple.com/app/id6698866856",
+    "android": "https://play.google.com/store/apps/details?id=com.lemondo.skipass"
   }
 }
