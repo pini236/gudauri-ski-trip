@@ -26,6 +26,17 @@ final class SiteDataStoreTests: XCTestCase {
         XCTAssertFalse(SiteDataStore.valid(file, marked), "a newer schema is ignored by this app")
     }
 
+    func testEachFileHasItsOwnCheck() throws {
+        let resorts = try Data(contentsOf: root.appendingPathComponent("site/data/resorts.json"))
+        XCTAssertTrue(SiteDataStore.valid("resorts.json", resorts))
+        XCTAssertFalse(SiteDataStore.valid("resorts.json", Data("{\"resorts\":[]}".utf8)))
+        XCTAssertFalse(SiteDataStore.valid("resorts.json", try site()))
+        XCTAssertTrue(SiteDataStore.valid("skipass.json", Data("{\"schema\":1,\"x\":1}".utf8)))
+        XCTAssertFalse(SiteDataStore.valid("skipass.json", Data("{\"schema\":2,\"x\":1}".utf8)))
+        XCTAssertFalse(SiteDataStore.valid("skipass.json", Data("[]".utf8)))
+        XCTAssertFalse(SiteDataStore.valid("other.json", resorts), "an unknown file is never used")
+    }
+
     func testADownloadIsUsedAfterItPassesAndANotModifiedKeepsIt() async throws {
         let dir = tmp(); let body = try site()
         let first = store(dir, packaged: Data("old".utf8)) { _, _ in .init(code: 200, etag: "\"a\"", body: body) }

@@ -108,7 +108,7 @@ final class AppModel {
         // a pinned moment in Gudauri time ("2027-01-12T10:00"), for the boards that depend on the trip's stage
         qaNow = flags["now"].flatMap { Forecast.millis(local: $0) }.map { Date(timeIntervalSince1970: Double($0) / 1000) }
         // food and services near the stations (round 31): only where the site lists the feature, and only a file this app knows
-        let resorts = data("resorts").flatMap { try? Data(contentsOf: $0) }.flatMap { try? Resorts.decode($0) }
+        let resorts = store.read("resorts.json").flatMap { try? Resorts.decode($0) }
         places = resorts?.has(Places.feature) == true ? data("places").flatMap { try? Data(contentsOf: $0) }.flatMap(Places.parse) : nil
         #if DAYREC
         dayRecorder = resorts?.has("dayrec") == true || flags["dayrec"] != nil ? DayRecorder() : nil
