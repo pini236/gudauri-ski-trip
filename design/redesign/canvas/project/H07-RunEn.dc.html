@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>The mountain: a chosen run (EN, night)</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+.H{--bg:#EEF3F8;--glass:rgba(255,255,255,.86);--ink:#0E2233;--ink2:#40556A;--line:rgba(14,34,51,.14);--acc:#6B3FD4;--onacc:#FFFFFF;--halo:rgba(255,255,255,.95);--good:#198549;--warn:#9A5200;--green:#198549;--blue:#1F6FD0;--red:#D1342B;--black:#15181C;--veil:rgba(92,114,148,.44);font-family:'Heebo',system-ui,sans-serif;color:var(--ink);background:var(--bg)}
+.H .night{--bg:#0B1220;--glass:rgba(15,24,40,.84);--ink:#EAF1F8;--ink2:#A9B9CC;--line:rgba(234,241,248,.18);--acc:#B79CFF;--onacc:#1A0B3D;--halo:rgba(6,11,22,.95);--good:#46D08A;--warn:#F5B14C;--green:#46D08A;--blue:#62AEFF;--red:#FF7468;--black:#E6ECF2;--veil:rgba(6,11,22,.58)}
+.H h1,.H h2,.H h3,.H p{margin:0}
+.H .scr{position:absolute;inset:0;background:var(--bg);color:var(--ink);overflow:hidden}
+.H .pic{position:absolute;left:0;width:390px;display:block}
+.H .n{display:none}.H .night .n{display:block}.H .night .d{display:none}
+.H button{font:inherit;color:inherit;border:0;background:none;padding:0;cursor:pointer}
+.H .glass{background:var(--glass);-webkit-backdrop-filter:blur(18px) saturate(1.3);backdrop-filter:blur(18px) saturate(1.3);border:1px solid var(--line);box-shadow:0 10px 30px rgba(10,25,45,.18)}
+.H .pulse{position:absolute;top:56px;left:14px;right:14px;min-height:48px;border-radius:24px;display:flex;align-items:center;gap:10px;padding:6px 16px;box-sizing:border-box;font-size:15px;font-weight:500;line-height:1.3}
+.H .dot{width:9px;height:9px;border-radius:50%;background:var(--good);flex:none}
+.H .sheet{position:absolute;left:8px;right:8px;bottom:8px;border-radius:28px;padding:10px 16px 16px;box-sizing:border-box;display:flex;flex-direction:column;gap:12px}
+.H .grab{width:38px;height:5px;border-radius:3px;background:var(--line);margin:0 auto}
+.H .lbl{position:absolute;transform:translate(-50%,-50%);font-size:11.5px;font-weight:700;white-space:nowrap;line-height:1.25;text-align:center;color:var(--ink);text-shadow:0 0 3px var(--halo),0 0 3px var(--halo),0 0 7px var(--halo);direction:ltr}
+.H .lbl small{display:block;font-weight:500;font-size:10.5px;color:var(--ink);direction:rtl;unicode-bidi:isolate}
+.H .tag{position:absolute;transform:translate(-50%,-50%);display:inline-flex;align-items:center;gap:5px;height:22px;padding:0 8px 0 6px;border-radius:11px;background:var(--glass);border:1px solid var(--line);font-size:11.5px;font-weight:700;white-space:nowrap;direction:ltr;color:var(--ink)}
+.H .tag i{width:8px;height:8px;border-radius:50%;flex:none}
+.H .bdg{display:inline-flex;align-items:center;justify-content:center;min-width:28px;height:22px;padding:0 6px;box-sizing:border-box;border-radius:6px;background:#1F6FD0;color:#fff;font-size:12.5px;font-weight:700;direction:ltr}
+.H .seg{display:flex;border-radius:24px;padding:3px;gap:2px;background:var(--line)}
+.H .seg button{flex:1;height:44px;border-radius:21px;font-size:14px;font-weight:500;color:var(--ink)}
+.H .seg .on{background:var(--acc);color:var(--onacc);font-weight:700}
+.H .find{height:48px;border-radius:24px;background:var(--line);display:flex;align-items:center;gap:10px;padding:0 16px;font-size:16px;color:var(--ink2)}
+.H .chips{display:flex;gap:8px}
+.H .chip{flex:1;height:44px;border-radius:22px;border:1px solid var(--line);font-size:13.5px;font-weight:500;display:flex;align-items:center;justify-content:center}
+.H .fab{position:absolute;width:56px;height:56px;border-radius:50%;background:var(--acc);display:flex;align-items:center;justify-content:center;box-shadow:0 8px 22px rgba(10,25,45,.3)}
+.H .fab span{width:18px;height:18px;border-radius:50%;background:var(--onacc)}
+.H .num{font-size:34px;font-weight:300;line-height:1;direction:ltr;display:inline-block}
+.H .cap{font-size:12.5px;color:var(--ink2)}
+.H .row{display:flex;align-items:center;gap:10px;min-height:52px;border-top:1px solid var(--line)}
+.H .pri{height:52px;border-radius:26px;background:var(--acc);color:var(--onacc);font-size:16px;font-weight:700;flex:1}
+.H .sec{height:52px;min-width:52px;border-radius:26px;border:1px solid var(--line);font-size:15px;font-weight:500;padding:0 16px}
+.H .leg{display:flex;gap:10px;font-size:11.5px;color:var(--ink2);align-items:center}
+.H .leg i{display:inline-block;width:14px;height:5px;border-radius:3px;margin-inline-end:4px;vertical-align:middle}
+.H .call{position:absolute;font-size:11.5px;font-weight:700;line-height:1.3;color:var(--ink);text-shadow:0 0 3px var(--halo),0 0 3px var(--halo),0 0 7px var(--halo);white-space:nowrap}
+.H .call small{display:block;font-weight:500;font-size:10.5px;direction:rtl;unicode-bidi:isolate}
+</style>
+</helmet>
+<div class="H" style="width: 390px; height: 844px; position: relative; overflow: hidden">
+<div class="{{mode}}">
+<div class="scr" dir="ltr">
+<img class="pic d" alt="" src="/_blob/21f519457f8b9abc6cfb36f3fdfb6273" style="top: 44px; height: 560px">
+<div class="d" style="position: absolute; left: 0; top: 44px; width: 390px; height: 560px; background: var(--veil)"></div>
+<svg class="pic d" viewBox="0 0 390 560" style="top: 44px; height: 560px" aria-hidden="true"><defs><filter id="h7-f-day" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="13"/></filter><mask id="h7-m-day" maskUnits="userSpaceOnUse" x="0" y="0" width="390" height="560"><g filter="url(#h7-f-day)" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M311.3 91.3 L309.5 91.9 L307.9 94.2 L305.6 96.3 L303.0 96.5 L297.2 97.4 L293.7 98.0 L290.3 98.5 L286.8 99.0 L283.0 100.0 L279.1 100.9 L275.3 101.8 L271.9 102.6 L268.5 103.4 L265.1 104.2 L261.7 104.9 L258.9 105.9 L256.1 106.9 L253.3 108.0 L250.5 109.1 L247.7 110.2 L244.8 111.3 L242.0 112.5 L239.2 113.6 L236.4 114.7 L233.6 115.7 L230.7 116.7 L227.9 117.7 L225.1 118.9 L222.3 120.1 L219.5 121.3 L219.0 123.3 L218.4 125.4 L217.9 127.5 L217.4 129.6 L216.9 131.6 L216.4 133.5 L214.3 135.2 L212.2 137.0 L210.1 138.7 L208.1 140.4 L206.0 142.1 L203.9 144.0 L201.4 145.4 L198.9 146.9 L196.4 148.6 L194.0 150.2 L191.5 151.8 L189.0 153.3 L186.5 154.9 L184.0 156.5 L181.6 158.1 L179.1 159.7 L176.6 161.1 L174.1 162.4 L171.6 163.7 L169.1 165.2 L166.7 166.8 L164.2 168.4 L161.7 170.1 L159.4 171.8 L157.1 173.4 L154.8 175.1 L152.5 176.7 L150.2 178.2 L147.8 179.6 L145.5 180.9 L143.2 182.2 L140.9 183.5 L138.6 185.0 L136.3 186.7 L134.0 188.5 L131.7 190.3 L130.9 193.3 L130.1 196.4 L129.7 199.0 L129.3 201.7 L128.9 204.3 L128.5 206.9 L128.1 209.4 L127.7 211.9 L127.4 214.5 L127.0 217.1 L126.6 219.7 L126.2 222.4 L125.8 224.9 L124.7 227.6 L123.7 230.3 L122.6 233.0 L121.6 235.8 L120.6 238.5 L119.5 241.1 L118.5 243.8 L117.4 246.5 L115.7 249.0 L113.9 251.5 L112.1 253.9 L110.3 256.2 L108.5 258.4 L106.7 260.7 L104.8 262.9 L102.9 265.0 L101.0 267.1 L99.1 269.3 L97.2 271.4 L95.4 273.5 L93.5 275.7 L91.6 278.1 L89.7 280.5 L87.8 282.9 L85.9 285.3 L85.8 288.2 L85.6 291.1 L85.9 293.5 L86.1 295.9 L86.4 298.3 L86.6 300.5 L86.9 302.8 L87.1 305.2 L87.4 307.9 L87.6 310.6 L87.9 313.2 L88.1 315.8 L88.4 318.4 L86.3 320.8 L84.2 323.1 L82.2 325.0 L80.1 326.9 L78.0 328.9 L76.0 331.1 L73.9 333.3 L71.9 335.4 L69.8 337.6 L67.8 339.7 L66.5 342.2 L65.2 344.7 L63.9 347.1 L62.6 349.5 L61.7 351.9 L60.8 354.3 L59.9 356.7 L59.0 359.0 L58.1 361.3 L57.2 363.5 L56.3 365.7 L56.8 367.9 L57.2 370.0 L57.7 372.2 L58.2 374.5 L58.7 376.8 L59.5 379.0 L60.3 381.2 L61.2 383.3 L62.0 385.4 L62.8 387.5 L63.6 389.7 L64.5 391.8 L65.3 393.9 L66.1 396.1 L66.9 398.2 L67.7 400.3 L68.6 402.4 L69.4 404.5 L70.3 406.7 L71.2 408.8 L72.0 410.8 L72.9 412.9 L73.8 414.9 L74.7 417.0 L75.6 419.0 L76.4 421.0 L77.3 423.1 L78.2 425.3 L79.1 427.5 L80.0 429.6 L80.8 431.8 L81.7 433.9 L82.6 436.0 L83.5 438.1 L84.4 440.3 L85.2 442.5 L86.1 444.7 L87.0 446.9 L87.9 449.0 L88.8 451.1 L89.6 453.2 L90.5 455.2 L91.4 457.2 L92.3 459.2 L93.2 461.1 L94.0 463.0 L94.2 465.4 L94.3 467.8 L94.4 470.2 L93.8 472.3 L93.3 474.5 L92.8 476.6 L92.2 478.7 L90.7 481.0 L89.2 483.3 L87.7 485.5 L86.5 487.6 L85.4 489.7 L84.2 491.8 L79.8 494.8 L76.5 494.0 L75.4 492.4 L77.7 490.8" stroke="#fff" stroke-width="62.5"/></g></mask></defs><image href="/_blob/21f519457f8b9abc6cfb36f3fdfb6273" width="390" height="560" mask="url(#h7-m-day)"/></svg>
+<img class="pic d" alt="" src="/_blob/a0c3c211fddf7458ed98a67aa9a72bf0" style="top: 44px; height: 560px"><img class="pic n" alt="" src="/_blob/0425601ff37081db6e7a0598b9328b88" style="top: 44px; height: 560px">
+<div class="n" style="position: absolute; left: 0; top: 44px; width: 390px; height: 560px; background: var(--veil)"></div>
+<svg class="pic n" viewBox="0 0 390 560" style="top: 44px; height: 560px" aria-hidden="true"><defs><filter id="h7-f-night" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="13"/></filter><mask id="h7-m-night" maskUnits="userSpaceOnUse" x="0" y="0" width="390" height="560"><g filter="url(#h7-f-night)" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M311.3 91.3 L309.5 91.9 L307.9 94.2 L305.6 96.3 L303.0 96.5 L297.2 97.4 L293.7 98.0 L290.3 98.5 L286.8 99.0 L283.0 100.0 L279.1 100.9 L275.3 101.8 L271.9 102.6 L268.5 103.4 L265.1 104.2 L261.7 104.9 L258.9 105.9 L256.1 106.9 L253.3 108.0 L250.5 109.1 L247.7 110.2 L244.8 111.3 L242.0 112.5 L239.2 113.6 L236.4 114.7 L233.6 115.7 L230.7 116.7 L227.9 117.7 L225.1 118.9 L222.3 120.1 L219.5 121.3 L219.0 123.3 L218.4 125.4 L217.9 127.5 L217.4 129.6 L216.9 131.6 L216.4 133.5 L214.3 135.2 L212.2 137.0 L210.1 138.7 L208.1 140.4 L206.0 142.1 L203.9 144.0 L201.4 145.4 L198.9 146.9 L196.4 148.6 L194.0 150.2 L191.5 151.8 L189.0 153.3 L186.5 154.9 L184.0 156.5 L181.6 158.1 L179.1 159.7 L176.6 161.1 L174.1 162.4 L171.6 163.7 L169.1 165.2 L166.7 166.8 L164.2 168.4 L161.7 170.1 L159.4 171.8 L157.1 173.4 L154.8 175.1 L152.5 176.7 L150.2 178.2 L147.8 179.6 L145.5 180.9 L143.2 182.2 L140.9 183.5 L138.6 185.0 L136.3 186.7 L134.0 188.5 L131.7 190.3 L130.9 193.3 L130.1 196.4 L129.7 199.0 L129.3 201.7 L128.9 204.3 L128.5 206.9 L128.1 209.4 L127.7 211.9 L127.4 214.5 L127.0 217.1 L126.6 219.7 L126.2 222.4 L125.8 224.9 L124.7 227.6 L123.7 230.3 L122.6 233.0 L121.6 235.8 L120.6 238.5 L119.5 241.1 L118.5 243.8 L117.4 246.5 L115.7 249.0 L113.9 251.5 L112.1 253.9 L110.3 256.2 L108.5 258.4 L106.7 260.7 L104.8 262.9 L102.9 265.0 L101.0 267.1 L99.1 269.3 L97.2 271.4 L95.4 273.5 L93.5 275.7 L91.6 278.1 L89.7 280.5 L87.8 282.9 L85.9 285.3 L85.8 288.2 L85.6 291.1 L85.9 293.5 L86.1 295.9 L86.4 298.3 L86.6 300.5 L86.9 302.8 L87.1 305.2 L87.4 307.9 L87.6 310.6 L87.9 313.2 L88.1 315.8 L88.4 318.4 L86.3 320.8 L84.2 323.1 L82.2 325.0 L80.1 326.9 L78.0 328.9 L76.0 331.1 L73.9 333.3 L71.9 335.4 L69.8 337.6 L67.8 339.7 L66.5 342.2 L65.2 344.7 L63.9 347.1 L62.6 349.5 L61.7 351.9 L60.8 354.3 L59.9 356.7 L59.0 359.0 L58.1 361.3 L57.2 363.5 L56.3 365.7 L56.8 367.9 L57.2 370.0 L57.7 372.2 L58.2 374.5 L58.7 376.8 L59.5 379.0 L60.3 381.2 L61.2 383.3 L62.0 385.4 L62.8 387.5 L63.6 389.7 L64.5 391.8 L65.3 393.9 L66.1 396.1 L66.9 398.2 L67.7 400.3 L68.6 402.4 L69.4 404.5 L70.3 406.7 L71.2 408.8 L72.0 410.8 L72.9 412.9 L73.8 414.9 L74.7 417.0 L75.6 419.0 L76.4 421.0 L77.3 423.1 L78.2 425.3 L79.1 427.5 L80.0 429.6 L80.8 431.8 L81.7 433.9 L82.6 436.0 L83.5 438.1 L84.4 440.3 L85.2 442.5 L86.1 444.7 L87.0 446.9 L87.9 449.0 L88.8 451.1 L89.6 453.2 L90.5 455.2 L91.4 457.2 L92.3 459.2 L93.2 461.1 L94.0 463.0 L94.2 465.4 L94.3 467.8 L94.4 470.2 L93.8 472.3 L93.3 474.5 L92.8 476.6 L92.2 478.7 L90.7 481.0 L89.2 483.3 L87.7 485.5 L86.5 487.6 L85.4 489.7 L84.2 491.8 L79.8 494.8 L76.5 494.0 L75.4 492.4 L77.7 490.8" stroke="#fff" stroke-width="62.5"/></g></mask></defs><image href="/_blob/0425601ff37081db6e7a0598b9328b88" width="390" height="560" mask="url(#h7-m-night)"/></svg>
+<img class="pic n" alt="" src="/_blob/c2b5a01e7260a1178083de7e38fa79f4" style="top: 44px; height: 560px">
+<span class="call" style="left: 150px; top: 124px; direction: ltr">Goodaura · Shino<small>2,707 m</small></span>
+<span class="call" style="left: 118px; top: 280px">Steepest part</span>
+<span class="call" style="left: 96px; top: 530px; direction: ltr">Shino<small>2,172 m</small></span>
+<div class="pulse glass"><button aria-label="Back to the whole mountain" style="width: 44px; height: 44px; margin-inline-start: -10px; display: flex; align-items: center; justify-content: center"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4l-6 6 6 6"/></svg></button><span>The whole mountain</span></div>
+<div class="sheet glass"><div class="grab"></div>
+<div style="display: flex; align-items: center; gap: 10px"><span class="bdg">7A</span><h2 style="font-size: 26px; font-weight: 700; flex: 1" dir="ltr">Tatra 2</h2><span class="cap">Blue</span></div>
+<div style="display: flex; justify-content: space-between"><div><span class="num">2.7</span><p class="cap">km</p></div><div><span class="num">536</span><p class="cap">m drop</p></div><div><span class="num">28°</span><p class="cap">steepest</p></div></div>
+<div class="leg"><span><i style="background: #3FA85F"></i>to 15°</span><span><i style="background: #F2C13D"></i>15°–25°</span><span><i style="background: #F08A3C"></i>25°–30°</span><span><i style="background: #DC3B33"></i>30°+</span></div>
+<div style="display: flex; gap: 8px"><button class="pri">The run strip</button><button class="sec">Share</button></div></div>
+</div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"night":{"editor":"boolean","default":true},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+renderVals() {
+return { mode: (this.props.night ?? true) ? 'night' : 'day' };
+}
+}
+</script>
+</body>
+</html>
