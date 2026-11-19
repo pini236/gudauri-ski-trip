@@ -545,6 +545,150 @@
    "h": 1000,
    "title": "איך בונים, ומה זה עולה",
    "page": "mtn"
+  },
+  "K00-Brief.dc.html": {
+   "x": 0,
+   "y": 0,
+   "w": 1280,
+   "h": 2010,
+   "title": "סבב 3: הרעיונות והשאלות",
+   "page": "mtn3"
+  },
+  "K01-Mountain.dc.html": {
+   "x": 0,
+   "y": 2390,
+   "w": 390,
+   "h": 844,
+   "title": "ההר, כמו נוף (יום ולילה)",
+   "page": "mtn3"
+  },
+  "K02-Light.dc.html": {
+   "x": 470,
+   "y": 2390,
+   "w": 1280,
+   "h": 1010,
+   "title": "אותו הר, שש שעות",
+   "page": "mtn3"
+  },
+  "K03-Weather.dc.html": {
+   "x": 1830,
+   "y": 2390,
+   "w": 1280,
+   "h": 1000,
+   "title": "מזג האוויר על ההר",
+   "page": "mtn3"
+  },
+  "K04-Details.dc.html": {
+   "x": 3190,
+   "y": 2390,
+   "w": 1280,
+   "h": 1000,
+   "title": "הפרטים הקטנים",
+   "page": "mtn3"
+  },
+  "K05-Loupe.dc.html": {
+   "x": 0,
+   "y": 3780,
+   "w": 390,
+   "h": 844,
+   "title": "בוחרים: זכוכית מגדלת",
+   "page": "mtn3"
+  },
+  "K06-FromStation.dc.html": {
+   "x": 470,
+   "y": 3780,
+   "w": 390,
+   "h": 844,
+   "title": "בוחרים: מהתחנה",
+   "page": "mtn3"
+  },
+  "K07-Shelf.dc.html": {
+   "x": 940,
+   "y": 3780,
+   "w": 390,
+   "h": 844,
+   "title": "בוחרים: מדף המסלולים",
+   "page": "mtn3"
+  },
+  "K08-Lenses.dc.html": {
+   "x": 1410,
+   "y": 3780,
+   "w": 390,
+   "h": 844,
+   "title": "בוחרים: עדשות (בשמש עכשיו)",
+   "page": "mtn3"
+  },
+  "K09-Moment.dc.html": {
+   "x": 0,
+   "y": 5004,
+   "w": 1280,
+   "h": 1080,
+   "title": "רגע הבחירה, פריים אחרי פריים",
+   "page": "mtn3"
+  },
+  "K10-Run.dc.html": {
+   "x": 1360,
+   "y": 5004,
+   "w": 390,
+   "h": 844,
+   "title": "מסלול נבחר: מה יש עליו",
+   "page": "mtn3"
+  },
+  "K11-Marking.dc.html": {
+   "x": 1830,
+   "y": 5004,
+   "w": 1280,
+   "h": 820,
+   "title": "שלוש דרכים לסמן מסלול",
+   "page": "mtn3"
+  },
+  "K12-Ride.dc.html": {
+   "x": 3190,
+   "y": 5004,
+   "w": 390,
+   "h": 844,
+   "title": "לרדת בסרט",
+   "page": "mtn3"
+  },
+  "K13-Day.dc.html": {
+   "x": 0,
+   "y": 6464,
+   "w": 1280,
+   "h": 1040,
+   "title": "היום של הגולש, רגע אחרי רגע",
+   "page": "mtn3"
+  },
+  "K14-Morning.dc.html": {
+   "x": 1360,
+   "y": 6464,
+   "w": 390,
+   "h": 844,
+   "title": "בוקר על ההר",
+   "page": "mtn3"
+  },
+  "K15-OnTheLift.dc.html": {
+   "x": 1830,
+   "y": 6464,
+   "w": 390,
+   "h": 844,
+   "title": "על הרכבל",
+   "page": "mtn3"
+  },
+  "K16-DayDrawn.dc.html": {
+   "x": 2300,
+   "y": 6464,
+   "w": 390,
+   "h": 844,
+   "title": "ערב: ציור היום",
+   "page": "mtn3"
+  },
+  "K17-Village.dc.html": {
+   "x": 2770,
+   "y": 6464,
+   "w": 390,
+   "h": 844,
+   "title": "הכפר",
+   "page": "mtn3"
   }
  },
  "createdOnFiles": {
@@ -553,7 +697,7 @@
  },
  "designSystems": [],
  "launch": {
-  "page": "mtn",
+  "page": "mtn3",
   "view": "canvas"
  },
  "notes": {
@@ -601,6 +745,51 @@
    "w": 420,
    "x": 0,
    "y": -300
+  },
+  "tK": {
+   "kind": "title1",
+   "maxW": 1600,
+   "page": "mtn3",
+   "w": 520,
+   "x": 0,
+   "text": "סבב 3 · ההר, הבחירה והיום",
+   "y": -300
+  },
+  "tK1": {
+   "kind": "title1",
+   "maxW": 1600,
+   "page": "mtn3",
+   "w": 240,
+   "x": 0,
+   "text": "א · ההר",
+   "y": 2090
+  },
+  "tK2": {
+   "kind": "title1",
+   "maxW": 1600,
+   "page": "mtn3",
+   "w": 420,
+   "x": 0,
+   "text": "ב · בוחרים מסלול",
+   "y": 3480
+  },
+  "tK3": {
+   "kind": "title1",
+   "maxW": 1600,
+   "page": "mtn3",
+   "w": 420,
+   "x": 0,
+   "text": "ג · כשמסלול נבחר",
+   "y": 4704
+  },
+  "tK4": {
+   "kind": "title1",
+   "maxW": 1600,
+   "page": "mtn3",
+   "w": 320,
+   "x": 0,
+   "text": "ד · מחוץ להר",
+   "y": 6164
   }
  },
  "order": [
@@ -671,12 +860,34 @@
   "H08-Model.dc.html",
   "H07-RunEn.dc.html",
   "H09-Views.dc.html",
-  "H10-Build.dc.html"
+  "H10-Build.dc.html",
+  "K00-Brief.dc.html",
+  "K01-Mountain.dc.html",
+  "K02-Light.dc.html",
+  "K03-Weather.dc.html",
+  "K04-Details.dc.html",
+  "K05-Loupe.dc.html",
+  "K06-FromStation.dc.html",
+  "K07-Shelf.dc.html",
+  "K08-Lenses.dc.html",
+  "K09-Moment.dc.html",
+  "K10-Run.dc.html",
+  "K11-Marking.dc.html",
+  "K12-Ride.dc.html",
+  "K13-Day.dc.html",
+  "K14-Morning.dc.html",
+  "K15-OnTheLift.dc.html",
+  "K16-DayDrawn.dc.html",
+  "K17-Village.dc.html"
  ],
  "pages": [
   {
    "id": "intro",
    "name": "פתיחה והמלצה"
+  },
+  {
+   "id": "mtn3",
+   "name": "סבב 3 · ההר, הבחירה והיום"
   },
   {
    "id": "mtn",

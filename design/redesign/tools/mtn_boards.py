@@ -194,7 +194,7 @@ def run_board(fn,title,en,night):
 <div class="pulse glass"><button aria-label="%s" style="width: 44px; height: 44px; margin-inline-start: -10px; display: flex; align-items: center; justify-content: center"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="%s"/></svg></button><span>%s</span></div>
 <div class="sheet glass"><div class="grab"></div>
 <div style="display: flex; align-items: center; gap: 10px"><span class="bdg">7A</span><h2 style="font-size: 26px; font-weight: 700; flex: 1" dir="ltr">Tatra 2</h2><span class="cap">%s</span></div>
-<div style="display: flex; justify-content: space-between"><div><span class="num">2.7</span><p class="cap">%s</p></div><div><span class="num">536</span><p class="cap">%s</p></div><div><span class="num">28°</span><p class="cap">%s</p></div></div>
+<div style="display: flex; justify-content: space-between"><div><span class="num">2.7</span><p class="cap">%s</p></div><div><span class="num">536</span><p class="cap">%s</p></div><div><span class="num">20°</span><p class="cap">%s</p></div></div>
 %s
 <div style="display: flex; gap: 8px"><button class="pri">%s</button><button class="sec">%s</button></div></div>'''%(
  80+Z,t('מ׳','m'),236+Z,t('הקטע התלול','Steepest part'),486+Z,t('מ׳','m'),t('חזרה לכל ההר','Back to the whole mountain'),
@@ -290,7 +290,7 @@ wide('H00-Brief.dc.html','ההר: מה רואים, ואיך','''
 <div class="q"><span class="qn">5</span><span>האור לפי השעה בגודאורי, בארבע תמונות? (כן)</span></div>
 </div>
 </div>
-<p style="font-size: 13.5px; line-height: 1.6; color: #56616D">במסכים: ההר, הקווים, השמות, הגבהים, האורכים והמספרים הרשמיים מהקבצים. מצב הרכבלים, הטמפרטורה והמיקום הם דוגמה. "28°" הוא המספר שהאתר מציג היום; צבעי השיפוע כאן מדגימה של 40 מ׳, ובמימוש יהיה חישוב אחד לשניהם. הצד שממנו מסלול מצטרף ב"סרט הירידה" מחושב מהנתונים, וייבדק מול השטח.</p>
+<p style="font-size: 13.5px; line-height: 1.6; color: #56616D">במסכים: ההר, הקווים, השמות, הגבהים, האורכים והמספרים הרשמיים מהקבצים. מצב הרכבלים, הטמפרטורה והמיקום הם דוגמה. "20°" הוא הקטע התלול לפי הכלל של האתר על הנתונים של היום (תוקן ב-19.11.2026; קודם נכתב כאן 28°, מספר ישן). הצד שממנו מסלול מצטרף ב"סרט הירידה" מחושב מהנתונים, וייבדק מול השטח.</p>
 '''%th(390,844,'south-day','south-all-day'),1280,1800)
 
 wide('H09-Views.dc.html','ההר: שלושה מבטים, שלוש רמות קירוב','''
