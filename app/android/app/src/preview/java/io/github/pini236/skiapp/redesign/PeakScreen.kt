@@ -25,6 +25,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.absoluteOffset
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -79,6 +80,9 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
@@ -135,7 +139,13 @@ private class Glass(val night: Boolean) {
     val ink2 = if (night) Color(0xFFA9B8CC) else Color(0xFF40556A)
     val line = if (night) Color(0x33FFFFFF) else Color(0x1F0E2233)
     val acc = if (night) ACCENT_NIGHT else ACCENT_DAY
+    /** the sheet: the board's glass blurs what is behind (18); Compose cannot blur a backdrop, so it is nearly opaque */
+    val sheet = if (night) Color(0xEB0F1828) else Color(0xEBFFFFFF)
 }
+
+/** Plex's thin numbers (the sheet, the designer's 4): the variable Plex Sans at 300. */
+private val PlexLight = androidx.compose.ui.text.font.FontFamily(
+    androidx.compose.ui.text.font.Font(R.font.plex_sans, FontWeight.Light, variationSettings = androidx.compose.ui.text.font.FontVariation.Settings(androidx.compose.ui.text.font.FontVariation.weight(300))))
 
 /** The pictures, decoded when needed (1170 px wide, ~12 MB each in memory): the architect's ceiling is two, plus the close-up. */
 private class Pictures(private val context: android.content.Context) {
@@ -198,6 +208,9 @@ fun PeakScreen(mode: DayNight.Mode, haptics: Haptics, onLeave: () -> Unit) {
     var sheet by remember { mutableStateOf(false) }
     var touch by remember { mutableStateOf<Offset?>(null) }
     val ring = remember { Animatable(1f) }
+    val lit = remember { Animatable(0f) }          // the chosen run's light: full at once, not with the shade (the designer's 2)
+    var startPlace by remember { mutableStateOf<Place?>(null) }  // a run chosen in the middle of another's moment goes on from here
+    var sheetMeasured by remember { mutableStateOf(0f) }        // the sheet's real height, once seen
     val run = key?.let { d.runs[it] }
     val near = run?.near == true && key in d.zoom.sel
 
@@ -212,7 +225,7 @@ fun PeakScreen(mode: DayNight.Mode, haptics: Haptics, onLeave: () -> Unit) {
     BoxWithConstraints(Modifier.fillMaxSize().background(Color(0xFF9DB6D8))) {
         val W = constraints.maxWidth.toFloat(); val H = constraints.maxHeight.toFloat()
         val dp = density.density
-        val sheetPx = SHEET_DP.value * dp
+        val sheetPx = if (sheetMeasured > 0f) sheetMeasured else SHEET_DP.value * dp
         // the fit (the handoff): k = max(width / 390, height / 844), centred
         val kFit = PeakGeo.fit(W, H, d.hero)
         fun free(zz: Float = z, cc: Offset = c): Place = PeakGeo.free(W, H, d.hero, zz, cc)
@@ -232,25 +245,34 @@ fun PeakScreen(mode: DayNight.Mode, haptics: Haptics, onLeave: () -> Unit) {
         }
         val freeNow = free()
         val target = if (near) heroInZoom else free(1f, Offset(d.hero.w / 2, d.hero.h / 2)).let { it.copy(y = it.y - lift) }
-        val hero = freeNow.lerp(target, close.value)
+        val hero = (startPlace ?: freeNow).lerp(target, close.value)
         val zoomIn = if (near) ((close.value - .5f) / .5f).coerceIn(0f, 1f) else 0f
         // the lines grow gently when the free view comes closer
-        val wfHero = z.pow(-.4f) + (1f - z.pow(-.4f)) * close.value
+        // going into the close-up the far picture grows 1.95 times: its lines keep their width on the screen (the designer's 6)
+        val wfHero = (z.pow(-.4f) + (1f - z.pow(-.4f)) * close.value) * (if (near) freeNow.k / hero.k else 1f)
 
         fun choose(k: String) {
             val again = key != null
+            val nearNow = near
+            val nearNew = d.runs[k]?.near == true && k in d.zoom.sel
+            // a run chosen in the middle of another's moment: from where the picture is now (the designer's 9); between two
+            // runs of the close-up nothing moves
+            if (again && nearNow != nearNew) startPlace = hero
             key = k; chosenOnce = true; sheet = false
             Qa.log("redesign chosen $k")
             haptics.tick(.5f)
             camJob?.cancel()
             scope.launch {
+                launch { lit.snapTo(1f) }
                 if (reduced) {
-                    moment.snapTo(2000f); close.snapTo(1f); dim.animateTo(1f, tween(200)); sheet = true; return@launch
+                    // one soft change of 200 ms, without coming closer (the designer's 8)
+                    moment.snapTo(2000f); close.snapTo(0f); dim.animateTo(1f, tween(200)); sheet = true; return@launch
                 }
                 moment.snapTo(0f)
-                if (again) { close.snapTo(0f) }
+                if (again && nearNow != nearNew) close.snapTo(0f)
                 launch { dim.animateTo(1f, tween(if (again) 200 else REVEAL.toInt(), easing = LinearEasing)) }
-                launch { delay(300); haptics.tick(.6f); close.animateTo(1f, tween(600, easing = Ease)) }
+                // the second touch of the phone only when the close-up comes in (the designer's 7)
+                launch { delay(300); if (nearNew) haptics.tick(.6f); close.animateTo(1f, tween(600, easing = Ease)) }
                 launch { delay(900); sheet = true }
                 moment.animateTo(2000f, tween(2000, easing = LinearEasing))
             }
@@ -260,8 +282,10 @@ fun PeakScreen(mode: DayNight.Mode, haptics: Haptics, onLeave: () -> Unit) {
             Qa.log("redesign cleared")
             sheet = false
             scope.launch {
+                startPlace = null
                 val t = if (reduced) 1 else 200
-                launch { close.animateTo(0f, tween(if (reduced) 1 else 320, easing = Ease)) }
+                launch { close.animateTo(0f, tween(t, easing = Ease)) }
+                launch { lit.animateTo(0f, tween(t)) }
                 dim.animateTo(0f, tween(t)); key = null; moment.snapTo(0f)
             }
             // back to the whole mountain
@@ -340,10 +364,13 @@ fun PeakScreen(mode: DayNight.Mode, haptics: Haptics, onLeave: () -> Unit) {
             val p0 = prev
             if (p0 != null && fade.value < 1f) pic(d.hero.images[p0.name], hero, d.hero.w, d.hero.h, 1f)
             pic(heroFile, hero, d.hero.w, d.hero.h, if (p0 != null) fade.value else 1f)
-            if (zoomIn < 1f) layer(d, d.hero, hero, 1f - zoomIn, cur, night, wfHero, key, dm, moment.value, near = false, closeUp = near, measurer, unitM, nf)
+            // the live layer changes its light in the middle of the pictures' 600 ms (the designer's 10)
+            val lightNow = if (p0 != null && fade.value < .5f) p0 else cur
+            val lv = lit.value
+            if (zoomIn < 1f) layer(d, d.hero, hero, 1f - zoomIn, lightNow, night, wfHero, key, dm, lv, moment.value, near = false, closeUp = near, measurer, unitM, nf)
             if (zoomIn > 0f) {
                 pic(d.zoom.images[cur.name], zoomPlace, d.zoom.w, d.zoom.h, zoomIn)
-                layer(d, d.zoom, zoomPlace, zoomIn, cur, night, 1f, key, dm, moment.value, near = true, closeUp = true, measurer, unitM, nf)
+                layer(d, d.zoom, zoomPlace, zoomIn, lightNow, night, 1f, key, dm, lv, moment.value, near = true, closeUp = true, measurer, unitM, nf)
             }
             // the ring from the finger
             val tp = touch
@@ -368,20 +395,24 @@ fun PeakScreen(mode: DayNight.Mode, haptics: Haptics, onLeave: () -> Unit) {
         // ---- the top: the light of the hour, the way back to the app
         Column(Modifier.fillMaxWidth().statusBarsPadding().padding(horizontal = 12.dp, vertical = 8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                Pill(g, Modifier.weight(1f).clickable { scrubOpen = !scrubOpen; if (!scrubOpen) scrub = null; haptics.tick(.3f) }) {
-                    Row(Modifier.padding(horizontal = 14.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(9.dp)) {
-                        Box(Modifier.size(8.dp).clip(CircleShape).background(if (night) Color(0xFFFFD873) else Color(0xFFF2B33D)))
-                        val sv = scrub
-                        val time = PeakLight.clock(sv ?: PeakLight.localHour(now))
-                        Text(if (sv != null || scrubOpen) stringResource(R.string.poc_peak_light_at, time) else stringResource(R.string.poc_peak_light_now, time),
-                            fontFamily = Plex, fontSize = 14.sp, color = g.ink, maxLines = 1)
+                // the hour bar: a tool of the test build, not the product's design (the designer): hidden while a run is
+                // chosen, and closed it is only the dot and the time
+                AnimatedVisibility(key == null, enter = fadeIn(), exit = fadeOut()) {
+                    Pill(g, Modifier.clickable { scrubOpen = !scrubOpen; if (!scrubOpen) scrub = null; haptics.tick(.3f) }) {
+                        Row(Modifier.padding(horizontal = 14.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(9.dp)) {
+                            Box(Modifier.size(8.dp).clip(CircleShape).background(if (night) Color(0xFFFFD873) else Color(0xFFF2B33D)))
+                            val sv = scrub
+                            val time = PeakLight.clock(sv ?: PeakLight.localHour(now))
+                            Text(if (scrubOpen) stringResource(R.string.poc_peak_light_at, time) else time, fontFamily = Plex, fontSize = 14.sp, color = g.ink, maxLines = 1)
+                        }
                     }
                 }
+                Spacer(Modifier.weight(1f))
                 Pill(g, Modifier.clickable { haptics.tick(.3f); onLeave() }) {
                     Text(stringResource(R.string.poc_peak_leave), Modifier.padding(horizontal = 16.dp), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = g.ink)
                 }
             }
-            AnimatedVisibility(scrubOpen, enter = fadeIn() + slideInVertically { -it / 3 }, exit = fadeOut() + slideOutVertically { -it / 3 }) {
+            AnimatedVisibility(scrubOpen && key == null, enter = fadeIn() + slideInVertically { -it / 3 }, exit = fadeOut() + slideOutVertically { -it / 3 }) {
                 Pill(g, Modifier.fillMaxWidth(), h = 52) {
                     // the hours of the light on the January day the pictures were drawn for
                     Slider(value = scrub ?: (PeakLight.localHour(now).coerceIn(7f, 23.5f)), onValueChange = { scrub = it }, valueRange = 7f..23.5f,
@@ -403,7 +434,7 @@ fun PeakScreen(mode: DayNight.Mode, haptics: Haptics, onLeave: () -> Unit) {
             exit = if (reduced) fadeOut(tween(200)) else slideOutVertically(tween(200)) { it } + fadeOut(tween(200))) {
             var last by remember { mutableStateOf(run) }
             if (run != null) last = run
-            last?.let { RunSheet(it, d, g, onClose = { clear() }) }
+            last?.let { Box(Modifier.onSizeChanged { if (it.height > 0) sheetMeasured = it.height.toFloat() }) { RunSheet(it, d, g, onClose = { clear() }) } }
         }
     }
 }
@@ -415,7 +446,7 @@ private fun dots(zf: Float) = PathEffect.dashPathEffect(floatArrayOf(1f * zf, 5f
 
 private fun DrawScope.layer(
     d: PeakData, v: PeakData.View, pl: Place, a: Float, light: PeakData.Light, night: Boolean, wf: Float,
-    key: String?, dm: Float, ms: Float, near: Boolean, closeUp: Boolean, measurer: TextMeasurer, unitM: String, nf: NumberFormat,
+    key: String?, dm: Float, lit: Float, ms: Float, near: Boolean, closeUp: Boolean, measurer: TextMeasurer, unitM: String, nf: NumberFormat,
 ) {
     if (a <= 0f) return
     val pal = d.pal.getValue(if (night) "night" else "day")
@@ -447,7 +478,9 @@ private fun DrawScope.layer(
         }
         if (dm > 0f) {
             // 2 (chosen). the corridor: shade over everything but a soft band ~250 m wide around the run
-            if (sel != null) corridor(sel, v.s, if (night) Color(0x9E020612) else Color(0x80364E80), a * dm)
+            val toCorridor = ((ms - REVEAL) / 200f).coerceIn(0f, 1f)
+            if (toCorridor < 1f) drawRect(if (night) Color(0xFF020612) else Color(0xFF364E80), Offset(-20000f, -20000f), Size(40000f, 40000f), alpha = .42f * a * dm * (1f - toCorridor))
+            if (sel != null && toCorridor > 0f) corridor(sel, v.s, if (night) Color(0x9E020612) else Color(0x80364E80), a * dm * toCorridor)
             for (p in v.pistes) if (p.key != key) drawPath(p.path, pal.run(p.color), alpha = a * dm * (if (p.named) .55f else .35f), style = st(1.5f * zr, if (p.dashed) dots(zr) else null))
         }
         // 4. the lifts (dim with a chosen run: no cabins, no shadows of cabins)
@@ -472,7 +505,7 @@ private fun DrawScope.layer(
             }
         }
         // 5. the chosen run
-        if (sel != null && dm > 0f) chosen(d, sel, a * dm, ms, night, near, closeUp, v.s)
+        if (sel != null && lit > 0f) chosen(d, sel, a * lit, ms, night, near, closeUp, v.s)
     }
     // 5 (screen). names on the far view, only with no run chosen; the km numbers on a chosen run by day
     if (normal > .01f && v.labels.isNotEmpty()) labels(v, pl, night, normal, measurer, unitM, nf)
@@ -599,7 +632,7 @@ private fun DrawScope.kmNumbers(m: PeakData.Seg, pl: Place, a: Float, measurer: 
             val c = pl.on(Offset(q.x + 13f * dd.y, q.y - 13f * dd.x + 3.4f))
             val t = measurer.measure(("%.1f".format(b / 1000f)).trimEnd('0').trimEnd('.'), style)
             val tl = Offset(c.x - t.size.width / 2f, c.y - t.size.height * .72f)
-            drawText(t, topLeft = tl, alpha = a, shadow = Shadow(Color(0xCC0A1932), Offset.Zero, 2.4f * sc), drawStyle = Stroke(2.4f * sc))
+            drawText(t, color = Color(0xCC0A1932), topLeft = tl, alpha = a, drawStyle = Stroke(2.4f * sc, join = StrokeJoin.Round))
             drawText(t, topLeft = tl, alpha = a)
         }
         b += 500f
@@ -643,7 +676,7 @@ private fun RunSheet(r: PeakData.Run, d: PeakData, g: Glass, onClose: () -> Unit
     val nf = remember { NumberFormat.getIntegerInstance() }
     Column(Modifier.fillMaxWidth().pointerInput(Unit) { detectTapGestures { } }
         .shadow(30.dp, RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp), ambientColor = Color(0x2E0A192D), spotColor = Color(0x2E0A192D))
-        .clip(RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp)).background(g.bg).navigationBarsPadding()
+        .clip(RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp)).background(g.sheet).navigationBarsPadding()
         .padding(start = 18.dp, end = 18.dp, top = 10.dp, bottom = 20.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
         Box(Modifier.align(Alignment.CenterHorizontally).width(38.dp).height(5.dp).clip(CircleShape).background(g.line))
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -683,7 +716,10 @@ private fun RunSheet(r: PeakData.Run, d: PeakData, g: Glass, onClose: () -> Unit
 @Composable
 private fun Num(v: String, cap: String, g: Glass) {
     Column(verticalArrangement = Arrangement.spacedBy(0.dp)) {
-        Text(v, fontFamily = Plex, fontSize = 30.sp, lineHeight = 34.sp, color = g.ink, maxLines = 1)
+        // the number thin (Plex 300), its unit as the text (the designer's 4)
+        Text(buildAnnotatedString {
+            for (ch in v) if (ch.isDigit() || ch == '.' || ch == ',' || ch == '°') withStyle(SpanStyle(fontFamily = PlexLight)) { append(ch) } else append(ch)
+        }, fontFamily = Plex, fontSize = 34.sp, lineHeight = 38.sp, color = g.ink, maxLines = 1)
         Text(cap, fontFamily = Plex, fontSize = 12.5.sp, color = g.ink2)
     }
 }
