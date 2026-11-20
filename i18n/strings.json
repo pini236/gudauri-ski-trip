@@ -19349,7 +19349,10 @@
    "ka": "ჩაწერის დიაგნოსტიკური ჟურნალის გაგზავნა",
    "where": "app/android (test build only): the about page",
    "note": "Test build only. A short log of how the ski day's recording behaved on this phone (permission and location state, whether the service started, readings counted, mode switches, the screen's frame figures). No position, no place, no name",
-   "check": ["ru","ka"]
+   "check": [
+    "ru",
+    "ka"
+   ]
   },
   "tester.diag_empty": {
    "he": "עוד אין יומן אבחון",
@@ -19358,7 +19361,10 @@
    "ka": "დიაგნოსტიკური ჟურნალი ჯერ არ არის",
    "where": "app/android (test build only): shown when the log is empty",
    "note": "Test build only",
-   "check": ["ru","ka"]
+   "check": [
+    "ru",
+    "ka"
+   ]
   },
   "tester.export": {
    "he": "שליחת היומן הגולמי של היום לפיני",
@@ -20063,6 +20069,138 @@
    "ka": "{age} წლამდე უფასოა",
    "where": "app/android, app/ios",
    "note": "Round 40 (ski pass screen): small line in the child tab",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "poc.peak_badge": {
+   "he": "ההר החדש · ניסוי",
+   "en": "The new mountain · preview",
+   "ru": "Новая гора · тест",
+   "ka": "ახალი მთა · ტესტი",
+   "where": "app/android (test build only)",
+   "note": "The redesign POC (decisions 83, 84): the round 3 mountain as the first screen, test build only (src/preview). badge at the top of the screen",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "poc.peak_leave": {
+   "he": "לאפליקציה",
+   "en": "To the app",
+   "ru": "В приложение",
+   "ka": "აპლიკაციაში",
+   "where": "app/android (test build only)",
+   "note": "The redesign POC (decisions 83, 84): the round 3 mountain as the first screen, test build only (src/preview). button that closes the new mountain and shows the current app",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "poc.peak_enter": {
+   "he": "ההר החדש",
+   "en": "The new mountain",
+   "ru": "Новая гора",
+   "ka": "ახალი მთა",
+   "where": "app/android (test build only)",
+   "note": "The redesign POC (decisions 83, 84): the round 3 mountain as the first screen, test build only (src/preview). floating button on the current home that opens the new mountain again",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "poc.peak_light_now": {
+   "he": "{time} · האור של עכשיו",
+   "en": "{time} · the light now",
+   "ru": "{time} · свет сейчас",
+   "ka": "{time} · ახლანდელი სინათლე",
+   "where": "app/android (test build only)",
+   "note": "The redesign POC (decisions 83, 84): the round 3 mountain as the first screen, test build only (src/preview). {time} = Gudauri clock HH:MM; the picture shows the mountain at this hour",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "poc.peak_light_at": {
+   "he": "{time} · גוררים לשנות שעה",
+   "en": "{time} · drag to change the hour",
+   "ru": "{time} · потяните, чтобы сменить час",
+   "ka": "{time} · გადაათრიეთ საათის შესაცვლელად",
+   "where": "app/android (test build only)",
+   "note": "The redesign POC (decisions 83, 84): the round 3 mountain as the first screen, test build only (src/preview). {time} = HH:MM, while the user scrubs the light of the day",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "poc.peak_hint": {
+   "he": "נגיעה במסלול בוחרת אותו",
+   "en": "Tap a run to choose it",
+   "ru": "Коснитесь трассы, чтобы выбрать её",
+   "ka": "შეეხეთ ტრასას მის ასარჩევად",
+   "where": "app/android (test build only)",
+   "note": "The redesign POC (decisions 83, 84): the round 3 mountain as the first screen, test build only (src/preview). hint that fades after the first choice",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "poc.peak_from_to": {
+   "he": "מראש {from} עד {to}",
+   "en": "From the top of {from} to {to}",
+   "ru": "С вершины {from} до {to}",
+   "ka": "{from}-ის თავიდან {to}-მდე",
+   "where": "app/android (test build only)",
+   "note": "The redesign POC (decisions 83, 84): the round 3 mountain as the first screen, test build only (src/preview). {from}, {to} = lift names (Latin)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "poc.peak_km": {
+   "he": "ק״מ",
+   "en": "km",
+   "ru": "км",
+   "ka": "კმ",
+   "where": "app/android (test build only)",
+   "note": "The redesign POC (decisions 83, 84): the round 3 mountain as the first screen, test build only (src/preview). unit under a big number: run length",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "poc.peak_drop": {
+   "he": "מ׳ ירידה",
+   "en": "m drop",
+   "ru": "м перепад",
+   "ka": "მ ვარდნა",
+   "where": "app/android (test build only)",
+   "note": "The redesign POC (decisions 83, 84): the round 3 mountain as the first screen, test build only (src/preview). unit under a big number: vertical drop",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "poc.peak_steep": {
+   "he": "הקטע התלול",
+   "en": "steepest part",
+   "ru": "самый крутой участок",
+   "ka": "ყველაზე ციცაბო მონაკვეთი",
+   "where": "app/android (test build only)",
+   "note": "The redesign POC (decisions 83, 84): the round 3 mountain as the first screen, test build only (src/preview). label under a big number in degrees",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "poc.peak_close": {
+   "he": "סגירה",
+   "en": "Close",
+   "ru": "Закрыть",
+   "ka": "დახურვა",
+   "where": "app/android (test build only)",
+   "note": "The redesign POC (decisions 83, 84): the round 3 mountain as the first screen, test build only (src/preview). accessibility label of the X on the run sheet",
    "check": [
     "ru",
     "ka"

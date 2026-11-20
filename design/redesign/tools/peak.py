@@ -80,8 +80,8 @@ def grid_lines(V,g,W,nd,PAD,lines,width_m):
         if len(xy)>1:dr.line(xy,fill=255,width=max(1,int((wm or width_m)/g)),joint='curve')
     return np.asarray(im,dtype=np.float32)/255
 
-def render(v,light='morning',wx=None,ss=SS):
-    """wx: None | 'fresh' | 'wind' | 'cloud' | 'storm'"""
+def render(v,light='morning',wx=None,ss=SS,out=2):
+    """wx: None | 'fresh' | 'wind' | 'cloud' | 'storm'; out: the picture's scale over the view's 1x size (the app takes 3)"""
     V=setup(v);L=LIGHTS['flat' if wx=='storm' else light];k=2*ss;Wo,H=V['W']*k,V['H']*k;S=V['S']*k;g=1/S
     PAD=40;W=Wo+2*PAD;nd=int((V['near']+V['far'])/g);u=(np.arange(W)-W/2+.5)*g;d=(np.arange(nd)+.5)*g
     U,Dd=np.meshgrid(u.astype(np.float32),d.astype(np.float32))
@@ -203,7 +203,7 @@ def render(v,light='morning',wx=None,ss=SS):
     img=np.clip(img,0,1);img=img*img*(3-2*img)*0.55+img*0.45
     pim=Image.fromarray((img*255).astype(np.uint8));usm=np.asarray(pim.filter(ImageFilter.UnsharpMask(radius=k*1.1,percent=60,threshold=0)),dtype=np.float32)/255;img=usm
     img+=(np.random.default_rng(1).random((H,W,1)).astype(np.float32)-.5)*0.012
-    im=Image.fromarray((np.clip(img,0,1)*255).astype(np.uint8)).resize((V['W']*2,V['H']*2),Image.LANCZOS)
+    im=Image.fromarray((np.clip(img,0,1)*255).astype(np.uint8)).resize((V['W']*out,V['H']*out),Image.LANCZOS)
     V['g'],V['k']=g,k;V['dep']=dep[::2,::2].copy();V['kd']=k//2
     return V,im
 def save(V,v):

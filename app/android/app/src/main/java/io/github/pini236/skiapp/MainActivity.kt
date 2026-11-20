@@ -1014,6 +1014,8 @@ class MainActivity : ComponentActivity() {
                         }
                     }
                 }
+                // the redesign POC (decisions 83, 84): in the test build the app opens on the new mountain; nothing in the store build
+                with(io.github.pini236.skiapp.redesign.Redesign) { Host(top == Route.Home, dnMode, haptics) }
             }
           }
         }
