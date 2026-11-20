@@ -1,12 +1,14 @@
 package io.github.pini236.skiapp.redesign
 
 import android.graphics.BitmapFactory
+import android.graphics.BlurMaskFilter
+import android.graphics.PorterDuff
+import android.graphics.PorterDuffXfermode
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.CubicBezierEasing
 import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -23,12 +25,11 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.absoluteOffset
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
-import androidx.compose.foundation.layout.absoluteOffset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -43,7 +44,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
@@ -51,46 +51,48 @@ import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
+import androidx.compose.ui.graphics.asAndroidPath
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.drawscope.withTransform
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
-import androidx.compose.ui.unit.LayoutDirection
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.TextMeasurer
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextDirection
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.pini236.skiapp.R
@@ -99,64 +101,58 @@ import io.github.pini236.skiapp.home.DayNight
 import io.github.pini236.skiapp.ui.Motion
 import io.github.pini236.skiapp.ui.Plex
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.text.NumberFormat
 import kotlin.math.hypot
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.pow
 
 /**
- * The redesign POC (decisions 83, 84): round 3's mountain as the first screen. The picture of the hour in Gudauri,
- * cross-faded (K01, K02); over it, live, every run and lift where it really is (peak.json); a touch on a run is the
- * moment of choosing (K09): a ring from the finger, the rest of the mountain falls into shade, the light runs down the
- * run from top to bottom in the colours of its slope, the view comes closer, the sign is pinned at the top and the
- * sheet rises with three numbers (K10). The chosen run is a line of light by day and beads of light by night (K11,
- * Pini's choice). Test build only.
+ * The redesign POC (decisions 83, 84, 85): round 3's mountain as the first screen, by the product designer's handoff
+ * (design/handoff/2026-11-20-redesign-poc/README.md; the values below are its values). The picture of the sun's light
+ * now, and over it, live, the small real things, the runs, the lifts and the names. A touch on a run is the moment of
+ * choosing (K09): a ring from the finger; the rest of the mountain into shade and the light running down the run in
+ * its slope's colours (0 to 600 ms); for the twelve runs on the Tatra side the view comes into the close-up picture
+ * (300 to 900); the sign is pinned; the sheet rises (900). Then the chosen run: a line of light by day, beads of light
+ * by night (K11 a and c). Test build only.
  */
 
 private val Ease = CubicBezierEasing(.2f, 0f, 0f, 1f)
-private const val REVEAL_MS = 600f
-private const val SHEET_MS = 900L
+private const val REVEAL = 600f
+private val ACCENT_DAY = Color(0xFF6B3FD4)
+private val ACCENT_NIGHT = Color(0xFFB79CFF)
+private val SHEET_DP = 236.dp
 
-private class Ui(val night: Boolean) {
-    val glass = if (night) Color(0xE8101A2C) else Color(0xEBFFFFFF)
+private class Glass(val night: Boolean) {
+    val bg = if (night) Color(0xD70F1828) else Color(0xDBFFFFFF)
     val ink = if (night) Color(0xFFEAF0F7) else Color(0xFF0E2233)
     val ink2 = if (night) Color(0xFFA9B8CC) else Color(0xFF40556A)
     val line = if (night) Color(0x33FFFFFF) else Color(0x1F0E2233)
-    val acc = if (night) Color(0xFFB79CFF) else Color(0xFF6B3FD4)
-    val wire = if (night) Color(0xFFC9D5E2) else Color(0xFF22303F)
-    val station = if (night) Color(0xFF0A1120) else Color.White
-    val case = if (night) Color(0xFF081020) else Color.White
-    val cabin = if (night) Color(0xFFFFD873) else Color(0xFFF6C445)
-    val veil = if (night) Color(0x9E020612) else Color(0x80364E80)
-    fun run(c: String) = when (c) {
-        "green" -> if (night) Color(0xFF4FD893) else Color(0xFF178A4A)
-        "blue" -> if (night) Color(0xFF6CB4FF) else Color(0xFF1B6FDB)
-        "red" -> if (night) Color(0xFFFF776A) else Color(0xFFD8362C)
-        else -> if (night) Color(0xFFEEF2F6) else Color(0xFF14171B)
-    }
-    /** the plate of a run sign: the official colour of the day palette, always on white text */
-    fun plate(c: String) = when (c) { "green" -> Color(0xFF178A4A); "blue" -> Color(0xFF1B6FDB); "red" -> Color(0xFFD8362C); else -> Color(0xFF14171B) }
+    val acc = if (night) ACCENT_NIGHT else ACCENT_DAY
 }
 
-/** The pictures, decoded on demand (each is 1170 x 2532, ~12 MB in memory): the last four are kept. */
+/** The pictures, decoded when needed (1170 px wide, ~12 MB each in memory): the architect's ceiling is two, plus the close-up. */
 private class Pictures(private val context: android.content.Context) {
     private val cache = LinkedHashMap<String, ImageBitmap>(8, .75f, true)
-    /** while the hour is dragged all seven stay (about 80 MB); otherwise three */
-    @Volatile var limit = 3
     @Synchronized fun peek(file: String): ImageBitmap? = cache[file]
     fun get(file: String): ImageBitmap {
         peek(file)?.let { return it }
         val bmp = context.assets.open("redesign/$file").use { BitmapFactory.decodeStream(it) }.also { it.prepareToDraw() }.asImageBitmap()
-        synchronized(this) { cache[file] = bmp; while (cache.size > limit) cache.remove(cache.keys.first()) }
+        synchronized(this) { cache[file] = bmp; while (cache.size > 3) cache.remove(cache.keys.first()) }
         return bmp
     }
 }
 
-/** Where the picture is on the screen: the view's centre (in the picture's 390 x 844 units) and the zoom over "fills the screen". */
-private data class Cam(val cx: Float, val cy: Float, val z: Float)
+/** A picture on the screen: screen = point · k + (x, y), in pixels. */
+private data class Place(val k: Float, val x: Float, val y: Float) {
+    fun on(p: Offset) = Offset(p.x * k + x, p.y * k + y)
+    fun back(s: Offset) = Offset((s.x - x) / k, (s.y - y) / k)
+    fun lerp(o: Place, t: Float) = Place(k + (o.k - k) * t, x + (o.x - x) * t, y + (o.y - y) * t)
+}
 
 @Composable
 fun PeakScreen(mode: DayNight.Mode, haptics: Haptics, onLeave: () -> Unit) {
@@ -164,473 +160,518 @@ fun PeakScreen(mode: DayNight.Mode, haptics: Haptics, onLeave: () -> Unit) {
     val density = LocalDensity.current
     val reduced = remember { Motion.reduced(context) }
     val data by produceState<PeakData?>(null) { value = withContext(Dispatchers.IO) { PeakData.load(context) } }
-    val pics = remember { Pictures(context) }
-    var now by remember { mutableLongStateOf(System.currentTimeMillis()) }
-    LaunchedEffect(Unit) { while (true) { delay(30_000); now = System.currentTimeMillis() } }
-    var scrub by remember { mutableStateOf<Float?>(null) }
-    var scrubOpen by remember { mutableStateOf(false) }
-
     val d = data
     if (d == null) { Box(Modifier.fillMaxSize().background(Color(0xFF9DB6D8))); return }
-    val hour = scrub ?: PeakLight.hourFor(now, mode)
-    val blend = remember(d, hour) { PeakLight.blend(d.hours, hour) }
-    val ui = remember(blend.night) { Ui(blend.night) }
-
-    // the two pictures of the hour; until a new one is decoded the last one stays
-    val shown = remember { mutableStateMapOf<String, ImageBitmap>() }
-    LaunchedEffect(blend.a.file, blend.b.file) {
-        val want = listOf(blend.a.file, blend.b.file).distinct()
-        for (f in want) if (shown[f] == null) shown[f] = pics.peek(f) ?: withContext(Dispatchers.IO) { pics.get(f) }
-        shown.keys.filter { it !in want }.forEach { shown.remove(it) }
-    }
-    // a drag through the day: every hour ready
-    LaunchedEffect(scrubOpen) {
-        pics.limit = if (scrubOpen) 8 else 3
-        if (scrubOpen) withContext(Dispatchers.IO) { d.hours.forEach { pics.get(it.file) } }
-    }
-
-    // ---- the view: pinch to come closer, drag to move; a chosen run brings the view to itself
-    var cam by remember { mutableStateOf(Cam(d.w / 2, d.h / 2, 1f)) }
+    val pics = remember { Pictures(context) }
     val scope = rememberCoroutineScope()
-    var camJob by remember { mutableStateOf<kotlinx.coroutines.Job?>(null) }
 
-    // ---- the chosen run and the clock of its moment (K09), in milliseconds since the touch
-    var sel by remember { mutableStateOf<PeakData.Piste?>(null) }
-    val moment = remember { Animatable(0f) }
-    val dim = remember { Animatable(0f) }
+    // ---- the light: by the sun now (or the hour dragged on the slider)
+    var now by remember { mutableLongStateOf(System.currentTimeMillis()) }
+    LaunchedEffect(Unit) { while (true) { delay(30_000); now = System.currentTimeMillis() } }
+    var scrubOpen by remember { mutableStateOf(false) }
+    var scrub by remember { mutableStateOf<Float?>(null) }
+    val want = scrub?.let { PeakLight.pick(d.lights, PeakLight.janAt(it), DayNight.Mode.AUTO) } ?: PeakLight.pick(d.lights, now, mode)
+    var cur by remember { mutableStateOf(want) }
+    var prev by remember { mutableStateOf<PeakData.Light?>(null) }
+    val fade = remember { Animatable(1f) }
+    LaunchedEffect(want.name) {
+        if (want.name == cur.name) return@LaunchedEffect
+        // the new picture first, then the soft change
+        withContext(Dispatchers.IO) { pics.get(d.hero.images.getValue(want.name)) }
+        prev = cur; cur = want
+        fade.snapTo(0f); fade.animateTo(1f, tween(if (reduced) 1 else 600, easing = LinearEasing)); prev = null
+    }
+    val night = if (fade.value < .5f && prev != null) prev!!.night else cur.night
+    val g = remember(night) { Glass(night) }
+
+    val img = remember { mutableStateMapOf<String, ImageBitmap>() }
+    suspend fun need(file: String) { if (img[file] == null) img[file] = pics.peek(file) ?: withContext(Dispatchers.IO) { pics.get(file) } }
+
+    // ---- the free view (no run chosen): pinch to come closer, drag to move, double tap
+    var z by remember { mutableStateOf(1f) }
+    var c by remember { mutableStateOf(Offset(d.hero.w / 2, d.hero.h / 2)) }
+    var camJob by remember { mutableStateOf<Job?>(null) }
+
+    // ---- the chosen run and its moment
+    var key by remember { mutableStateOf<String?>(null) }
+    var chosenOnce by remember { mutableStateOf(false) }
+    val moment = remember { Animatable(0f) }      // ms since the touch, 0..2000
+    val dim = remember { Animatable(0f) }         // the shade over the rest of the mountain
+    val close = remember { Animatable(0f) }       // into the close-up picture (Tatra side) or the lift above the sheet
     var sheet by remember { mutableStateOf(false) }
     var touch by remember { mutableStateOf<Offset?>(null) }
     val ring = remember { Animatable(1f) }
-    var chosenOnce by remember { mutableStateOf(false) }
-    // the cabins move on the open lifts; the clock of the frames
-    var frameT by remember { mutableFloatStateOf(0f) }
-    LaunchedEffect(reduced) { if (!reduced) { val t0 = withFrameNanos { it }; while (true) withFrameNanos { frameT = (it - t0) / 1e9f } } }
+    val run = key?.let { d.runs[it] }
+    val near = run?.near == true && key in d.zoom.sel
+
+    LaunchedEffect(cur.name, near, key) {
+        need(d.hero.images.getValue(cur.name))
+        prev?.let { need(d.hero.images.getValue(it.name)) }
+        if (near) need(d.zoom.images.getValue(cur.name))
+        val keep = setOfNotNull(d.hero.images[cur.name], prev?.let { d.hero.images[it.name] }, if (near) d.zoom.images[cur.name] else null)
+        img.keys.filter { it !in keep }.forEach { img.remove(it) }
+    }
 
     BoxWithConstraints(Modifier.fillMaxSize().background(Color(0xFF9DB6D8))) {
         val W = constraints.maxWidth.toFloat(); val H = constraints.maxHeight.toFloat()
-        val s0 = max(W / d.w, H / d.h)
-        fun clamp(c: Cam): Cam {
-            val z = c.z.coerceIn(1f, 3.2f); val k = s0 * z
+        val dp = density.density
+        val sheetPx = SHEET_DP.value * dp
+        // the fit (the handoff): k = max(width / 390, height / 844), centred
+        val kFit = max(W / d.hero.w, H / d.hero.h)
+        fun free(zz: Float = z, cc: Offset = c): Place {
+            val k = kFit * zz
             val hx = W / (2 * k); val hy = H / (2 * k)
-            return Cam(c.cx.coerceIn(min(hx, d.w / 2), max(d.w - hx, d.w / 2)), c.cy.coerceIn(min(hy, d.h / 2), max(d.h - hy, d.h / 2)), z)
+            val cx = cc.x.coerceIn(min(hx, d.hero.w / 2), max(d.hero.w - hx, d.hero.w / 2)); val cy = cc.y.coerceIn(min(hy, d.hero.h / 2), max(d.hero.h - hy, d.hero.h / 2))
+            return Place(k, W / 2 - cx * k, H / 2 - cy * k)
         }
-        fun k() = s0 * cam.z
-        fun toScreen(p: Offset) = Offset((p.x - cam.cx) * k() + W / 2, (p.y - cam.cy) * k() + H / 2)
-        fun toPic(s: Offset) = Offset((s.x - W / 2) / k() + cam.cx, (s.y - H / 2) / k() + cam.cy)
-        fun flyTo(to: Cam, ms: Int, after: Long = 0) {
-            camJob?.cancel()
-            val from = cam; val target = clamp(to)
-            camJob = scope.launch {
-                if (after > 0) delay(after)
-                if (reduced) { cam = target; return@launch }
-                val a = Animatable(0f)
-                a.animateTo(1f, tween(ms, easing = Ease)) {
-                    val t = value; cam = Cam(from.cx + (target.cx - from.cx) * t, from.cy + (target.cy - from.cy) * t, from.z + (target.z - from.z) * t)
-                }
+        // the close-up: k = max(width / 390, (height − sheet + 12) / 560), at the top
+        val kz = max(W / d.zoom.w, (H - sheetPx + 12 * dp) / d.zoom.h)
+        val zoomPlace = Place(kz, (W - d.zoom.w * kz) / 2, 0f)
+        val fh = d.zoom.fromHero!!
+        // the whole mountain inside the close-up's frame (x_zoom = x_hero · k + tx)
+        val heroInZoom = Place(fh.first * kz, fh.second * kz + zoomPlace.x, fh.third * kz + zoomPlace.y)
+        // a run without a close-up: the mountain rises until the run is above the sheet (at most the sheet's height − 12)
+        val lift = remember(key, W, H) {
+            val s = key?.let { d.hero.sel[it] }
+            if (s == null || near) 0f else {
+                val b = s.bounds(); val f = free(1f, Offset(d.hero.w / 2, d.hero.h / 2))
+                (f.on(Offset(0f, b.bottom)).y - (H - sheetPx - 12 * dp)).coerceIn(0f, sheetPx - 12 * dp)
             }
         }
-        val sheetPx = with(density) { 300.dp.toPx() }
-        val topPx = with(density) { 150.dp.toPx() }
-        val sidePx = with(density) { 36.dp.toPx() }
-        fun choose(p: PeakData.Piste) {
-            val line = p.line ?: return
-            val again = sel != null
-            sel = p; chosenOnce = true; sheet = false
+        val freeNow = free()
+        val target = if (near) heroInZoom else free(1f, Offset(d.hero.w / 2, d.hero.h / 2)).let { it.copy(y = it.y - lift) }
+        val hero = freeNow.lerp(target, close.value)
+        val zoomIn = if (near) ((close.value - .5f) / .5f).coerceIn(0f, 1f) else 0f
+        // the lines grow gently when the free view comes closer
+        val wfHero = z.pow(-.4f) + (1f - z.pow(-.4f)) * close.value
+
+        fun choose(k: String) {
+            val again = key != null
+            key = k; chosenOnce = true; sheet = false
             haptics.tick(.5f)
+            camJob?.cancel()
             scope.launch {
+                if (reduced) {
+                    moment.snapTo(2000f); close.snapTo(1f); dim.animateTo(1f, tween(200)); sheet = true; return@launch
+                }
                 moment.snapTo(0f)
-                if (reduced) { dim.snapTo(1f); moment.snapTo(2000f); sheet = true; return@launch }
-                launch { if (!again) dim.animateTo(1f, tween(REVEAL_MS.toInt(), easing = LinearEasing)) else dim.snapTo(1f) }
-                launch { delay(320); haptics.click(.6f) }
-                launch { delay(SHEET_MS); sheet = true }
+                if (again) { close.snapTo(0f) }
+                launch { dim.animateTo(1f, tween(if (again) 200 else REVEAL.toInt(), easing = LinearEasing)) }
+                launch { delay(300); haptics.tick(.6f); close.animateTo(1f, tween(600, easing = Ease)) }
+                launch { delay(900); sheet = true }
                 moment.animateTo(2000f, tween(2000, easing = LinearEasing))
             }
-            // the view comes to the run, above the sheet
-            val b = line.bounds()
-            val availW = W - 2 * sidePx; val availH = H - topPx - sheetPx - 24
-            val z = min(availW / (b.width.coerceAtLeast(20f) * s0), availH / (b.height.coerceAtLeast(20f) * s0)).coerceIn(1f, 2.6f)
-            val k = s0 * z
-            val ax = W / 2; val ay = topPx + availH / 2
-            flyTo(Cam(b.center.x - (ax - W / 2) / k, b.center.y - (ay - H / 2) / k, z), 620, if (again) 0 else 300)
         }
         fun clear() {
-            if (sel == null) return
+            if (key == null) return
             sheet = false
-            scope.launch { dim.animateTo(0f, tween(if (reduced) 120 else 260)); sel = null; moment.snapTo(0f) }
-            flyTo(Cam(d.w / 2, d.h / 2, 1f), if (reduced) 0 else 520)
+            scope.launch {
+                val t = if (reduced) 1 else 200
+                launch { close.animateTo(0f, tween(if (reduced) 1 else 320, easing = Ease)) }
+                dim.animateTo(0f, tween(t)); key = null; moment.snapTo(0f)
+            }
+            // back to the whole mountain
+            z = 1f; c = Offset(d.hero.w / 2, d.hero.h / 2)
         }
-        androidx.activity.compose.BackHandler(enabled = sel != null) { clear() }
-        fun hit(s: Offset): PeakData.Piste? {
-            val r = with(density) { 26.dp.toPx() }; var best: PeakData.Piste? = null; var bd = r
-            val p = toPic(s); val kk = k()
-            for (pi in d.pistes) {
-                if (!pi.choosable) continue
-                for (c in pi.chunks) {
-                    var i = 0
-                    while (i < c.size) { val dd = hypot(c[i] - p.x, c[i + 1] - p.y) * kk; if (dd < bd) { bd = dd; best = pi }; i += 2 }
-                }
+        BackHandler(enabled = key != null) { clear() }
+        fun hit(s: Offset): String? {
+            val inZoom = zoomIn > .5f
+            val v = if (inZoom) d.zoom else d.hero; val pl = if (inZoom) zoomPlace else hero
+            val p = pl.back(s); var best: String? = null; var bd = 22 * dp
+            for (pi in v.pistes) {
+                if (!pi.named || pi.key !in d.runs || pi.key !in v.sel) continue
+                for (a in pi.l) { var i = 0; while (i + 1 < a.size) { val dd = hypot(a[i] - p.x, a[i + 1] - p.y) * pl.k; if (dd < bd) { bd = dd; best = pi.key }; i += 2 } }
             }
             return best
         }
 
         val measurer = rememberTextMeasurer()
-        val labelStyle = remember { TextStyle(fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 13.sp, color = Color.White,
-            shadow = Shadow(Color(0x99081A33), Offset(0f, 1f), 6f)) }
-        val smallStyle = remember { labelStyle.copy(fontWeight = FontWeight.Normal, fontSize = 11.sp) }
-        val kmStyle = remember { TextStyle(fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 10.sp, color = Color.White, shadow = Shadow(Color(0xE60A1932), Offset.Zero, 5f)) }
-        val unitM = stringResource(R.string.common_unit_m, "{n}")
+        val nf = remember { NumberFormat.getIntegerInstance() }
+        val unitM = stringResource(R.string.common_unit_m, "\u0000")
 
         Canvas(Modifier.fillMaxSize()
             .pointerInput(W, H) {
                 detectTransformGestures { centroid, pan, zoom, _ ->
+                    if (key != null) return@detectTransformGestures
                     camJob?.cancel()
-                    val before = toPic(centroid)
-                    val z = (cam.z * zoom).coerceIn(1f, 3.2f); val kk = s0 * z
-                    // the point under the fingers stays under them
-                    cam = clamp(Cam(before.x - (centroid.x - W / 2) / kk - pan.x / kk, before.y - (centroid.y - H / 2) / kk - pan.y / kk, z))
+                    val f0 = free(); val before = f0.back(centroid)
+                    val nz = (z * zoom).coerceIn(1f, 2.6f); val k = kFit * nz
+                    z = nz; c = Offset(before.x - (centroid.x - W / 2) / k - pan.x / k, before.y - (centroid.y - H / 2) / k - pan.y / k)
+                    val f = free(); c = Offset((W / 2 - f.x) / f.k, (H / 2 - f.y) / f.k)
                 }
             }
             .pointerInput(W, H) {
                 detectTapGestures(onTap = { s ->
-                    val p = hit(s)
-                    if (p != null) {
-                        touch = s; scope.launch { ring.snapTo(0f); ring.animateTo(1f, tween(420, easing = Ease)) }
-                        if (p !== sel) choose(p)
+                    val k = hit(s)
+                    if (k != null) {
+                        touch = s; scope.launch { ring.snapTo(0f); ring.animateTo(1f, tween(if (reduced) 1 else 300)) }
+                        if (k != key) choose(k)
                     } else clear()
-                }, onDoubleTap = { s -> if (sel == null) { val p = toPic(s); flyTo(Cam(p.x, p.y, if (cam.z > 1.6f) 1f else 2.2f), 420) } })
+                }, onDoubleTap = { s ->
+                    if (key != null) return@detectTapGestures
+                    val p = free().back(s); val from = z; val to = if (z > 1.5f) 1f else 2.2f; val c0 = c
+                    camJob?.cancel(); camJob = scope.launch {
+                        val a = Animatable(0f); a.animateTo(1f, tween(if (reduced) 1 else 380, easing = Ease)) {
+                            z = from + (to - from) * value; c = Offset(c0.x + (p.x - c0.x) * value, c0.y + (p.y - c0.y) * value)
+                        }
+                    }
+                })
             }
         ) {
-            val kk = k()
-            // the pictures of the hour
-            val left = W / 2 - cam.cx * kk; val top = H / 2 - cam.cy * kk
-            val dst = IntSize((d.w * kk).toInt() + 1, (d.h * kk).toInt() + 1); val at = IntOffset(left.toInt(), top.toInt())
-            val a = shown[blend.a.file] ?: shown.values.firstOrNull(); val b = shown[blend.b.file]
-            if (a != null) drawImage(a, dstOffset = at, dstSize = dst, filterQuality = FilterQuality.High)
-            if (b != null && b !== a && blend.f > 0f) drawImage(b, dstOffset = at, dstSize = dst, alpha = blend.f, filterQuality = FilterQuality.High)
             val dm = dim.value
-            withTransform({ translate(left, top); scale(kk, kk, Offset.Zero) }) {
-                val wf = cam.z.pow(-.38f)
-                lifts(d, ui, blend, wf, frameT, liftsAlpha = 1f - .55f * dm, reduced = reduced)
-                runs(d, ui, blend.night, wf, sel, dm)
-                val s = sel
-                if (s?.line != null && dm > 0f) {
-                    corridor(s, ui, dm)
-                    chosen(d, s, ui, blend.night, moment.value, wf, dm)
-                }
+            val heroFile = d.hero.images.getValue(cur.name)
+            // 1. the pictures: the previous light under the new one while it fades in
+            fun pic(file: String?, pl: Place, w: Float, h: Float, a: Float) {
+                val im = file?.let { img[it] } ?: return
+                drawImage(im, dstOffset = IntOffset(pl.x.toInt(), pl.y.toInt()), dstSize = IntSize((w * pl.k).toInt() + 1, (h * pl.k).toInt() + 1), alpha = a, filterQuality = FilterQuality.High)
             }
-            // labels on the mountain: the peaks and the village, fading while a run is chosen
-            val la = 1f - dm
-            if (la > .02f) {
-                for (p in d.peaks) {
-                    val q = toScreen(Offset(p.x, p.y))
-                    val n = measurer.measure(p.name, labelStyle); val e = measurer.measure(unitM.replace("{n}", "%,d".format(p.ele)), smallStyle)
-                    drawText(n, topLeft = Offset(q.x - n.size.width / 2, q.y - n.size.height - e.size.height), alpha = la)
-                    drawText(e, topLeft = Offset(q.x - e.size.width / 2, q.y - e.size.height), alpha = la * .9f)
-                }
-                for (p in d.places) { val q = toScreen(Offset(p.x, p.y)); val n = measurer.measure(p.name, labelStyle); drawText(n, topLeft = Offset(q.x - n.size.width / 2, q.y - n.size.height / 2), alpha = la) }
-            }
-            // the km beads' numbers on a chosen run, by day, once the light has passed them
-            val s = sel; val line = s?.line
-            if (line != null && !blend.night && dm > .5f) {
-                val head = line.length * (moment.value / REVEAL_MS).coerceIn(0f, 1f)
-                var m = 500f
-                while (m < line.length) {
-                    if (m <= head && line.vis[line.index(m)]) {
-                        val q = toScreen(line.at(m)); val dir = line.dir(m)
-                        val t = measurer.measure(("%.1f".format(m / 1000f)).trimEnd('0').trimEnd('.'), kmStyle)
-                        drawText(t, topLeft = Offset(q.x + dir.y * 15 * density.density - t.size.width / 2, q.y - dir.x * 15 * density.density - t.size.height / 2), alpha = dm)
-                    }
-                    m += 500f
-                }
+            val p0 = prev
+            if (p0 != null && fade.value < 1f) pic(d.hero.images[p0.name], hero, d.hero.w, d.hero.h, 1f)
+            pic(heroFile, hero, d.hero.w, d.hero.h, if (p0 != null) fade.value else 1f)
+            if (zoomIn < 1f) layer(d, d.hero, hero, 1f - zoomIn, cur, night, wfHero, key, dm, moment.value, near = false, closeUp = near, measurer, unitM, nf)
+            if (zoomIn > 0f) {
+                pic(d.zoom.images[cur.name], zoomPlace, d.zoom.w, d.zoom.h, zoomIn)
+                layer(d, d.zoom, zoomPlace, zoomIn, cur, night, 1f, key, dm, moment.value, near = true, closeUp = true, measurer, unitM, nf)
             }
             // the ring from the finger
             val tp = touch
             if (tp != null && ring.value < 1f) {
-                val r = ring.value
-                drawCircle(Color.White, radius = (14 + 18 * r) * density.density, center = tp, alpha = .9f * (1 - r), style = Stroke(2 * density.density))
-                drawCircle(Color.White, radius = 12 * density.density, center = tp, alpha = .5f * (1 - r))
+                val r = ring.value; val sc = 1f + .35f * r
+                drawCircle(Color.White, 14 * dp * sc, tp, alpha = .55f * (1 - r))
+                drawCircle(Color.White, 26 * dp * sc, tp, alpha = .9f * (1 - r), style = Stroke(2 * dp))
             }
         }
 
-        // ---- the sign pinned at the top of the chosen run
-        val s = sel; val line = s?.line
-        if (s != null && line != null) {
-            val pa = ((moment.value - 450f) / 300f).coerceIn(0f, 1f)
+        // ---- the sign, pinned at the top of the chosen run (from step 3)
+        val s = key?.let { (if (zoomIn > .5f) d.zoom else d.hero).sel[it] }
+        if (run != null && s != null) {
+            val pa = ((moment.value - 300f) / 300f).coerceIn(0f, 1f) * dim.value
             if (pa > 0f) {
-                val q = toScreen(Offset(line.x[0], line.y[0]))
-                Plate(s, ui, Modifier.absoluteOffset { IntOffset(q.x.toInt(), q.y.toInt()) }, pa)
+                val m = s.mainSeg; val pl = if (zoomIn > .5f) zoomPlace else hero
+                val q = pl.on(Offset(m.x[0], m.y[0] - 4))
+                Plate(run, Modifier.absoluteOffset { IntOffset(q.x.toInt(), q.y.toInt()) }, pa)
             }
         }
 
-        // ---- the top: what this is, the light of the hour, the way back
+        // ---- the top: the light of the hour, the way back to the app
         Column(Modifier.fillMaxWidth().statusBarsPadding().padding(horizontal = 12.dp, vertical = 8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                Glass(ui, Modifier.weight(1f).height(44.dp).clickable {
-                    scrubOpen = !scrubOpen; if (!scrubOpen) scrub = null; haptics.tick(.3f)
-                }) {
+                Pill(g, Modifier.weight(1f).clickable { scrubOpen = !scrubOpen; if (!scrubOpen) scrub = null; haptics.tick(.3f) }) {
                     Row(Modifier.padding(horizontal = 14.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(9.dp)) {
-                        Box(Modifier.size(8.dp).clip(CircleShape).background(if (blend.night) Color(0xFFFFD873) else Color(0xFFF2B33D)))
-                        val time = if (scrub != null) PeakLight.clock(scrub!!) else PeakLight.clock(PeakLight.localHour(now).toFloat())
-                        Text(if (scrubOpen) stringResource(R.string.poc_peak_light_at, time) else stringResource(R.string.poc_peak_light_now, time),
-                            fontFamily = Plex, fontSize = 14.sp, color = ui.ink, maxLines = 1)
+                        Box(Modifier.size(8.dp).clip(CircleShape).background(if (night) Color(0xFFFFD873) else Color(0xFFF2B33D)))
+                        val sv = scrub
+                        val time = PeakLight.clock(sv ?: PeakLight.localHour(now))
+                        Text(if (sv != null || scrubOpen) stringResource(R.string.poc_peak_light_at, time) else stringResource(R.string.poc_peak_light_now, time),
+                            fontFamily = Plex, fontSize = 14.sp, color = g.ink, maxLines = 1)
                     }
                 }
-                Glass(ui, Modifier.height(44.dp).clickable { haptics.tick(.3f); onLeave() }) {
-                    Text(stringResource(R.string.poc_peak_leave), Modifier.padding(horizontal = 16.dp), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = ui.ink)
+                Pill(g, Modifier.clickable { haptics.tick(.3f); onLeave() }) {
+                    Text(stringResource(R.string.poc_peak_leave), Modifier.padding(horizontal = 16.dp), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = g.ink)
                 }
             }
             AnimatedVisibility(scrubOpen, enter = fadeIn() + slideInVertically { -it / 3 }, exit = fadeOut() + slideOutVertically { -it / 3 }) {
-                Glass(ui, Modifier.fillMaxWidth().height(52.dp)) {
-                    Slider(value = scrub ?: hour, onValueChange = { scrub = it }, valueRange = 7f..23.5f,
+                Pill(g, Modifier.fillMaxWidth(), h = 52) {
+                    // the hours of the light on the January day the pictures were drawn for
+                    Slider(value = scrub ?: (PeakLight.localHour(now).coerceIn(7f, 23.5f)), onValueChange = { scrub = it }, valueRange = 7f..23.5f,
                         modifier = Modifier.padding(horizontal = 14.dp),
-                        colors = SliderDefaults.colors(thumbColor = ui.acc, activeTrackColor = ui.acc, inactiveTrackColor = ui.line))
+                        colors = SliderDefaults.colors(thumbColor = g.acc, activeTrackColor = g.acc, inactiveTrackColor = g.line))
                 }
             }
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(stringResource(R.string.poc_peak_badge), Modifier.clip(RoundedCornerShape(11.dp)).background(Color(0x66081A33)).padding(horizontal = 10.dp, vertical = 3.dp),
-                    fontFamily = Plex, fontSize = 11.5.sp, color = Color.White)
-            }
+            Text(stringResource(R.string.poc_peak_badge), Modifier.clip(RoundedCornerShape(11.dp)).background(Color(0x66081A33)).padding(horizontal = 10.dp, vertical = 3.dp),
+                fontFamily = Plex, fontSize = 11.5.sp, color = Color.White)
         }
 
-        // ---- the hint, until the first choice
         AnimatedVisibility(!chosenOnce, Modifier.align(Alignment.BottomCenter).navigationBarsPadding().padding(bottom = 22.dp), enter = fadeIn(), exit = fadeOut()) {
-            Glass(ui, Modifier.height(48.dp)) {
-                Text(stringResource(R.string.poc_peak_hint), Modifier.padding(horizontal = 20.dp), fontFamily = Plex, fontSize = 15.sp, color = ui.ink)
-            }
+            Pill(g, h = 48) { Text(stringResource(R.string.poc_peak_hint), Modifier.padding(horizontal = 20.dp), fontFamily = Plex, fontSize = 15.sp, color = g.ink) }
         }
 
-        // ---- the sheet (K10): the sign, three numbers, the slope legend
-        AnimatedVisibility(sheet && s != null, Modifier.align(Alignment.BottomCenter),
-            enter = if (reduced) fadeIn(tween(150)) else slideInVertically(spring(dampingRatio = .86f, stiffness = Spring.StiffnessMediumLow)) { it } + fadeIn(tween(160)),
-            exit = slideOutVertically(tween(220)) { it } + fadeOut(tween(180))) {
-            var last by remember { mutableStateOf(s) }
-            if (s != null) last = s
-            last?.let { RunSheet(it, d, ui, onClose = { clear() }) }
+        // ---- step 4: the sheet (K10)
+        AnimatedVisibility(sheet && run != null, Modifier.align(Alignment.BottomCenter),
+            enter = if (reduced) fadeIn(tween(200)) else slideInVertically(tween(250, easing = Ease)) { it } + fadeIn(tween(150)),
+            exit = if (reduced) fadeOut(tween(200)) else slideOutVertically(tween(200)) { it } + fadeOut(tween(200))) {
+            var last by remember { mutableStateOf(run) }
+            if (run != null) last = run
+            last?.let { RunSheet(it, d, g, onClose = { clear() }) }
         }
     }
 }
 
-@Composable
-private fun Glass(ui: Ui, modifier: Modifier = Modifier, content: @Composable () -> Unit) {
-    Box(modifier.shadow(10.dp, RoundedCornerShape(22.dp), clip = false, ambientColor = Color(0x33081A33), spotColor = Color(0x33081A33))
-        .clip(RoundedCornerShape(22.dp)).background(ui.glass).border(1.dp, ui.line, RoundedCornerShape(22.dp)),
-        contentAlignment = Alignment.Center) { content() }
-}
-
-@Composable
-private fun Sign(p: PeakData.Piste, ui: Ui, big: Boolean) {
-    val h: Dp = if (big) 30.dp else 22.dp
-    Box(Modifier.height(h).widthIn(min = if (big) 40.dp else 28.dp).clip(RoundedCornerShape(if (big) 7.dp else 5.dp)).background(ui.plate(p.color))
-        .border(1.5.dp, Color(0xE6FFFFFF), RoundedCornerShape(if (big) 7.dp else 5.dp)).padding(horizontal = 6.dp), contentAlignment = Alignment.Center) {
-        Text(p.ref.ifBlank { " " }, fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = if (big) 17.sp else 12.sp, color = Color.White,
-            style = TextStyle(textDirection = TextDirection.Ltr))
-    }
-}
-
-@Composable
-private fun Plate(p: PeakData.Piste, ui: Ui, modifier: Modifier, alpha: Float) {
-    // anchored by its stem's foot at the top of the run (translate(-86%, -100%) on the canvas)
-    CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) { Box(modifier.width(0.dp).height(0.dp)) {
-        Column(Modifier.absoluteOffset(x = (-150).dp, y = (-42).dp).width(170.dp).graphicsLayer(alpha = alpha, translationY = (1 - alpha) * 14f), horizontalAlignment = Alignment.End) {
-            Row(Modifier.height(26.dp).shadow(6.dp, RoundedCornerShape(7.dp)).clip(RoundedCornerShape(7.dp)).background(ui.plate(p.color))
-                .border(1.5.dp, Color.White, RoundedCornerShape(7.dp)).padding(horizontal = 9.dp), verticalAlignment = Alignment.CenterVertically) {
-                Text((if (p.ref.isNotBlank()) p.ref + " · " else "") + p.name, fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 13.sp, color = Color.White,
-                    style = TextStyle(textDirection = TextDirection.Ltr))
-            }
-            Box(Modifier.padding(end = 18.dp).width(2.dp).height(14.dp).background(Color.White))
-        }
-    } }
-}
-
-@Composable
-private fun RunSheet(p: PeakData.Piste, d: PeakData, ui: Ui, onClose: () -> Unit) {
-    val colour = stringResource(when (p.color) { "green" -> R.string.common_color_green; "blue" -> R.string.common_color_blue; "red" -> R.string.common_color_red; else -> R.string.common_color_black })
-    val level = stringResource(when (p.color) { "green" -> R.string.map_difficulty_beginner; "blue" -> R.string.map_difficulty_easy; "red" -> R.string.map_difficulty_intermediate; else -> R.string.map_difficulty_hard })
-    val closeLabel = stringResource(R.string.poc_peak_close)
-    Column(Modifier.fillMaxWidth().pointerInput(Unit) { detectTapGestures { } }
-        .shadow(18.dp, RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp), ambientColor = Color(0x55081A33), spotColor = Color(0x55081A33))
-        .clip(RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp)).background(ui.glass).navigationBarsPadding()
-        .padding(start = 18.dp, end = 18.dp, top = 10.dp, bottom = 18.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
-        Box(Modifier.align(Alignment.CenterHorizontally).width(38.dp).height(5.dp).clip(CircleShape).background(ui.line))
-        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            Sign(p, ui, true)
-            Column(Modifier.weight(1f)) {
-                Text(p.name, fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 22.sp, color = ui.ink, style = TextStyle(textDirection = TextDirection.Ltr))
-                val where = if (p.from.isNotEmpty() && p.to.isNotEmpty()) " · " + stringResource(R.string.poc_peak_from_to, "⁨${p.from.first()}⁩", "⁨${p.to.first()}⁩") else ""
-                Text("$colour · $level$where", fontFamily = Plex, fontSize = 13.5.sp, color = ui.ink2, lineHeight = 18.sp)
-            }
-            Box(Modifier.size(44.dp).clip(CircleShape).clickable(onClick = onClose).semantics { contentDescription = closeLabel }, contentAlignment = Alignment.Center) {
-                Canvas(Modifier.size(14.dp)) {
-                    drawLine(ui.ink2, Offset.Zero, Offset(size.width, size.height), 2.dp.toPx(), StrokeCap.Round)
-                    drawLine(ui.ink2, Offset(size.width, 0f), Offset(0f, size.height), 2.dp.toPx(), StrokeCap.Round)
-                }
-            }
-        }
-        Row(horizontalArrangement = Arrangement.spacedBy(26.dp)) {
-            Num("%.1f".format(p.len / 1000f), stringResource(R.string.poc_peak_km), ui)
-            Num("%d".format(p.drop), stringResource(R.string.poc_peak_drop), ui)
-            Num("${p.steep}°", stringResource(R.string.poc_peak_steep), ui)
-        }
-        // the slope legend: the run is painted in these four colours
-        Row(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
-            val labels = listOf("≤15°", "15–25°", "25–30°", ">30°")
-            d.slope.forEachIndexed { i, (_, c) ->
-                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(5.dp)) {
-                    Box(Modifier.width(14.dp).height(5.dp).clip(CircleShape).background(Color(c)))
-                    Text(labels[i], fontFamily = Plex, fontSize = 12.sp, color = ui.ink2, style = TextStyle(textDirection = TextDirection.Ltr))
-                }
-            }
-        }
-        Spacer(Modifier.height(2.dp))
-    }
-}
-
-@Composable
-private fun Num(v: String, cap: String, ui: Ui) {
-    Column(verticalArrangement = Arrangement.spacedBy(1.dp)) {
-        Text(v, fontFamily = Plex, fontSize = 32.sp, lineHeight = 34.sp, color = ui.ink, style = TextStyle(textDirection = TextDirection.Ltr))
-        Text(cap, fontFamily = Plex, fontSize = 12.5.sp, color = ui.ink2)
-    }
-}
-
-// ------------------------------------------------------------------ the live layer, in the picture's 390 x 844 units
+// ------------------------------------------------------------------ the live layer of one view, in its points
 
 private fun st(w: Float, effect: PathEffect? = null) = Stroke(width = w, cap = StrokeCap.Round, join = StrokeJoin.Round, pathEffect = effect)
+private fun dots(zf: Float) = PathEffect.dashPathEffect(floatArrayOf(1f * zf, 5f * zf))
 
-private fun DrawScope.runs(d: PeakData, ui: Ui, night: Boolean, wf: Float, sel: PeakData.Piste?, dm: Float) {
-    val line = 1f - dm
-    // the one lit run glows at night (Pirveli)
-    if (night) for (p in d.pistes) if (p.lit) { drawPath(p.path, Color(0xFFFFD08A), alpha = .2f * line, style = st(16f * wf)); drawPath(p.path, Color(0xFFFFE2B0), alpha = .3f * line, style = st(8f * wf)) }
-    if (line > 0f) {
-        for (p in d.pistes) if (p.named && p.kind != "ski-way") drawPath(p.path, ui.case, alpha = .92f * line, style = st(4.6f * wf))
-        for (p in d.pistes) {
-            val w = (if (p.named) 2.7f else 1.5f) * wf
-            drawPath(p.path, ui.run(p.color), alpha = line, style = st(w, if (p.dashed) PathEffect.dashPathEffect(floatArrayOf(.01f, 5f * wf)) else null))
+private fun DrawScope.layer(
+    d: PeakData, v: PeakData.View, pl: Place, a: Float, light: PeakData.Light, night: Boolean, wf: Float,
+    key: String?, dm: Float, ms: Float, near: Boolean, closeUp: Boolean, measurer: TextMeasurer, unitM: String, nf: NumberFormat,
+) {
+    if (a <= 0f) return
+    val pal = d.pal.getValue(if (night) "night" else "day")
+    val zr = v.zfRuns * wf; val zl = v.zfLifts * wf
+    val sh = if (!light.night) v.shadow[light.name] else null
+    val sel = key?.let { v.sel[it] }
+    val normal = a * (1f - dm)
+    withTransform({ translate(pl.x, pl.y); scale(pl.k, pl.k, Offset.Zero) }) {
+        // 2. the small real things
+        val ops = v.details[if (night) "night" else "day"].orEmpty()
+        val bsh = v.bshadow[light.name]
+        for (op in ops) when (op.k) {
+            'l' -> op.path?.let { drawPath(it, op.stroke ?: Color.Gray, alpha = op.o * a, style = st(op.w)) }
+            'p' -> op.path?.let { p -> op.fill?.let { drawPath(p, it, alpha = op.o * a, style = Fill) }; if (op.stroke != null && op.w > 0f) drawPath(p, op.stroke, alpha = op.o * a, style = st(op.w)) }
+            'c' -> drawCircle(op.fill ?: Color.White, op.r, Offset(op.x, op.y), alpha = op.o * a)
+            's' -> if (bsh != null && op.i in bsh.indices) drawPath(bsh[op.i], op.fill ?: pal.sh, alpha = op.o * a, style = Fill)
         }
-    }
-    // with a chosen run, the others become thin ghosts in their colour, so it stays clear what joins what
-    if (dm > 0f) for (p in d.pistes) if (p !== sel) {
-        drawPath(p.path, ui.run(p.color), alpha = dm * (if (p.named) .6f else .38f), style = st(1.5f * wf, if (p.dashed) PathEffect.dashPathEffect(floatArrayOf(.01f, 5f * wf)) else null))
-    }
-}
-
-private fun DrawScope.lifts(d: PeakData, ui: Ui, blend: PeakLight.Blend, wf: Float, t: Float, liftsAlpha: Float, reduced: Boolean) {
-    val hg = 11f
-    for (l in d.lifts) {
-        // the cable's shadow on the snow, where the sun puts it
-        if (!blend.night) withTransform({ translate(blend.dx * hg, blend.dy * hg) }) {
-            drawPath(l.ground, Color(0xFF1B2E55), alpha = .16f * liftsAlpha, style = st(.8f * wf))
-        }
-        drawPath(l.wire, ui.wire, alpha = liftsAlpha, style = st(1f * wf))
-        val n = l.x.size; val step = 14
-        var i = step
-        while (i < n - 3) {
-            if (l.vis[i]) {
-                drawLine(ui.wire, Offset(l.gx[i], l.gy[i]), Offset(l.x[i], l.y[i]), 1.15f * wf, alpha = liftsAlpha)
-                drawLine(ui.wire, Offset(l.x[i] - 1.6f * wf, l.y[i]), Offset(l.x[i] + 1.6f * wf, l.y[i]), 1.15f * wf, alpha = liftsAlpha)
+        // 3. the runs: a lit run's glow at night, the cases, the lines; with a chosen run, the others as ghosts
+        if (normal > 0f) {
+            if (night) for (p in v.pistes) if (p.lit) {
+                drawPath(p.path, Color(0xFFFFD08A), alpha = .2f * normal, style = st(16f))
+                drawPath(p.path, Color(0xFFFFE2B0), alpha = .3f * normal, style = st(8f))
             }
-            i += step
-        }
-        // the cabins: they move slowly up the cable (the open lifts; the status is not wired into the POC)
-        if (liftsAlpha > .6f) {
-            val gap = 8f; val phase = if (reduced) 0f else (t * 1.1f) % gap
-            var c = step / 2f + phase
-            while (c < n - 2) {
-                val j = c.toInt(); val f = c - j
-                if (j + 1 < n && l.vis[j] && l.vis[j + 1]) {
-                    val x = l.x[j] + (l.x[j + 1] - l.x[j]) * f; val y = l.y[j] + (l.y[j + 1] - l.y[j]) * f
-                    val ch = (if (l.gondola) 2.6f else 1.7f) * wf
-                    drawRoundRect(ui.cabin, Offset(x - 1.3f * wf, y + .4f * wf), Size(2.6f * wf, ch), androidx.compose.ui.geometry.CornerRadius(.7f * wf))
-                }
-                c += gap
+            for (p in v.pistes) if (p.named && p.kind != "ski-way") drawPath(p.path, pal.case, alpha = .92f * normal, style = st(4.6f * zr))
+            for (p in v.pistes) {
+                val w = (if (p.named) 2.7f else 1.5f) * zr
+                drawPath(p.path, pal.run(p.color), alpha = normal, style = st(w, if (p.dashed) dots(zr) else null))
             }
         }
-        for ((x, y, v) in l.ends) if (v) {
-            val r = Rect(x - 3.4f * wf, y - 4.2f * wf, x + 3.4f * wf, y + .8f * wf)
-            drawRoundRect(ui.station, r.topLeft, r.size, androidx.compose.ui.geometry.CornerRadius(1.4f * wf), alpha = liftsAlpha)
-            drawRoundRect(ui.wire, r.topLeft, r.size, androidx.compose.ui.geometry.CornerRadius(1.4f * wf), alpha = liftsAlpha, style = Stroke(1.2f * wf))
+        if (dm > 0f) {
+            // 2 (chosen). the corridor: shade over everything but a soft band ~250 m wide around the run
+            if (sel != null) corridor(sel, v.s, if (night) Color(0x9E020612) else Color(0x80364E80), a * dm)
+            for (p in v.pistes) if (p.key != key) drawPath(p.path, pal.run(p.color), alpha = a * dm * (if (p.named) .55f else .35f), style = st(1.5f * zr, if (p.dashed) dots(zr) else null))
         }
+        // 4. the lifts (dim with a chosen run: no cabins, no shadows of cabins)
+        val la = a * (1f - .6f * dm)
+        for (l in v.lifts) {
+            if (sh != null && normal > 0f) withTransform({ translate(sh.x * .11f, sh.y * .11f) }) { drawPath(l.groundPath, pal.sh, alpha = .16f * la, style = st(.8f * zl)) }
+            drawPath(l.wirePath, pal.wire, alpha = la, style = st(1f * zl))
+            for (t in l.towers) {
+                drawLine(pal.wire, Offset(t[0], t[1]), Offset(t[2], t[3]), 1.15f * zl, StrokeCap.Round, alpha = la)
+                drawLine(pal.wire, Offset(t[2] - 1.6f * zl, t[3]), Offset(t[2] + 1.6f * zl, t[3]), 1.15f * zl, StrokeCap.Round, alpha = la)
+            }
+            if (normal > 0f) for (cb in l.cabins) {
+                if (sh != null) drawOval(pal.sh, Offset(cb[2] + sh.x * .11f - 1.5f * zl, cb[3] + sh.y * .11f - .8f * zl), Size(3f * zl, 1.6f * zl), alpha = .3f * normal)
+                val tl = Offset(cb[0] - 1.3f * zl, cb[1] + .4f * zl); val sz = Size(2.6f * zl, (if (l.gondola) 2.6f else 1.7f) * zl)
+                drawRoundRect(if (night) Color(0xFFFFD873) else Color(0xFFF6C445), tl, sz, CornerRadius(.7f * zl), alpha = normal)
+                drawRoundRect(pal.wire, tl, sz, CornerRadius(.7f * zl), alpha = normal, style = Stroke(.5f))
+            }
+            for (s in l.stations) {
+                val tl = Offset(s[0] - 3.4f * zl, s[1] - 4.2f * zl); val sz = Size(6.8f * zl, 5f * zl)
+                drawRoundRect(pal.st, tl, sz, CornerRadius(1.4f * zl), alpha = la)
+                drawRoundRect(pal.wire, tl, sz, CornerRadius(1.4f * zl), alpha = la, style = Stroke(1.2f * zl))
+            }
+        }
+        // 5. the chosen run
+        if (sel != null && dm > 0f) chosen(d, sel, a * dm, ms, night, near, closeUp, v.s)
+    }
+    // 5 (screen). names on the far view, only with no run chosen; the km numbers on a chosen run by day
+    if (normal > .01f && v.labels.isNotEmpty()) labels(v, pl, night, normal, measurer, unitM, nf)
+    if (sel != null && dm > .3f && !night && ms >= REVEAL) kmNumbers(sel.mainSeg, pl, a * dm * ((ms - REVEAL) / 200f).coerceIn(0f, 1f), measurer, near)
+}
+
+private fun DrawScope.corridor(sel: PeakData.Sel, s: Float, veil: Color, a: Float) {
+    drawIntoCanvas { cv ->
+        val nc = cv.nativeCanvas
+        val count = nc.saveLayer(null, null)
+        nc.drawColor(android.graphics.Color.argb((veil.alpha * a * 255).toInt(), (veil.red * 255).toInt(), (veil.green * 255).toInt(), (veil.blue * 255).toInt()))
+        val p = android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG).apply {
+            style = android.graphics.Paint.Style.STROKE; strokeWidth = s * 250f; strokeCap = android.graphics.Paint.Cap.ROUND; strokeJoin = android.graphics.Paint.Join.ROUND
+            maskFilter = BlurMaskFilter(s * 56f, BlurMaskFilter.Blur.NORMAL); xfermode = PorterDuffXfermode(PorterDuff.Mode.DST_OUT)
+        }
+        for (g in sel.segs) nc.drawPath(g.full.asAndroidPath(), p)
+        nc.restoreToCount(count)
     }
 }
 
-/** the rest of the mountain under a veil, the chosen run in a soft corridor of light (about 250 m wide) */
-private fun DrawScope.corridor(p: PeakData.Piste, ui: Ui, dm: Float) {
-    drawIntoCanvas { c ->
-        c.saveLayer(Rect(Offset.Zero, size * 4f).translate(-size.width, -size.height), Paint())
-        drawRect(ui.veil, topLeft = Offset(-2000f, -2000f), size = Size(6000f, 6000f), alpha = dm)
-        val w = .128f * 250f
-        for ((m, a) in listOf(1.5f to .25f, 1.15f to .3f, .85f to .4f, .55f to .6f, .3f to .8f)) drawPath(p.path, Color.Black, alpha = a, style = st(w * m), blendMode = BlendMode.DstOut)
-        c.restore()
+/** The chosen run: the light running down it (0..600 ms, the main piece), then the final marking (K11 a by day, c by night). */
+private fun DrawScope.chosen(d: PeakData, sel: PeakData.Sel, a: Float, ms: Float, night: Boolean, near: Boolean, closeUp: Boolean, s: Float) {
+    val m = sel.mainSeg
+    val head = m.length * (ms / REVEAL).coerceIn(0f, 1f)
+    val after = ((ms - REVEAL) / 200f).coerceIn(0f, 1f)      // the change from the running light to the final marking
+    // the running light: a white halo, a white line, the slope's colours; its head a white dot
+    val ra = a * (1f - after)
+    if (ra > 0f) {
+        val path = m.path(head)
+        drawPath(path, Color.White, alpha = .35f * ra, style = st(16f))
+        drawPath(path, Color.White, alpha = ra, style = st(6f))
+        slopeLine(d, m, head, 3.6f, ra)
+        if (ms < REVEAL) { val q = m.at(head); drawCircle(Color.White, 13f, q, alpha = .5f * ra); drawCircle(Color.White, 5f, q, alpha = ra) }
     }
-}
-
-/** The chosen run, revealed from top to bottom: a line of light by day (K11 a), beads of light by night (K11 c). */
-private fun DrawScope.chosen(d: PeakData, p: PeakData.Piste, ui: Ui, night: Boolean, ms: Float, wf: Float, dm: Float) {
-    val line = p.line ?: return
-    val head = line.length * Ease.transform((ms / REVEAL_MS).coerceIn(0f, 1f))
-    val done = ms >= REVEAL_MS
-    val n = line.n
-    // the line's points that the light has reached, in seen pieces
-    fun pieces(to: Float, f: (Path) -> Unit) {
-        val path = Path(); var open = false
-        for (i in 0 until n) {
-            if (line.m[i] > to) { if (open && i > 0 && line.vis[i - 1]) { val q = line.at(to); path.lineTo(q.x, q.y) }; break }
-            if (line.vis[i]) { if (open) path.lineTo(line.x[i], line.y[i]) else path.moveTo(line.x[i], line.y[i]); open = true } else open = false
-        }
-        f(path)
-    }
+    // the other pieces of the run come in softly when the light reaches the end
+    val others = a * ((ms - REVEAL) / 200f).coerceIn(0f, 1f)
+    val fa = a * after
+    if (fa <= 0f) return
+    val segs = sel.segs
     if (!night) {
-        // the light: a soft white halo, a white case, and the slope's colours
-        pieces(head) { path ->
-            drawPath(path, Color.White, alpha = (if (done) .28f else .38f) * dm, style = st(14f * wf))
-            drawPath(path, ui.case, alpha = dm, style = st(6.4f * wf))
-        }
-        var i = 0
-        while (i < n - 1 && line.m[i] < head) {
-            if (line.vis[i] && line.vis[i + 1]) {
-                val b = if (line.m[i + 1] <= head) Offset(line.x[i + 1], line.y[i + 1]) else line.at(head)
-                drawLine(Color(d.slopeColor(line.deg[i])), Offset(line.x[i], line.y[i]), b, 3.6f * wf, StrokeCap.Round, alpha = dm)
+        val caseW = if (closeUp) 8.2f else 6.0f; val lineW = if (closeUp) 5.2f else 3.6f
+        for ((i, g) in segs.withIndex()) {
+            val al = if (i == sel.main) fa else min(fa, others)
+            drawPath(g.full, Color.White, alpha = al, style = st(caseW))
+            slopeLine(d, g, Float.MAX_VALUE, lineW, al)
+            // arrows down the fall line, one each time more than 240 m gathered
+            var acc = 0f
+            for (j in 1 until g.n - 1) {
+                acc += g.m[j] - g.m[j - 1]
+                if (acc > 240f && g.vis[j]) {
+                    acc = 0f
+                    val x = g.x[j]; val y = g.y[j]; val dd = g.dir(g.m[j]); val ax = dd.x; val ay = dd.y
+                    val p = Path().apply { moveTo(x - 1.6f * ax - 2.1f * ay, y - 1.6f * ay + 2.1f * ax); lineTo(x + 1.3f * ax, y + 1.3f * ay); lineTo(x - 1.6f * ax + 2.1f * ay, y - 1.6f * ay - 2.1f * ax) }
+                    drawPath(p, Color.White, alpha = al, style = st(1.3f))
+                }
             }
-            i++
         }
-        // chevrons down the fall line, every 240 m
-        var m = 240f
-        while (m < head - 30) {
-            if (line.vis[line.index(m)]) {
-                val q = line.at(m); val a = line.dir(m); val s = 1.1f * wf
-                val path = Path().apply { moveTo(q.x - a.x * 1.6f * s - a.y * 2.1f * s, q.y - a.y * 1.6f * s + a.x * 2.1f * s); lineTo(q.x + a.x * 1.3f * s, q.y + a.y * 1.3f * s); lineTo(q.x - a.x * 1.6f * s + a.y * 2.1f * s, q.y - a.y * 1.6f * s - a.x * 2.1f * s) }
-                drawPath(path, Color.White, alpha = dm, style = st(1.1f * wf))
-            }
-            m += 240f
+        // on the main piece: a bead every 500 m, the start and the end
+        var b = 500f
+        while (b < m.length) {
+            if (m.vis[m.index(b)]) { val q = m.at(b); drawCircle(Color.White, 3.1f, q, alpha = fa); drawCircle(Color(0xFF0E2233), 3.1f, q, alpha = fa, style = Stroke(1.2f)) }
+            b += 500f
         }
-        // a bead every half kilometre (its number is drawn on the screen, over the picture)
-        m = 500f
-        while (m <= head && m < line.length) {
-            if (line.vis[line.index(m)]) { val q = line.at(m); drawCircle(Color.White, 2.3f * wf, q, alpha = dm); drawCircle(Color(0xFF0E2233), 2.3f * wf, q, alpha = dm, style = Stroke(.9f * wf)) }
-            m += 500f
-        }
+        if (m.vis[0]) { val q = Offset(m.x[0], m.y[0]); drawCircle(Color.White, 4.6f, q, alpha = fa); drawCircle(ACCENT_DAY, 4.6f, q, alpha = fa, style = Stroke(2f)) }
+        val e = m.n - 1
+        if (m.vis[e]) { val q = Offset(m.x[e], m.y[e]); drawCircle(ACCENT_DAY, 3.6f, q, alpha = fa); drawCircle(Color.White, 3.6f, q, alpha = fa, style = Stroke(1.4f)) }
     } else {
-        // night: a warm glow along the run and a string of lights, each with its slope's colour as a halo
-        pieces(head) { path -> drawPath(path, Color(0xFFFFD08A), alpha = .22f * dm, style = st(12f * wf)) }
-        var m = 0f
-        while (m <= head) {
-            val i = line.index(m)
-            if (line.vis[i]) {
-                val q = line.at(m); val c = Color(d.slopeColor(line.deg[i]))
-                drawCircle(c, 3.4f * wf, q, alpha = .45f * dm)
-                drawCircle(Color(0xFFFFF3D6), 1.7f * wf, q, alpha = dm)
+        // night: a warm glow, and a light every 10.5 points on the screen (42 m close up, 82 m far)
+        val step = 10.5f / s
+        for ((i, g) in segs.withIndex()) {
+            val al = if (i == sel.main) fa else min(fa, others)
+            drawPath(g.full, Color(0xFFFFD08A), alpha = .2f * al, style = st(14f))
+            var t = 0f
+            while (t <= g.length) {
+                val j = g.index(t)
+                if (g.vis[j]) { val q = g.at(t); drawCircle(Color(0xFFFFF3D6), 2.3f, q, alpha = al); drawCircle(d.slope[g.cls[j].coerceIn(0, d.slope.size - 1)], 4.4f, q, alpha = .4f * al) }
+                t += step
             }
-            m += 38f
         }
     }
-    // the light's head while it runs down
-    if (!done) {
-        val q = line.at(head)
-        drawCircle(Color.White, 10f * wf, q, alpha = .45f * dm)
-        drawCircle(Color.White, 4f * wf, q, alpha = dm)
+}
+
+private fun DrawScope.slopeLine(d: PeakData, g: PeakData.Seg, to: Float, w: Float, a: Float) {
+    var i = 0
+    while (i < g.n - 1 && g.m[i] < to) {
+        if (g.vis[i] && g.vis[i + 1]) {
+            val b = if (g.m[i + 1] <= to) Offset(g.x[i + 1], g.y[i + 1]) else g.at(to)
+            drawLine(d.slope[g.cls[i].coerceIn(0, d.slope.size - 1)], Offset(g.x[i], g.y[i]), b, w, StrokeCap.Round, alpha = a)
+        }
+        i++
     }
-    // start and end
-    val s0 = Offset(line.x[0], line.y[0]); val e = Offset(line.x[n - 1], line.y[n - 1])
-    if (line.vis[0]) { drawCircle(Color.White, 3.6f * wf, s0, alpha = dm); drawCircle(ui.acc, 3.6f * wf, s0, alpha = dm, style = Stroke(1.6f * wf)) }
-    if (done && line.vis[n - 1]) { drawCircle(ui.acc, 3f * wf, e, alpha = dm); drawCircle(Color.White, 3f * wf, e, alpha = dm, style = Stroke(1.2f * wf)) }
+}
+
+private fun DrawScope.labels(v: PeakData.View, pl: Place, night: Boolean, a: Float, measurer: TextMeasurer, unitM: String, nf: NumberFormat) {
+    val ink = if (night) Color(0xFFEAF1F8) else Color(0xFF0E2233)
+    val halo = if (night) Color(0xF2060B16) else Color(0xF2FFFFFF)
+    val sc = pl.k / density   // the label sizes are in picture points, like everything on it
+    val name = TextStyle(fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = (11.5f * sc).sp, color = ink)
+    val sub = TextStyle(fontFamily = Plex, fontSize = (10.5f * sc).sp, color = ink)
+    for (l in v.labels) {
+        val q = pl.on(Offset(l.x, l.y))
+        val t1 = measurer.measure(l.t, name)
+        val t2 = l.sub?.let { measurer.measure(unitM.replace("\u0000", nf.format(it)), sub) }
+        val hgt = t1.size.height + (t2?.size?.height ?: 0)
+        var y = q.y - hgt / 2f
+        for (t in listOfNotNull(t1, t2)) {
+            val tl = Offset(q.x - t.size.width / 2f, y)
+            // the halo around the letters (three layers: 3, 3, 7)
+            for (r in floatArrayOf(7f, 3f, 3f)) drawText(t, topLeft = tl, alpha = a, shadow = Shadow(halo, Offset.Zero, r * sc))
+            drawText(t, topLeft = tl, alpha = a)
+            y += t.size.height
+        }
+    }
+}
+
+private fun DrawScope.kmNumbers(m: PeakData.Seg, pl: Place, a: Float, measurer: TextMeasurer, near: Boolean) {
+    if (a <= 0f) return
+    val sc = pl.k / density
+    val style = TextStyle(fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = (9.5f * sc).sp, color = Color.White)
+    var b = 500f
+    while (b < m.length) {
+        if (m.vis[m.index(b)]) {
+            val q = m.at(b); val dd = m.dir(b)
+            val c = pl.on(Offset(q.x + 13f * dd.y, q.y - 13f * dd.x + 3.4f))
+            val t = measurer.measure(("%.1f".format(b / 1000f)).trimEnd('0').trimEnd('.'), style)
+            val tl = Offset(c.x - t.size.width / 2f, c.y - t.size.height * .72f)
+            drawText(t, topLeft = tl, alpha = a, shadow = Shadow(Color(0xCC0A1932), Offset.Zero, 2.4f * sc), drawStyle = Stroke(2.4f * sc))
+            drawText(t, topLeft = tl, alpha = a)
+        }
+        b += 500f
+    }
+}
+
+// ------------------------------------------------------------------ the parts over the picture
+
+@Composable
+private fun Pill(g: Glass, modifier: Modifier = Modifier, h: Int = 44, content: @Composable () -> Unit) {
+    Box(modifier.height(h.dp).shadow(10.dp, RoundedCornerShape(22.dp), clip = false, ambientColor = Color(0x2E0A192D), spotColor = Color(0x2E0A192D))
+        .clip(RoundedCornerShape(22.dp)).background(g.bg).border(1.dp, g.line, RoundedCornerShape(22.dp)), contentAlignment = Alignment.Center) { content() }
+}
+
+private fun plate(c: String) = when (c) { "green" -> Color(0xFF178A4A); "blue" -> Color(0xFF1B6FDB); "red" -> Color(0xFFD8362C); else -> Color(0xFF14171B) }
+
+/** The sign: its bottom corner at 86% of its width on the point (most of it to the left), a white stem 2 x 12 under it. */
+@Composable
+private fun Plate(r: PeakData.Run, modifier: Modifier, alpha: Float) {
+    CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
+        Box(modifier.size(0.dp)) {
+            var wPx by remember { mutableStateOf(0) }
+            Column(Modifier.graphicsLayer {
+                translationX = -wPx * .86f; translationY = -size.height; this.alpha = alpha
+            }.onSizeChanged { wPx = it.width }, horizontalAlignment = Alignment.End) {
+                Row(Modifier.height(24.dp).shadow(5.dp, RoundedCornerShape(6.dp)).clip(RoundedCornerShape(6.dp)).background(plate(r.color))
+                    .border(1.5.dp, Color.White, RoundedCornerShape(6.dp)).padding(horizontal = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Text(if (r.ref.isNotBlank()) r.ref + " · " + r.name else r.name, fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 12.sp, color = Color.White, maxLines = 1)
+                }
+                Box(Modifier.padding(end = 12.dp).width(2.dp).height(12.dp).background(Color.White))
+            }
+        }
+    }
+}
+
+@Composable
+private fun RunSheet(r: PeakData.Run, d: PeakData, g: Glass, onClose: () -> Unit) {
+    val colour = stringResource(when (r.color) { "green" -> R.string.common_color_green; "blue" -> R.string.common_color_blue; "red" -> R.string.common_color_red; else -> R.string.common_color_black })
+    val level = stringResource(when (r.color) { "green" -> R.string.map_difficulty_beginner; "blue" -> R.string.map_difficulty_easy; "red" -> R.string.map_difficulty_intermediate; else -> R.string.map_difficulty_hard })
+    val closeLabel = stringResource(R.string.common_close)
+    val nf = remember { NumberFormat.getIntegerInstance() }
+    Column(Modifier.fillMaxWidth().pointerInput(Unit) { detectTapGestures { } }
+        .shadow(30.dp, RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp), ambientColor = Color(0x2E0A192D), spotColor = Color(0x2E0A192D))
+        .clip(RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp)).background(g.bg).navigationBarsPadding()
+        .padding(start = 18.dp, end = 18.dp, top = 10.dp, bottom = 20.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
+        Box(Modifier.align(Alignment.CenterHorizontally).width(38.dp).height(5.dp).clip(CircleShape).background(g.line))
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            Box(Modifier.height(30.dp).widthIn(min = 40.dp).clip(RoundedCornerShape(7.dp)).background(plate(r.color)).padding(horizontal = 7.dp), contentAlignment = Alignment.Center) {
+                Text(r.ref, fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 17.sp, color = Color.White, style = TextStyle(textDirection = TextDirection.Ltr))
+            }
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                Text(r.name, fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 21.sp, lineHeight = 25.sp, color = g.ink, style = TextStyle(textDirection = TextDirection.Ltr))
+                Text(colour + stringResource(R.string.run_color_official_suffix) + " · " + level, fontFamily = Plex, fontSize = 13.5.sp, color = g.ink2)
+            }
+            Box(Modifier.size(44.dp).clip(CircleShape).clickable(onClick = onClose).semantics { contentDescription = closeLabel }, contentAlignment = Alignment.Center) {
+                Canvas(Modifier.size(13.dp)) {
+                    drawLine(g.ink2, Offset.Zero, Offset(size.width, size.height), 2.dp.toPx(), StrokeCap.Round)
+                    drawLine(g.ink2, Offset(size.width, 0f), Offset(0f, size.height), 2.dp.toPx(), StrokeCap.Round)
+                }
+            }
+        }
+        Row(horizontalArrangement = Arrangement.spacedBy(24.dp)) {
+            Num(stringResource(R.string.common_unit_km, "%.1f".format(r.len / 1000f)), stringResource(R.string.common_length_label), g)
+            Num(stringResource(R.string.common_unit_m, nf.format(r.drop)), stringResource(R.string.run_stat_drop_label), g)
+            Num("${r.steep}°", stringResource(R.string.run_stat_steep_label), g)
+        }
+        // the slope's four colours, with the site's thresholds between them
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+            CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                    d.slope.forEachIndexed { i, col ->
+                        Box(Modifier.width(18.dp).height(6.dp).clip(CircleShape).background(col))
+                        if (i < 3) Text(listOf("15°", "25°", "30°")[i], fontFamily = Plex, fontSize = 12.sp, color = g.ink2)
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun Num(v: String, cap: String, g: Glass) {
+    Column(verticalArrangement = Arrangement.spacedBy(0.dp)) {
+        Text(v, fontFamily = Plex, fontSize = 30.sp, lineHeight = 34.sp, color = g.ink, maxLines = 1)
+        Text(cap, fontFamily = Plex, fontSize = 12.5.sp, color = g.ink2)
+    }
 }
