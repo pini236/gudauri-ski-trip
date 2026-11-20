@@ -43,11 +43,14 @@ import io.github.pini236.skiapp.ui.Plex
 
 /**
  * The redesign POC in the test build (decisions 83, 84): the app opens on the new mountain; "To the app" shows the
- * app as it is, and a small sign on home brings the mountain back. The store build has an empty twin (src/store).
+ * app as it is, and a small sign on home brings the mountain back. Release builds only: the debug build is the
+ * emulator's (qa/run.sh), whose steps tap the current home. The store build has an empty twin (src/store).
  */
 object Redesign {
     @Composable
     fun BoxScope.Host(home: Boolean, mode: DayNight.Mode, haptics: Haptics) {
+        // the emulator's scripts drive the debug build through the current screens (qa/run.sh): there the POC stays away
+        if (io.github.pini236.skiapp.BuildConfig.DEBUG) return
         var open by rememberSaveable { mutableStateOf(true) }
         if (open) {
             BackHandler { open = false }
