@@ -50,6 +50,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -284,6 +285,11 @@ fun PeakScreen(mode: DayNight.Mode, haptics: Haptics, onLeave: () -> Unit) {
             }
             return best
         }
+        // the gesture handlers live across compositions (keyed on the size only), so they reach the
+        // current zoom, pan and close-up through these, not through the values of the first composition
+        val hitNow by rememberUpdatedState { s: Offset -> hit(s) }
+        val chooseNow by rememberUpdatedState { k: String -> choose(k) }
+        val clearNow by rememberUpdatedState { clear() }
 
         val measurer = rememberTextMeasurer()
         val nf = remember { NumberFormat.getIntegerInstance() }
@@ -302,11 +308,11 @@ fun PeakScreen(mode: DayNight.Mode, haptics: Haptics, onLeave: () -> Unit) {
             }
             .pointerInput(W, H) {
                 detectTapGestures(onTap = { s ->
-                    val k = hit(s)
+                    val k = hitNow(s)
                     if (k != null) {
                         touch = s; scope.launch { ring.snapTo(0f); ring.animateTo(1f, tween(if (reduced) 1 else 300)) }
-                        if (k != key) choose(k)
-                    } else clear()
+                        if (k != key) chooseNow(k)
+                    } else clearNow()
                 }, onDoubleTap = { s ->
                     if (key != null) return@detectTapGestures
                     val p = free().back(s); val from = z; val to = if (z > 1.5f) 1f else 2.2f; val c0 = c
