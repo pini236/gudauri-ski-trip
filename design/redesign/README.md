@@ -240,3 +240,7 @@ python3 design/redesign/tools/peak_boards.py
 ## מסירה ל-POC באנדרואיד (20.11.2026, החלטה 85)
 
 ההר כמסך הפתיחה, שלב א של סבב 3: התמונות, הנתונים המוטלים, הערכים והלוחות שמולם משווים, ב-`design/handoff/2026-11-20-redesign-poc/README.md`. נוצר ב-`tools/poc_export.py` (וה-`out=3` החדש ב-`tools/peak.py`), ופריימים להשוואה ב-`tools/poc_ref.py`.
+
+## מסירה למודל החי (20.11.2026, שלב ב)
+
+אחרי שפיני ראה את ה-POC וביקש נוף אלפיני ומודל תלת-ממדי: `design/handoff/2026-11-20-redesign-live/README.md`. שבעה שלבים לפי סדר, חמישה מרקמים, `peak-live.json`, ו-11 פריימים. הכלים: `design/redesign/tools/live_export.py` (המרקמים והערכים; `--far` מוריד את נתוני הגובה הרחבים למטמון), `live_ref.html` ו-`live_ref_main.js` (המודל החי ככלי עיצוב, עם השיידרים להעתקה), ו-`live_ref.js` (צילום פריימים). האופק הרחוק נבנה מאריחי הגובה הפתוחים (`elevation-tiles-prod`, אותו מקור של `terrain.json`); האריחים עצמם לא נשמרים בריפו.
