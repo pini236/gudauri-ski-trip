@@ -1115,6 +1115,11 @@ redesign() {
   rd_back
   qa "--es qa.mode night"; sleep 3; shot redesign-night
   rd_touch "Tatra 1" && { sleep 2.5; shot redesign-night-chosen; }; rd_back
+  # phase B: the live model under the picture (the picture fades away over it), by day and night, a drag, and back
+  mark; qa "--es qa.mode day --es qa.redesign live"; waitlog "redesign live open" 15; sleep 4; shot redesign-live
+  drag $((W / 2)) $((H / 2)) $((W / 2 - W / 5)) $((H / 2)) 500; sleep 1.5; shot redesign-live-dragged
+  qa "--es qa.mode night"; sleep 3; shot redesign-live-night
+  mark; qa "--es qa.mode auto --es qa.redesign painted"; waitlog "redesign live closed" 10; sleep 1.5; shot redesign-live-back
   qa "--es qa.mode auto --es qa.redesign close"; sleep 1.5; shot redesign-closed
 }
 

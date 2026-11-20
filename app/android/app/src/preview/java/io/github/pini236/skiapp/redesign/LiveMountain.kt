@@ -53,6 +53,7 @@ import io.github.pini236.skiapp.ui.Plex
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
+import io.github.pini236.skiapp.qa.Qa
 
 /**
  * Phase B, the first sketch: the mountain as a live model with the free camera of today's map, in the new look (the
@@ -70,8 +71,20 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, onPaint
     var chosen by remember { mutableStateOf<String?>(null) }
     val time = scrub?.let { PeakLight.janAt(it) } ?: DayNight.lightTime(now, mode)
     val night = remember(time) { Sky.at(time).dark }
-    val view = remember { LiveView(context, scene).also { v -> v.onChoose = { k -> chosen = k; haptics.tick(.5f) } } }
-    DisposableEffect(Unit) { onDispose { view.release() } }
+    val view = remember { LiveView(context, scene).also { v -> v.onChoose = { k -> chosen = k; haptics.tick(.5f); Qa.log("redesign live chosen $k") } } }
+    DisposableEffect(Unit) {
+        val life = (context as? androidx.lifecycle.LifecycleOwner)?.lifecycle
+        val obs = androidx.lifecycle.LifecycleEventObserver { _, e ->
+            when (e) {
+                androidx.lifecycle.Lifecycle.Event.ON_PAUSE -> view.onPause()
+                androidx.lifecycle.Lifecycle.Event.ON_RESUME -> view.onResume()
+                else -> {}
+            }
+        }
+        life?.addObserver(obs)
+        Qa.log("redesign live open")
+        onDispose { life?.removeObserver(obs); view.release(); Qa.log("redesign live closed") }
+    }
     LaunchedEffect(time) { view.setTime(time) }
     LaunchedEffect(data, night) { data?.let { view.setPal(it.pal[if (night) "night" else "day"]) } }
 

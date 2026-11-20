@@ -144,6 +144,7 @@ private class Gpu(r: Ribbon) {
         glBindVertexArray(0)
     }
     fun draw() { if (count == 0) return; glBindVertexArray(vao[0]); glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, 0) }
+    fun free() { glDeleteBuffers(2, bufs, 0); glDeleteVertexArrays(1, vao, 0) }
 }
 
 private fun floats(a: FloatArray): FloatBuffer = ByteBuffer.allocateDirect(a.size * 4).order(ByteOrder.nativeOrder()).asFloatBuffer().apply { put(a); position(0) }
@@ -205,6 +206,19 @@ class LiveRenderer(
         uploaded = false; texOn = false; tex[0] = 0; runs.clear(); lifts.clear()
         glEnable(GL_DEPTH_TEST); glEnable(GL_CULL_FACE); glCullFace(GL_BACK)
         glClearColor(0.62f, 0.72f, 0.85f, 1f)
+    }
+
+    /**
+     * Gives the GPU back everything this model holds (on the GL thread): preserveEGLContextOnPause keeps the context,
+     * and with it the height model, alive behind the app otherwise (docs/ARCHITECTURE.md).
+     */
+    fun free() {
+        if (uploaded) { glDeleteBuffers(3, bufs, 0); glDeleteVertexArrays(1, vao, 0) }
+        runs.forEach { it.second.free(); it.third.free() }; lifts.forEach { it.free() }; runs.clear(); lifts.clear()
+        if (tex[0] != 0) glDeleteTextures(1, tex, 0)
+        tex[0] = 0; texOn = false; uploaded = false
+        for (p in intArrayOf(prog, skyProg, lineProg)) if (p != 0) glDeleteProgram(p)
+        prog = 0; skyProg = 0; lineProg = 0
     }
 
     override fun onSurfaceChanged(gl: GL10?, w: Int, h: Int) { width = w; height = h; glViewport(0, 0, w, h) }

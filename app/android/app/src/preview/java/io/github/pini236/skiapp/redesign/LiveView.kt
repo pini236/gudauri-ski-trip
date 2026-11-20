@@ -49,15 +49,16 @@ class LiveView(context: Context, private val scene: MapScene) : GLSurfaceView(co
                     ?: pick(intArrayOf(EGL10.EGL_DEPTH_SIZE, 16, EGL10.EGL_RENDERABLE_TYPE, es3, EGL10.EGL_NONE))!!
             }
         })
-        preserveEGLContextOnPause = true
+        // in the background the context goes, and with it the height model on the GPU; it comes back on resume
+        preserveEGLContextOnPause = false
         setRenderer(renderer)
         renderMode = RENDERMODE_WHEN_DIRTY
         worker.execute { renderer.detail = Detail.make(); requestRender() }
-        // the opening: from the south, low over the valley, as the picture looks at the mountain; then a slow approach
+        // the opening: from the same side as the picture (its az, LiveOpen), low over the valley; then a slow approach
         val t = scene.terrain
         val tx = 300f; val tz = -900f
-        camera.set(OrbitCamera.State(tx, t.elev(tx, tz), tz, 12500f, 0f, 0.20f))
-        renderer.animate(OrbitCamera.State(tx, t.elev(tx, tz), tz, 9400f, 0.06f, 0.30f), 2.2f)
+        camera.set(OrbitCamera.State(tx, t.elev(tx, tz), tz, 12500f, LiveOpen.YAW, 0.20f))
+        renderer.animate(OrbitCamera.State(tx, t.elev(tx, tz), tz, 9400f, LiveOpen.YAW, 0.30f), 2.2f)
     }
 
     private var lightKey = Long.MIN_VALUE
@@ -74,7 +75,8 @@ class LiveView(context: Context, private val scene: MapScene) : GLSurfaceView(co
 
     fun setPal(p: PeakData.Pal?) { renderer.pal = p; requestRender() }
     fun choose(key: String?) { renderer.chosen = key; requestRender() }
-    fun release() = worker.shutdownNow()
+    /** Leaving the live model: the GPU's buffers and texture go now, not when the app's context dies. */
+    fun release() { worker.shutdownNow(); queueEvent { renderer.free() } }
 
     // ---- gestures ----
     private val slop = ViewConfiguration.get(context).scaledTouchSlop.toFloat()
@@ -206,3 +208,10 @@ class LiveView(context: Context, private val scene: MapScene) : GLSurfaceView(co
         onChoose?.invoke(best)
     }
 }
+
+/**
+ * The live model opens looking the way the picture looks (the architect's condition): the picture's depth is north
+ * (PeakData.Proj, d = n - c1 + near), so the camera stands to the south and looks north. In the map's camera
+ * (map/Camera.kt) yaw 0 looks along -z, and the site's z grows south (data/Geo.kt): yaw 0 is north.
+ */
+object LiveOpen { const val YAW = 0f }
