@@ -13,7 +13,8 @@ IMG={ # picture -> id in the canvas
  'hero-after':'b0e93356e66046bb33f9e56395555f3e','hero-sunset':'034c7a72df98009aa41c9dc69ef8a4ab','hero-blue':'2e236aa5a7a81bb20af34c13fc10e06d',
  'hero-morning-fresh':'82da9bb92db2d6eef5a5f74688ae5333','hero-morning-wind':'19cadbc5ca97558734a1f05bca290b15','hero-dawn-cloud':'4a9d2f3251e5dbefc990109f53c84fbe',
  'hero-noon-storm':'a07cbeb89cf89e04e31d5fd33b200627','zoom-morning':'2d2fd4382cd4f1cb0baa67da38d758c4','zoom-night':'b4aca0dc429da40ff79872b956010f62',
- 'vill-morning':'aa19ad835a67b136256b0377aafe6e3f','vill-night':'dbe151f007919e249f8dec4aad390add','wide-dawn-cloud':'8dce825a4fe26a13b993798e4426902a'}
+ 'vill-morning':'aa19ad835a67b136256b0377aafe6e3f','vill-night':'dbe151f007919e249f8dec4aad390add','wide-dawn-cloud':'8dce825a4fe26a13b993798e4426902a',
+ 'hero-noon':'175fe9595186b50e19b76776daaf337d'}
 U=lambda n:'/_blob/'+IMG[n]
 VH,VZ,VV=P.load('hero'),P.load('zoom'),P.load('vill')
 VIEW={'hero':VH,'zoom':VZ,'vill':VV}

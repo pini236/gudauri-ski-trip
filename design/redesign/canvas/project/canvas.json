@@ -689,6 +689,126 @@
    "h": 844,
    "title": "הכפר",
    "page": "mtn3"
+  },
+  "L00-Brief.dc.html": {
+   "x": 0,
+   "y": 0,
+   "w": 1280,
+   "h": 2080,
+   "title": "סבב 4: הרעיון והשאלות",
+   "page": "day4"
+  },
+  "L01-Start.dc.html": {
+   "x": 0,
+   "y": 2460,
+   "w": 390,
+   "h": 844,
+   "title": "1 · מתחילים בנגיעה אחת",
+   "page": "day4"
+  },
+  "L02-Searching.dc.html": {
+   "x": 470,
+   "y": 2460,
+   "w": 390,
+   "h": 844,
+   "title": "2 · מחפשים מיקום",
+   "page": "day4"
+  },
+  "L03-Descending.dc.html": {
+   "x": 940,
+   "y": 2460,
+   "w": 390,
+   "h": 844,
+   "title": "3 · בירידה: מספר אחד, שם אחד",
+   "page": "day4"
+  },
+  "L04-OnTheLift.dc.html": {
+   "x": 1410,
+   "y": 2460,
+   "w": 390,
+   "h": 844,
+   "title": "4 · על הרכבל: הירידה שהרגע עשית",
+   "page": "day4"
+  },
+  "L14-Descending-EN.dc.html": {
+   "x": 1880,
+   "y": 2460,
+   "w": 390,
+   "h": 844,
+   "title": "14 · On the way down (EN)",
+   "page": "day4"
+  },
+  "L05-OutsideTheApp.dc.html": {
+   "x": 2350,
+   "y": 2460,
+   "w": 1640,
+   "h": 1130,
+   "title": "5 · כשהטלפון בכיס",
+   "page": "day4"
+  },
+  "L06-DayPainted.dc.html": {
+   "x": 0,
+   "y": 3970,
+   "w": 390,
+   "h": 844,
+   "title": "6 · סוף היום: ההר זוכר",
+   "page": "day4"
+  },
+  "L07-DayRidge.dc.html": {
+   "x": 470,
+   "y": 3970,
+   "w": 390,
+   "h": 844,
+   "title": "7 · הרכס של היום וציר הזמן",
+   "page": "day4"
+  },
+  "L08-DayInAMinute.dc.html": {
+   "x": 940,
+   "y": 3970,
+   "w": 1640,
+   "h": 950,
+   "title": "8 · היום בדקה",
+   "page": "day4"
+  },
+  "L09-RunFilm.dc.html": {
+   "x": 2660,
+   "y": 3970,
+   "w": 390,
+   "h": 844,
+   "title": "9 · ירידה אחת כסרט",
+   "page": "day4"
+  },
+  "L10-Story.dc.html": {
+   "x": 3130,
+   "y": 3970,
+   "w": 390,
+   "h": 844,
+   "title": "10 · הסיפור של היום",
+   "page": "day4"
+  },
+  "L11-Share.dc.html": {
+   "x": 3600,
+   "y": 3970,
+   "w": 390,
+   "h": 844,
+   "title": "11 · תמונה לשיתוף",
+   "page": "day4"
+  },
+  "L12-MyDays.dc.html": {
+   "x": 4070,
+   "y": 3970,
+   "w": 390,
+   "h": 844,
+   "title": "12 · הימים שלי, והטיול כשכבות",
+   "page": "day4"
+  },
+  "L13-HonestStates.dc.html": {
+   "x": 0,
+   "y": 5300,
+   "w": 1640,
+   "h": 800,
+   "title": "13 · כשמשהו לא ודאי, אומרים",
+   "page": "day4"
   }
  },
  "createdOnFiles": {
@@ -697,7 +817,7 @@
  },
  "designSystems": [],
  "launch": {
-  "page": "mtn3",
+  "page": "day4",
   "view": "canvas"
  },
  "notes": {
@@ -790,6 +910,42 @@
    "x": 0,
    "text": "ד · מחוץ להר",
    "y": 6164
+  },
+  "tL": {
+   "kind": "title1",
+   "maxW": 1600,
+   "page": "day4",
+   "w": 520,
+   "x": 0,
+   "text": "סבב 4 · יום הגלישה",
+   "y": -300
+  },
+  "tL1": {
+   "kind": "title1",
+   "maxW": 1600,
+   "page": "day4",
+   "w": 360,
+   "x": 0,
+   "text": "א · בזמן היום",
+   "y": 2160
+  },
+  "tL2": {
+   "kind": "title1",
+   "maxW": 1600,
+   "page": "day4",
+   "w": 520,
+   "x": 0,
+   "text": "ב · אחרי היום: ההר זוכר",
+   "y": 3670
+  },
+  "tL3": {
+   "kind": "title1",
+   "maxW": 1600,
+   "page": "day4",
+   "w": 320,
+   "x": 0,
+   "text": "ג · הכללים",
+   "y": 5000
   }
  },
  "order": [
@@ -878,12 +1034,31 @@
   "K14-Morning.dc.html",
   "K15-OnTheLift.dc.html",
   "K16-DayDrawn.dc.html",
-  "K17-Village.dc.html"
+  "K17-Village.dc.html",
+  "L00-Brief.dc.html",
+  "L01-Start.dc.html",
+  "L02-Searching.dc.html",
+  "L03-Descending.dc.html",
+  "L04-OnTheLift.dc.html",
+  "L14-Descending-EN.dc.html",
+  "L05-OutsideTheApp.dc.html",
+  "L06-DayPainted.dc.html",
+  "L07-DayRidge.dc.html",
+  "L08-DayInAMinute.dc.html",
+  "L09-RunFilm.dc.html",
+  "L10-Story.dc.html",
+  "L11-Share.dc.html",
+  "L12-MyDays.dc.html",
+  "L13-HonestStates.dc.html"
  ],
  "pages": [
   {
    "id": "intro",
    "name": "פתיחה והמלצה"
+  },
+  {
+   "id": "day4",
+   "name": "סבב 4 · יום הגלישה"
   },
   {
    "id": "mtn3",
