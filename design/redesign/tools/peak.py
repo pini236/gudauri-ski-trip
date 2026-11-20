@@ -81,7 +81,7 @@ def grid_lines(V,g,W,nd,PAD,lines,width_m):
     return np.asarray(im,dtype=np.float32)/255
 
 def render(v,light='morning',wx=None,ss=SS,out=2):
-    """wx: None | 'fresh' | 'wind' | 'cloud' | 'storm'; out: the picture's scale over the view's 1x size (the app takes 3)"""
+    """wx: None | 'fresh' | 'wind' | 'cloud' | 'storm'; out: pixels per point of the picture (2, or 3 for a phone asset)"""
     V=setup(v);L=LIGHTS['flat' if wx=='storm' else light];k=2*ss;Wo,H=V['W']*k,V['H']*k;S=V['S']*k;g=1/S
     PAD=40;W=Wo+2*PAD;nd=int((V['near']+V['far'])/g);u=(np.arange(W)-W/2+.5)*g;d=(np.arange(nd)+.5)*g
     U,Dd=np.meshgrid(u.astype(np.float32),d.astype(np.float32))
