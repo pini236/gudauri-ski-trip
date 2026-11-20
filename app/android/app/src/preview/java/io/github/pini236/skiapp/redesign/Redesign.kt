@@ -20,8 +20,13 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.tween
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.remember
+import androidx.compose.ui.graphics.graphicsLayer
+import io.github.pini236.skiapp.map.MapScene
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.mutableStateOf
@@ -52,7 +57,7 @@ object Redesign {
     fun qa(cmd: String) = RedesignQa.send(cmd)
 
     @Composable
-    fun BoxScope.Host(home: Boolean, mode: DayNight.Mode, haptics: Haptics) {
+    fun BoxScope.Host(home: Boolean, mode: DayNight.Mode, haptics: Haptics, scene: MapScene?) {
         // the emulator's scripts drive the debug build through the current screens (qa/run.sh): there the mountain
         // opens only when the run asks for it (qa.redesign open), so every other part sees the app as it is
         val debug = io.github.pini236.skiapp.BuildConfig.DEBUG
@@ -69,7 +74,25 @@ object Redesign {
             val view = LocalView.current
             // light icons over the sky
             SideEffect { (view.context as? android.app.Activity)?.window?.let { WindowCompat.getInsetsController(it, view).isAppearanceLightStatusBars = false } }
-            Box(Modifier.fillMaxSize()) { PeakScreen(mode, haptics) { open = false } }
+            // phase B: the live model under the picture; the picture fades away over it (and back), 700 ms
+            var live by rememberSaveable { mutableStateOf(false) }
+            val shown = remember { Animatable(if (live) 1f else 0f) }
+            LaunchedEffect(live) { shown.animateTo(if (live) 1f else 0f, tween(700)) }
+            BackHandler(enabled = live) { live = false }
+            LaunchedEffect(RedesignQa.seq) {
+                when (RedesignQa.cmd) {
+                    "live" -> if (scene != null) live = true
+                    "painted" -> live = false
+                }
+            }
+            Box(Modifier.fillMaxSize()) {
+                // the live model only over home: never with the map open too (the height model would sit on the GPU
+                // twice, docs/ARCHITECTURE.md)
+                if (scene != null && home && (live || shown.value > 0f)) LiveMountain(scene, mode, haptics, onPainted = { live = false }, onLeave = { open = false })
+                if (!live || shown.value < 1f) Box(Modifier.fillMaxSize().graphicsLayer { alpha = 1f - shown.value }) {
+                    PeakScreen(mode, haptics, onLive = if (scene != null && home) ({ live = true }) else null) { open = false }
+                }
+            }
         } else {
             // over the sky of home, under the top row, where nothing is (the designer: at the bottom it covered a sign)
             AnimatedVisibility(home, Modifier.align(Alignment.TopEnd).statusBarsPadding().padding(top = 84.dp, end = 16.dp), enter = fadeIn(), exit = fadeOut()) {
