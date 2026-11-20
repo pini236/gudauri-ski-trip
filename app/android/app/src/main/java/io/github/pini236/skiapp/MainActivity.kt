@@ -639,6 +639,7 @@ class MainActivity : ComponentActivity() {
             else -> Route.parse(t)?.let { nav.toStart(); nav.push(it) } ?: Qa.log("bad tab $t")
         } }
         i.getStringExtra("qa.stats")?.let { showStats = it != "off" }
+        i.getStringExtra("qa.redesign")?.let { io.github.pini236.skiapp.redesign.Redesign.qa(it) }
         i.getStringExtra("qa.time")?.let { clockMs = Qa.gudauriTime(it); tick = nowMs() }
         i.getStringExtra("qa.status")?.let { pinStatus(it) }
         i.getStringExtra("qa.weather")?.let { pinWeather(it) }

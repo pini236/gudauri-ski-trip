@@ -8,7 +8,7 @@ OUT=${OUT:-qa-out}
 SCENARIO=${SCENARIO:-all}
 # Reject typos before touching the device. An unknown part used to run the entire suite.
 [[ "$SCENARIO" != *$'\n'* && "$SCENARIO" != *$'\r'* ]] || { echo "QA scenario must be a single line" >&2; exit 2; }
-ALL_SCENARIOS=(map descent games school snowball home group meet status run locate weather lang phone store bigtext)
+ALL_SCENARIOS=(map descent games school snowball home group meet status run locate weather lang phone store bigtext redesign)
 if [[ "$SCENARIO" == all ]]; then
   SCENARIOS=("${ALL_SCENARIOS[@]}")
 else
@@ -20,7 +20,7 @@ else
     part="${part#"${part%%[![:space:]]*}"}"
     part="${part%"${part##*[![:space:]]}"}"
     case "$part" in
-      map|descent|games|school|snowball|home|group|meet|status|run|locate|weather|lang|phone|store|bigtext|dayrecvideo) ;;
+      map|descent|games|school|snowball|home|group|meet|status|run|locate|weather|lang|phone|store|bigtext|dayrecvideo|redesign) ;;
       *) echo "Unknown or empty QA scenario: '$part'" >&2; exit 2 ;;
     esac
     [[ -z "${selected[$part]+present}" ]] || { echo "Duplicate QA scenario: '$part'" >&2; exit 2; }
@@ -1074,6 +1074,42 @@ weather() {
   # the new language starts the app again with its last intent (the run): no run, so the buttons show
   qa "--es qa.tab map --es qa.run none"; waitlog "selected none" 20; sleep 3; mark; tapText "Weather" && waitlog "weather layer on" 10 && { sleep 1.5; shot weather-map-sheet-en; }
   adb shell cmd locale set-app-locales "$PKG" --locales he > /dev/null 2>&1; sleep 3
+}
+
+# ---- the redesign POC: the painted mountain (decision 85; test build only, src/preview) ----
+# The mountain opens only when asked (qa.redesign open), so no other part sees it. adb has one finger, so a pinch cannot
+# be made: the free view is set as a pinch leaves it (qa.redesign view:<zoom>,<x>,<y>), and every touch is a real one, at
+# the place the screen says the run is drawn now (qa.redesign spot:<run>). The bug of 0.1.573: after a pinch, a touch
+# picked another run.
+rd_touch() { # rd_touch <run>: touch <run> where it is drawn now; the screen must choose it
+  mark; qa "--es qa.redesign 'spot:$1'"; waitlog "redesign spot $1" 15 || return 1
+  local xy; xy=$(tail -n +"$((MARK + 1))" "$OUT/logcat.txt" | grep "SkiQa.*redesign spot $1" | tail -1 | sed 's/.*redesign spot .* \([0-9]*\) \([0-9]*\)$/\1 \2/')
+  case "$xy" in *none*|*spot*|"") fail "redesign: no place to touch $1"; return 1 ;; esac
+  mark; tap $xy; waitlog "redesign chosen $1" 10
+}
+rd_back() { mark; adb shell input keyevent KEYCODE_BACK; waitlog "redesign cleared" 10; sleep 1; }
+redesign() {
+  adb shell am force-stop "$PKG"; sleep 1; mark
+  adb shell "am start -W -n $ACT --es qa.tab home --es qa.mode auto --es qa.redesign open" > /dev/null
+  waitlog "redesign ready" 40; sleep 3; shot redesign-open
+  # a run away from the close-up's side, on the whole mountain: the mountain rises above the sheet
+  rd_touch "Kudebi 1" && { sleep 2.5; shot redesign-chosen; }; rd_back
+  # a run of the Tatra side: the close-up picture comes in
+  rd_touch "Tatra 2" && { sleep 2.5; shot redesign-closeup; }
+  # back from the close-up: the whole mountain, and a touch there is right again
+  rd_back; sleep 0.5; shot redesign-back
+  rd_touch "Sportuli 1" && sleep 2; rd_back
+  # zoomed in (as a pinch leaves it), a real drag, then a touch: the run under the finger
+  mark; qa "--es qa.redesign view:2.2,180,520"; waitlog "redesign view zoom" 10; sleep 1; shot redesign-zoom
+  drag $((W / 2)) $((H / 2)) $((W / 2 + W / 6)) $((H / 2 + H / 10)) 400; sleep 1; shot redesign-zoom-dragged
+  rd_touch "Goodaura 1" && { sleep 2.5; shot redesign-zoom-chosen; }; rd_back
+  mark; qa "--es qa.redesign view:2.6,300,300"; waitlog "redesign view zoom" 10; sleep 1
+  rd_touch "Kikilo 1" && sleep 2; rd_back
+  # day and night (the switch: day is the morning picture, night is night)
+  qa "--es qa.mode day"; sleep 3; shot redesign-day
+  qa "--es qa.mode night"; sleep 3; shot redesign-night
+  rd_touch "Tatra 1" && { sleep 2.5; shot redesign-night-chosen; }; rd_back
+  qa "--es qa.mode auto --es qa.redesign close"; sleep 1.5; shot redesign-closed
 }
 
 # ---- the store screenshots (Google Play: portrait 9:16) ----

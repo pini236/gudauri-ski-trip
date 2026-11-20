@@ -20,6 +20,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -47,11 +48,22 @@ import io.github.pini236.skiapp.ui.Plex
  * emulator's (qa/run.sh), whose steps tap the current home. The store build has an empty twin (src/store).
  */
 object Redesign {
+    /** The emulator run's hook (qa.redesign, debug builds only, app/android/qa/README.md). */
+    fun qa(cmd: String) = RedesignQa.send(cmd)
+
     @Composable
     fun BoxScope.Host(home: Boolean, mode: DayNight.Mode, haptics: Haptics) {
-        // the emulator's scripts drive the debug build through the current screens (qa/run.sh): there the POC stays away
-        if (io.github.pini236.skiapp.BuildConfig.DEBUG) return
-        var open by rememberSaveable { mutableStateOf(true) }
+        // the emulator's scripts drive the debug build through the current screens (qa/run.sh): there the mountain
+        // opens only when the run asks for it (qa.redesign open), so every other part sees the app as it is
+        val debug = io.github.pini236.skiapp.BuildConfig.DEBUG
+        if (debug && !RedesignQa.asked) return
+        var open by rememberSaveable { mutableStateOf(!debug) }
+        LaunchedEffect(RedesignQa.seq) {
+            when (RedesignQa.cmd) {
+                "open" -> open = true
+                "close" -> open = false
+            }
+        }
         if (open) {
             BackHandler { open = false }
             val view = LocalView.current
@@ -69,4 +81,16 @@ object Redesign {
             }
         }
     }
+}
+
+/**
+ * The emulator's commands to the mountain (qa.redesign): open, close, view:<zoom>,<x>,<y> (the free view, as a pinch
+ * would leave it; adb has one finger), and spot:<run> (logs where on the screen that run can be touched now, so the
+ * script taps there with a real touch). The screen writes "redesign ..." lines for the script to wait on.
+ */
+object RedesignQa {
+    var asked by mutableStateOf(false); private set
+    var seq by mutableStateOf(0); private set
+    var cmd: String = ""; private set
+    fun send(c: String) { asked = true; cmd = c; seq++ }
 }

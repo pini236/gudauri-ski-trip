@@ -21,7 +21,27 @@ class PeakData(
     val pal: Map<String, Pal>,
     val hero: View, val zoom: View,
     val runs: Map<String, Run>,
+    /** the handoff's points to check the projection by: lat, lon, height, and where each view draws them */
+    val check: List<Check> = emptyList(),
 ) {
+    class Check(val what: String, val lat: Double, val lon: Double, val z: Double, val hero: Offset, val zoom: Offset)
+
+    /**
+     * The projection of a view (the handoff's formula, the shared contract): metres east and north of the geo origin,
+     * then x = W/2 + S·u, y = y_c − S·(F(d) + (z − zref)·C(d)), with F and C in steps of [step] metres of d.
+     */
+    class Proj(val w: Float, val s: Double, val c0: Double, val c1: Double, val near: Double, val yc: Double, val zref: Double,
+               val step: Double, val f: DoubleArray, val cc: DoubleArray, val geo: DoubleArray) {
+        fun project(lat: Double, lon: Double, z: Double): Offset? {
+            val e = (lon - geo[1]) * geo[2]; val n = (lat - geo[0]) * geo[3]
+            val u = e - c0; val d = n - c1 + near
+            val i = d / step; val i0 = kotlin.math.floor(i).toInt(); val t = i - i0
+            if (i0 < 0 || i0 + 1 >= f.size) return null
+            val ff = f[i0] * (1 - t) + f[i0 + 1] * t; val c = cc[i0] * (1 - t) + cc[i0 + 1] * t
+            return Offset((w / 2 + s * u).toFloat(), (yc - s * (ff + (z - zref) * c)).toFloat())
+        }
+    }
+
     class Light(val name: String, val hour: Float, val alt: Float, val az: Float, val night: Boolean)
     class Pal(val green: Color, val blue: Color, val red: Color, val black: Color, val case: Color, val wire: Color, val st: Color, val sh: Color) {
         fun run(c: String) = when (c) { "green" -> green; "blue" -> blue; "red" -> red; else -> black }
@@ -85,14 +105,19 @@ class PeakData(
         val w: Float, val h: Float, val images: Map<String, String>, val s: Float, val zfRuns: Float, val zfLifts: Float,
         /** per light: the screen offset of the shadow of a point 100 m up */
         val shadow: Map<String, Offset>,
-        val details: Map<String, List<Op>>, val bshadow: Map<String, List<Path>>,
+        val details: Map<String, List<Op>>, private val bshadowPts: Map<String, List<FloatArray>>,
         val pistes: List<Piste>, val lifts: List<Lift>, val sel: Map<String, Sel>, val labels: List<Label>,
         /** zoom only: x_zoom = x_hero · k + tx */
         val fromHero: Triple<Float, Float, Float>?,
-    )
+        val proj: Proj? = null,
+    ) {
+        /** the buildings' shadows per light, made into paths only when drawn (the parsing stays free of graphics) */
+        private val bshadowCache = HashMap<String, List<Path>>()
+        fun bshadow(light: String): List<Path>? = bshadowPts[light]?.let { pts -> bshadowCache.getOrPut(light) { pts.map { PeakData.poly(it, true) } } }
+    }
 
     companion object {
-        private fun poly(a: FloatArray, close: Boolean) = Path().apply { addPoly(this, a, close) }
+        internal fun poly(a: FloatArray, close: Boolean) = Path().apply { addPoly(this, a, close) }
         private fun addPoly(p: Path, a: FloatArray, close: Boolean) {
             if (a.size < 4) return
             p.moveTo(a[0], a[1]); var i = 2; while (i + 1 < a.size) { p.lineTo(a[i], a[i + 1]); i += 2 }
@@ -103,7 +128,9 @@ class PeakData(
         private fun lfa(a: JSONArray?) = if (a == null) emptyList() else List(a.length()) { fa(a.getJSONArray(it)) }
         private fun <T> list(a: JSONArray?, f: (JSONObject) -> T) = if (a == null) emptyList() else List(a.length()) { f(a.getJSONObject(it)) }
 
-        private fun view(v: JSONObject): View {
+        private fun da(a: JSONArray) = DoubleArray(a.length()) { a.getDouble(it) }
+
+        private fun view(v: JSONObject, geo: DoubleArray): View {
             val images = v.getJSONObject("images").let { o -> o.keys().asSequence().associateWith { o.getString(it) } }
             val shadow = v.optJSONObject("shadow")?.let { o -> o.keys().asSequence().associateWith { k -> o.getJSONArray(k).let { Offset(it.getDouble(0).toFloat(), it.getDouble(1).toFloat()) } } } ?: emptyMap()
             val details = v.getJSONObject("details").let { o -> o.keys().asSequence().associateWith { k ->
@@ -112,7 +139,7 @@ class PeakData(
                         op.optDouble("w", 0.0).toFloat(), op.optDouble("o", 1.0).toFloat(), op.optInt("i", -1),
                         op.optDouble("x", 0.0).toFloat(), op.optDouble("y", 0.0).toFloat(), op.optDouble("r", 0.0).toFloat())
                 } } }
-            val bshadow = v.optJSONObject("bshadow")?.let { o -> o.keys().asSequence().associateWith { k -> lfa(o.getJSONArray(k)).map { poly(it, true) } } } ?: emptyMap()
+            val bshadow = v.optJSONObject("bshadow")?.let { o -> o.keys().asSequence().associateWith { k -> lfa(o.getJSONArray(k)) } } ?: emptyMap()
             val pistes = list(v.getJSONArray("pistes")) { p ->
                 Piste(p.getString("key"), p.optString("name", p.getString("key")), p.getString("color"), p.getBoolean("named"), p.optString("kind", "run"), p.optBoolean("lit"), lfa(p.getJSONArray("l")))
             }
@@ -132,11 +159,15 @@ class PeakData(
             val labels = list(v.optJSONArray("labels")) { Label(it.getString("t"), if (it.has("sub")) it.getInt("sub") else null, it.getDouble("x").toFloat(), it.getDouble("y").toFloat()) }
             val fh = v.optJSONObject("from_hero")?.let { Triple(it.getDouble("k").toFloat(), it.getDouble("tx").toFloat(), it.getDouble("ty").toFloat()) }
             return View(v.getDouble("W").toFloat(), v.getDouble("H").toFloat(), images, v.getJSONObject("proj").getDouble("S").toFloat(),
-                v.optDouble("zf_runs", 1.0).toFloat(), v.optDouble("zf_lifts", 1.0).toFloat(), shadow, details, bshadow, pistes, lifts, sel, labels, fh)
+                v.optDouble("zf_runs", 1.0).toFloat(), v.optDouble("zf_lifts", 1.0).toFloat(), shadow, details, bshadow, pistes, lifts, sel, labels, fh,
+                v.getJSONObject("proj").let { p -> Proj(v.getDouble("W").toFloat(), p.getDouble("S"), p.getJSONArray("c").getDouble(0), p.getJSONArray("c").getDouble(1),
+                    p.getDouble("near"), p.getDouble("y_c"), p.getDouble("zref"), p.getDouble("step"), da(p.getJSONArray("F")), da(p.getJSONArray("C")), geo) })
         }
 
-        fun load(context: Context): PeakData {
-            val o = JSONObject(context.assets.open("redesign/peak-poc.json").bufferedReader().use { it.readText() })
+        fun load(context: Context): PeakData = parse(context.assets.open("redesign/peak-poc.json").bufferedReader().use { it.readText() })
+
+        fun parse(json: String): PeakData {
+            val o = JSONObject(json)
             val lights = list(o.getJSONArray("lights")) { Light(it.getString("name"), it.getDouble("hour").toFloat(), it.optDouble("alt", -90.0).toFloat(), it.optDouble("az", 0.0).toFloat(), it.getBoolean("night")) }
             val slope = o.getJSONArray("slope").let { a -> List(a.length()) { col(a.getJSONArray(it).getString(1))!! } }
             val pal = o.getJSONObject("pal").let { p -> p.keys().asSequence().associateWith { k -> p.getJSONObject(k).let {
@@ -147,7 +178,12 @@ class PeakData(
             val runs = o.getJSONObject("runs").let { r -> r.keys().asSequence().associateWith { k -> r.getJSONObject(k).let {
                 Run(it.optString("name", k), it.getString("color"), it.optString("ref"), it.optInt("len"), it.optInt("drop"), it.optInt("steep"), it.optBoolean("near"))
             } } }
-            return PeakData(lights, slope, pal, view(views.getJSONObject("hero")), view(views.getJSONObject("zoom")), runs)
+            val geo = o.getJSONObject("geo").let { doubleArrayOf(it.getDouble("lat0"), it.getDouble("lon0"), it.getDouble("kx"), it.getDouble("ky")) }
+            val check = list(o.optJSONArray("check")) { c ->
+                fun at(k: String) = c.getJSONObject(k).let { Offset(it.getDouble("x").toFloat(), it.getDouble("y").toFloat()) }
+                Check(c.optString("what"), c.getDouble("lat"), c.getDouble("lon"), c.getDouble("z"), at("hero"), at("zoom"))
+            }
+            return PeakData(lights, slope, pal, view(views.getJSONObject("hero"), geo), view(views.getJSONObject("zoom"), geo), runs, check)
         }
     }
 }

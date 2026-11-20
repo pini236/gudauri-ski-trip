@@ -97,6 +97,7 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.pini236.skiapp.R
+import io.github.pini236.skiapp.qa.Qa
 import io.github.pini236.skiapp.fx.Haptics
 import io.github.pini236.skiapp.home.DayNight
 import io.github.pini236.skiapp.ui.Motion
@@ -149,11 +150,6 @@ private class Pictures(private val context: android.content.Context) {
 }
 
 /** A picture on the screen: screen = point · k + (x, y), in pixels. */
-private data class Place(val k: Float, val x: Float, val y: Float) {
-    fun on(p: Offset) = Offset(p.x * k + x, p.y * k + y)
-    fun back(s: Offset) = Offset((s.x - x) / k, (s.y - y) / k)
-    fun lerp(o: Place, t: Float) = Place(k + (o.k - k) * t, x + (o.x - x) * t, y + (o.y - y) * t)
-}
 
 @Composable
 fun PeakScreen(mode: DayNight.Mode, haptics: Haptics, onLeave: () -> Unit) {
@@ -218,13 +214,8 @@ fun PeakScreen(mode: DayNight.Mode, haptics: Haptics, onLeave: () -> Unit) {
         val dp = density.density
         val sheetPx = SHEET_DP.value * dp
         // the fit (the handoff): k = max(width / 390, height / 844), centred
-        val kFit = max(W / d.hero.w, H / d.hero.h)
-        fun free(zz: Float = z, cc: Offset = c): Place {
-            val k = kFit * zz
-            val hx = W / (2 * k); val hy = H / (2 * k)
-            val cx = cc.x.coerceIn(min(hx, d.hero.w / 2), max(d.hero.w - hx, d.hero.w / 2)); val cy = cc.y.coerceIn(min(hy, d.hero.h / 2), max(d.hero.h - hy, d.hero.h / 2))
-            return Place(k, W / 2 - cx * k, H / 2 - cy * k)
-        }
+        val kFit = PeakGeo.fit(W, H, d.hero)
+        fun free(zz: Float = z, cc: Offset = c): Place = PeakGeo.free(W, H, d.hero, zz, cc)
         // the close-up: k = max(width / 390, (height − sheet + 12) / 560), at the top
         val kz = max(W / d.zoom.w, (H - sheetPx + 12 * dp) / d.zoom.h)
         val zoomPlace = Place(kz, (W - d.zoom.w * kz) / 2, 0f)
@@ -249,6 +240,7 @@ fun PeakScreen(mode: DayNight.Mode, haptics: Haptics, onLeave: () -> Unit) {
         fun choose(k: String) {
             val again = key != null
             key = k; chosenOnce = true; sheet = false
+            Qa.log("redesign chosen $k")
             haptics.tick(.5f)
             camJob?.cancel()
             scope.launch {
@@ -265,6 +257,7 @@ fun PeakScreen(mode: DayNight.Mode, haptics: Haptics, onLeave: () -> Unit) {
         }
         fun clear() {
             if (key == null) return
+            Qa.log("redesign cleared")
             sheet = false
             scope.launch {
                 val t = if (reduced) 1 else 200
@@ -277,19 +270,32 @@ fun PeakScreen(mode: DayNight.Mode, haptics: Haptics, onLeave: () -> Unit) {
         BackHandler(enabled = key != null) { clear() }
         fun hit(s: Offset): String? {
             val inZoom = zoomIn > .5f
-            val v = if (inZoom) d.zoom else d.hero; val pl = if (inZoom) zoomPlace else hero
-            val p = pl.back(s); var best: String? = null; var bd = 22 * dp
-            for (pi in v.pistes) {
-                if (!pi.named || pi.key !in d.runs || pi.key !in v.sel) continue
-                for (a in pi.l) { var i = 0; while (i + 1 < a.size) { val dd = hypot(a[i] - p.x, a[i + 1] - p.y) * pl.k; if (dd < bd) { bd = dd; best = pi.key }; i += 2 } }
-            }
-            return best
+            return PeakGeo.hit(if (inZoom) d.zoom else d.hero, d.runs.keys, if (inZoom) zoomPlace else hero, s, 22 * dp)
         }
         // the gesture handlers live across compositions (keyed on the size only), so they reach the
         // current zoom, pan and close-up through these, not through the values of the first composition
         val hitNow by rememberUpdatedState { s: Offset -> hit(s) }
         val chooseNow by rememberUpdatedState { k: String -> choose(k) }
         val clearNow by rememberUpdatedState { clear() }
+        // the emulator's commands (qa.redesign, debug builds only): the free view as a pinch would leave it, and where a
+        // run can be touched in what is drawn now (the script then touches it for real)
+        val placeNow by rememberUpdatedState(if (zoomIn > .5f) zoomPlace else hero)
+        val viewNow by rememberUpdatedState(if (zoomIn > .5f) d.zoom else d.hero)
+        LaunchedEffect(RedesignQa.seq) {
+            val cmd = RedesignQa.cmd
+            when {
+                cmd.startsWith("view:") -> cmd.removePrefix("view:").split(',').mapNotNull { it.trim().toFloatOrNull() }.takeIf { it.size == 3 }?.let { (zz, x, y) ->
+                    camJob?.cancel(); z = zz.coerceIn(1f, 2.6f); c = PeakGeo.centre(W, H, free(z, Offset(x, y)))
+                    Qa.log("redesign view zoom $z")
+                }
+                cmd.startsWith("spot:") -> {
+                    val k = cmd.removePrefix("spot:")
+                    val s = PeakGeo.spot(viewNow, d.runs.keys, k, placeNow, W, H, 22 * dp)
+                    Qa.log(if (s == null) "redesign spot $k none" else "redesign spot $k ${s.x.toInt()} ${s.y.toInt()}")
+                }
+            }
+        }
+        LaunchedEffect(Unit) { Qa.log("redesign ready") }
 
         val measurer = rememberTextMeasurer()
         val nf = remember { NumberFormat.getIntegerInstance() }
@@ -303,7 +309,7 @@ fun PeakScreen(mode: DayNight.Mode, haptics: Haptics, onLeave: () -> Unit) {
                     val f0 = free(); val before = f0.back(centroid)
                     val nz = (z * zoom).coerceIn(1f, 2.6f); val k = kFit * nz
                     z = nz; c = Offset(before.x - (centroid.x - W / 2) / k - pan.x / k, before.y - (centroid.y - H / 2) / k - pan.y / k)
-                    val f = free(); c = Offset((W / 2 - f.x) / f.k, (H / 2 - f.y) / f.k)
+                    c = PeakGeo.centre(W, H, free())
                 }
             }
             .pointerInput(W, H) {
@@ -420,7 +426,7 @@ private fun DrawScope.layer(
     withTransform({ translate(pl.x, pl.y); scale(pl.k, pl.k, Offset.Zero) }) {
         // 2. the small real things
         val ops = v.details[if (night) "night" else "day"].orEmpty()
-        val bsh = v.bshadow[light.name]
+        val bsh = v.bshadow(light.name)
         for (op in ops) when (op.k) {
             'l' -> op.path?.let { drawPath(it, op.stroke ?: Color.Gray, alpha = op.o * a, style = st(op.w)) }
             'p' -> op.path?.let { p -> op.fill?.let { drawPath(p, it, alpha = op.o * a, style = Fill) }; if (op.stroke != null && op.w > 0f) drawPath(p, op.stroke, alpha = op.o * a, style = st(op.w)) }
