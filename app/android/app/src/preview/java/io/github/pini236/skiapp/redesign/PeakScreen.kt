@@ -443,16 +443,13 @@ fun PeakScreen(mode: DayNight.Mode, haptics: Haptics, onLive: (() -> Unit)? = nu
                         }
                     }
                 }
-<<<<<<< HEAD
                 Spacer(Modifier.weight(1f))
-=======
                 if (onLive != null) Pill(g, Modifier.clickable { haptics.tick(.3f); onLive() }) {
                     Row(Modifier.padding(horizontal = 14.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(7.dp)) {
                         Box(Modifier.size(8.dp).clip(CircleShape).background(g.acc))
                         Text(stringResource(R.string.poc_peak_live), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = g.ink)
                     }
                 }
->>>>>>> 8a73bdc (Redesign POC phase B, first sketch: the painted mountain as a live model)
                 Pill(g, Modifier.clickable { haptics.tick(.3f); onLeave() }) {
                     Text(stringResource(R.string.poc_peak_leave), Modifier.padding(horizontal = 16.dp), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = g.ink)
                 }
