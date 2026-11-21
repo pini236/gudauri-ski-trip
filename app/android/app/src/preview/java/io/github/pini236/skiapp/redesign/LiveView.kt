@@ -12,6 +12,7 @@ import io.github.pini236.skiapp.map.Moves
 import io.github.pini236.skiapp.map.OrbitCamera
 import io.github.pini236.skiapp.map.Sky
 import io.github.pini236.skiapp.map.Sun
+import io.github.pini236.skiapp.qa.Qa
 import java.util.concurrent.Executors
 import javax.microedition.khronos.egl.EGL10
 import javax.microedition.khronos.egl.EGLConfig
@@ -31,6 +32,7 @@ class LiveView(context: Context, private val scene: MapScene) : GLSurfaceView(co
     private val density = resources.displayMetrics.density
     private val renderer = LiveRenderer(scene, camera, density) { requestRender() }
     private val worker = Executors.newSingleThreadExecutor()
+    private val data = LiveData.load(context)
     /** A run chosen by a tap (its key), or none. */
     var onChoose: ((String?) -> Unit)? = null
 
@@ -53,24 +55,47 @@ class LiveView(context: Context, private val scene: MapScene) : GLSurfaceView(co
         preserveEGLContextOnPause = false
         setRenderer(renderer)
         renderMode = RENDERMODE_WHEN_DIRTY
-        worker.execute { renderer.detail = Detail.make(); requestRender() }
-        // the opening: from the same side as the picture (its az, LiveOpen), low over the valley; then a slow approach
-        val t = scene.terrain
-        val tx = 300f; val tz = -900f
-        camera.set(OrbitCamera.State(tx, t.elev(tx, tz), tz, 12500f, LiveOpen.YAW, 0.20f))
-        renderer.animate(OrbitCamera.State(tx, t.elev(tx, tz), tz, 9400f, LiveOpen.YAW, 0.30f), 2.2f)
+        // the designer's values and textures (design/handoff/2026-11-20-redesign-live): small, so the values at once,
+        // the textures off the GL thread, each checked against the designer's texels
+        val d = data; renderer.data = d
+        camera.fovDeg = d.camera.fovDeg
+        worker.execute {
+            val list = LiveData.TEXTURES.map { LiveTex.decode(context, it) }
+            val bad = d.checks.filter { c -> list.first { it.name == c.tex }.let { t -> !LiveTex.check(t.px, t.w, t.h, c) } }
+            Qa.log(if (bad.isEmpty()) "redesign live textures ok" else "redesign live textures bad ${bad.joinToString { it.tex }}")
+            renderer.textures = list; requestRender()
+        }
+        // the opening: the designer's camera (peak-live.json), looking north the way the picture looks (LiveOpen):
+        // a little further and lower first, then a slow approach
+        val c = d.camera
+        val open = OrbitCamera.State(c.tx, scene.terrain.elev(c.tx, c.tz), c.tz, c.dist, LiveOpen.YAW, Math.toRadians(c.pitchDeg.toDouble()).toFloat())
+        camera.set(open.copy(dist = open.dist * 1.25f, pitch = open.pitch * .8f))
+        renderer.animate(open, 2.2f)
     }
+
+
+    /**
+     * The gestures of today's map (map/Moves.kt) work in its 40 degree lens; the live model sees through the designer's
+     * wider one. Same eye, same direction: a point on the screen here is the same ray as this point, moved out from the
+     * centre by the ratio of the two lenses, there.
+     */
+    private fun lx(x: Float) = width / 2f + (x - width / 2f) * lens
+    private fun ly(y: Float) = height / 2f + (y - height / 2f) * lens
+    private val lens: Float get() = (kotlin.math.tan(Math.toRadians(data.camera.fovDeg / 2.0)) / kotlin.math.tan(Math.toRadians(20.0))).toFloat()
 
     private var lightKey = Long.MIN_VALUE
     /** The light of a moment: the shader's uniforms at once, the shadows a moment later (worked out off the GL thread). */
     fun setTime(epochMs: Long) {
-        val l = Sky.at(epochMs)
+        val sky = Sky.at(epochMs)
+        val (az, alt) = Sun.position(epochMs)
+        val l = LiveLight.at(data.keys, Math.toDegrees(alt).toFloat(), az < Math.PI, sky.sunDir, sky.dir, sky.moonUp)
         renderer.light = l; requestRender()
-        // the shadows, at most once per 10 minutes of the sun
+        // the shadows, at most once per 10 minutes of the sun, softened once (1 2 1)
         val key = epochMs / 600_000
         if (key == lightKey) return
         lightKey = key
-        worker.execute { if (lightKey == key) renderer.setShadow(Sun.shadows(scene.terrain, l.dir)) }
+        val t = scene.terrain
+        worker.execute { if (lightKey == key) renderer.setShadow(LiveLight.soften(Sun.shadows(t, l.dir), t.nx, t.ny)) }
     }
 
     fun setPal(p: PeakData.Pal?) { renderer.pal = p; requestRender() }
@@ -112,14 +137,14 @@ class LiveView(context: Context, private val scene: MapScene) : GLSurfaceView(co
                 if (e.pointerCount >= 2) twoFingers(e, w, h)
                 else {
                     if (!moved && hypot(e.x - downX, e.y - downY) > slop) { moved = true; lastX = downX; lastY = downY }
-                    if (moved) { val x0 = lastX; val y0 = lastY; move { Moves.pan(it, w, h, x0, y0, e.x, e.y, snow) } }
+                    if (moved) { val x0 = lastX; val y0 = lastY; move { Moves.pan(it, w, h, lx(x0), ly(y0), lx(e.x), ly(e.y), snow) } }
                     lastX = e.x; lastY = e.y
                 }
             }
             MotionEvent.ACTION_POINTER_UP -> {
                 if (e.pointerCount == 2 && two == Two.UNDECIDED && e.eventTime - twoDownT < 300) {
                     val mx = (e.getX(0) + e.getX(1)) / 2; val my = (e.getY(0) + e.getY(1)) / 2
-                    renderer.animate(Moves.zoom(camera.state(), w, h, mx, my, 0.5f, snow), 0.35f)
+                    renderer.animate(Moves.zoom(camera.state(), w, h, lx(mx), ly(my), 0.5f, snow), 0.35f)
                     two = Two.TRANSFORM
                 }
                 val rest = (0 until e.pointerCount).filter { it != e.actionIndex }
@@ -165,9 +190,9 @@ class LiveView(context: Context, private val scene: MapScene) : GLSurfaceView(co
             turned += da
             if (!turning && abs(turned) > 0.2f) turning = true
             move {
-                var st = Moves.pan(it, w, h, px, py, midX, midY, snow)
-                st = Moves.zoom(st, w, h, midX, midY, factor, snow)
-                if (turning) Moves.rotate(st, w, h, midX, midY, da, snow) else st
+                var st = Moves.pan(it, w, h, lx(px), ly(py), lx(midX), ly(midY), snow)
+                st = Moves.zoom(st, w, h, lx(midX), ly(midY), factor, snow)
+                if (turning) Moves.rotate(st, w, h, lx(midX), ly(midY), da, snow) else st
             }
         }
         lastMidX = midX; lastMidY = midY; lastGap = gap; lastAngle = angle
@@ -176,7 +201,7 @@ class LiveView(context: Context, private val scene: MapScene) : GLSurfaceView(co
     private fun tap(x: Float, y: Float, t: Long, w: Float, h: Float) {
         if (t - lastTapT < doubleTapMs && hypot(x - tapX, y - tapY) < 48 * density) {
             removeCallbacks(pendingPick); lastTapT = 0L
-            renderer.animate(Moves.zoom(camera.state(), w, h, x, y, 2.2f, snow), 0.35f)
+            renderer.animate(Moves.zoom(camera.state(), w, h, lx(x), ly(y), 2.2f, snow), 0.35f)
             return
         }
         lastTapT = t; tapX = x; tapY = y
@@ -186,7 +211,7 @@ class LiveView(context: Context, private val scene: MapScene) : GLSurfaceView(co
     /** The named run whose line passes closest to the finger, within 28 dp, in this frame's projection. */
     private fun pick(px: Float, py: Float) {
         val mvp = FloatArray(16); val eye = FloatArray(3); val v = FloatArray(4); val o = FloatArray(4)
-        OrbitCamera.mvp(camera.state(), width.toFloat() / height, mvp, eye) { x, z -> scene.terrain.elev(x, z) }
+        OrbitCamera.mvp(camera.state(), width.toFloat() / height, mvp, eye, data.camera.fovDeg) { x, z -> scene.terrain.elev(x, z) }
         var best: String? = null; var bestD = 28 * density
         for (p in scene.runs.pistes) {
             if (!p.named) continue
