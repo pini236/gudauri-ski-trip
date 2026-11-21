@@ -1,6 +1,9 @@
 package io.github.pini236.skiapp.dayrec.ui
 
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class LiveNumbersTest {
@@ -9,6 +12,31 @@ class LiveNumbersTest {
         assertEquals("0", LiveNumbers.kmh(-1.0))
         assertEquals("36", LiveNumbers.kmh(10.0))
         assertEquals("63", LiveNumbers.kmh(17.5))
+    }
+
+    /** The big number (A-47): a valid Doppler wins; else the distance between two accurate readings; else a dash, never a false 0. */
+    @Test fun displaySpeedUsesDistanceOnlyWithAccurateReadings() {
+        val a = LiveNumbers.Fix(0, 0.0, 0.0, 5.0)
+        val b = LiveNumbers.Fix(2000, 3.0, 0.0, 5.0)
+        val c = LiveNumbers.Fix(4000, 9.0, 0.0, 5.0)
+        assertEquals(4.2, LiveNumbers.displaySpeed(4.2, a, b, null)!!, 1e-9)
+        assertEquals(0.0, LiveNumbers.displaySpeed(0.0, a, b, 3.0)!!, 1e-9) // a real standing still is a real 0
+        assertNull(LiveNumbers.displaySpeed(null, null, a, null))
+        val v1 = LiveNumbers.displaySpeed(null, a, b, null)
+        assertEquals(1.5, v1!!, 1e-9)
+        assertEquals(2.25, LiveNumbers.displaySpeed(null, b, c, v1)!!, 1e-9) // half and half with what was shown
+        assertEquals(1.5, LiveNumbers.displaySpeed(-1.0, a, b, null)!!, 1e-9) // a negative Doppler is none
+        // a coarse position (indoors, a valley): no speed from the jumps
+        assertNull(LiveNumbers.displaySpeed(null, a, LiveNumbers.Fix(2000, 30.0, 0.0, 40.0), 1.5))
+        assertNull(LiveNumbers.displaySpeed(null, LiveNumbers.Fix(0, 0.0, 0.0, null), b, 1.5))
+        // too far apart in time, or too close
+        assertNull(LiveNumbers.displaySpeed(null, a, LiveNumbers.Fix(60_000, 50.0, 0.0, 5.0), 1.5))
+        assertNull(LiveNumbers.displaySpeed(null, a, LiveNumbers.Fix(200, 1.0, 0.0, 5.0), 1.5))
+        // a jump that no skier makes
+        assertNull(LiveNumbers.displaySpeed(null, a, LiveNumbers.Fix(1000, 500.0, 0.0, 5.0), null))
+        assertEquals("\u2014", LiveNumbers.speedText(null))
+        assertEquals("5", LiveNumbers.speedText(1.5))
+        assertEquals("0", LiveNumbers.speedText(0.0))
     }
 
     @Test fun distanceAndDrop() {
@@ -28,7 +56,9 @@ class LiveNumbersTest {
     @Test fun weakGpsAfterTwentySecondsWithoutAReading() {
         assertEquals(false, LiveNumbers.weakGps(30_000, 20_000, 1_000)) // a reading 10 s ago
         assertEquals(true, LiveNumbers.weakGps(50_000, 20_000, 1_000)) // 30 s ago
-        assertEquals(true, LiveNumbers.weakGps(30_000, 0, 1_000)) // no reading at all since the start
+        assertEquals(false, LiveNumbers.weakGps(30_000, 0, 1_000)) // no reading yet: waiting for the satellites is not a weak signal
+        assertEquals(false, LiveNumbers.weakGps(80_000, 0, 1_000)) // still within the first wait
+        assertEquals(true, LiveNumbers.weakGps(100_000, 0, 1_000)) // no reading at all for over a minute and a half
         assertEquals(false, LiveNumbers.weakGps(10_000, 0, 1_000)) // just started
         assertEquals(false, LiveNumbers.weakGps(99_000, 0, 0)) // not recording
     }
@@ -57,5 +87,47 @@ class ReplayAtTest {
 
     @org.junit.Test fun noReadingsNoSpot() {
         org.junit.Assert.assertNull(ReplayAt.spot(Track(FloatArray(0), FloatArray(0), DoubleArray(0), LongArray(0)), 5))
+    }
+
+    @Test fun counterNeverGoesBackWhenTheFirstReadingComesLate() {
+        val tap = 1_000_000L
+        // 8 s after the tap the counter says 8 s; the first reading (at 8.5 s) must not change what the counter counts from
+        val before = LiveNumbers.sinceTap(tap + 8_000L, tap)
+        val after = LiveNumbers.sinceTap(tap + 8_500L, tap)
+        assertEquals(8_000L, before)
+        assertTrue(after >= before)
+    }
+
+    @Test fun counterIsZeroBeforeTheRecordingBegan() {
+        assertEquals(0L, LiveNumbers.sinceTap(5_000L, 0L))
+        assertEquals(0L, LiveNumbers.sinceTap(1_000L, 2_000L))
+    }
+
+    @Test fun searchingOnlyWhileRecordingWithoutAReading() {
+        assertTrue(LiveNumbers.searching(true, 0L))
+        assertTrue(!LiveNumbers.searching(true, 5L))
+        assertTrue(!LiveNumbers.searching(false, 0L))
+    }
+
+    @Test fun anEndFromOutsideIsOnlyAnEndOfARecordingThatHadItsFile() {
+        assertTrue(LiveNumbers.endedOutside(wasRecording = true, recording = false, sawFile = true))
+        // a slow start that has not made its file yet is not an end
+        assertFalse(LiveNumbers.endedOutside(wasRecording = true, recording = false, sawFile = false))
+        assertFalse(LiveNumbers.endedOutside(wasRecording = true, recording = true, sawFile = true))
+        assertFalse(LiveNumbers.endedOutside(wasRecording = false, recording = false, sawFile = true))
+    }
+
+    @Test fun theCounterGoesByTheTapUntilTheRecorderHasItsOwnStartTime() {
+        // no start time yet (the first recording, or the service is slow to start): the tap
+        assertEquals(1_000L, LiveNumbers.began(tapAt = 1_000L, startedAt = 0L))
+        // the last recording's start time is still there: older than the tap, so not this recording's
+        assertEquals(50_000L, LiveNumbers.began(tapAt = 50_000L, startedAt = 10_000L))
+        // the recorder's own time, a moment after the tap
+        assertEquals(1_120L, LiveNumbers.began(tapAt = 1_000L, startedAt = 1_120L))
+        assertEquals(1_000L, LiveNumbers.began(tapAt = 1_000L, startedAt = 1_000L))
+        // no tap (a recording that began some other way)
+        assertEquals(7_000L, LiveNumbers.began(tapAt = 0L, startedAt = 7_000L))
+        // the counter is never negative or past the tap
+        assertEquals(0L, LiveNumbers.sinceTap(900L, LiveNumbers.began(1_000L, 0L)))
     }
 }

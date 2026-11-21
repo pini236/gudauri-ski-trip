@@ -50,6 +50,8 @@ class SiteData(
             Spec("resorts.json", 1) { validResorts(it) },
             // food and services near the stations (round 31): a file this app cannot read is not used, and there are no places
             Spec("places.json", 1) { io.github.pini236.skiapp.places.Places.parse(it) != null },
+            // the ski-pass price list (round 40): the app reads the prices the resort published, and a price list this app cannot read is not used
+            Spec("prices.json", 1) { io.github.pini236.skiapp.skipass.Prices.parse(it) != null },
         )
 
         /** The top-level "schema" of an object file, 1 when it has none. */

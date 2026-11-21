@@ -251,7 +251,7 @@ object MomentText {
             val args = orderOf(full).map { name ->
                 when (val v = part.args[name]) {
                     null -> ""
-                    is Ref -> res.getIdentifier("moment_ref_${v.id}_1", "string", ctx.packageName).let { r -> if (r != 0) res.getString(r) else v.id }
+                    is Ref -> res.getIdentifier("moment_ref_${v.id}", "string", ctx.packageName).let { r -> if (r != 0) res.getString(r) else v.id }
                     else -> v
                 }
             }.toTypedArray()

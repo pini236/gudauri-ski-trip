@@ -512,3 +512,46 @@ class TwoPhones(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
+
+class Export(unittest.TestCase):
+    """The tester's export (export.py): nothing outside the rectangle, no dismissed window, no unknown line."""
+
+    def setUp(self):
+        import export as ex
+        self.ex = ex
+        self.doc = json.load(open(os.path.join(HERE, '..', 'fixtures', 'dayrec-export.json'), encoding='utf-8'))
+        self.proj = netmod.Proj(self.doc['proj']['lat0'], self.doc['proj']['lon0'])
+        self.text = '\n'.join(self.doc['input']) + '\n'
+
+    def run_case(self, allow):
+        return self.ex.crop(self.text, self.doc['rect'], self.proj, self.doc['header_extra'], allow)
+
+    def test_no_point_outside_the_rectangle(self):
+        x0, y0, x1, y1 = self.doc['rect']
+        _h, pts, _e, _b = rawlog.read(self.run_case(True))
+        self.assertTrue(pts)
+        for q in pts:
+            x, y = self.proj.xy(q['la'], q['lo'])
+            self.assertTrue(x0 <= x <= x1 and y0 <= y <= y1)
+
+    def test_header_has_no_identity(self):
+        h, _p, _e, _b = rawlog.read(self.run_case(False))
+        for k in ('device', 'account'):
+            self.assertNotIn(k, h)
+        self.assertTrue(h['cropped'])
+
+    def test_windows_only_with_agreement_and_never_dismissed(self):
+        _h, _p, off, _b = rawlog.read(self.run_case(False))
+        self.assertFalse([e for e in off if e.get('ev') == 'impact' and 'acc' in e])
+        _h, _p, on, _b = rawlog.read(self.run_case(True))
+        wins = [e for e in on if e.get('ev') == 'impact' and 'acc' in e]
+        self.assertEqual(len(wins), 1)  # the one inside, not dismissed
+
+    def test_unknown_event_is_dropped(self):
+        _h, _p, evs, _b = rawlog.read(self.run_case(True))
+        self.assertNotIn('someday', [e.get('ev') for e in evs])
+
+    def test_fixture_matches_code(self):
+        for c in self.doc['cases']:
+            self.assertEqual(self.run_case(c['allow_impacts']).strip().split('\n'), c['expected'], c['name'])

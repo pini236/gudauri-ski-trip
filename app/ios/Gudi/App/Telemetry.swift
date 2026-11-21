@@ -119,8 +119,12 @@ final class Telemetry {
         queue.append(["event": name, "properties": p, "timestamp": ISO8601DateFormatter().string(from: Date())])
         if queue.count > 100 { queue.removeFirst(queue.count - 100) }
         if timer == nil {
-            timer = Timer.scheduledTimer(withTimeInterval: 30, repeats: true) { _ in Task { @MainActor in Telemetry.shared.flush() } }
+            timer = Timer.scheduledTimer(withTimeInterval: 30, repeats: true, block: Self.tick())
         }
+    }
+
+    nonisolated static func tick() -> @Sendable (Timer) -> Void {
+        { _ in Task { @MainActor in Telemetry.shared.flush() } }
     }
 
     func screen(_ name: String, _ extra: [String: Any] = [:]) { event("screen_view", extra.merging(["screen": name]) { a, _ in a }) }
@@ -161,6 +165,15 @@ extension Route {
             }
         case .about: "about"
         case .trip: "trip"
+        // the ski-pass screen is not in the contract's list of screen names either
+        case .skipass: "home"
+        // the ski day's screens are not in the contract's list of screen names: they send no screen_view
+        case .record, .days, .day, .daySample, .replay, .replaySample: "home"
         }
+    }
+
+    /// The screens of the ski day (no screen_view for them).
+    var isDayRec: Bool {
+        switch self { case .record, .days, .day, .daySample, .replay, .replaySample: true; default: false }
     }
 }

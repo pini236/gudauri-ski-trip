@@ -18,7 +18,8 @@ object Drape {
     /** The picture's width: the site's 2048, about 7 m a pixel on this mountain. */
     const val WIDTH = 2048
 
-    fun paint(r: Relief2D, width: Int = WIDTH): Bitmap {
+    /** [contours] false: without them (the redesign's live model, whose boards have none on the mountain). */
+    fun paint(r: Relief2D, width: Int = WIDTH, contours: Boolean = true): Bitmap {
         val w = r.x1 - r.x0; val h = r.y1 - r.y0
         val tw = width; val th = Math.round(width * h / w)
         val b = Bitmap.createBitmap(tw, th, Bitmap.Config.ARGB_8888)
@@ -29,8 +30,10 @@ object Drape {
         fun stroke(color: Int, metres: Float) { p.style = Paint.Style.STROKE; p.color = color; p.strokeWidth = metres }
         fun fill(color: Int) { p.style = Paint.Style.FILL; p.color = color }
         // the contours: every 100 m light, every 500 m stronger (the site's 0.8 and 1.3 times four of its pixels)
-        stroke(Color.argb(36, 70, 90, 115), 3.2f); c.drawPath(r.c100, p)
-        stroke(Color.argb(77, 70, 90, 115), 5.2f); c.drawPath(r.c500, p)
+        if (contours) {
+            stroke(Color.argb(36, 70, 90, 115), 3.2f); c.drawPath(r.c100, p)
+            stroke(Color.argb(77, 70, 90, 115), 5.2f); c.drawPath(r.c500, p)
+        }
         fill(Color.argb(191, 214, 203, 190)); c.drawPath(r.village, p)
         stroke(Color.argb(179, 120, 160, 200), maxOf(1.2f / s, 6f)); c.drawPath(r.rivers, p)
         fill(DayColors.water.toArgb()); c.drawPath(r.water, p)

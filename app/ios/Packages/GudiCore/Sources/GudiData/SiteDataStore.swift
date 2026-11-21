@@ -23,7 +23,7 @@ public struct SiteDataStore: Sendable {
     public static let base = "https://gudauri-ski-trip.vercel.app/data/"
     public static let everySeconds: Double = 6 * 3600
     public static let maxBytes = 4 << 20
-    public static let files = ["runs-and-lifts.json"]
+    public static let files = ["runs-and-lifts.json", "resorts.json", "prices.json"]
 
     private struct Entry: Codable { var etag: String?; var checked: Double }
     private struct Meta: Codable { var app: String; var files: [String: Entry] }
@@ -40,14 +40,25 @@ public struct SiteDataStore: Sendable {
         self.dir = dir; self.appVersion = appVersion; self.packaged = packaged; self.fetch = fetch; self.now = now
     }
 
-    /// Whether a downloaded file may be used: it decodes, is not of a newer schema, and holds a real mountain.
+    /// Whether a downloaded file may be used: a checker per file (like Android's `Spec`); an unknown name is never used.
     public static func valid(_ name: String, _ data: Data) -> Bool {
-        guard data.count <= maxBytes, name == "runs-and-lifts.json" else { return false }
-        if let o = (try? JSONSerialization.jsonObject(with: data)) as? [String: Any],
-           let s = o["schema"] as? Int, s > 1 { return false }
-        guard let r = try? RunsAndLifts.decode(data) else { return false }
-        return r.pistes.count >= 10 && r.lifts.count >= 5 && r.pistes.allSatisfy { !$0.key.isEmpty }
-            && r.pistes.filter { !$0.lines.isEmpty }.count >= 10
+        guard data.count <= maxBytes else { return false }
+        let obj = try? JSONSerialization.jsonObject(with: data)
+        if let o = obj as? [String: Any], let s = o["schema"] as? Int, s > 1 { return false }
+        switch name {
+        case "runs-and-lifts.json":
+            guard let r = try? RunsAndLifts.decode(data) else { return false }
+            return r.pistes.count >= 10 && r.lifts.count >= 5 && r.pistes.allSatisfy { !$0.key.isEmpty }
+                && r.pistes.filter { !$0.lines.isEmpty }.count >= 10
+        case "resorts.json":
+            guard let r = try? Resorts.decode(data) else { return false }
+            return !r.resorts.isEmpty && r.resorts.allSatisfy { !$0.id.isEmpty }
+        case "prices.json":
+            // the prices file: its structure is checked by the screen that reads it; here only "a non-empty object"
+            guard let o = obj as? [String: Any] else { return false }
+            return !o.isEmpty
+        default: return false
+        }
     }
 
     private var metaURL: URL { dir.appendingPathComponent("meta.json") }

@@ -12,7 +12,7 @@ name: iOS release
 on:
   push:
     branches: [main]
-    paths: ['app/ios/**', 'site/data/**', 'site/games/descent/**', 'site/games/thumbs/**', 'site/js/relief.js', 'site/css/site.css', 'tools/fixtures/**', 'tools/build-ios-data.py', 'tools/build-ios-strings.py', 'i18n/strings.json', '.github/workflows/ios-release.yml', 'tools/check-ios-variant.sh']
+    paths: ['app/ios/**', 'site/data/**', 'site/games/descent/**', 'site/games/thumbs/**', 'site/js/relief.js', 'site/css/site.css', 'tools/fixtures/**', 'tools/build-ios-data.py', 'tools/build-ios-strings.py', 'i18n/strings.json', '.github/workflows/ios-release.yml', 'tools/check-ios-variant.sh', 'tools/check-ios-store-binary.sh', 'tools/check-ios-no-tests.sh']
   workflow_dispatch:
     inputs:
       variant:
@@ -20,6 +20,10 @@ on:
         type: choice
         options: [plain, dayrec]
         default: plain
+      archive_only:
+        description: "true = sign and archive, run the gates, then stop: no export, nothing is uploaded to App Store Connect or TestFlight. Manual runs only; a push never sets it"
+        type: boolean
+        default: false
 
 # a build that is already uploading is never cancelled halfway; the newest waiting push goes next
 concurrency:
@@ -141,9 +145,12 @@ jobs:
           # (ios.yml's builds are never uploaded), so TestFlight never sees a repeat (docs/ARCHITECTURE.md, R-8).
           # manual signing is set in the app target's Release settings in project.yml (the architect's condition);
           # only the profile's name comes from here, as a build setting that nothing but that target reads
+          # the Live Activity extension's profile name (dayrec only; the plain build has no such target)
+          LIVE_ARG=""
+          [ "$VARIANT" = dayrec ] && LIVE_ARG="GUDI_PROFILE_LIVE=$PROFILE_LIVE_NAME"
           xcodebuild -project Gudi.xcodeproj -scheme Gudi -configuration Release \
             -destination 'generic/platform=iOS' -archivePath "$RUNNER_TEMP/Gudi.xcarchive" \
-            GUDI_PROFILE="$PROFILE_NAME" CURRENT_PROJECT_VERSION=${{ github.run_number }} \
+            GUDI_PROFILE="$PROFILE_NAME" ${LIVE_ARG:+"$LIVE_ARG"} CURRENT_PROJECT_VERSION=${{ github.run_number }} \
             archive > "$RUNNER_TEMP/archive.log" 2>&1 || RC=$?
           RC=${RC:-0}
           tail -40 "$RUNNER_TEMP/archive.log"
@@ -155,8 +162,11 @@ jobs:
       - name: Gate, the plain build has no ski-day code and no tester export
         if: steps.gate.outputs.ready == 'true' && env.VARIANT == 'plain'
         run: sh tools/check-ios-store-binary.sh "$RUNNER_TEMP/Gudi.xcarchive/Products/Applications/Gudi.app/Gudi"
-      - name: Export and upload to TestFlight
+      - name: Gate, the archived app carries no test bundle
         if: steps.gate.outputs.ready == 'true'
+        run: sh tools/check-ios-no-tests.sh "$RUNNER_TEMP/Gudi.xcarchive/Products/Applications/Gudi.app"
+      - name: Export and upload to TestFlight
+        if: steps.gate.outputs.ready == 'true' && !inputs.archive_only
         env:
           KEY: ${{ secrets.ASC_KEY_P8_BASE64 }}
           KEY_ID: ${{ secrets.ASC_KEY_ID }}

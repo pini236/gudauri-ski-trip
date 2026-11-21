@@ -52,17 +52,27 @@ import java.util.Locale
  */
 private class Row2(val file: File, val id: String, val start: Long, val descents: Int?, val maxKmh: Double?)
 
+/** What the list showed last, and how far it was scrolled: coming back from a day it is there at once, then refreshed. */
+private object LastList {
+    var rows: List<Row2>? = null
+    var records: List<Pair<String, String>> = emptyList()
+    var scroll = 0
+}
+
 @Composable
 fun DaysScreen(onOpen: (String) -> Unit, onBack: () -> Unit) {
     val c = Ski.colors
     val ctx = LocalContext.current
-    var rows by remember { mutableStateOf<List<Row2>?>(null) }
-    var records by remember { mutableStateOf<List<Pair<String, String>>>(emptyList()) }
+    var rows by remember { mutableStateOf(LastList.rows) }
+    var records by remember { mutableStateOf(LastList.records) }
+    val scroll = rememberScrollState(LastList.scroll)
+    androidx.compose.runtime.DisposableEffect(Unit) { onDispose { LastList.scroll = scroll.value } }
     var version by remember { mutableStateOf(0) }
     var sure by remember { mutableStateOf<String?>(null) }
     LaunchedEffect(version) {
-        records = withContext(Dispatchers.IO) { recordsOf(ctx, MomentsStore.history(DayRec.store(ctx).dir)) }
-        rows = withContext(Dispatchers.IO) {
+        // both together: the records card and the rows appear in one go, and nothing jumps down when the second arrives
+        val newRecords = withContext(Dispatchers.IO) { recordsOf(ctx, MomentsStore.history(DayRec.store(ctx).dir)) }
+        val newRows = withContext(Dispatchers.IO) {
             DayRec.store(ctx).days().asReversed().map { f ->
                 val id = f.name.removePrefix("day-").removeSuffix(".jsonl")
                 val start = id.toLongOrNull() ?: f.lastModified()
@@ -71,6 +81,8 @@ fun DaysScreen(onOpen: (String) -> Unit, onBack: () -> Unit) {
                 Row2(f, id, start, st?.optInt("descents"), st?.let { if (it.has("max_kmh") && !it.isNull("max_kmh")) it.optDouble("max_kmh") else null })
             }
         }
+        records = newRecords; rows = newRows
+        LastList.records = newRecords; LastList.rows = newRows
     }
     Column(Modifier.fillMaxSize().background(c.snow).statusBarsPadding().navigationBarsPadding()) {
         Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
@@ -78,7 +90,7 @@ fun DaysScreen(onOpen: (String) -> Unit, onBack: () -> Unit) {
             BackLink(stringResource(R.string.nav_home), onBack)
         }
         val list = rows
-        Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = 16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        Column(Modifier.fillMaxSize().verticalScroll(scroll).padding(horizontal = 16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
             if (list != null && list.isEmpty()) Text(stringResource(R.string.app_days_empty), style = Ski.type.body, color = c.muted)
             if (records.isNotEmpty()) RecordsCard(records)
             val zone = ZoneId.of(DayParams.TZ)

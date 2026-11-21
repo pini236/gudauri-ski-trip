@@ -1,0 +1,1241 @@
+{
+ "v": 3,
+ "attachments": {},
+ "boards": {
+  "A01-Identity.dc.html": {
+   "h": 900,
+   "page": "a",
+   "title": "שפה ומבנה",
+   "w": 1200,
+   "x": 0,
+   "y": 0
+  },
+  "A02-Open.dc.html": {
+   "h": 844,
+   "page": "a",
+   "title": "הפתיחה (היום, 15.11)",
+   "w": 390,
+   "x": 0,
+   "y": 1020
+  },
+  "A03-Map.dc.html": {
+   "h": 844,
+   "page": "a",
+   "title": "המפה",
+   "w": 390,
+   "x": 470,
+   "y": 1020
+  },
+  "A04-Run.dc.html": {
+   "h": 844,
+   "page": "a",
+   "title": "מסלול שנבחר",
+   "w": 390,
+   "x": 940,
+   "y": 1020
+  },
+  "A05-Live.dc.html": {
+   "h": 844,
+   "page": "a",
+   "title": "יום הגלישה: חי",
+   "w": 390,
+   "x": 1410,
+   "y": 1020
+  },
+  "A06-Story.dc.html": {
+   "h": 844,
+   "page": "a",
+   "title": "סוף היום והסיפור",
+   "w": 390,
+   "x": 1880,
+   "y": 1020
+  },
+  "A07-Lifts.dc.html": {
+   "h": 844,
+   "page": "a",
+   "title": "רכבלים ומזג אוויר",
+   "w": 390,
+   "x": 2350,
+   "y": 1020
+  },
+  "A08-Meet.dc.html": {
+   "h": 844,
+   "page": "a",
+   "title": "מפגש וקבוצה",
+   "w": 390,
+   "x": 2820,
+   "y": 1020
+  },
+  "A09-Games.dc.html": {
+   "h": 844,
+   "page": "a",
+   "title": "משחקים ועוד",
+   "w": 390,
+   "x": 3290,
+   "y": 1020
+  },
+  "A10-Season.dc.html": {
+   "h": 844,
+   "page": "a",
+   "title": "פתיחת העונה ומחירים",
+   "w": 390,
+   "x": 3760,
+   "y": 1020
+  },
+  "A11-OpenEn.dc.html": {
+   "h": 844,
+   "page": "a",
+   "title": "Opening (EN)",
+   "w": 390,
+   "x": 0,
+   "y": 1984
+  },
+  "A12-RunEn.dc.html": {
+   "h": 844,
+   "page": "a",
+   "title": "Run (EN, night)",
+   "w": 390,
+   "x": 470,
+   "y": 1984
+  },
+  "A13-StoryEn.dc.html": {
+   "h": 844,
+   "page": "a",
+   "title": "Story (EN)",
+   "w": 390,
+   "x": 940,
+   "y": 1984
+  },
+  "A14-Platforms.dc.html": {
+   "h": 844,
+   "page": "a",
+   "title": "אנדרואיד מול אייפון",
+   "w": 860,
+   "x": 1410,
+   "y": 1984
+  },
+  "B01-Identity.dc.html": {
+   "h": 900,
+   "page": "b",
+   "title": "שפה ומבנה",
+   "w": 1200,
+   "x": 0,
+   "y": 0
+  },
+  "B02-Open.dc.html": {
+   "h": 844,
+   "page": "b",
+   "title": "הפתיחה (היום, 15.11)",
+   "w": 390,
+   "x": 0,
+   "y": 1020
+  },
+  "B03-Map.dc.html": {
+   "h": 844,
+   "page": "b",
+   "title": "המפה",
+   "w": 390,
+   "x": 470,
+   "y": 1020
+  },
+  "B04-Run.dc.html": {
+   "h": 844,
+   "page": "b",
+   "title": "מסלול שנבחר",
+   "w": 390,
+   "x": 940,
+   "y": 1020
+  },
+  "B05-Live.dc.html": {
+   "h": 844,
+   "page": "b",
+   "title": "יום הגלישה: חי",
+   "w": 390,
+   "x": 1410,
+   "y": 1020
+  },
+  "B06-Story.dc.html": {
+   "h": 844,
+   "page": "b",
+   "title": "סוף היום והסיפור",
+   "w": 390,
+   "x": 1880,
+   "y": 1020
+  },
+  "B07-Lifts.dc.html": {
+   "h": 844,
+   "page": "b",
+   "title": "רכבלים ומזג אוויר",
+   "w": 390,
+   "x": 2350,
+   "y": 1020
+  },
+  "B08-Meet.dc.html": {
+   "h": 844,
+   "page": "b",
+   "title": "מפגש וקבוצה",
+   "w": 390,
+   "x": 2820,
+   "y": 1020
+  },
+  "B09-Games.dc.html": {
+   "h": 844,
+   "page": "b",
+   "title": "משחקים ועוד",
+   "w": 390,
+   "x": 3290,
+   "y": 1020
+  },
+  "B10-Season.dc.html": {
+   "h": 844,
+   "page": "b",
+   "title": "פתיחת העונה ומחירים",
+   "w": 390,
+   "x": 3760,
+   "y": 1020
+  },
+  "B11-OpenEn.dc.html": {
+   "h": 844,
+   "page": "b",
+   "title": "Opening (EN)",
+   "w": 390,
+   "x": 0,
+   "y": 1984
+  },
+  "B12-RunEn.dc.html": {
+   "h": 844,
+   "page": "b",
+   "title": "Run (EN, night)",
+   "w": 390,
+   "x": 470,
+   "y": 1984
+  },
+  "B13-StoryEn.dc.html": {
+   "h": 844,
+   "page": "b",
+   "title": "Story (EN)",
+   "w": 390,
+   "x": 940,
+   "y": 1984
+  },
+  "B14-Platforms.dc.html": {
+   "h": 844,
+   "page": "b",
+   "title": "אנדרואיד מול אייפון",
+   "w": 860,
+   "x": 1410,
+   "y": 1984
+  },
+  "C01-Identity.dc.html": {
+   "h": 900,
+   "page": "c",
+   "title": "שפה ומבנה",
+   "w": 1200,
+   "x": 0,
+   "y": 0
+  },
+  "C02-Open.dc.html": {
+   "h": 844,
+   "page": "c",
+   "title": "הפתיחה (היום, 15.11)",
+   "w": 390,
+   "x": 0,
+   "y": 1020
+  },
+  "C03-Map.dc.html": {
+   "h": 844,
+   "page": "c",
+   "title": "המפה",
+   "w": 390,
+   "x": 470,
+   "y": 1020
+  },
+  "C04-Run.dc.html": {
+   "h": 844,
+   "page": "c",
+   "title": "מסלול שנבחר",
+   "w": 390,
+   "x": 940,
+   "y": 1020
+  },
+  "C05-Live.dc.html": {
+   "h": 844,
+   "page": "c",
+   "title": "יום הגלישה: חי",
+   "w": 390,
+   "x": 1410,
+   "y": 1020
+  },
+  "C06-Story.dc.html": {
+   "h": 844,
+   "page": "c",
+   "title": "סוף היום והסיפור",
+   "w": 390,
+   "x": 1880,
+   "y": 1020
+  },
+  "C07-Lifts.dc.html": {
+   "h": 844,
+   "page": "c",
+   "title": "רכבלים ומזג אוויר",
+   "w": 390,
+   "x": 2350,
+   "y": 1020
+  },
+  "C08-Meet.dc.html": {
+   "h": 844,
+   "page": "c",
+   "title": "מפגש וקבוצה",
+   "w": 390,
+   "x": 2820,
+   "y": 1020
+  },
+  "C09-Games.dc.html": {
+   "h": 844,
+   "page": "c",
+   "title": "משחקים ועוד",
+   "w": 390,
+   "x": 3290,
+   "y": 1020
+  },
+  "C10-Season.dc.html": {
+   "h": 844,
+   "page": "c",
+   "title": "פתיחת העונה ומחירים",
+   "w": 390,
+   "x": 3760,
+   "y": 1020
+  },
+  "C11-OpenEn.dc.html": {
+   "h": 844,
+   "page": "c",
+   "title": "Opening (EN)",
+   "w": 390,
+   "x": 0,
+   "y": 1984
+  },
+  "C12-RunEn.dc.html": {
+   "h": 844,
+   "page": "c",
+   "title": "Run (EN, night)",
+   "w": 390,
+   "x": 470,
+   "y": 1984
+  },
+  "C13-StoryEn.dc.html": {
+   "h": 844,
+   "page": "c",
+   "title": "Story (EN)",
+   "w": 390,
+   "x": 940,
+   "y": 1984
+  },
+  "C14-Platforms.dc.html": {
+   "h": 844,
+   "page": "c",
+   "title": "אנדרואיד מול אייפון",
+   "w": 860,
+   "x": 1410,
+   "y": 1984
+  },
+  "D01-Identity.dc.html": {
+   "h": 900,
+   "page": "d",
+   "title": "שפה ומבנה",
+   "w": 1200,
+   "x": 0,
+   "y": 0
+  },
+  "D02-Open.dc.html": {
+   "h": 844,
+   "page": "d",
+   "title": "הפתיחה (היום, 15.11)",
+   "w": 390,
+   "x": 0,
+   "y": 1020
+  },
+  "D03-Map.dc.html": {
+   "h": 844,
+   "page": "d",
+   "title": "המפה",
+   "w": 390,
+   "x": 470,
+   "y": 1020
+  },
+  "D04-Run.dc.html": {
+   "h": 844,
+   "page": "d",
+   "title": "מסלול שנבחר",
+   "w": 390,
+   "x": 940,
+   "y": 1020
+  },
+  "D05-Live.dc.html": {
+   "h": 844,
+   "page": "d",
+   "title": "יום הגלישה: חי",
+   "w": 390,
+   "x": 1410,
+   "y": 1020
+  },
+  "D06-Story.dc.html": {
+   "h": 844,
+   "page": "d",
+   "title": "סוף היום והסיפור",
+   "w": 390,
+   "x": 1880,
+   "y": 1020
+  },
+  "D07-Lifts.dc.html": {
+   "h": 844,
+   "page": "d",
+   "title": "רכבלים ומזג אוויר",
+   "w": 390,
+   "x": 2350,
+   "y": 1020
+  },
+  "D08-Meet.dc.html": {
+   "h": 844,
+   "page": "d",
+   "title": "מפגש וקבוצה",
+   "w": 390,
+   "x": 2820,
+   "y": 1020
+  },
+  "D09-Games.dc.html": {
+   "h": 844,
+   "page": "d",
+   "title": "משחקים ועוד",
+   "w": 390,
+   "x": 3290,
+   "y": 1020
+  },
+  "D10-Season.dc.html": {
+   "h": 844,
+   "page": "d",
+   "title": "פתיחת העונה ומחירים",
+   "w": 390,
+   "x": 3760,
+   "y": 1020
+  },
+  "D11-OpenEn.dc.html": {
+   "h": 844,
+   "page": "d",
+   "title": "Opening (EN)",
+   "w": 390,
+   "x": 0,
+   "y": 1984
+  },
+  "D12-RunEn.dc.html": {
+   "h": 844,
+   "page": "d",
+   "title": "Run (EN, night)",
+   "w": 390,
+   "x": 470,
+   "y": 1984
+  },
+  "D13-StoryEn.dc.html": {
+   "h": 844,
+   "page": "d",
+   "title": "Story (EN)",
+   "w": 390,
+   "x": 940,
+   "y": 1984
+  },
+  "D14-Platforms.dc.html": {
+   "h": 844,
+   "page": "d",
+   "title": "אנדרואיד מול אייפון",
+   "w": 860,
+   "x": 1410,
+   "y": 1984
+  },
+  "Main.dc.html": {
+   "h": 1560,
+   "page": "intro",
+   "title": "הכיוונים, ההמלצה והשאלות",
+   "w": 1280,
+   "x": 0,
+   "y": 0
+  },
+  "H00-Brief.dc.html": {
+   "x": 0,
+   "y": 0,
+   "w": 1280,
+   "h": 1800,
+   "title": "ההר מצויר מראש: הרעיון והשאלות",
+   "page": "mtn"
+  },
+  "H01-Mountain.dc.html": {
+   "x": 0,
+   "y": 1920,
+   "w": 390,
+   "h": 844,
+   "title": "כל ההר, מהעמק",
+   "page": "mtn"
+  },
+  "H02-Dusk.dc.html": {
+   "x": 470,
+   "y": 1920,
+   "w": 390,
+   "h": 844,
+   "title": "אור לפי השעה: שקיעה",
+   "page": "mtn"
+  },
+  "H03-Near.dc.html": {
+   "x": 940,
+   "y": 1920,
+   "w": 390,
+   "h": 844,
+   "title": "מתקרבים: השמות מופיעים",
+   "page": "mtn"
+  },
+  "H04-Run.dc.html": {
+   "x": 1410,
+   "y": 1920,
+   "w": 390,
+   "h": 844,
+   "title": "מסלול נבחר: המסדרון מואר",
+   "page": "mtn"
+  },
+  "H05-Strip.dc.html": {
+   "x": 1880,
+   "y": 1920,
+   "w": 390,
+   "h": 844,
+   "title": "סרט הירידה",
+   "page": "mtn"
+  },
+  "H06-Above.dc.html": {
+   "x": 2350,
+   "y": 1920,
+   "w": 390,
+   "h": 844,
+   "title": "מלמעלה, איפה אני",
+   "page": "mtn"
+  },
+  "H08-Model.dc.html": {
+   "x": 2820,
+   "y": 1920,
+   "w": 390,
+   "h": 844,
+   "title": "מראה חלופי: דגם שכבות",
+   "page": "mtn"
+  },
+  "H07-RunEn.dc.html": {
+   "x": 3290,
+   "y": 1920,
+   "w": 390,
+   "h": 844,
+   "title": "Run (EN, night)",
+   "page": "mtn"
+  },
+  "H09-Views.dc.html": {
+   "x": 0,
+   "y": 2884,
+   "w": 1280,
+   "h": 1030,
+   "title": "שלושה מבטים, שלוש רמות קירוב",
+   "page": "mtn"
+  },
+  "H10-Build.dc.html": {
+   "x": 1400,
+   "y": 2884,
+   "w": 1280,
+   "h": 1000,
+   "title": "איך בונים, ומה זה עולה",
+   "page": "mtn"
+  },
+  "K00-Brief.dc.html": {
+   "x": 0,
+   "y": 0,
+   "w": 1280,
+   "h": 2010,
+   "title": "סבב 3: הרעיונות והשאלות",
+   "page": "mtn3"
+  },
+  "K01-Mountain.dc.html": {
+   "x": 0,
+   "y": 2390,
+   "w": 390,
+   "h": 844,
+   "title": "ההר, כמו נוף (יום ולילה)",
+   "page": "mtn3"
+  },
+  "K02-Light.dc.html": {
+   "x": 470,
+   "y": 2390,
+   "w": 1280,
+   "h": 1010,
+   "title": "אותו הר, שש שעות",
+   "page": "mtn3"
+  },
+  "K03-Weather.dc.html": {
+   "x": 1830,
+   "y": 2390,
+   "w": 1280,
+   "h": 1000,
+   "title": "מזג האוויר על ההר",
+   "page": "mtn3"
+  },
+  "K04-Details.dc.html": {
+   "x": 3190,
+   "y": 2390,
+   "w": 1280,
+   "h": 1000,
+   "title": "הפרטים הקטנים",
+   "page": "mtn3"
+  },
+  "K05-Loupe.dc.html": {
+   "x": 0,
+   "y": 3780,
+   "w": 390,
+   "h": 844,
+   "title": "בוחרים: זכוכית מגדלת",
+   "page": "mtn3"
+  },
+  "K06-FromStation.dc.html": {
+   "x": 470,
+   "y": 3780,
+   "w": 390,
+   "h": 844,
+   "title": "בוחרים: מהתחנה",
+   "page": "mtn3"
+  },
+  "K07-Shelf.dc.html": {
+   "x": 940,
+   "y": 3780,
+   "w": 390,
+   "h": 844,
+   "title": "בוחרים: מדף המסלולים",
+   "page": "mtn3"
+  },
+  "K08-Lenses.dc.html": {
+   "x": 1410,
+   "y": 3780,
+   "w": 390,
+   "h": 844,
+   "title": "בוחרים: עדשות (בשמש עכשיו)",
+   "page": "mtn3"
+  },
+  "K09-Moment.dc.html": {
+   "x": 0,
+   "y": 5004,
+   "w": 1280,
+   "h": 1080,
+   "title": "רגע הבחירה, פריים אחרי פריים",
+   "page": "mtn3"
+  },
+  "K10-Run.dc.html": {
+   "x": 1360,
+   "y": 5004,
+   "w": 390,
+   "h": 844,
+   "title": "מסלול נבחר: מה יש עליו",
+   "page": "mtn3"
+  },
+  "K11-Marking.dc.html": {
+   "x": 1830,
+   "y": 5004,
+   "w": 1280,
+   "h": 820,
+   "title": "שלוש דרכים לסמן מסלול",
+   "page": "mtn3"
+  },
+  "K12-Ride.dc.html": {
+   "x": 3190,
+   "y": 5004,
+   "w": 390,
+   "h": 844,
+   "title": "לרדת בסרט",
+   "page": "mtn3"
+  },
+  "K13-Day.dc.html": {
+   "x": 0,
+   "y": 6464,
+   "w": 1280,
+   "h": 1040,
+   "title": "היום של הגולש, רגע אחרי רגע",
+   "page": "mtn3"
+  },
+  "K14-Morning.dc.html": {
+   "x": 1360,
+   "y": 6464,
+   "w": 390,
+   "h": 844,
+   "title": "בוקר על ההר",
+   "page": "mtn3"
+  },
+  "K15-OnTheLift.dc.html": {
+   "x": 1830,
+   "y": 6464,
+   "w": 390,
+   "h": 844,
+   "title": "על הרכבל",
+   "page": "mtn3"
+  },
+  "K16-DayDrawn.dc.html": {
+   "x": 2300,
+   "y": 6464,
+   "w": 390,
+   "h": 844,
+   "title": "ערב: ציור היום",
+   "page": "mtn3"
+  },
+  "K17-Village.dc.html": {
+   "x": 2770,
+   "y": 6464,
+   "w": 390,
+   "h": 844,
+   "title": "הכפר",
+   "page": "mtn3"
+  },
+  "L00-Brief.dc.html": {
+   "x": 0,
+   "y": 0,
+   "w": 1280,
+   "h": 2080,
+   "title": "סבב 4: הרעיון והשאלות",
+   "page": "day4"
+  },
+  "L01-Start.dc.html": {
+   "x": 0,
+   "y": 2460,
+   "w": 390,
+   "h": 844,
+   "title": "1 · מתחילים בנגיעה אחת",
+   "page": "day4"
+  },
+  "L02-Searching.dc.html": {
+   "x": 470,
+   "y": 2460,
+   "w": 390,
+   "h": 844,
+   "title": "2 · מחפשים מיקום",
+   "page": "day4"
+  },
+  "L03-Descending.dc.html": {
+   "x": 940,
+   "y": 2460,
+   "w": 390,
+   "h": 844,
+   "title": "3 · בירידה: מספר אחד, שם אחד",
+   "page": "day4"
+  },
+  "L04-OnTheLift.dc.html": {
+   "x": 1410,
+   "y": 2460,
+   "w": 390,
+   "h": 844,
+   "title": "4 · על הרכבל: הירידה שהרגע עשית",
+   "page": "day4"
+  },
+  "L14-Descending-EN.dc.html": {
+   "x": 1880,
+   "y": 2460,
+   "w": 390,
+   "h": 844,
+   "title": "14 · On the way down (EN)",
+   "page": "day4"
+  },
+  "L05-OutsideTheApp.dc.html": {
+   "x": 2350,
+   "y": 2460,
+   "w": 1640,
+   "h": 1130,
+   "title": "5 · כשהטלפון בכיס",
+   "page": "day4"
+  },
+  "L06-DayPainted.dc.html": {
+   "x": 0,
+   "y": 3970,
+   "w": 390,
+   "h": 844,
+   "title": "6 · סוף היום: ההר זוכר",
+   "page": "day4"
+  },
+  "L07-DayRidge.dc.html": {
+   "x": 470,
+   "y": 3970,
+   "w": 390,
+   "h": 844,
+   "title": "7 · הרכס של היום וציר הזמן",
+   "page": "day4"
+  },
+  "L08-DayInAMinute.dc.html": {
+   "x": 940,
+   "y": 3970,
+   "w": 1640,
+   "h": 950,
+   "title": "8 · היום בדקה",
+   "page": "day4"
+  },
+  "L09-RunFilm.dc.html": {
+   "x": 2660,
+   "y": 3970,
+   "w": 390,
+   "h": 844,
+   "title": "9 · ירידה אחת כסרט",
+   "page": "day4"
+  },
+  "L10-Story.dc.html": {
+   "x": 3130,
+   "y": 3970,
+   "w": 390,
+   "h": 844,
+   "title": "10 · הסיפור של היום",
+   "page": "day4"
+  },
+  "L11-Share.dc.html": {
+   "x": 3600,
+   "y": 3970,
+   "w": 390,
+   "h": 844,
+   "title": "11 · תמונה לשיתוף",
+   "page": "day4"
+  },
+  "L12-MyDays.dc.html": {
+   "x": 4070,
+   "y": 3970,
+   "w": 390,
+   "h": 844,
+   "title": "12 · הימים שלי, והטיול כשכבות",
+   "page": "day4"
+  },
+  "L13-HonestStates.dc.html": {
+   "x": 0,
+   "y": 5300,
+   "w": 1640,
+   "h": 800,
+   "title": "13 · כשמשהו לא ודאי, אומרים",
+   "page": "day4"
+  },
+  "M00-Brief.dc.html": {
+   "x": 0,
+   "y": 0,
+   "w": 1280,
+   "h": 1680,
+   "title": "שלב ב: המטרה והשאלות",
+   "page": "live"
+  },
+  "M01-Hours.dc.html": {
+   "x": 0,
+   "y": 2060,
+   "w": 1740,
+   "h": 740,
+   "title": "1 · שבע שעות, אותו מבט",
+   "page": "live"
+  },
+  "M02-Free.dc.html": {
+   "x": 0,
+   "y": 2920,
+   "w": 1044,
+   "h": 920,
+   "title": "2 · אותו הר מכל כיוון",
+   "page": "live"
+  },
+  "M03-Compare.dc.html": {
+   "x": 1124,
+   "y": 2920,
+   "w": 724,
+   "h": 920,
+   "title": "3 · מה ההבדל",
+   "page": "live"
+  },
+  "M04-Open.dc.html": {
+   "x": 0,
+   "y": 4280,
+   "w": 390,
+   "h": 844,
+   "title": "4 · הפתיחה, בגודל טלפון (יום ולילה)",
+   "page": "live"
+  },
+  "M05-Dusk.dc.html": {
+   "x": 470,
+   "y": 4280,
+   "w": 390,
+   "h": 844,
+   "title": "5 · שקיעה",
+   "page": "live"
+  },
+  "M06-After.dc.html": {
+   "x": 940,
+   "y": 4280,
+   "w": 390,
+   "h": 844,
+   "title": "6 · אחר הצהריים",
+   "page": "live"
+  },
+  "N00-Built.dc.html": {
+   "x": 0,
+   "y": 0,
+   "w": 1280,
+   "h": 1230,
+   "title": "מה נבנה: שלב א באנדרואיד",
+   "page": "built"
+  },
+  "N01-BuiltStates.dc.html": {
+   "x": 0,
+   "y": 1350,
+   "w": 1516,
+   "h": 760,
+   "title": "פתיחה, בחירה, צביטה, יום ולילה",
+   "page": "built"
+  },
+  "M07-Kobi.dc.html": {
+   "x": 0,
+   "y": 5504,
+   "w": 1280,
+   "h": 2100,
+   "title": "7 · מסלול שמאחורי ההר: Kobi",
+   "page": "live"
+  }
+ },
+ "createdOnFiles": {
+  "at": "2026-11-15T22:44:54.657Z",
+  "v": 1
+ },
+ "designSystems": [],
+ "launch": {
+  "page": "live",
+  "view": "canvas"
+ },
+ "notes": {
+  "tA": {
+   "kind": "title1",
+   "maxW": 1200,
+   "page": "a",
+   "text": "א · ההר",
+   "w": 240,
+   "x": 0,
+   "y": -300
+  },
+  "tB": {
+   "kind": "title1",
+   "maxW": 1200,
+   "page": "b",
+   "text": "ב · היום",
+   "w": 240,
+   "x": 0,
+   "y": -300
+  },
+  "tC": {
+   "kind": "title1",
+   "maxW": 1200,
+   "page": "c",
+   "text": "ג · המכשיר",
+   "w": 240,
+   "x": 0,
+   "y": -300
+  },
+  "tD": {
+   "kind": "title1",
+   "maxW": 1200,
+   "page": "d",
+   "text": "ד · התחנה",
+   "w": 240,
+   "x": 0,
+   "y": -300
+  },
+  "tH": {
+   "kind": "title1",
+   "maxW": 1200,
+   "page": "mtn",
+   "text": "סבב 2 · ההר המצויר",
+   "w": 420,
+   "x": 0,
+   "y": -300
+  },
+  "tK": {
+   "kind": "title1",
+   "maxW": 1600,
+   "page": "mtn3",
+   "w": 520,
+   "x": 0,
+   "text": "סבב 3 · ההר, הבחירה והיום",
+   "y": -300
+  },
+  "tK1": {
+   "kind": "title1",
+   "maxW": 1600,
+   "page": "mtn3",
+   "w": 240,
+   "x": 0,
+   "text": "א · ההר",
+   "y": 2090
+  },
+  "tK2": {
+   "kind": "title1",
+   "maxW": 1600,
+   "page": "mtn3",
+   "w": 420,
+   "x": 0,
+   "text": "ב · בוחרים מסלול",
+   "y": 3480
+  },
+  "tK3": {
+   "kind": "title1",
+   "maxW": 1600,
+   "page": "mtn3",
+   "w": 420,
+   "x": 0,
+   "text": "ג · כשמסלול נבחר",
+   "y": 4704
+  },
+  "tK4": {
+   "kind": "title1",
+   "maxW": 1600,
+   "page": "mtn3",
+   "w": 320,
+   "x": 0,
+   "text": "ד · מחוץ להר",
+   "y": 6164
+  },
+  "tL": {
+   "kind": "title1",
+   "maxW": 1600,
+   "page": "day4",
+   "w": 900,
+   "x": 0,
+   "text": "סבב 4 · יום הגלישה · אושר (20.11.2026)",
+   "y": -300
+  },
+  "tL1": {
+   "kind": "title1",
+   "maxW": 1600,
+   "page": "day4",
+   "w": 360,
+   "x": 0,
+   "text": "א · בזמן היום",
+   "y": 2160
+  },
+  "tL2": {
+   "kind": "title1",
+   "maxW": 1600,
+   "page": "day4",
+   "w": 520,
+   "x": 0,
+   "text": "ב · אחרי היום: ההר זוכר",
+   "y": 3670
+  },
+  "tL3": {
+   "kind": "title1",
+   "maxW": 1600,
+   "page": "day4",
+   "w": 320,
+   "x": 0,
+   "text": "ג · הכללים",
+   "y": 5000
+  },
+  "tM": {
+   "kind": "title1",
+   "maxW": 1600,
+   "page": "live",
+   "w": 760,
+   "x": 0,
+   "y": -300,
+   "text": "שלב ב · ההר החי (המודל התלת-ממדי)"
+  },
+  "tM1": {
+   "kind": "title1",
+   "maxW": 1600,
+   "page": "live",
+   "w": 420,
+   "x": 0,
+   "y": 1760,
+   "text": "א · האור לאורך היום"
+  },
+  "tM2": {
+   "kind": "title1",
+   "maxW": 1600,
+   "page": "live",
+   "w": 420,
+   "x": 0,
+   "y": 2620,
+   "text": "ב · מכל כיוון, ומה ההבדל"
+  },
+  "tM3": {
+   "kind": "title1",
+   "maxW": 1600,
+   "page": "live",
+   "w": 420,
+   "x": 0,
+   "y": 3980,
+   "text": "ג · בגודל טלפון"
+  },
+  "tN": {
+   "kind": "title1",
+   "maxW": 1600,
+   "page": "built",
+   "w": 760,
+   "x": 0,
+   "y": -300,
+   "text": "נבנה באנדרואיד · שלב א, ההר המצויר (צילומי אמולטור)"
+  },
+  "tM4": {
+   "kind": "title1",
+   "maxW": 1600,
+   "page": "live",
+   "w": 520,
+   "x": 0,
+   "y": 5204,
+   "text": "ד · מסלול שמאחורי ההר (שאלה של פיני)"
+  }
+ },
+ "order": [
+  "Main.dc.html",
+  "A01-Identity.dc.html",
+  "A02-Open.dc.html",
+  "A03-Map.dc.html",
+  "A04-Run.dc.html",
+  "A05-Live.dc.html",
+  "A06-Story.dc.html",
+  "A07-Lifts.dc.html",
+  "A08-Meet.dc.html",
+  "A09-Games.dc.html",
+  "A10-Season.dc.html",
+  "A11-OpenEn.dc.html",
+  "A12-RunEn.dc.html",
+  "A13-StoryEn.dc.html",
+  "A14-Platforms.dc.html",
+  "B01-Identity.dc.html",
+  "B02-Open.dc.html",
+  "B03-Map.dc.html",
+  "B04-Run.dc.html",
+  "B05-Live.dc.html",
+  "B06-Story.dc.html",
+  "B07-Lifts.dc.html",
+  "B08-Meet.dc.html",
+  "B09-Games.dc.html",
+  "B10-Season.dc.html",
+  "B11-OpenEn.dc.html",
+  "B12-RunEn.dc.html",
+  "B13-StoryEn.dc.html",
+  "B14-Platforms.dc.html",
+  "C01-Identity.dc.html",
+  "C02-Open.dc.html",
+  "C03-Map.dc.html",
+  "C04-Run.dc.html",
+  "C05-Live.dc.html",
+  "C06-Story.dc.html",
+  "C07-Lifts.dc.html",
+  "C08-Meet.dc.html",
+  "C09-Games.dc.html",
+  "C10-Season.dc.html",
+  "C11-OpenEn.dc.html",
+  "C12-RunEn.dc.html",
+  "C13-StoryEn.dc.html",
+  "C14-Platforms.dc.html",
+  "D01-Identity.dc.html",
+  "D02-Open.dc.html",
+  "D03-Map.dc.html",
+  "D04-Run.dc.html",
+  "D05-Live.dc.html",
+  "D06-Story.dc.html",
+  "D07-Lifts.dc.html",
+  "D08-Meet.dc.html",
+  "D09-Games.dc.html",
+  "D10-Season.dc.html",
+  "D11-OpenEn.dc.html",
+  "D12-RunEn.dc.html",
+  "D13-StoryEn.dc.html",
+  "D14-Platforms.dc.html",
+  "H00-Brief.dc.html",
+  "H01-Mountain.dc.html",
+  "H02-Dusk.dc.html",
+  "H03-Near.dc.html",
+  "H04-Run.dc.html",
+  "H05-Strip.dc.html",
+  "H06-Above.dc.html",
+  "H08-Model.dc.html",
+  "H07-RunEn.dc.html",
+  "H09-Views.dc.html",
+  "H10-Build.dc.html",
+  "K00-Brief.dc.html",
+  "K01-Mountain.dc.html",
+  "K02-Light.dc.html",
+  "K03-Weather.dc.html",
+  "K04-Details.dc.html",
+  "K05-Loupe.dc.html",
+  "K06-FromStation.dc.html",
+  "K07-Shelf.dc.html",
+  "K08-Lenses.dc.html",
+  "K09-Moment.dc.html",
+  "K10-Run.dc.html",
+  "K11-Marking.dc.html",
+  "K12-Ride.dc.html",
+  "K13-Day.dc.html",
+  "K14-Morning.dc.html",
+  "K15-OnTheLift.dc.html",
+  "K16-DayDrawn.dc.html",
+  "K17-Village.dc.html",
+  "L00-Brief.dc.html",
+  "L01-Start.dc.html",
+  "L02-Searching.dc.html",
+  "L03-Descending.dc.html",
+  "L04-OnTheLift.dc.html",
+  "L14-Descending-EN.dc.html",
+  "L05-OutsideTheApp.dc.html",
+  "L06-DayPainted.dc.html",
+  "L07-DayRidge.dc.html",
+  "L08-DayInAMinute.dc.html",
+  "L09-RunFilm.dc.html",
+  "L10-Story.dc.html",
+  "L11-Share.dc.html",
+  "L12-MyDays.dc.html",
+  "L13-HonestStates.dc.html",
+  "M00-Brief.dc.html",
+  "M01-Hours.dc.html",
+  "M02-Free.dc.html",
+  "M03-Compare.dc.html",
+  "M04-Open.dc.html",
+  "M05-Dusk.dc.html",
+  "M06-After.dc.html",
+  "N00-Built.dc.html",
+  "N01-BuiltStates.dc.html",
+  "M07-Kobi.dc.html"
+ ],
+ "pages": [
+  {
+   "id": "intro",
+   "name": "פתיחה והמלצה"
+  },
+  {
+   "id": "live",
+   "name": "שלב ב · ההר החי"
+  },
+  {
+   "id": "built",
+   "name": "נבנה · שלב א באנדרואיד"
+  },
+  {
+   "id": "day4",
+   "name": "סבב 4 · יום הגלישה"
+  },
+  {
+   "id": "mtn3",
+   "name": "סבב 3 · ההר, הבחירה והיום"
+  },
+  {
+   "id": "mtn",
+   "name": "סבב 2 · ההר המצויר"
+  },
+  {
+   "id": "a",
+   "name": "א · ההר"
+  },
+  {
+   "id": "b",
+   "name": "ב · היום"
+  },
+  {
+   "id": "c",
+   "name": "ג · המכשיר"
+  },
+  {
+   "id": "d",
+   "name": "ד · התחנה"
+  }
+ ],
+ "title": "Gudi: עיצוב מחדש, כיוונים"
+}

@@ -7,6 +7,7 @@ import android.content.pm.PackageManager
 import android.location.LocationManager
 import android.os.Build
 import androidx.core.content.ContextCompat
+import io.github.pini236.skiapp.qa.Diag
 import io.github.pini236.skiapp.qa.Qa
 import io.github.pini236.skiapp.telemetry.Telemetry
 import java.io.File
@@ -35,7 +36,10 @@ object DayRec {
     @Volatile var current: File? = null; internal set
     /** The day just stopped is still being analysed (its result is written before the service goes): no new start meanwhile. */
     @Volatile internal var finishing = false
-    val recording get() = current != null || finishing
+    /** When the user tapped "Record" (epoch ms; 0: none). The screen counts from the tap and shows the red dot at once, while the service is still starting. */
+    @Volatile internal var tapAt = 0L
+    private val starting get() = tapAt > 0 && current == null && System.currentTimeMillis() - tapAt < 8_000L
+    val recording get() = current != null || finishing || starting
 
     /** What the live view says now (the screens read it; see [DayEngine.live]), or null when nothing is recorded. */
     @Volatile var live: DayEngine.Snapshot? = null; internal set
@@ -46,31 +50,60 @@ object DayRec {
 
     /** The speed of the last reading in m/s (null: none yet, or the phone could not say), for the live screen. */
     @Volatile var speedNow: Double? = null; internal set
+    /** The speed for the live screen's big number (m/s; display only, see [io.github.pini236.skiapp.dayrec.ui.LiveNumbers.displaySpeed]); null: no honest speed, shown as a dash. */
+    @Volatile var liveSpeed: Double? = null; internal set
     /** When the first reading of this recording came (epoch ms; 0: none yet), and whether it is a single descent. */
     @Volatile var since = 0L; internal set
     /** When this recording began and when the last reading came (epoch ms; 0: none), for "weak GPS signal" on the live screen. */
     @Volatile var startedAt = 0L; internal set
     @Volatile var lastFixAt = 0L; internal set
     @Volatile var single = false; internal set
+    /** How many readings this recording has had (for the test build's counter and diagnostic log; a number, never a position). */
+    @Volatile var fixCount = 0; internal set
 
     fun store(ctx: Context) = DayStore(ctx.applicationContext.filesDir)
 
     /** [run]: a recording of one descent, which stops by itself at the bottom (docs/FEATURES.md section 10, 1a). */
     fun start(ctx: Context, resume: File? = null, run: Boolean = false): Start {
-        if (recording) return Start.Already
+        if (recording) { Diag.log("dayrec tap: already recording"); return Start.Already }
         val check = check(ctx)
+        Diag.log("dayrec tap: ${check ?: "ok"} · ${permissions(ctx)}${if (run) " · one descent" else ""}")
         if (check != null) return check
         val i = Intent(ctx, DayRecService::class.java).setAction(DayRecService.START)
         resume?.let { i.putExtra(DayRecService.RESUME, it.absolutePath) }
         if (run) i.putExtra(DayRecService.RUN, true)
+        tapAt = System.currentTimeMillis()
+        single = run
         ContextCompat.startForegroundService(ctx, i)
         return Start.Started
+    }
+
+    /**
+     * The choice between all day and one descent, while recording: the same recording goes on (nothing stops or restarts, so
+     * the counter does not start again). The screen shows the choice at once.
+     */
+    fun switchMode(ctx: Context, single: Boolean) {
+        // while the service is still setting up the day's file `current` is not there yet; the switch queues behind the setup
+        if (!recording || finishing) { Diag.log("dayrec switch tap ignored: recording=$recording finishing=$finishing"); return }
+        this.single = single
+        Diag.log("dayrec switch tap -> ${if (single) "one descent" else "all day"}")
+        ctx.startService(Intent(ctx, DayRecService::class.java).setAction(DayRecService.SWITCH).putExtra(DayRecService.RUN, single).putExtra(DayRecService.AT, System.currentTimeMillis()))
     }
 
     /** Stops by the user's tap. */
     fun stop(ctx: Context) {
         if (!recording) return
+        tapAt = 0L
         ctx.startService(Intent(ctx, DayRecService::class.java).setAction(DayRecService.STOP))
+    }
+
+    /** The location permission as the phone has it now, for the diagnostic log: fine (precise) and coarse (approximate). */
+    private fun permissions(ctx: Context): String {
+        val fine = ctx.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+        val coarse = ctx.checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
+        val lm = ctx.getSystemService(LocationManager::class.java)
+        val gps = runCatching { lm.isProviderEnabled(LocationManager.GPS_PROVIDER) }.getOrNull()
+        return "fine=$fine coarse=$coarse gpsProvider=$gps"
     }
 
     internal fun check(ctx: Context): Start? {

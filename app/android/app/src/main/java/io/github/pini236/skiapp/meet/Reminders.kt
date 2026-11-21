@@ -40,9 +40,14 @@ object Reminders {
 
     private fun prefs(c: Context) = c.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
 
+    // Threads (qa/system-boundaries.md): the alarm's receiver ([fire], [rearm]) runs on the MAIN thread, [arm] on the IO
+    // dispatcher (MainActivity) and [set] from a tap. They all read a list from the preferences and write it back, so each
+    // of those is @Synchronized on this object: two of them at once would lose one's write (two meetups on one request
+    // code, or an alarm that is armed twice). The preferences themselves are thread-safe; the read-then-write is not.
+
     fun isOn(c: Context, id: String): Boolean = id !in prefs(c).getStringSet("off", emptySet())!!
 
-    fun set(c: Context, id: String, on: Boolean) {
+    @Synchronized fun set(c: Context, id: String, on: Boolean) {
         val off = prefs(c).getStringSet("off", emptySet())!!.toMutableSet()
         if (on) off -= id else off += id
         prefs(c).edit().putStringSet("off", off).apply()
@@ -50,10 +55,10 @@ object Reminders {
 
     /**
      * The notification permission (Android 13 and later), asked at most twice: when the app first opens (Pini,
-     * 2.10.2026), and once more the first time a meetup ahead would remind (Q8). Android itself shows it twice at most.
+     * 2.10.2026; since 15.11.2026 at the first tap on "Record" instead), and once more the first time a meetup ahead would remind (Q8). Android itself shows it twice at most.
      */
     fun allowed(c: Context) = Build.VERSION.SDK_INT < 33 || c.checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED
-    enum class Ask { OPEN, MEETUPS }
+    enum class Ask { RECORD, MEETUPS }
     fun shouldAsk(c: Context, at: Ask) = Build.VERSION.SDK_INT >= 33 && !allowed(c) && !prefs(c).getBoolean("asked_" + at.name.lowercase(), false)
     fun markAsked(c: Context, at: Ask) = prefs(c).edit().putBoolean("asked_" + at.name.lowercase(), true).apply()
 
@@ -61,7 +66,7 @@ object Reminders {
      * Sets the alarms of these meetups (the ones whose reminder is on and still ahead), and takes away the ones that
      * are no longer there. The whole list each time: it is all the meetups of all my groups.
      */
-    fun arm(c: Context, items: List<Item>, now: Instant = Instant.now()) {
+    @Synchronized fun arm(c: Context, items: List<Item>, now: Instant = Instant.now()) {
         val am = c.getSystemService(AlarmManager::class.java) ?: return
         val want = due(items, prefs(c).getStringSet("off", emptySet())!!, now)
         val before = armed(c)
@@ -89,7 +94,7 @@ object Reminders {
         val o = JSONObject(prefs(c).getString("codes", "{}")!!); o.keys().asSequence().associateWith { o.getInt(it) }
     }.getOrDefault(emptyMap())
 
-    private fun code(c: Context, id: String): Int = codes(c)[id] ?: run {
+    @Synchronized private fun code(c: Context, id: String): Int = codes(c)[id] ?: run {
         val (codes, next) = codesFor(codes(c), prefs(c).getInt("next_code", 1), listOf(id))
         prefs(c).edit().putString("codes", JSONObject(codes).toString()).putInt("next_code", next).apply()
         codes.getValue(id)
@@ -100,7 +105,7 @@ object Reminders {
         items.filter { it.id !in off && it.at.minusSeconds(BEFORE_MIN * 60).isAfter(now) }
 
     /** After the phone restarts (alarms do not survive it), and after the app is updated. */
-    fun rearm(c: Context) {
+    @Synchronized fun rearm(c: Context) {
         // the alarms an earlier version set under the id's hash (R-18), so they do not ring twice
         c.getSystemService(AlarmManager::class.java)?.let { am ->
             for (it in armed(c)) PendingIntent.getBroadcast(c, it.id.hashCode(), intent(c, it), PendingIntent.FLAG_NO_CREATE or PendingIntent.FLAG_IMMUTABLE)
@@ -119,7 +124,7 @@ object Reminders {
         PendingIntent.getBroadcast(c, code, intent(c, it), PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
 
     /** The notification: "In 15 minutes: Goodaura", the group and the time; a tap opens the meetup's card. */
-    fun show(ctx: Context, it: Item) {
+    @Synchronized fun show(ctx: Context, it: Item) {
         val c = Lang.wrap(ctx) // the app's language, as on its screens (a receiver's context has the phone's)
         val nm = c.getSystemService(NotificationManager::class.java) ?: return
         nm.createNotificationChannel(NotificationChannel(CHANNEL, c.getString(R.string.app_remind_channel), NotificationManager.IMPORTANCE_HIGH))
@@ -137,7 +142,7 @@ object Reminders {
         Qa.log("reminder shown ${it.id}")
     }
 
-    internal fun fire(c: Context, intent: Intent) {
+    @Synchronized internal fun fire(c: Context, intent: Intent) {
         val it = runCatching { Item.of(JSONObject(intent.getStringExtra("item") ?: return)) }.getOrNull() ?: return
         show(c, it)
         prefs(c).edit().putString("armed", JSONArray(armed(c).filter { a -> a.id != it.id }.map { a -> a.json() }).toString()).apply()

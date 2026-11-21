@@ -1,0 +1,56 @@
+<!doctype html><meta charset=utf-8><style>
+:root{--ink:#13233A;--paper:#fff;--rule:#CBD5DF;--mut:#4B5A6F;--bg:#F3F6F9;--map:#E8EEF5;--acc:#1F5FC4;--rec:#D1342B;--amb:#8A5A00;--ambbg:#FFF3D6}
+.night{--ink:#E8EEF6;--paper:#16243A;--rule:#334862;--mut:#A9B8CC;--bg:#0D1522;--map:#14233A;--acc:#7FB0FF;--rec:#FF7A70;--amb:#FFD27A;--ambbg:#3A2E10}
+*{box-sizing:border-box}body{margin:0;width:390px;height:844px;font-family:'IBM Plex Sans Hebrew',system-ui,sans-serif;color:var(--ink);background:var(--bg);display:flex;flex-direction:column;overflow:hidden}
+[dir=ltr] .seg b,[dir=ltr] .num{font-family:'IBM Plex Sans',system-ui,sans-serif}
+.top{height:26px;font-size:12px;padding:6px 14px;display:flex;justify-content:space-between;color:var(--mut)}
+.map{flex:0 0 430px;background:var(--map);position:relative;overflow:hidden;border-bottom:1px solid var(--rule)}
+.map.empty{background:repeating-linear-gradient(135deg,var(--map) 0 14px,var(--bg) 14px 28px)}
+.map.empty:after{content:"";position:absolute;inset:0;background:radial-gradient(circle at 50% 50%,rgba(31,95,196,.18),transparent 55%);animation:p 2s infinite}
+@keyframes p{50%{opacity:.4}}
+.ln{position:absolute;left:-10%;right:-10%;height:2px;background:var(--rule)}
+.trail{position:absolute;height:5px;background:#2E9C4E;border-radius:3px}
+.dot{position:absolute;width:18px;height:18px;border-radius:50%;background:#FFC62B;border:3px solid #fff;box-shadow:0 0 0 1.5px #8A6A00}
+.sheet{flex:1;padding:12px 16px 14px;display:flex;flex-direction:column;gap:10px;background:var(--paper)}
+.seg{display:flex;position:relative;background:var(--bg);border:1px solid var(--rule);height:48px}
+.seg i{position:absolute;top:3px;bottom:3px;width:calc(50% - 3px);background:var(--ink);transition:inset-inline-start .2s}
+.seg b{flex:1;z-index:1;display:flex;align-items:center;justify-content:center;font-size:15px;color:var(--mut)}
+.seg b.on{color:var(--paper)}
+.cap{font-size:13px;color:var(--mut);display:flex;gap:6px;align-items:center;min-height:18px}
+.row{display:flex;justify-content:space-between;align-items:flex-end}
+.rec{display:flex;align-items:center;gap:6px;font-weight:700;color:var(--rec);font-size:15px;font-variant-numeric:tabular-nums}
+.rec u{width:10px;height:10px;border-radius:50%;background:var(--rec);animation:p 1.2s infinite}
+.speed{display:flex;align-items:baseline;gap:6px;direction:ltr}
+.num{font-family:'IBM Plex Sans',system-ui,sans-serif;font-size:64px;font-weight:700;line-height:1;width:3.2ch;text-align:right;font-variant-numeric:tabular-nums}
+.num.dim{color:var(--mut)}.unit{font-size:15px;color:var(--mut);width:4ch}
+.act{font-size:15px;display:flex;gap:8px;align-items:center;min-height:24px}
+.dots span{animation:b 1.2s infinite}.dots span:nth-child(2){animation-delay:.2s}.dots span:nth-child(3){animation-delay:.4s}
+@keyframes b{50%{opacity:.2}}
+.stats{display:flex;border-top:1px solid var(--rule);padding-top:8px}
+.stats div{flex:1;text-align:center;border-inline-start:1px solid var(--rule)}.stats div:first-child{border:0}
+.stats b{display:block;font-size:22px;font-variant-numeric:tabular-nums;font-family:'IBM Plex Sans',system-ui}.stats span{font-size:12px;color:var(--mut)}
+.bot{display:flex;gap:12px;align-items:center;margin-top:auto}
+.fin{height:52px;min-width:120px;border:1.5px solid var(--ink);display:flex;align-items:center;justify-content:center;gap:8px;font-weight:600}
+.fin.pr{background:var(--ink);color:var(--paper)}
+.hint{font-size:12.5px;color:var(--mut);flex:1}
+.warn{background:var(--ambbg);color:var(--amb);border:1px solid var(--amb);padding:8px 12px;font-size:14px;display:flex;gap:8px;align-items:center}
+</style><body><script>
+const q=new URLSearchParams(location.search),st=q.get('s')||'search',lang=q.get('l')||'he',th=q.get('t')||'day';
+document.documentElement.dir=lang=='he'?'rtl':'ltr';document.documentElement.lang=lang;if(th=='night')document.body.className='night';
+const T={he:{all:'כל היום',one:'ירידה אחת',capAll:'כל הירידות והרכבלים של היום',capOne:'נעצר לבד בתחתית',rec:'מקליטים',searching:'מחפשים מיקום',wait:'מחכים שתתחיל לגלוש',unit:'קמ"ש',max:'מרבית · קמ"ש',dist:'גלישה · ק"מ',vert:'ירידה · מ׳',runs:'ירידות',fin:'סיום',hintAll:'עד שמסיימים, או עד סוף היום.',hintOne:'עד שמגיעים למטה.',weak:'האות חלש. כדאי לצאת למקום פתוח.',onl:'בראש Shino · יוצאים כשמוכנים',run:'ב-Tatra 2 · כנראה',descent:'ירידה'},
+en:{all:'All day',one:'One run',capAll:"All of today's runs and lifts",capOne:'Stops by itself at the bottom',rec:'Recording',searching:'Finding your location',wait:'Waiting for you to start',unit:'km/h',max:'top · km/h',dist:'skied · km',vert:'down · m',runs:'runs',fin:'Finish',hintAll:'Until you finish, or end of day.',hintOne:'Until you reach the bottom.',weak:'Weak signal. Try an open area.',onl:'At the top of Shino · go when ready',run:'On Tatra 2 · probably',descent:'Run'}}[lang];
+const one=st.includes('one'),search=st=='search'||st=='search-one',weak=st=='weak',live=!search;
+const dashed=v=>search?'–':v;
+let mapHtml=search?'<div class="map empty"></div>':`<div class="map"><div class=ln style="top:30%;transform:rotate(-14deg)"></div><div class=ln style="top:55%;transform:rotate(9deg)"></div><div class=ln style="top:75%;transform:rotate(-4deg)"></div>${st=='live-one'?'<div class=trail style="left:150px;top:210px;width:90px;transform:rotate(14deg)"></div>':'<div class=trail style="left:90px;top:230px;width:130px;transform:rotate(-8deg)"></div>'}<div class=dot style="left:${st=='live-one'?'236px':'212px'};top:${st=='live-one'?'224px':'190px'}"></div></div>`;
+const timer=search?'0:12':one?(live&&st=='live-one'?'0:41':'0:00'):'12:07';
+const act=search?`${T.searching}<span class=dots><span>.</span><span>.</span><span>.</span></span>`:(st=='live-one'?T.run:(one?T.wait:T.onl));
+const speed=search?'–':(st=='live-one'?'34':(one?'0':'0'));
+document.body.innerHTML=`<div class=top><span>11:03</span><span>${weak?'':''}</span></div>${mapHtml}
+<div class=sheet><div class=seg><i style="inset-inline-start:${one?'calc(50% + 0px)':'3px'}"></i><b class="${one?'':'on'}">${T.all}</b><b class="${one?'on':''}">${T.one}</b></div>
+<div class=cap>${one?T.capOne:T.capAll}</div>
+${weak?`<div class=warn><span>⚠</span><span>${T.weak}</span></div>`:''}
+<div class=row><div class=rec><u></u>${T.rec} · ${one?T.descent+' ':''}${timer}</div><div class=speed><span class="num ${search?'dim':''}">${speed}</span><span class=unit>${T.unit}</span></div></div>
+<div class=act>${act}</div>
+<div class=stats><div><b>${dashed(st=='live-one'?'34':'0')}</b><span>${T.max}</span></div><div><b>${dashed('0.0')}</b><span>${T.dist}</span></div><div><b>${dashed('0')}</b><span>${T.vert}</span></div><div><b>${dashed('0')}</b><span>${T.runs}</span></div></div>
+<div class=bot><span class=hint>${one?T.hintOne:T.hintAll}</span><div class="fin">■ ${T.fin}</div></div></div>`;
+</script>

@@ -8,12 +8,13 @@ as it is). trip.json (the group's flight and names) is never copied: see docs/US
 """
 import json
 import shutil
+import zlib
 import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 SITE = ROOT / "site"
-FILES = ("terrain.json", "runs-and-lifts.json", "videos-seed.json", "resorts.json", "places.json")
+FILES = ("terrain.json", "runs-and-lifts.json", "videos-seed.json", "resorts.json", "places.json", "prices.json")
 # the ski day's analysis reads its thresholds from the reference tool's file, as it is (decision 76, m-8 condition 4)
 FIXTURES = ("dayrec-params.json",)
 
@@ -38,6 +39,13 @@ def main():
     for name in FIXTURES:
         shutil.copyfile(ROOT / "tools/fixtures" / name, out / name)
     (out / "profiles.json").write_text(json.dumps(descent_profiles(), separators=(",", ":")), encoding="utf-8")
+    # the example day of My days (round 29, "דוגמה"), only in the ski-day build (project-dayrec.yml adds this folder;
+    # the plain 1.0 build does not carry it). Raw DEFLATE, which NSData's .zlib unpacks on the phone.
+    dayrec = out.parent / "DayRec"
+    dayrec.mkdir(parents=True, exist_ok=True)
+    c = zlib.compressobj(9, zlib.DEFLATED, -15)
+    log = (ROOT / "tools/fixtures/dayrec-logs/full_day.jsonl").read_bytes()
+    (dayrec / "sample-day.bin").write_bytes(c.compress(log) + c.flush())
     # the real view from the village through the day, for the home page (site/img/pano; design/round3/panorama.py)
     (out / "pano").mkdir(exist_ok=True)
     panos = sorted((SITE / "img/pano").glob("*.webp"))

@@ -74,6 +74,8 @@ struct OverviewMap: View {
     @State private var reveal = 1.0
     @State private var pinch: Double?
     @State private var drag: CGSize?
+    /// The open ends of partial runs (round 21), found once the elevation model is here.
+    @State private var fades: [String: [OpenEnds.Fade]] = [:]
 
     var body: some View {
         let fresh = status.fresh
@@ -100,6 +102,12 @@ struct OverviewMap: View {
         }.onEnded { _ in pinch = nil })
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(S.mapMapAria)
+        .task(id: model.terrain != nil) {
+            guard let t = model.terrain else { fades = [:]; return }
+            var out: [String: [OpenEnds.Fade]] = [:]
+            for p in model.runs.pistes where !p.openEnds.isEmpty { out[p.key] = OpenEnds.fades(p) { t.elev($0, $1) } }
+            fades = out
+        }
         .task(id: "\(model.selected?.key ?? "")|\(model.terrain != nil)") {
             guard let p = model.selected, let t = model.terrain else { paint = nil; return }
             let made = await Task.detached { OverviewPaint.of(t, p) }.value
@@ -134,17 +142,32 @@ struct OverviewMap: View {
         }
         let sel = model.selected?.key
         let hidden = model.hiddenKeys
+        let hasLbl = model.runs.pistes.contains { !$0.labelWindows.isEmpty }
         // the runs: the casing, then the colour
         for q in model.runs.pistes where !hidden.contains(q.key) {
             let shut = fresh && status.runOpen(q) == false
             let alpha = sel != nil && q.key != sel ? 0.28 : (shut && forMe ? 0.15 : 1)
             let col = shut ? ski.colors.dash : ski.colors.run(q.color)
-            let dash: [Double]? = shut ? [6, 5] : !q.named ? [5, 4] : q.kind == "ski-way" ? [8, 5] : nil
+            // a section without a name is a thin solid line where the data carries name windows (round 21)
+            let dash: [Double]? = shut ? [6, 5] : !q.named ? (hasLbl ? nil : [5, 4]) : q.kind == "ski-way" ? [8, 5] : nil
             let w = q.named ? (q.kind == "ski-way" ? 2.6 : 3.4) : 2
-            for l in q.lines {
+            let fq = fades[q.key] ?? []
+            for (li, l) in q.lines.enumerated() {
                 let p = path(l)
-                m.stroke(p, with: .color(ski.colors.casing.opacity(alpha)), style: stroke(q.named ? 6.5 : 4.5))
-                m.stroke(p, with: .color(col.opacity(alpha)), style: stroke(w, dash: dash))
+                func line(_ g: inout GraphicsContext) {
+                    g.stroke(p, with: .color(ski.colors.casing.opacity(alpha)), style: stroke(q.named ? 6.5 : 4.5))
+                    g.stroke(p, with: .color(col.opacity(alpha)), style: stroke(w, dash: dash))
+                }
+                if let f = fq.first(where: { $0.line == li }) {
+                    // the open end: the last 130 m fade to nothing, with nothing drawn across the hole
+                    m.drawLayer { g in
+                        line(&g)
+                        g.blendMode = .destinationIn
+                        g.fill(Path(CGRect(x: -1e5, y: -1e5, width: 2e5, height: 2e5)),
+                               with: .linearGradient(Gradient(colors: [Color.black.opacity(0), .black]),
+                                                     startPoint: CGPoint(x: f.a.x, y: f.a.y), endPoint: CGPoint(x: f.b.x, y: f.b.y)))
+                    }
+                } else { line(&m) }
             }
         }
         // the chosen run, from the top down in slope colours over a white casing
@@ -156,6 +179,17 @@ struct OverviewMap: View {
             for s in paint.segs where s.at <= reveal {
                 var p = Path(); p.move(to: s.a); p.addLine(to: s.b)
                 m.stroke(p, with: .color(s.color), style: stroke(6))
+            }
+        }
+        // small arrows down the chosen run, thinned by zoom (round 21)
+        if let paint, paint.key == sel, hasLbl, reveal >= 1 {
+            let every = RunArrows.step(metresPerPx: u)
+            for (i, a) in RunArrows.along(paint.segs.map { (a: (x: Double($0.a.x), y: Double($0.a.y)), b: (x: Double($0.b.x), y: Double($0.b.y))) }).enumerated() where i % every == 0 {
+                var arrow = Path()
+                arrow.move(to: CGPoint(x: 5 * u, y: 0)); arrow.addLine(to: CGPoint(x: -4 * u, y: -4 * u)); arrow.addLine(to: CGPoint(x: -4 * u, y: 4 * u)); arrow.closeSubpath()
+                let t = CGAffineTransform(rotationAngle: a.angle).concatenating(CGAffineTransform(translationX: a.x, y: a.y))
+                m.fill(arrow.applying(t), with: .color(.white))
+                m.stroke(arrow.applying(t), with: .color(ski.colors.ink), lineWidth: 1.2 * u)
             }
         }
         // the lifts: casing, the line (a gondola thicker; out of use dashed 2 3; closed grey, dashed 4 4), stations
@@ -219,7 +253,9 @@ struct OverviewMap: View {
 
     // MARK: names
 
-    private struct Name { let x, y: Double; let text: String; let size: CGFloat; let color: Color; let dy: CGFloat; var run: String? = nil; var kobi = false; var lift = false }
+    private struct Name { let x, y: Double; let text: String; let size: CGFloat; let color: Color; let dy: CGFloat; var run: String? = nil; var kobi = false; var lift = false
+        /// Round 21: the name goes beside the line where a window has room (nil: at a point, as before).
+        var win: [LabelWindow]? = nil; var segs: [[LabelFit.P]] = [] }
 
     private var names: [Name] {
         var out: [Name] = []
@@ -229,7 +265,21 @@ struct OverviewMap: View {
         for pk in model.terrain?.peaks ?? [] where !pk.name.hasPrefix("Kobi Pass") {
             out.append(Name(x: pk.x, y: pk.y, text: S.appPeakLabel(name: "\u{2068}\(pk.name)\u{2069}", ele: Fmt.n(pk.ele)), size: 12, color: ski.colors.peak, dy: -11))
         }
+        let hasLbl = model.runs.pistes.contains { !$0.labelWindows.isEmpty }
         for p in model.runs.pistes where p.named {
+            if hasLbl {
+                // the name beside the line, curving with it, only where a window has room (never on another run)
+                let segs = p.segs.map { $0.g.map { (x: Geo.x($0[1]), y: Geo.y($0[0])) } }
+                let col = ski.colors.run(p.color)
+                if !p.labelWindows.isEmpty { out.append(Name(x: 0, y: 0, text: runName(p), size: 13, color: col, dy: 0, run: p.key, win: p.labelWindows, segs: segs)) }
+                // a stretch two runs share: one name for both when they are of one family ("Tatra 1 · 2")
+                let by = Dictionary(grouping: p.sharedWindows) { $0.other ?? "" }
+                for (o, ws) in by.sorted(by: { $0.key < $1.key }) where !o.isEmpty {
+                    let other = model.runs.pistes.first { $0.key == o }.map { runName($0) } ?? o
+                    out.append(Name(x: 0, y: 0, text: LabelFit.sharedName(runName(p), other), size: 13, color: col, dy: 0, run: p.key, win: ws, segs: segs))
+                }
+                continue
+            }
             // halfway along its longest line (the site's middle point)
             guard let l = p.lines.max(by: { $0.count < $1.count }) else { continue }
             let q = l[l.count / 2]
@@ -251,6 +301,7 @@ struct OverviewMap: View {
         for n in order {
             if let r = n.run, hidden.contains(r) { continue }
             if n.lift && model.hideLifts { continue }
+            if let ws = n.win { drawAlong(&c, n, ws, size: size, placed: &placed, dim: sel != nil && n.run != sel); continue }
             let sx = cam.sx(n.x), sy = cam.sy(n.y) + n.dy
             if sx < -200 || sy < -50 || sx > size.width + 200 || sy > size.height + 50 { continue }
             let txt = c.resolve(Text(n.text).font(ski.type.text(n.size, .bold)).foregroundColor(n.color))
@@ -267,6 +318,49 @@ struct OverviewMap: View {
                 cc.draw(halo, at: CGPoint(x: sx + dx, y: sy + dy), anchor: .bottom)
             }
             cc.draw(txt, at: CGPoint(x: sx, y: sy), anchor: .bottom)
+        }
+    }
+
+    /// A name along the line (round 21): the baseline from `LabelFit`, each letter set on it and turned with it.
+    private func drawAlong(_ c: inout GraphicsContext, _ n: Name, _ ws: [LabelWindow], size: CGSize, placed: inout [CGRect], dim: Bool) {
+        let u = 1 / cam.k, font = ski.type.text(n.size, .bold)
+        let glyphs = n.text.map { String($0) }
+        let widths = glyphs.map { c.resolve(Text($0).font(font)).measure(in: CGSize(width: 100, height: 60)).width }
+        let total = widths.reduce(0, +)
+        guard let f = LabelFit.fit(ws, segs: n.segs, wM: Double(total) * u * 1.08, hM: n.size * u, off: 6 * u) else { return }
+        let pts = f.pts.map { CGPoint(x: cam.sx($0.x), y: cam.sy($0.y)) }
+        guard let first = pts.first else { return }
+        let xs = pts.map(\.x), ys = pts.map(\.y)
+        let rect = CGRect(x: xs.min()! - 2, y: ys.min()! - n.size - 2, width: xs.max()! - xs.min()! + 4, height: ys.max()! - ys.min()! + n.size + 6)
+        if first.x < -300 || first.y < -100 || first.x > size.width + 300 || first.y > size.height + 100 { return }
+        if placed.contains(where: { $0.intersects(rect) }) { return }
+        placed.append(rect)
+        var segLen: [CGFloat] = [], pathLen: CGFloat = 0
+        for i in 1..<max(pts.count, 1) { let l = hypot(pts[i].x - pts[i - 1].x, pts[i].y - pts[i - 1].y); segLen.append(l); pathLen += l }
+        func at(_ s: CGFloat) -> (CGPoint, Double) {
+            var rest = max(0, min(s, pathLen))
+            for i in 0..<segLen.count {
+                if rest <= segLen[i] || i == segLen.count - 1 {
+                    let t = segLen[i] > 0 ? rest / segLen[i] : 0
+                    let a = pts[i], b = pts[i + 1]
+                    return (CGPoint(x: a.x + (b.x - a.x) * t, y: a.y + (b.y - a.y) * t), atan2(b.y - a.y, b.x - a.x))
+                }
+                rest -= segLen[i]
+            }
+            return (pts[0], 0)
+        }
+        var g = c
+        g.opacity = dim ? 0.28 : 1
+        var s = (pathLen - total) / 2
+        for (i, ch) in glyphs.enumerated() {
+            let (pt, ang) = at(s + widths[i] / 2)
+            s += widths[i]
+            if ch == " " { continue }
+            var gg = g
+            gg.translateBy(x: pt.x, y: pt.y); gg.rotate(by: .radians(ang))
+            let halo = c.resolve(Text(ch).font(font).foregroundColor(ski.colors.casing))
+            for (dx, dy) in [(-1.2, 0.0), (1.2, 0), (0, -1.2), (0, 1.2)] { gg.draw(halo, at: CGPoint(x: dx, y: dy), anchor: .bottom) }
+            gg.draw(c.resolve(Text(ch).font(font).foregroundColor(n.color)), at: .zero, anchor: .bottom)
         }
     }
 

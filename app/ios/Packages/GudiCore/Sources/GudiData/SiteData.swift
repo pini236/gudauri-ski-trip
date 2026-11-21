@@ -35,6 +35,22 @@ public struct Piste: Decodable, Sendable, Identifiable {
     public let groom: [String]
     public let lit: [String]
     public let research: Research?
+    /// Round 21 (tools/build-labels.py): where a name fits beside the line, as windows per segment (index into `segs`);
+    /// a stretch shared with another run, with that run's key in `other`; and the open ends of a partial run.
+    public let labelWindows: [LabelWindow]
+    public let sharedWindows: [LabelWindow]
+    public let openEnds: [OpenEnd]
+
+    public struct OpenEnd: Decodable, Sendable, Equatable {
+        public let at: String, conf: String
+        public init(at: String, conf: String) { self.at = at; self.conf = conf }
+        enum CodingKeys: String, CodingKey { case at, conf }
+        public init(from d: Decoder) throws {
+            let c = try d.container(keyedBy: CodingKeys.self)
+            at = (try? c.decodeIfPresent(String.self, forKey: .at)) ?? ""
+            conf = (try? c.decodeIfPresent(String.self, forKey: .conf)) ?? ""
+        }
+    }
 
     public struct Research: Decodable, Sendable {
         public let conf: String
@@ -79,7 +95,7 @@ public struct Piste: Decodable, Sendable, Identifiable {
     /// The mean latitude of all its points, areas too (the site's meanLat, for the Kobi side).
     public var lat: Double { meanLat(segs.map(\.g)) }
 
-    enum CodingKeys: String, CodingKey { case key, name, color, named, len, kind, segs, fromLifts, toLifts, fromPistes, joins, refs, osmDiff, groom, lit, research }
+    enum CodingKeys: String, CodingKey { case key, name, color, named, len, kind, segs, fromLifts, toLifts, fromPistes, joins, refs, osmDiff, groom, lit, research, label, shared, open }
 
     public init(from d: Decoder) throws {
         let c = try d.container(keyedBy: CodingKeys.self)
@@ -97,6 +113,9 @@ public struct Piste: Decodable, Sendable, Identifiable {
         func strs(_ k: CodingKeys) -> [String] { (try? c.decodeIfPresent([String].self, forKey: k)) ?? [] }
         refs = strs(.refs); osmDiff = strs(.osmDiff); groom = strs(.groom); lit = strs(.lit)
         research = try? c.decodeIfPresent(Research.self, forKey: .research)
+        labelWindows = (try? c.decodeIfPresent(LabelWindows.self, forKey: .label))?.windows ?? []
+        sharedWindows = (try? c.decodeIfPresent(LabelWindows.self, forKey: .shared))?.windows ?? []
+        openEnds = (try? c.decodeIfPresent([OpenEnd].self, forKey: .open)) ?? []
     }
 
     /// For tests and previews.
@@ -104,6 +123,7 @@ public struct Piste: Decodable, Sendable, Identifiable {
         self.key = key; name = key; self.color = color; named = true; len = 0; kind = "run"; segs = []
         self.fromLifts = fromLifts; toLifts = []; fromPistes = []; joins = []
         refs = []; osmDiff = []; groom = []; lit = []; research = nil
+        labelWindows = []; sharedWindows = []; openEnds = []
     }
 }
 
@@ -157,4 +177,39 @@ func meanLat(_ lines: [[[Double]]]) -> Double {
     var t = 0.0, n = 0
     for g in lines { for p in g where !p.isEmpty { t += p[0]; n += 1 } }
     return n > 0 ? t / Double(n) : 0
+}
+
+/// A place along a run's segment where its name fits (round 21): segment `s` (an index into `segs`, areas counted),
+/// `t0`..`t1` thousandths of the segment's length, `cL` and `cR` the clear room to the left and right in metres, and for a
+/// shared stretch the other run's key.
+public struct LabelWindow: Sendable, Equatable {
+    public let s: Int
+    public let t0: Double, t1: Double, cL: Double, cR: Double
+    public let other: String?
+    public init(s: Int, t0: Double, t1: Double, cL: Double, cR: Double, other: String? = nil) {
+        self.s = s; self.t0 = t0; self.t1 = t1; self.cL = cL; self.cR = cR; self.other = other
+    }
+}
+
+/// `{"v":1,"a":[[s,t0,t1,cL,cR(,other)],...]}`; a version other than 1 reads as no windows (architect, condition 5).
+struct LabelWindows: Decodable {
+    let windows: [LabelWindow]
+    private enum CodingKeys: String, CodingKey { case v, a }
+    private enum Cell: Decodable {
+        case num(Double), text(String)
+        init(from d: Decoder) throws {
+            let c = try d.singleValueContainer()
+            if let x = try? c.decode(Double.self) { self = .num(x) } else { self = .text((try? c.decode(String.self)) ?? "") }
+        }
+        var n: Double? { if case .num(let x) = self { return x }; return nil }
+        var t: String? { if case .text(let x) = self { return x }; return nil }
+    }
+    init(from d: Decoder) throws {
+        let c = try d.container(keyedBy: CodingKeys.self)
+        guard (try? c.decode(Int.self, forKey: .v)) == 1, let rows = try? c.decode([[Cell]].self, forKey: .a) else { windows = []; return }
+        windows = rows.compactMap { r in
+            guard r.count >= 5, let s = r[0].n, let t0 = r[1].n, let t1 = r[2].n, let l = r[3].n, let rt = r[4].n else { return nil }
+            return LabelWindow(s: Int(s), t0: t0, t1: t1, cL: l, cR: rt, other: r.count > 5 ? r[5].t : nil)
+        }
+    }
 }

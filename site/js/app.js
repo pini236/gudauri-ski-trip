@@ -1590,15 +1590,21 @@ renderTicket();
 if(window.ACCOUNT)ACCOUNT.start({MYTRIP,esc,MEET:{station:id=>MEET?MEET.station(id):null,current:()=>MEET?MEET.current():null},renderTicket,countdown});
 route();
 overview();applyFilters();
-// the app sign leads to Google Play (round 26, decision 72); not on an iPhone until the App Store, and the QR card only on a computer
+// the app signs lead to the stores (rounds 26 and 37, decisions 72): each phone sees only its own store's sign, a computer
+// both, and the QR card (two codes) only on a computer. The App Store badge is a PLACEHOLDER until the official file
+// from Apple Marketing Resources is in site/img/badges/ (then: appstore-<lang>.svg and the line below)
 {const ua=navigator.userAgent,ios=/iPhone|iPad|iPod/.test(ua)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1),
-  board=document.getElementById('appBoard'),qr=document.getElementById('appQr');
+  android=/Android/.test(ua),
+  board=document.getElementById('appBoard'),iboard=document.getElementById('iosBoard'),qr=document.getElementById('appQr');
  if(ios)board.hidden=true;
- else if(!/Android/.test(ua)&&matchMedia('(pointer:fine)').matches&&has('app'))qr.hidden=false;
+ if(android)iboard.hidden=true;
+ if(!ios&&!android&&matchMedia('(pointer:fine)').matches&&has('app'))qr.hidden=false;
  board.addEventListener('click',()=>track('app_download',{store:'play',placement:'home'}));
+ iboard.addEventListener('click',()=>track('app_download',{store:'appstore',placement:'home'}));
   // Google's badge in the page's language (site/img/badges/, from the Play badge page)
   const bl=document.documentElement.lang;if(/^(en|ru|ka)$/.test(bl))document.getElementById('appBadgeImg').src='img/badges/play-'+bl+'.png';
-  document.getElementById('appBadge').addEventListener('click',()=>track('app_download',{store:'play',placement:'home_qr'}));}
+  document.getElementById('appBadge').addEventListener('click',()=>track('app_download',{store:'play',placement:'home_qr'}));
+  document.getElementById('iosBadge').addEventListener('click',()=>track('app_download',{store:'appstore',placement:'home_qr'}));}
 document.getElementById('loading').hidden=true;
 // the elevation model arrived (or failed, and then all of this stays without it): the relief and the peaks on both maps,
 // the heights on the home page, the meeting point, and a run open on the map drawn again with its profile

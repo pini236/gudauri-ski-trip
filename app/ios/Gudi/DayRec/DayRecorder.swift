@@ -2,6 +2,7 @@
 import Foundation
 import CoreLocation
 import CoreMotion
+import GudiData
 import GudiDomain
 
 /// The ski day's recorder on iPhone (decision 76; docs/ARCHITECTURE.md m-8): the GPS and the accelerometer into the
@@ -36,16 +37,28 @@ final class DayRecorder: NSObject, CLLocationManagerDelegate {
     /// The last reading, for the live screen (in memory only).
     private(set) var last: DayJournal.Point?
 
+    /// The speed for the live screen's big number (display only, in m/s).
+    private(set) var liveSpeed: Double?
+    @ObservationIgnored private var prevFix: (t: Int64, x: Double, y: Double, hacc: Double?)?
     @ObservationIgnored private let store: DayStore?
     @ObservationIgnored private var writer: DayWriter?
     @ObservationIgnored private var points = 0
     @ObservationIgnored private var since = Date()
+    /// The day stops on its own: 20 minutes still outside the resort, 60 inside (m-8, condition 2).
+    @ObservationIgnored private var idle = DayRec.IdleWatch()
+    /// Minutes left before the day stops on its own, for the live screen; nil while it is going.
+    private(set) var idleWarnMin: Int?
     @ObservationIgnored private let lm = CLLocationManager()
     @ObservationIgnored private let motion = CMMotionManager()
     @ObservationIgnored private let motionQueue = OperationQueue()
     /// The acceleration's magnitudes since the last reading: their variance goes into the point (m-8, answer 3).
     @ObservationIgnored private let accel = AccelWindow()
     @ObservationIgnored private var pendingStart = false
+    /// `day`, or `run` (timing one descent): the journal's header says which.
+    /// `day`, or `run` for timing one descent (section י 1a), which stops by itself.
+    @ObservationIgnored private(set) var runMode = "day"
+    /// The Live Activity on the lock screen and in the Dynamic Island (1.1).
+    @ObservationIgnored private let live = DayLive()
 
     static var folder: URL {
         FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0].appendingPathComponent("Days", isDirectory: true)
@@ -74,7 +87,8 @@ final class DayRecorder: NSObject, CLLocationManagerDelegate {
     var recording: Bool { if case .recording = state { return true }; return false }
 
     /// "Starting the day": asks first when it must; the answer comes back to the delegate.
-    func start() {
+    func start(oneDescent: Bool = false) {
+        runMode = oneDescent ? "run" : "day"
         guard writer == nil, store != nil, Self.canRecordInBackground else { return }
         switch lm.authorizationStatus {
         case .notDetermined: state = .asking
@@ -89,10 +103,23 @@ final class DayRecorder: NSObject, CLLocationManagerDelegate {
     /// Precise location for this day, or no recording.
     private func precise() {
         guard lm.accuracyAuthorization == .reducedAccuracy else { begin(); return }
-        lm.requestTemporaryFullAccuracyAuthorization(withPurposeKey: "DayRecording") { [weak self] _ in
+        lm.requestTemporaryFullAccuracyAuthorization(withPurposeKey: "DayRecording", completion: Self.accuracyDone(self))
+    }
+
+    // System callbacks arrive off the main actor. A closure built inside this @MainActor class
+    // would inherit the isolation and trap at run time (build 55), so they are built outside it.
+    nonisolated static func accelHandler(_ w: AccelWindow) -> CMAccelerometerHandler {
+        { d, _ in
+            guard let a = d?.acceleration else { return }
+            w.add(x: a.x, y: a.y, z: a.z)
+        }
+    }
+
+    nonisolated static func accuracyDone(_ rec: DayRecorder) -> @Sendable (Error?) -> Void {
+        { [weak rec] _ in
             Task { @MainActor in
-                guard let self else { return }
-                if self.lm.accuracyAuthorization == .fullAccuracy { self.begin() } else { self.state = .approximate }
+                guard let rec else { return }
+                if rec.lm.accuracyAuthorization == .fullAccuracy { rec.begin() } else { rec.state = .approximate }
             }
         }
     }
@@ -100,9 +127,11 @@ final class DayRecorder: NSObject, CLLocationManagerDelegate {
     private func begin() {
         guard let store else { return }
         let now = Date()
-        let header = DayJournal.Header(tz: "Asia/Tbilisi", resort: "gudauri", device: Self.model, start: Self.ms(now))
+        let header = DayJournal.Header(tz: "Asia/Tbilisi", resort: "gudauri", device: Self.model, start: Self.ms(now), mode: runMode)
         guard let w = try? store.begin(header) else { return }
-        writer = w; points = 0; since = now
+        writer = w; points = 0; since = now; idle.reset(); idleWarnMin = nil
+        // the measurement: that a day began, nothing else (no position, no speed, no run)
+        Telemetry.shared.event("dayrec_start")
         run()
     }
 
@@ -132,13 +161,10 @@ final class DayRecorder: NSObject, CLLocationManagerDelegate {
         lm.startUpdatingLocation()
         if motion.isAccelerometerAvailable {
             motion.accelerometerUpdateInterval = 1.0 / 25
-            let w = accel
-            motion.startAccelerometerUpdates(to: motionQueue) { d, _ in
-                guard let a = d?.acceleration else { return }
-                w.add((a.x * a.x + a.y * a.y + a.z * a.z).squareRoot())
-            }
+            motion.startAccelerometerUpdates(to: motionQueue, withHandler: Self.accelHandler(accel))
         }
         state = .recording(since: since, points: points)
+        live.begin(since: since)
     }
 
     /// The stop: user, idle or outside (the measurement contract's reasons).
@@ -147,7 +173,12 @@ final class DayRecorder: NSObject, CLLocationManagerDelegate {
         lm.allowsBackgroundLocationUpdates = false
         motion.stopAccelerometerUpdates()
         try? writer?.close(Self.ms(Date()), reason: reason)
-        writer = nil; last = nil
+        if writer != nil {
+            // minutes and the reason, by the contract (docs/GROWTH.md): never a position, a run or a speed
+            Telemetry.shared.event("dayrec_stop", ["minutes": Int((Date().timeIntervalSince(since) / 60).rounded()), "reason": reason])
+        }
+        writer = nil; last = nil; liveSpeed = nil; prevFix = nil
+        live.end()
         state = .idle
     }
 
@@ -188,7 +219,18 @@ final class DayRecorder: NSObject, CLLocationManagerDelegate {
                 stop(reason: "user"); state = .full; return
             }
             points += 1
+            // the big number only: a speed from the distance when the Doppler gives none (iOS: -1 while walking)
+            let cur = (t: p.t, x: Geo.x(p.lon), y: Geo.y(p.lat), hacc: p.hacc)
+            liveSpeed = DayRec.LiveNumbers.displaySpeed(doppler: p.spd, prev: prevFix, cur: cur, shown: liveSpeed)
+            prevFix = cur
             last = p
+            live.add(p)
+            // the day that stops on its own (the same rule as Android's IdleWatch)
+            switch idle.feed(p.t, Geo.x(p.lon), Geo.y(p.lat)) {
+            case .fine: idleWarnMin = nil
+            case .warn(let left): idleWarnMin = Int((left + 59_999) / 60_000)
+            case .stop(let outside): idleWarnMin = nil; stop(reason: outside ? "outside" : "idle"); return
+            }
         }
         state = .recording(since: since, points: points)
     }
@@ -201,27 +243,11 @@ final class DayRecorder: NSObject, CLLocationManagerDelegate {
         return withUnsafeBytes(of: &s.machine) { String(decoding: $0.prefix { $0 != 0 }, as: UTF8.self) }
     }
 }
-
-/// The accelerometer's magnitudes between two readings, filled on the motion queue and drained on the main actor.
-private final class AccelWindow: @unchecked Sendable {
-    private let lock = NSLock()
-    private var n = 0.0, sum = 0.0, sq = 0.0
-
-    func add(_ g: Double) { lock.lock(); n += 1; sum += g; sq += g * g; lock.unlock() }
-
-    /// The variance since the last drain (g²), nil without samples.
-    func drain() -> Double? {
-        lock.lock(); defer { n = 0; sum = 0; sq = 0; lock.unlock() }
-        guard n > 1 else { return nil }
-        let mean = sum / n
-        return max(0, sq / n - mean * mean)
-    }
-}
 #else
 /// Plain (1.0) build: the recorder is not compiled at all (architect, decision 76, condition 1).
 /// This empty stand-in only keeps `AppModel` and `GudiApp` compiling; it holds no location code.
 final class DayRecorder {
-    func start() {}
+    func start(oneDescent: Bool = false) {}
     func flush() {}
 }
 #endif

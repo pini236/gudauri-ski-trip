@@ -7,6 +7,34 @@ object LiveNumbers {
     /** A speed in m/s as whole km/h; null while there is none. */
     fun kmh(ms: Double?): String = if (ms == null || ms < 0) "0" else Math.round(ms * 3.6).toString()
 
+    /** One reading, for the big number only: when (ms), where (metres in the plane, [io.github.pini236.skiapp.dayrec.Geo]) and how sure (m; null: the phone did not say). */
+    class Fix(val t: Long, val x: Double, val y: Double, val hAcc: Double?)
+
+    /** A reading this far off (metres) is too coarse to take a speed from. A display threshold only (not in dayrec-params.json). */
+    const val DISPLAY_MAX_HACC = 15.0
+
+    /**
+     * The big number's speed in m/s, for display only (never in the log, never in the maximum speed, which stays the Doppler's).
+     * A valid Doppler speed wins. Without one the speed comes from the distance between the last two readings, smoothed half and
+     * half with what was shown, but only while both are accurate (<= 15 m) and 0.5 to 10 s apart. Null: no honest speed, shown as a dash and never as 0
+     * (the same rule as the iPhone's).
+     */
+    fun displaySpeed(doppler: Double?, prev: Fix?, cur: Fix, shown: Double?): Double? {
+        if (doppler != null && doppler >= 0) return doppler
+        val p = prev ?: return null
+        val h0 = p.hAcc ?: return null
+        val h1 = cur.hAcc ?: return null
+        if (h0 > DISPLAY_MAX_HACC || h1 > DISPLAY_MAX_HACC) return null
+        val dt = (cur.t - p.t) / 1000.0
+        if (dt < 0.5 || dt > 10.0) return null
+        val v = Math.hypot(cur.x - p.x, cur.y - p.y) / dt
+        if (!v.isFinite() || v >= 60.0) return null
+        return if (shown != null) (shown + v) / 2 else v
+    }
+
+    /** The big number as text: a dash while there is no honest speed. */
+    fun speedText(ms: Double?): String = if (ms == null) "\u2014" else kmh(ms)
+
     /** A maximum in km/h, rounded. */
     fun maxKmh(kmh: Double?): String = if (kmh == null) "0" else Math.round(kmh).toString()
 
@@ -22,12 +50,41 @@ object LiveNumbers {
         return if (h > 0) String.format(Locale.ROOT, "%d:%02d:%02d", h, m, ss) else String.format(Locale.ROOT, "%d:%02d", m, ss)
     }
 
+    /**
+     * The counter's time: always from the tap ([startedAt]), never from the first reading. The first reading comes later (a cold
+     * GPS can take a minute), and counting from it would send the counter back to 0:00 at that moment. Zero before the recording began.
+     */
+    fun sinceTap(now: Long, startedAt: Long): Long = if (startedAt > 0L) (now - startedAt).coerceAtLeast(0L) else 0L
+
+    /**
+     * When the counter starts counting from: the tap, as soon as there is one. The recorder writes its own start time a moment
+     * later (and a start that is slow, or a phone that is slow to start the service, leaves the last recording's time there), so
+     * a start time older than the tap is not this recording's: the counter then goes by the tap and never sits on 0:00 or shows
+     * the last day's hours.
+     */
+    fun began(tapAt: Long, startedAt: Long): Long = if (tapAt > 0L && startedAt < tapAt) tapAt else startedAt
+
+    /** Waiting for the first reading: recording, and none has come yet (the screen breathes meanwhile, see DayLiveScreen). */
+    fun searching(recording: Boolean, lastFix: Long): Boolean = recording && lastFix == 0L
+
+    /**
+     * The recording ended from outside the screen (Stop in the notification, the system, the one-descent run reaching the bottom):
+     * it was going, the day's file had been seen, and now it is not. A start that has not made its file yet does not count, so a
+     * slow start is never taken for an end.
+     */
+    fun endedOutside(wasRecording: Boolean, recording: Boolean, sawFile: Boolean): Boolean = wasRecording && !recording && sawFile
+
     /** No reading for this long while recording: the signal is weak (a valley, a tunnel, a pocket in the cold). */
     const val WEAK_MS = 20_000L
 
-    /** Whether to say "weak GPS signal": [lastFix] is the last reading (0: none yet), [startedAt] when the recording began. */
-    fun weakGps(now: Long, lastFix: Long, startedAt: Long): Boolean {
-        val since = if (lastFix > 0L) lastFix else startedAt
-        return since > 0L && now - since > WEAK_MS
-    }
+    /** The first reading of a recording can take a minute or more (a cold start, a phone indoors or under a roof): the warning waits longer for it than for a gap in a recording that is going. */
+    const val WEAK_FIRST_MS = 90_000L
+
+    /**
+     * Whether to say "weak GPS signal": [lastFix] is the last reading (0: none yet), [startedAt] when the recording began.
+     * With no reading yet it is [WEAK_FIRST_MS] from the start (a normal wait for satellites is not a weak signal); once
+     * readings have come, [WEAK_MS] from the last one.
+     */
+    fun weakGps(now: Long, lastFix: Long, startedAt: Long): Boolean =
+        if (lastFix > 0L) now - lastFix > WEAK_MS else startedAt > 0L && now - startedAt > WEAK_FIRST_MS
 }

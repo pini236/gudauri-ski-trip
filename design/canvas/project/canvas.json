@@ -3450,6 +3450,134 @@
       "h": 1500,
       "page": "round37",
       "title": "ערכים למימוש"
+    },
+    "R38-0-Decide.dc.html": {
+      "x": 0,
+      "y": 0,
+      "w": 600,
+      "h": 1000,
+      "page": "round38",
+      "title": "סבב 38: נדחה"
+    },
+    "R38-Map.dc.html": {
+      "x": 680,
+      "y": 2976,
+      "w": 1140,
+      "h": 1324,
+      "page": "round38",
+      "title": "א. גודל המפה מתחת למספרים: היום, 400 מ׳, 800 מ׳"
+    },
+    "R38-Search.dc.html": {
+      "x": 680,
+      "y": 4720,
+      "w": 1040,
+      "h": 944,
+      "page": "round38",
+      "title": "ב. הרגעים שבין הנגיעה לקריאה הראשונה"
+    },
+    "R38-V2.dc.html": {
+      "x": 680,
+      "y": 0,
+      "w": 2102,
+      "h": 1068,
+      "page": "round38",
+      "title": "גרסה 2 של המסך החי: ארבעת המצבים, בעברית ביום"
+    },
+    "R38-Night.dc.html": {
+      "x": 680,
+      "y": 1488,
+      "w": 2938,
+      "h": 1068,
+      "page": "round38",
+      "title": "בלילה (עברית) ובאנגלית"
+    },
+    "R39-0-Decide.dc.html": {
+      "x": 0,
+      "y": 0,
+      "w": 600,
+      "h": 1000,
+      "page": "round39",
+      "title": "סבב 39: אושר, נמסר למימוש"
+    },
+    "R39-A.dc.html": {
+      "x": 680,
+      "y": 0,
+      "w": 1684,
+      "h": 1068,
+      "page": "round39",
+      "title": "א. השלט מונה: המספר על השלט המושלג"
+    },
+    "R39-B.dc.html": {
+      "x": 680,
+      "y": 1488,
+      "w": 1684,
+      "h": 1068,
+      "page": "round39",
+      "title": "ב. הרכבל עולה: המספר ומתחתיו הרכבל שמתקדם לפסגה (מומלץ)"
+    },
+    "R39-C.dc.html": {
+      "x": 680,
+      "y": 2976,
+      "w": 1684,
+      "h": 1068,
+      "page": "round39",
+      "title": "ג. פס הימים: 53 ימים כפס ניקוב"
+    },
+    "R39-States.dc.html": {
+      "x": 680,
+      "y": 4464,
+      "w": 2520,
+      "h": 1930,
+      "page": "round39",
+      "title": "ב (המומלצת): מה קורה לאורך הדרך, באייפון בעברית וב-Android באנגלית"
+    },
+    "R39-Trip.dc.html": {
+      "x": 680,
+      "y": 6814,
+      "w": 848,
+      "h": 1068,
+      "page": "round39",
+      "title": "וכשאין טיול: אותו לוח, בלי כרטיס הטיסה"
+    },
+    "R40-0-Decide.dc.html": {
+      "x": 0,
+      "y": 0,
+      "w": 600,
+      "h": 1000,
+      "page": "round40",
+      "title": "סבב 40: אושר, נמסר למימוש"
+    },
+    "R40-A.dc.html": {
+      "x": 680,
+      "y": 0,
+      "w": 1684,
+      "h": 1068,
+      "page": "round40",
+      "title": "א. שורת מחיר בלוח הבית, ליד הספירה לפתיחה"
+    },
+    "R40-B.dc.html": {
+      "x": 680,
+      "y": 1488,
+      "w": 1684,
+      "h": 1068,
+      "page": "round40",
+      "title": "ב. מסך \"כרטיס סקי\": כמה עולה לך (מומלץ)"
+    },
+    "R40-C.dc.html": {
+      "x": 680,
+      "y": 2976,
+      "w": 1684,
+      "h": 1068,
+      "page": "round40",
+      "title": "ג. כרטיס הטיול: ספח עם ימי הסקי מנוקבים"
+    },
+    "R40-States.dc.html": {
+      "x": 680,
+      "y": 4464,
+      "w": 2102,
+      "h": 1068,
+      "page": "round40",
+      "title": "ב (המומלץ): מצבים"
     }
   },
   "createdOnFiles": {
@@ -3459,7 +3587,7 @@
   "designSystems": [],
   "launch": {
     "view": "canvas",
-    "page": "round37"
+    "page": "round40"
   },
   "notes": {
     "featRow1": {
@@ -4829,6 +4957,123 @@
       "w": 240,
       "x": 680,
       "y": 5167
+    },
+    "round38row0": {
+      "kind": "title1",
+      "maxW": 2102,
+      "page": "round38",
+      "text": "גרסה 2: המצבים",
+      "w": 240,
+      "x": 680,
+      "y": -300
+    },
+    "round38row1": {
+      "kind": "title1",
+      "maxW": 2938,
+      "page": "round38",
+      "text": "לילה ואנגלית",
+      "w": 240,
+      "x": 680,
+      "y": 1188
+    },
+    "round38row2": {
+      "kind": "title1",
+      "maxW": 1140,
+      "page": "round38",
+      "text": "א. גודל המפה",
+      "w": 240,
+      "x": 680,
+      "y": 2676
+    },
+    "round38row3": {
+      "kind": "title1",
+      "maxW": 1040,
+      "page": "round38",
+      "text": "ב. מחפשים מיקום",
+      "w": 240,
+      "x": 680,
+      "y": 4420
+    },
+    "round39row0": {
+      "kind": "title1",
+      "maxW": 1684,
+      "page": "round39",
+      "text": "א. השלט מונה",
+      "w": 240,
+      "x": 680,
+      "y": -300
+    },
+    "round39row1": {
+      "kind": "title1",
+      "maxW": 1684,
+      "page": "round39",
+      "text": "ב. הרכבל עולה",
+      "w": 240,
+      "x": 680,
+      "y": 1188
+    },
+    "round39row2": {
+      "kind": "title1",
+      "maxW": 1684,
+      "page": "round39",
+      "text": "ג. פס הימים",
+      "w": 240,
+      "x": 680,
+      "y": 2676
+    },
+    "round39row3": {
+      "kind": "title1",
+      "maxW": 2520,
+      "page": "round39",
+      "text": "מצבים לאורך הדרך",
+      "w": 240,
+      "x": 680,
+      "y": 4164
+    },
+    "round39row4": {
+      "kind": "title1",
+      "maxW": 860,
+      "page": "round39",
+      "text": "עם טיול ובלי",
+      "w": 240,
+      "x": 680,
+      "y": 6514
+    },
+    "round40row0": {
+      "kind": "title1",
+      "maxW": 1684,
+      "page": "round40",
+      "text": "א. שורה בבית",
+      "w": 240,
+      "x": 680,
+      "y": -300
+    },
+    "round40row1": {
+      "kind": "title1",
+      "maxW": 1684,
+      "page": "round40",
+      "text": "ב. מסך כרטיס סקי",
+      "w": 240,
+      "x": 680,
+      "y": 1188
+    },
+    "round40row2": {
+      "kind": "title1",
+      "maxW": 1684,
+      "page": "round40",
+      "text": "ג. כרטיס הטיול",
+      "w": 240,
+      "x": 680,
+      "y": 2676
+    },
+    "round40row3": {
+      "kind": "title1",
+      "maxW": 2102,
+      "page": "round40",
+      "text": "מצבים",
+      "w": 240,
+      "x": 680,
+      "y": 4164
     }
   },
   "order": [
@@ -5261,9 +5506,37 @@
     "R37-Sign.dc.html",
     "R37-Desk.dc.html",
     "R37-Page.dc.html",
-    "R37-Spec.dc.html"
+    "R37-Spec.dc.html",
+    "R38-0-Decide.dc.html",
+    "R38-Map.dc.html",
+    "R38-Search.dc.html",
+    "R38-V2.dc.html",
+    "R38-Night.dc.html",
+    "R39-0-Decide.dc.html",
+    "R39-A.dc.html",
+    "R39-B.dc.html",
+    "R39-C.dc.html",
+    "R39-States.dc.html",
+    "R39-Trip.dc.html",
+    "R40-0-Decide.dc.html",
+    "R40-A.dc.html",
+    "R40-B.dc.html",
+    "R40-C.dc.html",
+    "R40-States.dc.html"
   ],
   "pages": [
+    {
+      "id": "round40",
+      "name": "סבב 40: מחירי כרטיס הסקי"
+    },
+    {
+      "id": "round39",
+      "name": "סבב 39: ספירה לאחור לפתיחת העונה"
+    },
+    {
+      "id": "round38",
+      "name": "סבב 38: המסך החי ביום הגלישה, המפה והרגעים הראשונים"
+    },
     {
       "id": "round37",
       "name": "סבב 37: האפליקציה לאייפון ב-App Store"

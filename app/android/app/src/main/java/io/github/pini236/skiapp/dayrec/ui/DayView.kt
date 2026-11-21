@@ -28,6 +28,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
@@ -65,7 +66,20 @@ import java.util.Locale
  */
 private class Loaded(val day: DayModel.Day, val track: Track, val story: StoryData?)
 
+/**
+ * The last day shown, and how far it was scrolled: coming back from the replay (or from the history) the day is there at
+ * once and where it was, instead of "loading" and the top of the page. Keyed by the file and when it last changed (a day
+ * that is analysed again is a different one); one day only, in the process's memory.
+ */
+private object LastDay {
+    var key: String? = null
+    var loaded: Loaded? = null
+    var scroll = 0
+    fun keyOf(f: File) = f.absolutePath + "@" + f.lastModified() + "/" + f.length()
+}
+
 /** The day's line, thinned for drawing: projected metres (as the map's runs), and the speed of each point in km/h. */
+@androidx.compose.runtime.Immutable
 class Track(val x: FloatArray, val y: FloatArray, val kmh: DoubleArray, val t: LongArray)
 
 internal fun readTrack(file: File, max: Int = 1800): Track {
@@ -80,9 +94,11 @@ internal fun readTrack(file: File, max: Int = 1800): Track {
 fun DayViewScreen(file: File, runs: Runs?, sample: Boolean = false, onReplay: (() -> Unit)? = null, onBack: () -> Unit) {
     val c = Ski.colors
     val ctx = LocalContext.current
-    var loaded by remember(file) { mutableStateOf<Loaded?>(null) }
+    val key = LastDay.keyOf(file)
+    var loaded by remember(file) { mutableStateOf<Loaded?>(if (LastDay.key == key) LastDay.loaded else null) }
     var failed by remember(file) { mutableStateOf(false) }
     LaunchedEffect(file) {
+        if (loaded != null) return@LaunchedEffect
         withContext(Dispatchers.Default) {
             // the recorder closes the day (and writes the result) after the tap; wait for it, up to a minute
             var waited = 0
@@ -91,7 +107,7 @@ fun DayViewScreen(file: File, runs: Runs?, sample: Boolean = false, onReplay: ((
             val result = out?.let { runCatching { JSONObject(it.readText()) }.getOrNull() }
             if (result == null) { failed = true; return@withContext }
             val day = DayModel.build(result, ZoneId.of(DayParams.TZ))
-            loaded = Loaded(day, readTrack(file), StoryData.read(DayStore.momentsOf(file)))
+            loaded = Loaded(day, readTrack(file), StoryData.read(DayStore.momentsOf(file))).also { LastDay.key = LastDay.keyOf(file); LastDay.loaded = it; LastDay.scroll = 0 }
         }
     }
     Column(Modifier.fillMaxSize().background(c.snow).statusBarsPadding().navigationBarsPadding()) {
@@ -101,7 +117,7 @@ fun DayViewScreen(file: File, runs: Runs?, sample: Boolean = false, onReplay: ((
         }
         val l = loaded
         when {
-            l != null -> DayBody(l, runs, sample, onReplay)
+            l != null -> DayBody(l, runs, sample, onReplay, file)
             failed -> Text(stringResource(R.string.app_day_empty), Modifier.padding(16.dp), style = Ski.type.body, color = c.muted)
             else -> Text(stringResource(R.string.app_day_loading), Modifier.padding(16.dp), style = Ski.type.body, color = c.muted)
         }
@@ -109,11 +125,13 @@ fun DayViewScreen(file: File, runs: Runs?, sample: Boolean = false, onReplay: ((
 }
 
 @Composable
-private fun DayBody(l: Loaded, runs: Runs?, sample: Boolean, onReplay: (() -> Unit)?) {
+private fun DayBody(l: Loaded, runs: Runs?, sample: Boolean, onReplay: (() -> Unit)?, file: File) {
     val c = Ski.colors
     val s = l.day.summary
     val zone = ZoneId.of(DayParams.TZ)
-    Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = 16.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
+    val scroll = rememberScrollState(if (LastDay.loaded === l) LastDay.scroll else 0)
+    androidx.compose.runtime.DisposableEffect(l) { onDispose { if (LastDay.loaded === l) LastDay.scroll = scroll.value } }
+    Column(Modifier.fillMaxSize().verticalScroll(scroll).padding(horizontal = 16.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
         if (sample) Text(stringResource(R.string.app_day_sample) + " · " + stringResource(R.string.app_day_sample_note), style = Ski.type.bodyBold, color = c.glacier)
         else Text(DateTimeFormatter.ofPattern("EEEE d.M", Locale.getDefault()).format(Instant.ofEpochMilli(s.start).atZone(zone)), style = Ski.type.body, color = c.muted)
         Row(Modifier.fillMaxWidth().border(BorderStroke(1.dp, c.rule)).padding(vertical = 14.dp)) {
@@ -128,6 +146,8 @@ private fun DayBody(l: Loaded, runs: Runs?, sample: Boolean, onReplay: (() -> Un
             if (onReplay != null) Text(stringResource(R.string.app_day_replay), Modifier.fillMaxWidth().border(BorderStroke(1.5.dp, c.ink)).clickable(role = Role.Button, onClick = onReplay).heightIn(min = 48.dp).padding(vertical = 12.dp),
                 textAlign = TextAlign.Center, style = Ski.type.bodyBold, color = c.ink)
             Text(stringResource(R.string.app_day_note), style = Ski.type.small, color = c.muted)
+            // the test build's field-tester tools; an empty stand-in in the store build
+            if (!sample) io.github.pini236.skiapp.fieldtools.FieldTools.DayExtras(file)
             for (ch in l.day.chapters) Chapter(ch, runs, zone)
         }
         Spacer(Modifier.height(24.dp))
@@ -148,7 +168,8 @@ private fun Sum(value: String, label: String, modifier: Modifier, size: androidx
 internal fun DayMap(t: Track, runs: Runs?, maxLat: Double?, maxLon: Double?, height: androidx.compose.ui.unit.Dp = 340.dp, showPin: Boolean = true) {
     val c = Ski.colors
     val pin = stringResource(R.string.app_day_pin)
-    Box(Modifier.fillMaxWidth().height(height).background(c.glacier.copy(alpha = .10f)).border(BorderStroke(1.dp, c.rule))) {
+    // clipped to its frame: a canvas draws outside its own bounds unless told not to, and the lines of the runs near a short track are long
+    Box(Modifier.fillMaxWidth().height(height).clipToBounds().background(c.glacier.copy(alpha = .10f)).border(BorderStroke(1.dp, c.rule))) {
         Canvas(Modifier.fillMaxSize()) {
             if (t.x.isEmpty()) return@Canvas
             var x0 = t.x.min(); var x1 = t.x.max(); var y0 = t.y.min(); var y1 = t.y.max()

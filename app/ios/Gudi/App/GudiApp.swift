@@ -36,6 +36,7 @@ struct GudiApp: App {
                 }
         }
             .onChange(of: phase) { _, p in
+                model.isActive = p == .active
                 switch p {
                 case .active:
                     Task { await GroupService.shared.flush() }
@@ -75,7 +76,8 @@ struct RootView: View {
             let _ = Telemetry.shared.set(lang: lang.rawValue, langSource: langRaw.isEmpty ? "auto" : "manual", theme: mode.rawValue)
             let ski = Ski(colors: SkiColors(p: frame.dark ? .night : .day), type: SkiType(lang: lang))
             NavigationStack(path: $model.path) {
-                HomeView(frame: frame, mode: mode, trip: model.trip, now: LocalMoment.now(date), status: model.status, weather: model.weather(date),
+                HomeView(recording: model.dayRecorder != nil, frame: frame, mode: mode, trip: model.trip, now: LocalMoment.now(date), status: model.status, weather: model.weather(date),
+                         opening: model.opening(date), lateOpen: model.lateOpen(date), skipass: model.skipassEntry(date),
                          onMode: { modeRaw = mode.next.rawValue; Telemetry.shared.event("theme_set", ["mode": mode.next.rawValue]) },
                          onLang: { setLang($0, lang) }) { a in
                     switch a {
@@ -87,6 +89,8 @@ struct RootView: View {
                     case .trip: model.go(.trip)
                     case .status: model.statusSheet = true; model.go(.map())
                     case .privacy: openURL(Site.privacy(lang))
+                    case .record: model.go(.record)
+                    case .skipass: model.go(.skipass)
                     }
                 }
                 // home is the sky, the boarding pass and the sign post, drawn at fixed sizes
@@ -102,9 +106,10 @@ struct RootView: View {
                         case .games: GamesScreen().fixedType()
                         case .game(let id): GameScreen(id: id).fixedType()
                         case .group: GroupScreen()
-                        case .about: AboutScreen(mode: mode, onMode: { modeRaw = mode.next.rawValue; Telemetry.shared.event("theme_set", ["mode": mode.next.rawValue]) },
-                                                 onLang: { setLang($0, lang) }, onResetBests: { Bests.reset() })
+                        case .about: aboutScreen(mode, lang)
                         case .trip: TripFormScreen()
+                        case .skipass: SkipassScreen(prices: model.prices, tripDays: model.skiDays, today: model.seasonToday(date))
+                        case .record, .days, .day, .daySample, .replay, .replaySample: dayRecScreen(r)
                         case .groups(let g): GroupFlow(route: g)
                         }
                     }
@@ -113,11 +118,13 @@ struct RootView: View {
             }
             .onChange(of: model.path) { old, new in
                 if new.count > old.count, let r = new.last {
+                    if r.isDayRec || r == .skipass { return }
                     if case .game(let g) = r { Telemetry.shared.screen("game", ["game": g]) } else { Telemetry.shared.screen(r.screenName) }
                 } else if new.isEmpty { Telemetry.shared.screen("home") }
             }
             .tint(ski.colors.ink)
             .id(lang)
+            .onAppear { model.rememberSeason(date) }
             .environment(model)
             .environment(\.ski, ski)
             .environment(\.layoutDirection, lang.rtl ? .rightToLeft : .leftToRight)
@@ -136,6 +143,11 @@ struct RootView: View {
         // shots do not depend on the simulator's own text size setting
         default: UserDefaults.standard.string(forKey: "qaRoute") != nil ? .large : nil
         }
+    }
+
+    private func aboutScreen(_ mode: DayNight.Mode, _ lang: Lang) -> some View {
+        AboutScreen(mode: mode, onMode: { modeRaw = mode.next.rawValue; Telemetry.shared.event("theme_set", ["mode": mode.next.rawValue]) },
+                    onLang: { setLang($0, lang) }, onResetBests: { Bests.reset() })
     }
 
     private func setLang(_ l: Lang?, _ previous: Lang) {

@@ -195,6 +195,9 @@ fun AboutScreen(
                 Text(" · " + stringResource(R.string.about_unofficial), Modifier.weight(1f), style = Ski.type.small.copy(fontSize = 13.sp), color = c.muted)
             }
             Text(stringResource(R.string.app_about_version, version), style = Ski.type.small, color = c.muted)
+            // the test build's field-tester tools; an empty stand-in in the store build
+            io.github.pini236.skiapp.fieldtools.FieldTools.AboutRow()
+            io.github.pini236.skiapp.fieldtools.FieldTools.DiagRow()
         }
     }
     if (langs) LangSheet({ tag -> langs = false; onLang(tag) }) { langs = false }

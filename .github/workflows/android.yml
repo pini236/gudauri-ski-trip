@@ -6,9 +6,9 @@ on:
   # every branch runs the unit tests and builds (the tests also read the site's tokens and relief, and the server's
   # contract); only main signs and publishes
   push:
-    paths: ['app/android/**', 'site/data/**', 'site/audio/**', 'site/games/descent/**', 'site/games/thumbs/**', 'site/img/pano/**', 'site/css/site.css', 'site/js/app.js', 'site/js/relief.js', 'server/CONTRACT.md', 'tools/fixtures/**', 'tools/build-app-data.py', 'tools/build-app-strings.py', 'i18n/strings.json', '.github/workflows/android.yml']
+    paths: ['app/android/**', 'site/data/**', 'site/audio/**', 'site/games/descent/**', 'site/games/thumbs/**', 'site/img/pano/**', 'site/css/site.css', 'site/js/app.js', 'site/js/relief.js', 'server/CONTRACT.md', 'tools/fixtures/**', 'tools/build-app-data.py', 'tools/build-app-strings.py', 'i18n/strings.json', '.github/workflows/android.yml', 'tools/check-android-threads.sh']
   pull_request:
-    paths: ['app/android/**', 'site/data/**', 'site/audio/**', 'site/games/descent/**', 'site/games/thumbs/**', 'site/img/pano/**', 'site/css/site.css', 'site/js/app.js', 'site/js/relief.js', 'server/CONTRACT.md', 'tools/fixtures/**', 'tools/build-app-data.py', 'tools/build-app-strings.py', 'i18n/strings.json', '.github/workflows/android.yml']
+    paths: ['app/android/**', 'site/data/**', 'site/audio/**', 'site/games/descent/**', 'site/games/thumbs/**', 'site/img/pano/**', 'site/css/site.css', 'site/js/app.js', 'site/js/relief.js', 'server/CONTRACT.md', 'tools/fixtures/**', 'tools/build-app-data.py', 'tools/build-app-strings.py', 'i18n/strings.json', '.github/workflows/android.yml', 'tools/check-android-threads.sh']
   workflow_dispatch:
 
 # a branch's newer push replaces its running build; main never cancels one halfway through publishing, and its newest
@@ -31,6 +31,8 @@ jobs:
         working-directory: app/android
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - name: Gate, system registrations name a handler or looper
+        run: sh ../../tools/check-android-threads.sh
       - uses: actions/setup-java@cf277c60eb25467037889841efdb72551f06f6c3 # v4.9.1
         with:
           distribution: temurin
@@ -209,7 +211,11 @@ jobs:
           ANDROID_UPLOAD_KEY_ALIAS: ${{ secrets.ANDROID_UPLOAD_KEY_ALIAS }}
         run: ./gradlew --no-daemon --build-cache :app:bundleStoreRelease
       - name: Gate, the ski day and the tester export are off in the store build
-        run: sh ../../tools/check-android-store.sh "$(find app/build/generated/source/buildConfig/storeRelease -name BuildConfig.java | head -1)"
+        run: |
+          # AGP puts a flavor+type BuildConfig in store/release (older: storeRelease); check every file found
+          FILES=$(find app/build/generated/source/buildConfig \( -path '*/store/release/*' -o -path '*/storeRelease/*' \) -name BuildConfig.java)
+          [ -n "$FILES" ] || { echo "::error::no store release BuildConfig under app/build/generated/source/buildConfig"; find app/build/generated/source/buildConfig -name BuildConfig.java; exit 1; }
+          for f in $FILES; do echo "gate: $f"; sh ../../tools/check-android-store.sh "$f" || exit 1; done
       - name: Sentry, upload the store build's mapping
         if: env.SENTRY_MAP_ID != '' && steps.sentry-cli.outcome == 'success'
         continue-on-error: true

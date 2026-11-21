@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="he">
+<head>
+<meta charset="utf-8">
+<title>ההר: מלמעלה, איפה אני</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+.H{--bg:#EEF3F8;--glass:rgba(255,255,255,.86);--ink:#0E2233;--ink2:#40556A;--line:rgba(14,34,51,.14);--acc:#6B3FD4;--onacc:#FFFFFF;--halo:rgba(255,255,255,.95);--good:#198549;--warn:#9A5200;--green:#198549;--blue:#1F6FD0;--red:#D1342B;--black:#15181C;--veil:rgba(92,114,148,.44);font-family:'Heebo',system-ui,sans-serif;color:var(--ink);background:var(--bg)}
+.H .night{--bg:#0B1220;--glass:rgba(15,24,40,.84);--ink:#EAF1F8;--ink2:#A9B9CC;--line:rgba(234,241,248,.18);--acc:#B79CFF;--onacc:#1A0B3D;--halo:rgba(6,11,22,.95);--good:#46D08A;--warn:#F5B14C;--green:#46D08A;--blue:#62AEFF;--red:#FF7468;--black:#E6ECF2;--veil:rgba(6,11,22,.58)}
+.H h1,.H h2,.H h3,.H p{margin:0}
+.H .scr{position:absolute;inset:0;background:var(--bg);color:var(--ink);overflow:hidden}
+.H .pic{position:absolute;left:0;width:390px;display:block}
+.H .n{display:none}.H .night .n{display:block}.H .night .d{display:none}
+.H button{font:inherit;color:inherit;border:0;background:none;padding:0;cursor:pointer}
+.H .glass{background:var(--glass);-webkit-backdrop-filter:blur(18px) saturate(1.3);backdrop-filter:blur(18px) saturate(1.3);border:1px solid var(--line);box-shadow:0 10px 30px rgba(10,25,45,.18)}
+.H .pulse{position:absolute;top:56px;left:14px;right:14px;min-height:48px;border-radius:24px;display:flex;align-items:center;gap:10px;padding:6px 16px;box-sizing:border-box;font-size:15px;font-weight:500;line-height:1.3}
+.H .dot{width:9px;height:9px;border-radius:50%;background:var(--good);flex:none}
+.H .sheet{position:absolute;left:8px;right:8px;bottom:8px;border-radius:28px;padding:10px 16px 16px;box-sizing:border-box;display:flex;flex-direction:column;gap:12px}
+.H .grab{width:38px;height:5px;border-radius:3px;background:var(--line);margin:0 auto}
+.H .lbl{position:absolute;transform:translate(-50%,-50%);font-size:11.5px;font-weight:700;white-space:nowrap;line-height:1.25;text-align:center;color:var(--ink);text-shadow:0 0 3px var(--halo),0 0 3px var(--halo),0 0 7px var(--halo);direction:ltr}
+.H .lbl small{display:block;font-weight:500;font-size:10.5px;color:var(--ink);direction:rtl;unicode-bidi:isolate}
+.H .tag{position:absolute;transform:translate(-50%,-50%);display:inline-flex;align-items:center;gap:5px;height:22px;padding:0 8px 0 6px;border-radius:11px;background:var(--glass);border:1px solid var(--line);font-size:11.5px;font-weight:700;white-space:nowrap;direction:ltr;color:var(--ink)}
+.H .tag i{width:8px;height:8px;border-radius:50%;flex:none}
+.H .bdg{display:inline-flex;align-items:center;justify-content:center;min-width:28px;height:22px;padding:0 6px;box-sizing:border-box;border-radius:6px;background:#1F6FD0;color:#fff;font-size:12.5px;font-weight:700;direction:ltr}
+.H .seg{display:flex;border-radius:24px;padding:3px;gap:2px;background:var(--line)}
+.H .seg button{flex:1;height:44px;border-radius:21px;font-size:14px;font-weight:500;color:var(--ink)}
+.H .seg .on{background:var(--acc);color:var(--onacc);font-weight:700}
+.H .find{height:48px;border-radius:24px;background:var(--line);display:flex;align-items:center;gap:10px;padding:0 16px;font-size:16px;color:var(--ink2)}
+.H .chips{display:flex;gap:8px}
+.H .chip{flex:1;height:44px;border-radius:22px;border:1px solid var(--line);font-size:13.5px;font-weight:500;display:flex;align-items:center;justify-content:center}
+.H .fab{position:absolute;width:56px;height:56px;border-radius:50%;background:var(--acc);display:flex;align-items:center;justify-content:center;box-shadow:0 8px 22px rgba(10,25,45,.3)}
+.H .fab span{width:18px;height:18px;border-radius:50%;background:var(--onacc)}
+.H .num{font-size:34px;font-weight:300;line-height:1;direction:ltr;display:inline-block}
+.H .cap{font-size:12.5px;color:var(--ink2)}
+.H .row{display:flex;align-items:center;gap:10px;min-height:52px;border-top:1px solid var(--line)}
+.H .pri{height:52px;border-radius:26px;background:var(--acc);color:var(--onacc);font-size:16px;font-weight:700;flex:1}
+.H .sec{height:52px;min-width:52px;border-radius:26px;border:1px solid var(--line);font-size:15px;font-weight:500;padding:0 16px}
+.H .leg{display:flex;gap:10px;font-size:11.5px;color:var(--ink2);align-items:center}
+.H .leg i{display:inline-block;width:14px;height:5px;border-radius:3px;margin-inline-end:4px;vertical-align:middle}
+.H .call{position:absolute;font-size:11.5px;font-weight:700;line-height:1.3;color:var(--ink);text-shadow:0 0 3px var(--halo),0 0 3px var(--halo),0 0 7px var(--halo);white-space:nowrap}
+.H .call small{display:block;font-weight:500;font-size:10.5px;direction:rtl;unicode-bidi:isolate}
+</style>
+</helmet>
+<div class="H" style="width: 390px; height: 844px; position: relative; overflow: hidden">
+<div class="{{mode}}">
+<div class="scr" dir="rtl">
+<img class="pic d" alt="" src="/_blob/b9aa390a0f258bbb21ac0a6b56f8f973" style="top: 0px; height: 844px"><img class="pic d" alt="" src="/_blob/760409f1d1b30e819999c8f5f273caa2" style="top: 0px; height: 844px"><img class="pic n" alt="" src="/_blob/a1870cca47b8346e99b475507a41a686" style="top: 0px; height: 844px"><img class="pic n" alt="" src="/_blob/e7477fb42f278e774e7c1d81104ba9bc" style="top: 0px; height: 844px"><span class="lbl" style="left: 270px; top: 140px">Sadzele<small>3,237 מ׳</small></span><span class="lbl" style="left: 350px; top: 134px">▲ 3,307</span><span class="lbl" style="left: 130px; top: 92px">Bidara<small>3,174 מ׳</small></span><span class="lbl" style="left: 214px; top: 336px">Goodaura<small>2,705 מ׳</small></span><span class="lbl" style="left: 196px; top: 612px">Gudauri<small>2,160 מ׳</small></span>
+<span style="position: absolute; left: 98px; top: 449px; width: 64px; height: 64px; margin: -32px; border-radius: 50%; background: var(--acc); opacity: .2"></span>
+<span style="position: absolute; left: 98px; top: 449px; width: 18px; height: 18px; margin: -9px; box-sizing: border-box; border-radius: 50%; background: var(--acc); border: 3px solid var(--halo)"></span>
+<div class="pulse glass"><span class="dot" style="background: var(--acc)"></span><span>אתה ב-<bdi>Tatra 2</bdi>, כנראה · 2,422 מ׳</span></div>
+<button class="fab" aria-label="מקליטים" style="right: 16px; bottom: 182px"><span></span></button><div class="sheet glass"><div class="grab"></div><div class="seg" role="group" aria-label="המבט"><button>מהעמק</button><button class="on" aria-pressed="true">מלמעלה</button><button>Kobi</button></div>
+<div style="display: flex; gap: 8px"><div class="find" style="flex: 1"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="9" cy="9" r="6"/><path d="M14 14l4 4"/></svg><span>לאן?</span></div><button class="sec" aria-label="שכבות: רכבלים, מזג אוויר, מפגש" style="width: 48px; min-width: 48px; height: 48px; padding: 0; display: flex; align-items: center; justify-content: center"><svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" aria-hidden="true"><path d="M11 3l8 4-8 4-8-4z"/><path d="M3 11l8 4 8-4"/><path d="M3 15l8 4 8-4"/></svg></button></div></div>
+</div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"night":{"editor":"boolean","default":false},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+renderVals() {
+return { mode: (this.props.night ?? false) ? 'night' : 'day' };
+}
+}
+</script>
+</body>
+</html>

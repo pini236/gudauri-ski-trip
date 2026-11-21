@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="he">
+<head>
+<meta charset="utf-8">
+<title>ההר: איך בונים, ומה זה עולה</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+.HW{font-family:'Heebo',system-ui,sans-serif;color:#10161D;background:#F6F7F9}
+.HW h1,.HW h2,.HW h3,.HW p,.HW ul{margin:0}
+.HW ul{padding-inline-start:18px;display:flex;flex-direction:column;gap:7px}
+.HW li{font-size:15px;line-height:1.5}
+.HW .k{font-size:13px;font-weight:700;letter-spacing:.04em;color:#56616D}
+.HW .card{background:#fff;border:1px solid #D9DEE4;border-radius:14px;padding:22px;display:flex;flex-direction:column;gap:10px}
+.HW td,.HW th{padding:10px 12px;border-bottom:1px solid #D9DEE4;text-align:start;vertical-align:top;font-size:14.5px;line-height:1.45}
+.HW th{font-size:13px;color:#56616D;font-weight:700}
+.HW .q{display:flex;gap:12px;align-items:baseline;font-size:15.5px;line-height:1.5}
+.HW .qn{font-weight:900;font-size:20px;min-width:24px}
+.HW .th{position:relative;overflow:hidden;border-radius:12px;border:1px solid #D9DEE4;flex:none}
+.HW .th img{position:absolute;left:0;top:0;width:100%;height:100%;display:block}
+.HW .p{font-size:15px;line-height:1.55}
+.HW a{color:#3D2A9E}
+</style>
+</helmet>
+<div class="HW" dir="rtl" style="width: 1280px; height: 1000px; box-sizing: border-box; padding: 52px 60px; display: flex; flex-direction: column; gap: 26px">
+<div style="display: flex; flex-direction: column; gap: 8px"><p class="k">היתכנות</p><h1 style="font-size: 40px; font-weight: 900; line-height: 1.15">איך בונים את זה, בלי מודל תלת-ממד</h1></div>
+<div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px">
+<div class="card"><p class="k">1 · פעם אחת, אצלנו</p><p class="p">כלי קטן (כבר כתוב: tools/mountain.py) מצייר את ההר ממודל הגובה שבריפו. שניות ספורות לתמונה, בלי ספרייה חיצונית.</p></div>
+<div class="card"><p class="k">2 · נכס באפליקציה</p><p class="p">תמונה של 780 על 1,688, כ-130KB. שלושה מבטים בארבע שעות אור: בערך 1.5MB, פחות ממנוע התלת-ממד של האתר.</p></div>
+<div class="card"><p class="k">3 · בטלפון: ציור וקטורי</p><p class="p">הקווים מצוירים מעל התמונה בנוסחה אחת, עם מודל הגובה שכבר נשלח. בלי GPU, בלי מנוע, אותו דבר באתר, באנדרואיד ובאייפון.</p></div>
+<div class="card"><p class="k">4 · אתר סקי חדש</p><p class="p">מריצים את הכלי על המודל שלו. אין עבודת ציור ידנית לכל הר.</p></div>
+</div>
+<table style="border-collapse: collapse; width: 100%%; background: #fff; border: 1px solid #D9DEE4; border-radius: 14px">
+<tr><th style="width: 190px"></th><th>היום: תלת-ממד חי</th><th>ההצעה: הר מצויר מראש</th></tr>
+<tr><td><b>איך ההר נראה</b></td><td>מה שהטלפון מספיק לחשב בפריים</td><td>מה שרוצים: אור, צל, אובך, בלי מגבלת זמן חישוב</td></tr>
+<tr><td><b>ביצועים וסוללה</b></td><td>תלוי בטלפון. עוד לא נמדד בטלפון בינוני</td><td>תמונה וקווים. קל לכל טלפון</td></tr>
+<tr><td><b>שלוש פלטפורמות</b></td><td>שלושה מנועים (three.js, OpenGL, Metal) שצריך ליישר</td><td>אותן תמונות ואותה נוסחה, עם ערכי בדיקה משותפים</td></tr>
+<tr><td><b>תנועה חופשית</b></td><td>סיבוב והטיה לכל זווית</td><td>שלושה מבטים וקירוב. אין סיבוב חופשי</td></tr>
+<tr><td><b>טיסה במורד המסלול</b></td><td>מצלמה שטסה לאורך הקו</td><td>נקודה שנעה על התמונה ועל סרט הירידה</td></tr>
+<tr><td><b>בלי קליטה</b></td><td>עובד</td><td>עובד: הכל ארוז</td></tr>
+</table>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px">
+<div class="card"><p class="k">מה צריך לדעת (ביושר)</p><ul>
+<li>מקרוב ההר רך. מודל של 40 מ׳ לא מכיל פרטים קטנים, והכלי לא ממציא אותם. קווי גובה של 20 מ׳ ותגיות נותנים את החדות.</li>
+<li>מדרון שפונה הרחק מהמבט ותלול מ-33° מוסתר. בצד הגלישה של גודאורי כמעט אין כאלה; צד Kobi מקבל מבט משלו.</li>
+<li>רוחב אמיתי של מסלול ידוע רק למעטים בנתונים. לכן קו ומסדרון רך, ולא רצועה ברוחב מומצא.</li>
+<li>התמונות כאן הן טיוטה ראשונה של הכלי. יש עוד לאן לשפר: מרקם שלג, סלע, כפר ואורות.</li></ul></div>
+<div class="card"><p class="k">אם מאשרים: הסדר</p><ul>
+<li>סבב שני בקנבס: ליטוש המראה, בוקר, הכפר, מצב רכבלים ויום הגלישה על ההר המצויר.</li>
+<li>סקירת ארכיטקט: נכס חדש, נוסחת ההטלה כחוזה משותף, וערכי בדיקה לשלוש הפלטפורמות.</li>
+<li>ניסוי באתר מאחורי דגל, ואחריו אנדרואיד ואייפון.</li>
+<li>במקביל: לבדוק אם יש מודל גובה פתוח ומדויק יותר לגודאורי. אותו כלי, תמונה חדה יותר.</li></ul></div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":1000}}'>
+class Component extends DCLogic {
+renderVals() {
+return {};
+}
+}
+</script>
+</body>
+</html>
