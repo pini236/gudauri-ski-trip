@@ -59,12 +59,15 @@ class LiveView(context: Context, private val scene: MapScene) : GLSurfaceView(co
         // the textures off the GL thread, each checked against the designer's texels
         val d = data; renderer.data = d
         camera.fovDeg = d.camera.fovDeg
-        worker.execute {
+        val decode = Runnable {
             val list = LiveData.TEXTURES.map { LiveTex.decode(context, it) }
             val bad = d.checks.filter { c -> list.first { it.name == c.tex }.let { t -> !LiveTex.check(t.px, t.w, t.h, c) } }
             Qa.log(if (bad.isEmpty()) "redesign live textures ok" else "redesign live textures bad ${bad.joinToString { it.tex }}")
             renderer.textures = list; requestRender()
         }
+        worker.execute(decode)
+        // a new GL context (the background, or a second surface) asks for them again
+        renderer.needTextures = { if (!worker.isShutdown) worker.execute(decode) }
         // the opening: the designer's camera (peak-live.json), looking north the way the picture looks (LiveOpen):
         // a little further and lower first, then a slow approach
         val c = d.camera

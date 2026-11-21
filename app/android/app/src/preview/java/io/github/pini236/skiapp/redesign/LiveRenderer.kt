@@ -205,6 +205,13 @@ class LiveRenderer(
     @Volatile private var shadow: FloatArray? = null
     /** The designer's five textures, decoded off the GL thread (LiveTex), uploaded on the next frame. */
     @Volatile var textures: List<LiveTex>? = null
+    /**
+     * A new GL context (the first one, or after the background) has none of the textures, and the decoded copy is not
+     * kept once uploaded: this asks for them again (LiveView decodes them off the GL thread).
+     */
+    @Volatile var needTextures: (() -> Unit)? = null
+    private var hadTextures = false
+    private var drawn = false
     /** The chosen run (by key), drawn as a line of light by day and of brighter light at night; the rest a little dimmer. */
     @Volatile var chosen: String? = null
     @Volatile var pal: PeakData.Pal? = null
@@ -234,6 +241,8 @@ class LiveRenderer(
     override fun onSurfaceCreated(gl: GL10?, config: EGLConfig?) {
         prog = program(VS, FS); skyProg = program(SKY_VS, SKY_FS); lineProg = program(LINE_VS, LINE_FS); dotProg = program(DOT_VS, DOT_FS)
         uploaded = false; texOn = false; tex.fill(0); runs.clear(); lifts.clear(); dotCount = 0
+        if (hadTextures && textures == null) needTextures?.invoke()
+        drawn = false
         val mx = IntArray(1); glGetIntegerv(GL_MAX_TEXTURE_SIZE, mx, 0); maxTex = mx[0]
         glEnable(GL_DEPTH_TEST); glEnable(GL_CULL_FACE); glCullFace(GL_BACK)
         glClearColor(0.62f, 0.72f, 0.85f, 1f)
@@ -318,7 +327,7 @@ class LiveRenderer(
         lastNs = t0
         if (!uploaded) upload()
         if (shadowDirty) { shadowDirty = false; shadow?.let { glBindBuffer(GL_ARRAY_BUFFER, bufs[1]); glBufferSubData(GL_ARRAY_BUFFER, 0, it.size * 4, floats(it)) } }
-        if (!texOn) textures?.let { uploadTextures(it); textures = null }
+        if (!texOn) textures?.let { uploadTextures(it); textures = null; hadTextures = true }
         val D = data
         if (dotCount == 0 && D != null) uploadVillage(D.village)
         val L = light
@@ -431,6 +440,8 @@ class LiveRenderer(
             glEnable(GL_DEPTH_TEST)
         }
         glDepthMask(true); glDisable(GL_BLEND)
+        // the emulator waits for this: a frame with the mountain, not only the clear colour
+        if (!drawn) { drawn = true; io.github.pini236.skiapp.qa.Qa.log("redesign live drawn") }
         if (moving) requestRender()
     }
 

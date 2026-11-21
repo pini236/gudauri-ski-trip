@@ -1118,6 +1118,7 @@ redesign() {
   # phase B: the live model under the picture (the picture fades away over it), by day and night, a drag, and back
   mark; qa "--es qa.mode day --es qa.redesign live"; waitlog "redesign live open" 15
   waitlog "redesign live textures ok" 30 || fail "redesign: the live textures did not pass the designer's checks"
+  waitlog "redesign live drawn" 30 || fail "redesign: the live model drew nothing but the clear colour"
   sleep 4; shot redesign-live
   # the designer's frames (design/handoff/2026-11-20-redesign-live/ref): the opening at the seven keys of 12 January
   # (the shadows are worked out off the GL thread, a few seconds on the emulator), then three free views
