@@ -199,7 +199,8 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, onPaint
                     drawRoundRect(pal.wire, tl, androidx.compose.ui.geometry.Size(w, h), cr, alpha = sa, style = Stroke(1.2f * density))
                 }
             }
-            if (o != null && chosen == null) {
+            // phase A's names belong to its front view: not from the Kobi side, and none cut by the edge of the screen
+            if (o != null && chosen == null && !kobiSide) {
                 val ink = if (night) Color(0xFFEAF1F8) else Color(0xFF0E2233)
                 val halo = if (night) Color(0xF2060B16) else Color(0xF2FFFFFF)
                 val name = androidx.compose.ui.text.TextStyle(fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 11.5.sp, color = ink)
@@ -207,6 +208,8 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, onPaint
                 for ((l, x, y) in o.names) {
                     val t1 = measurer.measure(l.t, name)
                     val t2 = l.sub?.let { measurer.measure(unitM.replace("\u0000", nf.format(it)), sub) }
+                    val half = maxOf(t1.size.width, t2?.size?.width ?: 0) / 2f + 8 * density
+                    if (x - half < 0f || x + half > size.width) continue
                     var yy = y - (t1.size.height + (t2?.size?.height ?: 0)) / 2f
                     for (tx in listOfNotNull(t1, t2)) {
                         val tl = Offset(x - tx.size.width / 2f, yy)
