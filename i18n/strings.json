@@ -20377,6 +20377,486 @@
     "ru",
     "ka"
    ]
+  },
+  "app.rec_day_so_far": {
+     "he": "היום עד עכשיו",
+     "en": "The day so far",
+     "ru": "День на данный момент",
+     "ka": "დღე ამჟამად",
+     "where": "app/android",
+     "note": "יום הגלישה (סבב ההשלמה, חלק 1): P01 עד P03, L04",
+     "check": [
+        "ru",
+        "ka"
+     ]
+  },
+  "app.rec_see_day": {
+     "he": "לראות את היום",
+     "en": "See the day",
+     "ru": "Посмотреть день",
+     "ka": "დღის ნახვა",
+     "where": "app/android",
+     "note": "יום הגלישה (סבב ההשלמה, חלק 1): P01 עד P03",
+     "check": [
+        "ru",
+        "ka"
+     ]
+  },
+  "app.rec_m_down": {
+     "he": "מ׳ למטה",
+     "en": "m down",
+     "ru": "м вниз",
+     "ka": "მ დაღმართი",
+     "where": "app/android",
+     "note": "יום הגלישה (סבב ההשלמה, חלק 1): label under a number",
+     "check": [
+        "ru",
+        "ka"
+     ]
+  },
+  "app.rec_km_ski": {
+     "he": "ק״מ גלישה",
+     "en": "km skied",
+     "ru": "км катания",
+     "ka": "კმ სრიალი",
+     "where": "app/android",
+     "note": "יום הגלישה (סבב ההשלמה, חלק 1): label under a number",
+     "check": [
+        "ru",
+        "ka"
+     ]
+  },
+  "app.rec_kmh_max": {
+     "he": "קמ״ש, מרבית",
+     "en": "km/h, top",
+     "ru": "км/ч, максимум",
+     "ka": "კმ/სთ, მაქსიმუმი",
+     "where": "app/android",
+     "note": "יום הגלישה (סבב ההשלמה, חלק 1): label under a number",
+     "check": [
+        "ru",
+        "ka"
+     ]
+  },
+  "app.rec_day_line": {
+     "he": "{n} ירידות · {m} מ׳ למטה · {km} ק״מ",
+     "en": "{n} descents · {m} m down · {km} km",
+     "ru": "спусков: {n} · {m} м вниз · {km} км",
+     "ka": "დაშვებები: {n} · {m} მ დაღმართი · {km} კმ",
+     "where": "app/android",
+     "note": "יום הגלישה (סבב ההשלמה, חלק 1): P02, L04",
+     "check": [
+        "ru",
+        "ka"
+     ]
+  },
+  "app.rec_near_lift": {
+     "he": "ליד הרכבל",
+     "en": "Near the lift",
+     "ru": "У подъёмника",
+     "ka": "საბაგიროსთან",
+     "where": "app/android",
+     "note": "יום הגלישה (סבב ההשלמה, חלק 1): P02",
+     "check": [
+        "ru",
+        "ka"
+     ]
+  },
+  "app.rec_here_for": {
+     "he": "עומדים כאן",
+     "en": "Standing here",
+     "ru": "Стоите здесь",
+     "ka": "აქ დგახართ",
+     "where": "app/android",
+     "note": "יום הגלישה (סבב ההשלמה, חלק 1): P02; time follows",
+     "check": [
+        "ru",
+        "ka"
+     ]
+  },
+  "app.rec_lift_ride": {
+     "he": "{min} דק׳ למעלה",
+     "en": "{min} min up",
+     "ru": "{min} мин вверх",
+     "ka": "{min} წთ ზემოთ",
+     "where": "app/android",
+     "note": "יום הגלישה (סבב ההשלמה, חלק 1): P02",
+     "check": [
+        "ru",
+        "ka"
+     ]
+  },
+  "app.rec_lift_rise": {
+     "he": "{m} מ׳ למעלה",
+     "en": "{m} m up",
+     "ru": "{m} м вверх",
+     "ka": "{m} მ ზემოთ",
+     "where": "app/android",
+     "note": "יום הגלישה (סבב ההשלמה, חלק 1): P02",
+     "check": [
+        "ru",
+        "ka"
+     ]
+  },
+  "app.rec_lift_state": {
+     "he": "מצב הרכבל",
+     "en": "Lift status",
+     "ru": "Состояние подъёмника",
+     "ka": "საბაგიროს მდგომარეობა",
+     "where": "app/android",
+     "note": "יום הגלישה (סבב ההשלמה, חלק 1): P02",
+     "check": [
+        "ru",
+        "ka"
+     ]
+  },
+  "app.rec_lift_open": {
+     "he": "פתוח",
+     "en": "Open",
+     "ru": "Открыт",
+     "ka": "ღიაა",
+     "where": "app/android",
+     "note": "יום הגלישה (סבב ההשלמה, חלק 1): P02",
+     "check": [
+        "ru",
+        "ka"
+     ]
+  },
+  "app.rec_lift_closed": {
+     "he": "סגור",
+     "en": "Closed",
+     "ru": "Закрыт",
+     "ka": "დახურულია",
+     "where": "app/android",
+     "note": "יום הגלישה (סבב ההשלמה, חלק 1): P02",
+     "check": [
+        "ru",
+        "ka"
+     ]
+  },
+  "app.rec_waited": {
+     "he": "חיכית",
+     "en": "You waited",
+     "ru": "Вы ждали",
+     "ka": "ელოდეთ",
+     "where": "app/android",
+     "note": "יום הגלישה (סבב ההשלמה, חלק 1): L04, label; only after you got on",
+     "check": [
+        "ru",
+        "ka"
+     ]
+  },
+  "app.rec_minutes": {
+     "he": "{min} דק׳",
+     "en": "{min} min",
+     "ru": "{min} мин",
+     "ka": "{min} წთ",
+     "where": "app/android",
+     "note": "יום הגלישה (סבב ההשלמה, חלק 1): L04, P03",
+     "check": [
+        "ru",
+        "ka"
+     ]
+  },
+  "app.rec_break": {
+     "he": "הפסקה",
+     "en": "Break",
+     "ru": "Перерыв",
+     "ka": "შესვენება",
+     "where": "app/android",
+     "note": "יום הגלישה (סבב ההשלמה, חלק 1): P03",
+     "check": [
+        "ru",
+        "ka"
+     ]
+  },
+  "app.rec_break_note": {
+     "he": "ההקלטה ממשיכה. כשתזוזו, המסך חוזר לבד.",
+     "en": "Still recording. When you move, the screen comes back on its own.",
+     "ru": "Запись продолжается. Когда вы тронетесь, экран вернётся сам.",
+     "ka": "ჩაწერა გრძელდება. როცა დაიძვრებით, ეკრანი თავისით დაბრუნდება.",
+     "where": "app/android",
+     "note": "יום הגלישה (סבב ההשלמה, חלק 1): P03",
+     "check": [
+        "ru",
+        "ka"
+     ]
+  },
+  "app.run_saved": {
+     "he": "ירידה אחת · נשמרה",
+     "en": "One descent · saved",
+     "ru": "Один спуск · сохранён",
+     "ka": "ერთი დაშვება · შენახულია",
+     "where": "app/android",
+     "note": "יום הגלישה (סבב ההשלמה, חלק 1): P04",
+     "check": [
+        "ru",
+        "ka"
+     ]
+  },
+  "app.run_estimate": {
+     "he": "הערכה",
+     "en": "Estimate",
+     "ru": "Оценка",
+     "ka": "შეფასება",
+     "where": "app/android",
+     "note": "יום הגלישה (סבב ההשלמה, חלק 1): P04, P05",
+     "check": [
+        "ru",
+        "ka"
+     ]
+  },
+  "app.run_min": {
+     "he": "דקות",
+     "en": "Minutes",
+     "ru": "Минуты",
+     "ka": "წუთი",
+     "where": "app/android",
+     "note": "יום הגלישה (סבב ההשלמה, חלק 1): P04, label",
+     "check": [
+        "ru",
+        "ka"
+     ]
+  },
+  "app.run_km": {
+     "he": "ק״מ",
+     "en": "km",
+     "ru": "км",
+     "ka": "კმ",
+     "where": "app/android",
+     "note": "יום הגלישה (סבב ההשלמה, חלק 1): P04, label",
+     "check": [
+        "ru",
+        "ka"
+     ]
+  },
+  "app.run_kmh_avg": {
+     "he": "קמ״ש, ממוצע",
+     "en": "km/h, average",
+     "ru": "км/ч, средняя",
+     "ka": "კმ/სთ, საშუალო",
+     "where": "app/android",
+     "note": "יום הגלישה (סבב ההשלמה, חלק 1): P04, label",
+     "check": [
+        "ru",
+        "ka"
+     ]
+  },
+  "app.run_stop_lift": {
+     "he": "המדידה נעצרה לבד כשעלית לרכבל {lift}.",
+     "en": "Measuring stopped on its own when you got on the {lift} lift.",
+     "ru": "Измерение остановилось само, когда вы сели на подъёмник {lift}.",
+     "ka": "გაზომვა თავისით გაჩერდა, როცა საბაგირო {lift}-ზე ავედით.",
+     "where": "app/android",
+     "note": "יום הגלישה (סבב ההשלמה, חלק 1): P04. {lift}: lift name, not translated",
+     "check": [
+        "ru",
+        "ka"
+     ]
+  },
+  "app.run_stop_station": {
+     "he": "המדידה נעצרה לבד ליד הרכבל {lift}.",
+     "en": "Measuring stopped on its own near the {lift} lift.",
+     "ru": "Измерение остановилось само у подъёмника {lift}.",
+     "ka": "გაზომვა თავისით გაჩერდა საბაგიროსთან {lift}.",
+     "where": "app/android",
+     "note": "יום הגלישה (סבב ההשלמה, חלק 1): P04",
+     "check": [
+        "ru",
+        "ka"
+     ]
+  },
+  "app.run_stop_still": {
+     "he": "המדידה נעצרה לבד אחרי דקה וחצי בלי תנועה.",
+     "en": "Measuring stopped on its own after a minute and a half without movement.",
+     "ru": "Измерение остановилось само после полутора минут без движения.",
+     "ka": "გაზომვა თავისით გაჩერდა ერთნახევარი წუთის უმოძრაობის შემდეგ.",
+     "where": "app/android",
+     "note": "יום הגלישה (סבב ההשלמה, חלק 1): P04. 'Minute and a half' = autostop.still_s (90 s); change together",
+     "check": [
+        "ru",
+        "ka"
+     ]
+  },
+  "app.run_again": {
+     "he": "עוד ירידה",
+     "en": "Another descent",
+     "ru": "Ещё спуск",
+     "ka": "კიდევ ერთი დაშვება",
+     "where": "app/android",
+     "note": "יום הגלישה (סבב ההשלמה, חלק 1): P04",
+     "check": [
+        "ru",
+        "ka"
+     ]
+  },
+  "app.run_film": {
+     "he": "הסרט",
+     "en": "The film",
+     "ru": "Фильм",
+     "ka": "ფილმი",
+     "where": "app/android",
+     "note": "יום הגלישה (סבב ההשלמה, חלק 1): P04",
+     "check": [
+        "ru",
+        "ka"
+     ]
+  },
+  "app.run_done_title": {
+     "he": "הירידה נמדדה",
+     "en": "Descent measured",
+     "ru": "Спуск измерен",
+     "ka": "დაშვება გაიზომა",
+     "where": "app/android",
+     "note": "יום הגלישה (סבב ההשלמה, חלק 1): notification and lock screen",
+     "check": [
+        "ru",
+        "ka"
+     ]
+  },
+  "app.run_done_line": {
+     "he": "{run} · {kmh} קמ״ש · {time}",
+     "en": "{run} · {kmh} km/h · {time}",
+     "ru": "{run} · {kmh} км/ч · {time}",
+     "ka": "{run} · {kmh} კმ/სთ · {time}",
+     "where": "app/android",
+     "note": "יום הגלישה (סבב ההשלמה, חלק 1): notification and lock screen",
+     "check": [
+        "ru",
+        "ka"
+     ]
+  },
+  "app.records_new": {
+     "he": "חדש",
+     "en": "New",
+     "ru": "Новый",
+     "ka": "ახალი",
+     "where": "app/android",
+     "note": "יום הגלישה (סבב ההשלמה, חלק 1): P05",
+     "check": [
+        "ru",
+        "ka"
+     ]
+  },
+  "app.records_from_to": {
+     "he": "מ-{from} עד {to}",
+     "en": "From {from} to {to}",
+     "ru": "от {from} до {to}",
+     "ka": "{from}-დან {to}-მდე",
+     "where": "app/android",
+     "note": "יום הגלישה (סבב ההשלמה, חלק 1): P05",
+     "check": [
+        "ru",
+        "ka"
+     ]
+  },
+  "app.records_drop_note": {
+     "he": "מטרים למטה ביום אחד",
+     "en": "Metres down in one day",
+     "ru": "Метров вниз за один день",
+     "ka": "მეტრი დაღმართი ერთ დღეში",
+     "where": "app/android",
+     "note": "יום הגלישה (סבב ההשלמה, חלק 1): P05",
+     "check": [
+        "ru",
+        "ka"
+     ]
+  },
+  "app.records_dist_note": {
+     "he": "על השלג ביום אחד",
+     "en": "On snow in one day",
+     "ru": "По снегу за один день",
+     "ka": "თოვლზე ერთ დღეში",
+     "where": "app/android",
+     "note": "יום הגלישה (סבב ההשלמה, חלק 1): P05",
+     "check": [
+        "ru",
+        "ka"
+     ]
+  },
+  "app.records_steep_note": {
+     "he": "הקטע התלול שלו",
+     "en": "Its steepest stretch",
+     "ru": "Самый крутой участок",
+     "ka": "მისი ყველაზე ციცაბო მონაკვეთი",
+     "where": "app/android",
+     "note": "יום הגלישה (סבב ההשלמה, חלק 1): P05",
+     "check": [
+        "ru",
+        "ka"
+     ]
+  },
+  "app.records_private": {
+     "he": "רק מול עצמך. נשאר בטלפון, ולא נשלח לאף אחד.",
+     "en": "Only against yourself. Stays on the phone, sent to no one.",
+     "ru": "Только с самим собой. Остаётся в телефоне, никому не отправляется.",
+     "ka": "მხოლოდ საკუთარ თავთან. რჩება ტელეფონში და არავის ეგზავნება.",
+     "where": "app/android",
+     "note": "יום הגלישה (סבב ההשלמה, חלק 1): P05",
+     "check": [
+        "ru",
+        "ka"
+     ]
+  },
+  "app.records_empty_title": {
+     "he": "עוד אין שיאים",
+     "en": "No records yet",
+     "ru": "Рекордов пока нет",
+     "ka": "რეკორდები ჯერ არ არის",
+     "where": "app/android",
+     "note": "יום הגלישה (סבב ההשלמה, חלק 1): P06",
+     "check": [
+        "ru",
+        "ka"
+     ]
+  },
+  "app.records_empty_text": {
+     "he": "אחרי היום הראשון שמקליטים הם מופיעים כאן, עם המקום על ההר.",
+     "en": "After your first recorded day they appear here, with the place on the mountain.",
+     "ru": "После первого записанного дня они появятся здесь, с местом на горе.",
+     "ka": "პირველი ჩაწერილი დღის შემდეგ ისინი აქ გამოჩნდება, მთაზე ადგილთან ერთად.",
+     "where": "app/android",
+     "note": "יום הגלישה (סבב ההשלמה, חלק 1): P06",
+     "check": [
+        "ru",
+        "ka"
+     ]
+  },
+  "app.records_sample_note": {
+     "he": "היום לדוגמה לא נספר בשיאים.",
+     "en": "The example day does not count toward records.",
+     "ru": "Пример дня не учитывается в рекордах.",
+     "ka": "სანიმუშო დღე რეკორდებში არ ითვლება.",
+     "where": "app/android",
+     "note": "יום הגלישה (סבב ההשלמה, חלק 1): P06",
+     "check": [
+        "ru",
+        "ka"
+     ]
+  },
+  "app.rec_pin_a11y": {
+     "he": "פה טסת, {kmh} קמ״ש, ב-{run}",
+     "en": "Top speed here, {kmh} km/h, on {run}",
+     "ru": "Здесь вы разогнались до {kmh} км/ч, на {run}",
+     "ka": "აქ გაფრინდით, {kmh} კმ/სთ, {run}-ზე",
+     "where": "app/android",
+     "note": "יום הגלישה (סבב ההשלמה, חלק 1): screen reader",
+     "check": [
+        "ru",
+        "ka"
+     ]
+  },
+  "app.rec_ridge_a11y": {
+     "he": "הרכס של היום עד עכשיו",
+     "en": "The ridge of the day so far",
+     "ru": "Хребет дня на данный момент",
+     "ka": "დღევანდელი ქედი ამჟამად",
+     "where": "app/android",
+     "note": "יום הגלישה (סבב ההשלמה, חלק 1): screen reader",
+     "check": [
+        "ru",
+        "ka"
+     ]
   }
  }
 }
