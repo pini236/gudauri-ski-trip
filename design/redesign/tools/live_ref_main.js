@@ -81,9 +81,18 @@
       const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.BufferAttribute(new Float32Array(p), 3)); g.setIndex(ix);
       const m = new THREE.Mesh(g, new THREE.MeshBasicMaterial({ color, side: THREE.DoubleSide, transparent: op < 1, opacity: op, depthWrite: false })); m.frustumCulled = false; m.renderOrder = order; scene.add(m); };
     const mpp = 2 * st.dist * Math.tan(fov / 2 * rad) / Hh;                                 // metres per point at the target
+    const sel = q.get('sel'), chosen = [];
     for (const p of D.pistes) if (p.named && (p.kind || 'run') === 'run') for (const s of p.segs) if (!s.area) { const pts = []; const g = s.g.map(v => [(v[1] - T.proj.lon0) * kx, -(v[0] - T.proj.lat0) * 111320]);
         for (let i = 0; i < g.length - 1; i++) { const n = Math.max(1, Math.ceil(Math.hypot(g[i + 1][0] - g[i][0], g[i + 1][1] - g[i][1]) / 18)); for (let j = 0; j < n; j++) pts.push([g[i][0] + (g[i + 1][0] - g[i][0]) * j / n, g[i][1] + (g[i + 1][1] - g[i][1]) * j / n]); } pts.push(g[g.length - 1]);
-        ribbon(pts, 1.5 * mpp, night ? 0x2A3A5C : 0xffffff, 6, 1, 1); ribbon(pts, 0.9 * mpp, night && p.color === 'black' ? 0xE8EEF8 : col[p.color], 6, 1, 2); } }
+        if (sel && p.key === sel) { chosen.push(pts); continue; }
+        const op = sel ? 0.5 : 1; ribbon(pts, 1.5 * mpp, night ? 0x2A3A5C : 0xffffff, 6, op, 1); ribbon(pts, 0.9 * mpp, night && p.color === 'black' ? 0xE8EEF8 : col[p.color], 6, op, 2); }
+    // ?sel=<run key>: the chosen run as on K11 (a line of light in the slope colours, on a casing), over a dimmed screen (K09); 0.999 so that it sorts after the dimming
+    if (sel) { const dim = new THREE.Mesh(sgeo, new THREE.ShaderMaterial({ depthTest: false, depthWrite: false, transparent: true, vertexShader: 'void main(){gl_Position=vec4(position.xy,0.,1.);}', fragmentShader: 'void main(){gl_FragColor=vec4(0.03,0.06,0.11,' + num('dim', 0.42).toFixed(2) + ');}' }));
+      dim.frustumCulled = false; dim.renderOrder = 2.5; scene.add(dim);
+      const sc = [[15, 0x3FA85F], [25, 0xF2C13D], [30, 0xF08A3C], [91, 0xDC3B33]], w = num('selw', 1);
+      for (const pts of chosen) { ribbon(pts, 3.0 * mpp * w, night ? 0x081020 : 0xffffff, 8, 0.999, 3);
+        const cls = pts.map((q, i) => { const a = pts[Math.max(i - 1, 0)], b = pts[Math.min(i + 1, pts.length - 1)], d = Math.hypot(b[0] - a[0], b[1] - a[1]) || 1, deg = Math.atan(Math.abs(elev(a[0], a[1]) - elev(b[0], b[1])) / d) / rad; return sc.findIndex(x => deg < x[0]); });
+        let a = 0; for (let i = 1; i <= pts.length; i++) if (i === pts.length || cls[i] !== cls[a]) { ribbon(pts.slice(Math.max(a - 1, 0), i), 1.8 * mpp * w, sc[cls[a]][1], 8, 0.999, 4); a = i; } } } }
 
   // ---- the village after dark: a warm light for every real building
   if (lt.stars >= 0.25) { const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.BufferAttribute(new Float32Array(L.village.flat()), 3));

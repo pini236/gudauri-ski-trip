@@ -881,6 +881,14 @@
    "h": 760,
    "title": "פתיחה, בחירה, צביטה, יום ולילה",
    "page": "built"
+  },
+  "M07-Kobi.dc.html": {
+   "x": 0,
+   "y": 5504,
+   "w": 1280,
+   "h": 2040,
+   "title": "7 · מסלול שמאחורי ההר: Kobi",
+   "page": "live"
   }
  },
  "createdOnFiles": {
@@ -1063,6 +1071,15 @@
    "x": 0,
    "y": -300,
    "text": "נבנה באנדרואיד · שלב א, ההר המצויר (צילומי אמולטור)"
+  },
+  "tM4": {
+   "kind": "title1",
+   "maxW": 1600,
+   "page": "live",
+   "w": 520,
+   "x": 0,
+   "y": 5204,
+   "text": "ד · מסלול שמאחורי ההר (שאלה של פיני)"
   }
  },
  "order": [
@@ -1175,7 +1192,8 @@
   "M05-Dusk.dc.html",
   "M06-After.dc.html",
   "N00-Built.dc.html",
-  "N01-BuiltStates.dc.html"
+  "N01-BuiltStates.dc.html",
+  "M07-Kobi.dc.html"
  ],
  "pages": [
   {
