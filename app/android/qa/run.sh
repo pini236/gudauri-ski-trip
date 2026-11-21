@@ -1116,9 +1116,21 @@ redesign() {
   qa "--es qa.mode night"; sleep 3; shot redesign-night
   rd_touch "Tatra 1" && { sleep 2.5; shot redesign-night-chosen; }; rd_back
   # phase B: the live model under the picture (the picture fades away over it), by day and night, a drag, and back
-  mark; qa "--es qa.mode day --es qa.redesign live"; waitlog "redesign live open" 15; sleep 4; shot redesign-live
+  mark; qa "--es qa.mode day --es qa.redesign live"; waitlog "redesign live open" 15
+  waitlog "redesign live textures ok" 30 || fail "redesign: the live textures did not pass the designer's checks"
+  sleep 4; shot redesign-live
+  # the designer's frames (design/handoff/2026-11-20-redesign-live/ref): the opening at the seven keys of 12 January
+  # (the shadows are worked out off the GL thread, a few seconds on the emulator), then three free views
+  for k in dawn:9.0 morning:10.6 noon:13.0 after:15.9 sunset:17.35 blue:18.3 night:22.0; do
+    mark; qa "--es qa.redesign 'hour:${k#*:}'"; waitlog "redesign live hour" 10; sleep 7; shot "redesign-live-open-${k%%:*}"
+  done
+  rd_look() { mark; qa "--es qa.redesign 'hour:$1'"; waitlog "redesign live hour" 10
+    mark; qa "--es qa.redesign 'look:$2'"; waitlog "redesign live look" 10; sleep 7; shot "redesign-live-$3"; }
+  rd_look 15.9 "75,16,7100" east-after
+  rd_look 13.0 "180,18,7100" north-noon
+  rd_look 10.6 "0,22,2600,Tatra 2" close-morning
+  rd_look 10.6 "0,16,7100" open-again
   drag $((W / 2)) $((H / 2)) $((W / 2 - W / 5)) $((H / 2)) 500; sleep 1.5; shot redesign-live-dragged
-  qa "--es qa.mode night"; sleep 3; shot redesign-live-night
   mark; qa "--es qa.mode auto --es qa.redesign painted"; waitlog "redesign live closed" 10; sleep 1.5; shot redesign-live-back
   qa "--es qa.mode auto --es qa.redesign close"; sleep 1.5; shot redesign-closed
 }

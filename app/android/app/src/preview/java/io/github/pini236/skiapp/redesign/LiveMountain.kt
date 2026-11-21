@@ -85,6 +85,17 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, onPaint
         Qa.log("redesign live open")
         onDispose { life?.removeObserver(obs); view.release(); Qa.log("redesign live closed") }
     }
+    // the emulator's pictures (qa/run.sh): an hour of 12 January (the designer's keys), and a view
+    LaunchedEffect(RedesignQa.seq) {
+        val c = RedesignQa.cmd
+        when {
+            c.startsWith("hour:") -> c.removePrefix("hour:").toFloatOrNull()?.let { scrub = it; Qa.log("redesign live hour $it") }
+            c.startsWith("look:") -> c.removePrefix("look:").split(",").let { a ->
+                val n = a.take(3).mapNotNull { it.toFloatOrNull() }
+                if (n.size == 3) view.look(n[0], n[1], n[2], a.getOrNull(3)?.takeIf { it.isNotBlank() })
+            }
+        }
+    }
     LaunchedEffect(time) { view.setTime(time) }
     LaunchedEffect(data, night) { data?.let { view.setPal(it.pal[if (night) "night" else "day"]) } }
 

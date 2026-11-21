@@ -98,6 +98,22 @@ class LiveView(context: Context, private val scene: MapScene) : GLSurfaceView(co
         worker.execute { if (lightKey == key) renderer.setShadow(LiveLight.soften(Sun.shadows(t, l.dir), t.nx, t.ny)) }
     }
 
+    /**
+     * A view for the emulator's pictures (qa.redesign look:...): the opening's target, or the middle of [run], seen from
+     * [yawDeg] (0 from the south looking north) at [pitchDeg] and [dist] metres. Logged once it is set.
+     */
+    fun look(yawDeg: Float, pitchDeg: Float, dist: Float, run: String?) {
+        var tx = data.camera.tx; var tz = data.camera.tz
+        run?.let { k ->
+            val pts = scene.draped[k]?.flatMap { l -> (0 until l.size / 3).map { i -> l[i * 3] to l[i * 3 + 2] } }.orEmpty()
+            if (pts.isNotEmpty()) { tx = pts.map { it.first }.average().toFloat(); tz = pts.map { it.second }.average().toFloat() }
+        }
+        renderer.stopAnim(); camera.stopFling()
+        camera.set(OrbitCamera.State(tx, scene.terrain.elev(tx, tz), tz, dist, Math.toRadians(yawDeg.toDouble()).toFloat(), Math.toRadians(pitchDeg.toDouble()).toFloat()))
+        requestRender()
+        Qa.log("redesign live look $yawDeg $pitchDeg $dist ${run ?: "-"}")
+    }
+
     fun setPal(p: PeakData.Pal?) { renderer.pal = p; requestRender() }
     fun choose(key: String?) { renderer.chosen = key; requestRender() }
     /** Leaving the live model: the GPU's buffers and texture go now, not when the app's context dies. */
