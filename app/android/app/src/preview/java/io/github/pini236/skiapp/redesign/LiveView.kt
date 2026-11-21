@@ -214,9 +214,9 @@ class LiveView(context: Context, private val scene: MapScene) : GLSurfaceView(co
 
     fun setPal(p: PeakData.Pal?) { renderer.pal = p; requestRender() }
     fun choose(key: String?) {
-        renderer.chosen = key; requestRender()
+        renderer.frozenMs = null; renderer.chosen = key; chosenDown = null; requestRender()
         // the slope colours around it, as the map's (X-3), worked out off the GL thread
-        if (key == null) { renderer.ground = null; renderer.chosenLine = null; return }
+        if (key == null) { renderer.ground = null; renderer.chosenLine = null; renderer.frozenMs = null; return }
         if (!worker.isShutdown) worker.execute {
             val lines = scene.draped[key] ?: return@execute
             val g = scene.slopeLayer(lines)
@@ -229,7 +229,12 @@ class LiveView(context: Context, private val scene: MapScene) : GLSurfaceView(co
             val line = io.github.pini236.skiapp.map.Ribbon.build(down,
                 { li, i -> io.github.pini236.skiapp.map.SlopeColors.of(sl[li][i]).let { c -> floatArrayOf(c[0], c[1], c[2], 1f) } },
                 { li, i -> (before[li] + along[li][i]) / total })
-            if (renderer.chosen == key) { renderer.ground = g; renderer.chosenLine = key to line; renderer.revealFrom = System.currentTimeMillis(); requestRender() }
+            val main = down.indices.maxByOrNull { along[it].lastOrNull() ?: 0f } ?: 0
+            if (renderer.chosen == key) {
+                chosenDown = Down(key, down, sl, along, main)
+                renderer.ground = g; renderer.chosenLine = key to line; renderer.revealFrom = System.currentTimeMillis(); requestRender()
+                post { onLineReady?.invoke(key) }
+            }
         }
     }
     /** Leaving the live model: the GPU's buffers and texture go now, not when the app's context dies. */
@@ -434,8 +439,85 @@ class LiveView(context: Context, private val scene: MapScene) : GLSurfaceView(co
     }
 
     /** The framing of the whole run (section 6): 600 ms, the yaw and pitch kept, the run's box fitted with a margin. */
-    private fun frameRun(key: String) {
-        val lines = scene.draped[key] ?: return
+    /** The chosen run's lines from the top down, the slope at each point, the metres along each, and the longest. */
+    class Down(val key: String, val lines: List<FloatArray>, val slopes: List<FloatArray>, val along: List<FloatArray>, val main: Int)
+    @Volatile private var chosenDown: Down? = null
+    /** Called (on the main thread) once a chosen run's line is built and its light starts down it. */
+    var onLineReady: ((String) -> Unit)? = null
+
+    /** A chosen run on the screen now, for K11 over the model: per line, x and y in pixels, seen or not (a ridge, behind). */
+    class Marks(val key: String, val xs: List<FloatArray>, val ys: List<FloatArray>, val seen: List<BooleanArray>, val down: Down)
+    private var lastMk: Marks? = null; private var lastMkAt: OrbitCamera.State? = null
+    fun marks(): Marks? {
+        val d = chosenDown ?: return null
+        if (d.key != renderer.chosen || width == 0) return null
+        val cs = camera.state()
+        lastMk?.let { if (it.key == d.key && cs == lastMkAt) return it }
+        val t = scene.terrain
+        val mvp = FloatArray(16); val eye = FloatArray(3); val o = FloatArray(4); val v = FloatArray(4)
+        OrbitCamera.mvp(cs, width.toFloat() / height, mvp, eye, data.camera.fovDeg) { x, z -> t.elev(x, z) }
+        val xs = ArrayList<FloatArray>(); val ys = ArrayList<FloatArray>(); val sn = ArrayList<BooleanArray>()
+        for (l in d.lines) {
+            val n = l.size / 3; val x = FloatArray(n); val y = FloatArray(n); val ok = BooleanArray(n)
+            for (i in 0 until n) {
+                v[0] = l[i * 3]; v[1] = l[i * 3 + 1] + 4f; v[2] = l[i * 3 + 2]; v[3] = 1f
+                Matrix.multiplyMV(o, 0, mvp, 0, v, 0)
+                if (o[3] <= 0f) continue
+                x[i] = (o[0] / o[3] * .5f + .5f) * width; y[i] = (1 - (o[1] / o[3] * .5f + .5f)) * height
+                // behind a ridge (the map's labels' test): the mountain more than 8 m above the line from the eye
+                val dx = v[0] - eye[0]; val dy = v[1] - eye[1]; val dz = v[2] - eye[2]
+                var seen = true
+                for (k in 4 until 32) { val f = k / 32f; if (t.elev(eye[0] + dx * f, eye[2] + dz * f) > eye[1] + dy * f + 8f) { seen = false; break } }
+                ok[i] = seen
+            }
+            xs += x; ys += y; sn += ok
+        }
+        return Marks(d.key, xs, ys, sn, d).also { lastMk = it; lastMkAt = cs }
+    }
+    /** Ms since the chosen run's light started down it (the held moment in the emulator). */
+    fun chosenMs(): Float = renderer.chosenMs()
+
+    /**
+     * The emulator's held moment of the choice (the designer's frames at 0, 150, 300, 600 and 900 ms, as phase A's
+     * frame:): the run chosen, then the time held at [ms], the camera where the framing would be then. The ring at
+     * [onMoment]'s point.
+     */
+    var onMoment: ((Float, Float, Float) -> Unit)? = null
+    fun moment(key: String, ms: Float) {
+        renderer.stopAnim(); camera.stopFling()
+        val start = camera.state()
+        choose(key); renderer.frozenMs = ms; onChoose?.invoke(key)
+        val l = onLineReady
+        onLineReady = { k ->
+            onLineReady = l
+            if (k == key) {
+                val to = frameTarget(key)
+                if (to != null) {
+                    val e0 = ((ms - 300f) / 600f).coerceIn(0f, 1f); val e = e0 * e0 * (3 - 2 * e0)
+                    fun f(a: Float, b: Float) = a + (b - a) * e
+                    camera.set(OrbitCamera.State(f(start.tx, to.tx), f(start.ty, to.ty), f(start.tz, to.tz), f(start.dist, to.dist), start.yaw, start.pitch))
+                }
+                // the ring where the finger would have been: the middle of the run as the screen showed it at the touch
+                val d = chosenDown
+                val mid = d?.lines?.get(d.main)?.let { ln -> val i = ln.size / 3 / 2; floatArrayOf(ln[i * 3], ln[i * 3 + 1], ln[i * 3 + 2]) }
+                val p = mid?.let { m -> project(start, m) }
+                if (p != null) onMoment?.invoke(p[0], p[1], ms)
+                requestRender()
+                post { Qa.log("redesign live moment $key ${ms.toInt()}") }
+            }
+        }
+    }
+    private fun project(s: OrbitCamera.State, w: FloatArray): FloatArray? {
+        val mvp = FloatArray(16); val eye = FloatArray(3); val o = FloatArray(4)
+        OrbitCamera.mvp(s, width.toFloat() / height, mvp, eye, data.camera.fovDeg) { x, z -> scene.terrain.elev(x, z) }
+        Matrix.multiplyMV(o, 0, mvp, 0, floatArrayOf(w[0], w[1], w[2], 1f), 0)
+        if (o[3] <= 0f) return null
+        return floatArrayOf((o[0] / o[3] * .5f + .5f) * width, (1 - (o[1] / o[3] * .5f + .5f)) * height)
+    }
+
+    /** Where the framing of a run lands (section 6): its box in the frame, the yaw and pitch kept. */
+    private fun frameTarget(key: String): OrbitCamera.State? {
+        val lines = scene.draped[key] ?: return null
         var x0 = Float.MAX_VALUE; var x1 = -Float.MAX_VALUE; var z0 = Float.MAX_VALUE; var z1 = -Float.MAX_VALUE
         for (l in lines) for (i in 0 until l.size / 3) { x0 = minOf(x0, l[i * 3]); x1 = maxOf(x1, l[i * 3]); z0 = minOf(z0, l[i * 3 + 2]); z1 = maxOf(z1, l[i * 3 + 2]) }
         val cx = (x0 + x1) / 2; val cz = (z0 + z1) / 2
@@ -444,13 +526,17 @@ class LiveView(context: Context, private val scene: MapScene) : GLSurfaceView(co
         val hf = atan(tan(vf) * width.toFloat() / height.coerceAtLeast(1))
         val dist = (r / tan(minOf(vf, hf)) * 1.15).toFloat().coerceIn(1400f, 9000f)
         val s = camera.state()
-        val to = s.copy(tx = cx, ty = scene.terrain.elev(cx, cz), tz = cz, dist = dist)
+        return s.copy(tx = cx, ty = scene.terrain.elev(cx, cz), tz = cz, dist = dist)
+    }
+
+    private fun frameRun(key: String) {
+        val to = frameTarget(key) ?: return
         if (Motion.reduced(context)) { camera.set(to); requestRender() } else renderer.animate(to, 0.6f)
         Qa.log("redesign live framed $key")
     }
 
     /** A run chosen as a tap chooses it (the emulator's pictures). */
-    fun pickKey(key: String) { choose(key); onChoose?.invoke(key); frame(key) }
+    fun pickKey(key: String) { renderer.frozenMs = null; choose(key); onChoose?.invoke(key); frame(key) }
 
     /** The "Kobi side" sign: back to the front, the same turn the other way. */
     fun backToFront() { turnTo(front()); Qa.log("redesign live front") }

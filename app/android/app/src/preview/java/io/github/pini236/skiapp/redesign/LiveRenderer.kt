@@ -265,6 +265,10 @@ class LiveRenderer(
     fun stopAnim() { anim = null }
     /** When the chosen run's light starts down the line (the handoff's section 6: 600 ms, from the top). */
     @Volatile var revealFrom = 0L
+    /** The emulator's held moment (ms since the choice, the designer's 0 to 900): no time passes, as phase A's frame:. */
+    @Volatile var frozenMs: Float? = null
+    /** Ms since the chosen run's light started down it (0 until its line is ready), or the held moment. */
+    fun chosenMs(): Float = frozenMs ?: if (revealFrom == 0L) 0f else (System.currentTimeMillis() - revealFrom).toFloat()
 
     fun setShadow(s: FloatArray) { shadow = s; shadowDirty = true; requestRender() }
     @Volatile private var shadowDirty = false
@@ -395,7 +399,7 @@ class LiveRenderer(
         if (!texOn || L == null || D == null) { glClear(GL_COLOR_BUFFER_BIT or GL_DEPTH_BUFFER_BIT); return }
 
         var moving = false
-        anim?.let { a ->
+        if (frozenMs == null) anim?.let { a ->
             val from = a.from; val to = a.to; val tt = a.tt
             tt[0] += dt
             val k = (tt[0] / tt[1]).coerceIn(0f, 1f); val e = k * k * (3 - 2 * k)
@@ -408,7 +412,9 @@ class LiveRenderer(
         val t = scene.terrain
         camera.clampTo(t.x0 + 600, t.x1 - 600, t.y0 + 600, t.y1 - 600) { x, z -> t.elev(x, z) }
         val dimTarget = if (chosen != null) 1f else 0f
-        if (dim != dimTarget) { dim += (dimTarget - dim) * (1f - Math.exp(-9.0 * dt).toFloat()); if (kotlin.math.abs(dim - dimTarget) < .01f) dim = dimTarget else moving = true }
+        val fz = frozenMs
+        if (fz != null && chosen != null) dim = (fz / 600f).coerceIn(0f, 1f)
+        else if (dim != dimTarget) { dim += (dimTarget - dim) * (1f - Math.exp(-9.0 * dt).toFloat()); if (kotlin.math.abs(dim - dimTarget) < .01f) dim = dimTarget else moving = true }
 
         val s = camera.state()
         OrbitCamera.mvp(s, width.toFloat() / height, mvp, eye, D.camera.fovDeg) { x, z -> t.elev(x, z) }
@@ -520,15 +526,22 @@ class LiveRenderer(
                 glUniform1f(uW, 16f * density * zw); glUniform1f(uA, .55f); r.second.draw()
                 glUniform1f(uS, 0f)
             }
-            glUniform4f(uT, case[0], case[1], case[2], 1f); glUniform1f(uW, 6f * density * zw); glUniform1f(uA, 1f); r.second.draw()
-            glUniform1f(uW, 3.6f * density * zw)
-            val g = chosenGpu.takeIf { chosenGpuOf?.first == k }
-            if (g != null) {
-                val rv = ((System.currentTimeMillis() - revealFrom) / 600f).coerceIn(0f, 1f)
-                if (rv < 1f) moving = true
-                glUniform4f(uT, 0f, 0f, 0f, 0f); glUniform1f(uR, rv); g.draw(); glUniform1f(uR, 60000f)
+            // at night the line of light gives way to the beads of light (K11 c, drawn over the model) once the light
+            // is down it: 600 ms, then 200 ms
+            val ms = chosenMs()
+            val la = if (night) 1f - ((ms - 600f) / 200f).coerceIn(0f, 1f) else 1f
+            if (frozenMs == null && ms < 800f) moving = true
+            if (la > 0f) {
+                glUniform4f(uT, case[0], case[1], case[2], 1f); glUniform1f(uW, 6f * density * zw); glUniform1f(uA, la); r.second.draw()
+                glUniform1f(uW, 3.6f * density * zw)
+                val g = chosenGpu.takeIf { chosenGpuOf?.first == k }
+                if (g != null) {
+                    val rv = (ms / 600f).coerceIn(0f, 1f)
+                    glUniform4f(uT, 0f, 0f, 0f, 0f); glUniform1f(uR, rv); g.draw(); glUniform1f(uR, 60000f)
+                }
+                else { val c = runRgb[k] ?: case; glUniform4f(uT, c[0], c[1], c[2], 1f); r.third.draw() }
+                glUniform1f(uA, 1f)
             }
-            else { val c = runRgb[k] ?: case; glUniform4f(uT, c[0], c[1], c[2], 1f); r.third.draw() }
             glEnable(GL_DEPTH_TEST)
         }
         glDepthMask(true); glDisable(GL_BLEND); glEnable(GL_CULL_FACE)
