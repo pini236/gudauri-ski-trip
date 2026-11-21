@@ -1137,6 +1137,14 @@ redesign() {
   rd_look 22.0 "0,22,2600,Tatra 2" close-night
   rd_look 13.0 "0,30,2200,@-420:4470" village-noon
   rd_look 10.6 "0,16,6617" open-again
+  # section 10: Kobi chosen from the opening turns to its side (through the east, about 1 s), then frames it; the sign
+  # "Kobi side" stays after letting it go, and brings the front back
+  mark; qa "--es qa.redesign 'pick:Kobi'"; waitlog "redesign live side kobi" 30 || fail "redesign: Kobi did not turn the camera to its side"
+  sleep 1.2; shot redesign-live-kobi-turned
+  seen "redesign live kobi sign true" 5 || fail "redesign: no Kobi side sign"
+  waitlog "redesign live framed Kobi" 20; rd_drawn; shot redesign-live-kobi-close
+  mark; qa "--es qa.redesign unpick"; waitlog "redesign live unpicked" 10; sleep 2; shot redesign-live-kobi-sign
+  mark; qa "--es qa.redesign front"; waitlog "redesign live front" 10; sleep 2.5; shot redesign-live-front
   drag $((W / 2)) $((H / 2)) $((W / 2 - W / 5)) $((H / 2)) 500; sleep 1.5; shot redesign-live-dragged
   mark; qa "--es qa.mode auto --es qa.redesign painted"; waitlog "redesign live closed" 10; sleep 1.5; shot redesign-live-back
   qa "--es qa.mode auto --es qa.redesign close"; sleep 1.5; shot redesign-closed

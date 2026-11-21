@@ -147,7 +147,8 @@ layout(location=2) in vec3 aNext;
 layout(location=3) in float aSide;
 layout(location=4) in vec4 aColor;
 uniform mat4 uMvp; uniform vec2 uRes; uniform float uWidth; uniform float uBias;
-out vec4 vCol; out float vSide;
+layout(location=5) in float aProg;
+out vec4 vCol; out float vSide; out float vProg;
 void main(){
   vec4 c=uMvp*vec4(aPos,1.0), p=uMvp*vec4(aPrev,1.0), n=uMvp*vec4(aNext,1.0);
   vec2 a=c.xy/c.w*uRes*0.5, b=p.xy/p.w*uRes*0.5, e=n.xy/n.w*uRes*0.5;
@@ -158,14 +159,15 @@ void main(){
   vec2 nn=vec2(-t.y,t.x); float ml=1.0/max(dot(nn,vec2(-d1.y,d1.x)),0.6);
   c.xy += nn*aSide*uWidth*ml/uRes*c.w;
   c.z -= uBias*c.w;
-  gl_Position=c; vCol=aColor; vSide=aSide;
+  gl_Position=c; vCol=aColor; vSide=aSide; vProg=aProg;
 }"""
 
 // uTint: the colour (rgb) and how much it replaces the line's own (a); uSoft: a glow that fades to the edges
 private const val LINE_FS = """#version 300 es
 precision mediump float;
-in vec4 vCol; in float vSide; uniform float uAlpha; uniform vec4 uTint; uniform float uSoft; out vec4 o;
+in vec4 vCol; in float vSide; in highp float vProg; uniform float uAlpha; uniform vec4 uTint; uniform float uSoft; uniform highp float uReveal; out vec4 o;
 void main(){
+  if(vProg>uReveal) discard;
   vec3 c = mix(vCol.rgb, uTint.rgb, uTint.a);
   float a = uAlpha*vCol.a*mix(1.0, pow(1.0-abs(vSide), 1.6), uSoft);
   o = vec4(c, a);
@@ -178,7 +180,7 @@ private class Gpu(r: Ribbon) {
         glGenBuffers(2, bufs, 0)
         glBindBuffer(GL_ARRAY_BUFFER, bufs[0]); glBufferData(GL_ARRAY_BUFFER, r.vertices.size * 4, floats(r.vertices), GL_STATIC_DRAW)
         val s = Ribbon.STRIDE * 4
-        attr(0, 3, s, 0); attr(1, 3, s, 12); attr(2, 3, s, 24); attr(3, 1, s, 36); attr(4, 4, s, 40)
+        attr(0, 3, s, 0); attr(1, 3, s, 12); attr(2, 3, s, 24); attr(3, 1, s, 36); attr(4, 4, s, 40); attr(5, 1, s, 56)
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, bufs[1]); glBufferData(GL_ELEMENT_ARRAY_BUFFER, r.indices.size * 4, ints(r.indices), GL_STATIC_DRAW)
         glBindVertexArray(0)
     }
@@ -251,10 +253,18 @@ class LiveRenderer(
     private var dim = 0f
     private var lastNs = 0L
 
-    /** A camera move (the opening dolly, a double tap): from, to, [t, seconds]. */
-    @Volatile private var anim: Triple<OrbitCamera.State, OrbitCamera.State, FloatArray>? = null
-    fun animate(to: OrbitCamera.State, seconds: Float) { anim = Triple(camera.state(), to, floatArrayOf(0f, seconds)); requestRender() }
+    /**
+     * A camera move (the opening dolly, a double tap, the turn to the Kobi side): from, to, [t, seconds], a pitch lift
+     * in the middle (radians, times sin(pi t), the handoff's section 10) and what follows it (called on the GL thread).
+     */
+    private class Anim(val from: OrbitCamera.State, val to: OrbitCamera.State, val tt: FloatArray, val lift: Float, val then: (() -> Unit)?)
+    @Volatile private var anim: Anim? = null
+    fun animate(to: OrbitCamera.State, seconds: Float, lift: Float = 0f, then: (() -> Unit)? = null) {
+        anim = Anim(camera.state(), to, floatArrayOf(0f, seconds), lift, then); requestRender()
+    }
     fun stopAnim() { anim = null }
+    /** When the chosen run's light starts down the line (the handoff's section 6: 600 ms, from the top). */
+    @Volatile var revealFrom = 0L
 
     fun setShadow(s: FloatArray) { shadow = s; shadowDirty = true; requestRender() }
     @Volatile private var shadowDirty = false
@@ -385,12 +395,14 @@ class LiveRenderer(
         if (!texOn || L == null || D == null) { glClear(GL_COLOR_BUFFER_BIT or GL_DEPTH_BUFFER_BIT); return }
 
         var moving = false
-        anim?.let { (from, to, tt) ->
+        anim?.let { a ->
+            val from = a.from; val to = a.to; val tt = a.tt
             tt[0] += dt
             val k = (tt[0] / tt[1]).coerceIn(0f, 1f); val e = k * k * (3 - 2 * k)
-            fun l(a: Float, b: Float) = a + (b - a) * e
-            camera.set(OrbitCamera.State(l(from.tx, to.tx), l(from.ty, to.ty), l(from.tz, to.tz), l(from.dist, to.dist), l(from.yaw, to.yaw), l(from.pitch, to.pitch)))
-            if (k >= 1f) anim = null else moving = true
+            fun l(x: Float, y: Float) = x + (y - x) * e
+            val lift = a.lift * kotlin.math.sin(Math.PI * e).toFloat()
+            camera.set(OrbitCamera.State(l(from.tx, to.tx), l(from.ty, to.ty), l(from.tz, to.tz), l(from.dist, to.dist), l(from.yaw, to.yaw), l(from.pitch, to.pitch) + lift))
+            if (k >= 1f) { if (anim === a) anim = null; a.then?.invoke() } else moving = true
         }
         if (camera.step(dt)) moving = true
         val t = scene.terrain
@@ -482,6 +494,7 @@ class LiveRenderer(
         val zw = (9000f / s.dist).coerceIn(.8f, 1.7f).let { Math.pow(it.toDouble(), .5).toFloat() }
         // lifted towards the camera as the map lifts its own (0.0006 to 0.0014): at 0.0004 the terrain hid the lines in
         // the emulator's frames, all but specks on the ridges
+        val uR = u(lineProg, "uReveal"); glUniform1f(uR, 60000f)
         glUniform1f(uB, 0.0008f); glUniform1f(uS, 0f)
         val rest = 1f - .55f * dim
         glUniform4f(uT, wire[0], wire[1], wire[2], 1f); glUniform1f(uW, 1.3f * density * zw); glUniform1f(uA, .85f * rest)
@@ -510,7 +523,11 @@ class LiveRenderer(
             glUniform4f(uT, case[0], case[1], case[2], 1f); glUniform1f(uW, 6f * density * zw); glUniform1f(uA, 1f); r.second.draw()
             glUniform1f(uW, 3.6f * density * zw)
             val g = chosenGpu.takeIf { chosenGpuOf?.first == k }
-            if (g != null) { glUniform4f(uT, 0f, 0f, 0f, 0f); g.draw() }
+            if (g != null) {
+                val rv = ((System.currentTimeMillis() - revealFrom) / 600f).coerceIn(0f, 1f)
+                if (rv < 1f) moving = true
+                glUniform4f(uT, 0f, 0f, 0f, 0f); glUniform1f(uR, rv); g.draw(); glUniform1f(uR, 60000f)
+            }
             else { val c = runRgb[k] ?: case; glUniform4f(uT, c[0], c[1], c[2], 1f); r.third.draw() }
             glEnable(GL_DEPTH_TEST)
         }

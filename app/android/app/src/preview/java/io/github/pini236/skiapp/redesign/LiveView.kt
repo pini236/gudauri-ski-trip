@@ -17,9 +17,16 @@ import java.util.concurrent.Executors
 import javax.microedition.khronos.egl.EGL10
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.egl.EGLDisplay
+import io.github.pini236.skiapp.ui.Motion
+import kotlin.math.PI
 import kotlin.math.abs
+import kotlin.math.atan
 import kotlin.math.atan2
+import kotlin.math.cos
 import kotlin.math.hypot
+import kotlin.math.sin
+import kotlin.math.sqrt
+import kotlin.math.tan
 
 /**
  * The live mountain's surface: the free camera of today's map (map/Moves.kt), on demand rendering, and a tap that
@@ -143,9 +150,16 @@ class LiveView(context: Context, private val scene: MapScene) : GLSurfaceView(co
         if (!worker.isShutdown) worker.execute {
             val lines = scene.draped[key] ?: return@execute
             val g = scene.slopeLayer(lines)
-            val sl = lines.map { scene.lineSlopes(it) }
-            val line = io.github.pini236.skiapp.map.Ribbon.build(lines, { li, i -> io.github.pini236.skiapp.map.SlopeColors.of(sl[li][i]).let { c -> floatArrayOf(c[0], c[1], c[2], 1f) } })
-            if (renderer.chosen == key) { renderer.ground = g; renderer.chosenLine = key to line; requestRender() }
+            // from the top down, so its light can run down the line (section 6): 0 at the top, 1 at the bottom
+            val down = scene.runs.pistes.firstOrNull { it.key == key }?.let { scene.topDown(it) } ?: lines
+            val sl = down.map { scene.lineSlopes(it) }
+            val along = down.map { l -> FloatArray(l.size / 3).also { m -> for (i in 1 until m.size) m[i] = m[i - 1] + hypot(l[i * 3] - l[i * 3 - 3], l[i * 3 + 2] - l[i * 3 - 1]) } }
+            val total = along.sumOf { (it.lastOrNull() ?: 0f).toDouble() }.toFloat().coerceAtLeast(1f)
+            val before = FloatArray(down.size).also { b -> for (i in 1 until b.size) b[i] = b[i - 1] + (along[i - 1].lastOrNull() ?: 0f) }
+            val line = io.github.pini236.skiapp.map.Ribbon.build(down,
+                { li, i -> io.github.pini236.skiapp.map.SlopeColors.of(sl[li][i]).let { c -> floatArrayOf(c[0], c[1], c[2], 1f) } },
+                { li, i -> (before[li] + along[li][i]) / total })
+            if (renderer.chosen == key) { renderer.ground = g; renderer.chosenLine = key to line; renderer.revealFrom = System.currentTimeMillis(); requestRender() }
         }
     }
     /** Leaving the live model: the GPU's buffers and texture go now, not when the app's context dies. */
@@ -279,6 +293,97 @@ class LiveView(context: Context, private val scene: MapScene) : GLSurfaceView(co
         }
         choose(best)
         onChoose?.invoke(best)
+        best?.let { frame(it) }
+    }
+
+    // ---- the moment of choice and the two sides of the mountain (the handoff's sections 6 and 10) ----
+
+    /** The two wide views, both aimed at the ground: the front (the opening, section 5) and the Kobi side (section 10). */
+    private fun front() = data.camera.let { c -> OrbitCamera.State(c.tx, scene.terrain.elev(c.tx, c.tz), c.tz, c.dist, LiveOpen.YAW, Math.toRadians(c.pitchDeg.toDouble()).toFloat()) }
+    private fun kobi() = OrbitCamera.State(KOBI_TX, scene.terrain.elev(KOBI_TX, KOBI_TZ), KOBI_TZ, KOBI_DIST, PI.toFloat(), Math.toRadians(KOBI_PITCH).toFloat())
+
+    /** The share of a run seen from [s]'s eye: the designer's numbers() in kobi_boards.py, point by point. */
+    fun seen(key: String, s: OrbitCamera.State): Float {
+        val t = scene.terrain; val e = FloatArray(3); OrbitCamera.eye(s, e)
+        e[1] = maxOf(e[1], t.elev(e[0], e[2]) + 40f)
+        val pts = ArrayList<Float>()
+        for (l in scene.draped[key] ?: return 1f) for (i in 0 until l.size / 3) { pts += l[i * 3]; pts += l[i * 3 + 2] }
+        if (pts.isEmpty()) return 1f
+        var vis = 0
+        for (j in 0 until pts.size / 2) {
+            val x = pts[j * 2]; val z = pts[j * 2 + 1]; val y = t.elev(x, z) + 6f
+            val dx = x - e[0]; val dy = y - e[1]; val dz = z - e[2]; val len = sqrt(dx * dx + dy * dy + dz * dz); val n = (len / 30f).toInt()
+            var ok = true
+            for (i in 1 until n) {
+                val f = i.toFloat() / n; val px = e[0] + dx * f; val pz = e[2] + dz * f
+                if (px < t.x0 || px > t.x1 || pz < t.y0 || pz > t.y1) continue
+                if (t.elev(px, pz) > e[1] + dy * f + 2f && (1 - f) * len > 60f) { ok = false; break }
+            }
+            if (ok) vis++
+        }
+        return vis.toFloat() / (pts.size / 2)
+    }
+
+    /** The camera's yaw folded into (-pi, pi]. */
+    private fun yawNow(): Float { val y = camera.state().yaw; return (atan2(sin(y), cos(y))) }
+    /** Whether the camera looks from the Kobi side: within 60 degrees of yaw 180 (the "Kobi side" sign shows). */
+    fun onKobiSide(): Boolean = abs(abs(yawNow()) - PI.toFloat()) <= Math.toRadians(60.0).toFloat()
+
+    /**
+     * A run was chosen: if at least half of it shows from here the view stays and frames it; if less, the wide view
+     * of the side that shows more of it, turning through the east (1 s, the pitch lifted 3.5 degrees in the middle),
+     * then the framing. With reduced motion there is no turn: the views are swapped.
+     */
+    private fun frame(key: String) {
+        if (worker.isShutdown) return
+        worker.execute {
+            val here = seen(key, camera.state())
+            if (here >= .5f) { post { postDelayed({ if (renderer.chosen == key) frameRun(key) }, 300) }; return@execute }
+            val f = front(); val k = kobi()
+            val sf = seen(key, f); val sk = seen(key, k)
+            val wide = if (sk > sf) k else f
+            Qa.log("redesign live side ${if (wide === k) "kobi" else "front"} here ${(here * 100).toInt()} front ${(sf * 100).toInt()} kobi ${(sk * 100).toInt()}")
+            post { turnTo(wide) { if (renderer.chosen == key) frameRun(key) } }
+        }
+    }
+
+    /** To a wide view: through the east, both ways (yaw 0 to 180 going up, back going down), or a swap. */
+    fun turnTo(to: OrbitCamera.State, then: (() -> Unit)? = null) {
+        renderer.stopAnim(); camera.stopFling()
+        val y0 = yawNow(); camera.update { it.copy(yaw = y0) }
+        // through the east: yaw rises to 180 from the front's side; going back it falls to 0
+        val ty = if (to.yaw > 1f) (if (y0 < 0f) -PI.toFloat() else PI.toFloat()) else 0f
+        if (Motion.reduced(context)) {
+            camera.set(to.copy(yaw = ty)); requestRender()
+            then?.let { post { it() } }
+        } else renderer.animate(to.copy(yaw = ty), 1.0f, Math.toRadians(3.5).toFloat()) { then?.let { post { it() } } }
+    }
+
+    /** The framing of the whole run (section 6): 600 ms, the yaw and pitch kept, the run's box fitted with a margin. */
+    private fun frameRun(key: String) {
+        val lines = scene.draped[key] ?: return
+        var x0 = Float.MAX_VALUE; var x1 = -Float.MAX_VALUE; var z0 = Float.MAX_VALUE; var z1 = -Float.MAX_VALUE
+        for (l in lines) for (i in 0 until l.size / 3) { x0 = minOf(x0, l[i * 3]); x1 = maxOf(x1, l[i * 3]); z0 = minOf(z0, l[i * 3 + 2]); z1 = maxOf(z1, l[i * 3 + 2]) }
+        val cx = (x0 + x1) / 2; val cz = (z0 + z1) / 2
+        val r = hypot(x1 - x0, z1 - z0) / 2
+        val vf = Math.toRadians(data.camera.fovDeg / 2.0)
+        val hf = atan(tan(vf) * width.toFloat() / height.coerceAtLeast(1))
+        val dist = (r / tan(minOf(vf, hf)) * 1.15).toFloat().coerceIn(1400f, 9000f)
+        val s = camera.state()
+        val to = s.copy(tx = cx, ty = scene.terrain.elev(cx, cz), tz = cz, dist = dist)
+        if (Motion.reduced(context)) { camera.set(to); requestRender() } else renderer.animate(to, 0.6f)
+        Qa.log("redesign live framed $key")
+    }
+
+    /** A run chosen as a tap chooses it (the emulator's pictures). */
+    fun pickKey(key: String) { choose(key); onChoose?.invoke(key); frame(key) }
+
+    /** The "Kobi side" sign: back to the front, the same turn the other way. */
+    fun backToFront() { turnTo(front()); Qa.log("redesign live front") }
+
+    private companion object {
+        // the Kobi side (the handoff's section 10, the target on the ground): eye at -60, 4104, -8038
+        const val KOBI_TX = -60f; const val KOBI_TZ = -2596.1f; const val KOBI_DIST = 5690.4f; const val KOBI_PITCH = 17.0
     }
 }
 

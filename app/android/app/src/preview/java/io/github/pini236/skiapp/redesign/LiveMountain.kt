@@ -40,6 +40,8 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -94,9 +96,16 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, onPaint
                 val n = a.take(3).mapNotNull { it.toFloatOrNull() }
                 if (n.size == 3) view.look(n[0], n[1], n[2], a.getOrNull(3)?.takeIf { it.isNotBlank() })
             }
+            // a run chosen the way a tap chooses it (the turn to the Kobi side included), letting it go, and the sign
+            c.startsWith("pick:") -> view.pickKey(c.removePrefix("pick:"))
+            c == "unpick" -> { chosen = null; view.choose(null); Qa.log("redesign live unpicked") }
+            c == "front" -> view.backToFront()
         }
     }
     LaunchedEffect(time) { view.setTime(time) }
+    // the "Kobi side" sign shows while the camera looks from within 60 degrees of the Kobi side (the handoff's section 10)
+    var kobiSide by remember { mutableStateOf(false) }
+    LaunchedEffect(Unit) { while (true) { val k = view.onKobiSide(); if (k != kobiSide) { kobiSide = k; Qa.log("redesign live kobi sign $k") }; delay(250) } }
     LaunchedEffect(data, night) { data?.let { view.setPal(it.pal[if (night) "night" else "day"]) } }
 
     val bg = if (night) Color(0xD70F1828) else Color(0xDBFFFFFF)
@@ -137,6 +146,12 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, onPaint
             }
             Text(stringResource(R.string.poc_peak_live_badge), Modifier.clip(RoundedCornerShape(11.dp)).background(Color(0x66081A33)).padding(horizontal = 10.dp, vertical = 3.dp),
                 fontFamily = Plex, fontSize = 11.5.sp, color = Color.White)
+            AnimatedVisibility(kobiSide, enter = fadeIn(), exit = fadeOut()) {
+                val aria = stringResource(R.string.poc_peak_front_aria)
+                Pill(Modifier.semantics { contentDescription = aria }.clickable { haptics.tick(.3f); view.backToFront() }) {
+                    Text(stringResource(R.string.map_kobi_side), Modifier.padding(horizontal = 16.dp), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = ink)
+                }
+            }
         }
         // the chosen run's name, at the bottom; a tap on it lets it go
         val run = chosen?.let { k -> scene.runs.pistes.firstOrNull { it.key == k } }
