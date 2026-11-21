@@ -292,7 +292,11 @@ class LiveRenderer(
             var t = list.first { it.name == name }
             while (t.w > maxTex) t = LiveTex.half(t)
             glActiveTexture(GL_TEXTURE0); glBindTexture(GL_TEXTURE_2D, tex[i])
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, t.w, t.h, 0, GL_RGBA, GL_UNSIGNED_BYTE, ByteBuffer.wrap(t.px))
+            if (name == "cirrus") {
+                // one channel (the architect, 21.11): a quarter of the memory
+                val r = ByteArray(t.w * t.h) { t.px[it * 4] }
+                glTexImage2D(GL_TEXTURE_2D, 0, GL_R8, t.w, t.h, 0, GL_RED, GL_UNSIGNED_BYTE, ByteBuffer.wrap(r))
+            } else glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, t.w, t.h, 0, GL_RGBA, GL_UNSIGNED_BYTE, ByteBuffer.wrap(t.px))
             val sky = name == "horizon" || name == "cirrus"
             if (name == "horizon") glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR)
             else { glGenerateMipmap(GL_TEXTURE_2D); glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR) }
