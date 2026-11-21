@@ -1091,7 +1091,8 @@ rd_back() { mark; adb shell input keyevent KEYCODE_BACK; waitlog "redesign clear
 redesign() {
   adb shell am force-stop "$PKG"; sleep 1; mark
   adb shell "am start -W -n $ACT --es qa.tab home --es qa.mode auto --es qa.redesign open" > /dev/null
-  waitlog "redesign ready" 40; sleep 3; shot redesign-open
+  # a cold start on the emulator: the map's own shadows alone took 33 s in run 292, and the painted screen waits for them
+  waitlog "redesign ready" 75; sleep 3; shot redesign-open
   # a run away from the close-up's side, on the whole mountain: the mountain rises above the sheet
   rd_touch "Kudebi 1" && { sleep 2.5; shot redesign-chosen; }; rd_back
   # a run of the Tatra side: the close-up picture comes in
