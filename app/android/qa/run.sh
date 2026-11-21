@@ -1146,7 +1146,7 @@ redesign() {
     mark; qa "--es qa.redesign unpick"; waitlog "redesign live unpicked" 10
     mark; qa "--es qa.redesign 'look:0,16,6617'"; waitlog "redesign live look" 10
     mark; qa "--es qa.redesign 'moment:Tatra 2,$ms'"; waitlog "redesign live moment Tatra 2 $ms" 20 || fail "redesign: the live moment $ms was not held"
-    rd_drawn; shot "redesign-live-moment-$ms"
+    waitlog "redesign live held $ms" 25 || fail "redesign: the held moment $ms was not drawn"; sleep 1; shot "redesign-live-moment-$ms"
   done
   mark; qa "--es qa.redesign unpick"; waitlog "redesign live unpicked" 10
   mark; qa "--es qa.redesign 'look:0,16,6617'"; waitlog "redesign live look" 10; rd_drawn

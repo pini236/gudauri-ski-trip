@@ -267,6 +267,7 @@ class LiveRenderer(
     @Volatile var revealFrom = 0L
     /** The emulator's held moment (ms since the choice, the designer's 0 to 900): no time passes, as phase A's frame:. */
     @Volatile var frozenMs: Float? = null
+    private var heldDrawn: Float? = null
     /** Ms since the chosen run's light started down it (0 until its line is ready), or the held moment. */
     fun chosenMs(): Float = frozenMs ?: if (revealFrom == 0L) 0f else (System.currentTimeMillis() - revealFrom).toFloat()
 
@@ -547,6 +548,10 @@ class LiveRenderer(
         glDepthMask(true); glDisable(GL_BLEND); glEnable(GL_CULL_FACE)
         // the emulator waits for this: a frame with the mountain, not only the clear colour
         if (!drawn) { drawn = true; io.github.pini236.skiapp.qa.Qa.log("redesign live drawn") }
+        // and, for a held moment, for a frame that has it: the run's line on the GPU and the time held
+        val fh = frozenMs
+        if (fh != null && chosenGpuOf?.first == chosen && heldDrawn != fh) { heldDrawn = fh; io.github.pini236.skiapp.qa.Qa.log("redesign live held ${fh.toInt()}") }
+        if (fh == null) heldDrawn = null
         if (moving) requestRender()
     }
 

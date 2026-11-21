@@ -503,6 +503,8 @@ class LiveView(context: Context, private val scene: MapScene) : GLSurfaceView(co
                 val p = mid?.let { m -> project(start, m) }
                 if (p != null) onMoment?.invoke(p[0], p[1], ms)
                 requestRender()
+                // the surface may be coming back from the emulator's command at that moment: ask again until it is
+                for (t in listOf(250L, 750L, 1500L, 3000L)) postDelayed({ if (renderer.frozenMs == ms) requestRender() }, t)
                 post { Qa.log("redesign live moment $key ${ms.toInt()}") }
             }
         }
