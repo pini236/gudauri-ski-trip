@@ -2,11 +2,11 @@
 """Handoff for the live model of the mountain (stage B of the redesign): what the 3D engine needs so that the real
 terrain looks like the painted mountain of round 3, at any hour and from any angle.
 Writes design/handoff/2026-11-20-redesign-live/ :
-  tex/relief.png   world map of the snow surface: R,G = slope east and south, B = occlusion   (hour independent)
-  tex/cover.png    world map of what covers the ground: R = rock potential, G = groomed run, B = rock tone
-  tex/tile.png     repeating fine relief: R,G = slope of ripples and grain, B = grain
-  tex/horizon.png  the real far horizon around Gudauri (from the same open elevation source): R,G = slope, B = distance
-  tex/cirrus.png   high cloud, painted (no data): one channel
+  tex/relief.webp   world map of the snow surface: R,G = slope east and south, B = occlusion   (hour independent)
+  tex/cover.webp    world map of what covers the ground: R = rock potential, G = groomed run, B = rock tone
+  tex/tile.webp     repeating fine relief: R,G = slope of ripples and grain, B = grain
+  tex/horizon.webp  the real far horizon around Gudauri (from the same open elevation source): R,G = slope, B = distance
+  tex/cirrus.webp   high cloud, painted (no data): one channel
   peak-live.json   lights by the sun's height, haze, shader constants, the opening camera, the village lights, checks
 Usage: PEAK_CACHE=<dir> python3 design/redesign/tools/live_export.py [--far]     (--far fetches the wide elevation tiles)
 Nothing invented: the ground is the shipped elevation model; the far horizon is real terrain; clouds are paint."""
@@ -33,7 +33,7 @@ def q8(a,dither=True,seed=0):
     return np.clip(np.round(a),0,255).astype(np.uint8)
 def save(name,chans,**kw):
     im=Image.fromarray(np.dstack(chans) if len(chans)>1 else chans[0]);p=os.path.join(OUT,'tex',name)
-    im.save(p,**(dict(quality=92,method=6) if name.endswith('.webp') else dict(optimize=True)))
+    im.save(p,**(dict(quality=kw.get('q',92),method=6) if name.endswith('.webp') else dict(optimize=True)))
     print(name,im.size,os.path.getsize(p)//1024,'KB');return im
 
 def world():
@@ -75,7 +75,7 @@ def tile(n=512,period=640.0):
     streak=np.zeros((n,n),dtype=np.float32);base=tnoise(n,256,256,31)
     for i in range(-9,10):streak+=np.roll(base,i,0)
     streak=streak/19;streak=np.clip(.5+(streak-streak.mean())/(4*streak.std()),0,1)
-    save('tile.png',[q8(.5+dx*2,seed=6),q8(.5+dz*2,seed=7),q8(streak,False)])
+    save('tile.webp',[q8(.5+dx*2,seed=6),q8(.5+dz*2,seed=7),q8(streak,False)],q=95)
     return dict(px=n,period_m=period,slope_range=0.25)
 
 # ---------------------------------------------------------------- the far horizon, from real terrain
@@ -125,14 +125,14 @@ def horizon(eye,w=4096,h=512,lo=-5.0,hi=6.0,half=62000.0,cell=120.0,ss=2):
         dd=ds[i0]+(ds[ii]-ds[i0])*f
         R[:,j]=np.where(ok,.5+gxs[ii,j]/3.2,.5);Gc[:,j]=np.where(ok,.5+gzs[ii,j]/3.2,.5);B[:,j]=np.where(ok,dd/half*0.98,1.0)
     dn=lambda a:np.asarray(Image.fromarray(a,mode='F').resize((w,h),Image.BOX))
-    save('horizon.png',[q8(dn(R),False),q8(dn(Gc),False),q8(dn(B),False)])
+    save('horizon.webp',[q8(dn(R),False),q8(dn(Gc),False),q8(dn(B),False)],q=95)
     return dict(w=w,h=h,lo_deg=lo,hi_deg=hi,eye=[round(float(v),1) for v in eye],far_m=half,note='col 0 = north, clockwise; row 0 = hi_deg above the horizontal; B = distance / far_m * 0.98, 1 = sky')
 def cirrus(w=2048,h=256):
     """painted high cloud over the whole sky ring (tileable in azimuth): long soft streaks, thinning to nothing"""
     st=np.pad(rng(52).random((9,10)).astype(np.float32),((2,2),(2,2)),mode='wrap')
     st=np.asarray(Image.fromarray(st,mode='F').resize((int(w*14/10),int(h*13/9)),Image.BICUBIC))[int(h*2/9):int(h*2/9)+h,int(w*2/10):int(w*2/10)+w]
     a=st*(0.55+0.9*tnoise(w,24,24,51)[:h])*(0.6+0.8*tnoise(w,7,7,53)[:h])
-    m=sstep(0.22,0.70,a);save('cirrus.png',[q8(m,False)])
+    m=sstep(0.22,0.70,a);save('cirrus.webp',[q8(m,False)],q=95)
     return dict(w=w,h=h,lo_deg=0.0,hi_deg=24.0,note='col 0 = north, clockwise; row 0 = hi_deg; repeat in azimuth, clamp in height')
 
 CAM=dict(tx=round(P.CE+110,1),ty=2350.0,tz=round(-(P.CN+250),1),dist=7100.0,yaw_deg=0.0,pitch_deg=16.0,fov_deg=50.0)   # OrbitCamera terms
@@ -146,9 +146,9 @@ def main():
         l=P.LIGHTS[k];r3=lambda c:[round(float(v),3) for v in c]
         L.append(dict(name=k,hour=l['h'],alt=round(l['alt'],1),az=round(l['az'],1),side='am' if l['h']<13 else 'pm',lit=r3(l['lit']),shade=r3(l['shade']),rock=r3(l['rock']),rockS=r3(l['rockS']),
                       zen=r3(l['zen']),hor=r3(l['hor']),band=r3(l['band']) if l['band'] else None,direct=l['direct'],stars=l['stars']))
-    # checks: what a texel reads once it is on the GPU (catches a flipped or swapped load); the two world maps are lossy, so +-8
+    # checks: what a texel reads once it is on the GPU (catches a flipped or swapped load); all five are lossy WebP, so +-12
     chk=[]
-    for name in ['relief.webp','cover.webp','tile.png','horizon.png']:
+    for name in ['relief.webp','cover.webp','tile.webp','horizon.webp']:
         a=np.asarray(Image.open(os.path.join(OUT,'tex',name)).convert('RGB'));hh,ww=a.shape[:2]
         for u,v in [(0.25,0.25),(0.5,0.5),(0.62,0.71)]:chk.append(dict(tex=name,u=u,v=v,rgb=[int(c) for c in a[int(v*hh),int(u*ww)]]))
     vill=[]
@@ -158,8 +158,8 @@ def main():
            world=dict(x0=X0,x1=X1,z0=W0,z1=W1,note='x east, y up (metres, no exaggeration), z = -north: as MapScene. uv = ((x-x0)/(x1-x0), (z-z0)/(z1-z0)), v=0 at the north edge'),
            tex=dict(relief=dict(file='relief.webp',px=N,decode='slope_east=(R-0.5)*3.2; slope_south=(G-0.5)*3.2; occlusion=0.7+0.6*B; normal=normalize(-slope_east,1,-slope_south)'),
                     cover=dict(file='cover.webp',px=N,decode='rock_potential_deg=18+30*R; groomed=G; rock_tone=2*B'),
-                    tile=dict(t,file='tile.png',decode='slope_east=(R-0.5)*0.5; slope_south=(G-0.5)*0.5; uv=xz/period_m, repeat. B = rock streaks along z, read at xz/160 (and at zx/160 for streaks along x)'),
-                    horizon=dict(hz,file='horizon.png'),cirrus=dict(ci,file='cirrus.png')),
+                    tile=dict(t,file='tile.webp',decode='slope_east=(R-0.5)*0.5; slope_south=(G-0.5)*0.5; uv=xz/period_m, repeat. B = rock streaks along z, read at xz/160 (and at zx/160 for streaks along x)'),
+                    horizon=dict(hz,file='horizon.webp'),cirrus=dict(ci,file='cirrus.webp')),
            camera=CAM,
            k=dict(ripple=1.6,haze=dict(start_x_dist=1.0,length_x_dist=0.43,max=0.72,valley=0.26,valley_from=2300,valley_to=1750),
                   far_air=dict(at_9km=0.55,more=0.30,length_m=26000),sky_top_deg=11,band=dict(centre_deg=4.5,width_deg=3.2,strength=0.75),

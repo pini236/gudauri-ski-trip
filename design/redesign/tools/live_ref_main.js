@@ -48,7 +48,7 @@
   const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true }); renderer.setPixelRatio(dpr); renderer.setSize(W, Hh); document.body.appendChild(renderer.domElement);
   const tex = (name, rep) => new Promise(res => new THREE.TextureLoader().load(H + 'tex/' + name + (q.get('v') ? '?' + q.get('v') : ''), t => { t.flipY = false; t.generateMipmaps = true; t.minFilter = THREE.LinearMipmapLinearFilter; t.magFilter = THREE.LinearFilter; t.anisotropy = 8;
     t.wrapS = rep ? THREE.RepeatWrapping : THREE.ClampToEdgeWrapping; t.wrapT = rep === 2 ? THREE.RepeatWrapping : THREE.ClampToEdgeWrapping; res(t); }));
-  const [relief, cover, tile, horizon, cirrus] = await Promise.all([tex(q.get('relief') || 'relief.webp'), tex(q.get('cover') || 'cover.webp'), tex('tile.png', 2), tex('horizon.png', 1), tex('cirrus.png', 1)]);
+  const [relief, cover, tile, horizon, cirrus] = await Promise.all([tex(q.get('relief') || 'relief.webp'), tex(q.get('cover') || 'cover.webp'), tex(q.get('tile') || 'tile.webp', 2), tex(q.get('horizon') || 'horizon.webp', 1), tex(q.get('cirrus') || 'cirrus.webp', 1)]);
 
   // ---- the camera (OrbitCamera)
   const kx = 111320 * Math.cos(T.proj.lat0 * rad);
