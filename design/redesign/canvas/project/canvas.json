@@ -865,6 +865,30 @@
    "h": 844,
    "title": "6 · אחר הצהריים",
    "page": "live"
+  },
+  "N00-Built.dc.html": {
+   "x": 0,
+   "y": 0,
+   "w": 1280,
+   "h": 1230,
+   "title": "מה נבנה: שלב א באנדרואיד",
+   "page": "built"
+  },
+  "N01-BuiltStates.dc.html": {
+   "x": 0,
+   "y": 1350,
+   "w": 1516,
+   "h": 760,
+   "title": "פתיחה, בחירה, צביטה, יום ולילה",
+   "page": "built"
+  },
+  "M07-Kobi.dc.html": {
+   "x": 0,
+   "y": 5504,
+   "w": 1280,
+   "h": 2100,
+   "title": "7 · מסלול שמאחורי ההר: Kobi",
+   "page": "live"
   }
  },
  "createdOnFiles": {
@@ -1038,6 +1062,24 @@
    "x": 0,
    "y": 3980,
    "text": "ג · בגודל טלפון"
+  },
+  "tN": {
+   "kind": "title1",
+   "maxW": 1600,
+   "page": "built",
+   "w": 760,
+   "x": 0,
+   "y": -300,
+   "text": "נבנה באנדרואיד · שלב א, ההר המצויר (צילומי אמולטור)"
+  },
+  "tM4": {
+   "kind": "title1",
+   "maxW": 1600,
+   "page": "live",
+   "w": 520,
+   "x": 0,
+   "y": 5204,
+   "text": "ד · מסלול שמאחורי ההר (שאלה של פיני)"
   }
  },
  "order": [
@@ -1148,7 +1190,10 @@
   "M03-Compare.dc.html",
   "M04-Open.dc.html",
   "M05-Dusk.dc.html",
-  "M06-After.dc.html"
+  "M06-After.dc.html",
+  "N00-Built.dc.html",
+  "N01-BuiltStates.dc.html",
+  "M07-Kobi.dc.html"
  ],
  "pages": [
   {
@@ -1158,6 +1203,10 @@
   {
    "id": "live",
    "name": "שלב ב · ההר החי"
+  },
+  {
+   "id": "built",
+   "name": "נבנה · שלב א באנדרואיד"
   },
   {
    "id": "day4",

@@ -135,7 +135,10 @@ def cirrus(w=2048,h=256):
     m=sstep(0.22,0.70,a);save('cirrus.webp',[q8(m,False)],q=95)
     return dict(w=w,h=h,lo_deg=0.0,hi_deg=24.0,note='col 0 = north, clockwise; row 0 = hi_deg; repeat in azimuth, clamp in height')
 
-CAM=dict(tx=round(P.CE+110,1),ty=2350.0,tz=round(-(P.CN+250),1),dist=7100.0,yaw_deg=0.0,pitch_deg=16.0,fov_deg=50.0)   # OrbitCamera terms
+CAM=dict(tx=round(P.CE+110,1),ty=2483.1,tz=2830.3,dist=6617.0,yaw_deg=0.0,pitch_deg=16.0,fov_deg=50.0,   # OrbitCamera terms
+         note="the target is on the ground (ty = the model's height at tx,tz), as OrbitCamera keeps it; the eye is at 69, 4307, 9191")
+# (until 21.11.2026 the target was 69, 2350, 2366 at 7100 m: the same eye and direction, but 303 m under the ground, and the engine
+#  puts the target on the ground, so the app stood 303 m higher than the reference frames)
 def main():
     pr,dd=math.radians(CAM['pitch_deg']),CAM['dist']
     eye=(CAM['tx'],-(CAM['tz']+math.cos(pr)*dd),CAM['ty']+math.sin(pr)*dd)                # east, north, height of the opening eye
