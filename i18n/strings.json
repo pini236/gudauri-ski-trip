@@ -20077,6 +20077,306 @@
   "poc.peak_live": {"he": "ההר החי", "en": "Live mountain", "ru": "Живая гора", "ka": "ცოცხალი მთა", "where": "app/android (test build only)", "note": "The redesign POC (decisions 83, 84, 85), phase B: the live model of the painted mountain, test build only (src/preview). button on the painted mountain that opens the live 3D model", "check": ["ru", "ka"]},
   "poc.peak_painted": {"he": "הציור", "en": "The painting", "ru": "Рисунок", "ka": "ნახატი", "where": "app/android (test build only)", "note": "The redesign POC (decisions 83, 84, 85), phase B: the live model of the painted mountain, test build only (src/preview). button on the live model that goes back to the painted picture", "check": ["ru", "ka"]},
   "poc.peak_live_badge": {"he": "מודל חי · שלד ראשון", "en": "Live model · first sketch", "ru": "Живая модель · первый набросок", "ka": "ცოცხალი მოდელი · პირველი ესკიზი", "where": "app/android (test build only)", "note": "The redesign POC (decisions 83, 84, 85), phase B: the live model of the painted mountain, test build only (src/preview). badge at the top of the live model", "check": ["ru", "ka"]},
-  "poc.peak_front_aria": {"he": "חזרה לחזית ההר", "en": "Back to the front of the mountain", "ru": "Вернуться к передней стороне горы", "ka": "მთის წინა მხარეზე დაბრუნება", "where": "app/android (test build only)", "note": "The redesign POC (decisions 83, 84, 85), phase B: the live model, test build only (src/preview). screen reader label of the Kobi side sign, which turns the camera back to the front", "check": ["ru", "ka"]}
+  "poc.peak_front_aria": {"he": "חזרה לחזית ההר", "en": "Back to the front of the mountain", "ru": "Вернуться к передней стороне горы", "ka": "მთის წინა მხარეზე დაბრუნება", "where": "app/android (test build only)", "note": "The redesign POC (decisions 83, 84, 85), phase B: the live model, test build only (src/preview). screen reader label of the Kobi side sign, which turns the camera back to the front", "check": ["ru", "ka"]},
+  "app.rec_first_title": {
+   "he": "הטלפון בכיס. ההר מצייר את היום.",
+   "en": "Phone in your pocket. The mountain draws the day.",
+   "ru": "Телефон в кармане. Гора рисует день.",
+   "ka": "ტელეფონი ჯიბეშია. მთა დღეს ხატავს.",
+   "where": "app/android",
+   "note": "יום הגלישה (סבב 4, החלטה 84, לוח L01): first-time sheet, title",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.rec_first_text": {
+   "he": "מזהים לבד רכבל, ירידה והפסקה, עם שמות המסלולים. אין מה ללחוץ בדרך.",
+   "en": "Lifts, runs and breaks are picked up by themselves, with the run names. Nothing to tap on the way.",
+   "ru": "Подъёмники, спуски и перерывы определяются сами, с названиями трасс. Нажимать по пути ничего не нужно.",
+   "ka": "საბაგირო, ტრასა და შესვენება თავად ამოიცნობა, ტრასების სახელებით. გზაში არაფრის დაჭერა არ გჭირდებათ.",
+   "where": "app/android",
+   "note": "יום הגלישה (סבב 4, החלטה 84, לוח L01): first-time sheet, body. Permission lines reuse app.rec_perm_local and app.rec_perm_ok",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.rec_first_go": {
+   "he": "מתחילים",
+   "en": "Start",
+   "ru": "Начать",
+   "ka": "დაწყება",
+   "where": "app/android",
+   "note": "יום הגלישה (סבב 4, החלטה 84, לוח L01): first-time sheet, start button",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.rec_first_later": {
+   "he": "לא עכשיו",
+   "en": "Not now",
+   "ru": "Не сейчас",
+   "ka": "ახლა არა",
+   "where": "app/android",
+   "note": "יום הגלישה (סבב 4, החלטה 84, לוח L01): first-time sheet, dismiss button",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.rec_search": {
+   "he": "מחפשים לוויינים",
+   "en": "Looking for satellites",
+   "ru": "Ищем спутники",
+   "ka": "ვეძებთ თანამგზავრებს",
+   "where": "app/android",
+   "note": "יום הגלישה (סבב 4, החלטה 84, לוח L02, L13): live screen between the tap and the first fix. The big speed shows a dash, not 0",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.rec_search_note": {
+   "he": "הזמן כבר נספר מהנגיעה. המהירות והקו מתחילים כשיש מיקום מדויק, ולא רגע לפני.",
+   "en": "The clock has been running since your tap. Speed and the line start once there is a precise fix, not a moment before.",
+   "ru": "Время идёт с момента нажатия. Скорость и линия начнутся, когда появится точное местоположение, не раньше.",
+   "ka": "დრო შეხების მომენტიდან დაითვლება. სიჩქარე და ხაზი ზუსტი მდებარეობის გამოჩენისას დაიწყება, ერთი წამითაც ადრე არა.",
+   "where": "app/android",
+   "note": "יום הגלישה (סבב 4, החלטה 84, לוח L02): sub-line under 'looking for satellites'",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.rec_nofix": {
+   "he": "עוד אין מיקום",
+   "en": "No location yet",
+   "ru": "Местоположения пока нет",
+   "ka": "მდებარეობა ჯერ არ არის",
+   "where": "app/android",
+   "note": "יום הגלישה (סבב 4, החלטה 84, לוח L13): live screen, the line under the dash speed. Dash, never 0 km/h",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.rec_hold": {
+   "he": "החזקה לסיום",
+   "en": "Hold to finish",
+   "ru": "Удерживайте, чтобы завершить",
+   "ka": "დასასრულებლად ხანგრძლივად დააჭირეთ",
+   "where": "app/android",
+   "note": "יום הגלישה (סבב 4, החלטה 84, לוח L02): the finish button is a hold, not a tap",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.rec_weak_title": {
+   "he": "האות חלש",
+   "en": "Weak signal",
+   "ru": "Слабый сигнал",
+   "ka": "სიგნალი სუსტია",
+   "where": "app/android",
+   "note": "יום הגלישה (סבב 4, החלטה 84, לוח L13): amber banner, title. After 90 s without a first reading, or 20 s without a reading mid-day. Replaces app.rec_gps_weak on the new screen (that key stays for the current build)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.rec_weak_hint": {
+   "he": "כדאי לצאת למקום פתוח",
+   "en": "Better to step out into the open",
+   "ru": "Лучше выйти на открытое место",
+   "ka": "სჯობს ღია ადგილას გახვიდეთ",
+   "where": "app/android",
+   "note": "יום הגלישה (סבב 4, החלטה 84, לוח L13): amber banner, line under the title",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.rec_gap_title": {
+   "he": "דקה בלי קליטה",
+   "en": "A minute with no signal",
+   "ru": "Минута без сигнала",
+   "ka": "წუთი სიგნალის გარეშე",
+   "where": "app/android",
+   "note": "יום הגלישה (סבב 4, החלטה 84, לוח L13): timeline marker for a gap; the sub-line is app.rec_gap_note. Fixed 'a minute' wording is the board's example: for other lengths use app.rec_gap_len",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.rec_gap_len": {
+   "he": "{min} דק׳ בלי קליטה",
+   "en": "{min} min with no signal",
+   "ru": "{min} мин без сигнала",
+   "ka": "{min} წთ სიგნალის გარეშე",
+   "where": "app/android",
+   "note": "יום הגלישה (סבב 4, החלטה 84, לוח L13): timeline marker for a gap of {min} minutes",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.rec_gap_note": {
+   "he": "חור בהקלטה",
+   "en": "A gap in the recording",
+   "ru": "Разрыв в записи",
+   "ka": "ჩანაწერში ხარვეზი",
+   "where": "app/android",
+   "note": "יום הגלישה (סבב 4, החלטה 84, לוח L13): under the gap marker. A dashed line joins the last two measured points; no speed, distance or run is filled in",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.rec_offpiste_head": {
+   "he": "מחוץ למסלולים המסומנים",
+   "en": "Off the marked runs",
+   "ru": "Вне размеченных трасс",
+   "ka": "მონიშნული ტრასების გარეთ",
+   "where": "app/android",
+   "note": "יום הגלישה (סבב 4, החלטה 84, לוח L13): off-piste segment, title. Shown only to the user, never in the share image, never 'recommended route'",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.rec_offpiste": {
+   "he": "{m} מ׳ למטה · בלי שם",
+   "en": "{m} m down · unnamed",
+   "ru": "{m} м вниз · без названия",
+   "ka": "{m} მ დაღმართი · უსახელო",
+   "where": "app/android",
+   "note": "יום הגלישה (סבב 4, החלטה 84, לוח L13): off-piste segment, line. No guess at a name",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.rec_unmapped_head": {
+   "he": "ירדת מהרכבל בנקודה שלא ממופה",
+   "en": "You got off the lift at an unmapped point",
+   "ru": "Вы сошли с подъёмника в точке, которой нет на карте",
+   "ka": "საბაგიროდან ისეთ წერტილში ჩამოხვედით, რომელიც რუკაზე არ არის",
+   "where": "app/android",
+   "note": "יום הגלישה (סבב 4, החלטה 84, לוח L13): lift exit with no station in the data",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.rec_unmapped": {
+   "he": "תחנה שאין בנתונים",
+   "en": "A station that is not in the data",
+   "ru": "Станции нет в данных",
+   "ka": "სადგური მონაცემებში არ არის",
+   "where": "app/android",
+   "note": "יום הגלישה (סבב 4, החלטה 84, לוח L13): short tag for the same case. We say it, we do not snap to the nearest station",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.rec_cut_why": {
+   "he": "הטלפון סגר את האפליקציה",
+   "en": "The phone closed the app",
+   "ru": "Телефон закрыл приложение",
+   "ka": "ტელეფონმა აპლიკაცია დახურა",
+   "where": "app/android",
+   "note": "יום הגלישה (סבב 4, החלטה 84, לוח L13): under app.rec_cut_title; the block continues with app.rec_cut_text, app.rec_cut_go, app.rec_cut_close",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.rec_auto_title": {
+   "he": "לא זזת {min} דק׳",
+   "en": "You have not moved for {min} min",
+   "ru": "Вы не двигались {min} мин",
+   "ka": "{min} წთ-ია არ გიმოძრავიათ",
+   "where": "app/android",
+   "note": "יום הגלישה (סבב 4, החלטה 84, לוח L13): auto-stop notice, title. The warning line is app.dayrec_idle. Warning with sound: 60 min inside the site, 20 outside",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.rec_auto_keep": {
+   "he": "עוד לא סיימתי",
+   "en": "I am not done yet",
+   "ru": "Я ещё не закончил",
+   "ka": "ჯერ არ დამიმთავრებია",
+   "where": "app/android",
+   "note": "יום הגלישה (סבב 4, החלטה 84, לוח L13): auto-stop notice, keep-recording button",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.rec_auto_stop": {
+   "he": "עצירה לבד",
+   "en": "Stopped by itself",
+   "ru": "Остановлено автоматически",
+   "ka": "თავისით შეჩერდა",
+   "where": "app/android",
+   "note": "יום הגלישה (סבב 4, החלטה 84, לוח L13): label on a day that ended by auto-stop",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.rec_precise_ask": {
+   "he": "כדי למדוד צריך מיקום מדויק",
+   "en": "Measuring needs a precise location",
+   "ru": "Для измерения нужно точное местоположение",
+   "ka": "გასაზომად ზუსტი მდებარეობა გჭირდებათ",
+   "where": "app/android",
+   "note": "יום הגלישה (סבב 4, החלטה 84, לוח L13): one-time explanation, one button (app.rec_settings). We do not record with an approximate location",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.rec_outside": {
+   "he": "מחוץ לאתר",
+   "en": "Outside the resort",
+   "ru": "Вне курорта",
+   "ka": "კურორტის გარეთ",
+   "where": "app/android",
+   "note": "יום הגלישה (סבב 4, החלטה 84, לוח L13): short banner on the live screen away from the site",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.rec_outside_names": {
+   "he": "בלי שמות מסלולים",
+   "en": "No run names",
+   "ru": "Без названий трасс",
+   "ka": "ტრასების სახელების გარეშე",
+   "where": "app/android",
+   "note": "יום הגלישה (סבב 4, החלטה 84, לוח L13): second part of the outside banner",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.rec_outside_note": {
+   "he": "ההקלטה עובדת בכל מקום. שמות, רכבלים והר מצויר רק היכן שיש נתונים.",
+   "en": "Recording works anywhere. Names, lifts and the drawn mountain only where there is data.",
+   "ru": "Запись работает везде. Названия, подъёмники и нарисованная гора есть только там, где есть данные.",
+   "ka": "ჩაწერა ყველგან მუშაობს. სახელები, საბაგიროები და დახატული მთა მხოლოდ იქაა, სადაც მონაცემებია.",
+   "where": "app/android",
+   "note": "יום הגלישה (סבב 4, החלטה 84, לוח L13): first-time/outside note",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  }
  }
 }
