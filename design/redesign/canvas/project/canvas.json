@@ -889,6 +889,110 @@
    "h": 2100,
    "title": "7 · מסלול שמאחורי ההר: Kobi",
    "page": "live"
+  },
+  "P00-Brief.dc.html": {
+   "x": 0,
+   "y": 0,
+   "w": 1280,
+   "h": 1460,
+   "title": "חלק 1: מה היה חסר, ומה הוחלט",
+   "page": "gap1"
+  },
+  "P01-Standing.dc.html": {
+   "x": 0,
+   "y": 1840,
+   "w": 390,
+   "h": 844,
+   "title": "1 · עומדים: היום עד עכשיו",
+   "page": "gap1"
+  },
+  "P02-NextToALift.dc.html": {
+   "x": 470,
+   "y": 1840,
+   "w": 390,
+   "h": 844,
+   "title": "2 · ליד הרכבל",
+   "page": "gap1"
+  },
+  "P03-Break.dc.html": {
+   "x": 940,
+   "y": 1840,
+   "w": 390,
+   "h": 844,
+   "title": "3 · הפסקה",
+   "page": "gap1"
+  },
+  "P04-OneDescentEnd.dc.html": {
+   "x": 1410,
+   "y": 1840,
+   "w": 390,
+   "h": 844,
+   "title": "4 · ״ירידה אחת״ נגמרה לבד",
+   "page": "gap1"
+  },
+  "P05-Records.dc.html": {
+   "x": 1880,
+   "y": 1840,
+   "w": 390,
+   "h": 844,
+   "title": "5 · השיאים שלך",
+   "page": "gap1"
+  },
+  "P06-RecordsEmpty.dc.html": {
+   "x": 2350,
+   "y": 1840,
+   "w": 390,
+   "h": 844,
+   "title": "6 · עוד אין שיאים",
+   "page": "gap1"
+  },
+  "P07-Android-Start.dc.html": {
+   "x": 0,
+   "y": 3350,
+   "w": 390,
+   "h": 844,
+   "title": "7 · אנדרואיד: מתחילים",
+   "page": "gap1"
+  },
+  "P08-Android-Descending.dc.html": {
+   "x": 470,
+   "y": 3350,
+   "w": 390,
+   "h": 844,
+   "title": "8 · אנדרואיד: בירידה",
+   "page": "gap1"
+  },
+  "P09-Android-OnTheLift.dc.html": {
+   "x": 940,
+   "y": 3350,
+   "w": 390,
+   "h": 844,
+   "title": "9 · אנדרואיד: על הרכבל",
+   "page": "gap1"
+  },
+  "P10-Android-DayPainted.dc.html": {
+   "x": 1410,
+   "y": 3350,
+   "w": 390,
+   "h": 844,
+   "title": "10 · אנדרואיד: סוף היום",
+   "page": "gap1"
+  },
+  "P11-Android-OneDescentEnd.dc.html": {
+   "x": 1880,
+   "y": 3350,
+   "w": 390,
+   "h": 844,
+   "title": "11 · אנדרואיד: ״ירידה אחת״ נגמרה",
+   "page": "gap1"
+  },
+  "P12-Android-Records.dc.html": {
+   "x": 2350,
+   "y": 3350,
+   "w": 390,
+   "h": 844,
+   "title": "12 · אנדרואיד: השיאים שלך",
+   "page": "gap1"
   }
  },
  "createdOnFiles": {
@@ -897,7 +1001,7 @@
  },
  "designSystems": [],
  "launch": {
-  "page": "live",
+  "page": "gap1",
   "view": "canvas"
  },
  "notes": {
@@ -1080,6 +1184,33 @@
    "x": 0,
    "y": 5204,
    "text": "ד · מסלול שמאחורי ההר (שאלה של פיני)"
+  },
+  "tP": {
+   "kind": "title1",
+   "maxW": 1600,
+   "page": "gap1",
+   "w": 1000,
+   "x": 0,
+   "y": -300,
+   "text": "סבב ההשלמה · חלק 1 · יום הגלישה ואנדרואיד (21.11.2026)"
+  },
+  "tP1": {
+   "kind": "title1",
+   "maxW": 1600,
+   "page": "gap1",
+   "w": 520,
+   "x": 0,
+   "y": 1540,
+   "text": "א · המסכים שהיו חסרים"
+  },
+  "tP2": {
+   "kind": "title1",
+   "maxW": 1600,
+   "page": "gap1",
+   "w": 520,
+   "x": 0,
+   "y": 3050,
+   "text": "ב · אותם מסכים באנדרואיד"
   }
  },
  "order": [
@@ -1193,12 +1324,29 @@
   "M06-After.dc.html",
   "N00-Built.dc.html",
   "N01-BuiltStates.dc.html",
-  "M07-Kobi.dc.html"
+  "M07-Kobi.dc.html",
+  "P00-Brief.dc.html",
+  "P01-Standing.dc.html",
+  "P02-NextToALift.dc.html",
+  "P03-Break.dc.html",
+  "P04-OneDescentEnd.dc.html",
+  "P05-Records.dc.html",
+  "P06-RecordsEmpty.dc.html",
+  "P07-Android-Start.dc.html",
+  "P08-Android-Descending.dc.html",
+  "P09-Android-OnTheLift.dc.html",
+  "P10-Android-DayPainted.dc.html",
+  "P11-Android-OneDescentEnd.dc.html",
+  "P12-Android-Records.dc.html"
  ],
  "pages": [
   {
    "id": "intro",
    "name": "פתיחה והמלצה"
+  },
+  {
+   "id": "gap1",
+   "name": "השלמה א · יום הגלישה ואנדרואיד"
   },
   {
    "id": "live",
