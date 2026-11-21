@@ -26,14 +26,12 @@ import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.absoluteOffset
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
@@ -77,7 +75,6 @@ import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.drawscope.withTransform
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
@@ -386,6 +383,17 @@ fun PeakScreen(mode: DayNight.Mode, haptics: Haptics, onLeave: () -> Unit) {
                 pic(d.zoom.images[cur.name], zoomPlace, d.zoom.w, d.zoom.h, zoomIn)
                 layer(d, d.zoom, zoomPlace, zoomIn, lightNow, night, 1f, key, dm, lv, moment.value, near = true, closeUp = true, measurer, unitM, nf)
             }
+            // 6. the sign, pinned at the top of the chosen run (from step 3), drawn with the run (as a composable over the
+            // canvas it never showed: the designer, 21.11)
+            val ss = key?.let { (if (zoomIn > .5f) d.zoom else d.hero).sel[it] }
+            val rr = run
+            if (rr != null && ss != null) {
+                val pa = ((moment.value - 300f) / 300f).coerceIn(0f, 1f) * dm
+                if (pa > 0f) {
+                    val m = ss.mainSeg; val pl = if (zoomIn > .5f) zoomPlace else hero
+                    sign(rr, pl.on(Offset(m.x[0], m.y[0] - 4)), pa, measurer)
+                }
+            }
             // the ring from the finger
             val tp = touch
             if (tp != null && ring.value < 1f) {
@@ -395,16 +403,6 @@ fun PeakScreen(mode: DayNight.Mode, haptics: Haptics, onLeave: () -> Unit) {
             }
         }
 
-        // ---- the sign, pinned at the top of the chosen run (from step 3)
-        val s = key?.let { (if (zoomIn > .5f) d.zoom else d.hero).sel[it] }
-        if (run != null && s != null) {
-            val pa = ((moment.value - 300f) / 300f).coerceIn(0f, 1f) * dim.value
-            if (pa > 0f) {
-                val m = s.mainSeg; val pl = if (zoomIn > .5f) zoomPlace else hero
-                val q = pl.on(Offset(m.x[0], m.y[0] - 4))
-                Plate(run, Modifier.absoluteOffset { IntOffset(q.x.toInt(), q.y.toInt()) }, pa)
-            }
-        }
 
         // ---- the top: the light of the hour, the way back to the app
         Column(Modifier.fillMaxWidth().statusBarsPadding().padding(horizontal = 12.dp, vertical = 8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -669,23 +667,22 @@ private fun Pill(g: Glass, modifier: Modifier = Modifier, h: Int = 44, content: 
 
 private fun plate(c: String) = when (c) { "green" -> Color(0xFF178A4A); "blue" -> Color(0xFF1B6FDB); "red" -> Color(0xFFD8362C); else -> Color(0xFF14171B) }
 
-/** The sign: its bottom corner at 86% of its width on the point (most of it to the left), a white stem 2 x 12 under it. */
-@Composable
-private fun Plate(r: PeakData.Run, modifier: Modifier, alpha: Float) {
-    CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
-        Box(modifier.wrapContentSize(Alignment.TopStart, unbounded = true)) {
-            var wPx by remember { mutableStateOf(0) }
-            Column(Modifier.graphicsLayer {
-                translationX = -wPx * .86f; translationY = -size.height; this.alpha = alpha
-            }.onSizeChanged { wPx = it.width }, horizontalAlignment = Alignment.End) {
-                Row(Modifier.height(24.dp).shadow(5.dp, RoundedCornerShape(6.dp)).clip(RoundedCornerShape(6.dp)).background(plate(r.color))
-                    .border(1.5.dp, Color.White, RoundedCornerShape(6.dp)).padding(horizontal = 8.dp), verticalAlignment = Alignment.CenterVertically) {
-                    Text(if (r.ref.isNotBlank()) r.ref + " · " + r.name else r.name, fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 12.sp, color = Color.White, maxLines = 1)
-                }
-                Box(Modifier.padding(end = 12.dp).width(2.dp).height(12.dp).background(Color.White))
-            }
-        }
-    }
+/**
+ * The sign (the handoff, "השלט"): a plate 24 high, padding 8, corner 6, in the run's day colour, a white outline 1.5,
+ * "7A · Tatra 2" in white 12 bold (only the name without a number); its bottom corner at 86% of its width on the point,
+ * so most of it is to the left, and a white stem 2 x 12, 12 from its right end, down to the point.
+ */
+private fun DrawScope.sign(r: PeakData.Run, q: Offset, a: Float, measurer: TextMeasurer) {
+    val t = measurer.measure(if (r.ref.isNotBlank()) r.ref + " · " + r.name else r.name,
+        TextStyle(fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 12.sp, color = Color.White, textDirection = TextDirection.Ltr))
+    val pad = 8.dp.toPx(); val h = 24.dp.toPx(); val stem = 12.dp.toPx(); val w = t.size.width + 2 * pad
+    val left = q.x - w * .86f; val top = q.y - stem - h
+    val sx = left + w - 12.dp.toPx() - 1.dp.toPx()
+    drawRect(Color.White, Offset(sx, q.y - stem), Size(2.dp.toPx(), stem), alpha = a)
+    drawRoundRect(Color(0x33000000), Offset(left, top + 2.dp.toPx()), Size(w, h), CornerRadius(6.dp.toPx()), alpha = a)
+    drawRoundRect(plate(r.color), Offset(left, top), Size(w, h), CornerRadius(6.dp.toPx()), alpha = a)
+    drawRoundRect(Color.White, Offset(left, top), Size(w, h), CornerRadius(6.dp.toPx()), alpha = a, style = Stroke(1.5.dp.toPx()))
+    drawText(t, topLeft = Offset(left + pad, top + (h - t.size.height) / 2f), alpha = a)
 }
 
 @Composable
