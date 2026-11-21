@@ -993,6 +993,94 @@
    "h": 844,
    "title": "12 · אנדרואיד: השיאים שלך",
    "page": "gap1"
+  },
+  "Q00-Brief.dc.html": {
+   "x": 0,
+   "y": 0,
+   "w": 1280,
+   "h": 1500,
+   "title": "חלק 2: סביב ההר, ומה הוחלט",
+   "page": "gap2"
+  },
+  "Q01-Lifts.dc.html": {
+   "x": 0,
+   "y": 1880,
+   "w": 390,
+   "h": 844,
+   "title": "1 · הרכבלים, עם דיווח",
+   "page": "gap2"
+  },
+  "Q02-LiftsNoReport.dc.html": {
+   "x": 470,
+   "y": 1880,
+   "w": 390,
+   "h": 844,
+   "title": "2 · הרכבלים, בלי דיווח",
+   "page": "gap2"
+  },
+  "Q03-LiftPanel.dc.html": {
+   "x": 940,
+   "y": 1880,
+   "w": 390,
+   "h": 844,
+   "title": "3 · רכבל אחד",
+   "page": "gap2"
+  },
+  "Q04-MeetWhere.dc.html": {
+   "x": 1410,
+   "y": 1880,
+   "w": 390,
+   "h": 844,
+   "title": "4 · נפגשים: איפה?",
+   "page": "gap2"
+  },
+  "Q05-MeetSet.dc.html": {
+   "x": 1880,
+   "y": 1880,
+   "w": 390,
+   "h": 844,
+   "title": "5 · נפגשים: הדגל נעוץ",
+   "page": "gap2"
+  },
+  "Q06-MeetShare.dc.html": {
+   "x": 2350,
+   "y": 1880,
+   "w": 390,
+   "h": 844,
+   "title": "6 · נפגשים: התמונה שמשתפים",
+   "page": "gap2"
+  },
+  "Q07-TripPass.dc.html": {
+   "x": 0,
+   "y": 3390,
+   "w": 390,
+   "h": 844,
+   "title": "7 · הטיול שלך: הכרטיס",
+   "page": "gap2"
+  },
+  "Q08-TripEmpty.dc.html": {
+   "x": 470,
+   "y": 3390,
+   "w": 390,
+   "h": 844,
+   "title": "8 · מתי טסים? הכרטיס הוא הטופס",
+   "page": "gap2"
+  },
+  "Q09-SkiPass.dc.html": {
+   "x": 940,
+   "y": 3390,
+   "w": 390,
+   "h": 844,
+   "title": "9 · כרטיס סקי",
+   "page": "gap2"
+  },
+  "Q10-SeasonCountdown.dc.html": {
+   "x": 1410,
+   "y": 3390,
+   "w": 390,
+   "h": 844,
+   "title": "10 · לפני העונה: הספירה על ההר",
+   "page": "gap2"
   }
  },
  "createdOnFiles": {
@@ -1001,7 +1089,7 @@
  },
  "designSystems": [],
  "launch": {
-  "page": "gap1",
+  "page": "gap2",
   "view": "canvas"
  },
  "notes": {
@@ -1211,6 +1299,33 @@
    "x": 0,
    "y": 3050,
    "text": "ב · אותם מסכים באנדרואיד"
+  },
+  "tQ": {
+   "kind": "title1",
+   "maxW": 1600,
+   "page": "gap2",
+   "w": 1000,
+   "x": 0,
+   "y": -300,
+   "text": "סבב ההשלמה · חלק 2 · סביב ההר (21.11.2026)"
+  },
+  "tQ1": {
+   "kind": "title1",
+   "maxW": 1600,
+   "page": "gap2",
+   "w": 620,
+   "x": 0,
+   "y": 1580,
+   "text": "א · רכבלים ונקודת מפגש"
+  },
+  "tQ2": {
+   "kind": "title1",
+   "maxW": 1600,
+   "page": "gap2",
+   "w": 620,
+   "x": 0,
+   "y": 3090,
+   "text": "ב · הטיול, כרטיס הסקי והעונה"
   }
  },
  "order": [
@@ -1337,12 +1452,27 @@
   "P09-Android-OnTheLift.dc.html",
   "P10-Android-DayPainted.dc.html",
   "P11-Android-OneDescentEnd.dc.html",
-  "P12-Android-Records.dc.html"
+  "P12-Android-Records.dc.html",
+  "Q00-Brief.dc.html",
+  "Q01-Lifts.dc.html",
+  "Q02-LiftsNoReport.dc.html",
+  "Q03-LiftPanel.dc.html",
+  "Q04-MeetWhere.dc.html",
+  "Q05-MeetSet.dc.html",
+  "Q06-MeetShare.dc.html",
+  "Q07-TripPass.dc.html",
+  "Q08-TripEmpty.dc.html",
+  "Q09-SkiPass.dc.html",
+  "Q10-SeasonCountdown.dc.html"
  ],
  "pages": [
   {
    "id": "intro",
    "name": "פתיחה והמלצה"
+  },
+  {
+   "id": "gap2",
+   "name": "השלמה ב · סביב ההר"
   },
   {
    "id": "gap1",
