@@ -423,10 +423,14 @@ class LiveView(context: Context, private val scene: MapScene) : GLSurfaceView(co
         val y0 = yawNow(); camera.update { it.copy(yaw = y0) }
         // through the east: yaw rises to 180 from the front's side; going back it falls to 0
         val ty = if (to.yaw > 1f) (if (y0 < 0f) -PI.toFloat() else PI.toFloat()) else 0f
-        if (Motion.reduced(context)) {
-            camera.set(to.copy(yaw = ty)); requestRender()
-            then?.let { post { it() } }
-        } else renderer.animate(to.copy(yaw = ty), 1.0f, Math.toRadians(3.5).toFloat()) { then?.let { post { it() } } }
+        // the end of the turn, logged with the view it ends at (the emulator photographs after it)
+        val done = {
+            val e = camera.state()
+            Qa.log("redesign live turned tx ${"%.1f".format(e.tx)} tz ${"%.1f".format(e.tz)} dist ${"%.1f".format(e.dist)} yaw ${"%.1f".format(Math.toDegrees(e.yaw.toDouble()))} pitch ${"%.1f".format(Math.toDegrees(e.pitch.toDouble()))}")
+            then?.invoke(); Unit
+        }
+        if (Motion.reduced(context)) { camera.set(to.copy(yaw = ty)); requestRender(); post { done() } }
+        else renderer.animate(to.copy(yaw = ty), 1.0f, Math.toRadians(3.5).toFloat()) { post { done() } }
     }
 
     /** The framing of the whole run (section 6): 600 ms, the yaw and pitch kept, the run's box fitted with a margin. */

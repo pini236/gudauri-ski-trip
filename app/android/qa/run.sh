@@ -1148,7 +1148,8 @@ redesign() {
   rd_drawn; shot redesign-live-kobi-close
   mark; qa "--es qa.redesign unpick"; waitlog "redesign live unpicked" 10; rd_drawn; shot redesign-live-kobi-sign
   mark; qa "--es qa.redesign front"; waitlog "redesign live front" 10
-  waitlog "redesign live kobi sign false" 15 || fail "redesign: the sign did not bring the front back"
+  waitlog "redesign live turned" 20 || fail "redesign: the turn back to the front did not end"
+  seen "redesign live kobi sign false" 5 || fail "redesign: the sign did not bring the front back"
   rd_drawn; shot redesign-live-front
   drag $((W / 2)) $((H / 2)) $((W / 2 - W / 5)) $((H / 2)) 500; sleep 1.5; shot redesign-live-dragged
   mark; qa "--es qa.mode auto --es qa.redesign painted"; waitlog "redesign live closed" 10; sleep 1.5; shot redesign-live-back
