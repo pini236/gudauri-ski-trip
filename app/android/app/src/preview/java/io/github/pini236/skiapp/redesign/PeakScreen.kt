@@ -674,8 +674,14 @@ private fun DrawScope.kmNumbers(m: PeakData.Seg, pl: Place, a: Float, measurer: 
             val c = pl.on(Offset(q.x + 13f * dd.y, q.y - 13f * dd.x + 3.4f))
             val t = measurer.measure(("%.1f".format(b / 1000f)).trimEnd('0').trimEnd('.'), style)
             val tl = Offset(c.x - t.size.width / 2f, c.y - t.size.height * .72f)
-            val o = measurer.measure(("%.1f".format(b / 1000f)).trimEnd('0').trimEnd('.'), style.copy(color = Color(0xCC0A1932), drawStyle = Stroke(2.4f * sc * density, join = StrokeJoin.Round)))
-            drawText(o, topLeft = tl, alpha = a)
+            // the dark outline under the letters (the designer: rgba(10,25,50,.8), 2.4 wide): the text stroke of Compose came
+            // out light on the emulator, so a dark copy in eight directions, 1.2 out
+            val o = measurer.measure(("%.1f".format(b / 1000f)).trimEnd('0').trimEnd('.'), style.copy(color = Color(0xFF0A1932)))
+            val r = 1.2f * sc * density
+            for (i in 0 until 8) {
+                val an = i * Math.PI / 4
+                drawText(o, topLeft = Offset(tl.x + r * kotlin.math.cos(an).toFloat(), tl.y + r * kotlin.math.sin(an).toFloat()), alpha = a * .8f / 2.2f)
+            }
             drawText(t, topLeft = tl, alpha = a)
         }
         b += 500f
