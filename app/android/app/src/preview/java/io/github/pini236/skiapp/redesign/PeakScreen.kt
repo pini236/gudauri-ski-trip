@@ -134,7 +134,7 @@ private val ACCENT_DAY = Color(0xFF6B3FD4)
 private val ACCENT_NIGHT = Color(0xFFB79CFF)
 private val SHEET_DP = 236.dp
 
-private class Glass(val night: Boolean) {
+internal class Glass(val night: Boolean) {
     val bg = if (night) Color(0xD70F1828) else Color(0xDBFFFFFF)
     val ink = if (night) Color(0xFFEAF0F7) else Color(0xFF0E2233)
     val ink2 = if (night) Color(0xFFA9B8CC) else Color(0xFF40556A)
@@ -709,7 +709,7 @@ private fun plate(c: String) = when (c) { "green" -> Color(0xFF178A4A); "blue" -
  * "7A · Tatra 2" in white 12 bold (only the name without a number); its bottom corner at 86% of its width on the point,
  * so most of it is to the left, and a white stem 2 x 12, 12 from its right end, down to the point.
  */
-private fun DrawScope.sign(r: PeakData.Run, q: Offset, a: Float, measurer: TextMeasurer) {
+internal fun DrawScope.sign(r: PeakData.Run, q: Offset, a: Float, measurer: TextMeasurer) {
     val t = measurer.measure(if (r.ref.isNotBlank()) r.ref + " · " + r.name else r.name,
         TextStyle(fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 12.sp, color = Color.White, textDirection = TextDirection.Ltr))
     val pad = 8.dp.toPx(); val h = 24.dp.toPx(); val stem = 12.dp.toPx(); val w = t.size.width + 2 * pad
@@ -723,7 +723,7 @@ private fun DrawScope.sign(r: PeakData.Run, q: Offset, a: Float, measurer: TextM
 }
 
 @Composable
-private fun RunSheet(r: PeakData.Run, d: PeakData, g: Glass, onClose: () -> Unit) {
+internal fun RunSheet(r: PeakData.Run, d: PeakData, g: Glass, onClose: () -> Unit) {
     val colour = stringResource(when (r.color) { "green" -> R.string.common_color_green; "blue" -> R.string.common_color_blue; "red" -> R.string.common_color_red; else -> R.string.common_color_black })
     val level = stringResource(when (r.color) { "green" -> R.string.map_difficulty_beginner; "blue" -> R.string.map_difficulty_easy; "red" -> R.string.map_difficulty_intermediate; else -> R.string.map_difficulty_hard })
     val closeLabel = stringResource(R.string.common_close)
@@ -768,7 +768,7 @@ private fun RunSheet(r: PeakData.Run, d: PeakData, g: Glass, onClose: () -> Unit
 }
 
 @Composable
-private fun Num(v: String, cap: String, g: Glass) {
+internal fun Num(v: String, cap: String, g: Glass) {
     Column(verticalArrangement = Arrangement.spacedBy(0.dp)) {
         // the number large and thin (Plex 300); its unit small, 15, regular, in the caption's colour, on the same baseline
         // (K10: only the number is large). The same string, styled by character.

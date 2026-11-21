@@ -1,6 +1,16 @@
 package io.github.pini236.skiapp.redesign
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.Canvas
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.withFrameNanos
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.text.rememberTextMeasurer
+import io.github.pini236.skiapp.ui.Motion
+import kotlinx.coroutines.launch
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
@@ -65,6 +75,7 @@ import io.github.pini236.skiapp.qa.Qa
 @Composable
 fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, onPainted: () -> Unit, onLeave: () -> Unit) {
     val context = LocalContext.current
+    val scope = rememberCoroutineScope()
     val data by produceState<PeakData?>(null) { value = withContext(Dispatchers.IO) { PeakData.load(context) } }
     var now by remember { mutableLongStateOf(System.currentTimeMillis()) }
     LaunchedEffect(Unit) { while (true) { delay(60_000); now = System.currentTimeMillis() } }
@@ -153,23 +164,39 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, onPaint
                 }
             }
         }
-        // the chosen run's name, at the bottom; a tap on it lets it go
-        val run = chosen?.let { k -> scene.runs.pistes.firstOrNull { it.key == k } }
-        AnimatedVisibility(run != null, Modifier.align(Alignment.BottomCenter).navigationBarsPadding().padding(bottom = 22.dp), enter = fadeIn(), exit = fadeOut()) {
+        // the chosen run (K10, as phase A): its sign on the top of the run once the light is down it, and the sheet
+        val g = remember(night) { Glass(night) }
+        val measurer = rememberTextMeasurer()
+        val pd = data
+        val run = chosen?.let { k -> pd?.runs?.get(k) }
+        var signAt by remember { mutableStateOf<Offset?>(null) }
+        val signA = remember { Animatable(0f) }
+        LaunchedEffect(chosen) {
+            signA.snapTo(0f)
+            val k = chosen
+            if (k == null) { signAt = null; return@LaunchedEffect }
+            launch { delay(600); signA.animateTo(1f, tween(250)) }
+            while (true) { withFrameNanos { }; signAt = view.screenTop(k)?.let { Offset(it[0], it[1]) } }
+        }
+        val ring = remember { Animatable(1f) }
+        var touch by remember { mutableStateOf<Offset?>(null) }
+        LaunchedEffect(Unit) { view.onTapAt = { x, y -> touch = Offset(x, y); scope.launch { ring.snapTo(0f); ring.animateTo(1f, tween(if (Motion.reduced(context)) 1 else 300)) } } }
+        Canvas(Modifier.fillMaxSize()) {
+            val r0 = run; val q = signAt
+            if (r0 != null && q != null && signA.value > 0f) sign(r0, q, signA.value, measurer)
+            val tp = touch
+            if (tp != null && ring.value < 1f) {
+                val r = ring.value; val sc = 1f + .35f * r; val dp = density
+                drawCircle(Color.White, 14 * dp * sc, tp, alpha = .55f * (1 - r))
+                drawCircle(Color.White, 26 * dp * sc, tp, alpha = .9f * (1 - r), style = Stroke(2 * dp))
+            }
+        }
+        AnimatedVisibility(run != null && pd != null, Modifier.align(Alignment.BottomCenter),
+            enter = slideInVertically(tween(250)) { it } + fadeIn(tween(150)), exit = slideOutVertically(tween(200)) { it } + fadeOut(tween(200))) {
             var last by remember { mutableStateOf(run) }
             if (run != null) last = run
-            last?.let { r ->
-                val c = data?.pal?.get(if (night) "night" else "day")?.let { p ->
-                    when (r.color) { "green" -> p.green; "blue" -> p.blue; "red" -> p.red; "black" -> p.black; else -> ink }
-                } ?: ink
-                Pill(Modifier.clickable { chosen = null; view.choose(null) }, h = 48) {
-                    Row(Modifier.padding(horizontal = 18.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                        Box(Modifier.size(12.dp).clip(CircleShape).background(c))
-                        Text(r.name.ifBlank { r.key }, fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = ink)
-                        Text("✕", fontSize = 14.sp, color = ink.copy(alpha = .6f))
-                    }
-                }
-            }
+            val d0 = pd
+            last?.let { r -> if (d0 != null) RunSheet(r, d0, g, onClose = { chosen = null; view.choose(null) }) }
         }
         AnimatedVisibility(chosen == null, Modifier.align(Alignment.BottomCenter).navigationBarsPadding().padding(bottom = 22.dp), enter = fadeIn(), exit = fadeOut()) {
             Pill(h = 48) { Text(stringResource(R.string.poc_peak_hint), Modifier.padding(horizontal = 20.dp), fontFamily = Plex, fontSize = 15.sp, color = ink) }

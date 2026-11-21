@@ -42,6 +42,24 @@ class LiveView(context: Context, private val scene: MapScene) : GLSurfaceView(co
     private val data = LiveData.load(context)
     /** A run chosen by a tap (its key), or none. */
     var onChoose: ((String?) -> Unit)? = null
+    /** Where a tap chose a run (screen pixels), for the ring from the finger (K09). */
+    var onTapAt: ((Float, Float) -> Unit)? = null
+
+    private val tops = HashMap<String, FloatArray>()
+    /** The top of a run on the screen now (pixels, x and y), for its sign (K10); null when behind the camera. */
+    fun screenTop(key: String): FloatArray? {
+        val top = tops.getOrPut(key) {
+            var best = floatArrayOf(0f, -1e9f, 0f)
+            for (l in scene.draped[key] ?: return null) for (i in 0 until l.size / 3) if (l[i * 3 + 1] > best[1]) best = floatArrayOf(l[i * 3], l[i * 3 + 1], l[i * 3 + 2])
+            best
+        }
+        if (top[1] < -1e8f || width == 0) return null
+        val mvp = FloatArray(16); val eye = FloatArray(3); val o = FloatArray(4)
+        OrbitCamera.mvp(camera.state(), width.toFloat() / height, mvp, eye, data.camera.fovDeg) { x, z -> scene.terrain.elev(x, z) }
+        Matrix.multiplyMV(o, 0, mvp, 0, floatArrayOf(top[0], top[1], top[2], 1f), 0)
+        if (o[3] <= 0f) return null
+        return floatArrayOf((o[0] / o[3] * .5f + .5f) * width, (1 - (o[1] / o[3] * .5f + .5f)) * height)
+    }
 
     init {
         setEGLContextClientVersion(3)
@@ -293,7 +311,7 @@ class LiveView(context: Context, private val scene: MapScene) : GLSurfaceView(co
         }
         choose(best)
         onChoose?.invoke(best)
-        best?.let { frame(it) }
+        best?.let { onTapAt?.invoke(px, py); frame(it) }
     }
 
     // ---- the moment of choice and the two sides of the mountain (the handoff's sections 6 and 10) ----

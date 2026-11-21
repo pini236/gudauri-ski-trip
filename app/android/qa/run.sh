@@ -1143,7 +1143,7 @@ redesign() {
   waitlog "redesign live kobi sign true" 15 || fail "redesign: no Kobi side sign"
   waitlog "redesign live framed Kobi" 20; sleep .3; shot redesign-live-kobi-turned
   rd_drawn; shot redesign-live-kobi-close
-  mark; qa "--es qa.redesign unpick"; waitlog "redesign live unpicked" 10; sleep 2; shot redesign-live-kobi-sign
+  mark; qa "--es qa.redesign unpick"; waitlog "redesign live unpicked" 10; rd_drawn; shot redesign-live-kobi-sign
   mark; qa "--es qa.redesign front"; waitlog "redesign live front" 10
   waitlog "redesign live kobi sign false" 15 || fail "redesign: the sign did not bring the front back"
   rd_drawn; shot redesign-live-front
