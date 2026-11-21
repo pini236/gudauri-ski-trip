@@ -60,10 +60,13 @@ import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.StrokeCap
@@ -229,7 +232,20 @@ fun PeakScreen(mode: DayNight.Mode, haptics: Haptics, onLeave: () -> Unit) {
         fun free(zz: Float = z, cc: Offset = c): Place = PeakGeo.free(W, H, d.hero, zz, cc)
         // the close-up: k = max(width / 390, (height − sheet + 12) / 560), at the top
         val kz = max(W / d.zoom.w, (H - sheetPx + 12 * dp) / d.zoom.h)
-        val zoomPlace = Place(kz, (W - d.zoom.w * kz) / 2, 0f)
+        // centred on the chosen run, not on the picture (the designer, 21.11): on a tall phone the close-up is wider than the
+        // screen, so off = clamp(centre of the run's pieces * k - W / 2, 0, picture width * k - W)
+        // the last chosen run is kept while the close-up fades out, so the picture does not jump to the middle
+        val lastKey = remember { arrayOfNulls<String>(1) }
+        if (key != null) lastKey[0] = key
+        val zoomPlace = kotlin.run {
+            val over = d.zoom.w * kz - W
+            val sel = lastKey[0]?.let { d.zoom.sel[it] }
+            if (over <= 0f || sel == null) Place(kz, (W - d.zoom.w * kz) / 2, 0f) else {
+                var lo = Float.MAX_VALUE; var hi = -Float.MAX_VALUE
+                for (g in sel.segs) for (x in g.x) { lo = minOf(lo, x); hi = maxOf(hi, x) }
+                Place(kz, -((lo + hi) / 2 * kz - W / 2).coerceIn(0f, over), 0f)
+            }
+        }
         val fh = d.zoom.fromHero!!
         // the whole mountain inside the close-up's frame (x_zoom = x_hero · k + tx)
         val heroInZoom = Place(fh.first * kz, fh.second * kz + zoomPlace.x, fh.third * kz + zoomPlace.y)
@@ -380,7 +396,15 @@ fun PeakScreen(mode: DayNight.Mode, haptics: Haptics, onLeave: () -> Unit) {
             val lv = lit.value
             if (zoomIn < 1f) layer(d, d.hero, hero, 1f - zoomIn, lightNow, night, wfHero, key, dm, lv, moment.value, near = false, closeUp = near, measurer, unitM, nf, pinch = z)
             if (zoomIn > 0f) {
-                pic(d.zoom.images[cur.name], zoomPlace, d.zoom.w, d.zoom.h, zoomIn)
+                // its bottom 48 dp fade out, so no hard edge shows over the far picture while it comes in (the designer, 21.11)
+                val im = img[d.zoom.images[cur.name]]
+                if (im != null) {
+                    val bottom = zoomPlace.y + d.zoom.h * zoomPlace.k
+                    drawContext.canvas.saveLayer(Rect(0f, 0f, W, H), Paint())
+                    pic(d.zoom.images[cur.name], zoomPlace, d.zoom.w, d.zoom.h, zoomIn)
+                    drawRect(Brush.verticalGradient(listOf(Color.Black, Color.Transparent), bottom - 48 * dp, bottom), Offset(0f, bottom - 48 * dp), Size(W, 48 * dp + 2), blendMode = BlendMode.DstIn)
+                    drawContext.canvas.restore()
+                }
                 layer(d, d.zoom, zoomPlace, zoomIn, lightNow, night, 1f, key, dm, lv, moment.value, near = true, closeUp = true, measurer, unitM, nf)
             }
             // 6. the sign, pinned at the top of the chosen run (from step 3), drawn with the run (as a composable over the
@@ -650,7 +674,8 @@ private fun DrawScope.kmNumbers(m: PeakData.Seg, pl: Place, a: Float, measurer: 
             val c = pl.on(Offset(q.x + 13f * dd.y, q.y - 13f * dd.x + 3.4f))
             val t = measurer.measure(("%.1f".format(b / 1000f)).trimEnd('0').trimEnd('.'), style)
             val tl = Offset(c.x - t.size.width / 2f, c.y - t.size.height * .72f)
-            drawText(t, color = Color(0xCC0A1932), topLeft = tl, alpha = a, drawStyle = Stroke(2.4f * sc, join = StrokeJoin.Round))
+            val o = measurer.measure(("%.1f".format(b / 1000f)).trimEnd('0').trimEnd('.'), style.copy(color = Color(0xCC0A1932), drawStyle = Stroke(2.4f * sc * density, join = StrokeJoin.Round)))
+            drawText(o, topLeft = tl, alpha = a)
             drawText(t, topLeft = tl, alpha = a)
         }
         b += 500f
