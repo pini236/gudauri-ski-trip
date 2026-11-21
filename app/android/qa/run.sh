@@ -1134,7 +1134,9 @@ redesign() {
   rd_look 15.9 "75,16,7100" east-after
   rd_look 13.0 "180,18,7100" north-noon
   rd_look 10.6 "0,22,2600,Tatra 2" close-morning
-  rd_look 10.6 "0,16,7100" open-again
+  rd_look 22.0 "0,22,2600,Tatra 2" close-night
+  rd_look 13.0 "0,30,2200,@-420:4470" village-noon
+  rd_look 10.6 "0,16,6617" open-again
   drag $((W / 2)) $((H / 2)) $((W / 2 - W / 5)) $((H / 2)) 500; sleep 1.5; shot redesign-live-dragged
   mark; qa "--es qa.mode auto --es qa.redesign painted"; waitlog "redesign live closed" 10; sleep 1.5; shot redesign-live-back
   qa "--es qa.mode auto --es qa.redesign close"; sleep 1.5; shot redesign-closed

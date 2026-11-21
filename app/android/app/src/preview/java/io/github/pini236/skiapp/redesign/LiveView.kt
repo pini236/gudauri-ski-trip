@@ -120,13 +120,16 @@ class LiveView(context: Context, private val scene: MapScene) : GLSurfaceView(co
      */
     fun look(yawDeg: Float, pitchDeg: Float, dist: Float, run: String?) {
         var tx = data.camera.tx; var tz = data.camera.tz
-        run?.let { k ->
+        val at = run?.takeIf { it.startsWith("@") }?.removePrefix("@")?.split(":")?.mapNotNull { it.toFloatOrNull() }
+        if (at != null && at.size == 2) { tx = at[0]; tz = at[1] }
+        val runKey = run?.takeIf { !it.startsWith("@") }
+        runKey?.let { k ->
             val pts = scene.draped[k]?.flatMap { l -> (0 until l.size / 3).map { i -> l[i * 3] to l[i * 3 + 2] } }.orEmpty()
             if (pts.isNotEmpty()) { tx = pts.map { it.first }.average().toFloat(); tz = pts.map { it.second }.average().toFloat() }
         }
         renderer.stopAnim(); camera.stopFling()
         // a run is chosen too, so the picture shows it as light with the slope colours around it
-        choose(run)
+        choose(runKey); post { onChoose?.invoke(runKey) }
         camera.set(OrbitCamera.State(tx, scene.terrain.elev(tx, tz), tz, dist, Math.toRadians(yawDeg.toDouble()).toFloat(), Math.toRadians(pitchDeg.toDouble()).toFloat()))
         requestRender()
         Qa.log("redesign live look $yawDeg $pitchDeg $dist ${run ?: "-"}")
@@ -136,10 +139,13 @@ class LiveView(context: Context, private val scene: MapScene) : GLSurfaceView(co
     fun choose(key: String?) {
         renderer.chosen = key; requestRender()
         // the slope colours around it, as the map's (X-3), worked out off the GL thread
-        if (key == null) { renderer.ground = null; return }
+        if (key == null) { renderer.ground = null; renderer.chosenLine = null; return }
         if (!worker.isShutdown) worker.execute {
-            val g = scene.draped[key]?.let { scene.slopeLayer(it) }
-            if (renderer.chosen == key) { renderer.ground = g; requestRender() }
+            val lines = scene.draped[key] ?: return@execute
+            val g = scene.slopeLayer(lines)
+            val sl = lines.map { scene.lineSlopes(it) }
+            val line = io.github.pini236.skiapp.map.Ribbon.build(lines, { li, i -> io.github.pini236.skiapp.map.SlopeColors.of(sl[li][i]).let { c -> floatArrayOf(c[0], c[1], c[2], 1f) } })
+            if (renderer.chosen == key) { renderer.ground = g; renderer.chosenLine = key to line; requestRender() }
         }
     }
     /** Leaving the live model: the GPU's buffers and texture go now, not when the app's context dies. */

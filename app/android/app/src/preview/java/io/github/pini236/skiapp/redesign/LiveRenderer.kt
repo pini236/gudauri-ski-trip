@@ -41,7 +41,7 @@ uniform vec3 uLit; uniform vec3 uShade; uniform vec3 uRock; uniform vec3 uRockS;
 uniform float uDirect; uniform float uGlow;
 uniform vec3 uCam; uniform vec3 uHaze; uniform float uValley; uniform float uRipple;
 uniform vec4 uDim;
-uniform sampler2D uDrape; uniform vec4 uDrapeBox; uniform float uDrapeOn;
+uniform sampler2D uDrape; uniform vec4 uDrapeBox; uniform float uDrapeOn; uniform float uDrapeK;
 uniform sampler2D uGround; uniform vec4 uGroundBox; uniform float uGroundOn;
 out vec4 o;
 void main(){
@@ -69,12 +69,13 @@ void main(){
   // what lies on the snow (Drape.kt, without the contours): roads, water and the village, premultiplied, lit by the
   // snow's light of the hour instead of the map's (the handoff, section 3)
   vec4 e=uDrapeOn>0.0?texture(uDrape,(vPos.xz-uDrapeBox.xy)*uDrapeBox.zw):vec4(0.0);
-  col=col*(1.0-e.a)+e.rgb*mix(uShade,uLit,t);
-  // the slope colours around a chosen run, as the map's (X-3), and the rest of the mountain dimmer
+  // quiet, so the mountain leads (the designer, run 292): about a third by day
+  e*=uDrapeK; col=col*(1.0-e.a)+e.rgb*mix(uShade,uLit,t);
+  // a chosen run: a corridor of about 150 m each side (MapScene.slopeLayer's alpha, soft at its edge) stays in full
+  // light and the rest of the mountain is dimmer; no colour on the snow, the slope is on the line itself (K09 to K11)
   vec2 gv=(vPos.xz-uGroundBox.xy)*uGroundBox.zw;
   vec4 g=(uGroundOn>0.0&&gv.x>=0.0&&gv.y>=0.0&&gv.x<=1.0&&gv.y<=1.0)?texture(uGround,gv):vec4(0.0);
   float ga=g.a*uGroundOn;
-  col=mix(col,g.rgb*mix(uShade,uLit,t)*1.08,ga*0.85);
   col=mix(col,uDim.rgb,uDim.a*(1.0-ga));
   float d=length(vPos-uCam);
   float far=uHaze.z*(1.0-exp(-max(d-uHaze.x,0.0)/uHaze.y));
@@ -231,6 +232,9 @@ class LiveRenderer(
     private val drapeTex = IntArray(1); private var drapeOn: android.graphics.Bitmap? = null
     /** The slope colours around the chosen run (MapScene.slopeLayer), worked out off the GL thread. */
     @Volatile var ground: io.github.pini236.skiapp.map.SlopeLayer? = null
+    /** The chosen run in slope colours point by point (as phase A), built off the GL thread. */
+    @Volatile var chosenLine: Pair<String, io.github.pini236.skiapp.map.Ribbon>? = null
+    private var chosenGpu: Gpu? = null; private var chosenGpuOf: Pair<String, io.github.pini236.skiapp.map.Ribbon>? = null
     private val groundTex = IntArray(1); private var groundOn: io.github.pini236.skiapp.map.SlopeLayer? = null
     /** The largest texture this GPU takes (the horizon is 4096 wide). */
     @Volatile var maxTex = 4096
@@ -258,7 +262,7 @@ class LiveRenderer(
     override fun onSurfaceCreated(gl: GL10?, config: EGLConfig?) {
         prog = program(VS, FS); skyProg = program(SKY_VS, SKY_FS); lineProg = program(LINE_VS, LINE_FS); dotProg = program(DOT_VS, DOT_FS)
         uploaded = false; texOn = false; tex.fill(0); runs.clear(); lifts.clear(); dotCount = 0
-        drapeTex[0] = 0; drapeOn = null; groundTex[0] = 0; groundOn = null
+        drapeTex[0] = 0; drapeOn = null; groundTex[0] = 0; groundOn = null; chosenGpu = null; chosenGpuOf = null
         if (hadTextures && textures == null) needTextures?.invoke()
         drawn = false
         val mx = IntArray(1); glGetIntegerv(GL_MAX_TEXTURE_SIZE, mx, 0); maxTex = mx[0]
@@ -277,6 +281,7 @@ class LiveRenderer(
         if (drapeTex[0] != 0) glDeleteTextures(1, drapeTex, 0)
         if (groundTex[0] != 0) glDeleteTextures(1, groundTex, 0)
         drapeTex[0] = 0; drapeOn = null; groundTex[0] = 0; groundOn = null
+        chosenGpu?.free(); chosenGpu = null; chosenGpuOf = null
         drape?.recycle(); drape = null; ground = null
         tex.fill(0); texOn = false; uploaded = false; dotCount = 0
         for (p in intArrayOf(prog, skyProg, lineProg, dotProg)) if (p != 0) glDeleteProgram(p)
@@ -425,6 +430,7 @@ class LiveRenderer(
         glActiveTexture(GL_TEXTURE3); glBindTexture(GL_TEXTURE_2D, drapeTex[0]); glUniform1i(u(prog, "uDrape"), 3)
         glUniform1f(u(prog, "uDrapeOn"), if (drapeOn != null && drapeTex[0] != 0) 1f else 0f)
         val tt = scene.terrain
+        glUniform1f(u(prog, "uDrapeK"), if (L.stars >= .25f) .5f else .35f)
         glUniform4f(u(prog, "uDrapeBox"), tt.x0, tt.y0, 1f / (tt.x1 - tt.x0), 1f / (tt.y1 - tt.y0))
         val gr = if (chosen != null) ground else null
         if (gr != null && gr !== groundOn) uploadGround(gr)
@@ -489,17 +495,23 @@ class LiveRenderer(
             if (c != null) glUniform4f(uT, c[0], c[1], c[2], 1f) else glUniform4f(uT, 0f, 0f, 0f, 0f)
             glUniform1f(uW, 2.2f * density * zw); glUniform1f(uA, rest); core.draw()
         }
-        // the chosen run: a line of light by day, a brighter glow at night (K11), over everything
+        // the chosen run, as phase A: a white case and the line in the slope's colours, point by point; at night a warm
+        // glow under it (the beads of K11). No glow by day (the designer, run 292)
         chosen?.let { k ->
             val r = runs.firstOrNull { it.first == k } ?: return@let
+            val cl = chosenLine?.takeIf { it.first == k }
+            if (cl != null && cl !== chosenGpuOf) { chosenGpu?.free(); chosenGpu = Gpu(cl.second); chosenGpuOf = cl }
             glDisable(GL_DEPTH_TEST)
-            val warm = if (night) WARM_NIGHT else WARM_DAY
-            glUniform1f(uS, 1f); glUniform4f(uT, warm[0], warm[1], warm[2], 1f)
-            glUniform1f(uW, 16f * density * zw); glUniform1f(uA, if (night) .55f else .42f); r.second.draw()
-            glUniform1f(uS, 0f)
+            if (night) {
+                glUniform1f(uS, 1f); glUniform4f(uT, WARM_NIGHT[0], WARM_NIGHT[1], WARM_NIGHT[2], 1f)
+                glUniform1f(uW, 16f * density * zw); glUniform1f(uA, .55f); r.second.draw()
+                glUniform1f(uS, 0f)
+            }
             glUniform4f(uT, case[0], case[1], case[2], 1f); glUniform1f(uW, 6f * density * zw); glUniform1f(uA, 1f); r.second.draw()
-            val c = runRgb[k] ?: case
-            glUniform4f(uT, c[0], c[1], c[2], 1f); glUniform1f(uW, 3.6f * density * zw); r.third.draw()
+            glUniform1f(uW, 3.6f * density * zw)
+            val g = chosenGpu.takeIf { chosenGpuOf?.first == k }
+            if (g != null) { glUniform4f(uT, 0f, 0f, 0f, 0f); g.draw() }
+            else { val c = runRgb[k] ?: case; glUniform4f(uT, c[0], c[1], c[2], 1f); r.third.draw() }
             glEnable(GL_DEPTH_TEST)
         }
         glDepthMask(true); glDisable(GL_BLEND); glEnable(GL_CULL_FACE)
@@ -511,7 +523,7 @@ class LiveRenderer(
     private var palCache: PeakData.Pal? = null
     private val runRgb = HashMap<String, FloatArray>()
     private var caseRgb = floatArrayOf(1f, 1f, 1f); private var wireRgb = floatArrayOf(.13f, .19f, .25f)
-    private val WARM_DAY = floatArrayOf(1f, .97f, .86f); private val WARM_NIGHT = floatArrayOf(1f, .86f, .52f)
+    private val WARM_NIGHT = floatArrayOf(1f, .86f, .52f)
 
     private fun runColour(p: PeakData.Pal, c: String?): FloatArray? = when (c) {
         "green" -> hex(p.green); "blue" -> hex(p.blue); "red" -> hex(p.red); "black" -> hex(p.black); else -> null
