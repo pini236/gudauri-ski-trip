@@ -1122,11 +1122,14 @@ redesign() {
   sleep 4; shot redesign-live
   # the designer's frames (design/handoff/2026-11-20-redesign-live/ref): the opening at the seven keys of 12 January
   # (the shadows are worked out off the GL thread, a few seconds on the emulator), then three free views
+  # the intent that carries a command brings the activity back, and with it a new GL surface: the textures are decoded
+  # again, so the frame waits for the model's next full draw (on a phone without that, the shadows' few seconds)
+  rd_drawn() { seen "redesign live drawn" 25 || true; sleep 4; }
   for k in dawn:9.0 morning:10.6 noon:13.0 after:15.9 sunset:17.35 blue:18.3 night:22.0; do
-    mark; qa "--es qa.redesign 'hour:${k#*:}'"; waitlog "redesign live hour" 10; sleep 7; shot "redesign-live-open-${k%%:*}"
+    mark; qa "--es qa.redesign 'hour:${k#*:}'"; waitlog "redesign live hour" 10; rd_drawn; shot "redesign-live-open-${k%%:*}"
   done
   rd_look() { mark; qa "--es qa.redesign 'hour:$1'"; waitlog "redesign live hour" 10
-    mark; qa "--es qa.redesign 'look:$2'"; waitlog "redesign live look" 10; sleep 7; shot "redesign-live-$3"; }
+    mark; qa "--es qa.redesign 'look:$2'"; waitlog "redesign live look" 10; rd_drawn; shot "redesign-live-$3"; }
   rd_look 15.9 "75,16,7100" east-after
   rd_look 13.0 "180,18,7100" north-noon
   rd_look 10.6 "0,22,2600,Tatra 2" close-morning

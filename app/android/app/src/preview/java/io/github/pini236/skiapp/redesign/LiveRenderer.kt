@@ -415,13 +415,17 @@ class LiveRenderer(
         val case = caseRgb; val wire = wireRgb
         // a closer view draws the lines a little wider, as the pictures' zoom does
         val zw = (9000f / s.dist).coerceIn(.8f, 1.7f).let { Math.pow(it.toDouble(), .5).toFloat() }
-        glUniform1f(uB, 0.0004f); glUniform1f(uS, 0f)
+        // lifted towards the camera as the map lifts its own (0.0006 to 0.0014): at 0.0004 the terrain hid the lines in
+        // the emulator's frames, all but specks on the ridges
+        glUniform1f(uB, 0.0008f); glUniform1f(uS, 0f)
         val rest = 1f - .55f * dim
         glUniform4f(uT, wire[0], wire[1], wire[2], 1f); glUniform1f(uW, 1.3f * density * zw); glUniform1f(uA, .85f * rest)
         for (g in lifts) g.draw()
         for ((key, cs, core) in runs) {
             if (key == chosen) continue
+            glUniform1f(uB, 0.0010f)
             glUniform4f(uT, case[0], case[1], case[2], 1f); glUniform1f(uW, 3.6f * density * zw); glUniform1f(uA, (if (night) .7f else .95f) * rest); cs.draw()
+            glUniform1f(uB, 0.0012f)
             val c = runRgb[key]
             if (c != null) glUniform4f(uT, c[0], c[1], c[2], 1f) else glUniform4f(uT, 0f, 0f, 0f, 0f)
             glUniform1f(uW, 2.2f * density * zw); glUniform1f(uA, rest); core.draw()
