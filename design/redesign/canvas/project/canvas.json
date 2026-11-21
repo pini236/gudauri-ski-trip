@@ -809,6 +809,62 @@
    "h": 800,
    "title": "13 · כשמשהו לא ודאי, אומרים",
    "page": "day4"
+  },
+  "M00-Brief.dc.html": {
+   "x": 0,
+   "y": 0,
+   "w": 1280,
+   "h": 1680,
+   "title": "שלב ב: המטרה והשאלות",
+   "page": "live"
+  },
+  "M01-Hours.dc.html": {
+   "x": 0,
+   "y": 2060,
+   "w": 1740,
+   "h": 740,
+   "title": "1 · שבע שעות, אותו מבט",
+   "page": "live"
+  },
+  "M02-Free.dc.html": {
+   "x": 0,
+   "y": 2920,
+   "w": 1044,
+   "h": 920,
+   "title": "2 · אותו הר מכל כיוון",
+   "page": "live"
+  },
+  "M03-Compare.dc.html": {
+   "x": 1124,
+   "y": 2920,
+   "w": 724,
+   "h": 920,
+   "title": "3 · מה ההבדל",
+   "page": "live"
+  },
+  "M04-Open.dc.html": {
+   "x": 0,
+   "y": 4280,
+   "w": 390,
+   "h": 844,
+   "title": "4 · הפתיחה, בגודל טלפון (יום ולילה)",
+   "page": "live"
+  },
+  "M05-Dusk.dc.html": {
+   "x": 470,
+   "y": 4280,
+   "w": 390,
+   "h": 844,
+   "title": "5 · שקיעה",
+   "page": "live"
+  },
+  "M06-After.dc.html": {
+   "x": 940,
+   "y": 4280,
+   "w": 390,
+   "h": 844,
+   "title": "6 · אחר הצהריים",
+   "page": "live"
   }
  },
  "createdOnFiles": {
@@ -817,7 +873,7 @@
  },
  "designSystems": [],
  "launch": {
-  "page": "day4",
+  "page": "live",
   "view": "canvas"
  },
  "notes": {
@@ -946,6 +1002,42 @@
    "x": 0,
    "text": "ג · הכללים",
    "y": 5000
+  },
+  "tM": {
+   "kind": "title1",
+   "maxW": 1600,
+   "page": "live",
+   "w": 760,
+   "x": 0,
+   "y": -300,
+   "text": "שלב ב · ההר החי (המודל התלת-ממדי)"
+  },
+  "tM1": {
+   "kind": "title1",
+   "maxW": 1600,
+   "page": "live",
+   "w": 420,
+   "x": 0,
+   "y": 1760,
+   "text": "א · האור לאורך היום"
+  },
+  "tM2": {
+   "kind": "title1",
+   "maxW": 1600,
+   "page": "live",
+   "w": 420,
+   "x": 0,
+   "y": 2620,
+   "text": "ב · מכל כיוון, ומה ההבדל"
+  },
+  "tM3": {
+   "kind": "title1",
+   "maxW": 1600,
+   "page": "live",
+   "w": 420,
+   "x": 0,
+   "y": 3980,
+   "text": "ג · בגודל טלפון"
   }
  },
  "order": [
@@ -1049,12 +1141,23 @@
   "L10-Story.dc.html",
   "L11-Share.dc.html",
   "L12-MyDays.dc.html",
-  "L13-HonestStates.dc.html"
+  "L13-HonestStates.dc.html",
+  "M00-Brief.dc.html",
+  "M01-Hours.dc.html",
+  "M02-Free.dc.html",
+  "M03-Compare.dc.html",
+  "M04-Open.dc.html",
+  "M05-Dusk.dc.html",
+  "M06-After.dc.html"
  ],
  "pages": [
   {
    "id": "intro",
    "name": "פתיחה והמלצה"
+  },
+  {
+   "id": "live",
+   "name": "שלב ב · ההר החי"
   },
   {
    "id": "day4",
