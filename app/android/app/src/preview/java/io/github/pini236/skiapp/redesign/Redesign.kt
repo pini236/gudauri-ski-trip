@@ -13,9 +13,9 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
@@ -71,8 +71,9 @@ object Redesign {
             SideEffect { (view.context as? android.app.Activity)?.window?.let { WindowCompat.getInsetsController(it, view).isAppearanceLightStatusBars = false } }
             Box(Modifier.fillMaxSize()) { PeakScreen(mode, haptics) { open = false } }
         } else {
-            AnimatedVisibility(home, Modifier.align(Alignment.BottomEnd).navigationBarsPadding().padding(16.dp), enter = fadeIn(), exit = fadeOut()) {
-                Row(Modifier.height(48.dp).shadow(10.dp, RoundedCornerShape(24.dp)).clip(RoundedCornerShape(24.dp)).background(Color(0xF00E2233))
+            // over the sky of home, under the top row, where nothing is (the designer: at the bottom it covered a sign)
+            AnimatedVisibility(home, Modifier.align(Alignment.TopEnd).statusBarsPadding().padding(top = 84.dp, end = 16.dp), enter = fadeIn(), exit = fadeOut()) {
+                Row(Modifier.height(44.dp).shadow(10.dp, RoundedCornerShape(24.dp)).clip(RoundedCornerShape(24.dp)).background(Color(0xF00E2233))
                     .border(1.dp, Color(0x33FFFFFF), RoundedCornerShape(24.dp)).clickable { haptics.tick(.4f); open = true }.padding(horizontal = 16.dp),
                     verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(9.dp)) {
                     Box(Modifier.size(8.dp).clip(CircleShape).background(Color(0xFFB79CFF)))

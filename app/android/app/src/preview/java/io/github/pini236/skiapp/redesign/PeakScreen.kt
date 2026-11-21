@@ -33,6 +33,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
@@ -249,7 +250,7 @@ fun PeakScreen(mode: DayNight.Mode, haptics: Haptics, onLeave: () -> Unit) {
         val zoomIn = if (near) ((close.value - .5f) / .5f).coerceIn(0f, 1f) else 0f
         // the lines grow gently when the free view comes closer
         // going into the close-up the far picture grows 1.95 times: its lines keep their width on the screen (the designer's 6)
-        val wfHero = (z.pow(-.4f) + (1f - z.pow(-.4f)) * close.value) * (if (near) freeNow.k / hero.k else 1f)
+        val wfHero = (z.pow(-.38f) + (1f - z.pow(-.38f)) * close.value) * (if (near) freeNow.k / hero.k else 1f)
 
         fun choose(k: String) {
             val again = key != null
@@ -312,6 +313,19 @@ fun PeakScreen(mode: DayNight.Mode, haptics: Haptics, onLeave: () -> Unit) {
                     camJob?.cancel(); z = zz.coerceIn(1f, 2.6f); c = PeakGeo.centre(W, H, free(z, Offset(x, y)))
                     Qa.log("redesign view zoom $z")
                 }
+                // one moment of the choice, held (the designer: the touch's second can't be judged from a single picture):
+                // every value as it is [ms] after the touch, so the emulator photographs 0, 150, 300, 600, 900
+                cmd.startsWith("frame:") -> cmd.removePrefix("frame:").split(',').takeIf { it.size == 2 }?.let { (k, t) ->
+                    val ms = t.trim().toFloatOrNull() ?: return@let
+                    if (k !in d.runs.keys) return@let
+                    camJob?.cancel(); key = k; chosenOnce = true; sheet = ms >= 900f
+                    val nearNew = d.runs[k]?.near == true && k in d.zoom.sel
+                    scope.launch {
+                        lit.snapTo(1f); moment.snapTo(ms); dim.snapTo((ms / REVEAL).coerceIn(0f, 1f))
+                        close.snapTo(if (nearNew) Ease.transform(((ms - 300f) / 600f).coerceIn(0f, 1f)) else 0f)
+                        Qa.log("redesign frame $k ${ms.toInt()}")
+                    }
+                }
                 cmd.startsWith("spot:") -> {
                     val k = cmd.removePrefix("spot:")
                     val s = PeakGeo.spot(viewNow, d.runs.keys, k, placeNow, W, H, 22 * dp)
@@ -367,7 +381,7 @@ fun PeakScreen(mode: DayNight.Mode, haptics: Haptics, onLeave: () -> Unit) {
             // the live layer changes its light in the middle of the pictures' 600 ms (the designer's 10)
             val lightNow = if (p0 != null && fade.value < .5f) p0 else cur
             val lv = lit.value
-            if (zoomIn < 1f) layer(d, d.hero, hero, 1f - zoomIn, lightNow, night, wfHero, key, dm, lv, moment.value, near = false, closeUp = near, measurer, unitM, nf)
+            if (zoomIn < 1f) layer(d, d.hero, hero, 1f - zoomIn, lightNow, night, wfHero, key, dm, lv, moment.value, near = false, closeUp = near, measurer, unitM, nf, pinch = z)
             if (zoomIn > 0f) {
                 pic(d.zoom.images[cur.name], zoomPlace, d.zoom.w, d.zoom.h, zoomIn)
                 layer(d, d.zoom, zoomPlace, zoomIn, lightNow, night, 1f, key, dm, lv, moment.value, near = true, closeUp = true, measurer, unitM, nf)
@@ -420,8 +434,11 @@ fun PeakScreen(mode: DayNight.Mode, haptics: Haptics, onLeave: () -> Unit) {
                         colors = SliderDefaults.colors(thumbColor = g.acc, activeTrackColor = g.acc, inactiveTrackColor = g.line))
                 }
             }
-            Text(stringResource(R.string.poc_peak_badge), Modifier.clip(RoundedCornerShape(11.dp)).background(Color(0x66081A33)).padding(horizontal = 10.dp, vertical = 3.dp),
-                fontFamily = Plex, fontSize = 11.5.sp, color = Color.White)
+            // hidden with a chosen run, like the hour bar: in the close view it sat on the run's top (the designer)
+            AnimatedVisibility(key == null, enter = fadeIn(), exit = fadeOut()) {
+                Text(stringResource(R.string.poc_peak_badge), Modifier.clip(RoundedCornerShape(11.dp)).background(Color(0x66081A33)).padding(horizontal = 10.dp, vertical = 3.dp),
+                    fontFamily = Plex, fontSize = 11.5.sp, color = Color.White)
+            }
         }
 
         AnimatedVisibility(!chosenOnce, Modifier.align(Alignment.BottomCenter).navigationBarsPadding().padding(bottom = 22.dp), enter = fadeIn(), exit = fadeOut()) {
@@ -447,7 +464,10 @@ private fun dots(zf: Float) = PathEffect.dashPathEffect(floatArrayOf(1f * zf, 5f
 private fun DrawScope.layer(
     d: PeakData, v: PeakData.View, pl: Place, a: Float, light: PeakData.Light, night: Boolean, wf: Float,
     key: String?, dm: Float, lit: Float, ms: Float, near: Boolean, closeUp: Boolean, measurer: TextMeasurer, unitM: String, nf: NumberFormat,
+    pinch: Float = 1f,
 ) {
+    // a pinch (the designer, 21.11): the places grow with the picture, every width by pinch^0.62, the names not at all
+    val pw = pinch.pow(-.38f)
     if (a <= 0f) return
     val pal = d.pal.getValue(if (night) "night" else "day")
     val zr = v.zfRuns * wf; val zl = v.zfLifts * wf
@@ -459,16 +479,16 @@ private fun DrawScope.layer(
         val ops = v.details[if (night) "night" else "day"].orEmpty()
         val bsh = v.bshadow(light.name)
         for (op in ops) when (op.k) {
-            'l' -> op.path?.let { drawPath(it, op.stroke ?: Color.Gray, alpha = op.o * a, style = st(op.w)) }
-            'p' -> op.path?.let { p -> op.fill?.let { drawPath(p, it, alpha = op.o * a, style = Fill) }; if (op.stroke != null && op.w > 0f) drawPath(p, op.stroke, alpha = op.o * a, style = st(op.w)) }
-            'c' -> drawCircle(op.fill ?: Color.White, op.r, Offset(op.x, op.y), alpha = op.o * a)
+            'l' -> op.path?.let { drawPath(it, op.stroke ?: Color.Gray, alpha = op.o * a, style = st(op.w * pw)) }
+            'p' -> op.path?.let { p -> op.fill?.let { drawPath(p, it, alpha = op.o * a, style = Fill) }; if (op.stroke != null && op.w > 0f) drawPath(p, op.stroke, alpha = op.o * a, style = st(op.w * pw)) }
+            'c' -> drawCircle(op.fill ?: Color.White, op.r * pw, Offset(op.x, op.y), alpha = op.o * a)
             's' -> if (bsh != null && op.i in bsh.indices) drawPath(bsh[op.i], op.fill ?: pal.sh, alpha = op.o * a, style = Fill)
         }
         // 3. the runs: a lit run's glow at night, the cases, the lines; with a chosen run, the others as ghosts
         if (normal > 0f) {
             if (night) for (p in v.pistes) if (p.lit) {
-                drawPath(p.path, Color(0xFFFFD08A), alpha = .2f * normal, style = st(16f))
-                drawPath(p.path, Color(0xFFFFE2B0), alpha = .3f * normal, style = st(8f))
+                drawPath(p.path, Color(0xFFFFD08A), alpha = .2f * normal, style = st(16f * pw))
+                drawPath(p.path, Color(0xFFFFE2B0), alpha = .3f * normal, style = st(8f * pw))
             }
             for (p in v.pistes) if (p.named && p.kind != "ski-way") drawPath(p.path, pal.case, alpha = .92f * normal, style = st(4.6f * zr))
             for (p in v.pistes) {
@@ -505,11 +525,11 @@ private fun DrawScope.layer(
             }
         }
         // 5. the chosen run
-        if (sel != null && lit > 0f) chosen(d, sel, a * lit, ms, night, near, closeUp, v.s)
+        if (sel != null && lit > 0f) chosen(d, sel, a * lit, ms, night, near, closeUp, v.s, pw)
     }
     // 5 (screen). names on the far view, only with no run chosen; the km numbers on a chosen run by day
-    if (normal > .01f && v.labels.isNotEmpty()) labels(v, pl, night, normal, measurer, unitM, nf)
-    if (sel != null && dm > .3f && !night && ms >= REVEAL) kmNumbers(sel.mainSeg, pl, a * dm * ((ms - REVEAL) / 200f).coerceIn(0f, 1f), measurer, near)
+    if (normal > .01f && v.labels.isNotEmpty()) labels(v, pl, night, normal, measurer, unitM, nf, pinch)
+    if (sel != null && dm > .3f && !night && ms >= REVEAL) kmNumbers(sel.mainSeg, pl, a * dm * ((ms - REVEAL) / 200f).coerceIn(0f, 1f), measurer, near, pinch)
 }
 
 private fun DrawScope.corridor(sel: PeakData.Sel, s: Float, veil: Color, a: Float) {
@@ -527,7 +547,7 @@ private fun DrawScope.corridor(sel: PeakData.Sel, s: Float, veil: Color, a: Floa
 }
 
 /** The chosen run: the light running down it (0..600 ms, the main piece), then the final marking (K11 a by day, c by night). */
-private fun DrawScope.chosen(d: PeakData, sel: PeakData.Sel, a: Float, ms: Float, night: Boolean, near: Boolean, closeUp: Boolean, s: Float) {
+private fun DrawScope.chosen(d: PeakData, sel: PeakData.Sel, a: Float, ms: Float, night: Boolean, near: Boolean, closeUp: Boolean, s: Float, pw: Float = 1f) {
     val m = sel.mainSeg
     val head = m.length * (ms / REVEAL).coerceIn(0f, 1f)
     val after = ((ms - REVEAL) / 200f).coerceIn(0f, 1f)      // the change from the running light to the final marking
@@ -535,10 +555,10 @@ private fun DrawScope.chosen(d: PeakData, sel: PeakData.Sel, a: Float, ms: Float
     val ra = a * (1f - after)
     if (ra > 0f) {
         val path = m.path(head)
-        drawPath(path, Color.White, alpha = .35f * ra, style = st(16f))
-        drawPath(path, Color.White, alpha = ra, style = st(6f))
-        slopeLine(d, m, head, 3.6f, ra)
-        if (ms < REVEAL) { val q = m.at(head); drawCircle(Color.White, 13f, q, alpha = .5f * ra); drawCircle(Color.White, 5f, q, alpha = ra) }
+        drawPath(path, Color.White, alpha = .35f * ra, style = st(16f * pw))
+        drawPath(path, Color.White, alpha = ra, style = st(6f * pw))
+        slopeLine(d, m, head, 3.6f * pw, ra)
+        if (ms < REVEAL) { val q = m.at(head); drawCircle(Color.White, 13f * pw, q, alpha = .5f * ra); drawCircle(Color.White, 5f * pw, q, alpha = ra) }
     }
     // the other pieces of the run come in softly when the light reaches the end
     val others = a * ((ms - REVEAL) / 200f).coerceIn(0f, 1f)
@@ -549,8 +569,8 @@ private fun DrawScope.chosen(d: PeakData, sel: PeakData.Sel, a: Float, ms: Float
         val caseW = if (closeUp) 8.2f else 6.0f; val lineW = if (closeUp) 5.2f else 3.6f
         for ((i, g) in segs.withIndex()) {
             val al = if (i == sel.main) fa else min(fa, others)
-            drawPath(g.full, Color.White, alpha = al, style = st(caseW))
-            slopeLine(d, g, Float.MAX_VALUE, lineW, al)
+            drawPath(g.full, Color.White, alpha = al, style = st(caseW * pw))
+            slopeLine(d, g, Float.MAX_VALUE, lineW * pw, al)
             // arrows down the fall line, one each time more than 240 m gathered
             var acc = 0f
             for (j in 1 until g.n - 1) {
@@ -558,30 +578,30 @@ private fun DrawScope.chosen(d: PeakData, sel: PeakData.Sel, a: Float, ms: Float
                 if (acc > 240f && g.vis[j]) {
                     acc = 0f
                     val x = g.x[j]; val y = g.y[j]; val dd = g.dir(g.m[j]); val ax = dd.x; val ay = dd.y
-                    val p = Path().apply { moveTo(x - 1.6f * ax - 2.1f * ay, y - 1.6f * ay + 2.1f * ax); lineTo(x + 1.3f * ax, y + 1.3f * ay); lineTo(x - 1.6f * ax + 2.1f * ay, y - 1.6f * ay - 2.1f * ax) }
-                    drawPath(p, Color.White, alpha = al, style = st(1.3f))
+                    val p = Path().apply { moveTo(x - 1.6f * pw * ax - 2.1f * pw * ay, y - 1.6f * pw * ay + 2.1f * pw * ax); lineTo(x + 1.3f * pw * ax, y + 1.3f * pw * ay); lineTo(x - 1.6f * pw * ax + 2.1f * pw * ay, y - 1.6f * pw * ay - 2.1f * pw * ax) }
+                    drawPath(p, Color.White, alpha = al, style = st(1.3f * pw))
                 }
             }
         }
         // on the main piece: a bead every 500 m, the start and the end
         var b = 500f
         while (b < m.length) {
-            if (m.vis[m.index(b)]) { val q = m.at(b); drawCircle(Color.White, 3.1f, q, alpha = fa); drawCircle(Color(0xFF0E2233), 3.1f, q, alpha = fa, style = Stroke(1.2f)) }
+            if (m.vis[m.index(b)]) { val q = m.at(b); drawCircle(Color.White, 3.1f * pw, q, alpha = fa); drawCircle(Color(0xFF0E2233), 3.1f * pw, q, alpha = fa, style = Stroke(1.2f * pw)) }
             b += 500f
         }
-        if (m.vis[0]) { val q = Offset(m.x[0], m.y[0]); drawCircle(Color.White, 4.6f, q, alpha = fa); drawCircle(ACCENT_DAY, 4.6f, q, alpha = fa, style = Stroke(2f)) }
+        if (m.vis[0]) { val q = Offset(m.x[0], m.y[0]); drawCircle(Color.White, 4.6f * pw, q, alpha = fa); drawCircle(ACCENT_DAY, 4.6f * pw, q, alpha = fa, style = Stroke(2f * pw)) }
         val e = m.n - 1
-        if (m.vis[e]) { val q = Offset(m.x[e], m.y[e]); drawCircle(ACCENT_DAY, 3.6f, q, alpha = fa); drawCircle(Color.White, 3.6f, q, alpha = fa, style = Stroke(1.4f)) }
+        if (m.vis[e]) { val q = Offset(m.x[e], m.y[e]); drawCircle(ACCENT_DAY, 3.6f * pw, q, alpha = fa); drawCircle(Color.White, 3.6f * pw, q, alpha = fa, style = Stroke(1.4f * pw)) }
     } else {
         // night: a warm glow, and a light every 10.5 points on the screen (42 m close up, 82 m far)
-        val step = 10.5f / s
+        val step = 10.5f / s * pw
         for ((i, g) in segs.withIndex()) {
             val al = if (i == sel.main) fa else min(fa, others)
-            drawPath(g.full, Color(0xFFFFD08A), alpha = .2f * al, style = st(14f))
+            drawPath(g.full, Color(0xFFFFD08A), alpha = .2f * al, style = st(14f * pw))
             var t = 0f
             while (t <= g.length) {
                 val j = g.index(t)
-                if (g.vis[j]) { val q = g.at(t); drawCircle(Color(0xFFFFF3D6), 2.3f, q, alpha = al); drawCircle(d.slope[g.cls[j].coerceIn(0, d.slope.size - 1)], 4.4f, q, alpha = .4f * al) }
+                if (g.vis[j]) { val q = g.at(t); drawCircle(Color(0xFFFFF3D6), 2.3f * pw, q, alpha = al); drawCircle(d.slope[g.cls[j].coerceIn(0, d.slope.size - 1)], 4.4f * pw, q, alpha = .4f * al) }
                 t += step
             }
         }
@@ -599,10 +619,10 @@ private fun DrawScope.slopeLine(d: PeakData, g: PeakData.Seg, to: Float, w: Floa
     }
 }
 
-private fun DrawScope.labels(v: PeakData.View, pl: Place, night: Boolean, a: Float, measurer: TextMeasurer, unitM: String, nf: NumberFormat) {
+private fun DrawScope.labels(v: PeakData.View, pl: Place, night: Boolean, a: Float, measurer: TextMeasurer, unitM: String, nf: NumberFormat, pinch: Float) {
     val ink = if (night) Color(0xFFEAF1F8) else Color(0xFF0E2233)
     val halo = if (night) Color(0xF2060B16) else Color(0xF2FFFFFF)
-    val sc = pl.k / density   // the label sizes are in picture points, like everything on it
+    val sc = pl.k / pinch / density   // the label sizes are in picture points at the unpinched size: a pinch does not grow them
     val name = TextStyle(fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = (11.5f * sc).sp, color = ink)
     val sub = TextStyle(fontFamily = Plex, fontSize = (10.5f * sc).sp, color = ink)
     for (l in v.labels) {
@@ -621,9 +641,9 @@ private fun DrawScope.labels(v: PeakData.View, pl: Place, night: Boolean, a: Flo
     }
 }
 
-private fun DrawScope.kmNumbers(m: PeakData.Seg, pl: Place, a: Float, measurer: TextMeasurer, near: Boolean) {
+private fun DrawScope.kmNumbers(m: PeakData.Seg, pl: Place, a: Float, measurer: TextMeasurer, near: Boolean, pinch: Float) {
     if (a <= 0f) return
-    val sc = pl.k / density
+    val sc = pl.k / pinch / density
     val style = TextStyle(fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = (9.5f * sc).sp, color = Color.White)
     var b = 500f
     while (b < m.length) {
@@ -653,7 +673,7 @@ private fun plate(c: String) = when (c) { "green" -> Color(0xFF178A4A); "blue" -
 @Composable
 private fun Plate(r: PeakData.Run, modifier: Modifier, alpha: Float) {
     CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
-        Box(modifier.size(0.dp)) {
+        Box(modifier.wrapContentSize(Alignment.TopStart, unbounded = true)) {
             var wPx by remember { mutableStateOf(0) }
             Column(Modifier.graphicsLayer {
                 translationX = -wPx * .86f; translationY = -size.height; this.alpha = alpha
@@ -716,9 +736,11 @@ private fun RunSheet(r: PeakData.Run, d: PeakData, g: Glass, onClose: () -> Unit
 @Composable
 private fun Num(v: String, cap: String, g: Glass) {
     Column(verticalArrangement = Arrangement.spacedBy(0.dp)) {
-        // the number thin (Plex 300), its unit as the text (the designer's 4)
+        // the number large and thin (Plex 300); its unit small, 15, regular, in the caption's colour, on the same baseline
+        // (K10: only the number is large). The same string, styled by character.
         Text(buildAnnotatedString {
-            for (ch in v) if (ch.isDigit() || ch == '.' || ch == ',' || ch == '°') withStyle(SpanStyle(fontFamily = PlexLight)) { append(ch) } else append(ch)
+            for (ch in v) if (ch.isDigit() || ch == '.' || ch == ',' || ch == '°') withStyle(SpanStyle(fontFamily = PlexLight)) { append(ch) }
+                else withStyle(SpanStyle(fontSize = 15.sp, color = g.ink2)) { append(ch) }
         }, fontFamily = Plex, fontSize = 34.sp, lineHeight = 38.sp, color = g.ink, maxLines = 1)
         Text(cap, fontFamily = Plex, fontSize = 12.5.sp, color = g.ink2)
     }

@@ -1107,6 +1107,12 @@ redesign() {
   rd_touch "Kikilo 1" && sleep 2; rd_back
   # day and night (the switch: day is the morning picture, night is night)
   qa "--es qa.mode day"; sleep 3; shot redesign-day
+  # a chosen run by day (the lit corridor as on the board), and one moment of the choice held at 0, 150, 300, 600, 900 ms
+  rd_touch "Tatra 2" && { sleep 2.5; shot redesign-day-chosen; }; rd_back
+  for ms in 0 150 300 600 900; do
+    qa "--es qa.redesign 'frame:Tatra 2,$ms'"; waitlog "redesign frame Tatra 2 $ms" 10; sleep 1; shot "redesign-moment-$ms"
+  done
+  rd_back
   qa "--es qa.mode night"; sleep 3; shot redesign-night
   rd_touch "Tatra 1" && { sleep 2.5; shot redesign-night-chosen; }; rd_back
   qa "--es qa.mode auto --es qa.redesign close"; sleep 1.5; shot redesign-closed
