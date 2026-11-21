@@ -20857,6 +20857,531 @@
         "ru",
         "ka"
      ]
+  },
+  "app.lifts_title": {
+   "he": "רכבלים",
+   "en": "Lifts",
+   "ru": "Подъёмники",
+   "ka": "საბაგიროები",
+   "where": "app/android",
+   "note": "סביב ההר (סבב ההשלמה, חלק 2): רכבלים (סבב ההשלמה, חלק 2): כותרת הגיליון",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.lifts_count": {
+   "he": "{open}/{total}",
+   "en": "{open}/{total}",
+   "ru": "{open}/{total}",
+   "ka": "{open}/{total}",
+   "where": "app/android",
+   "note": "סביב ההר (סבב ההשלמה, חלק 2): ליד הכותרת",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.lift_kind_time": {
+   "he": "{kind} · {min} דק׳",
+   "en": "{kind} · {min} min",
+   "ru": "{kind} · {min} мин",
+   "ka": "{kind} · {min} წთ",
+   "where": "app/android",
+   "note": "סביב ההר (סבב ההשלמה, חלק 2): שורת רכבל",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.lift_rise_up": {
+   "he": "{n} מ׳ למעלה",
+   "en": "{n} m up",
+   "ru": "{n} м вверх",
+   "ka": "{n} მ ზევით",
+   "where": "app/android",
+   "note": "סביב ההר (סבב ההשלמה, חלק 2): שורת רכבל בלי דיווח",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.lift_closed_tag": {
+   "he": "{lift} · סגור",
+   "en": "{lift} · closed",
+   "ru": "{lift} · закрыт",
+   "ka": "{lift} · დახურულია",
+   "where": "app/android",
+   "note": "סביב ההר (סבב ההשלמה, חלק 2): התגית על ההר",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.lift_closed_why": {
+   "he": "סגור · {reason}",
+   "en": "Closed · {reason}",
+   "ru": "Закрыт · {reason}",
+   "ka": "დახურულია · {reason}",
+   "where": "app/android",
+   "note": "סביב ההר (סבב ההשלמה, חלק 2): שורה ופאנל; reason מ-status.reason_*",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.lift_built_in": {
+   "he": "נבנה ב-{year}",
+   "en": "Built in {year}",
+   "ru": "Построен в {year} г.",
+   "ka": "აშენებულია {year} წელს",
+   "where": "app/android",
+   "note": "סביב ההר (סבב ההשלמה, חלק 2): פאנל רכבל (Q03)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.lift_cap_min": {
+   "he": "דק׳ למעלה",
+   "en": "min up",
+   "ru": "мин вверх",
+   "ka": "წთ ზევით",
+   "where": "app/android",
+   "note": "סביב ההר (סבב ההשלמה, חלק 2): כיתוב מתחת למספר, Q03",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.lift_cap_rise": {
+   "he": "מ׳ למעלה",
+   "en": "m up",
+   "ru": "м вверх",
+   "ka": "მ ზევით",
+   "where": "app/android",
+   "note": "סביב ההר (סבב ההשלמה, חלק 2): כיתוב מתחת למספר, Q03",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.lift_cap_km": {
+   "he": "ק״מ",
+   "en": "km",
+   "ru": "км",
+   "ka": "კმ",
+   "where": "app/android",
+   "note": "סביב ההר (סבב ההשלמה, חלק 2): כיתוב מתחת למספר, Q03",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.lift_meet_here": {
+   "he": "נפגשים כאן",
+   "en": "Meet here",
+   "ru": "Встречаемся здесь",
+   "ka": "აქ ვხვდებით",
+   "where": "app/android",
+   "note": "סביב ההר (סבב ההשלמה, חלק 2): כפתור בפאנל רכבל, Q03",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.lift_runs_btn": {
+   "he": "המסלולים",
+   "en": "Runs",
+   "ru": "Трассы",
+   "ka": "ტრასები",
+   "where": "app/android",
+   "note": "סביב ההר (סבב ההשלמה, חלק 2): כפתור בפאנל רכבל, Q03",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.lift_a11y_row": {
+   "he": "{lift}, {kind}, {min} דקות, {state}",
+   "en": "{lift}, {kind}, {min} minutes, {state}",
+   "ru": "{lift}, {kind}, {min} мин, {state}",
+   "ka": "{lift}, {kind}, {min} წუთი, {state}",
+   "where": "app/android",
+   "note": "סביב ההר (סבב ההשלמה, חלק 2): קורא מסך, שורת רכבל",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.meet_where": {
+   "he": "איפה נפגשים? נוגעים בתחנה",
+   "en": "Where to meet? Tap a station",
+   "ru": "Где встречаемся? Нажмите на станцию",
+   "ka": "სად ვხვდებით? შეეხეთ სადგურს",
+   "where": "app/android",
+   "note": "סביב ההר (סבב ההשלמה, חלק 2): הגלולה, Q04",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.meet_station_top": {
+   "he": "התחנה העליונה · {alt} מ׳",
+   "en": "Top station · {alt} m",
+   "ru": "Верхняя станция · {alt} м",
+   "ka": "ზედა სადგური · {alt} მ",
+   "where": "app/android",
+   "note": "סביב ההר (סבב ההשלמה, חלק 2): Q05, Q06",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.meet_station_bottom": {
+   "he": "התחנה התחתונה · {alt} מ׳",
+   "en": "Bottom station · {alt} m",
+   "ru": "Нижняя станция · {alt} м",
+   "ka": "ქვედა სადგური · {alt} მ",
+   "where": "app/android",
+   "note": "סביב ההר (סבב ההשלמה, חלק 2): Q05, Q06",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.meet_day_chip": {
+   "he": "{wd} {date}",
+   "en": "{wd} {date}",
+   "ru": "{wd} {date}",
+   "ka": "{wd} {date}",
+   "where": "app/android",
+   "note": "סביב ההר (סבב ההשלמה, חלק 2): Q05, למשל ג׳ 12.1",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.meet_time_other": {
+   "he": "אחרת",
+   "en": "Other",
+   "ru": "Другое",
+   "ka": "სხვა",
+   "where": "app/android",
+   "note": "סביב ההר (סבב ההשלמה, חלק 2): Q05, קצר מ-meet.other_time",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.meet_btn_image": {
+   "he": "תמונה",
+   "en": "Image",
+   "ru": "Картинка",
+   "ka": "სურათი",
+   "where": "app/android",
+   "note": "סביב ההר (סבב ההשלמה, חלק 2): Q05",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.meet_btn_link": {
+   "he": "קישור",
+   "en": "Link",
+   "ru": "Ссылка",
+   "ka": "ბმული",
+   "where": "app/android",
+   "note": "סביב ההר (סבב ההשלמה, חלק 2): Q05",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.meet_flag_a11y": {
+   "he": "נפגשים ב-{time}, {place}",
+   "en": "Meeting at {time}, {place}",
+   "ru": "Встреча в {time}, {place}",
+   "ka": "შეხვედრა {time}-ზე, {place}",
+   "where": "app/android",
+   "note": "סביב ההר (סבב ההשלמה, חלק 2): קורא מסך, הדגל על ההר",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.meet_share_title": {
+   "he": "תמונה לשיתוף",
+   "en": "Image to share",
+   "ru": "Картинка для отправки",
+   "ka": "გასაზიარებელი სურათი",
+   "where": "app/android",
+   "note": "סביב ההר (סבב ההשלמה, חלק 2): Q06",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.meet_share_at": {
+   "he": "נפגשים ב-{time}",
+   "en": "Meet at {time}",
+   "ru": "Встречаемся в {time}",
+   "ka": "ვხვდებით {time}-ზე",
+   "where": "app/android",
+   "note": "סביב ההר (סבב ההשלמה, חלק 2): Q06, בתוך התמונה",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.meet_share_place": {
+   "he": "{place}, {where} · {alt} מ׳",
+   "en": "{place}, {where} · {alt} m",
+   "ru": "{place}, {where} · {alt} м",
+   "ka": "{place}, {where} · {alt} მ",
+   "where": "app/android",
+   "note": "סביב ההר (סבב ההשלמה, חלק 2): Q06, בתוך התמונה",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.meet_share_note": {
+   "he": "התמונה היא ההודעה: המקום על ההר, השעה והיום. מי שמקבל לא צריך לקרוא מפה.",
+   "en": "The image is the message: the spot on the mountain, the time and the day. Whoever gets it does not need to read a map.",
+   "ru": "Картинка и есть сообщение: место на горе, время и день. Тому, кто её получит, карту читать не нужно.",
+   "ka": "სურათი თავად არის შეტყობინება: ადგილი მთაზე, დრო და დღე. მიმღებს რუკის კითხვა არ დასჭირდება.",
+   "where": "app/android",
+   "note": "סביב ההר (סבב ההשלמה, חלק 2): Q06",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.meet_share_btn": {
+   "he": "שיתוף",
+   "en": "Share",
+   "ru": "Поделиться",
+   "ka": "გაზიარება",
+   "where": "app/android",
+   "note": "סביב ההר (סבב ההשלמה, חלק 2): Q06",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.meet_share_save": {
+   "he": "שמירה בטלפון",
+   "en": "Save to phone",
+   "ru": "Сохранить в телефон",
+   "ka": "ტელეფონში შენახვა",
+   "where": "app/android",
+   "note": "סביב ההר (סבב ההשלמה, חלק 2): Q06",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.trip_ski_line": {
+   "he": {
+    "one": "יום סקי אחד · {range}",
+    "two": "{n} ימי סקי · {range}",
+    "other": "{n} ימי סקי · {range}"
+   },
+   "en": {
+    "one": "{n} ski day · {range}",
+    "other": "{n} ski days · {range}"
+   },
+   "ru": {
+    "one": "{n} день катания · {range}",
+    "few": "{n} дня катания · {range}",
+    "many": "{n} дней катания · {range}",
+    "other": "{n} дней катания · {range}"
+   },
+   "ka": {
+    "one": "{n} სათხილამურო დღე · {range}",
+    "other": "{n} სათხილამურო დღე · {range}"
+   },
+   "where": "app/android",
+   "note": "סביב ההר (סבב ההשלמה, חלק 2): הספח, Q10",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.trip_btn_return": {
+   "he": "טיסת החזור",
+   "en": "Return flight",
+   "ru": "Обратный рейс",
+   "ka": "საბრუნებელი რეისი",
+   "where": "app/android",
+   "note": "סביב ההר (סבב ההשלמה, חלק 2): Q07",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.trip_btn_add_return": {
+   "he": "הוספת חזור",
+   "en": "Add return",
+   "ru": "Добавить обратный рейс",
+   "ka": "დაბრუნების დამატება",
+   "where": "app/android",
+   "note": "סביב ההר (סבב ההשלמה, חלק 2): Q07, בלי חזור",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.trip_btn_skipass": {
+   "he": "כרטיס סקי · {price}",
+   "en": "Ski pass · {price}",
+   "ru": "Ски-пасс · {price}",
+   "ka": "სკი-პასი · {price}",
+   "where": "app/android",
+   "note": "סביב ההר (סבב ההשלמה, חלק 2): Q07",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.trip_back_tab": {
+   "he": "חזור · {date}",
+   "en": "Return · {date}",
+   "ru": "Обратно · {date}",
+   "ka": "დაბრუნება · {date}",
+   "where": "app/android",
+   "note": "סביב ההר (סבב ההשלמה, חלק 2): הכרטיס שמאחור",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.trip_local_note": {
+   "he": "בלי הרשמה. נשמר רק בטלפון.",
+   "en": "No sign-up. Saved only on this phone.",
+   "ru": "Без регистрации. Хранится только в телефоне.",
+   "ka": "რეგისტრაციის გარეშე. ინახება მხოლოდ ტელეფონში.",
+   "where": "app/android",
+   "note": "סביב ההר (סבב ההשלמה, חלק 2): Q08",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.trip_no_return": {
+   "he": "בלי חזור",
+   "en": "No return",
+   "ru": "Без обратного рейса",
+   "ka": "დაბრუნების გარეშე",
+   "where": "app/android",
+   "note": "סביב ההר (סבב ההשלמה, חלק 2): Q08",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.trip_range": {
+   "he": "{from} עד {to}",
+   "en": "{from} to {to}",
+   "ru": "с {from} по {to}",
+   "ka": "{from}–{to}",
+   "where": "app/android",
+   "note": "סביב ההר (סבב ההשלמה, חלק 2): Q08, Q10",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.skipass_hero": {
+   "he": {
+    "one": "כרטיס יום · {who}",
+    "two": "כרטיס יומיים · {who}",
+    "other": "כרטיס {n} ימים · {who}"
+   },
+   "en": {
+    "one": "{n}-day pass · {who}",
+    "other": "{n}-day pass · {who}"
+   },
+   "ru": {
+    "one": "Ски-пасс на {n} день · {who}",
+    "few": "Ски-пасс на {n} дня · {who}",
+    "many": "Ски-пасс на {n} дней · {who}",
+    "other": "Ски-пасс на {n} дней · {who}"
+   },
+   "ka": {
+    "one": "{n}-დღიანი სკი-პასი · {who}",
+    "other": "{n}-დღიანი სკი-პასი · {who}"
+   },
+   "where": "app/android",
+   "note": "סביב ההר (סבב ההשלמה, חלק 2): Q09",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.skipass_vs_daily": {
+   "he": "יומי × {n}: {price}",
+   "en": "Daily × {n}: {price}",
+   "ru": "Дневной × {n}: {price}",
+   "ka": "დღიური × {n}: {price}",
+   "where": "app/android",
+   "note": "סביב ההר (סבב ההשלמה, חלק 2): Q09",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.skipass_footer": {
+   "he": "עונת {season} · בלארי, כולל מע״מ",
+   "en": "Season {season} · in lari, VAT included",
+   "ru": "Сезон {season} · в лари, с НДС",
+   "ka": "სეზონი {season} · ლარში, დღგ-ს ჩათვლით",
+   "where": "app/android",
+   "note": "סביב ההר (סבב ההשלמה, חלק 2): Q09; \"כולל מע״מ\" לפי vat:true ב-prices.json",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.season_pill": {
+   "he": {
+    "one": "יום אחד לפתיחה",
+    "two": "יומיים לפתיחה",
+    "other": "{n} ימים לפתיחה"
+   },
+   "en": {
+    "one": "{n} day to opening",
+    "other": "{n} days to opening"
+   },
+   "ru": {
+    "one": "{n} день до открытия",
+    "few": "{n} дня до открытия",
+    "many": "{n} дней до открытия",
+    "other": "{n} дней до открытия"
+   },
+   "ka": {
+    "one": "{n} დღე გახსნამდე",
+    "other": "{n} დღე გახსნამდე"
+   },
+   "where": "app/android",
+   "note": "סביב ההר (סבב ההשלמה, חלק 2): הגלולה, אחרי שסגרו את הספירה",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.find_where": {
+   "he": "לאן?",
+   "en": "Where to?",
+   "ru": "Куда?",
+   "ka": "სად?",
+   "where": "app/android",
+   "note": "סביב ההר (סבב ההשלמה, חלק 2): הסרגל התחתון",
+   "check": [
+    "ru",
+    "ka"
+   ]
   }
  }
 }
