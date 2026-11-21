@@ -450,6 +450,8 @@ class LiveRenderer(
 
         // the live layer: the runs (a white case and the colour), the lifts' cables, the chosen run as light
         val p = pal
+        // the ribbons are widened on the screen, so half their triangles face away: no culling for them (as the map)
+        glDisable(GL_CULL_FACE)
         glEnable(GL_BLEND); glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); glDepthMask(false)
         // the village, lit from the blue hour on (the night key's stars 1, the blue key's .25)
         if (L.stars > .05f && dotCount > 0) {
@@ -500,7 +502,7 @@ class LiveRenderer(
             glUniform4f(uT, c[0], c[1], c[2], 1f); glUniform1f(uW, 3.6f * density * zw); r.third.draw()
             glEnable(GL_DEPTH_TEST)
         }
-        glDepthMask(true); glDisable(GL_BLEND)
+        glDepthMask(true); glDisable(GL_BLEND); glEnable(GL_CULL_FACE)
         // the emulator waits for this: a frame with the mountain, not only the clear colour
         if (!drawn) { drawn = true; io.github.pini236.skiapp.qa.Qa.log("redesign live drawn") }
         if (moving) requestRender()
