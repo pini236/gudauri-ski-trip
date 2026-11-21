@@ -68,6 +68,15 @@ class LiveView(context: Context, private val scene: MapScene) : GLSurfaceView(co
         worker.execute(decode)
         // a new GL context (the background, or a second surface) asks for them again
         renderer.needTextures = { if (!worker.isShutdown) worker.execute(decode) }
+        // roads, water and the village on the snow (the map's Drape, without the contours), painted once; 1024 wide
+        // (about 14 m a pixel) to stay inside the architect's 32 MB of GPU memory with the five textures
+        worker.execute {
+            val b = runCatching {
+                val r = io.github.pini236.skiapp.meet.Relief2D.parse(context.assets.open("data/terrain.json").bufferedReader().use { it.readText() })
+                io.github.pini236.skiapp.map.Drape.paint(r, 1024, contours = false)
+            }.getOrNull() ?: return@execute
+            renderer.drape = b; requestRender(); Qa.log("redesign live drape ready")
+        }
         // the opening: the designer's camera (peak-live.json), looking north the way the picture looks (LiveOpen):
         // a little further and lower first, then a slow approach
         val c = d.camera
@@ -91,7 +100,11 @@ class LiveView(context: Context, private val scene: MapScene) : GLSurfaceView(co
     fun setTime(epochMs: Long) {
         val sky = Sky.at(epochMs)
         val (az, alt) = Sun.position(epochMs)
-        val l = LiveLight.at(data.keys, Math.toDegrees(alt).toFloat(), az < Math.PI, sky.sunDir, sky.dir, sky.moonUp)
+        // at night the light is the night key's moon (34 degrees up, from the south-east), as in the designer's frames:
+        // a moon that is down or low on the day would leave the whole mountain in its shade colour
+        val nk = data.keys.first { it.name == "night" }
+        val moon = Sun.direction(Math.toRadians(nk.az.toDouble()), Math.toRadians(nk.alt.toDouble()))
+        val l = LiveLight.at(data.keys, Math.toDegrees(alt).toFloat(), az < Math.PI, sky.sunDir, moon, true)
         renderer.light = l; requestRender()
         // the shadows, at most once per 10 minutes of the sun, softened once (1 2 1)
         val key = epochMs / 600_000
@@ -112,13 +125,23 @@ class LiveView(context: Context, private val scene: MapScene) : GLSurfaceView(co
             if (pts.isNotEmpty()) { tx = pts.map { it.first }.average().toFloat(); tz = pts.map { it.second }.average().toFloat() }
         }
         renderer.stopAnim(); camera.stopFling()
+        // a run is chosen too, so the picture shows it as light with the slope colours around it
+        choose(run)
         camera.set(OrbitCamera.State(tx, scene.terrain.elev(tx, tz), tz, dist, Math.toRadians(yawDeg.toDouble()).toFloat(), Math.toRadians(pitchDeg.toDouble()).toFloat()))
         requestRender()
         Qa.log("redesign live look $yawDeg $pitchDeg $dist ${run ?: "-"}")
     }
 
     fun setPal(p: PeakData.Pal?) { renderer.pal = p; requestRender() }
-    fun choose(key: String?) { renderer.chosen = key; requestRender() }
+    fun choose(key: String?) {
+        renderer.chosen = key; requestRender()
+        // the slope colours around it, as the map's (X-3), worked out off the GL thread
+        if (key == null) { renderer.ground = null; return }
+        if (!worker.isShutdown) worker.execute {
+            val g = scene.draped[key]?.let { scene.slopeLayer(it) }
+            if (renderer.chosen == key) { renderer.ground = g; requestRender() }
+        }
+    }
     /** Leaving the live model: the GPU's buffers and texture go now, not when the app's context dies. */
     fun release() { worker.shutdownNow(); queueEvent { renderer.free() } }
 

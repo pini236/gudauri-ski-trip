@@ -23,6 +23,8 @@ class LiveData(
         val name: String, val alt: Float, val side: String,
         val lit: FloatArray, val shade: FloatArray, val rock: FloatArray, val rockS: FloatArray,
         val zen: FloatArray, val hor: FloatArray, val band: FloatArray?, val direct: Float, val stars: Float,
+        /** Where the light comes from (degrees from north, clockwise); at night the moon of the designer's frames. */
+        val az: Float = 0f,
     )
     class Check(val tex: String, val u: Float, val v: Float, val rgb: IntArray)
 
@@ -47,7 +49,7 @@ class LiveData(
                 Key(l.getString("name"), l.getDouble("alt").toFloat(), l.getString("side"),
                     v3(l.getJSONArray("lit"))!!, v3(l.getJSONArray("shade"))!!, v3(l.getJSONArray("rock"))!!, v3(l.getJSONArray("rockS"))!!,
                     v3(l.getJSONArray("zen"))!!, v3(l.getJSONArray("hor"))!!, if (l.isNull("band")) null else v3(l.getJSONArray("band")),
-                    l.getDouble("direct").toFloat(), l.getDouble("stars").toFloat())
+                    l.getDouble("direct").toFloat(), l.getDouble("stars").toFloat(), l.optDouble("az", 0.0).toFloat())
             }
             val vil = o.getJSONArray("village")
             val village = FloatArray(vil.length() * 3) { vil.getJSONArray(it / 3).getDouble(it % 3).toFloat() }

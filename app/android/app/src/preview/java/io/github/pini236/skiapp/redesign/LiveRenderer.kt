@@ -41,6 +41,8 @@ uniform vec3 uLit; uniform vec3 uShade; uniform vec3 uRock; uniform vec3 uRockS;
 uniform float uDirect; uniform float uGlow;
 uniform vec3 uCam; uniform vec3 uHaze; uniform float uValley; uniform float uRipple;
 uniform vec4 uDim;
+uniform sampler2D uDrape; uniform vec4 uDrapeBox; uniform float uDrapeOn;
+uniform sampler2D uGround; uniform vec4 uGroundBox; uniform float uGroundOn;
 out vec4 o;
 void main(){
   vec2 uv=(vPos.xz-uBox.xy)*uBox.zw;
@@ -64,7 +66,16 @@ void main(){
   float rk=smoothstep(28.5,38.0,18.0+30.0*cv.r+(stk-0.5)*12.0)*0.9;
   col=mix(col,mix(uRockS,uRock,t)*(2.0*cv.b)*(0.7+0.6*stk),rk);
   col*=0.7+0.6*rl.b;
-  col=mix(col,uDim.rgb,uDim.a);
+  // what lies on the snow (Drape.kt, without the contours): roads, water and the village, premultiplied, lit by the
+  // snow's light of the hour instead of the map's (the handoff, section 3)
+  vec4 e=uDrapeOn>0.0?texture(uDrape,(vPos.xz-uDrapeBox.xy)*uDrapeBox.zw):vec4(0.0);
+  col=col*(1.0-e.a)+e.rgb*mix(uShade,uLit,t);
+  // the slope colours around a chosen run, as the map's (X-3), and the rest of the mountain dimmer
+  vec2 gv=(vPos.xz-uGroundBox.xy)*uGroundBox.zw;
+  vec4 g=(uGroundOn>0.0&&gv.x>=0.0&&gv.y>=0.0&&gv.x<=1.0&&gv.y<=1.0)?texture(uGround,gv):vec4(0.0);
+  float ga=g.a*uGroundOn;
+  col=mix(col,g.rgb*mix(uShade,uLit,t)*1.08,ga*0.85);
+  col=mix(col,uDim.rgb,uDim.a*(1.0-ga));
   float d=length(vPos-uCam);
   float far=uHaze.z*(1.0-exp(-max(d-uHaze.x,0.0)/uHaze.y));
   float low=smoothstep(2300.0,1750.0,vPos.y)*uValley;
@@ -120,13 +131,13 @@ void main(){
   o=vec4(c,1.0);
 }"""
 
-// the village after dark: a warm point for every real building (peak-live.json, village)
+// the village from the blue hour on: a small warm square for every real building (peak-live.json, village), larger close up
 private const val DOT_VS = """#version 300 es
 layout(location=0) in vec3 aPos; uniform mat4 uMvp; uniform float uSize;
-void main(){ gl_Position=uMvp*vec4(aPos,1.0); gl_PointSize=uSize; }"""
+void main(){ gl_Position=uMvp*vec4(aPos,1.0); gl_PointSize=clamp(uSize*7000.0/gl_Position.w,uSize,uSize*4.0); }"""
 private const val DOT_FS = """#version 300 es
 precision mediump float; uniform vec4 uCol; out vec4 o;
-void main(){ vec2 p=gl_PointCoord*2.0-1.0; float r=dot(p,p); if(r>1.0) discard; o=vec4(uCol.rgb, uCol.a*(1.0-r*0.5)); }"""
+void main(){ vec2 p=abs(gl_PointCoord*2.0-1.0); float e=max(p.x,p.y); o=vec4(uCol.rgb, uCol.a*(1.0-smoothstep(0.7,1.0,e))); }"""
 
 private const val LINE_VS = """#version 300 es
 layout(location=0) in vec3 aPos;
@@ -215,6 +226,12 @@ class LiveRenderer(
     /** The chosen run (by key), drawn as a line of light by day and of brighter light at night; the rest a little dimmer. */
     @Volatile var chosen: String? = null
     @Volatile var pal: PeakData.Pal? = null
+    /** Roads, water and the village (Drape.kt without contours), kept to be uploaded again with a new context. */
+    @Volatile var drape: android.graphics.Bitmap? = null
+    private val drapeTex = IntArray(1); private var drapeOn: android.graphics.Bitmap? = null
+    /** The slope colours around the chosen run (MapScene.slopeLayer), worked out off the GL thread. */
+    @Volatile var ground: io.github.pini236.skiapp.map.SlopeLayer? = null
+    private val groundTex = IntArray(1); private var groundOn: io.github.pini236.skiapp.map.SlopeLayer? = null
     /** The largest texture this GPU takes (the horizon is 4096 wide). */
     @Volatile var maxTex = 4096
 
@@ -241,6 +258,7 @@ class LiveRenderer(
     override fun onSurfaceCreated(gl: GL10?, config: EGLConfig?) {
         prog = program(VS, FS); skyProg = program(SKY_VS, SKY_FS); lineProg = program(LINE_VS, LINE_FS); dotProg = program(DOT_VS, DOT_FS)
         uploaded = false; texOn = false; tex.fill(0); runs.clear(); lifts.clear(); dotCount = 0
+        drapeTex[0] = 0; drapeOn = null; groundTex[0] = 0; groundOn = null
         if (hadTextures && textures == null) needTextures?.invoke()
         drawn = false
         val mx = IntArray(1); glGetIntegerv(GL_MAX_TEXTURE_SIZE, mx, 0); maxTex = mx[0]
@@ -256,6 +274,10 @@ class LiveRenderer(
         if (uploaded) { glDeleteBuffers(3, bufs, 0); glDeleteVertexArrays(1, vao, 0); glDeleteBuffers(2, dots, 0) }
         runs.forEach { it.second.free(); it.third.free() }; lifts.forEach { it.free() }; runs.clear(); lifts.clear()
         if (texOn) glDeleteTextures(5, tex, 0)
+        if (drapeTex[0] != 0) glDeleteTextures(1, drapeTex, 0)
+        if (groundTex[0] != 0) glDeleteTextures(1, groundTex, 0)
+        drapeTex[0] = 0; drapeOn = null; groundTex[0] = 0; groundOn = null
+        drape?.recycle(); drape = null; ground = null
         tex.fill(0); texOn = false; uploaded = false; dotCount = 0
         for (p in intArrayOf(prog, skyProg, lineProg, dotProg)) if (p != 0) glDeleteProgram(p)
         prog = 0; skyProg = 0; lineProg = 0; dotProg = 0
@@ -288,6 +310,29 @@ class LiveRenderer(
         attr(0, 3, 12, 0)
         glBindVertexArray(0)
         dotCount = v.size / 3
+    }
+
+    /** Roads, water and the village to the GPU, with mipmaps so far away they fade and do not shimmer (as the map's). */
+    private fun uploadDrape(b: android.graphics.Bitmap) {
+        glActiveTexture(GL_TEXTURE3)
+        if (drapeTex[0] == 0) glGenTextures(1, drapeTex, 0)
+        glBindTexture(GL_TEXTURE_2D, drapeTex[0])
+        android.opengl.GLUtils.texImage2D(GL_TEXTURE_2D, 0, b, 0)
+        glGenerateMipmap(GL_TEXTURE_2D)
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR); glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR)
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE); glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE)
+        drapeOn = b
+    }
+
+    private fun uploadGround(g: io.github.pini236.skiapp.map.SlopeLayer) {
+        glActiveTexture(GL_TEXTURE4)
+        if (groundTex[0] == 0) glGenTextures(1, groundTex, 0)
+        glBindTexture(GL_TEXTURE_2D, groundTex[0])
+        glPixelStorei(GL_UNPACK_ALIGNMENT, 1)
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, g.w, g.h, 0, GL_RGBA, GL_UNSIGNED_BYTE, ByteBuffer.wrap(g.rgba))
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR); glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR)
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE); glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE)
+        groundOn = g
     }
 
     private fun uploadTextures(list: List<LiveTex>) {
@@ -375,6 +420,18 @@ class LiveRenderer(
         for ((i, n) in listOf("uRelief", "uCover", "uTile").withIndex()) {
             glActiveTexture(GL_TEXTURE0 + i); glBindTexture(GL_TEXTURE_2D, tex[i]); glUniform1i(u(prog, n), i)
         }
+        val dr = drape
+        if (dr != null && dr !== drapeOn && !dr.isRecycled) uploadDrape(dr)
+        glActiveTexture(GL_TEXTURE3); glBindTexture(GL_TEXTURE_2D, drapeTex[0]); glUniform1i(u(prog, "uDrape"), 3)
+        glUniform1f(u(prog, "uDrapeOn"), if (drapeOn != null && drapeTex[0] != 0) 1f else 0f)
+        val tt = scene.terrain
+        glUniform4f(u(prog, "uDrapeBox"), tt.x0, tt.y0, 1f / (tt.x1 - tt.x0), 1f / (tt.y1 - tt.y0))
+        val gr = if (chosen != null) ground else null
+        if (gr != null && gr !== groundOn) uploadGround(gr)
+        glActiveTexture(GL_TEXTURE4); glBindTexture(GL_TEXTURE_2D, groundTex[0]); glUniform1i(u(prog, "uGround"), 4)
+        val go = groundOn
+        glUniform1f(u(prog, "uGroundOn"), if (gr != null && go === gr) 1f else 0f)
+        if (go != null) glUniform4f(u(prog, "uGroundBox"), go.x0, go.z0, 1f / go.width, 1f / go.depth)
         glUniformMatrix4fv(u(prog, "uMvp"), 1, false, mvp, 0)
         glUniform4f(u(prog, "uBox"), D.x0, D.z0, 1f / (D.x1 - D.x0), 1f / (D.z1 - D.z0))
         glUniform3fv(u(prog, "uSun"), 1, L.dir, 0)
@@ -394,12 +451,12 @@ class LiveRenderer(
         // the live layer: the runs (a white case and the colour), the lifts' cables, the chosen run as light
         val p = pal
         glEnable(GL_BLEND); glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); glDepthMask(false)
-        // the village after dark
-        if (L.stars >= .25f && dotCount > 0) {
+        // the village, lit from the blue hour on (the night key's stars 1, the blue key's .25)
+        if (L.stars > .05f && dotCount > 0) {
             glUseProgram(dotProg)
             glUniformMatrix4fv(u(dotProg, "uMvp"), 1, false, mvp, 0)
             glUniform1f(u(dotProg, "uSize"), 2.2f * density)
-            glUniform4f(u(dotProg, "uCol"), 1f, .773f, .431f, .5f + .5f * minOf(L.stars / .6f, 1f))
+            glUniform4f(u(dotProg, "uCol"), 1f, .773f, .431f, minOf(L.stars / .25f, 1f) * (.6f + .4f * minOf(L.stars, 1f)))
             glBindVertexArray(dots[0]); glDrawArrays(GL_POINTS, 0, dotCount)
         }
         glUseProgram(lineProg)
