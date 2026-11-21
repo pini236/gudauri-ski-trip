@@ -8,6 +8,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.rememberTextMeasurer
 import io.github.pini236.skiapp.ui.Motion
 import kotlinx.coroutines.launch
@@ -181,7 +182,40 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, onPaint
         val ring = remember { Animatable(1f) }
         var touch by remember { mutableStateOf<Offset?>(null) }
         LaunchedEffect(Unit) { view.onTapAt = { x, y -> touch = Offset(x, y); scope.launch { ring.snapTo(0f); ring.animateTo(1f, tween(if (Motion.reduced(context)) 1 else 300)) } } }
+        // phase A's names (only with no run chosen) and the lifts' stations, over the model, every frame the camera moves
+        var ov by remember { mutableStateOf<LiveView.Overlay?>(null) }
+        LaunchedEffect(pd) { val labels = pd?.hero?.labels ?: return@LaunchedEffect; while (true) { withFrameNanos { }; ov = view.overlay(labels) } }
+        val unitM = stringResource(R.string.common_unit_m, "\u0000")
+        val nf = remember { java.text.NumberFormat.getIntegerInstance() }
         Canvas(Modifier.fillMaxSize()) {
+            val o = ov; val pal = pd?.pal?.get(if (night) "night" else "day")
+            if (o != null && pal != null) {
+                // stations: 6.8 by 5, corner 1.4, the station colour with the cable's outline (phase A); dimmer under a chosen run
+                val sa = if (chosen != null) .4f else 1f
+                val w = 6.8f * density; val h = 5f * density; val cr = androidx.compose.ui.geometry.CornerRadius(1.4f * density)
+                for (i in 0 until o.stations.size / 2) {
+                    val tl = Offset(o.stations[i * 2] - w / 2, o.stations[i * 2 + 1] - h * .84f)
+                    drawRoundRect(pal.st, tl, androidx.compose.ui.geometry.Size(w, h), cr, alpha = sa)
+                    drawRoundRect(pal.wire, tl, androidx.compose.ui.geometry.Size(w, h), cr, alpha = sa, style = Stroke(1.2f * density))
+                }
+            }
+            if (o != null && chosen == null) {
+                val ink = if (night) Color(0xFFEAF1F8) else Color(0xFF0E2233)
+                val halo = if (night) Color(0xF2060B16) else Color(0xF2FFFFFF)
+                val name = androidx.compose.ui.text.TextStyle(fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 11.5.sp, color = ink)
+                val sub = androidx.compose.ui.text.TextStyle(fontFamily = Plex, fontWeight = FontWeight.Medium, fontSize = 10.5.sp, color = ink)
+                for ((l, x, y) in o.names) {
+                    val t1 = measurer.measure(l.t, name)
+                    val t2 = l.sub?.let { measurer.measure(unitM.replace("\u0000", nf.format(it)), sub) }
+                    var yy = y - (t1.size.height + (t2?.size?.height ?: 0)) / 2f
+                    for (tx in listOfNotNull(t1, t2)) {
+                        val tl = Offset(x - tx.size.width / 2f, yy)
+                        for (r in floatArrayOf(7f, 3f, 3f)) drawText(tx, topLeft = tl, shadow = androidx.compose.ui.graphics.Shadow(halo, Offset.Zero, r * density))
+                        drawText(tx, topLeft = tl)
+                        yy += tx.size.height
+                    }
+                }
+            }
             val r0 = run; val q = signAt
             if (r0 != null && q != null && signA.value > 0f) sign(r0, q, signA.value, measurer)
             val tp = touch

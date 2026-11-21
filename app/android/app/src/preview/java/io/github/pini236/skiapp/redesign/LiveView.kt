@@ -45,6 +45,58 @@ class LiveView(context: Context, private val scene: MapScene) : GLSurfaceView(co
     /** Where a tap chose a run (screen pixels), for the ring from the finger (K09). */
     var onTapAt: ((Float, Float) -> Unit)? = null
 
+    /**
+     * What is drawn over the model (phase A's names and stations, the handoff of the POC): the four names of the far
+     * view (Sadzele, Bidara, Kudebi and New Gudauri, in the picture's words) at their places on the mountain, hidden
+     * behind a ridge as the map's labels; and a small block at each end of every lift. Screen pixels, this frame.
+     */
+    class Overlay(val names: List<Triple<PeakData.Label, Float, Float>>, val stations: FloatArray)
+    private var marks: List<Pair<PeakData.Label, FloatArray>>? = null
+    private val stationPts: FloatArray by lazy {
+        val out = ArrayList<Float>()
+        for (l in scene.liftLines) { val n = l.size / 3; if (n < 2) continue
+            for (i in intArrayOf(0, n - 1)) { val x = l[i * 3]; val z = l[i * 3 + 2]; out += x; out += scene.terrain.elev(x, z) + 4f; out += z } }
+        out.toFloatArray()
+    }
+    private var lastOv: Overlay? = null; private var lastOvAt: OrbitCamera.State? = null; private var lastOvW = 0
+    /** The same overlay while the camera and the size do not change (so an idle screen does not redraw it). */
+    fun overlay(labels: List<PeakData.Label>): Overlay {
+        val cs = camera.state()
+        lastOv?.let { if (cs == lastOvAt && width == lastOvW) return it }
+        return overlayNow(labels).also { lastOv = it; lastOvAt = cs; lastOvW = width }
+    }
+    private fun overlayNow(labels: List<PeakData.Label>): Overlay {
+        val t = scene.terrain
+        val m = marks ?: labels.mapNotNull { l ->
+            val sub = l.sub
+            if (sub != null) t.peaks.firstOrNull { it.ele == sub }?.let { p -> l to floatArrayOf(p.x, t.elev(p.x, p.y) + 30f, p.y) }
+            else data.village.takeIf { it.isNotEmpty() }?.let { v ->
+                val n = v.size / 3; var x = 0f; var z = 0f
+                for (i in 0 until n) { x += v[i * 3] / n; z += v[i * 3 + 2] / n }
+                l to floatArrayOf(x, t.elev(x, z) + 60f, z)
+            }
+        }.also { marks = it }
+        val mvp = FloatArray(16); val eye = FloatArray(3); val o = FloatArray(4); val v = FloatArray(4)
+        if (width == 0) return Overlay(emptyList(), FloatArray(0))
+        OrbitCamera.mvp(camera.state(), width.toFloat() / height, mvp, eye, data.camera.fovDeg) { x, z -> t.elev(x, z) }
+        fun on(x: Float, y: Float, z: Float): FloatArray? {
+            v[0] = x; v[1] = y; v[2] = z; v[3] = 1f; Matrix.multiplyMV(o, 0, mvp, 0, v, 0)
+            if (o[3] <= 0f) return null
+            return floatArrayOf((o[0] / o[3] * .5f + .5f) * width, (1 - (o[1] / o[3] * .5f + .5f)) * height)
+        }
+        // behind a ridge, as the map's labels: the mountain more than 8 m above the line from the eye
+        fun seenFromEye(x: Float, y: Float, z: Float): Boolean {
+            val dx = x - eye[0]; val dy = y - eye[1]; val dz = z - eye[2]
+            for (i in 4 until 40) { val f = i / 40f; if (t.elev(eye[0] + dx * f, eye[2] + dz * f) > eye[1] + dy * f + 8f) return false }
+            return true
+        }
+        val names = m.mapNotNull { (l, w) -> if (!seenFromEye(w[0], w[1], w[2])) null else on(w[0], w[1], w[2])?.let { Triple(l, it[0], it[1]) } }
+        val st = ArrayList<Float>()
+        val sp = stationPts
+        for (i in 0 until sp.size / 3) on(sp[i * 3], sp[i * 3 + 1], sp[i * 3 + 2])?.let { if (seenFromEye(sp[i * 3], sp[i * 3 + 1], sp[i * 3 + 2])) { st += it[0]; st += it[1] } }
+        return Overlay(names, st.toFloatArray())
+    }
+
     private val tops = HashMap<String, FloatArray>()
     /** The top of a run on the screen now (pixels, x and y), for its sign (K10); null when behind the camera. */
     fun screenTop(key: String): FloatArray? {

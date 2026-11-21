@@ -1137,6 +1137,9 @@ redesign() {
   rd_look 22.0 "0,22,2600,Tatra 2" close-night
   rd_look 13.0 "0,30,2200,@-420:4470" village-noon
   rd_look 10.6 "0,16,6617" open-again
+  # a run chosen as a tap chooses it: the light down it, the framing, its sign on the top and the sheet (K10)
+  mark; qa "--es qa.redesign 'pick:Tatra 2'"; waitlog "redesign live framed Tatra 2" 20; sleep 2; rd_drawn; shot redesign-live-chosen-sheet
+  mark; qa "--es qa.redesign unpick"; waitlog "redesign live unpicked" 10; rd_drawn
   # section 10: Kobi chosen from the opening turns to its side (through the east, about 1 s), then frames it; the sign
   # "Kobi side" stays after letting it go, and brings the front back
   mark; qa "--es qa.redesign 'pick:Kobi'"; waitlog "redesign live side kobi" 30 || fail "redesign: Kobi did not turn the camera to its side"
