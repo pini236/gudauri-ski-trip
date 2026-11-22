@@ -1183,6 +1183,10 @@ redesign() {
   mark; qa "--es qa.redesign runfilm"; waitlog "redesign run film end" 20 || fail "redesign: the descent's film did not end"
   sleep 1; shot redesign-run-film
   mark; qa "--es qa.redesign runfilm:off"; sleep 1
+  # the story of the day (board L10)
+  mark; qa "--es qa.redesign story"; waitlog "redesign day story" 15 || fail "redesign: the story did not open"
+  sleep 2; shot redesign-day-story
+  mark; qa "--es qa.redesign story:off"; sleep 1
   mark; qa "--es qa.redesign ridge:off"; sleep 2
   # boards L02, L03: recording on the mountain. Before the first reading the search, then a walk down Tatra 2 drawn
   # behind the dot; "hold to finish" held for 1.5 s ends the day and opens it on the mountain

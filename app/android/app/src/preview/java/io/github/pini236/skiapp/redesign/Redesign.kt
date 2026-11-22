@@ -60,15 +60,13 @@ object Redesign {
      * Round 4 (decision 84, board L06): the end of a day on the live mountain, in place of today's day screen. Behind
      * DAYREC_UI as the day itself (the route is only reached with it); in the debug build only when the emulator asks
      * (qa.redesign day), so the other parts see the day screen as it is. A touch on its card opens the ridge of the day and
-     * its timeline (L07); from there "share" opens today's screen (the story and the share, until L10 and L11). Returns false when it does not show, and the caller draws today's screen.
+     * its timeline (L07), a descent there its film (L09), and "share" the story (L10) with its picture. Returns false when it does not show, and the caller draws today's screen.
      */
     @Composable
     fun day(file: java.io.File, sample: Boolean, scene: MapScene?, mode: DayNight.Mode, haptics: Haptics, onBack: () -> Unit): Boolean {
         if (scene == null) return false
         if (io.github.pini236.skiapp.BuildConfig.DEBUG && !RedesignQa.dayOn) return false
-        var details by rememberSaveable(file.path) { mutableStateOf(false) }
-        if (details) { BackHandler { details = false }; return false }
-        DayMountain(file, sample, scene, mode, haptics, onDetails = { details = true }, onBack = onBack)
+        DayMountain(file, sample, scene, mode, haptics, onBack = onBack)
         return true
     }
 

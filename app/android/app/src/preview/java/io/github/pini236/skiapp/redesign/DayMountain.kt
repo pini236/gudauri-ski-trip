@@ -86,7 +86,7 @@ import java.time.format.DateTimeFormatter
  * day's screen as it is (the story, the timeline, the records, the share), so nothing of today is lost.
  */
 @Composable
-fun DayMountain(file: File, sample: Boolean, scene: MapScene, mode: DayNight.Mode, haptics: Haptics, onDetails: () -> Unit, onBack: () -> Unit) {
+fun DayMountain(file: File, sample: Boolean, scene: MapScene, mode: DayNight.Mode, haptics: Haptics, onBack: () -> Unit) {
     val context = LocalContext.current
     val zone = ZoneId.of(DayParams.TZ)
     var now by remember { mutableLongStateOf(System.currentTimeMillis()) }
@@ -113,7 +113,9 @@ fun DayMountain(file: File, sample: Boolean, scene: MapScene, mode: DayNight.Mod
     var fms by remember { mutableStateOf(0f) }
     // the ridge of the day and its timeline (board L07), opened from the card
     var ridge by androidx.compose.runtime.saveable.rememberSaveable(file.path) { mutableStateOf(false) }
-    BackHandler { if (ridge) ridge = false else if (filming) { filming = false; playing = false } else onBack() }
+    // the story of the day (board L10), from the ridge's "share"
+    var story by androidx.compose.runtime.saveable.rememberSaveable(file.path) { mutableStateOf(false) }
+    BackHandler { if (story) story = false else if (ridge) ridge = false else if (filming) { filming = false; playing = false } else onBack() }
 
     class Loaded(val paint: DayPaint.Day, val day: DayModel.Day, val story: StoryData?, val elev: FloatArray)
     var loaded by remember(file) { mutableStateOf<Loaded?>(null) }
@@ -160,6 +162,8 @@ fun DayMountain(file: File, sample: Boolean, scene: MapScene, mode: DayNight.Mod
         when {
             c == "ridge" -> { filming = false; playing = false; ridge = true }
             c == "ridge:off" -> ridge = false
+            c == "story" -> story = true
+            c == "story:off" -> story = false
             c == "film:off" -> { filming = false; playing = false; Qa.log("redesign day film off") }
             c == "film:play" -> { fms = 0f; filming = true; playing = true; Qa.log("redesign day film start") }
             c.startsWith("film:") -> c.removePrefix("film:").toFloatOrNull()?.let { sec -> playing = false; filming = true; fms = sec * 1000f; Qa.log("redesign day film held ${sec.toInt()}") }
@@ -319,6 +323,9 @@ fun DayMountain(file: File, sample: Boolean, scene: MapScene, mode: DayNight.Mod
             }
         }
         val lr = l
-        if (ridge && lr != null) DayRidge(lr.paint, lr.elev, lr.day, scene.runs, night, sample, haptics, onShare = onDetails, onBack = { ridge = false })
+        if (ridge && lr != null) DayRidge(lr.paint, lr.elev, lr.day, scene.runs, night, sample, haptics, onShare = { story = true }, onBack = { ridge = false })
+        val st = lr?.story
+        if (story && lr != null && st != null) DayStory(st, lr.day.summary, lr.paint, { runCatching { io.github.pini236.skiapp.dayrec.ui.readTrack(file) }.getOrNull() },
+            scene.runs, night, sample, haptics, onBack = { story = false })
     }
 }

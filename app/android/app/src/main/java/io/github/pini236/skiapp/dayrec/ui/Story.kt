@@ -80,16 +80,29 @@ fun StoryCard(d: StoryData, s: DayModel.Summary, track: Track? = null, sample: B
             }
         }
         Text(stringResource(R.string.app_day_share), Modifier.fillMaxWidth().border(BorderStroke(1.5.dp, c.ink)).clickable(role = Role.Button) {
-            // the picture is drawn off the main thread's frame: a bitmap of a megapixel and a line of the day
-            val lang = Lang.current(ctx.resources)
-            val cardsOut = cards.filter { it.getString("key") !in StoryImage.KEPT }.take(3).mapNotNull { x ->
-                val plan = MomentText.plan(x, zone, locale, name = name) ?: return@mapNotNull null
-                val (t, ls) = words.render(plan, x.optLong("seed")); StoryImage.Card(t, ls.firstOrNull())
-            }
-            val (title, lines) = words.render(head, Moments.seed("story.head", s.start))
-            val bmp = StoryImage.draw(title, lines.firstOrNull(), cardsOut, track, ctx.getString(R.string.common_site_name), Lang.typeface(ctx, lang, true), Lang.typeface(ctx, lang, false), lang.rtl)
-            StoryImage.share(ctx, bmp, ctx.getString(R.string.common_site_name), ctx.getString(R.string.app_day_share))
-            if (!sample) Telemetry.event("story_share", mapOf("method" to "native", "top" to storyKind(cards.firstOrNull { it.getString("key") !in StoryImage.KEPT }?.getString("key") ?: "other")))
+            shareStory(ctx, d, s, track, sample, name)
         }.heightIn(min = 48.dp).padding(vertical = 12.dp), textAlign = TextAlign.Center, style = Ski.type.bodyBold, color = c.ink)
     }
+}
+
+/**
+ * The picture of the story, shared through the system's sheet (round 29; the redesign's story, board L10, too): the head,
+ * up to three insights (never a fall or off-piste, StoryImage.KEPT) and the line of the day. Drawn off the frame: a
+ * bitmap of a megapixel. `story_share` names only the kind of the first card, from the closed list.
+ */
+fun shareStory(ctx: android.content.Context, d: StoryData, s: DayModel.Summary, track: Track?, sample: Boolean, name: (String) -> String = { it }) {
+    val locale = ctx.resources.configuration.locales[0]
+    val zone = ZoneId.of(DayParams.TZ)
+    val words = MomentText.Words(ctx, locale)
+    val cards = d.cards().filter { it.getString("key") != "fall" && it.getString("key") != "offpiste" }
+    val head = MomentText.head(d.theme, s.descents, s.dropM, s.distM, locale)
+    val lang = Lang.current(ctx.resources)
+    val cardsOut = cards.filter { it.getString("key") !in StoryImage.KEPT }.take(3).mapNotNull { x ->
+        val plan = MomentText.plan(x, zone, locale, name = name) ?: return@mapNotNull null
+        val (t, ls) = words.render(plan, x.optLong("seed")); StoryImage.Card(t, ls.firstOrNull())
+    }
+    val (title, lines) = words.render(head, Moments.seed("story.head", s.start))
+    val bmp = StoryImage.draw(title, lines.firstOrNull(), cardsOut, track, ctx.getString(R.string.common_site_name), Lang.typeface(ctx, lang, true), Lang.typeface(ctx, lang, false), lang.rtl)
+    StoryImage.share(ctx, bmp, ctx.getString(R.string.common_site_name), ctx.getString(R.string.app_day_share))
+    if (!sample) Telemetry.event("story_share", mapOf("method" to "native", "top" to storyKind(cards.firstOrNull { it.getString("key") !in StoryImage.KEPT }?.getString("key") ?: "other")))
 }

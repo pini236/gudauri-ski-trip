@@ -185,7 +185,7 @@ internal fun DayRidge(paint: DayPaint.Day, elev: FloatArray, day: DayModel.Day, 
             }
             val date = DateTimeFormatter.ofPattern("d.M.yyyy", Locale.ROOT).format(Instant.ofEpochMilli(day.summary.start).atZone(zone))
             Text(stringResource(R.string.app_day_title) + " · " + date, Modifier.weight(1f), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = ink, maxLines = 1)
-            // today's day screen keeps the story and the share until boards L10 and L11 are built
+            // the story of the day and its picture (board L10)
             val share = stringResource(R.string.app_day_share)
             Text(share, Modifier.padding(end = 6.dp).clip(RoundedCornerShape(18.dp)).clickable(role = Role.Button) { onShare() }
                 .padding(horizontal = 12.dp, vertical = 8.dp), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = ink)
