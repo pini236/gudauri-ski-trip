@@ -38,9 +38,12 @@ object StoryImage {
         val body1 = TextPaint(Paint.ANTI_ALIAS_FLAG).apply { typeface = body; color = 0xFFC9D6E6.toInt(); textSize = 38f }
         val gold = TextPaint(body1).apply { color = 0xFFF4B942.toInt(); isFakeBoldText = true; textSize = 40f }
         val white = TextPaint(body1).apply { color = 0xFFFFFFFF.toInt(); textSize = 40f }
+        // the paragraph's direction is the language's, not its first letter's: a Hebrew line that opens with a run's
+        // Latin name is still read from the right
+        val dir = if (rtl) android.text.TextDirectionHeuristics.RTL else android.text.TextDirectionHeuristics.LTR
         var y = 80f
         fun text(t: String, p: TextPaint, maxLines: Int = 3) {
-            val l = StaticLayout.Builder.obtain(t, 0, t.length, p, width).setAlignment(align).setMaxLines(maxLines).setEllipsize(android.text.TextUtils.TruncateAt.END).build()
+            val l = StaticLayout.Builder.obtain(t, 0, t.length, p, width).setAlignment(align).setTextDirection(dir).setMaxLines(maxLines).setEllipsize(android.text.TextUtils.TruncateAt.END).build()
             c.save(); c.translate(x, y); l.draw(c); c.restore(); y += l.height
         }
         title?.let { text(it, head, 2); y += 6f }
@@ -66,7 +69,7 @@ object StoryImage {
         y = box.bottom + 40f
         // a card is drawn only if all of it ends above the footer; one that would run into "Gudauri" is left out whole
         fun layout(t: String, p: TextPaint, maxLines: Int) =
-            StaticLayout.Builder.obtain(t, 0, t.length, p, width).setAlignment(align).setMaxLines(maxLines).setEllipsize(android.text.TextUtils.TruncateAt.END).build()
+            StaticLayout.Builder.obtain(t, 0, t.length, p, width).setAlignment(align).setTextDirection(dir).setMaxLines(maxLines).setEllipsize(android.text.TextUtils.TruncateAt.END).build()
         for (card in cards.take(3)) {
             val need = (card.title?.let { layout(it, gold, 1).height } ?: 0) + (card.line?.let { layout(it, white, 3).height } ?: 0)
             if (y + need > H - 100f) break
