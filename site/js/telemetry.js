@@ -11,6 +11,12 @@
   var P=window.GUD_PREFS||{};
   var here=!/^(localhost|127\.)/.test(location.hostname)&&!navigator.webdriver,on=P.analytics!==false&&here,started=false;
   var queue=[],ph=null;
+  // a device marked as internal (Pini, testers) says so in every event, so the dashboards leave it out (docs/GROWTH.md):
+  // ?internal=1 keeps a flag in this browser only, ?internal=0 clears it, and the parameter leaves the address bar
+  var INTERNAL=false;try{var iq=new URLSearchParams(location.search),iv=iq.get('internal');
+    if(iv==='1')localStorage.setItem('gud-internal','1');else if(iv==='0')localStorage.removeItem('gud-internal');
+    INTERNAL=localStorage.getItem('gud-internal')==='1';
+    if(iv!==null){iq.delete('internal');var qs=iq.toString();history.replaceState(history.state,'',location.pathname+(qs?'?'+qs:'')+location.hash);}}catch(e){}
   // the games' high scores for the group's table (js/account.js sends them, only once you are in a group):
   // kept in this browser whatever the switch says, since nothing leaves the browser here. Ski school counts its stars
   // (the best of each lesson, added up); every other game its best score.
@@ -69,7 +75,7 @@
       loaded:function(p){
         if(p.has_opted_out_capturing&&p.has_opted_out_capturing())p.opt_in_capturing(); // the switch was turned back on
         var I=window.I18N||{};
-        p.register({platform:'web',app_version:document.documentElement.getAttribute('data-version')||'web',build:'web',
+        p.register(INTERNAL?{is_internal:true,install_channel:'web'}:{install_channel:'web'});p.register({platform:'web',app_version:document.documentElement.getAttribute('data-version')||'web',build:'web',
           lang:I.lang||'he',lang_source:I.chosen?'manual':'auto',theme:theme(),device_class:deviceClass(),resort:(window.RESORT&&RESORT.id)||'gudauri'});
         if(window.RESORT)RESORT.ready.then(function(c){p.register({resort:c.id});}); // decision 68: which mountain
         ph=p;queue.splice(0).forEach(function(e){p.capture(e[0],e[1]);});
