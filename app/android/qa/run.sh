@@ -1179,6 +1179,10 @@ redesign() {
   # the ridge of the day and its timeline (board L07)
   mark; qa "--es qa.redesign ridge"; waitlog "redesign day ridge" 15 || fail "redesign: the ridge did not open"
   sleep 2; shot redesign-day-ridge
+  # one descent as a film (board L09): the longest, at its end
+  mark; qa "--es qa.redesign runfilm"; waitlog "redesign run film end" 20 || fail "redesign: the descent's film did not end"
+  sleep 1; shot redesign-run-film
+  mark; qa "--es qa.redesign runfilm:off"; sleep 1
   mark; qa "--es qa.redesign ridge:off"; sleep 2
   # boards L02, L03: recording on the mountain. Before the first reading the search, then a walk down Tatra 2 drawn
   # behind the dot; "hold to finish" held for 1.5 s ends the day and opens it on the mountain

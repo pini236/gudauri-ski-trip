@@ -319,6 +319,6 @@ fun DayMountain(file: File, sample: Boolean, scene: MapScene, mode: DayNight.Mod
             }
         }
         val lr = l
-        if (ridge && lr != null) DayRidge(lr.paint, lr.elev, lr.day, scene.runs, night, sample, onShare = onDetails, onBack = { ridge = false })
+        if (ridge && lr != null) DayRidge(lr.paint, lr.elev, lr.day, scene.runs, night, sample, haptics, onShare = onDetails, onBack = { ridge = false })
     }
 }

@@ -23,6 +23,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -68,7 +70,7 @@ import java.util.Locale
  * the ridge and not in the list (as on today's day screen).
  */
 @Composable
-internal fun DayRidge(paint: DayPaint.Day, elev: FloatArray, day: DayModel.Day, runs: Runs?, night: Boolean, sample: Boolean, onShare: () -> Unit, onBack: () -> Unit) {
+internal fun DayRidge(paint: DayPaint.Day, elev: FloatArray, day: DayModel.Day, runs: Runs?, night: Boolean, sample: Boolean, haptics: io.github.pini236.skiapp.fx.Haptics, onShare: () -> Unit, onBack: () -> Unit) {
     val context = LocalContext.current
     val zone = ZoneId.of(io.github.pini236.skiapp.dayrec.DayParams.TZ)
     val dens = context.resources.displayMetrics.density
@@ -82,6 +84,16 @@ internal fun DayRidge(paint: DayPaint.Day, elev: FloatArray, day: DayModel.Day, 
     val hhmm = remember { DateTimeFormatter.ofPattern("HH:mm", Locale.ROOT) }
     fun at(t: Long) = hhmm.format(Instant.ofEpochMilli(t).atZone(zone))
     LaunchedEffect(Unit) { Qa.log("redesign day ridge ${day.chapters.sumOf { it.items.size }}") }
+    // one descent as a film (board L09), from a descent in the timeline
+    var film by remember { androidx.compose.runtime.mutableStateOf<DayModel.Descent?>(null) }
+    val descents = remember(day) { day.chapters.flatMap { it.items }.filterIsInstance<DayModel.Descent>() }
+    LaunchedEffect(RedesignQa.seq) {
+        when (RedesignQa.cmd) {
+            // the emulator opens the longest descent
+            "runfilm" -> film = descents.maxByOrNull { it.distM }
+            "runfilm:off" -> film = null
+        }
+    }
 
     Box(Modifier.fillMaxSize().background(bg)) {
         LazyColumn(Modifier.fillMaxSize().statusBarsPadding(), contentPadding = androidx.compose.foundation.layout.PaddingValues(start = 16.dp, end = 16.dp, top = 72.dp, bottom = 40.dp)) {
@@ -160,7 +172,7 @@ internal fun DayRidge(paint: DayPaint.Day, elev: FloatArray, day: DayModel.Day, 
                         Text(stringResource(R.string.app_day_n_descents, ch.descents), fontFamily = Plex, fontSize = 12.sp, color = muted)
                     }
                 }
-                items(ch.items) { it -> TimelineRow(it, at(it.t0), runs, night, ink, muted, rule) }
+                items(ch.items) { it -> TimelineRow(it, at(it.t0), runs, night, ink, muted, rule) { if (it is DayModel.Descent) { haptics.tick(.3f); film = it } } }
             }
         }
         // the top pill: back, the day and its date, and the sample's badge
@@ -180,6 +192,7 @@ internal fun DayRidge(paint: DayPaint.Day, elev: FloatArray, day: DayModel.Day, 
             if (sample) Text(stringResource(R.string.app_day_sample), Modifier.padding(end = 14.dp).clip(RoundedCornerShape(10.dp))
                 .background(Color(0x33A98BEE)).padding(horizontal = 8.dp, vertical = 2.dp), fontFamily = Plex, fontSize = 12.sp, color = ink)
         }
+        film?.let { f -> RunFilm(f, paint, runs, night, haptics) { film = null } }
     }
 }
 
@@ -187,8 +200,8 @@ internal fun DayRidge(paint: DayPaint.Day, elev: FloatArray, day: DayModel.Day, 
 private fun signColor(c: String?) = when (c) { "green" -> Color(0xFF178A4A); "red" -> Color(0xFFD8362C); "black" -> Color(0xFF14171B); "blue" -> Color(0xFF1B6FDB); else -> Color(0xFF8A96A3) }
 
 @Composable
-private fun TimelineRow(it: DayModel.Item, at: String, runs: Runs?, night: Boolean, ink: Color, muted: Color, rule: Color) {
-    Row(Modifier.fillMaxWidth().heightIn(min = 40.dp).padding(vertical = 6.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+private fun TimelineRow(it: DayModel.Item, at: String, runs: Runs?, night: Boolean, ink: Color, muted: Color, rule: Color, onOpen: () -> Unit) {
+    Row(Modifier.fillMaxWidth().heightIn(min = 40.dp).let { m -> if (it is DayModel.Descent) m.clickable(role = Role.Button) { onOpen() } else m }.padding(vertical = 6.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
         Text(at, Modifier.width(44.dp).padding(top = 1.dp), fontFamily = Plex, fontSize = 13.sp, color = muted)
         Column(Modifier.weight(1f)) {
             val meta = TextStyle(fontFamily = Plex, fontSize = 13.sp, color = muted)
