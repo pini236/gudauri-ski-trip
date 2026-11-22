@@ -1206,8 +1206,8 @@ redesign() {
   if [ -n "$xy" ]; then
     mark; adb shell input swipe $xy $xy 1600; waitlog "redesign rec hold done" 10 || fail "redesign: hold to finish did not end the day"
     waitlog "redesign day open" 30 || fail "redesign: the ended day did not open on the mountain"; sleep 5; shot redesign-rec-ended
-  else fail "redesign: no hold to finish on the live screen"; qa "--es qa.dayrec stop"; fi
-  qa "--es qa.mode auto --es qa.tab home"; sleep 2
+  else fail "redesign: no hold to finish on the live screen"; qa "--es qa.dayrec stop"; qa "--es qa.tab days/sample"; waitlog "redesign day open" 20; fi
+  # the same day, still open on the mountain, at night
   mark; qa "--es qa.mode night"; waitlog "redesign live day drawn .* night" 40 || fail "redesign: the day was not drawn at night"
   sleep 3; shot redesign-day-night
   qa "--es qa.mode auto --es qa.tab home"; waitlog "redesign day closed" 15; sleep 1
