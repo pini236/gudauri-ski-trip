@@ -47,7 +47,7 @@ struct GudiApp: App {
                         try? await Task.sleep(for: .milliseconds(600))
                         Telemetry.shared.appOpen(cold: cold)
                     }
-                    if cold { Telemetry.shared.screen("home") }
+                    if cold { Telemetry.shared.resolveChannel(); Telemetry.shared.screen("home") }
                     opened = true
                 case .background: Telemetry.shared.flush(); model.dayRecorder?.flush()
                 default: break

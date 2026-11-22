@@ -53,3 +53,20 @@ test('מדידה: בדפדפן באירופה PostHog בלי שמירה בדפד
   const src = readFileSync(join(__dirname, '..', 'site', 'js', 'telemetry.js'), 'utf8');
   expect(src).toMatch(/persistence:europe\(\)\?'memory':'localStorage'/);
 });
+
+// install_channel is always 'web'; is_internal only on a device marked with ?internal=1 (docs/GROWTH.md), kept in the
+// browser alone, and the parameter leaves the address bar (and so never reaches PostHog or Sentry)
+test('מדידה: install_channel web, ודגל is_internal רק אחרי ?internal=1', async ({ page }) => {
+  const src = readFileSync(join(__dirname, '..', 'site', 'js', 'telemetry.js'), 'utf8');
+  expect(src).toMatch(/install_channel:'web'/);
+  expect(src).toMatch(/is_internal:true/);
+  await page.goto('/?internal=1#home');
+  expect(await page.evaluate(() => localStorage.getItem('gud-internal'))).toBe('1');
+  expect(page.url()).not.toMatch(/internal/);
+  await page.goto('/#home');
+  expect(await page.evaluate(() => localStorage.getItem('gud-internal'))).toBe('1'); // stays
+  await page.goto('/?internal=0#home');
+  expect(await page.evaluate(() => localStorage.getItem('gud-internal'))).toBeNull();
+  expect(page.url()).not.toMatch(/internal/);
+  expect(await page.evaluate(() => (window as any).GUD_CLEAN_URL('http://x.y/?internal=1&utm_source=a#home'))).toBe('http://x.y/?utm_source=a#home');
+});
