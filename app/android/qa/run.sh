@@ -1211,6 +1211,11 @@ redesign() {
   mark; qa "--es qa.mode night"; waitlog "redesign live day drawn .* night" 40 || fail "redesign: the day was not drawn at night"
   sleep 3; shot redesign-day-night
   qa "--es qa.mode auto --es qa.tab home"; waitlog "redesign day closed" 15; sleep 1
+  # board L12: my days, with today's ended day as the trip (a trip of today only, on the phone)
+  d=$(adb shell TZ=Asia/Tbilisi date +%F | tr -d '\r')
+  mark; qa "--es qa.mode day --es qa.trip '{\"v\":1,\"out\":{\"date\":\"$d\",\"flight\":\"\",\"from\":\"TLV\",\"to\":\"TBS\"},\"ski\":{\"from\":\"$d\",\"to\":\"$d\"}}' --es qa.tab days"
+  if waitlog "redesign days [1-9][0-9]* trip 1" 30; then sleep 2; shot redesign-days; else fail "redesign: my days did not show the trip"; fi
+  qa "--es qa.mode auto --es qa.trip none --es qa.tab home"; sleep 1
 }
 
 # ---- the store screenshots (Google Play: portrait 9:16) ----

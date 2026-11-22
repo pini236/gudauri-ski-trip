@@ -94,6 +94,16 @@ object Redesign {
         return true
     }
 
+    /**
+     * Round 4 (board L12): my days, with the trip as layers on one mountain, in place of today's list. Gated as [day].
+     */
+    @Composable
+    fun days(mode: DayNight.Mode, haptics: Haptics, onOpen: (String) -> Unit, onBack: () -> Unit): Boolean {
+        if (io.github.pini236.skiapp.BuildConfig.DEBUG && !RedesignQa.dayOn) return false
+        DayList(mode, haptics, onOpen, onBack)
+        return true
+    }
+
     @Composable
     fun BoxScope.Host(home: Boolean, mode: DayNight.Mode, haptics: Haptics, scene: MapScene?) {
         // the emulator's scripts drive the debug build through the current screens (qa/run.sh): there the mountain

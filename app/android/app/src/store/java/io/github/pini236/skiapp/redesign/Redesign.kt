@@ -21,5 +21,8 @@ object Redesign {
     @Composable fun first(single: Boolean, haptics: Haptics, onGo: (Boolean) -> Unit, onDismiss: () -> Unit): Boolean = false
 
     @Suppress("UNUSED_PARAMETER")
+    @Composable fun days(mode: DayNight.Mode, haptics: Haptics, onOpen: (String) -> Unit, onBack: () -> Unit): Boolean = false
+
+    @Suppress("UNUSED_PARAMETER")
     @Composable fun BoxScope.Host(home: Boolean, mode: DayNight.Mode, haptics: Haptics, scene: MapScene?) {}
 }
