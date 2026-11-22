@@ -95,6 +95,20 @@ object Redesign {
     }
 
     /**
+     * Round 4 (board L05, Android): the permanent notification's words while recording, or null for today's. Not a
+     * composable: the recording service asks it (title, text, the expanded text). Gated as [day].
+     */
+    fun notice(c: android.content.Context, elapsedMs: Long, live: io.github.pini236.skiapp.dayrec.DayEngine.Snapshot?,
+               ride: io.github.pini236.skiapp.dayrec.DayEngine.Ride?): Triple<String, String, String?>? {
+        if (io.github.pini236.skiapp.BuildConfig.DEBUG && !RedesignQa.dayOn) return null
+        return Notice.content(c, elapsedMs, live, ride)?.let { Triple(it.title, it.text, it.big) }
+    }
+
+    /** What, besides the minute, changes that notification (empty when it is today's). */
+    fun noticeKey(live: io.github.pini236.skiapp.dayrec.DayEngine.Snapshot?, ride: io.github.pini236.skiapp.dayrec.DayEngine.Ride?): String =
+        if (io.github.pini236.skiapp.BuildConfig.DEBUG && !RedesignQa.dayOn) "" else Notice.key(live, ride)
+
+    /**
      * Round 4 (board L12): my days, with the trip as layers on one mountain, in place of today's list. Gated as [day].
      */
     @Composable

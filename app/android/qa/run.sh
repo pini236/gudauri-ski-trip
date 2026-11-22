@@ -1202,6 +1202,8 @@ redesign() {
   mark; qa "--es qa.tab day"; waitlog "redesign rec open" 20 || fail "redesign: the live screen on the mountain did not open"
   sleep 3; shot redesign-rec-search
   geo 42.482631 44.483401; dayrec_walk 10; sleep 7; shot redesign-rec-live
+  # board L05: the permanent notification while recording (the run, no live speed)
+  adb shell cmd statusbar expand-notifications; sleep 2; shot redesign-rec-notice; adb shell cmd statusbar collapse; sleep 1
   xy=$(where "החזקה לסיום")
   if [ -n "$xy" ]; then
     mark; adb shell input swipe $xy $xy 1600; waitlog "redesign rec hold done" 10 || fail "redesign: hold to finish did not end the day"
