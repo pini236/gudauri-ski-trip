@@ -32,6 +32,7 @@ import androidx.compose.ui.unit.sp
 import io.github.pini236.skiapp.fx.FxPrefs
 import io.github.pini236.skiapp.i18n.Lang
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -201,7 +202,7 @@ fun AboutScreen(
             val scope = androidx.compose.runtime.rememberCoroutineScope()
             Text(stringResource(R.string.app_about_version, version),
                 Modifier.pointerInput(Unit) {
-                    androidx.compose.foundation.gestures.detectTapGestures(onLongPress = {
+                    detectTapGestures(onLongPress = {
                         val now = !io.github.pini236.skiapp.telemetry.InternalFlag.on(context)
                         Telemetry.setInternal(context, now)
                         haptic.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.LongPress)
