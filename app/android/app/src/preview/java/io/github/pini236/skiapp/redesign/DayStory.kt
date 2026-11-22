@@ -90,7 +90,8 @@ internal fun DayStory(story: StoryData, sm: DayModel.Summary, paint: DayPaint.Da
     val rule = if (night) Color(0x33FFFFFF) else Color(0x1F0E2233)
     val ramp = if (night) DayPaint.NIGHT else DayPaint.DAY
     val rtl = LocalLayoutDirection.current == LayoutDirection.Rtl
-    val name: (String) -> String = { k -> titleOf(runs, k) }
+    // run names are isolated so a Latin name with a number reads whole inside a Hebrew sentence ("Sadzele 1", not "1 Sadzele")
+    val name: (String) -> String = { k -> "\u2068" + titleOf(runs, k) + "\u2069" }
     val words = remember(ctx) { MomentText.Words(ctx, locale) }
     val cards = remember(story) { story.cards().filter { it.getString("key") != "fall" && it.getString("key") != "offpiste" } }
     val head = remember(story, sm) { words.render(MomentText.head(story.theme, sm.descents, sm.dropM, sm.distM, locale), Moments.seed("story.head", sm.start)) }

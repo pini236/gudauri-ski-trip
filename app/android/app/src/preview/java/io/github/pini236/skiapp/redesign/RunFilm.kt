@@ -159,18 +159,33 @@ internal fun RunFilm(d: DayModel.Descent, seg: org.json.JSONObject?, segs: List<
             val note = TextStyle(fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = ink)
             val noteX = if (rtl) colW + 8 * dens else 8 * dens
             val subStyle = TextStyle(fontFamily = Plex, fontSize = 12.5.sp, color = muted)
+            // the notes are gathered, then spread down the column so none sits on another (the board's flush():
+            // sorted by height, pushed apart both ways), each with a thin leader to its point on the line
+            class Note(val p: Offset, val tl: androidx.compose.ui.text.TextLayoutResult, val sl: androidx.compose.ui.text.TextLayoutResult?) {
+                val h get() = tl.size.height + (sl?.size?.height ?: 0)
+            }
+            val notes = ArrayList<Note>()
             fun noteAt(p: Offset, text: String, sub: String? = null) {
                 val cs = androidx.compose.ui.unit.Constraints(maxWidth = (size.width - colW - 16 * dens).toInt())
-                val tl = measurer.measure(text, note, constraints = cs)
-                val sl = sub?.let { measurer.measure(it, subStyle, constraints = cs) }
-                val w = maxOf(tl.size.width, sl?.size?.width ?: 0); val h = tl.size.height + (sl?.size?.height ?: 0)
-                // in Hebrew the notes are right of the line and read from the right; in English left of it
-                fun xOf(lw: Int) = if (rtl) size.width - 8 * dens - lw else size.width - colW - 8 * dens - lw
-                val edge = if (rtl) size.width - 8 * dens - w else size.width - colW - 8 * dens
-                drawLine(rule, p, Offset(if (rtl) edge - 4 * dens else edge + 4 * dens, p.y), 1f * dens)
-                val y0 = p.y - h / 2f
-                drawText(tl, topLeft = Offset(xOf(tl.size.width), y0))
-                sl?.let { drawText(it, topLeft = Offset(xOf(it.size.width), y0 + tl.size.height)) }
+                notes += Note(p, measurer.measure(text, note, constraints = cs), sub?.let { measurer.measure(it, subStyle, constraints = cs) })
+            }
+            fun drawNotes() {
+                notes.sortBy { it.p.y }
+                val gap = 6 * dens
+                val ys = FloatArray(notes.size) { notes[it].p.y - notes[it].h / 2f }
+                for (i in 1 until ys.size) ys[i] = maxOf(ys[i], ys[i - 1] + notes[i - 1].h + gap)
+                for (i in ys.size - 2 downTo 0) ys[i] = minOf(ys[i], ys[i + 1] - notes[i].h - gap)
+                notes.forEachIndexed { i, nt ->
+                    val w = maxOf(nt.tl.size.width, nt.sl?.size?.width ?: 0)
+                    // in Hebrew the notes are right of the line and read from the right; in English left of it
+                    fun xOf(lw: Int) = if (rtl) size.width - 8 * dens - lw else size.width - colW - 8 * dens - lw
+                    val edge = if (rtl) size.width - 8 * dens - w else size.width - colW - 8 * dens
+                    val ly = ys[i] + nt.h / 2f
+                    val mid = Offset(if (rtl) edge - 14 * dens else edge + 14 * dens, ly)
+                    drawLine(rule, nt.p, mid, 1f * dens); drawLine(rule, mid, Offset(if (rtl) edge - 4 * dens else edge + 4 * dens, ly), 1f * dens)
+                    drawText(nt.tl, topLeft = Offset(xOf(nt.tl.size.width), ys[i]))
+                    nt.sl?.let { drawText(it, topLeft = Offset(xOf(it.size.width), ys[i] + nt.tl.size.height)) }
+                }
             }
             val shown = (reveal.value * total).toInt()
             var gi = 0
@@ -209,6 +224,7 @@ internal fun RunFilm(d: DayModel.Descent, seg: org.json.JSONObject?, segs: List<
                 }
                 break
             }
+            drawNotes()
         }
         // the pill: back and the runs
         Row(Modifier.statusBarsPadding().padding(8.dp).fillMaxWidth().height(48.dp)
