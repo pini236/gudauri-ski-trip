@@ -198,11 +198,14 @@ fun LiveDay(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, liftName: (S
                 if (recording) Box(Modifier.size(12.dp).clip(CircleShape).background(red))
                 Text(stringResource(R.string.app_rec_now, LiveNumbers.elapsed(LiveNumbers.sinceTap(now, began))), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = ink)
             }
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            // all day or one descent (L02, L03): one wide bar, the choice in purple, as on the board
+            Row(Modifier.fillMaxWidth().height(48.dp).clip(RoundedCornerShape(24.dp)).background(if (night) Color(0x33FFFFFF) else Color(0x330E2233))
+                .border(1.dp, rule, RoundedCornerShape(24.dp)).padding(3.dp)) {
                 for ((on, k) in listOf(!single to R.string.app_rec_all, single to R.string.app_rec_one)) {
-                    Text(stringResource(k), Modifier.height(36.dp).clip(RoundedCornerShape(18.dp)).background(if (on) ink else glass).border(1.dp, rule, RoundedCornerShape(18.dp))
-                        .clickable(role = Role.Tab) { if (!on) { val s1 = k == R.string.app_rec_one; picked = s1; onSwitch(s1) } }.padding(horizontal = 14.dp, vertical = 8.dp),
-                        fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 13.sp, color = if (on) (if (night) Color(0xFF0E2233) else Color.White) else ink)
+                    Box(Modifier.weight(1f).fillMaxSize().clip(RoundedCornerShape(21.dp)).background(if (on) Color(0xFF7C4FE0) else Color.Transparent)
+                        .clickable(role = Role.Tab) { if (!on) { val s1 = k == R.string.app_rec_one; picked = s1; onSwitch(s1) } }, contentAlignment = Alignment.Center) {
+                        Text(stringResource(k), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = if (on) Color.White else ink)
+                    }
                 }
             }
         }
@@ -237,6 +240,13 @@ fun LiveDay(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, liftName: (S
                         else -> stringResource(R.string.app_rec_standing)
                     }
                     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        // the run's number on its colour, as on the board (L03), when the run has one
+                        val on = live?.runs?.firstOrNull()?.takeIf { live?.act == "ski" }?.let { k -> scene.runs?.pistes?.firstOrNull { it.key == k } }
+                        on?.refs?.firstOrNull()?.let { ref ->
+                            Box(Modifier.clip(RoundedCornerShape(6.dp)).background(Color(io.github.pini236.skiapp.game.runColor(on.color))).padding(horizontal = 7.dp, vertical = 2.dp)) {
+                                Text(ref, fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = Color.White)
+                            }
+                        }
                         Text(where, style = bold, maxLines = 1)
                         if (live?.act == "ski" && !live?.runs.isNullOrEmpty()) Text(stringResource(R.string.app_rec_probably), style = small)
                     }
