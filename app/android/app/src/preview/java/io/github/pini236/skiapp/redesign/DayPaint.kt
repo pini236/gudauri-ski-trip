@@ -135,7 +135,9 @@ object DayPaint {
             for (k in a until minOf(b, n)) w[k] = 1f
         }
         if (maxAt != null) for (k in 0 until n) if (kotlin.math.abs(d.t0 + k * 1000L - maxAt) <= slow) w[k] = 3f
-        val sum = w.sum()
+        // n seconds make n - 1 steps, so the last second's weight has nothing after it
+        var sum = 0f; for (k in 0 until n - 1) sum += w[k]
+        if (sum <= 0f) return Film(d.t0, FloatArray(n))
         val ms = FloatArray(n); var acc = 0f
         for (k in 1 until n) { acc += w[k - 1] / sum * seconds * 1000f; ms[k] = acc }
         return Film(d.t0, ms)
