@@ -24,7 +24,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -51,7 +53,6 @@ import io.github.pini236.skiapp.dayrec.ui.DayModel
 import io.github.pini236.skiapp.dayrec.ui.MomentText
 import io.github.pini236.skiapp.dayrec.ui.StoryData
 import io.github.pini236.skiapp.dayrec.ui.Track
-import io.github.pini236.skiapp.dayrec.ui.shareStory
 import io.github.pini236.skiapp.dayrec.ui.storyKind
 import io.github.pini236.skiapp.dayrec.ui.titleOf
 import io.github.pini236.skiapp.fx.Haptics
@@ -71,9 +72,13 @@ import java.util.Locale
  * (rewriting the log and its analysis) that the app does not have yet, and the board's "yes, it was" has no key.
  */
 @Composable
-internal fun DayStory(story: StoryData, sm: DayModel.Summary, paint: DayPaint.Day, track: () -> Track?, runs: Runs?, night: Boolean, sample: Boolean,
+internal fun DayStory(story: StoryData, sm: DayModel.Summary, paint: DayPaint.Day, hide: List<LongArray>, track: () -> Track?, runs: Runs?, night: Boolean, sample: Boolean,
                       haptics: Haptics, onBack: () -> Unit) {
-    BackHandler { onBack() }
+    // board L11: "share" opens what leaves the phone, the picture or the one-minute video
+    var sharing by androidx.compose.runtime.saveable.rememberSaveable { androidx.compose.runtime.mutableStateOf(false) }
+    BackHandler { if (sharing) sharing = false else onBack() }
+    // the emulator's run opens and closes the sheet
+    LaunchedEffect(RedesignQa.seq) { when (RedesignQa.cmd) { "share" -> sharing = true; "share:off" -> sharing = false } }
     val ctx = LocalContext.current
     val locale = ctx.resources.configuration.locales[0]
     val zone = ZoneId.of(DayParams.TZ)
@@ -148,7 +153,8 @@ internal fun DayStory(story: StoryData, sm: DayModel.Summary, paint: DayPaint.Da
         // the share: the same picture as today's story
         Text(stringResource(R.string.app_day_share), Modifier.align(Alignment.BottomCenter).navigationBarsPadding().padding(12.dp).fillMaxWidth()
             .heightIn(min = 52.dp).shadow(12.dp, RoundedCornerShape(26.dp)).clip(RoundedCornerShape(26.dp)).background(Color(0xFF7C4FE0))
-            .clickable(role = Role.Button) { haptics.tick(.4f); Qa.log("redesign day story share ${storyKind(cards.firstOrNull()?.getString("key") ?: "other")}"); shareStory(ctx, story, sm, track(), sample, name) }
+            .clickable(role = Role.Button) { haptics.tick(.4f); Qa.log("redesign day story share ${storyKind(cards.firstOrNull()?.getString("key") ?: "other")}"); sharing = true }
             .padding(vertical = 15.dp), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color.White, textAlign = TextAlign.Center)
+        if (sharing) DayShare(story, sm, paint, hide, track, name, night, sample, haptics, onBack = { sharing = false })
     }
 }

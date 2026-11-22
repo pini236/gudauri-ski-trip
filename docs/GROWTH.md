@@ -110,7 +110,7 @@
 | אירוע | מתי | מאפיינים |
 |---|---|---|
 | `story_view` | הסיפור של היום מוצג (מסך סוף היום, או פתיחה מהכרטיס על הרכבל) | `moments`: מספר הרגעים בסיפור (0 עד 3); `surface`: `end_of_day`, `lift_card` |
-| `story_share` | הסיפור יצא בשיתוף | `method`: `whatsapp`, `image`, `native`, `copy`; `top`: **סוג** הרגע הראשון בכרטיס, מתוך הרשימה הסגורה `fastest`, `longest_descent`, `first_color`, `new_runs`, `record`, `all_color`, `queue`, `queue_pattern`, `vs_day`, `flow`, `favorite`, `time_split`, `steepest`, `drop_compare`, `tomorrow`, `trip`, ובכל מקרה אחר `other` |
+| `story_share` | הסיפור יצא בשיתוף | `method`: `whatsapp`, `image`, `native`, `copy`, `video` (סרטון של דקה, נבנה בטלפון; עיצוב מחדש, סבב 4, L11, גרסת הבדיקה), `save` (שמירה בטלפון במקום שיתוף, תמונה או סרטון); `top`: **סוג** הרגע הראשון בכרטיס, מתוך הרשימה הסגורה `fastest`, `longest_descent`, `first_color`, `new_runs`, `record`, `all_color`, `queue`, `queue_pattern`, `vs_day`, `flow`, `favorite`, `time_split`, `steepest`, `drop_compare`, `tomorrow`, `trip`, ובכל מקרה אחר `other` |
 
 **הגבולות של `top`:** רק שם סוג הרגע. **אף פעם** לא שם מסלול או רכבל, צבע, מהירות, מרחק, גובה, שעה או מיקום, גם לא כחלק מהערך: למשל `first_color` ולא `first_color.red`, ו-`record` ולא סוג השיא. נפילה ואוף-פיסט (`fall`, `offpiste`) לא נשלחים בשמם אלא כ-`other`, כי הם נשארים אצל הגולש (`docs/AI-PRODUCT.md`, שאלה 5). **המדד:** שיתופים מתוך הצפיות, לפי `top`, כדי ללמוד איזו תובנה אנשים משתפים (יעד ראשון 15 עד 20 אחוז, שם).
 

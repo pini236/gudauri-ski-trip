@@ -91,6 +91,13 @@ fun StoryCard(d: StoryData, s: DayModel.Summary, track: Track? = null, sample: B
  * bitmap of a megapixel. `story_share` names only the kind of the first card, from the closed list.
  */
 fun shareStory(ctx: android.content.Context, d: StoryData, s: DayModel.Summary, track: Track?, sample: Boolean, name: (String) -> String = { it }) {
+    val (bmp, top) = storyPicture(ctx, d, s, track, name)
+    StoryImage.share(ctx, bmp, ctx.getString(R.string.common_site_name), ctx.getString(R.string.app_day_share))
+    if (!sample) Telemetry.event("story_share", mapOf("method" to "native", "top" to top))
+}
+
+/** The picture to share and the kind of its first moment (`top` in `story_share`); nothing leaves the phone here. */
+fun storyPicture(ctx: android.content.Context, d: StoryData, s: DayModel.Summary, track: Track?, name: (String) -> String = { it }): Pair<android.graphics.Bitmap, String> {
     val locale = ctx.resources.configuration.locales[0]
     val zone = ZoneId.of(DayParams.TZ)
     val words = MomentText.Words(ctx, locale)
@@ -103,6 +110,5 @@ fun shareStory(ctx: android.content.Context, d: StoryData, s: DayModel.Summary, 
     }
     val (title, lines) = words.render(head, Moments.seed("story.head", s.start))
     val bmp = StoryImage.draw(title, lines.firstOrNull(), cardsOut, track, ctx.getString(R.string.common_site_name), Lang.typeface(ctx, lang, true), Lang.typeface(ctx, lang, false), lang.rtl)
-    StoryImage.share(ctx, bmp, ctx.getString(R.string.common_site_name), ctx.getString(R.string.app_day_share))
-    if (!sample) Telemetry.event("story_share", mapOf("method" to "native", "top" to storyKind(cards.firstOrNull { it.getString("key") !in StoryImage.KEPT }?.getString("key") ?: "other")))
+    return bmp to storyKind(cards.firstOrNull { it.getString("key") !in StoryImage.KEPT }?.getString("key") ?: "other")
 }

@@ -329,7 +329,13 @@ fun DayMountain(file: File, sample: Boolean, scene: MapScene, mode: DayNight.Mod
         val lr = l
         if (ridge && lr != null) DayRidge(lr.paint, lr.elev, lr.day, lr.segs, scene.runs, night, sample, haptics, onShare = { story = true }, onBack = { ridge = false })
         val st = lr?.story
-        if (story && lr != null && st != null) DayStory(st, lr.day.summary, lr.paint, { runCatching { io.github.pini236.skiapp.dayrec.ui.readTrack(file) }.getOrNull() },
+        if (story && lr != null && st != null) DayStory(st, lr.day.summary, lr.paint, offPiste(lr.segs), { runCatching { io.github.pini236.skiapp.dayrec.ui.readTrack(file) }.getOrNull() },
             scene.runs, night, sample, haptics, onBack = { story = false })
     }
+}
+
+/** The off-piste stretches of the day's descents ([t0, t1]): never drawn in what is shared (board L11). */
+internal fun offPiste(segs: List<org.json.JSONObject>): List<LongArray> = segs.flatMap { s ->
+    val a = s.optJSONArray("offpiste") ?: return@flatMap emptyList()
+    (0 until a.length()).map { val o = a.getJSONObject(it); longArrayOf(o.optLong("t0"), o.optLong("t1")) }
 }

@@ -1186,6 +1186,13 @@ redesign() {
   # the story of the day (board L10)
   mark; qa "--es qa.redesign story"; waitlog "redesign day story" 15 || fail "redesign: the story did not open"
   sleep 2; shot redesign-day-story
+  # board L11: what leaves the phone; the one-minute video made here (MediaCodec) and saved, never a place in it
+  mark; qa "--es qa.redesign share"; waitlog "redesign share open" 15 || fail "redesign: the share sheet did not open"
+  sleep 2; shot redesign-share
+  mark; qa "--es qa.redesign share:video"
+  if waitlog "redesign share video made" 420; then waitlog "redesign share saved video true" 30 || fail "redesign: the video was not saved"; sleep 1; shot redesign-share-video
+  else fail "redesign: the one-minute video was not made"; fi
+  mark; qa "--es qa.redesign share:off"; sleep 1
   mark; qa "--es qa.redesign story:off"; sleep 1
   mark; qa "--es qa.redesign ridge:off"; sleep 2
   # board L01: the first time, the sheet before the system's location question (revoking restarts the app)
