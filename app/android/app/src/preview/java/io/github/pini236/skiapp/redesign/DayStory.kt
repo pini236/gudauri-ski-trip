@@ -68,8 +68,7 @@ import java.util.Locale
  * then each insight as a card, with a window onto the day's light where the moment has a time and place. The share at
  * the bottom draws the same picture as today's story (shareStory: no fall, no off-piste, no name). Left out, and logged:
  * the fall's card ("a kiss to the snow?"), since its "I did not fall" needs a way to dismiss a blow in a closed day
- * (rewriting the log and its analysis) that the app does not have yet, and the board's "yes, it was" has no key; and the
- * board's title "the story of the day" has no key, so the pill says the day and its date.
+ * (rewriting the log and its analysis) that the app does not have yet, and the board's "yes, it was" has no key.
  */
 @Composable
 internal fun DayStory(story: StoryData, sm: DayModel.Summary, paint: DayPaint.Day, track: () -> Track?, runs: Runs?, night: Boolean, sample: Boolean,
@@ -142,7 +141,7 @@ internal fun DayStory(story: StoryData, sm: DayModel.Summary, paint: DayPaint.Da
                 Text(if (rtl) "›" else "‹", fontFamily = Plex, fontSize = 20.sp, color = ink)
             }
             val date = DateTimeFormatter.ofPattern("d.M.yyyy", Locale.ROOT).format(Instant.ofEpochMilli(sm.start).atZone(zone))
-            Text(stringResource(R.string.app_day_title) + " · " + date, Modifier.weight(1f), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = ink, maxLines = 1)
+            Text(stringResource(R.string.app_day_story_title) + " · " + date, Modifier.weight(1f), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = ink, maxLines = 1)
             if (sample) Text(stringResource(R.string.app_day_sample), Modifier.padding(end = 14.dp).clip(RoundedCornerShape(10.dp))
                 .background(Color(0x33A98BEE)).padding(horizontal = 8.dp, vertical = 2.dp), fontFamily = Plex, fontSize = 12.sp, color = ink)
         }

@@ -126,6 +126,8 @@ fun LiveDay(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, liftName: (S
     // the stretch since it, while the live view says you ski
     var last by remember { mutableStateOf<FloatArray?>(null) }
     var painted by remember { mutableStateOf<DayPaint.Day?>(null) }
+    // "watch the descent" from the lift (board L04): the descent's film (L09)
+    var seeRide by remember { mutableStateOf<io.github.pini236.skiapp.dayrec.DayEngine.Ride?>(null) }
     LaunchedEffect(night) {
         while (true) {
             val f = DayRec.current
@@ -169,7 +171,7 @@ fun LiveDay(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, liftName: (S
             dot = last?.let { q -> view.toScreen(q[0], q[1], 4f) }?.let { Offset(it[0], it[1]) }
             pin = rideState.value?.maxAt?.let { m -> view.toScreen(Geo.x(m.lon), Geo.y(m.lat), 4f) }?.let { Offset(it[0], it[1]) } } }
         val measurer = androidx.compose.ui.text.rememberTextMeasurer()
-        val pinText = ride?.maxKmh?.let { stringResource(R.string.app_day_pin) + " · " + "%.1f".format(java.util.Locale.ROOT, it) }
+        val pinText = ride?.maxKmh?.let { stringResource(R.string.app_rec_pin_label, "%.1f".format(java.util.Locale.ROOT, it)) }
         Canvas(Modifier.fillMaxSize()) {
             // "here you flew" on the descent you just did, while you ride up (board L04)
             val p = pin
@@ -209,7 +211,7 @@ fun LiveDay(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, liftName: (S
             val small = TextStyle(fontFamily = Plex, fontSize = 14.sp, color = muted, shadow = Shadow(halo, Offset.Zero, 12f))
             val bold = TextStyle(fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 18.sp, color = ink, shadow = Shadow(halo, Offset.Zero, 12f))
             when {
-                onLift && ride != null -> LiftCard(ride, painted, night, ink, muted, glass, rule, liftName, runName, onStop)
+                onLift && ride != null -> LiftCard(ride, painted, night, ink, muted, glass, rule, liftName, runName, onSee = { haptics.tick(.3f); seeRide = ride }, onStop = onStop)
                 searching -> {
                     Text(stringResource(R.string.app_rec_search), style = bold)
                     Text(stringResource(R.string.app_rec_search_note), style = small, textAlign = androidx.compose.ui.text.style.TextAlign.Center)
@@ -242,6 +244,13 @@ fun LiveDay(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, liftName: (S
                 Text(stringResource(R.string.app_rec_no_notif), style = small, textAlign = androidx.compose.ui.text.style.TextAlign.Center)
             // hold to finish (L03): the fill grows under the finger for a second; let go before and nothing happens
             if (!onLift) HoldToFinish(scope, haptics, red, ink, glass, rule, onStop)
+        }
+        val r = seeRide; val pd = painted
+        if (r != null && pd != null) {
+            val d = io.github.pini236.skiapp.dayrec.ui.DayModel.Descent(r.t0, r.runs, r.maxKmh, false, r.dropM, r.distM,
+                r.t1, r.movingS.toDouble(), r.avgKmh, r.maxAt?.t)
+            val segs = remember(r) { DayRec.sofar?.segments?.map { io.github.pini236.skiapp.dayrec.ResultJson.seg(it) }.orEmpty() }
+            RunFilm(d, segs.firstOrNull { it.optString("type") == "descent" && it.optLong("t0") == r.t0 }, segs, pd, scene.runs, night, haptics) { seeRide = null }
         }
     }
 }
@@ -276,14 +285,12 @@ private fun HoldToFinish(scope: kotlinx.coroutines.CoroutineScope, haptics: Hapt
 
 /**
  * On the lift (board L04): the descent you just did, while there is time to look. A thumbnail of its line in the light's
- * colours, the runs by name, three numbers (top speed, minutes moving, metres down), the wait for the lift, and the day
- * so far. The board's
- * header ("the descent you just did") and its "watch the descent" button have no key in i18n/strings.json yet, so they
- * are left out rather than written here.
+ * colours, the runs by name, three numbers (top speed, minutes moving, metres down), the wait for the lift, the day so
+ * far, "watch the descent" (its film, L09) and "finish".
  */
 @Composable
 private fun LiftCard(ride: io.github.pini236.skiapp.dayrec.DayEngine.Ride, painted: DayPaint.Day?, night: Boolean, ink: Color, muted: Color,
-                     glass: Color, rule: Color, liftName: (String) -> String, runName: (String) -> String, onStop: () -> Unit) {
+                     glass: Color, rule: Color, liftName: (String) -> String, runName: (String) -> String, onSee: () -> Unit, onStop: () -> Unit) {
     val ramp = if (night) DayPaint.NIGHT else DayPaint.DAY
     // the ride's stretches out of the painted day, by time
     val lines = remember(painted, ride.t0, ride.t1) {
@@ -297,6 +304,7 @@ private fun LiftCard(ride: io.github.pini236.skiapp.dayrec.DayEngine.Ride, paint
     val label = TextStyle(fontFamily = Plex, fontSize = 12.sp, color = muted)
     Column(Modifier.padding(top = 8.dp).fillMaxWidth().shadow(14.dp, RoundedCornerShape(20.dp)).clip(RoundedCornerShape(20.dp)).background(glass)
         .border(1.dp, rule, RoundedCornerShape(20.dp)).padding(16.dp)) {
+        Text(stringResource(R.string.app_rec_just_ran), style = label, modifier = Modifier.padding(bottom = 8.dp))
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             Canvas(Modifier.size(64.dp).clip(RoundedCornerShape(12.dp)).background(if (night) Color(0xFF0A1322) else Color(0xFFEEF2F5))) {
                 if (lines.isEmpty()) return@Canvas
@@ -335,6 +343,12 @@ private fun LiftCard(ride: io.github.pini236.skiapp.dayrec.DayEngine.Ride, paint
                 Text(stringResource(R.string.app_rec_day_so_far), style = label)
                 if (so != null) Text(stringResource(R.string.app_rec_day_line, so.descents, "%,d".format(java.util.Locale.ROOT, so.dropM.toInt()),
                     "%.1f".format(java.util.Locale.ROOT, so.skiDistM / 1000)), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = ink)
+            }
+            val see = stringResource(R.string.app_rec_see_run)
+            Box(Modifier.padding(end = 8.dp).height(44.dp).clip(RoundedCornerShape(22.dp)).border(1.dp, rule, RoundedCornerShape(22.dp))
+                .semantics { role = Role.Button; contentDescription = see }
+                .clickable { Qa.log("redesign rec lift see"); onSee() }.padding(horizontal = 14.dp), contentAlignment = Alignment.Center) {
+                Text(see, fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = ink)
             }
             val stop = stringResource(R.string.app_rec_stop)
             Box(Modifier.height(44.dp).clip(RoundedCornerShape(22.dp)).background(Color(0xFFE5322D))

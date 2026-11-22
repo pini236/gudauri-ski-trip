@@ -72,13 +72,13 @@ import kotlin.math.sin
 /**
  * One descent as a film (board L09): its real line, turned so that it runs from the top of the screen to the bottom,
  * burning in the speed light from the start to the end in a few seconds; a gap (more than 10 s without a reading) is
- * a dotted line between its two ends, never filled in, with how long it was (board L13's words). Beside it the top speed's pin and the times at the top and at
- * the bottom; under it the descent's numbers. Today's words only: the board's "top of / bottom of", "m above the sea",
- * and "one stop" have no key yet, so those notes are not written (a gap says how long it was, in board L13's words); the pill names the runs
- * in place of the board's "the longest descent of the day".
+ * a dotted line between its two ends, never filled in, with how long it was. Beside it the notes of the board, from the
+ * analysis: the top (time, the lift you came up on, the height), the top speed (run and time), one stop when there was
+ * one, the bottom (time, the next lift, the height); under it distance, metres down and minutes moving. The pill names
+ * the runs (the board's "the longest descent of the day" is a moment's title, and this film opens on any descent).
  */
 @Composable
-internal fun RunFilm(d: DayModel.Descent, paint: DayPaint.Day, runs: Runs?, night: Boolean, haptics: Haptics, onBack: () -> Unit) {
+internal fun RunFilm(d: DayModel.Descent, seg: org.json.JSONObject?, segs: List<org.json.JSONObject>, paint: DayPaint.Day, runs: Runs?, night: Boolean, haptics: Haptics, onBack: () -> Unit) {
     BackHandler { onBack() }
     val context = LocalContext.current
     val dens = context.resources.displayMetrics.density
@@ -116,7 +116,21 @@ internal fun RunFilm(d: DayModel.Descent, paint: DayPaint.Day, runs: Runs?, nigh
         reveal.animateTo(1f, tween(4500, easing = LinearEasing)); Qa.log("redesign run film end")
     }
     val measurer = rememberTextMeasurer()
-    val pin = d.maxKmh?.let { stringResource(R.string.app_day_pin) + " · " + LiveNumbers.maxKmh(it) + " " + stringResource(R.string.app_rec_unit) }
+    val hm = { t: Long -> hhmm.format(Instant.ofEpochMilli(t).atZone(zone)) }
+    val firstRun = d.runs.firstOrNull()?.split(" · ")?.firstOrNull()?.let { k -> titleOf(runs, k) }
+    val pin = d.maxKmh?.let { stringResource(R.string.app_film_top_speed, LiveNumbers.maxKmh(it)) }
+    val pinSub = d.maxAt?.let { t -> firstRun?.let { stringResource(R.string.app_film_top_speed_sub, it, hm(t)) } ?: hm(t) }
+    // the lift you came up on and the one you went to (the analysis's segments), and the heights at the top and the bottom
+    val liftUp = remember(segs, d) { segs.lastOrNull { it.optString("type") == "lift" && it.optLong("t1") <= d.t0 + 5_000 }?.let { liftTitle(runs, it) } }
+    val liftNext = remember(segs, d) { segs.firstOrNull { it.optString("type") == "lift" && it.optLong("t0") >= d.t1 - 5_000 }?.let { liftTitle(runs, it) } }
+    fun alt(k: String) = seg?.takeIf { it.has(k) && !it.isNull(k) }?.optDouble(k)?.let { context.getString(R.string.app_film_alt, String.format(Locale.ROOT, "%,d", Math.round(it))) }
+    val topNote = (liftUp?.let { stringResource(R.string.app_film_top, hm(d.t0), it) } ?: hm(d.t0)) to alt("top_m")
+    val bottomNote = (liftNext?.let { stringResource(R.string.app_film_bottom, hm(d.t1), it) } ?: hm(d.t1)) to alt("bottom_m")
+    // one stop on the way (more than one: not named one by one)
+    val stop = seg?.optJSONArray("stops")?.takeIf { it.length() == 1 }?.getJSONObject(0)
+    val stopTitle = stringResource(R.string.app_tl_one_stop)
+    val stopSub = stop?.let { stringResource(R.string.app_film_stop_sub, ((it.optLong("t1") - it.optLong("t0")) / 1000L).toInt(), hm(it.optLong("t0"))) }
+    val gapSub = stringResource(R.string.app_film_gap_sub)
     // the gaps between the stretches, in minutes, worded as on board L13
     val gapOne = stringResource(R.string.app_rec_gap_title)
     val gaps = remember(parts) {
@@ -144,11 +158,19 @@ internal fun RunFilm(d: DayModel.Descent, paint: DayPaint.Day, runs: Runs?, nigh
             fun at(x: Float, y: Float) = Offset(left + (tx(x, y) - x0) * k, top + (ty(x, y) - y0) * k)
             val note = TextStyle(fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = ink)
             val noteX = if (rtl) colW + 8 * dens else 8 * dens
-            fun noteAt(p: Offset, text: String) {
-                val tl = measurer.measure(text, note, constraints = androidx.compose.ui.unit.Constraints(maxWidth = (size.width - colW - 16 * dens).toInt()))
-                val x = if (rtl) noteX else size.width - colW - 8 * dens - tl.size.width
-                drawLine(rule, p, Offset(if (rtl) x - 4 * dens else x + tl.size.width + 4 * dens, p.y), 1f * dens)
-                drawText(tl, topLeft = Offset(x, p.y - tl.size.height / 2f))
+            val subStyle = TextStyle(fontFamily = Plex, fontSize = 12.5.sp, color = muted)
+            fun noteAt(p: Offset, text: String, sub: String? = null) {
+                val cs = androidx.compose.ui.unit.Constraints(maxWidth = (size.width - colW - 16 * dens).toInt())
+                val tl = measurer.measure(text, note, constraints = cs)
+                val sl = sub?.let { measurer.measure(it, subStyle, constraints = cs) }
+                val w = maxOf(tl.size.width, sl?.size?.width ?: 0); val h = tl.size.height + (sl?.size?.height ?: 0)
+                // in Hebrew the notes are right of the line and read from the right; in English left of it
+                fun xOf(lw: Int) = if (rtl) size.width - 8 * dens - lw else size.width - colW - 8 * dens - lw
+                val edge = if (rtl) size.width - 8 * dens - w else size.width - colW - 8 * dens
+                drawLine(rule, p, Offset(if (rtl) edge - 4 * dens else edge + 4 * dens, p.y), 1f * dens)
+                val y0 = p.y - h / 2f
+                drawText(tl, topLeft = Offset(xOf(tl.size.width), y0))
+                sl?.let { drawText(it, topLeft = Offset(xOf(it.size.width), y0 + tl.size.height)) }
             }
             val shown = (reveal.value * total).toInt()
             var gi = 0
@@ -160,7 +182,7 @@ internal fun RunFilm(d: DayModel.Descent, paint: DayPaint.Day, runs: Runs?, nigh
                 // a gap is dotted, never filled in, and says how long it was (board L13's words)
                 prevEnd?.let { if (n < shown) {
                     drawLine(muted, it, first, 1.4f * dens, pathEffect = PathEffect.dashPathEffect(floatArrayOf(2f * dens, 4f * dens)))
-                    gaps.getOrNull(gi)?.let { g -> noteAt(Offset((it.x + first.x) / 2, (it.y + first.y) / 2), g) }
+                    gaps.getOrNull(gi)?.let { g -> noteAt(Offset((it.x + first.x) / 2, (it.y + first.y) / 2), g, gapSub) }
                 }; gi++ }
                 for (i in 0 until l.band.size - 1) {
                     if (n++ >= shown) break
@@ -172,15 +194,18 @@ internal fun RunFilm(d: DayModel.Descent, paint: DayPaint.Day, runs: Runs?, nigh
             }
             // the notes: the time at the top and at the bottom, and the top speed's pin
             val a = parts.first(); val z = parts.last()
-            noteAt(at(a.xy[0], a.xy[1]), hhmm.format(Instant.ofEpochMilli(a.t[0]).atZone(zone)))
-            noteAt(at(z.xy[z.xy.size - 2], z.xy[z.xy.size - 1]), hhmm.format(Instant.ofEpochMilli(z.t.last()).atZone(zone)))
+            noteAt(at(a.xy[0], a.xy[1]), topNote.first, topNote.second)
+            if (reveal.value >= 1f) noteAt(at(z.xy[z.xy.size - 2], z.xy[z.xy.size - 1]), bottomNote.first, bottomNote.second)
+            // the stop, where it was on the line
+            stop?.let { st -> val t = st.optLong("t0"); val pp = paint.track.at(t)
+                if (pp != null && reveal.value * (d.t1 - d.t0) >= t - d.t0) { val q = at(pp[0], pp[1]); drawCircle(muted, 3.5f * dens, q); noteAt(q, stopTitle, stopSub) } }
             val mt = d.maxAt
             if (pin != null && mt != null) for (l in parts) {
                 val i = l.t.indexOfFirst { it >= mt }; if (i < 0) continue
                 val p = at(l.xy[i * 2], l.xy[i * 2 + 1])
                 if (reveal.value * (d.t1 - d.t0) >= mt - d.t0) {
                     drawCircle(Color.White, 5f * dens, p); drawCircle(Color(0xFF000000.toInt() or ramp[4]), 5f * dens, p, style = androidx.compose.ui.graphics.drawscope.Stroke(2f * dens))
-                    noteAt(p, pin + " · " + hhmm.format(Instant.ofEpochMilli(mt).atZone(zone)))
+                    noteAt(p, pin, pinSub)
                 }
                 break
             }
@@ -202,15 +227,14 @@ internal fun RunFilm(d: DayModel.Descent, paint: DayPaint.Day, runs: Runs?, nigh
             val ms = d.movingS.toInt()
             for ((v, key) in listOf(String.format(Locale.ROOT, "%.1f", d.distM / 1000.0) to R.string.app_rec_km_ski,
                 String.format(Locale.ROOT, "%,d", Math.round(d.dropM)) to R.string.app_rec_m_down,
-                String.format(Locale.ROOT, "%d:%02d", ms / 60, ms % 60) to R.string.app_run_min)) {
+                String.format(Locale.ROOT, "%d:%02d", ms / 60, ms % 60) to R.string.app_film_moving_min)) {
                 Column {
                     Text(v, fontFamily = Plex, fontWeight = FontWeight.Light, fontSize = 30.sp, color = ink)
                     Text(stringResource(key), fontFamily = Plex, fontSize = 12.sp, color = muted)
                 }
             }
             Box(Modifier.weight(1f))
-            Box(Modifier.padding(bottom = 10.dp).width(44.dp).height(4.dp).clip(RoundedCornerShape(2.dp))
-                .background(Brush.horizontalGradient(ramp.map { Color(0xFF000000.toInt() or it) }.let { if (rtl) it.reversed() else it })))
+            LightScale(night, muted, modifier = Modifier.padding(bottom = 8.dp))
         }
     }
 }

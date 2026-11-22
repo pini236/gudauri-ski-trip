@@ -65,12 +65,11 @@ import java.util.Locale
 /**
  * The ridge of the day and its timeline (board L07): the height through the day against the time, the descents in the
  * speed light and the rides dotted, the top speed's bubble and the long breaks named; under it the day as a timeline
- * in the new style. Today's words only: the board's "the ridge of the day", "slow", "fast" and "lift" under the scale
- * have no key yet, so the scale is shown without them; and the analysis has no lift item in DayModel, so the rides are on
- * the ridge and not in the list (as on today's day screen).
+ * in the new style. The rides come from the analysis's lift segments (DayModel has no lift item); the chapters are morning and
+ * afternoon as on today's day screen (the board's "noon" is not used).
  */
 @Composable
-internal fun DayRidge(paint: DayPaint.Day, elev: FloatArray, day: DayModel.Day, runs: Runs?, night: Boolean, sample: Boolean, haptics: io.github.pini236.skiapp.fx.Haptics, onShare: () -> Unit, onBack: () -> Unit) {
+internal fun DayRidge(paint: DayPaint.Day, elev: FloatArray, day: DayModel.Day, segs: List<org.json.JSONObject>, runs: Runs?, night: Boolean, sample: Boolean, haptics: io.github.pini236.skiapp.fx.Haptics, onShare: () -> Unit, onBack: () -> Unit) {
     val context = LocalContext.current
     val zone = ZoneId.of(io.github.pini236.skiapp.dayrec.DayParams.TZ)
     val dens = context.resources.displayMetrics.density
@@ -84,6 +83,15 @@ internal fun DayRidge(paint: DayPaint.Day, elev: FloatArray, day: DayModel.Day, 
     val hhmm = remember { DateTimeFormatter.ofPattern("HH:mm", Locale.ROOT) }
     fun at(t: Long) = hhmm.format(Instant.ofEpochMilli(t).atZone(zone))
     LaunchedEffect(Unit) { Qa.log("redesign day ridge ${day.chapters.sumOf { it.items.size }}") }
+    val entries = remember(day, segs) {
+        val lifts = segs.filter { it.optString("type") == "lift" }.map { o ->
+            LiftRow(o.optLong("t0"), liftTitle(runs, o),
+                ((o.optLong("t1") - o.optLong("t0")) / 60_000L).toInt(), if (o.isNull("rise_m")) null else o.optDouble("rise_m"))
+        }
+        (day.chapters.flatMap { it.items } + lifts).sortedBy { (it as? DayModel.Item)?.t0 ?: (it as LiftRow).t0 }
+            .groupBy { e -> Instant.ofEpochMilli((e as? DayModel.Item)?.t0 ?: (e as LiftRow).t0).atZone(zone).hour >= DayModel.NOON_HOUR }
+            .toSortedMap().toList()
+    }
     // one descent as a film (board L09), from a descent in the timeline
     var film by remember { androidx.compose.runtime.mutableStateOf<DayModel.Descent?>(null) }
     val descents = remember(day) { day.chapters.flatMap { it.items }.filterIsInstance<DayModel.Descent>() }
@@ -101,8 +109,7 @@ internal fun DayRidge(paint: DayPaint.Day, elev: FloatArray, day: DayModel.Day, 
                 // the ridge (L07): ground faint, descents in the light, rides dotted, hours under it
                 val measurer = rememberTextMeasurer()
                 val sm = day.summary
-                val unit = stringResource(R.string.app_rec_unit)
-                val bubble = sm.maxAt?.let { "${at(it)} · ${LiveNumbers.maxKmh(sm.maxKmh)} $unit" }
+                val bubble = sm.maxAt?.let { stringResource(R.string.app_ridge_bubble, at(it), LiveNumbers.maxKmh(sm.maxKmh)) }
                 val breakWords = day.chapters.flatMap { it.items }.filterIsInstance<DayModel.Rest>().filter { it.long }
                     .map { it to stringResource(R.string.app_day_lunch, it.minutes) }
                 val tr = paint.track
@@ -155,24 +162,27 @@ internal fun DayRidge(paint: DayPaint.Day, elev: FloatArray, day: DayModel.Day, 
                         drawCircle(Color.White, 3.5f * dens, p); drawCircle(Color(0xFF000000.toInt() or ramp[4]), 3.5f * dens, p, style = androidx.compose.ui.graphics.drawscope.Stroke(1.6f * dens))
                     }
                 }
-                // the scale, without words (no key yet), and a dotted piece for the rides
-                Row(Modifier.padding(top = 4.dp, bottom = 12.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                    Box(Modifier.width(120.dp).height(6.dp).clip(RoundedCornerShape(3.dp))
-                        .background(Brush.horizontalGradient(ramp.map { Color(0xFF000000.toInt() or it) }.let { if (rtl) it.reversed() else it })))
-                    Canvas(Modifier.width(28.dp).height(6.dp)) {
-                        drawLine(if (night) Color(0xFFC9D5E2) else Color(0xFF22303F), Offset(0f, size.height / 2), Offset(size.width, size.height / 2), 1.2f * dens,
-                            pathEffect = PathEffect.dashPathEffect(floatArrayOf(1.5f * dens, 3.5f * dens)))
-                    }
-                }
+                // the scale and the rides' dotted piece, named (board L07's legend)
+                LightScale(night, muted, width = 120.dp, lift = true, modifier = Modifier.padding(top = 4.dp, bottom = 12.dp))
             }
-            for (ch in day.chapters) {
+            // the day's items with its lift rides between them (the analysis's lift segments), in chapters by the hour
+            for ((afternoon, rows) in entries) {
                 item {
                     Row(Modifier.padding(top = 14.dp, bottom = 4.dp), verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        Text(stringResource(if (ch.afternoon) R.string.app_day_afternoon else R.string.app_day_morning), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 13.sp, color = muted)
-                        Text(stringResource(R.string.app_day_n_descents, ch.descents), fontFamily = Plex, fontSize = 12.sp, color = muted)
+                        Text(stringResource(if (afternoon) R.string.app_day_afternoon else R.string.app_day_morning), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 13.sp, color = muted)
+                        Text(stringResource(R.string.app_day_n_descents, rows.count { it is DayModel.Descent }), fontFamily = Plex, fontSize = 12.sp, color = muted)
                     }
                 }
-                items(ch.items) { it -> TimelineRow(it, at(it.t0), runs, night, ink, muted, rule) { if (it is DayModel.Descent) { haptics.tick(.3f); film = it } } }
+                items(rows) { e ->
+                    when (e) {
+                        is LiftRow -> LiftLine(e, at(e.t0), ink, muted, rule)
+                        is DayModel.Item -> TimelineRow(e, at(e.t0), runs, night, ink, muted, rule,
+                            top = e is DayModel.Descent && e.maxAt != null && e.maxAt == day.summary.maxAt,
+                            stops = (e as? DayModel.Descent)?.let { d -> segOf(segs, d)?.optJSONArray("stops")?.length() } ?: 0) {
+                            if (e is DayModel.Descent) { haptics.tick(.3f); film = e }
+                        }
+                    }
+                }
             }
         }
         // the top pill: back, the day and its date, and the sample's badge
@@ -184,7 +194,7 @@ internal fun DayRidge(paint: DayPaint.Day, elev: FloatArray, day: DayModel.Day, 
                 Text(if (rtl) "›" else "‹", fontFamily = Plex, fontSize = 20.sp, color = ink)
             }
             val date = DateTimeFormatter.ofPattern("d.M.yyyy", Locale.ROOT).format(Instant.ofEpochMilli(day.summary.start).atZone(zone))
-            Text(stringResource(R.string.app_day_title) + " · " + date, Modifier.weight(1f), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = ink, maxLines = 1)
+            Text(stringResource(R.string.app_ridge_title) + " · " + date, Modifier.weight(1f), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = ink, maxLines = 1)
             // the story of the day and its picture (board L10)
             val share = stringResource(R.string.app_day_share)
             Text(share, Modifier.padding(end = 6.dp).clip(RoundedCornerShape(18.dp)).clickable(role = Role.Button) { onShare() }
@@ -192,15 +202,40 @@ internal fun DayRidge(paint: DayPaint.Day, elev: FloatArray, day: DayModel.Day, 
             if (sample) Text(stringResource(R.string.app_day_sample), Modifier.padding(end = 14.dp).clip(RoundedCornerShape(10.dp))
                 .background(Color(0x33A98BEE)).padding(horizontal = 8.dp, vertical = 2.dp), fontFamily = Plex, fontSize = 12.sp, color = ink)
         }
-        film?.let { f -> RunFilm(f, paint, runs, night, haptics) { film = null } }
+        film?.let { f -> RunFilm(f, segOf(segs, f), segs, paint, runs, night, haptics) { film = null } }
     }
+}
+
+/** A lift ride in the timeline (board L07): from the analysis's lift segment. */
+internal class LiftRow(val t0: Long, val name: String, val minutes: Int, val riseM: Double?)
+
+/** A lift segment's name: the lift's name in the data, by its id (as the live screen), else the segment's own. */
+internal fun liftTitle(runs: Runs?, o: org.json.JSONObject): String {
+    val id = o.optString("lift")
+    return runs?.lifts?.firstOrNull { it.id == id }?.name ?: o.optString("name").takeIf { !o.isNull("name") && it.isNotEmpty() } ?: id
+}
+
+/** The analysis's segment of a descent (its stops, its top and bottom), by its start. */
+internal fun segOf(segs: List<org.json.JSONObject>, d: DayModel.Descent) = segs.firstOrNull { it.optString("type") == "descent" && it.optLong("t0") == d.t0 }
+
+@Composable
+private fun LiftLine(e: LiftRow, at: String, ink: Color, muted: Color, rule: Color) {
+    Row(Modifier.fillMaxWidth().heightIn(min = 40.dp).padding(vertical = 6.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+        Text(at, Modifier.width(44.dp).padding(top = 1.dp), fontFamily = Plex, fontSize = 13.sp, color = muted)
+        Column(Modifier.weight(1f)) {
+            Text(stringResource(R.string.app_tl_lift_head, e.name), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = ink)
+            Text(stringResource(R.string.app_tl_lift_meta, e.minutes, e.riseM?.let { String.format(Locale.ROOT, "%,d", Math.round(it)) } ?: "—"),
+                fontFamily = Plex, fontSize = 13.sp, color = muted)
+        }
+    }
+    Box(Modifier.fillMaxWidth().height(1.dp).background(rule))
 }
 
 /** A run's sign colour, as on the trail signs (board L07). */
 private fun signColor(c: String?) = when (c) { "green" -> Color(0xFF178A4A); "red" -> Color(0xFFD8362C); "black" -> Color(0xFF14171B); "blue" -> Color(0xFF1B6FDB); else -> Color(0xFF8A96A3) }
 
 @Composable
-private fun TimelineRow(it: DayModel.Item, at: String, runs: Runs?, night: Boolean, ink: Color, muted: Color, rule: Color, onOpen: () -> Unit) {
+private fun TimelineRow(it: DayModel.Item, at: String, runs: Runs?, night: Boolean, ink: Color, muted: Color, rule: Color, top: Boolean, stops: Int, onOpen: () -> Unit) {
     Row(Modifier.fillMaxWidth().heightIn(min = 40.dp).let { m -> if (it is DayModel.Descent) m.clickable(role = Role.Button) { onOpen() } else m }.padding(vertical = 6.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
         Text(at, Modifier.width(44.dp).padding(top = 1.dp), fontFamily = Plex, fontSize = 13.sp, color = muted)
         Column(Modifier.weight(1f)) {
@@ -216,17 +251,17 @@ private fun TimelineRow(it: DayModel.Item, at: String, runs: Runs?, night: Boole
                             Text(shortRuns(keys.joinToString(" · ") { k -> titleOf(runs, k) }), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = ink, maxLines = 1)
                         }
                     }
-                    val parts = listOf(
-                        String.format(Locale.ROOT, "%.1f", it.distM / 1000.0) + " " + stringResource(R.string.app_rec_km_ski),
-                        Math.round(it.dropM).toString() + " " + stringResource(R.string.app_rec_m_down),
-                        LiveNumbers.maxKmh(it.maxKmh) + " " + stringResource(R.string.app_rec_kmh_max),
-                    )
-                    Text(parts.joinToString(" · "), style = meta)
+                    Text(stringResource(R.string.app_tl_run_meta, String.format(Locale.ROOT, "%.1f", it.distM / 1000.0),
+                        String.format(Locale.ROOT, "%,d", Math.round(it.dropM)), LiveNumbers.maxKmh(it.maxKmh)), style = meta)
+                    if (stops == 1) Text(stringResource(R.string.app_tl_one_stop), style = meta)
+                    // the descent where the day's top speed was (board L07)
+                    if (top) Text(stringResource(R.string.app_tl_top_speed, LiveNumbers.maxKmh(it.maxKmh),
+                        it.runs.firstOrNull()?.split(" · ")?.firstOrNull()?.let { k -> titleOf(runs, k) } ?: ""), style = meta)
                     if (it.runs.isNotEmpty() && it.offRuns) Text(stringResource(R.string.app_day_off), style = meta)
                 }
                 is DayModel.Queue -> Text(stringResource(R.string.app_day_queue, it.minutes) + (it.lift?.let { l -> " · $l" } ?: ""), style = meta)
                 is DayModel.Rest -> Text(stringResource(if (it.long) R.string.app_day_lunch else R.string.app_day_rest, it.minutes), style = meta)
-                is DayModel.Walk -> Text(stringResource(R.string.app_day_walk, Math.round(it.distM)), style = meta)
+                is DayModel.Walk -> Text(stringResource(R.string.app_tl_walk, Math.round(it.distM)), style = meta)
             }
         }
     }

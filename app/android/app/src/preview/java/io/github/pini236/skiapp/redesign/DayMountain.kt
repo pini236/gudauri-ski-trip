@@ -117,7 +117,7 @@ fun DayMountain(file: File, sample: Boolean, scene: MapScene, mode: DayNight.Mod
     var story by androidx.compose.runtime.saveable.rememberSaveable(file.path) { mutableStateOf(false) }
     BackHandler { if (story) story = false else if (ridge) ridge = false else if (filming) { filming = false; playing = false } else onBack() }
 
-    class Loaded(val paint: DayPaint.Day, val day: DayModel.Day, val story: StoryData?, val elev: FloatArray)
+    class Loaded(val paint: DayPaint.Day, val day: DayModel.Day, val story: StoryData?, val elev: FloatArray, val segs: List<JSONObject>)
     var loaded by remember(file) { mutableStateOf<Loaded?>(null) }
     var failed by remember(file) { mutableStateOf(false) }
     LaunchedEffect(file) {
@@ -128,11 +128,12 @@ fun DayMountain(file: File, sample: Boolean, scene: MapScene, mode: DayNight.Mod
             val out = runCatching { DayAnalysis.ensure(context, file) }.getOrNull()
             val result = out?.let { runCatching { JSONObject(it.readText()) }.getOrNull() }
             if (result == null) { failed = true; return@withContext }
-            val segs = result.optJSONArray("segments")?.let { a -> (0 until a.length()).map { a.getJSONObject(it) }.map { DayPaint.Seg(it.optString("type"), it.optLong("t0"), it.optLong("t1")) } } ?: emptyList()
+            val raw = result.optJSONArray("segments")?.let { a -> (0 until a.length()).map { a.getJSONObject(it) } } ?: emptyList()
+            val segs = raw.map { DayPaint.Seg(it.optString("type"), it.optLong("t0"), it.optLong("t1")) }
             val pts = DayLog.read(file).points.map { DayPaint.Pt(it.t, Geo.x(it.lon), Geo.y(it.lat), it.speed?.let { s -> s * 3.6 }) }
             val paint = DayPaint.build(pts, segs)
             val tr = paint.track
-            loaded = Loaded(paint, DayModel.build(result, zone), StoryData.read(DayStore.momentsOf(file)), FloatArray(tr.t.size) { scene.terrain.elev(tr.x[it], tr.y[it]) })
+            loaded = Loaded(paint, DayModel.build(result, zone), StoryData.read(DayStore.momentsOf(file)), FloatArray(tr.t.size) { scene.terrain.elev(tr.x[it], tr.y[it]) }, raw)
         }
     }
     val paint = loaded?.paint
@@ -196,7 +197,7 @@ fun DayMountain(file: File, sample: Boolean, scene: MapScene, mode: DayNight.Mod
                 dot = ft.value?.let { tt -> paint?.track?.at(tt) }?.let { q -> view.toScreen(q[0], q[1], 4f) }?.let { Offset(it[0], it[1]) }
             }
         }
-        val pinText = s?.maxKmh?.let { stringResource(R.string.app_day_pin) + " · " + "%.1f".format(java.util.Locale.ROOT, it) }
+        val pinText = s?.maxKmh?.let { stringResource(R.string.app_rec_pin_label, "%.1f".format(java.util.Locale.ROOT, it)) }
         val dens = LocalContext.current.resources.displayMetrics.density
         Canvas(Modifier.fillMaxSize()) {
             // the dot of the film (board L08): yours, blue with a halo, on the real line
@@ -309,21 +310,24 @@ fun DayMountain(file: File, sample: Boolean, scene: MapScene, mode: DayNight.Mod
                             }
                         }
                         Box(Modifier.weight(1f))
-                        // the scale, slow to fast (its words are not in the language file yet)
-                        val ramp = if (night) DayPaint.NIGHT else DayPaint.DAY
-                        Box(Modifier.padding(bottom = 10.dp).width(48.dp).height(4.dp).clip(RoundedCornerShape(2.dp))
-                            .background(Brush.horizontalGradient(ramp.map { Color(0xFF000000.toInt() or it) }.let { if (rtl) it.reversed() else it })))
+                        // the scale, slow to fast
+                        LightScale(night, muted, modifier = Modifier.padding(bottom = 8.dp))
                     }
-                    Text(stringResource(R.string.app_day_replay), Modifier.fillMaxWidth().height(52.dp).clip(RoundedCornerShape(26.dp)).background(accent)
-                        .clickable(role = Role.Button) { haptics.tick(.4f); fms = 0f; filming = true; playing = true; Qa.log("redesign day film start") }.padding(top = 14.dp),
-                        fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color.White, textAlign = androidx.compose.ui.text.style.TextAlign.Center)
+                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Text(stringResource(R.string.app_day_minute), Modifier.weight(1f).height(52.dp).clip(RoundedCornerShape(26.dp)).background(accent)
+                            .clickable(role = Role.Button) { haptics.tick(.4f); fms = 0f; filming = true; playing = true; Qa.log("redesign day film start") }.padding(top = 14.dp),
+                            fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color.White, textAlign = androidx.compose.ui.text.style.TextAlign.Center)
+                        if (l.story != null) Text(stringResource(R.string.app_day_story), Modifier.height(52.dp).clip(RoundedCornerShape(26.dp)).border(1.5.dp, ink, RoundedCornerShape(26.dp))
+                            .clickable(role = Role.Button) { haptics.tick(.3f); story = true }.padding(horizontal = 22.dp).padding(top = 14.dp),
+                            fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = ink, textAlign = androidx.compose.ui.text.style.TextAlign.Center)
+                    }
                 }
                 failed -> Text(stringResource(R.string.app_day_empty), fontFamily = Plex, fontSize = 14.sp, color = muted)
                 else -> Text(stringResource(R.string.app_day_loading), fontFamily = Plex, fontSize = 14.sp, color = muted)
             }
         }
         val lr = l
-        if (ridge && lr != null) DayRidge(lr.paint, lr.elev, lr.day, scene.runs, night, sample, haptics, onShare = { story = true }, onBack = { ridge = false })
+        if (ridge && lr != null) DayRidge(lr.paint, lr.elev, lr.day, lr.segs, scene.runs, night, sample, haptics, onShare = { story = true }, onBack = { ridge = false })
         val st = lr?.story
         if (story && lr != null && st != null) DayStory(st, lr.day.summary, lr.paint, { runCatching { io.github.pini236.skiapp.dayrec.ui.readTrack(file) }.getOrNull() },
             scene.runs, night, sample, haptics, onBack = { story = false })
