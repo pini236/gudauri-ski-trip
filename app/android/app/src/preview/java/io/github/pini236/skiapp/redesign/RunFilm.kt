@@ -72,9 +72,9 @@ import kotlin.math.sin
 /**
  * One descent as a film (board L09): its real line, turned so that it runs from the top of the screen to the bottom,
  * burning in the speed light from the start to the end in a few seconds; a gap (more than 10 s without a reading) is
- * a dotted line between its two ends, never filled in. Beside it the top speed's pin and the times at the top and at
+ * a dotted line between its two ends, never filled in, with how long it was (board L13's words). Beside it the top speed's pin and the times at the top and at
  * the bottom; under it the descent's numbers. Today's words only: the board's "top of / bottom of", "m above the sea",
- * "one stop" and "a minute without reception" have no key yet, so those notes are not written; the pill names the runs
+ * and "one stop" have no key yet, so those notes are not written (a gap says how long it was, in board L13's words); the pill names the runs
  * in place of the board's "the longest descent of the day".
  */
 @Composable
@@ -117,6 +117,12 @@ internal fun RunFilm(d: DayModel.Descent, paint: DayPaint.Day, runs: Runs?, nigh
     }
     val measurer = rememberTextMeasurer()
     val pin = d.maxKmh?.let { stringResource(R.string.app_day_pin) + " · " + LiveNumbers.maxKmh(it) + " " + stringResource(R.string.app_rec_unit) }
+    // the gaps between the stretches, in minutes, worded as on board L13
+    val gapOne = stringResource(R.string.app_rec_gap_title)
+    val gaps = remember(parts) {
+        parts.zipWithNext { a, b -> Math.round((b.t[0] - a.t.last()) / 60_000.0).toInt() }
+            .map { m -> if (m <= 1) gapOne else context.getString(R.string.app_rec_gap_len, m) }
+    }
     val names = d.runs.joinToString(" › ") { leg -> shortRuns(leg.split(" · ").joinToString(" · ") { k -> titleOf(runs, k) }) }.ifEmpty { stringResource(R.string.app_day_off) }
 
     Box(Modifier.fillMaxSize().background(bg)) {
@@ -136,14 +142,26 @@ internal fun RunFilm(d: DayModel.Descent, paint: DayPaint.Day, runs: Runs?, nigh
             val left = if (rtl) pad + (colW - pad * 2 - (x1 - x0) * k) / 2 else size.width - colW + pad + (colW - pad * 2 - (x1 - x0) * k) / 2
             val top = pad + (size.height - pad * 2 - (y1 - y0) * k) / 2
             fun at(x: Float, y: Float) = Offset(left + (tx(x, y) - x0) * k, top + (ty(x, y) - y0) * k)
+            val note = TextStyle(fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = ink)
+            val noteX = if (rtl) colW + 8 * dens else 8 * dens
+            fun noteAt(p: Offset, text: String) {
+                val tl = measurer.measure(text, note, constraints = androidx.compose.ui.unit.Constraints(maxWidth = (size.width - colW - 16 * dens).toInt()))
+                val x = if (rtl) noteX else size.width - colW - 8 * dens - tl.size.width
+                drawLine(rule, p, Offset(if (rtl) x - 4 * dens else x + tl.size.width + 4 * dens, p.y), 1f * dens)
+                drawText(tl, topLeft = Offset(x, p.y - tl.size.height / 2f))
+            }
             val shown = (reveal.value * total).toInt()
+            var gi = 0
             var n = 0
             val case = if (night) Color(0xFF050A16) else Color.White
             var prevEnd: Offset? = null
             for (l in parts) {
                 val first = at(l.xy[0], l.xy[1])
-                // a gap is dotted, never filled in
-                prevEnd?.let { if (n < shown) drawLine(muted, it, first, 1.4f * dens, pathEffect = PathEffect.dashPathEffect(floatArrayOf(2f * dens, 4f * dens))) }
+                // a gap is dotted, never filled in, and says how long it was (board L13's words)
+                prevEnd?.let { if (n < shown) {
+                    drawLine(muted, it, first, 1.4f * dens, pathEffect = PathEffect.dashPathEffect(floatArrayOf(2f * dens, 4f * dens)))
+                    gaps.getOrNull(gi)?.let { g -> noteAt(Offset((it.x + first.x) / 2, (it.y + first.y) / 2), g) }
+                }; gi++ }
                 for (i in 0 until l.band.size - 1) {
                     if (n++ >= shown) break
                     val a = at(l.xy[i * 2], l.xy[i * 2 + 1]); val b = at(l.xy[i * 2 + 2], l.xy[i * 2 + 3])
@@ -153,14 +171,6 @@ internal fun RunFilm(d: DayModel.Descent, paint: DayPaint.Day, runs: Runs?, nigh
                 prevEnd = at(l.xy[l.xy.size - 2], l.xy[l.xy.size - 1])
             }
             // the notes: the time at the top and at the bottom, and the top speed's pin
-            val note = TextStyle(fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = ink)
-            val noteX = if (rtl) colW + 8 * dens else 8 * dens
-            fun noteAt(p: Offset, text: String) {
-                val tl = measurer.measure(text, note, constraints = androidx.compose.ui.unit.Constraints(maxWidth = (size.width - colW - 16 * dens).toInt()))
-                val x = if (rtl) noteX else size.width - colW - 8 * dens - tl.size.width
-                drawLine(rule, p, Offset(if (rtl) x - 4 * dens else x + tl.size.width + 4 * dens, p.y), 1f * dens)
-                drawText(tl, topLeft = Offset(x, p.y - tl.size.height / 2f))
-            }
             val a = parts.first(); val z = parts.last()
             noteAt(at(a.xy[0], a.xy[1]), hhmm.format(Instant.ofEpochMilli(a.t[0]).atZone(zone)))
             noteAt(at(z.xy[z.xy.size - 2], z.xy[z.xy.size - 1]), hhmm.format(Instant.ofEpochMilli(z.t.last()).atZone(zone)))
