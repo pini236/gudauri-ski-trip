@@ -12,6 +12,8 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -189,10 +191,20 @@ fun DayMountain(file: File, sample: Boolean, scene: MapScene, mode: DayNight.Mod
         var pin by remember { mutableStateOf<Offset?>(null) }
         var dot by remember { mutableStateOf<Offset?>(null) }
         val ft = androidx.compose.runtime.rememberUpdatedState(filmT)
+        // board L06: "and N more runs on the Kobi side ›" where the first of them starts, a tap turns the mountain there
+        // (the board's rule: a descent with Kobi in its runs' names); gone once the camera looks from the Kobi side
+        val kobi = remember(loaded) {
+            loaded?.day?.chapters.orEmpty().flatMap { c -> c.items.filterIsInstance<DayModel.Descent>() }
+                .filter { d -> d.runs.any { k -> k.contains("Kobi") || (scene.runs?.pistes?.firstOrNull { it.key == k }?.title?.contains("Kobi") == true) } }
+        }
+        var kobiAt by remember { mutableStateOf<Offset?>(null) }
+        var onKobi by remember { mutableStateOf(false) }
         LaunchedEffect(s, paint) {
             val lat = s?.maxLat; val lon = s?.maxLon
             while (true) {
                 withFrameNanos { }
+                kobiAt = kobi.firstOrNull()?.let { d -> paint?.track?.at(d.t0) }?.let { q -> view.toScreen(q[0], q[1], 4f) }?.let { Offset(it[0], it[1]) }
+                onKobi = view.onKobiSide()
                 pin = if (lat == null || lon == null) null else view.toScreen(Geo.x(lon), Geo.y(lat), 4f)?.let { Offset(it[0], it[1]) }
                 dot = ft.value?.let { tt -> paint?.track?.at(tt) }?.let { q -> view.toScreen(q[0], q[1], 4f) }?.let { Offset(it[0], it[1]) }
             }
@@ -215,6 +227,16 @@ fun DayMountain(file: File, sample: Boolean, scene: MapScene, mode: DayNight.Mod
             drawLine(Color(0xFF0E2233), Offset(p.x, p.y - 5.5f * dens), Offset(p.x, top + h), 1.5f * dens)
             drawRoundRect(Color(0xFF0E2233), Offset(p.x - w / 2, top), androidx.compose.ui.geometry.Size(w, h), androidx.compose.ui.geometry.CornerRadius(h / 2))
             drawText(tl, topLeft = Offset(p.x - tl.size.width / 2f, top + 5 * dens))
+        }
+
+        if (kobi.isNotEmpty() && !filming && !onKobi) kobiAt?.let { at ->
+            val n = kobi.size
+            val words = androidx.compose.ui.res.pluralStringResource(R.plurals.app_day_kobi_side, n, n)
+            LaunchedEffect(n) { Qa.log("redesign day kobi tag $n") }
+            Text("$words ›", Modifier.offset { androidx.compose.ui.unit.IntOffset(at.x.toInt() - 24.dp.roundToPx(), at.y.toInt() - 18.dp.roundToPx()) }
+                .heightIn(min = 36.dp).clip(RoundedCornerShape(18.dp)).background(glass).border(1.dp, rule, RoundedCornerShape(18.dp))
+                .clickable(role = Role.Button) { haptics.tick(.3f); view.toKobi() }.padding(horizontal = 12.dp, vertical = 8.dp),
+                fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 13.sp, color = ink)
         }
 
         // the top: back, "your day", the date and the hours, and "example" for the sample day (board L06)

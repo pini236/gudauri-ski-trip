@@ -614,6 +614,8 @@ class LiveView(context: Context, private val scene: MapScene) : GLSurfaceView(co
 
     /** The "Kobi side" sign: back to the front, the same turn the other way. */
     fun backToFront() { turnTo(front()); Qa.log("redesign live front") }
+    /** To the Kobi side (board L06's tag "more runs on the Kobi side"): the same turn as a run chosen there. */
+    fun toKobi() { turnTo(kobi()); Qa.log("redesign live kobi") }
 
     private companion object {
         // the Kobi side (the handoff's section 10, the target on the ground): eye at -60, 4104, -8038

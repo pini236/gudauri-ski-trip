@@ -178,7 +178,8 @@ internal fun DayRidge(paint: DayPaint.Day, elev: FloatArray, day: DayModel.Day, 
                         is LiftRow -> LiftLine(e, at(e.t0), ink, muted, rule)
                         is DayModel.Item -> TimelineRow(e, at(e.t0), runs, night, ink, muted, rule,
                             top = e is DayModel.Descent && e.maxAt != null && e.maxAt == day.summary.maxAt,
-                            stops = (e as? DayModel.Descent)?.let { d -> segOf(segs, d)?.optJSONArray("stops")?.length() } ?: 0) {
+                            stops = (e as? DayModel.Descent)?.let { d -> segOf(segs, d)?.optJSONArray("stops")?.length() } ?: 0,
+                            gapAt = (e as? DayModel.Descent)?.let { d -> minuteGap(paint, d.t0, d.t1)?.let { g -> at(g) } }) {
                             if (e is DayModel.Descent) { haptics.tick(.3f); film = e }
                         }
                     }
@@ -235,7 +236,8 @@ private fun LiftLine(e: LiftRow, at: String, ink: Color, muted: Color, rule: Col
 private fun signColor(c: String?) = when (c) { "green" -> Color(0xFF178A4A); "red" -> Color(0xFFD8362C); "black" -> Color(0xFF14171B); "blue" -> Color(0xFF1B6FDB); else -> Color(0xFF8A96A3) }
 
 @Composable
-private fun TimelineRow(it: DayModel.Item, at: String, runs: Runs?, night: Boolean, ink: Color, muted: Color, rule: Color, top: Boolean, stops: Int, onOpen: () -> Unit) {
+private fun TimelineRow(it: DayModel.Item, at: String, runs: Runs?, night: Boolean, ink: Color, muted: Color, rule: Color, top: Boolean, stops: Int,
+                        gapAt: String? = null, onOpen: () -> Unit) {
     Row(Modifier.fillMaxWidth().heightIn(min = 40.dp).let { m -> if (it is DayModel.Descent) m.clickable(role = Role.Button) { onOpen() } else m }.padding(vertical = 6.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
         Text(at, Modifier.width(44.dp).padding(top = 1.dp), fontFamily = Plex, fontSize = 13.sp, color = muted)
         Column(Modifier.weight(1f)) {
@@ -258,6 +260,8 @@ private fun TimelineRow(it: DayModel.Item, at: String, runs: Runs?, night: Boole
                     if (top) Text(stringResource(R.string.app_tl_top_speed, LiveNumbers.maxKmh(it.maxKmh),
                         it.runs.firstOrNull()?.split(" · ")?.firstOrNull()?.let { k -> titleOf(runs, k) } ?: ""), style = meta)
                     if (it.runs.isNotEmpty() && it.offRuns) Text(stringResource(R.string.app_day_off), style = meta)
+                    // a minute without reception in this descent (board L07; the film draws it dashed)
+                    gapAt?.let { g -> Text(stringResource(R.string.app_tl_gap_at, g), style = meta) }
                 }
                 is DayModel.Queue -> Text(stringResource(R.string.app_day_queue, it.minutes) + (it.lift?.let { l -> " · $l" } ?: ""), style = meta)
                 is DayModel.Rest -> Text(stringResource(if (it.long) R.string.app_day_lunch else R.string.app_day_rest, it.minutes), style = meta)
@@ -266,4 +270,13 @@ private fun TimelineRow(it: DayModel.Item, at: String, runs: Runs?, night: Boole
         }
     }
     Box(Modifier.fillMaxWidth().height(1.dp).background(rule))
+}
+
+/**
+ * The start of a gap of about a minute (30 to 90 s) between the day's lines inside [t0, t1], or null: the words say
+ * "a minute without reception", so a longer or shorter gap is not named so.
+ */
+internal fun minuteGap(paint: DayPaint.Day, t0: Long, t1: Long): Long? {
+    val inside = paint.lines.mapNotNull { l -> val ts = l.t.filter { it in t0..t1 }; if (ts.size < 2) null else ts.first() to ts.last() }.sortedBy { it.first }
+    return inside.zipWithNext().firstOrNull { (a, b) -> (b.first - a.second) in 30_000L..90_000L }?.first?.second
 }
