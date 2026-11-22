@@ -83,7 +83,7 @@ internal object StoryVideo {
             }
         }
         val frames = FPS * SECONDS
-        val scene = Frame(paint, hide, night, words, display, body, rtl)
+        val scene = Frame(paint, hide, night, words, display, body, rtl, W, H, null)
         try {
             for (f in 0 until frames) {
                 val ms = f * 1000f / FPS * (film.length.toFloat() / (SECONDS * 1000f))
@@ -102,55 +102,91 @@ internal object StoryVideo {
         return written > 0
     }
 
-    /** One frame: the background, the lines drawn up to [now] (none in a hidden stretch), the words. */
+    /**
+     * The board's picture (L11, 4:5): the whole day's lines, the lifts dotted, the fastest moment's pin, and the words
+     * under a dark veil. Drawn from above: the board draws the day on the painted mountain, which this does not yet.
+     */
+    fun still(paint: DayPaint.Day, hide: List<LongArray>, night: Boolean, words: Words, display: Typeface?, body: Typeface?,
+              rtl: Boolean, pin: FloatArray?): android.graphics.Bitmap {
+        val w = 1080; val h = 1350
+        val b = android.graphics.Bitmap.createBitmap(w, h, android.graphics.Bitmap.Config.ARGB_8888)
+        Frame(paint, hide, night, words, display, body, rtl, w, h, pin).draw(Canvas(b), Long.MAX_VALUE)
+        return b
+    }
+
+    /** One frame: the sky, the lifts and the lines drawn up to [now] (none in a hidden stretch), the pin, the words. */
     private class Frame(val paint: DayPaint.Day, val hide: List<LongArray>, val night: Boolean, val words: Words,
-                        val display: Typeface?, val body: Typeface?, val rtl: Boolean) {
+                        val display: Typeface?, val body: Typeface?, val rtl: Boolean, val w: Int, val h: Int, val pin: FloatArray?) {
+        private val u = w / 318f // the board's card is 318 wide
         private val ramp = if (night) DayPaint.NIGHT else DayPaint.DAY
         private val bg = Paint().apply {
-            shader = LinearGradient(0f, 0f, 0f, H.toFloat(), if (night) 0xFF0C1730.toInt() else 0xFFDCE6F1.toInt(),
+            shader = LinearGradient(0f, 0f, 0f, h.toFloat(), if (night) 0xFF0C1730.toInt() else 0xFFDCE6F1.toInt(),
                 if (night) 0xFF1B2B52.toInt() else 0xFFF4F7FA.toInt(), Shader.TileMode.CLAMP)
         }
-        private val case = Paint(Paint.ANTI_ALIAS_FLAG).apply { strokeCap = Paint.Cap.ROUND; strokeWidth = 9f; color = if (night) 0xFF050A16.toInt() else 0xFFFFFFFF.toInt() }
-        private val light = Paint(Paint.ANTI_ALIAS_FLAG).apply { strokeCap = Paint.Cap.ROUND; strokeWidth = 5.5f }
-        private val veil = Paint().apply { shader = LinearGradient(0f, H - 460f, 0f, H.toFloat(), 0x00080E1C, 0xDB080E1C.toInt(), Shader.TileMode.CLAMP) }
-        private val title = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = -1; textSize = 52f; typeface = display ?: Typeface.DEFAULT_BOLD }
-        private val num = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = -1; textSize = 56f; typeface = Typeface.create(body ?: Typeface.DEFAULT, Typeface.NORMAL) }
-        private val cap = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = 0xD9FFFFFF.toInt(); textSize = 24f; typeface = body ?: Typeface.DEFAULT }
-        private val small = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = 0xD9FFFFFF.toInt(); textSize = 24f; typeface = body ?: Typeface.DEFAULT }
+        private val case = Paint(Paint.ANTI_ALIAS_FLAG).apply { strokeCap = Paint.Cap.ROUND; strokeJoin = Paint.Join.ROUND; strokeWidth = 5.2f * u; color = if (night) 0xFF050A16.toInt() else 0xFFFFFFFF.toInt(); alpha = 230 }
+        private val light = Paint(Paint.ANTI_ALIAS_FLAG).apply { strokeCap = Paint.Cap.ROUND; strokeWidth = 3f * u }
+        private val lift = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            strokeWidth = 1.4f * u; strokeCap = Paint.Cap.ROUND; color = if (night) 0xCCB8C4D6.toInt() else 0xCC22303F.toInt()
+            pathEffect = android.graphics.DashPathEffect(floatArrayOf(.01f, 4f * u), 0f)
+        }
+        private val veilTop = h - 190f / 398f * h
+        private val veil = Paint().apply {
+            shader = LinearGradient(0f, veilTop, 0f, h.toFloat(), intArrayOf(0x00080E1C, 0xDB080E1C.toInt(), 0xDB080E1C.toInt()),
+                floatArrayOf(0f, .62f, 1f), Shader.TileMode.CLAMP)
+        }
+        private val title = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = -1; textSize = 25f * u; typeface = Typeface.create(display ?: body ?: Typeface.DEFAULT, Typeface.BOLD) }
+        private val num = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = -1; textSize = 27f * u; typeface = if (android.os.Build.VERSION.SDK_INT >= 28) Typeface.create(body ?: Typeface.DEFAULT, 300, false) else body ?: Typeface.DEFAULT }
+        private val cap = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = 0xD9FFFFFF.toInt(); textSize = 11f * u; typeface = body ?: Typeface.DEFAULT }
+        private val small = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = 0xD9FFFFFF.toInt(); textSize = 11.5f * u; typeface = body ?: Typeface.DEFAULT }
         private val fit: FloatArray
         init {
             var x0 = Float.MAX_VALUE; var x1 = -Float.MAX_VALUE; var y0 = Float.MAX_VALUE; var y1 = -Float.MAX_VALUE
-            for (l in paint.lines) for (i in 0 until l.xy.size / 2) { val x = l.xy[i * 2]; val y = l.xy[i * 2 + 1]; x0 = minOf(x0, x); x1 = maxOf(x1, x); y0 = minOf(y0, y); y1 = maxOf(y1, y) }
+            fun take(x: Float, y: Float) { x0 = minOf(x0, x); x1 = maxOf(x1, x); y0 = minOf(y0, y); y1 = maxOf(y1, y) }
+            for (l in paint.lines) for (i in 0 until l.xy.size / 2) take(l.xy[i * 2], l.xy[i * 2 + 1])
+            for (c in paint.lifts) { take(c[0], c[1]); take(c[2], c[3]) }
             if (x0 > x1) { x0 = 0f; x1 = 1f; y0 = 0f; y1 = 1f }
-            val pad = 70f; val area = H - 480f
-            val k = minOf((W - pad * 2) / (x1 - x0).coerceAtLeast(1f), (area - pad * 2) / (y1 - y0).coerceAtLeast(1f))
-            fit = floatArrayOf(x0, y1, k, (W - (x1 - x0) * k) / 2, (area - (y1 - y0) * k) / 2)
+            // the lines fill the card down into the veil, as on the board; the words sit over their lower part
+            val pad = 22f * u; val area = h - 70f * u
+            val k = minOf((w - pad * 2) / (x1 - x0).coerceAtLeast(1f), (area - pad * 2) / (y1 - y0).coerceAtLeast(1f))
+            fit = floatArrayOf(x0, y1, k, (w - (x1 - x0) * k) / 2, pad + (area - pad * 2 - (y1 - y0) * k) / 2)
         }
         fun draw(c: Canvas, now: Long) {
-            c.drawRect(0f, 0f, W.toFloat(), H.toFloat(), bg)
+            c.drawRect(0f, 0f, w.toFloat(), h.toFloat(), bg)
             fun x(v: Float) = fit[3] + (v - fit[0]) * fit[2]
             fun y(v: Float) = fit[4] + (fit[1] - v) * fit[2]
+            paint.lifts.forEachIndexed { i, l ->
+                if ((paint.liftT.getOrNull(i)?.get(0) ?: Long.MIN_VALUE) > now) return@forEachIndexed
+                c.drawLine(x(l[0]), y(l[1]), x(l[2]), y(l[3]), lift)
+            }
             for (pass in 0..1) for (l in paint.lines) for (i in 0 until l.xy.size / 2 - 1) {
                 if (l.t[i + 1] > now || hidden(l.t[i], hide) || hidden(l.t[i + 1], hide)) continue
                 val p = if (pass == 0) case else light.apply { color = 0xFF000000.toInt() or ramp[l.band[i].coerceIn(0, ramp.size - 1)] }
                 c.drawLine(x(l.xy[i * 2]), y(l.xy[i * 2 + 1]), x(l.xy[i * 2 + 2]), y(l.xy[i * 2 + 3]), p)
             }
-            c.drawRect(0f, H - 460f, W.toFloat(), H.toFloat(), veil)
-            val left = 48f; val right = W - 48f
-            fun at(p: Paint, s: String, yy: Float) {
-                p.textAlign = if (rtl) Paint.Align.RIGHT else Paint.Align.LEFT
-                c.drawText(s, if (rtl) right else left, yy, p)
+            pin?.let { pt ->
+                val px = x(pt[0]); val py = y(pt[1])
+                c.drawCircle(px, py, 4.6f * u, Paint(Paint.ANTI_ALIAS_FLAG).apply { color = -1 })
+                c.drawCircle(px, py, 4.6f * u, Paint(Paint.ANTI_ALIAS_FLAG).apply { style = Paint.Style.STROKE; strokeWidth = 2.2f * u; color = 0xFFE0246E.toInt() })
             }
-            words.title?.let { at(title, it, H - 300f) }
-            // the numbers in a row, in the reading order
-            val cell = (right - left) / words.numbers.size.coerceAtLeast(1)
-            words.numbers.forEachIndexed { k, (v, l) ->
-                val cx = if (rtl) right - k * cell else left + k * cell
-                num.textAlign = if (rtl) Paint.Align.RIGHT else Paint.Align.LEFT; cap.textAlign = num.textAlign
-                c.drawText(v, cx, H - 200f, num); c.drawText(l, cx, H - 160f, cap)
+            c.drawRect(0f, veilTop, w.toFloat(), h.toFloat(), veil)
+            val left = 16f * u; val right = w - 16f * u
+            val align = if (rtl) Paint.Align.RIGHT else Paint.Align.LEFT
+            val start = if (rtl) right else left
+            // from the bottom up: the line of Gudi and the place, the numbers, the title
+            val foot = h - 14f * u
+            small.textAlign = Paint.Align.LEFT; c.drawText(words.site, left, foot, small)
+            small.textAlign = Paint.Align.RIGHT; c.drawText(words.place, right, foot, small)
+            val capY = foot - small.textSize - 8f * u
+            val numY = capY - cap.textSize - 2f * u
+            var cx = start
+            num.textAlign = align; cap.textAlign = align
+            for ((v, l) in words.numbers) {
+                c.drawText(v, cx, numY, num); c.drawText(l, cx, capY, cap)
+                val step = maxOf(num.measureText(v), cap.measureText(l)) + 18f * u
+                cx += if (rtl) -step else step
             }
-            small.textAlign = Paint.Align.LEFT; c.drawText(words.site, left, H - 70f, small)
-            small.textAlign = Paint.Align.RIGHT; c.drawText(words.place, right, H - 70f, small)
+            title.textAlign = align
+            words.title?.let { c.drawText(it, start, numY - num.textSize - 8f * u, title) }
         }
     }
 

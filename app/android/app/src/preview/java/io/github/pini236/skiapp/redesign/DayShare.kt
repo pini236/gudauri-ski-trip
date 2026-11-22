@@ -94,7 +94,15 @@ internal fun DayShare(story: StoryData, sm: DayModel.Summary, paint: DayPaint.Da
     var made by remember { mutableStateOf<File?>(null) }
     var failed by remember { mutableStateOf(false) }
     LaunchedEffect(story) {
-        pic = withContext(Dispatchers.Default) { runCatching { storyPicture(ctx, story, sm, track(), name) }.getOrNull() }
+        // the board's picture (L11); the moment kind for the measure still comes from the store's picture's rules
+        pic = withContext(Dispatchers.Default) {
+            runCatching {
+                val top = storyPicture(ctx, story, sm, track(), name).let { (b, t) -> b.recycle(); t }
+                val lang = Lang.current(ctx.resources)
+                StoryVideo.still(paint, hide, night, shareWords(ctx, story, sm), Lang.typeface(ctx, lang, true), Lang.typeface(ctx, lang, false),
+                    lang.rtl, sm.maxAt?.let { paint.track.at(it) }) to top
+            }.getOrNull()
+        }
         Qa.log("redesign share open")
     }
     val top = pic?.second ?: "other"
@@ -130,9 +138,9 @@ internal fun DayShare(story: StoryData, sm: DayModel.Summary, paint: DayPaint.Da
             Row(Modifier.fillMaxWidth().clip(RoundedCornerShape(22.dp)).border(1.dp, rule, RoundedCornerShape(22.dp)).padding(3.dp)) {
                 for ((on, key) in listOf(false to R.string.app_share_photo, true to R.string.app_share_video)) {
                     val sel = video == on
-                    Text(stringResource(key), Modifier.weight(1f).clip(RoundedCornerShape(19.dp)).background(if (sel) ink else Color.Transparent)
+                    Text(stringResource(key), Modifier.weight(1f).clip(RoundedCornerShape(19.dp)).background(if (sel) accent else Color.Transparent)
                         .clickable(role = Role.Button) { haptics.tick(.2f); video = on; Qa.log("redesign share ${if (on) "video" else "photo"}") }.padding(vertical = 10.dp),
-                        fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = if (sel) (if (night) Color(0xFF0E2233) else Color.White) else ink, textAlign = TextAlign.Center)
+                        fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = if (sel) Color.White else ink, textAlign = TextAlign.Center)
                 }
             }
             Text(stringResource(R.string.app_share_note), fontFamily = Plex, fontSize = 13.5.sp, color = muted)
@@ -164,15 +172,8 @@ internal fun DayShare(story: StoryData, sm: DayModel.Summary, paint: DayPaint.Da
 /** The day's words for the video, the picture's: the kind of day, four numbers, "Gudi" and "Gudauri · date". */
 private fun makeVideo(ctx: Context, out: File, story: StoryData, sm: DayModel.Summary, paint: DayPaint.Day, hide: List<LongArray>, night: Boolean,
                       progress: (Float) -> Unit): Boolean {
-    val locale = ctx.resources.configuration.locales[0]
     val lang = Lang.current(ctx.resources)
-    val head = MomentText.Words(ctx, locale).render(MomentText.head(story.theme, sm.descents, sm.dropM, sm.distM, locale), Moments.seed("story.head", sm.start)).first
-    val date = DateTimeFormatter.ofPattern("d.M.yyyy", Locale.ROOT).format(Instant.ofEpochMilli(sm.start).atZone(ZoneId.of(DayParams.TZ)))
-    val numbers = listOf(sm.descents.toString() to ctx.getString(R.string.app_day_sum_descents),
-        "%,d".format(Locale.ROOT, sm.dropM.toInt()) to ctx.getString(R.string.app_rec_m_down),
-        String.format(Locale.ROOT, "%.1f", sm.distM / 1000) to ctx.getString(R.string.app_run_km)) +
-        listOfNotNull(sm.maxKmh?.let { String.format(Locale.ROOT, "%.1f", it) to ctx.getString(R.string.app_rec_kmh_max) })
-    val words = StoryVideo.Words(head, numbers, "Gudi", ctx.getString(R.string.common_site_name) + " · " + date)
+    val words = shareWords(ctx, story, sm)
     val film = DayPaint.film(paint, sm.maxAt)
     // every tenth in the test log, so a slow encoder (the emulator has none in hardware) is told apart from a stuck one
     var told = -1
@@ -180,6 +181,18 @@ private fun makeVideo(ctx: Context, out: File, story: StoryData, sm: DayModel.Su
         val tenth = (it * 10).toInt(); if (tenth != told) { told = tenth; Qa.log("redesign share video ${tenth * 10}%") }
         progress(it)
     }
+}
+
+/** The words of the picture and the video (L11): the kind of day, four numbers, "Gudi" and "Gudauri · date". */
+private fun shareWords(ctx: Context, story: StoryData, sm: DayModel.Summary): StoryVideo.Words {
+    val locale = ctx.resources.configuration.locales[0]
+    val head = MomentText.Words(ctx, locale).render(MomentText.head(story.theme, sm.descents, sm.dropM, sm.distM, locale), Moments.seed("story.head", sm.start)).first
+    val date = DateTimeFormatter.ofPattern("d.M.yyyy", Locale.ROOT).format(Instant.ofEpochMilli(sm.start).atZone(ZoneId.of(DayParams.TZ)))
+    val numbers = listOf(sm.descents.toString() to ctx.getString(R.string.app_day_sum_descents),
+        "%,d".format(Locale.ROOT, sm.dropM.toInt()) to ctx.getString(R.string.app_rec_m_down),
+        String.format(Locale.ROOT, "%.1f", sm.distM / 1000) to ctx.getString(R.string.app_run_km)) +
+        listOfNotNull(sm.maxKmh?.let { String.format(Locale.ROOT, "%.1f", it) to ctx.getString(R.string.app_rec_kmh_max) })
+    return StoryVideo.Words(head, numbers, "Gudi", ctx.getString(R.string.common_site_name) + " · " + date)
 }
 
 private fun shareVideo(ctx: Context, f: File) {
