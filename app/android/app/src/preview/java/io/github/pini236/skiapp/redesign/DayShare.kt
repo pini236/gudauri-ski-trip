@@ -58,6 +58,10 @@ import io.github.pini236.skiapp.dayrec.ui.Track
 import io.github.pini236.skiapp.dayrec.ui.storyPicture
 import io.github.pini236.skiapp.fx.Haptics
 import io.github.pini236.skiapp.i18n.Lang
+import io.github.pini236.skiapp.i18n.Lang.Language
+import io.github.pini236.skiapp.i18n.Lang.Script
+import android.graphics.Typeface
+import androidx.core.content.res.ResourcesCompat
 import io.github.pini236.skiapp.qa.Qa
 import io.github.pini236.skiapp.telemetry.Telemetry
 import io.github.pini236.skiapp.ui.Plex
@@ -99,7 +103,7 @@ internal fun DayShare(story: StoryData, sm: DayModel.Summary, paint: DayPaint.Da
             runCatching {
                 val top = storyPicture(ctx, story, sm, track(), name).let { (b, t) -> b.recycle(); t }
                 val lang = Lang.current(ctx.resources)
-                StoryVideo.still(paint, hide, night, shareWords(ctx, story, sm), Lang.typeface(ctx, lang, true), Lang.typeface(ctx, lang, false),
+                StoryVideo.still(paint, hide, night, shareWords(ctx, story, sm), Lang.typeface(ctx, lang, true), regular(ctx, lang),
                     lang.rtl, sm.maxAt?.let { paint.track.at(it) }) to top
             }.getOrNull()
         }
@@ -177,10 +181,24 @@ private fun makeVideo(ctx: Context, out: File, story: StoryData, sm: DayModel.Su
     val film = DayPaint.film(paint, sm.maxAt)
     // every tenth in the test log, so a slow encoder (the emulator has none in hardware) is told apart from a stuck one
     var told = -1
-    return StoryVideo.make(out, paint, film, hide, night, words, Lang.typeface(ctx, lang, true), Lang.typeface(ctx, lang, false), lang.rtl) {
+    return StoryVideo.make(out, paint, film, hide, night, words, Lang.typeface(ctx, lang, true), regular(ctx, lang), lang.rtl) {
         val tenth = (it * 10).toInt(); if (tenth != told) { told = tenth; Qa.log("redesign share video ${tenth * 10}%") }
         progress(it)
     }
+}
+
+/** The text's regular face (the app's helper gives the bold one): Plex Hebrew, Plex Sans or Noto Sans Georgian at 400. */
+private fun regular(ctx: Context, lang: Language): Typeface? = runCatching {
+    when (lang.script) {
+        Script.GEORGIAN -> variable(ctx, R.font.noto_sans_georgian, 400)
+        Script.LATIN, Script.CYRILLIC -> variable(ctx, R.font.plex_sans, 400)
+        else -> ResourcesCompat.getFont(ctx, R.font.plex_hebrew_regular)
+    }
+}.getOrNull()
+
+private fun variable(ctx: Context, res: Int, weight: Int): Typeface? {
+    val tf = ResourcesCompat.getFont(ctx, res) ?: return null
+    return if (Build.VERSION.SDK_INT >= 28) Typeface.create(tf, weight, false) else tf
 }
 
 /** The words of the picture and the video (L11): the kind of day, four numbers, "Gudi" and "Gudauri · date". */
@@ -192,7 +210,9 @@ private fun shareWords(ctx: Context, story: StoryData, sm: DayModel.Summary): St
         "%,d".format(Locale.ROOT, sm.dropM.toInt()) to ctx.getString(R.string.app_rec_m_down),
         String.format(Locale.ROOT, "%.1f", sm.distM / 1000) to ctx.getString(R.string.app_run_km)) +
         listOfNotNull(sm.maxKmh?.let { String.format(Locale.ROOT, "%.1f", it) to ctx.getString(R.string.app_rec_kmh_max) })
-    return StoryVideo.Words(head, numbers, "Gudi", ctx.getString(R.string.common_site_name) + " · " + date)
+    // the numbers are digits in every language: Plex Sans light, as on the board
+    return StoryVideo.Words(head, numbers, "Gudi", ctx.getString(R.string.common_site_name) + " · " + date,
+        runCatching { variable(ctx, R.font.plex_sans, 300) }.getOrNull())
 }
 
 private fun shareVideo(ctx: Context, f: File) {

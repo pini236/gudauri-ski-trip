@@ -26,7 +26,8 @@ internal object StoryVideo {
     const val FPS = 30
     const val SECONDS = 60
 
-    class Words(val title: String?, val numbers: List<Pair<String, String>>, val site: String, val place: String)
+    /** [light]: the numbers' thin face (the board's weight 300); the text's is the caller's regular body face. */
+    class Words(val title: String?, val numbers: List<Pair<String, String>>, val site: String, val place: String, val light: Typeface? = null)
 
     /**
      * Writes the video to [out]; false if the phone could not, or if the written file has a place in it (then it is
@@ -135,7 +136,7 @@ internal object StoryVideo {
                 floatArrayOf(0f, .62f, 1f), Shader.TileMode.CLAMP)
         }
         private val title = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = -1; textSize = 25f * u; typeface = Typeface.create(display ?: body ?: Typeface.DEFAULT, Typeface.BOLD) }
-        private val num = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = -1; textSize = 27f * u; typeface = if (android.os.Build.VERSION.SDK_INT >= 28) Typeface.create(body ?: Typeface.DEFAULT, 300, false) else body ?: Typeface.DEFAULT }
+        private val num = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = -1; textSize = 27f * u; typeface = words.light ?: body ?: Typeface.DEFAULT }
         private val cap = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = 0xD9FFFFFF.toInt(); textSize = 11f * u; typeface = body ?: Typeface.DEFAULT }
         private val small = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = 0xD9FFFFFF.toInt(); textSize = 11.5f * u; typeface = body ?: Typeface.DEFAULT }
         private val fit: FloatArray
