@@ -64,7 +64,12 @@ object StoryImage {
             }
         }
         y = box.bottom + 40f
+        // a card is drawn only if all of it ends above the footer; one that would run into "Gudauri" is left out whole
+        fun layout(t: String, p: TextPaint, maxLines: Int) =
+            StaticLayout.Builder.obtain(t, 0, t.length, p, width).setAlignment(align).setMaxLines(maxLines).setEllipsize(android.text.TextUtils.TruncateAt.END).build()
         for (card in cards.take(3)) {
+            val need = (card.title?.let { layout(it, gold, 1).height } ?: 0) + (card.line?.let { layout(it, white, 3).height } ?: 0)
+            if (y + need > H - 100f) break
             card.title?.let { text(it, gold, 1) }
             card.line?.let { text(it, white, 3) }
             y += 24f
