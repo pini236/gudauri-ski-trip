@@ -238,7 +238,10 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, onPaint
                 }
             }
             val m0 = mk
-            if (m0 != null && m0.key == chosen) chosenMarks(m0, ((mkMs - 600f) / 200f).coerceIn(0f, 1f), night, measurer)
+            if (m0 != null && m0.key == chosen) {
+                chosenMarks(m0, ((mkMs - 600f) / 200f).coerceIn(0f, 1f), night, measurer)
+                if (mkMs < 600f) runningHead(m0, mkMs / 600f)
+            }
             val r0 = run; val q = signAt
             if (r0 != null && q != null && signA.value > 0f) sign(r0, q, signA.value, measurer)
             val tp = touch
@@ -334,4 +337,22 @@ private fun DrawScope.chosenMarks(m: LiveView.Marks, a: Float, night: Boolean, m
     if (ok.isNotEmpty() && ok[0]) { val q = Offset(x[0], y[0]); drawCircle(Color.White, 4.6f * dp, q, alpha = a); drawCircle(ACCENT_DAY, 4.6f * dp, q, alpha = a, style = Stroke(2f * dp)) }
     val e = x.size - 1
     if (e > 0 && ok[e]) { val q = Offset(x[e], y[e]); drawCircle(ACCENT_DAY, 3.6f * dp, q, alpha = a); drawCircle(Color.White, 3.6f * dp, q, alpha = a, style = Stroke(1.4f * dp)) }
+}
+
+/** The head of the light running down a chosen run (K09, as phase A): a white dot with a soft halo, [f] of the way down. */
+private fun DrawScope.runningHead(m: LiveView.Marks, f: Float) {
+    val d = m.down
+    val total = d.along.sumOf { (it.lastOrNull() ?: 0f).toDouble() }.toFloat()
+    var left = total * f.coerceIn(0f, 1f)
+    for (li in m.xs.indices) {
+        val al = d.along[li]; val len = al.lastOrNull() ?: 0f
+        if (left > len && li < m.xs.size - 1) { left -= len; continue }
+        var j = 0
+        while (j < al.size - 2 && al[j + 1] < left) j++
+        if (al.size < 2 || !m.seen[li][j]) return
+        val k = ((left - al[j]) / (al[j + 1] - al[j]).coerceAtLeast(.01f)).coerceIn(0f, 1f)
+        val q = Offset(m.xs[li][j] + (m.xs[li][j + 1] - m.xs[li][j]) * k, m.ys[li][j] + (m.ys[li][j + 1] - m.ys[li][j]) * k)
+        drawCircle(Color.White, 13f * density, q, alpha = .5f); drawCircle(Color.White, 5f * density, q)
+        return
+    }
 }

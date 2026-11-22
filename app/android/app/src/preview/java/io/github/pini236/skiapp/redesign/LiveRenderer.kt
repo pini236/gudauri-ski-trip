@@ -533,14 +533,23 @@ class LiveRenderer(
             val la = if (night) 1f - ((ms - 600f) / 200f).coerceIn(0f, 1f) else 1f
             if (frozenMs == null && ms < 800f) moving = true
             if (la > 0f) {
-                glUniform4f(uT, case[0], case[1], case[2], 1f); glUniform1f(uW, 6f * density * zw); glUniform1f(uA, la); r.second.draw()
-                glUniform1f(uW, 3.6f * density * zw)
                 val g = chosenGpu.takeIf { chosenGpuOf?.first == k }
+                val rv = (ms / 600f).coerceIn(0f, 1f)
                 if (g != null) {
-                    val rv = (ms / 600f).coerceIn(0f, 1f)
-                    glUniform4f(uT, 0f, 0f, 0f, 0f); glUniform1f(uR, rv); g.draw(); glUniform1f(uR, 60000f)
+                    // the light running down it (K09, as phase A): a white halo and the white case grow with the light
+                    // from the top, the halo going once the light is down (200 ms)
+                    glUniform1f(uR, rv)
+                    val ha = .35f * (1f - ((ms - 600f) / 200f).coerceIn(0f, 1f))
+                    if (ha > 0f) { glUniform1f(uS, 1f); glUniform4f(uT, 1f, 1f, 1f, 1f); glUniform1f(uW, 16f * density * zw); glUniform1f(uA, ha * la); g.draw(); glUniform1f(uS, 0f) }
+                    glUniform4f(uT, case[0], case[1], case[2], 1f); glUniform1f(uW, 6f * density * zw); glUniform1f(uA, la); g.draw()
+                    glUniform1f(uW, 3.6f * density * zw)
+                    glUniform4f(uT, 0f, 0f, 0f, 0f); g.draw(); glUniform1f(uR, 60000f)
                 }
-                else { val c = runRgb[k] ?: case; glUniform4f(uT, c[0], c[1], c[2], 1f); r.third.draw() }
+                else {
+                    // the line not built yet (a moment): the run's own case and colour
+                    glUniform4f(uT, case[0], case[1], case[2], 1f); glUniform1f(uW, 6f * density * zw); glUniform1f(uA, la); r.second.draw()
+                    glUniform1f(uW, 3.6f * density * zw); val c = runRgb[k] ?: case; glUniform4f(uT, c[0], c[1], c[2], 1f); r.third.draw()
+                }
                 glUniform1f(uA, 1f)
             }
             glEnable(GL_DEPTH_TEST)
