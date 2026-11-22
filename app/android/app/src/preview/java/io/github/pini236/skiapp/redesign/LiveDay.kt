@@ -276,7 +276,8 @@ private fun HoldToFinish(scope: kotlinx.coroutines.CoroutineScope, haptics: Hapt
 
 /**
  * On the lift (board L04): the descent you just did, while there is time to look. A thumbnail of its line in the light's
- * colours, the runs by name, three numbers (top speed, minutes moving, metres down), and the day so far. The board's
+ * colours, the runs by name, three numbers (top speed, minutes moving, metres down), the wait for the lift, and the day
+ * so far. The board's
  * header ("the descent you just did") and its "watch the descent" button have no key in i18n/strings.json yet, so they
  * are left out rather than written here.
  */
@@ -321,6 +322,12 @@ private fun LiftCard(ride: io.github.pini236.skiapp.dayrec.DayEngine.Ride, paint
             cell(ride.maxKmh?.let { "%.1f".format(java.util.Locale.ROOT, it) } ?: "—", stringResource(R.string.app_rec_kmh_max))
             cell("%d:%02d".format(java.util.Locale.ROOT, ride.movingS / 60, ride.movingS % 60), stringResource(R.string.app_run_min))
             cell("%,d".format(java.util.Locale.ROOT, ride.dropM.toInt()), stringResource(R.string.app_rec_m_down))
+        }
+        // the wait for this lift (board L04): from the end of the descent to boarding, once the analysis has the ride
+        val waited = DayRec.sofar?.segments?.firstOrNull { it.type == "lift" && it.t0 >= ride.t1 }?.let { ((it.t0 - ride.t1) / 60_000L).toInt() }
+        if (waited != null && waited >= 1) Row(Modifier.padding(top = 8.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+            Text(stringResource(R.string.app_rec_waited), style = label)
+            Text(stringResource(R.string.app_rec_minutes, waited), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 13.sp, color = ink)
         }
         Box(Modifier.padding(vertical = 12.dp).fillMaxWidth().height(1.dp).background(rule))
         Row(verticalAlignment = Alignment.CenterVertically) {
