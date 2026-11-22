@@ -56,6 +56,22 @@ object Redesign {
     /** The emulator run's hook (qa.redesign, debug builds only, app/android/qa/README.md). */
     fun qa(cmd: String) = RedesignQa.send(cmd)
 
+    /**
+     * Round 4 (decision 84, board L06): the end of a day on the live mountain, in place of today's day screen. Behind
+     * DAYREC_UI as the day itself (the route is only reached with it); in the debug build only when the emulator asks
+     * (qa.redesign day), so the other parts see the day screen as it is. A touch on its card opens today's screen (the
+     * story, the timeline, the share). Returns false when it does not show, and the caller draws today's screen.
+     */
+    @Composable
+    fun day(file: java.io.File, sample: Boolean, scene: MapScene?, mode: DayNight.Mode, haptics: Haptics, onReplay: () -> Unit, onBack: () -> Unit): Boolean {
+        if (scene == null) return false
+        if (io.github.pini236.skiapp.BuildConfig.DEBUG && !RedesignQa.dayOn) return false
+        var details by rememberSaveable(file.path) { mutableStateOf(false) }
+        if (details) { BackHandler { details = false }; return false }
+        DayMountain(file, sample, scene, mode, haptics, onReplay, onDetails = { details = true }, onBack = onBack)
+        return true
+    }
+
     @Composable
     fun BoxScope.Host(home: Boolean, mode: DayNight.Mode, haptics: Haptics, scene: MapScene?) {
         // the emulator's scripts drive the debug build through the current screens (qa/run.sh): there the mountain
@@ -116,5 +132,7 @@ object RedesignQa {
     var asked by mutableStateOf(false); private set
     var seq by mutableStateOf(0); private set
     var cmd: String = ""; private set
-    fun send(c: String) { asked = true; cmd = c; seq++ }
+    /** The day on the mountain (round 4) in the debug build: once asked (qa.redesign day), until the run ends. */
+    var dayOn by mutableStateOf(false); private set
+    fun send(c: String) { asked = true; if (c == "day") dayOn = true; cmd = c; seq++ }
 }

@@ -1164,6 +1164,15 @@ redesign() {
   drag $((W / 2)) $((H / 2)) $((W / 2 - W / 5)) $((H / 2)) 500; sleep 1.5; shot redesign-live-dragged
   mark; qa "--es qa.mode auto --es qa.redesign painted"; waitlog "redesign live closed" 10; sleep 1.5; shot redesign-live-back
   qa "--es qa.mode auto --es qa.redesign close"; sleep 1.5; shot redesign-closed
+  # round 4 (board L06): the sample day on the mountain, its lines of light by speed and the dotted rides, by day and
+  # at night (the debug build shows it only once asked: qa.redesign day)
+  mark; qa "--es qa.mode day --es qa.redesign day"; sleep 1
+  mark; qa "--es qa.tab days/sample"; waitlog "redesign day open" 20 || fail "redesign: the day on the mountain did not open"
+  waitlog "redesign live day drawn .* day" 60 || fail "redesign: the day was not drawn on the mountain"
+  sleep 3; shot redesign-day
+  mark; qa "--es qa.mode night"; waitlog "redesign live day drawn .* night" 40 || fail "redesign: the day was not drawn at night"
+  sleep 3; shot redesign-day-night
+  qa "--es qa.mode auto --es qa.tab home"; waitlog "redesign day closed" 15; sleep 1
 }
 
 # ---- the store screenshots (Google Play: portrait 9:16) ----

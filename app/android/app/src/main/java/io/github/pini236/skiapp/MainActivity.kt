@@ -994,9 +994,10 @@ class MainActivity : ComponentActivity() {
                     Route.Days -> io.github.pini236.skiapp.dayrec.ui.DaysScreen(onOpen = { id -> nav.push(Route.DayOf(id)) }) { nav.back() }
                     is Route.DayOf -> {
                         val sample = top.id == io.github.pini236.skiapp.dayrec.SampleDay.ID
-                        io.github.pini236.skiapp.dayrec.ui.DayViewScreen(
-                            if (sample) io.github.pini236.skiapp.dayrec.SampleDay.file(this@MainActivity) else DayRec.store(this@MainActivity).newFile(top.id.toLong()),
-                            scene?.runs, sample, onReplay = { nav.push(Route.Replay(top.id)) }) { nav.back() }
+                        val dayFile = if (sample) io.github.pini236.skiapp.dayrec.SampleDay.file(this@MainActivity) else DayRec.store(this@MainActivity).newFile(top.id.toLong())
+                        // the test build's redesign (round 4) draws the day on the mountain; the store build, today's screen
+                        if (!io.github.pini236.skiapp.redesign.Redesign.day(dayFile, sample, scene, dnMode, haptics, onReplay = { nav.push(Route.Replay(top.id)) }) { nav.back() })
+                            io.github.pini236.skiapp.dayrec.ui.DayViewScreen(dayFile, scene?.runs, sample, onReplay = { nav.push(Route.Replay(top.id)) }) { nav.back() }
                     }
                     is Route.Replay -> io.github.pini236.skiapp.dayrec.ui.ReplayScreen(mapView,
                         if (top.id == io.github.pini236.skiapp.dayrec.SampleDay.ID) io.github.pini236.skiapp.dayrec.SampleDay.file(this@MainActivity) else DayRec.store(this@MainActivity).newFile(top.id.toLong())) { nav.back() }

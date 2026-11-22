@@ -537,6 +537,55 @@ class LiveView(context: Context, private val scene: MapScene) : GLSurfaceView(co
         Qa.log("redesign live framed $key")
     }
 
+    /**
+     * Round 4 (board L06): the day on the mountain. The lines draped on the snow (3 m up, as the map's), the rides'
+     * chords 8 m above their ends (day4.py's lift=8), built here off the GL thread; the view framed on the day from the
+     * front's side. Null takes it away.
+     */
+    fun showDay(d: DayPaint.Day?, night: Boolean, frame: Boolean = true) {
+        if (worker.isShutdown) return
+        if (d == null) { renderer.day = null; requestRender(); return }
+        worker.execute {
+            val t = scene.terrain
+            val ramp = if (night) DayPaint.NIGHT else DayPaint.DAY
+            val world = d.lines.map { l -> val n = l.xy.size / 2; FloatArray(n * 3) { k -> val i = k / 3
+                when (k % 3) { 0 -> l.xy[i * 2]; 1 -> t.elev(l.xy[i * 2], l.xy[i * 2 + 1]) + 3f; else -> l.xy[i * 2 + 1] } } }
+            val light = io.github.pini236.skiapp.map.Ribbon.build(world, { li, pi -> val c = ramp[d.lines[li].band[pi]]
+                floatArrayOf(((c shr 16) and 0xFF) / 255f, ((c shr 8) and 0xFF) / 255f, (c and 0xFF) / 255f, 1f) })
+            val dots = ArrayList<FloatArray>()
+            for (c in d.lifts) {
+                val e0 = t.elev(c[0], c[1]) + 8f; val e1 = t.elev(c[2], c[3]) + 8f
+                val len = hypot(c[2] - c[0], c[3] - c[1]).coerceAtLeast(1f)
+                for (q in DayPaint.dots(c)) {
+                    val f0 = hypot(q[0] - c[0], q[1] - c[1]) / len; val f1 = hypot(q[2] - c[0], q[3] - c[1]) / len
+                    dots += floatArrayOf(q[0], e0 + (e1 - e0) * f0, q[1], q[2], e0 + (e1 - e0) * f1, q[3])
+                }
+            }
+            val lifts = io.github.pini236.skiapp.map.Ribbon.build(dots, { _, _ -> floatArrayOf(1f, 1f, 1f, 1f) })
+            val to = if (frame) DayPaint.box(d)?.let { frameBox(it, front()) } else null
+            post {
+                renderer.day = LiveRenderer.DayLines(light, lifts, night)
+                if (to != null) { renderer.stopAnim(); camera.stopFling(); camera.set(to) }
+                requestRender()
+                Qa.log("redesign live day ${d.points} ${d.lifts.size} ${if (night) "night" else "day"}")
+            }
+        }
+    }
+
+    /** The view [s] moved to fit a box of the map (x0, y0, x1, y1, metres) with a margin; its yaw and pitch kept. */
+    private fun frameBox(b: FloatArray, s: OrbitCamera.State): OrbitCamera.State {
+        val cx = (b[0] + b[2]) / 2; val cz = (b[1] + b[3]) / 2
+        val r = hypot(b[2] - b[0], b[3] - b[1]) / 2
+        val vf = Math.toRadians(data.camera.fovDeg / 2.0)
+        val hf = atan(tan(vf) * width.toFloat().coerceAtLeast(1f) / height.coerceAtLeast(1))
+        val dist = (r / tan(minOf(vf, hf)) * 1.1).toFloat().coerceIn(1400f, 12000f)
+        return s.copy(tx = cx, ty = scene.terrain.elev(cx, cz), tz = cz, dist = dist)
+    }
+
+    /** Where a place on the map (metres, [up] above the snow) is on the screen now, or null behind the camera. */
+    fun toScreen(x: Float, y: Float, up: Float = 0f): FloatArray? =
+        if (width == 0) null else project(camera.state(), floatArrayOf(x, scene.terrain.elev(x, y) + up, y))
+
     /** A run chosen as a tap chooses it (the emulator's pictures). */
     fun pickKey(key: String) { renderer.frozenMs = null; choose(key); onChoose?.invoke(key); frame(key) }
 
