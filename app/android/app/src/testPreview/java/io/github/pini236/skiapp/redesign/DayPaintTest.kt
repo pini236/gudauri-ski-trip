@@ -29,7 +29,7 @@ class DayPaintTest {
         // one fast second among slow ones stays slow in the light: 5 s mean
         val p = pts(21, kmh = { if (it == 10) 100.0 else 10.0 })
         val d = DayPaint.build(p, listOf(DayPaint.Seg("descent", p.first().t, p.last().t)))
-        assertEquals(2, d.lines[0].band[10]) // (4 * 10 + 100) / 5 = 28 km/h: still under 35
+        assertEquals(1, d.lines[0].band[10]) // (4 * 10 + 100) / 5 = 28 km/h: the second band, not the top
         assertEquals(0, d.lines[0].band[0])
     }
 
