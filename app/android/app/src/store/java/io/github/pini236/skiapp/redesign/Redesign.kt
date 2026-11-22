@@ -18,5 +18,8 @@ object Redesign {
                          onSwitch: (Boolean) -> Unit, onStop: () -> Unit, onEnded: (java.io.File?) -> Unit, onBack: () -> Unit): Boolean = false
 
     @Suppress("UNUSED_PARAMETER")
+    @Composable fun first(single: Boolean, haptics: Haptics, onGo: (Boolean) -> Unit, onDismiss: () -> Unit): Boolean = false
+
+    @Suppress("UNUSED_PARAMETER")
     @Composable fun BoxScope.Host(home: Boolean, mode: DayNight.Mode, haptics: Haptics, scene: MapScene?) {}
 }

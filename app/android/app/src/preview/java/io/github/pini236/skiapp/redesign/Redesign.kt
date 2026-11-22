@@ -83,6 +83,17 @@ object Redesign {
         return true
     }
 
+    /**
+     * Round 4 (board L01): the first time, before the system's location question, in place of today's sheet: what the day
+     * does, that everything stays on the phone, which permission is enough, and all day or one descent. Gated as [day].
+     */
+    @Composable
+    fun first(single: Boolean, haptics: Haptics, onGo: (Boolean) -> Unit, onDismiss: () -> Unit): Boolean {
+        if (io.github.pini236.skiapp.BuildConfig.DEBUG && !RedesignQa.dayOn) return false
+        DayStart(single, haptics, onGo, onDismiss)
+        return true
+    }
+
     @Composable
     fun BoxScope.Host(home: Boolean, mode: DayNight.Mode, haptics: Haptics, scene: MapScene?) {
         // the emulator's scripts drive the debug build through the current screens (qa/run.sh): there the mountain

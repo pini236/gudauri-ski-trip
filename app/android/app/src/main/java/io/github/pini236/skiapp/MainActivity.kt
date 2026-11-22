@@ -651,6 +651,8 @@ class MainActivity : ComponentActivity() {
             "start" -> Qa.log("dayrec start result ${DayRec.start(this)}")
             "resume" -> Qa.log("dayrec resume result ${DayRec.store(this).unfinished()?.let { DayRec.start(this, it) } ?: "none"}")
             "startrun" -> Qa.log("dayrec start result ${DayRec.start(this, run = true)}")
+            // "Record" as the button presses it: without the permission, the sheet before the system's question
+            "ask" -> { Qa.log("dayrec ask"); record(false) }
             "stop" -> DayRec.stop(this)
             "finish" -> inBackground { DayRec.store(this).unfinished()?.let { DayRec.finishCut(this, it) } ?: Qa.log("dayrec nothing cut") }
             // a recorded day pushed to the app's folder (the test values of the reference tool), analysed as the service does at the end of a day
@@ -870,9 +872,12 @@ class MainActivity : ComponentActivity() {
                         },
                         onDismiss = { recBlocked = null })
                 }
-                if (recExplain) io.github.pini236.skiapp.dayrec.ui.PermissionSheet(
-                    onGo = { recExplain = false; requestPermissions(arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION, android.Manifest.permission.ACCESS_COARSE_LOCATION), REC_PERMISSION) },
-                    onDismiss = { recExplain = false })
+                if (recExplain) {
+                    val ask = { requestPermissions(arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION, android.Manifest.permission.ACCESS_COARSE_LOCATION), REC_PERMISSION) }
+                    // the test build's redesign (board L01) has its own sheet; otherwise today's
+                    if (!io.github.pini236.skiapp.redesign.Redesign.first(recSingle, haptics, onGo = { s -> recSingle = s; recExplain = false; ask() }, onDismiss = { recExplain = false }))
+                        io.github.pini236.skiapp.dayrec.ui.PermissionSheet(onGo = { recExplain = false; ask() }, onDismiss = { recExplain = false })
+                }
                 when (top) {
                     Route.Home -> HomeScreen(trip, frame, dnMode, LocalDateTime.ofInstant(Instant.ofEpochMilli(tick), ZoneId.systemDefault()), haptics, sounds, status = lstat, group = firstGroup,
                         onLang = ::setLang,

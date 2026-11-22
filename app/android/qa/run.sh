@@ -1188,6 +1188,11 @@ redesign() {
   sleep 2; shot redesign-day-story
   mark; qa "--es qa.redesign story:off"; sleep 1
   mark; qa "--es qa.redesign ridge:off"; sleep 2
+  # board L01: the first time, the sheet before the system's location question (revoking restarts the app)
+  adb shell pm revoke "$PKG" android.permission.ACCESS_FINE_LOCATION; adb shell pm revoke "$PKG" android.permission.ACCESS_COARSE_LOCATION; sleep 1; mark
+  adb shell "am start -W -n $ACT --es qa.mode day --es qa.redesign day --es qa.dayrec ask" > /dev/null
+  if waitlog "redesign rec first" 90; then sleep 2; shot redesign-rec-first; else fail "redesign: the first-time sheet did not open"; fi
+  adb shell input keyevent KEYCODE_BACK; sleep 1
   # boards L02, L03: recording on the mountain. Before the first reading the search, then a walk down Tatra 2 drawn
   # behind the dot; "hold to finish" held for 1.5 s ends the day and opens it on the mountain
   adb shell pm grant "$PKG" android.permission.POST_NOTIFICATIONS > /dev/null 2>&1 || true
