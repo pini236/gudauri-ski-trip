@@ -49,6 +49,7 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -124,6 +125,7 @@ fun LiveDay(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, liftName: (S
     // the day so far, read from the log every few seconds off the main thread: the descents by the analysis so far, and
     // the stretch since it, while the live view says you ski
     var last by remember { mutableStateOf<FloatArray?>(null) }
+    var painted by remember { mutableStateOf<DayPaint.Day?>(null) }
     LaunchedEffect(night) {
         while (true) {
             val f = DayRec.current
@@ -141,7 +143,7 @@ fun LiveDay(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, liftName: (S
                         }
                     }.getOrNull()
                 }
-                if (built != null) { view.showDay(built.first, night, frame = false, withRuns = true); last = built.second; view.follow(built.second[0], built.second[1]) }
+                if (built != null) { view.showDay(built.first, night, frame = false, withRuns = true); painted = built.first; last = built.second; view.follow(built.second[0], built.second[1]) }
             }
             delay(5000)
         }
@@ -159,8 +161,27 @@ fun LiveDay(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, liftName: (S
         AndroidView(factory = { view }, modifier = Modifier.fillMaxSize())
         // your dot (board L03), on the last reading
         var dot by remember { mutableStateOf<Offset?>(null) }
-        LaunchedEffect(Unit) { while (true) { withFrameNanos { }; dot = last?.let { q -> view.toScreen(q[0], q[1], 4f) }?.let { Offset(it[0], it[1]) } } }
+        var pin by remember { mutableStateOf<Offset?>(null) }
+        val ride = DayRec.ride
+        val onLift = DayRec.live?.act == "lift" && ride != null
+        val rideState = androidx.compose.runtime.rememberUpdatedState(if (onLift) ride else null)
+        LaunchedEffect(Unit) { while (true) { withFrameNanos { }
+            dot = last?.let { q -> view.toScreen(q[0], q[1], 4f) }?.let { Offset(it[0], it[1]) }
+            pin = rideState.value?.maxAt?.let { m -> view.toScreen(Geo.x(m.lon), Geo.y(m.lat), 4f) }?.let { Offset(it[0], it[1]) } } }
+        val measurer = androidx.compose.ui.text.rememberTextMeasurer()
+        val pinText = ride?.maxKmh?.let { stringResource(R.string.app_day_pin) + " · " + "%.1f".format(java.util.Locale.ROOT, it) }
         Canvas(Modifier.fillMaxSize()) {
+            // "here you flew" on the descent you just did, while you ride up (board L04)
+            val p = pin
+            if (onLift && p != null && pinText != null) {
+                val ring = Color(0xFF000000.toInt() or (if (night) DayPaint.NIGHT[4] else DayPaint.DAY[4]))
+                drawCircle(Color.White, 5f * dens, p); drawCircle(ring, 5f * dens, p, style = androidx.compose.ui.graphics.drawscope.Stroke(2f * dens))
+                val tl = measurer.measure(pinText, TextStyle(fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 11.sp, color = Color.White))
+                val w = tl.size.width + 18 * dens; val h = tl.size.height + 8 * dens; val top = p.y - 12 * dens - h
+                drawLine(Color(0xFF0E2233), Offset(p.x, p.y - 5 * dens), Offset(p.x, top + h), 1.4f * dens)
+                drawRoundRect(Color(0xFF0E2233), Offset(p.x - w / 2, top), androidx.compose.ui.geometry.Size(w, h), androidx.compose.ui.geometry.CornerRadius(h / 2))
+                drawText(tl, topLeft = Offset(p.x - tl.size.width / 2f, top + 4 * dens))
+            }
             dot?.let { d -> drawCircle(Color(0x553B7BF0), 13f * dens, d); drawCircle(Color.White, 7.5f * dens, d); drawCircle(Color(0xFF2F6FE4), 5.2f * dens, d) }
         }
 
@@ -188,6 +209,7 @@ fun LiveDay(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, liftName: (S
             val small = TextStyle(fontFamily = Plex, fontSize = 14.sp, color = muted, shadow = Shadow(halo, Offset.Zero, 12f))
             val bold = TextStyle(fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 18.sp, color = ink, shadow = Shadow(halo, Offset.Zero, 12f))
             when {
+                onLift && ride != null -> LiftCard(ride, painted, night, ink, muted, glass, rule, liftName, runName, onStop)
                 searching -> {
                     Text(stringResource(R.string.app_rec_search), style = bold)
                     Text(stringResource(R.string.app_rec_search_note), style = small, textAlign = androidx.compose.ui.text.style.TextAlign.Center)
@@ -216,6 +238,14 @@ fun LiveDay(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, liftName: (S
             if (recording && !io.github.pini236.skiapp.meet.Reminders.allowed(context))
                 Text(stringResource(R.string.app_rec_no_notif), style = small, textAlign = androidx.compose.ui.text.style.TextAlign.Center)
             // hold to finish (L03): the fill grows under the finger for a second; let go before and nothing happens
+            if (!onLift) HoldToFinish(scope, haptics, red, ink, glass, rule, onStop)
+        }
+    }
+}
+
+/** "Hold to finish" (board L03): the fill grows under the finger for a second; let go before and nothing happens. */
+@Composable
+private fun HoldToFinish(scope: kotlinx.coroutines.CoroutineScope, haptics: Haptics, red: Color, ink: Color, glass: Color, rule: Color, onStop: () -> Unit) {
             val hold = remember { Animatable(0f) }
             val holdLabel = stringResource(R.string.app_rec_hold)
             Box(Modifier.padding(top = 10.dp).fillMaxWidth().height(56.dp).shadow(12.dp, RoundedCornerShape(28.dp)).clip(RoundedCornerShape(28.dp)).background(glass)
@@ -239,6 +269,70 @@ fun LiveDay(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, liftName: (S
                     Text(holdLabel, fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = ink)
                 }
             }
+}
+
+/**
+ * On the lift (board L04): the descent you just did, while there is time to look. A thumbnail of its line in the light's
+ * colours, the runs by name, three numbers (top speed, minutes moving, metres down), and the day so far. The board's
+ * header ("the descent you just did") and its "watch the descent" button have no key in i18n/strings.json yet, so they
+ * are left out rather than written here.
+ */
+@Composable
+private fun LiftCard(ride: io.github.pini236.skiapp.dayrec.DayEngine.Ride, painted: DayPaint.Day?, night: Boolean, ink: Color, muted: Color,
+                     glass: Color, rule: Color, liftName: (String) -> String, runName: (String) -> String, onStop: () -> Unit) {
+    val ramp = if (night) DayPaint.NIGHT else DayPaint.DAY
+    // the ride's stretches out of the painted day, by time
+    val lines = remember(painted, ride.t0, ride.t1) {
+        painted?.lines.orEmpty().mapNotNull { l ->
+            val keep = l.t.indices.filter { l.t[it] in ride.t0..ride.t1 }
+            if (keep.size < 2) null else Triple(FloatArray(keep.size) { l.xy[keep[it] * 2] }, FloatArray(keep.size) { l.xy[keep[it] * 2 + 1] }, IntArray(keep.size) { l.band[keep[it]] })
         }
     }
+    val so = DayRec.sofar?.stats
+    val num = TextStyle(fontFamily = Plex, fontWeight = FontWeight.Light, fontSize = 36.sp, color = ink)
+    val label = TextStyle(fontFamily = Plex, fontSize = 12.sp, color = muted)
+    Column(Modifier.padding(top = 8.dp).fillMaxWidth().shadow(14.dp, RoundedCornerShape(20.dp)).clip(RoundedCornerShape(20.dp)).background(glass)
+        .border(1.dp, rule, RoundedCornerShape(20.dp)).padding(16.dp)) {
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            Canvas(Modifier.size(64.dp).clip(RoundedCornerShape(12.dp)).background(if (night) Color(0xFF0A1322) else Color(0xFFEEF2F5))) {
+                if (lines.isEmpty()) return@Canvas
+                var x0 = Float.MAX_VALUE; var x1 = -Float.MAX_VALUE; var y0 = Float.MAX_VALUE; var y1 = -Float.MAX_VALUE
+                for ((xs, ys, _) in lines) { xs.forEach { x0 = minOf(x0, it); x1 = maxOf(x1, it) }; ys.forEach { y0 = minOf(y0, it); y1 = maxOf(y1, it) } }
+                val pad = size.minDimension * .14f
+                val k = minOf((size.width - pad * 2) / (x1 - x0).coerceAtLeast(1f), (size.height - pad * 2) / (y1 - y0).coerceAtLeast(1f))
+                val ox = (size.width - (x1 - x0) * k) / 2; val oy = (size.height - (y1 - y0) * k) / 2
+                // y in the map's metres grows north, the screen's down
+                fun at(x: Float, y: Float) = Offset(ox + (x - x0) * k, oy + (y1 - y) * k)
+                for ((xs, ys, b) in lines) for (i in 0 until xs.size - 1) {
+                    val c = Color(0xFF000000.toInt() or ramp[b[i]])
+                    drawLine(c, at(xs[i], ys[i]), at(xs[i + 1], ys[i + 1]), 3.dp.toPx(), cap = androidx.compose.ui.graphics.StrokeCap.Round)
+                }
+            }
+            Column(Modifier.weight(1f)) {
+                val names = ride.runs.joinToString(" · ") { runName(it) }.ifEmpty { stringResource(R.string.app_rec_off) }
+                Text(names, fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 17.sp, color = ink, maxLines = 2)
+            }
+        }
+        Row(Modifier.padding(top = 12.dp).fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+            @Composable fun cell(v: String, l: String) = Column { Text(v, style = num); Text(l, style = label) }
+            cell(ride.maxKmh?.let { "%.1f".format(java.util.Locale.ROOT, it) } ?: "—", stringResource(R.string.app_rec_kmh_max))
+            cell("%d:%02d".format(java.util.Locale.ROOT, ride.movingS / 60, ride.movingS % 60), stringResource(R.string.app_run_min))
+            cell("%,d".format(java.util.Locale.ROOT, ride.dropM.toInt()), stringResource(R.string.app_rec_m_down))
+        }
+        Box(Modifier.padding(vertical = 12.dp).fillMaxWidth().height(1.dp).background(rule))
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Column(Modifier.weight(1f)) {
+                Text(stringResource(R.string.app_rec_day_so_far), style = label)
+                if (so != null) Text(stringResource(R.string.app_rec_day_line, so.descents, "%,d".format(java.util.Locale.ROOT, so.dropM.toInt()),
+                    "%.1f".format(java.util.Locale.ROOT, so.skiDistM / 1000)), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = ink)
+            }
+            val stop = stringResource(R.string.app_rec_stop)
+            Box(Modifier.height(44.dp).clip(RoundedCornerShape(22.dp)).background(Color(0xFFE5322D))
+                .semantics { role = Role.Button; contentDescription = stop }
+                .clickable { Qa.log("redesign rec lift stop"); onStop() }.padding(horizontal = 18.dp), contentAlignment = Alignment.Center) {
+                Text(stop, fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = Color.White)
+            }
+        }
+    }
+    LaunchedEffect(ride.t1) { Qa.log("redesign rec lift card ${ride.runs.size}") }
 }
