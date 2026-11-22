@@ -8,6 +8,11 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.TextMeasurer
+import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.rememberTextMeasurer
 import io.github.pini236.skiapp.ui.Motion
@@ -83,6 +88,8 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, onPaint
     var scrub by remember { mutableStateOf<Float?>(null) }
     var scrubOpen by remember { mutableStateOf(false) }
     var chosen by remember { mutableStateOf<String?>(null) }
+    // the emulator's held moment (ms since the choice), null in use
+    var held by remember { mutableStateOf<Float?>(null) }
     val time = scrub?.let { PeakLight.janAt(it) } ?: DayNight.lightTime(now, mode)
     val night = remember(time) { Sky.at(time).dark }
     val view = remember { LiveView(context, scene).also { v -> v.onChoose = { k -> chosen = k; haptics.tick(.5f); Qa.log("redesign live chosen $k") } } }
@@ -109,9 +116,13 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, onPaint
                 if (n.size == 3) view.look(n[0], n[1], n[2], a.getOrNull(3)?.takeIf { it.isNotBlank() })
             }
             // a run chosen the way a tap chooses it (the turn to the Kobi side included), letting it go, and the sign
-            c.startsWith("pick:") -> view.pickKey(c.removePrefix("pick:"))
-            c == "unpick" -> { chosen = null; view.choose(null); Qa.log("redesign live unpicked") }
+            c.startsWith("pick:") -> { held = null; view.pickKey(c.removePrefix("pick:")) }
+            c == "unpick" -> { held = null; chosen = null; view.choose(null); Qa.log("redesign live unpicked") }
             c == "front" -> view.backToFront()
+            // one moment of the choice held (the designer's 0, 150, 300, 600 and 900 ms, as phase A's frame:)
+            c.startsWith("moment:") -> c.removePrefix("moment:").split(',').takeIf { it.size == 2 }?.let { (k, t) ->
+                t.trim().toFloatOrNull()?.let { ms -> held = ms; view.moment(k.trim(), ms) }
+            }
         }
     }
     LaunchedEffect(time) { view.setTime(time) }
@@ -172,16 +183,23 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, onPaint
         val run = chosen?.let { k -> pd?.runs?.get(k) }
         var signAt by remember { mutableStateOf<Offset?>(null) }
         val signA = remember { Animatable(0f) }
-        LaunchedEffect(chosen) {
+        LaunchedEffect(chosen, held) {
             signA.snapTo(0f)
             val k = chosen
             if (k == null) { signAt = null; return@LaunchedEffect }
-            launch { delay(600); signA.animateTo(1f, tween(250)) }
+            val h = held
+            if (h != null) signA.snapTo(((h - 600f) / 250f).coerceIn(0f, 1f)) else launch { delay(600); signA.animateTo(1f, tween(250)) }
             while (true) { withFrameNanos { }; signAt = view.screenTop(k)?.let { Offset(it[0], it[1]) } }
         }
         val ring = remember { Animatable(1f) }
         var touch by remember { mutableStateOf<Offset?>(null) }
         LaunchedEffect(Unit) { view.onTapAt = { x, y -> touch = Offset(x, y); scope.launch { ring.snapTo(0f); ring.animateTo(1f, tween(if (Motion.reduced(context)) 1 else 300)) } } }
+        LaunchedEffect(Unit) { view.onMoment = { x, y, ms -> touch = Offset(x, y); scope.launch { ring.snapTo((ms / 300f).coerceIn(0f, 1f)) } } }
+        // the chosen run's K11 marks over the model, every frame: by day arrows down it, a bead each 500 m with its km and
+        // the start and the end (once its light is down it, 600 ms, then 200 ms); at night the beads of light
+        var mk by remember { mutableStateOf<LiveView.Marks?>(null) }
+        var mkMs by remember { mutableStateOf(0f) }
+        LaunchedEffect(chosen) { if (chosen == null) { mk = null; return@LaunchedEffect }; while (true) { withFrameNanos { }; mk = view.marks(); mkMs = view.chosenMs() } }
         // phase A's names (only with no run chosen) and the lifts' stations, over the model, every frame the camera moves
         var ov by remember { mutableStateOf<LiveView.Overlay?>(null) }
         LaunchedEffect(pd) { val labels = pd?.hero?.labels ?: return@LaunchedEffect; while (true) { withFrameNanos { }; ov = view.overlay(labels) } }
@@ -219,6 +237,11 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, onPaint
                     }
                 }
             }
+            val m0 = mk
+            if (m0 != null && m0.key == chosen) {
+                chosenMarks(m0, ((mkMs - 600f) / 200f).coerceIn(0f, 1f), night, measurer)
+                if (mkMs < 600f) runningHead(m0, mkMs / 600f)
+            }
             val r0 = run; val q = signAt
             if (r0 != null && q != null && signA.value > 0f) sign(r0, q, signA.value, measurer)
             val tp = touch
@@ -228,7 +251,7 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, onPaint
                 drawCircle(Color.White, 26 * dp * sc, tp, alpha = .9f * (1 - r), style = Stroke(2 * dp))
             }
         }
-        AnimatedVisibility(run != null && pd != null, Modifier.align(Alignment.BottomCenter),
+        AnimatedVisibility(run != null && pd != null && (held ?: 900f) >= 900f, Modifier.align(Alignment.BottomCenter),
             enter = slideInVertically(tween(250)) { it } + fadeIn(tween(150)), exit = slideOutVertically(tween(200)) { it } + fadeOut(tween(200))) {
             var last by remember { mutableStateOf(run) }
             if (run != null) last = run
@@ -238,5 +261,98 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, onPaint
         AnimatedVisibility(chosen == null, Modifier.align(Alignment.BottomCenter).navigationBarsPadding().padding(bottom = 22.dp), enter = fadeIn(), exit = fadeOut()) {
             Pill(h = 48) { Text(stringResource(R.string.poc_peak_hint), Modifier.padding(horizontal = 20.dp), fontFamily = Plex, fontSize = 15.sp, color = ink) }
         }
+    }
+}
+
+/**
+ * K11 on the live model, as phase A draws it on the picture (PeakScreen's chosen): by day, arrows down the fall line each
+ * 240 m, a bead each 500 m on the longest piece with its km, the start and the end; at night a light each 10.5 dp on the
+ * screen, the slope's colour round it. Only where the line is seen (not behind a ridge).
+ */
+private fun DrawScope.chosenMarks(m: LiveView.Marks, a: Float, night: Boolean, measurer: TextMeasurer) {
+    if (a <= 0f) return
+    val d = m.down; val dp = density
+    // the same colours as the line in the model (SlopeColors, the map's)
+    fun col(li: Int, i: Int): Color = io.github.pini236.skiapp.map.SlopeColors.of(d.slopes[li][i]).let { Color(it[0], it[1], it[2]) }
+    if (night) {
+        val step = 10.5f * dp
+        for (li in m.xs.indices) {
+            val x = m.xs[li]; val y = m.ys[li]; val ok = m.seen[li]
+            var left = 0f
+            for (i in 0 until x.size - 1) {
+                if (!ok[i] || !ok[i + 1]) { left = 0f; continue }
+                val dx = x[i + 1] - x[i]; val dy = y[i + 1] - y[i]; val len = kotlin.math.hypot(dx, dy)
+                var t = left
+                while (t < len) {
+                    val q = Offset(x[i] + dx * t / len, y[i] + dy * t / len)
+                    drawCircle(Color(0xFFFFF3D6), 2.3f * dp, q, alpha = a)
+                    drawCircle(col(li, i), 4.4f * dp, q, alpha = .4f * a)
+                    t += step
+                }
+                left = t - len
+            }
+        }
+        return
+    }
+    val navy = Color(0xFF0E2233)
+    for (li in m.xs.indices) {
+        val x = m.xs[li]; val y = m.ys[li]; val ok = m.seen[li]; val al = d.along[li]
+        var acc = 0f
+        for (j in 1 until x.size - 1) {
+            acc += al[j] - al[j - 1]
+            if (acc > 240f && ok[j] && ok[j + 1]) {
+                acc = 0f
+                var ax = x[j + 1] - x[j - 1]; var ay = y[j + 1] - y[j - 1]; val n = kotlin.math.hypot(ax, ay)
+                if (n < 1f) continue
+                ax /= n; ay /= n
+                val p = Path().apply {
+                    moveTo(x[j] - 1.6f * dp * ax - 2.1f * dp * ay, y[j] - 1.6f * dp * ay + 2.1f * dp * ax); lineTo(x[j] + 1.3f * dp * ax, y[j] + 1.3f * dp * ay)
+                    lineTo(x[j] - 1.6f * dp * ax + 2.1f * dp * ay, y[j] - 1.6f * dp * ay - 2.1f * dp * ax)
+                }
+                drawPath(p, Color.White, alpha = a, style = Stroke(1.3f * dp, cap = StrokeCap.Round, join = androidx.compose.ui.graphics.StrokeJoin.Round))
+            }
+        }
+    }
+    // on the longest piece: a bead each 500 m with its km (white, a dark outline under the letters), the start and the end
+    val mi = d.main; val x = m.xs[mi]; val y = m.ys[mi]; val ok = m.seen[mi]; val al = d.along[mi]
+    val style = TextStyle(fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 9.5.sp, color = Color.White)
+    var b = 500f; var j = 0
+    while (b < (al.lastOrNull() ?: 0f)) {
+        while (j < al.size - 2 && al[j + 1] < b) j++
+        if (ok[j] && ok[j + 1]) {
+            val f = ((b - al[j]) / (al[j + 1] - al[j]).coerceAtLeast(.01f)).coerceIn(0f, 1f)
+            val q = Offset(x[j] + (x[j + 1] - x[j]) * f, y[j] + (y[j + 1] - y[j]) * f)
+            drawCircle(Color.White, 3.1f * dp, q, alpha = a); drawCircle(navy, 3.1f * dp, q, alpha = a, style = Stroke(1.2f * dp))
+            var ax = x[j + 1] - x[j]; var ay = y[j + 1] - y[j]; val n = kotlin.math.hypot(ax, ay).coerceAtLeast(.01f); ax /= n; ay /= n
+            val c = Offset(q.x + 13f * dp * ay, q.y - 13f * dp * ax)
+            val s = ("%.1f".format(b / 1000f)).trimEnd('0').trimEnd('.')
+            val t = measurer.measure(s, style); val o = measurer.measure(s, style.copy(color = Color(0xFF0A1932)))
+            val tl = Offset(c.x - t.size.width / 2f, c.y - t.size.height * .72f)
+            val r = 1.2f * dp
+            for (k in 0 until 8) { val an = k * Math.PI / 4; drawText(o, topLeft = Offset(tl.x + r * kotlin.math.cos(an).toFloat(), tl.y + r * kotlin.math.sin(an).toFloat()), alpha = a * .8f / 2.2f) }
+            drawText(t, topLeft = tl, alpha = a)
+        }
+        b += 500f
+    }
+    if (ok.isNotEmpty() && ok[0]) { val q = Offset(x[0], y[0]); drawCircle(Color.White, 4.6f * dp, q, alpha = a); drawCircle(ACCENT_DAY, 4.6f * dp, q, alpha = a, style = Stroke(2f * dp)) }
+    val e = x.size - 1
+    if (e > 0 && ok[e]) { val q = Offset(x[e], y[e]); drawCircle(ACCENT_DAY, 3.6f * dp, q, alpha = a); drawCircle(Color.White, 3.6f * dp, q, alpha = a, style = Stroke(1.4f * dp)) }
+}
+
+/** The head of the light running down a chosen run (K09, as phase A): a white dot with a soft halo, [f] of the way down. */
+private fun DrawScope.runningHead(m: LiveView.Marks, f: Float) {
+    val d = m.down
+    val total = d.along.sumOf { (it.lastOrNull() ?: 0f).toDouble() }.toFloat()
+    var left = total * f.coerceIn(0f, 1f)
+    for (li in m.xs.indices) {
+        val al = d.along[li]; val len = al.lastOrNull() ?: 0f
+        if (left > len && li < m.xs.size - 1) { left -= len; continue }
+        var j = 0
+        while (j < al.size - 2 && al[j + 1] < left) j++
+        if (al.size < 2 || !m.seen[li][j]) return
+        val k = ((left - al[j]) / (al[j + 1] - al[j]).coerceAtLeast(.01f)).coerceIn(0f, 1f)
+        val q = Offset(m.xs[li][j] + (m.xs[li][j + 1] - m.xs[li][j]) * k, m.ys[li][j] + (m.ys[li][j + 1] - m.ys[li][j]) * k)
+        drawCircle(Color.White, 13f * density, q, alpha = .5f); drawCircle(Color.White, 5f * density, q)
+        return
     }
 }

@@ -1140,6 +1140,16 @@ redesign() {
   # a run chosen as a tap chooses it: the light down it, the framing, its sign on the top and the sheet (K10)
   mark; qa "--es qa.redesign 'pick:Tatra 2'"; waitlog "redesign live framed Tatra 2" 20; sleep 2; rd_drawn; shot redesign-live-chosen-sheet
   mark; qa "--es qa.redesign unpick"; waitlog "redesign live unpicked" 10; rd_drawn
+  # the moment of the choice on the live model held at 0, 150, 300, 600 and 900 ms (as phase A's frame:), each from
+  # the opening view: the ring, the shade, the light down the run, the framing, the sign, then the sheet
+  for ms in 0 150 300 600 900; do
+    mark; qa "--es qa.redesign unpick"; waitlog "redesign live unpicked" 10
+    mark; qa "--es qa.redesign 'look:0,16,6617'"; waitlog "redesign live look" 10
+    mark; qa "--es qa.redesign 'moment:Tatra 2,$ms'"; waitlog "redesign live moment Tatra 2 $ms" 20 || fail "redesign: the live moment $ms was not held"
+    waitlog "redesign live held $ms" 25 || fail "redesign: the held moment $ms was not drawn"; sleep 1; shot "redesign-live-moment-$ms"
+  done
+  mark; qa "--es qa.redesign unpick"; waitlog "redesign live unpicked" 10
+  mark; qa "--es qa.redesign 'look:0,16,6617'"; waitlog "redesign live look" 10; rd_drawn
   # section 10: Kobi chosen from the opening turns to its side (through the east, about 1 s), then frames it; the sign
   # "Kobi side" stays after letting it go, and brings the front back
   mark; qa "--es qa.redesign 'pick:Kobi'"; waitlog "redesign live side kobi" 30 || fail "redesign: Kobi did not turn the camera to its side"

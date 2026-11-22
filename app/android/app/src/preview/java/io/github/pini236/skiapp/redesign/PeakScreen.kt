@@ -130,7 +130,7 @@ import kotlin.math.pow
 
 private val Ease = CubicBezierEasing(.2f, 0f, 0f, 1f)
 private const val REVEAL = 600f
-private val ACCENT_DAY = Color(0xFF6B3FD4)
+internal val ACCENT_DAY = Color(0xFF6B3FD4)
 private val ACCENT_NIGHT = Color(0xFFB79CFF)
 private val SHEET_DP = 236.dp
 
@@ -713,8 +713,11 @@ internal fun DrawScope.sign(r: PeakData.Run, q: Offset, a: Float, measurer: Text
     val t = measurer.measure(if (r.ref.isNotBlank()) r.ref + " · " + r.name else r.name,
         TextStyle(fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 12.sp, color = Color.White, textDirection = TextDirection.Ltr))
     val pad = 8.dp.toPx(); val h = 24.dp.toPx(); val stem = 12.dp.toPx(); val w = t.size.width + 2 * pad
-    val left = q.x - w * .86f; val top = q.y - stem - h
-    val sx = left + w - 12.dp.toPx() - 1.dp.toPx()
+    // the plate stays inside the screen (8 dp from each edge) when the top of the run comes near an edge; the stem
+    // stays on the top of the run, inside the plate
+    val m = 8.dp.toPx()
+    val left = (q.x - w * .86f).coerceIn(m, maxOf(m, size.width - m - w)); val top = q.y - stem - h
+    val sx = (q.x + w * .14f - 13.dp.toPx()).coerceIn(left + 6.dp.toPx(), left + w - 8.dp.toPx())
     drawRect(Color.White, Offset(sx, q.y - stem), Size(2.dp.toPx(), stem), alpha = a)
     drawRoundRect(Color(0x33000000), Offset(left, top + 2.dp.toPx()), Size(w, h), CornerRadius(6.dp.toPx()), alpha = a)
     drawRoundRect(plate(r.color), Offset(left, top), Size(w, h), CornerRadius(6.dp.toPx()), alpha = a)
