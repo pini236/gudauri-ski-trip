@@ -5,6 +5,7 @@ import io.github.pini236.skiapp.telemetry.OpenSource
 import io.github.pini236.skiapp.telemetry.Telemetry
 import io.github.pini236.skiapp.telemetry.ReplayController
 import io.github.pini236.skiapp.telemetry.InstallAnalytics
+import io.github.pini236.skiapp.telemetry.InstallChannel
 import io.github.pini236.skiapp.telemetry.OpenLifecyclePolicy
 import android.os.Build
 import android.os.Bundle
@@ -374,6 +375,7 @@ class MainActivity : ComponentActivity() {
             langSource = if (manual) "manual" else "auto",
             theme = dnMode.name.lowercase(),
             deviceClass = if (resources.configuration.smallestScreenWidthDp >= 600) "tablet" else "phone",
+            installChannel = InstallChannel.detect(this, Telemetry.qaRun(), BuildConfig.FLAVOR == "preview"),
         ))
         // Locale/rotation recreates the Activity in this process; keep common properties fresh without a fake open.
         // A recreated Activity returning from the background still goes through onResume's warm-open flag.

@@ -32,6 +32,7 @@ import androidx.compose.ui.unit.sp
 import io.github.pini236.skiapp.fx.FxPrefs
 import io.github.pini236.skiapp.i18n.Lang
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -50,6 +51,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.pointerInput
+import kotlinx.coroutines.launch
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextDecoration
@@ -194,7 +197,18 @@ fun AboutScreen(
                 Link(stringResource(R.string.about_support), onSupport)
                 Text(" · " + stringResource(R.string.about_unofficial), Modifier.weight(1f), style = Ski.type.small.copy(fontSize = 13.sp), color = c.muted)
             }
-            Text(stringResource(R.string.app_about_version, version), style = Ski.type.small, color = c.muted)
+            // a long press marks this phone as internal for the measurement (is_internal): no text, a tick for on and two for off
+            val haptic = androidx.compose.ui.platform.LocalHapticFeedback.current
+            val scope = androidx.compose.runtime.rememberCoroutineScope()
+            Text(stringResource(R.string.app_about_version, version),
+                Modifier.pointerInput(Unit) {
+                    detectTapGestures(onLongPress = {
+                        val now = !io.github.pini236.skiapp.telemetry.InternalFlag.on(context)
+                        Telemetry.setInternal(context, now)
+                        haptic.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.LongPress)
+                        if (!now) scope.launch { kotlinx.coroutines.delay(150); haptic.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.LongPress) }
+                    })
+                }, style = Ski.type.small, color = c.muted)
             // the test build's field-tester tools; an empty stand-in in the store build
             io.github.pini236.skiapp.fieldtools.FieldTools.AboutRow()
             io.github.pini236.skiapp.fieldtools.FieldTools.DiagRow()

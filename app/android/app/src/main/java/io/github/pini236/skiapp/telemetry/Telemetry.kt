@@ -26,7 +26,8 @@ import io.sentry.android.core.SentryAndroid
  *   both at once.
  * - Events and their properties are the contract in docs/GROWTH.md ("מדידת שימוש"), the same on the site and on the
  *   iPhone: only the events in that table, no autocapture. The properties every event carries are registered once
- *   ([start]): platform, app_version, build, lang, lang_source, theme, device_class.
+ *   ([start]): platform, app_version, build, lang, lang_source, theme, device_class, install_channel, and is_internal only on a
+ *   phone marked by hand (InstallChannel.kt).
  * - The emulator run's crash reports go to Sentry under the environment "qa" ([qaRun]), not with the phones'.
  * - Google Play's test robots (the pre-launch report, on Firebase Test Lab's phones) are not people: no usage events
  *   from them, and their crashes go to Sentry under an environment of their own, "test-lab" (the analyst, 5.10.2026:
@@ -56,7 +57,8 @@ object Telemetry {
     fun enabled(context: Context): Boolean = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getBoolean("on", true)
 
     /** The properties every event carries (docs/GROWTH.md): what build, which language, what kind of screen. */
-    class Common(val appVersion: String, val build: String, val lang: String, val langSource: String, val theme: String, val deviceClass: String)
+    class Common(val appVersion: String, val build: String, val lang: String, val langSource: String, val theme: String, val deviceClass: String,
+                 val installChannel: String = InstallChannel.UNKNOWN)
 
     private var common: Common? = null
 
@@ -103,6 +105,8 @@ object Telemetry {
             PostHog.register("lang_source", common.langSource)
             PostHog.register("theme", common.theme)
             PostHog.register("device_class", common.deviceClass)
+            PostHog.register("install_channel", common.installChannel)
+            applyInternal(InternalFlag.on(app))
         }
     }
 
@@ -121,9 +125,20 @@ object Telemetry {
         }
     }
 
+    /** is_internal: sent (true) only while the phone is marked; when off the registered property is removed, not set to false. */
+    private fun applyInternal(on: Boolean) {
+        if (on) PostHog.register("is_internal", true) else PostHog.unregister("is_internal")
+    }
+
+    /** The hidden switch in the settings. Kept on the phone; takes effect on the next event. No event is sent for it. */
+    fun setInternal(context: Context, on: Boolean) {
+        InternalFlag.set(context, on)
+        if (usage) applyInternal(on)
+    }
+
     /** The day and night mode changed (theme_set): the events after it carry the new one (PARITY X-2). */
     fun setTheme(mode: String) {
-        common = common?.let { Common(it.appVersion, it.build, it.lang, it.langSource, mode, it.deviceClass) }
+        common = common?.let { Common(it.appVersion, it.build, it.lang, it.langSource, mode, it.deviceClass, it.installChannel) }
         if (usage) PostHog.register("theme", mode)
     }
 
