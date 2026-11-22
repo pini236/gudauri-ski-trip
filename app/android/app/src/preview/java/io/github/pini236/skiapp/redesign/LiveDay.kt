@@ -229,6 +229,9 @@ fun LiveDay(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, liftName: (S
                         Text(where, style = bold, maxLines = 1)
                         if (live?.act == "ski" && !live?.runs.isNullOrEmpty()) Text(stringResource(R.string.app_rec_probably), style = small)
                     }
+                    // outside the resort (board L13): the recording goes on, without run names
+                    val outside = last?.let { q -> !io.github.pini236.skiapp.dayrec.IdleWatch.inside(q[0], q[1]) } == true
+                    if (outside) Text(stringResource(R.string.app_rec_outside) + " · " + stringResource(R.string.app_rec_outside_names), style = small)
                     if (weak) Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                         Box(Modifier.size(8.dp).clip(CircleShape).background(Color(0xFFE0A21B)))
                         Text(stringResource(R.string.app_rec_weak_title) + " · " + stringResource(R.string.app_rec_weak_hint), style = small)
