@@ -166,6 +166,9 @@ fun LiveDay(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, liftName: (S
         var pin by remember { mutableStateOf<Offset?>(null) }
         val ride = DayRec.ride
         val onLift = DayRec.live?.act == "lift" && ride != null
+        // when this lift began, as this screen saw it (for "about N min to the top"; opened mid-ride, it errs long)
+        val liftNow = DayRec.live?.takeIf { it.act == "lift" }?.lift
+        val boardedAt = remember(liftNow) { if (liftNow != null) System.currentTimeMillis() else null }
         val rideState = androidx.compose.runtime.rememberUpdatedState(if (onLift) ride else null)
         LaunchedEffect(Unit) { while (true) { withFrameNanos { }
             dot = last?.let { q -> view.toScreen(q[0], q[1], 4f) }?.let { Offset(it[0], it[1]) }
@@ -211,7 +214,13 @@ fun LiveDay(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, liftName: (S
             val small = TextStyle(fontFamily = Plex, fontSize = 14.sp, color = muted, shadow = Shadow(halo, Offset.Zero, 12f))
             val bold = TextStyle(fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 18.sp, color = ink, shadow = Shadow(halo, Offset.Zero, 12f))
             when {
-                onLift && ride != null -> LiftCard(ride, painted, night, ink, muted, glass, rule, liftName, runName, onSee = { haptics.tick(.3f); seeRide = ride }, onStop = onStop)
+                onLift && ride != null -> LiftCard(ride, painted, night, ink, muted, glass, rule, liftName, runName, onSee = { haptics.tick(.3f); seeRide = ride }, onStop = onStop,
+                    head = DayRec.live?.lift?.let { id ->
+                        val name = liftName(id)
+                        val dur = scene.runs?.lifts?.firstOrNull { it.id == id }?.dur?.toDoubleOrNull()
+                        val eta = liftEta(dur, boardedAt, now)
+                        stringResource(R.string.app_rec_on_lift, name) + (eta?.let { " · " + stringResource(R.string.app_rec_lift_eta, it) } ?: "")
+                    })
                 searching -> {
                     Text(stringResource(R.string.app_rec_search), style = bold)
                     Text(stringResource(R.string.app_rec_search_note), style = small, textAlign = androidx.compose.ui.text.style.TextAlign.Center)
@@ -290,7 +299,7 @@ private fun HoldToFinish(scope: kotlinx.coroutines.CoroutineScope, haptics: Hapt
  */
 @Composable
 private fun LiftCard(ride: io.github.pini236.skiapp.dayrec.DayEngine.Ride, painted: DayPaint.Day?, night: Boolean, ink: Color, muted: Color,
-                     glass: Color, rule: Color, liftName: (String) -> String, runName: (String) -> String, onSee: () -> Unit, onStop: () -> Unit) {
+                     glass: Color, rule: Color, liftName: (String) -> String, runName: (String) -> String, onSee: () -> Unit, onStop: () -> Unit, head: String? = null) {
     val ramp = if (night) DayPaint.NIGHT else DayPaint.DAY
     // the ride's stretches out of the painted day, by time
     val lines = remember(painted, ride.t0, ride.t1) {
@@ -304,6 +313,8 @@ private fun LiftCard(ride: io.github.pini236.skiapp.dayrec.DayEngine.Ride, paint
     val label = TextStyle(fontFamily = Plex, fontSize = 12.sp, color = muted)
     Column(Modifier.padding(top = 8.dp).fillMaxWidth().shadow(14.dp, RoundedCornerShape(20.dp)).clip(RoundedCornerShape(20.dp)).background(glass)
         .border(1.dp, rule, RoundedCornerShape(20.dp)).padding(16.dp)) {
+        // the lift and about how long to its top (board L04: an estimate by the lift's travel time in the data)
+        head?.let { Text(it, fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = ink, modifier = Modifier.padding(bottom = 6.dp)) }
         Text(stringResource(R.string.app_rec_just_ran), style = label, modifier = Modifier.padding(bottom = 8.dp))
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             Canvas(Modifier.size(64.dp).clip(RoundedCornerShape(12.dp)).background(if (night) Color(0xFF0A1322) else Color(0xFFEEF2F5))) {
@@ -359,4 +370,11 @@ private fun LiftCard(ride: io.github.pini236.skiapp.dayrec.DayEngine.Ride, paint
         }
     }
     LaunchedEffect(ride.t1) { Qa.log("redesign rec lift card ${ride.runs.size}") }
+}
+
+/** About how many minutes to the lift's top: its travel time ([durMin], from the data) less the time since boarding; null under one. */
+internal fun liftEta(durMin: Double?, boardedAt: Long?, now: Long): Int? {
+    if (durMin == null || boardedAt == null) return null
+    val left = durMin * 60_000 - (now - boardedAt)
+    return Math.round(left / 60_000).toInt().takeIf { it >= 1 }
 }
