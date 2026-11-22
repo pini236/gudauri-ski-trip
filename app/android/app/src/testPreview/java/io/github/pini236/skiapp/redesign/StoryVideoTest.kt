@@ -15,7 +15,7 @@ class StoryVideoTest {
     }
     private val xyz = byteArrayOf(0xA9.toByte(), 'x'.code.toByte(), 'y'.code.toByte(), 'z'.code.toByte())
 
-    private fun file(vararg boxes: ByteArray): File = File.createTempFile("v", ".mp4").apply { writeBytes(boxes.fold(ByteArray(0)) { a, b -> a + b }); deleteOnExit() }
+    private fun file(vararg boxes: ByteArray): File = File.createTempFile("video", ".mp4").apply { writeBytes(boxes.fold(ByteArray(0)) { a, b -> a + b }); deleteOnExit() }
 
     @Test fun aFileWithoutAPlaceMayLeave() {
         val f = file(box("ftyp", "isom".toByteArray()), box("moov", box("mvhd", ByteArray(100)) + box("trak", ByteArray(64))), box("mdat", ByteArray(500)))
