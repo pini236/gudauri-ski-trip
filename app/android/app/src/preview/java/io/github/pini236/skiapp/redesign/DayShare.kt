@@ -174,7 +174,12 @@ private fun makeVideo(ctx: Context, out: File, story: StoryData, sm: DayModel.Su
         listOfNotNull(sm.maxKmh?.let { String.format(Locale.ROOT, "%.1f", it) to ctx.getString(R.string.app_rec_kmh_max) })
     val words = StoryVideo.Words(head, numbers, "Gudi", ctx.getString(R.string.common_site_name) + " · " + date)
     val film = DayPaint.film(paint, sm.maxAt)
-    return StoryVideo.make(out, paint, film, hide, night, words, Lang.typeface(ctx, lang, true), Lang.typeface(ctx, lang, false), lang.rtl, progress)
+    // every tenth in the test log, so a slow encoder (the emulator has none in hardware) is told apart from a stuck one
+    var told = -1
+    return StoryVideo.make(out, paint, film, hide, night, words, Lang.typeface(ctx, lang, true), Lang.typeface(ctx, lang, false), lang.rtl) {
+        val tenth = (it * 10).toInt(); if (tenth != told) { told = tenth; Qa.log("redesign share video ${tenth * 10}%") }
+        progress(it)
+    }
 }
 
 private fun shareVideo(ctx: Context, f: File) {

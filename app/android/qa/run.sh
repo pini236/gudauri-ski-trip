@@ -1190,7 +1190,7 @@ redesign() {
   mark; qa "--es qa.redesign share"; waitlog "redesign share open" 15 || fail "redesign: the share sheet did not open"
   sleep 2; shot redesign-share
   mark; qa "--es qa.redesign share:video"
-  if waitlog "redesign share video made" 420; then waitlog "redesign share saved video true" 30 || fail "redesign: the video was not saved"; sleep 1; shot redesign-share-video
+  if waitlog "redesign share video made" 720; then waitlog "redesign share saved video true" 30 || fail "redesign: the video was not saved"; sleep 1; shot redesign-share-video
   else fail "redesign: the one-minute video was not made"; fi
   mark; qa "--es qa.redesign share:off"; sleep 1
   mark; qa "--es qa.redesign story:off"; sleep 1
