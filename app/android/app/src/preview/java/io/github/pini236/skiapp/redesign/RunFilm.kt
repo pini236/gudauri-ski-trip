@@ -225,7 +225,7 @@ internal fun RunFilm(d: DayModel.Descent, seg: org.json.JSONObject?, segs: List<
             .shadow(14.dp, RoundedCornerShape(20.dp)).clip(RoundedCornerShape(20.dp)).background(glass).border(1.dp, rule, RoundedCornerShape(20.dp))
             .padding(horizontal = 16.dp, vertical = 12.dp), horizontalArrangement = Arrangement.spacedBy(18.dp), verticalAlignment = Alignment.Bottom) {
             val ms = d.movingS.toInt()
-            for ((v, key) in listOf(String.format(Locale.ROOT, "%.1f", d.distM / 1000.0) to R.string.app_rec_km_ski,
+            for ((v, key) in listOf(String.format(Locale.ROOT, "%.1f", d.distM / 1000.0) to R.string.app_run_km,
                 String.format(Locale.ROOT, "%,d", Math.round(d.dropM)) to R.string.app_rec_m_down,
                 String.format(Locale.ROOT, "%d:%02d", ms / 60, ms % 60) to R.string.app_film_moving_min)) {
                 Column {
