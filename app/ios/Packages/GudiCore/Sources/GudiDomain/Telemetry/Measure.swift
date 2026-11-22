@@ -34,4 +34,29 @@ public enum Measure {
     public static func firstOpen(launchRecorded: Bool, hadId: Bool, hadSwitch: Bool) -> Bool {
         !launchRecorded && !hadId && !hadSwitch
     }
+
+    /// `install_channel` (docs/GROWTH.md): a closed list, never a raw value. `environment` is StoreKit 2's
+    /// `AppTransaction.environment` (preferred), `receiptName` the last component of the receipt URL (the fallback).
+    /// TestFlight is the sandbox in both; the App Store is production.
+    public static func installChannel(simulator: Bool, environment: String?, receiptName: String?) -> String {
+        if simulator { return "simulator" }
+        switch environment?.lowercased() {
+        case "production": return "appstore"
+        case "sandbox": return "testflight"
+        default: break
+        }
+        switch receiptName {
+        case "sandboxReceipt": return "testflight"
+        case "receipt": return "appstore"
+        default: return "unknown"
+        }
+    }
+
+    /// The two properties every event carries besides the fixed ones: `install_channel` always, `is_internal` only
+    /// when the user marked the phone (never `false`).
+    public static func installProps(channel: String, internal isInternal: Bool) -> [String: Any] {
+        var p: [String: Any] = ["install_channel": channel]
+        if isInternal { p["is_internal"] = true }
+        return p
+    }
 }

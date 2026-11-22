@@ -31,4 +31,20 @@ final class MeasureTests: XCTestCase {
         XCTAssertFalse(Measure.firstOpen(launchRecorded: false, hadId: true, hadSwitch: false)) // an update
         XCTAssertFalse(Measure.firstOpen(launchRecorded: false, hadId: false, hadSwitch: true))
     }
+
+    func testInstallChannelIsAClosedList() {
+        XCTAssertEqual(Measure.installChannel(simulator: true, environment: "production", receiptName: nil), "simulator")
+        XCTAssertEqual(Measure.installChannel(simulator: false, environment: "production", receiptName: "sandboxReceipt"), "appstore")
+        XCTAssertEqual(Measure.installChannel(simulator: false, environment: "Sandbox", receiptName: "receipt"), "testflight")
+        XCTAssertEqual(Measure.installChannel(simulator: false, environment: nil, receiptName: "sandboxReceipt"), "testflight")
+        XCTAssertEqual(Measure.installChannel(simulator: false, environment: nil, receiptName: "receipt"), "appstore")
+        XCTAssertEqual(Measure.installChannel(simulator: false, environment: "xcode", receiptName: nil), "unknown")
+        XCTAssertEqual(Measure.installChannel(simulator: false, environment: "weird", receiptName: "weird"), "unknown")
+    }
+
+    func testInternalIsSentOnlyWhenMarked() {
+        XCTAssertNil(Measure.installProps(channel: "appstore", internal: false)["is_internal"])
+        XCTAssertEqual(Measure.installProps(channel: "appstore", internal: true)["is_internal"] as? Bool, true)
+        XCTAssertEqual(Measure.installProps(channel: "unknown", internal: false)["install_channel"] as? String, "unknown")
+    }
 }
