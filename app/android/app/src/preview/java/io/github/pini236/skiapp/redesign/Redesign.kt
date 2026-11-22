@@ -72,6 +72,19 @@ object Redesign {
         return true
     }
 
+    /**
+     * Round 4 (decision 84, boards L02, L03, L13): the day while it is recorded, on the mountain, in place of today's
+     * live screen. The same gate as [day]. Returns false when it does not show, and the caller draws today's screen.
+     */
+    @Composable
+    fun live(scene: MapScene?, mode: DayNight.Mode, haptics: Haptics, liftName: (String) -> String, runName: (String) -> String,
+             onSwitch: (Boolean) -> Unit, onStop: () -> Unit, onEnded: (java.io.File?) -> Unit, onBack: () -> Unit): Boolean {
+        if (scene == null) return false
+        if (io.github.pini236.skiapp.BuildConfig.DEBUG && !RedesignQa.dayOn) return false
+        LiveDay(scene, mode, haptics, liftName, runName, onSwitch, onStop, onEnded, onBack)
+        return true
+    }
+
     @Composable
     fun BoxScope.Host(home: Boolean, mode: DayNight.Mode, haptics: Haptics, scene: MapScene?) {
         // the emulator's scripts drive the debug build through the current screens (qa/run.sh): there the mountain

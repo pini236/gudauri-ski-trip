@@ -546,7 +546,7 @@ class LiveView(context: Context, private val scene: MapScene) : GLSurfaceView(co
      * chords 8 m above their ends (day4.py's lift=8), built here off the GL thread; the view framed on the day from the
      * front's side. Null takes it away.
      */
-    fun showDay(d: DayPaint.Day?, night: Boolean, frame: Boolean = true) {
+    fun showDay(d: DayPaint.Day?, night: Boolean, frame: Boolean = true, withRuns: Boolean = false) {
         if (worker.isShutdown) return
         if (d == null) { renderer.day = null; requestRender(); return }
         worker.execute {
@@ -573,7 +573,7 @@ class LiveView(context: Context, private val scene: MapScene) : GLSurfaceView(co
             val lifts = io.github.pini236.skiapp.map.Ribbon.build(dots, { _, _ -> floatArrayOf(1f, 1f, 1f, 1f) }, { li, pi -> dotT[li][pi] })
             val to = if (frame) DayPaint.box(d)?.let { frameBox(it, front()) } else null
             post {
-                renderer.day = LiveRenderer.DayLines(light, lifts, night)
+                renderer.day = LiveRenderer.DayLines(light, lifts, night, withRuns)
                 if (to != null) { renderer.stopAnim(); camera.stopFling(); camera.set(to) }
                 requestRender()
                 Qa.log("redesign live day ${d.points} ${d.lifts.size} ${if (night) "night" else "day"}")
@@ -592,6 +592,17 @@ class LiveView(context: Context, private val scene: MapScene) : GLSurfaceView(co
         val hf = atan(tan(vf) * width.toFloat().coerceAtLeast(1f) / height.coerceAtLeast(1))
         val dist = (r / tan(minOf(vf, hf)) * 1.1).toFloat().coerceIn(1400f, 12000f)
         return s.copy(tx = cx, ty = scene.terrain.elev(cx, cz), tz = cz, dist = dist)
+    }
+
+    /**
+     * The live screen (board L03): the view moves with you, the front's yaw and pitch, the place [x], [y] (metres) in
+     * the middle at [dist]; a short glide (or a jump with reduced motion). Only when you moved more than [min] metres.
+     */
+    fun follow(x: Float, y: Float, dist: Float = 2600f, min: Float = 120f) {
+        val s = camera.state()
+        if (hypot(s.tx - x, s.tz - y) < min && kotlin.math.abs(s.dist - dist) < 1f) return
+        val to = front().copy(tx = x, ty = scene.terrain.elev(x, y), tz = y, dist = dist)
+        if (Motion.reduced(context)) { camera.set(to); requestRender() } else renderer.animate(to, 0.8f)
     }
 
     /** Where a place on the map (metres, [up] above the snow) is on the screen now, or null behind the camera. */

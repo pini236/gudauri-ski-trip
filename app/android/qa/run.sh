@@ -1176,6 +1176,21 @@ redesign() {
     sleep 4; shot "redesign-day-film-$sec"
   done
   mark; qa "--es qa.redesign film:off"; waitlog "redesign day film off" 10; sleep 2
+  # boards L02, L03: recording on the mountain. Before the first reading the search, then a walk down Tatra 2 drawn
+  # behind the dot; "hold to finish" held for 1.5 s ends the day and opens it on the mountain
+  adb shell pm grant "$PKG" android.permission.POST_NOTIFICATIONS > /dev/null 2>&1 || true
+  adb shell pm grant "$PKG" android.permission.ACCESS_FINE_LOCATION; adb shell pm grant "$PKG" android.permission.ACCESS_COARSE_LOCATION
+  adb shell cmd location set-location-enabled true 2> /dev/null
+  mark; qa "--es qa.mode day --es qa.dayrec start"; waitlog "dayrec start result Started" 20 || fail "redesign: the recording did not start"
+  mark; qa "--es qa.tab day"; waitlog "redesign rec open" 20 || fail "redesign: the live screen on the mountain did not open"
+  sleep 3; shot redesign-rec-search
+  geo 42.482631 44.483401; dayrec_walk 10; sleep 7; shot redesign-rec-live
+  xy=$(where "החזקה לסיום")
+  if [ -n "$xy" ]; then
+    mark; adb shell input swipe $xy $xy 1600; waitlog "redesign rec hold done" 10 || fail "redesign: hold to finish did not end the day"
+    waitlog "redesign day open" 30 || fail "redesign: the ended day did not open on the mountain"; sleep 5; shot redesign-rec-ended
+  else fail "redesign: no hold to finish on the live screen"; qa "--es qa.dayrec stop"; fi
+  qa "--es qa.mode auto --es qa.tab home"; sleep 2
   mark; qa "--es qa.mode night"; waitlog "redesign live day drawn .* night" 40 || fail "redesign: the day was not drawn at night"
   sleep 3; shot redesign-day-night
   qa "--es qa.mode auto --es qa.tab home"; waitlog "redesign day closed" 15; sleep 1

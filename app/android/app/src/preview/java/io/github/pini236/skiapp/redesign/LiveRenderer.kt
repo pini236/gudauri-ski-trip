@@ -243,7 +243,7 @@ class LiveRenderer(
      * case is the same buffer drawn wider in one colour), [lifts] the dotted chords of the rides. Built off the GL thread
      * (LiveView.showDay); while it is set the runs and the cables are not drawn, as on the board.
      */
-    class DayLines(val light: Ribbon, val lifts: Ribbon, val night: Boolean)
+    class DayLines(val light: Ribbon, val lifts: Ribbon, val night: Boolean, val withRuns: Boolean = false)
     @Volatile var day: DayLines? = null
     /** How far the day is drawn (the film, board L08), 0 to 1 of the day's time; above 1 all of it. */
     @Volatile var dayReveal = 60000f
@@ -519,6 +519,20 @@ class LiveRenderer(
         val dl = day
         if (dl != null && dl !== dayGpuOf) { dayGpu?.let { it.first.free(); it.second.free() }; dayGpu = Gpu(dl.light) to Gpu(dl.lifts); dayGpuOf = dl }
         if (dl == null && dayGpu != null) { dayGpu?.let { it.first.free(); it.second.free() }; dayGpu = null; dayGpuOf = null }
+        // the day painted (board L06) has no runs on it; the day while it is recorded (L03) has them, quiet, under it
+        val showRuns = dl == null || dl.withRuns
+        val quiet = if (dl != null) .45f else 1f
+        glUniform4f(uT, wire[0], wire[1], wire[2], 1f); glUniform1f(uW, 1.3f * density * zw); glUniform1f(uA, .85f * rest * quiet)
+        if (showRuns) for (g in lifts) g.draw()
+        if (showRuns) for ((key, cs, core) in runs) {
+            if (key == chosen) continue
+            glUniform1f(uB, 0.0010f)
+            glUniform4f(uT, case[0], case[1], case[2], 1f); glUniform1f(uW, 3.6f * density * zw); glUniform1f(uA, (if (night) .7f else .95f) * rest * quiet); cs.draw()
+            glUniform1f(uB, 0.0012f)
+            val c = runRgb[key]
+            if (c != null) glUniform4f(uT, c[0], c[1], c[2], 1f) else glUniform4f(uT, 0f, 0f, 0f, 0f)
+            glUniform1f(uW, 2.2f * density * zw); glUniform1f(uA, rest * quiet); core.draw()
+        }
         val dg = dayGpu.takeIf { dl != null }
         if (dg != null && dl != null) {
             // the day (board L06, day4.py): the rides as a dotted straight line over everything, then the descents, a case
@@ -534,17 +548,6 @@ class LiveRenderer(
             glUniform1f(uB, 0.0014f)
             glUniform4f(uT, 0f, 0f, 0f, 0f); glUniform1f(uW, 3f * density * zw); glUniform1f(uA, 1f); dg.first.draw()
             glUniform1f(uB, 0.0008f); glUniform1f(uR, 60000f)
-        }
-        if (dl == null) glUniform4f(uT, wire[0], wire[1], wire[2], 1f); glUniform1f(uW, 1.3f * density * zw); glUniform1f(uA, .85f * rest)
-        if (dl == null) for (g in lifts) g.draw()
-        if (dl == null) for ((key, cs, core) in runs) {
-            if (key == chosen) continue
-            glUniform1f(uB, 0.0010f)
-            glUniform4f(uT, case[0], case[1], case[2], 1f); glUniform1f(uW, 3.6f * density * zw); glUniform1f(uA, (if (night) .7f else .95f) * rest); cs.draw()
-            glUniform1f(uB, 0.0012f)
-            val c = runRgb[key]
-            if (c != null) glUniform4f(uT, c[0], c[1], c[2], 1f) else glUniform4f(uT, 0f, 0f, 0f, 0f)
-            glUniform1f(uW, 2.2f * density * zw); glUniform1f(uA, rest); core.draw()
         }
         // the chosen run, as phase A: a white case and the line in the slope's colours, point by point; at night a warm
         // glow under it (the beads of K11). No glow by day (the designer, run 292)

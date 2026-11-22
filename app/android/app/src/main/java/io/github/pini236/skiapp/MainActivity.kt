@@ -970,23 +970,26 @@ class MainActivity : ComponentActivity() {
                         onResetBests = { Bests.reset(this@MainActivity); Qa.log("bests reset") }, onLicenses = { nav.push(Route.Licenses) }) { nav.back() }
                     Route.Licenses -> io.github.pini236.skiapp.home.LicensesScreen(onOpen = { nav.push(Route.License(it)) }) { nav.back() }
                     is Route.License -> io.github.pini236.skiapp.home.LicenseScreen(top.name) { nav.back() }
-                    Route.Day -> { io.github.pini236.skiapp.dayrec.ui.DayLiveScreen(
-                        liftName = { id -> scene?.runs?.lifts?.firstOrNull { it.id == id }?.name ?: id },
-                        runName = { k -> scene?.runs?.pistes?.firstOrNull { it.key == k }?.title ?: k }, runs = scene?.runs,
-                        onSwitch = ::switchRecording, onBack = { nav.back() },
-                        onEnded = { f ->
+                    Route.Day -> {
+                        val liftName = { id: String -> scene?.runs?.lifts?.firstOrNull { it.id == id }?.name ?: id }
+                        val runName = { k: String -> scene?.runs?.pistes?.firstOrNull { it.key == k }?.title ?: k }
+                        val onEnded: (java.io.File?) -> Unit = { f ->
                             // the day ended outside this screen (Stop in the notification): the same place as the screen's own Stop
                             if (nav.top == Route.Day) {
                                 val id = f?.name?.removePrefix("day-")?.removeSuffix(".jsonl")
                                 if (id != null) nav.replaceTop(Route.DayOf(id)) else nav.back()
                             }
-                        },
-                        onStop = {
+                        }
+                        val onStop: () -> Unit = {
                             // the day that ends is shown at once; its screen waits for the recorder to close it
                             val id = DayRec.current?.name?.removePrefix("day-")?.removeSuffix(".jsonl")
                             DayRec.stop(this@MainActivity)
                             if (id != null) nav.replaceTop(Route.DayOf(id)) else nav.back()
-                        })
+                        }
+                        // the test build's redesign (round 4) records on the mountain; the store build, today's screen
+                        if (!io.github.pini236.skiapp.redesign.Redesign.live(scene, dnMode, haptics, liftName, runName, ::switchRecording, onStop, onEnded) { nav.back() })
+                            io.github.pini236.skiapp.dayrec.ui.DayLiveScreen(liftName = liftName, runName = runName, runs = scene?.runs,
+                                onSwitch = ::switchRecording, onBack = { nav.back() }, onEnded = onEnded, onStop = onStop)
                         // the test build's counter (frames, missed frames) and the recorder's pulse, over the live screen, for a screenshot
                         if (showStats) StatsBar(false, Modifier.align(Alignment.BottomStart).padding(bottom = 100.dp))
                     }
