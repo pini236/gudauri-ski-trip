@@ -245,6 +245,8 @@ class LiveRenderer(
      */
     class DayLines(val light: Ribbon, val lifts: Ribbon, val night: Boolean)
     @Volatile var day: DayLines? = null
+    /** How far the day is drawn (the film, board L08), 0 to 1 of the day's time; above 1 all of it. */
+    @Volatile var dayReveal = 60000f
     private var dayGpu: Pair<Gpu, Gpu>? = null; private var dayGpuOf: DayLines? = null; private var dayLogged: DayLines? = null
     /** The largest texture this GPU takes (the horizon is 4096 wide). */
     @Volatile var maxTex = 4096
@@ -522,6 +524,7 @@ class LiveRenderer(
             // the day (board L06, day4.py): the rides as a dotted straight line over everything, then the descents, a case
             // 2.2 wider and the light coloured by speed; hidden where the mountain is in front, as on the board
             val lc = if (dl.night) DayPaint.LIFT_NIGHT else DayPaint.LIFT_DAY
+            glUniform1f(uR, dayReveal)
             glDisable(GL_DEPTH_TEST)
             glUniform4f(uT, rgb(lc, 0), rgb(lc, 8), rgb(lc, 16), 1f); glUniform1f(uW, 1.4f * density * zw); glUniform1f(uA, .8f); dg.second.draw()
             glEnable(GL_DEPTH_TEST)
@@ -530,7 +533,7 @@ class LiveRenderer(
             glUniform4f(uT, rgb(cc, 0), rgb(cc, 8), rgb(cc, 16), 1f); glUniform1f(uW, 5.2f * density * zw); glUniform1f(uA, .9f); dg.first.draw()
             glUniform1f(uB, 0.0014f)
             glUniform4f(uT, 0f, 0f, 0f, 0f); glUniform1f(uW, 3f * density * zw); glUniform1f(uA, 1f); dg.first.draw()
-            glUniform1f(uB, 0.0008f)
+            glUniform1f(uB, 0.0008f); glUniform1f(uR, 60000f)
         }
         if (dl == null) glUniform4f(uT, wire[0], wire[1], wire[2], 1f); glUniform1f(uW, 1.3f * density * zw); glUniform1f(uA, .85f * rest)
         if (dl == null) for (g in lifts) g.draw()

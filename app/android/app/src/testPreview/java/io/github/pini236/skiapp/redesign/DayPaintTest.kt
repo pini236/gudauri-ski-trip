@@ -45,4 +45,28 @@ class DayPaintTest {
         assertEquals(10, dots.size)
         assertEquals(8f, dots[0][2] - dots[0][0], 1e-3f)
     }
+
+    @Test fun theFilmRunsTheDayInAMinuteAndLingersAtTheTopSpeed() {
+        // 100 s down, 300 s on a lift, 100 s down: the descents take most of the minute
+        val p = (0 until 500).map { DayPaint.Pt(it * 1000L, it.toFloat(), 0f, 30.0) }
+        val d = DayPaint.build(p, listOf(DayPaint.Seg("descent", 0, 99_000), DayPaint.Seg("lift", 100_000, 399_000), DayPaint.Seg("descent", 400_000, 499_000)))
+        val f = DayPaint.film(d, null)
+        assertEquals(60_000f, f.length, 1f)
+        val firstDescent = f.of(99_000)
+        assertTrue("descent ${firstDescent}", firstDescent > 20_000f)
+        assertTrue("lift ${f.of(399_000) - f.of(100_000)}", f.of(399_000) - f.of(100_000) < 20_000f)
+        // and back: the film's time gives the day's time
+        assertEquals(250_000L.toDouble(), f.at(f.of(250_000)).toDouble(), 1500.0)
+        // around the top speed a second counts three times
+        val g = DayPaint.film(d, 50_000L)
+        assertTrue(g.of(53_000) - g.of(47_000) > f.of(53_000) - f.of(47_000))
+    }
+
+    @Test fun theDotIsOnTheTrack() {
+        val p = pts(100)
+        val d = DayPaint.build(p, listOf(DayPaint.Seg("descent", p.first().t, p.last().t)))
+        val q = d.track.at(p[40].t + 500)!!
+        assertTrue(q[0] > 380f && q[0] < 420f)
+        assertEquals(p.first().t, d.t0); assertEquals(p.last().t, d.t1)
+    }
 }

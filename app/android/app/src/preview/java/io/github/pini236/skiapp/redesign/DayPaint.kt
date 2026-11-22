@@ -19,12 +19,29 @@ object DayPaint {
     /** A part of the day by the analysis (the result's segments): its type and its times. */
     class Seg(val type: String, val t0: Long, val t1: Long)
 
-    /** A stretch of a descent: x, y in metres and the band (0 to 4) of each point. */
-    class Line(val xy: FloatArray, val band: IntArray)
-    /** The day as it is drawn: the descents' lines and the lifts' chords (x0, y0, x1, y1). */
-    class Day(val lines: List<Line>, val lifts: List<FloatArray>) {
+    /** A stretch of a descent: x, y in metres, the band (0 to 4) and the time of each point. */
+    class Line(val xy: FloatArray, val band: IntArray, val t: LongArray)
+    /**
+     * The day as it is drawn: the descents' lines, the lifts' chords (x0, y0, x1, y1) and their times (t0, t1), the
+     * whole track thinned for the moving dot ([track]: t, x, y), and the day's first and last second.
+     */
+    class Day(val lines: List<Line>, val lifts: List<FloatArray>, val liftT: List<LongArray> = emptyList(),
+              val track: Track = Track(LongArray(0), FloatArray(0), FloatArray(0), IntArray(0), BooleanArray(0)), val t0: Long = 0L, val t1: Long = 0L) {
         val points get() = lines.sumOf { it.band.size }
     }
+    /** The whole day thinned (up to [TRACK] points): time, place, band, and whether it is in a descent. */
+    class Track(val t: LongArray, val x: FloatArray, val y: FloatArray, val band: IntArray, val down: BooleanArray) {
+        /** The place at [time]: x, y between the two points around it. */
+        fun at(time: Long): FloatArray? {
+            if (t.isEmpty()) return null
+            var i = t.binarySearch(time); if (i >= 0) return floatArrayOf(x[i], y[i])
+            i = -i - 1
+            if (i <= 0) return floatArrayOf(x[0], y[0]); if (i >= t.size) return floatArrayOf(x.last(), y.last())
+            val f = (time - t[i - 1]).toFloat() / (t[i] - t[i - 1]).coerceAtLeast(1)
+            return floatArrayOf(x[i - 1] + (x[i] - x[i - 1]) * f, y[i - 1] + (y[i] - y[i - 1]) * f)
+        }
+    }
+    const val TRACK = 1200
 
     val BANDS = doubleArrayOf(20.0, 35.0, 50.0, 62.0)
     /** The light by day and at night (the designer's RAMP), slow to fast, as 0xRRGGBB. */
@@ -72,13 +89,56 @@ object DayPaint {
         val lines = runs.map { r ->
             // every step-th point, and always the last, so a stretch keeps its end
             val keep = r.filterIndexed { i, _ -> i % step == 0 || i == r.size - 1 }
-            Line(FloatArray(keep.size * 2) { k -> (if (k % 2 == 0) xs[keep[k / 2]] else ys[keep[k / 2]]).toFloat() }, IntArray(keep.size) { band(kmh[keep[it]]) })
+            Line(FloatArray(keep.size * 2) { k -> (if (k % 2 == 0) xs[keep[k / 2]] else ys[keep[k / 2]]).toFloat() }, IntArray(keep.size) { band(kmh[keep[it]]) }, LongArray(keep.size) { t[keep[it]] })
         }.filter { it.band.size >= 2 }
-        val lifts = segs.filter { it.type == "lift" }.mapNotNull { s ->
+        val lifts = ArrayList<FloatArray>(); val liftT = ArrayList<LongArray>()
+        for (s in segs) if (s.type == "lift") {
             val a = from(s.t0); val b = until(s.t1).coerceAtMost(pts.size) - 1
-            if (b <= a) null else floatArrayOf(xs[a].toFloat(), ys[a].toFloat(), xs[b].toFloat(), ys[b].toFloat())
+            if (b > a) { lifts += floatArrayOf(xs[a].toFloat(), ys[a].toFloat(), xs[b].toFloat(), ys[b].toFloat()); liftT += longArrayOf(t[a], t[b]) }
         }
-        return Day(lines, lifts)
+        val down = BooleanArray(pts.size); for (r in runs) for (i in r) down[i] = true
+        val ts = ((pts.size + TRACK - 1) / TRACK).coerceAtLeast(1)
+        val ki = (pts.indices step ts).toMutableList().also { if (it.last() != pts.size - 1) it += pts.size - 1 }
+        val track = Track(LongArray(ki.size) { t[ki[it]] }, FloatArray(ki.size) { xs[ki[it]].toFloat() }, FloatArray(ki.size) { ys[ki[it]].toFloat() },
+            IntArray(ki.size) { band(kmh[ki[it]]) }, BooleanArray(ki.size) { down[ki[it]] })
+        return Day(lines, lifts, liftT, track, t.first(), t.last())
+    }
+
+    /**
+     * "The day in a minute" (board L08): the film's clock. The day runs in about [seconds]; a second of a descent counts
+     * once, any other second (a ride, a stop) a quarter, and the [slow] seconds around the top speed three times, so the
+     * rides pass quickly and the film lingers at "here you flew". Returns, for each second of the day from [Day.t0], the
+     * film's time in ms; [at] reads it back.
+     */
+    class Film(val t0: Long, val ms: FloatArray) {
+        val length get() = ms.lastOrNull() ?: 0f
+        /** The day's time at film time [f] (ms). */
+        fun at(f: Float): Long {
+            if (ms.isEmpty()) return t0
+            var lo = 0; var hi = ms.size - 1
+            if (f <= 0f) return t0; if (f >= ms[hi]) return t0 + hi * 1000L
+            while (hi - lo > 1) { val m = (lo + hi) / 2; if (ms[m] <= f) lo = m else hi = m }
+            val k = (f - ms[lo]) / (ms[hi] - ms[lo]).coerceAtLeast(1e-3f)
+            return t0 + ((lo + k) * 1000).toLong()
+        }
+        /** The film time at the day's time [t]. */
+        fun of(t: Long): Float { val s = ((t - t0) / 1000f).coerceIn(0f, (ms.size - 1).toFloat()); val i = s.toInt().coerceAtMost(ms.size - 2).coerceAtLeast(0)
+            return if (ms.size < 2) 0f else ms[i] + (ms[i + 1] - ms[i]) * (s - i) }
+    }
+
+    fun film(d: Day, maxAt: Long?, seconds: Float = 60f, slow: Long = 6_000L): Film {
+        if (d.t1 <= d.t0) return Film(d.t0, floatArrayOf(0f))
+        val n = ((d.t1 - d.t0) / 1000L).toInt() + 1
+        val w = FloatArray(n) { .25f }
+        for (l in d.lines) for (i in 0 until l.t.size - 1) {
+            val a = ((l.t[i] - d.t0) / 1000L).toInt(); val b = ((l.t[i + 1] - d.t0) / 1000L).toInt()
+            for (k in a until minOf(b, n)) w[k] = 1f
+        }
+        if (maxAt != null) for (k in 0 until n) if (kotlin.math.abs(d.t0 + k * 1000L - maxAt) <= slow) w[k] = 3f
+        val sum = w.sum()
+        val ms = FloatArray(n); var acc = 0f
+        for (k in 1 until n) { acc += w[k - 1] / sum * seconds * 1000f; ms[k] = acc }
+        return Film(d.t0, ms)
     }
 
     /** The box of the day's lines, in metres: x0, y0, x1, y1. */

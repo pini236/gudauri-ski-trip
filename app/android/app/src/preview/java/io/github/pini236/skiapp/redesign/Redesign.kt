@@ -63,12 +63,12 @@ object Redesign {
      * story, the timeline, the share). Returns false when it does not show, and the caller draws today's screen.
      */
     @Composable
-    fun day(file: java.io.File, sample: Boolean, scene: MapScene?, mode: DayNight.Mode, haptics: Haptics, onReplay: () -> Unit, onBack: () -> Unit): Boolean {
+    fun day(file: java.io.File, sample: Boolean, scene: MapScene?, mode: DayNight.Mode, haptics: Haptics, onBack: () -> Unit): Boolean {
         if (scene == null) return false
         if (io.github.pini236.skiapp.BuildConfig.DEBUG && !RedesignQa.dayOn) return false
         var details by rememberSaveable(file.path) { mutableStateOf(false) }
         if (details) { BackHandler { details = false }; return false }
-        DayMountain(file, sample, scene, mode, haptics, onReplay, onDetails = { details = true }, onBack = onBack)
+        DayMountain(file, sample, scene, mode, haptics, onDetails = { details = true }, onBack = onBack)
         return true
     }
 

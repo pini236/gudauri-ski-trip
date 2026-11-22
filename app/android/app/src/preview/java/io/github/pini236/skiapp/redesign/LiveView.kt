@@ -42,6 +42,8 @@ class LiveView(context: Context, private val scene: MapScene) : GLSurfaceView(co
     private val data = LiveData.load(context)
     /** A run chosen by a tap (its key), or none. */
     var onChoose: ((String?) -> Unit)? = null
+    /** When set, a single tap is given here and chooses nothing (the day on the mountain, round 4). */
+    var onTap: ((Float, Float) -> Unit)? = null
     /** Where a tap chose a run (screen pixels), for the ring from the finger (K09). */
     var onTapAt: ((Float, Float) -> Unit)? = null
 
@@ -347,6 +349,8 @@ class LiveView(context: Context, private val scene: MapScene) : GLSurfaceView(co
 
     /** The named run whose line passes closest to the finger, within 28 dp, in this frame's projection. */
     private fun pick(px: Float, py: Float) {
+        // the day on the mountain (round 4) has no runs to choose: a tap is the screen's (the film stops on it)
+        onTap?.let { it(px, py); return }
         val mvp = FloatArray(16); val eye = FloatArray(3); val v = FloatArray(4); val o = FloatArray(4)
         OrbitCamera.mvp(camera.state(), width.toFloat() / height, mvp, eye, data.camera.fovDeg) { x, z -> scene.terrain.elev(x, z) }
         var best: String? = null; var bestD = 28 * density
@@ -550,18 +554,23 @@ class LiveView(context: Context, private val scene: MapScene) : GLSurfaceView(co
             val ramp = if (night) DayPaint.NIGHT else DayPaint.DAY
             val world = d.lines.map { l -> val n = l.xy.size / 2; FloatArray(n * 3) { k -> val i = k / 3
                 when (k % 3) { 0 -> l.xy[i * 2]; 1 -> t.elev(l.xy[i * 2], l.xy[i * 2 + 1]) + 3f; else -> l.xy[i * 2 + 1] } } }
+            // each point's progress is its time in the day (0 to 1): the film of the day (board L08) reveals up to its clock
+            val span = (d.t1 - d.t0).coerceAtLeast(1L).toFloat()
+            fun prog(time: Long) = (time - d.t0) / span
             val light = io.github.pini236.skiapp.map.Ribbon.build(world, { li, pi -> val c = ramp[d.lines[li].band[pi]]
-                floatArrayOf(((c shr 16) and 0xFF) / 255f, ((c shr 8) and 0xFF) / 255f, (c and 0xFF) / 255f, 1f) })
-            val dots = ArrayList<FloatArray>()
-            for (c in d.lifts) {
+                floatArrayOf(((c shr 16) and 0xFF) / 255f, ((c shr 8) and 0xFF) / 255f, (c and 0xFF) / 255f, 1f) }, { li, pi -> prog(d.lines[li].t[pi]) })
+            val dots = ArrayList<FloatArray>(); val dotT = ArrayList<FloatArray>()
+            for ((ci, c) in d.lifts.withIndex()) {
                 val e0 = t.elev(c[0], c[1]) + 8f; val e1 = t.elev(c[2], c[3]) + 8f
                 val len = hypot(c[2] - c[0], c[3] - c[1]).coerceAtLeast(1f)
+                val lt = d.liftT.getOrNull(ci)
                 for (q in DayPaint.dots(c)) {
                     val f0 = hypot(q[0] - c[0], q[1] - c[1]) / len; val f1 = hypot(q[2] - c[0], q[3] - c[1]) / len
                     dots += floatArrayOf(q[0], e0 + (e1 - e0) * f0, q[1], q[2], e0 + (e1 - e0) * f1, q[3])
+                    dotT += if (lt == null) floatArrayOf(0f, 0f) else floatArrayOf(prog(lt[0] + ((lt[1] - lt[0]) * f0).toLong()), prog(lt[0] + ((lt[1] - lt[0]) * f1).toLong()))
                 }
             }
-            val lifts = io.github.pini236.skiapp.map.Ribbon.build(dots, { _, _ -> floatArrayOf(1f, 1f, 1f, 1f) })
+            val lifts = io.github.pini236.skiapp.map.Ribbon.build(dots, { _, _ -> floatArrayOf(1f, 1f, 1f, 1f) }, { li, pi -> dotT[li][pi] })
             val to = if (frame) DayPaint.box(d)?.let { frameBox(it, front()) } else null
             post {
                 renderer.day = LiveRenderer.DayLines(light, lifts, night)
@@ -571,6 +580,9 @@ class LiveView(context: Context, private val scene: MapScene) : GLSurfaceView(co
             }
         }
     }
+
+    /** The film of the day (board L08): how far the day is drawn, 0 to 1 of its time; null draws all of it. */
+    fun dayReveal(f: Float?) { renderer.dayReveal = f ?: 60000f; requestRender() }
 
     /** The view [s] moved to fit a box of the map (x0, y0, x1, y1, metres) with a margin; its yaw and pitch kept. */
     private fun frameBox(b: FloatArray, s: OrbitCamera.State): OrbitCamera.State {

@@ -1170,6 +1170,12 @@ redesign() {
   mark; qa "--es qa.tab days/sample"; waitlog "redesign day open" 20 || fail "redesign: the day on the mountain did not open"
   waitlog "redesign live day drawn .* day" 60 || fail "redesign: the day was not drawn on the mountain"
   sleep 3; shot redesign-day
+  # board L08, the day in a minute: three held moments of the film (its clock in seconds), the light of their hour
+  for sec in 8 25 60; do
+    mark; qa "--es qa.redesign 'film:$sec'"; waitlog "redesign day film held $sec" 15 || fail "redesign: the film did not hold $sec"
+    sleep 4; shot "redesign-day-film-$sec"
+  done
+  mark; qa "--es qa.redesign film:off"; waitlog "redesign day film off" 10; sleep 2
   mark; qa "--es qa.mode night"; waitlog "redesign live day drawn .* night" 40 || fail "redesign: the day was not drawn at night"
   sleep 3; shot redesign-day-night
   qa "--es qa.mode auto --es qa.tab home"; waitlog "redesign day closed" 15; sleep 1

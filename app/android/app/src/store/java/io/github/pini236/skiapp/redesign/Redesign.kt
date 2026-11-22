@@ -11,7 +11,7 @@ object Redesign {
     @Suppress("UNUSED_PARAMETER") fun qa(cmd: String) {}
 
     @Suppress("UNUSED_PARAMETER")
-    @Composable fun day(file: java.io.File, sample: Boolean, scene: MapScene?, mode: DayNight.Mode, haptics: Haptics, onReplay: () -> Unit, onBack: () -> Unit): Boolean = false
+    @Composable fun day(file: java.io.File, sample: Boolean, scene: MapScene?, mode: DayNight.Mode, haptics: Haptics, onBack: () -> Unit): Boolean = false
 
     @Suppress("UNUSED_PARAMETER")
     @Composable fun BoxScope.Host(home: Boolean, mode: DayNight.Mode, haptics: Haptics, scene: MapScene?) {}
