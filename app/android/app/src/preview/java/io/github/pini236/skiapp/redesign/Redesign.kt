@@ -59,8 +59,8 @@ object Redesign {
     /**
      * Round 4 (decision 84, board L06): the end of a day on the live mountain, in place of today's day screen. Behind
      * DAYREC_UI as the day itself (the route is only reached with it); in the debug build only when the emulator asks
-     * (qa.redesign day), so the other parts see the day screen as it is. A touch on its card opens today's screen (the
-     * story, the timeline, the share). Returns false when it does not show, and the caller draws today's screen.
+     * (qa.redesign day), so the other parts see the day screen as it is. A touch on its card opens the ridge of the day and
+     * its timeline (L07); from there "share" opens today's screen (the story and the share, until L10 and L11). Returns false when it does not show, and the caller draws today's screen.
      */
     @Composable
     fun day(file: java.io.File, sample: Boolean, scene: MapScene?, mode: DayNight.Mode, haptics: Haptics, onBack: () -> Unit): Boolean {

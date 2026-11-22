@@ -111,7 +111,9 @@ fun DayMountain(file: File, sample: Boolean, scene: MapScene, mode: DayNight.Mod
     var filming by remember { mutableStateOf(false) }
     var playing by remember { mutableStateOf(false) }
     var fms by remember { mutableStateOf(0f) }
-    BackHandler { if (filming) { filming = false; playing = false } else onBack() }
+    // the ridge of the day and its timeline (board L07), opened from the card
+    var ridge by androidx.compose.runtime.saveable.rememberSaveable(file.path) { mutableStateOf(false) }
+    BackHandler { if (ridge) ridge = false else if (filming) { filming = false; playing = false } else onBack() }
 
     class Loaded(val paint: DayPaint.Day, val day: DayModel.Day, val story: StoryData?, val elev: FloatArray)
     var loaded by remember(file) { mutableStateOf<Loaded?>(null) }
@@ -156,6 +158,8 @@ fun DayMountain(file: File, sample: Boolean, scene: MapScene, mode: DayNight.Mod
     LaunchedEffect(RedesignQa.seq) {
         val c = RedesignQa.cmd
         when {
+            c == "ridge" -> { filming = false; playing = false; ridge = true }
+            c == "ridge:off" -> ridge = false
             c == "film:off" -> { filming = false; playing = false; Qa.log("redesign day film off") }
             c == "film:play" -> { fms = 0f; filming = true; playing = true; Qa.log("redesign day film start") }
             c.startsWith("film:") -> c.removePrefix("film:").toFloatOrNull()?.let { sec -> playing = false; filming = true; fms = sec * 1000f; Qa.log("redesign day film held ${sec.toInt()}") }
@@ -279,7 +283,7 @@ fun DayMountain(file: File, sample: Boolean, scene: MapScene, mode: DayNight.Mod
         // the card (board L06): the day's head, its three numbers, the scale and the replay; a touch opens the day's screen
         if (!filming) Column(Modifier.align(Alignment.BottomCenter).navigationBarsPadding().padding(8.dp).fillMaxWidth()
             .shadow(16.dp, RoundedCornerShape(24.dp)).clip(RoundedCornerShape(24.dp)).background(glass).border(1.dp, rule, RoundedCornerShape(24.dp))
-            .clickable(role = Role.Button) { haptics.tick(.3f); onDetails() }.padding(horizontal = 16.dp, vertical = 12.dp),
+            .clickable(role = Role.Button) { haptics.tick(.3f); ridge = true }.padding(horizontal = 16.dp, vertical = 12.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp)) {
             Box(Modifier.align(Alignment.CenterHorizontally).width(40.dp).height(4.dp).clip(RoundedCornerShape(2.dp)).background(rule))
             when {
@@ -314,5 +318,7 @@ fun DayMountain(file: File, sample: Boolean, scene: MapScene, mode: DayNight.Mod
                 else -> Text(stringResource(R.string.app_day_loading), fontFamily = Plex, fontSize = 14.sp, color = muted)
             }
         }
+        val lr = l
+        if (ridge && lr != null) DayRidge(lr.paint, lr.elev, lr.day, scene.runs, night, sample, onShare = onDetails, onBack = { ridge = false })
     }
 }
