@@ -1214,7 +1214,7 @@
    "x": 0,
    "y": 0,
    "w": 1280,
-   "h": 1650,
+   "h": 1680,
    "title": "1 · מה צויר, ומה נשאר",
    "page": "nav"
   },
@@ -1230,9 +1230,97 @@
    "x": 3040,
    "y": 0,
    "w": 1280,
-   "h": 880,
+   "h": 900,
    "title": "3 · מה עוד לא הוחלט, עם המלצה",
    "page": "nav"
+  },
+  "S00-Brief.dc.html": {
+   "x": 0,
+   "y": 0,
+   "w": 1280,
+   "h": 1430,
+   "title": "חלק 4: על ההר, ומה הוחלט",
+   "page": "gap4"
+  },
+  "S01-Frame.dc.html": {
+   "x": 0,
+   "y": 1810,
+   "w": 390,
+   "h": 844,
+   "title": "1 · המסך הראשי, שלם",
+   "page": "gap4"
+  },
+  "S02-WhereAsk.dc.html": {
+   "x": 470,
+   "y": 1810,
+   "w": 390,
+   "h": 844,
+   "title": "2 · איפה אני: לפני ההרשאה",
+   "page": "gap4"
+  },
+  "S03-WhereOn.dc.html": {
+   "x": 940,
+   "y": 1810,
+   "w": 390,
+   "h": 844,
+   "title": "3 · איפה אני: על מסלול",
+   "page": "gap4"
+  },
+  "S04-WhereStates.dc.html": {
+   "x": 1410,
+   "y": 1810,
+   "w": 390,
+   "h": 844,
+   "title": "4 · איפה אני: כשאין תשובה",
+   "page": "gap4"
+  },
+  "S05-MountainNow.dc.html": {
+   "x": 0,
+   "y": 3320,
+   "w": 390,
+   "h": 844,
+   "title": "5 · ההר עכשיו: מזג אוויר",
+   "page": "gap4"
+  },
+  "S06-MountainNowNone.dc.html": {
+   "x": 470,
+   "y": 3320,
+   "w": 390,
+   "h": 844,
+   "title": "6 · ההר עכשיו: אין מידע",
+   "page": "gap4"
+  },
+  "S07-RunWhole.dc.html": {
+   "x": 940,
+   "y": 3320,
+   "w": 390,
+   "h": 844,
+   "title": "7 · מסלול נבחר: הגיליון כולו",
+   "page": "gap4"
+  },
+  "S08-Compass.dc.html": {
+   "x": 0,
+   "y": 4830,
+   "w": 390,
+   "h": 844,
+   "title": "8 · אחרי שסובבו: המצפן",
+   "page": "gap4"
+  },
+  "S09-FirstTime.dc.html": {
+   "x": 470,
+   "y": 4830,
+   "w": 390,
+   "h": 844,
+   "title": "9 · הפעם הראשונה: רמז אחד בכל פעם",
+   "page": "gap4"
+  },
+  "S10-YouMyDays.dc.html": {
+   "x": 940,
+   "y": 4830,
+   "w": 390,
+   "h": 844,
+   "title": "10 · אני: הימים שלי בראש",
+   "page": "gap4"
   }
  },
  "createdOnFiles": {
@@ -1523,6 +1611,42 @@
    "x": 0,
    "y": -300,
    "text": "כל האפליקציה בשפה החדשה: מה צויר, מה נשאר, ואיך מגיעים (23.11.2026)"
+  },
+  "tS": {
+   "kind": "title1",
+   "maxW": 1600,
+   "page": "gap4",
+   "x": 0,
+   "w": 1000,
+   "y": -300,
+   "text": "סבב ההשלמה · חלק 4 · על ההר (23.11.2026)"
+  },
+  "tS1": {
+   "kind": "title1",
+   "maxW": 1600,
+   "page": "gap4",
+   "x": 0,
+   "w": 620,
+   "y": 1510,
+   "text": "א · המסך הראשי, ו״איפה אני״"
+  },
+  "tS2": {
+   "kind": "title1",
+   "maxW": 1600,
+   "page": "gap4",
+   "x": 0,
+   "w": 620,
+   "y": 3020,
+   "text": "ב · ״ההר עכשיו״, והמסלול כולו"
+  },
+  "tS3": {
+   "kind": "title1",
+   "maxW": 1600,
+   "page": "gap4",
+   "x": 0,
+   "w": 760,
+   "y": 4530,
+   "text": "ג · מצפן, פעם ראשונה, הימים שלי"
   }
  },
  "order": [
@@ -1679,7 +1803,18 @@
   "R12-GameEnd.dc.html",
   "R13-Settings.dc.html",
   "R14-Language.dc.html",
-  "R15-About.dc.html"
+  "R15-About.dc.html",
+  "S00-Brief.dc.html",
+  "S01-Frame.dc.html",
+  "S02-WhereAsk.dc.html",
+  "S03-WhereOn.dc.html",
+  "S04-WhereStates.dc.html",
+  "S05-MountainNow.dc.html",
+  "S06-MountainNowNone.dc.html",
+  "S07-RunWhole.dc.html",
+  "S08-Compass.dc.html",
+  "S09-FirstTime.dc.html",
+  "S10-YouMyDays.dc.html"
  ],
  "pages": [
   {
@@ -1689,6 +1824,10 @@
   {
    "id": "nav",
    "name": "המפה · מה צויר, מה נשאר, ואיך מגיעים"
+  },
+  {
+   "id": "gap4",
+   "name": "השלמה ד · על ההר"
   },
   {
    "id": "gap3",
