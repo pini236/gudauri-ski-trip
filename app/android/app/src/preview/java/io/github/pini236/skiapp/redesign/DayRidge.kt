@@ -65,8 +65,8 @@ import java.util.Locale
 /**
  * The ridge of the day and its timeline (board L07): the height through the day against the time, the descents in the
  * speed light and the rides dotted, the top speed's bubble and the long breaks named; under it the day as a timeline
- * in the new style. The rides come from the analysis's lift segments (DayModel has no lift item); the chapters are morning and
- * afternoon as on today's day screen (the board's "noon" is not used).
+ * in the new style. The rides come from the analysis's lift segments (DayModel has no lift item); the chapters are the board's
+ * morning, midday and afternoon ([partOfDay]).
  */
 @Composable
 internal fun DayRidge(paint: DayPaint.Day, elev: FloatArray, day: DayModel.Day, segs: List<org.json.JSONObject>, runs: Runs?, night: Boolean, sample: Boolean, haptics: io.github.pini236.skiapp.fx.Haptics, onShare: () -> Unit, onBack: () -> Unit) {
@@ -89,7 +89,7 @@ internal fun DayRidge(paint: DayPaint.Day, elev: FloatArray, day: DayModel.Day, 
                 ((o.optLong("t1") - o.optLong("t0")) / 60_000L).toInt(), if (o.isNull("rise_m")) null else o.optDouble("rise_m"))
         }
         (day.chapters.flatMap { it.items } + lifts).sortedBy { (it as? DayModel.Item)?.t0 ?: (it as LiftRow).t0 }
-            .groupBy { e -> Instant.ofEpochMilli((e as? DayModel.Item)?.t0 ?: (e as LiftRow).t0).atZone(zone).hour >= DayModel.NOON_HOUR }
+            .groupBy { e -> partOfDay(Instant.ofEpochMilli((e as? DayModel.Item)?.t0 ?: (e as LiftRow).t0).atZone(zone).hour) }
             .toSortedMap().toList()
     }
     // one descent as a film (board L09), from a descent in the timeline
@@ -166,10 +166,10 @@ internal fun DayRidge(paint: DayPaint.Day, elev: FloatArray, day: DayModel.Day, 
                 LightScale(night, muted, width = 120.dp, lift = true, modifier = Modifier.padding(top = 4.dp, bottom = 12.dp))
             }
             // the day's items with its lift rides between them (the analysis's lift segments), in chapters by the hour
-            for ((afternoon, rows) in entries) {
+            for ((part, rows) in entries) {
                 item {
                     Row(Modifier.padding(top = 14.dp, bottom = 4.dp), verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        Text(stringResource(if (afternoon) R.string.app_day_afternoon else R.string.app_day_morning), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 13.sp, color = muted)
+                        Text(stringResource(when (part) { 0 -> R.string.app_day_morning; 1 -> R.string.app_day_noon; else -> R.string.app_day_afternoon }), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 13.sp, color = muted)
                         Text(stringResource(R.string.app_day_n_descents, rows.count { it is DayModel.Descent }), fontFamily = Plex, fontSize = 12.sp, color = muted)
                     }
                 }
@@ -280,3 +280,16 @@ internal fun minuteGap(paint: DayPaint.Day, t0: Long, t1: Long): Long? {
     val inside = paint.lines.mapNotNull { l -> val ts = l.t.filter { it in t0..t1 }; if (ts.size < 2) null else ts.first() to ts.last() }.sortedBy { it.first }
     return inside.zipWithNext().firstOrNull { (a, b) -> (b.first - a.second) in 30_000L..90_000L }?.first?.second
 }
+
+/**
+ * The timeline's three chapters (L07: morning, midday, afternoon). The board names "midday" without its hours; they are
+ * decided here, and logged: 12:00 until 14:00.
+ */
+internal fun partOfDay(hour: Int): Int = when {
+    hour < MIDDAY_START_HOUR -> 0
+    hour < MIDDAY_END_HOUR -> 1
+    else -> 2
+}
+
+internal const val MIDDAY_START_HOUR = 12
+internal const val MIDDAY_END_HOUR = 14
