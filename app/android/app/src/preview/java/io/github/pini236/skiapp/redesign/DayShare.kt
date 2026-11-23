@@ -43,6 +43,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.foundation.layout.height
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.LayoutDirection
@@ -134,9 +137,24 @@ internal fun DayShare(story: StoryData, sm: DayModel.Summary, paint: DayPaint.Da
     Box(Modifier.fillMaxSize().background(Color(0xB80B1220)).clickable(interactionSource = remember { MutableInteractionSource() }, indication = null) { onBack() }) {
         // the screen's title (L11), then the picture as it will leave; in the video's mode the same frame with a play sign
         // (the video is the day's lines filling in on the mountain, under the same words)
-        Column(Modifier.align(Alignment.TopCenter).statusBarsPadding().padding(top = 14.dp, start = 36.dp, end = 36.dp).fillMaxWidth(),
-            horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(10.dp)) {
-            Text(stringResource(R.string.app_meet_share_title), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 17.sp, color = Color.White)
+        // the top pill is the share's own (board L11, the designer 23.11.2026): drawn over the dimming, fully opaque, where
+        // the story's pill is, so it covers it; back closes the share, then "picture to share", and "example" at its end
+        Row(Modifier.align(Alignment.TopCenter).statusBarsPadding().padding(8.dp).fillMaxWidth().height(48.dp)
+            .shadow(10.dp, RoundedCornerShape(24.dp)).clip(RoundedCornerShape(24.dp))
+            .background(if (night) Color(0xFF0F1828) else Color.White).border(1.dp, rule, RoundedCornerShape(24.dp))
+            .clickable(interactionSource = remember { MutableInteractionSource() }, indication = null) {},
+            verticalAlignment = Alignment.CenterVertically) {
+            val back = stringResource(R.string.app_g_back)
+            Box(Modifier.size(48.dp).clickable(role = Role.Button) { haptics.tick(.2f); onBack() }
+                .semantics { contentDescription = back }, contentAlignment = Alignment.Center) {
+                Text(if (rtl) "›" else "‹", fontFamily = Plex, fontSize = 20.sp, color = ink)
+            }
+            Text(stringResource(R.string.app_meet_share_title), Modifier.weight(1f), fontFamily = Plex, fontWeight = FontWeight.Medium, fontSize = 14.sp, color = ink, maxLines = 1)
+            if (sample) Text(stringResource(R.string.app_day_sample), Modifier.padding(end = 14.dp).clip(RoundedCornerShape(10.dp))
+                .background(Color(0x33A98BEE)).padding(horizontal = 8.dp, vertical = 2.dp), fontFamily = Plex, fontSize = 12.sp, color = ink)
+        }
+        Column(Modifier.align(Alignment.TopCenter).statusBarsPadding().padding(top = 8.dp + 48.dp + 16.dp, start = 36.dp, end = 36.dp).fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally) {
             pic?.first?.let { b ->
                 Box(Modifier.fillMaxWidth().shadow(18.dp, RoundedCornerShape(20.dp)).clip(RoundedCornerShape(20.dp)), contentAlignment = Alignment.Center) {
                     Image(b.asImageBitmap(), null, Modifier.fillMaxWidth(), contentScale = ContentScale.FillWidth)
