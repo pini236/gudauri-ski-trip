@@ -160,7 +160,14 @@ fun DayMountain(file: File, sample: Boolean, scene: MapScene, mode: DayNight.Mod
     LaunchedEffect(filmT, paint) { val p = paint ?: return@LaunchedEffect
         view.dayReveal(filmT?.let { ((it - p.t0).toFloat() / (p.t1 - p.t0).coerceAtLeast(1)) }) }
     var framed by remember(paint) { mutableStateOf(false) }
-    LaunchedEffect(paint, lineNight) { if (paint != null) { view.showDay(paint, lineNight, frame = !framed); framed = true } }
+    // a recording without descents (the designer, 23.11.2026): the mountain stays behind, with no lines on it
+    val noRuns = loaded?.day?.summary?.descents == 0
+    LaunchedEffect(paint, lineNight, noRuns) {
+        if (paint == null) return@LaunchedEffect
+        // an empty day still hides the runs and the cables, so the bare mountain stays behind the card
+        if (noRuns) view.showDay(DayPaint.Day(emptyList(), emptyList(), t0 = paint.t0, t1 = paint.t1), lineNight, frame = false)
+        else { view.showDay(paint, lineNight, frame = !framed); framed = true }
+    }
     // the emulator's held film moments (qa.redesign film:<s> of the film, or film:play and film:off)
     LaunchedEffect(RedesignQa.seq) {
         val c = RedesignQa.cmd
@@ -312,10 +319,20 @@ fun DayMountain(file: File, sample: Boolean, scene: MapScene, mode: DayNight.Mod
         // the card (board L06): the day's head, its three numbers, the scale and the replay; a touch opens the day's screen
         if (!filming) Column(Modifier.align(Alignment.BottomCenter).navigationBarsPadding().padding(8.dp).fillMaxWidth()
             .shadow(16.dp, RoundedCornerShape(24.dp)).clip(RoundedCornerShape(24.dp)).background(glass).border(1.dp, rule, RoundedCornerShape(24.dp))
-            .clickable(role = Role.Button) { haptics.tick(.3f); ridge = true }.padding(horizontal = 16.dp, vertical = 12.dp),
+            .clickable(role = Role.Button, enabled = !noRuns) { haptics.tick(.3f); ridge = true }.padding(horizontal = 16.dp, vertical = 12.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp)) {
             Box(Modifier.align(Alignment.CenterHorizontally).width(40.dp).height(4.dp).clip(RoundedCornerShape(2.dp)).background(rule))
             when {
+                // no descents: the date and the hours, and the words of "my days" under them; no numbers, no scale, no buttons
+                l != null && noRuns -> {
+                    val sm = l.day.summary
+                    val d = DateTimeFormatter.ofPattern("d.M.yyyy").format(Instant.ofEpochMilli(sm.start).atZone(zone))
+                    val hm = DateTimeFormatter.ofPattern("HH:mm")
+                    Text("\u2066$d · ${hm.format(Instant.ofEpochMilli(sm.start).atZone(zone))}–${hm.format(Instant.ofEpochMilli(sm.end).atZone(zone))}\u2069",
+                        fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 17.sp, color = ink)
+                    Text(stringResource(R.string.app_day_empty), fontFamily = Plex, fontSize = 15.sp, color = muted)
+                    LaunchedEffect(Unit) { Qa.log("redesign day no runs") }
+                }
                 l != null -> {
                     val sm = l.day.summary
                     val locale = context.resources.configuration.locales[0]
