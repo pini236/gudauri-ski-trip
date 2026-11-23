@@ -169,20 +169,7 @@ internal object StoryVideo {
             // the wire, a little over the ground, in eight steps so it bends with the picture
             val xy = FloatArray(18); for (i in 0..8) { val t = i / 8f; xy[i * 2] = c[0] + (c[2] - c[0]) * t; xy[i * 2 + 1] = c[1] + (c[3] - c[1]) * t }
             project(pj, xy, 12f) }.toTypedArray() }
-        private val place: FloatArray? = mountain?.let { m ->
-            var a0 = Float.MAX_VALUE; var a1 = -Float.MAX_VALUE; var b0 = Float.MAX_VALUE; var b1 = -Float.MAX_VALUE
-            for (l in onMountain!!) for (i in 0 until l.size / 2) { val x = l[i * 2]; val y = l[i * 2 + 1]; if (x.isNaN()) continue
-                a0 = minOf(a0, x); a1 = maxOf(a1, x); b0 = minOf(b0, y); b1 = maxOf(b1, y) }
-            val vw = m.view.w; val vh = m.view.h
-            val cover = maxOf(w / vw, h / vh)
-            if (a0 > a1) return@let floatArrayOf(cover, 0f, (h - vh * cover) / 2)
-            val pad = 34f * u; val area = h - 120f * u
-            // as near as the day allows, never less than the whole picture's width, never more than 2.6 times that
-            val k = minOf((w - pad * 2) / (a1 - a0).coerceAtLeast(1f), (area - pad * 2) / (b1 - b0).coerceAtLeast(1f)).coerceIn(cover, cover * 2.6f)
-            val ox = (w / 2f - (a0 + a1) / 2 * k).coerceIn(w - vw * k, 0f)
-            val oy = (area / 2f - (b0 + b1) / 2 * k).coerceIn(h - vh * k, 0f)
-            floatArrayOf(k, ox, oy)
-        }
+        private val place: FloatArray? = mountain?.let { m -> OnMountain.place(m.view, onMountain!!.toList(), w.toFloat(), h.toFloat(), 34f * u, h - 120f * u) }
         private val backdrop: android.graphics.Bitmap? = mountain?.let { m -> place?.let { pl ->
             val bmp = android.graphics.Bitmap.createBitmap(w, h, android.graphics.Bitmap.Config.ARGB_8888)
             val k = pl[0]
@@ -191,17 +178,7 @@ internal object StoryVideo {
             bmp
         } }
 
-        /** The map's metres to the picture's points: back to latitude and longitude, the ground's height, the projection. */
-        private fun project(pj: PeakData.Proj, xy: FloatArray, up: Float): FloatArray {
-            val m = mountain!!
-            val out = FloatArray(xy.size)
-            for (i in 0 until xy.size / 2) {
-                val x = xy[i * 2]; val y = xy[i * 2 + 1]
-                val p = pj.project(MapMetres.lat(y), MapMetres.lon(x), (m.elev(x, y) + up).toDouble())
-                out[i * 2] = p?.x ?: Float.NaN; out[i * 2 + 1] = p?.y ?: Float.NaN
-            }
-            return out
-        }
+        private fun project(pj: PeakData.Proj, xy: FloatArray, up: Float): FloatArray = OnMountain.project(pj, mountain!!.elev, xy, up)
         fun draw(c: Canvas, now: Long) {
             val bd = backdrop; val pl = place; val on = onMountain
             if (bd != null && pl != null && on != null) { drawOnMountain(c, now, bd, pl, on); drawWords(c); return }
@@ -306,6 +283,49 @@ internal object Mp4Meta {
     }
 
     fun hasPlace(bytes: ByteArray): Boolean = PLACES.any { p -> (0..bytes.size - p.size).any { i -> p.indices.all { bytes[i + it] == p[it] } } }
+}
+
+/**
+ * The day on the painted mountain (round 4, the designer's points 6, 9 and 10): the map's metres projected onto the
+ * POC's whole-mountain picture (its points), and where to put the picture so a card is framed on the day.
+ */
+internal object OnMountain {
+    /** [xy] in the map's metres to the picture's points, [up] metres over the ground; NaN where the view does not reach. */
+    fun project(pj: PeakData.Proj, elev: (Float, Float) -> Float, xy: FloatArray, up: Float): FloatArray {
+        val out = FloatArray(xy.size)
+        for (i in 0 until xy.size / 2) {
+            val x = xy[i * 2]; val y = xy[i * 2 + 1]
+            val p = pj.project(MapMetres.lat(y), MapMetres.lon(x), (elev(x, y) + up).toDouble())
+            out[i * 2] = p?.x ?: Float.NaN; out[i * 2 + 1] = p?.y ?: Float.NaN
+        }
+        return out
+    }
+
+    /**
+     * The picture's scale and offset ([k], [ox], [oy]) for a card [w] by [h]: it always covers the card, comes as near as
+     * the projected day allows (at most [maxZoom] times the covering scale), and centres the day in the card's top
+     * [area]. Without a point of the day, the whole picture, centred.
+     */
+    fun place(view: PeakData.View, projected: List<FloatArray>, w: Float, h: Float, pad: Float, area: Float, maxZoom: Float = 2.6f): FloatArray {
+        var a0 = Float.MAX_VALUE; var a1 = -Float.MAX_VALUE; var b0 = Float.MAX_VALUE; var b1 = -Float.MAX_VALUE
+        for (l in projected) for (i in 0 until l.size / 2) { val x = l[i * 2]; val y = l[i * 2 + 1]; if (x.isNaN() || y.isNaN()) continue
+            a0 = minOf(a0, x); a1 = maxOf(a1, x); b0 = minOf(b0, y); b1 = maxOf(b1, y) }
+        val vw = view.w; val vh = view.h
+        val cover = maxOf(w / vw, h / vh)
+        if (a0 > a1) return floatArrayOf(cover, (w - vw * cover) / 2, (h - vh * cover) / 2)
+        val k = minOf((w - pad * 2) / (a1 - a0).coerceAtLeast(1f), (area - pad * 2) / (b1 - b0).coerceAtLeast(1f)).coerceIn(cover, cover * maxZoom)
+        val ox = (w / 2f - (a0 + a1) / 2 * k).coerceIn(w - vw * k, 0f)
+        val oy = (area / 2f - (b0 + b1) / 2 * k).coerceIn(h - vh * k, 0f)
+        return floatArrayOf(k, ox, oy)
+    }
+
+    /** The painted mountain for a light (the POC's whole-mountain view: noon, or night), or null if it cannot be read. */
+    fun load(ctx: android.content.Context, night: Boolean, elev: (Float, Float) -> Float): StoryVideo.Mountain? = runCatching {
+        val d = PeakData.load(ctx)
+        val file = d.hero.images[if (night) "night" else "noon"] ?: return null
+        val img = ctx.assets.open("redesign/$file").use { android.graphics.BitmapFactory.decodeStream(it) } ?: return null
+        if (d.hero.proj == null) null else StoryVideo.Mountain(img, d.hero, elev)
+    }.getOrNull()
 }
 
 /** The map's metres (data/Geo.kt: x east, y south, around 42.51, 44.495) back to latitude and longitude. */

@@ -1001,7 +1001,7 @@ class MainActivity : ComponentActivity() {
                         if (showStats) StatsBar(false, Modifier.align(Alignment.BottomStart).padding(bottom = 100.dp))
                     }
                     Route.Skipass -> io.github.pini236.skiapp.skipass.SkipassScreen(prices, skipDays, seasonToday) { nav.back() }
-                    Route.Days -> if (!io.github.pini236.skiapp.redesign.Redesign.days(dnMode, haptics, onOpen = { id -> nav.push(Route.DayOf(id)) }) { nav.back() })
+                    Route.Days -> if (!io.github.pini236.skiapp.redesign.Redesign.days(dnMode, haptics, onOpen = { id -> nav.push(Route.DayOf(id)) }, scene = scene) { nav.back() })
                         io.github.pini236.skiapp.dayrec.ui.DaysScreen(onOpen = { id -> nav.push(Route.DayOf(id)) }) { nav.back() }
                     is Route.DayOf -> {
                         val sample = top.id == io.github.pini236.skiapp.dayrec.SampleDay.ID

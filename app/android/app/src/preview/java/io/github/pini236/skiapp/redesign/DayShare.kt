@@ -260,16 +260,6 @@ private fun saveVideo(ctx: Context, f: File): Boolean {
     return runCatching { ctx.contentResolver.openOutputStream(uri)!!.use { o -> f.inputStream().use { it.copyTo(o) } }; true }.getOrDefault(false)
 }
 
-/**
- * The painted mountain for the picture and the video (L11): the POC's whole-mountain view at noon (at night, its night),
- * with its projection; null without the ground's height or if the picture cannot be read (then the day is drawn from above).
- */
-private fun mountainOf(ctx: Context, night: Boolean, elev: ((Float, Float) -> Float)?): StoryVideo.Mountain? {
-    if (elev == null) return null
-    return runCatching {
-        val d = PeakData.load(ctx)
-        val file = d.hero.images[if (night) "night" else "noon"] ?: return null
-        val img = ctx.assets.open("redesign/$file").use { android.graphics.BitmapFactory.decodeStream(it) } ?: return null
-        if (d.hero.proj == null) null else StoryVideo.Mountain(img, d.hero, elev)
-    }.getOrNull()
-}
+/** The painted mountain for the picture and the video (L11); null without the ground's heights (then drawn from above). */
+private fun mountainOf(ctx: Context, night: Boolean, elev: ((Float, Float) -> Float)?): StoryVideo.Mountain? =
+    elev?.let { OnMountain.load(ctx, night, it) }

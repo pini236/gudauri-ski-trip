@@ -42,6 +42,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.platform.LocalContext
@@ -98,7 +99,7 @@ internal class ListedDay(val file: File, val id: String, val date: LocalDate, va
                          val head: String?, val lines: List<DayPaint.Line>)
 
 @Composable
-internal fun DayList(mode: DayNight.Mode, haptics: Haptics, onOpen: (String) -> Unit, onBack: () -> Unit) {
+internal fun DayList(mode: DayNight.Mode, haptics: Haptics, onOpen: (String) -> Unit, onBack: () -> Unit, scene: io.github.pini236.skiapp.map.MapScene? = null) {
     BackHandler { onBack() }
     val ctx = LocalContext.current
     val locale = ctx.resources.configuration.locales[0]
@@ -144,7 +145,31 @@ internal fun DayList(mode: DayNight.Mode, haptics: Haptics, onOpen: (String) -> 
                 Box(Modifier.fillMaxWidth().height(300.dp).clip(RoundedCornerShape(20.dp))
                     .background(if (night) Color(0xFF0E1A2C) else Color(0xFFE4EAF1)).border(1.dp, rule, RoundedCornerShape(20.dp))) {
                     val strokes = remember(inTrip, colours) { inTrip.map { (date, d) -> d.lines to colourOf(date) } }
-                    Canvas(Modifier.fillMaxSize().padding(bottom = 60.dp)) {
+                    // on the painted mountain from the valley (board L12; the designer's point 10): the picture and each day's
+                    // lines projected onto it once, off the main thread; without the ground's heights, from above as before
+                    val mountain by androidx.compose.runtime.produceState<Pair<StoryVideo.Mountain, List<Pair<List<FloatArray>, Color>>>?>(null, strokes, night, scene) {
+                        val sc = scene ?: return@produceState
+                        value = withContext(Dispatchers.Default) {
+                            OnMountain.load(ctx, night, sc.terrain::elev)?.let { m -> val pj = m.view.proj!!
+                                m to strokes.map { (ls, c) -> ls.map { l -> OnMountain.project(pj, m.elev, l.xy, 2f) } to c } }
+                        }
+                    }
+                    val mt = mountain
+                    if (mt != null) {
+                        val img = remember(mt) { mt.first.img.asImageBitmap() }
+                        Canvas(Modifier.fillMaxSize()) {
+                            val pl = OnMountain.place(mt.first.view, mt.second.flatMap { it.first }, size.width, size.height, size.minDimension * .08f, size.height - 120.dp.toPx())
+                            val k = pl[0]; val ox = pl[1]; val oy = pl[2]
+                            drawImage(img, dstOffset = androidx.compose.ui.unit.IntOffset(ox.toInt(), oy.toInt()),
+                                dstSize = androidx.compose.ui.unit.IntSize((mt.first.view.w * k).toInt(), (mt.first.view.h * k).toInt()))
+                            val case = if (night) Color(0xFF050A16) else Color.White
+                            for (pass in 0..1) for ((ls, c) in mt.second) for (q in ls) for (i in 0 until q.size / 2 - 1) {
+                                if (q[i * 2].isNaN() || q[i * 2 + 2].isNaN()) continue
+                                val a0 = Offset(ox + q[i * 2] * k, oy + q[i * 2 + 1] * k); val b0 = Offset(ox + q[i * 2 + 2] * k, oy + q[i * 2 + 3] * k)
+                                if (pass == 0) drawLine(case, a0, b0, 4.8f * density, cap = StrokeCap.Round) else drawLine(c, a0, b0, 3f * density, cap = StrokeCap.Round)
+                            }
+                        }
+                    } else Canvas(Modifier.fillMaxSize().padding(bottom = 60.dp)) {
                         val fit = fitOf(strokes.flatMap { it.first }, size.width, size.height, size.minDimension * .08f) ?: return@Canvas
                         for ((ls, c) in strokes) for (l in ls) drawLineOf(l, fit, if (night) Color(0xFF050A16) else Color.White, c, 3f, density)
                     }

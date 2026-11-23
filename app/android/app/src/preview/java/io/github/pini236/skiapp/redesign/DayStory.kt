@@ -33,6 +33,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
@@ -96,6 +97,15 @@ internal fun DayStory(story: StoryData, sm: DayModel.Summary, paint: DayPaint.Da
     val words = remember(ctx) { MomentText.Words(ctx, locale, group = true) }
     val cards = remember(story) { story.cards().filter { it.getString("key") != "fall" && it.getString("key") != "offpiste" } }
     val head = remember(story, sm) { words.render(MomentText.head(story.theme, sm.descents, sm.dropM, sm.distM, locale), Moments.seed("story.head", sm.start)) }
+    // the painted mountain under the cards' windows (board L10, the designer's point 9): the picture and the day's lines
+    // projected onto it once, off the main thread; without the ground's heights the windows stay drawn from above
+    val mountain by androidx.compose.runtime.produceState<Pair<StoryVideo.Mountain, List<FloatArray>>?>(null, paint, night, elev) {
+        val e = elev ?: return@produceState
+        value = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Default) {
+            OnMountain.load(ctx, night, e)?.let { m -> m to paint.lines.map { l -> OnMountain.project(m.view.proj!!, e, l.xy, 2f) } }
+        }
+    }
+    val mImg = remember(mountain) { mountain?.first?.img?.asImageBitmap() }
     LaunchedEffect(story) {
         Qa.log("redesign day story ${cards.size}")
         if (!sample) Telemetry.event("story_view", mapOf("moments" to cards.count { it.getString("key") != "tomorrow" && it.getString("key") != "trip" }.coerceAtMost(3), "surface" to "end_of_day"))
@@ -118,7 +128,26 @@ internal fun DayStory(story: StoryData, sm: DayModel.Summary, paint: DayPaint.Da
                     .padding(horizontal = 14.dp, vertical = 12.dp), horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
                     // a window onto the day's light at the moment's place
                     val at = item.optLong("t").takeIf { it > 0 }?.let { paint.track.at(it) }
-                    if (at != null) Canvas(Modifier.size(76.dp).clip(RoundedCornerShape(14.dp)).background(if (night) Color(0xFF0E1A2C) else Color(0xFFE9EEF4))) {
+                    val mt = mountain; val mi = mImg
+                    val atOn = if (at != null && mt != null) OnMountain.project(mt.first.view.proj!!, mt.first.elev, at, 2f).takeIf { !it[0].isNaN() } else null
+                    if (mt != null && mi != null && atOn != null) Canvas(Modifier.size(76.dp).clip(RoundedCornerShape(14.dp))) {
+                        // a close crop of the painted mountain around the moment, its lines on it and the moment's pin
+                        val k = size.minDimension / 46f   // about 46 of the picture's points across the window
+                        val ox = size.width / 2 - atOn[0] * k; val oy = size.height / 2 - atOn[1] * k
+                        drawImage(mi, dstOffset = androidx.compose.ui.unit.IntOffset(ox.toInt(), oy.toInt()),
+                            dstSize = androidx.compose.ui.unit.IntSize((mt.first.view.w * k).toInt(), (mt.first.view.h * k).toInt()))
+                        for (pass in 0..1) paint.lines.forEachIndexed { li, l -> val q = mt.second[li]
+                            for (i in 0 until l.band.size - 1) {
+                                if (q[i * 2].isNaN() || q[i * 2 + 2].isNaN()) continue
+                                val a0 = Offset(ox + q[i * 2] * k, oy + q[i * 2 + 1] * k); val b0 = Offset(ox + q[i * 2 + 2] * k, oy + q[i * 2 + 3] * k)
+                                if (kotlin.math.abs(a0.x - size.width / 2) > size.width || kotlin.math.abs(a0.y - size.height / 2) > size.height) continue
+                                if (pass == 0) drawLine(if (night) Color(0xFF050A16) else Color.White, a0, b0, 4.4f * dens, cap = StrokeCap.Round)
+                                else drawLine(Color(0xFF000000.toInt() or ramp[l.band[i]]), a0, b0, 2.6f * dens, cap = StrokeCap.Round)
+                            }
+                        }
+                        drawCircle(Color.White, 5f * dens, center)
+                        drawCircle(Color(0xFFE0246E), 5f * dens, center, style = androidx.compose.ui.graphics.drawscope.Stroke(2f * dens))
+                    } else if (at != null) Canvas(Modifier.size(76.dp).clip(RoundedCornerShape(14.dp)).background(if (night) Color(0xFF0E1A2C) else Color(0xFFE9EEF4))) {
                         val half = 320f   // metres from the centre to the window's edge
                         val k = size.minDimension / 2 / half
                         fun p(x: Float, y: Float) = Offset(size.width / 2 + (x - at[0]) * k, size.height / 2 - (y - at[1]) * k)
