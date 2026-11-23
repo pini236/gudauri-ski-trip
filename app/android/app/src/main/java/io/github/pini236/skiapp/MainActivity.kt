@@ -994,7 +994,8 @@ class MainActivity : ComponentActivity() {
                             if (id != null) nav.replaceTop(Route.DayOf(id)) else nav.back()
                         }
                         // the test build's redesign (round 4) records on the mountain; the store build, today's screen
-                        if (!io.github.pini236.skiapp.redesign.Redesign.live(scene, dnMode, haptics, liftName, runName, ::switchRecording, onStop, onEnded) { nav.back() })
+                        if (!io.github.pini236.skiapp.redesign.Redesign.live(scene, dnMode, haptics, liftName, runName, ::switchRecording, onStop, onEnded,
+                                liftState = { n -> lstat.isOpen(n)?.let { it to lstat.reason(n) } }) { nav.back() })
                             io.github.pini236.skiapp.dayrec.ui.DayLiveScreen(liftName = liftName, runName = runName, runs = scene?.runs,
                                 onSwitch = ::switchRecording, onBack = { nav.back() }, onEnded = onEnded, onStop = onStop)
                         // the test build's counter (frames, missed frames) and the recorder's pulse, over the live screen, for a screenshot

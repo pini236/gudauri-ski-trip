@@ -89,7 +89,9 @@ import java.time.format.DateTimeFormatter
  * day's screen as it is (the story, the timeline, the records, the share), so nothing of today is lost.
  */
 @Composable
-fun DayMountain(file: File, sample: Boolean, scene: MapScene, mode: DayNight.Mode, haptics: Haptics, onBack: () -> Unit) {
+fun DayMountain(file: File, sample: Boolean, scene: MapScene, mode: DayNight.Mode, haptics: Haptics,
+                /** While recording (completion part 1, "see the day"): the day so far, from the live analysis, not written anywhere. */
+                live: Boolean = false, openRidge: Boolean = false, onBack: () -> Unit) {
     val context = LocalContext.current
     val zone = ZoneId.of(DayParams.TZ)
     var now by remember { mutableLongStateOf(System.currentTimeMillis()) }
@@ -115,7 +117,7 @@ fun DayMountain(file: File, sample: Boolean, scene: MapScene, mode: DayNight.Mod
     var playing by remember { mutableStateOf(false) }
     var fms by remember { mutableStateOf(0f) }
     // the ridge of the day and its timeline (board L07), opened from the card
-    var ridge by androidx.compose.runtime.saveable.rememberSaveable(file.path) { mutableStateOf(false) }
+    var ridge by androidx.compose.runtime.saveable.rememberSaveable(file.path) { mutableStateOf(openRidge) }
     // the story of the day (board L10), from the ridge's "share"
     var story by androidx.compose.runtime.saveable.rememberSaveable(file.path) { mutableStateOf(false) }
     var shareOnly by androidx.compose.runtime.saveable.rememberSaveable(file.path) { mutableStateOf(false) }
@@ -127,10 +129,13 @@ fun DayMountain(file: File, sample: Boolean, scene: MapScene, mode: DayNight.Mod
     LaunchedEffect(file) {
         withContext(Dispatchers.Default) {
             // the recorder closes the day (and writes the result) after the tap; wait for it, up to a minute (as DayView)
-            var waited = 0
-            while (DayRec.recording && waited < 200) { delay(300); waited++ }
-            val out = runCatching { DayAnalysis.ensure(context, file) }.getOrNull()
-            val result = out?.let { runCatching { JSONObject(it.readText()) }.getOrNull() }
+            val result = if (live) DayRec.sofar?.let { runCatching { io.github.pini236.skiapp.dayrec.ResultJson.of(it, "", 0, if (DayRec.single) "run" else "day") }.getOrNull() }
+            else {
+                var waited = 0
+                while (DayRec.recording && waited < 200) { delay(300); waited++ }
+                val out = runCatching { DayAnalysis.ensure(context, file) }.getOrNull()
+                out?.let { runCatching { JSONObject(it.readText()) }.getOrNull() }
+            }
             if (result == null) { failed = true; return@withContext }
             val raw = result.optJSONArray("segments")?.let { a -> (0 until a.length()).map { a.getJSONObject(it) } } ?: emptyList()
             val segs = raw.map { DayPaint.Seg(it.optString("type"), it.optLong("t0"), it.optLong("t1")) }

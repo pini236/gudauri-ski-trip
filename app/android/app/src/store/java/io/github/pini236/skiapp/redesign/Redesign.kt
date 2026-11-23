@@ -15,7 +15,8 @@ object Redesign {
 
     @Suppress("UNUSED_PARAMETER")
     @Composable fun live(scene: MapScene?, mode: DayNight.Mode, haptics: Haptics, liftName: (String) -> String, runName: (String) -> String,
-                         onSwitch: (Boolean) -> Unit, onStop: () -> Unit, onEnded: (java.io.File?) -> Unit, onBack: () -> Unit): Boolean = false
+                         onSwitch: (Boolean) -> Unit, onStop: () -> Unit, onEnded: (java.io.File?) -> Unit,
+                         liftState: (String) -> Pair<Boolean, String?>? = { null }, onBack: () -> Unit): Boolean = false
 
     @Suppress("UNUSED_PARAMETER")
     @Composable fun first(single: Boolean, haptics: Haptics, onGo: (Boolean) -> Unit, onDismiss: () -> Unit): Boolean = false

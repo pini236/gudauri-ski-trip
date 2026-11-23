@@ -76,10 +76,11 @@ object Redesign {
      */
     @Composable
     fun live(scene: MapScene?, mode: DayNight.Mode, haptics: Haptics, liftName: (String) -> String, runName: (String) -> String,
-             onSwitch: (Boolean) -> Unit, onStop: () -> Unit, onEnded: (java.io.File?) -> Unit, onBack: () -> Unit): Boolean {
+             onSwitch: (Boolean) -> Unit, onStop: () -> Unit, onEnded: (java.io.File?) -> Unit,
+             liftState: (String) -> Pair<Boolean, String?>? = { null }, onBack: () -> Unit): Boolean {
         if (scene == null) return false
         if (io.github.pini236.skiapp.BuildConfig.DEBUG && !RedesignQa.dayOn) return false
-        LiveDay(scene, mode, haptics, liftName, runName, onSwitch, onStop, onEnded, onBack)
+        LiveDay(scene, mode, haptics, liftName, runName, onSwitch, onStop, onEnded, liftState, onBack)
         return true
     }
 

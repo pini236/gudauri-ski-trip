@@ -85,7 +85,9 @@ import kotlinx.coroutines.withContext
  */
 @Composable
 fun LiveDay(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, liftName: (String) -> String, runName: (String) -> String,
-            onSwitch: (single: Boolean) -> Unit, onStop: () -> Unit, onEnded: (java.io.File?) -> Unit, onBack: () -> Unit) {
+            onSwitch: (single: Boolean) -> Unit, onStop: () -> Unit, onEnded: (java.io.File?) -> Unit,
+            /** The lift's state by its name from a fresh report (open, reason), or null: no report (completion part 1, P02). */
+            liftState: (String) -> Pair<Boolean, String?>? = { null }, onBack: () -> Unit) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     var now by remember { mutableLongStateOf(System.currentTimeMillis()) }
@@ -129,6 +131,10 @@ fun LiveDay(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, liftName: (S
     // the stretch since it, while the live view says you ski
     var last by remember { mutableStateOf<FloatArray?>(null) }
     var painted by remember { mutableStateOf<DayPaint.Day?>(null) }
+    // the ground's height under each point of the painted track, for the small ridge (P01)
+    var ridgeElev by remember { mutableStateOf<FloatArray?>(null) }
+    // "see the day" (P01 to P03): the day so far over this screen, the recording going on; or its ridge
+    var seeDay by remember { mutableStateOf(0) }
     // "watch the descent" from the lift (board L04): the descent's film (L09)
     var seeRide by remember { mutableStateOf<io.github.pini236.skiapp.dayrec.DayEngine.Ride?>(null) }
     LaunchedEffect(night) {
@@ -148,12 +154,34 @@ fun LiveDay(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, liftName: (S
                         }
                     }.getOrNull()
                 }
-                if (built != null) { view.showDay(built.first, night, frame = false, withRuns = true); painted = built.first; last = built.second; view.follow(built.second[0], built.second[1]) }
+                if (built != null) {
+                    view.showDay(built.first, night, frame = false, withRuns = true); painted = built.first; last = built.second; view.follow(built.second[0], built.second[1])
+                    val tr = built.first.track
+                    ridgeElev = withContext(Dispatchers.Default) { FloatArray(tr.t.size) { scene.terrain.elev(tr.x[it], tr.y[it]) } }
+                }
             }
             delay(5000)
         }
     }
 
+    // which screen (completion part 1, section 2): the activity now, since when, and the one before it
+    val act = DayRec.live?.act
+    var actNow by remember { mutableStateOf<String?>(null) }
+    var actSince by remember { mutableLongStateOf(0L) }
+    var actBefore by remember { mutableStateOf<String?>(null) }
+    if (act != actNow) { actBefore = actNow; actNow = act; actSince = now }
+    val nearLift = remember(act, last) {
+        if (act != "stand") null else last?.let { q -> scene.runs?.lifts?.let { ls -> nearBoarding(ls.map { it.id to it.pts }, scene.terrain::elev, q[0], q[1]) } }
+    }
+    // the emulator holds a stage it cannot reach in its minutes (qa.redesign stage:standing, stage:near, stage:break, stage:off)
+    var qaStage by remember { mutableStateOf<LiveStage?>(null) }
+    LaunchedEffect(RedesignQa.seq) {
+        val c = RedesignQa.cmd
+        if (c.startsWith("stage:")) qaStage = when (c.removePrefix("stage:")) {
+            "standing" -> LiveStage.STANDING; "near" -> LiveStage.NEAR_LIFT; "break" -> LiveStage.BREAK; else -> null }
+    }
+    val stage = qaStage ?: liveStage(act, actSince, now, actBefore, nearLift != null)
+    LaunchedEffect(stage) { Qa.log("redesign rec stage ${stage.name.lowercase()}") }
     val ink = if (night) Color(0xFFEAF0F7) else Color(0xFF0E2233)
     val muted = if (night) Color(0xB3EAF0F7) else Color(0xFF5B6B7B)
     val glass = if (night) Color(0xEB0F1828) else Color(0xF5FFFFFF)
@@ -215,8 +243,30 @@ fun LiveDay(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, liftName: (S
             }
         }
 
+        val sheetInk = remember(night) { SheetInk(night) }
+        val sheet = recording && !searching && !onLift && stage in setOf(LiveStage.STANDING, LiveStage.WALKING, LiveStage.NEAR_LIFT, LiveStage.BREAK)
+        val nearL = (nearLift ?: if (qaStage == LiveStage.NEAR_LIFT) last?.let { q -> scene.runs?.lifts?.let { ls ->
+            nearBoarding(ls.map { it.id to it.pts }, scene.terrain::elev, q[0], q[1], 1e6f) } } else null)?.let { id -> scene.runs?.lifts?.firstOrNull { it.id == id } }
+        androidx.compose.animation.Crossfade(if (sheet) (if (stage == LiveStage.NEAR_LIFT && nearL == null) LiveStage.STANDING else stage) else null,
+            Modifier.fillMaxSize(), animationSpec = tween(250), label = "stage") { st ->
+            Box(Modifier.fillMaxSize()) {
+                val so = DayRec.sofar?.stats
+                val see = { seeDay = 1 }; val seeRidge = { seeDay = 2 }
+                when (st) {
+                    LiveStage.STANDING, LiveStage.WALKING -> Box(Modifier.align(Alignment.BottomCenter)) {
+                        StandingSheet(st == LiveStage.WALKING, so, painted, ridgeElev, night, sheetInk, haptics, see, seeRidge, onStop)
+                    }
+                    LiveStage.NEAR_LIFT -> if (nearL != null) Box(Modifier.align(Alignment.BottomCenter)) {
+                        NearLiftSheet(nearL, liftName(nearL.id), (now - actSince) / 1000, liftState(nearL.name), so, sheetInk, haptics,
+                            onSee = see, onStop = onStop)
+                    }
+                    LiveStage.BREAK -> BreakScreen(((now - actSince) / 60_000).let { if (qaStage == LiveStage.BREAK) maxOf(it, 12) else it }, so, painted, ridgeElev, night, sheetInk, haptics, see, seeRidge, onStop)
+                    else -> {}
+                }
+            }
+        }
         // the speed, large, and where you probably are (or the search, or the weak signal); the hold to finish under them
-        Column(Modifier.align(Alignment.BottomCenter).navigationBarsPadding().padding(horizontal = 16.dp, vertical = 12.dp).fillMaxWidth(),
+        if (!sheet) Column(Modifier.align(Alignment.BottomCenter).navigationBarsPadding().padding(horizontal = 16.dp, vertical = 12.dp).fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(6.dp)) {
             val big = TextStyle(fontFamily = Plex, fontWeight = FontWeight.Light, fontSize = 120.sp, color = ink, shadow = Shadow(halo, Offset.Zero, 24f))
             // over the mountain the small words take the board's second ink by day (#40556A): the grey of the sheets falls
@@ -224,7 +274,7 @@ fun LiveDay(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, liftName: (S
             val small = TextStyle(fontFamily = Plex, fontSize = 14.sp, color = if (night) muted else Color(0xFF40556A), shadow = Shadow(halo, Offset.Zero, 12f))
             val bold = TextStyle(fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 18.sp, color = ink, shadow = Shadow(halo, Offset.Zero, 12f))
             when {
-                onLift && ride != null -> LiftCard(ride, painted, night, ink, muted, glass, rule, liftName, runName, onSee = { haptics.tick(.3f); seeRide = ride }, onStop = onStop,
+                onLift && ride != null -> LiftCard(ride, painted, night, ink, muted, glass, rule, liftName, runName, onSee = { haptics.tick(.3f); seeRide = ride }, onStop = onStop, haptics = haptics,
                     head = DayRec.live?.lift?.let { id ->
                         val name = liftName(id)
                         // where you are on the lift's line, and only on a sound reading (not a weak signal)
@@ -282,6 +332,9 @@ fun LiveDay(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, liftName: (S
             // hold to finish (L03): the fill grows under the finger for a second; let go before and nothing happens
             if (!onLift) HoldToFinish(scope, haptics, red, ink, glass, rule, onStop)
         }
+        // "see the day" (P01 to P03): the day so far, the recording going on; back returns here
+        val cur = DayRec.current
+        if (seeDay != 0 && cur != null) DayMountain(cur, false, scene, mode, haptics, live = true, openRidge = seeDay == 2) { seeDay = 0 }
         val r = seeRide; val pd = painted
         if (r != null && pd != null) {
             val d = io.github.pini236.skiapp.dayrec.ui.DayModel.Descent(r.t0, r.runs, r.maxKmh, false, r.dropM, r.distM,
@@ -327,7 +380,7 @@ private fun HoldToFinish(scope: kotlinx.coroutines.CoroutineScope, haptics: Hapt
  */
 @Composable
 private fun LiftCard(ride: io.github.pini236.skiapp.dayrec.DayEngine.Ride, painted: DayPaint.Day?, night: Boolean, ink: Color, muted: Color,
-                     glass: Color, rule: Color, liftName: (String) -> String, runName: (String) -> String, onSee: () -> Unit, onStop: () -> Unit, head: String? = null) {
+                     glass: Color, rule: Color, liftName: (String) -> String, runName: (String) -> String, onSee: () -> Unit, onStop: () -> Unit, head: String? = null, haptics: Haptics) {
     val ramp = if (night) DayPaint.NIGHT else DayPaint.DAY
     // the ride's stretches out of the painted day, by time
     val lines = remember(painted, ride.t0, ride.t1) {
@@ -389,12 +442,8 @@ private fun LiftCard(ride: io.github.pini236.skiapp.dayrec.DayEngine.Ride, paint
                 .clickable { Qa.log("redesign rec lift see"); onSee() }.padding(horizontal = 14.dp), contentAlignment = Alignment.Center) {
                 Text(see, fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = ink)
             }
-            val stop = stringResource(R.string.app_rec_stop)
-            Box(Modifier.height(44.dp).clip(RoundedCornerShape(22.dp)).background(Color(0xFFE5322D))
-                .semantics { role = Role.Button; contentDescription = stop }
-                .clickable { Qa.log("redesign rec lift stop"); onStop() }.padding(horizontal = 18.dp), contentAlignment = Alignment.Center) {
-                Text(stop, fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = Color.White)
-            }
+            // held for a second, as everywhere outside a descent (completion part 1, section 2)
+            HoldStop(remember(night) { SheetInk(night) }, haptics, onStop)
         }
     }
     LaunchedEffect(ride.t1) { Qa.log("redesign rec lift card ${ride.runs.size}") }

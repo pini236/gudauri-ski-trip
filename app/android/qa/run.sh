@@ -1212,11 +1212,22 @@ redesign() {
   mark; qa "--es qa.dayrec start"; waitlog "dayrec start result Started" 20 || fail "redesign: the recording did not start"
   sleep 1.5; shot redesign-rec-search
   geo 42.482631 44.483401; dayrec_walk 10; sleep 7; shot redesign-rec-live
+  # completion part 1 (P01 to P03): standing, next to a lift and a break, held (the emulator cannot stand for minutes)
+  mark; qa "--es qa.redesign stage:standing"; waitlog "redesign rec stage standing" 10 || fail "redesign: no standing sheet"; sleep 1.5; shot redesign-rec-standing
+  mark; qa "--es qa.redesign stage:near"; waitlog "redesign rec stage near_lift" 10 || fail "redesign: no sheet next to a lift"; sleep 1.5; shot redesign-rec-near-lift
+  mark; qa "--es qa.redesign stage:break"; waitlog "redesign rec stage break" 10 || fail "redesign: no break screen"; sleep 1.5; shot redesign-rec-break
+  mark; qa "--es qa.redesign stage:standing"; waitlog "redesign rec stage standing" 10
+  # "see the day": the day so far over the live screen, the recording going on; back returns to it
+  if tapText "לראות את היום"; then
+    waitlog "redesign day open" 30 || fail "redesign: see the day did not open the day so far"; sleep 5; shot redesign-rec-see-day
+    mark; adb shell input keyevent 4; waitlog "redesign day closed" 15 || fail "redesign: back from the day so far did not return"; sleep 1
+  else fail "redesign: no see the day on the standing sheet"; fi
   # board L05: the permanent notification while recording (the run, no live speed)
   adb shell cmd statusbar expand-notifications; sleep 2; shot redesign-rec-notice; adb shell cmd statusbar collapse; sleep 1
-  xy=$(where "החזקה לסיום")
+  # on the standing sheet finish is held as well (completion part 1, section 2)
+  xy=$(where "סיום")
   if [ -n "$xy" ]; then
-    mark; adb shell input swipe $xy $xy 1600; waitlog "redesign rec hold done" 10 || fail "redesign: hold to finish did not end the day"
+    mark; adb shell input swipe $xy $xy 1600; waitlog "redesign rec sheet hold done" 10 || fail "redesign: hold to finish did not end the day"
     waitlog "redesign day open" 30 || fail "redesign: the ended day did not open on the mountain"; sleep 5; shot redesign-rec-ended
   else fail "redesign: no hold to finish on the live screen"; qa "--es qa.dayrec stop"; qa "--es qa.tab days/sample"; waitlog "redesign day open" 20; fi
   # the same day, still open on the mountain, at night
