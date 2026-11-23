@@ -1,5 +1,6 @@
 package io.github.pini236.skiapp.redesign
 
+import io.github.pini236.skiapp.map.Sky
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
