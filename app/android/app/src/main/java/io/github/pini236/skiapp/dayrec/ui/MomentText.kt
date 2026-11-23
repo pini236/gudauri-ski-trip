@@ -230,7 +230,11 @@ object MomentText {
     }
 
     /** The Android side: picks the variant and fills the placeholders. */
-    class Words(private val ctx: Context, private val locale: Locale) {
+    /**
+     * [group]: whole numbers of a thousand and over with a thousands separator ("5,545"), the way the redesign shows every
+     * number; off in the store build's screens, which stay as they are.
+     */
+    class Words(private val ctx: Context, private val locale: Locale, private val group: Boolean = false) {
         private val res get() = ctx.resources
 
         private fun id(type: String, full: String) = res.getIdentifier(full.replace('.', '_'), type, ctx.packageName)
@@ -252,6 +256,7 @@ object MomentText {
                 when (val v = part.args[name]) {
                     null -> ""
                     is Ref -> res.getIdentifier("moment_ref_${v.id}", "string", ctx.packageName).let { r -> if (r != 0) res.getString(r) else v.id }
+                    is Int -> if (group) String.format(Locale.ROOT, "%,d", v) else v
                     else -> v
                 }
             }.toTypedArray()

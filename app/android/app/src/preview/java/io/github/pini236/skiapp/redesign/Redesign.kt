@@ -56,6 +56,68 @@ object Redesign {
     /** The emulator run's hook (qa.redesign, debug builds only, app/android/qa/README.md). */
     fun qa(cmd: String) = RedesignQa.send(cmd)
 
+    /**
+     * Round 4 (decision 84, board L06): the end of a day on the live mountain, in place of today's day screen. Behind
+     * DAYREC_UI as the day itself (the route is only reached with it); in the debug build only when the emulator asks
+     * (qa.redesign day), so the other parts see the day screen as it is. A touch on its card opens the ridge of the day and
+     * its timeline (L07), a descent there its film (L09), and "share" the story (L10) with its picture. Returns false when it does not show, and the caller draws today's screen.
+     */
+    @Composable
+    fun day(file: java.io.File, sample: Boolean, scene: MapScene?, mode: DayNight.Mode, haptics: Haptics, onBack: () -> Unit): Boolean {
+        if (scene == null) return false
+        if (io.github.pini236.skiapp.BuildConfig.DEBUG && !RedesignQa.dayOn) return false
+        DayMountain(file, sample, scene, mode, haptics, onBack = onBack)
+        return true
+    }
+
+    /**
+     * Round 4 (decision 84, boards L02, L03, L13): the day while it is recorded, on the mountain, in place of today's
+     * live screen. The same gate as [day]. Returns false when it does not show, and the caller draws today's screen.
+     */
+    @Composable
+    fun live(scene: MapScene?, mode: DayNight.Mode, haptics: Haptics, liftName: (String) -> String, runName: (String) -> String,
+             onSwitch: (Boolean) -> Unit, onStop: () -> Unit, onEnded: (java.io.File?) -> Unit, onBack: () -> Unit): Boolean {
+        if (scene == null) return false
+        if (io.github.pini236.skiapp.BuildConfig.DEBUG && !RedesignQa.dayOn) return false
+        LiveDay(scene, mode, haptics, liftName, runName, onSwitch, onStop, onEnded, onBack)
+        return true
+    }
+
+    /**
+     * Round 4 (board L01): the first time, before the system's location question, in place of today's sheet: what the day
+     * does, that everything stays on the phone, which permission is enough, and all day or one descent. Gated as [day].
+     */
+    @Composable
+    fun first(single: Boolean, haptics: Haptics, onGo: (Boolean) -> Unit, onDismiss: () -> Unit): Boolean {
+        if (io.github.pini236.skiapp.BuildConfig.DEBUG && !RedesignQa.dayOn) return false
+        DayStart(single, haptics, onGo, onDismiss)
+        return true
+    }
+
+    /**
+     * Round 4 (board L05, Android): the permanent notification's words while recording, or null for today's. Not a
+     * composable: the recording service asks it (title, text, the expanded text). Gated as [day].
+     */
+    fun notice(c: android.content.Context, elapsedMs: Long, live: io.github.pini236.skiapp.dayrec.DayEngine.Snapshot?,
+               ride: io.github.pini236.skiapp.dayrec.DayEngine.Ride?): Triple<String, String, String?>? {
+        if (io.github.pini236.skiapp.BuildConfig.DEBUG && !RedesignQa.dayOn) return null
+        return Notice.content(c, elapsedMs, live, ride)?.let { Triple(it.title, it.text, it.big) }
+    }
+
+    /** What, besides the minute, changes that notification (empty when it is today's). */
+    fun noticeKey(live: io.github.pini236.skiapp.dayrec.DayEngine.Snapshot?, ride: io.github.pini236.skiapp.dayrec.DayEngine.Ride?): String =
+        if (io.github.pini236.skiapp.BuildConfig.DEBUG && !RedesignQa.dayOn) "" else Notice.key(live, ride)
+
+    /**
+     * Round 4 (board L12): my days, with the trip as layers on one mountain, in place of today's list. Gated as [day].
+     */
+    @Composable
+    fun days(mode: DayNight.Mode, haptics: Haptics, onOpen: (String) -> Unit, onBack: () -> Unit): Boolean {
+        if (io.github.pini236.skiapp.BuildConfig.DEBUG && !RedesignQa.dayOn) return false
+        DayList(mode, haptics, onOpen, onBack)
+        return true
+    }
+
     @Composable
     fun BoxScope.Host(home: Boolean, mode: DayNight.Mode, haptics: Haptics, scene: MapScene?) {
         // the emulator's scripts drive the debug build through the current screens (qa/run.sh): there the mountain
@@ -116,5 +178,7 @@ object RedesignQa {
     var asked by mutableStateOf(false); private set
     var seq by mutableStateOf(0); private set
     var cmd: String = ""; private set
-    fun send(c: String) { asked = true; cmd = c; seq++ }
+    /** The day on the mountain (round 4) in the debug build: once asked (qa.redesign day), until the run ends. */
+    var dayOn by mutableStateOf(false); private set
+    fun send(c: String) { asked = true; if (c == "day") dayOn = true; cmd = c; seq++ }
 }

@@ -238,6 +238,16 @@ class LiveRenderer(
     @Volatile var chosenLine: Pair<String, io.github.pini236.skiapp.map.Ribbon>? = null
     private var chosenGpu: Gpu? = null; private var chosenGpuOf: Pair<String, io.github.pini236.skiapp.map.Ribbon>? = null
     private val groundTex = IntArray(1); private var groundOn: io.github.pini236.skiapp.map.SlopeLayer? = null
+    /**
+     * Round 4 (board L06): the day painted on the mountain. [light] holds the descents with each point's speed colour (its
+     * case is the same buffer drawn wider in one colour), [lifts] the dotted chords of the rides. Built off the GL thread
+     * (LiveView.showDay); while it is set the runs and the cables are not drawn, as on the board.
+     */
+    class DayLines(val light: Ribbon, val lifts: Ribbon, val night: Boolean, val withRuns: Boolean = false)
+    @Volatile var day: DayLines? = null
+    /** How far the day is drawn (the film, board L08), 0 to 1 of the day's time; above 1 all of it. */
+    @Volatile var dayReveal = 60000f
+    private var dayGpu: Pair<Gpu, Gpu>? = null; private var dayGpuOf: DayLines? = null; private var dayLogged: DayLines? = null
     /** The largest texture this GPU takes (the horizon is 4096 wide). */
     @Volatile var maxTex = 4096
 
@@ -278,6 +288,7 @@ class LiveRenderer(
         prog = program(VS, FS); skyProg = program(SKY_VS, SKY_FS); lineProg = program(LINE_VS, LINE_FS); dotProg = program(DOT_VS, DOT_FS)
         uploaded = false; texOn = false; tex.fill(0); runs.clear(); lifts.clear(); dotCount = 0
         drapeTex[0] = 0; drapeOn = null; groundTex[0] = 0; groundOn = null; chosenGpu = null; chosenGpuOf = null
+        dayGpu = null; dayGpuOf = null; dayLogged = null
         if (hadTextures && textures == null) needTextures?.invoke()
         drawn = false
         val mx = IntArray(1); glGetIntegerv(GL_MAX_TEXTURE_SIZE, mx, 0); maxTex = mx[0]
@@ -297,6 +308,7 @@ class LiveRenderer(
         if (groundTex[0] != 0) glDeleteTextures(1, groundTex, 0)
         drapeTex[0] = 0; drapeOn = null; groundTex[0] = 0; groundOn = null
         chosenGpu?.free(); chosenGpu = null; chosenGpuOf = null
+        dayGpu?.let { it.first.free(); it.second.free() }; dayGpu = null; dayGpuOf = null; dayLogged = null
         drape?.recycle(); drape = null; ground = null
         tex.fill(0); texOn = false; uploaded = false; dotCount = 0
         for (p in intArrayOf(prog, skyProg, lineProg, dotProg)) if (p != 0) glDeleteProgram(p)
@@ -504,16 +516,38 @@ class LiveRenderer(
         val uR = u(lineProg, "uReveal"); glUniform1f(uR, 60000f)
         glUniform1f(uB, 0.0008f); glUniform1f(uS, 0f)
         val rest = 1f - .55f * dim
-        glUniform4f(uT, wire[0], wire[1], wire[2], 1f); glUniform1f(uW, 1.3f * density * zw); glUniform1f(uA, .85f * rest)
-        for (g in lifts) g.draw()
-        for ((key, cs, core) in runs) {
+        val dl = day
+        if (dl != null && dl !== dayGpuOf) { dayGpu?.let { it.first.free(); it.second.free() }; dayGpu = Gpu(dl.light) to Gpu(dl.lifts); dayGpuOf = dl }
+        if (dl == null && dayGpu != null) { dayGpu?.let { it.first.free(); it.second.free() }; dayGpu = null; dayGpuOf = null }
+        // the day painted (board L06) has no runs on it; the day while it is recorded (L03) has them, quiet, under it
+        val showRuns = dl == null || dl.withRuns
+        val quiet = if (dl != null) .45f else 1f
+        glUniform4f(uT, wire[0], wire[1], wire[2], 1f); glUniform1f(uW, 1.3f * density * zw); glUniform1f(uA, .85f * rest * quiet)
+        if (showRuns) for (g in lifts) g.draw()
+        if (showRuns) for ((key, cs, core) in runs) {
             if (key == chosen) continue
             glUniform1f(uB, 0.0010f)
-            glUniform4f(uT, case[0], case[1], case[2], 1f); glUniform1f(uW, 3.6f * density * zw); glUniform1f(uA, (if (night) .7f else .95f) * rest); cs.draw()
+            glUniform4f(uT, case[0], case[1], case[2], 1f); glUniform1f(uW, 3.6f * density * zw); glUniform1f(uA, (if (night) .7f else .95f) * rest * quiet); cs.draw()
             glUniform1f(uB, 0.0012f)
             val c = runRgb[key]
             if (c != null) glUniform4f(uT, c[0], c[1], c[2], 1f) else glUniform4f(uT, 0f, 0f, 0f, 0f)
-            glUniform1f(uW, 2.2f * density * zw); glUniform1f(uA, rest); core.draw()
+            glUniform1f(uW, 2.2f * density * zw); glUniform1f(uA, rest * quiet); core.draw()
+        }
+        val dg = dayGpu.takeIf { dl != null }
+        if (dg != null && dl != null) {
+            // the day (board L06, day4.py): the rides as a dotted straight line over everything, then the descents, a case
+            // 2.2 wider and the light coloured by speed; hidden where the mountain is in front, as on the board
+            val lc = if (dl.night) DayPaint.LIFT_NIGHT else DayPaint.LIFT_DAY
+            glUniform1f(uR, dayReveal)
+            glDisable(GL_DEPTH_TEST)
+            glUniform4f(uT, rgb(lc, 0), rgb(lc, 8), rgb(lc, 16), 1f); glUniform1f(uW, 1.4f * density * zw); glUniform1f(uA, .8f); dg.second.draw()
+            glEnable(GL_DEPTH_TEST)
+            val cc = if (dl.night) DayPaint.CASE_NIGHT else DayPaint.CASE_DAY
+            glUniform1f(uB, 0.0012f)
+            glUniform4f(uT, rgb(cc, 0), rgb(cc, 8), rgb(cc, 16), 1f); glUniform1f(uW, 5.2f * density * zw); glUniform1f(uA, .9f); dg.first.draw()
+            glUniform1f(uB, 0.0014f)
+            glUniform4f(uT, 0f, 0f, 0f, 0f); glUniform1f(uW, 3f * density * zw); glUniform1f(uA, 1f); dg.first.draw()
+            glUniform1f(uB, 0.0008f); glUniform1f(uR, 60000f)
         }
         // the chosen run, as phase A: a white case and the line in the slope's colours, point by point; at night a warm
         // glow under it (the beads of K11). No glow by day (the designer, run 292)
@@ -557,6 +591,7 @@ class LiveRenderer(
         glDepthMask(true); glDisable(GL_BLEND); glEnable(GL_CULL_FACE)
         // the emulator waits for this: a frame with the mountain, not only the clear colour
         if (!drawn) { drawn = true; io.github.pini236.skiapp.qa.Qa.log("redesign live drawn") }
+        if (dg != null && dl !== dayLogged) { dayLogged = dl; io.github.pini236.skiapp.qa.Qa.log("redesign live day drawn ${dl!!.light.indices.size / 6} ${if (dl.night) "night" else "day"}") }
         // and, for a held moment, for a frame that has it: the run's line on the GPU and the time held
         val fh = frozenMs
         if (fh != null && chosenGpuOf?.first == chosen && heldDrawn != fh) { heldDrawn = fh; io.github.pini236.skiapp.qa.Qa.log("redesign live held ${fh.toInt()}") }
@@ -568,6 +603,9 @@ class LiveRenderer(
     private val runRgb = HashMap<String, FloatArray>()
     private var caseRgb = floatArrayOf(1f, 1f, 1f); private var wireRgb = floatArrayOf(.13f, .19f, .25f)
     private val WARM_NIGHT = floatArrayOf(1f, .86f, .52f)
+
+    /** One channel (0 to 1) of an 0xRRGGBB colour: [k] 0 for red, 8 green, 16 blue. */
+    private fun rgb(c: Int, k: Int): Float = ((c shr (16 - k)) and 0xFF) / 255f
 
     private fun runColour(p: PeakData.Pal, c: String?): FloatArray? = when (c) {
         "green" -> hex(p.green); "blue" -> hex(p.blue); "red" -> hex(p.red); "black" -> hex(p.black); else -> null
