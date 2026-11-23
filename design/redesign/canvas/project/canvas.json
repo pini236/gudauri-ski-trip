@@ -1081,6 +1081,134 @@
    "h": 844,
    "title": "10 · לפני העונה: הספירה על ההר",
    "page": "gap2"
+  },
+  "R00-Brief.dc.html": {
+   "x": 0,
+   "y": 0,
+   "w": 1280,
+   "h": 1570,
+   "title": "חלק 3: החבר׳ה, הבקתה ואני, ומה הוחלט",
+   "page": "gap3"
+  },
+  "R01-GroupGate.dc.html": {
+   "x": 0,
+   "y": 1950,
+   "w": 390,
+   "h": 844,
+   "title": "1 · החבר׳ה: עוד בלי קבוצה",
+   "page": "gap3"
+  },
+  "R02-JoinLink.dc.html": {
+   "x": 470,
+   "y": 1950,
+   "w": 390,
+   "h": 844,
+   "title": "2 · הזמנה נפתחה",
+   "page": "gap3"
+  },
+  "R03-GroupMeetups.dc.html": {
+   "x": 940,
+   "y": 1950,
+   "w": 390,
+   "h": 844,
+   "title": "3 · הקבוצה: מפגשים",
+   "page": "gap3"
+  },
+  "R04-GroupFlights.dc.html": {
+   "x": 1410,
+   "y": 1950,
+   "w": 390,
+   "h": 844,
+   "title": "4 · הקבוצה: טיסות",
+   "page": "gap3"
+  },
+  "R05-GroupScores.dc.html": {
+   "x": 1880,
+   "y": 1950,
+   "w": 390,
+   "h": 844,
+   "title": "5 · הקבוצה: שיאים",
+   "page": "gap3"
+  },
+  "R06-GroupMembers.dc.html": {
+   "x": 2350,
+   "y": 1950,
+   "w": 390,
+   "h": 844,
+   "title": "6 · הקבוצה: חברים וניהול",
+   "page": "gap3"
+  },
+  "R07-Invite.dc.html": {
+   "x": 2820,
+   "y": 1950,
+   "w": 390,
+   "h": 844,
+   "title": "7 · מזמינים חברים",
+   "page": "gap3"
+  },
+  "R08-SignIn.dc.html": {
+   "x": 0,
+   "y": 3460,
+   "w": 390,
+   "h": 844,
+   "title": "8 · כניסה",
+   "page": "gap3"
+  },
+  "R09-YouSignedIn.dc.html": {
+   "x": 470,
+   "y": 3460,
+   "w": 390,
+   "h": 844,
+   "title": "9 · אני: עם חשבון",
+   "page": "gap3"
+  },
+  "R10-YouGuest.dc.html": {
+   "x": 940,
+   "y": 3460,
+   "w": 390,
+   "h": 844,
+   "title": "10 · אני: אורח",
+   "page": "gap3"
+  },
+  "R11-CabinGames.dc.html": {
+   "x": 0,
+   "y": 4970,
+   "w": 390,
+   "h": 844,
+   "title": "11 · ערב בבקתה: המשחקים",
+   "page": "gap3"
+  },
+  "R12-GameEnd.dc.html": {
+   "x": 470,
+   "y": 4970,
+   "w": 390,
+   "h": 844,
+   "title": "12 · סוף משחק",
+   "page": "gap3"
+  },
+  "R13-Settings.dc.html": {
+   "x": 940,
+   "y": 4970,
+   "w": 390,
+   "h": 844,
+   "title": "13 · הגדרות",
+   "page": "gap3"
+  },
+  "R14-Language.dc.html": {
+   "x": 1410,
+   "y": 4970,
+   "w": 390,
+   "h": 844,
+   "title": "14 · שפה",
+   "page": "gap3"
+  },
+  "R15-About.dc.html": {
+   "x": 1880,
+   "y": 4970,
+   "w": 390,
+   "h": 844,
+   "title": "15 · אודות",
+   "page": "gap3"
   }
  },
  "createdOnFiles": {
@@ -1089,7 +1217,7 @@
  },
  "designSystems": [],
  "launch": {
-  "page": "gap2",
+  "page": "gap3",
   "view": "canvas"
  },
  "notes": {
@@ -1326,6 +1454,42 @@
    "x": 0,
    "y": 3090,
    "text": "ב · הטיול, כרטיס הסקי והעונה"
+  },
+  "tR": {
+   "kind": "title1",
+   "maxW": 1600,
+   "page": "gap3",
+   "w": 1100,
+   "x": 0,
+   "y": -300,
+   "text": "סבב ההשלמה · חלק 3 · החבר׳ה, הבקתה ואני (23.11.2026)"
+  },
+  "tR1": {
+   "kind": "title1",
+   "maxW": 1600,
+   "page": "gap3",
+   "w": 620,
+   "x": 0,
+   "y": 1650,
+   "text": "א · החבר׳ה: קבוצה והזמנה"
+  },
+  "tR2": {
+   "kind": "title1",
+   "maxW": 1600,
+   "page": "gap3",
+   "w": 620,
+   "x": 0,
+   "y": 3160,
+   "text": "ב · כניסה ו״אני״"
+  },
+  "tR3": {
+   "kind": "title1",
+   "maxW": 1600,
+   "page": "gap3",
+   "w": 760,
+   "x": 0,
+   "y": 4670,
+   "text": "ג · הבקתה, ההגדרות והאודות"
   }
  },
  "order": [
@@ -1463,12 +1627,32 @@
   "Q07-TripPass.dc.html",
   "Q08-TripEmpty.dc.html",
   "Q09-SkiPass.dc.html",
-  "Q10-SeasonCountdown.dc.html"
+  "Q10-SeasonCountdown.dc.html",
+  "R00-Brief.dc.html",
+  "R01-GroupGate.dc.html",
+  "R02-JoinLink.dc.html",
+  "R03-GroupMeetups.dc.html",
+  "R04-GroupFlights.dc.html",
+  "R05-GroupScores.dc.html",
+  "R06-GroupMembers.dc.html",
+  "R07-Invite.dc.html",
+  "R08-SignIn.dc.html",
+  "R09-YouSignedIn.dc.html",
+  "R10-YouGuest.dc.html",
+  "R11-CabinGames.dc.html",
+  "R12-GameEnd.dc.html",
+  "R13-Settings.dc.html",
+  "R14-Language.dc.html",
+  "R15-About.dc.html"
  ],
  "pages": [
   {
    "id": "intro",
    "name": "פתיחה והמלצה"
+  },
+  {
+   "id": "gap3",
+   "name": "השלמה ג · החבר׳ה, הבקתה ואני"
   },
   {
    "id": "gap2",

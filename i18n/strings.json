@@ -21919,6 +21919,591 @@
     "ru",
     "ka"
    ]
+  },
+  "app.me_title": {
+   "he": "אני",
+   "en": "Me",
+   "ru": "Я",
+   "ka": "მე",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 3 (סעיף 12 ב-design/handoff/2026-11-23-redesign-people): R09, R10: כותרת הגיליון (באנגלית \"Me\"; \"You\" מגדרי פחות, אבל מבלבל ליד \"Your trip\")",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.me_button_a11y": {
+   "he": "אני: חשבון והגדרות",
+   "en": "Me: account and settings",
+   "ru": "Я: аккаунт и настройки",
+   "ka": "მე: ანგარიში და პარამეტრები",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 3 (סעיף 12 ב-design/handoff/2026-11-23-redesign-people): הכפתור על ההר, לקורא מסך",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.me_settings_sub": {
+   "he": "צליל, רטט, תצוגה, מדידה",
+   "en": "Sound, vibration, display, measurement",
+   "ru": "Звук, вибрация, экран, измерения",
+   "ka": "ხმა, ვიბრაცია, ეკრანი, გაზომვა",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 3 (סעיף 12 ב-design/handoff/2026-11-23-redesign-people): R09: שורת משנה",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.me_about_sub": {
+   "he": "קרדיטים, פרטיות, תמיכה",
+   "en": "Credits, privacy, support",
+   "ru": "Благодарности, конфиденциальность, поддержка",
+   "ka": "კრედიტები, კონფიდენციალურობა, მხარდაჭერა",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 3 (סעיף 12 ב-design/handoff/2026-11-23-redesign-people): R09: שורת משנה",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.grp_title": {
+   "he": "החבר׳ה",
+   "en": "The crew",
+   "ru": "Компания",
+   "ka": "ჯგუფი",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 3 (סעיף 12 ב-design/handoff/2026-11-23-redesign-people): R01, הכפר: שם מקום באפליקציה, קצר בכל שפה (המילון: \"компания\", \"ჯგუფი\")",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.grp_sub": {
+   "he": "קבוצה אחת לכל הטיול",
+   "en": "One group for the whole trip",
+   "ru": "Одна группа на всю поездку",
+   "ka": "ერთი ჯგუფი მთელი მოგზაურობისთვის",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 3 (סעיף 12 ב-design/handoff/2026-11-23-redesign-people): R01",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.grp_why_meet": {
+   "he": "נפגשים על ההר",
+   "en": "Meet up on the mountain",
+   "ru": "Встречи на горе",
+   "ka": "შეხვედრები მთაზე",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 3 (סעיף 12 ב-design/handoff/2026-11-23-redesign-people): R01",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.grp_why_scores": {
+   "he": "שיאים במשחקים",
+   "en": "High scores in the games",
+   "ru": "Рекорды в играх",
+   "ka": "რეკორდები თამაშებში",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 3 (סעיף 12 ב-design/handoff/2026-11-23-redesign-people): R01",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.join_later_note": {
+   "he": "בלי הרשמה. את המקום אפשר לשמור אחר כך, בנגיעה אחת.",
+   "en": "No sign-up. You can keep your place later, with one tap.",
+   "ru": "Без регистрации. Сохранить место можно позже, одним касанием.",
+   "ka": "რეგისტრაციის გარეშე. ადგილის შენახვა მოგვიანებით შეგიძლიათ, ერთი შეხებით.",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 3 (סעיף 12 ב-design/handoff/2026-11-23-redesign-people): R02",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.grp_next_meetup": {
+   "he": "המפגש הבא",
+   "en": "Next meetup",
+   "ru": "Следующая встреча",
+   "ka": "შემდეგი შეხვედრა",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 3 (סעיף 12 ב-design/handoff/2026-11-23-redesign-people): R03",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.grp_today": {
+   "he": "היום",
+   "en": "Today",
+   "ru": "Сегодня",
+   "ka": "დღეს",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 3 (סעיף 12 ב-design/handoff/2026-11-23-redesign-people): R03",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.grp_tomorrow": {
+   "he": "מחר",
+   "en": "Tomorrow",
+   "ru": "Завтра",
+   "ka": "ხვალ",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 3 (סעיף 12 ב-design/handoff/2026-11-23-redesign-people): R03",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.grp_on_flight_n": {
+   "he": {
+    "one": "אחד על הטיסה",
+    "two": "שניים על הטיסה",
+    "other": "{n} על הטיסה"
+   },
+   "en": {
+    "one": "1 on the flight",
+    "other": "{n} on the flight"
+   },
+   "ru": {
+    "one": "{n} на рейсе",
+    "few": "{n} на рейсе",
+    "many": "{n} на рейсе",
+    "other": "{n} на рейсе"
+   },
+   "ka": {
+    "one": "1 რეისზე",
+    "other": "{n} რეისზე"
+   },
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 3 (סעיף 12 ב-design/handoff/2026-11-23-redesign-people): R04: צורות רבים",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.grp_flight_line": {
+   "he": "{leg} {date} · {flight}",
+   "en": "{leg} {date} · {flight}",
+   "ru": "{leg} {date} · {flight}",
+   "ka": "{leg} {date} · {flight}",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 3 (סעיף 12 ב-design/handoff/2026-11-23-redesign-people): R06: {leg} הוא \"הלוך\" או \"חזור\" (app.pass_out, app.pass_ret)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.grp_play_now": {
+   "he": "לשחק עכשיו",
+   "en": "Play now",
+   "ru": "Играть",
+   "ka": "ითამაშეთ ახლა",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 3 (סעיף 12 ב-design/handoff/2026-11-23-redesign-people): R05",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.g_manual_title": {
+   "he": "מנהל מאשר כל מצטרף",
+   "en": "An admin approves everyone who joins",
+   "ru": "Администратор подтверждает каждого",
+   "ka": "ადმინისტრატორი ამტკიცებს ყველა შემოსულს",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 3 (סעיף 12 ב-design/handoff/2026-11-23-redesign-people): R07: כותרת מתג",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.signin_sub": {
+   "he": "יצירת קבוצה דורשת התחברות. כל השאר עובד בלי.",
+   "en": "Creating a group needs a sign-in. Everything else works without.",
+   "ru": "Для создания группы нужен вход. Всё остальное работает и без него.",
+   "ka": "ჯგუფის შესაქმნელად შესვლაა საჭირო. დანარჩენი უშესვლელადაც მუშაობს.",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 3 (סעיף 12 ב-design/handoff/2026-11-23-redesign-people): R08",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.guest_save_title": {
+   "he": "שומרים את המקום?",
+   "en": "Keep your place?",
+   "ru": "Сохранить ваше место?",
+   "ka": "შევინახოთ თქვენი ადგილი?",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 3 (סעיף 12 ב-design/handoff/2026-11-23-redesign-people): R10",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.a_save_apple": {
+   "he": "שמירה עם אפל",
+   "en": "Save with Apple",
+   "ru": "Сохранить через Apple",
+   "ka": "შენახვა Apple-ით",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 3 (סעיף 12 ב-design/handoff/2026-11-23-redesign-people): R10, ליד a_save_google",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.cabin_title": {
+   "he": "ערב בבקתה",
+   "en": "Evening in the cabin",
+   "ru": "Вечер в хижине",
+   "ka": "საღამო ქოხში",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 3 (סעיף 12 ב-design/handoff/2026-11-23-redesign-people): R11, הכפר: שם מקום באפליקציה, קצר בכל שפה",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.cabin_sub": {
+   "he": "{n} משחקים · בלי קליטה",
+   "en": "{n} games · works with no signal",
+   "ru": "{n} игр · без связи",
+   "ka": "{n} თამაში · სიგნალის გარეშე",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 3 (סעיף 12 ב-design/handoff/2026-11-23-redesign-people): R11",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.cabin_best": {
+   "he": "שיא {score}",
+   "en": "Best {score}",
+   "ru": "Рекорд {score}",
+   "ka": "რეკორდი {score}",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 3 (סעיף 12 ב-design/handoff/2026-11-23-redesign-people): R11",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.cabin_stars_run": {
+   "he": {
+    "one": "כוכב אחד ב-{run}",
+    "two": "שני כוכבים ב-{run}",
+    "other": "{n} כוכבים ב-{run}"
+   },
+   "en": {
+    "one": "1 star on {run}",
+    "other": "{n} stars on {run}"
+   },
+   "ru": {
+    "one": "{n} звезда на {run}",
+    "few": "{n} звезды на {run}",
+    "many": "{n} звёзд на {run}",
+    "other": "{n} звёзд на {run}"
+   },
+   "ka": {
+    "one": "1 ვარსკვლავი {run}-ზე",
+    "other": "{n} ვარსკვლავი {run}-ზე"
+   },
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 3 (סעיף 12 ב-design/handoff/2026-11-23-redesign-people): R11: צורות רבים; שם המסלול במשתנה, לא מתורגם",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.cabin_lesson": {
+   "he": "שיעור {n} מתוך {total}",
+   "en": "Lesson {n} of {total}",
+   "ru": "Урок {n} из {total}",
+   "ka": "გაკვეთილი {n}, სულ {total}-დან",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 3 (סעיף 12 ב-design/handoff/2026-11-23-redesign-people): R11",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.cabin_level": {
+   "he": "שלב {n} מתוך {total}",
+   "en": "Level {n} of {total}",
+   "ru": "Уровень {n} из {total}",
+   "ka": "დონე {n}, სულ {total}-დან",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 3 (סעיף 12 ב-design/handoff/2026-11-23-redesign-people): R11",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.cabin_not_played": {
+   "he": "עוד לא שיחקת",
+   "en": "Not played yet",
+   "ru": "Вы ещё не играли",
+   "ka": "ჯერ არ გითამაშიათ",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 3 (סעיף 12 ב-design/handoff/2026-11-23-redesign-people): R11",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.cabin_table": {
+   "he": "הטבלה של {group}",
+   "en": "The {group} table",
+   "ru": "Таблица «{group}»",
+   "ka": "{group}-ის ცხრილი",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 3 (סעיף 12 ב-design/handoff/2026-11-23-redesign-people): R11: שם הקבוצה במשתנה",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.game_new_best": {
+   "he": "שיא חדש",
+   "en": "New best",
+   "ru": "Новый рекорд",
+   "ka": "ახალი რეკორდი",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 3 (סעיף 12 ב-design/handoff/2026-11-23-redesign-people): R12",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.game_prev_best": {
+   "he": "הקודם {value}",
+   "en": "Previous {value}",
+   "ru": "Прошлый {value}",
+   "ka": "წინა {value}",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 3 (סעיף 12 ב-design/handoff/2026-11-23-redesign-people): R12",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.game_rank": {
+   "he": "מקום {n} ב{group}",
+   "en": "Place {n} in {group}",
+   "ru": "{n}-е место в группе «{group}»",
+   "ka": "{n}-ე ადგილი ჯგუფში {group}",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 3 (סעיף 12 ב-design/handoff/2026-11-23-redesign-people): R12: בעברית \"ב\" נדבקת לשם; בשפות אחרות מילת יחס נפרדת",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.game_ahead": {
+   "he": "{name} לפניך: {value}",
+   "en": "{name} is ahead: {value}",
+   "ru": "{name} впереди: {value}",
+   "ka": "{name} წინ არის: {value}",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 3 (סעיף 12 ב-design/handoff/2026-11-23-redesign-people): R12",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.game_first": {
+   "he": "המקום הראשון בקבוצה",
+   "en": "First place in the group",
+   "ru": "Первое место в группе",
+   "ka": "პირველი ადგილი ჯგუფში",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 3 (סעיף 12 ב-design/handoff/2026-11-23-redesign-people): R12",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.game_again": {
+   "he": "עוד פעם",
+   "en": "Again",
+   "ru": "Ещё раз",
+   "ka": "კიდევ ერთხელ",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 3 (סעיף 12 ב-design/handoff/2026-11-23-redesign-people): R12",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.game_next_run": {
+   "he": "המסלול הבא",
+   "en": "Next run",
+   "ru": "Следующая трасса",
+   "ka": "შემდეგი ტრასა",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 3 (סעיף 12 ב-design/handoff/2026-11-23-redesign-people): R12",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.game_back_cabin": {
+   "he": "חזרה לבקתה",
+   "en": "Back to the cabin",
+   "ru": "Назад в хижину",
+   "ka": "ქოხში დაბრუნება",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 3 (סעיף 12 ב-design/handoff/2026-11-23-redesign-people): R12",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.game_exit_a11y": {
+   "he": "יציאה מהמשחק",
+   "en": "Exit the game",
+   "ru": "Выйти из игры",
+   "ka": "თამაშიდან გასვლა",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 3 (סעיף 12 ב-design/handoff/2026-11-23-redesign-people): המעטפת, לקורא מסך",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.game_stars_a11y": {
+   "he": {
+    "one": "כוכב אחד מתוך {total}",
+    "two": "שני כוכבים מתוך {total}",
+    "other": "{n} כוכבים מתוך {total}"
+   },
+   "en": {
+    "one": "1 star out of {total}",
+    "other": "{n} stars out of {total}"
+   },
+   "ru": {
+    "one": "{n} звезда из {total}",
+    "few": "{n} звезды из {total}",
+    "many": "{n} звёзд из {total}",
+    "other": "{n} звёзд из {total}"
+   },
+   "ka": {
+    "one": "1 ვარსკვლავი {total}-დან",
+    "other": "{n} ვარსკვლავი {total}-დან"
+   },
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 3 (סעיף 12 ב-design/handoff/2026-11-23-redesign-people): R12: צורות רבים, לקורא מסך",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.set_display_auto": {
+   "he": "אוטומטי: לפי השעה בגודאורי",
+   "en": "Automatic: by the time in Gudauri",
+   "ru": "Авто: по времени в Гудаури",
+   "ka": "ავტომატური: გუდაურის დროით",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 3 (סעיף 12 ב-design/handoff/2026-11-23-redesign-people): R13",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.set_lang_auto": {
+   "he": "לפי הטלפון",
+   "en": "From the phone",
+   "ru": "Как в телефоне",
+   "ka": "ტელეფონის მიხედვით",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 3 (סעיף 12 ב-design/handoff/2026-11-23-redesign-people): R13; ליד lang_phone הקיים (\"לפי הטלפון (אוטומטי)\")",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.lang_auto_note": {
+   "he": "טלפון בעברית: עברית. כל טלפון אחר: אנגלית.",
+   "en": "Phone in Hebrew: Hebrew. Any other phone: English.",
+   "ru": "Телефон на иврите: иврит. Любой другой телефон: английский.",
+   "ka": "ტელეფონი ებრაულზეა: ებრაული. ნებისმიერი სხვა ტელეფონი: ინგლისური.",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 3 (סעיף 12 ב-design/handoff/2026-11-23-redesign-people): R14: החלטה 47",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.about_title": {
+   "he": "אודות",
+   "en": "About",
+   "ru": "О приложении",
+   "ka": "აპლიკაციის შესახებ",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 3 (סעיף 12 ב-design/handoff/2026-11-23-redesign-people): R09, R15",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.about_with": {
+   "he": "יחד עם {name}",
+   "en": "Together with {name}",
+   "ru": "Вместе с {name}",
+   "ka": "{name}-თან ერთად",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 3 (סעיף 12 ב-design/handoff/2026-11-23-redesign-people): R15",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.about_data_title": {
+   "he": "מאיפה הנתונים",
+   "en": "Where the data comes from",
+   "ru": "Откуда данные",
+   "ka": "საიდან არის მონაცემები",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 3 (סעיף 12 ב-design/handoff/2026-11-23-redesign-people): R15",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.licenses_sub": {
+   "he": "גופנים, ספריות וצלילים",
+   "en": "Fonts, libraries and sounds",
+   "ru": "Шрифты, библиотеки и звуки",
+   "ka": "შრიფტები, ბიბლიოთეკები და ხმები",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 3 (סעיף 12 ב-design/handoff/2026-11-23-redesign-people): R15",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.rec_run_n_best": {
+   "he": "ירידה {n} · השיא של היום",
+   "en": "Run {n} · top of the day",
+   "ru": "Спуск {n} · лучший за день",
+   "ka": "ტრასა {n} · დღის რეკორდი",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 3 (סעיף 12 ב-design/handoff/2026-11-23-redesign-people): סבב 4, L05: ההתראה (לוח L05), כשהירידה האחרונה היא המהירה ביום",
+   "check": [
+    "ru",
+    "ka"
+   ]
   }
  }
 }
