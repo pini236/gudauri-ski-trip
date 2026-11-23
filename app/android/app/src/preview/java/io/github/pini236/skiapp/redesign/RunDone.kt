@@ -70,7 +70,7 @@ internal object RunDone {
         @Suppress("DEPRECATION")
         val info = ctx.packageManager.getPackageInfo(ctx.packageName, 0)
         val version = if (android.os.Build.VERSION.SDK_INT >= 28) info.longVersionCode else info.versionCode.toLong()
-        val site = io.github.pini236.skiapp.data.SiteData(File(ctx.filesDir, "site-data"), version) { n -> ctx.assets.open("data/$n").bufferedReader().use { it.readText() } }
+        val site = io.github.pini236.skiapp.data.SiteData(File(ctx.filesDir, "site-data"), version, { n: String -> ctx.assets.open("data/$n").bufferedReader().use { it.readText() } })
         val a = JSONObject(site.read("runs-and-lifts.json")).getJSONArray("pistes")
         (0 until a.length()).associate { i -> val p = a.getJSONObject(i); p.getString("key") to (p.optString("name").ifBlank { p.getString("key") }) }
     }.getOrDefault(emptyMap())
