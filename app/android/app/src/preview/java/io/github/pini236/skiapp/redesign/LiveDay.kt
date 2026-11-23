@@ -37,6 +37,7 @@ import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
@@ -229,7 +230,12 @@ fun LiveDay(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, liftName: (S
                     Text(stringResource(R.string.app_rec_search_note), style = small, textAlign = androidx.compose.ui.text.style.TextAlign.Center)
                 }
                 else -> {
-                    Text(LiveNumbers.speedText(DayRec.liveSpeed), style = big, maxLines = 1)
+                    // the number on a soft glow, the lines fading under it, as on the board (L03)
+                    Text(LiveNumbers.speedText(DayRec.liveSpeed), Modifier.drawBehind {
+                        val r = size.height * 1.15f
+                        drawCircle(androidx.compose.ui.graphics.Brush.radialGradient(listOf(halo, halo.copy(alpha = halo.alpha * .55f), Color.Transparent),
+                            center = center, radius = r), r, center)
+                    }, style = big, maxLines = 1)
                     Text(stringResource(R.string.app_rec_unit), style = small)
                     val live = DayRec.live
                     val where = when (live?.act) {
