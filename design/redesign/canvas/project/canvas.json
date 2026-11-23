@@ -1409,6 +1409,118 @@
    "h": 844,
    "title": "10 · כל המקומות ליד תחנה",
    "page": "gap5"
+  },
+  "U00-Brief.dc.html": {
+   "x": 0,
+   "y": 0,
+   "w": 1280,
+   "h": 1480,
+   "title": "חלק 6: הקצוות",
+   "page": "gap6"
+  },
+  "U01-NotifAsk.dc.html": {
+   "x": 0,
+   "y": 1860,
+   "w": 390,
+   "h": 844,
+   "title": "1 · התראות: לפני שהטלפון שואל",
+   "page": "gap6"
+  },
+  "U02-Reminder.dc.html": {
+   "x": 470,
+   "y": 1860,
+   "w": 390,
+   "h": 844,
+   "title": "2 · התזכורת: רבע שעה לפני",
+   "page": "gap6"
+  },
+  "U03-NotifOff.dc.html": {
+   "x": 940,
+   "y": 1860,
+   "w": 390,
+   "h": 844,
+   "title": "3 · ההתראות כבויות",
+   "page": "gap6"
+  },
+  "U04-RecNoNotif.dc.html": {
+   "x": 1410,
+   "y": 1860,
+   "w": 390,
+   "h": 844,
+   "title": "4 · אנדרואיד: מקליטים בלי התראות",
+   "page": "gap6"
+  },
+  "U05-OfflineMountain.dc.html": {
+   "x": 0,
+   "y": 3370,
+   "w": 390,
+   "h": 844,
+   "title": "5 · בלי קליטה: ההר",
+   "page": "gap6"
+  },
+  "U06-ForecastStale.dc.html": {
+   "x": 470,
+   "y": 3370,
+   "w": 390,
+   "h": 844,
+   "title": "6 · בלי קליטה: תחזית ישנה",
+   "page": "gap6"
+  },
+  "U07-GroupOffline.dc.html": {
+   "x": 940,
+   "y": 3370,
+   "w": 390,
+   "h": 844,
+   "title": "7 · בלי קליטה: הקבוצה",
+   "page": "gap6"
+  },
+  "U08-GroupNeverSaved.dc.html": {
+   "x": 1410,
+   "y": 3370,
+   "w": 390,
+   "h": 844,
+   "title": "8 · בלי קליטה: קבוצה שעוד לא נשמרה",
+   "page": "gap6"
+  },
+  "U09-ChangeRefused.dc.html": {
+   "x": 0,
+   "y": 4880,
+   "w": 390,
+   "h": 844,
+   "title": "9 · שינוי שלא נשמר בקבוצה",
+   "page": "gap6"
+  },
+  "U10-ActionFailed.dc.html": {
+   "x": 470,
+   "y": 4880,
+   "w": 390,
+   "h": 844,
+   "title": "10 · פעולה שנכשלה",
+   "page": "gap6"
+  },
+  "U11-Loading.dc.html": {
+   "x": 940,
+   "y": 4880,
+   "w": 390,
+   "h": 844,
+   "title": "11 · טעינה",
+   "page": "gap6"
+  },
+  "U12-ReplayConsent.dc.html": {
+   "x": 0,
+   "y": 6390,
+   "w": 390,
+   "h": 844,
+   "title": "12 · אנדרואיד: הסכמה להקלטת שימוש",
+   "page": "gap6"
+  },
+  "U13-ReplayOn.dc.html": {
+   "x": 470,
+   "y": 6390,
+   "w": 390,
+   "h": 844,
+   "title": "13 · אנדרואיד: ההקלטה פעילה",
+   "page": "gap6"
   }
  },
  "createdOnFiles": {
@@ -1771,6 +1883,51 @@
    "w": 820,
    "y": 4500,
    "text": "ג · חשבון, רישיונות, טיול, מקומות"
+  },
+  "tU": {
+   "kind": "title1",
+   "maxW": 1600,
+   "page": "gap6",
+   "x": 0,
+   "w": 1100,
+   "y": -300,
+   "text": "סבב ההשלמה · חלק 6 · הקצוות (23.11.2026)"
+  },
+  "tU1": {
+   "kind": "title1",
+   "maxW": 1600,
+   "page": "gap6",
+   "x": 0,
+   "w": 620,
+   "y": 1560,
+   "text": "א · התראות"
+  },
+  "tU2": {
+   "kind": "title1",
+   "maxW": 1600,
+   "page": "gap6",
+   "x": 0,
+   "w": 620,
+   "y": 3070,
+   "text": "ב · בלי קליטה"
+  },
+  "tU3": {
+   "kind": "title1",
+   "maxW": 1600,
+   "page": "gap6",
+   "x": 0,
+   "w": 820,
+   "y": 4580,
+   "text": "ג · נכשל, וטוען"
+  },
+  "tU4": {
+   "kind": "title1",
+   "maxW": 1600,
+   "page": "gap6",
+   "x": 0,
+   "w": 1100,
+   "y": 6090,
+   "text": "ד · הסכמה להקלטת שימוש (אנדרואיד בלבד)"
   }
  },
  "order": [
@@ -1949,7 +2106,21 @@
   "T07-DeleteAccount.dc.html",
   "T08-Licences.dc.html",
   "T09-TripForm.dc.html",
-  "T10-Places.dc.html"
+  "T10-Places.dc.html",
+  "U00-Brief.dc.html",
+  "U01-NotifAsk.dc.html",
+  "U02-Reminder.dc.html",
+  "U03-NotifOff.dc.html",
+  "U04-RecNoNotif.dc.html",
+  "U05-OfflineMountain.dc.html",
+  "U06-ForecastStale.dc.html",
+  "U07-GroupOffline.dc.html",
+  "U08-GroupNeverSaved.dc.html",
+  "U09-ChangeRefused.dc.html",
+  "U10-ActionFailed.dc.html",
+  "U11-Loading.dc.html",
+  "U12-ReplayConsent.dc.html",
+  "U13-ReplayOn.dc.html"
  ],
  "pages": [
   {
@@ -1959,6 +2130,10 @@
   {
    "id": "nav",
    "name": "המפה · מה צויר, מה נשאר, ואיך מגיעים"
+  },
+  {
+   "id": "gap6",
+   "name": "השלמה ו · הקצוות"
   },
   {
    "id": "gap5",
