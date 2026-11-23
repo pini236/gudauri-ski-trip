@@ -1214,7 +1214,7 @@
    "x": 0,
    "y": 0,
    "w": 1280,
-   "h": 1680,
+   "h": 1780,
    "title": "1 · מה צויר, ומה נשאר",
    "page": "nav"
   },
@@ -1521,6 +1521,142 @@
    "h": 844,
    "title": "13 · אנדרואיד: ההקלטה פעילה",
    "page": "gap6"
+  },
+  "V00-Brief.dc.html": {
+   "x": 0,
+   "y": 0,
+   "w": 1280,
+   "h": 1380,
+   "title": "חלק 7: שפות ופלטפורמות",
+   "page": "gap7"
+  },
+  "V01-Fonts.dc.html": {
+   "x": 0,
+   "y": 1760,
+   "w": 1640,
+   "h": 1240,
+   "title": "גופנים לארבע שפות",
+   "page": "gap7"
+  },
+  "V02-RU-Standing.dc.html": {
+   "x": 0,
+   "y": 3420,
+   "w": 390,
+   "h": 844,
+   "title": "רוסית: עומדים: היום עד עכשיו",
+   "page": "gap7"
+  },
+  "V03-RU-SkiPass.dc.html": {
+   "x": 470,
+   "y": 3420,
+   "w": 390,
+   "h": 844,
+   "title": "רוסית: כרטיס סקי",
+   "page": "gap7"
+  },
+  "V04-RU-Meetups.dc.html": {
+   "x": 940,
+   "y": 3420,
+   "w": 390,
+   "h": 844,
+   "title": "רוסית: הקבוצה: מפגשים",
+   "page": "gap7"
+  },
+  "V05-KA-Standing.dc.html": {
+   "x": 0,
+   "y": 4930,
+   "w": 390,
+   "h": 844,
+   "title": "גאורגית: עומדים: היום עד עכשיו",
+   "page": "gap7"
+  },
+  "V06-KA-SkiPass.dc.html": {
+   "x": 470,
+   "y": 4930,
+   "w": 390,
+   "h": 844,
+   "title": "גאורגית: כרטיס סקי",
+   "page": "gap7"
+  },
+  "V07-KA-Meetups.dc.html": {
+   "x": 940,
+   "y": 4930,
+   "w": 390,
+   "h": 844,
+   "title": "גאורגית: הקבוצה: מפגשים",
+   "page": "gap7"
+  },
+  "V08-EN-Standing.dc.html": {
+   "x": 0,
+   "y": 6440,
+   "w": 390,
+   "h": 844,
+   "title": "אנגלית: עומדים: היום עד עכשיו",
+   "page": "gap7"
+  },
+  "V09-EN-SkiPass.dc.html": {
+   "x": 470,
+   "y": 6440,
+   "w": 390,
+   "h": 844,
+   "title": "אנגלית: כרטיס סקי",
+   "page": "gap7"
+  },
+  "V10-EN-Meetups.dc.html": {
+   "x": 940,
+   "y": 6440,
+   "w": 390,
+   "h": 844,
+   "title": "אנגלית: הקבוצה: מפגשים",
+   "page": "gap7"
+  },
+  "V11-Android-Frame.dc.html": {
+   "x": 0,
+   "y": 7950,
+   "w": 390,
+   "h": 844,
+   "title": "אנדרואיד: ההר",
+   "page": "gap7"
+  },
+  "V12-Android-MountainNow.dc.html": {
+   "x": 470,
+   "y": 7950,
+   "w": 390,
+   "h": 844,
+   "title": "אנדרואיד: ההר עכשיו",
+   "page": "gap7"
+  },
+  "V13-Android-LiftPanel.dc.html": {
+   "x": 940,
+   "y": 7950,
+   "w": 390,
+   "h": 844,
+   "title": "אנדרואיד: רכבל אחד",
+   "page": "gap7"
+  },
+  "V14-Android-Meetups.dc.html": {
+   "x": 1410,
+   "y": 7950,
+   "w": 390,
+   "h": 844,
+   "title": "אנדרואיד: הקבוצה",
+   "page": "gap7"
+  },
+  "V15-Android-SignIn.dc.html": {
+   "x": 1880,
+   "y": 7950,
+   "w": 390,
+   "h": 844,
+   "title": "אנדרואיד: כניסה, רק גוגל",
+   "page": "gap7"
+  },
+  "V16-Android-MemberMenu.dc.html": {
+   "x": 2350,
+   "y": 7950,
+   "w": 390,
+   "h": 844,
+   "title": "אנדרואיד: התפריט של חבר",
+   "page": "gap7"
   }
  },
  "createdOnFiles": {
@@ -1928,6 +2064,60 @@
    "w": 1100,
    "y": 6090,
    "text": "ד · הסכמה להקלטת שימוש (אנדרואיד בלבד)"
+  },
+  "tV": {
+   "kind": "title1",
+   "maxW": 1600,
+   "page": "gap7",
+   "x": 0,
+   "w": 1100,
+   "y": -300,
+   "text": "סבב ההשלמה · חלק 7 · שפות ופלטפורמות (23.11.2026)"
+  },
+  "tV0": {
+   "kind": "title1",
+   "maxW": 1600,
+   "page": "gap7",
+   "x": 0,
+   "w": 620,
+   "y": 1460,
+   "text": "א · גופנים"
+  },
+  "tV1": {
+   "kind": "title1",
+   "maxW": 1600,
+   "page": "gap7",
+   "x": 0,
+   "w": 620,
+   "y": 3120,
+   "text": "ב · רוסית"
+  },
+  "tV2": {
+   "kind": "title1",
+   "maxW": 1600,
+   "page": "gap7",
+   "x": 0,
+   "w": 620,
+   "y": 4630,
+   "text": "ג · גאורגית"
+  },
+  "tV3": {
+   "kind": "title1",
+   "maxW": 1600,
+   "page": "gap7",
+   "x": 0,
+   "w": 620,
+   "y": 6140,
+   "text": "ד · אנגלית"
+  },
+  "tV4": {
+   "kind": "title1",
+   "maxW": 1600,
+   "page": "gap7",
+   "x": 0,
+   "w": 900,
+   "y": 7650,
+   "text": "ה · אנדרואיד, חלקים 2 עד 5"
   }
  },
  "order": [
@@ -2120,7 +2310,24 @@
   "U10-ActionFailed.dc.html",
   "U11-Loading.dc.html",
   "U12-ReplayConsent.dc.html",
-  "U13-ReplayOn.dc.html"
+  "U13-ReplayOn.dc.html",
+  "V00-Brief.dc.html",
+  "V01-Fonts.dc.html",
+  "V02-RU-Standing.dc.html",
+  "V03-RU-SkiPass.dc.html",
+  "V04-RU-Meetups.dc.html",
+  "V05-KA-Standing.dc.html",
+  "V06-KA-SkiPass.dc.html",
+  "V07-KA-Meetups.dc.html",
+  "V08-EN-Standing.dc.html",
+  "V09-EN-SkiPass.dc.html",
+  "V10-EN-Meetups.dc.html",
+  "V11-Android-Frame.dc.html",
+  "V12-Android-MountainNow.dc.html",
+  "V13-Android-LiftPanel.dc.html",
+  "V14-Android-Meetups.dc.html",
+  "V15-Android-SignIn.dc.html",
+  "V16-Android-MemberMenu.dc.html"
  ],
  "pages": [
   {
@@ -2130,6 +2337,10 @@
   {
    "id": "nav",
    "name": "המפה · מה צויר, מה נשאר, ואיך מגיעים"
+  },
+  {
+   "id": "gap7",
+   "name": "השלמה ז · שפות ופלטפורמות"
   },
   {
    "id": "gap6",
