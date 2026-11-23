@@ -225,7 +225,7 @@ private fun shareWords(ctx: Context, story: StoryData, sm: DayModel.Summary): St
     val numbers = listOf(sm.descents.toString() to ctx.getString(R.string.app_day_sum_descents),
         metres(sm.dropM) to ctx.getString(R.string.app_rec_m_down),
         String.format(Locale.ROOT, "%.1f", sm.distM / 1000) to ctx.getString(R.string.app_run_km)) +
-        listOfNotNull(sm.maxKmh?.let { String.format(Locale.ROOT, "%.1f", it) to ctx.getString(R.string.app_rec_kmh_max) })
+        listOfNotNull(sm.maxKmh?.let { io.github.pini236.skiapp.dayrec.ui.LiveNumbers.maxKmh(it) to ctx.getString(R.string.app_rec_kmh_max) })
     // the numbers are digits in every language: Plex Sans light, as on the board
     return StoryVideo.Words(head, numbers, "Gudi", ctx.getString(R.string.common_site_name) + " · " + date,
         runCatching { variable(ctx, R.font.plex_sans, 300) }.getOrNull())

@@ -188,7 +188,7 @@ internal fun DayList(mode: DayNight.Mode, haptics: Haptics, onOpen: (String) -> 
                         .padding(horizontal = 14.dp, vertical = 12.dp), verticalArrangement = Arrangement.Bottom) {
                         Text(stringResource(R.string.app_days_trip_title), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 20.sp, color = Color.White)
                         val line = listOf(pluralStringResource(R.plurals.app_days_trip_days, tripDates.size, tripDates.size),
-                            stringResource(R.string.app_days_trip_drop, "%,d".format(Locale.ROOT, dropM.roundToInt())),
+                            stringResource(R.string.app_days_trip_drop, metres(dropM)),
                             pluralStringResource(R.plurals.app_days_trip_routes, routes, routes)).joinToString(", ")
                         Text("$line.", fontFamily = Plex, fontSize = 13.5.sp, color = Color(0xE6FFFFFF))
                     }
@@ -264,7 +264,9 @@ private fun DayRow(d: ListedDay, n: Int?, colourOf: (LocalDate) -> Color, night:
                 onDragStopped = { val o = drag > reveal / 2; drag = if (o) reveal else 0f; onSwipe(o) })
             .clickable(role = Role.Button) { if (drag > 0f) { drag = 0f; onSwipe(false) } else onOpen() }
             .padding(10.dp), horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
-            Canvas(Modifier.size(84.dp).clip(RoundedCornerShape(12.dp)).background(if (night) Color(0xFF0E1A2C) else Color(0xFFE9EEF4))) {
+            // a day without a descent (the designer, point 3): no picture, no story's head, the date and "no descents"
+            val empty = d.sm?.descents == 0
+            if (d.lines.isNotEmpty() && !empty) Canvas(Modifier.size(84.dp).clip(RoundedCornerShape(12.dp)).background(if (night) Color(0xFF0E1A2C) else Color(0xFFE9EEF4))) {
                 val fit = fitOf(d.lines, size.width, size.height, size.minDimension * .12f) ?: return@Canvas
                 for (l in d.lines) drawLineOf(l, fit, if (night) Color(0xFF050A16) else Color.White, null, 2.6f, density, ramp)
             }
@@ -274,10 +276,13 @@ private fun DayRow(d: ListedDay, n: Int?, colourOf: (LocalDate) -> Color, night:
                     Text(stringResource(R.string.app_days_trip_day_n, n + 1), fontFamily = Plex, fontSize = 12.sp, color = muted)
                 }
                 else Text(DateTimeFormatter.ofPattern("EEEE d.M", Locale.getDefault()).format(d.date), fontFamily = Plex, fontSize = 12.sp, color = muted)
-                Text(d.head ?: DateTimeFormatter.ofPattern("d.M.yyyy", Locale.ROOT).format(d.date), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 16.5.sp, color = ink, maxLines = 2)
+                Text((if (empty) null else d.head) ?: DateTimeFormatter.ofPattern("d.M.yyyy", Locale.ROOT).format(d.date), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 16.5.sp, color = ink, maxLines = 2)
                 val sm = d.sm
-                Text(if (sm != null) stringResource(R.string.app_rec_day_line, sm.descents, "%,d".format(Locale.ROOT, sm.dropM.roundToInt()), "%.1f".format(Locale.ROOT, sm.distM / 1000))
-                    else stringResource(R.string.app_days_cut), fontFamily = Plex, fontSize = 13.5.sp, color = muted)
+                Text(when {
+                    sm == null -> stringResource(R.string.app_days_cut)
+                    empty -> stringResource(R.string.app_day_empty)
+                    else -> stringResource(R.string.app_rec_day_line, sm.descents, metres(sm.dropM), "%.1f".format(Locale.ROOT, sm.distM / 1000))
+                }, fontFamily = Plex, fontSize = 13.5.sp, color = muted)
             }
             Text(if (rtl) "‹" else "›", fontFamily = Plex, fontSize = 20.sp, color = muted)
         }

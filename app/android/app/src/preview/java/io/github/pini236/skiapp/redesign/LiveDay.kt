@@ -174,7 +174,7 @@ fun LiveDay(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, liftName: (S
             dot = last?.let { q -> view.toScreen(q[0], q[1], 4f) }?.let { Offset(it[0], it[1]) }
             pin = rideState.value?.maxAt?.let { m -> view.toScreen(Geo.x(m.lon), Geo.y(m.lat), 4f) }?.let { Offset(it[0], it[1]) } } }
         val measurer = androidx.compose.ui.text.rememberTextMeasurer()
-        val pinText = ride?.maxKmh?.let { stringResource(R.string.app_rec_pin_label, "%.1f".format(java.util.Locale.ROOT, it)) }
+        val pinText = ride?.maxKmh?.let { stringResource(R.string.app_film_top_speed, LiveNumbers.maxKmh(it)) }
         Canvas(Modifier.fillMaxSize()) {
             // "here you flew" on the descent you just did, while you ride up (board L04)
             val p = pin
@@ -201,8 +201,7 @@ fun LiveDay(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, liftName: (S
             // all day or one descent (L02, L03): one wide bar, the choice in purple, as on the board. Quiet in a descent and
             // on the lift (L03, "quiet in a descent": only the speed, the run and finish); shown in the search and when
             // standing. It fades, and keeps its place, so nothing below jumps
-            val act = DayRec.live?.act
-            val quiet = !searching && (act == "ski" || act == "lift")
+            val quiet = toggleQuiet(searching, DayRec.live?.act)
             val shown by androidx.compose.animation.core.animateFloatAsState(if (quiet) 0f else 1f, tween(300), label = "toggle")
             Row(Modifier.fillMaxWidth().height(48.dp).graphicsLayer { alpha = shown }
                 .then(if (quiet) Modifier.clearAndSetSemantics { } else Modifier).clip(RoundedCornerShape(24.dp)).background(if (night) Color(0x33FFFFFF) else Color(0x330E2233))
@@ -220,7 +219,9 @@ fun LiveDay(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, liftName: (S
         Column(Modifier.align(Alignment.BottomCenter).navigationBarsPadding().padding(horizontal = 16.dp, vertical = 12.dp).fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(6.dp)) {
             val big = TextStyle(fontFamily = Plex, fontWeight = FontWeight.Light, fontSize = 120.sp, color = ink, shadow = Shadow(halo, Offset.Zero, 24f))
-            val small = TextStyle(fontFamily = Plex, fontSize = 14.sp, color = muted, shadow = Shadow(halo, Offset.Zero, 12f))
+            // over the mountain the small words take the board's second ink by day (#40556A): the grey of the sheets falls
+            // under 4.5:1 on the snow (the designer's point 4, measured on the search's shot: about 3.9:1)
+            val small = TextStyle(fontFamily = Plex, fontSize = 14.sp, color = if (night) muted else Color(0xFF40556A), shadow = Shadow(halo, Offset.Zero, 12f))
             val bold = TextStyle(fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 18.sp, color = ink, shadow = Shadow(halo, Offset.Zero, 12f))
             when {
                 onLift && ride != null -> LiftCard(ride, painted, night, ink, muted, glass, rule, liftName, runName, onSee = { haptics.tick(.3f); seeRide = ride }, onStop = onStop,
@@ -365,7 +366,7 @@ private fun LiftCard(ride: io.github.pini236.skiapp.dayrec.DayEngine.Ride, paint
         }
         Row(Modifier.padding(top = 12.dp).fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
             @Composable fun cell(v: String, l: String) = Column { Text(v, style = num); Text(l, style = label) }
-            cell(ride.maxKmh?.let { "%.1f".format(java.util.Locale.ROOT, it) } ?: "—", stringResource(R.string.app_rec_kmh_max))
+            cell(ride.maxKmh?.let { LiveNumbers.maxKmh(it) } ?: "—", stringResource(R.string.app_rec_kmh_max))
             cell("%d:%02d".format(java.util.Locale.ROOT, ride.movingS / 60, ride.movingS % 60), stringResource(R.string.app_run_min))
             cell(metres(ride.dropM), stringResource(R.string.app_rec_m_down))
         }
@@ -421,3 +422,6 @@ internal fun liftEta(durMin: Double?, pts: FloatArray, ele0: Float, ele1: Float,
     val up = (at / total).let { if (ele0 > ele1) 1 - it else it }
     return Math.round((1 - up) * durMin).toInt().takeIf { it >= 1 }
 }
+
+/** "Quiet in a descent" (board L03): the all-day / one-descent toggle is hidden while skiing or riding a lift, shown in the search and when standing. */
+internal fun toggleQuiet(searching: Boolean, act: String?): Boolean = !searching && (act == "ski" || act == "lift")

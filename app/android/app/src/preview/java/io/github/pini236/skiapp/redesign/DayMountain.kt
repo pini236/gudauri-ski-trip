@@ -211,7 +211,7 @@ fun DayMountain(file: File, sample: Boolean, scene: MapScene, mode: DayNight.Mod
                 dot = ft.value?.let { tt -> paint?.track?.at(tt) }?.let { q -> view.toScreen(q[0], q[1], 4f) }?.let { Offset(it[0], it[1]) }
             }
         }
-        val pinText = s?.maxKmh?.let { stringResource(R.string.app_rec_pin_label, "%.1f".format(java.util.Locale.ROOT, it)) }
+        val pinText = s?.maxKmh?.let { stringResource(R.string.app_film_top_speed, io.github.pini236.skiapp.dayrec.ui.LiveNumbers.maxKmh(it)) }
         val dens = LocalContext.current.resources.displayMetrics.density
         Canvas(Modifier.fillMaxSize()) {
             // the dot of the film (board L08): yours, blue with a halo, on the real line
