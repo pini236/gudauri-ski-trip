@@ -1164,6 +1164,74 @@ redesign() {
   drag $((W / 2)) $((H / 2)) $((W / 2 - W / 5)) $((H / 2)) 500; sleep 1.5; shot redesign-live-dragged
   mark; qa "--es qa.mode auto --es qa.redesign painted"; waitlog "redesign live closed" 10; sleep 1.5; shot redesign-live-back
   qa "--es qa.mode auto --es qa.redesign close"; sleep 1.5; shot redesign-closed
+  # round 4 (board L06): the sample day on the mountain, its lines of light by speed and the dotted rides, by day and
+  # at night (the debug build shows it only once asked: qa.redesign day)
+  mark; qa "--es qa.mode day --es qa.redesign day"; sleep 1
+  mark; qa "--es qa.tab days/sample"; waitlog "redesign day open" 20 || fail "redesign: the day on the mountain did not open"
+  waitlog "redesign live day drawn .* day" 60 || fail "redesign: the day was not drawn on the mountain"
+  sleep 3; shot redesign-day
+  # board L08, the day in a minute: three held moments of the film (its clock in seconds), the light of their hour
+  for sec in 8 25 60; do
+    mark; qa "--es qa.redesign 'film:$sec'"; waitlog "redesign day film held $sec" 15 || fail "redesign: the film did not hold $sec"
+    sleep 4; shot "redesign-day-film-$sec"
+  done
+  mark; qa "--es qa.redesign film:off"; waitlog "redesign day film off" 10; sleep 2
+  # the ridge of the day and its timeline (board L07)
+  mark; qa "--es qa.redesign ridge"; waitlog "redesign day ridge" 15 || fail "redesign: the ridge did not open"
+  sleep 2; shot redesign-day-ridge
+  # one descent as a film (board L09): the longest, at its end
+  mark; qa "--es qa.redesign runfilm"; waitlog "redesign run film end" 20 || fail "redesign: the descent's film did not end"
+  sleep 1; shot redesign-run-film
+  mark; qa "--es qa.redesign runfilm:off"; sleep 1
+  # the story of the day (board L10)
+  mark; qa "--es qa.redesign story"; waitlog "redesign day story" 15 || fail "redesign: the story did not open"
+  sleep 2; shot redesign-day-story
+  # board L11: what leaves the phone; the one-minute video made here (MediaCodec) and saved, never a place in it
+  mark; qa "--es qa.redesign share"; waitlog "redesign share open" 15 || fail "redesign: the share sheet did not open"
+  sleep 2; shot redesign-share
+  mark; qa "--es qa.redesign share:video"
+  if waitlog "redesign share video made" 720; then waitlog "redesign share saved video true" 30 || fail "redesign: the video was not saved"; sleep 1; shot redesign-share-video
+  else fail "redesign: the one-minute video was not made"; fi
+  mark; qa "--es qa.redesign share:off"; sleep 1
+  mark; qa "--es qa.redesign story:off"; sleep 1
+  mark; qa "--es qa.redesign ridge:off"; sleep 2
+  # board L01: the first time, the sheet before the system's location question (revoking restarts the app)
+  adb shell pm revoke "$PKG" android.permission.ACCESS_FINE_LOCATION; adb shell pm revoke "$PKG" android.permission.ACCESS_COARSE_LOCATION; sleep 1; mark
+  adb shell "am start -W -n $ACT --es qa.mode day --es qa.redesign day --es qa.dayrec ask" > /dev/null
+  if waitlog "redesign rec first" 90; then sleep 2; shot redesign-rec-first; else fail "redesign: the first-time sheet did not open"; fi
+  adb shell input keyevent KEYCODE_BACK; sleep 1
+  # boards L02, L03: recording on the mountain. Before the first reading the search, then a walk down Tatra 2 drawn
+  # behind the dot; "hold to finish" held for 1.5 s ends the day and opens it on the mountain
+  adb shell pm grant "$PKG" android.permission.POST_NOTIFICATIONS > /dev/null 2>&1 || true
+  adb shell pm grant "$PKG" android.permission.ACCESS_FINE_LOCATION; adb shell pm grant "$PKG" android.permission.ACCESS_COARSE_LOCATION
+  adb shell cmd location set-location-enabled true 2> /dev/null
+  # the live screen opened first and the mountain drawn, then the recording started: the search shows on the drawn
+  # mountain before the emulator's first fix (about 4 s after the tap); the test build's meter bar off (qa.stats off)
+  mark; qa "--es qa.mode day --es qa.stats off --es qa.tab day"; waitlog "redesign rec open" 20 || fail "redesign: the live screen on the mountain did not open"
+  waitlog "redesign live drawn" 60 || fail "redesign: the mountain was not drawn under the live screen"
+  mark; qa "--es qa.dayrec start"; waitlog "dayrec start result Started" 20 || fail "redesign: the recording did not start"
+  sleep 1.5; shot redesign-rec-search
+  geo 42.482631 44.483401; dayrec_walk 10; sleep 7; shot redesign-rec-live
+  # board L05: the permanent notification while recording (the run, no live speed)
+  adb shell cmd statusbar expand-notifications; sleep 2; shot redesign-rec-notice; adb shell cmd statusbar collapse; sleep 1
+  xy=$(where "החזקה לסיום")
+  if [ -n "$xy" ]; then
+    mark; adb shell input swipe $xy $xy 1600; waitlog "redesign rec hold done" 10 || fail "redesign: hold to finish did not end the day"
+    waitlog "redesign day open" 30 || fail "redesign: the ended day did not open on the mountain"; sleep 5; shot redesign-rec-ended
+  else fail "redesign: no hold to finish on the live screen"; qa "--es qa.dayrec stop"; qa "--es qa.tab days/sample"; waitlog "redesign day open" 20; fi
+  # the same day, still open on the mountain, at night
+  mark; qa "--es qa.mode night"; waitlog "redesign live day drawn .* night" 40 || fail "redesign: the day was not drawn at night"
+  sleep 3; shot redesign-day-night
+  qa "--es qa.mode auto --es qa.tab home"; waitlog "redesign day closed" 15; sleep 1
+  # board L12: my days, with the sample day (the reference tool's whole day, 11.1.2027) recorded as a day and the trip
+  # around it, so the trip's card shows its lines (the day just ended is outside it, a row of its own)
+  local fxd; fxd="$(cd "$(dirname "$0")/../../.." && pwd)/tools/fixtures"
+  adb push "$fxd/dayrec-logs/full_day.jsonl" "/sdcard/Android/data/$PKG/files/replay.jsonl" > /dev/null
+  mark; qa "--es qa.dayrec replay"; waitlog "dayrec replay analysis=" 180 || fail "redesign: the sample day was not recorded for my days"
+  d=2027-01-11
+  mark; qa "--es qa.mode day --es qa.trip '{\"v\":1,\"out\":{\"date\":\"$d\",\"flight\":\"\",\"from\":\"TLV\",\"to\":\"TBS\"},\"ski\":{\"from\":\"$d\",\"to\":\"$d\"}}' --es qa.tab days"
+  if waitlog "redesign days [1-9][0-9]* trip 1" 30; then sleep 2; shot redesign-days; else fail "redesign: my days did not show the trip"; fi
+  qa "--es qa.mode auto --es qa.trip none --es qa.tab home"; sleep 1
 }
 
 # ---- the store screenshots (Google Play: portrait 9:16) ----

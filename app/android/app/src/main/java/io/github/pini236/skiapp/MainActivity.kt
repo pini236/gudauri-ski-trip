@@ -653,6 +653,8 @@ class MainActivity : ComponentActivity() {
             "start" -> Qa.log("dayrec start result ${DayRec.start(this)}")
             "resume" -> Qa.log("dayrec resume result ${DayRec.store(this).unfinished()?.let { DayRec.start(this, it) } ?: "none"}")
             "startrun" -> Qa.log("dayrec start result ${DayRec.start(this, run = true)}")
+            // "Record" as the button presses it: without the permission, the sheet before the system's question
+            "ask" -> { Qa.log("dayrec ask"); record(false) }
             "stop" -> DayRec.stop(this)
             "finish" -> inBackground { DayRec.store(this).unfinished()?.let { DayRec.finishCut(this, it) } ?: Qa.log("dayrec nothing cut") }
             // a recorded day pushed to the app's folder (the test values of the reference tool), analysed as the service does at the end of a day
@@ -872,9 +874,12 @@ class MainActivity : ComponentActivity() {
                         },
                         onDismiss = { recBlocked = null })
                 }
-                if (recExplain) io.github.pini236.skiapp.dayrec.ui.PermissionSheet(
-                    onGo = { recExplain = false; requestPermissions(arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION, android.Manifest.permission.ACCESS_COARSE_LOCATION), REC_PERMISSION) },
-                    onDismiss = { recExplain = false })
+                if (recExplain) {
+                    val ask = { requestPermissions(arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION, android.Manifest.permission.ACCESS_COARSE_LOCATION), REC_PERMISSION) }
+                    // the test build's redesign (board L01) has its own sheet; otherwise today's
+                    if (!io.github.pini236.skiapp.redesign.Redesign.first(recSingle, haptics, onGo = { s -> recSingle = s; recExplain = false; ask() }, onDismiss = { recExplain = false }))
+                        io.github.pini236.skiapp.dayrec.ui.PermissionSheet(onGo = { recExplain = false; ask() }, onDismiss = { recExplain = false })
+                }
                 when (top) {
                     Route.Home -> HomeScreen(trip, frame, dnMode, LocalDateTime.ofInstant(Instant.ofEpochMilli(tick), ZoneId.systemDefault()), haptics, sounds, status = lstat, group = firstGroup,
                         onLang = ::setLang,
@@ -972,33 +977,38 @@ class MainActivity : ComponentActivity() {
                         onResetBests = { Bests.reset(this@MainActivity); Qa.log("bests reset") }, onLicenses = { nav.push(Route.Licenses) }) { nav.back() }
                     Route.Licenses -> io.github.pini236.skiapp.home.LicensesScreen(onOpen = { nav.push(Route.License(it)) }) { nav.back() }
                     is Route.License -> io.github.pini236.skiapp.home.LicenseScreen(top.name) { nav.back() }
-                    Route.Day -> { io.github.pini236.skiapp.dayrec.ui.DayLiveScreen(
-                        liftName = { id -> scene?.runs?.lifts?.firstOrNull { it.id == id }?.name ?: id },
-                        runName = { k -> scene?.runs?.pistes?.firstOrNull { it.key == k }?.title ?: k }, runs = scene?.runs,
-                        onSwitch = ::switchRecording, onBack = { nav.back() },
-                        onEnded = { f ->
+                    Route.Day -> {
+                        val liftName = { id: String -> scene?.runs?.lifts?.firstOrNull { it.id == id }?.name ?: id }
+                        val runName = { k: String -> scene?.runs?.pistes?.firstOrNull { it.key == k }?.title ?: k }
+                        val onEnded: (java.io.File?) -> Unit = { f ->
                             // the day ended outside this screen (Stop in the notification): the same place as the screen's own Stop
                             if (nav.top == Route.Day) {
                                 val id = f?.name?.removePrefix("day-")?.removeSuffix(".jsonl")
                                 if (id != null) nav.replaceTop(Route.DayOf(id)) else nav.back()
                             }
-                        },
-                        onStop = {
+                        }
+                        val onStop: () -> Unit = {
                             // the day that ends is shown at once; its screen waits for the recorder to close it
                             val id = DayRec.current?.name?.removePrefix("day-")?.removeSuffix(".jsonl")
                             DayRec.stop(this@MainActivity)
                             if (id != null) nav.replaceTop(Route.DayOf(id)) else nav.back()
-                        })
+                        }
+                        // the test build's redesign (round 4) records on the mountain; the store build, today's screen
+                        if (!io.github.pini236.skiapp.redesign.Redesign.live(scene, dnMode, haptics, liftName, runName, ::switchRecording, onStop, onEnded) { nav.back() })
+                            io.github.pini236.skiapp.dayrec.ui.DayLiveScreen(liftName = liftName, runName = runName, runs = scene?.runs,
+                                onSwitch = ::switchRecording, onBack = { nav.back() }, onEnded = onEnded, onStop = onStop)
                         // the test build's counter (frames, missed frames) and the recorder's pulse, over the live screen, for a screenshot
                         if (showStats) StatsBar(false, Modifier.align(Alignment.BottomStart).padding(bottom = 100.dp))
                     }
                     Route.Skipass -> io.github.pini236.skiapp.skipass.SkipassScreen(prices, skipDays, seasonToday) { nav.back() }
-                    Route.Days -> io.github.pini236.skiapp.dayrec.ui.DaysScreen(onOpen = { id -> nav.push(Route.DayOf(id)) }) { nav.back() }
+                    Route.Days -> if (!io.github.pini236.skiapp.redesign.Redesign.days(dnMode, haptics, onOpen = { id -> nav.push(Route.DayOf(id)) }) { nav.back() })
+                        io.github.pini236.skiapp.dayrec.ui.DaysScreen(onOpen = { id -> nav.push(Route.DayOf(id)) }) { nav.back() }
                     is Route.DayOf -> {
                         val sample = top.id == io.github.pini236.skiapp.dayrec.SampleDay.ID
-                        io.github.pini236.skiapp.dayrec.ui.DayViewScreen(
-                            if (sample) io.github.pini236.skiapp.dayrec.SampleDay.file(this@MainActivity) else DayRec.store(this@MainActivity).newFile(top.id.toLong()),
-                            scene?.runs, sample, onReplay = { nav.push(Route.Replay(top.id)) }) { nav.back() }
+                        val dayFile = if (sample) io.github.pini236.skiapp.dayrec.SampleDay.file(this@MainActivity) else DayRec.store(this@MainActivity).newFile(top.id.toLong())
+                        // the test build's redesign (round 4) draws the day on the mountain; the store build, today's screen
+                        if (!io.github.pini236.skiapp.redesign.Redesign.day(dayFile, sample, scene, dnMode, haptics) { nav.back() })
+                            io.github.pini236.skiapp.dayrec.ui.DayViewScreen(dayFile, scene?.runs, sample, onReplay = { nav.push(Route.Replay(top.id)) }) { nav.back() }
                     }
                     is Route.Replay -> io.github.pini236.skiapp.dayrec.ui.ReplayScreen(mapView,
                         if (top.id == io.github.pini236.skiapp.dayrec.SampleDay.ID) io.github.pini236.skiapp.dayrec.SampleDay.file(this@MainActivity) else DayRec.store(this@MainActivity).newFile(top.id.toLong())) { nav.back() }
