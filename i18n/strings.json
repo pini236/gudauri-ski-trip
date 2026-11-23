@@ -21920,6 +21920,87 @@
     "ka"
    ]
   },
+  "app.skipass_days_n": {
+   "he": {
+    "one": "יום סקי",
+    "two": "ימי סקי",
+    "other": "ימי סקי"
+   },
+   "en": {
+    "one": "ski day",
+    "other": "ski days"
+   },
+   "ru": {
+    "one": "день катания",
+    "few": "дня катания",
+    "many": "дней катания",
+    "other": "дня катания"
+   },
+   "ka": {
+    "one": "სათხილამურო დღე",
+    "other": "სათხილამურო დღე"
+   },
+   "where": "app/android, app/ios",
+   "note": "סבב ההשלמה, חלק 7 (סעיף 6 ב-design/handoff/2026-11-23-redesign-languages): תווית ליד מספר שמוצג בנפרד, בצורות רבים; מחליף את המפתח בלי ה-_n, שנשאר כמו שהוא",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.rec_runs_n": {
+   "he": {
+    "one": "ירידה",
+    "two": "ירידות",
+    "other": "ירידות"
+   },
+   "en": {
+    "one": "descent",
+    "other": "descents"
+   },
+   "ru": {
+    "one": "спуск",
+    "few": "спуска",
+    "many": "спусков",
+    "other": "спуска"
+   },
+   "ka": {
+    "one": "დაშვება",
+    "other": "დაშვება"
+   },
+   "where": "app/android, app/ios",
+   "note": "סבב ההשלמה, חלק 7 (סעיף 6 ב-design/handoff/2026-11-23-redesign-languages): תווית ליד מספר שמוצג בנפרד, בצורות רבים; מחליף את המפתח בלי ה-_n, שנשאר כמו שהוא",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.day_sum_descents_n": {
+   "he": {
+    "one": "ירידה",
+    "two": "ירידות",
+    "other": "ירידות"
+   },
+   "en": {
+    "one": "descent",
+    "other": "descents"
+   },
+   "ru": {
+    "one": "спуск",
+    "few": "спуска",
+    "many": "спусков",
+    "other": "спуска"
+   },
+   "ka": {
+    "one": "დაშვება",
+    "other": "დაშვება"
+   },
+   "where": "app/android, app/ios",
+   "note": "סבב ההשלמה, חלק 7 (סעיף 6 ב-design/handoff/2026-11-23-redesign-languages): תווית ליד מספר שמוצג בנפרד, בצורות רבים; מחליף את המפתח בלי ה-_n, שנשאר כמו שהוא",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
   "app.mtn_now_title": {
    "he": "ההר עכשיו",
    "en": "The mountain now",
