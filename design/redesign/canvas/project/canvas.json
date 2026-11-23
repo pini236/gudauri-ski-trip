@@ -1214,7 +1214,7 @@
    "x": 0,
    "y": 0,
    "w": 1280,
-   "h": 1780,
+   "h": 1860,
    "title": "1 · מה צויר, ומה נשאר",
    "page": "nav"
   },
@@ -1657,6 +1657,70 @@
    "h": 844,
    "title": "אנדרואיד: התפריט של חבר",
    "page": "gap7"
+  },
+  "W00-Brief.dc.html": {
+   "x": 0,
+   "y": 0,
+   "w": 1280,
+   "h": 1420,
+   "title": "חלק 8: לכל אחד, ובכל מסך",
+   "page": "gap8"
+  },
+  "W01-BigText-Mountain.dc.html": {
+   "x": 0,
+   "y": 1800,
+   "w": 390,
+   "h": 844,
+   "title": "טקסט גדול: ההר",
+   "page": "gap8"
+  },
+  "W02-BigText-Standing.dc.html": {
+   "x": 470,
+   "y": 1800,
+   "w": 390,
+   "h": 844,
+   "title": "טקסט גדול: עומדים",
+   "page": "gap8"
+  },
+  "W03-BigText-Meetups.dc.html": {
+   "x": 940,
+   "y": 1800,
+   "w": 390,
+   "h": 844,
+   "title": "טקסט גדול: מפגשים",
+   "page": "gap8"
+  },
+  "W04-ScreenReader.dc.html": {
+   "x": 0,
+   "y": 3310,
+   "w": 1180,
+   "h": 900,
+   "title": "קורא המסך על ההר",
+   "page": "gap8"
+  },
+  "W05-Tablet.dc.html": {
+   "x": 0,
+   "y": 4630,
+   "w": 1180,
+   "h": 820,
+   "title": "טאבלט (אנדרואיד)",
+   "page": "gap8"
+  },
+  "W06-Splash.dc.html": {
+   "x": 0,
+   "y": 5870,
+   "w": 390,
+   "h": 844,
+   "title": "מסך הפתיחה",
+   "page": "gap8"
+  },
+  "W07-StoreShots.dc.html": {
+   "x": 470,
+   "y": 5870,
+   "w": 1760,
+   "h": 780,
+   "title": "צילומי החנות",
+   "page": "gap8"
   }
  },
  "createdOnFiles": {
@@ -2118,6 +2182,51 @@
    "w": 900,
    "y": 7650,
    "text": "ה · אנדרואיד, חלקים 2 עד 5"
+  },
+  "tW": {
+   "kind": "title1",
+   "maxW": 1600,
+   "page": "gap8",
+   "x": 0,
+   "w": 1200,
+   "y": -300,
+   "text": "סבב ההשלמה · חלק 8 · לכל אחד, ובכל מסך (23.11.2026)"
+  },
+  "tW1": {
+   "kind": "title1",
+   "maxW": 1600,
+   "page": "gap8",
+   "x": 0,
+   "w": 900,
+   "y": 1500,
+   "text": "א · טקסט גדול (130 אחוז)"
+  },
+  "tW2": {
+   "kind": "title1",
+   "maxW": 1600,
+   "page": "gap8",
+   "x": 0,
+   "w": 620,
+   "y": 3010,
+   "text": "ב · קורא המסך"
+  },
+  "tW3": {
+   "kind": "title1",
+   "maxW": 1600,
+   "page": "gap8",
+   "x": 0,
+   "w": 620,
+   "y": 4330,
+   "text": "ג · טאבלט"
+  },
+  "tW4": {
+   "kind": "title1",
+   "maxW": 1600,
+   "page": "gap8",
+   "x": 0,
+   "w": 900,
+   "y": 5570,
+   "text": "ד · מסך הפתיחה וצילומי החנות"
   }
  },
  "order": [
@@ -2327,7 +2436,15 @@
   "V13-Android-LiftPanel.dc.html",
   "V14-Android-Meetups.dc.html",
   "V15-Android-SignIn.dc.html",
-  "V16-Android-MemberMenu.dc.html"
+  "V16-Android-MemberMenu.dc.html",
+  "W00-Brief.dc.html",
+  "W01-BigText-Mountain.dc.html",
+  "W02-BigText-Standing.dc.html",
+  "W03-BigText-Meetups.dc.html",
+  "W04-ScreenReader.dc.html",
+  "W05-Tablet.dc.html",
+  "W06-Splash.dc.html",
+  "W07-StoreShots.dc.html"
  ],
  "pages": [
   {
@@ -2337,6 +2454,10 @@
   {
    "id": "nav",
    "name": "המפה · מה צויר, מה נשאר, ואיך מגיעים"
+  },
+  {
+   "id": "gap8",
+   "name": "השלמה ח · לכל אחד, ובכל מסך"
   },
   {
    "id": "gap7",
