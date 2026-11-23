@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -117,6 +118,7 @@ fun DayMountain(file: File, sample: Boolean, scene: MapScene, mode: DayNight.Mod
     var ridge by androidx.compose.runtime.saveable.rememberSaveable(file.path) { mutableStateOf(false) }
     // the story of the day (board L10), from the ridge's "share"
     var story by androidx.compose.runtime.saveable.rememberSaveable(file.path) { mutableStateOf(false) }
+    var shareOnly by androidx.compose.runtime.saveable.rememberSaveable(file.path) { mutableStateOf(false) }
     BackHandler { if (story) story = false else if (ridge) ridge = false else if (filming) { filming = false; playing = false } else onBack() }
 
     class Loaded(val paint: DayPaint.Day, val day: DayModel.Day, val story: StoryData?, val elev: FloatArray, val segs: List<JSONObject>)
@@ -335,13 +337,23 @@ fun DayMountain(file: File, sample: Boolean, scene: MapScene, mode: DayNight.Mod
                         // the scale, slow to fast
                         LightScale(night, muted, modifier = Modifier.padding(bottom = 8.dp))
                     }
+                    // board L06: "the day in a minute" with its play sign, the story, and the share
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        Text(stringResource(R.string.app_day_minute), Modifier.weight(1f).height(52.dp).clip(RoundedCornerShape(26.dp)).background(accent)
-                            .clickable(role = Role.Button) { haptics.tick(.4f); fms = 0f; filming = true; playing = true; Qa.log("redesign day film start") }.padding(top = 14.dp),
-                            fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color.White, textAlign = androidx.compose.ui.text.style.TextAlign.Center)
-                        if (l.story != null) Text(stringResource(R.string.app_day_story), Modifier.height(52.dp).clip(RoundedCornerShape(26.dp)).border(1.5.dp, ink, RoundedCornerShape(26.dp))
-                            .clickable(role = Role.Button) { haptics.tick(.3f); story = true }.padding(horizontal = 22.dp).padding(top = 14.dp),
-                            fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = ink, textAlign = androidx.compose.ui.text.style.TextAlign.Center)
+                        Row(Modifier.weight(1f).height(52.dp).clip(RoundedCornerShape(26.dp)).background(accent)
+                            .clickable(role = Role.Button) { haptics.tick(.4f); fms = 0f; filming = true; playing = true; Qa.log("redesign day film start") },
+                            verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center) {
+                            Canvas(Modifier.size(12.dp)) {
+                                // the play sign points forward in time, left to right in every language
+                                drawPath(androidx.compose.ui.graphics.Path().apply { moveTo(size.width * .1f, 0f); lineTo(size.width, size.height / 2); lineTo(size.width * .1f, size.height); close() }, Color.White)
+                            }
+                            Text(stringResource(R.string.app_day_minute), Modifier.padding(start = 8.dp), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color.White, maxLines = 1)
+                        }
+                        if (l.story != null) {
+                            for ((k, only) in listOf(R.string.app_day_story to false, R.string.app_day_share to true))
+                                Text(stringResource(k), Modifier.height(52.dp).clip(RoundedCornerShape(26.dp)).border(1.5.dp, ink, RoundedCornerShape(26.dp))
+                                    .clickable(role = Role.Button) { haptics.tick(.3f); shareOnly = only; story = true }.padding(horizontal = 16.dp).padding(top = 14.dp),
+                                    fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = ink, textAlign = androidx.compose.ui.text.style.TextAlign.Center, maxLines = 1)
+                        }
                     }
                 }
                 failed -> Text(stringResource(R.string.app_day_empty), fontFamily = Plex, fontSize = 14.sp, color = muted)
@@ -352,7 +364,7 @@ fun DayMountain(file: File, sample: Boolean, scene: MapScene, mode: DayNight.Mod
         if (ridge && lr != null) DayRidge(lr.paint, lr.elev, lr.day, lr.segs, scene.runs, night, sample, haptics, onShare = { story = true }, onBack = { ridge = false })
         val st = lr?.story
         if (story && lr != null && st != null) DayStory(st, lr.day.summary, lr.paint, offPiste(lr.segs), { runCatching { io.github.pini236.skiapp.dayrec.ui.readTrack(file) }.getOrNull() },
-            scene.runs, night, sample, haptics, onBack = { story = false })
+            scene.runs, night, sample, haptics, shareOnly = shareOnly, onBack = { story = false; shareOnly = false })
     }
 }
 

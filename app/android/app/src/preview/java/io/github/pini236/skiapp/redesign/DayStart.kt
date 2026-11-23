@@ -72,25 +72,67 @@ internal fun DayStart(single: Boolean, haptics: Haptics, onGo: (Boolean) -> Unit
                 .padding(horizontal = 20.dp, vertical = 18.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 Box(Modifier.align(Alignment.CenterHorizontally).width(40.dp).height(4.dp).clip(RoundedCornerShape(2.dp)).background(rule))
                 Text(stringResource(R.string.app_rec_first_title), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 24.sp, color = ink)
-                Text(stringResource(R.string.app_rec_first_text), fontFamily = Plex, fontSize = 15.sp, color = muted)
-                for (line in listOf(R.string.app_rec_perm_local, R.string.app_rec_perm_ok)) Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                    Box(Modifier.size(8.dp).clip(CircleShape).background(accent))
-                    Text(stringResource(line), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = ink)
-                }
+                // three lines, each with its sign (board L01): the pocket, the lock, the pin
+                for ((line, icon) in listOf(R.string.app_rec_first_text to 0, R.string.app_rec_perm_local to 1, R.string.app_rec_perm_ok to 2))
+                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                        Box(Modifier.size(34.dp).clip(CircleShape).background(accent.copy(alpha = if (night) .28f else .12f)), contentAlignment = Alignment.Center) {
+                            StartSign(icon, if (night) Color(0xFFB99CFF) else accent, Modifier.size(18.dp))
+                        }
+                        Text(stringResource(line), Modifier.weight(1f), fontFamily = Plex, fontWeight = if (icon == 0) FontWeight.Normal else FontWeight.Bold, fontSize = 14.sp, color = ink)
+                    }
                 // all day or one descent: the same recording either way (round 29)
                 Row(Modifier.fillMaxWidth().clip(RoundedCornerShape(22.dp)).border(1.dp, rule, RoundedCornerShape(22.dp)).padding(3.dp)) {
                     for ((on, key) in listOf(false to R.string.app_rec_all, true to R.string.app_rec_one)) {
                         val sel = one == on
-                        Text(stringResource(key), Modifier.weight(1f).clip(RoundedCornerShape(19.dp)).background(if (sel) ink else Color.Transparent)
+                        Text(stringResource(key), Modifier.weight(1f).clip(RoundedCornerShape(19.dp)).background(if (sel) accent else Color.Transparent)
                             .clickable(role = Role.Button) { haptics.tick(.2f); one = on }.padding(vertical = 10.dp),
-                            fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = if (sel) (if (night) Color(0xFF0E2233) else Color.White) else ink, textAlign = TextAlign.Center)
+                            fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = if (sel) Color.White else ink, textAlign = TextAlign.Center)
                     }
                 }
-                Text(stringResource(R.string.app_rec_first_go), Modifier.fillMaxWidth().heightIn(min = 52.dp).clip(RoundedCornerShape(26.dp)).background(accent)
+                // "start" with the recording's dot (board L01)
+                Row(Modifier.fillMaxWidth().heightIn(min = 52.dp).clip(RoundedCornerShape(26.dp)).background(accent)
                     .clickable(role = Role.Button) { haptics.tick(.5f); Qa.log("redesign rec first go ${if (one) "run" else "day"}"); onGo(one) }.padding(vertical = 15.dp),
-                    fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color.White, textAlign = TextAlign.Center)
+                    verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center) {
+                    Box(Modifier.size(12.dp).clip(CircleShape).background(Color.White).padding(2.dp).clip(CircleShape).background(Color(0xFFE5322D)))
+                    Text(stringResource(R.string.app_rec_first_go), Modifier.padding(start = 10.dp), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color.White)
+                }
                 Text(stringResource(R.string.app_rec_first_later), Modifier.fillMaxWidth().clip(RoundedCornerShape(22.dp)).clickable(role = Role.Button) { onDismiss() }.padding(vertical = 10.dp),
                     fontFamily = Plex, fontSize = 15.sp, color = muted, textAlign = TextAlign.Center)
+            }
+        }
+    }
+}
+
+/** The first-time sheet's three signs (board L01), drawn: 0 the pocket, 1 the lock, 2 the pin. */
+@Composable
+private fun StartSign(kind: Int, c: Color, modifier: Modifier) {
+    androidx.compose.foundation.Canvas(modifier) {
+        val w = size.width; val h = size.height; val st = androidx.compose.ui.graphics.drawscope.Stroke(w * .11f, cap = androidx.compose.ui.graphics.StrokeCap.Round)
+        when (kind) {
+            0 -> { // a pocket: its outline and its seam, the phone peeking out
+                drawRoundRect(c, androidx.compose.ui.geometry.Offset(w * .32f, 0f), androidx.compose.ui.geometry.Size(w * .36f, h * .5f),
+                    androidx.compose.ui.geometry.CornerRadius(w * .06f), style = st)
+                val p = androidx.compose.ui.graphics.Path().apply {
+                    moveTo(w * .1f, h * .32f); lineTo(w * .9f, h * .32f); lineTo(w * .9f, h * .72f)
+                    quadraticTo(w * .5f, h * 1.02f, w * .1f, h * .72f); close()
+                }
+                drawPath(p, c, style = st)
+            }
+            1 -> { // a lock
+                drawRoundRect(c, androidx.compose.ui.geometry.Offset(w * .16f, h * .44f), androidx.compose.ui.geometry.Size(w * .68f, h * .52f),
+                    androidx.compose.ui.geometry.CornerRadius(w * .08f), style = st)
+                drawArc(c, 180f, 180f, false, androidx.compose.ui.geometry.Offset(w * .3f, h * .06f), androidx.compose.ui.geometry.Size(w * .4f, h * .66f), style = st)
+            }
+            else -> { // a pin
+                val p = androidx.compose.ui.graphics.Path().apply {
+                    moveTo(w * .5f, h * .98f)
+                    cubicTo(w * .14f, h * .6f, w * .1f, h * .42f, w * .1f, h * .4f)
+                    cubicTo(w * .1f, h * .1f, w * .3f, h * .02f, w * .5f, h * .02f)
+                    cubicTo(w * .7f, h * .02f, w * .9f, h * .1f, w * .9f, h * .4f)
+                    cubicTo(w * .9f, h * .42f, w * .86f, h * .6f, w * .5f, h * .98f); close()
+                }
+                drawPath(p, c, style = st)
+                drawCircle(c, w * .12f, androidx.compose.ui.geometry.Offset(w * .5f, h * .4f))
             }
         }
     }

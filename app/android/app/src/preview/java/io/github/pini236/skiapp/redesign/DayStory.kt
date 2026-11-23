@@ -73,10 +73,11 @@ import java.util.Locale
  */
 @Composable
 internal fun DayStory(story: StoryData, sm: DayModel.Summary, paint: DayPaint.Day, hide: List<LongArray>, track: () -> Track?, runs: Runs?, night: Boolean, sample: Boolean,
-                      haptics: Haptics, onBack: () -> Unit) {
-    // board L11: "share" opens what leaves the phone, the picture or the one-minute video
-    var sharing by androidx.compose.runtime.saveable.rememberSaveable { androidx.compose.runtime.mutableStateOf(false) }
-    BackHandler { if (sharing) sharing = false else onBack() }
+                      haptics: Haptics, shareOnly: Boolean = false, onBack: () -> Unit) {
+    // board L11: "share" opens what leaves the phone, the picture or the one-minute video; from the day's sheet (L06,
+    // [shareOnly]) it opens straight, and back goes back to the sheet
+    var sharing by androidx.compose.runtime.saveable.rememberSaveable { androidx.compose.runtime.mutableStateOf(shareOnly) }
+    BackHandler { if (sharing && !shareOnly) sharing = false else onBack() }
     // the emulator's run opens and closes the sheet
     LaunchedEffect(RedesignQa.seq) { when (RedesignQa.cmd) { "share" -> sharing = true; "share:off" -> sharing = false } }
     val ctx = LocalContext.current
@@ -156,6 +157,6 @@ internal fun DayStory(story: StoryData, sm: DayModel.Summary, paint: DayPaint.Da
             .heightIn(min = 52.dp).shadow(12.dp, RoundedCornerShape(26.dp)).clip(RoundedCornerShape(26.dp)).background(Color(0xFF7C4FE0))
             .clickable(role = Role.Button) { haptics.tick(.4f); Qa.log("redesign day story share ${storyKind(cards.firstOrNull()?.getString("key") ?: "other")}"); sharing = true }
             .padding(vertical = 15.dp), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color.White, textAlign = TextAlign.Center)
-        if (sharing) DayShare(story, sm, paint, hide, track, name, night, sample, haptics, onBack = { sharing = false })
+        if (sharing) DayShare(story, sm, paint, hide, track, name, night, sample, haptics, onBack = { if (shareOnly) onBack() else sharing = false })
     }
 }
