@@ -1209,6 +1209,318 @@
    "h": 844,
    "title": "15 · אודות",
    "page": "gap3"
+  },
+  "N01-Coverage.dc.html": {
+   "x": 0,
+   "y": 0,
+   "w": 1280,
+   "h": 1680,
+   "title": "1 · מה צויר, ומה נשאר",
+   "page": "nav"
+  },
+  "N02-Navigation.dc.html": {
+   "x": 1360,
+   "y": 0,
+   "w": 1600,
+   "h": 1440,
+   "title": "2 · מפת הניווט",
+   "page": "nav"
+  },
+  "N03-Decisions.dc.html": {
+   "x": 3040,
+   "y": 0,
+   "w": 1280,
+   "h": 900,
+   "title": "3 · מה עוד לא הוחלט, עם המלצה",
+   "page": "nav"
+  },
+  "S00-Brief.dc.html": {
+   "x": 0,
+   "y": 0,
+   "w": 1280,
+   "h": 1430,
+   "title": "חלק 4: על ההר, ומה הוחלט",
+   "page": "gap4"
+  },
+  "S01-Frame.dc.html": {
+   "x": 0,
+   "y": 1810,
+   "w": 390,
+   "h": 844,
+   "title": "1 · המסך הראשי, שלם",
+   "page": "gap4"
+  },
+  "S02-WhereAsk.dc.html": {
+   "x": 470,
+   "y": 1810,
+   "w": 390,
+   "h": 844,
+   "title": "2 · איפה אני: לפני ההרשאה",
+   "page": "gap4"
+  },
+  "S03-WhereOn.dc.html": {
+   "x": 940,
+   "y": 1810,
+   "w": 390,
+   "h": 844,
+   "title": "3 · איפה אני: על מסלול",
+   "page": "gap4"
+  },
+  "S04-WhereStates.dc.html": {
+   "x": 1410,
+   "y": 1810,
+   "w": 390,
+   "h": 844,
+   "title": "4 · איפה אני: כשאין תשובה",
+   "page": "gap4"
+  },
+  "S05-MountainNow.dc.html": {
+   "x": 0,
+   "y": 3320,
+   "w": 390,
+   "h": 844,
+   "title": "5 · ההר עכשיו: מזג אוויר",
+   "page": "gap4"
+  },
+  "S06-MountainNowNone.dc.html": {
+   "x": 470,
+   "y": 3320,
+   "w": 390,
+   "h": 844,
+   "title": "6 · ההר עכשיו: אין מידע",
+   "page": "gap4"
+  },
+  "S07-RunWhole.dc.html": {
+   "x": 940,
+   "y": 3320,
+   "w": 390,
+   "h": 844,
+   "title": "7 · מסלול נבחר: הגיליון כולו",
+   "page": "gap4"
+  },
+  "S08-Compass.dc.html": {
+   "x": 0,
+   "y": 4830,
+   "w": 390,
+   "h": 844,
+   "title": "8 · אחרי שסובבו: המצפן",
+   "page": "gap4"
+  },
+  "S09-FirstTime.dc.html": {
+   "x": 470,
+   "y": 4830,
+   "w": 390,
+   "h": 844,
+   "title": "9 · הפעם הראשונה: רמז אחד בכל פעם",
+   "page": "gap4"
+  },
+  "S10-YouMyDays.dc.html": {
+   "x": 940,
+   "y": 4830,
+   "w": 390,
+   "h": 844,
+   "title": "10 · אני: הימים שלי בראש",
+   "page": "gap4"
+  },
+  "T00-Brief.dc.html": {
+   "x": 0,
+   "y": 0,
+   "w": 1280,
+   "h": 1400,
+   "title": "חלק 5: מה שתואר רק במילים",
+   "page": "gap5"
+  },
+  "T01-NewGroup.dc.html": {
+   "x": 0,
+   "y": 1780,
+   "w": 390,
+   "h": 844,
+   "title": "1 · קבוצה חדשה",
+   "page": "gap5"
+  },
+  "T02-AlreadyIn.dc.html": {
+   "x": 470,
+   "y": 1780,
+   "w": 390,
+   "h": 844,
+   "title": "2 · אני כבר בקבוצה",
+   "page": "gap5"
+  },
+  "T03-Pending.dc.html": {
+   "x": 940,
+   "y": 1780,
+   "w": 390,
+   "h": 844,
+   "title": "3 · ממתין לאישור מנהל",
+   "page": "gap5"
+  },
+  "T04-MemberMenu.dc.html": {
+   "x": 0,
+   "y": 3290,
+   "w": 390,
+   "h": 844,
+   "title": "4 · חברים: התפריט של חבר",
+   "page": "gap5"
+  },
+  "T05-NameDates.dc.html": {
+   "x": 470,
+   "y": 3290,
+   "w": 390,
+   "h": 844,
+   "title": "5 · מנהל: שם ותאריכים",
+   "page": "gap5"
+  },
+  "T06-LeaveDelete.dc.html": {
+   "x": 940,
+   "y": 3290,
+   "w": 390,
+   "h": 844,
+   "title": "6 · מנהל: עזיבה ומחיקה, הנגיעה השנייה",
+   "page": "gap5"
+  },
+  "T07-DeleteAccount.dc.html": {
+   "x": 0,
+   "y": 4800,
+   "w": 390,
+   "h": 844,
+   "title": "7 · מחיקת חשבון: האישור",
+   "page": "gap5"
+  },
+  "T08-Licences.dc.html": {
+   "x": 470,
+   "y": 4800,
+   "w": 390,
+   "h": 844,
+   "title": "8 · רישיונות",
+   "page": "gap5"
+  },
+  "T09-TripForm.dc.html": {
+   "x": 940,
+   "y": 4800,
+   "w": 390,
+   "h": 844,
+   "title": "9 · הטיול שלך: הטופס המלא",
+   "page": "gap5"
+  },
+  "T10-Places.dc.html": {
+   "x": 1410,
+   "y": 4800,
+   "w": 390,
+   "h": 844,
+   "title": "10 · כל המקומות ליד תחנה",
+   "page": "gap5"
+  },
+  "U00-Brief.dc.html": {
+   "x": 0,
+   "y": 0,
+   "w": 1280,
+   "h": 1480,
+   "title": "חלק 6: הקצוות",
+   "page": "gap6"
+  },
+  "U01-NotifAsk.dc.html": {
+   "x": 0,
+   "y": 1860,
+   "w": 390,
+   "h": 844,
+   "title": "1 · התראות: לפני שהטלפון שואל",
+   "page": "gap6"
+  },
+  "U02-Reminder.dc.html": {
+   "x": 470,
+   "y": 1860,
+   "w": 390,
+   "h": 844,
+   "title": "2 · התזכורת: רבע שעה לפני",
+   "page": "gap6"
+  },
+  "U03-NotifOff.dc.html": {
+   "x": 940,
+   "y": 1860,
+   "w": 390,
+   "h": 844,
+   "title": "3 · ההתראות כבויות",
+   "page": "gap6"
+  },
+  "U04-RecNoNotif.dc.html": {
+   "x": 1410,
+   "y": 1860,
+   "w": 390,
+   "h": 844,
+   "title": "4 · אנדרואיד: מקליטים בלי התראות",
+   "page": "gap6"
+  },
+  "U05-OfflineMountain.dc.html": {
+   "x": 0,
+   "y": 3370,
+   "w": 390,
+   "h": 844,
+   "title": "5 · בלי קליטה: ההר",
+   "page": "gap6"
+  },
+  "U06-ForecastStale.dc.html": {
+   "x": 470,
+   "y": 3370,
+   "w": 390,
+   "h": 844,
+   "title": "6 · בלי קליטה: תחזית ישנה",
+   "page": "gap6"
+  },
+  "U07-GroupOffline.dc.html": {
+   "x": 940,
+   "y": 3370,
+   "w": 390,
+   "h": 844,
+   "title": "7 · בלי קליטה: הקבוצה",
+   "page": "gap6"
+  },
+  "U08-GroupNeverSaved.dc.html": {
+   "x": 1410,
+   "y": 3370,
+   "w": 390,
+   "h": 844,
+   "title": "8 · בלי קליטה: קבוצה שעוד לא נשמרה",
+   "page": "gap6"
+  },
+  "U09-ChangeRefused.dc.html": {
+   "x": 0,
+   "y": 4880,
+   "w": 390,
+   "h": 844,
+   "title": "9 · שינוי שלא נשמר בקבוצה",
+   "page": "gap6"
+  },
+  "U10-ActionFailed.dc.html": {
+   "x": 470,
+   "y": 4880,
+   "w": 390,
+   "h": 844,
+   "title": "10 · פעולה שנכשלה",
+   "page": "gap6"
+  },
+  "U11-Loading.dc.html": {
+   "x": 940,
+   "y": 4880,
+   "w": 390,
+   "h": 844,
+   "title": "11 · טעינה",
+   "page": "gap6"
+  },
+  "U12-ReplayConsent.dc.html": {
+   "x": 0,
+   "y": 6390,
+   "w": 390,
+   "h": 844,
+   "title": "12 · אנדרואיד: הסכמה להקלטת שימוש",
+   "page": "gap6"
+  },
+  "U13-ReplayOn.dc.html": {
+   "x": 470,
+   "y": 6390,
+   "w": 390,
+   "h": 844,
+   "title": "13 · אנדרואיד: ההקלטה פעילה",
+   "page": "gap6"
   }
  },
  "createdOnFiles": {
@@ -1217,7 +1529,7 @@
  },
  "designSystems": [],
  "launch": {
-  "page": "gap3",
+  "page": "nav",
   "view": "canvas"
  },
  "notes": {
@@ -1405,10 +1717,10 @@
    "kind": "title1",
    "maxW": 1600,
    "page": "gap1",
-   "w": 1000,
+   "w": 1260,
    "x": 0,
    "y": -300,
-   "text": "סבב ההשלמה · חלק 1 · יום הגלישה ואנדרואיד (21.11.2026)"
+   "text": "סבב ההשלמה · חלק 1 · יום הגלישה ואנדרואיד (21.11.2026) · אושר 23.11.2026"
   },
   "tP1": {
    "kind": "title1",
@@ -1432,10 +1744,10 @@
    "kind": "title1",
    "maxW": 1600,
    "page": "gap2",
-   "w": 1000,
+   "w": 1260,
    "x": 0,
    "y": -300,
-   "text": "סבב ההשלמה · חלק 2 · סביב ההר (21.11.2026)"
+   "text": "סבב ההשלמה · חלק 2 · סביב ההר (21.11.2026) · אושר 23.11.2026"
   },
   "tQ1": {
    "kind": "title1",
@@ -1459,10 +1771,10 @@
    "kind": "title1",
    "maxW": 1600,
    "page": "gap3",
-   "w": 1100,
+   "w": 1360,
    "x": 0,
    "y": -300,
-   "text": "סבב ההשלמה · חלק 3 · החבר׳ה, הבקתה ואני (23.11.2026)"
+   "text": "סבב ההשלמה · חלק 3 · החבר׳ה, הבקתה ואני (23.11.2026) · אושר 23.11.2026"
   },
   "tR1": {
    "kind": "title1",
@@ -1490,10 +1802,139 @@
    "x": 0,
    "y": 4670,
    "text": "ג · הבקתה, ההגדרות והאודות"
+  },
+  "tNav": {
+   "kind": "title1",
+   "maxW": 1600,
+   "page": "nav",
+   "w": 1100,
+   "x": 0,
+   "y": -300,
+   "text": "כל האפליקציה בשפה החדשה: מה צויר, מה נשאר, ואיך מגיעים (23.11.2026)"
+  },
+  "tS": {
+   "kind": "title1",
+   "maxW": 1600,
+   "page": "gap4",
+   "x": 0,
+   "w": 1000,
+   "y": -300,
+   "text": "סבב ההשלמה · חלק 4 · על ההר (23.11.2026)"
+  },
+  "tS1": {
+   "kind": "title1",
+   "maxW": 1600,
+   "page": "gap4",
+   "x": 0,
+   "w": 620,
+   "y": 1510,
+   "text": "א · המסך הראשי, ו״איפה אני״"
+  },
+  "tS2": {
+   "kind": "title1",
+   "maxW": 1600,
+   "page": "gap4",
+   "x": 0,
+   "w": 620,
+   "y": 3020,
+   "text": "ב · ״ההר עכשיו״, והמסלול כולו"
+  },
+  "tS3": {
+   "kind": "title1",
+   "maxW": 1600,
+   "page": "gap4",
+   "x": 0,
+   "w": 760,
+   "y": 4530,
+   "text": "ג · מצפן, פעם ראשונה, הימים שלי"
+  },
+  "tT": {
+   "kind": "title1",
+   "maxW": 1600,
+   "page": "gap5",
+   "x": 0,
+   "w": 1100,
+   "y": -300,
+   "text": "סבב ההשלמה · חלק 5 · מה שתואר רק במילים (23.11.2026)"
+  },
+  "tT1": {
+   "kind": "title1",
+   "maxW": 1600,
+   "page": "gap5",
+   "x": 0,
+   "w": 620,
+   "y": 1480,
+   "text": "א · נכנסים לקבוצה"
+  },
+  "tT2": {
+   "kind": "title1",
+   "maxW": 1600,
+   "page": "gap5",
+   "x": 0,
+   "w": 620,
+   "y": 2990,
+   "text": "ב · מנהלים קבוצה"
+  },
+  "tT3": {
+   "kind": "title1",
+   "maxW": 1600,
+   "page": "gap5",
+   "x": 0,
+   "w": 820,
+   "y": 4500,
+   "text": "ג · חשבון, רישיונות, טיול, מקומות"
+  },
+  "tU": {
+   "kind": "title1",
+   "maxW": 1600,
+   "page": "gap6",
+   "x": 0,
+   "w": 1100,
+   "y": -300,
+   "text": "סבב ההשלמה · חלק 6 · הקצוות (23.11.2026)"
+  },
+  "tU1": {
+   "kind": "title1",
+   "maxW": 1600,
+   "page": "gap6",
+   "x": 0,
+   "w": 620,
+   "y": 1560,
+   "text": "א · התראות"
+  },
+  "tU2": {
+   "kind": "title1",
+   "maxW": 1600,
+   "page": "gap6",
+   "x": 0,
+   "w": 620,
+   "y": 3070,
+   "text": "ב · בלי קליטה"
+  },
+  "tU3": {
+   "kind": "title1",
+   "maxW": 1600,
+   "page": "gap6",
+   "x": 0,
+   "w": 820,
+   "y": 4580,
+   "text": "ג · נכשל, וטוען"
+  },
+  "tU4": {
+   "kind": "title1",
+   "maxW": 1600,
+   "page": "gap6",
+   "x": 0,
+   "w": 1100,
+   "y": 6090,
+   "text": "ד · הסכמה להקלטת שימוש (אנדרואיד בלבד)"
   }
  },
  "order": [
   "Main.dc.html",
+  "N01-Coverage.dc.html",
+  "N02-Navigation.dc.html",
+  "N03-Decisions.dc.html",
   "A01-Identity.dc.html",
   "A02-Open.dc.html",
   "A03-Map.dc.html",
@@ -1643,12 +2084,64 @@
   "R12-GameEnd.dc.html",
   "R13-Settings.dc.html",
   "R14-Language.dc.html",
-  "R15-About.dc.html"
+  "R15-About.dc.html",
+  "S00-Brief.dc.html",
+  "S01-Frame.dc.html",
+  "S02-WhereAsk.dc.html",
+  "S03-WhereOn.dc.html",
+  "S04-WhereStates.dc.html",
+  "S05-MountainNow.dc.html",
+  "S06-MountainNowNone.dc.html",
+  "S07-RunWhole.dc.html",
+  "S08-Compass.dc.html",
+  "S09-FirstTime.dc.html",
+  "S10-YouMyDays.dc.html",
+  "T00-Brief.dc.html",
+  "T01-NewGroup.dc.html",
+  "T02-AlreadyIn.dc.html",
+  "T03-Pending.dc.html",
+  "T04-MemberMenu.dc.html",
+  "T05-NameDates.dc.html",
+  "T06-LeaveDelete.dc.html",
+  "T07-DeleteAccount.dc.html",
+  "T08-Licences.dc.html",
+  "T09-TripForm.dc.html",
+  "T10-Places.dc.html",
+  "U00-Brief.dc.html",
+  "U01-NotifAsk.dc.html",
+  "U02-Reminder.dc.html",
+  "U03-NotifOff.dc.html",
+  "U04-RecNoNotif.dc.html",
+  "U05-OfflineMountain.dc.html",
+  "U06-ForecastStale.dc.html",
+  "U07-GroupOffline.dc.html",
+  "U08-GroupNeverSaved.dc.html",
+  "U09-ChangeRefused.dc.html",
+  "U10-ActionFailed.dc.html",
+  "U11-Loading.dc.html",
+  "U12-ReplayConsent.dc.html",
+  "U13-ReplayOn.dc.html"
  ],
  "pages": [
   {
    "id": "intro",
    "name": "פתיחה והמלצה"
+  },
+  {
+   "id": "nav",
+   "name": "המפה · מה צויר, מה נשאר, ואיך מגיעים"
+  },
+  {
+   "id": "gap6",
+   "name": "השלמה ו · הקצוות"
+  },
+  {
+   "id": "gap5",
+   "name": "השלמה ה · מה שתואר במילים"
+  },
+  {
+   "id": "gap4",
+   "name": "השלמה ד · על ההר"
   },
   {
    "id": "gap3",
