@@ -56,6 +56,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import io.github.pini236.skiapp.R
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.graphics.graphicsLayer
 import io.github.pini236.skiapp.data.Geo
 import io.github.pini236.skiapp.dayrec.DayLog
 import io.github.pini236.skiapp.dayrec.DayRec
@@ -167,9 +169,6 @@ fun LiveDay(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, liftName: (S
         var pin by remember { mutableStateOf<Offset?>(null) }
         val ride = DayRec.ride
         val onLift = DayRec.live?.act == "lift" && ride != null
-        // when this lift began, as this screen saw it (for "about N min to the top"; opened mid-ride, it errs long)
-        val liftNow = DayRec.live?.takeIf { it.act == "lift" }?.lift
-        val boardedAt = remember(liftNow) { if (liftNow != null) System.currentTimeMillis() else null }
         val rideState = androidx.compose.runtime.rememberUpdatedState(if (onLift) ride else null)
         LaunchedEffect(Unit) { while (true) { withFrameNanos { }
             dot = last?.let { q -> view.toScreen(q[0], q[1], 4f) }?.let { Offset(it[0], it[1]) }
@@ -199,12 +198,18 @@ fun LiveDay(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, liftName: (S
                 if (recording) Box(Modifier.size(12.dp).clip(CircleShape).background(red))
                 Text(stringResource(R.string.app_rec_now, LiveNumbers.elapsed(LiveNumbers.sinceTap(now, began))), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = ink)
             }
-            // all day or one descent (L02, L03): one wide bar, the choice in purple, as on the board
-            Row(Modifier.fillMaxWidth().height(48.dp).clip(RoundedCornerShape(24.dp)).background(if (night) Color(0x33FFFFFF) else Color(0x330E2233))
+            // all day or one descent (L02, L03): one wide bar, the choice in purple, as on the board. Quiet in a descent and
+            // on the lift (L03, "quiet in a descent": only the speed, the run and finish); shown in the search and when
+            // standing. It fades, and keeps its place, so nothing below jumps
+            val act = DayRec.live?.act
+            val quiet = !searching && (act == "ski" || act == "lift")
+            val shown by androidx.compose.animation.core.animateFloatAsState(if (quiet) 0f else 1f, tween(300), label = "toggle")
+            Row(Modifier.fillMaxWidth().height(48.dp).graphicsLayer { alpha = shown }
+                .then(if (quiet) Modifier.clearAndSetSemantics { } else Modifier).clip(RoundedCornerShape(24.dp)).background(if (night) Color(0x33FFFFFF) else Color(0x330E2233))
                 .border(1.dp, rule, RoundedCornerShape(24.dp)).padding(3.dp)) {
                 for ((on, k) in listOf(!single to R.string.app_rec_all, single to R.string.app_rec_one)) {
                     Box(Modifier.weight(1f).fillMaxSize().clip(RoundedCornerShape(21.dp)).background(if (on) Color(0xFF7C4FE0) else Color.Transparent)
-                        .clickable(role = Role.Tab) { if (!on) { val s1 = k == R.string.app_rec_one; picked = s1; onSwitch(s1) } }, contentAlignment = Alignment.Center) {
+                        .clickable(role = Role.Tab, enabled = !quiet) { if (!on) { val s1 = k == R.string.app_rec_one; picked = s1; onSwitch(s1) } }, contentAlignment = Alignment.Center) {
                         Text(stringResource(k), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = if (on) Color.White else ink)
                     }
                 }
@@ -221,8 +226,14 @@ fun LiveDay(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, liftName: (S
                 onLift && ride != null -> LiftCard(ride, painted, night, ink, muted, glass, rule, liftName, runName, onSee = { haptics.tick(.3f); seeRide = ride }, onStop = onStop,
                     head = DayRec.live?.lift?.let { id ->
                         val name = liftName(id)
-                        val dur = scene.runs?.lifts?.firstOrNull { it.id == id }?.dur?.toDoubleOrNull()
-                        val eta = liftEta(dur, boardedAt, now)
+                        // where you are on the lift's line, and only on a sound reading (not a weak signal)
+                        val lift = scene.runs?.lifts?.firstOrNull { it.id == id }
+                        val q = last
+                        val eta = if (lift == null || q == null || weak || lift.pts.size < 4) null else {
+                            val n = lift.pts.size
+                            liftEta(lift.dur?.toDoubleOrNull(), lift.pts, scene.terrain.elev(lift.pts[0], lift.pts[1]),
+                                scene.terrain.elev(lift.pts[n - 2], lift.pts[n - 1]), q[0], q[1])
+                        }
                         stringResource(R.string.app_rec_on_lift, name) + (eta?.let { " · " + stringResource(R.string.app_rec_lift_eta, it) } ?: "")
                     })
                 searching -> {
@@ -230,10 +241,10 @@ fun LiveDay(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, liftName: (S
                     Text(stringResource(R.string.app_rec_search_note), style = small, textAlign = androidx.compose.ui.text.style.TextAlign.Center)
                 }
                 else -> {
-                    // the number on a soft glow, the lines fading under it, as on the board (L03)
+                    // the number on a soft glow, only behind it: the mountain stays clear above (L03; round 4's check, point 4)
                     Text(LiveNumbers.speedText(DayRec.liveSpeed), Modifier.drawBehind {
-                        val r = size.height * 1.15f
-                        drawCircle(androidx.compose.ui.graphics.Brush.radialGradient(listOf(halo, halo.copy(alpha = halo.alpha * .55f), Color.Transparent),
+                        val r = size.height * .62f
+                        drawCircle(androidx.compose.ui.graphics.Brush.radialGradient(listOf(halo.copy(alpha = .6f), halo.copy(alpha = .25f), Color.Transparent),
                             center = center, radius = r), r, center)
                     }, style = big, maxLines = 1)
                     Text(stringResource(R.string.app_rec_unit), style = small)
@@ -356,7 +367,7 @@ private fun LiftCard(ride: io.github.pini236.skiapp.dayrec.DayEngine.Ride, paint
             @Composable fun cell(v: String, l: String) = Column { Text(v, style = num); Text(l, style = label) }
             cell(ride.maxKmh?.let { "%.1f".format(java.util.Locale.ROOT, it) } ?: "—", stringResource(R.string.app_rec_kmh_max))
             cell("%d:%02d".format(java.util.Locale.ROOT, ride.movingS / 60, ride.movingS % 60), stringResource(R.string.app_run_min))
-            cell("%,d".format(java.util.Locale.ROOT, ride.dropM.toInt()), stringResource(R.string.app_rec_m_down))
+            cell(metres(ride.dropM), stringResource(R.string.app_rec_m_down))
         }
         // the wait for this lift (board L04): from the end of the descent to boarding, once the analysis has the ride
         val waited = DayRec.sofar?.segments?.firstOrNull { it.type == "lift" && it.t0 >= ride.t1 }?.let { ((it.t0 - ride.t1) / 60_000L).toInt() }
@@ -368,7 +379,7 @@ private fun LiftCard(ride: io.github.pini236.skiapp.dayrec.DayEngine.Ride, paint
         Row(verticalAlignment = Alignment.CenterVertically) {
             Column(Modifier.weight(1f)) {
                 Text(stringResource(R.string.app_rec_day_so_far), style = label)
-                if (so != null) Text(stringResource(R.string.app_rec_day_line, so.descents, "%,d".format(java.util.Locale.ROOT, so.dropM.toInt()),
+                if (so != null) Text(stringResource(R.string.app_rec_day_line, so.descents, metres(so.dropM),
                     "%.1f".format(java.util.Locale.ROOT, so.skiDistM / 1000)), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = ink)
             }
             val see = stringResource(R.string.app_rec_see_run)
@@ -388,9 +399,25 @@ private fun LiftCard(ride: io.github.pini236.skiapp.dayrec.DayEngine.Ride, paint
     LaunchedEffect(ride.t1) { Qa.log("redesign rec lift card ${ride.runs.size}") }
 }
 
-/** About how many minutes to the lift's top: its travel time ([durMin], from the data) less the time since boarding; null under one. */
-internal fun liftEta(durMin: Double?, boardedAt: Long?, now: Long): Int? {
-    if (durMin == null || boardedAt == null) return null
-    val left = durMin * 60_000 - (now - boardedAt)
-    return Math.round(left / 60_000).toInt().takeIf { it >= 1 }
+/**
+ * About how many minutes to the lift's top (board L04), by where you are on its line and not by when the screen opened:
+ * the part of the line still ahead times its travel time ([durMin], from the data). [pts] is the lift's line (x, y pairs),
+ * [ele0] and [ele1] the ground's height at its two ends (the top is the higher one, whichever way the line was drawn).
+ * Null without a travel time, off the line (over [maxOffM] metres from it), or under a minute: no guess.
+ */
+internal fun liftEta(durMin: Double?, pts: FloatArray, ele0: Float, ele1: Float, x: Float, y: Float, maxOffM: Float = 60f): Int? {
+    if (durMin == null || pts.size < 4) return null
+    var total = 0.0; var best = Double.MAX_VALUE; var at = 0.0
+    for (i in 0 until pts.size / 2 - 1) {
+        val ax = pts[i * 2]; val ay = pts[i * 2 + 1]; val bx = pts[i * 2 + 2]; val by = pts[i * 2 + 3]
+        val dx = bx - ax; val dy = by - ay; val len2 = (dx * dx + dy * dy).toDouble(); val len = Math.sqrt(len2)
+        val u = if (len2 == 0.0) 0.0 else (((x - ax) * dx + (y - ay) * dy) / len2).coerceIn(0.0, 1.0)
+        val px = ax + dx * u; val py = ay + dy * u
+        val d = Math.hypot(x - px, y - py)
+        if (d < best) { best = d; at = total + u * len }
+        total += len
+    }
+    if (best > maxOffM || total <= 0.0) return null
+    val up = (at / total).let { if (ele0 > ele1) 1 - it else it }
+    return Math.round((1 - up) * durMin).toInt().takeIf { it >= 1 }
 }

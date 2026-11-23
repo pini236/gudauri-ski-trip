@@ -41,6 +41,7 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.drawText
@@ -104,7 +105,9 @@ internal fun DayRidge(paint: DayPaint.Day, elev: FloatArray, day: DayModel.Day, 
     }
 
     Box(Modifier.fillMaxSize().background(bg)) {
-        LazyColumn(Modifier.fillMaxSize().statusBarsPadding(), contentPadding = androidx.compose.foundation.layout.PaddingValues(start = 16.dp, end = 16.dp, top = 72.dp, bottom = 40.dp)) {
+        // under a descent's film the timeline is hidden from the screen reader too (a row cut at the film's edge read as a
+        // 9 dp target, round 4's check)
+        LazyColumn(Modifier.fillMaxSize().statusBarsPadding().then(if (film != null) Modifier.clearAndSetSemantics { } else Modifier), contentPadding = androidx.compose.foundation.layout.PaddingValues(start = 16.dp, end = 16.dp, top = 72.dp, bottom = 40.dp)) {
             item {
                 // the ridge (L07): ground faint, descents in the light, rides dotted, hours under it
                 val measurer = rememberTextMeasurer()
@@ -118,7 +121,7 @@ internal fun DayRidge(paint: DayPaint.Day, elev: FloatArray, day: DayModel.Day, 
                 Canvas(Modifier.fillMaxWidth().height(176.dp).semantics { contentDescription = bubble ?: "" }) {
                     if (tr.t.size < 2) return@Canvas
                     val top = 34 * dens; val bottom = size.height - 18 * dens
-                    fun px(t: Long) = ((t - paint.t0) / span).let { if (rtl) 1f - it else it } * size.width
+                    fun px(t: Long) = ((t - paint.t0) / span) * size.width
                     fun py(e: Float) = bottom - (e - lo) / (hi - lo).coerceAtLeast(1f) * (bottom - top)
                     val area = Path().apply {
                         moveTo(px(tr.t[0]), bottom); for (i in tr.t.indices) lineTo(px(tr.t[i]), py(elev[i])); lineTo(px(tr.t.last()), bottom); close()
@@ -254,7 +257,7 @@ private fun TimelineRow(it: DayModel.Item, at: String, runs: Runs?, night: Boole
                         }
                     }
                     Text(stringResource(R.string.app_tl_run_meta, String.format(Locale.ROOT, "%.1f", it.distM / 1000.0),
-                        String.format(Locale.ROOT, "%,d", Math.round(it.dropM)), LiveNumbers.maxKmh(it.maxKmh)), style = meta)
+                        metres(it.dropM), LiveNumbers.maxKmh(it.maxKmh)), style = meta)
                     if (stops == 1) Text(stringResource(R.string.app_tl_one_stop), style = meta)
                     // the descent where the day's top speed was (board L07)
                     if (top) Text(stringResource(R.string.app_tl_top_speed, LiveNumbers.maxKmh(it.maxKmh),

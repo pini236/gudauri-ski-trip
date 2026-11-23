@@ -1205,9 +1205,12 @@ redesign() {
   adb shell pm grant "$PKG" android.permission.POST_NOTIFICATIONS > /dev/null 2>&1 || true
   adb shell pm grant "$PKG" android.permission.ACCESS_FINE_LOCATION; adb shell pm grant "$PKG" android.permission.ACCESS_COARSE_LOCATION
   adb shell cmd location set-location-enabled true 2> /dev/null
-  mark; qa "--es qa.mode day --es qa.dayrec start"; waitlog "dayrec start result Started" 20 || fail "redesign: the recording did not start"
-  mark; qa "--es qa.tab day"; waitlog "redesign rec open" 20 || fail "redesign: the live screen on the mountain did not open"
-  sleep 3; shot redesign-rec-search
+  # the live screen opened first and the mountain drawn, then the recording started: the search shows on the drawn
+  # mountain before the emulator's first fix (about 4 s after the tap); the test build's meter bar off (qa.stats off)
+  mark; qa "--es qa.mode day --es qa.stats off --es qa.tab day"; waitlog "redesign rec open" 20 || fail "redesign: the live screen on the mountain did not open"
+  waitlog "redesign live drawn" 60 || fail "redesign: the mountain was not drawn under the live screen"
+  mark; qa "--es qa.dayrec start"; waitlog "dayrec start result Started" 20 || fail "redesign: the recording did not start"
+  sleep 1.5; shot redesign-rec-search
   geo 42.482631 44.483401; dayrec_walk 10; sleep 7; shot redesign-rec-live
   # board L05: the permanent notification while recording (the run, no live speed)
   adb shell cmd statusbar expand-notifications; sleep 2; shot redesign-rec-notice; adb shell cmd statusbar collapse; sleep 1
@@ -1220,8 +1223,12 @@ redesign() {
   mark; qa "--es qa.mode night"; waitlog "redesign live day drawn .* night" 40 || fail "redesign: the day was not drawn at night"
   sleep 3; shot redesign-day-night
   qa "--es qa.mode auto --es qa.tab home"; waitlog "redesign day closed" 15; sleep 1
-  # board L12: my days, with today's ended day as the trip (a trip of today only, on the phone)
-  d=$(adb shell TZ=Asia/Tbilisi date +%F | tr -d '\r')
+  # board L12: my days, with the sample day (the reference tool's whole day, 11.1.2027) recorded as a day and the trip
+  # around it, so the trip's card shows its lines (the day just ended is outside it, a row of its own)
+  local fxd; fxd="$(cd "$(dirname "$0")/../../.." && pwd)/tools/fixtures"
+  adb push "$fxd/dayrec-logs/full_day.jsonl" "/sdcard/Android/data/$PKG/files/replay.jsonl" > /dev/null
+  mark; qa "--es qa.dayrec replay"; waitlog "dayrec replay analysis=" 180 || fail "redesign: the sample day was not recorded for my days"
+  d=2027-01-11
   mark; qa "--es qa.mode day --es qa.trip '{\"v\":1,\"out\":{\"date\":\"$d\",\"flight\":\"\",\"from\":\"TLV\",\"to\":\"TBS\"},\"ski\":{\"from\":\"$d\",\"to\":\"$d\"}}' --es qa.tab days"
   if waitlog "redesign days [1-9][0-9]* trip 1" 30; then sleep 2; shot redesign-days; else fail "redesign: my days did not show the trip"; fi
   qa "--es qa.mode auto --es qa.trip none --es qa.tab home"; sleep 1

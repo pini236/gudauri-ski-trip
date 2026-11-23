@@ -164,3 +164,9 @@ object DayPaint {
         return out
     }
 }
+
+/**
+ * Every count of metres in the redesign (round 4, the designer's point 3): one rounding and always a thousands separator,
+ * so the day's metres down read the same on the day sheet, in the story and in the picture.
+ */
+internal fun metres(m: Double): String = String.format(java.util.Locale.ROOT, "%,d", Math.round(m))

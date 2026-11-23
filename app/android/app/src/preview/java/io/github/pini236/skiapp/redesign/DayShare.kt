@@ -204,10 +204,10 @@ private fun variable(ctx: Context, res: Int, weight: Int): Typeface? {
 /** The words of the picture and the video (L11): the kind of day, four numbers, "Gudi" and "Gudauri · date". */
 private fun shareWords(ctx: Context, story: StoryData, sm: DayModel.Summary): StoryVideo.Words {
     val locale = ctx.resources.configuration.locales[0]
-    val head = MomentText.Words(ctx, locale).render(MomentText.head(story.theme, sm.descents, sm.dropM, sm.distM, locale), Moments.seed("story.head", sm.start)).first
+    val head = MomentText.Words(ctx, locale, group = true).render(MomentText.head(story.theme, sm.descents, sm.dropM, sm.distM, locale), Moments.seed("story.head", sm.start)).first
     val date = DateTimeFormatter.ofPattern("d.M.yyyy", Locale.ROOT).format(Instant.ofEpochMilli(sm.start).atZone(ZoneId.of(DayParams.TZ)))
     val numbers = listOf(sm.descents.toString() to ctx.getString(R.string.app_day_sum_descents),
-        "%,d".format(Locale.ROOT, sm.dropM.toInt()) to ctx.getString(R.string.app_rec_m_down),
+        metres(sm.dropM) to ctx.getString(R.string.app_rec_m_down),
         String.format(Locale.ROOT, "%.1f", sm.distM / 1000) to ctx.getString(R.string.app_run_km)) +
         listOfNotNull(sm.maxKmh?.let { String.format(Locale.ROOT, "%.1f", it) to ctx.getString(R.string.app_rec_kmh_max) })
     // the numbers are digits in every language: Plex Sans light, as on the board

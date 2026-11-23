@@ -249,7 +249,7 @@ fun DayMountain(file: File, sample: Boolean, scene: MapScene, mode: DayNight.Mod
             val when_ = s?.let { x ->
                 val d = DateTimeFormatter.ofPattern("d.M.yyyy").format(Instant.ofEpochMilli(x.start).atZone(zone))
                 val hm = DateTimeFormatter.ofPattern("HH:mm")
-                "$d · ${hm.format(Instant.ofEpochMilli(x.start).atZone(zone))}–${hm.format(Instant.ofEpochMilli(x.end).atZone(zone))}"
+                "\u2066$d · ${hm.format(Instant.ofEpochMilli(x.start).atZone(zone))}–${hm.format(Instant.ofEpochMilli(x.end).atZone(zone))}\u2069"
             }
             Text(stringResource(R.string.app_day_title) + (when_?.let { " · $it" } ?: ""), Modifier.weight(1f), fontFamily = Plex, fontSize = 14.sp, color = ink, maxLines = 1)
             if (sample) Text(stringResource(R.string.app_day_sample), Modifier.border(1.dp, rule, RoundedCornerShape(10.dp)).padding(horizontal = 8.dp, vertical = 2.dp),
@@ -270,7 +270,7 @@ fun DayMountain(file: File, sample: Boolean, scene: MapScene, mode: DayNight.Mod
                 .padding(horizontal = 16.dp, vertical = 12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Row(verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(18.dp)) {
                     Text(DateTimeFormatter.ofPattern("HH:mm").format(zoneT), fontFamily = Plex, fontWeight = FontWeight.Light, fontSize = 30.sp, color = ink)
-                    for ((v, k) in listOf(nf.format(n) to R.string.app_day_sum_descents, nf.format(Math.round(drop)) to R.string.app_rec_m_down)) {
+                    for ((v, k) in listOf(nf.format(n) to R.string.app_day_sum_descents, metres(drop) to R.string.app_rec_m_down)) {
                         Column { Text(v, fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = ink); Text(stringResource(k), fontFamily = Plex, fontSize = 12.sp, color = muted) }
                     }
                 }
@@ -284,12 +284,12 @@ fun DayMountain(file: File, sample: Boolean, scene: MapScene, mode: DayNight.Mod
                     }
                     .pointerInput(film) {
                         detectHorizontalDragGestures(onDragStart = { playing = false }) { ch, _ ->
-                            val x = if (rtl) size.width - ch.position.x else ch.position.x
+                            val x = ch.position.x
                             fms = film.of(l.paint.t0 + ((x / size.width).coerceIn(0f, 1f) * span).toLong())
                         }
                     }) {
                     if (tr.t.size < 2) return@Canvas
-                    fun px(t: Long) = ((t - l.paint.t0) / span).let { if (rtl) 1f - it else it } * size.width
+                    fun px(t: Long) = ((t - l.paint.t0) / span) * size.width
                     fun py(e: Float) = size.height - 6 * dens - (e - lo) / (hi - lo).coerceAtLeast(1f) * (size.height - 14 * dens)
                     // the day's ground, faint, and its descents in the speed light up to the film's moment
                     val area = androidx.compose.ui.graphics.Path().apply {
@@ -319,12 +319,12 @@ fun DayMountain(file: File, sample: Boolean, scene: MapScene, mode: DayNight.Mod
                     val locale = context.resources.configuration.locales[0]
                     val head = remember(l) {
                         val h = MomentText.head(l.story?.theme, sm.descents, sm.dropM, sm.distM, locale)
-                        MomentText.Words(context, locale).render(h, Moments.seed("story.head", sm.start)).first
+                        MomentText.Words(context, locale, group = true).render(h, Moments.seed("story.head", sm.start)).first
                     }
                     Text(head ?: stringResource(R.string.app_day_title), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 24.sp, color = ink, maxLines = 2)
                     val nf = remember { java.text.NumberFormat.getIntegerInstance() }
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(20.dp), verticalAlignment = Alignment.Bottom) {
-                        for ((v, k) in listOf(nf.format(sm.descents) to R.string.app_day_sum_descents, nf.format(Math.round(sm.dropM)) to R.string.app_rec_m_down,
+                        for ((v, k) in listOf(nf.format(sm.descents) to R.string.app_day_sum_descents, metres(sm.dropM) to R.string.app_rec_m_down,
                             "%.1f".format(locale, sm.distM / 1000.0) to R.string.app_rec_km_ski)) {
                             Column {
                                 Text(v, fontFamily = Plex, fontWeight = FontWeight.Light, fontSize = 30.sp, color = ink)

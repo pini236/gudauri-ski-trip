@@ -48,7 +48,7 @@ internal object Notice {
             val head = if (lift != null) c.getString(R.string.app_rec_on_lift, lift) else title
             val ran = ride!!.runs.joinToString(" · ") { runs[it] ?: it }.ifEmpty { c.getString(R.string.app_rec_off) }
             val meta = c.getString(R.string.app_tl_run_meta, String.format(Locale.ROOT, "%.1f", ride.distM / 1000.0),
-                "%,d".format(Locale.ROOT, ride.dropM.toInt()), ride.maxKmh?.let { String.format(Locale.ROOT, "%.1f", it) } ?: "—")
+                metres(ride.dropM), ride.maxKmh?.let { String.format(Locale.ROOT, "%.1f", it) } ?: "—")
             val text = c.getString(R.string.app_rec_just_ran) + ": " + ran
             return Content(head, text, text + "\n" + meta)
         }

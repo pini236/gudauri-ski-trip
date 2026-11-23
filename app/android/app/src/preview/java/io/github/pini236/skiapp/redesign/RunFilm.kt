@@ -190,7 +190,9 @@ internal fun RunFilm(d: DayModel.Descent, seg: org.json.JSONObject?, segs: List<
             val shown = (reveal.value * total).toInt()
             var gi = 0
             var n = 0
-            val case = if (night) Color(0xFF050A16) else Color.White
+            // by day the line is saturated on the snow (round 4, the designer's point 5): a thin dark case under it, and the
+            // scale from its second step, so a slow stretch is lilac and not near white; at night as on the mountain
+            val case = if (night) Color(0xFF050A16) else Color(0x8C0E2233)
             var prevEnd: Offset? = null
             for (l in parts) {
                 val first = at(l.xy[0], l.xy[1])
@@ -202,8 +204,8 @@ internal fun RunFilm(d: DayModel.Descent, seg: org.json.JSONObject?, segs: List<
                 for (i in 0 until l.band.size - 1) {
                     if (n++ >= shown) break
                     val a = at(l.xy[i * 2], l.xy[i * 2 + 1]); val b = at(l.xy[i * 2 + 2], l.xy[i * 2 + 3])
-                    drawLine(case, a, b, 7f * dens, cap = StrokeCap.Round)
-                    drawLine(Color(0xFF000000.toInt() or ramp[l.band[i]]), a, b, 4.2f * dens, cap = StrokeCap.Round)
+                    drawLine(case, a, b, if (night) 7f * dens else 5.6f * dens, cap = StrokeCap.Round)
+                    drawLine(Color(0xFF000000.toInt() or ramp[if (night) l.band[i] else maxOf(1, l.band[i])]), a, b, 4.2f * dens, cap = StrokeCap.Round)
                 }
                 prevEnd = at(l.xy[l.xy.size - 2], l.xy[l.xy.size - 1])
             }
@@ -242,7 +244,7 @@ internal fun RunFilm(d: DayModel.Descent, seg: org.json.JSONObject?, segs: List<
             .padding(horizontal = 16.dp, vertical = 12.dp), horizontalArrangement = Arrangement.spacedBy(18.dp), verticalAlignment = Alignment.Bottom) {
             val ms = d.movingS.toInt()
             for ((v, key) in listOf(String.format(Locale.ROOT, "%.1f", d.distM / 1000.0) to R.string.app_run_km,
-                String.format(Locale.ROOT, "%,d", Math.round(d.dropM)) to R.string.app_rec_m_down,
+                metres(d.dropM) to R.string.app_rec_m_down,
                 String.format(Locale.ROOT, "%d:%02d", ms / 60, ms % 60) to R.string.app_film_moving_min)) {
                 Column {
                     Text(v, fontFamily = Plex, fontWeight = FontWeight.Light, fontSize = 30.sp, color = ink)

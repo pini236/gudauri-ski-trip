@@ -92,7 +92,7 @@ internal fun DayStory(story: StoryData, sm: DayModel.Summary, paint: DayPaint.Da
     val rtl = LocalLayoutDirection.current == LayoutDirection.Rtl
     // run names are isolated so a Latin name with a number reads whole inside a Hebrew sentence ("Sadzele 1", not "1 Sadzele")
     val name: (String) -> String = { k -> "\u2068" + titleOf(runs, k) + "\u2069" }
-    val words = remember(ctx) { MomentText.Words(ctx, locale) }
+    val words = remember(ctx) { MomentText.Words(ctx, locale, group = true) }
     val cards = remember(story) { story.cards().filter { it.getString("key") != "fall" && it.getString("key") != "offpiste" } }
     val head = remember(story, sm) { words.render(MomentText.head(story.theme, sm.descents, sm.dropM, sm.distM, locale), Moments.seed("story.head", sm.start)) }
     LaunchedEffect(story) {

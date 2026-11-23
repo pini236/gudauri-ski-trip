@@ -118,7 +118,7 @@ internal fun DayList(mode: DayNight.Mode, haptics: Haptics, onOpen: (String) -> 
     var sure by remember { mutableStateOf<String?>(null) }
     var swiped by remember { mutableStateOf<String?>(null) }
     LaunchedEffect(version) {
-        val words = MomentText.Words(ctx, locale)
+        val words = MomentText.Words(ctx, locale, group = true)
         val (d, t) = withContext(Dispatchers.IO) {
             val t = runCatching { io.github.pini236.skiapp.trip.TripStore(ctx).load()?.skiDays() }.getOrNull()
             DayRec.store(ctx).days().asReversed().map { f -> listed(ctx, f, zone, locale, words) } to t
