@@ -1321,6 +1321,94 @@
    "h": 844,
    "title": "10 · אני: הימים שלי בראש",
    "page": "gap4"
+  },
+  "T00-Brief.dc.html": {
+   "x": 0,
+   "y": 0,
+   "w": 1280,
+   "h": 1400,
+   "title": "חלק 5: מה שתואר רק במילים",
+   "page": "gap5"
+  },
+  "T01-NewGroup.dc.html": {
+   "x": 0,
+   "y": 1780,
+   "w": 390,
+   "h": 844,
+   "title": "1 · קבוצה חדשה",
+   "page": "gap5"
+  },
+  "T02-AlreadyIn.dc.html": {
+   "x": 470,
+   "y": 1780,
+   "w": 390,
+   "h": 844,
+   "title": "2 · אני כבר בקבוצה",
+   "page": "gap5"
+  },
+  "T03-Pending.dc.html": {
+   "x": 940,
+   "y": 1780,
+   "w": 390,
+   "h": 844,
+   "title": "3 · ממתין לאישור מנהל",
+   "page": "gap5"
+  },
+  "T04-MemberMenu.dc.html": {
+   "x": 0,
+   "y": 3290,
+   "w": 390,
+   "h": 844,
+   "title": "4 · חברים: התפריט של חבר",
+   "page": "gap5"
+  },
+  "T05-NameDates.dc.html": {
+   "x": 470,
+   "y": 3290,
+   "w": 390,
+   "h": 844,
+   "title": "5 · מנהל: שם ותאריכים",
+   "page": "gap5"
+  },
+  "T06-LeaveDelete.dc.html": {
+   "x": 940,
+   "y": 3290,
+   "w": 390,
+   "h": 844,
+   "title": "6 · מנהל: עזיבה ומחיקה, הנגיעה השנייה",
+   "page": "gap5"
+  },
+  "T07-DeleteAccount.dc.html": {
+   "x": 0,
+   "y": 4800,
+   "w": 390,
+   "h": 844,
+   "title": "7 · מחיקת חשבון: האישור",
+   "page": "gap5"
+  },
+  "T08-Licences.dc.html": {
+   "x": 470,
+   "y": 4800,
+   "w": 390,
+   "h": 844,
+   "title": "8 · רישיונות",
+   "page": "gap5"
+  },
+  "T09-TripForm.dc.html": {
+   "x": 940,
+   "y": 4800,
+   "w": 390,
+   "h": 844,
+   "title": "9 · הטיול שלך: הטופס המלא",
+   "page": "gap5"
+  },
+  "T10-Places.dc.html": {
+   "x": 1410,
+   "y": 4800,
+   "w": 390,
+   "h": 844,
+   "title": "10 · כל המקומות ליד תחנה",
+   "page": "gap5"
   }
  },
  "createdOnFiles": {
@@ -1647,6 +1735,42 @@
    "w": 760,
    "y": 4530,
    "text": "ג · מצפן, פעם ראשונה, הימים שלי"
+  },
+  "tT": {
+   "kind": "title1",
+   "maxW": 1600,
+   "page": "gap5",
+   "x": 0,
+   "w": 1100,
+   "y": -300,
+   "text": "סבב ההשלמה · חלק 5 · מה שתואר רק במילים (23.11.2026)"
+  },
+  "tT1": {
+   "kind": "title1",
+   "maxW": 1600,
+   "page": "gap5",
+   "x": 0,
+   "w": 620,
+   "y": 1480,
+   "text": "א · נכנסים לקבוצה"
+  },
+  "tT2": {
+   "kind": "title1",
+   "maxW": 1600,
+   "page": "gap5",
+   "x": 0,
+   "w": 620,
+   "y": 2990,
+   "text": "ב · מנהלים קבוצה"
+  },
+  "tT3": {
+   "kind": "title1",
+   "maxW": 1600,
+   "page": "gap5",
+   "x": 0,
+   "w": 820,
+   "y": 4500,
+   "text": "ג · חשבון, רישיונות, טיול, מקומות"
   }
  },
  "order": [
@@ -1814,7 +1938,18 @@
   "S07-RunWhole.dc.html",
   "S08-Compass.dc.html",
   "S09-FirstTime.dc.html",
-  "S10-YouMyDays.dc.html"
+  "S10-YouMyDays.dc.html",
+  "T00-Brief.dc.html",
+  "T01-NewGroup.dc.html",
+  "T02-AlreadyIn.dc.html",
+  "T03-Pending.dc.html",
+  "T04-MemberMenu.dc.html",
+  "T05-NameDates.dc.html",
+  "T06-LeaveDelete.dc.html",
+  "T07-DeleteAccount.dc.html",
+  "T08-Licences.dc.html",
+  "T09-TripForm.dc.html",
+  "T10-Places.dc.html"
  ],
  "pages": [
   {
@@ -1824,6 +1959,10 @@
   {
    "id": "nav",
    "name": "המפה · מה צויר, מה נשאר, ואיך מגיעים"
+  },
+  {
+   "id": "gap5",
+   "name": "השלמה ה · מה שתואר במילים"
   },
   {
    "id": "gap4",
