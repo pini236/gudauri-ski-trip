@@ -21920,6 +21920,507 @@
     "ka"
    ]
   },
+  "app.mtn_now_title": {
+   "he": "ההר עכשיו",
+   "en": "The mountain now",
+   "ru": "Гора сейчас",
+   "ka": "მთა ახლა",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 4 (סעיף 11 ב-design/handoff/2026-11-23-redesign-on-mountain): כותרת הגיליון של הגלולה",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.dock_village": {
+   "he": "הכפר",
+   "en": "The village",
+   "ru": "Деревня",
+   "ka": "სოფელი",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 4 (סעיף 11 ב-design/handoff/2026-11-23-redesign-on-mountain): כפתור בסרגל התחתון",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.dock_find": {
+   "he": "לאן יורדים?",
+   "en": "Where to?",
+   "ru": "Куда спускаемся?",
+   "ka": "საით ჩავდივართ?",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 4 (סעיף 11 ב-design/handoff/2026-11-23-redesign-on-mountain): שדה המדף (K06)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.map_layers_a11y": {
+   "he": "שכבות",
+   "en": "Layers",
+   "ru": "Слои",
+   "ka": "ფენები",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 4 (סעיף 11 ב-design/handoff/2026-11-23-redesign-on-mountain): לקורא מסך",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.map_home_view_a11y": {
+   "he": "חזרה למבט הפתיחה",
+   "en": "Back to the opening view",
+   "ru": "Вернуться к исходному виду",
+   "ka": "საწყის ხედზე დაბრუნება",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 4 (סעיף 11 ב-design/handoff/2026-11-23-redesign-on-mountain): המצפן; מחליף את map.compass בשפה החדשה (map.compass נשאר כמו שהוא)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.loc_ask_mountain": {
+   "he": "פועל רק כשההר פתוח והכפתור דלוק.",
+   "en": "Works only while the mountain is open and the button is on.",
+   "ru": "Работает, только пока открыта гора и кнопка включена.",
+   "ka": "მუშაობს მხოლოდ მაშინ, როცა მთა ღიაა და ღილაკი ჩართულია.",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 4 (סעיף 11 ב-design/handoff/2026-11-23-redesign-on-mountain): מחליף את loc.ask_map (בלי סוללה ובלי מפה; loc.ask_map נשאר)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.wx_snow_cap": {
+   "he": "שלג חדש",
+   "en": "New snow",
+   "ru": "Новый снег",
+   "ka": "ახალი თოვლი",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 4 (סעיף 11 ב-design/handoff/2026-11-23-redesign-on-mountain): מתחת למספר",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.wx_snow_n": {
+   "he": "{n} ס״מ",
+   "en": "{n} cm",
+   "ru": "{n} см",
+   "ka": "{n} სმ",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 4 (סעיף 11 ב-design/handoff/2026-11-23-redesign-on-mountain): המספר מעל הכיתוב",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.wx_no_snow": {
+   "he": "בלי שלג",
+   "en": "No snow",
+   "ru": "Без снега",
+   "ka": "თოვლის გარეშე",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 4 (סעיף 11 ב-design/handoff/2026-11-23-redesign-on-mountain): בכרטיס היום; קצר מ-weather.no_new_snow",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.run_cond_wind": {
+   "he": "רוח {wind} קמ״ש",
+   "en": "Wind {wind} km/h",
+   "ru": "Ветер {wind} км/ч",
+   "ka": "ქარი {wind} კმ/სთ",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 4 (סעיף 11 ב-design/handoff/2026-11-23-redesign-on-mountain): בכרטיס התנאים",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.run_videos_n": {
+   "he": "סרטונים · {n}",
+   "en": "Videos · {n}",
+   "ru": "Видео · {n}",
+   "ka": "ვიდეოები · {n}",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 4 (סעיף 11 ב-design/handoff/2026-11-23-redesign-on-mountain): כותרת הקטע",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.run_videos_all": {
+   "he": {
+    "one": "הסרטון היחיד",
+    "two": "שני הסרטונים",
+    "other": "כל {n} הסרטונים"
+   },
+   "en": {
+    "one": "The only video",
+    "other": "All {n} videos"
+   },
+   "ru": {
+    "one": "Единственное видео",
+    "few": "Все {n} видео",
+    "many": "Все {n} видео",
+    "other": "Все {n} видео"
+   },
+   "ka": {
+    "one": "ერთადერთი ვიდეო",
+    "other": "ყველა {n} ვიდეო"
+   },
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 4 (סעיף 11 ב-design/handoff/2026-11-23-redesign-on-mountain): כפתור; כל {n} כשיש יותר מאחד",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.hint_run": {
+   "he": "נוגעים במסלול, והוא נדלק מלמעלה עד למטה.",
+   "en": "Tap a run and it lights up from top to bottom.",
+   "ru": "Коснитесь трассы, и она подсветится сверху вниз.",
+   "ka": "შეეხეთ ტრასას და ის ზემოდან ქვემოთ აინთება.",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 4 (סעיף 11 ב-design/handoff/2026-11-23-redesign-on-mountain): רמז ראשון",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.hint_find": {
+   "he": "כל המסלולים במקום אחד, לפי צבע.",
+   "en": "All runs in one place, by color.",
+   "ru": "Все трассы в одном месте, по цвету.",
+   "ka": "ყველა ტრასა ერთ ადგილას, ფერის მიხედვით.",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 4 (סעיף 11 ב-design/handoff/2026-11-23-redesign-on-mountain): רמז שני",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.hint_village": {
+   "he": "בכפר: הטיול שלך, החבר׳ה, כרטיס הסקי והבקתה.",
+   "en": "In the village: your trip, the crew, the ski pass and the cabin.",
+   "ru": "В деревне: ваша поездка, компания, ски-пасс и хижина.",
+   "ka": "სოფელში: თქვენი მოგზაურობა, ჯგუფი, სათხილამურო ბარათი და ქოხი.",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 4 (סעיף 11 ב-design/handoff/2026-11-23-redesign-on-mountain): רמז שלישי",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.hint_close_a11y": {
+   "he": "סגירת הרמז",
+   "en": "Close the hint",
+   "ru": "Закрыть подсказку",
+   "ka": "მინიშნების დახურვა",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 4 (סעיף 11 ב-design/handoff/2026-11-23-redesign-on-mountain): לקורא מסך",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.me_days_sub": {
+   "he": {
+    "one": "יום גלישה אחד · השיאים שלך",
+    "two": "יומיים של גלישה · השיאים שלך",
+    "other": "{n} ימי גלישה · השיאים שלך"
+   },
+   "en": {
+    "one": "{n} ski day · your records",
+    "other": "{n} ski days · your records"
+   },
+   "ru": {
+    "one": "{n} день катания · ваши рекорды",
+    "few": "{n} дня катания · ваши рекорды",
+    "many": "{n} дней катания · ваши рекорды",
+    "other": "{n} дней катания · ваши рекорды"
+   },
+   "ka": {
+    "one": "{n} სათხილამურო დღე · თქვენი რეკორდები",
+    "other": "{n} სათხილამურო დღე · თქვენი რეკორდები"
+   },
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 4 (סעיף 11 ב-design/handoff/2026-11-23-redesign-on-mountain): שורת משנה ב\"הימים שלי\"",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.pill_lifts_temp": {
+   "he": "{open} מתוך {all} רכבלים פתוחים · {temp}",
+   "en": "{open} of {all} lifts open · {temp}",
+   "ru": "Открыто подъёмников: {open} из {all} · {temp}",
+   "ka": "ღიაა {open} საბაგირო {all}-დან · {temp}",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 4 (סעיף 11 ב-design/handoff/2026-11-23-redesign-on-mountain): גלולה קצרה, בלי \"בפסגה\"",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.g_back_to": {
+   "he": "חוזרים ל",
+   "en": "Back to",
+   "ru": "Возвращаемся в",
+   "ka": "ვბრუნდებით:",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 5 (סעיף 10 ב-design/handoff/2026-11-23-redesign-in-words): מעל שם הקבוצה; מילת יחס שמתחברת לשם",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.g_dates_from_trip": {
+   "he": "התאריכים מ״הטיול שלך״. אפשר לשנות.",
+   "en": "Dates from “Your trip”. You can change them.",
+   "ru": "Даты из «Вашей поездки». Их можно изменить.",
+   "ka": "თარიღები „თქვენი მოგზაურობიდან“. შეგიძლიათ შეცვალოთ.",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 5 (סעיף 10 ב-design/handoff/2026-11-23-redesign-in-words): קבוצה חדשה (T00); a_delete_more ו-g_fill_title לא נוספו: משתמשים ב-acct.delete_more וב-group.trip_for הקיימים",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.licenses_fonts": {
+   "he": "גופנים",
+   "en": "Fonts",
+   "ru": "Шрифты",
+   "ka": "შრიფტები",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 5 (סעיף 10 ב-design/handoff/2026-11-23-redesign-in-words): כותרת קבוצה במסך הרישיונות",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.licenses_libs": {
+   "he": "ספריות",
+   "en": "Libraries",
+   "ru": "Библиотеки",
+   "ka": "ბიბლიოთეკები",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 5 (סעיף 10 ב-design/handoff/2026-11-23-redesign-in-words): כותרת קבוצה במסך הרישיונות",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.trip_back_auto": {
+   "he": "אוטומטית",
+   "en": "Automatic",
+   "ru": "Автоматически",
+   "ka": "ავტომატურად",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 5 (סעיף 10 ב-design/handoff/2026-11-23-redesign-in-words): קצר מ-trip.back_auto, בשורת טיסת החזור",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.places_head_n": {
+   "he": {
+    "one": "{lift} · מקום אחד, עד {m} מ׳",
+    "two": "{lift} · שני מקומות, עד {m} מ׳",
+    "other": "{lift} · {n} מקומות, עד {m} מ׳"
+   },
+   "en": {
+    "one": "{lift} · {n} place, up to {m} m",
+    "other": "{lift} · {n} places, up to {m} m"
+   },
+   "ru": {
+    "one": "{lift} · {n} место, до {m} м",
+    "few": "{lift} · {n} места, до {m} м",
+    "many": "{lift} · {n} мест, до {m} м",
+    "other": "{lift} · {n} места, до {m} м"
+   },
+   "ka": {
+    "one": "{lift} · {n} ადგილი, {m} მ-მდე",
+    "other": "{lift} · {n} ადგილი, {m} მ-მდე"
+   },
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 5 (סעיף 10 ב-design/handoff/2026-11-23-redesign-in-words): כותרת רשימת המקומות; שם הרכבל לא מתורגם",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.places_unnamed": {
+   "he": "בלי שם במפה",
+   "en": "Unnamed on the map",
+   "ru": "Без названия на карте",
+   "ka": "უსახელო რუკაზე",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 5 (סעיף 10 ב-design/handoff/2026-11-23-redesign-in-words): מקום ממופה בלי שם",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.notif_ask_title": {
+   "he": "להזכיר לך רבע שעה לפני?",
+   "en": "Remind you 15 minutes before?",
+   "ru": "Напомнить за 15 минут?",
+   "ka": "შეგახსენოთ 15 წუთით ადრე?",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 6 (סעיף 8 ב-design/handoff/2026-11-23-redesign-edges): גיליון לפני שאלת ההרשאה של הטלפון",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.notif_ask_text": {
+   "he": "הטלפון מזכיר בעצמו, גם בלי קליטה על ההר. אפשר לכבות לכל מפגש בנפרד.",
+   "en": "Your phone reminds you by itself, even with no signal on the mountain. You can turn it off for each meetup.",
+   "ru": "Телефон напомнит сам, даже без связи на горе. Для каждой встречи можно отключить.",
+   "ka": "ტელეფონი თავად შეგახსენებთ, მთაზე კავშირის გარეშეც. თითოეული შეხვედრისთვის შეგიძლიათ გამორთოთ.",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 6 (סעיף 8 ב-design/handoff/2026-11-23-redesign-edges): גוף הגיליון",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.notif_ask_go": {
+   "he": "להדליק תזכורות",
+   "en": "Turn on reminders",
+   "ru": "Включить напоминания",
+   "ka": "შეხსენებების ჩართვა",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 6 (סעיף 8 ב-design/handoff/2026-11-23-redesign-edges): הכפתור הראשי",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.notif_ask_after": {
+   "he": "אחרי \"להדליק תזכורות\" הטלפון ישאל אם לאשר התראות.",
+   "en": "After “Turn on reminders” your phone will ask whether to allow notifications.",
+   "ru": "После «Включить напоминания» телефон спросит, разрешить ли уведомления.",
+   "ka": "„შეხსენებების ჩართვის“ შემდეგ ტელეფონი გკითხავთ, დაუშვას თუ არა შეტყობინებები.",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 6 (סעיף 8 ב-design/handoff/2026-11-23-redesign-edges): שורה קטנה מתחת לכפתור",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.notif_off": {
+   "he": "ההתראות כבויות בטלפון",
+   "en": "Notifications are off on your phone",
+   "ru": "Уведомления отключены в телефоне",
+   "ka": "შეტყობინებები გამორთულია ტელეფონში",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 6 (סעיף 8 ב-design/handoff/2026-11-23-redesign-edges): כותרת מצב",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.notif_off_sub": {
+   "he": "התזכורת לא תגיע",
+   "en": "The reminder won’t arrive",
+   "ru": "Напоминание не придёт",
+   "ka": "შეხსენება არ მოვა",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 6 (סעיף 8 ב-design/handoff/2026-11-23-redesign-edges): שורת משנה",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.now_offline": {
+   "he": "אין מידע עדכני · בלי קליטה",
+   "en": "No current data · offline",
+   "ru": "Нет свежих данных · нет связи",
+   "ka": "განახლებული ინფორმაცია არ არის · კავშირის გარეშე",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 6 (סעיף 8 ב-design/handoff/2026-11-23-redesign-edges): בגלולה של ההר",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.offline_title": {
+   "he": "בלי קליטה",
+   "en": "No signal",
+   "ru": "Нет связи",
+   "ka": "კავშირი არ არის",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 6 (סעיף 8 ב-design/handoff/2026-11-23-redesign-edges): כותרת",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.g_wait_tag": {
+   "he": "מחכה לקליטה",
+   "en": "Waiting for signal",
+   "ru": "Ждёт связи",
+   "ka": "კავშირს ელოდება",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 6 (סעיף 8 ב-design/handoff/2026-11-23-redesign-edges): תג על שינוי שעוד לא נשלח לקבוצה",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.retry": {
+   "he": "לנסות שוב",
+   "en": "Try again",
+   "ru": "Повторить",
+   "ka": "ხელახლა ცდა",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 6 (סעיף 8 ב-design/handoff/2026-11-23-redesign-edges): כפתור ליד שגיאה; זהה בנוסחו ל-game.school.try_again, מפתח נפרד כי זה כפתור כללי",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.update_go": {
+   "he": "עדכון",
+   "en": "Update",
+   "ru": "Обновить",
+   "ka": "განახლება",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 6 (סעיף 8 ב-design/handoff/2026-11-23-redesign-edges): ליד \"צריך לעדכן את האפליקציה\"",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.replay_live": {
+   "he": "מוקלט",
+   "en": "Recording",
+   "ru": "Идёт запись",
+   "ka": "იწერება",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 6 (סעיף 8 ב-design/handoff/2026-11-23-redesign-edges): תג כשהקלטת השימוש פעילה; לקורא מסך: \"ההקלטה פעילה. נגיעה פותחת את ההגדרות\"",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.replay_live_a11y": {
+   "he": "ההקלטה פעילה. נגיעה פותחת את ההגדרות",
+   "en": "Recording is on. Tap to open settings.",
+   "ru": "Запись включена. Коснитесь, чтобы открыть настройки.",
+   "ka": "ჩაწერა ჩართულია. შეხება გახსნის პარამეტრებს.",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 6 (סעיף 8 ב-design/handoff/2026-11-23-redesign-edges): לקורא מסך של התג",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
   "app.me_title": {
    "he": "אני",
    "en": "Me",
