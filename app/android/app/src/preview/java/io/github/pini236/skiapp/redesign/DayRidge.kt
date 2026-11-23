@@ -149,7 +149,7 @@ internal fun DayRidge(paint: DayPaint.Day, elev: FloatArray, day: DayModel.Day, 
                     for ((r, w) in breakWords) {
                         val x = px(r.t0 + r.minutes * 30_000L)
                         val tl = measurer.measure(w, small)
-                        drawText(tl, topLeft = Offset((x - tl.size.width / 2f).coerceIn(0f, size.width - tl.size.width), top - tl.size.height - 2 * dens))
+                        drawText(tl, topLeft = Offset((x - tl.size.width / 2f).coerceIn(0f, (size.width - tl.size.width).coerceAtLeast(0f)), top - tl.size.height - 2 * dens))
                     }
                     // the top speed's bubble
                     val mt = sm.maxAt
@@ -158,7 +158,7 @@ internal fun DayRidge(paint: DayPaint.Day, elev: FloatArray, day: DayModel.Day, 
                         val p = Offset(px(mt), py(elev[k]))
                         val tl = measurer.measure(bubble, TextStyle(fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 11.sp, color = Color.White))
                         val w = tl.size.width + 16 * dens; val bh = tl.size.height + 6 * dens
-                        val left = (p.x - w / 2).coerceIn(0f, size.width - w); val y = (p.y - 10 * dens - bh).coerceAtLeast(0f)
+                        val left = (p.x - w / 2).coerceIn(0f, (size.width - w).coerceAtLeast(0f)); val y = (p.y - 10 * dens - bh).coerceAtLeast(0f)
                         drawLine(Color(0xFF0E2233), p, Offset(p.x, y + bh), 1.2f * dens)
                         drawRoundRect(Color(0xFF0E2233), Offset(left, y), Size(w, bh), androidx.compose.ui.geometry.CornerRadius(bh / 2))
                         drawText(tl, topLeft = Offset(left + 8 * dens, y + 3 * dens))

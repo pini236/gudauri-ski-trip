@@ -314,8 +314,8 @@ internal object OnMountain {
         val cover = maxOf(w / vw, h / vh)
         if (a0 > a1) return floatArrayOf(cover, (w - vw * cover) / 2, (h - vh * cover) / 2)
         val k = minOf((w - pad * 2) / (a1 - a0).coerceAtLeast(1f), (area - pad * 2) / (b1 - b0).coerceAtLeast(1f)).coerceIn(cover, cover * maxZoom)
-        val ox = (w / 2f - (a0 + a1) / 2 * k).coerceIn(w - vw * k, 0f)
-        val oy = (area / 2f - (b0 + b1) / 2 * k).coerceIn(h - vh * k, 0f)
+        val ox = (w / 2f - (a0 + a1) / 2 * k).coerceIn(minOf(w - vw * k, 0f), 0f)
+        val oy = (area / 2f - (b0 + b1) / 2 * k).coerceIn(minOf(h - vh * k, 0f), 0f)
         return floatArrayOf(k, ox, oy)
     }
 

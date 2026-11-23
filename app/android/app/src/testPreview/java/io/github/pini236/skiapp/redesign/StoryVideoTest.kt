@@ -46,4 +46,18 @@ class StoryVideoTest {
             org.junit.Assert.assertEquals(lon, MapMetres.lon(x), 1e-5)
         }
     }
+
+    /** The emulator's crash (21 November's trip card): at the covering scale the picture's edge is a rounding hair inside
+     *  the card, and the offset's range went empty. For every card size and any day, the placement never throws and
+     *  the picture covers the card. */
+    @Test fun thePlacementNeverThrowsAndAlwaysCovers() {
+        val v = PeakData.parse(File("src/preview/assets/redesign/peak-poc.json").readText()).hero
+        val days = listOf(emptyList(), listOf(floatArrayOf(100f, 200f, 300f, 400f)), listOf(floatArrayOf(5f, 5f)), listOf(floatArrayOf(0f, 0f, v.w, v.h)))
+        for (w in listOf(1f, 100f, 333.3f, 359.7f, 391.5f, 1007f, 1080f)) for (h in listOf(1f, 120f, 300f, 787.5f, 1350f, 2400f))
+            for (day in days) for (area in listOf(h, h - 120f, 1f)) {
+                val p = OnMountain.place(v, day, w, h, minOf(w, h) * .08f, area)
+                val k = p[0]; val ox = p[1]; val oy = p[2]
+                assertTrue("$w x $h", ox <= 0f && oy <= 0f && ox + v.w * k >= w - 0.5f && oy + v.h * k >= h - 0.5f)
+            }
+    }
 }
