@@ -362,6 +362,8 @@ class DayRecService : Service() {
         runCatching { if (reason == DayRec.REASON_FULL) log?.full(at) else log?.stop(at, reason) }
         Diag.log("dayrec finishing reason=$reason fixes=$fixes")
         if (log != null) DayRec.stopped(minutes, reason)
+        // one descent ended (completion part 1, P04): why it stopped and on which lift, before the engine goes
+        val run = engine?.takeIf { it.isRun }?.let { e -> Pair(e.snapshot?.autostop?.reason, e.snapshot?.lift) }
         log = null
         DayRec.finishing = file != null
         teardown()
@@ -375,6 +377,8 @@ class DayRecService : Service() {
         Thread {
             runCatching { DayAnalysis.ensure(ctx, file) }.onFailure { Qa.log("dayrec result failed: ${it.javaClass.simpleName}") }
                 .onSuccess { Qa.log("dayrec result ${if (it != null) "written" else "none"}") }
+            // the test build's redesign: the card, and the notification in the pocket (the store build does nothing)
+            if (run != null) runCatching { io.github.pini236.skiapp.redesign.Redesign.runDone(ctx, file, run.first, run.second) }
             done()
         }.start()
     }

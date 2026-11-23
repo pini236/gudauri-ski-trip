@@ -1234,6 +1234,15 @@ redesign() {
   mark; qa "--es qa.mode night"; waitlog "redesign live day drawn .* night" 40 || fail "redesign: the day was not drawn at night"
   sleep 3; shot redesign-day-night
   qa "--es qa.mode auto --es qa.tab home"; waitlog "redesign day closed" 15; sleep 1
+  # completion part 1 (P04): one descent, its pill, and its card once it ends (stopped here by hand: no reason line)
+  mark; qa "--es qa.mode day --es qa.stats off --es qa.tab day"; waitlog "redesign rec open" 20 || fail "redesign: the live screen did not open for one descent"
+  waitlog "redesign live drawn" 60
+  mark; qa "--es qa.dayrec startrun"; waitlog "dayrec start result Started" 20 || fail "redesign: one descent did not start"
+  geo 42.482631 44.483401; dayrec_walk 8; sleep 3; shot redesign-rec-one
+  mark; qa "--es qa.dayrec stop"
+  if waitlog "redesign run done card" 60; then sleep 4; shot redesign-run-done; else fail "redesign: the card of one descent did not show"; fi
+  mark; adb shell input keyevent 4; sleep 2
+  qa "--es qa.mode auto --es qa.tab home"; sleep 1
   # board L12: my days, with the sample day (the reference tool's whole day, 11.1.2027) recorded as a day and the trip
   # around it, so the trip's card shows its lines (the day just ended is outside it, a row of its own)
   local fxd; fxd="$(cd "$(dirname "$0")/../../.." && pwd)/tools/fixtures"

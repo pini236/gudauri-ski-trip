@@ -10,8 +10,10 @@ import io.github.pini236.skiapp.map.MapScene
 object Redesign {
     @Suppress("UNUSED_PARAMETER") fun qa(cmd: String) {}
 
+    @Suppress("UNUSED_PARAMETER") fun runDone(ctx: android.content.Context, day: java.io.File, autostop: String?, lift: String?) {}
+
     @Suppress("UNUSED_PARAMETER")
-    @Composable fun day(file: java.io.File, sample: Boolean, scene: MapScene?, mode: DayNight.Mode, haptics: Haptics, onBack: () -> Unit): Boolean = false
+    @Composable fun day(file: java.io.File, sample: Boolean, scene: MapScene?, mode: DayNight.Mode, haptics: Haptics, onAgain: () -> Unit = {}, onBack: () -> Unit): Boolean = false
 
     @Suppress("UNUSED_PARAMETER")
     @Composable fun live(scene: MapScene?, mode: DayNight.Mode, haptics: Haptics, liftName: (String) -> String, runName: (String) -> String,

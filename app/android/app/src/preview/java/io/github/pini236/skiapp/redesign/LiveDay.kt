@@ -224,7 +224,10 @@ fun LiveDay(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, liftName: (S
                 .border(1.dp, rule, RoundedCornerShape(22.dp)).clickable(role = Role.Button) { haptics.tick(.3f); onBack() }.padding(horizontal = 16.dp),
                 verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                 if (recording) Box(Modifier.size(12.dp).clip(CircleShape).background(red))
-                Text(stringResource(R.string.app_rec_now, LiveNumbers.elapsed(LiveNumbers.sinceTap(now, began))), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = ink)
+                // one descent says so in place of "recording" (completion part 1, P04)
+                val clock = LiveNumbers.elapsed(LiveNumbers.sinceTap(now, began))
+                Text(if (single) stringResource(R.string.app_rec_one) + " · \u2066$clock\u2069" else stringResource(R.string.app_rec_now, clock),
+                    fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = ink)
             }
             // all day or one descent (L02, L03): one wide bar, the choice in purple, as on the board. Quiet in a descent and
             // on the lift (L03, "quiet in a descent": only the speed, the run and finish); shown in the search and when

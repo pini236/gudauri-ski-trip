@@ -56,6 +56,9 @@ object Redesign {
     /** The emulator run's hook (qa.redesign, debug builds only, app/android/qa/README.md). */
     fun qa(cmd: String) = RedesignQa.send(cmd)
 
+    /** Completion part 1 (P04): a recording of one descent ended; its card waits, and a notification in the pocket. */
+    fun runDone(ctx: android.content.Context, day: java.io.File, autostop: String?, lift: String?) = RunDone.ended(ctx, day, autostop, lift)
+
     /**
      * Round 4 (decision 84, board L06): the end of a day on the live mountain, in place of today's day screen. Behind
      * DAYREC_UI as the day itself (the route is only reached with it); in the debug build only when the emulator asks
@@ -63,9 +66,20 @@ object Redesign {
      * its timeline (L07), a descent there its film (L09), and "share" the story (L10) with its picture. Returns false when it does not show, and the caller draws today's screen.
      */
     @Composable
-    fun day(file: java.io.File, sample: Boolean, scene: MapScene?, mode: DayNight.Mode, haptics: Haptics, onBack: () -> Unit): Boolean {
+    fun day(file: java.io.File, sample: Boolean, scene: MapScene?, mode: DayNight.Mode, haptics: Haptics, onAgain: () -> Unit = {}, onBack: () -> Unit): Boolean {
         if (scene == null) return false
         if (io.github.pini236.skiapp.BuildConfig.DEBUG && !RedesignQa.dayOn) return false
+        // one descent that ended (completion part 1, P04): its card, until it is closed; then the day as usual
+        val ctx = androidx.compose.ui.platform.LocalContext.current
+        val id = file.name.removePrefix("day-").removeSuffix(".jsonl")
+        val pending = androidx.compose.runtime.remember(id) { androidx.compose.runtime.mutableStateOf(RunDone.pending(ctx)?.takeIf { it.id == id }) }
+        // stopped by hand, the card is set a moment later, once the recorder has written the result
+        androidx.compose.runtime.LaunchedEffect(id) {
+            while (io.github.pini236.skiapp.dayrec.DayRec.recording) kotlinx.coroutines.delay(300)
+            pending.value = RunDone.pending(ctx)?.takeIf { it.id == id }
+        }
+        val p = pending.value
+        if (p != null) { RunDoneCard(file, p, scene, mode, haptics, onAgain = { RunDone.clear(ctx); onAgain() }, onClose = { RunDone.clear(ctx); pending.value = null; onBack() }); return true }
         DayMountain(file, sample, scene, mode, haptics, onBack = onBack)
         return true
     }

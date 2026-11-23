@@ -91,7 +91,9 @@ import java.time.format.DateTimeFormatter
 @Composable
 fun DayMountain(file: File, sample: Boolean, scene: MapScene, mode: DayNight.Mode, haptics: Haptics,
                 /** While recording (completion part 1, "see the day"): the day so far, from the live analysis, not written anywhere. */
-                live: Boolean = false, openRidge: Boolean = false, onBack: () -> Unit) {
+                live: Boolean = false, openRidge: Boolean = false,
+                /** From the card of one descent (P04): straight into the film, or into the picture to share. */
+                openFilm: Boolean = false, openShare: Boolean = false, onBack: () -> Unit) {
     val context = LocalContext.current
     val zone = ZoneId.of(DayParams.TZ)
     var now by remember { mutableLongStateOf(System.currentTimeMillis()) }
@@ -113,14 +115,14 @@ fun DayMountain(file: File, sample: Boolean, scene: MapScene, mode: DayNight.Mod
         onDispose { life?.removeObserver(obs); view.release(); Qa.log("redesign day closed") }
     }
     // the film of the day (board L08): on, playing, and its clock in ms
-    var filming by remember { mutableStateOf(false) }
-    var playing by remember { mutableStateOf(false) }
+    var filming by remember { mutableStateOf(openFilm) }
+    var playing by remember { mutableStateOf(openFilm) }
     var fms by remember { mutableStateOf(0f) }
     // the ridge of the day and its timeline (board L07), opened from the card
     var ridge by androidx.compose.runtime.saveable.rememberSaveable(file.path) { mutableStateOf(openRidge) }
     // the story of the day (board L10), from the ridge's "share"
-    var story by androidx.compose.runtime.saveable.rememberSaveable(file.path) { mutableStateOf(false) }
-    var shareOnly by androidx.compose.runtime.saveable.rememberSaveable(file.path) { mutableStateOf(false) }
+    var story by androidx.compose.runtime.saveable.rememberSaveable(file.path) { mutableStateOf(openShare) }
+    var shareOnly by androidx.compose.runtime.saveable.rememberSaveable(file.path) { mutableStateOf(openShare) }
     BackHandler { if (story) story = false else if (ridge) ridge = false else if (filming) { filming = false; playing = false } else onBack() }
 
     class Loaded(val paint: DayPaint.Day, val day: DayModel.Day, val story: StoryData?, val elev: FloatArray, val segs: List<JSONObject>)
