@@ -113,9 +113,9 @@ object Redesign {
      * Round 4 (board L12): my days, with the trip as layers on one mountain, in place of today's list. Gated as [day].
      */
     @Composable
-    fun days(mode: DayNight.Mode, haptics: Haptics, onOpen: (String) -> Unit, scene: MapScene? = null, onBack: () -> Unit): Boolean {
+    fun days(mode: DayNight.Mode, haptics: Haptics, onOpen: (String) -> Unit, scene: MapScene? = null, onRecord: () -> Unit = {}, onBack: () -> Unit): Boolean {
         if (io.github.pini236.skiapp.BuildConfig.DEBUG && !RedesignQa.dayOn) return false
-        DayList(mode, haptics, onOpen, onBack, scene)
+        DayList(mode, haptics, onOpen, onBack, scene, onRecord)
         return true
     }
 

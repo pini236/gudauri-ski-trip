@@ -1242,6 +1242,9 @@ redesign() {
   d=2027-01-11
   mark; qa "--es qa.mode day --es qa.trip '{\"v\":1,\"out\":{\"date\":\"$d\",\"flight\":\"\",\"from\":\"TLV\",\"to\":\"TBS\"},\"ski\":{\"from\":\"$d\",\"to\":\"$d\"}}' --es qa.tab days"
   if waitlog "redesign days [1-9][0-9]* trip 1" 30; then sleep 2; shot redesign-days; else fail "redesign: my days did not show the trip"; fi
+  # completion part 1 (P05): your records, from the card at the top of my days (the replayed day counts; the example day does not)
+  mark; qa "--es qa.redesign records"; if waitlog "redesign records [1-6] mountain" 40; then sleep 2; shot redesign-records; else fail "redesign: the records did not show on the mountain"; fi
+  qa "--es qa.redesign records:off"; sleep 1
   qa "--es qa.mode auto --es qa.trip none --es qa.tab home"; sleep 1
 }
 

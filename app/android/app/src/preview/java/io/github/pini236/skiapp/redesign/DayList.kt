@@ -52,6 +52,7 @@ import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.IntOffset
@@ -99,7 +100,12 @@ internal class ListedDay(val file: File, val id: String, val date: LocalDate, va
                          val head: String?, val lines: List<DayPaint.Line>)
 
 @Composable
-internal fun DayList(mode: DayNight.Mode, haptics: Haptics, onOpen: (String) -> Unit, onBack: () -> Unit, scene: io.github.pini236.skiapp.map.MapScene? = null) {
+internal fun DayList(mode: DayNight.Mode, haptics: Haptics, onOpen: (String) -> Unit, onBack: () -> Unit, scene: io.github.pini236.skiapp.map.MapScene? = null,
+                     onRecord: () -> Unit = {}) {
+    // your records (completion part 1, P05 and P06), from the card at the top
+    var records by androidx.compose.runtime.saveable.rememberSaveable { mutableStateOf(false) }
+    LaunchedEffect(RedesignQa.seq) { when (RedesignQa.cmd) { "records" -> records = true; "records:off" -> records = false } }
+    if (records) { RecordsScreen(mode, scene, haptics, onOpenDay = { records = false; onOpen(it) }, onRecord = { records = false; onRecord() }) { records = false }; return }
     BackHandler { onBack() }
     val ctx = LocalContext.current
     val locale = ctx.resources.configuration.locales[0]
@@ -137,6 +143,16 @@ internal fun DayList(mode: DayNight.Mode, haptics: Haptics, onOpen: (String) -> 
             verticalArrangement = Arrangement.spacedBy(10.dp)) {
             if (list != null && list.isEmpty()) item {
                 Text(stringResource(R.string.app_days_empty), Modifier.padding(4.dp), fontFamily = Plex, fontSize = 15.sp, color = muted)
+            }
+            // your records, against yourself only (board L12's card; P05)
+            if (list != null) item {
+                val title = stringResource(R.string.app_day_records)
+                Row(Modifier.fillMaxWidth().heightIn(min = 52.dp).clip(RoundedCornerShape(16.dp)).background(glass).border(1.dp, rule, RoundedCornerShape(16.dp))
+                    .semantics { role = Role.Button }.clickable { haptics.tick(.3f); Qa.log("redesign records card"); records = true }.padding(horizontal = 16.dp),
+                    verticalAlignment = Alignment.CenterVertically) {
+                    Text(title, Modifier.weight(1f), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = ink)
+                    Text(if (rtl) "‹" else "›", fontFamily = Plex, fontSize = 20.sp, color = muted)
+                }
             }
             // the trip as layers: each ski day of the trip in its colour, on one mountain
             if (tripDates.isNotEmpty()) item {

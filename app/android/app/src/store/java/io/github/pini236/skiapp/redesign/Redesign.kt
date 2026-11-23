@@ -29,7 +29,7 @@ object Redesign {
     fun noticeKey(live: io.github.pini236.skiapp.dayrec.DayEngine.Snapshot?, ride: io.github.pini236.skiapp.dayrec.DayEngine.Ride?): String = ""
 
     @Suppress("UNUSED_PARAMETER")
-    @Composable fun days(mode: DayNight.Mode, haptics: Haptics, onOpen: (String) -> Unit, scene: MapScene? = null, onBack: () -> Unit): Boolean = false
+    @Composable fun days(mode: DayNight.Mode, haptics: Haptics, onOpen: (String) -> Unit, scene: MapScene? = null, onRecord: () -> Unit = {}, onBack: () -> Unit): Boolean = false
 
     @Suppress("UNUSED_PARAMETER")
     @Composable fun BoxScope.Host(home: Boolean, mode: DayNight.Mode, haptics: Haptics, scene: MapScene?) {}
