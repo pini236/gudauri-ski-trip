@@ -8,7 +8,7 @@ OUT=${OUT:-qa-out}
 SCENARIO=${SCENARIO:-all}
 # Reject typos before touching the device. An unknown part used to run the entire suite.
 [[ "$SCENARIO" != *$'\n'* && "$SCENARIO" != *$'\r'* ]] || { echo "QA scenario must be a single line" >&2; exit 2; }
-ALL_SCENARIOS=(map descent games school snowball home group meet status run locate weather lang phone store bigtext)
+ALL_SCENARIOS=(map descent games school snowball home group meet status run locate weather lang phone store bigtext redesign)
 if [[ "$SCENARIO" == all ]]; then
   SCENARIOS=("${ALL_SCENARIOS[@]}")
 else
@@ -20,7 +20,7 @@ else
     part="${part#"${part%%[![:space:]]*}"}"
     part="${part%"${part##*[![:space:]]}"}"
     case "$part" in
-      map|descent|games|school|snowball|home|group|meet|status|run|locate|weather|lang|phone|store|bigtext|dayrecvideo) ;;
+      map|descent|games|school|snowball|home|group|meet|status|run|locate|weather|lang|phone|store|bigtext|dayrecvideo|redesign) ;;
       *) echo "Unknown or empty QA scenario: '$part'" >&2; exit 2 ;;
     esac
     [[ -z "${selected[$part]+present}" ]] || { echo "Duplicate QA scenario: '$part'" >&2; exit 2; }
@@ -220,8 +220,14 @@ descent() {
   for i in 1 2 3; do hold $((W / 2)) $((H / 2)) 700; sleep 0.6; shot "descent-jump-$i"; done
   hold $((W / 2)) $((H / 2)) 300; sleep 0.15; hold $((W / 2)) $((H / 2)) 1600; shot descent-flip
   sleep 6; shot descent-later
-  # straight to the bottom: the lift, the result, the copy for the group
-  mark; qa "--es qa.descent bottom"; sleep 4.5; shot descent-end
+  # straight to the bottom: the lift, the result, the copy for the group. The count is from the game's start (the mark above),
+  # not from here: on a slow emulator the shots above take so long that the avalanche may catch the skier first ("descent
+  # done ... caught", 14.11.2026, run 263), and then the run is over already: the shortcut would only revive it
+  if tail -n +"$((MARK + 1))" "$OUT/logcat.txt" | grep "SkiQa.*descent done" > /dev/null; then
+    note "the run ended by itself before the shortcut to the bottom (a slow emulator)"; sleep 1; shot descent-end
+  else
+    qa "--es qa.descent bottom"; sleep 4.5; shot descent-end
+  fi
   waitlog "descent done" 6
   [ -n "$(where "עוד ירידה")" ] || fail "no 'another run' after the descent"
   tapText "העתקת התוצאה לקבוצה" && { sleep .8; shot descent-copied; waitlog "descent copied" 3; }
@@ -477,6 +483,19 @@ home() {
   drag $((W / 2)) $((H * 3 / 4)) $((W / 2)) $((H / 4)) 400; sleep 1; shot home-guest-signs
   drag $((W / 2)) $((H / 4)) $((W / 2)) $((H * 3 / 4)) 300; sleep 0.5
 
+  # round 39: the countdown to the opening (the shot above is 19 days out), the day before, the day itself, and after it
+  # with no lift report: what was planned, never "delayed". The clock is the resort's own (Asia/Tbilisi)
+  qa "--es qa.time 2026-12-19T10:00"; sleep 1.5; shot home-season-tomorrow
+  qa "--es qa.time 2026-12-20T10:00"; sleep 1.5; shot home-season-today
+  qa "--es qa.time 2026-12-22T10:00"; sleep 1.5; shot home-season-late
+  qa "--es qa.time 2026-12-01T13:35"; sleep 1.5
+  # round 40: the ski-pass row opens the screen; five days and a child; eight days have no ticket (7 + 1), and the screen says so
+  tapText "כרטיס סקי" && sleep 1.5 && shot skipass-day
+  tapText "עוד יום סקי" && sleep 0.5 && shot skipass-five
+  tapText "~^ילד" && sleep 0.5 && shot skipass-child
+  tapText "עוד יום סקי" && tapText "עוד יום סקי" && tapText "עוד יום סקי" && sleep 0.5 && shot skipass-eight
+  adb shell input keyevent KEYCODE_BACK; sleep 1
+
   # round 20: the pass is the form. "When do you fly?" opens one calendar: two taps (out, back), the ski days shaded
   mark; tapText "מתי טסים?" && sleep 1.2 && shot trip-calendar
   tapText "~^20$" && sleep 0.5 && tapText "~^27$" && sleep 0.8 && shot trip-calendar-picked
@@ -517,8 +536,11 @@ home() {
   tapText "עריכה" && sleep 1.5 && shot trip-form-filled && adb shell input keyevent KEYCODE_BACK && sleep 1
 
   # the signs lead on, and back home
+  # (the season board under the pass pushes the signs below the fold: scroll to them first)
+  drag $((W / 2)) $((H * 3 / 4)) $((W / 2)) $((H / 4)) 400; sleep 1
   tapText "מפת מסלולים" && sleep 3 && shot home-sign-map
   tapText "בית" && sleep 1.5 && shot home-back
+  drag $((W / 2)) $((H * 3 / 4)) $((W / 2)) $((H / 4)) 400; sleep 1
   tapText "נקודת מפגש" && sleep 1 && shot home-sign-meet && adb shell input keyevent KEYCODE_BACK && sleep 1
   # home below the signs: the two links (A-32; round 20: no tally)
   drag $((W * 7 / 100)) $((H * 80 / 100)) $((W * 7 / 100)) $((H * 20 / 100)) 400; sleep 1; shot home-bottom
@@ -670,13 +692,20 @@ meet() {
   qa "--es qa.tab group/g1/meetups"; sleep 2
   tapText "~התחנה" && sleep 2 && shot meet-from-group
   qa "--es qa.group none --es qa.tab home"; sleep 1
-  # the notification permission is asked when the app first opens (the run installs with it granted): taken away, the
-  # next open asks, and "Allow" gives it back
+  # the notification permission is no longer asked when the app opens (15.11.2026): it is asked at the first tap on "Record"
+  # (and at the first meetup ahead). Taken away, an open asks nothing; the tap on the entry asks, and "Allow" gives it back
   adb shell pm revoke "$PKG" android.permission.POST_NOTIFICATIONS > /dev/null 2>&1
   adb shell pm clear-permission-flags "$PKG" android.permission.POST_NOTIFICATIONS user-set user-fixed > /dev/null 2>&1 || true
+  adb shell pm revoke "$PKG" android.permission.ACCESS_FINE_LOCATION > /dev/null 2>&1 || true
+  adb shell pm revoke "$PKG" android.permission.ACCESS_COARSE_LOCATION > /dev/null 2>&1 || true
   adb shell am force-stop "$PKG"; sleep 1
-  mark; adb shell am start -n "$ACT" > /dev/null; waitlog "notifications asked" 30 && { sleep 2; shot first-open-notifications
-    tapText "Allow" && waitlog "notifications allowed" 10 && { sleep 1; shot first-open-allowed; }; }
+  mark; adb shell am start -n "$ACT" > /dev/null; waitlog "scene ready" 60
+  seen "notifications asked" 6 && fail "the app asked about notifications when it opened"
+  if [ -n "$(where 'מקליטים')" ]; then
+    mark; tapText "מקליטים"; waitlog "notifications asked" 15 && { sleep 2; shot record-asks-notifications
+      tapText "Allow" && waitlog "notifications allowed" 10 && { sleep 1; shot record-notifications-allowed; }; }
+    adb shell input keyevent KEYCODE_BACK; sleep 1
+  else note "no record entry on home: the notification ask at the first tap was not tried"; fi
   adb shell pm grant "$PKG" android.permission.POST_NOTIFICATIONS > /dev/null 2>&1 || true
 }
 
@@ -890,6 +919,9 @@ dayrec_walk() { # dayrec_walk <n>: n readings a second apart, walking down Tatra
     geo "$(awk -v a=$lat -v i=$i 'BEGIN { printf "%.6f", a - i * 0.00004 }')" "$(awk -v a=$lon -v i=$i 'BEGIN { printf "%.6f", a + i * 0.00002 }')"; sleep 1
   done
 }
+# the recorder service is not among the running services of the app (it has really gone, not only logged its end)
+dayrec_service_gone() { ! adb shell dumpsys activity services "$PKG" 2> /dev/null | grep -q "DayRecService"; }
+
 dayrec_steps() {
   local perm="android.permission.ACCESS_FINE_LOCATION" coarse="android.permission.ACCESS_COARSE_LOCATION"
   adb shell pm grant "$PKG" android.permission.POST_NOTIFICATIONS > /dev/null 2>&1 || true
@@ -974,9 +1006,35 @@ dayrec_steps() {
   if [ -n "$(where 'מקליטים')" ]; then
     tapText "מקליטים"; sleep 2
     for w in "המשך" "כל היום"; do [ -n "$(where "$w")" ] && { tapText "$w"; sleep 3; }; done
+    sleep 1; shot dayrec-live-search # before the first reading: the numbers breathe
+    # the counter goes by the tap whatever the GPS does (13.11.2026, Pini's phone: nothing moved while it waited for a first reading)
+    uidump; c1=$(grep -oE 'text="[^"]*[0-9]:[0-9]{2}[^"]*"' "$OUT/ui.xml" | head -1); sleep 4; uidump; c2=$(grep -oE 'text="[^"]*[0-9]:[0-9]{2}[^"]*"' "$OUT/ui.xml" | head -1)
+    note "live counter: '$c1' then '$c2'"; { [ -n "$c1" ] && [ "$c1" != "$c2" ]; } || fail "the live counter did not count (first '$c1', then '$c2')"
     dayrec_walk 4; sleep 2; shot dayrec-live
+    # the sensors' callbacks arrive on the recorder's own thread (qa/system-boundaries.md): the emulator simulates the accelerometer,
+    # so a quiet phone, a blow of about 5 g and quiet again are fed while recording. A handler that touched something of the main
+    # thread would crash here (the run's errors.txt fails on it); the blow's window written to the log is the proof it ran (a note
+    # only if the emulator did not deliver it, as its sensor batching differs from phone to phone)
+    mark
+    for g in 9.8 9.8 49 9.8 9.8; do adb emu sensor set acceleration "0:0:$g" > /dev/null 2>&1; sleep 1; done
+    adb emu sensor set gyroscope "0.3:0.2:0.1" > /dev/null 2>&1; sleep 7
+    waitlog "dayrec blow window written" 20 || note "the emulator did not deliver a blow (no window written): the sensor handler ran quietly, nothing crashed"
+    # the choice at the top of the screen: the same recording goes on, the service applies the switch (Diag logs it) and the choice shows
+    tapText "ירידה אחת" && { waitlog "dayrec mode run applied" 10; dayrec_walk 3; shot dayrec-live-one; }
+    tapText "כל היום" && { waitlog "dayrec mode day applied" 10; dayrec_walk 3; }
     sleep 24; shot dayrec-live-weak
-    [ -n "$(where 'סיום')" ] && { tapText "סיום"; sleep 3; }
+    # Stop in the notification while the live screen is open (13.11.2026, Pini: "Stop in the notification does not stop"): the service
+    # stops, and the screen goes to the day that ended instead of staying on a counter that goes on
+    adb shell cmd statusbar expand-notifications; sleep 3; shot dayrec-notification
+    if tapText "עצירה"; then
+      waitlog "dayrec stop user" 15 || fail "Stop in the notification did not stop the recording"
+      sleep 4; dayrec_service_gone || fail "the recorder service is still running after Stop in the notification"
+      adb shell cmd statusbar collapse; sleep 6; shot dayrec-live-stopped-outside
+      [ -n "$(where 'היום שלך')" ] || fail "after Stop in the notification the live screen did not go to the day that ended"
+    else
+      adb shell cmd statusbar collapse; fail "no Stop button in the recording's notification"
+      [ -n "$(where 'סיום')" ] && { tapText "סיום"; sleep 3; }
+    fi
   fi
   qa "--es qa.dayrec wipe"
 }
@@ -1016,6 +1074,164 @@ weather() {
   # the new language starts the app again with its last intent (the run): no run, so the buttons show
   qa "--es qa.tab map --es qa.run none"; waitlog "selected none" 20; sleep 3; mark; tapText "Weather" && waitlog "weather layer on" 10 && { sleep 1.5; shot weather-map-sheet-en; }
   adb shell cmd locale set-app-locales "$PKG" --locales he > /dev/null 2>&1; sleep 3
+}
+
+# ---- the redesign POC: the painted mountain (decision 85; test build only, src/preview) ----
+# The mountain opens only when asked (qa.redesign open), so no other part sees it. adb has one finger, so a pinch cannot
+# be made: the free view is set as a pinch leaves it (qa.redesign view:<zoom>,<x>,<y>), and every touch is a real one, at
+# the place the screen says the run is drawn now (qa.redesign spot:<run>). The bug of 0.1.573: after a pinch, a touch
+# picked another run.
+rd_touch() { # rd_touch <run>: touch <run> where it is drawn now; the screen must choose it
+  mark; qa "--es qa.redesign 'spot:$1'"; waitlog "redesign spot $1" 15 || return 1
+  local xy; xy=$(tail -n +"$((MARK + 1))" "$OUT/logcat.txt" | grep "SkiQa.*redesign spot $1" | tail -1 | sed 's/.*redesign spot .* \([0-9]*\) \([0-9]*\)$/\1 \2/')
+  case "$xy" in *none*|*spot*|"") fail "redesign: no place to touch $1"; return 1 ;; esac
+  mark; tap $xy; waitlog "redesign chosen $1" 10
+}
+rd_back() { mark; adb shell input keyevent KEYCODE_BACK; waitlog "redesign cleared" 10; sleep 1; }
+redesign() {
+  adb shell am force-stop "$PKG"; sleep 1; mark
+  adb shell "am start -W -n $ACT --es qa.tab home --es qa.mode auto --es qa.redesign open" > /dev/null
+  # a cold start on the emulator: the map's own shadows alone took 33 s in run 292, and the painted screen waits for them
+  waitlog "redesign ready" 75; sleep 3; shot redesign-open
+  # a run away from the close-up's side, on the whole mountain: the mountain rises above the sheet
+  rd_touch "Kudebi 1" && { sleep 2.5; shot redesign-chosen; }; rd_back
+  # a run of the Tatra side: the close-up picture comes in
+  rd_touch "Tatra 2" && { sleep 2.5; shot redesign-closeup; }
+  # back from the close-up: the whole mountain, and a touch there is right again
+  rd_back; sleep 0.5; shot redesign-back
+  rd_touch "Sportuli 1" && sleep 2; rd_back
+  # zoomed in (as a pinch leaves it), a real drag, then a touch: the run under the finger
+  mark; qa "--es qa.redesign view:2.2,180,520"; waitlog "redesign view zoom" 10; sleep 1; shot redesign-zoom
+  drag $((W / 2)) $((H / 2)) $((W / 2 + W / 6)) $((H / 2 + H / 10)) 400; sleep 1; shot redesign-zoom-dragged
+  rd_touch "Goodaura 1" && { sleep 2.5; shot redesign-zoom-chosen; }; rd_back
+  mark; qa "--es qa.redesign view:2.6,300,300"; waitlog "redesign view zoom" 10; sleep 1
+  rd_touch "Kikilo 1" && sleep 2; rd_back
+  # day and night (the switch: day is the morning picture, night is night)
+  qa "--es qa.mode day"; sleep 3; shot redesign-day
+  # a chosen run by day (the lit corridor as on the board), and one moment of the choice held at 0, 150, 300, 600, 900 ms
+  rd_touch "Tatra 2" && { sleep 2.5; shot redesign-day-chosen; }; rd_back
+  for ms in 0 150 300 600 900; do
+    qa "--es qa.redesign 'frame:Tatra 2,$ms'"; waitlog "redesign frame Tatra 2 $ms" 10; sleep 1; shot "redesign-moment-$ms"
+  done
+  rd_back
+  qa "--es qa.mode night"; sleep 3; shot redesign-night
+  rd_touch "Tatra 1" && { sleep 2.5; shot redesign-night-chosen; }; rd_back
+  # phase B: the live model under the picture (the picture fades away over it), by day and night, a drag, and back
+  mark; qa "--es qa.mode day --es qa.redesign live"; waitlog "redesign live open" 15
+  waitlog "redesign live textures ok" 30 || fail "redesign: the live textures did not pass the designer's checks"
+  waitlog "redesign live drawn" 30 || fail "redesign: the live model drew nothing but the clear colour"
+  sleep 4; shot redesign-live
+  # the designer's frames (design/handoff/2026-11-20-redesign-live/ref): the opening at the seven keys of 12 January
+  # (the shadows are worked out off the GL thread, a few seconds on the emulator), then three free views
+  # the intent that carries a command brings the activity back, and with it a new GL surface: the textures are decoded
+  # again, so the frame waits for the model's next full draw (on a phone without that, the shadows' few seconds)
+  rd_drawn() { seen "redesign live drawn" 25 || true; sleep 4; }
+  for k in dawn:9.0 morning:10.6 noon:13.0 after:15.9 sunset:17.35 blue:18.3 night:22.0; do
+    mark; qa "--es qa.redesign 'hour:${k#*:}'"; waitlog "redesign live hour" 10; rd_drawn; shot "redesign-live-open-${k%%:*}"
+  done
+  rd_look() { mark; qa "--es qa.redesign 'hour:$1'"; waitlog "redesign live hour" 10
+    mark; qa "--es qa.redesign 'look:$2'"; waitlog "redesign live look" 10; rd_drawn; shot "redesign-live-$3"; }
+  rd_look 15.9 "75,16,7100" east-after
+  rd_look 13.0 "180,18,7100" north-noon
+  rd_look 10.6 "0,22,2600,Tatra 2" close-morning
+  rd_look 22.0 "0,22,2600,Tatra 2" close-night
+  rd_look 13.0 "0,30,2200,@-420:4470" village-noon
+  rd_look 10.6 "0,16,6617" open-again
+  # a run chosen as a tap chooses it: the light down it, the framing, its sign on the top and the sheet (K10)
+  mark; qa "--es qa.redesign 'pick:Tatra 2'"; waitlog "redesign live framed Tatra 2" 20; sleep 2; rd_drawn; shot redesign-live-chosen-sheet
+  mark; qa "--es qa.redesign unpick"; waitlog "redesign live unpicked" 10; rd_drawn
+  # the moment of the choice on the live model held at 0, 150, 300, 600 and 900 ms (as phase A's frame:), each from
+  # the opening view: the ring, the shade, the light down the run, the framing, the sign, then the sheet
+  for ms in 0 150 300 600 900; do
+    mark; qa "--es qa.redesign unpick"; waitlog "redesign live unpicked" 10
+    mark; qa "--es qa.redesign 'look:0,16,6617'"; waitlog "redesign live look" 10
+    mark; qa "--es qa.redesign 'moment:Tatra 2,$ms'"; waitlog "redesign live moment Tatra 2 $ms" 20 || fail "redesign: the live moment $ms was not held"
+    waitlog "redesign live held $ms" 25 || fail "redesign: the held moment $ms was not drawn"; sleep 1; shot "redesign-live-moment-$ms"
+  done
+  mark; qa "--es qa.redesign unpick"; waitlog "redesign live unpicked" 10
+  mark; qa "--es qa.redesign 'look:0,16,6617'"; waitlog "redesign live look" 10; rd_drawn
+  # section 10: Kobi chosen from the opening turns to its side (through the east, about 1 s), then frames it; the sign
+  # "Kobi side" stays after letting it go, and brings the front back
+  mark; qa "--es qa.redesign 'pick:Kobi'"; waitlog "redesign live side kobi" 30 || fail "redesign: Kobi did not turn the camera to its side"
+  waitlog "redesign live kobi sign true" 15 || fail "redesign: no Kobi side sign"
+  waitlog "redesign live framed Kobi" 20; sleep .3; shot redesign-live-kobi-turned
+  rd_drawn; shot redesign-live-kobi-close
+  mark; qa "--es qa.redesign unpick"; waitlog "redesign live unpicked" 10; rd_drawn; shot redesign-live-kobi-sign
+  mark; qa "--es qa.redesign front"; waitlog "redesign live front" 10
+  waitlog "redesign live turned" 20 || fail "redesign: the turn back to the front did not end"
+  seen "redesign live kobi sign false" 5 || fail "redesign: the sign did not bring the front back"
+  rd_drawn; shot redesign-live-front
+  drag $((W / 2)) $((H / 2)) $((W / 2 - W / 5)) $((H / 2)) 500; sleep 1.5; shot redesign-live-dragged
+  mark; qa "--es qa.mode auto --es qa.redesign painted"; waitlog "redesign live closed" 10; sleep 1.5; shot redesign-live-back
+  qa "--es qa.mode auto --es qa.redesign close"; sleep 1.5; shot redesign-closed
+  # round 4 (board L06): the sample day on the mountain, its lines of light by speed and the dotted rides, by day and
+  # at night (the debug build shows it only once asked: qa.redesign day)
+  mark; qa "--es qa.mode day --es qa.redesign day"; sleep 1
+  mark; qa "--es qa.tab days/sample"; waitlog "redesign day open" 20 || fail "redesign: the day on the mountain did not open"
+  waitlog "redesign live day drawn .* day" 60 || fail "redesign: the day was not drawn on the mountain"
+  sleep 3; shot redesign-day
+  # board L08, the day in a minute: three held moments of the film (its clock in seconds), the light of their hour
+  for sec in 8 25 60; do
+    mark; qa "--es qa.redesign 'film:$sec'"; waitlog "redesign day film held $sec" 15 || fail "redesign: the film did not hold $sec"
+    sleep 4; shot "redesign-day-film-$sec"
+  done
+  mark; qa "--es qa.redesign film:off"; waitlog "redesign day film off" 10; sleep 2
+  # the ridge of the day and its timeline (board L07)
+  mark; qa "--es qa.redesign ridge"; waitlog "redesign day ridge" 15 || fail "redesign: the ridge did not open"
+  sleep 2; shot redesign-day-ridge
+  # one descent as a film (board L09): the longest, at its end
+  mark; qa "--es qa.redesign runfilm"; waitlog "redesign run film end" 20 || fail "redesign: the descent's film did not end"
+  sleep 1; shot redesign-run-film
+  mark; qa "--es qa.redesign runfilm:off"; sleep 1
+  # the story of the day (board L10)
+  mark; qa "--es qa.redesign story"; waitlog "redesign day story" 15 || fail "redesign: the story did not open"
+  sleep 2; shot redesign-day-story
+  # board L11: what leaves the phone; the one-minute video made here (MediaCodec) and saved, never a place in it
+  mark; qa "--es qa.redesign share"; waitlog "redesign share open" 15 || fail "redesign: the share sheet did not open"
+  sleep 2; shot redesign-share
+  mark; qa "--es qa.redesign share:video"
+  if waitlog "redesign share video made" 720; then waitlog "redesign share saved video true" 30 || fail "redesign: the video was not saved"; sleep 1; shot redesign-share-video
+  else fail "redesign: the one-minute video was not made"; fi
+  mark; qa "--es qa.redesign share:off"; sleep 1
+  mark; qa "--es qa.redesign story:off"; sleep 1
+  mark; qa "--es qa.redesign ridge:off"; sleep 2
+  # board L01: the first time, the sheet before the system's location question (revoking restarts the app)
+  adb shell pm revoke "$PKG" android.permission.ACCESS_FINE_LOCATION; adb shell pm revoke "$PKG" android.permission.ACCESS_COARSE_LOCATION; sleep 1; mark
+  adb shell "am start -W -n $ACT --es qa.mode day --es qa.redesign day --es qa.dayrec ask" > /dev/null
+  if waitlog "redesign rec first" 90; then sleep 2; shot redesign-rec-first; else fail "redesign: the first-time sheet did not open"; fi
+  adb shell input keyevent KEYCODE_BACK; sleep 1
+  # boards L02, L03: recording on the mountain. Before the first reading the search, then a walk down Tatra 2 drawn
+  # behind the dot; "hold to finish" held for 1.5 s ends the day and opens it on the mountain
+  adb shell pm grant "$PKG" android.permission.POST_NOTIFICATIONS > /dev/null 2>&1 || true
+  adb shell pm grant "$PKG" android.permission.ACCESS_FINE_LOCATION; adb shell pm grant "$PKG" android.permission.ACCESS_COARSE_LOCATION
+  adb shell cmd location set-location-enabled true 2> /dev/null
+  # the live screen opened first and the mountain drawn, then the recording started: the search shows on the drawn
+  # mountain before the emulator's first fix (about 4 s after the tap); the test build's meter bar off (qa.stats off)
+  mark; qa "--es qa.mode day --es qa.stats off --es qa.tab day"; waitlog "redesign rec open" 20 || fail "redesign: the live screen on the mountain did not open"
+  waitlog "redesign live drawn" 60 || fail "redesign: the mountain was not drawn under the live screen"
+  mark; qa "--es qa.dayrec start"; waitlog "dayrec start result Started" 20 || fail "redesign: the recording did not start"
+  sleep 1.5; shot redesign-rec-search
+  geo 42.482631 44.483401; dayrec_walk 10; sleep 7; shot redesign-rec-live
+  # board L05: the permanent notification while recording (the run, no live speed)
+  adb shell cmd statusbar expand-notifications; sleep 2; shot redesign-rec-notice; adb shell cmd statusbar collapse; sleep 1
+  xy=$(where "החזקה לסיום")
+  if [ -n "$xy" ]; then
+    mark; adb shell input swipe $xy $xy 1600; waitlog "redesign rec hold done" 10 || fail "redesign: hold to finish did not end the day"
+    waitlog "redesign day open" 30 || fail "redesign: the ended day did not open on the mountain"; sleep 5; shot redesign-rec-ended
+  else fail "redesign: no hold to finish on the live screen"; qa "--es qa.dayrec stop"; qa "--es qa.tab days/sample"; waitlog "redesign day open" 20; fi
+  # the same day, still open on the mountain, at night
+  mark; qa "--es qa.mode night"; waitlog "redesign live day drawn .* night" 40 || fail "redesign: the day was not drawn at night"
+  sleep 3; shot redesign-day-night
+  qa "--es qa.mode auto --es qa.tab home"; waitlog "redesign day closed" 15; sleep 1
+  # board L12: my days, with the sample day (the reference tool's whole day, 11.1.2027) recorded as a day and the trip
+  # around it, so the trip's card shows its lines (the day just ended is outside it, a row of its own)
+  local fxd; fxd="$(cd "$(dirname "$0")/../../.." && pwd)/tools/fixtures"
+  adb push "$fxd/dayrec-logs/full_day.jsonl" "/sdcard/Android/data/$PKG/files/replay.jsonl" > /dev/null
+  mark; qa "--es qa.dayrec replay"; waitlog "dayrec replay analysis=" 180 || fail "redesign: the sample day was not recorded for my days"
+  d=2027-01-11
+  mark; qa "--es qa.mode day --es qa.trip '{\"v\":1,\"out\":{\"date\":\"$d\",\"flight\":\"\",\"from\":\"TLV\",\"to\":\"TBS\"},\"ski\":{\"from\":\"$d\",\"to\":\"$d\"}}' --es qa.tab days"
+  if waitlog "redesign days [1-9][0-9]* trip 1" 30; then sleep 2; shot redesign-days; else fail "redesign: my days did not show the trip"; fi
+  qa "--es qa.mode auto --es qa.trip none --es qa.tab home"; sleep 1
 }
 
 # ---- the store screenshots (Google Play: portrait 9:16) ----
@@ -1085,33 +1301,136 @@ dayrecvideo() {
   adb shell pm grant "$PKG" android.permission.POST_NOTIFICATIONS > /dev/null 2>&1 || true
   adb shell pm grant "$PKG" "$perm"; adb shell pm grant "$PKG" "$coarse"
   adb shell cmd location set-location-enabled true 2> /dev/null
+  # English, the reviewers' language (7.11.2026): the app's own language, so the permanent notification, the live screen and
+  # both entries read in English (the texts tapped below are the English ones in i18n/strings.json)
+  adb shell cmd locale set-app-locales "$PKG" --locales en-US > /dev/null 2>&1; sleep 3
   adb shell am force-stop "$PKG"; sleep 1; geo 42.482631 44.483401
-  mark; adb shell "am start -W -n $ACT --es qa.tab home --es qa.trip none --es qa.time 2027-01-12T11:00 --es qa.dayrec wipe" > /dev/null
+  # a clean picture (7.11.2026, after run 226 showed the launcher's "isn't responding" box and the test build's meter bar):
+  # wait for the emulator's load to settle before recording, hide the meter bar (qa.stats off, a debug-build hook only,
+  # the store build is untouched), and look at the screen between the steps (vguard) so a system box is closed at once
+  local load="" i; for i in $(seq 1 40); do load=$(adb shell cat /proc/loadavg 2> /dev/null | cut -d' ' -f1 | tr -d '\r')
+    awk -v l="${load:-99}" 'BEGIN { exit !(l < 12) }' && break; sleep 3; done; note "video: load $load before recording"
+  vguard() { uidump; if grep -q "responding" "$OUT/ui.xml" 2> /dev/null; then VIDEO_DIALOG=1; note "video: a system box was on screen"; fi; }
+  VIDEO_DIALOG=""
+  mark; adb shell "am start -W -n $ACT --es qa.tab home --es qa.trip none --es qa.time 2027-01-12T11:00 --es qa.dayrec wipe --es qa.stats off" > /dev/null
   waitlog "scene ready" 120 || sleep 6
-  adb shell rm -f /sdcard/dayrec-video.mp4
-  adb shell "screenrecord --time-limit 120 --bit-rate 4000000 --size 720x1560 /sdcard/dayrec-video.mp4" > /dev/null 2>&1 &
-  local REC=$!; sleep 2
-  sleep 3; qa "--es qa.tab map"; sleep 4                                   # 0-9 s: home, then the map
-  qa "--es qa.dayrec start"; waitlog "dayrec start result Started" 10      # the tap that starts the day
-  dayrec_walk 8; sleep 1                                                    # the live reading
-  adb shell input keyevent KEYCODE_HOME; sleep 1; dayrec_walk 4             # to the phone's home: the recording goes on
-  adb shell cmd statusbar expand-notifications; sleep 3; dayrec_walk 3      # the permanent notification
-  tapText "עצירה" && waitlog "dayrec stop user" 15                          # Stop in the notification
+  vguard
+  # taps drawn on the screen (8.11.2026, Pini: the taps were invisible in run 228); switched off again at the end
+  adb shell settings put system show_touches 1
+  note "video: show_touches is $(adb shell settings get system show_touches | tr -d '\r')"
+  # a held tap (300 ms) so the touch circle stays on screen long enough to be seen (13.11.2026, Pini: no taps were visible)
+  # the emulator's own "show touches" does not reach the recording (run 242), so each tap is logged (time, place) and the
+  # circle is drawn on the video afterwards by qa/touches.py
+  tap() { echo "$(awk -v n="$(date +%s.%N)" -v s="$REC_T" 'BEGIN { printf "%.2f", n - s }') $1 $2" >> "$OUT/video/taps-$REC_NAME.txt"
+    adb shell input swipe "$1" "$2" "$1" "$2" 300; sleep 0.7; }
+  # one continuous walk down Tatra 2 for the whole video (13.11.2026): every call used to start again from the first
+  # point, so each call began with a jump back up the slope, which drew the cutting trail on the map
+  # the phone's GPS for the whole video is a real-shaped descent with speed and altitude (13.11.2026, the manager: the
+  # live screen showed 0 km/h and "Standing"): qa/gpsreplay.py feeds NMEA once a second in the background, so the walk
+  # no longer stops while the script reads the screen
+  python3 -I "$(dirname "$0")/gpsreplay.py" "$(cd "$(dirname "$0")/../../.." && pwd)/tools/fixtures/dayrec-logs/full_day.jsonl" &
+  GPSR=$!
+  dayrec_walk() { sleep "$1"; }
+  # a timeline per recording: seconds since the recording started (about, +-1 s) with what the script did and what the
+  # counter on screen read, to be read against the frames and against the app's log (13.11.2026, note 3)
+  REC_T=0; REC_NAME=x
+  vt() { mkdir -p "$OUT/video"; echo "+$(awk -v n="$(date +%s.%N)" -v s="$REC_T" 'BEGIN { printf "%.1f", n - s }')s $*" >> "$OUT/video/timeline-$REC_NAME.txt"; }
+  ctr() { uidump; vt "counter on screen: $(grep -o -E 'text="[0-9]+:[0-9]{2}(:[0-9]{2})?"' "$OUT/ui.xml" | tr '\n' ' ')"; }
+  # a wait for a real answer of the screen (a word showing), not a fixed sleep
+  waitwhere() { local w=$1 t=${2:-15} k; for k in $(seq 1 "$t"); do [ -n "$(where "$w")" ] && return 0; sleep 1; done; note "video: '$w' never showed"; return 1; }
+  # two clean recordings (8.11.2026): the whole day from start to stop, then one descent from its start; the mode is never
+  # switched in the middle of a recording (that showed the counter going back to 0:00 and the map flickering)
+  recstart() { adb shell rm -f "/sdcard/$1.mp4"; adb shell "screenrecord --time-limit 120 --bit-rate 4000000 --size 720x1560 /sdcard/$1.mp4" > /dev/null 2>&1 &
+    REC=$!; REC_NAME=$1; rm -f "$OUT/video/timeline-$1.txt" "$OUT/video/taps-$1.txt"
+    # the clock starts when the file shows on the device (the recording's first frame is at most a moment later)
+    for k in 1 2 3 4 5 6 7 8 9 10; do adb shell "[ -e /sdcard/$1.mp4 ]" 2> /dev/null && break; sleep 0.3; done
+    REC_T=$(date +%s.%N); sleep 2; }
+  recstop() { adb shell pkill -2 screenrecord 2> /dev/null; sleep 3; kill "$REC" 2> /dev/null
+    adb pull "/sdcard/$1.mp4" "$OUT/video/$2.mp4" > /dev/null 2>&1 || fail "the video $2 was not recorded"
+    [ -s "$OUT/video/$2.mp4" ] && note "video: $2 $(stat -c %s "$OUT/video/$2.mp4") bytes"
+    # the touch circles (13.11.2026): the original is kept as <name>-original.mp4, the one with circles is the main one
+    if [ -s "$OUT/video/taps-$1.txt" ] && command -v ffmpeg > /dev/null 2>&1; then
+      local wh; wh=$(adb shell wm size | tr -d '\r' | grep -o -E '[0-9]+x[0-9]+' | tail -1)
+      mv "$OUT/video/$2.mp4" "$OUT/video/$2-original.mp4"
+      if python3 -I "$(dirname "$0")/touches.py" "$OUT/video/$2-original.mp4" "$OUT/video/taps-$1.txt" "${wh%x*}" "${wh#*x}" "$OUT/video/$2.mp4" "$OUT/video/touches-$2.txt" > "$OUT/video/touches-$2.log" 2>&1
+      then note "video: touch circles on $2: all seen ($(wc -l < "$OUT/video/touches-$2.txt") taps)"
+      else cat "$OUT/video/touches-$2.log" | head -8 | while read -r l; do note "video: touches: $l"; done; fail "the touch circles were not all seen in $2"; fi
+    fi
+    # frames for whoever watches: a contact sheet (a frame every half second, left to right, top to bottom) and the frames
+    if command -v ffmpeg > /dev/null 2>&1; then
+      ffmpeg -loglevel error -y -i "$OUT/video/$2.mp4" -vf "fps=2,scale=216:-1,tile=10x8" -frames:v 1 "$OUT/video/$2-contact.jpg" 2>&1 | head -2
+      mkdir -p "$OUT/video/frames-$2"; ffmpeg -loglevel error -y -i "$OUT/video/$2.mp4" -vf "fps=2,scale=360:-1" -q:v 4 "$OUT/video/frames-$2/f%03d.jpg" 2>&1 | head -2
+    fi
+    adb logcat -d -v epoch 2> /dev/null | grep -i -E "dayrec|SkiQa" | grep -v -i "latitude\|longitude" > "$OUT/video/logcat-$2.txt"; }
+  # the notification shade before recording: clear what can be cleared, and say what is left that is not ours
+  shade_check() {
+    # the emulator's own notifications (keyboard, serial console, performance): snoozed for an hour by their keys, which Clear all does not remove (run 234)
+    for k in $(adb shell dumpsys notification --noredact 2> /dev/null | tr -d '\r' | grep -o -E 'key=[^ ]*\|android\|[^ ]*' | sed 's/^key=//' | sort -u); do
+      note "video: snoozing system notification $k: $(adb shell "cmd notification snooze --for 3600000 '$k'" 2>&1 | head -1)"; done
+    adb shell cmd statusbar expand-notifications; sleep 2; uidump
+    [ -n "$(where 'Clear all')" ] && tapText "Clear all"
+    uidump
+    if grep -q -i -E "keyboard configured|Serial console|Performance is impacted" "$OUT/ui.xml" 2> /dev/null; then VIDEO_DIALOG=1; note "video: emulator noise in the notification shade: $(grep -o -i -E '(text|content-desc)="[^"]*(keyboard configured|Serial console|Performance is impacted)[^"]*"' "$OUT/ui.xml" | head -3 | tr '\n' ' ')"; fi
+    adb shell cmd statusbar collapse; sleep 1; }
+  shade_check
+  # ---- recording 1: the whole day ----
+  recstart dayrec-video-1
+  vt "recording starts on the home screen"
+  vguard
+  # the start is a real tap on the entry "Record" (13.11.2026, Pini: the script started it by an extra and nothing on screen showed it)
+  waitwhere "Record" 15 || fail "the entry 'Record' never showed"
+  vt "tap Record"; tapText "Record"; sleep 1
+  [ -n "$(where 'Continue')" ] && { vt "tap Continue"; tapText "Continue"; }
+  waitwhere "One descent" 15 || fail "the live screen never showed after the tap on Record"
+  vt "the live screen is up"
+  sleep 8; note "video: the phone's last GPS fix: $(adb shell dumpsys location 2> /dev/null | grep -i -m2 'last location' | tr -d '\r' | cut -c1-260)"
+  for k in 1 2 3 4; do dayrec_walk 3; ctr; done; vguard                      # about 15 s on the live screen: the counter runs and rises
+  vt "press Home"; adb shell input keyevent KEYCODE_HOME; sleep 1; dayrec_walk 4   # the phone's home: the recording goes on
+  vt "open the notification shade"; adb shell cmd statusbar expand-notifications; sleep 2; dayrec_walk 3   # the permanent notification
+  uidump; grep -q -P "[\x{0590}-\x{05FF}]" "$OUT/ui.xml" 2> /dev/null && note "video: Hebrew text in the notification shade: $(grep -o -P 'text="[^"]*[\x{0590}-\x{05FF}][^"]*"' "$OUT/ui.xml" | head -4 | tr '\n' ' ')"
+  vt "tap Stop in the notification"
+  tapText "Stop" || fail "no 'Stop' button in the notification"
+  waitlog "dayrec stop user" 15 || fail "Stop in the notification: the app never logged a user stop"
+  sleep 3
+  # real proof of the stop (13.11.2026): the service is gone from the running services, and no notification is left
+  dayrec_service_gone || fail "Stop in the notification: DayRecService still runs"
+  adb shell dumpsys notification --noredact 2> /dev/null | grep -q "pkg=$PKG.*DayRec" && fail "Stop in the notification: the recording notification is still there"
+  note "video: DayRecService is not running after Stop (verified by dumpsys)"
   adb shell cmd statusbar collapse; sleep 1
-  # the single run: the same entry on home, then "one run" instead of "the whole day" (the declaration names both)
-  qa "--es qa.tab home"; sleep 3
-  if [ -n "$(where 'מקליטים')" ]; then
-    tapText "מקליטים"; sleep 2
-    [ -n "$(where 'המשך')" ] && { tapText "המשך"; sleep 3; }
-    [ -n "$(where 'ירידה אחת')" ] && { tapText "ירידה אחת"; sleep 3; }
-    dayrec_walk 6
-    [ -n "$(where 'סיום')" ] && { tapText "סיום"; sleep 3; }
+  # back to the app, to show it did not crash
+  vt "back to the app"; adb shell "am start -W -n $ACT" > /dev/null; sleep 4; ctr; vguard; sleep 2
+  note "video: the app process after Stop: $(adb shell pidof "$PKG" | tr -d '\r')"
+  recstop dayrec-video-1 dayrec-service-declaration-1-day
+  # ---- recording 2: one descent, from the start ----
+  mark; adb shell "am start -W -n $ACT --es qa.tab home --es qa.trip none --es qa.time 2027-01-12T11:00 --es qa.stats off" > /dev/null
+  sleep 4                                                                    # the process is alive: no "scene ready" comes again
+  vguard
+  recstart dayrec-video-2
+  vt "recording starts on the home screen"
+  if waitwhere "Record" 15; then
+    vt "tap Record"; tapText "Record"; sleep 1
+    [ -n "$(where 'Continue')" ] && { vt "tap Continue"; tapText "Continue"; }
+    waitwhere "One descent" 10 && {
+      dayrec_walk 3; ctr; dayrec_walk 3; ctr
+      vt "tap One descent"; tapText "One descent"; waitlog "dayrec mode run" 15 || fail "video: the switch to one descent did not reach the recorder"
+      vt "the switch reached the recorder"
+      ctr; for k in 1 2 3; do dayrec_walk 2; ctr; done; vguard
+      vt "tap Finish"; waitwhere "Finish" 10 && tapText "Finish"; sleep 2; }
+  else fail "the entry 'Record' never showed"; fi
+  # Finish opens the recorded day itself (the day of this recording, not the example day: the manager saw "Example" when the script
+  # opened days/sample here), so the video ends on the real summary
+  vt "open the day's timeline"; sleep 6
+  drag 540 1900 540 600 400; sleep 3
+  vguard
+  recstop dayrec-video-2 dayrec-service-declaration-2-descent
+  kill "$GPSR" 2> /dev/null
+  adb shell settings put system show_touches 0
+  if command -v ffmpeg > /dev/null 2>&1; then
+    bash "$(dirname "$0")/cut30.sh" "$OUT/video" 2>&1 | while read -r l; do note "video: $l"; done
+    [ -s "$OUT/video/dayrec-service-30s.mp4" ] || fail "the 30 s cut was not made"
   fi
-  qa "--es qa.tab days/sample"; sleep 8                                     # the day's timeline
-  drag 540 1900 540 600 400; sleep 4
-  adb shell pkill -2 screenrecord 2> /dev/null; sleep 3; kill "$REC" 2> /dev/null
-  adb pull /sdcard/dayrec-video.mp4 "$OUT/video/dayrec-service-declaration.mp4" > /dev/null 2>&1 || fail "the video was not recorded"
-  [ -s "$OUT/video/dayrec-service-declaration.mp4" ] && note "video: $(stat -c %s "$OUT/video/dayrec-service-declaration.mp4") bytes"
+  printf 'The touch circles were drawn on the video after recording (qa/touches.py), at the place and time of each tap the script made;\nthe app and the emulator are untouched. The recordings without circles are the *-original.mp4 files. touches-*.txt says, per tap,\nwhether the circle was found in the frame (pixel check). timeline-*.txt: what the script did and what the counter on screen read.\n' > "$OUT/video/README.txt"
+  if [ -n "$VIDEO_DIALOG" ]; then fail "the video has a system box or emulator noise in it (see the notes above); run it again"; fi
 }
 
 # one scenario, several with commas (home,group), or all

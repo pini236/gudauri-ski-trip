@@ -25,6 +25,19 @@ enum SignIn {
 
     static func sha256(_ s: String) -> String { SHA256.hash(data: Data(s.utf8)).map { String(format: "%02x", $0) }.joined() }
 
+    // System callbacks (ASAuthorization, ASWebAuthenticationSession) are built here, outside the main actor, so they
+    // do not inherit its isolation (build 55 crash; app/ios/qa/system-boundaries.md).
+    nonisolated static func resumer(_ k: CheckedContinuation<ASAuthorizationAppleIDCredential, Error>) -> (Result<ASAuthorizationAppleIDCredential, Error>) -> Void {
+        { k.resume(with: $0) }
+    }
+
+    nonisolated static func webDone(_ k: CheckedContinuation<URL, Error>) -> ASWebAuthenticationSession.CompletionHandler {
+        { url, err in
+            if let url { k.resume(returning: url) }
+            else { k.resume(throwing: ApiError((err as? ASWebAuthenticationSessionError)?.code == .canceledLogin ? "cancelled" : "google_failed")) }
+        }
+    }
+
     // MARK: Apple
 
     /// The system's Apple sheet. Needs the "Sign in with Apple" capability (entitlement) and the Apple provider in
@@ -39,7 +52,7 @@ enum SignIn {
         c.delegate = delegate
         c.presentationContextProvider = delegate
         let cred: ASAuthorizationAppleIDCredential = try await withCheckedThrowingContinuation { k in
-            delegate.done = { k.resume(with: $0) }
+            delegate.done = Self.resumer(k)
             c.performRequests()
         }
         withExtendedLifetime((delegate, c)) {}
@@ -84,10 +97,7 @@ enum SignIn {
                         .init(name: "nonce", value: sha256(raw)), .init(name: "prompt", value: "select_account")]
         let anchor = WebAnchor()
         let back: URL = try await withCheckedThrowingContinuation { k in
-            let s = ASWebAuthenticationSession(url: c.url!, callbackURLScheme: scheme) { url, err in
-                if let url { k.resume(returning: url) }
-                else { k.resume(throwing: ApiError((err as? ASWebAuthenticationSessionError)?.code == .canceledLogin ? "cancelled" : "google_failed")) }
-            }
+            let s = ASWebAuthenticationSession(url: c.url!, callbackURLScheme: scheme, completionHandler: Self.webDone(k))
             s.presentationContextProvider = anchor
             s.prefersEphemeralWebBrowserSession = false
             webSession = s

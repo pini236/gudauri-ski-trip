@@ -1,5 +1,6 @@
 import Foundation
 import UIKit
+import StoreKit
 import GudiDomain
 
 /// Usage measurement (decision 32, docs/GROWTH.md, the architect's review of 21.10.2026), the iPhone side of what
@@ -101,6 +102,40 @@ final class Telemetry {
         event("app_open", ["source": source, "cold": cold, "first_open": first])
     }
 
+    /// `is_internal` (docs/GROWTH.md): true only when the user marked this phone by hand (a long press on the version
+    /// number in About, no visible text); kept on the phone, never sent when off, never tied to an account.
+    static var isInternal: Bool {
+        get { UserDefaults.standard.bool(forKey: "telemetry.internal") }
+        set { UserDefaults.standard.set(newValue, forKey: "telemetry.internal") }
+    }
+
+    /// `install_channel`: from the receipt's name at first, then from StoreKit's `AppTransaction.environment`, which is
+    /// preferred (the architect, 22.11.2026). Always one of the closed list in `Measure.installChannel`.
+    private var channel: String = Measure.installChannel(simulator: Telemetry.isSimulator, environment: nil,
+                                                         receiptName: Bundle.main.appStoreReceiptURL?.lastPathComponent)
+    private static let isSimulator: Bool = {
+        #if targetEnvironment(simulator)
+        return true
+        #else
+        return false
+        #endif
+    }()
+
+    /// Asks StoreKit once at launch; a failure (no network, an unsigned build) keeps the receipt's answer.
+    func resolveChannel() {
+        guard !Self.silent else { return }
+        Task { @MainActor in
+            guard let result = try? await AppTransaction.shared else { return }
+            let env: String
+            switch result {
+            case .verified(let t): env = t.environment.rawValue
+            case .unverified(let t, _): env = t.environment.rawValue
+            }
+            channel = Measure.installChannel(simulator: Self.isSimulator, environment: env,
+                                             receiptName: Bundle.main.appStoreReceiptURL?.lastPathComponent)
+        }
+    }
+
     private var on: Bool { !Self.silent && Self.enabled }
 
     /// The properties every event carries; called again when the language or the theme changes.
@@ -113,14 +148,19 @@ final class Telemetry {
     func event(_ name: String, _ props: [String: Any] = [:]) {
         guard on else { return }
         var p = common.merging(props) { _, new in new }
+        p.merge(Measure.installProps(channel: channel, internal: Self.isInternal)) { _, new in new }
         p["distinct_id"] = Self.id
         p["$process_person_profile"] = false
         p["$lib"] = "gudi-ios"
         queue.append(["event": name, "properties": p, "timestamp": ISO8601DateFormatter().string(from: Date())])
         if queue.count > 100 { queue.removeFirst(queue.count - 100) }
         if timer == nil {
-            timer = Timer.scheduledTimer(withTimeInterval: 30, repeats: true) { _ in Task { @MainActor in Telemetry.shared.flush() } }
+            timer = Timer.scheduledTimer(withTimeInterval: 30, repeats: true, block: Self.tick())
         }
+    }
+
+    nonisolated static func tick() -> @Sendable (Timer) -> Void {
+        { _ in Task { @MainActor in Telemetry.shared.flush() } }
     }
 
     func screen(_ name: String, _ extra: [String: Any] = [:]) { event("screen_view", extra.merging(["screen": name]) { a, _ in a }) }
@@ -161,6 +201,15 @@ extension Route {
             }
         case .about: "about"
         case .trip: "trip"
+        // the ski-pass screen is not in the contract's list of screen names either
+        case .skipass: "home"
+        // the ski day's screens are not in the contract's list of screen names: they send no screen_view
+        case .record, .days, .day, .daySample, .replay, .replaySample: "home"
         }
+    }
+
+    /// The screens of the ski day (no screen_view for them).
+    var isDayRec: Bool {
+        switch self { case .record, .days, .day, .daySample, .replay, .replaySample: true; default: false }
     }
 }

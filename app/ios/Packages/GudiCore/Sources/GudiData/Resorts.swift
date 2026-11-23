@@ -8,6 +8,32 @@ public struct Resorts: Decodable, Sendable {
         public let id: String
         public let tz: String?
         public let features: [String]
+        /// The season's dates (round 39); nil when the resort has none. Read without failing: a field of another shape is nil.
+        public let season: SeasonRaw?
+    }
+
+    /// `season` as the file writes it: strings only, never read as dates here (Domain's `Season` does, by the resort's clock).
+    public struct SeasonRaw: Decodable, Sendable {
+        public let open: String?
+        public let announced: String?
+        public let src: String?
+        public let url: String?
+        public let updated: String?
+
+        enum Keys: String, CodingKey { case open, announced, src, url, updated }
+
+        public init(from decoder: Decoder) throws {
+            let c = try decoder.container(keyedBy: Keys.self)
+            open = (try? c.decodeIfPresent(String.self, forKey: .open)) ?? nil
+            announced = (try? c.decodeIfPresent(String.self, forKey: .announced)) ?? nil
+            src = (try? c.decodeIfPresent(String.self, forKey: .src)) ?? nil
+            url = (try? c.decodeIfPresent(String.self, forKey: .url)) ?? nil
+            updated = (try? c.decodeIfPresent(String.self, forKey: .updated)) ?? nil
+        }
+
+        public init(open: String?, announced: String? = nil, src: String? = nil, url: String? = nil, updated: String? = nil) {
+            self.open = open; self.announced = announced; self.src = src; self.url = url; self.updated = updated
+        }
     }
 
     public let resorts: [Resort]
@@ -17,4 +43,10 @@ public struct Resorts: Decodable, Sendable {
     public func has(_ feature: String, in resort: String = "gudauri") -> Bool {
         resorts.first { $0.id == resort }?.features.contains(feature) ?? false
     }
+}
+
+extension Resorts {
+    /// The resort's `season` object, or nil.
+    public func season(of resort: String = "gudauri") -> SeasonRaw? { resorts.first { $0.id == resort }?.season }
+    public func tz(of resort: String = "gudauri") -> String? { resorts.first { $0.id == resort }?.tz }
 }

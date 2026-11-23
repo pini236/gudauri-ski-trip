@@ -14,12 +14,14 @@ import org.json.JSONObject
  *   while there is time to look (the lift ride). It is computed by the final analysis on the last stretch, so its edges
  *   are exact to the second.
  *
- * Not thread-safe: one thread feeds it and asks it. [final] works on a copy of what was fed, so it may run on another
- * thread while the feeding goes on. Nothing in here leaves the phone.
+ * One thread feeds it and asks it ([add], [addEvent], [live]). [final] works on a copy of what was fed, so it may run on
+ * another thread while the feeding goes on: the lists are only changed and copied under [lock] (an unsynchronised copy of a
+ * list that is growing can hand over empty slots). Nothing in here leaves the phone.
  */
 class DayEngine(private val analyzer: Analyzer, val header: JSONObject) {
     private val points = ArrayList<DayLog.Point>()
     private val events = ArrayList<JSONObject>()
+    private val lock = Any()
 
     /** What the live view says. [act] is stand, walk, ski, up or lift; [lift] and [runs] by the act. */
     class Snapshot(
@@ -36,6 +38,18 @@ class DayEngine(private val analyzer: Analyzer, val header: JSONObject) {
     )
 
     val isRun: Boolean get() = header.optString("mode", "day") == "run"
+    /** From when a single-descent recording counts (a switch from the whole day starts it from the switch, not from the day's first reading). */
+    private var runFrom = 0L
+
+    /**
+     * The choice at the top of the live screen, made while recording: all day or one descent, in the same recording. One
+     * descent counts from [t] on (the earlier readings stay in the log and in the day). Called on the recorder's thread.
+     */
+    fun setRun(on: Boolean, t: Long) {
+        header.put("mode", if (on) "run" else "day")
+        runFrom = if (on) t else 0L
+        snapshot = null
+    }
     val size: Int get() = points.size
 
     private var dayMax: Double? = null
@@ -48,15 +62,15 @@ class DayEngine(private val analyzer: Analyzer, val header: JSONObject) {
     /** Called when a descent ends and the lift begins. */
     var onRide: ((Ride) -> Unit)? = null
 
-    fun add(p: DayLog.Point) { if (points.isEmpty() || p.t > points.last().t) points += p }
+    fun add(p: DayLog.Point) { synchronized(lock) { if (points.isEmpty() || p.t > points.last().t) points += p } }
 
     /** A blow from the motion sensors, or the dismissal of one, as the log has it. */
-    fun addEvent(e: JSONObject) { events += e }
+    fun addEvent(e: JSONObject) { synchronized(lock) { events += e } }
 
     /** The live view, from the points so far. */
     fun live(): Snapshot? {
         if (points.isEmpty()) return null
-        val from = if (isRun) 0 else windowStart()
+        val from = if (isRun) points.indexOfFirst { it.t >= runFrom }.coerceAtLeast(0) else windowStart()
         val r = analyzer.live(header, points.subList(from, points.size), eventsFrom(points[from].t))
         r.maxKmh?.let { m -> dayMax = dayMax?.let { maxOf(it, m) } ?: m }
         for (f in r.falls) falls.putIfAbsent(f.t, f)
@@ -76,7 +90,8 @@ class DayEngine(private val analyzer: Analyzer, val header: JSONObject) {
 
     /** The whole day, smoothed backwards: the truth. Takes a copy, so it may run on another thread. */
     fun final(): Analyzer.DayResult {
-        val p = ArrayList(points); val e = ArrayList(events)
+        val p: ArrayList<DayLog.Point>; val e: ArrayList<JSONObject>
+        synchronized(lock) { p = ArrayList(points); e = ArrayList(events) }
         return analyzer.final(header, p, e)
     }
 

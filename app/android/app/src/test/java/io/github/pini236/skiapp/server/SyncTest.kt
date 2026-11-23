@@ -64,6 +64,33 @@ class SyncTest {
     private fun sync() = Sync(Server("https://x.supabase.co", "pk", store, fake, { now }), tmp.root, listOf("descent"), realtime = null, worker = { it.run() },
         later = { ms, task -> planned += ms to task })
 
+    /**
+     * The phone calls [Sync.flush] from threads of its own (the network callback when a connection comes, the launch, a page
+     * that opens) while the screens add writes: the queue must be sent by its one worker, in order, with nothing lost or sent twice.
+     */
+    @Test fun writesAndFlushesFromManyThreadsAreSentOnceByTheOneWorker() {
+        val worker = java.util.concurrent.Executors.newSingleThreadExecutor()
+        val s = Sync(Server("https://x.supabase.co", "pk", store, fake, { now }), tmp.root, listOf("descent"), realtime = null, worker = worker,
+            later = { ms, task -> synchronized(planned) { planned += ms to task } })
+        val g = s.group("g1")
+        val failed = java.util.concurrent.atomic.AtomicReference<Throwable?>(null)
+        val go = java.util.concurrent.CountDownLatch(1)
+        val threads = (0 until 4).map { i ->
+            Thread {
+                try {
+                    go.await()
+                    repeat(25) { k -> if (i % 2 == 0) g.submitScore("descent", 100 + i * 25 + k) else s.flush() }
+                } catch (t: Throwable) { failed.compareAndSet(null, t) }
+            }.also { it.start() }
+        }
+        go.countDown(); threads.forEach { it.join(30_000) }
+        worker.shutdown()
+        assertTrue("the worker did not finish", worker.awaitTermination(30, java.util.concurrent.TimeUnit.SECONDS))
+        assertNull(failed.get()?.toString(), failed.get())
+        assertEquals(0, g.state.value.waiting) // everything went through
+        assertTrue(best >= 100)
+    }
+
     @Test fun aGroupIsKeptOnThePhone() {
         val s = sync()
         val g = s.group("g1")

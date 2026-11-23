@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>The Mountain: end of day and the story</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+.A{--bg:#EEF3F8;--panel:rgba(255,255,255,.88);--solid:#FFFFFF;--ink:#0E2233;--ink2:#4A5D70;--line:rgba(14,34,51,.14);--acc:#6B3FD4;--onacc:#FFFFFF;--accsoft:rgba(107,63,212,.12);--ok:#198549;--warn:#B25E00;--bad:#C4261D;--shade:0 10px 30px rgba(14,34,51,.16);--veil:rgba(238,243,248,.74);--pg:#198549;--pb:#1F6FD0;--pr:#D1342B;--pk:#15181C;font-family:'Heebo',system-ui,sans-serif;color:var(--ink);background:var(--bg)}
+.A .night{--bg:#0B1220;--panel:rgba(17,27,44,.86);--solid:#111B2C;--ink:#EAF1F8;--ink2:#9FB0C4;--line:rgba(234,241,248,.16);--acc:#B79CFF;--onacc:#1A0B3D;--accsoft:rgba(183,156,255,.16);--ok:#46D08A;--warn:#F5B14C;--bad:#FF7468;--shade:0 10px 30px rgba(0,0,0,.5);--veil:rgba(11,18,32,.76);--pg:#46D08A;--pb:#62AEFF;--pr:#FF7468;--pk:#DCE4EC;color:var(--ink)}
+.A .scr{position:absolute;inset:0;background:var(--bg);color:var(--ink);overflow:hidden}
+.A .n{display:none}.A .night .n{display:block}.A .night .d{display:none}
+.A button{font:inherit;color:inherit;border:0;background:none;padding:0;cursor:pointer;text-align:start}
+.A a{color:inherit;text-decoration:none}
+.A p,.A h1,.A h2,.A h3{margin:0}
+.A .map{position:absolute;left:0;top:0;width:390px;height:844px}
+.A .veil{position:absolute;inset:0;background:var(--veil)}
+.A .glass{background:var(--panel);-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px);border:1px solid var(--line);box-shadow:var(--shade)}
+.A .pulse{position:absolute;top:58px;left:16px;right:16px;min-height:48px;border-radius:999px;display:flex;align-items:center;gap:10px;padding:0 18px;font-size:15px;font-weight:500;box-sizing:border-box}
+.A .dot{width:9px;height:9px;border-radius:50%;background:var(--ink2);flex:none;display:inline-block}
+.A .dot.ok{background:var(--ok)}.A .dot.warn{background:var(--warn)}.A .dot.bad{background:var(--bad)}
+.A .sheet{position:absolute;left:0;right:0;bottom:0;border-radius:28px 28px 0 0;padding:10px 20px 28px;box-sizing:border-box;display:flex;flex-direction:column;gap:16px}
+.A .grab{width:40px;height:5px;border-radius:3px;background:var(--ink2);opacity:.5;align-self:center;flex:none}
+.A .where{height:48px;border-radius:999px;background:var(--accsoft);display:flex;align-items:center;gap:10px;padding:0 18px;font-size:16px;color:var(--ink2);width:100%;box-sizing:border-box}
+.A .layers{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.A .layer{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;font-size:13px;font-weight:500;min-height:72px;text-align:center}
+.A .ic{width:48px;height:48px;border-radius:50%;border:1px solid var(--line);background:var(--solid);display:flex;align-items:center;justify-content:center;flex:none;box-sizing:border-box}
+.A .on .ic,.A .ic.on{background:var(--acc);color:var(--onacc);border-color:var(--acc)}
+.A .rec{position:absolute;width:64px;height:64px;border-radius:50%;background:var(--acc);color:var(--onacc);display:flex;align-items:center;justify-content:center;box-shadow:var(--shade)}
+.A .chip{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:0 16px;border-radius:999px;border:1px solid var(--line);background:var(--solid);font-size:14px;font-weight:500;box-sizing:border-box;white-space:nowrap}
+.A .chip.on{background:var(--acc);color:var(--onacc);border-color:var(--acc)}
+.A .big{font-weight:300;line-height:.9;letter-spacing:-.02em}
+.A .k{font-size:13px;color:var(--ink2);font-weight:500;line-height:1.35}
+.A .row{display:flex;align-items:center;gap:12px;min-height:52px;border-bottom:1px solid var(--line);width:100%;box-sizing:border-box}
+.A .tag{position:absolute;transform:translate(-50%,-50%);font-size:11px;font-weight:700;padding:3px 8px;border-radius:999px;background:var(--panel);border:1px solid var(--line);white-space:nowrap;color:var(--ink)}
+.A .cta{min-height:52px;border-radius:999px;background:var(--acc);color:var(--onacc);font-size:16px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:10px;padding:0 22px;box-sizing:border-box}
+.A .ghost{min-height:52px;border-radius:999px;border:1px solid var(--line);background:var(--solid);font-size:16px;font-weight:500;display:flex;align-items:center;justify-content:center;gap:10px;padding:0 22px;box-sizing:border-box}
+.A .round{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;box-sizing:border-box}
+.A .pd{width:12px;height:12px;border-radius:50%;flex:none;display:inline-block}
+</style>
+</helmet>
+<div class="A" style="width: 390px; height: 844px; position: relative; overflow: hidden">
+<div class="{{mode}}">
+<div class="scr" dir="ltr">
+<img class="map d" src="/_blob/c2e6538c15f646530aa5b98ba06ca0e4" alt="">
+<img class="map n" src="/_blob/4963d9a7301c708df02401cab4cd673c" alt="">
+
+<div class="sheet glass" style="top: 62px; gap: 12px; padding-bottom: 24px">
+<span class="grab"></span>
+<div>
+<p class="k">Monday, Jan 11 · ski day 1 of 4</p>
+<h1 style="font-size: 32px; font-weight: 300; line-height: 1.1; margin-top: 4px">A day of firsts</h1>
+</div>
+
+<div style="position: relative; height: 196px; border-radius: 20px; overflow: hidden; background: var(--bg); border: 1px solid var(--line); flex: none">
+<img class="d" src="/_blob/9d440f167af83098dcc7e13ce6c25823" alt="Map of the day: seven runs on the mountain" style="position: absolute; left: 53px; top: -174px; width: 242px; height: 523px">
+<img class="n" src="/_blob/82ceec0ceb8ea9ee8caa3318db6fb1d8" alt="Map of the day: seven runs on the mountain" style="position: absolute; left: 53px; top: -174px; width: 242px; height: 523px">
+<span style="position: absolute; left: 170px; top: 131px; transform: translate(-50%, -100%); background: var(--acc); color: var(--onacc); font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 999px; white-space: nowrap">You flew here · 61</span>
+<span style="position: absolute; left: 166px; top: 131px; width: 9px; height: 9px; border-radius: 50%; background: var(--acc); border: 2px solid var(--solid)"></span>
+</div>
+
+<div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px">
+<div><p class="big" style="font-size: 34px">7</p><p class="k" style="margin-top: 6px">runs</p></div>
+<div><p class="big" style="font-size: 34px">16.0</p><p class="k" style="margin-top: 6px">km</p></div>
+<div><p class="big" style="font-size: 34px">2,601</p><p class="k" style="margin-top: 6px">m descent</p></div>
+<div><p class="big" style="font-size: 34px">61</p><p class="k" style="margin-top: 6px">km/h, est.</p></div>
+</div>
+
+<div style="display: flex; flex-direction: column">
+<div class="row" style="min-height: 48px; border-top: 1px solid var(--line)"><span class="pd" style="background: var(--acc)"></span><p style="font-size: 14.5px; flex: 1"><span style="font-weight: 700">You flew here.</span> 61 km/h on Goodaura 1, 10:47</p></div>
+<div class="row" style="min-height: 48px"><span class="pd" style="background: var(--pb)"></span><p style="font-size: 14.5px; flex: 1">Kissed the snow on Soliko 1?</p><button class="chip" style="font-size: 13px; padding: 0 12px">I didn't fall</button></div>
+<div class="row" style="min-height: 48px"><span class="pd" style="background: var(--pr)"></span><p style="font-size: 14.5px; flex: 1"><span style="font-weight: 700">Your first red:</span> Kudebi 1</p></div>
+<div class="row" style="min-height: 48px"><span class="pd" style="background: var(--ink2)"></span><p style="font-size: 14.5px; flex: 1">2,601 m down: 14 Azrieli towers</p></div>
+<div class="row" style="min-height: 48px; border-bottom: 0"><span class="pd" style="background: var(--ok)"></span><p style="font-size: 14.5px; flex: 1">Fewer stops after lunch</p></div>
+</div>
+
+<div style="display: flex; gap: 10px; margin-top: auto">
+<button class="cta" style="flex: 1">
+<svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5l11 7-11 7z" fill="currentColor"/></svg>
+Replay
+</button>
+<button class="ghost" style="flex: 1">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15V4M8 8l4-4 4 4M5 13v5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5"/></svg>
+Share
+</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"night":{"editor":"boolean","default":false},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+renderVals() {
+return { mode: (this.props.night ?? false) ? 'night' : 'day' };
+}
+}
+</script>
+</body>
+</html>

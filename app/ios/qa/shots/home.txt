@@ -10,3 +10,13 @@ home-he-day-trip he day 1 -
 home-en-night-trip en night 1 -
 home-today-he he day 1 home+weather=sample+now=2027-01-12T10:00+status=fresh
 home-ahead-en en day 1 home+weather=sample+now=2027-01-02T10:00
+# rounds 39 and 40: the countdown (35 and 1 days out, opening day, a moved date, after the date) and the ski-pass screen
+season-count-he he day 0 home+now=2026-11-15T10:00
+season-count-en-night en night 1 home+now=2026-11-15T10:00
+season-tomorrow-ru ru day 0 home+now=2026-12-19T09:00
+season-today-he he day 0 home+now=2026-12-20T07:00
+season-moved-en en day 0 home+now=2026-12-18T07:00+seenopen=2026-12-15
+season-late-he he night 0 home+now=2026-12-21T07:00
+skipass-he he day 1 skipass+now=2026-11-15T10:00
+skipass-en-night en night 0 skipass+now=2026-11-15T10:00
+skipass-ka ka day 1 skipass+now=2026-11-15T10:00

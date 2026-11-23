@@ -18,7 +18,7 @@ targets:
     platform: iOS
     sources:
       - path: Gudi
-        excludes: [Resources/Data, Resources/Fonts]
+        excludes: [Resources/Data, Resources/DayRec, Resources/Fonts]
       - path: Gudi/Resources/Data
         type: folder
         buildPhase: resources
@@ -79,3 +79,18 @@ targets:
           DEVELOPMENT_TEAM: ZX5CTJ88UA
           CODE_SIGN_IDENTITY: Apple Distribution
           PROVISIONING_PROFILE_SPECIFIER: $(GUDI_PROFILE)
+  # Unit tests of the app's own system-boundary handlers (architect, 14.11.2026; build 55 crashed on one). It is a test
+  # bundle hosted by the app, built only by `xcodebuild test -scheme GudiAppTests`: the Gudi scheme, the app's
+  # Info.plist and its file list are untouched. Read-only, no signing.
+  GudiAppTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - path: GudiAppTests
+    dependencies:
+      - target: Gudi
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: true
+        SWIFT_VERSION: "6.0"
+        PRODUCT_BUNDLE_IDENTIFIER: io.github.pini236.skiapp.tests

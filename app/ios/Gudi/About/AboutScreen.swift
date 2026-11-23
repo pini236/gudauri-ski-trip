@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 import GudiDomain
 
 /// The account shown at the top of about (the site's #abMe, P4 and P5 of round 12; Android's home/Soon.kt Account).
@@ -103,6 +104,11 @@ struct AboutScreen: View {
                         Text(" · " + S.aboutUnofficial).font(ski.type.text(13)).foregroundStyle(c.muted)
                     }
                     Text(S.appAboutVersion(v: Self.version)).font(ski.type.text(12)).foregroundStyle(c.muted)
+                        // hidden: marks this phone as internal for the measurement (is_internal), no visible text
+                        .onLongPressGesture(minimumDuration: 1.5) {
+                            Telemetry.isInternal.toggle()
+                            UINotificationFeedbackGenerator().notificationOccurred(Telemetry.isInternal ? .success : .warning)
+                        }
                 }
                 .padding(.horizontal, 16).padding(.bottom, 24)
                 .frame(maxWidth: 560, alignment: .leading)

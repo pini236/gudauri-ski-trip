@@ -7,6 +7,8 @@ import GudiDomain
 /// it was updated.
 struct SeasonBoard: View {
     let status: LiftStatus?
+    /// The planned date when it has passed and the lifts say nothing (round 39).
+    var lateOpen: Day? = nil
     let action: () -> Void
     @Environment(\.ski) private var ski
 
@@ -26,10 +28,14 @@ struct SeasonBoard: View {
                 FlowDots(names: names, isOn: { live && status!.isOpen($0) == true }, on: c.green, off: c.muted)
                     .environment(\.layoutDirection, .leftToRight)
                 HStack(alignment: .lastTextBaseline, spacing: 10) {
-                    Text("\(open)/\(names.count)").font(ski.type.display(30)).foregroundStyle(c.ink)
+                    Text(live ? "\(open)/\(names.count)" : "—").font(ski.type.display(30)).foregroundStyle(c.ink)
                         .environment(\.layoutDirection, .leftToRight)
                     Text(foot).font(ski.type.text(13)).foregroundStyle(c.muted)
                 }
+            }
+            // the planned date has passed and the lifts say nothing: what was planned, never "delayed" (round 39)
+            if !live, let lateOpen {
+                Text(S.appSeasonLate(date: shortDateText(lateOpen, ski.type.lang))).font(ski.type.text(13)).foregroundStyle(c.muted)
             }
         }
         .padding(.horizontal, 14).padding(.top, 18).padding(.bottom, 14)

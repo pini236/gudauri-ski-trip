@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="he">
+<head>
+<meta charset="utf-8">
+<title>ההר: שפה ומבנה</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700;900&family=Inter:wght@300;500&family=Noto+Sans+Georgian:wght@300;500&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+.A{--bg:#EEF3F8;--panel:rgba(255,255,255,.88);--solid:#FFFFFF;--ink:#0E2233;--ink2:#4A5D70;--line:rgba(14,34,51,.14);--acc:#6B3FD4;--onacc:#FFFFFF;--accsoft:rgba(107,63,212,.12);--ok:#198549;--warn:#B25E00;--bad:#C4261D;--shade:0 10px 30px rgba(14,34,51,.16);--veil:rgba(238,243,248,.74);--pg:#198549;--pb:#1F6FD0;--pr:#D1342B;--pk:#15181C;font-family:'Heebo',system-ui,sans-serif;color:var(--ink);background:var(--bg)}
+.A .night{--bg:#0B1220;--panel:rgba(17,27,44,.86);--solid:#111B2C;--ink:#EAF1F8;--ink2:#9FB0C4;--line:rgba(234,241,248,.16);--acc:#B79CFF;--onacc:#1A0B3D;--accsoft:rgba(183,156,255,.16);--ok:#46D08A;--warn:#F5B14C;--bad:#FF7468;--shade:0 10px 30px rgba(0,0,0,.5);--veil:rgba(11,18,32,.76);--pg:#46D08A;--pb:#62AEFF;--pr:#FF7468;--pk:#DCE4EC;color:var(--ink)}
+.A .scr{position:absolute;inset:0;background:var(--bg);color:var(--ink);overflow:hidden}
+.A .n{display:none}.A .night .n{display:block}.A .night .d{display:none}
+.A button{font:inherit;color:inherit;border:0;background:none;padding:0;cursor:pointer;text-align:start}
+.A a{color:inherit;text-decoration:none}
+.A p,.A h1,.A h2,.A h3{margin:0}
+.A .map{position:absolute;left:0;top:0;width:390px;height:844px}
+.A .veil{position:absolute;inset:0;background:var(--veil)}
+.A .glass{background:var(--panel);-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px);border:1px solid var(--line);box-shadow:var(--shade)}
+.A .pulse{position:absolute;top:58px;left:16px;right:16px;min-height:48px;border-radius:999px;display:flex;align-items:center;gap:10px;padding:0 18px;font-size:15px;font-weight:500;box-sizing:border-box}
+.A .dot{width:9px;height:9px;border-radius:50%;background:var(--ink2);flex:none;display:inline-block}
+.A .dot.ok{background:var(--ok)}.A .dot.warn{background:var(--warn)}.A .dot.bad{background:var(--bad)}
+.A .sheet{position:absolute;left:0;right:0;bottom:0;border-radius:28px 28px 0 0;padding:10px 20px 28px;box-sizing:border-box;display:flex;flex-direction:column;gap:16px}
+.A .grab{width:40px;height:5px;border-radius:3px;background:var(--ink2);opacity:.5;align-self:center;flex:none}
+.A .where{height:48px;border-radius:999px;background:var(--accsoft);display:flex;align-items:center;gap:10px;padding:0 18px;font-size:16px;color:var(--ink2);width:100%;box-sizing:border-box}
+.A .layers{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.A .layer{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;font-size:13px;font-weight:500;min-height:72px;text-align:center}
+.A .ic{width:48px;height:48px;border-radius:50%;border:1px solid var(--line);background:var(--solid);display:flex;align-items:center;justify-content:center;flex:none;box-sizing:border-box}
+.A .on .ic,.A .ic.on{background:var(--acc);color:var(--onacc);border-color:var(--acc)}
+.A .rec{position:absolute;width:64px;height:64px;border-radius:50%;background:var(--acc);color:var(--onacc);display:flex;align-items:center;justify-content:center;box-shadow:var(--shade)}
+.A .chip{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:0 16px;border-radius:999px;border:1px solid var(--line);background:var(--solid);font-size:14px;font-weight:500;box-sizing:border-box;white-space:nowrap}
+.A .chip.on{background:var(--acc);color:var(--onacc);border-color:var(--acc)}
+.A .big{font-weight:300;line-height:.9;letter-spacing:-.02em}
+.A .k{font-size:13px;color:var(--ink2);font-weight:500;line-height:1.35}
+.A .row{display:flex;align-items:center;gap:12px;min-height:52px;border-bottom:1px solid var(--line);width:100%;box-sizing:border-box}
+.A .tag{position:absolute;transform:translate(-50%,-50%);font-size:11px;font-weight:700;padding:3px 8px;border-radius:999px;background:var(--panel);border:1px solid var(--line);white-space:nowrap;color:var(--ink)}
+.A .cta{min-height:52px;border-radius:999px;background:var(--acc);color:var(--onacc);font-size:16px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:10px;padding:0 22px;box-sizing:border-box}
+.A .ghost{min-height:52px;border-radius:999px;border:1px solid var(--line);background:var(--solid);font-size:16px;font-weight:500;display:flex;align-items:center;justify-content:center;gap:10px;padding:0 22px;box-sizing:border-box}
+.A .round{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;box-sizing:border-box}
+.A .pd{width:12px;height:12px;border-radius:50%;flex:none;display:inline-block}
+</style>
+</helmet>
+<div class="A" dir="rtl" style="width: 1200px; height: 900px; box-sizing: border-box; padding: 40px 48px; display: grid; grid-template-columns: 560px minmax(0, 1fr); gap: 48px; overflow: hidden">
+
+<div style="display: flex; flex-direction: column; gap: 22px">
+<div>
+<p class="k">כיוון א</p>
+<h1 class="big" style="font-size: 92px; margin-top: 6px">ההר</h1>
+<p style="font-size: 23px; font-weight: 500; line-height: 1.35; margin-top: 14px">אין דף בית. נפתחים על ההר, והכל שכבה עליו.</p>
+<p style="font-size: 15px; line-height: 1.6; color: var(--ink2); margin-top: 8px">מפה, מצב רכבלים ונקודת מפגש הם מה שמשתמשים בו היום, ושלושתם מקומות על ההר. לכן הם שכבות על מסך אחד, בלי לשוניות ובלי דף שעומד בין הגולש להר.</p>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 10px">
+<p class="k">צבעים · יום</p>
+<div style="display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 8px; font-size: 10.5px; font-weight: 500; text-align: center" dir="ltr">
+<div><div style="height: 44px; border-radius: 14px; background: #EEF3F8; border: 1px solid var(--line)"></div><p style="margin-top: 5px">#EEF3F8</p></div>
+<div><div style="height: 44px; border-radius: 14px; background: #FFFFFF; border: 1px solid var(--line)"></div><p style="margin-top: 5px">#FFF 88%</p></div>
+<div><div style="height: 44px; border-radius: 14px; background: #0E2233"></div><p style="margin-top: 5px">#0E2233</p></div>
+<div><div style="height: 44px; border-radius: 14px; background: #4A5D70"></div><p style="margin-top: 5px">#4A5D70</p></div>
+<div><div style="height: 44px; border-radius: 14px; background: #6B3FD4"></div><p style="margin-top: 5px">#6B3FD4</p></div>
+<div><div style="height: 44px; border-radius: 14px; background: #198549"></div><p style="margin-top: 5px">#198549</p></div>
+<div><div style="height: 44px; border-radius: 14px; background: #B25E00"></div><p style="margin-top: 5px">#B25E00</p></div>
+<div><div style="height: 44px; border-radius: 14px; background: #C4261D"></div><p style="margin-top: 5px">#C4261D</p></div>
+</div>
+<p class="k" style="margin-top: 4px">צבעים · לילה</p>
+<div style="display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 8px; font-size: 10.5px; font-weight: 500; text-align: center" dir="ltr">
+<div><div style="height: 44px; border-radius: 14px; background: #0B1220"></div><p style="margin-top: 5px">#0B1220</p></div>
+<div><div style="height: 44px; border-radius: 14px; background: #111B2C"></div><p style="margin-top: 5px">#111B2C 86%</p></div>
+<div><div style="height: 44px; border-radius: 14px; background: #EAF1F8; border: 1px solid var(--line)"></div><p style="margin-top: 5px">#EAF1F8</p></div>
+<div><div style="height: 44px; border-radius: 14px; background: #9FB0C4"></div><p style="margin-top: 5px">#9FB0C4</p></div>
+<div><div style="height: 44px; border-radius: 14px; background: #B79CFF"></div><p style="margin-top: 5px">#B79CFF</p></div>
+<div><div style="height: 44px; border-radius: 14px; background: #46D08A"></div><p style="margin-top: 5px">#46D08A</p></div>
+<div><div style="height: 44px; border-radius: 14px; background: #F5B14C"></div><p style="margin-top: 5px">#F5B14C</p></div>
+<div><div style="height: 44px; border-radius: 14px; background: #FF7468"></div><p style="margin-top: 5px">#FF7468</p></div>
+</div>
+<p style="font-size: 13px; line-height: 1.5; color: var(--ink2)">רקע · זכוכית · דיו · דיו משני · מבטא (אלפנגלו) · פתוח · אזהרה · סגור</p>
+<div style="display: flex; align-items: center; gap: 8px; font-size: 13px">
+<span class="pd" style="background: var(--pg)"></span><span class="pd" style="background: var(--pb)"></span><span class="pd" style="background: var(--pr)"></span><span class="pd" style="background: var(--pk)"></span>
+<span style="margin-inline-start: 4px">צבעי המסלולים וספי השיפוע הם מידע, ולא משתנים. לכן המבטא סגול.</span>
+</div>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 4px">
+<p class="k">גופנים · מספרים וכותרות במשקל 300, טקסט ב-500</p>
+<div style="display: flex; align-items: baseline; gap: 12px"><p style="font-size: 34px; font-weight: 300; line-height: 1.25; flex: 1">גודאורי, פתיחת העונה</p><p class="k">Heebo</p></div>
+<div style="display: flex; align-items: baseline; gap: 12px"><p style="font-size: 34px; font-weight: 300; line-height: 1.25; flex: 1" dir="ltr" lang="en">Gudauri, season opening</p><p class="k">Heebo</p></div>
+<div style="display: flex; align-items: baseline; gap: 12px"><p style="font-size: 32px; font-weight: 300; line-height: 1.25; flex: 1; font-family: 'Inter', sans-serif" dir="ltr" lang="ru">Гудаури, открытие сезона</p><p class="k">Inter</p></div>
+<div style="display: flex; align-items: baseline; gap: 12px"><p style="font-size: 30px; font-weight: 300; line-height: 1.3; flex: 1; font-family: 'Noto Sans Georgian', sans-serif" dir="ltr" lang="ka">გუდაური, სეზონის გახსნა</p><p class="k">Noto Sans Georgian</p></div>
+</div>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 18px">
+<div style="display: flex; flex-direction: column; gap: 8px">
+<p class="k">רכיבים: דופק, "לאן?", שכבות, הקלטה, גלולה, תגית מפה · ביום ובלילה</p>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px">
+
+<div style="border-radius: 24px; background: var(--bg); border: 1px solid var(--line); padding: 14px; display: flex; flex-direction: column; gap: 10px">
+<div class="pulse glass" style="position: static; font-size: 13.5px; padding: 0 14px"><span class="dot ok"></span><span>10/12 רכבלים · <bdi>-9°</bdi></span></div>
+<div class="where" style="font-size: 15px">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg>
+לאן?
+</div>
+<div class="layers" style="gap: 4px">
+<div class="layer on" style="font-size: 12px"><span class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 5l18-2M12 4v5M7 9h10a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-6a2 2 0 0 1 2-2zM5 14h14"/></svg></span>רכבלים</div>
+<div class="layer" style="font-size: 12px"><span class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 16a4 4 0 1 1 1.2-7.8A5 5 0 0 1 18 10a3 3 0 0 1 0 6H7zM9 20v.01M13 20v.01M17 20v.01"/></svg></span>אוויר</div>
+<div class="layer" style="font-size: 12px"><span class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s7-6.2 7-11a7 7 0 1 0-14 0c0 4.8 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/></svg></span>מפגש</div>
+<div class="layer" style="font-size: 12px"><span class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="6" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="18" cy="12" r="1.6"/></svg></span>עוד</div>
+</div>
+<div style="display: flex; align-items: center; gap: 8px">
+<span class="rec" style="position: static; width: 52px; height: 52px; flex: none"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="5" fill="currentColor" stroke="none"/></svg></span>
+<span class="chip on" style="padding: 0 12px">4 ימים</span>
+<span class="tag" style="position: static; transform: none">Kudebi</span>
+</div>
+</div>
+
+<div class="night" style="border-radius: 24px; background: var(--bg); border: 1px solid var(--line); padding: 14px; display: flex; flex-direction: column; gap: 10px">
+<div class="pulse glass" style="position: static; font-size: 13.5px; padding: 0 14px"><span class="dot ok"></span><span>10/12 רכבלים · <bdi>-9°</bdi></span></div>
+<div class="where" style="font-size: 15px">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg>
+לאן?
+</div>
+<div class="layers" style="gap: 4px">
+<div class="layer on" style="font-size: 12px"><span class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 5l18-2M12 4v5M7 9h10a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-6a2 2 0 0 1 2-2zM5 14h14"/></svg></span>רכבלים</div>
+<div class="layer" style="font-size: 12px"><span class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 16a4 4 0 1 1 1.2-7.8A5 5 0 0 1 18 10a3 3 0 0 1 0 6H7zM9 20v.01M13 20v.01M17 20v.01"/></svg></span>אוויר</div>
+<div class="layer" style="font-size: 12px"><span class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s7-6.2 7-11a7 7 0 1 0-14 0c0 4.8 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/></svg></span>מפגש</div>
+<div class="layer" style="font-size: 12px"><span class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="6" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="18" cy="12" r="1.6"/></svg></span>עוד</div>
+</div>
+<div style="display: flex; align-items: center; gap: 8px">
+<span class="rec" style="position: static; width: 52px; height: 52px; flex: none"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="5" fill="currentColor" stroke="none"/></svg></span>
+<span class="chip on" style="padding: 0 12px">4 ימים</span>
+<span class="tag" style="position: static; transform: none">Kudebi</span>
+</div>
+</div>
+</div>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 10px">
+<p class="k">מבנה: מסך אחד, גיליון אחד בשלושה גבהים</p>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px">
+<div style="display: flex; gap: 12px; align-items: flex-end">
+<div style="width: 64px; height: 120px; border-radius: 14px; border: 1.5px solid var(--ink); position: relative; overflow: hidden; flex: none; background: var(--solid)"><span style="position: absolute; top: 9px; left: 7px; right: 7px; height: 7px; border-radius: 4px; background: var(--ink2)"></span><span style="position: absolute; left: 0; right: 0; bottom: 0; height: 26%; background: var(--acc); border-radius: 8px 8px 0 0"></span></div>
+<div><p style="font-size: 15px; font-weight: 700">נמוך</p><p style="font-size: 13px; line-height: 1.45; color: var(--ink2)">"לאן?" וארבע השכבות. ההר כולו גלוי.</p></div>
+</div>
+<div style="display: flex; gap: 12px; align-items: flex-end">
+<div style="width: 64px; height: 120px; border-radius: 14px; border: 1.5px solid var(--ink); position: relative; overflow: hidden; flex: none; background: var(--solid)"><span style="position: absolute; top: 9px; left: 7px; right: 7px; height: 7px; border-radius: 4px; background: var(--ink2)"></span><span style="position: absolute; left: 0; right: 0; bottom: 0; height: 52%; background: var(--acc); border-radius: 8px 8px 0 0"></span></div>
+<div><p style="font-size: 15px; font-weight: 700">חצי</p><p style="font-size: 13px; line-height: 1.45; color: var(--ink2)">פרט אחד: מסלול, רכבל, מפגש. המפה ממוסגרת מעליו.</p></div>
+</div>
+<div style="display: flex; gap: 12px; align-items: flex-end">
+<div style="width: 64px; height: 120px; border-radius: 14px; border: 1.5px solid var(--ink); position: relative; overflow: hidden; flex: none; background: var(--solid)"><span style="position: absolute; top: 9px; left: 7px; right: 7px; height: 7px; border-radius: 4px; background: var(--ink2)"></span><span style="position: absolute; left: 0; right: 0; bottom: 0; height: 84%; background: var(--acc); border-radius: 8px 8px 0 0"></span></div>
+<div><p style="font-size: 15px; font-weight: 700">מלא</p><p style="font-size: 13px; line-height: 1.45; color: var(--ink2)">סיפור היום, מחירים, "עוד" (משחקים, חשבון).</p></div>
+</div>
+</div>
+<p style="font-size: 13.5px; line-height: 1.5">למעלה תמיד שורת הדופק: משפט אחד על ההר עכשיו. לפני העונה ספירה, בעונה רכבלים וטמפרטורה, לפני מפגש הזמן שנשאר. כפתור ההקלטה מרחף מעל הגיליון בכל מצב.</p>
+</div>
+
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px">
+<div style="display: flex; flex-direction: column; gap: 6px">
+<p class="k">תנועה</p>
+<p style="font-size: 13.5px; line-height: 1.5">הגיליון קופץ כקפיץ בין שלושת הגבהים.</p>
+<p style="font-size: 13.5px; line-height: 1.5">בכל בחירה המצלמה טסה אל המקום, והשכבות מתחלפות בדעיכה.</p>
+<p style="font-size: 13.5px; line-height: 1.5">בהפחתת תנועה: חיתוך מיידי, בלי טיסה.</p>
+</div>
+<div style="display: flex; flex-direction: column; gap: 6px">
+<p class="k">מה אמיתי ומה דוגמה</p>
+<p style="font-size: 13.5px; line-height: 1.5"><span style="font-weight: 700">מהקבצים:</span> הקווים, השמות, הגבהים, האורכים, מחירי הכרטיס ותאריך הפתיחה.</p>
+<p style="font-size: 13.5px; line-height: 1.5"><span style="font-weight: 700">נתוני דוגמה:</span> מצב הרכבלים, מזג האוויר, יום הגלישה, המפגש והקבוצה.</p>
+</div>
+</div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1200,"height":900}}'>
+class Component extends DCLogic {
+renderVals() {
+return {};
+}
+}
+</script>
+</body>
+</html>

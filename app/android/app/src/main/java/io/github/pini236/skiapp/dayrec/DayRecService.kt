@@ -12,6 +12,7 @@ import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
+import android.location.GnssStatus
 import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
@@ -25,7 +26,9 @@ import android.os.SystemClock
 import io.github.pini236.skiapp.MainActivity
 import io.github.pini236.skiapp.R
 import io.github.pini236.skiapp.data.Geo
+import io.github.pini236.skiapp.dayrec.ui.LiveNumbers
 import io.github.pini236.skiapp.i18n.Lang
+import io.github.pini236.skiapp.qa.Diag
 import io.github.pini236.skiapp.qa.Qa
 import java.io.File
 import java.util.concurrent.ExecutorService
@@ -45,30 +48,59 @@ import org.json.JSONObject
  *   ([DayStore.unfinished]). It does not restart by itself: a start from the background is not allowed anyway.
  */
 class DayRecService : Service() {
-    private var thread: HandlerThread? = null
-    private var lm: LocationManager? = null
-    private var sensors: SensorManager? = null
-    private var lock: PowerManager.WakeLock? = null
-    private var log: DayLog? = null
+    // Threads (docs: qa/system-boundaries.md): the system calls onStartCommand and onDestroy on the MAIN thread, and the
+    // location, satellite and sensor callbacks on the recorder's own thread ([thread]). Everything that is changed while
+    // recording is changed on the recorder's thread only: a stop from the notification is posted there ([requestFinish]).
+    // What the two threads both touch is volatile or atomic.
+    @Volatile private var thread: HandlerThread? = null
+    @Volatile private var lm: LocationManager? = null
+    @Volatile private var sensors: SensorManager? = null
+    @Volatile private var lock: PowerManager.WakeLock? = null
+    @Volatile private var log: DayLog? = null
     private val motion = MotionMeter()
-    private var impacts: ImpactBuffer? = null
+    @Volatile private var impacts: ImpactBuffer? = null
     private var clockOffset = 0L
     private val idle = IdleWatch()
     @Volatile private var pressure: Float? = null
-    private var firstAt = 0L
-    private var lastAt = 0L
+    @Volatile private var firstAt = 0L
+    @Volatile private var lastAt = 0L
+    private var prevFix: LiveNumbers.Fix? = null // the last reading, for the live screen's big number only
     private var warnedLeft = -1L
-    private var shownMinute = -1L
-    private var stopping = false
-    private var started = false
+    private var shownKey = ""
+    private val stoppingFlag = AtomicBoolean(false)
+    /** Set once, by the first of [finish] and [abort] (and by [onDestroy]); read by the callbacks to go quiet. */
+    private val stopping: Boolean get() = stoppingFlag.get()
+    private val torn = AtomicBoolean(false)
+    @Volatile private var started = false
     // the analysis (decision 76): fed on the recorder's own thread, so no lock
-    private var handler: Handler? = null
-    private var engine: DayEngine? = null
+    @Volatile private var handler: Handler? = null
+    @Volatile private var engine: DayEngine? = null
     private var nextLiveAt = 0L
     private var nextFinalAt = 0L
-    private var finals: ExecutorService? = null
+    @Volatile private var finals: ExecutorService? = null
     private val finalBusy = AtomicBoolean(false)
-    private var runMode = false
+    @Volatile private var runMode = false
+    // for the test build's diagnostic log (qa/Diag): counts and states only, never a position
+    @Volatile private var fixes = 0
+    @Volatile private var satsUsed = 0
+    @Volatile private var satsSeen = 0
+    private var gnssOn = false
+    private val gnss = object : GnssStatus.Callback() {
+        override fun onSatelliteStatusChanged(status: GnssStatus) {
+            var used = 0
+            for (i in 0 until status.satelliteCount) if (status.usedInFix(i)) used++
+            satsUsed = used; satsSeen = status.satelliteCount
+        }
+        override fun onFirstFix(ttffMillis: Int) { Diag.log("dayrec gnss first fix after ${ttffMillis}ms") }
+    }
+    private val pulse = object : Runnable {
+        override fun run() {
+            if (stopping) return
+            val last = DayRec.lastFixAt
+            Diag.log("dayrec pulse fixes=$fixes lastFix=${if (last > 0) "${(System.currentTimeMillis() - last) / 1000}s ago" else "none"} sats=$satsUsed/$satsSeen mode=${if (runMode) "run" else "day"} live=${DayRec.live != null} engine=${engine != null}")
+            handler?.postDelayed(this, PULSE_MS)
+        }
+    }
 
     private val gps = LocationListener { onLocation(it) }
     private val sensorListener = object : SensorEventListener {
@@ -88,80 +120,140 @@ class DayRecService : Service() {
     override fun onBind(i: Intent?): IBinder? = null
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        Diag.log("dayrec service command ${intent?.action?.substringAfterLast('.') ?: "none"} started=$started stopping=$stopping")
         when (intent?.action) {
             START -> if (!started) begin(intent.getStringExtra(RESUME), intent.getBooleanExtra(RUN, false)) else Unit
-            STOP -> finish(DayRec.REASON_USER)
+            STOP -> requestFinish(DayRec.REASON_USER)
+            SWITCH -> if (started && !stopping) switchMode(intent.getBooleanExtra(RUN, false), intent.getLongExtra(AT, 0L))
             else -> if (!started) stopSelf() // a restart by the system with no tap behind it: nothing to record
         }
         return START_NOT_STICKY
     }
 
+    /**
+     * A stop that comes from the main thread (the notification's button, the screen's button): it is run on the recorder's
+     * thread, behind the readings already queued, so it cannot meet a reading in the middle of the day's file or the engine.
+     * With no recorder thread (a stop before the start, or after the end) it is run here; [finish] is a no-op the second time.
+     */
+    private fun requestFinish(reason: String) {
+        val h = handler
+        if (h != null && h.post { finish(reason) }) return
+        finish(reason)
+    }
+
+    /**
+     * All day to one descent or back, inside the same recording: nothing is stopped, the counter and the map go on, and
+     * the earlier readings stay in the log. One descent counts from now (the choice is made in the first moments).
+     */
+    private fun switchMode(run: Boolean, at: Long) {
+        handler?.post {
+            if (runMode == run) return@post
+            runMode = run
+            engine?.setRun(run, if (lastAt > 0) lastAt else System.currentTimeMillis())
+            nextLiveAt = 0L
+            DayRec.single = run
+            Diag.log("dayrec mode ${if (run) "run" else "day"} applied${if (at > 0) " ${System.currentTimeMillis() - at}ms after the tap" else ""}")
+        }
+    }
+
+    /**
+     * Starts the recording. Only what must be done at once is done here, on the main thread (the notification, which a
+     * foreground service has five seconds to show, the wake lock and the thread); the day's file, the analysis' network, the
+     * GPS and the sensors are set up on the recorder's own thread ([setup]), because the calls to the system's location and
+     * sensor services can block for a while on some phones (a cold GPS chip) and the main thread is also drawing the live
+     * screen that the tap just opened.
+     */
     private fun begin(resume: String?, run: Boolean) {
         started = true
+        val begun = SystemClock.elapsedRealtime()
         val c = Lang.wrap(this)
-        if (DayRec.check(this) != null) { abort(); return }
+        DayRec.check(this)?.let { Diag.log("dayrec cannot start: $it"); abort(); return }
         // the notification first: a foreground service has five seconds to show it
         try {
             val n = notification(c, 0, -1)
             if (Build.VERSION.SDK_INT >= 29) startForeground(ID, n, ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION) else startForeground(ID, n)
-        } catch (e: Exception) { Qa.log("dayrec cannot start: ${e.javaClass.simpleName}"); abort(); return }
+        } catch (e: Exception) { Diag.log("dayrec cannot start: ${e.javaClass.simpleName} ${e.message?.take(80)}"); abort(); return }
+        Diag.log("dayrec foreground up after ${SystemClock.elapsedRealtime() - begun}ms")
 
-        val store = DayRec.store(this)
-        val now = System.currentTimeMillis()
-        val file = resume?.let { File(it) }?.takeIf { it.isFile && it.parentFile == store.dir }
-        log = try {
-            if (file != null) DayLog.reopen(file).also { it.resumed(now) }
-            else DayLog.create(store.newFile(now), DayParams.TZ, DayParams.RESORT, DayStore.device(), now, mode = if (run) "run" else "day")
-        } catch (e: Exception) { Qa.log("dayrec cannot write: ${e.javaClass.simpleName}"); abort(); return }
-        DayRec.current = log!!.file
-        DayRec.live = null; DayRec.ride = null; DayRec.sofar = null; DayRec.speedNow = null; DayRec.since = 0L; DayRec.single = false; DayRec.startedAt = System.currentTimeMillis(); DayRec.lastFixAt = 0L
+        runMode = run
+        DayRec.live = null; DayRec.ride = null; DayRec.sofar = null; DayRec.speedNow = null; DayRec.liveSpeed = null; prevFix = null; DayRec.since = 0L; DayRec.single = run; DayRec.startedAt = DayRec.tapAt.takeIf { it > 0 && System.currentTimeMillis() - it < 15_000L } ?: System.currentTimeMillis(); DayRec.lastFixAt = 0L
         clockOffset = System.currentTimeMillis() - SystemClock.elapsedRealtime()
         impacts = ImpactBuffer(DayParams.FALL_TRIGGER_G, DayParams.FALL_PRE_S, DayParams.FALL_POST_S, DayParams.FALL_DEBOUNCE_S, DayParams.FALL_HZ) { t, t0, hz, a, g ->
             runCatching { log?.impact(t, t0, hz, a, g) }
-            // the sensors call on the main thread, the engine is the recorder thread's: the blow goes over as the log has it
+            Qa.log("dayrec blow window written") // the emulator run reads it: the sensors' handler ran on the recorder's thread
+            // the sensors and the engine are the recorder thread's: the blow goes over as the log has it
             handler?.post { engine?.addEvent(DayLog.impactJson(t, t0, hz, a, g)) }
         }
-        firstAt = now; lastAt = 0L
+        firstAt = System.currentTimeMillis(); lastAt = 0L; fixes = 0; DayRec.fixCount = 0
 
         // 14 hours is longer than any lift day: a lock that cannot be forgotten
         lock = getSystemService(PowerManager::class.java).newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "skiapp:dayrec").apply { acquire(14 * 3600_000L) }
         val t = HandlerThread("dayrec").also { it.start() }; thread = t
         handler = Handler(t.looper)
-        val before = file?.let { runCatching { DayLog.read(it) }.getOrNull() }
-        runMode = (before?.mode ?: if (run) "run" else "day") == "run"
-        // the network and the numbers are loaded on the recorder's thread, before the first reading is handled (the callbacks
-        // below queue behind this); a day that is gone on with brings its earlier readings in
-        val header = before?.header ?: JSONObject().put("v", DayLog.VERSION).put("tz", DayParams.TZ).put("resort", DayParams.RESORT).put("mode", if (runMode) "run" else "day")
-        handler!!.post {
-            runCatching {
-                val e = DayAnalysis.engine(this, header)
-                before?.let { d -> d.points.forEach(e::add); d.events.forEach(e::addEvent) }
-                e.onRide = { DayRec.ride = it; Qa.log("dayrec ride ${it.runs.size} runs") }
-                engine = e
-            }.onFailure { Qa.log("dayrec no analysis: ${it.javaClass.simpleName}") }
-        }
         finals = Executors.newSingleThreadExecutor()
         lm = getSystemService(LocationManager::class.java)
         sensors = getSystemService(SensorManager::class.java)
+        handler!!.post { setup(resume, run, begun) }
+    }
+
+    /** On the recorder's thread: the file, the readings' sources and the analysis. Anything that fails ends the start cleanly. */
+    private fun setup(resume: String?, run: Boolean, begun: Long) {
+        if (stopping) return
+        val fail = { why: String -> Diag.log("dayrec cannot start: $why"); Handler(Looper.getMainLooper()).post { abort() } }
+        val store = DayRec.store(this)
+        val now = System.currentTimeMillis()
+        val file = resume?.let { File(it) }?.takeIf { it.isFile && it.parentFile == store.dir }
+        val made = try {
+            if (file != null) DayLog.reopen(file).also { it.resumed(now) }
+            else DayLog.create(store.newFile(now), DayParams.TZ, DayParams.RESORT, DayStore.device(), now, mode = if (run) "run" else "day")
+        } catch (e: Exception) { fail("cannot write ${e.javaClass.simpleName}"); return }
+        log = made
+        DayRec.current = made.file
+        val before = file?.let { runCatching { DayLog.read(it) }.getOrNull() }
+        runMode = (before?.mode ?: if (run) "run" else "day") == "run"
+        if (before != null) DayRec.single = runMode
+        val header = before?.header ?: JSONObject().put("v", DayLog.VERSION).put("tz", DayParams.TZ).put("resort", DayParams.RESORT).put("mode", if (runMode) "run" else "day")
+        // the GPS first, before the analysis' network is loaded: the readings queue behind this task on the same thread, so none is lost
         try {
             @Suppress("MissingPermission")
-            lm!!.requestLocationUpdates(LocationManager.GPS_PROVIDER, DayParams.GPS_MIN_TIME_MS, 0f, gps, t.looper)
-        } catch (e: Exception) { Qa.log("dayrec no gps: ${e.javaClass.simpleName}"); abort(); return }
-        // the accelerometer and the gyroscope at 50 a second, batched (the hardware collects and hands over every
-        // second); the barometer slowly. The windows around a blow come from these two (condition 10).
+            lm!!.requestLocationUpdates(LocationManager.GPS_PROVIDER, DayParams.GPS_MIN_TIME_MS, 0f, gps, handler!!.looper)
+        } catch (e: Exception) { fail("no gps ${e.javaClass.simpleName}"); return }
+        val gpsAt = SystemClock.elapsedRealtime()
+        if (Build.VERSION.SDK_INT >= 24) runCatching {
+            @Suppress("MissingPermission", "DEPRECATION")
+            gnssOn = lm!!.registerGnssStatusCallback(gnss, handler)
+        }
+        Diag.log("dayrec gps asked for after ${gpsAt - begun}ms, satellite status ${if (gnssOn) "on" else "off"} took ${SystemClock.elapsedRealtime() - gpsAt}ms")
+        // the accelerometer and the gyroscope at 50 a second, batched (the hardware collects and hands over every second); the
+        // barometer slowly. The windows around a blow come from these two (condition 10). They call on this thread, not the main one.
         val period = 1_000_000 / DayParams.FALL_HZ
-        sensors?.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)?.let { sensors?.registerListener(sensorListener, it, period, 1_000_000) }
-        sensors?.getDefaultSensor(Sensor.TYPE_GYROSCOPE)?.let { sensors?.registerListener(sensorListener, it, period, 1_000_000) }
-        sensors?.getDefaultSensor(Sensor.TYPE_PRESSURE)?.let { sensors?.registerListener(sensorListener, it, 1_000_000) }
+        sensors?.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)?.let { sensors?.registerListener(sensorListener, it, period, 1_000_000, handler) }
+        sensors?.getDefaultSensor(Sensor.TYPE_GYROSCOPE)?.let { sensors?.registerListener(sensorListener, it, period, 1_000_000, handler) }
+        sensors?.getDefaultSensor(Sensor.TYPE_PRESSURE)?.let { sensors?.registerListener(sensorListener, it, 1_000_000, handler) }
+        Diag.log("dayrec sensors registered after ${SystemClock.elapsedRealtime() - begun}ms")
         DayRec.started()
+        Diag.log("dayrec ready ${System.currentTimeMillis() - DayRec.startedAt}ms after the tap (setup ${SystemClock.elapsedRealtime() - begun}ms) mode=${if (runMode) "run" else "day"}")
+        handler?.postDelayed(pulse, PULSE_MS)
+        // the network and the numbers (a second or two): the readings that come meanwhile wait in the queue
+        runCatching {
+            val e = DayAnalysis.engine(this, header)
+            before?.let { d -> d.points.forEach(e::add); d.events.forEach(e::addEvent) }
+            e.onRide = { DayRec.ride = it; Qa.log("dayrec ride ${it.runs.size} runs") }
+            engine = e
+            Diag.log("dayrec analysis ready after ${SystemClock.elapsedRealtime() - begun}ms")
+        }.onFailure { Diag.log("dayrec no analysis: ${it.javaClass.simpleName}") }
     }
 
     private fun onLocation(l: Location) {
         val log = log ?: return
         val t = if (l.time > 0) l.time else System.currentTimeMillis()
         if (t <= lastAt) return // the same second twice, or the clock stepping back
-        if (lastAt != 0L && t - lastAt > DayParams.GAP_MS) Qa.log("dayrec hole ${(t - lastAt) / 1000}s")
-        if (lastAt == 0L) firstAt = t
+        if (lastAt != 0L && t - lastAt > DayParams.GAP_MS) Diag.log("dayrec hole ${(t - lastAt) / 1000}s")
+        if (lastAt == 0L) {
+            firstAt = t
+            Diag.log("dayrec first fix ${System.currentTimeMillis() - DayRec.startedAt}ms after the tap, accuracy ${if (l.hasAccuracy()) "${l.accuracy.toInt()}m" else "?"}, sats $satsUsed/$satsSeen")
+        }
+        fixes++; DayRec.fixCount = fixes
         lastAt = t
         val point = DayLog.Point(
             t, l.latitude, l.longitude,
@@ -173,7 +265,9 @@ class DayRecService : Service() {
             bearing = if (l.hasBearing()) l.bearing.toDouble() else null, motion = motion.take()?.toDouble(),
         )
         log.add(point)
-        DayRec.speedNow = point.speed; DayRec.lastFixAt = System.currentTimeMillis(); DayRec.since = firstAt; DayRec.single = runMode
+        val cur = LiveNumbers.Fix(t, Geo.x(l.longitude).toDouble(), Geo.y(l.latitude).toDouble(), point.hAcc)
+        DayRec.liveSpeed = LiveNumbers.displaySpeed(point.speed, prevFix, cur, DayRec.liveSpeed); prevFix = cur // the big number only
+        DayRec.speedNow = point.speed; DayRec.lastFixAt = System.currentTimeMillis(); DayRec.since = firstAt // (DayRec.single is the screens' word and the switch's: a reading must not put it back before the switch is applied)
         analyse(point)
         if (stopping) return
         if (log.atLimit) { finish(DayRec.REASON_FULL); return }
@@ -209,23 +303,44 @@ class DayRecService : Service() {
     /** The notification again, when the minute changes (and for the warning), not every second. */
     private fun refresh(t: Long) {
         val minutes = (t - firstAt) / 60_000L
-        val key = minutes * 2 + if (warnedLeft >= 0) 1 else 0
-        if (key == shownMinute) return
-        shownMinute = key
+        // the redesign's notification (test build, board L05) changes also with the lift and the run; today's only with the minute
+        val key = "$minutes,${warnedLeft >= 0},${io.github.pini236.skiapp.redesign.Redesign.noticeKey(DayRec.live, DayRec.ride)}"
+        if (key == shownKey) return
+        shownKey = key
         val c = Lang.wrap(this)
-        getSystemService(NotificationManager::class.java)?.notify(ID, notification(c, minutes.toInt(), warnedLeft))
+        val nm = getSystemService(NotificationManager::class.java) ?: return
+        nm.notify(ID, notification(c, minutes.toInt(), warnedLeft, t - firstAt))
+        // the warning before the automatic stop is a notification of its own, on a channel that makes a sound (the permanent one stays silent)
+        if (warnedLeft >= 0) nm.notify(WARN_ID, warning(c, warnedLeft)) else nm.cancel(WARN_ID)
     }
 
-    private fun notification(c: Context, minutes: Int, warnLeftMs: Long): Notification {
+    /** "Recording will stop in N min without movement": a normal-importance channel, one sound, then it only updates. */
+    private fun warning(c: Context, leftMs: Long): Notification {
+        val nm = c.getSystemService(NotificationManager::class.java)
+        nm.createNotificationChannel(NotificationChannel(WARN_CHANNEL, c.getString(R.string.app_dayrec_channel), NotificationManager.IMPORTANCE_DEFAULT))
+        val flags = PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        val open = PendingIntent.getActivity(c, 1, Intent(c, MainActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP), flags)
+        return Notification.Builder(c, WARN_CHANNEL)
+            .setSmallIcon(R.drawable.ic_notify)
+            .setContentTitle(c.getString(R.string.app_dayrec_title)).setContentText(c.getString(R.string.app_dayrec_idle, ((leftMs + 59_999) / 60_000).toInt()))
+            .setCategory(Notification.CATEGORY_STATUS).setOnlyAlertOnce(true).setShowWhen(false).setAutoCancel(true)
+            .setContentIntent(open)
+            .build()
+    }
+
+    private fun notification(c: Context, minutes: Int, warnLeftMs: Long, elapsedMs: Long = minutes * 60_000L): Notification {
         val nm = c.getSystemService(NotificationManager::class.java)
         nm.createNotificationChannel(NotificationChannel(CHANNEL, c.getString(R.string.app_dayrec_channel), NotificationManager.IMPORTANCE_LOW))
         val flags = PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         val open = PendingIntent.getActivity(c, 1, Intent(c, MainActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP), flags)
         val stop = PendingIntent.getService(c, 2, Intent(c, DayRecService::class.java).setAction(STOP), flags)
         val text = if (warnLeftMs >= 0) c.getString(R.string.app_dayrec_idle, ((warnLeftMs + 59_999) / 60_000).toInt()) else c.getString(R.string.app_dayrec_text, minutes)
+        // the redesign (test build, board L05): the run or the descent that just ended, no live speed; the warning wins
+        val re = if (warnLeftMs >= 0) null else io.github.pini236.skiapp.redesign.Redesign.notice(c, elapsedMs, DayRec.live, DayRec.ride)
         return Notification.Builder(c, CHANNEL)
             .setSmallIcon(R.drawable.ic_notify)
-            .setContentTitle(c.getString(R.string.app_dayrec_title)).setContentText(text)
+            .setContentTitle(re?.first ?: c.getString(R.string.app_dayrec_title)).setContentText(re?.second ?: text)
+            .apply { re?.third?.let { setStyle(Notification.BigTextStyle().bigText(it)) } }
             .setCategory(Notification.CATEGORY_SERVICE).setOngoing(true).setOnlyAlertOnce(true).setShowWhen(false)
             .setContentIntent(open)
             .addAction(Notification.Action.Builder(null, c.getString(R.string.app_dayrec_stop), stop).build())
@@ -240,12 +355,12 @@ class DayRecService : Service() {
      * next time it is asked for ([DayAnalysis.ensure]).
      */
     private fun finish(reason: String) {
-        if (stopping) return
-        stopping = true
+        if (!stoppingFlag.compareAndSet(false, true)) return
         val minutes = if (lastAt > firstAt) ((lastAt - firstAt) / 60_000L).toInt() else 0
         val at = if (lastAt > 0) lastAt else System.currentTimeMillis()
         val file = log?.file
         runCatching { if (reason == DayRec.REASON_FULL) log?.full(at) else log?.stop(at, reason) }
+        Diag.log("dayrec finishing reason=$reason fixes=$fixes")
         if (log != null) DayRec.stopped(minutes, reason)
         log = null
         DayRec.finishing = file != null
@@ -266,13 +381,17 @@ class DayRecService : Service() {
 
     /** The service could not start: nothing was recorded, so nothing is reported. */
     private fun abort() {
-        stopping = true
+        stoppingFlag.set(true)
+        DayRec.tapAt = 0L
         runCatching { log?.release() }; log = null
         teardown()
         runCatching { stopForeground(STOP_FOREGROUND_REMOVE) }; stopSelf()
     }
 
     private fun teardown() {
+        if (!torn.compareAndSet(false, true)) return // the main thread (onDestroy) and the recorder's can both get here
+        runCatching { handler?.removeCallbacks(pulse) }
+        if (Build.VERSION.SDK_INT >= 24) runCatching { lm?.unregisterGnssStatusCallback(gnss) }
         runCatching { lm?.removeUpdates(gps) }
         runCatching { sensors?.unregisterListener(sensorListener) }
         impacts?.clear(); impacts = null
@@ -280,12 +399,14 @@ class DayRecService : Service() {
         runCatching { finals?.shutdown() }; finals = null
         runCatching { thread?.quitSafely() }; thread = null
         runCatching { lock?.takeIf { it.isHeld }?.release() }; lock = null
+        runCatching { getSystemService(NotificationManager::class.java)?.cancel(WARN_ID) }
         DayRec.current = null
     }
 
     /** Killed by the system, or the app was closed: the file stays as it is, cut, and can be gone on with. */
     override fun onDestroy() {
-        if (!stopping) { runCatching { log?.release() }; log = null; teardown() }
+        Diag.log("dayrec service destroyed stopping=$stopping fixes=$fixes")
+        if (stoppingFlag.compareAndSet(false, true)) { runCatching { log?.release() }; log = null; teardown() }
         super.onDestroy()
     }
 
@@ -294,11 +415,17 @@ class DayRecService : Service() {
         const val STOP = "io.github.pini236.skiapp.dayrec.STOP"
         const val RESUME = "resume"
         const val RUN = "run"
+        const val SWITCH = "switch"
+        /** When the switch was tapped (epoch ms), so the diagnostic log can say how long the service took to apply it. */
+        const val AT = "at"
+        private const val PULSE_MS = 15_000L
         /** The live view is worked out this often in a day (in a single run, every second). */
         const val LIVE_EVERY_S = 5L
         /** The whole day so far, smoothed, for the screens. */
         const val FINAL_EVERY_MS = 120_000L
         private const val CHANNEL = "dayrec"
         private const val ID = 7601
+        private const val WARN_CHANNEL = "dayrec_warn"
+        private const val WARN_ID = 7602
     }
 }

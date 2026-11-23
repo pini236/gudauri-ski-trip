@@ -26,8 +26,9 @@ ROOT = Path(__file__).resolve().parent.parent
 # the app (decision 27), and the app's games do not use them.
 SKIP = re.compile(r"^game\.[a-z]+\.friend_")
 # The field testers' export (docs/handoff/2026-10-31-tester-log-consent) exists in the test build only: its words are
-# written with --tester, into a folder that only the preview flavor adds, so a store build has none of them.
-TESTER = re.compile(r"^tester\.")
+# written with --tester, into a folder that only the preview flavor adds, so a store build has none of them. The redesign
+# POC (poc.*, decisions 83 and 84) lives in the test build only as well, the same way.
+TESTER = re.compile(r"^(tester|poc)\.")
 PH = re.compile(r"\{([a-zA-Z_][a-zA-Z0-9_]*)\}")
 # Android's resource qualifiers keep the old code for Hebrew (values-iw), as the platform itself does
 QUALIFIER = {"he": "iw"}

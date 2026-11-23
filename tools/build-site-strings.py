@@ -33,7 +33,7 @@ def main():
         if k.startswith("support."):
             continue
         # the field testers' export is a test build of the Android app only (docs/handoff/2026-10-31-tester-log-consent)
-        if k.startswith("tester."):
+        if k.startswith(("tester.", "poc.")):
             continue
         g = k.split(".")[1] if k.startswith("game.") else ""
         groups.setdefault(g, {})[k] = v

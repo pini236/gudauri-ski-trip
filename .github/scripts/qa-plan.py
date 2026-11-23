@@ -9,7 +9,7 @@ the short ones are paired (each pays about two minutes to start an emulator), th
 """
 import json, subprocess, sys
 
-ALL = "map,descent,games,school,snowball,home,group,meet,status,run,locate,weather,lang,phone,store,bigtext".split(",")
+ALL = "map,descent,games,school,snowball,home,group,meet,status,run,locate,weather,lang,phone,store,bigtext,redesign".split(",")
 SMOKE = "home"
 PAIRS = [("store", "lang"), ("status", "weather"), ("locate", "descent")]
 # a change in any of these runs everything
@@ -58,7 +58,7 @@ def groups(parts):
 scenario, ref = (sys.argv[1] or "all"), sys.argv[2]
 if scenario == "all" or (scenario == "auto" and ref == "main"):
     # main always runs every part when it is not told which: its results are the release's
-    parts = list(ALL)
+    parts = [p for p in ALL if p != "redesign"]  # redesign (POC, preview build) only by hand or by its own files
 elif scenario == "auto":
     parts = auto()
 else:

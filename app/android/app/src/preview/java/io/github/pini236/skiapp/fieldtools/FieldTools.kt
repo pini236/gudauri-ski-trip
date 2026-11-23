@@ -85,6 +85,32 @@ object FieldTools {
         )
     }
 
+    /** The recording's diagnostic log (qa/Diag: states, counts and milliseconds, never a position), sent through the system's share sheet. */
+    @Composable
+    fun DiagRow() {
+        val ctx = LocalContext.current
+        val scope = rememberCoroutineScope()
+        Action(stringResource(R.string.tester_diag_row)) {
+            scope.launch {
+                val out = withContext(Dispatchers.IO) {
+                    runCatching {
+                        io.github.pini236.skiapp.qa.Diag.file()?.let { f ->
+                            val dir = File(ctx.cacheDir, "share").also { it.mkdirs() }
+                            dir.listFiles { x -> x.name.startsWith("diag-") }?.forEach { it.delete() }
+                            File(dir, "diag-" + java.util.UUID.randomUUID().toString().take(6) + ".txt").also { it.writeText(f.readText()) }
+                        }
+                    }.getOrNull()
+                }
+                if (out == null) Toast.makeText(ctx, R.string.tester_diag_empty, Toast.LENGTH_LONG).show()
+                else {
+                    val uri = FileProvider.getUriForFile(ctx, ctx.packageName + ".share", out)
+                    val send = Intent(Intent.ACTION_SEND).setType("text/plain").putExtra(Intent.EXTRA_STREAM, uri).addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                    ctx.startActivity(Intent.createChooser(send, ctx.getString(R.string.tester_share_title)).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+                }
+            }
+        }
+    }
+
     @Composable
     fun DayExtras(file: File) {
         val ctx = LocalContext.current

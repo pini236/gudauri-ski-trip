@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="he">
+<head>
+<meta charset="utf-8">
+<title>היום: אני, משחקים, הימים שלי והגדרות</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@400;500;700;900&amp;family=Assistant:wght@400;600;700&amp;family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,900&amp;family=PT+Serif:wght@400;700&amp;family=PT+Sans:wght@400;700&amp;family=Noto+Serif+Georgian:wght@500;700&amp;family=Noto+Sans+Georgian:wght@400;600&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+.B{--bg:#FFFFFF;--sf:#F4F5F6;--ink:#0B0B0C;--ink2:#55585E;--ac:#0A7E8C;--onac:#FFFFFF;--hair:#CFD2D6;--ok:#157A3F;--bad:#B3261E;--pg:#198549;--pb:#1F6FD0;--pr:#D1342B;--pk:#111111;font-family:'Assistant',system-ui,sans-serif;color:var(--ink);background:var(--bg)}
+.B .night{--bg:#0E1011;--sf:#1A1D1F;--ink:#F2F2F0;--ink2:#A3A7AD;--ac:#5CC8D6;--onac:#06262B;--hair:#3A3E43;--ok:#46D08A;--bad:#FF7468;--pg:#46D08A;--pb:#62AEFF;--pr:#FF7468;--pk:#F2F2F0}
+.B .scr{position:absolute;inset:0;background:var(--bg);color:var(--ink);display:flex;flex-direction:column;font-size:16px;line-height:1.4}
+.B .n{display:none}.B .night .n{display:block}.B .night .d{display:none}
+.B button{font:inherit;color:inherit;border:0;background:none;padding:0;cursor:pointer}
+.B a{color:inherit;text-decoration:none}
+.B h1,.B h2,.B h3,.B p{margin:0;font-weight:inherit;font-size:inherit}
+.B .se,.B .tab{font-family:'Frank Ruhl Libre','Fraunces',serif}
+.B .en .se,.B .en .tab{font-family:'Fraunces','Frank Ruhl Libre',serif}
+.B .k{font-size:12.5px;font-weight:700;letter-spacing:.06em;color:var(--ink2)}
+.B .s{font-size:14px;color:var(--ink2)}
+.B .r1{border-top:1px solid var(--ink)}.B .r3{border-top:3px solid var(--ink)}.B .rh{border-top:1px solid var(--hair)}
+.B .tabs{display:flex;flex:none;border-top:1px solid var(--ink);padding-bottom:22px}
+.B .tab{flex:1;height:60px;display:flex;align-items:center;justify-content:center;font-size:17px;color:var(--ink2);border-top:3px solid transparent;margin-top:-1px}
+.B .tab.on{color:var(--ink);font-weight:700;border-top-color:var(--ink)}
+.B .btn{display:flex;align-items:center;justify-content:center;height:52px;padding:0 20px;background:var(--ink);color:var(--bg);font-weight:700}
+.B .btn2{display:flex;align-items:center;justify-content:center;height:52px;padding:0 18px;border:1px solid var(--ink);font-weight:600}
+.B .pill{display:inline-flex;align-items:center;height:26px;padding:0 10px;border:1px solid var(--ink);border-radius:999px;font-size:13px;font-weight:600}
+.B .dot{display:inline-block;width:10px;height:10px;border-radius:50%;flex:none}
+.B .row{display:flex;align-items:center;gap:10px;min-height:46px;border-bottom:1px solid var(--hair)}
+.B .figs{display:flex}
+.B .fig{flex:1;padding:10px 12px;border-inline-start:1px solid var(--hair)}
+.B .fig:first-child{border-inline-start:0;padding-inline-start:0}
+.B .fig b{display:block;font-family:'Frank Ruhl Libre','Fraunces',serif;font-size:30px;font-weight:700;line-height:1.1}
+.B .en .fig b{font-family:'Fraunces','Frank Ruhl Libre',serif}
+.B .q{font-size:23px;line-height:1.25;padding:12px 0;border-top:1px solid var(--ink);border-bottom:1px solid var(--ink)}
+.B .rail{display:grid;grid-template-columns:58px minmax(0,1fr)}
+.B .rail>.t{padding-top:16px;font-size:13px;font-weight:700;color:var(--ink2)}
+.B .rail>.c{padding:14px 0 16px;padding-inline-start:16px;border-inline-start:1px solid var(--ink);border-bottom:1px solid var(--hair)}
+</style>
+</helmet>
+<div class="B" style="width: 390px; height: 844px; position: relative; overflow: hidden">
+<div class="{{mode}}">
+<div class="scr" dir="rtl">
+<div style="flex: 1; min-height: 0; padding: 50px 20px 0; display: flex; flex-direction: column">
+<div style="display: flex; justify-content: space-between; align-items: center; min-height: 46px">
+<h1 class="se" style="font-size: 30px; font-weight: 900; line-height: 1">אני</h1>
+<button style="height: 44px; font-weight: 700; color: var(--ac)">כניסה לחשבון</button>
+</div>
+<div class="r3"></div>
+<p class="k" style="padding-top: 10px">משחקים</p>
+<button class="row" style="min-height: 52px; text-align: start"><span class="se" style="width: 38px; font-size: 26px; font-weight: 400; color: var(--ink2)">01</span><span class="se" style="flex: 1; font-size: 21px; font-weight: 500">הירידה</span><span class="s">9,310 נק׳</span></button>
+<button class="row" style="min-height: 52px; text-align: start"><span class="se" style="width: 38px; font-size: 26px; font-weight: 400; color: var(--ink2)">02</span><span class="se" style="flex: 1; font-size: 21px; font-weight: 500">בית הספר לסקי</span><span class="s">12 כוכבים</span></button>
+<button class="row" style="min-height: 52px; text-align: start"><span class="se" style="width: 38px; font-size: 26px; font-weight: 400; color: var(--ink2)">03</span><span class="se" style="flex: 1; font-size: 21px; font-weight: 500">שלג טרי</span><span class="s">עוד לא שיחקת</span></button>
+<button class="row" style="min-height: 52px; text-align: start"><span class="se" style="width: 38px; font-size: 26px; font-weight: 400; color: var(--ink2)">04</span><span class="se" style="flex: 1; font-size: 21px; font-weight: 500">איחוד כדורי שלג</span><span class="s">4,096</span></button>
+<button class="row" style="min-height: 52px; text-align: start; border-bottom: 0"><span class="se" style="width: 38px; font-size: 26px; font-weight: 400; color: var(--ink2)">05</span><span class="se" style="flex: 1; font-size: 21px; font-weight: 500">קרב כדורי שלג</span><span class="s">31 פגיעות</span></button>
+<p class="k r1" style="padding-top: 10px">הימים שלי</p>
+<a class="row" href="B06-Story.dc.html" style="min-height: 52px; border-bottom: 0"><span class="se" style="width: 60px; font-size: 21px; font-weight: 700">11.1</span><span style="flex: 1">7 ירידות · 16.0 ק״מ · 2,601 מ׳</span></a>
+<p class="k r1" style="padding-top: 10px">הגדרות</p>
+<div class="row" style="min-height: 48px">
+<span style="flex: 1">שפה</span>
+<div role="group" aria-label="שפה" style="display: flex">
+<button aria-pressed="true" style="min-width: 44px; height: 44px; font-weight: 700; box-shadow: inset 0 -3px 0 var(--ink)">עב</button>
+<button style="min-width: 44px; height: 44px; color: var(--ink2)">EN</button>
+<button style="min-width: 44px; height: 44px; color: var(--ink2)">RU</button>
+<button style="min-width: 44px; height: 44px; color: var(--ink2)">KA</button>
+</div>
+</div>
+<div class="row" style="min-height: 48px">
+<span style="flex: 1">תצוגה</span>
+<div role="group" aria-label="תצוגה" style="display: flex; gap: 14px">
+<button aria-pressed="true" style="height: 44px; font-weight: 700; box-shadow: inset 0 -3px 0 var(--ink)">אוטומטי</button>
+<button style="height: 44px; color: var(--ink2)">יום</button>
+<button style="height: 44px; color: var(--ink2)">לילה</button>
+</div>
+</div>
+<button class="row" style="min-height: 48px; border-bottom: 0; text-align: start"><span style="flex: 1">צליל, רטט, מדידה ופרטיות</span><span class="s">עוד</span></button>
+</div>
+<nav class="tabs">
+<a class="tab" href="B02-Open.dc.html">עכשיו</a>
+<a class="tab" href="B03-Map.dc.html">ההר</a>
+<a class="tab" href="B08-Meet.dc.html">החבר׳ה</a>
+<a class="tab on" href="B09-Games.dc.html">אני</a>
+</nav>
+</div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"night":{"editor":"boolean","default":false},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+renderVals() {
+return { mode: (this.props.night ?? false) ? 'night' : 'day' };
+}
+}
+</script>
+</body>
+</html>

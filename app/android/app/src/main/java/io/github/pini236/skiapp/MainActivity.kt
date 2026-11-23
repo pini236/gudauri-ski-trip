@@ -5,6 +5,7 @@ import io.github.pini236.skiapp.telemetry.OpenSource
 import io.github.pini236.skiapp.telemetry.Telemetry
 import io.github.pini236.skiapp.telemetry.ReplayController
 import io.github.pini236.skiapp.telemetry.InstallAnalytics
+import io.github.pini236.skiapp.telemetry.InstallChannel
 import io.github.pini236.skiapp.telemetry.OpenLifecyclePolicy
 import android.os.Build
 import android.os.Bundle
@@ -77,6 +78,7 @@ import io.github.pini236.skiapp.nav.Route
 import io.github.pini236.skiapp.perf.FrameStats
 import io.github.pini236.skiapp.perf.Startup
 import io.github.pini236.skiapp.qa.GesturePlayer
+import io.github.pini236.skiapp.qa.Diag
 import io.github.pini236.skiapp.qa.Qa
 import io.github.pini236.skiapp.home.AboutScreen
 import io.github.pini236.skiapp.home.DayNight
@@ -193,8 +195,29 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    /** "Record": the ski day starts at once, from anywhere (round 29); the screen only has to say what is in the way. */
+    /** The notification permission (Android 13+), asked when it is first needed: the first tap on "Record" (15.11.2026), as on the iPhone. */
+    private var recAfterAsk: Boolean? = null
+
+    // The activity is a ComponentActivity with no fragments, so the lint warning about an old Fragment version does not apply.
+    @android.annotation.SuppressLint("InvalidFragmentVersionForActivityResult")
+    private val askNotifications = registerForActivityResult(ActivityResultContracts.RequestPermission()) { ok ->
+        Qa.log("notifications ${if (ok) "allowed" else "refused"}"); armReminders()
+        recAfterAsk?.let { recAfterAsk = null; recordNow(it) }
+    }
+
+    /** "Record": the first time, the phone is asked about notifications first (the stop button outside the app needs them); then as before. */
     private fun record(single: Boolean) {
+        if (Reminders.shouldAsk(this, Reminders.Ask.RECORD)) {
+            Reminders.markAsked(this, Reminders.Ask.RECORD); Qa.log("notifications asked")
+            recAfterAsk = single
+            askNotifications.launch(android.Manifest.permission.POST_NOTIFICATIONS)
+            return
+        }
+        recordNow(single)
+    }
+
+    /** "Record": the ski day starts at once, from anywhere (round 29); the screen only has to say what is in the way. */
+    private fun recordNow(single: Boolean) {
         recSingle = single
         when (DayRec.start(this, run = single)) {
             DayRec.Start.Started, DayRec.Start.Already -> if (nav.top !is Route.Day) nav.push(Route.Day)
@@ -204,17 +227,8 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    /** From all day to one descent, or back, in the first moments (the choice at the top of the live screen): a new recording. */
-    private fun switchRecording(single: Boolean) {
-        inBackground {
-            DayRec.stop(this)
-            var waited = 0
-            while (DayRec.recording && waited < 100) { Thread.sleep(100); waited++ }
-            // a day that was just begun and thrown away is not a day: nothing worth keeping in it
-            DayRec.store(this).days().lastOrNull()?.takeIf { f -> f.length() < 20_000 }?.let { DayRec.store(this).delete(it) }
-            runOnUiThread { record(single) }
-        }
-    }
+    /** From all day to one descent, or back (the choice at the top of the live screen): the same recording goes on, nothing restarts. */
+    private fun switchRecording(single: Boolean) { recSingle = single; DayRec.switchMode(this, single) }
     /** The meeting point's stations (from the same data as the map), and its top view, read the first time it opens. */
     private var meetPlan by mutableStateOf<MeetPlan?>(null)
     /** The runs' videos (site/data/videos-seed.json), for the run's panel (13.3). */
@@ -303,6 +317,8 @@ class MainActivity : ComponentActivity() {
         ReplayController.enableQa(BuildConfig.DEBUG && intent?.getBooleanExtra("qa.replay", false) == true)
         nav = Nav(Route.Home, savedInstanceState?.getStringArrayList("nav"), ReplayController::beforeNavigation)
         Qa.init(this)
+        Diag.init(this)
+        Diag.startup(this, BuildConfig.VERSION_NAME)
         Qa.log("language ${Lang.current(resources).tag} · phone ${android.content.res.Resources.getSystem().configuration.locales.toLanguageTags()} · ${if (Lang.manual(this)) "chosen in the app" else "automatic"}")
         trips = TripStore(this)
         trip = trips.load()
@@ -359,6 +375,7 @@ class MainActivity : ComponentActivity() {
             langSource = if (manual) "manual" else "auto",
             theme = dnMode.name.lowercase(),
             deviceClass = if (resources.configuration.smallestScreenWidthDp >= 600) "tablet" else "phone",
+            installChannel = InstallChannel.detect(this, Telemetry.qaRun(), BuildConfig.FLAVOR == "preview"),
         ))
         // Locale/rotation recreates the Activity in this process; keep common properties fresh without a fake open.
         // A recreated Activity returning from the background still goes through onResume's warm-open flag.
@@ -535,7 +552,7 @@ class MainActivity : ComponentActivity() {
             Qa.log("scene ready")
         }
         castShadows(s)
-        runOnUiThread { if (isDestroyed) return@runOnUiThread; qaPending?.let { qaPending = null; applyQaMap(it, sunDone = true) }; ui.postDelayed(skyTick, SKY_EVERY_MS) }
+        runOnUiThread { if (isDestroyed) return@runOnUiThread; qaPending?.let { qaPending = null; applyQaMap(it, sunDone = true) }; lastSkyMs = SystemClock.uptimeMillis(); ui.removeCallbacks(skyTick); ui.postDelayed(skyTick, SKY_EVERY_MS) }
         // new runs, lifts and videos from the site, if there are any: read at the next launch (data/SiteData.kt)
         // whatever goes wrong with a refresh, the app keeps the data it has (it never crashes over it)
         val refreshed = runCatching { siteData.refresh() }.getOrElse { Telemetry.handled(it); emptyMap() }
@@ -547,9 +564,30 @@ class MainActivity : ComponentActivity() {
         override fun run() {
             val s = scene ?: return
             if (isDestroyed) return
-            if (clockMs == null) inBackground { val note = placeSun(s, System.currentTimeMillis()); runOnUiThread { sunNote = note }; castShadows(s) }
+            lastSkyMs = SystemClock.uptimeMillis()
+            if (clockMs == null) {
+                // light and shadows are the map's: with the map not on screen they wait for its next visit (refreshSkyOnMap)
+                if (nav.top is Route.Map) refreshSky(s) else skyStale = true
+            }
             ui.postDelayed(this, SKY_EVERY_MS)
         }
+    }
+
+    private var lastSkyMs = 0L
+    /** The light and shadows are older than a tick: the map brings them up to date when it is next shown. */
+    private var skyStale = false
+
+    private fun refreshSky(s: MapScene) {
+        skyStale = false
+        inBackground { val note = placeSun(s, System.currentTimeMillis()); runOnUiThread { sunNote = note }; castShadows(s) }
+    }
+
+    /** The tick runs only while the app is on screen (15.11.2026): a phone in a pocket does not work out the sun. */
+    override fun onStart() {
+        super.onStart()
+        if (scene == null || clockMs != null) return
+        ui.removeCallbacks(skyTick)
+        ui.postDelayed(skyTick, (SKY_EVERY_MS - (SystemClock.uptimeMillis() - lastSkyMs)).coerceIn(0L, SKY_EVERY_MS))
     }
 
     /** Light: the sky over Gudauri at that time, as on the site: the sun by day, the moon at night (map/Sky.kt). */
@@ -603,6 +641,7 @@ class MainActivity : ComponentActivity() {
             else -> Route.parse(t)?.let { nav.toStart(); nav.push(it) } ?: Qa.log("bad tab $t")
         } }
         i.getStringExtra("qa.stats")?.let { showStats = it != "off" }
+        i.getStringExtra("qa.redesign")?.let { io.github.pini236.skiapp.redesign.Redesign.qa(it) }
         i.getStringExtra("qa.time")?.let { clockMs = Qa.gudauriTime(it); tick = nowMs() }
         i.getStringExtra("qa.status")?.let { pinStatus(it) }
         i.getStringExtra("qa.weather")?.let { pinWeather(it) }
@@ -614,6 +653,8 @@ class MainActivity : ComponentActivity() {
             "start" -> Qa.log("dayrec start result ${DayRec.start(this)}")
             "resume" -> Qa.log("dayrec resume result ${DayRec.store(this).unfinished()?.let { DayRec.start(this, it) } ?: "none"}")
             "startrun" -> Qa.log("dayrec start result ${DayRec.start(this, run = true)}")
+            // "Record" as the button presses it: without the permission, the sheet before the system's question
+            "ask" -> { Qa.log("dayrec ask"); record(false) }
             "stop" -> DayRec.stop(this)
             "finish" -> inBackground { DayRec.store(this).unfinished()?.let { DayRec.finishCut(this, it) } ?: Qa.log("dayrec nothing cut") }
             // a recorded day pushed to the app's folder (the test values of the reference tool), analysed as the service does at the end of a day
@@ -691,7 +732,7 @@ class MainActivity : ComponentActivity() {
         warmSource = null
     }
 
-    override fun onStop() { super.onStop(); if (!isChangingConfigurations) backgrounded = true }
+    override fun onStop() { super.onStop(); ui.removeCallbacks(skyTick); if (!isChangingConfigurations) backgrounded = true }
 
     /** A language from the sheet (home or settings; null: by the phone): the app comes back in it (the phone recreates the screen). */
     private fun setLang(tag: String?) {
@@ -715,19 +756,13 @@ class MainActivity : ComponentActivity() {
     private fun App() {
         BackHandler(enabled = nav.canBack) { nav.back() }
         // the clock: Gudauri's hour for the sky and the countdown, once every half minute (or pinned by the QA run)
-        LaunchedEffect(Unit) { while (true) { delay(30_000); tick = nowMs() } }
-        // the notification permission for the meetups' reminders, asked when the app first opens (Pini, 2.10.2026)
-        val askNotifications = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { ok ->
-            Qa.log("notifications ${if (ok) "allowed" else "refused"}"); armReminders()
-        }
-        LaunchedEffect(Unit) {
-            if (Reminders.shouldAsk(this@MainActivity, Reminders.Ask.OPEN)) {
-                Reminders.markAsked(this@MainActivity, Reminders.Ask.OPEN); Qa.log("notifications asked")
-                askNotifications.launch(android.Manifest.permission.POST_NOTIFICATIONS)
-            }
-        }
+        LaunchedEffect(Unit) { repeatOnLifecycle(Lifecycle.State.STARTED) { tick = nowMs(); while (true) { delay(30_000); tick = nowMs() } } }
+        // the notification permission is no longer asked when the app opens (15.11.2026): at the first "Record" (record()),
+        // and at the first meetup ahead (group/GroupScreen.kt)
         val frame = remember(tick, dnMode) { DayNight.at(tick, dnMode) }
         val top = nav.top
+        // the map is shown after a while without it: the light and shadows of the last ticks are brought up to date (the old ones stay until then)
+        LaunchedEffect(top is Route.Map, scene) { val s = scene; if (top is Route.Map && s != null && skyStale && clockMs == null) refreshSky(s) }
         // Nav revokes permission BEFORE its stack changes. Resume only after the new public content commits.
         SideEffect { ReplayController.contentShown(top.path, window.decorView) }
         // the lift status now; on the mountain, closed lifts and runs (S1), and "only what's open for me"
@@ -772,6 +807,24 @@ class MainActivity : ComponentActivity() {
         val places = remember {
             if (io.github.pini236.skiapp.places.Places.enabled(runCatching { siteData.read("resorts.json") }.getOrNull()))
                 io.github.pini236.skiapp.places.Places.parse(runCatching { siteData.read("places.json") }.getOrNull()) else null
+        }
+        // the countdown to the opening and the ski-pass prices (rounds 39 and 40): the resort's own date and price list, read from the site's files
+        val resortsJson = remember { runCatching { siteData.read("resorts.json") }.getOrNull() }
+        val season = remember { io.github.pini236.skiapp.season.Season.parse(resortsJson) }
+        val seasonSeen = remember { io.github.pini236.skiapp.season.SeasonSeen(this@MainActivity) }
+        val seenOpen = remember { seasonSeen.open() } // what this phone saw before this launch: the move is told against it
+        val seasonToday = Instant.ofEpochMilli(tick).atZone(season?.tz ?: io.github.pini236.skiapp.season.Season.DEFAULT_TZ).toLocalDate()
+        val seasonState = remember(season, seasonToday, lstat.fresh) { io.github.pini236.skiapp.season.Season.decide(season, seasonToday, lstat.fresh, seenOpen) }
+        LaunchedEffect(season, seasonState.kind) { if (season != null && seasonState.kind == io.github.pini236.skiapp.season.Season.Kind.COUNTDOWN) seasonSeen.remember(season.open) }
+        val prices = remember {
+            if (io.github.pini236.skiapp.skipass.Prices.enabled(resortsJson)) io.github.pini236.skiapp.skipass.Prices.parse(runCatching { siteData.read("prices.json") }.getOrNull()) else null
+        }
+        val skipDays = trip?.skiDayCount()?.takeIf { it > 0 }
+        val skipEntry = remember(prices, seasonToday, skipDays) {
+            if (prices == null || !prices.valid(seasonToday)) null else prices.daily(false)?.let { d ->
+                val q = skipDays?.let { prices.price(it, false) }
+                io.github.pini236.skiapp.season.SkipassEntry(if (q != null) skipDays else null, q?.total, d)
+            }
         }
         LaunchedEffect(dayUi) {
             if (dayUi && !DayRec.recording) cutDay = withContext(kotlinx.coroutines.Dispatchers.IO) { DayRec.store(this@MainActivity).unfinished() }
@@ -821,14 +874,20 @@ class MainActivity : ComponentActivity() {
                         },
                         onDismiss = { recBlocked = null })
                 }
-                if (recExplain) io.github.pini236.skiapp.dayrec.ui.PermissionSheet(
-                    onGo = { recExplain = false; requestPermissions(arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION, android.Manifest.permission.ACCESS_COARSE_LOCATION), REC_PERMISSION) },
-                    onDismiss = { recExplain = false })
+                if (recExplain) {
+                    val ask = { requestPermissions(arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION, android.Manifest.permission.ACCESS_COARSE_LOCATION), REC_PERMISSION) }
+                    // the test build's redesign (board L01) has its own sheet; otherwise today's
+                    if (!io.github.pini236.skiapp.redesign.Redesign.first(recSingle, haptics, onGo = { s -> recSingle = s; recExplain = false; ask() }, onDismiss = { recExplain = false }))
+                        io.github.pini236.skiapp.dayrec.ui.PermissionSheet(onGo = { recExplain = false; ask() }, onDismiss = { recExplain = false })
+                }
                 when (top) {
                     Route.Home -> HomeScreen(trip, frame, dnMode, LocalDateTime.ofInstant(Instant.ofEpochMilli(tick), ZoneId.systemDefault()), haptics, sounds, status = lstat, group = firstGroup,
                         onLang = ::setLang,
                         onMode = ::nextMode,
                         record = dayUi,
+                        opening = io.github.pini236.skiapp.season.OpeningView.of(season, seasonState, seasonToday),
+                        lateOpen = if (seasonState.kind == io.github.pini236.skiapp.season.Season.Kind.NO_INFO) season?.open else null,
+                        skipass = skipEntry,
                         account = account,
                         onTrip = { t -> keepTrip(t); Qa.log("trip saved") },
                         go = { a ->
@@ -844,6 +903,7 @@ class MainActivity : ComponentActivity() {
                                 HomeAction.GROUP -> Route.Group()
                                 HomeAction.ABOUT -> Route.About
                                 HomeAction.TRIP -> Route.Trip
+                                HomeAction.SKIPASS -> Route.Skipass
                                 HomeAction.PRIVACY, HomeAction.RECORD, HomeAction.DAYS -> Route.Home
                             })
                         })
@@ -917,22 +977,38 @@ class MainActivity : ComponentActivity() {
                         onResetBests = { Bests.reset(this@MainActivity); Qa.log("bests reset") }, onLicenses = { nav.push(Route.Licenses) }) { nav.back() }
                     Route.Licenses -> io.github.pini236.skiapp.home.LicensesScreen(onOpen = { nav.push(Route.License(it)) }) { nav.back() }
                     is Route.License -> io.github.pini236.skiapp.home.LicenseScreen(top.name) { nav.back() }
-                    Route.Day -> io.github.pini236.skiapp.dayrec.ui.DayLiveScreen(
-                        liftName = { id -> scene?.runs?.lifts?.firstOrNull { it.id == id }?.name ?: id },
-                        runName = { k -> scene?.runs?.pistes?.firstOrNull { it.key == k }?.title ?: k }, runs = scene?.runs,
-                        onSwitch = ::switchRecording, onBack = { nav.back() },
-                        onStop = {
+                    Route.Day -> {
+                        val liftName = { id: String -> scene?.runs?.lifts?.firstOrNull { it.id == id }?.name ?: id }
+                        val runName = { k: String -> scene?.runs?.pistes?.firstOrNull { it.key == k }?.title ?: k }
+                        val onEnded: (java.io.File?) -> Unit = { f ->
+                            // the day ended outside this screen (Stop in the notification): the same place as the screen's own Stop
+                            if (nav.top == Route.Day) {
+                                val id = f?.name?.removePrefix("day-")?.removeSuffix(".jsonl")
+                                if (id != null) nav.replaceTop(Route.DayOf(id)) else nav.back()
+                            }
+                        }
+                        val onStop: () -> Unit = {
                             // the day that ends is shown at once; its screen waits for the recorder to close it
                             val id = DayRec.current?.name?.removePrefix("day-")?.removeSuffix(".jsonl")
                             DayRec.stop(this@MainActivity)
                             if (id != null) nav.replaceTop(Route.DayOf(id)) else nav.back()
-                        })
-                    Route.Days -> io.github.pini236.skiapp.dayrec.ui.DaysScreen(onOpen = { id -> nav.push(Route.DayOf(id)) }) { nav.back() }
+                        }
+                        // the test build's redesign (round 4) records on the mountain; the store build, today's screen
+                        if (!io.github.pini236.skiapp.redesign.Redesign.live(scene, dnMode, haptics, liftName, runName, ::switchRecording, onStop, onEnded) { nav.back() })
+                            io.github.pini236.skiapp.dayrec.ui.DayLiveScreen(liftName = liftName, runName = runName, runs = scene?.runs,
+                                onSwitch = ::switchRecording, onBack = { nav.back() }, onEnded = onEnded, onStop = onStop)
+                        // the test build's counter (frames, missed frames) and the recorder's pulse, over the live screen, for a screenshot
+                        if (showStats) StatsBar(false, Modifier.align(Alignment.BottomStart).padding(bottom = 100.dp))
+                    }
+                    Route.Skipass -> io.github.pini236.skiapp.skipass.SkipassScreen(prices, skipDays, seasonToday) { nav.back() }
+                    Route.Days -> if (!io.github.pini236.skiapp.redesign.Redesign.days(dnMode, haptics, onOpen = { id -> nav.push(Route.DayOf(id)) }, scene = scene) { nav.back() })
+                        io.github.pini236.skiapp.dayrec.ui.DaysScreen(onOpen = { id -> nav.push(Route.DayOf(id)) }) { nav.back() }
                     is Route.DayOf -> {
                         val sample = top.id == io.github.pini236.skiapp.dayrec.SampleDay.ID
-                        io.github.pini236.skiapp.dayrec.ui.DayViewScreen(
-                            if (sample) io.github.pini236.skiapp.dayrec.SampleDay.file(this@MainActivity) else DayRec.store(this@MainActivity).newFile(top.id.toLong()),
-                            scene?.runs, sample, onReplay = { nav.push(Route.Replay(top.id)) }) { nav.back() }
+                        val dayFile = if (sample) io.github.pini236.skiapp.dayrec.SampleDay.file(this@MainActivity) else DayRec.store(this@MainActivity).newFile(top.id.toLong())
+                        // the test build's redesign (round 4) draws the day on the mountain; the store build, today's screen
+                        if (!io.github.pini236.skiapp.redesign.Redesign.day(dayFile, sample, scene, dnMode, haptics) { nav.back() })
+                            io.github.pini236.skiapp.dayrec.ui.DayViewScreen(dayFile, scene?.runs, sample, onReplay = { nav.push(Route.Replay(top.id)) }) { nav.back() }
                     }
                     is Route.Replay -> io.github.pini236.skiapp.dayrec.ui.ReplayScreen(mapView,
                         if (top.id == io.github.pini236.skiapp.dayrec.SampleDay.ID) io.github.pini236.skiapp.dayrec.SampleDay.file(this@MainActivity) else DayRec.store(this@MainActivity).newFile(top.id.toLong())) { nav.back() }
@@ -951,6 +1027,8 @@ class MainActivity : ComponentActivity() {
                         }
                     }
                 }
+                // the redesign POC (decisions 83, 84): in the test build the app opens on the new mountain; nothing in the store build
+                with(io.github.pini236.skiapp.redesign.Redesign) { Host(top == Route.Home, dnMode, haptics, scene) }
             }
           }
         }
@@ -967,8 +1045,14 @@ class MainActivity : ComponentActivity() {
                 val st = (if (gl) glStats else uiStats).snapshot(refreshHz, now)
                 val frames = if (st.active) "${st.fps.toInt()} פריימים · החמצות ${"%.1f".format(st.jankPct)}% · הגרוע ${st.worstMs.toInt()} מ״ש" else "במנוחה"
                 val extra = if (gl) " · ${if (mapView.msaa) "החלקה 4×" else "בלי החלקה"} · $sunNote" else ""
-                line = "${refreshHz.toInt()}Hz · $frames$extra\nפתיחה ${Startup.firstFrameMs} · נתונים ${Startup.dataMs} · רשת ${Startup.meshMs} · צל ${Startup.shadowMs} מ״ש · ${haptics.level}"
+                val rec = if (DayRec.recording) {
+                    val last = DayRec.lastFixAt
+                    "\nהקלטה: ${if (last > 0) "קריאה אחרונה לפני ${(System.currentTimeMillis() - last) / 1000} שנ׳" else "עוד אין קריאה"} · ${DayRec.fixCount} קריאות · ${if (DayRec.single) "ירידה אחת" else "כל היום"}"
+                } else ""
+                line = "${refreshHz.toInt()}Hz · $frames$extra\nפתיחה ${Startup.firstFrameMs} · נתונים ${Startup.dataMs} · רשת ${Startup.meshMs} · צל ${Startup.shadowMs} מ״ש · ${haptics.level}$rec"
                 if (n++ % 4 == 0) Qa.log("stats ${if (gl) "map" else "ui"} · ${line.replace('\n', ' ')}")
+                // while recording, the screen's figures go to the diagnostic log every 10 seconds (what the live screen costs on this phone)
+                if (n % 20 == 0 && DayRec.recording) Diag.log("dayrec screen ${if (st.active) "${st.fps.toInt()}fps jank ${"%.1f".format(st.jankPct)}% worst ${st.worstMs.toInt()}ms" else "idle"} · route ${nav.top.let { it::class.simpleName }}")
                 delay(500)
             }
         }

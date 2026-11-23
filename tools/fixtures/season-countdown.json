@@ -1,0 +1,282 @@
+{
+ "about": "Round 39: the countdown to the season opening. Shared by the site, Android and iPhone. The date is a local date in the resort's time zone (resorts.json tz, Asia/Tbilisi, UTC+4, no daylight saving), never the phone's. Rules in order: a fresh lift report -> live; no readable season.open (YYYY-MM-DD, a real date) -> none; days = open - today (resort's calendar) > 0 -> countdown, 0 -> opening_day, < 0 -> no_info. postponed only when this phone saw an earlier open before, and only while counting down. There is no close date and no 'delayed'.",
+ "tz": "Asia/Tbilisi",
+ "cases": [
+  {
+   "name": "35 days out (the day of the announcement check)",
+   "now": "2026-11-15T10:00:00Z",
+   "season": {
+    "open": "2026-12-20"
+   },
+   "report": "none",
+   "expect": {
+    "state": "countdown",
+    "days": 35,
+    "postponed": false
+   }
+  },
+  {
+   "name": "32 days out, early morning Tbilisi",
+   "now": "2026-11-18T05:00:00Z",
+   "season": {
+    "open": "2026-12-20"
+   },
+   "report": "none",
+   "expect": {
+    "state": "countdown",
+    "days": 32,
+    "postponed": false
+   }
+  },
+  {
+   "name": "the last day before opening",
+   "now": "2026-12-19T09:00:00Z",
+   "season": {
+    "open": "2026-12-20"
+   },
+   "report": "none",
+   "expect": {
+    "state": "countdown",
+    "days": 1,
+    "postponed": false
+   }
+  },
+  {
+   "name": "23:59 Tbilisi on the 19th is still tomorrow",
+   "now": "2026-12-19T19:59:00Z",
+   "season": {
+    "open": "2026-12-20"
+   },
+   "report": "none",
+   "expect": {
+    "state": "countdown",
+    "days": 1,
+    "postponed": false
+   },
+   "note": "a phone in Israel (UTC+2) reads 21:59 on the 19th: the count is by the resort's clock, so it is the same answer"
+  },
+  {
+   "name": "00:30 Tbilisi on the 20th is opening day",
+   "now": "2026-12-19T20:30:00Z",
+   "season": {
+    "open": "2026-12-20"
+   },
+   "report": "none",
+   "expect": {
+    "state": "opening_day",
+    "days": 0,
+    "postponed": false
+   },
+   "note": "a phone in Israel reads 22:30 on the 19th and would say 1 day; the resort's clock wins"
+  },
+  {
+   "name": "opening day, no report yet",
+   "now": "2026-12-20T07:00:00Z",
+   "season": {
+    "open": "2026-12-20"
+   },
+   "report": "none",
+   "expect": {
+    "state": "opening_day",
+    "days": 0,
+    "postponed": false
+   }
+  },
+  {
+   "name": "opening day, fresh report wins",
+   "now": "2026-12-20T07:00:00Z",
+   "season": {
+    "open": "2026-12-20"
+   },
+   "report": "fresh",
+   "expect": {
+    "state": "live",
+    "days": null,
+    "postponed": false
+   }
+  },
+  {
+   "name": "fresh report before the date still shows the lift board",
+   "now": "2026-12-10T07:00:00Z",
+   "season": {
+    "open": "2026-12-20"
+   },
+   "report": "fresh",
+   "expect": {
+    "state": "live",
+    "days": null,
+    "postponed": false
+   }
+  },
+  {
+   "name": "the date passed, no report: no information",
+   "now": "2026-12-21T07:00:00Z",
+   "season": {
+    "open": "2026-12-20"
+   },
+   "report": "none",
+   "expect": {
+    "state": "no_info",
+    "days": null,
+    "postponed": false
+   },
+   "note": "never 'delayed'"
+  },
+  {
+   "name": "the date passed, fresh report wins",
+   "now": "2026-12-21T07:00:00Z",
+   "season": {
+    "open": "2026-12-20"
+   },
+   "report": "fresh",
+   "expect": {
+    "state": "live",
+    "days": null,
+    "postponed": false
+   }
+  },
+  {
+   "name": "moved later after this phone saw 20 Dec",
+   "now": "2026-12-18T07:00:00Z",
+   "season": {
+    "open": "2027-01-05"
+   },
+   "report": "none",
+   "seen_open": "2026-12-20",
+   "expect": {
+    "state": "countdown",
+    "days": 18,
+    "postponed": true
+   }
+  },
+  {
+   "name": "a new user sees only the date",
+   "now": "2026-12-18T07:00:00Z",
+   "season": {
+    "open": "2027-01-05"
+   },
+   "report": "none",
+   "expect": {
+    "state": "countdown",
+    "days": 18,
+    "postponed": false
+   }
+  },
+  {
+   "name": "the same date seen before is not a postponement",
+   "now": "2026-12-18T07:00:00Z",
+   "season": {
+    "open": "2026-12-20"
+   },
+   "report": "none",
+   "seen_open": "2026-12-20",
+   "expect": {
+    "state": "countdown",
+    "days": 2,
+    "postponed": false
+   }
+  },
+  {
+   "name": "moved earlier is not a postponement",
+   "now": "2026-12-10T07:00:00Z",
+   "season": {
+    "open": "2026-12-15"
+   },
+   "report": "none",
+   "seen_open": "2026-12-20",
+   "expect": {
+    "state": "countdown",
+    "days": 5,
+    "postponed": false
+   }
+  },
+  {
+   "name": "no season field: no countdown",
+   "now": "2026-11-18T05:00:00Z",
+   "season": null,
+   "report": "none",
+   "expect": {
+    "state": "none",
+    "days": null,
+    "postponed": false
+   }
+  },
+  {
+   "name": "season without open: no countdown",
+   "now": "2026-11-18T05:00:00Z",
+   "season": {
+    "src": "MTA"
+   },
+   "report": "none",
+   "expect": {
+    "state": "none",
+    "days": null,
+    "postponed": false
+   }
+  },
+  {
+   "name": "open in the wrong format: no countdown",
+   "now": "2026-11-18T05:00:00Z",
+   "season": {
+    "open": "20.12.2026"
+   },
+   "report": "none",
+   "expect": {
+    "state": "none",
+    "days": null,
+    "postponed": false
+   }
+  },
+  {
+   "name": "open that is not a real date: no countdown",
+   "now": "2026-11-18T05:00:00Z",
+   "season": {
+    "open": "2026-13-40"
+   },
+   "report": "none",
+   "expect": {
+    "state": "none",
+    "days": null,
+    "postponed": false
+   }
+  },
+  {
+   "name": "open with a time is not a local date: no countdown",
+   "now": "2026-11-18T05:00:00Z",
+   "season": {
+    "open": "2026-12-20T09:00"
+   },
+   "report": "none",
+   "expect": {
+    "state": "none",
+    "days": null,
+    "postponed": false
+   }
+  },
+  {
+   "name": "fresh report with no season is still the lift board",
+   "now": "2026-12-20T07:00:00Z",
+   "season": null,
+   "report": "fresh",
+   "expect": {
+    "state": "live",
+    "days": null,
+    "postponed": false
+   }
+  },
+  {
+   "name": "year boundary",
+   "now": "2026-12-31T20:30:00Z",
+   "season": {
+    "open": "2027-01-02"
+   },
+   "report": "none",
+   "expect": {
+    "state": "countdown",
+    "days": 1,
+    "postponed": false
+   },
+   "note": "20:30 UTC is already 00:30 on 1 Jan in Tbilisi"
+  }
+ ]
+}

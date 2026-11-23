@@ -19210,6 +19210,18 @@
     "ka"
    ]
   },
+  "app.rec_no_notif": {
+   "he": "ההתראות כבויות, ולכן אין כפתור עצירה מחוץ לאפליקציה. עוצרים כאן, ב\"סיום\".",
+   "en": "Notifications are off, so there is no stop button outside the app. Stop here, with \"Finish\".",
+   "ru": "Уведомления отключены, поэтому кнопки остановки вне приложения нет. Останавливайте здесь, кнопкой «Завершить».",
+   "ka": "შეტყობინებები გამორთულია, ამიტომ აპლიკაციის გარეთ გაჩერების ღილაკი არ არის. გააჩერეთ აქ, ღილაკით „დასრულება“.",
+   "where": "app/android",
+   "note": "יום הגלისה: live screen, only when notifications are off (15.11.2026): the stop button of the recording notification is not there",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
   "app.rec_settings": {
    "he": "פתיחת ההגדרות",
    "en": "Open settings",
@@ -19329,6 +19341,24 @@
     "ru",
     "ka"
    ]
+  },
+  "tester.diag_row": {
+   "he": "שליחת יומן אבחון של ההקלטה",
+   "en": "Send the recording's diagnostic log",
+   "ru": "Отправить диагностический журнал записи",
+   "ka": "ჩაწერის დიაგნოსტიკური ჟურნალის გაგზავნა",
+   "where": "app/android (test build only): the about page",
+   "note": "Test build only. A short log of how the ski day's recording behaved on this phone (permission and location state, whether the service started, readings counted, mode switches, the screen's frame figures). No position, no place, no name",
+   "check": ["ru","ka"]
+  },
+  "tester.diag_empty": {
+   "he": "עוד אין יומן אבחון",
+   "en": "No diagnostic log yet",
+   "ru": "Диагностического журнала пока нет",
+   "ka": "დიაგნოსტიკური ჟურნალი ჯერ არ არის",
+   "where": "app/android (test build only): shown when the log is empty",
+   "note": "Test build only",
+   "check": ["ru","ka"]
   },
   "tester.export": {
    "he": "שליחת היומן הגולמי של היום לפיני",
@@ -19481,6 +19511,3829 @@
    "ka": "ნედლი ჟურნალი Gudi-სთვის",
    "where": "app/android (test build only)",
    "note": "Field tester export of the raw ski-day log (docs/handoff/2026-10-31-tester-log-consent). Only in the test build (src/preview), never in the store build",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "tester.app_name": {
+   "he": "סקי בדיקה",
+   "en": "Gudi Test",
+   "ru": "Gudi Тест",
+   "ka": "Gudi ტესტი",
+   "where": "app/android (test build only): the launcher label and the notification shade",
+   "note": "The test build's name under the icon, per language (decision 47), so it no longer reads Hebrew on an English phone. Only in the test build (src/preview); the store build keeps its own name",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.season_days_caption": {
+   "he": {
+    "one": "יום לפתיחה",
+    "two": "ימים לפתיחה",
+    "other": "ימים לפתיחה"
+   },
+   "en": {
+    "one": "day to opening",
+    "other": "days to opening"
+   },
+   "ru": {
+    "one": "день до открытия",
+    "few": "дня до открытия",
+    "many": "дней до открытия",
+    "other": "дней до открытия"
+   },
+   "ka": {
+    "one": "დღე გახსნამდე",
+    "other": "დღე გახსნამდე"
+   },
+   "where": "app/android, app/ios",
+   "note": "Round 39 (season opening, the home board): stub under the big number (the number is shown apart); n is at least 2, 'tomorrow' has its own text",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.season_days_a11y": {
+   "he": {
+    "one": "{n} יום לפתיחה המתוכננת, {date}",
+    "two": "{n} ימים לפתיחה המתוכננת, {date}",
+    "other": "{n} ימים לפתיחה המתוכננת, {date}"
+   },
+   "en": {
+    "one": "{n} day to the planned opening, {date}",
+    "other": "{n} days to the planned opening, {date}"
+   },
+   "ru": {
+    "one": "{n} день до запланированного открытия, {date}",
+    "few": "{n} дня до запланированного открытия, {date}",
+    "many": "{n} дней до запланированного открытия, {date}",
+    "other": "{n} дней до запланированного открытия, {date}"
+   },
+   "ka": {
+    "one": "დაგეგმილ გახსნამდე {n} დღე, {date}",
+    "other": "დაგეგმილ გახსნამდე {n} დღე, {date}"
+   },
+   "where": "app/android, app/ios",
+   "note": "Round 39 (season opening, the home board): screen reader text for the countdown; {date} is a written date such as '20 בדצמבר'",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.season_planned": {
+   "he": "פתיחה מתוכננת {date}",
+   "en": "Planned opening {date}",
+   "ru": "Открытие по плану: {date}",
+   "ka": "დაგეგმილი გახსნა: {date}",
+   "where": "app/android, app/ios",
+   "note": "Round 39 (season opening, the home board): {date} is short, like 20.12",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.season_source": {
+   "he": "לפי MTA · מתוכננת, יכולה להשתנות עם השלג",
+   "en": "Per MTA · planned, may change with snow",
+   "ru": "По данным MTA · плановая дата, может измениться из-за снега",
+   "ka": "MTA-ს მონაცემით · დაგეგმილია, თოვლის გამო შეიძლება შეიცვალოს",
+   "where": "app/android, app/ios",
+   "note": "Round 39 (season opening, the home board): small source line under the countdown; MTA is the ski resort operator",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.season_tomorrow": {
+   "he": "מחר פותחים",
+   "en": "Opens tomorrow",
+   "ru": "Завтра открытие",
+   "ka": "ხვალ იხსნება",
+   "where": "app/android, app/ios",
+   "note": "Round 39 (season opening, the home board): opening is the next calendar day (resort clock)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.season_tomorrow_sub": {
+   "he": "הרכבלים עולים ב-{date}",
+   "en": "Lifts start {date}",
+   "ru": "Подъёмники заработают {date}",
+   "ka": "საბაგიროები {date} ამუშავდება",
+   "where": "app/android, app/ios",
+   "note": "Round 39 (season opening, the home board): {date} short, like 20.12",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.season_today": {
+   "he": "היום פותחים",
+   "en": "Opening day",
+   "ru": "Сегодня открытие",
+   "ka": "დღეს იხსნება",
+   "where": "app/android, app/ios",
+   "note": "Round 39 (season opening, the home board): opening day, no lift report yet",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.season_today_sub": {
+   "he": "ממתינים לדיווח מהרכבלים",
+   "en": "Waiting for the lift report",
+   "ru": "Ждём отчёт по подъёмникам",
+   "ka": "საბაგიროების მონაცემებს ველოდებით",
+   "where": "app/android, app/ios",
+   "note": "Round 39 (season opening, the home board): opening day, no lift report yet",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.season_late": {
+   "he": "הפתיחה הייתה מתוכננת ל-{date}",
+   "en": "Opening was planned for {date}",
+   "ru": "Открытие планировалось на {date}",
+   "ka": "გახსნა დაგეგმილი იყო {date}-ზე",
+   "where": "app/android, app/ios",
+   "note": "Round 39 (season opening, the home board): the date passed and there is no fresh report; never says 'delayed'",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.season_late_sub": {
+   "he": "אין עדיין דיווח מהרכבלים",
+   "en": "No lift report yet",
+   "ru": "Отчёта по подъёмникам пока нет",
+   "ka": "საბაგიროების მონაცემები ჯერ არ არის",
+   "where": "app/android, app/ios",
+   "note": "Round 39 (season opening, the home board): under the line above",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.season_moved": {
+   "he": "הפתיחה נדחתה ל-{date}",
+   "en": "Opening moved to {date}",
+   "ru": "Открытие перенесено на {date}",
+   "ka": "გახსნა გადაიდო {date}-ზე",
+   "where": "app/android, app/ios",
+   "note": "Round 39 (season opening, the home board): only when this phone saw an earlier date before; {date} short",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.season_moved_sub": {
+   "he": "לפי הודעת MTA",
+   "en": "Per MTA's announcement",
+   "ru": "По объявлению MTA",
+   "ka": "MTA-ს განცხადებით",
+   "where": "app/android, app/ios",
+   "note": "Round 39 (season opening, the home board): under the line above",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.skipass_title": {
+   "he": "כרטיס סקי",
+   "en": "Ski pass",
+   "ru": "Ски-пасс",
+   "ka": "სკი-პასი",
+   "where": "app/android, app/ios",
+   "note": "Round 40 (ski pass screen): screen title (a sign) and the row on the home board",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.skipass_from_trip": {
+   "he": "לפי \"הטיול שלך\"",
+   "en": "From \"Your trip\"",
+   "ru": "Из «Вашей поездки»",
+   "ka": "თქვენი მოგზაურობიდან",
+   "where": "app/android, app/ios",
+   "note": "Round 40 (ski pass screen): caption above the number of days when it comes from the trip (the trip's ski days)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.skipass_days": {
+   "he": "ימי סקי",
+   "en": "ski days",
+   "ru": "дней катания",
+   "ka": "სათხილამურო დღე",
+   "where": "app/android, app/ios",
+   "note": "Round 40 (ski pass screen): label under the stepper's number",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.skipass_days_more": {
+   "he": "עוד יום סקי",
+   "en": "One more ski day",
+   "ru": "Ещё один день катания",
+   "ka": "კიდევ ერთი სათხილამურო დღე",
+   "where": "app/android, app/ios",
+   "note": "Round 40 (ski pass screen): stepper plus, for screen readers",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.skipass_days_less": {
+   "he": "פחות יום סקי",
+   "en": "One less ski day",
+   "ru": "Одним днём катания меньше",
+   "ka": "ერთით ნაკლები სათხილამურო დღე",
+   "where": "app/android, app/ios",
+   "note": "Round 40 (ski pass screen): stepper minus, for screen readers",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.skipass_adult": {
+   "he": "מבוגר",
+   "en": "Adult",
+   "ru": "Взрослый",
+   "ka": "მოზრდილი",
+   "where": "app/android, app/ios",
+   "note": "Round 40 (ski pass screen): segmented control",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.skipass_child": {
+   "he": "ילד {from} עד {to}",
+   "en": "Child {from}–{to}",
+   "ru": "Ребёнок {from}–{to}",
+   "ka": "ბავშვი {from}–{to}",
+   "where": "app/android, app/ios",
+   "note": "Round 40 (ski pass screen): segmented control; ages come from the data",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.skipass_price": {
+   "he": "{n} ₾",
+   "en": "{n} ₾",
+   "ru": "{n} ₾",
+   "ka": "{n} ₾",
+   "where": "app/android, app/ios",
+   "note": "Round 40 (ski pass screen): a price in lari; {n} is a whole number with a thousands separator, like 1,255",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.skipass_per_day": {
+   "he": "{price} ליום",
+   "en": "{price} per day",
+   "ru": "{price} в день",
+   "ka": "{price} დღეში",
+   "where": "app/android, app/ios",
+   "note": "Round 40 (ski pass screen): beside the total; {price} already has the lari sign",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.skipass_daily_x": {
+   "he": "יומי × {n}",
+   "en": "Daily × {n}",
+   "ru": "Дневной × {n}",
+   "ka": "დღიური × {n}",
+   "where": "app/android, app/ios",
+   "note": "Round 40 (ski pass screen): label of the bar that is the daily pass times the days",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.skipass_daily": {
+   "he": "יומי: {price}",
+   "en": "Daily: {price}",
+   "ru": "Дневной: {price}",
+   "ka": "დღიური: {price}",
+   "where": "app/android, app/ios",
+   "note": "Round 40 (ski pass screen): small line on the home row",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.skipass_pass_days": {
+   "he": {
+    "one": "כרטיס יום",
+    "two": "כרטיס יומיים",
+    "other": "כרטיס {n} ימים"
+   },
+   "en": {
+    "one": "{n}-day pass",
+    "other": "{n}-day pass"
+   },
+   "ru": {
+    "one": "Ски-пасс на {n} день",
+    "few": "Ски-пасс на {n} дня",
+    "many": "Ски-пасс на {n} дней",
+    "other": "Ски-пасс на {n} дней"
+   },
+   "ka": {
+    "one": "{n}-დღიანი სკი-პასი",
+    "other": "{n}-დღიანი სკი-პასი"
+   },
+   "where": "app/android, app/ios",
+   "note": "Round 40 (ski pass screen): label of the bar that is the pass, and the home row",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.skipass_part": {
+   "he": {
+    "one": "יום אחד",
+    "two": "יומיים",
+    "other": "{n} ימים"
+   },
+   "en": {
+    "one": "{n} day",
+    "other": "{n} days"
+   },
+   "ru": {
+    "one": "{n} день",
+    "few": "{n} дня",
+    "many": "{n} дней",
+    "other": "{n} дней"
+   },
+   "ka": {
+    "one": "{n} დღე",
+    "other": "{n} დღე"
+   },
+   "where": "app/android, app/ios",
+   "note": "Round 40 (ski pass screen): a number of days inside a sentence, for the 'no such pass' combination",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.skipass_and": {
+   "he": "{a} ועוד {b}",
+   "en": "{a} plus {b}",
+   "ru": "{a} и ещё {b}",
+   "ka": "{a} პლუს {b}",
+   "where": "app/android, app/ios",
+   "note": "Round 40 (ski pass screen): two tickets in words, like '7 days plus 1 day'; {a} and {b} come from app.skipass_part",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.skipass_no_pass": {
+   "he": "אין כרטיס ל-{n} ימים. הכי זול: {combo}",
+   "en": "There is no {n}-day pass. Cheapest: {combo}",
+   "ru": "Абонемента на {n} дней нет. Дешевле всего: {combo}",
+   "ka": "{n}-დღიანი ბილეთი არ არსებობს. ყველაზე იაფი: {combo}",
+   "where": "app/android, app/ios",
+   "note": "Round 40 (ski pass screen): shown when the days are not in the table (8, 9, 11 to 14); {combo} is app.skipass_and",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.skipass_two_tickets": {
+   "he": "שני כרטיסים, כי לא ידוע אם הקופה טוענת שניים על כרטיס אחד.",
+   "en": "Two tickets: it is not known whether the desk loads two passes on one card.",
+   "ru": "Два билета: неизвестно, загружает ли касса два абонемента на одну карту.",
+   "ka": "ორი ბილეთი: უცნობია, კასა ერთ ბარათზე ორ ბილეთს ტვირთავს თუ არა.",
+   "where": "app/android, app/ios",
+   "note": "Round 40 (ski pass screen): small note under the combination",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.skipass_save": {
+   "he": "חוסכים {amount} ({pct}%)",
+   "en": "You save {amount} ({pct}%)",
+   "ru": "Экономия {amount} ({pct}%)",
+   "ka": "დაზოგავთ {amount} ({pct}%)",
+   "where": "app/android, app/ios",
+   "note": "Round 40 (ski pass screen): against buying a daily pass every day; only when positive",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.skipass_night": {
+   "he": "סקי לילה: {price} לערב, כרטיס נפרד",
+   "en": "Night skiing: {price} per evening, separate ticket",
+   "ru": "Ночное катание: {price} за вечер, отдельный билет",
+   "ka": "ღამის სრიალი: {price} საღამოში, ცალკე ბილეთი",
+   "where": "app/android, app/ios",
+   "note": "Round 40 (ski pass screen): small line; the daily pass does not include the night",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.skipass_card": {
+   "he": "כרטיס פיזי חובה, פיקדון {deposit} שמוחזר בקופה. QR לא מתקבל.",
+   "en": "A physical card is required, {deposit} deposit refunded at the desk. QR codes are not accepted.",
+   "ru": "Нужна физическая карта, залог {deposit} возвращается в кассе. QR-коды не принимаются.",
+   "ka": "საჭიროა ფიზიკური ბარათი, {deposit} გირაო კასაში უბრუნდება. QR კოდი არ მიიღება.",
+   "where": "app/android, app/ios",
+   "note": "Round 40 (ski pass screen): small line, from MTA's price list and FAQ",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.skipass_foreign": {
+   "he": "מחיר לזר. לתושבי גאורגיה מחיר אחר.",
+   "en": "Foreign-visitor price. Georgian residents pay a different price.",
+   "ru": "Цена для иностранцев. Для жителей Грузии цена другая.",
+   "ka": "ფასი უცხოელებისთვის. საქართველოს მაცხოვრებლებისთვის ფასი სხვაა.",
+   "where": "app/android, app/ios",
+   "note": "Round 40 (ski pass screen): small line",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.skipass_named": {
+   "he": "כרטיסי 7 ו-10 ימים תקפים בכל ארבעת האתרים ורשומים על שם המחזיק.",
+   "en": "7 and 10 day passes are valid at all four resorts and are registered to the holder.",
+   "ru": "Абонементы на 7 и 10 дней действуют на всех четырёх курортах и оформляются на имя владельца.",
+   "ka": "7 და 10 დღიანი ბილეთები მოქმედებს ოთხივე კურორტზე და რეგისტრირდება მფლობელის სახელზე.",
+   "where": "app/android, app/ios",
+   "note": "Round 40 (ski pass screen): shown when the chosen tickets include a 7 or 10 day pass",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.skipass_buy": {
+   "he": "איפה קונים: בקופות האתרים",
+   "en": "Where to buy: at the resort ticket offices",
+   "ru": "Где купить: в кассах курорта",
+   "ka": "სად ვიყიდოთ: კურორტის სალაროებში",
+   "where": "app/android, app/ios",
+   "note": "Round 40 (ski pass screen): we do not sell; no link",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.skipass_app": {
+   "he": "SKIPASS של Lemondo ב-{store}",
+   "en": "SKIPASS by Lemondo in {store}",
+   "ru": "SKIPASS от Lemondo в {store}",
+   "ka": "Lemondo-ს SKIPASS: {store}",
+   "where": "app/android, app/ios",
+   "note": "Round 40 (ski pass screen): secondary button: opens the store page of the system; {store} is App Store or Google Play. Not called official",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.skipass_checked": {
+   "he": "נבדק {date}, {src}",
+   "en": "Checked {date}, {src}",
+   "ru": "Проверено {date}, {src}",
+   "ka": "შემოწმებულია {date}, {src}",
+   "where": "app/android, app/ios",
+   "note": "Round 40 (ski pass screen): source line under the screen; {date} is a written date, {src} is MTA",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.skipass_no_info": {
+   "he": "אין מידע: המחירון לא בתוקף",
+   "en": "No information: the price list is no longer valid",
+   "ru": "Нет данных: прейскурант утратил силу",
+   "ka": "ინფორმაცია არ არის: ფასების სია აღარ მოქმედებს",
+   "where": "app/android, app/ios",
+   "note": "Round 40 (ski pass screen): after the 'until' date, or the file is missing or unreadable; never old prices",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.skipass_check_site": {
+   "he": "בדקו ב-mta.ski.",
+   "en": "Check mta.ski.",
+   "ru": "Проверьте на mta.ski.",
+   "ka": "შეამოწმეთ mta.ski-ზე.",
+   "where": "app/android, app/ios",
+   "note": "Round 40 (ski pass screen): under the no-information text",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.skipass_too_long": {
+   "he": "אין מידע על כרטיס ל-{n} ימים. בדקו בקופה.",
+   "en": "No price for {n} days. Ask at the ticket office.",
+   "ru": "Цены на {n} дней нет. Уточните в кассе.",
+   "ka": "{n} დღის ფასი არ არის. დაინტერესდით სალაროში.",
+   "where": "app/android, app/ios",
+   "note": "Round 40 (ski pass screen): more than 14 days, or no combination: no estimate",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.skipass_child_free": {
+   "he": "מתחת לגיל {age} חינם",
+   "en": "Under {age} is free",
+   "ru": "До {age} лет бесплатно",
+   "ka": "{age} წლამდე უფასოა",
+   "where": "app/android, app/ios",
+   "note": "Round 40 (ski pass screen): small line in the child tab",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "poc.peak_badge": {"he": "ההר החדש · ניסוי", "en": "The new mountain · preview", "ru": "Новая гора · тест", "ka": "ახალი მთა · ტესტი", "where": "app/android (test build only)", "note": "The redesign POC (decisions 83, 84, 85): the round 3 mountain as the first screen, test build only (src/preview). badge at the top of the screen", "check": ["ru", "ka"]},
+  "poc.peak_leave": {"he": "לאפליקציה", "en": "To the app", "ru": "В приложение", "ka": "აპლიკაციაში", "where": "app/android (test build only)", "note": "The redesign POC (decisions 83, 84, 85): the round 3 mountain as the first screen, test build only (src/preview). button that closes the new mountain and shows the current app", "check": ["ru", "ka"]},
+  "poc.peak_enter": {"he": "ההר החדש", "en": "The new mountain", "ru": "Новая гора", "ka": "ახალი მთა", "where": "app/android (test build only)", "note": "The redesign POC (decisions 83, 84, 85): the round 3 mountain as the first screen, test build only (src/preview). floating button on the current home that opens the new mountain again", "check": ["ru", "ka"]},
+  "poc.peak_light_now": {"he": "{time} · האור של עכשיו", "en": "{time} · the light now", "ru": "{time} · свет сейчас", "ka": "{time} · ახლანდელი სინათლე", "where": "app/android (test build only)", "note": "The redesign POC (decisions 83, 84, 85): the round 3 mountain as the first screen, test build only (src/preview). {time} = Gudauri clock HH:MM; the picture shows the mountain in this light", "check": ["ru", "ka"]},
+  "poc.peak_light_at": {"he": "{time} · גוררים לשנות שעה", "en": "{time} · drag to change the hour", "ru": "{time} · потяните, чтобы сменить час", "ka": "{time} · გადაათრიეთ საათის შესაცვლელად", "where": "app/android (test build only)", "note": "The redesign POC (decisions 83, 84, 85): the round 3 mountain as the first screen, test build only (src/preview). {time} = HH:MM, while the user drags through the light of the day", "check": ["ru", "ka"]},
+  "poc.peak_hint": {"he": "נגיעה במסלול בוחרת אותו", "en": "Tap a run to choose it", "ru": "Коснитесь трассы, чтобы выбрать её", "ka": "შეეხეთ ტრასას მის ასარჩევად", "where": "app/android (test build only)", "note": "The redesign POC (decisions 83, 84, 85): the round 3 mountain as the first screen, test build only (src/preview). hint that fades after the first choice", "check": ["ru", "ka"]},
+  "poc.peak_live": {"he": "ההר החי", "en": "Live mountain", "ru": "Живая гора", "ka": "ცოცხალი მთა", "where": "app/android (test build only)", "note": "The redesign POC (decisions 83, 84, 85), phase B: the live model of the painted mountain, test build only (src/preview). button on the painted mountain that opens the live 3D model", "check": ["ru", "ka"]},
+  "poc.peak_painted": {"he": "הציור", "en": "The painting", "ru": "Рисунок", "ka": "ნახატი", "where": "app/android (test build only)", "note": "The redesign POC (decisions 83, 84, 85), phase B: the live model of the painted mountain, test build only (src/preview). button on the live model that goes back to the painted picture", "check": ["ru", "ka"]},
+  "poc.peak_live_badge": {"he": "מודל חי · שלד ראשון", "en": "Live model · first sketch", "ru": "Живая модель · первый набросок", "ka": "ცოცხალი მოდელი · პირველი ესკიზი", "where": "app/android (test build only)", "note": "The redesign POC (decisions 83, 84, 85), phase B: the live model of the painted mountain, test build only (src/preview). badge at the top of the live model", "check": ["ru", "ka"]},
+  "poc.peak_front_aria": {"he": "חזרה לחזית ההר", "en": "Back to the front of the mountain", "ru": "Вернуться к передней стороне горы", "ka": "მთის წინა მხარეზე დაბრუნება", "where": "app/android (test build only)", "note": "The redesign POC (decisions 83, 84, 85), phase B: the live model, test build only (src/preview). screen reader label of the Kobi side sign, which turns the camera back to the front", "check": ["ru", "ka"]},
+  "app.rec_first_title": {
+   "he": "הטלפון בכיס. ההר מצייר את היום.",
+   "en": "Phone in your pocket. The mountain draws the day.",
+   "ru": "Телефон в кармане. Гора рисует день.",
+   "ka": "ტელეფონი ჯიბეშია. მთა დღეს ხატავს.",
+   "where": "app/android",
+   "note": "יום הגלישה (סבב 4, החלטה 84, לוח L01): first-time sheet, title",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.rec_first_text": {
+   "he": "מזהים לבד רכבל, ירידה והפסקה, עם שמות המסלולים. אין מה ללחוץ בדרך.",
+   "en": "Lifts, runs and breaks are picked up by themselves, with the run names. Nothing to tap on the way.",
+   "ru": "Подъёмники, спуски и перерывы определяются сами, с названиями трасс. Нажимать по пути ничего не нужно.",
+   "ka": "საბაგირო, ტრასა და შესვენება თავად ამოიცნობა, ტრასების სახელებით. გზაში არაფრის დაჭერა არ გჭირდებათ.",
+   "where": "app/android",
+   "note": "יום הגלישה (סבב 4, החלטה 84, לוח L01): first-time sheet, body. Permission lines reuse app.rec_perm_local and app.rec_perm_ok",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.rec_first_go": {
+   "he": "מתחילים",
+   "en": "Start",
+   "ru": "Начать",
+   "ka": "დაწყება",
+   "where": "app/android",
+   "note": "יום הגלישה (סבב 4, החלטה 84, לוח L01): first-time sheet, start button",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.rec_first_later": {
+   "he": "לא עכשיו",
+   "en": "Not now",
+   "ru": "Не сейчас",
+   "ka": "ახლა არა",
+   "where": "app/android",
+   "note": "יום הגלישה (סבב 4, החלטה 84, לוח L01): first-time sheet, dismiss button",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.rec_search": {
+   "he": "מחפשים לוויינים",
+   "en": "Looking for satellites",
+   "ru": "Ищем спутники",
+   "ka": "ვეძებთ თანამგზავრებს",
+   "where": "app/android",
+   "note": "יום הגלישה (סבב 4, החלטה 84, לוח L02, L13): live screen between the tap and the first fix. The big speed shows a dash, not 0",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.rec_search_note": {
+   "he": "הזמן כבר נספר מהנגיעה. המהירות והקו מתחילים כשיש מיקום מדויק, ולא רגע לפני.",
+   "en": "The clock has been running since your tap. Speed and the line start once there is a precise fix, not a moment before.",
+   "ru": "Время идёт с момента нажатия. Скорость и линия начнутся, когда появится точное местоположение, не раньше.",
+   "ka": "დრო შეხების მომენტიდან დაითვლება. სიჩქარე და ხაზი ზუსტი მდებარეობის გამოჩენისას დაიწყება, ერთი წამითაც ადრე არა.",
+   "where": "app/android",
+   "note": "יום הגלישה (סבב 4, החלטה 84, לוח L02): sub-line under 'looking for satellites'",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.rec_nofix": {
+   "he": "עוד אין מיקום",
+   "en": "No location yet",
+   "ru": "Местоположения пока нет",
+   "ka": "მდებარეობა ჯერ არ არის",
+   "where": "app/android",
+   "note": "יום הגלישה (סבב 4, החלטה 84, לוח L13): live screen, the line under the dash speed. Dash, never 0 km/h",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.rec_hold": {
+   "he": "החזקה לסיום",
+   "en": "Hold to finish",
+   "ru": "Удерживайте, чтобы завершить",
+   "ka": "დასასრულებლად ხანგრძლივად დააჭირეთ",
+   "where": "app/android",
+   "note": "יום הגלישה (סבב 4, החלטה 84, לוח L02): the finish button is a hold, not a tap",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.rec_weak_title": {
+   "he": "האות חלש",
+   "en": "Weak signal",
+   "ru": "Слабый сигнал",
+   "ka": "სიგნალი სუსტია",
+   "where": "app/android",
+   "note": "יום הגלישה (סבב 4, החלטה 84, לוח L13): amber banner, title. After 90 s without a first reading, or 20 s without a reading mid-day. Replaces app.rec_gps_weak on the new screen (that key stays for the current build)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.rec_weak_hint": {
+   "he": "כדאי לצאת למקום פתוח",
+   "en": "Better to step out into the open",
+   "ru": "Лучше выйти на открытое место",
+   "ka": "სჯობს ღია ადგილას გახვიდეთ",
+   "where": "app/android",
+   "note": "יום הגלישה (סבב 4, החלטה 84, לוח L13): amber banner, line under the title",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.rec_gap_title": {
+   "he": "דקה בלי קליטה",
+   "en": "A minute with no signal",
+   "ru": "Минута без сигнала",
+   "ka": "წუთი სიგნალის გარეშე",
+   "where": "app/android",
+   "note": "יום הגלישה (סבב 4, החלטה 84, לוח L13): timeline marker for a gap; the sub-line is app.rec_gap_note. Fixed 'a minute' wording is the board's example: for other lengths use app.rec_gap_len",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.rec_gap_len": {
+   "he": "{min} דק׳ בלי קליטה",
+   "en": "{min} min with no signal",
+   "ru": "{min} мин без сигнала",
+   "ka": "{min} წთ სიგნალის გარეშე",
+   "where": "app/android",
+   "note": "יום הגלישה (סבב 4, החלטה 84, לוח L13): timeline marker for a gap of {min} minutes",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.rec_gap_note": {
+   "he": "חור בהקלטה",
+   "en": "A gap in the recording",
+   "ru": "Разрыв в записи",
+   "ka": "ჩანაწერში ხარვეზი",
+   "where": "app/android",
+   "note": "יום הגלישה (סבב 4, החלטה 84, לוח L13): under the gap marker. A dashed line joins the last two measured points; no speed, distance or run is filled in",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.rec_offpiste_head": {
+   "he": "מחוץ למסלולים המסומנים",
+   "en": "Off the marked runs",
+   "ru": "Вне размеченных трасс",
+   "ka": "მონიშნული ტრასების გარეთ",
+   "where": "app/android",
+   "note": "יום הגלישה (סבב 4, החלטה 84, לוח L13): off-piste segment, title. Shown only to the user, never in the share image, never 'recommended route'",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.rec_offpiste": {
+   "he": "{m} מ׳ למטה · בלי שם",
+   "en": "{m} m down · unnamed",
+   "ru": "{m} м вниз · без названия",
+   "ka": "{m} მ დაღმართი · უსახელო",
+   "where": "app/android",
+   "note": "יום הגלישה (סבב 4, החלטה 84, לוח L13): off-piste segment, line. No guess at a name",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.rec_unmapped_head": {
+   "he": "ירדת מהרכבל בנקודה שלא ממופה",
+   "en": "You got off the lift at an unmapped point",
+   "ru": "Вы сошли с подъёмника в точке, которой нет на карте",
+   "ka": "საბაგიროდან ისეთ წერტილში ჩამოხვედით, რომელიც რუკაზე არ არის",
+   "where": "app/android",
+   "note": "יום הגלישה (סבב 4, החלטה 84, לוח L13): lift exit with no station in the data",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.rec_unmapped": {
+   "he": "תחנה שאין בנתונים",
+   "en": "A station that is not in the data",
+   "ru": "Станции нет в данных",
+   "ka": "სადგური მონაცემებში არ არის",
+   "where": "app/android",
+   "note": "יום הגלישה (סבב 4, החלטה 84, לוח L13): short tag for the same case. We say it, we do not snap to the nearest station",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.rec_cut_why": {
+   "he": "הטלפון סגר את האפליקציה",
+   "en": "The phone closed the app",
+   "ru": "Телефон закрыл приложение",
+   "ka": "ტელეფონმა აპლიკაცია დახურა",
+   "where": "app/android",
+   "note": "יום הגלישה (סבב 4, החלטה 84, לוח L13): under app.rec_cut_title; the block continues with app.rec_cut_text, app.rec_cut_go, app.rec_cut_close",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.rec_auto_title": {
+   "he": "לא זזת {min} דק׳",
+   "en": "You have not moved for {min} min",
+   "ru": "Вы не двигались {min} мин",
+   "ka": "{min} წთ-ია არ გიმოძრავიათ",
+   "where": "app/android",
+   "note": "יום הגלישה (סבב 4, החלטה 84, לוח L13): auto-stop notice, title. The warning line is app.dayrec_idle. Warning with sound: 60 min inside the site, 20 outside",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.rec_auto_keep": {
+   "he": "עוד לא סיימתי",
+   "en": "I am not done yet",
+   "ru": "Я ещё не закончил",
+   "ka": "ჯერ არ დამიმთავრებია",
+   "where": "app/android",
+   "note": "יום הגלישה (סבב 4, החלטה 84, לוח L13): auto-stop notice, keep-recording button",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.rec_auto_stop": {
+   "he": "עצירה לבד",
+   "en": "Stopped by itself",
+   "ru": "Остановлено автоматически",
+   "ka": "თავისით შეჩერდა",
+   "where": "app/android",
+   "note": "יום הגלישה (סבב 4, החלטה 84, לוח L13): label on a day that ended by auto-stop",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.rec_precise_ask": {
+   "he": "כדי למדוד צריך מיקום מדויק",
+   "en": "Measuring needs a precise location",
+   "ru": "Для измерения нужно точное местоположение",
+   "ka": "გასაზომად ზუსტი მდებარეობა გჭირდებათ",
+   "where": "app/android",
+   "note": "יום הגלישה (סבב 4, החלטה 84, לוח L13): one-time explanation, one button (app.rec_settings). We do not record with an approximate location",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.rec_outside": {
+   "he": "מחוץ לאתר",
+   "en": "Outside the resort",
+   "ru": "Вне курорта",
+   "ka": "კურორტის გარეთ",
+   "where": "app/android",
+   "note": "יום הגלישה (סבב 4, החלטה 84, לוח L13): short banner on the live screen away from the site",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.rec_outside_names": {
+   "he": "בלי שמות מסלולים",
+   "en": "No run names",
+   "ru": "Без названий трасс",
+   "ka": "ტრასების სახელების გარეშე",
+   "where": "app/android",
+   "note": "יום הגלישה (סבב 4, החלטה 84, לוח L13): second part of the outside banner",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.rec_outside_note": {
+   "he": "ההקלטה עובדת בכל מקום. שמות, רכבלים והר מצויר רק היכן שיש נתונים.",
+   "en": "Recording works anywhere. Names, lifts and the drawn mountain only where there is data.",
+   "ru": "Запись работает везде. Названия, подъёмники и нарисованная гора есть только там, где есть данные.",
+   "ka": "ჩაწერა ყველგან მუშაობს. სახელები, საბაგიროები და დახატული მთა მხოლოდ იქაა, სადაც მონაცემებია.",
+   "where": "app/android",
+   "note": "יום הגלישה (סבב 4, החלטה 84, לוח L13): first-time/outside note",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.rec_day_so_far": {
+     "he": "היום עד עכשיו",
+     "en": "The day so far",
+     "ru": "День на данный момент",
+     "ka": "დღე ამჟამად",
+     "where": "app/android",
+     "note": "יום הגלישה (סבב ההשלמה, חלק 1): P01 עד P03, L04",
+     "check": [
+        "ru",
+        "ka"
+     ]
+  },
+  "app.rec_see_day": {
+     "he": "לראות את היום",
+     "en": "See the day",
+     "ru": "Посмотреть день",
+     "ka": "დღის ნახვა",
+     "where": "app/android",
+     "note": "יום הגלישה (סבב ההשלמה, חלק 1): P01 עד P03",
+     "check": [
+        "ru",
+        "ka"
+     ]
+  },
+  "app.rec_m_down": {
+     "he": "מ׳ למטה",
+     "en": "m down",
+     "ru": "м вниз",
+     "ka": "მ დაღმართი",
+     "where": "app/android",
+     "note": "יום הגלישה (סבב ההשלמה, חלק 1): label under a number",
+     "check": [
+        "ru",
+        "ka"
+     ]
+  },
+  "app.rec_km_ski": {
+     "he": "ק״מ גלישה",
+     "en": "km skied",
+     "ru": "км катания",
+     "ka": "კმ სრიალი",
+     "where": "app/android",
+     "note": "יום הגלישה (סבב ההשלמה, חלק 1): label under a number",
+     "check": [
+        "ru",
+        "ka"
+     ]
+  },
+  "app.rec_kmh_max": {
+     "he": "קמ״ש, מרבית",
+     "en": "km/h, top",
+     "ru": "км/ч, максимум",
+     "ka": "კმ/სთ, მაქსიმუმი",
+     "where": "app/android",
+     "note": "יום הגלישה (סבב ההשלמה, חלק 1): label under a number",
+     "check": [
+        "ru",
+        "ka"
+     ]
+  },
+  "app.rec_day_line": {
+     "he": "{n} ירידות · {m} מ׳ למטה · {km} ק״מ",
+     "en": "{n} descents · {m} m down · {km} km",
+     "ru": "спусков: {n} · {m} м вниз · {km} км",
+     "ka": "დაშვებები: {n} · {m} მ დაღმართი · {km} კმ",
+     "where": "app/android",
+     "note": "יום הגלישה (סבב ההשלמה, חלק 1): P02, L04",
+     "check": [
+        "ru",
+        "ka"
+     ]
+  },
+  "app.rec_near_lift": {
+     "he": "ליד הרכבל",
+     "en": "Near the lift",
+     "ru": "У подъёмника",
+     "ka": "საბაგიროსთან",
+     "where": "app/android",
+     "note": "יום הגלישה (סבב ההשלמה, חלק 1): P02",
+     "check": [
+        "ru",
+        "ka"
+     ]
+  },
+  "app.rec_here_for": {
+     "he": "עומדים כאן",
+     "en": "Standing here",
+     "ru": "Стоите здесь",
+     "ka": "აქ დგახართ",
+     "where": "app/android",
+     "note": "יום הגלישה (סבב ההשלמה, חלק 1): P02; time follows",
+     "check": [
+        "ru",
+        "ka"
+     ]
+  },
+  "app.rec_lift_ride": {
+     "he": "{min} דק׳ למעלה",
+     "en": "{min} min up",
+     "ru": "{min} мин вверх",
+     "ka": "{min} წთ ზემოთ",
+     "where": "app/android",
+     "note": "יום הגלישה (סבב ההשלמה, חלק 1): P02",
+     "check": [
+        "ru",
+        "ka"
+     ]
+  },
+  "app.rec_lift_rise": {
+     "he": "{m} מ׳ למעלה",
+     "en": "{m} m up",
+     "ru": "{m} м вверх",
+     "ka": "{m} მ ზემოთ",
+     "where": "app/android",
+     "note": "יום הגלישה (סבב ההשלמה, חלק 1): P02",
+     "check": [
+        "ru",
+        "ka"
+     ]
+  },
+  "app.rec_lift_state": {
+     "he": "מצב הרכבל",
+     "en": "Lift status",
+     "ru": "Состояние подъёмника",
+     "ka": "საბაგიროს მდგომარეობა",
+     "where": "app/android",
+     "note": "יום הגלישה (סבב ההשלמה, חלק 1): P02",
+     "check": [
+        "ru",
+        "ka"
+     ]
+  },
+  "app.rec_lift_open": {
+     "he": "פתוח",
+     "en": "Open",
+     "ru": "Открыт",
+     "ka": "ღიაა",
+     "where": "app/android",
+     "note": "יום הגלישה (סבב ההשלמה, חלק 1): P02",
+     "check": [
+        "ru",
+        "ka"
+     ]
+  },
+  "app.rec_lift_closed": {
+     "he": "סגור",
+     "en": "Closed",
+     "ru": "Закрыт",
+     "ka": "დახურულია",
+     "where": "app/android",
+     "note": "יום הגלישה (סבב ההשלמה, חלק 1): P02",
+     "check": [
+        "ru",
+        "ka"
+     ]
+  },
+  "app.rec_waited": {
+     "he": "חיכית",
+     "en": "You waited",
+     "ru": "Вы ждали",
+     "ka": "ელოდეთ",
+     "where": "app/android",
+     "note": "יום הגלישה (סבב ההשלמה, חלק 1): L04, label; only after you got on",
+     "check": [
+        "ru",
+        "ka"
+     ]
+  },
+  "app.rec_minutes": {
+     "he": "{min} דק׳",
+     "en": "{min} min",
+     "ru": "{min} мин",
+     "ka": "{min} წთ",
+     "where": "app/android",
+     "note": "יום הגלישה (סבב ההשלמה, חלק 1): L04, P03",
+     "check": [
+        "ru",
+        "ka"
+     ]
+  },
+  "app.rec_break": {
+     "he": "הפסקה",
+     "en": "Break",
+     "ru": "Перерыв",
+     "ka": "შესვენება",
+     "where": "app/android",
+     "note": "יום הגלישה (סבב ההשלמה, חלק 1): P03",
+     "check": [
+        "ru",
+        "ka"
+     ]
+  },
+  "app.rec_break_note": {
+     "he": "ההקלטה ממשיכה. כשתזוזו, המסך חוזר לבד.",
+     "en": "Still recording. When you move, the screen comes back on its own.",
+     "ru": "Запись продолжается. Когда вы тронетесь, экран вернётся сам.",
+     "ka": "ჩაწერა გრძელდება. როცა დაიძვრებით, ეკრანი თავისით დაბრუნდება.",
+     "where": "app/android",
+     "note": "יום הגלישה (סבב ההשלמה, חלק 1): P03",
+     "check": [
+        "ru",
+        "ka"
+     ]
+  },
+  "app.run_saved": {
+     "he": "ירידה אחת · נשמרה",
+     "en": "One descent · saved",
+     "ru": "Один спуск · сохранён",
+     "ka": "ერთი დაშვება · შენახულია",
+     "where": "app/android",
+     "note": "יום הגלישה (סבב ההשלמה, חלק 1): P04",
+     "check": [
+        "ru",
+        "ka"
+     ]
+  },
+  "app.run_estimate": {
+     "he": "הערכה",
+     "en": "Estimate",
+     "ru": "Оценка",
+     "ka": "შეფასება",
+     "where": "app/android",
+     "note": "יום הגלישה (סבב ההשלמה, חלק 1): P04, P05",
+     "check": [
+        "ru",
+        "ka"
+     ]
+  },
+  "app.run_min": {
+     "he": "דקות",
+     "en": "Minutes",
+     "ru": "Минуты",
+     "ka": "წუთი",
+     "where": "app/android",
+     "note": "יום הגלישה (סבב ההשלמה, חלק 1): P04, label",
+     "check": [
+        "ru",
+        "ka"
+     ]
+  },
+  "app.run_km": {
+     "he": "ק״מ",
+     "en": "km",
+     "ru": "км",
+     "ka": "კმ",
+     "where": "app/android",
+     "note": "יום הגלישה (סבב ההשלמה, חלק 1): P04, label",
+     "check": [
+        "ru",
+        "ka"
+     ]
+  },
+  "app.run_kmh_avg": {
+     "he": "קמ״ש, ממוצע",
+     "en": "km/h, average",
+     "ru": "км/ч, средняя",
+     "ka": "კმ/სთ, საშუალო",
+     "where": "app/android",
+     "note": "יום הגלישה (סבב ההשלמה, חלק 1): P04, label",
+     "check": [
+        "ru",
+        "ka"
+     ]
+  },
+  "app.run_stop_lift": {
+     "he": "המדידה נעצרה לבד כשעלית לרכבל {lift}.",
+     "en": "Measuring stopped on its own when you got on the {lift} lift.",
+     "ru": "Измерение остановилось само, когда вы сели на подъёмник {lift}.",
+     "ka": "გაზომვა თავისით გაჩერდა, როცა საბაგირო {lift}-ზე ავედით.",
+     "where": "app/android",
+     "note": "יום הגלישה (סבב ההשלמה, חלק 1): P04. {lift}: lift name, not translated",
+     "check": [
+        "ru",
+        "ka"
+     ]
+  },
+  "app.run_stop_station": {
+     "he": "המדידה נעצרה לבד ליד הרכבל {lift}.",
+     "en": "Measuring stopped on its own near the {lift} lift.",
+     "ru": "Измерение остановилось само у подъёмника {lift}.",
+     "ka": "გაზომვა თავისით გაჩერდა საბაგიროსთან {lift}.",
+     "where": "app/android",
+     "note": "יום הגלישה (סבב ההשלמה, חלק 1): P04",
+     "check": [
+        "ru",
+        "ka"
+     ]
+  },
+  "app.run_stop_still": {
+     "he": "המדידה נעצרה לבד אחרי דקה וחצי בלי תנועה.",
+     "en": "Measuring stopped on its own after a minute and a half without movement.",
+     "ru": "Измерение остановилось само после полутора минут без движения.",
+     "ka": "გაზომვა თავისით გაჩერდა ერთნახევარი წუთის უმოძრაობის შემდეგ.",
+     "where": "app/android",
+     "note": "יום הגלישה (סבב ההשלמה, חלק 1): P04. 'Minute and a half' = autostop.still_s (90 s); change together",
+     "check": [
+        "ru",
+        "ka"
+     ]
+  },
+  "app.run_again": {
+     "he": "עוד ירידה",
+     "en": "Another descent",
+     "ru": "Ещё спуск",
+     "ka": "კიდევ ერთი დაშვება",
+     "where": "app/android",
+     "note": "יום הגלישה (סבב ההשלמה, חלק 1): P04",
+     "check": [
+        "ru",
+        "ka"
+     ]
+  },
+  "app.run_film": {
+     "he": "הסרט",
+     "en": "The film",
+     "ru": "Фильм",
+     "ka": "ფილმი",
+     "where": "app/android",
+     "note": "יום הגלישה (סבב ההשלמה, חלק 1): P04",
+     "check": [
+        "ru",
+        "ka"
+     ]
+  },
+  "app.run_done_title": {
+     "he": "הירידה נמדדה",
+     "en": "Descent measured",
+     "ru": "Спуск измерен",
+     "ka": "დაშვება გაიზომა",
+     "where": "app/android",
+     "note": "יום הגלישה (סבב ההשלמה, חלק 1): notification and lock screen",
+     "check": [
+        "ru",
+        "ka"
+     ]
+  },
+  "app.run_done_line": {
+     "he": "{run} · {kmh} קמ״ש · {time}",
+     "en": "{run} · {kmh} km/h · {time}",
+     "ru": "{run} · {kmh} км/ч · {time}",
+     "ka": "{run} · {kmh} კმ/სთ · {time}",
+     "where": "app/android",
+     "note": "יום הגלישה (סבב ההשלמה, חלק 1): notification and lock screen",
+     "check": [
+        "ru",
+        "ka"
+     ]
+  },
+  "app.records_new": {
+     "he": "חדש",
+     "en": "New",
+     "ru": "Новый",
+     "ka": "ახალი",
+     "where": "app/android",
+     "note": "יום הגלישה (סבב ההשלמה, חלק 1): P05",
+     "check": [
+        "ru",
+        "ka"
+     ]
+  },
+  "app.records_from_to": {
+     "he": "מ-{from} עד {to}",
+     "en": "From {from} to {to}",
+     "ru": "от {from} до {to}",
+     "ka": "{from}-დან {to}-მდე",
+     "where": "app/android",
+     "note": "יום הגלישה (סבב ההשלמה, חלק 1): P05",
+     "check": [
+        "ru",
+        "ka"
+     ]
+  },
+  "app.records_drop_note": {
+     "he": "מטרים למטה ביום אחד",
+     "en": "Metres down in one day",
+     "ru": "Метров вниз за один день",
+     "ka": "მეტრი დაღმართი ერთ დღეში",
+     "where": "app/android",
+     "note": "יום הגלישה (סבב ההשלמה, חלק 1): P05",
+     "check": [
+        "ru",
+        "ka"
+     ]
+  },
+  "app.records_dist_note": {
+     "he": "על השלג ביום אחד",
+     "en": "On snow in one day",
+     "ru": "По снегу за один день",
+     "ka": "თოვლზე ერთ დღეში",
+     "where": "app/android",
+     "note": "יום הגלישה (סבב ההשלמה, חלק 1): P05",
+     "check": [
+        "ru",
+        "ka"
+     ]
+  },
+  "app.records_steep_note": {
+     "he": "הקטע התלול שלו",
+     "en": "Its steepest stretch",
+     "ru": "Самый крутой участок",
+     "ka": "მისი ყველაზე ციცაბო მონაკვეთი",
+     "where": "app/android",
+     "note": "יום הגלישה (סבב ההשלמה, חלק 1): P05",
+     "check": [
+        "ru",
+        "ka"
+     ]
+  },
+  "app.records_private": {
+     "he": "רק מול עצמך. נשאר בטלפון, ולא נשלח לאף אחד.",
+     "en": "Only against yourself. Stays on the phone, sent to no one.",
+     "ru": "Только с самим собой. Остаётся в телефоне, никому не отправляется.",
+     "ka": "მხოლოდ საკუთარ თავთან. რჩება ტელეფონში და არავის ეგზავნება.",
+     "where": "app/android",
+     "note": "יום הגלישה (סבב ההשלמה, חלק 1): P05",
+     "check": [
+        "ru",
+        "ka"
+     ]
+  },
+  "app.records_empty_title": {
+     "he": "עוד אין שיאים",
+     "en": "No records yet",
+     "ru": "Рекордов пока нет",
+     "ka": "რეკორდები ჯერ არ არის",
+     "where": "app/android",
+     "note": "יום הגלישה (סבב ההשלמה, חלק 1): P06",
+     "check": [
+        "ru",
+        "ka"
+     ]
+  },
+  "app.records_empty_text": {
+     "he": "אחרי היום הראשון שמקליטים הם מופיעים כאן, עם המקום על ההר.",
+     "en": "After your first recorded day they appear here, with the place on the mountain.",
+     "ru": "После первого записанного дня они появятся здесь, с местом на горе.",
+     "ka": "პირველი ჩაწერილი დღის შემდეგ ისინი აქ გამოჩნდება, მთაზე ადგილთან ერთად.",
+     "where": "app/android",
+     "note": "יום הגלישה (סבב ההשלמה, חלק 1): P06",
+     "check": [
+        "ru",
+        "ka"
+     ]
+  },
+  "app.records_sample_note": {
+     "he": "היום לדוגמה לא נספר בשיאים.",
+     "en": "The example day does not count toward records.",
+     "ru": "Пример дня не учитывается в рекордах.",
+     "ka": "სანიმუშო დღე რეკორდებში არ ითვლება.",
+     "where": "app/android",
+     "note": "יום הגלישה (סבב ההשלמה, חלק 1): P06",
+     "check": [
+        "ru",
+        "ka"
+     ]
+  },
+  "app.rec_pin_a11y": {
+     "he": "פה טסת, {kmh} קמ״ש, ב-{run}",
+     "en": "Top speed here, {kmh} km/h, on {run}",
+     "ru": "Здесь вы разогнались до {kmh} км/ч, на {run}",
+     "ka": "აქ გაფრინდით, {kmh} კმ/სთ, {run}-ზე",
+     "where": "app/android",
+     "note": "יום הגלישה (סבב ההשלמה, חלק 1): screen reader",
+     "check": [
+        "ru",
+        "ka"
+     ]
+  },
+  "app.rec_ridge_a11y": {
+     "he": "הרכס של היום עד עכשיו",
+     "en": "The ridge of the day so far",
+     "ru": "Хребет дня на данный момент",
+     "ka": "დღევანდელი ქედი ამჟამად",
+     "where": "app/android",
+     "note": "יום הגלישה (סבב ההשלמה, חלק 1): screen reader",
+     "check": [
+        "ru",
+        "ka"
+     ]
+  },
+  "app.lifts_title": {
+   "he": "רכבלים",
+   "en": "Lifts",
+   "ru": "Подъёмники",
+   "ka": "საბაგიროები",
+   "where": "app/android",
+   "note": "סביב ההר (סבב ההשלמה, חלק 2): רכבלים (סבב ההשלמה, חלק 2): כותרת הגיליון",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.lifts_count": {
+   "he": "{open}/{total}",
+   "en": "{open}/{total}",
+   "ru": "{open}/{total}",
+   "ka": "{open}/{total}",
+   "where": "app/android",
+   "note": "סביב ההר (סבב ההשלמה, חלק 2): ליד הכותרת",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.lift_kind_time": {
+   "he": "{kind} · {min} דק׳",
+   "en": "{kind} · {min} min",
+   "ru": "{kind} · {min} мин",
+   "ka": "{kind} · {min} წთ",
+   "where": "app/android",
+   "note": "סביב ההר (סבב ההשלמה, חלק 2): שורת רכבל",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.lift_rise_up": {
+   "he": "{n} מ׳ למעלה",
+   "en": "{n} m up",
+   "ru": "{n} м вверх",
+   "ka": "{n} მ ზევით",
+   "where": "app/android",
+   "note": "סביב ההר (סבב ההשלמה, חלק 2): שורת רכבל בלי דיווח",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.lift_closed_tag": {
+   "he": "{lift} · סגור",
+   "en": "{lift} · closed",
+   "ru": "{lift} · закрыт",
+   "ka": "{lift} · დახურულია",
+   "where": "app/android",
+   "note": "סביב ההר (סבב ההשלמה, חלק 2): התגית על ההר",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.lift_closed_why": {
+   "he": "סגור · {reason}",
+   "en": "Closed · {reason}",
+   "ru": "Закрыт · {reason}",
+   "ka": "დახურულია · {reason}",
+   "where": "app/android",
+   "note": "סביב ההר (סבב ההשלמה, חלק 2): שורה ופאנל; reason מ-status.reason_*",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.lift_built_in": {
+   "he": "נבנה ב-{year}",
+   "en": "Built in {year}",
+   "ru": "Построен в {year} г.",
+   "ka": "აშენებულია {year} წელს",
+   "where": "app/android",
+   "note": "סביב ההר (סבב ההשלמה, חלק 2): פאנל רכבל (Q03)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.lift_cap_min": {
+   "he": "דק׳ למעלה",
+   "en": "min up",
+   "ru": "мин вверх",
+   "ka": "წთ ზევით",
+   "where": "app/android",
+   "note": "סביב ההר (סבב ההשלמה, חלק 2): כיתוב מתחת למספר, Q03",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.lift_cap_rise": {
+   "he": "מ׳ למעלה",
+   "en": "m up",
+   "ru": "м вверх",
+   "ka": "მ ზევით",
+   "where": "app/android",
+   "note": "סביב ההר (סבב ההשלמה, חלק 2): כיתוב מתחת למספר, Q03",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.lift_cap_km": {
+   "he": "ק״מ",
+   "en": "km",
+   "ru": "км",
+   "ka": "კმ",
+   "where": "app/android",
+   "note": "סביב ההר (סבב ההשלמה, חלק 2): כיתוב מתחת למספר, Q03",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.lift_meet_here": {
+   "he": "נפגשים כאן",
+   "en": "Meet here",
+   "ru": "Встречаемся здесь",
+   "ka": "აქ ვხვდებით",
+   "where": "app/android",
+   "note": "סביב ההר (סבב ההשלמה, חלק 2): כפתור בפאנל רכבל, Q03",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.lift_runs_btn": {
+   "he": "המסלולים",
+   "en": "Runs",
+   "ru": "Трассы",
+   "ka": "ტრასები",
+   "where": "app/android",
+   "note": "סביב ההר (סבב ההשלמה, חלק 2): כפתור בפאנל רכבל, Q03",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.lift_a11y_row": {
+   "he": "{lift}, {kind}, {min} דקות, {state}",
+   "en": "{lift}, {kind}, {min} minutes, {state}",
+   "ru": "{lift}, {kind}, {min} мин, {state}",
+   "ka": "{lift}, {kind}, {min} წუთი, {state}",
+   "where": "app/android",
+   "note": "סביב ההר (סבב ההשלמה, חלק 2): קורא מסך, שורת רכבל",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.meet_where": {
+   "he": "איפה נפגשים? נוגעים בתחנה",
+   "en": "Where to meet? Tap a station",
+   "ru": "Где встречаемся? Нажмите на станцию",
+   "ka": "სად ვხვდებით? შეეხეთ სადგურს",
+   "where": "app/android",
+   "note": "סביב ההר (סבב ההשלמה, חלק 2): הגלולה, Q04",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.meet_station_top": {
+   "he": "התחנה העליונה · {alt} מ׳",
+   "en": "Top station · {alt} m",
+   "ru": "Верхняя станция · {alt} м",
+   "ka": "ზედა სადგური · {alt} მ",
+   "where": "app/android",
+   "note": "סביב ההר (סבב ההשלמה, חלק 2): Q05, Q06",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.meet_station_bottom": {
+   "he": "התחנה התחתונה · {alt} מ׳",
+   "en": "Bottom station · {alt} m",
+   "ru": "Нижняя станция · {alt} м",
+   "ka": "ქვედა სადგური · {alt} მ",
+   "where": "app/android",
+   "note": "סביב ההר (סבב ההשלמה, חלק 2): Q05, Q06",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.meet_day_chip": {
+   "he": "{wd} {date}",
+   "en": "{wd} {date}",
+   "ru": "{wd} {date}",
+   "ka": "{wd} {date}",
+   "where": "app/android",
+   "note": "סביב ההר (סבב ההשלמה, חלק 2): Q05, למשל ג׳ 12.1",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.meet_time_other": {
+   "he": "אחרת",
+   "en": "Other",
+   "ru": "Другое",
+   "ka": "სხვა",
+   "where": "app/android",
+   "note": "סביב ההר (סבב ההשלמה, חלק 2): Q05, קצר מ-meet.other_time",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.meet_btn_image": {
+   "he": "תמונה",
+   "en": "Image",
+   "ru": "Картинка",
+   "ka": "სურათი",
+   "where": "app/android",
+   "note": "סביב ההר (סבב ההשלמה, חלק 2): Q05",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.meet_btn_link": {
+   "he": "קישור",
+   "en": "Link",
+   "ru": "Ссылка",
+   "ka": "ბმული",
+   "where": "app/android",
+   "note": "סביב ההר (סבב ההשלמה, חלק 2): Q05",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.meet_flag_a11y": {
+   "he": "נפגשים ב-{time}, {place}",
+   "en": "Meeting at {time}, {place}",
+   "ru": "Встреча в {time}, {place}",
+   "ka": "შეხვედრა {time}-ზე, {place}",
+   "where": "app/android",
+   "note": "סביב ההר (סבב ההשלמה, חלק 2): קורא מסך, הדגל על ההר",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.meet_share_title": {
+   "he": "תמונה לשיתוף",
+   "en": "Image to share",
+   "ru": "Картинка для отправки",
+   "ka": "გასაზიარებელი სურათი",
+   "where": "app/android",
+   "note": "סביב ההר (סבב ההשלמה, חלק 2): Q06",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.meet_share_at": {
+   "he": "נפגשים ב-{time}",
+   "en": "Meet at {time}",
+   "ru": "Встречаемся в {time}",
+   "ka": "ვხვდებით {time}-ზე",
+   "where": "app/android",
+   "note": "סביב ההר (סבב ההשלמה, חלק 2): Q06, בתוך התמונה",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.meet_share_place": {
+   "he": "{place}, {where} · {alt} מ׳",
+   "en": "{place}, {where} · {alt} m",
+   "ru": "{place}, {where} · {alt} м",
+   "ka": "{place}, {where} · {alt} მ",
+   "where": "app/android",
+   "note": "סביב ההר (סבב ההשלמה, חלק 2): Q06, בתוך התמונה",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.meet_share_note": {
+   "he": "התמונה היא ההודעה: המקום על ההר, השעה והיום. מי שמקבל לא צריך לקרוא מפה.",
+   "en": "The image is the message: the spot on the mountain, the time and the day. Whoever gets it does not need to read a map.",
+   "ru": "Картинка и есть сообщение: место на горе, время и день. Тому, кто её получит, карту читать не нужно.",
+   "ka": "სურათი თავად არის შეტყობინება: ადგილი მთაზე, დრო და დღე. მიმღებს რუკის კითხვა არ დასჭირდება.",
+   "where": "app/android",
+   "note": "סביב ההר (סבב ההשלמה, חלק 2): Q06",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.meet_share_btn": {
+   "he": "שיתוף",
+   "en": "Share",
+   "ru": "Поделиться",
+   "ka": "გაზიარება",
+   "where": "app/android",
+   "note": "סביב ההר (סבב ההשלמה, חלק 2): Q06",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.meet_share_save": {
+   "he": "שמירה בטלפון",
+   "en": "Save to phone",
+   "ru": "Сохранить в телефон",
+   "ka": "ტელეფონში შენახვა",
+   "where": "app/android",
+   "note": "סביב ההר (סבב ההשלמה, חלק 2): Q06",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.trip_ski_line": {
+   "he": {
+    "one": "יום סקי אחד · {range}",
+    "two": "{n} ימי סקי · {range}",
+    "other": "{n} ימי סקי · {range}"
+   },
+   "en": {
+    "one": "{n} ski day · {range}",
+    "other": "{n} ski days · {range}"
+   },
+   "ru": {
+    "one": "{n} день катания · {range}",
+    "few": "{n} дня катания · {range}",
+    "many": "{n} дней катания · {range}",
+    "other": "{n} дней катания · {range}"
+   },
+   "ka": {
+    "one": "{n} სათხილამურო დღე · {range}",
+    "other": "{n} სათხილამურო დღე · {range}"
+   },
+   "where": "app/android",
+   "note": "סביב ההר (סבב ההשלמה, חלק 2): הספח, Q10",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.trip_btn_return": {
+   "he": "טיסת החזור",
+   "en": "Return flight",
+   "ru": "Обратный рейс",
+   "ka": "საბრუნებელი რეისი",
+   "where": "app/android",
+   "note": "סביב ההר (סבב ההשלמה, חלק 2): Q07",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.trip_btn_add_return": {
+   "he": "הוספת חזור",
+   "en": "Add return",
+   "ru": "Добавить обратный рейс",
+   "ka": "დაბრუნების დამატება",
+   "where": "app/android",
+   "note": "סביב ההר (סבב ההשלמה, חלק 2): Q07, בלי חזור",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.trip_btn_skipass": {
+   "he": "כרטיס סקי · {price}",
+   "en": "Ski pass · {price}",
+   "ru": "Ски-пасс · {price}",
+   "ka": "სკი-პასი · {price}",
+   "where": "app/android",
+   "note": "סביב ההר (סבב ההשלמה, חלק 2): Q07",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.trip_back_tab": {
+   "he": "חזור · {date}",
+   "en": "Return · {date}",
+   "ru": "Обратно · {date}",
+   "ka": "დაბრუნება · {date}",
+   "where": "app/android",
+   "note": "סביב ההר (סבב ההשלמה, חלק 2): הכרטיס שמאחור",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.trip_local_note": {
+   "he": "בלי הרשמה. נשמר רק בטלפון.",
+   "en": "No sign-up. Saved only on this phone.",
+   "ru": "Без регистрации. Хранится только в телефоне.",
+   "ka": "რეგისტრაციის გარეშე. ინახება მხოლოდ ტელეფონში.",
+   "where": "app/android",
+   "note": "סביב ההר (סבב ההשלמה, חלק 2): Q08",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.trip_no_return": {
+   "he": "בלי חזור",
+   "en": "No return",
+   "ru": "Без обратного рейса",
+   "ka": "დაბრუნების გარეშე",
+   "where": "app/android",
+   "note": "סביב ההר (סבב ההשלמה, חלק 2): Q08",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.trip_range": {
+   "he": "{from} עד {to}",
+   "en": "{from} to {to}",
+   "ru": "с {from} по {to}",
+   "ka": "{from}–{to}",
+   "where": "app/android",
+   "note": "סביב ההר (סבב ההשלמה, חלק 2): Q08, Q10",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.skipass_hero": {
+   "he": {
+    "one": "כרטיס יום · {who}",
+    "two": "כרטיס יומיים · {who}",
+    "other": "כרטיס {n} ימים · {who}"
+   },
+   "en": {
+    "one": "{n}-day pass · {who}",
+    "other": "{n}-day pass · {who}"
+   },
+   "ru": {
+    "one": "Ски-пасс на {n} день · {who}",
+    "few": "Ски-пасс на {n} дня · {who}",
+    "many": "Ски-пасс на {n} дней · {who}",
+    "other": "Ски-пасс на {n} дней · {who}"
+   },
+   "ka": {
+    "one": "{n}-დღიანი სკი-პასი · {who}",
+    "other": "{n}-დღიანი სკი-პასი · {who}"
+   },
+   "where": "app/android",
+   "note": "סביב ההר (סבב ההשלמה, חלק 2): Q09",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.skipass_vs_daily": {
+   "he": "יומי × {n}: {price}",
+   "en": "Daily × {n}: {price}",
+   "ru": "Дневной × {n}: {price}",
+   "ka": "დღიური × {n}: {price}",
+   "where": "app/android",
+   "note": "סביב ההר (סבב ההשלמה, חלק 2): Q09",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.skipass_footer": {
+   "he": "עונת {season} · בלארי, כולל מע״מ",
+   "en": "Season {season} · in lari, VAT included",
+   "ru": "Сезон {season} · в лари, с НДС",
+   "ka": "სეზონი {season} · ლარში, დღგ-ს ჩათვლით",
+   "where": "app/android",
+   "note": "סביב ההר (סבב ההשלמה, חלק 2): Q09; \"כולל מע״מ\" לפי vat:true ב-prices.json",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.season_pill": {
+   "he": {
+    "one": "יום אחד לפתיחה",
+    "two": "יומיים לפתיחה",
+    "other": "{n} ימים לפתיחה"
+   },
+   "en": {
+    "one": "{n} day to opening",
+    "other": "{n} days to opening"
+   },
+   "ru": {
+    "one": "{n} день до открытия",
+    "few": "{n} дня до открытия",
+    "many": "{n} дней до открытия",
+    "other": "{n} дней до открытия"
+   },
+   "ka": {
+    "one": "{n} დღე გახსნამდე",
+    "other": "{n} დღე გახსნამდე"
+   },
+   "where": "app/android",
+   "note": "סביב ההר (סבב ההשלמה, חלק 2): הגלולה, אחרי שסגרו את הספירה",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.find_where": {
+   "he": "לאן?",
+   "en": "Where to?",
+   "ru": "Куда?",
+   "ka": "სად?",
+   "where": "app/android",
+   "note": "סביב ההר (סבב ההשלמה, חלק 2): הסרגל התחתון",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.perm_photos_add": {
+   "he": "שומר את תמונת המפגש בתמונות שלך. האפליקציה רק מוסיפה תמונה, ולא קוראת את התמונות שלך.",
+   "en": "Saves the meeting image to your photos. The app only adds the picture: it does not read your photo library.",
+   "ru": "Сохраняет картинку встречи в ваши фото. Приложение только добавляет картинку и не читает вашу фотоплёнку.",
+   "ka": "ინახავს შეხვედრის სურათს თქვენს ფოტოებში. აპლიკაცია მხოლოდ ამატებს სურათს და თქვენს ფოტოებს არ კითხულობს.",
+   "where": "app/ios",
+   "note": "סביב ההר (סבב ההשלמה, חלק 2): NSPhotoLibraryAddUsageDescription, 'שמירה בטלפון' בתמונת המפגש (Q06); הרשאת הוספה בלבד, לפי הארכיטקט (261d4556). נכנס ל-InfoPlist.strings של כל שפה, לא ל-Info.plist באנגלית בלבד",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.rec_just_ran": {
+   "he": "הירידה שהרגע עשית",
+   "en": "The run you just did",
+   "ru": "Спуск, который вы только что сделали",
+   "ka": "ახლახან გავლილი ტრასა",
+   "where": "app/android",
+   "note": "סבב 4, השלמת הנוסחים (L03 עד L12): L04: כותרת הכרטיס על הרכבל",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.rec_lift_eta": {
+   "he": "עוד כ-{min} דק׳ למעלה",
+   "en": "About {min} min to the top",
+   "ru": "Ещё около {min} мин до верха",
+   "ka": "ზევით დარჩა დაახლოებით {min} წთ",
+   "where": "app/android",
+   "note": "סבב 4, השלמת הנוסחים (L03 עד L12): L04, אחרי \"על הרכבל {lift} ·\"; הערכה לפי זמן הנסיעה",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.rec_see_run": {
+   "he": "לראות את הירידה",
+   "en": "See the run",
+   "ru": "Посмотреть спуск",
+   "ka": "ტრასის ნახვა",
+   "where": "app/android",
+   "note": "סבב 4, השלמת הנוסחים (L03 עד L12): L04: כפתור משני",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.rec_pin_label": {
+   "he": "פה טסת · {kmh}",
+   "en": "Top speed · {kmh}",
+   "ru": "Здесь вы летели · {kmh}",
+   "ka": "აქ გაფრინდით · {kmh}",
+   "where": "app/android",
+   "note": "סבב 4, השלמת הנוסחים (L03 עד L12): L04, L06: התווית על ההר; היחידה בנפרד, לפי rec_unit",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.day_minute": {
+   "he": "היום בדקה",
+   "en": "The day in a minute",
+   "ru": "День за минуту",
+   "ka": "დღე ერთ წუთში",
+   "where": "app/android",
+   "note": "סבב 4, השלמת הנוסחים (L03 עד L12): L06: כפתור לצפייה החוזרת",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.day_story": {
+   "he": "הסיפור",
+   "en": "The story",
+   "ru": "История",
+   "ka": "ამბავი",
+   "where": "app/android",
+   "note": "סבב 4, השלמת הנוסחים (L03 עד L12): L06: כפתור",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.day_story_title": {
+   "he": "הסיפור של היום",
+   "en": "The story of the day",
+   "ru": "История дня",
+   "ka": "დღის ამბავი",
+   "where": "app/android",
+   "note": "סבב 4, השלמת הנוסחים (L03 עד L12): L10: כותרת העמוד, לפני התאריך",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.day_kobi_side": {
+   "he": {
+    "one": "ועוד ירידה בצד של Kobi",
+    "two": "ועוד שתי ירידות בצד של Kobi",
+    "other": "ועוד {n} ירידות בצד של Kobi"
+   },
+   "en": {
+    "one": "One more run on the Kobi side",
+    "other": "{n} more runs on the Kobi side"
+   },
+   "ru": {
+    "one": "Ещё один спуск на стороне Kobi",
+    "few": "Ещё {n} спуска на стороне Kobi",
+    "many": "Ещё {n} спусков на стороне Kobi",
+    "other": "Ещё {n} спусков на стороне Kobi"
+   },
+   "ka": {
+    "one": "კიდევ ერთი ტრასა Kobi-ს მხარეს",
+    "other": "კიდევ {n} ტრასა Kobi-ს მხარეს"
+   },
+   "where": "app/android",
+   "note": "סבב 4, השלמת הנוסחים (L03 עד L12): L06: התגית על ההר; החץ ״›״ מצויר ברכיב, לא בטקסט",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.speed_slow": {
+   "he": "לאט",
+   "en": "Slow",
+   "ru": "Медленно",
+   "ka": "ნელა",
+   "where": "app/android",
+   "note": "סבב 4, השלמת הנוסחים (L03 עד L12): L06, L07, L09: קצה הסולם",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.speed_fast": {
+   "he": "מהר",
+   "en": "Fast",
+   "ru": "Быстро",
+   "ka": "სწრაფად",
+   "where": "app/android",
+   "note": "סבב 4, השלמת הנוסחים (L03 עד L12): L06, L07, L09: קצה הסולם",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.ridge_title": {
+   "he": "הרכס של היום",
+   "en": "The ridge of the day",
+   "ru": "Хребет дня",
+   "ka": "დღის ქედი",
+   "where": "app/android",
+   "note": "סבב 4, השלמת הנוסחים (L03 עד L12): L07: כותרת",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.ridge_bubble": {
+   "he": "{time} · {kmh} קמ״ש",
+   "en": "{time} · {kmh} km/h",
+   "ru": "{time} · {kmh} км/ч",
+   "ka": "{time} · {kmh} კმ/სთ",
+   "where": "app/android",
+   "note": "סבב 4, השלמת הנוסחים (L03 עד L12): L07: הבועה מעל הרכס",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.ridge_legend_lift": {
+   "he": "רכבל",
+   "en": "Lift",
+   "ru": "Подъёмник",
+   "ka": "საბაგირო",
+   "where": "app/android",
+   "note": "סבב 4, השלמת הנוסחים (L03 עד L12): L07: מקרא הרכס, ליד סולם המהירות",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.day_noon": {
+   "he": "צהריים",
+   "en": "Midday",
+   "ru": "Полдень",
+   "ka": "შუადღე",
+   "where": "app/android",
+   "note": "סבב 4, השלמת הנוסחים (L03 עד L12): L07: כותרת פרק בציר הזמן, ליד day_morning ו-day_afternoon",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.tl_lift_head": {
+   "he": "רכבל {lift}, מלמטה עד למעלה",
+   "en": "{lift} lift, bottom to top",
+   "ru": "Подъёмник {lift}, снизу доверху",
+   "ka": "საბაგირო {lift}, ქვემოდან ზემოთ",
+   "where": "app/android",
+   "note": "סבב 4, השלמת הנוסחים (L03 עד L12): L07: שורת רכבל בציר הזמן",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.tl_lift_meta": {
+   "he": "{min} דק׳ · {m} מ׳ למעלה",
+   "en": "{min} min · {m} m up",
+   "ru": "{min} мин · {m} м вверх",
+   "ka": "{min} წთ · {m} მ ზემოთ",
+   "where": "app/android",
+   "note": "סבב 4, השלמת הנוסחים (L03 עד L12): L07: שורת רכבל",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.tl_run_meta": {
+   "he": "{km} ק״מ · {m} מ׳ למטה · מרבית {kmh} קמ״ש",
+   "en": "{km} km · {m} m down · top {kmh} km/h",
+   "ru": "{km} км · {m} м вниз · максимум {kmh} км/ч",
+   "ka": "{km} კმ · {m} მ დაღმართი · მაქსიმუმი {kmh} კმ/სთ",
+   "where": "app/android",
+   "note": "סבב 4, השלמת הנוסחים (L03 עד L12): L07: שורת ירידה",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.tl_one_stop": {
+   "he": "עצירה אחת",
+   "en": "One stop",
+   "ru": "Одна остановка",
+   "ka": "ერთი გაჩერება",
+   "where": "app/android",
+   "note": "סבב 4, השלמת הנוסחים (L03 עד L12): L07, L09: נוסף אחרי tl_run_meta עם \" · \"",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.tl_top_speed": {
+   "he": "פה טסת: {kmh} קמ״ש ב-{run}",
+   "en": "Top speed: {kmh} km/h on {run}",
+   "ru": "Здесь вы разогнались до {kmh} км/ч на {run}",
+   "ka": "აქ გაფრინდით: {kmh} კმ/სთ, {run}-ზე",
+   "where": "app/android",
+   "note": "סבב 4, השלמת הנוסחים (L03 עד L12): L07: שורת הירידה שבה נמדדה המרבית",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.tl_gap_at": {
+   "he": "דקה בלי קליטה ב-{time}, מסומנת בקו מקווקו",
+   "en": "A minute with no signal at {time}, marked with a dashed line",
+   "ru": "Минута без сигнала в {time}, отмечена пунктиром",
+   "ka": "წუთი სიგნალის გარეშე {time}-ზე, წყვეტილი ხაზით აღნიშნული",
+   "where": "app/android",
+   "note": "סבב 4, השלמת הנוסחים (L03 עד L12): L07: ליד שורת הירידה",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.tl_walk": {
+   "he": "הליכה, {m} מ׳",
+   "en": "Walking, {m} m",
+   "ru": "Пешком, {m} м",
+   "ka": "ფეხით, {m} მ",
+   "where": "app/android",
+   "note": "סבב 4, השלמת הנוסחים (L03 עד L12): L07: שורה קטנה; day_walk (\"ברגל\") נשאר למסך הקיים",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.film_top": {
+   "he": "{time} · ראש {lift}",
+   "en": "{time} · top of {lift}",
+   "ru": "{time} · верх {lift}",
+   "ka": "{time} · {lift}-ის ზედა სადგური",
+   "where": "app/android",
+   "note": "סבב 4, השלמת הנוסחים (L03 עד L12): L09: הערה על הסרט",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.film_bottom": {
+   "he": "{time} · תחתית {lift}",
+   "en": "{time} · bottom of {lift}",
+   "ru": "{time} · низ {lift}",
+   "ka": "{time} · {lift}-ის ქვედა სადგური",
+   "where": "app/android",
+   "note": "סבב 4, השלמת הנוסחים (L03 עד L12): L09: הערה על הסרט",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.film_alt": {
+   "he": "{m} מ׳ מעל הים",
+   "en": "{m} m above sea level",
+   "ru": "{m} м над уровнем моря",
+   "ka": "{m} მ ზღვის დონიდან",
+   "where": "app/android",
+   "note": "סבב 4, השלמת הנוסחים (L03 עד L12): L09: שורת המשנה",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.film_top_speed": {
+   "he": "פה טסת · {kmh} קמ״ש",
+   "en": "Top speed · {kmh} km/h",
+   "ru": "Здесь вы летели · {kmh} км/ч",
+   "ka": "აქ გაფრინდით · {kmh} კმ/სთ",
+   "where": "app/android",
+   "note": "סבב 4, השלמת הנוסחים (L03 עד L12): L09: כותרת ההערה",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.film_top_speed_sub": {
+   "he": "ב-{run}, ב-{time}",
+   "en": "On {run}, at {time}",
+   "ru": "На {run}, в {time}",
+   "ka": "{run}-ზე, {time}-ზე",
+   "where": "app/android",
+   "note": "סבב 4, השלמת הנוסחים (L03 עד L12): L09: שורת המשנה",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.film_stop_sub": {
+   "he": "{s} שניות, ב-{time}",
+   "en": "{s} seconds, at {time}",
+   "ru": "{s} сек, в {time}",
+   "ka": "{s} წამი, {time}-ზე",
+   "where": "app/android",
+   "note": "סבב 4, השלמת הנוסחים (L03 עד L12): L09: שורת המשנה של \"עצירה אחת\"",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.film_gap_sub": {
+   "he": "הקו מקווקו. לא משלימים את מה שלא נמדד.",
+   "en": "The line is dashed. We do not fill in what was not measured.",
+   "ru": "Линия пунктирная. Мы не достраиваем то, что не измерено.",
+   "ka": "ხაზი წყვეტილია. გაუზომავს არ ვავსებთ.",
+   "where": "app/android",
+   "note": "סבב 4, השלמת הנוסחים (L03 עד L12): L09: שורת המשנה של \"דקה בלי קליטה\" (rec_gap_title)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.film_moving_min": {
+   "he": "דק׳ בתנועה",
+   "en": "min moving",
+   "ru": "мин в движении",
+   "ka": "წთ მოძრაობაში",
+   "where": "app/android",
+   "note": "סבב 4, השלמת הנוסחים (L03 עד L12): L09: כיתוב מתחת למספר",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.share_photo": {
+   "he": "תמונה",
+   "en": "Image",
+   "ru": "Картинка",
+   "ka": "სურათი",
+   "where": "app/android",
+   "note": "סבב 4, השלמת הנוסחים (L03 עד L12): L11: לשונית",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.share_video": {
+   "he": "סרטון של דקה",
+   "en": "One-minute video",
+   "ru": "Видео на минуту",
+   "ka": "ერთწუთიანი ვიდეო",
+   "where": "app/android",
+   "note": "סבב 4, השלמת הנוסחים (L03 עד L12): L11: לשונית",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.share_note": {
+   "he": "בלי שם, בלי נפילות ובלי הקטע מחוץ למסלולים. מה שיוצא מהטלפון הוא רק מה שבוחרים לשתף.",
+   "en": "No name, no falls and no off-piste part. All that leaves the phone is what you choose to share.",
+   "ru": "Без имени, без падений и без участка вне трасс. Из телефона уходит только то, чем вы решили поделиться.",
+   "ka": "სახელის, დაცემებისა და ტრასის გარეთ მონაკვეთის გარეშე. ტელეფონიდან მხოლოდ ის გადის, რასაც თავად აზიარებთ.",
+   "where": "app/android",
+   "note": "סבב 4, השלמת הנוסחים (L03 עד L12): L11: ההערה; מנוסחת לשתי הלשוניות (תמונה וסרטון), בהתאם לשורת הפרטיות",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.share_save": {
+   "he": "שמירה",
+   "en": "Save",
+   "ru": "Сохранить",
+   "ka": "შენახვა",
+   "where": "app/android",
+   "note": "סבב 4, השלמת הנוסחים (L03 עד L12): L11: כפתור משני",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.days_trip_title": {
+   "he": "הטיול שלך על ההר",
+   "en": "Your trip on the mountain",
+   "ru": "Ваша поездка на горе",
+   "ka": "თქვენი მოგზაურობა მთაზე",
+   "where": "app/android",
+   "note": "סבב 4, השלמת הנוסחים (L03 עד L12): L12: כותרת ההדגשה",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.days_trip_days": {
+   "he": {
+    "one": "יום גלישה אחד",
+    "two": "יומיים של גלישה",
+    "other": "{n} ימי גלישה"
+   },
+   "en": {
+    "one": "{n} ski day",
+    "other": "{n} ski days"
+   },
+   "ru": {
+    "one": "{n} день катания",
+    "few": "{n} дня катания",
+    "many": "{n} дней катания",
+    "other": "{n} дней катания"
+   },
+   "ka": {
+    "one": "{n} სათხილამურო დღე",
+    "other": "{n} სათხილამურო დღე"
+   },
+   "where": "app/android",
+   "note": "סבב 4, השלמת הנוסחים (L03 עד L12): L12: חלק משורת הטיול; מחברים את שלושת החלקים ב-\", \"",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.days_trip_drop": {
+   "he": "{m} מ׳ למטה",
+   "en": "{m} m down",
+   "ru": "{m} м вниз",
+   "ka": "{m} მ დაღმართი",
+   "where": "app/android",
+   "note": "סבב 4, השלמת הנוסחים (L03 עד L12): L12: חלק שני בשורת הטיול",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.days_trip_routes": {
+   "he": {
+    "one": "מסלול אחד",
+    "two": "שני מסלולים",
+    "other": "{n} מסלולים"
+   },
+   "en": {
+    "one": "{n} run",
+    "other": "{n} runs"
+   },
+   "ru": {
+    "one": "{n} трасса",
+    "few": "{n} трассы",
+    "many": "{n} трасс",
+    "other": "{n} трасс"
+   },
+   "ka": {
+    "one": "{n} ტრასა",
+    "other": "{n} ტრასა"
+   },
+   "where": "app/android",
+   "note": "סבב 4, השלמת הנוסחים (L03 עד L12): L12: חלק שלישי בשורת הטיול",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.days_day_n": {
+   "he": "יום {n}",
+   "en": "Day {n}",
+   "ru": "День {n}",
+   "ka": "დღე {n}",
+   "where": "app/android",
+   "note": "סבב 4, השלמת הנוסחים (L03 עד L12): L12: תווית על פס היום בטיול",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.days_trip_day_n": {
+   "he": "יום {n} בטיול",
+   "en": "Trip day {n}",
+   "ru": "День {n} поездки",
+   "ka": "მოგზაურობის დღე {n}",
+   "where": "app/android",
+   "note": "סבב 4, השלמת הנוסחים (L03 עד L12): L12: כותרת שורת יום",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.days_delete_hint": {
+   "he": "מחיקה של יום או של הכל: בהחלקה על השורה.",
+   "en": "To delete a day or everything: swipe the row.",
+   "ru": "Удалить день или всё: смахните строку.",
+   "ka": "დღის ან ყველაფრის წასაშლელად გაასრიალეთ სტრიქონი.",
+   "where": "app/android",
+   "note": "סבב 4, השלמת הנוסחים (L03 עד L12): L12: ההערה בתחתית; באנדרואיד ובאייפון ההחלקה כבר ב-days_delete_sure (שתי נגיעות) ולכן הנוסח ל-L12 בלבד",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.sr_pill": {
+   "he": "מצב ההר: {open} מתוך {all} רכבלים פתוחים, {temp}. כפתור.",
+   "en": "Mountain status: {open} of {all} lifts open, {temp}. Button.",
+   "ru": "Состояние горы: открыто подъёмников {open} из {all}, {temp}. Кнопка.",
+   "ka": "მთის მდგომარეობა: ღიაა {open} საბაგირო {all}-დან, {temp}. ღილაკი.",
+   "where": "app/android, app/ios",
+   "note": "סבב ההשלמה, חלק 8 (סעיף 2 ב-design/handoff/2026-11-23-redesign-everyone): קורא מסך: הגלולה; {temp} נאמר במילים (\"מינוס 7 מעלות\")",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.sr_me": {
+   "he": "אני, {name}. כפתור.",
+   "en": "Me, {name}. Button.",
+   "ru": "Я, {name}. Кнопка.",
+   "ka": "მე, {name}. ღილაკი.",
+   "where": "app/android, app/ios",
+   "note": "סבב ההשלמה, חלק 8 (סעיף 2 ב-design/handoff/2026-11-23-redesign-everyone): קורא מסך: כפתור \"אני\"",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.sr_me_guest": {
+   "he": "אני, אורח. כפתור.",
+   "en": "Me, guest. Button.",
+   "ru": "Я, гость. Кнопка.",
+   "ka": "მე, სტუმარი. ღილაკი.",
+   "where": "app/android, app/ios",
+   "note": "סבב ההשלמה, חלק 8 (סעיף 2 ב-design/handoff/2026-11-23-redesign-everyone): קורא מסך: כפתור \"אני\" לאורח",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.sr_mountain": {
+   "he": "ההר. מסלולים: {n}. רכבלים: {m}.",
+   "en": "The mountain. Runs: {n}. Lifts: {m}.",
+   "ru": "Гора. Трасс: {n}. Подъёмников: {m}.",
+   "ka": "მთა. ტრასები: {n}. საბაგიროები: {m}.",
+   "where": "app/android, app/ios",
+   "note": "סבב ההשלמה, חלק 8 (סעיף 2 ב-design/handoff/2026-11-23-redesign-everyone): קורא מסך: ההר כפריט אחד; ללא צורות רבים בכוונה",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.sr_next_run": {
+   "he": "המסלול הבא",
+   "en": "Next run",
+   "ru": "Следующая трасса",
+   "ka": "შემდეგი ტრასა",
+   "where": "app/android, app/ios",
+   "note": "סבב ההשלמה, חלק 8 (סעיף 2 ב-design/handoff/2026-11-23-redesign-everyone): קורא מסך: פעולה על ההר",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.sr_prev_run": {
+   "he": "המסלול הקודם",
+   "en": "Previous run",
+   "ru": "Предыдущая трасса",
+   "ka": "წინა ტრასა",
+   "where": "app/android, app/ios",
+   "note": "סבב ההשלמה, חלק 8 (סעיף 2 ב-design/handoff/2026-11-23-redesign-everyone): קורא מסך: פעולה על ההר",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.sr_run": {
+   "he": "{name}, {color}, {level}, אורך: {len} קילומטר.",
+   "en": "{name}, {color}, {level}, length: {len} kilometers.",
+   "ru": "{name}, {color}, {level}, длина: {len} км.",
+   "ka": "{name}, {color}, {level}, სიგრძე: {len} კილომეტრი.",
+   "where": "app/android, app/ios",
+   "note": "סבב ההשלמה, חלק 8 (סעיף 2 ב-design/handoff/2026-11-23-redesign-everyone): קורא מסך: מסלול; הצבע והקושי נאמרים במילים, לא לבד",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.sr_loc_off": {
+   "he": "איפה אני, כבוי.",
+   "en": "Where am I, off.",
+   "ru": "Где я, выключено.",
+   "ka": "სად ვარ, გამორთულია.",
+   "where": "app/android, app/ios",
+   "note": "סבב ההשלמה, חלק 8 (סעיף 2 ב-design/handoff/2026-11-23-redesign-everyone): קורא מסך: כפתור המפה",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.sr_loc_on": {
+   "he": "איפה אני, דלוק.",
+   "en": "Where am I, on.",
+   "ru": "Где я, включено.",
+   "ka": "სად ვარ, ჩართულია.",
+   "where": "app/android, app/ios",
+   "note": "סבב ההשלמה, חלק 8 (סעיף 2 ב-design/handoff/2026-11-23-redesign-everyone): קורא מסך: כפתור המפה",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.sr_dock_village": {
+   "he": "הכפר.",
+   "en": "The village.",
+   "ru": "Деревня.",
+   "ka": "სოფელი.",
+   "where": "app/android, app/ios",
+   "note": "סבב ההשלמה, חלק 8 (סעיף 2 ב-design/handoff/2026-11-23-redesign-everyone): קורא מסך: הסרגל התחתון",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.sr_dock_find": {
+   "he": "לאן יורדים? חיפוש מסלול.",
+   "en": "Where to? Find a run.",
+   "ru": "Куда спускаемся? Поиск трассы.",
+   "ka": "საით ჩავდივართ? ტრასის ძიება.",
+   "where": "app/android, app/ios",
+   "note": "סבב ההשלמה, חלק 8 (סעיף 2 ב-design/handoff/2026-11-23-redesign-everyone): קורא מסך: הסרגל התחתון",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.sr_dock_rec": {
+   "he": "מקליטים.",
+   "en": "Record.",
+   "ru": "Запись.",
+   "ka": "ჩაწერა.",
+   "where": "app/android, app/ios",
+   "note": "סבב ההשלמה, חלק 8 (סעיף 2 ב-design/handoff/2026-11-23-redesign-everyone): קורא מסך: הסרגל התחתון",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.sr_speed_max": {
+   "he": "{n} קילומטר לשעה, מהירות מרבית",
+   "en": "{n} kilometers per hour, top speed",
+   "ru": "{n} километров в час, максимальная скорость",
+   "ka": "{n} კილომეტრი საათში, მაქსიმალური სიჩქარე",
+   "where": "app/android, app/ios",
+   "note": "סבב ההשלמה, חלק 8 (סעיף 2 ב-design/handoff/2026-11-23-redesign-everyone): קורא מסך: מספר ותווית כפריט אחד",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.sr_lift_closed": {
+   "he": "{lift}, סגור.",
+   "en": "{lift}, closed.",
+   "ru": "{lift}, закрыт.",
+   "ka": "{lift}, დაკეტილია.",
+   "where": "app/android, app/ios",
+   "note": "סבב ההשלמה, חלק 8 (סעיף 2 ב-design/handoff/2026-11-23-redesign-everyone): קורא מסך: רכבל סגור נאמר במילים; שם הרכבל לא מתורגם",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.sr_ev_on_lift": {
+   "he": "על הרכבל {lift}",
+   "en": "On the lift {lift}",
+   "ru": "На подъёмнике {lift}",
+   "ka": "საბაგიროზე {lift}",
+   "where": "app/android, app/ios",
+   "note": "סבב ההשלמה, חלק 8 (סעיף 2 ב-design/handoff/2026-11-23-redesign-everyone): קורא מסך: הכרזה בזמן הקלטה, רק בשינוי מצב",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.sr_ev_run_done": {
+   "he": "ירידה {n} נגמרה",
+   "en": "Descent {n} finished",
+   "ru": "Спуск {n} завершён",
+   "ka": "დაშვება {n} დასრულდა",
+   "where": "app/android, app/ios",
+   "note": "סבב ההשלמה, חלק 8 (סעיף 2 ב-design/handoff/2026-11-23-redesign-everyone): קורא מסך: הכרזה בזמן הקלטה, רק בשינוי מצב",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.store_shot_1": {
+   "he": "כל ההר,\nבאור של עכשיו",
+   "en": "The whole mountain,\nin today’s light",
+   "ru": "Вся гора\nв сегодняшнем свете",
+   "ka": "მთლიანი მთა\nდღევანდელ შუქზე",
+   "where": "store (Google Play, App Store)",
+   "note": "סבב ההשלמה, חלק 8 (סעיף 5): כותרת צילום חנות, שתי שורות; להתאמה לאחראי החנויות: ההר",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.store_shot_2": {
+   "he": "כל מסלול:\nכמה תלול, כמה ארוך",
+   "en": "Every run:\nhow steep, how long",
+   "ru": "Каждая трасса:\nнасколько крутая и длинная",
+   "ka": "ყველა ტრასა:\nრამდენად ციცაბო და გრძელი",
+   "where": "store (Google Play, App Store)",
+   "note": "סבב ההשלמה, חלק 8 (סעיף 5): כותרת צילום חנות, שתי שורות; להתאמה לאחראי החנויות: מסלול נבחר",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.store_shot_3": {
+   "he": "היום שלך,\nמצויר על ההר",
+   "en": "Your day,\ndrawn on the mountain",
+   "ru": "Ваш день,\nнарисованный на горе",
+   "ka": "თქვენი დღე,\nმთაზე დახატული",
+   "where": "store (Google Play, App Store)",
+   "note": "סבב ההשלמה, חלק 8 (סעיף 5): כותרת צילום חנות, שתי שורות; להתאמה לאחראי החנויות: יום הגלישה; רק בגרסה שבה הוא דלוק",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.store_shot_4": {
+   "he": "מזג אוויר\nבשלושה גבהים",
+   "en": "Weather\nat three altitudes",
+   "ru": "Погода\nна трёх высотах",
+   "ka": "ამინდი\nსამ სიმაღლეზე",
+   "where": "store (Google Play, App Store)",
+   "note": "סבב ההשלמה, חלק 8 (סעיף 5): כותרת צילום חנות, שתי שורות; להתאמה לאחראי החנויות: מזג אוויר (לא מצב רכבלים, שעוד בלי נתון אמיתי)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.store_shot_5": {
+   "he": "נפגשים\nעל ההר",
+   "en": "Meet up\non the mountain",
+   "ru": "Встречаемся\nна горе",
+   "ka": "ვხვდებით\nმთაზე",
+   "where": "store (Google Play, App Store)",
+   "note": "סבב ההשלמה, חלק 8 (סעיף 5): כותרת צילום חנות, שתי שורות; להתאמה לאחראי החנויות: המפגשים של הקבוצה",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.skipass_days_n": {
+   "he": {
+    "one": "יום סקי",
+    "two": "ימי סקי",
+    "other": "ימי סקי"
+   },
+   "en": {
+    "one": "ski day",
+    "other": "ski days"
+   },
+   "ru": {
+    "one": "день катания",
+    "few": "дня катания",
+    "many": "дней катания",
+    "other": "дня катания"
+   },
+   "ka": {
+    "one": "სათხილამურო დღე",
+    "other": "სათხილამურო დღე"
+   },
+   "where": "app/android, app/ios",
+   "note": "סבב ההשלמה, חלק 7 (סעיף 6 ב-design/handoff/2026-11-23-redesign-languages): תווית ליד מספר שמוצג בנפרד, בצורות רבים; מחליף את המפתח בלי ה-_n, שנשאר כמו שהוא",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.rec_runs_n": {
+   "he": {
+    "one": "ירידה",
+    "two": "ירידות",
+    "other": "ירידות"
+   },
+   "en": {
+    "one": "descent",
+    "other": "descents"
+   },
+   "ru": {
+    "one": "спуск",
+    "few": "спуска",
+    "many": "спусков",
+    "other": "спуска"
+   },
+   "ka": {
+    "one": "დაშვება",
+    "other": "დაშვება"
+   },
+   "where": "app/android, app/ios",
+   "note": "סבב ההשלמה, חלק 7 (סעיף 6 ב-design/handoff/2026-11-23-redesign-languages): תווית ליד מספר שמוצג בנפרד, בצורות רבים; מחליף את המפתח בלי ה-_n, שנשאר כמו שהוא",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.day_sum_descents_n": {
+   "he": {
+    "one": "ירידה",
+    "two": "ירידות",
+    "other": "ירידות"
+   },
+   "en": {
+    "one": "descent",
+    "other": "descents"
+   },
+   "ru": {
+    "one": "спуск",
+    "few": "спуска",
+    "many": "спусков",
+    "other": "спуска"
+   },
+   "ka": {
+    "one": "დაშვება",
+    "other": "დაშვება"
+   },
+   "where": "app/android, app/ios",
+   "note": "סבב ההשלמה, חלק 7 (סעיף 6 ב-design/handoff/2026-11-23-redesign-languages): תווית ליד מספר שמוצג בנפרד, בצורות רבים; מחליף את המפתח בלי ה-_n, שנשאר כמו שהוא",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.mtn_now_title": {
+   "he": "ההר עכשיו",
+   "en": "The mountain now",
+   "ru": "Гора сейчас",
+   "ka": "მთა ახლა",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 4 (סעיף 11 ב-design/handoff/2026-11-23-redesign-on-mountain): כותרת הגיליון של הגלולה",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.dock_village": {
+   "he": "הכפר",
+   "en": "The village",
+   "ru": "Деревня",
+   "ka": "სოფელი",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 4 (סעיף 11 ב-design/handoff/2026-11-23-redesign-on-mountain): כפתור בסרגל התחתון",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.dock_find": {
+   "he": "לאן יורדים?",
+   "en": "Where to?",
+   "ru": "Куда спускаемся?",
+   "ka": "საით ჩავდივართ?",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 4 (סעיף 11 ב-design/handoff/2026-11-23-redesign-on-mountain): שדה המדף (K06)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.map_layers_a11y": {
+   "he": "שכבות",
+   "en": "Layers",
+   "ru": "Слои",
+   "ka": "ფენები",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 4 (סעיף 11 ב-design/handoff/2026-11-23-redesign-on-mountain): לקורא מסך",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.map_home_view_a11y": {
+   "he": "חזרה למבט הפתיחה",
+   "en": "Back to the opening view",
+   "ru": "Вернуться к исходному виду",
+   "ka": "საწყის ხედზე დაბრუნება",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 4 (סעיף 11 ב-design/handoff/2026-11-23-redesign-on-mountain): המצפן; מחליף את map.compass בשפה החדשה (map.compass נשאר כמו שהוא)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.loc_ask_mountain": {
+   "he": "פועל רק כשההר פתוח והכפתור דלוק.",
+   "en": "Works only while the mountain is open and the button is on.",
+   "ru": "Работает, только пока открыта гора и кнопка включена.",
+   "ka": "მუშაობს მხოლოდ მაშინ, როცა მთა ღიაა და ღილაკი ჩართულია.",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 4 (סעיף 11 ב-design/handoff/2026-11-23-redesign-on-mountain): מחליף את loc.ask_map (בלי סוללה ובלי מפה; loc.ask_map נשאר)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.wx_snow_cap": {
+   "he": "שלג חדש",
+   "en": "New snow",
+   "ru": "Новый снег",
+   "ka": "ახალი თოვლი",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 4 (סעיף 11 ב-design/handoff/2026-11-23-redesign-on-mountain): מתחת למספר",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.wx_snow_n": {
+   "he": "{n} ס״מ",
+   "en": "{n} cm",
+   "ru": "{n} см",
+   "ka": "{n} სმ",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 4 (סעיף 11 ב-design/handoff/2026-11-23-redesign-on-mountain): המספר מעל הכיתוב",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.wx_no_snow": {
+   "he": "בלי שלג",
+   "en": "No snow",
+   "ru": "Без снега",
+   "ka": "თოვლის გარეშე",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 4 (סעיף 11 ב-design/handoff/2026-11-23-redesign-on-mountain): בכרטיס היום; קצר מ-weather.no_new_snow",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.run_cond_wind": {
+   "he": "רוח {wind} קמ״ש",
+   "en": "Wind {wind} km/h",
+   "ru": "Ветер {wind} км/ч",
+   "ka": "ქარი {wind} კმ/სთ",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 4 (סעיף 11 ב-design/handoff/2026-11-23-redesign-on-mountain): בכרטיס התנאים",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.run_videos_n": {
+   "he": "סרטונים · {n}",
+   "en": "Videos · {n}",
+   "ru": "Видео · {n}",
+   "ka": "ვიდეოები · {n}",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 4 (סעיף 11 ב-design/handoff/2026-11-23-redesign-on-mountain): כותרת הקטע",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.run_videos_all": {
+   "he": {
+    "one": "הסרטון היחיד",
+    "two": "שני הסרטונים",
+    "other": "כל {n} הסרטונים"
+   },
+   "en": {
+    "one": "The only video",
+    "other": "All {n} videos"
+   },
+   "ru": {
+    "one": "Единственное видео",
+    "few": "Все {n} видео",
+    "many": "Все {n} видео",
+    "other": "Все {n} видео"
+   },
+   "ka": {
+    "one": "ერთადერთი ვიდეო",
+    "other": "ყველა {n} ვიდეო"
+   },
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 4 (סעיף 11 ב-design/handoff/2026-11-23-redesign-on-mountain): כפתור; כל {n} כשיש יותר מאחד",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.hint_run": {
+   "he": "נוגעים במסלול, והוא נדלק מלמעלה עד למטה.",
+   "en": "Tap a run and it lights up from top to bottom.",
+   "ru": "Коснитесь трассы, и она подсветится сверху вниз.",
+   "ka": "შეეხეთ ტრასას და ის ზემოდან ქვემოთ აინთება.",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 4 (סעיף 11 ב-design/handoff/2026-11-23-redesign-on-mountain): רמז ראשון",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.hint_find": {
+   "he": "כל המסלולים במקום אחד, לפי צבע.",
+   "en": "All runs in one place, by color.",
+   "ru": "Все трассы в одном месте, по цвету.",
+   "ka": "ყველა ტრასა ერთ ადგილას, ფერის მიხედვით.",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 4 (סעיף 11 ב-design/handoff/2026-11-23-redesign-on-mountain): רמז שני",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.hint_village": {
+   "he": "בכפר: הטיול שלך, החבר׳ה, כרטיס הסקי והבקתה.",
+   "en": "In the village: your trip, the crew, the ski pass and the cabin.",
+   "ru": "В деревне: ваша поездка, компания, ски-пасс и хижина.",
+   "ka": "სოფელში: თქვენი მოგზაურობა, ჯგუფი, სათხილამურო ბარათი და ქოხი.",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 4 (סעיף 11 ב-design/handoff/2026-11-23-redesign-on-mountain): רמז שלישי",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.hint_close_a11y": {
+   "he": "סגירת הרמז",
+   "en": "Close the hint",
+   "ru": "Закрыть подсказку",
+   "ka": "მინიშნების დახურვა",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 4 (סעיף 11 ב-design/handoff/2026-11-23-redesign-on-mountain): לקורא מסך",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.me_days_sub": {
+   "he": {
+    "one": "יום גלישה אחד · השיאים שלך",
+    "two": "יומיים של גלישה · השיאים שלך",
+    "other": "{n} ימי גלישה · השיאים שלך"
+   },
+   "en": {
+    "one": "{n} ski day · your records",
+    "other": "{n} ski days · your records"
+   },
+   "ru": {
+    "one": "{n} день катания · ваши рекорды",
+    "few": "{n} дня катания · ваши рекорды",
+    "many": "{n} дней катания · ваши рекорды",
+    "other": "{n} дней катания · ваши рекорды"
+   },
+   "ka": {
+    "one": "{n} სათხილამურო დღე · თქვენი რეკორდები",
+    "other": "{n} სათხილამურო დღე · თქვენი რეკორდები"
+   },
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 4 (סעיף 11 ב-design/handoff/2026-11-23-redesign-on-mountain): שורת משנה ב\"הימים שלי\"",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.pill_lifts_temp": {
+   "he": "{open} מתוך {all} רכבלים פתוחים · {temp}",
+   "en": "{open} of {all} lifts open · {temp}",
+   "ru": "Открыто подъёмников: {open} из {all} · {temp}",
+   "ka": "ღიაა {open} საბაგირო {all}-დან · {temp}",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 4 (סעיף 11 ב-design/handoff/2026-11-23-redesign-on-mountain): גלולה קצרה, בלי \"בפסגה\"",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.g_back_to": {
+   "he": "חוזרים ל",
+   "en": "Back to",
+   "ru": "Возвращаемся в",
+   "ka": "ვბრუნდებით:",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 5 (סעיף 10 ב-design/handoff/2026-11-23-redesign-in-words): מעל שם הקבוצה; מילת יחס שמתחברת לשם",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.g_dates_from_trip": {
+   "he": "התאריכים מ״הטיול שלך״. אפשר לשנות.",
+   "en": "Dates from “Your trip”. You can change them.",
+   "ru": "Даты из «Вашей поездки». Их можно изменить.",
+   "ka": "თარიღები „თქვენი მოგზაურობიდან“. შეგიძლიათ შეცვალოთ.",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 5 (סעיף 10 ב-design/handoff/2026-11-23-redesign-in-words): קבוצה חדשה (T00); a_delete_more ו-g_fill_title לא נוספו: משתמשים ב-acct.delete_more וב-group.trip_for הקיימים",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.licenses_fonts": {
+   "he": "גופנים",
+   "en": "Fonts",
+   "ru": "Шрифты",
+   "ka": "შრიფტები",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 5 (סעיף 10 ב-design/handoff/2026-11-23-redesign-in-words): כותרת קבוצה במסך הרישיונות",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.licenses_libs": {
+   "he": "ספריות",
+   "en": "Libraries",
+   "ru": "Библиотеки",
+   "ka": "ბიბლიოთეკები",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 5 (סעיף 10 ב-design/handoff/2026-11-23-redesign-in-words): כותרת קבוצה במסך הרישיונות",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.trip_back_auto": {
+   "he": "אוטומטית",
+   "en": "Automatic",
+   "ru": "Автоматически",
+   "ka": "ავტომატურად",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 5 (סעיף 10 ב-design/handoff/2026-11-23-redesign-in-words): קצר מ-trip.back_auto, בשורת טיסת החזור",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.places_head_n": {
+   "he": {
+    "one": "{lift} · מקום אחד, עד {m} מ׳",
+    "two": "{lift} · שני מקומות, עד {m} מ׳",
+    "other": "{lift} · {n} מקומות, עד {m} מ׳"
+   },
+   "en": {
+    "one": "{lift} · {n} place, up to {m} m",
+    "other": "{lift} · {n} places, up to {m} m"
+   },
+   "ru": {
+    "one": "{lift} · {n} место, до {m} м",
+    "few": "{lift} · {n} места, до {m} м",
+    "many": "{lift} · {n} мест, до {m} м",
+    "other": "{lift} · {n} места, до {m} м"
+   },
+   "ka": {
+    "one": "{lift} · {n} ადგილი, {m} მ-მდე",
+    "other": "{lift} · {n} ადგილი, {m} მ-მდე"
+   },
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 5 (סעיף 10 ב-design/handoff/2026-11-23-redesign-in-words): כותרת רשימת המקומות; שם הרכבל לא מתורגם",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.places_unnamed": {
+   "he": "בלי שם במפה",
+   "en": "Unnamed on the map",
+   "ru": "Без названия на карте",
+   "ka": "უსახელო რუკაზე",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 5 (סעיף 10 ב-design/handoff/2026-11-23-redesign-in-words): מקום ממופה בלי שם",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.notif_ask_title": {
+   "he": "להזכיר לך רבע שעה לפני?",
+   "en": "Remind you 15 minutes before?",
+   "ru": "Напомнить за 15 минут?",
+   "ka": "შეგახსენოთ 15 წუთით ადრე?",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 6 (סעיף 8 ב-design/handoff/2026-11-23-redesign-edges): גיליון לפני שאלת ההרשאה של הטלפון",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.notif_ask_text": {
+   "he": "הטלפון מזכיר בעצמו, גם בלי קליטה על ההר. אפשר לכבות לכל מפגש בנפרד.",
+   "en": "Your phone reminds you by itself, even with no signal on the mountain. You can turn it off for each meetup.",
+   "ru": "Телефон напомнит сам, даже без связи на горе. Для каждой встречи можно отключить.",
+   "ka": "ტელეფონი თავად შეგახსენებთ, მთაზე კავშირის გარეშეც. თითოეული შეხვედრისთვის შეგიძლიათ გამორთოთ.",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 6 (סעיף 8 ב-design/handoff/2026-11-23-redesign-edges): גוף הגיליון",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.notif_ask_go": {
+   "he": "להדליק תזכורות",
+   "en": "Turn on reminders",
+   "ru": "Включить напоминания",
+   "ka": "შეხსენებების ჩართვა",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 6 (סעיף 8 ב-design/handoff/2026-11-23-redesign-edges): הכפתור הראשי",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.notif_ask_after": {
+   "he": "אחרי \"להדליק תזכורות\" הטלפון ישאל אם לאשר התראות.",
+   "en": "After “Turn on reminders” your phone will ask whether to allow notifications.",
+   "ru": "После «Включить напоминания» телефон спросит, разрешить ли уведомления.",
+   "ka": "„შეხსენებების ჩართვის“ შემდეგ ტელეფონი გკითხავთ, დაუშვას თუ არა შეტყობინებები.",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 6 (סעיף 8 ב-design/handoff/2026-11-23-redesign-edges): שורה קטנה מתחת לכפתור",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.notif_off": {
+   "he": "ההתראות כבויות בטלפון",
+   "en": "Notifications are off on your phone",
+   "ru": "Уведомления отключены в телефоне",
+   "ka": "შეტყობინებები გამორთულია ტელეფონში",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 6 (סעיף 8 ב-design/handoff/2026-11-23-redesign-edges): כותרת מצב",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.notif_off_sub": {
+   "he": "התזכורת לא תגיע",
+   "en": "The reminder won’t arrive",
+   "ru": "Напоминание не придёт",
+   "ka": "შეხსენება არ მოვა",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 6 (סעיף 8 ב-design/handoff/2026-11-23-redesign-edges): שורת משנה",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.now_offline": {
+   "he": "אין מידע עדכני · בלי קליטה",
+   "en": "No current data · offline",
+   "ru": "Нет свежих данных · нет связи",
+   "ka": "განახლებული ინფორმაცია არ არის · კავშირის გარეშე",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 6 (סעיף 8 ב-design/handoff/2026-11-23-redesign-edges): בגלולה של ההר",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.offline_title": {
+   "he": "בלי קליטה",
+   "en": "No signal",
+   "ru": "Нет связи",
+   "ka": "კავშირი არ არის",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 6 (סעיף 8 ב-design/handoff/2026-11-23-redesign-edges): כותרת",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.g_wait_tag": {
+   "he": "מחכה לקליטה",
+   "en": "Waiting for signal",
+   "ru": "Ждёт связи",
+   "ka": "კავშირს ელოდება",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 6 (סעיף 8 ב-design/handoff/2026-11-23-redesign-edges): תג על שינוי שעוד לא נשלח לקבוצה",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.retry": {
+   "he": "לנסות שוב",
+   "en": "Try again",
+   "ru": "Повторить",
+   "ka": "ხელახლა ცდა",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 6 (סעיף 8 ב-design/handoff/2026-11-23-redesign-edges): כפתור ליד שגיאה; זהה בנוסחו ל-game.school.try_again, מפתח נפרד כי זה כפתור כללי",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.update_go": {
+   "he": "עדכון",
+   "en": "Update",
+   "ru": "Обновить",
+   "ka": "განახლება",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 6 (סעיף 8 ב-design/handoff/2026-11-23-redesign-edges): ליד \"צריך לעדכן את האפליקציה\"",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.replay_live": {
+   "he": "מוקלט",
+   "en": "Recording",
+   "ru": "Идёт запись",
+   "ka": "იწერება",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 6 (סעיף 8 ב-design/handoff/2026-11-23-redesign-edges): תג כשהקלטת השימוש פעילה; לקורא מסך: \"ההקלטה פעילה. נגיעה פותחת את ההגדרות\"",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.replay_live_a11y": {
+   "he": "ההקלטה פעילה. נגיעה פותחת את ההגדרות",
+   "en": "Recording is on. Tap to open settings.",
+   "ru": "Запись включена. Коснитесь, чтобы открыть настройки.",
+   "ka": "ჩაწერა ჩართულია. შეხება გახსნის პარამეტრებს.",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 6 (סעיף 8 ב-design/handoff/2026-11-23-redesign-edges): לקורא מסך של התג",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.me_title": {
+   "he": "אני",
+   "en": "Me",
+   "ru": "Я",
+   "ka": "მე",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 3 (סעיף 12 ב-design/handoff/2026-11-23-redesign-people): R09, R10: כותרת הגיליון (באנגלית \"Me\"; \"You\" מגדרי פחות, אבל מבלבל ליד \"Your trip\")",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.me_button_a11y": {
+   "he": "אני: חשבון והגדרות",
+   "en": "Me: account and settings",
+   "ru": "Я: аккаунт и настройки",
+   "ka": "მე: ანგარიში და პარამეტრები",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 3 (סעיף 12 ב-design/handoff/2026-11-23-redesign-people): הכפתור על ההר, לקורא מסך",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.me_settings_sub": {
+   "he": "צליל, רטט, תצוגה, מדידה",
+   "en": "Sound, vibration, display, measurement",
+   "ru": "Звук, вибрация, экран, измерения",
+   "ka": "ხმა, ვიბრაცია, ეკრანი, გაზომვა",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 3 (סעיף 12 ב-design/handoff/2026-11-23-redesign-people): R09: שורת משנה",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.me_about_sub": {
+   "he": "קרדיטים, פרטיות, תמיכה",
+   "en": "Credits, privacy, support",
+   "ru": "Благодарности, конфиденциальность, поддержка",
+   "ka": "კრედიტები, კონფიდენციალურობა, მხარდაჭერა",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 3 (סעיף 12 ב-design/handoff/2026-11-23-redesign-people): R09: שורת משנה",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.grp_title": {
+   "he": "החבר׳ה",
+   "en": "The crew",
+   "ru": "Компания",
+   "ka": "ჯგუფი",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 3 (סעיף 12 ב-design/handoff/2026-11-23-redesign-people): R01, הכפר: שם מקום באפליקציה, קצר בכל שפה (המילון: \"компания\", \"ჯგუფი\")",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.grp_sub": {
+   "he": "קבוצה אחת לכל הטיול",
+   "en": "One group for the whole trip",
+   "ru": "Одна группа на всю поездку",
+   "ka": "ერთი ჯგუფი მთელი მოგზაურობისთვის",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 3 (סעיף 12 ב-design/handoff/2026-11-23-redesign-people): R01",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.grp_why_meet": {
+   "he": "נפגשים על ההר",
+   "en": "Meet up on the mountain",
+   "ru": "Встречи на горе",
+   "ka": "შეხვედრები მთაზე",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 3 (סעיף 12 ב-design/handoff/2026-11-23-redesign-people): R01",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.grp_why_scores": {
+   "he": "שיאים במשחקים",
+   "en": "High scores in the games",
+   "ru": "Рекорды в играх",
+   "ka": "რეკორდები თამაშებში",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 3 (סעיף 12 ב-design/handoff/2026-11-23-redesign-people): R01",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.join_later_note": {
+   "he": "בלי הרשמה. את המקום אפשר לשמור אחר כך, בנגיעה אחת.",
+   "en": "No sign-up. You can keep your place later, with one tap.",
+   "ru": "Без регистрации. Сохранить место можно позже, одним касанием.",
+   "ka": "რეგისტრაციის გარეშე. ადგილის შენახვა მოგვიანებით შეგიძლიათ, ერთი შეხებით.",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 3 (סעיף 12 ב-design/handoff/2026-11-23-redesign-people): R02",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.grp_next_meetup": {
+   "he": "המפגש הבא",
+   "en": "Next meetup",
+   "ru": "Следующая встреча",
+   "ka": "შემდეგი შეხვედრა",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 3 (סעיף 12 ב-design/handoff/2026-11-23-redesign-people): R03",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.grp_today": {
+   "he": "היום",
+   "en": "Today",
+   "ru": "Сегодня",
+   "ka": "დღეს",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 3 (סעיף 12 ב-design/handoff/2026-11-23-redesign-people): R03",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.grp_tomorrow": {
+   "he": "מחר",
+   "en": "Tomorrow",
+   "ru": "Завтра",
+   "ka": "ხვალ",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 3 (סעיף 12 ב-design/handoff/2026-11-23-redesign-people): R03",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.grp_on_flight_n": {
+   "he": {
+    "one": "אחד על הטיסה",
+    "two": "שניים על הטיסה",
+    "other": "{n} על הטיסה"
+   },
+   "en": {
+    "one": "1 on the flight",
+    "other": "{n} on the flight"
+   },
+   "ru": {
+    "one": "{n} на рейсе",
+    "few": "{n} на рейсе",
+    "many": "{n} на рейсе",
+    "other": "{n} на рейсе"
+   },
+   "ka": {
+    "one": "1 რეისზე",
+    "other": "{n} რეისზე"
+   },
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 3 (סעיף 12 ב-design/handoff/2026-11-23-redesign-people): R04: צורות רבים",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.grp_flight_line": {
+   "he": "{leg} {date} · {flight}",
+   "en": "{leg} {date} · {flight}",
+   "ru": "{leg} {date} · {flight}",
+   "ka": "{leg} {date} · {flight}",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 3 (סעיף 12 ב-design/handoff/2026-11-23-redesign-people): R06: {leg} הוא \"הלוך\" או \"חזור\" (app.pass_out, app.pass_ret)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.grp_play_now": {
+   "he": "לשחק עכשיו",
+   "en": "Play now",
+   "ru": "Играть",
+   "ka": "ითამაშეთ ახლა",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 3 (סעיף 12 ב-design/handoff/2026-11-23-redesign-people): R05",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.g_manual_title": {
+   "he": "מנהל מאשר כל מצטרף",
+   "en": "An admin approves everyone who joins",
+   "ru": "Администратор подтверждает каждого",
+   "ka": "ადმინისტრატორი ამტკიცებს ყველა შემოსულს",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 3 (סעיף 12 ב-design/handoff/2026-11-23-redesign-people): R07: כותרת מתג",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.signin_sub": {
+   "he": "יצירת קבוצה דורשת התחברות. כל השאר עובד בלי.",
+   "en": "Creating a group needs a sign-in. Everything else works without.",
+   "ru": "Для создания группы нужен вход. Всё остальное работает и без него.",
+   "ka": "ჯგუფის შესაქმნელად შესვლაა საჭირო. დანარჩენი უშესვლელადაც მუშაობს.",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 3 (סעיף 12 ב-design/handoff/2026-11-23-redesign-people): R08",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.guest_save_title": {
+   "he": "שומרים את המקום?",
+   "en": "Keep your place?",
+   "ru": "Сохранить ваше место?",
+   "ka": "შევინახოთ თქვენი ადგილი?",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 3 (סעיף 12 ב-design/handoff/2026-11-23-redesign-people): R10",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.a_save_apple": {
+   "he": "שמירה עם אפל",
+   "en": "Save with Apple",
+   "ru": "Сохранить через Apple",
+   "ka": "შენახვა Apple-ით",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 3 (סעיף 12 ב-design/handoff/2026-11-23-redesign-people): R10, ליד a_save_google",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.cabin_title": {
+   "he": "ערב בבקתה",
+   "en": "Evening in the cabin",
+   "ru": "Вечер в хижине",
+   "ka": "საღამო ქოხში",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 3 (סעיף 12 ב-design/handoff/2026-11-23-redesign-people): R11, הכפר: שם מקום באפליקציה, קצר בכל שפה",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.cabin_sub": {
+   "he": "{n} משחקים · בלי קליטה",
+   "en": "{n} games · works with no signal",
+   "ru": "{n} игр · без связи",
+   "ka": "{n} თამაში · სიგნალის გარეშე",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 3 (סעיף 12 ב-design/handoff/2026-11-23-redesign-people): R11",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.cabin_best": {
+   "he": "שיא {score}",
+   "en": "Best {score}",
+   "ru": "Рекорд {score}",
+   "ka": "რეკორდი {score}",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 3 (סעיף 12 ב-design/handoff/2026-11-23-redesign-people): R11",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.cabin_stars_run": {
+   "he": {
+    "one": "כוכב אחד ב-{run}",
+    "two": "שני כוכבים ב-{run}",
+    "other": "{n} כוכבים ב-{run}"
+   },
+   "en": {
+    "one": "1 star on {run}",
+    "other": "{n} stars on {run}"
+   },
+   "ru": {
+    "one": "{n} звезда на {run}",
+    "few": "{n} звезды на {run}",
+    "many": "{n} звёзд на {run}",
+    "other": "{n} звёзд на {run}"
+   },
+   "ka": {
+    "one": "1 ვარსკვლავი {run}-ზე",
+    "other": "{n} ვარსკვლავი {run}-ზე"
+   },
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 3 (סעיף 12 ב-design/handoff/2026-11-23-redesign-people): R11: צורות רבים; שם המסלול במשתנה, לא מתורגם",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.cabin_lesson": {
+   "he": "שיעור {n} מתוך {total}",
+   "en": "Lesson {n} of {total}",
+   "ru": "Урок {n} из {total}",
+   "ka": "გაკვეთილი {n}, სულ {total}-დან",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 3 (סעיף 12 ב-design/handoff/2026-11-23-redesign-people): R11",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.cabin_level": {
+   "he": "שלב {n} מתוך {total}",
+   "en": "Level {n} of {total}",
+   "ru": "Уровень {n} из {total}",
+   "ka": "დონე {n}, სულ {total}-დან",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 3 (סעיף 12 ב-design/handoff/2026-11-23-redesign-people): R11",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.cabin_not_played": {
+   "he": "עוד לא שיחקת",
+   "en": "Not played yet",
+   "ru": "Вы ещё не играли",
+   "ka": "ჯერ არ გითამაშიათ",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 3 (סעיף 12 ב-design/handoff/2026-11-23-redesign-people): R11",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.cabin_table": {
+   "he": "הטבלה של {group}",
+   "en": "The {group} table",
+   "ru": "Таблица «{group}»",
+   "ka": "{group}-ის ცხრილი",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 3 (סעיף 12 ב-design/handoff/2026-11-23-redesign-people): R11: שם הקבוצה במשתנה",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.game_new_best": {
+   "he": "שיא חדש",
+   "en": "New best",
+   "ru": "Новый рекорд",
+   "ka": "ახალი რეკორდი",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 3 (סעיף 12 ב-design/handoff/2026-11-23-redesign-people): R12",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.game_prev_best": {
+   "he": "הקודם {value}",
+   "en": "Previous {value}",
+   "ru": "Прошлый {value}",
+   "ka": "წინა {value}",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 3 (סעיף 12 ב-design/handoff/2026-11-23-redesign-people): R12",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.game_rank": {
+   "he": "מקום {n} ב{group}",
+   "en": "Place {n} in {group}",
+   "ru": "{n}-е место в группе «{group}»",
+   "ka": "{n}-ე ადგილი ჯგუფში {group}",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 3 (סעיף 12 ב-design/handoff/2026-11-23-redesign-people): R12: בעברית \"ב\" נדבקת לשם; בשפות אחרות מילת יחס נפרדת",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.game_ahead": {
+   "he": "{name} לפניך: {value}",
+   "en": "{name} is ahead: {value}",
+   "ru": "{name} впереди: {value}",
+   "ka": "{name} წინ არის: {value}",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 3 (סעיף 12 ב-design/handoff/2026-11-23-redesign-people): R12",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.game_first": {
+   "he": "המקום הראשון בקבוצה",
+   "en": "First place in the group",
+   "ru": "Первое место в группе",
+   "ka": "პირველი ადგილი ჯგუფში",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 3 (סעיף 12 ב-design/handoff/2026-11-23-redesign-people): R12",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.game_again": {
+   "he": "עוד פעם",
+   "en": "Again",
+   "ru": "Ещё раз",
+   "ka": "კიდევ ერთხელ",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 3 (סעיף 12 ב-design/handoff/2026-11-23-redesign-people): R12",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.game_next_run": {
+   "he": "המסלול הבא",
+   "en": "Next run",
+   "ru": "Следующая трасса",
+   "ka": "შემდეგი ტრასა",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 3 (סעיף 12 ב-design/handoff/2026-11-23-redesign-people): R12",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.game_back_cabin": {
+   "he": "חזרה לבקתה",
+   "en": "Back to the cabin",
+   "ru": "Назад в хижину",
+   "ka": "ქოხში დაბრუნება",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 3 (סעיף 12 ב-design/handoff/2026-11-23-redesign-people): R12",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.game_exit_a11y": {
+   "he": "יציאה מהמשחק",
+   "en": "Exit the game",
+   "ru": "Выйти из игры",
+   "ka": "თამაშიდან გასვლა",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 3 (סעיף 12 ב-design/handoff/2026-11-23-redesign-people): המעטפת, לקורא מסך",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.game_stars_a11y": {
+   "he": {
+    "one": "כוכב אחד מתוך {total}",
+    "two": "שני כוכבים מתוך {total}",
+    "other": "{n} כוכבים מתוך {total}"
+   },
+   "en": {
+    "one": "1 star out of {total}",
+    "other": "{n} stars out of {total}"
+   },
+   "ru": {
+    "one": "{n} звезда из {total}",
+    "few": "{n} звезды из {total}",
+    "many": "{n} звёзд из {total}",
+    "other": "{n} звёзд из {total}"
+   },
+   "ka": {
+    "one": "1 ვარსკვლავი {total}-დან",
+    "other": "{n} ვარსკვლავი {total}-დან"
+   },
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 3 (סעיף 12 ב-design/handoff/2026-11-23-redesign-people): R12: צורות רבים, לקורא מסך",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.set_display_auto": {
+   "he": "אוטומטי: לפי השעה בגודאורי",
+   "en": "Automatic: by the time in Gudauri",
+   "ru": "Авто: по времени в Гудаури",
+   "ka": "ავტომატური: გუდაურის დროით",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 3 (סעיף 12 ב-design/handoff/2026-11-23-redesign-people): R13",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.set_lang_auto": {
+   "he": "לפי הטלפון",
+   "en": "From the phone",
+   "ru": "Как в телефоне",
+   "ka": "ტელეფონის მიხედვით",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 3 (סעיף 12 ב-design/handoff/2026-11-23-redesign-people): R13; ליד lang_phone הקיים (\"לפי הטלפון (אוטומטי)\")",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.lang_auto_note": {
+   "he": "טלפון בעברית: עברית. כל טלפון אחר: אנגלית.",
+   "en": "Phone in Hebrew: Hebrew. Any other phone: English.",
+   "ru": "Телефон на иврите: иврит. Любой другой телефон: английский.",
+   "ka": "ტელეფონი ებრაულზეა: ებრაული. ნებისმიერი სხვა ტელეფონი: ინგლისური.",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 3 (סעיף 12 ב-design/handoff/2026-11-23-redesign-people): R14: החלטה 47",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.about_title": {
+   "he": "אודות",
+   "en": "About",
+   "ru": "О приложении",
+   "ka": "აპლიკაციის შესახებ",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 3 (סעיף 12 ב-design/handoff/2026-11-23-redesign-people): R09, R15",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.about_with": {
+   "he": "יחד עם {name}",
+   "en": "Together with {name}",
+   "ru": "Вместе с {name}",
+   "ka": "{name}-თან ერთად",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 3 (סעיף 12 ב-design/handoff/2026-11-23-redesign-people): R15",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.about_data_title": {
+   "he": "מאיפה הנתונים",
+   "en": "Where the data comes from",
+   "ru": "Откуда данные",
+   "ka": "საიდან არის მონაცემები",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 3 (סעיף 12 ב-design/handoff/2026-11-23-redesign-people): R15",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.licenses_sub": {
+   "he": "גופנים, ספריות וצלילים",
+   "en": "Fonts, libraries and sounds",
+   "ru": "Шрифты, библиотеки и звуки",
+   "ka": "შრიფტები, ბიბლიოთეკები და ხმები",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 3 (סעיף 12 ב-design/handoff/2026-11-23-redesign-people): R15",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.rec_run_n_best": {
+   "he": "ירידה {n} · השיא של היום",
+   "en": "Run {n} · top of the day",
+   "ru": "Спуск {n} · лучший за день",
+   "ka": "ტრასა {n} · დღის რეკორდი",
+   "where": "app/android",
+   "note": "סבב ההשלמה, חלק 3 (סעיף 12 ב-design/handoff/2026-11-23-redesign-people): סבב 4, L05: ההתראה (לוח L05), כשהירידה האחרונה היא המהירה ביום",
    "check": [
     "ru",
     "ka"

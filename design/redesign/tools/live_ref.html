@@ -1,0 +1,121 @@
+<!doctype html>
+<!-- Reference for the live model of the mountain (stage B): the real terrain in a free 3D view, shaded so that it looks
+     like the painted mountain of round 3. A design tool, not app code: the shaders below are GLSL ES 3.00, written to be
+     copied into the Android engine (MapRenderer.kt) as they are. Serve the repo root and open
+     /design/redesign/tools/live_ref.html?light=morning   (see live_ref.js for the parameters). -->
+<meta charset="utf-8"><title>live ref</title>
+<style>html,body{margin:0;background:#000}canvas{display:block}</style>
+<script src="/site/js/vendor/three-r128.min.js"></script>
+<script id="tvs" type="x">
+in vec3 position; in float shadow;
+uniform mat4 uMvp;
+out vec3 vPos; out float vShadow;
+void main(){ vPos=position; vShadow=shadow; gl_Position=uMvp*vec4(position,1.0); }
+</script>
+<script id="tfs" type="x">
+precision highp float;
+in vec3 vPos; in float vShadow;
+uniform sampler2D uRelief; uniform sampler2D uCover; uniform sampler2D uTile;
+uniform vec4 uBox;                      // x0, z0, 1/(x1-x0), 1/(z1-z0)
+uniform vec3 uSun;                      // toward the sun (or the moon)
+uniform vec3 uLit; uniform vec3 uShade; uniform vec3 uRock; uniform vec3 uRockS; uniform vec3 uHor;
+uniform float uDirect;                  // 1 with a sun or a moon, 0 in the blue hour
+uniform float uGlow;                    // 1 when the sun is under 5 degrees: only the heights catch it
+uniform vec3 uCam; uniform vec3 uHaze;  // haze: where it starts and its length, metres from the eye; and the most it takes
+uniform float uValley;                  // the thin haze that lies in the valleys
+uniform float uDetail;                  // 1; 0 shows the terrain without the detail textures (for comparison)
+uniform float uRipple;                  // how strongly the wind ripples of the tile show
+out vec4 o;
+void main(){
+  vec2 uv=(vPos.xz-uBox.xy)*uBox.zw;
+  vec3 rl=texture(uRelief,uv).rgb; vec3 cv=texture(uCover,uv).rgb; vec3 tl=texture(uTile,vPos.xz/640.0).rgb;
+  // the snow surface: the big shapes from the world map, wind ripples and grain from the tile (not on groomed runs, not on rock)
+  vec2 s=(rl.rg-0.5)*3.2;
+  float deg=degrees(atan(length(s)));
+  float amp=(1.0-0.85*cv.g)*(1.0-smoothstep(30.0,40.0,deg))*uDetail;
+  s+=(tl.rg-0.5)*0.5*amp*uRipple;
+  vec3 n=normalize(vec3(-s.x,1.0,-s.y));
+  // light: sun through soft cast shadow; without a sun, light from above
+  float lam=max(dot(n,uSun),0.0);
+  float direct=lam*(1.0-0.94*vShadow)*uDirect+(1.0-uDirect)*0.55*n.y;
+  float t=pow(direct,0.85);
+  t*=mix(1.0,0.35+0.65*smoothstep(2350.0,3000.0,vPos.y),uGlow);
+  vec3 col=uShade*(0.86+0.14*n.y)+(uLit-uShade*0.86)*t;
+  // the glaze of a low sun on snow
+  vec3 v=normalize(uCam-vPos); vec3 h=normalize(uSun+v);
+  col+=pow(max(dot(n,h),0.0),38.0)*(1.0-vShadow)*uDirect*0.20*uLit;
+  col*=0.94+0.06*smoothstep(2000.0,3100.0,vPos.y);
+  col*=1.0+0.05*cv.g*(1.0-0.5*t);                                   // the satin of a groomed run
+  // rock: too steep to hold snow, streaked down the fall line
+  vec2 fall=s*s/(dot(s,s)+1e-4);                                    // how much the fall line runs east-west (x) or north-south (y)
+  float stk=mix(0.5,texture(uTile,vPos.xz/160.0).b*fall.y+texture(uTile,vPos.zx/160.0).b*fall.x,uDetail);
+  float rk=smoothstep(28.5,38.0,18.0+30.0*cv.r+(stk-0.5)*12.0)*0.9;
+  vec3 rock=mix(uRockS,uRock,t)*(2.0*cv.b)*(0.7+0.6*stk);
+  col=mix(col,rock,rk);
+  col*=0.7+0.6*rl.b;                                                // hollows a little darker, crests a little lighter
+  // air: far ground goes to the colour of the horizon; the valleys hold a thin haze
+  float d=length(vPos-uCam);
+  float far=uHaze.z*(1.0-exp(-max(d-uHaze.x,0.0)/uHaze.y));
+  float low=smoothstep(2300.0,1750.0,vPos.y)*uValley;
+  col=mix(col,uHor,clamp(far+low*(1.0-far),0.0,0.97));
+  col=clamp(col,0.0,1.0); col=col*col*(3.0-2.0*col)*0.55+col*0.45;  // a gentle filmic curve
+  o=vec4(col,1.0);
+}
+</script>
+<script id="svs" type="x">
+in vec3 position; out vec2 vNdc;
+void main(){ vNdc=position.xy; gl_Position=vec4(position.xy,0.9999,1.0); }
+</script>
+<script id="sfs" type="x">
+precision highp float;
+in vec2 vNdc;
+uniform mat4 uInv; uniform vec3 uEye;
+uniform sampler2D uHorizon; uniform sampler2D uCirrus;
+uniform vec3 uSun; uniform vec3 uLit; uniform vec3 uShade; uniform vec3 uZen; uniform vec3 uHor; uniform vec3 uBand;
+uniform float uBandOn; uniform float uDirect; uniform float uGlow; uniform float uStars; uniform float uSunUp;
+uniform vec4 uStrip;                    // lo, hi (degrees), far metres, 0
+uniform float uFar;                     // 1; 0 hides the far horizon
+uniform vec2 uAir;                      // the far horizon in the air: at 9 km, and how much more by the far end
+uniform float uSkyTop;                  // degrees above the horizon where the sky reaches its zenith colour
+out vec4 o;
+float hash(vec3 p){ return fract(sin(dot(p,vec3(127.1,311.7,74.7)))*43758.5453); }
+void main(){
+  vec4 w=uInv*vec4(vNdc,1.0,1.0); vec3 d=normalize(w.xyz/w.w-uEye);
+  float el=degrees(asin(clamp(d.y,-1.0,1.0)));
+  float az=atan(d.x,-d.z); if(az<0.0) az+=6.2831853;               // from north, clockwise
+  // the sky: horizon colour low, zenith colour by 16 degrees up (a painter's sky: the phone sees little of it)
+  float k=clamp(el/uSkyTop,0.0,1.0);
+  vec3 c=mix(uZen,uHor,pow(1.0-k,1.25));
+  // the pink band of dawn and dusk, opposite the sun
+  float away=0.6+0.4*(0.5-0.5*dot(normalize(d.xz+1e-5),normalize(uSun.xz+1e-5)));
+  c=mix(c,uBand,exp(-pow((el-4.5)/3.2,2.0))*0.75*uBandOn*away);
+  // high cloud (paint)
+  float ci=texture(uCirrus,vec2(az/6.2831853,1.0-clamp(el/24.0,0.0,1.0))).r*smoothstep(0.0,5.0,el);
+  vec3 cc=uStars<1.0 ? uHor*0.4+0.6*uLit : uHor*1.6;
+  float cm=ci*(uStars<1.0?0.34:0.08);
+  c=mix(c,cc,cm);
+  // stars
+  if(uStars>0.0 && el>1.0){ vec3 cell=floor(d*420.0); float hh=hash(cell); if(hh>0.9965) c+=vec3(0.95,0.97,1.0)*(hh-0.9965)/0.0035*uStars*(1.0-cm)*smoothstep(1.0,8.0,el); }
+  // the glow around the sun
+  float sd=max(dot(d,uSun),0.0);
+  c+=uLit*(pow(sd,48.0)*0.35+pow(sd,900.0)*1.2)*uSunUp;
+  // the far horizon: real terrain around Gudauri, lit by the same sun, deep in the air
+  if(uFar>0.0 && el>uStrip.x && el<uStrip.y){
+    vec3 hz=texture(uHorizon,vec2(az/6.2831853,(uStrip.y-el)/(uStrip.y-uStrip.x))).rgb;
+    float land=1.0-smoothstep(0.90,0.99,hz.b);
+    vec2 s=(hz.rg-0.5)*3.2; vec3 n=normalize(vec3(-s.x,1.0,-s.y));
+    float dist=hz.b*uStrip.z/0.98;
+    float t=pow(max(dot(n,uSun),0.0)*uDirect+(1.0-uDirect)*0.55*n.y,0.85);
+    t*=mix(1.0,0.5,uGlow*(1.0-smoothstep(0.0,2.5,el+3.0)));
+    vec3 g=uShade*(0.86+0.14*n.y)+(uLit-uShade*0.86)*t;
+    float deg=degrees(atan(length(s)));
+    g=mix(g,mix(uShade*0.55,uLit*0.5,t),smoothstep(24.0,34.0,deg)*0.7);            // steep faces: rock
+    float air=uAir.x+uAir.y*(1.0-exp(-max(dist-9000.0,0.0)/26000.0));
+    g=mix(g,uHor,air);
+    c=mix(c,g,land*smoothstep(uStrip.x,uStrip.x+1.5,el));
+  }
+  c=clamp(c,0.0,1.0); c=c*c*(3.0-2.0*c)*0.55+c*0.45;
+  o=vec4(c,1.0);
+}
+</script>
+<script src="live_ref_main.js"></script>
