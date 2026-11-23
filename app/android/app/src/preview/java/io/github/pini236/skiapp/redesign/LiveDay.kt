@@ -181,7 +181,8 @@ fun LiveDay(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, liftName: (S
             "standing" -> LiveStage.STANDING; "near" -> LiveStage.NEAR_LIFT; "break" -> LiveStage.BREAK; else -> null }
     }
     val stage = qaStage ?: liveStage(act, actSince, now, actBefore, nearLift != null)
-    LaunchedEffect(stage) { Qa.log("redesign rec stage ${stage.name.lowercase()}") }
+    // also on each emulator hold, so a hold of the stage already shown is told in the log
+    LaunchedEffect(stage, RedesignQa.seq) { Qa.log("redesign rec stage ${stage.name.lowercase()}") }
     val ink = if (night) Color(0xFFEAF0F7) else Color(0xFF0E2233)
     val muted = if (night) Color(0xB3EAF0F7) else Color(0xFF5B6B7B)
     val glass = if (night) Color(0xEB0F1828) else Color(0xF5FFFFFF)

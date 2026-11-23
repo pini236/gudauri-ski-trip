@@ -93,7 +93,8 @@ internal fun RunDoneCard(file: File, p: RunDone.Pending, scene: MapScene, mode: 
             val d = segs.filter { it.optString("type") == "descent" }.maxByOrNull { it.optDouble("dist_m", 0.0) }
             val runs = LinkedHashSet<String>()
             d?.optJSONArray("legs")?.let { a -> for (i in 0 until a.length()) { val l = a.getJSONObject(i); if (l.optString("kind") == "run") l.optJSONArray("runs")?.let { r -> for (j in 0 until r.length()) runs += r.getString(j) } } }
-            if (d == null) return@withContext Loaded(null, emptyList(), null, emptyList(), emptyList(), null)
+            // no descent: the bare painted mountain stays behind the card, with no lines
+            if (d == null) return@withContext Loaded(null, emptyList(), OnMountain.load(ctx, night, scene.terrain::elev), emptyList(), emptyList(), null)
             val pts = DayLog.read(file).points.map { DayPaint.Pt(it.t, Geo.x(it.lon), Geo.y(it.lat), it.speed?.let { s -> s * 3.6 }) }
             val paint = DayPaint.build(pts, listOf(DayPaint.Seg("descent", d.optLong("t0"), d.optLong("t1"))))
             val raw = paint.lines.map { it.xy to it.band }
@@ -111,7 +112,15 @@ internal fun RunDoneCard(file: File, p: RunDone.Pending, scene: MapScene, mode: 
     Box(Modifier.fillMaxSize().background(if (night) Color(0xFF0B1220) else Color(0xFFEEF3F8))) {
         // the mountain: the whole painting, enlarged 1.7 around the descent (no close view of its own on Android yet)
         val mt = l?.mountain
-        if (mt != null && l.line.isNotEmpty()) {
+        if (mt != null && l.line.isEmpty()) {
+            val img = remember(mt) { mt.img.asImageBitmap() }
+            Canvas(Modifier.fillMaxSize()) {
+                // the whole painting covering the screen's top two thirds, its middle in the middle
+                val kk = maxOf(size.width / mt.view.w, size.height * .66f / mt.view.h)
+                val ox = (size.width - mt.view.w * kk) / 2; val oy = (size.height * .66f - mt.view.h * kk) / 2
+                drawImage(img, dstOffset = IntOffset(ox.toInt(), oy.toInt()), dstSize = IntSize((mt.view.w * kk).toInt(), (mt.view.h * kk).toInt()))
+            }
+        } else if (mt != null && l.line.isNotEmpty()) {
             val img = remember(mt) { mt.img.asImageBitmap() }
             Canvas(Modifier.fillMaxSize()) {
                 val pl = OnMountain.place(mt.view, l.line.map { it.first }, size.width, size.height, size.minDimension * .12f, size.height * .5f, maxZoom = 1.7f)
