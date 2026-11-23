@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -82,7 +83,8 @@ import java.util.Locale
  */
 @Composable
 internal fun DayShare(story: StoryData, sm: DayModel.Summary, paint: DayPaint.Day, hide: List<LongArray>, track: () -> Track?,
-                      name: (String) -> String, night: Boolean, sample: Boolean, haptics: Haptics, onBack: () -> Unit) {
+                      name: (String) -> String, night: Boolean, sample: Boolean, haptics: Haptics,
+                      elev: ((Float, Float) -> Float)? = null, onBack: () -> Unit) {
     BackHandler { onBack() }
     val ctx = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -103,8 +105,9 @@ internal fun DayShare(story: StoryData, sm: DayModel.Summary, paint: DayPaint.Da
             runCatching {
                 val top = storyPicture(ctx, story, sm, track(), name).let { (b, t) -> b.recycle(); t }
                 val lang = Lang.current(ctx.resources)
-                StoryVideo.still(paint, hide, night, shareWords(ctx, story, sm), Lang.typeface(ctx, lang, true), regular(ctx, lang),
-                    lang.rtl, sm.maxAt?.let { paint.track.at(it) }) to top
+                // the title in the text's bold face, not the old language's display face (the designer, point 6)
+                StoryVideo.still(paint, hide, night, shareWords(ctx, story, sm), Lang.typeface(ctx, lang, false), regular(ctx, lang),
+                    lang.rtl, sm.maxAt?.let { paint.track.at(it) }, mountainOf(ctx, night, elev)) to top
             }.getOrNull()
         }
         Qa.log("redesign share open")
@@ -118,7 +121,7 @@ internal fun DayShare(story: StoryData, sm: DayModel.Summary, paint: DayPaint.Da
         making = 0f; failed = false
         scope.launch {
             val f = File(File(ctx.cacheDir, "share").apply { mkdirs() }, "day.mp4")
-            val ok = withContext(Dispatchers.Default) { makeVideo(ctx, f, story, sm, paint, hide, night) { p -> making = p } }
+            val ok = withContext(Dispatchers.Default) { makeVideo(ctx, f, story, sm, paint, hide, night, mountainOf(ctx, night, elev)) { p -> making = p } }
             making = null
             Qa.log("redesign share video ${if (ok) "made ${f.length()}" else "failed"}")
             if (ok) { made = f; then(f) } else failed = true
@@ -129,10 +132,23 @@ internal fun DayShare(story: StoryData, sm: DayModel.Summary, paint: DayPaint.Da
         if (RedesignQa.cmd == "share:video") { video = true; withVideo { f -> scope.launch { val ok = withContext(Dispatchers.IO) { saveVideo(ctx, f) }; Qa.log("redesign share saved video $ok") } } }
     }
     Box(Modifier.fillMaxSize().background(Color(0x99050A16)).clickable(interactionSource = remember { MutableInteractionSource() }, indication = null) { onBack() }) {
-        // the picture, as it will leave (the video is the day's lines filling in, under the same words)
-        pic?.first?.let { b ->
-            Image(b.asImageBitmap(), null, Modifier.align(Alignment.TopCenter).statusBarsPadding().padding(top = 24.dp, start = 36.dp, end = 36.dp)
-                .fillMaxWidth().shadow(18.dp, RoundedCornerShape(20.dp)).clip(RoundedCornerShape(20.dp)), contentScale = ContentScale.FillWidth)
+        // the screen's title (L11), then the picture as it will leave; in the video's mode the same frame with a play sign
+        // (the video is the day's lines filling in on the mountain, under the same words)
+        Column(Modifier.align(Alignment.TopCenter).statusBarsPadding().padding(top = 14.dp, start = 36.dp, end = 36.dp).fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            Text(stringResource(R.string.app_meet_share_title), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 17.sp, color = Color.White)
+            pic?.first?.let { b ->
+                Box(Modifier.fillMaxWidth().shadow(18.dp, RoundedCornerShape(20.dp)).clip(RoundedCornerShape(20.dp)), contentAlignment = Alignment.Center) {
+                    Image(b.asImageBitmap(), null, Modifier.fillMaxWidth(), contentScale = ContentScale.FillWidth)
+                    if (video) androidx.compose.foundation.Canvas(Modifier.size(64.dp)) {
+                        drawCircle(Color(0x99080E1C))
+                        val r = size.minDimension / 2
+                        drawPath(androidx.compose.ui.graphics.Path().apply {
+                            moveTo(center.x - r * .28f, center.y - r * .38f); lineTo(center.x + r * .42f, center.y); lineTo(center.x - r * .28f, center.y + r * .38f); close()
+                        }, Color.White)
+                    }
+                }
+            }
         }
         Column(Modifier.align(Alignment.BottomCenter).navigationBarsPadding().padding(10.dp).fillMaxWidth()
             .shadow(18.dp, RoundedCornerShape(28.dp)).clip(RoundedCornerShape(28.dp)).background(glass).border(1.dp, rule, RoundedCornerShape(28.dp))
@@ -175,13 +191,13 @@ internal fun DayShare(story: StoryData, sm: DayModel.Summary, paint: DayPaint.Da
 
 /** The day's words for the video, the picture's: the kind of day, four numbers, "Gudi" and "Gudauri · date". */
 private fun makeVideo(ctx: Context, out: File, story: StoryData, sm: DayModel.Summary, paint: DayPaint.Day, hide: List<LongArray>, night: Boolean,
-                      progress: (Float) -> Unit): Boolean {
+                      mountain: StoryVideo.Mountain?, progress: (Float) -> Unit): Boolean {
     val lang = Lang.current(ctx.resources)
     val words = shareWords(ctx, story, sm)
     val film = DayPaint.film(paint, sm.maxAt)
     // every tenth in the test log, so a slow encoder (the emulator has none in hardware) is told apart from a stuck one
     var told = -1
-    return StoryVideo.make(out, paint, film, hide, night, words, Lang.typeface(ctx, lang, true), regular(ctx, lang), lang.rtl) {
+    return StoryVideo.make(out, paint, film, hide, night, words, Lang.typeface(ctx, lang, false), regular(ctx, lang), lang.rtl, mountain) {
         val tenth = (it * 10).toInt(); if (tenth != told) { told = tenth; Qa.log("redesign share video ${tenth * 10}%") }
         progress(it)
     }
@@ -242,4 +258,18 @@ private fun saveVideo(ctx: Context, f: File): Boolean {
     }
     val uri = ctx.contentResolver.insert(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, v) ?: return false
     return runCatching { ctx.contentResolver.openOutputStream(uri)!!.use { o -> f.inputStream().use { it.copyTo(o) } }; true }.getOrDefault(false)
+}
+
+/**
+ * The painted mountain for the picture and the video (L11): the POC's whole-mountain view at noon (at night, its night),
+ * with its projection; null without the ground's height or if the picture cannot be read (then the day is drawn from above).
+ */
+private fun mountainOf(ctx: Context, night: Boolean, elev: ((Float, Float) -> Float)?): StoryVideo.Mountain? {
+    if (elev == null) return null
+    return runCatching {
+        val d = PeakData.load(ctx)
+        val file = d.hero.images[if (night) "night" else "noon"] ?: return null
+        val img = ctx.assets.open("redesign/$file").use { android.graphics.BitmapFactory.decodeStream(it) } ?: return null
+        if (d.hero.proj == null) null else StoryVideo.Mountain(img, d.hero, elev)
+    }.getOrNull()
 }

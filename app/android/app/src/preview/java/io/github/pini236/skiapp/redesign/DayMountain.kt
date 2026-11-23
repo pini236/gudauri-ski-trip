@@ -364,7 +364,7 @@ fun DayMountain(file: File, sample: Boolean, scene: MapScene, mode: DayNight.Mod
         if (ridge && lr != null) DayRidge(lr.paint, lr.elev, lr.day, lr.segs, scene.runs, night, sample, haptics, onShare = { story = true }, onBack = { ridge = false })
         val st = lr?.story
         if (story && lr != null && st != null) DayStory(st, lr.day.summary, lr.paint, offPiste(lr.segs), { runCatching { io.github.pini236.skiapp.dayrec.ui.readTrack(file) }.getOrNull() },
-            scene.runs, night, sample, haptics, shareOnly = shareOnly, onBack = { story = false; shareOnly = false })
+            scene.runs, night, sample, haptics, shareOnly = shareOnly, elev = scene.terrain::elev, onBack = { story = false; shareOnly = false })
     }
 }
 

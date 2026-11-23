@@ -37,4 +37,13 @@ class StoryVideoTest {
         assertTrue(StoryVideo.hidden(1_500, spans)); assertTrue(StoryVideo.hidden(2_000, spans))
         assertFalse(StoryVideo.hidden(2_001, spans)); assertFalse(StoryVideo.hidden(500, emptyList()))
     }
+
+    /** The picture on the painted mountain goes from the map's metres back to latitude and longitude (point 6). */
+    @Test fun theMapsMetresGoBackToTheSamePlace() {
+        for ((lat, lon) in listOf(42.4826 to 44.4834, 42.51 to 44.495, 42.4711 to 44.4922)) {
+            val y = io.github.pini236.skiapp.data.Geo.y(lat); val x = io.github.pini236.skiapp.data.Geo.x(lon)
+            org.junit.Assert.assertEquals(lat, MapMetres.lat(y), 1e-5)
+            org.junit.Assert.assertEquals(lon, MapMetres.lon(x), 1e-5)
+        }
+    }
 }
