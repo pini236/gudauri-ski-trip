@@ -1162,6 +1162,14 @@ redesign() {
   seen "redesign live kobi sign false" 5 || fail "redesign: the sign did not bring the front back"
   rd_drawn; shot redesign-live-front
   drag $((W / 2)) $((H / 2)) $((W / 2 - W / 5)) $((H / 2)) 500; sleep 1.5; shot redesign-live-dragged
+  # the completion round, part 2 (Q01 to Q03): the lifts without a report (today), then with one (two closed, their
+  # tags on the mountain), and one lift
+  mark; qa "--es qa.status none --es qa.redesign lifts"; sleep 2; shot redesign-lifts-none
+  mark; qa "--es qa.status fresh --es qa.redesign lifts:off"; sleep 2.5; shot redesign-lifts-tags
+  mark; qa "--es qa.redesign lifts"; sleep 1.5; shot redesign-lifts-live
+  mark; qa "--es qa.redesign lift:Goodaura"; waitlog "redesign lift panel Goodaura" 10 || fail "redesign: the lift's panel did not open"
+  sleep 1.5; shot redesign-lift-panel
+  mark; qa "--es qa.redesign lifts:off --es qa.status none"; sleep 1
   mark; qa "--es qa.mode auto --es qa.redesign painted"; waitlog "redesign live closed" 10; sleep 1.5; shot redesign-live-back
   qa "--es qa.mode auto --es qa.redesign close"; sleep 1.5; shot redesign-closed
   # round 4 (board L06): the sample day on the mountain, its lines of light by speed and the dotted rides, by day and

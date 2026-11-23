@@ -273,7 +273,7 @@ internal fun BreakScreen(minutes: Long, stats: Analyzer.Stats?, paint: DayPaint.
 
 /** The lift's sign: a cable and a cabin. */
 @Composable
-private fun LiftSign(c: Color) = Canvas(Modifier.size(26.dp)) {
+internal fun LiftSign(c: Color) = Canvas(Modifier.size(26.dp)) {
     val w = size.width; val s = 1.8f * density
     drawLine(c, Offset(0f, w * .22f), Offset(w, w * .08f), s, cap = StrokeCap.Round)
     drawLine(c, Offset(w * .5f, w * .15f), Offset(w * .5f, w * .36f), s)

@@ -31,6 +31,8 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -79,7 +81,8 @@ import io.github.pini236.skiapp.qa.Qa
  * tap that lights a run. The hour slider moves the sun along 12 January, as on the painted picture.
  */
 @Composable
-fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, onPainted: () -> Unit, onLeave: () -> Unit) {
+fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status: io.github.pini236.skiapp.status.LiftStatus?, inSeason: Boolean,
+                 forMe: Boolean, onForMe: (Boolean) -> Unit, onPainted: () -> Unit, onLeave: () -> Unit) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val data by produceState<PeakData?>(null) { value = withContext(Dispatchers.IO) { PeakData.load(context) } }
@@ -88,6 +91,10 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, onPaint
     var scrub by remember { mutableStateOf<Float?>(null) }
     var scrubOpen by remember { mutableStateOf(false) }
     var chosen by remember { mutableStateOf<String?>(null) }
+    // part 2 (Q01 to Q03): the lifts' sheet, and one lift in it
+    var liftsOpen by remember { mutableStateOf(false) }
+    var liftSel by remember { mutableStateOf<io.github.pini236.skiapp.data.Lift?>(null) }
+    androidx.activity.compose.BackHandler(enabled = liftsOpen) { if (liftSel != null) liftSel = null else liftsOpen = false }
     // the emulator's held moment (ms since the choice), null in use
     var held by remember { mutableStateOf<Float?>(null) }
     val time = scrub?.let { PeakLight.janAt(it) } ?: DayNight.lightTime(now, mode)
@@ -119,6 +126,10 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, onPaint
             c.startsWith("pick:") -> { held = null; view.pickKey(c.removePrefix("pick:")) }
             c == "unpick" -> { held = null; chosen = null; view.choose(null); Qa.log("redesign live unpicked") }
             c == "front" -> view.backToFront()
+            // part 2 (Q01 to Q03): the lifts' sheet and one lift
+            c == "lifts" -> { liftSel = null; liftsOpen = true }
+            c == "lifts:off" -> { liftSel = null; liftsOpen = false }
+            c.startsWith("lift:") -> LiveLifts.board(scene.runs).firstOrNull { it.name == c.removePrefix("lift:") }?.let { liftSel = it; liftsOpen = true }
             // one moment of the choice held (the designer's 0, 150, 300, 600 and 900 ms, as phase A's frame:)
             c.startsWith("moment:") -> c.removePrefix("moment:").split(',').takeIf { it.size == 2 }?.let { (k, t) ->
                 t.trim().toFloatOrNull()?.let { ms -> held = ms; view.moment(k.trim(), ms) }
@@ -165,6 +176,19 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, onPaint
                     Slider(value = scrub ?: PeakLight.localHour(time).coerceIn(7f, 23.5f), onValueChange = { scrub = it }, valueRange = 7f..23.5f,
                         modifier = Modifier.padding(horizontal = 14.dp),
                         colors = SliderDefaults.colors(thumbColor = acc, activeTrackColor = acc, inactiveTrackColor = line))
+                }
+            }
+            // the pill of the lifts (Q01, Q02): the report's summary, or no recent information, or none yet before the season
+            val (pillText, pillLive) = LiftsPillText(status, inSeason)
+            Pill(Modifier.fillMaxWidth().clickable {
+                haptics.tick(.3f); liftSel = null; liftsOpen = !liftsOpen
+                if (liftsOpen) io.github.pini236.skiapp.telemetry.Telemetry.event("status_view", if (status?.fresh == true) mapOf("state" to "fresh", "open" to status.open, "total" to status.names.size) else mapOf("state" to if (status?.report == null) "none" else "stale"))
+                Qa.log("redesign lifts ${if (liftsOpen) "open" else "closed"} ${if (pillLive) "live" else "none"}")
+            }) {
+                Row(Modifier.fillMaxWidth().padding(horizontal = 14.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(9.dp)) {
+                    val kk = remember(night) { SheetInk(night) }
+                    StateDot(if (pillLive) true else null, kk)
+                    Text(pillText, fontFamily = Plex, fontWeight = FontWeight.Medium, fontSize = 14.sp, color = ink, maxLines = 1)
                 }
             }
             Text(stringResource(R.string.poc_peak_live_badge), Modifier.clip(RoundedCornerShape(11.dp)).background(Color(0x66081A33)).padding(horizontal = 10.dp, vertical = 3.dp),
@@ -251,14 +275,47 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, onPaint
                 drawCircle(Color.White, 26 * dp * sc, tp, alpha = .9f * (1 - r), style = Stroke(2 * dp))
             }
         }
-        AnimatedVisibility(run != null && pd != null && (held ?: 900f) >= 900f, Modifier.align(Alignment.BottomCenter),
+        // the closed lifts' tags on the mountain (Q01): a red dot, the lift's name and "closed", 16 above its top station
+        val boardLifts = remember(scene) { LiveLifts.board(scene.runs) }
+        val closed = if (status?.fresh == true) boardLifts.filter { status.isOpen(it.name) == false } else emptyList()
+        var tags by remember { mutableStateOf<List<Pair<io.github.pini236.skiapp.data.Lift, Offset>>>(emptyList()) }
+        LaunchedEffect(closed.map { it.name }) {
+            if (closed.isEmpty()) { tags = emptyList(); return@LaunchedEffect }
+            val tops = closed.mapNotNull { l -> LiveLifts.ends(l, scene.terrain::elev)?.let { e -> l to e } }
+            while (true) { withFrameNanos { }; tags = tops.mapNotNull { (l, e) -> view.toScreen(e[2], e[3], 6f)?.let { p -> l to Offset(p[0], p[1]) } } }
+        }
+        if (chosen == null) for ((l, p) in tags) {
+            val sk = remember(night) { SheetInk(night) }
+            Row(Modifier.offset { androidx.compose.ui.unit.IntOffset((p.x - 40.dp.toPx()).toInt(), (p.y - 16.dp.toPx() - 22.dp.toPx()).toInt()) }
+                .heightIn(min = 44.dp).clickable { haptics.tick(.3f); liftSel = l; liftsOpen = true; Qa.log("redesign lift tag ${l.name}") },
+                verticalAlignment = Alignment.CenterVertically) {
+                Row(Modifier.height(22.dp).clip(RoundedCornerShape(11.dp)).background(bg).border(1.dp, line, RoundedCornerShape(11.dp)).padding(horizontal = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(5.dp)) {
+                    Box(Modifier.size(8.dp).clip(CircleShape).background(sk.red))
+                    Text(stringResource(R.string.app_lift_closed_tag, l.name), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 11.5.sp, color = ink, maxLines = 1)
+                }
+            }
+        }
+        AnimatedVisibility(liftsOpen, Modifier.align(Alignment.BottomCenter),
+            enter = slideInVertically(tween(250)) { it } + fadeIn(tween(150)), exit = slideOutVertically(tween(200)) { it } + fadeOut(tween(200))) {
+            val sk = remember(night) { SheetInk(night) }
+            val sel = liftSel
+            if (sel != null) {
+                LaunchedEffect(sel) { io.github.pini236.skiapp.telemetry.Telemetry.event("lift_open", mapOf("lift" to sel.name)); Qa.log("redesign lift panel ${sel.name}") }
+                LiftPanel(sel, status, scene, sk, haptics, onRun = { key -> liftSel = null; liftsOpen = false; view.pickKey(key) }, onMeet = null,
+                    onRuns = { liftSel = null; liftsOpen = false })
+            } else LiftsSheet(boardLifts, status, scene, forMe, sk, haptics, onForMe = { v ->
+                onForMe(v); io.github.pini236.skiapp.telemetry.Telemetry.event("status_only_open", mapOf("on" to v)); Qa.log("redesign lifts for me $v")
+            }, onLift = { l -> liftSel = l })
+        }
+        AnimatedVisibility(run != null && pd != null && (held ?: 900f) >= 900f && !liftsOpen, Modifier.align(Alignment.BottomCenter),
             enter = slideInVertically(tween(250)) { it } + fadeIn(tween(150)), exit = slideOutVertically(tween(200)) { it } + fadeOut(tween(200))) {
             var last by remember { mutableStateOf(run) }
             if (run != null) last = run
             val d0 = pd
             last?.let { r -> if (d0 != null) RunSheet(r, d0, g, onClose = { chosen = null; view.choose(null) }) }
         }
-        AnimatedVisibility(chosen == null, Modifier.align(Alignment.BottomCenter).navigationBarsPadding().padding(bottom = 22.dp), enter = fadeIn(), exit = fadeOut()) {
+        AnimatedVisibility(chosen == null && !liftsOpen, Modifier.align(Alignment.BottomCenter).navigationBarsPadding().padding(bottom = 22.dp), enter = fadeIn(), exit = fadeOut()) {
             Pill(h = 48) { Text(stringResource(R.string.poc_peak_hint), Modifier.padding(horizontal = 20.dp), fontFamily = Plex, fontSize = 15.sp, color = ink) }
         }
     }

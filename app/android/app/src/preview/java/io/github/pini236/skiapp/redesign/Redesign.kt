@@ -134,7 +134,8 @@ object Redesign {
     }
 
     @Composable
-    fun BoxScope.Host(home: Boolean, mode: DayNight.Mode, haptics: Haptics, scene: MapScene?) {
+    fun BoxScope.Host(home: Boolean, mode: DayNight.Mode, haptics: Haptics, scene: MapScene?, status: io.github.pini236.skiapp.status.LiftStatus? = null,
+                       inSeason: Boolean = false, forMe: Boolean = false, onForMe: (Boolean) -> Unit = {}) {
         // the emulator's scripts drive the debug build through the current screens (qa/run.sh): there the mountain
         // opens only when the run asks for it (qa.redesign open), so every other part sees the app as it is
         val debug = io.github.pini236.skiapp.BuildConfig.DEBUG
@@ -165,7 +166,7 @@ object Redesign {
             Box(Modifier.fillMaxSize()) {
                 // the live model only over home: never with the map open too (the height model would sit on the GPU
                 // twice, docs/ARCHITECTURE.md)
-                if (scene != null && home && (live || shown.value > 0f)) LiveMountain(scene, mode, haptics, onPainted = { live = false }, onLeave = { open = false })
+                if (scene != null && home && (live || shown.value > 0f)) LiveMountain(scene, mode, haptics, status, inSeason, forMe, onForMe, onPainted = { live = false }, onLeave = { open = false })
                 if (!live || shown.value < 1f) Box(Modifier.fillMaxSize().graphicsLayer { alpha = 1f - shown.value }) {
                     PeakScreen(mode, haptics, onLive = if (scene != null && home) ({ live = true }) else null) { open = false }
                 }
