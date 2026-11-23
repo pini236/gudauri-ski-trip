@@ -181,7 +181,7 @@ def build():
     # ---- R08: signing in
     def b08():
         o=pic('hero','dawn','night')+both(lambda m,l:P.lifts_svg(VH,m,l,cabins=False,dim=True))+mount_top(None,'עוד אין מידע על הרכבלים',eg=False).replace('class="dot"','class="sd q"')
-        o+=veil(110,734,'var(--veil)')
+        o+=veil(0,844,'rgba(6,11,22,.38)')  # a sheet dims the whole screen, the top row included: no edge under the pill
         o+='<div class="sheet glass" style="gap: 12px"><div class="grab"></div><div><p class="ttl">כניסה</p><p class="sub">יצירת קבוצה דורשת התחברות. כל השאר עובד בלי.</p></div>'
         o+='<div style="display: flex; gap: 8px">%s</div>'%''.join('<div style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; text-align: center; font-size: 13px; font-weight: 500"><span class="ic" style="background: var(--line)">%s</span>%s</div>'%(ic(p),t) for p,t in((P_USER,'רק השם'),('<path d="M4 7h16v11H4z"/><path d="m4 7 8 6.500L20 7M4 4l16 17"/>','בלי מיילים'),('<rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3M4 4l16 17"/>','בלי סיסמה')))
         o+='<button class="gbtn ap">%s המשך עם אפל</button><button class="gbtn gg">%s המשך עם גוגל</button>'%(G_APPLE,G_GOOGLE)

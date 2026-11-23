@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="he">
+<head>
+<meta charset="utf-8">
+<title>2 · מפת הניווט</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+.HW{font-family:'Heebo',system-ui,sans-serif;color:#10161D;background:#F6F7F9}
+.HW h1,.HW h2,.HW h3,.HW p,.HW ul{margin:0}
+.HW ul{padding-inline-start:18px;display:flex;flex-direction:column;gap:7px}
+.HW li{font-size:15px;line-height:1.5}
+.HW .k{font-size:13px;font-weight:700;letter-spacing:.04em;color:#56616D}
+.HW .card{background:#fff;border:1px solid #D9DEE4;border-radius:14px;padding:22px;display:flex;flex-direction:column;gap:10px}
+.HW td,.HW th{padding:10px 12px;border-bottom:1px solid #D9DEE4;text-align:start;vertical-align:top;font-size:14.5px;line-height:1.45}
+.HW th{font-size:13px;color:#56616D;font-weight:700}
+.HW .q{display:flex;gap:12px;align-items:baseline;font-size:15.5px;line-height:1.5}
+.HW .qn{font-weight:900;font-size:20px;min-width:24px}
+.HW .th{position:relative;overflow:hidden;border-radius:12px;border:1px solid #D9DEE4;flex:none}
+.HW .th img{position:absolute;left:0;top:0;width:100%;height:100%;display:block}
+.HW .p{font-size:15px;line-height:1.55}
+.HW a{color:#3D2A9E}
+
+.HW .sec{font-size:13px;font-weight:700;letter-spacing:.04em;color:#6B3FD4}
+.HW h1{font-size:40px;font-weight:900;line-height:1.15}
+.HW h2{font-size:23px;font-weight:700;line-height:1.25}
+.HW h3{font-size:16.5px;font-weight:700;line-height:1.3}
+.HW .lead{font-size:18px;line-height:1.55;max-width:900px}
+.HW .cap{font-size:13.5px;line-height:1.45;color:#3C4753}
+.HW .cap b{color:#10161D}
+.HW .rowx{display:flex;gap:16px;align-items:flex-start}
+.HW .fr{display:flex;flex-direction:column;gap:8px;flex:none}
+.HW .th{background:#DCE6F2}
+.HW .th .in{position:absolute;left:0;top:0;transform-origin:0 0}
+.HW .th .in img{position:absolute;display:block;max-width:none}
+.HW .th .in .ov{position:absolute;left:0;top:0}
+.HW .th .in .ov svg{position:absolute;left:0;top:0;display:block}
+.HW .tg{display:inline-flex;align-items:center;height:22px;padding:0 9px;border-radius:11px;font-size:12px;font-weight:700;white-space:nowrap}
+.HW .tg.ok{background:#DDF2E5;color:#0F5C31}.HW .tg.new{background:#E7E0FA;color:#3D2A9E}.HW .tg.ask{background:#FBEBCF;color:#7A4A00}
+.HW .grid{display:grid;gap:16px}
+.HW .tm{font-size:22px;font-weight:300;direction:ltr;display:inline-block}
+
+.HW .nv{display:flex;flex-direction:column;gap:18px;padding:36px 40px;box-sizing:border-box;direction:rtl}
+.HW .nv h1{font-size:40px;font-weight:900;line-height:1.1;margin:0}
+.HW .nv h2{font-size:19px;font-weight:700;margin:0}
+.HW .nv h3{font-size:14px;font-weight:700;margin:6px 0 0;color:#3C4753}
+.HW .nv p{margin:0}
+.HW .nv .g{display:grid;gap:14px}
+.HW .nv .c{background:#fff;border:1px solid #D9DEE4;border-radius:14px;padding:16px 18px;display:flex;flex-direction:column;gap:7px;box-sizing:border-box}
+.HW .nv .c.ok{border-top:4px solid #1B8A4C}.HW .nv .c.wd{border-top:4px solid #C77700}.HW .nv .c.no{border-top:4px solid #C0392B}.HW .nv .c.na{border-top:4px solid #8A94A0}
+.HW .nv .it{font-size:14.5px;line-height:1.5}
+.HW .nv .it b{font-weight:700}
+.HW .nv .k{font-size:11.5px;font-weight:700;direction:ltr;unicode-bidi:isolate;color:#5A6673;background:#EEF1F4;border-radius:6px;padding:1px 6px;white-space:nowrap}
+.HW .nv .d{display:inline-block;width:10px;height:10px;border-radius:50%;margin-inline-end:7px;flex:none;position:relative;top:1px}
+.HW .nv .d.ok{background:#1B8A4C}.HW .nv .d.wd{background:#C77700}.HW .nv .d.no{background:#C0392B}.HW .nv .d.na{background:#8A94A0}
+.HW .nv .lg{display:flex;gap:22px;flex-wrap:wrap;font-size:14px;font-weight:500}
+.HW .nv .lg span{display:inline-flex;align-items:center}
+.HW .nv .r{display:flex;align-items:baseline;gap:0;font-size:14px;line-height:1.45;padding:3px 0}
+.HW .nv .r .t{flex:1;min-width:0}
+.HW .nv .r.s{padding-inline-start:20px;font-size:13.5px;color:#27313B}
+.HW .nv .r.s2{padding-inline-start:40px;font-size:13px;color:#3C4753}
+.HW .nv .hub{background:#10161D;color:#fff;border-radius:18px;padding:18px 22px;display:flex;align-items:center;gap:22px}
+.HW .nv .hub b{font-size:30px;font-weight:900;white-space:nowrap}
+.HW .nv .hub span{font-size:15px;line-height:1.5;opacity:.92}
+.HW .nv .from{font-size:12px;font-weight:700;letter-spacing:.04em;color:#6B3FD4}
+.HW .nv .n{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;background:#6B3FD4;color:#fff;font-size:14px;font-weight:700;flex:none}
+.HW .nv .q{display:flex;gap:12px;align-items:flex-start}
+.HW .nv .q .b{display:flex;flex-direction:column;gap:3px;font-size:14.5px;line-height:1.5}
+.HW .nv .rec{color:#0F5C31;font-weight:700}
+.HW .nv .sm{font-size:13px;color:#3C4753;line-height:1.5}
+</style>
+</helmet>
+<div class="HW" dir="rtl" style="width: 1600px; height: 1440px; box-sizing: border-box; padding: 52px 60px; display: flex; flex-direction: column; gap: 26px">
+<div class="nv"><div><p class="from">כל האפליקציה בשפה החדשה · 2 מתוך 3 · 23.11.2026</p><h1>מפת הניווט: איך מגיעים לכל מסך</h1><p style="font-size: 17px; line-height: 1.55; margin-top: 8px; max-width: 1100px">המסך הראשי הוא ההר. אין דף בית ואין עמוד שלטים: מה שהיה בהם עבר לשלושה מקומות, הכפר, ״אני״ והסרגל התחתון. לכל מסך יש כאן דרך אחת לפחות, או סימון אדום שאין.</p></div><div class="lg"><span><i class="d ok"></i>צויר ואושר</span><span><i class="d wd"></i>הוחלט, מתואר במילים, עוד לא צויר</span><span><i class="d no"></i>לא כוסה, או אין דרך להגיע</span><span><i class="d na"></i>לא באפליקציות היום, או הוחלף</span></div><div class="hub"><b>ההר</b><span>נפתחים עליו תמיד. לפני העונה: הספירה על ההר <span class="k" style="background: rgba(255,255,255,.16); color: #fff">Q10</span>. בבוקר: ״בוקר על ההר״ <span class="k" style="background: rgba(255,255,255,.16); color: #fff">K14</span>. בזמן הקלטה: המסך החי <span class="k" style="background: rgba(255,255,255,.16); color: #fff">L03</span>. אחרי שהטלפון סגר את האפליקציה: ״היום נקטע, להמשיך?״ <span class="k" style="background: rgba(255,255,255,.16); color: #fff">L13</span>. חזרה להר מכל מקום: חץ חזרה, משיכת הגיליון למטה, או נגיעה בהר.</span></div><div class="g" style="grid-template-columns: 1fr 1fr 1fr"><div class="c "><h2>הגלולה שבראש ההר</h2><p class="sm">כמה רכבלים פתוחים, והטמפרטורה בפסגה</p><div class="r"><span class="d ok"></span><span class="t">הרכבלים <span class="k">Q01 · Q02</span></span></div><div class="r s"><span class="d ok"></span><span class="t">רכבל אחד <span class="k">Q03</span></span></div><div class="r s2"><span class="d ok"></span><span class="t">״נפגשים כאן״: נקודת המפגש <span class="k">Q04</span></span></div><div class="r s2"><span class="d wd"></span><span class="t">המקומות ליד התחנה: הרשימה</span></div><div class="r"><span class="d no"></span><span class="t">התחזית המלאה: אין דרך להגיע (החלטה 3)</span></div></div><div class="c "><h2>״אני״, העיגול ליד הגלולה</h2><div class="r"><span class="d ok"></span><span class="t">אני: עם חשבון, או אורח <span class="k">R09 · R10</span></span></div><div class="r s"><span class="d ok"></span><span class="t">כניסה <span class="k">R08</span></span></div><div class="r s"><span class="d ok"></span><span class="t">הקבוצות שלי, ומעבר בין קבוצות <span class="k">R09</span></span></div><div class="r s"><span class="d ok"></span><span class="t">הגדרות <span class="k">R13</span></span></div><div class="r s2"><span class="d ok"></span><span class="t">שפה <span class="k">R14</span></span></div><div class="r s2"><span class="d wd"></span><span class="t">הסכמה להקלטת מסך: לא צויר</span></div><div class="r s"><span class="d ok"></span><span class="t">אודות <span class="k">R15</span></span></div><div class="r s2"><span class="d wd"></span><span class="t">רישיונות</span></div><div class="r s2"><span class="d ok"></span><span class="t">פרטיות ותמיכה: נפתחות בדפדפן</span></div><div class="r s"><span class="d wd"></span><span class="t">מחיקת החשבון: מסך האישור</span></div><div class="r s"><span class="d no"></span><span class="t">הימים שלי: אין דרך להגיע (החלטה 2) <span class="k">L12</span></span></div></div><div class="c "><h2>נגיעה בהר עצמו</h2><div class="r"><span class="d ok"></span><span class="t">מסלול: רגע הבחירה, והגיליון שלו <span class="k">K09 · K10</span></span></div><div class="r s"><span class="d ok"></span><span class="t">״לרדת בסרט״ <span class="k">K12</span></span></div><div class="r s"><span class="d no"></span><span class="t">סרטונים, תנאים, שיתוף, הקודם והבא (החלטה 7)</span></div><div class="r"><span class="d ok"></span><span class="t">קו של רכבל: רכבל אחד <span class="k">Q03</span></span></div><div class="r"><span class="d ok"></span><span class="t">תחנה: מה יורד מכאן <span class="k">K06</span></span></div><div class="r"><span class="d ok"></span><span class="t">דגל: המפגש הזה <span class="k">Q05</span></span></div><div class="r"><span class="d ok"></span><span class="t">נגיעה ארוכה: זכוכית מגדלת <span class="k">K05</span></span></div><div class="r"><span class="d ok"></span><span class="t">השלט ״צד <bdi>Kobi</bdi>״, ומסלול שמאחורי ההר <span class="k">M07</span></span></div><div class="r"><span class="d wd"></span><span class="t">הכפר: היום רק בנגיעה בכפר שעל ההר (החלטה 1) <span class="k">K17</span></span></div><div class="r"><span class="d no"></span><span class="t">חזרה למבט הפתיחה (החלטה 8)</span></div></div><div class="c "><h2>הסרגל התחתון</h2><p class="sm">שדה ״לאן יורדים?״ וכפתור ההקלטה</p><div class="r"><span class="d ok"></span><span class="t">״לאן יורדים?״: מדף המסלולים <span class="k">K07</span></span></div><div class="r s"><span class="d ok"></span><span class="t">מסלול מהמדף: הגיליון שלו <span class="k">K10</span></span></div><div class="r"><span class="d ok"></span><span class="t">כפתור ההקלטה: ״מתחילים״ <span class="k">L01</span></span></div><div class="r s"><span class="d ok"></span><span class="t">מחפשים, בירידה, על הרכבל, עומדים, הפסקה <span class="k">L02–L04 · P01–P03</span></span></div><div class="r s"><span class="d ok"></span><span class="t">״החזקה לסיום״: סוף היום <span class="k">L06</span></span></div><div class="r s2"><span class="d ok"></span><span class="t">הרכס וציר הזמן, היום בדקה, ירידה כסרט, הסיפור, שיתוף <span class="k">L07–L11</span></span></div><div class="r s"><span class="d ok"></span><span class="t">״ירידה אחת״ נגמרה לבד <span class="k">P04</span></span></div><div class="r"><span class="d no"></span><span class="t">״איפה אני״: אין כפתור (החלטה 4)</span></div><div class="r"><span class="d no"></span><span class="t">העדשות: אין כפתור שפותח אותן (החלטה 5) <span class="k">K08</span></span></div></div><div class="c "><h2>הכפר</h2><p class="sm">כל מה שאינו מסלול ויש לו מקום</p><div class="r"><span class="d ok"></span><span class="t">הטיול שלך: הכרטיס, ובלי טיול ״מתי טסים?״ <span class="k">Q07 · Q08</span></span></div><div class="r s"><span class="d wd"></span><span class="t">הטופס המלא: שדות תעופה, שעות, ימי סקי, מחיקה</span></div><div class="r"><span class="d ok"></span><span class="t">כרטיס סקי <span class="k">Q09</span></span></div><div class="r"><span class="d ok"></span><span class="t">החבר׳ה: בלי קבוצה, או הקבוצה <span class="k">R01 · R03–R06</span></span></div><div class="r s"><span class="d ok"></span><span class="t">הזמנת חברים <span class="k">R07</span></span></div><div class="r s"><span class="d wd"></span><span class="t">קבוצה חדשה; ״אני כבר בקבוצה״; ניהול</span></div><div class="r s"><span class="d no"></span><span class="t">ממתין לאישור מנהל</span></div><div class="r"><span class="d ok"></span><span class="t">נפגשים: נקודת המפגש, הדגל, התמונה <span class="k">Q04–Q06</span></span></div><div class="r"><span class="d ok"></span><span class="t">ערב בבקתה, המשחק, סוף משחק <span class="k">R11 · R12</span></span></div><div class="r"><span class="d wd"></span><span class="t">אוכל ושתייה: הרשימה</span></div></div><div class="c "><h2>מבחוץ: קישור, התראה, מסך נעילה</h2><div class="r"><span class="d ok"></span><span class="t">קישור הזמנה, או קוד: ההזמנה <span class="k">R02</span></span></div><div class="r"><span class="d ok"></span><span class="t">קישור למסלול: ההר, עם המסלול נבחר <span class="k">K10</span></span></div><div class="r"><span class="d ok"></span><span class="t">קישור למפגש: הדגל <span class="k">Q05</span></span></div><div class="r"><span class="d no"></span><span class="t">תזכורת למפגש: ההתראה עצמה לא צוירה; נגיעה פותחת את הדגל <span class="k">Q05</span></span></div><div class="r"><span class="d ok"></span><span class="t">יום הגלישה במסך הנעילה ובהתראה: המסך החי <span class="k">L05</span></span></div><div class="r"><span class="d ok"></span><span class="t">״לא זזת... ההקלטה תיעצר״: המסך החי <span class="k">L13</span></span></div><div class="r"><span class="d no"></span><span class="t">בקשת ההרשאה להתראות: מתי ואיך</span></div><div class="r"><span class="d no"></span><span class="t">הפעם הראשונה באפליקציה (החלטה 6)</span></div></div></div><div class="c na"><h2>מה קרה לדף הבית הישן ולשלטים</h2><p class="it"><b>כרטיס הטיסה</b> עבר ל״הטיול שלך״ בכפר, עם התלישה וההחלפה. <b>לוח מצב העונה</b> הוא הגלולה שבראש ההר, ולפני העונה הספירה. <b>השלטים:</b> ״מפה״ הוא המסך עצמו; ״נקודת מפגש״, ״קבוצה״ ו״משחקים״ בכפר; ״מקליטים״ בסרגל התחתון; ההגדרות והאודות ב״אני״. <b>יום ולילה:</b> ההר לפי השעה, והבחירה הידנית בהגדרות. <b>תג השפה:</b> ב״אני״.</p></div></div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1600,"height":1440}}'>
+class Component extends DCLogic {
+renderVals() {
+return {};
+}
+}
+</script>
+</body>
+</html>
