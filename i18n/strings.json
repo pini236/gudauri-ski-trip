@@ -21920,6 +21920,258 @@
     "ka"
    ]
   },
+  "app.sr_pill": {
+   "he": "מצב ההר: {open} מתוך {all} רכבלים פתוחים, {temp}. כפתור.",
+   "en": "Mountain status: {open} of {all} lifts open, {temp}. Button.",
+   "ru": "Состояние горы: открыто подъёмников {open} из {all}, {temp}. Кнопка.",
+   "ka": "მთის მდგომარეობა: ღიაა {open} საბაგირო {all}-დან, {temp}. ღილაკი.",
+   "where": "app/android, app/ios",
+   "note": "סבב ההשלמה, חלק 8 (סעיף 2 ב-design/handoff/2026-11-23-redesign-everyone): קורא מסך: הגלולה; {temp} נאמר במילים (\"מינוס 7 מעלות\")",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.sr_me": {
+   "he": "אני, {name}. כפתור.",
+   "en": "Me, {name}. Button.",
+   "ru": "Я, {name}. Кнопка.",
+   "ka": "მე, {name}. ღილაკი.",
+   "where": "app/android, app/ios",
+   "note": "סבב ההשלמה, חלק 8 (סעיף 2 ב-design/handoff/2026-11-23-redesign-everyone): קורא מסך: כפתור \"אני\"",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.sr_me_guest": {
+   "he": "אני, אורח. כפתור.",
+   "en": "Me, guest. Button.",
+   "ru": "Я, гость. Кнопка.",
+   "ka": "მე, სტუმარი. ღილაკი.",
+   "where": "app/android, app/ios",
+   "note": "סבב ההשלמה, חלק 8 (סעיף 2 ב-design/handoff/2026-11-23-redesign-everyone): קורא מסך: כפתור \"אני\" לאורח",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.sr_mountain": {
+   "he": "ההר. מסלולים: {n}. רכבלים: {m}.",
+   "en": "The mountain. Runs: {n}. Lifts: {m}.",
+   "ru": "Гора. Трасс: {n}. Подъёмников: {m}.",
+   "ka": "მთა. ტრასები: {n}. საბაგიროები: {m}.",
+   "where": "app/android, app/ios",
+   "note": "סבב ההשלמה, חלק 8 (סעיף 2 ב-design/handoff/2026-11-23-redesign-everyone): קורא מסך: ההר כפריט אחד; ללא צורות רבים בכוונה",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.sr_next_run": {
+   "he": "המסלול הבא",
+   "en": "Next run",
+   "ru": "Следующая трасса",
+   "ka": "შემდეგი ტრასა",
+   "where": "app/android, app/ios",
+   "note": "סבב ההשלמה, חלק 8 (סעיף 2 ב-design/handoff/2026-11-23-redesign-everyone): קורא מסך: פעולה על ההר",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.sr_prev_run": {
+   "he": "המסלול הקודם",
+   "en": "Previous run",
+   "ru": "Предыдущая трасса",
+   "ka": "წინა ტრასა",
+   "where": "app/android, app/ios",
+   "note": "סבב ההשלמה, חלק 8 (סעיף 2 ב-design/handoff/2026-11-23-redesign-everyone): קורא מסך: פעולה על ההר",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.sr_run": {
+   "he": "{name}, {color}, {level}, אורך: {len} קילומטר.",
+   "en": "{name}, {color}, {level}, length: {len} kilometers.",
+   "ru": "{name}, {color}, {level}, длина: {len} км.",
+   "ka": "{name}, {color}, {level}, სიგრძე: {len} კილომეტრი.",
+   "where": "app/android, app/ios",
+   "note": "סבב ההשלמה, חלק 8 (סעיף 2 ב-design/handoff/2026-11-23-redesign-everyone): קורא מסך: מסלול; הצבע והקושי נאמרים במילים, לא לבד",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.sr_loc_off": {
+   "he": "איפה אני, כבוי.",
+   "en": "Where am I, off.",
+   "ru": "Где я, выключено.",
+   "ka": "სად ვარ, გამორთულია.",
+   "where": "app/android, app/ios",
+   "note": "סבב ההשלמה, חלק 8 (סעיף 2 ב-design/handoff/2026-11-23-redesign-everyone): קורא מסך: כפתור המפה",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.sr_loc_on": {
+   "he": "איפה אני, דלוק.",
+   "en": "Where am I, on.",
+   "ru": "Где я, включено.",
+   "ka": "სად ვარ, ჩართულია.",
+   "where": "app/android, app/ios",
+   "note": "סבב ההשלמה, חלק 8 (סעיף 2 ב-design/handoff/2026-11-23-redesign-everyone): קורא מסך: כפתור המפה",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.sr_dock_village": {
+   "he": "הכפר.",
+   "en": "The village.",
+   "ru": "Деревня.",
+   "ka": "სოფელი.",
+   "where": "app/android, app/ios",
+   "note": "סבב ההשלמה, חלק 8 (סעיף 2 ב-design/handoff/2026-11-23-redesign-everyone): קורא מסך: הסרגל התחתון",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.sr_dock_find": {
+   "he": "לאן יורדים? חיפוש מסלול.",
+   "en": "Where to? Find a run.",
+   "ru": "Куда спускаемся? Поиск трассы.",
+   "ka": "საით ჩავდივართ? ტრასის ძიება.",
+   "where": "app/android, app/ios",
+   "note": "סבב ההשלמה, חלק 8 (סעיף 2 ב-design/handoff/2026-11-23-redesign-everyone): קורא מסך: הסרגל התחתון",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.sr_dock_rec": {
+   "he": "מקליטים.",
+   "en": "Record.",
+   "ru": "Запись.",
+   "ka": "ჩაწერა.",
+   "where": "app/android, app/ios",
+   "note": "סבב ההשלמה, חלק 8 (סעיף 2 ב-design/handoff/2026-11-23-redesign-everyone): קורא מסך: הסרגל התחתון",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.sr_speed_max": {
+   "he": "{n} קילומטר לשעה, מהירות מרבית",
+   "en": "{n} kilometers per hour, top speed",
+   "ru": "{n} километров в час, максимальная скорость",
+   "ka": "{n} კილომეტრი საათში, მაქსიმალური სიჩქარე",
+   "where": "app/android, app/ios",
+   "note": "סבב ההשלמה, חלק 8 (סעיף 2 ב-design/handoff/2026-11-23-redesign-everyone): קורא מסך: מספר ותווית כפריט אחד",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.sr_lift_closed": {
+   "he": "{lift}, סגור.",
+   "en": "{lift}, closed.",
+   "ru": "{lift}, закрыт.",
+   "ka": "{lift}, დაკეტილია.",
+   "where": "app/android, app/ios",
+   "note": "סבב ההשלמה, חלק 8 (סעיף 2 ב-design/handoff/2026-11-23-redesign-everyone): קורא מסך: רכבל סגור נאמר במילים; שם הרכבל לא מתורגם",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.sr_ev_on_lift": {
+   "he": "על הרכבל {lift}",
+   "en": "On the lift {lift}",
+   "ru": "На подъёмнике {lift}",
+   "ka": "საბაგიროზე {lift}",
+   "where": "app/android, app/ios",
+   "note": "סבב ההשלמה, חלק 8 (סעיף 2 ב-design/handoff/2026-11-23-redesign-everyone): קורא מסך: הכרזה בזמן הקלטה, רק בשינוי מצב",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.sr_ev_run_done": {
+   "he": "ירידה {n} נגמרה",
+   "en": "Descent {n} finished",
+   "ru": "Спуск {n} завершён",
+   "ka": "დაშვება {n} დასრულდა",
+   "where": "app/android, app/ios",
+   "note": "סבב ההשלמה, חלק 8 (סעיף 2 ב-design/handoff/2026-11-23-redesign-everyone): קורא מסך: הכרזה בזמן הקלטה, רק בשינוי מצב",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.store_shot_1": {
+   "he": "כל ההר,\nבאור של עכשיו",
+   "en": "The whole mountain,\nin today’s light",
+   "ru": "Вся гора\nв сегодняшнем свете",
+   "ka": "მთლიანი მთა\nდღევანდელ შუქზე",
+   "where": "store (Google Play, App Store)",
+   "note": "סבב ההשלמה, חלק 8 (סעיף 5): כותרת צילום חנות, שתי שורות; להתאמה לאחראי החנויות: ההר",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.store_shot_2": {
+   "he": "כל מסלול:\nכמה תלול, כמה ארוך",
+   "en": "Every run:\nhow steep, how long",
+   "ru": "Каждая трасса:\nнасколько крутая и длинная",
+   "ka": "ყველა ტრასა:\nრამდენად ციცაბო და გრძელი",
+   "where": "store (Google Play, App Store)",
+   "note": "סבב ההשלמה, חלק 8 (סעיף 5): כותרת צילום חנות, שתי שורות; להתאמה לאחראי החנויות: מסלול נבחר",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.store_shot_3": {
+   "he": "היום שלך,\nמצויר על ההר",
+   "en": "Your day,\ndrawn on the mountain",
+   "ru": "Ваш день,\nнарисованный на горе",
+   "ka": "თქვენი დღე,\nმთაზე დახატული",
+   "where": "store (Google Play, App Store)",
+   "note": "סבב ההשלמה, חלק 8 (סעיף 5): כותרת צילום חנות, שתי שורות; להתאמה לאחראי החנויות: יום הגלישה; רק בגרסה שבה הוא דלוק",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.store_shot_4": {
+   "he": "מזג אוויר\nבשלושה גבהים",
+   "en": "Weather\nat three altitudes",
+   "ru": "Погода\nна трёх высотах",
+   "ka": "ამინდი\nსამ სიმაღლეზე",
+   "where": "store (Google Play, App Store)",
+   "note": "סבב ההשלמה, חלק 8 (סעיף 5): כותרת צילום חנות, שתי שורות; להתאמה לאחראי החנויות: מזג אוויר (לא מצב רכבלים, שעוד בלי נתון אמיתי)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.store_shot_5": {
+   "he": "נפגשים\nעל ההר",
+   "en": "Meet up\non the mountain",
+   "ru": "Встречаемся\nна горе",
+   "ka": "ვხვდებით\nმთაზე",
+   "where": "store (Google Play, App Store)",
+   "note": "סבב ההשלמה, חלק 8 (סעיף 5): כותרת צילום חנות, שתי שורות; להתאמה לאחראי החנויות: המפגשים של הקבוצה",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
   "app.skipass_days_n": {
    "he": {
     "one": "יום סקי",
