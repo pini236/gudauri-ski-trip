@@ -8,7 +8,7 @@ import java.io.File
  * the architect's condition of 31.10.2026), and the store pipeline fails if a signed store build has a trace of them.
  */
 object FieldTools {
-    @Composable fun AboutRow() {}
-    @Composable fun DiagRow() {}
-    @Composable fun DayExtras(@Suppress("UNUSED_PARAMETER") file: File) {}
+    @Composable fun AboutRow(@Suppress("UNUSED_PARAMETER") row: @Composable (String, () -> Unit) -> Unit = { _, _ -> }) {}
+    @Composable fun DiagRow(@Suppress("UNUSED_PARAMETER") row: @Composable (String, () -> Unit) -> Unit = { _, _ -> }) {}
+    @Composable fun DayExtras(@Suppress("UNUSED_PARAMETER") file: File, @Suppress("UNUSED_PARAMETER") row: @Composable (String, () -> Unit) -> Unit = { _, _ -> }) {}
 }

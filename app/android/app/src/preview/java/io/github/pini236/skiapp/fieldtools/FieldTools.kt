@@ -54,14 +54,15 @@ import java.time.format.DateTimeFormatter
  * share sheet, cut to the site's rectangle (RawExport), under a name without his own.
  */
 object FieldTools {
+    /** [row] draws the row (the new design's "tools" row; the default, the old bordered one). */
     @Composable
-    fun AboutRow() {
+    fun AboutRow(row: @Composable (String, () -> Unit) -> Unit = { t, c -> Action(t, c) }) {
         val ctx = LocalContext.current
         var on by remember { mutableStateOf(TesterGate.unlocked(ctx)) }
         var open by remember { mutableStateOf(false) }
         var code by remember { mutableStateOf("") }
         var bad by remember { mutableStateOf(false) }
-        Action(stringResource(R.string.tester_about_row) + if (on) " · " + stringResource(R.string.tester_on) else "") { open = true; bad = false; code = "" }
+        row(stringResource(R.string.tester_about_row) + if (on) " · " + stringResource(R.string.tester_on) else "") { open = true; bad = false; code = "" }
         if (open) AlertDialog(
             onDismissRequest = { open = false },
             title = { Text(stringResource(R.string.tester_about_row)) },
@@ -87,10 +88,10 @@ object FieldTools {
 
     /** The recording's diagnostic log (qa/Diag: states, counts and milliseconds, never a position), sent through the system's share sheet. */
     @Composable
-    fun DiagRow() {
+    fun DiagRow(row: @Composable (String, () -> Unit) -> Unit = { t, c -> Action(t, c) }) {
         val ctx = LocalContext.current
         val scope = rememberCoroutineScope()
-        Action(stringResource(R.string.tester_diag_row)) {
+        row(stringResource(R.string.tester_diag_row)) {
             scope.launch {
                 val out = withContext(Dispatchers.IO) {
                     runCatching {
@@ -112,13 +113,13 @@ object FieldTools {
     }
 
     @Composable
-    fun DayExtras(file: File) {
+    fun DayExtras(file: File, row: @Composable (String, () -> Unit) -> Unit = { t, c -> Action(t, c) }) {
         val ctx = LocalContext.current
         if (!TesterGate.unlocked(ctx)) return
         val scope = rememberCoroutineScope()
         var consent by remember { mutableStateOf(false) }
         var warn by remember { mutableStateOf(false) }
-        Action(stringResource(R.string.tester_export)) { if (TesterGate.consented(ctx)) warn = true else consent = true }
+        row(stringResource(R.string.tester_export)) { if (TesterGate.consented(ctx)) warn = true else consent = true }
         if (consent) ConsentDialog(onAgree = { impacts -> TesterGate.consent(ctx, impacts); consent = false; warn = true }, onCancel = { consent = false })
         if (warn) AlertDialog(
             onDismissRequest = { warn = false },

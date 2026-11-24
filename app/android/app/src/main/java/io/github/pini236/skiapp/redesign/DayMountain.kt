@@ -387,6 +387,13 @@ fun DayMountain(file: File, sample: Boolean, scene: MapScene, mode: DayNight.Mod
         }
         val lr = l
         if (ridge && lr != null) DayRidge(lr.paint, lr.elev, lr.day, lr.segs, scene.runs, night, sample, haptics, onShare = { story = true }, onBack = { ridge = false })
+        // the field testers' export of this day (test build only, once unlocked; nothing in the store build), over the ridge
+        if (ridge && lr != null && !sample) Box(Modifier.align(Alignment.TopCenter).statusBarsPadding().padding(top = 64.dp)) {
+            io.github.pini236.skiapp.fieldtools.FieldTools.DayExtras(file) { t, c ->
+                Text(t, Modifier.heightIn(min = 44.dp).clip(RoundedCornerShape(22.dp)).background(Color(0xE60E2233)).clickable(role = Role.Button, onClick = c)
+                    .padding(horizontal = 16.dp, vertical = 12.dp), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = Color.White)
+            }
+        }
         val st = lr?.story
         if (story && lr != null && st != null) DayStory(st, lr.day.summary, lr.paint, offPiste(lr.segs), { runCatching { io.github.pini236.skiapp.dayrec.ui.readTrack(file) }.getOrNull() },
             scene.runs, night, sample, haptics, shareOnly = shareOnly, elev = scene.terrain::elev, onBack = { story = false; shareOnly = false })
