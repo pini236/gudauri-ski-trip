@@ -209,7 +209,7 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
             c == "station:off" -> fromSt = null
             c == "lens:off" -> { lens = null; lensRow = false }
             c == "village" -> { chosen = null; view.choose(null); villageOpen = true }
-            c == "village:off" -> villageOpen = false
+            c == "village:off" -> { view.fromVillage(); villageOpen = false }
             c.startsWith("lens:") -> LensKind.of(c.removePrefix("lens:"))?.let { lensRow = true; lens = it }
             c.startsWith("station:") -> plan?.stations?.firstOrNull { s -> c.removePrefix("station:") in s.topOf }?.let { s -> chosen = null; view.choose(null); fromSt = s; Qa.log("redesign station ${s.id}") }
             c == "season" -> seasonOn = LiveSeasonRules.shown(around)
@@ -598,7 +598,8 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
             onSkipass = { skipassOpen = true },
             onFood = LiveLifts.board(scene.runs).firstOrNull { it.name == "Goodaura" }?.let { g -> { villageOpen = false; liftSel = g; liftsOpen = true } },
             onPeople = { if (pp != null) people.go(PLayer.Me) },
-            onBack = { villageOpen = false; Qa.log("redesign village closed") })
+            onBack = { view.fromVillage(); villageOpen = false; Qa.log("redesign village closed") },
+            fly = { p -> view.toVillage(p) })
         // the flags of my groups (Q05 on the plain mountain): the same flag with its time; a tap opens it
         if (!meet.open && chosen == null && !liftsOpen && plan != null && flags.isNotEmpty()) {
             val sk = remember(night) { SheetInk(night) }

@@ -38,4 +38,11 @@ class VillageTest {
         assertTrue(view.lifts.isNotEmpty() && view.pistes.isNotEmpty())
         assertTrue(view.sel.isEmpty())
     }
+
+    @Test fun theFlightGoesToThePicturesOwnView() {
+        val pose = VillageMarks.parse(File(assets, "village/village.json").readText()).pose!!
+        // tx, ty, tz, dist, yaw and pitch as the handoff gives them (step 1 of the move)
+        assertEquals(-420f, pose[0], .01f); assertEquals(4780f, pose[2], .01f)
+        assertEquals(1150f, pose[3], .01f); assertEquals(0f, pose[4], .01f); assertEquals(36f, pose[5], .01f)
+    }
 }

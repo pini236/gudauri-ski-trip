@@ -562,6 +562,33 @@ class LiveView(context: Context, private val scene: MapScene) : GLSurfaceView(co
         }
     }
 
+    private var beforeVillage: OrbitCamera.State? = null
+
+    /**
+     * K17's flight to the village picture's view ([pose]: tx, ty, tz, dist, yaw and pitch in degrees), 600 ms slowing at
+     * the end, remembering the view to come back to. False, with no flight, from the Kobi side (the village is behind the
+     * ridge) or with reduced motion: the picture then swaps in by opacity.
+     */
+    fun toVillage(pose: FloatArray): Boolean {
+        beforeVillage = null
+        if (onKobiSide() || Motion.reduced(context)) return false
+        renderer.stopAnim(); camera.stopFling()
+        val y0 = yawNow(); camera.update { it.copy(yaw = y0) }
+        beforeVillage = camera.state()
+        val r = { d: Float -> Math.toRadians(d.toDouble()).toFloat() }
+        renderer.animate(OrbitCamera.State(pose[0], pose[1], pose[2], pose[3], r(pose[4]), r(pose[5])), .6f) { post { Qa.log("redesign village flown") } }
+        requestRender(); return true
+    }
+
+    /** Back from the village to the view that was before it (not the opening view), 500 ms; nothing when it didn't fly. */
+    fun fromVillage() {
+        val b = beforeVillage ?: return
+        beforeVillage = null
+        renderer.stopAnim(); camera.stopFling()
+        renderer.animate(b, .5f) { post { Qa.log("redesign village back") } }
+        requestRender()
+    }
+
     /** To a wide view: through the east, both ways (yaw 0 to 180 going up, back going down), or a swap. */
     fun turnTo(to: OrbitCamera.State, then: (() -> Unit)? = null) {
         renderer.stopAnim(); camera.stopFling()

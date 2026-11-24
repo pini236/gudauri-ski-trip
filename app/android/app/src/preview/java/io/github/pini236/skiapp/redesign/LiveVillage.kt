@@ -73,7 +73,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 /** The village's pins and tags (village.json's `stations` and `pins`), in the picture's points. */
-internal class VillageMarks(val stations: List<Mark>, val pins: List<Mark>) {
+/** [pose]: the live model's view that sits on the picture (`live_pose`: tx, ty, tz, dist, yaw and pitch in degrees), if any. */
+internal class VillageMarks(val stations: List<Mark>, val pins: List<Mark>, val pose: FloatArray? = null) {
     class Mark(val kind: String, val lift: String?, val x: Float, val y: Float, val dx: Float, val dy: Float, val arrow: Boolean)
 
     companion object {
@@ -86,7 +87,8 @@ internal class VillageMarks(val stations: List<Mark>, val pins: List<Mark>) {
             val pins = v.getJSONArray("pins").let { a -> (0 until a.length()).map { a.getJSONObject(it) } }
                 .filter { it.getString("kind") in setOf("tickets", "food", "parking") }
                 .map { o -> Mark(o.getString("kind"), null, o.getDouble("x").toFloat(), o.getDouble("y").toFloat(), 0f, 0f, false) }
-            return VillageMarks(st, pins)
+            val pose = v.optJSONObject("live_pose")?.let { o -> listOf("tx", "ty", "tz", "dist", "yaw_deg", "pitch_deg").map { o.getDouble(it).toFloat() }.toFloatArray() }
+            return VillageMarks(st, pins, pose)
         }
 
         /**
@@ -117,6 +119,7 @@ internal fun BoxScope.Village(
     scene: MapScene, data: PeakData, mode: DayNight.Mode, now: Long, night: Boolean, around: Around?, haptics: Haptics,
     meetNow: Pair<String, String>?, onLift: (Lift) -> Unit, onTrip: () -> Unit, onSkipass: () -> Unit, onFood: (() -> Unit)?, onPeople: () -> Unit,
     onBack: () -> Unit,
+    fly: (FloatArray) -> Boolean = { false },
 ) {
     val context = LocalContext.current
     val k = remember(night) { SheetInk(night) }
@@ -133,7 +136,15 @@ internal fun BoxScope.Village(
         value = withContext(Dispatchers.IO) { context.assets.open("redesign/village/$f").use { BitmapFactory.decodeStream(it) }.also { it.prepareToDraw() }.asImageBitmap() }
     }
     val enter = remember { Animatable(0f) }
-    LaunchedEffect(loaded) { if (loaded != null) { enter.animateTo(1f, tween(if (io.github.pini236.skiapp.ui.Motion.reduced(context)) 200 else 350)); Qa.log("redesign village open ${light.name}") } }
+    // the entry (the handoff's "the move"): the camera flies to the picture's view in 600 ms and the picture comes up over it
+    // from 350 to 600; from the Kobi side (the village unseen) a swap by opacity of 300, and with reduced motion of 200
+    LaunchedEffect(loaded) {
+        val l = loaded ?: return@LaunchedEffect
+        val flies = l.second.pose?.let(fly) ?: false
+        val reduced = io.github.pini236.skiapp.ui.Motion.reduced(context)
+        enter.animateTo(1f, if (flies) tween(250, delayMillis = 350) else tween(if (reduced) 200 else 300))
+        Qa.log("redesign village open ${light.name}${if (flies) " flown" else ""}")
+    }
     androidx.activity.compose.BackHandler { onBack() }
     val (view, marks) = loaded ?: return
     val measurer = rememberTextMeasurer()
