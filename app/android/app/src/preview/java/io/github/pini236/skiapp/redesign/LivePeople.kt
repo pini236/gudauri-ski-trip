@@ -23,6 +23,7 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
@@ -53,6 +54,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
@@ -65,6 +67,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.liveRegion
+import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
@@ -106,6 +110,8 @@ import io.github.pini236.skiapp.ui.Icons
 import io.github.pini236.skiapp.ui.Plex
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.selection.selectableGroup
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
@@ -329,6 +335,41 @@ private fun PField(value: String, hint: String, k: SheetInk, onChange: (String) 
 
 private fun Modifier.onFocusChanged0(f: (Boolean) -> Unit) = this.onFocusChanged { f(it.isFocused) }
 
+/** A field with its label (part 5, section 1): the label 12.5 bold in ink2, 5 above. */
+@Composable
+private fun Labeled(label: String, k: SheetInk, content: @Composable () -> Unit) =
+    Column(verticalArrangement = Arrangement.spacedBy(5.dp)) {
+        Text(label, fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 12.5.sp, color = k.ink2)
+        content()
+    }
+
+/** A date pill (part 5, section 1): two in a row, 52 high, its label small and the date under it, or "pick a date". */
+@Composable
+private fun DatePill(label: String, date: LocalDate?, k: SheetInk, modifier: Modifier, onClick: () -> Unit) {
+    Column(modifier.heightIn(min = 52.dp).clip(RoundedCornerShape(16.dp)).background(k.surf.copy(alpha = 1f)).border(1.dp, k.line, RoundedCornerShape(16.dp))
+        .semantics(mergeDescendants = true) { role = Role.Button }.clickable(onClick = onClick).padding(horizontal = 14.dp, vertical = 6.dp),
+        verticalArrangement = Arrangement.Center) {
+        Text(label, fontFamily = Plex, fontSize = 11.5.sp, color = k.ink2, maxLines = 1)
+        Text(date?.let { io.github.pini236.skiapp.season.shortDate(it) } ?: stringResource(R.string.app_trip_pick_date), fontFamily = Plex,
+            fontWeight = FontWeight.Medium, fontSize = 15.5.sp, color = if (date == null) k.ink2 else k.ink, maxLines = 1)
+    }
+}
+
+/** A choice's circle (part 5, section 1): 22, an ink2 edge; chosen, a 7 accent edge round a white dot. */
+@Composable
+private fun RadioDot(on: Boolean, k: SheetInk) =
+    Box(Modifier.size(22.dp).clip(CircleShape).background(if (on) Color.White else Color.Transparent)
+        .border(if (on) 7.dp else 1.5.dp, if (on) k.acc else k.ink2, CircleShape))
+
+/** The red button (part 5, section 1): as the main one, on red; a spinner while it works. */
+@Composable
+private fun RedButton(text: String, k: SheetInk, busy: Boolean, onClick: () -> Unit) =
+    Box(Modifier.fillMaxWidth().heightIn(min = 52.dp).clip(RoundedCornerShape(26.dp)).background(k.red).semantics { role = Role.Button }
+        .clickable(enabled = !busy, onClick = onClick), contentAlignment = Alignment.Center) {
+        if (busy) androidx.compose.material3.CircularProgressIndicator(Modifier.size(22.dp), color = k.onRed, strokeWidth = 2.dp)
+        else Text(text, fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = k.onRed)
+    }
+
 /** Errors of an action as a line in red; "offline" says so, a refusal its own words (errorRes). */
 @Composable
 private fun ErrLine(code: String?, k: SheetInk) {
@@ -361,9 +402,10 @@ private fun rememberAct(): Act { val s = rememberCoroutineScope(); return rememb
 internal fun BoxScope.LivePeople(p: People, ui: PeopleUi, night: Boolean, haptics: Haptics, plan: MeetPlan?, trip: Trip?, today: LocalDate,
                                  onOpenMeetup: (String, Meetup) -> Unit, onNewMeetup: (String) -> Unit) {
     val k = remember(night) { SheetInk(night) }
-    val l = ui.top ?: return
+    val l = ui.top
     BackHandler(enabled = ui.open) { ui.back() }
-    when (l) {
+    // a toast outlives the layers (the account deleted: back on the mountain, "the account was deleted")
+    if (l != null) when (l) {
         PLayer.Me -> MeScreen(p, ui, k)
         PLayer.SignIn -> SignInSheet(p, ui, k)
         PLayer.Gate -> GateSheet(p, ui, k)
@@ -520,24 +562,38 @@ private fun GoogleWide(text: String, k: SheetInk, busy: Boolean, onClick: () -> 
 private fun BoxScope.DeleteScreen(p: People, ui: PeopleUi, k: SheetInk) {
     val act = rememberAct()
     var armed by remember { mutableStateOf(false) }
-    LaunchedEffect(armed) { if (armed) { delay(4000); armed = false } }
-    FullScreen(k, stringResource(R.string.acct_delete_title), { ui.back() }) {
+    val deleted = stringResource(R.string.acct_deleted)
+    LaunchedEffect(armed) { if (armed) { Qa.log("redesign people delete armed"); delay(4000); armed = false } }
+    FullScreen(k, stringResource(R.string.acct_delete_title), { if (!act.busy) ui.back() }) {
+        // T07: what goes, three lines with a red X, and the note
         PBox(k) {
-            Column(Modifier.padding(vertical = 12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Column(Modifier.padding(vertical = 12.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 Text(stringResource(R.string.acct_delete_what), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 15.5.sp, color = k.ink)
-                for (r in listOf(R.string.acct_delete_1, R.string.acct_delete_2, R.string.acct_delete_3)) Text("• " + stringResource(r), fontFamily = Plex, fontSize = 14.sp, color = k.ink)
-                Small(stringResource(R.string.app_a_delete_note, "gudauri-ski-trip.vercel.app/account"), k)
-                Box(Modifier.fillMaxWidth().heightIn(min = 52.dp).clip(RoundedCornerShape(26.dp)).background(k.red).semantics { role = Role.Button }
-                    .clickable(enabled = !act.busy) {
-                        if (!armed) armed = true
-                        else act.run { p.api.deleteAccount(); Qa.log("redesign people deleted"); p.onChanged(); ui.changes++; ui.close(); ui.toast = null }
-                    }, contentAlignment = Alignment.Center) {
-                    Text(stringResource(if (armed) R.string.acct_delete_confirm else R.string.acct_delete_now), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color.White)
+                for (r in listOf(R.string.acct_delete_1, R.string.acct_delete_2, R.string.acct_delete_3)) Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                    Icon(Icons.x, null, Modifier.size(18.dp), tint = k.red)
+                    Text(stringResource(r), Modifier.weight(1f), fontFamily = Plex, fontSize = 14.sp, color = k.ink)
                 }
-                ErrLine(act.error, k)
+                Small(stringResource(R.string.acct_delete_more), k)
             }
         }
     }
+    // below, a sheet: the red button and "cancel"; the first tap arms it for four seconds, the second deletes
+    Box(Modifier.align(Alignment.BottomCenter).fillMaxWidth()) {
+        LiveSheet(k) {
+            if (armed) Text(stringResource(R.string.acct_delete_confirm), Modifier.fillMaxWidth().semantics { liveRegion = LiveRegionMode.Polite },
+                fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = k.red, textAlign = TextAlign.Center)
+            RedButton(stringResource(R.string.acct_delete_now), k, act.busy) {
+                if (!armed) armed = true
+                else act.run { p.api.deleteAccount(); Qa.log("redesign people deleted"); p.onChanged(); ui.changes++; ui.close(); ui.toast = deleted }
+            }
+            ErrLine(act.error, k)
+            Box(Modifier.fillMaxWidth().heightIn(min = 44.dp).semantics { role = Role.Button }.clickable(enabled = !act.busy) { ui.back() }, contentAlignment = Alignment.Center) {
+                Text(stringResource(R.string.app_cancel), fontFamily = Plex, fontWeight = FontWeight.Medium, fontSize = 15.sp, color = k.ink)
+            }
+        }
+    }
+    // while it deletes, the screen takes no taps
+    if (act.busy) Box(Modifier.matchParentSize().clickable(enabled = true) { })
 }
 
 // ---------------------------------------------------------------------------------------------- R08: sign in
@@ -626,6 +682,7 @@ private fun BoxScope.JoinScreen(p: People, ui: PeopleUi, k: SheetInk, code: Stri
     var pending by remember { mutableStateOf(false) }
     var reclaim by remember { mutableStateOf(false) }
     val act = rememberAct()
+    val scope0 = rememberCoroutineScope()
     // a request decided while this shows: the group opens by itself
     DisposableEffect(pending) {
         val stop = if (pending) api.watchMine { approved -> v?.groupId?.let { g -> if (g in approved) { ui.changes++; ui.swap(PLayer.Group(g)) } } } else ({})
@@ -634,12 +691,12 @@ private fun BoxScope.JoinScreen(p: People, ui: PeopleUi, k: SheetInk, code: Stri
     FullScreen(k, null, { ui.back() }, top = {
         Spacer(Modifier.height(24.dp))
         if (v != null && v.status == JoinStatus.OK) {
-            Text(stringResource(R.string.app_g_invited_to), fontFamily = Plex, fontSize = 15.sp, color = Color.White)
+            Text(stringResource(if (reclaim && !pending) R.string.app_g_back_to else R.string.app_g_invited_to), fontFamily = Plex, fontSize = 15.sp, color = Color.White)
             Text(v.name, fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = if (v.name.length > 14) 34.sp else 44.sp, color = Color.White,
                 textAlign = TextAlign.Center, maxLines = 2, lineHeight = if (v.name.length > 14) 38.sp else 48.sp)
             if (v.startsOn != null && v.endsOn != null) Text(stringResource(R.string.app_trip_range, io.github.pini236.skiapp.season.shortDate(v.startsOn),
                 io.github.pini236.skiapp.season.shortDate(v.endsOn)), fontFamily = Plex, fontSize = 15.sp, color = Color.White)
-            if (!v.requiresApproval && v.members.isNotEmpty()) {
+            if (!pending && !v.requiresApproval && v.members.isNotEmpty()) {
                 val (n, more) = PeopleRules.circles(v.members.size)
                 Row(horizontalArrangement = Arrangement.spacedBy((-8).dp)) {
                     for ((id, name) in v.members.take(n)) Av(name, id, 28, ring = k.surf.copy(alpha = 1f))
@@ -662,12 +719,18 @@ private fun BoxScope.JoinScreen(p: People, ui: PeopleUi, k: SheetInk, code: Stri
                         Small(stringResource(R.string.app_g_bad_code_sub), k)
                         AccButton(stringResource(R.string.app_g_retype), k) { ui.swap(PLayer.Gate) }
                     }
-                    pending -> {
-                        Text(stringResource(R.string.join_pending_title), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 17.sp, color = k.ink)
-                        Small(stringResource(R.string.join_st_pending), k)
-                        TextLink(stringResource(R.string.join_cancel_request), k) { act.run { v.groupId?.let { api.cancelRequest(it) }; pending = false } }
+                    pending -> Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                        // T03: the hourglass in a 52 circle, the title, the line, and "cancel the request"
+                        LaunchedEffect(Unit) { Qa.log("redesign people pending") }
+                        Box(Modifier.size(52.dp).clip(CircleShape).background(k.line), contentAlignment = Alignment.Center) { Icon(Icons.hourglass, null, Modifier.size(26.dp), tint = k.ink) }
+                        Text(stringResource(R.string.join_pending_title), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 19.sp, color = k.ink, textAlign = TextAlign.Center)
+                        Small(stringResource(R.string.join_st_pending), k, center = true)
+                        TextLink(stringResource(R.string.join_cancel_request), k) { act.run { v.groupId?.let { api.cancelRequest(it) }; pending = false; reclaim = false } }
                     }
-                    reclaim -> Reclaim(p, ui, k, code, v)
+                    reclaim -> Reclaim(p, ui, k, code, v, onPending = { pending = true }, onGone = {
+                        // the member left meanwhile: the list again
+                        pv = null; scope0.launch { runCatching { pv = api.preview(code) } }
+                    })
                     else -> {
                         var name by remember { mutableStateOf(api.me()?.name ?: "") }
                         Text(stringResource(R.string.app_g_your_name), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 17.sp, color = k.ink)
@@ -697,41 +760,44 @@ private fun BoxScope.JoinScreen(p: People, ui: PeopleUi, k: SheetInk, code: Stri
     }
 }
 
-/** "I'm already in the group" (R02): pick my name; an admin approves. A member with an account signs in instead. */
+/**
+ * "I'm already in the group" (T02): one choice among the members, each with its circle; "send to the admin" once one is
+ * chosen. A name with an account (sign_in_instead): a line under it, and the button signs in instead.
+ */
 @Composable
-private fun Reclaim(p: People, ui: PeopleUi, k: SheetInk, code: String, v: Preview) {
+private fun Reclaim(p: People, ui: PeopleUi, k: SheetInk, code: String, v: Preview, onPending: () -> Unit, onGone: () -> Unit) {
     val act = rememberAct()
     var picked by remember { mutableStateOf<String?>(null) }
-    var signIn by remember { mutableStateOf(false) }
-    var sent by remember { mutableStateOf(false) }
+    var signIn by remember { mutableStateOf<String?>(null) }
+    var gone by remember { mutableStateOf(false) }
+    LaunchedEffect(Unit) { Qa.log("redesign people reclaim") }
+    Text(stringResource(R.string.app_g_already_in), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 17.sp, color = k.ink)
     Small(stringResource(R.string.app_g_reclaim_intro, v.name), k)
-    for ((id, name) in v.members) {
-        val sel = picked == id
-        Row(Modifier.fillMaxWidth().heightIn(min = 54.dp).clip(RoundedCornerShape(14.dp)).let { if (sel) it.background(k.ridgeFill) else it }
-            .semantics { selected = sel; role = Role.RadioButton }.clickable { picked = id }.padding(horizontal = 8.dp),
-            verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            Av(name, id, 36)
-            Text("⁨$name⁩", Modifier.weight(1f), fontFamily = Plex, fontWeight = FontWeight.Medium, fontSize = 15.5.sp, color = k.ink)
-            if (sel) Icon(Icons.check, null, Modifier.size(20.dp), tint = k.acc)
+    Column(Modifier.heightIn(max = 6 * 54.dp).verticalScroll(rememberScrollState()).selectableGroup()) {
+        for ((id, name) in v.members) {
+            val sel = picked == id
+            Row(Modifier.fillMaxWidth().heightIn(min = 54.dp).selectable(sel, role = Role.RadioButton) { picked = id; signIn = null; gone = false },
+                verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                Av(name, id, 36)
+                Text("⁨$name⁩", Modifier.weight(1f), fontFamily = Plex, fontWeight = FontWeight.Medium, fontSize = 15.5.sp, color = k.ink)
+                RadioDot(sel, k)
+            }
+            if (sel && signIn == id) Small(stringResource(R.string.app_g_sign_in_instead), k, Modifier.padding(start = 48.dp, bottom = 6.dp))
         }
     }
-    when {
-        sent -> { Text(stringResource(R.string.join_pending_title), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 17.sp, color = k.ink); Small(stringResource(R.string.join_st_pending), k) }
-        signIn -> {
-            Small(stringResource(R.string.app_g_sign_in_instead), k)
-            AccButton(stringResource(R.string.join_sign_in_btn), k) { ui.go(PLayer.SignIn) }
-        }
-        else -> AccButton(stringResource(R.string.app_g_send_request), k, enabled = picked != null && !act.busy) {
-            act.run {
-                if (p.api.me() == null) p.api.signInGuest()
-                val r = p.api.reclaim(code, picked!!)
-                Qa.log("redesign people reclaim ${r.status.name.lowercase()}")
-                when (r.status) {
-                    JoinStatus.SIGN_IN_INSTEAD -> signIn = true
-                    JoinStatus.PENDING -> sent = true
-                    JoinStatus.JOINED, JoinStatus.OK -> r.groupId?.let { ui.changes++; ui.swap(PLayer.Group(it)) }
-                    else -> throw ApiException(r.status.name.lowercase())
-                }
+    if (gone) Small(stringResource(R.string.join_st_no_such_member), k, color = k.red)
+    if (signIn != null && signIn == picked) AccButton(stringResource(R.string.join_sign_in_btn), k) { ui.go(PLayer.SignIn) }
+    else AccButton(stringResource(R.string.app_g_send_request), k, enabled = picked != null && !act.busy) {
+        act.run {
+            if (p.api.me() == null) p.api.signInGuest()
+            val r = p.api.reclaim(code, picked!!)
+            Qa.log("redesign people reclaim ${r.status.name.lowercase()}")
+            when (r.status) {
+                JoinStatus.SIGN_IN_INSTEAD -> signIn = picked
+                JoinStatus.PENDING -> onPending()
+                JoinStatus.NO_SUCH_MEMBER -> { gone = true; picked = null; onGone() }
+                JoinStatus.JOINED, JoinStatus.OK -> r.groupId?.let { ui.changes++; ui.swap(PLayer.Group(it)) }
+                else -> throw ApiException(r.status.name.lowercase())
             }
         }
     }
@@ -750,20 +816,25 @@ private fun BoxScope.NewGroupScreen(p: People, ui: PeopleUi, k: SheetInk, trip: 
     var show by remember { mutableStateOf(trip != null) }
     var cal by remember { mutableStateOf(false) }
     val act = rememberAct()
+    var which by remember { mutableStateOf(0) }
+    val focus = remember { androidx.compose.ui.focus.FocusRequester() }
+    LaunchedEffect(Unit) { runCatching { focus.requestFocus() } }
     FullScreen(k, stringResource(R.string.app_g_new_title), { ui.back() }) {
-        Column(Modifier.fillMaxWidth().padding(horizontal = 12.dp)) {
+        Column(Modifier.fillMaxWidth().padding(horizontal = 12.dp).imePadding()) {
             LiveSheet(k) {
-                Text(stringResource(R.string.app_g_group_name), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = k.ink)
-                PField(name, stringResource(R.string.app_g_group_name_hint), k) { name = it.take(60) }
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    for ((label, d) in listOf(R.string.app_g_from_date to from, R.string.app_g_to_date to to)) {
-                        SecondaryButton(stringResource(label) + (d?.let { " · " + io.github.pini236.skiapp.season.shortDate(it) } ?: ""), k, Modifier.weight(1f)) { cal = true }
-                    }
+                Labeled(stringResource(R.string.app_g_group_name), k) {
+                    Box(Modifier.focusRequester(focus)) { PField(name, stringResource(R.string.app_g_group_name_hint), k) { name = it.take(60) } }
                 }
-                Text(stringResource(R.string.app_g_your_name), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = k.ink)
-                PField(me, stringResource(R.string.app_g_your_name_hint), k) { me = it.take(30) }
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    DatePill(stringResource(R.string.app_g_from_date), from, k, Modifier.weight(1f)) { which = 0; cal = true }
+                    DatePill(stringResource(R.string.app_g_to_date), to, k, Modifier.weight(1f)) { which = 1; cal = true }
+                }
+                // the dates from "your trip" (T01): a note under them, while they are still the trip's
+                if (trip != null && from == trip.out.date) Small(stringResource(R.string.app_g_dates_from_trip), k)
+                Labeled(stringResource(R.string.app_g_your_name), k) { PField(me, stringResource(R.string.app_g_your_name_hint), k) { me = it.take(30) } }
                 if (trip != null) SwitchRow(stringResource(R.string.group_show_my_trip), null, show, k, last = true) { show = it }
-                AccButton(stringResource(if (act.busy) R.string.app_loading else R.string.app_g_create_it), k, enabled = name.isNotBlank() && me.isNotBlank() && !act.busy) {
+                AccButton(stringResource(if (act.busy) R.string.app_loading else R.string.app_g_create_it), k,
+                    enabled = name.isNotBlank() && me.isNotBlank() && from != null && !act.busy) {
                     act.run {
                         val id = api.createGroup(name.trim(), me.trim(), from, to, if (show) trip else null)
                         Qa.log("redesign people group created"); ui.changes++; p.onChanged()

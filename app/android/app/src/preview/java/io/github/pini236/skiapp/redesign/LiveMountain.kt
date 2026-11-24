@@ -617,7 +617,7 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
         if (where.asking) WhereAsk(night, onGo = locateGo, onLater = { where.asking = false; Qa.log("redesign where ask later") })
         androidx.activity.compose.BackHandler(enabled = where.asking) { where.asking = false }
         // part 3 (R01 to R15) over everything of the mountain
-        if (pp != null && people.open) {
+        if (pp != null && (people.open || people.toast != null)) {
             val todayP = java.time.LocalDate.now(io.github.pini236.skiapp.meet.Meet.GUDAURI)
             LivePeople(pp, people, night, haptics, plan, around?.trip, todayP,
                 onOpenMeetup = { _, m ->
