@@ -201,8 +201,15 @@ internal fun HoldStop(k: SheetInk, haptics: Haptics, onStop: () -> Unit) {
     }
 }
 
+/** Recording with the notifications off (U04): the live screen's sheets show a line above their buttons. */
+internal val LocalNoNotif = androidx.compose.runtime.staticCompositionLocalOf { false }
+
 @Composable
 private fun SeeAndStop(k: SheetInk, haptics: Haptics, onSee: () -> Unit, onStop: () -> Unit) {
+    if (LocalNoNotif.current) {
+        androidx.compose.runtime.LaunchedEffect(Unit) { Qa.log("redesign edge rec no notif") }
+        StatusLine(stringResource(R.string.app_rec_no_notif), k, EdgeIcon.BELL_OFF)
+    }
     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
         SecondaryButton(stringResource(R.string.app_rec_see_day), k, Modifier.weight(1f)) { haptics.tick(.3f); Qa.log("redesign rec see day"); onSee() }
         HoldStop(k, haptics, onStop)

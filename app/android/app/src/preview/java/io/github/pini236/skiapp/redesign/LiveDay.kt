@@ -266,6 +266,11 @@ fun LiveDay(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, liftName: (S
         val sheet = recording && !searching && !onLift && stage in setOf(LiveStage.STANDING, LiveStage.WALKING, LiveStage.NEAR_LIFT, LiveStage.BREAK)
         val nearL = (nearLift ?: if (qaStage == LiveStage.NEAR_LIFT) last?.let { q -> scene.runs?.lifts?.let { ls ->
             nearBoarding(ls.map { it.id to it.pts }, scene.terrain::elev, q[0], q[1], 1e6f) } } else null)?.let { id -> scene.runs?.lifts?.firstOrNull { it.id == id } }
+        // part 6 (U04): recording with the notifications off: a state line in the live screen's sheet, above its buttons,
+        // in every stage with a sheet (standing, next to a lift, a break; handoff 2026-11-23-redesign-edges section 3), never
+        // in a descent (no sheet there)
+        val noNotif = recording && (!io.github.pini236.skiapp.meet.Reminders.allowed(context) || qaNoNotif)
+        androidx.compose.runtime.CompositionLocalProvider(LocalNoNotif provides noNotif) {
         androidx.compose.animation.Crossfade(if (sheet) (if (stage == LiveStage.NEAR_LIFT && nearL == null) LiveStage.STANDING else stage) else null,
             Modifier.fillMaxSize(), animationSpec = tween(250), label = "stage") { st ->
             Box(Modifier.fillMaxSize()) {
@@ -283,6 +288,7 @@ fun LiveDay(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, liftName: (S
                     else -> {}
                 }
             }
+        }
         }
         // the speed, large, and where you probably are (or the search, or the weak signal); the hold to finish under them
         if (!sheet) Column(Modifier.align(Alignment.BottomCenter).navigationBarsPadding().padding(horizontal = 16.dp, vertical = 12.dp).fillMaxWidth(),
@@ -345,12 +351,6 @@ fun LiveDay(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, liftName: (S
                         Text(stringResource(R.string.app_rec_weak_title) + " · " + stringResource(R.string.app_rec_weak_hint), style = small)
                     }
                 }
-            }
-            // part 6 (U04): recording with the notifications off: a state line above the buttons, not while skiing down (by the
-            // stage shown, so a stop held after a descent shows it too)
-            if (recording && stage != LiveStage.DESCENT && (!io.github.pini236.skiapp.meet.Reminders.allowed(context) || qaNoNotif)) {
-                LaunchedEffect(Unit) { Qa.log("redesign edge rec no notif") }
-                StatusLine(stringResource(R.string.app_rec_no_notif), remember(night) { SheetInk(night) }, EdgeIcon.BELL_OFF)
             }
             // hold to finish (L03): the fill grows under the finger for a second; let go before and nothing happens
             if (!onLift) HoldToFinish(scope, haptics, red, ink, glass, rule, onStop)
