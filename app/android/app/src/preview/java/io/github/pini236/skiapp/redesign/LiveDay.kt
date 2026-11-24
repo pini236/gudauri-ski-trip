@@ -334,8 +334,9 @@ fun LiveDay(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, liftName: (S
                     }
                 }
             }
-            // part 6 (U04): recording with the notifications off: a state line above the buttons, not while skiing down
-            if (recording && DayRec.live?.act != "ski" && (!io.github.pini236.skiapp.meet.Reminders.allowed(context) || qaNoNotif)) {
+            // part 6 (U04): recording with the notifications off: a state line above the buttons, not while skiing down (by the
+            // stage shown, so a stop held after a descent shows it too)
+            if (recording && stage != LiveStage.DESCENT && (!io.github.pini236.skiapp.meet.Reminders.allowed(context) || qaNoNotif)) {
                 LaunchedEffect(Unit) { Qa.log("redesign edge rec no notif") }
                 StatusLine(stringResource(R.string.app_rec_no_notif), remember(night) { SheetInk(night) }, EdgeIcon.BELL_OFF)
             }
