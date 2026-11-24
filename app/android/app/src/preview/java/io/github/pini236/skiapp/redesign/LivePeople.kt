@@ -375,12 +375,31 @@ private fun RedButton(text: String, k: SheetInk, busy: Boolean, onClick: () -> U
         else Text(text, fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = k.onRed)
     }
 
-/** Errors of an action as a line in red; "offline" says so, a refusal its own words (errorRes). */
+/**
+ * Errors of an action (part 6, U10, one rule for the whole app): red with a warning sign, in the sheet, by the button
+ * that was pressed; what was typed stays, and the button is ready again. "offline" says so, a refusal its own words
+ * (errorRes). An app too old for the action: "update" after it (the store); a session gone: "sign in" after it.
+ */
 @Composable
 private fun ErrLine(code: String?, k: SheetInk) {
     if (code == null) return
-    Small(stringResource(if (code == "offline") R.string.app_err_offline else errorRes(code)), k, color = k.red)
+    LaunchedEffect(code) { Qa.log("redesign edge error $code") }
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        ErrorNear(stringResource(if (code == "offline") R.string.app_err_offline else errorRes(code)), k)
+        val ctx = LocalContext.current
+        when (code) {
+            "unknown_action" -> SecondaryButton(stringResource(R.string.app_update_go), k) {
+                val id = ctx.packageName.removeSuffix(".test")
+                runCatching { ctx.startActivity(android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse("market://details?id=$id"))) }
+                    .onFailure { ctx.startActivity(android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse("https://play.google.com/store/apps/details?id=$id"))) }
+            }
+            "not_signed_in", "no_session" -> LocalPeopleUi.current?.let { ui -> SecondaryButton(stringResource(R.string.join_sign_in_btn), k) { ui.go(PLayer.SignIn) } }
+        }
+    }
 }
+
+/** The people's layers, for an error that leads to signing in (U10). */
+internal val LocalPeopleUi = androidx.compose.runtime.staticCompositionLocalOf<PeopleUi?> { null }
 
 /** Runs an action, keeping the server's code when it refuses. */
 private class Act(private val scope: kotlinx.coroutines.CoroutineScope) {
@@ -410,7 +429,7 @@ internal fun BoxScope.LivePeople(p: People, ui: PeopleUi, night: Boolean, haptic
     val l = ui.top
     BackHandler(enabled = ui.open) { ui.back() }
     // a toast outlives the layers (the account deleted: back on the mountain, "the account was deleted")
-    if (l != null) when (l) {
+    if (l != null) androidx.compose.runtime.CompositionLocalProvider(LocalPeopleUi provides ui) { when (l) {
         PLayer.Me -> MeScreen(p, ui, k)
         PLayer.SignIn -> SignInSheet(p, ui, k)
         PLayer.Gate -> GateSheet(p, ui, k)
@@ -425,7 +444,7 @@ internal fun BoxScope.LivePeople(p: People, ui: PeopleUi, night: Boolean, haptic
         PLayer.Licenses -> LicensesScreen(ui, k)
         is PLayer.License -> LicenseText(ui, k, l.key)
         is PLayer.TripFor -> TripForScreen(p, ui, night, haptics, l.group, l.user, today)
-    }
+    } }
     ui.toast?.let { t ->
         LaunchedEffect(t) { delay(4000); ui.toast = null }
         Box(Modifier.align(Alignment.BottomCenter).navigationBarsPadding().padding(bottom = 96.dp, start = 16.dp, end = 16.dp)
@@ -842,7 +861,7 @@ private fun BoxScope.NewGroupScreen(p: People, ui: PeopleUi, k: SheetInk, trip: 
                 if (trip != null && from == trip.out.date) Small(stringResource(R.string.app_g_dates_from_trip), k)
                 Labeled(stringResource(R.string.app_g_your_name), k) { PField(me, stringResource(R.string.app_g_your_name_hint), k) { me = it.take(30) } }
                 if (trip != null) SwitchRow(stringResource(R.string.group_show_my_trip), null, show, k, last = true) { show = it }
-                AccButton(stringResource(if (act.busy) R.string.app_loading else R.string.app_g_create_it), k,
+                AccButton(stringResource(R.string.app_g_create_it), k,
                     enabled = name.isNotBlank() && me.isNotBlank() && from != null && !act.busy) {
                     act.run {
                         val id = api.createGroup(name.trim(), me.trim(), from, to, if (show) trip else null)
@@ -873,7 +892,17 @@ private fun BoxScope.GroupSheet(p: People, ui: PeopleUi, k: SheetInk, id: String
     val api = p.api
     val watch = remember(id) { api.watch(id) }
     DisposableEffect(watch) { watch.open(); onDispose { watch.close() } }
-    val shown by watch.state.collectAsState(watch.now)
+    val real by watch.state.collectAsState(watch.now)
+    // the emulator's edges (part 6, U07 to U09): no signal, a change refused, a group never kept (people:edge:offline, ...)
+    var edge by remember(id) { mutableStateOf<String?>(null) }
+    LaunchedEffectQa { c -> if (c.startsWith("people:edge:")) edge = c.removePrefix("people:edge:").takeIf { it != "off" } }
+    val shown = when (edge) {
+        "offline" -> real.copy(offline = true, readAt = System.currentTimeMillis() - 47 * 60_000L, waiting = true)
+        "refused" -> real.copy(refused = "conflict")
+        "never" -> real.copy(group = null, offline = true)
+        "loading" -> real.copy(group = null, offline = false, gone = false)
+        else -> real
+    }
     val g = shown.group
     LaunchedEffect(g?.meetups) { if (g != null) p.onMeetups() }
     var tab by remember(id) { mutableStateOf<GroupTab?>(null) }
@@ -911,18 +940,32 @@ private fun BoxScope.GroupSheet(p: People, ui: PeopleUi, k: SheetInk, id: String
                     }
                 }
             }
+            // part 6 (U07 to U09, U11): the state of the group says itself in a line in the sheet, never over the mountain
             when {
                 g == null && shown.gone -> Small(stringResource(R.string.app_g_gone), k)
-                g == null && shown.offline -> Small(stringResource(R.string.app_g_offline_never), k)
-                g == null -> Small(stringResource(R.string.app_loading), k)
+                // U08: never kept on the phone and no signal: the title, the line, and "try again"; the tabs stay, empty
+                g == null && shown.offline -> {
+                    LaunchedEffect(Unit) { Qa.log("redesign edge group never saved") }
+                    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                        StatusLine(stringResource(R.string.app_offline_title), k, EdgeIcon.NO_SIGNAL)
+                        Small(stringResource(R.string.app_g_offline_never), k)
+                        SecondaryButton(stringResource(R.string.app_retry), k) { watch.refresh(); Qa.log("redesign edge group retry") }
+                    }
+                }
+                // U11: the first time, rows in the shape of the content
+                g == null -> LoadingRows(k)
             }
             if (g != null) {
-                if (shown.offline) Small(stringResource(R.string.app_g_offline, savedHm(shown.readAt)), k)
-                if (shown.waiting) Small(stringResource(R.string.app_g_waiting), k)
-                shown.refused?.let { c -> Row(verticalAlignment = Alignment.CenterVertically) {
-                    Small(stringResource(R.string.app_g_refused, stringResource(errorRes(c))), k, Modifier.weight(1f), color = k.red)
-                    TextLink("✕", k, k.ink) { watch.clearRefused() }
-                } }
+                // U07: shown from the phone, with the time it was kept
+                if (shown.offline) {
+                    LaunchedEffect(Unit) { Qa.log("redesign edge group offline") }
+                    StatusLine(stringResource(R.string.app_g_offline, savedHm(shown.readAt)), k, EdgeIcon.NO_SIGNAL)
+                }
+                // U09: a change that waited and was refused, until closed
+                shown.refused?.let { c ->
+                    LaunchedEffect(c) { Qa.log("redesign edge group refused $c") }
+                    StatusLine(stringResource(R.string.app_g_refused, stringResource(errorRes(c))), k, EdgeIcon.WARN, bad = true, onClose = { watch.clearRefused() })
+                }
                 Column(Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                     when (t) {
                         GroupTab.MEETUPS -> Meetups(g, k, plan, onOpen = { m -> onOpenMeetup(id, m) }, onNew = { onNewMeetup(id) }, onRemind = p.onMeetups,
@@ -932,6 +975,8 @@ private fun BoxScope.GroupSheet(p: People, ui: PeopleUi, k: SheetInk, id: String
                         GroupTab.SCORES -> Scores(p, g, k)
                         GroupTab.MEMBERS -> Members(p, ui, g, k, act, today, haptics, reload = { watch.refresh() })
                     }
+                    // U07: under the list, while changes made here wait for signal
+                    if (shown.waiting) Small(stringResource(R.string.app_g_waiting), k)
                     ErrLine(act.error, k)
                 }
             }
@@ -955,6 +1000,54 @@ private fun Meetups(g: Group, k: SheetInk, plan: MeetPlan?, onOpen: (Meetup) -> 
     @Composable fun where(m: Meetup) = plan?.byId?.get(m.station)
     if (list.isEmpty()) Small(stringResource(R.string.app_g_no_meetups), k)
     val next = list.firstOrNull { it.at > now }
+    // part 6 (U03): are the phone's notifications on? Read again each time the app comes back (from the settings)
+    var allowed by remember { mutableStateOf(Reminders.allowed(ctx)) }
+    DisposableEffect(Unit) {
+        val life = (ctx as? androidx.lifecycle.LifecycleOwner)?.lifecycle
+        val o = androidx.lifecycle.LifecycleEventObserver { _, e -> if (e == androidx.lifecycle.Lifecycle.Event.ON_RESUME) allowed = Reminders.allowed(ctx) }
+        life?.addObserver(o); onDispose { life?.removeObserver(o) }
+    }
+    // U01: our sheet before the phone's question, for a meetup ahead with its reminder on (at most twice, once a meetup)
+    val ahead = list.filter { it.at > now && Reminders.isOn(ctx, it.id) }.map { it.id }
+    var asking by remember { mutableStateOf<Meetup?>(null) }
+    // the emulator's (debug) build offers only when asked (people:notifask), and fakes the phone's switch (people:notifoff, :notifon)
+    LaunchedEffectQa { c ->
+        when (c) {
+            "people:notifask" -> list.firstOrNull { it.at > now }?.let { asking = it; Qa.log("redesign edge notif ask") }
+            "people:notifoff" -> allowed = false
+            "people:notifon" -> allowed = Reminders.allowed(ctx)
+        }
+    }
+    LaunchedEffect(ahead, allowed) {
+        if (allowed || Qa.enabled || android.os.Build.VERSION.SDK_INT < 33) return@LaunchedEffect
+        val id = NotifOffer.next(ahead, NotifOffers.offered(ctx), NotifOffers.count(ctx)) ?: return@LaunchedEffect
+        NotifOffers.offer(ctx, id); asking = list.firstOrNull { it.id == id }; Qa.log("redesign edge notif ask")
+    }
+    val askPhone = androidx.activity.compose.rememberLauncherForActivityResult(androidx.activity.result.contract.ActivityResultContracts.RequestPermission()) { ok ->
+        allowed = Reminders.allowed(ctx); Qa.log("notifications ${if (ok) "allowed" else "refused"}"); onRemind()
+    }
+    asking?.let { m ->
+        androidx.compose.material3.ModalBottomSheet(onDismissRequest = { asking = null; Qa.log("redesign edge notif later") }, containerColor = k.surf.copy(alpha = 1f)) {
+            Column(Modifier.padding(horizontal = 16.dp).navigationBarsPadding().padding(bottom = 8.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                Box(Modifier.size(52.dp).clip(CircleShape).background(k.acc.copy(alpha = .14f)), contentAlignment = Alignment.Center) {
+                    Icon(Icons.bell, null, Modifier.size(26.dp), tint = k.acc)
+                }
+                Text(stringResource(R.string.app_notif_ask_title), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 21.sp, color = k.ink)
+                Small(stringResource(R.string.app_notif_ask_text), k)
+                Row(Modifier.fillMaxWidth().clip(RoundedCornerShape(16.dp)).background(k.line).padding(horizontal = 14.dp, vertical = 10.dp),
+                    verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Text(hm(m), fontFamily = Plex, fontWeight = FontWeight.Light, fontSize = 26.sp, color = k.ink)
+                    Text("⁦${where(m)?.name ?: m.station}⁩ · ${g.name}", Modifier.weight(1f), fontFamily = Plex, fontWeight = FontWeight.Medium, fontSize = 14.sp, color = k.ink, maxLines = 2)
+                }
+                AccButton(stringResource(R.string.app_notif_ask_go), k) {
+                    asking = null; Reminders.markAsked(ctx, Reminders.Ask.MEETUPS); Qa.log("redesign edge notif go")
+                    askPhone.launch(android.Manifest.permission.POST_NOTIFICATIONS)
+                }
+                Small(stringResource(R.string.app_notif_ask_after), k, center = true, modifier = Modifier.fillMaxWidth())
+                TextLink(stringResource(R.string.loc_ask_later), k, k.ink2, Modifier.fillMaxWidth()) { asking = null; Qa.log("redesign edge notif later") }
+            }
+        }
+    }
     if (next != null) {
         val st = where(next)
         Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(22.dp)).border(1.dp, k.line, RoundedCornerShape(22.dp)).semantics { role = Role.Button }
@@ -972,7 +1065,21 @@ private fun Meetups(g: Group, k: SheetInk, plan: MeetPlan?, onOpen: (Meetup) -> 
                 }
             }
             val on = remember(next.id, toggled) { Reminders.isOn(ctx, next.id) }
-            SwitchRow(stringResource(R.string.app_g_remind), null, on, k, last = true) { Reminders.set(ctx, next.id, it); toggled++; onRemind() }
+            if (allowed) SwitchRow(stringResource(R.string.app_g_remind), null, on, k, last = true) { Reminders.set(ctx, next.id, it); toggled++; onRemind() }
+            // U03: the phone's notifications are off: the bell crossed, "the reminder will not come", and the settings
+            else Row(Modifier.fillMaxWidth().heightIn(min = 54.dp).semantics(mergeDescendants = true) { }, verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                LaunchedEffect(Unit) { Qa.log("redesign edge notif off") }
+                EdgeGlyph(EdgeIcon.BELL_OFF, k.ink2, 20.dp)
+                Column(Modifier.weight(1f)) {
+                    Text(stringResource(R.string.app_notif_off), fontFamily = Plex, fontWeight = FontWeight.Medium, fontSize = 15.sp, color = k.ink)
+                    Small(stringResource(R.string.app_notif_off_sub), k)
+                }
+                TextLink(stringResource(R.string.loc_denied_action_phone), k) {
+                    runCatching { ctx.startActivity(android.content.Intent(android.provider.Settings.ACTION_APP_NOTIFICATION_SETTINGS)
+                        .putExtra(android.provider.Settings.EXTRA_APP_PACKAGE, ctx.packageName)) }
+                }
+            }
         }
     }
     for (m in list.filter { it != next }) {
@@ -988,6 +1095,8 @@ private fun Meetups(g: Group, k: SheetInk, plan: MeetPlan?, onOpen: (Meetup) -> 
             .androidxLongClick({ onOpen(m) }, { armed = m.id }), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             Column(Modifier.weight(1f)) {
                 Text("$day · ${hm(m)} · ⁦${st?.name ?: m.station}⁩", fontFamily = Plex, fontWeight = FontWeight.Medium, fontSize = 15.5.sp, color = k.ink)
+                // U07: made here with no signal, not sent yet
+                if (m.id.startsWith("local:")) WaitTag(k)
                 Small(listOfNotNull(st?.let { stationSub(it) }, m.byName?.let { stringResource(R.string.app_g_set_by, it) }).joinToString(" · "), k)
                 if (armed == m.id) TextLink(stringResource(R.string.app_g_meetup_delete), k, k.red) { armed = null; onDelete(m) }
             }
@@ -995,7 +1104,8 @@ private fun Meetups(g: Group, k: SheetInk, plan: MeetPlan?, onOpen: (Meetup) -> 
             val st2 = stringResource(if (on) R.string.app_on else R.string.app_off)
             Box(Modifier.size(44.dp).semantics { contentDescription = bell; stateDescription = st2; role = Role.Switch }
                 .clickable { Reminders.set(ctx, m.id, !on); toggled++; onRemind() }, contentAlignment = Alignment.Center) {
-                Icon(Icons.bell, null, Modifier.size(20.dp), tint = if (on) k.acc else k.ink2)
+                if (allowed) Icon(Icons.bell, null, Modifier.size(20.dp), tint = if (on) k.acc else k.ink2)
+                else Box(Modifier.alpha(.5f)) { EdgeGlyph(EdgeIcon.BELL_OFF, k.ink2, 20.dp) }
             }
         }
     }
@@ -1112,7 +1222,7 @@ private fun Scores(p: People, g: Group, k: SheetInk) {
     }
     val list = rows
     when {
-        list == null -> if (act.busy) Small(stringResource(R.string.app_loading), k) else ErrLine(act.error, k)
+        list == null -> if (act.error == null) LoadingRows(k) else ErrLine(act.error, k)
         list.isEmpty() -> Small(stringResource(R.string.app_g_no_scores), k)
         else -> {
             val places = PeopleRules.places(list)
@@ -1344,7 +1454,7 @@ private fun BoxScope.InviteScreen(p: People, ui: PeopleUi, k: SheetInk, id: Stri
         Column(Modifier.fillMaxWidth().padding(horizontal = 12.dp)) {
             LiveSheet(k) {
                 when {
-                    gg == null -> if (act.busy) Small(stringResource(R.string.app_loading), k) else ErrLine(act.error, k)
+                    gg == null -> if (act.error == null) LoadingRows(k, 2) else ErrLine(act.error, k)
                     inv == null -> {
                         Small(stringResource(R.string.group_no_invite), k)
                         if (gg.admin) AccButton(stringResource(R.string.group_new_invite), k) { act.run { api.newInvite(id, false); g = api.group(id) } }
@@ -1433,6 +1543,19 @@ private fun BoxScope.SettingsScreen(p: People, ui: PeopleUi, k: SheetInk) {
                 analytics = it; Telemetry.setEnabled(ctx, it, BuildConfig.FLAVOR)
             }
             PRow(stringResource(R.string.about_analytics_what), k, last = true) { p.onPrivacy() }
+        }
+        // part 6 (U12, Android only): the consent to record the games' screens, a box of its own under the measuring,
+        // off until switched on, the full words always open; it needs the measuring on (as today's settings)
+        PBox(k) {
+            var replay by remember { mutableStateOf(io.github.pini236.skiapp.telemetry.ReplayController.consent(ctx)) }
+            val on = replay && analytics
+            LaunchedEffect(Unit) { Qa.log("redesign edge replay ${if (on) "on" else "off"}") }
+            Box(Modifier.alpha(if (analytics) 1f else .45f)) {
+                SwitchRow(stringResource(R.string.app_replay_title), stringResource(if (on) R.string.app_replay_on else R.string.app_replay_off), on, k) {
+                    if (analytics) { io.github.pini236.skiapp.telemetry.ReplayController.setConsent(ctx, it); replay = io.github.pini236.skiapp.telemetry.ReplayController.consent(ctx) }
+                }
+            }
+            Small(stringResource(R.string.app_replay_details), k, Modifier.padding(top = 4.dp, bottom = 12.dp))
         }
         PBox(k) {
             PRow(stringResource(when { done -> R.string.about_reset_done; armed -> R.string.about_reset_confirm; else -> R.string.about_reset }), k, danger = armed, last = true) {

@@ -95,6 +95,9 @@ fun LiveDay(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, liftName: (S
     val time = DayNight.lightTime(now, mode)
     val night = remember(time / 600_000) { Sky.at(time).dark }
     val view = remember { LiveView(context, scene) }
+    // the emulator's switch for U04 (its phone has the notifications allowed)
+    var qaNoNotif by remember { mutableStateOf(false) }
+    LaunchedEffectQa { c -> if (c == "rec:nonotif") qaNoNotif = true else if (c == "rec:notif") qaNoNotif = false }
     DisposableEffect(Unit) {
         val life = (context as? androidx.lifecycle.LifecycleOwner)?.lifecycle
         val obs = androidx.lifecycle.LifecycleEventObserver { _, e ->
@@ -331,8 +334,11 @@ fun LiveDay(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, liftName: (S
                     }
                 }
             }
-            if (recording && !io.github.pini236.skiapp.meet.Reminders.allowed(context))
-                Text(stringResource(R.string.app_rec_no_notif), style = small, textAlign = androidx.compose.ui.text.style.TextAlign.Center)
+            // part 6 (U04): recording with the notifications off: a state line above the buttons, not while skiing down
+            if (recording && DayRec.live?.act != "ski" && (!io.github.pini236.skiapp.meet.Reminders.allowed(context) || qaNoNotif)) {
+                LaunchedEffect(Unit) { Qa.log("redesign edge rec no notif") }
+                StatusLine(stringResource(R.string.app_rec_no_notif), remember(night) { SheetInk(night) }, EdgeIcon.BELL_OFF)
+            }
             // hold to finish (L03): the fill grows under the finger for a second; let go before and nothing happens
             if (!onLift) HoldToFinish(scope, haptics, red, ink, glass, rule, onStop)
         }

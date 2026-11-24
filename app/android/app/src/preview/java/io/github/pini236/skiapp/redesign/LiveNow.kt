@@ -115,6 +115,8 @@ internal fun WeatherTab(lifts: List<Lift>, status: LiftStatus?, trip: io.github.
     val maxH = (LocalConfiguration.current.screenHeightDp - 296 - 8 - 130).coerceAtLeast(200).dp
     LaunchedEffect(w.state) { Qa.log("redesign weather ${w.measure}") }
     Column(Modifier.heightIn(max = maxH).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        // part 6 (U06): the last values stay, and a state line above them says how old they are
+        if (w.state == Forecast.State.STALE && f != null) StatusLine(stringResource(R.string.weather_sub_stale, ago(f.updated, w.now)), k, EdgeIcon.CLOCK)
         for (id in Forecast.POINTS) {
             val p = w.forecast?.point(id)
             val alt = p?.elevation ?: DEFAULT_ALT.getValue(id)
@@ -188,7 +190,7 @@ internal fun WeatherTab(lifts: List<Lift>, status: LiftStatus?, trip: io.github.
         val uri = LocalUriHandler.current
         val src = when (w.state) {
             Forecast.State.FRESH -> stringResource(R.string.weather_sub_fresh, ago(f!!.updated, w.now))
-            Forecast.State.STALE -> stringResource(R.string.weather_stale) + " · " + stringResource(R.string.weather_sub_stale, ago(f!!.updated, w.now))
+            Forecast.State.STALE -> null // said in the state line at the top (U06)
             Forecast.State.NONE -> null
         }
         src?.let { Text0(it, if (w.state == Forecast.State.STALE) (if (night) Color(0xFFF2B95A) else Color(0xFF8A5300)) else k.ink2, 12.5f) }

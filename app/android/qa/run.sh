@@ -1241,6 +1241,23 @@ redesign() {
   done
   mark; qa "--es qa.mode night --es qa.redesign people:tab:meetups"; rd_settled; shot redesign-group-night
   mark; qa "--es qa.mode auto --es qa.redesign people:off"; waitlog "redesign people closed" 10
+  # part 6 (U01, U03, U07 to U09, U11): the reminders' sheet before the phone's question, the notifications off, and the
+  # group with no signal, a change refused, never kept and loading (the emulator's switches; its phone allows notifications)
+  mark; qa "--es qa.redesign people:group"; waitlog "redesign people group" 15; qa "--es qa.redesign people:tab:meetups"; waitlog "redesign people group meetups" 10
+  mark; qa "--es qa.redesign people:notifask"; waitlog "redesign edge notif ask" 10 || fail "redesign: the reminders sheet did not open"; sleep 1.5; shot redesign-edge-notif-ask
+  tapText "לא עכשיו" || adb shell input keyevent 4; sleep 1
+  mark; qa "--es qa.redesign people:notifoff"; waitlog "redesign edge notif off" 10 || fail "redesign: the notifications-off line did not show"; sleep 1; shot redesign-edge-notif-off
+  mark; qa "--es qa.redesign people:notifon"; sleep .5
+  mark; qa "--es qa.redesign people:edge:offline"; waitlog "redesign edge group offline" 10 || fail "redesign: the group's no-signal line did not show"; sleep 1; shot redesign-edge-group-offline
+  mark; qa "--es qa.redesign people:edge:refused"; waitlog "redesign edge group refused" 10 || fail "redesign: the refused line did not show"; sleep 1; shot redesign-edge-group-refused
+  mark; qa "--es qa.redesign people:edge:never"; waitlog "redesign edge group never saved" 10 || fail "redesign: the never-kept group did not show"; sleep 1; shot redesign-edge-group-never
+  mark; qa "--es qa.redesign people:edge:loading"; sleep 1.5; shot redesign-edge-loading
+  mark; qa "--es qa.redesign people:edge:off"; sleep .5
+  mark; qa "--es qa.redesign people:off"; waitlog "redesign people closed" 10
+  # U12: the consent to record the games, in the settings
+  mark; qa "--es qa.redesign people:settings"; waitlog "redesign edge replay" 10 || fail "redesign: the replay consent box did not show"
+  adb shell input swipe 540 1700 540 500 400; sleep 1; shot redesign-edge-replay
+  mark; qa "--es qa.redesign people:off"; waitlog "redesign people closed" 10
   mark; qa "--es qa.redesign people:invite"; waitlog "redesign people invite" 15 || fail "redesign: the invite did not open"; rd_settled; shot redesign-invite
   mark; qa "--es qa.redesign people:off"; waitlog "redesign people closed" 10
   # completion part 5 (T01, T04 to T08), the admin's seed: a new group, the member's menu and the red rows, name and
@@ -1295,6 +1312,8 @@ redesign() {
   # S05, S06: "the mountain now" on the weather tab, with a fresh forecast and with none
   mark; qa "--es qa.weather fresh --es qa.redesign weather"; waitlog "redesign weather fresh" 15 || fail "redesign: the weather tab did not open"; rd_settled; shot redesign-now-weather
   mark; qa "--es qa.weather none --es qa.redesign weather"; waitlog "redesign weather none" 15; rd_settled; shot redesign-now-weather-none
+  # part 6 (U06): an old forecast, the last values and a line saying how old
+  mark; qa "--es qa.weather stale --es qa.redesign weather"; waitlog "redesign weather stale" 15; rd_settled; shot redesign-edge-weather-stale
   mark; qa "--es qa.redesign lifts"; sleep 1; rd_settled; shot redesign-now-lifts
   mark; qa "--es qa.redesign lifts:off"; sleep 1
   mark; qa "--es qa.mode auto --es qa.redesign painted"; waitlog "redesign live closed" 10; sleep 1.5; shot redesign-live-back
@@ -1349,6 +1368,8 @@ redesign() {
   geo 42.482631 44.483401; dayrec_walk 10; sleep 7; shot redesign-rec-live
   # completion part 1 (P01 to P03): standing, next to a lift and a break, held (the emulator cannot stand for minutes)
   mark; qa "--es qa.redesign stage:standing"; waitlog "redesign rec stage standing" 10 || fail "redesign: no standing sheet"; sleep 1.5; shot redesign-rec-standing
+  # part 6 (U04): recording with the notifications off, the line above the buttons (the emulator's switch)
+  mark; qa "--es qa.redesign rec:nonotif"; waitlog "redesign edge rec no notif" 10 || fail "redesign: the no-notifications line did not show"; sleep 1; shot redesign-edge-rec-nonotif; qa "--es qa.redesign rec:notif"; sleep .5
   mark; qa "--es qa.redesign stage:near"; waitlog "redesign rec stage near_lift" 10 || fail "redesign: no sheet next to a lift"; sleep 1.5; shot redesign-rec-near-lift
   mark; qa "--es qa.redesign stage:break"; waitlog "redesign rec stage break" 10 || fail "redesign: no break screen"; sleep 1.5; shot redesign-rec-break
   mark; qa "--es qa.redesign stage:standing"; waitlog "redesign rec stage standing" 10
