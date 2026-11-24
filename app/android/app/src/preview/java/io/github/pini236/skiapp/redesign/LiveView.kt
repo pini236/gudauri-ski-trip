@@ -80,7 +80,7 @@ class LiveView(context: Context, private val scene: MapScene) : GLSurfaceView(co
         }.also { marks = it }
         val mvp = FloatArray(16); val eye = FloatArray(3); val o = FloatArray(4); val v = FloatArray(4)
         if (width == 0) return Overlay(emptyList(), FloatArray(0))
-        OrbitCamera.mvp(camera.state(), width.toFloat() / height, mvp, eye, data.camera.fovDeg) { x, z -> t.elev(x, z) }
+        OrbitCamera.mvp(camera.state(), width.toFloat() / height, mvp, eye, data.camera.fovDeg) { x, z -> t.elev(x, z) }; shiftUp(mvp, renderer.shiftPx, height)
         fun on(x: Float, y: Float, z: Float): FloatArray? {
             v[0] = x; v[1] = y; v[2] = z; v[3] = 1f; Matrix.multiplyMV(o, 0, mvp, 0, v, 0)
             if (o[3] <= 0f) return null
@@ -109,7 +109,7 @@ class LiveView(context: Context, private val scene: MapScene) : GLSurfaceView(co
         }
         if (top[1] < -1e8f || width == 0) return null
         val mvp = FloatArray(16); val eye = FloatArray(3); val o = FloatArray(4)
-        OrbitCamera.mvp(camera.state(), width.toFloat() / height, mvp, eye, data.camera.fovDeg) { x, z -> scene.terrain.elev(x, z) }
+        OrbitCamera.mvp(camera.state(), width.toFloat() / height, mvp, eye, data.camera.fovDeg) { x, z -> scene.terrain.elev(x, z) }; shiftUp(mvp, renderer.shiftPx, height)
         Matrix.multiplyMV(o, 0, mvp, 0, floatArrayOf(top[0], top[1], top[2], 1f), 0)
         if (o[3] <= 0f) return null
         return floatArrayOf((o[0] / o[3] * .5f + .5f) * width, (1 - (o[1] / o[3] * .5f + .5f)) * height)
@@ -178,8 +178,32 @@ class LiveView(context: Context, private val scene: MapScene) : GLSurfaceView(co
     private val lens: Float get() = (kotlin.math.tan(Math.toRadians(data.camera.fovDeg / 2.0)) / kotlin.math.tan(Math.toRadians(20.0))).toFloat()
 
     private var lightKey = Long.MIN_VALUE
+    private var lastEpoch = System.currentTimeMillis()
+    /** Whether the sun is up now (the light's own time): "in the sun now" is off with it down. */
+    fun sunUp(): Boolean = Sun.position(lastEpoch).second > 0.0
+    val lightTime: Long get() = lastEpoch
+
+    /**
+     * K07 and K08, "in the sun now": the share of each run's points (on its draped lines) out of the mountain's cast
+     * shadow, the same shadows as the model's light. Null with the sun down or the shadows not worked out yet.
+     */
+    fun sunShares(): Map<String, Float>? {
+        if (!sunUp()) return null
+        val sh = renderer.shadowNow() ?: return null
+        val t = scene.terrain
+        return scene.runs.pistes.associate { p ->
+            var n = 0; var lit = 0
+            for (l in scene.draped[p.key].orEmpty()) for (i in 0 until l.size / 3) {
+                val c = kotlin.math.round((l[i * 3] - t.x0) / t.sx).toInt().coerceIn(0, t.nx - 1)
+                val r = kotlin.math.round((l[i * 3 + 2] - t.y0) / t.sy).toInt().coerceIn(0, t.ny - 1)
+                n++; if (sh[r * t.nx + c] < .5f) lit++
+            }
+            p.key to if (n == 0) 0f else lit.toFloat() / n
+        }
+    }
     /** The light of a moment: the shader's uniforms at once, the shadows a moment later (worked out off the GL thread). */
     fun setTime(epochMs: Long) {
+        lastEpoch = epochMs
         val sky = Sky.at(epochMs)
         val (az, alt) = Sun.position(epochMs)
         // at night the light is the night key's moon (34 degrees up, from the south-east), as in the designer's frames:
@@ -218,6 +242,11 @@ class LiveView(context: Context, private val scene: MapScene) : GLSurfaceView(co
     }
 
     fun setPal(p: PeakData.Pal?) { renderer.pal = p; requestRender() }
+    /** The shelf's and the station's light (K06, K07), or null. */
+    fun setFocus(f: LiveRenderer.Focus?) { renderer.focus = f; requestRender() }
+    /** The mountain raised on the screen by [px] (K06, K07: 120 points), the view's direction and distance kept. */
+    fun setShift(px: Float) { if (renderer.shiftPx != px) { renderer.shiftPx = px; requestRender() } }
+    val shiftPx: Float get() = renderer.shiftPx
     /** The runs and lifts quiet ([a] of their opacity) under the meeting point. */
     fun setQuiet(a: Float, runs: Float = 1f) { if (renderer.linesQuiet != a || renderer.runsQuiet != runs) { renderer.linesQuiet = a; renderer.runsQuiet = runs; requestRender() } }
     fun choose(key: String?) {
@@ -357,7 +386,7 @@ class LiveView(context: Context, private val scene: MapScene) : GLSurfaceView(co
         // the day on the mountain (round 4) has no runs to choose: a tap is the screen's (the film stops on it)
         onTap?.let { it(px, py); return }
         val mvp = FloatArray(16); val eye = FloatArray(3); val v = FloatArray(4); val o = FloatArray(4)
-        OrbitCamera.mvp(camera.state(), width.toFloat() / height, mvp, eye, data.camera.fovDeg) { x, z -> scene.terrain.elev(x, z) }
+        OrbitCamera.mvp(camera.state(), width.toFloat() / height, mvp, eye, data.camera.fovDeg) { x, z -> scene.terrain.elev(x, z) }; shiftUp(mvp, renderer.shiftPx, height)
         var best: String? = null; var bestD = 28 * density
         for (p in scene.runs.pistes) {
             if (!p.named) continue
@@ -464,7 +493,7 @@ class LiveView(context: Context, private val scene: MapScene) : GLSurfaceView(co
         lastMk?.let { if (it.key == d.key && cs == lastMkAt) return it }
         val t = scene.terrain
         val mvp = FloatArray(16); val eye = FloatArray(3); val o = FloatArray(4); val v = FloatArray(4)
-        OrbitCamera.mvp(cs, width.toFloat() / height, mvp, eye, data.camera.fovDeg) { x, z -> t.elev(x, z) }
+        OrbitCamera.mvp(cs, width.toFloat() / height, mvp, eye, data.camera.fovDeg) { x, z -> t.elev(x, z) }; shiftUp(mvp, renderer.shiftPx, height)
         val xs = ArrayList<FloatArray>(); val ys = ArrayList<FloatArray>(); val sn = ArrayList<BooleanArray>()
         for (l in d.lines) {
             val n = l.size / 3; val x = FloatArray(n); val y = FloatArray(n); val ok = BooleanArray(n)
@@ -520,7 +549,7 @@ class LiveView(context: Context, private val scene: MapScene) : GLSurfaceView(co
     }
     private fun project(s: OrbitCamera.State, w: FloatArray): FloatArray? {
         val mvp = FloatArray(16); val eye = FloatArray(3); val o = FloatArray(4)
-        OrbitCamera.mvp(s, width.toFloat() / height, mvp, eye, data.camera.fovDeg) { x, z -> scene.terrain.elev(x, z) }
+        OrbitCamera.mvp(s, width.toFloat() / height, mvp, eye, data.camera.fovDeg) { x, z -> scene.terrain.elev(x, z) }; shiftUp(mvp, renderer.shiftPx, height)
         Matrix.multiplyMV(o, 0, mvp, 0, floatArrayOf(w[0], w[1], w[2], 1f), 0)
         if (o[3] <= 0f) return null
         return floatArrayOf((o[0] / o[3] * .5f + .5f) * width, (1 - (o[1] / o[3] * .5f + .5f)) * height)

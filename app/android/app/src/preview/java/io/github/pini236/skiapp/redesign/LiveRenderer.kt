@@ -206,6 +206,16 @@ private fun program(vs: String, fs: String): Int {
     return p
 }
 
+/**
+ * The mountain raised by [px] on the screen (the shelf and "from the station", K06 and K07: 120 points), the view's
+ * direction and distance kept: the clip space moved up, so the picture and every place worked out from it move together.
+ */
+internal fun shiftUp(m: FloatArray, px: Float, h: Int) {
+    if (px == 0f || h == 0) return
+    val k = 2f * px / h
+    for (c in 0..3) m[c * 4 + 1] += k * m[c * 4 + 3]
+}
+
 /** Draws the live mountain on demand (only while something moves). */
 class LiveRenderer(
     private val scene: MapScene,
@@ -228,6 +238,17 @@ class LiveRenderer(
     @Volatile var drawn = false; private set
     /** The chosen run (by key), drawn as a line of light by day and of brighter light at night; the rest a little dimmer. */
     @Volatile var chosen: String? = null
+    /** The mountain raised on the screen, in pixels (see [shiftUp]). */
+    @Volatile var shiftPx = 0f
+    /** The cast shadows now (1 in the mountain's shade), for the lens and the shelf "in the sun now". */
+    fun shadowNow(): FloatArray? = shadow
+    private val liftNames = ArrayList<String>()
+    /**
+     * The shelf's and the station's light (K06, K07): [lit] runs as lines of light in their colour ([core] dp on a
+     * white case of [case] dp), every other run a ghost, the lifts dimmed but [liftsOn]. Null: the runs as usual.
+     */
+    class Focus(val lit: Set<String>, val core: Float, val case: Float, val liftsOn: Set<String>)
+    @Volatile var focus: Focus? = null
     @Volatile var pal: PeakData.Pal? = null
     /** Roads, water and the village (Drape.kt without contours), kept to be uploaded again with a new context. */
     @Volatile var drape: android.graphics.Bitmap? = null
@@ -306,7 +327,7 @@ class LiveRenderer(
      */
     fun free() {
         if (uploaded) { glDeleteBuffers(3, bufs, 0); glDeleteVertexArrays(1, vao, 0); glDeleteBuffers(2, dots, 0) }
-        runs.forEach { it.second.free(); it.third.free() }; lifts.forEach { it.free() }; runs.clear(); lifts.clear()
+        runs.forEach { it.second.free(); it.third.free() }; lifts.forEach { it.free() }; runs.clear(); lifts.clear(); liftNames.clear()
         if (texOn) glDeleteTextures(5, tex, 0)
         if (drapeTex[0] != 0) glDeleteTextures(1, drapeTex, 0)
         if (groundTex[0] != 0) glDeleteTextures(1, groundTex, 0)
@@ -335,7 +356,7 @@ class LiveRenderer(
         count = m.count
         shadowDirty = false
         for (p in scene.pisteRibbons) runs += Triple(p.key, Gpu(p.casing), Gpu(p.core))
-        for ((_, r) in scene.liftRibbons) lifts += Gpu(r)
+        for ((n, r) in scene.liftRibbons) { lifts += Gpu(r); liftNames += n }
         uploaded = true
     }
 
@@ -434,7 +455,7 @@ class LiveRenderer(
         else if (dim != dimTarget) { dim += (dimTarget - dim) * (1f - Math.exp(-9.0 * dt).toFloat()); if (kotlin.math.abs(dim - dimTarget) < .01f) dim = dimTarget else moving = true }
 
         val s = camera.state()
-        OrbitCamera.mvp(s, width.toFloat() / height, mvp, eye, D.camera.fovDeg) { x, z -> t.elev(x, z) }
+        OrbitCamera.mvp(s, width.toFloat() / height, mvp, eye, D.camera.fovDeg) { x, z -> t.elev(x, z) }; shiftUp(mvp, shiftPx, height)
         val night = L.stars >= .25f
 
         glClear(GL_COLOR_BUFFER_BIT or GL_DEPTH_BUFFER_BIT)
@@ -526,9 +547,21 @@ class LiveRenderer(
         // the day painted (board L06) has no runs on it; the day while it is recorded (L03) has them, quiet, under it
         val showRuns = dl == null || dl.withRuns
         val quiet = (if (dl != null) .45f else 1f) * linesQuiet
+        val fo = focus.takeIf { chosen == null && dl == null }
         glUniform4f(uT, wire[0], wire[1], wire[2], 1f); glUniform1f(uW, 1.3f * density * zw); glUniform1f(uA, .85f * rest * quiet)
-        if (showRuns) for (g in lifts) g.draw()
-        if (showRuns) for ((key, cs, core) in runs) {
+        if (showRuns) for ((i, g) in lifts.withIndex()) {
+            if (fo != null) glUniform1f(uA, .85f * quiet * (if (liftNames.getOrNull(i) in fo.liftsOn) 1f else .3f))
+            g.draw()
+        }
+        // the shelf's and the station's ghosts (K06, K07): the colour faint, no case
+        if (showRuns && fo != null) for ((key, _, core) in runs) {
+            if (key in fo.lit) continue
+            glUniform1f(uB, 0.0012f)
+            val c = runRgb[key]
+            if (c != null) glUniform4f(uT, c[0], c[1], c[2], 1f) else glUniform4f(uT, 0f, 0f, 0f, 0f)
+            glUniform1f(uW, 1.8f * density * zw); glUniform1f(uA, .3f * quiet); core.draw()
+        }
+        if (showRuns && fo == null) for ((key, cs, core) in runs) {
             if (key == chosen) continue
             glUniform1f(uB, 0.0010f)
             glUniform4f(uT, case[0], case[1], case[2], 1f); glUniform1f(uW, 3.6f * density * zw); glUniform1f(uA, (if (night) .7f else .95f) * rest * quiet * runsQuiet); cs.draw()
@@ -536,6 +569,17 @@ class LiveRenderer(
             val c = runRgb[key]
             if (c != null) glUniform4f(uT, c[0], c[1], c[2], 1f) else glUniform4f(uT, 0f, 0f, 0f, 0f)
             glUniform1f(uW, 2.2f * density * zw); glUniform1f(uA, rest * quiet * runsQuiet); core.draw()
+        }
+        if (showRuns && fo != null) {
+            glDisable(GL_DEPTH_TEST)
+            for ((key, cs, core) in runs) {
+                if (key !in fo.lit) continue
+                glUniform1f(uB, 0.0012f)
+                glUniform4f(uT, case[0], case[1], case[2], 1f); glUniform1f(uW, fo.case * density * zw); glUniform1f(uA, quiet); cs.draw()
+                val c = runRgb[key] ?: case
+                glUniform4f(uT, c[0], c[1], c[2], 1f); glUniform1f(uW, fo.core * density * zw); glUniform1f(uA, quiet); core.draw()
+            }
+            glEnable(GL_DEPTH_TEST)
         }
         val dg = dayGpu.takeIf { dl != null }
         if (dg != null && dl != null) {

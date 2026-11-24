@@ -1166,6 +1166,17 @@ redesign() {
   seen "redesign live kobi sign false" 5 || fail "redesign: the sign did not bring the front back"
   rd_drawn; shot redesign-live-front
   drag $((W / 2)) $((H / 2)) $((W / 2 - W / 5)) $((H / 2)) 500; sleep 1.5; shot redesign-live-dragged
+  # part 4b (K07): the bottom bar opens the shelf; by lift, then easy to hard, the next card, and a pick
+  mark; qa "--es qa.redesign front"; waitlog "redesign live front" 10; waitlog "redesign live turned" 20
+  mark; tapText "Where to?" || qa "--es qa.redesign shelf"
+  if waitlog "redesign shelf open" 15; then
+    waitlog "redesign shelf center" 10 || fail "redesign: the shelf has no middle card"; rd_settled; shot redesign-shelf-lift
+    mark; qa "--es qa.redesign shelf:sort:easy"; waitlog "redesign shelf sort easy" 10 || fail "redesign: the shelf's order did not change"
+    rd_settled; shot redesign-shelf-easy
+    mark; qa "--es qa.redesign shelf:next"; waitlog "redesign shelf center" 10 || fail "redesign: the next card did not come to the middle"; rd_settled; shot redesign-shelf-next
+    mark; qa "--es qa.redesign shelf:sort:lift"; sleep 1
+    mark; qa "--es qa.redesign shelf:off"; sleep 1
+  else fail "redesign: the shelf did not open"; fi
   # the completion round, part 2 (Q01 to Q03): the lifts without a report (today), then with one (two closed, their
   # tags on the mountain), and one lift
   mark; qa "--es qa.status none --es qa.redesign lifts"; rd_settled; shot redesign-lifts-none

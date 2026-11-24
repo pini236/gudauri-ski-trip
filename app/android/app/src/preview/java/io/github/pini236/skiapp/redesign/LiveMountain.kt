@@ -95,6 +95,9 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
     var scrub by remember { mutableStateOf<Float?>(null) }
     var scrubOpen by remember { mutableStateOf(false) }
     var chosen by remember { mutableStateOf<String?>(null) }
+    // K07 (the shelf, "where to?"): open, and the run of its middle card
+    var shelfOpen by remember { mutableStateOf(false) }
+    var shelfMid by remember { mutableStateOf<ShelfRun?>(null) }
     // part 2 (Q01 to Q03): the lifts' sheet, and one lift in it
     var liftsOpen by remember { mutableStateOf(false) }
     var liftSel by remember { mutableStateOf<io.github.pini236.skiapp.data.Lift?>(null) }
@@ -193,6 +196,8 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
             c == "trip:off" -> { tripEdit = null; tripOpen = false; tripForm = false }
             c == "trip:form" -> { tripOpen = true; tripEdit = null; tripForm = true }
             c == "skipass" -> skipassOpen = true
+            c == "shelf" -> { chosen = null; view.choose(null); shelfOpen = true }
+            c == "shelf:off" -> shelfOpen = false
             c == "season" -> seasonOn = LiveSeasonRules.shown(around)
             c == "season:off" -> seasonOn = false
             c == "skipass:off" -> { skipassOpen = false; Qa.log("redesign skipass closed") }
@@ -527,8 +532,30 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
             last?.let { r -> if (d0 != null && kk != null) RunSheets(kk, r, d0, g, scene, around?.videos.orEmpty(), night, haptics, runFull, onFull = { runFull = it },
                 onPick = { nk -> view.pickKey(nk); Qa.log("redesign run swipe $nk") }, onClose = { runFull = false; chosen = null; view.choose(null) }) }
         }
-        AnimatedVisibility(chosen == null && !liftsOpen && !meet.open && !tripOpen && !skipassOpen && !seasonOn, Modifier.align(Alignment.BottomCenter).navigationBarsPadding().padding(bottom = 22.dp), enter = fadeIn(), exit = fadeOut()) {
-            Pill(h = 48) { Text(stringResource(R.string.poc_peak_hint), Modifier.padding(horizontal = 20.dp), fontFamily = Plex, fontSize = 15.sp, color = ink) }
+        // K07: the mountain rises 120 points over the shelf, with a veil, and lights the middle card's run (section 2)
+        val shelfShift by androidx.compose.animation.core.animateFloatAsState(if (shelfOpen) with(androidx.compose.ui.platform.LocalDensity.current) { 120.dp.toPx() } else 0f, tween(300), label = "shelf")
+        LaunchedEffect(shelfShift) { view.setShift(shelfShift) }
+        val veilA by androidx.compose.animation.core.animateFloatAsState(if (shelfOpen) 1f else 0f, tween(250), label = "veil")
+        if (veilA > 0f) Box(Modifier.fillMaxSize().background((if (night) Color(0x5C020612) else Color(0x42283E6E)).copy(alpha = (if (night) .36f else .26f) * veilA)))
+        LaunchedEffect(shelfOpen, shelfMid) {
+            val r = shelfMid
+            view.setFocus(if (shelfOpen && r != null) LiveRenderer.Focus(setOf(r.key), 3.6f, 6f, setOfNotNull(r.lift)) else null)
+        }
+        if (shelfOpen) {
+            val shelfRuns = remember(scene) { ShelfData.runs(scene) }
+            Shelf(scene, view, shelfRuns, night, haptics,
+                open = { flat -> Shelf.start(flat, ShelfMemory.last, null, null) },
+                closed = { key -> scene.runs.pistes.firstOrNull { it.key == key }?.let { status?.runOpen(it) == false } ?: false },
+                onCenter = { shelfMid = it },
+                onPick = { key -> ShelfMemory.last = key; shelfOpen = false; Qa.log("redesign shelf pick $key"); view.pickKey(key) },
+                onClose = { shelfOpen = false; Qa.log("redesign shelf closed") })
+            if (veilA > .5f) shelfMid?.let { r -> RunTag(view, scene, r.key, r.title, r.color, night) }
+        }
+        AnimatedVisibility(chosen == null && !shelfOpen && !liftsOpen && !meet.open && !tripOpen && !skipassOpen && !seasonOn && !people.open, Modifier.fillMaxSize(),
+            enter = fadeIn(tween(150)), exit = fadeOut(tween(150))) {
+            Box(Modifier.fillMaxSize()) {
+                Dock(night, haptics, onVillage = null, onFind = { shelfOpen = true; Qa.log("redesign dock find") }, onRecord = null)
+            }
         }
         // the flags of my groups (Q05 on the plain mountain): the same flag with its time; a tap opens it
         if (!meet.open && chosen == null && !liftsOpen && plan != null && flags.isNotEmpty()) {
@@ -643,7 +670,7 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
             }
         }
         // part 4 (S03, S04, S08): the location's box under the pill, the map's buttons, and S02 before the phone asks
-        val bare = chosen == null && !liftsOpen && !meet.open && !tripOpen && !skipassOpen && !seasonOn && !people.open
+        val bare = chosen == null && !shelfOpen && !liftsOpen && !meet.open && !tripOpen && !skipassOpen && !seasonOn && !people.open
         if (bare) WhereBox(where, night, onRun = { k -> haptics.tick(.3f); view.pickKey(k) }, onAction = whereAction)
         if (bare) MapColumn(where, view, night, recording = false, onLocate = { haptics.tick(.3f); locate() }, onHome = { haptics.tick(.3f); view.home() })
         RunHint(scene, view, night, free = bare && !where.asking, chosen = chosen != null, drawn = mtnDrawn, again = hintAgain)
