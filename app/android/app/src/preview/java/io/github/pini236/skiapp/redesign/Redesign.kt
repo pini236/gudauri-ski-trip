@@ -23,6 +23,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.graphicsLayer
@@ -54,6 +55,8 @@ import io.github.pini236.skiapp.home.DayNight
 object Redesign {
     /** The emulator run's hook (qa.redesign, debug builds only, app/android/qa/README.md). */
     fun qa(cmd: String) = RedesignQa.send(cmd)
+    /** Whether the new mountain covers the app: then the screens under it are not read aloud (MainActivity). */
+    var covering by mutableStateOf(false); private set
 
     /** Completion part 1 (P04): a recording of one descent ended; its card waits, and a notification in the pocket. */
     fun runDone(ctx: android.content.Context, day: java.io.File, autostop: String?, lift: String?) = RunDone.ended(ctx, day, autostop, lift)
@@ -146,6 +149,7 @@ object Redesign {
                 "close" -> open = false
             }
         }
+        DisposableEffect(open) { covering = open; onDispose { covering = false } }
         if (open) {
             BackHandler { open = false }
             val view = LocalView.current

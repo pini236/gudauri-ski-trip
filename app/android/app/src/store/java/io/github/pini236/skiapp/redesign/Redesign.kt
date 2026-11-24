@@ -9,6 +9,8 @@ import io.github.pini236.skiapp.map.MapScene
 /** The store build has nothing here: the redesign POC (decisions 83, 84) lives in the test build only (src/preview). */
 object Redesign {
     @Suppress("UNUSED_PARAMETER") fun qa(cmd: String) {}
+    /** Whether the new mountain covers the app (never in the store build). */
+    val covering: Boolean get() = false
 
     @Suppress("UNUSED_PARAMETER") fun runDone(ctx: android.content.Context, day: java.io.File, autostop: String?, lift: String?) {}
 

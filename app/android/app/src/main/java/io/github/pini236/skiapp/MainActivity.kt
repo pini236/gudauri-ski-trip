@@ -35,6 +35,7 @@ import java.time.ZoneId
 import java.time.LocalDateTime
 import java.time.Instant
 import androidx.core.view.WindowCompat
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -896,6 +897,8 @@ class MainActivity : ComponentActivity() {
                     if (!io.github.pini236.skiapp.redesign.Redesign.first(recSingle, haptics, onGo = { s -> recSingle = s; recExplain = false; ask() }, onDismiss = { recExplain = false }))
                         io.github.pini236.skiapp.dayrec.ui.PermissionSheet(onGo = { recExplain = false; ask() }, onDismiss = { recExplain = false })
                 }
+                // under the new mountain the old screens are not read aloud (the designer's condition before the store)
+                Box(Modifier.fillMaxSize().then(if (io.github.pini236.skiapp.redesign.Redesign.covering) Modifier.clearAndSetSemantics {} else Modifier)) {
                 when (top) {
                     Route.Home -> HomeScreen(trip, frame, dnMode, LocalDateTime.ofInstant(Instant.ofEpochMilli(tick), ZoneId.systemDefault()), haptics, sounds, status = lstat, group = firstGroup,
                         onLang = ::setLang,
@@ -1043,6 +1046,7 @@ class MainActivity : ComponentActivity() {
                             BackLink(stringResource(R.string.nav_home), { nav.back() }, Palette.glacier)
                         }
                     }
+                }
                 }
                 // the redesign POC (decisions 83, 84): in the test build the app opens on the new mountain; nothing in the store build
                 with(io.github.pini236.skiapp.redesign.Redesign) { Host(top == Route.Home, dnMode, haptics, scene, lstat,
