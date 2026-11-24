@@ -97,10 +97,14 @@ internal fun StateDot(open: Boolean?, k: SheetInk) {
  */
 @Composable
 internal fun LiftsSheet(lifts: List<Lift>, s: LiftStatus?, scene: MapScene, forMe: Boolean, k: SheetInk, haptics: Haptics,
-                        onForMe: (Boolean) -> Unit, onLift: (Lift) -> Unit, opening: Pair<String, String>? = null, onOpening: () -> Unit = {}) {
+                        onForMe: (Boolean) -> Unit, onLift: (Lift) -> Unit, opening: Pair<String, String>? = null, onOpening: () -> Unit = {},
+                        head: (@Composable () -> Unit)? = null, other: (@Composable () -> Unit)? = null) {
     val fresh = s?.fresh == true
     val nf = remember { java.text.NumberFormat.getIntegerInstance() }
     LiveSheet(k) {
+        // "the mountain now" (S05): its heading and tabs above; the weather tab instead of the lifts
+        head?.invoke()
+        if (other != null) { other(); return@LiveSheet }
         Row(Modifier.fillMaxWidth().padding(bottom = 6.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
             Text(stringResource(R.string.app_lifts_title), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 21.sp, color = k.ink)
             Text(if (fresh) stringResource(R.string.app_lifts_count, s!!.open.toString(), lifts.size.toString()) else lifts.size.toString(),

@@ -1252,6 +1252,11 @@ redesign() {
   mark; qa "--es qa.redesign where:off"; waitlog "redesign where off" 10
   mark; qa "--es qa.redesign 'pick:Tatra 2'"; waitlog "redesign live chosen" 15; qa "--es qa.redesign unpick"; waitlog "redesign compass shown" 15 && { rd_settled; shot redesign-compass; }
   mark; qa "--es qa.redesign home"; waitlog "redesign compass gone" 15 || fail "redesign: the compass did not go after home"
+  # S05, S06: "the mountain now" on the weather tab, with a fresh forecast and with none
+  mark; qa "--es qa.weather fresh --es qa.redesign weather"; waitlog "redesign weather fresh" 15 || fail "redesign: the weather tab did not open"; rd_settled; shot redesign-now-weather
+  mark; qa "--es qa.weather none --es qa.redesign weather"; waitlog "redesign weather none" 15; rd_settled; shot redesign-now-weather-none
+  mark; qa "--es qa.redesign lifts"; sleep 1; rd_settled; shot redesign-now-lifts
+  mark; qa "--es qa.redesign lifts:off"; sleep 1
   mark; qa "--es qa.mode auto --es qa.redesign painted"; waitlog "redesign live closed" 10; sleep 1.5; shot redesign-live-back
   qa "--es qa.mode auto --es qa.redesign close"; sleep 1.5; shot redesign-closed
   # round 4 (board L06): the sample day on the mountain, its lines of light by speed and the dotted rides, by day and

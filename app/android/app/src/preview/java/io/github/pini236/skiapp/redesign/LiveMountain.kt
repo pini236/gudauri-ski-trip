@@ -62,6 +62,7 @@ import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -97,6 +98,8 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
     // part 2 (Q01 to Q03): the lifts' sheet, and one lift in it
     var liftsOpen by remember { mutableStateOf(false) }
     var liftSel by remember { mutableStateOf<io.github.pini236.skiapp.data.Lift?>(null) }
+    // part 4 (S05): "the mountain now" opens on the lifts from the pill, on the weather from its temperature
+    var nowTab by remember { mutableStateOf(NowTab.LIFTS) }
     androidx.activity.compose.BackHandler(enabled = liftsOpen) { if (liftSel != null) liftSel = null else liftsOpen = false }
     // part 2 (Q04, Q05): the meeting point on the mountain
     val meet = remember { MeetUi() }
@@ -157,7 +160,8 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
             c == "unpick" -> { held = null; chosen = null; view.choose(null); Qa.log("redesign live unpicked") }
             c == "front" -> view.backToFront()
             // part 2 (Q01 to Q03): the lifts' sheet and one lift
-            c == "lifts" -> { liftSel = null; liftsOpen = true }
+            c == "lifts" -> { liftSel = null; nowTab = NowTab.LIFTS; liftsOpen = true }
+            c == "weather" -> { liftSel = null; nowTab = NowTab.WEATHER; liftsOpen = true }
             c == "lifts:off" -> { liftSel = null; liftsOpen = false }
             c.startsWith("lift:") -> LiveLifts.board(scene.runs).firstOrNull { it.name == c.removePrefix("lift:") }?.let { liftSel = it; liftsOpen = true }
             // part 2 (Q04, Q05): the meeting point, open, on a preset or a lift's top, cleared, closed
@@ -329,14 +333,23 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
                 pluralStringResource(R.plurals.app_season_pill, ov0.days, ov0.days.toString()) else pillText0
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             Pill(Modifier.weight(1f).clickable {
-                haptics.tick(.3f); liftSel = null; liftsOpen = !liftsOpen
+                haptics.tick(.3f); liftSel = null; nowTab = NowTab.LIFTS; liftsOpen = !liftsOpen
                 if (liftsOpen) io.github.pini236.skiapp.telemetry.Telemetry.event("status_view", if (status?.fresh == true) mapOf("state" to "fresh", "open" to status.open, "total" to status.names.size) else mapOf("state" to if (status?.report == null) "none" else "stale"))
                 Qa.log("redesign lifts ${if (liftsOpen) "open" else "closed"} ${if (pillLive) "live" else "none"}")
             }) {
                 Row(Modifier.fillMaxWidth().padding(horizontal = 14.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(9.dp)) {
                     val kk = remember(night) { SheetInk(night) }
                     StateDot(if (pillLive) true else null, kk)
-                    Text(pillText, fontFamily = Plex, fontWeight = FontWeight.Medium, fontSize = 14.sp, color = ink, maxLines = 1)
+                    Text(pillText, Modifier.weight(1f, fill = false), fontFamily = Plex, fontWeight = FontWeight.Medium, fontSize = 14.sp, color = ink, maxLines = 1,
+                        overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis)
+                    // the temperature at upper Goodaura (S01): from it to the pill's end opens the weather tab
+                    val wx = io.github.pini236.skiapp.weather.LocalWeather.current
+                    val tp = wx.usable?.now("goodaura", wx.local)?.temp
+                    if (tp != null) Box(Modifier.heightIn(min = 44.dp).semantics { role = androidx.compose.ui.semantics.Role.Button }
+                        .clickable { haptics.tick(.3f); liftSel = null; nowTab = NowTab.WEATHER; liftsOpen = true; Qa.log("redesign lifts open weather") },
+                        contentAlignment = Alignment.Center) {
+                        Text("· " + io.github.pini236.skiapp.weather.deg(tp), fontFamily = Plex, fontWeight = FontWeight.Medium, fontSize = 14.sp, color = ink, maxLines = 1)
+                    }
                 }
             }
             // "me" at the pill's end (section 1): the account, the settings, the language and about
@@ -447,6 +460,7 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
                 }
             }
         }
+        if (liftsOpen && liftSel == null && nowTab == NowTab.WEATHER) TempTags(view, io.github.pini236.skiapp.weather.LocalWeather.current, night)
         AnimatedVisibility(liftsOpen, Modifier.align(Alignment.BottomCenter),
             enter = slideInVertically(tween(250)) { it } + fadeIn(tween(150)), exit = slideOutVertically(tween(200)) { it } + fadeOut(tween(200))) {
             val sk = remember(night) { SheetInk(night) }
@@ -461,7 +475,9 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
             }, onLift = { l -> liftSel = l },
                 opening = around?.opening?.takeIf { status?.fresh != true && it.kind == io.github.pini236.skiapp.season.Season.Kind.COUNTDOWN }?.let { o ->
                     stringResource(R.string.app_season_planned, io.github.pini236.skiapp.season.shortDate(o.open)) to pluralStringResource(R.plurals.app_season_pill, o.days, o.days.toString())
-                }, onOpening = { liftsOpen = false; seasonOn = true; Qa.log("redesign lifts opening row") })
+                }, onOpening = { liftsOpen = false; seasonOn = true; Qa.log("redesign lifts opening row") },
+                head = { NowHead(nowTab, sk) { nowTab = it } },
+                other = if (nowTab == NowTab.WEATHER) { { WeatherTab(boardLifts, status, around?.trip, sk, night) { l -> liftSel = l } } } else null)
         }
         AnimatedVisibility(run != null && pd != null && (held ?: 900f) >= 900f && !liftsOpen, Modifier.align(Alignment.BottomCenter),
             enter = slideInVertically(tween(250)) { it } + fadeIn(tween(150)), exit = slideOutVertically(tween(200)) { it } + fadeOut(tween(200))) {
