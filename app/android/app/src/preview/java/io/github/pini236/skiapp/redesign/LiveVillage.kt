@@ -2,6 +2,7 @@ package io.github.pini236.skiapp.redesign
 
 import android.graphics.BitmapFactory
 import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -15,6 +16,7 @@ import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
@@ -120,6 +122,8 @@ internal fun BoxScope.Village(
     meetNow: Pair<String, String>?, onLift: (Lift) -> Unit, onTrip: () -> Unit, onSkipass: () -> Unit, onFood: (() -> Unit)?, onPeople: () -> Unit,
     onBack: () -> Unit,
     fly: (FloatArray) -> Boolean = { false },
+    meetLifts: List<String> = emptyList(),
+    onMeet: (() -> Unit)? = null,
 ) {
     val context = LocalContext.current
     val k = remember(night) { SheetInk(night) }
@@ -187,6 +191,10 @@ internal fun BoxScope.Village(
             val tap: (() -> Unit)? = when (m.kind) { "tickets" -> onSkipass; "food" -> onFood; else -> null }
             Pin(text, Offset(p.first * kk, p.second * kk), k, night, tap?.let { t -> { haptics.tick(.3f); t() } })
         }
+        // a meeting today at a station in the picture (the mountain's flag rule, Q05): on its station, in the accent
+        if (meetNow != null) marks.stations.firstOrNull { it.lift in meetLifts }?.let { m ->
+            Pin(stringResource(R.string.app_vill_pin_meet, meetNow.first), Offset(m.x * kk, m.y * kk), k, night, onMeet?.let { t -> { haptics.tick(.3f); t() } }, bg = k.acc)
+        }
         // back to the mountain, by "me" (the pill's place)
         Row(Modifier.align(Alignment.TopStart).statusBarsPadding().padding(start = 12.dp, top = 8.dp).height(44.dp), verticalAlignment = Alignment.CenterVertically) {
             Row(Modifier.height(32.dp).shadow(8.dp, RoundedCornerShape(16.dp), clip = false).clip(RoundedCornerShape(16.dp)).background(k.surf.copy(alpha = 1f))
@@ -200,8 +208,8 @@ internal fun BoxScope.Village(
 }
 
 @Composable
-private fun Pin(text: String, at: Offset, k: SheetInk, night: Boolean, onTap: (() -> Unit)?) {
-    val bg = k.ink; val fg = if (night) Color(0xFF0F1828) else Color.White
+private fun Pin(text: String, at: Offset, k: SheetInk, night: Boolean, onTap: (() -> Unit)?, bg: Color = k.ink) {
+    val fg = if (night) Color(0xFF0F1828) else Color.White
     var w by remember { mutableStateOf(0) }
     val dens = LocalDensity.current
     Column(Modifier.offset { IntOffset((at.x - w / 2f).toInt(), (at.y - with(dens) { 34.dp.toPx() }).toInt()) }
@@ -237,8 +245,24 @@ private fun BoxScope.VillageSheet(
         value = runCatching { around?.people?.api?.myGroups() }.getOrNull()
     }
     val top = RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp)
-    Column(Modifier.align(Alignment.BottomCenter).fillMaxWidth().heightIn(max = 296.dp + 34.dp)
-        .pointerInput(Unit) { detectVerticalDragGestures { _, dy -> if (dy > 18f) onBack() } }
+    // two heights (section "the sheet"): low (296, four rows) and full (to 120 from the top, scrolling inside); a pull up
+    // opens it full, a pull down from full goes back to low, and from low back to the mountain
+    var full by remember { mutableStateOf(false) }
+    LaunchedEffect(RedesignQa.seq) { when (RedesignQa.cmd) { "village:full" -> full = true; "village:low" -> full = false } }
+    var acted by remember { mutableStateOf(false) }
+    Column(Modifier.align(Alignment.BottomCenter).fillMaxWidth()
+        .then(if (full) Modifier.padding(top = 120.dp).fillMaxHeight() else Modifier.heightIn(max = 296.dp + 34.dp))
+        .animateContentSize(tween(220))
+        .pointerInput(Unit) {
+            detectVerticalDragGestures(onDragStart = { acted = false }) { _, dy ->
+                if (acted) return@detectVerticalDragGestures
+                when {
+                    dy < -18f && !full -> { acted = true; full = true; Qa.log("redesign village sheet full") }
+                    dy > 18f && full -> { acted = true; full = false; Qa.log("redesign village sheet low") }
+                    dy > 18f -> { acted = true; onBack() }
+                }
+            }
+        }
         .shadow(8.dp, top).clip(top).background(k.surf.copy(alpha = 1f)).border(1.dp, k.line, top)
         .navigationBarsPadding().padding(start = 18.dp, end = 18.dp, top = 10.dp, bottom = 14.dp)) {
         Box(Modifier.align(Alignment.CenterHorizontally).size(38.dp, 5.dp).clip(RoundedCornerShape(3.dp)).background(k.line))

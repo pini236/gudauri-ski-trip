@@ -592,14 +592,25 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
         }
         // K17: the village over the mountain, until "back to the mountain"
         val pd0 = data
-        if (villageOpen && pd0 != null) Village(scene, pd0, mode, time, night, around, haptics, meetNow = null,
+        // today's meeting (the first of my groups' flags): its time and place in the sheet, its pin on a station in the picture
+        val vMeet = flags.firstOrNull()?.let { f -> plan?.byId?.get(f.station)?.let { st -> f to st } }
+        fun hmOf(f: io.github.pini236.skiapp.meet.MeetFlags.In) = f.at.atOffset(io.github.pini236.skiapp.meet.Meet.GUDAURI).toLocalTime().let { "%02d:%02d".format(it.hour, it.minute) }
+        if (villageOpen && pd0 != null) Village(scene, pd0, mode, time, night, around, haptics, meetNow = vMeet?.let { (f, st) -> hmOf(f) to st.name },
             onLift = { l -> villageOpen = false; liftSel = l; liftsOpen = true },
             onTrip = { tripEdit = null; tripOpen = true },
             onSkipass = { skipassOpen = true },
             onFood = LiveLifts.board(scene.runs).firstOrNull { it.name == "Goodaura" }?.let { g -> { villageOpen = false; liftSel = g; liftsOpen = true } },
             onPeople = { if (pp != null) people.go(PLayer.Me) },
             onBack = { view.fromVillage(); villageOpen = false; Qa.log("redesign village closed") },
-            fly = { p -> view.toVillage(p) })
+            fly = { p -> view.toVillage(p) },
+            meetLifts = vMeet?.second?.bottomOf.orEmpty(),
+            onMeet = vMeet?.let { (f, st) -> {
+                villageOpen = false; meetOpen(true)
+                val z = f.at.atOffset(io.github.pini236.skiapp.meet.Meet.GUDAURI)
+                meet.sid = st.id; meet.day = z.toLocalDate(); meet.time = z.toLocalTime(); meet.preset = null
+                meet.fromGroup = true; meet.offlineAt = meets.offlineAt
+                Qa.log("redesign meet from village ${st.id}")
+            } })
         // the flags of my groups (Q05 on the plain mountain): the same flag with its time; a tap opens it
         if (!meet.open && chosen == null && !liftsOpen && plan != null && flags.isNotEmpty()) {
             val sk = remember(night) { SheetInk(night) }

@@ -1192,6 +1192,7 @@ redesign() {
   # part 4b (K17): the village from the bottom bar, its picture, tags, pins and sheet, and back
   mark; tapText "The village" || qa "--es qa.redesign village"
   if waitlog "redesign village open" 20; then sleep 1.5; shot redesign-village
+    mark; qa "--es qa.redesign village:full"; sleep 1; shot redesign-village-full
     mark; qa "--es qa.redesign village:off"; sleep 1
   else fail "redesign: the village did not open"; fi
   # the completion round, part 2 (Q01 to Q03): the lifts without a report (today), then with one (two closed, their
