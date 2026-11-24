@@ -1181,6 +1181,10 @@ redesign() {
   mark; qa "--es qa.mode night --es qa.redesign meet:preset:end"; waitlog "redesign meet set" 10 || fail "redesign: the end of day spot did not set"
   sleep 2; shot redesign-meet-set-night
   mark; qa "--es qa.mode auto --es qa.redesign meet:off"; waitlog "redesign meet closed" 10; sleep 1
+  # a group's meetup today on the plain mountain (the flag from the phone's copy), then gone
+  mark; qa "--es qa.redesign meet:flag"; waitlog "redesign meet flag" 10 || fail "redesign: no group flag"
+  sleep 1.5; shot redesign-meet-group-flag
+  mark; qa "--es qa.redesign meet:flag:off"; sleep .5
   mark; qa "--es qa.mode auto --es qa.redesign painted"; waitlog "redesign live closed" 10; sleep 1.5; shot redesign-live-back
   qa "--es qa.mode auto --es qa.redesign close"; sleep 1.5; shot redesign-closed
   # round 4 (board L06): the sample day on the mountain, its lines of light by speed and the dotted rides, by day and
