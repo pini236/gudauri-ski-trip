@@ -55,7 +55,7 @@ internal object MeetShareImage {
         val line = Paint(case).apply { strokeWidth = 2.2f * S }
         for (p in runs.pistes) for (l in p.lines) path(l)?.let { pa ->
             c.drawPath(pa, case)
-            line.color = io.github.pini236.skiapp.game.runColor(p.color); line.alpha = 128; c.drawPath(pa, line)
+            line.color = io.github.pini236.skiapp.game.runColor(p.color).toInt(); line.alpha = 128; c.drawPath(pa, line)
         }
         // only this station's lifts
         val wire = Paint(Paint.ANTI_ALIAS_FLAG).apply { style = Paint.Style.STROKE; strokeWidth = 1.6f * S; color = if (night) 0xFFEAF1F8.toInt() else 0xFF0E2233.toInt() }
