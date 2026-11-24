@@ -51,6 +51,7 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.pini236.skiapp.R
+import io.github.pini236.skiapp.dayrec.ui.LiveNumbers
 import io.github.pini236.skiapp.data.Geo
 import io.github.pini236.skiapp.dayrec.DayLog
 import io.github.pini236.skiapp.dayrec.DayParams
@@ -143,7 +144,12 @@ internal fun RecordsScreen(mode: DayNight.Mode, scene: MapScene?, haptics: Hapti
                 .alpha(if (empty) .55f else 1f)) {
                 if (w != null && !empty) {
                     val img = remember(w) { w.mountain.img.asImageBitmap() }
-                    Canvas(Modifier.fillMaxSize().clickable { rows?.firstOrNull { it.what == "max_kmh" }?.day?.let { onOpenDay(it.id) } }) {
+                    val topKmh = rows?.firstOrNull { it.what == "max_kmh" }?.value
+                    val flew = topKmh?.let { stringResource(R.string.app_film_top_speed, LiveNumbers.maxKmh(it)) }
+                    val measurer = androidx.compose.ui.text.rememberTextMeasurer()
+                    val winA11y = listOfNotNull(stringResource(R.string.moment_record_max_kmh_title_1), flew).joinToString(", ")
+                    Canvas(Modifier.fillMaxSize().semantics { role = Role.Button; contentDescription = winA11y }
+                        .clickable { rows?.firstOrNull { it.what == "max_kmh" }?.day?.let { onOpenDay(it.id) } }) {
                         // centred a little under the top speed's place (62 of the picture's points), at the covering scale
                         val v = w.mountain.view
                         val kk = maxOf(size.width / v.w, size.height / v.h)
@@ -158,8 +164,7 @@ internal fun RecordsScreen(mode: DayNight.Mode, scene: MapScene?, haptics: Hapti
                         for (pass in 0..1) for ((q, b) in w.thick) for (i in 0 until q.size / 2 - 1) { if (q[i * 2].isNaN() || q[i * 2 + 2].isNaN()) continue
                             if (pass == 0) drawLine(case, at(q, i), at(q, i + 1), 5.4f * density, cap = StrokeCap.Round)
                             else drawLine(Color(0xFF000000.toInt() or ramp[b[i]]), at(q, i), at(q, i + 1), 3.6f * density, cap = StrokeCap.Round) }
-                        w.pin?.let { p -> if (!p[0].isNaN()) { val c = Offset(ox + p[0] * kk, oy + p[1] * kk)
-                            drawCircle(Color.White, 5f * density, c); drawCircle(Color(0xFFE0246E), 5f * density, c, style = androidx.compose.ui.graphics.drawscope.Stroke(2.4f * density)) } }
+                        w.pin?.let { p -> if (!p[0].isNaN()) flewPin(Offset(ox + p[0] * kk, oy + p[1] * kk), flew, measurer) }
                     }
                 }
             }
@@ -201,7 +206,7 @@ private fun RecordRowView(r: Records.Row, k: SheetInk, locale: Locale, zone: Zon
     val v = r.value
     val (num, unit) = when {
         v == null -> "—" to ""
-        r.what == "max_kmh" -> "%.1f".format(Locale.ROOT, v) to stringResource(R.string.app_rec_unit)
+        r.what == "max_kmh" -> LiveNumbers.maxKmh(v) to stringResource(R.string.app_rec_unit)
         r.what == "longest_m" || r.what == "ski_dist_m" -> "%.1f".format(Locale.ROOT, v / 1000) to stringResource(R.string.app_run_km)
         r.what == "drop_m" -> metres(v) to stringResource(R.string.app_rec_m_down).substringBefore(' ')
         r.what == "steep_deg" -> "${v.toInt()}°" to ""
@@ -244,4 +249,17 @@ private fun RecordRowView(r: Records.Row, k: SheetInk, locale: Locale, zone: Zon
             }
         }
     }
+}
+
+/** "Here you flew" (board L06): the pin on the snow and, above it, its label on a navy pill; one form of the number everywhere. */
+internal fun androidx.compose.ui.graphics.drawscope.DrawScope.flewPin(p: Offset, label: String?, measurer: androidx.compose.ui.text.TextMeasurer) {
+    drawCircle(Color.White, 5.5f * density, p); drawCircle(Color(0xFFE0246E), 5.5f * density, p, style = androidx.compose.ui.graphics.drawscope.Stroke(2.2f * density))
+    if (label == null) return
+    val tl = measurer.measure(label, androidx.compose.ui.text.TextStyle(fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 12.sp, color = Color.White))
+    val w = tl.size.width + 20 * density; val h = tl.size.height + 10 * density
+    val x = p.x.coerceIn(w / 2 + 4 * density, size.width - w / 2 - 4 * density)
+    val top = (p.y - 14 * density - h).coerceAtLeast(4 * density)
+    drawLine(Color(0xFF0E2233), Offset(p.x, p.y - 5.5f * density), Offset(p.x, top + h), 1.5f * density)
+    drawRoundRect(Color(0xFF0E2233), Offset(x - w / 2, top), androidx.compose.ui.geometry.Size(w, h), androidx.compose.ui.geometry.CornerRadius(h / 2))
+    drawText(tl, topLeft = Offset(x - tl.size.width / 2f, top + 5 * density))
 }

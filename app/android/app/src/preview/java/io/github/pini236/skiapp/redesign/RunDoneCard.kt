@@ -121,6 +121,8 @@ internal fun RunDoneCard(file: File, p: RunDone.Pending, scene: MapScene, mode: 
                 drawImage(img, dstOffset = IntOffset(ox.toInt(), oy.toInt()), dstSize = IntSize((mt.view.w * kk).toInt(), (mt.view.h * kk).toInt()))
             }
         } else if (mt != null && l.line.isNotEmpty()) {
+            val flew = l.d?.takeIf { !it.isNull("max_kmh") }?.let { stringResource(R.string.app_film_top_speed, LiveNumbers.maxKmh(it.optDouble("max_kmh"))) }
+            val measurer = androidx.compose.ui.text.rememberTextMeasurer()
             val img = remember(mt) { mt.img.asImageBitmap() }
             Canvas(Modifier.fillMaxSize()) {
                 val pl = OnMountain.place(mt.view, l.line.map { it.first }, size.width, size.height, size.minDimension * .12f, size.height * .5f, maxZoom = 1.7f)
@@ -132,15 +134,16 @@ internal fun RunDoneCard(file: File, p: RunDone.Pending, scene: MapScene, mode: 
                     val a = Offset(ox + q[i * 2] * kk, oy + q[i * 2 + 1] * kk); val c = Offset(ox + q[i * 2 + 2] * kk, oy + q[i * 2 + 3] * kk)
                     if (pass == 0) drawLine(case, a, c, 7.2f * density, cap = StrokeCap.Round) else drawLine(Color(0xFF000000.toInt() or ramp[b[i]]), a, c, 4.6f * density, cap = StrokeCap.Round)
                 }
-                l.pin?.takeIf { !it[0].isNaN() }?.let { q -> val c = Offset(ox + q[0] * kk, oy + q[1] * kk)
-                    drawCircle(Color.White, 5f * density, c); drawCircle(Color(0xFFE0246E), 5f * density, c, style = androidx.compose.ui.graphics.drawscope.Stroke(2.4f * density)) }
+                l.pin?.takeIf { !it[0].isNaN() }?.let { q -> flewPin(Offset(ox + q[0] * kk, oy + q[1] * kk), flew, measurer) }
             }
         }
         // the pill: saved, and close
         Row(Modifier.statusBarsPadding().padding(horizontal = 12.dp, vertical = 8.dp).fillMaxWidth().height(44.dp).shadow(2.dp, RoundedCornerShape(22.dp))
             .clip(RoundedCornerShape(22.dp)).background(k.surf).padding(start = 14.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(9.dp)) {
-            Text("✓", fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = k.good)
-            Text(stringResource(R.string.app_run_saved), Modifier.weight(1f), fontFamily = Plex, fontWeight = FontWeight.Medium, fontSize = 14.sp, color = k.ink)
+            // nothing measured: just "one descent", no tick and no "saved" (the designer, 24.11.2026)
+            val measured = l?.d != null
+            if (measured) Text("✓", fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = k.good)
+            Text(stringResource(if (measured) R.string.app_run_saved else R.string.app_rec_one), Modifier.weight(1f), fontFamily = Plex, fontWeight = FontWeight.Medium, fontSize = 14.sp, color = k.ink)
             val close = stringResource(R.string.common_close)
             Box(Modifier.size(44.dp).semantics { role = Role.Button; contentDescription = close }.clickable { haptics.tick(.3f); onClose() }, contentAlignment = Alignment.Center) {
                 Text("✕", fontSize = 16.sp, color = k.ink)
