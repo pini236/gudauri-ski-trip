@@ -9,10 +9,11 @@ name: iOS release
 # - Every action is pinned to a commit. No `curl | sh`: XcodeGen's hash is checked.
 # - The keychain is temporary and deleted at the end, also when the run fails.
 # - Without the secrets (before step 6 of docs/APPLE.md) the job ends green and does nothing.
+# MANUAL ONLY since 24.11.2026 (manager, Pini's iPhone scope decision; docs/CI-AUDIT.md): version 1.1 is already approved
+# in App Store Connect and the plain build carries 1.0.1, so every upload from a push failed (error 90478, 19 of 31 runs).
+# It returns to a push trigger only when the iPhone session raises the plain MARKETING_VERSION above 1.1; the architect
+# decides, as this is the release chain.
 on:
-  push:
-    branches: [main]
-    paths: ['app/ios/**', 'site/data/**', 'site/games/descent/**', 'site/games/thumbs/**', 'site/js/relief.js', 'site/css/site.css', 'tools/fixtures/**', 'tools/build-ios-data.py', 'tools/build-ios-strings.py', 'i18n/strings.json', '.github/workflows/ios-release.yml', 'tools/check-ios-variant.sh', 'tools/check-ios-store-binary.sh', 'tools/check-ios-no-tests.sh']
   workflow_dispatch:
     inputs:
       variant:
