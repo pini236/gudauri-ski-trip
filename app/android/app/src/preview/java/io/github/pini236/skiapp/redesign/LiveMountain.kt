@@ -139,6 +139,10 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
     val night = remember(time) { Sky.at(time).dark }
     val view = remember { LiveView(context, scene).also { v -> v.onChoose = { k -> chosen = k; haptics.tick(.5f); Qa.log("redesign live chosen $k") } } }
     // part 4 (S09): the first hint waits for the mountain to be drawn
+    // U05 (part 6): the network, for the pill only; back after none, the group's queue goes out at once
+    val online = rememberOnline { around?.meet?.sync?.flush() }
+    // the emulator (qa.redesign net:off / net:on / net:auto): no network shown without cutting the emulator's own
+    var qaNet by remember { mutableStateOf<Boolean?>(null) }
     var mtnDrawn by remember { mutableStateOf(false) }
     var hintAgain by remember { mutableStateOf(0) }
     LaunchedEffect(Unit) { while (!view.drawn) delay(200); mtnDrawn = true }
@@ -200,6 +204,8 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
             c == "where:off" -> { where.asking = false; where.where.off() }
             c == "home" -> view.home()
             c == "hint:reset" -> { Hints.reset(context); hintAgain++ }
+            c == "net:off" -> { qaNet = false; Qa.log("redesign edge net off") }
+            c == "net:auto" -> qaNet = null
             c.startsWith("people:") && pp != null -> {
                 val what = c.removePrefix("people:")
                 if (what == "group" || what == "invite") scope.launch {
@@ -356,10 +362,12 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
             }
             // the pill of the lifts (Q01, Q02): the report's summary, or no recent information, or none yet before the season
             val (pillText0, pillLive) = LiftsPillText(status, inSeason)
+            // U05: no network known in the season and no live report: "no recent information · no signal"
+            val pillText1 = if (Online.pillOffline(qaNet ?: online, pillLive, inSeason)) stringResource(R.string.app_now_offline) else pillText0
             // the count closed: it shrinks to a line in the pill ("29 days to the opening")
             val ov0 = around?.opening
             val pillText = if (!seasonOn && !pillLive && ov0 != null && ov0.kind == io.github.pini236.skiapp.season.Season.Kind.COUNTDOWN)
-                pluralStringResource(R.plurals.app_season_pill, ov0.days, ov0.days.toString()) else pillText0
+                pluralStringResource(R.plurals.app_season_pill, ov0.days, ov0.days.toString()) else pillText1
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             Pill(Modifier.weight(1f).clickable {
                 haptics.tick(.3f); liftSel = null; nowTab = NowTab.LIFTS; liftsOpen = !liftsOpen

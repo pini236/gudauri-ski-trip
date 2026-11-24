@@ -1,6 +1,8 @@
 package io.github.pini236.skiapp.redesign
 
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Assert.assertNull
 import org.junit.Test
 
@@ -16,5 +18,13 @@ class EdgesTest {
     @Test fun neverMoreThanTwice() {
         assertNull(NotifOffer.next(listOf("a", "b", "c"), setOf("a", "b"), 2))
         assertNull(NotifOffer.next(listOf("c"), emptySet(), NotifOffer.MAX))
+    }
+
+    @Test fun thePillSaysNoSignalOnlyInTheSeasonWithNoLiveReportAndNoNetwork() {
+        assertTrue(Online.pillOffline(false, live = false, inSeason = true))
+        assertFalse(Online.pillOffline(null, live = false, inSeason = true))
+        assertFalse(Online.pillOffline(true, live = false, inSeason = true))
+        assertFalse(Online.pillOffline(false, live = true, inSeason = true))
+        assertFalse(Online.pillOffline(false, live = false, inSeason = false))
     }
 }

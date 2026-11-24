@@ -180,3 +180,60 @@ internal object NotifOffers {
         prefs(c).edit().putStringSet("notif_offered", offered(c) + id).putInt("notif_offers", count(c) + 1).apply()
     }
 }
+
+/**
+ * U05: whether the phone has a network (the architect, 24.11.2026): true only with a validated default network, false
+ * with none or one that is not validated, null until the first answer (the pill keeps its usual words then). Watched
+ * only while the app is started, on the main thread. For the pill only: nothing waits on it, and nothing is sent, kept or
+ * measured. [onBack]: the network came back after none (the group's queue goes out at once).
+ */
+internal object Online {
+    fun validated(caps: android.net.NetworkCapabilities?): Boolean =
+        caps != null && caps.hasCapability(android.net.NetworkCapabilities.NET_CAPABILITY_INTERNET) &&
+            caps.hasCapability(android.net.NetworkCapabilities.NET_CAPABILITY_VALIDATED)
+
+    /** The pill's words go "no recent information · no signal" only in the season, with no live report, and no network known. */
+    fun pillOffline(online: Boolean?, live: Boolean, inSeason: Boolean): Boolean = online == false && !live && inSeason
+}
+
+@Composable
+internal fun rememberOnline(onBack: () -> Unit): Boolean? {
+    val context = androidx.compose.ui.platform.LocalContext.current
+    var online by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf<Boolean?>(null) }
+    val back by androidx.compose.runtime.rememberUpdatedState(onBack)
+    androidx.compose.runtime.DisposableEffect(Unit) {
+        val cm = context.getSystemService(android.net.ConnectivityManager::class.java)
+        val mainHandler = android.os.Handler(android.os.Looper.getMainLooper())
+        var on = false
+        fun set(v: Boolean) {
+            val was = online
+            if (was == v) return
+            online = v
+            io.github.pini236.skiapp.qa.Qa.log("redesign edge online $v")
+            if (was == false && v) back()
+        }
+        val cb = object : android.net.ConnectivityManager.NetworkCallback() {
+            override fun onCapabilitiesChanged(network: android.net.Network, caps: android.net.NetworkCapabilities) = set(Online.validated(caps))
+            override fun onLost(network: android.net.Network) = set(false)
+            override fun onUnavailable() = set(false)
+        }
+        fun start() { if (on || cm == null) return; on = true
+            // with no default network at all, no callback comes: say so after a moment
+            runCatching { cm.registerDefaultNetworkCallback(cb, mainHandler) }.onFailure { on = false; return }
+            if (cm.activeNetwork == null) set(false)
+        }
+        fun stop() { if (!on) return; on = false; runCatching { cm?.unregisterNetworkCallback(cb) } }
+        val life = (context as? androidx.lifecycle.LifecycleOwner)?.lifecycle
+        val obs = androidx.lifecycle.LifecycleEventObserver { _, e ->
+            when (e) {
+                androidx.lifecycle.Lifecycle.Event.ON_START -> start()
+                androidx.lifecycle.Lifecycle.Event.ON_STOP -> stop()
+                else -> {}
+            }
+        }
+        life?.addObserver(obs)
+        if (life?.currentState?.isAtLeast(androidx.lifecycle.Lifecycle.State.STARTED) != false) start()
+        onDispose { life?.removeObserver(obs); stop() }
+    }
+    return online
+}
