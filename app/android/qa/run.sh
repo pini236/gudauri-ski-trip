@@ -1260,12 +1260,12 @@ redesign() {
   mark; qa "--es qa.redesign people:license:karantina"; waitlog "redesign people license karantina" 10 || fail "redesign: a licence's text did not show"; sleep 1; shot redesign-license-text
   mark; qa "--es qa.redesign people:off"; waitlog "redesign people closed" 10
   # T02, T03 with nobody signed in: "I'm already in the group" on the seeded code
-  mark; qa "--es qa.group none --es qa.redesign people:join:KZBQRM"; waitlog "redesign people join" 15; sleep 2
+  mark; qa "--es qa.group invited --es qa.redesign people:join:KZBQRM"; waitlog "redesign people join" 15; sleep 2
   mark; qa "--es qa.redesign people:reclaim"; waitlog "redesign people reclaim" 15 || fail "redesign: the reclaim list did not show"; rd_settled; shot redesign-reclaim
   mark; qa "--es qa.redesign people:off"; waitlog "redesign people closed" 10
   # T10: all the places near Goodaura's bottom station
   mark; qa "--es qa.redesign lift:Goodaura"; waitlog "redesign lift panel Goodaura" 15
-  if tapText "~^כל ה-[0-9]+$"; then waitlog "redesign places" 10 && { sleep 1.5; shot redesign-places; }; fi
+  mark; qa "--es qa.redesign places:bottom"; waitlog "redesign places" 10 && { sleep 1.5; shot redesign-places; }
   mark; qa "--es qa.redesign lifts:off"; sleep 1
   mark; qa "--es qa.group member --es qa.redesign people:me"; waitlog "redesign people me guest" 15 || fail "redesign: me (a guest) did not open"; rd_settled; shot redesign-me-guest
   mark; qa "--es qa.redesign people:off"; waitlog "redesign people closed" 10
