@@ -307,7 +307,7 @@ private fun ShelfCard(scene: MapScene, r: ShelfRun, k: SheetInk, closed: Boolean
     val lenShown = if (km) java.text.NumberFormat.getNumberInstance().apply { minimumFractionDigits = 1; maximumFractionDigits = 1 }.format(r.len / 1000.0) else nf.format(len.toInt())
     val kind = shelfKind(r); val back = shelfBack(r)
     val a11y = stringResource(R.string.app_shelf_card_a11y, r.title, colourWord(r.color), if (r.kind == "run") levelWord(r.color) else kind,
-        lenShown + " " + (if (km) stringResource(R.string.app_shelf_km_cap) else stringResource(R.string.common_unit_m, "").trim()), nf.format(r.drop), back)
+        lenShown + " " + (if (km) stringResource(R.string.app_shelf_km_cap) else stringResource(R.string.app_shelf_m_cap)), nf.format(r.drop), back)
     val col = plate(r.color)
     Row(modifier.width(232.dp).height(156.dp).shadow(14.dp, RoundedCornerShape(22.dp), clip = false).clip(RoundedCornerShape(22.dp))
         .background(k.surf.copy(alpha = 1f)).border(1.dp, k.line, RoundedCornerShape(22.dp))
@@ -338,7 +338,7 @@ private fun ShelfCard(scene: MapScene, r: ShelfRun, k: SheetInk, closed: Boolean
             Row(horizontalArrangement = Arrangement.spacedBy(14.dp)) {
                 Column {
                     Text(lenShown, fontFamily = Plex, fontWeight = FontWeight.Light, fontSize = 24.sp, color = k.ink)
-                    Text(if (km) stringResource(R.string.app_shelf_km_cap) else stringResource(R.string.common_unit_m, "").trim(), fontFamily = Plex, fontSize = 12.5.sp, color = k.ink2)
+                    Text(if (km) stringResource(R.string.app_shelf_km_cap) else stringResource(R.string.app_shelf_m_cap), fontFamily = Plex, fontSize = 12.5.sp, color = k.ink2)
                 }
                 Column {
                     Text(nf.format(r.drop), fontFamily = Plex, fontWeight = FontWeight.Light, fontSize = 24.sp, color = k.ink)
