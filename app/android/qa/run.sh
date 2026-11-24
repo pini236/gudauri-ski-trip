@@ -8,7 +8,7 @@ OUT=${OUT:-qa-out}
 SCENARIO=${SCENARIO:-all}
 # Reject typos before touching the device. An unknown part used to run the entire suite.
 [[ "$SCENARIO" != *$'\n'* && "$SCENARIO" != *$'\r'* ]] || { echo "QA scenario must be a single line" >&2; exit 2; }
-ALL_SCENARIOS=(map descent games school snowball home group meet status run locate weather lang phone store bigtext redesign)
+ALL_SCENARIOS=(map descent games school snowball home group meet status run locate weather lang phone store bigtext redesign redesign2)
 if [[ "$SCENARIO" == all ]]; then
   SCENARIOS=("${ALL_SCENARIOS[@]}")
 else
@@ -20,7 +20,7 @@ else
     part="${part#"${part%%[![:space:]]*}"}"
     part="${part%"${part##*[![:space:]]}"}"
     case "$part" in
-      map|descent|games|school|snowball|home|group|meet|status|run|locate|weather|lang|phone|store|bigtext|dayrecvideo|redesign) ;;
+      map|descent|games|school|snowball|home|group|meet|status|run|locate|weather|lang|phone|store|bigtext|dayrecvideo|redesign|redesign2) ;;
       *) echo "Unknown or empty QA scenario: '$part'" >&2; exit 2 ;;
     esac
     [[ -z "${selected[$part]+present}" ]] || { echo "Duplicate QA scenario: '$part'" >&2; exit 2; }
@@ -1324,6 +1324,12 @@ redesign() {
   mark; qa "--es qa.redesign people:off"; waitlog "redesign people closed" 10
   mark; qa "--es qa.redesign people:gate"; waitlog "redesign people gate" 10; rd_settled; shot redesign-gate
   mark; qa "--es qa.redesign people:off"; waitlog "redesign people closed" 10
+}
+# the redesign's second half (parts 4 to 8), its own emulator job: a run of its own from a cold start, as the first half
+redesign2() {
+  adb shell am force-stop "$PKG"; sleep 1; mark
+  adb shell "am start -W -n $ACT --es qa.tab home --es qa.mode auto --es qa.redesign open" > /dev/null
+  waitlog "redesign ready" 75; sleep 3
   # completion part 4 (S02 to S04, S08): the first-time sheet, "where am I" on a run, out of the area, the compass
   mark; qa "--es qa.redesign where:ask"; waitlog "redesign where ask" 10 || fail "redesign: the where-am-I sheet did not open"; rd_settled; shot redesign-where-ask
   mark; qa "--es qa.redesign where:off"; sleep 1
