@@ -1172,6 +1172,12 @@ redesign() {
   # a run chosen as a tap chooses it: the light down it, the framing, its sign on the top and the sheet (K10)
   mark; qa "--es qa.redesign 'pick:Tatra 2'"; waitlog "redesign live framed Tatra 2" 20; sleep 2; rd_drawn; shot redesign-live-chosen-sheet
   mark; qa "--es qa.redesign unpick"; waitlog "redesign live unpicked" 10; rd_drawn
+  # Pini's 24.11 note: a chosen run whole, in the middle above the sheet, never on the sky (Kikilo 1 and Kobi too)
+  for rk in "Kikilo 1" "Kobi"; do
+    mark; qa "--es qa.redesign 'pick:$rk'"; waitlog "redesign live framed $rk" 30 || fail "redesign: $rk was not framed"
+    sleep 2; rd_drawn; shot "redesign-live-chosen-${rk// /-}"
+    mark; qa "--es qa.redesign unpick"; waitlog "redesign live unpicked" 10; mark; qa "--es qa.redesign front"; sleep 2; rd_drawn
+  done
   # the moment of the choice on the live model held at 0, 150, 300, 600 and 900 ms (as phase A's frame:), each from
   # the opening view: the ring, the shade, the light down the run, the framing, the sign, then the sheet
   for ms in 0 150 300 600 900; do

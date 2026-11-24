@@ -394,7 +394,8 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
     val lightNow = PeakLight.clock(PeakLight.localHour(time))
     // the test build's tools; none in the store build
     people.tools = if (io.github.pini236.skiapp.BuildConfig.FLAVOR == "store") null else ({
-        TestRow(stringResource(R.string.poc_peak_light_now, lightNow)) { people.close(); scrubOpen = true; Qa.log("redesign tools light") }
+        // the POC's light scrub and picture are the emulator's only (Pini, 24.11.2026: no POC tools in the app)
+        if (io.github.pini236.skiapp.BuildConfig.DEBUG) TestRow(stringResource(R.string.poc_peak_light_now, lightNow)) { people.close(); scrubOpen = true; Qa.log("redesign tools light") }
         // the picture is a fallback, not a second mountain: only the emulator's runs switch to it
         if (io.github.pini236.skiapp.BuildConfig.DEBUG) TestRow(stringResource(R.string.poc_peak_painted)) { people.close(); onPainted() }
         // only the emulator's runs may leave the mountain (the app has no other home, Pini 24.11.2026)
@@ -537,7 +538,7 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
             val o = ov; val pal = pd?.pal?.get(if (night) "night" else "day")
             if (o != null && pal != null) {
                 // stations: 6.8 by 5, corner 1.4, the station colour with the cable's outline (phase A); dimmer under a chosen run
-                val sa = if (tripOpen || skipassOpen) 0f else if (chosen != null || seasonOn) .4f else 1f
+                val sa = if (tripOpen || skipassOpen || people.open) 0f else if (chosen != null || seasonOn) .4f else 1f
                 val w = 6.8f * density; val h = 5f * density; val cr = androidx.compose.ui.geometry.CornerRadius(1.4f * density)
                 for (i in 0 until o.stations.size / 2) {
                     val tl = Offset(o.stations[i * 2] - w / 2, o.stations[i * 2 + 1] - h * .84f)
@@ -546,7 +547,7 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
                 }
             }
             // phase A's names belong to its front view: not from the Kobi side, and none cut by the edge of the screen
-            if (o != null && chosen == null && !kobiSide && !tripOpen && !skipassOpen && !seasonOn) {
+            if (o != null && chosen == null && !kobiSide && !tripOpen && !skipassOpen && !seasonOn && !people.open) {
                 val ink = if (night) Color(0xFFEAF1F8) else Color(0xFF0E2233)
                 val halo = if (night) Color(0xF2060B16) else Color(0xF2FFFFFF)
                 val name = androidx.compose.ui.text.TextStyle(fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 11.5.sp, color = ink)
@@ -699,7 +700,8 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
             onSkipass = { skipassOpen = true },
             onFood = LiveLifts.board(scene.runs).firstOrNull { it.name == "Goodaura" }?.let { g -> { villageOpen = false; liftSel = g; liftsOpen = true } },
             // the row says where it goes (Pini, 24.11.2026): no group, to join or open one; one, to it; more, to my groups
-            onPeople = { g -> if (pp != null) when {
+            // the village gives way to the people's screens (nothing of it shows through them)
+            onPeople = { g -> if (pp != null) { view.fromVillage(); villageOpen = false }; if (pp != null) when {
                 g.isNullOrEmpty() -> people.go(PLayer.Gate)
                 g.size == 1 -> people.go(PLayer.Group(g[0].id))
                 else -> people.go(PLayer.Me)

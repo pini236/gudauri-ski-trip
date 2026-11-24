@@ -747,10 +747,16 @@ class LiveView(context: Context, private val scene: MapScene) : GLSurfaceView(co
         return s.copy(tx = cx, ty = scene.terrain.elev(cx, cz), tz = cz, dist = dist)
     }
 
+    /**
+     * A chosen run in the middle of the screen above its sheet, all of it in view (the live handoff's section 6; Pini,
+     * 24.11.2026: Kikilo 1 cut in a corner under the sheet, the view on the sky): its box fitted to the top part the
+     * low sheet leaves, looking down on it at least [LiveLimits.FRAME_PITCH].
+     */
     private fun frameRun(key: String) {
-        val to = frameTarget(key) ?: return
-        if (Motion.reduced(context)) { camera.set(to); requestRender() } else renderer.animate(to, 0.6f)
-        Qa.log("redesign live framed $key")
+        val lines = scene.draped[key] ?: return
+        var x0 = Float.MAX_VALUE; var x1 = -Float.MAX_VALUE; var z0 = Float.MAX_VALUE; var z1 = -Float.MAX_VALUE
+        for (l in lines) for (i in 0 until l.size / 3) { x0 = minOf(x0, l[i * 3]); x1 = maxOf(x1, l[i * 3]); z0 = minOf(z0, l[i * 3 + 2]); z1 = maxOf(z1, l[i * 3 + 2]) }
+        frameLift(floatArrayOf(x0, z0, x1, z1), LiveLimits.CHOSEN_FREE, "redesign live framed $key")
     }
 
     /**
@@ -800,10 +806,11 @@ class LiveView(context: Context, private val scene: MapScene) : GLSurfaceView(co
      * A lift framed whole over its panel (Q03, handoff section 14.6): the box of its two ends with a margin, fitted to
      * the screen's top [free] (the sheet takes the rest), the target lowered so the box sits in the middle of that part.
      */
-    fun frameLift(ends: FloatArray, free: Float = .54f) {
+    fun frameLift(ends: FloatArray, free: Float = .54f, log: String = "redesign live lift framed") {
         val pad = 260f
         val b = floatArrayOf(minOf(ends[0], ends[2]) - pad, minOf(ends[1], ends[3]) - pad, maxOf(ends[0], ends[2]) + pad, maxOf(ends[1], ends[3]) + pad)
-        val s0 = camera.state()
+        // looking down on it, never along the snow at the sky
+        val s0 = camera.state().let { it.copy(pitch = it.pitch.coerceAtLeast(LiveLimits.FRAME_PITCH)) }
         val fit = frameBox(b, s0)
         val vf = tan(Math.toRadians(data.camera.fovDeg / 2.0)).toFloat()
         val dist = (fit.dist / free).coerceIn(1400f, 12000f)
@@ -812,7 +819,7 @@ class LiveView(context: Context, private val scene: MapScene) : GLSurfaceView(co
         val to = fit.copy(dist = dist, ty = fit.ty - dy)
         renderer.stopAnim(); camera.stopFling()
         if (Motion.reduced(context)) { camera.set(to); requestRender() } else renderer.animate(to, 0.6f)
-        Qa.log("redesign live lift framed")
+        Qa.log(log)
     }
 
     /**
@@ -926,6 +933,9 @@ object LiveOpen { const val YAW = 0f }
 internal object LiveLimits {
     const val MIN_DIST = 600f
     const val MAX_DIST = 12500f
+    /** The screen's top part a chosen run is framed in (the low sheet takes the rest), and the least tilt it is seen at. */
+    const val CHOSEN_FREE = .6f
+    const val FRAME_PITCH = .5f
     fun step(from: OrbitCamera.State, to: OrbitCamera.State): OrbitCamera.State {
         val d = to.dist.coerceIn(MIN_DIST, MAX_DIST)
         val jump = hypot(to.tx - from.tx, to.tz - from.tz) > maxOf(from.dist, d)

@@ -541,7 +541,7 @@ private fun BoxScope.MeScreen(p: People, ui: PeopleUi, k: SheetInk) {
                 // until the village (part 4) holds "the group", the way to a code or a new group is here
                 PRow(stringResource(R.string.app_grp_title), k, sub = stringResource(R.string.app_grp_sub), icon = Icons.people, last = true) { ui.go(PLayer.Gate) }
             }
-            Small(stringResource(R.string.app_a_not_signed_in), k.onDark(), Modifier.padding(horizontal = 24.dp))
+            // (the head already says it: no second "no account yet" line, Pini 24.11.2026)
         }
         // my groups
         if (kind != PeopleRules.MeKind.NOBODY) PBox(k) {
@@ -556,8 +556,8 @@ private fun BoxScope.MeScreen(p: People, ui: PeopleUi, k: SheetInk) {
                 lead = { Av(g.name, g.id, 36, group = true) }) { ui.go(PLayer.Group(g.id)) }
         }
         // the test build's tools (moved off the mountain's top, the review of 24.11), under the badge's words
+        // (no POC badge over them: only the field testers' rows, in the test build; the emulator's own rows in debug)
         ui.tools?.let { t -> PBox(k) {
-            Text(stringResource(R.string.poc_peak_live_badge), Modifier.padding(top = 12.dp, bottom = 4.dp), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 12.5.sp, color = k.ink2)
             CompositionLocalProvider(LocalTestInk provides k) { t() }
         } }
         PBox(k) {
