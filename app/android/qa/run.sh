@@ -1101,6 +1101,28 @@ rd_back() { mark; adb shell input keyevent KEYCODE_BACK; waitlog "redesign clear
 # model as the first part leaves it (the app opened on the painted mountain, the live model drawn, the season off)
 rd_drawn() { seen "redesign live drawn" 25 || true; sleep 4; }
 rd_settled() { seen "redesign live drawn" 6 || true; sleep 2; }
+# each area of the redesign once, for the reviewer's pass (large text, night): open, settle, shoot, close; a miss is no failure
+rd_areas() { # rd_areas <prefix>
+  local open close name
+  while IFS='|' read -r name open close; do
+    [ -z "$name" ] && continue
+    mark; qa "--es qa.redesign $open"; sleep 2.5; shot "redesign-$1-$name"; qa "--es qa.redesign $close"; sleep 1.2
+  done <<'AREAS'
+me|people:me|people:off
+settings|people:settings|people:off
+lang|people:lang|people:off
+about|people:about|people:off
+group|people:group|people:off
+meet|meet|meet:off
+lifts|lifts|lifts:off
+weather|weather|lifts:off
+trip|trip|trip:off
+skipass|skipass|skipass:off
+season|season|season:off
+days|records|records:off
+village|village|village:off
+AREAS
+}
 rd_prep() { # before a part's first touch: the load settled (up to a minute), and no system box over the screen
   local load="" i; for i in $(seq 1 20); do load=$(adb shell cat /proc/loadavg 2> /dev/null | cut -d' ' -f1 | tr -d '\r')
     awk -v l="${load:-99}" 'BEGIN { exit !(l < 12) }' && break; sleep 3; done; note "$1: load $load"
@@ -1611,12 +1633,22 @@ redesign4() {
     mark; qa "--es qa.group admin --es qa.redesign people:group"; waitlog "redesign people group" 15
     mark; qa "--es qa.redesign people:tab:meetups"; waitlog "redesign people group meetups" 10 && { sleep 1.5; shot redesign-big-meetups; }
     mark; qa "--es qa.redesign people:off"; waitlog "redesign people closed" 10
+    # the reviewer's pass (24.11.2026): every area once in the largest text
+    rd_areas big
     mark; qa "--es qa.redesign day --es qa.stats off --es qa.tab day"; waitlog "redesign rec open" 20; waitlog "redesign live drawn" 60
     mark; qa "--es qa.dayrec start"; waitlog "dayrec start result Started" 20; geo 42.482631 44.483401; dayrec_walk 4; sleep 3
     mark; qa "--es qa.redesign stage:standing"; waitlog "redesign rec stage standing" 10 && { sleep 1.5; shot redesign-big-standing; }
     qa "--es qa.dayrec stop"; sleep 3; qa "--es qa.tab home"; sleep 1
   else fail "redesign: the mountain did not open in large text"; fi
   adb shell settings put system font_scale 1.0; sleep 2
+  # and every area once at night, in the usual text
+  adb shell am force-stop "$PKG"; sleep 1; mark
+  adb shell "am start -W -n $ACT --es qa.tab home --es qa.mode night --es qa.redesign open" > /dev/null
+  if waitlog "redesign ready" 75; then
+    mark; qa "--es qa.redesign live"; waitlog "redesign live drawn" 60; rd_settled
+    rd_areas night
+  else fail "redesign: the mountain did not open for the night pass"; fi
+  qa "--es qa.mode day"; sleep 1
 }
 
 # ---- the store screenshots (Google Play: portrait 9:16) ----
