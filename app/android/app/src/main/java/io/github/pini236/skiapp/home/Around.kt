@@ -29,6 +29,11 @@ class Around(
     val people: People? = null,
     /** Part 4 (S07): the runs' videos (site/data/videos-seed.json), for the run's full sheet. */
     val videos: List<io.github.pini236.skiapp.data.Video> = emptyList(),
+    /** Part 4b (the bottom bar and the village): start a day's recording, where this build has it; null hides the button. */
+    val onRecord: (() -> Unit)? = null,
+    /** Part 4b (the village's "evening in the hut"): the games page of today, and how many games it has. */
+    val onGames: (() -> Unit)? = null,
+    val games: Int = 0,
 )
 
 /**

@@ -147,7 +147,7 @@ class PeakData(
                 Lift(l.getString("name"), l.optBoolean("gondola"), lfa(l.optJSONArray("wire")), lfa(l.optJSONArray("ground")), lfa(l.optJSONArray("towers")),
                     lfa(l.optJSONArray("cabins")), lfa(l.optJSONArray("stations")))
             }
-            val sel = v.getJSONObject("sel").let { o -> o.keys().asSequence().associateWith { k ->
+            val sel = (v.optJSONObject("sel") ?: JSONObject()).let { o -> o.keys().asSequence().associateWith { k ->
                 val e = o.getJSONObject(k)
                 val segs = list(e.getJSONArray("segs")) { sg ->
                     val n = sg.getInt("n"); val p = sg.getJSONArray("p")
@@ -163,6 +163,10 @@ class PeakData(
                 v.getJSONObject("proj").let { p -> Proj(v.getDouble("W").toFloat(), p.getDouble("S"), p.getJSONArray("c").getDouble(0), p.getJSONArray("c").getDouble(1),
                     p.getDouble("near"), p.getDouble("y_c"), p.getDouble("zref"), p.getDouble("step"), da(p.getJSONArray("F")), da(p.getJSONArray("C")), geo) })
         }
+
+        /** The village (K17): a painted view with its live layer, in the same form as the mountain's views (no runs to choose). */
+        fun village(json: String): View = view(JSONObject(json).getJSONObject("village"), doubleArrayOf(0.0, 0.0, 1.0, 1.0))
+        fun loadVillage(context: Context): View = village(context.assets.open("redesign/village/village.json").bufferedReader().use { it.readText() })
 
         fun load(context: Context): PeakData = parse(context.assets.open("redesign/peak-poc.json").bufferedReader().use { it.readText() })
 

@@ -489,7 +489,7 @@ fun PeakScreen(mode: DayNight.Mode, haptics: Haptics, onLive: (() -> Unit)? = nu
 private fun st(w: Float, effect: PathEffect? = null) = Stroke(width = w, cap = StrokeCap.Round, join = StrokeJoin.Round, pathEffect = effect)
 private fun dots(zf: Float) = PathEffect.dashPathEffect(floatArrayOf(1f * zf, 5f * zf))
 
-private fun DrawScope.layer(
+internal fun DrawScope.layer(
     d: PeakData, v: PeakData.View, pl: Place, a: Float, light: PeakData.Light, night: Boolean, wf: Float,
     key: String?, dm: Float, lit: Float, ms: Float, near: Boolean, closeUp: Boolean, measurer: TextMeasurer, unitM: String, nf: NumberFormat,
     pinch: Float = 1f,

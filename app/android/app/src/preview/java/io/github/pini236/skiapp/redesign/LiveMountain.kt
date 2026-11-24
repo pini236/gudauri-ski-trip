@@ -103,6 +103,8 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
     val stationRuns = remember(scene) { ShelfData.withLifts(scene) }
     // K08 (the lenses): the chips' row open, and the lens on
     var lensRow by remember { mutableStateOf(false) }
+    // K17 (the village): open over the mountain
+    var villageOpen by remember { mutableStateOf(false) }
     var lens by remember { mutableStateOf<LensKind?>(null) }
     // part 2 (Q01 to Q03): the lifts' sheet, and one lift in it
     var liftsOpen by remember { mutableStateOf(false) }
@@ -206,6 +208,8 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
             c == "shelf:off" -> shelfOpen = false
             c == "station:off" -> fromSt = null
             c == "lens:off" -> { lens = null; lensRow = false }
+            c == "village" -> { chosen = null; view.choose(null); villageOpen = true }
+            c == "village:off" -> villageOpen = false
             c.startsWith("lens:") -> LensKind.of(c.removePrefix("lens:"))?.let { lensRow = true; lens = it }
             c.startsWith("station:") -> plan?.stations?.firstOrNull { s -> c.removePrefix("station:") in s.topOf }?.let { s -> chosen = null; view.choose(null); fromSt = s; Qa.log("redesign station ${s.id}") }
             c == "season" -> seasonOn = LiveSeasonRules.shown(around)
@@ -579,12 +583,22 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
                 onClose = { shelfOpen = false; Qa.log("redesign shelf closed") })
             if (veilA > .5f) shelfMid?.let { r -> RunTag(view, scene, r.key, r.title, r.color, night) }
         }
-        AnimatedVisibility(chosen == null && lens == null && !shelfOpen && fromSt == null && !liftsOpen && !meet.open && !tripOpen && !skipassOpen && !seasonOn && !people.open, Modifier.fillMaxSize(),
+        AnimatedVisibility(chosen == null && lens == null && !villageOpen && !shelfOpen && fromSt == null && !liftsOpen && !meet.open && !tripOpen && !skipassOpen && !seasonOn && !people.open, Modifier.fillMaxSize(),
             enter = fadeIn(tween(150)), exit = fadeOut(tween(150))) {
             Box(Modifier.fillMaxSize()) {
-                Dock(night, haptics, onVillage = null, onFind = { shelfOpen = true; Qa.log("redesign dock find") }, onRecord = null)
+                Dock(night, haptics, onVillage = { villageOpen = true; Qa.log("redesign dock village") }, onFind = { shelfOpen = true; Qa.log("redesign dock find") },
+                    onRecord = around?.onRecord?.let { r -> { Qa.log("redesign dock record"); r() } })
             }
         }
+        // K17: the village over the mountain, until "back to the mountain"
+        val pd0 = data
+        if (villageOpen && pd0 != null) Village(scene, pd0, mode, time, night, around, haptics, meetNow = null,
+            onLift = { l -> villageOpen = false; liftSel = l; liftsOpen = true },
+            onTrip = { tripEdit = null; tripOpen = true },
+            onSkipass = { skipassOpen = true },
+            onFood = LiveLifts.board(scene.runs).firstOrNull { it.name == "Goodaura" }?.let { g -> { villageOpen = false; liftSel = g; liftsOpen = true } },
+            onPeople = { if (pp != null) people.go(PLayer.Me) },
+            onBack = { villageOpen = false; Qa.log("redesign village closed") })
         // the flags of my groups (Q05 on the plain mountain): the same flag with its time; a tap opens it
         if (!meet.open && chosen == null && !liftsOpen && plan != null && flags.isNotEmpty()) {
             val sk = remember(night) { SheetInk(night) }
@@ -698,7 +712,7 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
             }
         }
         // part 4 (S03, S04, S08): the location's box under the pill, the map's buttons, and S02 before the phone asks
-        val bare = chosen == null && !shelfOpen && fromSt == null && !liftsOpen && !meet.open && !tripOpen && !skipassOpen && !seasonOn && !people.open
+        val bare = chosen == null && !villageOpen && !shelfOpen && fromSt == null && !liftsOpen && !meet.open && !tripOpen && !skipassOpen && !seasonOn && !people.open
         val dens = androidx.compose.ui.platform.LocalDensity.current.density
         LaunchedEffect(bare, plan) {
             view.onPreTap = if (bare && plan != null) { x, y -> StationTap.at(view, plan, stationRuns, x, y, dens)?.let { s -> haptics.tick(.4f); fromSt = s; Qa.log("redesign station ${s.id}"); true } ?: false } else null

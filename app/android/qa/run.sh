@@ -1188,6 +1188,11 @@ redesign() {
   mark; qa "--es qa.redesign lens:open"; waitlog "redesign lens open" 20 && { rd_settled; shot redesign-lens-open; } || fail "redesign: the open lens did not draw"
   mark; qa "--es qa.redesign lens:slope"; waitlog "redesign lens slope" 20 && { rd_settled; shot redesign-lens-slope; } || fail "redesign: the slope lens did not draw"
   mark; qa "--es qa.redesign lens:off --es qa.status none"; sleep 1
+  # part 4b (K17): the village from the bottom bar, its picture, tags, pins and sheet, and back
+  mark; tapText "The village" || qa "--es qa.redesign village"
+  if waitlog "redesign village open" 20; then sleep 1.5; shot redesign-village
+    mark; qa "--es qa.redesign village:off"; sleep 1
+  else fail "redesign: the village did not open"; fi
   # the completion round, part 2 (Q01 to Q03): the lifts without a report (today), then with one (two closed, their
   # tags on the mountain), and one lift
   mark; qa "--es qa.status none --es qa.redesign lifts"; rd_settled; shot redesign-lifts-none
