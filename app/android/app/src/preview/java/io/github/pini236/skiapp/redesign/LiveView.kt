@@ -379,7 +379,33 @@ class LiveView(context: Context, private val scene: MapScene) : GLSurfaceView(co
 
     private fun move(f: (OrbitCamera.State) -> OrbitCamera.State) { camera.update(f); requestRender() }
 
+    /**
+     * The film (K12): while set, the camera's gestures are off and a finger goes here instead: 0 down, 1 move, 2 up
+     * (or cancelled), with its place on the screen. The film decides what a drag on the mountain does.
+     */
+    var filmTouch: ((Int, Float, Float) -> Unit)? = null
+
+    /**
+     * The film's camera (K12, as today's flight down): on the point [x], [h], [y] of the line, 520 away, tilted 27.5
+     * degrees, facing [yaw]; the point in the middle of the screen's top [free] part (the sheet takes the rest).
+     */
+    fun filmCamera(x: Float, h: Float, y: Float, yaw: Float, free: Float) {
+        val dist = 520f; val pitch = 0.48f
+        val vf = tan(Math.toRadians(data.camera.fovDeg / 2.0)).toFloat()
+        val dy = (1f - free) * dist * vf / kotlin.math.cos(pitch)
+        renderer.stopAnim(); camera.stopFling()
+        camera.set(OrbitCamera.State(x, h - dy, y, dist, yaw, pitch)); requestRender()
+    }
+
     override fun onTouchEvent(e: MotionEvent): Boolean {
+        filmTouch?.let { f ->
+            when (e.actionMasked) {
+                MotionEvent.ACTION_DOWN -> f(0, e.x, e.y)
+                MotionEvent.ACTION_MOVE -> f(1, e.x, e.y)
+                MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> f(2, e.x, e.y)
+            }
+            return true
+        }
         val w = width.toFloat(); val h = height.toFloat()
         when (e.actionMasked) {
             MotionEvent.ACTION_DOWN -> {

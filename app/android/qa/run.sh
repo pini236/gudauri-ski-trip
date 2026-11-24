@@ -1353,6 +1353,15 @@ redesign2() {
   # S07: the run's full sheet (the conditions with a fresh forecast, the videos); then the compass once the view moved
   mark; qa "--es qa.weather fresh --es qa.redesign 'pick:Tatra 2'"; waitlog "redesign live framed Tatra 2" 20
   mark; qa "--es qa.redesign run:full"; waitlog "redesign run full Tatra 2" 15 || fail "redesign: the run's full sheet did not open"; sleep 2; rd_settled; shot redesign-run-full
+  # K12: the film down Tatra 2 from the full sheet: it starts by itself, a stop, half way by the rail, the speed, the end
+  mark; qa "--es qa.redesign ride"; waitlog "redesign ride open Tatra 2" 15 || fail "redesign: the film did not open"
+  waitlog "redesign ride play" 10 || fail "redesign: the film did not start by itself"; sleep 3; shot redesign-ride-playing
+  mark; qa "--es qa.redesign ride:stop"; sleep 1; qa "--es qa.redesign ride:1200"; waitlog "redesign ride at 1200" 10 || fail "redesign: the film did not move to 1,200 m"
+  sleep 2; shot redesign-ride-standing
+  mark; qa "--es qa.redesign ride:speed"; waitlog "redesign ride speed 2" 10 || fail "redesign: the film's speed did not change"
+  mark; qa "--es qa.redesign ride:99999"; sleep 2; shot redesign-ride-end
+  qa "--es qa.mode night"; sleep 2; shot redesign-ride-night; qa "--es qa.mode day"; sleep 1
+  mark; qa "--es qa.redesign ride:close"; waitlog "redesign ride closed" 10 || fail "redesign: the film did not close"
   # S08: no compass on the opening view (a run framed or let go is no turn), then after a real turn of 40 degrees
   mark; qa "--es qa.redesign unpick"; sleep .5; qa "--es qa.redesign home"; sleep 2
   mark; qa "--es qa.redesign turn:40"; waitlog "redesign compass shown" 15 && { rd_settled; shot redesign-compass; }

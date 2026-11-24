@@ -38,6 +38,7 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -118,6 +119,7 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
     var nowTab by remember { mutableStateOf(NowTab.LIFTS) }
     // part 4 (S07): the run's sheet at its full height
     var runFull by remember { mutableStateOf(false) }
+    var riding by remember { mutableStateOf<String?>(null) }
     // part 5 (T10): a place chosen from the list, marked on the mountain in its kind's colour
     var placeMark by remember { mutableStateOf<io.github.pini236.skiapp.places.Place?>(null) }
     LaunchedEffect(liftsOpen, liftSel) { if (!liftsOpen || liftSel == null) placeMark = null }
@@ -202,6 +204,7 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
             // a run chosen the way a tap chooses it (the turn to the Kobi side included), letting it go, and the sign
             c.startsWith("pick:") -> { held = null; view.pickKey(c.removePrefix("pick:")) }
             c == "run:full" -> runFull = true
+            c == "ride" -> chosen?.let { riding = it; Qa.log("redesign ride $it") }
             c == "run:low" -> runFull = false
             c == "unpick" -> { runFull = false; held = null; chosen = null; view.choose(null); Qa.log("redesign live unpicked") }
             c == "front" -> view.backToFront()
@@ -580,14 +583,30 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
                 head = { NowHead(nowTab, sk) { nowTab = it } },
                 other = if (nowTab == NowTab.WEATHER) { { WeatherTab(boardLifts, status, around?.trip, sk, night) { l -> liftSel = l } } } else null)
         }
-        AnimatedVisibility(run != null && pd != null && (held ?: 900f) >= 900f && !liftsOpen, Modifier.align(Alignment.BottomCenter),
+        AnimatedVisibility(run != null && pd != null && (held ?: 900f) >= 900f && !liftsOpen && riding == null, Modifier.align(Alignment.BottomCenter),
             enter = slideInVertically(tween(250)) { it } + fadeIn(tween(150)), exit = slideOutVertically(tween(200)) { it } + fadeOut(tween(200))) {
             var last by remember { mutableStateOf(run) }
             if (run != null) last = run
             val d0 = pd
             val kk = chosen
             last?.let { r -> if (d0 != null && kk != null) RunSheets(kk, r, d0, g, scene, around?.videos.orEmpty(), night, haptics, runFull, onFull = { runFull = it },
-                onPick = { nk -> view.pickKey(nk); Qa.log("redesign run swipe $nk") }, onClose = { runFull = false; chosen = null; view.choose(null) }) }
+                onPick = { nk -> view.pickKey(nk); Qa.log("redesign run swipe $nk") }, onClose = { runFull = false; chosen = null; view.choose(null) },
+                onRide = { riding = kk; Qa.log("redesign ride $kk") }) }
+        }
+        // K12: the film down the chosen run, in place of its sheet; closing it goes back to the low sheet and the run's frame
+        riding?.let { rk ->
+            val r = run
+            val hapticsOn = remember { io.github.pini236.skiapp.fx.FxPrefs.haptics(view.context) &&
+                ((view.context.getSystemService(android.content.Context.VIBRATOR_SERVICE) as? android.os.Vibrator)?.hasVibrator() == true) }
+            val title = scene.runs.pistes.firstOrNull { it.key == rk }?.title ?: rk
+            RideFilm(rk, title, {
+                if (r != null) Box(Modifier.height(30.dp).widthIn(min = 40.dp).clip(RoundedCornerShape(7.dp)).background(plate(r.color)).padding(horizontal = 7.dp), contentAlignment = Alignment.Center) {
+                    Text(r.ref, fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 17.sp, color = Color.White,
+                        style = androidx.compose.ui.text.TextStyle(textDirection = androidx.compose.ui.text.style.TextDirection.Ltr))
+                }
+            }, scene, view, night, haptics, hapticsOn) {
+                riding = null; runFull = false; view.frameRunAbove(rk, null); Qa.log("redesign ride closed")
+            }
         }
         // K07: the mountain rises 120 points over the shelf, with a veil, and lights the middle card's run (section 2)
         val shelfShift by androidx.compose.animation.core.animateFloatAsState(if (shelfOpen) with(androidx.compose.ui.platform.LocalDensity.current) { 120.dp.toPx() } else 0f, tween(300), label = "shelf")

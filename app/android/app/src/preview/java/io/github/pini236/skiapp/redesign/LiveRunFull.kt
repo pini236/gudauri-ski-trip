@@ -81,7 +81,7 @@ import kotlinx.coroutines.withContext
  */
 @Composable
 internal fun RunSheets(key: String, r: PeakData.Run, d: PeakData, g: Glass, scene: MapScene, videos: List<Video>, night: Boolean,
-                       haptics: Haptics, full: Boolean, onFull: (Boolean) -> Unit, onPick: (String) -> Unit, onClose: () -> Unit) {
+                       haptics: Haptics, full: Boolean, onFull: (Boolean) -> Unit, onPick: (String) -> Unit, onClose: () -> Unit, onRide: (() -> Unit)? = null) {
     val order = remember(scene) { scene.runs.pistes.let { RunFacts.order(it) } }
     val rtl = LocalLayoutDirection.current == LayoutDirection.Rtl
     val next = NowRules.neighbour(order, key, 1); val prev = NowRules.neighbour(order, key, -1)
@@ -112,17 +112,19 @@ internal fun RunSheets(key: String, r: PeakData.Run, d: PeakData, g: Glass, scen
         }) { _, a -> dy += a }
     }) {
         if (!full) RunSheet(r, d, g, onClose) {
+            // K12: "to go down in a film", once it is built (part 4's handoff, section 14)
+            if (onRide != null) RideButton(SheetInk(night), haptics, onRide)
             // the way to the videos from the low sheet: it opens the full one
             Text(stringResource(R.string.app_run_videos_n, vids.size.toString()),
                 Modifier.heightIn(min = 44.dp).semantics { role = Role.Button }.clickable { haptics.tick(.3f); onFull(true); Qa.log("redesign run full") }
                     .padding(vertical = 10.dp), fontFamily = Gudi, fontWeight = FontWeight.Medium, fontSize = 14.sp, color = SheetInk(night).acc)
-        } else RunFull(key, r, scene, vids, night, haptics, order)
+        } else RunFull(key, r, scene, vids, night, haptics, order, onRide)
     }
 }
 
 /** S07, the full sheet: the head with sharing, the three numbers, the conditions at the top and the bottom, the videos, the dots. */
 @Composable
-private fun RunFull(key: String, r: PeakData.Run, scene: MapScene, vids: List<Video>, night: Boolean, haptics: Haptics, order: List<String>) {
+private fun RunFull(key: String, r: PeakData.Run, scene: MapScene, vids: List<Video>, night: Boolean, haptics: Haptics, order: List<String>, onRide: (() -> Unit)? = null) {
     val k = remember(night) { SheetInk(night) }
     val ctx = LocalContext.current
     val nf = remember { NumberFormat.getIntegerInstance() }
@@ -165,6 +167,7 @@ private fun RunFull(key: String, r: PeakData.Run, scene: MapScene, vids: List<Vi
                 Text(c, fontFamily = Gudi, fontSize = 12.5.sp, color = k.ink2)
             }
         }
+        if (onRide != null) RideButton(k, haptics, onRide)
         // the conditions at the run's top and bottom (the interpolation by height, as today)
         val w = LocalWeather.current
         val f = w.usable
@@ -243,3 +246,12 @@ private fun VideoRow(v: Video, k: SheetInk, onClick: () -> Unit) {
 }
 
 private val THUMBS = java.util.concurrent.ConcurrentHashMap<String, Bitmap>()
+
+/** K12's way in, on the run's sheet: "to go down in a film", 48 high, the accent's outline. */
+@Composable
+internal fun RideButton(k: SheetInk, haptics: Haptics, onRide: () -> Unit) {
+    Box(Modifier.fillMaxWidth().height(48.dp).clip(RoundedCornerShape(24.dp)).border(1.5.dp, k.acc, RoundedCornerShape(24.dp))
+        .semantics { role = Role.Button }.clickable { haptics.tick(.3f); onRide() }, contentAlignment = Alignment.Center) {
+        Text("\u25B6 " + stringResource(R.string.app_run_ride), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = k.acc)
+    }
+}
