@@ -22042,9 +22042,9 @@
   },
   "app.sr_dock_find": {
    "he": "לאן יורדים? מדף המסלולים.",
-   "en": "Where to? The shelf of runs.",
+   "en": "Where to? The runs shelf.",
    "ru": "Куда спускаемся? Полка трасс.",
-   "ka": "საით ჩავდივართ? ტრასების თარო.",
+   "ka": "საით ჩავდივართ? ტრასების თაროზე.",
    "where": "app/android, app/ios",
    "note": "סבב ההשלמה, חלק 8 (סעיף 2 ב-design/handoff/2026-11-23-redesign-everyone): קורא מסך: הסרגל התחתון",
    "check": [
@@ -22172,6 +22172,975 @@
     "ka"
    ]
   },
+  "app.shelf_by_lift": {
+   "he": "לפי רכבל",
+   "en": "By lift",
+   "ru": "По подъёмнику",
+   "ka": "საბაგიროთი",
+   "where": "app/android, app/ios",
+   "note": "הכפר, המדף והעדשות (design/handoff/2026-11-24-redesign-village-shelf-lenses, סעיף 8): צ׳יפ מיון",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.shelf_easy_hard": {
+   "he": "מהקל לקשה",
+   "en": "Easy to hard",
+   "ru": "От лёгких к сложным",
+   "ka": "მარტივიდან რთულისკენ",
+   "where": "app/android, app/ios",
+   "note": "הכפר, המדף והעדשות (design/handoff/2026-11-24-redesign-village-shelf-lenses, סעיף 8): צ׳יפ מיון",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.shelf_longest": {
+   "he": "הארוכים",
+   "en": "Longest",
+   "ru": "Самые длинные",
+   "ka": "ყველაზე გრძელი",
+   "where": "app/android, app/ios",
+   "note": "הכפר, המדף והעדשות (design/handoff/2026-11-24-redesign-village-shelf-lenses, סעיף 8): צ׳יפ מיון",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.shelf_sun": {
+   "he": "בשמש עכשיו",
+   "en": "In the sun now",
+   "ru": "Сейчас на солнце",
+   "ka": "ახლა მზეზე",
+   "where": "app/android, app/ios",
+   "note": "הכפר, המדף והעדשות (design/handoff/2026-11-24-redesign-village-shelf-lenses, סעיף 8): צ׳יפ במדף וגם שם העדשה",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.shelf_group_lift": {
+   "he": {
+    "one": "{lift} · מסלול אחד",
+    "two": "{lift} · {n} מסלולים",
+    "other": "{lift} · {n} מסלולים"
+   },
+   "en": {
+    "one": "{lift} · 1 run",
+    "other": "{lift} · {n} runs"
+   },
+   "ru": {
+    "one": "{lift} · {n} трасса",
+    "few": "{lift} · {n} трассы",
+    "many": "{lift} · {n} трасс",
+    "other": "{lift} · {n} трассы"
+   },
+   "ka": {
+    "one": "{lift} · {n} ტრასა",
+    "other": "{lift} · {n} ტრასა"
+   },
+   "where": "app/android, app/ios",
+   "note": "הכפר, המדף והעדשות (design/handoff/2026-11-24-redesign-village-shelf-lenses, סעיף 8): כותרת קבוצה במדף; שם הרכבל לא מתורגם (צורות רבים)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.shelf_group_rest": {
+   "he": {
+    "one": "עוד מסלול · 1",
+    "two": "עוד מסלולים · {n}",
+    "other": "עוד מסלולים · {n}"
+   },
+   "en": {
+    "one": "One more run",
+    "other": "More runs · {n}"
+   },
+   "ru": {
+    "one": "Ещё трасса · {n}",
+    "few": "Ещё трассы · {n}",
+    "many": "Ещё трасс · {n}",
+    "other": "Ещё трассы · {n}"
+   },
+   "ka": {
+    "one": "კიდევ ტრასა · {n}",
+    "other": "კიდევ ტრასები · {n}"
+   },
+   "where": "app/android, app/ios",
+   "note": "הכפר, המדף והעדשות (design/handoff/2026-11-24-redesign-village-shelf-lenses, סעיף 8): מסלולים בלי רכבל בנתונים (צורות רבים)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.shelf_group_color": {
+   "he": {
+    "one": "{color} · מסלול אחד",
+    "two": "{color} · {n} מסלולים",
+    "other": "{color} · {n} מסלולים"
+   },
+   "en": {
+    "one": "{color} · 1 run",
+    "other": "{color} · {n} runs"
+   },
+   "ru": {
+    "one": "{color} · {n} трасса",
+    "few": "{color} · {n} трассы",
+    "many": "{color} · {n} трасс",
+    "other": "{color} · {n} трассы"
+   },
+   "ka": {
+    "one": "{color} · {n} ტრასა",
+    "other": "{color} · {n} ტრასა"
+   },
+   "where": "app/android, app/ios",
+   "note": "הכפר, המדף והעדשות (design/handoff/2026-11-24-redesign-village-shelf-lenses, סעיף 8): {color} בא מארבעת המפתחות app.shelf_colors_* (צורות רבים)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.shelf_colors_green": {
+   "he": "ירוקים",
+   "en": "Green",
+   "ru": "Зелёные",
+   "ka": "მწვანე",
+   "where": "app/android, app/ios",
+   "note": "הכפר, המדף והעדשות (design/handoff/2026-11-24-redesign-village-shelf-lenses, סעיף 8): שם הצבע ברבים, לתוך app.shelf_group_color",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.shelf_colors_blue": {
+   "he": "כחולים",
+   "en": "Blue",
+   "ru": "Синие",
+   "ka": "ლურჯი",
+   "where": "app/android, app/ios",
+   "note": "הכפר, המדף והעדשות (design/handoff/2026-11-24-redesign-village-shelf-lenses, סעיף 8): שם הצבע ברבים, לתוך app.shelf_group_color",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.shelf_colors_red": {
+   "he": "אדומים",
+   "en": "Red",
+   "ru": "Красные",
+   "ka": "წითელი",
+   "where": "app/android, app/ios",
+   "note": "הכפר, המדף והעדשות (design/handoff/2026-11-24-redesign-village-shelf-lenses, סעיף 8): שם הצבע ברבים, לתוך app.shelf_group_color",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.shelf_colors_black": {
+   "he": "שחורים",
+   "en": "Black",
+   "ru": "Чёрные",
+   "ka": "შავი",
+   "where": "app/android, app/ios",
+   "note": "הכפר, המדף והעדשות (design/handoff/2026-11-24-redesign-village-shelf-lenses, סעיף 8): שם הצבע ברבים, לתוך app.shelf_group_color",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.shelf_pos": {
+   "he": "{i} מתוך {n}",
+   "en": "{i} of {n}",
+   "ru": "{i} из {n}",
+   "ka": "{i} {n}-დან",
+   "where": "app/android, app/ios",
+   "note": "הכפר, המדף והעדשות (design/handoff/2026-11-24-redesign-village-shelf-lenses, סעיף 8): מונה בכרטיס",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.shelf_group_sun": {
+   "he": "בשמש עכשיו · {n}",
+   "en": "In the sun now · {n}",
+   "ru": "Сейчас на солнце · {n}",
+   "ka": "ახლა მზეზე · {n}",
+   "where": "app/android, app/ios",
+   "note": "הכפר, המדף והעדשות (design/handoff/2026-11-24-redesign-village-shelf-lenses, סעיף 8): כותרת קבוצה",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.shelf_group_shade": {
+   "he": "בצל · {n}",
+   "en": "In shade · {n}",
+   "ru": "В тени · {n}",
+   "ka": "ჩრდილში · {n}",
+   "where": "app/android, app/ios",
+   "note": "הכפר, המדף והעדשות (design/handoff/2026-11-24-redesign-village-shelf-lenses, סעיף 8): כותרת קבוצה",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.shelf_drop_cap": {
+   "he": "מ׳ ירידה",
+   "en": "m drop",
+   "ru": "м спуска",
+   "ka": "მ დაღმართი",
+   "where": "app/android, app/ios",
+   "note": "הכפר, המדף והעדשות (design/handoff/2026-11-24-redesign-village-shelf-lenses, סעיף 8): מתחת למספר",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.shelf_km_cap": {
+   "he": "ק״מ",
+   "en": "km",
+   "ru": "км",
+   "ka": "კმ",
+   "where": "app/android, app/ios",
+   "note": "הכפר, המדף והעדשות (design/handoff/2026-11-24-redesign-village-shelf-lenses, סעיף 8): מתחת למספר; מתחת ל-1,000 מ׳ הלקוח משתמש ב-common.unit_m",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.shelf_back": {
+   "he": "חוזרים ב-{lift} · {min} דק׳",
+   "en": "Back up on {lift} · {min} min",
+   "ru": "Назад на {lift} · {min} мин",
+   "ka": "ბრუნდებით {lift}-ით · {min} წთ",
+   "where": "app/android, app/ios",
+   "note": "הכפר, המדף והעדשות (design/handoff/2026-11-24-redesign-village-shelf-lenses, סעיף 8): שם הרכבל לא מתורגם",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.shelf_back_nomin": {
+   "he": "חוזרים ב-{lift}",
+   "en": "Back up on {lift}",
+   "ru": "Назад на {lift}",
+   "ka": "ბრუნდებით {lift}-ით",
+   "where": "app/android, app/ios",
+   "note": "הכפר, המדף והעדשות (design/handoff/2026-11-24-redesign-village-shelf-lenses, סעיף 8): בלי זמן נסיעה; גם בגיליון התחנה",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.shelf_back_none": {
+   "he": "ממשיכים במסלול אחר",
+   "en": "Continue on another run",
+   "ru": "Продолжаем по другой трассе",
+   "ka": "გრძელდება სხვა ტრასაზე",
+   "where": "app/android, app/ios",
+   "note": "הכפר, המדף והעדשות (design/handoff/2026-11-24-redesign-village-shelf-lenses, סעיף 8): מסלול בלי רכבל חוזר",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.shelf_beginner": {
+   "he": "אזור מתחילים",
+   "en": "Beginner area",
+   "ru": "Зона для новичков",
+   "ka": "დამწყებთა ზონა",
+   "where": "app/android, app/ios",
+   "note": "הכפר, המדף והעדשות (design/handoff/2026-11-24-redesign-village-shelf-lenses, סעיף 8): קצר מ-run.note_beginner_area",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.shelf_card_a11y": {
+   "he": "{run}, {color}, {level}, {len}, {drop} מטר ירידה, {back}",
+   "en": "{run}, {color}, {level}, {len}, {drop} meters of descent, {back}",
+   "ru": "{run}, {color}, {level}, {len}, спуск {drop} метров, {back}",
+   "ka": "{run}, {color}, {level}, {len}, დაღმართი {drop} მეტრი, {back}",
+   "where": "app/android, app/ios",
+   "note": "הכפר, המדף והעדשות (design/handoff/2026-11-24-redesign-village-shelf-lenses, סעיף 8): קורא מסך: כרטיס במדף כפריט אחד; {len} נאמר עם יחידה במילים",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.shelf_sort_a11y": {
+   "he": "מיון: {sort}",
+   "en": "Sort: {sort}",
+   "ru": "Сортировка: {sort}",
+   "ka": "დახარისხება: {sort}",
+   "where": "app/android, app/ios",
+   "note": "הכפר, המדף והעדשות (design/handoff/2026-11-24-redesign-village-shelf-lenses, סעיף 8): קורא מסך: צ׳יפ מיון",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.station_title": {
+   "he": "מראש {lift}",
+   "en": "From the top of {lift}",
+   "ru": "С верха {lift}",
+   "ka": "{lift}-ის თავიდან",
+   "where": "app/android, app/ios",
+   "note": "הכפר, המדף והעדשות (design/handoff/2026-11-24-redesign-village-shelf-lenses, סעיף 8): גיליון התחנה; מראש = מהתחנה העליונה",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.station_sub": {
+   "he": {
+    "one": "{m} מ׳ · מסלול אחד יורד מכאן",
+    "two": "{m} מ׳ · {n} מסלולים יורדים מכאן",
+    "other": "{m} מ׳ · {n} מסלולים יורדים מכאן"
+   },
+   "en": {
+    "one": "{m} m · 1 run goes down from here",
+    "other": "{m} m · {n} runs go down from here"
+   },
+   "ru": {
+    "one": "{m} м · отсюда спускается {n} трасса",
+    "few": "{m} м · отсюда спускаются {n} трассы",
+    "many": "{m} м · отсюда спускаются {n} трасс",
+    "other": "{m} м · отсюда спускаются {n} трассы"
+   },
+   "ka": {
+    "one": "{m} მ · აქედან ეშვება {n} ტრასა",
+    "other": "{m} მ · აქედან ეშვება {n} ტრასა"
+   },
+   "where": "app/android, app/ios",
+   "note": "הכפר, המדף והעדשות (design/handoff/2026-11-24-redesign-village-shelf-lenses, סעיף 8): גיליון התחנה (צורות רבים)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.lens_slope": {
+   "he": "קל ← קשה",
+   "en": "Easy ← hard",
+   "ru": "Легко ← сложно",
+   "ka": "მარტივი ← რთული",
+   "where": "app/android, app/ios",
+   "note": "הכפר, המדף והעדשות (design/handoff/2026-11-24-redesign-village-shelf-lenses, סעיף 8): שם עדשה; החץ חלק מהמחרוזת ומתהפך בתרגום (בגאורגית ובעברית כיוון הקריאה שונה: הלקוח לא הופך ידנית)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.lens_a11y": {
+   "he": "עדשה: {lens}",
+   "en": "Lens: {lens}",
+   "ru": "Линза: {lens}",
+   "ka": "ლინზა: {lens}",
+   "where": "app/android, app/ios",
+   "note": "הכפר, המדף והעדשות (design/handoff/2026-11-24-redesign-village-shelf-lenses, סעיף 8): קורא מסך",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.lens_sun_title": {
+   "he": {
+    "one": "מסלול אחד בשמש עכשיו",
+    "two": "מסלולים בשמש עכשיו",
+    "other": "מסלולים בשמש עכשיו"
+   },
+   "en": {
+    "one": "run in the sun now",
+    "other": "runs in the sun now"
+   },
+   "ru": {
+    "one": "трасса на солнце сейчас",
+    "few": "трассы на солнце сейчас",
+    "many": "трасс на солнце сейчас",
+    "other": "трассы на солнце сейчас"
+   },
+   "ka": {
+    "one": "ტრასა ახლა მზეზეა",
+    "other": "ტრასა ახლა მზეზეა"
+   },
+   "where": "app/android, app/ios",
+   "note": "הכפר, המדף והעדשות (design/handoff/2026-11-24-redesign-village-shelf-lenses, סעיף 8): אחרי המספר הגדול; הניסוח בלי {n} (צורות רבים)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.lens_sun_sub": {
+   "he": "ו-{n} עוד בצל · {time}",
+   "en": "and {n} more in shade · {time}",
+   "ru": "и ещё {n} в тени · {time}",
+   "ka": "და კიდევ {n} ჩრდილშია · {time}",
+   "where": "app/android, app/ios",
+   "note": "הכפר, המדף והעדשות (design/handoff/2026-11-24-redesign-village-shelf-lenses, סעיף 8): שורת משנה; {n} כאן בלי צורות רבים",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.lens_sun_leg": {
+   "he": "בשמש",
+   "en": "In the sun",
+   "ru": "На солнце",
+   "ka": "მზეზე",
+   "where": "app/android, app/ios",
+   "note": "הכפר, המדף והעדשות (design/handoff/2026-11-24-redesign-village-shelf-lenses, סעיף 8): מקרא",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.lens_shade_leg": {
+   "he": "בצל ההר",
+   "en": "In the mountain’s shade",
+   "ru": "В тени горы",
+   "ka": "მთის ჩრდილში",
+   "where": "app/android, app/ios",
+   "note": "הכפר, המדף והעדשות (design/handoff/2026-11-24-redesign-village-shelf-lenses, סעיף 8): מקרא",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.lens_sun_note": {
+   "he": "הצל מחושב מצורת ההר וממיקום השמש. ענן לא נלקח בחשבון.",
+   "en": "Shade is computed from the mountain’s shape and the sun’s position. Cloud is not taken into account.",
+   "ru": "Тень рассчитана по форме горы и положению солнца. Облачность не учитывается.",
+   "ka": "ჩრდილი გამოითვლება მთის ფორმითა და მზის მდებარეობით. ღრუბელი არ არის გათვალისწინებული.",
+   "where": "app/android, app/ios",
+   "note": "הכפר, המדף והעדשות (design/handoff/2026-11-24-redesign-village-shelf-lenses, סעיף 8): הערת העדשה",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.lens_no_sun": {
+   "he": "אין שמש עכשיו",
+   "en": "No sun now",
+   "ru": "Сейчас нет солнца",
+   "ka": "ახლა მზე არ არის",
+   "where": "app/android, app/ios",
+   "note": "הכפר, המדף והעדשות (design/handoff/2026-11-24-redesign-village-shelf-lenses, סעיף 8): גם במדף",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.lens_sunrise": {
+   "he": "הזריחה בגודאורי ב-{time}",
+   "en": "Sunrise in Gudauri at {time}",
+   "ru": "Восход в Гудаури в {time}",
+   "ka": "გუდაურში მზე ამოდის {time}-ზე",
+   "where": "app/android, app/ios",
+   "note": "הכפר, המדף והעדשות (design/handoff/2026-11-24-redesign-village-shelf-lenses, סעיף 8): {time} שעון גודאורי",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.lens_open_title": {
+   "he": {
+    "one": "מסלול אחד פתוח עכשיו",
+    "two": "מסלולים פתוחים עכשיו",
+    "other": "מסלולים פתוחים עכשיו"
+   },
+   "en": {
+    "one": "run open now",
+    "other": "runs open now"
+   },
+   "ru": {
+    "one": "трасса открыта сейчас",
+    "few": "трассы открыты сейчас",
+    "many": "трасс открыто сейчас",
+    "other": "трассы открыты сейчас"
+   },
+   "ka": {
+    "one": "ტრასა ღიაა ახლა",
+    "other": "ტრასა ღიაა ახლა"
+   },
+   "where": "app/android, app/ios",
+   "note": "הכפר, המדף והעדשות (design/handoff/2026-11-24-redesign-village-shelf-lenses, סעיף 8): אחרי המספר הגדול (צורות רבים)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.lens_open_sub": {
+   "he": "ו-{n} סגורים · עודכן {ago}",
+   "en": "and {n} closed · updated {ago}",
+   "ru": "и ещё {n} закрыто · обновлено {ago}",
+   "ka": "და {n} დაკეტილია · განახლდა {ago}",
+   "where": "app/android, app/ios",
+   "note": "הכפר, המדף והעדשות (design/handoff/2026-11-24-redesign-village-shelf-lenses, סעיף 8): {ago} מגיע מהלקוח, כמו ב-weather.stale",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.lens_closed_leg": {
+   "he": "סגור",
+   "en": "Closed",
+   "ru": "Закрыто",
+   "ka": "დაკეტილია",
+   "where": "app/android, app/ios",
+   "note": "הכפר, המדף והעדשות (design/handoff/2026-11-24-redesign-village-shelf-lenses, סעיף 8): מקרא",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.lens_unknown_leg": {
+   "he": "בלי מידע",
+   "en": "No info",
+   "ru": "Нет данных",
+   "ka": "ინფორმაცია არ არის",
+   "where": "app/android, app/ios",
+   "note": "הכפר, המדף והעדשות (design/handoff/2026-11-24-redesign-village-shelf-lenses, סעיף 8): מקרא",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.lens_no_report": {
+   "he": "אין דיווח עכשיו",
+   "en": "No report right now",
+   "ru": "Сейчас нет данных",
+   "ka": "ახლა მონაცემი არ არის",
+   "where": "app/android, app/ios",
+   "note": "הכפר, המדף והעדשות (design/handoff/2026-11-24-redesign-village-shelf-lenses, סעיף 8): מצב ריק",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.lens_slope_title": {
+   "he": "כמה תלול, לאורך כל מסלול",
+   "en": "How steep, along every run",
+   "ru": "Насколько круто, вдоль каждой трассы",
+   "ka": "რამდენად ციცაბოა, თითოეულ ტრასაზე",
+   "where": "app/android, app/ios",
+   "note": "הכפר, המדף והעדשות (design/handoff/2026-11-24-redesign-village-shelf-lenses, סעיף 8): כותרת העדשה",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.lens_slope_leg_1": {
+   "he": "עד 15°",
+   "en": "Up to 15°",
+   "ru": "До 15°",
+   "ka": "15°-მდე",
+   "where": "app/android, app/ios",
+   "note": "הכפר, המדף והעדשות (design/handoff/2026-11-24-redesign-village-shelf-lenses, סעיף 8): מקרא (ספי השיפוע המאושרים)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.lens_slope_leg_2": {
+   "he": "15° עד 25°",
+   "en": "15° to 25°",
+   "ru": "От 15° до 25°",
+   "ka": "15°-დან 25°-მდე",
+   "where": "app/android, app/ios",
+   "note": "הכפר, המדף והעדשות (design/handoff/2026-11-24-redesign-village-shelf-lenses, סעיף 8): מקרא (ספי השיפוע המאושרים)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.lens_slope_leg_3": {
+   "he": "25° עד 30°",
+   "en": "25° to 30°",
+   "ru": "От 25° до 30°",
+   "ka": "25°-დან 30°-მდე",
+   "where": "app/android, app/ios",
+   "note": "הכפר, המדף והעדשות (design/handoff/2026-11-24-redesign-village-shelf-lenses, סעיף 8): מקרא (ספי השיפוע המאושרים)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.lens_slope_leg_4": {
+   "he": "מעל 30°",
+   "en": "Over 30°",
+   "ru": "Свыше 30°",
+   "ka": "30°-ზე მეტი",
+   "where": "app/android, app/ios",
+   "note": "הכפר, המדף והעדשות (design/handoff/2026-11-24-redesign-village-shelf-lenses, סעיף 8): מקרא (ספי השיפוע המאושרים)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.lens_slope_note": {
+   "he": "לפי מודל הגובה. קיר קצר יכול להיות תלול יותר.",
+   "en": "From the elevation model. A short wall can be steeper.",
+   "ru": "По модели высот. Короткий уступ может быть круче.",
+   "ka": "სიმაღლის მოდელის მიხედვით. მოკლე კედელი შეიძლება უფრო ციცაბო იყოს.",
+   "where": "app/android, app/ios",
+   "note": "הכפר, המדף והעדשות (design/handoff/2026-11-24-redesign-village-shelf-lenses, סעיף 8): הערת העדשה",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.lens_snow_title": {
+   "he": "ס״מ שלג חדש למעלה",
+   "en": "cm of new snow up top",
+   "ru": "см свежего снега наверху",
+   "ka": "სმ ახალი თოვლი ზემოთ",
+   "where": "app/android, app/ios",
+   "note": "הכפר, המדף והעדשות (design/handoff/2026-11-24-redesign-village-shelf-lenses, סעיף 8): אחרי המספר הגדול",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.lens_snow_sub": {
+   "he": "{mid} ב-{mid_name} · {low} בכפר · ב-24 השעות האחרונות",
+   "en": "{mid} at {mid_name} · {low} in the village · in the last 24 hours",
+   "ru": "{mid} на {mid_name} · {low} в деревне · за последние 24 часа",
+   "ka": "{mid} {mid_name}-ზე · {low} სოფელში · ბოლო 24 საათში",
+   "where": "app/android, app/ios",
+   "note": "הכפר, המדף והעדשות (design/handoff/2026-11-24-redesign-village-shelf-lenses, סעיף 8): שם הנקודה לא מתורגם; {mid} ו-{low} כבר עם יחידה",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.lens_snow_leg_1": {
+   "he": "10 ס״מ ומעלה",
+   "en": "10 cm or more",
+   "ru": "10 см и больше",
+   "ka": "10 სმ და მეტი",
+   "where": "app/android, app/ios",
+   "note": "הכפר, המדף והעדשות (design/handoff/2026-11-24-redesign-village-shelf-lenses, סעיף 8): מקרא",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.lens_snow_leg_2": {
+   "he": "עד 10",
+   "en": "Up to 10",
+   "ru": "До 10",
+   "ka": "10-მდე",
+   "where": "app/android, app/ios",
+   "note": "הכפר, המדף והעדשות (design/handoff/2026-11-24-redesign-village-shelf-lenses, סעיף 8): מקרא",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.lens_snow_leg_3": {
+   "he": "בלי",
+   "en": "None",
+   "ru": "Нет",
+   "ka": "არაა",
+   "where": "app/android, app/ios",
+   "note": "הכפר, המדף והעדשות (design/handoff/2026-11-24-redesign-village-shelf-lenses, סעיף 8): מקרא",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.lens_snow_note": {
+   "he": "לפי התחזית לגובה, לא מדידה.",
+   "en": "From the forecast for that altitude, not a measurement.",
+   "ru": "По прогнозу для этой высоты, а не по измерениям.",
+   "ka": "პროგნოზის მიხედვით ამ სიმაღლეზე, არა გაზომვით.",
+   "where": "app/android, app/ios",
+   "note": "הכפר, המדף והעדשות (design/handoff/2026-11-24-redesign-village-shelf-lenses, סעיף 8): הערת העדשה; אחריה הקרדיט הקיים weather.credit",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.lens_snow_none": {
+   "he": "בלי שלג חדש ב-24 השעות האחרונות",
+   "en": "No new snow in the last 24 hours",
+   "ru": "Свежего снега за последние 24 часа нет",
+   "ka": "ბოლო 24 საათში ახალი თოვლი არ მოსულა",
+   "where": "app/android, app/ios",
+   "note": "הכפר, המדף והעדשות (design/handoff/2026-11-24-redesign-village-shelf-lenses, סעיף 8): מצב ריק",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.vill_sub": {
+   "he": "{place} · {m} מ׳",
+   "en": "{place} · {m} m",
+   "ru": "{place} · {m} м",
+   "ka": "{place} · {m} მ",
+   "where": "app/android, app/ios",
+   "note": "הכפר, המדף והעדשות (design/handoff/2026-11-24-redesign-village-shelf-lenses, סעיף 8): תת-כותרת הכפר; {place} לא מתורגם",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.vill_back": {
+   "he": "חזרה להר",
+   "en": "Back to the mountain",
+   "ru": "Назад к горе",
+   "ka": "მთაზე დაბრუნება",
+   "where": "app/android, app/ios",
+   "note": "הכפר, המדף והעדשות (design/handoff/2026-11-24-redesign-village-shelf-lenses, סעיף 8): ראשון בסדר הקריאה",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.vill_food": {
+   "he": "אוכל ושתייה",
+   "en": "Food and drink",
+   "ru": "Еда и напитки",
+   "ka": "საჭმელი და სასმელი",
+   "where": "app/android, app/ios",
+   "note": "הכפר, המדף והעדשות (design/handoff/2026-11-24-redesign-village-shelf-lenses, סעיף 8): שורה",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.vill_food_n": {
+   "he": {
+    "one": "מקום אחד ליד הרכבל",
+    "two": "{n} מקומות ליד הרכבל",
+    "other": "{n} מקומות ליד הרכבל"
+   },
+   "en": {
+    "one": "1 place near the lift",
+    "other": "{n} places near the lift"
+   },
+   "ru": {
+    "one": "{n} место у подъёмника",
+    "few": "{n} места у подъёмника",
+    "many": "{n} мест у подъёмника",
+    "other": "{n} места у подъёмника"
+   },
+   "ka": {
+    "one": "{n} ადგილი საბაგიროსთან",
+    "other": "{n} ადგილი საბაგიროსთან"
+   },
+   "where": "app/android, app/ios",
+   "note": "הכפר, המדף והעדשות (design/handoff/2026-11-24-redesign-village-shelf-lenses, סעיף 8): שורה (צורות רבים)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.vill_pin_food": {
+   "he": "אוכל ושתייה · {n}",
+   "en": "Food and drink · {n}",
+   "ru": "Еда и напитки · {n}",
+   "ka": "საჭმელი და სასმელი · {n}",
+   "where": "app/android, app/ios",
+   "note": "הכפר, המדף והעדשות (design/handoff/2026-11-24-redesign-village-shelf-lenses, סעיף 8): סיכה",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.vill_pin_tickets": {
+   "he": "קופת כרטיסים",
+   "en": "Ticket office",
+   "ru": "Касса",
+   "ka": "ბილეთების სალარო",
+   "where": "app/android, app/ios",
+   "note": "הכפר, המדף והעדשות (design/handoff/2026-11-24-redesign-village-shelf-lenses, סעיף 8): סיכה",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.vill_pin_parking": {
+   "he": "חניה",
+   "en": "Parking",
+   "ru": "Парковка",
+   "ka": "პარკინგი",
+   "where": "app/android, app/ios",
+   "note": "הכפר, המדף והעדשות (design/handoff/2026-11-24-redesign-village-shelf-lenses, סעיף 8): סיכה",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.vill_pin_meet": {
+   "he": "נפגשים · {time}",
+   "en": "Meet · {time}",
+   "ru": "Встреча · {time}",
+   "ka": "შეხვედრა · {time}",
+   "where": "app/android, app/ios",
+   "note": "הכפר, המדף והעדשות (design/handoff/2026-11-24-redesign-village-shelf-lenses, סעיף 8): סיכה",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.vill_trip_dates": {
+   "he": {
+    "one": "{dates} · יום סקי אחד",
+    "two": "{dates} · {n} ימי סקי",
+    "other": "{dates} · {n} ימי סקי"
+   },
+   "en": {
+    "one": "{dates} · 1 ski day",
+    "other": "{dates} · {n} ski days"
+   },
+   "ru": {
+    "one": "{dates} · {n} день катания",
+    "few": "{dates} · {n} дня катания",
+    "many": "{dates} · {n} дней катания",
+    "other": "{dates} · {n} дня катания"
+   },
+   "ka": {
+    "one": "{dates} · {n} სათხილამურო დღე",
+    "other": "{dates} · {n} სათხილამურო დღე"
+   },
+   "where": "app/android, app/ios",
+   "note": "הכפר, המדף והעדשות (design/handoff/2026-11-24-redesign-village-shelf-lenses, סעיף 8): שורת הטיול; בלי טיול: home_trip הקיים (צורות רבים)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.vill_pass_trip": {
+   "he": {
+    "one": "יום אחד · {price}",
+    "two": "{n} ימים · {price}",
+    "other": "{n} ימים · {price}"
+   },
+   "en": {
+    "one": "1 day · {price}",
+    "other": "{n} days · {price}"
+   },
+   "ru": {
+    "one": "{n} день · {price}",
+    "few": "{n} дня · {price}",
+    "many": "{n} дней · {price}",
+    "other": "{n} дня · {price}"
+   },
+   "ka": {
+    "one": "{n} დღე · {price}",
+    "other": "{n} დღე · {price}"
+   },
+   "where": "app/android, app/ios",
+   "note": "הכפר, המדף והעדשות (design/handoff/2026-11-24-redesign-village-shelf-lenses, סעיף 8): שורת כרטיס הסקי (צורות רבים)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.vill_pass_day": {
+   "he": "כרטיס יום · {price}",
+   "en": "Day pass · {price}",
+   "ru": "Дневной ски-пасс · {price}",
+   "ka": "ერთდღიანი ბილეთი · {price}",
+   "where": "app/android, app/ios",
+   "note": "הכפר, המדף והעדשות (design/handoff/2026-11-24-redesign-village-shelf-lenses, סעיף 8): שורת כרטיס הסקי",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.vill_grp_meet": {
+   "he": "נפגשים {time}, {place}",
+   "en": "Meeting {time}, {place}",
+   "ru": "Встреча {time}, {place}",
+   "ka": "შეხვედრა {time}, {place}",
+   "where": "app/android, app/ios",
+   "note": "הכפר, המדף והעדשות (design/handoff/2026-11-24-redesign-village-shelf-lenses, סעיף 8): שורת הקבוצה",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.vill_grp_n": {
+   "he": {
+    "one": "קבוצה אחת",
+    "two": "{n} קבוצות",
+    "other": "{n} קבוצות"
+   },
+   "en": {
+    "one": "1 group",
+    "other": "{n} groups"
+   },
+   "ru": {
+    "one": "{n} группа",
+    "few": "{n} группы",
+    "many": "{n} групп",
+    "other": "{n} группы"
+   },
+   "ka": {
+    "one": "{n} ჯგუფი",
+    "other": "{n} ჯგუფი"
+   },
+   "where": "app/android, app/ios",
+   "note": "הכפר, המדף והעדשות (design/handoff/2026-11-24-redesign-village-shelf-lenses, סעיף 8): שורת הקבוצה (צורות רבים)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.vill_grp_none": {
+   "he": "מצטרפים או פותחים קבוצה",
+   "en": "Join or start a group",
+   "ru": "Присоединиться или создать группу",
+   "ka": "შეუერთდით ან შექმენით ჯგუფი",
+   "where": "app/android, app/ios",
+   "note": "הכפר, המדף והעדשות (design/handoff/2026-11-24-redesign-village-shelf-lenses, סעיף 8): שורת הקבוצה בלי קבוצה",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.vill_cabin_n": {
+   "he": {
+    "one": "משחק אחד",
+    "two": "{n} משחקים",
+    "other": "{n} משחקים"
+   },
+   "en": {
+    "one": "1 game",
+    "other": "{n} games"
+   },
+   "ru": {
+    "one": "{n} игра",
+    "few": "{n} игры",
+    "many": "{n} игр",
+    "other": "{n} игры"
+   },
+   "ka": {
+    "one": "{n} თამაში",
+    "other": "{n} თამაში"
+   },
+   "where": "app/android, app/ios",
+   "note": "הכפר, המדף והעדשות (design/handoff/2026-11-24-redesign-village-shelf-lenses, סעיף 8): שורת הבקתה (צורות רבים)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.g_code_copied": {
+   "he": "קוד ההזמנה הועתק",
+   "en": "Invite code copied",
+   "ru": "Код приглашения скопирован",
+   "ka": "მოსაწვევი კოდი დაკოპირებულია",
+   "where": "app/android, app/ios",
+   "note": "הכפר, המדף והעדשות (design/handoff/2026-11-24-redesign-village-shelf-lenses, סעיף 8): חלק 3: אישור אחרי העתקה (קורא מסך וטוסט)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
   "app.skipass_days_n": {
    "he": {
     "one": "יום סקי",
@@ -22284,1017 +23253,6 @@
    "ka": "საით ჩავდივართ?",
    "where": "app/android",
    "note": "סבב ההשלמה, חלק 4 (סעיף 11 ב-design/handoff/2026-11-23-redesign-on-mountain): שדה המדף (K06)",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "app.shelf_by_lift": {
-   "he": "לפי רכבל",
-   "en": "By lift",
-   "ru": "По подъёмникам",
-   "ka": "საბაგიროს მიხედვით",
-   "where": "app/android, app/ios",
-   "note": "סבב 3 (design/handoff/2026-11-24-redesign-village-shelf-lenses, סעיף 8): המדף (K07), צ׳יפ",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "app.shelf_easy_hard": {
-   "he": "מהקל לקשה",
-   "en": "Easy to hard",
-   "ru": "От лёгких к сложным",
-   "ka": "მარტივიდან რთულისკენ",
-   "where": "app/android, app/ios",
-   "note": "סבב 3 (design/handoff/2026-11-24-redesign-village-shelf-lenses, סעיף 8): המדף, צ׳יפ",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "app.shelf_longest": {
-   "he": "הארוכים",
-   "en": "Longest",
-   "ru": "Самые длинные",
-   "ka": "ყველაზე გრძელი",
-   "where": "app/android, app/ios",
-   "note": "סבב 3 (design/handoff/2026-11-24-redesign-village-shelf-lenses, סעיף 8): המדף, צ׳יפ",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "app.shelf_sun": {
-   "he": "בשמש עכשיו",
-   "en": "In the sun now",
-   "ru": "Сейчас на солнце",
-   "ka": "ახლა მზეზე",
-   "where": "app/android, app/ios",
-   "note": "סבב 3 (design/handoff/2026-11-24-redesign-village-shelf-lenses, סעיף 8): המדף, צ׳יפ, וגם שם העדשה (K08)",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "app.shelf_group_lift": {
-   "he": {
-    "one": "{lift} · מסלול אחד",
-    "two": "{lift} · {n} מסלולים",
-    "other": "{lift} · {n} מסלולים"
-   },
-   "en": {
-    "one": "{lift} · {n} run",
-    "other": "{lift} · {n} runs"
-   },
-   "ru": {
-    "one": "{lift} · {n} трасса",
-    "few": "{lift} · {n} трассы",
-    "many": "{lift} · {n} трасс",
-    "other": "{lift} · {n} трассы"
-   },
-   "ka": {
-    "one": "{lift} · {n} ტრასა",
-    "other": "{lift} · {n} ტრასა"
-   },
-   "where": "app/android, app/ios",
-   "note": "סבב 3 (design/handoff/2026-11-24-redesign-village-shelf-lenses, סעיף 8): המדף, כותרת קבוצה לפי רכבל",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "app.shelf_group_rest": {
-   "he": "עוד מסלולים · {n}",
-   "en": "More runs · {n}",
-   "ru": "Другие трассы · {n}",
-   "ka": "სხვა ტრასები · {n}",
-   "where": "app/android, app/ios",
-   "note": "סבב 3 (design/handoff/2026-11-24-redesign-village-shelf-lenses, סעיף 8): המדף: מסלולים בלי רכבל בנתונים",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "app.shelf_group_green": {
-   "he": {
-    "one": "ירוקים · מסלול אחד",
-    "two": "ירוקים · {n} מסלולים",
-    "other": "ירוקים · {n} מסלולים"
-   },
-   "en": {
-    "one": "Green · {n} run",
-    "other": "Green · {n} runs"
-   },
-   "ru": {
-    "one": "Зелёные · {n} трасса",
-    "few": "Зелёные · {n} трассы",
-    "many": "Зелёные · {n} трасс",
-    "other": "Зелёные · {n} трассы"
-   },
-   "ka": {
-    "one": "მწვანე · {n} ტრასა",
-    "other": "მწვანე · {n} ტრასა"
-   },
-   "where": "app/android, app/ios",
-   "note": "סבב 3 (design/handoff/2026-11-24-redesign-village-shelf-lenses, סעיף 8): המדף, כותרת קבוצה במיון מהקל לקשה",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "app.shelf_group_blue": {
-   "he": {
-    "one": "כחולים · מסלול אחד",
-    "two": "כחולים · {n} מסלולים",
-    "other": "כחולים · {n} מסלולים"
-   },
-   "en": {
-    "one": "Blue · {n} run",
-    "other": "Blue · {n} runs"
-   },
-   "ru": {
-    "one": "Синие · {n} трасса",
-    "few": "Синие · {n} трассы",
-    "many": "Синие · {n} трасс",
-    "other": "Синие · {n} трассы"
-   },
-   "ka": {
-    "one": "ლურჯი · {n} ტრასა",
-    "other": "ლურჯი · {n} ტრასა"
-   },
-   "where": "app/android, app/ios",
-   "note": "סבב 3 (design/handoff/2026-11-24-redesign-village-shelf-lenses, סעיף 8): המדף, כותרת קבוצה במיון מהקל לקשה",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "app.shelf_group_red": {
-   "he": {
-    "one": "אדומים · מסלול אחד",
-    "two": "אדומים · {n} מסלולים",
-    "other": "אדומים · {n} מסלולים"
-   },
-   "en": {
-    "one": "Red · {n} run",
-    "other": "Red · {n} runs"
-   },
-   "ru": {
-    "one": "Красные · {n} трасса",
-    "few": "Красные · {n} трассы",
-    "many": "Красные · {n} трасс",
-    "other": "Красные · {n} трассы"
-   },
-   "ka": {
-    "one": "წითელი · {n} ტრასა",
-    "other": "წითელი · {n} ტრასა"
-   },
-   "where": "app/android, app/ios",
-   "note": "סבב 3 (design/handoff/2026-11-24-redesign-village-shelf-lenses, סעיף 8): המדף, כותרת קבוצה במיון מהקל לקשה",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "app.shelf_group_black": {
-   "he": {
-    "one": "שחורים · מסלול אחד",
-    "two": "שחורים · {n} מסלולים",
-    "other": "שחורים · {n} מסלולים"
-   },
-   "en": {
-    "one": "Black · {n} run",
-    "other": "Black · {n} runs"
-   },
-   "ru": {
-    "one": "Чёрные · {n} трасса",
-    "few": "Чёрные · {n} трассы",
-    "many": "Чёрные · {n} трасс",
-    "other": "Чёрные · {n} трассы"
-   },
-   "ka": {
-    "one": "შავი · {n} ტრასა",
-    "other": "შავი · {n} ტრასა"
-   },
-   "where": "app/android, app/ios",
-   "note": "סבב 3 (design/handoff/2026-11-24-redesign-village-shelf-lenses, סעיף 8): המדף, כותרת קבוצה במיון מהקל לקשה",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "app.shelf_pos": {
-   "he": "{i} מתוך {n}",
-   "en": "{i} of {n}",
-   "ru": "{i} из {n}",
-   "ka": "{i} / {n}",
-   "where": "app/android, app/ios",
-   "note": "סבב 3 (design/handoff/2026-11-24-redesign-village-shelf-lenses, סעיף 8): המדף, כותרת במיון הארוכים",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "app.shelf_group_sun": {
-   "he": "בשמש עכשיו · {n}",
-   "en": "In the sun now · {n}",
-   "ru": "Сейчас на солнце · {n}",
-   "ka": "ახლა მზეზე · {n}",
-   "where": "app/android, app/ios",
-   "note": "סבב 3 (design/handoff/2026-11-24-redesign-village-shelf-lenses, סעיף 8): המדף, כותרת קבוצה",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "app.shelf_group_shade": {
-   "he": "בצל · {n}",
-   "en": "In the shade · {n}",
-   "ru": "В тени · {n}",
-   "ka": "ჩრდილში · {n}",
-   "where": "app/android, app/ios",
-   "note": "סבב 3 (design/handoff/2026-11-24-redesign-village-shelf-lenses, סעיף 8): המדף, כותרת קבוצה",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "app.shelf_drop_cap": {
-   "he": "מ׳ ירידה",
-   "en": "m drop",
-   "ru": "м перепад",
-   "ka": "მ ვარდნა",
-   "where": "app/android, app/ios",
-   "note": "סבב 3 (design/handoff/2026-11-24-redesign-village-shelf-lenses, סעיף 8): המדף: מתחת למספר",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "app.shelf_km_cap": {
-   "he": "ק״מ",
-   "en": "km",
-   "ru": "км",
-   "ka": "კმ",
-   "where": "app/android, app/ios",
-   "note": "סבב 3 (design/handoff/2026-11-24-redesign-village-shelf-lenses, סעיף 8): המדף: מתחת למספר",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "app.shelf_m_cap": {
-   "he": "מ׳",
-   "en": "m",
-   "ru": "м",
-   "ka": "მ",
-   "where": "app/android, app/ios",
-   "note": "סבב 3 (design/handoff/2026-11-24-redesign-village-shelf-lenses, סעיף 8): המדף: מתחת למספר, מתחת ל-1,000 מ׳",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "app.shelf_back": {
-   "he": "חוזרים ב-{lift} · {min} דק׳",
-   "en": "Back up on {lift} · {min} min",
-   "ru": "Обратно на {lift} · {min} мин",
-   "ka": "უკან {lift}-ით · {min} წთ",
-   "where": "app/android, app/ios",
-   "note": "סבב 3 (design/handoff/2026-11-24-redesign-village-shelf-lenses, סעיף 8): המדף: שורת החזרה",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "app.shelf_back_nomin": {
-   "he": "חוזרים ב-{lift}",
-   "en": "Back up on {lift}",
-   "ru": "Обратно на {lift}",
-   "ka": "უკან {lift}-ით",
-   "where": "app/android, app/ios",
-   "note": "סבב 3 (design/handoff/2026-11-24-redesign-village-shelf-lenses, סעיף 8): המדף ומהתחנה: בלי זמן נסיעה",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "app.shelf_back_none": {
-   "he": "ממשיכים במסלול אחר",
-   "en": "Goes on into another run",
-   "ru": "Дальше по другой трассе",
-   "ka": "გრძელდება სხვა ტრასაზე",
-   "where": "app/android, app/ios",
-   "note": "סבב 3 (design/handoff/2026-11-24-redesign-village-shelf-lenses, סעיף 8): המדף: בלי רכבל בתחתית",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "app.shelf_beginner": {
-   "he": "אזור מתחילים",
-   "en": "Beginner area",
-   "ru": "Зона для новичков",
-   "ka": "დამწყებთა ზონა",
-   "where": "app/android, app/ios",
-   "note": "סבב 3 (design/handoff/2026-11-24-redesign-village-shelf-lenses, סעיף 8): המדף ומהתחנה",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "app.shelf_card_a11y": {
-   "he": "{run}, {color}, {level}, {len}, {drop} מטר ירידה, {back}",
-   "en": "{run}, {color}, {level}, {len}, {drop} metres drop, {back}",
-   "ru": "{run}, {color}, {level}, {len}, перепад {drop} метров, {back}",
-   "ka": "{run}, {color}, {level}, {len}, ვარდნა {drop} მეტრი, {back}",
-   "where": "app/android, app/ios",
-   "note": "סבב 3 (design/handoff/2026-11-24-redesign-village-shelf-lenses, סעיף 8): המדף: קורא מסך, כרטיס",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "app.shelf_sort_a11y": {
-   "he": "מיון: {sort}",
-   "en": "Sort: {sort}",
-   "ru": "Сортировка: {sort}",
-   "ka": "დალაგება: {sort}",
-   "where": "app/android, app/ios",
-   "note": "סבב 3 (design/handoff/2026-11-24-redesign-village-shelf-lenses, סעיף 8): המדף: קורא מסך, צ׳יפ",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "app.station_title": {
-   "he": "מראש {lift}",
-   "en": "From the top of {lift}",
-   "ru": "С вершины {lift}",
-   "ka": "{lift}-ის თავიდან",
-   "where": "app/android, app/ios",
-   "note": "סבב 3 (design/handoff/2026-11-24-redesign-village-shelf-lenses, סעיף 8): מהתחנה (K06), כותרת",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "app.station_sub": {
-   "he": {
-    "one": "{m} מ׳ · מסלול אחד יורד מכאן",
-    "two": "{m} מ׳ · {n} מסלולים יורדים מכאן",
-    "other": "{m} מ׳ · {n} מסלולים יורדים מכאן"
-   },
-   "en": {
-    "one": "{m} m · one run down from here",
-    "other": "{m} m · {n} runs down from here"
-   },
-   "ru": {
-    "one": "{m} м · отсюда вниз {n} трасса",
-    "few": "{m} м · отсюда вниз {n} трассы",
-    "many": "{m} м · отсюда вниз {n} трасс",
-    "other": "{m} м · отсюда вниз {n} трассы"
-   },
-   "ka": {
-    "one": "{m} მ · აქედან ეშვება {n} ტრასა",
-    "other": "{m} მ · აქედან ეშვება {n} ტრასა"
-   },
-   "where": "app/android, app/ios",
-   "note": "סבב 3 (design/handoff/2026-11-24-redesign-village-shelf-lenses, סעיף 8): מהתחנה, שורת משנה",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "app.lens_open": {
-   "he": "פתוח",
-   "en": "Open",
-   "ru": "Открытые",
-   "ka": "ღია",
-   "where": "app/android, app/ios",
-   "note": "סבב 3 (design/handoff/2026-11-24-redesign-village-shelf-lenses, סעיף 8): העדשות (K08), שם העדשה",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "app.lens_slope": {
-   "he": "קל ← קשה",
-   "en": "Easy → hard",
-   "ru": "Лёгкие → сложные",
-   "ka": "მარტივი → რთული",
-   "where": "app/android, app/ios",
-   "note": "סבב 3 (design/handoff/2026-11-24-redesign-village-shelf-lenses, סעיף 8): העדשות, שם העדשה; החץ חלק מהמחרוזת",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "app.lens_a11y": {
-   "he": "עדשה: {lens}",
-   "en": "Lens: {lens}",
-   "ru": "Слой: {lens}",
-   "ka": "ფენა: {lens}",
-   "where": "app/android, app/ios",
-   "note": "סבב 3 (design/handoff/2026-11-24-redesign-village-shelf-lenses, סעיף 8): העדשות: קורא מסך",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "app.lens_sun_title": {
-   "he": {
-    "one": "מסלול בשמש עכשיו",
-    "two": "מסלולים בשמש עכשיו",
-    "other": "מסלולים בשמש עכשיו"
-   },
-   "en": {
-    "one": "run in the sun now",
-    "other": "runs in the sun now"
-   },
-   "ru": {
-    "one": "трасса сейчас на солнце",
-    "few": "трассы сейчас на солнце",
-    "many": "трасс сейчас на солнце",
-    "other": "трассы сейчас на солнце"
-   },
-   "ka": {
-    "one": "ტრასა ახლა მზეზეა",
-    "other": "ტრასა ახლა მზეზეა"
-   },
-   "where": "app/android, app/ios",
-   "note": "סבב 3 (design/handoff/2026-11-24-redesign-village-shelf-lenses, סעיף 8): העדשות: אחרי המספר",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "app.lens_sun_sub": {
-   "he": "ו-{n} עוד בצל · {time}",
-   "en": "and {n} more in the shade · {time}",
-   "ru": "и ещё {n} в тени · {time}",
-   "ka": "და კიდევ {n} ჩრდილში · {time}",
-   "where": "app/android, app/ios",
-   "note": "סבב 3 (design/handoff/2026-11-24-redesign-village-shelf-lenses, סעיף 8): העדשות",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "app.lens_sun_leg": {
-   "he": "בשמש",
-   "en": "In the sun",
-   "ru": "На солнце",
-   "ka": "მზეზე",
-   "where": "app/android, app/ios",
-   "note": "סבב 3 (design/handoff/2026-11-24-redesign-village-shelf-lenses, סעיף 8): העדשות: מקרא",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "app.lens_shade_leg": {
-   "he": "בצל ההר",
-   "en": "In the mountain's shade",
-   "ru": "В тени горы",
-   "ka": "მთის ჩრდილში",
-   "where": "app/android, app/ios",
-   "note": "סבב 3 (design/handoff/2026-11-24-redesign-village-shelf-lenses, סעיף 8): העדשות: מקרא",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "app.lens_sun_note": {
-   "he": "הצל מחושב מצורת ההר וממיקום השמש. ענן לא נלקח בחשבון.",
-   "en": "The shade is worked out from the mountain's shape and the sun's position. Clouds are not counted.",
-   "ru": "Тень рассчитана по форме горы и положению солнца. Облака не учитываются.",
-   "ka": "ჩრდილი გამოთვლილია მთის ფორმითა და მზის მდებარეობით. ღრუბლები არ არის გათვალისწინებული.",
-   "where": "app/android, app/ios",
-   "note": "סבב 3 (design/handoff/2026-11-24-redesign-village-shelf-lenses, סעיף 8): העדשות: הערה",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "app.lens_no_sun": {
-   "he": "אין שמש עכשיו",
-   "en": "No sun now",
-   "ru": "Сейчас нет солнца",
-   "ka": "ახლა მზე არ არის",
-   "where": "app/android, app/ios",
-   "note": "סבב 3 (design/handoff/2026-11-24-redesign-village-shelf-lenses, סעיף 8): העדשות, וגם במדף",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "app.lens_sunrise": {
-   "he": "הזריחה בגודאורי ב-{time}",
-   "en": "Sunrise in Gudauri at {time}",
-   "ru": "Восход в Гудаури в {time}",
-   "ka": "მზის ამოსვლა გუდაურში {time}-ზე",
-   "where": "app/android, app/ios",
-   "note": "סבב 3 (design/handoff/2026-11-24-redesign-village-shelf-lenses, סעיף 8): העדשות",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "app.lens_open_title": {
-   "he": {
-    "one": "מסלול פתוח עכשיו",
-    "two": "מסלולים פתוחים עכשיו",
-    "other": "מסלולים פתוחים עכשיו"
-   },
-   "en": {
-    "one": "run open now",
-    "other": "runs open now"
-   },
-   "ru": {
-    "one": "трасса открыта сейчас",
-    "few": "трассы открыты сейчас",
-    "many": "трасс открыто сейчас",
-    "other": "трассы открыты сейчас"
-   },
-   "ka": {
-    "one": "ტრასა ღიაა ახლა",
-    "other": "ტრასა ღიაა ახლა"
-   },
-   "where": "app/android, app/ios",
-   "note": "סבב 3 (design/handoff/2026-11-24-redesign-village-shelf-lenses, סעיף 8): העדשות: אחרי המספר",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "app.lens_open_sub": {
-   "he": "ו-{n} סגורים · עודכן {ago}",
-   "en": "and {n} closed · updated {ago}",
-   "ru": "и {n} закрыто · обновлено {ago}",
-   "ka": "და {n} დახურულია · განახლდა {ago}",
-   "where": "app/android, app/ios",
-   "note": "סבב 3 (design/handoff/2026-11-24-redesign-village-shelf-lenses, סעיף 8): העדשות",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "app.lens_closed_leg": {
-   "he": "סגור",
-   "en": "Closed",
-   "ru": "Закрыта",
-   "ka": "დახურულია",
-   "where": "app/android, app/ios",
-   "note": "סבב 3 (design/handoff/2026-11-24-redesign-village-shelf-lenses, סעיף 8): העדשות: מקרא",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "app.lens_unknown_leg": {
-   "he": "בלי מידע",
-   "en": "No information",
-   "ru": "Нет данных",
-   "ka": "ინფორმაცია არ არის",
-   "where": "app/android, app/ios",
-   "note": "סבב 3 (design/handoff/2026-11-24-redesign-village-shelf-lenses, סעיף 8): העדשות: מקרא",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "app.lens_no_report": {
-   "he": "אין דיווח עכשיו",
-   "en": "No report now",
-   "ru": "Сейчас нет данных",
-   "ka": "ახლა მონაცემები არ არის",
-   "where": "app/android, app/ios",
-   "note": "סבב 3 (design/handoff/2026-11-24-redesign-village-shelf-lenses, סעיף 8): העדשות",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "app.lens_slope_title": {
-   "he": "כמה תלול, לאורך כל מסלול",
-   "en": "How steep, along every run",
-   "ru": "Насколько круто, по всей трассе",
-   "ka": "რამდენად ციცაბოა, ყველა ტრასის გასწვრივ",
-   "where": "app/android, app/ios",
-   "note": "סבב 3 (design/handoff/2026-11-24-redesign-village-shelf-lenses, סעיף 8): העדשות",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "app.lens_slope_leg_1": {
-   "he": "עד 15°",
-   "en": "Up to 15°",
-   "ru": "До 15°",
-   "ka": "15°-მდე",
-   "where": "app/android, app/ios",
-   "note": "סבב 3 (design/handoff/2026-11-24-redesign-village-shelf-lenses, סעיף 8): העדשות: מקרא השיפוע",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "app.lens_slope_leg_2": {
-   "he": "15° עד 25°",
-   "en": "15° to 25°",
-   "ru": "15°–25°",
-   "ka": "15°–25°",
-   "where": "app/android, app/ios",
-   "note": "סבב 3 (design/handoff/2026-11-24-redesign-village-shelf-lenses, סעיף 8): העדשות: מקרא השיפוע",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "app.lens_slope_leg_3": {
-   "he": "25° עד 30°",
-   "en": "25° to 30°",
-   "ru": "25°–30°",
-   "ka": "25°–30°",
-   "where": "app/android, app/ios",
-   "note": "סבב 3 (design/handoff/2026-11-24-redesign-village-shelf-lenses, סעיף 8): העדשות: מקרא השיפוע",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "app.lens_slope_leg_4": {
-   "he": "מעל 30°",
-   "en": "Over 30°",
-   "ru": "Больше 30°",
-   "ka": "30°-ზე მეტი",
-   "where": "app/android, app/ios",
-   "note": "סבב 3 (design/handoff/2026-11-24-redesign-village-shelf-lenses, סעיף 8): העדשות: מקרא השיפוע",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "app.lens_slope_note": {
-   "he": "לפי מודל הגובה. קיר קצר יכול להיות תלול יותר.",
-   "en": "From the height model. A short wall can be steeper.",
-   "ru": "По модели высот. Короткий участок может быть круче.",
-   "ka": "სიმაღლის მოდელის მიხედვით. მოკლე კედელი შეიძლება უფრო ციცაბო იყოს.",
-   "where": "app/android, app/ios",
-   "note": "סבב 3 (design/handoff/2026-11-24-redesign-village-shelf-lenses, סעיף 8): העדשות: הערה",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "app.lens_snow_title": {
-   "he": "ס״מ שלג חדש למעלה",
-   "en": "cm new snow up top",
-   "ru": "см свежего снега наверху",
-   "ka": "სმ ახალი თოვლი ზემოთ",
-   "where": "app/android, app/ios",
-   "note": "סבב 3 (design/handoff/2026-11-24-redesign-village-shelf-lenses, סעיף 8): העדשות: אחרי המספר",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "app.lens_snow_sub": {
-   "he": "{mid} ב-{place} · {low} בכפר · ב-24 השעות האחרונות",
-   "en": "{mid} at {place} · {low} in the village · in the last 24 hours",
-   "ru": "{mid} на {place} · {low} в деревне · за последние 24 часа",
-   "ka": "{mid} — {place} · {low} სოფელში · ბოლო 24 საათში",
-   "where": "app/android, app/ios",
-   "note": "סבב 3 (design/handoff/2026-11-24-redesign-village-shelf-lenses, סעיף 8): העדשות",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "app.lens_snow_leg_1": {
-   "he": "10 ס״מ ומעלה",
-   "en": "10 cm and more",
-   "ru": "10 см и больше",
-   "ka": "10 სმ და მეტი",
-   "where": "app/android, app/ios",
-   "note": "סבב 3 (design/handoff/2026-11-24-redesign-village-shelf-lenses, סעיף 8): העדשות: מקרא השלג",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "app.lens_snow_leg_2": {
-   "he": "עד 10",
-   "en": "Up to 10",
-   "ru": "До 10",
-   "ka": "10-მდე",
-   "where": "app/android, app/ios",
-   "note": "סבב 3 (design/handoff/2026-11-24-redesign-village-shelf-lenses, סעיף 8): העדשות: מקרא השלג",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "app.lens_snow_leg_3": {
-   "he": "בלי",
-   "en": "None",
-   "ru": "Нет",
-   "ka": "არა",
-   "where": "app/android, app/ios",
-   "note": "סבב 3 (design/handoff/2026-11-24-redesign-village-shelf-lenses, סעיף 8): העדשות: מקרא השלג",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "app.lens_snow_note": {
-   "he": "לפי התחזית לגובה, לא מדידה.",
-   "en": "From the forecast for the height, not a measurement.",
-   "ru": "По прогнозу для высоты, не измерение.",
-   "ka": "სიმაღლის პროგნოზით, არა გაზომვით.",
-   "where": "app/android, app/ios",
-   "note": "סבב 3 (design/handoff/2026-11-24-redesign-village-shelf-lenses, סעיף 8): העדשות: הערה, ואחריה הקרדיט הקיים",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "app.lens_snow_none": {
-   "he": "בלי שלג חדש ב-24 השעות האחרונות",
-   "en": "No new snow in the last 24 hours",
-   "ru": "За последние 24 часа свежего снега нет",
-   "ka": "ბოლო 24 საათში ახალი თოვლი არ მოსულა",
-   "where": "app/android, app/ios",
-   "note": "סבב 3 (design/handoff/2026-11-24-redesign-village-shelf-lenses, סעיף 8): העדשות",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "app.vill_sub": {
-   "he": "{place} · {m} מ׳",
-   "en": "{place} · {m} m",
-   "ru": "{place} · {m} м",
-   "ka": "{place} · {m} მ",
-   "where": "app/android, app/ios",
-   "note": "סבב 3 (design/handoff/2026-11-24-redesign-village-shelf-lenses, סעיף 8): הכפר (K17), שורת משנה",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "app.vill_back": {
-   "he": "חזרה להר",
-   "en": "Back to the mountain",
-   "ru": "Назад к горе",
-   "ka": "მთაზე დაბრუნება",
-   "where": "app/android, app/ios",
-   "note": "סבב 3 (design/handoff/2026-11-24-redesign-village-shelf-lenses, סעיף 8): הכפר: למעלה",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "app.vill_food": {
-   "he": "אוכל ושתייה",
-   "en": "Food and drink",
-   "ru": "Еда и напитки",
-   "ka": "საჭმელი და სასმელი",
-   "where": "app/android, app/ios",
-   "note": "סבב 3 (design/handoff/2026-11-24-redesign-village-shelf-lenses, סעיף 8): הכפר: שורה",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "app.vill_food_n": {
-   "he": {
-    "one": "מקום אחד ליד הרכבל",
-    "two": "{n} מקומות ליד הרכבל",
-    "other": "{n} מקומות ליד הרכבל"
-   },
-   "en": {
-    "one": "{n} place by the lift",
-    "other": "{n} places by the lift"
-   },
-   "ru": {
-    "one": "{n} место у подъёмника",
-    "few": "{n} места у подъёмника",
-    "many": "{n} мест у подъёмника",
-    "other": "{n} места у подъёмника"
-   },
-   "ka": {
-    "one": "{n} ადგილი საბაგიროსთან",
-    "other": "{n} ადგილი საბაგიროსთან"
-   },
-   "where": "app/android, app/ios",
-   "note": "סבב 3 (design/handoff/2026-11-24-redesign-village-shelf-lenses, סעיף 8): הכפר: שורה",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "app.vill_pin_food": {
-   "he": "אוכל ושתייה · {n}",
-   "en": "Food and drink · {n}",
-   "ru": "Еда и напитки · {n}",
-   "ka": "საჭმელი და სასმელი · {n}",
-   "where": "app/android, app/ios",
-   "note": "סבב 3 (design/handoff/2026-11-24-redesign-village-shelf-lenses, סעיף 8): הכפר: סיכה",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "app.vill_pin_tickets": {
-   "he": "קופת כרטיסים",
-   "en": "Ticket office",
-   "ru": "Кассы",
-   "ka": "სალარო",
-   "where": "app/android, app/ios",
-   "note": "סבב 3 (design/handoff/2026-11-24-redesign-village-shelf-lenses, סעיף 8): הכפר: סיכה",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "app.vill_pin_parking": {
-   "he": "חניה",
-   "en": "Parking",
-   "ru": "Парковка",
-   "ka": "პარკინგი",
-   "where": "app/android, app/ios",
-   "note": "סבב 3 (design/handoff/2026-11-24-redesign-village-shelf-lenses, סעיף 8): הכפר: סיכה",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "app.vill_pin_meet": {
-   "he": "נפגשים · {time}",
-   "en": "Meeting · {time}",
-   "ru": "Встреча · {time}",
-   "ka": "შეხვედრა · {time}",
-   "where": "app/android, app/ios",
-   "note": "סבב 3 (design/handoff/2026-11-24-redesign-village-shelf-lenses, סעיף 8): הכפר: סיכה",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "app.vill_trip_dates": {
-   "he": {
-    "one": "{dates} · יום סקי אחד",
-    "two": "{dates} · {n} ימי סקי",
-    "other": "{dates} · {n} ימי סקי"
-   },
-   "en": {
-    "one": "{dates} · {n} ski day",
-    "other": "{dates} · {n} ski days"
-   },
-   "ru": {
-    "one": "{dates} · {n} день катания",
-    "few": "{dates} · {n} дня катания",
-    "many": "{dates} · {n} дней катания",
-    "other": "{dates} · {n} дня катания"
-   },
-   "ka": {
-    "one": "{dates} · {n} სათხილამურო დღე",
-    "other": "{dates} · {n} სათხილამურო დღე"
-   },
-   "where": "app/android, app/ios",
-   "note": "סבב 3 (design/handoff/2026-11-24-redesign-village-shelf-lenses, סעיף 8): הכפר: שורת הטיול",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "app.vill_pass_trip": {
-   "he": {
-    "one": "יום אחד · {price}",
-    "two": "יומיים · {price}",
-    "other": "{n} ימים · {price}"
-   },
-   "en": {
-    "one": "{n} day · {price}",
-    "other": "{n} days · {price}"
-   },
-   "ru": {
-    "one": "{n} день · {price}",
-    "few": "{n} дня · {price}",
-    "many": "{n} дней · {price}",
-    "other": "{n} дня · {price}"
-   },
-   "ka": {
-    "one": "{n} დღე · {price}",
-    "other": "{n} დღე · {price}"
-   },
-   "where": "app/android, app/ios",
-   "note": "סבב 3 (design/handoff/2026-11-24-redesign-village-shelf-lenses, סעיף 8): הכפר: שורת כרטיס הסקי",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "app.vill_pass_day": {
-   "he": "כרטיס יום · {price}",
-   "en": "Day pass · {price}",
-   "ru": "Ски-пасс на день · {price}",
-   "ka": "დღის საშვი · {price}",
-   "where": "app/android, app/ios",
-   "note": "סבב 3 (design/handoff/2026-11-24-redesign-village-shelf-lenses, סעיף 8): הכפר: שורת כרטיס הסקי",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "app.vill_grp_meet": {
-   "he": "נפגשים {time}, {place}",
-   "en": "Meeting {time}, {place}",
-   "ru": "Встреча {time}, {place}",
-   "ka": "შეხვედრა {time}, {place}",
-   "where": "app/android, app/ios",
-   "note": "סבב 3 (design/handoff/2026-11-24-redesign-village-shelf-lenses, סעיף 8): הכפר: שורת החבר׳ה",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "app.vill_grp_n": {
-   "he": {
-    "one": "קבוצה אחת",
-    "two": "{n} קבוצות",
-    "other": "{n} קבוצות"
-   },
-   "en": {
-    "one": "{n} group",
-    "other": "{n} groups"
-   },
-   "ru": {
-    "one": "{n} группа",
-    "few": "{n} группы",
-    "many": "{n} групп",
-    "other": "{n} группы"
-   },
-   "ka": {
-    "one": "{n} ჯგუფი",
-    "other": "{n} ჯგუფი"
-   },
-   "where": "app/android, app/ios",
-   "note": "סבב 3 (design/handoff/2026-11-24-redesign-village-shelf-lenses, סעיף 8): הכפר: שורת החבר׳ה",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "app.vill_grp_none": {
-   "he": "מצטרפים או פותחים קבוצה",
-   "en": "Join or start a group",
-   "ru": "Вступить или создать группу",
-   "ka": "შეუერთდით ან შექმენით ჯგუფი",
-   "where": "app/android, app/ios",
-   "note": "סבב 3 (design/handoff/2026-11-24-redesign-village-shelf-lenses, סעיף 8): הכפר: שורת החבר׳ה",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "app.vill_cabin_n": {
-   "he": {
-    "one": "משחק אחד",
-    "two": "{n} משחקים",
-    "other": "{n} משחקים"
-   },
-   "en": {
-    "one": "{n} game",
-    "other": "{n} games"
-   },
-   "ru": {
-    "one": "{n} игра",
-    "few": "{n} игры",
-    "many": "{n} игр",
-    "other": "{n} игры"
-   },
-   "ka": {
-    "one": "{n} თამაში",
-    "other": "{n} თამაში"
-   },
-   "where": "app/android, app/ios",
-   "note": "סבב 3 (design/handoff/2026-11-24-redesign-village-shelf-lenses, סעיף 8): הכפר: שורת הבקתה",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "app.vill_credit": {
-   "he": "הכפר: ציור מנתונים, לא צילום. גובה של חלק מהבניינים משוער.",
-   "en": "The village: drawn from data, not a photograph. Some building heights are estimated.",
-   "ru": "Деревня: рисунок по данным, не фотография. Высота части зданий оценочная.",
-   "ka": "სოფელი: მონაცემებით დახატული, არა ფოტო. ზოგი შენობის სიმაღლე სავარაუდოა.",
-   "where": "app/android, app/ios",
-   "note": "סבב 3 (design/handoff/2026-11-24-redesign-village-shelf-lenses, סעיף 8): הכפר: קרדיט באודות (תנאי הארכיטקט, 24.11.2026)",
    "check": [
     "ru",
     "ka"
@@ -24345,18 +24303,6 @@
    "ka": "ტრასა {n} · დღის რეკორდი",
    "where": "app/android",
    "note": "סבב ההשלמה, חלק 3 (סעיף 12 ב-design/handoff/2026-11-23-redesign-people): סבב 4, L05: ההתראה (לוח L05), כשהירידה האחרונה היא המהירה ביום",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "app.g_code_copied": {
-   "he": "הקוד הועתק",
-   "en": "Code copied",
-   "ru": "Код скопирован",
-   "ka": "კოდი დაკოპირდა",
-   "where": "app/android",
-   "note": "סבב ההשלמה, חלק 3 (R07): הודעה קצרה אחרי נגיעה בתיבות הקוד. לא במסירה; לסשן התוכן",
    "check": [
     "ru",
     "ka"
