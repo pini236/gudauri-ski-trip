@@ -12,8 +12,8 @@ import java.io.File
  * and the village read in the mountain's own form.
  */
 class VillageTest {
-    private val root = generateSequence(File("").absoluteFile) { it.parentFile }.first { File(it, "app/android/app/src/preview/assets/redesign").isDirectory }
-    private val assets = File(root, "app/android/app/src/preview/assets/redesign")
+    private val root = generateSequence(File("").absoluteFile) { it.parentFile }.first { File(it, "app/android/app/src/redesign/assets/redesign").isDirectory }
+    private val assets = File(root, "app/android/app/src/redesign/assets/redesign")
 
     @Test fun everyPaintedPictureTogetherIsWithinTheCeiling() {
         val pics = listOf("img", "village/img").flatMap { d -> File(assets, d).listFiles()?.toList().orEmpty() }.filter { f -> f.isFile }

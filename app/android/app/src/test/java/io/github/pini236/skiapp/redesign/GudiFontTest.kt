@@ -12,7 +12,7 @@ class GudiFontTest {
     private val root = generateSequence(File("").absoluteFile) { it.parentFile }.first { File(it, "app/android/licenses").isDirectory }
 
     @Test fun theNewFontsAreWithinTheBudget() {
-        val new = listOf(File(root, "app/android/app/src/preview/res/font/heebo.ttf"))
+        val new = listOf(File(root, "app/android/app/src/main/res/font/heebo.ttf"))
         val total = new.sumOf { it.length() }
         assertTrue("the new fonts are $total bytes, over 600 KB", total in 1..600_000L)
     }

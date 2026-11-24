@@ -14,7 +14,7 @@ import java.io.File
  * 0.1.573: after a pinch the touch was tested in the projection of the first frame), and the picture by the sun.
  */
 class PeakGeoTest {
-    private val d = PeakData.parse(File("src/preview/assets/redesign/peak-poc.json").readText())
+    private val d = PeakData.parse(File("src/redesign/assets/redesign/peak-poc.json").readText())
     private val runs = d.runs.keys
     // a phone in portrait (Pixel 6 in pixels) and a small one
     private val screens = listOf(1080f to 2400f, 720f to 1520f)

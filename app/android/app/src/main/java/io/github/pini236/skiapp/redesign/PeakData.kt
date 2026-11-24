@@ -12,7 +12,7 @@ import org.json.JSONObject
  * The redesign POC's data (decision 85): assets/redesign/peak-poc.json, the product designer's handoff
  * (design/handoff/2026-11-20-redesign-poc, schema 0). Everything is already projected onto the pictures, in their
  * points (390 wide); the app projects nothing. Two views: "hero" (the whole mountain, 390 x 844) and "zoom" (the
- * Tatra side, 390 x 560). Test build only (src/preview).
+ * Tatra side, 390 x 560). In the store build only with its switch (src/redesign).
  */
 class PeakData(
     val lights: List<Light>,

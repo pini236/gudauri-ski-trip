@@ -1076,7 +1076,7 @@ weather() {
   adb shell cmd locale set-app-locales "$PKG" --locales he > /dev/null 2>&1; sleep 3
 }
 
-# ---- the redesign POC: the painted mountain (decision 85; test build only, src/preview) ----
+# ---- the redesign POC: the painted mountain (decision 85; in every build since the store version, behind BuildConfig.REDESIGN) ----
 # The mountain opens only when asked (qa.redesign open), so no other part sees it. adb has one finger, so a pinch cannot
 # be made: the free view is set as a pinch leaves it (qa.redesign view:<zoom>,<x>,<y>), and every touch is a real one, at
 # the place the screen says the run is drawn now (qa.redesign spot:<run>). The bug of 0.1.573: after a pinch, a touch
