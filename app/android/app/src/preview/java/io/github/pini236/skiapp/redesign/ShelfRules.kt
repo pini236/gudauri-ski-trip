@@ -104,3 +104,21 @@ internal object FromStation {
         all.filter { (_, from) -> from.any { it in topOf } }.map { it.first }.distinctBy { it.key }
             .sortedWith(compareByDescending<ShelfRun> { it.len }.then { a, b -> RunFacts.natural(a.title, b.title) })
 }
+
+/**
+ * K06 opening by itself (the handoff's section 3): with "where am I" on, after a ride on a lift, once the location is off
+ * the lift and within 80 m of that lift's top station; once for each ride.
+ */
+internal class StationAuto {
+    private var riding: String? = null
+
+    /** [onLift] the lift the location is on now (null off any lift); [toTop] metres from a lift's top station. The lift reached, once. */
+    fun feed(onLift: String?, toTop: (String) -> Float?): String? {
+        if (onLift != null) { riding = onLift; return null }
+        val r = riding ?: return null
+        val d = toTop(r) ?: return null
+        if (d > 80f) return null
+        riding = null
+        return r
+    }
+}

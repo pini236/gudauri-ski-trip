@@ -547,6 +547,21 @@ class LiveView(context: Context, private val scene: MapScene) : GLSurfaceView(co
         }
     }
 
+    /**
+     * The shelf's middle card (K07, the live handoff's section 10): a run that shows less than half from here turns the
+     * view to the wide view of the side that shows more of it; nothing is chosen and nothing is framed.
+     */
+    fun showSide(key: String) {
+        if (worker.isShutdown) return
+        worker.execute {
+            if (seen(key, camera.state()) >= .5f) return@execute
+            val f = front(); val k = kobi()
+            val wide = if (seen(key, k) > seen(key, f)) k else f
+            Qa.log("redesign shelf side ${if (wide === k) "kobi" else "front"} $key")
+            post { turnTo(wide) }
+        }
+    }
+
     /** To a wide view: through the east, both ways (yaw 0 to 180 going up, back going down), or a swap. */
     fun turnTo(to: OrbitCamera.State, then: (() -> Unit)? = null) {
         renderer.stopAnim(); camera.stopFling()

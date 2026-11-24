@@ -578,7 +578,7 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
             Shelf(scene, view, shelfRuns, night, haptics,
                 open = { flat -> Shelf.start(flat, ShelfMemory.last, null, null) },
                 closed = { key -> scene.runs.pistes.firstOrNull { it.key == key }?.let { status?.runOpen(it) == false } ?: false },
-                onCenter = { shelfMid = it },
+                onCenter = { shelfMid = it; view.showSide(it.key) },
                 onPick = { key -> ShelfMemory.last = key; shelfOpen = false; Qa.log("redesign shelf pick $key"); view.pickKey(key) },
                 onClose = { shelfOpen = false; Qa.log("redesign shelf closed") })
             if (veilA > .5f) shelfMid?.let { r -> RunTag(view, scene, r.key, r.title, r.color, night) }
@@ -714,6 +714,17 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
         // part 4 (S03, S04, S08): the location's box under the pill, the map's buttons, and S02 before the phone asks
         val bare = chosen == null && !villageOpen && !shelfOpen && fromSt == null && !liftsOpen && !meet.open && !tripOpen && !skipassOpen && !seasonOn && !people.open
         val dens = androidx.compose.ui.platform.LocalDensity.current.density
+        // K06 by itself: after a ride, near the lift's top station, when nothing else is open (once for each ride)
+        val stAuto = remember { StationAuto() }
+        val wst = where.where.state
+        LaunchedEffect(wst) {
+            val f = wst as? io.github.pini236.skiapp.map.WhereAmI.State.Fixed ?: return@LaunchedEffect
+            val on = (f.fix as? io.github.pini236.skiapp.map.Locator.Fix.OnLift)?.lift?.name
+            val reached = stAuto.feed(on) { name -> scene.runs.lifts.firstOrNull { it.name == name }?.let { l -> LiveLifts.ends(l, scene.terrain::elev)?.let { e -> kotlin.math.hypot(f.x - e[2], f.y - e[3]) } } }
+            if (reached != null && bare && plan != null) plan.stations.firstOrNull { reached in it.topOf && FromStation.runs(it.topOf, stationRuns).isNotEmpty() }?.let { s ->
+                fromSt = s; Qa.log("redesign station auto ${s.id}")
+            }
+        }
         LaunchedEffect(bare, plan) {
             view.onPreTap = if (bare && plan != null) { x, y -> StationTap.at(view, plan, stationRuns, x, y, dens)?.let { s -> haptics.tick(.4f); fromSt = s; Qa.log("redesign station ${s.id}"); true } ?: false } else null
         }

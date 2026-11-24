@@ -20,4 +20,15 @@ class FromStationTest {
     @Test fun theSameLengthGoesByName() =
         assertEquals(listOf("Soliko 2", "Soliko 10"), FromStation.runs(listOf("Soliko"),
             listOf(r("Soliko 10", 500) to listOf("Soliko"), r("Soliko 2", 500) to listOf("Soliko"))).map { it.key })
+
+    @Test fun itOpensByItselfOnceAtTheTopOfTheLiftRidden() {
+        val a = StationAuto()
+        val dist = mutableMapOf("Goodaura" to 500f)
+        assertEquals(null, a.feed(null, dist::get))          // never on a lift
+        assertEquals(null, a.feed("Goodaura", dist::get))    // riding
+        assertEquals(null, a.feed(null, dist::get))          // off, still far from the top
+        dist["Goodaura"] = 60f
+        assertEquals("Goodaura", a.feed(null, dist::get))    // at the top
+        assertEquals(null, a.feed(null, dist::get))          // once for the ride
+    }
 }
