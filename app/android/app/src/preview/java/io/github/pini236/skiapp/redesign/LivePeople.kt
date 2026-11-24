@@ -42,6 +42,7 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -135,6 +136,8 @@ internal sealed class PLayer(val tag: String) {
     object Delete : PLayer("delete")
     object Licenses : PLayer("licenses")
     class License(val key: String) : PLayer("license")
+    /** T09 for an admin: a member's flight, the full trip form (group, user). */
+    class TripFor(val group: String, val user: String) : PLayer("tripfor")
 }
 
 /** What of part 3 is open over the mountain, as a stack: the back arrow and the system's back go one down. */
@@ -421,6 +424,7 @@ internal fun BoxScope.LivePeople(p: People, ui: PeopleUi, night: Boolean, haptic
         PLayer.Delete -> DeleteScreen(p, ui, k)
         PLayer.Licenses -> LicensesScreen(ui, k)
         is PLayer.License -> LicenseText(ui, k, l.key)
+        is PLayer.TripFor -> TripForScreen(p, ui, night, haptics, l.group, l.user, today)
     }
     ui.toast?.let { t ->
         LaunchedEffect(t) { delay(4000); ui.toast = null }
@@ -1216,7 +1220,7 @@ private fun Members(p: People, ui: PeopleUi, g: Group, k: SheetInk, act: Act, to
                 else PRow(stringResource(R.string.app_g_unmake_admin), k) { menuFor = null; act.run { api.setRole(g.id, m.userId, GRole.MEMBER); reload() } }
                 PRow(stringResource(R.string.app_g_fill_for), k) {
                     menuFor = null
-                    if (g.members.any { it.trip != null }) fillFor = m else p.onTripFor(g.id, m.userId)
+                    if (g.members.any { it.trip != null }) fillFor = m else ui.go(PLayer.TripFor(g.id, m.userId))
                 }
                 PRow(stringResource(R.string.app_g_remove), k, danger = true, last = true) { menuFor = null; armed = "rm:" + m.userId }
             }
@@ -1235,7 +1239,7 @@ private fun Members(p: People, ui: PeopleUi, g: Group, k: SheetInk, act: Act, to
                         fillFor = null; act.run { api.setMemberTrip(g.id, m.userId, src); reload() }
                     }
                 }
-                PRow(stringResource(R.string.app_g_other_flight), k, sub = stringResource(R.string.app_g_fill_new_sub), last = true) { fillFor = null; p.onTripFor(g.id, m.userId) }
+                PRow(stringResource(R.string.app_g_other_flight), k, sub = stringResource(R.string.app_g_fill_new_sub), last = true) { fillFor = null; ui.go(PLayer.TripFor(g.id, m.userId)) }
             }
         }
     }
@@ -1275,6 +1279,27 @@ private fun RedConfirm(text: String, k: SheetInk, onClick: () -> Unit) {
         .semantics { role = Role.Button; liveRegion = LiveRegionMode.Assertive }.clickable(onClick = onClick).padding(horizontal = 12.dp),
         contentAlignment = Alignment.CenterStart) {
         Text(text, fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 15.5.sp, color = k.onRed)
+    }
+}
+
+/**
+ * T09 for an admin (section 4): "the flight of {name}" (group.trip_for), the note that the group sees it, no delete and
+ * no "kept on the phone"; saved to the group (set_member_trip).
+ */
+@Composable
+private fun BoxScope.TripForScreen(p: People, ui: PeopleUi, night: Boolean, haptics: Haptics, groupId: String, userId: String, today: LocalDate) {
+    val act = rememberAct()
+    var member by remember(groupId, userId) { mutableStateOf<Member?>(null) }
+    var loaded by remember(groupId, userId) { mutableStateOf(false) }
+    LaunchedEffect(groupId, userId) { member = runCatching { p.api.group(groupId).members.firstOrNull { it.userId == userId } }.getOrNull(); loaded = true }
+    if (!loaded) return
+    val err = act.error?.let { stringResource(if (it == "offline") R.string.app_err_offline else errorRes(it)) }
+    key(member) {
+        LiveTripForm(member?.trip, today, night, haptics,
+            onSave = { t -> act.run { p.api.setMemberTrip(groupId, userId, t); Qa.log("redesign people member trip saved"); ui.changes++; ui.back() } },
+            onDelete = null, onBack = { ui.back() },
+            title = stringResource(R.string.group_trip_for, member?.name ?: "…"), intro = stringResource(R.string.app_g_fill_new_sub),
+            localNote = false, busy = act.busy, err = err)
     }
 }
 

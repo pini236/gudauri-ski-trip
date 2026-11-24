@@ -117,6 +117,11 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
     // part 2 (Q07, Q08): "your trip" over the mountain, and a field of it being filled
     var tripOpen by remember { mutableStateOf(false) }
     var tripEdit by remember { mutableStateOf<io.github.pini236.skiapp.trip.PassEdit?>(null) }
+    // part 5 (T09): the full trip form, from "edit" on the pass
+    var tripForm by remember { mutableStateOf(false) }
+    // "no sign-up, kept on the phone" only for one who is in no group (T09)
+    var inGroup by remember { mutableStateOf(false) }
+    LaunchedEffect(tripForm) { if (tripForm) inGroup = runCatching { around?.people?.api?.myGroups()?.isNotEmpty() }.getOrNull() ?: false }
     // part 2 (Q09): the ski pass over the mountain
     var skipassOpen by remember { mutableStateOf(false) }
     // part 2 (Q10): before the season the mountain opens on the count of days; closed, it comes back on the next opening
@@ -181,7 +186,8 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
             c.startsWith("meet:") -> meetOpenQa = c.removePrefix("meet:")
             c == "trip" -> { tripEdit = null; tripOpen = true; Qa.log("redesign trip open ${if (around?.trip != null) "pass" else "empty"}") }
             c == "trip:cal" -> { tripOpen = true; tripEdit = io.github.pini236.skiapp.trip.PassEdit.Dates; Qa.log("redesign trip calendar") }
-            c == "trip:off" -> { tripEdit = null; tripOpen = false }
+            c == "trip:off" -> { tripEdit = null; tripOpen = false; tripForm = false }
+            c == "trip:form" -> { tripOpen = true; tripEdit = null; tripForm = true }
             c == "skipass" -> skipassOpen = true
             c == "season" -> seasonOn = LiveSeasonRules.shown(around)
             c == "season:off" -> seasonOn = false
@@ -599,7 +605,7 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
                     Text(if (androidx.compose.ui.platform.LocalLayoutDirection.current == androidx.compose.ui.unit.LayoutDirection.Rtl) "›" else "‹", fontFamily = Plex, fontSize = 24.sp, color = if (night) Color.White else sk.ink)
                 }
                 androidx.compose.foundation.layout.Spacer(Modifier.weight(1f))
-                if (t != null) Pill(Modifier.clickable { haptics.tick(.3f); around.onTripForm() }) {
+                if (t != null) Pill(Modifier.clickable { haptics.tick(.3f); tripEdit = null; tripForm = true }) {
                     Text(stringResource(R.string.trip_edit), Modifier.padding(horizontal = 18.dp), fontFamily = Plex, fontWeight = FontWeight.Medium, fontSize = 15.sp, color = ink)
                 }
             }
@@ -610,6 +616,10 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
             }
             if (t != null && e != null && e != io.github.pini236.skiapp.trip.PassEdit.Dates)
                 PassEditor(e, t, todayL, { nt -> around.onTrip(nt); tripEdit = null }) { tripEdit = null }
+            if (tripForm) LiveTripForm(t, todayL, night, haptics,
+                onSave = { nt -> around.onTrip(nt); tripForm = false },
+                onDelete = { around.onTrip(null); tripForm = false; tripOpen = false; Qa.log("redesign trip deleted") },
+                onBack = { tripForm = false }, localNote = !inGroup)
         }
         if (skipassOpen && around != null) {
             Box(Modifier.fillMaxSize().background(SheetInk(night).veil).clickable(interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() }, indication = null) {})

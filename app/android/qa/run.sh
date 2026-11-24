@@ -1209,6 +1209,15 @@ redesign() {
   mark; qa "--es qa.redesign trip:tear"; rd_settled; shot redesign-trip-torn
   mark; qa "--es qa.mode night --es qa.redesign trip"; rd_settled; shot redesign-trip-night
   mark; qa "--es qa.mode auto --es qa.redesign trip:off"; sleep .5
+  # part 5 (T09): the full form, from "edit": both cards, the number in place, ski days outside the trip, delete armed,
+  # the night, and the return gone (one line, "add the return"); nothing is saved
+  mark; qa "--es qa.redesign trip:form"; waitlog "redesign trip form edit" 10 || fail "redesign: the trip form did not open"; rd_settled; shot redesign-trip-form
+  mark; qa "--es qa.redesign form:num"; sleep 1.5; shot redesign-trip-form-number
+  adb shell input keyevent 4; sleep 1
+  mark; qa "--es qa.redesign form:skiOut"; waitlog "redesign trip form ski outside" 10; sleep 1; shot redesign-trip-form-error
+  mark; qa "--es qa.redesign form:arm"; waitlog "redesign trip delete armed" 10; sleep 1; shot redesign-trip-form-delete
+  mark; qa "--es qa.mode night --es qa.redesign form:noRet"; rd_settled; shot redesign-trip-form-night
+  mark; qa "--es qa.mode auto --es qa.redesign trip:off"; sleep .5
   # part 2 (Q09): the ski pass over the mountain, for the trip's four days, a child, and two weeks
   mark; qa "--es qa.redesign skipass"; waitlog "redesign skipass open" 10 || fail "redesign: the ski pass did not open"; rd_settled; shot redesign-skipass
   mark; qa "--es qa.redesign skipass:child"; waitlog "redesign skipass child" 10; rd_settled; shot redesign-skipass-child
