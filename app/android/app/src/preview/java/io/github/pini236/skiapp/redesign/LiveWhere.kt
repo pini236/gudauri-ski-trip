@@ -269,9 +269,10 @@ internal fun rememberLocate(ui: WhereUi, view: LiveView): Pair<() -> Unit, () ->
     val st = ui.where.state
     var centred by remember { mutableStateOf(false) }
     LaunchedEffect(st) {
+        // the log first: a newer fix cancels this effect while the view is still moving
+        Qa.log("redesign where ${whereTag(st)}")
         if (st == WhereAmI.State.Off) centred = false
         if (!centred && st is WhereAmI.State.Fixed && st.fix != Locator.Fix.Outside) { centred = true; view.center(st.x, st.y, 60 * context.resources.displayMetrics.density) }
-        Qa.log("redesign where ${whereTag(st)}")
     }
     val toggle = {
         val w = ui.where

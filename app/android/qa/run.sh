@@ -1345,7 +1345,9 @@ redesign2() {
   adb shell pm grant "$PKG" android.permission.ACCESS_FINE_LOCATION; adb shell pm grant "$PKG" android.permission.ACCESS_COARSE_LOCATION
   adb shell cmd location set-location-enabled true 2> /dev/null
   geo 42.482631 44.483401; sleep 1
-  mark; qa "--es qa.redesign where"; waitlog "redesign where run Tatra 2" 25 || fail "redesign: where am I did not find Tatra 2"; rd_settled; shot redesign-where-run
+  mark; qa "--es qa.redesign where"
+  seen "redesign where run Tatra 2" 25 || { mark; geo 42.482631 44.483401; waitlog "redesign where run Tatra 2" 25; } || fail "redesign: where am I did not find Tatra 2"
+  rd_settled; shot redesign-where-run
   mark; geo 41.7151 44.8271; waitlog "redesign where outside" 25 && { rd_settled; shot redesign-where-outside; }
   mark; qa "--es qa.redesign where:off"; waitlog "redesign where off" 10
   # S07: the run's full sheet (the conditions with a fresh forecast, the videos); then the compass once the view moved
@@ -1466,6 +1468,9 @@ redesign2() {
   # S10 (the review of 24.11): "me" with my days as its first row, now that a day is recorded
   adb shell am force-stop "$PKG"; sleep 1; mark
   adb shell "am start -W -n $ACT --es qa.tab home --es qa.mode auto --es qa.redesign open" > /dev/null; waitlog "redesign ready" 75; sleep 2
+  # the restart forgets the run's switches: the day on the mountain (round 4) and the live model
+  qa "--es qa.redesign day"; sleep 1
+  mark; qa "--es qa.redesign live"; waitlog "redesign live open" 15; seen "redesign live drawn" 60 || true
   mark; qa "--es qa.group member --es qa.redesign people:me"; waitlog "redesign people me days [1-9]" 20 && { rd_settled; shot redesign-me-days; } || fail "redesign: me did not show my days"
   mark; qa "--es qa.redesign people:off"; waitlog "redesign people closed" 10
   # completion part 1 (P04) with a descent: the sample day replayed as one descent, its card (the film, the four
