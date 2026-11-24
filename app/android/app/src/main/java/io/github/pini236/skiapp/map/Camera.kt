@@ -55,6 +55,16 @@ class OrbitCamera {
         return true
     }
 
+    /**
+     * As [clampTo], keeping the target's height above the snow: a view framed with its target lowered under the snow
+     * (the live model's run over its sheet, its film) stays framed while the renderer clamps it every frame.
+     */
+    @Synchronized fun clampKeep(x0: Float, x1: Float, z0: Float, z1: Float, ground: (Float, Float) -> Float) {
+        val off = ty - ground(tx, tz)
+        tx = tx.coerceIn(x0, x1); tz = tz.coerceIn(z0, z1)
+        ty = ground(tx, tz) + off
+    }
+
     @Synchronized fun clampTo(x0: Float, x1: Float, z0: Float, z1: Float, ground: (Float, Float) -> Float) {
         tx = tx.coerceIn(x0, x1); tz = tz.coerceIn(z0, z1)
         ty = ground(tx, tz)

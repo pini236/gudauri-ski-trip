@@ -489,7 +489,7 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
             // "me" at the pill's end (section 1): the account, the settings, the language and about
             if (pp != null) MeButton(meNow, night) { haptics.tick(.3f); liftsOpen = false; liftSel = null; people.go(PLayer.Me) }
             }
-            AnimatedVisibility(kobiSide, enter = fadeIn(), exit = fadeOut()) {
+            AnimatedVisibility(kobiSide && riding == null, enter = fadeIn(), exit = fadeOut()) {
                 val aria = stringResource(R.string.poc_peak_front_aria)
                 Pill(Modifier.semantics { contentDescription = aria }.clickable { haptics.tick(.3f); view.backToFront() }) {
                     Text(stringResource(R.string.map_kobi_side), Modifier.padding(horizontal = 16.dp), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = ink)

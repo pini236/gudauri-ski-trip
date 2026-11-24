@@ -248,8 +248,6 @@ object Redesign {
                     "painted" -> live = false
                 }
             }
-            val ctx = androidx.compose.ui.platform.LocalContext.current
-            // the live model: OpenGL ES 3 and its own file (5 KB); without either, the painted mountain only
             Box(Modifier.fillMaxSize()) {
                 // the live model only over home: never with the map open too (the height model would sit on the GPU
                 // twice, docs/ARCHITECTURE.md)

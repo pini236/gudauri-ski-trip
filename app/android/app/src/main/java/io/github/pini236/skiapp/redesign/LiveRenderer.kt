@@ -460,7 +460,7 @@ class LiveRenderer(
         }
         if (camera.step(dt)) moving = true
         val t = scene.terrain
-        camera.clampTo(t.x0 + 600, t.x1 - 600, t.y0 + 600, t.y1 - 600) { x, z -> t.elev(x, z) }
+        camera.clampKeep(t.x0 + 600, t.x1 - 600, t.y0 + 600, t.y1 - 600) { x, z -> t.elev(x, z) }
         val dimTarget = if (chosen != null) 1f else 0f
         val fz = frozenMs
         if (fz != null && chosen != null) dim = (fz / 600f).coerceIn(0f, 1f)
