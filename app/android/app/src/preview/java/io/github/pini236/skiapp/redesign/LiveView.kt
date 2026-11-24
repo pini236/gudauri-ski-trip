@@ -207,16 +207,16 @@ class LiveView(context: Context, private val scene: MapScene) : GLSurfaceView(co
      * K08: a lens on (worked out off the GL thread) or off. [runOpen] the "open" lens's rule for a run (LiftStatus), null
      * with no fresh report. In the sun with the sun down, and open with no report, draw nothing (the sheet says why).
      */
-    internal fun setLens(kind: LensKind?, night: Boolean, runOpen: ((io.github.pini236.skiapp.data.Piste) -> Boolean?)?) {
+    internal fun setLens(kind: LensKind?, night: Boolean, runOpen: ((io.github.pini236.skiapp.data.Piste) -> Boolean?)?, snow: List<Pair<Float, Double>>? = null) {
         if (kind == null) { renderer.lens = null; requestRender(); return }
         if (worker.isShutdown) return
         worker.execute {
-            val l = lensOf(kind, night, runOpen)
+            val l = lensOf(kind, night, runOpen, snow)
             post { renderer.lens = l; requestRender(); Qa.log("redesign lens ${kind.id} ${if (l == null) "empty" else "on"}") }
         }
     }
 
-    private fun lensOf(kind: LensKind, night: Boolean, runOpen: ((io.github.pini236.skiapp.data.Piste) -> Boolean?)?): LiveRenderer.Lens? {
+    private fun lensOf(kind: LensKind, night: Boolean, runOpen: ((io.github.pini236.skiapp.data.Piste) -> Boolean?)?, snow: List<Pair<Float, Double>>?): LiveRenderer.Lens? {
         fun hex(h: Long) = floatArrayOf(((h shr 16) and 255) / 255f, ((h shr 8) and 255) / 255f, (h and 255) / 255f)
         fun col(c: String) = plate(c).let { floatArrayOf(it.red, it.green, it.blue) }
         val case = if (night) hex(0x081020) else floatArrayOf(1f, 1f, 1f)
@@ -256,6 +256,24 @@ class LiveView(context: Context, private val scene: MapScene) : GLSurfaceView(co
                 val sl = ls.map { scene.lineSlopes(it) }
                 val r = io.github.pini236.skiapp.map.Ribbon.build(ls, { li, i -> io.github.pini236.skiapp.map.SlopeColors.of(sl[li][i]).let { floatArrayOf(it[0], it[1], it[2], 1f) } })
                 lines[p.key] = LiveRenderer.LensLine(r, null, 3f, 1f, true)
+            }
+            LensKind.SNOW -> {
+                val pts = snow?.takeIf { it.isNotEmpty() } ?: return null
+                val acc = if (night) hex(0xB79CFF) else hex(0x6B3FD4)
+                val cls = listOf(hex(0x9AA7B8), hex(0x7FB2FF), acc)
+                for (p in scene.runs.pistes) {
+                    val ls = scene.draped[p.key] ?: continue
+                    var most = 0
+                    val r = io.github.pini236.skiapp.map.Ribbon.build(ls, { li, i ->
+                        val c = LensRules.snowClass(LensRules.snowAt(ls[li][i * 3 + 1], pts)); if (c > most) most = c
+                        cls[c].let { floatArrayOf(it[0], it[1], it[2], 1f) }
+                    })
+                    lines[p.key] = when (most) {
+                        2 -> LiveRenderer.LensLine(r, null, 3.4f, 1f, true, floatArrayOf(acc[0], acc[1], acc[2], .3f))
+                        1 -> LiveRenderer.LensLine(r, null, 3f, 1f, true)
+                        else -> LiveRenderer.LensLine(r, null, 1.8f, 1f, false)
+                    }
+                }
             }
         }
         return LiveRenderer.Lens(lines, case)

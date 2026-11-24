@@ -720,7 +720,9 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
         if (bare) WhereBox(where, night, onRun = { k -> haptics.tick(.3f); view.pickKey(k) }, onAction = whereAction)
         // K08: one colour layer at a time: a run chosen, the shelf or a station turns the lens off and closes the row
         LaunchedEffect(chosen, shelfOpen, fromSt) { if (chosen != null || shelfOpen || fromSt != null) { lens = null; lensRow = false } }
-        LaunchedEffect(lens, night, status) { view.setLens(lens, night, status?.takeIf { it.fresh }?.let { st -> { p: io.github.pini236.skiapp.data.Piste -> st.runOpen(p) } }) }
+        val wxLens = io.github.pini236.skiapp.weather.LocalWeather.current.usable
+        val snowPts = remember(wxLens) { wxLens?.points?.map { it.elevation.toFloat() to it.snow24 } }
+        LaunchedEffect(lens, night, status, snowPts) { view.setLens(lens, night, status?.takeIf { it.fresh }?.let { st -> { p: io.github.pini236.skiapp.data.Piste -> st.runOpen(p) } }, snowPts) }
         if (bare && lensRow) LensChips(lens, night, haptics) { l -> lens = LensRules.tap(lens, l); LensPrefs.setLast(context, lens ?: LensPrefs.last(context)); Qa.log("redesign lens tap ${l.id}") }
         if (bare && lens != null) LensSheet(lens!!, scene, view, status, inSeason, night) { lens = null; Qa.log("redesign lens off") }
         if (bare) MapColumn(where, view, night, recording = false, onLocate = { haptics.tick(.3f); locate() }, onHome = { haptics.tick(.3f); view.home() },

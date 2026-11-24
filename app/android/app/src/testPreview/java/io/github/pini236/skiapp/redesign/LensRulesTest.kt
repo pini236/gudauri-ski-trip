@@ -30,6 +30,17 @@ class LensRulesTest {
         assertNull(LensRules.tap(LensKind.SUN, LensKind.SUN))
         assertEquals(LensKind.OPEN, LensRules.tap(LensKind.SUN, LensKind.OPEN))
         assertEquals(LensKind.SLOPE, LensRules.tap(null, LensKind.SLOPE))
-        assertNull(LensKind.of("snow"))
+        assertEquals(LensKind.SNOW, LensKind.of("snow"))
+        assertNull(LensKind.of("wind"))
+    }
+
+    @Test fun newSnowBetweenThePointsByAltitudeAndItsClasses() {
+        val pts = listOf(2170f to 2.0, 2710f to 8.0, 3240f to 14.0)
+        assertEquals(2.0, LensRules.snowAt(2000f, pts), 1e-9)
+        assertEquals(5.0, LensRules.snowAt(2440f, pts), 1e-9)
+        assertEquals(14.0, LensRules.snowAt(3400f, pts), 1e-9)
+        assertEquals(2, LensRules.snowClass(9.6))
+        assertEquals(1, LensRules.snowClass(0.5))
+        assertEquals(0, LensRules.snowClass(0.4))
     }
 }

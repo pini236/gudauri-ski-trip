@@ -1187,6 +1187,7 @@ redesign() {
   if waitlog "redesign lens sun" 20; then rd_settled; shot redesign-lens-sun; else fail "redesign: the sun lens did not draw"; fi
   mark; qa "--es qa.redesign lens:open"; waitlog "redesign lens open" 20 && { rd_settled; shot redesign-lens-open; } || fail "redesign: the open lens did not draw"
   mark; qa "--es qa.redesign lens:slope"; waitlog "redesign lens slope" 20 && { rd_settled; shot redesign-lens-slope; } || fail "redesign: the slope lens did not draw"
+  mark; qa "--es qa.redesign lens:snow"; waitlog "redesign lens snow" 20 && { rd_settled; shot redesign-lens-snow; } || fail "redesign: the snow lens did not answer"
   mark; qa "--es qa.redesign lens:off --es qa.status none"; sleep 1
   # part 4b (K17): the village from the bottom bar, its picture, tags, pins and sheet, and back
   mark; tapText "The village" || qa "--es qa.redesign village"

@@ -49,7 +49,7 @@ internal object LensPrefs {
 
 @Composable
 internal fun lensName(l: LensKind) = stringResource(when (l) {
-    LensKind.SUN -> R.string.app_shelf_sun; LensKind.OPEN -> R.string.status_lift_open; LensKind.SLOPE -> R.string.app_lens_slope })
+    LensKind.SUN -> R.string.app_shelf_sun; LensKind.OPEN -> R.string.status_lift_open; LensKind.SLOPE -> R.string.app_lens_slope; LensKind.SNOW -> R.string.app_wx_snow_cap })
 
 /** The row of lens chips under the pill (106 from the top, section 4), one lit at most. */
 @Composable
@@ -107,6 +107,24 @@ internal fun BoxScope.LensSheet(lens: LensKind, scene: MapScene, view: LiveView,
                 sub = stringResource(R.string.app_lens_open_sub, closed.toString(), io.github.pini236.skiapp.status.agoText(status))
                 legend = listOf(k.ink to stringResource(R.string.status_lift_open), Color(if (night) 0xFF7C8798 else 0xFF8A93A3) to stringResource(R.string.app_lens_closed_leg),
                     k.ink2.copy(alpha = .45f) to stringResource(R.string.app_lens_unknown_leg))
+            }
+        }
+        LensKind.SNOW -> {
+            val wx = io.github.pini236.skiapp.weather.LocalWeather.current
+            val f = wx.usable
+            if (f == null) title = stringResource(R.string.weather_none)
+            else {
+                fun cm(id: String) = f.point(id)?.snow24?.let { Math.round(it).toInt() }
+                val top = cm("sadzele"); val mid = cm("goodaura"); val low = cm("village")
+                if (listOfNotNull(top, mid, low).all { it == 0 }) title = stringResource(R.string.app_lens_snow_none)
+                else {
+                    num = (top ?: 0).toString(); title = stringResource(R.string.app_lens_snow_title)
+                    sub = stringResource(R.string.app_lens_snow_sub, (mid ?: 0).toString(), stringResource(R.string.weather_point_goodaura), (low ?: 0).toString())
+                    legend = listOf(k.acc to stringResource(R.string.app_lens_snow_leg_1), Color(0xFF7FB2FF) to stringResource(R.string.app_lens_snow_leg_2),
+                        Color(0xFF9AA7B8) to stringResource(R.string.app_lens_snow_leg_3))
+                }
+                note = stringResource(R.string.app_lens_snow_note) + " Open-Meteo" +
+                    (if (f.state(java.time.Instant.now()) == io.github.pini236.skiapp.weather.Forecast.State.STALE) " · " + stringResource(R.string.weather_stale) else "")
             }
         }
         LensKind.SLOPE -> {
