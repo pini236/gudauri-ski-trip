@@ -1206,6 +1206,10 @@ redesign() {
   mark; qa "--es qa.redesign skipass:days:9"; waitlog "redesign skipass days 9" 10; sleep 1; shot redesign-skipass-9
   mark; qa "--es qa.mode night --es qa.redesign skipass:adult"; sleep 1; shot redesign-skipass-night
   mark; qa "--es qa.mode auto --es qa.redesign skipass:off"; sleep .5
+  # part 2 (Q10): before the season, no report: the count of days, its sheet (the trip, the ski pass), and closed to the pill
+  mark; qa "--es qa.status none --es qa.redesign season"; waitlog "redesign season shown" 10 || fail "redesign: the season count did not show"; sleep 1.5; shot redesign-season
+  mark; qa "--es qa.mode night --es qa.redesign season"; sleep 1.5; shot redesign-season-night
+  mark; qa "--es qa.mode auto --es qa.redesign season:off"; waitlog "redesign season closed" 10; sleep 1; shot redesign-season-pill
   mark; qa "--es qa.mode auto --es qa.redesign painted"; waitlog "redesign live closed" 10; sleep 1.5; shot redesign-live-back
   qa "--es qa.mode auto --es qa.redesign close"; sleep 1.5; shot redesign-closed
   # round 4 (board L06): the sample day on the mountain, its lines of light by speed and the dotted rides, by day and

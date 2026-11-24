@@ -58,6 +58,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -109,6 +110,10 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
     var tripEdit by remember { mutableStateOf<io.github.pini236.skiapp.trip.PassEdit?>(null) }
     // part 2 (Q09): the ski pass over the mountain
     var skipassOpen by remember { mutableStateOf(false) }
+    // part 2 (Q10): before the season the mountain opens on the count of days; closed, it comes back on the next opening
+    var seasonOn by remember { mutableStateOf(LiveSeasonRules.shown(around)) }
+    LaunchedEffect(seasonOn) { Qa.log("redesign season ${if (seasonOn) "shown" else "closed"}") }
+    LaunchedEffect(chosen, liftsOpen) { if (chosen != null || liftsOpen) seasonOn = false }
     var qaFlags by remember { mutableStateOf<GroupMeets?>(null) }
     val time = scrub?.let { PeakLight.janAt(it) } ?: DayNight.lightTime(now, mode)
     val night = remember(time) { Sky.at(time).dark }
@@ -150,6 +155,8 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
             c == "trip:cal" -> { tripOpen = true; tripEdit = io.github.pini236.skiapp.trip.PassEdit.Dates; Qa.log("redesign trip calendar") }
             c == "trip:off" -> { tripEdit = null; tripOpen = false }
             c == "skipass" -> skipassOpen = true
+            c == "season" -> seasonOn = LiveSeasonRules.shown(around)
+            c == "season:off" -> seasonOn = false
             c == "skipass:off" -> skipassOpen = false
             // one moment of the choice held (the designer's 0, 150, 300, 600 and 900 ms, as phase A's frame:)
             c.startsWith("moment:") -> c.removePrefix("moment:").split(',').takeIf { it.size == 2 }?.let { (k, t) ->
@@ -213,8 +220,9 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
     androidx.activity.compose.BackHandler(enabled = meet.open) { if (meet.sid != null) meetClear("back") else meetOpen(false) }
     // in the meeting point a tap on the mountain is its own: the nearest station within 44 (Q04), or a clear (Q05)
     var meetPts by remember { mutableStateOf<List<Pair<io.github.pini236.skiapp.meet.Station, Offset>>>(emptyList()) }
+    LaunchedEffect(seasonOn, meet.open) { if (!meet.open) view.setQuiet(if (seasonOn) .15f else 1f) }
     LaunchedEffect(meet.open, plan) {
-        view.setQuiet(if (meet.open) .4f else 1f)
+        view.setQuiet(if (meet.open) .4f else if (seasonOn) .15f else 1f)
         if (!meet.open || plan == null) { view.onTap = null; meetPts = emptyList(); return@LaunchedEffect }
         view.onTap = { x, y ->
             if (meet.sid != null) meetClear("map")
@@ -264,7 +272,11 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
                 }
             }
             // the pill of the lifts (Q01, Q02): the report's summary, or no recent information, or none yet before the season
-            val (pillText, pillLive) = LiftsPillText(status, inSeason)
+            val (pillText0, pillLive) = LiftsPillText(status, inSeason)
+            // the count closed: it shrinks to a line in the pill ("29 days to the opening")
+            val ov0 = around?.opening
+            val pillText = if (!seasonOn && !pillLive && ov0 != null && ov0.kind == io.github.pini236.skiapp.season.Season.Kind.COUNTDOWN)
+                pluralStringResource(R.plurals.app_season_pill, ov0.days, ov0.days.toString()) else pillText0
             Pill(Modifier.fillMaxWidth().clickable {
                 haptics.tick(.3f); liftSel = null; liftsOpen = !liftsOpen
                 if (liftsOpen) io.github.pini236.skiapp.telemetry.Telemetry.event("status_view", if (status?.fresh == true) mapOf("state" to "fresh", "open" to status.open, "total" to status.names.size) else mapOf("state" to if (status?.report == null) "none" else "stale"))
@@ -469,6 +481,8 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
             if (meet.share && st != null && d0 != null && t0 != null)
                 MeetShareScreen(st, d0, t0, night, haptics, scene) { meet.share = false }
         }
+        if (seasonOn && around != null && !meet.open && !tripOpen && !skipassOpen && chosen == null && !liftsOpen)
+            LiveSeason(around, night, haptics, onTrip = { tripEdit = null; tripOpen = true }, onSkipass = { skipassOpen = true }, onClose = { seasonOn = false })
         // part 2 (Q07, Q08): "your trip" over the mountain, the veil under the paper
         if (tripOpen && around != null) {
             val sk = remember(night) { SheetInk(night) }
