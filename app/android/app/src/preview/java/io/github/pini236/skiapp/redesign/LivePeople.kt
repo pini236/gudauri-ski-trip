@@ -437,6 +437,15 @@ private fun BoxScope.MeScreen(p: People, ui: PeopleUi, k: SheetInk) {
             if (kind == PeopleRules.MeKind.ACCOUNT && !renaming) SecondaryButton(stringResource(R.string.app_a_change), k.onDark()) { renaming = true }
         }
         ErrLine(act.error, k.onDark())
+        // my days (S10): the first row, in a box of its own with the accent's edge, only once there is a day (the sample not counted)
+        val ctx = LocalContext.current
+        val days by androidx.compose.runtime.produceState(0) { value = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+            runCatching { io.github.pini236.skiapp.dayrec.DayRec.store(ctx).days().size }.getOrDefault(0) } }
+        LaunchedEffect(days) { Qa.log("redesign people me days $days") }
+        if (days > 0) Column(Modifier.fillMaxWidth().padding(horizontal = 12.dp).clip(RoundedCornerShape(22.dp)).background(k.surf.copy(alpha = 1f))
+            .border(1.5.dp, k.acc, RoundedCornerShape(22.dp)).padding(horizontal = 16.dp, vertical = 4.dp)) {
+            PRow(stringResource(R.string.app_days_title), k, sub = pluralStringResource(R.plurals.app_me_days_sub, days, days), icon = Icons.calendar, last = true) { p.onDays() }
+        }
         // a guest in a group: keep the place (R10)
         if (kind == PeopleRules.MeKind.GUEST) PBox(k) {
             Column(Modifier.padding(vertical = 12.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {

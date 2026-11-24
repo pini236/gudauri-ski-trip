@@ -1255,6 +1255,10 @@ redesign() {
   mark; qa "--es qa.redesign run:full"; waitlog "redesign run full Tatra 2" 15 || fail "redesign: the run's full sheet did not open"; sleep 2; rd_settled; shot redesign-run-full
   mark; qa "--es qa.redesign unpick"; waitlog "redesign compass shown" 15 && { rd_settled; shot redesign-compass; }
   mark; qa "--es qa.redesign home"; waitlog "redesign compass gone" 15 || fail "redesign: the compass did not go after home"
+  # S09: the first hint, a ring on a blue run near the middle (the debug build shows it only when asked)
+  mark; qa "--es qa.redesign hint:reset"; waitlog "redesign hint run" 15 && { sleep 1; shot redesign-hint-run; }
+  mark; qa "--es qa.redesign 'pick:Tatra 2'"; waitlog "redesign hint done hint_run" 15 || fail "redesign: choosing a run did not end the first hint"
+  mark; qa "--es qa.redesign unpick"; sleep 1; qa "--es qa.redesign home"; sleep 1
   # S05, S06: "the mountain now" on the weather tab, with a fresh forecast and with none
   mark; qa "--es qa.weather fresh --es qa.redesign weather"; waitlog "redesign weather fresh" 15 || fail "redesign: the weather tab did not open"; rd_settled; shot redesign-now-weather
   mark; qa "--es qa.weather none --es qa.redesign weather"; waitlog "redesign weather none" 15; rd_settled; shot redesign-now-weather-none

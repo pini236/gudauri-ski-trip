@@ -130,6 +130,10 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
     val time = scrub?.let { PeakLight.janAt(it) } ?: DayNight.lightTime(now, mode)
     val night = remember(time) { Sky.at(time).dark }
     val view = remember { LiveView(context, scene).also { v -> v.onChoose = { k -> chosen = k; haptics.tick(.5f); Qa.log("redesign live chosen $k") } } }
+    // part 4 (S09): the first hint waits for the mountain to be drawn
+    var mtnDrawn by remember { mutableStateOf(false) }
+    var hintAgain by remember { mutableStateOf(0) }
+    LaunchedEffect(Unit) { while (!view.drawn) delay(200); mtnDrawn = true }
     // part 4 (S02 to S04, S08): "where am I" and the compass on the mountain
     val where = rememberWhere(scene)
     val (locate, locateGo) = rememberLocate(where, view)
@@ -186,6 +190,7 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
             c == "where:ask" -> where.asking = true
             c == "where:off" -> { where.asking = false; where.where.off() }
             c == "home" -> view.home()
+            c == "hint:reset" -> { Hints.reset(context); hintAgain++ }
             c.startsWith("people:") && pp != null -> {
                 val what = c.removePrefix("people:")
                 if (what == "group" || what == "invite") scope.launch {
@@ -608,6 +613,7 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
         val bare = chosen == null && !liftsOpen && !meet.open && !tripOpen && !skipassOpen && !seasonOn && !people.open
         if (bare) WhereBox(where, night, onRun = { k -> haptics.tick(.3f); view.pickKey(k) }, onAction = whereAction)
         if (bare) MapColumn(where, view, night, recording = false, onLocate = { haptics.tick(.3f); locate() }, onHome = { haptics.tick(.3f); view.home() })
+        RunHint(scene, view, night, free = bare && !where.asking, chosen = chosen != null, drawn = mtnDrawn, again = hintAgain)
         if (where.asking) WhereAsk(night, onGo = locateGo, onLater = { where.asking = false; Qa.log("redesign where ask later") })
         androidx.activity.compose.BackHandler(enabled = where.asking) { where.asking = false }
         // part 3 (R01 to R15) over everything of the mountain

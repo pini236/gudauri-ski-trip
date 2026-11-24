@@ -655,6 +655,9 @@ class LiveView(context: Context, private val scene: MapScene) : GLSurfaceView(co
         return Math.toDegrees(atan2((b[0] - a[0]).toDouble(), (a[1] - b[1]).toDouble())).toFloat()
     }
 
+    /** Whether a frame with the mountain has been drawn (the first hint waits for it). */
+    val drawn: Boolean get() = renderer.drawn
+
     /** The compass's tap: back to the opening view in one move, 600 ms (a jump with reduced motion). */
     fun home() {
         renderer.stopAnim(); camera.stopFling()

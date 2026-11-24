@@ -56,4 +56,6 @@ class People(
     val version: String,
     /** The trip this phone keeps (for "I'm on the same flight", which makes it mine). */
     val onMyTrip: (io.github.pini236.skiapp.trip.Trip) -> Unit,
+    /** Part 4 (S10): "my days" from "me" (L12). */
+    val onDays: () -> Unit = {},
 )
