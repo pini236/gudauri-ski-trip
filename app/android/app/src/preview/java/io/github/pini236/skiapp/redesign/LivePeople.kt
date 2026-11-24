@@ -179,7 +179,7 @@ private fun GuestAv(k: SheetInk, size: Int) =
 internal fun AccButton(text: String, k: SheetInk, modifier: Modifier = Modifier, enabled: Boolean = true, onClick: () -> Unit) {
     Box(modifier.fillMaxWidth().heightIn(min = 52.dp).graphicsAlpha(if (enabled) 1f else .45f).clip(RoundedCornerShape(26.dp)).background(k.acc)
         .semantics { role = Role.Button }.clickable(enabled = enabled, onClick = onClick).padding(horizontal = 16.dp), contentAlignment = Alignment.Center) {
-        Text(text, fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color.White, maxLines = 2)
+        Text(text, fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = k.onAcc, maxLines = 2)
     }
 }
 
@@ -224,6 +224,8 @@ private fun PRow(title: String, k: SheetInk, sub: String? = null, end: String? =
             }
             if (end != null) Text(end, fontFamily = Gudi, fontSize = 13.5.sp, color = k.ink2, maxLines = 1, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis)
             if (trailing != null) trailing()
+            // a row that goes somewhere ends in an arrow (R13, R15; the review of part 3)
+            else if (onClick != null && !danger) Icon(Icons.chevron, null, Modifier.size(18.dp), tint = k.ink2)
         }
         if (!last) Box(Modifier.fillMaxWidth().height(1.dp).background(k.line))
     }
@@ -236,11 +238,14 @@ private fun PSwitch(on: Boolean, k: SheetInk, onChange: (Boolean) -> Unit) =
 
 /** A setting with a switch (R13): the whole row toggles; read as its name and "on" or "off". */
 @Composable
-private fun SwitchRow(title: String, sub: String?, on: Boolean, k: SheetInk, last: Boolean = false, onChange: (Boolean) -> Unit) {
+private fun SwitchRow(title: String, sub: String?, on: Boolean, k: SheetInk, last: Boolean = false, icon: ImageVector? = null, onChange: (Boolean) -> Unit) {
     val st = stringResource(if (on) R.string.app_on else R.string.app_off)
     Column {
         Row(Modifier.fillMaxWidth().heightIn(min = 54.dp).semantics(mergeDescendants = true) { role = Role.Switch; stateDescription = st }
             .clickable { onChange(!on) }.padding(vertical = 8.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            if (icon != null) Box(Modifier.size(36.dp).clip(CircleShape).background(k.line), contentAlignment = Alignment.Center) {
+                Icon(icon, null, Modifier.size(20.dp), tint = k.ink)
+            }
             Column(Modifier.weight(1f)) {
                 Text(title, fontFamily = Gudi, fontWeight = FontWeight.Medium, fontSize = 15.5.sp, color = k.ink)
                 if (sub != null) Small(sub, k)
@@ -553,8 +558,8 @@ private fun BoxScope.MeScreen(p: People, ui: PeopleUi, k: SheetInk) {
         } }
         PBox(k) {
             PRow(stringResource(R.string.about_settings), k, sub = stringResource(R.string.app_me_settings_sub), icon = Icons.gear) { ui.go(PLayer.Settings) }
-            PRow(stringResource(R.string.about_language), k, end = Lang.current(LocalContext.current.resources).name, icon = Icons.dayNight) { ui.go(PLayer.Language) }
-            PRow(stringResource(R.string.app_about_title), k, sub = stringResource(R.string.app_me_about_sub), icon = Icons.people, last = true) { ui.go(PLayer.About) }
+            PRow(stringResource(R.string.about_language), k, end = Lang.current(LocalContext.current.resources).name, icon = Icons.globe) { ui.go(PLayer.Language) }
+            PRow(stringResource(R.string.app_about_title), k, sub = stringResource(R.string.app_me_about_sub), icon = Icons.info, last = true) { ui.go(PLayer.About) }
         }
         if (kind == PeopleRules.MeKind.ACCOUNT) {
             PBox(k) {
@@ -692,11 +697,14 @@ private fun BoxScope.GateSheet(p: People, ui: PeopleUi, k: SheetInk) {
             else -> if (code.isNotEmpty() && code.length < 6) Small(stringResource(R.string.app_g_code_letters), k)
         }
         ErrLine(err, k)
-        AccButton(stringResource(if (checking) R.string.join_loading else R.string.app_g_join), k, enabled = InviteCode.isCode(code) && !checking) {
-            ui.go(PLayer.Join(code))
-        }
-        SecondaryButton(stringResource(R.string.app_g_create), k, Modifier.fillMaxWidth()) {
-            if (p.api.me()?.registered == true) ui.go(PLayer.NewGroup) else { ui.go(PLayer.NewGroup); ui.go(PLayer.SignIn) }
+        // side by side, as on the board (R01; the review of part 3)
+        Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            AccButton(stringResource(if (checking) R.string.join_loading else R.string.app_g_join), k, Modifier.weight(1f), enabled = InviteCode.isCode(code) && !checking) {
+                ui.go(PLayer.Join(code))
+            }
+            SecondaryButton(stringResource(R.string.app_g_create), k, Modifier.weight(1f)) {
+                if (p.api.me()?.registered == true) ui.go(PLayer.NewGroup) else { ui.go(PLayer.NewGroup); ui.go(PLayer.SignIn) }
+            }
         }
         Small(stringResource(R.string.app_g_rest_works), k)
     }
@@ -1519,16 +1527,19 @@ private fun BoxScope.SettingsScreen(p: People, ui: PeopleUi, k: SheetInk) {
     val canBuzz = remember { (ctx.getSystemService(android.content.Context.VIBRATOR_SERVICE) as? android.os.Vibrator)?.hasVibrator() == true }
     FullScreen(k, stringResource(R.string.about_settings), { ui.back() }) {
         PBox(k) {
-            SwitchRow(stringResource(R.string.about_sound), stringResource(R.string.about_sound_sub), sound, k, last = !canBuzz) {
+            SwitchRow(stringResource(R.string.about_sound), stringResource(R.string.about_sound_sub), sound, k, last = !canBuzz, icon = Icons.sound) {
                 sound = it; FxPrefs.set(ctx, "sound", it); Telemetry.event("settings_change", mapOf("setting" to "sound", "on" to it))
             }
-            if (canBuzz) SwitchRow(stringResource(R.string.about_haptics), null, haptic, k, last = true) {
+            if (canBuzz) SwitchRow(stringResource(R.string.about_haptics), null, haptic, k, last = true, icon = Icons.vibrate) {
                 haptic = it; FxPrefs.set(ctx, "haptics", it); Telemetry.event("settings_change", mapOf("setting" to "haptics", "on" to it))
             }
         }
         PBox(k) {
             Column(Modifier.padding(vertical = 10.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Text(stringResource(R.string.about_display), fontFamily = Gudi, fontWeight = FontWeight.Medium, fontSize = 15.5.sp, color = k.ink)
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Box(Modifier.size(36.dp).clip(CircleShape).background(k.line), contentAlignment = Alignment.Center) { Icon(Icons.dayNight, null, Modifier.size(20.dp), tint = k.ink) }
+                    Text(stringResource(R.string.about_display), fontFamily = Gudi, fontWeight = FontWeight.Medium, fontSize = 15.5.sp, color = k.ink)
+                }
                 if (mode == DayNight.Mode.AUTO) Small(stringResource(R.string.app_set_display_auto), k)
                 Row(Modifier.fillMaxWidth().clip(RoundedCornerShape(22.dp)).background(k.line)) {
                     for ((m, label) in listOf(DayNight.Mode.AUTO to R.string.daynight_mode_auto, DayNight.Mode.DAY to R.string.daynight_mode_day, DayNight.Mode.NIGHT to R.string.daynight_mode_night)) {
@@ -1545,10 +1556,10 @@ private fun BoxScope.SettingsScreen(p: People, ui: PeopleUi, k: SheetInk) {
         PBox(k) {
             val auto = io.github.pini236.skiapp.i18n.Lang.chosen(ctx) == null
             PRow(stringResource(R.string.about_language), k, sub = if (auto) stringResource(R.string.app_set_lang_auto) else null,
-                end = Lang.current(ctx.resources).name, last = true) { ui.swap(PLayer.Language) }
+                end = Lang.current(ctx.resources).name, icon = Icons.globe, last = true) { ui.swap(PLayer.Language) }
         }
         PBox(k) {
-            SwitchRow(stringResource(R.string.about_analytics), stringResource(if (analytics) R.string.about_analytics_on else R.string.about_analytics_off), analytics, k) {
+            SwitchRow(stringResource(R.string.about_analytics), stringResource(if (analytics) R.string.about_analytics_on else R.string.about_analytics_off), analytics, k, icon = Icons.chart) {
                 analytics = it; Telemetry.setEnabled(ctx, it, BuildConfig.FLAVOR)
             }
             PRow(stringResource(R.string.about_analytics_what), k, last = true) { p.onPrivacy() }
@@ -1588,6 +1599,8 @@ private fun BoxScope.LanguageSheet(p: People, ui: PeopleUi, k: SheetInk) {
                 Text(l.name, Modifier.weight(1f), fontFamily = Gudi, fontWeight = FontWeight.Medium, fontSize = 19.sp, color = k.ink)
                 if (on) Icon(Icons.check, null, Modifier.size(22.dp), tint = k.acc)
             }
+            // a line between the languages (R14; the review of part 3)
+            Box(Modifier.fillMaxWidth().height(1.dp).background(k.line))
         }
         Row(Modifier.fillMaxWidth().heightIn(min = 56.dp).semantics { role = Role.RadioButton; selected = auto }.clickable { p.onLang(null) },
             verticalAlignment = Alignment.CenterVertically) {

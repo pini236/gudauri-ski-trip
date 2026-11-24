@@ -179,7 +179,8 @@ internal fun BoxScope.WhereDot(ui: WhereUi, view: LiveView) {
     val a = at ?: return
     val dot = s.fix != Locator.Fix.Low && s.fix != Locator.Fix.Approx
     Canvas(Modifier.fillMaxSize()) {
-        val r = maxOf(a.second, 14.dp.toPx())
+        // the accuracy circle stays visible around the dot and its halo (S03; the review of part 4)
+        val r = maxOf(a.second, 24.dp.toPx())
         drawCircle(Color(0x242F7BFF), r, a.first)
         drawCircle(Color(0x8C2F7BFF), r, a.first, style = Stroke(1.5.dp.toPx()))
         if (dot) {

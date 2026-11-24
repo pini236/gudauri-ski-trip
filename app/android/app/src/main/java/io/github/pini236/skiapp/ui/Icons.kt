@@ -59,6 +59,13 @@ object Icons {
     // a gondola on its cable (round 20's switched-off lift status, the site's I.lift)
     val lift = line("lift", false, "M2 5l20-3M12 3.5V8", "M6 8h12v10H6z", "M6 13h12")
     val x = line("x", false, "M6 6l12 12M18 6L6 18")
+    // the people's rows (part 3, R13 to R15): language, about, the settings' sound, vibration, display and measuring, a row's end
+    val globe = line("globe", false, circle(12f, 12f, 9f), "M3 12h18", "M12 3c-3 3.2-3 14.8 0 18M12 3c3 3.2 3 14.8 0 18")
+    val info = line("info", false, circle(12f, 12f, 9f), "M12 11v6", "M12 7.5v.5")
+    val sound = line("sound", true, "M4 9.5h4l5-4v13l-5-4H4z", "M16.5 9a4 4 0 0 1 0 6M19 6.5a7.5 7.5 0 0 1 0 11")
+    val vibrate = line("vibrate", false, "M8 3.5h8v17H8z", "M4 8v8M20 8v8")
+    val chart = line("chart", false, "M4 20h16", "M7 16v-5M12 16V7M17 16v-8")
+    val chevron = line("chevron", true, "M9 6l6 6-6 6")
     val more = ImageVector.Builder("more", 24.dp, 24.dp, 24f, 24f).apply {
         for (y in listOf(5f, 12f, 19f)) addPath(PathParser().parsePathString(circle(12f, y, 1.6f)).toNodes(), fill = SolidColor(androidx.compose.ui.graphics.Color.Black))
     }.build()
