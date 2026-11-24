@@ -174,6 +174,24 @@ object Redesign {
         return true
     }
 
+    /** X01 (handoff 2026-11-24-redesign-day-dialogs): "the day was cut" in the new design, or false for today's. Gated as [first]. */
+    @Composable
+    fun cutDay(onResume: () -> Unit, onClose: () -> Unit): Boolean {
+        if (!on()) return false
+        if (io.github.pini236.skiapp.BuildConfig.DEBUG && !RedesignQa.dayOn) return false
+        CutDay(onResume, onClose)
+        return true
+    }
+
+    /** X02: "before recording" in the new design, or false for today's. Gated as [first]. */
+    @Composable
+    fun blocked(kind: String, onSettings: () -> Unit, onDismiss: () -> Unit): Boolean {
+        if (!on()) return false
+        if (io.github.pini236.skiapp.BuildConfig.DEBUG && !RedesignQa.dayOn) return false
+        Blocked(kind, onSettings, onDismiss)
+        return true
+    }
+
     /**
      * Round 4 (board L05, Android): the permanent notification's words while recording, or null for today's. Not a
      * composable: the recording service asks it (title, text, the expanded text). Gated as [day].

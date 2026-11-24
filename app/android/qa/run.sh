@@ -1489,6 +1489,21 @@ redesign4() {
   adb shell "am start -W -n $ACT --es qa.mode day --es qa.redesign day --es qa.dayrec ask" > /dev/null
   if waitlog "redesign rec first" 90; then sleep 2; shot redesign-rec-first; else fail "redesign: the first-time sheet did not open"; fi
   adb shell input keyevent KEYCODE_BACK; sleep 1
+  # X01, X02 (handoff 2026-11-24-redesign-day-dialogs): "the day was cut" (back does not close it) and "before recording"
+  # for each reason, by day and at night
+  for md in day night; do
+    mark; qa "--es qa.mode $md --es qa.redesign day --es qa.dayrec cut"; waitlog "redesign day cut" 15 || fail "redesign: the cut day window did not open"
+    sleep 2; shot "redesign-day-cut-$md"
+    adb shell input keyevent KEYCODE_BACK; sleep 1; seen "redesign day cut close" 2 && fail "redesign: back closed the cut day"
+    qa "--es qa.dayrec uncut"; sleep 1
+    for why in perm precise off; do
+      [ "$md" = night ] && [ "$why" != perm ] && continue
+      mark; qa "--es qa.mode $md --es qa.dayrec blocked:$why"; waitlog "redesign day blocked $why" 15 || fail "redesign: the blocked window ($why) did not open"
+      sleep 2; shot "redesign-day-blocked-$why-$md"
+      qa "--es qa.dayrec blocked:"; sleep 1
+    done
+  done
+  qa "--es qa.mode day"; sleep 1
   # boards L02, L03: recording on the mountain. Before the first reading the search, then a walk down Tatra 2 drawn
   # behind the dot; "hold to finish" held for 1.5 s ends the day and opens it on the mountain
   adb shell pm grant "$PKG" android.permission.POST_NOTIFICATIONS > /dev/null 2>&1 || true

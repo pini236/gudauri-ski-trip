@@ -682,6 +682,10 @@ class MainActivity : ComponentActivity() {
                 }
             }
             "wipe" -> DayRec.store(this).deleteAll()
+            // the two windows for their shots (X01, X02), without a real cut day or a revoked permission
+            "cut" -> cutDay = java.io.File(cacheDir, "qa-cut-day.jsonl")
+            "uncut" -> cutDay = null
+            else -> if (a.startsWith("blocked:")) recBlocked = a.removePrefix("blocked:").ifEmpty { null }
         } }
         i.getStringExtra("qa.remind")?.let { Reminders.armed(this).minByOrNull { it.at }?.let { r -> Reminders.show(this, r) } ?: Qa.log("no reminder armed") }
         i.getStringExtra("qa.sentry")?.let { Telemetry.testCrashReport(it); inBackground { Telemetry.flush(); Qa.log("telemetry ${if (Telemetry.hasKeys) "keys" else "no keys"}, flushed") } }
@@ -877,22 +881,28 @@ class MainActivity : ComponentActivity() {
               remember(forecast, tick) { io.github.pini236.skiapp.weather.WeatherNow(forecast, Instant.ofEpochMilli(tick)) },
               io.github.pini236.skiapp.places.LocalPlaces provides places) {
             Box(Modifier.fillMaxSize().background(if (spike) Palette.snow else Ski.colors.snow)) {
-                cutDay?.let { f -> io.github.pini236.skiapp.dayrec.ui.CutDayDialog(
-                    onResume = {
+                cutDay?.let { f ->
+                    val resume: () -> Unit = {
                         cutDay = null
                         val r = DayRec.start(this@MainActivity, resume = f)
                         if (r == DayRec.Start.Started || r == DayRec.Start.Already) { if (nav.top !is Route.Day) nav.push(Route.Day) } else record(false)
-                    },
-                    onClose = { cutDay = null; inBackground { DayRec.finishCut(this@MainActivity, f) } }) }
+                    }
+                    val close: () -> Unit = { cutDay = null; inBackground { DayRec.finishCut(this@MainActivity, f) } }
+                    // the new design's X01 over the mountain; otherwise today's
+                    if (!io.github.pini236.skiapp.redesign.Redesign.cutDay(resume, close))
+                        io.github.pini236.skiapp.dayrec.ui.CutDayDialog(onResume = resume, onClose = close)
+                }
                 recBlocked?.let { kind ->
-                    io.github.pini236.skiapp.dayrec.ui.BlockedSheet(kind,
-                        onSettings = {
-                            recBlocked = null
-                            val i = if (kind == "off") android.content.Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS)
-                            else android.content.Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS, android.net.Uri.fromParts("package", packageName, null))
-                            runCatching { startActivity(i) }
-                        },
-                        onDismiss = { recBlocked = null })
+                    val settings: () -> Unit = {
+                        recBlocked = null
+                        val i = if (kind == "off") android.content.Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS)
+                        else android.content.Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS, android.net.Uri.fromParts("package", packageName, null))
+                        runCatching { startActivity(i) }; Unit
+                    }
+                    val dismiss: () -> Unit = { recBlocked = null }
+                    // the new design's X02; otherwise today's
+                    if (!io.github.pini236.skiapp.redesign.Redesign.blocked(kind, settings, dismiss))
+                        io.github.pini236.skiapp.dayrec.ui.BlockedSheet(kind, onSettings = settings, onDismiss = dismiss)
                 }
                 if (recExplain) {
                     val ask = { requestPermissions(arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION, android.Manifest.permission.ACCESS_COARSE_LOCATION), REC_PERMISSION) }
