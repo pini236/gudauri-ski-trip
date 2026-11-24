@@ -104,8 +104,11 @@ internal object StoryVideo {
             drain(true)
             progress(1f)
         } finally {
-            runCatching { codec.stop() }; codec.release(); surface.release()
-            runCatching { if (track >= 0) muxer.stop() }; muxer.release()
+            // the drawing side first (its last frames are posted from the render thread: a codec stopped under it
+            // logs "BufferQueue has been abandoned"), then the codec; the file closed only with frames in it
+            surface.release()
+            runCatching { codec.stop() }; codec.release()
+            runCatching { if (track >= 0 && written > 0) muxer.stop() }; runCatching { muxer.release() }
         }
         return written > 0
     }
