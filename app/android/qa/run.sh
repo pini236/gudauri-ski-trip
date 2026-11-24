@@ -1177,6 +1177,11 @@ redesign() {
     mark; qa "--es qa.redesign shelf:sort:lift"; sleep 1
     mark; qa "--es qa.redesign shelf:off"; sleep 1
   else fail "redesign: the shelf did not open"; fi
+  # part 4b (K06): the runs from the top of Goodaura, and a pick from its sheet
+  mark; qa "--es qa.redesign station:Goodaura"
+  if waitlog "redesign station " 10; then rd_settled; shot redesign-station-goodaura
+    mark; qa "--es qa.redesign station:off"; sleep 1
+  else fail "redesign: the sheet from the station did not open"; fi
   # the completion round, part 2 (Q01 to Q03): the lifts without a report (today), then with one (two closed, their
   # tags on the mountain), and one lift
   mark; qa "--es qa.status none --es qa.redesign lifts"; rd_settled; shot redesign-lifts-none

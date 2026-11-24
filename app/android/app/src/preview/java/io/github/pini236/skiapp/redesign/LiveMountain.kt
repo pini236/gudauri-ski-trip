@@ -98,6 +98,9 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
     // K07 (the shelf, "where to?"): open, and the run of its middle card
     var shelfOpen by remember { mutableStateOf(false) }
     var shelfMid by remember { mutableStateOf<ShelfRun?>(null) }
+    // K06 (from the station): the top station tapped, and the runs that go down from it
+    var fromSt by remember { mutableStateOf<io.github.pini236.skiapp.meet.Station?>(null) }
+    val stationRuns = remember(scene) { ShelfData.withLifts(scene) }
     // part 2 (Q01 to Q03): the lifts' sheet, and one lift in it
     var liftsOpen by remember { mutableStateOf(false) }
     var liftSel by remember { mutableStateOf<io.github.pini236.skiapp.data.Lift?>(null) }
@@ -198,6 +201,8 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
             c == "skipass" -> skipassOpen = true
             c == "shelf" -> { chosen = null; view.choose(null); shelfOpen = true }
             c == "shelf:off" -> shelfOpen = false
+            c == "station:off" -> fromSt = null
+            c.startsWith("station:") -> plan?.stations?.firstOrNull { s -> c.removePrefix("station:") in s.topOf }?.let { s -> chosen = null; view.choose(null); fromSt = s; Qa.log("redesign station ${s.id}") }
             c == "season" -> seasonOn = LiveSeasonRules.shown(around)
             c == "season:off" -> seasonOn = false
             c == "skipass:off" -> { skipassOpen = false; Qa.log("redesign skipass closed") }
@@ -541,6 +546,24 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
             val r = shelfMid
             view.setFocus(if (shelfOpen && r != null) LiveRenderer.Focus(setOf(r.key), 3.6f, 6f, setOfNotNull(r.lift)) else null)
         }
+        // K06: the station's runs lit, the rest ghosts, its lifts on, a ring round it, and the low sheet
+        val stShift by androidx.compose.animation.core.animateFloatAsState(if (fromSt != null) with(androidx.compose.ui.platform.LocalDensity.current) { 120.dp.toPx() } else 0f, tween(300), label = "station")
+        LaunchedEffect(stShift, shelfShift) { if (!shelfOpen) view.setShift(stShift) }
+        val st = fromSt
+        val stRuns = remember(st) { st?.let { FromStation.runs(it.topOf, stationRuns) }.orEmpty() }
+        LaunchedEffect(st) {
+            if (st != null) view.setFocus(LiveRenderer.Focus(stRuns.map { it.key }.toSet(), 3.2f, 5.4f, st.topOf.toSet()))
+            else if (!shelfOpen) view.setFocus(null)
+        }
+        if (st != null) {
+            Box(Modifier.fillMaxSize().background((if (night) Color(0xFF020612) else Color(0xFF283E6E)).copy(alpha = if (night) .40f else .30f)))
+            StationRing(view, st, night)
+            for (r in stRuns) if (r.kind != "beginner-area") RunTag(view, scene, r.key, r.title, r.color, night, side = 0f) { haptics.tick(.4f); fromSt = null; view.pickKey(r.key) }
+            Box(Modifier.align(Alignment.BottomCenter)) {
+                FromStationSheet(st, stRuns, scene, night, haptics, onPick = { key -> fromSt = null; Qa.log("redesign station pick $key"); view.pickKey(key) },
+                    onClose = { fromSt = null; Qa.log("redesign station closed") })
+            }
+        }
         if (shelfOpen) {
             val shelfRuns = remember(scene) { ShelfData.runs(scene) }
             Shelf(scene, view, shelfRuns, night, haptics,
@@ -551,7 +574,7 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
                 onClose = { shelfOpen = false; Qa.log("redesign shelf closed") })
             if (veilA > .5f) shelfMid?.let { r -> RunTag(view, scene, r.key, r.title, r.color, night) }
         }
-        AnimatedVisibility(chosen == null && !shelfOpen && !liftsOpen && !meet.open && !tripOpen && !skipassOpen && !seasonOn && !people.open, Modifier.fillMaxSize(),
+        AnimatedVisibility(chosen == null && !shelfOpen && fromSt == null && !liftsOpen && !meet.open && !tripOpen && !skipassOpen && !seasonOn && !people.open, Modifier.fillMaxSize(),
             enter = fadeIn(tween(150)), exit = fadeOut(tween(150))) {
             Box(Modifier.fillMaxSize()) {
                 Dock(night, haptics, onVillage = null, onFind = { shelfOpen = true; Qa.log("redesign dock find") }, onRecord = null)
@@ -670,7 +693,11 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
             }
         }
         // part 4 (S03, S04, S08): the location's box under the pill, the map's buttons, and S02 before the phone asks
-        val bare = chosen == null && !shelfOpen && !liftsOpen && !meet.open && !tripOpen && !skipassOpen && !seasonOn && !people.open
+        val bare = chosen == null && !shelfOpen && fromSt == null && !liftsOpen && !meet.open && !tripOpen && !skipassOpen && !seasonOn && !people.open
+        val dens = androidx.compose.ui.platform.LocalDensity.current.density
+        LaunchedEffect(bare, plan) {
+            view.onPreTap = if (bare && plan != null) { x, y -> StationTap.at(view, plan, stationRuns, x, y, dens)?.let { s -> haptics.tick(.4f); fromSt = s; Qa.log("redesign station ${s.id}"); true } ?: false } else null
+        }
         if (bare) WhereBox(where, night, onRun = { k -> haptics.tick(.3f); view.pickKey(k) }, onAction = whereAction)
         if (bare) MapColumn(where, view, night, recording = false, onLocate = { haptics.tick(.3f); locate() }, onHome = { haptics.tick(.3f); view.home() })
         RunHint(scene, view, night, free = bare && !where.asking, chosen = chosen != null, drawn = mtnDrawn, again = hintAgain)

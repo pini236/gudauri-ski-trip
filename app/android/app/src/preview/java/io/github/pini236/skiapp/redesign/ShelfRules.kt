@@ -94,3 +94,13 @@ internal object Shelf {
     fun length(m: Int): Pair<String, Boolean> =
         if (m < 1000) (((m + 5) / 10) * 10).toString() to false else String.format(java.util.Locale.US, "%.1f", m / 1000.0) to true
 }
+
+/**
+ * K06, "from the station" (the handoff's section 3): the runs that go down from a top station, those whose fromLifts
+ * hold a lift that ends there (a shared station gathers every lift's runs, each run once), the longest first.
+ */
+internal object FromStation {
+    fun runs(topOf: Collection<String>, all: List<Pair<ShelfRun, List<String>>>): List<ShelfRun> =
+        all.filter { (_, from) -> from.any { it in topOf } }.map { it.first }.distinctBy { it.key }
+            .sortedWith(compareByDescending<ShelfRun> { it.len }.then { a, b -> RunFacts.natural(a.title, b.title) })
+}

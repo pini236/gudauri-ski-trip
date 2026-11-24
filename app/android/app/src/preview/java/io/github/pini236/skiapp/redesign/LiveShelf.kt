@@ -88,6 +88,12 @@ internal object ShelfData {
             p.fromLifts.firstOrNull(), back, back?.let { b -> scene.runs.lifts.firstOrNull { it.name == b }?.dur })
     }
 
+    /** Each named run with all its fromLifts (K06 gathers the runs of a station's lifts). */
+    fun withLifts(scene: MapScene): List<Pair<ShelfRun, List<String>>> {
+        val by = runs(scene).associateBy { it.key }
+        return scene.runs.pistes.filter { it.named }.mapNotNull { p -> by[p.key]?.let { it to p.fromLifts } }
+    }
+
     /** The height of each lift's bottom station, from the height model (the order of "by lift", from the village up). */
     fun bottoms(scene: MapScene): Map<String, Float> = scene.runs.lifts.mapNotNull { l ->
         LiveLifts.ends(l, scene.terrain::elev)?.let { e -> l.name to scene.terrain.elev(e[0], e[1]) }
