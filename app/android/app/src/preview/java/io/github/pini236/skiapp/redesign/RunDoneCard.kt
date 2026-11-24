@@ -151,16 +151,17 @@ internal fun RunDoneCard(file: File, p: RunDone.Pending, scene: MapScene, mode: 
         }
         // the sheet
         Box(Modifier.align(Alignment.BottomCenter)) {
-            LiveSheet(k) {
+            LiveSheet(k, opaque = true) {
                 val d = l?.d
                 if (l != null && d == null) Text(stringResource(R.string.app_day_empty), fontFamily = Plex, fontSize = 15.sp, color = k.ink2)
                 if (d != null) Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                     Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                         // the run: its sign and name, in the order skied
                         if (l.runs.isEmpty()) Text(stringResource(R.string.app_rec_off), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = k.ink)
-                        else Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                            l.runs.forEachIndexed { i, key ->
-                                if (i > 0) Text("›", fontFamily = Plex, fontSize = 15.sp, color = k.ink2)
+                        else WholeChain(l.runs.size, sep = { Text("›", fontFamily = Plex, fontSize = 15.sp, color = k.ink2) },
+                            more = { Text("…", fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = k.ink2) }, item = { i ->
+                            val key = l.runs[i]
+                            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                                 val pst = scene.runs?.pistes?.firstOrNull { it.key == key }
                                 pst?.refs?.firstOrNull()?.let { ref ->
                                     Box(Modifier.heightIn(min = 30.dp).clip(RoundedCornerShape(7.dp)).background(Color(io.github.pini236.skiapp.game.runColor(pst.color)))
@@ -168,9 +169,9 @@ internal fun RunDoneCard(file: File, p: RunDone.Pending, scene: MapScene, mode: 
                                         Text(ref, fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 17.sp, color = Color.White)
                                     }
                                 }
-                                Text("⁦${pst?.name?.ifBlank { null } ?: key}⁩", fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = k.ink, maxLines = 1)
+                                Text("⁦${pst?.name?.ifBlank { null } ?: key}⁩", fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = k.ink, maxLines = 1, softWrap = false)
                             }
-                        }
+                        })
                         Row(verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                             Text(if (d.isNull("max_kmh")) "—" else LiveNumbers.maxKmh(d.optDouble("max_kmh")), fontFamily = Plex, fontWeight = FontWeight.Light, fontSize = 64.sp, color = k.ink)
                             Column(Modifier.padding(bottom = 12.dp)) {
