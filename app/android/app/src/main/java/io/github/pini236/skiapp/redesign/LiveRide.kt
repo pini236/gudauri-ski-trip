@@ -8,6 +8,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.absoluteOffset
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -233,7 +234,7 @@ internal fun BoxScope.RideFilm(key: String, title: String, sign: @Composable () 
     val nextWords = nextNow?.let { stringResource(R.string.app_ride_next_join, nf.format(it.first), it.second) } ?: stringResource(R.string.app_ride_no_joins)
     val altWords = stringResource(R.string.app_ride_alt_cap)
     val slopeWords = stringResource(R.string.app_ride_slope_cap)
-    Box(Modifier.align(Alignment.TopStart).statusBarsPadding().padding(top = 64.dp).offset(x = 3.dp).width(44.dp).height(railH.dp)
+    Box(Modifier.align(androidx.compose.ui.AbsoluteAlignment.TopLeft).statusBarsPadding().padding(top = 64.dp).absoluteOffset(x = 3.dp).width(44.dp).height(railH.dp)
         .semantics {
             contentDescription = railA11y
             stateDescription = "${nf.format(line.altAt(d))} $altWords, ${line.slopeAt(d)}° $slopeWords, $nextWords"

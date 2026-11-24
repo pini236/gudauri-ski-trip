@@ -1393,6 +1393,17 @@ redesign2() {
   mark; qa "--es qa.redesign ride:99999"; sleep 2; shot redesign-ride-end
   qa "--es qa.mode night"; sleep 2; shot redesign-ride-night; qa "--es qa.mode day"; sleep 1
   mark; qa "--es qa.redesign ride:close"; waitlog "redesign ride closed" 10 || fail "redesign: the film did not close"
+  # the film on two more runs (Pini, 24.11.2026): the dot on the line and the camera on it, playing and stopped half way
+  for rk in "Kikilo 1" "Kobi"; do
+    mark; qa "--es qa.redesign unpick"; sleep .5
+    mark; qa "--es qa.redesign 'pick:$rk'"; waitlog "redesign live framed $rk" 20 || { fail "redesign: $rk was not framed"; continue; }
+    mark; qa "--es qa.redesign ride"; waitlog "redesign ride open $rk" 15 || { fail "redesign: the film did not open on $rk"; continue; }
+    waitlog "redesign ride play" 10 || fail "redesign: the film on $rk did not start by itself"
+    sleep 3; shot "redesign-ride-playing-${rk// /-}"
+    mark; qa "--es qa.redesign ride:stop"; sleep 1; qa "--es qa.redesign ride:600"; waitlog "redesign ride at 600" 10
+    sleep 2; shot "redesign-ride-standing-${rk// /-}"
+    mark; qa "--es qa.redesign ride:close"; waitlog "redesign ride closed" 10 || fail "redesign: the film on $rk did not close"
+  done
   # S08: no compass on the opening view (a run framed or let go is no turn), then after a real turn of 40 degrees
   # (a slow emulator: the way home may still be turning; wait until the compass has gone, when it was shown at all)
   mark; qa "--es qa.redesign unpick"; sleep .5; qa "--es qa.redesign home"; sleep 2; seen "redesign compass gone" 20 || true
