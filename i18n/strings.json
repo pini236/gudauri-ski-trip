@@ -23141,6 +23141,160 @@
     "ka"
    ]
   },
+  "app.run_ride": {
+    "he": "לרדת בסרט",
+    "en": "Ride it down",
+    "ru": "Спуститься по ленте",
+    "ka": "ლენტით დაშვება",
+    "where": "app/android, app/ios",
+    "note": "הכפתור בגיליון המסלול (K12)",
+    "check": [
+      "ru",
+      "ka"
+    ]
+  },
+  "app.ride_continue": {
+    "he": "ממשיכים לרדת",
+    "en": "Keep going",
+    "ru": "Продолжаем спуск",
+    "ka": "განვაგრძოთ დაშვება",
+    "where": "app/android, app/ios",
+    "note": "הכפתור הראשי כשהסרט עומד; סימן ההפעלה מצויר ברכיב",
+    "check": [
+      "ru",
+      "ka"
+    ]
+  },
+  "app.ride_again": {
+    "he": "שוב מלמעלה",
+    "en": "Again from the top",
+    "ru": "Снова сверху",
+    "ka": "თავიდან ზემოდან",
+    "where": "app/android, app/ios",
+    "note": "הכפתור הראשי בתחתית הסרט",
+    "check": [
+      "ru",
+      "ka"
+    ]
+  },
+  "app.ride_progress": {
+    "he": "{a} מתוך {b} ק״מ",
+    "en": "{a} of {b} km",
+    "ru": "{a} из {b} км",
+    "ka": "{a} / {b} კმ",
+    "where": "app/android, app/ios",
+    "note": "שלט הסרט; משתנים: a, b",
+    "check": [
+      "ru",
+      "ka"
+    ]
+  },
+  "app.ride_alt_cap": {
+    "he": "מ׳ גובה",
+    "en": "m elevation",
+    "ru": "м высота",
+    "ka": "მ სიმაღლე",
+    "where": "app/android, app/ios",
+    "note": "כיתוב מתחת למספר",
+    "check": [
+      "ru",
+      "ka"
+    ]
+  },
+  "app.ride_slope_cap": {
+    "he": "השיפוע כאן",
+    "en": "slope here",
+    "ru": "уклон здесь",
+    "ka": "დახრილობა აქ",
+    "where": "app/android, app/ios",
+    "note": "כיתוב מתחת למספר",
+    "check": [
+      "ru",
+      "ka"
+    ]
+  },
+  "app.ride_left_cap": {
+    "he": "ק״מ עד הסוף",
+    "en": "km to the end",
+    "ru": "км до конца",
+    "ka": "კმ ბოლომდე",
+    "where": "app/android, app/ios",
+    "note": "כיתוב מתחת למספר",
+    "check": [
+      "ru",
+      "ka"
+    ]
+  },
+  "app.ride_next_join": {
+    "he": "בעוד {n} מ׳: מצטרף {run}",
+    "en": "In {n} m: {run} joins",
+    "ru": "Через {n} м присоединяется {run}",
+    "ka": "{n} მ-ში: უერთდება {run}",
+    "where": "app/android, app/ios",
+    "note": "משתנים: n, run; שם המסלול לא מתורגם",
+    "check": [
+      "ru",
+      "ka"
+    ]
+  },
+  "app.ride_no_joins": {
+    "he": "עד הסוף בלי הצטלבויות",
+    "en": "No crossings until the end",
+    "ru": "До конца без пересечений",
+    "ka": "ბოლომდე გადაკვეთების გარეშე",
+    "where": "app/android, app/ios",
+    "check": [
+      "ru",
+      "ka"
+    ]
+  },
+  "app.ride_hint": {
+    "he": "גוררים את הנקודה על הפס או על ההר.",
+    "en": "Drag the dot along the bar or on the mountain.",
+    "ru": "Перетащите точку по полосе или по горе.",
+    "ka": "გადაიტანეთ წერტილი ზოლზე ან მთაზე.",
+    "where": "app/android, app/ios",
+    "check": [
+      "ru",
+      "ka"
+    ]
+  },
+  "app.ride_hint_haptic": {
+    "he": "רטט קצר בכל 100 מ׳ ירידה, חזק יותר בקטע תלול.",
+    "en": "A short buzz every 100 m of descent, stronger on a steep section.",
+    "ru": "Короткая вибрация каждые 100 м спуска, сильнее на крутом участке.",
+    "ka": "მოკლე ვიბრაცია ყოველ 100 მ დაშვებაზე, ციცაბო მონაკვეთზე უფრო ძლიერი.",
+    "where": "app/android, app/ios",
+    "note": "רק בטלפון שרוטט",
+    "check": [
+      "ru",
+      "ka"
+    ]
+  },
+  "app.ride_rail_a11y": {
+    "he": "מיקום במסלול: {a} מתוך {b} ק״מ",
+    "en": "Position on the run: {a} of {b} km",
+    "ru": "Положение на трассе: {a} из {b} км",
+    "ka": "პოზიცია ტრასაზე: {a} / {b} კმ",
+    "where": "app/android, app/ios",
+    "note": "לקורא מסך; משתנים: a, b",
+    "check": [
+      "ru",
+      "ka"
+    ]
+  },
+  "app.ride_speed_a11y": {
+    "he": "מהירות הסרט: פי {n}",
+    "en": "Ride speed: {n} times",
+    "ru": "Скорость ленты: в {n} раз(а)",
+    "ka": "ლენტის სიჩქარე: {n}-ჯერ",
+    "where": "app/android, app/ios",
+    "note": "לקורא מסך; על הכפתור עצמו ×{n} בלי מחרוזת",
+    "check": [
+      "ru",
+      "ka"
+    ]
+  },
   "app.vill_credit": {
    "he": "צויר מנתונים, לא צילום. גובה הבניינים משוער.",
    "en": "Drawn from data, not a photo. Building heights are estimated.",
