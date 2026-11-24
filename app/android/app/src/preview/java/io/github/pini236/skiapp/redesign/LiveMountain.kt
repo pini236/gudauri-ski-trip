@@ -102,6 +102,7 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
     // the emulator's held moment (ms since the choice), null in use
     var held by remember { mutableStateOf<Float?>(null) }
     var meetOpenQa by remember { mutableStateOf<String?>(null) }
+    var qaFlags by remember { mutableStateOf<GroupMeets?>(null) }
     val time = scrub?.let { PeakLight.janAt(it) } ?: DayNight.lightTime(now, mode)
     val night = remember(time) { Sky.at(time).dark }
     val view = remember { LiveView(context, scene).also { v -> v.onChoose = { k -> chosen = k; haptics.tick(.5f); Qa.log("redesign live chosen $k") } } }
@@ -148,7 +149,7 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
     fun meetPick(s: io.github.pini236.skiapp.meet.Station, p: io.github.pini236.skiapp.meet.Preset? = null) {
         val (d, t) = LiveMeetRules.default(meetDays, java.time.Instant.ofEpochMilli(System.currentTimeMillis()))
         meet.sid = s.id; meet.preset = p; meet.day = d; meet.time = p?.let { io.github.pini236.skiapp.meet.Meet.parseTime(it.time) } ?: t
-        meet.undo = null; meet.drops++
+        meet.undo = null; meet.drops++; meet.fromGroup = false; meet.offlineAt = null
         haptics.tick(.5f)
         io.github.pini236.skiapp.telemetry.Telemetry.event("meet_pick", if (p != null) mapOf("kind" to "preset", "preset" to p.event) else mapOf("kind" to "station", "station" to s.name))
         Qa.log("redesign meet set ${s.id} ${meet.day} ${meet.time}")
@@ -173,9 +174,23 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
             q == "off" -> meetOpen(false)
             q == "where" -> { meetOpen(true); meet.sid = null; Qa.log("redesign meet where ${plan.stations.size}") }
             q == "clear" -> meetClear("button")
+            // a group's meetup today at Goodaura's top, as the phone's copy would hold it (the emulator has no server)
+            q == "flag" || q == "flag:offline" -> LiveMeetRules.topOf(plan, "Goodaura")?.let { st ->
+                val (d, t) = LiveMeetRules.default(listOf(java.time.LocalDate.now(io.github.pini236.skiapp.meet.Meet.GUDAURI)), java.time.Instant.now())
+                qaFlags = GroupMeets(listOf(io.github.pini236.skiapp.meet.MeetFlags.In("qa", "qa", st.id, io.github.pini236.skiapp.meet.Meet.at(d, t))),
+                    if (q.endsWith("offline")) System.currentTimeMillis() - 3_600_000 else null)
+                Qa.log("redesign meet flag ${st.id} $t")
+            }
+            q == "flag:off" -> qaFlags = null
             q.startsWith("preset:") -> io.github.pini236.skiapp.meet.Preset.entries.firstOrNull { it.event == q.removePrefix("preset:") }?.let { p -> plan.preset(p)?.let { meetOpen(true); meetPick(it, p) } }
             q.startsWith("lift:") -> LiveMeetRules.topOf(plan, q.removePrefix("lift:"))?.let { meetOpen(true); meetPick(it) }
         }
+    }
+    // the flags of my groups on the mountain (the architect, 24.11.2026): today's meetups, from the phone's copy
+    val synced by produceState(GroupMeets(), here?.sync) { here?.sync?.let { s -> groupMeets(s).collect { value = it } } }
+    val meets = qaFlags ?: synced
+    val flags = remember(meets, plan, now) {
+        if (plan == null) emptyList() else io.github.pini236.skiapp.meet.MeetFlags.pick(meets.list, java.time.Instant.ofEpochMilli(now), plan.byId.keys)
     }
     LaunchedEffect(meet.undoN) { if (meet.undo != null) { delay(5000); meet.undo = null } }
     androidx.activity.compose.BackHandler(enabled = meet.open) { if (meet.sid != null) meetClear("back") else meetOpen(false) }
@@ -372,6 +387,24 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
         AnimatedVisibility(chosen == null && !liftsOpen && !meet.open, Modifier.align(Alignment.BottomCenter).navigationBarsPadding().padding(bottom = 22.dp), enter = fadeIn(), exit = fadeOut()) {
             Pill(h = 48) { Text(stringResource(R.string.poc_peak_hint), Modifier.padding(horizontal = 20.dp), fontFamily = Plex, fontSize = 15.sp, color = ink) }
         }
+        // the flags of my groups (Q05 on the plain mountain): the same flag with its time; a tap opens it
+        if (!meet.open && chosen == null && !liftsOpen && plan != null && flags.isNotEmpty()) {
+            val sk = remember(night) { SheetInk(night) }
+            var at by remember { mutableStateOf<List<Pair<io.github.pini236.skiapp.meet.MeetFlags.In, Offset>>>(emptyList()) }
+            LaunchedEffect(flags) { while (true) { withFrameNanos { }; at = flags.mapNotNull { f -> plan.byId[f.station]?.let { s -> view.toScreen(s.x, s.y, 4f)?.let { f to Offset(it[0], it[1]) } } } } }
+            fun hm(f: io.github.pini236.skiapp.meet.MeetFlags.In) = f.at.atOffset(io.github.pini236.skiapp.meet.Meet.GUDAURI).toLocalTime().let { "%02d:%02d".format(it.hour, it.minute) }
+            Canvas(Modifier.fillMaxSize()) { for ((f, p) in at) meetFlag(p, hm(f), 1f, sk.acc, Color.White, measurer) }
+            for ((f, p) in at) {
+                val s = plan.byId[f.station] ?: continue
+                MeetFlagTarget(p, stringResource(R.string.app_meet_flag_a11y, hm(f), s.name)) {
+                    haptics.tick(.3f); meetOpen(true)
+                    val z = f.at.atOffset(io.github.pini236.skiapp.meet.Meet.GUDAURI)
+                    meet.sid = s.id; meet.day = z.toLocalDate(); meet.time = z.toLocalTime(); meet.preset = null
+                    meet.fromGroup = true; meet.offlineAt = meets.offlineAt
+                    Qa.log("redesign meet from flag ${s.id}")
+                }
+            }
+        }
         // part 2 (Q04, Q05): the meeting point over the mountain: the pins, the flag, the pill and the sheet
         if (meet.open && plan != null) {
             val sk = remember(night) { SheetInk(night) }
@@ -412,7 +445,7 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
                     }
                 }
                 if (st != null && d0 != null && t0 != null && here != null)
-                    MeetSetSheet(here, st, d0, t0, meetDays, sk, haptics, scene, onDay = { meet.day = it; meet.preset = null; Qa.log("redesign meet day $it") },
+                    MeetSetSheet(here, st, d0, t0, meetDays, sk, haptics, scene, meet.offlineAt, meet.fromGroup, onDay = { meet.day = it; meet.preset = null; Qa.log("redesign meet day $it") },
                         onTime = { meet.time = it; meet.preset = null; Qa.log("redesign meet time $it") })
                 else if (st == null) MeetWhereSheet(plan, sk, haptics) { p, s -> meetPick(s, p) }
             }

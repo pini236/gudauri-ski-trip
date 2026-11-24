@@ -74,6 +74,7 @@ import io.github.pini236.skiapp.qa.Qa
 import io.github.pini236.skiapp.telemetry.Telemetry
 import io.github.pini236.skiapp.ui.Plex
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.launch
 import java.time.Instant
 import java.time.LocalDate
@@ -136,6 +137,10 @@ internal class MeetUi {
     var undoN by mutableStateOf(0)
     /** The flag's drop, counted so the same station picked again drops again. */
     var drops by mutableStateOf(0)
+    /** Opened from a group's flag on the mountain: already in a group, so no "save in the group". */
+    var fromGroup by mutableStateOf(false)
+    /** When the group's copy shown was saved, if the phone was offline (the architect's condition 4). */
+    var offlineAt by mutableStateOf<Long?>(null)
 }
 
 /** The flag's words and its sub-line under the station's name (Q05): "the top station · 2,705 m". */
@@ -261,12 +266,16 @@ private fun Chip(text: String, on: Boolean, k: SheetInk, desc: String = text, on
  */
 @Composable
 internal fun MeetSetSheet(here: MeetHere, s: Station, day: LocalDate, time: LocalTime, days: List<LocalDate>, k: SheetInk, haptics: Haptics, scene: io.github.pini236.skiapp.map.MapScene,
-                          onDay: (LocalDate) -> Unit, onTime: (LocalTime) -> Unit) {
+                          offlineAt: Long? = null, fromGroup: Boolean = false, onDay: (LocalDate) -> Unit, onTime: (LocalTime) -> Unit) {
     val context = LocalContext.current
     val lang = Lang.current(context.resources)
     val hhmm = "%02d:%02d".format(time.hour, time.minute)
     var askTime by remember { mutableStateOf(false) }
     LiveSheet(k) {
+        offlineAt?.let { at ->
+            val hm = Instant.ofEpochMilli(at).atOffset(Meet.GUDAURI).toLocalTime().let { "%02d:%02d".format(it.hour, it.minute) }
+            Text(stringResource(R.string.app_g_offline, hm), fontFamily = Plex, fontSize = 12.5.sp, color = k.ink2)
+        }
         Row(verticalAlignment = Alignment.CenterVertically) {
             Column(Modifier.weight(1f)) {
                 Text("⁦${s.name}⁩", fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 25.sp, color = k.ink, maxLines = 1)
@@ -289,7 +298,7 @@ internal fun MeetSetSheet(here: MeetHere, s: Station, day: LocalDate, time: Loca
             Chip(if (other) hhmm else otherWord, other, k, desc = stringResource(R.string.meet_other_time)) { askTime = true }
         }
         MeetShareRow(s, day, time, lang, k, haptics, scene)
-        here.save?.let { MeetSaveButton(it, s, Meet.at(day, time), k, haptics) }
+        if (!fromGroup) here.save?.let { MeetSaveButton(it, s, Meet.at(day, time), k, haptics) }
     }
     if (askTime) io.github.pini236.skiapp.trip.TimeDialog(stringResource(R.string.meet_other_time), time,
         onPick = { t -> askTime = false; onTime(t) }, onDismiss = { askTime = false })
@@ -416,3 +425,21 @@ internal fun rememberDrop(key: Any?, reduced: Boolean): Animatable<Float, *> {
     }
     return a
 }
+
+/** Today's meetups of my groups, from the phone's copy (Sync), and when a copy shown offline was saved. */
+internal class GroupMeets(val list: List<io.github.pini236.skiapp.meet.MeetFlags.In> = emptyList(), val offlineAt: Long? = null)
+
+/**
+ * The flags of my groups on the mountain (the architect, 24.11.2026): only the phone's copy, the same flows the group
+ * page reads; no new channel and no new call. Live only while a group page is open, as today.
+ */
+@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
+internal fun groupMeets(sync: io.github.pini236.skiapp.server.Sync): kotlinx.coroutines.flow.Flow<GroupMeets> =
+    sync.myGroups.flatMapLatest { m ->
+        if (m.groups.isEmpty()) kotlinx.coroutines.flow.flowOf(GroupMeets())
+        else kotlinx.coroutines.flow.combine(m.groups.map { sync.group(it.id).state }) { arr ->
+            GroupMeets(arr.flatMap { sn -> sn.meetups.map { io.github.pini236.skiapp.meet.MeetFlags.In(it.id, sn.groupId, it.station, it.at) } },
+                arr.filter { it.offline }.mapNotNull { it.readAt }.minOrNull())
+        }
+    }
+
