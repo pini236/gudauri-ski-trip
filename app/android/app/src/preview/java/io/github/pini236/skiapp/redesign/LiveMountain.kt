@@ -473,6 +473,15 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
         var mk by remember { mutableStateOf<LiveView.Marks?>(null) }
         var mkMs by remember { mutableStateOf(0f) }
         LaunchedEffect(chosen) { if (chosen == null) { mk = null; return@LaunchedEffect }; while (true) { withFrameNanos { }; mk = view.marks(); mkMs = view.chosenMs() } }
+        // the closed lifts' tags on the mountain (Q01): a red dot, the lift's name and "closed", 16 above its top station
+        val boardLifts = remember(scene) { LiveLifts.board(scene.runs) }
+        val closed = if (status?.fresh == true) boardLifts.filter { status.isOpen(it.name) == false } else emptyList()
+        var tags by remember { mutableStateOf<List<Pair<io.github.pini236.skiapp.data.Lift, Offset>>>(emptyList()) }
+        LaunchedEffect(closed.map { it.name }) {
+            if (closed.isEmpty()) { tags = emptyList(); return@LaunchedEffect }
+            val tops = closed.mapNotNull { l -> LiveLifts.ends(l, scene.terrain::elev)?.let { e -> l to e } }
+            while (true) { withFrameNanos { }; tags = tops.mapNotNull { (l, e) -> view.toScreen(e[2], e[3], 6f)?.let { p -> l to Offset(p[0], p[1]) } } }
+        }
         // phase A's names (only with no run chosen) and the lifts' stations, over the model, every frame the camera moves
         var ov by remember { mutableStateOf<LiveView.Overlay?>(null) }
         LaunchedEffect(pd) { val labels = pd?.hero?.labels ?: return@LaunchedEffect; while (true) { withFrameNanos { }; ov = view.overlay(labels) } }
@@ -501,6 +510,10 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
                     val t2 = l.sub?.let { measurer.measure(unitM.replace("\u0000", nf.format(it)), sub) }
                     val half = maxOf(t1.size.width, t2?.size?.width ?: 0) / 2f + 8 * density
                     if (x - half < 0f || x + half > size.width) continue
+                    // a name that falls under a closed lift's tag is not drawn (the designer's note on part 2: the tag
+                    // over Bidara); the tag is about 130 wide from 40 before its station, 22 high, 16 above it
+                    val hh = (t1.size.height + (t2?.size?.height ?: 0)) / 2f
+                    if (tags.any { (_, p) -> x + half > p.x - 40 * density && x - half < p.x + 90 * density && y + hh > p.y - 38 * density && y - hh < p.y - 16 * density }) continue
                     var yy = y - (t1.size.height + (t2?.size?.height ?: 0)) / 2f
                     for (tx in listOfNotNull(t1, t2)) {
                         val tl = Offset(x - tx.size.width / 2f, yy)
@@ -523,15 +536,6 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
                 drawCircle(Color.White, 14 * dp * sc, tp, alpha = .55f * (1 - r))
                 drawCircle(Color.White, 26 * dp * sc, tp, alpha = .9f * (1 - r), style = Stroke(2 * dp))
             }
-        }
-        // the closed lifts' tags on the mountain (Q01): a red dot, the lift's name and "closed", 16 above its top station
-        val boardLifts = remember(scene) { LiveLifts.board(scene.runs) }
-        val closed = if (status?.fresh == true) boardLifts.filter { status.isOpen(it.name) == false } else emptyList()
-        var tags by remember { mutableStateOf<List<Pair<io.github.pini236.skiapp.data.Lift, Offset>>>(emptyList()) }
-        LaunchedEffect(closed.map { it.name }) {
-            if (closed.isEmpty()) { tags = emptyList(); return@LaunchedEffect }
-            val tops = closed.mapNotNull { l -> LiveLifts.ends(l, scene.terrain::elev)?.let { e -> l to e } }
-            while (true) { withFrameNanos { }; tags = tops.mapNotNull { (l, e) -> view.toScreen(e[2], e[3], 6f)?.let { p -> l to Offset(p[0], p[1]) } } }
         }
         if (chosen == null && !meet.open && !tripOpen && !skipassOpen && !seasonOn) for ((l, p) in tags) {
             val sk = remember(night) { SheetInk(night) }
