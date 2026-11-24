@@ -395,7 +395,8 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
     // the test build's tools; none in the store build
     people.tools = if (io.github.pini236.skiapp.BuildConfig.FLAVOR == "store") null else ({
         TestRow(stringResource(R.string.poc_peak_light_now, lightNow)) { people.close(); scrubOpen = true; Qa.log("redesign tools light") }
-        TestRow(stringResource(R.string.poc_peak_painted)) { people.close(); onPainted() }
+        // the picture is a fallback, not a second mountain: only the emulator's runs switch to it
+        if (io.github.pini236.skiapp.BuildConfig.DEBUG) TestRow(stringResource(R.string.poc_peak_painted)) { people.close(); onPainted() }
         // only the emulator's runs may leave the mountain (the app has no other home, Pini 24.11.2026)
         if (onLeave != null) TestRow(stringResource(R.string.poc_peak_leave)) { people.close(); onLeave() }
         // the field testers' tools (the manager, 24.11.2026: a row here, the test build only; empty in the store build)
@@ -675,7 +676,7 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
             Shelf(scene, view, shelfRuns, night, haptics,
                 open = { flat -> Shelf.start(flat, ShelfMemory.last, null, null) },
                 closed = { key -> scene.runs.pistes.firstOrNull { it.key == key }?.let { status?.runOpen(it) == false } ?: false },
-                onCenter = { shelfMid = it; view.showSide(it.key) },
+                onCenter = { shelfMid = it; view.showRun(it.key, .56f) },
                 onPick = { key -> ShelfMemory.last = key; shelfOpen = false; Qa.log("redesign shelf pick $key"); view.pickKey(key) },
                 onClose = { shelfOpen = false; Qa.log("redesign shelf closed") })
             if (veilA > .5f) shelfMid?.let { r -> RunTag(view, scene, r.key, r.title, r.color, night) }
@@ -697,7 +698,12 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
             onTrip = { tripEdit = null; tripOpen = true },
             onSkipass = { skipassOpen = true },
             onFood = LiveLifts.board(scene.runs).firstOrNull { it.name == "Goodaura" }?.let { g -> { villageOpen = false; liftSel = g; liftsOpen = true } },
-            onPeople = { if (pp != null) people.go(PLayer.Me) },
+            // the row says where it goes (Pini, 24.11.2026): no group, to join or open one; one, to it; more, to my groups
+            onPeople = { g -> if (pp != null) when {
+                g.isNullOrEmpty() -> people.go(PLayer.Gate)
+                g.size == 1 -> people.go(PLayer.Group(g[0].id))
+                else -> people.go(PLayer.Me)
+            } },
             onBack = { view.fromVillage(); villageOpen = false; Qa.log("redesign village closed") },
             fly = { p -> view.toVillage(p) },
             meetLifts = vMeet?.second?.bottomOf.orEmpty(),

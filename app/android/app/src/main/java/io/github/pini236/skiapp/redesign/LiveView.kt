@@ -380,7 +380,7 @@ class LiveView(context: Context, private val scene: MapScene) : GLSurfaceView(co
     private val pendingPick = Runnable { pick(tapX, tapY) }
     private val snow: (Float, Float) -> Float = { x, z -> scene.terrain.elev(x, z) }
 
-    private fun move(f: (OrbitCamera.State) -> OrbitCamera.State) { camera.update(f); requestRender() }
+    private fun move(f: (OrbitCamera.State) -> OrbitCamera.State) { camera.update { LiveLimits.step(it, f(it)) }; requestRender() }
 
     /**
      * The film (K12): while set, the camera's gestures are off and a finger goes here instead: 0 down, 1 move, 2 up
@@ -435,7 +435,7 @@ class LiveView(context: Context, private val scene: MapScene) : GLSurfaceView(co
             MotionEvent.ACTION_POINTER_UP -> {
                 if (e.pointerCount == 2 && two == Two.UNDECIDED && e.eventTime - twoDownT < 300) {
                     val mx = (e.getX(0) + e.getX(1)) / 2; val my = (e.getY(0) + e.getY(1)) / 2
-                    renderer.animate(Moves.zoom(camera.state(), w, h, lx(mx), ly(my), 0.5f, snow), 0.35f)
+                    camera.state().let { s0 -> renderer.animate(LiveLimits.step(s0, Moves.zoom(s0, w, h, lx(mx), ly(my), 0.5f, snow)), 0.35f) }
                     two = Two.TRANSFORM
                 }
                 val rest = (0 until e.pointerCount).filter { it != e.actionIndex }
@@ -492,7 +492,7 @@ class LiveView(context: Context, private val scene: MapScene) : GLSurfaceView(co
     private fun tap(x: Float, y: Float, t: Long, w: Float, h: Float) {
         if (t - lastTapT < doubleTapMs && hypot(x - tapX, y - tapY) < 48 * density) {
             removeCallbacks(pendingPick); lastTapT = 0L
-            renderer.animate(Moves.zoom(camera.state(), w, h, lx(x), ly(y), 2.2f, snow), 0.35f)
+            camera.state().let { s0 -> renderer.animate(LiveLimits.step(s0, Moves.zoom(s0, w, h, lx(x), ly(y), 2.2f, snow)), 0.35f) }
             return
         }
         lastTapT = t; tapX = x; tapY = y
@@ -583,6 +583,23 @@ class LiveView(context: Context, private val scene: MapScene) : GLSurfaceView(co
      * The shelf's middle card (K07, the live handoff's section 10): a run that shows less than half from here turns the
      * view to the wide view of the side that shows more of it; nothing is chosen and nothing is framed.
      */
+    /**
+     * The shelf's middle card shown on the mountain (Pini, 24.11.2026: "the card should mark the run and turn the view
+     * to it"): the side that shows more of it if this one shows less than half, then the run fitted to the screen's
+     * top [free] part, over the shelf. Nothing is chosen.
+     */
+    fun showRun(key: String, free: Float) {
+        if (worker.isShutdown) return
+        worker.execute {
+            val here = seen(key, camera.state())
+            if (here >= .5f) { post { frameRunAbove(key, free) }; return@execute }
+            val f = front(); val k = kobi()
+            val wide = if (seen(key, k) > seen(key, f)) k else f
+            Qa.log("redesign shelf side ${if (wide === k) "kobi" else "front"} $key")
+            post { turnTo(wide) { frameRunAbove(key, free) } }
+        }
+    }
+
     fun showSide(key: String) {
         if (worker.isShutdown) return
         worker.execute {
@@ -898,3 +915,20 @@ class LiveView(context: Context, private val scene: MapScene) : GLSurfaceView(co
  * (map/Camera.kt) yaw 0 looks along -z, and the site's z grows south (data/Geo.kt): yaw 0 is north.
  */
 object LiveOpen { const val YAW = 0f }
+
+
+/**
+ * The live model's own bounds on a gesture (Pini, 24.11.2026): not so far that the model floats small on an empty sky
+ * (the map's 32 km), not so close that the 40 m ground breaks up, and no jump: one finger step never carries the view's
+ * centre further than its own distance (holding the snow under the finger can catch a point behind a ridge when close;
+ * then the step keeps the zoom and the turn, without the jump).
+ */
+internal object LiveLimits {
+    const val MIN_DIST = 600f
+    const val MAX_DIST = 12500f
+    fun step(from: OrbitCamera.State, to: OrbitCamera.State): OrbitCamera.State {
+        val d = to.dist.coerceIn(MIN_DIST, MAX_DIST)
+        val jump = hypot(to.tx - from.tx, to.tz - from.tz) > maxOf(from.dist, d)
+        return if (jump) from.copy(dist = d, yaw = to.yaw, pitch = to.pitch) else to.copy(dist = d)
+    }
+}

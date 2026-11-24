@@ -228,10 +228,20 @@ object Redesign {
             // light icons over the sky
             SideEffect { (view.context as? android.app.Activity)?.window?.let { WindowCompat.getInsetsController(it, view).isAppearanceLightStatusBars = false } }
             // phase B: the live model under the picture; the picture fades away over it (and back), 700 ms
-            var live by rememberSaveable { mutableStateOf(false) }
+            val ctx = androidx.compose.ui.platform.LocalContext.current
+            // the live model: OpenGL ES 3 and its own file (5 KB); without either, the painted mountain only
+            val gles = remember {
+                liveOk((ctx.getSystemService(android.content.Context.ACTIVITY_SERVICE) as? android.app.ActivityManager)?.deviceConfigurationInfo?.reqGlEsVersion ?: 0) &&
+                    runCatching { LiveData.load(ctx) }.onFailure { io.github.pini236.skiapp.qa.Qa.log("redesign failed live data") }.isSuccess
+            }
+            // one design (Pini, 24.11.2026): the mountain is the live model with everything on it; the painted picture
+            // is only the fallback of a phone without OpenGL ES 3 (or of the emulator's runs, which ask for it)
+            var live by rememberSaveable { mutableStateOf(!debug && gles && scene != null) }
+            if (!debug && gles && scene != null && !live) live = true
             val shown = remember { Animatable(if (live) 1f else 0f) }
             LaunchedEffect(live) { shown.animateTo(if (live) 1f else 0f, tween(700)) }
-            BackHandler(enabled = live) { live = false }
+            // back never turns the mountain into the picture (only the emulator's runs go there)
+            BackHandler(enabled = live && debug) { live = false }
             LaunchedEffect(RedesignQa.seq) {
                 when (RedesignQa.cmd) {
                     "live" -> if (scene != null) live = true
@@ -240,10 +250,6 @@ object Redesign {
             }
             val ctx = androidx.compose.ui.platform.LocalContext.current
             // the live model: OpenGL ES 3 and its own file (5 KB); without either, the painted mountain only
-            val gles = remember {
-                liveOk((ctx.getSystemService(android.content.Context.ACTIVITY_SERVICE) as? android.app.ActivityManager)?.deviceConfigurationInfo?.reqGlEsVersion ?: 0) &&
-                    runCatching { LiveData.load(ctx) }.onFailure { io.github.pini236.skiapp.qa.Qa.log("redesign failed live data") }.isSuccess
-            }
             Box(Modifier.fillMaxSize()) {
                 // the live model only over home: never with the map open too (the height model would sit on the GPU
                 // twice, docs/ARCHITECTURE.md)

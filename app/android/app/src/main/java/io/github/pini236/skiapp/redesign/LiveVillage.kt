@@ -118,7 +118,7 @@ internal class VillageMarks(val stations: List<Mark>, val pins: List<Mark>, val 
 @Composable
 internal fun BoxScope.Village(
     scene: MapScene, data: PeakData, mode: DayNight.Mode, now: Long, night: Boolean, around: Around?, haptics: Haptics,
-    meetNow: Pair<String, String>?, onLift: (Lift) -> Unit, onTrip: () -> Unit, onSkipass: () -> Unit, onFood: (() -> Unit)?, onPeople: () -> Unit,
+    meetNow: Pair<String, String>?, onLift: (Lift) -> Unit, onTrip: () -> Unit, onSkipass: () -> Unit, onFood: (() -> Unit)?, onPeople: (List<io.github.pini236.skiapp.group.GroupSummary>?) -> Unit,
     onBack: () -> Unit,
     fly: (FloatArray) -> Boolean = { false },
     meetLifts: List<String> = emptyList(),
@@ -235,7 +235,7 @@ internal fun tripSpan(a: java.time.LocalDate, b: java.time.LocalDate?): String =
 @Composable
 private fun BoxScope.VillageSheet(
     scene: MapScene, around: Around?, k: SheetInk, haptics: Haptics, food: Int, hasPlaces: Boolean, meetNow: Pair<String, String>?,
-    onTrip: () -> Unit, onSkipass: () -> Unit, onFood: (() -> Unit)?, onPeople: () -> Unit, onBack: () -> Unit,
+    onTrip: () -> Unit, onSkipass: () -> Unit, onFood: (() -> Unit)?, onPeople: (List<io.github.pini236.skiapp.group.GroupSummary>?) -> Unit, onBack: () -> Unit,
 ) {
     val nf = remember { java.text.NumberFormat.getIntegerInstance() }
     val goodaura = scene.runs.lifts.firstOrNull { it.name == "Goodaura" }
@@ -295,7 +295,7 @@ private fun BoxScope.VillageSheet(
                 g.size == 1 -> g[0].name
                 else -> pluralStringResource(R.plurals.app_vill_grp_n, g.size, g.size.toString())
             }
-            VRow(stringResource(R.string.app_grp_title), peopleEnd, k) { haptics.tick(.3f); onPeople() }
+            VRow(stringResource(R.string.app_grp_title), peopleEnd, k) { haptics.tick(.3f); onPeople(g) }
             around?.onGames?.let { go -> VRow(stringResource(R.string.app_cabin_title), pluralStringResource(R.plurals.app_vill_cabin_n, around.games, around.games.toString()), k) { haptics.tick(.3f); go() } }
             Text(stringResource(R.string.app_vill_credit), Modifier.padding(top = 10.dp), fontFamily = Gudi, fontSize = 12.sp, color = k.ink2)
         }
