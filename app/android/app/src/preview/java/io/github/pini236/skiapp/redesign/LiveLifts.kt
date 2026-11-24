@@ -154,8 +154,9 @@ internal fun LiftPanel(l: Lift, s: LiftStatus?, scene: MapScene, k: SheetInk, ha
     val open = s?.isOpen(l.name)
     val nf = remember { java.text.NumberFormat.getIntegerInstance() }
     val elev = scene.terrain::elev
-    LiveSheet(k) {
-        Column(Modifier.heightIn(max = 560.dp).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(14.dp)) {
+    LiveSheet(k, opaque = true) {
+        // the facts scroll (the places near the stations make it long); the two buttons stay at the bottom, always whole
+        Column(Modifier.heightIn(max = 440.dp).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(14.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 Box(Modifier.size(44.dp).clip(CircleShape).background(k.line), contentAlignment = Alignment.Center) { LiftSign(k.ink) }
                 Column(Modifier.weight(1f)) {
@@ -204,13 +205,13 @@ internal fun LiftPanel(l: Lift, s: LiftStatus?, scene: MapScene, k: SheetInk, ha
                 }
             }
             Column { LiftPlaces(l) }
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                if (onMeet != null) Box(Modifier.weight(1f).heightIn(min = 52.dp).clip(RoundedCornerShape(26.dp)).background(k.acc)
-                    .semantics { role = Role.Button }.clickable { haptics.tick(.4f); onMeet() }, contentAlignment = Alignment.Center) {
-                    Text(stringResource(R.string.app_lift_meet_here), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color.White)
-                }
-                SecondaryButton(stringResource(R.string.app_lift_runs_btn), k, if (onMeet == null) Modifier.weight(1f) else Modifier) { haptics.tick(.3f); onRuns() }
+        }
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            if (onMeet != null) Box(Modifier.weight(1f).heightIn(min = 52.dp).clip(RoundedCornerShape(26.dp)).background(k.acc)
+                .semantics { role = Role.Button }.clickable { haptics.tick(.4f); onMeet() }, contentAlignment = Alignment.Center) {
+                Text(stringResource(R.string.app_lift_meet_here), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color.White)
             }
+            SecondaryButton(stringResource(R.string.app_lift_runs_btn), k, if (onMeet == null) Modifier.weight(1f) else Modifier) { haptics.tick(.3f); onRuns() }
         }
     }
 }
