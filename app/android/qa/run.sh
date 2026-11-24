@@ -1404,6 +1404,17 @@ redesign2() {
     sleep 2; shot "redesign-ride-standing-${rk// /-}"
     mark; qa "--es qa.redesign ride:close"; waitlog "redesign ride closed" 10 || fail "redesign: the film on $rk did not close"
   done
+  # the sheets follow the finger (Pini, 24.11.2026): a pull up on the low run sheet opens the full one, a pull down
+  # goes back to the low one, a slow short pull goes back into place, a flick down closes
+  mark; qa "--es qa.redesign unpick"; sleep .5
+  mark; qa "--es qa.redesign 'pick:Tatra 2'"; waitlog "redesign live framed Tatra 2" 20
+  sleep 1; mark; drag 540 1900 540 1350 350; waitlog "redesign pull up" 10 || fail "redesign: a pull up on the run sheet did not take"
+  waitlog "redesign run full Tatra 2" 10 || fail "redesign: a pull up did not open the full sheet"; sleep 1; rd_settled; shot redesign-pull-full
+  mark; drag 540 1250 540 2200 450; waitlog "redesign pull down" 10 || fail "redesign: a pull down on the full sheet did not take"
+  waitlog "redesign run low" 10 || fail "redesign: a pull down did not go back to the low sheet"
+  sleep 1; mark; drag 540 1900 540 1980 900; waitlog "redesign pull back" 10 || fail "redesign: a short pull did not go back into place"
+  sleep 1; shot redesign-pull-back
+  mark; drag 540 1850 540 2300 120; waitlog "redesign pull down" 10 || fail "redesign: a flick down did not close the run sheet"
   # S08: no compass on the opening view (a run framed or let go is no turn), then after a real turn of 40 degrees
   # (a slow emulator: the way home may still be turning; wait until the compass has gone, when it was shown at all)
   mark; qa "--es qa.redesign unpick"; sleep .5; qa "--es qa.redesign home"; sleep 2; seen "redesign compass gone" 20 || true
