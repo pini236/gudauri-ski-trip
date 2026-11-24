@@ -199,5 +199,22 @@ object RedesignQa {
     var cmd: String = ""; private set
     /** The day on the mountain (round 4) in the debug build: once asked (qa.redesign day), until the run ends. */
     var dayOn by mutableStateOf(false); private set
-    fun send(c: String) { asked = true; if (c == "day") dayOn = true; cmd = c; seq++ }
+    /**
+     * The emulator sends its commands faster than a slow emulator draws (run 377: "unpick" then "home" half a second
+     * apart, and the screens, which read [cmd] on a change of [seq], saw only the second). So one at a time: each next
+     * one two drawn frames after the last, which grows with the emulator's load as the screens do.
+     */
+    fun send(c: String) {
+        pending.addLast(c)
+        if (!pumping) pump()
+    }
+    private val pending = ArrayDeque<String>()
+    private var pumping = false
+    private fun pump() {
+        val c = pending.removeFirstOrNull() ?: run { pumping = false; return }
+        pumping = true
+        asked = true; if (c == "day") dayOn = true; cmd = c; seq++
+        val ch = android.view.Choreographer.getInstance()
+        ch.postFrameCallback { ch.postFrameCallback { android.os.Handler(android.os.Looper.getMainLooper()).post { pump() } } }
+    }
 }

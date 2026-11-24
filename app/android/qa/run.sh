@@ -1190,7 +1190,8 @@ redesign() {
   mark; qa "--es qa.redesign lens:snow"; waitlog "redesign lens snow" 20 && { rd_settled; shot redesign-lens-snow; } || fail "redesign: the snow lens did not answer"
   mark; qa "--es qa.redesign lens:off --es qa.status none"; sleep 1
   # part 4b (K17): the village from the bottom bar, its picture, tags, pins and sheet, and back
-  mark; tapText "הכפר" || qa "--es qa.redesign village"
+  # the village's sign when it is on the screen, or the command (the sign may be under a sheet on a slow emulator)
+  mark; if [ -n "$(where "הכפר")" ]; then tapText "הכפר"; else qa "--es qa.redesign village"; fi
   if waitlog "redesign village open" 20; then sleep 1.5; shot redesign-village
     mark; qa "--es qa.redesign village:full"; sleep 1; shot redesign-village-full
     mark; qa "--es qa.redesign village:off"; sleep 1
