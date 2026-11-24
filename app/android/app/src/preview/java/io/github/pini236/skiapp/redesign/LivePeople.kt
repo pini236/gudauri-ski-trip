@@ -778,7 +778,7 @@ private fun Reclaim(p: People, ui: PeopleUi, k: SheetInk, code: String, v: Previ
     LaunchedEffect(Unit) { Qa.log("redesign people reclaim") }
     Text(stringResource(R.string.app_g_already_in), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 17.sp, color = k.ink)
     Small(stringResource(R.string.app_g_reclaim_intro, v.name), k)
-    Column(Modifier.heightIn(max = 6 * 54.dp).verticalScroll(rememberScrollState()).selectableGroup()) {
+    Column(Modifier.heightIn(max = (6 * 54).dp).verticalScroll(rememberScrollState()).selectableGroup()) {
         for ((id, name) in v.members) {
             val sel = picked == id
             Row(Modifier.fillMaxWidth().heightIn(min = 54.dp).selectable(sel, role = Role.RadioButton) { picked = id; signIn = null; gone = false },
