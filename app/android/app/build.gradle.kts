@@ -50,6 +50,11 @@ android {
         }
     }
 
+    // the redesign in the store build (docs/ARCHITECTURE.md, 24.11.2026): one switch, the file REDESIGN_STORE_ON next to
+    // settings.gradle.kts, decides both BuildConfig.REDESIGN of "store" and whether the redesign's assets go into it; it
+    // is added in a commit of its own, only after Pini says so. -PredesignOn=true forces both for the emulator's smoke run
+    // on the shrunk storeRelease (the store pipeline's gate, tools/check-android-store.sh, refuses to publish that).
+    val redesignStore = rootProject.file("REDESIGN_STORE_ON").exists() || (findProperty("redesignOn") as String?) == "true"
     flavorDimensions += "channel"
     productFlavors {
         // "preview": the test build installed from GitHub, next to the store build (flavor names cannot start with "test")
@@ -60,6 +65,8 @@ android {
             buildConfigField("boolean", "DAYREC_UI", "true")
             // the field testers' export (src/preview): the store pipeline's gate (tools/check-android-store.sh) reads this name
             buildConfigField("boolean", "TESTER_EXPORT", "true")
+            // the redesign: always in the test build
+            buildConfigField("boolean", "REDESIGN", "true")
             resValue("string", "app_name", "סקי בדיקה")
             signingConfig = signingConfigs.findByName("test") ?: signingConfigs.getByName("debug")
         }
@@ -68,6 +75,7 @@ android {
             // on in the store build too (Pini, 13.11.2026), with the Play foreground-service declaration and the privacy line
             buildConfigField("boolean", "DAYREC_UI", "true")
             buildConfigField("boolean", "TESTER_EXPORT", "false")
+            buildConfigField("boolean", "REDESIGN", "$redesignStore")
             resValue("string", "app_name", "סקי")
             signingConfig = signingConfigs.findByName("upload") ?: signingConfigs.getByName("debug")
         }
@@ -93,6 +101,9 @@ android {
     // the field testers' export (docs/handoff/2026-10-31-tester-log-consent): its words and its code exist in the test
     // build only (src/preview); the store build has neither
     sourceSets["preview"].res.directories.add(layout.buildDirectory.dir("generated/i18n/tester").get().asFile.path)
+    // the redesign's pictures and textures (about 2.9 MB): in the test build always, in the store build only with its switch
+    sourceSets["preview"].assets.directories.add("src/redesign/assets")
+    if (redesignStore) sourceSets["store"].assets.directories.add("src/redesign/assets")
 }
 
 kotlin { jvmToolchain(21) }

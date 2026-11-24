@@ -53,13 +53,20 @@ import io.github.pini236.skiapp.home.DayNight
  * emulator's (qa/run.sh), whose steps tap the current home. The store build has an empty twin (src/store).
  */
 object Redesign {
+    /**
+     * Whether the redesign is in this build (docs/ARCHITECTURE.md, 24.11.2026): always in the test build; in the store
+     * build only with its switch (app/android/REDESIGN_STORE_ON). Off, every way in below returns today's screen before
+     * anything of the redesign is touched: no static start, no GL context, no asset read. A test can turn it off.
+     */
+    @Volatile internal var on: () -> Boolean = { io.github.pini236.skiapp.BuildConfig.REDESIGN }
+
     /** The emulator run's hook (qa.redesign, debug builds only, app/android/qa/README.md). */
-    fun qa(cmd: String) = RedesignQa.send(cmd)
+    fun qa(cmd: String) { if (on() && io.github.pini236.skiapp.BuildConfig.DEBUG) RedesignQa.send(cmd) }
     /** Whether the new mountain covers the app: then the screens under it are not read aloud (MainActivity). */
     var covering by mutableStateOf(false); private set
 
     /** Completion part 1 (P04): a recording of one descent ended; its card waits, and a notification in the pocket. */
-    fun runDone(ctx: android.content.Context, day: java.io.File, autostop: String?, lift: String?) = RunDone.ended(ctx, day, autostop, lift)
+    fun runDone(ctx: android.content.Context, day: java.io.File, autostop: String?, lift: String?) { if (on()) RunDone.ended(ctx, day, autostop, lift) }
 
     /**
      * Round 4 (decision 84, board L06): the end of a day on the live mountain, in place of today's day screen. Behind
@@ -69,6 +76,7 @@ object Redesign {
      */
     @Composable
     fun day(file: java.io.File, sample: Boolean, scene: MapScene?, mode: DayNight.Mode, haptics: Haptics, onAgain: () -> Unit = {}, onBack: () -> Unit): Boolean {
+        if (!on()) return false
         if (scene == null) return false
         if (io.github.pini236.skiapp.BuildConfig.DEBUG && !RedesignQa.dayOn) return false
         // one descent that ended (completion part 1, P04): its card, until it is closed; then the day as usual
@@ -94,6 +102,7 @@ object Redesign {
     fun live(scene: MapScene?, mode: DayNight.Mode, haptics: Haptics, liftName: (String) -> String, runName: (String) -> String,
              onSwitch: (Boolean) -> Unit, onStop: () -> Unit, onEnded: (java.io.File?) -> Unit,
              liftState: (String) -> Pair<Boolean, String?>? = { null }, onBack: () -> Unit): Boolean {
+        if (!on()) return false
         if (scene == null) return false
         if (io.github.pini236.skiapp.BuildConfig.DEBUG && !RedesignQa.dayOn) return false
         LiveDay(scene, mode, haptics, liftName, runName, onSwitch, onStop, onEnded, liftState, onBack)
@@ -106,6 +115,7 @@ object Redesign {
      */
     @Composable
     fun first(single: Boolean, haptics: Haptics, onGo: (Boolean) -> Unit, onDismiss: () -> Unit): Boolean {
+        if (!on()) return false
         if (io.github.pini236.skiapp.BuildConfig.DEBUG && !RedesignQa.dayOn) return false
         DayStart(single, haptics, onGo, onDismiss)
         return true
@@ -117,19 +127,21 @@ object Redesign {
      */
     fun notice(c: android.content.Context, elapsedMs: Long, live: io.github.pini236.skiapp.dayrec.DayEngine.Snapshot?,
                ride: io.github.pini236.skiapp.dayrec.DayEngine.Ride?): Triple<String, String, String?>? {
+        if (!on()) return null
         if (io.github.pini236.skiapp.BuildConfig.DEBUG && !RedesignQa.dayOn) return null
         return Notice.content(c, elapsedMs, live, ride)?.let { Triple(it.title, it.text, it.big) }
     }
 
     /** What, besides the minute, changes that notification (empty when it is today's). */
     fun noticeKey(live: io.github.pini236.skiapp.dayrec.DayEngine.Snapshot?, ride: io.github.pini236.skiapp.dayrec.DayEngine.Ride?): String =
-        if (io.github.pini236.skiapp.BuildConfig.DEBUG && !RedesignQa.dayOn) "" else Notice.key(live, ride)
+        if (!on() || (io.github.pini236.skiapp.BuildConfig.DEBUG && !RedesignQa.dayOn)) "" else Notice.key(live, ride)
 
     /**
      * Round 4 (board L12): my days, with the trip as layers on one mountain, in place of today's list. Gated as [day].
      */
     @Composable
     fun days(mode: DayNight.Mode, haptics: Haptics, onOpen: (String) -> Unit, scene: MapScene? = null, onRecord: () -> Unit = {}, onBack: () -> Unit): Boolean {
+        if (!on()) return false
         if (io.github.pini236.skiapp.BuildConfig.DEBUG && !RedesignQa.dayOn) return false
         DayList(mode, haptics, onOpen, onBack, scene, onRecord)
         return true
@@ -138,6 +150,7 @@ object Redesign {
     @Composable
     fun BoxScope.Host(home: Boolean, mode: DayNight.Mode, haptics: Haptics, scene: MapScene?, status: io.github.pini236.skiapp.status.LiftStatus? = null,
                        inSeason: Boolean = false, forMe: Boolean = false, onForMe: (Boolean) -> Unit = {}, around: io.github.pini236.skiapp.home.Around? = null) {
+        if (!on()) return
         // the emulator's scripts drive the debug build through the current screens (qa/run.sh): there the mountain
         // opens only when the run asks for it (qa.redesign open), so every other part sees the app as it is
         val debug = io.github.pini236.skiapp.BuildConfig.DEBUG

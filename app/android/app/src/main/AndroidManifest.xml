@@ -78,5 +78,10 @@
             android:grantUriPermissions="true">
             <meta-data android:name="android.support.FILE_PROVIDER_PATHS" android:resource="@xml/share_paths" />
         </provider>
+        <!-- the new design's font chain (redesign part 7), made once at start; it does nothing when the redesign is off -->
+        <provider
+            android:name="io.github.pini236.skiapp.redesign.GudiFontInit"
+            android:authorities="${applicationId}.gudifont"
+            android:exported="false" />
     </application>
 </manifest>
