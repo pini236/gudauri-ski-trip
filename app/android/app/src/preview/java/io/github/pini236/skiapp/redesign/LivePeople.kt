@@ -988,6 +988,7 @@ private fun savedHm(ms: Long?): String = ms?.let { java.time.Instant.ofEpochMill
 
 /** R03: the next meetup in a box, the rest as rows; the bell remembers on the phone (meet/Reminders.kt). */
 @Composable
+@OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
 private fun Meetups(g: Group, k: SheetInk, plan: MeetPlan?, onOpen: (Meetup) -> Unit, onNew: () -> Unit, onRemind: () -> Unit, onDelete: (Meetup) -> Unit) {
     val ctx = LocalContext.current
     val zone = io.github.pini236.skiapp.meet.Meet.GUDAURI
