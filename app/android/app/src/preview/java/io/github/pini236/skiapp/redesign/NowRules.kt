@@ -51,4 +51,18 @@ internal object NowRules {
 
     /** During the trip the heading is "today on the mountain", else "the forecast for your ski days". */
     fun during(skiDays: List<LocalDate>, today: LocalDate) = skiDays.isNotEmpty() && today >= skiDays.first() && today <= skiDays.last()
+
+    /** The run sheet's dots (S07): up to seven; on a longer list a window of seven round the current one. */
+    fun window(count: Int, at: Int, size: Int = 7): IntRange {
+        if (count <= size) return 0 until count
+        val start = (at - size / 2).coerceIn(0, count - size)
+        return start until start + size
+    }
+
+    /** The next or previous run on the shelf's order (by colour, then name), or null at either end. */
+    fun neighbour(order: List<String>, key: String, step: Int): String? {
+        val i = order.indexOf(key)
+        if (i < 0) return null
+        return order.getOrNull(i + step)
+    }
 }

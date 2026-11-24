@@ -1250,7 +1250,10 @@ redesign() {
   mark; qa "--es qa.redesign where"; waitlog "redesign where run Tatra 2" 25 || fail "redesign: where am I did not find Tatra 2"; rd_settled; shot redesign-where-run
   mark; geo 41.7151 44.8271; waitlog "redesign where outside" 25 && { rd_settled; shot redesign-where-outside; }
   mark; qa "--es qa.redesign where:off"; waitlog "redesign where off" 10
-  mark; qa "--es qa.redesign 'pick:Tatra 2'"; waitlog "redesign live chosen" 15; qa "--es qa.redesign unpick"; waitlog "redesign compass shown" 15 && { rd_settled; shot redesign-compass; }
+  # S07: the run's full sheet (the conditions with a fresh forecast, the videos); then the compass once the view moved
+  mark; qa "--es qa.weather fresh --es qa.redesign 'pick:Tatra 2'"; waitlog "redesign live framed Tatra 2" 20
+  mark; qa "--es qa.redesign run:full"; waitlog "redesign run full Tatra 2" 15 || fail "redesign: the run's full sheet did not open"; sleep 2; rd_settled; shot redesign-run-full
+  mark; qa "--es qa.redesign unpick"; waitlog "redesign compass shown" 15 && { rd_settled; shot redesign-compass; }
   mark; qa "--es qa.redesign home"; waitlog "redesign compass gone" 15 || fail "redesign: the compass did not go after home"
   # S05, S06: "the mountain now" on the weather tab, with a fresh forecast and with none
   mark; qa "--es qa.weather fresh --es qa.redesign weather"; waitlog "redesign weather fresh" 15 || fail "redesign: the weather tab did not open"; rd_settled; shot redesign-now-weather

@@ -27,6 +27,8 @@ class Around(
     val lateOpen: LocalDate?,
     /** Part 3 (design/handoff/2026-11-23-redesign-people): the group, the account and the settings; null with no server. */
     val people: People? = null,
+    /** Part 4 (S07): the runs' videos (site/data/videos-seed.json), for the run's full sheet. */
+    val videos: List<io.github.pini236.skiapp.data.Video> = emptyList(),
 )
 
 /**

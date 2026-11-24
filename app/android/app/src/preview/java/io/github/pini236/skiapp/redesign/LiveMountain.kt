@@ -100,6 +100,9 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
     var liftSel by remember { mutableStateOf<io.github.pini236.skiapp.data.Lift?>(null) }
     // part 4 (S05): "the mountain now" opens on the lifts from the pill, on the weather from its temperature
     var nowTab by remember { mutableStateOf(NowTab.LIFTS) }
+    // part 4 (S07): the run's sheet at its full height
+    var runFull by remember { mutableStateOf(false) }
+    LaunchedEffect(chosen) { if (chosen == null) runFull = false }
     androidx.activity.compose.BackHandler(enabled = liftsOpen) { if (liftSel != null) liftSel = null else liftsOpen = false }
     // part 2 (Q04, Q05): the meeting point on the mountain
     val meet = remember { MeetUi() }
@@ -157,7 +160,9 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
             }
             // a run chosen the way a tap chooses it (the turn to the Kobi side included), letting it go, and the sign
             c.startsWith("pick:") -> { held = null; view.pickKey(c.removePrefix("pick:")) }
-            c == "unpick" -> { held = null; chosen = null; view.choose(null); Qa.log("redesign live unpicked") }
+            c == "run:full" -> runFull = true
+            c == "run:low" -> runFull = false
+            c == "unpick" -> { runFull = false; held = null; chosen = null; view.choose(null); Qa.log("redesign live unpicked") }
             c == "front" -> view.backToFront()
             // part 2 (Q01 to Q03): the lifts' sheet and one lift
             c == "lifts" -> { liftSel = null; nowTab = NowTab.LIFTS; liftsOpen = true }
@@ -484,7 +489,9 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
             var last by remember { mutableStateOf(run) }
             if (run != null) last = run
             val d0 = pd
-            last?.let { r -> if (d0 != null) RunSheet(r, d0, g, onClose = { chosen = null; view.choose(null) }) }
+            val kk = chosen
+            last?.let { r -> if (d0 != null && kk != null) RunSheets(kk, r, d0, g, scene, around?.videos.orEmpty(), night, haptics, runFull, onFull = { runFull = it },
+                onPick = { nk -> view.pickKey(nk); Qa.log("redesign run swipe $nk") }, onClose = { runFull = false; chosen = null; view.choose(null) }) }
         }
         AnimatedVisibility(chosen == null && !liftsOpen && !meet.open && !tripOpen && !skipassOpen && !seasonOn, Modifier.align(Alignment.BottomCenter).navigationBarsPadding().padding(bottom = 22.dp), enter = fadeIn(), exit = fadeOut()) {
             Pill(h = 48) { Text(stringResource(R.string.poc_peak_hint), Modifier.padding(horizontal = 20.dp), fontFamily = Plex, fontSize = 15.sp, color = ink) }

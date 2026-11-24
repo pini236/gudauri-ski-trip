@@ -702,7 +702,7 @@ private fun Pill(g: Glass, modifier: Modifier = Modifier, h: Int = 44, content: 
         .clip(RoundedCornerShape(22.dp)).background(g.bg).border(1.dp, g.line, RoundedCornerShape(22.dp)), contentAlignment = Alignment.Center) { content() }
 }
 
-private fun plate(c: String) = when (c) { "green" -> Color(0xFF178A4A); "blue" -> Color(0xFF1B6FDB); "red" -> Color(0xFFD8362C); else -> Color(0xFF14171B) }
+internal fun plate(c: String) = when (c) { "green" -> Color(0xFF178A4A); "blue" -> Color(0xFF1B6FDB); "red" -> Color(0xFFD8362C); else -> Color(0xFF14171B) }
 
 /**
  * The sign (the handoff, "השלט"): a plate 24 high, padding 8, corner 6, in the run's day colour, a white outline 1.5,
@@ -726,7 +726,7 @@ internal fun DrawScope.sign(r: PeakData.Run, q: Offset, a: Float, measurer: Text
 }
 
 @Composable
-internal fun RunSheet(r: PeakData.Run, d: PeakData, g: Glass, onClose: () -> Unit) {
+internal fun RunSheet(r: PeakData.Run, d: PeakData, g: Glass, onClose: () -> Unit, extra: @Composable () -> Unit = {}) {
     val colour = stringResource(when (r.color) { "green" -> R.string.common_color_green; "blue" -> R.string.common_color_blue; "red" -> R.string.common_color_red; else -> R.string.common_color_black })
     val level = stringResource(when (r.color) { "green" -> R.string.map_difficulty_beginner; "blue" -> R.string.map_difficulty_easy; "red" -> R.string.map_difficulty_intermediate; else -> R.string.map_difficulty_hard })
     val closeLabel = stringResource(R.string.common_close)
@@ -767,6 +767,7 @@ internal fun RunSheet(r: PeakData.Run, d: PeakData, g: Glass, onClose: () -> Uni
                 }
             }
         }
+        extra()
     }
 }
 

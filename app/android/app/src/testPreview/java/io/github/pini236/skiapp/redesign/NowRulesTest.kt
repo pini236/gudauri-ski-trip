@@ -51,4 +51,19 @@ class NowRulesTest {
         assertFalse(NowRules.during(ski, d(15)))
         assertNull(NowRules.days(ski, (12..20).map(d), d(15)))
     }
+
+    @Test fun sevenDotsAtMostRoundTheCurrent() {
+        assertEquals(0 until 4, NowRules.window(4, 2))
+        assertEquals(0 until 7, NowRules.window(20, 1))
+        assertEquals(7 until 14, NowRules.window(20, 10))
+        assertEquals(13 until 20, NowRules.window(20, 19))
+    }
+
+    @Test fun theNextAndThePreviousRun() {
+        val o = listOf("a", "b", "c")
+        assertEquals("c", NowRules.neighbour(o, "b", 1))
+        assertEquals("a", NowRules.neighbour(o, "b", -1))
+        assertNull(NowRules.neighbour(o, "c", 1))
+        assertNull(NowRules.neighbour(o, "x", 1))
+    }
 }
