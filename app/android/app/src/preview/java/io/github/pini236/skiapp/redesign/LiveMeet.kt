@@ -150,7 +150,7 @@ internal class MeetUi {
 
 /** The flag's words and its sub-line under the station's name (Q05): "the top station · 2,705 m". */
 @Composable
-private fun stationSub(s: Station): String {
+internal fun stationSub(s: Station): String {
     val alt = s.h?.let { java.text.NumberFormat.getIntegerInstance().format(it) } ?: "—"
     return stringResource(if (s.ends.any { !it.top }) R.string.app_meet_station_bottom else R.string.app_meet_station_top, alt)
 }
