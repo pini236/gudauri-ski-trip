@@ -1120,12 +1120,16 @@ redesign() {
   mark; qa "--es qa.mode day --es qa.redesign live"; waitlog "redesign live open" 15
   waitlog "redesign live textures ok" 30 || fail "redesign: the live textures did not pass the designer's checks"
   waitlog "redesign live drawn" 30 || fail "redesign: the live model drew nothing but the clear colour"
+  # part 2 (Q10): before the season the mountain opens on the count of days; the designer's frames are of the mountain itself
+  mark; qa "--es qa.redesign season:off"; waitlog "redesign season closed" 10
   sleep 4; shot redesign-live
   # the designer's frames (design/handoff/2026-11-20-redesign-live/ref): the opening at the seven keys of 12 January
   # (the shadows are worked out off the GL thread, a few seconds on the emulator), then three free views
   # the intent that carries a command brings the activity back, and with it a new GL surface: the textures are decoded
   # again, so the frame waits for the model's next full draw (on a phone without that, the shadows' few seconds)
   rd_drawn() { seen "redesign live drawn" 25 || true; sleep 4; }
+  # part 2's layers: a full draw when the intent brought a new surface (the emulator's), otherwise the frame already there
+  rd_settled() { seen "redesign live drawn" 6 || true; sleep 2; }
   for k in dawn:9.0 morning:10.6 noon:13.0 after:15.9 sunset:17.35 blue:18.3 night:22.0; do
     mark; qa "--es qa.redesign 'hour:${k#*:}'"; waitlog "redesign live hour" 10; rd_drawn; shot "redesign-live-open-${k%%:*}"
   done
@@ -1162,6 +1166,59 @@ redesign() {
   seen "redesign live kobi sign false" 5 || fail "redesign: the sign did not bring the front back"
   rd_drawn; shot redesign-live-front
   drag $((W / 2)) $((H / 2)) $((W / 2 - W / 5)) $((H / 2)) 500; sleep 1.5; shot redesign-live-dragged
+  # the completion round, part 2 (Q01 to Q03): the lifts without a report (today), then with one (two closed, their
+  # tags on the mountain), and one lift
+  mark; qa "--es qa.status none --es qa.redesign lifts"; rd_settled; shot redesign-lifts-none
+  mark; qa "--es qa.status fresh --es qa.redesign lifts:off"; rd_settled; shot redesign-lifts-tags
+  mark; qa "--es qa.redesign lifts"; rd_settled; shot redesign-lifts-live
+  mark; qa "--es qa.redesign lift:Goodaura"; waitlog "redesign lift panel Goodaura" 10 || fail "redesign: the lift's panel did not open"
+  rd_settled; shot redesign-lift-panel
+  mark; qa "--es qa.redesign lifts:off --es qa.status none"; sleep 1
+  # the light by the clock again (the frames above held an hour), so "night" below is night
+  mark; qa "--es qa.redesign hour:off"; waitlog "redesign live hour off" 10
+  # part 2 (Q04, Q05): the meeting point, where (the pins and the three spots), a flag on a lift's top (its drop and the
+  # sheet), cleared with its undo, and at night
+  mark; qa "--es qa.redesign meet"; waitlog "redesign meet where" 10 || fail "redesign: the meeting point did not open"
+  rd_settled; shot redesign-meet-where
+  mark; qa "--es qa.redesign meet:lift:Goodaura"; waitlog "redesign meet set" 10 || fail "redesign: no flag on Goodaura's top"
+  rd_settled; shot redesign-meet-set
+  mark; qa "--es qa.redesign meet:share"; waitlog "redesign meet image file" 20 || fail "redesign: the meeting point's picture was not written"
+  seen "redesign meet image file clean" 5 || fail "redesign: the meeting point's picture has a place in it"
+  rd_settled; shot redesign-meet-share
+  mark; qa "--es qa.redesign meet:share:off"; sleep .8
+  mark; qa "--es qa.redesign meet:clear"; waitlog "redesign meet cleared" 10 || fail "redesign: the meeting point did not clear"
+  rd_settled; shot redesign-meet-cleared
+  mark; qa "--es qa.mode night --es qa.redesign meet:preset:end"; waitlog "redesign meet set" 10 || fail "redesign: the end of day spot did not set"
+  rd_settled; shot redesign-meet-set-night
+  mark; qa "--es qa.mode auto --es qa.redesign meet:off"; waitlog "redesign meet closed" 10; sleep 1
+  # a group's meetup today on the plain mountain (the flag from the phone's copy), then gone
+  mark; qa "--es qa.redesign meet:flag"; waitlog "redesign meet flag" 10 || fail "redesign: no group flag"
+  rd_settled; shot redesign-meet-group-flag
+  mark; qa "--es qa.redesign meet:flag:off"; sleep .5
+  # part 2 (Q07, Q08): "your trip" over the mountain: the empty card and its calendar, then the pass, swapped and torn
+  mark; qa "--es qa.trip none"; sleep .5
+  mark; qa "--es qa.redesign trip"; waitlog "redesign trip open empty" 10 || fail "redesign: the empty trip did not open"; rd_settled; shot redesign-trip-empty
+  mark; qa "--es qa.redesign trip:cal"; waitlog "redesign trip calendar" 10; rd_settled; shot redesign-trip-calendar
+  # the calendar after two taps (the way out and back: the range, the ski days with their dots and the summary line)
+  mark; qa "--es qa.redesign cal:tap:2027-01-10"; waitlog "redesign trip calendar tap 2027-01-10" 10
+  mark; qa "--es qa.redesign cal:tap:2027-01-15"; waitlog "redesign trip calendar tap 2027-01-15" 10; rd_settled; shot redesign-trip-calendar-range
+  mark; qa "--es qa.redesign trip:off"; sleep .5
+  mark; qa "--es qa.trip '$TRIP_HE'"; waitlog "trip set" 20
+  mark; qa "--es qa.redesign trip"; waitlog "redesign trip open pass" 10 || fail "redesign: the trip pass did not open"; rd_settled; shot redesign-trip-pass
+  mark; qa "--es qa.redesign trip:swap"; rd_settled; shot redesign-trip-return
+  mark; qa "--es qa.redesign trip:tear"; rd_settled; shot redesign-trip-torn
+  mark; qa "--es qa.mode night --es qa.redesign trip"; rd_settled; shot redesign-trip-night
+  mark; qa "--es qa.mode auto --es qa.redesign trip:off"; sleep .5
+  # part 2 (Q09): the ski pass over the mountain, for the trip's four days, a child, and two weeks
+  mark; qa "--es qa.redesign skipass"; waitlog "redesign skipass open" 10 || fail "redesign: the ski pass did not open"; rd_settled; shot redesign-skipass
+  mark; qa "--es qa.redesign skipass:child"; waitlog "redesign skipass child" 10; rd_settled; shot redesign-skipass-child
+  mark; qa "--es qa.redesign skipass:days:9"; waitlog "redesign skipass days 9" 10; rd_settled; shot redesign-skipass-9
+  mark; qa "--es qa.mode night --es qa.redesign skipass:adult"; rd_settled; shot redesign-skipass-night
+  mark; qa "--es qa.mode auto --es qa.redesign skipass:off"; sleep .5
+  # part 2 (Q10): before the season, no report: the count of days, its sheet (the trip, the ski pass), and closed to the pill
+  mark; qa "--es qa.status none --es qa.redesign season"; waitlog "redesign season shown" 10 || fail "redesign: the season count did not show"; rd_settled; shot redesign-season
+  mark; qa "--es qa.mode night --es qa.redesign season"; rd_settled; shot redesign-season-night
+  mark; qa "--es qa.mode auto --es qa.redesign season:off"; waitlog "redesign season closed" 10; rd_settled; shot redesign-season-pill
   mark; qa "--es qa.mode auto --es qa.redesign painted"; waitlog "redesign live closed" 10; sleep 1.5; shot redesign-live-back
   qa "--es qa.mode auto --es qa.redesign close"; sleep 1.5; shot redesign-closed
   # round 4 (board L06): the sample day on the mountain, its lines of light by speed and the dotted rides, by day and

@@ -62,7 +62,7 @@ private fun kindName(kind: String) = stringResource(when (kind) {
 
 /** A place's name, or its kind when the map gives it none. */
 @Composable
-private fun label(p: Place): String = p.name ?: kindName(p.kind)
+internal fun label(p: Place): String = p.name ?: kindName(p.kind)
 
 @Composable
 private fun Dot(kind: String, diameter: androidx.compose.ui.unit.Dp = 10.dp, ring: Boolean = true) {

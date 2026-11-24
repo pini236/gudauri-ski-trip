@@ -117,6 +117,9 @@ class LiveView(context: Context, private val scene: MapScene) : GLSurfaceView(co
 
     init {
         setEGLContextClientVersion(3)
+        // the textures stay when the screen pauses: coming back shows the mountain at once, never a blank (handoff
+        // 2026-11-21-redesign-around section 14.1); where the device cannot keep the context, onSurfaceCreated reloads
+        preserveEGLContextOnPause = true
         setEGLConfigChooser(object : EGLConfigChooser {
             override fun chooseConfig(egl: EGL10, display: EGLDisplay): EGLConfig {
                 fun pick(attrs: IntArray): EGLConfig? {
@@ -215,6 +218,8 @@ class LiveView(context: Context, private val scene: MapScene) : GLSurfaceView(co
     }
 
     fun setPal(p: PeakData.Pal?) { renderer.pal = p; requestRender() }
+    /** The runs and lifts quiet ([a] of their opacity) under the meeting point. */
+    fun setQuiet(a: Float, runs: Float = 1f) { if (renderer.linesQuiet != a || renderer.runsQuiet != runs) { renderer.linesQuiet = a; renderer.runsQuiet = runs; requestRender() } }
     fun choose(key: String?) {
         renderer.frozenMs = null; renderer.chosen = key; chosenDown = null; requestRender()
         // the slope colours around it, as the map's (X-3), worked out off the GL thread
@@ -583,6 +588,25 @@ class LiveView(context: Context, private val scene: MapScene) : GLSurfaceView(co
 
     /** The film of the day (board L08): how far the day is drawn, 0 to 1 of its time; null draws all of it. */
     fun dayReveal(f: Float?) { renderer.dayReveal = f ?: 60000f; requestRender() }
+
+    /**
+     * A lift framed whole over its panel (Q03, handoff section 14.6): the box of its two ends with a margin, fitted to
+     * the screen's top [free] (the sheet takes the rest), the target lowered so the box sits in the middle of that part.
+     */
+    fun frameLift(ends: FloatArray, free: Float = .54f) {
+        val pad = 260f
+        val b = floatArrayOf(minOf(ends[0], ends[2]) - pad, minOf(ends[1], ends[3]) - pad, maxOf(ends[0], ends[2]) + pad, maxOf(ends[1], ends[3]) + pad)
+        val s0 = camera.state()
+        val fit = frameBox(b, s0)
+        val vf = tan(Math.toRadians(data.camera.fovDeg / 2.0)).toFloat()
+        val dist = (fit.dist / free).coerceIn(1400f, 12000f)
+        // up on the screen by (1 - free) of the half height: the target lowered along the screen's up
+        val dy = (1f - free) * dist * vf / kotlin.math.cos(s0.pitch).coerceAtLeast(.3f)
+        val to = fit.copy(dist = dist, ty = fit.ty - dy)
+        renderer.stopAnim(); camera.stopFling()
+        if (Motion.reduced(context)) { camera.set(to); requestRender() } else renderer.animate(to, 0.6f)
+        Qa.log("redesign live lift framed")
+    }
 
     /** The view [s] moved to fit a box of the map (x0, y0, x1, y1, metres) with a margin; its yaw and pitch kept. */
     private fun frameBox(b: FloatArray, s: OrbitCamera.State): OrbitCamera.State {

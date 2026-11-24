@@ -1034,7 +1034,16 @@ class MainActivity : ComponentActivity() {
                     }
                 }
                 // the redesign POC (decisions 83, 84): in the test build the app opens on the new mountain; nothing in the store build
-                with(io.github.pini236.skiapp.redesign.Redesign) { Host(top == Route.Home, dnMode, haptics, scene) }
+                with(io.github.pini236.skiapp.redesign.Redesign) { Host(top == Route.Home, dnMode, haptics, scene, lstat,
+                    LiftStatus.inSeason(LocalDateTime.ofInstant(Instant.ofEpochMilli(tick), ZoneId.systemDefault()).monthValue), forMe, { forMe = it },
+                    io.github.pini236.skiapp.home.Around(
+                        io.github.pini236.skiapp.meet.MeetHere(meetPlan, trip, if (groupApi.ready) MeetSave(groupApi, null, after = ::armReminders) {} else null,
+                            if (rawGroupApi is LiveGroupApi) Sync.of(this@MainActivity, Bests.GAMES) else null),
+                        trip, { t -> keepTrip(t); Qa.log("trip saved") },
+                        account?.let { a -> io.github.pini236.skiapp.home.Passenger(a.me?.name ?: a.me?.let { "?" }) { if (a.me == null) a.onSignIn() else a.onManage() } },
+                        sounds, { nav.push(Route.Trip) }, prices, seasonToday,
+                        io.github.pini236.skiapp.season.OpeningView.of(season, seasonState, seasonToday),
+                        if (seasonState.kind == io.github.pini236.skiapp.season.Season.Kind.NO_INFO) season?.open else null)) }
             }
           }
         }

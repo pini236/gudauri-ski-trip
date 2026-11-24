@@ -22,6 +22,8 @@ class Prices(
     val passes: List<Pass>, val until: LocalDate, val checked: LocalDate, val src: String, val url: String,
     val nightAdult: Int?, val nightChild: Int?, val childFrom: Int, val childTo: Int, val freeUnder: Int?, val deposit: Int?,
     val rules: List<String>, val buyIos: String?, val buyAndroid: String?,
+    /** The season the list is for ("2026/27") and whether its prices include VAT: for the line under the redesign's sheet. */
+    val season: String? = null, val vat: Boolean = false,
 ) {
     /** False from the day after `until`: the screen says there is no information. */
     fun valid(today: LocalDate) = !today.isAfter(until)
@@ -73,7 +75,8 @@ class Prices(
                 night?.optInt("adult")?.takeIf { it > 0 }, night?.optInt("child")?.takeIf { it > 0 },
                 kid?.optInt(0, 6) ?: 6, kid?.optInt(1, 12) ?: 12, o.optInt("free_under").takeIf { it > 0 }, o.optInt("card_deposit").takeIf { it > 0 },
                 o.optJSONArray("rules")?.let { r -> (0 until r.length()).map { r.optString(it) } }.orEmpty(),
-                appleLink(buy?.optString("ios")), playLink(buy?.optString("android")))
+                appleLink(buy?.optString("ios")), playLink(buy?.optString("android")),
+                o.optString("season").takeIf { Regex("^\\d{4}/\\d{2}$").matches(it) }, o.optBoolean("vat", false))
         }.getOrNull()
 
         /** Whether resorts.json lists the feature for a resort. */

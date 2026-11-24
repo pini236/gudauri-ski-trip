@@ -154,3 +154,27 @@ object Meet {
     }
     fun parseTime(s: String): LocalTime = LocalTime.of(s.take(2).toInt(), s.takeLast(2).toInt())
 }
+
+/**
+ * What the new mountain (the redesign, test build only) needs for its meeting point (design/handoff/2026-11-21-redesign-
+ * around, Q04 and Q05): the stations, "your trip" for the days, and a group to save in for someone signed in.
+ */
+class MeetHere(val plan: MeetPlan?, val trip: Trip?, val save: MeetSave?, val sync: io.github.pini236.skiapp.server.Sync? = null)
+
+/**
+ * The meeting point's flag on the new mountain (the architect, 24.11.2026; tools/fixtures/meet-flag.json): a meetup of
+ * my groups shows when its day in the resort's time zone is today there and now is at most an hour past its time; one
+ * flag per station, the meetup nearest in time; a station not on this map shows nothing.
+ */
+object MeetFlags {
+    class In(val id: String, val group: String, val station: String, val at: Instant)
+
+    fun pick(meetups: List<In>, now: Instant, known: Set<String>, tz: java.time.ZoneId = java.time.ZoneId.of("Asia/Tbilisi")): List<In> {
+        val today = now.atZone(tz).toLocalDate()
+        return meetups.asSequence()
+            .filter { it.station in known && it.at.atZone(tz).toLocalDate() == today && !now.isAfter(it.at.plusSeconds(3600)) }
+            .groupBy { it.station }
+            .map { (_, ms) -> ms.minBy { kotlin.math.abs(it.at.toEpochMilli() - now.toEpochMilli()) } }
+            .sortedBy { it.station }
+    }
+}

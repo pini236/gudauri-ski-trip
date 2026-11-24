@@ -25,6 +25,7 @@ class PricesTest {
         assertEquals(80, p.nightAdult)
         assertEquals(listOf("app.skipass_card", "app.skipass_foreign", "app.skipass_named"), p.rules)
         assertNotNull(p.buyIos); assertNotNull(p.buyAndroid)
+        assertEquals("2026/27", p.season); assertTrue(p.vat)
     }
 
     @Test fun theSharedCases() {
