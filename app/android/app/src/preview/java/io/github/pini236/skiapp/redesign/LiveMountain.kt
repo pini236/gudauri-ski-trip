@@ -1,5 +1,6 @@
 package io.github.pini236.skiapp.redesign
 
+import io.github.pini236.skiapp.trip.PassEditor
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
@@ -106,6 +107,8 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
     // part 2 (Q07, Q08): "your trip" over the mountain, and a field of it being filled
     var tripOpen by remember { mutableStateOf(false) }
     var tripEdit by remember { mutableStateOf<io.github.pini236.skiapp.trip.PassEdit?>(null) }
+    // part 2 (Q09): the ski pass over the mountain
+    var skipassOpen by remember { mutableStateOf(false) }
     var qaFlags by remember { mutableStateOf<GroupMeets?>(null) }
     val time = scrub?.let { PeakLight.janAt(it) } ?: DayNight.lightTime(now, mode)
     val night = remember(time) { Sky.at(time).dark }
@@ -146,6 +149,8 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
             c == "trip" -> { tripEdit = null; tripOpen = true; Qa.log("redesign trip open ${if (around?.trip != null) "pass" else "empty"}") }
             c == "trip:cal" -> { tripOpen = true; tripEdit = io.github.pini236.skiapp.trip.PassEdit.Dates; Qa.log("redesign trip calendar") }
             c == "trip:off" -> { tripEdit = null; tripOpen = false }
+            c == "skipass" -> skipassOpen = true
+            c == "skipass:off" -> skipassOpen = false
             // one moment of the choice held (the designer's 0, 150, 300, 600 and 900 ms, as phase A's frame:)
             c.startsWith("moment:") -> c.removePrefix("moment:").split(',').takeIf { it.size == 2 }?.let { (k, t) ->
                 t.trim().toFloatOrNull()?.let { ms -> held = ms; view.moment(k.trim(), ms) }
@@ -203,7 +208,8 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
         if (plan == null) emptyList() else io.github.pini236.skiapp.meet.MeetFlags.pick(meets.list, java.time.Instant.ofEpochMilli(now), plan.byId.keys)
     }
     LaunchedEffect(meet.undoN) { if (meet.undo != null) { delay(5000); meet.undo = null } }
-    androidx.activity.compose.BackHandler(enabled = tripOpen) { if (tripEdit != null && around?.trip != null) tripEdit = null else tripOpen = false }
+    androidx.activity.compose.BackHandler(enabled = skipassOpen) { skipassOpen = false }
+    androidx.activity.compose.BackHandler(enabled = tripOpen && !skipassOpen) { if (tripEdit != null && around?.trip != null) tripEdit = null else tripOpen = false }
     androidx.activity.compose.BackHandler(enabled = meet.open) { if (meet.sid != null) meetClear("back") else meetOpen(false) }
     // in the meeting point a tap on the mountain is its own: the nearest station within 44 (Q04), or a clear (Q05)
     var meetPts by remember { mutableStateOf<List<Pair<io.github.pini236.skiapp.meet.Station, Offset>>>(emptyList()) }
@@ -232,7 +238,7 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
 
     Box(Modifier.fillMaxSize()) {
         AndroidView(factory = { view }, modifier = Modifier.fillMaxSize())
-        if (!meet.open && !tripOpen) Column(Modifier.fillMaxWidth().statusBarsPadding().padding(horizontal = 12.dp, vertical = 8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        if (!meet.open && !tripOpen && !skipassOpen) Column(Modifier.fillMaxWidth().statusBarsPadding().padding(horizontal = 12.dp, vertical = 8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 Pill(Modifier.weight(1f).clickable { scrubOpen = !scrubOpen; if (!scrubOpen) scrub = null; haptics.tick(.3f) }) {
                     Row(Modifier.padding(horizontal = 14.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(9.dp)) {
@@ -395,7 +401,7 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
             val d0 = pd
             last?.let { r -> if (d0 != null) RunSheet(r, d0, g, onClose = { chosen = null; view.choose(null) }) }
         }
-        AnimatedVisibility(chosen == null && !liftsOpen && !meet.open && !tripOpen, Modifier.align(Alignment.BottomCenter).navigationBarsPadding().padding(bottom = 22.dp), enter = fadeIn(), exit = fadeOut()) {
+        AnimatedVisibility(chosen == null && !liftsOpen && !meet.open && !tripOpen && !skipassOpen, Modifier.align(Alignment.BottomCenter).navigationBarsPadding().padding(bottom = 22.dp), enter = fadeIn(), exit = fadeOut()) {
             Pill(h = 48) { Text(stringResource(R.string.poc_peak_hint), Modifier.padding(horizontal = 20.dp), fontFamily = Plex, fontSize = 15.sp, color = ink) }
         }
         // the flags of my groups (Q05 on the plain mountain): the same flag with its time; a tap opens it
@@ -470,7 +476,7 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
             Box(Modifier.fillMaxSize().background(sk.veil).clickable(interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() }, indication = null) {})
             val nowL = java.time.LocalDateTime.ofInstant(java.time.Instant.ofEpochMilli(now), java.time.ZoneId.systemDefault())
             if (t != null) LiveTripPass(around, t, nowL, night, haptics, tripSkipass(around, t), onField = { e -> tripEdit = e; Qa.log("redesign trip field $e") },
-                onSkipass = { Qa.log("redesign trip skipass") })
+                onSkipass = { Qa.log("redesign trip skipass"); skipassOpen = true })
             else LiveTripEmpty(night) { tripEdit = io.github.pini236.skiapp.trip.PassEdit.Dates }
             // the top: back at the start, "edit" (the full form) at the end
             Row(Modifier.fillMaxWidth().statusBarsPadding().padding(horizontal = 12.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
@@ -489,7 +495,17 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
                 LiveCalendar(t, todayL, sk, haptics) { nt -> around.onTrip(nt); tripEdit = null; Qa.log("redesign trip saved") }
             }
             if (t != null && e != null && e != io.github.pini236.skiapp.trip.PassEdit.Dates)
-                io.github.pini236.skiapp.trip.PassEditor(e, t, todayL, { nt -> around.onTrip(nt); tripEdit = null }) { tripEdit = null }
+                PassEditor(e, t, todayL, { nt -> around.onTrip(nt); tripEdit = null }) { tripEdit = null }
+        }
+        if (skipassOpen && around != null) {
+            Box(Modifier.fillMaxSize().background(SheetInk(night).veil).clickable(interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() }, indication = null) {})
+            LiveSkipass(around, night, haptics)
+            Row(Modifier.fillMaxWidth().statusBarsPadding().padding(horizontal = 12.dp, vertical = 8.dp)) {
+                val back = stringResource(R.string.app_g_back)
+                Box(Modifier.size(44.dp).semantics { contentDescription = back }.clickable { haptics.tick(.2f); skipassOpen = false }, contentAlignment = Alignment.Center) {
+                    Text(if (androidx.compose.ui.platform.LocalLayoutDirection.current == androidx.compose.ui.unit.LayoutDirection.Rtl) "›" else "‹", fontFamily = Plex, fontSize = 24.sp, color = Color.White)
+                }
+            }
         }
     }
 }

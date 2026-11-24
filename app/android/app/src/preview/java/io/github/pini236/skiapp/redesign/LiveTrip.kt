@@ -132,7 +132,7 @@ private fun legDate(d: LocalDate, lang: String): String {
 }
 
 @Composable
-private fun skiLine(trip: Trip): String? {
+internal fun skiLine(trip: Trip): String? {
     val r = trip.skiDays() ?: return null
     val n = trip.skiDayCount().takeIf { it > 0 } ?: return null
     val range = stringResource(R.string.app_trip_range, "${r.start.dayOfMonth}", "${r.endInclusive.dayOfMonth}.${r.endInclusive.monthValue}")
@@ -436,7 +436,7 @@ internal fun LiveCalendar(trip: Trip?, today: LocalDate, k: SheetInk, haptics: H
 private fun SheetInk.skiDayOf(): Color = if (acc == Color(0xFFB79CFF)) Color(0x33B79CFF) else Color(0x246B3FD4)
 
 @Composable
-private fun MonthArrow(sign: String, label: String, enabled: Boolean, k: SheetInk, onClick: () -> Unit) {
+internal fun MonthArrow(sign: String, label: String, enabled: Boolean, k: SheetInk, onClick: () -> Unit) {
     Box(Modifier.size(44.dp).alpha(if (enabled) 1f else .35f).semantics { role = Role.Button; contentDescription = label }
         .clickable(enabled = enabled, onClick = onClick), contentAlignment = Alignment.Center) {
         Text(sign, fontFamily = Plex, fontSize = 24.sp, color = k.ink)

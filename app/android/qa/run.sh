@@ -1200,6 +1200,12 @@ redesign() {
   mark; qa "--es qa.redesign trip:tear"; sleep 1.5; shot redesign-trip-torn
   mark; qa "--es qa.mode night --es qa.redesign trip"; sleep 1.5; shot redesign-trip-night
   mark; qa "--es qa.mode auto --es qa.redesign trip:off"; sleep .5
+  # part 2 (Q09): the ski pass over the mountain, for the trip's four days, a child, and two weeks
+  mark; qa "--es qa.redesign skipass"; waitlog "redesign skipass open" 10 || fail "redesign: the ski pass did not open"; sleep 1; shot redesign-skipass
+  mark; qa "--es qa.redesign skipass:child"; waitlog "redesign skipass child" 10; sleep .8; shot redesign-skipass-child
+  mark; qa "--es qa.redesign skipass:days:9"; waitlog "redesign skipass days 9" 10; sleep 1; shot redesign-skipass-9
+  mark; qa "--es qa.mode night --es qa.redesign skipass:adult"; sleep 1; shot redesign-skipass-night
+  mark; qa "--es qa.mode auto --es qa.redesign skipass:off"; sleep .5
   mark; qa "--es qa.mode auto --es qa.redesign painted"; waitlog "redesign live closed" 10; sleep 1.5; shot redesign-live-back
   qa "--es qa.mode auto --es qa.redesign close"; sleep 1.5; shot redesign-closed
   # round 4 (board L06): the sample day on the mountain, its lines of light by speed and the dotted rides, by day and
