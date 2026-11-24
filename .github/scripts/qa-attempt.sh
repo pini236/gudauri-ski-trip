@@ -9,13 +9,29 @@ mkdir -p "$OUT"
 : > "$OUT/.started"
 bash app/android/qa/run.sh
 rc=$?
-if [ "$rc" -ne 0 ] && [ "$(grep -c '^FAIL' "$OUT/summary.txt" 2> /dev/null)" = 1 ] && grep -q '^FAIL: install' "$OUT/summary.txt"; then
-  echo "install failed on the first try: adb restarted, one more attempt"
+# A failure that is the emulator's and not the app's gets one more attempt of the whole part, marked UNSTABLE in the
+# summary, with the first attempt kept (qa-out.first). Infrastructure means one of: the install over adb was the only
+# failure; or the log shows the system's own window not responding (the home screen / system UI ANR) or adb losing the
+# device, AND the log has no crash or ANR of our app. Anything else is a finding and is not retried. A part that has
+# already run 20 minutes is not run twice (the 60-minute cap).
+infra=0
+if [ "$rc" -ne 0 ]; then
+  if [ "$(grep -c '^FAIL' "$OUT/summary.txt" 2> /dev/null)" = 1 ] && grep -q '^FAIL: install' "$OUT/summary.txt"; then
+    infra=1
+  elif [ "$SECONDS" -lt 1200 ] && [ -f "$OUT/logcat.txt" ] \
+    && grep -q -E "ANR in com\.android\.(systemui|launcher3)|Application Not Responding.*(systemui|launcher)|System UI isn't responding|device offline|no devices/emulators found|device '[^']*' not found" "$OUT/logcat.txt" "$OUT/summary.txt" 2> /dev/null \
+    && ! grep -q -E "FATAL EXCEPTION|ANR in io\.github\.pini236" "$OUT/logcat.txt"; then
+    infra=1
+  fi
+fi
+if [ "$infra" = 1 ]; then
+  echo "the first attempt failed on the emulator, not the app: adb restarted, one more attempt"
   adb kill-server; adb start-server; adb wait-for-device
+  adb shell input keyevent KEYCODE_HOME > /dev/null 2>&1 || true
   rm -rf "$OUT.first"; mv "$OUT" "$OUT.first"
   mkdir -p "$OUT"; : > "$OUT/.started"
   bash app/android/qa/run.sh
   rc=$?
-  [ "$rc" -eq 0 ] && echo "UNSTABLE: the install needed a second try (infrastructure)" | tee -a "$OUT/summary.txt"
+  [ "$rc" -eq 0 ] && echo "UNSTABLE: the first attempt failed on the emulator (infrastructure); the second passed" | tee -a "$OUT/summary.txt"
 fi
 exit "$rc"
