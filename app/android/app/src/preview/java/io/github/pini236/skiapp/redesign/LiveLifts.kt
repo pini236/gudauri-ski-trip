@@ -19,6 +19,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -245,8 +247,8 @@ private fun LiftPlacesLine(l: Lift, k: SheetInk) {
             if (near.isEmpty()) Text(stringResource(R.string.places_none), fontFamily = Plex, fontSize = 13.sp, color = k.ink2)
             else Row(Modifier.fillMaxWidth().heightIn(min = 44.dp).let { m -> if (near.size > 3) m.semantics { role = Role.Button }.clickable { all = !all } else m },
                 verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                val shown = if (all) near else near.take(3)
-                Text(shown.joinToString(", ") { "⁦${io.github.pini236.skiapp.places.label(it.place)}⁩" }, Modifier.weight(1f, fill = false), fontFamily = Plex,
+                val shown = (if (all) near else near.take(3)).map { "⁦${io.github.pini236.skiapp.places.label(it.place)}⁩" }
+                Text(shown.joinToString(", "), Modifier.weight(1f, fill = false), fontFamily = Plex,
                     fontSize = 13.5.sp, color = k.ink, maxLines = if (all) 6 else 1, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis)
                 if (near.size > 3 && !all) Text(stringResource(R.string.places_all_n, near.size.toString()), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 13.5.sp, color = k.acc)
             }
