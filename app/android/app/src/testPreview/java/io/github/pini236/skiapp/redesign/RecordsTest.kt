@@ -53,4 +53,11 @@ class RecordsTest {
         assertEquals(Records.ORDER, rows.map { it.what })
         assertTrue(rows.all { it.value == null && it.day == null })
     }
+
+    @Test fun aRecordingWithoutDescentsIsNoDay() {
+        val d = day("a", 1000, 61.2, 150, 4000.0, 20000.0, descent(100, 200, 2400.0, "tatra-2"))
+        val empty = Records.SavedDay("z", 9000, JSONObject().put("mode", "day").put("start", 9000).put("stats", JSONObject()).put("segments", JSONArray()), null)
+        val rows = Records.rows(JSONObject().put("max_kmh", 61.2), listOf(d, empty)).associateBy { it.what }
+        assertEquals("a", rows["max_kmh"]!!.day!!.id); assertTrue(rows["max_kmh"]!!.fresh)
+    }
 }

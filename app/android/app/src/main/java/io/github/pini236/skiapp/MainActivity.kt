@@ -659,6 +659,8 @@ class MainActivity : ComponentActivity() {
             "finish" -> inBackground { DayRec.store(this).unfinished()?.let { DayRec.finishCut(this, it) } ?: Qa.log("dayrec nothing cut") }
             // a recorded day pushed to the app's folder (the test values of the reference tool), analysed as the service does at the end of a day
             "replay" -> inBackground { replayDayQa() }
+            // the same day as one descent (the redesign's card when it ends, P04): the header says "run"
+            "replayrun" -> inBackground { replayDayQa(run = true) }
             "live" -> DayRec.live.let { Qa.log("dayrec live ${if (it == null) "none" else "act=${it.act} runs=${it.runs?.size ?: 0} falls=${it.falls.size} max=${it.maxKmh != null}"}") }
             "feature" -> Qa.log("dayrec feature ${DayFeature.enabled(siteData.read("resorts.json"))}")
             "report" -> DayRec.store(this).days().forEach { f ->
@@ -679,11 +681,13 @@ class MainActivity : ComponentActivity() {
     }
 
     /** The emulator run's way to put a whole recorded day through the analysis: counts only, never a place (condition 1). */
-    private fun replayDayQa() {
+    private fun replayDayQa(run: Boolean = false) {
         val src = java.io.File(getExternalFilesDir(null), "replay.jsonl")
         if (!src.isFile) { Qa.log("dayrec replay none"); return }
         val dst = DayRec.store(this).newFile(System.currentTimeMillis())
-        src.copyTo(dst, true)
+        if (!run) src.copyTo(dst, true)
+        else src.bufferedReader().useLines { ls -> dst.bufferedWriter().use { w ->
+            ls.forEachIndexed { i, l -> w.write(if (i == 0) org.json.JSONObject(l).put("mode", "run").toString() else l); w.newLine() } } }
         Qa.log("dayrec replay id ${dst.name.removePrefix("day-").removeSuffix(".jsonl")}")
         val t0 = android.os.SystemClock.elapsedRealtime()
         val out = runCatching { DayAnalysis.ensure(this, dst) }.onFailure { Qa.log("dayrec replay failed: ${it.javaClass.simpleName} ${it.message}") }.getOrNull()
@@ -691,6 +695,7 @@ class MainActivity : ComponentActivity() {
         val st = r?.optJSONObject("stats")
         Qa.log("dayrec replay analysis=${r?.optInt("analysis", -1)} segments=${r?.optJSONArray("segments")?.length()} descents=${st?.optInt("descents", -1)} " +
             "lifts=${st?.optInt("lifts", -1)} moments=${DayStore.momentsOf(dst).isFile} falls=${r?.optJSONArray("falls")?.length()} max=${st?.optDouble("max_kmh")} ms=${android.os.SystemClock.elapsedRealtime() - t0}")
+        if (run && out != null) io.github.pini236.skiapp.redesign.Redesign.runDone(this, dst, "station", null)
     }
 
     private fun applyQaMap(i: Intent, sunDone: Boolean = false) {

@@ -41,10 +41,12 @@ internal object Records {
      * record set on the last day recorded: that day has a record moment for it, or it is the only day.
      */
     fun rows(best: JSONObject, days: List<SavedDay>): List<Row> {
-        val last = days.maxByOrNull { it.start }
+        // a recording without descents is not a day here (the designer, 24.11.2026), and neither is one descent alone
+        val real = days.filter { isDay(it.result) && descents(it.result).isNotEmpty() }
+        val last = real.maxByOrNull { it.start }
         fun fresh(what: String, d: SavedDay?): Boolean {
             if (d == null || d !== last) return false
-            if (days.size == 1) return true
+            if (real.size == 1) return true
             return items(d.moments).any { (it.optString("key") == "record" && it.optJSONObject("p")?.optString("what") == what) ||
                 (what == "steep_deg" && it.optString("key") == "steepest" && it.optJSONObject("p")?.optBoolean("ever") == true) }
         }
@@ -52,7 +54,8 @@ internal object Records {
             val v = num(best, what)
             if (v == null) return@map Row(what, null, null)
             // the first day that matches is the day the record was set (an equal later day set no record)
-            val sorted = days.sortedBy { it.start }
+            // a whole day before one descent recorded at the same time, so a record is found on the day
+            val sorted = days.sortedWith(compareBy<SavedDay>({ it.start }, { if (isDay(it.result)) 0 else 1 }))
             when (what) {
                 "max_kmh" -> {
                     val d = sorted.firstOrNull { num(it.result.optJSONObject("stats"), "max_kmh")?.let { m -> near(m, v) } == true }

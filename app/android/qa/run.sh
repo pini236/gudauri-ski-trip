@@ -1254,6 +1254,13 @@ redesign() {
   # completion part 1 (P05): your records, from the card at the top of my days (the replayed day counts; the example day does not)
   mark; qa "--es qa.redesign records"; if waitlog "redesign records [1-6] mountain" 40; then sleep 2; shot redesign-records; else fail "redesign: the records did not show on the mountain"; fi
   qa "--es qa.redesign records:off"; sleep 1
+  # completion part 1 (P04) with a descent: the sample day replayed as one descent, its card (the film, the four
+  # numbers, why it stopped, the three buttons, "here you flew")
+  mark; qa "--es qa.dayrec replayrun"; waitlog "dayrec replay analysis=" 180 || fail "redesign: the descent was not replayed"
+  local rid; rid=$(tail -n +"$((MARK + 1))" "$OUT/logcat.txt" | grep -m1 "SkiQa.*dayrec replay id " | sed 's/.*dayrec replay id //' | tr -d '\r ')
+  mark; qa "--es qa.tab days/$rid"
+  if waitlog "redesign run done card descent" 60; then sleep 4; shot redesign-run-done-descent; else fail "redesign: the card of one descent with a descent did not show"; fi
+  adb shell input keyevent 4; sleep 1
   qa "--es qa.mode auto --es qa.trip none --es qa.tab home"; sleep 1
 }
 
