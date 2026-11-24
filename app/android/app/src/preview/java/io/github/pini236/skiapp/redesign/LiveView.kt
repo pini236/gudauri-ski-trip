@@ -629,6 +629,42 @@ class LiveView(context: Context, private val scene: MapScene) : GLSurfaceView(co
         if (Motion.reduced(context)) { camera.set(to); requestRender() } else renderer.animate(to, 0.8f)
     }
 
+    /**
+     * "Where am I" switched on (part 4, section 3): the place [x], [y] brought to the middle when it is off the screen
+     * or within [edge] px of its edge; the direction, height and distance kept; 450 ms, or a jump with reduced motion.
+     */
+    fun center(x: Float, y: Float, edge: Float) {
+        val p = toScreen(x, y)
+        if (p != null && p[0] in edge..(width - edge) && p[1] in edge..(height - edge)) return
+        val to = camera.state().copy(tx = x, ty = scene.terrain.elev(x, y), tz = y)
+        renderer.stopAnim(); camera.stopFling()
+        if (Motion.reduced(context)) { camera.set(to); requestRender() } else renderer.animate(to, 0.45f)
+        Qa.log("redesign where centred")
+    }
+
+    /** The compass (part 4, section 6): the view is not the opening one (direction or tilt past 3 degrees, or distance). */
+    fun awayFromHome(): Boolean {
+        return WhereRules.away(camera.state(), front())
+    }
+
+    /** Where north is on the screen, degrees clockwise from up (the compass's needle). */
+    fun northDeg(): Float {
+        val c = camera.state()
+        val a = toScreen(c.tx, c.tz) ?: return 0f
+        val b = toScreen(c.tx, c.tz - 400f) ?: return 0f // north is up the map's y (data/Geo.kt)
+        return Math.toDegrees(atan2((b[0] - a[0]).toDouble(), (a[1] - b[1]).toDouble())).toFloat()
+    }
+
+    /** Whether a frame with the mountain has been drawn (the first hint waits for it). */
+    val drawn: Boolean get() = renderer.drawn
+
+    /** The compass's tap: back to the opening view in one move, 600 ms (a jump with reduced motion). */
+    fun home() {
+        renderer.stopAnim(); camera.stopFling()
+        if (Motion.reduced(context)) { camera.set(front()); requestRender() } else renderer.animate(front(), 0.6f)
+        Qa.log("redesign live home")
+    }
+
     /** Where a place on the map (metres, [up] above the snow) is on the screen now, or null behind the camera. */
     fun toScreen(x: Float, y: Float, up: Float = 0f): FloatArray? =
         if (width == 0) null else project(camera.state(), floatArrayOf(x, scene.terrain.elev(x, y) + up, y))

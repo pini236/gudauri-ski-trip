@@ -13,6 +13,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.runtime.remember
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -97,10 +99,14 @@ internal fun StateDot(open: Boolean?, k: SheetInk) {
  */
 @Composable
 internal fun LiftsSheet(lifts: List<Lift>, s: LiftStatus?, scene: MapScene, forMe: Boolean, k: SheetInk, haptics: Haptics,
-                        onForMe: (Boolean) -> Unit, onLift: (Lift) -> Unit, opening: Pair<String, String>? = null, onOpening: () -> Unit = {}) {
+                        onForMe: (Boolean) -> Unit, onLift: (Lift) -> Unit, opening: Pair<String, String>? = null, onOpening: () -> Unit = {},
+                        head: (@Composable () -> Unit)? = null, other: (@Composable () -> Unit)? = null) {
     val fresh = s?.fresh == true
     val nf = remember { java.text.NumberFormat.getIntegerInstance() }
     LiveSheet(k) {
+        // "the mountain now" (S05): its heading and tabs above; the weather tab instead of the lifts
+        head?.invoke()
+        if (other != null) { other(); return@LiveSheet }
         Row(Modifier.fillMaxWidth().padding(bottom = 6.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
             Text(stringResource(R.string.app_lifts_title), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 21.sp, color = k.ink)
             Text(if (fresh) stringResource(R.string.app_lifts_count, s!!.open.toString(), lifts.size.toString()) else lifts.size.toString(),
@@ -157,7 +163,7 @@ internal fun LiftsSheet(lifts: List<Lift>, s: LiftStatus?, scene: MapScene, forM
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 internal fun LiftPanel(l: Lift, s: LiftStatus?, scene: MapScene, k: SheetInk, haptics: Haptics,
-                       onRun: (String) -> Unit, onMeet: (() -> Unit)?, onRuns: () -> Unit) {
+                       onRun: (String) -> Unit, onMeet: (() -> Unit)?, onRuns: () -> Unit, onPlace: (io.github.pini236.skiapp.places.Place) -> Unit = {}) {
     val fresh = s?.fresh == true
     val open = s?.isOpen(l.name)
     val nf = remember { java.text.NumberFormat.getIntegerInstance() }
@@ -214,7 +220,7 @@ internal fun LiftPanel(l: Lift, s: LiftStatus?, scene: MapScene, k: SheetInk, ha
                     }
                 }
             }
-            LiftPlacesLine(l, k)
+            LiftPlacesLine(l, k, onPlace)
         }
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             if (onMeet != null) Box(Modifier.weight(1f).heightIn(min = 52.dp).clip(RoundedCornerShape(26.dp)).background(k.acc)
@@ -234,7 +240,7 @@ private fun <T> remember(calc: () -> T): T = androidx.compose.runtime.remember(c
  * names and "all N" when there are more (a tap shows them all), or "no information"; then "check on the spot".
  */
 @Composable
-private fun LiftPlacesLine(l: Lift, k: SheetInk) {
+private fun LiftPlacesLine(l: Lift, k: SheetInk, onPlace: (io.github.pini236.skiapp.places.Place) -> Unit) {
     val places = LocalPlaces.current ?: return
     val top = places.stationOf(l.id, bottom = false); val bottom = places.stationOf(l.id, bottom = true)
     if (top == null && bottom == null) return
@@ -243,16 +249,72 @@ private fun LiftPlacesLine(l: Lift, k: SheetInk) {
             if (st == null) continue
             val near = places.near(st)
             var all by androidx.compose.runtime.remember(st) { androidx.compose.runtime.mutableStateOf(false) }
+            // the emulator's check (qa.redesign places:bottom / places:top): the list sheet without scrolling to the line
+            androidx.compose.runtime.LaunchedEffect(RedesignQa.seq) {
+                if (RedesignQa.cmd == "places:" + if (head == R.string.places_near_bottom) "bottom" else "top") all = true }
+            // "all N" (T10): the list in a sheet of its own, by distance
+            if (all) PlacesSheet(st, near, head == R.string.places_near_bottom, l, k, onPlace = { pl -> all = false; onPlace(pl) }) { all = false }
             Text(stringResource(head), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 13.5.sp, color = k.ink)
             if (near.isEmpty()) Text(stringResource(R.string.places_none), fontFamily = Plex, fontSize = 13.sp, color = k.ink2)
             else Row(Modifier.fillMaxWidth().heightIn(min = 44.dp).let { m -> if (near.size > 3) m.semantics { role = Role.Button }.clickable { all = !all } else m },
                 verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                val shown = (if (all) near else near.take(3)).map { "⁦${io.github.pini236.skiapp.places.label(it.place)}⁩" }
+                val shown = near.take(3).map { "⁦${io.github.pini236.skiapp.places.label(it.place)}⁩" }
                 Text(shown.joinToString(", "), Modifier.weight(1f, fill = false), fontFamily = Plex,
-                    fontSize = 13.5.sp, color = k.ink, maxLines = if (all) 6 else 1, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis)
-                if (near.size > 3 && !all) Text(stringResource(R.string.places_all_n, near.size.toString()), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 13.5.sp, color = k.acc)
+                    fontSize = 13.5.sp, color = k.ink, maxLines = 1, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis)
+                if (near.size > 3) Text(stringResource(R.string.places_all_n, near.size.toString()), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 13.5.sp, color = k.acc)
             }
         }
         Text(stringResource(R.string.places_check), fontFamily = Plex, fontSize = 12.5.sp, color = k.ink2)
     }
 }
+
+/**
+ * T10, all the places near a station: the head (near the bottom or top station; the lift, how many, up to 250 m), a row
+ * for each by distance (the kind's circle, the name or the kind, the kind, seasonal, the distance), "check on the spot".
+ * No hours, phones or ratings. A tap moves the mountain to the place and marks it.
+ */
+@OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
+@Composable
+private fun PlacesSheet(st: io.github.pini236.skiapp.places.Station, near: List<io.github.pini236.skiapp.places.Near>, bottom: Boolean, l: Lift, k: SheetInk,
+                        onPlace: (io.github.pini236.skiapp.places.Place) -> Unit, onDismiss: () -> Unit) {
+    androidx.compose.runtime.LaunchedEffect(st.id) { io.github.pini236.skiapp.qa.Qa.log("redesign places ${st.id} ${near.size}") }
+    androidx.compose.material3.ModalBottomSheet(onDismissRequest = onDismiss, containerColor = k.surf.copy(alpha = 1f)) {
+        Column(Modifier.padding(horizontal = 16.dp).navigationBarsPadding(), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            Text(stringResource(if (bottom) R.string.places_near_bottom else R.string.places_near_top), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 19.sp, color = k.ink)
+            Text(androidx.compose.ui.res.pluralStringResource(R.plurals.app_places_head_n, near.size, "⁦${l.name}⁩", near.size.toString(), "250"),
+                fontFamily = Plex, fontSize = 13.sp, color = k.ink2)
+            val nf = remember { java.text.NumberFormat.getIntegerInstance() }
+            Column(Modifier.heightIn(max = 420.dp).verticalScroll(rememberScrollState())) {
+                for ((i, n) in near.withIndex()) {
+                    if (i > 0) Box(Modifier.fillMaxWidth().heightIn(min = 1.dp).background(k.line))
+                    val kind = kindWord(n.place.kind)
+                    val title = n.place.name ?: kind
+                    val sub = when {
+                        n.place.name == null -> stringResource(R.string.app_places_unnamed)
+                        n.place.seasonal -> kind + " · " + stringResource(R.string.places_seasonal)
+                        else -> kind
+                    }
+                    val dist = stringResource(R.string.common_unit_m, nf.format(n.d))
+                    Row(Modifier.fillMaxWidth().heightIn(min = 50.dp).semantics(mergeDescendants = true) { contentDescription = "$title, $kind, $dist"; role = Role.Button }
+                        .clickable { onPlace(n.place) }.padding(vertical = 6.dp),
+                        verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                        Box(Modifier.size(32.dp).clip(CircleShape).background(io.github.pini236.skiapp.places.kindColor(n.place.kind)), contentAlignment = Alignment.Center) {
+                            Text(kind.take(1), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = Color.White)
+                        }
+                        Column(Modifier.weight(1f)) {
+                            Text("⁦$title⁩", fontFamily = Plex, fontWeight = FontWeight.Medium, fontSize = 15.sp, color = k.ink, maxLines = 1)
+                            Text(sub, fontFamily = Plex, fontSize = 12.5.sp, color = k.ink2, maxLines = 1)
+                        }
+                        Text(dist, fontFamily = Plex, fontSize = 13.5.sp, color = k.ink2)
+                    }
+                }
+            }
+            Text(stringResource(R.string.places_check), Modifier.padding(vertical = 8.dp), fontFamily = Plex, fontSize = 12.5.sp, color = k.ink2)
+        }
+    }
+}
+
+@Composable
+private fun kindWord(kind: String) = stringResource(when (kind) {
+    "food" -> R.string.places_kind_food; "cafe" -> R.string.places_kind_cafe; "aid" -> R.string.places_kind_aid; else -> R.string.places_kind_wc
+})

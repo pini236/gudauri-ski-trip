@@ -747,8 +747,11 @@ class MainActivity : ComponentActivity() {
     }
 
     /** The day and night switch (home, the invitation, settings): kept, measured, and the events after it carry the new mode. */
-    private fun nextMode() {
-        dnMode = dnMode.next(); haptics.tick(.4f)
+    private fun nextMode() = setMode(dnMode.next())
+
+    /** A display mode picked by name (the new settings, R13), kept and measured as the switch does. */
+    private fun setMode(m: DayNight.Mode) {
+        dnMode = m; haptics.tick(.4f)
         getSharedPreferences("daynight", MODE_PRIVATE).edit().putString("mode", dnMode.name).apply()
         Telemetry.event("theme_set", mapOf("mode" to dnMode.name.lowercase()))
         Telemetry.setTheme(dnMode.name.lowercase())
@@ -1043,7 +1046,12 @@ class MainActivity : ComponentActivity() {
                         account?.let { a -> io.github.pini236.skiapp.home.Passenger(a.me?.name ?: a.me?.let { "?" }) { if (a.me == null) a.onSignIn() else a.onManage() } },
                         sounds, { nav.push(Route.Trip) }, prices, seasonToday,
                         io.github.pini236.skiapp.season.OpeningView.of(season, seasonState, seasonToday),
-                        if (seasonState.kind == io.github.pini236.skiapp.season.Season.Kind.NO_INFO) season?.open else null)) }
+                        if (seasonState.kind == io.github.pini236.skiapp.season.Season.Kind.NO_INFO) season?.open else null,
+                        if (groupApi.ready) io.github.pini236.skiapp.home.People(groupApi, ::signInGoogle, ::openPrivacy, ::openSupport,
+                            onLicenses = { nav.push(Route.Licenses) }, onLang = ::setLang, mode = dnMode, onMode = ::setMode,
+                            onResetBests = { Bests.reset(this@MainActivity); Qa.log("bests reset") }, onGame = { g -> nav.push(Route.Game(g)) },
+                            onMeetups = ::armReminders, onTripForm = { nav.push(Route.Trip) }, onChanged = ::armReminders,
+                            version = BuildConfig.VERSION_NAME, onMyTrip = { t -> keepTrip(t) }, onDays = { nav.push(Route.Days) }, onTripFor = { g, u -> nav.push(Route.TripFor(g, u)) }) else null, videos = videos)) }
             }
           }
         }

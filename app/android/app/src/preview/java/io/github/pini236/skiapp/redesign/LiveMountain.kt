@@ -62,6 +62,7 @@ import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -97,6 +98,14 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
     // part 2 (Q01 to Q03): the lifts' sheet, and one lift in it
     var liftsOpen by remember { mutableStateOf(false) }
     var liftSel by remember { mutableStateOf<io.github.pini236.skiapp.data.Lift?>(null) }
+    // part 4 (S05): "the mountain now" opens on the lifts from the pill, on the weather from its temperature
+    var nowTab by remember { mutableStateOf(NowTab.LIFTS) }
+    // part 4 (S07): the run's sheet at its full height
+    var runFull by remember { mutableStateOf(false) }
+    // part 5 (T10): a place chosen from the list, marked on the mountain in its kind's colour
+    var placeMark by remember { mutableStateOf<io.github.pini236.skiapp.places.Place?>(null) }
+    LaunchedEffect(liftsOpen, liftSel) { if (!liftsOpen || liftSel == null) placeMark = null }
+    LaunchedEffect(chosen) { if (chosen == null) runFull = false }
     androidx.activity.compose.BackHandler(enabled = liftsOpen) { if (liftSel != null) liftSel = null else liftsOpen = false }
     // part 2 (Q04, Q05): the meeting point on the mountain
     val meet = remember { MeetUi() }
@@ -108,16 +117,35 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
     // part 2 (Q07, Q08): "your trip" over the mountain, and a field of it being filled
     var tripOpen by remember { mutableStateOf(false) }
     var tripEdit by remember { mutableStateOf<io.github.pini236.skiapp.trip.PassEdit?>(null) }
+    // part 5 (T09): the full trip form, from "edit" on the pass
+    var tripForm by remember { mutableStateOf(false) }
+    // "no sign-up, kept on the phone" only for one who is in no group (T09)
+    var inGroup by remember { mutableStateOf(false) }
+    LaunchedEffect(tripForm) { if (tripForm) inGroup = runCatching { around?.people?.api?.myGroups()?.isNotEmpty() }.getOrNull() ?: false }
     // part 2 (Q09): the ski pass over the mountain
     var skipassOpen by remember { mutableStateOf(false) }
     // part 2 (Q10): before the season the mountain opens on the count of days; closed, it comes back on the next opening
     var seasonOn by remember { mutableStateOf(LiveSeasonRules.shown(around)) }
+    // part 3 (R01 to R15): the people, the account and the settings over the mountain
+    val people = remember { PeopleUi() }
+    val pp = around?.people
+    var meNow by remember { mutableStateOf(pp?.api?.me()) }
+    LaunchedEffect(people.changes, people.open) { meNow = pp?.api?.me() }
+    LaunchedEffect(people.open) { if (people.open) seasonOn = false }
     LaunchedEffect(seasonOn) { Qa.log("redesign season ${if (seasonOn) "shown" else "closed"}") }
     LaunchedEffect(chosen, liftsOpen) { if (chosen != null || liftsOpen) seasonOn = false }
     var qaFlags by remember { mutableStateOf<GroupMeets?>(null) }
     val time = scrub?.let { PeakLight.janAt(it) } ?: DayNight.lightTime(now, mode)
     val night = remember(time) { Sky.at(time).dark }
     val view = remember { LiveView(context, scene).also { v -> v.onChoose = { k -> chosen = k; haptics.tick(.5f); Qa.log("redesign live chosen $k") } } }
+    // part 4 (S09): the first hint waits for the mountain to be drawn
+    var mtnDrawn by remember { mutableStateOf(false) }
+    var hintAgain by remember { mutableStateOf(0) }
+    LaunchedEffect(Unit) { while (!view.drawn) delay(200); mtnDrawn = true }
+    // part 4 (S02 to S04, S08): "where am I" and the compass on the mountain
+    val where = rememberWhere(scene)
+    val (locate, locateGo) = rememberLocate(where, view)
+    val whereAction = rememberWhereAction(where)
     DisposableEffect(Unit) {
         val life = (context as? androidx.lifecycle.LifecycleOwner)?.lifecycle
         val obs = androidx.lifecycle.LifecycleEventObserver { _, e ->
@@ -144,10 +172,13 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
             }
             // a run chosen the way a tap chooses it (the turn to the Kobi side included), letting it go, and the sign
             c.startsWith("pick:") -> { held = null; view.pickKey(c.removePrefix("pick:")) }
-            c == "unpick" -> { held = null; chosen = null; view.choose(null); Qa.log("redesign live unpicked") }
+            c == "run:full" -> runFull = true
+            c == "run:low" -> runFull = false
+            c == "unpick" -> { runFull = false; held = null; chosen = null; view.choose(null); Qa.log("redesign live unpicked") }
             c == "front" -> view.backToFront()
             // part 2 (Q01 to Q03): the lifts' sheet and one lift
-            c == "lifts" -> { liftSel = null; liftsOpen = true }
+            c == "lifts" -> { liftSel = null; nowTab = NowTab.LIFTS; liftsOpen = true }
+            c == "weather" -> { liftSel = null; nowTab = NowTab.WEATHER; liftsOpen = true }
             c == "lifts:off" -> { liftSel = null; liftsOpen = false }
             c.startsWith("lift:") -> LiveLifts.board(scene.runs).firstOrNull { it.name == c.removePrefix("lift:") }?.let { liftSel = it; liftsOpen = true }
             // part 2 (Q04, Q05): the meeting point, open, on a preset or a lift's top, cleared, closed
@@ -155,11 +186,40 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
             c.startsWith("meet:") -> meetOpenQa = c.removePrefix("meet:")
             c == "trip" -> { tripEdit = null; tripOpen = true; Qa.log("redesign trip open ${if (around?.trip != null) "pass" else "empty"}") }
             c == "trip:cal" -> { tripOpen = true; tripEdit = io.github.pini236.skiapp.trip.PassEdit.Dates; Qa.log("redesign trip calendar") }
-            c == "trip:off" -> { tripEdit = null; tripOpen = false }
+            c == "trip:off" -> { tripEdit = null; tripOpen = false; tripForm = false }
+            c == "trip:form" -> { tripOpen = true; tripEdit = null; tripForm = true }
             c == "skipass" -> skipassOpen = true
             c == "season" -> seasonOn = LiveSeasonRules.shown(around)
             c == "season:off" -> seasonOn = false
             c == "skipass:off" -> { skipassOpen = false; Qa.log("redesign skipass closed") }
+            // part 3: the people's layers (the emulator's run, qa/run.sh), the first group of mine for "group" and "invite"
+            c == "people:off" -> people.close()
+            // part 4: the "where am I" switch as a tap, the first-time sheet, and back to the opening view
+            c == "where" -> locate()
+            c == "where:ask" -> where.asking = true
+            c == "where:off" -> { where.asking = false; where.where.off() }
+            c == "home" -> view.home()
+            c == "hint:reset" -> { Hints.reset(context); hintAgain++ }
+            c.startsWith("people:") && pp != null -> {
+                val what = c.removePrefix("people:")
+                if (what == "group" || what == "invite") scope.launch {
+                    val g = runCatching { pp.api.myGroups() }.getOrNull()?.firstOrNull()?.id
+                    if (g != null) { people.go(PLayer.Group(g)); if (what == "invite") people.go(PLayer.Invite(g)) } else Qa.log("redesign people no group")
+                } else when (what) {
+                    "me" -> people.go(PLayer.Me)
+                    "signin" -> people.go(PLayer.SignIn)
+                    "gate" -> people.go(PLayer.Gate)
+                    "settings" -> people.go(PLayer.Settings)
+                    "lang" -> people.go(PLayer.Language)
+                    "about" -> people.go(PLayer.About)
+                    "new" -> people.go(PLayer.NewGroup)
+                    "delete" -> people.go(PLayer.Delete)
+                    "licenses" -> people.go(PLayer.Licenses)
+                    else -> if (what.startsWith("join:")) people.go(PLayer.Join(what.removePrefix("join:")))
+                        else if (what.startsWith("license:")) people.go(PLayer.License(what.removePrefix("license:")))
+                        else if (what.startsWith("tab:")) Qa.log("redesign people tab ignored")
+                }
+            }
             // one moment of the choice held (the designer's 0, 150, 300, 600 and 900 ms, as phase A's frame:)
             c.startsWith("moment:") -> c.removePrefix("moment:").split(',').takeIf { it.size == 2 }?.let { (k, t) ->
                 t.trim().toFloatOrNull()?.let { ms -> held = ms; view.moment(k.trim(), ms) }
@@ -228,11 +288,13 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
     // lifts low and no runs; under the meeting point both quiet
     fun quietNow() = when {
         tripOpen || skipassOpen -> view.setQuiet(0f, 0f)
+        people.top is PLayer.Group -> view.setQuiet(.4f)
+        people.open -> view.setQuiet(.25f, .25f)
         meet.open -> view.setQuiet(.4f)
         seasonOn -> view.setQuiet(.3f, 0f)
         else -> view.setQuiet(1f)
     }
-    LaunchedEffect(seasonOn, meet.open, tripOpen, skipassOpen) { quietNow() }
+    LaunchedEffect(seasonOn, meet.open, tripOpen, skipassOpen, people.top) { quietNow() }
     LaunchedEffect(meet.open, plan) {
         quietNow()
         if (!meet.open || plan == null) { view.onTap = null; meetPts = emptyList(); return@LaunchedEffect }
@@ -258,6 +320,15 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
 
     Box(Modifier.fillMaxSize()) {
         AndroidView(factory = { view }, modifier = Modifier.fillMaxSize())
+        placeMark?.let { pl ->
+            var at by remember(pl) { mutableStateOf<Offset?>(null) }
+            LaunchedEffect(pl) { while (true) { withFrameNanos { }; at = view.toScreen(io.github.pini236.skiapp.data.Geo.x(pl.lon), io.github.pini236.skiapp.data.Geo.y(pl.lat))?.let { Offset(it[0], it[1]) } } }
+            at?.let { q -> Canvas(Modifier.fillMaxSize()) {
+                drawCircle(Color.White, 9.dp.toPx(), q); drawCircle(io.github.pini236.skiapp.places.kindColor(pl.kind), 6.5.dp.toPx(), q)
+            } }
+        }
+        // my dot and its circle (S03), under everything drawn over the mountain
+        WhereDot(where, view)
         if (!meet.open && !tripOpen && !skipassOpen) Column(Modifier.fillMaxWidth().statusBarsPadding().padding(horizontal = 12.dp, vertical = 8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 Pill(Modifier.weight(1f).clickable { scrubOpen = !scrubOpen; if (!scrubOpen) scrub = null; haptics.tick(.3f) }) {
@@ -289,16 +360,29 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
             val ov0 = around?.opening
             val pillText = if (!seasonOn && !pillLive && ov0 != null && ov0.kind == io.github.pini236.skiapp.season.Season.Kind.COUNTDOWN)
                 pluralStringResource(R.plurals.app_season_pill, ov0.days, ov0.days.toString()) else pillText0
-            Pill(Modifier.fillMaxWidth().clickable {
-                haptics.tick(.3f); liftSel = null; liftsOpen = !liftsOpen
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            Pill(Modifier.weight(1f).clickable {
+                haptics.tick(.3f); liftSel = null; nowTab = NowTab.LIFTS; liftsOpen = !liftsOpen
                 if (liftsOpen) io.github.pini236.skiapp.telemetry.Telemetry.event("status_view", if (status?.fresh == true) mapOf("state" to "fresh", "open" to status.open, "total" to status.names.size) else mapOf("state" to if (status?.report == null) "none" else "stale"))
                 Qa.log("redesign lifts ${if (liftsOpen) "open" else "closed"} ${if (pillLive) "live" else "none"}")
             }) {
                 Row(Modifier.fillMaxWidth().padding(horizontal = 14.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(9.dp)) {
                     val kk = remember(night) { SheetInk(night) }
                     StateDot(if (pillLive) true else null, kk)
-                    Text(pillText, fontFamily = Plex, fontWeight = FontWeight.Medium, fontSize = 14.sp, color = ink, maxLines = 1)
+                    Text(pillText, Modifier.weight(1f, fill = false), fontFamily = Plex, fontWeight = FontWeight.Medium, fontSize = 14.sp, color = ink, maxLines = 1,
+                        overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis)
+                    // the temperature at upper Goodaura (S01): from it to the pill's end opens the weather tab
+                    val wx = io.github.pini236.skiapp.weather.LocalWeather.current
+                    val tp = wx.usable?.now("goodaura", wx.local)?.temp
+                    if (tp != null) Box(Modifier.heightIn(min = 44.dp).semantics { role = androidx.compose.ui.semantics.Role.Button }
+                        .clickable { haptics.tick(.3f); liftSel = null; nowTab = NowTab.WEATHER; liftsOpen = true; Qa.log("redesign lifts open weather") },
+                        contentAlignment = Alignment.Center) {
+                        Text("· " + io.github.pini236.skiapp.weather.deg(tp), fontFamily = Plex, fontWeight = FontWeight.Medium, fontSize = 14.sp, color = ink, maxLines = 1)
+                    }
                 }
+            }
+            // "me" at the pill's end (section 1): the account, the settings, the language and about
+            if (pp != null) MeButton(meNow, night) { haptics.tick(.3f); liftsOpen = false; liftSel = null; people.go(PLayer.Me) }
             }
             Text(stringResource(R.string.poc_peak_live_badge), Modifier.clip(RoundedCornerShape(11.dp)).background(Color(0x66081A33)).padding(horizontal = 10.dp, vertical = 3.dp),
                 fontFamily = Plex, fontSize = 11.5.sp, color = Color.White)
@@ -405,6 +489,7 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
                 }
             }
         }
+        if (liftsOpen && liftSel == null && nowTab == NowTab.WEATHER) TempTags(view, io.github.pini236.skiapp.weather.LocalWeather.current, night)
         AnimatedVisibility(liftsOpen, Modifier.align(Alignment.BottomCenter),
             enter = slideInVertically(tween(250)) { it } + fadeIn(tween(150)), exit = slideOutVertically(tween(200)) { it } + fadeOut(tween(200))) {
             val sk = remember(night) { SheetInk(night) }
@@ -413,20 +498,26 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
                 LaunchedEffect(sel) { io.github.pini236.skiapp.telemetry.Telemetry.event("lift_open", mapOf("lift" to sel.name)); Qa.log("redesign lift panel ${sel.name}") }
                 LiftPanel(sel, status, scene, sk, haptics, onRun = { key -> liftSel = null; liftsOpen = false; view.pickKey(key) },
                     onMeet = plan?.let { pl -> LiveMeetRules.topOf(pl, sel.name)?.let { st -> { meetOpen(true); meetPick(st) } } },
-                    onRuns = { liftSel = null; liftsOpen = false })
+                    onRuns = { liftSel = null; liftsOpen = false },
+                    onPlace = { pl -> placeMark = pl; val x = io.github.pini236.skiapp.data.Geo.x(pl.lon); val y = io.github.pini236.skiapp.data.Geo.y(pl.lat)
+                        view.center(x, y, 1e6f); Qa.log("redesign places mark ${pl.id}") })
             } else LiftsSheet(boardLifts, status, scene, forMe, sk, haptics, onForMe = { v ->
                 onForMe(v); io.github.pini236.skiapp.telemetry.Telemetry.event("status_only_open", mapOf("on" to v)); Qa.log("redesign lifts for me $v")
             }, onLift = { l -> liftSel = l },
                 opening = around?.opening?.takeIf { status?.fresh != true && it.kind == io.github.pini236.skiapp.season.Season.Kind.COUNTDOWN }?.let { o ->
                     stringResource(R.string.app_season_planned, io.github.pini236.skiapp.season.shortDate(o.open)) to pluralStringResource(R.plurals.app_season_pill, o.days, o.days.toString())
-                }, onOpening = { liftsOpen = false; seasonOn = true; Qa.log("redesign lifts opening row") })
+                }, onOpening = { liftsOpen = false; seasonOn = true; Qa.log("redesign lifts opening row") },
+                head = { NowHead(nowTab, sk) { nowTab = it } },
+                other = if (nowTab == NowTab.WEATHER) { { WeatherTab(boardLifts, status, around?.trip, sk, night) { l -> liftSel = l } } } else null)
         }
         AnimatedVisibility(run != null && pd != null && (held ?: 900f) >= 900f && !liftsOpen, Modifier.align(Alignment.BottomCenter),
             enter = slideInVertically(tween(250)) { it } + fadeIn(tween(150)), exit = slideOutVertically(tween(200)) { it } + fadeOut(tween(200))) {
             var last by remember { mutableStateOf(run) }
             if (run != null) last = run
             val d0 = pd
-            last?.let { r -> if (d0 != null) RunSheet(r, d0, g, onClose = { chosen = null; view.choose(null) }) }
+            val kk = chosen
+            last?.let { r -> if (d0 != null && kk != null) RunSheets(kk, r, d0, g, scene, around?.videos.orEmpty(), night, haptics, runFull, onFull = { runFull = it },
+                onPick = { nk -> view.pickKey(nk); Qa.log("redesign run swipe $nk") }, onClose = { runFull = false; chosen = null; view.choose(null) }) }
         }
         AnimatedVisibility(chosen == null && !liftsOpen && !meet.open && !tripOpen && !skipassOpen && !seasonOn, Modifier.align(Alignment.BottomCenter).navigationBarsPadding().padding(bottom = 22.dp), enter = fadeIn(), exit = fadeOut()) {
             Pill(h = 48) { Text(stringResource(R.string.poc_peak_hint), Modifier.padding(horizontal = 20.dp), fontFamily = Plex, fontSize = 15.sp, color = ink) }
@@ -514,7 +605,7 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
                     Text(if (androidx.compose.ui.platform.LocalLayoutDirection.current == androidx.compose.ui.unit.LayoutDirection.Rtl) "›" else "‹", fontFamily = Plex, fontSize = 24.sp, color = if (night) Color.White else sk.ink)
                 }
                 androidx.compose.foundation.layout.Spacer(Modifier.weight(1f))
-                if (t != null) Pill(Modifier.clickable { haptics.tick(.3f); around.onTripForm() }) {
+                if (t != null) Pill(Modifier.clickable { haptics.tick(.3f); tripEdit = null; tripForm = true }) {
                     Text(stringResource(R.string.trip_edit), Modifier.padding(horizontal = 18.dp), fontFamily = Plex, fontWeight = FontWeight.Medium, fontSize = 15.sp, color = ink)
                 }
             }
@@ -525,6 +616,10 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
             }
             if (t != null && e != null && e != io.github.pini236.skiapp.trip.PassEdit.Dates)
                 PassEditor(e, t, todayL, { nt -> around.onTrip(nt); tripEdit = null }) { tripEdit = null }
+            if (tripForm) LiveTripForm(t, todayL, night, haptics,
+                onSave = { nt -> around.onTrip(nt); tripForm = false },
+                onDelete = { around.onTrip(null); tripForm = false; tripOpen = false; Qa.log("redesign trip deleted") },
+                onBack = { tripForm = false }, localNote = !inGroup)
         }
         if (skipassOpen && around != null) {
             Box(Modifier.fillMaxSize().background(SheetInk(night).veil).clickable(interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() }, indication = null) {})
@@ -538,6 +633,28 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
                 }
                 Text(stringResource(R.string.app_skipass_title), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 17.sp, color = top)
             }
+        }
+        // part 4 (S03, S04, S08): the location's box under the pill, the map's buttons, and S02 before the phone asks
+        val bare = chosen == null && !liftsOpen && !meet.open && !tripOpen && !skipassOpen && !seasonOn && !people.open
+        if (bare) WhereBox(where, night, onRun = { k -> haptics.tick(.3f); view.pickKey(k) }, onAction = whereAction)
+        if (bare) MapColumn(where, view, night, recording = false, onLocate = { haptics.tick(.3f); locate() }, onHome = { haptics.tick(.3f); view.home() })
+        RunHint(scene, view, night, free = bare && !where.asking, chosen = chosen != null, drawn = mtnDrawn, again = hintAgain)
+        if (where.asking) WhereAsk(night, onGo = locateGo, onLater = { where.asking = false; Qa.log("redesign where ask later") })
+        androidx.activity.compose.BackHandler(enabled = where.asking) { where.asking = false }
+        // part 3 (R01 to R15) over everything of the mountain
+        if (pp != null && (people.open || people.toast != null)) {
+            val todayP = java.time.LocalDate.now(io.github.pini236.skiapp.meet.Meet.GUDAURI)
+            LivePeople(pp, people, night, haptics, plan, around?.trip, todayP,
+                onOpenMeetup = { _, m ->
+                    val s = plan?.byId?.get(m.station)
+                    people.close(); meetOpen(true)
+                    if (s != null) {
+                        val z = m.at.atOffset(io.github.pini236.skiapp.meet.Meet.GUDAURI)
+                        meet.sid = s.id; meet.day = z.toLocalDate(); meet.time = z.toLocalTime(); meet.preset = null; meet.fromGroup = true
+                    }
+                    Qa.log("redesign people meetup open ${m.station}")
+                },
+                onNewMeetup = { _ -> people.close(); meetOpen(true); Qa.log("redesign people meetup new") })
         }
     }
 }

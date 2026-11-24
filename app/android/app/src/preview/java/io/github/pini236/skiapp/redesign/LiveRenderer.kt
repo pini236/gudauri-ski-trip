@@ -225,7 +225,7 @@ class LiveRenderer(
      */
     @Volatile var needTextures: (() -> Unit)? = null
     private var hadTextures = false
-    private var drawn = false
+    @Volatile var drawn = false; private set
     /** The chosen run (by key), drawn as a line of light by day and of brighter light at night; the rest a little dimmer. */
     @Volatile var chosen: String? = null
     @Volatile var pal: PeakData.Pal? = null

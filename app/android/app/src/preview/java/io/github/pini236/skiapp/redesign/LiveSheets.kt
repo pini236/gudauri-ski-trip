@@ -64,7 +64,9 @@ import java.util.Locale
  * skiing or riding. Android's sheet (section 8): full width from the bottom, rounded only on top, an opaque surface at
  * 92 % with no blur, a border only on top.
  */
-internal class SheetInk(night: Boolean) {
+internal class SheetInk(val night: Boolean) {
+    /** Text on red (part 5, section 1): white by day, dark at night, where red is light. */
+    val onRed get() = if (night) Color(0xFF1B0705) else Color.White
     val ink = if (night) Color(0xFFEAF1F8) else Color(0xFF0E2233)
     val ink2 = if (night) Color(0xFFA9B9CC) else Color(0xFF40556A)
     val line = if (night) Color(0x2EEAF1F8) else Color(0x240E2233)

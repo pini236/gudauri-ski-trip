@@ -1209,6 +1209,15 @@ redesign() {
   mark; qa "--es qa.redesign trip:tear"; rd_settled; shot redesign-trip-torn
   mark; qa "--es qa.mode night --es qa.redesign trip"; rd_settled; shot redesign-trip-night
   mark; qa "--es qa.mode auto --es qa.redesign trip:off"; sleep .5
+  # part 5 (T09): the full form, from "edit": both cards, the number in place, ski days outside the trip, delete armed,
+  # the night, and the return gone (one line, "add the return"); nothing is saved
+  mark; qa "--es qa.redesign trip:form"; waitlog "redesign trip form edit" 10 || fail "redesign: the trip form did not open"; rd_settled; shot redesign-trip-form
+  mark; qa "--es qa.redesign form:num"; sleep 1.5; shot redesign-trip-form-number
+  adb shell input keyevent 4; sleep 1
+  mark; qa "--es qa.redesign form:skiOut"; waitlog "redesign trip form ski outside" 10; sleep 1; shot redesign-trip-form-error
+  mark; qa "--es qa.redesign form:arm"; waitlog "redesign trip delete armed" 10; sleep 1; shot redesign-trip-form-delete
+  mark; qa "--es qa.mode night --es qa.redesign form:noRet"; rd_settled; shot redesign-trip-form-night
+  mark; qa "--es qa.mode auto --es qa.redesign trip:off"; sleep .5
   # part 2 (Q09): the ski pass over the mountain, for the trip's four days, a child, and two weeks
   mark; qa "--es qa.redesign skipass"; waitlog "redesign skipass open" 10 || fail "redesign: the ski pass did not open"; rd_settled; shot redesign-skipass
   mark; qa "--es qa.redesign skipass:child"; waitlog "redesign skipass child" 10; rd_settled; shot redesign-skipass-child
@@ -1219,6 +1228,75 @@ redesign() {
   mark; qa "--es qa.status none --es qa.redesign season"; waitlog "redesign season shown" 10 || fail "redesign: the season count did not show"; rd_settled; shot redesign-season
   mark; qa "--es qa.mode night --es qa.redesign season"; rd_settled; shot redesign-season-night
   mark; qa "--es qa.mode auto --es qa.redesign season:off"; waitlog "redesign season closed" 10; rd_settled; shot redesign-season-pill
+  # part 3 (R01 to R15, design/handoff/2026-11-23-redesign-people): the people over the mountain, with the pretend
+  # server's group; an admin first (the account), then a guest in it, then nobody
+  mark; qa "--es qa.group admin --es qa.redesign people:me"; waitlog "redesign people me account 1" 15 || fail "redesign: me (an account) did not open"; rd_settled; shot redesign-me
+  mark; qa "--es qa.redesign people:settings"; waitlog "redesign people settings" 10; rd_settled; shot redesign-settings
+  mark; qa "--es qa.redesign people:lang"; waitlog "redesign people lang" 10; rd_settled; shot redesign-language
+  mark; qa "--es qa.redesign people:about"; waitlog "redesign people about" 10; rd_settled; shot redesign-about
+  mark; qa "--es qa.redesign people:off"; waitlog "redesign people closed" 10
+  mark; qa "--es qa.redesign people:group"; waitlog "redesign people group flights" 15 || fail "redesign: the group did not open on its flights"; rd_settled; shot redesign-group-flights
+  for t in meetups scores members; do
+    mark; qa "--es qa.redesign people:tab:$t"; waitlog "redesign people group $t" 10 || fail "redesign: the group's $t did not show"; sleep 1.5; shot "redesign-group-$t"
+  done
+  mark; qa "--es qa.mode night --es qa.redesign people:tab:meetups"; rd_settled; shot redesign-group-night
+  mark; qa "--es qa.mode auto --es qa.redesign people:off"; waitlog "redesign people closed" 10
+  mark; qa "--es qa.redesign people:invite"; waitlog "redesign people invite" 15 || fail "redesign: the invite did not open"; rd_settled; shot redesign-invite
+  mark; qa "--es qa.redesign people:off"; waitlog "redesign people closed" 10
+  # completion part 5 (T01, T04 to T08), the admin's seed: a new group, the member's menu and the red rows, name and
+  # dates, deleting the account (armed), the licences and one licence's text
+  mark; qa "--es qa.redesign people:new"; waitlog "redesign people new" 10; rd_settled; shot redesign-new-group
+  mark; qa "--es qa.redesign people:off"; waitlog "redesign people closed" 10
+  mark; qa "--es qa.redesign people:group"; waitlog "redesign people group" 15; qa "--es qa.redesign people:tab:members"; waitlog "redesign people group members" 10
+  mark; qa "--es qa.redesign people:menu"; waitlog "redesign people member menu" 10 || fail "redesign: the member's menu did not open"; sleep 1.5; shot redesign-member-menu
+  mark; qa "--es qa.redesign people:closemenu"; sleep 1; qa "--es qa.redesign people:arm:remove"; waitlog "redesign people armed rm:" 10; sleep 1; shot redesign-member-remove
+  mark; qa "--es qa.redesign people:namedates"; waitlog "redesign people name dates" 10; sleep 1.5; shot redesign-name-dates
+  mark; qa "--es qa.redesign people:closemenu"; sleep 1; qa "--es qa.redesign people:arm:leave"; waitlog "redesign people armed leave" 10; sleep 1; shot redesign-leave-armed
+  mark; qa "--es qa.redesign people:off"; waitlog "redesign people closed" 10
+  mark; qa "--es qa.redesign people:delete"; waitlog "redesign people delete" 10; rd_settled; shot redesign-delete
+  if tapText "מחיקת החשבון שלי"; then waitlog "redesign people delete armed" 10 && { sleep 1; shot redesign-delete-armed; }; fi
+  mark; qa "--es qa.redesign people:off"; waitlog "redesign people closed" 10
+  mark; qa "--es qa.redesign people:licenses"; waitlog "redesign people licenses" 10; rd_settled; shot redesign-licenses
+  mark; qa "--es qa.redesign people:license:karantina"; waitlog "redesign people license karantina" 10 || fail "redesign: a licence's text did not show"; sleep 1; shot redesign-license-text
+  mark; qa "--es qa.redesign people:off"; waitlog "redesign people closed" 10
+  # T02, T03 with nobody signed in: "I'm already in the group" on the seeded code
+  mark; qa "--es qa.group invited --es qa.redesign people:join:KZBQRM"; waitlog "redesign people join" 15; sleep 2
+  mark; qa "--es qa.redesign people:reclaim"; waitlog "redesign people reclaim" 15 || fail "redesign: the reclaim list did not show"; rd_settled; shot redesign-reclaim
+  mark; qa "--es qa.redesign people:off"; waitlog "redesign people closed" 10
+  # T10: all the places near Goodaura's bottom station
+  mark; qa "--es qa.redesign lift:Goodaura"; waitlog "redesign lift panel Goodaura" 15
+  mark; qa "--es qa.redesign places:bottom"; waitlog "redesign places" 10 && { sleep 1.5; shot redesign-places; }
+  mark; qa "--es qa.redesign lifts:off"; sleep 1
+  mark; qa "--es qa.group member --es qa.redesign people:me"; waitlog "redesign people me guest" 15 || fail "redesign: me (a guest) did not open"; rd_settled; shot redesign-me-guest
+  mark; qa "--es qa.redesign people:off"; waitlog "redesign people closed" 10
+  mark; qa "--es qa.group none --es qa.redesign people:me"; waitlog "redesign people me nobody" 15 || fail "redesign: me (nobody) did not open"; rd_settled; shot redesign-me-nobody
+  mark; qa "--es qa.redesign people:signin"; waitlog "redesign people signin" 10; rd_settled; shot redesign-signin
+  mark; qa "--es qa.redesign people:off"; waitlog "redesign people closed" 10
+  mark; qa "--es qa.redesign people:gate"; waitlog "redesign people gate" 10; rd_settled; shot redesign-gate
+  mark; qa "--es qa.redesign people:off"; waitlog "redesign people closed" 10
+  # completion part 4 (S02 to S04, S08): the first-time sheet, "where am I" on a run, out of the area, the compass
+  mark; qa "--es qa.redesign where:ask"; waitlog "redesign where ask" 10 || fail "redesign: the where-am-I sheet did not open"; rd_settled; shot redesign-where-ask
+  mark; qa "--es qa.redesign where:off"; sleep 1
+  adb shell pm grant "$PKG" android.permission.ACCESS_FINE_LOCATION; adb shell pm grant "$PKG" android.permission.ACCESS_COARSE_LOCATION
+  adb shell cmd location set-location-enabled true 2> /dev/null
+  geo 42.482631 44.483401; sleep 1
+  mark; qa "--es qa.redesign where"; waitlog "redesign where run Tatra 2" 25 || fail "redesign: where am I did not find Tatra 2"; rd_settled; shot redesign-where-run
+  mark; geo 41.7151 44.8271; waitlog "redesign where outside" 25 && { rd_settled; shot redesign-where-outside; }
+  mark; qa "--es qa.redesign where:off"; waitlog "redesign where off" 10
+  # S07: the run's full sheet (the conditions with a fresh forecast, the videos); then the compass once the view moved
+  mark; qa "--es qa.weather fresh --es qa.redesign 'pick:Tatra 2'"; waitlog "redesign live framed Tatra 2" 20
+  mark; qa "--es qa.redesign run:full"; waitlog "redesign run full Tatra 2" 15 || fail "redesign: the run's full sheet did not open"; sleep 2; rd_settled; shot redesign-run-full
+  mark; qa "--es qa.redesign unpick"; waitlog "redesign compass shown" 15 && { rd_settled; shot redesign-compass; }
+  mark; qa "--es qa.redesign home"; waitlog "redesign compass gone" 15 || fail "redesign: the compass did not go after home"
+  # S09: the first hint, a ring on a blue run near the middle (the debug build shows it only when asked)
+  mark; qa "--es qa.redesign hint:reset"; waitlog "redesign hint run" 15 && { sleep 1; shot redesign-hint-run; }
+  mark; qa "--es qa.redesign 'pick:Tatra 2'"; waitlog "redesign hint done hint_run" 15 || fail "redesign: choosing a run did not end the first hint"
+  mark; qa "--es qa.redesign unpick"; sleep 1; qa "--es qa.redesign home"; sleep 1
+  # S05, S06: "the mountain now" on the weather tab, with a fresh forecast and with none
+  mark; qa "--es qa.weather fresh --es qa.redesign weather"; waitlog "redesign weather fresh" 15 || fail "redesign: the weather tab did not open"; rd_settled; shot redesign-now-weather
+  mark; qa "--es qa.weather none --es qa.redesign weather"; waitlog "redesign weather none" 15; rd_settled; shot redesign-now-weather-none
+  mark; qa "--es qa.redesign lifts"; sleep 1; rd_settled; shot redesign-now-lifts
+  mark; qa "--es qa.redesign lifts:off"; sleep 1
   mark; qa "--es qa.mode auto --es qa.redesign painted"; waitlog "redesign live closed" 10; sleep 1.5; shot redesign-live-back
   qa "--es qa.mode auto --es qa.redesign close"; sleep 1.5; shot redesign-closed
   # round 4 (board L06): the sample day on the mountain, its lines of light by speed and the dotted rides, by day and
