@@ -54,11 +54,18 @@ import io.github.pini236.skiapp.home.DayNight
  */
 object Redesign {
     /**
-     * Whether the redesign is in this build (docs/ARCHITECTURE.md, 24.11.2026): always in the test build; in the store
-     * build only with its switch (app/android/REDESIGN_STORE_ON). Off, every way in below returns today's screen before
-     * anything of the redesign is touched: no static start, no GL context, no asset read. A test can turn it off.
+     * The redesign is the app (Pini, 24.11.2026: no switch; docs/ARCHITECTURE.md). The way back to today's screens is
+     * only a fall: when its data or a picture does not load, every way in below gives today's screen back for the rest
+     * of the run, before anything else of the redesign is touched. A test can turn it off.
      */
-    @Volatile internal var on: () -> Boolean = { io.github.pini236.skiapp.BuildConfig.REDESIGN }
+    @Volatile internal var on: () -> Boolean = { !broken }
+    @Volatile private var broken = false
+
+    /** Something the redesign cannot work without did not load ([what], for the log): today's screens from now on. */
+    fun fail(what: String) { if (!broken) { broken = true; io.github.pini236.skiapp.qa.Qa.log("redesign failed $what") } }
+
+    /** The live model needs OpenGL ES 3 (the manifest asks for it; a phone that still lacks it keeps the painted mountain). */
+    fun liveOk(glEsVersion: Int): Boolean = glEsVersion >= 0x30000
 
     /** The emulator run's hook (qa.redesign, debug builds only, app/android/qa/README.md). */
     fun qa(cmd: String) { if (on() && io.github.pini236.skiapp.BuildConfig.DEBUG) RedesignQa.send(cmd) }
@@ -179,12 +186,18 @@ object Redesign {
                     "painted" -> live = false
                 }
             }
+            val ctx = androidx.compose.ui.platform.LocalContext.current
+            // the live model: OpenGL ES 3 and its own file (5 KB); without either, the painted mountain only
+            val gles = remember {
+                liveOk((ctx.getSystemService(android.content.Context.ACTIVITY_SERVICE) as? android.app.ActivityManager)?.deviceConfigurationInfo?.reqGlEsVersion ?: 0) &&
+                    runCatching { LiveData.load(ctx) }.onFailure { io.github.pini236.skiapp.qa.Qa.log("redesign failed live data") }.isSuccess
+            }
             Box(Modifier.fillMaxSize()) {
                 // the live model only over home: never with the map open too (the height model would sit on the GPU
                 // twice, docs/ARCHITECTURE.md)
-                if (scene != null && home && (live || shown.value > 0f)) LiveMountain(scene, mode, haptics, status, inSeason, forMe, onForMe, around, onPainted = { live = false }, onLeave = { open = false })
+                if (scene != null && home && gles && (live || shown.value > 0f)) LiveMountain(scene, mode, haptics, status, inSeason, forMe, onForMe, around, onPainted = { live = false }, onLeave = { open = false })
                 if (!live || shown.value < 1f) Box(Modifier.fillMaxSize().graphicsLayer { alpha = 1f - shown.value }) {
-                    PeakScreen(mode, haptics, onLive = if (scene != null && home) ({ live = true }) else null) { open = false }
+                    PeakScreen(mode, haptics, onLive = if (scene != null && home && gles) ({ live = true }) else null) { open = false }
                 }
             }
         } else {

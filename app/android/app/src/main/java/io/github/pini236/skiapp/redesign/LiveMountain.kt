@@ -95,7 +95,7 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
     // the font chain by this screen's language (redesign part 7; made at start, again here when the language differs)
     remember(context) { GudiFont.init(context) }
     val scope = rememberCoroutineScope()
-    val data by produceState<PeakData?>(null) { value = withContext(Dispatchers.IO) { PeakData.load(context) } }
+    val data by produceState<PeakData?>(null) { value = withContext(Dispatchers.IO) { runCatching { PeakData.load(context) }.onFailure { Redesign.fail("data") }.getOrNull() } }
     var now by remember { mutableLongStateOf(System.currentTimeMillis()) }
     LaunchedEffect(Unit) { while (true) { delay(60_000); now = System.currentTimeMillis() } }
     var scrub by remember { mutableStateOf<Float?>(null) }

@@ -12,7 +12,7 @@ import kotlin.math.abs
  * height, the texel checks and the softened shadow.
  */
 class LiveTest {
-    private val d = PeakData.parse(File("src/redesign/assets/redesign/peak-poc.json").readText())
+    private val d = PeakData.parse(File("src/main/assets/redesign/peak-poc.json").readText())
 
     @Test fun theLiveModelOpensFromThePicturesSide() {
         // the picture looks north: of two points on one meridian, the northern one is farther (higher on the screen)
@@ -25,7 +25,7 @@ class LiveTest {
         assertEquals(0f, LiveOpen.YAW, 0f)
     }
 
-    private val live = LiveData.parse(File("src/redesign/assets/redesign/live/peak-live.json").readText())
+    private val live = LiveData.parse(File("src/main/assets/redesign/live/peak-live.json").readText())
     private val up = floatArrayOf(0f, 1f, 0f)
     private fun light(alt: Float, am: Boolean = true, moon: Boolean = true) = LiveLight.at(live.keys, alt, am, floatArrayOf(.3f, .2f, -.9f), up, moon)
 
@@ -36,10 +36,10 @@ class LiveTest {
         assertEquals(LiveOpen.YAW, Math.toRadians(live.camera.yawDeg.toDouble()).toFloat(), 0f)
         assertTrue(live.village.size % 3 == 0 && live.village.isNotEmpty())
         // every texture the shader reads is in the test build, and every check names one of them
-        for (t in LiveData.TEXTURES) assertTrue(t, File("src/redesign/assets/redesign/live/$t.webp").exists())
+        for (t in LiveData.TEXTURES) assertTrue(t, File("src/main/assets/redesign/live/$t.webp").exists())
         assertTrue(live.checks.all { it.tex in LiveData.TEXTURES })
         // the five, packed, inside the architect's 1 MB
-        assertTrue(LiveData.TEXTURES.sumOf { File("src/redesign/assets/redesign/live/$it.webp").length() } <= 1L shl 20)
+        assertTrue(LiveData.TEXTURES.sumOf { File("src/main/assets/redesign/live/$it.webp").length() } <= 1L shl 20)
     }
 
     @Test fun eachKeyIsItselfAtItsOwnHeight() {

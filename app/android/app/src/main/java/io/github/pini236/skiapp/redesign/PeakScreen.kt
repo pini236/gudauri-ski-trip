@@ -150,7 +150,10 @@ private class Pictures(private val context: android.content.Context) {
     @Synchronized fun peek(file: String): ImageBitmap? = cache[file]
     fun get(file: String): ImageBitmap {
         peek(file)?.let { return it }
-        val bmp = context.assets.open("redesign/$file").use { BitmapFactory.decodeStream(it) }.also { it.prepareToDraw() }.asImageBitmap()
+        // a picture that does not load: today's screens (Redesign.fail), and a blank one until the screen goes
+        val raw = runCatching { context.assets.open("redesign/$file").use { BitmapFactory.decodeStream(it) } }.getOrNull()
+            ?: run { Redesign.fail("picture $file"); android.graphics.Bitmap.createBitmap(1, 1, android.graphics.Bitmap.Config.ARGB_8888) }
+        val bmp = raw.also { it.prepareToDraw() }.asImageBitmap()
         synchronized(this) { cache[file] = bmp; while (cache.size > 3) cache.remove(cache.keys.first()) }
         return bmp
     }
@@ -163,7 +166,7 @@ fun PeakScreen(mode: DayNight.Mode, haptics: Haptics, onLive: (() -> Unit)? = nu
     val context = LocalContext.current
     val density = LocalDensity.current
     val reduced = remember { Motion.reduced(context) }
-    val data by produceState<PeakData?>(null) { value = withContext(Dispatchers.IO) { PeakData.load(context) } }
+    val data by produceState<PeakData?>(null) { value = withContext(Dispatchers.IO) { runCatching { PeakData.load(context) }.onFailure { Redesign.fail("data") }.getOrNull() } }
     val d = data
     if (d == null) { Box(Modifier.fillMaxSize().background(Color(0xFF9DB6D8))); return }
     val pics = remember { Pictures(context) }

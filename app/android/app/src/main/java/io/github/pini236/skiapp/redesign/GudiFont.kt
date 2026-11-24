@@ -74,8 +74,7 @@ internal val Gudi: FontFamily get() = GudiFont.current
 
 /** Makes [GudiFont] at the app's start (a provider runs before any screen); it holds no data and answers nothing. */
 class GudiFontInit : android.content.ContentProvider() {
-    // off (the store build without its switch) it reads nothing
-    override fun onCreate(): Boolean { if (Redesign.on()) context?.let { runCatching { GudiFont.init(it) } }; return true }
+    override fun onCreate(): Boolean { context?.let { runCatching { GudiFont.init(it) } }; return true }
     override fun query(u: android.net.Uri, p: Array<out String>?, s: String?, a: Array<out String>?, o: String?): android.database.Cursor? = null
     override fun getType(u: android.net.Uri): String? = null
     override fun insert(u: android.net.Uri, v: android.content.ContentValues?): android.net.Uri? = null

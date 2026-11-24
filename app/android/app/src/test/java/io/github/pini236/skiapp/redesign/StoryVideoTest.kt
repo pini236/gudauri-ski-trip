@@ -51,7 +51,7 @@ class StoryVideoTest {
      *  the card, and the offset's range went empty. For every card size and any day, the placement never throws and
      *  the picture covers the card. */
     @Test fun thePlacementNeverThrowsAndAlwaysCovers() {
-        val v = PeakData.parse(File("src/redesign/assets/redesign/peak-poc.json").readText()).hero
+        val v = PeakData.parse(File("src/main/assets/redesign/peak-poc.json").readText()).hero
         val days = listOf(emptyList(), listOf(floatArrayOf(100f, 200f, 300f, 400f)), listOf(floatArrayOf(5f, 5f)), listOf(floatArrayOf(0f, 0f, v.w, v.h)))
         for (w in listOf(1f, 100f, 333.3f, 359.7f, 391.5f, 1007f, 1080f)) for (h in listOf(1f, 120f, 300f, 787.5f, 1350f, 2400f))
             for (day in days) for (area in listOf(h, h - 120f, 1f)) {
