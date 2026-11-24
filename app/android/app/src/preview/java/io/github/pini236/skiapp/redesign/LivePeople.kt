@@ -133,6 +133,8 @@ internal sealed class PLayer(val tag: String) {
     object Language : PLayer("lang")
     object About : PLayer("about")
     object Delete : PLayer("delete")
+    object Licenses : PLayer("licenses")
+    class License(val key: String) : PLayer("license")
 }
 
 /** What of part 3 is open over the mountain, as a stack: the back arrow and the system's back go one down. */
@@ -410,13 +412,15 @@ internal fun BoxScope.LivePeople(p: People, ui: PeopleUi, night: Boolean, haptic
         PLayer.SignIn -> SignInSheet(p, ui, k)
         PLayer.Gate -> GateSheet(p, ui, k)
         is PLayer.Join -> JoinScreen(p, ui, k, l.code)
-        is PLayer.Group -> GroupSheet(p, ui, k, l.id, plan, trip, today, onOpenMeetup, onNewMeetup)
+        is PLayer.Group -> GroupSheet(p, ui, k, l.id, plan, trip, today, onOpenMeetup, onNewMeetup, haptics)
         is PLayer.Invite -> InviteScreen(p, ui, k, l.id)
         PLayer.NewGroup -> NewGroupScreen(p, ui, k, trip, today, haptics)
         PLayer.Settings -> SettingsScreen(p, ui, k)
         PLayer.Language -> { SettingsScreen(p, ui, k); LanguageSheet(p, ui, k) }
         PLayer.About -> AboutScreen(p, ui, k)
         PLayer.Delete -> DeleteScreen(p, ui, k)
+        PLayer.Licenses -> LicensesScreen(ui, k)
+        is PLayer.License -> LicenseText(ui, k, l.key)
     }
     ui.toast?.let { t ->
         LaunchedEffect(t) { delay(4000); ui.toast = null }
@@ -683,6 +687,7 @@ private fun BoxScope.JoinScreen(p: People, ui: PeopleUi, k: SheetInk, code: Stri
     var reclaim by remember { mutableStateOf(false) }
     val act = rememberAct()
     val scope0 = rememberCoroutineScope()
+    LaunchedEffectQa { c -> if (c == "people:reclaim") reclaim = true }
     // a request decided while this shows: the group opens by itself
     DisposableEffect(pending) {
         val stop = if (pending) api.watchMine { approved -> v?.groupId?.let { g -> if (g in approved) { ui.changes++; ui.swap(PLayer.Group(g)) } } } else ({})
@@ -860,7 +865,7 @@ private fun BoxScope.NewGroupScreen(p: People, ui: PeopleUi, k: SheetInk, trip: 
 
 @Composable
 private fun BoxScope.GroupSheet(p: People, ui: PeopleUi, k: SheetInk, id: String, plan: MeetPlan?, trip: Trip?, today: LocalDate,
-                                onOpenMeetup: (String, Meetup) -> Unit, onNewMeetup: (String) -> Unit) {
+                                onOpenMeetup: (String, Meetup) -> Unit, onNewMeetup: (String) -> Unit, haptics: Haptics) {
     val api = p.api
     val watch = remember(id) { api.watch(id) }
     DisposableEffect(watch) { watch.open(); onDispose { watch.close() } }
@@ -921,7 +926,7 @@ private fun BoxScope.GroupSheet(p: People, ui: PeopleUi, k: SheetInk, id: String
                         GroupTab.FLIGHTS -> Flights(g, k, trip, act, onSame = { tid -> act.run { p.onMyTrip(api.sameFlight(id, tid)); watch.refresh() } },
                             onShowMine = { act.run { api.showMyTrip(id, g.me?.name ?: "", trip); watch.refresh() } }, onAdd = p.onTripForm)
                         GroupTab.SCORES -> Scores(p, g, k)
-                        GroupTab.MEMBERS -> Members(p, ui, g, k, act, reload = { watch.refresh() })
+                        GroupTab.MEMBERS -> Members(p, ui, g, k, act, today, haptics, reload = { watch.refresh() })
                     }
                     ErrLine(act.error, k)
                 }
@@ -1130,11 +1135,24 @@ private fun Scores(p: People, g: Group, k: SheetInk) {
 /** R06: requests for admins, the members, and the group's actions; red ones ask twice. */
 @OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
 @Composable
-private fun Members(p: People, ui: PeopleUi, g: Group, k: SheetInk, act: Act, reload: () -> Unit) {
+private fun Members(p: People, ui: PeopleUi, g: Group, k: SheetInk, act: Act, today: LocalDate, haptics: Haptics, reload: () -> Unit) {
     val api = p.api
+    // a red action asks twice (T04, T06): the first tap turns its row into a red confirmation for four seconds
     var armed by remember { mutableStateOf<String?>(null) }
-    LaunchedEffect(armed) { if (armed != null) { delay(4000); armed = null } }
+    LaunchedEffect(armed) { if (armed != null) { Qa.log("redesign people armed $armed"); delay(4000); armed = null } }
     var menuFor by remember { mutableStateOf<Member?>(null) }
+    var fillFor by remember { mutableStateOf<Member?>(null) }
+    var editing by remember { mutableStateOf(false) }
+    val mustRegister = stringResource(R.string.group_err_admin_must_register)
+    LaunchedEffectQa { c ->
+        when (c) {
+            "people:menu" -> g.members.firstOrNull { !it.me }?.let { menuFor = it; Qa.log("redesign people member menu") }
+            "people:namedates" -> { editing = true; Qa.log("redesign people name dates") }
+            "people:arm:leave" -> armed = "leave"
+            "people:arm:remove" -> g.members.firstOrNull { !it.me }?.let { armed = "rm:" + it.userId }
+            "people:closemenu" -> { menuFor = null; editing = false; fillFor = null }
+        }
+    }
     if (g.admin && g.requests.isNotEmpty()) Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(22.dp)).border(1.dp, k.line, RoundedCornerShape(22.dp))
         .padding(horizontal = 16.dp, vertical = 10.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Text(stringResource(R.string.app_g_requests), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 12.5.sp, color = k.ink2)
@@ -1154,6 +1172,10 @@ private fun Members(p: People, ui: PeopleUi, g: Group, k: SheetInk, act: Act, re
     }
     val meSuffix = stringResource(R.string.app_g_me_suffix)
     for (m in g.members) {
+        if (armed == "rm:" + m.userId) {
+            RedConfirm(stringResource(R.string.group_remove_confirm, m.name), k) { armed = null; act.run { api.removeMember(g.id, m.userId); reload() } }
+            continue
+        }
         val leg = m.trip?.out
         val sub = if (leg != null) stringResource(R.string.app_grp_flight_line, stringResource(R.string.app_pass_out), io.github.pini236.skiapp.season.shortDate(leg.date),
             leg.flight.ifBlank { leg.toCode ?: "" }) else stringResource(R.string.group_no_flight)
@@ -1163,36 +1185,96 @@ private fun Members(p: People, ui: PeopleUi, g: Group, k: SheetInk, act: Act, re
                     fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 11.sp, color = k.ink2)
                 if (g.admin && !m.me) {
                     val label = stringResource(R.string.app_g_actions_on, m.name)
-                    Box(Modifier.size(44.dp).semantics { contentDescription = label; role = Role.Button }.clickable { menuFor = m }, contentAlignment = Alignment.Center) {
+                    Box(Modifier.size(44.dp).semantics { contentDescription = label; role = Role.Button }.clickable { menuFor = m; Qa.log("redesign people member menu") }, contentAlignment = Alignment.Center) {
                         Icon(Icons.more, null, Modifier.size(22.dp), tint = k.ink2)
                     }
                 }
             })
     }
+    // T06: under the members, the admin's two rows and the red ones (two taps each)
     PBoxless(k) {
-        if (g.admin) PRow(stringResource(R.string.app_g_name_dates), k) { ui.go(PLayer.Invite(g.id)) }
-        PRow(stringResource(if (armed == "leave") R.string.group_leave_confirm else R.string.app_g_leave), k, danger = true, last = !g.admin) {
-            if (armed == "leave") act.run { api.leave(g.id); ui.changes++; p.onChanged(); ui.back() } else armed = "leave"
-        }
-        if (g.admin) PRow(stringResource(if (armed == "delete") R.string.group_delete_confirm else R.string.app_g_delete), k, danger = true, last = true) {
-            if (armed == "delete") act.run { api.deleteGroup(g.id); ui.changes++; p.onChanged(); ui.back() } else armed = "delete"
+        if (g.admin) PRow(stringResource(R.string.app_g_name_dates), k) { editing = true; Qa.log("redesign people name dates") }
+        if (g.admin) PRow(stringResource(R.string.app_g_invite_settings_link), k) { ui.go(PLayer.Invite(g.id)) }
+        if (armed == "leave") RedConfirm(stringResource(R.string.group_leave_confirm), k) { act.run { api.leave(g.id); ui.changes++; p.onChanged(); ui.back() } }
+        else PRow(stringResource(R.string.app_g_leave), k, danger = true, last = !g.admin) { armed = "leave" }
+        if (g.admin) {
+            if (armed == "delete") RedConfirm(stringResource(R.string.group_delete_confirm), k) { act.run { api.deleteGroup(g.id); ui.changes++; p.onChanged(); ui.back() } }
+            else PRow(stringResource(R.string.app_g_delete), k, danger = true, last = true) { armed = "delete" }
         }
     }
     if (g.members.none { it.role == GRole.ADMIN } && api.me()?.registered == true)
         TextLink(stringResource(R.string.group_claim_admin), k) { act.run { api.claimAdmin(g.id); reload() } }
-    // the three dots: Android's bottom sheet of the member's actions
+    // T04: the three dots, Android's bottom sheet of the member's actions, rows of 54
     menuFor?.let { m ->
         androidx.compose.material3.ModalBottomSheet(onDismissRequest = { menuFor = null }, containerColor = k.surf.copy(alpha = 1f)) {
             Column(Modifier.padding(horizontal = 16.dp).navigationBarsPadding()) {
                 Text("⁨${m.name}⁩", Modifier.padding(bottom = 8.dp), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 17.sp, color = k.ink)
-                if (m.role == GRole.MEMBER) PRow(stringResource(R.string.app_g_make_admin), k) { menuFor = null; act.run { api.setRole(g.id, m.userId, GRole.ADMIN); reload() } }
+                if (m.role == GRole.MEMBER) PRow(stringResource(R.string.app_g_make_admin), k) {
+                    menuFor = null
+                    if (!m.registered) ui.toast = mustRegister else act.run { api.setRole(g.id, m.userId, GRole.ADMIN); reload() }
+                }
                 else PRow(stringResource(R.string.app_g_unmake_admin), k) { menuFor = null; act.run { api.setRole(g.id, m.userId, GRole.MEMBER); reload() } }
-                val sure = armed == "rm:" + m.userId
-                PRow(if (sure) stringResource(R.string.group_remove_confirm, m.name) else stringResource(R.string.app_g_remove), k, danger = true, last = true) {
-                    if (sure) { menuFor = null; armed = null; act.run { api.removeMember(g.id, m.userId); reload() } } else armed = "rm:" + m.userId
+                PRow(stringResource(R.string.app_g_fill_for), k) {
+                    menuFor = null
+                    if (g.members.any { it.trip != null }) fillFor = m else p.onTripFor(g.id, m.userId)
+                }
+                PRow(stringResource(R.string.app_g_remove), k, danger = true, last = true) { menuFor = null; armed = "rm:" + m.userId }
+            }
+        }
+    }
+    // "fill for him": the flights already in the group, and "another flight" (the trip form for him)
+    fillFor?.let { m ->
+        androidx.compose.material3.ModalBottomSheet(onDismissRequest = { fillFor = null }, containerColor = k.surf.copy(alpha = 1f)) {
+            Column(Modifier.padding(horizontal = 16.dp).navigationBarsPadding(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text(stringResource(R.string.app_g_fill_for), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 17.sp, color = k.ink)
+                Small(stringResource(R.string.app_g_fill_sub), k)
+                for (c in PeopleRules.cards(g.members, ret = false)) {
+                    val src = c.members.firstNotNullOfOrNull { it.trip } ?: continue
+                    PRow((c.leg.flight.ifBlank { "${c.leg.fromCode ?: ""} → ${c.leg.toCode ?: ""}" }) + " · " + io.github.pini236.skiapp.season.shortDate(c.leg.date), k,
+                        sub = c.members.joinToString(", ") { it.name }) {
+                        fillFor = null; act.run { api.setMemberTrip(g.id, m.userId, src); reload() }
+                    }
+                }
+                PRow(stringResource(R.string.app_g_other_flight), k, sub = stringResource(R.string.app_g_fill_new_sub), last = true) { fillFor = null; p.onTripFor(g.id, m.userId) }
+            }
+        }
+    }
+    // T05: name and dates, a plain sheet (the whole screen dims)
+    if (editing) androidx.compose.material3.ModalBottomSheet(onDismissRequest = { editing = false }, containerColor = k.surf.copy(alpha = 1f)) {
+        var name by remember { mutableStateOf(g.name) }
+        var from by remember { mutableStateOf(g.startsOn) }
+        var to by remember { mutableStateOf(g.endsOn) }
+        var cal by remember { mutableStateOf(false) }
+        val edit = rememberAct()
+        Column(Modifier.padding(horizontal = 16.dp).navigationBarsPadding().imePadding(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            Text(stringResource(R.string.app_g_name_dates), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 19.sp, color = k.ink)
+            if (cal) LiveCalendar(from?.let { Trip(io.github.pini236.skiapp.trip.Leg(it), to?.let { r -> io.github.pini236.skiapp.trip.Leg(r) }) }, today, k, haptics) { nt ->
+                from = nt.out.date; to = nt.ret?.date; cal = false
+            } else {
+                Labeled(stringResource(R.string.app_g_group_name), k) { PField(name, stringResource(R.string.app_g_group_name_hint), k) { name = it.take(60) } }
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    DatePill(stringResource(R.string.app_g_from_date), from, k, Modifier.weight(1f)) { cal = true }
+                    DatePill(stringResource(R.string.app_g_to_date), to, k, Modifier.weight(1f)) { cal = true }
+                }
+                ErrLine(edit.error, k)
+                AccButton(stringResource(R.string.app_save), k, enabled = name.isNotBlank() && !edit.busy) {
+                    edit.run { api.updateGroup(g.id, name.trim(), from, to); reload(); editing = false }
+                }
+                Box(Modifier.fillMaxWidth().heightIn(min = 44.dp).clickable { editing = false }, contentAlignment = Alignment.Center) {
+                    Text(stringResource(R.string.app_cancel), fontFamily = Plex, fontWeight = FontWeight.Medium, fontSize = 15.sp, color = k.ink)
                 }
             }
         }
+    }
+}
+
+/** The red confirmation (part 5, section 1): the whole row on red, its text bold; announced when it shows. */
+@Composable
+private fun RedConfirm(text: String, k: SheetInk, onClick: () -> Unit) {
+    Box(Modifier.fillMaxWidth().heightIn(min = 54.dp).clip(RoundedCornerShape(14.dp)).background(k.red)
+        .semantics { role = Role.Button; liveRegion = LiveRegionMode.Assertive }.clickable(onClick = onClick).padding(horizontal = 12.dp),
+        contentAlignment = Alignment.CenterStart) {
+        Text(text, fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 15.5.sp, color = k.onRed)
     }
 }
 
@@ -1383,7 +1465,54 @@ private fun BoxScope.AboutScreen(p: People, ui: PeopleUi, k: SheetInk) {
         PBox(k) {
             PRow(stringResource(R.string.app_about_privacy), k) { p.onPrivacy() }
             PRow(stringResource(R.string.about_support), k) { p.onSupport() }
-            PRow(stringResource(R.string.app_licenses_row), k, sub = stringResource(R.string.app_licenses_sub), last = true) { p.onLicenses() }
+            PRow(stringResource(R.string.app_licenses_row), k, sub = stringResource(R.string.app_licenses_sub), last = true) { ui.go(PLayer.Licenses) }
+        }
+    }
+}
+
+// ---------------------------------------------------------------------------------------------- T08: the licences
+
+/**
+ * T08: the tearing sound's credit alone first (its licence asks for it, CC BY 4.0), then the fonts and the libraries, a row
+ * each with its licence; a tap opens the full text here, the SDK's terms in the browser.
+ */
+@Composable
+private fun BoxScope.LicensesScreen(ui: PeopleUi, k: SheetInk) {
+    val uri = androidx.compose.ui.platform.LocalUriHandler.current
+    FullScreen(k, stringResource(R.string.app_licenses_title), { ui.back() }) {
+        PBox(k) {
+            PRow(stringResource(R.string.about_credit_tear_label), k, sub = stringResource(R.string.about_credit_licensed, stringResource(R.string.about_credit_tear_link), "CC BY 4.0"),
+                last = true, trailing = { Icon(Icons.forward, null, Modifier.size(18.dp), tint = k.ink2) }) { runCatching { uri.openUri("https://freesound.org/people/everythingsounds/sounds/198233/") } }
+        }
+        val fonts = io.github.pini236.skiapp.home.OPEN_LICENSES.filter { it.license.startsWith("SIL") }
+        val libs = io.github.pini236.skiapp.home.OPEN_LICENSES - fonts.toSet()
+        for ((head, list) in listOf(R.string.app_licenses_fonts to fonts, R.string.app_licenses_libs to libs)) {
+            Text(stringResource(head), Modifier.padding(horizontal = 28.dp), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 12.5.sp, color = Color(0xE6FFFFFF))
+            PBox(k) {
+                for ((i, l) in list.withIndex()) PRow("⁨${l.name}⁩", k, sub = l.license.ifEmpty { stringResource(R.string.app_licenses_android_sdk) },
+                    last = i == list.lastIndex, trailing = { if (l.file == null) Icon(Icons.forward, null, Modifier.size(18.dp), tint = k.ink2) }) {
+                    if (l.file != null) ui.go(PLayer.License(l.key)) else l.url?.let { u -> runCatching { uri.openUri(u) } }
+                }
+            }
+        }
+    }
+}
+
+/** One licence's full text, as written: 13 in ink, left to right, scrolling. */
+@Composable
+private fun BoxScope.LicenseText(ui: PeopleUi, k: SheetInk, key: String) {
+    val ctx = LocalContext.current
+    val l = io.github.pini236.skiapp.home.OPEN_LICENSES.firstOrNull { it.key == key }
+    val text by androidx.compose.runtime.produceState("", l) {
+        value = l?.file?.let { f -> kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+            runCatching { ctx.assets.open("licenses/$f").bufferedReader().use { it.readText() } }.getOrNull() } }.orEmpty()
+    }
+    LaunchedEffect(text.isNotEmpty()) { if (text.isNotEmpty()) Qa.log("redesign people license $key") }
+    FullScreen(k, l?.name, { ui.back() }) {
+        PBox(k) {
+            CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
+                Text(text, Modifier.fillMaxWidth().padding(vertical = 12.dp), fontFamily = Plex, fontSize = 13.sp, lineHeight = 19.sp, color = k.ink, textAlign = TextAlign.Left)
+            }
         }
     }
 }

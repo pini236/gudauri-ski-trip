@@ -58,4 +58,6 @@ class People(
     val onMyTrip: (io.github.pini236.skiapp.trip.Trip) -> Unit,
     /** Part 4 (S10): "my days" from "me" (L12). */
     val onDays: () -> Unit = {},
+    /** Part 5 (T04): an admin fills a member's flight: the trip form for that member (group, user). */
+    val onTripFor: (String, String) -> Unit = { _, _ -> },
 )

@@ -1051,7 +1051,7 @@ class MainActivity : ComponentActivity() {
                             onLicenses = { nav.push(Route.Licenses) }, onLang = ::setLang, mode = dnMode, onMode = ::setMode,
                             onResetBests = { Bests.reset(this@MainActivity); Qa.log("bests reset") }, onGame = { g -> nav.push(Route.Game(g)) },
                             onMeetups = ::armReminders, onTripForm = { nav.push(Route.Trip) }, onChanged = ::armReminders,
-                            version = BuildConfig.VERSION_NAME, onMyTrip = { t -> keepTrip(t) }, onDays = { nav.push(Route.Days) }) else null, videos = videos)) }
+                            version = BuildConfig.VERSION_NAME, onMyTrip = { t -> keepTrip(t) }, onDays = { nav.push(Route.Days) }, onTripFor = { g, u -> nav.push(Route.TripFor(g, u)) }) else null, videos = videos)) }
             }
           }
         }

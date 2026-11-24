@@ -1234,6 +1234,30 @@ redesign() {
   mark; qa "--es qa.mode auto --es qa.redesign people:off"; waitlog "redesign people closed" 10
   mark; qa "--es qa.redesign people:invite"; waitlog "redesign people invite" 15 || fail "redesign: the invite did not open"; rd_settled; shot redesign-invite
   mark; qa "--es qa.redesign people:off"; waitlog "redesign people closed" 10
+  # completion part 5 (T01, T04 to T08), the admin's seed: a new group, the member's menu and the red rows, name and
+  # dates, deleting the account (armed), the licences and one licence's text
+  mark; qa "--es qa.redesign people:new"; waitlog "redesign people new" 10; rd_settled; shot redesign-new-group
+  mark; qa "--es qa.redesign people:off"; waitlog "redesign people closed" 10
+  mark; qa "--es qa.redesign people:group"; waitlog "redesign people group" 15; qa "--es qa.redesign people:tab:members"; waitlog "redesign people group members" 10
+  mark; qa "--es qa.redesign people:menu"; waitlog "redesign people member menu" 10 || fail "redesign: the member's menu did not open"; sleep 1.5; shot redesign-member-menu
+  mark; qa "--es qa.redesign people:closemenu"; sleep 1; qa "--es qa.redesign people:arm:remove"; waitlog "redesign people armed rm:" 10; sleep 1; shot redesign-member-remove
+  mark; qa "--es qa.redesign people:namedates"; waitlog "redesign people name dates" 10; sleep 1.5; shot redesign-name-dates
+  mark; qa "--es qa.redesign people:closemenu"; sleep 1; qa "--es qa.redesign people:arm:leave"; waitlog "redesign people armed leave" 10; sleep 1; shot redesign-leave-armed
+  mark; qa "--es qa.redesign people:off"; waitlog "redesign people closed" 10
+  mark; qa "--es qa.redesign people:delete"; waitlog "redesign people delete" 10; rd_settled; shot redesign-delete
+  if tapText "מחיקת החשבון שלי"; then waitlog "redesign people delete armed" 10 && { sleep 1; shot redesign-delete-armed; }; fi
+  mark; qa "--es qa.redesign people:off"; waitlog "redesign people closed" 10
+  mark; qa "--es qa.redesign people:licenses"; waitlog "redesign people licenses" 10; rd_settled; shot redesign-licenses
+  mark; qa "--es qa.redesign people:license:karantina"; waitlog "redesign people license karantina" 10 || fail "redesign: a licence's text did not show"; sleep 1; shot redesign-license-text
+  mark; qa "--es qa.redesign people:off"; waitlog "redesign people closed" 10
+  # T02, T03 with nobody signed in: "I'm already in the group" on the seeded code
+  mark; qa "--es qa.group none --es qa.redesign people:join:KZBQRM"; waitlog "redesign people join" 15; sleep 2
+  mark; qa "--es qa.redesign people:reclaim"; waitlog "redesign people reclaim" 15 || fail "redesign: the reclaim list did not show"; rd_settled; shot redesign-reclaim
+  mark; qa "--es qa.redesign people:off"; waitlog "redesign people closed" 10
+  # T10: all the places near Goodaura's bottom station
+  mark; qa "--es qa.redesign lift:Goodaura"; waitlog "redesign lift panel Goodaura" 15
+  if tapText "~^כל ה-[0-9]+$"; then waitlog "redesign places" 10 && { sleep 1.5; shot redesign-places; }; fi
+  mark; qa "--es qa.redesign lifts:off"; sleep 1
   mark; qa "--es qa.group member --es qa.redesign people:me"; waitlog "redesign people me guest" 15 || fail "redesign: me (a guest) did not open"; rd_settled; shot redesign-me-guest
   mark; qa "--es qa.redesign people:off"; waitlog "redesign people closed" 10
   mark; qa "--es qa.group none --es qa.redesign people:me"; waitlog "redesign people me nobody" 15 || fail "redesign: me (nobody) did not open"; rd_settled; shot redesign-me-nobody

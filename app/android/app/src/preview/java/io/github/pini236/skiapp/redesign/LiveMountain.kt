@@ -102,6 +102,9 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
     var nowTab by remember { mutableStateOf(NowTab.LIFTS) }
     // part 4 (S07): the run's sheet at its full height
     var runFull by remember { mutableStateOf(false) }
+    // part 5 (T10): a place chosen from the list, marked on the mountain in its kind's colour
+    var placeMark by remember { mutableStateOf<io.github.pini236.skiapp.places.Place?>(null) }
+    LaunchedEffect(liftsOpen, liftSel) { if (!liftsOpen || liftSel == null) placeMark = null }
     LaunchedEffect(chosen) { if (chosen == null) runFull = false }
     androidx.activity.compose.BackHandler(enabled = liftsOpen) { if (liftSel != null) liftSel = null else liftsOpen = false }
     // part 2 (Q04, Q05): the meeting point on the mountain
@@ -204,7 +207,10 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
                     "lang" -> people.go(PLayer.Language)
                     "about" -> people.go(PLayer.About)
                     "new" -> people.go(PLayer.NewGroup)
+                    "delete" -> people.go(PLayer.Delete)
+                    "licenses" -> people.go(PLayer.Licenses)
                     else -> if (what.startsWith("join:")) people.go(PLayer.Join(what.removePrefix("join:")))
+                        else if (what.startsWith("license:")) people.go(PLayer.License(what.removePrefix("license:")))
                         else if (what.startsWith("tab:")) Qa.log("redesign people tab ignored")
                 }
             }
@@ -308,6 +314,13 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
 
     Box(Modifier.fillMaxSize()) {
         AndroidView(factory = { view }, modifier = Modifier.fillMaxSize())
+        placeMark?.let { pl ->
+            var at by remember(pl) { mutableStateOf<Offset?>(null) }
+            LaunchedEffect(pl) { while (true) { withFrameNanos { }; at = view.toScreen(io.github.pini236.skiapp.data.Geo.x(pl.lon), io.github.pini236.skiapp.data.Geo.y(pl.lat))?.let { Offset(it[0], it[1]) } } }
+            at?.let { q -> Canvas(Modifier.fillMaxSize()) {
+                drawCircle(Color.White, 9.dp.toPx(), q); drawCircle(io.github.pini236.skiapp.places.kindColor(pl.kind), 6.5.dp.toPx(), q)
+            } }
+        }
         // my dot and its circle (S03), under everything drawn over the mountain
         WhereDot(where, view)
         if (!meet.open && !tripOpen && !skipassOpen) Column(Modifier.fillMaxWidth().statusBarsPadding().padding(horizontal = 12.dp, vertical = 8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -479,7 +492,9 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
                 LaunchedEffect(sel) { io.github.pini236.skiapp.telemetry.Telemetry.event("lift_open", mapOf("lift" to sel.name)); Qa.log("redesign lift panel ${sel.name}") }
                 LiftPanel(sel, status, scene, sk, haptics, onRun = { key -> liftSel = null; liftsOpen = false; view.pickKey(key) },
                     onMeet = plan?.let { pl -> LiveMeetRules.topOf(pl, sel.name)?.let { st -> { meetOpen(true); meetPick(st) } } },
-                    onRuns = { liftSel = null; liftsOpen = false })
+                    onRuns = { liftSel = null; liftsOpen = false },
+                    onPlace = { pl -> placeMark = pl; val x = io.github.pini236.skiapp.data.Geo.x(pl.lon); val y = io.github.pini236.skiapp.data.Geo.y(pl.lat)
+                        view.center(x, y, 1e6f); Qa.log("redesign places mark ${pl.id}") })
             } else LiftsSheet(boardLifts, status, scene, forMe, sk, haptics, onForMe = { v ->
                 onForMe(v); io.github.pini236.skiapp.telemetry.Telemetry.event("status_only_open", mapOf("on" to v)); Qa.log("redesign lifts for me $v")
             }, onLift = { l -> liftSel = l },
