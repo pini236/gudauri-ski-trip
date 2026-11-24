@@ -248,6 +248,9 @@ private fun LiftPlacesLine(l: Lift, k: SheetInk, onPlace: (io.github.pini236.ski
             if (st == null) continue
             val near = places.near(st)
             var all by androidx.compose.runtime.remember(st) { androidx.compose.runtime.mutableStateOf(false) }
+            // the emulator's check (qa.redesign places:bottom / places:top): the list sheet without scrolling to the line
+            androidx.compose.runtime.LaunchedEffect(RedesignQa.seq) {
+                if (RedesignQa.cmd == "places:" + if (head == R.string.places_near_bottom) "bottom" else "top") all = true }
             // "all N" (T10): the list in a sheet of its own, by distance
             if (all) PlacesSheet(st, near, head == R.string.places_near_bottom, l, k, onPlace = { pl -> all = false; onPlace(pl) }) { all = false }
             Text(stringResource(head), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 13.5.sp, color = k.ink)
