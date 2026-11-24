@@ -82,7 +82,7 @@ import io.github.pini236.skiapp.qa.Qa
  */
 @Composable
 fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status: io.github.pini236.skiapp.status.LiftStatus?, inSeason: Boolean,
-                 forMe: Boolean, onForMe: (Boolean) -> Unit, onPainted: () -> Unit, onLeave: () -> Unit) {
+                 forMe: Boolean, onForMe: (Boolean) -> Unit, here: io.github.pini236.skiapp.meet.MeetHere?, onPainted: () -> Unit, onLeave: () -> Unit) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val data by produceState<PeakData?>(null) { value = withContext(Dispatchers.IO) { PeakData.load(context) } }
@@ -95,8 +95,13 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
     var liftsOpen by remember { mutableStateOf(false) }
     var liftSel by remember { mutableStateOf<io.github.pini236.skiapp.data.Lift?>(null) }
     androidx.activity.compose.BackHandler(enabled = liftsOpen) { if (liftSel != null) liftSel = null else liftsOpen = false }
+    // part 2 (Q04, Q05): the meeting point on the mountain
+    val meet = remember { MeetUi() }
+    val plan = here?.plan
+    val meetDays = remember(here?.trip, now / 3_600_000) { io.github.pini236.skiapp.meet.Meet.days(here?.trip, java.time.Instant.ofEpochMilli(now)) }
     // the emulator's held moment (ms since the choice), null in use
     var held by remember { mutableStateOf<Float?>(null) }
+    var meetOpenQa by remember { mutableStateOf<String?>(null) }
     val time = scrub?.let { PeakLight.janAt(it) } ?: DayNight.lightTime(now, mode)
     val night = remember(time) { Sky.at(time).dark }
     val view = remember { LiveView(context, scene).also { v -> v.onChoose = { k -> chosen = k; haptics.tick(.5f); Qa.log("redesign live chosen $k") } } }
@@ -130,6 +135,9 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
             c == "lifts" -> { liftSel = null; liftsOpen = true }
             c == "lifts:off" -> { liftSel = null; liftsOpen = false }
             c.startsWith("lift:") -> LiveLifts.board(scene.runs).firstOrNull { it.name == c.removePrefix("lift:") }?.let { liftSel = it; liftsOpen = true }
+            // part 2 (Q04, Q05): the meeting point, open, on a preset or a lift's top, cleared, closed
+            c == "meet" -> meetOpenQa = "where"
+            c.startsWith("meet:") -> meetOpenQa = c.removePrefix("meet:")
             // one moment of the choice held (the designer's 0, 150, 300, 600 and 900 ms, as phase A's frame:)
             c.startsWith("moment:") -> c.removePrefix("moment:").split(',').takeIf { it.size == 2 }?.let { (k, t) ->
                 t.trim().toFloatOrNull()?.let { ms -> held = ms; view.moment(k.trim(), ms) }
@@ -137,6 +145,51 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
         }
     }
     LaunchedEffect(time) { view.setTime(time) }
+    fun meetPick(s: io.github.pini236.skiapp.meet.Station, p: io.github.pini236.skiapp.meet.Preset? = null) {
+        val (d, t) = LiveMeetRules.default(meetDays, java.time.Instant.ofEpochMilli(System.currentTimeMillis()))
+        meet.sid = s.id; meet.preset = p; meet.day = d; meet.time = p?.let { io.github.pini236.skiapp.meet.Meet.parseTime(it.time) } ?: t
+        meet.undo = null; meet.drops++
+        haptics.tick(.5f)
+        io.github.pini236.skiapp.telemetry.Telemetry.event("meet_pick", if (p != null) mapOf("kind" to "preset", "preset" to p.event) else mapOf("kind" to "station", "station" to s.name))
+        Qa.log("redesign meet set ${s.id} ${meet.day} ${meet.time}")
+    }
+    fun meetClear(via: String) {
+        val was = meet.sid ?: return
+        io.github.pini236.skiapp.telemetry.Telemetry.event("meet_clear", mapOf("via" to via))
+        meet.undo = was to meet.preset; meet.undoN++; meet.sid = null; meet.preset = null
+        Qa.log("redesign meet cleared $via")
+    }
+    fun meetOpen(on: Boolean) {
+        if (on) { liftSel = null; liftsOpen = false; chosen = null; view.choose(null); if (!meet.open) view.backToFront() }
+        else { meet.sid = null; meet.undo = null }
+        meet.open = on
+        Qa.log("redesign meet ${if (on) "open" else "closed"}")
+    }
+    LaunchedEffect(meetOpenQa, plan) {
+        val q = meetOpenQa ?: return@LaunchedEffect
+        if (plan == null) return@LaunchedEffect
+        meetOpenQa = null
+        when {
+            q == "off" -> meetOpen(false)
+            q == "where" -> { meetOpen(true); meet.sid = null; Qa.log("redesign meet where ${plan.stations.size}") }
+            q == "clear" -> meetClear("button")
+            q.startsWith("preset:") -> io.github.pini236.skiapp.meet.Preset.entries.firstOrNull { it.event == q.removePrefix("preset:") }?.let { p -> plan.preset(p)?.let { meetOpen(true); meetPick(it, p) } }
+            q.startsWith("lift:") -> LiveMeetRules.topOf(plan, q.removePrefix("lift:"))?.let { meetOpen(true); meetPick(it) }
+        }
+    }
+    LaunchedEffect(meet.undoN) { if (meet.undo != null) { delay(5000); meet.undo = null } }
+    androidx.activity.compose.BackHandler(enabled = meet.open) { if (meet.sid != null) meetClear("back") else meetOpen(false) }
+    // in the meeting point a tap on the mountain is its own: the nearest station within 44 (Q04), or a clear (Q05)
+    var meetPts by remember { mutableStateOf<List<Pair<io.github.pini236.skiapp.meet.Station, Offset>>>(emptyList()) }
+    LaunchedEffect(meet.open, plan) {
+        view.setQuiet(if (meet.open) .4f else 1f)
+        if (!meet.open || plan == null) { view.onTap = null; meetPts = emptyList(); return@LaunchedEffect }
+        view.onTap = { x, y ->
+            if (meet.sid != null) meetClear("map")
+            else LiveMeetRules.nearest(meetPts, x, y, 44 * context.resources.displayMetrics.density)?.let { meetPick(it) }
+        }
+        while (true) { withFrameNanos { }; meetPts = stationsOnScreen(view, plan) }
+    }
     // the "Kobi side" sign shows while the camera looks from within 60 degrees of the Kobi side (the handoff's section 10)
     var kobiSide by remember { mutableStateOf(false) }
     LaunchedEffect(Unit) { while (true) { val k = view.onKobiSide(); if (k != kobiSide) { kobiSide = k; Qa.log("redesign live kobi sign $k") }; delay(250) } }
@@ -153,7 +206,7 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
 
     Box(Modifier.fillMaxSize()) {
         AndroidView(factory = { view }, modifier = Modifier.fillMaxSize())
-        Column(Modifier.fillMaxWidth().statusBarsPadding().padding(horizontal = 12.dp, vertical = 8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        if (!meet.open) Column(Modifier.fillMaxWidth().statusBarsPadding().padding(horizontal = 12.dp, vertical = 8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 Pill(Modifier.weight(1f).clickable { scrubOpen = !scrubOpen; if (!scrubOpen) scrub = null; haptics.tick(.3f) }) {
                     Row(Modifier.padding(horizontal = 14.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(9.dp)) {
@@ -284,7 +337,7 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
             val tops = closed.mapNotNull { l -> LiveLifts.ends(l, scene.terrain::elev)?.let { e -> l to e } }
             while (true) { withFrameNanos { }; tags = tops.mapNotNull { (l, e) -> view.toScreen(e[2], e[3], 6f)?.let { p -> l to Offset(p[0], p[1]) } } }
         }
-        if (chosen == null) for ((l, p) in tags) {
+        if (chosen == null && !meet.open) for ((l, p) in tags) {
             val sk = remember(night) { SheetInk(night) }
             Row(Modifier.offset { androidx.compose.ui.unit.IntOffset((p.x - 40.dp.toPx()).toInt(), (p.y - 16.dp.toPx() - 22.dp.toPx()).toInt()) }
                 .heightIn(min = 44.dp).clickable { haptics.tick(.3f); liftSel = l; liftsOpen = true; Qa.log("redesign lift tag ${l.name}") },
@@ -302,7 +355,8 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
             val sel = liftSel
             if (sel != null) {
                 LaunchedEffect(sel) { io.github.pini236.skiapp.telemetry.Telemetry.event("lift_open", mapOf("lift" to sel.name)); Qa.log("redesign lift panel ${sel.name}") }
-                LiftPanel(sel, status, scene, sk, haptics, onRun = { key -> liftSel = null; liftsOpen = false; view.pickKey(key) }, onMeet = null,
+                LiftPanel(sel, status, scene, sk, haptics, onRun = { key -> liftSel = null; liftsOpen = false; view.pickKey(key) },
+                    onMeet = plan?.let { pl -> LiveMeetRules.topOf(pl, sel.name)?.let { st -> { meetOpen(true); meetPick(st) } } },
                     onRuns = { liftSel = null; liftsOpen = false })
             } else LiftsSheet(boardLifts, status, scene, forMe, sk, haptics, onForMe = { v ->
                 onForMe(v); io.github.pini236.skiapp.telemetry.Telemetry.event("status_only_open", mapOf("on" to v)); Qa.log("redesign lifts for me $v")
@@ -315,8 +369,53 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
             val d0 = pd
             last?.let { r -> if (d0 != null) RunSheet(r, d0, g, onClose = { chosen = null; view.choose(null) }) }
         }
-        AnimatedVisibility(chosen == null && !liftsOpen, Modifier.align(Alignment.BottomCenter).navigationBarsPadding().padding(bottom = 22.dp), enter = fadeIn(), exit = fadeOut()) {
+        AnimatedVisibility(chosen == null && !liftsOpen && !meet.open, Modifier.align(Alignment.BottomCenter).navigationBarsPadding().padding(bottom = 22.dp), enter = fadeIn(), exit = fadeOut()) {
             Pill(h = 48) { Text(stringResource(R.string.poc_peak_hint), Modifier.padding(horizontal = 20.dp), fontFamily = Plex, fontSize = 15.sp, color = ink) }
+        }
+        // part 2 (Q04, Q05): the meeting point over the mountain: the pins, the flag, the pill and the sheet
+        if (meet.open && plan != null) {
+            val sk = remember(night) { SheetInk(night) }
+            val st = meet.sid?.let { plan.byId[it] }
+            val d0 = meet.day; val t0 = meet.time
+            val drop = rememberDrop(if (st != null) meet.drops else null, Motion.reduced(context))
+            val hhmm = t0?.let { "%02d:%02d".format(it.hour, it.minute) } ?: ""
+            val gap = 13 * context.resources.displayMetrics.density
+            val clusters = LiveMeetRules.clusters(meetPts, gap)
+            Canvas(Modifier.fillMaxSize()) {
+                for (c in clusters) {
+                    val (s, p) = c.first()
+                    if (c.any { it.first.id == st?.id }) continue
+                    meetPin(p, sk.acc, if (st != null) .55f else 1f)
+                }
+                val at = st?.let { s -> meetPts.firstOrNull { it.first.id == s.id }?.second }
+                if (at != null) meetFlag(at, hhmm, drop.value, sk.acc, Color.White, measurer)
+            }
+            if (st == null) MeetPinTargets(clusters, null) { s -> meetPick(s) }
+            else meetPts.firstOrNull { it.first.id == st.id }?.second?.let { at ->
+                MeetFlagTarget(at, stringResource(R.string.app_meet_flag_a11y, hhmm, st.name)) { meetClear("pin") }
+            }
+            Column(Modifier.fillMaxWidth().statusBarsPadding().padding(horizontal = 12.dp, vertical = 8.dp)) {
+                val nowI = java.time.Instant.ofEpochMilli(now)
+                val text = if (st != null && d0 != null && t0 != null) countdownText(io.github.pini236.skiapp.meet.Meet.left(io.github.pini236.skiapp.meet.Meet.at(d0, t0), nowI))
+                    else stringResource(R.string.app_meet_where)
+                MeetPill(text, sk, bg, line, stringResource(if (st != null) R.string.meet_clear else R.string.common_close)) {
+                    haptics.tick(.3f); if (st != null) meetClear("button") else meetOpen(false)
+                }
+            }
+            Column(Modifier.align(Alignment.BottomCenter), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                meet.undo?.let { u ->
+                    Box(Modifier.padding(horizontal = 12.dp)) {
+                        MeetUndo {
+                            meet.undo = null; io.github.pini236.skiapp.telemetry.Telemetry.event("meet_undo")
+                            plan.byId[u.first]?.let { s -> meetPick(s, u.second) }
+                        }
+                    }
+                }
+                if (st != null && d0 != null && t0 != null && here != null)
+                    MeetSetSheet(here, st, d0, t0, meetDays, sk, haptics, scene, onDay = { meet.day = it; meet.preset = null; Qa.log("redesign meet day $it") },
+                        onTime = { meet.time = it; meet.preset = null; Qa.log("redesign meet time $it") })
+                else if (st == null) MeetWhereSheet(plan, sk, haptics) { p, s -> meetPick(s, p) }
+            }
         }
     }
 }

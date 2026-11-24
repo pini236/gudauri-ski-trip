@@ -215,6 +215,8 @@ class LiveView(context: Context, private val scene: MapScene) : GLSurfaceView(co
     }
 
     fun setPal(p: PeakData.Pal?) { renderer.pal = p; requestRender() }
+    /** The runs and lifts quiet ([a] of their opacity) under the meeting point. */
+    fun setQuiet(a: Float) { if (renderer.linesQuiet != a) { renderer.linesQuiet = a; requestRender() } }
     fun choose(key: String?) {
         renderer.frozenMs = null; renderer.chosen = key; chosenDown = null; requestRender()
         // the slope colours around it, as the map's (X-3), worked out off the GL thread

@@ -154,3 +154,9 @@ object Meet {
     }
     fun parseTime(s: String): LocalTime = LocalTime.of(s.take(2).toInt(), s.takeLast(2).toInt())
 }
+
+/**
+ * What the new mountain (the redesign, test build only) needs for its meeting point (design/handoff/2026-11-21-redesign-
+ * around, Q04 and Q05): the stations, "your trip" for the days, and a group to save in for someone signed in.
+ */
+class MeetHere(val plan: MeetPlan?, val trip: Trip?, val save: MeetSave?)

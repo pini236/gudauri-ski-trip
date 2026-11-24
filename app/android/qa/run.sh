@@ -1170,6 +1170,17 @@ redesign() {
   mark; qa "--es qa.redesign lift:Goodaura"; waitlog "redesign lift panel Goodaura" 10 || fail "redesign: the lift's panel did not open"
   sleep 1.5; shot redesign-lift-panel
   mark; qa "--es qa.redesign lifts:off --es qa.status none"; sleep 1
+  # part 2 (Q04, Q05): the meeting point, where (the pins and the three spots), a flag on a lift's top (its drop and the
+  # sheet), cleared with its undo, and at night
+  mark; qa "--es qa.redesign meet"; waitlog "redesign meet where" 10 || fail "redesign: the meeting point did not open"
+  sleep 2.5; shot redesign-meet-where
+  mark; qa "--es qa.redesign meet:lift:Goodaura"; waitlog "redesign meet set" 10 || fail "redesign: no flag on Goodaura's top"
+  sleep 1.5; shot redesign-meet-set
+  mark; qa "--es qa.redesign meet:clear"; waitlog "redesign meet cleared" 10 || fail "redesign: the meeting point did not clear"
+  sleep .8; shot redesign-meet-cleared
+  mark; qa "--es qa.mode night --es qa.redesign meet:preset:end"; waitlog "redesign meet set" 10 || fail "redesign: the end of day spot did not set"
+  sleep 2; shot redesign-meet-set-night
+  mark; qa "--es qa.mode auto --es qa.redesign meet:off"; waitlog "redesign meet closed" 10; sleep 1
   mark; qa "--es qa.mode auto --es qa.redesign painted"; waitlog "redesign live closed" 10; sleep 1.5; shot redesign-live-back
   qa "--es qa.mode auto --es qa.redesign close"; sleep 1.5; shot redesign-closed
   # round 4 (board L06): the sample day on the mountain, its lines of light by speed and the dotted rides, by day and

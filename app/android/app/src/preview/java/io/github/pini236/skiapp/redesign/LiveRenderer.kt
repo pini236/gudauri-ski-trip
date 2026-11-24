@@ -245,6 +245,8 @@ class LiveRenderer(
      */
     class DayLines(val light: Ribbon, val lifts: Ribbon, val night: Boolean, val withRuns: Boolean = false)
     @Volatile var day: DayLines? = null
+    /** The runs and lifts quiet under the meeting point (Q04, Q05: low opacity), 1 otherwise. */
+    @Volatile var linesQuiet = 1f
     /** How far the day is drawn (the film, board L08), 0 to 1 of the day's time; above 1 all of it. */
     @Volatile var dayReveal = 60000f
     private var dayGpu: Pair<Gpu, Gpu>? = null; private var dayGpuOf: DayLines? = null; private var dayLogged: DayLines? = null
@@ -521,7 +523,7 @@ class LiveRenderer(
         if (dl == null && dayGpu != null) { dayGpu?.let { it.first.free(); it.second.free() }; dayGpu = null; dayGpuOf = null }
         // the day painted (board L06) has no runs on it; the day while it is recorded (L03) has them, quiet, under it
         val showRuns = dl == null || dl.withRuns
-        val quiet = if (dl != null) .45f else 1f
+        val quiet = (if (dl != null) .45f else 1f) * linesQuiet
         glUniform4f(uT, wire[0], wire[1], wire[2], 1f); glUniform1f(uW, 1.3f * density * zw); glUniform1f(uA, .85f * rest * quiet)
         if (showRuns) for (g in lifts) g.draw()
         if (showRuns) for ((key, cs, core) in runs) {
