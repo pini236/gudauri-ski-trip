@@ -144,7 +144,10 @@ class LiveView(context: Context, private val scene: MapScene) : GLSurfaceView(co
         val d = data; renderer.data = d
         camera.fovDeg = d.camera.fovDeg
         val decode = Runnable {
-            val list = LiveData.TEXTURES.map { LiveTex.decode(context, it) }
+            // a texture that does not load: back to the painted mountain, never a blank sky (the architect, 24.11.2026)
+            val list = runCatching { LiveData.TEXTURES.map { LiveTex.decode(context, it) } }.getOrElse { e ->
+                Qa.log("redesign live textures failed ${e.javaClass.simpleName}"); post { onFail?.invoke() }; return@Runnable
+            }
             val bad = d.checks.filter { c -> list.first { it.name == c.tex }.let { t -> !LiveTex.check(t.px, t.w, t.h, c) } }
             Qa.log(if (bad.isEmpty()) "redesign live textures ok" else "redesign live textures bad ${bad.joinToString { it.tex }}")
             renderer.textures = list; requestRender()
@@ -384,6 +387,9 @@ class LiveView(context: Context, private val scene: MapScene) : GLSurfaceView(co
      * (or cancelled), with its place on the screen. The film decides what a drag on the mountain does.
      */
     var filmTouch: ((Int, Float, Float) -> Unit)? = null
+
+    /** The live model cannot draw here (a texture did not load): the screen goes back to the painted mountain. */
+    var onFail: (() -> Unit)? = null
 
     /**
      * The film's camera (K12, as today's flight down): on the point [x], [h], [y] of the line, 520 away, tilted 27.5

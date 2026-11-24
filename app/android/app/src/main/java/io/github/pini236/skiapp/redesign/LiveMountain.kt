@@ -155,7 +155,7 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
     var qaFlags by remember { mutableStateOf<GroupMeets?>(null) }
     val time = scrub?.let { PeakLight.janAt(it) } ?: DayNight.lightTime(now, mode)
     val night = remember(time) { Sky.at(time).dark }
-    val view = remember { LiveView(context, scene).also { v -> v.onChoose = { k -> chosen = k; haptics.tick(.5f); Qa.log("redesign live chosen $k") } } }
+    val view = remember { LiveView(context, scene).also { v -> v.onChoose = { k -> chosen = k; haptics.tick(.5f); Qa.log("redesign live chosen $k") }; v.onFail = { onPainted() } } }
     // S07: the full sheet takes the screen from 236 down, so the chosen run is framed in the part above it; back to the
     // low sheet, framed as at the choice (the review of 24.11). Not on the choice itself (the choice frames it).
     val scrH = androidx.compose.ui.platform.LocalConfiguration.current.screenHeightDp
