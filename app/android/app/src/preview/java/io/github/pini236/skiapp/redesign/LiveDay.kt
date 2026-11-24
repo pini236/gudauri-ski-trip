@@ -67,7 +67,6 @@ import io.github.pini236.skiapp.home.DayNight
 import io.github.pini236.skiapp.map.MapScene
 import io.github.pini236.skiapp.map.Sky
 import io.github.pini236.skiapp.qa.Qa
-import io.github.pini236.skiapp.ui.Plex
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -213,7 +212,7 @@ fun LiveDay(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, liftName: (S
             if (onLift && p != null && pinText != null) {
                 val ring = Color(0xFF000000.toInt() or (if (night) DayPaint.NIGHT[4] else DayPaint.DAY[4]))
                 drawCircle(Color.White, 5f * dens, p); drawCircle(ring, 5f * dens, p, style = androidx.compose.ui.graphics.drawscope.Stroke(2f * dens))
-                val tl = measurer.measure(pinText, TextStyle(fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 11.sp, color = Color.White))
+                val tl = measurer.measure(pinText, TextStyle(fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 11.sp, color = Color.White))
                 val w = tl.size.width + 18 * dens; val h = tl.size.height + 8 * dens; val top = p.y - 12 * dens - h
                 drawLine(Color(0xFF0E2233), Offset(p.x, p.y - 5 * dens), Offset(p.x, top + h), 1.4f * dens)
                 drawRoundRect(Color(0xFF0E2233), Offset(p.x - w / 2, top), androidx.compose.ui.geometry.Size(w, h), androidx.compose.ui.geometry.CornerRadius(h / 2))
@@ -231,7 +230,7 @@ fun LiveDay(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, liftName: (S
                 // one descent says so in place of "recording" (completion part 1, P04)
                 val clock = LiveNumbers.elapsed(LiveNumbers.sinceTap(now, began))
                 Text(if (single) stringResource(R.string.app_rec_one) + " · \u2066$clock\u2069" else stringResource(R.string.app_rec_now, clock),
-                    fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = ink)
+                    fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = ink)
             }
             // all day or one descent (L02, L03): one wide bar, the choice in purple, as on the board. Quiet in a descent and
             // on the lift (L03, "quiet in a descent": only the speed, the run and finish); shown in the search and when
@@ -244,7 +243,7 @@ fun LiveDay(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, liftName: (S
                 for ((on, k) in listOf(!single to R.string.app_rec_all, single to R.string.app_rec_one)) {
                     Box(Modifier.weight(1f).fillMaxSize().clip(RoundedCornerShape(21.dp)).background(if (on) Color(0xFF7C4FE0) else Color.Transparent)
                         .clickable(role = Role.Tab, enabled = !quiet) { if (!on) { val s1 = k == R.string.app_rec_one; picked = s1; onSwitch(s1) } }, contentAlignment = Alignment.Center) {
-                        Text(stringResource(k), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = if (on) Color.White else ink)
+                        Text(stringResource(k), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = if (on) Color.White else ink)
                     }
                 }
             }
@@ -275,11 +274,11 @@ fun LiveDay(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, liftName: (S
         // the speed, large, and where you probably are (or the search, or the weak signal); the hold to finish under them
         if (!sheet) Column(Modifier.align(Alignment.BottomCenter).navigationBarsPadding().padding(horizontal = 16.dp, vertical = 12.dp).fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(6.dp)) {
-            val big = TextStyle(fontFamily = Plex, fontWeight = FontWeight.Light, fontSize = 120.sp, color = ink, shadow = Shadow(halo, Offset.Zero, 24f))
+            val big = TextStyle(fontFamily = Gudi, fontWeight = FontWeight.Light, fontSize = 120.sp, color = ink, shadow = Shadow(halo, Offset.Zero, 24f))
             // over the mountain the small words take the board's second ink by day (#40556A): the grey of the sheets falls
             // under 4.5:1 on the snow (the designer's point 4, measured on the search's shot: about 3.9:1)
-            val small = TextStyle(fontFamily = Plex, fontSize = 14.sp, color = if (night) muted else Color(0xFF40556A), shadow = Shadow(halo, Offset.Zero, 12f))
-            val bold = TextStyle(fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 18.sp, color = ink, shadow = Shadow(halo, Offset.Zero, 12f))
+            val small = TextStyle(fontFamily = Gudi, fontSize = 14.sp, color = if (night) muted else Color(0xFF40556A), shadow = Shadow(halo, Offset.Zero, 12f))
+            val bold = TextStyle(fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 18.sp, color = ink, shadow = Shadow(halo, Offset.Zero, 12f))
             when {
                 onLift && ride != null -> LiftCard(ride, painted, night, ink, muted, glass, rule, liftName, runName, onSee = { haptics.tick(.3f); seeRide = ride }, onStop = onStop, haptics = haptics,
                     head = DayRec.live?.lift?.let { id ->
@@ -319,7 +318,7 @@ fun LiveDay(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, liftName: (S
                         val on = live?.runs?.firstOrNull()?.takeIf { live?.act == "ski" }?.let { k -> scene.runs?.pistes?.firstOrNull { it.key == k } }
                         on?.refs?.firstOrNull()?.let { ref ->
                             Box(Modifier.clip(RoundedCornerShape(6.dp)).background(Color(io.github.pini236.skiapp.game.runColor(on.color))).padding(horizontal = 7.dp, vertical = 2.dp)) {
-                                Text(ref, fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = Color.White)
+                                Text(ref, fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = Color.White)
                             }
                         }
                         Text(where, style = bold, maxLines = 1)
@@ -378,7 +377,7 @@ private fun HoldToFinish(scope: kotlinx.coroutines.CoroutineScope, haptics: Hapt
                 Box(Modifier.fillMaxSize()) { Box(Modifier.fillMaxWidth(hold.value.coerceAtLeast(0.0001f)).height(56.dp).background(red.copy(alpha = .22f))) }
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                     Box(Modifier.size(14.dp).clip(RoundedCornerShape(3.dp)).background(red))
-                    Text(holdLabel, fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = ink)
+                    Text(holdLabel, fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = ink)
                 }
             }
 }
@@ -400,12 +399,12 @@ private fun LiftCard(ride: io.github.pini236.skiapp.dayrec.DayEngine.Ride, paint
         }
     }
     val so = DayRec.sofar?.stats
-    val num = TextStyle(fontFamily = Plex, fontWeight = FontWeight.Light, fontSize = 36.sp, color = ink)
-    val label = TextStyle(fontFamily = Plex, fontSize = 12.sp, color = muted)
+    val num = TextStyle(fontFamily = Gudi, fontWeight = FontWeight.Light, fontSize = 36.sp, color = ink)
+    val label = TextStyle(fontFamily = Gudi, fontSize = 12.sp, color = muted)
     Column(Modifier.padding(top = 8.dp).fillMaxWidth().shadow(14.dp, RoundedCornerShape(20.dp)).clip(RoundedCornerShape(20.dp)).background(glass)
         .border(1.dp, rule, RoundedCornerShape(20.dp)).padding(16.dp)) {
         // the lift and about how long to its top (board L04: an estimate by the lift's travel time in the data)
-        head?.let { Text(it, fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = ink, modifier = Modifier.padding(bottom = 6.dp)) }
+        head?.let { Text(it, fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = ink, modifier = Modifier.padding(bottom = 6.dp)) }
         Text(stringResource(R.string.app_rec_just_ran), style = label, modifier = Modifier.padding(bottom = 8.dp))
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             Canvas(Modifier.size(64.dp).clip(RoundedCornerShape(12.dp)).background(if (night) Color(0xFF0A1322) else Color(0xFFEEF2F5))) {
@@ -424,7 +423,7 @@ private fun LiftCard(ride: io.github.pini236.skiapp.dayrec.DayEngine.Ride, paint
             }
             Column(Modifier.weight(1f)) {
                 val names = ride.runs.joinToString(" · ") { runName(it) }.ifEmpty { stringResource(R.string.app_rec_off) }
-                Text(names, fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 17.sp, color = ink, maxLines = 2)
+                Text(names, fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 17.sp, color = ink, maxLines = 2)
             }
         }
         Row(Modifier.padding(top = 12.dp).fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
@@ -437,20 +436,20 @@ private fun LiftCard(ride: io.github.pini236.skiapp.dayrec.DayEngine.Ride, paint
         val waited = DayRec.sofar?.segments?.firstOrNull { it.type == "lift" && it.t0 >= ride.t1 }?.let { ((it.t0 - ride.t1) / 60_000L).toInt() }
         if (waited != null && waited >= 1) Row(Modifier.padding(top = 8.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
             Text(stringResource(R.string.app_rec_waited), style = label)
-            Text(stringResource(R.string.app_rec_minutes, waited), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 13.sp, color = ink)
+            Text(stringResource(R.string.app_rec_minutes, waited), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 13.sp, color = ink)
         }
         Box(Modifier.padding(vertical = 12.dp).fillMaxWidth().height(1.dp).background(rule))
         Row(verticalAlignment = Alignment.CenterVertically) {
             Column(Modifier.weight(1f)) {
                 Text(stringResource(R.string.app_rec_day_so_far), style = label)
                 if (so != null) Text(stringResource(R.string.app_rec_day_line, so.descents, metres(so.dropM),
-                    "%.1f".format(java.util.Locale.ROOT, so.skiDistM / 1000)), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = ink)
+                    "%.1f".format(java.util.Locale.ROOT, so.skiDistM / 1000)), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = ink)
             }
             val see = stringResource(R.string.app_rec_see_run)
             Box(Modifier.padding(end = 8.dp).height(44.dp).clip(RoundedCornerShape(22.dp)).border(1.dp, rule, RoundedCornerShape(22.dp))
                 .semantics { role = Role.Button; contentDescription = see }
                 .clickable { Qa.log("redesign rec lift see"); onSee() }.padding(horizontal = 14.dp), contentAlignment = Alignment.Center) {
-                Text(see, fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = ink)
+                Text(see, fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = ink)
             }
             // held for a second, as everywhere outside a descent (completion part 1, section 2)
             HoldStop(remember(night) { SheetInk(night) }, haptics, onStop)

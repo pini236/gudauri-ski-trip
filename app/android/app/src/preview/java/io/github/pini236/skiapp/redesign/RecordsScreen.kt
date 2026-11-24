@@ -63,7 +63,6 @@ import io.github.pini236.skiapp.dayrec.SampleDay
 import io.github.pini236.skiapp.fx.Haptics
 import io.github.pini236.skiapp.map.MapScene
 import io.github.pini236.skiapp.qa.Qa
-import io.github.pini236.skiapp.ui.Plex
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
@@ -136,8 +135,8 @@ internal fun RecordsScreen(mode: DayNight.Mode, scene: MapScene?, haptics: Hapti
             Row(Modifier.padding(top = 6.dp).heightIn(min = 44.dp), verticalAlignment = Alignment.CenterVertically) {
                 val back = stringResource(R.string.app_g_back)
                 Box(Modifier.size(44.dp).clip(RoundedCornerShape(22.dp)).semantics { role = Role.Button; contentDescription = back }.clickable { haptics.tick(.3f); onBack() },
-                    contentAlignment = Alignment.Center) { Text("‹", fontFamily = Plex, fontSize = 26.sp, color = k.ink) }
-                Text(stringResource(R.string.app_day_records), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 21.sp, color = k.ink)
+                    contentAlignment = Alignment.Center) { Text("‹", fontFamily = Gudi, fontSize = 26.sp, color = k.ink) }
+                Text(stringResource(R.string.app_day_records), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 21.sp, color = k.ink)
             }
             // the window on the mountain (358 by 214)
             val w = window
@@ -171,9 +170,9 @@ internal fun RecordsScreen(mode: DayNight.Mode, scene: MapScene?, haptics: Hapti
             }
             if (list != null) {
                 if (empty) {
-                    Text(stringResource(R.string.app_records_empty_title), Modifier.fillMaxWidth().padding(top = 26.dp), fontFamily = Plex, fontWeight = FontWeight.Bold,
+                    Text(stringResource(R.string.app_records_empty_title), Modifier.fillMaxWidth().padding(top = 26.dp), fontFamily = Gudi, fontWeight = FontWeight.Bold,
                         fontSize = 21.sp, color = k.ink, textAlign = TextAlign.Center)
-                    Text(stringResource(R.string.app_records_empty_text), Modifier.fillMaxWidth().padding(top = 6.dp), fontFamily = Plex, fontSize = 14.5.sp, color = k.ink2, textAlign = TextAlign.Center)
+                    Text(stringResource(R.string.app_records_empty_text), Modifier.fillMaxWidth().padding(top = 6.dp), fontFamily = Gudi, fontSize = 14.5.sp, color = k.ink2, textAlign = TextAlign.Center)
                     Column(Modifier.padding(top = 18.dp).alpha(.5f).clearAndSetSemantics { }) {
                         for (what in listOf("max_kmh", "longest_m", "drop_m")) RecordRowView(Records.Row(what, null, null), k, locale, zone, null, null)
                     }
@@ -183,15 +182,15 @@ internal fun RecordsScreen(mode: DayNight.Mode, scene: MapScene?, haptics: Hapti
             }
             Box(Modifier.weight(1f, fill = false).height(24.dp))
             if (empty) {
-                Text(stringResource(R.string.app_records_sample_note), Modifier.fillMaxWidth(), fontFamily = Plex, fontSize = 13.5.sp, color = k.ink2, textAlign = TextAlign.Center)
+                Text(stringResource(R.string.app_records_sample_note), Modifier.fillMaxWidth(), fontFamily = Gudi, fontSize = 13.5.sp, color = k.ink2, textAlign = TextAlign.Center)
                 val rec = stringResource(R.string.app_rec_sign)
                 Box(Modifier.padding(top = 12.dp).fillMaxWidth().height(52.dp).clip(RoundedCornerShape(26.dp)).background(k.acc)
                     .semantics { role = Role.Button }.clickable { haptics.tick(.3f); onRecord() }, contentAlignment = Alignment.Center) {
-                    Text(rec, fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = if (night) Color(0xFF1A0B3D) else Color.White)
+                    Text(rec, fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = if (night) Color(0xFF1A0B3D) else Color.White)
                 }
             } else Row(Modifier.padding(top = 4.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text("🔒", fontSize = 14.sp, modifier = Modifier.clearAndSetSemantics { })
-                Text(stringResource(R.string.app_records_private), fontFamily = Plex, fontSize = 12.5.sp, color = k.ink2)
+                Text(stringResource(R.string.app_records_private), fontFamily = Gudi, fontSize = 12.5.sp, color = k.ink2)
             }
             Box(Modifier.navigationBarsPadding().height(18.dp))
         }
@@ -237,16 +236,16 @@ private fun RecordRowView(r: Records.Row, k: SheetInk, locale: Locale, zone: Zon
         Row(Modifier.fillMaxWidth().heightIn(min = 62.dp).padding(vertical = 6.dp), verticalAlignment = Alignment.CenterVertically) {
             Column(Modifier.weight(1f)) {
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                    Text(title, fontFamily = Plex, fontWeight = FontWeight.Medium, fontSize = 14.5.sp, color = k.ink)
+                    Text(title, fontFamily = Gudi, fontWeight = FontWeight.Medium, fontSize = 14.5.sp, color = k.ink)
                     if (r.fresh) Box(Modifier.height(18.dp).clip(RoundedCornerShape(8.dp)).background(k.acc).padding(horizontal = 6.dp), contentAlignment = Alignment.Center) {
-                        Text(newWord, fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 10.5.sp, color = if (k.ink == Color(0xFF0E2233)) Color.White else Color(0xFF1A0B3D))
+                        Text(newWord, fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 10.5.sp, color = if (k.ink == Color(0xFF0E2233)) Color.White else Color(0xFF1A0B3D))
                     }
                 }
-                if (detail != null) Text(detail, Modifier.padding(top = 3.dp), fontFamily = Plex, fontSize = 12.sp, color = k.ink2, maxLines = 1)
+                if (detail != null) Text(detail, Modifier.padding(top = 3.dp), fontFamily = Gudi, fontSize = 12.sp, color = k.ink2, maxLines = 1)
             }
             Row(Modifier.width(104.dp), horizontalArrangement = Arrangement.End, verticalAlignment = Alignment.Bottom) {
-                Text(num, fontFamily = Plex, fontWeight = FontWeight.Light, fontSize = 29.sp, color = k.ink)
-                if (unit.isNotEmpty()) Text(unit, Modifier.padding(start = 4.dp, bottom = 5.dp), fontFamily = Plex, fontSize = 11.5.sp, color = k.ink2)
+                Text(num, fontFamily = Gudi, fontWeight = FontWeight.Light, fontSize = 29.sp, color = k.ink)
+                if (unit.isNotEmpty()) Text(unit, Modifier.padding(start = 4.dp, bottom = 5.dp), fontFamily = Gudi, fontSize = 11.5.sp, color = k.ink2)
             }
         }
     }
@@ -256,7 +255,7 @@ private fun RecordRowView(r: Records.Row, k: SheetInk, locale: Locale, zone: Zon
 internal fun androidx.compose.ui.graphics.drawscope.DrawScope.flewPin(p: Offset, label: String?, measurer: androidx.compose.ui.text.TextMeasurer) {
     drawCircle(Color.White, 5.5f * density, p); drawCircle(Color(0xFFE0246E), 5.5f * density, p, style = androidx.compose.ui.graphics.drawscope.Stroke(2.2f * density))
     if (label == null) return
-    val tl = measurer.measure(label, androidx.compose.ui.text.TextStyle(fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 12.sp, color = Color.White))
+    val tl = measurer.measure(label, androidx.compose.ui.text.TextStyle(fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 12.sp, color = Color.White))
     val w = tl.size.width + 20 * density; val h = tl.size.height + 10 * density
     val x = p.x.coerceIn(w / 2 + 4 * density, size.width - w / 2 - 4 * density)
     val top = (p.y - 14 * density - h).coerceAtLeast(4 * density)

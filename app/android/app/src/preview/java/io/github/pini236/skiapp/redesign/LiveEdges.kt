@@ -49,7 +49,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.pini236.skiapp.R
 import io.github.pini236.skiapp.status.reducedMotion
-import io.github.pini236.skiapp.ui.Plex
 
 /**
  * Part 6, the edges (design/handoff/2026-11-23-redesign-edges, section 2): the mountain is always there and no screen
@@ -105,7 +104,7 @@ internal fun StatusLine(text: String, k: SheetInk, icon: EdgeIcon, modifier: Mod
         .padding(start = 12.dp, end = if (onClose != null) 0.dp else 12.dp, top = 9.dp, bottom = 9.dp),
         verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(9.dp)) {
         EdgeGlyph(icon, if (bad) k.red else k.ink2)
-        Text(text, Modifier.weight(1f), fontFamily = Plex, fontWeight = FontWeight.Medium, fontSize = 13.sp, color = k.ink)
+        Text(text, Modifier.weight(1f), fontFamily = Gudi, fontWeight = FontWeight.Medium, fontSize = 13.sp, color = k.ink)
         action?.invoke()
         if (onClose != null) {
             val close = stringResource(R.string.common_close)
@@ -126,7 +125,7 @@ internal fun ErrorNear(text: String, k: SheetInk, modifier: Modifier = Modifier)
     Row(modifier.fillMaxWidth().semantics(mergeDescendants = true) { liveRegion = LiveRegionMode.Assertive },
         verticalAlignment = Alignment.Top, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
         Box(Modifier.padding(top = 1.dp)) { EdgeGlyph(EdgeIcon.WARN, k.red) }
-        Text(text, Modifier.weight(1f), fontFamily = Plex, fontWeight = FontWeight.Medium, fontSize = 13.5.sp, color = k.red)
+        Text(text, Modifier.weight(1f), fontFamily = Gudi, fontWeight = FontWeight.Medium, fontSize = 13.5.sp, color = k.red)
     }
 }
 
@@ -137,7 +136,7 @@ internal fun WaitTag(k: SheetInk) {
         drawRoundRect(k.ink2, cornerRadius = CornerRadius(9.dp.toPx()), style = Stroke(1.dp.toPx(), pathEffect = PathEffect.dashPathEffect(floatArrayOf(4f, 3f))))
     }.padding(horizontal = 7.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
         EdgeGlyph(EdgeIcon.CLOCK, k.ink2, 12.dp)
-        Text(stringResource(R.string.app_g_wait_tag), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 11.sp, color = k.ink2)
+        Text(stringResource(R.string.app_g_wait_tag), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 11.sp, color = k.ink2)
     }
 }
 
@@ -160,7 +159,7 @@ internal fun LoadingRows(k: SheetInk, n: Int = 3) {
                 }
             }
         }
-        Text(stringResource(R.string.app_loading), Modifier.semantics { liveRegion = LiveRegionMode.Polite }, fontFamily = Plex, fontSize = 12.5.sp, color = k.ink2)
+        Text(stringResource(R.string.app_loading), Modifier.semantics { liveRegion = LiveRegionMode.Polite }, fontFamily = Gudi, fontSize = 12.5.sp, color = k.ink2)
     }
 }
 

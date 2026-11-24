@@ -55,7 +55,6 @@ import io.github.pini236.skiapp.dayrec.analysis.Analyzer
 import io.github.pini236.skiapp.dayrec.ui.LiveNumbers
 import io.github.pini236.skiapp.fx.Haptics
 import io.github.pini236.skiapp.qa.Qa
-import io.github.pini236.skiapp.ui.Plex
 import kotlinx.coroutines.launch
 import java.util.Locale
 
@@ -104,8 +103,8 @@ internal fun DayFour(stats: Analyzer.Stats?, k: SheetInk) {
     )
     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
         for ((v, l) in cells) Column(Modifier.weight(1f).clearAndSetSemantics { contentDescription = "$v $l" }) {
-            Text(v, fontFamily = Plex, fontWeight = FontWeight.Light, fontSize = 27.sp, color = k.ink, maxLines = 1)
-            Text(l, fontFamily = Plex, fontSize = 11.5.sp, color = k.ink2, modifier = Modifier.padding(top = 4.dp), maxLines = 1)
+            Text(v, fontFamily = Gudi, fontWeight = FontWeight.Light, fontSize = 27.sp, color = k.ink, maxLines = 1)
+            Text(l, fontFamily = Gudi, fontSize = 11.5.sp, color = k.ink2, modifier = Modifier.padding(top = 4.dp), maxLines = 1)
         }
     }
 }
@@ -149,7 +148,7 @@ internal fun MiniRidge(paint: DayPaint.Day?, elev: FloatArray?, night: Boolean, 
 internal fun SecondaryButton(text: String, k: SheetInk, modifier: Modifier = Modifier, onClick: () -> Unit) {
     Box(modifier.heightIn(min = 52.dp).widthIn(min = 52.dp).clip(RoundedCornerShape(26.dp)).border(1.dp, k.line, RoundedCornerShape(26.dp))
         .semantics { role = Role.Button }.clickable(onClick = onClick).padding(horizontal = 16.dp), contentAlignment = Alignment.Center) {
-        Text(text, fontFamily = Plex, fontWeight = FontWeight.Medium, fontSize = 15.sp, color = k.ink, maxLines = 1)
+        Text(text, fontFamily = Gudi, fontWeight = FontWeight.Medium, fontSize = 15.sp, color = k.ink, maxLines = 1)
     }
 }
 
@@ -179,7 +178,7 @@ internal fun HoldStop(k: SheetInk, haptics: Haptics, onStop: () -> Unit) {
         }
         Row(Modifier.align(Alignment.Center).padding(horizontal = 16.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             Box(Modifier.size(13.dp).clip(RoundedCornerShape(3.dp)).background(k.red))
-            Text(label, fontFamily = Plex, fontWeight = FontWeight.Medium, fontSize = 15.sp, color = k.ink)
+            Text(label, fontFamily = Gudi, fontWeight = FontWeight.Medium, fontSize = 15.sp, color = k.ink)
         }
     }
 }
@@ -198,8 +197,8 @@ internal fun StandingSheet(walking: Boolean, stats: Analyzer.Stats?, paint: DayP
                            haptics: Haptics, onSee: () -> Unit, onRidge: () -> Unit, onStop: () -> Unit) {
     LiveSheet(k) {
         Row(verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text(stringResource(if (walking) R.string.app_rec_walking else R.string.app_rec_standing), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 19.sp, color = k.ink)
-            Text(stringResource(R.string.app_rec_day_so_far), fontFamily = Plex, fontSize = 13.5.sp, color = k.ink2)
+            Text(stringResource(if (walking) R.string.app_rec_walking else R.string.app_rec_standing), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 19.sp, color = k.ink)
+            Text(stringResource(R.string.app_rec_day_so_far), fontFamily = Gudi, fontSize = 13.5.sp, color = k.ink2)
         }
         DayFour(stats, k)
         MiniRidge(paint, elev, night, k, onRidge)
@@ -215,20 +214,20 @@ internal fun NearLiftSheet(lift: io.github.pini236.skiapp.data.Lift, name: Strin
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             Box(Modifier.size(44.dp).clip(CircleShape).background(k.line), contentAlignment = Alignment.Center) { LiftSign(k.ink) }
             Column(Modifier.weight(1f)) {
-                Text(stringResource(R.string.app_rec_near_lift), fontFamily = Plex, fontSize = 13.5.sp, color = k.ink2)
-                Text("⁦$name⁩", fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 25.sp, color = k.ink, maxLines = 1)
+                Text(stringResource(R.string.app_rec_near_lift), fontFamily = Gudi, fontSize = 13.5.sp, color = k.ink2)
+                Text("⁦$name⁩", fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 25.sp, color = k.ink, maxLines = 1)
             }
             Column(horizontalAlignment = Alignment.End) {
-                Text(LiveNumbers.elapsed(standingS * 1000), fontFamily = Plex, fontWeight = FontWeight.Light, fontSize = 23.sp, color = k.ink)
-                Text(stringResource(R.string.app_rec_here_for), fontFamily = Plex, fontSize = 12.5.sp, color = k.ink2)
+                Text(LiveNumbers.elapsed(standingS * 1000), fontFamily = Gudi, fontWeight = FontWeight.Light, fontSize = 23.sp, color = k.ink)
+                Text(stringResource(R.string.app_rec_here_for), fontFamily = Gudi, fontSize = 12.5.sp, color = k.ink2)
             }
         }
         @Composable fun row(label: String, value: String, colour: Color) {
             Column {
                 Box(Modifier.fillMaxWidth().height(1.dp).background(k.line))
                 Row(Modifier.fillMaxWidth().heightIn(min = 40.dp), verticalAlignment = Alignment.CenterVertically) {
-                    Text(label, Modifier.weight(1f), fontFamily = Plex, fontSize = 13.5.sp, color = k.ink2)
-                    Text(value, fontFamily = Plex, fontWeight = FontWeight.Medium, fontSize = 13.sp, color = colour)
+                    Text(label, Modifier.weight(1f), fontFamily = Gudi, fontSize = 13.5.sp, color = k.ink2)
+                    Text(value, fontFamily = Gudi, fontWeight = FontWeight.Medium, fontSize = 13.sp, color = colour)
                 }
             }
         }
@@ -254,21 +253,21 @@ internal fun BreakScreen(minutes: Long, stats: Analyzer.Stats?, paint: DayPaint.
     Box(Modifier.fillMaxSize().background(k.veil)) {
         Column(Modifier.align(Alignment.TopCenter).padding(top = 190.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(10.dp)) {
             Box(Modifier.size(56.dp).clip(CircleShape).background(k.surf), contentAlignment = Alignment.Center) { CupSign(k.ink) }
-            Text(stringResource(R.string.app_rec_break), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 25.sp, color = k.ink,
+            Text(stringResource(R.string.app_rec_break), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 25.sp, color = k.ink,
                 style = TextStyle(shadow = androidx.compose.ui.graphics.Shadow(k.halo, Offset.Zero, 16f)))
             Row(verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                Text(minutes.toString(), fontFamily = Plex, fontWeight = FontWeight.Light, fontSize = 64.sp, color = k.ink,
+                Text(minutes.toString(), fontFamily = Gudi, fontWeight = FontWeight.Light, fontSize = 64.sp, color = k.ink,
                     style = TextStyle(shadow = androidx.compose.ui.graphics.Shadow(k.halo, Offset.Zero, 20f)))
-                Text(stringResource(R.string.app_rec_minutes, minutes.toInt()).replace(minutes.toString(), "").trim(), fontFamily = Plex, fontWeight = FontWeight.Medium,
+                Text(stringResource(R.string.app_rec_minutes, minutes.toInt()).replace(minutes.toString(), "").trim(), fontFamily = Gudi, fontWeight = FontWeight.Medium,
                     fontSize = 17.sp, color = k.ink, modifier = Modifier.padding(bottom = 12.dp))
             }
         }
         Box(Modifier.align(Alignment.BottomCenter)) {
             LiveSheet(k) {
-                Text(stringResource(R.string.app_rec_day_so_far), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 12.5.sp, color = k.ink2)
+                Text(stringResource(R.string.app_rec_day_so_far), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 12.5.sp, color = k.ink2)
                 DayFour(stats, k)
                 MiniRidge(paint, elev, night, k, onRidge)
-                Text(stringResource(R.string.app_rec_break_note), fontFamily = Plex, fontSize = 13.5.sp, color = k.ink2, textAlign = TextAlign.Start)
+                Text(stringResource(R.string.app_rec_break_note), fontFamily = Gudi, fontSize = 13.5.sp, color = k.ink2, textAlign = TextAlign.Start)
                 SeeAndStop(k, haptics, onSee, onStop)
             }
         }

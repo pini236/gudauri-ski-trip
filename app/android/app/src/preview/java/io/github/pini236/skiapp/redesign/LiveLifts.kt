@@ -43,7 +43,6 @@ import io.github.pini236.skiapp.map.MapScene
 import io.github.pini236.skiapp.places.LocalPlaces
 import io.github.pini236.skiapp.status.LiftStatus
 import io.github.pini236.skiapp.status.agoText
-import io.github.pini236.skiapp.ui.Plex
 import kotlin.math.abs
 import kotlin.math.roundToInt
 
@@ -108,23 +107,23 @@ internal fun LiftsSheet(lifts: List<Lift>, s: LiftStatus?, scene: MapScene, forM
         head?.invoke()
         if (other != null) { other(); return@LiveSheet }
         Row(Modifier.fillMaxWidth().padding(bottom = 6.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            Text(stringResource(R.string.app_lifts_title), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 21.sp, color = k.ink)
+            Text(stringResource(R.string.app_lifts_title), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 21.sp, color = k.ink)
             Text(if (fresh) stringResource(R.string.app_lifts_count, s!!.open.toString(), lifts.size.toString()) else lifts.size.toString(),
-                Modifier.weight(1f), fontFamily = Plex, fontWeight = FontWeight.Light, fontSize = 23.sp, color = k.ink)
+                Modifier.weight(1f), fontFamily = Gudi, fontWeight = FontWeight.Light, fontSize = 23.sp, color = k.ink)
             if (fresh) {
                 val on = forMe
                 Box(Modifier.heightIn(min = 44.dp).semantics { role = Role.Switch }.clickable { haptics.tick(.2f); onForMe(!on) }, contentAlignment = Alignment.Center) {
                     Text(stringResource(R.string.status_only_open_for_me), Modifier.clip(RoundedCornerShape(18.dp)).background(if (on) k.acc else Color.Transparent)
                         .border(1.dp, if (on) k.acc else k.line, RoundedCornerShape(18.dp)).padding(horizontal = 13.dp, vertical = 8.dp),
-                        fontFamily = Plex, fontWeight = FontWeight.Medium, fontSize = 13.sp, color = if (on) Color.White else k.ink)
+                        fontFamily = Gudi, fontWeight = FontWeight.Medium, fontSize = 13.sp, color = if (on) Color.White else k.ink)
                 }
-            } else Text(stringResource(R.string.status_no_report), fontFamily = Plex, fontSize = 13.5.sp, color = k.ink2)
+            } else Text(stringResource(R.string.status_no_report), fontFamily = Gudi, fontSize = 13.5.sp, color = k.ink2)
         }
         // before the season (Q02, handoff section 14.7): the planned opening is the first row; a tap opens the count
         if (opening != null) Row(Modifier.fillMaxWidth().heightIn(min = 52.dp).semantics(mergeDescendants = true) { role = Role.Button }
             .clickable { haptics.tick(.3f); onOpening() }, verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            Text(opening.first, Modifier.weight(1f), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = k.ink, maxLines = 1)
-            Text(opening.second, fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = k.acc, maxLines = 1)
+            Text(opening.first, Modifier.weight(1f), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = k.ink, maxLines = 1)
+            Text(opening.second, fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = k.acc, maxLines = 1)
         }
         Column(Modifier.heightIn(max = 380.dp).verticalScroll(rememberScrollState())) {
             lifts.forEachIndexed { i, l ->
@@ -144,10 +143,10 @@ internal fun LiftsSheet(lifts: List<Lift>, s: LiftStatus?, scene: MapScene, forM
                     verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                     if (fresh) StateDot(open, k)
                     Column(Modifier.weight(1f)) {
-                        Text("⁦${l.name}⁩", fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 15.5.sp, color = k.ink, maxLines = 1)
-                        Text(kt, fontFamily = Plex, fontSize = 12.5.sp, color = k.ink2, maxLines = 1)
+                        Text("⁦${l.name}⁩", fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 15.5.sp, color = k.ink, maxLines = 1)
+                        Text(kt, fontFamily = Gudi, fontSize = 12.5.sp, color = k.ink2, maxLines = 1)
                     }
-                    end?.let { Text(it, fontFamily = Plex, fontWeight = FontWeight.Medium, fontSize = 13.5.sp,
+                    end?.let { Text(it, fontFamily = Gudi, fontWeight = FontWeight.Medium, fontSize = 13.5.sp,
                         color = when { !fresh -> k.ink2; open == false -> k.red; else -> k.good }) }
                 }
             }
@@ -176,18 +175,18 @@ internal fun LiftPanel(l: Lift, s: LiftStatus?, scene: MapScene, k: SheetInk, ha
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 Box(Modifier.size(44.dp).clip(CircleShape).background(k.line), contentAlignment = Alignment.Center) { LiftSign(k.ink) }
                 Column(Modifier.weight(1f)) {
-                    Text("⁦${l.name}⁩", fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 25.sp, color = k.ink, maxLines = 1)
+                    Text("⁦${l.name}⁩", fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 25.sp, color = k.ink, maxLines = 1)
                     val sub = listOfNotNull(liftKind(l.kind), l.year?.let { stringResource(R.string.app_lift_built_in, it) }).joinToString(" · ")
-                    Text(sub, fontFamily = Plex, fontSize = 12.5.sp, color = k.ink2)
+                    Text(sub, fontFamily = Gudi, fontSize = 12.5.sp, color = k.ink2)
                 }
                 when {
                     fresh && open != null -> Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                         StateDot(open, k)
                         val t = if (open) stringResource(R.string.status_lift_open)
                             else reasonText(s!!.reason(l.name))?.let { stringResource(R.string.app_lift_closed_why, it) } ?: stringResource(R.string.status_lift_closed)
-                        Text(t, fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 14.5.sp, color = if (open) k.good else k.red)
+                        Text(t, fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 14.5.sp, color = if (open) k.good else k.red)
                     }
-                    !fresh -> Text(stringResource(R.string.status_no_report), fontFamily = Plex, fontSize = 14.5.sp, color = k.ink2)
+                    !fresh -> Text(stringResource(R.string.status_no_report), fontFamily = Gudi, fontSize = 14.5.sp, color = k.ink2)
                 }
             }
             // three numbers, those in the data only, side by side
@@ -198,25 +197,25 @@ internal fun LiftPanel(l: Lift, s: LiftStatus?, scene: MapScene, k: SheetInk, ha
             )
             if (nums.isNotEmpty()) Row(horizontalArrangement = Arrangement.spacedBy(24.dp)) {
                 for ((v, c) in nums) Column {
-                    Text(v, fontFamily = Plex, fontWeight = FontWeight.Light, fontSize = 34.sp, color = k.ink)
-                    Text(c, fontFamily = Plex, fontSize = 12.5.sp, color = k.ink2)
+                    Text(v, fontFamily = Gudi, fontWeight = FontWeight.Light, fontSize = 34.sp, color = k.ink)
+                    Text(c, fontFamily = Gudi, fontSize = 12.5.sp, color = k.ink2)
                 }
             }
             LiveLifts.ends(l, elev)?.let { e ->
                 Row(Modifier.fillMaxWidth()) {
-                    Text(stringResource(R.string.lift_stations_label), Modifier.weight(1f), fontFamily = Plex, fontSize = 13.5.sp, color = k.ink2)
+                    Text(stringResource(R.string.lift_stations_label), Modifier.weight(1f), fontFamily = Gudi, fontSize = 13.5.sp, color = k.ink2)
                     Text(stringResource(R.string.lift_stations_value, nf.format(elev(e[0], e[1]).roundToInt()), nf.format(elev(e[2], e[3]).roundToInt())),
-                        fontFamily = Plex, fontWeight = FontWeight.Medium, fontSize = 13.5.sp, color = k.ink)
+                        fontFamily = Gudi, fontWeight = FontWeight.Medium, fontSize = 13.5.sp, color = k.ink)
                 }
             }
             val fromTop = scene.runs.pistes.filter { it.named && l.name in it.fromLifts }
             if (fromTop.isNotEmpty()) Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Text(stringResource(R.string.lift_runs_from_top_heading), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 13.5.sp, color = k.ink)
+                Text(stringResource(R.string.lift_runs_from_top_heading), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 13.5.sp, color = k.ink)
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(14.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                     for (p in fromTop) Row(Modifier.heightIn(min = 44.dp).semantics { role = Role.Button }.clickable { haptics.tick(.3f); onRun(p.key) },
                         verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                         Box(Modifier.size(11.dp).clip(RoundedCornerShape(3.dp)).background(Color(io.github.pini236.skiapp.game.runColor(p.color))))
-                        Text("⁦${p.title}⁩", fontFamily = Plex, fontWeight = FontWeight.Medium, fontSize = 13.5.sp, color = k.ink)
+                        Text("⁦${p.title}⁩", fontFamily = Gudi, fontWeight = FontWeight.Medium, fontSize = 13.5.sp, color = k.ink)
                     }
                 }
             }
@@ -225,7 +224,7 @@ internal fun LiftPanel(l: Lift, s: LiftStatus?, scene: MapScene, k: SheetInk, ha
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             if (onMeet != null) Box(Modifier.weight(1f).heightIn(min = 52.dp).clip(RoundedCornerShape(26.dp)).background(k.acc)
                 .semantics { role = Role.Button }.clickable { haptics.tick(.4f); onMeet() }, contentAlignment = Alignment.Center) {
-                Text(stringResource(R.string.app_lift_meet_here), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color.White)
+                Text(stringResource(R.string.app_lift_meet_here), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color.White)
             }
             SecondaryButton(stringResource(R.string.app_lift_runs_btn), k, if (onMeet == null) Modifier.weight(1f) else Modifier) { haptics.tick(.3f); onRuns() }
         }
@@ -251,17 +250,17 @@ private fun LiftPlacesLine(l: Lift, k: SheetInk, onPlace: (io.github.pini236.ski
             var all by androidx.compose.runtime.remember(st) { androidx.compose.runtime.mutableStateOf(false) }
             // "all N" (T10): the list in a sheet of its own, by distance
             if (all) PlacesSheet(st, near, head == R.string.places_near_bottom, l, k, onPlace = { pl -> all = false; onPlace(pl) }) { all = false }
-            Text(stringResource(head), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 13.5.sp, color = k.ink)
-            if (near.isEmpty()) Text(stringResource(R.string.places_none), fontFamily = Plex, fontSize = 13.sp, color = k.ink2)
+            Text(stringResource(head), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 13.5.sp, color = k.ink)
+            if (near.isEmpty()) Text(stringResource(R.string.places_none), fontFamily = Gudi, fontSize = 13.sp, color = k.ink2)
             else Row(Modifier.fillMaxWidth().heightIn(min = 44.dp).let { m -> if (near.size > 3) m.semantics { role = Role.Button }.clickable { all = !all } else m },
                 verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 val shown = near.take(3).map { "⁦${io.github.pini236.skiapp.places.label(it.place)}⁩" }
-                Text(shown.joinToString(", "), Modifier.weight(1f, fill = false), fontFamily = Plex,
+                Text(shown.joinToString(", "), Modifier.weight(1f, fill = false), fontFamily = Gudi,
                     fontSize = 13.5.sp, color = k.ink, maxLines = 1, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis)
-                if (near.size > 3) Text(stringResource(R.string.places_all_n, near.size.toString()), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 13.5.sp, color = k.acc)
+                if (near.size > 3) Text(stringResource(R.string.places_all_n, near.size.toString()), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 13.5.sp, color = k.acc)
             }
         }
-        Text(stringResource(R.string.places_check), fontFamily = Plex, fontSize = 12.5.sp, color = k.ink2)
+        Text(stringResource(R.string.places_check), fontFamily = Gudi, fontSize = 12.5.sp, color = k.ink2)
     }
 }
 
@@ -277,9 +276,9 @@ private fun PlacesSheet(st: io.github.pini236.skiapp.places.Station, near: List<
     androidx.compose.runtime.LaunchedEffect(st.id) { io.github.pini236.skiapp.qa.Qa.log("redesign places ${st.id} ${near.size}") }
     androidx.compose.material3.ModalBottomSheet(onDismissRequest = onDismiss, containerColor = k.surf.copy(alpha = 1f)) {
         Column(Modifier.padding(horizontal = 16.dp).navigationBarsPadding(), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-            Text(stringResource(if (bottom) R.string.places_near_bottom else R.string.places_near_top), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 19.sp, color = k.ink)
+            Text(stringResource(if (bottom) R.string.places_near_bottom else R.string.places_near_top), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 19.sp, color = k.ink)
             Text(androidx.compose.ui.res.pluralStringResource(R.plurals.app_places_head_n, near.size, "⁦${l.name}⁩", near.size.toString(), "250"),
-                fontFamily = Plex, fontSize = 13.sp, color = k.ink2)
+                fontFamily = Gudi, fontSize = 13.sp, color = k.ink2)
             val nf = remember { java.text.NumberFormat.getIntegerInstance() }
             Column(Modifier.heightIn(max = 420.dp).verticalScroll(rememberScrollState())) {
                 for ((i, n) in near.withIndex()) {
@@ -296,17 +295,17 @@ private fun PlacesSheet(st: io.github.pini236.skiapp.places.Station, near: List<
                         .clickable { onPlace(n.place) }.padding(vertical = 6.dp),
                         verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                         Box(Modifier.size(32.dp).clip(CircleShape).background(io.github.pini236.skiapp.places.kindColor(n.place.kind)), contentAlignment = Alignment.Center) {
-                            Text(kind.take(1), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = Color.White)
+                            Text(kind.take(1), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = Color.White)
                         }
                         Column(Modifier.weight(1f)) {
-                            Text("⁦$title⁩", fontFamily = Plex, fontWeight = FontWeight.Medium, fontSize = 15.sp, color = k.ink, maxLines = 1)
-                            Text(sub, fontFamily = Plex, fontSize = 12.5.sp, color = k.ink2, maxLines = 1)
+                            Text("⁦$title⁩", fontFamily = Gudi, fontWeight = FontWeight.Medium, fontSize = 15.sp, color = k.ink, maxLines = 1)
+                            Text(sub, fontFamily = Gudi, fontSize = 12.5.sp, color = k.ink2, maxLines = 1)
                         }
-                        Text(dist, fontFamily = Plex, fontSize = 13.5.sp, color = k.ink2)
+                        Text(dist, fontFamily = Gudi, fontSize = 13.5.sp, color = k.ink2)
                     }
                 }
             }
-            Text(stringResource(R.string.places_check), Modifier.padding(vertical = 8.dp), fontFamily = Plex, fontSize = 12.5.sp, color = k.ink2)
+            Text(stringResource(R.string.places_check), Modifier.padding(vertical = 8.dp), fontFamily = Gudi, fontSize = 12.5.sp, color = k.ink2)
         }
     }
 }

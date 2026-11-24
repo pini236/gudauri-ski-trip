@@ -84,7 +84,6 @@ import io.github.pini236.skiapp.trip.PassEdit
 import io.github.pini236.skiapp.trip.PassEdits
 import io.github.pini236.skiapp.trip.Trip
 import io.github.pini236.skiapp.ui.Icons
-import io.github.pini236.skiapp.ui.Plex
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.time.LocalDate
@@ -152,9 +151,9 @@ private fun stub(trip: Trip, now: LocalDateTime, night: Boolean): Pair<String?, 
 @Composable
 private fun Field(label: String, value: String?, add: String?, p: PassPaper, modifier: Modifier, onClick: (() -> Unit)?) {
     Column(modifier.heightIn(min = 44.dp).let { m -> if (onClick != null) m.semantics { role = Role.Button }.clickable(onClick = onClick) else m }) {
-        Text(label, fontFamily = Plex, fontSize = 11.5.sp, color = p.ink2, maxLines = 1)
-        if (value == null && add != null) Text(add, fontFamily = Plex, fontWeight = FontWeight.Medium, fontSize = 15.5.sp, color = p.acc, maxLines = 1)
-        else Text(value ?: "—", fontFamily = Plex, fontWeight = FontWeight.Medium, fontSize = 15.5.sp, color = p.ink, maxLines = 1,
+        Text(label, fontFamily = Gudi, fontSize = 11.5.sp, color = p.ink2, maxLines = 1)
+        if (value == null && add != null) Text(add, fontFamily = Gudi, fontWeight = FontWeight.Medium, fontSize = 15.5.sp, color = p.acc, maxLines = 1)
+        else Text(value ?: "—", fontFamily = Gudi, fontWeight = FontWeight.Medium, fontSize = 15.5.sp, color = p.ink, maxLines = 1,
             style = TextStyle(fontFeatureSettings = "tnum"))
     }
 }
@@ -162,7 +161,7 @@ private fun Field(label: String, value: String?, add: String?, p: PassPaper, mod
 @Composable
 private fun LegTag(text: String, p: PassPaper) {
     Box(Modifier.height(24.dp).clip(RoundedCornerShape(12.dp)).border(1.dp, p.line, RoundedCornerShape(12.dp)).padding(horizontal = 10.dp), contentAlignment = Alignment.Center) {
-        Text(text, fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 12.sp, color = p.ink)
+        Text(text, fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 12.sp, color = p.ink)
     }
 }
 
@@ -171,13 +170,13 @@ private fun LegTag(text: String, p: PassPaper) {
 private fun Codes(from: String?, fromCity: String, to: String?, toCity: String, p: PassPaper, toFaint: Boolean = false, onFrom: (() -> Unit)?, onTo: (() -> Unit)?) {
     Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.Top) {
         Column(Modifier.weight(1f).let { m -> if (onFrom != null) m.clickable(onClick = onFrom) else m }) {
-            Text(from ?: "—", fontFamily = Plex, fontWeight = FontWeight.Light, fontSize = 54.sp, color = p.ink, maxLines = 1)
-            Text(fromCity, fontFamily = Plex, fontSize = 11.5.sp, color = p.ink2, maxLines = 1)
+            Text(from ?: "—", fontFamily = Gudi, fontWeight = FontWeight.Light, fontSize = 54.sp, color = p.ink, maxLines = 1)
+            Text(fromCity, fontFamily = Gudi, fontSize = 11.5.sp, color = p.ink2, maxLines = 1)
         }
         Icon(Icons.plane, null, Modifier.padding(top = 22.dp).size(28.dp), tint = p.acc)
         Column(Modifier.weight(1f).let { m -> if (onTo != null) m.clickable(onClick = onTo) else m }, horizontalAlignment = Alignment.End) {
-            Text(to ?: "—", Modifier.alpha(if (toFaint) .28f else 1f), fontFamily = Plex, fontWeight = FontWeight.Light, fontSize = 54.sp, color = p.ink, maxLines = 1)
-            Text(toCity, fontFamily = Plex, fontSize = 11.5.sp, color = p.ink2, maxLines = 1)
+            Text(to ?: "—", Modifier.alpha(if (toFaint) .28f else 1f), fontFamily = Gudi, fontWeight = FontWeight.Light, fontSize = 54.sp, color = p.ink, maxLines = 1)
+            Text(toCity, fontFamily = Gudi, fontSize = 11.5.sp, color = p.ink2, maxLines = 1)
         }
     }
 }
@@ -207,7 +206,7 @@ private fun TripCard(trip: Trip, isRet: Boolean, now: LocalDateTime, night: Bool
         .background(p.paper, NotchedPaper(22.dp, STUB_H))) {
         Column(Modifier.padding(start = 20.dp, end = 20.dp, top = 18.dp, bottom = 14.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                Text(stringResource(R.string.trip_title), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 12.5.sp, color = p.ink2)
+                Text(stringResource(R.string.trip_title), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 12.5.sp, color = p.ink2)
                 LegTag(if (isRet) stringResource(R.string.app_pass_ret) + " · ${leg.date.dayOfMonth}.${leg.date.monthValue}" else stringResource(R.string.app_pass_out), p)
             }
             Codes(leg.fromCode, leg.fromCity, leg.toCode, leg.toCity, p, onFrom = on(PassEdit.Place(from = !isRet)), onTo = on(PassEdit.Place(from = isRet)))
@@ -242,12 +241,12 @@ private fun TripCard(trip: Trip, isRet: Boolean, now: LocalDateTime, night: Bool
                 alpha = 1f - (fall * 1.4f - .4f).coerceIn(0f, 1f)
             }
             .padding(horizontal = 20.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(14.dp)) {
-            if (num != null) Text(num, fontFamily = Plex, fontWeight = FontWeight.Light, fontSize = 66.sp, color = p.ink, style = TextStyle(fontFeatureSettings = "tnum"))
+            if (num != null) Text(num, fontFamily = Gudi, fontWeight = FontWeight.Light, fontSize = 66.sp, color = p.ink, style = TextStyle(fontFeatureSettings = "tnum"))
             Column(Modifier.weight(1f)) {
-                if (words != null) Text(words, fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 17.sp, color = p.ink, maxLines = 2)
+                if (words != null) Text(words, fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 17.sp, color = p.ink, maxLines = 2)
                 val r = trip.skiDays()
                 (if (retDays != null && r != null) stringResource(R.string.app_trip_range, "${r.start.dayOfMonth}", "${r.endInclusive.dayOfMonth}.${r.endInclusive.monthValue}") else skiLine(trip))
-                    ?.let { Text(it, fontFamily = Plex, fontSize = 12.5.sp, color = p.ink2, maxLines = 1) }
+                    ?.let { Text(it, fontFamily = Gudi, fontSize = 12.5.sp, color = p.ink2, maxLines = 1) }
             }
         }
     }
@@ -333,7 +332,7 @@ internal fun BoxScope.LiveTripPass(around: Around, trip: Trip, now: LocalDateTim
 internal fun GlassButton(text: String, k: SheetInk, modifier: Modifier = Modifier, onClick: () -> Unit) {
     Box(modifier.heightIn(min = 52.dp).clip(RoundedCornerShape(26.dp)).background(k.surf).border(1.dp, k.line, RoundedCornerShape(26.dp))
         .semantics { role = Role.Button }.clickable(onClick = onClick).padding(horizontal = 16.dp), contentAlignment = Alignment.Center) {
-        Text(text, fontFamily = Plex, fontWeight = FontWeight.Medium, fontSize = 15.sp, color = k.ink, maxLines = 1)
+        Text(text, fontFamily = Gudi, fontWeight = FontWeight.Medium, fontSize = 15.sp, color = k.ink, maxLines = 1)
     }
 }
 
@@ -349,15 +348,15 @@ internal fun LiveTripEmpty(night: Boolean, onTap: () -> Unit) {
             .clickable(onClick = onTap)) {
             Column(Modifier.padding(start = 20.dp, end = 20.dp, top = 18.dp, bottom = 12.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                    Text(stringResource(R.string.trip_title), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 12.5.sp, color = p.ink2)
+                    Text(stringResource(R.string.trip_title), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 12.5.sp, color = p.ink2)
                     LegTag(stringResource(R.string.app_pass_out), p)
                 }
                 Codes("TLV", stringResource(R.string.ticket_city_tlv), "TBS", stringResource(R.string.trip_land_where), p, toFaint = true, onFrom = null, onTo = null)
             }
             Perforation(p)
             Row(Modifier.fillMaxWidth().height(76.dp).padding(horizontal = 20.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(14.dp)) {
-                Text(stringResource(R.string.trip_when_fly), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 25.sp, color = p.ink)
-                Text(stringResource(R.string.app_trip_local_note), Modifier.weight(1f), fontFamily = Plex, fontSize = 12.5.sp, color = p.ink2)
+                Text(stringResource(R.string.trip_when_fly), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 25.sp, color = p.ink)
+                Text(stringResource(R.string.app_trip_local_note), Modifier.weight(1f), fontFamily = Gudi, fontSize = 12.5.sp, color = p.ink2)
             }
         }
     }
@@ -387,7 +386,7 @@ internal fun LiveCalendar(trip: Trip?, today: LocalDate, k: SheetInk, haptics: H
     LiveSheet(k) {
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
             val title = month.month.getDisplayName(JTextStyle.FULL_STANDALONE, locale).replaceFirstChar { it.titlecase(locale) } + " " + month.year
-            Text(title, Modifier.weight(1f), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 22.sp, color = p.ink)
+            Text(title, Modifier.weight(1f), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 22.sp, color = p.ink)
             val rtl = LocalLayoutDirection.current == LayoutDirection.Rtl
             val canBack = month > YearMonth.from(today)
             MonthArrow(if (rtl) "›" else "‹", stringResource(R.string.trip_month_prev), canBack, p) { month = month.minusMonths(1) }
@@ -396,7 +395,7 @@ internal fun LiveCalendar(trip: Trip?, today: LocalDate, k: SheetInk, haptics: H
         val first = WeekFields.of(locale).firstDayOfWeek
         Row(Modifier.fillMaxWidth().height(24.dp), verticalAlignment = Alignment.CenterVertically) {
             for (i in 0 until 7) Text(first.plus(i.toLong()).getDisplayName(JTextStyle.NARROW_STANDALONE, locale), Modifier.weight(1f),
-                fontFamily = Plex, fontSize = 11.5.sp, color = p.ink2, textAlign = TextAlign.Center)
+                fontFamily = Gudi, fontSize = 11.5.sp, color = p.ink2, textAlign = TextAlign.Center)
         }
         val lead = (month.atDay(1).dayOfWeek.value - first.value + 7) % 7
         val start = month.atDay(1).minusDays(lead.toLong())
@@ -414,7 +413,7 @@ internal fun LiveCalendar(trip: Trip?, today: LocalDate, k: SheetInk, haptics: H
                         .clearAndSetSemantics { selected = edge; contentDescription = DateTimeFormatter.ofPattern("EEEE d MMMM", locale).format(d) },
                         contentAlignment = Alignment.Center) {
                         if (edge) Box(Modifier.size(42.dp).clip(CircleShape).background(acc))
-                        Text(d.dayOfMonth.toString(), Modifier.alpha(if (!inMonth || past) .45f else 1f), fontFamily = Plex,
+                        Text(d.dayOfMonth.toString(), Modifier.alpha(if (!inMonth || past) .45f else 1f), fontFamily = Gudi,
                             fontWeight = if (edge) FontWeight.Bold else FontWeight.Normal, fontSize = 15.sp,
                             color = if (edge) Color.White else if (!inMonth) p.ink2 else p.ink)
                         if (skiD) Box(Modifier.align(Alignment.BottomCenter).padding(bottom = 5.dp).size(5.dp).clip(CircleShape).background(acc))
@@ -425,15 +424,15 @@ internal fun LiveCalendar(trip: Trip?, today: LocalDate, k: SheetInk, haptics: H
         // the summary: a dot and the ski days, and at the end the flights' dates
         if (draft != null) Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             Box(Modifier.size(7.dp).clip(CircleShape).background(acc))
-            Text(skiLine(draft) ?: stringResource(R.string.trip_ski_unknown), Modifier.weight(1f), fontFamily = Plex, fontSize = 13.sp, color = p.ink, maxLines = 1)
+            Text(skiLine(draft) ?: stringResource(R.string.trip_ski_unknown), Modifier.weight(1f), fontFamily = Gudi, fontSize = 13.sp, color = p.ink, maxLines = 1)
             val o = out!!
             Text(if (ret != null) stringResource(R.string.app_trip_range, "${o.dayOfMonth}.${o.monthValue}", "${ret!!.dayOfMonth}.${ret!!.monthValue}") else "${o.dayOfMonth}.${o.monthValue}",
-                fontFamily = Plex, fontSize = 13.sp, color = p.ink2, style = TextStyle(fontFeatureSettings = "tnum"))
+                fontFamily = Gudi, fontSize = 13.sp, color = p.ink2, style = TextStyle(fontFeatureSettings = "tnum"))
         }
         Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
             Box(Modifier.weight(1f).heightIn(min = 52.dp).alpha(if (out == null) .4f else 1f).clip(RoundedCornerShape(26.dp)).background(acc)
                 .semantics { role = Role.Button }.clickable(enabled = out != null) { haptics.tick(.4f); out?.let { onSave(build(it, ret)) } }, contentAlignment = Alignment.Center) {
-                Text(stringResource(R.string.trip_save), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color.White)
+                Text(stringResource(R.string.trip_save), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color.White)
             }
             SecondaryButton(stringResource(R.string.app_trip_no_return), k) { haptics.tick(.3f); out?.let { onSave(build(it, null)) } }
         }
@@ -447,7 +446,7 @@ private fun SheetInk.skiDayOf(): Color = if (acc == Color(0xFFB79CFF)) Color(0x3
 internal fun MonthArrow(sign: String, label: String, enabled: Boolean, k: SheetInk, onClick: () -> Unit) {
     Box(Modifier.size(44.dp).alpha(if (enabled) 1f else .35f).semantics { role = Role.Button; contentDescription = label }
         .clickable(enabled = enabled, onClick = onClick), contentAlignment = Alignment.Center) {
-        Text(sign, fontFamily = Plex, fontSize = 24.sp, color = k.ink)
+        Text(sign, fontFamily = Gudi, fontSize = 24.sp, color = k.ink)
     }
 }
 

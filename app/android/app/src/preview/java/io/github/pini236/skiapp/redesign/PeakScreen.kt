@@ -106,7 +106,6 @@ import io.github.pini236.skiapp.qa.Qa
 import io.github.pini236.skiapp.fx.Haptics
 import io.github.pini236.skiapp.home.DayNight
 import io.github.pini236.skiapp.ui.Motion
-import io.github.pini236.skiapp.ui.Plex
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -144,9 +143,6 @@ internal class Glass(val night: Boolean) {
     val sheet = if (night) Color(0xEB0F1828) else Color(0xEBFFFFFF)
 }
 
-/** Plex's thin numbers (the sheet, the designer's 4): the variable Plex Sans at 300. */
-private val PlexLight = androidx.compose.ui.text.font.FontFamily(
-    androidx.compose.ui.text.font.Font(R.font.plex_sans, FontWeight.Light, variationSettings = androidx.compose.ui.text.font.FontVariation.Settings(androidx.compose.ui.text.font.FontVariation.weight(300))))
 
 /** The pictures, decoded when needed (1170 px wide, ~12 MB each in memory): the architect's ceiling is two, plus the close-up. */
 private class Pictures(private val context: android.content.Context) {
@@ -439,7 +435,7 @@ fun PeakScreen(mode: DayNight.Mode, haptics: Haptics, onLive: (() -> Unit)? = nu
                             Box(Modifier.size(8.dp).clip(CircleShape).background(if (night) Color(0xFFFFD873) else Color(0xFFF2B33D)))
                             val sv = scrub
                             val time = PeakLight.clock(sv ?: PeakLight.localHour(now))
-                            Text(if (scrubOpen) stringResource(R.string.poc_peak_light_at, time) else time, fontFamily = Plex, fontSize = 14.sp, color = g.ink, maxLines = 1)
+                            Text(if (scrubOpen) stringResource(R.string.poc_peak_light_at, time) else time, fontFamily = Gudi, fontSize = 14.sp, color = g.ink, maxLines = 1)
                         }
                     }
                 }
@@ -447,11 +443,11 @@ fun PeakScreen(mode: DayNight.Mode, haptics: Haptics, onLive: (() -> Unit)? = nu
                 if (onLive != null) Pill(g, Modifier.clickable { haptics.tick(.3f); onLive() }) {
                     Row(Modifier.padding(horizontal = 14.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(7.dp)) {
                         Box(Modifier.size(8.dp).clip(CircleShape).background(g.acc))
-                        Text(stringResource(R.string.poc_peak_live), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = g.ink)
+                        Text(stringResource(R.string.poc_peak_live), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = g.ink)
                     }
                 }
                 Pill(g, Modifier.clickable { haptics.tick(.3f); onLeave() }) {
-                    Text(stringResource(R.string.poc_peak_leave), Modifier.padding(horizontal = 16.dp), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = g.ink)
+                    Text(stringResource(R.string.poc_peak_leave), Modifier.padding(horizontal = 16.dp), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = g.ink)
                 }
             }
             AnimatedVisibility(scrubOpen && key == null, enter = fadeIn() + slideInVertically { -it / 3 }, exit = fadeOut() + slideOutVertically { -it / 3 }) {
@@ -465,12 +461,12 @@ fun PeakScreen(mode: DayNight.Mode, haptics: Haptics, onLive: (() -> Unit)? = nu
             // hidden with a chosen run, like the hour bar: in the close view it sat on the run's top (the designer)
             AnimatedVisibility(key == null, enter = fadeIn(), exit = fadeOut()) {
                 Text(stringResource(R.string.poc_peak_badge), Modifier.clip(RoundedCornerShape(11.dp)).background(Color(0x66081A33)).padding(horizontal = 10.dp, vertical = 3.dp),
-                    fontFamily = Plex, fontSize = 11.5.sp, color = Color.White)
+                    fontFamily = Gudi, fontSize = 11.5.sp, color = Color.White)
             }
         }
 
         AnimatedVisibility(!chosenOnce, Modifier.align(Alignment.BottomCenter).navigationBarsPadding().padding(bottom = 22.dp), enter = fadeIn(), exit = fadeOut()) {
-            Pill(g, h = 48) { Text(stringResource(R.string.poc_peak_hint), Modifier.padding(horizontal = 20.dp), fontFamily = Plex, fontSize = 15.sp, color = g.ink) }
+            Pill(g, h = 48) { Text(stringResource(R.string.poc_peak_hint), Modifier.padding(horizontal = 20.dp), fontFamily = Gudi, fontSize = 15.sp, color = g.ink) }
         }
 
         // ---- step 4: the sheet (K10)
@@ -651,8 +647,8 @@ private fun DrawScope.labels(v: PeakData.View, pl: Place, night: Boolean, a: Flo
     val ink = if (night) Color(0xFFEAF1F8) else Color(0xFF0E2233)
     val halo = if (night) Color(0xF2060B16) else Color(0xF2FFFFFF)
     val sc = pl.k / pinch / density   // the label sizes are in picture points at the unpinched size: a pinch does not grow them
-    val name = TextStyle(fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = (11.5f * sc).sp, color = ink)
-    val sub = TextStyle(fontFamily = Plex, fontSize = (10.5f * sc).sp, color = ink)
+    val name = TextStyle(fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = (11.5f * sc).sp, color = ink)
+    val sub = TextStyle(fontFamily = Gudi, fontSize = (10.5f * sc).sp, color = ink)
     for (l in v.labels) {
         val q = pl.on(Offset(l.x, l.y))
         val t1 = measurer.measure(l.t, name)
@@ -672,7 +668,7 @@ private fun DrawScope.labels(v: PeakData.View, pl: Place, night: Boolean, a: Flo
 private fun DrawScope.kmNumbers(m: PeakData.Seg, pl: Place, a: Float, measurer: TextMeasurer, near: Boolean, pinch: Float) {
     if (a <= 0f) return
     val sc = pl.k / pinch / density
-    val style = TextStyle(fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = (9.5f * sc).sp, color = Color.White)
+    val style = TextStyle(fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = (9.5f * sc).sp, color = Color.White)
     var b = 500f
     while (b < m.length) {
         if (m.vis[m.index(b)]) {
@@ -711,7 +707,7 @@ internal fun plate(c: String) = when (c) { "green" -> Color(0xFF178A4A); "blue" 
  */
 internal fun DrawScope.sign(r: PeakData.Run, q: Offset, a: Float, measurer: TextMeasurer) {
     val t = measurer.measure(if (r.ref.isNotBlank()) r.ref + " · " + r.name else r.name,
-        TextStyle(fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 12.sp, color = Color.White, textDirection = TextDirection.Ltr))
+        TextStyle(fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 12.sp, color = Color.White, textDirection = TextDirection.Ltr))
     val pad = 8.dp.toPx(); val h = 24.dp.toPx(); val stem = 12.dp.toPx(); val w = t.size.width + 2 * pad
     // the plate stays inside the screen (8 dp from each edge) when the top of the run comes near an edge; the stem
     // stays on the top of the run, inside the plate
@@ -738,11 +734,11 @@ internal fun RunSheet(r: PeakData.Run, d: PeakData, g: Glass, onClose: () -> Uni
         Box(Modifier.align(Alignment.CenterHorizontally).width(38.dp).height(5.dp).clip(CircleShape).background(g.line))
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             Box(Modifier.height(30.dp).widthIn(min = 40.dp).clip(RoundedCornerShape(7.dp)).background(plate(r.color)).padding(horizontal = 7.dp), contentAlignment = Alignment.Center) {
-                Text(r.ref, fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 17.sp, color = Color.White, style = TextStyle(textDirection = TextDirection.Ltr))
+                Text(r.ref, fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 17.sp, color = Color.White, style = TextStyle(textDirection = TextDirection.Ltr))
             }
             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                Text(r.name, fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 21.sp, lineHeight = 25.sp, color = g.ink, style = TextStyle(textDirection = TextDirection.Ltr))
-                Text(colour + stringResource(R.string.run_color_official_suffix) + " · " + level, fontFamily = Plex, fontSize = 13.5.sp, color = g.ink2)
+                Text(r.name, fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 21.sp, lineHeight = 25.sp, color = g.ink, style = TextStyle(textDirection = TextDirection.Ltr))
+                Text(colour + stringResource(R.string.run_color_official_suffix) + " · " + level, fontFamily = Gudi, fontSize = 13.5.sp, color = g.ink2)
             }
             Box(Modifier.size(44.dp).clip(CircleShape).clickable(onClick = onClose).semantics { contentDescription = closeLabel }, contentAlignment = Alignment.Center) {
                 Canvas(Modifier.size(13.dp)) {
@@ -762,7 +758,7 @@ internal fun RunSheet(r: PeakData.Run, d: PeakData, g: Glass, onClose: () -> Uni
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                     d.slope.forEachIndexed { i, col ->
                         Box(Modifier.width(18.dp).height(6.dp).clip(CircleShape).background(col))
-                        if (i < 3) Text(listOf("15°", "25°", "30°")[i], fontFamily = Plex, fontSize = 12.sp, color = g.ink2)
+                        if (i < 3) Text(listOf("15°", "25°", "30°")[i], fontFamily = Gudi, fontSize = 12.sp, color = g.ink2)
                     }
                 }
             }
@@ -777,9 +773,9 @@ internal fun Num(v: String, cap: String, g: Glass) {
         // the number large and thin (Plex 300); its unit small, 15, regular, in the caption's colour, on the same baseline
         // (K10: only the number is large). The same string, styled by character.
         Text(buildAnnotatedString {
-            for (ch in v) if (ch.isDigit() || ch == '.' || ch == ',' || ch == '°') withStyle(SpanStyle(fontFamily = PlexLight)) { append(ch) }
+            for (ch in v) if (ch.isDigit() || ch == '.' || ch == ',' || ch == '°') withStyle(SpanStyle(fontFamily = Gudi)) { append(ch) }
                 else withStyle(SpanStyle(fontSize = 15.sp, color = g.ink2)) { append(ch) }
-        }, fontFamily = Plex, fontSize = 34.sp, lineHeight = 38.sp, color = g.ink, maxLines = 1)
-        Text(cap, fontFamily = Plex, fontSize = 12.5.sp, color = g.ink2)
+        }, fontFamily = Gudi, fontSize = 34.sp, lineHeight = 38.sp, color = g.ink, maxLines = 1)
+        Text(cap, fontFamily = Gudi, fontSize = 12.5.sp, color = g.ink2)
     }
 }

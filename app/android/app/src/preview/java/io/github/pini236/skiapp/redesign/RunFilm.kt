@@ -60,7 +60,6 @@ import io.github.pini236.skiapp.dayrec.ui.shortRuns
 import io.github.pini236.skiapp.dayrec.ui.titleOf
 import io.github.pini236.skiapp.fx.Haptics
 import io.github.pini236.skiapp.qa.Qa
-import io.github.pini236.skiapp.ui.Plex
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -156,9 +155,9 @@ internal fun RunFilm(d: DayModel.Descent, seg: org.json.JSONObject?, segs: List<
             val left = if (rtl) pad + (colW - pad * 2 - (x1 - x0) * k) / 2 else size.width - colW + pad + (colW - pad * 2 - (x1 - x0) * k) / 2
             val top = pad + (size.height - pad * 2 - (y1 - y0) * k) / 2
             fun at(x: Float, y: Float) = Offset(left + (tx(x, y) - x0) * k, top + (ty(x, y) - y0) * k)
-            val note = TextStyle(fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = ink)
+            val note = TextStyle(fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = ink)
             val noteX = if (rtl) colW + 8 * dens else 8 * dens
-            val subStyle = TextStyle(fontFamily = Plex, fontSize = 12.5.sp, color = muted)
+            val subStyle = TextStyle(fontFamily = Gudi, fontSize = 12.5.sp, color = muted)
             // the notes are gathered, then spread down the column so none sits on another (the board's flush():
             // sorted by height, pushed apart both ways), each with a thin leader to its point on the line
             class Note(val p: Offset, val tl: androidx.compose.ui.text.TextLayoutResult, val sl: androidx.compose.ui.text.TextLayoutResult?) {
@@ -234,9 +233,9 @@ internal fun RunFilm(d: DayModel.Descent, seg: org.json.JSONObject?, segs: List<
             verticalAlignment = Alignment.CenterVertically) {
             val back = stringResource(R.string.app_g_back)
             Box(Modifier.size(48.dp).clickable(role = Role.Button) { onBack() }.semantics { contentDescription = back }, contentAlignment = Alignment.Center) {
-                Text(if (rtl) "›" else "‹", fontFamily = Plex, fontSize = 20.sp, color = ink)
+                Text(if (rtl) "›" else "‹", fontFamily = Gudi, fontSize = 20.sp, color = ink)
             }
-            Text(names, Modifier.weight(1f).padding(end = 14.dp), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = ink, maxLines = 1)
+            Text(names, Modifier.weight(1f).padding(end = 14.dp), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = ink, maxLines = 1)
         }
         // the card: distance, metres down, minutes moving, and the scale without words
         Row(Modifier.align(Alignment.BottomCenter).navigationBarsPadding().padding(12.dp).fillMaxWidth()
@@ -247,8 +246,8 @@ internal fun RunFilm(d: DayModel.Descent, seg: org.json.JSONObject?, segs: List<
                 metres(d.dropM) to R.string.app_rec_m_down,
                 String.format(Locale.ROOT, "%d:%02d", ms / 60, ms % 60) to R.string.app_film_moving_min)) {
                 Column {
-                    Text(v, fontFamily = Plex, fontWeight = FontWeight.Light, fontSize = 30.sp, color = ink)
-                    Text(stringResource(key), fontFamily = Plex, fontSize = 12.sp, color = muted)
+                    Text(v, fontFamily = Gudi, fontWeight = FontWeight.Light, fontSize = 30.sp, color = ink)
+                    Text(stringResource(key), fontFamily = Gudi, fontSize = 12.sp, color = muted)
                 }
             }
             Box(Modifier.weight(1f))

@@ -70,7 +70,6 @@ import io.github.pini236.skiapp.home.DayNight
 import io.github.pini236.skiapp.map.MapScene
 import io.github.pini236.skiapp.places.LocalPlaces
 import io.github.pini236.skiapp.qa.Qa
-import io.github.pini236.skiapp.ui.Plex
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -171,7 +170,7 @@ internal fun BoxScope.Village(
             Row(Modifier.offset { IntOffset(((m.x + m.dx) * kk).toInt(), ((m.y + m.dy) * kk).toInt()) }.height(22.dp).clip(RoundedCornerShape(11.dp))
                 .background(k.surf.copy(alpha = 1f)).border(1.dp, k.line, RoundedCornerShape(11.dp)).semantics { role = Role.Button }
                 .clickable { haptics.tick(.3f); onLift(lift) }.padding(horizontal = 8.dp), verticalAlignment = Alignment.CenterVertically) {
-                Text("⁦${m.lift}⁩" + if (m.arrow) " ↑" else "", fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 11.5.sp, color = k.ink, maxLines = 1)
+                Text("⁦${m.lift}⁩" + if (m.arrow) " ↑" else "", fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 11.5.sp, color = k.ink, maxLines = 1)
             }
         }
         // the pins: tickets, food (its count from places.json now), parking (no tap); a meeting today at a station here
@@ -200,7 +199,7 @@ internal fun BoxScope.Village(
             Row(Modifier.height(32.dp).shadow(8.dp, RoundedCornerShape(16.dp), clip = false).clip(RoundedCornerShape(16.dp)).background(k.surf.copy(alpha = 1f))
                 .border(1.dp, k.line, RoundedCornerShape(16.dp)).semantics { role = Role.Button }.clickable { haptics.tick(.3f); onBack() }.padding(horizontal = 12.dp),
                 verticalAlignment = Alignment.CenterVertically) {
-                Text("↑ " + stringResource(R.string.app_vill_back), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 13.sp, color = k.ink)
+                Text("↑ " + stringResource(R.string.app_vill_back), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 13.sp, color = k.ink)
             }
         }
         VillageSheet(scene, around, k, haptics, food, places != null, meetNow, onTrip, onSkipass, onFood, onPeople, onBack)
@@ -216,7 +215,7 @@ private fun Pin(text: String, at: Offset, k: SheetInk, night: Boolean, onTap: ((
         .onSizeChanged { w = it.width }.let { if (onTap != null) it.semantics { role = Role.Button }.clickable(onClick = onTap) else it },
         horizontalAlignment = Alignment.CenterHorizontally) {
         Box(Modifier.height(24.dp).clip(RoundedCornerShape(12.dp)).background(bg).padding(horizontal = 9.dp), contentAlignment = Alignment.Center) {
-            Text(text, fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 11.5.sp, color = fg, maxLines = 1)
+            Text(text, fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 11.5.sp, color = fg, maxLines = 1)
         }
         Box(Modifier.size(2.dp, 10.dp).background(bg))
     }
@@ -266,8 +265,8 @@ private fun BoxScope.VillageSheet(
         .shadow(8.dp, top).clip(top).background(k.surf.copy(alpha = 1f)).border(1.dp, k.line, top)
         .navigationBarsPadding().padding(start = 18.dp, end = 18.dp, top = 10.dp, bottom = 14.dp)) {
         Box(Modifier.align(Alignment.CenterHorizontally).size(38.dp, 5.dp).clip(RoundedCornerShape(3.dp)).background(k.line))
-        Text(stringResource(R.string.app_dock_village), Modifier.padding(top = 8.dp), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 21.sp, color = k.ink)
-        if (h != null) Text(stringResource(R.string.app_vill_sub, "New Gudauri", nf.format(h)), fontFamily = Plex, fontSize = 13.5.sp, color = k.ink2)
+        Text(stringResource(R.string.app_dock_village), Modifier.padding(top = 8.dp), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 21.sp, color = k.ink)
+        if (h != null) Text(stringResource(R.string.app_vill_sub, "New Gudauri", nf.format(h)), fontFamily = Gudi, fontSize = 13.5.sp, color = k.ink2)
         Column(Modifier.padding(top = 6.dp).verticalScroll(rememberScrollState())) {
             val t = around?.trip
             val tripEnd = when {
@@ -298,7 +297,7 @@ private fun BoxScope.VillageSheet(
             }
             VRow(stringResource(R.string.app_grp_title), peopleEnd, k) { haptics.tick(.3f); onPeople() }
             around?.onGames?.let { go -> VRow(stringResource(R.string.app_cabin_title), pluralStringResource(R.plurals.app_vill_cabin_n, around.games, around.games.toString()), k) { haptics.tick(.3f); go() } }
-            Text(stringResource(R.string.app_vill_credit), Modifier.padding(top = 10.dp), fontFamily = Plex, fontSize = 12.sp, color = k.ink2)
+            Text(stringResource(R.string.app_vill_credit), Modifier.padding(top = 10.dp), fontFamily = Gudi, fontSize = 12.sp, color = k.ink2)
         }
     }
 }
@@ -308,8 +307,8 @@ private fun VRow(title: String, end: String, k: SheetInk, onClick: (() -> Unit)?
     Column {
         Row(Modifier.fillMaxWidth().heightIn(min = 46.dp).let { if (onClick != null) it.semantics(mergeDescendants = true) { role = Role.Button }.clickable(onClick = onClick) else it },
             verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            Text(title, Modifier.weight(1f), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = k.ink, maxLines = 1)
-            Text(end, Modifier.weight(1.4f, fill = false), fontFamily = Plex, fontSize = 13.sp, color = k.ink2, maxLines = 1, overflow = TextOverflow.Ellipsis,
+            Text(title, Modifier.weight(1f), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = k.ink, maxLines = 1)
+            Text(end, Modifier.weight(1.4f, fill = false), fontFamily = Gudi, fontSize = 13.sp, color = k.ink2, maxLines = 1, overflow = TextOverflow.Ellipsis,
                 textAlign = androidx.compose.ui.text.style.TextAlign.End)
         }
         Box(Modifier.fillMaxWidth().height(1.dp).background(k.line))

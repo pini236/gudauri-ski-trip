@@ -72,7 +72,6 @@ import io.github.pini236.skiapp.fx.Haptics
 import io.github.pini236.skiapp.home.DayNight
 import io.github.pini236.skiapp.map.MapScene
 import io.github.pini236.skiapp.map.Sky
-import io.github.pini236.skiapp.ui.Plex
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
@@ -88,6 +87,8 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
                  forMe: Boolean, onForMe: (Boolean) -> Unit, around: io.github.pini236.skiapp.home.Around?, onPainted: () -> Unit, onLeave: () -> Unit) {
     val here = around?.meet
     val context = LocalContext.current
+    // the font chain by this screen's language (redesign part 7; made at start, again here when the language differs)
+    remember(context) { GudiFont.init(context) }
     val scope = rememberCoroutineScope()
     val data by produceState<PeakData?>(null) { value = withContext(Dispatchers.IO) { PeakData.load(context) } }
     var now by remember { mutableLongStateOf(System.currentTimeMillis()) }
@@ -362,14 +363,14 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
                         val sv = scrub
                         val t = PeakLight.clock(sv ?: PeakLight.localHour(time))
                         Text(if (sv != null || scrubOpen) stringResource(R.string.poc_peak_light_at, t) else stringResource(R.string.poc_peak_light_now, t),
-                            fontFamily = Plex, fontSize = 14.sp, color = ink, maxLines = 1)
+                            fontFamily = Gudi, fontSize = 14.sp, color = ink, maxLines = 1)
                     }
                 }
                 Pill(Modifier.clickable { haptics.tick(.3f); onPainted() }) {
-                    Text(stringResource(R.string.poc_peak_painted), Modifier.padding(horizontal = 14.dp), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = ink)
+                    Text(stringResource(R.string.poc_peak_painted), Modifier.padding(horizontal = 14.dp), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = ink)
                 }
                 Pill(Modifier.clickable { haptics.tick(.3f); onLeave() }) {
-                    Text(stringResource(R.string.poc_peak_leave), Modifier.padding(horizontal = 14.dp), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = ink)
+                    Text(stringResource(R.string.poc_peak_leave), Modifier.padding(horizontal = 14.dp), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = ink)
                 }
             }
             AnimatedVisibility(scrubOpen, enter = fadeIn() + slideInVertically { -it / 3 }, exit = fadeOut() + slideOutVertically { -it / 3 }) {
@@ -396,7 +397,7 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
                 Row(Modifier.fillMaxWidth().padding(horizontal = 14.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(9.dp)) {
                     val kk = remember(night) { SheetInk(night) }
                     StateDot(if (pillLive) true else null, kk)
-                    Text(pillText, Modifier.weight(1f, fill = false), fontFamily = Plex, fontWeight = FontWeight.Medium, fontSize = 14.sp, color = ink, maxLines = 1,
+                    Text(pillText, Modifier.weight(1f, fill = false), fontFamily = Gudi, fontWeight = FontWeight.Medium, fontSize = 14.sp, color = ink, maxLines = 1,
                         overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis)
                     // the temperature at upper Goodaura (S01): from it to the pill's end opens the weather tab
                     val wx = io.github.pini236.skiapp.weather.LocalWeather.current
@@ -404,7 +405,7 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
                     if (tp != null) Box(Modifier.heightIn(min = 44.dp).semantics { role = androidx.compose.ui.semantics.Role.Button }
                         .clickable { haptics.tick(.3f); liftSel = null; nowTab = NowTab.WEATHER; liftsOpen = true; Qa.log("redesign lifts open weather") },
                         contentAlignment = Alignment.Center) {
-                        Text("· " + io.github.pini236.skiapp.weather.deg(tp), fontFamily = Plex, fontWeight = FontWeight.Medium, fontSize = 14.sp, color = ink, maxLines = 1)
+                        Text("· " + io.github.pini236.skiapp.weather.deg(tp), fontFamily = Gudi, fontWeight = FontWeight.Medium, fontSize = 14.sp, color = ink, maxLines = 1)
                     }
                 }
             }
@@ -412,11 +413,11 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
             if (pp != null) MeButton(meNow, night) { haptics.tick(.3f); liftsOpen = false; liftSel = null; people.go(PLayer.Me) }
             }
             Text(stringResource(R.string.poc_peak_live_badge), Modifier.clip(RoundedCornerShape(11.dp)).background(Color(0x66081A33)).padding(horizontal = 10.dp, vertical = 3.dp),
-                fontFamily = Plex, fontSize = 11.5.sp, color = Color.White)
+                fontFamily = Gudi, fontSize = 11.5.sp, color = Color.White)
             AnimatedVisibility(kobiSide, enter = fadeIn(), exit = fadeOut()) {
                 val aria = stringResource(R.string.poc_peak_front_aria)
                 Pill(Modifier.semantics { contentDescription = aria }.clickable { haptics.tick(.3f); view.backToFront() }) {
-                    Text(stringResource(R.string.map_kobi_side), Modifier.padding(horizontal = 16.dp), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = ink)
+                    Text(stringResource(R.string.map_kobi_side), Modifier.padding(horizontal = 16.dp), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = ink)
                 }
             }
         }
@@ -465,8 +466,8 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
             if (o != null && chosen == null && !kobiSide && !tripOpen && !skipassOpen && !seasonOn) {
                 val ink = if (night) Color(0xFFEAF1F8) else Color(0xFF0E2233)
                 val halo = if (night) Color(0xF2060B16) else Color(0xF2FFFFFF)
-                val name = androidx.compose.ui.text.TextStyle(fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 11.5.sp, color = ink)
-                val sub = androidx.compose.ui.text.TextStyle(fontFamily = Plex, fontWeight = FontWeight.Medium, fontSize = 10.5.sp, color = ink)
+                val name = androidx.compose.ui.text.TextStyle(fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 11.5.sp, color = ink)
+                val sub = androidx.compose.ui.text.TextStyle(fontFamily = Gudi, fontWeight = FontWeight.Medium, fontSize = 10.5.sp, color = ink)
                 for ((l, x, y) in o.names) {
                     val t1 = measurer.measure(l.t, name)
                     val t2 = l.sub?.let { measurer.measure(unitM.replace("\u0000", nf.format(it)), sub) }
@@ -512,7 +513,7 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
                 Row(Modifier.height(22.dp).clip(RoundedCornerShape(11.dp)).background(bg).border(1.dp, line, RoundedCornerShape(11.dp)).padding(horizontal = 8.dp),
                     verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(5.dp)) {
                     Box(Modifier.size(8.dp).clip(CircleShape).background(sk.red))
-                    Text(stringResource(R.string.app_lift_closed_tag, l.name), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 11.5.sp, color = ink, maxLines = 1)
+                    Text(stringResource(R.string.app_lift_closed_tag, l.name), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 11.5.sp, color = ink, maxLines = 1)
                 }
             }
         }
@@ -691,11 +692,11 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
             Row(Modifier.fillMaxWidth().statusBarsPadding().padding(horizontal = 12.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
                 val back = stringResource(R.string.app_g_back)
                 Box(Modifier.size(44.dp).semantics { contentDescription = back }.clickable { haptics.tick(.2f); tripOpen = false; tripEdit = null }, contentAlignment = Alignment.Center) {
-                    Text(if (androidx.compose.ui.platform.LocalLayoutDirection.current == androidx.compose.ui.unit.LayoutDirection.Rtl) "›" else "‹", fontFamily = Plex, fontSize = 24.sp, color = if (night) Color.White else sk.ink)
+                    Text(if (androidx.compose.ui.platform.LocalLayoutDirection.current == androidx.compose.ui.unit.LayoutDirection.Rtl) "›" else "‹", fontFamily = Gudi, fontSize = 24.sp, color = if (night) Color.White else sk.ink)
                 }
                 androidx.compose.foundation.layout.Spacer(Modifier.weight(1f))
                 if (t != null) Pill(Modifier.clickable { haptics.tick(.3f); tripEdit = null; tripForm = true }) {
-                    Text(stringResource(R.string.trip_edit), Modifier.padding(horizontal = 18.dp), fontFamily = Plex, fontWeight = FontWeight.Medium, fontSize = 15.sp, color = ink)
+                    Text(stringResource(R.string.trip_edit), Modifier.padding(horizontal = 18.dp), fontFamily = Gudi, fontWeight = FontWeight.Medium, fontSize = 15.sp, color = ink)
                 }
             }
             val e = tripEdit
@@ -718,9 +719,9 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
             Row(Modifier.fillMaxWidth().statusBarsPadding().padding(horizontal = 12.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
                 val back = stringResource(R.string.app_g_back)
                 Box(Modifier.size(44.dp).semantics { contentDescription = back }.clickable { haptics.tick(.2f); skipassOpen = false }, contentAlignment = Alignment.Center) {
-                    Text(if (androidx.compose.ui.platform.LocalLayoutDirection.current == androidx.compose.ui.unit.LayoutDirection.Rtl) "›" else "‹", fontFamily = Plex, fontSize = 24.sp, color = top)
+                    Text(if (androidx.compose.ui.platform.LocalLayoutDirection.current == androidx.compose.ui.unit.LayoutDirection.Rtl) "›" else "‹", fontFamily = Gudi, fontSize = 24.sp, color = top)
                 }
-                Text(stringResource(R.string.app_skipass_title), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 17.sp, color = top)
+                Text(stringResource(R.string.app_skipass_title), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 17.sp, color = top)
             }
         }
         // part 4 (S03, S04, S08): the location's box under the pill, the map's buttons, and S02 before the phone asks
@@ -826,7 +827,7 @@ private fun DrawScope.chosenMarks(m: LiveView.Marks, a: Float, night: Boolean, m
     }
     // on the longest piece: a bead each 500 m with its km (white, a dark outline under the letters), the start and the end
     val mi = d.main; val x = m.xs[mi]; val y = m.ys[mi]; val ok = m.seen[mi]; val al = d.along[mi]
-    val style = TextStyle(fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 9.5.sp, color = Color.White)
+    val style = TextStyle(fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 9.5.sp, color = Color.White)
     var b = 500f; var j = 0
     while (b < (al.lastOrNull() ?: 0f)) {
         while (j < al.size - 2 && al[j + 1] < b) j++

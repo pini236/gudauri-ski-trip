@@ -25,7 +25,6 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.pini236.skiapp.R
-import io.github.pini236.skiapp.ui.Plex
 
 /**
  * The speed light's scale (boards L06, L07, L09): "slow", the five colours, "fast"; on the ridge also a dotted piece
@@ -36,16 +35,16 @@ internal fun LightScale(night: Boolean, muted: Color, width: Dp = 44.dp, lift: B
     val ramp = if (night) DayPaint.NIGHT else DayPaint.DAY
     val rtl = LocalLayoutDirection.current == LayoutDirection.Rtl
     Row(modifier, verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-        Text(stringResource(R.string.app_speed_slow), fontFamily = Plex, fontSize = 11.sp, color = muted)
+        Text(stringResource(R.string.app_speed_slow), fontFamily = Gudi, fontSize = 11.sp, color = muted)
         Box(Modifier.width(width).height(5.dp).clip(RoundedCornerShape(3.dp))
             .background(Brush.horizontalGradient(ramp.map { Color(0xFF000000.toInt() or it) }.let { if (rtl) it.reversed() else it })))
-        Text(stringResource(R.string.app_speed_fast), fontFamily = Plex, fontSize = 11.sp, color = muted)
+        Text(stringResource(R.string.app_speed_fast), fontFamily = Gudi, fontSize = 11.sp, color = muted)
         if (lift) {
             Canvas(Modifier.padding(start = 4.dp).width(22.dp).height(6.dp)) {
                 drawLine(if (night) Color(0xFFC9D5E2) else Color(0xFF22303F), Offset(0f, size.height / 2), Offset(size.width, size.height / 2), 1.2f * density,
                     pathEffect = PathEffect.dashPathEffect(floatArrayOf(1.5f * density, 3.5f * density)))
             }
-            Text(stringResource(R.string.app_ridge_legend_lift), fontFamily = Plex, fontSize = 11.sp, color = muted)
+            Text(stringResource(R.string.app_ridge_legend_lift), fontFamily = Gudi, fontSize = 11.sp, color = muted)
         }
     }
 }

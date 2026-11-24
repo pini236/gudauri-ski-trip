@@ -45,7 +45,6 @@ import androidx.core.view.WindowCompat
 import io.github.pini236.skiapp.R
 import io.github.pini236.skiapp.fx.Haptics
 import io.github.pini236.skiapp.home.DayNight
-import io.github.pini236.skiapp.ui.Plex
 
 /**
  * The redesign POC in the test build (decisions 83, 84): the app opens on the new mountain; "To the app" shows the
@@ -178,7 +177,7 @@ object Redesign {
                     .border(1.dp, Color(0x33FFFFFF), RoundedCornerShape(24.dp)).clickable { haptics.tick(.4f); open = true }.padding(horizontal = 16.dp),
                     verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(9.dp)) {
                     Box(Modifier.size(8.dp).clip(CircleShape).background(Color(0xFFB79CFF)))
-                    Text(stringResource(R.string.poc_peak_enter), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = Color.White)
+                    Text(stringResource(R.string.poc_peak_enter), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = Color.White)
                 }
             }
         }

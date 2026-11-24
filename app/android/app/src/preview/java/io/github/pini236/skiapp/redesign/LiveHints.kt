@@ -40,7 +40,6 @@ import androidx.compose.ui.unit.sp
 import io.github.pini236.skiapp.R
 import io.github.pini236.skiapp.map.MapScene
 import io.github.pini236.skiapp.qa.Qa
-import io.github.pini236.skiapp.ui.Plex
 import kotlinx.coroutines.delay
 import kotlin.math.hypot
 
@@ -115,6 +114,6 @@ internal fun BoxScope.RunHint(scene: MapScene, view: LiveView, night: Boolean, f
             .clip(RoundedCornerShape(16.dp)).background(ink)
             .semantics { role = Role.Button; contentDescription = "$text $close" }
             .clickable { on = false; gone = true; Hints.done(ctx, Hints.RUN) }.padding(horizontal = 14.dp, vertical = 10.dp),
-            fontFamily = Plex, fontWeight = FontWeight.Medium, fontSize = 14.sp, color = bg)
+            fontFamily = Gudi, fontWeight = FontWeight.Medium, fontSize = 14.sp, color = bg)
     }
 }

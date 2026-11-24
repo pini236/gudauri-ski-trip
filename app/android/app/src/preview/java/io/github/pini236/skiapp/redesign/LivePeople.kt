@@ -108,7 +108,6 @@ import io.github.pini236.skiapp.qa.Qa
 import io.github.pini236.skiapp.telemetry.Telemetry
 import io.github.pini236.skiapp.trip.Trip
 import io.github.pini236.skiapp.ui.Icons
-import io.github.pini236.skiapp.ui.Plex
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import androidx.compose.foundation.selection.selectable
@@ -161,7 +160,7 @@ internal fun Av(name: String?, id: String?, size: Int = 36, ring: Color? = null,
     val c = if (group) Color(PeopleRules.GROUP_COLOR) else Color(PeopleRules.COLORS[PeopleRules.colorIndex(id ?: name ?: "")])
     Box(Modifier.size(size.dp).let { m -> if (ring != null) m.border(2.dp, ring, CircleShape) else m }.padding(if (ring != null) 2.dp else 0.dp)
         .clip(CircleShape).background(c).clearAndSetSemantics { }, contentAlignment = Alignment.Center) {
-        Text(PeopleRules.initial(name), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = (size * .42f).sp, color = Color.White)
+        Text(PeopleRules.initial(name), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = (size * .42f).sp, color = Color.White)
     }
 }
 
@@ -177,7 +176,7 @@ private fun GuestAv(k: SheetInk, size: Int) =
 internal fun AccButton(text: String, k: SheetInk, modifier: Modifier = Modifier, enabled: Boolean = true, onClick: () -> Unit) {
     Box(modifier.fillMaxWidth().heightIn(min = 52.dp).graphicsAlpha(if (enabled) 1f else .45f).clip(RoundedCornerShape(26.dp)).background(k.acc)
         .semantics { role = Role.Button }.clickable(enabled = enabled, onClick = onClick).padding(horizontal = 16.dp), contentAlignment = Alignment.Center) {
-        Text(text, fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color.White, maxLines = 1)
+        Text(text, fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color.White, maxLines = 1)
     }
 }
 
@@ -187,16 +186,16 @@ private fun Modifier.graphicsAlpha(a: Float) = this.alpha(a)
 @Composable
 internal fun TextLink(text: String, k: SheetInk, color: Color = k.acc, modifier: Modifier = Modifier, onClick: () -> Unit) {
     Box(modifier.heightIn(min = 44.dp).semantics { role = Role.Button }.clickable(onClick = onClick).padding(horizontal = 4.dp), contentAlignment = Alignment.Center) {
-        Text(text, fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 14.5.sp, color = color)
+        Text(text, fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 14.5.sp, color = color)
     }
 }
 
 @Composable
 internal fun Small(text: String, k: SheetInk, modifier: Modifier = Modifier, center: Boolean = false, color: Color = k.ink2) =
-    Text(text, modifier, fontFamily = Plex, fontSize = 12.5.sp, color = color, textAlign = if (center) TextAlign.Center else null)
+    Text(text, modifier, fontFamily = Gudi, fontSize = 12.5.sp, color = color, textAlign = if (center) TextAlign.Center else null)
 
 @Composable
-private fun Title(text: String, k: SheetInk) = Text(text, fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 21.sp, color = k.ink)
+private fun Title(text: String, k: SheetInk) = Text(text, fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 21.sp, color = k.ink)
 
 /** A box of rows (section 1): 12 from the sides, radius 22, the sheet's surface (opaque on Android). */
 @Composable
@@ -217,10 +216,10 @@ private fun PRow(title: String, k: SheetInk, sub: String? = null, end: String? =
                 Icon(icon, null, Modifier.size(20.dp), tint = k.ink)
             }
             Column(Modifier.weight(1f)) {
-                Text(title, fontFamily = Plex, fontWeight = if (danger) FontWeight.Bold else FontWeight.Medium, fontSize = 15.5.sp, color = if (danger) k.red else k.ink)
+                Text(title, fontFamily = Gudi, fontWeight = if (danger) FontWeight.Bold else FontWeight.Medium, fontSize = 15.5.sp, color = if (danger) k.red else k.ink)
                 if (sub != null) Small(sub, k)
             }
-            if (end != null) Text(end, fontFamily = Plex, fontSize = 13.5.sp, color = k.ink2, maxLines = 1)
+            if (end != null) Text(end, fontFamily = Gudi, fontSize = 13.5.sp, color = k.ink2, maxLines = 1)
             if (trailing != null) trailing()
         }
         if (!last) Box(Modifier.fillMaxWidth().height(1.dp).background(k.line))
@@ -240,7 +239,7 @@ private fun SwitchRow(title: String, sub: String?, on: Boolean, k: SheetInk, las
         Row(Modifier.fillMaxWidth().heightIn(min = 54.dp).semantics(mergeDescendants = true) { role = Role.Switch; stateDescription = st }
             .clickable { onChange(!on) }.padding(vertical = 8.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             Column(Modifier.weight(1f)) {
-                Text(title, fontFamily = Plex, fontWeight = FontWeight.Medium, fontSize = 15.5.sp, color = k.ink)
+                Text(title, fontFamily = Gudi, fontWeight = FontWeight.Medium, fontSize = 15.5.sp, color = k.ink)
                 if (sub != null) Small(sub, k)
             }
             Box(Modifier.clearAndSetSemantics { }) { PSwitch(on, k, onChange) }
@@ -261,7 +260,7 @@ private fun BoxScope.FullScreen(k: SheetInk, title: String?, onBack: () -> Unit,
                 .clickable(onClick = onBack), contentAlignment = Alignment.Center) {
                 Icon(Icons.back, null, Modifier.size(22.dp), tint = k.ink)
             }
-            if (title != null) Text(title, Modifier.padding(start = 12.dp), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 17.sp, color = Color.White)
+            if (title != null) Text(title, Modifier.padding(start = 12.dp), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 17.sp, color = Color.White)
         }
         Column(Modifier.fillMaxWidth().weight(1f).verticalScroll(rememberScrollState()).navigationBarsPadding().padding(bottom = 20.dp),
             verticalArrangement = Arrangement.spacedBy(20.dp)) {
@@ -290,7 +289,7 @@ private fun SignTrio(k: SheetInk, items: List<Pair<ImageVector, String>>) {
     val big = LocalContext.current.resources.configuration.fontScale >= 1.5f
     @Composable fun one(m: Modifier, i: ImageVector, t: String) = Column(m, horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(6.dp)) {
         Box(Modifier.size(44.dp).clip(CircleShape).background(k.line), contentAlignment = Alignment.Center) { Icon(i, null, Modifier.size(22.dp), tint = k.ink) }
-        Text(t, fontFamily = Plex, fontWeight = FontWeight.Medium, fontSize = 13.sp, color = k.ink, textAlign = TextAlign.Center)
+        Text(t, fontFamily = Gudi, fontWeight = FontWeight.Medium, fontSize = 13.sp, color = k.ink, textAlign = TextAlign.Center)
     }
     if (big) Column(verticalArrangement = Arrangement.spacedBy(10.dp)) { for ((i, t) in items) one(Modifier.fillMaxWidth(), i, t) }
     else Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) { for ((i, t) in items) one(Modifier.weight(1f), i, t) }
@@ -315,7 +314,7 @@ private fun CodeBoxes(code: String, k: SheetInk, bad: Boolean, enabled: Boolean,
                         val border = when { bad -> k.red; active -> k.acc; else -> k.line }
                         Box(Modifier.size(46.dp, 56.dp).clip(RoundedCornerShape(14.dp)).border(if (bad || active) 2.dp else 1.dp, border, RoundedCornerShape(14.dp)),
                             contentAlignment = Alignment.Center) {
-                            Text(code.getOrNull(i)?.toString() ?: "", fontFamily = Plex, fontWeight = FontWeight.Medium, fontSize = 27.sp, color = k.ink)
+                            Text(code.getOrNull(i)?.toString() ?: "", fontFamily = Gudi, fontWeight = FontWeight.Medium, fontSize = 27.sp, color = k.ink)
                         }
                     }
                 }
@@ -329,10 +328,10 @@ private fun CodeBoxes(code: String, k: SheetInk, bad: Boolean, enabled: Boolean,
 private fun PField(value: String, hint: String, k: SheetInk, onChange: (String) -> Unit) {
     var focus by remember { mutableStateOf(false) }
     BasicTextField(value, onChange, Modifier.fillMaxWidth().onFocusChanged0 { focus = it }, singleLine = true,
-        textStyle = TextStyle(fontFamily = Plex, fontSize = 16.sp, color = k.ink), cursorBrush = SolidColor(k.acc)) { inner ->
+        textStyle = TextStyle(fontFamily = Gudi, fontSize = 16.sp, color = k.ink), cursorBrush = SolidColor(k.acc)) { inner ->
         Box(Modifier.fillMaxWidth().height(52.dp).clip(RoundedCornerShape(16.dp)).background(k.surf)
             .border(if (focus) 2.dp else 1.dp, if (focus) k.acc else k.line, RoundedCornerShape(16.dp)).padding(horizontal = 16.dp), contentAlignment = Alignment.CenterStart) {
-            if (value.isEmpty()) Text(hint, fontFamily = Plex, fontSize = 16.sp, color = k.ink2)
+            if (value.isEmpty()) Text(hint, fontFamily = Gudi, fontSize = 16.sp, color = k.ink2)
             inner()
         }
     }
@@ -344,7 +343,7 @@ private fun Modifier.onFocusChanged0(f: (Boolean) -> Unit) = this.onFocusChanged
 @Composable
 private fun Labeled(label: String, k: SheetInk, content: @Composable () -> Unit) =
     Column(verticalArrangement = Arrangement.spacedBy(5.dp)) {
-        Text(label, fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 12.5.sp, color = k.ink2)
+        Text(label, fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 12.5.sp, color = k.ink2)
         content()
     }
 
@@ -354,8 +353,8 @@ private fun DatePill(label: String, date: LocalDate?, k: SheetInk, modifier: Mod
     Column(modifier.heightIn(min = 52.dp).clip(RoundedCornerShape(16.dp)).background(k.surf.copy(alpha = 1f)).border(1.dp, k.line, RoundedCornerShape(16.dp))
         .semantics(mergeDescendants = true) { role = Role.Button }.clickable(onClick = onClick).padding(horizontal = 14.dp, vertical = 6.dp),
         verticalArrangement = Arrangement.Center) {
-        Text(label, fontFamily = Plex, fontSize = 11.5.sp, color = k.ink2, maxLines = 1)
-        Text(date?.let { io.github.pini236.skiapp.season.shortDate(it) } ?: stringResource(R.string.app_trip_pick_date), fontFamily = Plex,
+        Text(label, fontFamily = Gudi, fontSize = 11.5.sp, color = k.ink2, maxLines = 1)
+        Text(date?.let { io.github.pini236.skiapp.season.shortDate(it) } ?: stringResource(R.string.app_trip_pick_date), fontFamily = Gudi,
             fontWeight = FontWeight.Medium, fontSize = 15.5.sp, color = if (date == null) k.ink2 else k.ink, maxLines = 1)
     }
 }
@@ -372,7 +371,7 @@ private fun RedButton(text: String, k: SheetInk, busy: Boolean, onClick: () -> U
     Box(Modifier.fillMaxWidth().heightIn(min = 52.dp).clip(RoundedCornerShape(26.dp)).background(k.red).semantics { role = Role.Button }
         .clickable(enabled = !busy, onClick = onClick), contentAlignment = Alignment.Center) {
         if (busy) androidx.compose.material3.CircularProgressIndicator(Modifier.size(22.dp), color = k.onRed, strokeWidth = 2.dp)
-        else Text(text, fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = k.onRed)
+        else Text(text, fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = k.onRed)
     }
 
 /**
@@ -449,7 +448,7 @@ internal fun BoxScope.LivePeople(p: People, ui: PeopleUi, night: Boolean, haptic
         LaunchedEffect(t) { delay(4000); ui.toast = null }
         Box(Modifier.align(Alignment.BottomCenter).navigationBarsPadding().padding(bottom = 96.dp, start = 16.dp, end = 16.dp)
             .clip(RoundedCornerShape(22.dp)).background(k.ink).padding(horizontal = 18.dp, vertical = 12.dp)) {
-            Text(t, fontFamily = Plex, fontWeight = FontWeight.Medium, fontSize = 14.sp, color = if (night) Color(0xFF0E2233) else Color.White)
+            Text(t, fontFamily = Gudi, fontWeight = FontWeight.Medium, fontSize = 14.sp, color = if (night) Color(0xFF0E2233) else Color.White)
         }
     }
 }
@@ -495,13 +494,13 @@ private fun BoxScope.MeScreen(p: People, ui: PeopleUi, k: SheetInk) {
                         TextLink(stringResource(R.string.app_save), k) { if (v.isNotBlank()) act.run { api.rename(v.trim()); renaming = false; ui.changes++ } }
                         TextLink(stringResource(R.string.app_cancel), k, k.ink2) { renaming = false }
                     }
-                } else Text(name, fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 27.sp, color = Color.White, maxLines = 2, overflow = TextOverflow.Ellipsis)
+                } else Text(name, fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 27.sp, color = Color.White, maxLines = 2, overflow = TextOverflow.Ellipsis)
                 Text(stringResource(when {
                     kind == PeopleRules.MeKind.ACCOUNT && me?.apple == true && me?.google != true -> R.string.acct_signed_apple
                     kind == PeopleRules.MeKind.ACCOUNT -> R.string.acct_signed_google
                     kind == PeopleRules.MeKind.GUEST -> R.string.acct_signed_guest
                     else -> R.string.app_a_not_signed_in
-                }), fontFamily = Plex, fontSize = 13.5.sp, color = Color(0xE6FFFFFF))
+                }), fontFamily = Gudi, fontSize = 13.5.sp, color = Color(0xE6FFFFFF))
             }
             if (kind == PeopleRules.MeKind.ACCOUNT && !renaming) SecondaryButton(stringResource(R.string.app_a_change), k.onDark()) { renaming = true }
         }
@@ -518,7 +517,7 @@ private fun BoxScope.MeScreen(p: People, ui: PeopleUi, k: SheetInk) {
         // a guest in a group: keep the place (R10)
         if (kind == PeopleRules.MeKind.GUEST) PBox(k) {
             Column(Modifier.padding(vertical = 12.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                Text(stringResource(R.string.app_guest_save_title), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 17.sp, color = k.ink)
+                Text(stringResource(R.string.app_guest_save_title), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 17.sp, color = k.ink)
                 Small(stringResource(R.string.app_a_guest_note), k)
                 GoogleWide(stringResource(R.string.app_a_save_google), k, act.busy) { act.run { p.signInGoogle(); ui.changes++; p.onChanged() } }
             }
@@ -533,7 +532,7 @@ private fun BoxScope.MeScreen(p: People, ui: PeopleUi, k: SheetInk) {
         }
         // my groups
         if (kind != PeopleRules.MeKind.NOBODY) PBox(k) {
-            Text(stringResource(R.string.acct_my_groups), Modifier.padding(top = 12.dp, bottom = 4.dp), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 12.5.sp, color = k.ink2)
+            Text(stringResource(R.string.acct_my_groups), Modifier.padding(top = 12.dp, bottom = 4.dp), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 12.5.sp, color = k.ink2)
             val gs = groups.orEmpty()
             if (gs.isEmpty()) {
                 Small(stringResource(R.string.acct_no_groups), k, Modifier.padding(vertical = 6.dp))
@@ -581,7 +580,7 @@ private fun GoogleWide(text: String, k: SheetInk, busy: Boolean, onClick: () -> 
         .border(1.dp, Color(0xFF747775), RoundedCornerShape(26.dp)).semantics { role = Role.Button }.clickable(enabled = !busy, onClick = onClick)
         .padding(horizontal = 16.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterHorizontally)) {
         Image(painterResource(R.drawable.ic_google_g), null, Modifier.size(20.dp))
-        Text(if (busy) stringResource(R.string.app_loading) else text, fontFamily = Plex, fontWeight = FontWeight.Medium, fontSize = 16.sp, color = Color(0xFF1F1F1F))
+        Text(if (busy) stringResource(R.string.app_loading) else text, fontFamily = Gudi, fontWeight = FontWeight.Medium, fontSize = 16.sp, color = Color(0xFF1F1F1F))
     }
 }
 
@@ -595,10 +594,10 @@ private fun BoxScope.DeleteScreen(p: People, ui: PeopleUi, k: SheetInk) {
         // T07: what goes, three lines with a red X, and the note
         PBox(k) {
             Column(Modifier.padding(vertical = 12.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                Text(stringResource(R.string.acct_delete_what), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 15.5.sp, color = k.ink)
+                Text(stringResource(R.string.acct_delete_what), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 15.5.sp, color = k.ink)
                 for (r in listOf(R.string.acct_delete_1, R.string.acct_delete_2, R.string.acct_delete_3)) Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                     Icon(Icons.x, null, Modifier.size(18.dp), tint = k.red)
-                    Text(stringResource(r), Modifier.weight(1f), fontFamily = Plex, fontSize = 14.sp, color = k.ink)
+                    Text(stringResource(r), Modifier.weight(1f), fontFamily = Gudi, fontSize = 14.sp, color = k.ink)
                 }
                 Small(stringResource(R.string.acct_delete_more), k)
             }
@@ -608,14 +607,14 @@ private fun BoxScope.DeleteScreen(p: People, ui: PeopleUi, k: SheetInk) {
     Box(Modifier.align(Alignment.BottomCenter).fillMaxWidth()) {
         LiveSheet(k) {
             if (armed) Text(stringResource(R.string.acct_delete_confirm), Modifier.fillMaxWidth().semantics { liveRegion = LiveRegionMode.Polite },
-                fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = k.red, textAlign = TextAlign.Center)
+                fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = k.red, textAlign = TextAlign.Center)
             RedButton(stringResource(R.string.acct_delete_now), k, act.busy) {
                 if (!armed) armed = true
                 else act.run { p.api.deleteAccount(); Qa.log("redesign people deleted"); p.onChanged(); ui.changes++; ui.close(); ui.toast = deleted }
             }
             ErrLine(act.error, k)
             Box(Modifier.fillMaxWidth().heightIn(min = 44.dp).semantics { role = Role.Button }.clickable(enabled = !act.busy) { ui.back() }, contentAlignment = Alignment.Center) {
-                Text(stringResource(R.string.app_cancel), fontFamily = Plex, fontWeight = FontWeight.Medium, fontSize = 15.sp, color = k.ink)
+                Text(stringResource(R.string.app_cancel), fontFamily = Gudi, fontWeight = FontWeight.Medium, fontSize = 15.sp, color = k.ink)
             }
         }
     }
@@ -674,7 +673,7 @@ private fun BoxScope.GateSheet(p: People, ui: PeopleUi, k: SheetInk) {
         SignTrio(k, listOf(Icons.plane to stringResource(R.string.group_empty_flights), Icons.pin to stringResource(R.string.app_grp_why_meet),
             Icons.trophy to stringResource(R.string.app_grp_why_scores)))
         Box(Modifier.fillMaxWidth().height(1.dp).background(k.line))
-        Text(stringResource(R.string.app_g_have_code), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = k.ink)
+        Text(stringResource(R.string.app_g_have_code), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = k.ink)
         val bad = state == JoinStatus.INVALID_CODE
         CodeBoxes(code, k, bad, enabled = !checking && state != JoinStatus.RATE_LIMITED) { c -> code = c; if (bad) state = null }
         when (state) {
@@ -719,22 +718,22 @@ private fun BoxScope.JoinScreen(p: People, ui: PeopleUi, k: SheetInk, code: Stri
     FullScreen(k, null, { ui.back() }, top = {
         Spacer(Modifier.height(24.dp))
         if (v != null && v.status == JoinStatus.OK) {
-            Text(stringResource(if (reclaim && !pending) R.string.app_g_back_to else R.string.app_g_invited_to), fontFamily = Plex, fontSize = 15.sp, color = Color.White)
-            Text(v.name, fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = if (v.name.length > 14) 34.sp else 44.sp, color = Color.White,
+            Text(stringResource(if (reclaim && !pending) R.string.app_g_back_to else R.string.app_g_invited_to), fontFamily = Gudi, fontSize = 15.sp, color = Color.White)
+            Text(v.name, fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = if (v.name.length > 14) 34.sp else 44.sp, color = Color.White,
                 textAlign = TextAlign.Center, maxLines = 2, lineHeight = if (v.name.length > 14) 38.sp else 48.sp)
             if (v.startsOn != null && v.endsOn != null) Text(stringResource(R.string.app_trip_range, io.github.pini236.skiapp.season.shortDate(v.startsOn),
-                io.github.pini236.skiapp.season.shortDate(v.endsOn)), fontFamily = Plex, fontSize = 15.sp, color = Color.White)
+                io.github.pini236.skiapp.season.shortDate(v.endsOn)), fontFamily = Gudi, fontSize = 15.sp, color = Color.White)
             if (!pending && !v.requiresApproval && v.members.isNotEmpty()) {
                 val (n, more) = PeopleRules.circles(v.members.size)
                 Row(horizontalArrangement = Arrangement.spacedBy((-8).dp)) {
                     for ((id, name) in v.members.take(n)) Av(name, id, 28, ring = k.surf.copy(alpha = 1f))
                     if (more > 0) Box(Modifier.size(28.dp).clip(CircleShape).background(k.line), contentAlignment = Alignment.Center) {
-                        Text("+$more", fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 11.sp, color = Color.White)
+                        Text("+$more", fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 11.sp, color = Color.White)
                     }
                 }
             }
             if (v.members.isNotEmpty()) Text(pluralStringResource(R.plurals.app_g_members, v.members.size, v.members.size), Modifier.clip(RoundedCornerShape(14.dp))
-                .background(Color(0x33FFFFFF)).padding(horizontal = 12.dp, vertical = 4.dp), fontFamily = Plex, fontSize = 13.sp, color = Color.White)
+                .background(Color(0x33FFFFFF)).padding(horizontal = 12.dp, vertical = 4.dp), fontFamily = Gudi, fontSize = 13.sp, color = Color.White)
         }
     }) {
         Column(Modifier.fillMaxWidth().padding(horizontal = 12.dp)) {
@@ -743,7 +742,7 @@ private fun BoxScope.JoinScreen(p: People, ui: PeopleUi, k: SheetInk, code: Stri
                     failed != null -> ErrLine(failed, k)
                     v == null -> Small(stringResource(R.string.app_loading), k)
                     v.status != JoinStatus.OK -> {
-                        Text(stringResource(R.string.app_g_bad_code), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 17.sp, color = k.ink)
+                        Text(stringResource(R.string.app_g_bad_code), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 17.sp, color = k.ink)
                         Small(stringResource(R.string.app_g_bad_code_sub), k)
                         AccButton(stringResource(R.string.app_g_retype), k) { ui.swap(PLayer.Gate) }
                     }
@@ -751,7 +750,7 @@ private fun BoxScope.JoinScreen(p: People, ui: PeopleUi, k: SheetInk, code: Stri
                         // T03: the hourglass in a 52 circle, the title, the line, and "cancel the request"
                         LaunchedEffect(Unit) { Qa.log("redesign people pending") }
                         Box(Modifier.size(52.dp).clip(CircleShape).background(k.line), contentAlignment = Alignment.Center) { Icon(Icons.hourglass, null, Modifier.size(26.dp), tint = k.ink) }
-                        Text(stringResource(R.string.join_pending_title), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 19.sp, color = k.ink, textAlign = TextAlign.Center)
+                        Text(stringResource(R.string.join_pending_title), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 19.sp, color = k.ink, textAlign = TextAlign.Center)
                         Small(stringResource(R.string.join_st_pending), k, center = true)
                         TextLink(stringResource(R.string.join_cancel_request), k) { act.run { v.groupId?.let { api.cancelRequest(it) }; pending = false; reclaim = false } }
                     }
@@ -761,7 +760,7 @@ private fun BoxScope.JoinScreen(p: People, ui: PeopleUi, k: SheetInk, code: Stri
                     })
                     else -> {
                         var name by remember { mutableStateOf(api.me()?.name ?: "") }
-                        Text(stringResource(R.string.app_g_your_name), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 17.sp, color = k.ink)
+                        Text(stringResource(R.string.app_g_your_name), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 17.sp, color = k.ink)
                         PField(name, stringResource(R.string.app_g_your_name_hint), k) { name = it.take(30) }
                         AccButton(stringResource(if (act.busy) R.string.join_loading else if (v.requiresApproval) R.string.app_g_ask_to_join else R.string.app_g_join), k,
                             enabled = name.isNotBlank() && !act.busy) {
@@ -799,7 +798,7 @@ private fun Reclaim(p: People, ui: PeopleUi, k: SheetInk, code: String, v: Previ
     var signIn by remember { mutableStateOf<String?>(null) }
     var gone by remember { mutableStateOf(false) }
     LaunchedEffect(Unit) { Qa.log("redesign people reclaim") }
-    Text(stringResource(R.string.app_g_already_in), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 17.sp, color = k.ink)
+    Text(stringResource(R.string.app_g_already_in), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 17.sp, color = k.ink)
     Small(stringResource(R.string.app_g_reclaim_intro, v.name), k)
     Column(Modifier.heightIn(max = (6 * 54).dp).verticalScroll(rememberScrollState()).selectableGroup()) {
         for ((id, name) in v.members) {
@@ -807,7 +806,7 @@ private fun Reclaim(p: People, ui: PeopleUi, k: SheetInk, code: String, v: Previ
             Row(Modifier.fillMaxWidth().heightIn(min = 54.dp).selectable(sel, role = Role.RadioButton) { picked = id; signIn = null; gone = false },
                 verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 Av(name, id, 36)
-                Text("⁨$name⁩", Modifier.weight(1f), fontFamily = Plex, fontWeight = FontWeight.Medium, fontSize = 15.5.sp, color = k.ink)
+                Text("⁨$name⁩", Modifier.weight(1f), fontFamily = Gudi, fontWeight = FontWeight.Medium, fontSize = 15.5.sp, color = k.ink)
                 RadioDot(sel, k)
             }
             if (sel && signIn == id) Small(stringResource(R.string.app_g_sign_in_instead), k, Modifier.padding(start = 48.dp, bottom = 6.dp))
@@ -918,7 +917,7 @@ private fun BoxScope.GroupSheet(p: People, ui: PeopleUi, k: SheetInk, id: String
             // the head: the name, the members and the dates; "invite" at the end
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Column(Modifier.weight(1f).let { m -> if (g?.admin == true) m.clickable { ui.go(PLayer.Invite(id)) } else m }) {
-                    Text(g?.name ?: "…", fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 21.sp, color = k.ink, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    Text(g?.name ?: "…", fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 21.sp, color = k.ink, maxLines = 1, overflow = TextOverflow.Ellipsis)
                     if (g != null) Small(listOfNotNull(pluralStringResource(R.plurals.app_g_members, g.members.size, g.members.size),
                         if (g.startsOn != null && g.endsOn != null) stringResource(R.string.app_trip_range, io.github.pini236.skiapp.season.shortDate(g.startsOn),
                             io.github.pini236.skiapp.season.shortDate(g.endsOn)) else null).joinToString(" · "), k)
@@ -926,7 +925,7 @@ private fun BoxScope.GroupSheet(p: People, ui: PeopleUi, k: SheetInk, id: String
                 Row(Modifier.heightIn(min = 44.dp).clip(RoundedCornerShape(22.dp)).border(1.dp, k.line, RoundedCornerShape(22.dp)).semantics { role = Role.Button }
                     .clickable { ui.go(PLayer.Invite(id)) }.padding(horizontal = 12.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                     Icon(Icons.plus, null, Modifier.size(18.dp), tint = k.acc)
-                    Text(stringResource(R.string.app_g_invite_short), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = k.acc)
+                    Text(stringResource(R.string.app_g_invite_short), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = k.acc)
                 }
             }
             // the tabs: one picker, 44 a tab
@@ -936,7 +935,7 @@ private fun BoxScope.GroupSheet(p: People, ui: PeopleUi, k: SheetInk, id: String
                     val on = tb == t
                     Box(Modifier.weight(1f).heightIn(min = 44.dp).clip(RoundedCornerShape(22.dp)).let { if (on) it.background(k.ink) else it }
                         .semantics { role = Role.Tab; selected = on }.clickable { tab = tb }, contentAlignment = Alignment.Center) {
-                        Text(stringResource(label), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 13.sp, color = if (on) k.surf.copy(alpha = 1f) else k.ink, maxLines = 1)
+                        Text(stringResource(label), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 13.sp, color = if (on) k.surf.copy(alpha = 1f) else k.ink, maxLines = 1)
                     }
                 }
             }
@@ -1033,12 +1032,12 @@ private fun Meetups(g: Group, k: SheetInk, plan: MeetPlan?, onOpen: (Meetup) -> 
                 Box(Modifier.size(52.dp).clip(CircleShape).background(k.acc.copy(alpha = .14f)), contentAlignment = Alignment.Center) {
                     Icon(Icons.bell, null, Modifier.size(26.dp), tint = k.acc)
                 }
-                Text(stringResource(R.string.app_notif_ask_title), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 21.sp, color = k.ink)
+                Text(stringResource(R.string.app_notif_ask_title), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 21.sp, color = k.ink)
                 Small(stringResource(R.string.app_notif_ask_text), k)
                 Row(Modifier.fillMaxWidth().clip(RoundedCornerShape(16.dp)).background(k.line).padding(horizontal = 14.dp, vertical = 10.dp),
                     verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    Text(hm(m), fontFamily = Plex, fontWeight = FontWeight.Light, fontSize = 26.sp, color = k.ink)
-                    Text("⁦${where(m)?.name ?: m.station}⁩ · ${g.name}", Modifier.weight(1f), fontFamily = Plex, fontWeight = FontWeight.Medium, fontSize = 14.sp, color = k.ink, maxLines = 2)
+                    Text(hm(m), fontFamily = Gudi, fontWeight = FontWeight.Light, fontSize = 26.sp, color = k.ink)
+                    Text("⁦${where(m)?.name ?: m.station}⁩ · ${g.name}", Modifier.weight(1f), fontFamily = Gudi, fontWeight = FontWeight.Medium, fontSize = 14.sp, color = k.ink, maxLines = 2)
                 }
                 AccButton(stringResource(R.string.app_notif_ask_go), k) {
                     asking = null; Reminders.markAsked(ctx, Reminders.Ask.MEETUPS); Qa.log("redesign edge notif go")
@@ -1054,14 +1053,14 @@ private fun Meetups(g: Group, k: SheetInk, plan: MeetPlan?, onOpen: (Meetup) -> 
         Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(22.dp)).border(1.dp, k.line, RoundedCornerShape(22.dp)).semantics { role = Role.Button }
             .clickable { onOpen(next) }.padding(horizontal = 16.dp, vertical = 10.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(stringResource(R.string.app_grp_next_meetup), Modifier.weight(1f), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 12.5.sp, color = k.ink2)
+                Text(stringResource(R.string.app_grp_next_meetup), Modifier.weight(1f), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 12.5.sp, color = k.ink2)
                 val mins = java.time.Duration.between(now, next.at).toMinutes()
-                Text(stringResource(R.string.app_g_in, inWords0(mins, ctx)), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = k.acc)
+                Text(stringResource(R.string.app_g_in, inWords0(mins, ctx)), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = k.acc)
             }
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                Text(hm(next), fontFamily = Plex, fontWeight = FontWeight.Light, fontSize = 40.sp, color = k.ink)
+                Text(hm(next), fontFamily = Gudi, fontWeight = FontWeight.Light, fontSize = 40.sp, color = k.ink)
                 Column {
-                    Text("⁦${st?.name ?: next.station}⁩", fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 17.sp, color = k.ink)
+                    Text("⁦${st?.name ?: next.station}⁩", fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 17.sp, color = k.ink)
                     if (st != null) Small(stationSub(st), k)
                 }
             }
@@ -1073,7 +1072,7 @@ private fun Meetups(g: Group, k: SheetInk, plan: MeetPlan?, onOpen: (Meetup) -> 
                 LaunchedEffect(Unit) { Qa.log("redesign edge notif off") }
                 EdgeGlyph(EdgeIcon.BELL_OFF, k.ink2, 20.dp)
                 Column(Modifier.weight(1f)) {
-                    Text(stringResource(R.string.app_notif_off), fontFamily = Plex, fontWeight = FontWeight.Medium, fontSize = 15.sp, color = k.ink)
+                    Text(stringResource(R.string.app_notif_off), fontFamily = Gudi, fontWeight = FontWeight.Medium, fontSize = 15.sp, color = k.ink)
                     Small(stringResource(R.string.app_notif_off_sub), k)
                 }
                 TextLink(stringResource(R.string.loc_denied_action_phone), k) {
@@ -1095,7 +1094,7 @@ private fun Meetups(g: Group, k: SheetInk, plan: MeetPlan?, onOpen: (Meetup) -> 
         Row(Modifier.fillMaxWidth().heightIn(min = 54.dp).semantics { role = Role.Button }
             .androidxLongClick({ onOpen(m) }, { armed = m.id }), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             Column(Modifier.weight(1f)) {
-                Text("$day · ${hm(m)} · ⁦${st?.name ?: m.station}⁩", fontFamily = Plex, fontWeight = FontWeight.Medium, fontSize = 15.5.sp, color = k.ink)
+                Text("$day · ${hm(m)} · ⁦${st?.name ?: m.station}⁩", fontFamily = Gudi, fontWeight = FontWeight.Medium, fontSize = 15.5.sp, color = k.ink)
                 // U07: made here with no signal, not sent yet
                 if (m.id.startsWith("local:")) WaitTag(k)
                 Small(listOfNotNull(st?.let { stationSub(it) }, m.byName?.let { stringResource(R.string.app_g_set_by, it) }).joinToString(" · "), k)
@@ -1140,7 +1139,7 @@ private fun Flights(g: Group, k: SheetInk, trip: Trip?, act: Act, onSame: (Strin
             val on = r == ret
             Box(Modifier.heightIn(min = 44.dp).padding(vertical = 4.dp).clip(RoundedCornerShape(18.dp)).background(if (on) k.ink else k.line)
                 .semantics { role = Role.Tab; selected = on }.clickable { ret = r }.padding(horizontal = 14.dp), contentAlignment = Alignment.Center) {
-                Text(stringResource(label), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 13.5.sp, color = if (on) k.surf.copy(alpha = 1f) else k.ink)
+                Text(stringResource(label), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 13.5.sp, color = if (on) k.surf.copy(alpha = 1f) else k.ink)
             }
         }
         Spacer(Modifier.weight(1f))
@@ -1164,32 +1163,32 @@ private fun Flights(g: Group, k: SheetInk, trip: Trip?, act: Act, onSame: (Strin
             .padding(horizontal = 14.dp, vertical = 12.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 CompositionLocalProvider(LocalLayoutDirection provides LocalLayoutDirection.current) {
-                    Column { Text(l.fromCode ?: l.fromCity.ifBlank { "—" }, fontFamily = Plex, fontWeight = FontWeight.Light, fontSize = 30.sp, color = paper.ink)
-                        l.departs?.let { Text(it.toString(), fontFamily = Plex, fontSize = 12.sp, color = paper.ink2) } }
+                    Column { Text(l.fromCode ?: l.fromCity.ifBlank { "—" }, fontFamily = Gudi, fontWeight = FontWeight.Light, fontSize = 30.sp, color = paper.ink)
+                        l.departs?.let { Text(it.toString(), fontFamily = Gudi, fontSize = 12.sp, color = paper.ink2) } }
                     Icon(Icons.plane, null, Modifier.padding(horizontal = 10.dp).size(20.dp), tint = k.acc)
-                    Column { Text(l.toCode ?: l.toCity.ifBlank { "—" }, fontFamily = Plex, fontWeight = FontWeight.Light, fontSize = 30.sp, color = paper.ink)
-                        l.arrives?.let { Text(it.toString(), fontFamily = Plex, fontSize = 12.sp, color = paper.ink2) } }
+                    Column { Text(l.toCode ?: l.toCity.ifBlank { "—" }, fontFamily = Gudi, fontWeight = FontWeight.Light, fontSize = 30.sp, color = paper.ink)
+                        l.arrives?.let { Text(it.toString(), fontFamily = Gudi, fontSize = 12.sp, color = paper.ink2) } }
                 }
                 Spacer(Modifier.weight(1f))
                 if (l.flight.isNotBlank()) Column(horizontalAlignment = Alignment.End) {
-                    Text(stringResource(R.string.ticket_flight), fontFamily = Plex, fontSize = 11.5.sp, color = paper.ink2)
-                    Text("⁦${l.flight}⁩", fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = paper.ink)
+                    Text(stringResource(R.string.ticket_flight), fontFamily = Gudi, fontSize = 11.5.sp, color = paper.ink2)
+                    Text("⁦${l.flight}⁩", fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = paper.ink)
                 }
             }
             Box(Modifier.padding(vertical = 8.dp).fillMaxWidth().height(2.dp).dashed(dash))
             Row(Modifier.heightIn(min = 32.dp), verticalAlignment = Alignment.CenterVertically) {
                 Row(horizontalArrangement = Arrangement.spacedBy((-8).dp)) { for (m in c.members.take(6)) Av(m.name, m.userId, 28, ring = paper.paper) }
                 Text(if (c.members.size == 1) "⁨${c.members[0].name}⁩" else pluralStringResource(R.plurals.app_grp_on_flight_n, c.members.size, c.members.size),
-                    Modifier.padding(start = 10.dp).weight(1f), fontFamily = Plex, fontSize = 13.sp, color = paper.ink)
+                    Modifier.padding(start = 10.dp).weight(1f), fontFamily = Gudi, fontSize = 13.sp, color = paper.ink)
                 if (c.mine) Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(Icons.check, null, Modifier.size(16.dp), tint = k.good)
-                    Text(stringResource(R.string.group_you), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 13.sp, color = k.good)
+                    Text(stringResource(R.string.group_you), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 13.sp, color = k.good)
                 } else if (!ret) c.members.firstOrNull { it.tripId != null }?.tripId?.let { tid ->
                     TextLink(stringResource(R.string.app_g_same_flight), k) { onSame(tid) }
                 }
             }
             c.byAdmin?.let { Small(stringResource(R.string.group_entered_by_admin), k, color = paper.ink2) }
-            if (open) for (m in c.members) Text("⁨${m.name}⁩", fontFamily = Plex, fontSize = 14.sp, color = paper.ink)
+            if (open) for (m in c.members) Text("⁨${m.name}⁩", fontFamily = Gudi, fontSize = 14.sp, color = paper.ink)
         }
     }
     val none = g.members.filter { it.trip == null && !it.me }
@@ -1217,7 +1216,7 @@ private fun Scores(p: People, g: Group, k: SheetInk) {
             val on = key == game
             Box(Modifier.heightIn(min = 44.dp).padding(vertical = 4.dp).clip(RoundedCornerShape(18.dp)).background(if (on) k.ink else k.line)
                 .semantics { role = Role.Tab; selected = on }.clickable { game = key }.padding(horizontal = 14.dp), contentAlignment = Alignment.Center) {
-                Text(stringResource(name), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 13.5.sp, color = if (on) k.surf.copy(alpha = 1f) else k.ink)
+                Text(stringResource(name), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 13.5.sp, color = if (on) k.surf.copy(alpha = 1f) else k.ink)
             }
         }
     }
@@ -1233,11 +1232,11 @@ private fun Scores(p: People, g: Group, k: SheetInk) {
                 Row(Modifier.fillMaxWidth().heightIn(min = 54.dp).let { if (s.me) it.offset(x = 0.dp).clip(RoundedCornerShape(14.dp)).background(k.ridgeFill) else it }
                     .semantics(mergeDescendants = true) { contentDescription = a11y }.padding(horizontal = 8.dp),
                     verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    Text(places[i].toString(), Modifier.widthIn(min = 26.dp), fontFamily = Plex, fontWeight = FontWeight.Light, fontSize = 23.sp, color = k.ink)
+                    Text(places[i].toString(), Modifier.widthIn(min = 26.dp), fontFamily = Gudi, fontWeight = FontWeight.Light, fontSize = 23.sp, color = k.ink)
                     Av(s.name, s.userId, 36)
-                    Text("⁨${s.name}⁩" + if (s.me) " $meSuffix" else "", Modifier.weight(1f), fontFamily = Plex, fontWeight = FontWeight.Medium, fontSize = 15.5.sp, color = k.ink)
+                    Text("⁨${s.name}⁩" + if (s.me) " $meSuffix" else "", Modifier.weight(1f), fontFamily = Gudi, fontWeight = FontWeight.Medium, fontSize = 15.5.sp, color = k.ink)
                     CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
-                        Text("%,d".format(s.best), fontFamily = Plex, fontWeight = FontWeight.Light, fontSize = 25.sp, color = k.ink)
+                        Text("%,d".format(s.best), fontFamily = Gudi, fontWeight = FontWeight.Light, fontSize = 25.sp, color = k.ink)
                     }
                 }
             }
@@ -1270,12 +1269,12 @@ private fun Members(p: People, ui: PeopleUi, g: Group, k: SheetInk, act: Act, to
     }
     if (g.admin && g.requests.isNotEmpty()) Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(22.dp)).border(1.dp, k.line, RoundedCornerShape(22.dp))
         .padding(horizontal = 16.dp, vertical = 10.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        Text(stringResource(R.string.app_g_requests), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 12.5.sp, color = k.ink2)
+        Text(stringResource(R.string.app_g_requests), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 12.5.sp, color = k.ink2)
         for (q in g.requests) {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 Av(q.name, q.userId, 36)
                 Column(Modifier.weight(1f)) {
-                    Text(stringResource(if (q.reclaim) R.string.app_g_request_reclaim else R.string.app_g_request_join, q.name), fontFamily = Plex, fontWeight = FontWeight.Medium, fontSize = 15.5.sp, color = k.ink)
+                    Text(stringResource(if (q.reclaim) R.string.app_g_request_reclaim else R.string.app_g_request_join, q.name), fontFamily = Gudi, fontWeight = FontWeight.Medium, fontSize = 15.5.sp, color = k.ink)
                     Small(stringResource(if (q.reclaim) R.string.app_g_request_reclaim_sub else R.string.app_g_request_join_sub), k)
                 }
             }
@@ -1297,7 +1296,7 @@ private fun Members(p: People, ui: PeopleUi, g: Group, k: SheetInk, act: Act, to
         PRow("⁨${m.name}⁩" + if (m.me) " $meSuffix" else "", k, sub = sub, lead = { Av(m.name, m.userId, 36) },
             trailing = {
                 if (m.role == GRole.ADMIN) Text(stringResource(R.string.app_g_role_admin), Modifier.height(20.dp).border(1.dp, k.line, RoundedCornerShape(9.dp)).padding(horizontal = 7.dp),
-                    fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 11.sp, color = k.ink2)
+                    fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 11.sp, color = k.ink2)
                 if (g.admin && !m.me) {
                     val label = stringResource(R.string.app_g_actions_on, m.name)
                     Box(Modifier.size(44.dp).semantics { contentDescription = label; role = Role.Button }.clickable { menuFor = m; Qa.log("redesign people member menu") }, contentAlignment = Alignment.Center) {
@@ -1323,7 +1322,7 @@ private fun Members(p: People, ui: PeopleUi, g: Group, k: SheetInk, act: Act, to
     menuFor?.let { m ->
         androidx.compose.material3.ModalBottomSheet(onDismissRequest = { menuFor = null }, containerColor = k.surf.copy(alpha = 1f)) {
             Column(Modifier.padding(horizontal = 16.dp).navigationBarsPadding()) {
-                Text("⁨${m.name}⁩", Modifier.padding(bottom = 8.dp), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 17.sp, color = k.ink)
+                Text("⁨${m.name}⁩", Modifier.padding(bottom = 8.dp), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 17.sp, color = k.ink)
                 if (m.role == GRole.MEMBER) PRow(stringResource(R.string.app_g_make_admin), k) {
                     menuFor = null
                     if (!m.registered) ui.toast = mustRegister else act.run { api.setRole(g.id, m.userId, GRole.ADMIN); reload() }
@@ -1341,7 +1340,7 @@ private fun Members(p: People, ui: PeopleUi, g: Group, k: SheetInk, act: Act, to
     fillFor?.let { m ->
         androidx.compose.material3.ModalBottomSheet(onDismissRequest = { fillFor = null }, containerColor = k.surf.copy(alpha = 1f)) {
             Column(Modifier.padding(horizontal = 16.dp).navigationBarsPadding(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Text(stringResource(R.string.app_g_fill_for), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 17.sp, color = k.ink)
+                Text(stringResource(R.string.app_g_fill_for), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 17.sp, color = k.ink)
                 Small(stringResource(R.string.app_g_fill_sub), k)
                 for (c in PeopleRules.cards(g.members, ret = false)) {
                     val src = c.members.firstNotNullOfOrNull { it.trip } ?: continue
@@ -1362,7 +1361,7 @@ private fun Members(p: People, ui: PeopleUi, g: Group, k: SheetInk, act: Act, to
         var cal by remember { mutableStateOf(false) }
         val edit = rememberAct()
         Column(Modifier.padding(horizontal = 16.dp).navigationBarsPadding().imePadding(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            Text(stringResource(R.string.app_g_name_dates), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 19.sp, color = k.ink)
+            Text(stringResource(R.string.app_g_name_dates), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 19.sp, color = k.ink)
             if (cal) LiveCalendar(from?.let { Trip(io.github.pini236.skiapp.trip.Leg(it), to?.let { r -> io.github.pini236.skiapp.trip.Leg(r) }) }, today, k, haptics) { nt ->
                 from = nt.out.date; to = nt.ret?.date; cal = false
             } else {
@@ -1376,7 +1375,7 @@ private fun Members(p: People, ui: PeopleUi, g: Group, k: SheetInk, act: Act, to
                     edit.run { api.updateGroup(g.id, name.trim(), from, to); reload(); editing = false }
                 }
                 Box(Modifier.fillMaxWidth().heightIn(min = 44.dp).clickable { editing = false }, contentAlignment = Alignment.Center) {
-                    Text(stringResource(R.string.app_cancel), fontFamily = Plex, fontWeight = FontWeight.Medium, fontSize = 15.sp, color = k.ink)
+                    Text(stringResource(R.string.app_cancel), fontFamily = Gudi, fontWeight = FontWeight.Medium, fontSize = 15.sp, color = k.ink)
                 }
             }
         }
@@ -1389,7 +1388,7 @@ private fun RedConfirm(text: String, k: SheetInk, onClick: () -> Unit) {
     Box(Modifier.fillMaxWidth().heightIn(min = 54.dp).clip(RoundedCornerShape(14.dp)).background(k.red)
         .semantics { role = Role.Button; liveRegion = LiveRegionMode.Assertive }.clickable(onClick = onClick).padding(horizontal = 12.dp),
         contentAlignment = Alignment.CenterStart) {
-        Text(text, fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 15.5.sp, color = k.onRed)
+        Text(text, fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 15.5.sp, color = k.onRed)
     }
 }
 
@@ -1435,8 +1434,8 @@ private fun BoxScope.InviteScreen(p: People, ui: PeopleUi, k: SheetInk, id: Stri
     val linkCopied = stringResource(R.string.common_link_copied)
     FullScreen(k, stringResource(R.string.app_g_invite_title), { ui.back() }, top = {
         if (gg != null) {
-            Text(stringResource(R.string.app_g_to_group), fontFamily = Plex, fontSize = 15.sp, color = Color.White)
-            Text("⁨${gg.name}⁩", fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 27.sp, color = Color.White, textAlign = TextAlign.Center)
+            Text(stringResource(R.string.app_g_to_group), fontFamily = Gudi, fontSize = 15.sp, color = Color.White)
+            Text("⁨${gg.name}⁩", fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 27.sp, color = Color.White, textAlign = TextAlign.Center)
             if (inv != null) {
                 val aria = stringResource(R.string.app_g_code_aria, inv.code.toList().joinToString(" "))
                 CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
@@ -1444,11 +1443,11 @@ private fun BoxScope.InviteScreen(p: People, ui: PeopleUi, k: SheetInk, id: Stri
                         copyText(ctx, inv.code); ui.toast = copied; Qa.log("redesign people invite copied")
                     }, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                         for (ch in inv.code) Box(Modifier.size(50.dp, 64.dp).clip(RoundedCornerShape(14.dp)).background(k.surf.copy(alpha = 1f)), contentAlignment = Alignment.Center) {
-                            Text(ch.toString(), fontFamily = Plex, fontWeight = FontWeight.Light, fontSize = 33.sp, color = k.ink)
+                            Text(ch.toString(), fontFamily = Gudi, fontWeight = FontWeight.Light, fontSize = 33.sp, color = k.ink)
                         }
                     }
                 }
-                Text(stringResource(R.string.app_g_invite_how), fontFamily = Plex, fontSize = 13.5.sp, color = Color.White, textAlign = TextAlign.Center)
+                Text(stringResource(R.string.app_g_invite_how), fontFamily = Gudi, fontSize = 13.5.sp, color = Color.White, textAlign = TextAlign.Center)
             }
         }
     }) {
@@ -1468,7 +1467,7 @@ private fun BoxScope.InviteScreen(p: People, ui: PeopleUi, k: SheetInk, id: Stri
                             RoundIcon(Icons.share, stringResource(R.string.app_g_share), k) { io.github.pini236.skiapp.group.shareInvite(ctx, text, false) }
                         }
                         if (gg.admin) {
-                            Text(stringResource(R.string.app_g_invite_settings), Modifier.padding(top = 8.dp), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = k.ink)
+                            Text(stringResource(R.string.app_g_invite_settings), Modifier.padding(top = 8.dp), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = k.ink)
                             SwitchRow(stringResource(R.string.app_g_manual_title), stringResource(if (inv.requiresApproval) R.string.app_g_manual_on else R.string.app_g_manual_off),
                                 inv.requiresApproval, k) { on -> act.run { api.newInvite(id, on); g = api.group(id) } }
                             PRow(stringResource(R.string.app_g_valid), k, sub = gg.endsOn?.let { stringResource(R.string.app_g_valid_until, io.github.pini236.skiapp.season.shortDate(it)) }
@@ -1520,7 +1519,7 @@ private fun BoxScope.SettingsScreen(p: People, ui: PeopleUi, k: SheetInk) {
         }
         PBox(k) {
             Column(Modifier.padding(vertical = 10.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Text(stringResource(R.string.about_display), fontFamily = Plex, fontWeight = FontWeight.Medium, fontSize = 15.5.sp, color = k.ink)
+                Text(stringResource(R.string.about_display), fontFamily = Gudi, fontWeight = FontWeight.Medium, fontSize = 15.5.sp, color = k.ink)
                 if (mode == DayNight.Mode.AUTO) Small(stringResource(R.string.app_set_display_auto), k)
                 Row(Modifier.fillMaxWidth().clip(RoundedCornerShape(22.dp)).background(k.line)) {
                     for ((m, label) in listOf(DayNight.Mode.AUTO to R.string.daynight_mode_auto, DayNight.Mode.DAY to R.string.daynight_mode_day, DayNight.Mode.NIGHT to R.string.daynight_mode_night)) {
@@ -1528,7 +1527,7 @@ private fun BoxScope.SettingsScreen(p: People, ui: PeopleUi, k: SheetInk) {
                         Box(Modifier.weight(1f).heightIn(min = 44.dp).clip(RoundedCornerShape(22.dp)).let { if (on) it.background(k.ink) else it }
                             .semantics { role = Role.RadioButton; selected = on }.clickable { mode = m; p.onMode(m); Qa.log("redesign people mode ${m.name.lowercase()}") },
                             contentAlignment = Alignment.Center) {
-                            Text(stringResource(label), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 13.5.sp, color = if (on) k.surf.copy(alpha = 1f) else k.ink)
+                            Text(stringResource(label), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 13.5.sp, color = if (on) k.surf.copy(alpha = 1f) else k.ink)
                         }
                     }
                 }
@@ -1577,14 +1576,14 @@ private fun BoxScope.LanguageSheet(p: People, ui: PeopleUi, k: SheetInk) {
             val on = !auto && l.tag == cur.tag
             Row(Modifier.fillMaxWidth().heightIn(min = 56.dp).semantics { role = Role.RadioButton; selected = on }.clickable { p.onLang(l.tag) },
                 verticalAlignment = Alignment.CenterVertically) {
-                Text(l.name, Modifier.weight(1f), fontFamily = if (l.script == Lang.Script.HEBREW || l.script == Lang.Script.LATIN) Plex else androidx.compose.ui.text.font.FontFamily.Default, fontWeight = FontWeight.Medium, fontSize = 19.sp, color = k.ink)
+                Text(l.name, Modifier.weight(1f), fontFamily = Gudi, fontWeight = FontWeight.Medium, fontSize = 19.sp, color = k.ink)
                 if (on) Icon(Icons.check, null, Modifier.size(22.dp), tint = k.acc)
             }
         }
         Row(Modifier.fillMaxWidth().heightIn(min = 56.dp).semantics { role = Role.RadioButton; selected = auto }.clickable { p.onLang(null) },
             verticalAlignment = Alignment.CenterVertically) {
             Column(Modifier.weight(1f)) {
-                Text(stringResource(R.string.app_lang_phone), fontFamily = Plex, fontWeight = FontWeight.Medium, fontSize = 19.sp, color = k.ink)
+                Text(stringResource(R.string.app_lang_phone), fontFamily = Gudi, fontWeight = FontWeight.Medium, fontSize = 19.sp, color = k.ink)
                 Small(stringResource(R.string.app_lang_auto_note), k)
             }
             if (auto) Icon(Icons.check, null, Modifier.size(22.dp), tint = k.acc)
@@ -1596,16 +1595,16 @@ private fun BoxScope.LanguageSheet(p: People, ui: PeopleUi, k: SheetInk) {
 private fun BoxScope.AboutScreen(p: People, ui: PeopleUi, k: SheetInk) {
     val uri = androidx.compose.ui.platform.LocalUriHandler.current
     FullScreen(k, stringResource(R.string.app_about_title), { ui.back() }, top = {
-        Text("Gudi", fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 44.sp, color = Color.White)
-        Text(stringResource(R.string.app_about_version, p.version), fontFamily = Plex, fontSize = 13.5.sp, color = Color.White)
-        Text(stringResource(R.string.about_unofficial), fontFamily = Plex, fontSize = 13.5.sp, color = Color.White, textAlign = TextAlign.Center)
+        Text("Gudi", fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 44.sp, color = Color.White)
+        Text(stringResource(R.string.app_about_version, p.version), fontFamily = Gudi, fontSize = 13.5.sp, color = Color.White)
+        Text(stringResource(R.string.about_unofficial), fontFamily = Gudi, fontSize = 13.5.sp, color = Color.White, textAlign = TextAlign.Center)
     }) {
         PBox(k) {
             PRow(stringResource(R.string.about_builder_name), k, sub = stringResource(R.string.about_who) + " · " + stringResource(R.string.app_about_with, "Claude"),
                 end = "GitHub", last = true) { uri.openUri("https://github.com/pini236") }
         }
         PBox(k) {
-            Text(stringResource(R.string.app_about_data_title), Modifier.padding(top = 12.dp, bottom = 4.dp), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 12.5.sp, color = k.ink2)
+            Text(stringResource(R.string.app_about_data_title), Modifier.padding(top = 12.dp, bottom = 4.dp), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 12.5.sp, color = k.ink2)
             PRow(stringResource(R.string.about_credit_osm_label), k, sub = stringResource(R.string.about_credit_osm_link) + " · ODbL") { uri.openUri("https://www.openstreetmap.org/copyright") }
             PRow(stringResource(R.string.about_credit_terrain_label), k, sub = stringResource(R.string.about_credit_terrain))
             PRow(stringResource(R.string.about_credit_weather_label), k, sub = "Open-Meteo · CC BY 4.0") { uri.openUri("https://open-meteo.com/") }
@@ -1636,7 +1635,7 @@ private fun BoxScope.LicensesScreen(ui: PeopleUi, k: SheetInk) {
         val fonts = io.github.pini236.skiapp.home.OPEN_LICENSES.filter { it.license.startsWith("SIL") }
         val libs = io.github.pini236.skiapp.home.OPEN_LICENSES - fonts.toSet()
         for ((head, list) in listOf(R.string.app_licenses_fonts to fonts, R.string.app_licenses_libs to libs)) {
-            Text(stringResource(head), Modifier.padding(horizontal = 28.dp), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 12.5.sp, color = Color(0xE6FFFFFF))
+            Text(stringResource(head), Modifier.padding(horizontal = 28.dp), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 12.5.sp, color = Color(0xE6FFFFFF))
             PBox(k) {
                 for ((i, l) in list.withIndex()) PRow("⁨${l.name}⁩", k, sub = l.license.ifEmpty { stringResource(R.string.app_licenses_android_sdk) },
                     last = i == list.lastIndex, trailing = { if (l.file == null) Icon(Icons.forward, null, Modifier.size(18.dp), tint = k.ink2) }) {
@@ -1660,7 +1659,7 @@ private fun BoxScope.LicenseText(ui: PeopleUi, k: SheetInk, key: String) {
     FullScreen(k, l?.name, { ui.back() }) {
         PBox(k) {
             CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
-                Text(text, Modifier.fillMaxWidth().padding(vertical = 12.dp), fontFamily = Plex, fontSize = 13.sp, lineHeight = 19.sp, color = k.ink, textAlign = TextAlign.Left)
+                Text(text, Modifier.fillMaxWidth().padding(vertical = 12.dp), fontFamily = Gudi, fontSize = 13.sp, lineHeight = 19.sp, color = k.ink, textAlign = TextAlign.Left)
             }
         }
     }

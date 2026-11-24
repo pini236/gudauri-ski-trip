@@ -54,7 +54,6 @@ import io.github.pini236.skiapp.fx.Haptics
 import io.github.pini236.skiapp.home.DayNight
 import io.github.pini236.skiapp.map.MapScene
 import io.github.pini236.skiapp.qa.Qa
-import io.github.pini236.skiapp.ui.Plex
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
@@ -142,8 +141,8 @@ internal fun RunDoneCard(file: File, p: RunDone.Pending, scene: MapScene, mode: 
             .clip(RoundedCornerShape(22.dp)).background(k.surf).padding(start = 14.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(9.dp)) {
             // nothing measured: just "one descent", no tick and no "saved" (the designer, 24.11.2026)
             val measured = l?.d != null
-            if (measured) Text("✓", fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = k.good)
-            Text(stringResource(if (measured) R.string.app_run_saved else R.string.app_rec_one), Modifier.weight(1f), fontFamily = Plex, fontWeight = FontWeight.Medium, fontSize = 14.sp, color = k.ink)
+            if (measured) Text("✓", fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = k.good)
+            Text(stringResource(if (measured) R.string.app_run_saved else R.string.app_rec_one), Modifier.weight(1f), fontFamily = Gudi, fontWeight = FontWeight.Medium, fontSize = 14.sp, color = k.ink)
             val close = stringResource(R.string.common_close)
             Box(Modifier.size(44.dp).semantics { role = Role.Button; contentDescription = close }.clickable { haptics.tick(.3f); onClose() }, contentAlignment = Alignment.Center) {
                 Text("✕", fontSize = 16.sp, color = k.ink)
@@ -153,38 +152,38 @@ internal fun RunDoneCard(file: File, p: RunDone.Pending, scene: MapScene, mode: 
         Box(Modifier.align(Alignment.BottomCenter)) {
             LiveSheet(k, opaque = true) {
                 val d = l?.d
-                if (l != null && d == null) Text(stringResource(R.string.app_day_empty), fontFamily = Plex, fontSize = 15.sp, color = k.ink2)
+                if (l != null && d == null) Text(stringResource(R.string.app_day_empty), fontFamily = Gudi, fontSize = 15.sp, color = k.ink2)
                 if (d != null) Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                     Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                         // the run: its sign and name, in the order skied
-                        if (l.runs.isEmpty()) Text(stringResource(R.string.app_rec_off), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = k.ink)
-                        else WholeChain(l.runs.size, sep = { Text("›", fontFamily = Plex, fontSize = 15.sp, color = k.ink2) },
-                            more = { Text("…", fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = k.ink2) }, item = { i ->
+                        if (l.runs.isEmpty()) Text(stringResource(R.string.app_rec_off), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = k.ink)
+                        else WholeChain(l.runs.size, sep = { Text("›", fontFamily = Gudi, fontSize = 15.sp, color = k.ink2) },
+                            more = { Text("…", fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = k.ink2) }, item = { i ->
                             val key = l.runs[i]
                             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                                 val pst = scene.runs?.pistes?.firstOrNull { it.key == key }
                                 pst?.refs?.firstOrNull()?.let { ref ->
                                     Box(Modifier.heightIn(min = 30.dp).clip(RoundedCornerShape(7.dp)).background(Color(io.github.pini236.skiapp.game.runColor(pst.color)))
                                         .border(1.5.dp, Color.White, RoundedCornerShape(7.dp)).padding(horizontal = 9.dp), contentAlignment = Alignment.Center) {
-                                        Text(ref, fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 17.sp, color = Color.White)
+                                        Text(ref, fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 17.sp, color = Color.White)
                                     }
                                 }
-                                Text("⁦${pst?.name?.ifBlank { null } ?: key}⁩", fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = k.ink, maxLines = 1, softWrap = false)
+                                Text("⁦${pst?.name?.ifBlank { null } ?: key}⁩", fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = k.ink, maxLines = 1, softWrap = false)
                             }
                         })
                         Row(verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            Text(if (d.isNull("max_kmh")) "—" else LiveNumbers.maxKmh(d.optDouble("max_kmh")), fontFamily = Plex, fontWeight = FontWeight.Light, fontSize = 64.sp, color = k.ink)
+                            Text(if (d.isNull("max_kmh")) "—" else LiveNumbers.maxKmh(d.optDouble("max_kmh")), fontFamily = Gudi, fontWeight = FontWeight.Light, fontSize = 64.sp, color = k.ink)
                             Column(Modifier.padding(bottom = 12.dp)) {
-                                Text(stringResource(R.string.app_rec_kmh_max), fontFamily = Plex, fontSize = 12.5.sp, color = k.ink)
-                                Text(stringResource(R.string.app_run_estimate), fontFamily = Plex, fontSize = 12.5.sp, color = k.ink2)
+                                Text(stringResource(R.string.app_rec_kmh_max), fontFamily = Gudi, fontSize = 12.5.sp, color = k.ink)
+                                Text(stringResource(R.string.app_run_estimate), fontFamily = Gudi, fontSize = 12.5.sp, color = k.ink2)
                             }
                         }
                         val s = ((d.optLong("t1") - d.optLong("t0")) / 1000).toInt()
                         val dist = d.optDouble("dist_m", 0.0)
                         val avg = if (s > 0) dist / s * 3.6 else null
                         Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                            @Composable fun cell(v: String, label: String) = Column { Text(v, fontFamily = Plex, fontWeight = FontWeight.Light, fontSize = 25.sp, color = k.ink)
-                                Text(label, fontFamily = Plex, fontSize = 11.5.sp, color = k.ink2) }
+                            @Composable fun cell(v: String, label: String) = Column { Text(v, fontFamily = Gudi, fontWeight = FontWeight.Light, fontSize = 25.sp, color = k.ink)
+                                Text(label, fontFamily = Gudi, fontSize = 11.5.sp, color = k.ink2) }
                             cell("%d:%02d".format(Locale.ROOT, s / 60, s % 60), stringResource(R.string.app_run_min))
                             cell(metres(d.optDouble("drop_m", 0.0)), stringResource(R.string.app_rec_m_down))
                             cell("%.1f".format(Locale.ROOT, dist / 1000), stringResource(R.string.app_run_km))
@@ -204,7 +203,7 @@ internal fun RunDoneCard(file: File, p: RunDone.Pending, scene: MapScene, mode: 
                 }
                 if (why != null) Column {
                     Box(Modifier.fillMaxWidth().height(1.dp).background(k.line))
-                    Text(why, Modifier.padding(top = 10.dp), fontFamily = Plex, fontSize = 13.5.sp, color = k.ink2)
+                    Text(why, Modifier.padding(top = 10.dp), fontFamily = Gudi, fontSize = 13.5.sp, color = k.ink2)
                 }
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     val again = stringResource(R.string.app_run_again)
@@ -213,7 +212,7 @@ internal fun RunDoneCard(file: File, p: RunDone.Pending, scene: MapScene, mode: 
                         horizontalArrangement = Arrangement.Center) {
                         val on = if (night) Color(0xFF1A0B3D) else Color.White
                         Box(Modifier.size(12.dp).clip(CircleShape).background(on))
-                        Text(again, Modifier.padding(start = 8.dp), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = on)
+                        Text(again, Modifier.padding(start = 8.dp), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = on)
                     }
                     if (d != null) {
                         SecondaryButton(stringResource(R.string.app_run_film), k) { haptics.tick(.3f); sub = 1 }

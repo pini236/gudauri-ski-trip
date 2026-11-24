@@ -47,7 +47,6 @@ import io.github.pini236.skiapp.map.MapScene
 import io.github.pini236.skiapp.meet.MeetPlan
 import io.github.pini236.skiapp.meet.Station
 import io.github.pini236.skiapp.qa.Qa
-import io.github.pini236.skiapp.ui.Plex
 import kotlin.math.hypot
 
 /** K06: which top station a tap is on (44 points to touch, before the lift's line), if any run goes down from it. */
@@ -72,9 +71,9 @@ internal fun FromStationSheet(st: Station, runs: List<ShelfRun>, scene: MapScene
         LiveSheet(k) {
             val first = st.topOf.firstOrNull() ?: st.name
             Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                Text(stringResource(R.string.app_station_title, "⁦$first⁩"), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 21.sp, color = k.ink)
+                Text(stringResource(R.string.app_station_title, "⁦$first⁩"), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 21.sp, color = k.ink)
                 val h = st.h ?: scene.terrain.elev(st.x, st.y).toInt()
-                Text(pluralStringResource(R.plurals.app_station_sub, runs.size, nf.format(h), runs.size.toString()), fontFamily = Plex, fontSize = 13.5.sp, color = k.ink2)
+                Text(pluralStringResource(R.plurals.app_station_sub, runs.size, nf.format(h), runs.size.toString()), fontFamily = Gudi, fontSize = 13.5.sp, color = k.ink2)
             }
             Column(Modifier.heightIn(max = (46 * 5 + 8).dp).verticalScroll(rememberScrollState())) {
                 for (r in runs) {
@@ -84,8 +83,8 @@ internal fun FromStationSheet(st: Station, runs: List<ShelfRun>, scene: MapScene
                     Row(Modifier.fillMaxWidth().heightIn(min = 46.dp).semantics(mergeDescendants = true) { role = Role.Button; contentDescription = "${r.title}, $end" }
                         .clickable { haptics.tick(.4f); onPick(r.key) }, verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                         Box(Modifier.size(width = 6.dp, height = 22.dp).clip(RoundedCornerShape(3.dp)).background(plate(r.color)))
-                        Text("⁦${r.title}⁩", Modifier.weight(1f), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = k.ink, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                        Text(end, Modifier.width(190.dp), fontFamily = Plex, fontSize = 13.sp, color = k.ink2, maxLines = 1, overflow = TextOverflow.Ellipsis,
+                        Text("⁦${r.title}⁩", Modifier.weight(1f), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = k.ink, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                        Text(end, Modifier.width(190.dp), fontFamily = Gudi, fontSize = 13.sp, color = k.ink2, maxLines = 1, overflow = TextOverflow.Ellipsis,
                             textAlign = androidx.compose.ui.text.style.TextAlign.End)
                     }
                     Box(Modifier.fillMaxWidth().heightIn(min = 1.dp, max = 1.dp).background(k.line))

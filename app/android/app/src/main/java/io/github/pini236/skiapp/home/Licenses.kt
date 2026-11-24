@@ -48,7 +48,9 @@ private const val OFL = "SIL Open Font License 1.1"
 private const val APACHE = "Apache License 2.0"
 
 /** The rows of the licenses page, in the board's order: the fonts, then the libraries. */
-internal val OPEN_LICENSES = listOf(
+internal val OPEN_LICENSES = listOfNotNull(
+    // the new design's text font, packed in the test build only (part 7 of the redesign)
+    OpenLicense("heebo", "Heebo", OFL, "OFL-Heebo.txt").takeIf { io.github.pini236.skiapp.BuildConfig.FLAVOR == "preview" },
     OpenLicense("karantina", "Karantina", OFL, "OFL-Karantina.txt"),
     OpenLicense("plex-hebrew", "IBM Plex Sans Hebrew", OFL, "OFL-IBMPlexSansHebrew.txt"),
     OpenLicense("plex", "IBM Plex Sans", OFL, "OFL-IBMPlexSans.txt"),

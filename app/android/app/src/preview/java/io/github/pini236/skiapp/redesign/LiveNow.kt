@@ -55,7 +55,6 @@ import io.github.pini236.skiapp.R
 import io.github.pini236.skiapp.data.Lift
 import io.github.pini236.skiapp.qa.Qa
 import io.github.pini236.skiapp.status.LiftStatus
-import io.github.pini236.skiapp.ui.Plex
 import io.github.pini236.skiapp.weather.DEFAULT_ALT
 import io.github.pini236.skiapp.weather.Forecast
 import io.github.pini236.skiapp.weather.LocalWeather
@@ -91,7 +90,7 @@ internal fun NowHead(tab: NowTab, k: SheetInk, onTab: (NowTab) -> Unit) {
 
 @Composable
 private fun Text0(s: String, c: Color, size: Float, w: FontWeight = FontWeight.Normal, modifier: Modifier = Modifier, lines: Int = Int.MAX_VALUE) =
-    androidx.compose.material3.Text(s, modifier, fontFamily = Plex, fontWeight = w, fontSize = size.sp, color = c, maxLines = lines)
+    androidx.compose.material3.Text(s, modifier, fontFamily = Gudi, fontWeight = w, fontSize = size.sp, color = c, maxLines = lines)
 
 /** The risk tag's colours (section 1): low green, medium amber, high red; a report's open or closed in the lift colours. */
 private fun tagColors(t: NowRules.Tag, k: SheetInk, night: Boolean): Pair<Color, Color> = when {

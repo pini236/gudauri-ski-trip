@@ -68,7 +68,6 @@ import android.graphics.Typeface
 import androidx.core.content.res.ResourcesCompat
 import io.github.pini236.skiapp.qa.Qa
 import io.github.pini236.skiapp.telemetry.Telemetry
-import io.github.pini236.skiapp.ui.Plex
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -147,11 +146,11 @@ internal fun DayShare(story: StoryData, sm: DayModel.Summary, paint: DayPaint.Da
             val back = stringResource(R.string.app_g_back)
             Box(Modifier.size(48.dp).clickable(role = Role.Button) { haptics.tick(.2f); onBack() }
                 .semantics { contentDescription = back }, contentAlignment = Alignment.Center) {
-                Text(if (rtl) "›" else "‹", fontFamily = Plex, fontSize = 20.sp, color = ink)
+                Text(if (rtl) "›" else "‹", fontFamily = Gudi, fontSize = 20.sp, color = ink)
             }
-            Text(stringResource(R.string.app_meet_share_title), Modifier.weight(1f), fontFamily = Plex, fontWeight = FontWeight.Medium, fontSize = 14.sp, color = ink, maxLines = 1)
+            Text(stringResource(R.string.app_meet_share_title), Modifier.weight(1f), fontFamily = Gudi, fontWeight = FontWeight.Medium, fontSize = 14.sp, color = ink, maxLines = 1)
             if (sample) Text(stringResource(R.string.app_day_sample), Modifier.padding(end = 14.dp).clip(RoundedCornerShape(10.dp))
-                .background(Color(0x33A98BEE)).padding(horizontal = 8.dp, vertical = 2.dp), fontFamily = Plex, fontSize = 12.sp, color = ink)
+                .background(Color(0x33A98BEE)).padding(horizontal = 8.dp, vertical = 2.dp), fontFamily = Gudi, fontSize = 12.sp, color = ink)
         }
         Column(Modifier.align(Alignment.TopCenter).statusBarsPadding().padding(top = 8.dp + 48.dp + 16.dp, start = 36.dp, end = 36.dp).fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally) {
@@ -178,15 +177,15 @@ internal fun DayShare(story: StoryData, sm: DayModel.Summary, paint: DayPaint.Da
                     val sel = video == on
                     Text(stringResource(key), Modifier.weight(1f).clip(RoundedCornerShape(19.dp)).background(if (sel) accent else Color.Transparent)
                         .clickable(role = Role.Button) { haptics.tick(.2f); video = on; Qa.log("redesign share ${if (on) "video" else "photo"}") }.padding(vertical = 10.dp),
-                        fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = if (sel) Color.White else ink, textAlign = TextAlign.Center)
+                        fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = if (sel) Color.White else ink, textAlign = TextAlign.Center)
                 }
             }
-            Text(stringResource(R.string.app_share_note), fontFamily = Plex, fontSize = 13.5.sp, color = muted)
+            Text(stringResource(R.string.app_share_note), fontFamily = Gudi, fontSize = 13.5.sp, color = muted)
             making?.let { p ->
-                Text("${(p * 100).toInt()}%", Modifier.fillMaxWidth(), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = ink,
+                Text("${(p * 100).toInt()}%", Modifier.fillMaxWidth(), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = ink,
                     textAlign = if (rtl) TextAlign.Right else TextAlign.Left)
             }
-            if (failed) Text(stringResource(R.string.app_err_general), fontFamily = Plex, fontSize = 13.sp, color = Color(0xFFD1342B))
+            if (failed) Text(stringResource(R.string.app_err_general), fontFamily = Gudi, fontSize = 13.sp, color = Color(0xFFD1342B))
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text(stringResource(R.string.app_day_share), Modifier.weight(1f).heightIn(min = 52.dp).clip(RoundedCornerShape(26.dp)).background(accent)
                     .clickable(role = Role.Button) {
@@ -194,14 +193,14 @@ internal fun DayShare(story: StoryData, sm: DayModel.Summary, paint: DayPaint.Da
                         if (!video) pic?.first?.let { io.github.pini236.skiapp.dayrec.ui.StoryImage.share(ctx, it, ctx.getString(R.string.common_site_name), ctx.getString(R.string.app_day_share)); measure("native") }
                         else withVideo { f -> shareVideo(ctx, f); measure("video") }
                     }.padding(vertical = 15.dp),
-                    fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color.White, textAlign = TextAlign.Center)
+                    fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color.White, textAlign = TextAlign.Center)
                 Text(stringResource(R.string.app_share_save), Modifier.weight(1f).heightIn(min = 52.dp).clip(RoundedCornerShape(26.dp)).border(1.dp, rule, RoundedCornerShape(26.dp))
                     .clickable(role = Role.Button) {
                         haptics.tick(.3f)
                         if (!video) pic?.first?.let { b -> scope.launch { val ok = withContext(Dispatchers.IO) { savePicture(ctx, b) }; Qa.log("redesign share saved photo $ok"); if (ok) measure("save") } }
                         else withVideo { f -> scope.launch { val ok = withContext(Dispatchers.IO) { saveVideo(ctx, f) }; Qa.log("redesign share saved video $ok"); if (ok) measure("save") } }
                     }.padding(vertical = 15.dp),
-                    fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = ink, textAlign = TextAlign.Center)
+                    fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = ink, textAlign = TextAlign.Center)
             }
         }
     }

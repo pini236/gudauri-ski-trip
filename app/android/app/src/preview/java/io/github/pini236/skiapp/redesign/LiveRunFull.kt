@@ -67,7 +67,6 @@ import io.github.pini236.skiapp.map.openLink
 import io.github.pini236.skiapp.map.runLink
 import io.github.pini236.skiapp.qa.Qa
 import io.github.pini236.skiapp.telemetry.Telemetry
-import io.github.pini236.skiapp.ui.Plex
 import io.github.pini236.skiapp.weather.Forecast
 import io.github.pini236.skiapp.weather.LocalWeather
 import io.github.pini236.skiapp.weather.deg
@@ -116,7 +115,7 @@ internal fun RunSheets(key: String, r: PeakData.Run, d: PeakData, g: Glass, scen
             // the way to the videos from the low sheet: it opens the full one
             Text(stringResource(R.string.app_run_videos_n, vids.size.toString()),
                 Modifier.heightIn(min = 44.dp).semantics { role = Role.Button }.clickable { haptics.tick(.3f); onFull(true); Qa.log("redesign run full") }
-                    .padding(vertical = 10.dp), fontFamily = Plex, fontWeight = FontWeight.Medium, fontSize = 14.sp, color = SheetInk(night).acc)
+                    .padding(vertical = 10.dp), fontFamily = Gudi, fontWeight = FontWeight.Medium, fontSize = 14.sp, color = SheetInk(night).acc)
         } else RunFull(key, r, scene, vids, night, haptics, order)
     }
 }
@@ -143,11 +142,11 @@ private fun RunFull(key: String, r: PeakData.Run, scene: MapScene, vids: List<Vi
         val shareA = stringResource(R.string.run_share_button)
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             Box(Modifier.height(30.dp).widthIn(min = 40.dp).clip(RoundedCornerShape(7.dp)).background(plate(r.color)).padding(horizontal = 7.dp), contentAlignment = Alignment.Center) {
-                Text(r.ref, fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 17.sp, color = Color.White, style = TextStyle(textDirection = TextDirection.Ltr))
+                Text(r.ref, fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 17.sp, color = Color.White, style = TextStyle(textDirection = TextDirection.Ltr))
             }
             Column(Modifier.weight(1f)) {
-                Text(r.name, fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 21.sp, color = k.ink, style = TextStyle(textDirection = TextDirection.Ltr))
-                Text(colour + stringResource(R.string.run_color_official_suffix) + " · " + level, fontFamily = Plex, fontSize = 13.5.sp, color = k.ink2)
+                Text(r.name, fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 21.sp, color = k.ink, style = TextStyle(textDirection = TextDirection.Ltr))
+                Text(colour + stringResource(R.string.run_color_official_suffix) + " · " + level, fontFamily = Gudi, fontSize = 13.5.sp, color = k.ink2)
             }
             Box(Modifier.size(44.dp).clip(CircleShape).border(1.dp, k.line, CircleShape).semantics { contentDescription = shareA; role = Role.Button }.clickable {
                 haptics.tick(.3f)
@@ -161,8 +160,8 @@ private fun RunFull(key: String, r: PeakData.Run, scene: MapScene, vids: List<Vi
             for ((v, c) in listOf(stringResource(R.string.common_unit_km, "%.1f".format(r.len / 1000f)) to stringResource(R.string.common_length_label),
                 stringResource(R.string.common_unit_m, nf.format(r.drop)) to stringResource(R.string.run_stat_drop_label),
                 "${r.steep}°" to stringResource(R.string.run_stat_steep_label))) Column {
-                Text(v, fontFamily = Plex, fontWeight = FontWeight.Light, fontSize = 30.sp, color = k.ink, maxLines = 1)
-                Text(c, fontFamily = Plex, fontSize = 12.5.sp, color = k.ink2)
+                Text(v, fontFamily = Gudi, fontWeight = FontWeight.Light, fontSize = 30.sp, color = k.ink, maxLines = 1)
+                Text(c, fontFamily = Gudi, fontSize = 12.5.sp, color = k.ink2)
             }
         }
         // the conditions at the run's top and bottom (the interpolation by height, as today)
@@ -170,41 +169,41 @@ private fun RunFull(key: String, r: PeakData.Run, scene: MapScene, vids: List<Vi
         val f = w.usable
         var note by remember { mutableStateOf(false) }
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-            Text(stringResource(R.string.run_cond_title), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = k.ink)
+            Text(stringResource(R.string.run_cond_title), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = k.ink)
             Box(Modifier.size(44.dp).semantics { role = Role.Button }.clickable { note = !note }, contentAlignment = Alignment.Center) {
                 Box(Modifier.size(20.dp).clip(CircleShape).border(1.5.dp, k.ink2, CircleShape), contentAlignment = Alignment.Center) {
-                    Text("i", fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 12.sp, color = k.ink2)
+                    Text("i", fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 12.sp, color = k.ink2)
                 }
             }
         }
-        if (note && f != null) Text(stringResource(R.string.run_cond_note, io.github.pini236.skiapp.weather.ago(f.updated, w.now)), fontFamily = Plex, fontSize = 12.5.sp, color = k.ink2)
+        if (note && f != null) Text(stringResource(R.string.run_cond_note, io.github.pini236.skiapp.weather.ago(f.updated, w.now)), fontFamily = Gudi, fontSize = 12.5.sp, color = k.ink2)
         if (facts != null) Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             for ((title, alt) in listOf(R.string.run_cond_top to facts.top, R.string.run_cond_bottom to facts.bot)) {
                 val v = f?.at(alt.toFloat(), w.local)
                 Column(Modifier.weight(1f).clip(RoundedCornerShape(14.dp)).border(1.dp, k.line, RoundedCornerShape(14.dp)).padding(horizontal = 12.dp, vertical = 8.dp)) {
-                    Text(deg(v?.temp), fontFamily = Plex, fontWeight = FontWeight.Light, fontSize = 23.sp, color = if (v?.temp == null) k.ink2 else k.ink)
-                    Text(stringResource(title), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 13.sp, color = k.ink)
+                    Text(deg(v?.temp), fontFamily = Gudi, fontWeight = FontWeight.Light, fontSize = 23.sp, color = if (v?.temp == null) k.ink2 else k.ink)
+                    Text(stringResource(title), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 13.sp, color = k.ink)
                     Text(v?.wind?.let { stringResource(R.string.app_run_cond_wind, nf.format(it)) } ?: stringResource(R.string.weather_none),
-                        fontFamily = Plex, fontSize = 12.5.sp, color = k.ink2)
+                        fontFamily = Gudi, fontSize = 12.5.sp, color = k.ink2)
                 }
             }
         }
         // the videos: up to three, and "all N"; a tap opens YouTube
-        Text(stringResource(R.string.app_run_videos_n, vids.size.toString()), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = k.ink)
+        Text(stringResource(R.string.app_run_videos_n, vids.size.toString()), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = k.ink)
         var all by remember(key) { mutableStateOf(false) }
         if (vids.isEmpty()) {
-            Text(stringResource(R.string.run_videos_empty), fontFamily = Plex, fontSize = 13.5.sp, color = k.ink2)
+            Text(stringResource(R.string.run_videos_empty), fontFamily = Gudi, fontSize = 13.5.sp, color = k.ink2)
             val q = "Gudauri " + r.name + " ski"
             Text(stringResource(R.string.run_videos_search_youtube, "Gudauri", r.name),
                 Modifier.heightIn(min = 44.dp).clickable { openLink(ctx, "https://www.youtube.com/results?search_query=" + android.net.Uri.encode(q)) }.padding(vertical = 10.dp),
-                fontFamily = Plex, fontSize = 13.5.sp, color = k.acc)
+                fontFamily = Gudi, fontSize = 13.5.sp, color = k.acc)
         }
         for ((i, v) in (if (all) vids else vids.take(3)).withIndex()) {
             if (i > 0) Box(Modifier.fillMaxWidth().height(1.dp).background(k.line))
             VideoRow(v, k) { haptics.tick(.25f); openLink(ctx, v.url); Telemetry.event("video_play", mapOf("run" to key)) }
         }
         if (!all && vids.size > 3) Text(pluralStringResource(R.plurals.app_run_videos_all, vids.size, vids.size.toString()),
-            Modifier.heightIn(min = 44.dp).clickable { all = true }.padding(vertical = 10.dp), fontFamily = Plex, fontWeight = FontWeight.Medium, fontSize = 14.sp, color = k.acc)
+            Modifier.heightIn(min = 44.dp).clickable { all = true }.padding(vertical = 10.dp), fontFamily = Gudi, fontWeight = FontWeight.Medium, fontSize = 14.sp, color = k.acc)
         // the dots: where this run is among all of them
         val at = order.indexOf(key)
         if (at >= 0) Row(Modifier.align(Alignment.CenterHorizontally), horizontalArrangement = Arrangement.spacedBy(5.dp)) {
@@ -233,11 +232,11 @@ private fun VideoRow(v: Video, k: SheetInk, onClick: () -> Unit) {
                 drawPath(androidx.compose.ui.graphics.Path().apply { moveTo(size.width * .25f, size.height * .15f); lineTo(size.width * .85f, size.height * .5f); lineTo(size.width * .25f, size.height * .85f); close() }, Color.White)
             }
             if (v.length.isNotBlank()) Text(v.length, Modifier.align(Alignment.BottomEnd).padding(4.dp).clip(RoundedCornerShape(4.dp)).background(Color(0x8C000000)).padding(horizontal = 4.dp),
-                fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 10.5.sp, color = Color.White)
+                fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 10.5.sp, color = Color.White)
         }
         Column(Modifier.weight(1f)) {
-            Text(v.title, fontFamily = Plex, fontWeight = FontWeight.Medium, fontSize = 13.5.sp, color = k.ink, maxLines = 2, style = TextStyle(textDirection = TextDirection.Content))
-            Text(v.channel, fontFamily = Plex, fontSize = 12.sp, color = k.ink2, maxLines = 1)
+            Text(v.title, fontFamily = Gudi, fontWeight = FontWeight.Medium, fontSize = 13.5.sp, color = k.ink, maxLines = 2, style = TextStyle(textDirection = TextDirection.Content))
+            Text(v.channel, fontFamily = Gudi, fontSize = 12.sp, color = k.ink2, maxLines = 1)
         }
     }
 }

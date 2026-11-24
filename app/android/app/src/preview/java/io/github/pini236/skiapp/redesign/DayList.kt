@@ -75,7 +75,6 @@ import io.github.pini236.skiapp.home.DayNight
 import io.github.pini236.skiapp.data.Geo
 import io.github.pini236.skiapp.map.Sky
 import io.github.pini236.skiapp.qa.Qa
-import io.github.pini236.skiapp.ui.Plex
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
@@ -142,7 +141,7 @@ internal fun DayList(mode: DayNight.Mode, haptics: Haptics, onOpen: (String) -> 
         LazyColumn(Modifier.fillMaxSize().statusBarsPadding(), contentPadding = PaddingValues(start = 14.dp, end = 14.dp, top = 72.dp, bottom = 32.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp)) {
             if (list != null && list.isEmpty()) item {
-                Text(stringResource(R.string.app_days_empty), Modifier.padding(4.dp), fontFamily = Plex, fontSize = 15.sp, color = muted)
+                Text(stringResource(R.string.app_days_empty), Modifier.padding(4.dp), fontFamily = Gudi, fontSize = 15.sp, color = muted)
             }
             // your records, against yourself only (board L12's card; P05)
             if (list != null) item {
@@ -150,8 +149,8 @@ internal fun DayList(mode: DayNight.Mode, haptics: Haptics, onOpen: (String) -> 
                 Row(Modifier.fillMaxWidth().heightIn(min = 52.dp).clip(RoundedCornerShape(16.dp)).background(glass).border(1.dp, rule, RoundedCornerShape(16.dp))
                     .semantics { role = Role.Button }.clickable { haptics.tick(.3f); Qa.log("redesign records card"); records = true }.padding(horizontal = 16.dp),
                     verticalAlignment = Alignment.CenterVertically) {
-                    Text(title, Modifier.weight(1f), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = ink)
-                    Text(if (rtl) "‹" else "›", fontFamily = Plex, fontSize = 20.sp, color = muted)
+                    Text(title, Modifier.weight(1f), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = ink)
+                    Text(if (rtl) "‹" else "›", fontFamily = Gudi, fontSize = 20.sp, color = muted)
                 }
             }
             // the trip as layers: each ski day of the trip in its colour, on one mountain
@@ -195,18 +194,18 @@ internal fun DayList(mode: DayNight.Mode, haptics: Haptics, onOpen: (String) -> 
                             Row(Modifier.height(24.dp).clip(RoundedCornerShape(12.dp)).background(Color(0x9E080E1C)).padding(horizontal = 9.dp),
                                 verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(5.dp)) {
                                 Box(Modifier.size(8.dp).clip(CircleShape).background(colourOf(date)))
-                                Text(stringResource(R.string.app_days_day_n, k + 1), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 11.sp, color = Color.White)
+                                Text(stringResource(R.string.app_days_day_n, k + 1), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 11.sp, color = Color.White)
                             }
                         }
                     }
                     Column(Modifier.align(Alignment.BottomStart).fillMaxWidth().height(120.dp)
                         .background(Brush.verticalGradient(listOf(Color.Transparent, Color(0xD6080E1C))))
                         .padding(horizontal = 14.dp, vertical = 12.dp), verticalArrangement = Arrangement.Bottom) {
-                        Text(stringResource(R.string.app_days_trip_title), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 20.sp, color = Color.White)
+                        Text(stringResource(R.string.app_days_trip_title), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 20.sp, color = Color.White)
                         val line = listOf(pluralStringResource(R.plurals.app_days_trip_days, tripDates.size, tripDates.size),
                             stringResource(R.string.app_days_trip_drop, metres(dropM)),
                             pluralStringResource(R.plurals.app_days_trip_routes, routes, routes)).joinToString(", ")
-                        Text("$line.", fontFamily = Plex, fontSize = 13.5.sp, color = Color(0xE6FFFFFF))
+                        Text("$line.", fontFamily = Gudi, fontSize = 13.5.sp, color = Color(0xE6FFFFFF))
                     }
                 }
             }
@@ -226,13 +225,13 @@ internal fun DayList(mode: DayNight.Mode, haptics: Haptics, onOpen: (String) -> 
                     .clickable(role = Role.Button) { onOpen(SampleDay.ID) }.heightIn(min = 64.dp).padding(horizontal = 14.dp, vertical = 10.dp),
                     verticalAlignment = Alignment.CenterVertically) {
                     Column(Modifier.weight(1f)) {
-                        Text(stringResource(R.string.app_day_sample), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color(0xFF7C4FE0))
-                        Text(stringResource(R.string.app_day_sample_note), fontFamily = Plex, fontSize = 13.sp, color = muted)
+                        Text(stringResource(R.string.app_day_sample), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color(0xFF7C4FE0))
+                        Text(stringResource(R.string.app_day_sample_note), fontFamily = Gudi, fontSize = 13.sp, color = muted)
                     }
                 }
             }
             if (!list.isNullOrEmpty()) item {
-                Text(stringResource(R.string.app_days_delete_hint), Modifier.padding(horizontal = 4.dp), fontFamily = Plex, fontSize = 12.sp, color = muted)
+                Text(stringResource(R.string.app_days_delete_hint), Modifier.padding(horizontal = 4.dp), fontFamily = Gudi, fontSize = 12.sp, color = muted)
             }
             if (!list.isNullOrEmpty()) item {
                 val all = sure == ALL
@@ -240,7 +239,7 @@ internal fun DayList(mode: DayNight.Mode, haptics: Haptics, onOpen: (String) -> 
                     Modifier.fillMaxWidth().clip(RoundedCornerShape(22.dp)).clickable(role = Role.Button) {
                         if (all) { DayRec.store(ctx).deleteAll(); sure = null; version++ } else sure = ALL
                     }.heightIn(min = 52.dp).padding(horizontal = 4.dp, vertical = 14.dp),
-                    fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = red)
+                    fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = red)
             }
         }
         // the pill: back and the title
@@ -249,9 +248,9 @@ internal fun DayList(mode: DayNight.Mode, haptics: Haptics, onOpen: (String) -> 
             verticalAlignment = Alignment.CenterVertically) {
             val back = stringResource(R.string.app_g_back)
             Box(Modifier.size(48.dp).clickable(role = Role.Button) { onBack() }.semantics { contentDescription = back }, contentAlignment = Alignment.Center) {
-                Text(if (rtl) "›" else "‹", fontFamily = Plex, fontSize = 20.sp, color = ink)
+                Text(if (rtl) "›" else "‹", fontFamily = Gudi, fontSize = 20.sp, color = ink)
             }
-            Text(stringResource(R.string.app_days_title), Modifier.weight(1f), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = ink, maxLines = 1)
+            Text(stringResource(R.string.app_days_title), Modifier.weight(1f), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = ink, maxLines = 1)
         }
     }
 }
@@ -272,7 +271,7 @@ private fun DayRow(d: ListedDay, n: Int?, colourOf: (LocalDate) -> Color, night:
         Box(Modifier.matchParentSize().background(red.copy(alpha = .14f)), contentAlignment = if (rtl) Alignment.CenterStart else Alignment.CenterEnd) {
             Text(stringResource(if (asked) R.string.app_days_delete_sure else R.string.app_days_delete),
                 Modifier.width(112.dp).fillMaxHeight().clickable(role = Role.Button) { onDelete() }.padding(horizontal = 10.dp, vertical = 12.dp),
-                fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 13.sp, color = red)
+                fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 13.sp, color = red)
         }
         Row(Modifier.offset { IntOffset((dir * drag).roundToInt(), 0) }.fillMaxWidth().clip(RoundedCornerShape(18.dp)).background(glass)
             .border(1.dp, rule, RoundedCornerShape(18.dp))
@@ -289,18 +288,18 @@ private fun DayRow(d: ListedDay, n: Int?, colourOf: (LocalDate) -> Color, night:
             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
                 if (n != null) Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(5.dp)) {
                     Box(Modifier.size(7.dp).clip(CircleShape).background(colourOf(d.date)))
-                    Text(stringResource(R.string.app_days_trip_day_n, n + 1), fontFamily = Plex, fontSize = 12.sp, color = muted)
+                    Text(stringResource(R.string.app_days_trip_day_n, n + 1), fontFamily = Gudi, fontSize = 12.sp, color = muted)
                 }
-                else Text(DateTimeFormatter.ofPattern("EEEE d.M", Locale.getDefault()).format(d.date), fontFamily = Plex, fontSize = 12.sp, color = muted)
-                Text((if (empty) null else d.head) ?: DateTimeFormatter.ofPattern("d.M.yyyy", Locale.ROOT).format(d.date), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 16.5.sp, color = ink, maxLines = 2)
+                else Text(DateTimeFormatter.ofPattern("EEEE d.M", Locale.getDefault()).format(d.date), fontFamily = Gudi, fontSize = 12.sp, color = muted)
+                Text((if (empty) null else d.head) ?: DateTimeFormatter.ofPattern("d.M.yyyy", Locale.ROOT).format(d.date), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 16.5.sp, color = ink, maxLines = 2)
                 val sm = d.sm
                 Text(when {
                     sm == null -> stringResource(R.string.app_days_cut)
                     empty -> stringResource(R.string.app_day_empty)
                     else -> stringResource(R.string.app_rec_day_line, sm.descents, metres(sm.dropM), "%.1f".format(Locale.ROOT, sm.distM / 1000))
-                }, fontFamily = Plex, fontSize = 13.5.sp, color = muted)
+                }, fontFamily = Gudi, fontSize = 13.5.sp, color = muted)
             }
-            Text(if (rtl) "‹" else "›", fontFamily = Plex, fontSize = 20.sp, color = muted)
+            Text(if (rtl) "‹" else "›", fontFamily = Gudi, fontSize = 20.sp, color = muted)
         }
     }
 }

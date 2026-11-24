@@ -39,7 +39,6 @@ import io.github.pini236.skiapp.map.MapScene
 import io.github.pini236.skiapp.map.Sky
 import io.github.pini236.skiapp.map.SlopeColors
 import io.github.pini236.skiapp.status.LiftStatus
-import io.github.pini236.skiapp.ui.Plex
 
 internal object LensPrefs {
     private fun p(c: android.content.Context) = c.getSharedPreferences("redesign", android.content.Context.MODE_PRIVATE)
@@ -141,18 +140,18 @@ internal fun BoxScope.LensSheet(lens: LensKind, scene: MapScene, view: LiveView,
         verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Box(Modifier.align(Alignment.CenterHorizontally).size(38.dp, 5.dp).clip(RoundedCornerShape(3.dp)).background(k.line))
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            num?.let { Text(it, fontFamily = Plex, fontWeight = FontWeight.Light, fontSize = 34.sp, color = k.ink) }
+            num?.let { Text(it, fontFamily = Gudi, fontWeight = FontWeight.Light, fontSize = 34.sp, color = k.ink) }
             Column {
-                Text(title, fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = k.ink)
-                sub?.let { Text(it, fontFamily = Plex, fontSize = 13.5.sp, color = k.ink2) }
+                Text(title, fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = k.ink)
+                sub?.let { Text(it, fontFamily = Gudi, fontSize = 13.5.sp, color = k.ink2) }
             }
         }
         if (legend.isNotEmpty()) Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             for ((c, t) in legend) Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(5.dp)) {
                 Canvas(Modifier.size(14.dp, 5.dp)) { drawLine(c, Offset(0f, size.height / 2), Offset(size.width, size.height / 2), size.height, StrokeCap.Round) }
-                Text(t, fontFamily = Plex, fontSize = 11.5.sp, color = k.ink2)
+                Text(t, fontFamily = Gudi, fontSize = 11.5.sp, color = k.ink2)
             }
         }
-        note?.let { Text(it, fontFamily = Plex, fontSize = 12.5.sp, color = k.ink2) }
+        note?.let { Text(it, fontFamily = Gudi, fontSize = 12.5.sp, color = k.ink2) }
     }
 }

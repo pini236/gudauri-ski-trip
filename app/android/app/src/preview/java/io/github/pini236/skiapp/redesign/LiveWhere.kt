@@ -64,7 +64,6 @@ import io.github.pini236.skiapp.map.roundAcc
 import io.github.pini236.skiapp.map.whereWords
 import io.github.pini236.skiapp.qa.Qa
 import io.github.pini236.skiapp.ui.Icons
-import io.github.pini236.skiapp.ui.Plex
 import kotlin.math.hypot
 
 /**
@@ -217,12 +216,12 @@ internal fun BoxScope.WhereBox(ui: WhereUi, night: Boolean, onRun: (String) -> U
             if (run != null) Box(Modifier.size(10.dp).clip(CircleShape).background(runColor(run.color)))
             Column(Modifier.weight(1f)) {
                 // not on a run nor a lift: only the accuracy, as the title (section 3)
-                if (!free) Text(w.title, fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = k.ink)
-                Text(sub, fontFamily = Plex, fontWeight = if (free) FontWeight.Bold else FontWeight.Normal, fontSize = if (free) 15.sp else 13.sp, color = if (free) k.ink else k.ink2)
+                if (!free) Text(w.title, fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = k.ink)
+                Text(sub, fontFamily = Gudi, fontWeight = if (free) FontWeight.Bold else FontWeight.Normal, fontSize = if (free) 15.sp else 13.sp, color = if (free) k.ink else k.ink2)
             }
             if (w.action != null) Box(Modifier.heightIn(min = 36.dp).clip(RoundedCornerShape(18.dp)).border(1.dp, k.line, RoundedCornerShape(18.dp))
                 .semantics { role = Role.Button }.clickable(onClick = onAction).padding(horizontal = 12.dp), contentAlignment = Alignment.Center) {
-                Text(w.action, fontFamily = Plex, fontWeight = FontWeight.Medium, fontSize = 13.sp, color = k.ink)
+                Text(w.action, fontFamily = Gudi, fontWeight = FontWeight.Medium, fontSize = 13.sp, color = k.ink)
             }
         }
     }
@@ -240,14 +239,14 @@ internal fun BoxScope.WhereAsk(night: Boolean, onGo: () -> Unit, onLater: () -> 
     Box(Modifier.matchParentSize().background(Color(0x61060B16)).clickable(onClick = onLater))
     Box(Modifier.align(Alignment.BottomCenter).fillMaxWidth()) {
         LiveSheet(k) {
-            Text(stringResource(R.string.loc_ask_title), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 21.sp, color = k.ink)
+            Text(stringResource(R.string.loc_ask_title), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 21.sp, color = k.ink)
             for ((icon, title, sub) in listOf(Triple(Icons.lock, stringResource(R.string.loc_ask_stays_b), stringResource(R.string.loc_ask_stays)),
                 Triple(Icons.cloud, stringResource(R.string.loc_ask_offline), null), Triple(Icons.pin, stringResource(R.string.app_loc_ask_mountain), null))) {
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                     Box(Modifier.size(36.dp).clip(CircleShape).background(k.line), contentAlignment = Alignment.Center) { Icon(icon, null, Modifier.size(20.dp), tint = k.ink) }
                     Column(Modifier.weight(1f)) {
-                        Text(title, fontFamily = Plex, fontWeight = if (sub != null) FontWeight.Bold else FontWeight.Normal, fontSize = 14.5.sp, color = k.ink)
-                        if (sub != null) Text(sub, fontFamily = Plex, fontSize = 13.sp, color = k.ink2)
+                        Text(title, fontFamily = Gudi, fontWeight = if (sub != null) FontWeight.Bold else FontWeight.Normal, fontSize = 14.5.sp, color = k.ink)
+                        if (sub != null) Text(sub, fontFamily = Gudi, fontSize = 13.sp, color = k.ink2)
                     }
                 }
             }

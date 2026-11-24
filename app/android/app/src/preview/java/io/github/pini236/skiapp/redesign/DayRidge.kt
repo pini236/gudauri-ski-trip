@@ -57,7 +57,6 @@ import io.github.pini236.skiapp.dayrec.ui.LiveNumbers
 import io.github.pini236.skiapp.dayrec.ui.shortRuns
 import io.github.pini236.skiapp.dayrec.ui.titleOf
 import io.github.pini236.skiapp.qa.Qa
-import io.github.pini236.skiapp.ui.Plex
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -136,7 +135,7 @@ internal fun DayRidge(paint: DayPaint.Day, elev: FloatArray, day: DayModel.Day, 
                             pathEffect = PathEffect.dashPathEffect(floatArrayOf(1.5f * dens, 3.5f * dens)), alpha = .75f)
                     }
                     // the hours
-                    val small = TextStyle(fontFamily = Plex, fontSize = 11.sp, color = muted)
+                    val small = TextStyle(fontFamily = Gudi, fontSize = 11.sp, color = muted)
                     var h = Instant.ofEpochMilli(paint.t0).atZone(zone).withMinute(0).withSecond(0).withNano(0).plusHours(1)
                     while (h.toInstant().toEpochMilli() < paint.t1) {
                         val x = px(h.toInstant().toEpochMilli())
@@ -156,7 +155,7 @@ internal fun DayRidge(paint: DayPaint.Day, elev: FloatArray, day: DayModel.Day, 
                     if (bubble != null && mt != null) {
                         val k = tr.t.binarySearch(mt).let { if (it < 0) (-it - 1).coerceAtMost(tr.t.size - 1) else it }
                         val p = Offset(px(mt), py(elev[k]))
-                        val tl = measurer.measure(bubble, TextStyle(fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 11.sp, color = Color.White))
+                        val tl = measurer.measure(bubble, TextStyle(fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 11.sp, color = Color.White))
                         val w = tl.size.width + 16 * dens; val bh = tl.size.height + 6 * dens
                         val left = (p.x - w / 2).coerceIn(0f, (size.width - w).coerceAtLeast(0f)); val y = (p.y - 10 * dens - bh).coerceAtLeast(0f)
                         drawLine(Color(0xFF0E2233), p, Offset(p.x, y + bh), 1.2f * dens)
@@ -172,8 +171,8 @@ internal fun DayRidge(paint: DayPaint.Day, elev: FloatArray, day: DayModel.Day, 
             for ((part, rows) in entries) {
                 item {
                     Row(Modifier.padding(top = 14.dp, bottom = 4.dp), verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        Text(stringResource(when (part) { 0 -> R.string.app_day_morning; 1 -> R.string.app_day_noon; else -> R.string.app_day_afternoon }), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 13.sp, color = muted)
-                        Text(stringResource(R.string.app_day_n_descents, rows.count { it is DayModel.Descent }), fontFamily = Plex, fontSize = 12.sp, color = muted)
+                        Text(stringResource(when (part) { 0 -> R.string.app_day_morning; 1 -> R.string.app_day_noon; else -> R.string.app_day_afternoon }), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 13.sp, color = muted)
+                        Text(stringResource(R.string.app_day_n_descents, rows.count { it is DayModel.Descent }), fontFamily = Gudi, fontSize = 12.sp, color = muted)
                     }
                 }
                 items(rows) { e ->
@@ -195,16 +194,16 @@ internal fun DayRidge(paint: DayPaint.Day, elev: FloatArray, day: DayModel.Day, 
             verticalAlignment = Alignment.CenterVertically) {
             val back = stringResource(R.string.app_g_back)
             Box(Modifier.size(48.dp).clickable(role = Role.Button) { onBack() }.semantics { contentDescription = back }, contentAlignment = Alignment.Center) {
-                Text(if (rtl) "›" else "‹", fontFamily = Plex, fontSize = 20.sp, color = ink)
+                Text(if (rtl) "›" else "‹", fontFamily = Gudi, fontSize = 20.sp, color = ink)
             }
             val date = DateTimeFormatter.ofPattern("d.M.yyyy", Locale.ROOT).format(Instant.ofEpochMilli(day.summary.start).atZone(zone))
-            Text(stringResource(R.string.app_ridge_title) + " · " + date, Modifier.weight(1f), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = ink, maxLines = 1)
+            Text(stringResource(R.string.app_ridge_title) + " · " + date, Modifier.weight(1f), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = ink, maxLines = 1)
             // the story of the day and its picture (board L10)
             val share = stringResource(R.string.app_day_share)
             Text(share, Modifier.padding(end = 6.dp).clip(RoundedCornerShape(18.dp)).clickable(role = Role.Button) { onShare() }
-                .padding(horizontal = 12.dp, vertical = 8.dp), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = ink)
+                .padding(horizontal = 12.dp, vertical = 8.dp), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = ink)
             if (sample) Text(stringResource(R.string.app_day_sample), Modifier.padding(end = 14.dp).clip(RoundedCornerShape(10.dp))
-                .background(Color(0x33A98BEE)).padding(horizontal = 8.dp, vertical = 2.dp), fontFamily = Plex, fontSize = 12.sp, color = ink)
+                .background(Color(0x33A98BEE)).padding(horizontal = 8.dp, vertical = 2.dp), fontFamily = Gudi, fontSize = 12.sp, color = ink)
         }
         film?.let { f -> RunFilm(f, segOf(segs, f), segs, paint, runs, night, haptics) { film = null } }
     }
@@ -225,11 +224,11 @@ internal fun segOf(segs: List<org.json.JSONObject>, d: DayModel.Descent) = segs.
 @Composable
 private fun LiftLine(e: LiftRow, at: String, ink: Color, muted: Color, rule: Color) {
     Row(Modifier.fillMaxWidth().heightIn(min = 40.dp).padding(vertical = 6.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-        Text(at, Modifier.width(44.dp).padding(top = 1.dp), fontFamily = Plex, fontSize = 13.sp, color = muted)
+        Text(at, Modifier.width(44.dp).padding(top = 1.dp), fontFamily = Gudi, fontSize = 13.sp, color = muted)
         Column(Modifier.weight(1f)) {
-            Text(stringResource(R.string.app_tl_lift_head, e.name), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = ink)
+            Text(stringResource(R.string.app_tl_lift_head, e.name), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = ink)
             Text(stringResource(R.string.app_tl_lift_meta, e.minutes, e.riseM?.let { String.format(Locale.ROOT, "%,d", Math.round(it)) } ?: "—"),
-                fontFamily = Plex, fontSize = 13.sp, color = muted)
+                fontFamily = Gudi, fontSize = 13.sp, color = muted)
         }
     }
     Box(Modifier.fillMaxWidth().height(1.dp).background(rule))
@@ -242,18 +241,18 @@ private fun signColor(c: String?) = when (c) { "green" -> Color(0xFF178A4A); "re
 private fun TimelineRow(it: DayModel.Item, at: String, runs: Runs?, night: Boolean, ink: Color, muted: Color, rule: Color, top: Boolean, stops: Int,
                         gapAt: String? = null, onOpen: () -> Unit) {
     Row(Modifier.fillMaxWidth().heightIn(min = 40.dp).let { m -> if (it is DayModel.Descent) m.clickable(role = Role.Button) { onOpen() } else m }.padding(vertical = 6.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-        Text(at, Modifier.width(44.dp).padding(top = 1.dp), fontFamily = Plex, fontSize = 13.sp, color = muted)
+        Text(at, Modifier.width(44.dp).padding(top = 1.dp), fontFamily = Gudi, fontSize = 13.sp, color = muted)
         Column(Modifier.weight(1f)) {
-            val meta = TextStyle(fontFamily = Plex, fontSize = 13.sp, color = muted)
+            val meta = TextStyle(fontFamily = Gudi, fontSize = 13.sp, color = muted)
             when (it) {
                 is DayModel.Descent -> {
-                    if (it.runs.isEmpty()) Text(stringResource(R.string.app_day_off), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = ink)
+                    if (it.runs.isEmpty()) Text(stringResource(R.string.app_day_off), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = ink)
                     else Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                         it.runs.forEachIndexed { i, leg ->
-                            if (i > 0) Text("›", fontFamily = Plex, fontSize = 14.sp, color = muted)
+                            if (i > 0) Text("›", fontFamily = Gudi, fontSize = 14.sp, color = muted)
                             val keys = leg.split(" · ")
                             Box(Modifier.size(10.dp).clip(RoundedCornerShape(2.dp)).background(signColor(runs?.pistes?.firstOrNull { p -> p.key == keys[0] }?.color)))
-                            Text(shortRuns(keys.joinToString(" · ") { k -> titleOf(runs, k) }), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = ink, maxLines = 1)
+                            Text(shortRuns(keys.joinToString(" · ") { k -> titleOf(runs, k) }), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = ink, maxLines = 1)
                         }
                     }
                     Text(stringResource(R.string.app_tl_run_meta, String.format(Locale.ROOT, "%.1f", it.distM / 1000.0),

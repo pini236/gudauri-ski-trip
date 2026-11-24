@@ -45,7 +45,6 @@ import io.github.pini236.skiapp.fx.Haptics
 import io.github.pini236.skiapp.home.DayNight
 import io.github.pini236.skiapp.map.Sky
 import io.github.pini236.skiapp.qa.Qa
-import io.github.pini236.skiapp.ui.Plex
 
 /**
  * The first time (board L01): one sheet before the system's location question. What the day does, that it all stays on
@@ -71,14 +70,14 @@ internal fun DayStart(single: Boolean, haptics: Haptics, onGo: (Boolean) -> Unit
                 .clickable(interactionSource = remember { MutableInteractionSource() }, indication = null) {}
                 .padding(horizontal = 20.dp, vertical = 18.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 Box(Modifier.align(Alignment.CenterHorizontally).width(40.dp).height(4.dp).clip(RoundedCornerShape(2.dp)).background(rule))
-                Text(stringResource(R.string.app_rec_first_title), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 24.sp, color = ink)
+                Text(stringResource(R.string.app_rec_first_title), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 24.sp, color = ink)
                 // three lines, each with its sign (board L01): the pocket, the lock, the pin
                 for ((line, icon) in listOf(R.string.app_rec_first_text to 0, R.string.app_rec_perm_local to 1, R.string.app_rec_perm_ok to 2))
                     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                         Box(Modifier.size(34.dp).clip(CircleShape).background(accent.copy(alpha = if (night) .28f else .12f)), contentAlignment = Alignment.Center) {
                             StartSign(icon, if (night) Color(0xFFB99CFF) else accent, Modifier.size(18.dp))
                         }
-                        Text(stringResource(line), Modifier.weight(1f), fontFamily = Plex, fontWeight = if (icon == 0) FontWeight.Normal else FontWeight.Bold, fontSize = 14.sp, color = ink)
+                        Text(stringResource(line), Modifier.weight(1f), fontFamily = Gudi, fontWeight = if (icon == 0) FontWeight.Normal else FontWeight.Bold, fontSize = 14.sp, color = ink)
                     }
                 // all day or one descent: the same recording either way (round 29)
                 Row(Modifier.fillMaxWidth().clip(RoundedCornerShape(22.dp)).border(1.dp, rule, RoundedCornerShape(22.dp)).padding(3.dp)) {
@@ -86,7 +85,7 @@ internal fun DayStart(single: Boolean, haptics: Haptics, onGo: (Boolean) -> Unit
                         val sel = one == on
                         Text(stringResource(key), Modifier.weight(1f).clip(RoundedCornerShape(19.dp)).background(if (sel) accent else Color.Transparent)
                             .clickable(role = Role.Button) { haptics.tick(.2f); one = on }.padding(vertical = 10.dp),
-                            fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = if (sel) Color.White else ink, textAlign = TextAlign.Center)
+                            fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = if (sel) Color.White else ink, textAlign = TextAlign.Center)
                     }
                 }
                 // "start" with the recording's dot (board L01)
@@ -94,10 +93,10 @@ internal fun DayStart(single: Boolean, haptics: Haptics, onGo: (Boolean) -> Unit
                     .clickable(role = Role.Button) { haptics.tick(.5f); Qa.log("redesign rec first go ${if (one) "run" else "day"}"); onGo(one) }.padding(vertical = 15.dp),
                     verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center) {
                     Box(Modifier.size(12.dp).clip(CircleShape).background(Color.White).padding(2.dp).clip(CircleShape).background(Color(0xFFE5322D)))
-                    Text(stringResource(R.string.app_rec_first_go), Modifier.padding(start = 10.dp), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color.White)
+                    Text(stringResource(R.string.app_rec_first_go), Modifier.padding(start = 10.dp), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color.White)
                 }
                 Text(stringResource(R.string.app_rec_first_later), Modifier.fillMaxWidth().clip(RoundedCornerShape(22.dp)).clickable(role = Role.Button) { onDismiss() }.padding(vertical = 10.dp),
-                    fontFamily = Plex, fontSize = 15.sp, color = muted, textAlign = TextAlign.Center)
+                    fontFamily = Gudi, fontSize = 15.sp, color = muted, textAlign = TextAlign.Center)
             }
         }
     }

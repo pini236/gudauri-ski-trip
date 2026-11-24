@@ -15,7 +15,7 @@ Sounds
 - The card sounds: Kenney, Casino Audio, CC0. https://kenney.nl/assets/casino-audio
 
 Fonts (SIL Open Font License 1.1: OFL-*.txt)
-- Karantina, IBM Plex Sans, IBM Plex Sans Hebrew, Oswald, Noto Sans Georgian.
+- Karantina, IBM Plex Sans, IBM Plex Sans Hebrew, Oswald, Noto Sans Georgian; Heebo (the test build only).
 
 Libraries
 - Jetpack Compose, AndroidX (activity, credentials): Apache License 2.0 (Apache-2.0.txt).

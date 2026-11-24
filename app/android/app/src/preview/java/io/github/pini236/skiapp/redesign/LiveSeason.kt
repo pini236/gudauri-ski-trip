@@ -76,13 +76,13 @@ internal fun BoxScope.LiveSeason(around: Around, night: Boolean, haptics: Haptic
         .clearAndSetSemantics { contentDescription = a11y; role = Role.Button }
         .clickable { haptics.tick(.3f); Qa.log("redesign season closed tap"); onClose() },
         horizontalAlignment = Alignment.CenterHorizontally) {
-        if (number) Text(big, fontFamily = io.github.pini236.skiapp.ui.Plex, fontWeight = FontWeight.Light, fontSize = 112.sp, lineHeight = 112.sp, color = hero,
+        if (number) Text(big, fontFamily = Gudi, fontWeight = FontWeight.Light, fontSize = 112.sp, lineHeight = 112.sp, color = hero,
             style = TextStyle(fontFeatureSettings = "tnum"))
-        else Text(big, fontFamily = io.github.pini236.skiapp.ui.Plex, fontWeight = FontWeight.Bold, fontSize = if (o != null) 44.sp else 19.sp, lineHeight = if (o != null) 48.sp else 24.sp,
+        else Text(big, fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = if (o != null) 44.sp else 19.sp, lineHeight = if (o != null) 48.sp else 24.sp,
             color = hero, textAlign = TextAlign.Center)
-        Text(sub, fontFamily = io.github.pini236.skiapp.ui.Plex, fontWeight = if (number) FontWeight.Bold else FontWeight.Medium, fontSize = if (number) 19.sp else 15.sp,
+        Text(sub, fontFamily = Gudi, fontWeight = if (number) FontWeight.Bold else FontWeight.Medium, fontSize = if (number) 19.sp else 15.sp,
             color = hero, textAlign = TextAlign.Center)
-        if (moved != null) Text(moved, Modifier.padding(top = 4.dp), fontFamily = io.github.pini236.skiapp.ui.Plex, fontSize = 14.sp, color = hero.copy(alpha = .9f), textAlign = TextAlign.Center)
+        if (moved != null) Text(moved, Modifier.padding(top = 4.dp), fontFamily = Gudi, fontSize = 14.sp, color = hero.copy(alpha = .9f), textAlign = TextAlign.Center)
     }
     // the sheet: pulled down, the usual mountain
     Box(Modifier.align(Alignment.BottomCenter).pointerInput(Unit) {
@@ -94,8 +94,8 @@ internal fun BoxScope.LiveSeason(around: Around, night: Boolean, haptics: Haptic
             val loc = LocalConfiguration.current.locales[0] ?: Locale.getDefault()
             val wd = remember(open, loc) { open.format(DateTimeFormatter.ofPattern("EEEE", loc)) }
             Column {
-                Text(stringResource(R.string.app_season_planned, date), fontFamily = io.github.pini236.skiapp.ui.Plex, fontWeight = FontWeight.Bold, fontSize = 17.sp, color = k.ink)
-                Text("$wd · " + stringResource(R.string.app_season_source), fontFamily = io.github.pini236.skiapp.ui.Plex, fontSize = 12.5.sp, color = k.ink2)
+                Text(stringResource(R.string.app_season_planned, date), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 17.sp, color = k.ink)
+                Text("$wd · " + stringResource(R.string.app_season_source), fontFamily = Gudi, fontSize = 12.5.sp, color = k.ink2)
             }
             // 2. your trip: the dates and the ski days, the days to the flight at the end; or "when do you fly?"
             val trip = around.trip
@@ -119,10 +119,10 @@ private fun SeasonRow(title: String, sub: String?, end: String?, endAcc: Boolean
     Row(Modifier.fillMaxWidth().heightIn(min = 52.dp).semantics(mergeDescendants = true) { role = Role.Button }.clickable(onClick = onClick),
         verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
         Column(Modifier.weight(1f)) {
-            Text(title, fontFamily = io.github.pini236.skiapp.ui.Plex, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = k.ink, maxLines = 1)
-            if (sub != null) Text(sub, fontFamily = io.github.pini236.skiapp.ui.Plex, fontSize = 13.sp, color = k.ink2, maxLines = 1)
+            Text(title, fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = k.ink, maxLines = 1)
+            if (sub != null) Text(sub, fontFamily = Gudi, fontSize = 13.sp, color = k.ink2, maxLines = 1)
         }
-        if (end != null) Text(end, fontFamily = io.github.pini236.skiapp.ui.Plex, fontWeight = if (endAcc) FontWeight.Bold else FontWeight.Medium, fontSize = 15.sp,
+        if (end != null) Text(end, fontFamily = Gudi, fontWeight = if (endAcc) FontWeight.Bold else FontWeight.Medium, fontSize = 15.sp,
             color = if (endAcc) k.acc else k.ink, style = TextStyle(fontFeatureSettings = "tnum"))
     }
 }

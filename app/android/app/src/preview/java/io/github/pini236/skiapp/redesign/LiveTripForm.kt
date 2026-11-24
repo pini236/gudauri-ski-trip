@@ -78,7 +78,6 @@ import io.github.pini236.skiapp.trip.TimeDialog
 import io.github.pini236.skiapp.trip.Trip
 import io.github.pini236.skiapp.trip.TripText
 import io.github.pini236.skiapp.ui.Icons
-import io.github.pini236.skiapp.ui.Plex
 import kotlinx.coroutines.delay
 import java.time.LocalDate
 import java.time.LocalTime
@@ -132,7 +131,7 @@ internal fun BoxScope.LiveTripForm(initial: Trip?, today: LocalDate, night: Bool
                 Icon(Icons.back, null, Modifier.size(22.dp), tint = k.ink)
             }
             Text(title ?: stringResource(R.string.trip_title), Modifier.padding(start = 12.dp).semantics { this.liveRegion = LiveRegionMode.Polite },
-                fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 17.sp, color = if (night) Color.White else k.ink)
+                fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 17.sp, color = if (night) Color.White else k.ink)
         }
         Column(Modifier.fillMaxWidth().weight(1f).verticalScroll(rememberScrollState()).navigationBarsPadding()
             .padding(start = 16.dp, end = 16.dp, bottom = 24.dp).widthIn(max = 560.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
@@ -159,8 +158,8 @@ internal fun BoxScope.LiveTripForm(initial: Trip?, today: LocalDate, night: Bool
                 Row(Modifier.fillMaxWidth().heightIn(min = 56.dp).clip(RoundedCornerShape(22.dp)).background(k.surf.copy(alpha = 1f))
                     .border(1.dp, k.line, RoundedCornerShape(22.dp)).semantics { role = Role.Button }.clickable { haptics.tick(.3f); pick = "cal" }
                     .padding(horizontal = 18.dp), verticalAlignment = Alignment.CenterVertically) {
-                    Text(stringResource(R.string.app_trip_btn_add_return), Modifier.weight(1f), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = k.acc)
-                    Text(stringResource(R.string.trip_back_optional), fontFamily = Plex, fontSize = 12.sp, color = k.ink2)
+                    Text(stringResource(R.string.app_trip_btn_add_return), Modifier.weight(1f), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = k.acc)
+                    Text(stringResource(R.string.trip_back_optional), fontFamily = Gudi, fontSize = 12.sp, color = k.ink2)
                 }
             } else Card(k) {
                 CardHead(stringResource(R.string.trip_back), stringResource(R.string.trip_back_optional), k)
@@ -184,7 +183,7 @@ internal fun BoxScope.LiveTripForm(initial: Trip?, today: LocalDate, night: Bool
                     Column(Modifier.weight(1f)) {
                         Text(if (days == null) stringResource(R.string.app_trip_ski_none)
                             else pluralStringResource(R.plurals.app_trip_ski_value, days.second, "⁦" + dayRange(days.first) + "⁩", days.second),
-                            fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 17.sp, color = k.ink, style = TextStyle(textDirection = TextDirection.Content))
+                            fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 17.sp, color = k.ink, style = TextStyle(textDirection = TextDirection.Content))
                         Small(stringResource(if (f.ski != null) R.string.trip_ski_manual else R.string.app_trip_ski_calc), k)
                     }
                     if (f.ski != null) TextLink(stringResource(R.string.app_trip_ski_auto), k) { haptics.tick(.2f); f = f.copy(ski = null) }
@@ -201,7 +200,7 @@ internal fun BoxScope.LiveTripForm(initial: Trip?, today: LocalDate, night: Bool
                 Box(Modifier.fillMaxWidth().heightIn(min = 52.dp).clip(RoundedCornerShape(26.dp)).background(if (armed) k.red else Color.Transparent)
                     .border(1.dp, k.red, RoundedCornerShape(26.dp)).semantics { role = Role.Button; if (armed) liveRegion = LiveRegionMode.Assertive }
                     .clickable { haptics.tick(.4f); if (armed) { armed = false; onDelete() } else armed = true }, contentAlignment = Alignment.Center) {
-                    Text(text, fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 15.5.sp, color = if (armed) k.onRed else k.red)
+                    Text(text, fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 15.5.sp, color = if (armed) k.onRed else k.red)
                 }
             }
             if (localNote) Small(stringResource(R.string.app_trip_local_note), k, center = true, modifier = Modifier.fillMaxWidth())
@@ -250,8 +249,8 @@ private fun Card(k: SheetInk, content: @Composable () -> Unit) {
 @Composable
 private fun CardHead(title: String, note: String, k: SheetInk) {
     Row(verticalAlignment = Alignment.CenterVertically) {
-        Text(title, Modifier.weight(1f), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 17.sp, color = k.ink)
-        Text(note, fontFamily = Plex, fontSize = 12.sp, color = k.ink2)
+        Text(title, Modifier.weight(1f), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 17.sp, color = k.ink)
+        Text(note, fontFamily = Gudi, fontSize = 12.sp, color = k.ink2)
     }
 }
 
@@ -266,11 +265,11 @@ private fun Route(from: String, to: String, k: SheetInk, auto: Boolean, onFrom: 
         CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
             Row(Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                 Code(fc, from, k, onFrom)
-                Text("→", fontFamily = Plex, fontSize = 22.sp, color = k.ink2)
+                Text("→", fontFamily = Gudi, fontSize = 22.sp, color = k.ink2)
                 Code(tc, to, k, onTo)
             }
         }
-        if (auto) Text(stringResource(R.string.app_trip_back_auto), fontFamily = Plex, fontSize = 12.sp, color = k.ink2)
+        if (auto) Text(stringResource(R.string.app_trip_back_auto), fontFamily = Gudi, fontSize = 12.sp, color = k.ink2)
     }
 }
 
@@ -279,8 +278,8 @@ private fun Code(code: String?, place: String, k: SheetInk, onClick: () -> Unit)
     val city = Leg(LocalDate.MIN, from = place).fromCity
     Column(Modifier.heightIn(min = 44.dp).clip(RoundedCornerShape(10.dp)).semantics(mergeDescendants = true) { role = Role.Button }
         .clickable(onClick = onClick).padding(horizontal = 4.dp, vertical = 2.dp)) {
-        Text(code ?: "???", fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 30.sp, color = if (code == null) k.red else k.ink)
-        if (city.isNotBlank()) Text(city, fontFamily = Plex, fontSize = 11.5.sp, color = k.ink2, maxLines = 1)
+        Text(code ?: "???", fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 30.sp, color = if (code == null) k.red else k.ink)
+        if (city.isNotBlank()) Text(city, fontFamily = Gudi, fontSize = 11.5.sp, color = k.ink2, maxLines = 1)
     }
 }
 
@@ -302,8 +301,8 @@ private fun DetailPill(value: String?, add: String, k: SheetInk, label: String? 
             else m.drawBehind {
                 drawRoundRect(k.ink2, cornerRadius = CornerRadius(18.dp.toPx()), style = Stroke(1.dp.toPx(), pathEffect = PathEffect.dashPathEffect(floatArrayOf(6f, 5f))))
             }.padding(horizontal = 12.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-            if (value != null && label != null) Text(label, fontFamily = Plex, fontSize = 11.5.sp, color = k.ink2)
-            Text(value ?: if (label != null) "$add · $label" else add, fontFamily = Plex, fontWeight = if (value != null) FontWeight.Medium else FontWeight.Normal,
+            if (value != null && label != null) Text(label, fontFamily = Gudi, fontSize = 11.5.sp, color = k.ink2)
+            Text(value ?: if (label != null) "$add · $label" else add, fontFamily = Gudi, fontWeight = if (value != null) FontWeight.Medium else FontWeight.Normal,
                 fontSize = 14.sp, color = if (value != null) k.ink else k.ink2, style = TextStyle(fontFeatureSettings = "tnum"))
         }
     }
@@ -322,11 +321,11 @@ private fun NumberPill(value: String, k: SheetInk, editing: Boolean, onOpen: () 
             BasicTextField(value, { onChange(it.uppercase().take(12)) },
                 Modifier.widthIn(min = 120.dp, max = 180.dp).heightIn(min = 36.dp).clip(RoundedCornerShape(18.dp)).border(1.5.dp, k.acc, RoundedCornerShape(18.dp))
                     .padding(horizontal = 12.dp, vertical = 8.dp).focusRequester(focus).semantics { contentDescription = hint },
-                singleLine = true, textStyle = TextStyle(fontFamily = Plex, fontWeight = FontWeight.Medium, fontSize = 14.sp, color = k.ink),
+                singleLine = true, textStyle = TextStyle(fontFamily = Gudi, fontWeight = FontWeight.Medium, fontSize = 14.sp, color = k.ink),
                 cursorBrush = SolidColor(k.acc),
                 keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Characters, imeAction = ImeAction.Done),
                 keyboardActions = KeyboardActions(onDone = { onDone() }),
-                decorationBox = { inner -> Box { if (value.isEmpty()) Text(hint, fontFamily = Plex, fontSize = 14.sp, color = k.ink2.copy(alpha = .6f)); inner() } })
+                decorationBox = { inner -> Box { if (value.isEmpty()) Text(hint, fontFamily = Gudi, fontSize = 14.sp, color = k.ink2.copy(alpha = .6f)); inner() } })
         }
     }
 }
@@ -340,5 +339,5 @@ private fun ErrText(e: TripError, k: SheetInk) {
         TripError.BAD_ORDER -> R.string.trip_bad_order
         TripError.SKI_OUTSIDE -> R.string.trip_ski_outside
     }
-    Text(stringResource(res), Modifier.semantics { liveRegion = LiveRegionMode.Polite }, fontFamily = Plex, fontSize = 12.5.sp, color = k.red)
+    Text(stringResource(res), Modifier.semantics { liveRegion = LiveRegionMode.Polite }, fontFamily = Gudi, fontSize = 12.5.sp, color = k.red)
 }

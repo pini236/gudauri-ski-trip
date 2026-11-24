@@ -59,7 +59,6 @@ import io.github.pini236.skiapp.dayrec.ui.titleOf
 import io.github.pini236.skiapp.fx.Haptics
 import io.github.pini236.skiapp.qa.Qa
 import io.github.pini236.skiapp.telemetry.Telemetry
-import io.github.pini236.skiapp.ui.Plex
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -115,8 +114,8 @@ internal fun DayStory(story: StoryData, sm: DayModel.Summary, paint: DayPaint.Da
             verticalArrangement = Arrangement.spacedBy(9.dp)) {
             item {
                 Column(Modifier.padding(horizontal = 4.dp).padding(bottom = 2.dp)) {
-                    head.first?.let { Text(it, fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 27.sp, color = ink) }
-                    head.second.forEach { Text(it, fontFamily = Plex, fontSize = 14.sp, color = muted) }
+                    head.first?.let { Text(it, fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 27.sp, color = ink) }
+                    head.second.forEach { Text(it, fontFamily = Gudi, fontSize = 14.sp, color = muted) }
                 }
             }
             items(cards) { item ->
@@ -162,8 +161,8 @@ internal fun DayStory(story: StoryData, sm: DayModel.Summary, paint: DayPaint.Da
                         drawCircle(Color(0xFF2F6FE4), 3f * dens, Offset(size.width / 2, size.height / 2))
                     }
                     Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                        t?.let { Text(it, fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 16.5.sp, color = if (soft) muted else ink) }
-                        ls.forEach { Text(it, fontFamily = Plex, fontSize = 13.5.sp, color = muted) }
+                        t?.let { Text(it, fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 16.5.sp, color = if (soft) muted else ink) }
+                        ls.forEach { Text(it, fontFamily = Gudi, fontSize = 13.5.sp, color = muted) }
                     }
                 }
             }
@@ -174,18 +173,18 @@ internal fun DayStory(story: StoryData, sm: DayModel.Summary, paint: DayPaint.Da
             verticalAlignment = Alignment.CenterVertically) {
             val back = stringResource(R.string.app_g_back)
             Box(Modifier.size(48.dp).clickable(role = Role.Button) { onBack() }.semantics { contentDescription = back }, contentAlignment = Alignment.Center) {
-                Text(if (rtl) "›" else "‹", fontFamily = Plex, fontSize = 20.sp, color = ink)
+                Text(if (rtl) "›" else "‹", fontFamily = Gudi, fontSize = 20.sp, color = ink)
             }
             val date = DateTimeFormatter.ofPattern("d.M.yyyy", Locale.ROOT).format(Instant.ofEpochMilli(sm.start).atZone(zone))
-            Text(stringResource(R.string.app_day_story_title) + " · " + date, Modifier.weight(1f), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = ink, maxLines = 1)
+            Text(stringResource(R.string.app_day_story_title) + " · " + date, Modifier.weight(1f), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = ink, maxLines = 1)
             if (sample) Text(stringResource(R.string.app_day_sample), Modifier.padding(end = 14.dp).clip(RoundedCornerShape(10.dp))
-                .background(Color(0x33A98BEE)).padding(horizontal = 8.dp, vertical = 2.dp), fontFamily = Plex, fontSize = 12.sp, color = ink)
+                .background(Color(0x33A98BEE)).padding(horizontal = 8.dp, vertical = 2.dp), fontFamily = Gudi, fontSize = 12.sp, color = ink)
         }
         // the share: the same picture as today's story
         Text(stringResource(R.string.app_day_share), Modifier.align(Alignment.BottomCenter).navigationBarsPadding().padding(12.dp).fillMaxWidth()
             .heightIn(min = 52.dp).shadow(12.dp, RoundedCornerShape(26.dp)).clip(RoundedCornerShape(26.dp)).background(Color(0xFF7C4FE0))
             .clickable(role = Role.Button) { haptics.tick(.4f); Qa.log("redesign day story share ${storyKind(cards.firstOrNull()?.getString("key") ?: "other")}"); sharing = true }
-            .padding(vertical = 15.dp), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color.White, textAlign = TextAlign.Center)
+            .padding(vertical = 15.dp), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color.White, textAlign = TextAlign.Center)
         if (sharing) DayShare(story, sm, paint, hide, track, name, night, sample, haptics, elev = elev, onBack = { if (shareOnly) onBack() else sharing = false })
     }
 }

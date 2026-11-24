@@ -69,7 +69,6 @@ import io.github.pini236.skiapp.home.DayNight
 import io.github.pini236.skiapp.map.MapScene
 import io.github.pini236.skiapp.map.Sky
 import io.github.pini236.skiapp.qa.Qa
-import io.github.pini236.skiapp.ui.Plex
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
@@ -237,7 +236,7 @@ fun DayMountain(file: File, sample: Boolean, scene: MapScene, mode: DayNight.Mod
             if (pinText == null) return@Canvas
             val ring = Color(0xFF000000.toInt() or (if (night) DayPaint.NIGHT[4] else DayPaint.DAY[4]))
             drawCircle(Color.White, 5.5f * dens, p); drawCircle(ring, 5.5f * dens, p, style = Stroke(2.2f * dens))
-            val tl = measurer.measure(pinText, TextStyle(fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 12.sp, color = Color.White))
+            val tl = measurer.measure(pinText, TextStyle(fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 12.sp, color = Color.White))
             val w = tl.size.width + 20 * dens; val h = tl.size.height + 10 * dens
             val top = p.y - 14 * dens - h
             drawLine(Color(0xFF0E2233), Offset(p.x, p.y - 5.5f * dens), Offset(p.x, top + h), 1.5f * dens)
@@ -252,7 +251,7 @@ fun DayMountain(file: File, sample: Boolean, scene: MapScene, mode: DayNight.Mod
             Text("$words ›", Modifier.offset { androidx.compose.ui.unit.IntOffset(at.x.toInt() - 24.dp.roundToPx(), at.y.toInt() - 18.dp.roundToPx()) }
                 .heightIn(min = 36.dp).clip(RoundedCornerShape(18.dp)).background(glass).border(1.dp, rule, RoundedCornerShape(18.dp))
                 .clickable(role = Role.Button) { haptics.tick(.3f); view.toKobi() }.padding(horizontal = 12.dp, vertical = 8.dp),
-                fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 13.sp, color = ink)
+                fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 13.sp, color = ink)
         }
 
         // the top: back, "your day", the date and the hours, and "example" for the sample day (board L06)
@@ -261,15 +260,15 @@ fun DayMountain(file: File, sample: Boolean, scene: MapScene, mode: DayNight.Mod
             .shadow(10.dp, RoundedCornerShape(22.dp)).clip(RoundedCornerShape(22.dp)).background(glass).border(1.dp, rule, RoundedCornerShape(22.dp))
             .clickable(role = Role.Button) { haptics.tick(.3f); onBack() }.padding(horizontal = 16.dp),
             verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            Text(if (rtl) "›" else "‹", fontFamily = Plex, fontSize = 20.sp, color = ink)
+            Text(if (rtl) "›" else "‹", fontFamily = Gudi, fontSize = 20.sp, color = ink)
             val when_ = s?.let { x ->
                 val d = DateTimeFormatter.ofPattern("d.M.yyyy").format(Instant.ofEpochMilli(x.start).atZone(zone))
                 val hm = DateTimeFormatter.ofPattern("HH:mm")
                 "\u2066$d · ${hm.format(Instant.ofEpochMilli(x.start).atZone(zone))}–${hm.format(Instant.ofEpochMilli(x.end).atZone(zone))}\u2069"
             }
-            Text(stringResource(R.string.app_day_title) + (when_?.let { " · $it" } ?: ""), Modifier.weight(1f), fontFamily = Plex, fontSize = 14.sp, color = ink, maxLines = 1)
+            Text(stringResource(R.string.app_day_title) + (when_?.let { " · $it" } ?: ""), Modifier.weight(1f), fontFamily = Gudi, fontSize = 14.sp, color = ink, maxLines = 1)
             if (sample) Text(stringResource(R.string.app_day_sample), Modifier.border(1.dp, rule, RoundedCornerShape(10.dp)).padding(horizontal = 8.dp, vertical = 2.dp),
-                fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 11.sp, color = ink)
+                fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 11.sp, color = ink)
         }
 
         // the film's panel (board L08): the clock, the descents and metres down so far, and the ridge of the day under it,
@@ -285,9 +284,9 @@ fun DayMountain(file: File, sample: Boolean, scene: MapScene, mode: DayNight.Mod
                 .shadow(16.dp, RoundedCornerShape(24.dp)).clip(RoundedCornerShape(24.dp)).background(glass).border(1.dp, rule, RoundedCornerShape(24.dp))
                 .padding(horizontal = 16.dp, vertical = 12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Row(verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(18.dp)) {
-                    Text(DateTimeFormatter.ofPattern("HH:mm").format(zoneT), fontFamily = Plex, fontWeight = FontWeight.Light, fontSize = 30.sp, color = ink)
+                    Text(DateTimeFormatter.ofPattern("HH:mm").format(zoneT), fontFamily = Gudi, fontWeight = FontWeight.Light, fontSize = 30.sp, color = ink)
                     for ((v, k) in listOf(nf.format(n) to R.string.app_day_sum_descents, metres(drop) to R.string.app_rec_m_down)) {
-                        Column { Text(v, fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = ink); Text(stringResource(k), fontFamily = Plex, fontSize = 12.sp, color = muted) }
+                        Column { Text(v, fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = ink); Text(stringResource(k), fontFamily = Gudi, fontSize = 12.sp, color = muted) }
                     }
                 }
                 val tr = l.paint.track; val el = l.elev
@@ -336,8 +335,8 @@ fun DayMountain(file: File, sample: Boolean, scene: MapScene, mode: DayNight.Mod
                     val d = DateTimeFormatter.ofPattern("d.M.yyyy").format(Instant.ofEpochMilli(sm.start).atZone(zone))
                     val hm = DateTimeFormatter.ofPattern("HH:mm")
                     Text("\u2066$d · ${hm.format(Instant.ofEpochMilli(sm.start).atZone(zone))}–${hm.format(Instant.ofEpochMilli(sm.end).atZone(zone))}\u2069",
-                        fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 17.sp, color = ink)
-                    Text(stringResource(R.string.app_day_empty), fontFamily = Plex, fontSize = 15.sp, color = muted)
+                        fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 17.sp, color = ink)
+                    Text(stringResource(R.string.app_day_empty), fontFamily = Gudi, fontSize = 15.sp, color = muted)
                     LaunchedEffect(Unit) { Qa.log("redesign day no runs") }
                 }
                 l != null -> {
@@ -347,14 +346,14 @@ fun DayMountain(file: File, sample: Boolean, scene: MapScene, mode: DayNight.Mod
                         val h = MomentText.head(l.story?.theme, sm.descents, sm.dropM, sm.distM, locale)
                         MomentText.Words(context, locale, group = true).render(h, Moments.seed("story.head", sm.start)).first
                     }
-                    Text(head ?: stringResource(R.string.app_day_title), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 24.sp, color = ink, maxLines = 2)
+                    Text(head ?: stringResource(R.string.app_day_title), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 24.sp, color = ink, maxLines = 2)
                     val nf = remember { java.text.NumberFormat.getIntegerInstance() }
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(20.dp), verticalAlignment = Alignment.Bottom) {
                         for ((v, k) in listOf(nf.format(sm.descents) to R.string.app_day_sum_descents, metres(sm.dropM) to R.string.app_rec_m_down,
                             "%.1f".format(locale, sm.distM / 1000.0) to R.string.app_rec_km_ski)) {
                             Column {
-                                Text(v, fontFamily = Plex, fontWeight = FontWeight.Light, fontSize = 30.sp, color = ink)
-                                Text(stringResource(k), fontFamily = Plex, fontSize = 12.sp, color = muted)
+                                Text(v, fontFamily = Gudi, fontWeight = FontWeight.Light, fontSize = 30.sp, color = ink)
+                                Text(stringResource(k), fontFamily = Gudi, fontSize = 12.sp, color = muted)
                             }
                         }
                         Box(Modifier.weight(1f))
@@ -370,18 +369,18 @@ fun DayMountain(file: File, sample: Boolean, scene: MapScene, mode: DayNight.Mod
                                 // the play sign points forward in time, left to right in every language
                                 drawPath(androidx.compose.ui.graphics.Path().apply { moveTo(size.width * .1f, 0f); lineTo(size.width, size.height / 2); lineTo(size.width * .1f, size.height); close() }, Color.White)
                             }
-                            Text(stringResource(R.string.app_day_minute), Modifier.padding(start = 8.dp), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color.White, maxLines = 1)
+                            Text(stringResource(R.string.app_day_minute), Modifier.padding(start = 8.dp), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color.White, maxLines = 1)
                         }
                         if (l.story != null) {
                             for ((k, only) in listOf(R.string.app_day_story to false, R.string.app_day_share to true))
                                 Text(stringResource(k), Modifier.height(52.dp).clip(RoundedCornerShape(26.dp)).border(1.5.dp, ink, RoundedCornerShape(26.dp))
                                     .clickable(role = Role.Button) { haptics.tick(.3f); shareOnly = only; story = true }.padding(horizontal = 16.dp).padding(top = 14.dp),
-                                    fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = ink, textAlign = androidx.compose.ui.text.style.TextAlign.Center, maxLines = 1)
+                                    fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = ink, textAlign = androidx.compose.ui.text.style.TextAlign.Center, maxLines = 1)
                         }
                     }
                 }
-                failed -> Text(stringResource(R.string.app_day_empty), fontFamily = Plex, fontSize = 14.sp, color = muted)
-                else -> Text(stringResource(R.string.app_day_loading), fontFamily = Plex, fontSize = 14.sp, color = muted)
+                failed -> Text(stringResource(R.string.app_day_empty), fontFamily = Gudi, fontSize = 14.sp, color = muted)
+                else -> Text(stringResource(R.string.app_day_loading), fontFamily = Gudi, fontSize = 14.sp, color = muted)
             }
         }
         val lr = l

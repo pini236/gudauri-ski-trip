@@ -75,7 +75,6 @@ import io.github.pini236.skiapp.meet.Preset
 import io.github.pini236.skiapp.meet.Station
 import io.github.pini236.skiapp.qa.Qa
 import io.github.pini236.skiapp.telemetry.Telemetry
-import io.github.pini236.skiapp.ui.Plex
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.launch
@@ -192,7 +191,7 @@ internal fun DrawScope.meetFlag(at: Offset, time: String, drop: Float, acc: Colo
     val pole = Path().apply { addRoundRect(androidx.compose.ui.geometry.RoundRect(at.x - 1.5f * d, y0 - 50 * d, at.x + 1.5f * d, y0, 2 * d, 2 * d)) }
     drawPath(pole, Color(0xFF0E2233))
     drawPath(pole, Color(0xB3FFFFFF), style = Stroke(1 * d))
-    val tx = measurer.measure(time, TextStyle(fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 13.5.sp, color = onAcc, fontFeatureSettings = "tnum"))
+    val tx = measurer.measure(time, TextStyle(fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 13.5.sp, color = onAcc, fontFeatureSettings = "tnum"))
     val w = tx.size.width + 22 * d; val top = y0 - 50 * d; val h = 26 * d
     val cloth = Path().apply { moveTo(at.x + 1.5f * d, top); lineTo(at.x + 1.5f * d + w, top); lineTo(at.x + 1.5f * d + w - 7 * d, top + h / 2); lineTo(at.x + 1.5f * d + w, top + h); lineTo(at.x + 1.5f * d, top + h); close() }
     drawPath(cloth, acc)
@@ -215,7 +214,7 @@ internal fun MeetPill(text: String, k: SheetInk, bg: Color, line: Color, closeLa
     Row(Modifier.fillMaxWidth().heightIn(min = 52.dp).clip(RoundedCornerShape(26.dp)).background(bg).border(1.dp, line, RoundedCornerShape(26.dp))
         .padding(start = 16.dp, end = 4.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
         FlagIcon(k.ink)
-        Text(text, Modifier.weight(1f), fontFamily = Plex, fontWeight = FontWeight.Medium, fontSize = 15.sp, color = k.ink, maxLines = 1)
+        Text(text, Modifier.weight(1f), fontFamily = Gudi, fontWeight = FontWeight.Medium, fontSize = 15.sp, color = k.ink, maxLines = 1)
         Box(Modifier.size(44.dp).clip(CircleShape).semantics { contentDescription = closeLabel; role = Role.Button }.clickable(onClick = onClose),
             contentAlignment = Alignment.Center) {
             Canvas(Modifier.size(14.dp)) {
@@ -230,7 +229,7 @@ internal fun MeetPill(text: String, k: SheetInk, bg: Color, line: Color, closeLa
 @Composable
 internal fun MeetWhereSheet(plan: MeetPlan, k: SheetInk, haptics: Haptics, onPreset: (Preset, Station) -> Unit) {
     LiveSheet(k) {
-        Text(stringResource(R.string.meet_one_tap), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = k.ink)
+        Text(stringResource(R.string.meet_one_tap), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = k.ink)
         Column {
             for ((i, p) in Preset.entries.withIndex()) {
                 val s = plan.preset(p) ?: continue
@@ -241,13 +240,13 @@ internal fun MeetWhereSheet(plan: MeetPlan, k: SheetInk, haptics: Haptics, onPre
                     .clickable { haptics.tick(.3f); onPreset(p, s) }.padding(vertical = 8.dp),
                     verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                     Box(Modifier.width(66.dp).height(44.dp).clip(RoundedCornerShape(22.dp)).border(1.dp, k.line, RoundedCornerShape(22.dp)), contentAlignment = Alignment.Center) {
-                        Text(p.time, fontFamily = Plex, fontWeight = FontWeight.Medium, fontSize = 15.sp, color = k.ink, style = TextStyle(fontFeatureSettings = "tnum"))
+                        Text(p.time, fontFamily = Gudi, fontWeight = FontWeight.Medium, fontSize = 15.sp, color = k.ink, style = TextStyle(fontFeatureSettings = "tnum"))
                     }
                     Column(Modifier.weight(1f)) {
-                        Text(name, fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 15.5.sp, color = k.ink)
-                        Text(where, fontFamily = Plex, fontSize = 12.5.sp, color = k.ink2)
+                        Text(name, fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 15.5.sp, color = k.ink)
+                        Text(where, fontFamily = Gudi, fontSize = 12.5.sp, color = k.ink2)
                     }
-                    Text(if (LocalLayoutDirection.current == LayoutDirection.Rtl) "‹" else "›", fontFamily = Plex, fontSize = 22.sp, color = k.ink2)
+                    Text(if (LocalLayoutDirection.current == LayoutDirection.Rtl) "‹" else "›", fontFamily = Gudi, fontSize = 22.sp, color = k.ink2)
                 }
             }
         }
@@ -260,7 +259,7 @@ private fun Chip(text: String, on: Boolean, k: SheetInk, desc: String = text, on
     Box(Modifier.heightIn(min = 44.dp).widthIn(min = 62.dp).clip(RoundedCornerShape(22.dp))
         .then(if (on) Modifier.background(k.acc) else Modifier.border(1.dp, k.line, RoundedCornerShape(22.dp)))
         .semantics { role = Role.Button; contentDescription = desc }.clickable(onClick = onClick).padding(horizontal = 14.dp), contentAlignment = Alignment.Center) {
-        Text(text, fontFamily = Plex, fontWeight = if (on) FontWeight.Bold else FontWeight.Medium, fontSize = 15.sp, color = if (on) Color.White else k.ink,
+        Text(text, fontFamily = Gudi, fontWeight = if (on) FontWeight.Bold else FontWeight.Medium, fontSize = 15.sp, color = if (on) Color.White else k.ink,
             maxLines = 1, style = TextStyle(fontFeatureSettings = "tnum"))
     }
 }
@@ -279,15 +278,15 @@ internal fun MeetSetSheet(here: MeetHere, s: Station, day: LocalDate, time: Loca
     LiveSheet(k) {
         offlineAt?.let { at ->
             val hm = Instant.ofEpochMilli(at).atOffset(Meet.GUDAURI).toLocalTime().let { "%02d:%02d".format(it.hour, it.minute) }
-            Text(stringResource(R.string.app_g_offline, hm), fontFamily = Plex, fontSize = 12.5.sp, color = k.ink2)
+            Text(stringResource(R.string.app_g_offline, hm), fontFamily = Gudi, fontSize = 12.5.sp, color = k.ink2)
         }
         Row(verticalAlignment = Alignment.CenterVertically) {
             Column(Modifier.weight(1f)) {
-                Text("⁦${s.name}⁩", fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 25.sp, color = k.ink, maxLines = 1)
-                Text(stationSub(s), fontFamily = Plex, fontSize = 13.sp, color = k.ink2)
+                Text("⁦${s.name}⁩", fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 25.sp, color = k.ink, maxLines = 1)
+                Text(stationSub(s), fontFamily = Gudi, fontSize = 13.sp, color = k.ink2)
             }
             CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
-                Text(hhmm, fontFamily = Plex, fontWeight = FontWeight.Light, fontSize = 44.sp, color = k.ink, style = TextStyle(fontFeatureSettings = "tnum"))
+                Text(hhmm, fontFamily = Gudi, fontWeight = FontWeight.Light, fontSize = 44.sp, color = k.ink, style = TextStyle(fontFeatureSettings = "tnum"))
             }
         }
         Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -329,7 +328,7 @@ private fun MeetShareRow(s: Station, day: LocalDate, time: LocalTime, lang: Lang
                 runCatching { context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://wa.me/?text=" + Uri.encode(message)))) }
                     .onSuccess { Telemetry.event("meet_share", mapOf("method" to "whatsapp")) }
             }, contentAlignment = Alignment.Center) {
-            Text(stringResource(R.string.meet_send_wa), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color.White, maxLines = 1)
+            Text(stringResource(R.string.meet_send_wa), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color.White, maxLines = 1)
         }
         // the picture (Q06): its own screen
         SecondaryButton(stringResource(R.string.app_meet_btn_image), k) { haptics.tick(.3f); onImage() }
@@ -366,10 +365,10 @@ private fun MeetSaveButton(save: io.github.pini236.skiapp.meet.MeetSave, s: Stat
                 if (gs.size == 1) go(gs[0].id) else choose = !choose
             }, contentAlignment = Alignment.Center) {
             Text(if (saved) "✓ " + stringResource(R.string.meet_saved_group) else stringResource(R.string.meet_save_group),
-                fontFamily = Plex, fontWeight = FontWeight.Medium, fontSize = 15.sp, color = if (saved) k.good else k.ink)
+                fontFamily = Gudi, fontWeight = FontWeight.Medium, fontSize = 15.sp, color = if (saved) k.good else k.ink)
         }
         if (choose && !saved) {
-            Text(stringResource(R.string.meet_pick_group), fontFamily = Plex, fontSize = 12.5.sp, color = k.ink2)
+            Text(stringResource(R.string.meet_pick_group), fontFamily = Gudi, fontSize = 12.5.sp, color = k.ink2)
             for (g in gs) Chip(g.name, false, k) { go(g.id) }
         }
     }
@@ -380,10 +379,10 @@ private fun MeetSaveButton(save: io.github.pini236.skiapp.meet.MeetSave, s: Stat
 internal fun MeetUndo(onUndo: () -> Unit) {
     Row(Modifier.fillMaxWidth().clip(RoundedCornerShape(14.dp)).background(Color(0xF00E2233)).padding(start = 16.dp, end = 6.dp, top = 6.dp, bottom = 6.dp),
         verticalAlignment = Alignment.CenterVertically) {
-        Text(stringResource(R.string.meet_cleared), Modifier.weight(1f), fontFamily = Plex, fontWeight = FontWeight.Medium, fontSize = 14.sp, color = Color.White)
+        Text(stringResource(R.string.meet_cleared), Modifier.weight(1f), fontFamily = Gudi, fontWeight = FontWeight.Medium, fontSize = 14.sp, color = Color.White)
         Box(Modifier.heightIn(min = 44.dp).clip(RoundedCornerShape(22.dp)).background(Color(0xFFF4B942)).semantics { role = Role.Button }
             .clickable(onClick = onUndo).padding(horizontal = 18.dp), contentAlignment = Alignment.Center) {
-            Text(stringResource(R.string.meet_undo), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = Color(0xFF13233A))
+            Text(stringResource(R.string.meet_undo), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = Color(0xFF13233A))
         }
     }
 }
@@ -482,16 +481,16 @@ internal fun MeetShareScreen(s: Station, day: LocalDate, time: LocalTime, night:
         Row(Modifier.fillMaxWidth().padding(top = 8.dp), verticalAlignment = Alignment.CenterVertically) {
             val back = stringResource(R.string.app_g_back)
             Box(Modifier.size(44.dp).semantics { role = Role.Button; contentDescription = back }.clickable { haptics.tick(.2f); onBack() }, contentAlignment = Alignment.Center) {
-                Text(if (LocalLayoutDirection.current == LayoutDirection.Rtl) "›" else "‹", fontFamily = Plex, fontSize = 24.sp, color = k.ink)
+                Text(if (LocalLayoutDirection.current == LayoutDirection.Rtl) "›" else "‹", fontFamily = Gudi, fontSize = 24.sp, color = k.ink)
             }
-            Text(stringResource(R.string.app_meet_share_title), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 25.sp, color = k.ink)
+            Text(stringResource(R.string.app_meet_share_title), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 25.sp, color = k.ink)
         }
         Spacer(Modifier.height(20.dp))
         Box(Modifier.width(326.dp).height(407.5.dp).clip(RoundedCornerShape(18.dp)).background(k.line)
             .semantics { contentDescription = "$at. $place. $dayText" }) {
             bmp?.let { androidx.compose.foundation.Image(it.asImageBitmap(), null, Modifier.matchParentSize()) }
         }
-        Text(stringResource(R.string.app_meet_share_note), Modifier.width(326.dp).padding(top = 12.dp), fontFamily = Plex, fontSize = 13.5.sp, color = k.ink2,
+        Text(stringResource(R.string.app_meet_share_note), Modifier.width(326.dp).padding(top = 12.dp), fontFamily = Gudi, fontSize = 13.5.sp, color = k.ink2,
             textAlign = androidx.compose.ui.text.style.TextAlign.Center)
         Spacer(Modifier.weight(1f))
         Row(Modifier.fillMaxWidth().padding(bottom = 16.dp), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -509,7 +508,7 @@ internal fun MeetShareScreen(s: Station, day: LocalDate, time: LocalTime, night:
                             .onSuccess { Telemetry.event("meet_share", mapOf("method" to "image")) }
                     }
                 }, contentAlignment = Alignment.Center) {
-                Text(stringResource(R.string.app_meet_share_btn), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color.White)
+                Text(stringResource(R.string.app_meet_share_btn), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color.White)
             }
             if (android.os.Build.VERSION.SDK_INT >= 29) SecondaryButton(stringResource(R.string.app_meet_share_save), k) {
                 haptics.tick(.3f)

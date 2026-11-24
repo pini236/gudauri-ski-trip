@@ -71,7 +71,6 @@ import io.github.pini236.skiapp.data.RunFacts
 import io.github.pini236.skiapp.fx.Haptics
 import io.github.pini236.skiapp.map.MapScene
 import io.github.pini236.skiapp.qa.Qa
-import io.github.pini236.skiapp.ui.Plex
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import androidx.compose.ui.layout.onSizeChanged
@@ -166,14 +165,14 @@ internal fun BoxScope.Dock(night: Boolean, haptics: Haptics, onVillage: (() -> U
         Row(Modifier.height(44.dp).clip(RoundedCornerShape(22.dp)).semantics { contentDescription = village; role = Role.Button }
             .clickable { haptics.tick(.3f); onVillage() }.padding(horizontal = 12.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(7.dp)) {
             Canvas(Modifier.size(20.dp)) { house(k.ink) }
-            Text(stringResource(R.string.app_dock_village), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = k.ink, maxLines = 1)
+            Text(stringResource(R.string.app_dock_village), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = k.ink, maxLines = 1)
         }
         }
         val find = stringResource(R.string.app_sr_dock_find)
         Row(Modifier.weight(1f).height(44.dp).clip(RoundedCornerShape(22.dp)).background(k.line).semantics { contentDescription = find; role = Role.Button }
             .clickable { haptics.tick(.3f); onFind() }.padding(horizontal = 14.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             Canvas(Modifier.size(18.dp)) { glass(k.ink2) }
-            Text(stringResource(R.string.app_dock_find), fontFamily = Plex, fontWeight = FontWeight.Medium, fontSize = 15.sp, color = k.ink2, maxLines = 1,
+            Text(stringResource(R.string.app_dock_find), fontFamily = Gudi, fontWeight = FontWeight.Medium, fontSize = 15.sp, color = k.ink2, maxLines = 1,
                 overflow = TextOverflow.Ellipsis)
         }
         if (onRecord != null) {
@@ -205,7 +204,7 @@ internal fun Chip(text: String, on: Boolean, k: SheetInk, enabled: Boolean = tru
         .clickable(onClick = onClick), contentAlignment = Alignment.Center) {
         Box(Modifier.height(36.dp).clip(RoundedCornerShape(18.dp)).background(if (on) k.ink else k.surf.copy(alpha = 1f))
             .let { if (on) it else it.border(1.dp, k.line, RoundedCornerShape(18.dp)) }.padding(horizontal = 13.dp), contentAlignment = Alignment.Center) {
-            Text(text, fontFamily = Plex, fontWeight = if (on) FontWeight.Bold else FontWeight.Medium, fontSize = 13.sp,
+            Text(text, fontFamily = Gudi, fontWeight = if (on) FontWeight.Bold else FontWeight.Medium, fontSize = 13.sp,
                 color = if (on) (if (k.night) Color(0xFF0F1828) else Color.White) else k.ink, maxLines = 1)
         }
     }
@@ -269,9 +268,9 @@ internal fun BoxScope.Shelf(scene: MapScene, view: LiveView, runs: List<ShelfRun
             else -> pluralStringResource(R.plurals.app_shelf_group_rest, g.keys.size, g.keys.size.toString())
         }
         val shade = androidx.compose.ui.graphics.Shadow(k.halo, Offset.Zero, 8f)
-        Text(title, Modifier.padding(horizontal = 16.dp), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 13.sp, color = k.ink,
+        Text(title, Modifier.padding(horizontal = 16.dp), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 13.sp, color = k.ink,
             style = androidx.compose.ui.text.TextStyle(shadow = shade))
-        if (noSun > 0) Text(stringResource(R.string.app_lens_no_sun), Modifier.padding(horizontal = 16.dp), fontFamily = Plex, fontSize = 12.5.sp, color = k.ink2,
+        if (noSun > 0) Text(stringResource(R.string.app_lens_no_sun), Modifier.padding(horizontal = 16.dp), fontFamily = Gudi, fontSize = 12.5.sp, color = k.ink2,
             style = androidx.compose.ui.text.TextStyle(shadow = shade))
         androidx.compose.foundation.layout.Spacer(Modifier.height(8.dp))
         Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).padding(horizontal = 12.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
@@ -329,23 +328,23 @@ private fun ShelfCard(scene: MapScene, r: ShelfRun, k: SheetInk, closed: Boolean
         Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(6.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                 Box(Modifier.height(20.dp).width(6.dp).clip(RoundedCornerShape(3.dp)).background(col))
-                Text(r.title, Modifier.weight(1f, fill = false), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 17.sp, color = k.ink, maxLines = 1,
+                Text(r.title, Modifier.weight(1f, fill = false), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 17.sp, color = k.ink, maxLines = 1,
                     overflow = TextOverflow.Ellipsis, style = androidx.compose.ui.text.TextStyle(textDirection = TextDirection.Ltr))
                 if (closed) Text(stringResource(R.string.app_lens_closed_leg), Modifier.clip(RoundedCornerShape(9.dp)).background(k.red.copy(alpha = .14f)).padding(horizontal = 7.dp, vertical = 2.dp),
-                    fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 11.sp, color = k.red)
+                    fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 11.sp, color = k.red)
             }
-            Text(kind, fontFamily = Plex, fontSize = 13.5.sp, color = k.ink2, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            Text(kind, fontFamily = Gudi, fontSize = 13.5.sp, color = k.ink2, maxLines = 1, overflow = TextOverflow.Ellipsis)
             Row(horizontalArrangement = Arrangement.spacedBy(14.dp)) {
                 Column {
-                    Text(lenShown, fontFamily = Plex, fontWeight = FontWeight.Light, fontSize = 24.sp, color = k.ink)
-                    Text(if (km) stringResource(R.string.app_shelf_km_cap) else stringResource(R.string.app_shelf_m_cap), fontFamily = Plex, fontSize = 12.5.sp, color = k.ink2)
+                    Text(lenShown, fontFamily = Gudi, fontWeight = FontWeight.Light, fontSize = 24.sp, color = k.ink)
+                    Text(if (km) stringResource(R.string.app_shelf_km_cap) else stringResource(R.string.app_shelf_m_cap), fontFamily = Gudi, fontSize = 12.5.sp, color = k.ink2)
                 }
                 Column {
-                    Text(nf.format(r.drop), fontFamily = Plex, fontWeight = FontWeight.Light, fontSize = 24.sp, color = k.ink)
-                    Text(stringResource(R.string.app_shelf_drop_cap), fontFamily = Plex, fontSize = 12.5.sp, color = k.ink2)
+                    Text(nf.format(r.drop), fontFamily = Gudi, fontWeight = FontWeight.Light, fontSize = 24.sp, color = k.ink)
+                    Text(stringResource(R.string.app_shelf_drop_cap), fontFamily = Gudi, fontSize = 12.5.sp, color = k.ink2)
                 }
             }
-            Text(back, fontFamily = Plex, fontSize = 12.sp, color = k.ink2, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            Text(back, fontFamily = Gudi, fontSize = 12.sp, color = k.ink2, maxLines = 1, overflow = TextOverflow.Ellipsis)
         }
     }
 }
@@ -373,7 +372,7 @@ internal fun RunTag(view: LiveView, scene: MapScene, key: String, title: String,
         .let { if (onTap != null) it.clickable(onClick = onTap) else it }.padding(horizontal = 8.dp),
         verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(5.dp)) {
         Box(Modifier.size(8.dp).clip(CircleShape).background(plate(color)))
-        Text(title, fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 11.5.sp, color = k.ink, maxLines = 1,
+        Text(title, fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 11.5.sp, color = k.ink, maxLines = 1,
             style = androidx.compose.ui.text.TextStyle(textDirection = TextDirection.Ltr))
     }
 }
