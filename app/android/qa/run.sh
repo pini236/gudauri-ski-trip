@@ -1176,6 +1176,10 @@ redesign() {
   sleep 2.5; shot redesign-meet-where
   mark; qa "--es qa.redesign meet:lift:Goodaura"; waitlog "redesign meet set" 10 || fail "redesign: no flag on Goodaura's top"
   sleep 1.5; shot redesign-meet-set
+  mark; qa "--es qa.redesign meet:share"; waitlog "redesign meet image file" 20 || fail "redesign: the meeting point's picture was not written"
+  seen "redesign meet image file clean" 5 || fail "redesign: the meeting point's picture has a place in it"
+  sleep 1; shot redesign-meet-share
+  mark; qa "--es qa.redesign meet:share:off"; sleep .8
   mark; qa "--es qa.redesign meet:clear"; waitlog "redesign meet cleared" 10 || fail "redesign: the meeting point did not clear"
   sleep .8; shot redesign-meet-cleared
   mark; qa "--es qa.mode night --es qa.redesign meet:preset:end"; waitlog "redesign meet set" 10 || fail "redesign: the end of day spot did not set"

@@ -161,6 +161,7 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
         Qa.log("redesign meet cleared $via")
     }
     fun meetOpen(on: Boolean) {
+        meet.share = false
         if (on) { liftSel = null; liftsOpen = false; chosen = null; view.choose(null); if (!meet.open) view.backToFront() }
         else { meet.sid = null; meet.undo = null }
         meet.open = on
@@ -182,6 +183,8 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
                 Qa.log("redesign meet flag ${st.id} $t")
             }
             q == "flag:off" -> qaFlags = null
+            q == "share" -> if (meet.sid != null) { meet.share = true; Qa.log("redesign meet share open") }
+            q == "share:off" -> meet.share = false
             q.startsWith("preset:") -> io.github.pini236.skiapp.meet.Preset.entries.firstOrNull { it.event == q.removePrefix("preset:") }?.let { p -> plan.preset(p)?.let { meetOpen(true); meetPick(it, p) } }
             q.startsWith("lift:") -> LiveMeetRules.topOf(plan, q.removePrefix("lift:"))?.let { meetOpen(true); meetPick(it) }
         }
@@ -445,10 +448,12 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
                     }
                 }
                 if (st != null && d0 != null && t0 != null && here != null)
-                    MeetSetSheet(here, st, d0, t0, meetDays, sk, haptics, scene, meet.offlineAt, meet.fromGroup, onDay = { meet.day = it; meet.preset = null; Qa.log("redesign meet day $it") },
+                    MeetSetSheet(here, st, d0, t0, meetDays, sk, haptics, scene, meet.offlineAt, meet.fromGroup, onImage = { meet.share = true; Qa.log("redesign meet share open") }, onDay = { meet.day = it; meet.preset = null; Qa.log("redesign meet day $it") },
                         onTime = { meet.time = it; meet.preset = null; Qa.log("redesign meet time $it") })
                 else if (st == null) MeetWhereSheet(plan, sk, haptics) { p, s -> meetPick(s, p) }
             }
+            if (meet.share && st != null && d0 != null && t0 != null)
+                MeetShareScreen(st, d0, t0, night, haptics, scene) { meet.share = false }
         }
     }
 }

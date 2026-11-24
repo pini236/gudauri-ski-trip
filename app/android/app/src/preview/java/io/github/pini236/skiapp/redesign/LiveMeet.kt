@@ -17,6 +17,10 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
@@ -66,7 +70,6 @@ import io.github.pini236.skiapp.fx.Haptics
 import io.github.pini236.skiapp.i18n.Lang
 import io.github.pini236.skiapp.meet.Meet
 import io.github.pini236.skiapp.meet.MeetHere
-import io.github.pini236.skiapp.meet.MeetImage
 import io.github.pini236.skiapp.meet.MeetPlan
 import io.github.pini236.skiapp.meet.Preset
 import io.github.pini236.skiapp.meet.Station
@@ -141,6 +144,8 @@ internal class MeetUi {
     var fromGroup by mutableStateOf(false)
     /** When the group's copy shown was saved, if the phone was offline (the architect's condition 4). */
     var offlineAt by mutableStateOf<Long?>(null)
+    /** Q06 open over the mountain. */
+    var share by mutableStateOf(false)
 }
 
 /** The flag's words and its sub-line under the station's name (Q05): "the top station · 2,705 m". */
@@ -266,7 +271,7 @@ private fun Chip(text: String, on: Boolean, k: SheetInk, desc: String = text, on
  */
 @Composable
 internal fun MeetSetSheet(here: MeetHere, s: Station, day: LocalDate, time: LocalTime, days: List<LocalDate>, k: SheetInk, haptics: Haptics, scene: io.github.pini236.skiapp.map.MapScene,
-                          offlineAt: Long? = null, fromGroup: Boolean = false, onDay: (LocalDate) -> Unit, onTime: (LocalTime) -> Unit) {
+                          offlineAt: Long? = null, fromGroup: Boolean = false, onImage: () -> Unit = {}, onDay: (LocalDate) -> Unit, onTime: (LocalTime) -> Unit) {
     val context = LocalContext.current
     val lang = Lang.current(context.resources)
     val hhmm = "%02d:%02d".format(time.hour, time.minute)
@@ -297,7 +302,7 @@ internal fun MeetSetSheet(here: MeetHere, s: Station, day: LocalDate, time: Loca
             val otherWord = stringResource(R.string.app_meet_time_other)
             Chip(if (other) hhmm else otherWord, other, k, desc = stringResource(R.string.meet_other_time)) { askTime = true }
         }
-        MeetShareRow(s, day, time, lang, k, haptics, scene)
+        MeetShareRow(s, day, time, lang, k, haptics, onImage)
         if (!fromGroup) here.save?.let { MeetSaveButton(it, s, Meet.at(day, time), k, haptics) }
     }
     if (askTime) io.github.pini236.skiapp.trip.TimeDialog(stringResource(R.string.meet_other_time), time,
@@ -306,7 +311,7 @@ internal fun MeetSetSheet(here: MeetHere, s: Station, day: LocalDate, time: Loca
 
 /** WhatsApp (the main button), the picture and the link (Q05, row 4); measured once each went, as today's meeting point. */
 @Composable
-private fun MeetShareRow(s: Station, day: LocalDate, time: LocalTime, lang: Lang.Language, k: SheetInk, haptics: Haptics, scene: io.github.pini236.skiapp.map.MapScene) {
+private fun MeetShareRow(s: Station, day: LocalDate, time: LocalTime, lang: Lang.Language, k: SheetInk, haptics: Haptics, onImage: () -> Unit) {
     val context = LocalContext.current
     val hhmm = "%02d:%02d".format(time.hour, time.minute)
     val link = Meet.shared(s.id, time, day)
@@ -315,8 +320,6 @@ private fun MeetShareRow(s: Station, day: LocalDate, time: LocalTime, lang: Lang
     val alt = s.h?.let { stringResource(R.string.meet_share_alt_suffix, String.format(Locale.US, "%,d", it)) } ?: ""
     val message = stringResource(R.string.meet_share_message, s.name, dayText, hhmm, where, alt, link)
     val title = stringResource(R.string.meet_share_title, s.name)
-    val label = stringResource(R.string.meet_share_image_card_label, dayText)
-    val site = stringResource(R.string.common_site_name)
     var copied by remember { mutableStateOf(false) }
     LaunchedEffect(copied) { if (copied) { delay(2200); copied = false } }
     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -328,12 +331,8 @@ private fun MeetShareRow(s: Station, day: LocalDate, time: LocalTime, lang: Lang
             }, contentAlignment = Alignment.Center) {
             Text(stringResource(R.string.meet_send_wa), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color.White, maxLines = 1)
         }
-        // the picture: today's (meet/MeetImage.kt) until the architect has seen Q06's
-        SecondaryButton(stringResource(R.string.app_meet_btn_image), k) {
-            haptics.tick(.3f)
-            val bmp = MeetImage.draw(s, hhmm, label, site, scene.runs, null, Lang.typeface(context, lang, true), Lang.typeface(context, lang, false), lang.rtl)
-            runCatching { MeetImage.share(context, bmp, message, title) }.onSuccess { Telemetry.event("meet_share", mapOf("method" to "image")) }
-        }
+        // the picture (Q06): its own screen
+        SecondaryButton(stringResource(R.string.app_meet_btn_image), k) { haptics.tick(.3f); onImage() }
         SecondaryButton(stringResource(if (copied) R.string.common_link_copied else R.string.app_meet_btn_link), k) {
             haptics.tick(.3f)
             (context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager).setPrimaryClip(ClipData.newPlainText(title, link))
@@ -443,3 +442,102 @@ internal fun groupMeets(sync: io.github.pini236.skiapp.server.Sync): kotlinx.cor
         }
     }
 
+
+/**
+ * Q06: the picture to share, a full screen over the mountain: back and "picture to share" at the top, the picture 326
+ * across (corner 18), one line under it, and at the bottom "share" (the system's sheet) and "save on the phone" (Android
+ * 10 and up, no permission; before that the button is not shown). Drawn off the main thread; a file with a place in its
+ * metadata is never shared (the architect's condition 6).
+ */
+@Composable
+internal fun MeetShareScreen(s: Station, day: LocalDate, time: LocalTime, night: Boolean, haptics: Haptics, scene: io.github.pini236.skiapp.map.MapScene, onBack: () -> Unit) {
+    val context = LocalContext.current
+    val lang = Lang.current(context.resources)
+    val k = remember(night) { SheetInk(night) }
+    val page = if (night) Color(0xFF0B1220) else Color(0xFFEEF2F7)
+    val hhmm = "%02d:%02d".format(time.hour, time.minute)
+    val at = stringResource(R.string.app_meet_share_at, hhmm)
+    val place = "${s.name}, ${stationSub(s)}"
+    val dayText = runCatching { DateTimeFormatter.ofPattern("EEEE", Locale.forLanguageTag(lang.tag)).format(day) }.getOrDefault("") + ", ${day.dayOfMonth}.${day.monthValue}"
+    val link = Meet.shared(s.id, time, day)
+    val where = io.github.pini236.skiapp.meet.stationWhere(s).replace("⁨", "").replace("⁩", "")
+    val alt = s.h?.let { stringResource(R.string.meet_share_alt_suffix, String.format(Locale.US, "%,d", it)) } ?: ""
+    val message = stringResource(R.string.meet_share_message, s.name, io.github.pini236.skiapp.meet.dayLabel(day, lang.tag), hhmm, where, alt, link)
+    val title = stringResource(R.string.meet_share_title, s.name)
+    val scope = rememberCoroutineScope()
+    var bmp by remember { mutableStateOf<android.graphics.Bitmap?>(null) }
+    LaunchedEffect(s.id, day, time, night) {
+        bmp = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Default) {
+            OnMountain.load(context, night, scene.terrain::elev)?.let { m ->
+                MeetShareImage.draw(m, s, scene.runs, MeetShareImage.Words(at, "⁦${s.name}⁩, ${stationSub0(context, s)}", dayText, "Gudi · Gudauri", hhmm), night,
+                    Lang.typeface(context, lang, true), Lang.typeface(context, lang, false), lang.rtl)
+            }
+        }
+        Qa.log("redesign meet image ${if (bmp != null) "drawn" else "none"}")
+    }
+    androidx.activity.compose.BackHandler { onBack() }
+    Column(Modifier.fillMaxSize().background(page).then(Modifier.padding(horizontal = 20.dp)).statusBarsPadding().navigationBarsPadding(),
+        horizontalAlignment = Alignment.CenterHorizontally) {
+        Row(Modifier.fillMaxWidth().padding(top = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+            val back = stringResource(R.string.app_g_back)
+            Box(Modifier.size(44.dp).semantics { role = Role.Button; contentDescription = back }.clickable { haptics.tick(.2f); onBack() }, contentAlignment = Alignment.Center) {
+                Text(if (LocalLayoutDirection.current == LayoutDirection.Rtl) "›" else "‹", fontFamily = Plex, fontSize = 24.sp, color = k.ink)
+            }
+            Text(stringResource(R.string.app_meet_share_title), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 25.sp, color = k.ink)
+        }
+        Spacer(Modifier.height(20.dp))
+        Box(Modifier.width(326.dp).height(407.5.dp).clip(RoundedCornerShape(18.dp)).background(k.line)
+            .semantics { contentDescription = "$at. $place. $dayText" }) {
+            bmp?.let { androidx.compose.foundation.Image(it.asImageBitmap(), null, Modifier.matchParentSize()) }
+        }
+        Text(stringResource(R.string.app_meet_share_note), Modifier.width(326.dp).padding(top = 12.dp), fontFamily = Plex, fontSize = 13.5.sp, color = k.ink2,
+            textAlign = androidx.compose.ui.text.style.TextAlign.Center)
+        Spacer(Modifier.weight(1f))
+        Row(Modifier.fillMaxWidth().padding(bottom = 16.dp), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            Box(Modifier.weight(1f).heightIn(min = 52.dp).clip(RoundedCornerShape(26.dp)).background(k.acc).semantics { role = Role.Button }
+                .clickable(enabled = bmp != null) {
+                    haptics.tick(.4f)
+                    val b = bmp ?: return@clickable
+                    scope.launch {
+                        val f = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) { MeetShareImage.write(java.io.File(context.cacheDir, "share"), b) }
+                        if (f == null) { Qa.log("redesign meet image refused"); return@launch }
+                        val uri = androidx.core.content.FileProvider.getUriForFile(context, context.packageName + ".share", f)
+                        val send = Intent(Intent.ACTION_SEND).setType("image/png").putExtra(Intent.EXTRA_STREAM, uri).putExtra(Intent.EXTRA_TEXT, message)
+                            .putExtra(Intent.EXTRA_TITLE, title).addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                        runCatching { context.startActivity(Intent.createChooser(send, title).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) }
+                            .onSuccess { Telemetry.event("meet_share", mapOf("method" to "image")) }
+                    }
+                }, contentAlignment = Alignment.Center) {
+                Text(stringResource(R.string.app_meet_share_btn), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color.White)
+            }
+            if (android.os.Build.VERSION.SDK_INT >= 29) SecondaryButton(stringResource(R.string.app_meet_share_save), k) {
+                haptics.tick(.3f)
+                val b = bmp ?: return@SecondaryButton
+                scope.launch { val ok = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) { saveMeetPicture(context, b) }; Qa.log("redesign meet image saved $ok") }
+            }
+        }
+    }
+    // the emulator's run: the file as it would leave, checked for a place in its metadata
+    LaunchedEffect(bmp) {
+        val b = bmp ?: return@LaunchedEffect
+        val f = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) { MeetShareImage.write(java.io.File(context.cacheDir, "share"), b) }
+        Qa.log("redesign meet image file ${if (f != null) "clean ${f.length()}" else "refused"}")
+    }
+}
+
+/** The station's line without Compose ("the top station · 2,705 m"), for drawing off the main thread. */
+private fun stationSub0(ctx: Context, s: Station): String {
+    val alt = s.h?.let { java.text.NumberFormat.getIntegerInstance().format(it) } ?: "—"
+    return ctx.getString(if (s.ends.any { !it.top }) R.string.app_meet_station_bottom else R.string.app_meet_station_top, alt)
+}
+
+/** Into the phone's pictures (Android 10 and up, no permission). */
+private fun saveMeetPicture(ctx: Context, b: android.graphics.Bitmap): Boolean {
+    if (android.os.Build.VERSION.SDK_INT < 29) return false
+    val v = android.content.ContentValues().apply {
+        put(android.provider.MediaStore.Images.Media.DISPLAY_NAME, "gudi-meet-${System.currentTimeMillis()}.png"); put(android.provider.MediaStore.Images.Media.MIME_TYPE, "image/png")
+        put(android.provider.MediaStore.Images.Media.RELATIVE_PATH, "Pictures/Gudi")
+    }
+    val uri = ctx.contentResolver.insert(android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI, v) ?: return false
+    return runCatching { ctx.contentResolver.openOutputStream(uri)!!.use { b.compress(android.graphics.Bitmap.CompressFormat.PNG, 100, it) } }.getOrDefault(false)
+}
