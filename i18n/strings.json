@@ -23129,6 +23129,30 @@
     "ka"
    ]
   },
+  "app.shelf_m_cap": {
+   "he": "מ׳",
+   "en": "m",
+   "ru": "м",
+   "ka": "მ",
+   "where": "app/android, app/ios",
+   "note": "הכפר, המדף והעדשות: כיתוב מתחת למספר כשהמסלול קצר מ-1,000 מ׳ (משלים את app.shelf_km_cap)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.vill_credit": {
+   "he": "צויר מנתונים, לא צילום. גובה הבניינים משוער.",
+   "en": "Drawn from data, not a photo. Building heights are estimated.",
+   "ru": "Нарисовано по данным, не фотография. Высота зданий приблизительная.",
+   "ka": "დახატულია მონაცემებიდან, არა ფოტო. შენობების სიმაღლე სავარაუდოა.",
+   "where": "app/android, app/ios",
+   "note": "הכפר: שורת קרדיט לפי תנאי הארכיטקט (docs/ARCHITECTURE.md, הכפר)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
   "app.g_code_copied": {
    "he": "קוד ההזמנה הועתק",
    "en": "Invite code copied",
