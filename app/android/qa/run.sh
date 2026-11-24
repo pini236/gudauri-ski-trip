@@ -87,7 +87,8 @@ burst() { # burst <name> <count> <gap seconds>: frames of an animation
 adb logcat -c
 : > "$OUT/logcat.txt"
 logcat_on() { # stream the log into the file; after a break (adb drops it now and then), go on from its last line
-  local since; since=$(tail -n 1 "$OUT/logcat.txt" | cut -c1-18)
+  # the last real line's time (not adb's own "- waiting for device -"), so nothing is read twice
+  local since; since=$(tac "$OUT/logcat.txt" 2> /dev/null | grep -m1 -E '^[0-9]{2}-[0-9]{2} [0-9:.]{12}' | cut -c1-18)
   if [[ "$since" =~ ^[0-9]{2}-[0-9]{2}\ [0-9:.]{12}$ ]]; then adb logcat -v time -T "$since" >> "$OUT/logcat.txt" 2>&1 &
   else adb logcat -v time >> "$OUT/logcat.txt" 2>&1 &
   fi
@@ -95,11 +96,19 @@ logcat_on() { # stream the log into the file; after a break (adb drops it now an
 }
 logcat_on
 MARK=0
+# the stream is dead, or stuck on "waiting for device" while adb has the device back (run 380: after the one-minute
+# video the log stopped and every later step missed its line): start it again
+logcat_ok() {
+  if ! kill -0 "$LOGCAT" 2> /dev/null; then note "log stream broke: started again"; logcat_on; return; fi
+  if [ "$(tail -n 1 "$OUT/logcat.txt" | tr -d '\r')" = "- waiting for device -" ] && [ "$(adb get-state 2> /dev/null | tr -d '\r')" = device ]; then
+    kill "$LOGCAT" 2> /dev/null; wait "$LOGCAT" 2> /dev/null; note "log stream stuck: started again"; logcat_on
+  fi
+}
 mark() { MARK=$(wc -l < "$OUT/logcat.txt"); }
 waitlog() { # waitlog <text> [seconds]
   local deadline=$((SECONDS + ${2:-60}))
   while (( SECONDS < deadline )); do
-    kill -0 "$LOGCAT" 2> /dev/null || { note "log stream broke: started again"; logcat_on; }
+    logcat_ok
     # grep reads to the end (no -q): with pipefail, an early exit would kill tail and fail the check
     tail -n +"$((MARK + 1))" "$OUT/logcat.txt" | grep "SkiQa.*$1" > /dev/null && return 0
     sleep 0.5
@@ -109,7 +118,7 @@ waitlog() { # waitlog <text> [seconds]
 seen() { # seen <text> [seconds]: as waitlog, but a miss is no failure (the caller tries again)
   local deadline=$((SECONDS + ${2:-30}))
   while (( SECONDS < deadline )); do
-    kill -0 "$LOGCAT" 2> /dev/null || { note "log stream broke: started again"; logcat_on; }
+    logcat_ok
     tail -n +"$((MARK + 1))" "$OUT/logcat.txt" | grep "SkiQa.*$1" > /dev/null && return 0
     sleep 0.5
   done
