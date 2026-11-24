@@ -124,6 +124,10 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
     val time = scrub?.let { PeakLight.janAt(it) } ?: DayNight.lightTime(now, mode)
     val night = remember(time) { Sky.at(time).dark }
     val view = remember { LiveView(context, scene).also { v -> v.onChoose = { k -> chosen = k; haptics.tick(.5f); Qa.log("redesign live chosen $k") } } }
+    // part 4 (S02 to S04, S08): "where am I" and the compass on the mountain
+    val where = rememberWhere(scene)
+    val (locate, locateGo) = rememberLocate(where, view)
+    val whereAction = rememberWhereAction(where)
     DisposableEffect(Unit) {
         val life = (context as? androidx.lifecycle.LifecycleOwner)?.lifecycle
         val obs = androidx.lifecycle.LifecycleEventObserver { _, e ->
@@ -168,6 +172,11 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
             c == "skipass:off" -> { skipassOpen = false; Qa.log("redesign skipass closed") }
             // part 3: the people's layers (the emulator's run, qa/run.sh), the first group of mine for "group" and "invite"
             c == "people:off" -> people.close()
+            // part 4: the "where am I" switch as a tap, the first-time sheet, and back to the opening view
+            c == "where" -> locate()
+            c == "where:ask" -> where.asking = true
+            c == "where:off" -> { where.asking = false; where.where.off() }
+            c == "home" -> view.home()
             c.startsWith("people:") && pp != null -> {
                 val what = c.removePrefix("people:")
                 if (what == "group" || what == "invite") scope.launch {
@@ -285,6 +294,8 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
 
     Box(Modifier.fillMaxSize()) {
         AndroidView(factory = { view }, modifier = Modifier.fillMaxSize())
+        // my dot and its circle (S03), under everything drawn over the mountain
+        WhereDot(where, view)
         if (!meet.open && !tripOpen && !skipassOpen) Column(Modifier.fillMaxWidth().statusBarsPadding().padding(horizontal = 12.dp, vertical = 8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 Pill(Modifier.weight(1f).clickable { scrubOpen = !scrubOpen; if (!scrubOpen) scrub = null; haptics.tick(.3f) }) {
@@ -570,6 +581,12 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
                 Text(stringResource(R.string.app_skipass_title), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 17.sp, color = top)
             }
         }
+        // part 4 (S03, S04, S08): the location's box under the pill, the map's buttons, and S02 before the phone asks
+        val bare = chosen == null && !liftsOpen && !meet.open && !tripOpen && !skipassOpen && !seasonOn && !people.open
+        if (bare) WhereBox(where, night, onRun = { k -> haptics.tick(.3f); view.pickKey(k) }, onAction = whereAction)
+        if (bare) MapColumn(where, view, night, recording = false, onLocate = { haptics.tick(.3f); locate() }, onHome = { haptics.tick(.3f); view.home() })
+        if (where.asking) WhereAsk(night, onGo = locateGo, onLater = { where.asking = false; Qa.log("redesign where ask later") })
+        androidx.activity.compose.BackHandler(enabled = where.asking) { where.asking = false }
         // part 3 (R01 to R15) over everything of the mountain
         if (pp != null && people.open) {
             val todayP = java.time.LocalDate.now(io.github.pini236.skiapp.meet.Meet.GUDAURI)

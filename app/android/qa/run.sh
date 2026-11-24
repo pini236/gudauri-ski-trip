@@ -1241,6 +1241,17 @@ redesign() {
   mark; qa "--es qa.redesign people:off"; waitlog "redesign people closed" 10
   mark; qa "--es qa.redesign people:gate"; waitlog "redesign people gate" 10; rd_settled; shot redesign-gate
   mark; qa "--es qa.redesign people:off"; waitlog "redesign people closed" 10
+  # completion part 4 (S02 to S04, S08): the first-time sheet, "where am I" on a run, out of the area, the compass
+  mark; qa "--es qa.redesign where:ask"; waitlog "redesign where ask" 10 || fail "redesign: the where-am-I sheet did not open"; rd_settled; shot redesign-where-ask
+  mark; qa "--es qa.redesign where:off"; sleep 1
+  adb shell pm grant "$PKG" android.permission.ACCESS_FINE_LOCATION; adb shell pm grant "$PKG" android.permission.ACCESS_COARSE_LOCATION
+  adb shell cmd location set-location-enabled true 2> /dev/null
+  geo 42.482631 44.483401; sleep 1
+  mark; qa "--es qa.redesign where"; waitlog "redesign where run Tatra 2" 25 || fail "redesign: where am I did not find Tatra 2"; rd_settled; shot redesign-where-run
+  mark; geo 41.7151 44.8271; waitlog "redesign where outside" 25 && { rd_settled; shot redesign-where-outside; }
+  mark; qa "--es qa.redesign where:off"; waitlog "redesign where off" 10
+  mark; qa "--es qa.redesign 'pick:Tatra 2'"; waitlog "redesign live chosen" 15; qa "--es qa.redesign unpick"; waitlog "redesign compass shown" 15 && { rd_settled; shot redesign-compass; }
+  mark; qa "--es qa.redesign home"; waitlog "redesign compass gone" 15 || fail "redesign: the compass did not go after home"
   mark; qa "--es qa.mode auto --es qa.redesign painted"; waitlog "redesign live closed" 10; sleep 1.5; shot redesign-live-back
   qa "--es qa.mode auto --es qa.redesign close"; sleep 1.5; shot redesign-closed
   # round 4 (board L06): the sample day on the mountain, its lines of light by speed and the dotted rides, by day and
