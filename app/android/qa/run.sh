@@ -1120,6 +1120,8 @@ redesign() {
   mark; qa "--es qa.mode day --es qa.redesign live"; waitlog "redesign live open" 15
   waitlog "redesign live textures ok" 30 || fail "redesign: the live textures did not pass the designer's checks"
   waitlog "redesign live drawn" 30 || fail "redesign: the live model drew nothing but the clear colour"
+  # part 2 (Q10): before the season the mountain opens on the count of days; the designer's frames are of the mountain itself
+  mark; qa "--es qa.redesign season:off"; waitlog "redesign season closed" 10
   sleep 4; shot redesign-live
   # the designer's frames (design/handoff/2026-11-20-redesign-live/ref): the opening at the seven keys of 12 January
   # (the shadows are worked out off the GL thread, a few seconds on the emulator), then three free views
@@ -1170,6 +1172,8 @@ redesign() {
   mark; qa "--es qa.redesign lift:Goodaura"; waitlog "redesign lift panel Goodaura" 10 || fail "redesign: the lift's panel did not open"
   sleep 1.5; shot redesign-lift-panel
   mark; qa "--es qa.redesign lifts:off --es qa.status none"; sleep 1
+  # the light by the clock again (the frames above held an hour), so "night" below is night
+  mark; qa "--es qa.redesign hour:off"; waitlog "redesign live hour off" 10
   # part 2 (Q04, Q05): the meeting point, where (the pins and the three spots), a flag on a lift's top (its drop and the
   # sheet), cleared with its undo, and at night
   mark; qa "--es qa.redesign meet"; waitlog "redesign meet where" 10 || fail "redesign: the meeting point did not open"

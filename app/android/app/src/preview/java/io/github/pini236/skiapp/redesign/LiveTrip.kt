@@ -61,6 +61,7 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.selected
@@ -401,9 +402,9 @@ internal fun LiveCalendar(trip: Trip?, today: LocalDate, k: SheetInk, haptics: H
                     val past = d < today
                     val edge = d == out || d == ret
                     val skiD = !edge && ski != null && d in ski
-                    Box(Modifier.weight(1f).height(42.dp).background(if (skiD) p.skiDayOf() else Color.Transparent)
-                        .semantics { selected = edge; contentDescription = DateTimeFormatter.ofPattern("EEEE d MMMM", locale).format(d) }
-                        .let { m -> if (past || !inMonth) m else m.clickable { haptics.tick(.2f); PassEdits.tap(out, ret, d).let { (o, r) -> out = o; ret = r } } },
+                    Box(Modifier.weight(1f).height(44.dp).background(if (skiD) p.skiDayOf() else Color.Transparent)
+                        .let { m -> if (past || !inMonth) m else m.clickable { haptics.tick(.2f); PassEdits.tap(out, ret, d).let { (o, r) -> out = o; ret = r } } }
+                        .clearAndSetSemantics { selected = edge; contentDescription = DateTimeFormatter.ofPattern("EEEE d MMMM", locale).format(d) },
                         contentAlignment = Alignment.Center) {
                         if (edge) Box(Modifier.size(42.dp).clip(CircleShape).background(acc))
                         Text(d.dayOfMonth.toString(), Modifier.alpha(if (!inMonth || past) .45f else 1f), fontFamily = Plex,

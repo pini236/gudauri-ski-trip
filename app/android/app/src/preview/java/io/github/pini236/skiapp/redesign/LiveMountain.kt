@@ -134,7 +134,9 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
     // the emulator's pictures (qa/run.sh): an hour of 12 January (the designer's keys), and a view
     LaunchedEffect(RedesignQa.seq) {
         val c = RedesignQa.cmd
+        Qa.log("redesign live cmd $c")
         when {
+            c == "hour:off" -> { scrub = null; Qa.log("redesign live hour off") }
             c.startsWith("hour:") -> c.removePrefix("hour:").toFloatOrNull()?.let { scrub = it; Qa.log("redesign live hour $it") }
             c.startsWith("look:") -> c.removePrefix("look:").split(",").let { a ->
                 val n = a.take(3).mapNotNull { it.toFloatOrNull() }
@@ -157,7 +159,7 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
             c == "skipass" -> skipassOpen = true
             c == "season" -> seasonOn = LiveSeasonRules.shown(around)
             c == "season:off" -> seasonOn = false
-            c == "skipass:off" -> skipassOpen = false
+            c == "skipass:off" -> { skipassOpen = false; Qa.log("redesign skipass closed") }
             // one moment of the choice held (the designer's 0, 150, 300, 600 and 900 ms, as phase A's frame:)
             c.startsWith("moment:") -> c.removePrefix("moment:").split(',').takeIf { it.size == 2 }?.let { (k, t) ->
                 t.trim().toFloatOrNull()?.let { ms -> held = ms; view.moment(k.trim(), ms) }
@@ -339,7 +341,7 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
                 }
             }
             // phase A's names belong to its front view: not from the Kobi side, and none cut by the edge of the screen
-            if (o != null && chosen == null && !kobiSide) {
+            if (o != null && chosen == null && !kobiSide && !tripOpen && !skipassOpen && !seasonOn) {
                 val ink = if (night) Color(0xFFEAF1F8) else Color(0xFF0E2233)
                 val halo = if (night) Color(0xF2060B16) else Color(0xF2FFFFFF)
                 val name = androidx.compose.ui.text.TextStyle(fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 11.5.sp, color = ink)
