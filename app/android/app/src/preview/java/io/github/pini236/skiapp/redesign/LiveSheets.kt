@@ -81,8 +81,9 @@ internal class SheetInk(night: Boolean) {
 @Composable
 internal fun LiveSheet(k: SheetInk, opaque: Boolean = false, content: @Composable () -> Unit) {
     val top = RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp)
-    // [opaque]: 0.96, so a line on the mountain does not show through (the designer, P04)
-    Column(Modifier.fillMaxWidth().shadow(8.dp, top).clip(top).background(if (opaque) k.surf.copy(alpha = .96f) else k.surf).border(1.dp, k.line, top)
+    // fully opaque on Android: no line, tag or name of the mountain shows through (the designer, 24.11.2026, handoff
+    // 2026-11-21-redesign-around section 14.5); [opaque] is kept for the callers that asked for it before
+    Column(Modifier.fillMaxWidth().shadow(8.dp, top).clip(top).background(k.surf.copy(alpha = 1f)).border(1.dp, k.line, top)
         .navigationBarsPadding().padding(start = 16.dp, end = 16.dp, top = 10.dp, bottom = 16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Box(Modifier.align(Alignment.CenterHorizontally).size(38.dp, 5.dp).clip(RoundedCornerShape(3.dp)).background(k.line))

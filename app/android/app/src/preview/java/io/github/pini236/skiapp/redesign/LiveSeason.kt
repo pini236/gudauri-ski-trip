@@ -61,6 +61,7 @@ internal fun BoxScope.LiveSeason(around: Around, night: Boolean, haptics: Haptic
     val late = around.lateOpen
     val open = o?.open ?: late ?: return
     val date = shortDate(open)
+    val hero = if (night) Color.White else k.ink
     // on the mountain, 150 from the top: the number and its caption, or the words of the day
     val (big, sub, moved) = when {
         o != null && o.kind == Season.Kind.OPENING_DAY -> Triple(stringResource(R.string.app_season_today), stringResource(R.string.app_season_today_sub), null)
@@ -75,13 +76,13 @@ internal fun BoxScope.LiveSeason(around: Around, night: Boolean, haptics: Haptic
         .clearAndSetSemantics { contentDescription = a11y; role = Role.Button }
         .clickable { haptics.tick(.3f); Qa.log("redesign season closed tap"); onClose() },
         horizontalAlignment = Alignment.CenterHorizontally) {
-        if (number) Text(big, fontFamily = io.github.pini236.skiapp.ui.Plex, fontWeight = FontWeight.Light, fontSize = 112.sp, lineHeight = 112.sp, color = Color.White,
+        if (number) Text(big, fontFamily = io.github.pini236.skiapp.ui.Plex, fontWeight = FontWeight.Light, fontSize = 112.sp, lineHeight = 112.sp, color = hero,
             style = TextStyle(fontFeatureSettings = "tnum"))
         else Text(big, fontFamily = io.github.pini236.skiapp.ui.Plex, fontWeight = FontWeight.Bold, fontSize = if (o != null) 44.sp else 19.sp, lineHeight = if (o != null) 48.sp else 24.sp,
-            color = Color.White, textAlign = TextAlign.Center)
+            color = hero, textAlign = TextAlign.Center)
         Text(sub, fontFamily = io.github.pini236.skiapp.ui.Plex, fontWeight = if (number) FontWeight.Bold else FontWeight.Medium, fontSize = if (number) 19.sp else 15.sp,
-            color = Color.White, textAlign = TextAlign.Center)
-        if (moved != null) Text(moved, Modifier.padding(top = 4.dp), fontFamily = io.github.pini236.skiapp.ui.Plex, fontSize = 14.sp, color = Color.White.copy(alpha = .9f), textAlign = TextAlign.Center)
+            color = hero, textAlign = TextAlign.Center)
+        if (moved != null) Text(moved, Modifier.padding(top = 4.dp), fontFamily = io.github.pini236.skiapp.ui.Plex, fontSize = 14.sp, color = hero.copy(alpha = .9f), textAlign = TextAlign.Center)
     }
     // the sheet: pulled down, the usual mountain
     Box(Modifier.align(Alignment.BottomCenter).pointerInput(Unit) {

@@ -36,7 +36,7 @@ import io.github.pini236.skiapp.data.Lift
 import io.github.pini236.skiapp.data.Runs
 import io.github.pini236.skiapp.fx.Haptics
 import io.github.pini236.skiapp.map.MapScene
-import io.github.pini236.skiapp.places.LiftPlaces
+import io.github.pini236.skiapp.places.LocalPlaces
 import io.github.pini236.skiapp.status.LiftStatus
 import io.github.pini236.skiapp.status.agoText
 import io.github.pini236.skiapp.ui.Plex
@@ -95,7 +95,7 @@ internal fun StateDot(open: Boolean?, k: SheetInk) {
  */
 @Composable
 internal fun LiftsSheet(lifts: List<Lift>, s: LiftStatus?, scene: MapScene, forMe: Boolean, k: SheetInk, haptics: Haptics,
-                        onForMe: (Boolean) -> Unit, onLift: (Lift) -> Unit) {
+                        onForMe: (Boolean) -> Unit, onLift: (Lift) -> Unit, opening: Pair<String, String>? = null, onOpening: () -> Unit = {}) {
     val fresh = s?.fresh == true
     val nf = remember { java.text.NumberFormat.getIntegerInstance() }
     LiveSheet(k) {
@@ -111,6 +111,12 @@ internal fun LiftsSheet(lifts: List<Lift>, s: LiftStatus?, scene: MapScene, forM
                         fontFamily = Plex, fontWeight = FontWeight.Medium, fontSize = 13.sp, color = if (on) Color.White else k.ink)
                 }
             } else Text(stringResource(R.string.status_no_report), fontFamily = Plex, fontSize = 13.5.sp, color = k.ink2)
+        }
+        // before the season (Q02, handoff section 14.7): the planned opening is the first row; a tap opens the count
+        if (opening != null) Row(Modifier.fillMaxWidth().heightIn(min = 52.dp).semantics(mergeDescendants = true) { role = Role.Button }
+            .clickable { haptics.tick(.3f); onOpening() }, verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            Text(opening.first, Modifier.weight(1f), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = k.ink, maxLines = 1)
+            Text(opening.second, fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = k.acc, maxLines = 1)
         }
         Column(Modifier.heightIn(max = 380.dp).verticalScroll(rememberScrollState())) {
             lifts.forEachIndexed { i, l ->
@@ -156,7 +162,9 @@ internal fun LiftPanel(l: Lift, s: LiftStatus?, scene: MapScene, k: SheetInk, ha
     val elev = scene.terrain::elev
     LiveSheet(k, opaque = true) {
         // the facts scroll (the places near the stations make it long); the two buttons stay at the bottom, always whole
-        Column(Modifier.heightIn(max = 440.dp).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(14.dp)) {
+        // the panel opens to 46 % of the screen at most (handoff section 14.6): the facts scroll within it, the buttons below
+        val maxFacts = (androidx.compose.ui.platform.LocalConfiguration.current.screenHeightDp * .46f - 150f).coerceAtLeast(160f).dp
+        Column(Modifier.heightIn(max = maxFacts).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(14.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 Box(Modifier.size(44.dp).clip(CircleShape).background(k.line), contentAlignment = Alignment.Center) { LiftSign(k.ink) }
                 Column(Modifier.weight(1f)) {
@@ -204,7 +212,7 @@ internal fun LiftPanel(l: Lift, s: LiftStatus?, scene: MapScene, k: SheetInk, ha
                     }
                 }
             }
-            Column { LiftPlaces(l) }
+            LiftPlacesLine(l, k)
         }
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             if (onMeet != null) Box(Modifier.weight(1f).heightIn(min = 52.dp).clip(RoundedCornerShape(26.dp)).background(k.acc)
@@ -218,3 +226,31 @@ internal fun LiftPanel(l: Lift, s: LiftStatus?, scene: MapScene, k: SheetInk, ha
 
 @Composable
 private fun <T> remember(calc: () -> T): T = androidx.compose.runtime.remember(calc)
+
+/**
+ * Near the lift's stations, as on the board (Q03, handoff section 14.6): for each station one line of up to three
+ * names and "all N" when there are more (a tap shows them all), or "no information"; then "check on the spot".
+ */
+@Composable
+private fun LiftPlacesLine(l: Lift, k: SheetInk) {
+    val places = LocalPlaces.current ?: return
+    val top = places.stationOf(l.id, bottom = false); val bottom = places.stationOf(l.id, bottom = true)
+    if (top == null && bottom == null) return
+    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        for ((st, head) in listOf(top to R.string.places_near_top, bottom to R.string.places_near_bottom)) {
+            if (st == null) continue
+            val near = places.near(st)
+            var all by androidx.compose.runtime.remember(st) { androidx.compose.runtime.mutableStateOf(false) }
+            Text(stringResource(head), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 13.5.sp, color = k.ink)
+            if (near.isEmpty()) Text(stringResource(R.string.places_none), fontFamily = Plex, fontSize = 13.sp, color = k.ink2)
+            else Row(Modifier.fillMaxWidth().heightIn(min = 44.dp).let { m -> if (near.size > 3) m.semantics { role = Role.Button }.clickable { all = !all } else m },
+                verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                val shown = if (all) near else near.take(3)
+                Text(shown.joinToString(", ") { "⁦${io.github.pini236.skiapp.places.label(it.place)}⁩" }, Modifier.weight(1f, fill = false), fontFamily = Plex,
+                    fontSize = 13.5.sp, color = k.ink, maxLines = if (all) 6 else 1, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis)
+                if (near.size > 3 && !all) Text(stringResource(R.string.places_all_n, near.size.toString()), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 13.5.sp, color = k.acc)
+            }
+        }
+        Text(stringResource(R.string.places_check), fontFamily = Plex, fontSize = 12.5.sp, color = k.ink2)
+    }
+}

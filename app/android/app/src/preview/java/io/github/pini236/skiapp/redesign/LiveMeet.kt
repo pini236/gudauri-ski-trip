@@ -470,7 +470,8 @@ internal fun MeetShareScreen(s: Station, day: LocalDate, time: LocalTime, night:
         bmp = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Default) {
             OnMountain.load(context, night, scene.terrain::elev)?.let { m ->
                 MeetShareImage.draw(m, s, scene.runs, MeetShareImage.Words(at, "⁦${s.name}⁩, ${stationSub0(context, s)}", dayText, "Gudi · Gudauri", hhmm), night,
-                    Lang.typeface(context, lang, true), Lang.typeface(context, lang, false), lang.rtl)
+                    // the headline in the text face, bold (not the old display face: handoff section 14.8; Heebo comes with part 4's faces)
+                    null, Lang.typeface(context, lang, false), lang.rtl)
             }
         }
         Qa.log("redesign meet image ${if (bmp != null) "drawn" else "none"}")

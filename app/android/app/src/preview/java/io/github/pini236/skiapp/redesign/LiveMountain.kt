@@ -167,6 +167,8 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
         }
     }
     LaunchedEffect(time) { view.setTime(time) }
+    // a lift's panel open: the lift whole above it (Q03)
+    LaunchedEffect(liftSel) { liftSel?.let { l -> LiveLifts.ends(l, scene.terrain::elev)?.let { view.frameLift(it) } } }
     fun meetPick(s: io.github.pini236.skiapp.meet.Station, p: io.github.pini236.skiapp.meet.Preset? = null) {
         val (d, t) = LiveMeetRules.default(meetDays, java.time.Instant.ofEpochMilli(System.currentTimeMillis()))
         meet.sid = s.id; meet.preset = p; meet.day = d; meet.time = p?.let { io.github.pini236.skiapp.meet.Meet.parseTime(it.time) } ?: t
@@ -222,9 +224,17 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
     androidx.activity.compose.BackHandler(enabled = meet.open) { if (meet.sid != null) meetClear("back") else meetOpen(false) }
     // in the meeting point a tap on the mountain is its own: the nearest station within 44 (Q04), or a clear (Q05)
     var meetPts by remember { mutableStateOf<List<Pair<io.github.pini236.skiapp.meet.Station, Offset>>>(emptyList()) }
-    LaunchedEffect(seasonOn, meet.open) { if (!meet.open) view.setQuiet(if (seasonOn) .15f else 1f) }
+    // the lines under the layers (handoff section 14.4): none under the trip and the ski pass; before the season the
+    // lifts low and no runs; under the meeting point both quiet
+    fun quietNow() = when {
+        tripOpen || skipassOpen -> view.setQuiet(0f, 0f)
+        meet.open -> view.setQuiet(.4f)
+        seasonOn -> view.setQuiet(.3f, 0f)
+        else -> view.setQuiet(1f)
+    }
+    LaunchedEffect(seasonOn, meet.open, tripOpen, skipassOpen) { quietNow() }
     LaunchedEffect(meet.open, plan) {
-        view.setQuiet(if (meet.open) .4f else if (seasonOn) .15f else 1f)
+        quietNow()
         if (!meet.open || plan == null) { view.onTap = null; meetPts = emptyList(); return@LaunchedEffect }
         view.onTap = { x, y ->
             if (meet.sid != null) meetClear("map")
@@ -332,7 +342,7 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
             val o = ov; val pal = pd?.pal?.get(if (night) "night" else "day")
             if (o != null && pal != null) {
                 // stations: 6.8 by 5, corner 1.4, the station colour with the cable's outline (phase A); dimmer under a chosen run
-                val sa = if (chosen != null) .4f else 1f
+                val sa = if (tripOpen || skipassOpen) 0f else if (chosen != null || seasonOn) .4f else 1f
                 val w = 6.8f * density; val h = 5f * density; val cr = androidx.compose.ui.geometry.CornerRadius(1.4f * density)
                 for (i in 0 until o.stations.size / 2) {
                     val tl = Offset(o.stations[i * 2] - w / 2, o.stations[i * 2 + 1] - h * .84f)
@@ -383,7 +393,7 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
             val tops = closed.mapNotNull { l -> LiveLifts.ends(l, scene.terrain::elev)?.let { e -> l to e } }
             while (true) { withFrameNanos { }; tags = tops.mapNotNull { (l, e) -> view.toScreen(e[2], e[3], 6f)?.let { p -> l to Offset(p[0], p[1]) } } }
         }
-        if (chosen == null && !meet.open) for ((l, p) in tags) {
+        if (chosen == null && !meet.open && !tripOpen && !skipassOpen && !seasonOn) for ((l, p) in tags) {
             val sk = remember(night) { SheetInk(night) }
             Row(Modifier.offset { androidx.compose.ui.unit.IntOffset((p.x - 40.dp.toPx()).toInt(), (p.y - 16.dp.toPx() - 22.dp.toPx()).toInt()) }
                 .heightIn(min = 44.dp).clickable { haptics.tick(.3f); liftSel = l; liftsOpen = true; Qa.log("redesign lift tag ${l.name}") },
@@ -406,7 +416,10 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
                     onRuns = { liftSel = null; liftsOpen = false })
             } else LiftsSheet(boardLifts, status, scene, forMe, sk, haptics, onForMe = { v ->
                 onForMe(v); io.github.pini236.skiapp.telemetry.Telemetry.event("status_only_open", mapOf("on" to v)); Qa.log("redesign lifts for me $v")
-            }, onLift = { l -> liftSel = l })
+            }, onLift = { l -> liftSel = l },
+                opening = around?.opening?.takeIf { status?.fresh != true && it.kind == io.github.pini236.skiapp.season.Season.Kind.COUNTDOWN }?.let { o ->
+                    stringResource(R.string.app_season_planned, io.github.pini236.skiapp.season.shortDate(o.open)) to pluralStringResource(R.plurals.app_season_pill, o.days, o.days.toString())
+                }, onOpening = { liftsOpen = false; seasonOn = true; Qa.log("redesign lifts opening row") })
         }
         AnimatedVisibility(run != null && pd != null && (held ?: 900f) >= 900f && !liftsOpen, Modifier.align(Alignment.BottomCenter),
             enter = slideInVertically(tween(250)) { it } + fadeIn(tween(150)), exit = slideOutVertically(tween(200)) { it } + fadeOut(tween(200))) {
@@ -498,7 +511,7 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
             Row(Modifier.fillMaxWidth().statusBarsPadding().padding(horizontal = 12.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
                 val back = stringResource(R.string.app_g_back)
                 Box(Modifier.size(44.dp).semantics { contentDescription = back }.clickable { haptics.tick(.2f); tripOpen = false; tripEdit = null }, contentAlignment = Alignment.Center) {
-                    Text(if (androidx.compose.ui.platform.LocalLayoutDirection.current == androidx.compose.ui.unit.LayoutDirection.Rtl) "›" else "‹", fontFamily = Plex, fontSize = 24.sp, color = Color.White)
+                    Text(if (androidx.compose.ui.platform.LocalLayoutDirection.current == androidx.compose.ui.unit.LayoutDirection.Rtl) "›" else "‹", fontFamily = Plex, fontSize = 24.sp, color = if (night) Color.White else sk.ink)
                 }
                 androidx.compose.foundation.layout.Spacer(Modifier.weight(1f))
                 if (t != null) Pill(Modifier.clickable { haptics.tick(.3f); around.onTripForm() }) {
@@ -516,11 +529,14 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
         if (skipassOpen && around != null) {
             Box(Modifier.fillMaxSize().background(SheetInk(night).veil).clickable(interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() }, indication = null) {})
             LiveSkipass(around, night, haptics)
-            Row(Modifier.fillMaxWidth().statusBarsPadding().padding(horizontal = 12.dp, vertical = 8.dp)) {
+            // the top: back, and "ski pass" as the title by it (handoff section 14.10); ink by day, white at night
+            val top = if (night) Color.White else SheetInk(night).ink
+            Row(Modifier.fillMaxWidth().statusBarsPadding().padding(horizontal = 12.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
                 val back = stringResource(R.string.app_g_back)
                 Box(Modifier.size(44.dp).semantics { contentDescription = back }.clickable { haptics.tick(.2f); skipassOpen = false }, contentAlignment = Alignment.Center) {
-                    Text(if (androidx.compose.ui.platform.LocalLayoutDirection.current == androidx.compose.ui.unit.LayoutDirection.Rtl) "›" else "‹", fontFamily = Plex, fontSize = 24.sp, color = Color.White)
+                    Text(if (androidx.compose.ui.platform.LocalLayoutDirection.current == androidx.compose.ui.unit.LayoutDirection.Rtl) "›" else "‹", fontFamily = Plex, fontSize = 24.sp, color = top)
                 }
+                Text(stringResource(R.string.app_skipass_title), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 17.sp, color = top)
             }
         }
     }

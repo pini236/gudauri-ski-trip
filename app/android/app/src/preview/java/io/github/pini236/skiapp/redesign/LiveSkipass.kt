@@ -83,6 +83,8 @@ internal fun BoxScope.LiveSkipass(around: Around, night: Boolean, haptics: Hapti
         else stringResource(R.string.app_skipass_adult)
     val q = if (valid) prices!!.price(days, child) else null
 
+    // the words on the mountain: ink by day, white at night (handoff section 14.3: 4.5:1 at the least)
+    val hero = if (night) Color.White else k.ink
     // on the mountain: the price, what it is for, and against the day tickets
     Column(Modifier.align(Alignment.TopCenter).statusBarsPadding().padding(top = 118.dp - 24.dp).padding(horizontal = 24.dp),
         horizontalAlignment = Alignment.CenterHorizontally) {
@@ -90,32 +92,32 @@ internal fun BoxScope.LiveSkipass(around: Around, night: Boolean, haptics: Hapti
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 when {
                     !ok -> {
-                        Text(stringResource(R.string.app_skipass_no_info), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 19.sp, color = Color.White, textAlign = TextAlign.Center)
-                        Text(stringResource(R.string.app_skipass_check_site), fontFamily = Plex, fontSize = 14.sp, color = Color.White.copy(alpha = .86f), textAlign = TextAlign.Center)
+                        Text(stringResource(R.string.app_skipass_no_info), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 19.sp, color = hero, textAlign = TextAlign.Center)
+                        Text(stringResource(R.string.app_skipass_check_site), fontFamily = Plex, fontSize = 14.sp, color = hero.copy(alpha = .86f), textAlign = TextAlign.Center)
                     }
                     total == null -> Text(stringResource(R.string.app_skipass_too_long, days.toString()), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 19.sp,
-                        color = Color.White, textAlign = TextAlign.Center)
+                        color = hero, textAlign = TextAlign.Center)
                     else -> {
                         val big = stringResource(R.string.app_skipass_price, total.toString())
                         Row(Modifier.clearAndSetSemantics { contentDescription = big }, verticalAlignment = Alignment.Bottom) {
-                            Text(total.toString(), fontFamily = Plex, fontWeight = FontWeight.Light, fontSize = 112.sp, lineHeight = 112.sp, color = Color.White,
+                            Text(total.toString(), fontFamily = Plex, fontWeight = FontWeight.Light, fontSize = 112.sp, lineHeight = 112.sp, color = hero,
                                 style = TextStyle(fontFeatureSettings = "tnum"))
-                            Text("₾", Modifier.padding(start = 4.dp, bottom = 18.dp), fontFamily = Plex, fontWeight = FontWeight.Light, fontSize = 40.sp, color = Color.White)
+                            Text("₾", Modifier.padding(start = 4.dp, bottom = 18.dp), fontFamily = Plex, fontWeight = FontWeight.Light, fontSize = 40.sp, color = hero)
                         }
-                        Text(pluralStringResource(R.plurals.app_skipass_hero, days, who, days.toString()), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 17.sp, color = Color.White)
+                        Text(pluralStringResource(R.plurals.app_skipass_hero, days, who, days.toString()), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 17.sp, color = hero)
                         val daily = prices?.daily(child)
                         if (daily != null && daily * days > total) {
                             val all = daily * days
                             Text(stringResource(R.string.app_skipass_vs_daily, days.toString(), gel(all)) + " · " +
                                 stringResource(R.string.app_skipass_save, gel(all - total), (((all - total).toDouble() / all) * 100).roundToInt().toString()),
-                                Modifier.padding(top = 4.dp), fontFamily = Plex, fontSize = 14.sp, color = Color.White.copy(alpha = .9f), textAlign = TextAlign.Center)
+                                Modifier.padding(top = 4.dp), fontFamily = Plex, fontSize = 14.sp, color = hero.copy(alpha = .9f), textAlign = TextAlign.Center)
                         }
                         if (q != null && q.parts.size == 2) {
                             val p1 = pluralStringResource(R.plurals.app_skipass_part, q.parts[0], q.parts[0].toString())
                             val p2 = pluralStringResource(R.plurals.app_skipass_part, q.parts[1], q.parts[1].toString())
                             Text(stringResource(R.string.app_skipass_no_pass, days.toString(), stringResource(R.string.app_skipass_and, p1, p2)),
-                                Modifier.padding(top = 4.dp), fontFamily = Plex, fontSize = 13.sp, color = Color.White.copy(alpha = .86f), textAlign = TextAlign.Center)
-                            Text(stringResource(R.string.app_skipass_two_tickets), fontFamily = Plex, fontSize = 12.5.sp, color = Color.White.copy(alpha = .8f), textAlign = TextAlign.Center)
+                                Modifier.padding(top = 4.dp), fontFamily = Plex, fontSize = 13.sp, color = hero.copy(alpha = .86f), textAlign = TextAlign.Center)
+                            Text(stringResource(R.string.app_skipass_two_tickets), fontFamily = Plex, fontSize = 12.5.sp, color = hero.copy(alpha = .8f), textAlign = TextAlign.Center)
                         }
                     }
                 }
@@ -131,9 +133,9 @@ internal fun BoxScope.LiveSkipass(around: Around, night: Boolean, haptics: Hapti
                 for (kid in listOf(false, true)) {
                     val on = child == kid
                     val t = if (!kid) stringResource(R.string.app_skipass_adult) else stringResource(R.string.app_skipass_child, (prices?.childFrom ?: 6).toString(), (prices?.childTo ?: 12).toString())
-                    Box(Modifier.weight(1f).heightIn(min = 44.dp).padding(3.dp).clip(RoundedCornerShape(19.dp)).background(if (on) k.surf else Color.Transparent)
+                    Box(Modifier.weight(1f).heightIn(min = 44.dp).padding(3.dp).clip(RoundedCornerShape(19.dp)).background(if (on) k.acc else Color.Transparent)
                         .semantics { role = Role.RadioButton; selected = on }.clickable { haptics.tick(.3f); child = kid }, contentAlignment = Alignment.Center) {
-                        Text(t, fontFamily = Plex, fontWeight = if (on) FontWeight.Bold else FontWeight.Medium, fontSize = 14.sp, color = if (on) k.ink else k.ink2, maxLines = 1)
+                        Text(t, fontFamily = Plex, fontWeight = if (on) FontWeight.Bold else FontWeight.Medium, fontSize = 14.sp, color = if (on) Color.White else k.ink2, maxLines = 1)
                     }
                 }
             }

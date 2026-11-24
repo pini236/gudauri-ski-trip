@@ -50,6 +50,9 @@ internal object MeetShareImage {
             }
             return if (any) out else null
         }
+        // no line over the words at the bottom (handoff section 14.8): the runs and the lifts end where the dark fall starts
+        val fall = H * .38f
+        c.save(); c.clipRect(0f, 0f, W.toFloat(), H - fall * .55f)
         // the runs at half, in their colours, on a white case
         val case = Paint(Paint.ANTI_ALIAS_FLAG).apply { style = Paint.Style.STROKE; strokeWidth = 3.6f * S; color = 0x80FFFFFF.toInt(); strokeCap = Paint.Cap.ROUND; strokeJoin = Paint.Join.ROUND }
         val line = Paint(case).apply { strokeWidth = 2.2f * S }
@@ -60,6 +63,7 @@ internal object MeetShareImage {
         // only this station's lifts
         val wire = Paint(Paint.ANTI_ALIAS_FLAG).apply { style = Paint.Style.STROKE; strokeWidth = 1.6f * S; color = if (night) 0xFFEAF1F8.toInt() else 0xFF0E2233.toInt() }
         for (e in s.ends) path(e.lift.pts)?.let { c.drawPath(it, wire) }
+        c.restore()
         // the flag: the pole 3 by 50 its foot on the station, the cloth 26 high in the accent with the time
         if (!st[0].isNaN() && !st[1].isNaN()) {
             val fx = ox + st[0] * k; val fy = oy + st[1] * k
@@ -75,7 +79,6 @@ internal object MeetShareImage {
             c.drawCircle(fx, fy, 7 * S, Paint(Paint.ANTI_ALIAS_FLAG).apply { color = 0xFF0E2233.toInt(); style = Paint.Style.STROKE; strokeWidth = 3 * S })
         }
         // the dark fall at the bottom, and the words on it
-        val fall = H * .38f
         c.drawRect(0f, H - fall, W.toFloat(), H.toFloat(), Paint().apply {
             shader = LinearGradient(0f, H - fall, 0f, H.toFloat(), intArrayOf(0x00081020, 0xD1081020.toInt(), 0xD1081020.toInt()), floatArrayOf(0f, .45f, 1f), Shader.TileMode.CLAMP)
         })

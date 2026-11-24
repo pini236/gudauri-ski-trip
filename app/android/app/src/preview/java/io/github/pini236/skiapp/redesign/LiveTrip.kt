@@ -230,7 +230,9 @@ private fun TripCard(trip: Trip, isRet: Boolean, now: LocalDateTime, night: Bool
         // the stub: the number of the stage and its words, the ski days under them; a tap tears it, hole by hole
         val sx = if (LocalLayoutDirection.current == LayoutDirection.Rtl) -1f else 1f
         val tearLabel = stringResource(R.string.ticket_tear_stub)
-        val (num, words) = if (isRet) null to null else stub(trip, now, night)
+        // the way back's stub: the ski days, big, and their dates (handoff section 14.9, as Pass.kt today)
+        val retDays = trip.skiDayCount().takeIf { isRet && it > 0 }
+        val (num, words) = if (isRet) (retDays?.let { it.toString() to pluralStringResource(R.plurals.app_skipass_days_n, it) } ?: (null to null)) else stub(trip, now, night)
         Row(Modifier.fillMaxWidth().height(STUB_H)
             .let { m -> if (front) m.semantics { role = Role.Button; contentDescription = tearLabel }.clickable(onClick = onTear) else m }
             .graphicsLayer {
@@ -243,7 +245,9 @@ private fun TripCard(trip: Trip, isRet: Boolean, now: LocalDateTime, night: Bool
             if (num != null) Text(num, fontFamily = Plex, fontWeight = FontWeight.Light, fontSize = 66.sp, color = p.ink, style = TextStyle(fontFeatureSettings = "tnum"))
             Column(Modifier.weight(1f)) {
                 if (words != null) Text(words, fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 17.sp, color = p.ink, maxLines = 2)
-                skiLine(trip)?.let { Text(it, fontFamily = Plex, fontSize = 12.5.sp, color = p.ink2, maxLines = 1) }
+                val r = trip.skiDays()
+                (if (retDays != null && r != null) stringResource(R.string.app_trip_range, "${r.start.dayOfMonth}", "${r.endInclusive.dayOfMonth}.${r.endInclusive.monthValue}") else skiLine(trip))
+                    ?.let { Text(it, fontFamily = Plex, fontSize = 12.5.sp, color = p.ink2, maxLines = 1) }
             }
         }
     }
@@ -377,6 +381,9 @@ internal fun LiveCalendar(trip: Trip?, today: LocalDate, k: SheetInk, haptics: H
     val draft = remember(out, ret) { out?.let { build(it, ret) } }
     val ski = draft?.skiDays()
     val acc = p.acc
+    // the emulator taps a day as a finger would (cal:tap:2027-01-10), the month following it
+    LaunchedEffectQa { c -> if (c.startsWith("cal:tap:")) runCatching { LocalDate.parse(c.removePrefix("cal:tap:")) }.getOrNull()?.let { d ->
+        PassEdits.tap(out, ret, d).let { (o, r) -> out = o; ret = r }; month = YearMonth.from(d); Qa.log("redesign trip calendar tap $d") } }
     LiveSheet(k) {
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
             val title = month.month.getDisplayName(JTextStyle.FULL_STANDALONE, locale).replaceFirstChar { it.titlecase(locale) } + " " + month.year
@@ -424,7 +431,7 @@ internal fun LiveCalendar(trip: Trip?, today: LocalDate, k: SheetInk, haptics: H
                 fontFamily = Plex, fontSize = 13.sp, color = p.ink2, style = TextStyle(fontFeatureSettings = "tnum"))
         }
         Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            Box(Modifier.weight(1f).heightIn(min = 52.dp).clip(RoundedCornerShape(26.dp)).background(acc).alpha(if (out == null) .5f else 1f)
+            Box(Modifier.weight(1f).heightIn(min = 52.dp).alpha(if (out == null) .4f else 1f).clip(RoundedCornerShape(26.dp)).background(acc)
                 .semantics { role = Role.Button }.clickable(enabled = out != null) { haptics.tick(.4f); out?.let { onSave(build(it, ret)) } }, contentAlignment = Alignment.Center) {
                 Text(stringResource(R.string.trip_save), fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color.White)
             }
