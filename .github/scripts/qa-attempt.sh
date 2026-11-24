@@ -18,20 +18,24 @@ infra=0
 if [ "$rc" -ne 0 ]; then
   if [ "$(grep -c '^FAIL' "$OUT/summary.txt" 2> /dev/null)" = 1 ] && grep -q '^FAIL: install' "$OUT/summary.txt"; then
     infra=1
-  elif [ "$SECONDS" -lt 1200 ] && [ -f "$OUT/logcat.txt" ] \
+  elif [ "${SCENARIO:-}" != phone ] && [ "$SECONDS" -lt 1200 ] && [ -f "$OUT/logcat.txt" ] \
     && grep -q -E "ANR in com\.android\.(systemui|launcher3)|Application Not Responding.*(systemui|launcher)|System UI isn't responding|device offline|no devices/emulators found|device '[^']*' not found" "$OUT/logcat.txt" "$OUT/summary.txt" 2> /dev/null \
-    && ! grep -q -E "FATAL EXCEPTION|ANR in io\.github\.pini236" "$OUT/logcat.txt"; then
-    infra=1
+    && ! grep -q -E "FATAL EXCEPTION|ANR in io\.github\.pini236|Fatal signal.*io\.github\.pini236|>>> io\.github\.pini236" "$OUT/logcat.txt"; then
+    infra=1   # not in the phone part: it restarts the whole system for each language, so a system ANR or a lost device is expected there (architect a08a81fe, 4)
   fi
 fi
 if [ "$infra" = 1 ]; then
   echo "the first attempt failed on the emulator, not the app: adb restarted, one more attempt"
+  echo "::warning::UNSTABLE ${SCENARIO:-part}: the first attempt failed on the emulator (infrastructure); one more attempt"
   adb kill-server; adb start-server; adb wait-for-device
   adb shell input keyevent KEYCODE_HOME > /dev/null 2>&1 || true
   rm -rf "$OUT.first"; mv "$OUT" "$OUT.first"
   mkdir -p "$OUT"; : > "$OUT/.started"
   bash app/android/qa/run.sh
   rc=$?
+  # the first attempt travels with the part's results (the artifact is qa-out)
+  rm -rf "$OUT/first"; mv "$OUT.first" "$OUT/first" 2> /dev/null || true
   [ "$rc" -eq 0 ] && echo "UNSTABLE: the first attempt failed on the emulator (infrastructure); the second passed" | tee -a "$OUT/summary.txt"
+  # the same part marked unstable twice in a week is a finding for the script's owner, not infrastructure (architect, 5)
 fi
 exit "$rc"
