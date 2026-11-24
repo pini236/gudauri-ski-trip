@@ -69,7 +69,8 @@ internal fun BoxScope.RunHint(scene: MapScene, view: LiveView, night: Boolean, f
     // the emulator's (debug) build shows it only once asked (qa.redesign hint:reset), so it stays out of the other shots
     var gone by remember(again) { mutableStateOf(Hints.seen(ctx, Hints.RUN) || (Qa.enabled && again == 0)) }
     LaunchedEffect(drawn, again) { if (drawn && !gone) { delay(1200); on = true; Qa.log("redesign hint run") } }
-    LaunchedEffect(on) { if (on) { delay(8000); if (on) { on = false; gone = true; Hints.done(ctx, Hints.RUN) } } }
+    // the emulator keeps it until the run is chosen (its pictures take longer than 8 seconds)
+    LaunchedEffect(on) { if (on && !Qa.enabled) { delay(8000); if (on) { on = false; gone = true; Hints.done(ctx, Hints.RUN) } } }
     LaunchedEffect(chosen) { if (chosen && on) { on = false; gone = true; Hints.done(ctx, Hints.RUN) } }
     if (!on || !free) return
     val mids = remember(scene) {
