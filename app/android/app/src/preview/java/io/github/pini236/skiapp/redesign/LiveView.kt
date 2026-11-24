@@ -207,7 +207,7 @@ class LiveView(context: Context, private val scene: MapScene) : GLSurfaceView(co
      * K08: a lens on (worked out off the GL thread) or off. [runOpen] the "open" lens's rule for a run (LiftStatus), null
      * with no fresh report. In the sun with the sun down, and open with no report, draw nothing (the sheet says why).
      */
-    fun setLens(kind: LensKind?, night: Boolean, runOpen: ((io.github.pini236.skiapp.data.Piste) -> Boolean?)?) {
+    internal fun setLens(kind: LensKind?, night: Boolean, runOpen: ((io.github.pini236.skiapp.data.Piste) -> Boolean?)?) {
         if (kind == null) { renderer.lens = null; requestRender(); return }
         if (worker.isShutdown) return
         worker.execute {
