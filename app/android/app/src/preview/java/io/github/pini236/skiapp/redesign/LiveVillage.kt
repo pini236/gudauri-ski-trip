@@ -243,13 +243,13 @@ private fun BoxScope.VillageSheet(
     val groups by produceState<List<io.github.pini236.skiapp.group.GroupSummary>?>(null, around?.people) {
         value = runCatching { around?.people?.api?.myGroups() }.getOrNull()
     }
-    val top = RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp)
+    val top = sheetShape()
     // two heights (section "the sheet"): low (296, four rows) and full (to 120 from the top, scrolling inside); a pull up
     // opens it full, a pull down from full goes back to low, and from low back to the mountain
     var full by remember { mutableStateOf(false) }
     LaunchedEffect(RedesignQa.seq) { when (RedesignQa.cmd) { "village:full" -> full = true; "village:low" -> full = false } }
     var acted by remember { mutableStateOf(false) }
-    Column(Modifier.align(Alignment.BottomCenter).fillMaxWidth()
+    Column(Modifier.align(Alignment.BottomCenter).sheetWidth()
         .then(if (full) Modifier.padding(top = 120.dp).fillMaxHeight() else Modifier.heightIn(max = 296.dp + 34.dp))
         .animateContentSize(tween(220))
         .pointerInput(Unit) {

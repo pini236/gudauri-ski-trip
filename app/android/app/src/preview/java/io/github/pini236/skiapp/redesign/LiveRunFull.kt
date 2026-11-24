@@ -129,9 +129,9 @@ private fun RunFull(key: String, r: PeakData.Run, scene: MapScene, vids: List<Vi
     val piste = scene.runs.pistes.firstOrNull { it.key == key }
     val facts = remember(piste) { piste?.let { RunFacts.of(scene.terrain, it) } }
     val h = LocalConfiguration.current.screenHeightDp
-    val top = RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp)
+    val top = sheetShape()
     LaunchedEffect(key) { Qa.log("redesign run full $key ${vids.size}") }
-    Column(Modifier.fillMaxWidth().heightIn(max = (h - 236).coerceAtLeast(320).dp).shadow(8.dp, top).clip(top).background(k.surf.copy(alpha = 1f)).border(1.dp, k.line, top)
+    Column(Modifier.sheetWidth().heightIn(max = (h - 236).coerceAtLeast(320).dp).shadow(8.dp, top).clip(top).background(k.surf.copy(alpha = 1f)).border(1.dp, k.line, top)
         .navigationBarsPadding().verticalScroll(rememberScrollState()).padding(start = 18.dp, end = 18.dp, top = 10.dp, bottom = 16.dp),
         verticalArrangement = Arrangement.spacedBy(14.dp)) {
         Box(Modifier.align(Alignment.CenterHorizontally).size(38.dp, 5.dp).clip(RoundedCornerShape(3.dp)).background(k.line))

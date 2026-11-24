@@ -82,14 +82,18 @@ internal class SheetInk(val night: Boolean) {
 
 @Composable
 internal fun LiveSheet(k: SheetInk, opaque: Boolean = false, content: @Composable () -> Unit) {
-    val top = RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp)
+    val top = sheetShape()
+    val tab = isTabletUi()
     // fully opaque on Android: no line, tag or name of the mountain shows through (the designer, 24.11.2026, handoff
-    // 2026-11-21-redesign-around section 14.5); [opaque] is kept for the callers that asked for it before
-    Column(Modifier.fillMaxWidth().shadow(8.dp, top).clip(top).background(k.surf.copy(alpha = 1f)).border(1.dp, k.line, top)
-        .navigationBarsPadding().padding(start = 16.dp, end = 16.dp, top = 10.dp, bottom = 16.dp),
+    // 2026-11-21-redesign-around section 14.5); [opaque] is kept for the callers that asked for it before. On a tablet
+    // the side panel (part 8)
+    SheetPlace { m ->
+    Column(m.shadow(8.dp, top).clip(top).background(k.surf.copy(alpha = 1f)).border(1.dp, k.line, top)
+        .let { if (tab) it else it.navigationBarsPadding() }.padding(start = 16.dp, end = 16.dp, top = 10.dp, bottom = 16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Box(Modifier.align(Alignment.CenterHorizontally).size(38.dp, 5.dp).clip(RoundedCornerShape(3.dp)).background(k.line))
         content()
+    }
     }
 }
 

@@ -133,7 +133,7 @@ internal fun BoxScope.LensSheet(lens: LensKind, scene: MapScene, view: LiveView,
             note = stringResource(R.string.app_lens_slope_note)
         }
     }
-    Column(Modifier.align(Alignment.BottomCenter).fillMaxWidth().navigationBarsPadding().padding(start = 8.dp, end = 8.dp, bottom = 8.dp)
+    Column(Modifier.align(Alignment.BottomCenter).sheetWidth().navigationBarsPadding().padding(start = 8.dp, end = 8.dp, bottom = 8.dp)
         .pointerInput(Unit) { detectVerticalDragGestures { _, dy -> if (dy > 18f) onOff() } }
         .shadow(14.dp, RoundedCornerShape(28.dp), clip = false).clip(RoundedCornerShape(28.dp)).background(k.surf.copy(alpha = 1f))
         .border(1.dp, k.line, RoundedCornerShape(28.dp)).padding(start = 16.dp, end = 16.dp, top = 10.dp, bottom = 16.dp),

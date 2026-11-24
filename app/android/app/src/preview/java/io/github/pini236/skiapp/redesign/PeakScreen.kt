@@ -727,9 +727,10 @@ internal fun RunSheet(r: PeakData.Run, d: PeakData, g: Glass, onClose: () -> Uni
     val level = stringResource(when (r.color) { "green" -> R.string.map_difficulty_beginner; "blue" -> R.string.map_difficulty_easy; "red" -> R.string.map_difficulty_intermediate; else -> R.string.map_difficulty_hard })
     val closeLabel = stringResource(R.string.common_close)
     val nf = remember { NumberFormat.getIntegerInstance() }
-    Column(Modifier.fillMaxWidth().pointerInput(Unit) { detectTapGestures { } }
-        .shadow(30.dp, RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp), ambientColor = Color(0x2E0A192D), spotColor = Color(0x2E0A192D))
-        .clip(RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp)).background(g.sheet).navigationBarsPadding()
+    val shape = sheetShape()
+    Column(Modifier.sheetWidth().pointerInput(Unit) { detectTapGestures { } }
+        .shadow(30.dp, shape, ambientColor = Color(0x2E0A192D), spotColor = Color(0x2E0A192D))
+        .clip(shape).background(g.sheet).navigationBarsPadding()
         .padding(start = 18.dp, end = 18.dp, top = 10.dp, bottom = 20.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
         Box(Modifier.align(Alignment.CenterHorizontally).width(38.dp).height(5.dp).clip(CircleShape).background(g.line))
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {

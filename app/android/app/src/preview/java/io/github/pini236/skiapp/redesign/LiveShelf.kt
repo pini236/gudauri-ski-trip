@@ -156,7 +156,10 @@ internal fun shelfBack(r: ShelfRun): String = when {
 @Composable
 internal fun BoxScope.Dock(night: Boolean, haptics: Haptics, onVillage: (() -> Unit)?, onFind: () -> Unit, onRecord: (() -> Unit)?) {
     val k = remember(night) { SheetInk(night) }
-    Row(Modifier.align(Alignment.BottomCenter).fillMaxWidth().navigationBarsPadding().padding(start = 10.dp, end = 10.dp, bottom = 12.dp).height(60.dp)
+    // on a tablet 420 wide at the start side, the map's buttons above it (part 8)
+    val tab = isTabletUi()
+    Row((if (tab) Modifier.align(Alignment.BottomStart).width(TabletUi.DOCK.dp) else Modifier.align(Alignment.BottomCenter).fillMaxWidth())
+        .navigationBarsPadding().padding(start = if (tab) 12.dp else 10.dp, end = 10.dp, bottom = 12.dp).height(60.dp)
         .shadow(18.dp, RoundedCornerShape(30.dp), clip = false).clip(RoundedCornerShape(30.dp)).background(k.surf.copy(alpha = 1f))
         .border(1.dp, k.line, RoundedCornerShape(30.dp)).padding(horizontal = 8.dp),
         verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {

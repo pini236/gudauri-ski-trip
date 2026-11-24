@@ -37,6 +37,7 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -414,7 +415,8 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
             val tpSr = io.github.pini236.skiapp.weather.LocalWeather.current.let { w -> w.usable?.now("goodaura", w.local)?.temp }
             val pillSr = if (pillLive && status?.fresh == true) stringResource(R.string.app_sr_pill, status.open.toString(), status.names.size.toString(),
                 tpSr?.let { io.github.pini236.skiapp.weather.deg(it) } ?: "").replace(", .", ".") else null
-            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            // on a tablet the pill is 360 wide at the start side, by "me" (part 8)
+            Row(if (isTabletUi()) Modifier.width((TabletUi.PILL + 52).dp) else Modifier, verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             Pill(Modifier.weight(1f).semantics { if (pillSr != null) contentDescription = pillSr }.clickable {
                 haptics.tick(.3f); liftSel = null; nowTab = NowTab.LIFTS; liftsOpen = !liftsOpen
                 if (liftsOpen) io.github.pini236.skiapp.telemetry.Telemetry.event("status_view", if (status?.fresh == true) mapOf("state" to "fresh", "open" to status.open, "total" to status.names.size) else mapOf("state" to if (status?.report == null) "none" else "stale"))

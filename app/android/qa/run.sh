@@ -1545,6 +1545,25 @@ bigtext() {
   qa "--es qa.group invited --es qa.tab join"; sleep 2; shot big-group-code
   qa "--es qa.mode night --es qa.tab home"; sleep 2; shot big-home-night
   adb shell settings put system font_scale 1.0; sleep 2
+  # part 8 (W05): a tablet, by the emulator's window (800 dp wide): the mountain, a sheet as the side panel, turned
+  # with the sheet open (its state kept), and a phone that turns and stays upright. The architect's condition 5 asks
+  # for a tablet image as well (a DevOps change to the workflow); this is the window rule on the same build meanwhile.
+  adb shell wm size 1600x2560; adb shell wm density 320; adb shell settings put system accelerometer_rotation 0
+  adb shell settings put system user_rotation 0; adb shell am force-stop "$PKG"; sleep 2; mark
+  adb shell "am start -W -n $ACT --es qa.tab home --es qa.mode day --es qa.redesign open" > /dev/null
+  if waitlog "redesign ready" 90; then
+    mark; qa "--es qa.redesign live"; waitlog "redesign live open" 15; waitlog "redesign live drawn" 60; rd_settled; shot redesign-tablet-mountain
+    mark; qa "--es qa.redesign skipass"; waitlog "redesign skipass open" 10 && { rd_settled; shot redesign-tablet-skipass; }; qa "--es qa.redesign skipass:off"; sleep .5
+    mark; qa "--es qa.redesign shelf"; sleep 2; shot redesign-tablet-shelf; qa "--es qa.redesign shelf:off"; sleep .5
+    rd_touch "Tatra 2" && { sleep 2.5; shot redesign-tablet-panel
+      adb shell settings put system user_rotation 1; sleep 4; shot redesign-tablet-panel-turned
+      seen "redesign live open" 3 && fail "redesign: the tablet's turn rebuilt the screen" || true; }
+    adb shell settings put system user_rotation 0; sleep 2; rd_back
+  else fail "redesign: the mountain did not open on the tablet"; fi
+  adb shell wm size reset; adb shell wm density reset; sleep 2
+  # a phone that turns stays upright (the lock by the window, at run time)
+  adb shell settings put system user_rotation 1; sleep 4; shot redesign-phone-turned
+  adb shell settings put system user_rotation 0; adb shell settings put system accelerometer_rotation 1; sleep 2
 }
 
 # ---- the short video for Google Play's foreground-service declaration (docs/PLAY.md, section 5, "the video script"):
