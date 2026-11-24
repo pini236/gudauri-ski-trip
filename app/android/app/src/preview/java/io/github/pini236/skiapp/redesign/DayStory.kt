@@ -176,7 +176,7 @@ internal fun DayStory(story: StoryData, sm: DayModel.Summary, paint: DayPaint.Da
                 Text(if (rtl) "›" else "‹", fontFamily = Gudi, fontSize = 20.sp, color = ink)
             }
             val date = DateTimeFormatter.ofPattern("d.M.yyyy", Locale.ROOT).format(Instant.ofEpochMilli(sm.start).atZone(zone))
-            Text(stringResource(R.string.app_day_story_title) + " · " + date, Modifier.weight(1f), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = ink, maxLines = 1)
+            Text(stringResource(R.string.app_day_story_title) + " · " + date, Modifier.weight(1f), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = ink, maxLines = 2)
             if (sample) Text(stringResource(R.string.app_day_sample), Modifier.padding(end = 14.dp).clip(RoundedCornerShape(10.dp))
                 .background(Color(0x33A98BEE)).padding(horizontal = 8.dp, vertical = 2.dp), fontFamily = Gudi, fontSize = 12.sp, color = ink)
         }

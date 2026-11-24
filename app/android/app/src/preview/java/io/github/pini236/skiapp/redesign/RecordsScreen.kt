@@ -241,7 +241,7 @@ private fun RecordRowView(r: Records.Row, k: SheetInk, locale: Locale, zone: Zon
                         Text(newWord, fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 10.5.sp, color = if (k.ink == Color(0xFF0E2233)) Color.White else Color(0xFF1A0B3D))
                     }
                 }
-                if (detail != null) Text(detail, Modifier.padding(top = 3.dp), fontFamily = Gudi, fontSize = 12.sp, color = k.ink2, maxLines = 1)
+                if (detail != null) Text(detail, Modifier.padding(top = 3.dp), fontFamily = Gudi, fontSize = 12.sp, color = k.ink2, maxLines = 2)
             }
             Row(Modifier.width(104.dp), horizontalArrangement = Arrangement.End, verticalAlignment = Alignment.Bottom) {
                 Text(num, fontFamily = Gudi, fontWeight = FontWeight.Light, fontSize = 29.sp, color = k.ink)

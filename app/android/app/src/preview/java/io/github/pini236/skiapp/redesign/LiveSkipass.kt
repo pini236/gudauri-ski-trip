@@ -147,7 +147,7 @@ internal fun BoxScope.LiveSkipass(around: Around, night: Boolean, haptics: Hapti
                     if (fromTrip && trip != null) {
                         val r = trip.skiDays()
                         val dates = r?.let { stringResource(R.string.app_trip_range, shortDate(it.start), shortDate(it.endInclusive)) }
-                        Text(listOfNotNull(stringResource(R.string.app_skipass_from_trip), dates).joinToString(" · "), fontFamily = Gudi, fontSize = 13.sp, color = k.ink2, maxLines = 1)
+                        Text(listOfNotNull(stringResource(R.string.app_skipass_from_trip), dates).joinToString(" · "), fontFamily = Gudi, fontSize = 13.sp, color = k.ink2, maxLines = 2)
                     }
                 }
                 MonthArrow("+", stringResource(R.string.app_skipass_days_more), days < MAX_TILES, k) { haptics.tick(.3f); days += 1; fromTrip = false }

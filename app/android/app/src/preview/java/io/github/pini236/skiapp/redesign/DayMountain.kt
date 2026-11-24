@@ -43,6 +43,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.TextStyle
@@ -266,7 +267,7 @@ fun DayMountain(file: File, sample: Boolean, scene: MapScene, mode: DayNight.Mod
                 val hm = DateTimeFormatter.ofPattern("HH:mm")
                 "\u2066$d · ${hm.format(Instant.ofEpochMilli(x.start).atZone(zone))}–${hm.format(Instant.ofEpochMilli(x.end).atZone(zone))}\u2069"
             }
-            Text(stringResource(R.string.app_day_title) + (when_?.let { " · $it" } ?: ""), Modifier.weight(1f), fontFamily = Gudi, fontSize = 14.sp, color = ink, maxLines = 1)
+            Text(stringResource(R.string.app_day_title) + (when_?.let { " · $it" } ?: ""), Modifier.weight(1f), fontFamily = Gudi, fontSize = 14.sp, color = ink, maxLines = 2)
             if (sample) Text(stringResource(R.string.app_day_sample), Modifier.border(1.dp, rule, RoundedCornerShape(10.dp)).padding(horizontal = 8.dp, vertical = 2.dp),
                 fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 11.sp, color = ink)
         }
@@ -285,8 +286,9 @@ fun DayMountain(file: File, sample: Boolean, scene: MapScene, mode: DayNight.Mod
                 .padding(horizontal = 16.dp, vertical = 12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Row(verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(18.dp)) {
                     Text(DateTimeFormatter.ofPattern("HH:mm").format(zoneT), fontFamily = Gudi, fontWeight = FontWeight.Light, fontSize = 30.sp, color = ink)
-                    for ((v, k) in listOf(nf.format(n) to R.string.app_day_sum_descents, metres(drop) to R.string.app_rec_m_down)) {
-                        Column { Text(v, fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = ink); Text(stringResource(k), fontFamily = Gudi, fontSize = 12.sp, color = muted) }
+                    // the label beside a number in its plural form (part 7, section 6: "2 спуска", "1 descent")
+                    for ((v, k) in listOf(nf.format(n) to pluralStringResource(R.plurals.app_day_sum_descents_n, n), metres(drop) to stringResource(R.string.app_rec_m_down))) {
+                        Column { Text(v, fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = ink); Text(k, fontFamily = Gudi, fontSize = 12.sp, color = muted) }
                     }
                 }
                 val tr = l.paint.track; val el = l.elev
@@ -349,11 +351,11 @@ fun DayMountain(file: File, sample: Boolean, scene: MapScene, mode: DayNight.Mod
                     Text(head ?: stringResource(R.string.app_day_title), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 24.sp, color = ink, maxLines = 2)
                     val nf = remember { java.text.NumberFormat.getIntegerInstance() }
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(20.dp), verticalAlignment = Alignment.Bottom) {
-                        for ((v, k) in listOf(nf.format(sm.descents) to R.string.app_day_sum_descents, metres(sm.dropM) to R.string.app_rec_m_down,
-                            "%.1f".format(locale, sm.distM / 1000.0) to R.string.app_rec_km_ski)) {
+                        for ((v, k) in listOf(nf.format(sm.descents) to pluralStringResource(R.plurals.app_day_sum_descents_n, sm.descents), metres(sm.dropM) to stringResource(R.string.app_rec_m_down),
+                            "%.1f".format(locale, sm.distM / 1000.0) to stringResource(R.string.app_rec_km_ski))) {
                             Column {
                                 Text(v, fontFamily = Gudi, fontWeight = FontWeight.Light, fontSize = 30.sp, color = ink)
-                                Text(stringResource(k), fontFamily = Gudi, fontSize = 12.sp, color = muted)
+                                Text(k, fontFamily = Gudi, fontSize = 12.sp, color = muted)
                             }
                         }
                         Box(Modifier.weight(1f))

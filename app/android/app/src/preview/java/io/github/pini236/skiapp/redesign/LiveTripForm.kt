@@ -279,7 +279,7 @@ private fun Code(code: String?, place: String, k: SheetInk, onClick: () -> Unit)
     Column(Modifier.heightIn(min = 44.dp).clip(RoundedCornerShape(10.dp)).semantics(mergeDescendants = true) { role = Role.Button }
         .clickable(onClick = onClick).padding(horizontal = 4.dp, vertical = 2.dp)) {
         Text(code ?: "???", fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 30.sp, color = if (code == null) k.red else k.ink)
-        if (city.isNotBlank()) Text(city, fontFamily = Gudi, fontSize = 11.5.sp, color = k.ink2, maxLines = 1)
+        if (city.isNotBlank()) Text(city, fontFamily = Gudi, fontSize = 11.5.sp, color = k.ink2, maxLines = 2)
     }
 }
 

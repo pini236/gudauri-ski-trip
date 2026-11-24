@@ -151,7 +151,7 @@ private fun stub(trip: Trip, now: LocalDateTime, night: Boolean): Pair<String?, 
 @Composable
 private fun Field(label: String, value: String?, add: String?, p: PassPaper, modifier: Modifier, onClick: (() -> Unit)?) {
     Column(modifier.heightIn(min = 44.dp).let { m -> if (onClick != null) m.semantics { role = Role.Button }.clickable(onClick = onClick) else m }) {
-        Text(label, fontFamily = Gudi, fontSize = 11.5.sp, color = p.ink2, maxLines = 1)
+        Text(label, fontFamily = Gudi, fontSize = 11.5.sp, color = p.ink2, maxLines = 2)
         if (value == null && add != null) Text(add, fontFamily = Gudi, fontWeight = FontWeight.Medium, fontSize = 15.5.sp, color = p.acc, maxLines = 1)
         else Text(value ?: "—", fontFamily = Gudi, fontWeight = FontWeight.Medium, fontSize = 15.5.sp, color = p.ink, maxLines = 1,
             style = TextStyle(fontFeatureSettings = "tnum"))
@@ -171,12 +171,12 @@ private fun Codes(from: String?, fromCity: String, to: String?, toCity: String, 
     Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.Top) {
         Column(Modifier.weight(1f).let { m -> if (onFrom != null) m.clickable(onClick = onFrom) else m }) {
             Text(from ?: "—", fontFamily = Gudi, fontWeight = FontWeight.Light, fontSize = 54.sp, color = p.ink, maxLines = 1)
-            Text(fromCity, fontFamily = Gudi, fontSize = 11.5.sp, color = p.ink2, maxLines = 1)
+            Text(fromCity, fontFamily = Gudi, fontSize = 11.5.sp, color = p.ink2, maxLines = 2)
         }
         Icon(Icons.plane, null, Modifier.padding(top = 22.dp).size(28.dp), tint = p.acc)
         Column(Modifier.weight(1f).let { m -> if (onTo != null) m.clickable(onClick = onTo) else m }, horizontalAlignment = Alignment.End) {
             Text(to ?: "—", Modifier.alpha(if (toFaint) .28f else 1f), fontFamily = Gudi, fontWeight = FontWeight.Light, fontSize = 54.sp, color = p.ink, maxLines = 1)
-            Text(toCity, fontFamily = Gudi, fontSize = 11.5.sp, color = p.ink2, maxLines = 1)
+            Text(toCity, fontFamily = Gudi, fontSize = 11.5.sp, color = p.ink2, maxLines = 2)
         }
     }
 }
@@ -332,7 +332,7 @@ internal fun BoxScope.LiveTripPass(around: Around, trip: Trip, now: LocalDateTim
 internal fun GlassButton(text: String, k: SheetInk, modifier: Modifier = Modifier, onClick: () -> Unit) {
     Box(modifier.heightIn(min = 52.dp).clip(RoundedCornerShape(26.dp)).background(k.surf).border(1.dp, k.line, RoundedCornerShape(26.dp))
         .semantics { role = Role.Button }.clickable(onClick = onClick).padding(horizontal = 16.dp), contentAlignment = Alignment.Center) {
-        Text(text, fontFamily = Gudi, fontWeight = FontWeight.Medium, fontSize = 15.sp, color = k.ink, maxLines = 1)
+        Text(text, fontFamily = Gudi, fontWeight = FontWeight.Medium, fontSize = 15.sp, color = k.ink, maxLines = 2)
     }
 }
 
@@ -424,7 +424,7 @@ internal fun LiveCalendar(trip: Trip?, today: LocalDate, k: SheetInk, haptics: H
         // the summary: a dot and the ski days, and at the end the flights' dates
         if (draft != null) Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             Box(Modifier.size(7.dp).clip(CircleShape).background(acc))
-            Text(skiLine(draft) ?: stringResource(R.string.trip_ski_unknown), Modifier.weight(1f), fontFamily = Gudi, fontSize = 13.sp, color = p.ink, maxLines = 1)
+            Text(skiLine(draft) ?: stringResource(R.string.trip_ski_unknown), Modifier.weight(1f), fontFamily = Gudi, fontSize = 13.sp, color = p.ink, maxLines = 2)
             val o = out!!
             Text(if (ret != null) stringResource(R.string.app_trip_range, "${o.dayOfMonth}.${o.monthValue}", "${ret!!.dayOfMonth}.${ret!!.monthValue}") else "${o.dayOfMonth}.${o.monthValue}",
                 fontFamily = Gudi, fontSize = 13.sp, color = p.ink2, style = TextStyle(fontFeatureSettings = "tnum"))

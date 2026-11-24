@@ -307,7 +307,7 @@ private fun VRow(title: String, end: String, k: SheetInk, onClick: (() -> Unit)?
     Column {
         Row(Modifier.fillMaxWidth().heightIn(min = 46.dp).let { if (onClick != null) it.semantics(mergeDescendants = true) { role = Role.Button }.clickable(onClick = onClick) else it },
             verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            Text(title, Modifier.weight(1f), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = k.ink, maxLines = 1)
+            Text(title, Modifier.weight(1f), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = k.ink, maxLines = 1, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis)
             Text(end, Modifier.weight(1.4f, fill = false), fontFamily = Gudi, fontSize = 13.sp, color = k.ink2, maxLines = 1, overflow = TextOverflow.Ellipsis,
                 textAlign = androidx.compose.ui.text.style.TextAlign.End)
         }

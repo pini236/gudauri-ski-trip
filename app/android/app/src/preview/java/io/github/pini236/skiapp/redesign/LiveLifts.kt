@@ -122,7 +122,7 @@ internal fun LiftsSheet(lifts: List<Lift>, s: LiftStatus?, scene: MapScene, forM
         // before the season (Q02, handoff section 14.7): the planned opening is the first row; a tap opens the count
         if (opening != null) Row(Modifier.fillMaxWidth().heightIn(min = 52.dp).semantics(mergeDescendants = true) { role = Role.Button }
             .clickable { haptics.tick(.3f); onOpening() }, verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            Text(opening.first, Modifier.weight(1f), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = k.ink, maxLines = 1)
+            Text(opening.first, Modifier.weight(1f), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = k.ink, maxLines = 2)
             Text(opening.second, fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = k.acc, maxLines = 1)
         }
         Column(Modifier.heightIn(max = 380.dp).verticalScroll(rememberScrollState())) {
@@ -144,7 +144,7 @@ internal fun LiftsSheet(lifts: List<Lift>, s: LiftStatus?, scene: MapScene, forM
                     if (fresh) StateDot(open, k)
                     Column(Modifier.weight(1f)) {
                         Text("⁦${l.name}⁩", fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 15.5.sp, color = k.ink, maxLines = 1)
-                        Text(kt, fontFamily = Gudi, fontSize = 12.5.sp, color = k.ink2, maxLines = 1)
+                        Text(kt, fontFamily = Gudi, fontSize = 12.5.sp, color = k.ink2, maxLines = 2)
                     }
                     end?.let { Text(it, fontFamily = Gudi, fontWeight = FontWeight.Medium, fontSize = 13.5.sp,
                         color = when { !fresh -> k.ink2; open == false -> k.red; else -> k.good }) }
@@ -299,7 +299,7 @@ private fun PlacesSheet(st: io.github.pini236.skiapp.places.Station, near: List<
                         }
                         Column(Modifier.weight(1f)) {
                             Text("⁦$title⁩", fontFamily = Gudi, fontWeight = FontWeight.Medium, fontSize = 15.sp, color = k.ink, maxLines = 1)
-                            Text(sub, fontFamily = Gudi, fontSize = 12.5.sp, color = k.ink2, maxLines = 1)
+                            Text(sub, fontFamily = Gudi, fontSize = 12.5.sp, color = k.ink2, maxLines = 2)
                         }
                         Text(dist, fontFamily = Gudi, fontSize = 13.5.sp, color = k.ink2)
                     }

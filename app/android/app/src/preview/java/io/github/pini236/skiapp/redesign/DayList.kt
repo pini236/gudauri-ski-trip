@@ -250,7 +250,7 @@ internal fun DayList(mode: DayNight.Mode, haptics: Haptics, onOpen: (String) -> 
             Box(Modifier.size(48.dp).clickable(role = Role.Button) { onBack() }.semantics { contentDescription = back }, contentAlignment = Alignment.Center) {
                 Text(if (rtl) "›" else "‹", fontFamily = Gudi, fontSize = 20.sp, color = ink)
             }
-            Text(stringResource(R.string.app_days_title), Modifier.weight(1f), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = ink, maxLines = 1)
+            Text(stringResource(R.string.app_days_title), Modifier.weight(1f), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = ink, maxLines = 2)
         }
     }
 }

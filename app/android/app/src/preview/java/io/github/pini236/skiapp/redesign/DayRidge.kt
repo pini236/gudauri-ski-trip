@@ -197,7 +197,7 @@ internal fun DayRidge(paint: DayPaint.Day, elev: FloatArray, day: DayModel.Day, 
                 Text(if (rtl) "›" else "‹", fontFamily = Gudi, fontSize = 20.sp, color = ink)
             }
             val date = DateTimeFormatter.ofPattern("d.M.yyyy", Locale.ROOT).format(Instant.ofEpochMilli(day.summary.start).atZone(zone))
-            Text(stringResource(R.string.app_ridge_title) + " · " + date, Modifier.weight(1f), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = ink, maxLines = 1)
+            Text(stringResource(R.string.app_ridge_title) + " · " + date, Modifier.weight(1f), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = ink, maxLines = 2)
             // the story of the day and its picture (board L10)
             val share = stringResource(R.string.app_day_share)
             Text(share, Modifier.padding(end = 6.dp).clip(RoundedCornerShape(18.dp)).clickable(role = Role.Button) { onShare() }

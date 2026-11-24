@@ -1451,6 +1451,29 @@ redesign() {
   if waitlog "redesign run done card descent" 60; then sleep 4; shot redesign-run-done-descent; else fail "redesign: the card of one descent with a descent did not show"; fi
   adb shell input keyevent 4; sleep 1
   qa "--es qa.mode auto --es qa.trip none --es qa.tab home"; sleep 1
+  # part 7 (V02 to V10): the three screens of the boards in Russian, Georgian and English: standing in the ski day, the
+  # ski pass and the group's meetups, with the new font chain (no letter falls to another font in a word)
+  for lc in ru ka en; do
+    adb shell cmd locale set-app-locales "$PKG" --locales "$lc" > /dev/null 2>&1; sleep 3
+    adb shell am force-stop "$PKG"; sleep 1; mark
+    adb shell "am start -W -n $ACT --es qa.tab home --es qa.mode day --es qa.redesign open" > /dev/null
+    waitlog "redesign ready" 75 || { fail "redesign: the mountain did not open in $lc"; continue; }
+    mark; qa "--es qa.redesign live"; waitlog "redesign live open" 15; waitlog "redesign live drawn" 60
+    mark; qa "--es qa.redesign skipass"
+    if waitlog "redesign skipass open" 10; then rd_settled; shot "redesign-$lc-skipass"; else fail "redesign: the ski pass did not open in $lc"; fi
+    qa "--es qa.redesign skipass:off"; sleep .5
+    mark; qa "--es qa.group admin --es qa.redesign people:group"; waitlog "redesign people group" 15
+    mark; qa "--es qa.redesign people:tab:meetups"
+    if waitlog "redesign people group meetups" 10; then sleep 1.5; shot "redesign-$lc-meetups"; else fail "redesign: the meetups did not show in $lc"; fi
+    mark; qa "--es qa.redesign people:off"; waitlog "redesign people closed" 10
+    mark; qa "--es qa.redesign day --es qa.stats off --es qa.tab day"; waitlog "redesign rec open" 20; waitlog "redesign live drawn" 60
+    mark; qa "--es qa.dayrec start"; waitlog "dayrec start result Started" 20
+    geo 42.482631 44.483401; dayrec_walk 4; sleep 3
+    mark; qa "--es qa.redesign stage:standing"
+    if waitlog "redesign rec stage standing" 10; then sleep 1.5; shot "redesign-$lc-standing"; else fail "redesign: no standing sheet in $lc"; fi
+    qa "--es qa.dayrec stop"; sleep 3; qa "--es qa.tab home"; sleep 1
+  done
+  adb shell cmd locale set-app-locales "$PKG" --locales he > /dev/null 2>&1; sleep 3
 }
 
 # ---- the store screenshots (Google Play: portrait 9:16) ----

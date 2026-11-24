@@ -214,7 +214,7 @@ internal fun MeetPill(text: String, k: SheetInk, bg: Color, line: Color, closeLa
     Row(Modifier.fillMaxWidth().heightIn(min = 52.dp).clip(RoundedCornerShape(26.dp)).background(bg).border(1.dp, line, RoundedCornerShape(26.dp))
         .padding(start = 16.dp, end = 4.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
         FlagIcon(k.ink)
-        Text(text, Modifier.weight(1f), fontFamily = Gudi, fontWeight = FontWeight.Medium, fontSize = 15.sp, color = k.ink, maxLines = 1)
+        Text(text, Modifier.weight(1f), fontFamily = Gudi, fontWeight = FontWeight.Medium, fontSize = 15.sp, color = k.ink, maxLines = 2)
         Box(Modifier.size(44.dp).clip(CircleShape).semantics { contentDescription = closeLabel; role = Role.Button }.clickable(onClick = onClose),
             contentAlignment = Alignment.Center) {
             Canvas(Modifier.size(14.dp)) {
@@ -328,7 +328,7 @@ private fun MeetShareRow(s: Station, day: LocalDate, time: LocalTime, lang: Lang
                 runCatching { context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://wa.me/?text=" + Uri.encode(message)))) }
                     .onSuccess { Telemetry.event("meet_share", mapOf("method" to "whatsapp")) }
             }, contentAlignment = Alignment.Center) {
-            Text(stringResource(R.string.meet_send_wa), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color.White, maxLines = 1)
+            Text(stringResource(R.string.meet_send_wa), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color.White, maxLines = 2)
         }
         // the picture (Q06): its own screen
         SecondaryButton(stringResource(R.string.app_meet_btn_image), k) { haptics.tick(.3f); onImage() }

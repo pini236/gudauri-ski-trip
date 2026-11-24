@@ -176,7 +176,7 @@ private fun GuestAv(k: SheetInk, size: Int) =
 internal fun AccButton(text: String, k: SheetInk, modifier: Modifier = Modifier, enabled: Boolean = true, onClick: () -> Unit) {
     Box(modifier.fillMaxWidth().heightIn(min = 52.dp).graphicsAlpha(if (enabled) 1f else .45f).clip(RoundedCornerShape(26.dp)).background(k.acc)
         .semantics { role = Role.Button }.clickable(enabled = enabled, onClick = onClick).padding(horizontal = 16.dp), contentAlignment = Alignment.Center) {
-        Text(text, fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color.White, maxLines = 1)
+        Text(text, fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color.White, maxLines = 2)
     }
 }
 
@@ -219,7 +219,7 @@ private fun PRow(title: String, k: SheetInk, sub: String? = null, end: String? =
                 Text(title, fontFamily = Gudi, fontWeight = if (danger) FontWeight.Bold else FontWeight.Medium, fontSize = 15.5.sp, color = if (danger) k.red else k.ink)
                 if (sub != null) Small(sub, k)
             }
-            if (end != null) Text(end, fontFamily = Gudi, fontSize = 13.5.sp, color = k.ink2, maxLines = 1)
+            if (end != null) Text(end, fontFamily = Gudi, fontSize = 13.5.sp, color = k.ink2, maxLines = 1, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis)
             if (trailing != null) trailing()
         }
         if (!last) Box(Modifier.fillMaxWidth().height(1.dp).background(k.line))
@@ -353,7 +353,7 @@ private fun DatePill(label: String, date: LocalDate?, k: SheetInk, modifier: Mod
     Column(modifier.heightIn(min = 52.dp).clip(RoundedCornerShape(16.dp)).background(k.surf.copy(alpha = 1f)).border(1.dp, k.line, RoundedCornerShape(16.dp))
         .semantics(mergeDescendants = true) { role = Role.Button }.clickable(onClick = onClick).padding(horizontal = 14.dp, vertical = 6.dp),
         verticalArrangement = Arrangement.Center) {
-        Text(label, fontFamily = Gudi, fontSize = 11.5.sp, color = k.ink2, maxLines = 1)
+        Text(label, fontFamily = Gudi, fontSize = 11.5.sp, color = k.ink2, maxLines = 2)
         Text(date?.let { io.github.pini236.skiapp.season.shortDate(it) } ?: stringResource(R.string.app_trip_pick_date), fontFamily = Gudi,
             fontWeight = FontWeight.Medium, fontSize = 15.5.sp, color = if (date == null) k.ink2 else k.ink, maxLines = 1)
     }

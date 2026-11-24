@@ -38,6 +38,7 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
@@ -96,7 +97,7 @@ internal fun LiveSheet(k: SheetInk, opaque: Boolean = false, content: @Composabl
 @Composable
 internal fun DayFour(stats: Analyzer.Stats?, k: SheetInk) {
     val cells = listOf(
-        (stats?.descents?.toString() ?: "0") to stringResource(R.string.app_day_sum_descents),
+        (stats?.descents?.toString() ?: "0") to pluralStringResource(R.plurals.app_day_sum_descents_n, stats?.descents ?: 0),
         metres(stats?.dropM ?: 0.0) to stringResource(R.string.app_rec_m_down),
         "%.1f".format(Locale.ROOT, (stats?.skiDistM ?: 0.0) / 1000) to stringResource(R.string.app_rec_km_ski),
         (stats?.maxKmh?.takeIf { stats.descents > 0 }?.let { LiveNumbers.maxKmh(it) } ?: "—") to stringResource(R.string.app_rec_kmh_max),
@@ -104,7 +105,7 @@ internal fun DayFour(stats: Analyzer.Stats?, k: SheetInk) {
     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
         for ((v, l) in cells) Column(Modifier.weight(1f).clearAndSetSemantics { contentDescription = "$v $l" }) {
             Text(v, fontFamily = Gudi, fontWeight = FontWeight.Light, fontSize = 27.sp, color = k.ink, maxLines = 1)
-            Text(l, fontFamily = Gudi, fontSize = 11.5.sp, color = k.ink2, modifier = Modifier.padding(top = 4.dp), maxLines = 1)
+            Text(l, fontFamily = Gudi, fontSize = 11.5.sp, color = k.ink2, modifier = Modifier.padding(top = 4.dp), maxLines = 2)
         }
     }
 }
@@ -148,7 +149,7 @@ internal fun MiniRidge(paint: DayPaint.Day?, elev: FloatArray?, night: Boolean, 
 internal fun SecondaryButton(text: String, k: SheetInk, modifier: Modifier = Modifier, onClick: () -> Unit) {
     Box(modifier.heightIn(min = 52.dp).widthIn(min = 52.dp).clip(RoundedCornerShape(26.dp)).border(1.dp, k.line, RoundedCornerShape(26.dp))
         .semantics { role = Role.Button }.clickable(onClick = onClick).padding(horizontal = 16.dp), contentAlignment = Alignment.Center) {
-        Text(text, fontFamily = Gudi, fontWeight = FontWeight.Medium, fontSize = 15.sp, color = k.ink, maxLines = 1)
+        Text(text, fontFamily = Gudi, fontWeight = FontWeight.Medium, fontSize = 15.sp, color = k.ink, maxLines = 2)
     }
 }
 

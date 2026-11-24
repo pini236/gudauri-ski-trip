@@ -148,7 +148,7 @@ internal fun DayShare(story: StoryData, sm: DayModel.Summary, paint: DayPaint.Da
                 .semantics { contentDescription = back }, contentAlignment = Alignment.Center) {
                 Text(if (rtl) "›" else "‹", fontFamily = Gudi, fontSize = 20.sp, color = ink)
             }
-            Text(stringResource(R.string.app_meet_share_title), Modifier.weight(1f), fontFamily = Gudi, fontWeight = FontWeight.Medium, fontSize = 14.sp, color = ink, maxLines = 1)
+            Text(stringResource(R.string.app_meet_share_title), Modifier.weight(1f), fontFamily = Gudi, fontWeight = FontWeight.Medium, fontSize = 14.sp, color = ink, maxLines = 2)
             if (sample) Text(stringResource(R.string.app_day_sample), Modifier.padding(end = 14.dp).clip(RoundedCornerShape(10.dp))
                 .background(Color(0x33A98BEE)).padding(horizontal = 8.dp, vertical = 2.dp), fontFamily = Gudi, fontSize = 12.sp, color = ink)
         }
@@ -239,7 +239,7 @@ private fun shareWords(ctx: Context, story: StoryData, sm: DayModel.Summary): St
     val locale = ctx.resources.configuration.locales[0]
     val head = MomentText.Words(ctx, locale, group = true).render(MomentText.head(story.theme, sm.descents, sm.dropM, sm.distM, locale), Moments.seed("story.head", sm.start)).first
     val date = DateTimeFormatter.ofPattern("d.M.yyyy", Locale.ROOT).format(Instant.ofEpochMilli(sm.start).atZone(ZoneId.of(DayParams.TZ)))
-    val numbers = listOf(sm.descents.toString() to ctx.getString(R.string.app_day_sum_descents),
+    val numbers = listOf(sm.descents.toString() to ctx.resources.getQuantityString(R.plurals.app_day_sum_descents_n, sm.descents),
         metres(sm.dropM) to ctx.getString(R.string.app_rec_m_down),
         String.format(Locale.ROOT, "%.1f", sm.distM / 1000) to ctx.getString(R.string.app_run_km)) +
         listOfNotNull(sm.maxKmh?.let { io.github.pini236.skiapp.dayrec.ui.LiveNumbers.maxKmh(it) to ctx.getString(R.string.app_rec_kmh_max) })

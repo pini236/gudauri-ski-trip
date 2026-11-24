@@ -119,8 +119,8 @@ private fun SeasonRow(title: String, sub: String?, end: String?, endAcc: Boolean
     Row(Modifier.fillMaxWidth().heightIn(min = 52.dp).semantics(mergeDescendants = true) { role = Role.Button }.clickable(onClick = onClick),
         verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
         Column(Modifier.weight(1f)) {
-            Text(title, fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = k.ink, maxLines = 1)
-            if (sub != null) Text(sub, fontFamily = Gudi, fontSize = 13.sp, color = k.ink2, maxLines = 1)
+            Text(title, fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = k.ink, maxLines = 2)
+            if (sub != null) Text(sub, fontFamily = Gudi, fontSize = 13.sp, color = k.ink2, maxLines = 2)
         }
         if (end != null) Text(end, fontFamily = Gudi, fontWeight = if (endAcc) FontWeight.Bold else FontWeight.Medium, fontSize = 15.sp,
             color = if (endAcc) k.acc else k.ink, style = TextStyle(fontFeatureSettings = "tnum"))
