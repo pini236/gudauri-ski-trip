@@ -1474,6 +1474,20 @@ redesign() {
     qa "--es qa.dayrec stop"; sleep 3; qa "--es qa.tab home"; sleep 1
   done
   adb shell cmd locale set-app-locales "$PKG" --locales he > /dev/null 2>&1; sleep 3
+  # part 8 (W01 to W03): the largest text (200 percent): the mountain, standing in the ski day and the meetups
+  adb shell settings put system font_scale 2.0; adb shell am force-stop "$PKG"; sleep 1; mark
+  adb shell "am start -W -n $ACT --es qa.tab home --es qa.mode day --es qa.redesign open" > /dev/null
+  if waitlog "redesign ready" 75; then
+    mark; qa "--es qa.redesign live"; waitlog "redesign live open" 15; waitlog "redesign live drawn" 60; rd_settled; shot redesign-big-mountain
+    mark; qa "--es qa.group admin --es qa.redesign people:group"; waitlog "redesign people group" 15
+    mark; qa "--es qa.redesign people:tab:meetups"; waitlog "redesign people group meetups" 10 && { sleep 1.5; shot redesign-big-meetups; }
+    mark; qa "--es qa.redesign people:off"; waitlog "redesign people closed" 10
+    mark; qa "--es qa.redesign day --es qa.stats off --es qa.tab day"; waitlog "redesign rec open" 20; waitlog "redesign live drawn" 60
+    mark; qa "--es qa.dayrec start"; waitlog "dayrec start result Started" 20; geo 42.482631 44.483401; dayrec_walk 4; sleep 3
+    mark; qa "--es qa.redesign stage:standing"; waitlog "redesign rec stage standing" 10 && { sleep 1.5; shot redesign-big-standing; }
+    qa "--es qa.dayrec stop"; sleep 3; qa "--es qa.tab home"; sleep 1
+  else fail "redesign: the mountain did not open in large text"; fi
+  adb shell settings put system font_scale 1.0; sleep 2
 }
 
 # ---- the store screenshots (Google Play: portrait 9:16) ----
