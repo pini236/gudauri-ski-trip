@@ -82,7 +82,12 @@ jobs:
       - name: Build the store bundle from the tag (not uploaded)
         working-directory: app/android
         run: |
-          ./gradlew --no-daemon :app:bundleStoreRelease
+          ./gradlew --no-daemon :app:bundleStoreRelease :app:assembleStoreRelease
+          # an old tag that does not read APP_VERSION_CODE would build versionCode 1 without a word (architect, ed23c6aa)
+          AAPT2=$(ls "$ANDROID_HOME"/build-tools/*/aapt2 | tail -1)
+          APK=$(ls app/build/outputs/apk/store/release/*.apk | head -1)
+          GOT=$("$AAPT2" dump badging "$APK" | sed -n "s/.*versionCode='\([0-9]*\)'.*/\1/p" | head -1)
+          [ "$GOT" = "${{ inputs.version_code }}" ] || { echo "::error::versionCode in the build is '$GOT', expected ${{ inputs.version_code }}: this tag ignores APP_VERSION_CODE"; exit 1; }
           ls -l app/build/outputs/bundle/storeRelease/*.aab
           echo "built ${{ inputs.ref }} with versionCode ${{ inputs.version_code }}; nothing uploaded" >> "$GITHUB_STEP_SUMMARY"
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
