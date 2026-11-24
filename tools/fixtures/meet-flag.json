@@ -1,0 +1,60 @@
+{
+ "about": "Redesign part 2, the meeting point's flag on the mountain (design/handoff/2026-11-21-redesign-around, section 5; the architect, 24.11.2026). Shared by Android and iPhone. Input: the meetups of all my groups (group, station id, at as an instant), and now. A meetup shows a flag when its day, in the resort's time zone (tz, never the phone's), is today there, and now is no more than an hour after its time. One flag per station: of several, the one nearest in time to now. A station id not in 'known' gets no flag (and nothing fails). Output: the flags, ordered by station id, each with the meetup's id.",
+ "tz": "Asia/Tbilisi",
+ "known": ["158744075b", "158744075t", "1196532544b", "158744059b"],
+ "cases": [
+  {
+   "name": "today, before its time",
+   "now": "2027-01-12T08:00:00Z",
+   "meetups": [{"id": "m1", "group": "g1", "station": "158744075t", "at": "2027-01-12T09:00:00Z"}],
+   "flags": [{"station": "158744075t", "id": "m1"}]
+  },
+  {
+   "name": "up to an hour after its time, then gone",
+   "now": "2027-01-12T09:59:00Z",
+   "meetups": [{"id": "m1", "group": "g1", "station": "158744075t", "at": "2027-01-12T09:00:00Z"},
+               {"id": "m2", "group": "g1", "station": "158744075b", "at": "2027-01-12T08:30:00Z"}],
+   "flags": [{"station": "158744075t", "id": "m1"}]
+  },
+  {
+   "name": "another day: no flag",
+   "now": "2027-01-12T08:00:00Z",
+   "meetups": [{"id": "m1", "group": "g1", "station": "158744075t", "at": "2027-01-13T09:00:00Z"}],
+   "flags": []
+  },
+  {
+   "name": "the day is Tbilisi's: 23:30 there on the 12th is the 12th, though UTC says 19:30",
+   "now": "2027-01-12T18:00:00Z",
+   "meetups": [{"id": "m1", "group": "g1", "station": "1196532544b", "at": "2027-01-12T19:30:00Z"}],
+   "flags": [{"station": "1196532544b", "id": "m1"}]
+  },
+  {
+   "name": "after midnight in Tbilisi a meetup of the evening before is yesterday's",
+   "now": "2027-01-12T20:30:00Z",
+   "meetups": [{"id": "m1", "group": "g1", "station": "1196532544b", "at": "2027-01-12T19:45:00Z"}],
+   "flags": []
+  },
+  {
+   "name": "several at one station: the nearest in time",
+   "now": "2027-01-12T08:00:00Z",
+   "meetups": [{"id": "m1", "group": "g1", "station": "158744075t", "at": "2027-01-12T12:00:00Z"},
+               {"id": "m2", "group": "g1", "station": "158744075t", "at": "2027-01-12T09:00:00Z"}],
+   "flags": [{"station": "158744075t", "id": "m2"}]
+  },
+  {
+   "name": "groups mix: nearest in time across groups, other stations their own",
+   "now": "2027-01-12T08:00:00Z",
+   "meetups": [{"id": "m1", "group": "g1", "station": "158744075t", "at": "2027-01-12T10:00:00Z"},
+               {"id": "m2", "group": "g2", "station": "158744075t", "at": "2027-01-12T07:30:00Z"},
+               {"id": "m3", "group": "g2", "station": "158744059b", "at": "2027-01-12T11:00:00Z"}],
+   "flags": [{"station": "158744059b", "id": "m3"}, {"station": "158744075t", "id": "m2"}]
+  },
+  {
+   "name": "an unknown station: no flag, the rest stay",
+   "now": "2027-01-12T08:00:00Z",
+   "meetups": [{"id": "m1", "group": "g1", "station": "999b", "at": "2027-01-12T09:00:00Z"},
+               {"id": "m2", "group": "g1", "station": "158744075b", "at": "2027-01-12T09:00:00Z"}],
+   "flags": [{"station": "158744075b", "id": "m2"}]
+  }
+ ]
+}

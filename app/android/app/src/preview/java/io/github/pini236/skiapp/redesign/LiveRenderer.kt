@@ -245,6 +245,10 @@ class LiveRenderer(
      */
     class DayLines(val light: Ribbon, val lifts: Ribbon, val night: Boolean, val withRuns: Boolean = false)
     @Volatile var day: DayLines? = null
+    /** The runs and lifts quiet under the meeting point (Q04, Q05: low opacity), 1 otherwise. */
+    @Volatile var linesQuiet = 1f
+    /** The runs alone, under the lifts' quiet (Q10: the lifts low, no runs; the trip and the ski pass: neither). */
+    @Volatile var runsQuiet = 1f
     /** How far the day is drawn (the film, board L08), 0 to 1 of the day's time; above 1 all of it. */
     @Volatile var dayReveal = 60000f
     private var dayGpu: Pair<Gpu, Gpu>? = null; private var dayGpuOf: DayLines? = null; private var dayLogged: DayLines? = null
@@ -521,17 +525,17 @@ class LiveRenderer(
         if (dl == null && dayGpu != null) { dayGpu?.let { it.first.free(); it.second.free() }; dayGpu = null; dayGpuOf = null }
         // the day painted (board L06) has no runs on it; the day while it is recorded (L03) has them, quiet, under it
         val showRuns = dl == null || dl.withRuns
-        val quiet = if (dl != null) .45f else 1f
+        val quiet = (if (dl != null) .45f else 1f) * linesQuiet
         glUniform4f(uT, wire[0], wire[1], wire[2], 1f); glUniform1f(uW, 1.3f * density * zw); glUniform1f(uA, .85f * rest * quiet)
         if (showRuns) for (g in lifts) g.draw()
         if (showRuns) for ((key, cs, core) in runs) {
             if (key == chosen) continue
             glUniform1f(uB, 0.0010f)
-            glUniform4f(uT, case[0], case[1], case[2], 1f); glUniform1f(uW, 3.6f * density * zw); glUniform1f(uA, (if (night) .7f else .95f) * rest * quiet); cs.draw()
+            glUniform4f(uT, case[0], case[1], case[2], 1f); glUniform1f(uW, 3.6f * density * zw); glUniform1f(uA, (if (night) .7f else .95f) * rest * quiet * runsQuiet); cs.draw()
             glUniform1f(uB, 0.0012f)
             val c = runRgb[key]
             if (c != null) glUniform4f(uT, c[0], c[1], c[2], 1f) else glUniform4f(uT, 0f, 0f, 0f, 0f)
-            glUniform1f(uW, 2.2f * density * zw); glUniform1f(uA, rest * quiet); core.draw()
+            glUniform1f(uW, 2.2f * density * zw); glUniform1f(uA, rest * quiet * runsQuiet); core.draw()
         }
         val dg = dayGpu.takeIf { dl != null }
         if (dg != null && dl != null) {
