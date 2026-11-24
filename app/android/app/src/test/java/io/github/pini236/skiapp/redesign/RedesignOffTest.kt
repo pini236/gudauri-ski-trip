@@ -40,4 +40,15 @@ class RedesignOffTest {
         assertTrue(Redesign.on())
         assertEquals("picture test.webp", Redesign.failed)
     }
+
+    @Test fun siteLinksAndRemindersOpenOnTheMountain() {
+        assertEquals("pick:Tatra 2", Redesign.linkOf(io.github.pini236.skiapp.nav.Route.Map("Tatra 2")))
+        assertEquals("front", Redesign.linkOf(io.github.pini236.skiapp.nav.Route.Map()))
+        assertEquals("meet:station:gd-top", Redesign.linkOf(io.github.pini236.skiapp.nav.Route.Meet("gd-top", "13:00", "2027-01-12")))
+        assertEquals("meet", Redesign.linkOf(io.github.pini236.skiapp.nav.Route.Meet()))
+        assertEquals("people:join:ABC123", Redesign.linkOf(io.github.pini236.skiapp.nav.Route.Join("ABC123")))
+        assertEquals("people:group:g1", Redesign.linkOf(io.github.pini236.skiapp.nav.Route.Group("g1")))
+        assertEquals("people:gate", Redesign.linkOf(io.github.pini236.skiapp.nav.Route.Group()))
+        assertEquals(null, Redesign.linkOf(io.github.pini236.skiapp.nav.Route.Home))
+    }
 }

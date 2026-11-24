@@ -138,6 +138,8 @@ internal sealed class PLayer(val tag: String) {
     class License(val key: String) : PLayer("license")
     /** T09 for an admin: a member's flight, the full trip form (group, user). */
     class TripFor(val group: String, val user: String) : PLayer("tripfor")
+    /** T09 for me, from the group's flights ("add my flight"): the same form as on the mountain, kept on the phone. */
+    object MyTrip : PLayer("mytrip")
 }
 
 /** What of part 3 is open over the mountain, as a stack: the back arrow and the system's back go one down. */
@@ -451,6 +453,8 @@ internal fun BoxScope.LivePeople(p: People, ui: PeopleUi, night: Boolean, haptic
         PLayer.Licenses -> LicensesScreen(ui, k)
         is PLayer.License -> LicenseText(ui, k, l.key)
         is PLayer.TripFor -> TripForScreen(p, ui, night, haptics, l.group, l.user, today)
+        PLayer.MyTrip -> LiveTripForm(trip, today, night, haptics,
+            onSave = { t -> p.onMyTrip(t); Qa.log("trip saved"); ui.changes++; ui.back() }, onDelete = null, onBack = { ui.back() }, localNote = false)
     } }
     ui.toast?.let { t ->
         LaunchedEffect(t) { delay(4000); ui.toast = null }
@@ -987,7 +991,7 @@ private fun BoxScope.GroupSheet(p: People, ui: PeopleUi, k: SheetInk, id: String
                         GroupTab.MEETUPS -> Meetups(g, k, plan, onOpen = { m -> onOpenMeetup(id, m) }, onNew = { onNewMeetup(id) }, onRemind = p.onMeetups,
                             onDelete = { m -> act.run { api.removeMeetup(id, m.id); watch.refresh() } })
                         GroupTab.FLIGHTS -> Flights(g, k, trip, act, onSame = { tid -> act.run { p.onMyTrip(api.sameFlight(id, tid)); watch.refresh() } },
-                            onShowMine = { act.run { api.showMyTrip(id, g.me?.name ?: "", trip); watch.refresh() } }, onAdd = p.onTripForm)
+                            onShowMine = { act.run { api.showMyTrip(id, g.me?.name ?: "", trip); watch.refresh() } }, onAdd = { ui.go(PLayer.MyTrip) })
                         GroupTab.SCORES -> Scores(p, g, k)
                         GroupTab.MEMBERS -> Members(p, ui, g, k, act, today, haptics, reload = { watch.refresh() })
                     }

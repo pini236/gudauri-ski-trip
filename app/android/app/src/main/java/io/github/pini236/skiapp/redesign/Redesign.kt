@@ -67,6 +67,29 @@ object Redesign {
     @Volatile var failed: String? = null
         private set
 
+    /**
+     * A site link or a reminder's tap, for the mountain (never today's screens; Pini, 24.11.2026): a run chosen, the
+     * meeting point on a station, an invite, a group. The mountain takes it ([LiveMountain]) and clears it.
+     */
+    internal var link by androidx.compose.runtime.mutableStateOf<String?>(null)
+
+    /** Takes [r] for the mountain; false when it is not one the mountain opens (the caller then goes as before). */
+    fun link(r: io.github.pini236.skiapp.nav.Route): Boolean {
+        if (!on()) return false
+        link = linkOf(r) ?: return false
+        io.github.pini236.skiapp.qa.Qa.log("redesign link $link")
+        return true
+    }
+
+    /** The mountain's word for a route (kept apart, for the unit test). */
+    internal fun linkOf(r: io.github.pini236.skiapp.nav.Route): String? = when (r) {
+        is io.github.pini236.skiapp.nav.Route.Map -> r.run?.let { "pick:$it" } ?: "front"
+        is io.github.pini236.skiapp.nav.Route.Meet -> r.station?.let { "meet:station:$it" } ?: "meet"
+        is io.github.pini236.skiapp.nav.Route.Join -> "people:join:${r.code}"
+        is io.github.pini236.skiapp.nav.Route.Group -> r.id?.let { "people:group:$it" } ?: "people:gate"
+        else -> null
+    }
+
     /** The live model needs OpenGL ES 3 (the manifest asks for it; a phone that still lacks it keeps the painted mountain). */
     fun liveOk(glEsVersion: Int): Boolean = glEsVersion >= 0x30000
 
@@ -166,6 +189,8 @@ object Redesign {
         val debug = io.github.pini236.skiapp.BuildConfig.DEBUG
         if (debug && !RedesignQa.asked) return
         var open by rememberSaveable { mutableStateOf(!debug) }
+        // a link opens the mountain (its sheet comes with it)
+        androidx.compose.runtime.LaunchedEffect(link) { if (link != null) open = true }
         LaunchedEffect(RedesignQa.seq) {
             when (RedesignQa.cmd) {
                 "open" -> open = true

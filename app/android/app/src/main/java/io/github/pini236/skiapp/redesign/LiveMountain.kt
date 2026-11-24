@@ -293,6 +293,23 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
         meet.open = on
         Qa.log("redesign meet ${if (on) "open" else "closed"}")
     }
+    // a site link or a reminder (Redesign.link): on the mountain, once it is drawn and the stations are known
+    val link = Redesign.link
+    LaunchedEffect(link, plan) {
+        val c = link ?: return@LaunchedEffect
+        while (!view.drawn) delay(100)
+        when {
+            c.startsWith("pick:") -> { held = null; runFull = false; val k = c.removePrefix("pick:"); view.pickKey(k)
+                scene.runs.pistes.firstOrNull { it.key == k }?.let { p -> io.github.pini236.skiapp.telemetry.Telemetry.event("run_open", mapOf("run" to p.key, "color" to p.color, "via" to "link")) } }
+            c == "front" -> view.backToFront()
+            c == "meet" -> meetOpenQa = "where"
+            c.startsWith("meet:station:") -> meetOpenQa = c.removePrefix("meet:")
+            c.startsWith("people:join:") -> people.go(PLayer.Join(c.removePrefix("people:join:")))
+            c.startsWith("people:group:") -> people.go(PLayer.Group(c.removePrefix("people:group:")))
+            c == "people:gate" -> people.go(PLayer.Gate)
+        }
+        Redesign.link = null
+    }
     LaunchedEffect(meetOpenQa, plan) {
         val q = meetOpenQa ?: return@LaunchedEffect
         if (plan == null) return@LaunchedEffect
@@ -313,6 +330,7 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
             q == "share:off" -> meet.share = false
             q.startsWith("preset:") -> io.github.pini236.skiapp.meet.Preset.entries.firstOrNull { it.event == q.removePrefix("preset:") }?.let { p -> plan.preset(p)?.let { meetOpen(true); meetPick(it, p) } }
             q.startsWith("lift:") -> LiveMeetRules.topOf(plan, q.removePrefix("lift:"))?.let { meetOpen(true); meetPick(it) }
+            q.startsWith("station:") -> plan.stations.firstOrNull { it.id == q.removePrefix("station:") }?.let { meetOpen(true); meetPick(it) } ?: meetOpen(true)
         }
     }
     // the flags of my groups on the mountain (the architect, 24.11.2026): today's meetups, from the phone's copy

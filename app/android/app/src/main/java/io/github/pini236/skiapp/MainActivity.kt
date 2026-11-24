@@ -426,6 +426,8 @@ class MainActivity : ComponentActivity() {
         i?.data?.let { uri ->
             i.data = null
             val r = Route.fromSiteLink(uri.toString()) ?: return@let
+            // the new design opens links on the mountain; the old screens only if the mountain does not take it
+            if (r != Route.Home && io.github.pini236.skiapp.redesign.Redesign.link(r)) { nav.toStart(); if (r is Route.Meet && r.station != null) Telemetry.event("meet_link_open"); return@let }
             nav.toStart(); if (r != Route.Home) nav.push(r)
             if (r is Route.Meet && r.station != null) Telemetry.event("meet_link_open")
             // a run's link: chosen on the map now if it is ready, or as soon as it is; run_open with via=link (P-D2)
@@ -436,7 +438,7 @@ class MainActivity : ComponentActivity() {
         }
         val r = Route.parse(i?.getStringExtra(OPEN) ?: return) ?: return
         i.removeExtra(OPEN)
-        nav.toStart(); nav.push(r)
+        nav.toStart(); if (!io.github.pini236.skiapp.redesign.Redesign.link(r)) nav.push(r)
     }
 
     /**
