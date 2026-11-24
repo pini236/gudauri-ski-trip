@@ -1219,6 +1219,28 @@ redesign() {
   mark; qa "--es qa.status none --es qa.redesign season"; waitlog "redesign season shown" 10 || fail "redesign: the season count did not show"; rd_settled; shot redesign-season
   mark; qa "--es qa.mode night --es qa.redesign season"; rd_settled; shot redesign-season-night
   mark; qa "--es qa.mode auto --es qa.redesign season:off"; waitlog "redesign season closed" 10; rd_settled; shot redesign-season-pill
+  # part 3 (R01 to R15, design/handoff/2026-11-23-redesign-people): the people over the mountain, with the pretend
+  # server's group; an admin first (the account), then a guest in it, then nobody
+  mark; qa "--es qa.group admin --es qa.redesign people:me"; waitlog "redesign people me account 1" 15 || fail "redesign: me (an account) did not open"; rd_settled; shot redesign-me
+  mark; qa "--es qa.redesign people:settings"; waitlog "redesign people settings" 10; rd_settled; shot redesign-settings
+  mark; qa "--es qa.redesign people:lang"; waitlog "redesign people lang" 10; rd_settled; shot redesign-language
+  mark; qa "--es qa.redesign people:about"; waitlog "redesign people about" 10; rd_settled; shot redesign-about
+  mark; qa "--es qa.redesign people:off"; waitlog "redesign people closed" 10
+  mark; qa "--es qa.redesign people:group"; waitlog "redesign people group flights" 15 || fail "redesign: the group did not open on its flights"; rd_settled; shot redesign-group-flights
+  for t in meetups scores members; do
+    mark; qa "--es qa.redesign people:tab:$t"; waitlog "redesign people group $t" 10 || fail "redesign: the group's $t did not show"; sleep 1.5; shot "redesign-group-$t"
+  done
+  mark; qa "--es qa.mode night --es qa.redesign people:tab:meetups"; rd_settled; shot redesign-group-night
+  mark; qa "--es qa.mode auto --es qa.redesign people:off"; waitlog "redesign people closed" 10
+  mark; qa "--es qa.redesign people:invite"; waitlog "redesign people invite" 15 || fail "redesign: the invite did not open"; rd_settled; shot redesign-invite
+  mark; qa "--es qa.redesign people:off"; waitlog "redesign people closed" 10
+  mark; qa "--es qa.group member --es qa.redesign people:me"; waitlog "redesign people me guest" 15 || fail "redesign: me (a guest) did not open"; rd_settled; shot redesign-me-guest
+  mark; qa "--es qa.redesign people:off"; waitlog "redesign people closed" 10
+  mark; qa "--es qa.group none --es qa.redesign people:me"; waitlog "redesign people me nobody" 15 || fail "redesign: me (nobody) did not open"; rd_settled; shot redesign-me-nobody
+  mark; qa "--es qa.redesign people:signin"; waitlog "redesign people signin" 10; rd_settled; shot redesign-signin
+  mark; qa "--es qa.redesign people:off"; waitlog "redesign people closed" 10
+  mark; qa "--es qa.redesign people:gate"; waitlog "redesign people gate" 10; rd_settled; shot redesign-gate
+  mark; qa "--es qa.redesign people:off"; waitlog "redesign people closed" 10
   mark; qa "--es qa.mode auto --es qa.redesign painted"; waitlog "redesign live closed" 10; sleep 1.5; shot redesign-live-back
   qa "--es qa.mode auto --es qa.redesign close"; sleep 1.5; shot redesign-closed
   # round 4 (board L06): the sample day on the mountain, its lines of light by speed and the dotted rides, by day and

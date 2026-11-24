@@ -406,7 +406,7 @@ private fun BoxScope.MeScreen(p: People, ui: PeopleUi, k: SheetInk) {
     var groups by remember { mutableStateOf<List<MyGroup>?>(null) }
     LaunchedEffect(ui.changes) { me = api.me(); groups = runCatching { api.myGroupRows() }.getOrNull() ?: groups ?: emptyList() }
     val kind = PeopleRules.meKind(me, groups?.size ?: 0)
-    LaunchedEffect(kind) { Qa.log("redesign people me ${kind.name.lowercase()} ${groups?.size ?: 0}") }
+    LaunchedEffect(kind, groups?.size) { if (groups != null) Qa.log("redesign people me ${kind.name.lowercase()} ${groups?.size ?: 0}") }
     val act = rememberAct()
     var renaming by remember { mutableStateOf(false) }
     var ways by remember { mutableStateOf(false) }
@@ -569,6 +569,7 @@ private fun BoxScope.GateSheet(p: People, ui: PeopleUi, k: SheetInk) {
         // with the sixth letter the check starts by itself
         checking = true; err = null; state = null
         try {
+            if (p.api.me() == null) p.api.signInGuest()
             val pv = p.api.preview(code)
             if (pv.status == JoinStatus.OK || pv.status == JoinStatus.ALREADY_MEMBER) { Qa.log("redesign people code ok"); ui.go(PLayer.Join(code)) }
             else { state = pv.status; Qa.log("redesign people code ${pv.status.name.lowercase()}") }
@@ -609,7 +610,7 @@ private fun BoxScope.JoinScreen(p: People, ui: PeopleUi, k: SheetInk, code: Stri
     var pv by remember { mutableStateOf<Preview?>(null) }
     var failed by remember { mutableStateOf<String?>(null) }
     LaunchedEffect(code) {
-        try { pv = api.preview(code) } catch (e: ApiException) { failed = e.code } catch (e: java.io.IOException) { failed = "offline" }
+        try { if (api.me() == null) api.signInGuest(); pv = api.preview(code) } catch (e: ApiException) { failed = e.code } catch (e: java.io.IOException) { failed = "offline" }
     }
     val v = pv
     LaunchedEffect(v) { if (v != null && (v.alreadyMember || v.status == JoinStatus.ALREADY_MEMBER) && v.groupId != null) ui.swap(PLayer.Group(v.groupId)) }
@@ -789,6 +790,8 @@ private fun BoxScope.GroupSheet(p: People, ui: PeopleUi, k: SheetInk, id: String
     var tab by remember(id) { mutableStateOf<GroupTab?>(null) }
     LaunchedEffect(g?.startsOn, g?.endsOn) { if (tab == null && g != null) tab = PeopleRules.openingTab(g.startsOn, g.endsOn, today) }
     val t = tab ?: GroupTab.MEETUPS
+    // the emulator's tabs (people:tab:meetups)
+    LaunchedEffectQa { c -> if (c.startsWith("people:tab:")) tab = GroupTab.of(c.removePrefix("people:tab:")) }
     LaunchedEffect(t, g != null) { if (g != null) Qa.log("redesign people group ${t.key}") }
     val act = rememberAct()
     Box(Modifier.matchParentSize().clickable { ui.back() })
