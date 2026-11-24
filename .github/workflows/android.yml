@@ -55,6 +55,11 @@ jobs:
           }
           GRADLE
           ./gradlew --no-daemon --build-cache --init-script "$RUNNER_TEMP/ci-unit-tests.gradle" :app:testPreviewDebugUnitTest
+      - name: Compile the release variants (branches only; main builds them whole below)
+        # a compile error in the preview or store release code (a repeated annotation in src/store, 24.11.2026) is caught on
+        # the branch, before main; no R8, packaging or signing (architect, 5ab911fa)
+        if: github.ref != 'refs/heads/main'
+        run: ./gradlew --no-daemon --build-cache :app:compilePreviewReleaseKotlin :app:compileStoreReleaseKotlin
       - name: Unit test reports
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         if: always()
@@ -68,6 +73,8 @@ jobs:
 
   build-preview:
     needs: unit-tests
+    # a branch gets the installable preview APK by hand (workflow_dispatch, or android-branch-preview); main always builds it
+    if: github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     defaults:
@@ -253,12 +260,13 @@ jobs:
       UNIT_RESULT: ${{ needs.unit-tests.result }}
       PREVIEW_RESULT: ${{ needs.build-preview.result }}
       STORE_RESULT: ${{ needs.build-store.result }}
+      PREVIEW_EXPECTED: ${{ (github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch') && 'success' || 'skipped' }}
       STORE_EXPECTED: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && 'success' || 'skipped' }}
     steps:
       - name: Check required Android jobs
         run: |
-          if [ "$UNIT_RESULT" != success ] || [ "$PREVIEW_RESULT" != success ] || [ "$STORE_RESULT" != "$STORE_EXPECTED" ]; then
-            echo "::error::Android gate failed: unit-tests=$UNIT_RESULT, build-preview=$PREVIEW_RESULT, build-store=$STORE_RESULT (expected $STORE_EXPECTED)."
+          if [ "$UNIT_RESULT" != success ] || [ "$PREVIEW_RESULT" != "$PREVIEW_EXPECTED" ] || [ "$STORE_RESULT" != "$STORE_EXPECTED" ]; then
+            echo "::error::Android gate failed: unit-tests=$UNIT_RESULT, build-preview=$PREVIEW_RESULT (expected $PREVIEW_EXPECTED), build-store=$STORE_RESULT (expected $STORE_EXPECTED)."
             exit 1
           fi
 
