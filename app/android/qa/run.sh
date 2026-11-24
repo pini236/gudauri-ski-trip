@@ -1574,22 +1574,33 @@ store() {
   adb shell am broadcast -a com.android.systemui.demo -e command battery -e level 100 -e plugged false > /dev/null
   adb shell am broadcast -a com.android.systemui.demo -e command network -e wifi show -e level 4 -e mobile hide > /dev/null
   adb shell am broadcast -a com.android.systemui.demo -e command notifications -e visible false > /dev/null
-  adb shell am force-stop "$PKG"
-  mark
-  adb shell "am start -W -n $ACT --es qa.tab map --es qa.stats off --es qa.time 2027-01-12T11:00" > /dev/null
-  waitlog "scene ready" 120 && waitlog "shadow ready" 120
-  sleep 2; sshot map
-  qa "--es qa.run 'Tatra 2'"; waitlog "selected Tatra 2" 30; sleep 3; sshot run
-  qa "--ez qa.fly true"; waitlog "fly started" 30; sleep 7; sshot fly
-  qa "--es qa.run none"; sleep 1
-  qa "--es qa.time 2027-01-12T16:40 --es qa.cam '600,-500,11000,20,36' --es qa.face sun"; waitlog "shadow ready" 120; sleep 1.5; sshot sunset
-  qa "--es qa.time 2027-01-12T21:00 --es qa.cam '600,-500,11000,20,36' --es qa.face moon"; waitlog "shadow ready" 120; sleep 1.5; sshot night
-  qa "--es qa.time 2027-01-12T11:00"; waitlog "shadow ready" 120
-  qa "--es qa.tab descent"; sleep 2; qa "--es qa.descent go"; sleep 6
-  hold $((W / 2)) $((H / 2)) 700; sleep 0.5; sshot descent
-  qa "--es qa.tab home --es qa.trip '$TRIP_HE' --es qa.time 2026-12-01T13:35"; sleep 2.5; sshot home
-  qa "--es qa.mode night"; sleep 2; sshot home-night
-  qa "--es qa.mode auto"
+  rd_prep store
+  # the store's shots are of the new design (it is the only one the app shows): the mountain at the hours of a day, a
+  # chosen run, the lifts, the sample day drawn on the mountain and its story, and the trip's pass
+  adb shell am force-stop "$PKG"; sleep 1
+  mark; adb shell "am start -W -n $ACT --es qa.tab home --es qa.mode day --es qa.stats off --es qa.redesign open" > /dev/null
+  waitlog "redesign ready" 75 || fail "store: the mountain did not open"
+  mark; qa "--es qa.mode day --es qa.redesign live"; waitlog "redesign live open" 15
+  waitlog "redesign live drawn" 60 || fail "store: the live model drew nothing"
+  mark; qa "--es qa.redesign season:off"; waitlog "redesign season closed" 10
+  rd_hour() { mark; qa "--es qa.redesign 'hour:$1'"; waitlog "redesign live hour" 10; rd_drawn; sleep 1.5; sshot "$2"; }
+  rd_hour 13.0 mountain
+  mark; qa "--es qa.redesign 'pick:Tatra 2'"; waitlog "redesign live framed Tatra 2" 20; sleep 2; rd_drawn; sshot run
+  mark; qa "--es qa.redesign unpick"; sleep 1
+  rd_hour 17.35 sunset
+  rd_hour 22.0 night
+  rd_hour 10.6 morning
+  mark; qa "--es qa.redesign lifts"; rd_settled; sshot lifts
+  mark; qa "--es qa.redesign lifts:off"; sleep 1
+  mark; qa "--es qa.trip '$TRIP_HE'"; waitlog "trip set" 20
+  mark; qa "--es qa.redesign trip"; waitlog "redesign trip open pass" 10 || fail "store: the trip pass did not open"; rd_settled; sshot trip
+  mark; qa "--es qa.redesign trip:off"; sleep 1
+  mark; qa "--es qa.mode day --es qa.redesign day"; sleep 1
+  mark; qa "--es qa.tab days/sample"; waitlog "redesign day open" 20 || fail "store: the day on the mountain did not open"
+  waitlog "redesign live day drawn .* day" 90 || fail "store: the day was not drawn on the mountain"
+  sleep 3; sshot day
+  mark; qa "--es qa.redesign story"; waitlog "redesign day story" 15 || fail "store: the story did not open"
+  sleep 2; sshot story
   adb shell am broadcast -a com.android.systemui.demo -e command exit > /dev/null
   adb shell wm size reset
 }
