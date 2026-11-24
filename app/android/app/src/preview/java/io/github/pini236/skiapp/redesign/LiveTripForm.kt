@@ -68,6 +68,7 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.pini236.skiapp.R
+import io.github.pini236.skiapp.fx.Haptics
 import io.github.pini236.skiapp.home.dayRange
 import io.github.pini236.skiapp.qa.Qa
 import io.github.pini236.skiapp.trip.DateDialog
