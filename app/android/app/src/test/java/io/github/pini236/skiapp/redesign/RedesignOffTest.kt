@@ -1,5 +1,6 @@
 package io.github.pini236.skiapp.redesign
 
+import io.github.pini236.skiapp.nav.Route as R
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -50,5 +51,18 @@ class RedesignOffTest {
         assertEquals("people:group:g1", Redesign.linkOf(io.github.pini236.skiapp.nav.Route.Group("g1")))
         assertEquals("people:gate", Redesign.linkOf(io.github.pini236.skiapp.nav.Route.Group()))
         assertEquals(null, Redesign.linkOf(io.github.pini236.skiapp.nav.Route.Home))
+        // nothing of the site's links leads to an old screen (Pini, 24.11.2026); only the games and the day stay routes
+        assertEquals("people:join:ABC123", Redesign.linkOf(R.Reclaim("ABC123")))
+        assertEquals("people:gate", Redesign.linkOf(R.JoinCode))
+        assertEquals("people:me", Redesign.linkOf(R.Account))
+        assertEquals("people:about", Redesign.linkOf(R.About))
+        assertEquals("people:licenses", Redesign.linkOf(R.Licenses))
+        assertEquals("people:license:heebo", Redesign.linkOf(R.License("heebo")))
+        assertEquals("people:new", Redesign.linkOf(R.GroupNew))
+        assertEquals("people:invite:g1", Redesign.linkOf(R.GroupInvite("g1")))
+        assertEquals("people:tripfor:g1:u2", Redesign.linkOf(R.TripFor("g1", "u2")))
+        assertEquals("trip", Redesign.linkOf(R.Trip))
+        assertEquals("skipass", Redesign.linkOf(R.Skipass))
+        for (r in listOf(R.Games, R.Game("merge"), R.Day, R.Days, R.DayOf("d1"))) assertEquals(null, Redesign.linkOf(r))
     }
 }

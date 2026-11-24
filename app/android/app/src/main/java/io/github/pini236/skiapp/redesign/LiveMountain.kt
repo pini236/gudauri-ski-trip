@@ -309,7 +309,17 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
             c == "people:gate" -> people.go(PLayer.Gate)
             c == "people:me" -> people.go(PLayer.Me)
             c == "people:signin" -> people.go(PLayer.SignIn)
+            c == "people:about" -> { people.go(PLayer.Me); people.go(PLayer.About) }
+            c == "people:licenses" -> { people.go(PLayer.Me); people.go(PLayer.Licenses) }
+            c.startsWith("people:license:") -> { people.go(PLayer.Me); people.go(PLayer.Licenses); people.go(PLayer.License(c.removePrefix("people:license:"))) }
+            c == "people:new" -> people.go(PLayer.NewGroup)
+            c.startsWith("people:invite:") -> { val g = c.removePrefix("people:invite:"); people.go(PLayer.Group(g)); people.go(PLayer.Invite(g)) }
+            c.startsWith("people:tripfor:") -> c.removePrefix("people:tripfor:").split(':', limit = 2).takeIf { it.size == 2 }?.let { (g, u) ->
+                people.go(PLayer.Group(g)); people.go(PLayer.TripFor(g, u)) }
+            c == "trip" -> { tripEdit = null; tripOpen = true }
+            c == "skipass" -> skipassOpen = true
         }
+        Qa.log("redesign link done $c")
         Redesign.link = null
     }
     LaunchedEffect(meetOpenQa, plan) {

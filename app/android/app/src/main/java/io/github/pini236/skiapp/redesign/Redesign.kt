@@ -94,6 +94,19 @@ object Redesign {
         is io.github.pini236.skiapp.nav.Route.Meet -> r.station?.let { "meet:station:$it" } ?: "meet"
         is io.github.pini236.skiapp.nav.Route.Join -> "people:join:${r.code}"
         is io.github.pini236.skiapp.nav.Route.Group -> r.id?.let { "people:group:$it" } ?: "people:gate"
+        // every other link of the site's has its place on the mountain too (nothing leads to the old screens); the
+        // games and the ski day's screens stay routes (the games keep their design, the day's screens are new)
+        is io.github.pini236.skiapp.nav.Route.Reclaim -> "people:join:${r.code}"
+        io.github.pini236.skiapp.nav.Route.JoinCode -> "people:gate"
+        io.github.pini236.skiapp.nav.Route.Account -> "people:me"
+        io.github.pini236.skiapp.nav.Route.About -> "people:about"
+        io.github.pini236.skiapp.nav.Route.Licenses -> "people:licenses"
+        is io.github.pini236.skiapp.nav.Route.License -> "people:license:${r.name}"
+        io.github.pini236.skiapp.nav.Route.GroupNew -> "people:new"
+        is io.github.pini236.skiapp.nav.Route.GroupInvite -> "people:invite:${r.id}"
+        is io.github.pini236.skiapp.nav.Route.TripFor -> "people:tripfor:${r.group}:${r.user}"
+        io.github.pini236.skiapp.nav.Route.Trip -> "trip"
+        io.github.pini236.skiapp.nav.Route.Skipass -> "skipass"
         else -> null
     }
 

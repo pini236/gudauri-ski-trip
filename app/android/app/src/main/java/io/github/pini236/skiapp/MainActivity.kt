@@ -425,7 +425,8 @@ class MainActivity : ComponentActivity() {
     private fun handleOpen(i: Intent?) {
         i?.data?.let { uri ->
             i.data = null
-            val r = Route.fromSiteLink(uri.toString()) ?: return@let
+            // the old replay is gone from sight: its link opens the day itself (with its film, on the mountain)
+            val r = Route.fromSiteLink(uri.toString())?.let { if (it is Route.Replay) Route.DayOf(it.id) else it } ?: return@let
             // the new design opens links on the mountain; the old screens only if the mountain does not take it
             if (r != Route.Home && io.github.pini236.skiapp.redesign.Redesign.link(r)) { nav.toStart(); if (r is Route.Meet && r.station != null) Telemetry.event("meet_link_open"); return@let }
             nav.toStart(); if (r != Route.Home) nav.push(r)
@@ -436,7 +437,7 @@ class MainActivity : ComponentActivity() {
                 if (p != null) mapView.select(p, via = "link") else linkRun = r.run
             }
         }
-        val r = Route.parse(i?.getStringExtra(OPEN) ?: return) ?: return
+        val r = Route.parse(i?.getStringExtra(OPEN) ?: return)?.let { if (it is Route.Replay) Route.DayOf(it.id) else it } ?: return
         i.removeExtra(OPEN)
         nav.toStart(); if (!io.github.pini236.skiapp.redesign.Redesign.link(r)) nav.push(r)
     }
