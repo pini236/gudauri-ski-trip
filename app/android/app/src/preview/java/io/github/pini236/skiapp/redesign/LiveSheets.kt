@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
@@ -73,6 +74,8 @@ internal class SheetInk(val night: Boolean) {
     val surf = if (night) Color(0xEB0F1828) else Color(0xEBF7FAFD)
     val good = if (night) Color(0xFF46D08A) else Color(0xFF198549)
     val acc = if (night) Color(0xFFB79CFF) else Color(0xFF6B3FD4)
+    /** The words on the accent (a chosen tab or chip, R03, R13): white on the day's purple, dark on the night's light one (contrast). */
+    val onAcc = if (night) Color(0xFF0F1828) else Color.White
     val veil = if (night) Color(0x94060B16) else Color(0x705C7294)
     val halo = if (night) Color(0xF2060B16) else Color(0xF2FFFFFF)
     val red = Color(0xFFE5352B)
@@ -81,14 +84,15 @@ internal class SheetInk(val night: Boolean) {
 }
 
 @Composable
-internal fun LiveSheet(k: SheetInk, opaque: Boolean = false, content: @Composable () -> Unit) {
+internal fun LiveSheet(k: SheetInk, opaque: Boolean = false, fill: Boolean = false, content: @Composable () -> Unit) {
     val top = sheetShape()
     val tab = isTabletUi()
     // fully opaque on Android: no line, tag or name of the mountain shows through (the designer, 24.11.2026, handoff
     // 2026-11-21-redesign-around section 14.5); [opaque] is kept for the callers that asked for it before. On a tablet
     // the side panel (part 8)
     SheetPlace { m ->
-    Column(m.shadow(8.dp, top).clip(top).background(k.surf.copy(alpha = 1f)).border(1.dp, k.line, top)
+    // [fill]: down to the screen's bottom from where it starts (the group, R03 to R06: no mountain under it)
+    Column(m.let { if (fill && !tab) it.fillMaxHeight() else it }.shadow(8.dp, top).clip(top).background(k.surf.copy(alpha = 1f)).border(1.dp, k.line, top)
         .let { if (tab) it else it.navigationBarsPadding() }.padding(start = 16.dp, end = 16.dp, top = 10.dp, bottom = 16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Box(Modifier.align(Alignment.CenterHorizontally).size(38.dp, 5.dp).clip(RoundedCornerShape(3.dp)).background(k.line))

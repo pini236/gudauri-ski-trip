@@ -922,7 +922,7 @@ private fun BoxScope.GroupSheet(p: People, ui: PeopleUi, k: SheetInk, id: String
     val act = rememberAct()
     Box(Modifier.matchParentSize().clickable { ui.back() })
     Box(Modifier.fillMaxSize().statusBarsPadding().padding(top = (PeopleRules.sheetTop(t) - 44).dp)) {
-        LiveSheet(k) {
+        LiveSheet(k, fill = true) {
             // the head: the name, the members and the dates; "invite" at the end
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Column(Modifier.weight(1f).let { m -> if (g?.admin == true) m.clickable { ui.go(PLayer.Invite(id)) } else m }) {
@@ -942,9 +942,9 @@ private fun BoxScope.GroupSheet(p: People, ui: PeopleUi, k: SheetInk, id: String
                 for ((tb, label) in listOf(GroupTab.MEETUPS to R.string.app_g_tab_meetups, GroupTab.FLIGHTS to R.string.app_g_tab_flights,
                     GroupTab.SCORES to R.string.group_tab_scores, GroupTab.MEMBERS to R.string.app_g_tab_members)) {
                     val on = tb == t
-                    Box(Modifier.weight(1f).heightIn(min = 44.dp).clip(RoundedCornerShape(22.dp)).let { if (on) it.background(k.ink) else it }
+                    Box(Modifier.weight(1f).heightIn(min = 44.dp).clip(RoundedCornerShape(22.dp)).let { if (on) it.background(k.acc) else it }
                         .semantics { role = Role.Tab; selected = on }.clickable { tab = tb }, contentAlignment = Alignment.Center) {
-                        Text(stringResource(label), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 13.sp, color = if (on) k.surf.copy(alpha = 1f) else k.ink, maxLines = 1)
+                        Text(stringResource(label), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 13.sp, color = if (on) k.onAcc else k.ink, maxLines = 1)
                     }
                 }
             }
@@ -1146,9 +1146,9 @@ private fun Flights(g: Group, k: SheetInk, trip: Trip?, act: Act, onSame: (Strin
     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
         for ((r, label) in listOf(false to R.string.app_pass_out, true to R.string.app_pass_ret)) {
             val on = r == ret
-            Box(Modifier.heightIn(min = 44.dp).padding(vertical = 4.dp).clip(RoundedCornerShape(18.dp)).background(if (on) k.ink else k.line)
+            Box(Modifier.heightIn(min = 44.dp).padding(vertical = 4.dp).clip(RoundedCornerShape(18.dp)).background(if (on) k.acc else k.line)
                 .semantics { role = Role.Tab; selected = on }.clickable { ret = r }.padding(horizontal = 14.dp), contentAlignment = Alignment.Center) {
-                Text(stringResource(label), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 13.5.sp, color = if (on) k.surf.copy(alpha = 1f) else k.ink)
+                Text(stringResource(label), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 13.5.sp, color = if (on) k.onAcc else k.ink)
             }
         }
         Spacer(Modifier.weight(1f))
@@ -1223,9 +1223,9 @@ private fun Scores(p: People, g: Group, k: SheetInk) {
     Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
         for ((key, name) in games) {
             val on = key == game
-            Box(Modifier.heightIn(min = 44.dp).padding(vertical = 4.dp).clip(RoundedCornerShape(18.dp)).background(if (on) k.ink else k.line)
+            Box(Modifier.heightIn(min = 44.dp).padding(vertical = 4.dp).clip(RoundedCornerShape(18.dp)).background(if (on) k.acc else k.line)
                 .semantics { role = Role.Tab; selected = on }.clickable { game = key }.padding(horizontal = 14.dp), contentAlignment = Alignment.Center) {
-                Text(stringResource(name), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 13.5.sp, color = if (on) k.surf.copy(alpha = 1f) else k.ink)
+                Text(stringResource(name), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 13.5.sp, color = if (on) k.onAcc else k.ink)
             }
         }
     }
@@ -1533,10 +1533,10 @@ private fun BoxScope.SettingsScreen(p: People, ui: PeopleUi, k: SheetInk) {
                 Row(Modifier.fillMaxWidth().clip(RoundedCornerShape(22.dp)).background(k.line)) {
                     for ((m, label) in listOf(DayNight.Mode.AUTO to R.string.daynight_mode_auto, DayNight.Mode.DAY to R.string.daynight_mode_day, DayNight.Mode.NIGHT to R.string.daynight_mode_night)) {
                         val on = m == mode
-                        Box(Modifier.weight(1f).heightIn(min = 44.dp).clip(RoundedCornerShape(22.dp)).let { if (on) it.background(k.ink) else it }
+                        Box(Modifier.weight(1f).heightIn(min = 44.dp).clip(RoundedCornerShape(22.dp)).let { if (on) it.background(k.acc) else it }
                             .semantics { role = Role.RadioButton; selected = on }.clickable { mode = m; p.onMode(m); Qa.log("redesign people mode ${m.name.lowercase()}") },
                             contentAlignment = Alignment.Center) {
-                            Text(stringResource(label), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 13.5.sp, color = if (on) k.surf.copy(alpha = 1f) else k.ink)
+                            Text(stringResource(label), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 13.5.sp, color = if (on) k.onAcc else k.ink)
                         }
                     }
                 }
