@@ -79,9 +79,10 @@ internal class SheetInk(night: Boolean) {
 }
 
 @Composable
-internal fun LiveSheet(k: SheetInk, content: @Composable () -> Unit) {
+internal fun LiveSheet(k: SheetInk, opaque: Boolean = false, content: @Composable () -> Unit) {
     val top = RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp)
-    Column(Modifier.fillMaxWidth().shadow(8.dp, top).clip(top).background(k.surf).border(1.dp, k.line, top)
+    // [opaque]: 0.96, so a line on the mountain does not show through (the designer, P04)
+    Column(Modifier.fillMaxWidth().shadow(8.dp, top).clip(top).background(if (opaque) k.surf.copy(alpha = .96f) else k.surf).border(1.dp, k.line, top)
         .navigationBarsPadding().padding(start = 16.dp, end = 16.dp, top = 10.dp, bottom = 16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Box(Modifier.align(Alignment.CenterHorizontally).size(38.dp, 5.dp).clip(RoundedCornerShape(3.dp)).background(k.line))
@@ -301,4 +302,40 @@ internal fun liftKind(kind: String): String = when (kind) {
     "platter" -> stringResource(R.string.lift_kind_platter)
     "t_bar" -> stringResource(R.string.lift_kind_t_bar)
     else -> kind
+}
+
+/**
+ * A row cut at a whole item (the designer, P04): the items in order, [sep] between them, as many as fit; when one does
+ * not, [more] ("…") ends the row. Never a name cut in the middle.
+ */
+@Composable
+internal fun WholeChain(n: Int, item: @Composable (Int) -> Unit, sep: @Composable () -> Unit, more: @Composable () -> Unit) {
+    androidx.compose.ui.layout.Layout(content = {
+        for (i in 0 until n) { if (i > 0) sep(); item(i) }
+        more()
+    }) { ms, c ->
+        val loose = c.copy(minWidth = 0, minHeight = 0)
+        val ps = ms.map { it.measure(loose) }
+        val dots = ps.last(); val parts = ps.dropLast(1)
+        val gap = 6.dp.roundToPx()
+        val shown = ArrayList<androidx.compose.ui.layout.Placeable>()
+        var w = 0
+        var cut = false
+        var i = 0
+        while (i < parts.size) {
+            // a group: the separator before an item (from the second) and the item
+            val group = if (i == 0) listOf(parts[0]) else listOf(parts[i], parts[i + 1])
+            val gw = group.sumOf { it.width } + gap * group.size - (if (i == 0) gap else 0)
+            val last = i + group.size >= parts.size
+            val room = c.maxWidth - (if (last) 0 else dots.width + gap)
+            if (w + gw > room) { cut = true; break }
+            shown += group; w += gw; i += group.size
+        }
+        if (cut) shown += dots
+        val h = shown.maxOfOrNull { it.height } ?: 0
+        layout(c.maxWidth, h) {
+            var x = 0
+            for ((j, p) in shown.withIndex()) { if (j > 0) x += gap; p.placeRelative(x, (h - p.height) / 2); x += p.width }
+        }
+    }
 }

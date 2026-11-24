@@ -134,7 +134,7 @@ internal fun DayShare(story: StoryData, sm: DayModel.Summary, paint: DayPaint.Da
     LaunchedEffect(RedesignQa.seq) {
         if (RedesignQa.cmd == "share:video") { video = true; withVideo { f -> scope.launch { val ok = withContext(Dispatchers.IO) { saveVideo(ctx, f) }; Qa.log("redesign share saved video $ok") } } }
     }
-    Box(Modifier.fillMaxSize().background(Color(0xB80B1220)).clickable(interactionSource = remember { MutableInteractionSource() }, indication = null) { onBack() }) {
+    Box(Modifier.fillMaxSize().background(Color(0xFF0B1220)).clickable(interactionSource = remember { MutableInteractionSource() }, indication = null) { onBack() }) {
         // the screen's title (L11), then the picture as it will leave; in the video's mode the same frame with a play sign
         // (the video is the day's lines filling in on the mountain, under the same words)
         // the top pill is the share's own (board L11, the designer 23.11.2026): drawn over the dimming, fully opaque, where
