@@ -206,7 +206,7 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
             c == "run:full" -> runFull = true
             c == "ride" -> chosen?.let { riding = it; Qa.log("redesign ride $it") }
             c == "run:low" -> runFull = false
-            c == "unpick" -> { runFull = false; held = null; chosen = null; view.choose(null); Qa.log("redesign live unpicked") }
+            c == "unpick" -> { runFull = false; riding = null; held = null; chosen = null; view.choose(null); Qa.log("redesign live unpicked") }
             c == "front" -> view.backToFront()
             c.startsWith("turn:") -> c.removePrefix("turn:").toFloatOrNull()?.let { view.qaTurn(it) }
             // part 2 (Q01 to Q03): the lifts' sheet and one lift
