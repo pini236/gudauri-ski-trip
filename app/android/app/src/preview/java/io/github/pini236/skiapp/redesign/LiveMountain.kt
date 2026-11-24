@@ -415,7 +415,7 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
             val d0 = pd
             last?.let { r -> if (d0 != null) RunSheet(r, d0, g, onClose = { chosen = null; view.choose(null) }) }
         }
-        AnimatedVisibility(chosen == null && !liftsOpen && !meet.open && !tripOpen && !skipassOpen, Modifier.align(Alignment.BottomCenter).navigationBarsPadding().padding(bottom = 22.dp), enter = fadeIn(), exit = fadeOut()) {
+        AnimatedVisibility(chosen == null && !liftsOpen && !meet.open && !tripOpen && !skipassOpen && !seasonOn, Modifier.align(Alignment.BottomCenter).navigationBarsPadding().padding(bottom = 22.dp), enter = fadeIn(), exit = fadeOut()) {
             Pill(h = 48) { Text(stringResource(R.string.poc_peak_hint), Modifier.padding(horizontal = 20.dp), fontFamily = Plex, fontSize = 15.sp, color = ink) }
         }
         // the flags of my groups (Q05 on the plain mountain): the same flag with its time; a tap opens it
