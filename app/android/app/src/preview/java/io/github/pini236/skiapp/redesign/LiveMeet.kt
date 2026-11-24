@@ -231,7 +231,7 @@ internal fun MeetWhereSheet(plan: MeetPlan, k: SheetInk, haptics: Haptics, onPre
                     .clickable { haptics.tick(.3f); onPreset(p, s) }.padding(vertical = 8.dp),
                     verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                     Box(Modifier.width(66.dp).height(44.dp).clip(RoundedCornerShape(22.dp)).border(1.dp, k.line, RoundedCornerShape(22.dp)), contentAlignment = Alignment.Center) {
-                        Text(p.time, fontFamily = Plex, fontWeight = FontWeight.Medium, fontSize = 15.sp, color = k.ink, fontFeatureSettings = "tnum")
+                        Text(p.time, fontFamily = Plex, fontWeight = FontWeight.Medium, fontSize = 15.sp, color = k.ink, style = TextStyle(fontFeatureSettings = "tnum"))
                     }
                     Column(Modifier.weight(1f)) {
                         Text(name, fontFamily = Plex, fontWeight = FontWeight.Bold, fontSize = 15.5.sp, color = k.ink)
@@ -251,7 +251,7 @@ private fun Chip(text: String, on: Boolean, k: SheetInk, desc: String = text, on
         .then(if (on) Modifier.background(k.acc) else Modifier.border(1.dp, k.line, RoundedCornerShape(22.dp)))
         .semantics { role = Role.Button; contentDescription = desc }.clickable(onClick = onClick).padding(horizontal = 14.dp), contentAlignment = Alignment.Center) {
         Text(text, fontFamily = Plex, fontWeight = if (on) FontWeight.Bold else FontWeight.Medium, fontSize = 15.sp, color = if (on) Color.White else k.ink,
-            maxLines = 1, fontFeatureSettings = "tnum")
+            maxLines = 1, style = TextStyle(fontFeatureSettings = "tnum"))
     }
 }
 
@@ -273,7 +273,7 @@ internal fun MeetSetSheet(here: MeetHere, s: Station, day: LocalDate, time: Loca
                 Text(stationSub(s), fontFamily = Plex, fontSize = 13.sp, color = k.ink2)
             }
             CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
-                Text(hhmm, fontFamily = Plex, fontWeight = FontWeight.Light, fontSize = 44.sp, color = k.ink, fontFeatureSettings = "tnum")
+                Text(hhmm, fontFamily = Plex, fontWeight = FontWeight.Light, fontSize = 44.sp, color = k.ink, style = TextStyle(fontFeatureSettings = "tnum"))
             }
         }
         Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
