@@ -169,7 +169,7 @@ private class Pictures(private val context: android.content.Context) {
 /** A picture on the screen: screen = point · k + (x, y), in pixels. */
 
 @Composable
-fun PeakScreen(mode: DayNight.Mode, haptics: Haptics, onLive: (() -> Unit)? = null, onLeave: () -> Unit) {
+fun PeakScreen(mode: DayNight.Mode, haptics: Haptics, onLive: (() -> Unit)? = null, onLeave: (() -> Unit)? = null) {
     val context = LocalContext.current
     val density = LocalDensity.current
     val reduced = remember { Motion.reduced(context) }
@@ -183,7 +183,7 @@ fun PeakScreen(mode: DayNight.Mode, haptics: Haptics, onLive: (() -> Unit)? = nu
     val d = data
     if (d == null) {
         // loading, or the data did not load: the sky's colour, and then "no recent data" with a retry and the way back
-        BackHandler { onLeave() }
+        if (onLeave != null) BackHandler { onLeave() }
         Box(Modifier.fillMaxSize().background(Color(0xFF9DB6D8)), contentAlignment = Alignment.Center) {
             if (noData) Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(stringResource(R.string.status_no_recent_data), fontFamily = Gudi, fontWeight = FontWeight.Medium, fontSize = 17.sp, color = Color(0xFF14213A))
@@ -473,7 +473,7 @@ fun PeakScreen(mode: DayNight.Mode, haptics: Haptics, onLive: (() -> Unit)? = nu
                         Text(stringResource(R.string.poc_peak_live), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = g.ink)
                     }
                 }
-                Pill(g, Modifier.clickable { haptics.tick(.3f); onLeave() }) {
+                if (onLeave != null) Pill(g, Modifier.clickable { haptics.tick(.3f); onLeave() }) {
                     Text(stringResource(R.string.poc_peak_leave), Modifier.padding(horizontal = 16.dp), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = g.ink)
                 }
             }

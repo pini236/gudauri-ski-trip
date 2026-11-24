@@ -89,7 +89,7 @@ import io.github.pini236.skiapp.qa.Qa
  */
 @Composable
 fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status: io.github.pini236.skiapp.status.LiftStatus?, inSeason: Boolean,
-                 forMe: Boolean, onForMe: (Boolean) -> Unit, around: io.github.pini236.skiapp.home.Around?, onPainted: () -> Unit, onLeave: () -> Unit) {
+                 forMe: Boolean, onForMe: (Boolean) -> Unit, around: io.github.pini236.skiapp.home.Around?, onPainted: () -> Unit, onLeave: (() -> Unit)?) {
     val here = around?.meet
     val context = LocalContext.current
     // the font chain by this screen's language (redesign part 7; made at start, again here when the language differs)
@@ -382,11 +382,13 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
     }
 
     val lightNow = PeakLight.clock(PeakLight.localHour(time))
-    people.tools = {
+    // the test build's tools; none in the store build
+    people.tools = if (io.github.pini236.skiapp.BuildConfig.FLAVOR == "store") null else ({
         TestRow(stringResource(R.string.poc_peak_light_now, lightNow)) { people.close(); scrubOpen = true; Qa.log("redesign tools light") }
         TestRow(stringResource(R.string.poc_peak_painted)) { people.close(); onPainted() }
-        TestRow(stringResource(R.string.poc_peak_leave)) { people.close(); onLeave() }
-    }
+        // only the emulator's runs may leave the mountain (the app has no other home, Pini 24.11.2026)
+        if (onLeave != null) TestRow(stringResource(R.string.poc_peak_leave)) { people.close(); onLeave() }
+    })
     Box(Modifier.fillMaxSize()) {
         // part 8, section 2: the mountain is one item for the screen reader, with the next and previous run and the
         // opening view as its actions; "where to?" in the dock is the full way to choose a run without seeing it

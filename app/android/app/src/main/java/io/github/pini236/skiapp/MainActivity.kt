@@ -902,7 +902,9 @@ class MainActivity : ComponentActivity() {
                 // under the new mountain the old screens are not read aloud (the designer's condition before the store)
                 Box(Modifier.fillMaxSize().then(if (io.github.pini236.skiapp.redesign.Redesign.covering) Modifier.clearAndSetSemantics {} else Modifier)) {
                 when (top) {
-                    Route.Home -> HomeScreen(trip, frame, dnMode, LocalDateTime.ofInstant(Instant.ofEpochMilli(tick), ZoneId.systemDefault()), haptics, sounds, status = lstat, group = firstGroup,
+                    // the store and test builds have no old home: under the mountain only its sky (nothing to flash
+                    // before the mountain draws); the emulator's runs still drive the old screens there
+                    Route.Home -> if (!BuildConfig.DEBUG && io.github.pini236.skiapp.redesign.Redesign.on()) Box(Modifier.fillMaxSize().background(androidx.compose.ui.graphics.Color(0xFF9DB6D8))) else HomeScreen(trip, frame, dnMode, LocalDateTime.ofInstant(Instant.ofEpochMilli(tick), ZoneId.systemDefault()), haptics, sounds, status = lstat, group = firstGroup,
                         onLang = ::setLang,
                         onMode = ::nextMode,
                         record = dayUi,

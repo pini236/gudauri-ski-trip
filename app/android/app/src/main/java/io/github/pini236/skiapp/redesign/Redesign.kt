@@ -196,6 +196,10 @@ object Redesign {
         val debug = io.github.pini236.skiapp.BuildConfig.DEBUG
         if (debug && !RedesignQa.asked) return
         var open by rememberSaveable { mutableStateOf(!debug) }
+        // the mountain is the app (Pini, 24.11.2026): it closes only in the emulator's runs, which drive the screens
+        // under it; anywhere else back leaves the app and nothing leads to the old home
+        val close: (() -> Unit)? = if (debug) ({ open = false }) else null
+        if (!debug && !open) open = true
         // a link opens the mountain (its sheet comes with it)
         androidx.compose.runtime.LaunchedEffect(link) { if (link != null) open = true }
         LaunchedEffect(RedesignQa.seq) {
@@ -206,7 +210,7 @@ object Redesign {
         }
         DisposableEffect(open) { covering = open; onDispose { covering = false } }
         if (open) {
-            BackHandler { open = false }
+            if (close != null) BackHandler { close() }
             val view = LocalView.current
             // light icons over the sky
             SideEffect { (view.context as? android.app.Activity)?.window?.let { WindowCompat.getInsetsController(it, view).isAppearanceLightStatusBars = false } }
@@ -230,9 +234,9 @@ object Redesign {
             Box(Modifier.fillMaxSize()) {
                 // the live model only over home: never with the map open too (the height model would sit on the GPU
                 // twice, docs/ARCHITECTURE.md)
-                if (scene != null && home && gles && (live || shown.value > 0f)) LiveMountain(scene, mode, haptics, status, inSeason, forMe, onForMe, around, onPainted = { live = false }, onLeave = { open = false })
+                if (scene != null && home && gles && (live || shown.value > 0f)) LiveMountain(scene, mode, haptics, status, inSeason, forMe, onForMe, around, onPainted = { live = false }, onLeave = close)
                 if (!live || shown.value < 1f) Box(Modifier.fillMaxSize().graphicsLayer { alpha = 1f - shown.value }) {
-                    PeakScreen(mode, haptics, onLive = if (scene != null && home && gles) ({ live = true }) else null) { open = false }
+                    PeakScreen(mode, haptics, onLive = if (scene != null && home && gles) ({ live = true }) else null, onLeave = close)
                 }
             }
         } else {
