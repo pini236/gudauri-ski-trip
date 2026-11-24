@@ -1256,8 +1256,9 @@ redesign3() {
   if waitlog "redesign village open" 20; then sleep 1.5; shot redesign-village
     mark; qa "--es qa.redesign village:full"; sleep 1; shot redesign-village-full
     # the games, from the cabin's row in the village (they stay in today's design); back to the mountain
-    if tapText "ערב בבקתה"; then sleep 3; shot redesign-cabin-games; adb shell input keyevent KEYCODE_BACK; sleep 2
-      qa "--es qa.redesign open"; sleep 1; qa "--es qa.redesign live"; rd_settled
+    # (the emulator's build: the games are a page of their own; home and the mountain again by the commands)
+    if tapText "ערב בבקתה"; then sleep 3; shot redesign-cabin-games; qa "--es qa.tab home"; sleep 2
+      mark; qa "--es qa.redesign open"; sleep 1; qa "--es qa.redesign live"; seen "redesign live drawn" 30; qa "--es qa.redesign season:off"; rd_settled
     else fail "redesign: the cabin's row was not in the village"; fi
     mark; qa "--es qa.redesign village:off"; sleep 1
   else fail "redesign: the village did not open"; fi
@@ -1446,13 +1447,14 @@ redesign2() {
   # goes back to the low one, a slow short pull goes back into place, a flick down closes
   mark; qa "--es qa.redesign unpick"; sleep .5
   mark; qa "--es qa.redesign 'pick:Tatra 2'"; waitlog "redesign live framed Tatra 2" 20
-  sleep 1; mark; drag 540 1900 540 1350 350; waitlog "redesign pull up" 10 || fail "redesign: a pull up on the run sheet did not take"
+  # the low sheet shows 900 ms after the framing (K10); wait for it
+  sleep 3; mark; drag 540 1900 540 1350 350; waitlog "redesign pull up" 10 || fail "redesign: a pull up on the run sheet did not take"
   waitlog "redesign run full Tatra 2" 10 || fail "redesign: a pull up did not open the full sheet"; sleep 1; rd_settled; shot redesign-pull-full
   mark; drag 540 1250 540 2200 450; waitlog "redesign pull down" 10 || fail "redesign: a pull down on the full sheet did not take"
   waitlog "redesign run low" 10 || fail "redesign: a pull down did not go back to the low sheet"
   sleep 1; mark; drag 540 1900 540 1980 900; waitlog "redesign pull back" 10 || fail "redesign: a short pull did not go back into place"
   sleep 1; shot redesign-pull-back
-  mark; drag 540 1850 540 2300 120; waitlog "redesign pull down" 10 || fail "redesign: a flick down did not close the run sheet"
+  mark; drag 540 1700 540 2350 150; waitlog "redesign pull down" 10 || fail "redesign: a flick down did not close the run sheet"
   # S08: no compass on the opening view (a run framed or let go is no turn), then after a real turn of 40 degrees
   # (a slow emulator: the way home may still be turning; wait until the compass has gone, when it was shown at all)
   mark; qa "--es qa.redesign unpick"; sleep .5; qa "--es qa.redesign home"; sleep 2; seen "redesign compass gone" 20 || true

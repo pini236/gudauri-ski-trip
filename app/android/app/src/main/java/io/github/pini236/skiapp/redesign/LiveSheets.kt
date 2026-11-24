@@ -409,7 +409,7 @@ internal fun Modifier.pullSheet(onDown: (() -> Unit)?, onUp: (() -> Unit)? = nul
     val gone = androidx.compose.runtime.rememberUpdatedState(closes)
     fun release(v: Float) {
         val to = PullRules.settle(y, v, h, dens, down.value != null, up.value != null)
-        Qa.log("redesign pull ${to.name.lowercase()}")
+        Qa.log("redesign pull ${to.name.lowercase()} y=${y.toInt()} v=${v.toInt()} h=${h.toInt()}")
         scope.launch {
             when (to) {
                 PullRules.To.DOWN -> {
