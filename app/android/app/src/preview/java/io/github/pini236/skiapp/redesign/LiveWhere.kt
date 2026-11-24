@@ -196,11 +196,12 @@ internal fun BoxScope.WhereDot(ui: WhereUi, view: LiveView) {
  * end when there is one. On a run, a dot of its colour; a tap opens the run's sheet. A live region for screen readers.
  */
 @Composable
-internal fun BoxScope.WhereBox(ui: WhereUi, night: Boolean, onRun: (String) -> Unit, onAction: () -> Unit) {
+internal fun BoxScope.WhereBox(ui: WhereUi, night: Boolean, onRun: (String) -> Unit, onAction: () -> Unit, below: Boolean = false) {
     val k = remember(night) { SheetInk(night) }
     val s = ui.where.state
     val words = whereWords(s)
-    AnimatedVisibility(words != null, Modifier.align(Alignment.TopCenter).statusBarsPadding().padding(top = 62.dp, start = 12.dp, end = 12.dp),
+    AnimatedVisibility(words != null, // under the lenses' chips (K08) it moves down to 150 from the top
+        Modifier.align(Alignment.TopCenter).statusBarsPadding().padding(top = if (below) 106.dp else 62.dp, start = 12.dp, end = 12.dp),
         enter = fadeIn(tween(150)), exit = fadeOut(tween(150))) {
         val w = words ?: return@AnimatedVisibility
         val run = ((s as? WhereAmI.State.Fixed)?.fix as? Locator.Fix.OnRun)?.piste

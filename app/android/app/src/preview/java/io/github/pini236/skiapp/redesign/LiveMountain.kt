@@ -717,7 +717,7 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
         LaunchedEffect(bare, plan) {
             view.onPreTap = if (bare && plan != null) { x, y -> StationTap.at(view, plan, stationRuns, x, y, dens)?.let { s -> haptics.tick(.4f); fromSt = s; Qa.log("redesign station ${s.id}"); true } ?: false } else null
         }
-        if (bare) WhereBox(where, night, onRun = { k -> haptics.tick(.3f); view.pickKey(k) }, onAction = whereAction)
+        if (bare) WhereBox(where, night, onRun = { k -> haptics.tick(.3f); view.pickKey(k) }, onAction = whereAction, below = lensRow)
         // K08: one colour layer at a time: a run chosen, the shelf or a station turns the lens off and closes the row
         LaunchedEffect(chosen, shelfOpen, fromSt) { if (chosen != null || shelfOpen || fromSt != null) { lens = null; lensRow = false } }
         val wxLens = io.github.pini236.skiapp.weather.LocalWeather.current.usable
