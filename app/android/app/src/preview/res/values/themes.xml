@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The test build's theme (redesign part 8): the same as the store build's, with the new design's splash from Android 12 -->
+<resources>
+    <style name="Gudi.Preview" parent="@android:style/Theme.Material.Light.NoActionBar" />
+</resources>

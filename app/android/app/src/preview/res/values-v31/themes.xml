@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The splash (design/handoff/2026-11-23-redesign-everyone, section 4): the approved icon, unchanged, on the new design's
+     sky by day (one colour, the system draws no gradient); the mountain then fades in -->
+<resources>
+    <style name="Gudi.Preview" parent="@android:style/Theme.Material.Light.NoActionBar">
+        <item name="android:windowSplashScreenBackground">#E6EFF9</item>
+    </style>
+</resources>

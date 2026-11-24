@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The splash by night (section 4): the icon on #0B1220 -->
+<resources>
+    <style name="Gudi.Preview" parent="@android:style/Theme.Material.Light.NoActionBar">
+        <item name="android:windowSplashScreenBackground">#0B1220</item>
+    </style>
+</resources>

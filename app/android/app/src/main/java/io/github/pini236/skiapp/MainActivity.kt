@@ -312,8 +312,16 @@ class MainActivity : ComponentActivity() {
         startActivity(Intent(Intent.ACTION_VIEW, android.net.Uri.parse("https://${Route.SITE_HOST}/support?utm_source=app#$tag")))
     }
 
+    /** The window changed (a foldable opened, a split window): the lock is worked out again by its new width. */
+    override fun onConfigurationChanged(newConfig: android.content.res.Configuration) {
+        super.onConfigurationChanged(newConfig)
+        io.github.pini236.skiapp.ui.Orientation.apply(this, newConfig)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        // a phone upright, a tablet free (redesign part 8), before anything is drawn
+        io.github.pini236.skiapp.ui.Orientation.apply(this)
         ReplayController.enableQa(BuildConfig.DEBUG && intent?.getBooleanExtra("qa.replay", false) == true)
         nav = Nav(Route.Home, savedInstanceState?.getStringArrayList("nav"), ReplayController::beforeNavigation)
         Qa.init(this)
@@ -374,7 +382,7 @@ class MainActivity : ComponentActivity() {
             lang = lang.tag,
             langSource = if (manual) "manual" else "auto",
             theme = dnMode.name.lowercase(),
-            deviceClass = if (resources.configuration.smallestScreenWidthDp >= 600) "tablet" else "phone",
+            deviceClass = if (io.github.pini236.skiapp.ui.Orientation.isTablet(resources.configuration)) "tablet" else "phone",
             installChannel = InstallChannel.detect(this, Telemetry.qaRun(), BuildConfig.FLAVOR == "preview"),
         ))
         // Locale/rotation recreates the Activity in this process; keep common properties fresh without a fake open.
