@@ -46,6 +46,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateMapOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
@@ -150,12 +151,18 @@ private class Pictures(private val context: android.content.Context) {
     @Synchronized fun peek(file: String): ImageBitmap? = cache[file]
     fun get(file: String): ImageBitmap {
         peek(file)?.let { return it }
-        // a picture that does not load: today's screens (Redesign.fail), and a blank one until the screen goes
+        // a picture that does not load: the sky's colour in its place (the pill and the bar stay), not kept, so the
+        // next look tries again (Redesign.fail; never the old design)
         val raw = runCatching { context.assets.open("redesign/$file").use { BitmapFactory.decodeStream(it) } }.getOrNull()
-            ?: run { Redesign.fail("picture $file"); android.graphics.Bitmap.createBitmap(1, 1, android.graphics.Bitmap.Config.ARGB_8888) }
+            ?: run { Redesign.fail("picture $file"); return SKY_FILL }
         val bmp = raw.also { it.prepareToDraw() }.asImageBitmap()
         synchronized(this) { cache[file] = bmp; while (cache.size > 3) cache.remove(cache.keys.first()) }
         return bmp
+    }
+
+    private companion object {
+        val SKY_FILL: ImageBitmap = android.graphics.Bitmap.createBitmap(1, 1, android.graphics.Bitmap.Config.ARGB_8888)
+            .apply { eraseColor(0xFF9DB6D8.toInt()) }.asImageBitmap()
     }
 }
 
@@ -166,9 +173,26 @@ fun PeakScreen(mode: DayNight.Mode, haptics: Haptics, onLive: (() -> Unit)? = nu
     val context = LocalContext.current
     val density = LocalDensity.current
     val reduced = remember { Motion.reduced(context) }
-    val data by produceState<PeakData?>(null) { value = withContext(Dispatchers.IO) { runCatching { PeakData.load(context) }.onFailure { Redesign.fail("data") }.getOrNull() } }
+    var attempt by remember { mutableIntStateOf(0) }
+    var noData by remember { mutableStateOf(false) }
+    val data by produceState<PeakData?>(null, attempt) {
+        noData = false
+        value = withContext(Dispatchers.IO) { runCatching { PeakData.load(context) }.onFailure { Redesign.fail("data") }.getOrNull() }
+        noData = value == null
+    }
     val d = data
-    if (d == null) { Box(Modifier.fillMaxSize().background(Color(0xFF9DB6D8))); return }
+    if (d == null) {
+        // loading, or the data did not load: the sky's colour, and then "no recent data" with a retry and the way back
+        BackHandler { onLeave() }
+        Box(Modifier.fillMaxSize().background(Color(0xFF9DB6D8)), contentAlignment = Alignment.Center) {
+            if (noData) Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Text(stringResource(R.string.status_no_recent_data), fontFamily = Gudi, fontWeight = FontWeight.Medium, fontSize = 17.sp, color = Color(0xFF14213A))
+                Spacer(Modifier.height(16.dp))
+                SecondaryButton(stringResource(R.string.app_retry), SheetInk(false)) { attempt++; Qa.log("redesign retry data") }
+            }
+        }
+        return
+    }
     val pics = remember { Pictures(context) }
     val scope = rememberCoroutineScope()
 

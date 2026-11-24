@@ -54,15 +54,18 @@ import io.github.pini236.skiapp.home.DayNight
  */
 object Redesign {
     /**
-     * The redesign is the app (Pini, 24.11.2026: no switch; docs/ARCHITECTURE.md). The way back to today's screens is
-     * only a fall: when its data or a picture does not load, every way in below gives today's screen back for the rest
-     * of the run, before anything else of the redesign is touched. A test can turn it off.
+     * The redesign is the app (Pini, 24.11.2026: no switch, and no old design shown, ever; docs/ARCHITECTURE.md). The old
+     * screens stay in the code only until they are deleted (after 100 percent and a stable week). A test can turn it off.
      */
-    @Volatile internal var on: () -> Boolean = { !broken }
-    @Volatile private var broken = false
+    @Volatile internal var on: () -> Boolean = { true }
 
-    /** Something the redesign cannot work without did not load ([what], for the log): today's screens from now on. */
-    fun fail(what: String) { if (!broken) { broken = true; io.github.pini236.skiapp.qa.Qa.log("redesign failed $what") } }
+    /**
+     * Something of the redesign did not load ([what], for the log). The screen stays in the new design: the painted
+     * mountain, or the sky's colour with the pill and the bar and "no recent data" with a retry; never today's screens.
+     */
+    fun fail(what: String) { failed = what; io.github.pini236.skiapp.qa.Qa.log("redesign failed $what") }
+    @Volatile var failed: String? = null
+        private set
 
     /** The live model needs OpenGL ES 3 (the manifest asks for it; a phone that still lacks it keeps the painted mountain). */
     fun liveOk(glEsVersion: Int): Boolean = glEsVersion >= 0x30000

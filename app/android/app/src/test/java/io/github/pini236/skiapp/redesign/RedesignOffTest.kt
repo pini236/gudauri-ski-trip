@@ -7,9 +7,8 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 /**
- * The redesign is the app (no switch, docs/ARCHITECTURE.md, 24.11.2026); when what it cannot work without does not load,
- * every way in gives today's screen back. The composable ways in are the same first line; these are the ones a plain
- * test can reach.
+ * The redesign is the app (no switch, and no old design shown, docs/ARCHITECTURE.md, 24.11.2026). What did not load keeps
+ * the new design (Redesign.fail); [Redesign.on] is turned off here only to test the way the old code stays inert.
  */
 class RedesignOffTest {
     private val was = Redesign.on
@@ -35,11 +34,10 @@ class RedesignOffTest {
         assertTrue(Redesign.liveOk(0x30002))
     }
 
-    // last: the fall is for the rest of the run (Redesign.on is reset, the fall itself is not undone)
-    @Test fun aFailedLoadFallsBackToTodaysScreens() {
+    @Test fun aFailedLoadKeepsTheNewDesign() {
         Redesign.on = was
         Redesign.fail("picture test.webp")
-        assertFalse(Redesign.on())
-        assertEquals("", Redesign.noticeKey(null, null))
+        assertTrue(Redesign.on())
+        assertEquals("picture test.webp", Redesign.failed)
     }
 }
