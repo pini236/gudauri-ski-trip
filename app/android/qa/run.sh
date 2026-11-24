@@ -8,7 +8,7 @@ OUT=${OUT:-qa-out}
 SCENARIO=${SCENARIO:-all}
 # Reject typos before touching the device. An unknown part used to run the entire suite.
 [[ "$SCENARIO" != *$'\n'* && "$SCENARIO" != *$'\r'* ]] || { echo "QA scenario must be a single line" >&2; exit 2; }
-ALL_SCENARIOS=(map descent games school snowball home group meet status run locate weather lang phone store bigtext redesign redesign2)
+ALL_SCENARIOS=(map descent games school snowball home group meet status run locate weather lang phone store bigtext redesign redesign2 redesign3 redesign4)
 if [[ "$SCENARIO" == all ]]; then
   SCENARIOS=("${ALL_SCENARIOS[@]}")
 else
@@ -20,7 +20,7 @@ else
     part="${part#"${part%%[![:space:]]*}"}"
     part="${part%"${part##*[![:space:]]}"}"
     case "$part" in
-      map|descent|games|school|snowball|home|group|meet|status|run|locate|weather|lang|phone|store|bigtext|dayrecvideo|redesign|redesign2) ;;
+      map|descent|games|school|snowball|home|group|meet|status|run|locate|weather|lang|phone|store|bigtext|dayrecvideo|redesign|redesign2|redesign3|redesign4) ;;
       *) echo "Unknown or empty QA scenario: '$part'" >&2; exit 2 ;;
     esac
     [[ -z "${selected[$part]+present}" ]] || { echo "Duplicate QA scenario: '$part'" >&2; exit 2; }
@@ -1088,11 +1088,32 @@ rd_touch() { # rd_touch <run>: touch <run> where it is drawn now; the screen mus
   mark; tap $xy; waitlog "redesign chosen $1" 10
 }
 rd_back() { mark; adb shell input keyevent KEYCODE_BACK; waitlog "redesign cleared" 10; sleep 1; }
+# the redesign's parts (each in a job of its own, about 15 minutes): the frame helpers, and a part's way into the live
+# model as the first part leaves it (the app opened on the painted mountain, the live model drawn, the season off)
+rd_drawn() { seen "redesign live drawn" 25 || true; sleep 4; }
+rd_settled() { seen "redesign live drawn" 6 || true; sleep 2; }
+rd_prep() { # before a part's first touch: the load settled (up to a minute), and no system box over the screen
+  local load="" i; for i in $(seq 1 20); do load=$(adb shell cat /proc/loadavg 2> /dev/null | cut -d' ' -f1 | tr -d '\r')
+    awk -v l="${load:-99}" 'BEGIN { exit !(l < 12) }' && break; sleep 3; done; note "$1: load $load"
+  uidump && unblock || true
+}
+rd_live_start() {
+  rd_prep "$1"
+  adb shell am force-stop "$PKG"; sleep 1; mark
+  adb shell "am start -W -n $ACT --es qa.tab home --es qa.mode auto --es qa.redesign open" > /dev/null
+  waitlog "redesign ready" 75; sleep 3
+  mark; qa "--es qa.mode day --es qa.redesign live"; waitlog "redesign live open" 15
+  waitlog "redesign live drawn" 60 || fail "$1: the live model drew nothing but the clear colour"
+  mark; qa "--es qa.redesign season:off"; waitlog "redesign season closed" 10
+  sleep 3; uidump && unblock || true
+}
+
 redesign() {
+  rd_prep redesign
   adb shell am force-stop "$PKG"; sleep 1; mark
   adb shell "am start -W -n $ACT --es qa.tab home --es qa.mode auto --es qa.redesign open" > /dev/null
   # a cold start on the emulator: the map's own shadows alone took 33 s in run 292, and the painted screen waits for them
-  waitlog "redesign ready" 75; sleep 3; shot redesign-open
+  waitlog "redesign ready" 75; sleep 3; uidump && unblock || true; shot redesign-open
   # a run away from the close-up's side, on the whole mountain: the mountain rises above the sheet
   rd_touch "Kudebi 1" && { sleep 2.5; shot redesign-chosen; }; rd_back
   # a run of the Tatra side: the close-up picture comes in
@@ -1127,9 +1148,7 @@ redesign() {
   # (the shadows are worked out off the GL thread, a few seconds on the emulator), then three free views
   # the intent that carries a command brings the activity back, and with it a new GL surface: the textures are decoded
   # again, so the frame waits for the model's next full draw (on a phone without that, the shadows' few seconds)
-  rd_drawn() { seen "redesign live drawn" 25 || true; sleep 4; }
   # part 2's layers: a full draw when the intent brought a new surface (the emulator's), otherwise the frame already there
-  rd_settled() { seen "redesign live drawn" 6 || true; sleep 2; }
   for k in dawn:9.0 morning:10.6 noon:13.0 after:15.9 sunset:17.35 blue:18.3 night:22.0; do
     mark; qa "--es qa.redesign 'hour:${k#*:}'"; waitlog "redesign live hour" 10; rd_drawn; shot "redesign-live-open-${k%%:*}"
   done
@@ -1189,6 +1208,11 @@ redesign() {
   mark; qa "--es qa.redesign lens:slope"; waitlog "redesign lens slope" 20 && { rd_settled; shot redesign-lens-slope; } || fail "redesign: the slope lens did not draw"
   mark; qa "--es qa.redesign lens:snow"; waitlog "redesign lens snow" 20 && { rd_settled; shot redesign-lens-snow; } || fail "redesign: the snow lens did not answer"
   mark; qa "--es qa.redesign lens:off --es qa.status none"; sleep 1
+}
+
+redesign3() {
+  # the first part's second half, in a job of its own: from the village on
+  rd_live_start redesign3
   # part 4b (K17): the village from the bottom bar, its picture, tags, pins and sheet, and back
   # the village's sign when it is on the screen, or the command (the sign may be under a sheet on a slow emulator)
   mark; if [ -n "$(where "הכפר")" ]; then tapText "הכפר"; else qa "--es qa.redesign village"; fi
@@ -1330,16 +1354,7 @@ redesign() {
 }
 # the redesign's second half (parts 4 to 8), its own emulator job: a run of its own from a cold start, as the first half
 redesign2() {
-  adb shell am force-stop "$PKG"; sleep 1; mark
-  adb shell "am start -W -n $ACT --es qa.tab home --es qa.mode auto --es qa.redesign open" > /dev/null
-  waitlog "redesign ready" 75; sleep 3
-  # the second half runs in its own job: into the live model, as the first half leaves it, with its frame helpers
-  mark; qa "--es qa.mode day --es qa.redesign live"; waitlog "redesign live open" 15
-  waitlog "redesign live drawn" 60 || fail "redesign2: the live model drew nothing but the clear colour"
-  mark; qa "--es qa.redesign season:off"; waitlog "redesign season closed" 10
-  rd_drawn() { seen "redesign live drawn" 25 || true; sleep 4; }
-  rd_settled() { seen "redesign live drawn" 6 || true; sleep 2; }
-  sleep 3
+  rd_live_start redesign2
   # completion part 4 (S02 to S04, S08): the first-time sheet, "where am I" on a run, out of the area, the compass
   mark; qa "--es qa.redesign where:ask"; waitlog "redesign where ask" 10 || fail "redesign: the where-am-I sheet did not open"; rd_settled; shot redesign-where-ask
   mark; qa "--es qa.redesign where:off"; sleep 1
@@ -1355,7 +1370,8 @@ redesign2() {
   mark; qa "--es qa.weather fresh --es qa.redesign 'pick:Tatra 2'"; waitlog "redesign live framed Tatra 2" 20
   mark; qa "--es qa.redesign run:full"; waitlog "redesign run full Tatra 2" 15 || fail "redesign: the run's full sheet did not open"; sleep 2; rd_settled; shot redesign-run-full
   # S08: no compass on the opening view (a run framed or let go is no turn), then after a real turn of 40 degrees
-  mark; qa "--es qa.redesign unpick"; sleep .5; qa "--es qa.redesign home"; sleep 2
+  # (a slow emulator: the way home may still be turning; wait until the compass has gone, when it was shown at all)
+  mark; qa "--es qa.redesign unpick"; sleep .5; qa "--es qa.redesign home"; sleep 2; seen "redesign compass gone" 20 || true
   mark; qa "--es qa.redesign turn:40"; waitlog "redesign compass shown" 15 && { rd_settled; shot redesign-compass; }
   mark; qa "--es qa.redesign home"; waitlog "redesign compass gone" 15 || fail "redesign: the compass did not go after home"
   # S01 at night (the review of 24.11): the opening view, nothing chosen, the night picture
@@ -1405,6 +1421,11 @@ redesign2() {
   mark; qa "--es qa.redesign share:off"; sleep 1
   mark; qa "--es qa.redesign story:off"; sleep 1
   mark; qa "--es qa.redesign ridge:off"; sleep 2
+}
+
+redesign4() {
+  # the second part's second half, in a job of its own: recording (it starts the app itself)
+  rd_prep redesign4
   # board L01: the first time, the sheet before the system's location question (revoking restarts the app)
   adb shell pm revoke "$PKG" android.permission.ACCESS_FINE_LOCATION; adb shell pm revoke "$PKG" android.permission.ACCESS_COARSE_LOCATION; sleep 1; mark
   adb shell "am start -W -n $ACT --es qa.mode day --es qa.redesign day --es qa.dayrec ask" > /dev/null
