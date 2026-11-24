@@ -35,5 +35,5 @@ object Redesign {
 
     @Suppress("UNUSED_PARAMETER")
     @Suppress("UNUSED_PARAMETER") @Composable fun BoxScope.Host(home: Boolean, mode: DayNight.Mode, haptics: Haptics, scene: MapScene?, status: io.github.pini236.skiapp.status.LiftStatus? = null,
-                                 inSeason: Boolean = false, forMe: Boolean = false, onForMe: (Boolean) -> Unit = {}, here: io.github.pini236.skiapp.meet.MeetHere? = null) {}
+                                 inSeason: Boolean = false, forMe: Boolean = false, onForMe: (Boolean) -> Unit = {}, around: io.github.pini236.skiapp.home.Around? = null) {}
 }

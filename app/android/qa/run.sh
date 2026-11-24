@@ -1189,6 +1189,17 @@ redesign() {
   mark; qa "--es qa.redesign meet:flag"; waitlog "redesign meet flag" 10 || fail "redesign: no group flag"
   sleep 1.5; shot redesign-meet-group-flag
   mark; qa "--es qa.redesign meet:flag:off"; sleep .5
+  # part 2 (Q07, Q08): "your trip" over the mountain: the empty card and its calendar, then the pass, swapped and torn
+  mark; qa "--es qa.trip none"; sleep .5
+  mark; qa "--es qa.redesign trip"; waitlog "redesign trip open empty" 10 || fail "redesign: the empty trip did not open"; sleep 1; shot redesign-trip-empty
+  mark; qa "--es qa.redesign trip:cal"; waitlog "redesign trip calendar" 10; sleep 1; shot redesign-trip-calendar
+  mark; qa "--es qa.redesign trip:off"; sleep .5
+  mark; qa "--es qa.trip '$TRIP_HE'"; waitlog "trip set" 20
+  mark; qa "--es qa.redesign trip"; waitlog "redesign trip open pass" 10 || fail "redesign: the trip pass did not open"; sleep 1.5; shot redesign-trip-pass
+  mark; qa "--es qa.redesign trip:swap"; sleep 1.2; shot redesign-trip-return
+  mark; qa "--es qa.redesign trip:tear"; sleep 1.5; shot redesign-trip-torn
+  mark; qa "--es qa.mode night --es qa.redesign trip"; sleep 1.5; shot redesign-trip-night
+  mark; qa "--es qa.mode auto --es qa.redesign trip:off"; sleep .5
   mark; qa "--es qa.mode auto --es qa.redesign painted"; waitlog "redesign live closed" 10; sleep 1.5; shot redesign-live-back
   qa "--es qa.mode auto --es qa.redesign close"; sleep 1.5; shot redesign-closed
   # round 4 (board L06): the sample day on the mountain, its lines of light by speed and the dotted rides, by day and
