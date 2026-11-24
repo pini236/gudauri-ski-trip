@@ -917,7 +917,7 @@ private fun BoxScope.GroupSheet(p: People, ui: PeopleUi, k: SheetInk, id: String
     LaunchedEffect(g?.startsOn, g?.endsOn) { if (tab == null && g != null) tab = PeopleRules.openingTab(g.startsOn, g.endsOn, today) }
     val t = tab ?: GroupTab.MEETUPS
     // the emulator's tabs (people:tab:meetups)
-    LaunchedEffectQa { c -> if (c.startsWith("people:tab:")) tab = GroupTab.of(c.removePrefix("people:tab:")) }
+    LaunchedEffectQa { c -> if (c.startsWith("people:tab:")) GroupTab.of(c.removePrefix("people:tab:")).let { tab = it; if (g != null) Qa.log("redesign people group ${it.key}") } }
     LaunchedEffect(t, g != null) { if (g != null) Qa.log("redesign people group ${t.key}") }
     val act = rememberAct()
     Box(Modifier.matchParentSize().clickable { ui.back() })

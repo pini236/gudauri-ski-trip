@@ -259,7 +259,7 @@ internal fun BoxScope.Shelf(scene: MapScene, view: LiveView, runs: List<ShelfRun
     // the emulator's switches (qa.redesign shelf:sort:<id>, shelf:next)
     LaunchedEffect(RedesignQa.seq) {
         val c = RedesignQa.cmd
-        if (c.startsWith("shelf:sort:")) { chosenSort = ShelfSort.of(c.removePrefix("shelf:sort:")); Qa.log("redesign shelf sort ${sort.id}") }
+        if (c.startsWith("shelf:sort:")) { chosenSort = ShelfSort.of(c.removePrefix("shelf:sort:")); Qa.log("redesign shelf sort ${chosenSort.id}") }
         if (c == "shelf:next") list.animateScrollToItem((mid + 1).coerceAtMost(flat.size - 1))
     }
     val screenW = LocalConfiguration.current.screenWidthDp.dp

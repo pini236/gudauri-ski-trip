@@ -1168,7 +1168,7 @@ redesign() {
   drag $((W / 2)) $((H / 2)) $((W / 2 - W / 5)) $((H / 2)) 500; sleep 1.5; shot redesign-live-dragged
   # part 4b (K07): the bottom bar opens the shelf; by lift, then easy to hard, the next card, and a pick
   mark; qa "--es qa.redesign front"; waitlog "redesign live front" 10; waitlog "redesign live turned" 20
-  mark; tapText "Where to?" || qa "--es qa.redesign shelf"
+  mark; tapText "לאן יורדים?" || qa "--es qa.redesign shelf"
   if waitlog "redesign shelf open" 15; then
     waitlog "redesign shelf center" 10 || fail "redesign: the shelf has no middle card"; rd_settled; shot redesign-shelf-lift
     mark; qa "--es qa.redesign shelf:sort:easy"; waitlog "redesign shelf sort easy" 10 || fail "redesign: the shelf's order did not change"
@@ -1190,7 +1190,7 @@ redesign() {
   mark; qa "--es qa.redesign lens:snow"; waitlog "redesign lens snow" 20 && { rd_settled; shot redesign-lens-snow; } || fail "redesign: the snow lens did not answer"
   mark; qa "--es qa.redesign lens:off --es qa.status none"; sleep 1
   # part 4b (K17): the village from the bottom bar, its picture, tags, pins and sheet, and back
-  mark; tapText "The village" || qa "--es qa.redesign village"
+  mark; tapText "הכפר" || qa "--es qa.redesign village"
   if waitlog "redesign village open" 20; then sleep 1.5; shot redesign-village
     mark; qa "--es qa.redesign village:full"; sleep 1; shot redesign-village-full
     mark; qa "--es qa.redesign village:off"; sleep 1
@@ -1272,7 +1272,9 @@ redesign() {
   mark; qa "--es qa.mode auto --es qa.redesign people:off"; waitlog "redesign people closed" 10
   # part 6 (U01, U03, U07 to U09, U11): the reminders' sheet before the phone's question, the notifications off, and the
   # group with no signal, a change refused, never kept and loading (the emulator's switches; its phone allows notifications)
-  mark; qa "--es qa.redesign people:group"; waitlog "redesign people group" 15; qa "--es qa.redesign people:tab:meetups"; waitlog "redesign people group meetups" 10
+  # the group opens on its own tab once the group is read (a moment after the sheet); only then the meetups tab
+  mark; qa "--es qa.redesign people:group"; waitlog "redesign people group" 15; sleep 3
+  mark; qa "--es qa.redesign people:tab:meetups"; waitlog "redesign people group meetups" 10 || fail "redesign: the meetups tab did not open"
   mark; qa "--es qa.redesign people:notifask"; waitlog "redesign edge notif ask" 10 || fail "redesign: the reminders sheet did not open"; sleep 1.5; shot redesign-edge-notif-ask
   tapText "לא עכשיו" || adb shell input keyevent 4; sleep 1
   mark; qa "--es qa.redesign people:notifoff"; waitlog "redesign edge notif off" 10 || fail "redesign: the notifications-off line did not show"; sleep 1; shot redesign-edge-notif-off
@@ -1330,6 +1332,13 @@ redesign2() {
   adb shell am force-stop "$PKG"; sleep 1; mark
   adb shell "am start -W -n $ACT --es qa.tab home --es qa.mode auto --es qa.redesign open" > /dev/null
   waitlog "redesign ready" 75; sleep 3
+  # the second half runs in its own job: into the live model, as the first half leaves it, with its frame helpers
+  mark; qa "--es qa.mode day --es qa.redesign live"; waitlog "redesign live open" 15
+  waitlog "redesign live drawn" 60 || fail "redesign2: the live model drew nothing but the clear colour"
+  mark; qa "--es qa.redesign season:off"; waitlog "redesign season closed" 10
+  rd_drawn() { seen "redesign live drawn" 25 || true; sleep 4; }
+  rd_settled() { seen "redesign live drawn" 6 || true; sleep 2; }
+  sleep 3
   # completion part 4 (S02 to S04, S08): the first-time sheet, "where am I" on a run, out of the area, the compass
   mark; qa "--es qa.redesign where:ask"; waitlog "redesign where ask" 10 || fail "redesign: the where-am-I sheet did not open"; rd_settled; shot redesign-where-ask
   mark; qa "--es qa.redesign where:off"; sleep 1
