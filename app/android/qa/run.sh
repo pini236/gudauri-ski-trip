@@ -1397,9 +1397,21 @@ redesign2() {
   for rk in "Kikilo 1" "Kobi"; do
     mark; qa "--es qa.redesign unpick"; sleep .5
     mark; qa "--es qa.redesign 'pick:$rk'"; waitlog "redesign live framed $rk" 20 || { fail "redesign: $rk was not framed"; continue; }
+    # the frames while the film plays, at night (where the beads froze the main thread, GUDI-ANDROID-B): no frame
+    # over 2 s at the 99th percentile and no ANR
+    qa "--es qa.mode night"; sleep 1
+    adb shell dumpsys gfxinfo "$PKG" reset > /dev/null 2>&1
     mark; qa "--es qa.redesign ride"; waitlog "redesign ride open $rk" 15 || { fail "redesign: the film did not open on $rk"; continue; }
     waitlog "redesign ride play" 10 || fail "redesign: the film on $rk did not start by itself"
-    sleep 3; shot "redesign-ride-playing-${rk// /-}"
+    sleep 6; shot "redesign-ride-night-${rk// /-}"
+    gfx=$(adb shell dumpsys gfxinfo "$PKG" 2>/dev/null | tr -d '\r')
+    tot=$(sed -n 's/^Total frames rendered: //p' <<<"$gfx" | head -1); jank=$(sed -n 's/^Janky frames: //p' <<<"$gfx" | head -1)
+    p99=$(sed -n 's/^99th percentile: \([0-9]*\)ms/\1/p' <<<"$gfx" | head -1)
+    note "film frames $rk: ${tot:-?} rendered, janky ${jank:-?}, 99th ${p99:-?} ms"
+    [ -n "$p99" ] && [ "$p99" -gt 2000 ] && fail "redesign: the film on $rk froze (99th percentile ${p99} ms)"
+    adb shell dumpsys activity processes 2>/dev/null | grep -q "notResponding=true" && fail "redesign: an ANR during the film on $rk"
+    qa "--es qa.mode day"; sleep 1
+    shot "redesign-ride-playing-${rk// /-}"
     mark; qa "--es qa.redesign ride:stop"; sleep 1; qa "--es qa.redesign ride:600"; waitlog "redesign ride at 600" 10
     sleep 2; shot "redesign-ride-standing-${rk// /-}"
     mark; qa "--es qa.redesign ride:close"; waitlog "redesign ride closed" 10 || fail "redesign: the film on $rk did not close"

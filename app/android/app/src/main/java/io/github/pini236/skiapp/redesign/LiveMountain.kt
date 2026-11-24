@@ -499,6 +499,8 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
         // the chosen run (K10, as phase A): its sign on the top of the run once the light is down it, and the sheet
         val g = remember(night) { Glass(night) }
         val measurer = rememberTextMeasurer()
+        // the km words of the chosen run's beads, measured once each (not in every frame)
+        val kmWords = remember(measurer) { HashMap<String, Pair<androidx.compose.ui.text.TextLayoutResult, androidx.compose.ui.text.TextLayoutResult>>() }
         val pd = data
         val run = chosen?.let { k -> pd?.runs?.get(k) }
         var signAt by remember { mutableStateOf<Offset?>(null) }
@@ -571,8 +573,9 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
                 }
             }
             val m0 = mk
-            if (m0 != null && m0.key == chosen) {
-                chosenMarks(m0, ((mkMs - 600f) / 200f).coerceIn(0f, 1f), night, measurer)
+            // in the film only its dot and the line (GUDI-ANDROID-B: the beads froze the main thread there)
+            if (m0 != null && m0.key == chosen && riding == null) {
+                chosenMarks(m0, ((mkMs - 600f) / 200f).coerceIn(0f, 1f), night, measurer, kmWords)
                 if (mkMs < 600f) runningHead(m0, mkMs / 600f)
             }
             val r0 = run; val q = signAt
@@ -889,21 +892,28 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
  * 240 m, a bead each 500 m on the longest piece with its km, the start and the end; at night a light each 10.5 dp on the
  * screen, the slope's colour round it. Only where the line is seen (not behind a ridge).
  */
-private fun DrawScope.chosenMarks(m: LiveView.Marks, a: Float, night: Boolean, measurer: TextMeasurer) {
+private fun DrawScope.chosenMarks(m: LiveView.Marks, a: Float, night: Boolean, measurer: TextMeasurer,
+                                   kmWords: HashMap<String, Pair<androidx.compose.ui.text.TextLayoutResult, androidx.compose.ui.text.TextLayoutResult>>) {
     if (a <= 0f) return
     val d = m.down; val dp = density
+    val w = size.width; val h = size.height
     // the same colours as the line in the model (SlopeColors, the map's)
     fun col(li: Int, i: Int): Color = io.github.pini236.skiapp.map.SlopeColors.of(d.slopes[li][i]).let { Color(it[0], it[1], it[2]) }
     if (night) {
+        // a light each 10.5 dp, only on the screen and never more than ChosenRules.MAX_LIGHTS in a frame
+        // (GUDI-ANDROID-B: a line seen from close up ran to millions of lights off the screen, and the main thread froze)
         val step = 10.5f * dp
+        var count = 0
         for (li in m.xs.indices) {
             val x = m.xs[li]; val y = m.ys[li]; val ok = m.seen[li]
             var left = 0f
             for (i in 0 until x.size - 1) {
-                if (!ok[i] || !ok[i + 1]) { left = 0f; continue }
+                if (!ok[i] || !ok[i + 1] || !ChosenRules.onScreen(x[i], y[i], x[i + 1], y[i + 1], w, h, 20f * dp)) { left = 0f; continue }
                 val dx = x[i + 1] - x[i]; val dy = y[i + 1] - y[i]; val len = kotlin.math.hypot(dx, dy)
+                if (len > ChosenRules.MAX_SEG * (w + h)) { left = 0f; continue }
                 var t = left
                 while (t < len) {
+                    if (++count > ChosenRules.MAX_LIGHTS) return
                     val q = Offset(x[i] + dx * t / len, y[i] + dy * t / len)
                     drawCircle(Color(0xFFFFF3D6), 2.3f * dp, q, alpha = a)
                     drawCircle(col(li, i), 4.4f * dp, q, alpha = .4f * a)
@@ -946,7 +956,7 @@ private fun DrawScope.chosenMarks(m: LiveView.Marks, a: Float, night: Boolean, m
             var ax = x[j + 1] - x[j]; var ay = y[j + 1] - y[j]; val n = kotlin.math.hypot(ax, ay).coerceAtLeast(.01f); ax /= n; ay /= n
             val c = Offset(q.x + 13f * dp * ay, q.y - 13f * dp * ax)
             val s = ("%.1f".format(b / 1000f)).trimEnd('0').trimEnd('.')
-            val t = measurer.measure(s, style); val o = measurer.measure(s, style.copy(color = Color(0xFF0A1932)))
+            val (t, o) = kmWords.getOrPut(s) { measurer.measure(s, style) to measurer.measure(s, style.copy(color = Color(0xFF0A1932))) }
             val tl = Offset(c.x - t.size.width / 2f, c.y - t.size.height * .72f)
             val r = 1.2f * dp
             for (k in 0 until 8) { val an = k * Math.PI / 4; drawText(o, topLeft = Offset(tl.x + r * kotlin.math.cos(an).toFloat(), tl.y + r * kotlin.math.sin(an).toFloat()), alpha = a * .8f / 2.2f) }
@@ -975,4 +985,15 @@ private fun DrawScope.runningHead(m: LiveView.Marks, f: Float) {
         drawCircle(Color.White, 13f * density, q, alpha = .5f); drawCircle(Color.White, 5f * density, q)
         return
     }
+}
+
+/** Limits on what the chosen run draws over the model in a frame (GUDI-ANDROID-B). */
+internal object ChosenRules {
+    const val MAX_LIGHTS = 400
+    /** A piece longer than this many screens (width plus height) is a line seen from on it: no lights there. */
+    const val MAX_SEG = 3f
+    /** Whether the piece from (x0, y0) to (x1, y1) can cross the screen, [pad] round it (its box against the screen's). */
+    fun onScreen(x0: Float, y0: Float, x1: Float, y1: Float, w: Float, h: Float, pad: Float): Boolean =
+        maxOf(x0, x1) >= -pad && minOf(x0, x1) <= w + pad && maxOf(y0, y1) >= -pad && minOf(y0, y1) <= h + pad &&
+            x0.isFinite() && y0.isFinite() && x1.isFinite() && y1.isFinite()
 }
