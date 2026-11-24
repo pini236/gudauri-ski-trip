@@ -1258,6 +1258,10 @@ redesign() {
   mark; qa "--es qa.redesign people:settings"; waitlog "redesign edge replay" 10 || fail "redesign: the replay consent box did not show"
   adb shell input swipe 540 1700 540 500 400; sleep 1; shot redesign-edge-replay
   mark; qa "--es qa.redesign people:off"; waitlog "redesign people closed" 10
+  # U05: no signal on the mountain (the switch shows it without cutting the emulator's own network): in the season, with
+  # no live report, the pill says "no recent information · no signal"
+  mark; qa "--es qa.time 2027-01-12T10:00 --es qa.status stale --es qa.redesign net:off"; waitlog "redesign edge net off" 10 || fail "redesign: the no-signal switch did not take"; rd_settled; shot redesign-edge-offline-pill
+  mark; qa "--es qa.status none --es qa.redesign net:auto"; sleep 1
   mark; qa "--es qa.redesign people:invite"; waitlog "redesign people invite" 15 || fail "redesign: the invite did not open"; rd_settled; shot redesign-invite
   mark; qa "--es qa.redesign people:off"; waitlog "redesign people closed" 10
   # completion part 5 (T01, T04 to T08), the admin's seed: a new group, the member's menu and the red rows, name and
