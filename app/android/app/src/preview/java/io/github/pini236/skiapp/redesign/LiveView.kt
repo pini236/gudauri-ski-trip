@@ -766,6 +766,19 @@ class LiveView(context: Context, private val scene: MapScene) : GLSurfaceView(co
         Qa.log("redesign live lift framed")
     }
 
+    /**
+     * A chosen run framed over the full sheet (S07, the review of 24.11): its box fitted to the screen's top [free] part,
+     * as a lift over its panel; [free] null frames it as at the choice (the low sheet).
+     */
+    fun frameRunAbove(key: String, free: Float?) {
+        if (free == null) { frameRun(key); return }
+        val lines = scene.draped[key] ?: return
+        var x0 = Float.MAX_VALUE; var x1 = -Float.MAX_VALUE; var z0 = Float.MAX_VALUE; var z1 = -Float.MAX_VALUE
+        for (l in lines) for (i in 0 until l.size / 3) { x0 = minOf(x0, l[i * 3]); x1 = maxOf(x1, l[i * 3]); z0 = minOf(z0, l[i * 3 + 2]); z1 = maxOf(z1, l[i * 3 + 2]) }
+        frameLift(floatArrayOf(x0, z0, x1, z1), free)
+        Qa.log("redesign live framed above $key")
+    }
+
     /** The view [s] moved to fit a box of the map (x0, y0, x1, y1, metres) with a margin; its yaw and pitch kept. */
     private fun frameBox(b: FloatArray, s: OrbitCamera.State): OrbitCamera.State {
         val cx = (b[0] + b[2]) / 2; val cz = (b[1] + b[3]) / 2
@@ -832,6 +845,12 @@ class LiveView(context: Context, private val scene: MapScene) : GLSurfaceView(co
 
     /** The "Kobi side" sign: back to the front, the same turn the other way. */
     fun backToFront() { turnTo(front()); Qa.log("redesign live front") }
+    /** The emulator's turn (qa.redesign turn:<degrees>): the opening view turned round its target, set at once. */
+    fun qaTurn(deg: Float) {
+        renderer.stopAnim(); camera.stopFling()
+        val f = front(); camera.set(f.copy(yaw = f.yaw + Math.toRadians(deg.toDouble()).toFloat())); requestRender()
+        Qa.log("redesign live turned $deg")
+    }
     /** To the Kobi side (board L06's tag "more runs on the Kobi side"): the same turn as a run chosen there. */
     fun toKobi() { turnTo(kobi()); Qa.log("redesign live kobi") }
 

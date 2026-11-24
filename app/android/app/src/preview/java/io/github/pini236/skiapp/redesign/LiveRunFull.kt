@@ -157,8 +157,9 @@ private fun RunFull(key: String, r: PeakData.Run, scene: MapScene, vids: List<Vi
         }
         // the three numbers
         Row(horizontalArrangement = Arrangement.spacedBy(24.dp)) {
-            for ((v, c) in listOf(stringResource(R.string.common_unit_km, "%.1f".format(r.len / 1000f)) to stringResource(R.string.common_length_label),
-                stringResource(R.string.common_unit_m, nf.format(r.drop)) to stringResource(R.string.run_stat_drop_label),
+            // the number alone, its unit in the line under it (S07: "km length", "m drop"; the review of 24.11)
+            for ((v, c) in listOf("%.1f".format(r.len / 1000f) to stringResource(R.string.app_shelf_km_cap) + " " + stringResource(R.string.common_length_label),
+                nf.format(r.drop) to stringResource(R.string.app_shelf_drop_cap),
                 "${r.steep}°" to stringResource(R.string.run_stat_steep_label))) Column {
                 Text(v, fontFamily = Gudi, fontWeight = FontWeight.Light, fontSize = 30.sp, color = k.ink, maxLines = 1)
                 Text(c, fontFamily = Gudi, fontSize = 12.5.sp, color = k.ink2)

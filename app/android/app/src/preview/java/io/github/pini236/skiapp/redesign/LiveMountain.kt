@@ -154,6 +154,15 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
     val time = scrub?.let { PeakLight.janAt(it) } ?: DayNight.lightTime(now, mode)
     val night = remember(time) { Sky.at(time).dark }
     val view = remember { LiveView(context, scene).also { v -> v.onChoose = { k -> chosen = k; haptics.tick(.5f); Qa.log("redesign live chosen $k") } } }
+    // S07: the full sheet takes the screen from 236 down, so the chosen run is framed in the part above it; back to the
+    // low sheet, framed as at the choice (the review of 24.11). Not on the choice itself (the choice frames it).
+    val scrH = androidx.compose.ui.platform.LocalConfiguration.current.screenHeightDp
+    var wasFull by remember { mutableStateOf(false) }
+    LaunchedEffect(runFull) {
+        val k = chosen
+        if (k != null && runFull != wasFull) view.frameRunAbove(k, if (runFull) (236f / scrH.coerceAtLeast(400)).coerceIn(.2f, .5f) else null)
+        wasFull = runFull
+    }
     // part 4 (S09): the first hint waits for the mountain to be drawn
     // U05 (part 6): the network, for the pill only; back after none, the group's queue goes out at once
     val online = rememberOnline { around?.meet?.sync?.flush() }
@@ -196,6 +205,7 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
             c == "run:low" -> runFull = false
             c == "unpick" -> { runFull = false; held = null; chosen = null; view.choose(null); Qa.log("redesign live unpicked") }
             c == "front" -> view.backToFront()
+            c.startsWith("turn:") -> c.removePrefix("turn:").toFloatOrNull()?.let { view.qaTurn(it) }
             // part 2 (Q01 to Q03): the lifts' sheet and one lift
             c == "lifts" -> { liftSel = null; nowTab = NowTab.LIFTS; liftsOpen = true }
             c == "weather" -> { liftSel = null; nowTab = NowTab.WEATHER; liftsOpen = true }
@@ -348,6 +358,12 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
             .clip(RoundedCornerShape(22.dp)).background(bg).border(1.dp, line, RoundedCornerShape(22.dp)), contentAlignment = Alignment.Center) { content() }
     }
 
+    val lightNow = PeakLight.clock(PeakLight.localHour(time))
+    people.tools = {
+        TestRow(stringResource(R.string.poc_peak_light_now, lightNow)) { people.close(); scrubOpen = true; Qa.log("redesign tools light") }
+        TestRow(stringResource(R.string.poc_peak_painted)) { people.close(); onPainted() }
+        TestRow(stringResource(R.string.poc_peak_leave)) { people.close(); onLeave() }
+    }
     Box(Modifier.fillMaxSize()) {
         // part 8, section 2: the mountain is one item for the screen reader, with the next and previous run and the
         // opening view as its actions; "where to?" in the dock is the full way to choose a run without seeing it
@@ -378,29 +394,22 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
         }
         // my dot and its circle (S03), under everything drawn over the mountain
         WhereDot(where, view)
-        if (!meet.open && !tripOpen && !skipassOpen) Column(Modifier.fillMaxWidth().statusBarsPadding().padding(horizontal = 12.dp, vertical = 8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                Pill(Modifier.weight(1f).clickable { scrubOpen = !scrubOpen; if (!scrubOpen) scrub = null; haptics.tick(.3f) }) {
-                    Row(Modifier.padding(horizontal = 14.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(9.dp)) {
-                        Box(Modifier.size(8.dp).clip(CircleShape).background(if (night) Color(0xFFFFD873) else Color(0xFFF2B33D)))
-                        val sv = scrub
-                        val t = PeakLight.clock(sv ?: PeakLight.localHour(time))
-                        Text(if (sv != null || scrubOpen) stringResource(R.string.poc_peak_light_at, t) else stringResource(R.string.poc_peak_light_now, t),
-                            fontFamily = Gudi, fontSize = 14.sp, color = ink, maxLines = 1)
-                    }
-                }
-                Pill(Modifier.clickable { haptics.tick(.3f); onPainted() }) {
-                    Text(stringResource(R.string.poc_peak_painted), Modifier.padding(horizontal = 14.dp), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = ink)
-                }
-                Pill(Modifier.clickable { haptics.tick(.3f); onLeave() }) {
-                    Text(stringResource(R.string.poc_peak_leave), Modifier.padding(horizontal = 14.dp), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = ink)
-                }
-            }
+        if (!meet.open && !tripOpen && !skipassOpen && !people.open) Column(Modifier.fillMaxWidth().statusBarsPadding().padding(horizontal = 12.dp, vertical = 8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            // the test build's tools (the light's clock, the painting, out to the app) are rows in "me" (the review of
+            // 24.11): the top holds the pill and "me" only, as on the board (S01). The light's slider opens here from there.
             AnimatedVisibility(scrubOpen, enter = fadeIn() + slideInVertically { -it / 3 }, exit = fadeOut() + slideOutVertically { -it / 3 }) {
                 Pill(Modifier.fillMaxWidth(), h = 52) {
-                    Slider(value = scrub ?: PeakLight.localHour(time).coerceIn(7f, 23.5f), onValueChange = { scrub = it }, valueRange = 7f..23.5f,
-                        modifier = Modifier.padding(horizontal = 14.dp),
-                        colors = SliderDefaults.colors(thumbColor = acc, activeTrackColor = acc, inactiveTrackColor = line))
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Slider(value = scrub ?: PeakLight.localHour(time).coerceIn(7f, 23.5f), onValueChange = { scrub = it }, valueRange = 7f..23.5f,
+                            modifier = Modifier.weight(1f).padding(start = 14.dp),
+                            colors = SliderDefaults.colors(thumbColor = acc, activeTrackColor = acc, inactiveTrackColor = line))
+                        // closed by its own mark (the clock's pill that closed it is now a row in "me"); the light back to now
+                        val closeA = stringResource(R.string.common_close)
+                        Box(Modifier.size(48.dp).semantics { contentDescription = closeA; role = androidx.compose.ui.semantics.Role.Button }
+                            .clickable { haptics.tick(.3f); scrubOpen = false; scrub = null }, contentAlignment = Alignment.Center) {
+                            Text("✕", fontFamily = Gudi, fontSize = 16.sp, color = ink)
+                        }
+                    }
                 }
             }
             // the pill of the lifts (Q01, Q02): the report's summary, or no recent information, or none yet before the season
@@ -440,8 +449,6 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
             // "me" at the pill's end (section 1): the account, the settings, the language and about
             if (pp != null) MeButton(meNow, night) { haptics.tick(.3f); liftsOpen = false; liftSel = null; people.go(PLayer.Me) }
             }
-            Text(stringResource(R.string.poc_peak_live_badge), Modifier.clip(RoundedCornerShape(11.dp)).background(Color(0x66081A33)).padding(horizontal = 10.dp, vertical = 3.dp),
-                fontFamily = Gudi, fontSize = 11.5.sp, color = Color.White)
             AnimatedVisibility(kobiSide, enter = fadeIn(), exit = fadeOut()) {
                 val aria = stringResource(R.string.poc_peak_front_aria)
                 Pill(Modifier.semantics { contentDescription = aria }.clickable { haptics.tick(.3f); view.backToFront() }) {

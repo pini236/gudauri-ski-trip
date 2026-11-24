@@ -1342,14 +1342,19 @@ redesign2() {
   # S07: the run's full sheet (the conditions with a fresh forecast, the videos); then the compass once the view moved
   mark; qa "--es qa.weather fresh --es qa.redesign 'pick:Tatra 2'"; waitlog "redesign live framed Tatra 2" 20
   mark; qa "--es qa.redesign run:full"; waitlog "redesign run full Tatra 2" 15 || fail "redesign: the run's full sheet did not open"; sleep 2; rd_settled; shot redesign-run-full
-  mark; qa "--es qa.redesign unpick"; waitlog "redesign compass shown" 15 && { rd_settled; shot redesign-compass; }
+  # S08: no compass on the opening view (a run framed or let go is no turn), then after a real turn of 40 degrees
+  mark; qa "--es qa.redesign unpick"; sleep .5; qa "--es qa.redesign home"; sleep 2
+  mark; qa "--es qa.redesign turn:40"; waitlog "redesign compass shown" 15 && { rd_settled; shot redesign-compass; }
   mark; qa "--es qa.redesign home"; waitlog "redesign compass gone" 15 || fail "redesign: the compass did not go after home"
+  # S01 at night (the review of 24.11): the opening view, nothing chosen, the night picture
+  mark; qa "--es qa.mode night"; sleep 3; rd_settled; shot redesign-live-night; qa "--es qa.mode auto"; sleep 1.5
   # S09: the first hint, a ring on a blue run near the middle (the debug build shows it only when asked)
   mark; qa "--es qa.redesign hint:reset"; waitlog "redesign hint run" 15 && { sleep 1; shot redesign-hint-run; }
   mark; qa "--es qa.redesign 'pick:Tatra 2'"; waitlog "redesign hint done hint_run" 15 || fail "redesign: choosing a run did not end the first hint"
   mark; qa "--es qa.redesign unpick"; sleep 1; qa "--es qa.redesign home"; sleep 1
   # S05, S06: "the mountain now" on the weather tab, with a fresh forecast and with none
   mark; qa "--es qa.weather fresh --es qa.redesign weather"; waitlog "redesign weather fresh" 15 || fail "redesign: the weather tab did not open"; rd_settled; shot redesign-now-weather
+  qa "--es qa.redesign unpick"; sleep .5
   mark; qa "--es qa.weather none --es qa.redesign weather"; waitlog "redesign weather none" 15; rd_settled; shot redesign-now-weather-none
   # part 6 (U06): an old forecast, the last values and a line saying how old
   mark; qa "--es qa.weather stale --es qa.redesign weather"; waitlog "redesign weather stale" 15; rd_settled; shot redesign-edge-weather-stale
@@ -1449,6 +1454,11 @@ redesign2() {
   # completion part 1 (P05): your records, from the card at the top of my days (the replayed day counts; the example day does not)
   mark; qa "--es qa.redesign records"; if waitlog "redesign records [1-6] mountain" 40; then sleep 2; shot redesign-records; else fail "redesign: the records did not show on the mountain"; fi
   qa "--es qa.redesign records:off"; sleep 1
+  # S10 (the review of 24.11): "me" with my days as its first row, now that a day is recorded
+  adb shell am force-stop "$PKG"; sleep 1; mark
+  adb shell "am start -W -n $ACT --es qa.tab home --es qa.mode auto --es qa.redesign open" > /dev/null; waitlog "redesign ready" 75; sleep 2
+  mark; qa "--es qa.group member --es qa.redesign people:me"; waitlog "redesign people me days [1-9]" 20 && { rd_settled; shot redesign-me-days; } || fail "redesign: me did not show my days"
+  mark; qa "--es qa.redesign people:off"; waitlog "redesign people closed" 10
   # completion part 1 (P04) with a descent: the sample day replayed as one descent, its card (the film, the four
   # numbers, why it stopped, the three buttons, "here you flew")
   mark; qa "--es qa.dayrec replayrun"; waitlog "dayrec replay analysis=" 180 || fail "redesign: the descent was not replayed"

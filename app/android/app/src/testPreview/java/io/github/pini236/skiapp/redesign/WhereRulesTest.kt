@@ -16,11 +16,11 @@ class WhereRulesTest {
         assertFalse(WhereRules.away(f.copy(dist = f.dist * 1.04f, tx = 100f), f))
     }
 
-    @Test fun aTurnATiltAZoomOrAMoveShowsIt() {
+    @Test fun aTurnOrATiltShowsItAZoomOrAMoveAloneDoesNot() {
         assertTrue(WhereRules.away(f.copy(yaw = f.yaw + deg(3.1)), f))
         assertTrue(WhereRules.away(f.copy(pitch = f.pitch - deg(3.1)), f))
-        assertTrue(WhereRules.away(f.copy(dist = f.dist * 1.06f), f))
-        assertTrue(WhereRules.away(f.copy(tx = 120f, tz = 120f), f))
+        assertFalse(WhereRules.away(f.copy(dist = f.dist * 1.6f), f))
+        assertFalse(WhereRules.away(f.copy(tx = 900f, tz = 900f), f))
         // a full turn round is the opening direction again
         assertFalse(WhereRules.away(f.copy(yaw = f.yaw + deg(360.0)), f))
     }

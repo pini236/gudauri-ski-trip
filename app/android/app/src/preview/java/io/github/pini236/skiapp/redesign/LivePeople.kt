@@ -148,6 +148,8 @@ internal class PeopleUi {
     /** Bumped when the account or the groups change, so the screens read them again. */
     var changes by mutableIntStateOf(0)
     var toast by mutableStateOf<String?>(null)
+    /** The test build's tools, as rows at the end of "me" (the mountain hands them over; none in a store build). */
+    var tools: (@Composable () -> Unit)? = null
     fun go(l: PLayer) { stack.add(l); Qa.log("redesign people ${l.tag}") }
     fun back() { if (stack.isNotEmpty()) stack.removeAt(stack.size - 1); Qa.log("redesign people back ${top?.tag ?: "mountain"}") }
     fun close() { stack.clear(); Qa.log("redesign people closed") }
@@ -544,6 +546,11 @@ private fun BoxScope.MeScreen(p: People, ui: PeopleUi, k: SheetInk) {
                 end = if (g.admin) stringResource(R.string.acct_role_admin) else null, last = i == gs.lastIndex,
                 lead = { Av(g.name, g.id, 36, group = true) }) { ui.go(PLayer.Group(g.id)) }
         }
+        // the test build's tools (moved off the mountain's top, the review of 24.11), under the badge's words
+        ui.tools?.let { t -> PBox(k) {
+            Text(stringResource(R.string.poc_peak_live_badge), Modifier.padding(top = 12.dp, bottom = 4.dp), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 12.5.sp, color = k.ink2)
+            CompositionLocalProvider(LocalTestInk provides k) { t() }
+        } }
         PBox(k) {
             PRow(stringResource(R.string.about_settings), k, sub = stringResource(R.string.app_me_settings_sub), icon = Icons.gear) { ui.go(PLayer.Settings) }
             PRow(stringResource(R.string.about_language), k, end = Lang.current(LocalContext.current.resources).name, icon = Icons.dayNight) { ui.go(PLayer.Language) }
@@ -1665,4 +1672,13 @@ private fun BoxScope.LicenseText(ui: PeopleUi, k: SheetInk, key: String) {
             }
         }
     }
+}
+
+internal val LocalTestInk = androidx.compose.runtime.staticCompositionLocalOf<SheetInk?> { null }
+
+/** One test-build tool in "me": the words, a tap. */
+@Composable
+internal fun TestRow(text: String, onClick: () -> Unit) {
+    val k = LocalTestInk.current ?: return
+    PRow(text, k, last = false, onClick = onClick)
 }
