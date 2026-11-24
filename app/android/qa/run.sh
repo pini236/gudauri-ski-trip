@@ -1394,7 +1394,7 @@ redesign2() {
   qa "--es qa.mode night"; sleep 2; shot redesign-ride-night; qa "--es qa.mode day"; sleep 1
   mark; qa "--es qa.redesign ride:close"; waitlog "redesign ride closed" 10 || fail "redesign: the film did not close"
   # the film on two more runs (Pini, 24.11.2026): the dot on the line and the camera on it, playing and stopped half way
-  for rk in "Kikilo 1" "Kobi"; do
+  for rk in "Tatra 2" "Kikilo 1" "Kobi"; do
     mark; qa "--es qa.redesign unpick"; sleep .5
     mark; qa "--es qa.redesign 'pick:$rk'"; waitlog "redesign live framed $rk" 20 || { fail "redesign: $rk was not framed"; continue; }
     # the frames while the film plays, at night (where the beads froze the main thread, GUDI-ANDROID-B): no frame
