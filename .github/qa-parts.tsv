@@ -25,5 +25,5 @@ site/games/descent/	descent
 site/games/thumbs/	games
 site/img/pano/	home
 site/audio/	games,home
-app/android/app/src/preview/java/io/github/pini236/skiapp/redesign/	redesign
-app/android/app/src/preview/assets/redesign/	redesign
+app/android/app/src/preview/java/io/github/pini236/skiapp/redesign/	redesign,redesign2
+app/android/app/src/preview/assets/redesign/	redesign,redesign2
