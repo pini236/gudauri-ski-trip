@@ -165,9 +165,10 @@ void main(){
 // uTint: the colour (rgb) and how much it replaces the line's own (a); uSoft: a glow that fades to the edges
 private const val LINE_FS = """#version 300 es
 precision mediump float;
-in vec4 vCol; in float vSide; in highp float vProg; uniform float uAlpha; uniform vec4 uTint; uniform float uSoft; uniform highp float uReveal; out vec4 o;
+in vec4 vCol; in float vSide; in highp float vProg; uniform float uAlpha; uniform vec4 uTint; uniform float uSoft; uniform highp float uReveal; uniform highp vec2 uDash; out vec4 o;
 void main(){
   if(vProg>uReveal) discard;
+  if(uDash.x>0.0 && mod(vProg, uDash.x+uDash.y)>uDash.x) discard;
   vec3 c = mix(vCol.rgb, uTint.rgb, uTint.a);
   float a = uAlpha*vCol.a*mix(1.0, pow(1.0-abs(vSide), 1.6), uSoft);
   o = vec4(c, a);
@@ -254,7 +255,7 @@ class LiveRenderer(
      * [case] the lens's case colour (white by day, #081020 at night).
      */
     class LensLine(val ribbon: io.github.pini236.skiapp.map.Ribbon?, val rgb: FloatArray?, val width: Float, val alpha: Float, val cased: Boolean,
-                   val halo: FloatArray? = null, val haloW: Float = 9f)
+                   val halo: FloatArray? = null, val haloW: Float = 9f, val dashed: Boolean = false)
     class Lens(val lines: Map<String, LensLine>, val case: FloatArray)
     @Volatile var lens: Lens? = null
     private var lensGpu = HashMap<String, Gpu>(); private var lensGpuOf: Lens? = null
@@ -550,6 +551,9 @@ class LiveRenderer(
         // lifted towards the camera as the map lifts its own (0.0006 to 0.0014): at 0.0004 the terrain hid the lines in
         // the emulator's frames, all but specks on the ridges
         val uR = u(lineProg, "uReveal"); glUniform1f(uR, 60000f)
+        // a dashed line (K08's closed runs): its progress in metres, the dash "6 5" in screen points at this distance
+        val uD = u(lineProg, "uDash"); glUniform2f(uD, 0f, 0f)
+        val mpp = s.dist * 2f * kotlin.math.tan(Math.toRadians(D.camera.fovDeg / 2.0)).toFloat() / height.coerceAtLeast(1)
         glUniform1f(uB, 0.0008f); glUniform1f(uS, 0f)
         val rest = 1f - .55f * dim
         val dl = day
@@ -580,7 +584,9 @@ class LiveRenderer(
                 }
                 if (l.cased) { glUniform4f(uT, ln.case[0], ln.case[1], ln.case[2], 1f); glUniform1f(uW, (l.width + 2f) * density * zw); glUniform1f(uA, quiet); cs.draw() }
                 if (l.rgb != null) glUniform4f(uT, l.rgb[0], l.rgb[1], l.rgb[2], 1f) else glUniform4f(uT, 0f, 0f, 0f, 0f)
+                if (l.dashed) glUniform2f(uD, 6f * density * mpp, 5f * density * mpp)
                 glUniform1f(uW, l.width * density * zw); glUniform1f(uA, l.alpha * quiet); g.draw()
+                if (l.dashed) glUniform2f(uD, 0f, 0f)
             }
         }
         // the shelf's and the station's ghosts (K06, K07): the colour faint, no case

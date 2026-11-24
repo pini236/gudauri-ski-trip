@@ -16,7 +16,7 @@ class VillageTest {
     private val assets = File(root, "app/android/app/src/preview/assets/redesign")
 
     @Test fun everyPaintedPictureTogetherIsWithinTheCeiling() {
-        val pics = (File(assets, "img").listFiles().orEmpty() + File(assets, "village/img").listFiles().orEmpty()).filter { it.isFile }
+        val pics = listOf("img", "village/img").flatMap { d -> File(assets, d).listFiles()?.toList().orEmpty() }.filter { f -> f.isFile }
         val total = pics.sumOf { it.length() }
         assertTrue("the painted pictures are $total bytes, over 1.75 MB", total <= 1_750_000L)
         assertTrue(pics.any { it.name.startsWith("vill-") })

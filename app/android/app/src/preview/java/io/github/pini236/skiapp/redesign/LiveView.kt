@@ -247,7 +247,15 @@ class LiveView(context: Context, private val scene: MapScene) : GLSurfaceView(co
                 val closed = if (night) hex(0x7C8798) else hex(0x8A93A3)
                 for (p in scene.runs.pistes) lines[p.key] = when (LensRules.open(rule(p))) {
                     LensRules.Open.OPEN -> LiveRenderer.LensLine(null, col(p.color), 3f, 1f, true)
-                    LensRules.Open.CLOSED -> LiveRenderer.LensLine(null, closed, 1.8f, 1f, false)
+                    LensRules.Open.CLOSED -> scene.draped[p.key]?.let { ls ->
+                        // its progress in metres along each line, for the dash
+                        val r = io.github.pini236.skiapp.map.Ribbon.build(ls, { _, _ -> floatArrayOf(closed[0], closed[1], closed[2], 1f) }, { li, i ->
+                            val l = ls[li]; var m = 0f
+                            for (j in 1..i) m += hypot(l[j * 3] - l[j * 3 - 3], l[j * 3 + 2] - l[j * 3 - 1])
+                            m
+                        })
+                        LiveRenderer.LensLine(r, null, 1.8f, 1f, false, dashed = true)
+                    } ?: LiveRenderer.LensLine(null, closed, 1.8f, 1f, false)
                     LensRules.Open.UNKNOWN -> LiveRenderer.LensLine(null, col(p.color), 1.8f, .45f, false)
                 }
             }
