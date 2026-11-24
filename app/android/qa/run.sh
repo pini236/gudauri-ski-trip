@@ -1233,6 +1233,10 @@ redesign3() {
   mark; if [ -n "$(where "הכפר")" ]; then tapText "הכפר"; else qa "--es qa.redesign village"; fi
   if waitlog "redesign village open" 20; then sleep 1.5; shot redesign-village
     mark; qa "--es qa.redesign village:full"; sleep 1; shot redesign-village-full
+    # the games, from the cabin's row in the village (they stay in today's design); back to the mountain
+    if tapText "ערב בבקתה"; then sleep 3; shot redesign-cabin-games; adb shell input keyevent KEYCODE_BACK; sleep 2
+      qa "--es qa.redesign open"; sleep 1; qa "--es qa.redesign live"; rd_settled
+    else fail "redesign: the cabin's row was not in the village"; fi
     mark; qa "--es qa.redesign village:off"; sleep 1
   else fail "redesign: the village did not open"; fi
   # the completion round, part 2 (Q01 to Q03): the lifts without a report (today), then with one (two closed, their
