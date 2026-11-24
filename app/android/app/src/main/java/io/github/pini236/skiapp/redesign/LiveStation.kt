@@ -29,8 +29,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
@@ -67,7 +65,7 @@ internal fun FromStationSheet(st: Station, runs: List<ShelfRun>, scene: MapScene
     val nf = remember { java.text.NumberFormat.getIntegerInstance() }
     val km = remember { java.text.NumberFormat.getNumberInstance().apply { minimumFractionDigits = 1; maximumFractionDigits = 1 } }
     androidx.activity.compose.BackHandler { onClose() }
-    Box(Modifier.pointerInput(Unit) { detectVerticalDragGestures { _, dy -> if (dy > 18f) onClose() } }) {
+    Box(Modifier.pullSheet(onDown = onClose)) {
         LiveSheet(k) {
             val first = st.topOf.firstOrNull() ?: st.name
             Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {

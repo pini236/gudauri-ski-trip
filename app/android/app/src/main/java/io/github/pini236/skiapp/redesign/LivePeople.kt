@@ -288,7 +288,7 @@ private fun BoxScope.FullScreen(k: SheetInk, title: String?, onBack: () -> Unit,
 @Composable
 private fun BoxScope.PSheet(k: SheetInk, onDismiss: () -> Unit, content: @Composable ColumnScope.() -> Unit) {
     Box(Modifier.matchParentSize().background(Color(0x61060B16)).clickable(onClick = onDismiss))
-    Box(Modifier.align(Alignment.BottomCenter).fillMaxWidth()) {
+    Box(Modifier.align(Alignment.BottomCenter).fillMaxWidth().pullSheet(onDown = onDismiss)) {
         LiveSheet(k) { Column(Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(12.dp), content = content) }
     }
 }

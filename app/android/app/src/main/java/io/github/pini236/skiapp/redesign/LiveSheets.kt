@@ -58,6 +58,12 @@ import io.github.pini236.skiapp.dayrec.ui.LiveNumbers
 import io.github.pini236.skiapp.fx.Haptics
 import io.github.pini236.skiapp.qa.Qa
 import kotlinx.coroutines.launch
+import androidx.compose.foundation.gestures.draggable
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import java.util.Locale
 
 /**
@@ -365,4 +371,78 @@ internal fun WholeChain(n: Int, item: @Composable (Int) -> Unit, sep: @Composabl
             for ((j, p) in shown.withIndex()) { if (j > 0) x += gap; p.placeRelative(x, (h - p.height) / 2); x += p.width }
         }
     }
+}
+
+/**
+ * Where a pulled sheet goes when the finger lets go (Pini, 24.11.2026: the sheet follows the finger and snaps to the
+ * nearest state by where it is and how fast). [y] is how far it was pulled down (px, negative is up), [v] the speed
+ * (px a second, down is positive), [h] the sheet's height. Down: past a third of the sheet, or a flick down. Up: 40 dp,
+ * or a flick up. Else back.
+ */
+internal object PullRules {
+    enum class To { DOWN, UP, BACK }
+    const val FLICK_DP = 900f
+    const val UP_DP = 40f
+    fun settle(y: Float, v: Float, h: Float, dens: Float, canDown: Boolean, canUp: Boolean): To = when {
+        canDown && (y > h / 3f || (v > FLICK_DP * dens && y > 0f)) -> To.DOWN
+        canUp && (y < -UP_DP * dens || (v < -FLICK_DP * dens && y <= 0f)) -> To.UP
+        else -> To.BACK
+    }
+    /** Up has no room to go: it gives a little and stops (a third of the pull, at most 48 dp). */
+    fun shown(y: Float, dens: Float, canUp: Boolean): Float = if (y >= 0f) y else if (canUp) maxOf(y / 3f, -48f * dens) else maxOf(y / 6f, -16f * dens)
+}
+
+/**
+ * The sheet follows the finger on the way down (and gives a little up), from anywhere on it, also after an inner list
+ * reached its top; on release it goes down ([onDown]), up ([onUp]) or back, by [PullRules]. [closes]: [onDown] takes the
+ * sheet away (it slides on from where the finger left it); else it comes back into place after.
+ */
+@Composable
+internal fun Modifier.pullSheet(onDown: (() -> Unit)?, onUp: (() -> Unit)? = null, closes: Boolean = true): Modifier {
+    if (onDown == null && onUp == null) return this
+    val scope = rememberCoroutineScope()
+    val dens = androidx.compose.ui.platform.LocalDensity.current.density
+    var y by remember { androidx.compose.runtime.mutableFloatStateOf(0f) }
+    var h by remember { androidx.compose.runtime.mutableFloatStateOf(1f) }
+    val down = androidx.compose.runtime.rememberUpdatedState(onDown)
+    val up = androidx.compose.runtime.rememberUpdatedState(onUp)
+    val gone = androidx.compose.runtime.rememberUpdatedState(closes)
+    fun release(v: Float) {
+        val to = PullRules.settle(y, v, h, dens, down.value != null, up.value != null)
+        Qa.log("redesign pull ${to.name.lowercase()}")
+        scope.launch {
+            when (to) {
+                PullRules.To.DOWN -> {
+                    if (gone.value) { androidx.compose.animation.core.animate(y, h, animationSpec = tween(160)) { a, _ -> y = a }; down.value?.invoke() }
+                    else { down.value?.invoke(); androidx.compose.animation.core.animate(y, 0f, animationSpec = tween(220)) { a, _ -> y = a } }
+                }
+                PullRules.To.UP -> { up.value?.invoke(); androidx.compose.animation.core.animate(y, 0f, animationSpec = tween(220)) { a, _ -> y = a } }
+                PullRules.To.BACK -> androidx.compose.animation.core.animate(y, 0f, animationSpec = androidx.compose.animation.core.spring(.8f, 500f)) { a, _ -> y = a }
+            }
+        }
+    }
+    val nested = remember {
+        object : androidx.compose.ui.input.nestedscroll.NestedScrollConnection {
+            override fun onPreScroll(available: Offset, source: androidx.compose.ui.input.nestedscroll.NestedScrollSource): Offset {
+                // pulled down and now going back up: the sheet takes it first
+                if (y > 0f && available.y < 0f) { val t = maxOf(available.y, -y); y += t; return Offset(0f, t) }
+                return Offset.Zero
+            }
+            override fun onPostScroll(consumed: Offset, available: Offset, source: androidx.compose.ui.input.nestedscroll.NestedScrollSource): Offset {
+                // the list is at its top and the finger still goes down: the sheet follows
+                if (available.y > 0f && source == androidx.compose.ui.input.nestedscroll.NestedScrollSource.UserInput && down.value != null) { y += available.y; return Offset(0f, available.y) }
+                return Offset.Zero
+            }
+            override suspend fun onPreFling(available: androidx.compose.ui.unit.Velocity): androidx.compose.ui.unit.Velocity {
+                if (y != 0f) { release(available.y); return available }
+                return androidx.compose.ui.unit.Velocity.Zero
+            }
+        }
+    }
+    return this
+        .onSizeChanged { h = it.height.toFloat().coerceAtLeast(1f) }
+        .nestedScroll(nested)
+        .draggable(androidx.compose.foundation.gestures.rememberDraggableState { d -> y += d }, androidx.compose.foundation.gestures.Orientation.Vertical,
+            onDragStopped = { v -> release(v) })
+        .graphicsLayer { translationY = PullRules.shown(y, dens, up.value != null) }
 }

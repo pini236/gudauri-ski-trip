@@ -5,7 +5,6 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.absoluteOffset
@@ -263,10 +262,9 @@ internal fun BoxScope.RideFilm(key: String, title: String, sign: @Composable () 
 
     // the film's sheet: glass, 296 high, a handle, the sign and the name with how far, three numbers, the next meeting,
     // the main button and the speed, the hint
-    var dy = 0f
     Column(Modifier.align(Alignment.BottomCenter).fillMaxWidth().height(sheetH.dp).shadow(8.dp, RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp))
         .clip(RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp)).background(k.surf.copy(alpha = 1f)).border(1.dp, k.line, RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp))
-        .pointerInput(Unit) { detectVerticalDragGestures(onDragStart = { dy = 0f }, onDragEnd = { if (dy > 48 * dens) close() }) { _, a -> dy += a } }
+        .pullSheet(onDown = { close() })
         .navigationBarsPadding().padding(start = 18.dp, end = 18.dp, top = 10.dp),
         verticalArrangement = Arrangement.spacedBy(10.dp)) {
         Box(Modifier.align(Alignment.CenterHorizontally).size(38.dp, 5.dp).clip(RoundedCornerShape(3.dp)).background(k.line))

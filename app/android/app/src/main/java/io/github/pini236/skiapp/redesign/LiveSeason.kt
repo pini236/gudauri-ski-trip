@@ -1,7 +1,6 @@
 package io.github.pini236.skiapp.redesign
 
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
@@ -17,7 +16,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
@@ -85,10 +83,7 @@ internal fun BoxScope.LiveSeason(around: Around, night: Boolean, haptics: Haptic
         if (moved != null) Text(moved, Modifier.padding(top = 4.dp), fontFamily = Gudi, fontSize = 14.sp, color = hero.copy(alpha = .9f), textAlign = TextAlign.Center)
     }
     // the sheet: pulled down, the usual mountain
-    Box(Modifier.align(Alignment.BottomCenter).pointerInput(Unit) {
-        var dy = 0f
-        detectVerticalDragGestures(onDragStart = { dy = 0f }, onDragEnd = { if (dy > 60.dp.toPx()) { Qa.log("redesign season closed pull"); onClose() } }) { _, d -> dy += d }
-    }) {
+    Box(Modifier.align(Alignment.BottomCenter).pullSheet(onDown = { Qa.log("redesign season closed pull"); onClose() })) {
         LiveSheet(k, opaque = true) {
             // 1. the planned date, its weekday and the source
             val loc = LocalConfiguration.current.locales[0] ?: Locale.getDefault()

@@ -3,7 +3,6 @@ package io.github.pini236.skiapp.redesign
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -27,7 +26,6 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -134,7 +132,7 @@ internal fun BoxScope.LensSheet(lens: LensKind, scene: MapScene, view: LiveView,
         }
     }
     Column(Modifier.align(Alignment.BottomCenter).sheetWidth().navigationBarsPadding().padding(start = 8.dp, end = 8.dp, bottom = 8.dp)
-        .pointerInput(Unit) { detectVerticalDragGestures { _, dy -> if (dy > 18f) onOff() } }
+        .pullSheet(onDown = onOff)
         .shadow(14.dp, RoundedCornerShape(28.dp), clip = false).clip(RoundedCornerShape(28.dp)).background(k.surf.copy(alpha = 1f))
         .border(1.dp, k.line, RoundedCornerShape(28.dp)).padding(start = 16.dp, end = 16.dp, top = 10.dp, bottom = 16.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)) {

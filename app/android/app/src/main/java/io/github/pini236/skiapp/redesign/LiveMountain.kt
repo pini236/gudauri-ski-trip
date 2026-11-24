@@ -604,6 +604,8 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
             enter = slideInVertically(tween(250)) { it } + fadeIn(tween(150)), exit = slideOutVertically(tween(200)) { it } + fadeOut(tween(200))) {
             val sk = remember(night) { SheetInk(night) }
             val sel = liftSel
+            // the sheet follows the finger: down from a lift is the list, down from the list closes
+            Box(Modifier.pullSheet(onDown = { if (liftSel != null) liftSel = null else liftsOpen = false }, closes = sel == null)) {
             if (sel != null) {
                 LaunchedEffect(sel) { io.github.pini236.skiapp.telemetry.Telemetry.event("lift_open", mapOf("lift" to sel.name)); Qa.log("redesign lift panel ${sel.name}") }
                 LiftPanel(sel, status, scene, sk, haptics, onRun = { key -> liftSel = null; liftsOpen = false; view.pickKey(key) },
@@ -619,6 +621,7 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
                 }, onOpening = { liftsOpen = false; seasonOn = true; Qa.log("redesign lifts opening row") },
                 head = { NowHead(nowTab, sk) { nowTab = it } },
                 other = if (nowTab == NowTab.WEATHER) { { WeatherTab(boardLifts, status, around?.trip, sk, night) { l -> liftSel = l } } } else null)
+            }
         }
         AnimatedVisibility(run != null && pd != null && (held ?: 900f) >= 900f && !liftsOpen && riding == null, Modifier.align(Alignment.BottomCenter),
             enter = slideInVertically(tween(250)) { it } + fadeIn(tween(150)), exit = slideOutVertically(tween(200)) { it } + fadeOut(tween(200))) {
@@ -764,7 +767,8 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
                     haptics.tick(.3f); if (st != null) meetClear("button") else meetOpen(false)
                 }
             }
-            Column(Modifier.align(Alignment.BottomCenter), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Column(Modifier.align(Alignment.BottomCenter).pullSheet(onDown = { if (st != null) meetClear("pull") else meetOpen(false) }, closes = st == null),
+                verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 meet.undo?.let { u ->
                     Box(Modifier.padding(horizontal = 12.dp)) {
                         MeetUndo {

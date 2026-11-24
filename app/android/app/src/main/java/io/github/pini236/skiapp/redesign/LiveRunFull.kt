@@ -8,7 +8,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
-import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -88,7 +87,7 @@ internal fun RunSheets(key: String, r: PeakData.Run, d: PeakData, g: Glass, scen
     val nextA = next?.let { stringResource(R.string.run_nav_next_aria, it) }
     val prevA = prev?.let { stringResource(R.string.run_nav_prev_aria, it) }
     val vids = remember(videos, key) { Video.of(videos, key) }
-    var dx = 0f; var dy = 0f
+    var dx = 0f
     Box(Modifier.semantics {
         customActions = listOfNotNull(
             nextA?.let { a -> CustomAccessibilityAction(a) { onPick(next); true } },
@@ -101,16 +100,11 @@ internal fun RunSheets(key: String, r: PeakData.Run, d: PeakData, g: Glass, scen
             val toEnd = if (rtl) dx < -lim else dx > lim
             when { toStart && next != null -> { haptics.tick(.3f); onPick(next) }; toEnd && prev != null -> { haptics.tick(.3f); onPick(prev) } }
         }) { _, a -> dx += a }
-    }.pointerInput(full) {
-        detectVerticalDragGestures(onDragStart = { dy = 0f }, onDragEnd = {
-            val lim = 48.dp.toPx()
-            when {
-                dy < -lim && !full -> { onFull(true); Qa.log("redesign run full") }
-                dy > lim && full -> { onFull(false); Qa.log("redesign run low") }
-                dy > lim -> onClose()
-            }
-        }) { _, a -> dy += a }
-    }) {
+    }.pullSheet(
+        // the sheet follows the finger (Pini, 24.11.2026): down from the full one is the low one, down from the low one closes
+        onDown = if (full) ({ onFull(false); Qa.log("redesign run low") }) else onClose,
+        onUp = if (!full) ({ onFull(true); Qa.log("redesign run full") }) else null,
+        closes = !full)) {
         if (!full) RunSheet(r, d, g, onClose) {
             // K12: "to go down in a film", once it is built (part 4's handoff, section 14)
             if (onRide != null) RideButton(SheetInk(night), haptics, onRide)
