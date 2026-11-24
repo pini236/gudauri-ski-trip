@@ -175,6 +175,19 @@ fun LiveDay(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, liftName: (S
     val nearLift = remember(act, last) {
         if (act != "stand") null else last?.let { q -> scene.runs?.lifts?.let { ls -> nearBoarding(ls.map { it.id to it.pts }, scene.terrain::elev, q[0], q[1]) } }
     }
+    // part 8, section 2: while recording only a change of state is announced ("On the lift Goodaura", "Descent 4
+    // finished"), never every second
+    val hostView = androidx.compose.ui.platform.LocalView.current
+    val liftNow = DayRec.live?.takeIf { it.act == "lift" }?.lift?.let { id -> scene.runs?.lifts?.firstOrNull { it.id == id }?.name }
+    val onLiftSr = liftNow?.let { stringResource(R.string.app_sr_ev_on_lift, it) }
+    LaunchedEffect(onLiftSr) { onLiftSr?.let { hostView.announceForAccessibility(it); Qa.log("redesign sr announce lift") } }
+    val doneN = DayRec.sofar?.stats?.descents ?: 0
+    var doneSeen by remember { mutableStateOf(-1) }
+    val doneSr = stringResource(R.string.app_sr_ev_run_done, doneN.toString())
+    LaunchedEffect(doneN) {
+        if (doneSeen >= 0 && doneN > doneSeen) { hostView.announceForAccessibility(doneSr); Qa.log("redesign sr announce descent $doneN") }
+        doneSeen = doneN
+    }
     // the emulator holds a stage it cannot reach in its minutes (qa.redesign stage:standing, stage:near, stage:break, stage:off)
     var qaStage by remember { mutableStateOf<LiveStage?>(null) }
     LaunchedEffect(RedesignQa.seq) {
@@ -274,7 +287,7 @@ fun LiveDay(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, liftName: (S
         // the speed, large, and where you probably are (or the search, or the weak signal); the hold to finish under them
         if (!sheet) Column(Modifier.align(Alignment.BottomCenter).navigationBarsPadding().padding(horizontal = 16.dp, vertical = 12.dp).fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(6.dp)) {
-            val big = TextStyle(fontFamily = Gudi, fontWeight = FontWeight.Light, fontSize = 120.sp, color = ink, shadow = Shadow(halo, Offset.Zero, 24f))
+            val big = TextStyle(fontFamily = Gudi, fontWeight = FontWeight.Light, fontSize = bigSp(120f), color = ink, shadow = Shadow(halo, Offset.Zero, 24f))
             // over the mountain the small words take the board's second ink by day (#40556A): the grey of the sheets falls
             // under 4.5:1 on the snow (the designer's point 4, measured on the search's shot: about 3.9:1)
             val small = TextStyle(fontFamily = Gudi, fontSize = 14.sp, color = if (night) muted else Color(0xFF40556A), shadow = Shadow(halo, Offset.Zero, 12f))

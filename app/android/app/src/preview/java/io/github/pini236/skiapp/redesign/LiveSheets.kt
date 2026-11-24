@@ -102,11 +102,20 @@ internal fun DayFour(stats: Analyzer.Stats?, k: SheetInk) {
         "%.1f".format(Locale.ROOT, (stats?.skiDistM ?: 0.0) / 1000) to stringResource(R.string.app_rec_km_ski),
         (stats?.maxKmh?.takeIf { stats.descents > 0 }?.let { LiveNumbers.maxKmh(it) } ?: "—") to stringResource(R.string.app_rec_kmh_max),
     )
-    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-        for ((v, l) in cells) Column(Modifier.weight(1f).clearAndSetSemantics { contentDescription = "$v $l" }) {
-            Text(v, fontFamily = Gudi, fontWeight = FontWeight.Light, fontSize = 27.sp, color = k.ink, maxLines = 1)
+    // the top speed is read as one item (part 8, section 2): "68.3 kilometers per hour, top speed"
+    val speed = stats?.maxKmh?.takeIf { stats.descents > 0 }?.let { stringResource(R.string.app_sr_speed_max, LiveNumbers.maxKmh(it)) }
+    @Composable fun cell(i: Int, m: Modifier) {
+        val (v, l) = cells[i]
+        Column(m.clearAndSetSemantics { contentDescription = if (i == 3 && speed != null) speed else "$v $l" }) {
+            Text(v, fontFamily = Gudi, fontWeight = FontWeight.Light, fontSize = bigSp(27f), color = k.ink, maxLines = 1)
             Text(l, fontFamily = Gudi, fontSize = 11.5.sp, color = k.ink2, modifier = Modifier.padding(top = 4.dp), maxLines = 2)
         }
+    }
+    // in large text the four numbers go to two rows of two (part 8, section 1)
+    if (bigText()) Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        for (r in 0..1) Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) { cell(r * 2, Modifier.weight(1f)); cell(r * 2 + 1, Modifier.weight(1f)) }
+    } else Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+        for (i in cells.indices) cell(i, Modifier.weight(1f))
     }
 }
 
@@ -257,7 +266,7 @@ internal fun BreakScreen(minutes: Long, stats: Analyzer.Stats?, paint: DayPaint.
             Text(stringResource(R.string.app_rec_break), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 25.sp, color = k.ink,
                 style = TextStyle(shadow = androidx.compose.ui.graphics.Shadow(k.halo, Offset.Zero, 16f)))
             Row(verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                Text(minutes.toString(), fontFamily = Gudi, fontWeight = FontWeight.Light, fontSize = 64.sp, color = k.ink,
+                Text(minutes.toString(), fontFamily = Gudi, fontWeight = FontWeight.Light, fontSize = bigSp(64f), color = k.ink,
                     style = TextStyle(shadow = androidx.compose.ui.graphics.Shadow(k.halo, Offset.Zero, 20f)))
                 Text(stringResource(R.string.app_rec_minutes, minutes.toInt()).replace(minutes.toString(), "").trim(), fontFamily = Gudi, fontWeight = FontWeight.Medium,
                     fontSize = 17.sp, color = k.ink, modifier = Modifier.padding(bottom = 12.dp))

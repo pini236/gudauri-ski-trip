@@ -68,6 +68,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.onClick
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.role
@@ -457,9 +458,10 @@ internal fun BoxScope.LivePeople(p: People, ui: PeopleUi, night: Boolean, haptic
 @Composable
 internal fun MeButton(me: Me?, night: Boolean, onClick: () -> Unit) {
     val k = remember(night) { SheetInk(night) }
-    val aria = stringResource(R.string.app_me_button_a11y)
+    // part 8, section 2: "Me, {name}. Button." or "Me, guest." (the words say button, so no role is added)
+    val aria = me?.name?.takeIf { it.isNotBlank() }?.let { stringResource(R.string.app_sr_me, it) } ?: stringResource(R.string.app_sr_me_guest)
     Box(Modifier.size(44.dp).shadow(10.dp, CircleShape, clip = false).clip(CircleShape).background(k.surf.copy(alpha = 1f)).border(1.dp, k.line, CircleShape)
-        .semantics { contentDescription = aria; role = Role.Button }.clickable(onClick = onClick), contentAlignment = Alignment.Center) {
+        .clickable(onClick = onClick).clearAndSetSemantics { contentDescription = aria; onClick { onClick(); true } }, contentAlignment = Alignment.Center) {
         val name = me?.name
         if (name.isNullOrBlank()) GuestAv(k, 36) else Av(name, me?.userId, 36)
     }
@@ -1058,7 +1060,7 @@ private fun Meetups(g: Group, k: SheetInk, plan: MeetPlan?, onOpen: (Meetup) -> 
                 Text(stringResource(R.string.app_g_in, inWords0(mins, ctx)), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = k.acc)
             }
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                Text(hm(next), fontFamily = Gudi, fontWeight = FontWeight.Light, fontSize = 40.sp, color = k.ink)
+                Text(hm(next), fontFamily = Gudi, fontWeight = FontWeight.Light, fontSize = bigSp(40f), color = k.ink)
                 Column {
                     Text("⁦${st?.name ?: next.station}⁩", fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 17.sp, color = k.ink)
                     if (st != null) Small(stationSub(st), k)
@@ -1595,7 +1597,7 @@ private fun BoxScope.LanguageSheet(p: People, ui: PeopleUi, k: SheetInk) {
 private fun BoxScope.AboutScreen(p: People, ui: PeopleUi, k: SheetInk) {
     val uri = androidx.compose.ui.platform.LocalUriHandler.current
     FullScreen(k, stringResource(R.string.app_about_title), { ui.back() }, top = {
-        Text("Gudi", fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 44.sp, color = Color.White)
+        Text("Gudi", fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = bigSp(44f), color = Color.White)
         Text(stringResource(R.string.app_about_version, p.version), fontFamily = Gudi, fontSize = 13.5.sp, color = Color.White)
         Text(stringResource(R.string.about_unofficial), fontFamily = Gudi, fontSize = 13.5.sp, color = Color.White, textAlign = TextAlign.Center)
     }) {

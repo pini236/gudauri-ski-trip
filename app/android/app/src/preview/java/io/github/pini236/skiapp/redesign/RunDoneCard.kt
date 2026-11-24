@@ -172,7 +172,7 @@ internal fun RunDoneCard(file: File, p: RunDone.Pending, scene: MapScene, mode: 
                             }
                         })
                         Row(verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            Text(if (d.isNull("max_kmh")) "—" else LiveNumbers.maxKmh(d.optDouble("max_kmh")), fontFamily = Gudi, fontWeight = FontWeight.Light, fontSize = 64.sp, color = k.ink)
+                            Text(if (d.isNull("max_kmh")) "—" else LiveNumbers.maxKmh(d.optDouble("max_kmh")), fontFamily = Gudi, fontWeight = FontWeight.Light, fontSize = bigSp(64f), color = k.ink)
                             Column(Modifier.padding(bottom = 12.dp)) {
                                 Text(stringResource(R.string.app_rec_kmh_max), fontFamily = Gudi, fontSize = 12.5.sp, color = k.ink)
                                 Text(stringResource(R.string.app_run_estimate), fontFamily = Gudi, fontSize = 12.5.sp, color = k.ink2)

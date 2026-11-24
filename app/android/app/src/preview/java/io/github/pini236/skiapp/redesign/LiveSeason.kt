@@ -76,7 +76,7 @@ internal fun BoxScope.LiveSeason(around: Around, night: Boolean, haptics: Haptic
         .clearAndSetSemantics { contentDescription = a11y; role = Role.Button }
         .clickable { haptics.tick(.3f); Qa.log("redesign season closed tap"); onClose() },
         horizontalAlignment = Alignment.CenterHorizontally) {
-        if (number) Text(big, fontFamily = Gudi, fontWeight = FontWeight.Light, fontSize = 112.sp, lineHeight = 112.sp, color = hero,
+        if (number) Text(big, fontFamily = Gudi, fontWeight = FontWeight.Light, fontSize = bigSp(112f), lineHeight = 112.sp, color = hero,
             style = TextStyle(fontFeatureSettings = "tnum"))
         else Text(big, fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = if (o != null) 44.sp else 19.sp, lineHeight = if (o != null) 48.sp else 24.sp,
             color = hero, textAlign = TextAlign.Center)

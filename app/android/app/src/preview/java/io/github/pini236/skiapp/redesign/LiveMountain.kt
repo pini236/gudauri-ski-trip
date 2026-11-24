@@ -61,6 +61,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.customActions
+import androidx.compose.ui.semantics.onClick
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.text.font.FontWeight
@@ -345,7 +348,26 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
     }
 
     Box(Modifier.fillMaxSize()) {
-        AndroidView(factory = { view }, modifier = Modifier.fillMaxSize())
+        // part 8, section 2: the mountain is one item for the screen reader, with the next and previous run and the
+        // opening view as its actions; "where to?" in the dock is the full way to choose a run without seeing it
+        val srRuns = remember(scene) { scene.runs.pistes.filter { it.named && it.kind == "run" && it.name.isNotBlank() }.sortedBy { it.name } }
+        val srMountain = stringResource(R.string.app_sr_mountain, srRuns.size.toString(), LiveLifts.board(scene.runs).size.toString())
+        val srNext = stringResource(R.string.app_sr_next_run); val srPrev = stringResource(R.string.app_sr_prev_run)
+        val srFront = stringResource(R.string.poc_peak_front_aria)
+        fun srStep(d: Int): Boolean {
+            if (srRuns.isEmpty()) return false
+            val i = srRuns.indexOfFirst { it.key == chosen }
+            val n = srRuns[((if (i < 0) (if (d > 0) -1 else 0) else i) + d + srRuns.size) % srRuns.size]
+            view.pickKey(n.key); Qa.log("redesign sr run ${n.key}"); return true
+        }
+        AndroidView(factory = { view }, modifier = Modifier.fillMaxSize().semantics {
+            contentDescription = srMountain
+            customActions = listOf(
+                androidx.compose.ui.semantics.CustomAccessibilityAction(srNext) { srStep(1) },
+                androidx.compose.ui.semantics.CustomAccessibilityAction(srPrev) { srStep(-1) },
+                androidx.compose.ui.semantics.CustomAccessibilityAction(srFront) { view.backToFront(); true },
+            )
+        })
         placeMark?.let { pl ->
             var at by remember(pl) { mutableStateOf<Offset?>(null) }
             LaunchedEffect(pl) { while (true) { withFrameNanos { }; at = view.toScreen(io.github.pini236.skiapp.data.Geo.x(pl.lon), io.github.pini236.skiapp.data.Geo.y(pl.lat))?.let { Offset(it[0], it[1]) } } }
@@ -388,8 +410,12 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
             val ov0 = around?.opening
             val pillText = if (!seasonOn && !pillLive && ov0 != null && ov0.kind == io.github.pini236.skiapp.season.Season.Kind.COUNTDOWN)
                 pluralStringResource(R.plurals.app_season_pill, ov0.days, ov0.days.toString()) else pillText1
+            // part 8, section 2: "Mountain status: 11 of 14 lifts open, -7°. Button." (the dot is not read)
+            val tpSr = io.github.pini236.skiapp.weather.LocalWeather.current.let { w -> w.usable?.now("goodaura", w.local)?.temp }
+            val pillSr = if (pillLive && status?.fresh == true) stringResource(R.string.app_sr_pill, status.open.toString(), status.names.size.toString(),
+                tpSr?.let { io.github.pini236.skiapp.weather.deg(it) } ?: "").replace(", .", ".") else null
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            Pill(Modifier.weight(1f).clickable {
+            Pill(Modifier.weight(1f).semantics { if (pillSr != null) contentDescription = pillSr }.clickable {
                 haptics.tick(.3f); liftSel = null; nowTab = NowTab.LIFTS; liftsOpen = !liftsOpen
                 if (liftsOpen) io.github.pini236.skiapp.telemetry.Telemetry.event("status_view", if (status?.fresh == true) mapOf("state" to "fresh", "open" to status.open, "total" to status.names.size) else mapOf("state" to if (status?.report == null) "none" else "stale"))
                 Qa.log("redesign lifts ${if (liftsOpen) "open" else "closed"} ${if (pillLive) "live" else "none"}")
@@ -507,8 +533,11 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
         }
         if (chosen == null && !meet.open && !tripOpen && !skipassOpen && !seasonOn) for ((l, p) in tags) {
             val sk = remember(night) { SheetInk(night) }
+            val closedSr = stringResource(R.string.app_sr_lift_closed, l.name)
             Row(Modifier.offset { androidx.compose.ui.unit.IntOffset((p.x - 40.dp.toPx()).toInt(), (p.y - 16.dp.toPx() - 22.dp.toPx()).toInt()) }
-                .heightIn(min = 44.dp).clickable { haptics.tick(.3f); liftSel = l; liftsOpen = true; Qa.log("redesign lift tag ${l.name}") },
+                .heightIn(min = 44.dp).clickable { haptics.tick(.3f); liftSel = l; liftsOpen = true; Qa.log("redesign lift tag ${l.name}") }
+                // "Goodaura, closed." (the red dot is not read)
+                .clearAndSetSemantics { contentDescription = closedSr; onClick { liftSel = l; liftsOpen = true; true } },
                 verticalAlignment = Alignment.CenterVertically) {
                 Row(Modifier.height(22.dp).clip(RoundedCornerShape(11.dp)).background(bg).border(1.dp, line, RoundedCornerShape(11.dp)).padding(horizontal = 8.dp),
                     verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(5.dp)) {

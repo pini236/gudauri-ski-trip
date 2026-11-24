@@ -99,9 +99,9 @@ internal fun BoxScope.LiveSkipass(around: Around, night: Boolean, haptics: Hapti
                     else -> {
                         val big = stringResource(R.string.app_skipass_price, total.toString())
                         Row(Modifier.clearAndSetSemantics { contentDescription = big }, verticalAlignment = Alignment.Bottom) {
-                            Text(total.toString(), fontFamily = Gudi, fontWeight = FontWeight.Light, fontSize = 112.sp, lineHeight = 112.sp, color = hero,
+                            Text(total.toString(), fontFamily = Gudi, fontWeight = FontWeight.Light, fontSize = bigSp(112f), lineHeight = 112.sp, color = hero,
                                 style = TextStyle(fontFeatureSettings = "tnum"))
-                            Text("₾", Modifier.padding(start = 4.dp, bottom = 18.dp), fontFamily = Gudi, fontWeight = FontWeight.Light, fontSize = 40.sp, color = hero)
+                            Text("₾", Modifier.padding(start = 4.dp, bottom = 18.dp), fontFamily = Gudi, fontWeight = FontWeight.Light, fontSize = bigSp(40f), color = hero)
                         }
                         Text(pluralStringResource(R.plurals.app_skipass_hero, days, who, days.toString()), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 17.sp, color = hero)
                         val daily = prices?.daily(child)

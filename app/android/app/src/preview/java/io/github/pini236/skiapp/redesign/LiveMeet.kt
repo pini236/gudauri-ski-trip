@@ -286,7 +286,7 @@ internal fun MeetSetSheet(here: MeetHere, s: Station, day: LocalDate, time: Loca
                 Text(stationSub(s), fontFamily = Gudi, fontSize = 13.sp, color = k.ink2)
             }
             CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
-                Text(hhmm, fontFamily = Gudi, fontWeight = FontWeight.Light, fontSize = 44.sp, color = k.ink, style = TextStyle(fontFeatureSettings = "tnum"))
+                Text(hhmm, fontFamily = Gudi, fontWeight = FontWeight.Light, fontSize = bigSp(44f), color = k.ink, style = TextStyle(fontFeatureSettings = "tnum"))
             }
         }
         Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {

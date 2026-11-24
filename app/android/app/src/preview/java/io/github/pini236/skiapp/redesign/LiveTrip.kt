@@ -170,12 +170,12 @@ private fun LegTag(text: String, p: PassPaper) {
 private fun Codes(from: String?, fromCity: String, to: String?, toCity: String, p: PassPaper, toFaint: Boolean = false, onFrom: (() -> Unit)?, onTo: (() -> Unit)?) {
     Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.Top) {
         Column(Modifier.weight(1f).let { m -> if (onFrom != null) m.clickable(onClick = onFrom) else m }) {
-            Text(from ?: "—", fontFamily = Gudi, fontWeight = FontWeight.Light, fontSize = 54.sp, color = p.ink, maxLines = 1)
+            Text(from ?: "—", fontFamily = Gudi, fontWeight = FontWeight.Light, fontSize = bigSp(54f), color = p.ink, maxLines = 1)
             Text(fromCity, fontFamily = Gudi, fontSize = 11.5.sp, color = p.ink2, maxLines = 2)
         }
         Icon(Icons.plane, null, Modifier.padding(top = 22.dp).size(28.dp), tint = p.acc)
         Column(Modifier.weight(1f).let { m -> if (onTo != null) m.clickable(onClick = onTo) else m }, horizontalAlignment = Alignment.End) {
-            Text(to ?: "—", Modifier.alpha(if (toFaint) .28f else 1f), fontFamily = Gudi, fontWeight = FontWeight.Light, fontSize = 54.sp, color = p.ink, maxLines = 1)
+            Text(to ?: "—", Modifier.alpha(if (toFaint) .28f else 1f), fontFamily = Gudi, fontWeight = FontWeight.Light, fontSize = bigSp(54f), color = p.ink, maxLines = 1)
             Text(toCity, fontFamily = Gudi, fontSize = 11.5.sp, color = p.ink2, maxLines = 2)
         }
     }
@@ -241,7 +241,7 @@ private fun TripCard(trip: Trip, isRet: Boolean, now: LocalDateTime, night: Bool
                 alpha = 1f - (fall * 1.4f - .4f).coerceIn(0f, 1f)
             }
             .padding(horizontal = 20.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(14.dp)) {
-            if (num != null) Text(num, fontFamily = Gudi, fontWeight = FontWeight.Light, fontSize = 66.sp, color = p.ink, style = TextStyle(fontFeatureSettings = "tnum"))
+            if (num != null) Text(num, fontFamily = Gudi, fontWeight = FontWeight.Light, fontSize = bigSp(66f), color = p.ink, style = TextStyle(fontFeatureSettings = "tnum"))
             Column(Modifier.weight(1f)) {
                 if (words != null) Text(words, fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 17.sp, color = p.ink, maxLines = 2)
                 val r = trip.skiDays()

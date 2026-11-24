@@ -169,6 +169,12 @@ internal fun BoxScope.Dock(night: Boolean, haptics: Haptics, onVillage: (() -> U
         }
         }
         val find = stringResource(R.string.app_sr_dock_find)
+        // in large text "where to?" keeps only its icon, in a 44 circle; its words stay for the screen reader (part 8)
+        if (bigText()) {
+            Box(Modifier.weight(1f))
+            Box(Modifier.size(44.dp).clip(CircleShape).background(k.line).semantics { contentDescription = find; role = Role.Button }
+                .clickable { haptics.tick(.3f); onFind() }, contentAlignment = Alignment.Center) { Canvas(Modifier.size(18.dp)) { glass(k.ink2) } }
+        } else
         Row(Modifier.weight(1f).height(44.dp).clip(RoundedCornerShape(22.dp)).background(k.line).semantics { contentDescription = find; role = Role.Button }
             .clickable { haptics.tick(.3f); onFind() }.padding(horizontal = 14.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             Canvas(Modifier.size(18.dp)) { glass(k.ink2) }
