@@ -1182,6 +1182,12 @@ redesign() {
   if waitlog "redesign station " 10; then rd_settled; shot redesign-station-goodaura
     mark; qa "--es qa.redesign station:off"; sleep 1
   else fail "redesign: the sheet from the station did not open"; fi
+  # part 4b (K08): the lenses, at noon (the sun) with a fresh report (open), and easy to hard; the sun as the suite has it (no sun: the sheet says so)
+  mark; qa "--es qa.status fresh --es qa.redesign lens:sun"
+  if waitlog "redesign lens sun" 20; then rd_settled; shot redesign-lens-sun; else fail "redesign: the sun lens did not draw"; fi
+  mark; qa "--es qa.redesign lens:open"; waitlog "redesign lens open" 20 && { rd_settled; shot redesign-lens-open; } || fail "redesign: the open lens did not draw"
+  mark; qa "--es qa.redesign lens:slope"; waitlog "redesign lens slope" 20 && { rd_settled; shot redesign-lens-slope; } || fail "redesign: the slope lens did not draw"
+  mark; qa "--es qa.redesign lens:off --es qa.status none"; sleep 1
   # the completion round, part 2 (Q01 to Q03): the lifts without a report (today), then with one (two closed, their
   # tags on the mountain), and one lift
   mark; qa "--es qa.status none --es qa.redesign lifts"; rd_settled; shot redesign-lifts-none

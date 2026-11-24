@@ -203,6 +203,64 @@ class LiveView(context: Context, private val scene: MapScene) : GLSurfaceView(co
             p.key to if (n == 0) 0f else lit.toFloat() / n
         }
     }
+    /**
+     * K08: a lens on (worked out off the GL thread) or off. [runOpen] the "open" lens's rule for a run (LiftStatus), null
+     * with no fresh report. In the sun with the sun down, and open with no report, draw nothing (the sheet says why).
+     */
+    fun setLens(kind: LensKind?, night: Boolean, runOpen: ((io.github.pini236.skiapp.data.Piste) -> Boolean?)?) {
+        if (kind == null) { renderer.lens = null; requestRender(); return }
+        if (worker.isShutdown) return
+        worker.execute {
+            val l = lensOf(kind, night, runOpen)
+            post { renderer.lens = l; requestRender(); Qa.log("redesign lens ${kind.id} ${if (l == null) "empty" else "on"}") }
+        }
+    }
+
+    private fun lensOf(kind: LensKind, night: Boolean, runOpen: ((io.github.pini236.skiapp.data.Piste) -> Boolean?)?): LiveRenderer.Lens? {
+        fun hex(h: Long) = floatArrayOf(((h shr 16) and 255) / 255f, ((h shr 8) and 255) / 255f, (h and 255) / 255f)
+        fun col(c: String) = plate(c).let { floatArrayOf(it.red, it.green, it.blue) }
+        val case = if (night) hex(0x081020) else floatArrayOf(1f, 1f, 1f)
+        val t = scene.terrain
+        val lines = HashMap<String, LiveRenderer.LensLine>()
+        when (kind) {
+            LensKind.SUN -> {
+                if (!sunUp()) return null
+                val sh = renderer.shadowNow() ?: return null
+                val sun = hex(0xFFC93A); val shade = hex(0xB9CCFA); val halo = hex(0xFFE9A0).let { floatArrayOf(it[0], it[1], it[2], .35f) }
+                for (p in scene.runs.pistes) {
+                    val ls = scene.draped[p.key] ?: continue
+                    var n = 0; var lit = 0
+                    val r = io.github.pini236.skiapp.map.Ribbon.build(ls, { li, i ->
+                        val l = ls[li]
+                        val c = kotlin.math.round((l[i * 3] - t.x0) / t.sx).toInt().coerceIn(0, t.nx - 1)
+                        val rr = kotlin.math.round((l[i * 3 + 2] - t.y0) / t.sy).toInt().coerceIn(0, t.ny - 1)
+                        val inSun = sh[rr * t.nx + c] < .5f
+                        n++; if (inSun) lit++
+                        (if (inSun) sun else shade).let { floatArrayOf(it[0], it[1], it[2], if (inSun) 1f else .95f) }
+                    })
+                    val most = n > 0 && lit * 2 >= n
+                    lines[p.key] = LiveRenderer.LensLine(r, null, if (most) 3f else 1.8f, 1f, most, if (most) halo else null)
+                }
+            }
+            LensKind.OPEN -> {
+                val rule = runOpen ?: return null
+                val closed = if (night) hex(0x7C8798) else hex(0x8A93A3)
+                for (p in scene.runs.pistes) lines[p.key] = when (LensRules.open(rule(p))) {
+                    LensRules.Open.OPEN -> LiveRenderer.LensLine(null, col(p.color), 3f, 1f, true)
+                    LensRules.Open.CLOSED -> LiveRenderer.LensLine(null, closed, 1.8f, 1f, false)
+                    LensRules.Open.UNKNOWN -> LiveRenderer.LensLine(null, col(p.color), 1.8f, .45f, false)
+                }
+            }
+            LensKind.SLOPE -> for (p in scene.runs.pistes) {
+                val ls = scene.draped[p.key] ?: continue
+                val sl = ls.map { scene.lineSlopes(it) }
+                val r = io.github.pini236.skiapp.map.Ribbon.build(ls, { li, i -> io.github.pini236.skiapp.map.SlopeColors.of(sl[li][i]).let { floatArrayOf(it[0], it[1], it[2], 1f) } })
+                lines[p.key] = LiveRenderer.LensLine(r, null, 3f, 1f, true)
+            }
+        }
+        return LiveRenderer.Lens(lines, case)
+    }
+
     /** The light of a moment: the shader's uniforms at once, the shadows a moment later (worked out off the GL thread). */
     fun setTime(epochMs: Long) {
         lastEpoch = epochMs

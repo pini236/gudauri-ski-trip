@@ -249,6 +249,15 @@ class LiveRenderer(
      */
     class Focus(val lit: Set<String>, val core: Float, val case: Float, val liftsOn: Set<String>)
     @Volatile var focus: Focus? = null
+    /**
+     * K08, a lens: each run drawn by its [LensLine] instead of its colour (a run with none is not drawn), the lifts dimmed.
+     * [case] the lens's case colour (white by day, #081020 at night).
+     */
+    class LensLine(val ribbon: io.github.pini236.skiapp.map.Ribbon?, val rgb: FloatArray?, val width: Float, val alpha: Float, val cased: Boolean,
+                   val halo: FloatArray? = null, val haloW: Float = 9f)
+    class Lens(val lines: Map<String, LensLine>, val case: FloatArray)
+    @Volatile var lens: Lens? = null
+    private var lensGpu = HashMap<String, Gpu>(); private var lensGpuOf: Lens? = null
     @Volatile var pal: PeakData.Pal? = null
     /** Roads, water and the village (Drape.kt without contours), kept to be uploaded again with a new context. */
     @Volatile var drape: android.graphics.Bitmap? = null
@@ -314,6 +323,7 @@ class LiveRenderer(
         uploaded = false; texOn = false; tex.fill(0); runs.clear(); lifts.clear(); dotCount = 0
         drapeTex[0] = 0; drapeOn = null; groundTex[0] = 0; groundOn = null; chosenGpu = null; chosenGpuOf = null
         dayGpu = null; dayGpuOf = null; dayLogged = null
+        lensGpu.clear(); lensGpuOf = null
         if (hadTextures && textures == null) needTextures?.invoke()
         drawn = false
         val mx = IntArray(1); glGetIntegerv(GL_MAX_TEXTURE_SIZE, mx, 0); maxTex = mx[0]
@@ -328,6 +338,7 @@ class LiveRenderer(
     fun free() {
         if (uploaded) { glDeleteBuffers(3, bufs, 0); glDeleteVertexArrays(1, vao, 0); glDeleteBuffers(2, dots, 0) }
         runs.forEach { it.second.free(); it.third.free() }; lifts.forEach { it.free() }; runs.clear(); lifts.clear(); liftNames.clear()
+        lensGpu.values.forEach { it.free() }; lensGpu.clear(); lensGpuOf = null
         if (texOn) glDeleteTextures(5, tex, 0)
         if (drapeTex[0] != 0) glDeleteTextures(1, drapeTex, 0)
         if (groundTex[0] != 0) glDeleteTextures(1, groundTex, 0)
@@ -548,10 +559,29 @@ class LiveRenderer(
         val showRuns = dl == null || dl.withRuns
         val quiet = (if (dl != null) .45f else 1f) * linesQuiet
         val fo = focus.takeIf { chosen == null && dl == null }
+        val ln = lens.takeIf { chosen == null && dl == null && fo == null }
+        if (ln !== lensGpuOf) { lensGpu.values.forEach { it.free() }; lensGpu.clear(); lensGpuOf = ln }
         glUniform4f(uT, wire[0], wire[1], wire[2], 1f); glUniform1f(uW, 1.3f * density * zw); glUniform1f(uA, .85f * rest * quiet)
         if (showRuns) for ((i, g) in lifts.withIndex()) {
             if (fo != null) glUniform1f(uA, .85f * quiet * (if (liftNames.getOrNull(i) in fo.liftsOn) 1f else .3f))
+            if (ln != null) glUniform1f(uA, .85f * .3f * quiet)
             g.draw()
+        }
+        // a lens (K08): the weak lines first, then each strong one's halo, case and colour (point by point when it has a ribbon)
+        if (showRuns && ln != null) {
+            for (strong in listOf(false, true)) for ((key, cs, core) in runs) {
+                val l = ln.lines[key] ?: continue
+                if (l.cased != strong) continue
+                val g = l.ribbon?.let { r -> lensGpu.getOrPut(key) { Gpu(r) } } ?: core
+                glUniform1f(uB, 0.0012f)
+                if (l.halo != null) {
+                    glUniform1f(uS, 1f); glUniform4f(uT, l.halo[0], l.halo[1], l.halo[2], 1f)
+                    glUniform1f(uW, l.haloW * density * zw); glUniform1f(uA, l.halo[3] * quiet); core.draw(); glUniform1f(uS, 0f)
+                }
+                if (l.cased) { glUniform4f(uT, ln.case[0], ln.case[1], ln.case[2], 1f); glUniform1f(uW, (l.width + 2f) * density * zw); glUniform1f(uA, quiet); cs.draw() }
+                if (l.rgb != null) glUniform4f(uT, l.rgb[0], l.rgb[1], l.rgb[2], 1f) else glUniform4f(uT, 0f, 0f, 0f, 0f)
+                glUniform1f(uW, l.width * density * zw); glUniform1f(uA, l.alpha * quiet); g.draw()
+            }
         }
         // the shelf's and the station's ghosts (K06, K07): the colour faint, no case
         if (showRuns && fo != null) for ((key, _, core) in runs) {
@@ -561,7 +591,7 @@ class LiveRenderer(
             if (c != null) glUniform4f(uT, c[0], c[1], c[2], 1f) else glUniform4f(uT, 0f, 0f, 0f, 0f)
             glUniform1f(uW, 1.8f * density * zw); glUniform1f(uA, .3f * quiet); core.draw()
         }
-        if (showRuns && fo == null) for ((key, cs, core) in runs) {
+        if (showRuns && fo == null && ln == null) for ((key, cs, core) in runs) {
             if (key == chosen) continue
             glUniform1f(uB, 0.0010f)
             glUniform4f(uT, case[0], case[1], case[2], 1f); glUniform1f(uW, 3.6f * density * zw); glUniform1f(uA, (if (night) .7f else .95f) * rest * quiet * runsQuiet); cs.draw()

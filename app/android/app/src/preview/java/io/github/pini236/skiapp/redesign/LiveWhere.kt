@@ -110,12 +110,21 @@ internal fun rememberWhere(scene: MapScene): WhereUi {
 
 /** The column of the map's buttons (section 1): the compass (only once turned) and "where am I", at the screen's end. */
 @Composable
-internal fun BoxScope.MapColumn(ui: WhereUi, view: LiveView, night: Boolean, recording: Boolean, onLocate: () -> Unit, onHome: () -> Unit) {
+internal fun BoxScope.MapColumn(ui: WhereUi, view: LiveView, night: Boolean, recording: Boolean, onLocate: () -> Unit, onHome: () -> Unit,
+                                 layersOn: Boolean? = null, onLayers: () -> Unit = {}, bottom: androidx.compose.ui.unit.Dp = 84.dp) {
     val k = remember(night) { SheetInk(night) }
     var away by remember { mutableStateOf(false) }
     var north by remember { mutableStateOf(0f) }
     LaunchedEffect(view) { while (true) { withFrameNanos { }; val a = view.awayFromHome(); if (a != away) { away = a; Qa.log("redesign compass ${if (a) "shown" else "gone"}") }; if (a) north = view.northDeg(); kotlinx.coroutines.delay(120) } }
-    Column(Modifier.align(Alignment.BottomEnd).navigationBarsPadding().padding(end = 12.dp, bottom = 84.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+    Column(Modifier.align(Alignment.BottomEnd).navigationBarsPadding().padding(end = 12.dp, bottom = bottom), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        // K08: the layers button (the lenses' row); lit while the row is open, the mark in the background's colour
+        if (layersOn != null) {
+            val ld = stringResource(R.string.app_map_layers_a11y)
+            val ls = stringResource(if (layersOn) R.string.app_on else R.string.app_off)
+            Round(k, Modifier.semantics { contentDescription = ld; stateDescription = ls; role = Role.Switch }.clickable(onClick = onLayers), fill = if (layersOn) k.ink else null) {
+                Canvas(Modifier.size(20.dp)) { layers(if (layersOn) (if (night) Color(0xFF0F1828) else Color.White) else k.ink) }
+            }
+        }
         AnimatedVisibility(away, enter = fadeIn(tween(150)), exit = fadeOut(tween(150))) {
             val home = stringResource(R.string.app_map_home_view_a11y)
             Round(k, Modifier.semantics { contentDescription = home; role = Role.Button }.clickable(onClick = onHome)) {

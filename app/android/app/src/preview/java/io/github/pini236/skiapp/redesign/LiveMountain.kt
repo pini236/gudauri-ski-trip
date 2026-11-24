@@ -101,6 +101,9 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
     // K06 (from the station): the top station tapped, and the runs that go down from it
     var fromSt by remember { mutableStateOf<io.github.pini236.skiapp.meet.Station?>(null) }
     val stationRuns = remember(scene) { ShelfData.withLifts(scene) }
+    // K08 (the lenses): the chips' row open, and the lens on
+    var lensRow by remember { mutableStateOf(false) }
+    var lens by remember { mutableStateOf<LensKind?>(null) }
     // part 2 (Q01 to Q03): the lifts' sheet, and one lift in it
     var liftsOpen by remember { mutableStateOf(false) }
     var liftSel by remember { mutableStateOf<io.github.pini236.skiapp.data.Lift?>(null) }
@@ -202,6 +205,8 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
             c == "shelf" -> { chosen = null; view.choose(null); shelfOpen = true }
             c == "shelf:off" -> shelfOpen = false
             c == "station:off" -> fromSt = null
+            c == "lens:off" -> { lens = null; lensRow = false }
+            c.startsWith("lens:") -> LensKind.of(c.removePrefix("lens:"))?.let { lensRow = true; lens = it }
             c.startsWith("station:") -> plan?.stations?.firstOrNull { s -> c.removePrefix("station:") in s.topOf }?.let { s -> chosen = null; view.choose(null); fromSt = s; Qa.log("redesign station ${s.id}") }
             c == "season" -> seasonOn = LiveSeasonRules.shown(around)
             c == "season:off" -> seasonOn = false
@@ -574,7 +579,7 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
                 onClose = { shelfOpen = false; Qa.log("redesign shelf closed") })
             if (veilA > .5f) shelfMid?.let { r -> RunTag(view, scene, r.key, r.title, r.color, night) }
         }
-        AnimatedVisibility(chosen == null && !shelfOpen && fromSt == null && !liftsOpen && !meet.open && !tripOpen && !skipassOpen && !seasonOn && !people.open, Modifier.fillMaxSize(),
+        AnimatedVisibility(chosen == null && lens == null && !shelfOpen && fromSt == null && !liftsOpen && !meet.open && !tripOpen && !skipassOpen && !seasonOn && !people.open, Modifier.fillMaxSize(),
             enter = fadeIn(tween(150)), exit = fadeOut(tween(150))) {
             Box(Modifier.fillMaxSize()) {
                 Dock(night, haptics, onVillage = null, onFind = { shelfOpen = true; Qa.log("redesign dock find") }, onRecord = null)
@@ -699,7 +704,17 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
             view.onPreTap = if (bare && plan != null) { x, y -> StationTap.at(view, plan, stationRuns, x, y, dens)?.let { s -> haptics.tick(.4f); fromSt = s; Qa.log("redesign station ${s.id}"); true } ?: false } else null
         }
         if (bare) WhereBox(where, night, onRun = { k -> haptics.tick(.3f); view.pickKey(k) }, onAction = whereAction)
-        if (bare) MapColumn(where, view, night, recording = false, onLocate = { haptics.tick(.3f); locate() }, onHome = { haptics.tick(.3f); view.home() })
+        // K08: one colour layer at a time: a run chosen, the shelf or a station turns the lens off and closes the row
+        LaunchedEffect(chosen, shelfOpen, fromSt) { if (chosen != null || shelfOpen || fromSt != null) { lens = null; lensRow = false } }
+        LaunchedEffect(lens, night, status) { view.setLens(lens, night, status?.takeIf { it.fresh }?.let { st -> { p: io.github.pini236.skiapp.data.Piste -> st.runOpen(p) } }) }
+        if (bare && lensRow) LensChips(lens, night, haptics) { l -> lens = LensRules.tap(lens, l); LensPrefs.setLast(context, lens ?: LensPrefs.last(context)); Qa.log("redesign lens tap ${l.id}") }
+        if (bare && lens != null) LensSheet(lens!!, scene, view, status, inSeason, night) { lens = null; Qa.log("redesign lens off") }
+        if (bare) MapColumn(where, view, night, recording = false, onLocate = { haptics.tick(.3f); locate() }, onHome = { haptics.tick(.3f); view.home() },
+            layersOn = lensRow, onLayers = {
+                haptics.tick(.3f)
+                if (lensRow) { lensRow = false; lens = null } else { lensRow = true; lens = LensPrefs.last(context) }
+                Qa.log("redesign lens row $lensRow")
+            }, bottom = if (lens != null) 196.dp else 84.dp)
         RunHint(scene, view, night, free = bare && !where.asking, chosen = chosen != null, drawn = mtnDrawn, again = hintAgain)
         if (where.asking) WhereAsk(night, onGo = locateGo, onLater = { where.asking = false; Qa.log("redesign where ask later") })
         androidx.activity.compose.BackHandler(enabled = where.asking) { where.asking = false }
