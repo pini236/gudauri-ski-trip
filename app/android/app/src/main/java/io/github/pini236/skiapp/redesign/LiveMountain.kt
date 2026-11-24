@@ -643,7 +643,9 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
                 ((view.context.getSystemService(android.content.Context.VIBRATOR_SERVICE) as? android.os.Vibrator)?.hasVibrator() == true) }
             val title = scene.runs.pistes.firstOrNull { it.key == rk }?.title ?: rk
             RideFilm(rk, title, {
-                if (r != null) Box(Modifier.height(30.dp).widthIn(min = 40.dp).clip(RoundedCornerShape(7.dp)).background(plate(r.color)).padding(horizontal = 7.dp), contentAlignment = Alignment.Center) {
+                // a run with no number (Kikilo 1, Kobi): a small square of its colour, not an empty plate
+                if (r != null && r.ref.isBlank()) Box(Modifier.size(14.dp).clip(RoundedCornerShape(3.dp)).background(plate(r.color)))
+                else if (r != null) Box(Modifier.height(30.dp).widthIn(min = 40.dp).clip(RoundedCornerShape(7.dp)).background(plate(r.color)).padding(horizontal = 7.dp), contentAlignment = Alignment.Center) {
                     Text(r.ref, fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 17.sp, color = Color.White,
                         style = androidx.compose.ui.text.TextStyle(textDirection = androidx.compose.ui.text.style.TextDirection.Ltr))
                 }

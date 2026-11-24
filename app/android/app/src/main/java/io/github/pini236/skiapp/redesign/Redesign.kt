@@ -176,19 +176,19 @@ object Redesign {
 
     /** X01 (handoff 2026-11-24-redesign-day-dialogs): "the day was cut" in the new design, or false for today's. Gated as [first]. */
     @Composable
-    fun cutDay(onResume: () -> Unit, onClose: () -> Unit): Boolean {
+    fun cutDay(night: Boolean, onResume: () -> Unit, onClose: () -> Unit): Boolean {
         if (!on()) return false
         if (io.github.pini236.skiapp.BuildConfig.DEBUG && !RedesignQa.dayOn) return false
-        CutDay(onResume, onClose)
+        CutDay(night, onResume, onClose)
         return true
     }
 
     /** X02: "before recording" in the new design, or false for today's. Gated as [first]. */
     @Composable
-    fun blocked(kind: String, onSettings: () -> Unit, onDismiss: () -> Unit): Boolean {
+    fun blocked(kind: String, night: Boolean, onSettings: () -> Unit, onDismiss: () -> Unit): Boolean {
         if (!on()) return false
         if (io.github.pini236.skiapp.BuildConfig.DEBUG && !RedesignQa.dayOn) return false
-        Blocked(kind, onSettings, onDismiss)
+        Blocked(kind, night, onSettings, onDismiss)
         return true
     }
 

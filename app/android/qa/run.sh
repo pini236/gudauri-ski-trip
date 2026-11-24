@@ -1104,10 +1104,11 @@ rd_settled() { seen "redesign live drawn" 6 || true; sleep 2; }
 # each area of the redesign once, for the reviewer's pass (large text, night): open, settle, shoot, close; a miss is no failure
 rd_areas() { # rd_areas <prefix>
   local open close name
-  while IFS='|' read -r name open close; do
+  # the list on its own descriptor: adb shell reads standard input and would eat the rest of it
+  while IFS='|' read -r name open close <&3; do
     [ -z "$name" ] && continue
     mark; qa "--es qa.redesign $open"; sleep 2.5; shot "redesign-$1-$name"; qa "--es qa.redesign $close"; sleep 1.2
-  done <<'AREAS'
+  done 3<<'AREAS'
 me|people:me|people:off
 settings|people:settings|people:off
 lang|people:lang|people:off

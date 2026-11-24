@@ -49,8 +49,6 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import io.github.pini236.skiapp.R
-import io.github.pini236.skiapp.home.DayNight
-import io.github.pini236.skiapp.map.Sky
 import io.github.pini236.skiapp.qa.Qa
 
 /**
@@ -99,13 +97,11 @@ private fun Main(text: String, k: SheetInk, onClick: () -> Unit) =
         Text(text, Modifier.padding(horizontal = 16.dp, vertical = 14.dp), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = k.onAcc, textAlign = TextAlign.Center)
     }
 
-private fun night() = Sky.at(DayNight.lightTime(System.currentTimeMillis(), DayNight.Mode.AUTO)).dark
-
 /** X01: a day the phone cut short; go on with it, or close it. No handle, no tap outside, no back: both answers always seen. */
 @Composable
-internal fun CutDay(onResume: () -> Unit, onClose: () -> Unit) {
+internal fun CutDay(night: Boolean, onResume: () -> Unit, onClose: () -> Unit) {
     LaunchedEffect(Unit) { Qa.log("redesign day cut") }
-    DayDialog(remember { night() }, null, stringResource(R.string.app_rec_cut_title), sign = { c ->
+    DayDialog(night, null, stringResource(R.string.app_rec_cut_title), sign = { c ->
         Canvas(Modifier.size(26.dp)) {
             val s = 1.8.dp.toPx()
             drawCircle(c, size.minDimension / 2 - s / 2, style = Stroke(s))
@@ -125,10 +121,10 @@ internal fun CutDay(onResume: () -> Unit, onClose: () -> Unit) {
 
 /** X02: what is in the way of recording (no permission, only approximate, or location off), and the way to the settings. */
 @Composable
-internal fun Blocked(kind: String, onSettings: () -> Unit, onDismiss: () -> Unit) {
+internal fun Blocked(kind: String, night: Boolean, onSettings: () -> Unit, onDismiss: () -> Unit) {
     LaunchedEffect(kind) { Qa.log("redesign day blocked $kind") }
     val text = when (kind) { "precise" -> R.string.app_rec_err_precise; "off" -> R.string.app_rec_err_off; else -> R.string.app_rec_err_perm }
-    DayDialog(remember { night() }, onDismiss, stringResource(R.string.app_rec_perm_title), sign = { c ->
+    DayDialog(night, onDismiss, stringResource(R.string.app_rec_perm_title), sign = { c ->
         Canvas(Modifier.size(26.dp)) {
             val s = 1.8.dp.toPx(); val w = size.width; val h = size.height
             drawRoundRect(c, Offset(w * .2f, h * .45f), Size(w * .6f, h * .43f), CornerRadius(2.5.dp.toPx()), style = Stroke(s))

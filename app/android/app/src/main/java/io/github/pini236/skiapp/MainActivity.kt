@@ -889,7 +889,7 @@ class MainActivity : ComponentActivity() {
                     }
                     val close: () -> Unit = { cutDay = null; inBackground { DayRec.finishCut(this@MainActivity, f) } }
                     // the new design's X01 over the mountain; otherwise today's
-                    if (!io.github.pini236.skiapp.redesign.Redesign.cutDay(resume, close))
+                    if (!io.github.pini236.skiapp.redesign.Redesign.cutDay(frame.dark, resume, close))
                         io.github.pini236.skiapp.dayrec.ui.CutDayDialog(onResume = resume, onClose = close)
                 }
                 recBlocked?.let { kind ->
@@ -901,7 +901,7 @@ class MainActivity : ComponentActivity() {
                     }
                     val dismiss: () -> Unit = { recBlocked = null }
                     // the new design's X02; otherwise today's
-                    if (!io.github.pini236.skiapp.redesign.Redesign.blocked(kind, settings, dismiss))
+                    if (!io.github.pini236.skiapp.redesign.Redesign.blocked(kind, frame.dark, settings, dismiss))
                         io.github.pini236.skiapp.dayrec.ui.BlockedSheet(kind, onSettings = settings, onDismiss = dismiss)
                 }
                 if (recExplain) {
