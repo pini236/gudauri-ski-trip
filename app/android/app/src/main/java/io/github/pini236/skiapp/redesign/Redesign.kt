@@ -81,6 +81,13 @@ object Redesign {
         return true
     }
 
+    /** "Me" or signing in (the trip card's passenger), on the mountain; false when the mountain is not on. */
+    fun people(signIn: Boolean): Boolean {
+        if (!on()) return false
+        link = if (signIn) "people:signin" else "people:me"
+        return true
+    }
+
     /** The mountain's word for a route (kept apart, for the unit test). */
     internal fun linkOf(r: io.github.pini236.skiapp.nav.Route): String? = when (r) {
         is io.github.pini236.skiapp.nav.Route.Map -> r.run?.let { "pick:$it" } ?: "front"

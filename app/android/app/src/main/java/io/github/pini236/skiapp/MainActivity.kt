@@ -801,8 +801,8 @@ class MainActivity : ComponentActivity() {
             if ((top == Route.Home || top == Route.About) && groupApi.ready) { me = groupApi.me(); if (top == Route.Home) { firstGroup = runCatching { groupApi.firstGroup() }.getOrNull(); if (firstGroup != null) sendBests() } }
         }
         // the account on the pass and on the settings' ski pass (A-32)
-        val account = if (groupApi.ready) io.github.pini236.skiapp.home.Account(me, onManage = { nav.push(Route.Account) },
-            onSignIn = { nav.push(Route.Account) },
+        val account = if (groupApi.ready) io.github.pini236.skiapp.home.Account(me, onManage = { if (!io.github.pini236.skiapp.redesign.Redesign.people(false)) nav.push(Route.Account) },
+            onSignIn = { if (!io.github.pini236.skiapp.redesign.Redesign.people(true)) nav.push(Route.Account) },
             onSignOut = { lifecycleScope.launch { runCatching { groupApi.signOut() }; me = groupApi.me(); firstGroup = null; armReminders() } }) else null
         LaunchedEffect(paint) { mapView.setStatus(paint); if (paint !== StatusPaint.NONE) Qa.log("status on map: ${paint.closedLifts.size} lifts, ${paint.closedRuns.size} runs closed${if (paint.forMe) ", for me" else ""}") }
         // "opened since you checked": against the state the board showed last time, which is then kept

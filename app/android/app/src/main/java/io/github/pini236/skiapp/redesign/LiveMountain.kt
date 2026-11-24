@@ -307,6 +307,8 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
             c.startsWith("people:join:") -> people.go(PLayer.Join(c.removePrefix("people:join:")))
             c.startsWith("people:group:") -> people.go(PLayer.Group(c.removePrefix("people:group:")))
             c == "people:gate" -> people.go(PLayer.Gate)
+            c == "people:me" -> people.go(PLayer.Me)
+            c == "people:signin" -> people.go(PLayer.SignIn)
         }
         Redesign.link = null
     }
