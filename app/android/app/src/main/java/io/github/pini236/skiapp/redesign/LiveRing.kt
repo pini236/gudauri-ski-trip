@@ -194,9 +194,7 @@ class LiveRing private constructor(
         const val BAND_HANDOVER = 400f
         /** Where the model's shader hands its maps over to the band (metres inside the edge). */
         const val SEAM_IN = 600f
-        /** The band's budget (the designer: 228 KB). */
-        const val MAX_BAND_BYTES = 240 * 1024
-        /** The packed textures of the live model with the ring's two (the architect, 25.11.2026: 1.2 MB with the band). */
+        /** Every packed texture of the live model, the ring's two included (the architect, 25.11.2026: 1.2 MB with the band). */
         const val MAX_SET_BYTES = 1_200_000L
         /** Where the outer ring is under the inner one it lies this far under it (metres). */
         const val UNDER_INNER = 30f

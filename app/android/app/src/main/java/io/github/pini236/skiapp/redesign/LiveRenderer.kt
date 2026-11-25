@@ -60,9 +60,9 @@ out vec4 o;
 void main(){
   vec2 uv=(vPos.xz-uBox.xy)*uBox.zw;
   vec3 rl=texture(uRelief,uv).rgb; vec3 cv=texture(uCover,uv).rgb; vec3 tl=texture(uTile,vPos.xz/640.0).rgb;
-  float wE=0.0; vec4 rr=vec4(rl,cv.r);
+  float wE=0.0; vec4 rr=texture(uBand,clamp((vPos.xz-uBBox.xy)*uBBox.zw,0.0,1.0));   // outside any branch: the mip level needs the neighbours
   if(uSeam.x>0.0){ vec2 qd=min(uv,1.0-uv)/uBox.zw; float te=1.0-clamp(min(qd.x,qd.y)/uSeam.y,0.0,1.0); wE=te*te*(3.0-2.0*te);
-    rr=texture(uBand,(vPos.xz-uBBox.xy)*uBBox.zw); cv.r=mix(cv.r,rr.a,wE); }
+    cv.r=mix(cv.r,rr.a,wE); }
   vec2 s=mix((rl.rg-0.5)*3.2,(rr.rg-0.5)*3.2,wE);
   float deg=degrees(atan(length(s)));
   float amp=(1.0-0.85*cv.g)*(1.0-smoothstep(30.0,40.0,deg));
@@ -448,6 +448,7 @@ class LiveRenderer(
         lensGpu.values.forEach { it.free() }; lensGpu.clear(); lensGpuOf = null
         if (ringCount > 0) { glDeleteBuffers(3, ringBufs, 0); glDeleteVertexArrays(1, ringVao, 0) }; ringCount = 0; ringOn = null
         if (ringTex[0] != 0) glDeleteTextures(1, ringTex, 0); ringTex[0] = 0
+        if (bandTex[0] != 0) glDeleteTextures(1, bandTex, 0); bandTex[0] = 0; bandBox = null
         if (texOn) glDeleteTextures(5, tex, 0)
         if (drapeTex[0] != 0) glDeleteTextures(1, drapeTex, 0)
         if (groundTex[0] != 0) glDeleteTextures(1, groundTex, 0)

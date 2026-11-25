@@ -337,6 +337,9 @@ class LiveView(context: Context, private val scene: MapScene) : GLSurfaceView(co
 
     @Volatile private var ring: LiveRing? = null
     @Volatile private var lightDir: FloatArray? = null
+    /** The last shadow computation's parts (ms), for the budget and the log. */
+    @Volatile private var mountainMs = 0L
+    @Volatile private var bandMs = 0L
 
     /** The ring built and handed to the renderer (on the worker); [seam] false: the ring of before step 4, for the emulator. */
     private fun loadRing(seam: Boolean) {
@@ -359,9 +362,12 @@ class LiveView(context: Context, private val scene: MapScene) : GLSurfaceView(co
     /** The model's cast shadow for the sun in [dir] (on the worker): with the ring, its edge over the ring's ground. */
     private fun modelShadow(dir: FloatArray) {
         val t = scene.terrain
+        val t0 = System.nanoTime()
         var sh = Sun.shadows(t, dir)
-        ring?.let { r -> val t0 = System.nanoTime(); sh = r.modelBand(sh, t.nx, t.ny, t.x0, t.y0, t.sx, t.sy, dir)
-            Qa.log("redesign ring band shadow ${(System.nanoTime() - t0) / 1_000_000} ms") }
+        mountainMs = (System.nanoTime() - t0) / 1_000_000; bandMs = 0
+        ring?.let { r -> val t1 = System.nanoTime(); sh = r.modelBand(sh, t.nx, t.ny, t.x0, t.y0, t.sx, t.sy, dir)
+            bandMs = (System.nanoTime() - t1) / 1_000_000
+            Qa.log("redesign ring band shadow $bandMs ms") }
         renderer.setShadow(LiveLight.soften(sh, t.nx, t.ny))
     }
 
@@ -376,9 +382,11 @@ class LiveView(context: Context, private val scene: MapScene) : GLSurfaceView(co
 
     /** The ring's cast shadow for the sun in [dir] (on the worker), logged with its time for the emulator. */
     private fun ringShadow(r: LiveRing, dir: FloatArray) {
-        val sh = r.shadows(dir)
+        // the band's shadow counts inside the ring's 150 ms (the architect, 25.11.2026): the outer ring goes first
+        val sh = r.shadows(dir, (LiveRing.SHADOW_MS - bandMs).coerceAtLeast(0))
         renderer.setRingShadow(sh)
         Qa.log("redesign ring shadow ${r.lastShadowMs} ms${if (r.outerShadowOff) " outer off" else ""}")
+        Qa.log("redesign shadow total ${mountainMs + bandMs + r.lastShadowMs} ms (mountain $mountainMs, band $bandMs, ring ${r.lastShadowMs})")
     }
 
     /**

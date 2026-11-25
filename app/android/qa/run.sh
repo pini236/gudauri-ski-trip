@@ -1339,11 +1339,23 @@ redesign() {
   done
   # and before step 4, the same two looks at noon (the architect's condition 4: the seam before and after)
   mark; qa "--es qa.redesign hour:12"; waitlog "redesign live hour" 10
+  # the north edge too, from the north, close up (the architect's condition 5), and the frames on both: a slow turn of
+  # 5 s each, with the seam and before it (the extra texture read), p50 and p99 noted, not a failure
+  seam_frames() { # seam_frames <label>
+    seen "redesign live drawn" 8; adb shell dumpsys gfxinfo "$PKG" reset > /dev/null 2>&1
+    adb shell input swipe $((W * 3 / 10)) $((H / 3)) $((W * 7 / 10)) $((H / 3)) 5000
+    local g; g=$(adb shell dumpsys gfxinfo "$PKG" 2>/dev/null | tr -d '\r')
+    note "seam $1 frames: 50th $(sed -n 's/^50th percentile: //p' <<<"$g" | head -1), 99th $(sed -n 's/^99th percentile: //p' <<<"$g" | head -1)"
+  }
+  mark; qa "--es qa.redesign 'look:180,22,2600,@-400:-7300'"; waitlog "redesign live look" 10; rd_drawn; shot "redesign-seam-north-noon"
+  mark; qa "--es qa.redesign 'look:0,14,9000,@-400:7300'"; waitlog "redesign live look" 10; rd_drawn; seam_frames after
   mark; qa "--es qa.redesign seam:off"; waitlog "redesign seam off" 30 || fail "redesign: the seam's before did not build"
+  mark; qa "--es qa.redesign 'look:0,14,9000,@-400:7300'"; waitlog "redesign live look" 10; rd_drawn; seam_frames before
   mark; qa "--es qa.redesign 'look:0,22,2600,@-400:7300'"; waitlog "redesign live look" 10; rd_drawn; shot "redesign-seam-near-noon-before"
   mark; qa "--es qa.redesign 'look:0,14,9000,@-400:7300'"; waitlog "redesign live look" 10; rd_drawn; shot "redesign-seam-far-noon-before"
+  mark; qa "--es qa.redesign 'look:180,22,2600,@-400:-7300'"; waitlog "redesign live look" 10; rd_drawn; shot "redesign-seam-north-noon-before"
   mark; qa "--es qa.redesign seam:on"; waitlog "redesign seam on" 30
-  note "seam: band shadow $(logline 'redesign ring band shadow' | sed 's/.*band shadow //')"
+  note "seam: $(logline 'redesign shadow total' | sed 's/.*shadow total //')"
   mark; qa "--es qa.redesign far"; waitlog "redesign live far" 10; rd_drawn
   # the frames with the far ground and without it (the architect's condition 7: relative, the emulator draws in software):
   # a slow turn for 5 s on each, counted from the mountain drawn again; noted, not a failure
