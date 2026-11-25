@@ -1103,11 +1103,21 @@ rd_drawn() { seen "redesign live drawn" 25 || true; sleep 4; }
 rd_settled() { seen "redesign live drawn" 6 || true; sleep 2; }
 # each area of the redesign once, for the reviewer's pass (large text, night): open, settle, shoot, close; a miss is no failure
 rd_areas() { # rd_areas <prefix>
-  local open close name
-  # the list on its own descriptor: adb shell reads standard input and would eat the rest of it
-  while IFS='|' read -r name open close <&3; do
+  local open close name wait
+  # the list on its own descriptor: adb shell reads standard input and would eat the rest of it. A fourth field: a log
+  # line the area writes once it is up (the village loads its picture); "tab:<name>" opens a page of the app (my days),
+  # and the mountain is opened again after it
+  while IFS='|' read -r name open close wait <&3; do
     [ -z "$name" ] && continue
-    mark; qa "--es qa.redesign $open"; sleep 1; rd_settled; shot "redesign-$1-$name"; qa "--es qa.redesign $close"; sleep 1.2
+    mark
+    case "$open" in tab:*) qa "--es qa.tab ${open#tab:}" ;; *) qa "--es qa.redesign $open" ;; esac
+    if [ -n "$wait" ]; then waitlog "$wait" 30 || note "rd_areas: $name did not log '$wait'"; sleep 1.5; else sleep 1; rd_settled; fi
+    shot "redesign-$1-$name"
+    case "$close" in
+      home) qa "--es qa.tab home"; sleep 2; mark; qa "--es qa.redesign open"; sleep 1; qa "--es qa.redesign live"; seen "redesign live drawn" 30; qa "--es qa.redesign season:off" ;;
+      *) qa "--es qa.redesign $close" ;;
+    esac
+    sleep 1.2
   done 3<<'AREAS'
 me|people:me|people:off
 settings|people:settings|people:off
@@ -1120,8 +1130,8 @@ weather|weather|lifts:off
 trip|trip|trip:off
 skipass|skipass|skipass:off
 season|season|season:off
-days|records|records:off
-village|village|village:off
+days|tab:days|home|redesign days
+village|village|village:off|redesign village open
 AREAS
 }
 rd_prep() { # before a part's first touch: the load settled (up to a minute), and no system box over the screen
