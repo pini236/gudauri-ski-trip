@@ -43,7 +43,9 @@ jobs:
       - name: The tool, when it is there
         run: |
           if [ ! -f tools/build-peak.py ]; then echo "tools/build-peak.py is not on this branch yet: nothing to check"; exit 0; fi
-          # floating point: numpy is pinned to the version that built the files; Pillow only reads and hashes the pictures (the tool says python 3.11, numpy, Pillow)
+          # floating point: numpy is pinned to the version that built the files
           python3 -m venv "$RUNNER_TEMP/peak"
-          "$RUNNER_TEMP/peak/bin/pip" install --quiet numpy==2.5.3 pillow
+          "$RUNNER_TEMP/peak/bin/pip" install --quiet numpy==2.5.3
+          # the tool no longer imports Pillow once the redesign branch is merged (358f86b5); until then it does
+          if grep -q "^from PIL" tools/build-peak.py; then "$RUNNER_TEMP/peak/bin/pip" install --quiet pillow; fi
           "$RUNNER_TEMP/peak/bin/python" tools/build-peak.py --check
