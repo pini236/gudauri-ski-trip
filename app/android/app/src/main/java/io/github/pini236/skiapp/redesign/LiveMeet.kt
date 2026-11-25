@@ -151,7 +151,13 @@ internal class MeetUi {
 @Composable
 internal fun stationSub(s: Station): String {
     val alt = s.h?.let { java.text.NumberFormat.getIntegerInstance().format(it) } ?: "—"
-    return stringResource(if (s.ends.any { !it.top }) R.string.app_meet_station_bottom else R.string.app_meet_station_top, alt)
+    return Units.keep(stringResource(if (s.ends.any { !it.top }) R.string.app_meet_station_bottom else R.string.app_meet_station_top, alt))
+}
+
+/** A number and its unit stay on one line ("2,161 מ׳"; the review of 24.11, ק9: the unit fell to a line of its own). */
+internal object Units {
+    private val gap = Regex("""(\d)[ \t]+(מ׳|ק״מ|m|km|м|км|მ|კმ)(?=\s|$|[·.,)])""")
+    fun keep(s: String): String = gap.replace(s) { "${it.groupValues[1]}\u00A0${it.groupValues[2]}" }
 }
 
 /** "In 42 minutes", "in 1:05 hours", "in 3 days", "already passed" (the site's countdown, Meet.left). */
@@ -528,7 +534,7 @@ internal fun MeetShareScreen(s: Station, day: LocalDate, time: LocalTime, night:
 /** The station's line without Compose ("the top station · 2,705 m"), for drawing off the main thread. */
 private fun stationSub0(ctx: Context, s: Station): String {
     val alt = s.h?.let { java.text.NumberFormat.getIntegerInstance().format(it) } ?: "—"
-    return ctx.getString(if (s.ends.any { !it.top }) R.string.app_meet_station_bottom else R.string.app_meet_station_top, alt)
+    return Units.keep(ctx.getString(if (s.ends.any { !it.top }) R.string.app_meet_station_bottom else R.string.app_meet_station_top, alt))
 }
 
 /** Into the phone's pictures (Android 10 and up, no permission). */

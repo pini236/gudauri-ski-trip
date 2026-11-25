@@ -78,9 +78,11 @@ internal fun BoxScope.LiveSeason(around: Around, night: Boolean, haptics: Haptic
             style = TextStyle(fontFeatureSettings = "tnum"))
         else Text(big, fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = if (o != null) 44.sp else 19.sp, lineHeight = if (o != null) 48.sp else 24.sp,
             color = hero, textAlign = TextAlign.Center)
+        // a halo as the mountain's names have: with a large text the words reach down onto the runs (the review of 24.11, ק9)
+        val haloed = TextStyle(shadow = androidx.compose.ui.graphics.Shadow(k.halo, androidx.compose.ui.geometry.Offset.Zero, 10f))
         Text(sub, fontFamily = Gudi, fontWeight = if (number) FontWeight.Bold else FontWeight.Medium, fontSize = if (number) 19.sp else 15.sp,
-            color = hero, textAlign = TextAlign.Center)
-        if (moved != null) Text(moved, Modifier.padding(top = 4.dp), fontFamily = Gudi, fontSize = 14.sp, color = hero.copy(alpha = .9f), textAlign = TextAlign.Center)
+            color = hero, textAlign = TextAlign.Center, style = haloed)
+        if (moved != null) Text(moved, Modifier.padding(top = 4.dp), fontFamily = Gudi, fontSize = 14.sp, color = hero.copy(alpha = .9f), textAlign = TextAlign.Center, style = haloed)
     }
     // the sheet: pulled down, the usual mountain
     Box(Modifier.align(Alignment.BottomCenter).pullSheet(onDown = { Qa.log("redesign season closed pull"); onClose() })) {
