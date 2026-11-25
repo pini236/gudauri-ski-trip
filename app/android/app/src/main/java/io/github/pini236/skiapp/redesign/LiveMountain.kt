@@ -212,6 +212,8 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
             c == "far" -> view.qaFar()
             c == "ring:off" -> view.showRing(false)
             c == "ring:on" -> view.showRing(true)
+            c == "air:off" -> view.showAir(false)
+            c == "air:on" -> view.showAir(true)
             c.startsWith("turn:") -> c.removePrefix("turn:").toFloatOrNull()?.let { view.qaTurn(it) }
             // part 2 (Q01 to Q03): the lifts' sheet and one lift
             c == "lifts" -> { liftSel = null; nowTab = NowTab.LIFTS; liftsOpen = true }

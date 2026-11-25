@@ -1307,6 +1307,12 @@ redesign() {
   mark; qa "--es qa.redesign hour:7.2"; waitlog "redesign live hour" 10
   mark; qa "--es qa.redesign far"; waitlog "redesign live far" 10 && { rd_drawn; shot redesign-far-dawn; }
   mark; qa "--es qa.redesign hour:12"; waitlog "redesign live hour" 10; rd_drawn; shot redesign-far-noon
+  # the far ground in detail (the designer's ring handoff, 25.11.2026): a low sun, the ridges' shade on the far
+  # mountains; the shadow is worked out off the drawing thread, its time noted (the architect: 150 ms on a middling
+  # phone, otherwise the outer ring has none)
+  mark; qa "--es qa.redesign hour:16.4"; waitlog "redesign ring shadow" 20; rd_drawn; shot redesign-far-afternoon
+  note "ring: $(logline 'redesign ring ready' | sed 's/.*ring ready //') triangles; shadow $(logline 'redesign ring shadow' | sed 's/.*ring shadow //')"
+  logline "redesign ring ready" | grep -q "relief true" || fail "redesign: the ring's relief map did not load"
   # the frames with the far ground and without it (the architect's condition 7: relative, the emulator draws in software):
   # a slow turn for 5 s on each, counted from the mountain drawn again; noted, not a failure
   for rg in on off; do
@@ -1318,6 +1324,18 @@ redesign() {
   done
   mark; qa "--es qa.redesign ring:on"; waitlog "redesign ring on" 10
   mark; qa "--es qa.redesign hour:off"; qa "--es qa.redesign front"; waitlog "redesign live turned" 20
+  # the air of height changes the mountain too: at the opening, at noon, the picture without it and with it
+  # (the architect's condition 6: no difference to see); the mean difference over the screen noted
+  mark; qa "--es qa.redesign hour:12"; waitlog "redesign live hour" 10
+  mark; qa "--es qa.redesign air:off"; waitlog "redesign air off" 10; rd_drawn; shot redesign-open-air-off
+  mark; qa "--es qa.redesign air:on"; waitlog "redesign air on" 10; rd_drawn; shot redesign-open-air-on
+  a=$(ls "$OUT"/shots/*-redesign-open-air-off.png | tail -1); b=$(ls "$OUT"/shots/*-redesign-open-air-on.png | tail -1)
+  note "air of height at the opening: $(python3 -c "
+from PIL import Image, ImageChops, ImageStat
+x=Image.open('$a').convert('RGB'); y=Image.open('$b').convert('RGB'); d=ImageChops.difference(x,y)
+m=ImageStat.Stat(d).mean; print('mean difference %.2f of 255, %.1f%% of pixels over 8' % (sum(m)/3, 100*sum(1 for p in d.convert('L').getdata() if p>8)/(d.width*d.height)))
+" 2>/dev/null || echo 'not measured')"
+  mark; qa "--es qa.redesign hour:off"; waitlog "redesign live hour" 10
   # part 4b (K08): the lenses, at noon (the sun) with a fresh report (open), and easy to hard; the sun as the suite has it (no sun: the sheet says so)
   mark; qa "--es qa.status fresh --es qa.redesign lens:sun"
   if waitlog "redesign lens sun" 20; then rd_settled; shot redesign-lens-sun; else fail "redesign: the sun lens did not draw"; fi

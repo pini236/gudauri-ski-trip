@@ -184,9 +184,14 @@ class LiveView(context: Context, private val scene: MapScene) : GLSurfaceView(co
             val r = runCatching {
                 val j = org.json.JSONObject(context.assets.open(LiveData.DIR + "ring.json").bufferedReader().use { it.readText() })
                 val t = scene.terrain
-                LiveRing.build(j, t.x0, t.y0, t.x1, t.y1, t::elev)
+                LiveRing.build(j, t.x0, t.y0, t.x1, t.y1, t::elev).also { r ->
+                    // the relief map (the sixth texture); without it the ring is drawn as before, never not at all
+                    r.relief = runCatching { LiveTex.decode(context, "ringrelief") }.onFailure { Qa.log("redesign ring relief failed") }.getOrNull()
+                }
             }.onFailure { Qa.log("redesign ring failed ${it.javaClass.simpleName}") }.getOrNull() ?: return@execute
-            renderer.ring = r; requestRender(); Qa.log("redesign ring ready ${r.triangles}")
+            ring = r
+            renderer.ring = r; requestRender(); Qa.log("redesign ring ready ${r.triangles} relief ${r.relief != null}")
+            lightDir?.let { ringShadow(r, it) }
         }
         // the opening: the designer's camera (peak-live.json), looking north the way the picture looks (LiveOpen):
         // a little further and lower first, then a slow approach
@@ -329,7 +334,22 @@ class LiveView(context: Context, private val scene: MapScene) : GLSurfaceView(co
         if (key == lightKey) return
         lightKey = key
         val t = scene.terrain
-        worker.execute { if (lightKey == key) renderer.setShadow(LiveLight.soften(Sun.shadows(t, l.dir), t.nx, t.ny)) }
+        lightDir = l.dir
+        worker.execute {
+            if (lightKey == key) renderer.setShadow(LiveLight.soften(Sun.shadows(t, l.dir), t.nx, t.ny))
+            // the far ground's shadow, with the mountain's (the architect: off the drawing thread, 150 ms)
+            if (lightKey == key) ring?.let { ringShadow(it, l.dir) }
+        }
+    }
+
+    @Volatile private var ring: LiveRing? = null
+    @Volatile private var lightDir: FloatArray? = null
+
+    /** The ring's cast shadow for the sun in [dir] (on the worker), logged with its time for the emulator. */
+    private fun ringShadow(r: LiveRing, dir: FloatArray) {
+        val sh = r.shadows(dir)
+        renderer.setRingShadow(sh)
+        Qa.log("redesign ring shadow ${r.lastShadowMs} ms${if (r.outerShadowOff) " outer off" else ""}")
     }
 
     /**
@@ -357,6 +377,9 @@ class LiveView(context: Context, private val scene: MapScene) : GLSurfaceView(co
     /** The shelf's and the station's light (K06, K07), or null. */
     fun setFocus(f: LiveRenderer.Focus?) { renderer.focus = f; requestRender() }
     /** The mountain raised on the screen by [px] (K06, K07: 120 points), the view's direction and distance kept. */
+    /** The emulator's switch for the air of height (qa.redesign air:off / air:on), a picture of the opening before and after. */
+    fun showAir(on: Boolean) { renderer.airOn = on; requestRender(); Qa.log("redesign air ${if (on) "on" else "off"}") }
+
     /** The emulator's switch for the far ground (qa.redesign ring:off / ring:on), to measure the frames with and without it. */
     fun showRing(on: Boolean) { renderer.ringShown = on; requestRender(); Qa.log("redesign ring ${if (on) "on" else "off"}") }
     fun setShift(px: Float) { if (renderer.shiftPx != px) { renderer.shiftPx = px; requestRender() } }

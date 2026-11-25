@@ -43,6 +43,16 @@ uniform vec3 uCam; uniform vec3 uHaze; uniform float uValley; uniform float uRip
 uniform vec4 uDim;
 uniform sampler2D uDrape; uniform vec4 uDrapeBox; uniform float uDrapeOn; uniform float uDrapeK;
 uniform sampler2D uGround; uniform vec4 uGroundBox; uniform float uGroundOn;
+uniform vec4 uAir2;
+// the air of height (the designer's ring handoff, 25.11.2026; the architect allowed it on the mountain too): up to 1.5
+// times the camera's distance the haze of before, then a slow one (25 km), thinner over 2,800 m, so the high snow stands
+// over the haze of the valleys; uAir2.y = 0 is the haze of before
+float airOf(float d,float y){
+  if(uAir2.y<=0.0) return uHaze.z*(1.0-exp(-max(d-uHaze.x,0.0)/uHaze.y));
+  float dens=mix(1.0,uAir2.w,smoothstep(uAir2.z,uAir2.z+1800.0,y));
+  float od=(clamp(d,uHaze.x,uAir2.x)-uHaze.x)/uHaze.y+max(d-uAir2.x,0.0)/uAir2.y;
+  return uHaze.z*(1.0-exp(-od*dens));
+}
 out vec4 o;
 void main(){
   vec2 uv=(vPos.xz-uBox.xy)*uBox.zw;
@@ -78,44 +88,73 @@ void main(){
   float ga=g.a*uGroundOn;
   col=mix(col,uDim.rgb,uDim.a*(1.0-ga));
   float d=length(vPos-uCam);
-  float far=uHaze.z*(1.0-exp(-max(d-uHaze.x,0.0)/uHaze.y));
+  float far=airOf(d,vPos.y);
   float low=smoothstep(2300.0,1750.0,vPos.y)*uValley;
   col=mix(col,uHor,clamp(far+low*(1.0-far),0.0,0.97));
   col=clamp(col,0.0,1.0); col=col*col*(3.0-2.0*col)*0.55+col*0.45;
   o=vec4(col,1.0);
 }"""
 
-// The ring of far ground past the height model (LiveRing, the architect's option a): snow and rock by the slope, lit
-// by the hour's sun, in the same haze as the mountain; no textures, no shadow, one draw
+// The far ground past the height model (LiveRing, schema 2: the designer's ring handoff of 25.11.2026, ring-ref.frag):
+// the inner ring shaded by its relief map (ringrelief, 90 m) like the mountain, the model's rock grain read large, the
+// cast shadow, the air of height; one draw
 private const val RING_VS = """#version 300 es
-layout(location=0) in vec3 aPos; layout(location=1) in vec3 aNor;
+layout(location=0) in vec3 aPos; layout(location=1) in vec3 aNor; layout(location=2) in float aShadow;
 uniform mat4 uMvp;
-out vec3 vPos; out vec3 vNor;
-void main(){ vPos=aPos; vNor=aNor; gl_Position=uMvp*vec4(aPos,1.0); }"""
+out vec3 vPos; out vec3 vNor; out float vShadow;
+void main(){ vPos=aPos; vNor=aNor; vShadow=aShadow; gl_Position=uMvp*vec4(aPos,1.0); }"""
 
 private const val RING_FS = """#version 300 es
 precision highp float;
-in vec3 vPos; in vec3 vNor;
+in vec3 vPos; in vec3 vNor; in float vShadow;
 uniform sampler2D uTile;
 uniform vec3 uSun; uniform vec3 uLit; uniform vec3 uShade; uniform vec3 uRock; uniform vec3 uRockS; uniform vec3 uHor;
 uniform float uDirect; uniform float uGlow; uniform vec3 uCam; uniform vec3 uHaze; uniform float uValley; uniform vec4 uDim;
 uniform float uRingR;
+uniform sampler2D uRRel; uniform vec4 uRBox; uniform float uRTex; uniform vec4 uMBox;
+uniform vec4 uAir2;
+// the air of height (the designer's ring handoff, 25.11.2026; the architect allowed it on the mountain too): up to 1.5
+// times the camera's distance the haze of before, then a slow one (25 km), thinner over 2,800 m, so the high snow stands
+// over the haze of the valleys; uAir2.y = 0 is the haze of before
+float airOf(float d,float y){
+  if(uAir2.y<=0.0) return uHaze.z*(1.0-exp(-max(d-uHaze.x,0.0)/uHaze.y));
+  float dens=mix(1.0,uAir2.w,smoothstep(uAir2.z,uAir2.z+1800.0,y));
+  float od=(clamp(d,uHaze.x,uAir2.x)-uHaze.x)/uHaze.y+max(d-uAir2.x,0.0)/uAir2.y;
+  return uHaze.z*(1.0-exp(-od*dens));
+}
 out vec4 o;
 void main(){
-  // the designer's ring (live_ref.html, rfs, 25.11.2026): the model's wind ripples and rock streaks from its own tile
-  vec3 n0=normalize(vNor); vec2 s=-n0.xz/max(n0.y,0.2);
-  float deg=degrees(acos(clamp(n0.y,0.0,1.0)));
+  vec3 n0=normalize(vNor); vec2 s=-n0.xz/max(n0.y,0.2); float occ=1.0;
+  vec2 ruv=(vPos.xz-uRBox.xy)*uRBox.zw;
+  if(uRTex>0.0 && ruv.x>0.0 && ruv.y>0.0 && ruv.x<1.0 && ruv.y<1.0){ vec3 rr=texture(uRRel,ruv).rgb;
+    float om=max(max(uMBox.x-vPos.x,vPos.x-uMBox.z),max(uMBox.y-vPos.z,vPos.z-uMBox.w));
+    float w=smoothstep(0.0,0.04,min(min(ruv.x,ruv.y),min(1.0-ruv.x,1.0-ruv.y)))*smoothstep(0.0,500.0,om);
+    s=mix(s,(rr.rg-0.5)*3.2,w); occ=mix(1.0,0.7+0.6*rr.b,w); }
+  float deg=degrees(atan(length(s)));
   s+=(texture(uTile,vPos.xz/640.0).rg-0.5)*0.5*1.6*(1.0-smoothstep(30.0,40.0,deg));
   vec3 n=normalize(vec3(-s.x,1.0,-s.y));
-  float t=pow(max(dot(n,uSun),0.0)*uDirect+(1.0-uDirect)*0.55*n.y,0.85);
+  float lam=max(dot(n,uSun),0.0);
+  float direct=lam*(1.0-0.94*vShadow)*uDirect+(1.0-uDirect)*0.55*n.y;
+  float t=pow(direct,0.85);
   t*=mix(1.0,0.35+0.65*smoothstep(2350.0,3000.0,vPos.y),uGlow);
   vec3 col=uShade*(0.86+0.14*n.y)+(uLit-uShade*0.86)*t;
   float stk=texture(uTile,vPos.xz/160.0).b;
   float rk=smoothstep(27.0,36.0,deg+(stk-0.5)*6.0)*0.8;
-  col=mix(col,mix(uRockS,uRock,t)*(0.75+0.5*stk),rk);
+  vec2 fall=s*s/(dot(s,s)+1e-4);
+  float stk2=texture(uTile,vPos.xz/160.0).b*fall.y+texture(uTile,vPos.zx/160.0).b*fall.x;
+  float tone=0.75+0.5*stk;
+  if(uRTex>0.0){
+    float m1=texture(uTile,vPos.xz/2400.0).b, m2=texture(uTile,vPos.zx/900.0).b, m3=texture(uTile,vPos.xz/5200.0+0.37).r;
+    float m4=texture(uTile,vPos.xz/420.0+0.61).r;
+    stk=mix(m2,stk2,0.35);
+    float pot=deg+(stk2-0.5)*7.0+(m2-0.5)*11.0+(m4-0.5)*7.0+(m1-0.5)*8.0+(m3-0.5)*6.0;
+    rk=smoothstep(27.0,36.0,pot)*0.92;
+    tone=(0.82+0.36*m1)*(0.7+0.6*stk); }
+  col=mix(col,mix(uRockS,uRock,t)*tone,rk);
+  col*=occ;
   col=mix(col,uDim.rgb,uDim.a);
   float d=length(vPos-uCam);
-  float far=uHaze.z*(1.0-exp(-max(d-uHaze.x,0.0)/uHaze.y));
+  float far=airOf(d,vPos.y);
   float low=smoothstep(2300.0,1750.0,vPos.y)*uValley;
   col=mix(col,uHor,clamp(far+low*(1.0-far),0.0,0.97));
   // its last 5 km go into the air, where the far horizon takes over
@@ -367,7 +406,7 @@ class LiveRenderer(
 
     override fun onSurfaceCreated(gl: GL10?, config: EGLConfig?) {
         prog = program(VS, FS); skyProg = program(SKY_VS, SKY_FS); ringProg = program(RING_VS, RING_FS); lineProg = program(LINE_VS, LINE_FS); dotProg = program(DOT_VS, DOT_FS)
-        uploaded = false; texOn = false; tex.fill(0); runs.clear(); lifts.clear(); dotCount = 0; ringOn = null; ringCount = 0
+        uploaded = false; texOn = false; tex.fill(0); runs.clear(); lifts.clear(); dotCount = 0; ringOn = null; ringCount = 0; ringTex[0] = 0
         drapeTex[0] = 0; drapeOn = null; groundTex[0] = 0; groundOn = null; chosenGpu = null; chosenGpuOf = null
         dayGpu = null; dayGpuOf = null; dayLogged = null
         lensGpu.clear(); lensGpuOf = null
@@ -386,7 +425,8 @@ class LiveRenderer(
         if (uploaded) { glDeleteBuffers(3, bufs, 0); glDeleteVertexArrays(1, vao, 0); glDeleteBuffers(2, dots, 0) }
         runs.forEach { it.second.free(); it.third.free() }; lifts.forEach { it.free() }; runs.clear(); lifts.clear(); liftNames.clear()
         lensGpu.values.forEach { it.free() }; lensGpu.clear(); lensGpuOf = null
-        if (ringCount > 0) { glDeleteBuffers(2, ringBufs, 0); glDeleteVertexArrays(1, ringVao, 0) }; ringCount = 0; ringOn = null
+        if (ringCount > 0) { glDeleteBuffers(3, ringBufs, 0); glDeleteVertexArrays(1, ringVao, 0) }; ringCount = 0; ringOn = null
+        if (ringTex[0] != 0) glDeleteTextures(1, ringTex, 0); ringTex[0] = 0
         if (texOn) glDeleteTextures(5, tex, 0)
         if (drapeTex[0] != 0) glDeleteTextures(1, drapeTex, 0)
         if (groundTex[0] != 0) glDeleteTextures(1, groundTex, 0)
@@ -423,17 +463,38 @@ class LiveRenderer(
     @Volatile var ring: LiveRing? = null
     @Volatile var ringShown = true
     private val RING_FROM = 7000f
-    private var ringProg = 0; private val ringVao = IntArray(1); private val ringBufs = IntArray(2)
+    private var ringProg = 0; private val ringVao = IntArray(1); private val ringBufs = IntArray(3)
     private var ringOn: LiveRing? = null; private var ringCount = 0
+    private val ringTex = IntArray(1)
+    /** The ring's cast shadow (LiveRing.shadows), set off the GL thread; uploaded on the next frame. */
+    @Volatile var ringShadow: FloatArray? = null
+    @Volatile private var ringShadowDirty = false
+    fun setRingShadow(s: FloatArray) { ringShadow = s; ringShadowDirty = true; requestRender() }
+    /** The air of height (uAir2) on the mountain and the ring; the emulator turns it off for a picture before (qa air:off). */
+    @Volatile var airOn = true
+    private fun air(p: Int, dist: Float) = if (airOn) glUniform4f(u(p, "uAir2"), dist * 1.5f, 25000f, 2800f, .35f) else glUniform4f(u(p, "uAir2"), 0f, 0f, 0f, 0f)
 
     private fun uploadRing(r: LiveRing) {
-        if (ringCount > 0) { glDeleteBuffers(2, ringBufs, 0); glDeleteVertexArrays(1, ringVao, 0) }
+        if (ringCount > 0) { glDeleteBuffers(3, ringBufs, 0); glDeleteVertexArrays(1, ringVao, 0) }
+        if (ringTex[0] != 0) { glDeleteTextures(1, ringTex, 0); ringTex[0] = 0 }
         glGenVertexArrays(1, ringVao, 0); glBindVertexArray(ringVao[0])
-        glGenBuffers(2, ringBufs, 0)
+        glGenBuffers(3, ringBufs, 0)
         glBindBuffer(GL_ARRAY_BUFFER, ringBufs[0]); glBufferData(GL_ARRAY_BUFFER, r.vertices.size * 4, floats(r.vertices), GL_STATIC_DRAW)
         attr(0, 3, LiveRing.STRIDE * 4, 0); attr(1, 3, LiveRing.STRIDE * 4, 12)
+        // the cast shadow, one float a vertex, written again every 10 minutes of the sun (none until the first)
+        glBindBuffer(GL_ARRAY_BUFFER, ringBufs[2]); glBufferData(GL_ARRAY_BUFFER, r.points * 4, floats(ringShadow?.takeIf { it.size == r.points } ?: FloatArray(r.points)), GL_DYNAMIC_DRAW)
+        attr(2, 1, 4, 0); ringShadowDirty = false
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ringBufs[1]); glBufferData(GL_ELEMENT_ARRAY_BUFFER, r.indices.size * 4, ints(r.indices), GL_STATIC_DRAW)
         glBindVertexArray(0)
+        // the relief map: RGBA8 with mipmaps, as relief.webp (the architect's sixth texture)
+        r.relief?.let { t ->
+            glGenTextures(1, ringTex, 0); glActiveTexture(GL_TEXTURE0); glBindTexture(GL_TEXTURE_2D, ringTex[0])
+            glPixelStorei(GL_UNPACK_ALIGNMENT, 1)
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, t.w, t.h, 0, GL_RGBA, GL_UNSIGNED_BYTE, ByteBuffer.wrap(t.px))
+            glGenerateMipmap(GL_TEXTURE_2D)
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR); glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR)
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE); glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE)
+        }
         ringOn = r; ringCount = r.indices.size
     }
 
@@ -586,6 +647,7 @@ class LiveRenderer(
         // the haze moves with the camera: whatever is behind what you look at is always a little in the air
         glUniform3f(u(prog, "uHaze"), D.haze[0] * s.dist, D.haze[1] * s.dist, D.haze[2])
         glUniform1f(u(prog, "uValley"), D.valley); glUniform1f(u(prog, "uRipple"), D.ripple)
+        air(prog, s.dist)
         // the rest of the mountain under a chosen run (phase A: rgb(54,78,128) at 0.42 by day, rgb(2,6,18) at 0.62 at night)
         if (night) glUniform4f(u(prog, "uDim"), 2f / 255, 6f / 255, 18f / 255, .62f * dim)
         else glUniform4f(u(prog, "uDim"), 54f / 255, 78f / 255, 128f / 255, .42f * dim)
@@ -606,6 +668,15 @@ class LiveRenderer(
             glUniform1f(u(ringProg, "uGlow"), L.glow); glUniform1f(u(ringProg, "uRingR"), ringOn?.half ?: 1e9f)
             glActiveTexture(GL_TEXTURE2); glBindTexture(GL_TEXTURE_2D, tex[2]); glUniform1i(u(ringProg, "uTile"), 2); glActiveTexture(GL_TEXTURE0)
             glUniform3f(u(ringProg, "uHaze"), D.haze[0] * s.dist, D.haze[1] * s.dist, D.haze[2]); glUniform1f(u(ringProg, "uValley"), D.valley)
+            air(ringProg, s.dist)
+            val rb = ringOn!!.reliefBox; val mb = ringOn!!.model
+            glUniform4f(u(ringProg, "uRBox"), rb[0], rb[1], 1f / (rb[2] - rb[0]), 1f / (rb[3] - rb[1]))
+            glUniform4f(u(ringProg, "uMBox"), mb[0], mb[1], mb[2], mb[3])
+            glUniform1f(u(ringProg, "uRTex"), if (ringTex[0] != 0) 1f else 0f)
+            if (ringTex[0] != 0) { glActiveTexture(GL_TEXTURE3); glBindTexture(GL_TEXTURE_2D, ringTex[0]); glUniform1i(u(ringProg, "uRRel"), 3); glActiveTexture(GL_TEXTURE0) }
+            if (ringShadowDirty) ringShadow?.takeIf { it.size == ringOn!!.points }?.let { sh ->
+                glBindBuffer(GL_ARRAY_BUFFER, ringBufs[2]); glBufferSubData(GL_ARRAY_BUFFER, 0, sh.size * 4, floats(sh)); ringShadowDirty = false
+            }
             if (night) glUniform4f(u(ringProg, "uDim"), 2f / 255, 6f / 255, 18f / 255, .62f * dim)
             else glUniform4f(u(ringProg, "uDim"), 54f / 255, 78f / 255, 128f / 255, .42f * dim)
             glBindVertexArray(ringVao[0]); glDrawElements(GL_TRIANGLES, ringCount, GL_UNSIGNED_INT, 0)
