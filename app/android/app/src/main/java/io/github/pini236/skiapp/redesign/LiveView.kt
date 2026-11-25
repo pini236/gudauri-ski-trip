@@ -47,6 +47,11 @@ class LiveView(context: Context, private val scene: MapScene) : GLSurfaceView(co
     var onTap: ((Float, Float) -> Unit)? = null
     /** Asked first on a single tap (K06, a top station): true takes the tap, and no run is chosen. */
     var onPreTap: ((Float, Float) -> Boolean)? = null
+    /**
+     * The mountain asleep (before the season, its card over the runs, quiet): a tap only wakes it, and chooses nothing
+     * (Pini, 25.11.2026: a tap on the countdown chose a run he had hardly seen). Gestures still move the camera.
+     */
+    @Volatile var wake: (() -> Unit)? = null
     /** Where a tap chose a run (screen pixels), for the ring from the finger (K09). */
     var onTapAt: ((Float, Float) -> Unit)? = null
 
@@ -608,6 +613,7 @@ class LiveView(context: Context, private val scene: MapScene) : GLSurfaceView(co
     private fun pick(px: Float, py: Float) {
         // the day on the mountain (round 4) has no runs to choose: a tap is the screen's (the film stops on it)
         onTap?.let { it(px, py); return }
+        wake?.let { it(); return }
         if (onPreTap?.invoke(px, py) == true) return
         val mvp = FloatArray(16); val eye = FloatArray(3); val v = FloatArray(4); val o = FloatArray(4)
         OrbitCamera.mvp(camera.state(), width.toFloat() / height, mvp, eye, data.camera.fovDeg) { x, z -> scene.terrain.elev(x, z) }; shiftUp(mvp, renderer.shiftPx, height)

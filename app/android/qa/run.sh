@@ -1532,6 +1532,14 @@ PY
 # the redesign's second half (parts 4 to 8), its own emulator job: a run of its own from a cold start, as the first half
 redesign2() {
   rd_live_start redesign2
+  # before the season the mountain is asleep under the countdown: a tap in the middle of it closes the card and
+  # chooses no run under it (Pini, 25.11.2026: a tap there chose a run he had hardly seen)
+  mark; qa "--es qa.redesign season"; waitlog "redesign season shown" 10
+  sleep 2; shot redesign-season-asleep
+  mark; tap $((W / 2)) $((H * 48 / 100))
+  waitlog "redesign season closed wake" 10 || fail "redesign: a tap on the mountain before the season did not just close the countdown"
+  sleep 2; tail -n +"$((MARK + 1))" "$OUT/logcat.txt" | grep -q "SkiQa.*redesign live chosen" && fail "redesign: a tap before the season chose a run"
+  mark; qa "--es qa.redesign unpick"; sleep 1
   # completion part 4 (S02 to S04, S08): the first-time sheet, "where am I" on a run, out of the area, the compass
   mark; qa "--es qa.redesign where:ask"; waitlog "redesign where ask" 10 || fail "redesign: the where-am-I sheet did not open"; rd_settled; shot redesign-where-ask
   mark; qa "--es qa.redesign where:off"; sleep 1
