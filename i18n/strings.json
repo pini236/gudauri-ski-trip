@@ -21921,10 +21921,10 @@
    ]
   },
   "app.sr_pill": {
-   "he": "מצב ההר: {open} מתוך {all} רכבלים פתוחים, {temp}. כפתור.",
-   "en": "Mountain status: {open} of {all} lifts open, {temp}. Button.",
-   "ru": "Состояние горы: открыто подъёмников {open} из {all}, {temp}. Кнопка.",
-   "ka": "მთის მდგომარეობა: ღიაა {open} საბაგირო {all}-დან, {temp}. ღილაკი.",
+   "he": "מצב ההר: {open} מתוך {all} רכבלים פתוחים, {temp}.",
+   "en": "Mountain status: {open} of {all} lifts open, {temp}.",
+   "ru": "Состояние горы: открыто подъёмников {open} из {all}, {temp}.",
+   "ka": "მთის მდგომარეობა: ღიაა {open} საბაგირო {all}-დან, {temp}.",
    "where": "app/android, app/ios",
    "note": "סבב ההשלמה, חלק 8 (סעיף 2 ב-design/handoff/2026-11-23-redesign-everyone): קורא מסך: הגלולה; {temp} נאמר במילים (\"מינוס 7 מעלות\")",
    "check": [
@@ -21933,10 +21933,10 @@
    ]
   },
   "app.sr_me": {
-   "he": "אני, {name}. כפתור.",
-   "en": "Me, {name}. Button.",
-   "ru": "Я, {name}. Кнопка.",
-   "ka": "მე, {name}. ღილაკი.",
+   "he": "אני, {name}.",
+   "en": "Me, {name}.",
+   "ru": "Я, {name}.",
+   "ka": "მე, {name}.",
    "where": "app/android, app/ios",
    "note": "סבב ההשלמה, חלק 8 (סעיף 2 ב-design/handoff/2026-11-23-redesign-everyone): קורא מסך: כפתור \"אני\"",
    "check": [
@@ -21945,10 +21945,10 @@
    ]
   },
   "app.sr_me_guest": {
-   "he": "אני, אורח. כפתור.",
-   "en": "Me, guest. Button.",
-   "ru": "Я, гость. Кнопка.",
-   "ka": "მე, სტუმარი. ღილაკი.",
+   "he": "אני, אורח.",
+   "en": "Me, guest.",
+   "ru": "Я, гость.",
+   "ka": "მე, სტუმარი.",
    "where": "app/android, app/ios",
    "note": "סבב ההשלמה, חלק 8 (סעיף 2 ב-design/handoff/2026-11-23-redesign-everyone): קורא מסך: כפתור \"אני\" לאורח",
    "check": [
