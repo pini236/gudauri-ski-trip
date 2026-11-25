@@ -467,9 +467,9 @@ class LiveRenderer(
     private var ringOn: LiveRing? = null; private var ringCount = 0
     private val ringTex = IntArray(1)
     /** The ring's cast shadow (LiveRing.shadows), set off the GL thread; uploaded on the next frame. */
-    @Volatile var ringShadow: FloatArray? = null
+    @Volatile private var ringShade: FloatArray? = null
     @Volatile private var ringShadowDirty = false
-    fun setRingShadow(s: FloatArray) { ringShadow = s; ringShadowDirty = true; requestRender() }
+    fun setRingShadow(s: FloatArray) { ringShade = s; ringShadowDirty = true; requestRender() }
     /** The air of height (uAir2) on the mountain and the ring; the emulator turns it off for a picture before (qa air:off). */
     @Volatile var airOn = true
     private fun air(p: Int, dist: Float) = if (airOn) glUniform4f(u(p, "uAir2"), dist * 1.5f, 25000f, 2800f, .35f) else glUniform4f(u(p, "uAir2"), 0f, 0f, 0f, 0f)
@@ -482,7 +482,7 @@ class LiveRenderer(
         glBindBuffer(GL_ARRAY_BUFFER, ringBufs[0]); glBufferData(GL_ARRAY_BUFFER, r.vertices.size * 4, floats(r.vertices), GL_STATIC_DRAW)
         attr(0, 3, LiveRing.STRIDE * 4, 0); attr(1, 3, LiveRing.STRIDE * 4, 12)
         // the cast shadow, one float a vertex, written again every 10 minutes of the sun (none until the first)
-        glBindBuffer(GL_ARRAY_BUFFER, ringBufs[2]); glBufferData(GL_ARRAY_BUFFER, r.points * 4, floats(ringShadow?.takeIf { it.size == r.points } ?: FloatArray(r.points)), GL_DYNAMIC_DRAW)
+        glBindBuffer(GL_ARRAY_BUFFER, ringBufs[2]); glBufferData(GL_ARRAY_BUFFER, r.points * 4, floats(ringShade?.takeIf { it.size == r.points } ?: FloatArray(r.points)), GL_DYNAMIC_DRAW)
         attr(2, 1, 4, 0); ringShadowDirty = false
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ringBufs[1]); glBufferData(GL_ELEMENT_ARRAY_BUFFER, r.indices.size * 4, ints(r.indices), GL_STATIC_DRAW)
         glBindVertexArray(0)
@@ -674,7 +674,7 @@ class LiveRenderer(
             glUniform4f(u(ringProg, "uMBox"), mb[0], mb[1], mb[2], mb[3])
             glUniform1f(u(ringProg, "uRTex"), if (ringTex[0] != 0) 1f else 0f)
             if (ringTex[0] != 0) { glActiveTexture(GL_TEXTURE3); glBindTexture(GL_TEXTURE_2D, ringTex[0]); glUniform1i(u(ringProg, "uRRel"), 3); glActiveTexture(GL_TEXTURE0) }
-            if (ringShadowDirty) ringShadow?.takeIf { it.size == ringOn!!.points }?.let { sh ->
+            if (ringShadowDirty) ringShade?.takeIf { it.size == ringOn!!.points }?.let { sh ->
                 glBindBuffer(GL_ARRAY_BUFFER, ringBufs[2]); glBufferSubData(GL_ARRAY_BUFFER, 0, sh.size * 4, floats(sh)); ringShadowDirty = false
             }
             if (night) glUniform4f(u(ringProg, "uDim"), 2f / 255, 6f / 255, 18f / 255, .62f * dim)
