@@ -236,12 +236,12 @@ fun LiveDay(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, liftName: (S
 
         Column(Modifier.fillMaxWidth().statusBarsPadding().padding(horizontal = 12.dp, vertical = 8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             // the top: recording and the time from the tap; a touch goes back (the recording goes on)
-            Row(Modifier.fillMaxWidth().height(44.dp).shadow(10.dp, RoundedCornerShape(22.dp)).clip(RoundedCornerShape(22.dp)).background(glass)
+            if (!searching) Row(Modifier.fillMaxWidth().height(44.dp).shadow(10.dp, RoundedCornerShape(22.dp)).clip(RoundedCornerShape(22.dp)).background(glass)
                 .border(1.dp, rule, RoundedCornerShape(22.dp)).clickable(role = Role.Button) { haptics.tick(.3f); onBack() }.padding(horizontal = 16.dp),
                 verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                 if (recording) Box(Modifier.size(12.dp).clip(CircleShape).background(red))
                 // one descent says so in place of "recording" (completion part 1, P04)
-                val clock = LiveNumbers.elapsed(LiveNumbers.sinceTap(now, began))
+                val clock = LiveNumbers.elapsed(SearchRules.sinceFix(now, DayRec.since))
                 Text(if (single) stringResource(R.string.app_rec_one) + " · \u2066$clock\u2069" else stringResource(R.string.app_rec_now, clock),
                     fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = ink)
             }
@@ -290,6 +290,11 @@ fun LiveDay(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, liftName: (S
             }
         }
         }
+        // finding the location (version 3 of the search): only the pulsing rings, no clock
+        if (searching) SearchPulse(night, SearchRules.showHint(now, began), ink, halo, Color(0xE6FFFFFF).let { if (night) Color(0xCC0F1828) else it })
+        val fixSr = stringResource(R.string.app_sr_fix_found)
+        var wasSearching by remember { mutableStateOf(false) }
+        LaunchedEffect(searching) { if (wasSearching && !searching) hostView.announceForAccessibility(fixSr); wasSearching = searching }
         // the speed, large, and where you probably are (or the search, or the weak signal); the hold to finish under them
         if (!sheet) Column(Modifier.align(Alignment.BottomCenter).navigationBarsPadding().padding(horizontal = 16.dp, vertical = 12.dp).fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(6.dp)) {
@@ -312,18 +317,11 @@ fun LiveDay(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, liftName: (S
                         }
                         stringResource(R.string.app_rec_on_lift, name) + (eta?.let { " · " + stringResource(R.string.app_rec_lift_eta, it) } ?: "")
                     })
-                searching -> {
-                    Text(stringResource(R.string.app_rec_search), style = bold)
-                    Text(stringResource(R.string.app_rec_search_note), style = small, textAlign = androidx.compose.ui.text.style.TextAlign.Center)
-                }
+                searching -> {}
                 else -> {
-                    // the number on a soft glow, only behind it: the mountain stays clear above (L03; round 4's check, point 4)
-                    Text(LiveNumbers.speedText(DayRec.liveSpeed), Modifier.drawBehind {
-                        val r = size.height * .62f
-                        drawCircle(androidx.compose.ui.graphics.Brush.radialGradient(listOf(halo.copy(alpha = .6f), halo.copy(alpha = .25f), Color.Transparent),
-                            center = center, radius = r), r, center)
-                    }, style = big, maxLines = 1)
-                    Text(stringResource(R.string.app_rec_unit), style = small)
+                    // the plain speed ring (GD1, GD2): the number inside, the day's best as a tick
+                    SpeedRing(LiveNumbers.speedText(DayRec.liveSpeed), stringResource(R.string.app_rec_unit), DayRec.liveSpeed?.let { it * 3.6 },
+                        DayRec.sofar?.stats?.maxKmh, night, ink, if (night) muted else Color(0xFF40556A), glass, halo)
                     val live = DayRec.live
                     val where = when (live?.act) {
                         "lift" -> stringResource(R.string.app_rec_on_lift, live?.lift?.let(liftName) ?: "")

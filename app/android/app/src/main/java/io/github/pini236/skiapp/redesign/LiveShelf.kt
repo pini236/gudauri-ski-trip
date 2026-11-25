@@ -30,7 +30,11 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -184,13 +188,43 @@ internal fun BoxScope.Dock(night: Boolean, haptics: Haptics, onVillage: (() -> U
             Text(stringResource(R.string.app_dock_find), fontFamily = Gudi, fontWeight = FontWeight.Medium, fontSize = 15.sp, color = k.ink2, maxLines = 1,
                 overflow = TextOverflow.Ellipsis)
         }
-        if (onRecord != null) {
-            val rec = stringResource(R.string.app_sr_dock_rec)
-            Box(Modifier.size(44.dp).clip(CircleShape).background(k.red).semantics { contentDescription = rec; role = Role.Button }
-                .clickable { haptics.tick(.4f); onRecord() }, contentAlignment = Alignment.Center) {
-                Box(Modifier.size(14.dp).clip(CircleShape).background(Color.White))
-            }
+        if (onRecord != null) RecordButton(k, haptics, onRecord)
+    }
+}
+
+/**
+ * The record button (RX3, handoff 2026-11-25-redesign-record-button): inside the bar, 44 high, like a camera's. Before a
+ * recording a red disc in a ring, nothing inside; while recording a red square in the ring, and the time beside it (from
+ * the first reading of the location; none before it) in a pill. A touch opens the sheet, or the live screen while
+ * recording; it never stops the recording by itself.
+ */
+@Composable
+private fun RecordButton(k: SheetInk, haptics: Haptics, onRecord: () -> Unit) {
+    val recording = io.github.pini236.skiapp.dayrec.DayRec.recording
+    var now by remember { mutableLongStateOf(System.currentTimeMillis()) }
+    LaunchedEffect(recording) { while (recording) { now = System.currentTimeMillis(); kotlinx.coroutines.delay(1000) } }
+    val first = io.github.pini236.skiapp.dayrec.DayRec.since
+    val time = if (recording && first > 0L) io.github.pini236.skiapp.dayrec.ui.LiveNumbers.elapsed(SearchRules.sinceFix(now, first)) else null
+    val red = Color(0xFFE5352B)
+    val label = if (recording) stringResource(R.string.app_sr_rec_live, time ?: "0:00") else stringResource(R.string.app_rec_sign)
+    val tint = if (k.night) Color(0x29FF7468) else Color(0x1FE5352B)
+    val reduced = io.github.pini236.skiapp.ui.Motion.reduced(androidx.compose.ui.platform.LocalContext.current)
+    val square by androidx.compose.animation.core.animateFloatAsState(if (recording) 1f else 0f, if (reduced) tween(0) else tween(200), label = "rec-square")
+    Row(Modifier.height(44.dp).then(if (reduced) Modifier else Modifier.animateContentSize(tween(200))).clip(RoundedCornerShape(22.dp))
+        .background(if (recording) tint else Color.Transparent)
+        .semantics { contentDescription = label; role = Role.Button }.clickable { haptics.tick(.4f); onRecord() },
+        verticalAlignment = Alignment.CenterVertically) {
+        Canvas(Modifier.size(44.dp)) {
+            val c = center
+            drawCircle(k.ink, 19.75.dp.toPx(), c, style = Stroke(2.5.dp.toPx()))
+            // the disc (30) turns into the square (16, corners 3)
+            val side = (30f + (16f - 30f) * square).dp.toPx()
+            val r = (15f + (3f - 15f) * square).dp.toPx()
+            drawRoundRect(red, androidx.compose.ui.geometry.Offset(c.x - side / 2, c.y - side / 2), androidx.compose.ui.geometry.Size(side, side),
+                androidx.compose.ui.geometry.CornerRadius(r))
         }
+        if (time != null) Text("\u2066$time\u2069", Modifier.padding(start = 0.dp, end = 12.dp), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 16.sp,
+            color = k.ink, maxLines = 1, style = androidx.compose.ui.text.TextStyle(fontFeatureSettings = "tnum"))
     }
 }
 
