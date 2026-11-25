@@ -421,11 +421,56 @@ class LiveView(context: Context, private val scene: MapScene) : GLSurfaceView(co
      */
     fun filmCamera(x: Float, h: Float, y: Float, yaw: Float, free: Float) {
         // higher and further behind than 520 m at .48: by day the lit line stayed hidden under the slope (review of 24.11, ח4)
-        val dist = 760f; val pitch = 0.72f
+        val dist = 760f
+        val need = filmPitchFor(x, h, y, yaw, free, dist)
+        // up at once (never a frame in the slope), down slowly (no jump when the slope behind eases)
+        filmPitch = if (need >= filmPitch || filmPitch.isNaN()) need else filmPitch + (need - filmPitch) * .06f
+        renderer.stopAnim(); camera.stopFling()
+        camera.set(filmState(x, h, y, yaw, free, dist, filmPitch)); requestRender()
+    }
+
+    private var filmPitch = Float.NaN
+    private var filmLow = 0
+
+    private fun filmState(x: Float, h: Float, y: Float, yaw: Float, free: Float, dist: Float, pitch: Float): OrbitCamera.State {
         val vf = tan(Math.toRadians(data.camera.fovDeg / 2.0)).toFloat()
         val dy = (1f - free) * dist * vf / kotlin.math.cos(pitch)
-        renderer.stopAnim(); camera.stopFling()
-        camera.set(OrbitCamera.State(x, h - dy, y, dist, yaw, pitch)); requestRender()
+        return OrbitCamera.State(x, h - dy, y, dist, yaw, pitch)
+    }
+
+    /**
+     * The least tilt, from .72 up, at which the camera stands over the snow and sees the dot: on a steep run the slope
+     * behind the dot (where the camera stands) is higher than a camera at .72, and the screen was all snow (Pini,
+     * 25.11.2026, Kikilo 1). The eye 60 m over the snow, and the sight down to the dot 15 m over it.
+     */
+    private fun filmPitchFor(x: Float, h: Float, y: Float, yaw: Float, free: Float, dist: Float): Float {
+        val t = scene.terrain; val e = FloatArray(3)
+        var pitch = .72f
+        while (pitch < 1.35f) {
+            OrbitCamera.eye(filmState(x, h, y, yaw, free, dist, pitch), e)
+            var clear = e[1] >= t.elev(e[0], e[2]) + 60f
+            var k = 1
+            while (clear && k < 10) {
+                val f = k / 10f; val px = e[0] + (x - e[0]) * f; val py = e[1] + (h - e[1]) * f; val pz = e[2] + (y - e[2]) * f
+                if (py < t.elev(px, pz) + 15f * (1 - f) + 2f) clear = false
+                k++
+            }
+            if (clear) break
+            pitch += .04f
+        }
+        if (pitch > .73f) { if (filmLow++ % 60 == 0) Qa.log("redesign ride camera up ${"%.2f".format(pitch)}") }
+        return pitch
+    }
+
+    /** The film's camera is over the snow (the emulator's check): its eye over the ground and the dot in sight. */
+    fun filmClear(x: Float, h: Float, y: Float): Boolean {
+        val s = camera.state(); val e = FloatArray(3); OrbitCamera.eye(s, e)
+        if (e[1] < scene.terrain.elev(e[0], e[2]) + 20f) return false
+        for (k in 1 until 10) {
+            val f = k / 10f
+            if (e[1] + (h - e[1]) * f < scene.terrain.elev(e[0] + (x - e[0]) * f, e[2] + (y - e[2]) * f) - 2f) return false
+        }
+        return true
     }
 
     override fun onTouchEvent(e: MotionEvent): Boolean {

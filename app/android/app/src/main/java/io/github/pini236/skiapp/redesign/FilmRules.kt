@@ -68,6 +68,50 @@ internal class FilmLine(private val path: FloatArray) {
 internal data class FilmJoin(val at: Float, val run: String)
 
 internal object FilmRules {
+    /** Two pieces of a run meet when one's bottom is this close to the other's top (Sportuli 2's gaps are 11 and 28 m). */
+    const val CHAIN_M = 30f
+
+    /**
+     * The film's line: the run's pieces (each top down, x, height, y) joined where one ends at, or one branches off,
+     * the next one's top, the way down that reaches the lowest end of the run, and of those the longest. A run is
+     * often drawn in pieces (Kikilo 1: 1,150 m, then 609 m; Sadzele 1: a piece leaves the line and ends 46 m lower);
+     * the longest piece alone stopped the film half way down the line on the screen (Pini, 25.11.2026). Nothing is
+     * drawn between two pieces: the dot only crosses the gap.
+     */
+    fun chain(pieces: List<FloatArray>): FloatArray? {
+        val ps = pieces.filter { it.size >= 6 }
+        if (ps.isEmpty()) return null
+        val cums = ps.map { l -> FloatArray(l.size / 3).also { c -> for (i in 1 until c.size) c[i] = c[i - 1] + hypot(l[i * 3] - l[i * 3 - 3], l[i * 3 + 2] - l[i * 3 - 1]) } }
+        // a step of a way: piece [p] from point [a] to point [b]
+        class Way(val low: Float, val len: Float, val steps: List<IntArray>)
+        fun better(x: Way, y: Way) = if (kotlin.math.abs(x.low - y.low) > 5f) x.low < y.low else x.len > y.len
+        fun from(p: Int, a: Int, seen: Set<Int>): Way {
+            val l = ps[p]; val n = l.size / 3; val c = cums[p]
+            var top = Way(l[(n - 1) * 3 + 1], c[n - 1] - c[a], listOf(intArrayOf(p, a, n - 1)))
+            for (q in ps.indices) if (q !in seen) {
+                // where along this piece the other one starts (its top within CHAIN_M of a point here, past [a])
+                var k = -1; var gap = CHAIN_M
+                for (i in a until n) { val g = hypot(ps[q][0] - l[i * 3], ps[q][2] - l[i * 3 + 2]); if (g <= gap) { gap = g; k = i } }
+                if (k < 0) continue
+                val rest = from(q, 0, seen + q)
+                val w = Way(rest.low, c[k] - c[a] + rest.len, listOf(intArrayOf(p, a, k)) + rest.steps)
+                if (better(w, top)) top = w
+            }
+            return top
+        }
+        var way: Way? = null
+        for (p in ps.indices) { val w = from(p, 0, setOf(p)); if (way == null || better(w, way)) way = w }
+        val out = ArrayList<Float>()
+        for (st in way!!.steps) {
+            val l = ps[st[0]]
+            for (i in st[1]..st[2]) {
+                if (out.size >= 3 && hypot(l[i * 3] - out[out.size - 3], l[i * 3 + 2] - out[out.size - 1]) < .5f) continue
+                for (j in 0..2) out.add(l[i * 3 + j])
+            }
+        }
+        return if (out.size >= 6) out.toFloatArray() else null
+    }
+
     /** The film's pace: a steady 10 m a second along the line, times the speed; a value to show, not a measurement. */
     const val BASE = 10f
     /** The speed button: ×8 first, then ×2, ×4, and round. */

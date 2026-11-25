@@ -72,12 +72,10 @@ import java.util.Locale
 import kotlin.math.hypot
 import kotlin.math.roundToInt
 
-/** The run's longest line, top down (the one today's flight walks), or null without one. */
+/** The run's way down: its pieces joined top to bottom (FilmRules.chain), or null without a line. */
 internal fun filmLine(scene: MapScene, key: String): FilmLine? {
     val p = scene.runs.pistes.firstOrNull { it.key == key } ?: return null
-    fun len(l: FloatArray): Float { var a = 0f; for (i in 1 until l.size / 3) a += hypot(l[i * 3] - l[i * 3 - 3], l[i * 3 + 2] - l[i * 3 - 1]); return a }
-    val path = scene.topDown(p).maxByOrNull(::len) ?: return null
-    return if (path.size < 6) null else FilmLine(path)
+    return FilmRules.chain(scene.topDown(p))?.let(::FilmLine)
 }
 
 /** The other runs' two ends (their longest line's top and bottom), for the meetings along the film's line. */
@@ -162,6 +160,7 @@ internal fun BoxScope.RideFilm(key: String, title: String, sign: @Composable () 
     }
     // the camera follows the dot (not with reduced motion: there the view keeps the whole run framed)
     var yaw by remember { mutableFloatStateOf(Float.NaN) }
+    var framedEnd by remember { mutableStateOf(false) }
     LaunchedEffect(reduced) {
         if (reduced) return@LaunchedEffect
         var last = withFrameNanos { it }
@@ -175,6 +174,13 @@ internal fun BoxScope.RideFilm(key: String, title: String, sign: @Composable () 
                 while (dd < -Math.PI) dd += (2 * Math.PI).toFloat()
                 yaw + dd * (1 - Math.exp(-2.5 * dt).toFloat())
             }
+            // at the bottom, stopped: the whole run framed above the sheet, not the camera left behind the dot (Pini,
+            // 25.11.2026); "again from the top" or a finger on the line takes the camera back to the dot
+            if (!playing && d >= line.length - .5f) {
+                if (!framedEnd) { framedEnd = true; view.frameRunAbove(key, free); Qa.log("redesign ride framed end") }
+                continue
+            }
+            framedEnd = false
             val p = line.at(d)
             view.filmCamera(p[0], p[1], p[2], yaw, free)
         }
@@ -308,6 +314,12 @@ internal fun BoxScope.RideFilm(key: String, title: String, sign: @Composable () 
             c == "ride:stop" -> playing = false
             c == "ride:speed" -> { speed = FilmRules.nextSpeed(speed); Qa.log("redesign ride speed $speed") }
             c == "ride:close" -> close()
+            // where the dot stands against the run's drawn line, and whether the camera is over the snow and sees it
+            c == "ride:check" -> {
+                val p = line.at(d); val drawn = scene.topDown(scene.runs.pistes.first { it.key == key })
+                val low = drawn.filter { it.size >= 6 }.minOf { it[it.size - 2] }
+                Qa.log("redesign ride check $key at ${d.roundToInt()} of ${line.length.roundToInt()} end ${(p[1] - low).roundToInt()} clear ${view.filmClear(p[0], p[1], p[2])}")
+            }
             c.startsWith("ride:") -> c.removePrefix("ride:").toFloatOrNull()?.let { scrub(it); Qa.log("redesign ride at ${it.roundToInt()}") }
         }
     }
