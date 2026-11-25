@@ -2209,6 +2209,62 @@
    "h": 844,
    "title": "ג · אחרי הקלטה ראשונה, בלילה (RD6)",
    "page": "v56"
+  },
+  "GX00-Search.dc.html": {
+   "x": 0,
+   "y": 9872,
+   "w": 1280,
+   "h": 640,
+   "title": "מסך החיפוש: כמה טקסט (GX00)",
+   "page": "v56"
+  },
+  "GX1d.dc.html": {
+   "x": 0,
+   "y": 10652,
+   "w": 390,
+   "h": 844,
+   "title": "1 · כמו היום, ביום (GX1d)",
+   "page": "v56"
+  },
+  "GX1n.dc.html": {
+   "x": 470,
+   "y": 10652,
+   "w": 390,
+   "h": 844,
+   "title": "1 · כמו היום, בלילה (GX1n)",
+   "page": "v56"
+  },
+  "GX2d.dc.html": {
+   "x": 940,
+   "y": 10652,
+   "w": 390,
+   "h": 844,
+   "title": "2 · בלי שורת השלבים, ביום (GX2d)",
+   "page": "v56"
+  },
+  "GX2n.dc.html": {
+   "x": 1410,
+   "y": 10652,
+   "w": 390,
+   "h": 844,
+   "title": "2 · בלי שורת השלבים, בלילה (GX2n)",
+   "page": "v56"
+  },
+  "GX3d.dc.html": {
+   "x": 1880,
+   "y": 10652,
+   "w": 390,
+   "h": 844,
+   "title": "3 · רק הפעימה (ההמלצה), ביום (GX3d)",
+   "page": "v56"
+  },
+  "GX3n.dc.html": {
+   "x": 2350,
+   "y": 10652,
+   "w": 390,
+   "h": 844,
+   "title": "3 · רק הפעימה (ההמלצה), בלילה (GX3n)",
+   "page": "v56"
   }
  },
  "createdOnFiles": {
@@ -3038,7 +3094,14 @@
   "RD3.dc.html",
   "RD4.dc.html",
   "RD5.dc.html",
-  "RD6.dc.html"
+  "RD6.dc.html",
+  "GX00-Search.dc.html",
+  "GX1d.dc.html",
+  "GX1n.dc.html",
+  "GX2d.dc.html",
+  "GX2n.dc.html",
+  "GX3d.dc.html",
+  "GX3n.dc.html"
  ],
  "pages": [
   {
