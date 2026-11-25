@@ -250,5 +250,41 @@
   "en": "In the village: your trip, your group and the ski pass.",
   "ru": "В деревне: поездка, группа и ски-пасс.",
   "ka": "სოფელში: მოგზაურობა, ჯგუფი და სათხილამურო ბარათი."
+ },
+ "app.search_title": {
+  "he": "מחפש מיקום",
+  "en": "Finding your location",
+  "ru": "Определяем местоположение",
+  "ka": "მდებარეობას ვპოულობთ"
+ },
+ "app.search_hint": {
+  "he": "בחוץ זה לוקח בדרך כלל פחות מדקה.",
+  "en": "Outdoors, this usually takes under a minute.",
+  "ru": "На открытом месте обычно меньше минуты.",
+  "ka": "გარეთ ეს ჩვეულებრივ ერთ წუთზე ნაკლებს საჭიროებს."
+ },
+ "app.search_step_find": {
+  "he": "מחפש מיקום",
+  "en": "Finding location",
+  "ru": "Поиск места",
+  "ka": "მდებარეობის ძებნა"
+ },
+ "app.search_step_measure": {
+  "he": "מודד",
+  "en": "Measuring",
+  "ru": "Измерение",
+  "ka": "გაზომვა"
+ },
+ "app.search_step_summary": {
+  "he": "סיכום היום",
+  "en": "Day summary",
+  "ru": "Итоги дня",
+  "ka": "დღის შეჯამება"
+ },
+ "app.sr_fix_found": {
+  "he": "נמצא מיקום. המדידה התחילה.",
+  "en": "Location found. Measuring has started.",
+  "ru": "Местоположение найдено. Измерение началось.",
+  "ka": "მდებარეობა ნაპოვნია. გაზომვა დაიწყო."
  }
 }
