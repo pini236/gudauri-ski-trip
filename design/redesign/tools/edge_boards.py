@@ -11,6 +11,7 @@ The frames (FROM_DISK=1 node design/redesign/tools/live_ref.js <dir> name=query 
   A-open-*    light=..&ring=1&far=0                                  A: the real terrain around it, 30 km each way
   A-far-*     light=..&dist=12500&ring=1&far=0 ; A-far26-m the same with pitch=26 ; A-north yaw=180 tx=-60 tz=-2300 dist=12000 pitch=20
   B-*         light=..[&dist=12500]&cloud=2150&edge=1500             B: a sea of cloud at 2,150 m, the last 1.5 km of the model fade
+  kobi-*      light=noon|night&ring=1&far=0&yaw=180&tx=-60&tz=-2596.1&dist=5690.4&pitch=17   Z05: the Kobi side (section 10 of the live handoff)
   C-open-*    light=..&pitch=18 ; C-max-m light=morning&pitch=30&dist=9000      C: the camera never sees past the model
 """
 import json, os, sys
@@ -24,7 +25,7 @@ IMG = {'now-far-m': 'a7dc436ee025fedaf84a37e8cb6d7b5d', 'now-far-s': '76c704de5e
        'A-far-n': '5b9d94592223053141f9327da0350823', 'A-far-s': 'a0e5bfbbe182152c65f8104a62528e9b', 'A-north': '7116a99e682a0e6191403401d9c1ab89',
        'A-far26-m': '9c00abaa1e55b4242d631deafb146412', 'B-open-m': 'db469f4367580e40b756315fddca5cda', 'B-far-m': '9e2b1e2bcb37f93159e8c09128a6f793',
        'B-far-n': '16c4edf6343e1dc455659549ecefc587', 'C-open-m': '84f4f99881c3f9b666743ff2a63dc591', 'C-open-n': '4f7379e12ab6a8cb2f606da2c4a44083',
-       'C-max-m': '03c6cde8d1b59bb7d3b7ebad1759e35e'}
+       'C-max-m': '03c6cde8d1b59bb7d3b7ebad1759e35e', 'kobi-m': 'c5a07d61cd03c51c5154c4bcbd614319', 'kobi-n': 'a3c73122654ec711fb61cee5ceaed8cb'}
 U = lambda k: '/_blob/' + IMG[k]
 REC = '; border: 3px solid #6B3FD4'
 
@@ -145,10 +146,16 @@ def phones():
     b = (pic('hero') + G4.base('hero') + top()
          + ctl_plain('<button class="glass" aria-label="תמונה או חי">%s</button>' % ic(P_CUBE, 20)) + dock())
     out['Z04-SwitchColumn.dc.html'] = ('תמונה או חי · 4 · חלופה: כפתור בעמודה', b)
+    # Z05: a temporary switch to live (the Kobi side, or a film), opened from the picture: the tag says so, and it goes back by itself
+    b = (live('kobi-m', 'kobi-n') + top()
+         + '<span class="ltag glass">%s חי לרגע · חוזרים לתמונה</span>' % ic(P_CUBE, 15)
+         + '<span class="glass" style="position: absolute; left: 12px; bottom: 112px; height: 40px; border-radius: 20px; padding: 0 14px; display: inline-flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 700">צד Kobi %s</span>' % ic('<path d="M15 6l-6 6 6 6"/>', 18)
+         + dock())
+    out['Z05-TempLive.dc.html'] = ('תמונה או חי · 5 · חי לרגע: צד Kobi', b)
     return out
 
 
-HZ = 1400
+HZ = 1540
 
 
 def z00():
@@ -161,8 +168,9 @@ def z00():
                  ('האור לפי השעה', 'בשתיהן. בתמונה שבעה מצבי אור שמתחלפים; בחי רציף.'),
                  ('סיבוב והטיה', '<b>רק בחי.</b> בתמונה, סיבוב בשתי אצבעות לא עושה כלום, ומופיע פעם אחת "סיבוב והטיה עובדים בהר החי" עם "לעבור לחי" (לוח 3). לא עוברים לבד.'),
                  ('מצפן', 'רק בחי (בתמונה הכיוון קבוע).'),
-                 ('"לרדת בסרט"', '<b>תמיד בחי.</b> נגיעה בו בתמונה: מעבר רך (300 מ״ש) לחי באותו מסגור, הסרט, ובסוף או בעצירה חוזרים לתמונה.'),
-                 ('הצד של Kobi', 'כמו הסרט: בחירת Kobi בתמונה עוברת לחי לצד השני (סעיף 10 במסירה); "צד Kobi" מחזיר לחזית ולתמונה.'),
+                 ('"לרדת בסרט" ו"היום בדקה"', '<b>תמיד בחי, לרגע.</b> נגיעה בהם בתמונה: הצלבה של 300 מ״ש לחי באותו מסגור, ואז הסרט. בסוף או בעצירה: הצלבה חזרה לתמונה, באותו מסגור שהיה.'),
+                 ('הצד של Kobi', '<b>חי לרגע (ההמלצה), לא תמונה חדשה.</b> בחירת Kobi בתמונה: הצלבה לחי, ואז הסיבוב של סעיף 10 לצד השני. "צד Kobi" מחזיר לחזית ואז לתמונה (לוח 5).'),
+                 ('איך נראה "חי לרגע"', 'תגית קטנה מתחת לגלולה, "חי לרגע · חוזרים לתמונה", כל עוד המעבר זמני. המתג בשורת השכבות לא זז, ולכן ברור שזה לא שינוי של ההגדרה. מי שרוצה להישאר בחי עובר במתג.'),
                  ('טלפון בלי תלת-ממד', 'רק תמונה, ואין מתג. "לרדת בסרט" וסיבוב לא מוצגים, כמו היום.')]) + '</table>')
     where = ('<div class="card" style="flex: 1"><p class="sec">איפה עוברים</p><h2>בשורת השכבות (ההמלצה)</h2>' + li(
         '<b>כפתור השכבות פותח את השורה שמתחת לגלולה.</b> ראשון בה מתג של שני חלקים, "תמונה" ו"חי", ואחריו קו דק והעדשות (לוחות 1 ו-2).',
@@ -177,10 +185,12 @@ def z00():
     hon = ('<div class="card"><h2>ביושר ושאלות</h2>' + li(
         '<b>שני הלוחות בחי</b> (2) מראים את פריים הפתיחה מכלי העיצוב, עם "א" של הלוח הקודם, בלי המסלולים שמעליו. הם מראים רק איפה המתג יושב.',
         '<b>טקסטים חדשים (הצעה לסשן התוכן):</b> "תמונה", "חי", "סיבוב והטיה עובדים בהר החי", "לעבור לחי". לא הכנסתי אותם לקובץ השפות.',
-        '<b>הכלל של הסרט ושל Kobi</b> (לעבור לחי ולחזור) הוא ההגדרה שלי. לא נבדק בטלפון.')
+        '<b>הכלל של הסרט ושל Kobi</b> (לעבור לחי ולחזור) הוא ההגדרה שלי. לא נבדק בטלפון.',
+        '<b>למה לא תמונה של צד Kobi:</b> עוד סט של שבעה מצבי אור, כ-200 קילובייט לתמונה, ועוד טבלת הטלה, בשביל מסלול אחד. במודל החי הצד הזה כבר קיים ונבדק (סעיף 10).',
+        '<b>טקסט חדש נוסף (הצעה):</b> "חי לרגע · חוזרים לתמונה".')
            + '<div class="q" style="margin-top: 6px"><span class="qn">1</span><span><b>איפה המתג?</b> בשורת השכבות, או כפתור בעמודה. <b>(ההמלצה: בשורת השכבות)</b></span></div>'
            '<div class="q"><span class="qn">2</span><span><b>מה נפתח?</b> <b>(ההמלצה: תמונה עד שהקצה נפתר, ואז חי; ומה שבחרו נשמר)</b></span></div>'
-           '<div class="q"><span class="qn">3</span><span><b>"לרדת בסרט" ו-Kobi מתוך התמונה</b> עוברים לחי לרגע וחוזרים. <b>(ההמלצה: כן)</b></span></div></div>')
+           '<div class="q"><span class="qn">3</span><span><b>"לרדת בסרט", "היום בדקה" ו-Kobi מתוך התמונה</b> עוברים לחי לרגע, עם תגית, וחוזרים. <b>(ההמלצה: כן, ובלי תמונה חדשה לצד Kobi)</b></span></div></div>')
     inner = ('<p class="sec">הבהרה שלך · 25.11.2026</p><h1>תמונה או חי: שני מבטים על אותו הר</h1>'
              '<p class="lead">"לא התכוונתי להוריד את התמונה, אלא שגם בתמונה תהיה כל הפונקציונליות וכל הכפתורים שיש גם במודל." '
              'כאן: איפה עוברים, מה נפתח, ומה קורה במה שאין לו מקבילה בתמונה.</p>'
@@ -197,8 +207,8 @@ def main():
     p = os.path.join(PROJ, 'canvas.json'); j = json.load(open(p, encoding='utf8'))
     Z0 = HY + 380
     place = [('Y01-Edge.dc.html', 0, 0, 1280, HY, 'ההר מרחף: שלוש דרכים, והמלצה'), ('Z00-PicLive.dc.html', 0, Z0, 1280, HZ, 'תמונה או חי: איפה עוברים, ומה נפתח')]
-    for i, fn in enumerate(['Z01-SwitchPic.dc.html', 'Z02-SwitchLive.dc.html', 'Z03-RotateHint.dc.html', 'Z04-SwitchColumn.dc.html']):
-        place.append((fn, [0, 470, 940, 1410][i], Z0 + HZ + 140, 390, 844, ['1 · המתג בשורת השכבות, בתמונה', '2 · אותו מתג, בהר החי', '3 · מסובבים בתמונה', '4 · חלופה: כפתור בעמודה'][i]))
+    for i, fn in enumerate(['Z01-SwitchPic.dc.html', 'Z02-SwitchLive.dc.html', 'Z03-RotateHint.dc.html', 'Z04-SwitchColumn.dc.html', 'Z05-TempLive.dc.html']):
+        place.append((fn, [0, 470, 940, 1410, 1880][i], Z0 + HZ + 140, 390, 844, ['1 · המתג בשורת השכבות, בתמונה', '2 · אותו מתג, בהר החי', '3 · מסובבים בתמונה', '4 · חלופה: כפתור בעמודה', '5 · חי לרגע: צד Kobi'][i]))
     for fn, x, y, w, h, t in place:
         j['boards'][fn] = dict(x=x, y=y, w=w, h=h, title=t, page='edge')
         if fn not in j['order']: j['order'].append(fn)

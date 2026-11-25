@@ -1750,13 +1750,13 @@
    "x": 0,
    "y": 3720,
    "w": 1280,
-   "h": 1400,
+   "h": 1540,
    "title": "תמונה או חי: איפה עוברים, ומה נפתח",
    "page": "edge"
   },
   "Z01-SwitchPic.dc.html": {
    "x": 0,
-   "y": 5260,
+   "y": 5400,
    "w": 390,
    "h": 844,
    "title": "1 · המתג בשורת השכבות, בתמונה",
@@ -1764,7 +1764,7 @@
   },
   "Z02-SwitchLive.dc.html": {
    "x": 470,
-   "y": 5260,
+   "y": 5400,
    "w": 390,
    "h": 844,
    "title": "2 · אותו מתג, בהר החי",
@@ -1772,7 +1772,7 @@
   },
   "Z03-RotateHint.dc.html": {
    "x": 940,
-   "y": 5260,
+   "y": 5400,
    "w": 390,
    "h": 844,
    "title": "3 · מסובבים בתמונה",
@@ -1780,10 +1780,18 @@
   },
   "Z04-SwitchColumn.dc.html": {
    "x": 1410,
-   "y": 5260,
+   "y": 5400,
    "w": 390,
    "h": 844,
    "title": "4 · חלופה: כפתור בעמודה",
+   "page": "edge"
+  },
+  "Z05-TempLive.dc.html": {
+   "x": 1880,
+   "y": 5400,
+   "w": 390,
+   "h": 844,
+   "title": "5 · חי לרגע: צד Kobi",
    "page": "edge"
   }
  },
@@ -2543,7 +2551,8 @@
   "Z01-SwitchPic.dc.html",
   "Z02-SwitchLive.dc.html",
   "Z03-RotateHint.dc.html",
-  "Z04-SwitchColumn.dc.html"
+  "Z04-SwitchColumn.dc.html",
+  "Z05-TempLive.dc.html"
  ],
  "pages": [
   {
