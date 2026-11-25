@@ -35,25 +35,25 @@ import kotlin.math.tan
  * or tilt when they move up or down together; a double tap comes closer, a two-finger tap goes back.
  */
 @SuppressLint("ViewConstructor", "ClickableViewAccessibility")
-class LiveView(context: Context, private val scene: MapScene) : GLSurfaceView(context) {
+internal class LiveView(context: Context, private val scene: MapScene) : GLSurfaceView(context), Stage {
     val camera = OrbitCamera()
     private val density = resources.displayMetrics.density
     private val renderer = LiveRenderer(scene, camera, density) { requestRender() }
     private val worker = Executors.newSingleThreadExecutor()
     private val data = LiveData.load(context)
     /** A run chosen by a tap (its key), or none. */
-    var onChoose: ((String?) -> Unit)? = null
+    override var onChoose: ((String?) -> Unit)? = null
     /** When set, a single tap is given here and chooses nothing (the day on the mountain, round 4). */
-    var onTap: ((Float, Float) -> Unit)? = null
+    override var onTap: ((Float, Float) -> Unit)? = null
     /** Asked first on a single tap (K06, a top station): true takes the tap, and no run is chosen. */
-    var onPreTap: ((Float, Float) -> Boolean)? = null
+    override var onPreTap: ((Float, Float) -> Boolean)? = null
     /**
      * The mountain asleep (before the season, its card over the runs, quiet): a tap only wakes it, and chooses nothing
      * (Pini, 25.11.2026: a tap on the countdown chose a run he had hardly seen). Gestures still move the camera.
      */
-    @Volatile var wake: (() -> Unit)? = null
+    @Volatile override var wake: (() -> Unit)? = null
     /** Where a tap chose a run (screen pixels), for the ring from the finger (K09). */
-    var onTapAt: ((Float, Float) -> Unit)? = null
+    override var onTapAt: ((Float, Float) -> Unit)? = null
 
     /**
      * What is drawn over the model (phase A's names and stations, the handoff of the POC): the four names of the far
@@ -83,7 +83,7 @@ class LiveView(context: Context, private val scene: MapScene) : GLSurfaceView(co
      * redraw it). The raise too: the shelf and the station lower the mountain back with the camera still (Pini, 0.1.867:
      * the names and the stations stayed 120 up in the sky after back from the shelf).
      */
-    fun overlay(labels: List<PeakData.Label>): Overlay {
+    override fun overlay(labels: List<PeakData.Label>): Overlay {
         ovLabels = labels
         val cs = camera.state(); val sh = renderer.shiftPx
         lastOv?.let { if (cs == lastOvAt && width == lastOvW && sh == lastOvShift) return it }
@@ -123,7 +123,7 @@ class LiveView(context: Context, private val scene: MapScene) : GLSurfaceView(co
 
     private val tops = HashMap<String, FloatArray>()
     /** The top of a run on the screen now (pixels, x and y), for its sign (K10); null when behind the camera. */
-    fun screenTop(key: String): FloatArray? {
+    override fun screenTop(key: String): FloatArray? {
         val top = tops.getOrPut(key) {
             var best = floatArrayOf(0f, -1e9f, 0f)
             for (l in scene.draped[key] ?: return null) for (i in 0 until l.size / 3) if (l[i * 3 + 1] > best[1]) best = floatArrayOf(l[i * 3], l[i * 3 + 1], l[i * 3 + 2])
@@ -218,14 +218,14 @@ class LiveView(context: Context, private val scene: MapScene) : GLSurfaceView(co
     private var lightKey = Long.MIN_VALUE
     private var lastEpoch = System.currentTimeMillis()
     /** Whether the sun is up now (the light's own time): "in the sun now" is off with it down. */
-    fun sunUp(): Boolean = Sun.position(lastEpoch).second > 0.0
-    val lightTime: Long get() = lastEpoch
+    override fun sunUp(): Boolean = Sun.position(lastEpoch).second > 0.0
+    override val lightTime: Long get() = lastEpoch
 
     /**
      * K07 and K08, "in the sun now": the share of each run's points (on its draped lines) out of the mountain's cast
      * shadow, the same shadows as the model's light. Null with the sun down or the shadows not worked out yet.
      */
-    fun sunShares(): Map<String, Float>? {
+    override fun sunShares(): Map<String, Float>? {
         if (!sunUp()) return null
         val sh = renderer.shadowNow() ?: return null
         val t = scene.terrain
@@ -243,7 +243,7 @@ class LiveView(context: Context, private val scene: MapScene) : GLSurfaceView(co
      * K08: a lens on (worked out off the GL thread) or off. [runOpen] the "open" lens's rule for a run (LiftStatus), null
      * with no fresh report. In the sun with the sun down, and open with no report, draw nothing (the sheet says why).
      */
-    internal fun setLens(kind: LensKind?, night: Boolean, runOpen: ((io.github.pini236.skiapp.data.Piste) -> Boolean?)?, snow: List<Pair<Float, Double>>? = null) {
+    override fun setLens(kind: LensKind?, night: Boolean, runOpen: ((io.github.pini236.skiapp.data.Piste) -> Boolean?)?, snow: List<Pair<Float, Double>>?) {
         if (kind == null) { renderer.lens = null; requestRender(); return }
         if (worker.isShutdown) return
         worker.execute {
@@ -324,7 +324,7 @@ class LiveView(context: Context, private val scene: MapScene) : GLSurfaceView(co
     }
 
     /** The light of a moment: the shader's uniforms at once, the shadows a moment later (worked out off the GL thread). */
-    fun setTime(epochMs: Long) {
+    override fun setTime(epochMs: Long) {
         lastEpoch = epochMs
         val sky = Sky.at(epochMs)
         val (az, alt) = Sun.position(epochMs)
@@ -378,20 +378,20 @@ class LiveView(context: Context, private val scene: MapScene) : GLSurfaceView(co
         Qa.log("redesign live look $yawDeg $pitchDeg $dist ${run ?: "-"}")
     }
 
-    fun setPal(p: PeakData.Pal?) { renderer.pal = p; requestRender() }
+    override fun setPal(p: PeakData.Pal?) { renderer.pal = p; requestRender() }
     /** The shelf's and the station's light (K06, K07), or null. */
-    fun setFocus(f: LiveRenderer.Focus?) { renderer.focus = f; requestRender() }
+    override fun setFocus(f: LiveRenderer.Focus?) { renderer.focus = f; requestRender() }
     /** The mountain raised on the screen by [px] (K06, K07: 120 points), the view's direction and distance kept. */
     /** The emulator's switch for the air of height (qa.redesign air:off / air:on), a picture of the opening before and after. */
     fun showAir(on: Boolean) { renderer.airOn = on; requestRender(); Qa.log("redesign air ${if (on) "on" else "off"}") }
 
     /** The emulator's switch for the far ground (qa.redesign ring:off / ring:on), to measure the frames with and without it. */
     fun showRing(on: Boolean) { renderer.ringShown = on; requestRender(); Qa.log("redesign ring ${if (on) "on" else "off"}") }
-    fun setShift(px: Float) { if (renderer.shiftPx != px) { renderer.shiftPx = px; requestRender() } }
+    override fun setShift(px: Float) { if (renderer.shiftPx != px) { renderer.shiftPx = px; requestRender() } }
     val shiftPx: Float get() = renderer.shiftPx
     /** The runs and lifts quiet ([a] of their opacity) under the meeting point. */
-    fun setQuiet(a: Float, runs: Float = 1f) { if (renderer.linesQuiet != a || renderer.runsQuiet != runs) { renderer.linesQuiet = a; renderer.runsQuiet = runs; requestRender() } }
-    fun choose(key: String?) {
+    override fun setQuiet(a: Float, runs: Float) { if (renderer.linesQuiet != a || renderer.runsQuiet != runs) { renderer.linesQuiet = a; renderer.runsQuiet = runs; requestRender() } }
+    override fun choose(key: String?) {
         renderer.frozenMs = null; renderer.chosen = key; chosenDown = null; requestRender()
         // the slope colours around it, as the map's (X-3), worked out off the GL thread
         if (key == null) { renderer.ground = null; renderer.chosenLine = null; renderer.frozenMs = null; return }
@@ -609,7 +609,7 @@ class LiveView(context: Context, private val scene: MapScene) : GLSurfaceView(co
         removeCallbacks(pendingPick); postDelayed(pendingPick, doubleTapMs)
     }
 
-    /** The named run whose line passes closest to the finger, within 28 dp, in this frame's projection. */
+    /** The named run whose line passes closest to the finger, within StagePick.RADIUS_DP, in this frame's projection. */
     private fun pick(px: Float, py: Float) {
         // the day on the mountain (round 4) has no runs to choose: a tap is the screen's (the film stops on it)
         onTap?.let { it(px, py); return }
@@ -617,23 +617,30 @@ class LiveView(context: Context, private val scene: MapScene) : GLSurfaceView(co
         if (onPreTap?.invoke(px, py) == true) return
         val mvp = FloatArray(16); val eye = FloatArray(3); val v = FloatArray(4); val o = FloatArray(4)
         OrbitCamera.mvp(camera.state(), width.toFloat() / height, mvp, eye, data.camera.fovDeg) { x, z -> scene.terrain.elev(x, z) }; shiftUp(mvp, renderer.shiftPx, height)
-        var best: String? = null; var bestD = 28 * density
+        // the one tap of both stages (StagePick, the architect's condition 2): screen lines, and a point behind a ridge
+        // never chosen (worked out only near the finger: the ridge test is the costly part)
+        val r = StagePick.RADIUS_DP * density
+        val t = scene.terrain
+        val lines = ArrayList<StagePick.Line>()
         for (p in scene.runs.pistes) {
             if (!p.named) continue
             for (l in scene.draped[p.key] ?: emptyList()) {
-                var i = 0
-                while (i < l.size / 3) {
+                val n = l.size / 3; val xy = FloatArray(n * 2); val ok = BooleanArray(n)
+                for (i in 0 until n) {
                     v[0] = l[i * 3]; v[1] = l[i * 3 + 1]; v[2] = l[i * 3 + 2]; v[3] = 1f
                     Matrix.multiplyMV(o, 0, mvp, 0, v, 0)
-                    if (o[3] > 0) {
-                        val sx = (o[0] / o[3] * 0.5f + 0.5f) * width; val sy = (1 - (o[1] / o[3] * 0.5f + 0.5f)) * height
-                        val d = hypot(sx - px, sy - py)
-                        if (d < bestD) { bestD = d; best = p.key }
+                    if (o[3] <= 0) continue
+                    val sx = (o[0] / o[3] * 0.5f + 0.5f) * width; val sy = (1 - (o[1] / o[3] * 0.5f + 0.5f)) * height
+                    xy[i * 2] = sx; xy[i * 2 + 1] = sy
+                    ok[i] = hypot(sx - px, sy - py) > r * 4 || run {
+                        val dx = v[0] - eye[0]; val dy = v[1] + 4f - eye[1]; val dz = v[2] - eye[2]
+                        (4 until 32).none { k -> val f = k / 32f; t.elev(eye[0] + dx * f, eye[2] + dz * f) > eye[1] + dy * f + 8f }
                     }
-                    i++
                 }
+                lines += StagePick.Line(p.key, xy, ok)
             }
         }
+        val best = StagePick.nearest(lines, px, py, r)
         choose(best)
         onChoose?.invoke(best)
         best?.let { onTapAt?.invoke(px, py); frame(it) }
@@ -670,7 +677,7 @@ class LiveView(context: Context, private val scene: MapScene) : GLSurfaceView(co
     /** The camera's yaw folded into (-pi, pi]. */
     private fun yawNow(): Float { val y = camera.state().yaw; return (atan2(sin(y), cos(y))) }
     /** Whether the camera looks from the Kobi side: within 60 degrees of yaw 180 (the "Kobi side" sign shows). */
-    fun onKobiSide(): Boolean = abs(abs(yawNow()) - PI.toFloat()) <= Math.toRadians(60.0).toFloat()
+    override fun onKobiSide(): Boolean = abs(abs(yawNow()) - PI.toFloat()) <= Math.toRadians(60.0).toFloat()
 
     /**
      * A run was chosen: if at least half of it shows from here the view stays and frames it; if less, the wide view
@@ -699,7 +706,7 @@ class LiveView(context: Context, private val scene: MapScene) : GLSurfaceView(co
      * to it"): the side that shows more of it if this one shows less than half, then the run fitted to the screen's
      * top [free] part, over the shelf. Nothing is chosen.
      */
-    fun showRun(key: String, top: Float, bottom: Float, shift: Float) {
+    override fun showRun(key: String, top: Float, bottom: Float, shift: Float) {
         if (worker.isShutdown) return
         worker.execute {
             val here = seen(key, camera.state())
@@ -713,7 +720,7 @@ class LiveView(context: Context, private val scene: MapScene) : GLSurfaceView(co
     }
 
     /** The runs [keys] (the station's, K06) fitted between [top] and [bottom] of the screen, the mountain raised [shift]. */
-    fun showKeys(keys: Set<String>, top: Float, bottom: Float, shift: Float, log: String) {
+    override fun showKeys(keys: Set<String>, top: Float, bottom: Float, shift: Float, log: String) {
         val box = keysBox(keys) ?: return
         frameIn(box, top, bottom, shift, log)
     }
@@ -741,11 +748,12 @@ class LiveView(context: Context, private val scene: MapScene) : GLSurfaceView(co
     private var beforeVillage: OrbitCamera.State? = null
 
     /** The view now, to come back to when a layer that moves the camera (the shelf, the station) closes. */
-    fun viewNow(): OrbitCamera.State = camera.state().also { Qa.log("redesign layer from ${pose(it)}") }
+    override fun viewNow(): OrbitCamera.State = camera.state().also { Qa.log("redesign layer from ${pose(it)}") }
     private fun pose(e: OrbitCamera.State) = "dist ${"%.0f".format(e.dist)} pitch ${"%.1f".format(Math.toDegrees(e.pitch.toDouble()))} yaw ${"%.1f".format(Math.toDegrees(e.yaw.toDouble()))}"
 
     /** Back to [s] (the view before the shelf or the station), 500 ms, or at once with reduced motion; logs [log]. */
-    fun backTo(s: OrbitCamera.State, log: String) {
+    override fun backTo(s: Any, log: String) {
+        if (s !is OrbitCamera.State) return
         renderer.stopAnim(); camera.stopFling()
         // the log with the view it ends at and the names' drift, for the emulator (qa/run.sh)
         val done = { postDelayed({ Qa.log("$log ${pose(camera.state())} drift ${"%.0f".format(overlayDrift())}") }, 400) }
@@ -765,7 +773,7 @@ class LiveView(context: Context, private val scene: MapScene) : GLSurfaceView(co
      * the end, remembering the view to come back to. False, with no flight, from the Kobi side (the village is behind the
      * ridge) or with reduced motion: the picture then swaps in by opacity.
      */
-    fun toVillage(pose: FloatArray): Boolean {
+    override fun toVillage(pose: FloatArray): Boolean {
         beforeVillage = null
         if (onKobiSide() || Motion.reduced(context)) return false
         renderer.stopAnim(); camera.stopFling()
@@ -777,7 +785,7 @@ class LiveView(context: Context, private val scene: MapScene) : GLSurfaceView(co
     }
 
     /** Back from the village to the view that was before it (not the opening view), 500 ms; nothing when it didn't fly. */
-    fun fromVillage() {
+    override fun fromVillage() {
         val b = beforeVillage ?: return
         beforeVillage = null
         renderer.stopAnim(); camera.stopFling()
@@ -811,7 +819,7 @@ class LiveView(context: Context, private val scene: MapScene) : GLSurfaceView(co
     /** A chosen run on the screen now, for K11 over the model: per line, x and y in pixels, seen or not (a ridge, behind). */
     class Marks(val key: String, val xs: List<FloatArray>, val ys: List<FloatArray>, val seen: List<BooleanArray>, val down: Down)
     private var lastMk: Marks? = null; private var lastMkAt: OrbitCamera.State? = null
-    fun marks(): Marks? {
+    override fun marks(): Marks? {
         val d = chosenDown ?: return null
         if (d.key != renderer.chosen || width == 0) return null
         val cs = camera.state()
@@ -838,15 +846,15 @@ class LiveView(context: Context, private val scene: MapScene) : GLSurfaceView(co
         return Marks(d.key, xs, ys, sn, d).also { lastMk = it; lastMkAt = cs }
     }
     /** Ms since the chosen run's light started down it (the held moment in the emulator). */
-    fun chosenMs(): Float = renderer.chosenMs()
+    override fun chosenMs(): Float = renderer.chosenMs()
 
     /**
      * The emulator's held moment of the choice (the designer's frames at 0, 150, 300, 600 and 900 ms, as phase A's
      * frame:): the run chosen, then the time held at [ms], the camera where the framing would be then. The ring at
      * [onMoment]'s point.
      */
-    var onMoment: ((Float, Float, Float) -> Unit)? = null
-    fun moment(key: String, ms: Float) {
+    override var onMoment: ((Float, Float, Float) -> Unit)? = null
+    override fun moment(key: String, ms: Float) {
         renderer.stopAnim(); camera.stopFling()
         val start = camera.state()
         choose(key); renderer.frozenMs = ms; onChoose?.invoke(key)
@@ -953,7 +961,7 @@ class LiveView(context: Context, private val scene: MapScene) : GLSurfaceView(co
      * A lift framed whole over its panel (Q03, handoff section 14.6): the box of its two ends with a margin, fitted to
      * the screen's top [free] (the sheet takes the rest), the target lowered so the box sits in the middle of that part.
      */
-    fun frameLift(ends: FloatArray, free: Float = .54f, log: String = "redesign live lift framed") = frameIn(ends, 0f, free, 0f, log)
+    override fun frameLift(ends: FloatArray, free: Float, log: String) = frameIn(ends, 0f, free, 0f, log)
 
     /**
      * A box of the map (x0, z0, x1, z1) fitted to the screen's part from [top] to [bottom] (fractions of its height) and
@@ -984,7 +992,7 @@ class LiveView(context: Context, private val scene: MapScene) : GLSurfaceView(co
      * A chosen run framed over the full sheet (S07, the review of 24.11): its box fitted to the screen's top [free] part,
      * as a lift over its panel; [free] null frames it as at the choice (the low sheet).
      */
-    fun frameRunAbove(key: String, free: Float?) {
+    override fun frameRunAbove(key: String, free: Float?) {
         if (free == null) { frameRun(key); return }
         val lines = scene.draped[key] ?: return
         var x0 = Float.MAX_VALUE; var x1 = -Float.MAX_VALUE; var z0 = Float.MAX_VALUE; var z1 = -Float.MAX_VALUE
@@ -1018,7 +1026,7 @@ class LiveView(context: Context, private val scene: MapScene) : GLSurfaceView(co
      * "Where am I" switched on (part 4, section 3): the place [x], [y] brought to the middle when it is off the screen
      * or within [edge] px of its edge; the direction, height and distance kept; 450 ms, or a jump with reduced motion.
      */
-    fun center(x: Float, y: Float, edge: Float) {
+    override fun center(x: Float, y: Float, edge: Float) {
         val p = toScreen(x, y)
         if (p != null && p[0] in edge..(width - edge) && p[1] in edge..(height - edge)) return
         val to = camera.state().copy(tx = x, ty = scene.terrain.elev(x, y), tz = y)
@@ -1028,12 +1036,12 @@ class LiveView(context: Context, private val scene: MapScene) : GLSurfaceView(co
     }
 
     /** The compass (part 4, section 6): the view is not the opening one (direction or tilt past 3 degrees, or distance). */
-    fun awayFromHome(): Boolean {
+    override fun awayFromHome(): Boolean {
         return WhereRules.away(camera.state(), front())
     }
 
     /** Where north is on the screen, degrees clockwise from up (the compass's needle). */
-    fun northDeg(): Float {
+    override fun northDeg(): Float {
         val c = camera.state()
         val a = toScreen(c.tx, c.tz) ?: return 0f
         val b = toScreen(c.tx, c.tz - 400f) ?: return 0f // north is up the map's y (data/Geo.kt)
@@ -1041,17 +1049,17 @@ class LiveView(context: Context, private val scene: MapScene) : GLSurfaceView(co
     }
 
     /** Whether a frame with the mountain has been drawn (the first hint waits for it). */
-    val drawn: Boolean get() = renderer.drawn
+    override val drawn: Boolean get() = renderer.drawn
 
     /** The compass's tap: back to the opening view in one move, 600 ms (a jump with reduced motion). */
-    fun home() {
+    override fun home() {
         renderer.stopAnim(); camera.stopFling()
         if (Motion.reduced(context)) { camera.set(front()); requestRender() } else renderer.animate(front(), 0.6f)
         Qa.log("redesign live home")
     }
 
     /** Where a place on the map (metres, [up] above the snow) is on the screen now, or null behind the camera. */
-    fun toScreen(x: Float, y: Float, up: Float = 0f): FloatArray? =
+    override fun toScreen(x: Float, y: Float, up: Float): FloatArray? =
         if (width == 0) null else project(camera.state(), floatArrayOf(x, scene.terrain.elev(x, y) + up, y))
 
     /**
@@ -1059,7 +1067,7 @@ class LiveView(context: Context, private val scene: MapScene) : GLSurfaceView(co
      * now, seen from the eye, off the screen's edges and its bars, and as far as can be from any other named run's line,
      * so a real tap there chooses [key] the way [pick] chooses (28 dp). Null when no such place is on the screen.
      */
-    fun spotOf(key: String): FloatArray? {
+    override fun spotOf(key: String): FloatArray? {
         if (width == 0) return null
         val mvp = FloatArray(16); val eye = FloatArray(3); val v = FloatArray(4); val o = FloatArray(4)
         OrbitCamera.mvp(camera.state(), width.toFloat() / height, mvp, eye, data.camera.fovDeg) { x, z -> scene.terrain.elev(x, z) }; shiftUp(mvp, renderer.shiftPx, height)
@@ -1077,7 +1085,7 @@ class LiveView(context: Context, private val scene: MapScene) : GLSurfaceView(co
         for (p in scene.runs.pistes) if (p.named && p.key != key) for (l in scene.draped[p.key] ?: emptyList())
             for (i in 0 until l.size / 3) on(l[i * 3], l[i * 3 + 1], l[i * 3 + 2])?.let { others += it[0]; others += it[1] }
         val m = 48 * density
-        var best: FloatArray? = null; var bestD = 28 * density
+        var best: FloatArray? = null; var bestD = StagePick.RADIUS_DP * density
         for (l in scene.draped[key] ?: return null) for (i in 0 until l.size / 3) {
             val x = l[i * 3]; val y = l[i * 3 + 1]; val z = l[i * 3 + 2]
             val s = on(x, y, z) ?: continue
@@ -1090,10 +1098,10 @@ class LiveView(context: Context, private val scene: MapScene) : GLSurfaceView(co
     }
 
     /** A run chosen as a tap chooses it (the emulator's pictures). */
-    fun pickKey(key: String) { renderer.frozenMs = null; choose(key); onChoose?.invoke(key); frame(key) }
+    override fun pickKey(key: String) { renderer.frozenMs = null; choose(key); onChoose?.invoke(key); frame(key) }
 
     /** The "Kobi side" sign: back to the front, the same turn the other way. */
-    fun backToFront() { turnTo(front()); Qa.log("redesign live front") }
+    override fun backToFront() { turnTo(front()); Qa.log("redesign live front") }
     /** The emulator's turn (qa.redesign turn:<degrees>): the opening view turned round its target, set at once. */
     fun qaTurn(deg: Float) {
         renderer.stopAnim(); camera.stopFling()

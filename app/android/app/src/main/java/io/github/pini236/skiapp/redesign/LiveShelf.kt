@@ -225,7 +225,7 @@ internal fun Chip(text: String, on: Boolean, k: SheetInk, enabled: Boolean = tru
  * (its light and its lift); [onPick] a run chosen; [onClose] the shelf closed.
  */
 @Composable
-internal fun BoxScope.Shelf(scene: MapScene, view: LiveView, runs: List<ShelfRun>, night: Boolean, haptics: Haptics, open: (List<Pair<String, ShelfGroup>>) -> Int,
+internal fun BoxScope.Shelf(scene: MapScene, view: Stage, runs: List<ShelfRun>, night: Boolean, haptics: Haptics, open: (List<Pair<String, ShelfGroup>>) -> Int,
                             closed: (String) -> Boolean, onCenter: (ShelfRun) -> Unit, onPick: (String) -> Unit, onClose: () -> Unit) {
     val context = LocalContext.current
     val k = remember(night) { SheetInk(night) }
@@ -363,7 +363,7 @@ private fun ShelfCard(scene: MapScene, r: ShelfRun, k: SheetInk, closed: Boolean
  * 11.5 bold; [side] dp beside the line's middle, on the side with more room.
  */
 @Composable
-internal fun RunTag(view: LiveView, scene: MapScene, key: String, title: String, color: String, night: Boolean, side: Float = 44f, onTap: (() -> Unit)? = null) {
+internal fun RunTag(view: Stage, scene: MapScene, key: String, title: String, color: String, night: Boolean, side: Float = 44f, onTap: (() -> Unit)? = null) {
     val k = remember(night) { SheetInk(night) }
     val mid = remember(key) {
         scene.runs.pistes.firstOrNull { it.key == key }?.lines?.maxByOrNull { it.size }?.let { l -> val n = l.size / 2; if (n == 0) null else floatArrayOf(l[(n / 2) * 2], l[(n / 2) * 2 + 1]) }

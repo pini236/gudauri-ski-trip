@@ -53,6 +53,8 @@ import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
+import androidx.compose.ui.semantics.selected
+import androidx.compose.foundation.layout.width
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -109,13 +111,16 @@ internal fun rememberWhere(scene: MapScene): WhereUi {
 
 /** The column of the map's buttons (section 1): the compass (only once turned) and "where am I", at the screen's end. */
 @Composable
-internal fun BoxScope.MapColumn(ui: WhereUi, view: LiveView, night: Boolean, recording: Boolean, onLocate: () -> Unit, onHome: () -> Unit,
-                                 layersOn: Boolean? = null, onLayers: () -> Unit = {}, bottom: androidx.compose.ui.unit.Dp = 84.dp) {
+internal fun BoxScope.MapColumn(ui: WhereUi, view: Stage, night: Boolean, recording: Boolean, onLocate: () -> Unit, onHome: () -> Unit,
+                                 layersOn: Boolean? = null, onLayers: () -> Unit = {}, bottom: androidx.compose.ui.unit.Dp = 84.dp,
+                                 photo: Boolean? = null, onPhoto: (Boolean) -> Unit = {}) {
     val k = remember(night) { SheetInk(night) }
     var away by remember { mutableStateOf(false) }
     var north by remember { mutableStateOf(0f) }
     LaunchedEffect(view) { while (true) { withFrameNanos { }; val a = view.awayFromHome(); if (a != away) { away = a; Qa.log("redesign compass ${if (a) "shown" else "gone"}") }; if (a) north = view.northDeg(); kotlinx.coroutines.delay(120) } }
     Column(Modifier.align(Alignment.BottomEnd).navigationBarsPadding().padding(end = 12.dp, bottom = bottom), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        // the picture or the live model (the opening's handoff, OP1): at the column's top, two cells of 44, the chosen one full
+        if (photo != null) StageSwitch(k, night, photo, onPhoto)
         // K08: the layers button (the lenses' row); lit while the row is open, the mark in the background's colour
         if (layersOn != null) {
             val ld = stringResource(R.string.app_map_layers_a11y)
@@ -138,6 +143,42 @@ internal fun BoxScope.MapColumn(ui: WhereUi, view: LiveView, night: Boolean, rec
             Canvas(Modifier.size(20.dp)) { locator(if (on) Color.White else k.ink, filled = on) }
         }
     }
+}
+
+/** OP1: the picture above, the live model below, in one glass of 44 wide; a tap on a cell only (no swipe, no gesture). */
+@Composable
+private fun StageSwitch(k: SheetInk, night: Boolean, photo: Boolean, onPhoto: (Boolean) -> Unit) {
+    val shape = androidx.compose.foundation.shape.RoundedCornerShape(22.dp)
+    Column(Modifier.width(44.dp).shadow(8.dp, shape, clip = false).clip(shape).background(k.surf.copy(alpha = 1f)).border(1.dp, k.line, shape)
+        .semantics { androidx.compose.ui.semantics.selectableGroup() }) {
+        for (pic in listOf(true, false)) {
+            val on = photo == pic
+            val name = stringResource(if (pic) R.string.app_mode_photo else R.string.app_mode_live)
+            val bgc = if (night) Color(0xFF0F1828) else Color.White
+            Box(Modifier.size(44.dp).clip(CircleShape).background(if (on) k.ink else Color.Transparent)
+                .semantics { contentDescription = name; role = Role.RadioButton; selected = on }
+                .clickable { if (!on) onPhoto(pic) }, contentAlignment = Alignment.Center) {
+                Canvas(Modifier.size(19.dp)) { if (pic) pictureMark(if (on) bgc else k.ink) else cubeMark(if (on) bgc else k.ink) }
+            }
+        }
+    }
+}
+
+/** A picture: a frame with a mountain and a sun. */
+private fun androidx.compose.ui.graphics.drawscope.DrawScope.pictureMark(c: Color) {
+    val w = size.width; val h = size.height; val sw = 1.6.dp.toPx()
+    drawRoundRect(c, Offset(sw / 2, h * .14f), androidx.compose.ui.geometry.Size(w - sw, h * .72f), androidx.compose.ui.geometry.CornerRadius(2.dp.toPx()), style = Stroke(sw))
+    drawPath(Path().apply { moveTo(w * .12f, h * .78f); lineTo(w * .42f, h * .42f); lineTo(w * .6f, h * .62f); lineTo(w * .72f, h * .5f); lineTo(w * .9f, h * .78f); close() }, c)
+    drawCircle(c, w * .08f, Offset(w * .74f, h * .32f))
+}
+
+/** A cube: the live model. */
+private fun androidx.compose.ui.graphics.drawscope.DrawScope.cubeMark(c: Color) {
+    val w = size.width; val h = size.height; val sw = 1.6.dp.toPx()
+    val top = Offset(w * .5f, h * .08f); val l = Offset(w * .1f, h * .3f); val r = Offset(w * .9f, h * .3f); val m = Offset(w * .5f, h * .52f)
+    val bl = Offset(w * .1f, h * .72f); val br = Offset(w * .9f, h * .72f); val b = Offset(w * .5f, h * .94f)
+    drawPath(Path().apply { moveTo(top.x, top.y); lineTo(r.x, r.y); lineTo(br.x, br.y); lineTo(b.x, b.y); lineTo(bl.x, bl.y); lineTo(l.x, l.y); close() }, c, style = Stroke(sw, join = androidx.compose.ui.graphics.StrokeJoin.Round))
+    drawPath(Path().apply { moveTo(l.x, l.y); lineTo(m.x, m.y); lineTo(r.x, r.y); moveTo(m.x, m.y); lineTo(b.x, b.y) }, c, style = Stroke(sw, join = androidx.compose.ui.graphics.StrokeJoin.Round))
 }
 
 @Composable
@@ -165,7 +206,7 @@ private fun androidx.compose.ui.graphics.drawscope.DrawScope.locator(c: Color, f
  * by the accuracy in metres at the view's scale, at least 28. Low accuracy: only the circle; no answer: nothing.
  */
 @Composable
-internal fun BoxScope.WhereDot(ui: WhereUi, view: LiveView) {
+internal fun BoxScope.WhereDot(ui: WhereUi, view: Stage) {
     val s = ui.where.state as? WhereAmI.State.Fixed ?: return
     if (s.fix == Locator.Fix.Outside) return
     var at by remember { mutableStateOf<Pair<Offset, Float>?>(null) }
@@ -260,7 +301,7 @@ internal fun BoxScope.WhereAsk(night: Boolean, onGo: () -> Unit, onLater: () -> 
 
 /** The switch's logic (section 3): off, on at once, or the S02 sheet the first time ever (no permission yet). */
 @Composable
-internal fun rememberLocate(ui: WhereUi, view: LiveView): Pair<() -> Unit, () -> Unit> {
+internal fun rememberLocate(ui: WhereUi, view: Stage): Pair<() -> Unit, () -> Unit> {
     val context = LocalContext.current
     val prefs = remember { context.getSharedPreferences("redesign", android.content.Context.MODE_PRIVATE) }
     val ask = rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { r ->

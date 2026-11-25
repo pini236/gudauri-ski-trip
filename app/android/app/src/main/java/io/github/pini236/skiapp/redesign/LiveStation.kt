@@ -49,7 +49,7 @@ import kotlin.math.hypot
 
 /** K06: which top station a tap is on (44 points to touch, before the lift's line), if any run goes down from it. */
 internal object StationTap {
-    fun at(view: LiveView, plan: MeetPlan, runs: List<Pair<ShelfRun, List<String>>>, px: Float, py: Float, density: Float): Station? =
+    fun at(view: Stage, plan: MeetPlan, runs: List<Pair<ShelfRun, List<String>>>, px: Float, py: Float, density: Float): Station? =
         plan.stations.asSequence().filter { s -> s.topOf.isNotEmpty() && FromStation.runs(s.topOf, runs).isNotEmpty() }
             .mapNotNull { s -> view.toScreen(s.x, s.y)?.let { p -> s to hypot(p[0] - px, p[1] - py) } }
             .filter { it.second <= 22f * density }.minByOrNull { it.second }?.first
@@ -94,7 +94,7 @@ internal fun FromStationSheet(st: Station, runs: List<ShelfRun>, scene: MapScene
 
 /** The ring around the station on the mountain (the handoff's section 3), following the view. */
 @Composable
-internal fun StationRing(view: LiveView, st: Station, night: Boolean) {
+internal fun StationRing(view: Stage, st: Station, night: Boolean) {
     val k = remember(night) { SheetInk(night) }
     var at by remember(st.id) { mutableStateOf<Offset?>(null) }
     LaunchedEffect(st.id) { while (true) { withFrameNanos { }; at = view.toScreen(st.x, st.y)?.let { Offset(it[0], it[1]) } } }

@@ -69,6 +69,7 @@ import androidx.compose.ui.semantics.onClick
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.customActions
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -90,7 +91,8 @@ import io.github.pini236.skiapp.qa.Qa
  */
 @Composable
 fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status: io.github.pini236.skiapp.status.LiftStatus?, inSeason: Boolean,
-                 forMe: Boolean, onForMe: (Boolean) -> Unit, around: io.github.pini236.skiapp.home.Around?, onPainted: () -> Unit, onLeave: (() -> Unit)?) {
+                 forMe: Boolean, onForMe: (Boolean) -> Unit, around: io.github.pini236.skiapp.home.Around?, onPainted: () -> Unit, onLeave: (() -> Unit)?,
+                 gles: Boolean = true) {
     val here = around?.meet
     val context = LocalContext.current
     // the font chain by this screen's language (redesign part 7; made at start, again here when the language differs)
@@ -156,7 +158,58 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
     var qaFlags by remember { mutableStateOf<GroupMeets?>(null) }
     val time = scrub?.let { PeakLight.janAt(it) } ?: DayNight.lightTime(now, mode)
     val night = remember(time) { Sky.at(time).dark }
-    val view = remember { LiveView(context, scene).also { v -> v.onChoose = { k -> chosen = k; haptics.tick(.5f); Qa.log("redesign live chosen $k") }; v.onFail = { onPainted() } } }
+    // ---- the stage under the layers (the opening's handoff, 25.11.2026; the architect's Stage): the picture by default,
+    // the live model by the user's choice (kept on the phone) or for a moment that needs it (the film, the Kobi side, Z05).
+    // Never both: the one that leaves frees its GPU or its pictures (condition 3).
+    val view = remember { StageHost().also { v -> v.onChoose = { k -> chosen = k; haptics.tick(.5f); Qa.log("redesign live chosen $k") } } }
+    var liveBroken by remember { mutableStateOf(false) }
+    val canLive = gles && !liveBroken
+    var liveChosen by remember { mutableStateOf(StagePrefs.live(context)) }
+    // why the live model is up for a moment ("ride", "kobi"), and a run to pick once it is
+    var temp by remember { mutableStateOf<String?>(null) }
+    var tempPick by remember { mutableStateOf<String?>(null) }
+    val shows = StageRules.shows(liveChosen, temp != null, canLive)
+    val contract by produceState<PeakContract?>(null) { value = withContext(Dispatchers.IO) { runCatching { PeakContract.load(context) }.onFailure { Redesign.fail("peak contract") }.getOrNull() } }
+    val picture = remember(data, contract) {
+        val d0 = data; val front = contract?.view("front")
+        if (d0 != null && front != null) PictureStage(context, scene, d0, front) else null
+    }
+    DisposableEffect(picture) { onDispose { picture?.release() } }
+    var live by remember { mutableStateOf<LiveView?>(null) }
+    // the picture's hint (Z03): a turn tried on it
+    var rotateHint by remember { mutableStateOf(false) }
+    LaunchedEffect(picture) {
+        picture?.onNeedLive = { k -> if (canLive) { tempPick = k; temp = "kobi"; Qa.log("redesign stage temp kobi $k") } }
+        picture?.onRotateTry = { if (canLive && !Hints.seen(context, "stage_rotate")) { Hints.done(context, "stage_rotate"); rotateHint = true; Qa.log("redesign stage rotate hint") } }
+    }
+    // the swap: a snapshot of the leaving stage's last frame over the coming one, 450 ms (at once with reduced motion)
+    var snap by remember { mutableStateOf<androidx.compose.ui.graphics.ImageBitmap?>(null) }
+    val snapA = remember { Animatable(0f) }
+    val reducedNow = remember { Motion.reduced(context) }
+    LaunchedEffect(shows, picture) {
+        try {
+            if (shows == StageRules.Shows.LIVE) {
+                val made = live == null
+                if (made) {
+                    snap = picture?.snapshot(); snapA.snapTo(1f)
+                    live = LiveView(context, scene).also { v -> v.onFail = { liveBroken = true; liveChosen = false; temp = null; Qa.log("redesign stage live failed") } }
+                }
+                view.impl = live
+                tempPick?.let { k -> tempPick = null; live?.pickKey(k) }
+                // the picture's last frame stays over the model until the model has drawn (at most 3 s)
+                if (made) { var t = 0; while (live?.drawn == false && t < 3000) { delay(50); t += 50 } }
+            } else {
+                val l = live
+                if (l != null) { snap = StageSnap.of(l); snapA.snapTo(1f) }
+                if (picture != null) view.impl = picture
+                live = null
+                l?.release()
+                if (snap != null) { var t = 0; while (picture?.drawn == false && t < 1500) { delay(50); t += 50 } }
+            }
+            Qa.log("redesign stage ${shows.name.lowercase()}")
+            if (snap != null) snapA.animateTo(0f, tween(if (reducedNow) 1 else 450))
+        } finally { snap = null }
+    }
     // asleep before the season: the first tap on the mountain only closes the countdown, never chooses a run under it
     LaunchedEffect(seasonOn) {
         view.wake = if (seasonOn) ({ haptics.tick(.2f); seasonOn = false; Qa.log("redesign season closed wake") }) else null
@@ -186,14 +239,14 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
         val life = (context as? androidx.lifecycle.LifecycleOwner)?.lifecycle
         val obs = androidx.lifecycle.LifecycleEventObserver { _, e ->
             when (e) {
-                androidx.lifecycle.Lifecycle.Event.ON_PAUSE -> view.onPause()
-                androidx.lifecycle.Lifecycle.Event.ON_RESUME -> view.onResume()
+                androidx.lifecycle.Lifecycle.Event.ON_PAUSE -> live?.onPause()
+                androidx.lifecycle.Lifecycle.Event.ON_RESUME -> live?.onResume()
                 else -> {}
             }
         }
         life?.addObserver(obs)
         Qa.log("redesign live open")
-        onDispose { life?.removeObserver(obs); view.release(); Qa.log("redesign live closed") }
+        onDispose { life?.removeObserver(obs); live?.release(); live = null; Qa.log("redesign live closed") }
     }
     // the emulator's pictures (qa/run.sh): an hour of 12 January (the designer's keys), and a view
     LaunchedEffect(RedesignQa.seq) {
@@ -204,7 +257,7 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
             c.startsWith("hour:") -> c.removePrefix("hour:").toFloatOrNull()?.let { scrub = it; Qa.log("redesign live hour $it") }
             c.startsWith("look:") -> c.removePrefix("look:").split(",").let { a ->
                 val n = a.take(3).mapNotNull { it.toFloatOrNull() }
-                if (n.size == 3) view.look(n[0], n[1], n[2], a.getOrNull(3)?.takeIf { it.isNotBlank() })
+                if (n.size == 3) live?.look(n[0], n[1], n[2], a.getOrNull(3)?.takeIf { it.isNotBlank() })
             }
             // a run chosen the way a tap chooses it (the turn to the Kobi side included), letting it go, and the sign
             c.startsWith("pick:") -> { held = null; view.pickKey(c.removePrefix("pick:")) }
@@ -216,12 +269,15 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
             c == "run:low" -> runFull = false
             c == "unpick" -> { runFull = false; riding = null; held = null; chosen = null; view.choose(null); Qa.log("redesign live unpicked") }
             c == "front" -> view.backToFront()
-            c == "far" -> view.qaFar()
-            c == "ring:off" -> view.showRing(false)
-            c == "ring:on" -> view.showRing(true)
-            c == "air:off" -> view.showAir(false)
-            c == "air:on" -> view.showAir(true)
-            c.startsWith("turn:") -> c.removePrefix("turn:").toFloatOrNull()?.let { view.qaTurn(it) }
+            c == "far" -> live?.qaFar()
+            c == "ring:off" -> live?.showRing(false)
+            c == "ring:on" -> live?.showRing(true)
+            c == "air:off" -> live?.showAir(false)
+            c == "air:on" -> live?.showAir(true)
+            c.startsWith("turn:") -> c.removePrefix("turn:").toFloatOrNull()?.let { live?.qaTurn(it) }
+            // the stage: the picture or the live model, as the switch sets it (kept as the user's choice)
+            c == "stage:photo" -> { liveChosen = false; StagePrefs.setLive(context, false) }
+            c == "stage:live" -> { liveChosen = true; StagePrefs.setLive(context, true) }
             // part 2 (Q01 to Q03): the lifts' sheet and one lift
             c == "lifts" -> { liftSel = null; nowTab = NowTab.LIFTS; liftsOpen = true }
             c == "weather" -> { liftSel = null; nowTab = NowTab.WEATHER; liftsOpen = true }
@@ -393,6 +449,8 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
     // the "Kobi side" sign shows while the camera looks from within 60 degrees of the Kobi side (the handoff's section 10)
     var kobiSide by remember { mutableStateOf(false) }
     LaunchedEffect(Unit) { while (true) { val k = view.onKobiSide(); if (k != kobiSide) { kobiSide = k; Qa.log("redesign live kobi sign $k") }; delay(250) } }
+    // the Kobi side's moment ends back on the front with nothing chosen (Z05: back to the picture, the same view)
+    LaunchedEffect(temp, kobiSide, chosen) { if (temp == "kobi" && !kobiSide && chosen == null) { delay(400); if (!view.onKobiSide() && view.chosen == null) temp = null } }
     LaunchedEffect(data, night) { data?.let { view.setPal(it.pal[if (night) "night" else "day"]) } }
 
     val bg = if (night) Color(0xD70F1828) else Color(0xDBFFFFFF)
@@ -433,17 +491,28 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
         // on the GL view itself: Compose shows an AndroidView's own view to the screen reader in place of the
         // node, so a semantics modifier here never reached it (the review of 24.11, ש2: no "mountain" in ui.xml)
         val srStepNow by androidx.compose.runtime.rememberUpdatedState<(Int) -> Boolean>({ d -> srStep(d) })
-        DisposableEffect(view, srMountain, srNext, srPrev, srFront) {
-            view.contentDescription = srMountain
-            view.importantForAccessibility = android.view.View.IMPORTANT_FOR_ACCESSIBILITY_YES
+        val lv = live
+        if (lv != null) DisposableEffect(lv, srMountain, srNext, srPrev, srFront) {
+            lv.contentDescription = srMountain
+            lv.importantForAccessibility = android.view.View.IMPORTANT_FOR_ACCESSIBILITY_YES
             val ids = listOf(
-                androidx.core.view.ViewCompat.addAccessibilityAction(view, srNext) { _, _ -> srStepNow(1) },
-                androidx.core.view.ViewCompat.addAccessibilityAction(view, srPrev) { _, _ -> srStepNow(-1) },
-                androidx.core.view.ViewCompat.addAccessibilityAction(view, srFront) { _, _ -> view.backToFront(); true },
+                androidx.core.view.ViewCompat.addAccessibilityAction(lv, srNext) { _, _ -> srStepNow(1) },
+                androidx.core.view.ViewCompat.addAccessibilityAction(lv, srPrev) { _, _ -> srStepNow(-1) },
+                androidx.core.view.ViewCompat.addAccessibilityAction(lv, srFront) { _, _ -> lv.backToFront(); true },
             )
-            onDispose { ids.forEach { androidx.core.view.ViewCompat.removeAccessibilityAction(view, it) } }
+            onDispose { ids.forEach { androidx.core.view.ViewCompat.removeAccessibilityAction(lv, it) } }
         }
-        AndroidView(factory = { view }, modifier = Modifier.fillMaxSize())
+        if (lv != null) androidx.compose.runtime.key(lv) { AndroidView(factory = { lv }, modifier = Modifier.fillMaxSize()) }
+        else picture?.Draw(night, Modifier.semantics {
+            contentDescription = srMountain
+            customActions = listOf(
+                androidx.compose.ui.semantics.CustomAccessibilityAction(srNext) { srStepNow(1) },
+                androidx.compose.ui.semantics.CustomAccessibilityAction(srPrev) { srStepNow(-1) },
+                androidx.compose.ui.semantics.CustomAccessibilityAction(srFront) { view.backToFront(); true },
+            )
+        }) ?: Box(Modifier.fillMaxSize().background(Color(0xFF9DB6D8)))
+        // the leaving stage's last frame, fading over the coming one
+        snap?.let { b -> Canvas(Modifier.fillMaxSize()) { drawImage(b, alpha = snapA.value) } }
         placeMark?.let { pl ->
             var at by remember(pl) { mutableStateOf<Offset?>(null) }
             LaunchedEffect(pl) { while (true) { withFrameNanos { }; at = view.toScreen(io.github.pini236.skiapp.data.Geo.x(pl.lon), io.github.pini236.skiapp.data.Geo.y(pl.lat))?.let { Offset(it[0], it[1]) } } }
@@ -661,10 +730,13 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
                 onRide = { riding = kk; Qa.log("redesign ride $kk") }) }
         }
         // K12: the film down the chosen run, in place of its sheet; closing it goes back to the low sheet and the run's frame
-        riding?.let { rk ->
+        // the film needs the live model: from the picture it comes up for the film, and the picture is back after (Z05)
+        LaunchedEffect(riding) { if (riding != null) { if (shows == StageRules.Shows.PICTURE) temp = "ride" } else if (temp == "ride") temp = null }
+        val filmView = live
+        if (filmView != null) riding?.let { rk ->
             val r = run
-            val hapticsOn = remember { io.github.pini236.skiapp.fx.FxPrefs.haptics(view.context) &&
-                ((view.context.getSystemService(android.content.Context.VIBRATOR_SERVICE) as? android.os.Vibrator)?.hasVibrator() == true) }
+            val hapticsOn = remember { io.github.pini236.skiapp.fx.FxPrefs.haptics(context) &&
+                ((context.getSystemService(android.content.Context.VIBRATOR_SERVICE) as? android.os.Vibrator)?.hasVibrator() == true) }
             val title = scene.runs.pistes.firstOrNull { it.key == rk }?.title ?: rk
             RideFilm(rk, title, {
                 // a run with no number (Kikilo 1, Kobi): a small square of its colour, not an empty plate
@@ -673,7 +745,7 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
                     Text(r.ref, fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 17.sp, color = Color.White,
                         style = androidx.compose.ui.text.TextStyle(textDirection = androidx.compose.ui.text.style.TextDirection.Ltr))
                 }
-            }, scene, view, night, haptics, hapticsOn) {
+            }, scene, filmView, night, haptics, hapticsOn) {
                 riding = null; runFull = false; view.frameRunAbove(rk, null); Qa.log("redesign ride closed")
             }
         }
@@ -910,7 +982,14 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
                 haptics.tick(.3f)
                 if (lensRow) { lensRow = false; lens = null } else { lensRow = true; lens = LensPrefs.last(context) }
                 Qa.log("redesign lens row $lensRow")
-            }, bottom = if (lens != null) 196.dp else 84.dp)
+            }, bottom = if (lens != null) 196.dp else 84.dp,
+            // the switch shows the user's choice: in a moment of the live model (Z05) it does not move
+            photo = if (canLive && picture != null) !liveChosen else null,
+            onPhoto = { p -> haptics.tick(.3f); temp = null; liveChosen = !p; StagePrefs.setLive(context, !p); rotateHint = false; Qa.log("redesign stage switch ${if (p) "photo" else "live"}") })
+        // Z03: a turn tried on the picture, once: the live model does it
+        if (rotateHint && shows == StageRules.Shows.PICTURE) StageHint(night, onGo = { rotateHint = false; liveChosen = true; StagePrefs.setLive(context, true); Qa.log("redesign stage hint go") }, onOff = { rotateHint = false })
+        // Z05: the live model for a moment, back to the picture after
+        if (temp != null && shows == StageRules.Shows.LIVE) TempTag(night)
         RunHint(scene, view, night, free = bare && !where.asking, chosen = chosen != null, drawn = mtnDrawn, again = hintAgain)
         if (where.asking) WhereAsk(night, onGo = locateGo, onLater = { where.asking = false; Qa.log("redesign where ask later") })
         androidx.activity.compose.BackHandler(enabled = where.asking) { where.asking = false }

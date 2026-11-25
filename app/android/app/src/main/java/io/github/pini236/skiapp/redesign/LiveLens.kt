@@ -75,7 +75,7 @@ internal fun androidx.compose.ui.graphics.drawscope.DrawScope.layers(c: Color) {
  * in place of the bottom bar. A pull down turns the lens off.
  */
 @Composable
-internal fun BoxScope.LensSheet(lens: LensKind, scene: MapScene, view: LiveView, status: LiftStatus?, inSeason: Boolean, night: Boolean, onOff: () -> Unit) {
+internal fun BoxScope.LensSheet(lens: LensKind, scene: MapScene, view: Stage, status: LiftStatus?, inSeason: Boolean, night: Boolean, onOff: () -> Unit) {
     val k = remember(night) { SheetInk(night) }
     val counted = remember(scene) { scene.runs.pistes.filter { LensRules.counted(it.named, it.kind) } }
     val now = view.lightTime

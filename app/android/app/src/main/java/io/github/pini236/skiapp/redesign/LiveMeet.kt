@@ -394,7 +394,7 @@ internal fun MeetUndo(onUndo: () -> Unit) {
 }
 
 /** Every station's place on the screen this frame (a little above the snow), those in front of the camera. */
-internal fun stationsOnScreen(view: LiveView, plan: MeetPlan): List<Pair<Station, Offset>> =
+internal fun stationsOnScreen(view: Stage, plan: MeetPlan): List<Pair<Station, Offset>> =
     plan.stations.mapNotNull { s -> view.toScreen(s.x, s.y, 4f)?.let { s to Offset(it[0], it[1]) } }
 
 /** The pins of Q04 and Q05 as tappable 44-point places, for touch and for a screen reader. */

@@ -228,7 +228,7 @@ private fun DayCards(cards: List<NowRules.DayCard>, f: Forecast, k: SheetInk) {
 
 /** The temperature tags on the mountain over the sheet (S05): at each point's height, 18 above it. */
 @Composable
-internal fun BoxScope.TempTags(view: LiveView, w: WeatherNow, night: Boolean) {
+internal fun BoxScope.TempTags(view: Stage, w: WeatherNow, night: Boolean) {
     if (w.usable == null) return
     val k = remember(night) { SheetInk(night) }
     val pins = pinTexts(w)

@@ -62,7 +62,7 @@ internal object Hints {
  * blue run whose middle is nearest the screen's middle, kept there while the view moves.
  */
 @Composable
-internal fun BoxScope.RunHint(scene: MapScene, view: LiveView, night: Boolean, free: Boolean, chosen: Boolean, drawn: Boolean, again: Int) {
+internal fun BoxScope.RunHint(scene: MapScene, view: Stage, night: Boolean, free: Boolean, chosen: Boolean, drawn: Boolean, again: Int) {
     val ctx = LocalContext.current
     var on by remember(again) { mutableStateOf(false) }
     // the emulator's (debug) build shows it only once asked (qa.redesign hint:reset), so it stays out of the other shots
