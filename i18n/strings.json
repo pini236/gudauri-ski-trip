@@ -23607,6 +23607,54 @@
     "ka"
    ]
   },
+  "app.mode_photo": {
+   "he": "תמונה",
+   "en": "Photo",
+   "ru": "Фото",
+   "ka": "ფოტო",
+   "where": "app/android, app/ios",
+   "note": "מתג תמונה/חי על ההר, לוחות Z00 עד Z04 בקנבס העיצוב מחדש: שם המצב",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.mode_live": {
+   "he": "חי",
+   "en": "Live",
+   "ru": "Живой",
+   "ka": "ცოცხალი",
+   "where": "app/android, app/ios",
+   "note": "מתג תמונה/חי על ההר, לוחות Z00 עד Z04 בקנבס העיצוב מחדש: שם המצב",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.mode_live_hint": {
+   "he": "סיבוב והטיה עובדים בהר החי",
+   "en": "Rotate and tilt work on the live mountain",
+   "ru": "Вращение и наклон работают на живой горе",
+   "ka": "ბრუნვა და დახრა მუშაობს ცოცხალ მთაზე",
+   "where": "app/android, app/ios",
+   "note": "מתג תמונה/חי על ההר, לוחות Z00 עד Z04 בקנבס העיצוב מחדש: רמז חד-פעמי",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.mode_live_go": {
+   "he": "לעבור לחי",
+   "en": "Switch to live",
+   "ru": "Включить живой",
+   "ka": "ცოცხალზე გადასვლა",
+   "where": "app/android, app/ios",
+   "note": "מתג תמונה/חי על ההר, לוחות Z00 עד Z04 בקנבס העיצוב מחדש: כפתור ברמז",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
   "app.me_days_sub": {
    "he": {
     "one": "יום גלישה אחד · השיאים שלך",
