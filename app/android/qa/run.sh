@@ -69,6 +69,35 @@ shot() { # shot <name>: a numbered screenshot, and the screen's accessibility fi
   local f; f=$(printf "%s/shots/%02d-%s.png" "$OUT" "$n" "$1")
   adb exec-out screencap -p > "$f" || fail "screenshot $1"
   audit "$1"
+  sheet_bottom "$1"
+}
+# a sheet reaches the screen's bottom (the boards; Pini, 25.11.2026: "the card is cut at the bottom"): on the screens
+# that end in a sheet, the two bottom corners and a point 200 px above them are the one flat colour of the sheet. A card
+# that floats shows the mountain or a strip under it. The raw frame, so no image library is needed
+sheet_bottom() {
+  case "$1" in
+    redesign-lift-panel|redesign-meet-where|redesign-meet-set|redesign-meet-set-night|redesign-trip-calendar|redesign-group-*|\
+    redesign-invite|redesign-member-menu|redesign-signin|redesign-gate|redesign-language|redesign-now-weather|redesign-now-lifts|redesign-join|redesign-reclaim) ;;
+    *) return 0 ;;
+  esac
+  local raw="$OUT/.frame.raw"
+  adb exec-out screencap > "$raw" 2>/dev/null || return 0
+  local why; why=$(python3 - "$raw" <<'PY'
+import struct, sys
+b = open(sys.argv[1], "rb").read()
+w, h = struct.unpack("<II", b[:8])
+head = len(b) - w * h * 4
+if head < 12 or head > 16: sys.exit(0)
+def px(x, y):
+    o = head + (y * w + x) * 4
+    return b[o:o + 3]
+pts = [(60, h - 12), (w - 60, h - 12), (60, h - 200), (w - 60, h - 200)]
+c = [px(x, y) for x, y in pts]
+far = max(max(abs(a - b0) for a, b0 in zip(c[0], q)) for q in c[1:])
+if far > 18: print(f"bottom corners {list(c[0])} {list(c[1])}, 200 px up {list(c[2])} {list(c[3])}")
+PY
+)
+  [ -z "$why" ] || fail "redesign: the sheet does not reach the bottom on $1 ($why)"
 }
 audit() { # audit <screen>: touch targets under 44 dp and tappable things with no words (report only, qa/a11y.py)
   [[ -z "${QA_NO_A11Y:-}" ]] || return 0
@@ -1410,7 +1439,7 @@ redesign3() {
   mark; qa "--es qa.redesign people:license:karantina"; waitlog "redesign people license karantina" 10 || fail "redesign: a licence's text did not show"; sleep 1; shot redesign-license-text
   mark; qa "--es qa.redesign people:off"; waitlog "redesign people closed" 10
   # T02, T03 with nobody signed in: "I'm already in the group" on the seeded code
-  mark; qa "--es qa.group invited --es qa.redesign people:join:KZBQRM"; waitlog "redesign people join" 15; sleep 2
+  mark; qa "--es qa.group invited --es qa.redesign people:join:KZBQRM"; waitlog "redesign people join" 15; rd_settled; shot redesign-join
   mark; qa "--es qa.redesign people:reclaim"; waitlog "redesign people reclaim" 15 || fail "redesign: the reclaim list did not show"; rd_settled; shot redesign-reclaim
   mark; qa "--es qa.redesign people:off"; waitlog "redesign people closed" 10
   # T10: all the places near Goodaura's bottom station

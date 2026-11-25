@@ -261,7 +261,8 @@ private fun SwitchRow(title: String, sub: String?, on: Boolean, k: SheetInk, las
 /** A full screen over the dimmed mountain (R02, R07, R09, R10, R13, R15): the back arrow at the start, a title. */
 @Composable
 private fun BoxScope.FullScreen(k: SheetInk, title: String?, onBack: () -> Unit, top: (@Composable ColumnScope.() -> Unit)? = null,
-                                content: @Composable ColumnScope.() -> Unit) {
+                                sheet: (@Composable ColumnScope.() -> Unit)? = null, ime: Boolean = false,
+                                content: @Composable ColumnScope.() -> Unit = {}) {
     Box(Modifier.matchParentSize().background(k.veil).clickable(enabled = false) { })
     Column(Modifier.fillMaxSize().statusBarsPadding()) {
         Row(Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
@@ -272,11 +273,20 @@ private fun BoxScope.FullScreen(k: SheetInk, title: String?, onBack: () -> Unit,
             }
             if (title != null) Text(title, Modifier.padding(start = 12.dp), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 17.sp, color = Color.White)
         }
-        Column(Modifier.fillMaxWidth().weight(1f).verticalScroll(rememberScrollState()).navigationBarsPadding().padding(bottom = 20.dp),
-            verticalArrangement = Arrangement.spacedBy(20.dp)) {
+        Column(Modifier.fillMaxWidth().weight(1f).verticalScroll(rememberScrollState()).let { if (sheet == null) it.navigationBarsPadding() else it }
+            .padding(bottom = 20.dp), verticalArrangement = Arrangement.spacedBy(20.dp)) {
             if (top != null) Column(Modifier.fillMaxWidth().padding(horizontal = 16.dp), horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(8.dp), content = top)
             content()
+        }
+        // a sheet under the head (R02, R07, the new group): down to the screen's bottom, under the system's bar, its top
+        // corners only (the boards; Pini, 25.11.2026: "the card is cut at the bottom"); a long one scrolls inside, at
+        // most three quarters of the screen
+        if (sheet != null) {
+            val maxH = (androidx.compose.ui.platform.LocalConfiguration.current.screenHeightDp * .75f).dp
+            Box(Modifier.fillMaxWidth().heightIn(max = maxH).let { if (ime) it.imePadding() else it }) {
+                LiveSheet(k) { Column(Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(12.dp), content = sheet) }
+            }
         }
     }
 }
@@ -756,9 +766,7 @@ private fun BoxScope.JoinScreen(p: People, ui: PeopleUi, k: SheetInk, code: Stri
             if (v.members.isNotEmpty()) Text(pluralStringResource(R.plurals.app_g_members, v.members.size, v.members.size), Modifier.clip(RoundedCornerShape(14.dp))
                 .background(Color(0x33FFFFFF)).padding(horizontal = 12.dp, vertical = 4.dp), fontFamily = Gudi, fontSize = 13.sp, color = Color.White)
         }
-    }) {
-        Column(Modifier.fillMaxWidth().padding(horizontal = 12.dp)) {
-            LiveSheet(k) {
+    }, sheet = {
                 when {
                     failed != null -> ErrLine(failed, k)
                     v == null -> Small(stringResource(R.string.app_loading), k)
@@ -803,9 +811,7 @@ private fun BoxScope.JoinScreen(p: People, ui: PeopleUi, k: SheetInk, code: Stri
                         Small(stringResource(R.string.app_join_later_note), k)
                     }
                 }
-            }
-        }
-    }
+            })
 }
 
 /**
@@ -867,9 +873,7 @@ private fun BoxScope.NewGroupScreen(p: People, ui: PeopleUi, k: SheetInk, trip: 
     var which by remember { mutableStateOf(0) }
     val focus = remember { androidx.compose.ui.focus.FocusRequester() }
     LaunchedEffect(Unit) { runCatching { focus.requestFocus() } }
-    FullScreen(k, stringResource(R.string.app_g_new_title), { ui.back() }) {
-        Column(Modifier.fillMaxWidth().padding(horizontal = 12.dp).imePadding()) {
-            LiveSheet(k) {
+    FullScreen(k, stringResource(R.string.app_g_new_title), { ui.back() }, sheet = {
                 Labeled(stringResource(R.string.app_g_group_name), k) {
                     Box(Modifier.focusRequester(focus)) { PField(name, stringResource(R.string.app_g_group_name_hint), k) { name = it.take(60) } }
                 }
@@ -890,9 +894,7 @@ private fun BoxScope.NewGroupScreen(p: People, ui: PeopleUi, k: SheetInk, trip: 
                     }
                 }
                 ErrLine(act.error, k)
-            }
-        }
-    }
+            }, ime = true)
     if (cal) {
         Box(Modifier.matchParentSize().background(Color(0x61060B16)).clickable { cal = false })
         Box(Modifier.align(Alignment.BottomCenter)) {
@@ -1471,9 +1473,7 @@ private fun BoxScope.InviteScreen(p: People, ui: PeopleUi, k: SheetInk, id: Stri
                 Text(stringResource(R.string.app_g_invite_how), fontFamily = Gudi, fontSize = 13.5.sp, color = Color.White, textAlign = TextAlign.Center)
             }
         }
-    }) {
-        Column(Modifier.fillMaxWidth().padding(horizontal = 12.dp)) {
-            LiveSheet(k) {
+    }, sheet = {
                 when {
                     gg == null -> if (act.error == null) LoadingRows(k, 2) else ErrLine(act.error, k)
                     inv == null -> {
@@ -1501,9 +1501,7 @@ private fun BoxScope.InviteScreen(p: People, ui: PeopleUi, k: SheetInk, id: Stri
                         ErrLine(act.error, k)
                     }
                 }
-            }
-        }
-    }
+            })
 }
 
 @Composable
