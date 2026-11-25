@@ -91,7 +91,8 @@ if head < 12 or head > 16: sys.exit(0)
 def px(x, y):
     o = head + (y * w + x) * 4
     return b[o:o + 3]
-pts = [(60, h - 12), (w - 60, h - 12), (60, h - 200), (w - 60, h - 200)]
+# at the very sides (6 px in): a floating card has margins, a button inside the sheet does not reach there
+pts = [(6, h - 12), (w - 7, h - 12), (6, h - 200), (w - 7, h - 200)]
 c = [px(x, y) for x, y in pts]
 far = max(max(abs(a - b0) for a, b0 in zip(c[0], q)) for q in c[1:])
 if far > 18: print(f"bottom corners {list(c[0])} {list(c[1])}, 200 px up {list(c[2])} {list(c[3])}")

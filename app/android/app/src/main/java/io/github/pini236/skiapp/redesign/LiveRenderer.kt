@@ -422,6 +422,7 @@ class LiveRenderer(
     /** The far ground (LiveRing), set by LiveView once it is built off the GL thread; null until then (or never). */
     @Volatile var ring: LiveRing? = null
     @Volatile var ringShown = true
+    private val RING_FROM = 7000f
     private var ringProg = 0; private val ringVao = IntArray(1); private val ringBufs = IntArray(2)
     private var ringOn: LiveRing? = null; private var ringCount = 0
 
@@ -592,7 +593,10 @@ class LiveRenderer(
         glActiveTexture(GL_TEXTURE0)
         // the far ground past the model's edge, after it (its middle lies under the mesh): one draw, no textures
         ring?.let { r -> if (r !== ringOn) uploadRing(r) }
-        if (ringCount > 0 && ringShown) {
+        // only when the eye can see past the model: from outside it (the opening stands south of it) or from far; low
+        // in the model, as in the film, the mesh hides it and it would cost the frame for nothing (run 419)
+        val past = eye[0] < tt.x0 || eye[0] > tt.x1 || eye[2] < tt.y0 || eye[2] > tt.y1 || s.dist > RING_FROM
+        if (ringCount > 0 && ringShown && past) {
             glUseProgram(ringProg)
             glUniformMatrix4fv(u(ringProg, "uMvp"), 1, false, mvp, 0)
             glUniform3fv(u(ringProg, "uSun"), 1, L.dir, 0)
