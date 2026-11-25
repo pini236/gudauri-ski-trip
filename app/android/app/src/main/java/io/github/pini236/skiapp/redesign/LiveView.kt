@@ -396,7 +396,8 @@ class LiveView(context: Context, private val scene: MapScene) : GLSurfaceView(co
      * degrees, facing [yaw]; the point in the middle of the screen's top [free] part (the sheet takes the rest).
      */
     fun filmCamera(x: Float, h: Float, y: Float, yaw: Float, free: Float) {
-        val dist = 520f; val pitch = 0.48f
+        // higher and further behind than 520 m at .48: by day the lit line stayed hidden under the slope (review of 24.11, ח4)
+        val dist = 760f; val pitch = 0.72f
         val vf = tan(Math.toRadians(data.camera.fovDeg / 2.0)).toFloat()
         val dy = (1f - free) * dist * vf / kotlin.math.cos(pitch)
         renderer.stopAnim(); camera.stopFling()
@@ -588,16 +589,32 @@ class LiveView(context: Context, private val scene: MapScene) : GLSurfaceView(co
      * to it"): the side that shows more of it if this one shows less than half, then the run fitted to the screen's
      * top [free] part, over the shelf. Nothing is chosen.
      */
-    fun showRun(key: String, free: Float) {
+    fun showRun(key: String, top: Float, bottom: Float, shift: Float) {
         if (worker.isShutdown) return
         worker.execute {
             val here = seen(key, camera.state())
-            if (here >= .5f) { post { frameRunAbove(key, free) }; return@execute }
+            val box = keysBox(setOf(key)) ?: return@execute
+            if (here >= .5f) { post { frameIn(box, top, bottom, shift, "redesign shelf framed $key") }; return@execute }
             val f = front(); val k = kobi()
             val wide = if (seen(key, k) > seen(key, f)) k else f
             Qa.log("redesign shelf side ${if (wide === k) "kobi" else "front"} $key")
-            post { turnTo(wide) { frameRunAbove(key, free) } }
+            post { turnTo(wide) { frameIn(box, top, bottom, shift, "redesign shelf framed $key") } }
         }
+    }
+
+    /** The runs [keys] (the station's, K06) fitted between [top] and [bottom] of the screen, the mountain raised [shift]. */
+    fun showKeys(keys: Set<String>, top: Float, bottom: Float, shift: Float, log: String) {
+        val box = keysBox(keys) ?: return
+        frameIn(box, top, bottom, shift, log)
+    }
+
+    /** The box (x0, z0, x1, z1) of the lines of the runs [keys], or null when none has a line. */
+    private fun keysBox(keys: Set<String>): FloatArray? {
+        var x0 = Float.MAX_VALUE; var x1 = -Float.MAX_VALUE; var z0 = Float.MAX_VALUE; var z1 = -Float.MAX_VALUE
+        for (key in keys) for (l in scene.draped[key].orEmpty()) for (i in 0 until l.size / 3) {
+            x0 = minOf(x0, l[i * 3]); x1 = maxOf(x1, l[i * 3]); z0 = minOf(z0, l[i * 3 + 2]); z1 = maxOf(z1, l[i * 3 + 2])
+        }
+        return if (x0 > x1) null else floatArrayOf(x0, z0, x1, z1)
     }
 
     fun showSide(key: String) {
@@ -806,16 +823,25 @@ class LiveView(context: Context, private val scene: MapScene) : GLSurfaceView(co
      * A lift framed whole over its panel (Q03, handoff section 14.6): the box of its two ends with a margin, fitted to
      * the screen's top [free] (the sheet takes the rest), the target lowered so the box sits in the middle of that part.
      */
-    fun frameLift(ends: FloatArray, free: Float = .54f, log: String = "redesign live lift framed") {
+    fun frameLift(ends: FloatArray, free: Float = .54f, log: String = "redesign live lift framed") = frameIn(ends, 0f, free, 0f, log)
+
+    /**
+     * A box of the map (x0, z0, x1, z1) fitted to the screen's part from [top] to [bottom] (fractions of its height) and
+     * in its middle, with the mountain raised [shift] px on the screen (the shelf, the station: K06, K07). The review of
+     * 24.11: the shelf's run landed under the pill, the raise not counted.
+     */
+    fun frameIn(ends: FloatArray, top: Float, bottom: Float, shift: Float, log: String) {
         val pad = 260f
         val b = floatArrayOf(minOf(ends[0], ends[2]) - pad, minOf(ends[1], ends[3]) - pad, maxOf(ends[0], ends[2]) + pad, maxOf(ends[1], ends[3]) + pad)
         // looking down on it, never along the snow at the sky
         val s0 = camera.state().let { it.copy(pitch = it.pitch.coerceAtLeast(LiveLimits.FRAME_PITCH)) }
         val fit = frameBox(b, s0)
         val vf = tan(Math.toRadians(data.camera.fovDeg / 2.0)).toFloat()
-        val dist = (fit.dist / free).coerceIn(1400f, 12000f)
-        // up on the screen by (1 - free) of the half height: the target lowered along the screen's up
-        val dy = (1f - free) * dist * vf / kotlin.math.cos(s0.pitch).coerceAtLeast(.3f)
+        val dist = (fit.dist / (bottom - top).coerceIn(.2f, 1f)).coerceIn(1400f, 12000f)
+        // the part's middle, where the box goes, in the view before the raise; up from the screen's middle by
+        // (1 - 2c) of the half height: the target lowered along the screen's up
+        val c = (top + bottom) / 2f + shift / height.coerceAtLeast(1)
+        val dy = (1f - 2f * c) * dist * vf / kotlin.math.cos(s0.pitch).coerceAtLeast(.3f)
         val to = fit.copy(dist = dist, ty = fit.ty - dy)
         renderer.stopAnim(); camera.stopFling()
         if (Motion.reduced(context)) { camera.set(to); requestRender() } else renderer.animate(to, 0.6f)

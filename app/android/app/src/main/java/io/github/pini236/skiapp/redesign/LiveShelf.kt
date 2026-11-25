@@ -372,6 +372,8 @@ internal fun RunTag(view: LiveView, scene: MapScene, key: String, title: String,
     val w = with(LocalDensity.current) { LocalConfiguration.current.screenWidthDp.dp.toPx() }
     LaunchedEffect(key) { while (true) { withFrameNanos { }; at = view.toScreen(mid[0], mid[1])?.let { Offset(it[0], it[1]) } } }
     val p = at ?: return
+    // never over the pill at the top (the review of 24.11: tags drawn over it)
+    if (p.y < with(LocalDensity.current) { (TOP_GUARD_DP + 11).dp.toPx() }) return
     val dx = with(LocalDensity.current) { side.dp.toPx() }
     // on the side with more room: right of the line's middle when it is in the left half, else left of it (measured width)
     var tagW by remember { mutableStateOf(0) }
@@ -385,3 +387,6 @@ internal fun RunTag(view: LiveView, scene: MapScene, key: String, title: String,
             style = androidx.compose.ui.text.TextStyle(textDirection = TextDirection.Ltr))
     }
 }
+
+/** How far down the top pill reaches (with the status bar): nothing of the mountain's is drawn over it. */
+internal const val TOP_GUARD_DP = 112

@@ -56,6 +56,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
@@ -536,7 +538,9 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
         LaunchedEffect(pd) { val labels = pd?.hero?.labels ?: return@LaunchedEffect; while (true) { withFrameNanos { }; ov = view.overlay(labels) } }
         val unitM = stringResource(R.string.common_unit_m, "\u0000")
         val nf = remember { java.text.NumberFormat.getIntegerInstance() }
-        Canvas(Modifier.fillMaxSize()) {
+        // nothing of the mountain's names and marks over the pill (the review of 24.11: "New Gudauri" on its words)
+        val namesGuard = with(androidx.compose.ui.platform.LocalDensity.current) { (TOP_GUARD_DP + if (lensRow) 56 else 0).dp.toPx() }
+        Canvas(Modifier.fillMaxSize().drawWithContent { clipRect(top = namesGuard) { this@drawWithContent.drawContent() } }) {
             val o = ov; val pal = pd?.pal?.get(if (night) "night" else "day")
             if (o != null && pal != null) {
                 // stations: 6.8 by 5, corner 1.4, the station colour with the cable's outline (phase A); dimmer under a chosen run
@@ -587,7 +591,10 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
                 drawCircle(Color.White, 26 * dp * sc, tp, alpha = .9f * (1 - r), style = Stroke(2 * dp))
             }
         }
+        val guardPx = with(androidx.compose.ui.platform.LocalDensity.current) { (TOP_GUARD_DP + 38 + if (lensRow) 56 else 0).dp.toPx() }
         if (chosen == null && !meet.open && !tripOpen && !skipassOpen && !seasonOn) for ((l, p) in tags) {
+            // never over the pill or the lenses' row (the review of 24.11)
+            if (p.y < guardPx) continue
             val sk = remember(night) { SheetInk(night) }
             val closedSr = stringResource(R.string.app_sr_lift_closed, l.name)
             Row(Modifier.offset { androidx.compose.ui.unit.IntOffset((p.x - 40.dp.toPx()).toInt(), (p.y - 16.dp.toPx() - 22.dp.toPx()).toInt()) }
@@ -654,6 +661,8 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
             }
         }
         // K07: the mountain rises 120 points over the shelf, with a veil, and lights the middle card's run (section 2)
+        val scrHdp = androidx.compose.ui.platform.LocalConfiguration.current.screenHeightDp.toFloat().coerceAtLeast(400f)
+        val shiftPx120 = with(androidx.compose.ui.platform.LocalDensity.current) { 120.dp.toPx() }
         val shelfShift by androidx.compose.animation.core.animateFloatAsState(if (shelfOpen) with(androidx.compose.ui.platform.LocalDensity.current) { 120.dp.toPx() } else 0f, tween(300), label = "shelf")
         LaunchedEffect(shelfShift) { view.setShift(shelfShift) }
         val veilA by androidx.compose.animation.core.animateFloatAsState(if (shelfOpen) 1f else 0f, tween(250), label = "veil")
@@ -668,7 +677,11 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
         val st = fromSt
         val stRuns = remember(st) { st?.let { FromStation.runs(it.topOf, stationRuns) }.orEmpty() }
         LaunchedEffect(st) {
-            if (st != null) view.setFocus(LiveRenderer.Focus(stRuns.map { it.key }.toSet(), 3.2f, 5.4f, st.topOf.toSet()))
+            if (st != null) {
+                view.setFocus(LiveRenderer.Focus(stRuns.map { it.key }.toSet(), 3.2f, 5.4f, st.topOf.toSet()))
+                // its runs between the pill and the sheet, the mountain raised 120 (the review of 24.11: they sat under the pill)
+                view.showKeys(stRuns.map { it.key }.toSet(), 100f / scrHdp, 1f - 330f / scrHdp, shiftPx120, "redesign station framed ${st.id}")
+            }
             else if (!shelfOpen) view.setFocus(null)
         }
         if (st != null) {
@@ -685,7 +698,8 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
             Shelf(scene, view, shelfRuns, night, haptics,
                 open = { flat -> Shelf.start(flat, ShelfMemory.last, null, null) },
                 closed = { key -> scene.runs.pistes.firstOrNull { it.key == key }?.let { status?.runOpen(it) == false } ?: false },
-                onCenter = { shelfMid = it; view.showRun(it.key, .56f) },
+                // between the pill (100 down) and the shelf (270 up), the mountain raised 120 (K07)
+                onCenter = { shelfMid = it; view.showRun(it.key, 100f / scrHdp, 1f - 270f / scrHdp, shiftPx120) },
                 onPick = { key -> ShelfMemory.last = key; shelfOpen = false; Qa.log("redesign shelf pick $key"); view.pickKey(key) },
                 onClose = { shelfOpen = false; Qa.log("redesign shelf closed") })
             if (veilA > .5f) shelfMid?.let { r -> RunTag(view, scene, r.key, r.title, r.color, night) }
