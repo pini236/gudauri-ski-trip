@@ -7,6 +7,15 @@ set -uo pipefail
 OUT=${OUT:-qa-out}
 mkdir -p "$OUT"
 : > "$OUT/.started"
+# What the emulator and the system say all the way through, for the part's artifact (25.11.2026: the emulator vanished in
+# the middle of store,lang and redesign2, "device emulator-5554 not found", probably SwiftShader's GL): the whole system
+# log of every buffer, and a line every 5 s with what adb sees, so the minute it disappears is in the file.
+mkdir -p "$OUT/emulator"
+adb logcat -b all -v threadtime > "$OUT/emulator/system-logcat.txt" 2> /dev/null &
+LOGCAT_PID=$!
+( while true; do echo "$(date -u +%T) $(adb devices 2>&1 | tail -n +2 | tr '\n' ' ')"; sleep 5; done ) > "$OUT/emulator/adb-devices.txt" 2>&1 &
+WATCH_PID=$!
+trap 'kill "$LOGCAT_PID" "$WATCH_PID" 2> /dev/null' EXIT
 bash app/android/qa/run.sh
 rc=$?
 # A failure that is the emulator's and not the app's gets one more attempt of the whole part, marked UNSTABLE in the
