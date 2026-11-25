@@ -54,11 +54,46 @@ jobs:
           BASE_REF: ${{ github.base_ref }}
         run: |
           set -u
-          if [ "$EVENT" = workflow_dispatch ] || [ "$REF" = refs/heads/main ]; then echo "app=true" >> "$GITHUB_OUTPUT"; exit 0; fi
-          if [ "$EVENT" = pull_request ]; then base="origin/$BASE_REF"; elif [ -n "$BEFORE" ] && ! echo "$BEFORE" | grep -q '^0*$' && git cat-file -e "$BEFORE^{commit}" 2> /dev/null; then base="$BEFORE"; else base=$(git merge-base origin/main HEAD); fi
+          if [ "$EVENT" = workflow_dispatch ]; then echo "app=true" >> "$GITHUB_OUTPUT"; exit 0; fi
+          if [ "$EVENT" = pull_request ]; then base="origin/$BASE_REF"; elif [ -n "$BEFORE" ] && ! echo "$BEFORE" | grep -q '^0*$' && git cat-file -e "$BEFORE^{commit}" 2> /dev/null; then base="$BEFORE"; elif [ "$REF" = refs/heads/main ]; then echo "app=true" >> "$GITHUB_OUTPUT"; echo "main without a before commit: build"; exit 0; else base=$(git merge-base origin/main HEAD); fi
           files=$(git diff --name-only "$base" HEAD)
-          # the app's own code and the scripts that pack its data, strings and workflow; not the shared site data
-          if echo "$files" | grep -q -E '^(app/ios/|tools/build-ios-|\.github/workflows/ios\.yml)'; then echo "app=true" >> "$GITHUB_OUTPUT"; else echo "app=false" >> "$GITHUB_OUTPUT"; echo "the simulator build is skipped: no file of the app changed (run it by hand with workflow_dispatch)"; fi
+          # the app's own code and the scripts that pack its data, strings and workflow
+          if echo "$files" | grep -q -E '^(app/ios/|tools/build-ios-|\.github/workflows/ios\.yml)'; then echo "app=true" >> "$GITHUB_OUTPUT"; exit 0; fi
+          if [ "$REF" = refs/heads/main ]; then
+            # on main the data the app packs also counts (the shared site data, the relief and tokens it is tested against)
+            if echo "$files" | grep -q -E '^(site/data/|site/games/descent/|site/games/thumbs/|site/js/relief\.js|site/css/site\.css|tools/fixtures/)'; then echo "app=true" >> "$GITHUB_OUTPUT"; exit 0; fi
+            # the strings: a text edit or a new key cannot break the build; a removed key, or one whose placeholders or plural
+            # shape changed, can (the app's typed accessors, tools/build-ios-strings.py)
+            if echo "$files" | grep -q '^i18n/strings\.json$'; then
+              if python3 - "$base" <<'PYTHON'
+          import json, re, subprocess, sys
+          SKIP = re.compile(r"^(game\.[a-z]+\.friend_|tester\.|poc\.)")
+          PH = re.compile(r"\{([a-zA-Z_][a-zA-Z0-9_]*)\}")
+          def load(text):
+              return json.loads(text)["strings"]
+          def shape(e):
+              ps = set()
+              for l in ("he", "en", "ru", "ka"):
+                  t = e.get(l)
+                  for form in (t.values() if isinstance(t, dict) else [t or ""]):
+                      ps.update(PH.findall(form))
+              return (isinstance(e.get("he"), dict), frozenset(ps))
+          try:
+              old = load(subprocess.run(["git", "show", sys.argv[1] + ":i18n/strings.json"], capture_output=True, text=True, check=True).stdout)
+              new = load(open("i18n/strings.json", encoding="utf-8").read())
+          except Exception as e:
+              print("cannot compare the strings, build:", e); sys.exit(0)
+          for k, e in old.items():
+              if SKIP.match(k):
+                  continue
+              if k not in new or shape(new[k]) != shape(e):
+                  print("a key the app reads was removed or changed in shape:", k); sys.exit(0)
+          sys.exit(1)
+          PYTHON
+              then echo "app=true" >> "$GITHUB_OUTPUT"; exit 0; fi
+            fi
+          fi
+          echo "app=false" >> "$GITHUB_OUTPUT"; echo "the simulator build is skipped: nothing the app builds from changed (run it by hand with workflow_dispatch)"
 
   core:
     name: Logic (GudiCore) tests

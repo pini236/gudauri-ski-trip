@@ -52,6 +52,8 @@ jobs:
         env:
           QA_SCENARIO: ${{ inputs.scenario || 'all' }}
           QA_REF: ${{ github.ref_name }}
+          QA_BEFORE: ${{ github.event.before }}
+          QA_EVENT: ${{ github.event_name }}
           QA_API: ${{ inputs.api || '35' }}
           QA_QUICK_DEBUG: ${{ github.event_name == 'workflow_dispatch' && inputs.quick_debug }}
         run: |
