@@ -80,6 +80,8 @@ internal fun filmLine(scene: MapScene, key: String): FilmLine? {
 
 /** The other runs' two ends (their longest line's top and bottom), for the meetings along the film's line. */
 internal fun filmEnds(scene: MapScene): List<Pair<String, List<FloatArray>>> = scene.runs.pistes.mapNotNull { p ->
+    // a join is named, never a bare section's key (Kikilo 1 showed "u1217683225", the review of 25.11)
+    if (!p.named) return@mapNotNull null
     val ls = scene.topDown(p); if (ls.isEmpty()) return@mapNotNull null
     p.title to ls.flatMap { l -> val n = l.size / 3; listOf(floatArrayOf(l[0], l[2]), floatArrayOf(l[(n - 1) * 3], l[(n - 1) * 3 + 2])) }
 }
@@ -319,7 +321,7 @@ internal fun BoxScope.RideFilm(key: String, title: String, sign: @Composable () 
             c == "ride:check" -> {
                 val p = line.at(d); val drawn = scene.topDown(scene.runs.pistes.first { it.key == key }).filter { it.size >= 6 }
                 val toEnd = drawn.minOf { l -> hypot(l[l.size - 3] - p[0], l[l.size - 1] - p[2]) }
-                Qa.log("redesign ride check $key at ${d.roundToInt()} of ${line.length.roundToInt()} end ${toEnd.roundToInt()} clear ${view.filmClear(p[0], p[1], p[2])}")
+                Qa.log("redesign ride check $key at ${d.roundToInt()} of ${line.length.roundToInt()} end ${toEnd.roundToInt()} clear ${view.filmClear(p[0], p[1], p[2])} ${view.cameraWords()}")
             }
             // every run's film, every 5 % of the way: the camera over the snow and the dot in sight, and the end on an
             // end of the drawn line (one line per run that fails, then the count)

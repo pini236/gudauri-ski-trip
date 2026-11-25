@@ -24,6 +24,7 @@ import kotlin.math.atan
 import kotlin.math.atan2
 import kotlin.math.cos
 import kotlin.math.hypot
+import kotlin.math.roundToInt
 import kotlin.math.sin
 import kotlin.math.sqrt
 import kotlin.math.tan
@@ -464,6 +465,9 @@ class LiveView(context: Context, private val scene: MapScene) : GLSurfaceView(co
 
     /** The film's camera is over the snow (the emulator's check): its eye over the ground and the dot in sight. */
     fun filmClear(x: Float, h: Float, y: Float): Boolean = clearFrom(camera.state(), x, h, y)
+
+    /** The camera in words, for the emulator's log (distance, tilt, target). */
+    fun cameraWords(): String = camera.state().let { "cam ${it.dist.roundToInt()} ${"%.2f".format(it.pitch)} ${it.tx.roundToInt()},${it.tz.roundToInt()}" }
 
     /** Whether the film's camera would be over the snow at [x], [h], [y] facing [yaw] (the emulator's check of every run). */
     fun filmClearAt(x: Float, h: Float, y: Float, yaw: Float, free: Float): Boolean {
@@ -942,7 +946,7 @@ class LiveView(context: Context, private val scene: MapScene) : GLSurfaceView(co
         val to = fit.copy(dist = dist, ty = fit.ty - dy)
         renderer.stopAnim(); camera.stopFling()
         if (Motion.reduced(context)) { camera.set(to); requestRender() } else renderer.animate(to, 0.6f)
-        Qa.log(log)
+        Qa.log(log); Qa.log("redesign frame to ${to.dist.roundToInt()} ${"%.2f".format(to.pitch)} free ${"%.2f".format(bottom)}")
     }
 
     /**
