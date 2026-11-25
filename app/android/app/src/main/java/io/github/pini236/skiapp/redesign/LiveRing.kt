@@ -27,12 +27,59 @@ class LiveRing private constructor(
     val reliefBox: FloatArray,
     /** The model's box (x0, y0, x1, y1) and its heights, for the cast shadow. */
     val model: FloatArray, private val elev: (Float, Float) -> Float,
+    /** The front seam of step 4 (the model bent to the ring, the band); false is the ring of before, for the emulator's "before". */
+    val seam: Boolean = true,
 ) {
     val triangles get() = indices.size / 3
     val points get() = vertices.size / STRIDE
 
     /** The relief map, decoded off the GL thread by whoever loads the ring; null draws the ring without it. */
     @Volatile var relief: LiveTex? = null
+    /** The band (step 4, ringband.webp): the model's own maps carried past its edge; null draws the seam as before. */
+    @Volatile var band: Band? = null
+
+    /**
+     * The model's maps past its edge (the designer's step 4): slope east, slope south, occlusion and rock potential as
+     * one RGBA texture over [x0]..[x1], [z0]..[z1] (metres, row 0 north), [w] by [h] texels.
+     */
+    class Band(val x0: Float, val z0: Float, val x1: Float, val z1: Float, val margin: Float, val w: Int, val h: Int, val px: ByteArray) {
+        companion object {
+            /**
+             * [grey]: the four planes stacked top to bottom in one grey picture ([w] by 4 [h], the red channel read),
+             * as ARGB ints; [json] is ringband.json.
+             */
+            fun of(json: JSONObject, grey: IntArray, w: Int, h4: Int): Band {
+                val h = h4 / 4
+                check(w == json.getJSONArray("px").getInt(0) && h == json.getJSONArray("px").getInt(1)) { "ringband: ${w}x$h" }
+                val px = ByteArray(w * h * 4)
+                for (k in 0..3) for (i in 0 until w * h) px[i * 4 + k] = (grey[k * w * h + i] shr 16).toByte()
+                return Band(json.getDouble("x0").toFloat(), json.getDouble("z0").toFloat(), json.getDouble("x1").toFloat(),
+                    json.getDouble("z1").toFloat(), json.getDouble("margin").toFloat(), w, h, px)
+            }
+        }
+    }
+
+    /** How far [x], [y] is inside the model's edge (metres; below 0 outside it). */
+    fun inward(x: Float, y: Float): Float = minOf(minOf(x - model[0], model[2] - x), minOf(y - model[1], model[3] - y))
+
+    /**
+     * The model's height bent to the ring's over its last [BEND] metres (the designer's step 4, Y03): at the edge the
+     * two are one height, so the ground goes on as one, with no flat band and no step.
+     */
+    fun bent(x: Float, y: Float, h: Float): Float {
+        if (!seam) return h
+        val d = inward(x, y)
+        if (d >= BEND || d < 0f) return h
+        val t = 1f - d / BEND; val w = t * t * (3f - 2f * t)
+        return h + (inner.at(x, y) - h) * w
+    }
+
+    /** A copy of the model's interleaved vertices ([stride] floats, y second) with the last [BEND] metres bent. */
+    fun bend(v: FloatArray, stride: Int): FloatArray {
+        val o = v.copyOf()
+        for (k in 0 until v.size / stride) { val i = k * stride; o[i + 1] = bent(v[i], v[i + 2], v[i + 1]) }
+        return o
+    }
 
     /** A grid of the file: its own heights (not the lowered ones), [nx] by [ny] from ([x0], [y0]) every [cell] metres. */
     class Grid(val x0: Float, val y0: Float, val cell: Float, val nx: Int, val ny: Int, val h: ShortArray) {
@@ -49,7 +96,7 @@ class LiveRing private constructor(
 
     /** The ground's height at a point: the model in its box, then the inner grid, then the outer one. */
     fun ground(x: Float, y: Float): Float = when {
-        x > model[0] && x < model[2] && y > model[1] && y < model[3] -> elev(x, y)
+        x > model[0] && x < model[2] && y > model[1] && y < model[3] -> bent(x, y, elev(x, y))
         inner.inside(x, y) -> inner.at(x, y)
         else -> outer.at(x, y)
     }
@@ -67,7 +114,7 @@ class LiveRing private constructor(
      * softened 1 2 1 in each grid: a march toward the sun over [ground], half a cell a step and longer further out, to
      * 24 km or until the ray is over 5,200 m. The inner ring first; the outer one only while the whole stays within
      * [budgetMs] (the architect: 150 ms on a middling phone), otherwise the outer ring has none from then on. Vertices
-     * under the model have none (they are hidden). Off the drawing thread.
+     * deeper under the model than two cells have none (they are hidden). Off the drawing thread.
      */
     fun shadows(dir: FloatArray, budgetMs: Long = SHADOW_MS): FloatArray {
         val t0 = System.nanoTime()
@@ -77,7 +124,8 @@ class LiveRing private constructor(
         val ux = dir[0] / horiz; val uz = dir[2] / horiz; val rise = dir[1] / horiz
         fun march(k: Int, base: Float) {
             val x = vertices[k * STRIDE]; val z = vertices[k * STRIDE + 2]
-            if (x > model[0] && x < model[2] && z > model[1] && z < model[3]) return
+            // under the model: hidden, but for two cells in (the seam's triangles)
+            if (inward(x, z) > 2 * inner.cell) return
             val h0 = ground(x, z) + 3f
             var s = 0f; var dd = base
             while (dd < 24_000f) {
@@ -106,14 +154,79 @@ class LiveRing private constructor(
         return out
     }
 
+    /**
+     * The model's own cast shadow [raw] (a value a grid point, [nx] by [ny] from [gx0], [gy0] every [sx], [sy]), redone
+     * in its last [BEND] metres over the same ground as the ring (the bent model, then the ring past its box), so the
+     * two shade as one at the edge; 400 m of hand-over into [raw] inside that. Before softening. Off the drawing thread.
+     */
+    fun modelBand(raw: FloatArray, nx: Int, ny: Int, gx0: Float, gy0: Float, sx: Float, sy: Float, dir: FloatArray,
+                  budgetMs: Long = SHADOW_MS): FloatArray {
+        if (dir[1] <= 0f || !seam) return raw
+        val deadline = System.nanoTime() + budgetMs * 1_000_000
+        val horiz = sqrt(dir[0] * dir[0] + dir[2] * dir[2]).coerceAtLeast(1e-4f)
+        val ux = dir[0] / horiz; val uz = dir[2] / horiz; val rise = dir[1] / horiz
+        fun march(x: Float, z: Float): Float {
+            val h0 = ground(x, z) + 3f
+            var s = 0f; var dd = 35f
+            while (dd < 24_000f) {
+                val ray = h0 + rise * dd
+                if (ray > 5200f) break
+                val over = ground(x + ux * dd, z + uz * dd) - ray
+                if (over > 0) { s = maxOf(s, (over / 30f).coerceAtMost(1f)); if (s >= 1f) break }
+                dd += 35f * (1f + dd / 3000f)
+            }
+            return s
+        }
+        // the rays every BAND_STEP cells only (the shadow is softened anyway), the cells between them bilinear: a ninth
+        // of the work. Over the budget the band keeps the model's own shadow (the seam still bends, unshaded)
+        val gx = (nx - 1) / BAND_STEP + 2; val gy = (ny - 1) / BAND_STEP + 2
+        val coarse = FloatArray(gx * gy) { -1f }
+        val reach = BEND + BAND_STEP * maxOf(sx, sy)
+        for (j in 0 until gy) for (i in 0 until gx) {
+            val c = minOf(i * BAND_STEP, nx - 1); val r = minOf(j * BAND_STEP, ny - 1)
+            val x = gx0 + c * sx; val z = gy0 + r * sy
+            if (inward(x, z) >= reach) continue
+            coarse[j * gx + i] = march(x, z)
+            if (System.nanoTime() > deadline) { bandOff = true; return raw }
+        }
+        val out = raw.copyOf()
+        for (r in 0 until ny) for (c in 0 until nx) {
+            val x = gx0 + c * sx; val z = gy0 + r * sy
+            val din = inward(x, z)
+            if (din >= BEND) continue
+            val k = r * nx + c
+            val fi = c.toFloat() / BAND_STEP; val fj = r.toFloat() / BAND_STEP
+            val i0 = minOf(fi.toInt(), gx - 2); val j0 = minOf(fj.toInt(), gy - 2)
+            val ax = (fi - i0).coerceIn(0f, 1f); val az = (fj - j0).coerceIn(0f, 1f)
+            fun at(i: Int, j: Int) = coarse[j * gx + i].let { if (it < 0f) raw[k] else it }
+            val s = (at(i0, j0) * (1 - ax) + at(i0 + 1, j0) * ax) * (1 - az) + (at(i0, j0 + 1) * (1 - ax) + at(i0 + 1, j0 + 1) * ax) * az
+            val w = ((BEND - din) / BAND_HANDOVER).coerceIn(0f, 1f)
+            out[k] = raw[k] * (1 - w) + s * w
+        }
+        bandOff = false
+        return out
+    }
+
+    /** The last [modelBand] ran over its budget, and the band kept the model's own shadow. */
+    @Volatile var bandOff = false
+        private set
+
     companion object {
         const val STRIDE = 6
-        /** How far under the mesh the inner ring's middle lies (metres). */
-        const val UNDER = 25f
+        /** How far under the mesh the inner ring lies where the model is over it (metres; the model bends to it). */
+        const val UNDER = 3f
+        /** The model's last metres, bent to the ring's heights (the designer's step 4). */
+        const val BEND = 1500f
+        /** Inside the bend, the model's own shadow hands over to the band's over this (metres). */
+        const val BAND_HANDOVER = 400f
+        /** The band's shadow is marched every this many cells of the model, the cells between bilinear. */
+        const val BAND_STEP = 3
+        /** Where the model's shader hands its maps over to the band (metres inside the edge). */
+        const val SEAM_IN = 600f
+        /** Every packed texture of the live model, the ring's two included (the architect, 25.11.2026: 1.2 MB with the band). */
+        const val MAX_SET_BYTES = 1_200_000L
         /** Where the outer ring is under the inner one it lies this far under it (metres). */
         const val UNDER_INNER = 30f
-        /** Outside the model the ring comes from the model's edge to its own heights over this (the designer's soft seam). */
-        const val SEAM = 900f
         /** The budget (the architect, 25.11.2026, the light option): the file, the triangles, the relief map. */
         const val MAX_BYTES = 64 * 1024
         const val MAX_TRIANGLES = 48_000
@@ -161,21 +274,24 @@ class LiveRing private constructor(
 
         /**
          * The mesh of [json] round the height model's box ([x0]..[x1], [y0]..[y1]), whose height at a point is [elev]:
-         * an inner vertex inside the box lies [UNDER] under the model, an inner cell whose corners are all well inside
+         * an inner vertex keeps its own height, [UNDER] lower where the model is over it (the model bends to the ring over
+         * its last [BEND] metres, the designer's step 4), an inner cell whose corners are all well inside
          * it is left out; an outer vertex inside the inner ring lies [UNDER_INNER] under it, and an outer cell two inner
          * cells inside the inner ring is left out.
          */
-        fun build(json: JSONObject, x0: Float, y0: Float, x1: Float, y1: Float, elev: (Float, Float) -> Float): LiveRing {
+        fun build(json: JSONObject, x0: Float, y0: Float, x1: Float, y1: Float, seam: Boolean = true, elev: (Float, Float) -> Float): LiveRing {
             check(json.getInt("schema") == 2) { "ring.json: schema ${json.getInt("schema")}" }
             val gi = grid(json.getJSONObject("inner")); val go = grid(json.getJSONObject("outer"))
             fun inModel(x: Float, y: Float, m: Float) = x > x0 + m && x < x1 - m && y > y0 + m && y < y1 - m
-            // the inner ring: under the model, a soft seam out of it, then its own heights
+            // the inner ring: its own heights everywhere, a little lower under the model (which bends to them)
             val yi = FloatArray(gi.nx * gi.ny)
             for (j in 0 until gi.ny) for (i in 0 until gi.nx) {
                 val x = gi.x0 + i * gi.cell; val y = gi.y0 + j * gi.cell
-                yi[j * gi.nx + i] = if (inModel(x, y, 0f)) elev(x, y) - UNDER else {
+                yi[j * gi.nx + i] = if (seam) gi.h[j * gi.nx + i] - if (inModel(x, y, 0f)) UNDER else 0f
+                // before step 4 (the emulator's "before" picture only): 25 m under the model, a 900 m blend out of it
+                else if (inModel(x, y, 0f)) elev(x, y) - 25f else {
                     val cx = x.coerceIn(x0, x1); val cy = y.coerceIn(y0, y1)
-                    val w = (sqrt((x - cx) * (x - cx) + (y - cy) * (y - cy)) / SEAM).coerceIn(0f, 1f)
+                    val w = (sqrt((x - cx) * (x - cx) + (y - cy) * (y - cy)) / 900f).coerceIn(0f, 1f)
                     elev(cx, cy) * (1 - w) + gi.h[j * gi.nx + i] * w
                 }
             }
@@ -213,7 +329,7 @@ class LiveRing private constructor(
             val rb = json.getJSONObject("relief")
             return LiveRing(v, idx.toIntArray(), (go.nx - 1) * go.cell / 2f, gi, go,
                 floatArrayOf(rb.getDouble("x0").toFloat(), rb.getDouble("y0").toFloat(), rb.getDouble("x1").toFloat(), rb.getDouble("y1").toFloat()),
-                floatArrayOf(x0, y0, x1, y1), elev)
+                floatArrayOf(x0, y0, x1, y1), elev, seam)
         }
     }
 }

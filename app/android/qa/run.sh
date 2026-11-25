@@ -1337,7 +1337,8 @@ redesign() {
     # back (the system's, as Pini's swipe on 0.1.867) returns to the view before the shelf, the names on their places
     from=$(logline "redesign layer from" | sed 's/.*layer from //')
     mark; adb shell input keyevent KEYCODE_BACK
-    if waitlog "redesign layer back" 10; then
+    # 25 s: on the emulator the mountain is drawn again after the shelf (textures, shadow, the band), up to 9 s at load 16
+    if waitlog "redesign layer back" 25; then
       back=$(logline "redesign layer back" | sed 's/.*layer back //')
       [ "${back% drift*}" = "$from" ] || fail "redesign: back from the shelf did not return to the view before it ($from, now ${back% drift*})"
       [ "${back##* drift }" = "0" ] || fail "redesign: after back from the shelf the names sit ${back##* drift } px off their places"
@@ -1348,7 +1349,7 @@ redesign() {
   mark; qa "--es qa.redesign station:Goodaura"
   if waitlog "redesign station " 10; then rd_settled; shot redesign-station-goodaura
     mark; adb shell input keyevent KEYCODE_BACK
-    if waitlog "redesign layer back" 10; then
+    if waitlog "redesign layer back" 25; then
       back=$(logline "redesign layer back" | sed 's/.*layer back //')
       [ "${back##* drift }" = "0" ] || fail "redesign: after back from the station the names sit ${back##* drift } px off their places"
       rd_settled; shot redesign-station-back
@@ -1362,8 +1363,36 @@ redesign() {
   # mountains; the shadow is worked out off the drawing thread, its time noted (the architect: 150 ms on a middling
   # phone, otherwise the outer ring has none)
   mark; qa "--es qa.redesign hour:16.4"; waitlog "redesign ring shadow" 20; rd_drawn; shot redesign-far-afternoon
-  note "ring: $(logline 'redesign ring ready' | sed 's/.*ring ready //') triangles; shadow $(logline 'redesign ring shadow' | sed 's/.*ring shadow //')"
+  note "ring: $(logline 'redesign ring ready' | sed 's/.*ring ready //') triangles; shadow $(logline 'redesign ring shadow' | sed 's/.*ring shadow //'); band shadow $(logline 'redesign ring band shadow' | sed 's/.*band shadow //')"
   logline "redesign ring ready" | grep -q "relief true" || fail "redesign: the ring's relief map did not load"
+  logline "redesign ring ready" | grep -q "band true" || fail "redesign: the band of the front seam did not load"
+  # the front seam (the designer's step 4, Y03): the model's south edge from the front, close and from far, at noon and
+  # in a low sun; the ground must go on as one, with no flat band and no line
+  local sh; for sh in "12:noon" "16.4:afternoon"; do
+    mark; qa "--es qa.redesign hour:${sh%%:*}"; waitlog "redesign live hour" 10
+    mark; qa "--es qa.redesign 'look:0,22,2600,@-400:7300'"; waitlog "redesign live look" 10; rd_drawn; shot "redesign-seam-near-${sh#*:}"
+    mark; qa "--es qa.redesign 'look:0,14,9000,@-400:7300'"; waitlog "redesign live look" 10; rd_drawn; shot "redesign-seam-far-${sh#*:}"
+  done
+  # and before step 4, the same two looks at noon (the architect's condition 4: the seam before and after)
+  mark; qa "--es qa.redesign hour:12"; waitlog "redesign live hour" 10
+  # the north edge too, from the north, close up (the architect's condition 5), and the frames on both: a slow turn of
+  # 5 s each, with the seam and before it (the extra texture read), p50 and p99 noted, not a failure
+  seam_frames() { # seam_frames <label>
+    seen "redesign live drawn" 8; adb shell dumpsys gfxinfo "$PKG" reset > /dev/null 2>&1
+    adb shell input swipe $((W * 3 / 10)) $((H / 3)) $((W * 7 / 10)) $((H / 3)) 5000
+    local g; g=$(adb shell dumpsys gfxinfo "$PKG" 2>/dev/null | tr -d '\r')
+    note "seam $1 frames: 50th $(sed -n 's/^50th percentile: //p' <<<"$g" | head -1), 99th $(sed -n 's/^99th percentile: //p' <<<"$g" | head -1)"
+  }
+  mark; qa "--es qa.redesign 'look:180,22,2600,@-400:-7300'"; waitlog "redesign live look" 10; rd_drawn; shot "redesign-seam-north-noon"
+  mark; qa "--es qa.redesign 'look:0,14,9000,@-400:7300'"; waitlog "redesign live look" 10; rd_drawn; seam_frames after
+  mark; qa "--es qa.redesign seam:off"; waitlog "redesign seam off" 30 || fail "redesign: the seam's before did not build"
+  mark; qa "--es qa.redesign 'look:0,14,9000,@-400:7300'"; waitlog "redesign live look" 10; rd_drawn; seam_frames before
+  mark; qa "--es qa.redesign 'look:0,22,2600,@-400:7300'"; waitlog "redesign live look" 10; rd_drawn; shot "redesign-seam-near-noon-before"
+  mark; qa "--es qa.redesign 'look:0,14,9000,@-400:7300'"; waitlog "redesign live look" 10; rd_drawn; shot "redesign-seam-far-noon-before"
+  mark; qa "--es qa.redesign 'look:180,22,2600,@-400:-7300'"; waitlog "redesign live look" 10; rd_drawn; shot "redesign-seam-north-noon-before"
+  mark; qa "--es qa.redesign seam:on"; waitlog "redesign seam on" 30
+  note "seam: $(logline 'redesign shadow total' | sed 's/.*shadow total //')"
+  mark; qa "--es qa.redesign far"; waitlog "redesign live far" 10; rd_drawn
   # the frames with the far ground and without it (the architect's condition 7: relative, the emulator draws in software):
   # a slow turn for 5 s on each, counted from the mountain drawn again; noted, not a failure
   for rg in on off; do

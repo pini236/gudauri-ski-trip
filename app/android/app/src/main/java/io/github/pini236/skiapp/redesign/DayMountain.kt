@@ -93,7 +93,9 @@ fun DayMountain(file: File, sample: Boolean, scene: MapScene, mode: DayNight.Mod
                 /** While recording (completion part 1, "see the day"): the day so far, from the live analysis, not written anywhere. */
                 live: Boolean = false, openRidge: Boolean = false,
                 /** From the card of one descent (P04): straight into the film, or into the picture to share. */
-                openFilm: Boolean = false, openShare: Boolean = false, onBack: () -> Unit) {
+                openFilm: Boolean = false, openShare: Boolean = false,
+                /** The example day, from the end of a recording with no descents. */
+                onSample: () -> Unit = {}, onBack: () -> Unit) {
     val context = LocalContext.current
     val zone = ZoneId.of(DayParams.TZ)
     var now by remember { mutableLongStateOf(System.currentTimeMillis()) }
@@ -325,7 +327,16 @@ fun DayMountain(file: File, sample: Boolean, scene: MapScene, mode: DayNight.Mod
             }
         }
         // the card (board L06): the day's head, its three numbers, the scale and the replay; a touch opens the day's screen
-        if (!filming) Column(Modifier.align(Alignment.BottomCenter).navigationBarsPadding().padding(8.dp).fillMaxWidth()
+        // a recording with no descents ends in its own sheet (handoff 2026-11-25-redesign-empty-end)
+        val emptyL = loaded
+        if (!live && emptyL != null && noRuns) {
+            val tr = emptyL.paint.track
+            val sm = emptyL.day.summary
+            LaunchedEffect(Unit) { Qa.log("redesign day no runs") }
+            EmptyEnd(sm.start, sm.end, tr.t.isNotEmpty(), (tr.x.indices).any { io.github.pini236.skiapp.dayrec.IdleWatch.inside(tr.x[it], tr.y[it]) }, night, haptics,
+                onSample = onSample, onDelete = { io.github.pini236.skiapp.dayrec.DayRec.store(context).delete(file); onBack() }, onBack = onBack)
+        }
+        if (!filming && !(!live && emptyL != null && noRuns)) Column(Modifier.align(Alignment.BottomCenter).navigationBarsPadding().padding(8.dp).fillMaxWidth()
             .shadow(16.dp, RoundedCornerShape(24.dp)).clip(RoundedCornerShape(24.dp)).background(glass).border(1.dp, rule, RoundedCornerShape(24.dp))
             .clickable(role = Role.Button, enabled = !noRuns) { haptics.tick(.3f); ridge = true }.padding(horizontal = 16.dp, vertical = 12.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp)) {

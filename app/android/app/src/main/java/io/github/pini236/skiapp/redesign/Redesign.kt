@@ -128,7 +128,7 @@ object Redesign {
      * its timeline (L07), a descent there its film (L09), and "share" the story (L10) with its picture. Returns false when it does not show, and the caller draws today's screen.
      */
     @Composable
-    fun day(file: java.io.File, sample: Boolean, scene: MapScene?, mode: DayNight.Mode, haptics: Haptics, onAgain: () -> Unit = {}, onBack: () -> Unit): Boolean {
+    fun day(file: java.io.File, sample: Boolean, scene: MapScene?, mode: DayNight.Mode, haptics: Haptics, onAgain: () -> Unit = {}, onSample: () -> Unit = {}, onBack: () -> Unit): Boolean {
         if (!on()) return false
         if (scene == null) return false
         if (io.github.pini236.skiapp.BuildConfig.DEBUG && !RedesignQa.dayOn) return false
@@ -143,7 +143,7 @@ object Redesign {
         }
         val p = pending.value
         if (p != null) { RunDoneCard(file, p, scene, mode, haptics, onAgain = { RunDone.clear(ctx); onAgain() }, onClose = { RunDone.clear(ctx); pending.value = null; onBack() }); return true }
-        DayMountain(file, sample, scene, mode, haptics, onBack = onBack)
+        DayMountain(file, sample, scene, mode, haptics, onSample = onSample, onBack = onBack)
         return true
     }
 
