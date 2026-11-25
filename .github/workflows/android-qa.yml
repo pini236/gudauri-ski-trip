@@ -408,7 +408,10 @@ jobs:
           # Diagnostics must not replace the results of the full main/branch checks.
           [ "$QA_QUICK_DEBUG" != true ] || tag=android-qa-diagnostic
           title="אנדרואיד: בדיקה באמולטור$([ "$tag" = android-qa ] || echo " (ענף ${GITHUB_REF_NAME})")"
-          files=("$RUNNER_TEMP/qa.zip" "$OUT"/sheet-*.png $(ls "$OUT"/store/*.png 2> /dev/null || true))
+          # nullglob: no contact sheets (or store shots) must not leave a literal pattern that makes the upload fail
+          shopt -s nullglob
+          files=("$RUNNER_TEMP/qa.zip" "$OUT"/sheet-*.png "$OUT"/store/*.png)
+          shopt -u nullglob
           {
             echo "בדיקה באמולטור, ענף ${GITHUB_REF_NAME}, קומיט ${GITHUB_SHA::7}."
             echo "הריצה: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
@@ -419,6 +422,11 @@ jobs:
           # and a new tag on a branch's commit was refused to the run's token, HTTP 403, 3.10.2026); the notes name the commit
           gh release view "$tag" > /dev/null 2>&1 \
             || gh release create "$tag" --prerelease --target "${{ github.event.repository.default_branch }}" --title "$title" --notes-file "$RUNNER_TEMP/notes.md"
-          gh release view "$tag" --json assets -q '.assets[].name' | while read -r a; do gh release delete-asset "$tag" "$a" --yes; done
+          # upload first (replacing same-named files), delete only the stale assets afterwards, so a failed upload
+          # never leaves the release empty (run 467, 25.11.2026)
           gh release upload "$tag" "${files[@]}" --clobber
+          new=$(for f in "${files[@]}"; do basename "$f"; done)
+          gh release view "$tag" --json assets -q '.assets[].name' | while read -r a; do
+            echo "$new" | grep -qxF "$a" || gh release delete-asset "$tag" "$a" --yes || true
+          done
           gh release edit "$tag" --title "$title" --notes-file "$RUNNER_TEMP/notes.md"
