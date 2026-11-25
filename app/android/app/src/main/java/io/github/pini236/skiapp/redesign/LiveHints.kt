@@ -1,6 +1,5 @@
 package io.github.pini236.skiapp.redesign
 
-import androidx.compose.foundation.layout.absoluteOffset
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -109,7 +108,7 @@ internal fun BoxScope.RunHint(scene: MapScene, view: LiveView, night: Boolean, f
             val t = p.y - 23.dp.toPx() - 4.dp.toPx()
             drawPath(Path().apply { moveTo(p.x - 8.dp.toPx(), t - 12.dp.toPx()); lineTo(p.x + 8.dp.toPx(), t - 12.dp.toPx()); lineTo(p.x, t); close() }, ink)
         }
-        Text(text, Modifier.absoluteOffset { IntOffset(left.toInt(), (p.y - gap - bh).toInt()) }.widthIn(max = 230.dp)
+        Text(text, Modifier.atScreen { IntOffset(left.toInt(), (p.y - gap - bh).toInt()) }.widthIn(max = 230.dp)
             .onSizeChanged { bw = it.width; bh = it.height }
             .shadow(22.dp, RoundedCornerShape(16.dp), ambientColor = Color(0x4D0A192D), spotColor = Color(0x4D0A192D))
             .clip(RoundedCornerShape(16.dp)).background(ink)

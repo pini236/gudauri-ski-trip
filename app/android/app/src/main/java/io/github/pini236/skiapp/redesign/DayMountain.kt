@@ -1,6 +1,5 @@
 package io.github.pini236.skiapp.redesign
 
-import androidx.compose.foundation.layout.absoluteOffset
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -250,7 +249,7 @@ fun DayMountain(file: File, sample: Boolean, scene: MapScene, mode: DayNight.Mod
             val n = kobi.size
             val words = androidx.compose.ui.res.pluralStringResource(R.plurals.app_day_kobi_side, n, n)
             LaunchedEffect(n) { Qa.log("redesign day kobi tag $n") }
-            Text("$words ›", Modifier.absoluteOffset { androidx.compose.ui.unit.IntOffset(at.x.toInt() - 24.dp.roundToPx(), at.y.toInt() - 18.dp.roundToPx()) }
+            Text("$words ›", Modifier.atScreen { androidx.compose.ui.unit.IntOffset(at.x.toInt() - 24.dp.roundToPx(), at.y.toInt() - 18.dp.roundToPx()) }
                 .heightIn(min = 36.dp).clip(RoundedCornerShape(18.dp)).background(glass).border(1.dp, rule, RoundedCornerShape(18.dp))
                 .clickable(role = Role.Button) { haptics.tick(.3f); view.toKobi() }.padding(horizontal = 12.dp, vertical = 8.dp),
                 fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 13.sp, color = ink)

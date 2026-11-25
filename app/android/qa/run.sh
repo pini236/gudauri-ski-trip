@@ -1116,9 +1116,12 @@ rd_areas() { # rd_areas <prefix>
     shot "redesign-$1-$name"
     # the pins stand on the picture, which is never mirrored: in Hebrew too the ticket office (x 304 of 390) is on the
     # right half (Modifier.offset mirrored them, the review of 25.11)
+    # (the app logs where each pin really landed and where it was meant to be; a pin may slide to stay on the screen,
+    # never more than its own width, so 250 px apart is a pin on the wrong building)
     if [ "$name" = village ]; then
-      local pos; pos=$(where "קופת כרטיסים")
-      if [ -z "$pos" ]; then note "rd_areas: no ticket pin to check"; elif [ "${pos%% *}" -lt 540 ]; then fail "redesign: the village's pins are mirrored (tickets at ${pos%% *})"; fi
+      local bad; bad=$(tail -n +"$((MARK + 1))" "$OUT/logcat.txt" | sed -n 's/.*redesign village pin \(.*\) at \([0-9-]*\) of [0-9]* wanted \([0-9-]*\).*/\1|\2|\3/p' \
+        | awk -F'|' '{ d = $2 - $3; if (d < 0) d = -d; n++; if (d > 250) print $1 " at " $2 " wanted " $3 } END { if (!n) print "none" }')
+      if [ "$bad" = none ]; then fail "redesign: the village logged no pin"; elif [ -n "$bad" ]; then fail "redesign: a village pin is not on its place: $bad"; fi
     fi
     case "$close" in
       home) qa "--es qa.tab home"; sleep 2; mark; qa "--es qa.redesign open"; sleep 1; qa "--es qa.redesign live"; seen "redesign live drawn" 30; qa "--es qa.redesign season:off" ;;

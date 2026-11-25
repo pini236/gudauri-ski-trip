@@ -1,6 +1,5 @@
 package io.github.pini236.skiapp.redesign
 
-import androidx.compose.foundation.layout.absoluteOffset
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -379,7 +378,7 @@ internal fun RunTag(view: LiveView, scene: MapScene, key: String, title: String,
     // on the side with more room: right of the line's middle when it is in the left half, else left of it (measured width)
     var tagW by remember { mutableStateOf(0) }
     val left = if (p.x > w / 2f) p.x - dx - tagW else p.x + dx
-    Row(Modifier.onSizeChanged { tagW = it.width }.absoluteOffset { IntOffset(left.toInt(), (p.y - 11.dp.toPx()).toInt()) }
+    Row(Modifier.atScreen { IntOffset(left.toInt(), (p.y - 11.dp.toPx()).toInt()) }.onSizeChanged { tagW = it.width }
         .height(22.dp).clip(RoundedCornerShape(11.dp)).background(k.surf.copy(alpha = 1f)).border(1.dp, k.line, RoundedCornerShape(11.dp))
         .let { if (onTap != null) it.clickable(onClick = onTap) else it }.padding(horizontal = 8.dp),
         verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(5.dp)) {

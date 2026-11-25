@@ -27,7 +27,6 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.absoluteOffset
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -603,7 +602,7 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
             if (p.y < guardPx) continue
             val sk = remember(night) { SheetInk(night) }
             val closedSr = stringResource(R.string.app_sr_lift_closed, l.name)
-            Row(Modifier.absoluteOffset { androidx.compose.ui.unit.IntOffset((p.x - 40.dp.toPx()).toInt(), (p.y - 16.dp.toPx() - 22.dp.toPx()).toInt()) }
+            Row(Modifier.atScreen { androidx.compose.ui.unit.IntOffset((p.x - 40.dp.toPx()).toInt(), (p.y - 16.dp.toPx() - 22.dp.toPx()).toInt()) }
                 .heightIn(min = 44.dp).clickable { haptics.tick(.3f); liftSel = l; liftsOpen = true; Qa.log("redesign lift tag ${l.name}") }
                 // "Goodaura, closed." (the red dot is not read)
                 .clearAndSetSemantics { contentDescription = closedSr; onClick { liftSel = l; liftsOpen = true; true } },

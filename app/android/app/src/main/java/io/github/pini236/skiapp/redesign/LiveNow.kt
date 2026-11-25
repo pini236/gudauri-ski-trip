@@ -1,6 +1,5 @@
 package io.github.pini236.skiapp.redesign
 
-import androidx.compose.foundation.layout.absoluteOffset
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -239,7 +238,7 @@ internal fun BoxScope.TempTags(view: LiveView, w: WeatherNow, night: Boolean) {
     }
     val dens = LocalDensity.current
     for ((t, p) in at) {
-        Box(Modifier.absoluteOffset { IntOffset((p.x - with(dens) { 26.dp.toPx() }).toInt(), (p.y - with(dens) { 48.dp.toPx() }).toInt()) }
+        Box(Modifier.atScreen { IntOffset((p.x - with(dens) { 26.dp.toPx() }).toInt(), (p.y - with(dens) { 48.dp.toPx() }).toInt()) }
             .height(30.dp).shadow(6.dp, RoundedCornerShape(15.dp), clip = false).clip(RoundedCornerShape(15.dp)).background(k.surf.copy(alpha = 1f))
             .padding(horizontal = 11.dp), contentAlignment = Alignment.Center) {
             Text0(t, k.ink, 15f, FontWeight.Bold)
