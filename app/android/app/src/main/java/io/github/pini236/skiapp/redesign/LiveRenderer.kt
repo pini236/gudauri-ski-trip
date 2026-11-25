@@ -85,6 +85,35 @@ void main(){
   o=vec4(col,1.0);
 }"""
 
+// The ring of far ground past the height model (LiveRing, the architect's option a): snow and rock by the slope, lit
+// by the hour's sun, in the same haze as the mountain; no textures, no shadow, one draw
+private const val RING_VS = """#version 300 es
+layout(location=0) in vec3 aPos; layout(location=1) in vec3 aNor;
+uniform mat4 uMvp;
+out vec3 vPos; out vec3 vNor;
+void main(){ vPos=aPos; vNor=aNor; gl_Position=uMvp*vec4(aPos,1.0); }"""
+
+private const val RING_FS = """#version 300 es
+precision highp float;
+in vec3 vPos; in vec3 vNor;
+uniform vec3 uSun; uniform vec3 uLit; uniform vec3 uShade; uniform vec3 uRock; uniform vec3 uRockS; uniform vec3 uHor;
+uniform float uDirect; uniform vec3 uCam; uniform vec3 uHaze; uniform float uValley; uniform vec4 uDim;
+out vec4 o;
+void main(){
+  vec3 n=normalize(vNor);
+  float t=pow(max(dot(n,uSun),0.0)*uDirect+(1.0-uDirect)*0.55*n.y,0.85);
+  vec3 col=uShade*(0.86+0.14*n.y)+(uLit-uShade*0.86)*t;
+  float deg=degrees(acos(clamp(n.y,0.0,1.0)));
+  col=mix(col,mix(uRockS,uRock,t),smoothstep(30.0,42.0,deg)*0.8);
+  col=mix(col,uDim.rgb,uDim.a);
+  float d=length(vPos-uCam);
+  float far=uHaze.z*(1.0-exp(-max(d-uHaze.x,0.0)/uHaze.y));
+  float low=smoothstep(2300.0,1750.0,vPos.y)*uValley;
+  col=mix(col,uHor,clamp(far+low*(1.0-far),0.0,0.97));
+  col=clamp(col,0.0,1.0); col=col*col*(3.0-2.0*col)*0.55+col*0.45;
+  o=vec4(col,1.0);
+}"""
+
 private const val SKY_VS = """#version 300 es
 out vec2 vNdc;
 void main(){ vec2 p = vec2(gl_VertexID==1 ? 3.0 : -1.0, gl_VertexID==2 ? 3.0 : -1.0); vNdc = p; gl_Position = vec4(p, 0.9999, 1.0); }"""
@@ -327,8 +356,8 @@ class LiveRenderer(
     @Volatile private var shadowDirty = false
 
     override fun onSurfaceCreated(gl: GL10?, config: EGLConfig?) {
-        prog = program(VS, FS); skyProg = program(SKY_VS, SKY_FS); lineProg = program(LINE_VS, LINE_FS); dotProg = program(DOT_VS, DOT_FS)
-        uploaded = false; texOn = false; tex.fill(0); runs.clear(); lifts.clear(); dotCount = 0
+        prog = program(VS, FS); skyProg = program(SKY_VS, SKY_FS); ringProg = program(RING_VS, RING_FS); lineProg = program(LINE_VS, LINE_FS); dotProg = program(DOT_VS, DOT_FS)
+        uploaded = false; texOn = false; tex.fill(0); runs.clear(); lifts.clear(); dotCount = 0; ringOn = null; ringCount = 0
         drapeTex[0] = 0; drapeOn = null; groundTex[0] = 0; groundOn = null; chosenGpu = null; chosenGpuOf = null
         dayGpu = null; dayGpuOf = null; dayLogged = null
         lensGpu.clear(); lensGpuOf = null
@@ -347,6 +376,7 @@ class LiveRenderer(
         if (uploaded) { glDeleteBuffers(3, bufs, 0); glDeleteVertexArrays(1, vao, 0); glDeleteBuffers(2, dots, 0) }
         runs.forEach { it.second.free(); it.third.free() }; lifts.forEach { it.free() }; runs.clear(); lifts.clear(); liftNames.clear()
         lensGpu.values.forEach { it.free() }; lensGpu.clear(); lensGpuOf = null
+        if (ringCount > 0) { glDeleteBuffers(2, ringBufs, 0); glDeleteVertexArrays(1, ringVao, 0) }; ringCount = 0; ringOn = null
         if (texOn) glDeleteTextures(5, tex, 0)
         if (drapeTex[0] != 0) glDeleteTextures(1, drapeTex, 0)
         if (groundTex[0] != 0) glDeleteTextures(1, groundTex, 0)
@@ -355,8 +385,8 @@ class LiveRenderer(
         dayGpu?.let { it.first.free(); it.second.free() }; dayGpu = null; dayGpuOf = null; dayLogged = null
         drape?.recycle(); drape = null; ground = null
         tex.fill(0); texOn = false; uploaded = false; dotCount = 0
-        for (p in intArrayOf(prog, skyProg, lineProg, dotProg)) if (p != 0) glDeleteProgram(p)
-        prog = 0; skyProg = 0; lineProg = 0; dotProg = 0
+        for (p in intArrayOf(prog, skyProg, lineProg, dotProg, ringProg)) if (p != 0) glDeleteProgram(p)
+        prog = 0; skyProg = 0; lineProg = 0; dotProg = 0; ringProg = 0
     }
 
     override fun onSurfaceChanged(gl: GL10?, w: Int, h: Int) { width = w; height = h; glViewport(0, 0, w, h) }
@@ -377,6 +407,23 @@ class LiveRenderer(
         for (p in scene.pisteRibbons) runs += Triple(p.key, Gpu(p.casing), Gpu(p.core))
         for ((n, r) in scene.liftRibbons) { lifts += Gpu(r); liftNames += n }
         uploaded = true
+    }
+
+    /** The far ground (LiveRing), set by LiveView once it is built off the GL thread; null until then (or never). */
+    @Volatile var ring: LiveRing? = null
+    @Volatile var ringShown = true
+    private var ringProg = 0; private val ringVao = IntArray(1); private val ringBufs = IntArray(2)
+    private var ringOn: LiveRing? = null; private var ringCount = 0
+
+    private fun uploadRing(r: LiveRing) {
+        if (ringCount > 0) { glDeleteBuffers(2, ringBufs, 0); glDeleteVertexArrays(1, ringVao, 0) }
+        glGenVertexArrays(1, ringVao, 0); glBindVertexArray(ringVao[0])
+        glGenBuffers(2, ringBufs, 0)
+        glBindBuffer(GL_ARRAY_BUFFER, ringBufs[0]); glBufferData(GL_ARRAY_BUFFER, r.vertices.size * 4, floats(r.vertices), GL_STATIC_DRAW)
+        attr(0, 3, LiveRing.STRIDE * 4, 0); attr(1, 3, LiveRing.STRIDE * 4, 12)
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ringBufs[1]); glBufferData(GL_ELEMENT_ARRAY_BUFFER, r.indices.size * 4, ints(r.indices), GL_STATIC_DRAW)
+        glBindVertexArray(0)
+        ringOn = r; ringCount = r.indices.size
     }
 
     private fun uploadVillage(v: FloatArray) {
@@ -533,6 +580,20 @@ class LiveRenderer(
         else glUniform4f(u(prog, "uDim"), 54f / 255, 78f / 255, 128f / 255, .42f * dim)
         glBindVertexArray(vao[0]); glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, 0)
         glActiveTexture(GL_TEXTURE0)
+        // the far ground past the model's edge, after it (its middle lies under the mesh): one draw, no textures
+        ring?.let { r -> if (r !== ringOn) uploadRing(r) }
+        if (ringCount > 0 && ringShown) {
+            glUseProgram(ringProg)
+            glUniformMatrix4fv(u(ringProg, "uMvp"), 1, false, mvp, 0)
+            glUniform3fv(u(ringProg, "uSun"), 1, L.dir, 0)
+            glUniform3fv(u(ringProg, "uLit"), 1, L.lit, 0); glUniform3fv(u(ringProg, "uShade"), 1, L.shade, 0)
+            glUniform3fv(u(ringProg, "uRock"), 1, L.rock, 0); glUniform3fv(u(ringProg, "uRockS"), 1, L.rockS, 0); glUniform3fv(u(ringProg, "uHor"), 1, L.hor, 0)
+            glUniform1f(u(ringProg, "uDirect"), L.direct); glUniform3fv(u(ringProg, "uCam"), 1, eye, 0)
+            glUniform3f(u(ringProg, "uHaze"), D.haze[0] * s.dist, D.haze[1] * s.dist, D.haze[2]); glUniform1f(u(ringProg, "uValley"), D.valley)
+            if (night) glUniform4f(u(ringProg, "uDim"), 2f / 255, 6f / 255, 18f / 255, .62f * dim)
+            else glUniform4f(u(ringProg, "uDim"), 54f / 255, 78f / 255, 128f / 255, .42f * dim)
+            glBindVertexArray(ringVao[0]); glDrawElements(GL_TRIANGLES, ringCount, GL_UNSIGNED_INT, 0)
+        }
 
         // the live layer: the runs (a white case and the colour), the lifts' cables, the chosen run as light
         val p = pal

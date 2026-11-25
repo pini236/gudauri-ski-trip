@@ -178,6 +178,15 @@ class LiveView(context: Context, private val scene: MapScene) : GLSurfaceView(co
             }.getOrNull() ?: return@execute
             renderer.drape = b; requestRender(); Qa.log("redesign live drape ready")
         }
+        // the far ground past the model's edge (LiveRing, the architect's option a); without it the model as it was
+        worker.execute {
+            val r = runCatching {
+                val j = org.json.JSONObject(context.assets.open(LiveData.DIR + "ring.json").bufferedReader().use { it.readText() })
+                val t = scene.terrain
+                LiveRing.build(j, t.x0, t.y0, t.x1, t.y1, t::elev)
+            }.onFailure { Qa.log("redesign ring failed ${it.javaClass.simpleName}") }.getOrNull() ?: return@execute
+            renderer.ring = r; requestRender(); Qa.log("redesign ring ready ${r.triangles}")
+        }
         // the opening: the designer's camera (peak-live.json), looking north the way the picture looks (LiveOpen):
         // a little further and lower first, then a slow approach
         val open = front()
@@ -347,6 +356,8 @@ class LiveView(context: Context, private val scene: MapScene) : GLSurfaceView(co
     /** The shelf's and the station's light (K06, K07), or null. */
     fun setFocus(f: LiveRenderer.Focus?) { renderer.focus = f; requestRender() }
     /** The mountain raised on the screen by [px] (K06, K07: 120 points), the view's direction and distance kept. */
+    /** The emulator's switch for the far ground (qa.redesign ring:off / ring:on), to measure the frames with and without it. */
+    fun showRing(on: Boolean) { renderer.ringShown = on; requestRender(); Qa.log("redesign ring ${if (on) "on" else "off"}") }
     fun setShift(px: Float) { if (renderer.shiftPx != px) { renderer.shiftPx = px; requestRender() } }
     val shiftPx: Float get() = renderer.shiftPx
     /** The runs and lifts quiet ([a] of their opacity) under the meeting point. */
@@ -870,7 +881,7 @@ class LiveView(context: Context, private val scene: MapScene) : GLSurfaceView(co
         val s0 = camera.state().let { it.copy(pitch = it.pitch.coerceAtLeast(LiveLimits.FRAME_PITCH)) }
         val fit = frameBox(b, s0)
         val vf = tan(Math.toRadians(data.camera.fovDeg / 2.0)).toFloat()
-        val dist = (fit.dist / (bottom - top).coerceIn(.2f, 1f)).coerceIn(1400f, 12000f)
+        val dist = (fit.dist / (bottom - top).coerceIn(.2f, 1f)).coerceIn(1400f, LiveLimits.MAX_DIST)
         // the part's middle, where the box goes, in the view before the raise; up from the screen's middle by
         // (1 - 2c) of the half height: the target lowered along the screen's up
         val c = (top + bottom) / 2f + shift / height.coerceAtLeast(1)
@@ -900,7 +911,7 @@ class LiveView(context: Context, private val scene: MapScene) : GLSurfaceView(co
         val r = hypot(b[2] - b[0], b[3] - b[1]) / 2
         val vf = Math.toRadians(data.camera.fovDeg / 2.0)
         val hf = atan(tan(vf) * width.toFloat().coerceAtLeast(1f) / height.coerceAtLeast(1))
-        val dist = (r / tan(minOf(vf, hf)) * 1.1).toFloat().coerceIn(1400f, 12000f)
+        val dist = (r / tan(minOf(vf, hf)) * 1.1).toFloat().coerceIn(1400f, LiveLimits.MAX_DIST)
         return s.copy(tx = cx, ty = scene.terrain.elev(cx, cz), tz = cz, dist = dist)
     }
 
@@ -997,7 +1008,8 @@ object LiveOpen {
  */
 internal object LiveLimits {
     const val MIN_DIST = 600f
-    const val MAX_DIST = 12500f
+    /** 10 km (the architect, 25.11.2026: never under 7.5; the opening is 6.6, the Kobi side 5.7), with the far ground round it. */
+    const val MAX_DIST = 10000f
     /** The screen's top part a chosen run is framed in (the low sheet takes the rest), and the least tilt it is seen at. */
     const val CHOSEN_FREE = .6f
     const val FRAME_PITCH = .5f

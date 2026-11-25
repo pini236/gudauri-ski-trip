@@ -1306,6 +1306,16 @@ redesign() {
   mark; qa "--es qa.redesign hour:7.2"; waitlog "redesign live hour" 10
   mark; qa "--es qa.redesign far"; waitlog "redesign live far" 10 && { rd_drawn; shot redesign-far-dawn; }
   mark; qa "--es qa.redesign hour:12"; waitlog "redesign live hour" 10; rd_drawn; shot redesign-far-noon
+  # the frames with the far ground and without it (the architect's condition 7: relative, the emulator draws in software):
+  # a slow turn for 5 s on each, counted from the mountain drawn again; noted, not a failure
+  for rg in on off; do
+    mark; qa "--es qa.redesign ring:$rg"; waitlog "redesign ring $rg" 10; seen "redesign live drawn" 8
+    adb shell dumpsys gfxinfo "$PKG" reset > /dev/null 2>&1
+    adb shell input swipe $((W * 3 / 10)) $((H / 3)) $((W * 7 / 10)) $((H / 3)) 5000
+    gfx=$(adb shell dumpsys gfxinfo "$PKG" 2>/dev/null | tr -d '\r')
+    note "ring $rg frames: $(sed -n 's/^Total frames rendered: //p' <<<"$gfx" | head -1) rendered, 50th $(sed -n 's/^50th percentile: //p' <<<"$gfx" | head -1), 90th $(sed -n 's/^90th percentile: //p' <<<"$gfx" | head -1), 99th $(sed -n 's/^99th percentile: //p' <<<"$gfx" | head -1)"
+  done
+  mark; qa "--es qa.redesign ring:on"; waitlog "redesign ring on" 10
   mark; qa "--es qa.redesign hour:off"; qa "--es qa.redesign front"; waitlog "redesign live turned" 20
   # part 4b (K08): the lenses, at noon (the sun) with a fresh report (open), and easy to hard; the sun as the suite has it (no sun: the sheet says so)
   mark; qa "--es qa.status fresh --es qa.redesign lens:sun"
@@ -1349,7 +1359,18 @@ redesign3() {
   mark; qa "--es qa.redesign meet"; waitlog "redesign meet where" 10 || fail "redesign: the meeting point did not open"
   rd_settled; shot redesign-meet-where
   # a real touch on a pin, not a command (ק10 of the review of 25.11): its tappable place is 44 and reads its station's name
-  local pin; pin=$(where "~Goodaura")
+  # a pin above the sheet (under it the sheet takes the touch): the first one in the screen's top half
+  local pin; uidump; pin=$(python3 - "$OUT/ui.xml" "$H" <<'PY'
+import re, sys
+import xml.etree.ElementTree as ET
+h = int(sys.argv[2])
+for n in ET.parse(sys.argv[1]).iter("node"):
+    d = n.get("content-desc") or ""; b = re.match(r"\[(\d+),(\d+)\]\[(\d+),(\d+)\]", n.get("bounds") or "")
+    if not b or n.get("clickable") != "true" or not re.search(r"Goodaura|Kudebi|Sadzele|Tatra|Soliko|Pirveli", d): continue
+    x0, y0, x1, y1 = map(int, b.groups())
+    if x1 - x0 < 200 and 250 < (y0 + y1) // 2 < h * 0.5: print((x0 + x1) // 2, (y0 + y1) // 2); break
+PY
+)
   if [ -z "$pin" ]; then fail "redesign: no station pin to touch"; else
     mark; adb shell input tap $pin
     waitlog "redesign meet set" 10 || fail "redesign: a touch on the pin did not set a meeting ($pin)"
