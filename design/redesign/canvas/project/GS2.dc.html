@@ -254,6 +254,51 @@ body{margin:0}
 .H .gst span{font-size:15px;line-height:1.4;color:var(--ink)}
 .H .recp2{position:absolute;top:52px;left:12px;right:12px;height:44px;border-radius:22px;display:flex;align-items:center;gap:9px;padding:0 14px;box-sizing:border-box;font-size:14.5px;font-weight:500;white-space:nowrap}
 .H .recp2 .tmr{margin-inline-start:auto}
+
+.H .rbw2{height:44px;border-radius:22px;background:#E5352B;color:#fff;display:flex;align-items:center;gap:8px;padding:0 15px 0 13px;font-size:15px;font-weight:700;border:0;flex:none;white-space:nowrap}
+.H .rbw2 i{width:12px;height:12px;border-radius:50%;background:#fff;flex:none}
+.H .rbw2.live i{animation:gsl 1.6s ease-in-out infinite;box-shadow:0 0 0 4px rgba(255,255,255,.35)}
+.H .rbw2 .tm{font-variant-numeric:tabular-nums;direction:ltr;font-weight:500}
+.H .tip{position:absolute;inset-inline-end:10px;bottom:84px;width:262px;border-radius:16px;background:var(--ink);color:var(--bg);padding:11px 14px 12px;box-sizing:border-box;font-size:14px;line-height:1.4;box-shadow:0 8px 22px rgba(10,25,45,.3)}
+.H .tip b{display:block;font-size:15.5px;margin-bottom:3px}
+.H .tip::after{content:'';position:absolute;bottom:-6px;inset-inline-end:var(--ax,28px);width:12px;height:12px;background:var(--ink);transform:rotate(45deg)}
+
+.H .seg{display:inline-flex;height:36px;border-radius:18px;border:1px solid var(--line);background:var(--glass);padding:3px;gap:2px;flex:none;box-sizing:border-box}
+.H .seg span{display:inline-flex;align-items:center;gap:6px;padding:0 12px;border-radius:15px;font-size:13px;font-weight:500;white-space:nowrap}
+.H .seg span.on{background:var(--ink);color:var(--bg);font-weight:700}
+.H .vbar{width:1px;height:24px;background:var(--line);flex:none;align-self:center}
+.H .rhint{position:absolute;left:12px;right:12px;top:106px;border-radius:22px;display:flex;align-items:center;gap:10px;padding:8px 8px 8px 14px;box-sizing:border-box;font-size:14px;line-height:1.35}
+.H .rhint button{height:36px;border-radius:18px;padding:0 14px;font-size:13.5px;font-weight:700;background:var(--ink);color:var(--bg);border:0;flex:none;margin-inline-start:auto}
+.H .live{position:absolute;left:0;top:0;width:390px;height:844px}
+.H .ltag{position:absolute;top:106px;right:12px;height:30px;border-radius:15px;padding:0 12px;display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:700}
+
+.H .msw{width:44px;border-radius:22px;display:flex;flex-direction:column;overflow:hidden;padding:0}
+.H .msw span{width:44px;height:44px;display:flex;align-items:center;justify-content:center;border-radius:22px;color:var(--ink)}
+.H .msw span.on{background:var(--ink);color:var(--bg)}
+.H .livei{position:absolute;left:0;top:0;width:390px;height:844px}
+
+@keyframes prg{0%{transform:translate(-50%,-50%) scale(.3);opacity:.9}100%{transform:translate(-50%,-50%) scale(1);opacity:0}}
+.H .pr{position:absolute;width:150px;height:150px;border-radius:50%;border:2px solid rgba(255,255,255,.95);box-shadow:0 0 16px rgba(255,255,255,.6);transform:translate(-50%,-50%) scale(.3);animation:prg 3.2s ease-out infinite;opacity:0}
+.H .pr.b{animation-delay:1.6s}
+.H .pr.slow{animation-duration:6s}.H .pr.slow.b{animation-delay:3s}
+.H .night .pr{border-color:rgba(176,206,255,.9);box-shadow:0 0 18px rgba(120,170,255,.5)}
+.H .gme{position:absolute;width:18px;height:18px;border-radius:50%;transform:translate(-50%,-50%);background:#2F7BFF;border:3px solid #fff;box-shadow:0 0 0 6px rgba(47,123,255,.28),0 2px 8px rgba(0,0,0,.35)}
+.H .stc{position:absolute;left:12px;right:12px;top:154px;border-radius:22px;padding:12px 16px;box-sizing:border-box;display:flex;align-items:center;gap:12px}
+.H .stc .w{display:flex;flex-direction:column;gap:2px;min-width:0;flex:1}
+.H .stc .w b{font-size:21px;font-weight:700;line-height:1.2}
+.H .stc .w span{font-size:14px;color:var(--ink2)}
+.H .stc .big{font-size:34px;font-weight:300;white-space:nowrap;font-variant-numeric:tabular-nums;line-height:1}
+.H .sofar{position:absolute;left:12px;right:12px;bottom:90px;border-radius:22px;padding:12px 18px;box-sizing:border-box;display:flex;gap:6px;justify-content:space-between}
+.H .sofar .c{display:flex;flex-direction:column;gap:2px;align-items:flex-start}
+.H .sofar .r4{display:flex;flex-direction:row;gap:22px;align-items:flex-end}
+.H .sofar .num{font-size:26px}
+.H .gauge{position:absolute;left:50%;bottom:92px;width:236px;height:236px;transform:translateX(-50%)}
+.H .gauge .in{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px}
+.H .gauge .v{display:flex;align-items:baseline;gap:6px;direction:ltr}
+.H .gauge .v b{font-size:92px;font-weight:300;line-height:.85;letter-spacing:-.04em;font-variant-numeric:tabular-nums}
+.H .gauge .v span{font-size:17px;font-weight:700;color:var(--ink2)}
+.H .gauge .rn{display:flex;align-items:center;gap:7px;font-size:16px;font-weight:700}
+.H .gauge .disc{position:absolute;inset:22px;border-radius:50%}
 </style>
 </helmet>
 <div class="H" style="width: 390px; height: 844px; position: relative; overflow: hidden">
