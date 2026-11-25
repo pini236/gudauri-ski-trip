@@ -211,10 +211,16 @@ private fun Pin(text: String, at: Offset, k: SheetInk, night: Boolean, onTap: ((
     val fg = if (night) Color(0xFF0F1828) else Color.White
     var w by remember { mutableStateOf(0) }
     val dens = LocalDensity.current
+    // the tag stays whole on the screen (the review of 24.11, ק3: "food and drink" was 18 dp wide at the edge); the stem
+    // keeps its place, so the tag slides along it
+    val screenW = with(dens) { androidx.compose.ui.platform.LocalConfiguration.current.screenWidthDp.dp.toPx() }
+    val edge = with(dens) { 8.dp.toPx() }
+    val shift = PinRules.slide(at.x, w.toFloat(), screenW, edge)
     Column(Modifier.offset { IntOffset((at.x - w / 2f).toInt(), (at.y - with(dens) { 34.dp.toPx() }).toInt()) }
-        .onSizeChanged { w = it.width }.let { if (onTap != null) it.semantics { role = Role.Button }.clickable(onClick = onTap) else it },
+        .onSizeChanged { w = it.width },
         horizontalAlignment = Alignment.CenterHorizontally) {
-        Box(Modifier.height(24.dp).clip(RoundedCornerShape(12.dp)).background(bg).padding(horizontal = 9.dp), contentAlignment = Alignment.Center) {
+        Box(Modifier.offset { IntOffset(shift.toInt(), 0) }.let { if (onTap != null) it.semantics { role = Role.Button }.clickable(onClick = onTap) else it }
+            .height(24.dp).clip(RoundedCornerShape(12.dp)).background(bg).padding(horizontal = 9.dp), contentAlignment = Alignment.Center) {
             Text(text, fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 11.5.sp, color = fg, maxLines = 1)
         }
         Box(Modifier.size(2.dp, 10.dp).background(bg))
@@ -312,5 +318,15 @@ private fun VRow(title: String, end: String, k: SheetInk, onClick: (() -> Unit)?
                 textAlign = androidx.compose.ui.text.style.TextAlign.End)
         }
         Box(Modifier.fillMaxWidth().height(1.dp).background(k.line))
+    }
+}
+
+
+/** How far a village tag of width [w] slides so it stays inside [edge] of a screen [screenW] wide, centred on [x]. */
+internal object PinRules {
+    fun slide(x: Float, w: Float, screenW: Float, edge: Float): Float {
+        if (w <= 0f || w + 2 * edge > screenW) return 0f
+        val left = x - w / 2f; val right = x + w / 2f
+        return when { left < edge -> edge - left; right > screenW - edge -> (screenW - edge) - right; else -> 0f }
     }
 }

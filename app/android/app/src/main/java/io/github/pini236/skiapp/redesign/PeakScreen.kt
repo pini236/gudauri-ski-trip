@@ -676,11 +676,18 @@ private fun DrawScope.labels(v: PeakData.View, pl: Place, night: Boolean, a: Flo
     val sc = pl.k / pinch / density   // the label sizes are in picture points at the unpinched size: a pinch does not grow them
     val name = TextStyle(fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = (11.5f * sc).sp, color = ink)
     val sub = TextStyle(fontFamily = Gudi, fontSize = (10.5f * sc).sp, color = ink)
+    // never one name over another (the review of 24.11, ק3: "Gondola Tickets" over the Georgian name on the village):
+    // the data's order wins, and a name that would touch one already drawn is left out
+    val taken = ArrayList<androidx.compose.ui.geometry.Rect>()
     for (l in v.labels) {
         val q = pl.on(Offset(l.x, l.y))
         val t1 = measurer.measure(l.t, name)
         val t2 = l.sub?.let { measurer.measure(unitM.replace("\u0000", nf.format(it)), sub) }
         val hgt = t1.size.height + (t2?.size?.height ?: 0)
+        val wid = maxOf(t1.size.width, t2?.size?.width ?: 0)
+        val box = androidx.compose.ui.geometry.Rect(q.x - wid / 2f, q.y - hgt / 2f, q.x + wid / 2f, q.y + hgt / 2f).inflate(2f * sc)
+        if (LabelRules.clashes(box, taken)) continue
+        taken += box
         var y = q.y - hgt / 2f
         for (t in listOfNotNull(t1, t2)) {
             val tl = Offset(q.x - t.size.width / 2f, y)
@@ -808,4 +815,10 @@ internal fun Num(v: String, cap: String, g: Glass) {
         }, fontFamily = Gudi, fontSize = 34.sp, lineHeight = 38.sp, color = g.ink, maxLines = 1)
         Text(cap, fontFamily = Gudi, fontSize = 12.5.sp, color = g.ink2)
     }
+}
+
+
+/** The picture's names never on one another (ק3): a box clashes when it overlaps any box already placed. */
+internal object LabelRules {
+    fun clashes(box: androidx.compose.ui.geometry.Rect, taken: List<androidx.compose.ui.geometry.Rect>) = taken.any { it.overlaps(box) }
 }
